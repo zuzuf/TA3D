@@ -1,0 +1,789 @@
+[window]
+{
+	title=Options;
+	uformat=UTF8;
+	x=0;
+	y=0;
+	width=640;
+	height=480;
+	draw borders=false;
+	show title=false;
+	number of objects=70;
+	hidden=false;
+	lock=true;
+	color=0x00000000;			// Fully transparent so we can see the AREA background
+	background window=true;
+	fullscreen=true;			// Scale the window to fit the screen
+	[object0]		//	Transparent background
+	{
+		name=bckgrnd0;
+		type=BOX;
+		x1=10;
+		y1=25;
+		x2=630;
+		y2=470;
+		value=0x7F000000;
+		fill=true;
+	}
+	[object1]		//	Border
+	{
+		name=bckgrnd1;
+		type=BOX;
+		x1=10;
+		y1=25;
+		x2=630;
+		y2=470;
+		value=0x7FFFFFFF;
+	}
+	[object2]		// OK
+	{
+		name=b_ok;
+		type=BUTTON;
+		caption=OK;
+		x1=387;
+		y1=432;
+		x2=467;
+		y2=456;
+		size=1;
+	}
+	[object3]		// Cancel
+	{
+		name=b_cancel;
+		type=BUTTON;
+		caption=cancel;
+		x1=173;
+		y1=432;
+		x2=253;
+		y2=456;
+		size=1;
+	}
+	[object4]		// Title
+	{
+		name=b_title;
+		type=TEXT;
+		caption=Options;
+		x1=320;
+		y1=4;
+		value=0xFFFFFFFF;
+		centered=true;
+		size=1;
+	}
+	[object5]		// Option "showfps"
+	{
+		name=t_showfps;
+		type=TEXT;
+		caption=show fps;
+		x1=32;
+		y1=48;
+		value=0xFFFFFFFF;
+		size=1;
+	}
+	[object6]		// Option "showfps"
+	{
+		name=showfps;
+		type=OPTIONC;
+		caption=;
+		x1=592;
+		y1=52;
+		value=0;
+		size=1;
+	}
+	[object7]		// Option "showfps"
+	{
+		name=box_showfps;
+		type=BOX;
+		x1=32;
+		y1=48;
+		x2=608;
+		y2=63;
+		value=0x0;
+		size=1;
+		highlight=true;
+	}
+	[object8]		// Option "fps_limit"
+	{
+		name=t_fps_limit;
+		type=TEXT;
+		caption=fps limit;
+		x1=32;
+		y1=64;
+		value=0xFFFFFFFF;
+		size=1;
+	}
+	[object9]		// Option "fps_limit"
+	{
+		name=fps_limit;
+		type=MENU;
+		entry=,50,60,70,80,90,100,no limit;
+		x1=528;
+		y1=64;
+		x2=600;
+		y2=80;
+		value=0;
+		size=1;
+	}
+	[object10]		// Option "fps_limit"
+	{
+		name=box_fps_limit;
+		type=BOX;
+		x1=32;
+		y1=64;
+		x2=608;
+		y2=79;
+		value=0x0;
+		size=1;
+		highlight=true;
+	}
+	[object11]		// Option "wireframe"
+	{
+		name=t_wireframe;
+		type=TEXT;
+		caption=wireframe;
+		x1=32;
+		y1=80;
+		value=0xFFFFFFFF;
+		size=1;
+	}
+	[object12]		// Option "wireframe"
+	{
+		name=wireframe;
+		type=OPTIONC;
+		caption=;
+		x1=592;
+		y1=84;
+		value=0;
+		size=1;
+	}
+	[object13]		// Option "wireframe"
+	{
+		name=box_wireframe;
+		type=BOX;
+		x1=32;
+		y1=80;
+		x2=608;
+		y2=95;
+		value=0x0;
+		size=1;
+		highlight=true;
+	}
+	[object14]		// Option "particle"
+	{
+		name=t_particle;
+		type=TEXT;
+		caption=particles;
+		x1=32;
+		y1=96;
+		value=0xFFFFFFFF;
+		size=1;
+	}
+	[object15]		// Option "particle"
+	{
+		name=particle;
+		type=OPTIONC;
+		caption=;
+		x1=592;
+		y1=100;
+		value=0;
+		size=1;
+	}
+	[object16]		// Option "particle"
+	{
+		name=box_particle;
+		type=BOX;
+		x1=32;
+		y1=96;
+		x2=608;
+		y2=111;
+		value=0x0;
+		size=1;
+		highlight=true;
+	}
+	[object17]		// Option "waves"
+	{
+		name=t_waves;
+		type=TEXT;
+		caption=waves;
+		x1=32;
+		y1=112;
+		value=0xFFFFFFFF;
+		size=1;
+	}
+	[object18]		// Option "waves"
+	{
+		name=waves;
+		type=OPTIONC;
+		caption=;
+		x1=592;
+		y1=116;
+		value=0;
+		size=1;
+	}
+	[object19]		// Option "waves"
+	{
+		name=box_waves;
+		type=BOX;
+		x1=32;
+		y1=112;
+		x2=608;
+		y2=127;
+		value=0x0;
+		size=1;
+		highlight=true;
+	}
+	[object20]		// Option "shadow"
+	{
+		name=t_shadow;
+		type=TEXT;
+		caption=shadows;
+		x1=32;
+		y1=128;
+		value=0xFFFFFFFF;
+		size=1;
+	}
+	[object21]		// Option "shadow"
+	{
+		name=shadow;
+		type=OPTIONC;
+		caption=;
+		x1=592;
+		y1=132;
+		value=0;
+		size=1;
+	}
+	[object22]		// Option "shadow"
+	{
+		name=box_shadow;
+		type=BOX;
+		x1=32;
+		y1=128;
+		x2=608;
+		y2=143;
+		value=0x0;
+		size=1;
+		highlight=true;
+	}
+	[object23]		// Option "height_line"
+	{
+		name=t_height_line;
+		type=TEXT;
+		caption=height line;
+		x1=32;
+		y1=144;
+		value=0xFFFFFFFF;
+		size=1;
+	}
+	[object24]		// Option "height_line"
+	{
+		name=height_line;
+		type=OPTIONC;
+		caption=;
+		x1=592;
+		y1=148;
+		value=0;
+		size=1;
+	}
+	[object25]		// Option "height_line"
+	{
+		name=box_height_line;
+		type=BOX;
+		x1=32;
+		y1=144;
+		x2=608;
+		y2=159;
+		value=0x0;
+		size=1;
+		highlight=true;
+	}
+	[object26]		// Option "detail_tex"
+	{
+		name=t_detail_tex;
+		type=TEXT;
+		caption=detail texture;
+		x1=32;
+		y1=160;
+		value=0xFFFFFFFF;
+		size=1;
+	}
+	[object27]		// Option "detail_tex"
+	{
+		name=detail_tex;
+		type=OPTIONC;
+		caption=;
+		x1=592;
+		y1=164;
+		value=0;
+		size=1;
+	}
+	[object28]		// Option "detail_tex"
+	{
+		name=box_detail_tex;
+		type=BOX;
+		x1=32;
+		y1=160;
+		x2=608;
+		y2=175;
+		value=0x0;
+		size=1;
+		highlight=true;
+	}
+	[object29]		// Option "draw_console_loading"
+	{
+		name=t_draw_console_loading;
+		type=TEXT;
+		caption=draw console while loading;
+		x1=32;
+		y1=176;
+		value=0xFFFFFFFF;
+		size=1;
+	}
+	[object30]		// Option "draw_console_loading"
+	{
+		name=draw_console_loading;
+		type=OPTIONC;
+		caption=;
+		x1=592;
+		y1=180;
+		value=0;
+		size=1;
+	}
+	[object31]		// Option "draw_console_loading"
+	{
+		name=box_draw_console_loading;
+		type=BOX;
+		x1=32;
+		y1=176;
+		x2=608;
+		y2=191;
+		value=0x0;
+		size=1;
+		highlight=true;
+	}
+	[object32]		// Option "fullscreen"
+	{
+		name=t_fullscreen;
+		type=TEXT;
+		caption=full screen;
+		x1=32;
+		y1=192;
+		value=0xFFFFFFFF;
+		size=1;
+	}
+	[object33]		// Option "fullscreen"
+	{
+		name=fullscreen;
+		type=OPTIONC;
+		caption=;
+		x1=592;
+		y1=196;
+		value=0;
+		size=1;
+	}
+	[object34]		// Option "fullscreen"
+	{
+		name=box_fullscreen;
+		type=BOX;
+		x1=32;
+		y1=192;
+		x2=608;
+		y2=207;
+		value=0x0;
+		size=1;
+		highlight=true;
+	}
+	[object35]		// Option "LANG"
+	{
+		name=t_LANG;
+		type=TEXT;
+		caption=language;
+		x1=32;
+		y1=208;
+		value=0xFFFFFFFF;
+		size=1;
+	}
+	[object51]		// Option "LANG"
+	{
+		name=LANG;
+		type=MENU;
+		entry=,English,French,German,Spanish,Italian,Japanese;
+		x1=528;
+		y1=208;
+		x2=600;
+		y2=224;
+		value=0;
+		size=1;
+	}
+	[object37]		// Option "LANG"
+	{
+		name=box_LANG;
+		type=BOX;
+		x1=32;
+		y1=208;
+		x2=608;
+		y2=223;
+		value=0x0;
+		size=1;
+		highlight=true;
+	}
+	[object38]		// Option "screenres"
+	{
+		name=t_screenres;
+		type=TEXT;
+		caption=screen;
+		x1=32;
+		y1=224;
+		value=0xFFFFFFFF;
+		size=1;
+	}
+	[object48]		// Option "screenres"
+	{
+		name=screenres;
+		type=MENU;
+		entry=,800x600;
+		x1=528;
+		y1=224;
+		x2=600;
+		y2=240;
+		value=0;
+		size=1;
+	}
+	[object40]		// Option "screenres"
+	{
+		name=box_screenres;
+		type=BOX;
+		x1=32;
+		y1=224;
+		x2=608;
+		y2=239;
+		value=0x0;
+		size=1;
+		highlight=true;
+	}
+	[object41]		// Option "shadow_quality"
+	{
+		name=t_shadow_quality;
+		type=TEXT;
+		caption=shadow quality;
+		x1=32;
+		y1=240;
+		value=0xFFFFFFFF;
+		size=1;
+	}
+	[object45]		// Option "shadow_quality"
+	{
+		name=shadow_quality;
+		type=MENU;
+		entry=,normal,high,higher;
+		x1=528;
+		y1=240;
+		x2=600;
+		y2=256;
+		value=0;
+		size=1;
+	}
+	[object43]		// Option "shadow_quality"
+	{
+		name=box_shadow_quality;
+		type=BOX;
+		x1=32;
+		y1=240;
+		x2=608;
+		y2=255;
+		value=0x0;
+		size=1;
+		highlight=true;
+	}
+	[object44]		// Option "timefactor"
+	{
+		name=t_timefactor;
+		type=TEXT;
+		caption=game speed;
+		x1=32;
+		y1=256;
+		value=0xFFFFFFFF;
+		size=1;
+	}
+	[object42]		// Option "timefactor"
+	{
+		name=timefactor;
+		type=MENU;
+		entry=,1,2,3,4,5,6,7,8,9,10;
+		x1=528;
+		y1=256;
+		x2=600;
+		y2=272;
+		value=0;
+		size=1;
+	}
+	[object46]		// Option "timefactor"
+	{
+		name=box_timefactor;
+		type=BOX;
+		x1=32;
+		y1=256;
+		x2=608;
+		y2=271;
+		value=0x0;
+		size=1;
+		highlight=true;
+	}
+	[object47]		// Option "fsaa"
+	{
+		name=t_fsaa;
+		type=TEXT;
+		caption=antialiasing;
+		x1=32;
+		y1=272;
+		value=0xFFFFFFFF;
+		size=1;
+	}
+	[object39]		// Option "fsaa"
+	{
+		name=fsaa;
+		type=MENU;
+		entry=,no fsaa,x2,x4,x6,x8;
+		x1=528;
+		y1=272;
+		x2=600;
+		y2=288;
+		value=0;
+		size=1;
+	}
+	[object49]		// Option "fsaa"
+	{
+		name=box_timefactor;
+		type=BOX;
+		x1=32;
+		y1=272;
+		x2=608;
+		y2=287;
+		value=0x0;
+		size=1;
+		highlight=true;
+	}
+	[object50]		// Option "water_quality"
+	{
+		name=t_water_quality;
+		type=TEXT;
+		caption=water quality;
+		x1=32;
+		y1=288;
+		value=0xFFFFFFFF;
+		size=1;
+	}
+	[object36]		// Option "water_quality"
+	{
+		name=water_quality;
+		type=MENU;
+		entry=,low,normal,high,ultra high,extreme;
+		x1=528;
+		y1=288;
+		x2=600;
+		y2=304;
+		value=0;
+		size=1;
+	}
+	[object52]		// Option "water_quality"
+	{
+		name=box_timefactor;
+		type=BOX;
+		x1=32;
+		y1=288;
+		x2=608;
+		y2=303;
+		value=0x0;
+		size=1;
+		highlight=true;
+	}
+	[object53]		// Option "mod"
+	{
+		name=t_mod;
+		type=TEXT;
+		caption=current mod;
+		x1=32;
+		y1=304;
+		value=0xFFFFFFFF;
+		size=1;
+	}
+	[object54]		// Option "mod"
+	{
+		name=mod;
+		type=MENU;
+		entry=,none;
+		x1=420;
+		y1=304;
+		x2=600;
+		y2=320;
+		value=0;
+		size=1;
+	}
+	[object55]		// Option "mod"
+	{
+		name=box_mod;
+		type=BOX;
+		x1=32;
+		y1=304;
+		x2=608;
+		y2=320;
+		value=0x0;
+		size=1;
+		highlight=true;
+	}
+	[object56]		// Option "player_name"
+	{
+		name=t_player_name;
+		type=TEXT;
+		caption=player name;
+		x1=32;
+		y1=320;
+		value=0xFFFFFFFF;
+		size=1;
+	}
+	[object57]		// Option "player_name"
+	{
+		name=player_name;
+		type=TEXTBAR;
+		entry=player;
+		x1=420;
+		y1=320;
+		x2=600;
+		y2=340;
+		value=30;
+		size=1;
+	}
+	[object58]		// Option "camera_zoom"
+	{
+		name=t_camera_zoom;
+		type=TEXT;
+		caption=camera zoom;
+		x1=32;
+		y1=340;
+		value=0xFFFFFFFF;
+		size=1;
+	}
+	[object59]		// Option "camera zoom"
+	{
+		name=camera_zoom;
+		type=MENU;
+		entry=,Normal,Fixed Angle;
+		x1=420;
+		y1=340;
+		x2=600;
+		y2=356;
+		value=0;
+		size=1;
+	}
+	[object60]		// Option "camera zoom"
+	{
+		name=box_camera_zoom;
+		type=BOX;
+		x1=32;
+		y1=340;
+		x2=608;
+		y2=356;
+		value=0x0;
+		size=1;
+		highlight=true;
+	}
+	[object61]		// Option "camera_def_angle"
+	{
+		name=t_camera_def_angle;
+		type=TEXT;
+		caption=camera default angle;
+		x1=32;
+		y1=356;
+		value=0xFFFFFFFF;
+		size=1;
+	}
+	[object62]		// Option "camera_def_angle"
+	{
+		name=camera_def_angle;
+		type=MENU;
+		entry=,45,50,55,60,63.44,65,70,75,80,85,90;
+		x1=420;
+		y1=356;
+		x2=600;
+		y2=372;
+		value=0;
+		size=1;
+	}
+	[object63]		// Option "camera_def_angle"
+	{
+		name=box_camera_def_angle;
+		type=BOX;
+		x1=32;
+		y1=356;
+		x2=608;
+		y2=372;
+		value=0x0;
+		size=1;
+		highlight=true;
+	}
+	[object64]		// Option "camera_def_h"
+	{
+		name=t_camera_def_h;
+		type=TEXT;
+		caption=camera default height;
+		x1=32;
+		y1=372;
+		value=0xFFFFFFFF;
+		size=1;
+	}
+	[object65]		// Option "camera_def_h"
+	{
+		name=camera_def_h;
+		type=MENU;
+		entry=,100,125,150,175,200,225,250,275,300;
+		x1=420;
+		y1=372;
+		x2=600;
+		y2=388;
+		value=0;
+		size=1;
+	}
+	[object66]		// Option "camera_def_h"
+	{
+		name=box_camera_def_h;
+		type=BOX;
+		x1=32;
+		y1=372;
+		x2=608;
+		y2=388;
+		value=0x0;
+		size=1;
+		highlight=true;
+	}
+	[object67]		// Option "camera_zoom_speed"
+	{
+		name=t_camera_zoom_speed;
+		type=TEXT;
+		caption=camera zoom speed;
+		x1=32;
+		y1=388;
+		value=0xFFFFFFFF;
+		size=1;
+	}
+	[object68]		// Option "camera_zoom_speed"
+	{
+		name=camera_zoom_speed;
+		type=MENU;
+		entry=,0.25,0.5,0.75,1.0,1.25,1.5,1.75,2.0,2.25,2.5,2.75,3.0;
+		x1=420;
+		y1=388;
+		x2=600;
+		y2=404;
+		value=0;
+		size=1;
+	}
+	[object69]		// Option "camera_zoom_speed"
+	{
+		name=box_camera_zoom_speed;
+		type=BOX;
+		x1=32;
+		y1=388;
+		x2=608;
+		y2=404;
+		value=0x0;
+		size=1;
+		highlight=true;
+	}
+}

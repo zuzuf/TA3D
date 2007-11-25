@@ -1,0 +1,6 @@
+[area]
+{
+	name=config area;
+	skin=gui/default.skn;
+	windows=gui/config.tdf;
+}

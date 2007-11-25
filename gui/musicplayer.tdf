@@ -1,0 +1,39 @@
+[window]
+{
+	title=Music;
+	uformat=UTF8;
+	x=220;
+	y=60;
+	width=200;
+	height=50;
+	draw borders=true;
+	show title=true;
+	number of objects=2;
+	hidden=true;
+	color=0xCFC0C0C0;
+	[object0]
+	{
+		name=b_play;
+		type=BUTTON;
+		caption=play;
+		x1=10;
+		y1=20;
+		x2=80;
+		y2=40;
+		size=1;
+		on click=musicplayer.b_play.hide, musicplayer.b_pause.show, music play;
+		hidden=true;
+	}
+	[object1]
+	{
+		name=b_pause;
+		type=BUTTON;
+		caption=pause;
+		x1=10;
+		y1=20;
+		x2=80;
+		y2=40;
+		size=1;
+		on click=musicplayer.b_play.show, musicplayer.b_pause.hide, music stop;
+	}
+}

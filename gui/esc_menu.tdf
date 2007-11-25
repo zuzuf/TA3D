@@ -1,0 +1,52 @@
+[window]
+{
+	title=Game menu;
+	uformat=UTF8;
+	x=220;
+	y=180;
+	width=200;
+	height=120;
+	fullscreen=true;
+	screen width=640;
+	screen height=480;
+	draw borders=true;
+	show title=false;
+	lock=true;
+	number of objects=3;
+	hidden=true;
+	color=0xCFC0C0C0;
+	[object0]
+	{
+		name=menu_label;
+		type=TEXT;
+		caption=What do you want to do?;
+		value=0xFFFFFFFF;
+		x1=110;
+		y1=10;
+		centered=true;
+		size=1;
+	}
+	[object1]
+	{
+		name=b_return;
+		type=BUTTON;
+		caption=Return to game;
+		x1=10;
+		y1=40;
+		x2=190;
+		y2=70;
+		on click=esc_menu.hide;
+		size=1;
+	}
+	[object2]
+	{
+		name=b_exit;
+		type=BUTTON;
+		caption=Leave game;
+		x1=10;
+		y1=80;
+		x2=190;
+		y2=110;
+		size=1;
+	}
+}

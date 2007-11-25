@@ -1,0 +1,92 @@
+TODO list
+---------
+_add glossiness (or reflection) to all TA3D models.
+_TA3D in desperate need of some kind of data cache, so each run with similar options it could directly load data to RAM and not to convert all TA resources again.
+_make 3D replacement models for 2D map features
+_implement standing move orders
+_increase loading speed and lower memory cost by not loading unused features
+_add support for TTF fonts ( seems impossible due to memory restrictions )
+_networking code
+_improve A.I.
+_D3D support
+
+*new intro screen!
+*buttons on GUI have been improved, replaced with TA like buttons
+*both rigth and left control keys are read as control now
+*both right and left shift keys are read as shift now
+*new button in game setup menu : change map, it still works when you click on minimap
+*camera zooming behaviour is better and can be configured in the config menu ;)
+*unit rendering is done with display lists (so it's faster)
+*CAMERA class cleaned
+*build buttons are no more transparent since GUI isn't
+*waves are now an option
+*trees are not an option any more
+*in default.lua, when a player dies its units are killed
+*menus load less CPU than before
+*improved pathfinding (still not perfect but faster)
+*random number generator is now platform independent
+*the A.I. (wow!!!! It's there !!!)
+*write cleaner logs - removed useless logs from TA3D_Audio module
+*you can now set the player name
+*TA3D's script module rewritten using lua
+*implemented standing fire orders
+*pathfinder module cleaned
+*D-Gun works properly
+*build/orders menu sounds implemented
+*water color is now taken from the map water texture for water quality >= 3
+*HPI caching system (to speed up GUI loading)
+*TA's bad target behaviour implemented
+*ship'corpses sink
+*full support for TA interface
+*full mod support with a mod manager
+*added support for other races
+*full gaf support (subframes & transparency in uncompressed images )
+*added a high speed particle engine (with less particle features)
+*added support for original game interface :D
+*added a variable to have a collection of default skies that are used when none fits with the map
+*increased precision of nanolathe spray :)
+*new mod management system
+*ESC doesn't quit the game anymore, instead it displays a menu which let you return to the game or leave it
+
+bug list
+--------
+_add a flag to movement data to make units leaving their factory face the exit before moving
+_planes should look for another destination before trying to land
+_some parts of the maps might not be drawn (visibility limit) like hills
+_slow down with lots of 3D sprites on some gfx hardware (speed increased but bug not yet fixed)
+_fix all other bugs ( :-) )
+
+*fixed : artifacts when zooming too fast due to fog being updated too slowly
+*fixed : weakness in weapon/unit damage detection system
+*critical bug fixed in win32 version : rand() function was returning a 16bits integer !!!
+*some basic checks added to make the code more resistant to errors
+*nuclear silo unable to fire fixed
+*code is more thread safe
+*compilation errors with Allegro 4.2.0 fixed
+*bombers not firing fixed
+*planes now look for a place to land instead of teleporting where they can land
+*fixed: stability bug in fast particle engine code
+*fixed: do not crash anymore when destroying the AI structures
+*fixed: transparency bug with building previews when water quality < 2
+*Construction k-bots don't fail reclaming anymore
+*Metal extractors now spin after being built
+*bug fix in unit path management code -> units should get locked any more
+*small floatting menu bug fixed in GUI drawing code
+*black polygon bug on some 3do models fixed
+*when build units with a CORE shipyard, units are no more built with an offset
+*fixed: toairweapon flag supported
+*fixed: TA3D's implementation of TA's category system now can handle an infinite number of categories (like in TA)
+*fixed: water weapons can't leave water any more, and non water weapons can't go in water anymore
+*fixed HPIManager table corruption bug
+*changed the static variable limit to something higher (twice as before) to support the Talon race
+*fixed wheels spinning in the wrong direction
+*fixed: texture coordinate bug ( textures not displayed properly on polygons with more than 4 edges )
+*fixed nanolathe emitting point not being detected properly on some units
+*fixed: factories are detected with the BMcode variable
+
+idea list
+---------
+_random map generator
+_multiple progress bars for loading screen
+_animated background in menus
+_first person view to allow FPS style mods

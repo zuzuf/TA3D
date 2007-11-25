@@ -1,0 +1,49 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<!DOCTYPE KDevPrjSession>
+<KDevPrjSession>
+ <DocsAndViews NumberOfDocuments="8" >
+  <Doc0 NumberOfViews="1" URL="file:///home/roland/progc%2B%2B/ta3d/src/stdafx.h" >
+   <View0 Encoding="" Type="Source" />
+  </Doc0>
+  <Doc1 NumberOfViews="1" URL="file:///home/roland/progc%2B%2B/ta3d/src/ta3d.cpp" >
+   <View0 Encoding="" line="44" Type="Source" />
+  </Doc1>
+  <Doc2 NumberOfViews="1" URL="file:///home/roland/progc%2B%2B/ta3d/src/i18n.cpp" >
+   <View0 Encoding="" line="61" Type="Source" />
+  </Doc2>
+  <Doc3 NumberOfViews="1" URL="file:///home/roland/progc%2B%2B/ta3d/src/i18n.h" >
+   <View0 Encoding="" line="35" Type="Source" />
+  </Doc3>
+  <Doc4 NumberOfViews="1" URL="file:///home/roland/progc%2B%2B/ta3d/src/menu.cpp" >
+   <View0 Encoding="" line="384" Type="Source" />
+  </Doc4>
+  <Doc5 NumberOfViews="1" URL="file:///home/roland/progc%2B%2B/ta3d/src/TA3D_Audio.h" >
+   <View0 Encoding="" line="0" Type="Source" />
+  </Doc5>
+  <Doc6 NumberOfViews="1" URL="file:///home/roland/progc%2B%2B/ta3d/src/TA3D_hpi.h" >
+   <View0 Encoding="" line="28" Type="Source" />
+  </Doc6>
+  <Doc7 NumberOfViews="1" URL="file:///home/roland/progc%2B%2B/ta3d/src/hash_table.h" >
+   <View0 Encoding="" line="65" Type="Source" />
+  </Doc7>
+ </DocsAndViews>
+ <pluginList>
+  <kdevdebugger>
+   <breakpointList/>
+   <showInternalCommands value="0" />
+  </kdevdebugger>
+  <kdevastyle>
+   <Extensions ext="*.cpp *.h,*.c *.h,*.cxx *.hxx,*.c++ *.h++,*.cc *.hh,*.C *.H,*.diff,*.inl,*.java,*.moc,*.patch,*.tlh,*.xpm" />
+   <AStyle IndentPreprocessors="1" FillCount="4" PadParenthesesOut="1" IndentNamespaces="1" IndentLabels="1" Fill="Tabs" MaxStatement="40" Brackets="Linux" MinConditional="-1" IndentBrackets="0" PadParenthesesUn="1" BlockBreak="0" KeepStatements="1" KeepBlocks="1" BlockIfElse="0" IndentSwitches="1" PadOperators="1" FStyle="UserDefined" IndentCases="0" FillEmptyLines="0" BracketsCloseHeaders="1" BlockBreakAll="0" PadParenthesesIn="1" IndentClasses="1" IndentBlocks="0" FillForce="1" />
+  </kdevastyle>
+  <kdevbookmarks>
+   <bookmarks/>
+  </kdevbookmarks>
+  <kdevvalgrind>
+   <executable path="" params="" />
+   <valgrind path="" params="" />
+   <calltree path="" params="" />
+   <kcachegrind path="" />
+  </kdevvalgrind>
+ </pluginList>
+</KDevPrjSession>

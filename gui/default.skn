@@ -1,0 +1,37 @@
+[skin]
+{
+	name=default_skin;
+
+	button0=gfx/default_skin/button0.tga;
+	button1=gfx/default_skin/button1.tga;
+	button_x1=17;
+	button_y1=4;
+	button_x2=90;
+	button_y2=15;
+
+	title bar=gfx/default_skin/title_bar.tga;
+
+	window border0=gfx/default_skin/border0.tga;
+	window border1=gfx/default_skin/border1.tga;
+	window border2=gfx/default_skin/border2.tga;
+	window border3=gfx/default_skin/border3.tga;
+	window border4=gfx/default_skin/border4.tga;
+	window border5=gfx/default_skin/border5.tga;
+	window border6=gfx/default_skin/border6.tga;
+	window border7=gfx/default_skin/border7.tga;
+
+	progress bar0=gfx/default_skin/progress_bar0.tga;
+	progress bar1=gfx/default_skin/progress_bar1.tga;
+
+	text background=gfx/default_skin/text_background.tga;
+
+	menu background=gfx/default_skin/menu_background.tga;
+
+	selection=gfx/default_skin/selection.tga;
+
+	option0=gfx/default_skin/option0.tga;
+	option1=gfx/default_skin/option1.tga;
+
+	checkbox0=gfx/default_skin/checkbox0.tga;
+	checkbox1=gfx/default_skin/checkbox1.tga;
+}

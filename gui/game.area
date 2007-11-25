@@ -1,0 +1,6 @@
+[area]
+{
+	name=game area;
+	skin=gui/default.skn;
+	windows=gui/musicplayer.tdf, gui/musicplayer_button.tdf, gui/esc_menu.tdf;
+}

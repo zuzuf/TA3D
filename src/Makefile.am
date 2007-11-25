@@ -1,0 +1,106 @@
+bin_PROGRAMS=ta3d 3dmeditor hpiview
+ta3d_SOURCES= \
+	ta3d.cpp ta3d.h \
+	main.cpp \
+	i18n.cpp i18n.h \
+	cTA3D_Engine.cpp cTA3D_Engine.h \
+	cTAFileParser.cpp cTAFileParser.h \
+	gfx.cpp gfx.h \
+	pathfinding.cpp pathfinding.h \
+	menu.cpp menu.h \
+	3do.cpp 3do.h \
+	cob.cpp cob.h \
+	console.cpp console.h \
+	EngineClass.cpp EngineClass.h \
+	UnitEngine.cpp UnitEngine.h \
+	fbi.cpp fbi.h \
+	gaf.cpp gaf.h \
+	glfunc.cpp glfunc.h \
+	gui.cpp gui.h \
+	intro.cpp intro.h \
+	particles.cpp particles.h \
+	tdf.cpp tdf.h \
+	tnt.cpp tnt.h \
+	weapons.cpp weapons.h \
+	script.cpp script.h \
+	ia.cpp ia.h \
+	taconfig.cpp taconfig.h \
+	icon.cpp \
+	stdafx.cpp stdafx.h \
+	TA3D_Audio.cpp TA3D_Audio.h \
+	TA3D_Exception.cpp TA3D_Exception.h \
+	hash_table.h \
+	TA3D_hpi.cpp TA3D_hpi.h \
+	TA3D_NameSpace.cpp TA3D_NameSpace.h \
+	cThread.cpp cThread.h \
+	cCriticalSection.cpp cCriticalSection.h \
+	cInterface.cpp cInterface.h \
+	cLogger.cpp cLogger.h \
+	cError.cpp cError.h \
+	jpeg/decode.cpp jpeg/encode.cpp jpeg/io.cpp jpeg/ta3d_jpg.cpp \
+	jpeg/dct.h jpeg/internal.h jpeg/ta3d_jpg.h \
+	TA3D_Platform.h matrix.h ta3dbase.h vector.h thread.h
+
+
+#	SocketClass.cpp SocketClass.h
+#	ta3dsock.cpp ta3dsock.h
+#	superqueue.cpp superqueue.h
+#	network.cpp network.h
+
+3dmeditor_SOURCES= \
+	3dmeditor.cpp ta3d.h \
+	3dmeditor_sub.cpp 3dmeditor.h \
+	cTAFileParser.cpp cTAFileParser.h \
+	3ds.cpp 3ds.h \
+	i18n.cpp i18n.h \
+	gfx.cpp gfx.h \
+	3do.cpp 3do.h \
+	console.cpp console.h \
+	gaf.cpp gaf.h \
+	glfunc.cpp glfunc.h \
+	gui.cpp gui.h \
+	particles.cpp particles.h \
+	taconfig.cpp taconfig.h \
+	stdafx.cpp stdafx.h \
+	TA3D_Audio.cpp TA3D_Audio.h \
+	TA3D_Exception.cpp TA3D_Exception.h \
+	hash_table.h \
+	TA3D_hpi.cpp TA3D_hpi.h \
+	TA3D_NameSpace.cpp TA3D_NameSpace.h \
+	cThread.cpp cThread.h \
+	cCriticalSection.cpp cCriticalSection.h \
+	cInterface.cpp cInterface.h \
+	cLogger.cpp cLogger.h \
+	cError.cpp cError.h \
+	jpeg/decode.cpp jpeg/encode.cpp jpeg/io.cpp jpeg/ta3d_jpg.cpp \
+	jpeg/dct.h jpeg/internal.h jpeg/ta3d_jpg.h \
+	TA3D_Platform.h matrix.h ta3dbase.h vector.h thread.h
+
+hpiview_SOURCES= \
+	hpiview.cpp \
+	hash_table.h \
+	cTAFileParser.cpp cTAFileParser.h \
+	i18n.cpp i18n.h \
+	TA3D_Exception.cpp TA3D_Exception.h \
+	glfunc.cpp glfunc.h \
+	gfx.cpp gfx.h \
+	gaf.cpp gaf.h \
+	gui.cpp gui.h \
+	console.cpp console.h \
+	TA3D_hpi.cpp TA3D_hpi.h \
+	TA3D_NameSpace.cpp TA3D_NameSpace.h \
+	stdafx.cpp stdafx.h \
+	cThread.cpp cThread.h \
+	cCriticalSection.cpp cCriticalSection.h \
+	cInterface.cpp cInterface.h \
+	cLogger.cpp cLogger.h \
+	cError.cpp cError.h \
+	TA3D_Platform.h matrix.h ta3dbase.h vector.h thread.h
+
+all:
+	!(test -e ta3d) || mv ta3d ../
+	!(test -e ta3d.exe) || mv ta3d.exe ../
+	!(test -e hpiview) || mv hpiview ../
+	!(test -e hpiview.exe) || mv hpiview.exe ../
+	!(test -e 3dmeditor) || mv 3dmeditor ../
+	!(test -e 3dmeditor.exe) || mv 3dmeditor.exe ../

@@ -1,0 +1,97 @@
+----------------------------------------------------
+====================================================
+	TTTTTTTTTTT  LLL  //    LLL (Version 1)
+	TTTTTTTTTTT  LLL=//   //LLL
+	    TTT     -LLL//==-//	LLL
+	    TTT   ===LLL/===//= LLL
+	    TTT  ====LLL===//===LLL
+	    TTT  ===/LLL==//====LLL
+	    TTT  ==//LLL=//==== LLL
+	    TTT   //=LLL//====-	LLL
+	    TTT  // -LLLLLLLL-	LLLLLLLL
+	    TTT	     LLLLLLLL   LLLLLLLL
+
+	           THE LOST LEGACY
+	( http://www.planetannihilation.com/TLL )
+		         by
+		         M3G
+====================================================
+----------------------------------------------------
+1) Intallation/Uninstallation instructions
+2) Introduction
+4) Troubleshooting
+3) Special thanks
+----------------------------------------------------
+
+
+1) Intallation/Deinstallation instructions
+------------------------------------------
+a) How to Install ?
+-------------------
+First of all TLL need TA v.3.1 and TA:CC. 
+I also recomend you make a seperate install of TA. Just copy and paste your \TOTALA directory 
+in the new one (\TOTALA TLL for exemple).
+
+Make sure Total Annihilation is installed that way :
+-----------------------------------------------------
+1: Install Total Annihilation(if you haven't already).
+2: Install TA: Core Contingency(if you haven't already).
+3: Install the Cavedog 3.1 patch.
+4: Make sure you DO NOT have all Cavedog post 3.1 units (Necro,etc...) installed 
+
+Then Install The Lost Legacy Following this order :
+---------------------------------------------------
+4: Remove the Cavedog rev31.gp3 file and the revision.gpf(if present) that were installed by the 3.1 patch.
+5: Launch the Tllsetup.exe file. 
+6: Extract all the files into your \TOTALA or \TOTALA TLL directory. (C:\Cavedog\Totala by default).
+7: Launch TLL.exe,and enjoy.
+
+
+a) How to Uninstall ?
+-------------------
+To Uninstall:
+
+1: Remove the tllrace.ufo, tll textures.ufo, rev31.gp3, and TLL.exe files from your directory.
+2: Place the Cavedog rev31.gp3 and revesion.gpf files back in your dir.
+
+
+2) What's TLL ?
+---------------
+TLL (The Lost Legacy) is a 3rd party race designed M3G (m3g@planetannihilation.com).
+To know more about the race, you can read the story at :
+http://www.planetannihilation.com/TLL (story menu) You will find more on the site.
+The project has started summer (2002) and is now fully operationnal.
+
+The V1 is the latest version available, however you can find previous version on the site.
+
+3) Known bugs !
+---------------
+Well, for now there's no critical bug. But the more you play, the more you find bugs ;)
+
+For any other bug, please report them here :
+	m3g@planetannihilation.com 
+		or 
+	TLL forums at Planet Annihilation
+
+Describe what kind of bug it is (crash TA, unit not moving,etc...) when they appear 
+(loading, in game, when the unit is just built,etc...) and if you have an error message 
+write it or make a screenshot.
+
+Thanks for reporting bugs.
+
+
+
+4) Special thanks !
+-------------------
+I would like to thanks all the people who were involved in the TLL project.
+First of all i would like to thank Nik the project creator, even if he is not in the team anymore his contribution was the most important.
+Then we will thanks The Dojo crew for design the site and the help of the unfogetable Kajice Conrad who gave us excellent textures sets.
+Colonel and Juju from Magma, very spcial thanks here for their support during the beta tests.
+ScaldedDog and Silent Thunder for ideas and their support. 
+Estrella for TAdesigners, always here when you need help.
+The PA staff for the usual great hosting service and news coverage !
+Lord Tangaroa for his public texture pack.
+The TADD team for some of their great units added in the pack.
+The Core Prime team for their neat units !
+Sinclaire and Sby from TAAN and TA forever !
+TAUCC for some of their NS series units !
