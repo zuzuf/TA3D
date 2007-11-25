@@ -26,7 +26,7 @@
 	text_x2=251;
 	text_y2=24;
 
-	menu background=gfx/default_skin/menu_background.tga;
+	menu background=gfx/default_skin/window_borders.tga;
 
 	selection=gfx/default_skin/selection.tga;
 
