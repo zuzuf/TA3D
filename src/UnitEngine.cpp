@@ -328,6 +328,10 @@ bool UNIT::is_on_radar( byte &p_mask )
 		visible = false;
 		on_radar = false;
 		on_mini_radar = false;
+
+		drawn_Pos = Pos;
+		drawn_Angle = Angle;
+
 		if( model==NULL || hidden ) {
 #ifdef	ADVANCED_DEBUG_MODE
 			GuardLeave();
@@ -380,9 +384,6 @@ bool UNIT::is_on_radar( byte &p_mask )
 		visible=true;
 
 		on_radar |= cam->RPos.y>gfx->low_def_limit;
-
-		drawn_Pos = Pos;
-		drawn_Angle = Angle;
 
 		MATRIX_4x4 M;
 		glPushMatrix();

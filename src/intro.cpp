@@ -170,56 +170,63 @@ void play_intro(char *txt_file)
 
 GLuint Glfond = 0;
 
+List< String >	messages;
+
 void loading(float percent,const String &msg)
 {
 	set_uformat(U_UTF8);
 
 	bool init=(Glfond==0);
-	if(init)
+	if(init) {
+		messages.clear();
 		Glfond = gfx->load_texture("gfx/load.jpg");
+		}
 
 	gfx->set_2D_mode();
-	glScalef(SCREEN_W/640.0f,SCREEN_H/480.0f,1.0f);
+	glPushMatrix();
+	glScalef(SCREEN_W/1280.0f,SCREEN_H/1024.0f,1.0f);
 
-	float h=gfx->TA_font.height();
+	const float TA_font_size = gfx->TA_font.get_size();
+	gfx->TA_font.change_size( 2.0f );
+	float h = gfx->TA_font.height();
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);		// Efface l'écran
 
-	gfx->drawtexture(Glfond,0.0f,0.0f,640.0f,480.0);
+	gfx->drawtexture(Glfond,0.0f,0.0f,1280.0f,1024.0f);
 
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
-	gfx->print(gfx->TA_font,320.0f-0.5f*gfx->TA_font.length("Total Annihilation 3D"),80.0f,0.0f,0xFFFFFFFF,"Total Annihilation 3D");
+	glColor4f(1.0f,1.0f,1.0f,1.0f);
+
+	if( messages.empty() || Lowercase( messages.front() ) != Lowercase( msg ) ) {
+		if( !messages.empty() )
+			messages.front() = messages.front() + " - " + TRANSLATE( "done" );
+		messages.push_front( msg );
+		}
+
+	int e = 0;
+	for( List< String >::iterator i = messages.begin() ; i != messages.end() ; i++, e++ )
+		gfx->print( gfx->TA_font, 105.0f, 175.0f + h * e, 0.0f, 0xFFFFFFFF, *i );
 
 	glDisable(GL_BLEND);
 
 	glDisable(GL_TEXTURE_2D);
-	glColor3f(0.5f,0.0f,0.0f);
+	glColor3f(0.5f,0.8f,0.3f);
 	glBegin(GL_QUADS);
-		glVertex2f(20.0f,220.0f);
-		glVertex2f(20.0f+6.0f*percent,220.0f);
-		glColor3f(1.0f,0.0f,0.0f);
-		glVertex2f(20.0f+6.0f*percent,240.0f);
-		glVertex2f(20.0f,240.0f);
-
-		glVertex2f(20.0f,240.0f);
-		glVertex2f(20.0f+6.0f*percent,240.0f);
-		glColor3f(0.5f,0.0f,0.0f);
-		glVertex2f(20.0f+6.0f*percent,260.0f);
-		glVertex2f(20.0f,260.0f);
-	glEnd();
-	glColor3f(1.0f,1.0f,1.0f);
-	glBegin(GL_LINE_LOOP);
-		glVertex2f(20.0f,220.0f);
-		glVertex2f(620.0f,220.0f);
-		glVertex2f(620.0f,260.0f);
-		glVertex2f(20.0f,260.0f);
+		glVertex2f(100.0f,862.0f);
+		glVertex2f(100.0f+10.72f*percent,862.0f);
+		glVertex2f(100.0f+10.72f*percent,917.0f);
+		glVertex2f(100.0f,917.0f);
 	glEnd();
 	glEnable(GL_TEXTURE_2D);
 
 	glEnable(GL_BLEND);
-	gfx->print(gfx->TA_font,320.0f-0.5f*gfx->TA_font.length(msg),240-h*0.5f,0.0f,0xFFFFFFFF,msg);
+	gfx->print(gfx->TA_font,640.0f-0.5f*gfx->TA_font.length(msg),830-h*0.5f,0.0f,0xFFFFFFFF,msg);
 	glDisable(GL_BLEND);
+
+	gfx->TA_font.change_size( TA_font_size );
+
+	glPopMatrix();
 
 	if( lp_CONFIG->draw_console_loading ) {				// If set in config
 		char *cmd = Console->draw( gfx->TA_font, 0.0f, gfx->TA_font.height(), true );			// Display something to show what's happening
@@ -230,8 +237,10 @@ void loading(float percent,const String &msg)
 
 	gfx->unset_2D_mode();
 
-	if(percent>=100.0f)
+	if(percent>=100.0f) {
+		messages.clear();
 		gfx->destroy_texture( Glfond );
+		}
 
 	set_uformat(U_ASCII);
 }

@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ(2.59)
-AC_INIT(TA3D, 0.4.1, zuzuf86@gmail.com)
+AC_INIT(TA3D, 0.4.2, zuzuf86@gmail.com)
 AM_INIT_AUTOMAKE
 AC_CONFIG_HEADER([config.h])
 AC_CONFIG_SRCDIR([src/ta3d.cpp])

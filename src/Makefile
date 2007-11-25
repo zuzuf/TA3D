@@ -110,7 +110,7 @@ CPP = gcc -E
 CPPFLAGS = 
 CXX = g++
 CXXDEPMODE = depmode=gcc3
-CXXFLAGS = -g -O0 -I/usr/local/include -ffast-math -mmmx
+CXXFLAGS = -g -O0 -march=nocona -I/usr/local/include -ffast-math -mmmx
 CYGPATH_W = echo
 DEFS = -DHAVE_CONFIG_H
 DEPDIR = .deps
@@ -135,14 +135,14 @@ OBJEXT = o
 PACKAGE = ta3d
 PACKAGE_BUGREPORT = zuzuf86@gmail.com
 PACKAGE_NAME = TA3D
-PACKAGE_STRING = TA3D 0.4.1
+PACKAGE_STRING = TA3D 0.4.2
 PACKAGE_TARNAME = ta3d
-PACKAGE_VERSION = 0.4.1
+PACKAGE_VERSION = 0.4.2
 PATH_SEPARATOR = :
 SET_MAKE = 
 SHELL = /bin/bash
 STRIP = 
-VERSION = 0.4.1
+VERSION = 0.4.2
 abs_builddir = /home/roland/progc++/ta3d/src
 abs_srcdir = /home/roland/progc++/ta3d/src
 abs_top_builddir = /home/roland/progc++/ta3d

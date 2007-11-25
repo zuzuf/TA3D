@@ -125,7 +125,7 @@ namespace TA3D
 
 	} sTA3DCONFIG, *LPTA3DCONFIG;
 
-	#define   TA3D_ENGINE_VERSION   "TA3D 0.4.1"
+	#define   TA3D_ENGINE_VERSION   "TA3D 0.4.2"
 	#define   DEBUG_MODE
 
 	namespace UTILS
