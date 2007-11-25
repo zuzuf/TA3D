@@ -13,7 +13,9 @@
 	show title=true;
 	number of objects=3;
 	hidden=true;
-	color=0xCF7F7F7F;
+	color=0xFFFFFFFF;
+	background=gfx/background.jpg;
+	repeat background=true;
 	[object0]
 	{
 		name=b_ok;

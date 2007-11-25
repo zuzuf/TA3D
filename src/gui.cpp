@@ -459,7 +459,10 @@ void WND::draw(bool Focus,bool Deg, SKIN *skin )
 		}
 	else {
 		gfx->set_color( color );
-		gfx->drawtexture(background,x,y,x+width,y+height);
+		if( repeat_bkg )
+			gfx->drawtexture(background,x,y,x+width,y+height, 0.0f, 0.0f, ((float)width)/bkg_w, ((float)height)/bkg_h);
+		else
+			gfx->drawtexture(background,x,y,x+width,y+height);
 		glBindTexture(GL_TEXTURE_2D, 0);
 		}
 	glDisable( GL_BLEND );
@@ -1210,6 +1213,7 @@ void WND::load_tdf( const String &filename, SKIN *skin )			// Load a window from
 	if( y < 0 ) y+=SCREEN_H;
 	width = wndFile->PullAsInt( "window.width" );
 	height = wndFile->PullAsInt( "window.height" );
+	repeat_bkg = wndFile->PullAsBool( "window.repeat background", false );
 
 	float x_factor = 1.0f;
 	float y_factor = 1.0f;
@@ -1232,7 +1236,7 @@ void WND::load_tdf( const String &filename, SKIN *skin )			// Load a window from
 	show_title = wndFile->PullAsBool( "window.show title" );
 	delete_gltex = false;
 	if( exists( wndFile->PullAsString( "window.background" ).c_str() ) ) {
-		background = gfx->load_texture( wndFile->PullAsString( "window.background" ) );
+		background = gfx->load_texture( wndFile->PullAsString( "window.background" ), FILTER_LINEAR, &bkg_w, &bkg_h, false );
 		delete_gltex = true;
 		}
 	else
@@ -1587,10 +1591,23 @@ void TextBar(int x1,int y1,int x2,int y2,const String &Caption,bool Etat, SKIN *
 		gfx->set_alpha_blending();
 		gfx->set_color( 0xFFFFFFFF );
 
-		gfx->drawtexture( skin->text_background, x1, y1, x2, y2 );
+		gfx->drawtexture( skin->text_background , x1, y1, x1 + skin->text_x1, y1 + skin->text_y1, 0.0f, 0.0f, skin->t_x1, skin->t_y1 );
+		gfx->drawtexture( skin->text_background , x1 + skin->text_x1, y1, x2 + skin->text_x2, y1 + skin->text_y1, skin->t_x1, 0.0f, skin->t_x2, skin->t_y1 );
+		gfx->drawtexture( skin->text_background , x2 + skin->text_x2, y1, x2, y1 + skin->text_y1, skin->t_x2, 0.0f, 1.0f, skin->t_y1 );
 
-		gfx->print(gui_font,x1+4,y1+4,0.0f,use_normal_alpha_function ? Blanc : Noir,Caption);
-		if(Etat) gfx->print(gui_font,x1+4+gui_font.length( Caption ),y1+4,0.0f,use_normal_alpha_function ? Blanc : Noir,"_");
+		gfx->drawtexture( skin->text_background , x1, y1 + skin->text_y1, x1 + skin->text_x1, y2 + skin->text_y2, 0.0f, skin->t_y1, skin->t_x1, skin->t_y2 );
+		gfx->drawtexture( skin->text_background , x2 + skin->text_x2, y1 + skin->text_y1, x2, y2 + skin->text_y2, skin->t_x2, skin->t_y1, 1.0f, skin->t_y2 );
+
+		gfx->drawtexture( skin->text_background , x1, y2 + skin->text_y2, x1 + skin->text_x1, y2, 0.0f, skin->t_y2, skin->t_x1, 1.0f );
+		gfx->drawtexture( skin->text_background , x1 + skin->text_x1, y2 + skin->text_y2, x2 + skin->text_x2, y2, skin->t_x1, skin->t_y2, skin->t_x2, 1.0f );
+		gfx->drawtexture( skin->text_background , x2 + skin->text_x2, y2 + skin->text_y2, x2, y2, skin->t_x2, skin->t_y2, 1.0f, 1.0f );
+
+		gfx->drawtexture( skin->text_background , x1 + skin->text_x1, y1 + skin->text_y1, x2 + skin->text_x2, y2 + skin->text_y2, skin->t_x1, skin->t_y1, skin->t_x2, skin->t_y2 );
+
+//		gfx->drawtexture( skin->text_background, x1, y1, x2, y2 );
+
+		gfx->print(gui_font,x1+skin->text_x1,y1+skin->text_y1,0.0f,use_normal_alpha_function ? Blanc : Noir,Caption);
+		if(Etat) gfx->print(gui_font,x1+skin->text_x1+gui_font.length( Caption ),y1+skin->text_y1,0.0f,use_normal_alpha_function ? Blanc : Noir,"_");
 
 		gfx->unset_alpha_blending();
 		}
@@ -2490,6 +2507,11 @@ void SKIN::init()
 	button_x2 = button_y2 = 0;
 	button_w = button_h = 0;						// Size of button textures
 	b_x1 = b_y1 = b_x2 = b_y2 = 0.0f;
+
+	text_x1 = text_y1 = 0;					// useful data to draw text bars correctly at the right size
+	text_x2 = text_y2 = 0;
+	text_w = text_h = 0;						// Size of text bar textures
+	t_x1 = t_y1 = t_x2 = t_y2 = 0.0f;
 	for( int i = 0 ; i < 8 ; i++ ) {
 		wnd_border[i] = 0;
 		wnd_border_w[i] = wnd_border_h[i] = 0;
@@ -2514,6 +2536,11 @@ void SKIN::destroy()
 	button_x2 = button_y2 = 0;
 	button_w = button_h = 0;						// Size of button textures
 	b_x1 = b_y1 = b_x2 = b_y2 = 0.0f;
+
+	text_x1 = text_y1 = 0;					// useful data to draw text bars correctly at the right size
+	text_x2 = text_y2 = 0;
+	text_w = text_h = 0;						// Size of text bar textures
+	t_x1 = t_y1 = t_x2 = t_y2 = 0.0f;
 	for( int i = 0 ; i < 8 ; i++ )
 		gfx->destroy_texture( wnd_border[i] );
 	for( int i = 0 ; i < 2 ; i++ )
@@ -2573,17 +2600,49 @@ void SKIN::load_tdf( const String &filename )			// Loads the skin from a TDF fil
 	button_x2 = skinFile->PullAsInt( "skin.button_x2" );
 	button_y2 = skinFile->PullAsInt( "skin.button_y2" );
 
-	b_x1 = button_w ? (float)button_x1 / button_w : 0.0f;
-	b_x2 = button_w ? (float)button_x2 / button_w : 0.0f;
-	b_y1 = button_h ? (float)button_y1 / button_h : 0.0f;
-	b_y2 = button_h ? (float)button_y2 / button_h : 0.0f;
+	b_x1 = button_w ? ((float)button_x1) / button_w : 0.0f;
+	b_x2 = button_w ? ((float)button_x2) / button_w : 0.0f;
+	b_y1 = button_h ? ((float)button_y1) / button_h : 0.0f;
+	b_y2 = button_h ? ((float)button_y2) / button_h : 0.0f;
 
 	button_x2 -= button_w;
 	button_y2 -= button_h;
 
-	for( int i = 0 ; i < 8 ; i++ ) {
-		tex_file_name = skinFile->PullAsString( format( "skin.window border%d", i ) );
-		if( TA3D_exists( tex_file_name ) )	wnd_border[i] = gfx->load_texture( tex_file_name, FILTER_LINEAR, &(wnd_border_w[i]), &(wnd_border_h[i]) );
+	sint32 border_x1 = skinFile->PullAsInt( "skin.border_x1" );
+	sint32 border_y1 = skinFile->PullAsInt( "skin.border_y1" );
+	sint32 border_x2 = skinFile->PullAsInt( "skin.border_x2" );
+	sint32 border_y2 = skinFile->PullAsInt( "skin.border_y2" );
+
+	tex_file_name = skinFile->PullAsString( "skin.window borders" );
+	if( TA3D_exists( tex_file_name ) ) {
+		BITMAP *borders = load_bitmap( tex_file_name.c_str(), NULL );
+		BITMAP *tmp;
+
+		tmp = create_sub_bitmap( borders, 0, 0, border_x1, border_y1 );
+		wnd_border[ 0 ] = gfx->make_texture( tmp, FILTER_LINEAR );	wnd_border_w[ 0 ] = tmp->w;	wnd_border_h[ 0 ] = tmp->h;	destroy_bitmap( tmp );
+
+		tmp = create_sub_bitmap( borders, border_x1, 0, border_x2 - border_x1, border_y1 );
+		wnd_border[ 1 ] = gfx->make_texture( tmp, FILTER_LINEAR );	wnd_border_w[ 1 ] = tmp->w;	wnd_border_h[ 1 ] = tmp->h;	destroy_bitmap( tmp );
+
+		tmp = create_sub_bitmap( borders, border_x2, 0, borders->w - border_x2, border_y1 );
+		wnd_border[ 2 ] = gfx->make_texture( tmp, FILTER_LINEAR );	wnd_border_w[ 2 ] = tmp->w;	wnd_border_h[ 2 ] = tmp->h;	destroy_bitmap( tmp );
+		
+		tmp = create_sub_bitmap( borders, 0, border_y1, border_x1, border_y2 - border_y1 );
+		wnd_border[ 3 ] = gfx->make_texture( tmp, FILTER_LINEAR );	wnd_border_w[ 3 ] = tmp->w;	wnd_border_h[ 3 ] = tmp->h;	destroy_bitmap( tmp );
+
+		tmp = create_sub_bitmap( borders, border_x2, border_y1, borders->w - border_x2, border_y2 - border_y1 );
+		wnd_border[ 4 ] = gfx->make_texture( tmp, FILTER_LINEAR );	wnd_border_w[ 4 ] = tmp->w;	wnd_border_h[ 4 ] = tmp->h;	destroy_bitmap( tmp );
+
+		tmp = create_sub_bitmap( borders, 0, border_y2, border_x1, borders->h - border_y2 );
+		wnd_border[ 5 ] = gfx->make_texture( tmp, FILTER_LINEAR );	wnd_border_w[ 5 ] = tmp->w;	wnd_border_h[ 5 ] = tmp->h;	destroy_bitmap( tmp );
+
+		tmp = create_sub_bitmap( borders, border_x1, border_y2, border_x2 - border_x1, borders->h - border_y2 );
+		wnd_border[ 6 ] = gfx->make_texture( tmp, FILTER_LINEAR );	wnd_border_w[ 6 ] = tmp->w;	wnd_border_h[ 6 ] = tmp->h;	destroy_bitmap( tmp );
+
+		tmp = create_sub_bitmap( borders, border_x2, border_y2, borders->w - border_x1, borders->h - border_y2 );
+		wnd_border[ 7 ] = gfx->make_texture( tmp, FILTER_LINEAR );	wnd_border_w[ 7 ] = tmp->w;	wnd_border_h[ 7 ] = tmp->h;	destroy_bitmap( tmp );
+
+		destroy_bitmap( borders );
 		}
 
 	tex_file_name = skinFile->PullAsString( "skin.progress bar0" );
@@ -2595,7 +2654,20 @@ void SKIN::load_tdf( const String &filename )			// Loads the skin from a TDF fil
 	if( TA3D_exists( tex_file_name ) )	wnd_title_bar = gfx->load_texture( tex_file_name, FILTER_LINEAR );
 
 	tex_file_name = skinFile->PullAsString( "skin.text background" );
-	if( TA3D_exists( tex_file_name ) )	text_background = gfx->load_texture( tex_file_name, FILTER_LINEAR );
+	if( TA3D_exists( tex_file_name ) )	text_background = gfx->load_texture( tex_file_name, FILTER_LINEAR, &text_w, &text_h );
+
+	text_x1 = skinFile->PullAsInt( "skin.text_x1" );
+	text_y1 = skinFile->PullAsInt( "skin.text_y1" );
+	text_x2 = skinFile->PullAsInt( "skin.text_x2" );
+	text_y2 = skinFile->PullAsInt( "skin.text_y2" );
+
+	t_x1 = text_w ? ((float)text_x1) / text_w : 0.0f;
+	t_x2 = text_w ? ((float)text_x2) / text_w : 0.0f;
+	t_y1 = text_h ? ((float)text_y1) / text_h : 0.0f;
+	t_y2 = text_h ? ((float)text_y2) / text_h : 0.0f;
+
+	text_x2 -= text_w;
+	text_y2 -= text_h;
 
 	tex_file_name = skinFile->PullAsString( "skin.menu background" );
 	if( TA3D_exists( tex_file_name ) )	menu_background = gfx->load_texture( tex_file_name, FILTER_LINEAR );

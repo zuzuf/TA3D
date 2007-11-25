@@ -14,7 +14,9 @@
 	lock=true;
 	number of objects=3;
 	hidden=true;
-	color=0xCFC0C0C0;
+	color=0xFFFFFFFF;
+	background=gfx/background.jpg;
+	repeat background=true;
 	[object0]
 	{
 		name=menu_label;

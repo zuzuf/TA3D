@@ -11,19 +11,20 @@
 
 	title bar=gfx/default_skin/title_bar.tga;
 
-	window border0=gfx/default_skin/border0.tga;
-	window border1=gfx/default_skin/border1.tga;
-	window border2=gfx/default_skin/border2.tga;
-	window border3=gfx/default_skin/border3.tga;
-	window border4=gfx/default_skin/border4.tga;
-	window border5=gfx/default_skin/border5.tga;
-	window border6=gfx/default_skin/border6.tga;
-	window border7=gfx/default_skin/border7.tga;
+	window borders=gfx/default_skin/window_borders.tga;
+	border_x1=8;
+	border_y1=4;
+	border_x2=324;
+	border_y2=383;
 
 	progress bar0=gfx/default_skin/progress_bar0.tga;
 	progress bar1=gfx/default_skin/progress_bar1.tga;
 
 	text background=gfx/default_skin/text_background.tga;
+	text_x1=12;
+	text_y1=10;
+	text_x2=251;
+	text_y2=24;
 
 	menu background=gfx/default_skin/menu_background.tga;
 

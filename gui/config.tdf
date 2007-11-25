@@ -646,7 +646,7 @@
 		x1=420;
 		y1=320;
 		x2=600;
-		y2=340;
+		y2=350;
 		value=30;
 		size=1;
 	}
@@ -656,7 +656,7 @@
 		type=TEXT;
 		caption=camera zoom;
 		x1=32;
-		y1=340;
+		y1=360;
 		value=0xFFFFFFFF;
 		size=1;
 	}
@@ -666,9 +666,9 @@
 		type=MENU;
 		entry=,Normal,Fixed Angle;
 		x1=420;
-		y1=340;
+		y1=360;
 		x2=600;
-		y2=356;
+		y2=376;
 		value=0;
 		size=1;
 	}
@@ -677,9 +677,9 @@
 		name=box_camera_zoom;
 		type=BOX;
 		x1=32;
-		y1=340;
+		y1=360;
 		x2=608;
-		y2=356;
+		y2=376;
 		value=0x0;
 		size=1;
 		highlight=true;
@@ -690,7 +690,7 @@
 		type=TEXT;
 		caption=camera default angle;
 		x1=32;
-		y1=356;
+		y1=376;
 		value=0xFFFFFFFF;
 		size=1;
 	}
@@ -700,9 +700,9 @@
 		type=MENU;
 		entry=,45,50,55,60,63.44,65,70,75,80,85,90;
 		x1=420;
-		y1=356;
+		y1=376;
 		x2=600;
-		y2=372;
+		y2=392;
 		value=0;
 		size=1;
 	}
@@ -711,9 +711,9 @@
 		name=box_camera_def_angle;
 		type=BOX;
 		x1=32;
-		y1=356;
+		y1=376;
 		x2=608;
-		y2=372;
+		y2=392;
 		value=0x0;
 		size=1;
 		highlight=true;
@@ -724,7 +724,7 @@
 		type=TEXT;
 		caption=camera default height;
 		x1=32;
-		y1=372;
+		y1=392;
 		value=0xFFFFFFFF;
 		size=1;
 	}
@@ -734,9 +734,9 @@
 		type=MENU;
 		entry=,100,125,150,175,200,225,250,275,300;
 		x1=420;
-		y1=372;
+		y1=392;
 		x2=600;
-		y2=388;
+		y2=408;
 		value=0;
 		size=1;
 	}
@@ -745,9 +745,9 @@
 		name=box_camera_def_h;
 		type=BOX;
 		x1=32;
-		y1=372;
+		y1=392;
 		x2=608;
-		y2=388;
+		y2=408;
 		value=0x0;
 		size=1;
 		highlight=true;
@@ -758,7 +758,7 @@
 		type=TEXT;
 		caption=camera zoom speed;
 		x1=32;
-		y1=388;
+		y1=408;
 		value=0xFFFFFFFF;
 		size=1;
 	}
@@ -768,9 +768,9 @@
 		type=MENU;
 		entry=,0.25,0.5,0.75,1.0,1.25,1.5,1.75,2.0,2.25,2.5,2.75,3.0;
 		x1=420;
-		y1=388;
+		y1=408;
 		x2=600;
-		y2=404;
+		y2=424;
 		value=0;
 		size=1;
 	}
@@ -779,9 +779,9 @@
 		name=box_camera_zoom_speed;
 		type=BOX;
 		x1=32;
-		y1=388;
+		y1=408;
 		x2=608;
-		y2=404;
+		y2=424;
 		value=0x0;
 		size=1;
 		highlight=true;

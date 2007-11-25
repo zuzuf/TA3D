@@ -10,7 +10,9 @@
 	show title=true;
 	number of objects=2;
 	hidden=true;
-	color=0xCFC0C0C0;
+	color=0xFFFFFFFF;
+	background=gfx/background.jpg;
+	repeat background=true;
 	[object0]
 	{
 		name=b_play;

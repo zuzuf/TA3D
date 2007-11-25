@@ -231,6 +231,9 @@ public:
 	int			NbObj;			// Number of objects
 
 	GLuint		background;		// Uses a background
+	bool		repeat_bkg;		// Repeat or scale background ?
+	uint32		bkg_w;
+	uint32		bkg_h;
 
 	bool		Lock;			// Moveable window?
 	bool		show_title;		// Draw the title?
@@ -250,6 +253,8 @@ public:
 
 	inline WND()			// Constructor
 	{
+		bkg_w = bkg_h = 1;
+		repeat_bkg = false;
 		color = makeacol( 0x7F, 0x7F, 0x7F, 0xFF );			// Default : grey
 		hidden = false;
 		was_hidden = false;
@@ -270,6 +275,8 @@ public:
 
 	inline WND( const String &filename )			// Constructor
 	{
+		bkg_w = bkg_h = 1;
+		repeat_bkg = false;
 		color = makeacol( 0x7F, 0x7F, 0x7F, 0xFF );			// Default : grey
 		hidden = false;
 		u_format = U_UTF8;
@@ -359,6 +366,11 @@ public:
 	GLuint		wnd_border_w[8];
 	GLuint		wnd_border_h[8];
 	GLuint		text_background;						// Background for TEXTBAR, LISTBOX, ... everything that uses a background for text
+	sint32		text_x1, text_y1;						// useful data to draw text bars correctly at the right size
+	sint32		text_x2, text_y2;
+	float		t_x1, t_y1;								// useful data to draw text bars correctly at the right size
+	float		t_x2, t_y2;
+	uint32		text_w, text_h;							// Size of text bar textures
 	GLuint		menu_background;						// The background image for floating menus
 	GLuint		selection_gfx;							// The selection image ( drawn when an element is selected )
 	GLuint		checkbox[2];							// Checkbox images
