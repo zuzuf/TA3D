@@ -225,6 +225,7 @@ class WND						// Class for the window object
 public:
 	int			x,y;            // coordinates
 	int			width,height;   // size
+	int			title_h;		// title height as it is displayed
 	String		Title;	 		// title
 	String		Name;			// Name of the window
 	GUIOBJ		*Objets;		// Objects within the window
@@ -253,6 +254,7 @@ public:
 
 	inline WND()			// Constructor
 	{
+		title_h = 0;
 		bkg_w = bkg_h = 1;
 		repeat_bkg = false;
 		color = makeacol( 0x7F, 0x7F, 0x7F, 0xFF );			// Default : grey
@@ -394,8 +396,8 @@ public:
 	SKIN_OBJECT	button_img[2];							// default background for buttons
 
 	SKIN_OBJECT	wnd_border;								// borders of the windows
-	GLuint		progress_bar[2];						// progress bar images, one for background, one for the bar itself
-	GLuint		wnd_title_bar;							// default title bar for windows
+	SKIN_OBJECT	progress_bar[2];						// progress bar images, one for background, one for the bar itself
+	SKIN_OBJECT	wnd_title_bar;							// default title bar for windows
 	String		Name;									// The name of the skin ( will be used to change skin )
 	SKIN_OBJECT	text_background;						// Background for TEXTBAR, LISTBOX, ... everything that uses a background for text
 	SKIN_OBJECT	menu_background;						// The background image for floating menus

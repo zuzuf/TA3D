@@ -472,9 +472,10 @@ void WND::draw(bool Focus,bool Deg, SKIN *skin )
 		gfx->set_color( color );
 		if( draw_borders && skin->wnd_border.tex )
 			skin->wnd_border.draw( x - skin->wnd_border.x1, y - skin->wnd_border.y1, x + width - skin->wnd_border.x2, y + height - skin->wnd_border.y2, false );
-		if( show_title ) {
-			gfx->drawtexture( skin->wnd_title_bar, x+3, y+3, x+width-4, y+5+gui_font.height() );
-			gfx->print(gui_font,x+20,y+4,0,Blanc,Title);
+		if( show_title && skin->wnd_title_bar.tex ) {
+			title_h = (int)(max( 2 + gui_font.height(), (float)skin->wnd_title_bar.y1 ) - skin->wnd_title_bar.y2);
+			skin->wnd_title_bar.draw( x+3, y+3, x+width-4, y + 3 + title_h );
+			gfx->print(gui_font,x+5+skin->wnd_title_bar.x1,y + 3 + (title_h - gui_font.height() )/2,0,Blanc,Title);
 			}
 		glDisable( GL_BLEND );
 		glBindTexture(GL_TEXTURE_2D, 0);
@@ -489,6 +490,7 @@ void WND::draw(bool Focus,bool Deg, SKIN *skin )
 			gfx->line(x-1,y-1,x-1,y+height,GrisC);
 			}
 		if(show_title) {
+			title_h = (int)( 2 + gui_font.height() );
 			if(Deg) {
 				if(Focus)	{
 					glBegin(GL_QUADS);
@@ -628,8 +630,8 @@ byte WND::WinMov(int AMx,int AMy,int AMb,int Mx,int My,int Mb)
 {
 	byte WinMouse=0;
 	if(AMb==1&&Mb==1 && !Lock)
-		if(AMx>=x+3&&AMx<=x+width-4)
-			if(AMy>=y+3&&AMy<=y+5+gui_font.height()) {
+		if( AMx >= x + 3 && AMx <= x + width - 4 )
+			if( AMy >= y + 3 && AMy <= y + 3 + title_h ) {
 				x+=Mx-AMx;
 				y+=My-AMy;
 				}
@@ -1602,8 +1604,8 @@ void ProgressBar(int x1,int y1,int x2,int y2,int Value, SKIN *skin )
 	if( skin && skin->progress_bar[0] && skin->progress_bar[1] ) {			// If we have a skin loaded with gfx for the progress bar
 		gfx->set_alpha_blending();
 		gfx->set_color( 0xFFFFFFFF );
-		gfx->drawtexture( skin->progress_bar[0], x1, y1, x2, y2 );										// Draw the background
-		gfx->drawtexture( skin->progress_bar[1], x1, y1, x1 + (x2 - x1) * Value * 0.01f, y2 );			// Draw the bar
+		skin->progress_bar[0].draw( x1, y1, x2, y2 );
+		skin->progress_bar[1].draw( x1 + skin->progress_bar[0].x1, y1 + skin->progress_bar[0].y1, x1 + skin->progress_bar[0].x1 + (skin->progress_bar[0].x2 + x2 - x1 - skin->progress_bar[0].x1) * Value * 0.01f, y2 + skin->progress_bar[0].y2 );			// Draw the bar
 
 		String Buf = format("%d\%", Value);
 
@@ -2510,11 +2512,11 @@ void SKIN::init()
 	text_background.init();
 	menu_background.init();
 	wnd_border.init();
+	wnd_title_bar.init();
 
 	wnd_background = 0;
 	for( int i = 0 ; i < 2 ; i++ )
-		progress_bar[i] = 0;
-	wnd_title_bar = 0;
+		progress_bar[i].init();
 	selection_gfx = 0;
 	checkbox[1] = checkbox[0] = 0;
 	option[1] = option[0] = 0;
@@ -2527,12 +2529,12 @@ void SKIN::destroy()
 	text_background.destroy();
 	menu_background.destroy();
 	wnd_border.destroy();
+	wnd_title_bar.destroy();
+	for( int i = 0 ; i < 2 ; i++ )
+		progress_bar[i].destroy();
 
 	Name.clear();
 	gfx->destroy_texture(  wnd_background );
-	for( int i = 0 ; i < 2 ; i++ )
-		gfx->destroy_texture( progress_bar[i] );
-	gfx->destroy_texture( wnd_title_bar );
 	gfx->destroy_texture( selection_gfx );
 	for( int i = 0 ; i < 2 ; i++ )
 		gfx->destroy_texture( checkbox[i] );
@@ -2576,18 +2578,13 @@ void SKIN::load_tdf( const String &filename )			// Loads the skin from a TDF fil
 	button_img[1].load( skinFile->PullAsString( "skin.button1" ), "skin.button_", skinFile );
 	text_background.load( skinFile->PullAsString( "skin.text background" ), "skin.text_", skinFile );
 	menu_background.load( skinFile->PullAsString( "skin.menu background" ), "skin.menu_", skinFile );
+	wnd_title_bar.load( skinFile->PullAsString( "skin.title bar" ), "skin.title_", skinFile );
+	progress_bar[0].load( skinFile->PullAsString( "skin.progress bar0" ), "skin.bar0_", skinFile );
+	progress_bar[1].load( skinFile->PullAsString( "skin.progress bar1" ), "skin.bar1_", skinFile );
 
 	String tex_file_name;
 	tex_file_name = skinFile->PullAsString( "skin.window background" );
 	if( TA3D_exists( tex_file_name ) )	wnd_background = gfx->load_texture( tex_file_name, FILTER_LINEAR );
-
-	tex_file_name = skinFile->PullAsString( "skin.progress bar0" );
-	if( TA3D_exists( tex_file_name ) )	progress_bar[0] = gfx->load_texture( tex_file_name, FILTER_LINEAR );
-	tex_file_name = skinFile->PullAsString( "skin.progress bar1" );
-	if( TA3D_exists( tex_file_name ) )	progress_bar[1] = gfx->load_texture( tex_file_name, FILTER_LINEAR );
-
-	tex_file_name = skinFile->PullAsString( "skin.title bar" );
-	if( TA3D_exists( tex_file_name ) )	wnd_title_bar = gfx->load_texture( tex_file_name, FILTER_LINEAR );
 
 	tex_file_name = skinFile->PullAsString( "skin.selection" );
 	if( TA3D_exists( tex_file_name ) )	selection_gfx = gfx->load_texture( tex_file_name, FILTER_LINEAR );

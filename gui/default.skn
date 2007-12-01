@@ -10,6 +10,10 @@
 	button_y2=15;
 
 	title bar=gfx/default_skin/title_bar.tga;
+	title_x1=12;
+	title_y1=12;
+	title_x2=162;
+	title_y2=19;
 
 	window borders=gfx/default_skin/window_borders.tga;
 	border_x1=8;
@@ -18,7 +22,15 @@
 	border_y2=383;
 
 	progress bar0=gfx/default_skin/progress_bar0.tga;
+	bar0_x1=12;
+	bar0_y1=10;
+	bar0_x2=251;
+	bar0_y2=24;
 	progress bar1=gfx/default_skin/progress_bar1.tga;
+	bar1_x1=0;
+	bar1_y1=0;
+	bar1_x2=242;
+	bar1_y2=16;
 
 	text background=gfx/default_skin/text_background.tga;
 	text_x1=12;
