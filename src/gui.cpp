@@ -1417,17 +1417,28 @@ void ListBox(int x1,int y1, int x2, int y2,const Vector<String> &Entry,int Index
 {
 	if( skin && skin->text_background ) {
 		gfx->set_alpha_blending();
-		gfx->set_color( 1.0f, 1.0f, 1.0f, 1.0f );
+		gfx->set_color( 0xFFFFFFFF );
 
-		gfx->drawtexture( skin->text_background, x1, y1, x2, y2 );
+		gfx->drawtexture( skin->text_background , x1, y1, x1 + skin->text_x1, y1 + skin->text_y1, 0.0f, 0.0f, skin->t_x1, skin->t_y1 );
+		gfx->drawtexture( skin->text_background , x1 + skin->text_x1, y1, x2 + skin->text_x2, y1 + skin->text_y1, skin->t_x1, 0.0f, skin->t_x2, skin->t_y1 );
+		gfx->drawtexture( skin->text_background , x2 + skin->text_x2, y1, x2, y1 + skin->text_y1, skin->t_x2, 0.0f, 1.0f, skin->t_y1 );
+
+		gfx->drawtexture( skin->text_background , x1, y1 + skin->text_y1, x1 + skin->text_x1, y2 + skin->text_y2, 0.0f, skin->t_y1, skin->t_x1, skin->t_y2 );
+		gfx->drawtexture( skin->text_background , x2 + skin->text_x2, y1 + skin->text_y1, x2, y2 + skin->text_y2, skin->t_x2, skin->t_y1, 1.0f, skin->t_y2 );
+
+		gfx->drawtexture( skin->text_background , x1, y2 + skin->text_y2, x1 + skin->text_x1, y2, 0.0f, skin->t_y2, skin->t_x1, 1.0f );
+		gfx->drawtexture( skin->text_background , x1 + skin->text_x1, y2 + skin->text_y2, x2 + skin->text_x2, y2, skin->t_x1, skin->t_y2, skin->t_x2, 1.0f );
+		gfx->drawtexture( skin->text_background , x2 + skin->text_x2, y2 + skin->text_y2, x2, y2, skin->t_x2, skin->t_y2, 1.0f, 1.0f );
+
+		gfx->drawtexture( skin->text_background , x1 + skin->text_x1, y1 + skin->text_y1, x2 + skin->text_x2, y2 + skin->text_y2, skin->t_x1, skin->t_y1, skin->t_x2, skin->t_y2 );
 
 		int i;
 		for(i=0;i<Entry.size();i++) {
 			int e = i+Scroll;
 			if( e >= Entry.size() || gui_font.height() * (i+1) > y2-y1-8 ) break;		// If we are out break the loop
 			if( e == Index )
-				gfx->drawtexture( skin->selection_gfx, x1+4, y1+4+gui_font.height()*i, x2-4, y1+4+gui_font.height()*(i+1) );
-			gfx->print(gui_font,x1+4,y1+4+gui_font.height()*i,0.0f,use_normal_alpha_function ? Blanc : Noir,Entry[e]);
+				gfx->drawtexture( skin->selection_gfx, x1+skin->text_x1, y1+skin->text_y1+gui_font.height()*i, x2 + skin->text_x2, y1+skin->text_y1+gui_font.height()*(i+1) );
+			gfx->print(gui_font,x1+skin->text_x1,y1+skin->text_y1+gui_font.height()*i,0.0f,use_normal_alpha_function ? Blanc : Noir,Entry[e]);
 			}
 
 		gfx->unset_alpha_blending();

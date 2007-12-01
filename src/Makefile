@@ -110,7 +110,7 @@ CPP = gcc -E
 CPPFLAGS = 
 CXX = g++
 CXXDEPMODE = depmode=gcc3
-CXXFLAGS = -g -O0 -march=nocona -I/usr/local/include -ffast-math -mmmx
+CXXFLAGS = -g -O0 -I/usr/local/include -ffast-math -mmmx
 CYGPATH_W = echo
 DEFS = -DHAVE_CONFIG_H
 DEPDIR = .deps
