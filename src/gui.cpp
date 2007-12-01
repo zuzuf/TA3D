@@ -1408,8 +1408,12 @@ void ListBox(int x1,int y1, int x2, int y2,const Vector<String> &Entry,int Index
 		for(i=0;i<Entry.size();i++) {
 			int e = i+Scroll;
 			if( e >= Entry.size() || gui_font.height() * (i+1) > y2-y1-8 ) break;		// If we are out break the loop
-			if( e == Index )
-				gfx->drawtexture( skin->selection_gfx, x1+skin->text_background.x1, y1+skin->text_background.y1+gui_font.height()*i, x2 + skin->text_background.x2, y1+skin->text_background.y1+gui_font.height()*(i+1) );
+			if( e == Index ) {
+				if( skin->selection_gfx.tex )
+					skin->selection_gfx.draw( x1 + skin->text_background.x1, y1 + skin->text_background.y1 + gui_font.height()*i, x2 + skin->text_background.x2, y1 + skin->text_background.y1+gui_font.height()*(i+1) );
+				else
+					gfx->rectfill( x1 + skin->text_background.x1, y1 + skin->text_background.y1 + gui_font.height()*i, x2 + skin->text_background.x2, y1 + skin->text_background.y1+gui_font.height()*(i+1), Bleu );
+				}
 			gfx->print(gui_font,x1+skin->text_background.x1,y1+skin->text_background.y1+gui_font.height()*i,0.0f,use_normal_alpha_function ? Blanc : Noir,Entry[e]);
 			}
 
@@ -1450,8 +1454,12 @@ void FloatMenu( int x, int y, const Vector<String> &Entry, int Index, int StartE
 		int i;
 		for( i=0 ; i<Entry.size() - StartEntry ; i++ ) {
 			int e = i + StartEntry;
-			if( e == Index )
-				gfx->drawtexture( skin->selection_gfx, x+skin->menu_background.x1,y+skin->menu_background.y1+gui_font.height()*i,x+168+skin->menu_background.x2,y+skin->menu_background.y1+gui_font.height()*(i+1) );
+			if( e == Index ) {
+				if( skin->selection_gfx.tex )
+					skin->selection_gfx.draw( x+skin->menu_background.x1,y+skin->menu_background.y1+gui_font.height()*i,x+168+skin->menu_background.x2,y+skin->menu_background.y1+gui_font.height()*(i+1) );
+				else
+					gfx->rectfill( x+skin->menu_background.x1,y+skin->menu_background.y1+gui_font.height()*i,x+168+skin->menu_background.x2,y+skin->menu_background.y1+gui_font.height()*(i+1), Bleu );
+				}
 			gfx->print(gui_font,x+skin->menu_background.x1,y+skin->menu_background.y1+gui_font.height()*i,0.0f,use_normal_alpha_function ? Blanc : Noir,Entry[e]);
 			}
 
@@ -1601,7 +1609,7 @@ void TextBar(int x1,int y1,int x2,int y2,const String &Caption,bool Etat, SKIN *
 
 void ProgressBar(int x1,int y1,int x2,int y2,int Value, SKIN *skin )
 {
-	if( skin && skin->progress_bar[0] && skin->progress_bar[1] ) {			// If we have a skin loaded with gfx for the progress bar
+	if( skin && skin->progress_bar[0].tex && skin->progress_bar[1].tex ) {			// If we have a skin loaded with gfx for the progress bar
 		gfx->set_alpha_blending();
 		gfx->set_color( 0xFFFFFFFF );
 		skin->progress_bar[0].draw( x1, y1, x2, y2 );
@@ -2513,11 +2521,11 @@ void SKIN::init()
 	menu_background.init();
 	wnd_border.init();
 	wnd_title_bar.init();
+	selection_gfx.init();
 
 	wnd_background = 0;
 	for( int i = 0 ; i < 2 ; i++ )
 		progress_bar[i].init();
-	selection_gfx = 0;
 	checkbox[1] = checkbox[0] = 0;
 	option[1] = option[0] = 0;
 }
@@ -2532,10 +2540,10 @@ void SKIN::destroy()
 	wnd_title_bar.destroy();
 	for( int i = 0 ; i < 2 ; i++ )
 		progress_bar[i].destroy();
+	selection_gfx.destroy();
 
 	Name.clear();
 	gfx->destroy_texture(  wnd_background );
-	gfx->destroy_texture( selection_gfx );
 	for( int i = 0 ; i < 2 ; i++ )
 		gfx->destroy_texture( checkbox[i] );
 	for( int i = 0 ; i < 2 ; i++ )
@@ -2581,13 +2589,11 @@ void SKIN::load_tdf( const String &filename )			// Loads the skin from a TDF fil
 	wnd_title_bar.load( skinFile->PullAsString( "skin.title bar" ), "skin.title_", skinFile );
 	progress_bar[0].load( skinFile->PullAsString( "skin.progress bar0" ), "skin.bar0_", skinFile );
 	progress_bar[1].load( skinFile->PullAsString( "skin.progress bar1" ), "skin.bar1_", skinFile );
+	selection_gfx.load( skinFile->PullAsString( "skin.selection" ), "skin.selection_", skinFile );
 
 	String tex_file_name;
 	tex_file_name = skinFile->PullAsString( "skin.window background" );
 	if( TA3D_exists( tex_file_name ) )	wnd_background = gfx->load_texture( tex_file_name, FILTER_LINEAR );
-
-	tex_file_name = skinFile->PullAsString( "skin.selection" );
-	if( TA3D_exists( tex_file_name ) )	selection_gfx = gfx->load_texture( tex_file_name, FILTER_LINEAR );
 
 	tex_file_name = skinFile->PullAsString( "skin.checkbox0" );
 	if( TA3D_exists( tex_file_name ) )	checkbox[0] = gfx->load_texture( tex_file_name, FILTER_LINEAR );

@@ -401,7 +401,7 @@ public:
 	String		Name;									// The name of the skin ( will be used to change skin )
 	SKIN_OBJECT	text_background;						// Background for TEXTBAR, LISTBOX, ... everything that uses a background for text
 	SKIN_OBJECT	menu_background;						// The background image for floating menus
-	GLuint		selection_gfx;							// The selection image ( drawn when an element is selected )
+	SKIN_OBJECT	selection_gfx;							// The selection image ( drawn when an element is selected )
 	GLuint		checkbox[2];							// Checkbox images
 	GLuint		option[2];								// Option button images
 

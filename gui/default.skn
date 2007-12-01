@@ -45,6 +45,10 @@
 	menu_y2=383;
 
 	selection=gfx/default_skin/selection.tga;
+	selection_x1=0;
+	selection_y1=0;
+	selection_x2=99;
+	selection_y2=15;
 
 	option0=gfx/default_skin/option0.tga;
 	option1=gfx/default_skin/option1.tga;
