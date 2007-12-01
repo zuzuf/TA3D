@@ -392,7 +392,7 @@ public:
 class SKIN													// This class is designed to manage skins for GUI
 {															// Only one object of this class should be created
 public:
-	GLuint	wnd_background;							// default background for windows
+	GLuint		wnd_background;							// default background for windows
 	SKIN_OBJECT	button_img[2];							// default background for buttons
 
 	SKIN_OBJECT	wnd_border;								// borders of the windows
@@ -402,8 +402,8 @@ public:
 	SKIN_OBJECT	text_background;						// Background for TEXTBAR, LISTBOX, ... everything that uses a background for text
 	SKIN_OBJECT	menu_background;						// The background image for floating menus
 	SKIN_OBJECT	selection_gfx;							// The selection image ( drawn when an element is selected )
-	GLuint		checkbox[2];							// Checkbox images
-	GLuint		option[2];								// Option button images
+	SKIN_OBJECT	checkbox[2];							// Checkbox images
+	SKIN_OBJECT	option[2];								// Option button images
 
 public:
 

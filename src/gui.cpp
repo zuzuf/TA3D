@@ -231,9 +231,9 @@ void GUIOBJ::create_optionc(int X1,int Y1,const String &Caption,bool ETAT,void (
 	Type=OBJ_OPTIONC;
 	x1=X1;													y1=Y1;
 	x2=X1+(int)gui_font.length( Caption )+4;				y2=Y1;
-	if( skin && skin->checkbox[0] && skin->checkbox[1] ) {
-		x2+=gfx->texture_width( skin->checkbox[0] );
-		y2+=gfx->texture_height( skin->checkbox[0] );
+	if( skin && skin->checkbox[0].tex && skin->checkbox[1].tex ) {
+		x2 += max( skin->checkbox[0].w, skin->checkbox[1].w );
+		y2 += max( skin->checkbox[0].h, skin->checkbox[1].h );
 		}
 	else {
 		x2+=8;
@@ -252,9 +252,9 @@ void GUIOBJ::create_optionb(int X1,int Y1,const String &Caption,bool ETAT,void (
 	Type=OBJ_OPTIONB;
 	x1=X1;												y1=Y1;
 	x2=X1+(int)gui_font.length( Caption )+4;			y2=Y1;
-	if( skin && skin->option[0] && skin->option[1] ) {
-		x2+=gfx->texture_width( skin->option[0] );
-		y2+=gfx->texture_height( skin->option[0] );
+	if( skin && skin->option[0].tex && skin->option[1].tex ) {
+		x2 += max( skin->option[0].w, skin->option[1].w );
+		y2 += max( skin->option[0].h, skin->option[1].h );
 		}
 	else {
 		x2+=8;
@@ -845,8 +845,8 @@ int WND::check(int AMx,int AMy,int AMb,bool timetoscroll, SKIN *skin )
 					break;
 				case OBJ_OPTIONC:		// Case à cocher
 					if(was_on_floating_menu)	break;
-					if( skin && skin->checkbox[0] && skin->checkbox[1]) {
-						if(mouse_x<=x+Objets[i].x1+gfx->texture_width( skin->checkbox[0] ) && mouse_y<=y+Objets[i].y1+gfx->texture_height( skin->checkbox[0] ))
+					if( skin && skin->checkbox[0].tex && skin->checkbox[1].tex) {
+						if(mouse_x<=x+Objets[i].x1+skin->checkbox[Objets[i].Etat?1:0].w && mouse_y<=y+Objets[i].y1+skin->checkbox[Objets[i].Etat?1:0].h)
 							Objets[i].Etat^=true;
 						}
 					else if(mouse_x<=x+Objets[i].x1+12 && mouse_y<=y+Objets[i].y1+12)
@@ -856,8 +856,8 @@ int WND::check(int AMx,int AMy,int AMb,bool timetoscroll, SKIN *skin )
 					break;
 				case OBJ_OPTIONB:		// Boutton d'option
 					if(was_on_floating_menu)	break;
-					if( skin && skin->option[0] && skin->option[1]) {
-						if(mouse_x<=x+Objets[i].x1+gfx->texture_width( skin->option[0] ) && mouse_y<=y+Objets[i].y1+gfx->texture_height( skin->option[0] ))
+					if( skin && skin->option[0].tex && skin->option[1].tex) {
+						if(mouse_x<=x+Objets[i].x1+skin->option[Objets[i].Etat?1:0].w && mouse_y<=y+Objets[i].y1+skin->option[Objets[i].Etat?1:0].h)
 							Objets[i].Etat^=true;
 						}
 					else
@@ -1490,16 +1490,13 @@ void FloatMenu( int x, int y, const Vector<String> &Entry, int Index, int StartE
 
 void OptionButton(int x,int y,const String &Title,bool Etat, SKIN *skin )
 {
-	if( skin && skin->option[0] && skin->option[1] ) {
+	if( skin && skin->option[0].tex && skin->option[1].tex ) {
 		gfx->set_alpha_blending();
 		gfx->set_color( 1.0f, 1.0f, 1.0f, 1.0f );
 
-		gfx->drawtexture( skin->option[0], x, y, x + gfx->texture_width( skin->option[0] ), y + gfx->texture_height( skin->option[0] ) );
+		skin->option[ Etat ? 1 : 0 ].draw( x, y, x + skin->option[ Etat ? 1 : 0 ].w, y + skin->option[ Etat ? 1 : 0 ].h );
 
-		if( Etat )
-			gfx->drawtexture( skin->option[1], x, y, x + gfx->texture_width( skin->option[1] ), y + gfx->texture_height( skin->option[1] ) );
-
-		gfx->print(gui_font, x + gfx->texture_width( skin->option[0] ) + 4, y + ( gfx->texture_height( skin->option[0] ) - gui_font.height() ) * 0.5f,0.0f,use_normal_alpha_function ? Blanc : Noir,Title);
+		gfx->print(gui_font, x + skin->option[ Etat ? 1 : 0 ].w + 4, y + ( skin->option[ Etat ? 1 : 0 ].h - gui_font.height() ) * 0.5f,0.0f,use_normal_alpha_function ? Blanc : Noir,Title);
 
 		gfx->unset_alpha_blending();
 		}
@@ -1539,16 +1536,13 @@ void OptionButton(int x,int y,const String &Title,bool Etat, SKIN *skin )
 
 void OptionCase(int x,int y,const String &Title,bool Etat, SKIN *skin )
 {
-	if( skin && skin->checkbox[0] && skin->checkbox[1] ) {
+	if( skin && skin->checkbox[0].tex && skin->checkbox[1].tex ) {
 		gfx->set_alpha_blending();
 		gfx->set_color( 1.0f, 1.0f, 1.0f, 1.0f );
 
-		gfx->drawtexture( skin->checkbox[0], x, y, x + gfx->texture_width( skin->checkbox[0] ), y + gfx->texture_height( skin->checkbox[0] ) );
+		skin->checkbox[ Etat ? 1 : 0 ].draw( x, y, x + skin->checkbox[ Etat ? 1 : 0 ].w, y + skin->checkbox[ Etat ? 1 : 0 ].h );
 
-		if( Etat )
-			gfx->drawtexture( skin->checkbox[1], x, y, x + gfx->texture_width( skin->checkbox[1] ), y + gfx->texture_height( skin->checkbox[1] ) );
-
-		gfx->print(gui_font, x + gfx->texture_width( skin->checkbox[0] ) + 4, y + ( gfx->texture_height( skin->checkbox[0] ) - gui_font.height() ) * 0.5f,0.0f,use_normal_alpha_function ? Blanc : Noir,Title);
+		gfx->print(gui_font, x + skin->checkbox[ Etat ? 1 : 0 ].w + 4, y + ( skin->checkbox[ Etat ? 1 : 0 ].h - gui_font.height() ) * 0.5f,0.0f,use_normal_alpha_function ? Blanc : Noir,Title);
 
 		gfx->unset_alpha_blending();
 		}
@@ -2522,12 +2516,14 @@ void SKIN::init()
 	wnd_border.init();
 	wnd_title_bar.init();
 	selection_gfx.init();
-
-	wnd_background = 0;
 	for( int i = 0 ; i < 2 ; i++ )
 		progress_bar[i].init();
-	checkbox[1] = checkbox[0] = 0;
-	option[1] = option[0] = 0;
+
+	wnd_background = 0;
+	checkbox[1].init();
+	checkbox[0].init();
+	option[1].init();
+	option[0].init();
 }
 
 void SKIN::destroy()
@@ -2545,9 +2541,9 @@ void SKIN::destroy()
 	Name.clear();
 	gfx->destroy_texture(  wnd_background );
 	for( int i = 0 ; i < 2 ; i++ )
-		gfx->destroy_texture( checkbox[i] );
+		checkbox[i].destroy();
 	for( int i = 0 ; i < 2 ; i++ )
-		gfx->destroy_texture( option[i] );
+		option[i].destroy();
 }
 
 void SKIN::load_tdf( const String &filename )			// Loads the skin from a TDF file
@@ -2590,20 +2586,13 @@ void SKIN::load_tdf( const String &filename )			// Loads the skin from a TDF fil
 	progress_bar[0].load( skinFile->PullAsString( "skin.progress bar0" ), "skin.bar0_", skinFile );
 	progress_bar[1].load( skinFile->PullAsString( "skin.progress bar1" ), "skin.bar1_", skinFile );
 	selection_gfx.load( skinFile->PullAsString( "skin.selection" ), "skin.selection_", skinFile );
+	option[0].load( skinFile->PullAsString( "skin.option0" ), "skin.option_", skinFile );
+	option[1].load( skinFile->PullAsString( "skin.option1" ), "skin.option_", skinFile );
+	checkbox[0].load( skinFile->PullAsString( "skin.checkbox0" ), "skin.checkbox_", skinFile );
+	checkbox[1].load( skinFile->PullAsString( "skin.checkbox1" ), "skin.checkbox_", skinFile );
 
-	String tex_file_name;
-	tex_file_name = skinFile->PullAsString( "skin.window background" );
+	String tex_file_name = skinFile->PullAsString( "skin.window background" );
 	if( TA3D_exists( tex_file_name ) )	wnd_background = gfx->load_texture( tex_file_name, FILTER_LINEAR );
-
-	tex_file_name = skinFile->PullAsString( "skin.checkbox0" );
-	if( TA3D_exists( tex_file_name ) )	checkbox[0] = gfx->load_texture( tex_file_name, FILTER_LINEAR );
-	tex_file_name = skinFile->PullAsString( "skin.checkbox1" );
-	if( TA3D_exists( tex_file_name ) )	checkbox[1] = gfx->load_texture( tex_file_name, FILTER_LINEAR );
-
-	tex_file_name = skinFile->PullAsString( "skin.option0" );
-	if( TA3D_exists( tex_file_name ) )	option[0] = gfx->load_texture( tex_file_name, FILTER_LINEAR );
-	tex_file_name = skinFile->PullAsString( "skin.option1" );
-	if( TA3D_exists( tex_file_name ) )	option[1] = gfx->load_texture( tex_file_name, FILTER_LINEAR );
 
 	delete skinFile; 
 

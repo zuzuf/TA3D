@@ -52,7 +52,15 @@
 
 	option0=gfx/default_skin/option0.tga;
 	option1=gfx/default_skin/option1.tga;
+	option_x1=0;
+	option_y1=0;
+	option_x2=14;
+	option_y2=14;
 
 	checkbox0=gfx/default_skin/checkbox0.tga;
 	checkbox1=gfx/default_skin/checkbox1.tga;
+	checkbox_x1=0;
+	checkbox_y1=0;
+	checkbox_x2=24;
+	checkbox_y2=19;
 }

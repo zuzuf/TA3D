@@ -8,7 +8,7 @@
 	height=480;
 	draw borders=false;
 	show title=false;
-	number of objects=70;
+	number of objects=49;
 	hidden=false;
 	lock=true;
 	color=0x00000000;			// Fully transparent so we can see the AREA background
@@ -83,24 +83,12 @@
 		name=showfps;
 		type=OPTIONC;
 		caption=;
-		x1=592;
-		y1=52;
+		x1=578;
+		y1=48;
 		value=0;
 		size=1;
 	}
-	[object7]		// Option "showfps"
-	{
-		name=box_showfps;
-		type=BOX;
-		x1=32;
-		y1=48;
-		x2=608;
-		y2=63;
-		value=0x0;
-		size=1;
-		highlight=true;
-	}
-	[object8]		// Option "fps_limit"
+	[object7]		// Option "fps_limit"
 	{
 		name=t_fps_limit;
 		type=TEXT;
@@ -110,7 +98,7 @@
 		value=0xFFFFFFFF;
 		size=1;
 	}
-	[object9]		// Option "fps_limit"
+	[object8]		// Option "fps_limit"
 	{
 		name=fps_limit;
 		type=MENU;
@@ -122,19 +110,7 @@
 		value=0;
 		size=1;
 	}
-	[object10]		// Option "fps_limit"
-	{
-		name=box_fps_limit;
-		type=BOX;
-		x1=32;
-		y1=64;
-		x2=608;
-		y2=79;
-		value=0x0;
-		size=1;
-		highlight=true;
-	}
-	[object11]		// Option "wireframe"
+	[object10]		// Option "wireframe"
 	{
 		name=t_wireframe;
 		type=TEXT;
@@ -144,29 +120,17 @@
 		value=0xFFFFFFFF;
 		size=1;
 	}
-	[object12]		// Option "wireframe"
+	[object11]		// Option "wireframe"
 	{
 		name=wireframe;
 		type=OPTIONC;
 		caption=;
-		x1=592;
-		y1=84;
+		x1=578;
+		y1=80;
 		value=0;
 		size=1;
 	}
-	[object13]		// Option "wireframe"
-	{
-		name=box_wireframe;
-		type=BOX;
-		x1=32;
-		y1=80;
-		x2=608;
-		y2=95;
-		value=0x0;
-		size=1;
-		highlight=true;
-	}
-	[object14]		// Option "particle"
+	[object12]		// Option "particle"
 	{
 		name=t_particle;
 		type=TEXT;
@@ -176,29 +140,17 @@
 		value=0xFFFFFFFF;
 		size=1;
 	}
-	[object15]		// Option "particle"
+	[object13]		// Option "particle"
 	{
 		name=particle;
 		type=OPTIONC;
 		caption=;
-		x1=592;
-		y1=100;
+		x1=578;
+		y1=96;
 		value=0;
 		size=1;
 	}
-	[object16]		// Option "particle"
-	{
-		name=box_particle;
-		type=BOX;
-		x1=32;
-		y1=96;
-		x2=608;
-		y2=111;
-		value=0x0;
-		size=1;
-		highlight=true;
-	}
-	[object17]		// Option "waves"
+	[object14]		// Option "waves"
 	{
 		name=t_waves;
 		type=TEXT;
@@ -208,29 +160,17 @@
 		value=0xFFFFFFFF;
 		size=1;
 	}
-	[object18]		// Option "waves"
+	[object15]		// Option "waves"
 	{
 		name=waves;
 		type=OPTIONC;
 		caption=;
-		x1=592;
-		y1=116;
+		x1=578;
+		y1=112;
 		value=0;
 		size=1;
 	}
-	[object19]		// Option "waves"
-	{
-		name=box_waves;
-		type=BOX;
-		x1=32;
-		y1=112;
-		x2=608;
-		y2=127;
-		value=0x0;
-		size=1;
-		highlight=true;
-	}
-	[object20]		// Option "shadow"
+	[object16]		// Option "shadow"
 	{
 		name=t_shadow;
 		type=TEXT;
@@ -240,29 +180,17 @@
 		value=0xFFFFFFFF;
 		size=1;
 	}
-	[object21]		// Option "shadow"
+	[object17]		// Option "shadow"
 	{
 		name=shadow;
 		type=OPTIONC;
 		caption=;
-		x1=592;
-		y1=132;
+		x1=578;
+		y1=128;
 		value=0;
 		size=1;
 	}
-	[object22]		// Option "shadow"
-	{
-		name=box_shadow;
-		type=BOX;
-		x1=32;
-		y1=128;
-		x2=608;
-		y2=143;
-		value=0x0;
-		size=1;
-		highlight=true;
-	}
-	[object23]		// Option "height_line"
+	[object18]		// Option "height_line"
 	{
 		name=t_height_line;
 		type=TEXT;
@@ -272,29 +200,17 @@
 		value=0xFFFFFFFF;
 		size=1;
 	}
-	[object24]		// Option "height_line"
+	[object19]		// Option "height_line"
 	{
 		name=height_line;
 		type=OPTIONC;
 		caption=;
-		x1=592;
-		y1=148;
+		x1=578;
+		y1=144;
 		value=0;
 		size=1;
 	}
-	[object25]		// Option "height_line"
-	{
-		name=box_height_line;
-		type=BOX;
-		x1=32;
-		y1=144;
-		x2=608;
-		y2=159;
-		value=0x0;
-		size=1;
-		highlight=true;
-	}
-	[object26]		// Option "detail_tex"
+	[object20]		// Option "detail_tex"
 	{
 		name=t_detail_tex;
 		type=TEXT;
@@ -304,29 +220,17 @@
 		value=0xFFFFFFFF;
 		size=1;
 	}
-	[object27]		// Option "detail_tex"
+	[object21]		// Option "detail_tex"
 	{
 		name=detail_tex;
 		type=OPTIONC;
 		caption=;
-		x1=592;
-		y1=164;
+		x1=578;
+		y1=160;
 		value=0;
 		size=1;
 	}
-	[object28]		// Option "detail_tex"
-	{
-		name=box_detail_tex;
-		type=BOX;
-		x1=32;
-		y1=160;
-		x2=608;
-		y2=175;
-		value=0x0;
-		size=1;
-		highlight=true;
-	}
-	[object29]		// Option "draw_console_loading"
+	[object22]		// Option "draw_console_loading"
 	{
 		name=t_draw_console_loading;
 		type=TEXT;
@@ -336,29 +240,17 @@
 		value=0xFFFFFFFF;
 		size=1;
 	}
-	[object30]		// Option "draw_console_loading"
+	[object23]		// Option "draw_console_loading"
 	{
 		name=draw_console_loading;
 		type=OPTIONC;
 		caption=;
-		x1=592;
-		y1=180;
+		x1=578;
+		y1=176;
 		value=0;
 		size=1;
 	}
-	[object31]		// Option "draw_console_loading"
-	{
-		name=box_draw_console_loading;
-		type=BOX;
-		x1=32;
-		y1=176;
-		x2=608;
-		y2=191;
-		value=0x0;
-		size=1;
-		highlight=true;
-	}
-	[object32]		// Option "fullscreen"
+	[object24]		// Option "fullscreen"
 	{
 		name=t_fullscreen;
 		type=TEXT;
@@ -368,29 +260,17 @@
 		value=0xFFFFFFFF;
 		size=1;
 	}
-	[object33]		// Option "fullscreen"
+	[object25]		// Option "fullscreen"
 	{
 		name=fullscreen;
 		type=OPTIONC;
 		caption=;
-		x1=592;
-		y1=196;
+		x1=578;
+		y1=192;
 		value=0;
 		size=1;
 	}
-	[object34]		// Option "fullscreen"
-	{
-		name=box_fullscreen;
-		type=BOX;
-		x1=32;
-		y1=192;
-		x2=608;
-		y2=207;
-		value=0x0;
-		size=1;
-		highlight=true;
-	}
-	[object35]		// Option "LANG"
+	[object26]		// Option "LANG"
 	{
 		name=t_LANG;
 		type=TEXT;
@@ -400,7 +280,7 @@
 		value=0xFFFFFFFF;
 		size=1;
 	}
-	[object51]		// Option "LANG"
+	[object27]		// Option "LANG"
 	{
 		name=LANG;
 		type=MENU;
@@ -412,19 +292,7 @@
 		value=0;
 		size=1;
 	}
-	[object37]		// Option "LANG"
-	{
-		name=box_LANG;
-		type=BOX;
-		x1=32;
-		y1=208;
-		x2=608;
-		y2=223;
-		value=0x0;
-		size=1;
-		highlight=true;
-	}
-	[object38]		// Option "screenres"
+	[object28]		// Option "screenres"
 	{
 		name=t_screenres;
 		type=TEXT;
@@ -434,7 +302,7 @@
 		value=0xFFFFFFFF;
 		size=1;
 	}
-	[object48]		// Option "screenres"
+	[object29]		// Option "screenres"
 	{
 		name=screenres;
 		type=MENU;
@@ -446,19 +314,7 @@
 		value=0;
 		size=1;
 	}
-	[object40]		// Option "screenres"
-	{
-		name=box_screenres;
-		type=BOX;
-		x1=32;
-		y1=224;
-		x2=608;
-		y2=239;
-		value=0x0;
-		size=1;
-		highlight=true;
-	}
-	[object41]		// Option "shadow_quality"
+	[object30]		// Option "shadow_quality"
 	{
 		name=t_shadow_quality;
 		type=TEXT;
@@ -468,7 +324,7 @@
 		value=0xFFFFFFFF;
 		size=1;
 	}
-	[object45]		// Option "shadow_quality"
+	[object31]		// Option "shadow_quality"
 	{
 		name=shadow_quality;
 		type=MENU;
@@ -480,19 +336,7 @@
 		value=0;
 		size=1;
 	}
-	[object43]		// Option "shadow_quality"
-	{
-		name=box_shadow_quality;
-		type=BOX;
-		x1=32;
-		y1=240;
-		x2=608;
-		y2=255;
-		value=0x0;
-		size=1;
-		highlight=true;
-	}
-	[object44]		// Option "timefactor"
+	[object32]		// Option "timefactor"
 	{
 		name=t_timefactor;
 		type=TEXT;
@@ -502,7 +346,7 @@
 		value=0xFFFFFFFF;
 		size=1;
 	}
-	[object42]		// Option "timefactor"
+	[object33]		// Option "timefactor"
 	{
 		name=timefactor;
 		type=MENU;
@@ -514,19 +358,7 @@
 		value=0;
 		size=1;
 	}
-	[object46]		// Option "timefactor"
-	{
-		name=box_timefactor;
-		type=BOX;
-		x1=32;
-		y1=256;
-		x2=608;
-		y2=271;
-		value=0x0;
-		size=1;
-		highlight=true;
-	}
-	[object47]		// Option "fsaa"
+	[object34]		// Option "fsaa"
 	{
 		name=t_fsaa;
 		type=TEXT;
@@ -536,7 +368,7 @@
 		value=0xFFFFFFFF;
 		size=1;
 	}
-	[object39]		// Option "fsaa"
+	[object35]		// Option "fsaa"
 	{
 		name=fsaa;
 		type=MENU;
@@ -548,19 +380,7 @@
 		value=0;
 		size=1;
 	}
-	[object49]		// Option "fsaa"
-	{
-		name=box_timefactor;
-		type=BOX;
-		x1=32;
-		y1=272;
-		x2=608;
-		y2=287;
-		value=0x0;
-		size=1;
-		highlight=true;
-	}
-	[object50]		// Option "water_quality"
+	[object36]		// Option "water_quality"
 	{
 		name=t_water_quality;
 		type=TEXT;
@@ -570,7 +390,7 @@
 		value=0xFFFFFFFF;
 		size=1;
 	}
-	[object36]		// Option "water_quality"
+	[object37]		// Option "water_quality"
 	{
 		name=water_quality;
 		type=MENU;
@@ -582,19 +402,7 @@
 		value=0;
 		size=1;
 	}
-	[object52]		// Option "water_quality"
-	{
-		name=box_timefactor;
-		type=BOX;
-		x1=32;
-		y1=288;
-		x2=608;
-		y2=303;
-		value=0x0;
-		size=1;
-		highlight=true;
-	}
-	[object53]		// Option "mod"
+	[object38]		// Option "mod"
 	{
 		name=t_mod;
 		type=TEXT;
@@ -604,7 +412,7 @@
 		value=0xFFFFFFFF;
 		size=1;
 	}
-	[object54]		// Option "mod"
+	[object39]		// Option "mod"
 	{
 		name=mod;
 		type=MENU;
@@ -616,19 +424,7 @@
 		value=0;
 		size=1;
 	}
-	[object55]		// Option "mod"
-	{
-		name=box_mod;
-		type=BOX;
-		x1=32;
-		y1=304;
-		x2=608;
-		y2=320;
-		value=0x0;
-		size=1;
-		highlight=true;
-	}
-	[object56]		// Option "player_name"
+	[object40]		// Option "player_name"
 	{
 		name=t_player_name;
 		type=TEXT;
@@ -638,7 +434,7 @@
 		value=0xFFFFFFFF;
 		size=1;
 	}
-	[object57]		// Option "player_name"
+	[object41]		// Option "player_name"
 	{
 		name=player_name;
 		type=TEXTBAR;
@@ -650,7 +446,7 @@
 		value=30;
 		size=1;
 	}
-	[object58]		// Option "camera_zoom"
+	[object42]		// Option "camera_zoom"
 	{
 		name=t_camera_zoom;
 		type=TEXT;
@@ -660,7 +456,7 @@
 		value=0xFFFFFFFF;
 		size=1;
 	}
-	[object59]		// Option "camera zoom"
+	[object43]		// Option "camera zoom"
 	{
 		name=camera_zoom;
 		type=MENU;
@@ -672,19 +468,7 @@
 		value=0;
 		size=1;
 	}
-	[object60]		// Option "camera zoom"
-	{
-		name=box_camera_zoom;
-		type=BOX;
-		x1=32;
-		y1=360;
-		x2=608;
-		y2=376;
-		value=0x0;
-		size=1;
-		highlight=true;
-	}
-	[object61]		// Option "camera_def_angle"
+	[object44]		// Option "camera_def_angle"
 	{
 		name=t_camera_def_angle;
 		type=TEXT;
@@ -694,7 +478,7 @@
 		value=0xFFFFFFFF;
 		size=1;
 	}
-	[object62]		// Option "camera_def_angle"
+	[object45]		// Option "camera_def_angle"
 	{
 		name=camera_def_angle;
 		type=MENU;
@@ -706,19 +490,7 @@
 		value=0;
 		size=1;
 	}
-	[object63]		// Option "camera_def_angle"
-	{
-		name=box_camera_def_angle;
-		type=BOX;
-		x1=32;
-		y1=376;
-		x2=608;
-		y2=392;
-		value=0x0;
-		size=1;
-		highlight=true;
-	}
-	[object64]		// Option "camera_def_h"
+	[object46]		// Option "camera_def_h"
 	{
 		name=t_camera_def_h;
 		type=TEXT;
@@ -728,7 +500,7 @@
 		value=0xFFFFFFFF;
 		size=1;
 	}
-	[object65]		// Option "camera_def_h"
+	[object47]		// Option "camera_def_h"
 	{
 		name=camera_def_h;
 		type=MENU;
@@ -740,19 +512,7 @@
 		value=0;
 		size=1;
 	}
-	[object66]		// Option "camera_def_h"
-	{
-		name=box_camera_def_h;
-		type=BOX;
-		x1=32;
-		y1=392;
-		x2=608;
-		y2=408;
-		value=0x0;
-		size=1;
-		highlight=true;
-	}
-	[object67]		// Option "camera_zoom_speed"
+	[object48]		// Option "camera_zoom_speed"
 	{
 		name=t_camera_zoom_speed;
 		type=TEXT;
@@ -762,7 +522,7 @@
 		value=0xFFFFFFFF;
 		size=1;
 	}
-	[object68]		// Option "camera_zoom_speed"
+	[object9]		// Option "camera_zoom_speed"
 	{
 		name=camera_zoom_speed;
 		type=MENU;
@@ -773,17 +533,5 @@
 		y2=424;
 		value=0;
 		size=1;
-	}
-	[object69]		// Option "camera_zoom_speed"
-	{
-		name=box_camera_zoom_speed;
-		type=BOX;
-		x1=32;
-		y1=408;
-		x2=608;
-		y2=424;
-		value=0x0;
-		size=1;
-		highlight=true;
 	}
 }
