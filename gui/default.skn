@@ -27,6 +27,10 @@
 	text_y2=24;
 
 	menu background=gfx/default_skin/window_borders.tga;
+	menu_x1=8;
+	menu_y1=4;
+	menu_x2=324;
+	menu_y2=383;
 
 	selection=gfx/default_skin/selection.tga;
 

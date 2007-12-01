@@ -349,29 +349,56 @@ public:
 		void	set_caption( const String &message, const String &caption );	// Set the caption of specified object in the specified window
 };
 
+class SKIN_OBJECT
+{
+public:
+	GLuint		tex;
+	sint32		x1, y1;
+	sint32		x2, y2;
+	float		t_x1, t_y1;
+	float		t_x2, t_y2;
+	uint32		w, h;							// Texture size
+
+	SKIN_OBJECT()	{	init();	}
+
+	inline void init()
+	{
+		tex = 0;
+		x1 = 0;
+		y1 = 0;
+		x2 = 0;
+		y2 = 0;
+		t_x1 = 0.0f;
+		t_y1 = 0.0f;
+		t_x2 = 0.0f;
+		t_y2 = 0.0f;
+		w = 0;
+		h = 0;
+	}
+
+	inline void destroy()
+	{
+		gfx->destroy_texture( tex );
+		init();
+	}
+
+	void load( const String filename, const String prefix, cTAFileParser *parser );
+	
+	void draw( float X1, float Y1, float X2, float Y2, bool bkg = true );
+};
+
 class SKIN													// This class is designed to manage skins for GUI
 {															// Only one object of this class should be created
 public:
-	GLuint		wnd_background;							// default background for windows
-	GLuint		button_img[2];							// default background for buttons
-	sint32		button_x1, button_y1;					// useful data to draw buttons correctly at the right size
-	sint32		button_x2, button_y2;
-	float		b_x1, b_y1;								// useful data to draw buttons correctly at the right size
-	float		b_x2, b_y2;
-	uint32		button_w, button_h;						// Size of button textures
-	GLuint		wnd_border[8];							// borders of the windows
+	GLuint	wnd_background;							// default background for windows
+	SKIN_OBJECT	button_img[2];							// default background for buttons
+
+	SKIN_OBJECT	wnd_border;								// borders of the windows
 	GLuint		progress_bar[2];						// progress bar images, one for background, one for the bar itself
 	GLuint		wnd_title_bar;							// default title bar for windows
 	String		Name;									// The name of the skin ( will be used to change skin )
-	GLuint		wnd_border_w[8];
-	GLuint		wnd_border_h[8];
-	GLuint		text_background;						// Background for TEXTBAR, LISTBOX, ... everything that uses a background for text
-	sint32		text_x1, text_y1;						// useful data to draw text bars correctly at the right size
-	sint32		text_x2, text_y2;
-	float		t_x1, t_y1;								// useful data to draw text bars correctly at the right size
-	float		t_x2, t_y2;
-	uint32		text_w, text_h;							// Size of text bar textures
-	GLuint		menu_background;						// The background image for floating menus
+	SKIN_OBJECT	text_background;						// Background for TEXTBAR, LISTBOX, ... everything that uses a background for text
+	SKIN_OBJECT	menu_background;						// The background image for floating menus
 	GLuint		selection_gfx;							// The selection image ( drawn when an element is selected )
 	GLuint		checkbox[2];							// Checkbox images
 	GLuint		option[2];								// Option button images
