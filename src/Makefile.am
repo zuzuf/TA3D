@@ -97,6 +97,8 @@ hpiview_SOURCES= \
 	cError.cpp cError.h \
 	TA3D_Platform.h matrix.h ta3dbase.h vector.h thread.h
 
+INSTALL=../install-sh
+
 all:
 	!(test -e ta3d) || mv ta3d ../ta3d-bin
 	!(test -e ta3d.exe) || mv ta3d.exe ../
