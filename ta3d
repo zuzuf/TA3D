@@ -3,17 +3,17 @@ NF=ta3d
 tgfile=`ls -l $0 | awk '{print $NF}'`
 exe=`dirname $tgfile`
 
-if [ $exe == "." ]
+if [ $exe = "." ]
 then
 	exe=`pwd`
 fi
 
-yes=`echo $exe | head -c 2 | grep -c "/" `
+yes=`echo $exe | head -c 2 | grep -c "/"`
 
-if [ "$yes" == "0" ]
+if [ "$yes" = "0" ]
 then
 	exe=`pwd`/${exe}
 fi
 
 cd ${exe}
-${exe}/ta3d-bin
+${exe}/ta3d-bin $1 $2 $3 $4 $5 $6 $7 $8 $9 $10
