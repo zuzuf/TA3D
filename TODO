@@ -23,6 +23,7 @@ _some parts of the maps might not be drawn (visibility limit) like hills
 _slow down with lots of 3D sprites on some gfx hardware (speed increased but bug not yet fixed)
 _fix all other bugs ( :-) )
 
+*fixed commander radar being activated only when building
 *fixed shadows that appear where they shouldn't
 
 idea list

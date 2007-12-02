@@ -4399,16 +4399,18 @@ void UNIT::draw_on_FOW( bool jamming )
 	if( hidden || build_percent_left != 0.0f )
 		return;
 
+	bool system_activated = (port[ACTIVATION] && unit_manager.unit_type[ type_id ].onoffable) || !unit_manager.unit_type[ type_id ].onoffable;
+
 	if( jamming ) {
-		radar_jam_range = ( port[ACTIVATION] ) ? (unit_manager.unit_type[ type_id ].RadarDistanceJam >> 3) : 0;
-		sonar_jam_range = ( port[ACTIVATION] ) ? (unit_manager.unit_type[ type_id ].SonarDistanceJam >> 3) : 0;
+		radar_jam_range = system_activated ? (unit_manager.unit_type[ type_id ].RadarDistanceJam >> 3) : 0;
+		sonar_jam_range = system_activated ? (unit_manager.unit_type[ type_id ].SonarDistanceJam >> 3) : 0;
 
 		units.map->update_player_visibility( owner_id, cur_px, cur_py, 0, 0, 0, radar_jam_range, sonar_jam_range, true );
 		}
 	else {
 		sint16 cur_sight = (int)h + unit_manager.unit_type[ type_id ].SightDistance >> 3;
-		radar_range = ( port[ACTIVATION] ) ? (unit_manager.unit_type[ type_id ].RadarDistance >> 3) : 0;
-		sonar_range = ( port[ACTIVATION] ) ? (unit_manager.unit_type[ type_id ].SonarDistance >> 3) : 0;
+		radar_range = system_activated ? (unit_manager.unit_type[ type_id ].RadarDistance >> 3) : 0;
+		sonar_range = system_activated ? (unit_manager.unit_type[ type_id ].SonarDistance >> 3) : 0;
 
 		units.map->update_player_visibility( owner_id, cur_px, cur_py, cur_sight, radar_range, sonar_range, 0, 0, false, old_px != cur_px || old_py != cur_py || cur_sight != sight );
 
@@ -5085,112 +5087,6 @@ void INGAME_UNITS::draw_mini(float map_w,float map_h,int mini_w,int mini_h,SECTO
 	glEnable(GL_TEXTURE_2D);
 
 	last_on = -1;
-/*	if(nb_unit<=0 || unit==NULL)	{
-		last_on = -1;
-		return;		// Pas d'unités à dessiner
-		}
-
-	float rw = 128.0f * mini_w / 252 / map_w;
-	float rh = 128.0f * mini_h / 252 / map_h;
-
-	glDisable(GL_TEXTURE_2D);
-	glPointSize(3.0f);
-	glBegin(GL_POINTS);
-	int cur_id=-1;
-	byte mask=1<<players.local_human_id;
-	int b_w=(int)map_w>>3;
-	int b_h=(int)map_h>>3;
-	for( uint16 e=0 ; e < index_list_size ; e++) {
-		uint16 i = idx_list[e];
-
-		units.unit[ i ].Lock();
-
-		if(unit[i].flags&1) {
-			int px=unit[i].cur_px;
-			int py=unit[i].cur_py;
-			if(px<0 || py<0 || px>=b_w || py>=b_h) {
-				units.unit[ i ].UnLock();
-				continue;
-				}
-			if( (!(map->view_map->line[py>>1][px>>1]&mask) || !(map->sight_map->line[py>>1][px>>1]&mask)) && !unit[i].on_mini_radar ) {
-				units.unit[ i ].UnLock();
-				continue;	// Unité non visible / Unit is not visible
-				}
-			unit[i].flags|=0x10;
-			if(cur_id!=unit[i].owner_id) {
-				cur_id=unit[i].owner_id;
-				uint16 used_id = 3*player_color_map[cur_id];
-				glColor3f(0.5f*player_color[used_id],0.5f*player_color[used_id+1],0.5f*player_color[used_id+2]);
-				}
-			float pos_x=unit[i].Pos.x*rw+64.0f;
-			float pos_y=unit[i].Pos.z*rh+64.0f;
-			glVertex2f(pos_x-1.0f,pos_y);
-			glVertex2f(pos_x+1.0f,pos_y);
-			glVertex2f(pos_x,pos_y-1.0f);
-			glVertex2f(pos_x,pos_y+1.0f);
-			}
-		units.unit[ i ].UnLock();
-		}
-	cur_id=-1;
-	for(uint16 e=0;e<index_list_size;e++) {
-		uint16 i = idx_list[e];
-
-		units.unit[ i ].Lock();
-
-		if( (unit[i].flags&1) && (unit[i].flags&0x10)==0x10) {
-			unit[i].flags &= 0xEF;
-			if(cur_id!=unit[i].owner_id) {
-				cur_id=unit[i].owner_id;
-				uint16 used_id = 3*player_color_map[cur_id];
-				glColor3f(player_color[used_id],player_color[used_id+1],player_color[used_id+2]);
-				}
-			glVertex2f(unit[i].Pos.x*rw+64.0f,unit[i].Pos.z*rh+64.0f);
-			}
-		units.unit[ i ].UnLock();
-		}
-	for(uint16 e=0;e<index_list_size;e++) {
-		uint16 i = idx_list[e];
-
-		units.unit[ i ].Lock();
-		if( units.unit[ i ].cur_px < 0 || units.unit[ i ].cur_py < 0 || units.unit[ i ].cur_px >= b_w || units.unit[ i ].cur_py >= b_h ) {
-			units.unit[ i ].UnLock();
-			continue;
-			}
-
-		if( (unit[i].flags&1) && ( (unit[i].owner_id==players.local_human_id && unit[i].sel) || i == last_on ) ) {
-			cur_id = unit[i].owner_id;
-			float pos_x=unit[i].Pos.x*rw+64.0f;
-			float pos_y=unit[i].Pos.z*rh+64.0f;
-			if( unit[i].radar_range > 0 ) {
-				glEnd();
-				glPointSize(1.0f);
-				gfx->circle_zoned( pos_x, pos_y, (unit[i].radar_range << 3) * rw, 0.0f, 0.0f, 127.0f, 127.0f, 0xFFFFFFFF );
-				glPointSize(3.0f);
-				glBegin( GL_POINTS );
-				}
-			if( unit[i].sonar_range > 0 ) {
-				glEnd();
-				glPointSize(1.0f);
-				gfx->circle_zoned( pos_x, pos_y, (unit[i].sonar_range << 3) * rw, 0.0f, 0.0f, 127.0f, 127.0f, makecol( 0, 255, 0 ) );
-				glPointSize(3.0f);
-				glBegin( GL_POINTS );
-				}
-			glColor3f(1.0f,1.0f,1.0f);
-			glVertex2f(pos_x-1.0f,pos_y);
-			glVertex2f(pos_x+1.0f,pos_y);
-			glVertex2f(pos_x,pos_y-1.0f);
-			glVertex2f(pos_x,pos_y+1.0f);
-
-			glColor3f(player_color[3*player_color_map[cur_id]],player_color[3*player_color_map[cur_id]+1],player_color[3*player_color_map[cur_id]+2]);
-			glVertex2f(pos_x,pos_y);
-			}
-		units.unit[ i ].UnLock();
-		}
-	glEnd();
-	glPointSize(1.0f);
-	glEnable(GL_TEXTURE_2D);
-
-	last_on = -1;*/
 }
 
 void INGAME_UNITS::kill(int index,MAP *map,int prev)			// Détruit une unité
