@@ -190,7 +190,7 @@ const String msg_box(TA3D::INTERFACES::GFX_FONT fnt,const String &title,const St
 
 TA3D::INTERFACES::GFX_FONT gui_font;
 
-void GUIOBJ::create_ta_button( int X1, int Y1, const Vector< String > &Caption, const Vector< GLuint > &states, int nb_st)
+void GUIOBJ::create_ta_button( float X1, float Y1, const Vector< String > &Caption, const Vector< GLuint > &states, int nb_st)
 {
 	gltex_states.clear();
 	gltex_states.resize( states.size() );
@@ -213,7 +213,7 @@ void GUIOBJ::create_ta_button( int X1, int Y1, const Vector< String > &Caption, 
 	Flag = FLAG_CAN_BE_CLICKED | FLAG_MULTI_STATE;
 }
 			// Dessine un rectangle en pointillés
-void GUIOBJ::create_button(int X1,int Y1,int X2,int Y2,const String &Caption,void (*F)(int), float size)
+void GUIOBJ::create_button( float X1,float Y1,float X2,float Y2,const String &Caption,void (*F)(int), float size)
 {
 	Type=OBJ_BUTTON;
 	x1=X1;		y1=Y1;
@@ -226,7 +226,7 @@ void GUIOBJ::create_button(int X1,int Y1,int X2,int Y2,const String &Caption,voi
 	Flag = FLAG_CAN_BE_CLICKED;
 }
 			// Crée une case à cocher
-void GUIOBJ::create_optionc(int X1,int Y1,const String &Caption,bool ETAT,void (*F)(int), SKIN *skin)
+void GUIOBJ::create_optionc(float X1,float Y1,const String &Caption,bool ETAT,void (*F)(int), SKIN *skin)
 {
 	Type=OBJ_OPTIONC;
 	x1=X1;													y1=Y1;
@@ -247,7 +247,7 @@ void GUIOBJ::create_optionc(int X1,int Y1,const String &Caption,bool ETAT,void (
 	Flag = FLAG_SWITCH;
 }
 			// Crée un bouton d'option
-void GUIOBJ::create_optionb(int X1,int Y1,const String &Caption,bool ETAT,void (*F)(int), SKIN *skin)
+void GUIOBJ::create_optionb(float X1,float Y1,const String &Caption,bool ETAT,void (*F)(int), SKIN *skin)
 {
 	Type=OBJ_OPTIONB;
 	x1=X1;												y1=Y1;
@@ -268,7 +268,7 @@ void GUIOBJ::create_optionb(int X1,int Y1,const String &Caption,bool ETAT,void (
 	Flag = FLAG_SWITCH;
 }
 			// Crée une barre d'entrée de texte
-void GUIOBJ::create_textbar(int X1,int Y1,int X2,int Y2,const String &Caption,int MaxChar, void(*F)(int))
+void GUIOBJ::create_textbar(float X1,float Y1,float X2,float Y2,const String &Caption,int MaxChar, void(*F)(int))
 {
 	Type=OBJ_TEXTBAR;
 	x1=X1;							y1=Y1;
@@ -283,7 +283,7 @@ void GUIOBJ::create_textbar(int X1,int Y1,int X2,int Y2,const String &Caption,in
 	Data=MaxChar;
 }
 			// Crée un menu flottant
-void GUIOBJ::create_menu(int X1,int Y1,const Vector<String> &Entry,void (*F)(int))
+void GUIOBJ::create_menu(float X1,float Y1,const Vector<String> &Entry,void (*F)(int))
 {
 	Type=OBJ_FMENU;
 	x1=X1;							y1=Y1;
@@ -295,7 +295,7 @@ void GUIOBJ::create_menu(int X1,int Y1,const Vector<String> &Entry,void (*F)(int
 	Flag = FLAG_CAN_BE_CLICKED;
 }
 			// Crée un menu déroulant
-void GUIOBJ::create_menu(int X1,int Y1,int X2,int Y2,const Vector<String> &Entry,void (*F)(int))
+void GUIOBJ::create_menu(float X1,float Y1,float X2,float Y2,const Vector<String> &Entry,void (*F)(int))
 {
 	Type=OBJ_MENU;
 	x1=X1;							y1=Y1;
@@ -308,7 +308,7 @@ void GUIOBJ::create_menu(int X1,int Y1,int X2,int Y2,const Vector<String> &Entry
 	Flag = FLAG_CAN_BE_CLICKED;
 }
 			// Crée une barre de progression
-void GUIOBJ::create_pbar(int X1,int Y1,int X2,int Y2,int PCent)
+void GUIOBJ::create_pbar(float X1,float Y1,float X2,float Y2,int PCent)
 {
 	Type=OBJ_PBAR;
 	x1=X1;							y1=Y1;
@@ -320,7 +320,7 @@ void GUIOBJ::create_pbar(int X1,int Y1,int X2,int Y2,int PCent)
 	Data=PCent;
 }
 			// Crée un objet text
-void GUIOBJ::create_text(int X1,int Y1,const String &Caption,int Col, float size)
+void GUIOBJ::create_text(float X1,float Y1,const String &Caption,int Col, float size)
 {
 	Type = OBJ_TEXT;
 	x1 = X1;								y1 = Y1;
@@ -334,7 +334,7 @@ void GUIOBJ::create_text(int X1,int Y1,const String &Caption,int Col, float size
 	s = size;
 }
 
-void GUIOBJ::create_line(int X1,int Y1,int X2,int Y2,int Col)
+void GUIOBJ::create_line(float X1,float Y1,float X2,float Y2,int Col)
 {
 	Type=OBJ_LINE;
 	x1=X1;							y1=Y1;
@@ -346,7 +346,7 @@ void GUIOBJ::create_line(int X1,int Y1,int X2,int Y2,int Col)
 	Data=Col;
 }
 
-void GUIOBJ::create_box(int X1,int Y1,int X2,int Y2,int Col)
+void GUIOBJ::create_box(float X1,float Y1,float X2,float Y2,int Col)
 {
 	Type=OBJ_BOX;
 	x1=X1;							y1=Y1;
@@ -359,7 +359,7 @@ void GUIOBJ::create_box(int X1,int Y1,int X2,int Y2,int Col)
 	Flag = FLAG_CAN_BE_CLICKED;
 }
 
-void GUIOBJ::create_img(int X1,int Y1,int X2,int Y2,GLuint img)
+void GUIOBJ::create_img(float X1,float Y1,float X2,float Y2,GLuint img)
 {
 	Type=OBJ_IMG;
 	x1=X1;							y1=Y1;
@@ -372,7 +372,7 @@ void GUIOBJ::create_img(int X1,int Y1,int X2,int Y2,GLuint img)
 	Flag = FLAG_CAN_BE_CLICKED;
 }
 
-void GUIOBJ::create_list(int X1,int Y1,int X2,int Y2,const Vector<String> &Entry)
+void GUIOBJ::create_list(float X1,float Y1,float X2,float Y2,const Vector<String> &Entry)
 {
 	Type = OBJ_LIST;
 	x1 = X1;						y1 = Y1;
@@ -438,7 +438,7 @@ uint32	GUIOBJ::num_entries()
 	|               Dessine la fenêtre ainsi que tous ses objets                 |
 	\---------------------------------------------------------------------------*/
 
-void WND::draw(bool Focus,bool Deg, SKIN *skin )
+void WND::draw( String &help_msg, bool Focus, bool Deg, SKIN *skin )
 {
 	if( hidden )	return;		// If it's hidden don't draw it
 	int old_u_format = get_uformat();
@@ -522,6 +522,8 @@ void WND::draw(bool Focus,bool Deg, SKIN *skin )
 	if(NbObj>0 && Objets!=NULL) {
 		for(int i=0;i<NbObj;i++)
 			if( !(Objets[i].Flag & FLAG_HIDDEN) )	{			// Affiche les objets d'arrière plan
+				if( Objets[i].MouseOn )
+					help_msg = Objets[i].help_msg;
 				switch(Objets[i].Type)
 				{
 				case OBJ_TA_BUTTON:
@@ -670,7 +672,8 @@ int WND::check(int AMx,int AMy,int AMb,bool timetoscroll, SKIN *skin )
 		}
 	if( was_hidden )
 		for( int i = 0 ; i < NbObj ; i++ )
-			Objets[i].Etat = false;
+			if( Objets[i].Type == OBJ_MENU || Objets[i].Type == OBJ_FMENU )
+				Objets[i].Etat = false;
 	was_hidden = false;
 	int IsOnGUI;
 		// Vérifie si la souris est sur la fenêtre et/ou si elle la déplace
@@ -1245,10 +1248,12 @@ void WND::load_tdf( const String &filename, SKIN *skin )			// Load a window from
 
 		Objets[i].Name = wndFile->PullAsString( obj_key + "name", format( "object%d", i ) );
 
-		int X1 = (int)(wndFile->PullAsInt( obj_key + "x1" )*x_factor);				// Reads data from TDF
-		int Y1 = (int)(wndFile->PullAsInt( obj_key + "y1" )*y_factor);
-		int X2 = (int)(wndFile->PullAsInt( obj_key + "x2" )*x_factor);
-		int Y2 = (int)(wndFile->PullAsInt( obj_key + "y2" )*y_factor);
+		Objets[i].help_msg = TRANSLATE( wndFile->PullAsString( obj_key + "help", "" ) );
+
+		float X1 = wndFile->PullAsFloat( obj_key + "x1" )*x_factor;				// Reads data from TDF
+		float Y1 = wndFile->PullAsFloat( obj_key + "y1" )*y_factor;
+		float X2 = wndFile->PullAsFloat( obj_key + "x2" )*x_factor;
+		float Y2 = wndFile->PullAsFloat( obj_key + "y2" )*y_factor;
 		String caption = TRANSLATE( wndFile->PullAsString( obj_key + "caption" ) );
 		float size = wndFile->PullAsFloat( obj_key + "size" ) * min( x_factor, y_factor );
 		int val = wndFile->PullAsInt( obj_key + "value" );
@@ -1351,7 +1356,7 @@ unsigned char WinMov(int AMx,int AMy,int AMb,int Mx,int My,int Mb,wnd *Wnd)
 |        Dessine un bouton en (x,y) avec le texte Title,enfoncé si Etat=1    |
 \---------------------------------------------------------------------------*/
 
-void button (int x,int y,int x2,int y2,const String &Title,bool Etat,float size, SKIN *skin )
+void button (float x,float y,float x2,float y2,const String &Title,bool Etat,float size, SKIN *skin )
 {
 	if( skin && skin->button_img[ Etat ].tex ) {					// If we have gfx to skin the button then do it
 		glPushAttrib( GL_ALL_ATTRIB_BITS );
@@ -1363,9 +1368,9 @@ void button (int x,int y,int x2,int y2,const String &Title,bool Etat,float size,
 
 		if( !Title.empty() ) {
 			if( Etat)
-			   gfx->print(gui_font,(int)((x+x2>>1)-(gui_font.length(Title)*0.5f*size)+1),(int)((y+y2-(int)(gui_font.height()*size)>>1)+1),0.0f,use_normal_alpha_function ? Blanc : Noir,Title,size);
+			   gfx->print(gui_font,(int)((x+x2)*0.5f-(gui_font.length(Title)*0.5f*size)+1),(int)((y+y2-(int)(gui_font.height()*size))*0.5f+1),0.0f,use_normal_alpha_function ? Blanc : Noir,Title,size);
 			else
-				gfx->print(gui_font,(int)((x+x2>>1)-(gui_font.length(Title)*0.5f*size)),(int)(y+y2-(int)(gui_font.height()*size)>>1),0.0f,use_normal_alpha_function ? Blanc : Noir,Title,size);
+				gfx->print(gui_font,(int)((x+x2)*0.5f-(gui_font.length(Title)*0.5f*size)),(int)(y+y2-(int)(gui_font.height()*size))*0.5f,0.0f,use_normal_alpha_function ? Blanc : Noir,Title,size);
 			}
 		glPopAttrib();
 		}
@@ -1379,7 +1384,7 @@ void button (int x,int y,int x2,int y2,const String &Title,bool Etat,float size,
 		   gfx->line(x+1,y+1,x2-1,y+1,GrisC);
 		   gfx->line(x+1,y+1,x+1,y2-1,GrisC);
 		   if( !Title.empty() )
-			   gfx->print(gui_font,(int)((x+x2>>1)-(gui_font.length(Title)*0.5f*size)),(int)(y+y2-(int)(gui_font.height()*size)>>1),0.0f,use_normal_alpha_function ? Blanc : Noir,Title,size);
+			   gfx->print(gui_font,(int)((x+x2)*0.5f-(gui_font.length(Title)*0.5f*size)),(int)(y+y2-(int)(gui_font.height()*size))*0.5f,0.0f,use_normal_alpha_function ? Blanc : Noir,Title,size);
 		   }
 		else {
 		   gfx->line(x2,y2,x2,y,Blanc);
@@ -1387,7 +1392,7 @@ void button (int x,int y,int x2,int y2,const String &Title,bool Etat,float size,
 		   gfx->line(x2-1,y2-1,x2-1,y+1,GrisC);
 		   gfx->line(x2-1,y2-1,x+1,y2-1,GrisC);
 		   if( !Title.empty() )
-			   gfx->print(gui_font,(int)((x+x2>>1)-(gui_font.length(Title)*0.5f*size)+1),(int)((y+y2-(int)(gui_font.height()*size)>>1)+1),0.0f,use_normal_alpha_function ? Blanc : Noir,Title,size);
+			   gfx->print(gui_font,(int)((x+x2)*0.5f-(gui_font.length(Title)*0.5f*size)+1),(int)((y+y2-(int)(gui_font.height()*size))*0.5f+1),0.0f,use_normal_alpha_function ? Blanc : Noir,Title,size);
 		   }
 	}
 }
@@ -1396,7 +1401,7 @@ void button (int x,int y,int x2,int y2,const String &Title,bool Etat,float size,
 |        Draw a list box displaying the content of Entry                     |
 \---------------------------------------------------------------------------*/
 
-void ListBox(int x1,int y1, int x2, int y2,const Vector<String> &Entry,int Index, int Scroll, SKIN *skin )
+void ListBox(float x1,float y1, float x2, float y2,const Vector<String> &Entry,int Index, int Scroll, SKIN *skin )
 {
 	if( skin && skin->text_background.tex ) {
 		gfx->set_alpha_blending();
@@ -1440,16 +1445,80 @@ void ListBox(int x1,int y1, int x2, int y2,const Vector<String> &Entry,int Index
 }
 
 /*---------------------------------------------------------------------------\
+|        Draw a popup menu displaying the text msg using the skin object     |
+\---------------------------------------------------------------------------*/
+
+void PopupMenu( float x1, float y1, const String &msg, SKIN *skin )
+{
+	float x2 = x1;
+	Vector< String > Entry;
+	int last = 0;
+	for( int i = 0 ; i < msg.length() ; i++ )
+		if( msg[i] == '\n' ) {
+			Entry.push_back( msg.substr( last, i - last ) );
+			x2 = max( x2, x1 + gui_font.length( Entry.back() ) );
+			last = i+1;
+			}
+	if( last + 1 < msg.length() ) {
+		Entry.push_back( msg.substr( last, msg.length() - last ) );
+		x2 = max( x2, x1 + gui_font.length( Entry.back() ) );
+		}
+
+	if( skin && skin->menu_background.tex ) {
+		x2 += skin->menu_background.x1 - skin->menu_background.x2;
+		float y2 = y1+skin->menu_background.y1-skin->menu_background.y2+gui_font.height()*Entry.size();
+		if( x2 >= SCREEN_W || y2 >= SCREEN_H ) {
+			float x = x1, y = y1;
+			x1 = x1 - (x2 - x1);
+			y1 = y1 - (y2 - y1);
+			x2 = x;
+			y2 = y;
+			}
+		gfx->set_alpha_blending();
+		gfx->set_color( 1.0f, 1.0f, 1.0f, 1.0f );
+
+		skin->menu_background.draw( x1, y1, x2, y2 );
+
+		for( int e = 0 ; e < Entry.size() ; e++ )
+			gfx->print(gui_font,x1+skin->menu_background.x1,y1+skin->menu_background.y1+gui_font.height()*e,0.0f,use_normal_alpha_function ? Blanc : Noir,Entry[e]);
+
+		gfx->unset_alpha_blending();
+		}
+	else {
+		x2 += 8;
+		float y2 = y1+8+gui_font.height()*Entry.size();
+		if( x2 >= SCREEN_W || y2 >= SCREEN_H ) {
+			float x = x1, y = y1;
+			x1 = x1 - (x2 - x1);
+			y1 = y1 - (y2 - y1);
+			x2 = x;
+			y2 = y;
+			}
+		gfx->rectfill(x1,y1,x2,y2,GrisM);
+		gfx->rect(x1,y1,x2,y2,Noir);
+		gfx->rect(x1+1,y1+1,x2-1,y2-1,GrisF);
+		gfx->line(x1,y1,x1,y2,Blanc);
+		gfx->line(x1,y1,x2,y1,Blanc);
+		gfx->line(x1+1,y1+1,x1+1,y2-1,GrisC);
+		gfx->line(x1+1,y1+1,x2-1,y1+1,GrisC);
+
+		for( int e = 0 ; e < Entry.size() ; e++ )
+			gfx->print(gui_font,x1+4,y1+4+gui_font.height()*e,0.0f,use_normal_alpha_function ? Blanc : Noir,Entry[e]);
+		}
+	Entry.clear();
+}
+
+/*---------------------------------------------------------------------------\
 |        Dessine un menu flotant avec les paramètres de Entry[]              |
 \---------------------------------------------------------------------------*/
 
-void FloatMenu( int x, int y, const Vector<String> &Entry, int Index, int StartEntry, SKIN *skin )
+void FloatMenu( float x, float y, const Vector<String> &Entry, int Index, int StartEntry, SKIN *skin )
 {
 	if( skin && skin->menu_background.tex ) {
 		gfx->set_alpha_blending();
 		gfx->set_color( 1.0f, 1.0f, 1.0f, 1.0f );
 
-		skin->menu_background.draw( x, y, x+168, y+8+gui_font.height()*(Entry.size() - StartEntry) );
+		skin->menu_background.draw( x, y, x+168, y+skin->menu_background.y1-skin->menu_background.y2+gui_font.height()*(Entry.size() - StartEntry) );
 
 		int i;
 		for( i=0 ; i<Entry.size() - StartEntry ; i++ ) {
@@ -1488,7 +1557,7 @@ void FloatMenu( int x, int y, const Vector<String> &Entry, int Index, int StartE
 |        Dessine un boutton d'option avec le texte Title                     |
 \---------------------------------------------------------------------------*/
 
-void OptionButton(int x,int y,const String &Title,bool Etat, SKIN *skin )
+void OptionButton(float x,float y,const String &Title,bool Etat, SKIN *skin )
 {
 	if( skin && skin->option[0].tex && skin->option[1].tex ) {
 		gfx->set_alpha_blending();
@@ -1508,8 +1577,8 @@ void OptionButton(int x,int y,const String &Title,bool Etat, SKIN *skin )
 		gfx->circle(x+6,y+6,5,GrisF);
 
 		                // Effet d'ombrage
-		for(y1=y;y1<=y+12;y1++)
-		   for(x1=x;x1<=x+12;x1++)
+		for(y1=(int)y ; y1<=y+12 ; y1++)
+		   for(x1=(int)x ; x1<=x+12 ; x1++)
 		      if((x1-x-6)*(x1-x-6)+(y1-y-6)*(y1-y-6)<49)
 		         if(gfx->getpixel(x1,y1)==GrisF&&x1-x+y1-y-6>6)
 		            gfx->putpixel(x1,y1,GrisC);
@@ -1534,7 +1603,7 @@ void OptionButton(int x,int y,const String &Title,bool Etat, SKIN *skin )
 |        Dessine une case à cocher avec le texte Title                       |
 \---------------------------------------------------------------------------*/
 
-void OptionCase(int x,int y,const String &Title,bool Etat, SKIN *skin )
+void OptionCase(float x,float y,const String &Title,bool Etat, SKIN *skin )
 {
 	if( skin && skin->checkbox[0].tex && skin->checkbox[1].tex ) {
 		gfx->set_alpha_blending();
@@ -1570,7 +1639,7 @@ void OptionCase(int x,int y,const String &Title,bool Etat, SKIN *skin )
 |        Dessine une barre d'entrée de texte utilisateur                     |
 \---------------------------------------------------------------------------*/
 
-void TextBar(int x1,int y1,int x2,int y2,const String &Caption,bool Etat, SKIN *skin )
+void TextBar(float x1,float y1,float x2,float y2,const String &Caption,bool Etat, SKIN *skin )
 {
 	if( skin && skin->text_background.tex ) {
 		gfx->set_alpha_blending();
@@ -1601,7 +1670,7 @@ void TextBar(int x1,int y1,int x2,int y2,const String &Caption,bool Etat, SKIN *
 |                     Dessine une barre de progression                       |
 \---------------------------------------------------------------------------*/
 
-void ProgressBar(int x1,int y1,int x2,int y2,int Value, SKIN *skin )
+void ProgressBar(float x1,float y1,float x2,float y2,int Value, SKIN *skin )
 {
 	if( skin && skin->progress_bar[0].tex && skin->progress_bar[1].tex ) {			// If we have a skin loaded with gfx for the progress bar
 		gfx->set_alpha_blending();
@@ -2011,7 +2080,8 @@ bool WndAsk(const String &Title,const String &Msg,int ASW_TYPE)
 
 		Popup.check(AMx,AMy,AMb);	// Gestion de l'interface utilisateur graphique
 
-		Popup.draw();		// Dessine la boîte de dialogue
+		String help_msg = "";
+		Popup.draw( help_msg );		// Dessine la boîte de dialogue
 
 		glEnable( GL_TEXTURE_2D );
 		show_mouse( screen );
@@ -2072,7 +2142,8 @@ void Popup(const String &Title,const String &Msg)
 
 		Popup.check(AMx,AMy,AMb);	// Gestion de l'interface utilisateur graphique
 
-		Popup.draw();		// Dessine la boîte de dialogue
+		String help_msg = "";
+		Popup.draw( help_msg );		// Dessine la boîte de dialogue
 
 		show_mouse(screen);
 		algl_draw_mouse();			// Dessine le curseur
@@ -2137,7 +2208,8 @@ const String GetVal(const String &Title)
 
 		Popup.check(AMx,AMy,AMb);	// Gestion de l'interface utilisateur graphique
 
-		Popup.draw();		// Dessine la boîte de dialogue
+		String help_msg = "";
+		Popup.draw( help_msg );		// Dessine la boîte de dialogue
 
 		algl_draw_mouse();			// Dessine le curseur
 
@@ -2269,17 +2341,22 @@ bool AREA::get_state( const String &message )			// Return the state of specified
 {
 	int i = message.find( "." );
 	if( i != -1 ) {
-		String key = Lowercase( message.substr( 0, i ) );						// Extracts the key
+		String key = message.substr( 0, i );						// Extracts the key
 
-		if( key == cached_key && cached_wnd )
-			return cached_wnd->get_state( message.substr( i+1, message.size() - i -1 ) );
+		String obj_name = message.substr( i+1, message.size() - i -1 );
 
-		for( uint16 e = 0 ; e < vec_wnd.size() ; e++ )				// Search the window corresponding to the key
-			if( Lowercase( vec_wnd[ e ]->Name ) == key ) {		// If we find it, then pass it the end of the message we've been given
-				cached_key = key;
-				cached_wnd = vec_wnd[ e ];
-				return vec_wnd[ e ]->get_state( message.substr( i+1, message.size() - i -1 ) );
+		if( key == "*" )
+			for( uint16 e = 0 ; e < vec_wnd.size() ; e++ ) {				// Search the window containing the object corresponding to the key
+				GUIOBJ *the_obj = vec_wnd[ e ]->get_object( obj_name );
+				if( the_obj )
+					return the_obj->Etat;	// Return what we found
 				}
+		else {
+			WND *the_wnd = get_wnd( key );
+
+			if( the_wnd )
+				return the_wnd->get_state( obj_name );
+			}
 		}
 	return false;
 }
@@ -2288,17 +2365,25 @@ String AREA::get_caption( const String &message )		// Return the caption of spec
 {
 	int i = message.find( "." );
 	if( i != -1 ) {
-		String key = Lowercase( message.substr( 0, i ) );						// Extracts the key
+		String key = message.substr( 0, i );						// Extracts the key
 
-		if( key == cached_key && cached_wnd )
-			return cached_wnd->get_caption( message.substr( i+1, message.size() - i -1 ) );
+		String obj_name = message.substr( i+1, message.size() - i -1 );
 
-		for( uint16 e = 0 ; e < vec_wnd.size() ; e++ )			// Search the window corresponding to the key
-			if( Lowercase( vec_wnd[ e ]->Name ) == key ) {		// If we find it, then pass it the end of the message we've been given
-				cached_key = key;
-				cached_wnd = vec_wnd[ e ];
-				return vec_wnd[ e ]->get_caption( message.substr( i+1, message.size() - i -1 ) );
+		if( key == "*" )
+			for( uint16 e = 0 ; e < vec_wnd.size() ; e++ ) {				// Search the window containing the object corresponding to the key
+				GUIOBJ *the_obj = vec_wnd[ e ]->get_object( obj_name );
+				if( the_obj )
+					if( the_obj->Text.size() > 0 )
+						return the_obj->Text[0];	// Return what we found
+					else
+						return "";					// We were looking for something that doesn't exist
 				}
+		else {
+			WND *the_wnd = get_wnd( key );
+
+			if( the_wnd )
+				return the_wnd->get_caption( obj_name );
+			}
 		}
 	return "";
 }
@@ -2307,17 +2392,21 @@ GUIOBJ *AREA::get_object( const String &message, bool skip_hidden )		// Return a
 {
 	int i = message.find( "." );
 	if( i != -1 ) {
-		String key = Lowercase( message.substr( 0, i ) );						// Extracts the key
+		String key = message.substr( 0, i );						// Extracts the key
 
-		if( key == cached_key && cached_wnd )
-			return cached_wnd->get_object( message.substr( i+1, message.size() - i -1 ) );
+		String obj_name = message.substr( i+1, message.size() - i -1 );
 
-		for( uint16 e = 0 ; e < vec_wnd.size() ; e++ ) {				// Search the window corresponding to the key
-			if( Lowercase( vec_wnd[ e ]->Name ) == key ) {		// If we find it, then pass it the end of the message we've been given
-				cached_key = key;
-				cached_wnd = vec_wnd[ e ];
-				return vec_wnd[ e ]->get_object( message.substr( i+1, message.size() - i -1 ) );
+		if( key == "*" )
+			for( uint16 e = 0 ; e < vec_wnd.size() ; e++ ) {				// Search the window containing the object corresponding to the key
+				GUIOBJ *the_obj = vec_wnd[ e ]->get_object( obj_name );
+				if( the_obj )
+					return the_obj;
 				}
+		else {
+			WND *the_wnd = get_wnd( key );
+
+			if( the_wnd )
+				return the_wnd->get_object( obj_name );
 			}
 		}
 	return NULL;
@@ -2365,6 +2454,7 @@ void AREA::set_caption( const String &message, const String &caption )		// set t
 
 uint16 AREA::check()					// Checks events for all windows
 {
+	poll_mouse();
 	poll_keyboard();
 	uint16 is_on_gui = 0;
 	for( uint16 i = 0 ; i < vec_wnd.size() ; i++ )
@@ -2414,8 +2504,11 @@ void AREA::draw()
 		glDisable( GL_TEXTURE_2D );
 		glBindTexture( GL_TEXTURE_2D, 0 );
 		}
+	String help_msg = "";
 	for( sint32 i = vec_wnd.size() - 1 ; i >=0 ; i-- )			// Draws all the windows in focus reversed order so the focused window is drawn on top of the others
-		vec_wnd[ vec_z_order[ i ] ]->draw( i == 0, true , skin );
+		vec_wnd[ vec_z_order[ i ] ]->draw( help_msg, i == 0, true , skin );
+	if( help_msg != "" )
+		PopupMenu( mouse_x + 20, mouse_y + 20, help_msg, skin );
 }
 
 void AREA::load_tdf( const String &filename )			// Loads a TDF file telling which windows to load and which skin to use

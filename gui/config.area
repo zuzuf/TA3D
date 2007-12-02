@@ -2,5 +2,6 @@
 {
 	name=config area;
 	skin=gui/default.skn;
-	windows=gui/config.tdf;
+	windows=gui/config.tdf,gui/config_display.tdf,gui/config_audio.tdf,gui/config_game.tdf;
+	background=gfx/options.jpg;
 }

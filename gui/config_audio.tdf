@@ -1,0 +1,30 @@
+[window]
+{
+	title=Display;
+	uformat=UTF8;
+	x=442;
+	y=166;
+	width=738;
+	height=720;
+	draw borders=false;
+	show title=false;
+	number of objects=1;
+	hidden=true;
+	lock=true;
+	color=0x00000000;			// Fully transparent so we can see the AREA background
+	background window=false;
+	fullscreen=true;			// Scale the window to fit the screen
+	screen width=1280;
+	screen height=1024;
+	[object0]		// Title "Audio"
+	{
+		name=t_audio;
+		type=TEXT;
+		caption=Audio;
+		x1=369;
+		y1=0;
+		value=0xFFFFFFFF;
+		centered=true;
+		size=3;
+	}
+}

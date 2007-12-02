@@ -89,13 +89,14 @@ class SKIN;			// Class SKIN to handle GUI skins for GUIOBJ objects and WND windo
 
 /*--------- Functions that can use the skin object -------------------------------------------------*/
 
-void button ( int x, int y, int x2, int y2, const String &Title, bool Etat, float s=1.0f , SKIN *skin=NULL );
-void FloatMenu( int x, int y, const Vector<String> &Entry, int Index, int StartEntry=0 , SKIN *skin=NULL );
-void ListBox( int x1, int y1, int x2, int y2, const Vector<String> &Entry, int Index, int Scroll , SKIN *skin=NULL );
-void OptionButton( int x, int y, const String &Title, bool Etat , SKIN *skin=NULL );
-void OptionCase( int x, int y, const String &Title, bool Etat , SKIN *skin=NULL );
-void TextBar( int x1, int y1, int x2, int y2, const String &Caption, bool Etat , SKIN *skin=NULL );
-void ProgressBar( int x1, int y1, int x2, int y2, int Value , SKIN *skin=NULL );
+void button ( float x, float y, float x2, float y2, const String &Title, bool Etat, float s=1.0f , SKIN *skin=NULL );
+void FloatMenu( float x, float y, const Vector<String> &Entry, int Index, int StartEntry=0 , SKIN *skin=NULL );
+void ListBox( float x1, float y1, float x2, float y2, const Vector<String> &Entry, int Index, int Scroll , SKIN *skin=NULL );
+void OptionButton( float x, float y, const String &Title, bool Etat , SKIN *skin=NULL );
+void OptionCase( float x, float y, const String &Title, bool Etat , SKIN *skin=NULL );
+void TextBar( float x1, float y1, float x2, float y2, const String &Caption, bool Etat , SKIN *skin=NULL );
+void ProgressBar( float x1, float y1, float x2, float y2, int Value , SKIN *skin=NULL );
+void PopupMenu( float x1, float y1, const String &msg, SKIN *skin=NULL );
 
 /*--------------------------------------------------------------------------------------------------*/
 
@@ -128,8 +129,8 @@ public:
 	byte				Type;			// Type of objet
 	bool				Focus;			// Selected??
 	bool				Etat;			// State of the object
-	int					x1,y1;			// Position(within the window)
-	int					x2,y2;
+	float				x1,y1;			// Position(within the window)
+	float				x2,y2;
 	Vector< String >	Text;			// Text displayed by the object
 	void				(*Func)(int);	// Pointer to linked function
 	uint32				Data;			// Additional data
@@ -145,6 +146,7 @@ public:
 	Vector< String >	SendDataTo;		// Send Data to that object on the window
 	Vector< String >	SendPosTo;		// Send Pos to that object on the window
 	String				Name;			// name of the object
+	String				help_msg;		// Help message displayed when the mouse cursor is over the object
 
 	float				u1,v1,u2,v2;
 	bool				wait_a_turn;	// Used to deal with show/hide msg
@@ -156,6 +158,7 @@ public:
 
 	GUIOBJ()			// Constructor of the object
 	{
+		help_msg.clear();
 		shortcut_key = -1;
 		nb_stages = 0;
 		current_state = 0;
@@ -184,6 +187,7 @@ public:
 
 	~GUIOBJ()
 	{
+		help_msg.clear();
 		Name.clear();
 		Text.clear();
 		for( int i = 0 ; i < gltex_states.size() ; i++ )
@@ -205,19 +209,19 @@ public:
 	void set_caption( String caption );
 
 				// Creates a GUI_OBJ
-	void create_button(int X1,int Y1,int X2,int Y2,const String &Caption,void (*F)(int), float size=1.0f);
-	void create_optionc(int X1,int Y1,const String &Caption,bool ETAT,void (*F)(int), SKIN *skin = NULL );
-	void create_optionb(int X1,int Y1,const String &Caption,bool ETAT,void (*F)(int), SKIN *skin = NULL );
-	void create_textbar(int X1,int Y1,int X2,int Y2,const String &Caption,int MaxChar, void(*F)(int)=NULL);
-	void create_menu(int X1,int Y1,const Vector<String> &Entry,void (*F)(int));
-	void create_menu(int X1,int Y1,int X2,int Y2,const Vector<String> &Entry,void (*F)(int));
-	void create_pbar(int X1,int Y1,int X2,int Y2,int PCent);
-	void create_text(int X1,int Y1,const String &Caption,int Col=Noir, float size = 1.0f);
-	void create_line(int X1,int Y1,int X2,int Y2,int Col=Noir);
-	void create_box(int X1,int Y1,int X2,int Y2,int Col=Noir);
-	void create_img(int X1,int Y1,int X2,int Y2,GLuint img);
-	void create_list(int X1,int Y1,int X2,int Y2,const Vector<String> &Entry);
-	void create_ta_button(int X1,int Y1,const Vector< String > &Caption, const Vector< GLuint > &states, int nb_st);
+	void create_button(float X1,float Y1,float X2,float Y2,const String &Caption,void (*F)(int), float size=1.0f);
+	void create_optionc(float X1,float Y1,const String &Caption,bool ETAT,void (*F)(int), SKIN *skin = NULL );
+	void create_optionb(float X1,float Y1,const String &Caption,bool ETAT,void (*F)(int), SKIN *skin = NULL );
+	void create_textbar(float X1,float Y1,float X2,float Y2,const String &Caption,int MaxChar, void(*F)(int)=NULL);
+	void create_menu(float X1,float Y1,const Vector<String> &Entry,void (*F)(int));
+	void create_menu(float X1,float Y1,float X2,float Y2,const Vector<String> &Entry,void (*F)(int));
+	void create_pbar(float X1,float Y1,float X2,float Y2,int PCent);
+	void create_text(float X1,float Y1,const String &Caption,int Col=Noir, float size = 1.0f);
+	void create_line(float X1,float Y1,float X2,float Y2,int Col=Noir);
+	void create_box(float X1,float Y1,float X2,float Y2,int Col=Noir);
+	void create_img(float X1,float Y1,float X2,float Y2,GLuint img);
+	void create_list(float X1,float Y1,float X2,float Y2,const Vector<String> &Entry);
+	void create_ta_button(float X1,float Y1,const Vector< String > &Caption, const Vector< GLuint > &states, int nb_st);
 };
 
 class WND						// Class for the window object
@@ -298,7 +302,7 @@ public:
 
 	inline ~WND()	{		destroy();	}
 
-	void draw(bool Focus=true,bool Deg=true, SKIN *skin=NULL );						// Draw the window
+	void draw( String &help_msg, bool Focus=true,bool Deg=true, SKIN *skin=NULL );						// Draw the window
 	byte WinMov(int AMx,int AMy,int AMb,int Mx,int My,int Mb);						// Handle window's moves
 	int check(int AMx,int AMy,int AMb,bool timetoscroll=true, SKIN *skin = NULL );	// Handle window's events
 	void destroy();																	// Every life has an end...

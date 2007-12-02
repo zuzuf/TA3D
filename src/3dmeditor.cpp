@@ -400,8 +400,9 @@ do
 
 	gfx->set_2D_mode();		// Passe en mode dessin allegro
 	
-	EditWnd.draw();				// Dessine la fenêtre d'édition
-	MainWnd.draw();				// Dessine la fenêtre de la barre de menus
+	String help_msg = "";
+	EditWnd.draw( help_msg );				// Dessine la fenêtre d'édition
+	MainWnd.draw( help_msg );				// Dessine la fenêtre de la barre de menus
 
 	glEnable(GL_TEXTURE_2D);			// Affiche le nombre d'images par secondes
 	glEnable(GL_BLEND);
@@ -784,7 +785,8 @@ do
 
 	gfx->set_2D_mode();		// Passe en mode dessin allegro
 	
-	SEdit.draw();				// Dessine la fenêtre d'édition
+	String help_msg = "";
+	SEdit.draw( help_msg );				// Dessine la fenêtre d'édition
 	
 							// Dessine les textures utilisées par la surface
 	if(obj_table[cur_part]->surface.NbTex>0) {
@@ -1469,10 +1471,11 @@ void SurfPaint(int index)
 
 		gfx->set_2D_mode();		// Passe en mode dessin allegro
 	
-		SPaint.draw(Focus==0);		// Dessine la fenêtre d'édition
+		String help_msg = "";
+		SPaint.draw( help_msg, Focus==0);		// Dessine la fenêtre d'édition
 
 		if(EditMode==EDIT_PAINT) {
-			STool.draw(Focus==2);		// Dessine la boîte à outils
+			STool.draw( help_msg, Focus==2);		// Dessine la boîte à outils
 
 			float r=getr32(PColor)/255.0f,g=getg32(PColor)/255.0f,b=getb32(PColor)/255.0f,a=geta32(PColor)/255.0f;
 			glBegin(GL_QUADS);			// Dessine les barres de sélection de couleur
@@ -1562,7 +1565,8 @@ void SurfPaint(int index)
 			}		// Fin de if(EditMode==EDIT_PAINT) {
 
 		if(showcoorwindow) {				// Dessine la fenêtre de plaquage de texture
-			SCoor.draw(screen,Focus==1);
+			String help_msg = "";
+			SCoor.draw( help_msg, screen, Focus==1 );
 			gfx->unset_2D_mode();
 			gfx->set_2D_mode();
 			glEnable(GL_TEXTURE_2D);
