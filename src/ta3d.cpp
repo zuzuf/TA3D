@@ -1039,12 +1039,17 @@ do
 		if(!TA3D_SHIFT_PRESSED)	current_order=SIGNAL_ORDER_NONE;
 		}
 
-	if(build>=0 && can_be_there && cursor_type==CURSOR_DEFAULT && mouse_b!=1 && omb3 ==1 && !IsOnGUI ) {	// The cursor orders to build something
-		VECTOR target = cursor_on_map(&cam,map);
-		units.give_order_build(players.local_human_id,build,target,!TA3D_SHIFT_PRESSED);
-		build_order_given = true;
-		if(!TA3D_SHIFT_PRESSED)
-			build=-1;
+	if(build>=0 && cursor_type==CURSOR_DEFAULT && mouse_b!=1 && omb3 ==1 && !IsOnGUI ) {	// The cursor orders to build something
+		if( can_be_there ) {
+			sound_manager->PlayTDFSound( "OKTOBUILD", "sound" , NULL );
+			VECTOR target = cursor_on_map(&cam,map);
+			units.give_order_build(players.local_human_id,build,target,!TA3D_SHIFT_PRESSED);
+			build_order_given = true;
+			if(!TA3D_SHIFT_PRESSED)
+				build=-1;
+			}
+		else
+			sound_manager->PlayTDFSound( "NOTOKTOBUILD", "sound" , NULL );
 		}
 
 	if( !TA3D_SHIFT_PRESSED && build_order_given )

@@ -10,6 +10,7 @@ _networking code
 _improve A.I.
 _D3D support
 
+*when you click to build something on the map, the according sound is played
 *support for floating help messages when cursor is over a widget
 *menus have been redesigned to be more like TA
 *GUI skin has been changed, it's more TA like now
