@@ -209,12 +209,26 @@ void WEAPON_MANAGER::load_tdf(char *data,int size)
 			else if(f=strstr(ligne,"color=")) {
 				if((strstr(ligne,";")))	*(strstr(ligne,";"))=0;
 				int c=atoi(f+6);
-				weapon[index].color[0]=makecol(pal[c].r<<2,pal[c].g<<2,pal[c].b<<2);
+				weapon[index].color[0] = makecol(pal[c].r<<2,pal[c].g<<2,pal[c].b<<2);
+				weapon[index].color[2] = c;
+				if( weapon[index].color[2] == 232 && weapon[index].color[3] == 234 ) {
+					weapon[index].color[0] = makecol( pal[ 180 ].r << 2, pal[ 180 ].g << 2, pal[ 180 ].b << 2 );
+					weapon[index].color[1] = makecol( pal[ 212 ].r << 2, pal[ 212 ].g << 2, pal[ 212 ].b << 2 );
+					weapon[index].color[2] = 180;
+					weapon[index].color[3] = 212;
+					}
 				}
 			else if(f=strstr(ligne,"color2=")) {
 				if((strstr(ligne,";")))	*(strstr(ligne,";"))=0;
 				int c=atoi(f+7);
-				weapon[index].color[1]=makecol(pal[c].r<<2,pal[c].g<<2,pal[c].b<<2);
+				weapon[index].color[1] = makecol(pal[c].r<<2,pal[c].g<<2,pal[c].b<<2);
+				weapon[index].color[3] = c;
+				if( weapon[index].color[2] == 232 && weapon[index].color[3] == 234 ) {
+					weapon[index].color[0] = makecol( pal[ 180 ].r << 2, pal[ 180 ].g << 2, pal[ 180 ].b << 2 );
+					weapon[index].color[1] = makecol( pal[ 212 ].r << 2, pal[ 212 ].g << 2, pal[ 212 ].b << 2 );
+					weapon[index].color[2] = 180;
+					weapon[index].color[3] = 212;
+					}
 				}
 			else if(f=strstr(ligne,"burstrate=")) {
 				if((strstr(ligne,";")))	*(strstr(ligne,";"))=0;
@@ -816,18 +830,18 @@ void WEAPON::draw(CAMERA *cam,MAP *map)				// Dessine les objets produits par le
 		P=P-length*V;
 		glDisable(GL_LIGHTING);
 		glDisable(GL_TEXTURE_2D);
-		int color0=weapon_manager.weapon[weapon_id].color[0];
-		int color1=weapon_manager.weapon[weapon_id].color[1];
-		float coef=(cos(stime*5.0f)+1.0f)*0.5f;
-		float r=(coef*((color0>>16)&0xFF)+(1.0f-coef)*((color1>>16)&0xFF))/255.0f;
-		float g=(coef*((color0>>8)&0xFF)+(1.0f-coef)*((color1>>8)&0xFF))/255.0f;
-		float b=(coef*(color0&0xFF)+(1.0f-coef)*(color1&0xFF))/255.0f;
+		int color0 = weapon_manager.weapon[weapon_id].color[0];
+		int color1 = weapon_manager.weapon[weapon_id].color[1];
+		float coef = (cos(stime*5.0f)+1.0f)*0.5f;
+		float r=(coef*getr(color0)+(1.0f-coef)*getr(color1))/255.0f;
+		float g=(coef*getg(color0)+(1.0f-coef)*getg(color1))/255.0f;
+		float b=(coef*getb(color0)+(1.0f-coef)*getb(color1))/255.0f;
 		VECTOR D=Pos-cam->Pos;
 		VECTOR Up=D*V;
 		Up.Unit();
 		if( damage < 0 )
 			damage = weapon_manager.weapon[weapon_id].damage;
-		Up = min( damage / 60.0f, 1.0f ) * Up;		// Variable width!!
+		Up = min( damage / 60.0f + weapon_manager.weapon[weapon_id].firestarter / 200.0f + weapon_manager.weapon[weapon_id].areaofeffect / 40.0f, 1.0f ) * Up;		// Variable width!!
 		glDisable(GL_CULL_FACE);
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);

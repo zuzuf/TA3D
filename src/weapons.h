@@ -70,7 +70,7 @@ public:
 	bool	unitsonly;
 	float	edgeeffectiveness;
 	bool	lineofsight;
-	int		color[2];
+	int		color[4];
 	short	burst;
 	float	burstrate;
 	float	duration;
@@ -172,6 +172,8 @@ public:
 		lineofsight=false;
 		color[0]=0;
 		color[1]=0xFFFFFF;
+		color[2]=0;
+		color[3]=0;
 		burstrate=1.0f;
 		duration=0.1f;
 		beamweapon=false;
