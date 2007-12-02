@@ -2776,6 +2776,7 @@ bool UNIT::is_on_radar( byte &p_mask )
 									}
 
 								if( unit_manager.unit_type[type_id].BMcode && port[ INBUILDSTANCE ] != 0.0f ) {
+									play_sound( "working" );
 									// Récupère l'unité
 									float recup=dt*unit_manager.unit_type[type_id].WorkerTime*unit_manager.unit_type[target_unit->type_id].MaxDamage/unit_manager.unit_type[target_unit->type_id].BuildTime;
 									if(recup>target_unit->hp)	recup=target_unit->hp;
@@ -2820,6 +2821,7 @@ bool UNIT::is_on_radar( byte &p_mask )
 								mission->last_d=-1.0f;
 								}
 							if( unit_manager.unit_type[type_id].BMcode && port[ INBUILDSTANCE ] != 0 ) {
+								play_sound( "working" );
 											// Récupère l'objet
 								float recup=dt*unit_manager.unit_type[type_id].WorkerTime;
 								if(recup>features.feature[mission->data].hp)	recup=features.feature[mission->data].hp;

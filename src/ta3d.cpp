@@ -944,8 +944,6 @@ do
 						if( (units.unit[i].flags & 1) && units.unit[i].owner_id==players.local_human_id && units.unit[i].sel
 						&& unit_manager.unit_type[units.unit[i].type_id].CanReclamate && unit_manager.unit_type[units.unit[i].type_id].BMcode ) {
 							units.EnterCS_from_outside();
-							if( !TA3D_SHIFT_PRESSED )
-								units.unit[ i ].play_sound( "working" );
 							if(TA3D_SHIFT_PRESSED)
 								units.unit[i].add_mission(MISSION_RECLAIM,&(units.unit[pointing].Pos),false,0,&(units.unit[pointing]));
 							else
@@ -1016,8 +1014,6 @@ do
 				if( (units.unit[i].flags & 1) && units.unit[i].owner_id==players.local_human_id && units.unit[i].sel
 				&& unit_manager.unit_type[units.unit[i].type_id].CanReclamate && unit_manager.unit_type[units.unit[i].type_id].BMcode ) {
 					units.EnterCS_from_outside();
-					if( !TA3D_SHIFT_PRESSED )
-						units.unit[ i ].play_sound( "working" );
 					if(TA3D_SHIFT_PRESSED)
 						units.unit[i].add_mission(MISSION_RECLAIM,&cur_pos,false,idx,NULL);
 					else
