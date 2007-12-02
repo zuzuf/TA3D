@@ -650,11 +650,11 @@ uninstall-am: uninstall-binPROGRAMS
 
 
 all:
-	!(test -e ta3d) || mv ta3d ../
+	!(test -e ta3d) || mv ta3d ../ta3d-bin
 	!(test -e ta3d.exe) || mv ta3d.exe ../
 	!(test -e hpiview) || mv hpiview ../
 	!(test -e hpiview.exe) || mv hpiview.exe ../
-	!(test -e 3dmeditor) || mv 3dmeditor ../
+	!(test -e 3dmeditor) || mv 3dmeditor ../3dmeditor-bin
 	!(test -e 3dmeditor.exe) || mv 3dmeditor.exe ../
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.
