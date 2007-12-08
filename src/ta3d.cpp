@@ -1188,11 +1188,16 @@ do
 			}
 		}
 
-	if(TA3D_CTRL_PRESSED && key[KEY_C]) {
-		for(uint16 e=0;e<units.index_list_size;e++) {
+	if(TA3D_CTRL_PRESSED && ( key[KEY_C] || key[KEY_F] || key[KEY_V] || key[KEY_B] ) ) {							// Select CTRL_* category units
+		String check_cat = "CTRL_";
+		if( key[KEY_C] )	check_cat += "C";
+		else if( key[KEY_F] )	check_cat += "F";
+		else if( key[KEY_V] )	check_cat += "V";
+		else if( key[KEY_B] )	check_cat += "B";
+		for( uint16 e = 0 ; e < units.index_list_size ; e++ ) {
 			i = units.idx_list[e];
-			if( (units.unit[i].flags & 1) && units.unit[i].owner_id==players.local_human_id) {
-				if( unit_manager.unit_type[units.unit[i].type_id].checkCategory( "CTRL_C" ) )
+			if( (units.unit[i].flags & 1) && units.unit[i].owner_id == players.local_human_id && units.unit[i].build_percent_left == 0.0f ) {
+				if( unit_manager.unit_type[units.unit[i].type_id].checkCategory( check_cat.c_str() ) )
 					units.unit[i].sel=true;
 				else if(!TA3D_SHIFT_PRESSED)
 					units.unit[i].sel=false;
@@ -1203,7 +1208,7 @@ do
 		build=-1;
 		for(uint16 e=0;e<units.index_list_size && cur_sel!=-2;e++) {
 			i = units.idx_list[e];
-			if( (units.unit[i].flags & 1) && units.unit[i].owner_id==players.local_human_id && units.unit[i].sel)
+			if( (units.unit[i].flags & 1) && units.unit[i].owner_id == players.local_human_id && units.unit[i].sel)
 				cur_sel= (cur_sel==-1) ? i : -2;
 			}
 		selected=(cur_sel!=-1);
@@ -1212,8 +1217,7 @@ do
 			cur_sel=units.unit[cur_sel].type_id;
 			}
 		}
-
-	if(TA3D_CTRL_PRESSED && key[KEY_Z]) {		// Séletionne toutes les unités dont le type est déjà sélectionné
+	else if(TA3D_CTRL_PRESSED && key[KEY_Z]) {		// Séletionne toutes les unités dont le type est déjà sélectionné / Select units of the same type
 		bool *sel_type = new bool[unit_manager.nb_unit];
 		for(i=0;i<unit_manager.nb_unit;i++)
 			sel_type[i]=false;
@@ -1224,7 +1228,7 @@ do
 			}
 		for(uint16 e=0;e<units.index_list_size;e++) {
 			i = units.idx_list[e];
-			if( (units.unit[i].flags & 1) && units.unit[i].port[BUILD_PERCENT_LEFT]==0.0f && units.unit[i].owner_id==players.local_human_id && sel_type[units.unit[i].type_id])
+			if( (units.unit[i].flags & 1) && units.unit[i].build_percent_left == 0.0f && units.unit[i].owner_id==players.local_human_id && sel_type[units.unit[i].type_id])
 				units.unit[i].sel=true;
 			}
 		cur_sel=-1;
@@ -1241,6 +1245,26 @@ do
 			cur_sel=units.unit[cur_sel].type_id;
 			}
 		delete[] sel_type;
+		}
+	else if(TA3D_CTRL_PRESSED && key[KEY_A]) {		// Select all the player's units
+		for( uint16 e = 0 ; e < units.index_list_size ; e++ ) {
+			i = units.idx_list[e];
+			if( (units.unit[i].flags & 1) && units.unit[i].port[BUILD_PERCENT_LEFT] == 0.0f && units.unit[i].owner_id == players.local_human_id )
+				units.unit[i].sel=true;
+			}
+		cur_sel=-1;
+		cur_sel_index=-1;
+		for( uint16 e = 0; e < units.index_list_size && cur_sel != -2 ; e++ ) {
+			i = units.idx_list[e];
+			if( (units.unit[i].flags & 1) && units.unit[i].owner_id == players.local_human_id && units.unit[i].sel )
+				cur_sel= (cur_sel==-1) ? i : -2;
+			}
+		selected=(cur_sel!=-1);
+		build=-1;
+		if(cur_sel>=0) {
+			cur_sel_index=cur_sel;
+			cur_sel=units.unit[cur_sel].type_id;
+			}
 		}
 	else if(TA3D_CTRL_PRESSED) {			// Formation de groupes d'unités
 		int grpe=-1;

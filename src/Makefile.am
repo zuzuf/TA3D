@@ -23,7 +23,7 @@ ta3d_SOURCES= \
 	tnt.cpp tnt.h \
 	weapons.cpp weapons.h \
 	script.cpp script.h \
-	ia.cpp ia.h \
+	ai.cpp ai.h \
 	taconfig.cpp taconfig.h \
 	icon.cpp \
 	stdafx.cpp stdafx.h \

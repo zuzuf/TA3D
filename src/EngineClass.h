@@ -828,7 +828,7 @@ public:
 	void draw();
 };
 
-#include "ia.h"					// Pour l'intelligence artificielle
+#include "ai.h"					// For Artificial Intelligence
 
 extern int NB_PLAYERS;
 

@@ -5,7 +5,7 @@
 }
 [Change map]
 {
-	FRENCH=Changer de carte;
+	FRENCH=Changer carte;
 }
 [camera zoom speed]
 {

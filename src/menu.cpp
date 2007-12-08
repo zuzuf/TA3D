@@ -997,128 +997,77 @@ void config_menu(void)
 
 void stats_menu(void)
 {
-	gfx->SCREEN_W_TO_640 = 640.0f / SCREEN_W;				// To have mouse sensibility undependent from the resolution
-	gfx->SCREEN_H_TO_480 = 480.0f / SCREEN_H;
-
 	cursor_type=CURSOR_DEFAULT;
 
-	bool done=false;
+	float resize_w = SCREEN_W / 640.0f;
+	float resize_h = SCREEN_H / 480.0f;
 
 	gfx->set_2D_mode();
 
 	gfx->ReInitTexSys();
 
-	glScalef(SCREEN_W/640.0f,SCREEN_H/480.0f,1.0f);
-
-	float dt=0.0f;
-	int time = msec_timer;
-	float Conv = 0.001f;
-
-	float h=gfx->TA_font.height();
-	int	amb=mouse_b;
-
-	bool ok_status=false;		// Pour les boutons
-	bool o_ok_status=false;
-
 	reset_keyboard();
 	while(key[KEY_ESC])	rest(1);
 
+	AREA statistics_area("statistics");
+	statistics_area.load_tdf("gui/statistics.area");
+	if( !statistics_area.background )	statistics_area.background = gfx->glfond;
+
+	for( int i = 0 ; i < players.nb_player ; i++ ) {
+		statistics_area.set_caption( format( "statistics.player%d", i ), players.nom[i] );
+		statistics_area.set_caption( format( "statistics.side%d", i ), players.side[i] );
+		statistics_area.set_caption( format( "statistics.losses%d", i ), format( "%d", players.losses[i] ) );
+		statistics_area.set_caption( format( "statistics.kills%d", i ), format( "%d", players.kills[i] ) );
+		statistics_area.set_caption( format( "statistics.energy%d", i ), format( "%d", (int)players.energy_total[i] ) );
+		statistics_area.set_caption( format( "statistics.metal%d", i ), format( "%d", (int)players.metal_total[i] ) );
+		}
+
+	bool done=false;
+
 	int amx = -1;
 	int amy = -1;
-	int am_b = -1;
+	int amb = -1;
 
 	do
 	{
-		while( amx == mouse_x && amy == mouse_y && am_b == mouse_b && mouse_b == 0 && !key[ KEY_ENTER ] && !key[ KEY_ESC ] && !done )
+		bool key_is_pressed = false;
+		do {
+			key_is_pressed = keypressed();
+			statistics_area.check();
 			rest( 1 );
+		} while( amx == mouse_x && amy == mouse_y && amb == mouse_b && mouse_b == 0 && !key[ KEY_ENTER ] && !key[ KEY_ESC ] && !done && !key_is_pressed );
+
 		amx = mouse_x;
 		amy = mouse_y;
-		am_b = mouse_b;
+		amb = mouse_b;
 
-		time=msec_timer;
-
-		if(key[KEY_ESC]) {
-			while(key[KEY_ESC])
-				rest(1);
-			done=true;
+		if( statistics_area.get_state( "statistics.b_ok" ) || key[KEY_ENTER] ) {
+			while( key[KEY_ENTER] )	{	rest( 20 );	poll_keyboard();	}
+			clear_keybuf();
+			done=true;		// If user click "OK" or hit enter then leave the window
 			}
 
-		o_ok_status=ok_status;
-		ok_status=false;
-		if(mouse_b==1 && mouse_y*gfx->SCREEN_H_TO_480>=440 && mouse_y*gfx->SCREEN_H_TO_480<=460)
-			ok_status=(mouse_x*gfx->SCREEN_W_TO_640>=240 && mouse_x*gfx->SCREEN_W_TO_640<=400);
+		if(key[KEY_ESC]) done=true;			// Quitte si on appuie sur echap
+					// Efface tout
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		if(mouse_b==0 && !ok_status && o_ok_status)		// Click sur ok
-			done=true;
-
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);		// Efface l'écran
-
-		glColor4f(1.0f,1.0f,1.0f,1.0f);
-		gfx->drawtexture(gfx->glfond,0.0f,0.0f,640.0f,480.0f);
-
-		glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
-		glEnable(GL_BLEND);
-		gfx->print(gfx->TA_font,320.0f-0.5f*gfx->TA_font.length(TRANSLATE("Scores")),8.0f,0.0f,0xFFFFFFFF,TRANSLATE("Scores"));
-
-		glDisable(GL_TEXTURE_2D);
-
-		glColor4f(0.0f,0.0f,0.0f,0.5f);
-		gfx->rectfill(8,32,632,432);
-
-		glDisable(GL_BLEND);
-		glColor4f(1.0f,1.0f,1.0f,1.0f);
-		gfx->rect(8,32,632,432);
-
-		glEnable(GL_BLEND);
-		glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
-		glColor4f(0.5f,0.5f,0.5f,0.5f);
-		glBegin(GL_LINES);
-		for(int i=0;i<10;i++) {
-			glVertex2i(32,72+36*i);
-			glVertex2i(608,72+36*i);
-			}
-		glColor4f(1.0f,1.0f,1.0f,0.5f);
-			glVertex2i(240,48);		glVertex2i(240,424);
-			glVertex2i(318,48);		glVertex2i(318,424);
-			glVertex2i(396,48);		glVertex2i(396,424);
-			glVertex2i(474,48);		glVertex2i(474,424);
-			glVertex2i(552,48);		glVertex2i(552,424);
-		glEnd();
-		glEnable(GL_TEXTURE_2D);
-
-		glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
-		gfx->print(gfx->TA_font,136.0f-0.5f*gfx->TA_font.length(TRANSLATE("Players")),48.0f,0.0f,0xFFFFFFFF,TRANSLATE("Players"));
-		gfx->print(gfx->TA_font,276.0f-0.5f*gfx->TA_font.length(TRANSLATE("Side")),48.0f,0.0f,0xFFFFFFFF,TRANSLATE("Side"));
-		gfx->print(gfx->TA_font,354.0f-0.5f*gfx->TA_font.length(TRANSLATE("Losses")),48.0f,0.0f,0xFFFFFFFF,TRANSLATE("Losses"));
-		gfx->print(gfx->TA_font,432.0f-0.5f*gfx->TA_font.length(TRANSLATE("Kills")),48.0f,0.0f,0xFFFFFFFF,TRANSLATE("Kills"));
-		gfx->print(gfx->TA_font,510.0f-0.5f*gfx->TA_font.length(TRANSLATE("Energy")),48.0f,0.0f,0xFFFFFFFF,TRANSLATE("Energy"));
-		gfx->print(gfx->TA_font,588.0f-0.5f*gfx->TA_font.length(TRANSLATE("Metal")),48.0f,0.0f,0xFFFFFFFF,TRANSLATE("Metal"));
-
-		for(int i=0;i<players.nb_player;i++) {
-			char txt[100];
-			float y=72.0f+18.0f-h*0.5f+36.0f*i;
-			gfx->print(gfx->TA_font,32.0f,y,0.0f,0xFFFFFFFF,players.nom[i]);
-			gfx->print(gfx->TA_font,276.0f-0.5f*gfx->TA_font.length(players.side[i]),y,0.0f,0xFFFFFFFF,players.side[i]);
-			uszprintf(txt,100,"%d",players.losses[i]);					gfx->print(gfx->TA_font,354.0f-0.5f*gfx->TA_font.length(txt),y,0.0f,0xFFFFFFFF,txt);
-			uszprintf(txt,100,"%d",players.kills[i]);					gfx->print(gfx->TA_font,432.0f-0.5f*gfx->TA_font.length(txt),y,0.0f,0xFFFFFFFF,txt);
-			uszprintf(txt,100,"%d",(int)players.energy_total[i]);		gfx->print(gfx->TA_font,510.0f-0.5f*gfx->TA_font.length(txt),y,0.0f,0xFFFFFFFF,txt);
-			uszprintf(txt,100,"%d",(int)players.metal_total[i]);		gfx->print(gfx->TA_font,588.0f-0.5f*gfx->TA_font.length(txt),y,0.0f,0xFFFFFFFF,txt);
-			}
-
-		glDisable(GL_BLEND);
-		glbutton(TRANSLATE("ok"),240.0f,440.0f,400.0f,460.0f,ok_status);
-
-		amb=mouse_b;
+		statistics_area.draw();
 
 		glEnable(GL_TEXTURE_2D);
-		glColor3f(1.0f,1.0f,1.0f);
-
-		draw_cursor();
-
+		gfx->set_color(0xFFFFFFFF);
+		draw_cursor(resize_w,resize_h);
+		
+					// Affiche
 		gfx->flip();
 	}while(!done);
 
-	gfx->unset_2D_mode();
+	if( statistics_area.background == gfx->glfond )	statistics_area.background = 0;
+	statistics_area.destroy();
+
+	gfx->unset_2D_mode();	// Quitte le mode de dessin d'allegro
+
+	reset_mouse();
+	while(key[KEY_ESC]) {	rest(1);	poll_keyboard();	}
 }
 
 void setup_game(void)
@@ -1217,14 +1166,30 @@ void setup_game(void)
 		}
 
 	GUIOBJ *minimap_obj = setupgame_area.get_object( "gamesetup.minimap" );
+	float mini_map_x1 = 0.0f;
+	float mini_map_y1 = 0.0f;
+	float mini_map_x2 = 0.0f;
+	float mini_map_y2 = 0.0f;
+	float mini_map_x = 0.0f;
+	float mini_map_y = 0.0f;
 	if( minimap_obj ) {
+		mini_map_x1 = minimap_obj->x1;
+		mini_map_y1 = minimap_obj->y1;
+		mini_map_x2 = minimap_obj->x2;
+		mini_map_y2 = minimap_obj->y2;
+		ldx = dx * ( mini_map_x2 - mini_map_x1 ) / 504.0f;
+		ldy = dy * ( mini_map_y2 - mini_map_y1 ) / 504.0f;
+
+		mini_map_x = (mini_map_x1 + mini_map_x2) * 0.5f;
+		mini_map_y = (mini_map_y1 + mini_map_y2) * 0.5f;
+
 		minimap_obj->Data = glimg;
-		minimap_obj->x1 = (int)((530-ldx)*resize_w);
-		minimap_obj->y1 = (int)((110-ldy)*resize_h);
-		minimap_obj->x2 = (int)((530+ldx)*resize_w);
-		minimap_obj->y2 = (int)((110+ldy)*resize_h);
-		minimap_obj->u2 = dx/252.0f;
-		minimap_obj->v2 = dy/252.0f;
+		minimap_obj->x1 = mini_map_x - ldx;
+		minimap_obj->y1 = mini_map_y - ldy;
+		minimap_obj->x2 = mini_map_x + ldx;
+		minimap_obj->y2 = mini_map_y + ldy;
+		minimap_obj->u2 = dx / 252.0f;
+		minimap_obj->v2 = dy / 252.0f;
 		}
 
 	GUIOBJ *guiobj = setupgame_area.get_object( "scripts.script_list" );
@@ -1237,7 +1202,8 @@ void setup_game(void)
 	setupgame_area.set_caption( "gamesetup.script_name", game_data.game_script );
 	{
 		GUIOBJ *obj = setupgame_area.get_object( "gamesetup.FOW" );
-		obj->Text[0] = obj->Text[ 1 + game_data.fog_of_war ];
+		if( obj )
+			obj->Text[0] = obj->Text[ 1 + game_data.fog_of_war ];
 	}
 
 	bool done=false;
@@ -1368,7 +1334,8 @@ void setup_game(void)
 				}
 			}
 
-		if( setupgame_area.get_state( "gamesetup.minimap" ) || setupgame_area.get_state( "gamesetup.change_map" ) ) {		// Clic on the mini-map
+		if( minimap_obj != NULL && 
+		( setupgame_area.get_state( "gamesetup.minimap" ) || setupgame_area.get_state( "gamesetup.change_map" ) ) ) {		// Clic on the mini-map
 			gfx->unset_2D_mode();
 			reset_mouse();
 			String map_filename = game_data.map_filename;
@@ -1384,13 +1351,13 @@ void setup_game(void)
 
 				if(game_data.map_filename)	free(game_data.map_filename);
 				game_data.map_filename = new_map;
-				glimg=load_tnt_minimap_fast(game_data.map_filename,&dx,&dy);
-				ldx = dx*70.0f/252.0f;
-				ldy = dy*70.0f/252.0f;
-				minimap_obj->x1 = (int)((530-ldx)*resize_w);
-				minimap_obj->y1 = (int)((110-ldy)*resize_h);
-				minimap_obj->x2 = (int)((530+ldx)*resize_w);
-				minimap_obj->y2 = (int)((110+ldy)*resize_h);
+				glimg = load_tnt_minimap_fast(game_data.map_filename,&dx,&dy);
+				ldx = dx * ( mini_map_x2 - mini_map_x1 ) / 504.0f;
+				ldy = dy * ( mini_map_y2 - mini_map_y1 ) / 504.0f;
+				minimap_obj->x1 = mini_map_x-ldx;
+				minimap_obj->y1 = mini_map_y-ldy;
+				minimap_obj->x2 = mini_map_x+ldx;
+				minimap_obj->y2 = mini_map_y+ldy;
 				minimap_obj->u2 = dx/252.0f;
 				minimap_obj->v2 = dy/252.0f;
 				}

@@ -256,7 +256,7 @@ public:
 		return false;
 	}
 
-	inline bool checkCategory( char *cat )
+	inline bool checkCategory( const char *cat )
 	{
 		if( Category == NULL || cat == NULL )	return false;
 		if( strstr( Category, Lowercase( cat ).c_str() ) )

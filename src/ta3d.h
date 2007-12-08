@@ -218,7 +218,7 @@ BITMAP *LoadMaskedTexBmp(char *file,char *filealpha)
 #include "UnitEngine.h"				// The Unit Engine
 #include "tnt.h"					// The TNT loaded
 #include "script.h"					// The game script manager
-#include "ia.h"						// AI Engine
+#include "ai.h"						// AI Engine
 
 inline INT_ELEMENT read_gui_element( cTAFileParser *parser, const String &element, bool bottom = false )
 {

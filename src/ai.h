@@ -16,7 +16,7 @@
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA*/
 
 /*-----------------------------------------------------------------------------\
-|                                      ia.h                                    |
+|                                      ai.h                                    |
 |       Ce module est responsable de l'intelligence artificielle               |
 |                                                                              |
 \-----------------------------------------------------------------------------*/
@@ -30,15 +30,15 @@ struct NEURON
 	float	*weight;		// Poids des différents neurones sources
 };
 
-class BRAIN		// Réseau de NEURON à n entrées et p sorties
+class BRAIN		// NEURON network with n NEURON in input layer and p in output layer
 {
 public:
-	int		nb_neuron;		// Nombre de NEURON
-	NEURON	*neuron;		// Tableau de NEURON
-	int		n;				// Nombre d'entrées dans le réseau
-	int		p;				// Nombre de sorties du réseau
-	int		q;				// Taille des rangs
-	float	*n_out;			// Tableau de sortie
+	int		nb_neuron;		// Number of NEURONs
+	NEURON	*neuron;		// Array of NEURONs
+	int		n;				// Number of inputs
+	int		p;				// Number of outputs
+	int		q;				// Size of middle layers
+	float	*n_out;			// Result array
 
 	inline void init()
 	{
@@ -70,102 +70,22 @@ public:
 		destroy();
 	}
 
-	void build(int nb_in,int nb_out,int rg)				// Crée le réseau de neurones
-	{
-		destroy();
-		q=rg;
-		nb_neuron=q+nb_in+nb_out;		// Nombre de couches x nombre d'entrées + nombre de sorties
-		n=nb_in;
-		p=nb_out;
-		neuron=(NEURON*) malloc(sizeof(NEURON)*nb_neuron);
-		n_out=(float*) malloc(sizeof(float)*nb_out);
-		for(int i=0;i<nb_neuron;i++) {
-			neuron[i].var=0.0f;
-			neuron[i].weight=NULL;
-			if(i<nb_out)
-				n_out[i]=0.0f;
-			if(i>=n && i<nb_neuron-p) {
-				neuron[i].weight=(float*) malloc(sizeof(float)*n);
-				for(int e=0;e<n;e++)
-					neuron[i].weight[e]=(TA3D_RAND()%2001)*0.001f-1.0f;
-				}
-			else if(i>=n) {
-				neuron[i].weight=(float*) malloc(sizeof(float)*q);
-				for(int e=0;e<q;e++)
-					neuron[i].weight[e]=(TA3D_RAND()%2001)*0.001f-1.0f;
-				}
-			}
-	}
+	void build(int nb_in,int nb_out,int rg);			// Create the neural network
 
-	inline void active_neuron(int i)
-	{
-		if(neuron[i].weight==NULL)	return;
-		if(i<n)
-			return;
-		neuron[i].var=0.0f;
-		if(i<nb_neuron-p)
-			for(int e=0;e<n;e++)
-				neuron[i].var+=neuron[e].var*neuron[i].weight[e];
-		else
-			for(int e=0;e<q;e++)
-				neuron[i].var+=neuron[n+e].var*neuron[i].weight[e];
-		neuron[i].var=1.0f/(1.0f+exp(-neuron[i].var));
-	}
+	void active_neuron(int i);
 
-	inline float *work(float entry[],bool seuil=false)			// Fait bosser un peu le réseau de NEURON et renvoie les valeurs calculées par un NEURON
-	{
-		if(nb_neuron<0)	return NULL;		// Pas de NEURON à faire bosser
-		int i;
-		for(i=0;i<n;i++)		// Prépare le réseau au calcul
-			neuron[i].var=entry[i];
-		for(i=n;i<nb_neuron;i++)
-			active_neuron(i);
-		if(!seuil)
-			for(i=0;i<p;i++)		// Récupère le résultat du calcul
-				n_out[i]=neuron[n+q+i].var;
-		else
-			for(i=0;i<p;i++)		// Récupère le résultat du calcul
-				n_out[i]=neuron[n+q+i].var>=0.5f ? 1.0f : 0.0f;
-		return n_out;
-	}
+	float *work(float entry[],bool seuil=false);			// Make NEURONs work and return the network results
 
-	inline void mutation()			// Déclenche une mutation dans le réseau de neurones
-	{
-		int index=(TA3D_RAND()%(nb_neuron-n))+n;
-		int mod_w=0;
-		if(index<nb_neuron-p)	mod_w=TA3D_RAND()%n;
-		else mod_w=TA3D_RAND()%q;
-		neuron[index].weight[mod_w]+=((TA3D_RAND()%200001)-100000)*0.00001f;
-	}
+	void mutation();			// Make some changes to the neural network
 
-	inline void learn(float *result,float coef=1.0f)		// Corrige les défauts
-	{
-		for(int i=0;i<p;i++)
-			n_out[i]=(result[i]-n_out[i])*(n_out[i]+0.01f)*(1.01f-n_out[i]);
+	void learn(float *result,float coef=1.0f);		// Make it learn
 
-		float *diff = new float[q];
-		for(int i=0;i<q;i++)
-			diff[i]=0.0f;
+	void save(FILE *file);		// Save the network
 
-		for(int i=0;i<p;i++)		// Neurones de sortie
-			for(int e=0;e<q;e++) {
-				diff[e]+=(n_out[i]+0.01f)*(1.01f-n_out[i])*neuron[n+q+i].weight[e]*neuron[n+e].var;
-				neuron[n+q+i].weight[e]+=coef*n_out[i]*neuron[n+e].var;
-				}
-
-									// Neurones des couches intermédiaires
-		for(int i=0;i<q;i++)
-			for(int e=0;e<n;e++)
-				neuron[n+i].weight[e]+=coef*diff[i]*neuron[e].var;
-		delete[] diff;
-	}
-
-	void save(FILE *file);		// Enregistre le réseau de neurones
-
-	int load(FILE *file);		// Charge le réseau de neurones
+	int load(FILE *file);		// Load the network
 };
 
-BRAIN *copy_brain(BRAIN *brain,BRAIN *dst=NULL);		// Copie un réseau de neurones
+BRAIN *copy_brain(BRAIN *brain,BRAIN *dst=NULL);		// Make a copy
 
 #define	ORDER_ARMY			0x00			// Order to build an army
 #define	ORDER_METAL_P		0x01			// Order to gather metal
@@ -184,7 +104,7 @@ BRAIN *copy_brain(BRAIN *brain,BRAIN *dst=NULL);		// Copie un réseau de neurone
 #define BRAIN_VALUE_HIGH	0x4
 #define BRAIN_VALUE_MAX		0x8
 
-#define BRAIN_VALUE_BITS	0x4			// Nombre de bits nécessaires pour coder une valeur pour un réseau de neurones
+#define BRAIN_VALUE_BITS	0x4			// How many bits are needed to store a value in a neural network ?
 
 #define AI_UNIT_TYPE_BUILDER	0x0
 #define AI_UNIT_TYPE_FACTORY	0x1
@@ -262,16 +182,15 @@ class AI_PLAYER :	protected cCriticalSection,			// Class to manage players contr
 {
 public:
 	char			*name;			// Attention faudrait pas qu'il se prenne pour quelqu'un!! -> indique aussi le fichier correspondant à l'IA (faut sauvegarder les cervelles)
-	BRAIN			decider;		// Réseau de neurones d'analyse de la partie et de décision
-	BRAIN			anticiper;		// Réseau de neurones voué à l'analyse et à l'anticipation des mouvements ennemis
-	byte			player_id;		// Identifiant du joueur
-	uint16			unit_id;		// Identifiant d'unité pour parcourir les unités
+	BRAIN			decide;			// Neural network to take decision
+	BRAIN			anticipate;		// Neural network to make it anticipate
+	byte			player_id;		// Identifiant du joueur / all is in the name :)
+	uint16			unit_id;		// Unit index to run throught the unit array
 	uint16			total_unit;
 
 	byte			AI_type;		// Which AI do we have to use?
 
-private:
-	AI_WEIGHT		*weights;	// Vector of weights used to decide what to build
+	AI_WEIGHT		*weights;		// Vector of weights used to decide what to build
 	uint16			nb_units[ NB_AI_UNIT_TYPE ];
 	uint16			nb_enemy[ 10 ];				// Hom many units has each enemy ?
 	float			order_weight[NB_ORDERS];	// weights of orders
@@ -280,6 +199,13 @@ private:
 	List<uint16>	factory_list;
 	List<uint16>	army_list;
 	Vector< List<WEIGHT_COEF> >	enemy_list;
+
+private:
+	void (*fp_scan_unit)( AI_PLAYER* );
+
+	void (*fp_refresh_unit_weights)( AI_PLAYER* );
+
+	void (*fp_think)( AI_PLAYER*, MAP* );
 
 protected:
 	int			Run();
@@ -322,7 +248,7 @@ public:
 
 	void refresh_unit_weights();
 
-	void think(MAP *map);
+	void think( MAP *map );
 };
 
 #endif

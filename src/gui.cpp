@@ -244,7 +244,7 @@ void GUIOBJ::create_optionc(float X1,float Y1,const String &Caption,bool ETAT,vo
 	Text.resize(1);
 	Text[0] = Caption;
 	Func=F;
-	Flag = FLAG_SWITCH;
+	Flag = FLAG_SWITCH | FLAG_CAN_BE_CLICKED;
 }
 			// Crée un bouton d'option
 void GUIOBJ::create_optionb(float X1,float Y1,const String &Caption,bool ETAT,void (*F)(int), SKIN *skin)
@@ -265,7 +265,7 @@ void GUIOBJ::create_optionb(float X1,float Y1,const String &Caption,bool ETAT,vo
 	Text.resize(1);
 	Text[0] = Caption;
 	Func=F;
-	Flag = FLAG_SWITCH;
+	Flag = FLAG_SWITCH | FLAG_CAN_BE_CLICKED;
 }
 			// Crée une barre d'entrée de texte
 void GUIOBJ::create_textbar(float X1,float Y1,float X2,float Y2,const String &Caption,int MaxChar, void(*F)(int))
@@ -279,6 +279,7 @@ void GUIOBJ::create_textbar(float X1,float Y1,float X2,float Y2,const String &Ca
 	Text[0] = Caption;
 	if( Text[0].size() >= MaxChar && MaxChar > 1 )
 		Text[0].resize( MaxChar - 1 );
+	Flag = FLAG_CAN_BE_CLICKED | FLAG_CAN_GET_FOCUS;
 	Func=F;
 	Data=MaxChar;
 }
@@ -292,7 +293,7 @@ void GUIOBJ::create_menu(float X1,float Y1,const Vector<String> &Entry,void (*F)
 	Focus=false;
 	Text=Entry;
 	Func=F;
-	Flag = FLAG_CAN_BE_CLICKED;
+	Flag = FLAG_CAN_BE_CLICKED | FLAG_CAN_GET_FOCUS;
 }
 			// Crée un menu déroulant
 void GUIOBJ::create_menu(float X1,float Y1,float X2,float Y2,const Vector<String> &Entry,void (*F)(int))
@@ -305,7 +306,7 @@ void GUIOBJ::create_menu(float X1,float Y1,float X2,float Y2,const Vector<String
 	Text = Entry;
 	Pos=0;				// Position sur la liste
 	Func=F;
-	Flag = FLAG_CAN_BE_CLICKED;
+	Flag = FLAG_CAN_BE_CLICKED | FLAG_CAN_GET_FOCUS;
 }
 			// Crée une barre de progression
 void GUIOBJ::create_pbar(float X1,float Y1,float X2,float Y2,int PCent)
@@ -383,7 +384,7 @@ void GUIOBJ::create_list(float X1,float Y1,float X2,float Y2,const Vector<String
 	Func = NULL;
 	Data = 0;
 	Pos = 0;
-	Flag = FLAG_CAN_BE_CLICKED;				// To detect when something has changed
+	Flag = FLAG_CAN_BE_CLICKED | FLAG_CAN_GET_FOCUS;				// To detect when something has changed
 }
 
 void GUIOBJ::set_caption( String caption )
@@ -522,7 +523,7 @@ void WND::draw( String &help_msg, bool Focus, bool Deg, SKIN *skin )
 	if(NbObj>0 && Objets!=NULL) {
 		for(int i=0;i<NbObj;i++)
 			if( !(Objets[i].Flag & FLAG_HIDDEN) )	{			// Affiche les objets d'arrière plan
-				if( Objets[i].MouseOn )
+				if( Objets[i].MouseOn && !Objets[i].help_msg.empty() )
 					help_msg = Objets[i].help_msg;
 				switch(Objets[i].Type)
 				{
@@ -532,6 +533,7 @@ void WND::draw( String &help_msg, bool Focus, bool Deg, SKIN *skin )
 									Objets[i].gltex_states.size() - 1 :
 									( (Objets[i].activated && Objets[i].nb_stages == 1) ? Objets[i].gltex_states.size() - 2 : Objets[i].current_state );
 					if( cur_img < Objets[i].gltex_states.size() && cur_img >= 0 ) {
+						gfx->set_color( 0xFFFFFFFF );
 						gfx->set_alpha_blending();
 						Objets[i].gltex_states[ cur_img ].draw( x+Objets[i].x1, y+Objets[i].y1 );
 						gfx->unset_alpha_blending();
@@ -555,6 +557,7 @@ void WND::draw( String &help_msg, bool Focus, bool Deg, SKIN *skin )
 				case OBJ_IMG:
 					glEnable(GL_TEXTURE_2D);
 					glBindTexture(GL_TEXTURE_2D,(GLuint)Objets[i].Data);
+					gfx->set_color( 0xFFFFFFFF );
 					glBegin(GL_QUADS);
 						glTexCoord2f(Objets[i].u1,Objets[i].v1);	glVertex2f(x+Objets[i].x1,y+Objets[i].y1);
 						glTexCoord2f(Objets[i].u2,Objets[i].v1);	glVertex2f(x+Objets[i].x2,y+Objets[i].y1);
@@ -628,7 +631,7 @@ void WND::draw( String &help_msg, bool Focus, bool Deg, SKIN *skin )
 	|        Déplace la fenêtre et détecte si la souris s'y trouve               |
 	\---------------------------------------------------------------------------*/
 
-byte WND::WinMov(int AMx,int AMy,int AMb,int Mx,int My,int Mb)
+byte WND::WinMov(int AMx,int AMy,int AMb,int Mx,int My,int Mb, SKIN *skin)
 {
 	byte WinMouse=0;
 	if(AMb==1&&Mb==1 && !Lock)
@@ -637,8 +640,13 @@ byte WND::WinMov(int AMx,int AMy,int AMb,int Mx,int My,int Mb)
 				x+=Mx-AMx;
 				y+=My-AMy;
 				}
-	if(Mx>=x&&Mx<=x+width&&My>=y&&My<=y+height)
-		WinMouse=1;
+	if( skin ) {
+		if( Mx >= x - skin->wnd_border.x1 && Mx <= x + width - skin->wnd_border.x2 && My >= y - skin->wnd_border.y1 && My <= y + height - skin->wnd_border.y2 )
+			WinMouse=1;
+		}
+	else
+		if( Mx >= x && Mx <= x + width && My >= y && My <= y + height )
+			WinMouse=1;
 	return WinMouse;
 }				// Fin de WinMov
 
@@ -677,7 +685,7 @@ int WND::check(int AMx,int AMy,int AMb,bool timetoscroll, SKIN *skin )
 	was_hidden = false;
 	int IsOnGUI;
 		// Vérifie si la souris est sur la fenêtre et/ou si elle la déplace
-	IsOnGUI=WinMov(AMx,AMy,AMb,mouse_x,mouse_y,mouse_b);
+	IsOnGUI=WinMov(AMx,AMy,AMb,mouse_x,mouse_y,mouse_b,skin);
 			// S'il n'y a pas d'objets, on arrête
 	if(NbObj<=0 || Objets==NULL)	return IsOnGUI;
 
@@ -759,6 +767,9 @@ int WND::check(int AMx,int AMy,int AMb,bool timetoscroll, SKIN *skin )
 			Objets[i].Focus=true;
 			}
 
+		if( !(Objets[i].Flag & FLAG_CAN_GET_FOCUS) )
+			Objets[i].Focus = false;
+
 		switch(Objets[i].Type)
 		{
 		case OBJ_MENU:			// Choses à faire quoi qu'il arrive
@@ -802,7 +813,7 @@ int WND::check(int AMx,int AMy,int AMb,bool timetoscroll, SKIN *skin )
 				case 0:
 					break;
 				default:
-				    if(Objets[i].Text[0].length()+1<Objets[i].Data)
+				    if( Objets[i].Text[0].length() + 1 < Objets[i].Data )
 						Objets[i].Text[0] += Key;
 				};
 				}
@@ -1258,6 +1269,7 @@ void WND::load_tdf( const String &filename, SKIN *skin )			// Load a window from
 		float size = wndFile->PullAsFloat( obj_key + "size" ) * min( x_factor, y_factor );
 		int val = wndFile->PullAsInt( obj_key + "value" );
 		uint32 obj_flags = 0;
+		uint32 obj_negative_flags = 0;
 
 		if( X1<0 )	X1+=SCREEN_W;
 		if( X2<0 )	X2+=SCREEN_W;
@@ -1270,8 +1282,13 @@ void WND::load_tdf( const String &filename, SKIN *skin )			// Load a window from
 		if( wndFile->PullAsBool( obj_key + "fill" ) )			obj_flags |= FLAG_FILL;
 		if( wndFile->PullAsBool( obj_key + "hidden" ) )			obj_flags |= FLAG_HIDDEN;
 
-		if( wndFile->PullAsBool( obj_key + "centered" ) )
-			X1 = (int)((width - gui_font.length( caption ) * size) / 2.0f);
+		if( wndFile->PullAsBool( obj_key + "cant be clicked" ) )	obj_negative_flags |= FLAG_CAN_BE_CLICKED;
+		if( wndFile->PullAsBool( obj_key + "cant get focus" ) )		obj_negative_flags |= FLAG_CAN_GET_FOCUS;
+
+		if( wndFile->PullAsBool( obj_key + "centered" ) ) {
+			obj_flags |= FLAG_CENTERED;
+			X1 -= gui_font.length( caption ) * size * 0.5f;
+			}
 
 		Vector<String> Entry = ReadVectorString( wndFile->PullAsString( obj_key + "entry" ) );
 		for(uint32 e = 0 ; e < Entry.size() ; e++ )
@@ -1310,6 +1327,7 @@ void WND::load_tdf( const String &filename, SKIN *skin )			// Load a window from
 		Objets[i].SendPosTo = ReadVectorString( Lowercase( wndFile->PullAsString( obj_key + "send pos to" ) ) );
 
 		Objets[i].Flag |= obj_flags;
+		Objets[i].Flag &= ~obj_negative_flags;
 		}
 
 	delete wndFile; 
@@ -1467,12 +1485,13 @@ void PopupMenu( float x1, float y1, const String &msg, SKIN *skin )
 	if( skin && skin->menu_background.tex ) {
 		x2 += skin->menu_background.x1 - skin->menu_background.x2;
 		float y2 = y1+skin->menu_background.y1-skin->menu_background.y2+gui_font.height()*Entry.size();
-		if( x2 >= SCREEN_W || y2 >= SCREEN_H ) {
-			float x = x1, y = y1;
-			x1 = x1 - (x2 - x1);
-			y1 = y1 - (y2 - y1);
-			x2 = x;
-			y2 = y;
+		if( x2 >= SCREEN_W ) {
+			x1 += SCREEN_W - x2 - 1;
+			x2 = SCREEN_W - 1;
+			}
+		if( y2 >= SCREEN_H ) {
+			y1 += SCREEN_H - y2 - 1;
+			y2 = SCREEN_H - 1;
 			}
 		gfx->set_alpha_blending();
 		gfx->set_color( 1.0f, 1.0f, 1.0f, 1.0f );
@@ -1647,8 +1666,16 @@ void TextBar(float x1,float y1,float x2,float y2,const String &Caption,bool Etat
 
 		skin->text_background.draw( x1, y1, x2, y2 );
 
-		gfx->print(gui_font,x1+skin->text_background.x1,y1+skin->text_background.y1,0.0f,use_normal_alpha_function ? Blanc : Noir,Caption);
-		if(Etat) gfx->print(gui_font,x1+skin->text_background.x1+gui_font.length( Caption ),y1+skin->text_background.y1,0.0f,use_normal_alpha_function ? Blanc : Noir,"_");
+		float maxlength = x2 - x1 + skin->text_background.x2 - skin->text_background.x1 - gui_font.length( "_" );
+		int dec = 0;
+		String strtoprint = Caption.substr( dec, Caption.length() - dec );
+		while( gui_font.length( Caption.substr( dec, Caption.length() - dec ) ) >= maxlength && dec < Caption.length() ) {
+			dec++;
+			strtoprint = Caption.substr( dec, Caption.length() - dec );
+			}
+
+		gfx->print(gui_font,x1+skin->text_background.x1,y1+skin->text_background.y1,0.0f,use_normal_alpha_function ? Blanc : Noir,strtoprint);
+		if(Etat) gfx->print(gui_font,x1+skin->text_background.x1+gui_font.length( strtoprint ),y1+skin->text_background.y1,0.0f,use_normal_alpha_function ? Blanc : Noir,"_");
 
 		gfx->unset_alpha_blending();
 		}
@@ -1660,6 +1687,14 @@ void TextBar(float x1,float y1,float x2,float y2,const String &Caption,bool Etat
 		gfx->line(x2,y1,x2,y2,GrisC);
 		gfx->line(x1+1,y2-1,x2-1,y2-1,Blanc);
 		gfx->line(x2-1,y1+1,x2-1,y2-1,Blanc);
+
+		float maxlength = x2 - x1 - 8 - gui_font.length( "_" );
+		int dec = 0;
+		String strtoprint = Caption.substr( dec, Caption.length() - dec );
+		while( gui_font.length( Caption.substr( dec, Caption.length() - dec ) ) >= maxlength && dec < Caption.length() ) {
+			dec++;
+			strtoprint = Caption.substr( dec, Caption.length() - dec );
+			}
 
 		gfx->print(gui_font,x1+4,y1+4,0.0f,use_normal_alpha_function ? Blanc : Noir,Caption);
 		if(Etat) gfx->print(gui_font,x1+4+gui_font.length( Caption ),y1+4,0.0f,use_normal_alpha_function ? Blanc : Noir,"_");
@@ -1678,7 +1713,7 @@ void ProgressBar(float x1,float y1,float x2,float y2,int Value, SKIN *skin )
 		skin->progress_bar[0].draw( x1, y1, x2, y2 );
 		skin->progress_bar[1].draw( x1 + skin->progress_bar[0].x1, y1 + skin->progress_bar[0].y1, x1 + skin->progress_bar[0].x1 + (skin->progress_bar[0].x2 + x2 - x1 - skin->progress_bar[0].x1) * Value * 0.01f, y2 + skin->progress_bar[0].y2 );			// Draw the bar
 
-		String Buf = format("%d\%", Value);
+		String Buf = format("%d", Value) + "%%";
 
 		gfx->print(gui_font,(x1+x2)*0.5f-gui_font.length( Buf ) * 0.5f,(y1+y2)*0.5f-gui_font.height()*0.5f,0.0f,use_normal_alpha_function ? Blanc : Noir,Buf);
 
@@ -1694,7 +1729,7 @@ void ProgressBar(float x1,float y1,float x2,float y2,int Value, SKIN *skin )
 		gfx->line(x1+1,y2-1,x2-1,y2-1,Blanc);
 		gfx->line(x2-1,y1+1,x2-1,y2-1,Blanc);
 
-		String Buf = format("%d\%", Value);
+		String Buf = format("%d", Value) + "%%";
 
 		gfx->print(gui_font,(x1+x2)/2-gui_font.length( Buf ) * 0.5f,(y1+y2)*0.5f-gui_font.height()*0.5f,0.0f,use_normal_alpha_function ? Blanc : Noir,Buf);
 		}
@@ -2448,8 +2483,19 @@ void AREA::set_state( const String &message, const bool &state )			// Set the st
 void AREA::set_caption( const String &message, const String &caption )		// set the caption of specified object in the specified window
 {
 	GUIOBJ	*guiobj = get_object( message );
-	if( guiobj && guiobj->Text.size() > 0 )
+	if( guiobj && guiobj->Text.size() > 0 ) {
+		if( guiobj->Flag & FLAG_CENTERED ) {
+			float length = gui_font.length( guiobj->Text[ 0 ] );
+			guiobj->x1 += length * 0.5f;
+			guiobj->x2 -= length * 0.5f;
+			}
 		guiobj->Text[0] = caption;
+		if( guiobj->Flag & FLAG_CENTERED ) {
+			float length = gui_font.length( guiobj->Text[ 0 ] );
+			guiobj->x1 -= length * 0.5f;
+			guiobj->x2 += length * 0.5f;
+			}
+		}
 }
 
 uint16 AREA::check()					// Checks events for all windows

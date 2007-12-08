@@ -122,6 +122,7 @@ extern bool	use_normal_alpha_function;
 #define FLAG_MULTI_STATE					0x040			// If it can have more than 2 states
 #define FLAG_BUILD_PIC						0x080			// If it's a build pic, replace the picture with the current unit's one
 #define FLAG_DISABLED						0x100
+#define FLAG_CENTERED						0x200			// Centered
 
 class GUIOBJ					// Structure pour les objets contenus dans les fenêtres
 {
@@ -303,7 +304,7 @@ public:
 	inline ~WND()	{		destroy();	}
 
 	void draw( String &help_msg, bool Focus=true,bool Deg=true, SKIN *skin=NULL );						// Draw the window
-	byte WinMov(int AMx,int AMy,int AMb,int Mx,int My,int Mb);						// Handle window's moves
+	byte WinMov(int AMx,int AMy,int AMb,int Mx,int My,int Mb, SKIN *skin=NULL );						// Handle window's moves
 	int check(int AMx,int AMy,int AMb,bool timetoscroll=true, SKIN *skin = NULL );	// Handle window's events
 	void destroy();																	// Every life has an end...
 

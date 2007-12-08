@@ -32,7 +32,7 @@
 
 #include "tnt.h"               // The TNT loader
 #include "script.h"               // The game script manager
-#include "ia.h"                  // AI Engine
+#include "ai.h"                  // AI Engine
 
 using namespace TA3D::EXCEPTION;
 
