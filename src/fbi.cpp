@@ -443,6 +443,10 @@ void UNIT_MANAGER::load_panel_texture( const String &player_side, const String &
 	}
 
 	set_color_depth( 32 );
+	if(g_useTextureCompression)
+		allegro_gl_set_texture_format( GL_COMPRESSED_RGB_ARB );
+	else
+		allegro_gl_set_texture_format( GL_RGB8 );
 	int w,h;
 	GLuint panel_tex = read_gaf_img( "anims\\" + player_side + "main.gaf", gaf_img, &w, &h, true );
 	if( panel_tex == 0 ) {
@@ -599,7 +603,7 @@ int load_all_units()
 						if(g_useTextureCompression)
 							allegro_gl_set_texture_format(GL_COMPRESSED_RGB_ARB);
 						else
-							allegro_gl_set_texture_format(-1);
+							allegro_gl_set_texture_format(GL_RGB8);
 						unit_manager.unit_type[unit_manager.nb_unit-1].glpic=allegro_gl_make_texture(unit_manager.unit_type[unit_manager.nb_unit-1].unitpic);
 						glBindTexture(GL_TEXTURE_2D,unit_manager.unit_type[unit_manager.nb_unit-1].glpic);
 						glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);

@@ -450,10 +450,14 @@ void OBJECT::optimise_mesh()			// EXPERIMENTAL, function to merge all objects in
 			if(px[i]+dx>mx) mx=px[i]+dx;
 			if(py[i]+dy>my) my=py[i]+dy;
 			}
-		BITMAP *bmp=create_bitmap_ex(32,mx,my);
+		BITMAP *bmp = create_bitmap_ex(32,mx,my);
 		if(bmp!=NULL && mx!=0 && my!=0) {
+			if(g_useTextureCompression)
+				allegro_gl_set_texture_format(GL_COMPRESSED_RGB_ARB);
+			else
+				allegro_gl_set_texture_format(GL_RGB8);
+			clear(bmp);
 			for(int e=0;e<expected_players;e++) {
-				clear(bmp);
 				bool mtex_needed=false;
 				for(i=0;i<nb_diff_tex;i++)
 					if(texture_manager.tex[index_tex[i]].nb_bmp==10) {
@@ -462,12 +466,8 @@ void OBJECT::optimise_mesh()			// EXPERIMENTAL, function to merge all objects in
 						}
 					else
 						blit(texture_manager.tex[index_tex[i]].bmp[0],bmp,0,0,px[i],py[i],texture_manager.tex[index_tex[i]].bmp[0]->w,texture_manager.tex[index_tex[i]].bmp[0]->h);
-					dtex=e+1;
-				if(g_useTextureCompression)
-					allegro_gl_set_texture_format(GL_COMPRESSED_RGBA_ARB);
-				else
-					allegro_gl_set_texture_format(GL_RGB5_A1);
-				gltex[e]=allegro_gl_make_texture(bmp);
+				dtex=e+1;
+				gltex[e] = allegro_gl_make_texture(bmp);
 				glBindTexture(GL_TEXTURE_2D,gltex[e]);
 				glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
 				glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR_MIPMAP_LINEAR);
@@ -1888,7 +1888,7 @@ int MODEL_MANAGER::load_all(void (*progress)(float percent,const String &msg))
 		int i = 0, n = 0;
 		for(List<String>::iterator e=file_list.begin();e!=file_list.end();e++) {
 			Console->AddEntry( "loading %s", e->c_str() );
-			if(progress!=NULL)
+			if( progress != NULL && !(i & 0xF) )
 				progress((100.0f+(50.0f+n*50.0f/(new_nb_models+1)))/7.0f,TRANSLATE("Loading 3D Models"));
 			n++;
 			model[i+nb_models].init();

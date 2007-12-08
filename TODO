@@ -11,6 +11,7 @@ _networking code
 _improve A.I.
 _D3D support
 
+*reduced memory footprint of textures
 *end game statistics screen rewritten using GUI module
 *ai module cleaned
 *ia module renamed to ai

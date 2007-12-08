@@ -677,15 +677,16 @@ GLuint GFX::load_texture(String file, byte filter_type, uint32 *width, uint32 *h
 		destroy_bitmap(bmp);
 		bmp=tmp;
 		}
-	if( strstr(strlwr((char*)(file.substr(file.length()-4, 4).c_str())),".jpg") != NULL )
+	bool with_alpha = strstr(strlwr((char*)(file.substr(file.length()-4, 4).c_str())),".tga") != NULL;
+/*	if( strstr(strlwr((char*)(file.substr(file.length()-4, 4).c_str())),".jpg") != NULL )
 		for( int y = 0 ; y < bmp->h ; y++ )
 			for( int x = 0 ; x < bmp->w ; x++ )
-				bmp->line[y][(x<<2)+3] = 255;
+				bmp->line[y][(x<<2)+3] = 255;*/
 	if(g_useTextureCompression)
-		allegro_gl_set_texture_format(GL_COMPRESSED_RGBA_ARB);
+		allegro_gl_set_texture_format( with_alpha ? GL_COMPRESSED_RGBA_ARB : GL_COMPRESSED_RGB_ARB );
 	else
-		allegro_gl_set_texture_format(GL_RGBA8);
-	allegro_gl_use_alpha_channel(true);
+		allegro_gl_set_texture_format( with_alpha ? GL_RGBA8 : GL_RGB8 );
+	allegro_gl_use_alpha_channel( with_alpha );
 	GLuint gl_tex = make_texture( bmp, filter_type, clamp );
 	allegro_gl_use_alpha_channel(false);
 	destroy_bitmap(bmp);

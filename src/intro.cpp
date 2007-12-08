@@ -187,7 +187,7 @@ void loading(float percent,const String &msg)
 	glScalef(SCREEN_W/1280.0f,SCREEN_H/1024.0f,1.0f);
 
 	const float TA_font_size = gfx->TA_font.get_size();
-	gfx->TA_font.change_size( 2.0f );
+	gfx->TA_font.change_size( 1.75f );
 	float h = gfx->TA_font.height();
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);		// Efface l'écran

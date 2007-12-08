@@ -78,6 +78,7 @@ namespace FMOD
         FMOD_RESULT F_API getAdvancedSettings    (FMOD_ADVANCEDSETTINGS *settings);
         FMOD_RESULT F_API setSpeakerMode         (FMOD_SPEAKERMODE speakermode);
         FMOD_RESULT F_API getSpeakerMode         (FMOD_SPEAKERMODE *speakermode);
+        FMOD_RESULT F_API setCallback            (FMOD_SYSTEM_CALLBACKTYPE type, FMOD_SYSTEM_CALLBACK callback);
                                                 
         // Plug-in support                       
         FMOD_RESULT F_API setPluginPath          (const char *path);
@@ -154,6 +155,7 @@ namespace FMOD
         FMOD_RESULT F_API getRecordDriver        (int *driver);
         FMOD_RESULT F_API getRecordNumDrivers    (int *numdrivers);
         FMOD_RESULT F_API getRecordDriverName    (int id, char *name, int namelen);
+        FMOD_RESULT F_API getRecordDriverCaps    (int id, FMOD_CAPS *caps, int *minfrequency, int *maxfrequency);
         FMOD_RESULT F_API getRecordPosition      (unsigned int *position);  
 
         FMOD_RESULT F_API recordStart            (Sound *sound, bool loop);
@@ -348,6 +350,8 @@ namespace FMOD
         FMOD_RESULT F_API getVolume               (float *volume);
         FMOD_RESULT F_API setPitch                (float pitch);
         FMOD_RESULT F_API getPitch                (float *pitch);
+        FMOD_RESULT F_API set3DOcclusion          (float directocclusion, float reverbocclusion);
+        FMOD_RESULT F_API get3DOcclusion          (float *directocclusion, float *reverbocclusion);
         FMOD_RESULT F_API setPaused               (bool paused);
         FMOD_RESULT F_API getPaused               (bool *paused);
         FMOD_RESULT F_API setMute                 (bool mute);

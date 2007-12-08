@@ -125,7 +125,7 @@ TA3D::INTERFACES::cAudio *TA3D::VARS::sound_manager;
 		}
 
 	Console->stdout_on();
-	Console->AddEntry( "FMOD version: %d.%d.%d", ((FMODVersion & 0xFFFF0000) >> 16), ((FMODVersion & 0xFF00) >> 8), FMODVersion & 0xFF );
+	Console->AddEntry( "FMOD version: %x.%x.%x", ((FMODVersion & 0xFFFF0000) >> 16), ((FMODVersion & 0xFF00) >> 8), FMODVersion & 0xFF );
 	Console->stdout_off();
 
 	if( FMOD_System_SetStreamBufferSize( m_lpFMODSystem, 32768, FMOD_TIMEUNIT_RAWBYTES ) != FMOD_OK ) {
@@ -158,7 +158,7 @@ if( FMOD_System_Init( m_lpFMODSystem, 32, FMOD_INIT_NORMAL | FMOD_INIT_3D_RIGHTH
 		}
 
 	Console->stdout_on();
-	Console->AddEntry( "FMOD version: %d.%d.%d", ((FMODVersion & 0xFFFF0000) >> 16), ((FMODVersion & 0xFF00) >> 8), FMODVersion & 0xFF );
+	Console->AddEntry( "FMOD version: %x.%x.%x", ((FMODVersion & 0xFFFF0000) >> 16), ((FMODVersion & 0xFF00) >> 8), FMODVersion & 0xFF );
 	Console->stdout_off();
 
 	if( m_lpFMODSystem->setStreamBufferSize( 32768, FMOD_TIMEUNIT_RAWBYTES ) != FMOD_OK ) {

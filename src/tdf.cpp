@@ -170,6 +170,10 @@ FEATURES features;
 			delete[] ligne;
 			ligne=NULL;
 			}while(pos[0]=='[' && nb<10000 && pos<limit);
+		if(g_useTextureCompression)
+			allegro_gl_set_texture_format( GL_COMPRESSED_RGBA_ARB );
+		else
+			allegro_gl_set_texture_format( GL_RGBA8 );
 		for(int i=first;i<nb_features;i++) {				// Charge les fichiers d'animation
 			if(feature[i].category)
 				feature[i].vent=(strstr(feature[i].category,"vents")!=NULL);

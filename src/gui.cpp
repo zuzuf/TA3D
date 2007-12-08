@@ -1004,6 +1004,11 @@ void WND::load_gui( const String &filename, cHashTable< Vector< TA3D::INTERFACES
 {
 	GuardEnter( WND::load_gui );
 
+	if(g_useTextureCompression)
+		allegro_gl_set_texture_format( GL_COMPRESSED_RGB_ARB );
+	else
+		allegro_gl_set_texture_format( GL_RGB8 );
+
 	cTAFileParser *wndFile;
 
 	try { // we need to try catch this cause the config file may not exists

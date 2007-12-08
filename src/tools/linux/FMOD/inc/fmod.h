@@ -16,7 +16,7 @@
     0xaaaabbcc -> aaaa = major version number.  bb = minor version number.  cc = development version number.
 */
 
-#define FMOD_VERSION    0x00040807
+#define FMOD_VERSION    0x00041001
 
 /*
     Compiler specific settings.
@@ -37,7 +37,6 @@
     #define F_CDECL
     #define F_DECLSPEC
     #define F_DLLEXPORT
-    #define __forceinline
 #endif
 
 #ifdef DLL_EXPORTS
@@ -616,6 +615,7 @@ typedef enum
 #define FMOD_INIT_SOFTWARE_DISABLE        0x00000004 /* All platforms - Disable software mixer to save memory.  Anything created with FMOD_SOFTWARE will fail and DSP will not work. */
 #define FMOD_INIT_SOFTWARE_OCCLUSION      0x00000008 /* All platforms - All FMOD_SOFTWARE with FMOD_3D based voices will add a software lowpass filter effect into the DSP chain which is automatically used when Channel::set3DOcclusion is used or the geometry API. */
 #define FMOD_INIT_SOFTWARE_HRTF           0x00000010 /* All platforms - All FMOD_SOFTWARE with FMOD_3D based voices will add a software lowpass filter effect into the DSP chain which causes sounds to sound duller when the sound goes behind the listener.  Use System::setAdvancedSettings to adjust cutoff frequency. */
+#define FMOD_INIT_ENABLE_DSPNET           0x00000020 /* All platforms - Enable TCP/IP based host which allows "DSPNet Listener.exe" to connect to it, and view the DSP dataflow network graph in real-time. */
 #define FMOD_INIT_VOL0_BECOMES_VIRTUAL    0x00000080 /* All platforms - Any sounds that are 0 volume will go virtual and not be processed except for having their positions updated virtually.  Use System::setAdvancedSettings to adjust what volume besides zero to switch to virtual at. */
 #define FMOD_INIT_WASAPI_EXCLUSIVE        0x00000100 /* Win32 Vista only - for WASAPI output - Enable exclusive access to hardware, lower latency at the expense of excluding other applications from accessing the audio hardware. */
 #define FMOD_INIT_DSOUND_HRTFNONE         0x00000200 /* Win32 only - for DirectSound output - FMOD_HARDWARE | FMOD_3D buffers use simple stereo panning/doppler/attenuation when 3D hardware acceleration is not present. */
@@ -627,6 +627,7 @@ typedef enum
 #define FMOD_INIT_PS2_SWAPDMACHANNELS     0x00080000 /* PS2 only - Changes FMOD from using SPU DMA channel 0 for software mixing, and 1 for sound data upload/file streaming, to 1 and 0 respectively. */
 #define FMOD_INIT_XBOX_REMOVEHEADROOM     0x00100000 /* Xbox only - By default DirectSound attenuates all sound by 6db to avoid clipping/distortion.  CAUTION.  If you use this flag you are responsible for the final mix to make sure clipping / distortion doesn't happen. */
 #define FMOD_INIT_360_MUSICMUTENOTPAUSE   0x00200000 /* Xbox 360 only - The "music" channelgroup which by default pauses when custom 360 dashboard music is played, can be changed to mute (therefore continues playing) instead of pausing, by using this flag. */
+#define FMOD_INIT_SYNCMIXERWITHUPDATE     0x00400000 /* Win32/Wii/PS3/Xbox/Xbox 360 - FMOD Mixer thread is woken up to do a mix when System::update is called rather than waking periodically on its own timer. */
 /* [DEFINE_END] */
 
 
@@ -734,7 +735,7 @@ typedef enum
     Specifying FMOD_OPENMEMORY_POINT will POINT to your memory rather allocating its own sound buffers and duplicating it internally.<br>
     <b><u>This means you cannot free the memory while FMOD is using it, until after Sound::release is called.</b></u>
     With FMOD_OPENMEMORY_POINT, for PCM formats, only WAV, FSB, and RAW are supported.  For compressed formats, only those formats supported by FMOD_CREATECOMPRESSEDSAMPLE are supported.<br>
-    With FMOD_OPENMEMORY_POINT and FMOD_OPENRAW, note that you must pad the data on each side by 16 bytes.  This is so fmod can modify the ends of the data for looping/interpolation/mixing purposes.<br>
+    With FMOD_OPENMEMORY_POINT and FMOD_OPENRAW, if using them together, note that you must pad the data on each side by 16 bytes.  This is so fmod can modify the ends of the data for looping/interpolation/mixing purposes.<br>
     <br>
     <b>Xbox 360 memory</b> On Xbox 360 Specifying FMOD_OPENMEMORY_POINT to a virtual memory address will cause FMOD_ERR_INVALID_ADDRESS
     to be returned.  Use physical memory only for this functionality.<br>
@@ -869,7 +870,7 @@ typedef enum
     These callback types are used with Channel::setCallback.
 
     [REMARKS]
-    Each callback has commanddata parameters passed int unique to the type of callback.<br>
+    Each callback has commanddata parameters passed as int unique to the type of callback.<br>
     See reference to FMOD_CHANNEL_CALLBACK to determine what they might mean for each type of callback.<br>
     <br>
     <b>Note!</b>  Currently the user must call System::update for these callbacks to trigger!
@@ -893,9 +894,42 @@ typedef enum
     FMOD_CHANNEL_CALLBACKTYPE_FORCEINT = 65536      /* Makes sure this enum is signed 32bit. */
 } FMOD_CHANNEL_CALLBACKTYPE;
 
+
+/*
+[ENUM]
+[
+    [DESCRIPTION]   
+    These callback types are used with System::setCallback.
+
+    [REMARKS]
+    Each callback has commanddata parameters passed as int unique to the type of callback.<br>
+    See reference to FMOD_SYSTEM_CALLBACK to determine what they might mean for each type of callback.<br>
+    <br>
+    <b>Note!</b>  Currently the user must call System::update for these callbacks to trigger!
+
+    [PLATFORMS]
+    Win32, Win64, Linux, Linux64, Macintosh, Xbox, Xbox360, PlayStation 2, GameCube, PlayStation Portable, PlayStation 3, Wii
+
+    [SEE_ALSO]      
+    System::setCallback
+    FMOD_SYSTEM_CALLBACK
+    System::update
+]
+*/
+typedef enum
+{
+    FMOD_SYSTEM_CALLBACKTYPE_DEVICELISTCHANGED,    /* Called when the enumerated list of devices has changed. */
+
+    FMOD_SYSTEM_CALLBACKTYPE_MAX,                  /* Maximum number of callback types supported. */
+    FMOD_SYSTEM_CALLBACKTYPE_FORCEINT = 65536      /* Makes sure this enum is signed 32bit. */
+} FMOD_SYSTEM_CALLBACKTYPE;
+
+
 /* 
     FMOD Callbacks
 */
+typedef FMOD_RESULT (F_CALLBACK *FMOD_SYSTEM_CALLBACK)       (FMOD_SYSTEM *system, FMOD_SYSTEM_CALLBACKTYPE type, unsigned int commanddata1, unsigned int commanddata2);
+
 typedef FMOD_RESULT (F_CALLBACK *FMOD_CHANNEL_CALLBACK)      (FMOD_CHANNEL *channel, FMOD_CHANNEL_CALLBACKTYPE type, int command, unsigned int commanddata1, unsigned int commanddata2);
 
 typedef FMOD_RESULT (F_CALLBACK *FMOD_SOUND_NONBLOCKCALLBACK)(FMOD_SOUND *sound, FMOD_RESULT result);
@@ -1708,6 +1742,7 @@ FMOD_RESULT F_API FMOD_System_SetAdvancedSettings    (FMOD_SYSTEM *system, FMOD_
 FMOD_RESULT F_API FMOD_System_GetAdvancedSettings    (FMOD_SYSTEM *system, FMOD_ADVANCEDSETTINGS *settings);
 FMOD_RESULT F_API FMOD_System_SetSpeakerMode         (FMOD_SYSTEM *system, FMOD_SPEAKERMODE speakermode);
 FMOD_RESULT F_API FMOD_System_GetSpeakerMode         (FMOD_SYSTEM *system, FMOD_SPEAKERMODE *speakermode);
+FMOD_RESULT F_API FMOD_System_SetCallback            (FMOD_SYSTEM *system, FMOD_SYSTEM_CALLBACKTYPE type, FMOD_SYSTEM_CALLBACK callback);
 
 /*
      Plug-in support                       
@@ -1808,6 +1843,7 @@ FMOD_RESULT F_API FMOD_System_SetRecordDriver        (FMOD_SYSTEM *system, int d
 FMOD_RESULT F_API FMOD_System_GetRecordDriver        (FMOD_SYSTEM *system, int *driver);
 FMOD_RESULT F_API FMOD_System_GetRecordNumDrivers    (FMOD_SYSTEM *system, int *numdrivers);
 FMOD_RESULT F_API FMOD_System_GetRecordDriverName    (FMOD_SYSTEM *system, int id, char *name, int namelen);
+FMOD_RESULT F_API FMOD_System_GetRecordDriverCaps    (FMOD_SYSTEM *system, int id, FMOD_CAPS *caps, int *minfrequency, int *maxfrequency);
 FMOD_RESULT F_API FMOD_System_GetRecordPosition      (FMOD_SYSTEM *system, unsigned int *position);
 
 FMOD_RESULT F_API FMOD_System_RecordStart            (FMOD_SYSTEM *system, FMOD_SOUND *sound, FMOD_BOOL loop);
@@ -2017,6 +2053,8 @@ FMOD_RESULT F_API FMOD_ChannelGroup_SetVolume        (FMOD_CHANNELGROUP *channel
 FMOD_RESULT F_API FMOD_ChannelGroup_GetVolume        (FMOD_CHANNELGROUP *channelgroup, float *volume);
 FMOD_RESULT F_API FMOD_ChannelGroup_SetPitch         (FMOD_CHANNELGROUP *channelgroup, float pitch);
 FMOD_RESULT F_API FMOD_ChannelGroup_GetPitch         (FMOD_CHANNELGROUP *channelgroup, float *pitch);
+FMOD_RESULT F_API FMOD_ChannelGroup_Set3DOcclusion   (FMOD_CHANNELGROUP *channelgroup, float directocclusion, float reverbocclusion);
+FMOD_RESULT F_API FMOD_ChannelGroup_Get3DOcclusion   (FMOD_CHANNELGROUP *channelgroup, float *directocclusion, float *reverbocclusion);
 FMOD_RESULT F_API FMOD_ChannelGroup_SetPaused        (FMOD_CHANNELGROUP *channelgroup, FMOD_BOOL paused);
 FMOD_RESULT F_API FMOD_ChannelGroup_GetPaused        (FMOD_CHANNELGROUP *channelgroup, FMOD_BOOL *paused);
 FMOD_RESULT F_API FMOD_ChannelGroup_SetMute          (FMOD_CHANNELGROUP *channelgroup, FMOD_BOOL mute);
