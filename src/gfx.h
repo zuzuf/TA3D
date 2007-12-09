@@ -95,7 +95,7 @@ namespace TA3D
 			int			width;				// Size of this window on the screen
 			int			height;
 			int			x,y;				// Position on the screen
-			GFX_FONT	normal_font;		// Allegro version of fonts
+			GFX_FONT	normal_font;		// Fonts
 			GFX_FONT	small_font;
 			GFX_FONT	TA_font;
 			GFX_FONT	ta3d_gui_font;

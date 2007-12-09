@@ -555,6 +555,8 @@ const void WEAPON::move(const float dt,MAP *map)				// Anime les armes
 				bool land_test = true;
 				IDX_LIST_NODE *cur = map->map_data[py+y][px+x].air_idx.head;
 
+				map->Lock();
+
 				for( ; land_test || cur != NULL ; ) {
 					if( land_test ) {
 						t_idx = map->map_data[py+y][px+x].unit_idx;
@@ -566,7 +568,7 @@ const void WEAPON::move(const float dt,MAP *map)				// Anime les armes
 						}
 
 					if(t_idx == -1 || t_idx == oidx || t_idx == shooter_idx || t_idx == hit_idx)	continue;
-					if(t_idx>=0 && ( units.unit[t_idx].owner_id != owner || target == t_idx ) && (units.unit[ t_idx ].flags & 1) ) {		// No Friendly Fire
+					if( t_idx >= 0 && t_idx < units.max_unit && ( units.unit[t_idx].owner_id != owner || target == t_idx ) && (units.unit[ t_idx ].flags & 1) ) {		// No Friendly Fire
 						VECTOR t_vec;
 						t_vec.x = t_vec.y=t_vec.z=0.0f;
 						u_hit = units.unit[t_idx].hit_fast(OPos,Dir,&t_vec, length);
@@ -596,6 +598,7 @@ const void WEAPON::move(const float dt,MAP *map)				// Anime les armes
 							}
 					oidx=t_idx;
 					}
+				map->UnLock();
 				}
 			if(hit_idx>=0) {
 				units.unit[hit_idx].Lock();

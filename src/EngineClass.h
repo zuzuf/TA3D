@@ -121,12 +121,12 @@ public:
 class BLOC				// Blocs composant la carte
 {
 public:
-	byte		nbindex;	// Nombre d'indices
-	byte		nbpoint;	// Nombre de points
-	POINTF		*point;		// Points du bloc
-	float		*texcoord;	// Coordonnées de texture
-	GLuint		tex;		// Indice de texture OpenGl
-	bool		lava;		// Indique si le bloc est de type lave
+	byte		nbindex;	// Nombre d'indices	/ Number of indexes
+	byte		nbpoint;	// Nombre de points / Number of points
+	POINTF		*point;		// Points du bloc / Array of points
+	float		*texcoord;	// Coordonnées de texture / Texture coordinates
+	GLuint		tex;		// Indice de texture OpenGl / OpenGL texture handle
+	bool		lava;		// Indique si le bloc est de type lave / Is that a lava bloc ?
 	byte		tex_x;
 
 	void init()
@@ -258,7 +258,7 @@ public:
 
 #include "pathfinding.h"		// Algorithme de pathfinding
 
-class MAP			// Données concernant la carte
+class MAP : protected cCriticalSection			// Données concernant la carte
 {
 public:
 	short		ntex;			// Indique si la texture est chargée et doit être détruite
@@ -407,6 +407,8 @@ public:
 
 	MAP()
 	{
+		CreateCS();
+
 		init();
 	}
 
@@ -415,7 +417,12 @@ public:
 	~MAP()
 	{
 		destroy();
+
+		DeleteCS();
 	}
+
+	inline void Lock()		{	EnterCS();	}
+	inline void UnLock()	{	LeaveCS();	}
 
 	void update_player_visibility( int player_id, int px, int py, int r, int rd, int sn, int rd_j, int sn_j, bool jamming=false, bool black=false );	// r -> sight, rd -> radar range, sn -> sonar range, j for jamming ray
 
@@ -537,9 +544,11 @@ public:
 			if(x1<0)	x1=0;
 			if(x2>bloc_w_db-1)	x2=bloc_w_db-1;
 			if(y2<=y1 || x2<=x1)	return;
+			EnterCS();
 			for(int y=y1;y<y2;y++)
 				for(int x=x1;x<x2;x++)
 					map_data[y][x].unit_idx=c;
+			LeaveCS();
 			}
 		else {
 			int i=0;
@@ -551,15 +560,20 @@ public:
 			if(x2>bloc_w_db-1)	x2=bloc_w_db-1;
 			int dw=w-(x2-x1);
 			if(y2<=y1 || x2<=x1)	return;
+			EnterCS();
 			for(int y=y1;y<y2;y++) {
 				for(int x=x1;x<x2;x++) {
-					if( !yardmap[i] )	return;
+					if( !yardmap[i] ) {
+						LeaveCS();
+						return;
+						}
 					if(yardmap[i]=='G' || yardmap[i]=='o' || yardmap[i]=='w' || yardmap[i]=='f' || (yardmap[i]=='c' && !open) || (yardmap[i]=='C' && !open) || (yardmap[i]=='O' && open))
 						map_data[y][x].unit_idx=c;
 					i++;
 					}
 				i+=dw;
 				}
+			LeaveCS();
 			}
 	}
 
@@ -573,9 +587,11 @@ public:
 			if(x1<0)	x1=0;
 			if(x2>bloc_w_db-1)	x2=bloc_w_db-1;
 			if(y2<=y1 || x2<=x1)	return;
+			EnterCS();
 			for(int y=y1;y<y2;y++)
 				for(int x=x1;x<x2;x++)
 					map_data[y][x].air_idx.remove(c);
+			LeaveCS();
 			}
 		else {
 			int y2=y1+h;
@@ -585,9 +601,11 @@ public:
 			if(x1<0)	x1=0;
 			if(x2>bloc_w_db-1)	x2=bloc_w_db-1;
 			if(y2<=y1 || x2<=x1)	return;
+			EnterCS();
 			for(int y=y1;y<y2;y++)
 				for(int x=x1;x<x2;x++)
 					map_data[y][x].air_idx.push(c);
+			LeaveCS();
 			}
 	}
 

@@ -36,6 +36,16 @@
 //#include "weapons.h"				// Pour la gestion des armes
 #include "EngineClass.h"			// Inclus le moteur(dont le fichier pathfinding.h)
 
+inline int path_len( PATH_NODE *path )
+{
+	int l = 0;
+	while( path ) {
+		l++;
+		path = path->next;
+		}
+	return l;
+}
+
 inline int sq(int a)
 {
 	return a*a;
@@ -186,7 +196,7 @@ bool is_direct(SECTOR **map_data,float **h_map,float dh_max,float h_min,float h_
 		float coef = ((float)( By - Ay )) / ( Bx - Ax );
 
 		for( int x = Ax ; x <= Bx ; x ++ ) {
-			int y = Ay + (int)((x - Ax)*coef);
+			int y = Ay + (int)((x - Ax)*coef+0.5f);
 			if( !check_rect_full( map_data, h_map, x-dmw, y-dmh, mw, mh, u_idx, dh_max, h_min, h_max, bw, bh, hover_h ) )	// Check for obstacles
 				return false;
 			}
@@ -198,7 +208,7 @@ bool is_direct(SECTOR **map_data,float **h_map,float dh_max,float h_min,float h_
 			}
 		float coef = ((float)( Bx - Ax )) / ( By - Ay );
 		for( int y = Ay ; y <= By ; y++ ) {
-			int x = Ax + (int)((y - Ay)*coef);
+			int x = Ax + (int)((y - Ay)*coef+0.5f);
 			if( !check_rect_full( map_data, h_map, x-dmw, y-dmh, mw, mh, u_idx, dh_max, h_min, h_max, bw, bh, hover_h ) )	// Check for obstacles
 				return false;
 			}
@@ -262,6 +272,12 @@ PATH_NODE *find_path( SECTOR **map_data, float **map, byte **zone, int map_w, in
 	m_dist *= m_dist;
 	m_dist <<= 2;
 	
+	int smh = mh;
+	int smw = mw;
+	
+	int mw_h = smw >> 1;
+	int mh_h = smh >> 1;
+
 	int bloc_w_db = bloc_w << 1;
 	int bloc_h_db = bloc_h << 1;
 
@@ -286,73 +302,64 @@ PATH_NODE *find_path( SECTOR **map_data, float **map, byte **zone, int map_w, in
 
 		int NX = nx >> 1, NY = ny >> 1;
 
-		int smh = mh + 1;
-		int smw = mw + 1;
-		
-		for( ; m < 0 && smw >= mw ; smw--, smh-- ) {
+		if( !check_rect_full( map_data, map, NX - mw_h, NY - mh_h, smw, smh, u_idx, dh_max, low_level, high_level, bloc_w, bloc_h, hover_h ) ) {
+			int dist[ 8 ];
+			int rdist[ 8 ];
+			bool zoned[ 8 ];
+			for( int e = 0 ; e < 8 ; e++ ) {			// Gather required data
+				rdist[ e ] = dist[ e ] = -1;
+				nx = path->x + order_dx[ e ];
+				ny = path->y + order_dy[ e ];
+				NX = nx >> 1;
+				NY = ny >> 1;
+				zoned[ e ] = false;
+				if( nx < 0 || ny < 0 || nx >= bloc_w_db || ny >= bloc_h_db )	continue;
+				zoned[ e ] = zone[ ny ][ nx ];
+				if( !check_rect_full( map_data, map, NX - mw_h, NY - mh_h, smw, smh, u_idx, dh_max, low_level, high_level, bloc_w, bloc_h, hover_h ) )
+					continue;
+				rdist[ e ] = dist[ e ] = sq( END_X - nx ) + sq( END_Y - ny );
 
-			int mw_h = smw >> 1;
-			int mh_h = smh >> 1;
-
-			if( !check_rect_full( map_data, map, NX - mw_h, NY - mh_h, smw, smh, u_idx, dh_max, low_level, high_level, bloc_w, bloc_h, hover_h ) ) {
-				int dist[ 8 ];
-				int rdist[ 8 ];
-				bool zoned[ 8 ];
-				for( int e = 0 ; e < 8 ; e++ ) {			// Gather required data
-					rdist[ e ] = dist[ e ] = -1;
-					nx = path->x + order_dx[ e ];
-					ny = path->y + order_dy[ e ];
-					NX = nx >> 1;
-					NY = ny >> 1;
-					zoned[ e ] = false;
-					if( nx < 0 || ny < 0 || nx >= bloc_w_db || ny >= bloc_h_db )	continue;
-					zoned[ e ] = zone[ ny ][ nx ];
-					if( !check_rect_full( map_data, map, NX - mw_h, NY - mh_h, smw, smh, u_idx, dh_max, low_level, high_level, bloc_w, bloc_h, hover_h ) )
-						continue;
-					rdist[ e ] = dist[ e ] = sq( END_X - nx ) + sq( END_Y - ny );
-
-					if( zoned[ e ] )
-						dist[ e ] = -1;
+				if( zoned[ e ] )
+					dist[ e ] = -1;
+				}
+			for( int e = 1 ; e < 8 ; e += 2 ) {		// Look for a way to go
+				if( ( (dist[ order_m1[ e ] ] == -1 && !zoned[ order_m1[ e ] ]) || (dist[ order_p1[ e ] ] == -1 && !zoned[ order_p1[ e ] ]) 
+				|| (dist[ order_m2[ e ] ] == -1 && !zoned[ order_m2[ e ] ]) || (dist[ order_p2[ e ] ] == -1 && !zoned[ order_p2[ e ] ]) ) && dist[ e ] >= 0 ) {
+					if( m == -1 )	m = e;
+					else if( dist[ e ] < dist[ m ] )
+						m = e;
 					}
-				for( int e = 1 ; e < 8 ; e += 2 ) {		// Look for a way to go
-					if( ( (dist[ order_m1[ e ] ] == -1 && !zoned[ order_m1[ e ] ]) || (dist[ order_p1[ e ] ] == -1 && !zoned[ order_p1[ e ] ]) 
-					|| (dist[ order_m2[ e ] ] == -1 && !zoned[ order_m2[ e ] ]) || (dist[ order_p2[ e ] ] == -1 && !zoned[ order_p2[ e ] ]) ) && dist[ e ] >= 0 ) {
+				}
+			if( m == -1 ) {							// Second try
+				for( int e = 1 ; e < 8 ; e += 2 ) {
+					if( dist[ e ] >= 0 ) {
 						if( m == -1 )	m = e;
 						else if( dist[ e ] < dist[ m ] )
 							m = e;
 						}
 					}
-				if( m == -1 ) {							// Second try
-					for( int e = 1 ; e < 8 ; e += 2 ) {
+				if( m == -1 ) {						// Ok we already went everywhere, then compute data differently
+					for( int e = 1 ; e < 8 ; e+= 2 ) {
+						if( rdist[ e ] == -1 )	continue;
+						nx = path->x + order_dx[ e ];
+						ny = path->y + order_dy[ e ];
+						dist[ e ] = rdist[ e ] + 1000 * zone[ ny ][ nx ];
+						}
+					for( int e = 1 ; e < 8 ; e += 2 )		// Ultimate test
 						if( dist[ e ] >= 0 ) {
 							if( m == -1 )	m = e;
 							else if( dist[ e ] < dist[ m ] )
 								m = e;
 							}
-						}
-					if( m == -1 ) {						// Ok we already went everywhere, then compute data differently
-						for( int e = 1 ; e < 8 ; e+= 2 ) {
-							if( rdist[ e ] == -1 )	continue;
-							nx = path->x + order_dx[ e ];
-							ny = path->y + order_dy[ e ];
-							dist[ e ] = rdist[ e ] + 1000 * zone[ ny ][ nx ];
-							}
-						for( int e = 1 ; e < 8 ; e += 2 )		// Ultimate test
-							if( dist[ e ] >= 0 ) {
-								if( m == -1 )	m = e;
-								else if( dist[ e ] < dist[ m ] )
-									m = e;
-								}
-						}
-					}
-				if( m >= 0 ) {			// We found something
-					nx = path->x + order_dx[ m ];
-					ny = path->y + order_dy[ m ];
 					}
 				}
-			else
-				m = -2;
+			if( m >= 0 ) {			// We found something
+				nx = path->x + order_dx[ m ];
+				ny = path->y + order_dy[ m ];
+				}
 			}
+		else
+			m = -2;
 
 		if( m == -1 )
 			break;

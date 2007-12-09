@@ -146,7 +146,8 @@ game_area.load_window( ta3d_sidedata.guis_dir + ta3d_sidedata.side_pref[ players
 I_Msg( TA3D::TA3D_IM_GUI_MSG, (void*)(String( ta3d_sidedata.side_pref[ players.side_view ] ) + "dl.hide").c_str(), NULL, NULL );	// Hide it
 
 for( int i = 0 ; i < unit_manager.nb_unit ; i++ ) {		// Loads the GUI
-	loading( (550.0f + 50.0f * i / (unit_manager.nb_unit+1) )/7.0f,TRANSLATE("Loading GUI"));
+	if( !(i & 0xF) )
+		loading( (550.0f + 50.0f * i / (unit_manager.nb_unit+1) )/7.0f,TRANSLATE("Loading GUI"));
 	if( Lowercase( unit_manager.unit_type[ i ].side ) == Lowercase( ta3d_sidedata.side_name[ players.side_view ] ) ) {
 		int e = 1;
 		while( HPIManager->Exists( ta3d_sidedata.guis_dir + unit_manager.unit_type[ i ].Unitname + format( "%d.gui", e ) ) ) {

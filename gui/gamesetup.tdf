@@ -54,9 +54,9 @@
 		type=BUTTON;
 		caption=Change map;
 		x1=993;
-		y1=448;
-		x2=1137;
-		y2=478;
+		y1=445;
+		x2=1139;
+		y2=479;
 		size=1.5;
 		help=click to change\nthe map;
 	}
@@ -1450,8 +1450,8 @@
 	{
 		name=FOW;
 		type=MENU;
-		x1=991;
-		y1=523;
+		x1=993;
+		y1=522;
 		x2=1138;
 		y2=556;
 		entry=off,off,grey,black,on;

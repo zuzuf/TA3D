@@ -1006,6 +1006,7 @@ void MAP::draw(CAMERA *cam,byte player_mask,bool FLAT,float niv,float t,float dt
 					view[y][x]=2;
 				if(view[y][x]==2 && FLAT)
 					view[y][x]=0;
+				if( cam->mirror && map_data[Y][X].flat )	continue;
 				}
 			if(low_def_view)	continue;
 							// Si le joueur ne peut pas voir ce morceau, on ne le dessine pas en clair

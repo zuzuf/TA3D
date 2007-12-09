@@ -1713,7 +1713,9 @@ bool UNIT::is_on_radar( byte &p_mask )
 								break;
 								}
 											// Redraw the unit on presence map
+						LeaveCS();
 						target_unit->draw_on_map();
+						EnterCS();
 						}
 				}
 				break;	//added
@@ -2363,7 +2365,7 @@ bool UNIT::is_on_radar( byte &p_mask )
 						Target = mission->path->Pos;
 					else {														// Look for a path to the target
 						if( mission->path ) {		// If we want to refresh the path
-							Target = mission->path->Pos;
+							Target = mission->target;//mission->path->Pos;
 							destroy_path( mission->path );
 							mission->path = NULL;
 							}
@@ -2414,6 +2416,8 @@ bool UNIT::is_on_radar( byte &p_mask )
 									if( mission->path == NULL )					// Can't find a path to get where it has been ordered to go
 										play_sound( "cant1" );
 									}
+								if( mission->path )			// Update required data
+									Target = mission->path->Pos;
 								}
 							}
 						else
@@ -2502,8 +2506,8 @@ bool UNIT::is_on_radar( byte &p_mask )
 					precomputed_position = true;
 					if( !flying ) {
 						if( n_px != cur_px || n_py != cur_py ) {			// has something changed ??
-							bool there_is_someone = can_be_there( n_px, n_py, map, type_id, owner_id, idx );
-							if( !(flags & 64) && !there_is_someone) {
+							bool place_is_empty = can_be_there( n_px, n_py, map, type_id, owner_id, idx );
+							if( !(flags & 64) && !place_is_empty) {
 								if(!unit_manager.unit_type[type_id].canfly) {
 									was_locked = true;
 									// Check some basic solutions first
@@ -2570,8 +2574,8 @@ bool UNIT::is_on_radar( byte &p_mask )
 								flags |= 64;
 							}
 						else {
-							bool there_is_someone = map->check_rect(n_px-(unit_manager.unit_type[type_id].FootprintX>>1),n_py-(unit_manager.unit_type[type_id].FootprintZ>>1),unit_manager.unit_type[type_id].FootprintX,unit_manager.unit_type[type_id].FootprintZ,idx);
-							if( !there_is_someone ) {
+							bool place_is_empty = map->check_rect(n_px-(unit_manager.unit_type[type_id].FootprintX>>1),n_py-(unit_manager.unit_type[type_id].FootprintZ>>1),unit_manager.unit_type[type_id].FootprintX,unit_manager.unit_type[type_id].FootprintZ,idx);
+							if( !place_is_empty ) {
 								clear_from_map();
 								Console->AddEntry("Unit is blocked!! (2) -> probably spawned on something");
 								}
@@ -2661,7 +2665,9 @@ bool UNIT::is_on_radar( byte &p_mask )
 										target_unit->attached = false;
 										target_unit->hidden = false;
 										nb_attached = 0;
+										LeaveCS();
 										target_unit->draw_on_map();
+										EnterCS();
 										}
 									else if( attached_list[0] < 0 || attached_list[0] >= units.max_unit
 									|| units.unit[ attached_list[0] ].flags == 0 )
@@ -3192,7 +3198,9 @@ bool UNIT::is_on_radar( byte &p_mask )
 											}
 										target_unit->Angle = Angle;
 										target_unit->Angle.y += data.axe[1][script_val[script_id_buildinfo]].angle;
+										LeaveCS();
 										target_unit->draw_on_map();
+										EnterCS();
 										}
 									}
 								mission->target = target_unit->Pos;
@@ -3237,12 +3245,16 @@ bool UNIT::is_on_radar( byte &p_mask )
 							if( mission->flags & MISSION_FLAG_MOVE )			// Stop moving if needed
 								stop_moving();
 							if(unit_manager.unit_type[type_id].BMcode || (!unit_manager.unit_type[type_id].BMcode && port[ INBUILDSTANCE ] && port[YARD_OPEN] && !port[BUGGER_OFF])) {
+								LeaveCS();
 								draw_on_map();
+								EnterCS();
 								V.x = 0.0f;
 								V.y = 0.0f;
 								V.z = 0.0f;
 								if(map->check_rect((((int)(mission->target.x)+map->map_w_d)>>3)-(unit_manager.unit_type[mission->data].FootprintX>>1),(((int)(mission->target.z)+map->map_h_d)>>3)-(unit_manager.unit_type[mission->data].FootprintZ>>1),unit_manager.unit_type[mission->data].FootprintX,unit_manager.unit_type[mission->data].FootprintZ,-1)) {				// Vérifie s'il y a la place de construire l'unité
+									LeaveCS();
 									mission->p=create_unit(mission->data,owner_id,mission->target,map);
+									EnterCS();
 									if( !unit_manager.unit_type[type_id].BMcode && mission->p != NULL ) {
 										int script_id_buildinfo = get_script_index(SCRIPT_QueryBuildInfo);
 										if( script_id_buildinfo >= 0 ) {
@@ -3251,7 +3263,9 @@ bool UNIT::is_on_radar( byte &p_mask )
 											if( param[0] >= 0 ) {
 												compute_model_coord();
 												((UNIT*)(mission->p))->Pos = Pos + data.pos[ param[0] ];
+												LeaveCS();
 												((UNIT*)(mission->p))->draw_on_map();
+												EnterCS();
 												mission->target = ((UNIT*)(mission->p))->Pos;
 												}
 											}
@@ -3711,7 +3725,9 @@ bool UNIT::is_on_radar( byte &p_mask )
 			}
 		if( (o_px != cur_px || o_py != cur_py || first_move || was_flying ^ flying || (port[YARD_OPEN] != 0.0f) ^ was_open) && build_percent_left <= 0.0f || !drawn ) {
 			first_move = build_percent_left > 0.0f;
+			LeaveCS();
 			draw_on_map();
+			EnterCS();
 			}
 
 		built=false;
@@ -3726,7 +3742,7 @@ bool UNIT::is_on_radar( byte &p_mask )
 	bool UNIT::hit(VECTOR P,VECTOR Dir,VECTOR *hit_vec, float length)
 	{
 		EnterCS();
-		if(flags==0)	{
+		if(!(flags&1))	{
 			LeaveCS();
 			return false;
 			}
@@ -3755,7 +3771,7 @@ bool UNIT::is_on_radar( byte &p_mask )
 	bool UNIT::hit_fast(VECTOR P,VECTOR Dir,VECTOR *hit_vec, float length)
 	{
 		EnterCS();
-		if(flags==0)	{
+		if(!(flags&1))	{
 			LeaveCS();
 			return false;
 			}
@@ -4327,6 +4343,7 @@ void UNIT::draw_on_map()
 {
 	if( drawn )	clear_from_map();
 	if( attached )	return;
+
 	drawn_flying = flying;
 	if( flying )
 		units.map->air_rect( cur_px-(unit_manager.unit_type[type_id].FootprintX>>1), cur_py-(unit_manager.unit_type[type_id].FootprintZ>>1), unit_manager.unit_type[type_id].FootprintX, unit_manager.unit_type[type_id].FootprintZ, idx );
@@ -4389,6 +4406,7 @@ void UNIT::draw_on_map()
 void UNIT::clear_from_map()
 {
 	if( !drawn )	return;
+
 	drawn = false;
 	if( drawn_flying )
 		units.map->air_rect( drawn_x-(unit_manager.unit_type[type_id].FootprintX>>1), drawn_y-(unit_manager.unit_type[type_id].FootprintZ>>1), unit_manager.unit_type[type_id].FootprintX, unit_manager.unit_type[type_id].FootprintZ, idx, true );
@@ -4442,9 +4460,9 @@ void *create_unit(int type_id,int owner,VECTOR pos,MAP *map)
 		units.unit[id].build_percent_left=100.0f;
 		units.unit[id].cur_px = ((int)(units.unit[id].Pos.x)+map->map_w_d)>>3;
 		units.unit[id].cur_py = ((int)(units.unit[id].Pos.z)+map->map_h_d)>>3;
-		units.unit[id].draw_on_map();
-
 		units.unit[id].UnLock();
+
+		units.unit[id].draw_on_map();
 
 		return &(units.unit[id]);
 		}

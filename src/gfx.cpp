@@ -109,7 +109,7 @@ GFX::GFX()
 		install_ext();      // Pour les fonctions OpenGl supplémentaires
 
 		if( g_useTextureCompression )         // Active la compression de texture
-	      allegro_gl_set_texture_format(GL_COMPRESSED_RGB_ARB);
+			allegro_gl_set_texture_format(GL_COMPRESSED_RGB_ARB);
 		else
 			allegro_gl_set_texture_format(GL_RGB8); 
 
