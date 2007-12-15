@@ -86,6 +86,7 @@ public:
 	GLuint	*glbmp;
 	char	*name;
 	bool	dgl;
+	char	*filename;
 
 	inline void init()
 	{
@@ -96,6 +97,7 @@ public:
 		w=h=NULL;
 		name=NULL;
 		dgl=false;
+		filename = NULL;
 	}
 
 	ANIM()
@@ -105,6 +107,7 @@ public:
 
 	inline void destroy()
 	{
+		if( filename )	free( filename );
 		if(nb_bmp>0) {
 			for(int i=0;i<nb_bmp;i++) {
 				if(bmp[i])
@@ -133,7 +136,7 @@ public:
 		destroy();
 	}
 
-	void load_gaf(byte *buf,int entry_idx=0,bool truecol=true);
+	void load_gaf(byte *buf,int entry_idx=0,bool truecol=true,const char *fname=NULL);
 
 	void convert(bool NO_FILTER=false,bool COMPRESSED=false);
 
@@ -170,11 +173,8 @@ public:
 
 	inline void destroy()
 	{
-		if(nb_anim>0) {
-			for(int i=0;i<nb_anim;i++)
-				anm[i].destroy();
-			free(anm);
-			}
+		if(nb_anim>0)
+			delete[] anm;
 		init();
 	}
 
@@ -183,14 +183,14 @@ public:
 		destroy();
 	}
 
-	void load_gaf( byte *buf, bool doConvert=false )
+	void load_gaf( byte *buf, bool doConvert=false, const char *fname = NULL )
 	{
 		nb_anim=get_gaf_nb_entry(buf);
 
-		anm=(ANIM*) malloc(sizeof(ANIM)*nb_anim);
+		anm = new ANIM[nb_anim];
 
-		for(int i=0;i<nb_anim;i++)
-			anm[i].load_gaf(buf,i);
+		for( int i = 0 ; i < nb_anim ; i++ )
+			anm[i].load_gaf(buf,i,true,fname);
 
 		if( doConvert )
 			convert();

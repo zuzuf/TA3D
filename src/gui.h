@@ -97,6 +97,7 @@ void OptionCase( float x, float y, const String &Title, bool Etat , SKIN *skin=N
 void TextBar( float x1, float y1, float x2, float y2, const String &Caption, bool Etat , SKIN *skin=NULL );
 void ProgressBar( float x1, float y1, float x2, float y2, int Value , SKIN *skin=NULL );
 void PopupMenu( float x1, float y1, const String &msg, SKIN *skin=NULL );
+void draw_text_adjust( float x1, float y1, float x2, float y2, String msg, float size );
 
 /*--------------------------------------------------------------------------------------------------*/
 
@@ -123,6 +124,7 @@ extern bool	use_normal_alpha_function;
 #define FLAG_BUILD_PIC						0x080			// If it's a build pic, replace the picture with the current unit's one
 #define FLAG_DISABLED						0x100
 #define FLAG_CENTERED						0x200			// Centered
+#define FLAG_TEXT_ADJUST					0x400			// Tell the text renderer to prin '\n' correctly and to fit in the given space
 
 class GUIOBJ					// Structure pour les objets contenus dans les fenêtres
 {

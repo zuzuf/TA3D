@@ -157,6 +157,11 @@ namespace TA3D
 			mkdir( TA3D_OUTPUT_DIR.c_str(), 0xFFF );
 #endif
 			TA3D_OUTPUT_DIR += "/";		// Make sure we can use it like this : TA3D_OUTPUT_DIR + filename
+#if defined TA3D_PLATFORM_WINDOWS
+			mkdir( (TA3D_OUTPUT_DIR+"cache").c_str() );
+#else
+			mkdir( (TA3D_OUTPUT_DIR+"cache").c_str(), 0xFFF );
+#endif
 			}
 	}
 }

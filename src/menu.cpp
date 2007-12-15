@@ -1146,6 +1146,9 @@ void setup_game(void)
 
 	int dx, dy;
 	GLuint glimg = load_tnt_minimap_fast(game_data.map_filename,&dx,&dy);
+	char tmp_char[1024];
+	MAP_OTA	map_data;
+	map_data.load( replace_extension( (char*)tmp_char, game_data.map_filename, "ota", 1024 ) );
 	float ldx = dx*70.0f/252.0f;
 	float ldy = dy*70.0f/252.0f;
 
@@ -1204,6 +1207,17 @@ void setup_game(void)
 		GUIOBJ *obj = setupgame_area.get_object( "gamesetup.FOW" );
 		if( obj )
 			obj->Text[0] = obj->Text[ 1 + game_data.fog_of_war ];
+	}
+
+	{
+		String map_info = "";
+		if(map_data.missionname)
+			map_info += String( map_data.missionname ) + "\n";
+		if(map_data.numplayers)
+			map_info += String( map_data.numplayers ) + "\n";
+		if(map_data.missiondescription)
+			map_info += map_data.missiondescription;
+		setupgame_area.set_caption("gamesetup.map_info", map_info );
 	}
 
 	bool done=false;
@@ -1360,6 +1374,17 @@ void setup_game(void)
 				minimap_obj->y2 = mini_map_y+ldy;
 				minimap_obj->u2 = dx/252.0f;
 				minimap_obj->v2 = dy/252.0f;
+
+				map_data.destroy();
+				map_data.load( replace_extension( (char*)tmp_char, game_data.map_filename, "ota", 1024 ) );
+				String map_info = "";
+				if(map_data.missionname)
+					map_info += String( map_data.missionname ) + "\n";
+				if(map_data.numplayers)
+					map_info += String( map_data.numplayers ) + "\n";
+				if(map_data.missiondescription)
+					map_info += map_data.missiondescription;
+				setupgame_area.set_caption("gamesetup.map_info", map_info );
 				}
 
 			minimap_obj->Data = glimg;		// Synchronize the picture on GUI
@@ -1381,6 +1406,8 @@ void setup_game(void)
 
 	if( setupgame_area.background == gfx->glfond )	setupgame_area.background = 0;
 	setupgame_area.destroy();
+
+	map_data.destroy();
 
 	gfx->destroy_texture(glimg);
 

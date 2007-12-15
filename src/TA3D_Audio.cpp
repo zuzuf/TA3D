@@ -655,8 +655,10 @@ bool cAudio::LoadSound( const String &Filename, const bool LoadAs3D,
 		m_Sound = NULL;
 
 		// log a message and return false;
-		szWav = format( "FMOD: LoadSound(%s), Failed to construct sample.\n", szWav.c_str() );
-		I_Msg( TA3D::TA3D_IM_DEBUG_MSG, (void *)szWav.c_str(), NULL, NULL );
+		if( m_FMODRunning ) {
+			szWav = format( "FMOD: LoadSound(%s), Failed to construct sample.\n", szWav.c_str() );
+			I_Msg( TA3D::TA3D_IM_DEBUG_MSG, (void *)szWav.c_str(), NULL, NULL );
+			}
 
 		return false;
 	}
@@ -681,8 +683,10 @@ bool cAudio::LoadSound( const String &Filename, const bool LoadAs3D,
 		m_Sound = NULL;
 
 		// log a message and return false;
-		szWav = format( "FMOD: LoadSound(%s), Failed to construct sample.\n", szWav.c_str() );
-		I_Msg( TA3D::TA3D_IM_DEBUG_MSG, (void *)szWav.c_str(), NULL, NULL );
+		if( m_FMODRunning ) {
+			szWav = format( "FMOD: LoadSound(%s), Failed to construct sample.\n", szWav.c_str() );
+			I_Msg( TA3D::TA3D_IM_DEBUG_MSG, (void *)szWav.c_str(), NULL, NULL );
+			}
 
 		return false;
 	}

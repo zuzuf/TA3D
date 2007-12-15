@@ -1,5 +1,7 @@
 TODO list
 ---------
+_add a confirm dialog when changing screen resolution
+_hot restart mechanism
 _read the music from a CD
 _add glossiness (or reflection) to all TA3D models.
 _TA3D in desperate need of some kind of data cache, so each run with similar options it could directly load data to RAM and not to convert all TA resources again.
@@ -11,6 +13,7 @@ _networking code
 _improve A.I.
 _D3D support
 
+*new texture cache system to speed up loading process (the first time it's slower because it creates the cache)
 *reduced memory footprint of textures
 *end game statistics screen rewritten using GUI module
 *ai module cleaned
@@ -30,6 +33,7 @@ _some parts of the maps might not be drawn (visibility limit) like hills
 _slow down with lots of 3D sprites on some gfx hardware (speed increased but bug not yet fixed)
 _fix all other bugs ( :-) )
 
+*pathfinding FIXED !!!
 *fixed armcom & armllt laser colors and adapted size
 *fixed reclaim sound not being played when it should
 *fixed commander radar being activated only when building

@@ -2508,7 +2508,8 @@ bool UNIT::is_on_radar( byte &p_mask )
 						if( n_px != cur_px || n_py != cur_py ) {			// has something changed ??
 							bool place_is_empty = can_be_there( n_px, n_py, map, type_id, owner_id, idx );
 							if( !(flags & 64) && !place_is_empty) {
-								if(!unit_manager.unit_type[type_id].canfly) {
+								mission->flags |= MISSION_FLAG_REFRESH_PATH;			// Refresh path because this shouldn't happen unless
+								if(!unit_manager.unit_type[type_id].canfly) {			// obstacles have moved
 									was_locked = true;
 									// Check some basic solutions first
 									if( fabs( V.x ) > 0.0f

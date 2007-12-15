@@ -182,6 +182,16 @@ void MAP::load_details_texture( const String &filename )
 		}
 }
 
+void MAP_OTA::load( String filename )
+{
+	uint32 ota_file_size = 0;
+	byte *data = HPIManager->PullFromHPI( filename, &ota_file_size );
+	if( data ) {
+		load( (char*)data, ota_file_size );
+		free( data );
+		}
+}
+
 void MAP_OTA::load(char *data,int ota_size)
 {
 	destroy();

@@ -189,7 +189,7 @@ FEATURES features;
 					if(gaf) {
 						int index=get_gaf_entry_index(gaf,feature[i].seqname);
 						if(index>=0)
-							feature[i].anim.load_gaf(gaf,get_gaf_entry_index(gaf,feature[i].seqname));
+							feature[i].anim.load_gaf(gaf,get_gaf_entry_index(gaf,feature[i].seqname),true,feature[i].filename);
 						else
 							Console->AddEntry( "WARNING: %s has no picture to display!! Missing files?", feature[i].name );
 						free(gaf);

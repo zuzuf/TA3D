@@ -60,22 +60,34 @@ Vector< GLuint > read_gaf_imgs( const String &filename, const String &imgname, i
 		textures.resize( nb_img );
 
 		for( int i = 0 ; i < textures.size() ; i++ ) {
-			BITMAP *img = read_gaf_img( data, idx, i, NULL, NULL, truecol );
+			uint32 fw, fh;
+			String cache_filename = filename + "-" + imgname + format("-%d.bin", i );
+			textures[ i ] = gfx->load_texture_from_cache( cache_filename, FILTER_TRILINEAR, &fw, &fh );
 
-			if( !img ) {
+			if( !textures[ i ] ) {
+				BITMAP *img = read_gaf_img( data, idx, i, NULL, NULL, truecol );
+
+				if( !img ) {
 #ifdef GAF_DEBUG_MODE
-				Console->AddEntry("WARNING: could not read %s image from %s!", imgname.c_str(), filename.c_str() );
+					Console->AddEntry("WARNING: could not read %s image from %s!", imgname.c_str(), filename.c_str() );
 #endif
-				free( data );
-				return textures;
+					free( data );
+					return textures;
+					}
+
+				if( w )	w[i] = img->w;
+				if( h )	h[i] = img->h;
+
+				textures[ i ] = gfx->make_texture( img );
+
+				gfx->save_texture_to_cache( cache_filename, textures[ i ], img->w, img->h );
+
+				destroy_bitmap( img );
 				}
-
-			if( w )	w[i] = img->w;
-			if( h )	h[i] = img->h;
-
-			textures[ i ] = gfx->make_texture( img );
-
-			destroy_bitmap( img );
+			else {
+				if( w )	w[i] = fw;
+				if( h )	h[i] = fh;
+				}
 			}
 
 		free( data );
@@ -91,41 +103,67 @@ Vector< GLuint > read_gaf_imgs( const String &filename, const String &imgname, i
 
 GLuint	read_gaf_img( const String &filename, const String &imgname, int *w, int *h, bool truecol)		// Read a gaf image and put it in an OpenGL texture
 {
-	byte *data = HPIManager->PullFromHPI( filename );
-	if( data ) {
-		int idx = get_gaf_entry_index( data, (char*)imgname.c_str() );
-		if( idx == -1 ) {
-			free( data );
-			return 0;
-			}
+	String cache_filename = filename + "-" + imgname + ".bin";
+	uint32 fw, fh;
+	GLuint first_try = gfx->load_texture_from_cache( cache_filename, FILTER_TRILINEAR, &fw, &fh );
 
-		set_palette(pal);      // Activate the palette
-
-		BITMAP *img = read_gaf_img( data, idx, 0, NULL, NULL, truecol );
-
-		if( !img ) {
-#ifdef GAF_DEBUG_MODE
-			Console->AddEntry("WARNING: could read %s image from %s!", imgname.c_str(), filename.c_str() );
-#endif
-			free( data );
-			return 0;
-			}
-
-		if( w )	*w = img->w;
-		if( h )	*h = img->h;
-
-		GLuint gl_img = gfx->make_texture( img );
-
-		destroy_bitmap( img );
-		free( data );
-
-		return gl_img;
+	if( first_try ) {
+		if( w )	*w = fw;
+		if( h )	*h = fh;
+		return first_try;
 		}
+	else {
+		byte *data = HPIManager->PullFromHPI( filename );
+		if( data ) {
+			int idx = get_gaf_entry_index( data, (char*)imgname.c_str() );
+			if( idx == -1 ) {
+				free( data );
+				return 0;
+				}
+
+			set_palette(pal);      // Activate the palette
+
+			BITMAP *img = read_gaf_img( data, idx, 0, NULL, NULL, truecol );
+
+			if( !img ) {
 #ifdef GAF_DEBUG_MODE
-	else
-		Console->AddEntry("WARNING: could not open file %s", filename.c_str() );
+				Console->AddEntry("WARNING: could read %s image from %s!", imgname.c_str(), filename.c_str() );
 #endif
-	return 0;
+				free( data );
+				return 0;
+				}
+
+			if( w )	*w = img->w;
+			if( h )	*h = img->h;
+
+			bool with_alpha = false;
+			for( int y = 0 ; y < img->h && !with_alpha ; y++ )
+				for( int x = 0 ; x < img->w && !with_alpha ; x++ )
+					with_alpha |= img->line[y][(x<<2)+3] == 255;
+			if(g_useTextureCompression)
+				allegro_gl_set_texture_format( with_alpha ? GL_COMPRESSED_RGBA_ARB : GL_COMPRESSED_RGB_ARB );
+			else
+				allegro_gl_set_texture_format( with_alpha ? GL_RGBA8 : GL_RGB8 );
+
+			allegro_gl_use_alpha_channel( with_alpha );
+
+			GLuint gl_img = gfx->make_texture( img );
+
+			allegro_gl_use_alpha_channel( false );
+
+			gfx->save_texture_to_cache( cache_filename, gl_img, img->w, img->h );
+
+			destroy_bitmap( img );
+			free( data );
+
+			return gl_img;
+			}
+#ifdef GAF_DEBUG_MODE
+		else
+			Console->AddEntry("WARNING: could not open file %s", filename.c_str() );
+#endif
+	}
+		return 0;
 }
 
 int get_gaf_nb_entry(byte *buf)
@@ -469,8 +507,13 @@ BITMAP *read_gaf_img(byte *buf,int entry_idx,int img_idx,short *ofs_x,short *ofs
 	return frame_img;
 }
 
-void ANIM::load_gaf(byte *buf,int entry_idx,bool truecol)
+void ANIM::load_gaf(byte *buf,int entry_idx,bool truecol,const char *fname)
 {
+	if( fname )
+		filename = strdup( fname );
+	else
+		filename = strdup( "" );
+
 	nb_bmp=get_gaf_nb_img(buf,entry_idx);
 
 	bmp=(BITMAP**) malloc(sizeof(BITMAP*)*nb_bmp);
@@ -504,16 +547,27 @@ void ANIM::convert(bool NO_FILTER,bool COMPRESSED)
 	if( dgl )	return;			// Already done!!
 	dgl=true;
 	for(int i=0;i<nb_bmp;i++) {
-		BITMAP *tmp=create_bitmap(bmp[i]->w,bmp[i]->h);
-		blit(bmp[i],tmp,0,0,0,0,tmp->w,tmp->h);
-		destroy_bitmap(bmp[i]);
-		bmp[i]=tmp;
-		if(g_useTextureCompression && COMPRESSED)
-			allegro_gl_set_texture_format(GL_COMPRESSED_RGBA_ARB);
+		String cache_filename = filename + format("-%s-%d.bin", name ? name : "none", i );
+
+		if( filename != "" )
+			glbmp[i] = gfx->load_texture_from_cache( cache_filename, NO_FILTER ? FILTER_NONE : FILTER_TRILINEAR );
 		else
-			allegro_gl_set_texture_format(GL_RGBA8);
-		allegro_gl_use_alpha_channel(true);
-		glbmp[i]=gfx->make_texture(bmp[i], NO_FILTER ? FILTER_NONE : FILTER_TRILINEAR );
-		allegro_gl_use_alpha_channel(false);
+			glbmp[i] = 0;
+
+		if( !glbmp[i] ) {
+			BITMAP *tmp=create_bitmap(bmp[i]->w,bmp[i]->h);
+			blit(bmp[i],tmp,0,0,0,0,tmp->w,tmp->h);
+			destroy_bitmap(bmp[i]);
+			bmp[i]=tmp;
+			if(g_useTextureCompression && COMPRESSED)
+				allegro_gl_set_texture_format(GL_COMPRESSED_RGBA_ARB);
+			else
+				allegro_gl_set_texture_format(GL_RGBA8);
+			allegro_gl_use_alpha_channel(true);
+			glbmp[i]=gfx->make_texture(bmp[i], NO_FILTER ? FILTER_NONE : FILTER_TRILINEAR );
+			allegro_gl_use_alpha_channel(false);
+			if( filename != "" )
+				gfx->save_texture_to_cache( cache_filename, glbmp[i], bmp[i]->w, bmp[i]->h );
+			}
 		}
 }

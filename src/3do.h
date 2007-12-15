@@ -96,6 +96,7 @@ public:
 		nbtex=256;
 		tex=(ANIM*)	malloc(sizeof(ANIM)*nbtex);
 		for(int i=0;i<256;i++) {
+			tex[i].init();
 			tex[i].nb_bmp=1;
 			tex[i].bmp=(BITMAP**) malloc(sizeof(BITMAP*));
 			tex[i].glbmp=(GLuint*) malloc(sizeof(GLuint));
@@ -500,7 +501,7 @@ public:
 
 	void optimise_mesh();			// EXPERIMENTAL, function to merge all objects in one vertex array
 
-	int load_obj(byte *data,int offset,int dec=0);
+	int load_obj(byte *data,int offset,int dec=0,const char *filename=NULL);
 
 	void save_3dm(FILE *dst, bool compressed);
 
@@ -845,9 +846,9 @@ public:
 		compute_topbottom();
 	}
 
-	int load_3do(byte *data)
+	int load_3do(byte *data,const char *filename=NULL)
 	{
-		int err=obj.load_obj(data,0);		// Charge les objets composant le modèle
+		int err=obj.load_obj(data,0,0,filename);		// Charge les objets composant le modèle
 		if(err==0) {
 			nb_obj = obj.set_obj_id( 0 );
 

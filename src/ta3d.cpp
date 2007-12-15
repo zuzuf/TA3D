@@ -39,7 +39,6 @@ VECTOR cursor_on_map( CAMERA *cam,MAP *map, bool on_mini_map = false );
 \--------------------------------------------------------------------*/
 void play(GAME_DATA *game_data)
 {
-
 if(game_data==NULL)	{
 	Console->AddEntry("error: cannot start a game!! (game_data is NULL, no game information)");
 	return;

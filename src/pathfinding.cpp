@@ -298,11 +298,12 @@ PATH_NODE *find_path( SECTOR **map_data, float **map, byte **zone, int map_w, in
 		else
 			ny += sgn( END_Y - path->y );
 
-		if( nx < 0 || ny < 0 || nx >= bloc_w_db || ny >= bloc_h_db )	break;		// If we have to go out there is a problem ...
+		if( nx < 0 || ny < 0 || nx >= bloc_w_db || ny >= bloc_h_db )
+			break;		// If we have to go out there is a problem ...
 
 		int NX = nx >> 1, NY = ny >> 1;
 
-		if( !check_rect_full( map_data, map, NX - mw_h, NY - mh_h, smw, smh, u_idx, dh_max, low_level, high_level, bloc_w, bloc_h, hover_h ) ) {
+		if( !check_rect_full( map_data, map, NX - mw_h, NY - mh_h, smw, smh, u_idx, dh_max, low_level, high_level, bloc_w, bloc_h, hover_h ) || zone[ ny ][ nx ] ) {
 			int dist[ 8 ];
 			int rdist[ 8 ];
 			bool zoned[ 8 ];
@@ -315,8 +316,9 @@ PATH_NODE *find_path( SECTOR **map_data, float **map, byte **zone, int map_w, in
 				zoned[ e ] = false;
 				if( nx < 0 || ny < 0 || nx >= bloc_w_db || ny >= bloc_h_db )	continue;
 				zoned[ e ] = zone[ ny ][ nx ];
-				if( !check_rect_full( map_data, map, NX - mw_h, NY - mh_h, smw, smh, u_idx, dh_max, low_level, high_level, bloc_w, bloc_h, hover_h ) )
-					continue;
+				if( (path->x >> 1) != NX || (path->y >> 1) != NY )				// No need to do it twice
+					if( !check_rect_full( map_data, map, NX - mw_h, NY - mh_h, smw, smh, u_idx, dh_max, low_level, high_level, bloc_w, bloc_h, hover_h ) )
+						continue;
 				rdist[ e ] = dist[ e ] = sq( END_X - nx ) + sq( END_Y - ny );
 
 				if( zoned[ e ] )

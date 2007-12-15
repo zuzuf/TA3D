@@ -44,8 +44,10 @@ MODEL_MANAGER	model_manager;
 	{
 		int nb_entry=get_gaf_nb_entry(data);
 		int n_nbtex=nbtex+nb_entry;
-		ANIM *n_tex=(ANIM*) malloc(sizeof(ANIM)*n_nbtex);
 		int i;
+		ANIM *n_tex=(ANIM*) malloc(sizeof(ANIM)*n_nbtex);
+		for( i = 0 ; i < n_nbtex ; i++ )
+			n_tex[i].init();
 		for(i=0;i<nbtex;i++)
 			n_tex[i]=tex[i];
 		if(tex)
@@ -208,7 +210,7 @@ void OBJECT::optimise_mesh()			// EXPERIMENTAL, function to merge all objects in
 	optimised_nb_vtx = total_vtx;
 }
 
-	int OBJECT::load_obj(byte *data,int offset,int dec)
+	int OBJECT::load_obj(byte *data,int offset,int dec,const char *filename)
 	{
 		destroy();					// Au cas où l'objet ne serait pas vierge
 
@@ -242,12 +244,12 @@ void OBJECT::optimise_mesh()			// EXPERIMENTAL, function to merge all objects in
 		if(header.OffsetToChildObject) {					// Charge récursivement les différents objets du modèle
 			child=(OBJECT*) malloc(sizeof(OBJECT));
 			child->init();
-			child->load_obj(data,header.OffsetToChildObject,dec+1);
+			child->load_obj(data,header.OffsetToChildObject,dec+1,filename);
 			}
 		if(header.OffsetToSiblingObject) {					// Charge récursivement les différents objets du modèle
 			next=(OBJECT*) malloc(sizeof(OBJECT));
 			next->init();
-			next->load_obj(data,header.OffsetToSiblingObject,dec);
+			next->load_obj(data,header.OffsetToSiblingObject,dec,filename);
 			}
 		points=(POINTF*) malloc(sizeof(POINTF)*nb_vtx);		// Alloue la mémoire nécessaire pour stocker les points
 		int f_pos;
@@ -467,10 +469,15 @@ void OBJECT::optimise_mesh()			// EXPERIMENTAL, function to merge all objects in
 					else
 						blit(texture_manager.tex[index_tex[i]].bmp[0],bmp,0,0,px[i],py[i],texture_manager.tex[index_tex[i]].bmp[0]->w,texture_manager.tex[index_tex[i]].bmp[0]->h);
 				dtex=e+1;
-				gltex[e] = allegro_gl_make_texture(bmp);
-				glBindTexture(GL_TEXTURE_2D,gltex[e]);
-				glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
-				glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR_MIPMAP_LINEAR);
+				String cache_filename = String( filename ) + format("-%s-%d.bin", name ? name : "none", e );
+				gltex[e] = gfx->load_texture_from_cache( cache_filename );
+				if( !gltex[ e ] ) {
+					gltex[e] = allegro_gl_make_texture(bmp);
+					glBindTexture(GL_TEXTURE_2D,gltex[e]);
+					glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
+					glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR_MIPMAP_LINEAR);
+					gfx->save_texture_to_cache( cache_filename, gltex[ e ], bmp->w, bmp->h );
+					}
 				if(!mtex_needed)	break;
 				}
 			}
@@ -1898,7 +1905,7 @@ int MODEL_MANAGER::load_all(void (*progress)(float percent,const String &msg))
 				byte *data = HPIManager->PullFromHPI(*e, &data_size);
 				if( data ) {
 					if( data_size > 0 )						// If the file isn't empty
-						model[i+nb_models].load_3do(data);
+						model[i+nb_models].load_3do(data,e->c_str());
 					free(data);
 					i++;
 					}

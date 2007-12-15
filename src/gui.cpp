@@ -319,6 +319,7 @@ void GUIOBJ::create_pbar(float X1,float Y1,float X2,float Y2,int PCent)
 	Text.clear();
 	Func=NULL;
 	Data=PCent;
+	Flag = 0;
 }
 			// Crée un objet text
 void GUIOBJ::create_text(float X1,float Y1,const String &Caption,int Col, float size)
@@ -333,6 +334,7 @@ void GUIOBJ::create_text(float X1,float Y1,const String &Caption,int Col, float 
 	Func = NULL;
 	Data = Col;
 	s = size;
+	Flag = 0;
 }
 
 void GUIOBJ::create_line(float X1,float Y1,float X2,float Y2,int Col)
@@ -592,7 +594,10 @@ void WND::draw( String &help_msg, bool Focus, bool Deg, SKIN *skin )
 						gfx->rectdot(Objets[i].x1+x-2,Objets[i].y1+y-2,Objets[i].x2+x+2,Objets[i].y2+y+2,GrisF);
 					break;
 				case OBJ_TEXT:
-					gfx->print(gui_font,x+Objets[i].x1,Objets[i].y1+y,0.0f,Objets[i].Data,Objets[i].Text[0],Objets[i].s);
+					if( !(Objets[i].Flag & FLAG_TEXT_ADJUST ) )
+						gfx->print(gui_font,x+Objets[i].x1,Objets[i].y1+y,0.0f,Objets[i].Data,Objets[i].Text[0],Objets[i].s);
+					else
+						draw_text_adjust( x+Objets[i].x1, y+Objets[i].y1, x+Objets[i].x2, y+Objets[i].y2, Objets[i].Text[0], Objets[i].s );
 					break;
 				case OBJ_MENU:			// Menu déroulant
 					if(!Objets[i].Etat)
@@ -1057,12 +1062,17 @@ void WND::load_gui( const String &filename, cHashTable< Vector< TA3D::INTERFACES
 
 	String panel = wndFile->PullAsString( "gadget0.panel" );			// Look for the panel texture
 	int w,h;
-	background = read_gaf_img( "anims\\" + Name + ".gaf", panel, &w, &h, true );
-	if( background == 0 ) {
-		List< String >	file_list;
-		HPIManager->GetFilelist( "anims\\*.gaf", &file_list );
-		for( List< String >::iterator i = file_list.begin() ; i != file_list.end() && background == 0 ; i++ )
-			background = read_gaf_img( *i, panel, &w, &h, true );
+	background = gfx->load_texture_from_cache( "anims\\" + Name + ".gaf", FILTER_TRILINEAR, (uint32*)&w, (uint32*)&h );
+	if( !background ) {
+		background = read_gaf_img( "anims\\" + Name + ".gaf", panel, &w, &h, true );
+		if( background == 0 ) {
+			List< String >	file_list;
+			HPIManager->GetFilelist( "anims\\*.gaf", &file_list );
+			for( List< String >::iterator i = file_list.begin() ; i != file_list.end() && background == 0 ; i++ )
+				background = read_gaf_img( *i, panel, &w, &h, true );
+			}
+		if( background )
+			gfx->save_texture_to_cache( "anims\\" + Name + ".gaf", background, w, h );
 		}
 
 	delete_gltex = background;
@@ -1313,8 +1323,14 @@ void WND::load_tdf( const String &filename, SKIN *skin )			// Load a window from
 			Objets[i].create_optionc( X1, Y1, caption, val, NULL, skin );
 		else if( obj_type == "MENU" )
 			Objets[i].create_menu( X1, Y1, X2, Y2, Entry, NULL );
-		else if( obj_type == "TEXT" )
+		else if( obj_type == "TEXT" ) {
 			Objets[i].create_text( X1, Y1, caption, val, size );
+			if( X2 > 0 && Y2 > Y1 ) {
+				Objets[i].x2 = X2;
+				Objets[i].y2 = Y2;
+				Objets[i].Flag |= FLAG_TEXT_ADJUST;
+				}
+			}
 		else if( obj_type == "LINE" )
 			Objets[i].create_line( X1, Y1, X2, Y2, val );
 		else if( obj_type == "BOX" )
@@ -1465,6 +1481,37 @@ void ListBox(float x1,float y1, float x2, float y2,const Vector<String> &Entry,i
 			gfx->print(gui_font,x1+4,y1+4+gui_font.height()*i,0.0f,use_normal_alpha_function ? Blanc : Noir,Entry[e]);
 			}
 		}
+}
+
+/*---------------------------------------------------------------------------\
+|        Draw a the given text within the given space                        |
+\---------------------------------------------------------------------------*/
+
+void draw_text_adjust( float x1, float y1, float x2, float y2, String msg, float size )
+{
+	String current = "";
+	Vector< String > Entry;
+	int last = 0;
+	for( int i = 0 ; i < msg.length() ; i++ )
+		if( msg[i] == '\n' || gui_font.length( current + msg[i] ) >= x2 - x1 ) {
+			Entry.push_back( current );
+			last = i + 1;
+			current.clear();
+			}
+		else
+			current += msg[i];
+
+	if( last + 1 < msg.length() )
+		Entry.push_back( current );
+
+	gfx->set_alpha_blending();
+	gfx->set_color( 1.0f, 1.0f, 1.0f, 1.0f );
+
+	for( int e = 0 ; e < Entry.size() ; e++ )
+		if( y1 + gui_font.height() * e <= y2 )
+			gfx->print( gui_font, x1, y1 + gui_font.height() * e, 0.0f, use_normal_alpha_function ? Blanc : Noir, Entry[e] );
+
+	gfx->unset_alpha_blending();
 }
 
 /*---------------------------------------------------------------------------\

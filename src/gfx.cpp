@@ -637,7 +637,7 @@ GLuint	GFX::make_texture(BITMAP *bmp, byte filter_type, bool clamp )
 	return gl_tex;
 }
 
-GLuint	GFX::create_texture(int &w, int &h, byte filter_type, bool clamp )
+GLuint	GFX::create_texture(int w, int h, byte filter_type, bool clamp )
 {
 	BITMAP *tmp = create_bitmap( w, h );
 	clear( tmp );
@@ -682,6 +682,12 @@ GLuint GFX::load_texture(String file, byte filter_type, uint32 *width, uint32 *h
 		for( int y = 0 ; y < bmp->h ; y++ )
 			for( int x = 0 ; x < bmp->w ; x++ )
 				bmp->line[y][(x<<2)+3] = 255;*/
+	if( with_alpha ) {
+		with_alpha = false;
+		for( int y = 0 ; y < bmp->h && !with_alpha ; y++ )
+			for( int x = 0 ; x < bmp->w && !with_alpha ; x++ )
+				with_alpha |= bmp->line[y][(x<<2)+3] != 255;
+		}
 	if(g_useTextureCompression)
 		allegro_gl_set_texture_format( with_alpha ? GL_COMPRESSED_RGBA_ARB : GL_COMPRESSED_RGB_ARB );
 	else
@@ -691,6 +697,133 @@ GLuint GFX::load_texture(String file, byte filter_type, uint32 *width, uint32 *h
 	allegro_gl_use_alpha_channel(false);
 	destroy_bitmap(bmp);
 	return gl_tex;
+}
+
+GLuint	GFX::load_texture_from_cache( String file, byte filter_type, uint32 *width, uint32 *height, bool clamp )
+{
+	file = TA3D_OUTPUT_DIR + "cache/" + file;
+
+	if( TA3D_exists( file ) ) {
+		glPushAttrib( GL_ALL_ATTRIB_BITS );
+
+		FILE *cache_file = TA3D_OpenFile( file, "rb" );
+
+		uint32 rw, rh;
+
+		fread( &rw, 4, 1, cache_file );
+		fread( &rh, 4, 1, cache_file );
+
+		if( width )		*width = rw;
+		if( height )	*height = rh;
+
+		byte *img = new byte[ rw * rh * 5 ];
+
+		int lod_max = 0;
+		GLint size, internal_format;
+
+		fread( &lod_max, sizeof( lod_max ), 1, cache_file );
+		fread( &internal_format, sizeof( GLint ), 1, cache_file );
+
+		GLuint	tex = gfx->create_texture( 1, 1 );
+		
+		glBindTexture( GL_TEXTURE_2D, tex );
+
+		for( int lod = 0 ; lod  < lod_max ; lod++ ) {
+			fread( &size, sizeof( GLint ), 1, cache_file );
+			fread( &internal_format, sizeof( GLint ), 1, cache_file );
+			fread( img, size, 1, cache_file );
+
+			glCompressedTexImage2DARB( GL_TEXTURE_2D, lod, internal_format, rw, rh, 0, size, img);
+			}
+
+		delete img;
+
+		fclose( cache_file );
+
+		glMatrixMode(GL_TEXTURE);
+			glLoadIdentity();
+		glMatrixMode(GL_MODELVIEW);
+
+		if( clamp ) {
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP );
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP );
+			}
+		else {
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT );
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT );
+			}
+
+		switch(filter_type)
+		{
+		case FILTER_NONE:
+			glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+			glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+			break;
+		case FILTER_LINEAR:
+			glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
+			glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
+			break;
+		case FILTER_BILINEAR:
+			glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
+			glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR_MIPMAP_NEAREST);
+			break;
+		case FILTER_TRILINEAR:
+			glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
+			glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR_MIPMAP_LINEAR);
+			break;
+		};
+
+		glPopAttrib();
+
+		return tex;
+		}
+	return 0;				// File isn't in cache
+}
+
+void	GFX::save_texture_to_cache( String file, GLuint tex, uint32 width, uint32 height )
+{
+	file = TA3D_OUTPUT_DIR + "cache/" + file;
+
+	int rw = texture_width( tex ), rh = texture_height( tex );		// Also binds tex
+
+	GLint	compressed;
+	glGetTexLevelParameteriv( GL_TEXTURE_2D, 0, GL_TEXTURE_COMPRESSED_ARB, &compressed );
+
+	if( !compressed )	return;		// Do not save it if it's not compressed -> save disk space, and it would slow things down
+
+	FILE *cache_file = TA3D_OpenFile( file, "wb" );
+
+	if( cache_file == NULL )
+		return;
+
+	fwrite( &width, 4, 1, cache_file );
+	fwrite( &height, 4, 1, cache_file );
+
+	byte *img = new byte[ rw * rh * 5 ];
+
+	float lod_max_f = max( log( rw ), log( rh ) ) / log( 2.0f );
+	int lod_max = ((int) lod_max_f);
+	if( lod_max > lod_max_f )
+		lod_max++;
+		
+	fwrite( &lod_max, sizeof( lod_max ), 1, cache_file );
+
+	GLint size, internal_format;
+	glGetTexLevelParameteriv( GL_TEXTURE_2D, 0, GL_TEXTURE_INTERNAL_FORMAT, &internal_format );
+	fwrite( &internal_format, sizeof( GLint ), 1, cache_file );
+
+	for( int lod = 0 ; lod  < lod_max ; lod++ ) {
+		glGetTexLevelParameteriv( GL_TEXTURE_2D, lod, GL_TEXTURE_COMPRESSED_IMAGE_SIZE_ARB, &size );
+		glGetTexLevelParameteriv( GL_TEXTURE_2D, lod, GL_TEXTURE_INTERNAL_FORMAT, &internal_format );
+		glGetCompressedTexImageARB( GL_TEXTURE_2D, lod, img );
+		fwrite( &size, sizeof( GLint ), 1, cache_file );
+		fwrite( &internal_format, sizeof( GLint ), 1, cache_file );
+		fwrite( img, size, 1, cache_file );
+		}
+
+	delete img;
+
+	fclose( cache_file );
 }
 
 GLuint	GFX::load_masked_texture(String file, String mask, byte filter_type )

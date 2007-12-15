@@ -8,7 +8,7 @@
 	height=1024;
 	draw borders=false;
 	show title=false;
-	number of objects=139;
+	number of objects=140;
 	hidden=false;
 	lock=true;
 	color=0x00000000;			// Fully transparent so we can see the AREA background
@@ -1457,5 +1457,17 @@
 		entry=off,off,grey,black,on;
 		size=2;
 		help=click to set\nthe fog of war;
+	}
+	[object139]		// The map info text zone
+	{
+		name=map_info;
+		type=TEXT;
+		x1=984;
+		y1=694;
+		x2=1193;
+		y2=884;
+		value=0xFFFFFFFF;
+		size=2;
+		caption=;
 	}
 }

@@ -116,6 +116,7 @@ private:
 public:
 
 	void load(char *data,int ota_size);
+	void load( String filename );
 };
 
 class BLOC				// Blocs composant la carte
