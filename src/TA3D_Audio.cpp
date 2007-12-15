@@ -740,7 +740,6 @@ void cAudio::PurgeSounds( void )
 	LeaveCS();
 }
 
-
 // Play sound directly from our sound pool
 void cAudio::PlaySound( const String &Filename, const VECTOR3D *vec )
 {
@@ -794,6 +793,12 @@ LeaveCS();
 	WorkList.push_back( m_Work );
 
 LeaveCS();
+}
+
+void cAudio::PlayTDFSoundNow( const String &Key, const VECTOR3D *vec )		// Wrapper to PlayTDFSound + Update3DSound
+{
+	PlayTDFSound( Key, vec );
+	Update3DSound();
 }
 
 // Play sound from TDF by looking up sound filename from internal hash

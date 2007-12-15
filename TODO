@@ -13,6 +13,7 @@ _networking code
 _improve A.I.
 _D3D support
 
+*now you can run TA3D in 16bits or 32bits (you can select color depth in config menu)
 *new texture cache system to speed up loading process (the first time it's slower because it creates the cache)
 *reduced memory footprint of textures
 *end game statistics screen rewritten using GUI module

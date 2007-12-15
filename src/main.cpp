@@ -85,6 +85,7 @@ void LoadConfigFile( void )
 	TA3D::VARS::lp_CONFIG->water_quality = cfgFile->PullAsInt( "TA3D.Water Quality" );
 	TA3D::VARS::lp_CONFIG->screen_width = cfgFile->PullAsInt( "TA3D.Screen Width" );
 	TA3D::VARS::lp_CONFIG->screen_height = cfgFile->PullAsInt( "TA3D.Screen Height" );
+	TA3D::VARS::lp_CONFIG->color_depth = cfgFile->PullAsInt( "TA3D.Color Depth", 32 );
 
 	TA3D::VARS::lp_CONFIG->showfps = cfgFile->PullAsBool( "TA3D.Show FPS" );
 	TA3D::VARS::lp_CONFIG->wireframe = cfgFile->PullAsBool( "TA3D.Show Wireframe" );
@@ -158,6 +159,7 @@ void SaveConfigFile( void )
 	m_File << "        Water Quality=" << TA3D::VARS::lp_CONFIG->water_quality << ";//0->4\n";
 	m_File << "         Screen Width=" << TA3D::VARS::lp_CONFIG->screen_width << ";\n";
 	m_File << "        Screen Height=" << TA3D::VARS::lp_CONFIG->screen_height << ";\n";
+	m_File << "          Color Depth=" << (int)TA3D::VARS::lp_CONFIG->color_depth << ";\n";
 	m_File << "             Show FPS=" << TA3D::VARS::lp_CONFIG->showfps << ";\n";
 	m_File << "       Show Wireframe=" << TA3D::VARS::lp_CONFIG->wireframe << ";\n";
 	m_File << "       Show particles=" << TA3D::VARS::lp_CONFIG->particle << ";\n";

@@ -720,6 +720,7 @@ void config_menu(void)
 	int	nb_res = 0;
 	int res_width[100];
 	int res_height[100];
+	int res_bpp[100];
 
 	GFX_MODE_LIST *mode_list = get_gfx_mode_list( GFX_OPENGL_FULLSCREEN );
 
@@ -740,6 +741,10 @@ void config_menu(void)
 				mode_list->mode[ i ].width * 4 != 5 * mode_list->mode[ i ].height ) )	found = true;
 
 			if( !found ) {
+				res_bpp[ nb_res ] = 16;
+				res_width[ nb_res ] = mode_list->mode[ i ].width;
+				res_height[ nb_res++ ] = mode_list->mode[ i ].height;
+				res_bpp[ nb_res ] = 32;
 				res_width[ nb_res ] = mode_list->mode[ i ].width;
 				res_height[ nb_res++ ] = mode_list->mode[ i ].height;
 				}
@@ -778,11 +783,15 @@ void config_menu(void)
 		GUIOBJ *obj = config_area.get_object("*.screenres");
 		obj->Text.clear();
 		int current = 0;
-		while( current < nb_res && ( res_width[ current ] != lp_CONFIG->screen_width || res_height[ current ] != lp_CONFIG->screen_height ) )	current++;
+		while( current < nb_res &&
+				( res_width[ current ] != lp_CONFIG->screen_width
+				|| res_height[ current ] != lp_CONFIG->screen_height
+				|| res_bpp[ current ] != lp_CONFIG->color_depth ) )
+					current++;
 		if( current >= nb_res )	current = 0;
-		obj->Text.push_back( format( "%dx%d", res_width[ current ], res_height[ current ] ) );
+		obj->Text.push_back( format( "%dx%dx%d", res_width[ current ], res_height[ current ], res_bpp[ current ] ) );
 		for( int i = 0 ; i < nb_res ; i++ )
-			obj->Text.push_back( format( "%dx%d", res_width[ i ], res_height[ i ] ) );
+			obj->Text.push_back( format( "%dx%dx%d", res_width[ i ], res_height[ i ], res_bpp[ i ] ) );
 		}
 	if( config_area.get_object("*.shadow_quality") )
 		config_area.set_caption( "*.shadow_quality", config_area.get_object("*.shadow_quality")->Text[1+min( (lp_CONFIG->shadow_quality-1)/3, 2 ) ] );
@@ -917,6 +926,7 @@ void config_menu(void)
 				obj->Text[0] = obj->Text[ 1 + obj->Data ];
 				lp_CONFIG->screen_width = res_width[ obj->Data ];
 				lp_CONFIG->screen_height = res_height[ obj->Data ];
+				lp_CONFIG->color_depth = res_bpp[ obj->Data ];
 				}
 			}
 		if( config_area.get_state( "*.shadow_quality" ) ) {

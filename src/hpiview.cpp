@@ -23,6 +23,10 @@
 
 using namespace TA3D::UTILS::HPI;
 
+bool use_normal_alpha_function = false;
+float gui_font_h = 8.0f;
+TA3D::INTERFACES::GFX_FONT gui_font;
+
 volatile uint32 msec_timer = 0;
 
 CAMERA *game_cam=NULL;

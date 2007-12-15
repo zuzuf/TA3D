@@ -204,7 +204,7 @@
 		name=screenres;
 		type=MENU;
 		entry=,800x600;
-		x1=600;
+		x1=500;
 		y1=330;
 		x2=730;
 		y2=360;

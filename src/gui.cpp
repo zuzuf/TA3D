@@ -835,6 +835,8 @@ int WND::check(int AMx,int AMy,int AMb,bool timetoscroll, SKIN *skin )
 					(*Objets[i].Func)(0);		// Lance la fonction associée
 				Objets[i].Etat=false;
 				}
+			if( !Objets[i].activated && Objets[i].Type == OBJ_BUTTON && mouse_b==1 && Objets[i].MouseOn )
+				sound_manager->PlayTDFSoundNow("SPECIALORDERS.sound");
 			Objets[i].activated = mouse_b==1 && Objets[i].MouseOn;
 
 			bool clicked = false;

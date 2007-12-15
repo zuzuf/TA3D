@@ -173,6 +173,7 @@ namespace TA3D {
 
 			// Play sound from TDF by looking up sound filename from internal hash
 			void PlayTDFSound( const String &Key, const VECTOR3D *vec = NULL );
+			void PlayTDFSoundNow( const String &Key, const VECTOR3D *vec = NULL );		// Wrapper to PlayTDFSound + Update3DSound
 
 			// keys will be added together and then PlayTDF( key, vec ); called
 			// if either key is null or "" aborts.

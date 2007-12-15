@@ -80,7 +80,7 @@ GFX::GFX()
 		allegro_gl_set (AGL_SAMPLE_BUFFERS, 0 );
 		allegro_gl_set (AGL_SAMPLES, TA3D::VARS::lp_CONFIG->fsaa );
 		allegro_gl_set (AGL_VIDEO_MEMORY_POLICY, AGL_RELEASE );
-		allegro_gl_set (AGL_COLOR_DEPTH, 32 );
+		allegro_gl_set (AGL_COLOR_DEPTH, TA3D::VARS::lp_CONFIG->color_depth );
 		allegro_gl_set (AGL_Z_DEPTH, 32 );
 		allegro_gl_set (AGL_FULLSCREEN, TA3D::VARS::lp_CONFIG->fullscreen );
 		allegro_gl_set (AGL_DOUBLEBUFFER, 1 );

@@ -2405,10 +2405,13 @@ bool UNIT::is_on_radar( byte &p_mask )
 																dh_max, h_min, h_max, Pos, mission->target, unit_manager.unit_type[type_id].FootprintX, unit_manager.unit_type[type_id].FootprintZ, idx, mission->move_data, hover_h );
 
 									if( mission->path == NULL ) {
-										bool there_is_someone = map->check_rect( cur_px-(unit_manager.unit_type[type_id].FootprintX>>1), cur_py-(unit_manager.unit_type[type_id].FootprintZ>>1), unit_manager.unit_type[type_id].FootprintX, unit_manager.unit_type[type_id].FootprintZ, idx);
-										if( !there_is_someone )
+										bool place_is_empty = map->check_rect( cur_px-(unit_manager.unit_type[type_id].FootprintX>>1), cur_py-(unit_manager.unit_type[type_id].FootprintZ>>1), unit_manager.unit_type[type_id].FootprintX, unit_manager.unit_type[type_id].FootprintZ, idx);
+										if( !place_is_empty ) {
 											Console->AddEntry("Unit is blocked!! (3)");
-										mission->flags &= ~MISSION_FLAG_MOVE;
+											mission->flags &= ~MISSION_FLAG_MOVE;
+											}
+										else
+											mission->flags |= MISSION_FLAG_REFRESH_PATH;			// Retry later
 										launch_script(get_script_index(SCRIPT_StopMoving));
 										was_moving = false;
 										}

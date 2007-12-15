@@ -85,7 +85,6 @@ hpiview_SOURCES= \
 	glfunc.cpp glfunc.h \
 	gfx.cpp gfx.h \
 	gaf.cpp gaf.h \
-	gui.cpp gui.h \
 	console.cpp console.h \
 	TA3D_hpi.cpp TA3D_hpi.h \
 	TA3D_NameSpace.cpp TA3D_NameSpace.h \

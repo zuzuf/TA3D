@@ -57,7 +57,7 @@ am_3dmeditor_OBJECTS = 3dmeditor.$(OBJEXT) 3dmeditor_sub.$(OBJEXT) \
 3dmeditor_LDADD = $(LDADD)
 am_hpiview_OBJECTS = hpiview.$(OBJEXT) cTAFileParser.$(OBJEXT) \
 	i18n.$(OBJEXT) TA3D_Exception.$(OBJEXT) glfunc.$(OBJEXT) \
-	gfx.$(OBJEXT) gaf.$(OBJEXT) gui.$(OBJEXT) console.$(OBJEXT) \
+	gfx.$(OBJEXT) gaf.$(OBJEXT) console.$(OBJEXT) \
 	TA3D_hpi.$(OBJEXT) TA3D_NameSpace.$(OBJEXT) stdafx.$(OBJEXT) \
 	cThread.$(OBJEXT) cCriticalSection.$(OBJEXT) \
 	cInterface.$(OBJEXT) cLogger.$(OBJEXT) cError.$(OBJEXT)
@@ -110,7 +110,7 @@ CPP = gcc -E
 CPPFLAGS = 
 CXX = g++
 CXXDEPMODE = depmode=gcc3
-CXXFLAGS = -g -O0 -I/usr/local/include -ffast-math -mmmx
+CXXFLAGS = -O0 -g -I/usr/local/include -ffast-math -mmmx
 CYGPATH_W = echo
 DEFS = -DHAVE_CONFIG_H
 DEPDIR = .deps
@@ -272,7 +272,6 @@ hpiview_SOURCES = \
 	glfunc.cpp glfunc.h \
 	gfx.cpp gfx.h \
 	gaf.cpp gaf.h \
-	gui.cpp gui.h \
 	console.cpp console.h \
 	TA3D_hpi.cpp TA3D_hpi.h \
 	TA3D_NameSpace.cpp TA3D_NameSpace.h \
