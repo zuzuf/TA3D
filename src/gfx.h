@@ -111,6 +111,8 @@ namespace TA3D
 
 			GLuint		glfond;
 
+			bool		ati_workaround;		// Need to use workarounds for ATI cards ?
+
 			GFX();
 
 			inline void precalculations()

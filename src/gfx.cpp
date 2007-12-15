@@ -113,6 +113,8 @@ GFX::GFX()
 		else
 			allegro_gl_set_texture_format(GL_RGB8); 
 
+	ati_workaround = strncasecmp( (const char*)glGetString( GL_VENDOR ), "ATI", 3 ) == 0;		// Enable ATI workarounds if we have an ATI card
+
 	TA3D::VARS::pal = NULL;
 
 	width = SCREEN_W;
@@ -595,7 +597,16 @@ GLuint	GFX::make_texture(BITMAP *bmp, byte filter_type, bool clamp )
 
 	glPushAttrib( GL_ALL_ATTRIB_BITS );
 
+	if( ati_workaround && filter_type != FILTER_NONE )
+		filter_type = FILTER_LINEAR;
+
+	if( filter_type == FILTER_NONE || filter_type == FILTER_LINEAR )
+		allegro_gl_use_mipmapping(false);
+	else
+		allegro_gl_use_mipmapping(true);
 	GLuint gl_tex = allegro_gl_make_texture(bmp);
+	if( filter_type == FILTER_NONE || filter_type == FILTER_LINEAR )
+		allegro_gl_use_mipmapping(true);
 	glBindTexture(GL_TEXTURE_2D, gl_tex);
 
 	glMatrixMode(GL_TEXTURE);
@@ -678,10 +689,6 @@ GLuint GFX::load_texture(String file, byte filter_type, uint32 *width, uint32 *h
 		bmp=tmp;
 		}
 	bool with_alpha = strstr(strlwr((char*)(file.substr(file.length()-4, 4).c_str())),".tga") != NULL;
-/*	if( strstr(strlwr((char*)(file.substr(file.length()-4, 4).c_str())),".jpg") != NULL )
-		for( int y = 0 ; y < bmp->h ; y++ )
-			for( int x = 0 ; x < bmp->w ; x++ )
-				bmp->line[y][(x<<2)+3] = 255;*/
 	if( with_alpha ) {
 		with_alpha = false;
 		for( int y = 0 ; y < bmp->h && !with_alpha ; y++ )
@@ -701,6 +708,8 @@ GLuint GFX::load_texture(String file, byte filter_type, uint32 *width, uint32 *h
 
 GLuint	GFX::load_texture_from_cache( String file, byte filter_type, uint32 *width, uint32 *height, bool clamp )
 {
+	if( ati_workaround )	return 0;
+
 	file = TA3D_OUTPUT_DIR + "cache/" + file;
 
 	if( TA3D_exists( file ) ) {
@@ -782,6 +791,8 @@ GLuint	GFX::load_texture_from_cache( String file, byte filter_type, uint32 *widt
 
 void	GFX::save_texture_to_cache( String file, GLuint tex, uint32 width, uint32 height )
 {
+	if( ati_workaround )	return;
+
 	file = TA3D_OUTPUT_DIR + "cache/" + file;
 
 	int rw = texture_width( tex ), rh = texture_height( tex );		// Also binds tex
