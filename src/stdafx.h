@@ -315,6 +315,15 @@ namespace TA3D
      
 		return szName;
 	}
+
+	static inline bool IsPowerOfTwo( int a )
+	{
+		int c = 0;
+		for( int i = 0 ; i < 32 && c < 2 ; i++ )
+			if( ((a >> i) & 0x1) == 0x1 )
+				c++;
+		return c == 1;
+	}
 } 
 
 // zuzuf: to prevent some warnings

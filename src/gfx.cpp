@@ -597,7 +597,8 @@ GLuint	GFX::make_texture(BITMAP *bmp, byte filter_type, bool clamp )
 
 	glPushAttrib( GL_ALL_ATTRIB_BITS );
 
-	if( ati_workaround && filter_type != FILTER_NONE )
+	if( ati_workaround && filter_type != FILTER_NONE
+		&& ( !IsPowerOfTwo( bmp->w ) || !IsPowerOfTwo( bmp->h ) ) )
 		filter_type = FILTER_LINEAR;
 
 	if( filter_type == FILTER_NONE || filter_type == FILTER_LINEAR )
