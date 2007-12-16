@@ -124,7 +124,7 @@ namespace TA3D
 		sound_manager->StopMusic();
 		sound_manager->LoadTDFSounds( true );
 
-		if( !sound_manager->IsFMODRunning() ) {
+		if( !sound_manager->IsFMODRunning() && !lp_CONFIG->quickstart ) {
 			set_uformat(U_UTF8);   // fixed size, 8-bit ASCII characters
 			allegro_message( TRANSLATE("FMOD WARNING").c_str() );
 			set_uformat(U_ASCII);   // fixed size, 8-bit ASCII characters

@@ -4242,7 +4242,7 @@ echo "${ECHO_T}no" >&6; }
 fi
 
 
-  min_allegro_version=4.2.0
+  min_allegro_version=4.2.2
   { echo "$as_me:$LINENO: checking for Allegro - version >= $min_allegro_version" >&5
 echo $ECHO_N "checking for Allegro - version >= $min_allegro_version... $ECHO_C" >&6; }
   no_allegro=""
@@ -4472,8 +4472,8 @@ rm -f core conftest.err conftest.$ac_objext conftest_ipa8_conftest.oo \
 
      allegro_CFLAGS=""
      allegro_LIBS=""
-     { { echo "$as_me:$LINENO: error: TA3D requires Allegro >= 4.2.0 to be installed" >&5
-echo "$as_me: error: TA3D requires Allegro >= 4.2.0 to be installed" >&2;}
+     { { echo "$as_me:$LINENO: error: TA3D requires Allegro >= 4.2.2 to be installed" >&5
+echo "$as_me: error: TA3D requires Allegro >= 4.2.2 to be installed" >&2;}
    { (exit 1); exit 1; }; }
   fi
 

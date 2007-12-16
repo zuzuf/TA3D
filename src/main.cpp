@@ -118,6 +118,44 @@ void LoadConfigFile( void )
 	GuardLeave();
 }
 
+void makeBackup( const String FileName )
+{
+	if( TA3D_exists( FileName ) ) {
+		FILE *src = TA3D_OpenFile( FileName, "rb" );
+		if( src ) {
+			FILE *dst = TA3D_OpenFile( FileName + ".bak", "wb" );
+			if( dst ) {
+				uint32 src_size = FILE_SIZE( FileName.c_str() );
+				byte *buf = new byte[ src_size ];
+				fread( buf, src_size, 1, src );
+				fwrite( buf, src_size, 1, dst );
+				delete[] buf;
+				fclose( dst );
+				}
+			fclose( src );
+			}
+		}
+}
+
+void restoreBackup( const String FileName )
+{
+	if( TA3D_exists( FileName + ".bak" ) ) {
+		FILE *src = TA3D_OpenFile( FileName + ".bak", "rb" );
+		if( src ) {
+			FILE *dst = TA3D_OpenFile( FileName, "wb" );
+			if( dst ) {
+				uint32 src_size = FILE_SIZE( (FileName + ".bak").c_str() );
+				byte *buf = new byte[ src_size ];
+				fread( buf, src_size, 1, src );
+				fwrite( buf, src_size, 1, dst );
+				delete[] buf;
+				fclose( dst );
+				}
+			fclose( src );
+			}
+		}
+}
+
 /*
 ** Function: SaveConfigFile
 **    Notes: Upon application exit this will write out our config file.
@@ -138,6 +176,9 @@ void SaveConfigFile( void )
 		return;
 	}
 	String FileName = TA3D_OUTPUT_DIR + "ta3d.cfg";
+
+	makeBackup( FileName );				// Make a copy that can be restored if TA3D doesn't start any more
+
 	std::ofstream   m_File;
 
 	m_File.open( FileName.c_str(), std::ios::out | std::ios::trunc );
@@ -207,6 +248,17 @@ void ParseCommandLine( int argc, char *argv[] )
 	if( argc >= 2 && strcasecmp( argv[ 1 ], "install" ) == 0 ) {			// Installation of TA's files
 		install_TA_files( argc >= 3 ? argv[2] : "" );
 		exit(0);
+		}
+
+	for( int i = 1 ; i < argc ; i++ ) {
+		if( !strcmp( argv[ i ], "--quick-restart" ) ) {			// Quick restart mecanism (bypass the intro screen)
+			lp_CONFIG->quickstart = true;
+			allegro_init();
+			restoreBackup( TA3D_OUTPUT_DIR + "ta3d.cfg" );		// In case it refuses to restart
+			allegro_exit();
+			}
+		else if( !strcmp( argv[ i ], "--restore" ) )			// Tell TA3D not to display the quickstart confirm dialog
+			lp_CONFIG->restorestart = true;
 		}
 
 	GuardLeave();
@@ -305,22 +357,24 @@ int main(int argc,char *argv[])
 	install_int_ex( Timer, precision);
 	start = msec_timer;      // Initalize timer.
 
-	// while our engine does some loading and intlaizing, lets show our intro.
-	GuardStart( main );
-		play_intro();
-	GuardCatch();
-	if( IsExceptionInProgress() )
-	{
-		GuardDisplayAndLogError();
-		// We need to guard deleting the engine in case something bad goes wrong during
-		//   the cleanup process, note that this might not exit right away because it
-		//   might take a few seconds to kill the thread.
+	// while our engine does some loading and intializing, lets show our intro.
+	if( !lp_CONFIG->quickstart ) {
 		GuardStart( main );
-			delete Engine;
-			delete TA3D::VARS::lp_CONFIG;
+			play_intro();
 		GuardCatch();
+		if( IsExceptionInProgress() )
+		{
+			GuardDisplayAndLogError();
+			// We need to guard deleting the engine in case something bad goes wrong during
+			//   the cleanup process, note that this might not exit right away because it
+			//   might take a few seconds to kill the thread.
+			GuardStart( main );
+				delete Engine;
+				delete TA3D::VARS::lp_CONFIG;
+			GuardCatch();
 
-		exit(1);
+			exit(1);
+		}
 	}
 
 	// The main menu call will eventually not be here, instead
@@ -361,11 +415,19 @@ int main(int argc,char *argv[])
 	if( IsExceptionInProgress() )
 		GuardDisplayAndLogError();
 
+	bool quickrestart = lp_CONFIG->quickrestart;
+	bool restorestart = lp_CONFIG->restorestart;
+
 	GuardStart( main )
 		delete TA3D::VARS::lp_CONFIG;
 	GuardCatch();
 
-	return 0; // thats it folks.
+	if( !quickrestart )
+		return 0; 		// thats it folks.
+	else if( !restorestart )
+		exit(2);		// ask the monitoring script to restart the program with --quick-restart parameter
+	else
+		exit(3);		// ask the monitoring script to restart the program with --quick-restart --restore parameters
 }
 END_OF_MAIN();
 /* Allegro needs END_OF_MAIN(); I guess. */ 

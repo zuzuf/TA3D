@@ -43,6 +43,13 @@ using namespace TA3D::EXCEPTION;
 #define p_size			10.0f
 #define MENU_NB_PART	200
 
+	// Some functions from main.cpp used to deal with config file
+
+void LoadConfigFile( void );
+void makeBackup( const String FileName );
+void restoreBackup( const String FileName );
+void SaveConfigFile( void );
+
 void main_menu(void)
 {
 	GuardEnter( main_menu );
@@ -204,7 +211,7 @@ void main_menu(void)
 
 		draw_cursor();
 
-		if( mouse_b || key[KEY_ENTER] || key[KEY_SPACE] ) {
+		if( mouse_b || key[KEY_ENTER] || key[KEY_SPACE] || lp_CONFIG->quickstart ) {
 			if( key[KEY_ENTER] )	index = 2;			// Shortcut to game room
 			if( key[KEY_SPACE] )	index = 1;			// Shortcut to config menu
 
@@ -213,6 +220,8 @@ void main_menu(void)
 
 			gfx->SCREEN_W_TO_640 = 1.0f;				// To have mouse sensibility undependent from the resolution
 			gfx->SCREEN_H_TO_480 = 1.0f;
+			if( lp_CONFIG->quickstart )
+				index = 1;
 			if( index >= 0 && index <= 2 ) {		// free some memory
 				destroy_bitmap(tst[0]);
 				destroy_bitmap(tst[1]);
@@ -229,6 +238,7 @@ void main_menu(void)
 				break;
 			case 1:
 				config_menu();
+				lp_CONFIG->quickstart = false;
 				break;
 			case 2:
 				setup_game();
@@ -267,7 +277,7 @@ void main_menu(void)
 			}
 
 		gfx->flip();
-	}while(!done);
+	}while(!done && !lp_CONFIG->quickrestart);
 
 	destroy_bitmap(tst[0]);
 	destroy_bitmap(tst[1]);
@@ -703,6 +713,11 @@ void config_menu(void)
 
 	lp_CONFIG->Lang = LANG;
 
+	if( lp_CONFIG->restorestart ) {
+		lp_CONFIG->restorestart = false;
+		lp_CONFIG->quickstart = false;
+		}
+
 	TA3DCONFIG	saved_config = *lp_CONFIG;
 
 	float resize_w = SCREEN_W / 640.0f;
@@ -833,6 +848,9 @@ void config_menu(void)
 		}
 	config_area.set_caption("*.player_name", lp_CONFIG->player_name );
 
+	if( lp_CONFIG->quickstart )
+		I_Msg( TA3D::TA3D_IM_GUI_MSG, (void*)("config_confirm.show"), NULL, NULL );
+
 	bool done=false;
 
 	bool save=false;
@@ -840,18 +858,50 @@ void config_menu(void)
 	int amx = -1;
 	int amy = -1;
 	int amb = -1;
+	uint32 timer = msec_timer;
 
 	do
 	{
+		bool time_out = false;
 		bool key_is_pressed = false;
 		do {
 			key_is_pressed = keypressed();
+			if( lp_CONFIG->quickstart ) {
+				GUIOBJ *pbar = config_area.get_object( "config_confirm.p_wait" );
+				if( pbar ) {
+					int new_value = (msec_timer - timer) / 150;
+					if( new_value != pbar->Data ) {
+						pbar->Data = new_value;
+						key_is_pressed = true;
+						if( new_value == 100 )
+							time_out = true;
+						}
+					}
+				}
 			config_area.check();
 			rest( 1 );
 		} while( amx == mouse_x && amy == mouse_y && amb == mouse_b && !key[ KEY_ENTER ] && !key[ KEY_ESC ] && !done && !key_is_pressed );
 		amx = mouse_x;
 		amy = mouse_y;
 		amb = mouse_b;
+
+		if( lp_CONFIG->quickstart ) {
+			if( time_out || config_area.get_state("config_confirm.b_cancel_changes" ) ) {
+				I_Msg( TA3D::TA3D_IM_GUI_MSG, (void*)("config_confirm.hide"), NULL, NULL );
+				restoreBackup( TA3D_OUTPUT_DIR + "ta3d.cfg" );
+				LoadConfigFile();
+				done = true;
+				save = true;
+				lp_CONFIG->quickrestart = true;
+				lp_CONFIG->restorestart = true;
+				}
+			else if( config_area.get_state("config_confirm.b_confirm" ) ) {
+				I_Msg( TA3D::TA3D_IM_GUI_MSG, (void*)("config_confirm.hide"), NULL, NULL );
+				SaveConfigFile();
+				lp_CONFIG->quickstart = false;
+				saved_config.quickstart = false;
+				}
+			}
 
 		if( config_area.get_state( "*.b_ok" ) ) {
 			done = true;		// En cas de click sur "OK", on quitte la fenêtre
@@ -987,9 +1037,17 @@ void config_menu(void)
 	reset_mouse();
 	while(key[KEY_ESC]) {	rest(1);	poll_keyboard();	}
 
+	bool ask_for_quickrestart = lp_CONFIG->quickrestart;
+
 	if(!save)
 		*lp_CONFIG = saved_config;
 	else {
+		if( lp_CONFIG->screen_width != saved_config.screen_width ||
+			lp_CONFIG->screen_height != saved_config.screen_height ||
+			lp_CONFIG->color_depth != saved_config.color_depth ||
+			lp_CONFIG->fsaa != saved_config.fsaa ||
+			lp_CONFIG->fullscreen != saved_config.fullscreen )			// Need to restart
+			lp_CONFIG->quickrestart = true;
 		lp_CONFIG->player_name = config_area.get_caption( "*.player_name" );
 		if( lp_CONFIG->last_MOD != TA3D_CURRENT_MOD ) {			// Refresh the file structure
 			TA3D_CURRENT_MOD = lp_CONFIG->last_MOD;
@@ -998,6 +1056,9 @@ void config_menu(void)
 			ta3d_sidedata.load_data();				// Refresh side data so we load the correct values
 			}
 		}
+
+	lp_CONFIG->quickrestart |= ask_for_quickrestart;
+
 	config_area.destroy();
 
 	LANG = lp_CONFIG->Lang;

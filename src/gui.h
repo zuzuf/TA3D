@@ -253,6 +253,7 @@ public:
 	bool		background_wnd;	// Background window -> stay in background
 	int			build_pic_x;	// Where should build pics be drawn in build menus ?
 	int			build_pic_y;
+	bool		get_focus;		// Has this window priority over the others ?
 
 private:
 	bool		delete_gltex;
@@ -261,6 +262,7 @@ public:
 
 	inline WND()			// Constructor
 	{
+		get_focus = false;
 		title_h = 0;
 		bkg_w = bkg_h = 1;
 		repeat_bkg = false;
@@ -284,6 +286,7 @@ public:
 
 	inline WND( const String &filename )			// Constructor
 	{
+		get_focus = false;
 		bkg_w = bkg_h = 1;
 		repeat_bkg = false;
 		color = makeacol( 0x7F, 0x7F, 0x7F, 0xFF );			// Default : grey

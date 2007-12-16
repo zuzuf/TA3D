@@ -92,8 +92,8 @@ TA3D::INTERFACES::cAudio *TA3D::VARS::sound_manager;
 		FMOD_System_Close(m_lpFMODSystem);
 		FMOD_System_Release(m_lpFMODSystem);
 #else
-//		m_lpFMODSystem->close();				// Commented because crashes with some FMOD versions, and since we're going to end the program ...
-//		m_lpFMODSystem->release();
+		m_lpFMODSystem->close();				// Commented because crashes with some FMOD versions, and since we're going to end the program ...
+		m_lpFMODSystem->release();
 #endif
 		DeleteInterface();
 		DeleteCS();

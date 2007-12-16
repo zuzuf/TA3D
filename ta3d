@@ -1,4 +1,4 @@
- #!/bin/sh
+#!/bin/sh
 NF=ta3d
 tgfile=`ls -l $0 | awk '{print $NF}'`
 exe=`dirname $tgfile`
@@ -16,4 +16,16 @@ then
 fi
 
 cd ${exe}
-${exe}/ta3d-bin $1 $2 $3 $4 $5 $6 $7 $8 $9 $10
+restart=2
+quickrestart=""
+while [ $restart = 2 ] || [ $restart = 3 ]
+do
+${exe}/ta3d-bin $quickrestart $1 $2 $3 $4 $5 $6 $7 $8 $9 $10
+restart=$?
+if [ $restart = 3 ]
+then
+	quickrestart="--quick-restart --restore"
+else
+	quickrestart="--quick-restart"
+fi
+done

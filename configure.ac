@@ -22,7 +22,7 @@ AC_CHECK_LIB([z], [main])
 # Check for fmod presence ( choose 32 or 64 bits version depending on the platform ):
 AC_CHECK_LIB([fmodex], [main],, AC_CHECK_LIB([fmodex64], [main],,AC_MSG_ERROR([FMODex isn't installed on your system!!]) ) )
 # Check for allegro >= 4.2.0:
-AM_PATH_ALLEGRO( [4.2.0], , AC_MSG_ERROR(TA3D requires Allegro >= 4.2.0 to be installed))
+AM_PATH_ALLEGRO( [4.2.2], , AC_MSG_ERROR(TA3D requires Allegro >= 4.2.2 to be installed))
 # Check for allegrogl:
 AC_CHECK_HEADER( [alleggl.h], , AC_MSG_ERROR(TA3D requires AllegroGL >= 0.4.0 to be installed))
 

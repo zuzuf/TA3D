@@ -1,3 +1,8 @@
+[CONFIRM_CHANGES]
+{
+	FRENCH=Les changements on été appliqués\nVoulez vous les conserver ?;
+	ENGLISH=Changes have been made\nDo you want to keep them ?;
+}
 [Ok]
 {
 	FRENCH=OK;

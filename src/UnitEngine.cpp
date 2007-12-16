@@ -2543,6 +2543,9 @@ bool UNIT::is_on_radar( byte &p_mask )
 										}
 									else
 										Console->AddEntry("Unit is blocked!! (1)");
+									float speed = V.Sq();
+									if( speed > unit_manager.unit_type[ type_id ].MaxVelocity * unit_manager.unit_type[ type_id ].MaxVelocity )
+										V = unit_manager.unit_type[ type_id ].MaxVelocity / sqrt( speed ) * V;
 									}
 								else if( !flying ) {
 									if(Pos.x<-map->map_w_d || Pos.x>map->map_w_d || Pos.z<-map->map_h_d || Pos.z>map->map_h_d) {
@@ -3687,7 +3690,8 @@ bool UNIT::is_on_radar( byte &p_mask )
 				}
 			if(unit_manager.unit_type[type_id].canfly && build_percent_left==0.0f) {
 				if(mission && ( (mission->flags & MISSION_FLAG_MOVE) || mission->mission == MISSION_BUILD || mission->mission == MISSION_BUILD_2 || mission->mission == MISSION_REPAIR
-				|| mission->mission == MISSION_ATTACK || mission->mission == MISSION_MOVE || nb_attached > 0)) {
+				|| mission->mission == MISSION_ATTACK || mission->mission == MISSION_MOVE || nb_attached > 0
+				|| Pos.x < -map->map_w_d || Pos.x > map->map_w_d || Pos.z < -map->map_h_d || Pos.z > map->map_h_d )) {
 					float ideal_h=max(min_h,map->sealvl)+unit_manager.unit_type[type_id].CruiseAlt*H_DIV;
 					V.y=(ideal_h-Pos.y)*2.0f;
 					flying = true;

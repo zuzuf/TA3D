@@ -88,6 +88,11 @@ namespace TA3D
 		String	last_MOD;
 		String	player_name;				// Name of local player
 
+		// Variables used to communicate with all the code
+		bool	quickrestart;				// Should be false, set to true when need to restart to enable options/parameters
+		bool	quickstart;					// Tell to speed up the starting process
+		bool	restorestart;				// Tell it's a restart to restore previous config file
+
 		TA3DCONFIG()
 		{
 			camera_zoom = ZOOM_NORMAL;
@@ -123,6 +128,10 @@ namespace TA3D
 			fullscreen = false;            // For now, later will be true when we will reach a beta release
 
 			last_MOD = "";
+
+			quickrestart = false;
+			quickstart = false;
+			restorestart = false;
 		}
 
 	} sTA3DCONFIG, *LPTA3DCONFIG;
