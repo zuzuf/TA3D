@@ -13,6 +13,7 @@ _networking code
 _improve A.I.
 _D3D support
 
+*patrol orders has been greatly improved
 *TA3D now requires Allegro >= 4.2.2 (configure doesn't accept 4.2.0 any more since it has bugs that crash TA3D)
 *new quickrestart mechanism when you select a new configuration that require restarting TA3D
 *now you can run TA3D in 16bits or 32bits (you can select color depth in config menu)

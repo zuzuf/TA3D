@@ -2600,7 +2600,7 @@ uint16 AREA::check()					// Checks events for all windows
 	poll_keyboard();
 	uint16 is_on_gui = 0;
 	for( uint16 i = 0 ; i < vec_wnd.size() ; i++ )
-		if( !is_on_gui || vec_wnd[ vec_z_order[ i ] ]->get_focus ) {
+		if( !is_on_gui || ( vec_wnd[ vec_z_order[ i ] ]->get_focus && !vec_wnd[ vec_z_order[ i ] ]->hidden ) ) {
 			is_on_gui |= vec_wnd[ vec_z_order[ i ] ]->check( amx, amy, amb, true, skin );			// Do things in the right order
 			if( ( (is_on_gui && mouse_b && !vec_wnd[ vec_z_order[ 0 ] ]->get_focus) || vec_wnd[ vec_z_order[ i ] ]->get_focus ) && i > 0 && !vec_wnd[ vec_z_order[ i ] ]->background_wnd ) {			// Change the focus
 				uint16 old = vec_z_order[ i ];

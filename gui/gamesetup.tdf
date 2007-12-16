@@ -1434,7 +1434,7 @@
 		value=0xFFFFFFFF;
 		cant be clicked=true;
 		cant get focus=true;
-		size=2;
+		size=1.75;
 	}
 	[object137]		// The fog of war label
 	{
@@ -1467,7 +1467,7 @@
 		x2=1193;
 		y2=884;
 		value=0xFFFFFFFF;
-		size=2;
+		size=1.75;
 		caption=;
 	}
 }

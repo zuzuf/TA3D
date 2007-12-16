@@ -59,6 +59,7 @@ struct MISSION			// Structure pour stocker les ordres
 	float		last_d;		// Dernière distance enregistrée
 	void		*p;			// Pointer to whatever we need
 	int			move_data;	// Required data for the moving part of the order
+	uint16		node;		// Tell which patrol node is this mission
 };
 
 class SCRIPT_ENV_STACK			// Pile pour la gestion des scripts
@@ -401,7 +402,7 @@ public:
 		free(old);
 	}
 
-	void add_mission(int mission_type,VECTOR *target=NULL,bool step=false,int dat=0,void *pointer=NULL,PATH_NODE *path=NULL,byte m_flags=0,int move_data=0);
+	void add_mission(int mission_type,VECTOR *target=NULL,bool step=false,int dat=0,void *pointer=NULL,PATH_NODE *path=NULL,byte m_flags=0,int move_data=0,int patrol_node=-1);
 
 	void set_mission(int mission_type,VECTOR *target=NULL,bool step=false,int dat=0,bool stopit=true,void *pointer=NULL,PATH_NODE *path=NULL,byte m_flags=0,int move_data=0);
 

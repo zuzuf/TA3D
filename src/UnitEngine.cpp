@@ -50,7 +50,7 @@ bool UNIT::is_on_radar( byte &p_mask )
 	return false;
 }
 
-	void UNIT::add_mission(int mission_type,VECTOR *target,bool step,int dat,void *pointer,PATH_NODE *path,byte m_flags,int move_data)
+	void UNIT::add_mission(int mission_type,VECTOR *target,bool step,int dat,void *pointer,PATH_NODE *path,byte m_flags,int move_data,int patrol_node)
 	{
 #ifdef	ADVANCED_DEBUG_MODE
 		GuardEnter( UNIT::add_mission );
@@ -118,30 +118,60 @@ bool UNIT::is_on_radar( byte &p_mask )
 		new_mission->last_d = 9999999.0f;
 		new_mission->flags = m_flags;
 		new_mission->move_data = move_data;
+		new_mission->node = patrol_node;
+
+		bool inserted = false;
+
+		if( patrol_node == -1 && mission_type == MISSION_PATROL ) {
+			MISSION *mission_base = def_mode ? def_mission : mission;
+			if( mission_base ) {				// Ajoute l'ordre aux autres
+				MISSION *cur = mission_base;
+				MISSION *last = NULL;
+				patrol_node = 0;
+				while( cur != NULL )	{
+					if( cur->mission == MISSION_PATROL && patrol_node <= cur->node ) {
+						patrol_node = cur->node;
+						last = cur;
+						}
+					cur=cur->next;
+					}
+				new_mission->node = patrol_node + 1;
+
+				if( last ) {
+					new_mission->next = last->next;
+					last->next = new_mission;
+					inserted = true;
+					}
+				}
+			else
+				new_mission->node = 1;
+			}
 
 		if(target)
 			new_mission->target = *target;
 
-		MISSION *stop = (MISSION*) malloc(sizeof(MISSION));
-		stop->mission = MISSION_STOP;
-		stop->step = true;
-		stop->time = 0.0f;
-		stop->p = NULL;
-		stop->data = 0;
-		stop->path = NULL;
-		stop->last_d = 9999999.0f;
-		stop->flags = m_flags & ~MISSION_FLAG_MOVE;
-		stop->move_data = move_data;
-		if(step) {
-			stop->next=NULL;
-			new_mission->next=stop;
-			}
-		else {
-			stop->next=new_mission;
-			new_mission=stop;
+		MISSION *stop = !inserted ? (MISSION*) malloc(sizeof(MISSION)) : NULL;
+		if( !inserted ) {
+			stop->mission = MISSION_STOP;
+			stop->step = true;
+			stop->time = 0.0f;
+			stop->p = NULL;
+			stop->data = 0;
+			stop->path = NULL;
+			stop->last_d = 9999999.0f;
+			stop->flags = m_flags & ~MISSION_FLAG_MOVE;
+			stop->move_data = move_data;
+			if(step) {
+				stop->next=NULL;
+				new_mission->next=stop;
+				}
+			else {
+				stop->next=new_mission;
+				new_mission=stop;
+				}
 			}
 
-		if(step && mission) {
+		if( step && mission && !inserted ) {
 			stop->next = def_mode ? def_mission : mission;
 			mission = new_mission;
 			if( !def_mode )
@@ -149,7 +179,7 @@ bool UNIT::is_on_radar( byte &p_mask )
 			}
 		else {
 			MISSION *mission_base = def_mode ? def_mission : mission;
-			if( mission_base ) {				// Ajoute l'ordre aux autres
+			if( mission_base && !inserted ) {				// Ajoute l'ordre aux autres
 				MISSION *cur = mission_base;
 				while(cur->next!=NULL)	cur=cur->next;
 				if( ( ( cur->mission == MISSION_MOVE || cur->mission == MISSION_PATROL )		// Don't stop if it's not necessary
@@ -163,12 +193,14 @@ bool UNIT::is_on_radar( byte &p_mask )
 					}
 				cur->next=new_mission;
 				}
-			else if( !def_mode ) {
-				mission = new_mission;
-				start_mission_script(mission->mission);
+			else if( mission_base == NULL ) {
+				if( !def_mode ) {
+					mission = new_mission;
+					start_mission_script(mission->mission);
+					}
+				else
+					def_mission = new_mission;
 				}
-			else
-				def_mission = new_mission;
 			}
 		LeaveCS();
 
@@ -259,6 +291,7 @@ bool UNIT::is_on_radar( byte &p_mask )
 			def_mission->last_d = 9999999.0f;
 			def_mission->flags = m_flags;
 			def_mission->move_data = move_data;
+			def_mission->node = 1;
 			if(target)
 				def_mission->target=*target;
 
@@ -289,6 +322,7 @@ bool UNIT::is_on_radar( byte &p_mask )
 			mission->last_d = 9999999.0f;
 			mission->flags = m_flags;
 			mission->move_data = move_data;
+			mission->node = 1;
 			if(target)
 				mission->target=*target;
 
@@ -2442,7 +2476,8 @@ bool UNIT::is_on_radar( byte &p_mask )
 								}
 							mission->last_d = 9999999.0f;
 							if(mission->path == NULL) {		// End of path reached
-								play_sound( "arrived1" );
+								if( !(mission->flags & MISSION_FLAG_DONT_STOP_MOVE) && (mission == NULL || mission->mission != MISSION_PATROL ) )
+									play_sound( "arrived1" );
 								if( !( unit_manager.unit_type[ type_id ].canfly && nb_attached > 0 ) ) {		// Once charged with units the Atlas cannot land
 									launch_script(get_script_index(SCRIPT_StopMoving));
 									was_moving = false;
@@ -2475,7 +2510,7 @@ bool UNIT::is_on_radar( byte &p_mask )
 							if(!(dist < 15.0f && fabs( Angle.y - f_TargetAngle ) >= 1.0f)) {
 								if( fabs( Angle.y - f_TargetAngle ) >= 45.0f ) {
 									if( J % V > 0.0f && V.Norm() > unit_manager.unit_type[type_id].BrakeRate * dt )
-										V = V - unit_manager.unit_type[type_id].BrakeRate * dt * J;
+										V = V - ( fabs( Angle.y - f_TargetAngle ) - 45.0f ) / 135.0f * unit_manager.unit_type[type_id].BrakeRate * dt * J;
 									}
 								else {
 									float speed = V.Norm();
@@ -2892,7 +2927,7 @@ bool UNIT::is_on_radar( byte &p_mask )
 				case MISSION_PATROL:					// Mode patrouille
 					{
 						if( mission->next == NULL )
-							add_mission(MISSION_PATROL,&Pos,false,0,NULL,NULL,MISSION_FLAG_CAN_ATTACK);	// Retour à la case départ après l'éxécution de tous les ordres / back to beginning
+							add_mission(MISSION_PATROL,&Pos,false,0,NULL,NULL,MISSION_FLAG_CAN_ATTACK,0,0);	// Retour à la case départ après l'éxécution de tous les ordres / back to beginning
 
 						mission->flags |= MISSION_FLAG_CAN_ATTACK;
 						if( unit_manager.unit_type[ type_id ].canfly )
@@ -2914,6 +2949,7 @@ bool UNIT::is_on_radar( byte &p_mask )
 							cur->next->path = NULL;
 							cur->next->next = NULL;
 							cur->next->flags |= MISSION_FLAG_MOVE;
+
 							MISSION *cur_start = mission->next;
 							while( cur_start != NULL && cur_start->mission != MISSION_PATROL ) {
 								cur = cur_start;

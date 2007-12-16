@@ -784,10 +784,10 @@ do
 		cam.RPos.z=-map->map_h_d+200.0f;
 		cam_has_target=false;
 		}
-	if(cam.RPos.z>map->map_h_d)	{
+	if(cam.RPos.z>map->map_h_d && !cam_has_target)
 		cam.RPos.z=map->map_h_d;
-		cam_has_target=false;
-		}
+	if(cam.RPos.z > map->map_h_d+200.0f)
+		cam.RPos.z = map->map_h_d+200.0f;
 
 	MATRIX_4x4 Rotation;
 	if( lp_CONFIG->camera_zoom == ZOOM_NORMAL )
