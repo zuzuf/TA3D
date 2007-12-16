@@ -721,7 +721,7 @@ int WND::check(int AMx,int AMy,int AMb,bool timetoscroll, SKIN *skin )
 
 		if(Objets[i].Type==OBJ_MENU && Objets[i].Etat && !Objets[i].MouseOn && !was_on_floating_menu )
 			if(mouse_x>=x+Objets[i].x1 && mouse_x<=x+Objets[i].x1+168
-				&& mouse_y>y+Objets[i].y2 && mouse_y<=y+Objets[i].y2+1+gui_font.height()*Objets[i].Text.size()) {
+				&& mouse_y>y+Objets[i].y2 && mouse_y<=y+Objets[i].y2+1+gui_font.height()*Objets[i].s*Objets[i].Text.size()) {
 				was_on_floating_menu = true;
 				on_menu = i;
 				}
@@ -748,7 +748,7 @@ int WND::check(int AMx,int AMy,int AMb,bool timetoscroll, SKIN *skin )
 
 		if(Objets[i].Type==OBJ_MENU && Objets[i].Etat && !Objets[i].MouseOn && !was_on_floating_menu )
 			if(mouse_x>=x+Objets[i].x1 && mouse_x<=x+Objets[i].x1+168
-				&& mouse_y>y+Objets[i].y2 && mouse_y<=y+Objets[i].y2+1+gui_font.height()*Objets[i].Text.size())
+				&& mouse_y>y+Objets[i].y2 && mouse_y<=y+Objets[i].y2+1+gui_font.height()*Objets[i].s*Objets[i].Text.size())
 				Objets[i].MouseOn=true;
 
 		if(Objets[i].MouseOn) IsOnGUI|=2;
@@ -787,23 +787,23 @@ int WND::check(int AMx,int AMy,int AMb,bool timetoscroll, SKIN *skin )
 		case OBJ_MENU:			// Choses à faire quoi qu'il arrive
 			Objets[i].Data=-1;		// Pas de séléction
 			if(Objets[i].MouseOn && mouse_x>=x+Objets[i].x1 && mouse_x<=x+Objets[i].x1+168
-				&& mouse_y>y+Objets[i].y2+4 && mouse_y<=y+Objets[i].y2+1+gui_font.height()*Objets[i].Text.size()
+				&& mouse_y>y+Objets[i].y2+4 && mouse_y<=y+Objets[i].y2+1+gui_font.height()*Objets[i].s*Objets[i].Text.size()
 				&& Objets[i].Etat){
 
 				if(timetoscroll) {
 					if(mouse_y<y+Objets[i].y2+12 && Objets[i].Pos>0)
 						Objets[i].Pos--;
-					if(mouse_y>SCREEN_H-8 && y+Objets[i].y2+1+gui_font.height()*(Objets[i].Text.size()-Objets[i].Pos)>SCREEN_H)
+					if(mouse_y>SCREEN_H-8 && y+Objets[i].y2+1+gui_font.height()*Objets[i].s*(Objets[i].Text.size()-Objets[i].Pos)>SCREEN_H)
 						Objets[i].Pos++;
 					}
-				Objets[i].Data=(int)((mouse_y-y-Objets[i].y2-5)/gui_font.height()+Objets[i].Pos);
+				Objets[i].Data=(int)((mouse_y-y-Objets[i].y2-5)/(gui_font.height()*Objets[i].s)+Objets[i].Pos);
 				if(Objets[i].Data>=Objets[i].Text.size()-1) Objets[i].Data=-1;
 				}
 			break;
 		case OBJ_FMENU:
 			Objets[i].Data=-1;		// Pas de séléction
 				if(Objets[i].MouseOn && mouse_y>=y+Objets[i].y1+4 && mouse_y<=y+Objets[i].y2-4) {
-					Objets[i].Data=(int)((mouse_y-y-Objets[i].y1-4)/gui_font.height());
+					Objets[i].Data=(int)((mouse_y-y-Objets[i].y1-4)/(gui_font.height()*Objets[i].s));
 					if(Objets[i].Data>=Objets[i].Text.size()) Objets[i].Data=-1;
 					}
 			break;
