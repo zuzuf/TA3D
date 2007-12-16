@@ -87,7 +87,7 @@
 		x2=730;
 		y2=150;
 		value=0;
-		size=2;
+		size=1.5;
 	}
 	[object7]		// Option "timefactor"
 	{
@@ -109,7 +109,7 @@
 		x2=730;
 		y2=185;
 		value=0;
-		size=2;
+		size=1.5;
 	}
 	[object9]		// Option "mod"
 	{
@@ -131,7 +131,7 @@
 		x2=730;
 		y2=220;
 		value=0;
-		size=2;
+		size=1.5;
 	}
 	[object11]		// Option "player_name"
 	{
@@ -175,7 +175,7 @@
 		x2=730;
 		y2=320;
 		value=0;
-		size=2;
+		size=1.5;
 	}
 	[object15]		// Option "camera_def_angle"
 	{
@@ -197,7 +197,7 @@
 		x2=730;
 		y2=355;
 		value=0;
-		size=2;
+		size=1.5;
 	}
 	[object17]		// Option "camera_def_h"
 	{
@@ -219,7 +219,7 @@
 		x2=730;
 		y2=390;
 		value=0;
-		size=2;
+		size=1.5;
 	}
 	[object19]		// Option "camera_zoom_speed"
 	{
@@ -241,6 +241,6 @@
 		x2=730;
 		y2=425;
 		value=0;
-		size=2;
+		size=1.5;
 	}
 }

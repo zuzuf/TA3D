@@ -226,11 +226,11 @@ void GUIOBJ::create_button( float X1,float Y1,float X2,float Y2,const String &Ca
 	Flag = FLAG_CAN_BE_CLICKED;
 }
 			// Crée une case à cocher
-void GUIOBJ::create_optionc(float X1,float Y1,const String &Caption,bool ETAT,void (*F)(int), SKIN *skin)
+void GUIOBJ::create_optionc(float X1,float Y1,const String &Caption,bool ETAT,void (*F)(int), SKIN *skin, float size)
 {
 	Type=OBJ_OPTIONC;
 	x1=X1;													y1=Y1;
-	x2=X1+(int)gui_font.length( Caption )+4;				y2=Y1;
+	x2=X1+(int)(gui_font.length( Caption )*size)+4;			y2=Y1;
 	if( skin && skin->checkbox[0].tex && skin->checkbox[1].tex ) {
 		x2 += max( skin->checkbox[0].w, skin->checkbox[1].w );
 		y2 += max( skin->checkbox[0].h, skin->checkbox[1].h );
@@ -245,13 +245,14 @@ void GUIOBJ::create_optionc(float X1,float Y1,const String &Caption,bool ETAT,vo
 	Text[0] = Caption;
 	Func=F;
 	Flag = FLAG_SWITCH | FLAG_CAN_BE_CLICKED;
+	s=size;
 }
 			// Crée un bouton d'option
-void GUIOBJ::create_optionb(float X1,float Y1,const String &Caption,bool ETAT,void (*F)(int), SKIN *skin)
+void GUIOBJ::create_optionb(float X1,float Y1,const String &Caption,bool ETAT,void (*F)(int), SKIN *skin, float size)
 {
 	Type=OBJ_OPTIONB;
 	x1=X1;												y1=Y1;
-	x2=X1+(int)gui_font.length( Caption )+4;			y2=Y1;
+	x2=X1+(int)(gui_font.length( Caption )*size)+4;		y2=Y1;
 	if( skin && skin->option[0].tex && skin->option[1].tex ) {
 		x2 += max( skin->option[0].w, skin->option[1].w );
 		y2 += max( skin->option[0].h, skin->option[1].h );
@@ -266,9 +267,10 @@ void GUIOBJ::create_optionb(float X1,float Y1,const String &Caption,bool ETAT,vo
 	Text[0] = Caption;
 	Func=F;
 	Flag = FLAG_SWITCH | FLAG_CAN_BE_CLICKED;
+	s=size;
 }
 			// Crée une barre d'entrée de texte
-void GUIOBJ::create_textbar(float X1,float Y1,float X2,float Y2,const String &Caption,int MaxChar, void(*F)(int))
+void GUIOBJ::create_textbar(float X1,float Y1,float X2,float Y2,const String &Caption,int MaxChar, void(*F)(int), float size)
 {
 	Type=OBJ_TEXTBAR;
 	x1=X1;							y1=Y1;
@@ -282,21 +284,23 @@ void GUIOBJ::create_textbar(float X1,float Y1,float X2,float Y2,const String &Ca
 	Flag = FLAG_CAN_BE_CLICKED | FLAG_CAN_GET_FOCUS;
 	Func=F;
 	Data=MaxChar;
+	s=size;
 }
 			// Crée un menu flottant
-void GUIOBJ::create_menu(float X1,float Y1,const Vector<String> &Entry,void (*F)(int))
+void GUIOBJ::create_menu(float X1,float Y1,const Vector<String> &Entry,void (*F)(int), float size)
 {
 	Type=OBJ_FMENU;
 	x1=X1;							y1=Y1;
-	x2=X1+168;						y2=(int)(Y1+gui_font_h*Entry.size()+gui_font_h);
+	x2=X1+168;						y2=(int)(Y1+gui_font_h*size*Entry.size()+gui_font_h*size);
 	Etat=false;	
 	Focus=false;
 	Text=Entry;
 	Func=F;
 	Flag = FLAG_CAN_BE_CLICKED | FLAG_CAN_GET_FOCUS;
+	s=size;
 }
 			// Crée un menu déroulant
-void GUIOBJ::create_menu(float X1,float Y1,float X2,float Y2,const Vector<String> &Entry,void (*F)(int))
+void GUIOBJ::create_menu(float X1,float Y1,float X2,float Y2,const Vector<String> &Entry,void (*F)(int), float size)
 {
 	Type=OBJ_MENU;
 	x1=X1;							y1=Y1;
@@ -307,9 +311,10 @@ void GUIOBJ::create_menu(float X1,float Y1,float X2,float Y2,const Vector<String
 	Pos=0;				// Position sur la liste
 	Func=F;
 	Flag = FLAG_CAN_BE_CLICKED | FLAG_CAN_GET_FOCUS;
+	s=size;
 }
 			// Crée une barre de progression
-void GUIOBJ::create_pbar(float X1,float Y1,float X2,float Y2,int PCent)
+void GUIOBJ::create_pbar(float X1,float Y1,float X2,float Y2,int PCent, float size)
 {
 	Type=OBJ_PBAR;
 	x1=X1;							y1=Y1;
@@ -320,6 +325,7 @@ void GUIOBJ::create_pbar(float X1,float Y1,float X2,float Y2,int PCent)
 	Func=NULL;
 	Data=PCent;
 	Flag = 0;
+	s=size;
 }
 			// Crée un objet text
 void GUIOBJ::create_text(float X1,float Y1,const String &Caption,int Col, float size)
@@ -375,7 +381,7 @@ void GUIOBJ::create_img(float X1,float Y1,float X2,float Y2,GLuint img)
 	Flag = FLAG_CAN_BE_CLICKED;
 }
 
-void GUIOBJ::create_list(float X1,float Y1,float X2,float Y2,const Vector<String> &Entry)
+void GUIOBJ::create_list(float X1,float Y1,float X2,float Y2,const Vector<String> &Entry, float size)
 {
 	Type = OBJ_LIST;
 	x1 = X1;						y1 = Y1;
@@ -387,6 +393,7 @@ void GUIOBJ::create_list(float X1,float Y1,float X2,float Y2,const Vector<String
 	Data = 0;
 	Pos = 0;
 	Flag = FLAG_CAN_BE_CLICKED | FLAG_CAN_GET_FOCUS;				// To detect when something has changed
+	s=size;
 }
 
 void GUIOBJ::set_caption( String caption )
@@ -543,7 +550,7 @@ void WND::draw( String &help_msg, bool Focus, bool Deg, SKIN *skin )
 					}
 					break;
 				case OBJ_LIST:
-					ListBox(x+Objets[i].x1, y+Objets[i].y1, x+Objets[i].x2, y+Objets[i].y2, Objets[i].Text, Objets[i].Pos, Objets[i].Data , skin);
+					ListBox(x+Objets[i].x1, y+Objets[i].y1, x+Objets[i].x2, y+Objets[i].y2, Objets[i].Text, Objets[i].Pos, Objets[i].Data , skin, Objets[i].s );
 					break;
 				case OBJ_LINE:
 					gfx->line(x+Objets[i].x1,y+Objets[i].y1,x+Objets[i].x2,y+Objets[i].y2,Objets[i].Data);
@@ -569,27 +576,27 @@ void WND::draw( String &help_msg, bool Focus, bool Deg, SKIN *skin )
 					glBindTexture(GL_TEXTURE_2D, 0);
 					break;
 				case OBJ_BUTTON:		// Boutton
-					button(x+Objets[i].x1,y+Objets[i].y1,x+Objets[i].x2,y+Objets[i].y2,Objets[i].Text[0],Objets[i].activated,Objets[i].s, skin);
+					button(x+Objets[i].x1,y+Objets[i].y1,x+Objets[i].x2,y+Objets[i].y2,Objets[i].Text[0],Objets[i].activated,Objets[i].s, skin );
 					if(Objets[i].Focus && Focus)
 						gfx->rectdot(Objets[i].x1+x-2,Objets[i].y1+y-2,Objets[i].x2+x+2,Objets[i].y2+y+2,GrisF);
 					break;
 				case OBJ_OPTIONC:		// Case à cocher
-					OptionCase(x+Objets[i].x1,y+Objets[i].y1,Objets[i].Text[0],Objets[i].Etat, skin);
+					OptionCase(x+Objets[i].x1,y+Objets[i].y1,Objets[i].Text[0],Objets[i].Etat, skin, Objets[i].s );
 					if(Objets[i].Focus && Focus)
 						gfx->rectdot(Objets[i].x1+x-2,Objets[i].y1+y-2,Objets[i].x2+x+2,Objets[i].y2+y+2,GrisF);
 					break;
 				case OBJ_OPTIONB:		// Boutton d'option	
-					OptionButton(x+Objets[i].x1,y+Objets[i].y1,Objets[i].Text[0],Objets[i].Etat, skin);
+					OptionButton(x+Objets[i].x1,y+Objets[i].y1,Objets[i].Text[0],Objets[i].Etat, skin, Objets[i].s );
 					if(Objets[i].Focus && Focus)
 						gfx->rectdot(Objets[i].x1+x-2,Objets[i].y1+y-2,Objets[i].x2+x+2,Objets[i].y2+y+2,GrisF);
 					break;
 				case OBJ_PBAR:			// Barre de progression
-					ProgressBar(x+Objets[i].x1,y+Objets[i].y1,x+Objets[i].x2,y+Objets[i].y2,Objets[i].Data, skin);
+					ProgressBar(x+Objets[i].x1,y+Objets[i].y1,x+Objets[i].x2,y+Objets[i].y2,Objets[i].Data, skin, Objets[i].s );
 					if(Objets[i].Focus && Focus)
 						gfx->rectdot(Objets[i].x1+x-2,Objets[i].y1+y-2,Objets[i].x2+x+2,Objets[i].y2+y+2,GrisF);
 					break;
 				case OBJ_TEXTBAR:		// Barre de saisie de texte
-					TextBar(x+Objets[i].x1,y+Objets[i].y1,x+Objets[i].x2,y+Objets[i].y2,Objets[i].Text[0],Objets[i].Focus, skin);
+					TextBar(x+Objets[i].x1,y+Objets[i].y1,x+Objets[i].x2,y+Objets[i].y2,Objets[i].Text[0],Objets[i].Focus, skin, Objets[i].s );
 					if(Objets[i].Focus && Focus)
 						gfx->rectdot(Objets[i].x1+x-2,Objets[i].y1+y-2,Objets[i].x2+x+2,Objets[i].y2+y+2,GrisF);
 					break;
@@ -601,7 +608,7 @@ void WND::draw( String &help_msg, bool Focus, bool Deg, SKIN *skin )
 					break;
 				case OBJ_MENU:			// Menu déroulant
 					if(!Objets[i].Etat)
-						button( x+Objets[i].x1, y+Objets[i].y1, x+Objets[i].x2, y+Objets[i].y2, Objets[i].Text[0], Objets[i].activated || Objets[i].Etat, 1.0f, skin );
+						button( x+Objets[i].x1, y+Objets[i].y1, x+Objets[i].x2, y+Objets[i].y2, Objets[i].Text[0], Objets[i].activated || Objets[i].Etat, Objets[i].s, skin );
 					break;
 				};
 				if( (Objets[i].Flag & FLAG_HIGHLIGHT) && Objets[i].MouseOn) {		// Highlight the object
@@ -619,12 +626,12 @@ void WND::draw( String &help_msg, bool Focus, bool Deg, SKIN *skin )
 				switch(Objets[i].Type)
 				{
 				case OBJ_FMENU:			// Menu flottant
-					FloatMenu( x+Objets[i].x1, y+Objets[i].y1, Objets[i].Text, Objets[i].Data, 0, skin );
+					FloatMenu( x+Objets[i].x1, y+Objets[i].y1, Objets[i].Text, Objets[i].Data, 0, skin, Objets[i].s );
 					break;
 				case OBJ_MENU:			// Menu déroulant
 					if(Objets[i].Etat) {
-						button( x+Objets[i].x1, y+Objets[i].y1, x+Objets[i].x2, y+Objets[i].y2, Objets[i].Text[0], Objets[i].activated || Objets[i].Etat, 1.0f, skin );
-						FloatMenu( x+Objets[i].x1, y+Objets[i].y2+1, Objets[i].Text, Objets[i].Data+1, 1+Objets[i].Pos, skin );
+						button( x+Objets[i].x1, y+Objets[i].y1, x+Objets[i].x2, y+Objets[i].y2, Objets[i].Text[0], Objets[i].activated || Objets[i].Etat, Objets[i].s, skin );
+						FloatMenu( x+Objets[i].x1, y+Objets[i].y2+1, Objets[i].Text, Objets[i].Data+1, 1+Objets[i].Pos, skin, Objets[i].s );
 						}
 					break;
 				};
@@ -1284,7 +1291,7 @@ void WND::load_tdf( const String &filename, SKIN *skin )			// Load a window from
 		float X2 = wndFile->PullAsFloat( obj_key + "x2" )*x_factor;
 		float Y2 = wndFile->PullAsFloat( obj_key + "y2" )*y_factor;
 		String caption = TRANSLATE( wndFile->PullAsString( obj_key + "caption" ) );
-		float size = wndFile->PullAsFloat( obj_key + "size" ) * min( x_factor, y_factor );
+		float size = wndFile->PullAsFloat( obj_key + "size", 1.0f ) * min( x_factor, y_factor );
 		int val = wndFile->PullAsInt( obj_key + "value" );
 		uint32 obj_flags = 0;
 		uint32 obj_negative_flags = 0;
@@ -1315,17 +1322,17 @@ void WND::load_tdf( const String &filename, SKIN *skin )			// Load a window from
 		if( obj_type == "BUTTON" )
 			Objets[i].create_button( X1, Y1, X2, Y2, caption, NULL, size );
 		else if( obj_type == "FMENU" )
-			Objets[i].create_menu( X1, Y1, Entry, NULL );
+			Objets[i].create_menu( X1, Y1, Entry, NULL, size );
 		else if( obj_type == "OPTIONB" )
-			Objets[i].create_optionb( X1, Y1, caption, val, NULL, skin );
+			Objets[i].create_optionb( X1, Y1, caption, val, NULL, skin, size );
 		else if( obj_type == "PBAR" )
-			Objets[i].create_pbar( X1, Y1, X2, Y2, val );
+			Objets[i].create_pbar( X1, Y1, X2, Y2, val, size );
 		else if( obj_type == "TEXTBAR" )
-			Objets[i].create_textbar( X1, Y1, X2, Y2, caption, val, NULL );
+			Objets[i].create_textbar( X1, Y1, X2, Y2, caption, val, NULL, size );
 		else if( obj_type == "OPTIONC" )
-			Objets[i].create_optionc( X1, Y1, caption, val, NULL, skin );
+			Objets[i].create_optionc( X1, Y1, caption, val, NULL, skin, size );
 		else if( obj_type == "MENU" )
-			Objets[i].create_menu( X1, Y1, X2, Y2, Entry, NULL );
+			Objets[i].create_menu( X1, Y1, X2, Y2, Entry, NULL, size );
 		else if( obj_type == "TEXT" ) {
 			Objets[i].create_text( X1, Y1, caption, val, size );
 			if( X2 > 0 && Y2 > Y1 ) {
@@ -1343,7 +1350,7 @@ void WND::load_tdf( const String &filename, SKIN *skin )			// Load a window from
 			Objets[i].destroy_img = Objets[i].Data != 0 ? true : false;
 			}
 		else if( obj_type == "LIST" )
-			Objets[i].create_list( X1, Y1, X2, Y2, Entry );
+			Objets[i].create_list( X1, Y1, X2, Y2, Entry, size );
 
 		Objets[i].OnClick = ReadVectorString( wndFile->PullAsString( obj_key + "on click" ) );
 		Objets[i].OnHover = ReadVectorString( wndFile->PullAsString( obj_key + "on hover" ) );
@@ -1443,8 +1450,11 @@ void button (float x,float y,float x2,float y2,const String &Title,bool Etat,flo
 |        Draw a list box displaying the content of Entry                     |
 \---------------------------------------------------------------------------*/
 
-void ListBox(float x1,float y1, float x2, float y2,const Vector<String> &Entry,int Index, int Scroll, SKIN *skin )
+void ListBox(float x1,float y1, float x2, float y2,const Vector<String> &Entry,int Index, int Scroll, SKIN *skin, float size )
 {
+	float old_size = gui_font.get_size();
+	gui_font.change_size( size );
+
 	if( skin && skin->text_background.tex ) {
 		gfx->set_alpha_blending();
 		gfx->set_color( 0xFFFFFFFF );
@@ -1484,6 +1494,7 @@ void ListBox(float x1,float y1, float x2, float y2,const Vector<String> &Entry,i
 			gfx->print(gui_font,x1+4,y1+4+gui_font.height()*i,0.0f,use_normal_alpha_function ? Blanc : Noir,Entry[e]);
 			}
 		}
+	gui_font.change_size( old_size );
 }
 
 /*---------------------------------------------------------------------------\
@@ -1496,7 +1507,7 @@ void draw_text_adjust( float x1, float y1, float x2, float y2, String msg, float
 	Vector< String > Entry;
 	int last = 0;
 	for( int i = 0 ; i < msg.length() ; i++ )
-		if( msg[i] == '\n' || gui_font.length( current + msg[i] ) >= x2 - x1 ) {
+		if( msg[i] == '\n' || gui_font.length( current + msg[i] ) * size >= x2 - x1 ) {
 			Entry.push_back( current );
 			last = i + 1;
 			current.clear();
@@ -1511,8 +1522,8 @@ void draw_text_adjust( float x1, float y1, float x2, float y2, String msg, float
 	gfx->set_color( 1.0f, 1.0f, 1.0f, 1.0f );
 
 	for( int e = 0 ; e < Entry.size() ; e++ )
-		if( y1 + gui_font.height() * e <= y2 )
-			gfx->print( gui_font, x1, y1 + gui_font.height() * e, 0.0f, use_normal_alpha_function ? Blanc : Noir, Entry[e] );
+		if( y1 + gui_font.height() * size * e <= y2 )
+			gfx->print( gui_font, x1, y1 + gui_font.height() * size * e, 0.0f, use_normal_alpha_function ? Blanc : Noir, Entry[e], size );
 
 	gfx->unset_alpha_blending();
 }
@@ -1521,8 +1532,11 @@ void draw_text_adjust( float x1, float y1, float x2, float y2, String msg, float
 |        Draw a popup menu displaying the text msg using the skin object     |
 \---------------------------------------------------------------------------*/
 
-void PopupMenu( float x1, float y1, const String &msg, SKIN *skin )
+void PopupMenu( float x1, float y1, const String &msg, SKIN *skin, float size )
 {
+	float old_size = gui_font.get_size();
+	gui_font.change_size( size );
+
 	float x2 = x1;
 	Vector< String > Entry;
 	int last = 0;
@@ -1580,14 +1594,19 @@ void PopupMenu( float x1, float y1, const String &msg, SKIN *skin )
 			gfx->print(gui_font,x1+4,y1+4+gui_font.height()*e,0.0f,use_normal_alpha_function ? Blanc : Noir,Entry[e]);
 		}
 	Entry.clear();
+
+	gui_font.change_size( old_size );
 }
 
 /*---------------------------------------------------------------------------\
 |        Dessine un menu flotant avec les paramètres de Entry[]              |
 \---------------------------------------------------------------------------*/
 
-void FloatMenu( float x, float y, const Vector<String> &Entry, int Index, int StartEntry, SKIN *skin )
+void FloatMenu( float x, float y, const Vector<String> &Entry, int Index, int StartEntry, SKIN *skin, float size )
 {
+	float old_size = gui_font.get_size();
+	gui_font.change_size( size );
+
 	if( skin && skin->menu_background.tex ) {
 		gfx->set_alpha_blending();
 		gfx->set_color( 1.0f, 1.0f, 1.0f, 1.0f );
@@ -1625,14 +1644,19 @@ void FloatMenu( float x, float y, const Vector<String> &Entry, int Index, int St
 			gfx->print(gui_font,x+4,y+4+gui_font.height()*i,0.0f,use_normal_alpha_function ? Blanc : Noir,Entry[e]);
 			}
 		}
+
+	gui_font.change_size( old_size );
 }
 
 /*---------------------------------------------------------------------------\
 |        Dessine un boutton d'option avec le texte Title                     |
 \---------------------------------------------------------------------------*/
 
-void OptionButton(float x,float y,const String &Title,bool Etat, SKIN *skin )
+void OptionButton(float x,float y,const String &Title,bool Etat, SKIN *skin, float size )
 {
+	float old_size = gui_font.get_size();
+	gui_font.change_size( size );
+
 	if( skin && skin->option[0].tex && skin->option[1].tex ) {
 		gfx->set_alpha_blending();
 		gfx->set_color( 1.0f, 1.0f, 1.0f, 1.0f );
@@ -1671,14 +1695,19 @@ void OptionButton(float x,float y,const String &Title,bool Etat, SKIN *skin )
 
 		gfx->print(gui_font,x+16,y+3,0.0f,use_normal_alpha_function ? Blanc : Noir,Title);
 		}
+
+	gui_font.change_size( old_size );
 }
 
 /*---------------------------------------------------------------------------\
 |        Dessine une case à cocher avec le texte Title                       |
 \---------------------------------------------------------------------------*/
 
-void OptionCase(float x,float y,const String &Title,bool Etat, SKIN *skin )
+void OptionCase(float x,float y,const String &Title,bool Etat, SKIN *skin, float size )
 {
+	float old_size = gui_font.get_size();
+	gui_font.change_size( size );
+
 	if( skin && skin->checkbox[0].tex && skin->checkbox[1].tex ) {
 		gfx->set_alpha_blending();
 		gfx->set_color( 1.0f, 1.0f, 1.0f, 1.0f );
@@ -1707,14 +1736,19 @@ void OptionCase(float x,float y,const String &Title,bool Etat, SKIN *skin )
 
 		gfx->print(gui_font,x+16,y+3,0.0f,use_normal_alpha_function ? Blanc : Noir,Title);
 		}
+
+	gui_font.change_size( old_size );
 }
 
 /*---------------------------------------------------------------------------\
 |        Dessine une barre d'entrée de texte utilisateur                     |
 \---------------------------------------------------------------------------*/
 
-void TextBar(float x1,float y1,float x2,float y2,const String &Caption,bool Etat, SKIN *skin )
+void TextBar(float x1,float y1,float x2,float y2,const String &Caption,bool Etat, SKIN *skin, float size )
 {
+	float old_size = gui_font.get_size();
+	gui_font.change_size( size );
+
 	if( skin && skin->text_background.tex ) {
 		gfx->set_alpha_blending();
 		gfx->set_color( 0xFFFFFFFF );
@@ -1754,14 +1788,19 @@ void TextBar(float x1,float y1,float x2,float y2,const String &Caption,bool Etat
 		gfx->print(gui_font,x1+4,y1+4,0.0f,use_normal_alpha_function ? Blanc : Noir,Caption);
 		if(Etat) gfx->print(gui_font,x1+4+gui_font.length( Caption ),y1+4,0.0f,use_normal_alpha_function ? Blanc : Noir,"_");
 		}
+
+	gui_font.change_size( old_size );
 }
 
 /*---------------------------------------------------------------------------\
 |                     Dessine une barre de progression                       |
 \---------------------------------------------------------------------------*/
 
-void ProgressBar(float x1,float y1,float x2,float y2,int Value, SKIN *skin )
+void ProgressBar(float x1,float y1,float x2,float y2,int Value, SKIN *skin, float size )
 {
+	float old_size = gui_font.get_size();
+	gui_font.change_size( size );
+
 	if( skin && skin->progress_bar[0].tex && skin->progress_bar[1].tex ) {			// If we have a skin loaded with gfx for the progress bar
 		gfx->set_alpha_blending();
 		gfx->set_color( 0xFFFFFFFF );
@@ -1788,6 +1827,8 @@ void ProgressBar(float x1,float y1,float x2,float y2,int Value, SKIN *skin )
 
 		gfx->print(gui_font,(x1+x2)/2-gui_font.length( Buf ) * 0.5f,(y1+y2)*0.5f-gui_font.height()*0.5f,0.0f,use_normal_alpha_function ? Blanc : Noir,Buf);
 		}
+
+	gui_font.change_size( old_size );
 }
 
 			// Renvoie le dossier contenant le fichier fname

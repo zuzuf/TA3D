@@ -1455,7 +1455,7 @@
 		x2=1138;
 		y2=556;
 		entry=off,off,grey,black,on;
-		size=2;
+		size=1.5;
 		help=click to set\nthe fog of war;
 	}
 	[object139]		// The map info text zone

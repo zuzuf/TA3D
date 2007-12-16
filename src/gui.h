@@ -90,13 +90,13 @@ class SKIN;			// Class SKIN to handle GUI skins for GUIOBJ objects and WND windo
 /*--------- Functions that can use the skin object -------------------------------------------------*/
 
 void button ( float x, float y, float x2, float y2, const String &Title, bool Etat, float s=1.0f , SKIN *skin=NULL );
-void FloatMenu( float x, float y, const Vector<String> &Entry, int Index, int StartEntry=0 , SKIN *skin=NULL );
-void ListBox( float x1, float y1, float x2, float y2, const Vector<String> &Entry, int Index, int Scroll , SKIN *skin=NULL );
-void OptionButton( float x, float y, const String &Title, bool Etat , SKIN *skin=NULL );
-void OptionCase( float x, float y, const String &Title, bool Etat , SKIN *skin=NULL );
-void TextBar( float x1, float y1, float x2, float y2, const String &Caption, bool Etat , SKIN *skin=NULL );
-void ProgressBar( float x1, float y1, float x2, float y2, int Value , SKIN *skin=NULL );
-void PopupMenu( float x1, float y1, const String &msg, SKIN *skin=NULL );
+void FloatMenu( float x, float y, const Vector<String> &Entry, int Index, int StartEntry=0 , SKIN *skin=NULL, float size = 1.0f );
+void ListBox( float x1, float y1, float x2, float y2, const Vector<String> &Entry, int Index, int Scroll , SKIN *skin=NULL, float size = 1.0f );
+void OptionButton( float x, float y, const String &Title, bool Etat , SKIN *skin=NULL, float size = 1.0f );
+void OptionCase( float x, float y, const String &Title, bool Etat , SKIN *skin=NULL, float size = 1.0f );
+void TextBar( float x1, float y1, float x2, float y2, const String &Caption, bool Etat , SKIN *skin=NULL, float size = 1.0f );
+void ProgressBar( float x1, float y1, float x2, float y2, int Value , SKIN *skin=NULL, float size = 1.0f );
+void PopupMenu( float x1, float y1, const String &msg, SKIN *skin=NULL, float size = 1.0f );
 void draw_text_adjust( float x1, float y1, float x2, float y2, String msg, float size );
 
 /*--------------------------------------------------------------------------------------------------*/
@@ -213,17 +213,17 @@ public:
 
 				// Creates a GUI_OBJ
 	void create_button(float X1,float Y1,float X2,float Y2,const String &Caption,void (*F)(int), float size=1.0f);
-	void create_optionc(float X1,float Y1,const String &Caption,bool ETAT,void (*F)(int), SKIN *skin = NULL );
-	void create_optionb(float X1,float Y1,const String &Caption,bool ETAT,void (*F)(int), SKIN *skin = NULL );
-	void create_textbar(float X1,float Y1,float X2,float Y2,const String &Caption,int MaxChar, void(*F)(int)=NULL);
-	void create_menu(float X1,float Y1,const Vector<String> &Entry,void (*F)(int));
-	void create_menu(float X1,float Y1,float X2,float Y2,const Vector<String> &Entry,void (*F)(int));
-	void create_pbar(float X1,float Y1,float X2,float Y2,int PCent);
+	void create_optionc(float X1,float Y1,const String &Caption,bool ETAT,void (*F)(int), SKIN *skin = NULL, float size=1.0f );
+	void create_optionb(float X1,float Y1,const String &Caption,bool ETAT,void (*F)(int), SKIN *skin = NULL, float size=1.0f );
+	void create_textbar(float X1,float Y1,float X2,float Y2,const String &Caption,int MaxChar, void(*F)(int)=NULL, float size=1.0f);
+	void create_menu(float X1,float Y1,const Vector<String> &Entry,void (*F)(int), float size=1.0f);
+	void create_menu(float X1,float Y1,float X2,float Y2,const Vector<String> &Entry,void (*F)(int), float size=1.0f);
+	void create_pbar(float X1,float Y1,float X2,float Y2,int PCent, float size=1.0f);
 	void create_text(float X1,float Y1,const String &Caption,int Col=Noir, float size = 1.0f);
 	void create_line(float X1,float Y1,float X2,float Y2,int Col=Noir);
 	void create_box(float X1,float Y1,float X2,float Y2,int Col=Noir);
 	void create_img(float X1,float Y1,float X2,float Y2,GLuint img);
-	void create_list(float X1,float Y1,float X2,float Y2,const Vector<String> &Entry);
+	void create_list(float X1,float Y1,float X2,float Y2,const Vector<String> &Entry, float size=1.0f);
 	void create_ta_button(float X1,float Y1,const Vector< String > &Caption, const Vector< GLuint > &states, int nb_st);
 };
 

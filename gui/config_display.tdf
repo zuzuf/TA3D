@@ -47,7 +47,7 @@
 		x2=730;
 		y2=80;
 		value=0;
-		size=2;
+		size=1.5;
 	}
 	[object3]		// Option "wireframe"
 	{
@@ -209,7 +209,7 @@
 		x2=730;
 		y2=360;
 		value=0;
-		size=2;
+		size=1.5;
 	}
 	[object19]		// Option "shadow_quality"
 	{
@@ -231,7 +231,7 @@
 		x2=730;
 		y2=395;
 		value=0;
-		size=2;
+		size=1.5;
 	}
 	[object21]		// Option "fsaa"
 	{
@@ -253,7 +253,7 @@
 		x2=730;
 		y2=430;
 		value=0;
-		size=2;
+		size=1.5;
 	}
 	[object23]		// Option "water_quality"
 	{
@@ -275,6 +275,6 @@
 		x2=730;
 		y2=465;
 		value=0;
-		size=2;
+		size=1.5;
 	}
 }
