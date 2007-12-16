@@ -858,7 +858,7 @@ int WND::check(int AMx,int AMy,int AMb,bool timetoscroll, SKIN *skin )
 				switch(Objets[i].Type)
 				{
 				case OBJ_LIST:
-					Objets[i].Pos = (uint32) ((mouse_y - y - Objets[i].y1 - 4) / gui_font.height() + Objets[i].Data);					Objets[i].Etat = true;
+					Objets[i].Pos = (uint32) ((mouse_y - y - Objets[i].y1 - 4) / ( gui_font.height() * Objets[i].s ) + Objets[i].Data);					Objets[i].Etat = true;
 					break;
 				case OBJ_TA_BUTTON:
 					if( Objets[i].nb_stages > 0 )
@@ -896,7 +896,7 @@ int WND::check(int AMx,int AMy,int AMb,bool timetoscroll, SKIN *skin )
 					break;
 				case OBJ_FMENU:			// Menu Flottant
 					if(mouse_y>=y+Objets[i].y1+4 && mouse_y<=y+Objets[i].y2-4) {
-						index=(int)((mouse_y-y-Objets[i].y1-4)/gui_font.height());
+						index=(int)((mouse_y-y-Objets[i].y1-4)/(gui_font.height()*Objets[i].s));
 						if(index>=Objets[i].Text.size()) index=Objets[i].Text.size()-1;
 						if(Objets[i].Func!=NULL)
 							(*Objets[i].Func)(index);		// Lance la fonction associée
@@ -904,10 +904,10 @@ int WND::check(int AMx,int AMy,int AMb,bool timetoscroll, SKIN *skin )
 					break;
 				case OBJ_MENU:			// Menu déroulant
 					if(mouse_x>=x+Objets[i].x1 && mouse_x<=x+Objets[i].x1+168
-						&& mouse_y>y+Objets[i].y2 && mouse_y<=y+Objets[i].y2+1+gui_font.height()*Objets[i].Text.size()
+						&& mouse_y>y+Objets[i].y2 && mouse_y<=y+Objets[i].y2+1+gui_font.height()*Objets[i].s*Objets[i].Text.size()
 						&& Objets[i].Etat){
 
-						index=(int)((mouse_y-y-Objets[i].y2-5)/gui_font.height()+Objets[i].Pos);
+						index=(int)((mouse_y-y-Objets[i].y2-5)/(Objets[i].s*gui_font.height())+Objets[i].Pos);
 						if(index>=Objets[i].Text.size()-1) index=Objets[i].Text.size()-2;
 						if(Objets[i].Func!=NULL)
 							(*Objets[i].Func)(index);		// Lance la fonction associée
