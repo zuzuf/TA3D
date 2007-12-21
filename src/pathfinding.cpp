@@ -88,7 +88,7 @@ void make_path_direct(SECTOR **map_data,float **h_map,float dh_max,float h_min,f
 	PATH_NODE *cur = path;
 	List< PATH_NODE* >	stack;
 	int depth = 0;
-	while( cur->next!=NULL && cur->next->next!=NULL && depth < 3 ) {		// Tant qu'il y a des points à tester
+	while( cur->next!=NULL && cur->next->next!=NULL && depth < 10 ) {		// Tant qu'il y a des points à tester
 		if(is_direct( map_data, h_map, dh_max, h_min, h_max, *cur, *(cur->next->next), mw, mh, bw, bh, u_idx, hover_h )) {		// Si le chemin est direct, on élimine le point du milieu
 			PATH_NODE *tmp = cur->next->next;
 			delete cur->next;
@@ -96,11 +96,13 @@ void make_path_direct(SECTOR **map_data,float **h_map,float dh_max,float h_min,f
 			if( !stack.empty() ) {
 				cur = stack.back();
 				stack.pop_back();
+				depth--;
 				}
 			}
 		else {
-			depth ++;
-			cur->made_direct = true;
+			depth++;
+			if( depth <= 2 )
+				cur->made_direct = true;
 			stack.push_back( cur );
 			cur = cur->next;		// Si le chemin n'est pas direct, on avance
 			}

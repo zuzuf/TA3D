@@ -22,9 +22,9 @@
 		type=BUTTON;
 		caption=OK;
 		x1=10;
-		y1=20;
+		y1=24;
 		x2=80;
-		y2=40;
+		y2=44;
 		size=1;
 		on click=scripts.hide;
 	}
@@ -34,9 +34,9 @@
 		type=BUTTON;
 		caption=cancel;
 		x1=120;
-		y1=20;
+		y1=24;
 		x2=190;
-		y2=40;
+		y2=44;
 		size=1;
 		on click=scripts.hide;
 	}

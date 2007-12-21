@@ -869,7 +869,7 @@ void config_menu(void)
 			if( lp_CONFIG->quickstart ) {
 				GUIOBJ *pbar = config_area.get_object( "config_confirm.p_wait" );
 				if( pbar ) {
-					int new_value = (msec_timer - timer) / 150;
+					int new_value = (msec_timer - timer) / 50;
 					if( new_value != pbar->Data ) {
 						pbar->Data = new_value;
 						key_is_pressed = true;
@@ -880,24 +880,25 @@ void config_menu(void)
 				}
 			config_area.check();
 			rest( 1 );
-		} while( amx == mouse_x && amy == mouse_y && amb == mouse_b && !key[ KEY_ENTER ] && !key[ KEY_ESC ] && !done && !key_is_pressed );
+		} while( amx == mouse_x && amy == mouse_y && amb == mouse_b && !key[ KEY_ENTER ] && !key[ KEY_ESC ] && !done && !key_is_pressed && !config_area.scrolling );
 		amx = mouse_x;
 		amy = mouse_y;
 		amb = mouse_b;
 
 		if( lp_CONFIG->quickstart ) {
-			if( time_out || config_area.get_state("config_confirm.b_cancel_changes" ) ) {
+			if( time_out || config_area.get_state("config_confirm.b_cancel_changes" ) || key[KEY_ESC] ) {
 				I_Msg( TA3D::TA3D_IM_GUI_MSG, (void*)("config_confirm.hide"), NULL, NULL );
 				restoreBackup( TA3D_OUTPUT_DIR + "ta3d.cfg" );
 				LoadConfigFile();
 				done = true;
-				save = true;
+				save = false;
+				lp_CONFIG->quickstart = false;
 				lp_CONFIG->quickrestart = true;
 				lp_CONFIG->restorestart = true;
+				saved_config = *lp_CONFIG;
 				}
 			else if( config_area.get_state("config_confirm.b_confirm" ) ) {
 				I_Msg( TA3D::TA3D_IM_GUI_MSG, (void*)("config_confirm.hide"), NULL, NULL );
-				SaveConfigFile();
 				lp_CONFIG->quickstart = false;
 				saved_config.quickstart = false;
 				}
@@ -1046,7 +1047,7 @@ void config_menu(void)
 			lp_CONFIG->screen_height != saved_config.screen_height ||
 			lp_CONFIG->color_depth != saved_config.color_depth ||
 			lp_CONFIG->fsaa != saved_config.fsaa ||
-			lp_CONFIG->fullscreen != saved_config.fullscreen )			// Need to restart
+			(lp_CONFIG->fullscreen != saved_config.fullscreen) )			// Need to restart
 			lp_CONFIG->quickrestart = true;
 		lp_CONFIG->player_name = config_area.get_caption( "*.player_name" );
 		if( lp_CONFIG->last_MOD != TA3D_CURRENT_MOD ) {			// Refresh the file structure
@@ -1106,7 +1107,7 @@ void stats_menu(void)
 			key_is_pressed = keypressed();
 			statistics_area.check();
 			rest( 1 );
-		} while( amx == mouse_x && amy == mouse_y && amb == mouse_b && mouse_b == 0 && !key[ KEY_ENTER ] && !key[ KEY_ESC ] && !done && !key_is_pressed );
+		} while( amx == mouse_x && amy == mouse_y && amb == mouse_b && mouse_b == 0 && !key[ KEY_ENTER ] && !key[ KEY_ESC ] && !done && !key_is_pressed && !statistics_area.scrolling );
 
 		amx = mouse_x;
 		amy = mouse_y;
@@ -1306,7 +1307,7 @@ void setup_game(void)
 			key_is_pressed = keypressed();
 			setupgame_area.check();
 			rest( 1 );
-		} while( amx == mouse_x && amy == mouse_y && amb == mouse_b && mouse_b == 0 && !key[ KEY_ENTER ] && !key[ KEY_ESC ] && !done && !key_is_pressed );
+		} while( amx == mouse_x && amy == mouse_y && amb == mouse_b && mouse_b == 0 && !key[ KEY_ENTER ] && !key[ KEY_ESC ] && !done && !key_is_pressed && !setupgame_area.scrolling );
 
 		amx = mouse_x;
 		amy = mouse_y;

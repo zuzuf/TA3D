@@ -45,7 +45,7 @@
 		x1=690;
 		y1=50;
 		value=0;
-		size=2;
+		size=1.6;
 	}
 	[object3]		// Option "draw_console_loading"
 	{
@@ -65,7 +65,7 @@
 		x1=690;
 		y1=85;
 		value=0;
-		size=2;
+		size=1.6;
 	}
 	[object5]		// Option "LANG"
 	{

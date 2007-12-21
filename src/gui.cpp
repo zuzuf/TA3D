@@ -232,8 +232,8 @@ void GUIOBJ::create_optionc(float X1,float Y1,const String &Caption,bool ETAT,vo
 	x1=X1;													y1=Y1;
 	x2=X1+(int)(gui_font.length( Caption )*size)+4;			y2=Y1;
 	if( skin && skin->checkbox[0].tex && skin->checkbox[1].tex ) {
-		x2 += max( skin->checkbox[0].w, skin->checkbox[1].w );
-		y2 += max( skin->checkbox[0].h, skin->checkbox[1].h );
+		x2 += max( skin->checkbox[0].w, skin->checkbox[1].w ) * size;
+		y2 += max( skin->checkbox[0].h, skin->checkbox[1].h ) * size;
 		}
 	else {
 		x2+=8;
@@ -254,8 +254,8 @@ void GUIOBJ::create_optionb(float X1,float Y1,const String &Caption,bool ETAT,vo
 	x1=X1;												y1=Y1;
 	x2=X1+(int)(gui_font.length( Caption )*size)+4;		y2=Y1;
 	if( skin && skin->option[0].tex && skin->option[1].tex ) {
-		x2 += max( skin->option[0].w, skin->option[1].w );
-		y2 += max( skin->option[0].h, skin->option[1].h );
+		x2 += max( skin->option[0].w, skin->option[1].w ) * size;
+		y2 += max( skin->option[0].h, skin->option[1].h ) * size;
 		}
 	else {
 		x2+=8;
@@ -484,8 +484,8 @@ void WND::draw( String &help_msg, bool Focus, bool Deg, SKIN *skin )
 			skin->wnd_border.draw( x - skin->wnd_border.x1, y - skin->wnd_border.y1, x + width - skin->wnd_border.x2, y + height - skin->wnd_border.y2, false );
 		if( show_title && skin->wnd_title_bar.tex ) {
 			title_h = (int)(max( 2 + gui_font.height(), (float)skin->wnd_title_bar.y1 ) - skin->wnd_title_bar.y2);
-			skin->wnd_title_bar.draw( x+3, y+3, x+width-4, y + 3 + title_h );
-			gfx->print(gui_font,x+5+skin->wnd_title_bar.x1,y + 3 + (title_h - gui_font.height() )/2,0,Blanc,Title);
+			skin->wnd_title_bar.draw( x+3, y+3, x+width-4, y + 3 + title_h * size_factor );
+			gfx->print(gui_font,x+5+skin->wnd_title_bar.x1,y + 3 + (title_h - gui_font.height() )*0.5f * size_factor,0,Blanc,Title,size_factor);
 			}
 		glDisable( GL_BLEND );
 		glBindTexture(GL_TEXTURE_2D, 0);
@@ -842,8 +842,16 @@ int WND::check(int AMx,int AMy,int AMb,bool timetoscroll, SKIN *skin )
 					(*Objets[i].Func)(0);		// Lance la fonction associée
 				Objets[i].Etat=false;
 				}
-			if( !Objets[i].activated && Objets[i].Type == OBJ_BUTTON && mouse_b==1 && Objets[i].MouseOn )
-				sound_manager->PlayTDFSoundNow("SPECIALORDERS.sound");
+			if( !Objets[i].activated && mouse_b==1 && Objets[i].MouseOn )
+				switch( Objets[i].Type )
+				{
+				case OBJ_BUTTON:
+				case OBJ_MENU:
+				case OBJ_TA_BUTTON:
+				case OBJ_OPTIONB:
+				case OBJ_OPTIONC:
+					sound_manager->PlayTDFSoundNow("SPECIALORDERS.sound");
+				};
 			Objets[i].activated = mouse_b==1 && Objets[i].MouseOn;
 
 			bool clicked = false;
@@ -858,7 +866,7 @@ int WND::check(int AMx,int AMy,int AMb,bool timetoscroll, SKIN *skin )
 				switch(Objets[i].Type)
 				{
 				case OBJ_LIST:
-					Objets[i].Pos = (uint32) ((mouse_y - y - Objets[i].y1 - 4) / ( gui_font.height() * Objets[i].s ) + Objets[i].Data);					Objets[i].Etat = true;
+					Objets[i].Pos = (uint32) ((mouse_y - y - Objets[i].y1 - skin->text_background.y1 - 4) / ( gui_font.height() * Objets[i].s ) + Objets[i].Data);					Objets[i].Etat = true;
 					break;
 				case OBJ_TA_BUTTON:
 					if( Objets[i].nb_stages > 0 )
@@ -895,19 +903,19 @@ int WND::check(int AMx,int AMy,int AMb,bool timetoscroll, SKIN *skin )
 						(*Objets[i].Func)(Objets[i].Etat);	// Lance la fonction associée
 					break;
 				case OBJ_FMENU:			// Menu Flottant
-					if(mouse_y>=y+Objets[i].y1+4 && mouse_y<=y+Objets[i].y2-4) {
-						index=(int)((mouse_y-y-Objets[i].y1-4)/(gui_font.height()*Objets[i].s));
+					if(mouse_y>=y+Objets[i].y1+skin->menu_background.y1+4 && mouse_y<=y+Objets[i].y2 + skin->menu_background.y2-4) {
+						index=(int)((mouse_y-y-Objets[i].y1-4 - skin->menu_background.y1)/(gui_font.height()*Objets[i].s));
 						if(index>=Objets[i].Text.size()) index=Objets[i].Text.size()-1;
 						if(Objets[i].Func!=NULL)
 							(*Objets[i].Func)(index);		// Lance la fonction associée
 						}
 					break;
 				case OBJ_MENU:			// Menu déroulant
-					if(mouse_x>=x+Objets[i].x1 && mouse_x<=x+Objets[i].x1+168
-						&& mouse_y>y+Objets[i].y2 && mouse_y<=y+Objets[i].y2+1+gui_font.height()*Objets[i].s*Objets[i].Text.size()
+					if(mouse_x>=x+Objets[i].x1 + skin->menu_background.x1 && mouse_x<=x+Objets[i].x1+168 + skin->menu_background.x2
+						&& mouse_y>y+Objets[i].y2 + skin->menu_background.y1 && mouse_y<=y+Objets[i].y2 + skin->menu_background.y2 + 1+gui_font.height()*Objets[i].s*Objets[i].Text.size()
 						&& Objets[i].Etat){
 
-						index=(int)((mouse_y-y-Objets[i].y2-5)/(Objets[i].s*gui_font.height())+Objets[i].Pos);
+						index=(int)((mouse_y-y-Objets[i].y2-5 - skin->menu_background.y1)/(Objets[i].s*gui_font.height())+Objets[i].Pos);
 						if(index>=Objets[i].Text.size()-1) index=Objets[i].Text.size()-2;
 						if(Objets[i].Func!=NULL)
 							(*Objets[i].Func)(index);		// Lance la fonction associée
@@ -1260,6 +1268,7 @@ void WND::load_tdf( const String &filename, SKIN *skin )			// Load a window from
 		x = (int)(x * x_factor);
 		y = (int)(y * y_factor);
 		}
+	size_factor = gfx->height / 600.0f;			// For title bar
 
 	background_wnd = wndFile->PullAsBool( "window.background window" );
 	Lock = wndFile->PullAsBool( "window.lock" );
@@ -1611,16 +1620,22 @@ void FloatMenu( float x, float y, const Vector<String> &Entry, int Index, int St
 		gfx->set_alpha_blending();
 		gfx->set_color( 1.0f, 1.0f, 1.0f, 1.0f );
 
-		skin->menu_background.draw( x, y, x+168, y+skin->menu_background.y1-skin->menu_background.y2+gui_font.height()*(Entry.size() - StartEntry) );
-
 		int i;
+		float width = 168.0f * size;
+		for( i=0 ; i<Entry.size() - StartEntry ; i++ )
+			width = max( width, gui_font.length( Entry[ i ] ) );
+
+		width += skin->menu_background.x1-skin->menu_background.x2;
+
+		skin->menu_background.draw( x, y, x + width, y+skin->menu_background.y1-skin->menu_background.y2+gui_font.height()*(Entry.size() - StartEntry) );
+
 		for( i=0 ; i<Entry.size() - StartEntry ; i++ ) {
 			int e = i + StartEntry;
 			if( e == Index ) {
 				if( skin->selection_gfx.tex )
-					skin->selection_gfx.draw( x+skin->menu_background.x1,y+skin->menu_background.y1+gui_font.height()*i,x+168+skin->menu_background.x2,y+skin->menu_background.y1+gui_font.height()*(i+1) );
+					skin->selection_gfx.draw( x+skin->menu_background.x1,y+skin->menu_background.y1+gui_font.height()*i,x + width + skin->menu_background.x2,y+skin->menu_background.y1+gui_font.height()*(i+1) );
 				else
-					gfx->rectfill( x+skin->menu_background.x1,y+skin->menu_background.y1+gui_font.height()*i,x+168+skin->menu_background.x2,y+skin->menu_background.y1+gui_font.height()*(i+1), Bleu );
+					gfx->rectfill( x+skin->menu_background.x1,y+skin->menu_background.y1+gui_font.height()*i,x + width + skin->menu_background.x2,y+skin->menu_background.y1+gui_font.height()*(i+1), Bleu );
 				}
 			gfx->print(gui_font,x+skin->menu_background.x1,y+skin->menu_background.y1+gui_font.height()*i,0.0f,use_normal_alpha_function ? Blanc : Noir,Entry[e]);
 			}
@@ -1661,9 +1676,9 @@ void OptionButton(float x,float y,const String &Title,bool Etat, SKIN *skin, flo
 		gfx->set_alpha_blending();
 		gfx->set_color( 1.0f, 1.0f, 1.0f, 1.0f );
 
-		skin->option[ Etat ? 1 : 0 ].draw( x, y, x + skin->option[ Etat ? 1 : 0 ].w, y + skin->option[ Etat ? 1 : 0 ].h );
+		skin->option[ Etat ? 1 : 0 ].draw( x, y, x + skin->option[ Etat ? 1 : 0 ].w * size, y + skin->option[ Etat ? 1 : 0 ].h * size );
 
-		gfx->print(gui_font, x + skin->option[ Etat ? 1 : 0 ].w + 4, y + ( skin->option[ Etat ? 1 : 0 ].h - gui_font.height() ) * 0.5f,0.0f,use_normal_alpha_function ? Blanc : Noir,Title);
+		gfx->print(gui_font, x + (skin->option[ Etat ? 1 : 0 ].w + 4) * size, y + ( skin->option[ Etat ? 1 : 0 ].h * size - gui_font.height() ) * 0.5f,0.0f,use_normal_alpha_function ? Blanc : Noir,Title);
 
 		gfx->unset_alpha_blending();
 		}
@@ -1712,9 +1727,9 @@ void OptionCase(float x,float y,const String &Title,bool Etat, SKIN *skin, float
 		gfx->set_alpha_blending();
 		gfx->set_color( 1.0f, 1.0f, 1.0f, 1.0f );
 
-		skin->checkbox[ Etat ? 1 : 0 ].draw( x, y, x + skin->checkbox[ Etat ? 1 : 0 ].w, y + skin->checkbox[ Etat ? 1 : 0 ].h );
+		skin->checkbox[ Etat ? 1 : 0 ].draw( x, y, x + skin->checkbox[ Etat ? 1 : 0 ].w * size, y + skin->checkbox[ Etat ? 1 : 0 ].h * size );
 
-		gfx->print(gui_font, x + skin->checkbox[ Etat ? 1 : 0 ].w + 4, y + ( skin->checkbox[ Etat ? 1 : 0 ].h - gui_font.height() ) * 0.5f,0.0f,use_normal_alpha_function ? Blanc : Noir,Title);
+		gfx->print(gui_font, x + (skin->checkbox[ Etat ? 1 : 0 ].w + 4) * size, y + ( skin->checkbox[ Etat ? 1 : 0 ].h * size - gui_font.height() ) * 0.5f,0.0f,use_normal_alpha_function ? Blanc : Noir,Title);
 
 		gfx->unset_alpha_blending();
 		}
@@ -2379,6 +2394,9 @@ AREA::AREA( const String area_name ) : gui_hashtable(), cached_key()
 
 	skin = NULL;			// Default: no skin
 
+	scroll_timer = msec_timer;
+	scrolling = false;
+
 	InitInterface();		// Initialization of the interface
 }
 
@@ -2599,9 +2617,13 @@ uint16 AREA::check()					// Checks events for all windows
 	poll_mouse();
 	poll_keyboard();
 	uint16 is_on_gui = 0;
+	bool scroll = msec_timer - scroll_timer >= 500;
+	if( scroll )
+		while( msec_timer - scroll_timer >= 500 )
+			scroll_timer += 500;
 	for( uint16 i = 0 ; i < vec_wnd.size() ; i++ )
 		if( !is_on_gui || ( vec_wnd[ vec_z_order[ i ] ]->get_focus && !vec_wnd[ vec_z_order[ i ] ]->hidden ) ) {
-			is_on_gui |= vec_wnd[ vec_z_order[ i ] ]->check( amx, amy, amb, true, skin );			// Do things in the right order
+			is_on_gui |= vec_wnd[ vec_z_order[ i ] ]->check( amx, amy, amb, scroll, skin );			// Do things in the right order
 			if( ( (is_on_gui && mouse_b && !vec_wnd[ vec_z_order[ 0 ] ]->get_focus) || vec_wnd[ vec_z_order[ i ] ]->get_focus ) && i > 0 && !vec_wnd[ vec_z_order[ i ] ]->background_wnd ) {			// Change the focus
 				uint16 old = vec_z_order[ i ];
 				for( uint16 e = i ; e > 0 ; e-- )
@@ -2613,6 +2635,7 @@ uint16 AREA::check()					// Checks events for all windows
 	if( !Console->activated() )
 		clear_keybuf();
 
+	scrolling = scroll;
 	amx = mouse_x;
 	amy = mouse_y;
 	amz = mouse_z;

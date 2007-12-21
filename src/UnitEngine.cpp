@@ -2476,15 +2476,22 @@ bool UNIT::is_on_radar( byte &p_mask )
 								}
 							mission->last_d = 9999999.0f;
 							if(mission->path == NULL) {		// End of path reached
-								if( !(mission->flags & MISSION_FLAG_DONT_STOP_MOVE) && (mission == NULL || mission->mission != MISSION_PATROL ) )
-									play_sound( "arrived1" );
-								if( !( unit_manager.unit_type[ type_id ].canfly && nb_attached > 0 ) ) {		// Once charged with units the Atlas cannot land
-									launch_script(get_script_index(SCRIPT_StopMoving));
-									was_moving = false;
-									}
-								mission->flags &= ~MISSION_FLAG_MOVE;
-								if( !(mission->flags & MISSION_FLAG_DONT_STOP_MOVE) )
-									V.x = V.y = V.z = 0.0f;		// Stop unit's movement
+//								if( (mission->target - Target).Sq() <= 1024.0f ) {
+									if( !(mission->flags & MISSION_FLAG_DONT_STOP_MOVE) && (mission == NULL || mission->mission != MISSION_PATROL ) )
+										play_sound( "arrived1" );
+									mission->flags &= ~MISSION_FLAG_MOVE;
+									if( !( unit_manager.unit_type[ type_id ].canfly && nb_attached > 0 ) ) {		// Once charged with units the Atlas cannot land
+										launch_script(get_script_index(SCRIPT_StopMoving));
+										was_moving = false;
+										}
+									if( !(mission->flags & MISSION_FLAG_DONT_STOP_MOVE) )
+										V.x = V.y = V.z = 0.0f;		// Stop unit's movement
+/*									}
+								else {										// We are not where we are supposed to be !!
+									last_path_refresh = 0.0f;				// Wait 5 sec before retrying
+									requesting_pathfinder = true;
+									mission->flags |= MISSION_FLAG_REFRESH_PATH;
+									}*/
 								}
 							}
 						else

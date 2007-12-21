@@ -650,7 +650,7 @@ uninstall-am: uninstall-binPROGRAMS
 
 all:
 	!(test -e ta3d) || mv ta3d ../ta3d-bin
-	!(test -e ta3d.exe) || mv ta3d.exe ../
+	!(test -e ta3d.exe) || mv ta3d.exe ../ta3d-bin.exe
 	!(test -e hpiview) || mv hpiview ../
 	!(test -e hpiview.exe) || mv hpiview.exe ../
 	!(test -e 3dmeditor) || mv 3dmeditor ../3dmeditor-bin

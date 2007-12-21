@@ -167,6 +167,13 @@ if( FMOD_System_Init( m_lpFMODSystem, 32, FMOD_INIT_NORMAL | FMOD_INIT_3D_RIGHTH
 		}
 
 #ifndef TA3D_NO_SOUND
+
+#ifdef TA3D_PLATFORM_LINUX
+if( m_lpFMODSystem->setOutput(FMOD_OUTPUTTYPE_ALSA) != FMOD_OK ) {
+	Console->AddEntry( "FMOD: Failed to init FMOD, sound disabled" );
+	return false;
+	}
+#endif
 	// 32 channels, normal init, with 3d right handed.
 if( m_lpFMODSystem->init( 32, FMOD_INIT_NORMAL | FMOD_INIT_3D_RIGHTHANDED, 0 ) != FMOD_OK ) {
 	Console->AddEntry( "FMOD: Failed to init FMOD, sound disabled" );
@@ -797,7 +804,20 @@ LeaveCS();
 
 void cAudio::PlayTDFSoundNow( const String &Key, const VECTOR3D *vec )		// Wrapper to PlayTDFSound + Update3DSound
 {
-	PlayTDFSound( Key, vec );
+	String szWav = Lowercase( Find( Lowercase( Key ) ) ); // copy string to szWav so we can work with it.
+
+	// if it has a .wav extension then remove it.
+	int i = (int)szWav.find( ".wav" );
+	if( i != -1 )
+		szWav.resize( szWav.length() - 4 );
+
+	m_SoundListItem *m_Sound = m_SoundList->Find( szWav );
+
+	if( m_Sound ) {
+		m_Sound->last_time_played = msec_timer - 1000 - m_min_ticks;		// Make sure it'll be played
+
+		PlayTDFSound( Key, vec );
+		}
 	Update3DSound();
 }
 

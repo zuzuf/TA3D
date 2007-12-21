@@ -67,7 +67,7 @@
 		x1=690;
 		y1=85;
 		value=0;
-		size=2;
+		size=1.6;
 	}
 	[object5]		// Option "particle"
 	{
@@ -87,7 +87,7 @@
 		x1=690;
 		y1=120;
 		value=0;
-		size=2;
+		size=1.6;
 	}
 	[object7]		// Option "waves"
 	{
@@ -107,7 +107,7 @@
 		x1=690;
 		y1=155;
 		value=0;
-		size=2;
+		size=1.6;
 	}
 	[object9]		// Option "shadow"
 	{
@@ -127,7 +127,7 @@
 		x1=690;
 		y1=190;
 		value=0;
-		size=2;
+		size=1.6;
 	}
 	[object11]		// Option "height_line"
 	{
@@ -147,7 +147,7 @@
 		x1=690;
 		y1=225;
 		value=0;
-		size=2;
+		size=1.6;
 	}
 	[object13]		// Option "detail_tex"
 	{
@@ -167,7 +167,7 @@
 		x1=690;
 		y1=260;
 		value=0;
-		size=2;
+		size=1.6;
 	}
 	[object15]		// Option "fullscreen"
 	{
@@ -187,7 +187,7 @@
 		x1=690;
 		y1=295;
 		value=0;
-		size=2;
+		size=1.6;
 	}
 	[object17]		// Option "screenres"
 	{

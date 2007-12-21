@@ -257,6 +257,7 @@ public:
 
 private:
 	bool		delete_gltex;
+	float		size_factor;
 
 public:
 
@@ -282,6 +283,7 @@ public:
 		draw_borders = true;
 		background = 0;
 		background_wnd = false;
+		size_factor = 1.0f;
 	}
 
 	inline WND( const String &filename )			// Constructor
@@ -303,6 +305,7 @@ public:
 		show_title = true;
 		draw_borders = true;
 		background = 0;
+		size_factor = 1.0f;
 		load_tdf( filename );
 	}
 
@@ -334,7 +337,9 @@ private:
 	cHashTable< Vector< TA3D::INTERFACES::GFX_TEXTURE >* >			gui_hashtable;		// hashtable used to speed up loading of *.gui files and save memory
 	String				cached_key;
 	WND					*cached_wnd;
+	uint32				scroll_timer;
 public:
+	bool				scrolling;
 	GLuint				background;			// Of course we need a background, not a single color :-)
 
 	private:

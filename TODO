@@ -1,10 +1,7 @@
 TODO list
 ---------
-_add a confirm dialog when changing screen resolution
-_hot restart mechanism
 _read the music from a CD
 _add glossiness (or reflection) to all TA3D models.
-_TA3D in desperate need of some kind of data cache, so each run with similar options it could directly load data to RAM and not to convert all TA resources again.
 _make 3D replacement models for 2D map features
 _implement standing move orders
 _increase loading speed and lower memory cost by not loading unused features
@@ -13,6 +10,9 @@ _networking code
 _improve A.I.
 _D3D support
 
+*new confirm dialog when changing screen resolution
+*new hot restart mechanism
+*TA3D_Audio now explicitly uses ALSA on Linux, so you can have sound and your favorite music player started
 *patrol orders has been greatly improved
 *TA3D now requires Allegro >= 4.2.2 (configure doesn't accept 4.2.0 any more since it has bugs that crash TA3D)
 *new quickrestart mechanism when you select a new configuration that require restarting TA3D
@@ -31,7 +31,6 @@ _D3D support
 bug list
 --------
 _add a flag to movement data to make units leaving their factory face the exit before moving
-_planes should look for another destination before trying to land
 _some parts of the maps might not be drawn (visibility limit) like hills
 _slow down with lots of 3D sprites on some gfx hardware (speed increased but bug not yet fixed)
 _fix all other bugs ( :-) )

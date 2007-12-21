@@ -93,7 +93,7 @@ void LoadConfigFile( void )
 	TA3D::VARS::lp_CONFIG->waves = cfgFile->PullAsBool( "TA3D.Show Waves" );
 	TA3D::VARS::lp_CONFIG->shadow = cfgFile->PullAsBool( "TA3D.Show Shadows" );
 	TA3D::VARS::lp_CONFIG->height_line = cfgFile->PullAsBool( "TA3D.Show Height Lines" );
-	TA3D::VARS::lp_CONFIG->fullscreen = cfgFile->PullAsBool( "TA3D.Show FullScreen" );
+	TA3D::VARS::lp_CONFIG->fullscreen = cfgFile->PullAsBool( "TA3D.Show FullScreen", false );
 	TA3D::VARS::lp_CONFIG->detail_tex = cfgFile->PullAsBool( "TA3D.Detail Texture" );
 	TA3D::VARS::lp_CONFIG->draw_console_loading = cfgFile->PullAsBool( "TA3D.Draw Console Loading" );
 
