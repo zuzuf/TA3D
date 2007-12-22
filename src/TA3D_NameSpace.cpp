@@ -150,6 +150,45 @@ namespace TA3D
 		TA3D_OUTPUT_DIR = (home != NULL) ? String( home ) + "/.ta3d" : "" ;
 #endif
 
+		bool rebuild_cache = false;
+
+			// Check cache date
+		String cache_date = format("build info : %s , %s\n\n",__DATE__,__TIME__);
+
+		allegro_init();
+
+		if( TA3D_exists( TA3D_OUTPUT_DIR + "/cache/cache_info.txt" ) ) {
+			FILE *cache_info = TA3D_OpenFile( TA3D_OUTPUT_DIR + "/cache/cache_info.txt", "rb" );
+			if( cache_info ) {
+				char *buf = new char[ cache_date.size() + 1 ];
+				if( buf ) {
+					memset( buf, 0, cache_date.size() + 1 );
+					fread( buf, cache_date.size(), 1, cache_info );
+					if( buf == cache_date )
+						rebuild_cache = false;
+					else
+						rebuild_cache = true;
+					delete[] buf;
+					}
+				fclose( cache_info );
+				}
+			}
+		else
+			rebuild_cache = true;
+
+		if( rebuild_cache ) {
+			struct al_ffblk info;
+
+			if (al_findfirst((TA3D_OUTPUT_DIR+"/cache/*").c_str(), &info, FA_ALL) == 0) {
+				do {
+					delete_file( (TA3D_OUTPUT_DIR + "/cache/" + info.name).c_str() );
+					} while ( !al_findnext(&info) );
+				al_findclose(&info);
+				}
+			}
+
+		allegro_exit();
+
 		if( TA3D_OUTPUT_DIR != "" ) {
 #if defined TA3D_PLATFORM_WINDOWS
 			mkdir( TA3D_OUTPUT_DIR.c_str() );
@@ -162,6 +201,15 @@ namespace TA3D
 #else
 			mkdir( (TA3D_OUTPUT_DIR+"cache").c_str(), 0xFFF );
 #endif
+			}
+
+		if( rebuild_cache ) {					// Update cache date
+			FILE *cache_info = TA3D_OpenFile( TA3D_OUTPUT_DIR + "cache/cache_info.txt", "wb" );
+			if( cache_info ) {
+				fwrite( cache_date.c_str(), cache_date.size(), 1, cache_info );
+				putc( 0, cache_info );
+				fclose( cache_info );
+				}
 			}
 	}
 }

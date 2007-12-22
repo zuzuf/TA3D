@@ -2480,7 +2480,7 @@ bool UNIT::is_on_radar( byte &p_mask )
 							if(mission->path == NULL) {		// End of path reached
 								J = move_target_computed - Pos;
 								J.y = 0.0f;
-								if( J.Sq() <= 1024.0f || flying ) {
+								if( J.Sq() <= 16384.0f || flying ) {
 									if( !(mission->flags & MISSION_FLAG_DONT_STOP_MOVE) && (mission == NULL || mission->mission != MISSION_PATROL ) )
 										play_sound( "arrived1" );
 									mission->flags &= ~MISSION_FLAG_MOVE;

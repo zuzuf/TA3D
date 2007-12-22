@@ -78,7 +78,20 @@ Vector< GLuint > read_gaf_imgs( const String &filename, const String &imgname, i
 				if( w )	w[i] = img->w;
 				if( h )	h[i] = img->h;
 
+				bool with_alpha = false;
+				for( int y = 0 ; y < img->h && !with_alpha ; y++ )
+					for( int x = 0 ; x < img->w && !with_alpha ; x++ )
+						with_alpha |= img->line[y][(x<<2)+3] != 255;
+				if(g_useTextureCompression)
+					allegro_gl_set_texture_format( with_alpha ? GL_COMPRESSED_RGBA_ARB : GL_COMPRESSED_RGB_ARB );
+				else
+					allegro_gl_set_texture_format( with_alpha ? GL_RGBA8 : GL_RGB8 );
+
+				allegro_gl_use_alpha_channel( with_alpha );
+
 				textures[ i ] = gfx->make_texture( img );
+
+				allegro_gl_use_alpha_channel( false );
 
 				gfx->save_texture_to_cache( cache_filename, textures[ i ], img->w, img->h );
 
@@ -139,7 +152,7 @@ GLuint	read_gaf_img( const String &filename, const String &imgname, int *w, int 
 			bool with_alpha = false;
 			for( int y = 0 ; y < img->h && !with_alpha ; y++ )
 				for( int x = 0 ; x < img->w && !with_alpha ; x++ )
-					with_alpha |= img->line[y][(x<<2)+3] == 255;
+					with_alpha |= img->line[y][(x<<2)+3] != 255;
 			if(g_useTextureCompression)
 				allegro_gl_set_texture_format( with_alpha ? GL_COMPRESSED_RGBA_ARB : GL_COMPRESSED_RGB_ARB );
 			else
@@ -555,6 +568,7 @@ void ANIM::convert(bool NO_FILTER,bool COMPRESSED)
 			glbmp[i] = 0;
 
 		if( !glbmp[i] ) {
+			set_color_depth(32);
 			BITMAP *tmp=create_bitmap(bmp[i]->w,bmp[i]->h);
 			blit(bmp[i],tmp,0,0,0,0,tmp->w,tmp->h);
 			destroy_bitmap(bmp[i]);
