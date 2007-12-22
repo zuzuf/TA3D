@@ -40,6 +40,8 @@ using namespace TA3D::EXCEPTION;
 
 INGAME_UNITS units;
 
+float sq( const float &a )	{	return a * a;	}
+
 bool UNIT::is_on_radar( byte &p_mask )
 {
 	int px = cur_px>>1;
@@ -2478,15 +2480,13 @@ bool UNIT::is_on_radar( byte &p_mask )
 							if(mission->path == NULL) {		// End of path reached
 								J = move_target_computed - Pos;
 								J.y = 0.0f;
-								if( J.Sq() <= 1024.0f ) {
+								if( J.Sq() <= 1024.0f || flying ) {
 									if( !(mission->flags & MISSION_FLAG_DONT_STOP_MOVE) && (mission == NULL || mission->mission != MISSION_PATROL ) )
 										play_sound( "arrived1" );
 									mission->flags &= ~MISSION_FLAG_MOVE;
 									}
-								else {										// We are not where we are supposed to be !!
-									last_path_refresh = 0.0f;				// Wait 5 sec before retrying
+								else										// We are not where we are supposed to be !!
 									mission->flags |= MISSION_FLAG_REFRESH_PATH;
-									}
 								if( !( unit_manager.unit_type[ type_id ].canfly && nb_attached > 0 ) ) {		// Once charged with units the Atlas cannot land
 									launch_script(get_script_index(SCRIPT_StopMoving));
 									was_moving = false;
@@ -2560,14 +2560,16 @@ bool UNIT::is_on_radar( byte &p_mask )
 									// Check some basic solutions first
 									if( fabs( V.x ) > 0.0f
 									&& can_be_there( n_px, cur_py, map, type_id, owner_id, idx )) {
-										V.x = V.x + (V.x < 0.0f ? -fabs(V.z) : fabs(V.z) );
+//										V.x = V.x + (V.x < 0.0f ? -fabs(V.z) : fabs(V.z) );
+										V.x = (V.x < 0.0f ? -sqrt( sq(V.z) + sq(V.x) ) : sqrt( sq(V.z) + sq(V.x) ) );
 										V.z = 0.0f;
 										NPos.z = Pos.z;
 										n_py = cur_py;
 										}
 									else if( fabs( V.z ) > 0.0f
 									&& can_be_there( cur_px, n_py, map, type_id, owner_id, idx )) {
-										V.z = V.z + (V.z < 0.0f ? -fabs(V.x) : fabs(V.x) );
+//										V.z = V.z + (V.z < 0.0f ? -fabs(V.x) : fabs(V.x) );
+										V.z = (V.z < 0.0f ? -sqrt( sq(V.z) + sq(V.x) ) : sqrt( sq(V.z) + sq(V.x) ) );
 										V.x = 0.0f;
 										NPos.x = Pos.x;
 										n_px = cur_px;
@@ -2586,9 +2588,9 @@ bool UNIT::is_on_radar( byte &p_mask )
 										}
 									else
 										Console->AddEntry("Unit is blocked!! (1)");
-									float speed = V.Sq();
-									if( speed > unit_manager.unit_type[ type_id ].MaxVelocity * unit_manager.unit_type[ type_id ].MaxVelocity )
-										V = unit_manager.unit_type[ type_id ].MaxVelocity / sqrt( speed ) * V;
+//									float speed = V.Sq();
+//									if( speed > unit_manager.unit_type[ type_id ].MaxVelocity * unit_manager.unit_type[ type_id ].MaxVelocity )
+//										V = unit_manager.unit_type[ type_id ].MaxVelocity / sqrt( speed ) * V;
 									}
 								else if( !flying ) {
 									if(Pos.x<-map->map_w_d || Pos.x>map->map_w_d || Pos.z<-map->map_h_d || Pos.z>map->map_h_d) {
@@ -4372,10 +4374,10 @@ bool UNIT::is_on_radar( byte &p_mask )
 		weapons.weapon[w_idx].damage = unit_manager.unit_type[type_id].weapon_damage[ w_id ];
 		weapons.weapon[w_idx].Pos=startpos;
 		if(unit_manager.unit_type[type_id].weapon[w_id]->startvelocity==0.0f && !unit_manager.unit_type[type_id].weapon[w_id]->selfprop)
-			weapons.weapon[w_idx].V=unit_manager.unit_type[type_id].weapon[w_id]->weaponvelocity*Dir;
+			weapons.weapon[w_idx].V = unit_manager.unit_type[type_id].weapon[w_id]->weaponvelocity*Dir;
 		else
-			weapons.weapon[w_idx].V=unit_manager.unit_type[type_id].weapon[w_id]->startvelocity*Dir;
-		if(unit_manager.unit_type[type_id].weapon[w_id]->dropped)
+			weapons.weapon[w_idx].V = unit_manager.unit_type[type_id].weapon[w_id]->startvelocity*Dir;
+		if( unit_manager.unit_type[type_id].weapon[w_id]->dropped || !(unit_manager.unit_type[type_id].weapon[w_id]->rendertype & RENDER_TYPE_LASER) )
 			weapons.weapon[w_idx].V=weapons.weapon[w_idx].V+V;
 		weapons.weapon[w_idx].owner=owner_id;
 		weapons.weapon[w_idx].target=target;

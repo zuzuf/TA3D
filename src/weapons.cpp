@@ -456,7 +456,7 @@ const void WEAPON::move(const float dt,MAP *map)				// Anime les armes
 			A.y-=map->ota_data.gravity;
 		if(weapon_manager.weapon[weapon_id].guidance && ((weapon_manager.weapon[weapon_id].twophase && phase==2) || !weapon_manager.weapon[weapon_id].twophase)
 		&& ((weapon_manager.weapon[weapon_id].waterweapon && Pos.y<map->sealvl) || !weapon_manager.weapon[weapon_id].waterweapon)) {	// Traque sa cible
-			float speed=V.Norm();
+			float speed = V.Norm();
 			if(weapon_manager.weapon[weapon_id].tracks && target>=0) {
 				VECTOR target_V;
 				if(weapon_manager.weapon[weapon_id].interceptor && target<=weapons.nb_weapon && weapons.weapon[target].weapon_id!=-1) {
@@ -485,12 +485,15 @@ const void WEAPON::move(const float dt,MAP *map)				// Anime les armes
 			I.Unit();
 			J=I*Dir;
 			K=J*I;
-			if(speed<weapon_manager.weapon[weapon_id].weaponvelocity) {
-				if(speed>0.0f)
-					A=A+weapon_manager.weapon[weapon_id].weaponacceleration*I;
+			if( speed < weapon_manager.weapon[weapon_id].weaponvelocity ) {
+				if( speed > 0.0f )
+					A = A + weapon_manager.weapon[weapon_id].weaponacceleration * I;
 				else
-					A=A+weapon_manager.weapon[weapon_id].weaponacceleration*Dir;
+					A = A + weapon_manager.weapon[weapon_id].weaponacceleration * Dir;
 				}
+			else if( speed > 0.5f * weapon_manager.weapon[weapon_id].weaponvelocity && (V % Dir) < 0.0f )					// Can slow down if needed
+				A = A - weapon_manager.weapon[weapon_id].weaponacceleration * I;
+
 			float rotate=dt*weapon_manager.weapon[weapon_id].turnrate*TA2RAD;
 			V=speed*(cos(rotate)*I+sin(rotate)*K);
 			}
@@ -865,27 +868,15 @@ void WEAPON::draw(CAMERA *cam,MAP *map)				// Dessine les objets produits par le
 	case RENDER_TYPE_MISSILE:					// Dessine le missile
 		glTranslatef(Pos.x,Pos.y,Pos.z);
 		{
-			VECTOR I,J,K,Dir,Dir2;
-			I.x=I.y=I.z=0.0f;
-			J=K=I;
-			I.x=1.0f;
-			J.z=-1.0f;
-			K.y=1.0f;
-			Dir=-V;
+			VECTOR I, J, Dir;
+			I.y = I.x = 0.0f;
+			I.z = 1.0f;
+			Dir = V;
 			Dir.Unit();
-			Dir2=Dir;
-			Dir2.y=0.0f;
-			Dir2.Unit();
-			float theta=acos(Dir%Dir2)*RAD2DEG;
-			float phi=acos(Dir2%J)*RAD2DEG;
-			if(Dir%I<0.0f)	phi=-phi;
-			if(Dir2%K<0.0f)	theta=-theta;
-			if(Dir.x==0.0f && Dir.y<0.0f && Dir.z==0.0f && theta>0.0f) {
-				theta=-theta;
-				phi=-phi;
-				}
-			glRotatef(-phi,0.0f,1.0f,0.0f);
-			glRotatef(theta,1.0f,0.0f,0.0f);
+			J = V * I;
+			J.Unit();
+			float theta = -acos( Dir.z ) * RAD2DEG;
+			glRotatef( theta, J.x, J.y, J.z );
 		}
 		glEnable(GL_LIGHTING);
 		glEnable(GL_TEXTURE_2D);
@@ -927,23 +918,15 @@ void WEAPON::draw(CAMERA *cam,MAP *map)				// Dessine les objets produits par le
 	case RENDER_TYPE_BOMB:
 		glTranslatef(Pos.x,Pos.y,Pos.z);
 		{
-			VECTOR I,J,K,Dir,Dir2;
-			I.x=I.y=I.z=0.0f;
-			J=K=I;
-			I.x=1.0f;
-			J.z=-1.0f;
-			K.y=1.0f;
-			Dir=-V;
+			VECTOR I, J, Dir;
+			I.y = I.x = 0.0f;
+			I.z = 1.0f;
+			Dir = V;
 			Dir.Unit();
-			Dir2=Dir;
-			Dir2.y=0.0f;
-			Dir2.Unit();
-			float theta=acos(Dir%Dir2)*RAD2DEG;
-			float phi=acos(Dir2%J)*RAD2DEG;
-			if(Dir%I<0.0f)	phi=-phi;
-			if(Dir2%K<0.0f)	theta=-theta;
-			glRotatef(-phi,0.0f,1.0f,0.0f);
-			glRotatef(theta,0.0f,0.0f,1.0f);
+			J = V * I;
+			J.Unit();
+			float theta = -acos( Dir.z ) * RAD2DEG;
+			glRotatef( theta, J.x, J.y, J.z );
 		}
 		glEnable(GL_LIGHTING);
 		glEnable(GL_TEXTURE_2D);
@@ -986,23 +969,15 @@ void WEAPON::draw(CAMERA *cam,MAP *map)				// Dessine les objets produits par le
 	case RENDER_TYPE_DGUN:			// Dessine le dgun
 		glTranslatef(Pos.x,Pos.y,Pos.z);
 		{
-			VECTOR I,J,K,Dir,Dir2;
-			I.x=I.y=I.z=0.0f;
-			J=K=I;
-			I.x=1.0f;
-			J.z=-1.0f;
-			K.y=1.0f;
-			Dir=-V;
+			VECTOR I, J, Dir;
+			I.y = I.x = 0.0f;
+			I.z = 1.0f;
+			Dir = V;
 			Dir.Unit();
-			Dir2=Dir;
-			Dir2.y=0.0f;
-			Dir2.Unit();
-			float theta=acos(Dir%Dir2)*RAD2DEG;
-			float phi=acos(Dir2%J)*RAD2DEG;
-			if(Dir%I<0.0f)	phi=-phi;
-			if(Dir2%K<0.0f)	theta=-theta;
-			glRotatef(-phi,0.0f,1.0f,0.0f);
-			glRotatef(theta,1.0f,0.0f,0.0f);
+			J = V * I;
+			J.Unit();
+			float theta = -acos( Dir.z ) * RAD2DEG;
+			glRotatef( theta, J.x, J.y, J.z );
 		}
 		glEnable(GL_LIGHTING);
 		glEnable(GL_TEXTURE_2D);

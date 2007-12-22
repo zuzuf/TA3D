@@ -469,14 +469,15 @@ void OBJECT::optimise_mesh()			// EXPERIMENTAL, function to merge all objects in
 					else
 						blit(texture_manager.tex[index_tex[i]].bmp[0],bmp,0,0,px[i],py[i],texture_manager.tex[index_tex[i]].bmp[0]->w,texture_manager.tex[index_tex[i]].bmp[0]->h);
 				dtex=e+1;
-				String cache_filename = String( filename ) + format("-%s-%d.bin", name ? name : "none", e );
+				String cache_filename = filename ? String( filename ) + format("-%s-%d.bin", name ? name : "none", e ) : String( "" );
 				gltex[e] = gfx->load_texture_from_cache( cache_filename );
 				if( !gltex[ e ] ) {
 					gltex[e] = allegro_gl_make_texture(bmp);
 					glBindTexture(GL_TEXTURE_2D,gltex[e]);
 					glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
 					glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR_MIPMAP_LINEAR);
-					gfx->save_texture_to_cache( cache_filename, gltex[ e ], bmp->w, bmp->h );
+					if( filename )
+						gfx->save_texture_to_cache( cache_filename, gltex[ e ], bmp->w, bmp->h );
 					}
 				if(!mtex_needed)	break;
 				}

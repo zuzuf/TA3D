@@ -35,6 +35,7 @@ _some parts of the maps might not be drawn (visibility limit) like hills
 _slow down with lots of 3D sprites on some gfx hardware (speed increased but bug not yet fixed)
 _fix all other bugs ( :-) )
 
+*fixed weapon models rotation bug
 *fixed widgets zoom factor for text
 *pathfinding FIXED !!!
 *fixed armcom & armllt laser colors and adapted size

@@ -850,7 +850,8 @@ int WND::check(int AMx,int AMy,int AMb,bool timetoscroll, SKIN *skin )
 				case OBJ_TA_BUTTON:
 				case OBJ_OPTIONB:
 				case OBJ_OPTIONC:
-					sound_manager->PlayTDFSoundNow("SPECIALORDERS.sound");
+					if( sound_manager )
+						sound_manager->PlayTDFSoundNow("SPECIALORDERS.sound");
 				};
 			Objets[i].activated = mouse_b==1 && Objets[i].MouseOn;
 
@@ -866,7 +867,7 @@ int WND::check(int AMx,int AMy,int AMb,bool timetoscroll, SKIN *skin )
 				switch(Objets[i].Type)
 				{
 				case OBJ_LIST:
-					Objets[i].Pos = (uint32) ((mouse_y - y - Objets[i].y1 - skin->text_background.y1 - 4) / ( gui_font.height() * Objets[i].s ) + Objets[i].Data);					Objets[i].Etat = true;
+					Objets[i].Pos = (uint32) ((mouse_y - y - Objets[i].y1 - ( skin ? skin->text_background.y1:0) - 4) / ( gui_font.height() * Objets[i].s ) + Objets[i].Data);					Objets[i].Etat = true;
 					break;
 				case OBJ_TA_BUTTON:
 					if( Objets[i].nb_stages > 0 )
@@ -893,7 +894,7 @@ int WND::check(int AMx,int AMy,int AMb,bool timetoscroll, SKIN *skin )
 				case OBJ_OPTIONB:		// Boutton d'option
 					if(was_on_floating_menu)	break;
 					if( skin && skin->option[0].tex && skin->option[1].tex) {
-						if(mouse_x<=x+Objets[i].x1+skin->option[Objets[i].Etat?1:0].w && mouse_y<=y+Objets[i].y1+skin->option[Objets[i].Etat?1:0].h)
+						if(mouse_x<=x+Objets[i].x1+skin->option[Objets[i].Etat?1:0].w && mouse_y <= y + Objets[i].y1+skin->option[Objets[i].Etat?1:0].h)
 							Objets[i].Etat^=true;
 						}
 					else
@@ -903,19 +904,19 @@ int WND::check(int AMx,int AMy,int AMb,bool timetoscroll, SKIN *skin )
 						(*Objets[i].Func)(Objets[i].Etat);	// Lance la fonction associée
 					break;
 				case OBJ_FMENU:			// Menu Flottant
-					if(mouse_y>=y+Objets[i].y1+skin->menu_background.y1+4 && mouse_y<=y+Objets[i].y2 + skin->menu_background.y2-4) {
-						index=(int)((mouse_y-y-Objets[i].y1-4 - skin->menu_background.y1)/(gui_font.height()*Objets[i].s));
+					if(mouse_y>=y+Objets[i].y1+( skin ? skin->menu_background.y1:0)+4 && mouse_y<=y+Objets[i].y2 + ( skin ? skin->menu_background.y2 : 0 )-4) {
+						index=(int)((mouse_y-y-Objets[i].y1-4 - ( skin ? skin->menu_background.y1 : 0 ))/(gui_font.height()*Objets[i].s));
 						if(index>=Objets[i].Text.size()) index=Objets[i].Text.size()-1;
 						if(Objets[i].Func!=NULL)
 							(*Objets[i].Func)(index);		// Lance la fonction associée
 						}
 					break;
 				case OBJ_MENU:			// Menu déroulant
-					if(mouse_x>=x+Objets[i].x1 + skin->menu_background.x1 && mouse_x<=x+Objets[i].x1+168 + skin->menu_background.x2
-						&& mouse_y>y+Objets[i].y2 + skin->menu_background.y1 && mouse_y<=y+Objets[i].y2 + skin->menu_background.y2 + 1+gui_font.height()*Objets[i].s*Objets[i].Text.size()
+					if(mouse_x>=x+Objets[i].x1 + ( skin ? skin->menu_background.x1 : 0 ) && mouse_x <= x + Objets[i].x1+168 + ( skin ? skin->menu_background.x2 : 0 )
+						&& mouse_y>y+Objets[i].y2 + ( skin ? skin->menu_background.y1 : 0 ) && mouse_y <= y + Objets[i].y2 + ( skin ? skin->menu_background.y2 : 0 ) + 1+gui_font.height()*Objets[i].s*Objets[i].Text.size()
 						&& Objets[i].Etat){
 
-						index=(int)((mouse_y-y-Objets[i].y2-5 - skin->menu_background.y1)/(Objets[i].s*gui_font.height())+Objets[i].Pos);
+						index=(int)((mouse_y-y-Objets[i].y2-5 - ( skin ? skin->menu_background.y1 : 0 ))/(Objets[i].s*gui_font.height())+Objets[i].Pos);
 						if(index>=Objets[i].Text.size()-1) index=Objets[i].Text.size()-2;
 						if(Objets[i].Func!=NULL)
 							(*Objets[i].Func)(index);		// Lance la fonction associée
