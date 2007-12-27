@@ -851,6 +851,9 @@ int PARTICLE_ENGINE::Run()
 	float dt = 1.0f / TICKS_PER_SEC;
 	int particle_timer = msec_timer;
 	int counter = 0;
+
+	particle_engine_thread_sync = 0;
+
 	while( !thread_ask_to_stop ) {
 		counter++;
 
@@ -860,6 +863,7 @@ int PARTICLE_ENGINE::Run()
 		ThreadSynchroniser->LeaveSync();
 
 		particle_engine_thread_sync = 1;
+
 		while( particle_engine_thread_sync && !thread_ask_to_stop )	rest( 1 );			// Wait until other thread sync with this one
 		}
 	thread_running = false;

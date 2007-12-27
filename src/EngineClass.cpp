@@ -35,6 +35,7 @@
 #include "tdf.h"					// Pour la gestion des éléments du jeu
 #include "EngineClass.h"
 #include "UnitEngine.h"
+#include "lzw.h"					// Support for LZW compression
 
 float	player_color[30]={	0.11f,	0.28f,	0.91f,
 							0.83f,	0.17f,	0.0f,
@@ -1046,7 +1047,7 @@ void MAP::draw(CAMERA *cam,byte player_mask,bool FLAT,float niv,float t,float dt
 						V.Unit();
 						particle_engine.emit_lava(POS,V,1,10,(rand_from_table()%1000)*0.01f+30.0f);
 						}
-					else if( !map_data[ Y ][ X ].lava &&												// A wave
+					else if( !map_data[ Y ][ X ].lava && water &&										// A wave
 						(h_map[Y|1][X|1] < sealvl || h_map[Y][X|1] < sealvl || h_map[Y|1][X] < sealvl || h_map[Y][X] < sealvl) &&
 						(h_map[Y|1][X|1] >= sealvl || h_map[Y|1][X] >= sealvl || h_map[Y][X|1] >= sealvl || h_map[Y][X] >= sealvl) &&
 						(rand_from_table()%4000)<=lavaprob &&
@@ -1603,6 +1604,75 @@ void PLAYERS::show_resources()
 	units.LeaveCS_from_outside();
 }
 
+void PLAYERS::player_control()
+{
+	for( byte i = 0 ; i < nb_player ; i++ )
+		if( control[ i ] == PLAYER_CONTROL_LOCAL_AI && ai_command )
+			ai_command[ i ].monitor();
+
+	if( (units.current_tick % 3) == 0 ) {
+		byte	*sync_data = new byte[ 35 * units.max_unit ];
+		uint32	sync_pos = 0;
+
+		for( int e = 0 ; e < units.nb_unit ; e++ ) {
+			units.EnterCS_from_outside();
+			int i = units.idx_list[ e ];
+			units.LeaveCS_from_outside();
+
+			units.unit[ i ].Lock();
+			if( !(units.unit[ i ].flags & 1) )	{
+				units.unit[ i ].UnLock();
+				continue;
+				}
+			if( !(control[ units.unit[ i ].owner_id ] & PLAYER_CONTROL_FLAG_REMOTE) )
+				sync_pos = units.unit[ i ].write_sync_data( sync_data, sync_pos );
+			units.unit[ i ].UnLock();
+			}
+
+		printf("packet size (uncompressed) = %d\n", sync_pos );
+
+		byte *c_data = LZW_compress( sync_data, sync_pos );
+	
+		printf("packet size (compressed) = %d\n", ((uint32*)c_data)[0] );
+
+		printf("ratio = %f\n", ((float)sync_pos) / ((uint32*)c_data)[0] );
+
+		delete[] c_data;
+
+		delete[] sync_data;
+		}
+}
+
+int PLAYERS::Run()
+{
+	if( thread_is_running )	return 0;
+
+	thread_is_running = true;
+
+	players_thread_sync = 0;
+
+	while( !thread_ask_to_stop ) {
+		players.player_control();
+
+		ThreadSynchroniser->EnterSync();
+		ThreadSynchroniser->LeaveSync();
+
+		players_thread_sync = 1;
+
+		while( players_thread_sync && !thread_ask_to_stop )	rest( 1 );			// Wait until other thread sync with this one
+		}
+
+	thread_is_running = false;
+
+	return 0;
+}
+
+void PLAYERS::SignalExitThread()
+{
+	thread_ask_to_stop = true;
+	while( thread_is_running )	rest( 1 );
+	thread_ask_to_stop = false;
+}
 
 void SKY_DATA::load_tdf( const String	&filename )
 {

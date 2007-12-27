@@ -297,9 +297,9 @@ do
 	rest(1);
 	poll_mouse();		// obtient les coordonnées de la souris
 
-	IsOnGUI=MainWnd.check(amx,amy,amb);		// gestion de l'interface utilisateur graphique
+	IsOnGUI=MainWnd.check(amx,amy,amz,amb);		// gestion de l'interface utilisateur graphique
 	if(!IsOnGUI)
-		IsOnGUI = EditWnd.check(amx,amy,amb,counter==0);
+		IsOnGUI = EditWnd.check(amx,amy,amz,amb,counter==0);
 
 	if(!IsOnGUI) {				// Si la souris n'est pas sur un élément de l'interface utilisateur(si elle est sur la fenêtre 3D)
 		if(mouse_b==1) {		// Appui sur le bouton gauche pour effecture une rotation
@@ -774,7 +774,7 @@ do
 
 	poll_mouse();		// obtient les coordonnées de la souris
 	
-	SEdit.check(amx,amy,amb);		// gestion de l'interface utilisateur graphique
+	SEdit.check(amx,amy,amz,amb);		// gestion de l'interface utilisateur graphique
 	
 	if(SEdit.Objets[0].Etat) done=true;		// En cas de click sur "OK", on quitte la fenêtre
 
@@ -1186,19 +1186,19 @@ void SurfPaint(int index)
 
 		poll_mouse();		// obtient les coordonnées de la souris
 
-		IsOnGUI=SPaint.check(amx,amy,amb);		// gestion de l'interface utilisateur graphique
+		IsOnGUI=SPaint.check(amx,amy,amz,amb);		// gestion de l'interface utilisateur graphique
 
 		if(IsOnGUI && mouse_b!=0)
 			Focus=0;
 
 		if(EditMode==EDIT_PAINT && !IsOnGUI) {
-			IsOnGUI=STool.check(amx,amy,amb);
+			IsOnGUI=STool.check(amx,amy,amz,amb);
 			if(IsOnGUI && mouse_b!=0)
 				Focus=2;
 			}
 
 		if(showcoorwindow && !IsOnGUI) {
-			IsOnGUI=SCoor.check(amx,amy,amb);
+			IsOnGUI=SCoor.check(amx,amy,amz,amb);
 			if(IsOnGUI && mouse_b!=0)
 				Focus=1;
 			}

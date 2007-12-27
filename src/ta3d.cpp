@@ -336,10 +336,12 @@ bool show_mission_info=false;
 bool speed_changed = false;
 float show_timefactor = 0.0f;
 
+float show_gamestatus = 0.0f;
+
 float unit_info=0.0f;
 int	unit_info_id=-1;
 
-rest(100);						// Juste pour éviter un "Xlib: ..." / To avoid "Xlib: ..." error
+rest(100);						// Juste pour éviter un "Xlib: ..." / To avoid an "Xlib: ..." error
 
 float wind_t=t;					// To handle wind variations
 bool wind_change=false;
@@ -434,6 +436,13 @@ weapons.set_data( map );
 features.set_data( map->wind_vec );		// NB: the feature engine runs in the weapon thread to avoid having too much thread to synchronise
 weapons.Start();
 
+/*---------------------------- players management --------------------------*/
+
+players.set_map( map );
+players.Start();
+
+/*------------------------- end of players management ----------------------*/
+
 do
 {
 	/*------------------------ handle GUI events -------------------------------*/
@@ -486,12 +495,6 @@ do
 		wind_change=false;
 
 	/*---------------------- end of wind speed and dir code --------------------*/
-
-	/*---------------------------- players management --------------------------*/
-
-	players.player_control(map);
-
-	/*------------------------- end of players management ----------------------*/
 
 	/*----------------------------- sound management ---------------------------*/
 
@@ -593,6 +596,52 @@ do
 		}
 
 /*------------bloc regroupant ce qui est relatif aux commandes----------------*/
+
+	if( players.local_human_id >= 0 && !Console->activated() ) {
+		if( key[ KEY_SPACE ] ) {				// Show gamestatus window
+			if( show_gamestatus == 0.0f ) {
+				I_Msg( TA3D::TA3D_IM_GUI_MSG, (void*)"gamestatus.show", NULL, NULL );	// Show it
+				I_Msg( TA3D::TA3D_IM_GUI_MSG, (void*)"playerstats.show", NULL, NULL );	// Show it
+				}
+
+			show_gamestatus += 10.0f * dt;
+			if( show_gamestatus > 1.0f )
+				show_gamestatus = 1.0f;
+			}
+		else {									// Hide gamestatus window
+			bool pre_visible = show_gamestatus > 0.0f;
+
+			show_gamestatus -= 10.0f * dt;
+
+			if( show_gamestatus < 0.0f && pre_visible ) {
+				I_Msg( TA3D::TA3D_IM_GUI_MSG, (void*)"gamestatus.hide", NULL, NULL );	// Hide it
+				I_Msg( TA3D::TA3D_IM_GUI_MSG, (void*)"playerstats.hide", NULL, NULL );	// Hide it
+				}
+			if( show_gamestatus < 0.0f )
+				show_gamestatus = 0.0f;
+			}
+
+		if( show_gamestatus > 0.0f ) {
+			WND *statuswnd = game_area.get_wnd( "gamestatus" );
+			if( statuswnd )
+				statuswnd->y = (int)(SCREEN_H - (statuswnd->height + 32) * show_gamestatus);
+			uint32 game_time = units.current_tick / TICKS_PER_SEC;
+			game_area.set_caption( "gamestatus.time_label", TRANSLATE("game time") + format(" : %d:%d:%d", game_time / 3600, (game_time / 60) % 60, game_time % 60 ) );
+			game_area.set_caption( "gamestatus.units_label", TRANSLATE("units") + format(" : %d/%d", players.nb_unit[ players.local_human_id ], MAX_UNIT_PER_PLAYER ) );
+			game_area.set_caption( "gamestatus.speed_label", TRANSLATE("speed") + format(" : %d (%d)", (int)lp_CONFIG->timefactor,(int)units.apparent_timefactor ) );
+
+			statuswnd = game_area.get_wnd( "playerstats" );
+			if( statuswnd )
+				statuswnd->x = (int)(SCREEN_W - (statuswnd->width + 10) * show_gamestatus);
+			for( int i = 0 ; i < players.nb_player ; i++ ) {
+				GUIOBJ *obj = game_area.get_object( format( "playerstats.p%d_box", i ) );
+				if( obj )
+					obj->Data = gfx->makeintcol( player_color[ 3 * player_color_map[ i ] ], player_color[ 3 * player_color_map[ i ] + 1 ], player_color[ 3 * player_color_map[ i ] + 2 ], 0.5f );
+				game_area.set_caption( format( "playerstats.p%d_kills", i ), format( "%d", players.kills[ i ] ) );
+				game_area.set_caption( format( "playerstats.p%d_losses", i ), format( "%d", players.losses[ i ] ) );
+				}
+			}
+		}
 
 	if( TA3D_CTRL_PRESSED && key[KEY_D] ) {
 		if( !ordered_destruct ) {
@@ -1798,6 +1847,7 @@ do
 		glTranslatef(target.x,target.y,target.z);
 		glScalef(unit_manager.unit_type[build].Scale,unit_manager.unit_type[build].Scale,unit_manager.unit_type[build].Scale);
 		if(unit_manager.unit_type[build].model) {
+			gfx->ReInitAllTex( true );
 			if(can_be_there)
 				glColor4f(1.0f,1.0f,1.0f,1.0f);
 			else
@@ -2557,13 +2607,6 @@ do
 	if(unit_info>0.0f && unit_info_id>=0)
 		unit_manager.unit_type[unit_info_id].show_info(unit_info,gfx->TA_font);
 
-/*	if(n>=0 && unit_manager.unit_type[cur_sel].weapon[0]!=NULL && unit_manager.unit_type[cur_sel].weapon[0]->name!=NULL)
-		allegro_gl_printf(aglfont,128.0f,32.0f,0.0f,0xFFFFFF,"arme ok");
-	else if(n>=0 && unit_manager.unit_type[cur_sel].weapon[0]!=NULL)
-		allegro_gl_printf(aglfont,128.0f,32.0f,0.0f,0xFFFFFF,"arme sans nom");
-	else
-		allegro_gl_printf(aglfont,128.0f,32.0f,0.0f,0xFFFFFF,"pas d'arme");*/
-
 	if(selected && cur_sel!=-1 && show_mission_info ) {					// Sur les unités sélectionnées
 		char *unit_info[]={"MISSION_STANDBY","MISSION_VTOL_STANDBY","MISSION_GUARD_NOMOVE","MISSION_MOVE","MISSION_BUILD","MISSION_BUILD_2","MISSION_STOP","MISSION_REPAIR","MISSION_ATTACK",
 							"MISSION_PATROL","MISSION_GUARD","MISSION_RECLAIM","MISSION_LOAD","MISSION_UNLOAD","MISSION_STANDBY_MINE"};
@@ -2727,6 +2770,8 @@ do
 					nb_to_spawn=atoi(cur_pos);
 					}
 				}
+			ThreadSynchroniser->EnterSync();		// Make sure we won't destroy something we mustn't
+			units.EnterCS_from_outside();
 			for(i=0;i<nb_to_spawn;i++) {
 				int id=0;
 				if( unit_type < 0 || unit_type >= unit_manager.nb_unit )
@@ -2734,15 +2779,16 @@ do
 				else
 					id = units.create(unit_type,player_id);
 				if( id == -1 )	break;		// Ho ho no more space to store that unit, limit reached
+				units.unit[ id ].Lock();
 				int e=0;
-				units.EnterCS_from_outside();
+
 				do {
 					units.unit[id].Pos.x=(TA3D_RAND()%map->map_w)-map->map_w_d;
 					units.unit[id].Pos.z=(TA3D_RAND()%map->map_h)-map->map_h_d;
 					e++;
 				}while(e<100 && !can_be_built( units.unit[id].Pos, map, units.unit[id].type_id, player_id ));
 				if(!can_be_built( units.unit[id].Pos, map, units.unit[id].type_id, player_id )) {
-					units.unit[id].flags = 0;
+					units.unit[id].flags = 4;
 					units.kill(id,map,units.idx_list[units.index_list_size-1]);
 					}
 				else {								// Compute unit's Y coordinate
@@ -2755,8 +2801,10 @@ do
 					units.unit[id].cur_py = (int)target_pos.z;
 					units.unit[id].draw_on_map();
 					}
-				units.LeaveCS_from_outside();
+				units.unit[ id ].UnLock();
 				}
+			units.LeaveCS_from_outside();
+			ThreadSynchroniser->LeaveSync();
 			}
 		if(strstr(cmd,"timefactor "))
 			lp_CONFIG->timefactor=atof(strstr(cmd,"timefactor ")+11);
@@ -2863,11 +2911,13 @@ do
 
 }while(!done);
 
-players.stop_threads();
-
 reset_mouse();
 
 delete sky_data;
+
+players.DestroyThread();				// Shut down the Players thread
+
+players.stop_threads();
 
 weapons.DestroyThread();				// Shut down the Weapon Engine
 

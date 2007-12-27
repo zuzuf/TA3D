@@ -49,13 +49,17 @@ namespace TA3D {
 		private:
 			typedef struct m_PlayListItem
 			{
-				String         m_Filename;
-				bool         m_BattleTune;
+				String		m_Filename;
+				bool		m_BattleTune;
+				bool		m_Deactivated;		// Only to tell the file is theres
+				bool		m_checked;			// Used by the playlist generator
 
 				m_PlayListItem()
 				{
 					m_Filename = String( "" );
 					m_BattleTune = false;
+					m_Deactivated = false;
+					m_checked = false;
 				}
 			};
 
@@ -84,18 +88,24 @@ namespace TA3D {
 
 		public:
 
+			std::vector< std::string >	GetPlayListFiles();
+			void						SetPlayListFileMode( int idx, bool Battle, bool Deactivated );
+
 			cAudio( const float DistanceFactor,
 			    const float DopplerFactor,
 			    const float RolloffFactor );
 			~cAudio();
 
 			// PlayList Members
+		public:
+			void	UpdatePlayListFiles( void );
+			void	SavePlayList( void );
 		private:
 			void ShutdownAudio( bool PurgeLoadedData );
 			bool StartUpAudio( void );
 
-			void  LoadPlayList( void );
-			void PurgePlayList( void );
+			void	LoadPlayList( void );
+			void	PurgePlayList( void );
 
 			const String SelectNextMusic( void );
 			void  PlayMusic( const String &FileName );

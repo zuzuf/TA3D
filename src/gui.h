@@ -97,6 +97,7 @@ void OptionCase( float x, float y, const String &Title, bool Etat , SKIN *skin=N
 void TextBar( float x1, float y1, float x2, float y2, const String &Caption, bool Etat , SKIN *skin=NULL, float size = 1.0f );
 void ProgressBar( float x1, float y1, float x2, float y2, int Value , SKIN *skin=NULL, float size = 1.0f );
 void PopupMenu( float x1, float y1, const String &msg, SKIN *skin=NULL, float size = 1.0f );
+void ScrollBar( float x1, float y1, float x2, float y2, float Value, bool vertical=true, SKIN *skin = NULL, float size = 1.0f );
 void draw_text_adjust( float x1, float y1, float x2, float y2, String msg, float size );
 
 /*--------------------------------------------------------------------------------------------------*/
@@ -313,7 +314,7 @@ public:
 
 	void draw( String &help_msg, bool Focus=true,bool Deg=true, SKIN *skin=NULL );						// Draw the window
 	byte WinMov(int AMx,int AMy,int AMb,int Mx,int My,int Mb, SKIN *skin=NULL );						// Handle window's moves
-	int check(int AMx,int AMy,int AMb,bool timetoscroll=true, SKIN *skin = NULL );	// Handle window's events
+	int check(int AMx,int AMy,int AMz,int AMb,bool timetoscroll=true, SKIN *skin = NULL );	// Handle window's events
 	void destroy();																	// Every life has an end...
 
 	uint32	msg( const String &message );											// Respond to Interface message
@@ -419,6 +420,7 @@ public:
 	SKIN_OBJECT	selection_gfx;							// The selection image ( drawn when an element is selected )
 	SKIN_OBJECT	checkbox[2];							// Checkbox images
 	SKIN_OBJECT	option[2];								// Option button images
+	SKIN_OBJECT scroll[3];								// Scroll bar
 
 public:
 

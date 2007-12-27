@@ -63,11 +63,16 @@ namespace TA3D
 						gadget_mode++;
 						changed = true;
 						}
+
 					key_level.push_front( m_cKey );
 					if( !changed )
 						m_cKey = ( ( m_cKey == "" ) ? Line.substr( 1, i-2 ) :
 						                        m_cKey + String( "." ) +
 						                        Line.substr( 1, i-2 ) );
+
+					m_cKey = ReplaceString( m_cKey, "\\n", "\n", false );
+					m_cKey = ReplaceString( m_cKey, "\\r", "\r", false );
+
 					while( Data.size() )										// Better using the stack this way, otherwise it might crash with huge files
 						if( ProcessData( Data ) )	break;
 					return false;

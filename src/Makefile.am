@@ -19,6 +19,7 @@ ta3d_SOURCES= \
 	gui.cpp gui.h \
 	intro.cpp intro.h \
 	particles.cpp particles.h \
+	lzw.cpp lzw.h \
 	tdf.cpp tdf.h \
 	tnt.cpp tnt.h \
 	weapons.cpp weapons.h \

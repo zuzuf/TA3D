@@ -170,6 +170,7 @@ namespace TA3D
 		TA3D_API_E uint8							unit_engine_thread_sync;
 		TA3D_API_E uint8							weapon_engine_thread_sync;
 		TA3D_API_E uint8							particle_engine_thread_sync;
+		TA3D_API_E uint8							players_thread_sync;
 
 		TA3D_API_E String							TA3D_OUTPUT_DIR;
 		TA3D_API_E I18N_TRANSLATER					i18n;

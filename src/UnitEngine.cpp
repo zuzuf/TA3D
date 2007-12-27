@@ -42,6 +42,62 @@ INGAME_UNITS units;
 
 float sq( const float &a )	{	return a * a;	}
 
+//#define MAKE_HASH( h, f )			h = (h << 5) - h + f;
+#define PUT_IN_BUFFER( o, b, p ) 	memcpy( b + p, &o, sizeof( o ) );	p += sizeof( o );
+#define PUT_VEC_IN_BUFFER_LOW( v, b, p )	{ sint16 tmp16;\
+													tmp16 = (sint16)(v.x * 128.0f); PUT_IN_BUFFER( tmp16, b, p ); \
+													tmp16 = (sint16)(v.y * 128.0f); PUT_IN_BUFFER( tmp16, b, p ); \
+													tmp16 = (sint16)(v.z * 128.0f); PUT_IN_BUFFER( tmp16, b, p ); }
+
+inline void MAKE_HASH( uint32 &h, int f )
+{
+	for( int i = 0 ; i < 4 ; i++ )
+		h = (h << 5) - h + ((byte*)&f)[ i ];
+}
+
+uint32 UNIT::write_sync_data( byte *buf, int buf_pos )
+{
+	EnterCS();
+
+	uint32 new_hash = 0;
+	uint32 check_hash = 0;
+	MAKE_HASH( check_hash, (int)Pos.x );
+	MAKE_HASH( check_hash, (int)Pos.y );
+	MAKE_HASH( check_hash, (int)Pos.z );
+
+	MAKE_HASH( new_hash, (int)(V.x * 16.0f) );
+	MAKE_HASH( new_hash, (int)(V.y * 16.0f) );
+	MAKE_HASH( new_hash, (int)(V.z * 16.0f) );
+
+	MAKE_HASH( check_hash, (int)Angle.x );
+	MAKE_HASH( check_hash, (int)Angle.y );
+	MAKE_HASH( check_hash, (int)Angle.z );
+
+	MAKE_HASH( new_hash, (int)(V_Angle.x * 16.0f) );
+	MAKE_HASH( new_hash, (int)(V_Angle.y * 16.0f) );
+	MAKE_HASH( new_hash, (int)(V_Angle.z * 16.0f) );
+
+	if( sync_hash != new_hash ) {
+		buf[ buf_pos++ ] = 1;
+		PUT_IN_BUFFER( new_hash, buf, buf_pos );
+//		PUT_IN_BUFFER( Pos, buf, buf_pos );
+
+		PUT_VEC_IN_BUFFER_LOW( V, buf, buf_pos );
+//		PUT_VEC_IN_BUFFER_LOW( Angle, buf, buf_pos );
+		PUT_VEC_IN_BUFFER_LOW( V_Angle, buf, buf_pos );
+		}
+	else
+		buf[ buf_pos++ ] = 0;
+
+	PUT_IN_BUFFER( check_hash, buf, buf_pos );
+
+	sync_hash = new_hash;
+
+	LeaveCS();
+
+	return buf_pos;
+}
+
 bool UNIT::is_on_radar( byte &p_mask )
 {
 	int px = cur_px>>1;
@@ -646,10 +702,6 @@ bool UNIT::is_on_radar( byte &p_mask )
 		float scale = unit_manager.unit_type[type_id].Scale;
 		glScalef(scale,scale,scale);
 		glPolygonMode (GL_FRONT_AND_BACK, GL_FILL);
-/*		float scale_dir=model->size2;
-		scale_dir+=Pos.y;
-		scale_dir*=2.0f;
-		model->draw_shadow(((scale_dir*Dir*RotateX(-Angle.x*DEG2RAD))*RotateZ(-Angle.z*DEG2RAD))*RotateY(-Angle.y*DEG2RAD),&data);*/
 
 		if( unit_manager.unit_type[ type_id ].canmove || shadow_scale_dir < 0.0f ) {
 			VECTOR H = drawn_Pos;
@@ -706,10 +758,6 @@ bool UNIT::is_on_radar( byte &p_mask )
 		float scale = unit_manager.unit_type[type_id].Scale;
 		glScalef(scale,scale,scale);
 		glPolygonMode (GL_FRONT_AND_BACK, GL_FILL);
-/*		float scale_dir=model->size2;
-		scale_dir+=Pos.y+model->center.y;
-		scale_dir*=2.0f;
-		model->draw_shadow_basic(((scale_dir*Dir*RotateX(-Angle.x*DEG2RAD))*RotateZ(-Angle.z*DEG2RAD))*RotateY(-Angle.y*DEG2RAD),&data);*/
 		if( unit_manager.unit_type[ type_id ].canmove || shadow_scale_dir < 0.0f ) {
 			VECTOR H = drawn_Pos;
 			H.y += 2.0f * model->size2 + 1.0f;
@@ -735,30 +783,30 @@ bool UNIT::is_on_radar( byte &p_mask )
 			GuardLeave();
 #endif
 			return 2;	}
-		if(!script_env[id].running)	{
+		if( id >= script_env->size() && !(*script_env)[id].running)	{
 #ifdef	ADVANCED_DEBUG_MODE
 			GuardLeave();
 #endif
 			return 2;	}
-		if(script_env[id].wait>0.0f) {
-			script_env[id].wait-=dt;
+		if((*script_env)[id].wait>0.0f) {
+			(*script_env)[id].wait-=dt;
 #ifdef	ADVANCED_DEBUG_MODE
 			GuardLeave();
 #endif
 			return 1;
 			}
-		if(script==NULL || script_env[id].env==NULL) {
-			script_env[id].running=false;
+		if(script==NULL || (*script_env)[id].env==NULL) {
+			(*script_env)[id].running=false;
 #ifdef	ADVANCED_DEBUG_MODE
 			GuardLeave();
 #endif
 			return 2;	// S'il n'y a pas de script associé on quitte la fonction
 			}
-		sint16 script_id=(script_env[id].env->cur&0xFF);			// Récupère l'identifiant du script en cours d'éxecution et la position d'éxecution
-		sint16 pos=(script_env[id].env->cur>>8);
+		sint16 script_id=((*script_env)[id].env->cur&0xFF);			// Récupère l'identifiant du script en cours d'éxecution et la position d'éxecution
+		sint16 pos=((*script_env)[id].env->cur>>8);
 
 		if(script_id<0 || script_id>=script->nb_script)	{
-			script_env[id].running=false;
+			(*script_env)[id].running=false;
 #ifdef	ADVANCED_DEBUG_MODE
 			GuardLeave();
 #endif
@@ -792,8 +840,8 @@ bool UNIT::is_on_radar( byte &p_mask )
 				{
 					int obj=script->script_code[script_id][pos++];
 					int axis=script->script_code[script_id][pos++];
-					int v1=script_env[id].pop();
-					int v2=script_env[id].pop();
+					int v1=(*script_env)[id].pop();
+					int v2=(*script_env)[id].pop();
 					if(axis==0)
 						v1=-v1;
 					data.axe[axis][obj].reset_move();
@@ -833,9 +881,9 @@ bool UNIT::is_on_radar( byte &p_mask )
 				printf("RANDOM_NUMBER\n");
 #endif
 				{
-					int high=script_env[id].pop();
-					int low=script_env[id].pop();
-					script_env[id].push((rand_from_table()%(high-low+1))+low);
+					int high=(*script_env)[id].pop();
+					int low=(*script_env)[id].pop();
+					(*script_env)[id].push((rand_from_table()%(high-low+1))+low);
 				}
 				break;
 			case SCRIPT_GREATER_EQUAL:
@@ -844,9 +892,9 @@ bool UNIT::is_on_radar( byte &p_mask )
 				printf("GREATER_EQUAL\n");
 #endif
 				{
-					int v2=script_env[id].pop();
-					int v1=script_env[id].pop();
-					script_env[id].push(v1>=v2 ? 1 : 0);
+					int v2=(*script_env)[id].pop();
+					int v1=(*script_env)[id].pop();
+					(*script_env)[id].push(v1>=v2 ? 1 : 0);
 				}
 				break;
 			case SCRIPT_GREATER:
@@ -855,9 +903,9 @@ bool UNIT::is_on_radar( byte &p_mask )
 				printf("GREATER\n");
 #endif
 				{
-					int v2=script_env[id].pop();
-					int v1=script_env[id].pop();
-					script_env[id].push(v1>v2 ? 1 : 0);
+					int v2=(*script_env)[id].pop();
+					int v1=(*script_env)[id].pop();
+					(*script_env)[id].push(v1>v2 ? 1 : 0);
 				}
 				break;
 			case SCRIPT_LESS:
@@ -866,9 +914,9 @@ bool UNIT::is_on_radar( byte &p_mask )
 				printf("LESS\n");
 #endif
 				{
-					int v2=script_env[id].pop();
-					int v1=script_env[id].pop();
-					script_env[id].push(v1<v2 ? 1 : 0);
+					int v2=(*script_env)[id].pop();
+					int v1=(*script_env)[id].pop();
+					(*script_env)[id].push(v1<v2 ? 1 : 0);
 				}
 				break;
 			case SCRIPT_EXPLODE:
@@ -878,7 +926,7 @@ bool UNIT::is_on_radar( byte &p_mask )
 #endif
 				{
 					int obj=script->script_code[script_id][pos++];
-					int explosion_type=script_env[id].pop();
+					int explosion_type=(*script_env)[id].pop();
 					if(visible)					// Don't draw things which could tell the player there is something there
 						particle_engine.make_fire(O+Pos,1,10,45.0f);
 					data.flag[obj]|=FLAG_EXPLODE;
@@ -901,8 +949,8 @@ bool UNIT::is_on_radar( byte &p_mask )
 				{
 					int obj=script->script_code[script_id][pos++];
 					int axis=script->script_code[script_id][pos++];
-					int v1=script_env[id].pop();
-					int v2=script_env[id].pop();
+					int v1=(*script_env)[id].pop();
+					int v2=(*script_env)[id].pop();
 					if(axis!=2) {
 						v1=-v1;
 						v2=-v2;
@@ -951,9 +999,9 @@ bool UNIT::is_on_radar( byte &p_mask )
 				printf("SUBSTRACT\n");
 #endif
 				{
-					int v1=script_env[id].pop();
-					int v2=script_env[id].pop();
-					script_env[id].push(v2-v1);
+					int v1=(*script_env)[id].pop();
+					int v2=(*script_env)[id].pop();
+					(*script_env)[id].push(v2-v1);
 				}
 				break;
 			case SCRIPT_GET_VALUE_FROM_PORT:
@@ -962,7 +1010,7 @@ bool UNIT::is_on_radar( byte &p_mask )
 				printf("GET_VALUE_FROM_PORT: ");
 #endif
 				{
-					int value=script_env[id].pop();
+					int value=(*script_env)[id].pop();
 #ifdef PRINT_CODE
 			if( print_code )
 					printf("%d\n",value);
@@ -986,15 +1034,15 @@ bool UNIT::is_on_radar( byte &p_mask )
 						break;
 					case ATAN:
 						{
-							int v1=script_env[id].pop();
-							int v2=script_env[id].pop();
+							int v1=(*script_env)[id].pop();
+							int v2=(*script_env)[id].pop();
 							value = (int)(atan((float)v1/v2)+0.5f);
 						}
 						break;
 					case HYPOT:
 						{
-							int v1=script_env[id].pop();
-							int v2=script_env[id].pop();
+							int v1=(*script_env)[id].pop();
+							int v2=(*script_env)[id].pop();
 							value = (int)(sqrt((float)(v1*v1+v2*v2))+0.5f);
 						}
 						break;
@@ -1025,7 +1073,7 @@ bool UNIT::is_on_radar( byte &p_mask )
 						}
 						break;
 					};
-					script_env[id].push(value);
+					(*script_env)[id].push(value);
 				}
 				break;
 			case SCRIPT_LESS_EQUAL:
@@ -1034,9 +1082,9 @@ bool UNIT::is_on_radar( byte &p_mask )
 				printf("LESS_EQUAL\n");
 #endif
 				{
-					int v2=script_env[id].pop();
-					int v1=script_env[id].pop();
-					script_env[id].push(v1<=v2 ? 1 : 0);
+					int v2=(*script_env)[id].pop();
+					int v1=(*script_env)[id].pop();
+					(*script_env)[id].push(v1<=v2 ? 1 : 0);
 				}
 				break;
 			case SCRIPT_SPIN_OBJECT:
@@ -1047,8 +1095,8 @@ bool UNIT::is_on_radar( byte &p_mask )
 				{
 					int obj=script->script_code[script_id][pos++];
 					int axis=script->script_code[script_id][pos++];
-					int v1=script_env[id].pop();
-					int v2=script_env[id].pop();
+					int v1=(*script_env)[id].pop();
+					int v2=(*script_env)[id].pop();
 					if(axis==1) {
 						v1=-v1;
 						v2=-v2;
@@ -1076,7 +1124,7 @@ bool UNIT::is_on_radar( byte &p_mask )
 			if( print_code )
 				printf("SLEEP\n");
 #endif
-				script_env[id].wait=script_env[id].pop()*0.001f;
+				(*script_env)[id].wait=(*script_env)[id].pop()*0.001f;
 				done=true;
 				break;
 			case SCRIPT_MULTIPLY:
@@ -1085,9 +1133,9 @@ bool UNIT::is_on_radar( byte &p_mask )
 				printf("MULTIPLY\n");
 #endif
 				{
-					int v1=script_env[id].pop();
-					int v2=script_env[id].pop();
-					script_env[id].push(v1*v2);
+					int v1=(*script_env)[id].pop();
+					int v2=(*script_env)[id].pop();
+					(*script_env)[id].push(v1*v2);
 				}
 				break;
 			case SCRIPT_CALL_SCRIPT:
@@ -1100,14 +1148,14 @@ bool UNIT::is_on_radar( byte &p_mask )
 				pos++;
 				int num_param=script->script_code[script_id][pos];			// Lit un code
 				pos++;
-				script_env[id].env->cur=script_id+(pos<<8);
-				SCRIPT_ENV_STACK *old=script_env[id].env;
-				script_env[id].env=new SCRIPT_ENV_STACK;
-				script_env[id].env->init();
-				script_env[id].env->next=old;
-				script_env[id].env->cur=function_id;
+				(*script_env)[id].env->cur=script_id+(pos<<8);
+				SCRIPT_ENV_STACK *old=(*script_env)[id].env;
+				(*script_env)[id].env=new SCRIPT_ENV_STACK;
+				(*script_env)[id].env->init();
+				(*script_env)[id].env->next=old;
+				(*script_env)[id].env->cur=function_id;
 				for(int i=num_param-1;i>=0;i--)		// Lit les paramètres
-					script_env[id].env->var[i]=script_env[id].pop();
+					(*script_env)[id].env->var[i]=(*script_env)[id].pop();
 				done=true;
 				pos=0;
 				script_id=function_id;
@@ -1126,9 +1174,9 @@ bool UNIT::is_on_radar( byte &p_mask )
 				printf("EQUAL\n");
 #endif
 				{
-					int v1=script_env[id].pop();
-					int v2=script_env[id].pop();
-					script_env[id].push(v1==v2 ? 1 : 0);
+					int v1=(*script_env)[id].pop();
+					int v2=(*script_env)[id].pop();
+					(*script_env)[id].push(v1==v2 ? 1 : 0);
 				}
 				break;
 			case SCRIPT_NOT_EQUAL:
@@ -1137,9 +1185,9 @@ bool UNIT::is_on_radar( byte &p_mask )
 				printf("NOT_EQUAL\n");
 #endif
 				{
-					int v1=script_env[id].pop();
-					int v2=script_env[id].pop();
-					script_env[id].push(v1!=v2 ? 1 : 0);
+					int v1=(*script_env)[id].pop();
+					int v2=(*script_env)[id].pop();
+					(*script_env)[id].push(v1!=v2 ? 1 : 0);
 				}
 				break;
 			case SCRIPT_IF:
@@ -1147,7 +1195,7 @@ bool UNIT::is_on_radar( byte &p_mask )
 			if( print_code )
 				printf("IF\n");
 #endif
-				if(script_env[id].pop()!=0)
+				if((*script_env)[id].pop()!=0)
 					pos++;
 				else {
 					int target_offset=script->script_code[script_id][pos];			// Lit un code
@@ -1166,8 +1214,8 @@ bool UNIT::is_on_radar( byte &p_mask )
 			if( print_code )
 				printf("SIGNAL\n");
 #endif
-				script_env[id].env->cur=script_id+(pos<<8);			// Sauvegarde la position
-				raise_signal(script_env[id].pop());					// Tue tout les processus utilisant ce signal
+				(*script_env)[id].env->cur=script_id+(pos<<8);			// Sauvegarde la position
+				raise_signal((*script_env)[id].pop());					// Tue tout les processus utilisant ce signal
 #ifdef	ADVANCED_DEBUG_MODE
 				GuardLeave();
 #endif
@@ -1184,14 +1232,14 @@ bool UNIT::is_on_radar( byte &p_mask )
 			if( print_code )
 				printf("SET_SIGNAL_MASK\n");
 #endif
-				script_env[id].env->signal_mask=script_env[id].pop();
+				(*script_env)[id].env->signal_mask=(*script_env)[id].pop();
 				break;
 			case SCRIPT_NOT:
 #ifdef PRINT_CODE
 			if( print_code )
 				printf("NOT\n");
 #endif
-				script_env[id].push(!script_env[id].pop());
+				(*script_env)[id].push(!(*script_env)[id].pop());
 				break;
 			case SCRIPT_DONT_SHADE:
 #ifdef PRINT_CODE
@@ -1206,7 +1254,7 @@ bool UNIT::is_on_radar( byte &p_mask )
 				printf("EMIT_SFX: ");
 #endif
 				{
-					int smoke_type=script_env[id].pop();
+					int smoke_type=(*script_env)[id].pop();
 					int from_piece=script->script_code[script_id][pos++];
 #ifdef PRINT_CODE
 			if( print_code )
@@ -1250,15 +1298,15 @@ bool UNIT::is_on_radar( byte &p_mask )
 			if( print_code )
 				printf("PUSH_CONST (%d)\n", script->script_code[script_id][pos]);
 #endif
-				script_env[id].push(script->script_code[script_id][pos]);
+				(*script_env)[id].push(script->script_code[script_id][pos]);
 				pos++;
 				break;
 			case SCRIPT_PUSH_VAR:
 #ifdef PRINT_CODE
 			if( print_code )
-				printf("PUSH_VAR (%d) = %d\n", script->script_code[script_id][pos], script_env[id].env->var[script->script_code[script_id][pos]] );
+				printf("PUSH_VAR (%d) = %d\n", script->script_code[script_id][pos], (*script_env)[id].env->var[script->script_code[script_id][pos]] );
 #endif
-				script_env[id].push(script_env[id].env->var[script->script_code[script_id][pos]]);
+				(*script_env)[id].push((*script_env)[id].env->var[script->script_code[script_id][pos]]);
 				pos++;
 				break;
 			case SCRIPT_SET_VAR:
@@ -1266,7 +1314,7 @@ bool UNIT::is_on_radar( byte &p_mask )
 			if( print_code )
 				printf("SET_VAR (%d)\n", script->script_code[script_id][pos]);
 #endif
-				script_env[id].env->var[script->script_code[script_id][pos]]=script_env[id].pop();
+				(*script_env)[id].env->var[script->script_code[script_id][pos]]=(*script_env)[id].pop();
 				pos++;
 				break;
 			case SCRIPT_PUSH_STATIC_VAR:
@@ -1274,7 +1322,9 @@ bool UNIT::is_on_radar( byte &p_mask )
 			if( print_code )
 				printf("PUSH_STATIC_VAR\n");
 #endif
-				script_env[id].push(s_var[script->script_code[script_id][pos]]);
+				if( script->script_code[script_id][pos] >= s_var->size() )
+					s_var->resize( script->script_code[script_id][pos] + 1 );
+				(*script_env)[id].push((*s_var)[script->script_code[script_id][pos]]);
 				pos++;
 				break;
 			case SCRIPT_SET_STATIC_VAR:
@@ -1282,7 +1332,9 @@ bool UNIT::is_on_radar( byte &p_mask )
 			if( print_code )
 				printf("SET_STATIC_VAR\n");
 #endif
-				s_var[script->script_code[script_id][pos]]=script_env[id].pop();
+				if( script->script_code[script_id][pos] >= s_var->size() )
+					s_var->resize( script->script_code[script_id][pos] + 1 );
+				(*s_var)[script->script_code[script_id][pos]]=(*script_env)[id].pop();
 				pos++;
 				break;
 			case SCRIPT_OR:
@@ -1291,8 +1343,8 @@ bool UNIT::is_on_radar( byte &p_mask )
 				printf("OR\n");
 #endif
 				{
-					int v1=script_env[id].pop(),v2=script_env[id].pop();
-					script_env[id].push(v1|v2);
+					int v1=(*script_env)[id].pop(),v2=(*script_env)[id].pop();
+					(*script_env)[id].push(v1|v2);
 				}
 				break;
 			case SCRIPT_START_SCRIPT:				// Transfère l'éxecution à un autre script
@@ -1306,12 +1358,12 @@ bool UNIT::is_on_radar( byte &p_mask )
 				int s_id=launch_script(function_id, 0, NULL, true);
 				if(s_id>=0) {
 					for(int i=num_param-1;i>=0;i--)		// Lit les paramètres
-						script_env[s_id].env->var[i]=script_env[id].pop();
-					script_env[s_id].env->signal_mask=script_env[id].env->signal_mask;
+						(*script_env)[s_id].env->var[i]=(*script_env)[id].pop();
+					(*script_env)[s_id].env->signal_mask=(*script_env)[id].env->signal_mask;
 					}
 				else
 					for(int i=0;i<num_param;i++)		// Enlève les paramètres de la pile
-						script_env[id].pop();
+						(*script_env)[id].pop();
 				done=true;
 				}
 				break;
@@ -1321,15 +1373,17 @@ bool UNIT::is_on_radar( byte &p_mask )
 				printf("RETURN\n");
 #endif
 				{
-					script_val[script_id]=script_env[id].env->var[0];
-					SCRIPT_ENV_STACK *old=script_env[id].env;
-					script_env[id].env=script_env[id].env->next;
+					if( script_val->size() <= script_id )
+						script_val->resize( script_id + 1 );
+					(*script_val)[script_id]=(*script_env)[id].env->var[0];
+					SCRIPT_ENV_STACK *old=(*script_env)[id].env;
+					(*script_env)[id].env=(*script_env)[id].env->next;
 					delete old;
-					script_env[id].pop();		// Enlève la valeur retournée
+					(*script_env)[id].pop();		// Enlève la valeur retournée
 				}
-				if(script_env[id].env) {
-					script_id=(script_env[id].env->cur&0xFF);			// Récupère l'identifiant du script en cours d'éxecution et la position d'éxecution
-					pos=(script_env[id].env->cur>>8);
+				if((*script_env)[id].env) {
+					script_id=((*script_env)[id].env->cur&0xFF);			// Récupère l'identifiant du script en cours d'éxecution et la position d'éxecution
+					pos=((*script_env)[id].env->cur>>8);
 					}
 				done=true;
 				break;
@@ -1349,9 +1403,9 @@ bool UNIT::is_on_radar( byte &p_mask )
 				printf("ADD\n");
 #endif
 				{
-					int v1=script_env[id].pop();
-					int v2=script_env[id].pop();
-					script_env[id].push(v1+v2);
+					int v1=(*script_env)[id].pop();
+					int v2=(*script_env)[id].pop();
+					(*script_env)[id].push(v1+v2);
 				}
 				break;	//added
 			case SCRIPT_STOP_SPIN:
@@ -1362,7 +1416,7 @@ bool UNIT::is_on_radar( byte &p_mask )
 				{
 					int obj=script->script_code[script_id][pos++];
 					int axis=script->script_code[script_id][pos++];
-					int v=script_env[id].pop();
+					int v=(*script_env)[id].pop();
 					if(axis!=2)
 						v=-v;
 					data.axe[axis][obj].reset_rot();
@@ -1389,9 +1443,9 @@ bool UNIT::is_on_radar( byte &p_mask )
 				printf("DIVIDE\n");
 #endif
 				{
-					int v1=script_env[id].pop();
-					int v2=script_env[id].pop();
-					script_env[id].push(v2 / v1);
+					int v1=(*script_env)[id].pop();
+					int v2=(*script_env)[id].pop();
+					(*script_env)[id].push(v2 / v1);
 				}
 				break;	//added
 			case SCRIPT_MOVE_PIECE_NOW:
@@ -1406,9 +1460,9 @@ bool UNIT::is_on_radar( byte &p_mask )
 					data.axe[axis][obj].is_moving=true;
 					data.is_moving=true;
 					if(axis==0)
-						data.axe[axis][obj].pos=-script_env[id].pop()*div;
+						data.axe[axis][obj].pos=-(*script_env)[id].pop()*div;
 					else
-						data.axe[axis][obj].pos=script_env[id].pop()*div;
+						data.axe[axis][obj].pos=(*script_env)[id].pop()*div;
 				}
 				break;	//added
 			case SCRIPT_TURN_PIECE_NOW:
@@ -1419,7 +1473,7 @@ bool UNIT::is_on_radar( byte &p_mask )
 				{
 					int obj=script->script_code[script_id][pos++];
 					int axis=script->script_code[script_id][pos++];
-					int v=script_env[id].pop();
+					int v=(*script_env)[id].pop();
 					data.axe[axis][obj].reset_rot();
 					data.axe[axis][obj].is_moving=true;
 					data.is_moving=true;
@@ -1441,9 +1495,9 @@ bool UNIT::is_on_radar( byte &p_mask )
 				printf("COMPARE_AND\n");
 #endif
 				{
-					int v1=script_env[id].pop();
-					int v2=script_env[id].pop();
-					script_env[id].push(v1 && v2);
+					int v1=(*script_env)[id].pop();
+					int v2=(*script_env)[id].pop();
+					(*script_env)[id].push(v1 && v2);
 				}
 				break;	//added
 			case SCRIPT_COMPARE_OR:
@@ -1452,9 +1506,9 @@ bool UNIT::is_on_radar( byte &p_mask )
 				printf("COMPARE_OR\n");
 #endif
 				{
-					int v1=script_env[id].pop();
-					int v2=script_env[id].pop();
-					script_env[id].push(v1 || v2);
+					int v1=(*script_env)[id].pop();
+					int v2=(*script_env)[id].pop();
+					(*script_env)[id].push(v1 || v2);
 				}
 				break;	//added
 			case SCRIPT_CALL_FUNCTION:
@@ -1465,14 +1519,14 @@ bool UNIT::is_on_radar( byte &p_mask )
 				{
 				int function_id=script->script_code[script_id][pos++];			// Lit un code
 				int num_param=script->script_code[script_id][pos++];			// Lit un code
-				script_env[id].env->cur=script_id+(pos<<8);
-				SCRIPT_ENV_STACK *old=script_env[id].env;
-				script_env[id].env=new SCRIPT_ENV_STACK;
-				script_env[id].env->init();
-				script_env[id].env->next=old;
-				script_env[id].env->cur=function_id;
+				(*script_env)[id].env->cur=script_id+(pos<<8);
+				SCRIPT_ENV_STACK *old=(*script_env)[id].env;
+				(*script_env)[id].env=new SCRIPT_ENV_STACK;
+				(*script_env)[id].env->init();
+				(*script_env)[id].env->next=old;
+				(*script_env)[id].env->cur=function_id;
 				for(int i=num_param-1;i>=0;i--)		// Lit les paramètres
-					script_env[id].env->var[i]=script_env[id].pop();
+					(*script_env)[id].env->var[i]=(*script_env)[id].pop();
 				done=true;
 				pos=0;
 				script_id=function_id;
@@ -1484,36 +1538,36 @@ bool UNIT::is_on_radar( byte &p_mask )
 				printf("GET *\n");
 #endif
 				{
-					script_env[id].pop();
-					script_env[id].pop();
-					int v2=script_env[id].pop();
-					int v1=script_env[id].pop();
-					int val=script_env[id].pop();
+					(*script_env)[id].pop();
+					(*script_env)[id].pop();
+					int v2=(*script_env)[id].pop();
+					int v1=(*script_env)[id].pop();
+					int val=(*script_env)[id].pop();
 					switch(val)
 					{
 					case UNIT_TEAM:		// returns team(player ID in TA) of unit given with parameter
-						if( v1 >= 0 && v1 < units.max_unit && units.unit[ v1 ].flags )
-							script_env[id].push( units.unit[ v1 ].owner_id );
+						if( v1 >= 0 && v1 < units.max_unit && (units.unit[ v1 ].flags & 1) )
+							(*script_env)[id].push( units.unit[ v1 ].owner_id );
 						else
-							script_env[id].push(-1);
+							(*script_env)[id].push(-1);
 						break;
 					case UNIT_BUILD_PERCENT_LEFT:		// basically BUILD_PERCENT_LEFT, but comes with a unit parameter
-						if( v1 >= 0 && v1 < units.max_unit && units.unit[ v1 ].flags )
-							script_env[id].push((int)units.unit[ v1 ].build_percent_left + ( (units.unit[ v1 ].build_percent_left > (int)units.unit[ v1 ].build_percent_left) ? 1 : 0));
+						if( v1 >= 0 && v1 < units.max_unit && (units.unit[ v1 ].flags & 1) )
+							(*script_env)[id].push((int)units.unit[ v1 ].build_percent_left + ( (units.unit[ v1 ].build_percent_left > (int)units.unit[ v1 ].build_percent_left) ? 1 : 0));
 						else
-							script_env[id].push(0);
+							(*script_env)[id].push(0);
 						break;
 					case UNIT_ALLIED:		// is unit given with parameter allied to the unit of the current COB script. 0=not allied, not zero allied
-						if( v1 >= 0 && v1 < units.max_unit && units.unit[ v1 ].flags )
-							script_env[id].push( units.unit[ v1 ].owner_id == owner_id );
+						if( v1 >= 0 && v1 < units.max_unit && (units.unit[ v1 ].flags & 1) )
+							(*script_env)[id].push( units.unit[ v1 ].owner_id == owner_id );
 						else
-							script_env[id].push(0);
+							(*script_env)[id].push(0);
 						break;
 					case UNIT_IS_ON_THIS_COMP:		// indicates if the 1st parameter(a unit ID) is local to this computer
-						if( v1 >= 0 && v1 < units.max_unit && units.unit[ v1 ].flags )
-							script_env[id].push( !(players.control[ units.unit[ v1 ].owner_id ] & PLAYER_CONTROL_FLAG_REMOTE) );
+						if( v1 >= 0 && v1 < units.max_unit && (units.unit[ v1 ].flags & 1) )
+							(*script_env)[id].push( !(players.control[ units.unit[ v1 ].owner_id ] & PLAYER_CONTROL_FLAG_REMOTE) );
 						else
-							script_env[id].push(0);
+							(*script_env)[id].push(0);
 						break;
 					case BUILD_PERCENT_LEFT:
 						port[ BUILD_PERCENT_LEFT ] = (int)build_percent_left + ( (build_percent_left > (int)build_percent_left) ? 1 : 0);
@@ -1526,123 +1580,120 @@ bool UNIT::is_on_radar( byte &p_mask )
 					case YARD_OPEN:
 					case BUGGER_OFF:
 					case ARMORED:
-						script_env[id].push((int)port[val]);
+						(*script_env)[id].push((int)port[val]);
 						break;
 					case PIECE_XZ:
 						compute_model_coord();
-						script_env[id].push( PACKXZ((data.pos[v1].x+Pos.x)*2.0f+map->map_w, (data.pos[v1].z+Pos.z)*2.0f+map->map_h));
-						{
-							int c = script_env[id].pop();
-							script_env[id].push( c );
+						(*script_env)[id].push( PACKXZ((data.pos[v1].x+Pos.x)*2.0f+map->map_w, (data.pos[v1].z+Pos.z)*2.0f+map->map_h));
 #ifdef PRINT_CODE
+						{
+							int c = (*script_env)[id].pop();
+							(*script_env)[id].push( c );
 			if( print_code )
 							printf("PIECE_XZ=%d\n", c);
-#endif
 						}
+#endif
 						break;
 					case PIECE_Y:
 						compute_model_coord();
-						script_env[id].push((int)((data.pos[v1].y+Pos.y)*2.0f));
-						{
-							int c = script_env[id].pop();
-							script_env[id].push( c );
+						(*script_env)[id].push((int)((data.pos[v1].y + Pos.y)*2.0f)<<16);
 #ifdef PRINT_CODE
+						{
+							int c = (*script_env)[id].pop();
+							(*script_env)[id].push( c );
 			if( print_code )
 							printf("PIECE_Y=%d\n", c);
-#endif
 						}
+#endif
 						break;
 					case UNIT_XZ:
-						if (v1 >= 0 && v1<units.max_unit && units.unit[v1].flags)
-							script_env[id].push( PACKXZ( units.unit[v1].Pos.x*2.0f+map->map_w, units.unit[v1].Pos.z*2.0f+map->map_h ));
+						if (v1 >= 0 && v1<units.max_unit && (units.unit[v1].flags & 1) )
+							(*script_env)[id].push( PACKXZ( units.unit[v1].Pos.x*2.0f+map->map_w, units.unit[v1].Pos.z*2.0f+map->map_h ));
 						else
-							script_env[id].push( PACKXZ( Pos.x*2.0f+map->map_w, Pos.z*2.0f+map->map_h ));
-						{
-							int c = script_env[id].pop();
-							script_env[id].push( c );
+							(*script_env)[id].push( PACKXZ( Pos.x*2.0f+map->map_w, Pos.z*2.0f+map->map_h ));
 #ifdef PRINT_CODE
+						{
+							int c = (*script_env)[id].pop();
+							(*script_env)[id].push( c );
 			if( print_code )
 							printf("UNIT_XY=%d\n", c);
-#endif
 						}
+#endif
 						break;
 					case UNIT_Y:
-						if (v1 >= 0 && v1<units.max_unit && units.unit[v1].flags)	
-							script_env[id].push((int)(units.unit[v1].Pos.y*2.0f)<<16);
+						if (v1 >= 0 && v1<units.max_unit && (units.unit[v1].flags & 1) )
+							(*script_env)[id].push((int)(units.unit[v1].Pos.y * 2.0f)<<16);
 						else
-							script_env[id].push((int)(Pos.y*2.0f)<<16);
-						{
-							int c = script_env[id].pop();
-							script_env[id].push( c );
+							(*script_env)[id].push((int)(Pos.y * 2.0f)<<16);
 #ifdef PRINT_CODE
+						{
+							int c = (*script_env)[id].pop();
+							(*script_env)[id].push( c );
 			if( print_code )
 							printf("UNIT_Y=%d\n", c);
-#endif
 						}
+#endif
 						break;
 					case UNIT_HEIGHT:
-						if (v1 >= 0 && v1<units.max_unit && units.unit[v1].flags)	
-							script_env[id].push((int)((units.unit[v1].model->top-units.unit[v1].model->bottom)*2.0f)<<16);
+						if (v1 >= 0 && v1<units.max_unit && (units.unit[v1].flags & 1) )
+							(*script_env)[id].push((int)(units.unit[v1].model->top * 2.0f)<<16);
 						else
-							script_env[id].push((int)((model->top-model->bottom)*2.0f)<<16);
-						{
-							int c = script_env[id].pop();
-							script_env[id].push( c );
+							(*script_env)[id].push((int)(model->top * 2.0f)<<16);
 #ifdef PRINT_CODE
+						{
+							int c = (*script_env)[id].pop();
+							(*script_env)[id].push( c );
 			if( print_code )
 							printf("UNIT_HEIGHT=%d\n", c);
-#endif
 						}
+#endif
 						break;
 					case XZ_ATAN:
-						{
-							script_env[id].push((int)(atan2( UNPACKX(v1) , UNPACKZ(v1) ) * RAD2TA - Angle.y * DEG2TA) + 32768);
-
-							int c = script_env[id].pop();
-							script_env[id].push( c );
+							(*script_env)[id].push((int)(atan2( UNPACKX(v1) , UNPACKZ(v1) ) * RAD2TA - Angle.y * DEG2TA) + 32768);
 #ifdef PRINT_CODE
+						{
+							int c = (*script_env)[id].pop();
+							(*script_env)[id].push( c );
 			if( print_code )
 							printf("XZ_ATAN[(%d)=(%d,%d)]=%d\n", v1, UNPACKX(v1), UNPACKZ(v1), c);
-#endif
 						}
+#endif
 						break;
 					case XZ_HYPOT:
-						{
-							script_env[id].push((int)hypot( UNPACKX(v1), UNPACKZ(v1) )<<16);
-
-							int c = script_env[id].pop();
-							script_env[id].push( c );
+							(*script_env)[id].push((int)hypot( UNPACKX(v1), UNPACKZ(v1) )<<16);
 #ifdef PRINT_CODE
+						{
+							int c = (*script_env)[id].pop();
+							(*script_env)[id].push( c );
 			if( print_code )
 							printf("XZ_HYPOT[(%d)=(%d,%d)]=%d\n", v1,UNPACKX(v1), UNPACKZ(v1), c);
-#endif
 						}
+#endif
 						break;
 					case ATAN:
-						script_env[id].push((int)(atan2(v1,v2) * RAD2TA ));
-
-						{
-							int c = script_env[id].pop();
-							script_env[id].push( c );
+						(*script_env)[id].push((int)(atan2(v1,v2) * RAD2TA ));
 #ifdef PRINT_CODE
+						{
+							int c = (*script_env)[id].pop();
+							(*script_env)[id].push( c );
 			if( print_code )
 							printf("ATAN=%d\n", c);
-#endif
 						}
+#endif
 						break;
 					case HYPOT:
-						script_env[id].push((int)hypot(v1,v2));
-						{
-							int c = script_env[id].pop();
-							script_env[id].push( c );
+						(*script_env)[id].push((int)hypot(v1,v2));
 #ifdef PRINT_CODE
+						{
+							int c = (*script_env)[id].pop();
+							(*script_env)[id].push( c );
 			if( print_code )
 							printf("HYPOT(%d,%d)=%d\n", v1, v2, c);
-#endif
 						}
+#endif
 						break;
 					case GROUND_HEIGHT:
-						script_env[id].push((int)(map->get_unit_h(( UNPACKX(v1) - map->map_w)*0.5f,( UNPACKZ(v1) - map->map_h)*0.5f)*2.0f)<<16);
+						(*script_env)[id].push((int)(map->get_unit_h(( UNPACKX(v1) - map->map_w)*0.5f,( UNPACKZ(v1) - map->map_h)*0.5f)*2.0f)<<16);
 						break;
 					default:
 						printf("GET constante inconnue %d\n", val);
@@ -1655,8 +1706,8 @@ bool UNIT::is_on_radar( byte &p_mask )
 				printf("SET_VALUE *: ");
 #endif
 				{
-					int v1=script_env[id].pop();
-					int v2=script_env[id].pop();
+					int v1=(*script_env)[id].pop();
+					int v2=(*script_env)[id].pop();
 #ifdef PRINT_CODE
 			if( print_code )
 					printf("%d %d\n",v1,v2);
@@ -1703,9 +1754,9 @@ bool UNIT::is_on_radar( byte &p_mask )
 				printf("ATTACH_UNIT *\n");
 #endif
 				{
-					int v3 = script_env[id].pop();
-					int v2 = script_env[id].pop();
-					int v1 = script_env[id].pop();
+					int v3 = (*script_env)[id].pop();
+					int v2 = (*script_env)[id].pop();
+					int v1 = (*script_env)[id].pop();
 					if( v1 >= 0 && v1 < units.max_unit && units.unit[ v1 ].flags ) {
 						UNIT *target_unit = &(units.unit[v1]);
 						target_unit->hidden = (v2 < 0);
@@ -1732,7 +1783,7 @@ bool UNIT::is_on_radar( byte &p_mask )
 				printf("DROP_UNIT *\n");
 #endif
 				{
-					int v1 = script_env[id].pop();
+					int v1 = (*script_env)[id].pop();
 #ifdef PRINT_CODE
 			if( print_code )
 					printf("dropping %d\n", v1);
@@ -1758,22 +1809,24 @@ bool UNIT::is_on_radar( byte &p_mask )
 			default:
 				printf("UNKNOWN %d, STOPPING SCRIPT\n",script->script_code[script_id][--pos]);
 				{
-					script_val[script_id]=script_env[id].env->var[0];
-					SCRIPT_ENV_STACK *old=script_env[id].env;
-					script_env[id].env=script_env[id].env->next;
+					if( script_val->size() <= script_id )
+						script_val->resize( script_id + 1 );
+					(*script_val)[script_id]=(*script_env)[id].env->var[0];
+					SCRIPT_ENV_STACK *old=(*script_env)[id].env;
+					(*script_env)[id].env=(*script_env)[id].env->next;
 					delete old;
 				}
-				if(script_env[id].env) {
-					script_id=(script_env[id].env->cur&0xFF);			// Récupère l'identifiant du script en cours d'éxecution et la position d'éxecution
-					pos=(script_env[id].env->cur>>8);
+				if((*script_env)[id].env) {
+					script_id=((*script_env)[id].env->cur&0xFF);			// Récupère l'identifiant du script en cours d'éxecution et la position d'éxecution
+					pos=((*script_env)[id].env->cur>>8);
 					}
 				else
-					script_env[id].running=false;
+					(*script_env)[id].running=false;
 				done=true;
 			};
 		}while(!done);
-		if(script_env[id].env)
-			script_env[id].env->cur=script_id+(pos<<8);
+		if((*script_env)[id].env)
+			(*script_env)[id].env->cur=script_id+(pos<<8);
 #ifdef	ADVANCED_DEBUG_MODE
 		GuardLeave();
 #endif
@@ -2038,7 +2091,6 @@ bool UNIT::is_on_radar( byte &p_mask )
 					units.unit[attached_list[i]].Pos = Pos+data.pos[link_list[i]];
 					units.unit[attached_list[i]].cur_px = ((int)(units.unit[attached_list[i]].Pos.x)+map->map_w_d)>>3;
 					units.unit[attached_list[i]].cur_py = ((int)(units.unit[attached_list[i]].Pos.z)+map->map_h_d)>>3;
-					units.unit[attached_list[i]].Pos.y -= units.unit[attached_list[i]].model->top;
 					units.unit[attached_list[i]].Angle = Angle;
 					}
 				else {
@@ -2143,7 +2195,9 @@ bool UNIT::is_on_radar( byte &p_mask )
 								target_translation = ( target.Norm() / unit_manager.unit_type[type_id].weapon[ i ]->weaponvelocity) * (target_unit->V - V);
 
 							if(unit_manager.unit_type[type_id].weapon[ i ]->turret) {			// Si l'unité doit viser, on la fait viser / if it must aim, we make it aim
-								int start_piece = script_val[query_id];
+								if( script_val->size() <= query_id )
+									script_val->resize( query_id + 1 );
+								int start_piece = (*script_val)[query_id];
 								if(start_piece<0 || start_piece>=data.nb_piece)
 									start_piece=0;
 
@@ -2302,7 +2356,9 @@ bool UNIT::is_on_radar( byte &p_mask )
 							}
 						run_script_function( map, get_script_index(Fire_script) );			// Run the script that tell us from where to shoot
 						if(unit_manager.unit_type[type_id].weapon[ i ]->soundstart)	sound_manager->PlaySound( unit_manager.unit_type[type_id].weapon[ i ]->soundstart , &Pos );
-						int start_piece = script_val[query_id];
+						if( script_val->size() <= query_id )
+							script_val->resize( query_id + 1 );
+						int start_piece = (*script_val)[query_id];
 						if(start_piece>=0 && start_piece<data.nb_piece) {
 							compute_model_coord();
 							VECTOR Dir=data.dir[start_piece];
@@ -2560,7 +2616,6 @@ bool UNIT::is_on_radar( byte &p_mask )
 									// Check some basic solutions first
 									if( fabs( V.x ) > 0.0f
 									&& can_be_there( n_px, cur_py, map, type_id, owner_id, idx )) {
-//										V.x = V.x + (V.x < 0.0f ? -fabs(V.z) : fabs(V.z) );
 										V.x = (V.x < 0.0f ? -sqrt( sq(V.z) + sq(V.x) ) : sqrt( sq(V.z) + sq(V.x) ) );
 										V.z = 0.0f;
 										NPos.z = Pos.z;
@@ -2568,7 +2623,6 @@ bool UNIT::is_on_radar( byte &p_mask )
 										}
 									else if( fabs( V.z ) > 0.0f
 									&& can_be_there( cur_px, n_py, map, type_id, owner_id, idx )) {
-//										V.z = V.z + (V.z < 0.0f ? -fabs(V.x) : fabs(V.x) );
 										V.z = (V.z < 0.0f ? -sqrt( sq(V.z) + sq(V.x) ) : sqrt( sq(V.z) + sq(V.x) ) );
 										V.x = 0.0f;
 										NPos.x = Pos.x;
@@ -2588,9 +2642,6 @@ bool UNIT::is_on_radar( byte &p_mask )
 										}
 									else
 										Console->AddEntry("Unit is blocked!! (1)");
-//									float speed = V.Sq();
-//									if( speed > unit_manager.unit_type[ type_id ].MaxVelocity * unit_manager.unit_type[ type_id ].MaxVelocity )
-//										V = unit_manager.unit_type[ type_id ].MaxVelocity / sqrt( speed ) * V;
 									}
 								else if( !flying ) {
 									if(Pos.x<-map->map_w_d || Pos.x>map->map_w_d || Pos.z<-map->map_h_d || Pos.z>map->map_h_d) {
@@ -2607,7 +2658,6 @@ bool UNIT::is_on_radar( byte &p_mask )
 										add_mission(MISSION_MOVE,&target,true,0,NULL,NULL,0,1);		// Stay on map
 										}
 									else if( !can_be_there( cur_px, cur_py, map, type_id, owner_id, idx )) {
-//										V.x = V.y = V.z = 0.0f;
 										NPos = Pos;
 										n_px = cur_px;
 										n_py = cur_py;
@@ -2774,7 +2824,7 @@ bool UNIT::is_on_radar( byte &p_mask )
 							if(mission->last_d>=0.0f) {
 								if(unit_manager.unit_type[type_id].TransMaxUnits==1) {		// Code for units like the arm atlas
 									if(nb_attached==0) {
-										int param[]={ (int)((target_unit->Pos.y+target_unit->model->top-target_unit->model->bottom)*2.0f) };
+										int param[] = { (int)((Pos.y - target_unit->Pos.y - target_unit->model->top)*2.0f) << 16 };
 										launch_script(get_script_index(SCRIPT_BeginTransport),1,param);
 										run_script_function( map, get_script_index(SCRIPT_QueryTransport),1,param);
 										target_unit->attached = true;
@@ -3238,7 +3288,9 @@ bool UNIT::is_on_radar( byte &p_mask )
 									if(script_id_buildinfo>=0) {
 										compute_model_coord();
 										VECTOR old_pos = target_unit->Pos;
-										target_unit->Pos=Pos+data.pos[script_val[script_id_buildinfo]];
+										if( script_val->size() <= script_id_buildinfo )
+											script_val->resize( script_id_buildinfo + 1 );
+										target_unit->Pos=Pos+data.pos[(*script_val)[script_id_buildinfo]];
 										if( unit_manager.unit_type[ target_unit->type_id ].Floater || ( unit_manager.unit_type[ target_unit->type_id ].canhover && old_pos.y <= map->sealvl ) )
 											target_unit->Pos.y = old_pos.y;
 										if(((VECTOR)(old_pos-target_unit->Pos)).Sq() > 1000000.0f) {			// It must be continuous
@@ -3250,7 +3302,7 @@ bool UNIT::is_on_radar( byte &p_mask )
 											target_unit->cur_py = ((int)(target_unit->Pos.z)+map->map_h_d)>>3;
 											}
 										target_unit->Angle = Angle;
-										target_unit->Angle.y += data.axe[1][script_val[script_id_buildinfo]].angle;
+										target_unit->Angle.y += data.axe[1][(*script_val)[script_id_buildinfo]].angle;
 										LeaveCS();
 										target_unit->draw_on_map();
 										EnterCS();
@@ -3694,7 +3746,7 @@ bool UNIT::is_on_radar( byte &p_mask )
 				cur_py = ((int)(Pos.z)+map->map_h_d)>>3;
 				}
 			if( units.current_tick - ripple_timer >= 7 && Pos.y <= map->sealvl && Pos.y + model->top >= map->sealvl && (unit_manager.unit_type[type_id].fastCategory & CATEGORY_NOTSUB)
-			&& cur_px >= 0 && cur_py >= 0 && cur_px < map->bloc_w_db && cur_py < map->bloc_h_db && !map->map_data[ cur_py ][ cur_px ].lava ) {
+			&& cur_px >= 0 && cur_py >= 0 && cur_px < map->bloc_w_db && cur_py < map->bloc_h_db && !map->map_data[ cur_py ][ cur_px ].lava && map->water ) {
 				VECTOR Diff = OPos - Pos;
 				Diff.y = 0.0f;
 				if( Diff.Sq() > 0.1f && lp_CONFIG->waves ) {
@@ -3766,12 +3818,12 @@ bool UNIT::is_on_radar( byte &p_mask )
 				run_script(dt,i,map);
 			int e=0;
 			for(int i=0;i+e<nb_running;) {				// Efface les scripts qui se sont arrêtés
-				if(script_env[i+e].running) {
-					script_env[i]=script_env[i+e];
+				if((*script_env)[i+e].running) {
+					(*script_env)[i] = (*script_env)[i+e];
 					i++;
 					}
 				else {
-					script_env[i+e].destroy();
+					(*script_env)[i+e].destroy();
 					e++;
 					}
 				}
@@ -3804,9 +3856,7 @@ bool UNIT::is_on_radar( byte &p_mask )
 			VECTOR c_dir=model->center+Pos-P;
 			if( c_dir.Norm()-length <=model->size2 ) {
 				float scale=unit_manager.unit_type[type_id].Scale;
-//				MATRIX_4x4 M=RotateY(Angle.y*DEG2RAD)*RotateZ(Angle.z*DEG2RAD)*RotateX(Angle.x*DEG2RAD)*Scale(scale);
 				MATRIX_4x4 M=RotateX(-Angle.x*DEG2RAD)*RotateZ(-Angle.z*DEG2RAD)*RotateY(-Angle.y*DEG2RAD)*Scale(1.0f/scale);
-//				VECTOR RP=(1.0f/scale)*(P-Pos);
 				VECTOR RP=(P-Pos) * M;
 				bool is_hit=model->hit(RP,Dir,&data,hit_vec,M);
 				if(is_hit) {
@@ -3853,7 +3903,6 @@ bool UNIT::is_on_radar( byte &p_mask )
 	{
 		if( !def_orders )	show_orders( only_build_commands, true );
 		EnterCS();
-//		units.EnterCS_from_outside();
 
 		MISSION *cur = def_orders ? def_mission : mission;
 		glEnable(GL_BLEND);
@@ -3901,7 +3950,6 @@ bool UNIT::is_on_radar( byte &p_mask )
 						for(int i=0;i<rec;i++) {
 							x=p_target.x+(n_target.x-p_target.x)*(i+rab)/rec;
 							z=p_target.z+(n_target.z-p_target.z)*(i+rab)/rec;
-//							y=p_target.y+(n_target.y-p_target.y)*(i+rab)/rec;
 							y = max( units.map->get_unit_h( x, z ), units.map->sealvl );
 							x-=dx;
 							y+=0.75f;
@@ -4160,7 +4208,6 @@ bool UNIT::is_on_radar( byte &p_mask )
 		glDisable(GL_BLEND);
 		
 		LeaveCS();
-//		units.LeaveCS_from_outside();
 	}
 
 	bool INGAME_UNITS::select(CAMERA *cam,int sel_x[],int sel_y[])
@@ -4880,17 +4927,20 @@ void INGAME_UNITS::move(float dt,MAP *map,int key_frame,bool wind_change)
 	exp_dt_2=exp(-2.0f*dt);
 	exp_dt_4=exp(-4.0f*dt);
 	g_dt=dt*map->ota_data.gravity;
-	int path_exec[ players.nb_player ];
+	int *path_exec = new int[ players.nb_player ];
 	memset( path_exec, 0, sizeof( int ) * players.nb_player );
 	for( uint16 e = 0 ; e < index_list_size ; e++ ) {
 		EnterCS();
 		i = idx_list[e];
 		LeaveCS();
 
+		unit[ i ].Lock();
+
 		if( !(unit[ i ].flags & 1) ) {		// ho ho what is it doing there ??
 			unit[ i ].clear_from_map();
 			kill(i,map,e);
 			e--;			// Can't skip a unit
+			unit[ i ].UnLock();
 			continue;
 			}
 
@@ -4900,11 +4950,13 @@ void INGAME_UNITS::move(float dt,MAP *map,int key_frame,bool wind_change)
 			if(unit[i].built)		nb_built++;
 			}
 		players.c_nb_unit[unit[i].owner_id]++;			// Compte les unités de chaque joueur
+		unit[ i ].UnLock();
 		if(unit[i].move(dt,map,path_exec,key_frame)==-1) {			// Vérifie si l'unité a été détruite
 			kill(i,map,e);
 			e--;			// Can't skip a unit
 			}
 		else {
+			unit[ i ].Lock();
 			players.c_metal_t[unit[i].owner_id] += unit[i].metal_prod;
 			players.c_metal_u[unit[i].owner_id] += unit[i].metal_cons;
 			players.c_energy_t[unit[i].owner_id] += unit[i].energy_prod;
@@ -4914,8 +4966,12 @@ void INGAME_UNITS::move(float dt,MAP *map,int key_frame,bool wind_change)
 			unit[i].cur_energy_prod = unit[i].energy_prod;
 			unit[i].cur_metal_cons = unit[i].metal_cons;
 			unit[i].cur_metal_prod = unit[i].metal_prod;
+			unit[ i ].UnLock();
 			}
 		}
+
+	delete[] path_exec;
+
 	float exp_r = exp(-dt*0.1f);
 	nb_attacked*=exp_r;
 	nb_built*=exp_r;
@@ -5002,10 +5058,10 @@ int INGAME_UNITS::create(int type_id,int owner)
 			}
 		unit=n_unit;
 		}
-	if(unit==NULL)
-		printf("error: memory alloc failed\n");
-	if(free_index_size[owner]<=0) {
-		printf("unit limit reached!\n");
+		if(unit==NULL)
+			printf("error: memory alloc failed\n");
+		if(free_index_size[owner]<=0) {
+			printf("unit limit reached!\n");
 
 		LeaveCS();
 
@@ -5181,8 +5237,8 @@ void INGAME_UNITS::kill(int index,MAP *map,int prev)			// Détruit une unité
 				((UNIT*)(unit[ index ].mission->p))->UnLock();
 				}
 			unit[index].clear_from_map();
-			players.nb_unit[unit[index].owner_id]--;
-			players.losses[unit[index].owner_id]++;		// Statistiques
+			players.nb_unit[ unit[index].owner_id ]--;
+			players.losses[ unit[index].owner_id ]++;		// Statistiques
 			}
 		if(unit_manager.unit_type[unit[index].type_id].canload && unit[index].nb_attached>0)
 			for( int i = 0 ; i < unit[index].nb_attached ; i++ ) {
@@ -5209,9 +5265,6 @@ void INGAME_UNITS::draw(CAMERA *cam,MAP *map,bool underwater,bool limit,bool cul
 {
 	if(nb_unit<=0 || unit==NULL)	return;		// Pas d'unités à dessiner
 
-//	EnterCS();
-	gfx->GFX_EnterCS();
-
 	glEnable(GL_LIGHTING);
 	if( cullface )
 		glEnable(GL_CULL_FACE);
@@ -5223,25 +5276,25 @@ void INGAME_UNITS::draw(CAMERA *cam,MAP *map,bool underwater,bool limit,bool cul
 	float virtual_t = (float)current_tick / TICKS_PER_SEC;
 	cam->SetView();
 	for(uint16 e=0;e<index_list_size;e++) {
+		EnterCS();
 		uint16 i = idx_list[e];
+		LeaveCS();
+
+		gfx->GFX_EnterCS();
 		unit[i].Lock();
 		if( (unit[i].flags & 1) && ((unit[i].Pos.y + unit[i].model->bottom <= map->sealvl && underwater) || (unit[i].Pos.y + unit[i].model->top >= sea_lvl && !underwater)))				// Si il y a une unité
 			unit[i].draw(virtual_t,cam,map,height_line);
 		unit[i].UnLock();
+		gfx->GFX_LeaveCS();
 		}
 
 	if( !cullface )
 		glEnable(GL_CULL_FACE);
-	gfx->GFX_LeaveCS();
-//	LeaveCS();
 }
 
 void INGAME_UNITS::draw_shadow(CAMERA *cam,VECTOR Dir,MAP *map,float alpha)					// Dessine les ombres des unités visibles
 {
 	if(nb_unit<=0 || unit==NULL)	return;		// Pas d'unités à dessiner
-
-//	EnterCS();
-	gfx->GFX_EnterCS();
 
 	cam->SetView();
 
@@ -5260,11 +5313,18 @@ void INGAME_UNITS::draw_shadow(CAMERA *cam,VECTOR Dir,MAP *map,float alpha)					
 		glStencilOp(GL_KEEP, GL_KEEP, GL_DECR_WRAP_EXT);
 
 		for(uint16 e=0;e<index_list_size;e++) {
+			EnterCS();
 			uint16 i = idx_list[e];
+			LeaveCS();
+
+			gfx->GFX_EnterCS();
+
 			unit[i].Lock();
-			if(unit[i].flags)				// Si il y a une unité
+			if(unit[i].flags & 1)				// Si il y a une unité
 				unit[i].draw_shadow(cam,Dir,map);
 			unit[i].UnLock();
+
+			gfx->GFX_LeaveCS();
 			}
 		}
 	else {										// Si elle ne l'est pas
@@ -5277,13 +5337,20 @@ void INGAME_UNITS::draw_shadow(CAMERA *cam,VECTOR Dir,MAP *map,float alpha)					
 		glEnable(GL_CULL_FACE);
 
 		for(uint16 e=0;e<index_list_size;e++) {
+			EnterCS();
 			uint16 i = idx_list[e];
+			LeaveCS();
+
+			gfx->GFX_EnterCS();
 			unit[i].Lock();
-			if(unit[i].flags)					// Si il y a une unité
+			if(unit[i].flags & 1)					// Si il y a une unité
 				unit[i].draw_shadow_basic(cam,Dir,map);
 			unit[i].UnLock();
+			gfx->GFX_LeaveCS();
 			}
 		}
+
+	gfx->GFX_EnterCS();
 	features.draw_shadow(cam,Dir);
 
 	glColorMask(0xFF,0xFF,0xFF,0xFF);
@@ -5309,7 +5376,6 @@ void INGAME_UNITS::draw_shadow(CAMERA *cam,VECTOR Dir,MAP *map,float alpha)					
 	glColor4f(1.0f,1.0f,1.0f,1.0f);
 
 	gfx->GFX_LeaveCS();
-//	LeaveCS();
 }
 
 void INGAME_UNITS::remove_order(int player_id,VECTOR target)
@@ -5372,6 +5438,8 @@ int INGAME_UNITS::Run()
 	current_tick = 0;
 	apparent_timefactor = lp_CONFIG->timefactor;
 
+	unit_engine_thread_sync = 0;
+
 	ThreadSynchroniser->EnterSync();
 
 	while( !thread_ask_to_stop ) {
@@ -5417,10 +5485,13 @@ int INGAME_UNITS::Run()
 
 		unit_engine_thread_sync = 1;
 		while( unit_engine_thread_sync && !thread_ask_to_stop ) {
-			if( unit_engine_thread_sync && weapon_engine_thread_sync && particle_engine_thread_sync )	{			// Sync engine threads
+			if( unit_engine_thread_sync && weapon_engine_thread_sync && particle_engine_thread_sync && players_thread_sync )	{			// Sync engine threads
 				unit_engine_thread_sync = 0;
 				weapon_engine_thread_sync = 0;
 				particle_engine_thread_sync = 0;
+				players_thread_sync = 0;
+
+				current_tick++;		// To have a common time value
 				break;
 				}
 			rest( 1 );			// Wait until other thread sync with this one
@@ -5436,8 +5507,6 @@ int INGAME_UNITS::Run()
 
 		if( last_tick[ 0 ] != 0 && last_tick[4] != last_tick[0] )
 			apparent_timefactor = 4000.0f / ( (last_tick[ 4 ] - last_tick[ 0 ]) * TICKS_PER_SEC );
-
-		current_tick++;		// To have a common time value
 		}
 
 	ThreadSynchroniser->LeaveSync();

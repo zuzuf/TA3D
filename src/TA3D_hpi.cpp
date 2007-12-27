@@ -536,6 +536,19 @@ void cHPIHandler::PutInCache( const String &FileName, uint32 FileSize, byte *dat
 	if( m_file_cache == NULL )
 		m_file_cache = new std::vector< CACHEFILEDATA >;
 
+	String cacheable_filename = Lowercase( FileName );
+
+	for( int i = 0 ; i < cacheable_filename.size() ; i++ )
+		if( cacheable_filename[ i ] == '/' )
+			cacheable_filename[ i ] = 'S';
+
+	String cache_filename = TA3D_OUTPUT_DIR + "cache/" + cacheable_filename + ".dat";		// Save file in disk cache
+	FILE *cache_file = TA3D_OpenFile( cache_filename, "wb" );
+	if( cache_file ) {
+		fwrite( data, FileSize, 1, cache_file );
+		fclose( cache_file );
+		}
+
 	if( FileSize >= 0x100000 )		return;			// Don't store big files to prevent filling memory with cache data ;)
 
 	int idx = m_file_cache->size();
@@ -557,12 +570,42 @@ void cHPIHandler::PutInCache( const String &FileName, uint32 FileSize, byte *dat
 	memcpy( (*m_file_cache)[ idx ].data, data, FileSize );
 }
 
+byte *cHPIHandler::IsInDiskCache( const String &FileName, uint32 *p_FileSize )
+{
+	String cacheable_filename = Lowercase( FileName );
+
+	for( int i = 0 ; i < cacheable_filename.size() ; i++ )
+		if( cacheable_filename[ i ] == '/' )
+			cacheable_filename[ i ] = 'S';
+
+	String cache_filename = TA3D_OUTPUT_DIR + "cache/" + cacheable_filename + ".dat";
+
+	if( TA3D_exists( cache_filename ) ) {							// Check disk cache
+		FILE *cache_file = TA3D_OpenFile( cache_filename, "rb" );
+
+		if( cache_file ) {										// Load file from disk cache (faster than decompressing it)
+			uint32 FileSize = FILE_SIZE( cache_filename.c_str() );
+
+			if( p_FileSize )	*p_FileSize = FileSize;
+
+			byte *data = new byte[ FileSize ];
+			
+			fread( data, FileSize, 1, cache_file );
+			
+			fclose( cache_file );
+
+			return data;
+			}
+		}
+	return NULL;
+}
+
 TA3D::UTILS::HPI::cHPIHandler::CACHEFILEDATA *cHPIHandler::IsInCache( const String &FileName )
 {
 	if( m_file_cache == NULL )	return NULL;
 
 	String key = Lowercase( FileName );
-	for( int i = 0 ; i < m_file_cache->size() ; i++ )
+	for( int i = 0 ; i < m_file_cache->size() ; i++ )			// Check RAM Cache
 		if( (*m_file_cache)[ i ].name == key ) {
 
 			if( i < m_file_cache->size() - 1 ) {
@@ -595,12 +638,20 @@ byte *cHPIHandler::PullFromHPI( const std::string &FileName , uint32 *file_lengt
 		return data;
 		}
 
+	uint32	FileSize;
+
 	UNIX_filename = TA3D_CURRENT_MOD + FileName;
 	for( uint16 i = 0 ; i < UNIX_filename.size() ; i++ )
 		if( UNIX_filename[i] == '\\' )
 			UNIX_filename[i] = '/';
 
-	uint32	FileSize;
+	{
+		byte 	*data = IsInDiskCache( UNIX_filename, &FileSize );
+		if( data ) {
+			if( file_length )	*file_length = FileSize;
+			return data;
+			}
+	}
 
 	if( exists( UNIX_filename.c_str() ) ) {			// Current mod has priority
 		FILE *src = TA3D_OpenFile( UNIX_filename.c_str(), "rb" );
@@ -630,6 +681,14 @@ byte *cHPIHandler::PullFromHPI( const std::string &FileName , uint32 *file_lengt
 	for( uint16 i = 0 ; i < UNIX_filename.size() ; i++ )
 		if( UNIX_filename[i] == '\\' )
 			UNIX_filename[i] = '/';
+
+	{
+		byte 	*data = IsInDiskCache( UNIX_filename, &FileSize );
+		if( data ) {
+			if( file_length )	*file_length = FileSize;
+			return data;
+			}
+	}
 
 	if( exists( UNIX_filename.c_str() ) ) {
 		FILE *src = TA3D_OpenFile( UNIX_filename.c_str(), "rb" );

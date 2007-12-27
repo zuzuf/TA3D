@@ -567,7 +567,10 @@ const void WEAPON::move(const float dt,MAP *map)				// Anime les armes
 						}
 					else {
 						t_idx = cur->idx;
-						cur = cur->next;
+						if( cur == cur->next )
+							cur = NULL;
+						else
+							cur = cur->next;
 						}
 
 					if(t_idx == -1 || t_idx == oidx || t_idx == shooter_idx || t_idx == hit_idx)	continue;
@@ -605,17 +608,20 @@ const void WEAPON::move(const float dt,MAP *map)				// Anime les armes
 				}
 			if(hit_idx>=0) {
 				units.unit[hit_idx].Lock();
-				bool ok = units.unit[hit_idx].hp>0.0f;		// Juste pour identifier l'assassin...
-				if( damage < 0 )
-					damage = weapon_manager.weapon[weapon_id].damage;
-				units.unit[hit_idx].hp -= damage;		// L'unité touchée encaisse les dégats
-				units.unit[hit_idx].flags&=0xEF;		// This unit must explode if it has been damaged by a weapon even if it is being reclaimed
-				if(ok && units.unit[hit_idx].hp<=0.0f && units.unit[hit_idx].owner_id!=units.unit[shooter_idx].owner_id)		// Non,non les unités que l'on se détruit ne comptent pas dans le nombre de tués mais dans les pertes
-					players.kills[units.unit[shooter_idx].owner_id]++;
-				if(units.unit[hit_idx].hp<=0.0f)
-					units.unit[hit_idx].severity=max(units.unit[hit_idx].severity, damage);
-				units.unit[hit_idx].launch_script(units.unit[hit_idx].get_script_index("hitbyweapon"));
-				units.unit[hit_idx].attacked=true;
+				if( units.unit[hit_idx].flags & 1 ) {
+					bool ok = units.unit[hit_idx].hp>0.0f;		// Juste pour identifier l'assassin...
+					if( damage < 0 )
+						damage = weapon_manager.weapon[weapon_id].damage;
+					units.unit[hit_idx].hp -= damage;		// L'unité touchée encaisse les dégats
+					units.unit[hit_idx].flags&=0xEF;		// This unit must explode if it has been damaged by a weapon even if it is being reclaimed
+					if(ok && units.unit[hit_idx].hp<=0.0f && units.unit[shooter_idx].owner_id < players.nb_player
+					&& units.unit[hit_idx].owner_id!=units.unit[shooter_idx].owner_id)		// Non,non les unités que l'on se détruit ne comptent pas dans le nombre de tués mais dans les pertes
+						players.kills[units.unit[shooter_idx].owner_id]++;
+					if(units.unit[hit_idx].hp<=0.0f)
+						units.unit[hit_idx].severity=max(units.unit[hit_idx].severity, damage);
+					units.unit[hit_idx].launch_script(units.unit[hit_idx].get_script_index("hitbyweapon"));
+					units.unit[hit_idx].attacked=true;
+					}
 				units.unit[hit_idx].UnLock();
 				}
 			if(hit_idx<=-2 && features.feature[-hit_idx-2].type>=0) {
@@ -675,10 +681,21 @@ const void WEAPON::move(const float dt,MAP *map)				// Anime les armes
 						}
 					else {
 						t_idx = cur->idx;
-						cur = cur->next;
+						if( cur == cur->next )
+							cur = NULL;
+						else
+							cur = cur->next;
 						}
-					if(t_idx==-1 || ( t_idx >= 0 && !(units.unit[ t_idx ].flags & 1) ) )	continue;
-					bool already=(t_idx==shooter_idx || t_idx==hit_idx || t_idx>=units.max_unit);
+					if(t_idx==-1)	continue;
+					if( t_idx >= 0 ) {
+						units.unit[ t_idx ].Lock();
+						if( !(units.unit[ t_idx ].flags & 1) ) {
+							units.unit[ t_idx ].UnLock();
+	 						continue;
+	 						}
+						units.unit[ t_idx ].UnLock();
+						}
+					bool already=(t_idx==shooter_idx || t_idx==hit_idx || t_idx >= units.max_unit);
 					if(!already)
 						for(List< int >::iterator i = oidx.begin() ; i != oidx.end() ; i++ )
 							if( t_idx == *i ) {
@@ -686,19 +703,22 @@ const void WEAPON::move(const float dt,MAP *map)				// Anime les armes
 								break;
 								}
 					if(!already) {
-						if(t_idx>=0 && ((VECTOR)(units.unit[t_idx].Pos-Pos)).Sq()<=d) {
+						if(t_idx>=0) {
 							units.unit[t_idx].Lock();
-							oidx.push_back( t_idx );
-							bool ok = units.unit[ t_idx ].hp > 0.0f;
-							float cur_damage = damage * weapon_manager.weapon[weapon_id].edgeeffectiveness;
-							units.unit[t_idx].hp -= cur_damage;		// L'unité touchée encaisse les dégats
-							units.unit[t_idx].flags&=0xEF;		// This unit must explode if it has been damaged by a weapon even if it is being reclaimed
-							if(ok && units.unit[t_idx].hp<=0.0f && units.unit[t_idx].owner_id!=units.unit[shooter_idx].owner_id)		// Non,non les unités que l'on se détruit ne comptent pas dans le nombre de tués mais dans les pertes
-								players.kills[units.unit[shooter_idx].owner_id]++;
-							if(units.unit[t_idx].hp<=0.0f)
-								units.unit[t_idx].severity=max(units.unit[t_idx].severity,(int)cur_damage);
-							units.unit[t_idx].launch_script(units.unit[t_idx].get_script_index("hitbyweapon"));
-							units.unit[t_idx].attacked=true;
+							if( (units.unit[t_idx].flags & 1) && ((VECTOR)(units.unit[t_idx].Pos-Pos)).Sq()<=d) {
+								oidx.push_back( t_idx );
+								bool ok = units.unit[ t_idx ].hp > 0.0f;
+								float cur_damage = damage * weapon_manager.weapon[weapon_id].edgeeffectiveness;
+								units.unit[t_idx].hp -= cur_damage;		// L'unité touchée encaisse les dégats
+								units.unit[t_idx].flags&=0xEF;		// This unit must explode if it has been damaged by a weapon even if it is being reclaimed
+								if(ok && units.unit[t_idx].hp<=0.0f && units.unit[shooter_idx].owner_id < players.nb_player
+								&& units.unit[t_idx].owner_id!=units.unit[shooter_idx].owner_id)		// Non,non les unités que l'on se détruit ne comptent pas dans le nombre de tués mais dans les pertes
+									players.kills[units.unit[shooter_idx].owner_id]++;
+								if(units.unit[t_idx].hp<=0.0f)
+									units.unit[t_idx].severity=max(units.unit[t_idx].severity,(int)cur_damage);
+								units.unit[t_idx].launch_script(units.unit[t_idx].get_script_index("hitbyweapon"));
+								units.unit[t_idx].attacked=true;
+								}
 							units.unit[t_idx].UnLock();
 							}
 						else if(t_idx<-1 && !weapon_manager.weapon[weapon_id].unitsonly && ((VECTOR)(features.feature[-t_idx-2].Pos-Pos)).Sq()<=d) {
@@ -737,7 +757,7 @@ const void WEAPON::move(const float dt,MAP *map)				// Anime les armes
 
 	if(hit && weapon_manager.weapon[weapon_id].interceptor) {
 		units.unit[shooter_idx].Lock();
-		if(units.unit[shooter_idx].flags) {
+		if(units.unit[shooter_idx].flags & 1) {
 			int e=0;
 			for(int i=0;i+e<units.unit[shooter_idx].mem_size;i++) {
 				if(units.unit[shooter_idx].memory[i+e]==target) {
@@ -1322,6 +1342,9 @@ int INGAME_WEAPONS::Run()
 	float dt = 1.0f / TICKS_PER_SEC;
 	int weapon_timer = msec_timer;
 	int counter = 0;
+
+	weapon_engine_thread_sync = 0;
+
 	while( !thread_ask_to_stop ) {
 		counter++;
 
@@ -1333,6 +1356,7 @@ int INGAME_WEAPONS::Run()
 		ThreadSynchroniser->LeaveSync();
 
 		weapon_engine_thread_sync = 1;
+
 		while( weapon_engine_thread_sync && !thread_ask_to_stop )	rest( 1 );			// Wait until other thread sync with this one
 		}
 	thread_running = false;

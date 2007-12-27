@@ -1,3 +1,43 @@
+[game time]
+{
+	FRENCH=temps de jeu;
+}
+[units]
+{
+	FRENCH=unités;
+}
+[speed]
+{
+	FRENCH=vitesse;
+}
+[click on this button\nto show game\noptions]
+{
+	FRENCH=Cliquer sur ce bouton\npour afficher les options\nde jeu;
+}
+[click on this button\nto show audio\noptions]
+{
+	FRENCH=Cliquer sur ce bouton\npour afficher les options\naudio;
+}
+[click on this button\nto show display\noptions]
+{
+	FRENCH=Cliquer sur ce bouton\npour afficher les options\nd'affichage;
+}
+[click to change\nthe map]
+{
+	FRENCH=Changer la\ncarte;
+}
+[click to change\nthe script]
+{
+	FRENCH=Changer le\nscript;
+}
+[click to set\nthe fog of war]
+{
+	FRENCH=Brouillard de\nguerre;
+}
+[Display]
+{
+	FRENCH=Affichage;
+}
 [CONFIRM_CHANGES]
 {
 	FRENCH=Les changements on été appliqués\nVoulez vous les conserver ?;

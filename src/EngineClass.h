@@ -860,7 +860,8 @@ extern int NB_PLAYERS;
 #define PLAYER_CONTROL_FLAG_REMOTE	0x1
 #define PLAYER_CONTROL_FLAG_AI		0x2
 
-class PLAYERS			// Classe pour gérer les joueurs et leurs statistiques de partie
+class PLAYERS :			protected cCriticalSection,			// The player control/management class
+			            public cThread						// Classe pour gérer les joueurs et leurs statistiques de partie
 {
 public:
 	uint32		nb_player;		// Nombre de joueurs (maximum 10 joueurs)
@@ -904,12 +905,17 @@ public:
 	double		energy_total[10];
 	double		metal_total[10];
 
-	inline void player_control(MAP *map)
-	{
-		for( byte i = 0 ; i < nb_player ; i++ )
-			if( control[ i ] == PLAYER_CONTROL_LOCAL_AI && ai_command )
-				ai_command[ i ].monitor();
-	}
+	protected:
+		MAP			*map;
+		bool		thread_is_running;
+		bool		thread_ask_to_stop;
+		int			Run();
+		void		SignalExitThread();
+	public:
+
+	inline void set_map( MAP *p_map )	{	map = p_map;	}
+
+	void player_control();
 
 	inline void stop_threads()
 	{
@@ -961,6 +967,7 @@ public:
 		local_human_id=-1;
 		clear();
 		refresh();
+		map = NULL;
 		for(int i=0;i<10;i++) {
 			com_metal[i] = M;
 			com_energy[i] = E;
@@ -998,6 +1005,14 @@ public:
 
 	inline PLAYERS()
 	{
+		CreateCS();
+
+		map = NULL;
+		thread_is_running = false;
+		thread_ask_to_stop = false;
+
+		InitThread();
+
 		ai_command = new AI_PLAYER[ 10 ];
 		init();
 	}
@@ -1021,6 +1036,10 @@ public:
 		if( ai_command )
 			delete[] ai_command;
 		ai_command = NULL;
+
+		DestroyThread();
+
+		DeleteCS();
 	}
 };
 

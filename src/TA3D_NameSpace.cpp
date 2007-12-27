@@ -26,6 +26,7 @@ RGB						*TA3D::VARS::pal;
 uint8					TA3D::VARS::unit_engine_thread_sync;
 uint8					TA3D::VARS::weapon_engine_thread_sync;
 uint8					TA3D::VARS::particle_engine_thread_sync;
+uint8					TA3D::VARS::players_thread_sync;
 String					TA3D::VARS::TA3D_OUTPUT_DIR;
 I18N_TRANSLATER			TA3D::VARS::i18n;
 ThreadSync				*TA3D::VARS::ThreadSynchroniser=NULL;

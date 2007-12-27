@@ -130,6 +130,7 @@ namespace TA3D
 
 			void PutInCache( const String &FileName, uint32 FileSize, byte *data );
 			CACHEFILEDATA *IsInCache( const String &FileName );
+			byte *IsInDiskCache( const String &FileName, uint32 *p_FileSize = NULL );
 
             // constructor:
             cHPIHandler( const String &Path  )

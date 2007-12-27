@@ -63,4 +63,22 @@
 	checkbox_y1=0;
 	checkbox_x2=24;
 	checkbox_y2=19;
+
+	v_scroll=gfx/default_skin/v_scroll.tga;
+	v_scroll_x1=2;
+	v_scroll_y1=15;
+	v_scroll_x2=12;
+	v_scroll_y2=47;
+
+	h_scroll=gfx/default_skin/h_scroll.tga;
+	h_scroll_x1=15;
+	h_scroll_y1=2;
+	h_scroll_x2=47;
+	h_scroll_y2=12;
+
+	s_scroll=gfx/default_skin/s_scroll.tga;
+	s_scroll_x1=2;
+	s_scroll_y1=2;
+	s_scroll_x2=9;
+	s_scroll_y2=9;
 }

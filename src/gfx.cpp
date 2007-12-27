@@ -196,7 +196,7 @@ void GFX::Init()
 
 				// Color related functions
 
-const void GFX::set_color(const float &r, const float &g, const float &b)		{	glColor3f(r,g,b);	}
+const void GFX::set_color(const float &r, const float &g, const float &b)					{	glColor3f(r,g,b);	}
 const void GFX::set_color(const float &r, const float &g, const float &b, const float &a)	{	glColor4f(r,g,b,a);	}
 const void GFX::set_alpha(const float &a)
 {
@@ -205,15 +205,23 @@ const void GFX::set_alpha(const float &a)
 	gl_color[3] = a;
 	glColor4fv(gl_color);
 }
-const float	GFX::get_r(const uint32 &col)	{	return getr(col)*BYTE_TO_FLOAT;	}
+const float	GFX::get_r(const uint32 &col)	{	return (col&0xFF)*BYTE_TO_FLOAT;	}
+const float	GFX::get_g(const uint32 &col)	{	return ((col&0xFF00)>>8)*BYTE_TO_FLOAT;	}
+const float	GFX::get_b(const uint32 &col)	{	return ((col&0xFF0000)>>16)*BYTE_TO_FLOAT;	}
+const float	GFX::get_a(const uint32 &col)	{	return ((col&0xFF000000)>>24)*BYTE_TO_FLOAT;	}
+const void GFX::set_color(const uint32 &col)	{	glColor4ub( col&0xFF, (col&0xFF00)>>8, (col&0xFF0000)>>16, (col&0xFF000000)>>24 );	}
+
+uint32	GFX::makeintcol(float r, float g, float b)			{	return (int)(255.0f*r) | ((int)(255.0f*g)<<8) | ((int)(255.0f*b)<<16) | 0xFF000000;	}
+uint32	GFX::makeintcol(float r, float g, float b, float a)	{	return (int)(255.0f*r) | ((int)(255.0f*g)<<8) | ((int)(255.0f*b)<<16) | ((int)(255.0f*a)<<24);	}
+
+/*const float	GFX::get_r(const uint32 &col)	{	return getr(col)*BYTE_TO_FLOAT;	}
 const float	GFX::get_g(const uint32 &col)	{	return getg(col)*BYTE_TO_FLOAT;	}
 const float	GFX::get_b(const uint32 &col)	{	return getb(col)*BYTE_TO_FLOAT;	}
 const float	GFX::get_a(const uint32 &col)	{	return geta(col)*BYTE_TO_FLOAT;	}
-//const void GFX::set_color(const uint32 &col)	{	set_color(get_r(col),get_g(col),get_b(col),get_a(col));	}
 const void GFX::set_color(const uint32 &col)	{	glColor4ub( getr(col), getg(col), getb(col), geta(col) );	}
 
 uint32	GFX::makeintcol(float r, float g, float b)			{	return makeacol((int)(255.0f*r),(int)(255.0f*g),(int)(255.0f*b),255);	}
-uint32	GFX::makeintcol(float r, float g, float b, float a)	{	return makeacol((int)(255.0f*r),(int)(255.0f*g),(int)(255.0f*b),(int)(255.0f*a));	}
+uint32	GFX::makeintcol(float r, float g, float b, float a)	{	return makeacol((int)(255.0f*r),(int)(255.0f*g),(int)(255.0f*b),(int)(255.0f*a));	}*/
 
 
 const void GFX::set_2D_mode()	{	allegro_gl_set_allegro_mode();		}

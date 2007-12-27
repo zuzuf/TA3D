@@ -10,6 +10,8 @@ _networking code
 _improve A.I.
 _D3D support
 
+*pressing SPACE key shows game statistics
+*new music configuration system, it autogenerate and autoupdate the playlist at startup, so you just put your files in music and it works !!
 *new confirm dialog when changing screen resolution
 *new hot restart mechanism
 *TA3D_Audio now explicitly uses ALSA on Linux, so you can have sound and your favorite music player started
@@ -17,8 +19,10 @@ _D3D support
 *TA3D now requires Allegro >= 4.2.2 (configure doesn't accept 4.2.0 any more since it has bugs that crash TA3D)
 *new quickrestart mechanism when you select a new configuration that require restarting TA3D
 *now you can run TA3D in 16bits or 32bits (you can select color depth in config menu)
+*new HPI cache system
 *new texture cache system to speed up loading process (the first time it's slower because it creates the cache)
 *reduced memory footprint of textures
+*improved ListBox widget in GUI module
 *end game statistics screen rewritten using GUI module
 *ai module cleaned
 *ia module renamed to ai
@@ -35,6 +39,9 @@ _some parts of the maps might not be drawn (visibility limit) like hills
 _slow down with lots of 3D sprites on some gfx hardware (speed increased but bug not yet fixed)
 _fix all other bugs ( :-) )
 
+*fixed some unit script limitations
+*fixed transporter script bug
+*fixed key shortcuts in GUI ('A' & 'a' are recognized as the same key now)
 *fixed weapon models rotation bug
 *fixed widgets zoom factor for text
 *pathfinding FIXED !!!

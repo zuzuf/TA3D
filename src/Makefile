@@ -69,7 +69,7 @@ am_ta3d_OBJECTS = ta3d.$(OBJEXT) main.$(OBJEXT) i18n.$(OBJEXT) \
 	cob.$(OBJEXT) console.$(OBJEXT) EngineClass.$(OBJEXT) \
 	UnitEngine.$(OBJEXT) fbi.$(OBJEXT) gaf.$(OBJEXT) \
 	glfunc.$(OBJEXT) gui.$(OBJEXT) intro.$(OBJEXT) \
-	particles.$(OBJEXT) tdf.$(OBJEXT) tnt.$(OBJEXT) \
+	particles.$(OBJEXT) lzw.$(OBJEXT) tdf.$(OBJEXT) tnt.$(OBJEXT) \
 	weapons.$(OBJEXT) script.$(OBJEXT) ai.$(OBJEXT) \
 	taconfig.$(OBJEXT) icon.$(OBJEXT) stdafx.$(OBJEXT) \
 	TA3D_Audio.$(OBJEXT) TA3D_Exception.$(OBJEXT) \
@@ -110,7 +110,7 @@ CPP = gcc -E
 CPPFLAGS = 
 CXX = g++
 CXXDEPMODE = depmode=gcc3
-CXXFLAGS = -O3 -march=nocona -I/usr/local/include -ffast-math -mmmx
+CXXFLAGS = -g -O0 -I/usr/local/include -ffast-math -mmmx
 CYGPATH_W = echo
 DEFS = -DHAVE_CONFIG_H
 DEPDIR = .deps
@@ -207,6 +207,7 @@ ta3d_SOURCES = \
 	gui.cpp gui.h \
 	intro.cpp intro.h \
 	particles.cpp particles.h \
+	lzw.cpp lzw.h \
 	tdf.cpp tdf.h \
 	tnt.cpp tnt.h \
 	weapons.cpp weapons.h \
@@ -387,6 +388,7 @@ include ./$(DEPDIR)/i18n.Po
 include ./$(DEPDIR)/icon.Po
 include ./$(DEPDIR)/intro.Po
 include ./$(DEPDIR)/io.Po
+include ./$(DEPDIR)/lzw.Po
 include ./$(DEPDIR)/main.Po
 include ./$(DEPDIR)/menu.Po
 include ./$(DEPDIR)/particles.Po

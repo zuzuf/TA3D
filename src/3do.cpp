@@ -1189,8 +1189,8 @@ bool OBJECT::random_pos( SCRIPT_DATA *data_s, int id, VECTOR *vec )
 		if( nb_t_index / 3 > 0 && !(data_s->flag[script_index] & FLAG_HIDE) ) {
 			int rnd_idx = (rand_from_table() % (nb_t_index / 3)) * 3;
 			float a = (rand_from_table() & 0xFF) / 255.0f;
-			float b = (rand_from_table() & 0xFF) / 255.0f;
-			float c = (rand_from_table() & 0xFF) / 255.0f;
+			float b = (1.0f - a) * (rand_from_table() & 0xFF) / 255.0f;
+			float c = 1.0f - a - b;
 			vec->x = a * points[ t_index[ rnd_idx ] ].x + b * points[ t_index[ rnd_idx + 1 ] ].x + c * points[ t_index[ rnd_idx + 2 ] ].x;
 			vec->y = a * points[ t_index[ rnd_idx ] ].y + b * points[ t_index[ rnd_idx + 1 ] ].y + c * points[ t_index[ rnd_idx + 2 ] ].y;
 			vec->z = a * points[ t_index[ rnd_idx ] ].z + b * points[ t_index[ rnd_idx + 1 ] ].z + c * points[ t_index[ rnd_idx + 2 ] ].z;

@@ -848,6 +848,11 @@ void config_menu(void)
 		}
 	config_area.set_caption("*.player_name", lp_CONFIG->player_name );
 
+	if( config_area.get_object("*.l_files") ) {
+		GUIOBJ *obj = config_area.get_object("*.l_files");
+		obj->Text = sound_manager->GetPlayListFiles();
+		}
+
 	if( lp_CONFIG->quickstart )
 		I_Msg( TA3D::TA3D_IM_GUI_MSG, (void*)("config_confirm.show"), NULL, NULL );
 
@@ -857,6 +862,7 @@ void config_menu(void)
 
 	int amx = -1;
 	int amy = -1;
+	int amz = -1;
 	int amb = -1;
 	uint32 timer = msec_timer;
 
@@ -880,9 +886,10 @@ void config_menu(void)
 				}
 			config_area.check();
 			rest( 1 );
-		} while( amx == mouse_x && amy == mouse_y && amb == mouse_b && !key[ KEY_ENTER ] && !key[ KEY_ESC ] && !done && !key_is_pressed && !config_area.scrolling );
+		} while( amx == mouse_x && amy == mouse_y && amz == mouse_z && amb == mouse_b && !key[ KEY_ENTER ] && !key[ KEY_ESC ] && !done && !key_is_pressed && !config_area.scrolling );
 		amx = mouse_x;
 		amy = mouse_y;
+		amz = mouse_z;
 		amb = mouse_b;
 
 		if( lp_CONFIG->quickstart ) {
@@ -903,6 +910,29 @@ void config_menu(void)
 				saved_config.quickstart = false;
 				}
 			}
+
+		if( config_area.get_state( "*.b_activate" ) ) {
+			GUIOBJ *obj = config_area.get_object("*.l_files");
+			if( obj && obj->Pos >= 0 ) {
+				sound_manager->SetPlayListFileMode( obj->Pos, false, false );
+				obj->Text[ obj->Pos ][ 1 ] = '*';
+				}
+			}
+		if( config_area.get_state( "*.b_deactivate" ) ) {
+			GUIOBJ *obj = config_area.get_object("*.l_files");
+			if( obj && obj->Pos >= 0 ) {
+				sound_manager->SetPlayListFileMode( obj->Pos, false, true );
+				obj->Text[ obj->Pos ][ 1 ] = ' ';
+				}
+			}
+		if( config_area.get_state( "*.b_battle" ) ) {
+			GUIOBJ *obj = config_area.get_object("*.l_files");
+			if( obj && obj->Pos >= 0 ) {
+				sound_manager->SetPlayListFileMode( obj->Pos, true, false );
+				obj->Text[ obj->Pos ][ 1 ] = 'B';
+				}
+			}
+
 
 		if( config_area.get_state( "*.b_ok" ) ) {
 			done = true;		// En cas de click sur "OK", on quitte la fenêtre
@@ -1043,13 +1073,17 @@ void config_menu(void)
 	if(!save)
 		*lp_CONFIG = saved_config;
 	else {
+		sound_manager->SavePlayList();				// Save the playlist
+
 		if( lp_CONFIG->screen_width != saved_config.screen_width ||
 			lp_CONFIG->screen_height != saved_config.screen_height ||
 			lp_CONFIG->color_depth != saved_config.color_depth ||
 			lp_CONFIG->fsaa != saved_config.fsaa ||
 			(lp_CONFIG->fullscreen != saved_config.fullscreen) )			// Need to restart
 			lp_CONFIG->quickrestart = true;
+
 		lp_CONFIG->player_name = config_area.get_caption( "*.player_name" );
+
 		if( lp_CONFIG->last_MOD != TA3D_CURRENT_MOD ) {			// Refresh the file structure
 			TA3D_CURRENT_MOD = lp_CONFIG->last_MOD;
 			delete HPIManager;
@@ -1086,18 +1120,39 @@ void stats_menu(void)
 	if( !statistics_area.background )	statistics_area.background = gfx->glfond;
 
 	for( int i = 0 ; i < players.nb_player ; i++ ) {
+		GUIOBJ *obj;
+		uint32 color = gfx->makeintcol( player_color[ 3 * player_color_map[ i ] ], player_color[ 3 * player_color_map[ i ] + 1 ], player_color[ 3 * player_color_map[ i ] + 2 ] );
+
 		statistics_area.set_caption( format( "statistics.player%d", i ), players.nom[i] );
+		obj = statistics_area.get_object( format( "statistics.player%d", i ) );
+		if( obj )	obj->Data = color;
+
 		statistics_area.set_caption( format( "statistics.side%d", i ), players.side[i] );
+		obj = statistics_area.get_object( format( "statistics.side%d", i ) );
+		if( obj )	obj->Data = color;
+
 		statistics_area.set_caption( format( "statistics.losses%d", i ), format( "%d", players.losses[i] ) );
+		obj = statistics_area.get_object( format( "statistics.losses%d", i ) );
+		if( obj )	obj->Data = color;
+
 		statistics_area.set_caption( format( "statistics.kills%d", i ), format( "%d", players.kills[i] ) );
+		obj = statistics_area.get_object( format( "statistics.kills%d", i ) );
+		if( obj )	obj->Data = color;
+
 		statistics_area.set_caption( format( "statistics.energy%d", i ), format( "%d", (int)players.energy_total[i] ) );
+		obj = statistics_area.get_object( format( "statistics.energy%d", i ) );
+		if( obj )	obj->Data = color;
+
 		statistics_area.set_caption( format( "statistics.metal%d", i ), format( "%d", (int)players.metal_total[i] ) );
+		obj = statistics_area.get_object( format( "statistics.metal%d", i ) );
+		if( obj )	obj->Data = color;
 		}
 
 	bool done=false;
 
 	int amx = -1;
 	int amy = -1;
+	int amz = -1;
 	int amb = -1;
 
 	do
@@ -1107,10 +1162,11 @@ void stats_menu(void)
 			key_is_pressed = keypressed();
 			statistics_area.check();
 			rest( 1 );
-		} while( amx == mouse_x && amy == mouse_y && amb == mouse_b && mouse_b == 0 && !key[ KEY_ENTER ] && !key[ KEY_ESC ] && !done && !key_is_pressed && !statistics_area.scrolling );
+		} while( amx == mouse_x && amy == mouse_y && amz == mouse_z && amb == mouse_b && mouse_b == 0 && !key[ KEY_ENTER ] && !key[ KEY_ESC ] && !done && !key_is_pressed && !statistics_area.scrolling );
 
 		amx = mouse_x;
 		amy = mouse_y;
+		amz = mouse_z;
 		amb = mouse_b;
 
 		if( statistics_area.get_state( "statistics.b_ok" ) || key[KEY_ENTER] ) {
@@ -1298,6 +1354,7 @@ void setup_game(void)
 
 	int amx = -1;
 	int amy = -1;
+	int amz = -1;
 	int amb = -1;
 
 	do
@@ -1307,10 +1364,11 @@ void setup_game(void)
 			key_is_pressed = keypressed();
 			setupgame_area.check();
 			rest( 1 );
-		} while( amx == mouse_x && amy == mouse_y && amb == mouse_b && mouse_b == 0 && !key[ KEY_ENTER ] && !key[ KEY_ESC ] && !done && !key_is_pressed && !setupgame_area.scrolling );
+		} while( amx == mouse_x && amy == mouse_y && amz == mouse_z && amb == mouse_b && mouse_b == 0 && !key[ KEY_ENTER ] && !key[ KEY_ESC ] && !done && !key_is_pressed && !setupgame_area.scrolling );
 
 		amx = mouse_x;
 		amy = mouse_y;
+		amz = mouse_z;
 		amb = mouse_b;
 
 		if( setupgame_area.get_state( "gamesetup.FOW" ) ) {

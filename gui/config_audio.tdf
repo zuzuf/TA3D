@@ -8,7 +8,7 @@
 	height=720;
 	draw borders=false;
 	show title=false;
-	number of objects=1;
+	number of objects=5;
 	hidden=true;
 	lock=true;
 	color=0x00000000;			// Fully transparent so we can see the AREA background
@@ -26,5 +26,53 @@
 		value=0xFFFFFFFF;
 		centered=true;
 		size=3;
+	}
+	[object1]		// File list
+	{
+		name=l_files;
+		type=LIST;
+		Entry=;
+		x1=10;
+		y1=120;
+		x2=728;
+		y2=710;
+		value=0xFFFFFFFF;
+		size=2;
+	}
+	[object2]		// "activate" Button
+	{
+		name=b_activate;
+		type=BUTTON;
+		Caption=Normal;
+		x1=10;
+		y1=60;
+		x2=130;
+		y2=100;
+		value=0xFFFFFFFF;
+		size=2;
+	}
+	[object3]		// "battle" Button
+	{
+		name=b_battle;
+		type=BUTTON;
+		Caption=Battle;
+		x1=319;
+		y1=60;
+		x2=439;
+		y2=100;
+		value=0xFFFFFFFF;
+		size=2;
+	}
+	[object4]		// "deactivate" Button
+	{
+		name=b_deactivate;
+		type=BUTTON;
+		Caption=Off;
+		x1=608;
+		y1=60;
+		x2=728;
+		y2=100;
+		value=0xFFFFFFFF;
+		size=2;
 	}
 }

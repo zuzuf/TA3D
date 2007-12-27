@@ -684,7 +684,7 @@ void WND::destroy()
 	/*---------------------------------------------------------------------------\
 	|             Gère les interactions entre l'utilisateur et les objets        |
 	\---------------------------------------------------------------------------*/
-int WND::check(int AMx,int AMy,int AMb,bool timetoscroll, SKIN *skin )
+int WND::check(int AMx,int AMy,int AMz,int AMb,bool timetoscroll, SKIN *skin )
 {
 	if( hidden )	{
 		was_hidden = true;
@@ -719,12 +719,23 @@ int WND::check(int AMx,int AMy,int AMb,bool timetoscroll, SKIN *skin )
 		if(mouse_x>=x+Objets[i].x1 && mouse_x<=x+Objets[i].x2
 			&& mouse_y>=y+Objets[i].y1 && mouse_y<=y+Objets[i].y2 )	continue;
 
-		if(Objets[i].Type==OBJ_MENU && Objets[i].Etat && !Objets[i].MouseOn && !was_on_floating_menu )
-			if(mouse_x>=x+Objets[i].x1 && mouse_x<=x+Objets[i].x1+168
-				&& mouse_y>y+Objets[i].y2 && mouse_y<=y+Objets[i].y2+1+gui_font.height()*Objets[i].s*Objets[i].Text.size()) {
+		if(Objets[i].Type==OBJ_MENU && Objets[i].Etat && !Objets[i].MouseOn && !was_on_floating_menu ) {
+			float m_width = 168.0f * Objets[i].s;
+			if( skin ) {
+				for( int e = 0 ; e < Objets[i].Text.size() - ( 1 + Objets[i].Pos ) ; e++ )
+					m_width = max( m_width, gui_font.length( Objets[i].Text[ e ] ) * Objets[i].s );
+
+				m_width += skin->menu_background.x1 - skin->menu_background.x2;
+				}
+			else
+				m_width = 168.0f;
+
+			if( mouse_x >= x + Objets[i].x1 && mouse_x <= x + Objets[i].x1 + m_width
+				&& mouse_y > y + Objets[i].y2 && mouse_y <= y + Objets[i].y2 + 1 + gui_font.height() * Objets[i].s * Objets[i].Text.size() ) {
 				was_on_floating_menu = true;
 				on_menu = i;
 				}
+			}
 		}
 
 	for(int i=0;i<NbObj;i++) {
@@ -746,12 +757,24 @@ int WND::check(int AMx,int AMy,int AMb,bool timetoscroll, SKIN *skin )
 		if(mouse_x>=x+Objets[i].x1 && mouse_x<=x+Objets[i].x2
 			&& mouse_y>=y+Objets[i].y1 && mouse_y<=y+Objets[i].y2 && !was_on_floating_menu )	Objets[i].MouseOn=true;
 
-		if(Objets[i].Type==OBJ_MENU && Objets[i].Etat && !Objets[i].MouseOn && !was_on_floating_menu )
-			if(mouse_x>=x+Objets[i].x1 && mouse_x<=x+Objets[i].x1+168
-				&& mouse_y>y+Objets[i].y2 && mouse_y<=y+Objets[i].y2+1+gui_font.height()*Objets[i].s*Objets[i].Text.size())
-				Objets[i].MouseOn=true;
+		if(Objets[i].Type==OBJ_MENU && Objets[i].Etat && !Objets[i].MouseOn && !was_on_floating_menu ) {
+			int e;
+			float m_width = 168.0f * Objets[i].s;
+			if( skin ) {
+				for( e = 0 ; e < Objets[i].Text.size() - ( 1 + Objets[i].Pos ) ; e++ )
+					m_width = max( m_width, gui_font.length( Objets[i].Text[ e ] ) * Objets[i].s );
 
-		if(Objets[i].MouseOn) IsOnGUI|=2;
+				m_width += skin->menu_background.x1 - skin->menu_background.x2;
+				}
+			else
+				m_width = 168.0f;
+
+			if( mouse_x >= x + Objets[i].x1 && mouse_x <= x + Objets[i].x1 + m_width
+				&& mouse_y > y + Objets[i].y2 && mouse_y <= y + Objets[i].y2 + 1 + gui_font.height() * Objets[i].s * Objets[i].Text.size() )
+				Objets[i].MouseOn = true;
+			}
+
+		if(Objets[i].MouseOn) IsOnGUI |= 2;
 
 		if(mouse_b!=0 && Objets[i].MouseOn && !was_on_floating_menu ) {		// Obtient le focus
 			for(e=0;e<NbObj;e++)
@@ -786,9 +809,20 @@ int WND::check(int AMx,int AMy,int AMb,bool timetoscroll, SKIN *skin )
 		{
 		case OBJ_MENU:			// Choses à faire quoi qu'il arrive
 			Objets[i].Data=-1;		// Pas de séléction
-			if(Objets[i].MouseOn && mouse_x>=x+Objets[i].x1 && mouse_x<=x+Objets[i].x1+168
-				&& mouse_y>y+Objets[i].y2+4 && mouse_y<=y+Objets[i].y2+1+gui_font.height()*Objets[i].s*Objets[i].Text.size()
-				&& Objets[i].Etat){
+			{
+			float m_width = 168.0f * Objets[i].s;
+			if( skin ) {
+				for( int e = 0 ; e < Objets[i].Text.size() - ( 1 + Objets[i].Pos ) ; e++ )
+					m_width = max( m_width, gui_font.length( Objets[i].Text[ e ] ) * Objets[i].s );
+
+				m_width += skin->menu_background.x1 - skin->menu_background.x2;
+				}
+			else
+				m_width = 168.0f;
+
+			if( Objets[i].MouseOn && mouse_x >= x + Objets[i].x1 && mouse_x <= x + Objets[i].x1 + m_width
+				&& mouse_y > y + Objets[i].y2 + 4 && mouse_y <= y + Objets[i].y2 + 1 + gui_font.height() * Objets[i].s * Objets[i].Text.size()
+				&& Objets[i].Etat ){
 
 				if(timetoscroll) {
 					if(mouse_y<y+Objets[i].y2+12 && Objets[i].Pos>0)
@@ -799,6 +833,7 @@ int WND::check(int AMx,int AMy,int AMb,bool timetoscroll, SKIN *skin )
 				Objets[i].Data=(int)((mouse_y-y-Objets[i].y2-5)/(gui_font.height()*Objets[i].s)+Objets[i].Pos);
 				if(Objets[i].Data>=Objets[i].Text.size()-1) Objets[i].Data=-1;
 				}
+			}
 			break;
 		case OBJ_FMENU:
 			Objets[i].Data=-1;		// Pas de séléction
@@ -830,7 +865,24 @@ int WND::check(int AMx,int AMy,int AMb,bool timetoscroll, SKIN *skin )
 				};
 				}
 			break;
-			};
+		case OBJ_LIST:
+			if( Objets[i].MouseOn && skin ) {
+				if( mouse_x - x <= Objets[i].x1 + skin->text_background.x1
+					|| mouse_x - x >= Objets[i].x2 + skin->text_background.x2
+					|| mouse_y - y <= Objets[i].y1 + skin->text_background.y1
+					|| mouse_y - y >= Objets[i].y2 + skin->text_background.y2 )			// We're on ListBox decoration!
+					break;
+				int TotalScroll = Objets[i].Text.size() - (int)( (Objets[i].y2 - Objets[i].y1 - skin->text_background.y1 + skin->text_background.y2) / ( gui_font.height() * Objets[i].s ) );
+				if( TotalScroll < 0 )	TotalScroll = 0;
+
+				int nscroll = (int)Objets[i].Data - mouse_z + AMz;
+				if( nscroll < 0 )					nscroll = 0;
+				else if( nscroll > TotalScroll )	nscroll = TotalScroll;
+
+				Objets[i].Data = nscroll;
+				}
+			break;
+		};
 
 		if( Objets[i].Flag & FLAG_DISABLED ) {
 			Objets[i].activated = false;
@@ -842,9 +894,10 @@ int WND::check(int AMx,int AMy,int AMb,bool timetoscroll, SKIN *skin )
 					(*Objets[i].Func)(0);		// Lance la fonction associée
 				Objets[i].Etat=false;
 				}
-			if( !Objets[i].activated && mouse_b==1 && Objets[i].MouseOn )
+			if( !Objets[i].activated && mouse_b==1 && Objets[i].MouseOn && ((Objets[i].Flag & FLAG_CAN_BE_CLICKED) || (Objets[i].Flag & FLAG_SWITCH)) )
 				switch( Objets[i].Type )
 				{
+				case OBJ_BOX:
 				case OBJ_BUTTON:
 				case OBJ_MENU:
 				case OBJ_TA_BUTTON:
@@ -856,7 +909,10 @@ int WND::check(int AMx,int AMy,int AMb,bool timetoscroll, SKIN *skin )
 			Objets[i].activated = mouse_b==1 && Objets[i].MouseOn;
 
 			bool clicked = false;
-			if( Objets[i].shortcut_key >= 0 && Objets[i].shortcut_key <= 255 && key[ ascii_to_scancode[ Objets[i].shortcut_key ] ] && ( Console == NULL || !Console->activated() ) ) {
+			if( Objets[i].shortcut_key >= 0 && Objets[i].shortcut_key <= 255 && ( Console == NULL || !Console->activated() )
+				&& ( key[ ascii_to_scancode[ Objets[i].shortcut_key ] ]
+					|| ( Objets[i].shortcut_key >= 65 && Objets[i].shortcut_key <= 90 && key[ ascii_to_scancode[ Objets[i].shortcut_key + 32 ] ] )
+					|| ( Objets[i].shortcut_key >= 97 && Objets[i].shortcut_key <= 122 && key[ ascii_to_scancode[ Objets[i].shortcut_key - 32 ] ] ) ) ) {
 				if( !Objets[i].Etat )
 					clicked = true;
 				Objets[i].activated = Objets[i].Etat = true;
@@ -867,7 +923,41 @@ int WND::check(int AMx,int AMy,int AMb,bool timetoscroll, SKIN *skin )
 				switch(Objets[i].Type)
 				{
 				case OBJ_LIST:
-					Objets[i].Pos = (uint32) ((mouse_y - y - Objets[i].y1 - ( skin ? skin->text_background.y1:0) - 4) / ( gui_font.height() * Objets[i].s ) + Objets[i].Data);					Objets[i].Etat = true;
+					if( skin
+						&& mouse_x - x >= Objets[i].x2 + skin->text_background.x2 - skin->scroll[0].w
+						&& mouse_x - x <= Objets[i].x2 + skin->text_background.x2
+						&& mouse_y - y >= Objets[i].y1 + skin->text_background.y1
+						&& mouse_y - y <= Objets[i].y2 + skin->text_background.y2 ) {			// We're on the scroll bar!
+
+						int TotalScroll = Objets[i].Text.size() - (int)( (Objets[i].y2 - Objets[i].y1 - skin->text_background.y1 + skin->text_background.y2) / ( gui_font.height() * Objets[i].s ) );
+						if( TotalScroll < 0 )	TotalScroll = 0;
+						
+						if( mouse_y - y <= Objets[i].y1 + skin->text_background.y1 + skin->scroll[0].y1 ) {		// Scroll up
+							if( Objets[i].Data > 0 ) Objets[i].Data--;
+							if( sound_manager )
+								sound_manager->PlayTDFSoundNow("SPECIALORDERS.sound");
+							}
+						else if( mouse_y - y >= Objets[i].y2 + skin->text_background.y2 + skin->scroll[0].y2 ) {	// Scroll down
+							Objets[i].Data++;
+							if( sound_manager )
+								sound_manager->PlayTDFSoundNow("SPECIALORDERS.sound");
+							}
+						else {							// Set scrolling position
+							Objets[i].Data = (int)( 0.5f + TotalScroll * (mouse_y - y - Objets[i].y1 - skin->text_background.y1 - skin->scroll[0].y1 - (skin->scroll[0].w - skin->scroll[ 0 ].x1 + skin->scroll[ 0 ].x2 ) * 0.5f )
+											/ ( Objets[i].y2 - Objets[i].y1 - skin->text_background.y1 + skin->text_background.y2 - skin->scroll[0].y1 + skin->scroll[0].y2 - ( skin->scroll[0].w - skin->scroll[ 0 ].x1 + skin->scroll[ 0 ].x2 ) * 0.5f ) );
+							}
+						if( Objets[i].Data > TotalScroll )
+							Objets[i].Data = TotalScroll;
+						}
+					else {
+						if( skin && (
+							   mouse_x - x <= Objets[i].x1 + skin->text_background.x1
+							|| mouse_x - x >= Objets[i].x2 + skin->text_background.x2
+							|| mouse_y - y <= Objets[i].y1 + skin->text_background.y1
+							|| mouse_y - y >= Objets[i].y2 + skin->text_background.y2) )			// We're on ListBox decoration!
+							break;
+						Objets[i].Pos = (uint32) ((mouse_y - y - Objets[i].y1 - ( skin ? skin->text_background.y1:0) - 4) / ( gui_font.height() * Objets[i].s ) + Objets[i].Data);						Objets[i].Etat = true;
+						}
 					break;
 				case OBJ_TA_BUTTON:
 					if( Objets[i].nb_stages > 0 )
@@ -891,7 +981,7 @@ int WND::check(int AMx,int AMy,int AMb,bool timetoscroll, SKIN *skin )
 					if(Objets[i].Func!=NULL)
 						(*Objets[i].Func)(Objets[i].Etat);	// Lance la fonction associée
 					break;
-				case OBJ_OPTIONB:		// Boutton d'option
+				case OBJ_OPTIONB:		// Bouton d'option
 					if(was_on_floating_menu)	break;
 					if( skin && skin->option[0].tex && skin->option[1].tex) {
 						if(mouse_x<=x+Objets[i].x1+skin->option[Objets[i].Etat?1:0].w && mouse_y <= y + Objets[i].y1+skin->option[Objets[i].Etat?1:0].h)
@@ -912,19 +1002,30 @@ int WND::check(int AMx,int AMy,int AMb,bool timetoscroll, SKIN *skin )
 						}
 					break;
 				case OBJ_MENU:			// Menu déroulant
-					if(mouse_x>=x+Objets[i].x1 + ( skin ? skin->menu_background.x1 : 0 ) && mouse_x <= x + Objets[i].x1+168 + ( skin ? skin->menu_background.x2 : 0 )
-						&& mouse_y>y+Objets[i].y2 + ( skin ? skin->menu_background.y1 : 0 ) && mouse_y <= y + Objets[i].y2 + ( skin ? skin->menu_background.y2 : 0 ) + 1+gui_font.height()*Objets[i].s*Objets[i].Text.size()
-						&& Objets[i].Etat){
+					{
+					float m_width = 168.0f * Objets[i].s;
+					if( skin ) {
+						for( int e = 0 ; e < Objets[i].Text.size() - ( 1 + Objets[i].Pos ) ; e++ )
+							m_width = max( m_width, gui_font.length( Objets[i].Text[ e ] ) * Objets[i].s );
 
-						index=(int)((mouse_y-y-Objets[i].y2-5 - ( skin ? skin->menu_background.y1 : 0 ))/(Objets[i].s*gui_font.height())+Objets[i].Pos);
-						if(index>=Objets[i].Text.size()-1) index=Objets[i].Text.size()-2;
-						if(Objets[i].Func!=NULL)
+						m_width += skin->menu_background.x1 - skin->menu_background.x2;
+						}
+					else
+						m_width = 168.0f;
+					if( mouse_x >= x + Objets[i].x1 + ( skin ? skin->menu_background.x1 : 0 ) && mouse_x <= x + Objets[i].x1 + m_width + ( skin ? skin->menu_background.x2 : 0 )
+						&& mouse_y > y + Objets[i].y2 + ( skin ? skin->menu_background.y1 : 0 ) && mouse_y <= y + Objets[i].y2 + ( skin ? skin->menu_background.y2 : 0 ) + 1 + gui_font.height() * Objets[i].s * Objets[i].Text.size()
+						&& Objets[i].Etat ){
+
+						index = (int)((mouse_y - y - Objets[i].y2 - 5 - ( skin ? skin->menu_background.y1 : 0 ))/(Objets[i].s * gui_font.height()) + Objets[i].Pos);
+						if( index >= Objets[i].Text.size() - 1 ) index = Objets[i].Text.size()-2;
+						if( Objets[i].Func != NULL )
 							(*Objets[i].Func)(index);		// Lance la fonction associée
-						Objets[i].Etat=false;
+						Objets[i].Etat = false;
 						close_all = true;
 						}
 					else
-						Objets[i].Etat^=true;
+						Objets[i].Etat ^= true;
+					}
 					break;
 				};
 						// Send a signal to the interface ( the OnClick signal defined at initialization time)
@@ -1472,17 +1573,27 @@ void ListBox(float x1,float y1, float x2, float y2,const Vector<String> &Entry,i
 		skin->text_background.draw( x1, y1, x2, y2 );
 
 		int i;
-		for(i=0;i<Entry.size();i++) {
+		for( i = 0 ; i < Entry.size() ; i++ ) {
 			int e = i+Scroll;
-			if( e >= Entry.size() || gui_font.height() * (i+1) > y2-y1-8 ) break;		// If we are out break the loop
+			if( e >= Entry.size() || gui_font.height() * (i+1) > y2-y1-skin->text_background.y1+skin->text_background.y2 ) break;		// If we are out break the loop
 			if( e == Index ) {
 				if( skin->selection_gfx.tex )
 					skin->selection_gfx.draw( x1 + skin->text_background.x1, y1 + skin->text_background.y1 + gui_font.height()*i, x2 + skin->text_background.x2, y1 + skin->text_background.y1+gui_font.height()*(i+1) );
 				else
 					gfx->rectfill( x1 + skin->text_background.x1, y1 + skin->text_background.y1 + gui_font.height()*i, x2 + skin->text_background.x2, y1 + skin->text_background.y1+gui_font.height()*(i+1), Bleu );
 				}
-			gfx->print(gui_font,x1+skin->text_background.x1,y1+skin->text_background.y1+gui_font.height()*i,0.0f,use_normal_alpha_function ? Blanc : Noir,Entry[e]);
+			String str = Entry[ e ];
+			while( gui_font.length( str ) >= x2 - x1 - skin->text_background.x1 + skin->text_background.x2 - skin->scroll[0].w && str.size() > 0 )
+				str.resize( str.size() - 1 );
+			gfx->print(gui_font,x1+skin->text_background.x1,y1+skin->text_background.y1+gui_font.height()*i,0.0f,use_normal_alpha_function ? Blanc : Noir,str);
 			}
+
+		int TotalScroll = Entry.size() - (int)( (y2 - y1 - skin->text_background.y1 + skin->text_background.y2) / gui_font.height() );
+		if( TotalScroll < 0 )	TotalScroll = 0;
+
+		ScrollBar(	x2 + skin->text_background.x2 - skin->scroll[ 0 ].w, y1 + skin->text_background.y1,
+					x2 + skin->text_background.x2, y2 + skin->text_background.y2,
+					TotalScroll ? ((float)Scroll) / TotalScroll : 0.0f, true, skin, size );
 
 		gfx->unset_alpha_blending();
 		}
@@ -1806,6 +1917,36 @@ void TextBar(float x1,float y1,float x2,float y2,const String &Caption,bool Etat
 		}
 
 	gui_font.change_size( old_size );
+}
+
+/*---------------------------------------------------------------------------\
+|                              Draw a scroll bar                             |
+\---------------------------------------------------------------------------*/
+void ScrollBar( float x1, float y1, float x2, float y2, float Value, bool vertical, SKIN *skin, float size )
+{
+	if( skin ) {
+		gfx->set_alpha_blending();
+		gfx->set_color( 0xFFFFFFFF );
+
+		if( Value < 0.0f )	Value = 0.0f;
+		else if( Value > 1.0f )	Value = 1.0f;
+		skin->scroll[ vertical ? 0 : 1 ].draw( x1, y1, x2, y2 );
+
+		if( vertical ) {
+			float y = y1 + skin->scroll[ 0 ].y1;
+			float dx = x2 - x1 - skin->scroll[ 0 ].x1 + skin->scroll[ 0 ].x2;
+			y += (y2 - y1 - skin->scroll[ 0 ].y1 + skin->scroll[ 0 ].y2 - dx) * Value;
+			skin->scroll[ 2 ].draw( x1 + skin->scroll[ 0 ].x1, y, x2 + skin->scroll[ 0 ].x2, y + dx );
+			}
+		else {
+			float x = x1 + skin->scroll[ 1 ].x1;
+			float dy = y2 - y1 - skin->scroll[ 1 ].y1 + skin->scroll[ 1 ].y2;
+			x += (x2 - x1 - skin->scroll[ 1 ].x1 + skin->scroll[ 1 ].x2 - dy) * Value;
+			skin->scroll[ 2 ].draw( x, y1 + skin->scroll[ 1 ].y1, x + dy, y2 + skin->scroll[ 1 ].y2 );
+			}
+
+		gfx->unset_alpha_blending();
+		}
 }
 
 /*---------------------------------------------------------------------------\
@@ -2206,7 +2347,7 @@ bool WndAsk(const String &Title,const String &Msg,int ASW_TYPE)
 
 	int Popup_Done=0;
 	
-	int AMx=mouse_x,AMy=mouse_y,AMb=mouse_b;
+	int AMx=mouse_x,AMy=mouse_y,AMz=mouse_z,AMb=mouse_b;
 
 	do
 	{
@@ -2217,6 +2358,7 @@ bool WndAsk(const String &Title,const String &Msg,int ASW_TYPE)
 
 		AMx=mouse_x;							// Mémorise l'ancien état de la souris
 		AMy=mouse_y;
+		AMz=mouse_z;
 		AMb=mouse_b;
 
 		poll_mouse();								// Obtient l'état de la souris
@@ -2225,7 +2367,7 @@ bool WndAsk(const String &Title,const String &Msg,int ASW_TYPE)
 		
 		gfx->set_2D_mode();	// On repasse dans le mode dessin 2D pour Allegro
 
-		Popup.check(AMx,AMy,AMb);	// Gestion de l'interface utilisateur graphique
+		Popup.check(AMx,AMy,AMz,AMb);	// Gestion de l'interface utilisateur graphique
 
 		String help_msg = "";
 		Popup.draw( help_msg );		// Dessine la boîte de dialogue
@@ -2269,7 +2411,7 @@ void Popup(const String &Title,const String &Msg)
 
 	bool Popup_Done=false;
 	
-	int AMx=mouse_x,AMy=mouse_y,AMb=mouse_b;
+	int AMx=mouse_x,AMy=mouse_y,AMz=mouse_z,AMb=mouse_b;
 
 	do
 	{
@@ -2279,6 +2421,7 @@ void Popup(const String &Title,const String &Msg)
 
 		AMx=mouse_x;							// Mémorise l'ancien état de la souris
 		AMy=mouse_y;
+		AMz=mouse_z;
 		AMb=mouse_b;
 
 		poll_mouse();								// Obtient l'état de la souris
@@ -2287,7 +2430,7 @@ void Popup(const String &Title,const String &Msg)
 		
 		gfx->set_2D_mode();	// On repasse dans le mode dessin 2D pour Allegro
 
-		Popup.check(AMx,AMy,AMb);	// Gestion de l'interface utilisateur graphique
+		Popup.check(AMx,AMy,AMz,AMb);	// Gestion de l'interface utilisateur graphique
 
 		String help_msg = "";
 		Popup.draw( help_msg );		// Dessine la boîte de dialogue
@@ -2330,7 +2473,7 @@ const String GetVal(const String &Title)
 
 	bool Popup_Done=false;
 	
-	int AMx=mouse_x,AMy=mouse_y,AMb=mouse_b;
+	int AMx=mouse_x,AMy=mouse_y,AMz=mouse_z,AMb=mouse_b;
 
 	do
 	{
@@ -2345,6 +2488,7 @@ const String GetVal(const String &Title)
 
 		AMx=mouse_x;							// Mémorise l'ancien état de la souris
 		AMy=mouse_y;
+		AMz=mouse_z;
 		AMb=mouse_b;
 
 		poll_mouse();								// Obtient l'état de la souris
@@ -2353,7 +2497,7 @@ const String GetVal(const String &Title)
 		
 		gfx->set_2D_mode();	// On repasse dans le mode dessin 2D pour Allegro
 
-		Popup.check(AMx,AMy,AMb);	// Gestion de l'interface utilisateur graphique
+		Popup.check(AMx,AMy,AMz,AMb);	// Gestion de l'interface utilisateur graphique
 
 		String help_msg = "";
 		Popup.draw( help_msg );		// Dessine la boîte de dialogue
@@ -2624,7 +2768,7 @@ uint16 AREA::check()					// Checks events for all windows
 			scroll_timer += 500;
 	for( uint16 i = 0 ; i < vec_wnd.size() ; i++ )
 		if( !is_on_gui || ( vec_wnd[ vec_z_order[ i ] ]->get_focus && !vec_wnd[ vec_z_order[ i ] ]->hidden ) ) {
-			is_on_gui |= vec_wnd[ vec_z_order[ i ] ]->check( amx, amy, amb, scroll, skin );			// Do things in the right order
+			is_on_gui |= vec_wnd[ vec_z_order[ i ] ]->check( amx, amy, amz, amb, scroll, skin );			// Do things in the right order
 			if( ( (is_on_gui && mouse_b && !vec_wnd[ vec_z_order[ 0 ] ]->get_focus) || vec_wnd[ vec_z_order[ i ] ]->get_focus ) && i > 0 && !vec_wnd[ vec_z_order[ i ] ]->background_wnd ) {			// Change the focus
 				uint16 old = vec_z_order[ i ];
 				for( uint16 e = i ; e > 0 ; e-- )
@@ -2783,26 +2927,29 @@ void SKIN::init()
 	checkbox[0].init();
 	option[1].init();
 	option[0].init();
+	scroll[2].init();
+	scroll[1].init();
+	scroll[0].init();
 }
 
 void SKIN::destroy()
 {
-	for( int i = 0 ; i < 2 ; i++ )
+	for( int i = 0 ; i < 2 ; i++ ) {
+		progress_bar[i].destroy();
 		button_img[i].destroy();
+		checkbox[i].destroy();
+		option[i].destroy();
+		scroll[i].destroy();
+		}
+	scroll[2].destroy();
 	text_background.destroy();
 	menu_background.destroy();
 	wnd_border.destroy();
 	wnd_title_bar.destroy();
-	for( int i = 0 ; i < 2 ; i++ )
-		progress_bar[i].destroy();
 	selection_gfx.destroy();
 
 	Name.clear();
 	gfx->destroy_texture(  wnd_background );
-	for( int i = 0 ; i < 2 ; i++ )
-		checkbox[i].destroy();
-	for( int i = 0 ; i < 2 ; i++ )
-		option[i].destroy();
 }
 
 void SKIN::load_tdf( const String &filename )			// Loads the skin from a TDF file
@@ -2849,6 +2996,10 @@ void SKIN::load_tdf( const String &filename )			// Loads the skin from a TDF fil
 	option[1].load( skinFile->PullAsString( "skin.option1" ), "skin.option_", skinFile );
 	checkbox[0].load( skinFile->PullAsString( "skin.checkbox0" ), "skin.checkbox_", skinFile );
 	checkbox[1].load( skinFile->PullAsString( "skin.checkbox1" ), "skin.checkbox_", skinFile );
+
+	scroll[0].load( skinFile->PullAsString( "skin.v_scroll" ), "skin.v_scroll_", skinFile );
+	scroll[1].load( skinFile->PullAsString( "skin.h_scroll" ), "skin.h_scroll_", skinFile );
+	scroll[2].load( skinFile->PullAsString( "skin.s_scroll" ), "skin.s_scroll_", skinFile );
 
 	String tex_file_name = skinFile->PullAsString( "skin.window background" );
 	if( TA3D_exists( tex_file_name ) )	wnd_background = gfx->load_texture( tex_file_name, FILTER_LINEAR );

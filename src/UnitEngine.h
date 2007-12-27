@@ -123,7 +123,7 @@ public:
 
 	inline ~SCRIPT_ENV()
 	{
-		destroy();
+//		destroy();
 	}
 
 	inline void push(int v)
@@ -228,71 +228,71 @@ public:
 class UNIT	:	protected cCriticalSection				// Classe pour la gestion des unités	/ Class to store units's data
 {
 public:
-	SCRIPT			*script;		// Scripts concernant l'unité
-	int				*s_var;			// Tableau de variables pour les scripts
-	MODEL			*model;			// Modèle représentant l'objet
-	byte			owner_id;		// Numéro du propriétaire de l'unité
-	short			type_id;		// Type d'unité
-	float			hp;				// Points de vide restant à l'unité
-	VECTOR			Pos;			// Vecteur position
-	VECTOR			drawn_Pos;		// To prevent the shadow to be drawn where the unit will be on next frame
-	VECTOR			V;				// Vitesse de l'unité
-	VECTOR			Angle;			// Orientation dans l'espace
-	VECTOR			drawn_Angle;	// Idem drawn_Pos
-	VECTOR			V_Angle;		// Variation de l'orientation dans l'espace
-	bool			sel;			// Unité sélectionnée?
-	SCRIPT_DATA		data;			// Données pour l'animation de l'unité par le script
-	sint16			*port;			// Ports
-	MISSION			*mission;		// Orders given to the unit
-	MISSION			*def_mission;	// Orders given to units built by this plant
-	byte			nb_running;		// Nombre de scripts lancés en même temps
-	SCRIPT_ENV		*script_env;	// Environnements des scripts
-	byte			flags;			// Pour indiquer entre autres au gestionnaire d'unités si l'unité existe
-									// 0	-> nothing
-									// 1	-> the unit exists
-									// 4	-> being killed
-									// 64	-> landed (for planes)
-	float			c_time;			// Compteur de temps entre 2 émissions de particules par une unité de construction
-	bool			compute_coord;	// Indique s'il est nécessaire de recalculer les coordonnées du modèle 3d
-	short			*script_val;	// Tableau de valeurs retournées par les scripts
-	uint16			idx;			// Indice dans le tableau d'unité
-	VECTOR			aim_dir;		// Vecteur de visée
-	float			h;				// Altitude (par rapport au sol)
-	bool			visible;		// Indique si l'unité est visible / Tell if the unit is currently visible
-	bool			on_radar;		// Radar drawing mode (icons)
-	bool			on_mini_radar;	// On minimap radar
-	short			groupe;			// Indique si l'unité fait partie d'un groupe
-	bool			built;			// Indique si l'unité est en cours de construction (par une autre unité)
-	bool			attacked;		// Indique si l'unité est attaquée
-	float			planned_weapons;	// Armes en construction / all is in the name
-	int				*memory;		// Pour se rappeler sur quelles armes on a déjà tiré
-	byte			mem_size;
-	char			*script_idx;	// Index of scripts to prevent multiple search
-	bool			attached;
-	short			*attached_list;
-	short			*link_list;
-	byte			nb_attached;
-	bool			just_created;
-	bool			first_move;
-	int				severity;
-	sint16			cur_px;
-	sint16			cur_py;
-	float			metal_prod;
-	float			metal_cons;
-	float			energy_prod;
-	float			energy_cons;
-	uint32			last_time_sound;	// Remember last time it played a sound, so we don't get a unit SHOUTING for a simple move
-	float			cur_metal_prod;
-	float			cur_metal_cons;
-	float			cur_energy_prod;
-	float			cur_energy_cons;
-	uint32			ripple_timer;
-	WEAPON_DATA		weapon[3];
-	bool			was_moving;
-	float			last_path_refresh;
-	float			shadow_scale_dir;
-	bool			hidden;				// Used when unit is attached to another one but is hidden (i.e. transport ship)
-	bool			flying;
+	SCRIPT					*script;		// Scripts concernant l'unité
+	Vector< int >			*s_var;			// Tableau de variables pour les scripts
+	MODEL					*model;			// Modèle représentant l'objet
+	byte					owner_id;		// Numéro du propriétaire de l'unité
+	short					type_id;		// Type d'unité
+	float					hp;				// Points de vide restant à l'unité
+	VECTOR					Pos;			// Vecteur position
+	VECTOR					drawn_Pos;		// To prevent the shadow to be drawn where the unit will be on next frame
+	VECTOR					V;				// Vitesse de l'unité
+	VECTOR					Angle;			// Orientation dans l'espace
+	VECTOR					drawn_Angle;	// Idem drawn_Pos
+	VECTOR					V_Angle;		// Variation de l'orientation dans l'espace
+	bool					sel;			// Unité sélectionnée?
+	SCRIPT_DATA				data;			// Données pour l'animation de l'unité par le script
+	sint16					*port;			// Ports
+	MISSION					*mission;		// Orders given to the unit
+	MISSION					*def_mission;	// Orders given to units built by this plant
+	byte					nb_running;		// Nombre de scripts lancés en même temps
+	Vector< SCRIPT_ENV >	*script_env;	// Environnements des scripts
+	byte					flags;			// Pour indiquer entre autres au gestionnaire d'unités si l'unité existe
+											// 0	-> nothing
+											// 1	-> the unit exists
+											// 4	-> being killed
+											// 64	-> landed (for planes)
+	float					c_time;			// Compteur de temps entre 2 émissions de particules par une unité de construction
+	bool					compute_coord;	// Indique s'il est nécessaire de recalculer les coordonnées du modèle 3d
+	Vector< short >			*script_val;	// Tableau de valeurs retournées par les scripts
+	uint16					idx;			// Indice dans le tableau d'unité
+	VECTOR					aim_dir;		// Vecteur de visée
+	float					h;				// Altitude (par rapport au sol)
+	bool					visible;		// Indique si l'unité est visible / Tell if the unit is currently visible
+	bool					on_radar;		// Radar drawing mode (icons)
+	bool					on_mini_radar;	// On minimap radar
+	short					groupe;			// Indique si l'unité fait partie d'un groupe
+	bool					built;			// Indique si l'unité est en cours de construction (par une autre unité)
+	bool					attacked;		// Indique si l'unité est attaquée
+	float					planned_weapons;	// Armes en construction / all is in the name
+	int						*memory;		// Pour se rappeler sur quelles armes on a déjà tiré
+	byte					mem_size;
+	char					*script_idx;	// Index of scripts to prevent multiple search
+	bool					attached;
+	short					*attached_list;
+	short					*link_list;
+	byte					nb_attached;
+	bool					just_created;
+	bool					first_move;
+	int						severity;
+	sint16					cur_px;
+	sint16					cur_py;
+	float					metal_prod;
+	float					metal_cons;
+	float					energy_prod;
+	float					energy_cons;
+	uint32					last_time_sound;	// Remember last time it played a sound, so we don't get a unit SHOUTING for a simple move
+	float					cur_metal_prod;
+	float					cur_metal_cons;
+	float					cur_energy_prod;
+	float					cur_energy_cons;
+	uint32					ripple_timer;
+	WEAPON_DATA				weapon[3];
+	bool					was_moving;
+	float					last_path_refresh;
+	float					shadow_scale_dir;
+	bool					hidden;				// Used when unit is attached to another one but is hidden (i.e. transport ship)
+	bool					flying;
 
 		// Following variables are used to control the drawing of the unit on the presence maps
 	bool			drawn_open;			// Used to store the last state the unit was drawn on the presence map (opened or closed)
@@ -317,6 +317,14 @@ public:
 	float			metal_extracted;
 
 	bool			requesting_pathfinder;
+	
+		// Following variables are used to control the synchronization of data between game clients
+private:
+	uint32			sync_hash;
+
+public:
+
+	uint32 write_sync_data( byte *buf, int buf_pos );
 
 	inline void Lock()		{	EnterCS();	}
 	inline void UnLock()	{	LeaveCS();	}
@@ -423,34 +431,34 @@ public:
 	{
 		SCRIPT_ENV_STACK *tmp;
 		for(int i=0;i<nb_running;i++) {
-			tmp=script_env[i].env;
+			tmp = (*script_env)[i].env;
 			while(tmp) {
 				if(tmp->signal_mask==signal) {
-					tmp=script_env[i].env;
+					tmp = (*script_env)[i].env;
 					while(tmp!=NULL) {
-						script_env[i].env=tmp->next;
+						(*script_env)[i].env=tmp->next;
 						delete tmp;
-						tmp=script_env[i].env;
+						tmp = (*script_env)[i].env;
 						}
 					}
 				if(tmp)
 					tmp=tmp->next;
 				}
-			if(script_env[i].env==NULL)
-				script_env[i].running=false;
+			if( (*script_env)[i].env==NULL)
+				(*script_env)[i].running=false;
 			}
 	}
 
 	inline void init_alloc_data()
 	{
-		s_var=new int[30];			// Tableau de variables pour les scripts
-		port=new sint16[21];			// Ports
-		script_env=new SCRIPT_ENV[25];	// Environnements des scripts
-		script_val=new short[25];	// Tableau de valeurs retournées par les scripts
-		memory=new int[10];	// Pour se rappeler sur quelles armes on a déjà tiré
-		script_idx=new char[NB_SCRIPT];	// Index of scripts to prevent multiple search
-		attached_list=new short[20];
-		link_list=new short[20];
+		s_var = new Vector< int >;
+		port = new sint16[21];				// Ports
+		script_env = new Vector< SCRIPT_ENV >;	// Environnements des scripts
+		script_val = new Vector< short >;	// Tableau de valeurs retournées par les scripts
+		memory = new int[10];				// Pour se rappeler sur quelles armes on a déjà tiré
+		script_idx = new char[NB_SCRIPT];	// Index of scripts to prevent multiple search
+		attached_list = new short[20];
+		link_list = new short[20];
 	}
 
 	inline void toggle_self_destruct()
@@ -532,14 +540,11 @@ public:
 		V_Angle=Angle;
 		nb_running=0;
 		int i;
-		for(i=0;i<25;i++) {
-			script_env[i].init();
-			script_env[i].running=false;
-			}
+		script_env->clear();
+		script_val->clear();
 		for(i=0;i<21;i++)
 			port[i]=0;
-		for(i=0;i<15;i++)
-			s_var[i]=0;
+		s_var->clear();
 		if(unit_type<0 || unit_type>=unit_manager.nb_unit)
 			unit_type=-1;
 		port[ACTIVATION]=0;
@@ -584,7 +589,7 @@ public:
 	{
 		EnterCS();
 		for(int i=0;i<nb_running;i++)
-			script_env[i].destroy();
+			(*script_env)[i].destroy();
 		while(mission) clear_mission();
 		clear_def_mission();
 		init();
@@ -593,10 +598,10 @@ public:
 		LeaveCS();
 		if(full) {
 			DeleteCS();
-			delete[] s_var;			// Tableau de variables pour les scripts
+			delete	 s_var;			// Tableau de variables pour les scripts
 			delete[] port;			// Ports
-			delete[] script_env;	// Environnements des scripts
-			delete[] script_val;	// Tableau de valeurs retournées par les scripts
+			delete	 script_env;	// Environnements des scripts
+			delete	 script_val;	// Tableau de valeurs retournées par les scripts
 			delete[] memory;	// Pour se rappeler sur quelles armes on a déjà tiré
 			delete[] script_idx;	// Index of scripts to prevent multiple search
 			delete[] attached_list;
@@ -656,14 +661,16 @@ public:
 			return -3;
 			}
 		EnterCS();
-		script_env[nb_running].init();
-		script_env[nb_running].env=new SCRIPT_ENV_STACK;
-		script_env[nb_running].env->init();
-		script_env[nb_running].env->cur=id;
-		script_env[nb_running].running=true;
+		if( script_env->size() <= nb_running )
+			script_env->resize( nb_running + 1 );
+		(*script_env)[nb_running].init();
+		(*script_env)[nb_running].env = new SCRIPT_ENV_STACK;
+		(*script_env)[nb_running].env->init();
+		(*script_env)[nb_running].env->cur=id;
+		(*script_env)[nb_running].running=true;
 		if(nb_param>0 && param!=NULL)
 			for(int i=0;i<nb_param;i++)
-				script_env[nb_running].env->var[i]=param[i];
+				(*script_env)[nb_running].env->var[i]=param[i];
 		LeaveCS();
 		return nb_running++;
 	}
@@ -673,8 +680,8 @@ public:
 		if(script==NULL)	return false;
 		if(script_index<0 || script_index>=script->nb_script)	return false;
 		for(int i=0;i<nb_running;i++)
-			if(script_env[i].running && script_env[i].env!=NULL) {
-				SCRIPT_ENV_STACK *current=script_env[i].env;
+			if((*script_env)[i].running && (*script_env)[i].env!=NULL) {
+				SCRIPT_ENV_STACK *current=(*script_env)[i].env;
 				while(current) {
 					if((current->cur&0xFF)==script_index)
 						return true;
@@ -690,20 +697,20 @@ public:
 		int script_idx = launch_script( id, nb_param, param );
 		if( script_idx >= 0 ) {
 			float dt = 1.0f / TICKS_PER_SEC;
-			for(uint16 n = 0 ; n < 10000 && script_env[ script_idx ].running && script_env[ script_idx ].env != NULL ; n++ ) {
+			for(uint16 n = 0 ; n < 10000 && (*script_env)[ script_idx ].running && (*script_env)[ script_idx ].env != NULL ; n++ ) {
 				if( nb_param > 0 && param != NULL )
 					for( int i = 0 ; i < nb_param ; i++ )
-						param[i] = script_env[ script_idx ].env->var[ i ];
+						param[i] = (*script_env)[ script_idx ].env->var[ i ];
 				if( run_script( dt, script_idx, map, 1 ) )	break;
 				}
 			int e=0;
 			for(int i=0;i+e<nb_running;) {				// Do some cleaning so we don't use all the env table with unused data
-				if(script_env[i+e].running) {
-					script_env[i]=script_env[i+e];
+				if((*script_env)[i+e].running) {
+					(*script_env)[i]=(*script_env)[i+e];
 					i++;
 					}
 				else {
-					script_env[i+e].destroy();
+					(*script_env)[i+e].destroy();
 					e++;
 					}
 				}
@@ -718,16 +725,16 @@ public:
 		if(script_index<0 || script_index>=script->nb_script)	return;
 		EnterCS();
 		for(int i=0;i<nb_running;i++)
-			if(script_env[i].running && script_env[i].env!=NULL) {
-				SCRIPT_ENV_STACK *current=script_env[i].env;
+			if((*script_env)[i].running && (*script_env)[i].env!=NULL) {
+				SCRIPT_ENV_STACK *current=(*script_env)[i].env;
 				while(current) {
 					if((current->cur&0xFF)==script_index) {		// Tue le script trouvé
-						current=script_env[i].env;
-						script_env[i].running=false;
+						current=(*script_env)[i].env;
+						(*script_env)[i].running=false;
 						while(current) {
-							script_env[i].env=current->next;
+							(*script_env)[i].env=current->next;
 							delete current;
-							current=script_env[i].env;
+							current=(*script_env)[i].env;
 							}
 						break;
 						}
@@ -736,12 +743,12 @@ public:
 				}
 		int e=0;
 		for(int i=0;i+e<nb_running;) {				// Efface les scripts qui se sont arrêtés
-			if(script_env[i+e].running) {
-				script_env[i]=script_env[i+e];
+			if((*script_env)[i+e].running) {
+				(*script_env)[i]=(*script_env)[i+e];
 				i++;
 				}
 			else {
-				script_env[i+e].destroy();
+				(*script_env)[i+e].destroy();
 				e++;
 				}
 			}
@@ -753,7 +760,7 @@ public:
 	{
 		EnterCS();
 		for(int i=0;i<nb_running;i++)
-			script_env[i].destroy();
+			(*script_env)[i].destroy();
 		nb_running=0;
 		LeaveCS();
 	}
@@ -770,7 +777,6 @@ public:
 	{
 		EnterCS();
 		if( port[ACTIVATION] == 0 ) {
-//			sound_manager->PlayTDFSound( unit_manager.unit_type[type_id].soundcategory , "activate" , &Pos );
 			play_sound( "activate" );
 			launch_script(get_script_index(SCRIPT_Activate));
 			port[ACTIVATION] = 1;
@@ -782,7 +788,6 @@ public:
 	{
 		EnterCS();
 		if( port[ACTIVATION] != 0 ) {
-//			sound_manager->PlayTDFSound( unit_manager.unit_type[type_id].soundcategory, "deactivate" , &Pos );
 			play_sound( "deactivate" );
 			launch_script(get_script_index(SCRIPT_Deactivate));
 			port[ACTIVATION] = 0;
