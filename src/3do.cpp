@@ -1237,6 +1237,9 @@ bool OBJECT::random_pos( SCRIPT_DATA *data_s, int id, VECTOR *vec )
 				data_s->pos[script_index]=*pos;
 				}
 			}
+		else if(M)
+			*pos = *pos + pos_from_parent * (*M);
+
 		if( c_part && emitter_point ) {			// Emit a  particle
 			VECTOR Dir;
 			float life=1.0f;
