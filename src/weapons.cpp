@@ -610,8 +610,9 @@ const void WEAPON::move(const float dt,MAP *map)				// Anime les armes
 				units.unit[hit_idx].Lock();
 				if( units.unit[hit_idx].flags & 1 ) {
 					bool ok = units.unit[hit_idx].hp>0.0f;		// Juste pour identifier l'assassin...
-					if( damage < 0 )
-						damage = weapon_manager.weapon[weapon_id].damage;
+//					if( damage < 0 )
+//						damage = weapon_manager.weapon[weapon_id].damage;
+					damage = weapon_manager.weapon[weapon_id].get_damage_for_unit( unit_manager.unit_type[ units.unit[hit_idx].type_id ].Unitname );
 					units.unit[hit_idx].hp -= damage;		// L'unité touchée encaisse les dégats
 					units.unit[hit_idx].flags&=0xEF;		// This unit must explode if it has been damaged by a weapon even if it is being reclaimed
 					if(ok && units.unit[hit_idx].hp<=0.0f && units.unit[shooter_idx].owner_id < players.nb_player
@@ -625,7 +626,7 @@ const void WEAPON::move(const float dt,MAP *map)				// Anime les armes
 				units.unit[hit_idx].UnLock();
 				}
 			if(hit_idx<=-2 && features.feature[-hit_idx-2].type>=0) {
-				if( damage < 0 )
+//				if( damage < 0 )
 					damage = weapon_manager.weapon[weapon_id].damage;
 
 										// Start a fire ?
@@ -708,6 +709,7 @@ const void WEAPON::move(const float dt,MAP *map)				// Anime les armes
 							if( (units.unit[t_idx].flags & 1) && ((VECTOR)(units.unit[t_idx].Pos-Pos)).Sq()<=d) {
 								oidx.push_back( t_idx );
 								bool ok = units.unit[ t_idx ].hp > 0.0f;
+								damage = weapon_manager.weapon[weapon_id].get_damage_for_unit( unit_manager.unit_type[ units.unit[ t_idx ].type_id ].Unitname );
 								float cur_damage = damage * weapon_manager.weapon[weapon_id].edgeeffectiveness;
 								units.unit[t_idx].hp -= cur_damage;		// L'unité touchée encaisse les dégats
 								units.unit[t_idx].flags&=0xEF;		// This unit must explode if it has been damaged by a weapon even if it is being reclaimed
@@ -731,6 +733,7 @@ const void WEAPON::move(const float dt,MAP *map)				// Anime les armes
 
 							oidx.push_back( t_idx );
 							if(features.feature[-t_idx-2].type>=0 && !feature_manager.feature[features.feature[-t_idx-2].type].indestructible && !features.feature[-t_idx-2].burning ) {
+								damage = weapon_manager.weapon[weapon_id].damage;
 								float cur_damage = damage * weapon_manager.weapon[weapon_id].edgeeffectiveness;
 								features.feature[-t_idx-2].hp -= cur_damage;		// L'objet touché encaisse les dégats
 								if(features.feature[-t_idx-2].hp<=0.0f) {
@@ -900,8 +903,11 @@ void WEAPON::draw(CAMERA *cam,MAP *map)				// Dessine les objets produits par le
 		}
 		glEnable(GL_LIGHTING);
 		glEnable(GL_TEXTURE_2D);
-		if(weapon_manager.weapon[weapon_id].model)
+		if(weapon_manager.weapon[weapon_id].model) {
+			glDisable(GL_CULL_FACE);
 			weapon_manager.weapon[weapon_id].model->draw(0.0f);
+			glEnable(GL_CULL_FACE);
+			}
 		break;
 	case RENDER_TYPE_BITMAP:
 		glDisable(GL_LIGHTING);
@@ -950,8 +956,11 @@ void WEAPON::draw(CAMERA *cam,MAP *map)				// Dessine les objets produits par le
 		}
 		glEnable(GL_LIGHTING);
 		glEnable(GL_TEXTURE_2D);
-		if(weapon_manager.weapon[weapon_id].model)
+		if(weapon_manager.weapon[weapon_id].model) {
+			glDisable(GL_CULL_FACE);
 			weapon_manager.weapon[weapon_id].model->draw(0.0f);
+			glEnable(GL_CULL_FACE);
+			}
 		break;
 	case RENDER_TYPE_LIGHTNING:
 		{
@@ -1001,8 +1010,11 @@ void WEAPON::draw(CAMERA *cam,MAP *map)				// Dessine les objets produits par le
 		}
 		glEnable(GL_LIGHTING);
 		glEnable(GL_TEXTURE_2D);
-		if(weapon_manager.weapon[weapon_id].model)
+		if(weapon_manager.weapon[weapon_id].model) {
+			glDisable(GL_CULL_FACE);
 			weapon_manager.weapon[weapon_id].model->draw(0.0f);
+			glEnable(GL_CULL_FACE);
+			}
 		break;
 	case RENDER_TYPE_GUN:			// Dessine une "balle"
 		glDisable(GL_LIGHTING);
