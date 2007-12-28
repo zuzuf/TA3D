@@ -562,7 +562,7 @@ void ANIM::convert(bool NO_FILTER,bool COMPRESSED)
 	for(int i=0;i<nb_bmp;i++) {
 		String cache_filename = filename + format("-%s-%d.bin", name ? name : "none", i );
 
-		if( filename != "" )
+		if( String( filename ) != "" )
 			glbmp[i] = gfx->load_texture_from_cache( cache_filename, NO_FILTER ? FILTER_NONE : FILTER_TRILINEAR );
 		else
 			glbmp[i] = 0;

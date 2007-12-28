@@ -1186,7 +1186,7 @@ uint16 OBJECT::set_obj_id( uint16 id )
 bool OBJECT::random_pos( SCRIPT_DATA *data_s, int id, VECTOR *vec )
 {
 	if( id == obj_id ) {
-		if( nb_t_index / 3 > 0 && !(data_s->flag[script_index] & FLAG_HIDE) ) {
+		if( nb_t_index > 2 && !(data_s->flag[script_index] & FLAG_HIDE) ) {
 			int rnd_idx = (rand_from_table() % (nb_t_index / 3)) * 3;
 			float a = (rand_from_table() & 0xFF) / 255.0f;
 			float b = (1.0f - a) * (rand_from_table() & 0xFF) / 255.0f;
@@ -1197,7 +1197,7 @@ bool OBJECT::random_pos( SCRIPT_DATA *data_s, int id, VECTOR *vec )
 			*vec = data_s->pos[script_index] + *vec * data_s->matrix[script_index];
 			}
 		else
-			*vec = data_s->pos[script_index];
+			return false;
 		return true;
 		}
 	if( id > obj_id ) {
@@ -1213,7 +1213,7 @@ bool OBJECT::random_pos( SCRIPT_DATA *data_s, int id, VECTOR *vec )
 
 	void OBJECT::compute_coord(SCRIPT_DATA *data_s,VECTOR *pos,bool c_part,int p_tex,VECTOR *target,POINTF *upos,MATRIX_4x4 *M,float size,VECTOR *center,bool reverse,OBJECT *src,SCRIPT_DATA *src_data)
 	{
-		if(!emitter && c_part)	return;
+//		if(!emitter && c_part)	return;
 		VECTOR opos=*pos;
 		MATRIX_4x4 OM;
 		if(M)
@@ -1246,7 +1246,8 @@ bool OBJECT::random_pos( SCRIPT_DATA *data_s, int id, VECTOR *vec )
 				VECTOR t_mod;
 				bool random_vector = true;
 				if( src != NULL && src_data != NULL )
-					random_vector = !src->random_pos( src_data, rand_from_table() % src->nb_sub_obj, &t_mod );
+					for( int base_n = rand_from_table(), n = 0 ; random_vector && n < src->nb_sub_obj ; n++ )
+						random_vector = !src->random_pos( src_data, (base_n + n) % src->nb_sub_obj, &t_mod );
 				if( random_vector ) {
 					t_mod.x=((rand_from_table()%2001)-1000)*0.001f;
 					t_mod.y=((rand_from_table()%2001)-1000)*0.001f;
@@ -1819,7 +1820,7 @@ bool OBJECT::random_pos( SCRIPT_DATA *data_s, int id, VECTOR *vec )
 float OBJECT::print_struct(float Y,float X,TA3D::INTERFACES::GFX_FONT fnt)
 {
 //	if(nb_vtx==0 || nb_prim==0 || nb_p_index>0 || nb_l_index>0)
-		gfx->print(fnt,X,Y,0.0f,0xFFFFFF,format("%s",name));
+		gfx->print(fnt,X,Y,0.0f,0xFFFFFF,format("%s [%d]",name,script_index));
 		gfx->print(fnt,320.0f,Y,0.0f,0xFFFFFF,format("(v:%d",nb_vtx));
 		gfx->print(fnt,368.0f,Y,0.0f,0xFFFFFF,format(",p:%d",nb_prim));
 		gfx->print(fnt,416.0f,Y,0.0f,0xFFFFFF,format(",t:%d",nb_t_index));

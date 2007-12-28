@@ -2200,6 +2200,7 @@ bool UNIT::is_on_radar( byte &p_mask )
 								int start_piece = (*script_val)[query_id];
 								if(start_piece<0 || start_piece>=data.nb_piece)
 									start_piece=0;
+								compute_model_coord();
 
 								VECTOR target_pos_on_unit;						// Read the target piece on the target unit so we better know where to aim
 								target_pos_on_unit.x = target_pos_on_unit.y = target_pos_on_unit.z = 0.0f;
@@ -2361,7 +2362,7 @@ bool UNIT::is_on_radar( byte &p_mask )
 						int start_piece = (*script_val)[query_id];
 						if(start_piece>=0 && start_piece<data.nb_piece) {
 							compute_model_coord();
-							VECTOR Dir=data.dir[start_piece];
+							VECTOR Dir = data.dir[start_piece];
 							if(Dir.x==0.0f && Dir.y==0.0f && Dir.z==0.0f) {
 								if(unit_manager.unit_type[type_id].weapon[ i ]->vlaunch) {
 									Dir.x=0.0f;
@@ -2824,7 +2825,8 @@ bool UNIT::is_on_radar( byte &p_mask )
 							if(mission->last_d>=0.0f) {
 								if(unit_manager.unit_type[type_id].TransMaxUnits==1) {		// Code for units like the arm atlas
 									if(nb_attached==0) {
-										int param[] = { (int)((Pos.y - target_unit->Pos.y - target_unit->model->top)*2.0f) << 16 };
+//										int param[] = { (int)((Pos.y - target_unit->Pos.y - target_unit->model->top)*2.0f) << 16 };
+										int param[] = { (int)((Pos.y - target_unit->Pos.y)*2.0f) << 16 };
 										launch_script(get_script_index(SCRIPT_BeginTransport),1,param);
 										run_script_function( map, get_script_index(SCRIPT_QueryTransport),1,param);
 										target_unit->attached = true;

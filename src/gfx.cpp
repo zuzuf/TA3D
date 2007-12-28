@@ -214,16 +214,6 @@ const void GFX::set_color(const uint32 &col)	{	glColor4ub( col&0xFF, (col&0xFF00
 uint32	GFX::makeintcol(float r, float g, float b)			{	return (int)(255.0f*r) | ((int)(255.0f*g)<<8) | ((int)(255.0f*b)<<16) | 0xFF000000;	}
 uint32	GFX::makeintcol(float r, float g, float b, float a)	{	return (int)(255.0f*r) | ((int)(255.0f*g)<<8) | ((int)(255.0f*b)<<16) | ((int)(255.0f*a)<<24);	}
 
-/*const float	GFX::get_r(const uint32 &col)	{	return getr(col)*BYTE_TO_FLOAT;	}
-const float	GFX::get_g(const uint32 &col)	{	return getg(col)*BYTE_TO_FLOAT;	}
-const float	GFX::get_b(const uint32 &col)	{	return getb(col)*BYTE_TO_FLOAT;	}
-const float	GFX::get_a(const uint32 &col)	{	return geta(col)*BYTE_TO_FLOAT;	}
-const void GFX::set_color(const uint32 &col)	{	glColor4ub( getr(col), getg(col), getb(col), geta(col) );	}
-
-uint32	GFX::makeintcol(float r, float g, float b)			{	return makeacol((int)(255.0f*r),(int)(255.0f*g),(int)(255.0f*b),255);	}
-uint32	GFX::makeintcol(float r, float g, float b, float a)	{	return makeacol((int)(255.0f*r),(int)(255.0f*g),(int)(255.0f*b),(int)(255.0f*a));	}*/
-
-
 const void GFX::set_2D_mode()	{	allegro_gl_set_allegro_mode();		}
 const void GFX::unset_2D_mode()	{	allegro_gl_unset_allegro_mode();	}
 
@@ -722,9 +712,18 @@ GLuint	GFX::load_texture_from_cache( String file, byte filter_type, uint32 *widt
 	file = TA3D_OUTPUT_DIR + "cache/" + file;
 
 	if( TA3D_exists( file ) ) {
-		glPushAttrib( GL_ALL_ATTRIB_BITS );
-
 		FILE *cache_file = TA3D_OpenFile( file, "rb" );
+
+		uint32 mod_hash;
+
+		fread( &mod_hash, sizeof( mod_hash ), 1, cache_file );
+
+		if( mod_hash != hash_string( TA3D_CURRENT_MOD ) ) {		// Doesn't correspond to current mod
+			fclose( cache_file );
+			return 0;
+			}
+
+		glPushAttrib( GL_ALL_ATTRIB_BITS );
 
 		uint32 rw, rh;
 
@@ -815,6 +814,10 @@ void	GFX::save_texture_to_cache( String file, GLuint tex, uint32 width, uint32 h
 
 	if( cache_file == NULL )
 		return;
+
+	uint32 mod_hash = hash_string( TA3D_CURRENT_MOD );			// Save a hash of current mod
+
+	fwrite( &mod_hash, sizeof( mod_hash ), 1, cache_file );
 
 	fwrite( &width, 4, 1, cache_file );
 	fwrite( &height, 4, 1, cache_file );

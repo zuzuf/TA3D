@@ -294,6 +294,7 @@ void UNIT_TYPE::show_info(float fade,GFX_FONT fnt)
 			else if(f=strstr(ligne,"canhover="))			canhover=(f[9]=='1');
 			else if(f=strstr(ligne,"bankscale="))			BankScale=atoi(f+10);
 			else if(f=strstr(ligne,"tidalgenerator="))		TidalGenerator=(f[15]=='1');
+//			else if(f=strstr(ligne,"scale="))				Scale=atof(f+6);
 			else if(f=strstr(ligne,"scale="))				Scale=1.0f;
 			else if(f=strstr(ligne,"corpse=")) {
 				char *nom=strdup(f+7);

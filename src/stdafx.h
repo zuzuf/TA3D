@@ -324,6 +324,14 @@ namespace TA3D
 				c++;
 		return c == 1;
 	}
+
+	static inline uint32 hash_string( const String &str )
+	{
+		uint32 hash = 0;
+		for( int i = 0 ; i < str.length() ; i++ )
+			hash = (hash << 5) - hash + str[i];
+		return hash;
+	}
 } 
 
 // zuzuf: to prevent some warnings

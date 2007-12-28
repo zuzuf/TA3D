@@ -1629,13 +1629,13 @@ void PLAYERS::player_control()
 			units.unit[ i ].UnLock();
 			}
 
-		printf("packet size (uncompressed) = %d\n", sync_pos );
+//		printf("packet size (uncompressed) = %d\n", sync_pos );
 
 		byte *c_data = LZW_compress( sync_data, sync_pos );
 	
-		printf("packet size (compressed) = %d\n", ((uint32*)c_data)[0] );
+//		printf("packet size (compressed) = %d\n", ((uint32*)c_data)[0] );
 
-		printf("ratio = %f\n", ((float)sync_pos) / ((uint32*)c_data)[0] );
+//		printf("ratio = %f\n", ((float)sync_pos) / ((uint32*)c_data)[0] );
 
 		delete[] c_data;
 
