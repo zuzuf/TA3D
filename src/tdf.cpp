@@ -444,10 +444,19 @@ void load_features()				// Charge tout les éléments
 				if(feature[i].grey)	continue;				// No need to draw a texture here
 				if(feature_manager.feature[feature[i].type].converted)	continue;		// Quelques problèmes (graphiques et plantages) avec les modèles convertis
 
+				if( feature[ i ].delete_shadow_dlist && feature[ i ].shadow_dlist != 0 ) {
+					glDeleteLists( feature[ i ].shadow_dlist, 1 );
+					feature[ i ].shadow_dlist = 0;
+					feature[ i ].delete_shadow_dlist = false;
+					}
+
 				if( feature_manager.feature[feature[i].type].model->animated || feature[i].sinking || feature[i].shadow_dlist == 0 ) {
+					bool create_display_list = false;
 					if( !feature_manager.feature[feature[i].type].model->animated && !feature[i].sinking && feature[i].shadow_dlist == 0 ) {
 						feature[i].shadow_dlist = glGenLists (1);
 						glNewList( feature[i].shadow_dlist, GL_COMPILE_AND_EXECUTE);
+						create_display_list = true;
+						feature[ i ].delete_shadow_dlist = false;
 						}
 
 					glPushMatrix();
@@ -461,7 +470,7 @@ void load_features()				// Charge tout les éléments
 						feature_manager.feature[feature[i].type].model->draw_shadow_basic( R_Dir,t,NULL);
 					glPopMatrix();
 
-					if( !feature_manager.feature[feature[i].type].model->animated && !feature[i].sinking )
+					if( create_display_list )
 						glEndList();
 					}
 				else

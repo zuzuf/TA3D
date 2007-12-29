@@ -253,6 +253,7 @@ struct FEATURE_DATA
 	float	angle_x;	// Orientation angle
 
 	GLuint	shadow_dlist;		// Display list to speed up the shadow rendering
+	bool	delete_shadow_dlist;
 };
 
 class MAP;
@@ -336,6 +337,7 @@ public:
 			for(int i=nb_features-1;i<max_features;i++) {
 				n_feature[i].type = -1;
 				n_feature[i].shadow_dlist = 0;
+				n_feature[i].delete_shadow_dlist = false;
 				}
 			if(feature)	free(feature);
 			feature=n_feature;
@@ -380,13 +382,11 @@ public:
 
 		EnterCS();
 
+		if( feature[ index ].shadow_dlist != 0 )
+			feature[ index ].delete_shadow_dlist = true;
+
 		if( feature[ index ].burning )		// Remove it form the burning features list
 			burning_features.remove( index );
-
-		if( feature[ index ].shadow_dlist ) {
-			glDeleteLists( feature[ index ].shadow_dlist, 1 );
-			feature[ index ].shadow_dlist = 0;
-			}
 
 		nb_features--;
 		feature[index].type=-1;		// On efface l'objet
