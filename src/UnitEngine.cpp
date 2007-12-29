@@ -925,10 +925,18 @@ bool UNIT::is_on_radar( byte &p_mask )
 				printf("EXPLODE\n");
 #endif
 				{
-					int obj=script->script_code[script_id][pos++];
-					int explosion_type=(*script_env)[id].pop();
-					if(visible)					// Don't draw things which could tell the player there is something there
-						particle_engine.make_fire(O+Pos,1,10,45.0f);
+					int obj = script->script_code[script_id][pos++];
+					int explosion_type = (*script_env)[id].pop();
+					data.axe[0][obj].pos = 0.0f;
+					data.axe[0][obj].angle = 0.0f;
+					data.axe[1][obj].pos = 0.0f;
+					data.axe[1][obj].angle = 0.0f;
+					data.axe[2][obj].pos = 0.0f;
+					data.axe[2][obj].angle = 0.0f;
+					if(visible) {					// Don't draw things which could tell the player there is something there
+						compute_model_coord();
+						particle_engine.make_fire( O + Pos + data.pos[obj],1,10,45.0f);
+						}
 					data.flag[obj]|=FLAG_EXPLODE;
 					data.explosion_flag[obj]=explosion_type;
 					data.axe[0][obj].move_speed=(25.0f+(rand_from_table()%2501)*0.01f)*(rand_from_table()&1 ? 1.0f : -1.0f);
@@ -1996,7 +2004,7 @@ bool UNIT::is_on_radar( byte &p_mask )
 						weapons.weapon[w_id].just_explode = true;
 						}
 					for(int i=0;i<data.nb_piece;i++)
-						if((data.flag[i]&FLAG_EXPLODE)!=FLAG_EXPLODE)// || (data.flag[i]&FLAG_EXPLODE && (data.explosion_flag[i]&EXPLODE_BITMAPONLY)))
+						if(!(data.flag[i]&FLAG_EXPLODE))// || (data.flag[i]&FLAG_EXPLODE && (data.explosion_flag[i]&EXPLODE_BITMAPONLY)))
 							data.flag[i]|=FLAG_HIDE;
 				 }
 				else
@@ -2020,7 +2028,7 @@ bool UNIT::is_on_radar( byte &p_mask )
 						}
 					weapon[0].delay-=dt;
 					for(int i=0;i<data.nb_piece;i++)
-						if((data.flag[i]&FLAG_EXPLODE)!=FLAG_EXPLODE)// || (data.flag[i]&FLAG_EXPLODE && (data.explosion_flag[i]&EXPLODE_BITMAPONLY)))
+						if(!(data.flag[i]&FLAG_EXPLODE))// || (data.flag[i]&FLAG_EXPLODE && (data.explosion_flag[i]&EXPLODE_BITMAPONLY)))
 							data.flag[i]|=FLAG_HIDE;
 					}
 				break;

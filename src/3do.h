@@ -511,13 +511,13 @@ public:
 
 	void compute_coord(SCRIPT_DATA *data_s=NULL,VECTOR *pos=NULL,bool c_part=false,int p_tex=0,VECTOR *target=NULL,POINTF *upos=NULL,MATRIX_4x4 *M=NULL,float size=0.0f,VECTOR *center=NULL,bool reverse=false,OBJECT *src=NULL,SCRIPT_DATA *src_data=NULL);
 
-	bool draw(float t,SCRIPT_DATA *data_s=NULL,bool sel_primitive=false,bool alset=false,bool notex=false,int side=0,bool chg_col=true);
+	bool draw(float t,SCRIPT_DATA *data_s=NULL,bool sel_primitive=false,bool alset=false,bool notex=false,int side=0,bool chg_col=true,bool exploding_parts=false);
 	bool draw_dl(SCRIPT_DATA *data_s=NULL,bool alset=false,int side=0,bool chg_col=true);
 	void draw_optimised( bool set = true );
 
-	bool draw_shadow(VECTOR Dir,float t,SCRIPT_DATA *data_s=NULL,bool alset=false);
+	bool draw_shadow(VECTOR Dir,float t,SCRIPT_DATA *data_s=NULL,bool alset=false,bool exploding_parts=false);
 
-	bool draw_shadow_basic(VECTOR Dir,float t,SCRIPT_DATA *data_s=NULL,bool alset=false);
+	bool draw_shadow_basic(VECTOR Dir,float t,SCRIPT_DATA *data_s=NULL,bool alset=false,bool exploding_parts=false);
 
 	bool hit(VECTOR Pos,VECTOR Dir,SCRIPT_DATA *data_s,VECTOR *I,MATRIX_4x4 M);
 
@@ -910,8 +910,11 @@ public:
 			}
 		else if( data_s == NULL && !sel && !notex )
 			glCallList( dlist );
-		else
+		else {
 			obj.draw(t,data_s,sel,false,notex,side,chg_col);
+			if( data_s && data_s->explode )
+				obj.draw(t,data_s,sel,false,notex,side,chg_col,true);
+			}
 		if(c_part)
 			obj.compute_coord(data_s,&pos,c_part,p_tex,target,upos,M,Size,Center,reverse,src,src_data);
 	}
@@ -932,12 +935,16 @@ public:
 	{
 		glDisable(GL_TEXTURE_2D);
 		obj.draw_shadow(Dir,t,data_s,false);
+		if( data_s && data_s->explode )
+			obj.draw_shadow(Dir,t,data_s,false,true);
 	}
 
 	inline void draw_shadow_basic(VECTOR Dir,float t,SCRIPT_DATA *data_s=NULL)
 	{
 		glDisable(GL_TEXTURE_2D);
 		obj.draw_shadow_basic(Dir,t,data_s,false);
+		if( data_s && data_s->explode )
+			obj.draw_shadow_basic(Dir,t,data_s,false,true);
 	}
 
 	inline bool hit(VECTOR &Pos,VECTOR &Dir,SCRIPT_DATA *data_s,VECTOR *I,MATRIX_4x4 &M)

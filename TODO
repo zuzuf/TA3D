@@ -39,6 +39,7 @@ _some parts of the maps might not be drawn (visibility limit) like hills
 _slow down with lots of 3D sprites on some gfx hardware (speed increased but bug not yet fixed)
 _fix all other bugs ( :-) )
 
+*fixed unit model exploding system
 *fixed weapon damage system
 *fixed a bug that prevented object position to be calculated properly on some 3DO models
 *fixed nanolathe particles going away

@@ -784,11 +784,16 @@ void OBJECT::draw_optimised( bool set )
 //	glDrawElements(GL_TRIANGLES, optimised_nb_idx,GL_UNSIGNED_SHORT,optimised_I);				// draw everything
 }
 
-	bool OBJECT::draw(float t,SCRIPT_DATA *data_s,bool sel_primitive,bool alset,bool notex,int side,bool chg_col)
+	bool OBJECT::draw(float t,SCRIPT_DATA *data_s,bool sel_primitive,bool alset,bool notex,int side,bool chg_col,bool exploding_parts)
 	{
-		glPushMatrix();
-		glTranslatef(pos_from_parent.x,pos_from_parent.y,pos_from_parent.z);
+		bool explodes = script_index>=0 && data_s && (data_s->flag[script_index] & FLAG_EXPLODE);
 		bool hide=false;
+		bool set=false;
+		glPushMatrix();
+		if( explodes && !exploding_parts )
+			goto draw_next;
+
+		glTranslatef(pos_from_parent.x,pos_from_parent.y,pos_from_parent.z);
 		if(script_index>=0 && data_s ) {
 			if( animation_data != NULL && (data_s->flag[script_index] & FLAG_ANIMATE) ) {		// Used only by the 3dmeditor
 				VECTOR R,T;
@@ -798,13 +803,13 @@ void OBJECT::draw_optimised( bool set )
 				glRotatef( R.y, 0.0f, 1.0f, 0.0f );
 				glRotatef( R.z, 0.0f, 0.0f, 1.0f );
 				}
-			else {
+			else if( !explodes ^ exploding_parts ) {
 				glTranslatef(data_s->axe[0][script_index].pos, data_s->axe[1][script_index].pos, data_s->axe[2][script_index].pos);
 				glRotatef(data_s->axe[0][script_index].angle, 1.0f, 0.0f, 0.0f);
 				glRotatef(data_s->axe[1][script_index].angle, 0.0f, 1.0f, 0.0f);
 				glRotatef(data_s->axe[2][script_index].angle, 0.0f, 0.0f, 1.0f);
 				}
-			hide=data_s->flag[script_index]&FLAG_HIDE;
+			hide = data_s->flag[script_index]&FLAG_HIDE;
 			}
 		else if( animation_data ) {
 			VECTOR R,T;
@@ -814,12 +819,12 @@ void OBJECT::draw_optimised( bool set )
 			glRotatef( R.y, 0.0f, 1.0f, 0.0f );
 			glRotatef( R.z, 0.0f, 0.0f, 1.0f );
 			}
-		bool set=false;
-		if( gl_dlist[ side ] )
+		hide |= explodes ^ exploding_parts;
+		if( gl_dlist[ side ] && !hide )
 			glCallList( gl_dlist[ side ] );
-		else {
+		else if( !hide ) {
 			glNewList( gl_dlist[ side ], GL_COMPILE_AND_EXECUTE);
-			if(nb_t_index>0 && nb_vtx>0 && !hide && t_index!=NULL) {
+			if(nb_t_index>0 && nb_vtx>0 && t_index!=NULL) {
 				bool activated_tex=false;
 				if(surface.Flag&SURFACE_ADVANCED) {
 					glEnableClientState(GL_VERTEX_ARRAY);		// Les sommets
@@ -994,20 +999,16 @@ void OBJECT::draw_optimised( bool set )
 			glEnable(GL_CULL_FACE);
 			alset=false;
 			}
-		if(child) {
-//			if(data_s==NULL || !data_s->explode)
-				glPushMatrix();
-/*			else {
-				glPopMatrix();
-				glPushMatrix();
-				}*/
-			alset=child->draw(t,data_s,sel_primitive,alset,notex,side,chg_col);
+		if(child && !(explodes && !exploding_parts) ) {
+			glPushMatrix();
+			alset=child->draw(t,data_s,sel_primitive,alset,notex,side,chg_col, exploding_parts && !explodes );
 			glPopMatrix();
 			}
+draw_next:
 		if(next) {
 			glPopMatrix();
 			glPushMatrix();
-			alset=next->draw(t,data_s,sel_primitive,alset,notex,side,chg_col);
+			alset=next->draw(t,data_s,sel_primitive,alset,notex,side,chg_col,exploding_parts);
 			glPopMatrix();
 			}
 		else
@@ -1239,6 +1240,8 @@ bool OBJECT::random_pos( SCRIPT_DATA *data_s, int id, VECTOR *vec )
 			}
 		else if(M)
 			*pos = *pos + pos_from_parent * (*M);
+		else
+			*pos = *pos + pos_from_parent;
 
 		if( c_part && emitter_point ) {			// Emit a  particle
 			VECTOR Dir;
@@ -1288,18 +1291,22 @@ bool OBJECT::random_pos( SCRIPT_DATA *data_s, int id, VECTOR *vec )
 			next->compute_coord(data_s,pos,c_part,p_tex,target,upos,M,size,center,reverse,src,src_data);
 	}
 
-	bool OBJECT::draw_shadow(VECTOR Dir,float t,SCRIPT_DATA *data_s,bool alset)
+	bool OBJECT::draw_shadow(VECTOR Dir,float t,SCRIPT_DATA *data_s,bool alset,bool exploding_parts)
 	{
-		glPushMatrix();
-		glTranslatef(pos_from_parent.x,pos_from_parent.y,pos_from_parent.z);
+		bool explodes = script_index>=0 && data_s && (data_s->flag[script_index] & FLAG_EXPLODE);
 		bool hide=false;
 		VECTOR ODir=Dir;
+		glPushMatrix();
+		if( explodes && !exploding_parts )	goto draw_shadow_next;
+		glTranslatef(pos_from_parent.x,pos_from_parent.y,pos_from_parent.z);
 		if(script_index>=0 && data_s) {
-			glTranslatef(data_s->axe[0][script_index].pos, data_s->axe[1][script_index].pos, data_s->axe[2][script_index].pos);
-			glRotatef(data_s->axe[0][script_index].angle, 1.0f, 0.0f, 0.0f);
-			glRotatef(data_s->axe[1][script_index].angle, 0.0f, 1.0f, 0.0f);
-			glRotatef(data_s->axe[2][script_index].angle, 0.0f, 0.0f, 1.0f);
-			Dir=((Dir*RotateX(-data_s->axe[0][script_index].angle*DEG2RAD))*RotateY(-data_s->axe[1][script_index].angle*DEG2RAD))*RotateZ(-data_s->axe[2][script_index].angle*DEG2RAD);
+			if( !explodes ^ exploding_parts ) {
+				glTranslatef(data_s->axe[0][script_index].pos, data_s->axe[1][script_index].pos, data_s->axe[2][script_index].pos);
+				glRotatef(data_s->axe[0][script_index].angle, 1.0f, 0.0f, 0.0f);
+				glRotatef(data_s->axe[1][script_index].angle, 0.0f, 1.0f, 0.0f);
+				glRotatef(data_s->axe[2][script_index].angle, 0.0f, 0.0f, 1.0f);
+				Dir=((Dir*RotateX(-data_s->axe[0][script_index].angle*DEG2RAD))*RotateY(-data_s->axe[1][script_index].angle*DEG2RAD))*RotateZ(-data_s->axe[2][script_index].angle*DEG2RAD);
+				}
 			hide=data_s->flag[script_index]&FLAG_HIDE;
 			}
 		else if( animation_data ) {
@@ -1311,6 +1318,7 @@ bool OBJECT::random_pos( SCRIPT_DATA *data_s, int id, VECTOR *vec )
 			glRotatef( R.z, 0.0f, 0.0f, 1.0f );
 			Dir=((Dir*RotateX(-R.x*DEG2RAD))*RotateY(-R.y*DEG2RAD))*RotateZ(-R.z*DEG2RAD);
 			}
+		hide |= explodes ^ exploding_parts;
 			if(nb_t_index>0 && !hide) {
 				if(!alset) {
 					glDisable(GL_LIGHTING);
@@ -1389,22 +1397,16 @@ bool OBJECT::random_pos( SCRIPT_DATA *data_s, int id, VECTOR *vec )
 					glDrawElements(GL_QUADS, nb_idx,GL_UNSIGNED_SHORT,shadow_index);		// dessine le tout
 					}
 				}
-		if(child) {
-//			if(data_s==NULL || !data_s->explode) {
-				glPushMatrix();
-				alset=child->draw_shadow(Dir,t,data_s,alset);
-/*				}
-			else {
-				glPopMatrix();
-				glPushMatrix();
-				alset=child->draw_shadow(ODir,data_s,alset);
-				}*/
+		if(child && !(explodes && !exploding_parts) ) {
+			glPushMatrix();
+			alset=child->draw_shadow(Dir,t,data_s,alset,exploding_parts & !explodes);
 			glPopMatrix();
 			}
+draw_shadow_next:
 		if(next) {
 			glPopMatrix();
 			glPushMatrix();
-			alset=next->draw_shadow(ODir,t,data_s,alset);
+			alset=next->draw_shadow(ODir,t,data_s,alset,exploding_parts);
 			glPopMatrix();
 			}
 		else
@@ -1412,17 +1414,21 @@ bool OBJECT::random_pos( SCRIPT_DATA *data_s, int id, VECTOR *vec )
 		return alset;
 	}
 
-	bool OBJECT::draw_shadow_basic(VECTOR Dir,float t,SCRIPT_DATA *data_s,bool alset)
+	bool OBJECT::draw_shadow_basic(VECTOR Dir,float t,SCRIPT_DATA *data_s,bool alset,bool exploding_parts)
 	{
-		glPushMatrix();
-		glTranslatef(pos_from_parent.x,pos_from_parent.y,pos_from_parent.z);
+		bool explodes = script_index>=0 && data_s && (data_s->flag[script_index] & FLAG_EXPLODE);
 		bool hide=false;
 		VECTOR ODir=Dir;
+		glPushMatrix();
+		if( explodes && !exploding_parts )	goto draw_shadow_basic_next;
+		glTranslatef(pos_from_parent.x,pos_from_parent.y,pos_from_parent.z);
 		if(script_index>=0 && data_s) {
-			glTranslatef(data_s->axe[0][script_index].pos, data_s->axe[1][script_index].pos, data_s->axe[2][script_index].pos);
-			glRotatef(data_s->axe[0][script_index].angle, 1.0f, 0.0f, 0.0f);
-			glRotatef(data_s->axe[1][script_index].angle, 0.0f, 1.0f, 0.0f);
-			glRotatef(data_s->axe[2][script_index].angle, 0.0f, 0.0f, 1.0f);
+			if( !explodes ^ exploding_parts ) {
+				glTranslatef(data_s->axe[0][script_index].pos, data_s->axe[1][script_index].pos, data_s->axe[2][script_index].pos);
+				glRotatef(data_s->axe[0][script_index].angle, 1.0f, 0.0f, 0.0f);
+				glRotatef(data_s->axe[1][script_index].angle, 0.0f, 1.0f, 0.0f);
+				glRotatef(data_s->axe[2][script_index].angle, 0.0f, 0.0f, 1.0f);
+				}
 			Dir=((Dir*RotateX(-data_s->axe[0][script_index].angle*DEG2RAD))*RotateY(-data_s->axe[1][script_index].angle*DEG2RAD))*RotateZ(-data_s->axe[2][script_index].angle*DEG2RAD);
 			hide=data_s->flag[script_index]&FLAG_HIDE;
 			}
@@ -1435,6 +1441,7 @@ bool OBJECT::random_pos( SCRIPT_DATA *data_s, int id, VECTOR *vec )
 			glRotatef( R.z, 0.0f, 0.0f, 1.0f );
 			Dir=((Dir*RotateX(-R.x*DEG2RAD))*RotateY(-R.y*DEG2RAD))*RotateZ(-R.z*DEG2RAD);
 			}
+		hide |= explodes ^ exploding_parts;
 			if(nb_t_index>0 && !hide) {
 				if(!alset) {
 					glDisable(GL_LIGHTING);
@@ -1517,22 +1524,16 @@ bool OBJECT::random_pos( SCRIPT_DATA *data_s, int id, VECTOR *vec )
 				glStencilOp(GL_KEEP,GL_KEEP,GL_DECR);
 				glDrawElements(GL_QUADS, nb_idx,GL_UNSIGNED_SHORT,shadow_index);		// dessine le tout
 				}
-		if(child) {
-//			if(data_s==NULL || !data_s->explode) {
-				glPushMatrix();
-				alset=child->draw_shadow_basic(Dir,t,data_s,alset);
-/*				}
-			else {
-				glPopMatrix();
-				glPushMatrix();
-				alset=child->draw_shadow_basic(ODir,data_s,alset);
-				}*/
+		if(child && !(explodes && !exploding_parts) ) {
+			glPushMatrix();
+			alset=child->draw_shadow_basic(Dir,t,data_s,alset, exploding_parts & !explodes);
 			glPopMatrix();
 			}
+draw_shadow_basic_next:
 		if(next) {
 			glPopMatrix();
 			glPushMatrix();
-			alset=next->draw_shadow_basic(ODir,t,data_s,alset);
+			alset=next->draw_shadow_basic(ODir,t,data_s,alset, exploding_parts);
 			glPopMatrix();
 			}
 		else
@@ -1551,6 +1552,10 @@ bool OBJECT::random_pos( SCRIPT_DATA *data_s, int id, VECTOR *vec )
 		bool is_hit=false;
 
 		VECTOR T=pos_from_parent;
+		VECTOR MP;
+		if( script_index>=0 && data_s && (data_s->flag[script_index] & FLAG_EXPLODE) )		// We can't select that
+			goto hit_is_exploding;
+
 		if(script_index>=0 && data_s) {
 			T.x+=data_s->axe[0][script_index].pos;
 			T.y+=data_s->axe[1][script_index].pos;
@@ -1562,7 +1567,6 @@ bool OBJECT::random_pos( SCRIPT_DATA *data_s, int id, VECTOR *vec )
 			}
 		else
 			M = Scale(1.0f);
-		VECTOR MP;
 			Pos=(Pos-T)*M;
 			if( ( nb_t_index>0 || selprim >= 0 ) && !hide) {
 				POINTF A,B,C,O;
@@ -1699,6 +1703,7 @@ bool OBJECT::random_pos( SCRIPT_DATA *data_s, int id, VECTOR *vec )
 			}
 		if(is_hit)
 			MP=(MP*AM)+T;
+hit_is_exploding:
 		if(next) {
 			VECTOR MP2;
 			bool nhit=next->hit(OPos,ODir,data_s,&MP2,OM);
@@ -1727,6 +1732,9 @@ bool OBJECT::random_pos( SCRIPT_DATA *data_s, int id, VECTOR *vec )
 		
 
 		VECTOR T = pos_from_parent;
+		VECTOR MP;
+		if( script_index>=0 && data_s && (data_s->flag[script_index] & FLAG_EXPLODE) )
+			goto hit_fast_is_exploding;
 		if(script_index>=0 && data_s) {
 			T.x += data_s->axe[0][script_index].pos;
 			T.y += data_s->axe[1][script_index].pos;
@@ -1738,7 +1746,6 @@ bool OBJECT::random_pos( SCRIPT_DATA *data_s, int id, VECTOR *vec )
 			}
 		else
 			AM = Scale(1.0f);
-		VECTOR MP;
 			if( nb_t_index > 0 && nb_vtx > 0 && !hide) {
 				if( compute_min_max ) {		// Required pre-calculations
 					compute_min_max = false;
@@ -1806,6 +1813,8 @@ bool OBJECT::random_pos( SCRIPT_DATA *data_s, int id, VECTOR *vec )
 			}
 		if(is_hit)
 			MP = (MP * AM) + T;
+
+hit_fast_is_exploding:
 		if(next && !is_hit) {
 			VECTOR MP2;
 			bool nhit = next->hit_fast( OPos, ODir, data_s, &MP2);
