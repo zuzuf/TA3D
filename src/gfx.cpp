@@ -138,6 +138,8 @@ GFX::GFX()
 		Console->AddEntry("vendor: %s", glGetString( GL_VENDOR ) );
 		Console->AddEntry("renderer: %s", glGetString( GL_RENDERER ) );
 		Console->AddEntry("version: %s", glGetString( GL_VERSION ) );
+		if( ati_workaround )
+			Console->AddEntry("WARNING: ATI card detected! using workarounds for ATI cards");
 
 		Console->stdout_off();
 		}

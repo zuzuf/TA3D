@@ -251,6 +251,8 @@ struct FEATURE_DATA
 	float	dive_speed;
 	bool	dive;
 	float	angle_x;	// Orientation angle
+
+	GLuint	shadow_dlist;		// Display list to speed up the shadow rendering
 };
 
 class MAP;
@@ -293,8 +295,14 @@ public:
 
 	inline void destroy()
 	{
-		if(feature)
+		if(feature) {
+			for( int i = 0 ; i < max_features ; i++ )
+				if( feature[ i ].shadow_dlist ) {
+					glDeleteLists( feature[i].shadow_dlist, 1 );
+					feature[ i ].shadow_dlist = 0;
+					}
 			free(feature);
+			}
 		if(list)
 			free(list);
 		init();
@@ -320,13 +328,15 @@ public:
 		nb_features++;
 		int idx=-1;
 		if(nb_features>max_features) {			// Si besoin alloue plus de mémoire
-			max_features+=100;				// Alloue la mémoire par paquets de 100 éléments
+			max_features+=500;				// Alloue la mémoire par paquets de 500 éléments
 			FEATURE_DATA	*n_feature=(FEATURE_DATA*) malloc(sizeof(FEATURE_DATA)*max_features);
 			if(feature && nb_features>0)
 				for(int i=0;i<nb_features-1;i++)
 					n_feature[i]=feature[i];
-			for(int i=nb_features-1;i<max_features;i++)
-				n_feature[i].type=-1;
+			for(int i=nb_features-1;i<max_features;i++) {
+				n_feature[i].type = -1;
+				n_feature[i].shadow_dlist = 0;
+				}
 			if(feature)	free(feature);
 			feature=n_feature;
 			if(list)	free(list);
@@ -355,6 +365,7 @@ public:
 		feature[idx].dive = false;
 		feature[idx].dive_speed = 0.0f;
 		feature[idx].angle_x = 0.0f;
+		feature[idx].shadow_dlist = 0;
 
 		compute_on_map_pos( idx );
 
@@ -371,6 +382,11 @@ public:
 
 		if( feature[ index ].burning )		// Remove it form the burning features list
 			burning_features.remove( index );
+
+		if( feature[ index ].shadow_dlist ) {
+			glDeleteLists( feature[ index ].shadow_dlist, 1 );
+			feature[ index ].shadow_dlist = 0;
+			}
 
 		nb_features--;
 		feature[index].type=-1;		// On efface l'objet

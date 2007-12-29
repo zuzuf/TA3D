@@ -829,7 +829,9 @@ const void WEAPON::move(const float dt,MAP *map)				// Anime les armes
 			}
 		}
 	else if(dying && killtime<=0.0f)
-		weapon_id=-1;
+		weapon_id = -1;
+	else if( Pos.x < -map->map_w_d || Pos.x > map->map_w_d || Pos.z < -map->map_h_d || Pos.z > map->map_h_d )		// We're out of the map
+		weapon_id = -1;
 }
 
 void WEAPON::draw(CAMERA *cam,MAP *map)				// Dessine les objets produits par les armes

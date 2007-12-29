@@ -444,16 +444,28 @@ void load_features()				// Charge tout les éléments
 				if(feature[i].grey)	continue;				// No need to draw a texture here
 				if(feature_manager.feature[feature[i].type].converted)	continue;		// Quelques problèmes (graphiques et plantages) avec les modèles convertis
 
-				glPushMatrix();
-				glTranslatef(feature[i].Pos.x,feature[i].Pos.y,feature[i].Pos.z);
-				glRotatef( feature[i].angle, 0.0f, 1.0f, 0.0f );
-				glRotatef( feature[i].angle_x, 1.0f, 0.0f, 0.0f );
-				VECTOR R_Dir = (sqrt(feature_manager.feature[feature[i].type].model->size)*2.0f) * Dir * RotateY( -feature[i].angle * DEG2RAD ) * RotateX( -feature[i].angle_x * DEG2RAD );
-				if(g_useStencilTwoSide)													// Si l'extension GL_EXT_stencil_two_side est disponible
-					feature_manager.feature[feature[i].type].model->draw_shadow( R_Dir,t,NULL);
+				if( feature_manager.feature[feature[i].type].model->animated || feature[i].sinking || feature[i].shadow_dlist == 0 ) {
+					if( !feature_manager.feature[feature[i].type].model->animated && !feature[i].sinking && feature[i].shadow_dlist == 0 ) {
+						feature[i].shadow_dlist = glGenLists (1);
+						glNewList( feature[i].shadow_dlist, GL_COMPILE_AND_EXECUTE);
+						}
+
+					glPushMatrix();
+					glTranslatef(feature[i].Pos.x,feature[i].Pos.y,feature[i].Pos.z);
+					glRotatef( feature[i].angle, 0.0f, 1.0f, 0.0f );
+					glRotatef( feature[i].angle_x, 1.0f, 0.0f, 0.0f );
+					VECTOR R_Dir = (sqrt(feature_manager.feature[feature[i].type].model->size)*2.0f) * Dir * RotateY( -feature[i].angle * DEG2RAD ) * RotateX( -feature[i].angle_x * DEG2RAD );
+					if(g_useStencilTwoSide)													// Si l'extension GL_EXT_stencil_two_side est disponible
+						feature_manager.feature[feature[i].type].model->draw_shadow( R_Dir,t,NULL);
+					else
+						feature_manager.feature[feature[i].type].model->draw_shadow_basic( R_Dir,t,NULL);
+					glPopMatrix();
+
+					if( !feature_manager.feature[feature[i].type].model->animated && !feature[i].sinking )
+						glEndList();
+					}
 				else
-					feature_manager.feature[feature[i].type].model->draw_shadow_basic( R_Dir,t,NULL);
-				glPopMatrix();
+					glCallList( feature[i].shadow_dlist );
 				}
 			}
 		LeaveCS();
