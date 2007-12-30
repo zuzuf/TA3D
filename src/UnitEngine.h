@@ -45,6 +45,7 @@ void *create_unit(int type_id,int owner,VECTOR pos,MAP *map);
 #define MISSION_FLAG_REFRESH_PATH	0x20
 #define MISSION_FLAG_DONT_STOP_MOVE	0x40
 #define MISSION_FLAG_COMMAND_FIRED	0x80
+#define MISSION_FLAG_TARGET_CHECKED	0x08			// For MISSION_CAPTURE to tell when data has been set to the time left before capture is finished
 
 struct MISSION			// Structure pour stocker les ordres
 {

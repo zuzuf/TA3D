@@ -938,7 +938,9 @@ do
 
 		if(pointing>=0) {	// S'il y a quelque chose sous le curseur
 			cursor_type=CURSOR_CROSS;
+			bool can_be_captured = false;
 			if(units.unit[pointing].owner_id!=players.local_human_id) {
+				can_be_captured = true;
 				if(canattack)
 					cursor_type=CURSOR_ATTACK;
 				else if(canreclamate)
@@ -982,6 +984,20 @@ do
 						units.unit[ i ].UnLock();
 						}
 					if(!TA3D_SHIFT_PRESSED)	current_order=SIGNAL_ORDER_NONE;
+					}
+				else if( cursor_type == CURSOR_CAPTURE && can_be_captured ) {
+					for( uint16 e = 0 ; e < units.index_list_size ; e++ ) {
+						i = units.idx_list[e];
+						units.unit[ i ].Lock();
+						if( (units.unit[i].flags & 1) && units.unit[i].owner_id == players.local_human_id && units.unit[i].sel && unit_manager.unit_type[units.unit[i].type_id].CanCapture ) {
+							if( TA3D_SHIFT_PRESSED )
+								units.unit[i].add_mission( MISSION_CAPTURE, &(units.unit[pointing].Pos), false, 0, &(units.unit[pointing]), NULL );
+							else
+								units.unit[i].set_mission( MISSION_CAPTURE, &(units.unit[pointing].Pos), false, 0, true, &(units.unit[pointing]), NULL );
+							}
+						units.unit[ i ].UnLock();
+						}
+					if(!TA3D_SHIFT_PRESSED)	current_order = SIGNAL_ORDER_NONE;
 					}
 				else if(cursor_type==CURSOR_REPAIR) {
 					for(uint16 e=0;e<units.index_list_size;e++) {

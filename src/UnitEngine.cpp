@@ -563,7 +563,7 @@ bool UNIT::is_on_radar( byte &p_mask )
 					upos.x=upos.y=upos.z=0.0f;
 					upos=upos+Pos;
 					if(mission->p!=NULL
-					&& (mission->mission == MISSION_REPAIR || mission->mission == MISSION_BUILD || mission->mission == MISSION_BUILD_2 )
+					&& (mission->mission == MISSION_REPAIR || mission->mission == MISSION_BUILD || mission->mission == MISSION_BUILD_2 || mission->mission == MISSION_CAPTURE )
 					&& ((UNIT*)mission->p)->flags && ((UNIT*)mission->p)->model!=NULL) {
 						size=((UNIT*)mission->p)->model->size2;
 						center=&((UNIT*)mission->p)->model->center;
@@ -2040,6 +2040,9 @@ bool UNIT::is_on_radar( byte &p_mask )
 							data.flag[i]|=FLAG_HIDE;
 					}
 				break;
+			case 0x14:				// Unit has been captured, this is a FAKE unit, just here to be removed
+				flags=4;
+				return -1;
 			default:		// It doesn't explode (it has been reclaimed for example)
 				flags=4;
 			};
@@ -2872,16 +2875,28 @@ bool UNIT::is_on_radar( byte &p_mask )
 					else
 						next_mission();
 					break;
+				case MISSION_CAPTURE:
 				case MISSION_REVIVE:
 				case MISSION_RECLAIM:
 					if(mission->p!=NULL)	{		// Récupère une unité
 						UNIT *target_unit=(UNIT*) mission->p;
 						if( (target_unit->flags & 1) ) {
+							if( mission->mission == MISSION_CAPTURE ) {
+								if( unit_manager.unit_type[ target_unit->type_id ].commander || target_unit->owner_id == owner_id ) {
+									play_sound( "cant1" );
+									next_mission();
+									break;
+									}
+								if( !(mission->flags & MISSION_FLAG_TARGET_CHECKED) ) {
+									mission->flags |= MISSION_FLAG_TARGET_CHECKED;
+									mission->data = unit_manager.unit_type[target_unit->type_id].MaxDamage * 100;
+									}
+								}
 							VECTOR Dir=target_unit->Pos-Pos;
 							Dir.y=0.0f;
 							mission->target=target_unit->Pos;
 							float dist=Dir.Sq();
-							int maxdist = (int)(unit_manager.unit_type[type_id].BuildDistance);
+							int maxdist = mission->mission == MISSION_CAPTURE ? (int)(unit_manager.unit_type[type_id].SightDistance) : (int)(unit_manager.unit_type[type_id].BuildDistance);
 							if(dist>maxdist*maxdist && unit_manager.unit_type[type_id].BMcode) {	// Si l'unité est trop loin du chantier
 								c_time=0.0f;
 								mission->flags |= MISSION_FLAG_MOVE | MISSION_FLAG_REFRESH_PATH;
@@ -2905,16 +2920,48 @@ bool UNIT::is_on_radar( byte &p_mask )
 								if( unit_manager.unit_type[type_id].BMcode && port[ INBUILDSTANCE ] != 0.0f ) {
 									play_sound( "working" );
 									// Récupère l'unité
-									float recup=dt*unit_manager.unit_type[type_id].WorkerTime*unit_manager.unit_type[target_unit->type_id].MaxDamage/unit_manager.unit_type[target_unit->type_id].BuildTime;
-									if(recup>target_unit->hp)	recup=target_unit->hp;
-									target_unit->hp-=recup;
-									if(dt>0.0f)
-										metal_prod+=recup*unit_manager.unit_type[target_unit->type_id].BuildCostMetal/(dt*unit_manager.unit_type[target_unit->type_id].MaxDamage);
-									if(target_unit->hp<=0.0f) {		// Work done
-										launch_script(get_script_index(SCRIPT_stopbuilding));
-										launch_script(get_script_index(SCRIPT_stop));
-										target_unit->flags|=0x10;			// This unit is being reclaimed it doesn't explode!
-										next_mission();
+									float recup = dt * unit_manager.unit_type[type_id].WorkerTime*unit_manager.unit_type[target_unit->type_id].MaxDamage/unit_manager.unit_type[target_unit->type_id].BuildTime;
+									if( mission->mission == MISSION_CAPTURE ) {
+										mission->data -= (int)(recup * 100.0f + 0.5f);
+										if( mission->data <= 0 ) {			// Unit has been captured
+											LeaveCS();
+
+											target_unit->Lock();
+											target_unit->clear_from_map();
+
+											UNIT *new_unit = (UNIT*) create_unit( target_unit->type_id, owner_id, target_unit->Pos, map);
+											if( new_unit ) {
+												new_unit->Lock();
+
+												new_unit->Angle = target_unit->Angle;
+												new_unit->hp = target_unit->hp;
+												new_unit->build_percent_left = target_unit->build_percent_left;
+
+												new_unit->UnLock();
+												}
+
+											target_unit->flags = 0x14;
+											target_unit->hp = 0.0f;
+
+											target_unit->UnLock();
+
+											EnterCS();
+											launch_script(get_script_index(SCRIPT_stopbuilding));
+											launch_script(get_script_index(SCRIPT_stop));
+											next_mission();
+											}
+										}
+									else {
+										if( recup > target_unit->hp )	recup = target_unit->hp;
+										target_unit->hp -= recup;
+										if( dt > 0.0f )
+											metal_prod += recup * unit_manager.unit_type[target_unit->type_id].BuildCostMetal / (dt * unit_manager.unit_type[target_unit->type_id].MaxDamage);
+										if( target_unit->hp <= 0.0f ) {		// Work done
+											launch_script(get_script_index(SCRIPT_stopbuilding));
+											launch_script(get_script_index(SCRIPT_stop));
+											target_unit->flags |= 0x10;			// This unit is being reclaimed it doesn't explode!
+											next_mission();
+											}
 										}
 									}
 								}
@@ -4011,6 +4058,7 @@ bool UNIT::is_on_radar( byte &p_mask )
 			case MISSION_ATTACK:
 			case MISSION_RECLAIM:
 			case MISSION_REVIVE:
+			case MISSION_CAPTURE:
 				n_target=cur->target;
 				n_target.y = max( units.map->get_unit_h( n_target.x, n_target.z ), units.map->sealvl );
 				if(rec>0) {
@@ -4127,6 +4175,7 @@ bool UNIT::is_on_radar( byte &p_mask )
 			case MISSION_PATROL:
 			case MISSION_GUARD:
 			case MISSION_ATTACK:
+			case MISSION_CAPTURE:
 				if(!only_build_commands)
 				{
 				if(cur->p!=NULL)
@@ -4144,6 +4193,7 @@ bool UNIT::is_on_radar( byte &p_mask )
 				case MISSION_LOAD:		cursor_type = CURSOR_LOAD;		break;
 				case MISSION_UNLOAD:	cursor_type = CURSOR_UNLOAD;	break;
 				case MISSION_REVIVE:	cursor_type = CURSOR_REVIVE;	break;
+				case MISSION_CAPTURE:	cursor_type = CURSOR_CAPTURE;	break;
 				};
 				int curseur=anim_cursor( cursor_type );
 				float x=cur->target.x-0.5f*cursor.anm[ cursor_type ].ofs_x[curseur];
