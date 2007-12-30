@@ -163,6 +163,9 @@ namespace TA3D
 		CURSOR_CANT_ATTACK=cursor.find_entry("cursortoofar");
 		CURSOR_CROSS_LINK=cursor.find_entry("pathicon");
 		CURSOR_CAPTURE=cursor.find_entry("cursorcapture");
+		CURSOR_REVIVE=cursor.find_entry("cursorrevive");
+		if( CURSOR_REVIVE == -1 )									// If you don't have the required cursors, then resurrection won't work
+			CURSOR_REVIVE=cursor.find_entry("cursorreclamate");
 
 		free(data);
 

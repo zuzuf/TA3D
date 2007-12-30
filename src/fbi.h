@@ -78,6 +78,7 @@
 #define MISSION_LOAD			0x0C		// Load other units
 #define MISSION_UNLOAD			0x0D		// Unload other units
 #define MISSION_STANDBY_MINE	0x0E		// Mine mission, must explode when an enemy gets too close
+#define MISSION_REVIVE			0x0F		// Resurrect a wreckage
 
 using namespace TA3D;
 using namespace TA3D::INTERFACES;
@@ -117,6 +118,7 @@ public:
 	byte	TransportCapacity;
 	bool	IsAirBase;
 	bool	hoverattack;
+	bool	canresurrect;		// Can this unit resurrect wreckages
 	bool	commander;			// Is that a commander unit ?
 	char	*name;				// Nom de l'unité
 	byte	version;			// Version
@@ -326,6 +328,7 @@ public:
 		BMcode=0;
 		norestrict=false;
 		BuildAngle=10;
+		canresurrect=false;
 		Designation_Name=NULL;	// Nom visible de l'unité
 		Description=NULL;		// Description
 		BuildCostEnergy=0;		// Energie nécessaire pour la construire

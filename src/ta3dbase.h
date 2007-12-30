@@ -75,6 +75,7 @@ extern int CURSOR_WAIT;
 extern int CURSOR_CANT_ATTACK;
 extern int CURSOR_CROSS_LINK;
 extern int CURSOR_CAPTURE;
+extern int CURSOR_REVIVE;
 
 extern int expected_players;
 

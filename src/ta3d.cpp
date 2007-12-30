@@ -888,12 +888,14 @@ do
 		bool builders=false;
 		bool canattack=false;
 		bool canreclamate=false;
+		bool canresurrect=false;
 		for(uint16 e=0;e<units.index_list_size;e++) {
 			i = units.idx_list[e];
 			if( (units.unit[i].flags & 1) && units.unit[i].owner_id==players.local_human_id && units.unit[i].sel) {
 				builders|=unit_manager.unit_type[units.unit[i].type_id].Builder;
 				canattack|=unit_manager.unit_type[units.unit[i].type_id].canattack;
 				canreclamate|=unit_manager.unit_type[units.unit[i].type_id].CanReclamate;
+				canresurrect|=unit_manager.unit_type[units.unit[i].type_id].canresurrect;
 				}
 			}
 		int pointing = 0;
@@ -932,6 +934,7 @@ do
 			pointing = units.pick_minimap();
 
 		if( pointing < -1 && canreclamate && feature_manager.feature[features.feature[ -pointing - 2 ].type].reclaimable && build == -1 )	cursor_type = CURSOR_RECLAIM;
+		if( pointing < -1 && canresurrect && feature_manager.feature[features.feature[ -pointing - 2 ].type].reclaimable && build == -1 && CURSOR_REVIVE != CURSOR_RECLAIM )	cursor_type = CURSOR_REVIVE;
 
 		if(pointing>=0) {	// S'il y a quelque chose sous le curseur
 			cursor_type=CURSOR_CROSS;
@@ -1064,10 +1067,29 @@ do
 			}
 		}
 
+	if(cursor_type==CURSOR_REVIVE && CURSOR_REVIVE != CURSOR_RECLAIM && mouse_b!=1 && omb3 ==1 && ( !IsOnGUI || IsOnMinimap ) ) {	// The cursor orders to resurrect a wreckage
+		VECTOR cur_pos=cursor_on_map(&cam,map,IsOnMinimap);
+		int idx = -units.last_on - 2;
+		if(idx>=0 && features.feature[ idx ].type >= 0 && feature_manager.feature[ features.feature[ idx ].type ].reclaimable )
+			for(uint16 e=0;e<units.index_list_size;e++) {
+				i = units.idx_list[e];
+				if( (units.unit[i].flags & 1) && units.unit[i].owner_id==players.local_human_id && units.unit[i].sel
+				&& unit_manager.unit_type[units.unit[i].type_id].canresurrect && unit_manager.unit_type[units.unit[i].type_id].BMcode ) {
+					units.EnterCS_from_outside();
+					if(TA3D_SHIFT_PRESSED)
+						units.unit[i].add_mission(MISSION_REVIVE,&cur_pos,false,idx,NULL);
+					else
+						units.unit[i].set_mission(MISSION_REVIVE,&cur_pos,false,idx,true,NULL);
+					units.LeaveCS_from_outside();
+					}
+				}
+		if(!TA3D_SHIFT_PRESSED)	current_order=SIGNAL_ORDER_NONE;
+		}
+
 	if(cursor_type==CURSOR_RECLAIM && mouse_b!=1 && omb3 ==1 && ( !IsOnGUI || IsOnMinimap ) ) {	// The cursor orders to reclaim something
 		VECTOR cur_pos=cursor_on_map(&cam,map,IsOnMinimap);
 		int idx = -units.last_on - 2;
-		if(idx>=0)
+		if( idx >= 0 && features.feature[ idx ].type >= 0 && feature_manager.feature[ features.feature[ idx ].type ].reclaimable )
 			for(uint16 e=0;e<units.index_list_size;e++) {
 				i = units.idx_list[e];
 				if( (units.unit[i].flags & 1) && units.unit[i].owner_id==players.local_human_id && units.unit[i].sel

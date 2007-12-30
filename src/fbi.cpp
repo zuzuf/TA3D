@@ -382,6 +382,8 @@ void UNIT_TYPE::show_info(float fade,GFX_FONT fnt)
 			else if(f=strstr(ligne,"stealth="))				Stealth=atoi(f+8);
 			else if(f=strstr(ligne,"attackrunlength="))		attackrunlength = atoi(f+16);
 			else if(f=strstr(ligne,"selfdestructcountdown="))	selfdestructcountdown=atoi(f+22);
+			else if(f=strstr(ligne,"canresurrect="))		canresurrect = (f[13] == '1');
+			else if(f=strstr(ligne,"resurrect="))			canresurrect = (f[10] == '1');
 			else if(f=strstr(ligne,"downloadable=")) { }
 			else if(f=strstr(ligne,"ovradjust=")) { }
 			else if(f=strstr(ligne,"ai_limit=")) { }

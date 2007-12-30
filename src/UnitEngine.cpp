@@ -2863,6 +2863,7 @@ bool UNIT::is_on_radar( byte &p_mask )
 					else
 						next_mission();
 					break;
+				case MISSION_REVIVE:
 				case MISSION_RECLAIM:
 					if(mission->p!=NULL)	{		// Récupère une unité
 						UNIT *target_unit=(UNIT*) mission->p;
@@ -2871,7 +2872,7 @@ bool UNIT::is_on_radar( byte &p_mask )
 							Dir.y=0.0f;
 							mission->target=target_unit->Pos;
 							float dist=Dir.Sq();
-							int maxdist=(int)(unit_manager.unit_type[type_id].BuildDistance);
+							int maxdist = (int)(unit_manager.unit_type[type_id].BuildDistance);
 							if(dist>maxdist*maxdist && unit_manager.unit_type[type_id].BMcode) {	// Si l'unité est trop loin du chantier
 								c_time=0.0f;
 								mission->flags |= MISSION_FLAG_MOVE | MISSION_FLAG_REFRESH_PATH;
@@ -2917,7 +2918,7 @@ bool UNIT::is_on_radar( byte &p_mask )
 						Dir.y=0.0f;
 						mission->target=features.feature[mission->data].Pos;
 						float dist=Dir.Sq();
-						int maxdist=(int)(unit_manager.unit_type[type_id].BuildDistance);
+						int maxdist = mission->mission == MISSION_REVIVE ? (int)(unit_manager.unit_type[type_id].SightDistance) : (int)(unit_manager.unit_type[type_id].BuildDistance);
 						if(dist>maxdist*maxdist && unit_manager.unit_type[type_id].BMcode) {	// Si l'unité est trop loin du chantier
 							c_time = 0.0f;
 							mission->flags |= MISSION_FLAG_MOVE | MISSION_FLAG_REFRESH_PATH;
@@ -2943,19 +2944,63 @@ bool UNIT::is_on_radar( byte &p_mask )
 								float recup=dt*unit_manager.unit_type[type_id].WorkerTime;
 								if(recup>features.feature[mission->data].hp)	recup=features.feature[mission->data].hp;
 								features.feature[mission->data].hp-=recup;
-								if(dt>0.0f) {
+								if( dt > 0.0f && mission->mission == MISSION_RECLAIM ) {
 									metal_prod+=recup*feature_manager.feature[features.feature[mission->data].type].metal/(dt*feature_manager.feature[features.feature[mission->data].type].damage);
 									energy_prod+=recup*feature_manager.feature[features.feature[mission->data].type].energy/(dt*feature_manager.feature[features.feature[mission->data].type].damage);
 									}
-								if(features.feature[mission->data].hp<=0.0f) {		// Travail terminé
+								if( features.feature[mission->data].hp <= 0.0f ) {		// Travail terminé
 									int x=((int)(features.feature[mission->data].Pos.x)-8+map->map_w_d)>>3;		// Efface l'objet
 									int y=((int)(features.feature[mission->data].Pos.z)-8+map->map_h_d)>>3;
 									map->rect(x-(feature_manager.feature[features.feature[mission->data].type].footprintx>>1),y-(feature_manager.feature[features.feature[mission->data].type].footprintz>>1),feature_manager.feature[features.feature[mission->data].type].footprintx,feature_manager.feature[features.feature[mission->data].type].footprintz,-1);
 									map->map_data[y][x].stuff=-1;
-									features.delete_feature(mission->data);			// Supprime l'objet
 									launch_script(get_script_index(SCRIPT_stopbuilding));
 									launch_script(get_script_index(SCRIPT_stop));
-									next_mission();
+
+									if( mission->mission == MISSION_REVIVE
+									&& feature_manager.feature[features.feature[mission->data].type].name ) {			// Creates the corresponding unit
+										String wreckage_name = feature_manager.feature[features.feature[mission->data].type].name;
+										wreckage_name = wreckage_name.substr( 0, wreckage_name.length() - 5 );		// Remove the _dead/_heap suffix
+
+										int wreckage_type_id = unit_manager.get_unit_index( wreckage_name.c_str() );
+										VECTOR obj_pos = features.feature[mission->data].Pos;
+										float obj_angle = features.feature[mission->data].angle;
+										features.delete_feature(mission->data);			// Supprime l'objet
+
+										if( wreckage_type_id >= 0 ) {
+											LeaveCS();
+											UNIT *unit_p = (UNIT*) create_unit( wreckage_type_id, owner_id, obj_pos, map );
+
+											if( unit_p ) {
+												unit_p->Lock();
+
+												unit_p->Angle.y = obj_angle;
+												unit_p->hp = 0.01f;					// Need to be repaired :P
+												unit_p->build_percent_left = 0.0f;	// It's finished ...
+												unit_p->draw_on_map();
+
+												unit_p->UnLock();
+												}
+											EnterCS();
+
+											if( unit_p ) {
+												mission->mission = MISSION_REPAIR;		// Now let's repair what we've resurrected
+												mission->p = unit_p;
+												mission->data = 0;
+												}
+											else {
+												play_sound( "cant1" );
+												next_mission();
+												}
+											}
+										else {
+											play_sound( "cant1" );
+											next_mission();
+											}
+										}
+									else {
+										features.delete_feature(mission->data);			// Supprime l'objet
+										next_mission();
+										}
 									}
 								}
 							}
@@ -3951,6 +3996,7 @@ bool UNIT::is_on_radar( byte &p_mask )
 			case MISSION_REPAIR:
 			case MISSION_ATTACK:
 			case MISSION_RECLAIM:
+			case MISSION_REVIVE:
 				n_target=cur->target;
 				n_target.y = max( units.map->get_unit_h( n_target.x, n_target.z ), units.map->sealvl );
 				if(rec>0) {
@@ -3976,60 +4022,6 @@ bool UNIT::is_on_radar( byte &p_mask )
 			glDisable(GL_DEPTH_TEST);
 			switch(cur->mission)
 			{
-			case MISSION_UNLOAD:
-				if(!only_build_commands)
-				{
-				int curseur=anim_cursor(CURSOR_UNLOAD);
-				float x=p_target.x-0.5f*cursor.anm[CURSOR_UNLOAD].ofs_x[curseur];
-				float y=p_target.y+1.0f;
-				float z=p_target.z-0.5f*cursor.anm[CURSOR_UNLOAD].ofs_y[curseur];
-				float sx=0.5f*(cursor.anm[CURSOR_UNLOAD].bmp[curseur]->w-1);
-				float sy=0.5f*(cursor.anm[CURSOR_UNLOAD].bmp[curseur]->h-1);
-				glBindTexture(GL_TEXTURE_2D,cursor.anm[CURSOR_UNLOAD].glbmp[curseur]);
-				glBegin(GL_QUADS);
-					glTexCoord2f(0.0f,0.0f);		glVertex3f(x,y,z);
-					glTexCoord2f(1.0f,0.0f);		glVertex3f(x+sx,y,z);
-					glTexCoord2f(1.0f,1.0f);		glVertex3f(x+sx,y,z+sy);
-					glTexCoord2f(0.0f,1.0f);		glVertex3f(x,y,z+sy);
-				glEnd();
-				}
-				break;
-			case MISSION_LOAD:
-				if(!only_build_commands)
-				{
-				int curseur=anim_cursor(CURSOR_LOAD);
-				float x=p_target.x-0.5f*cursor.anm[CURSOR_LOAD].ofs_x[curseur];
-				float y=p_target.y+1.0f;
-				float z=p_target.z-0.5f*cursor.anm[CURSOR_LOAD].ofs_y[curseur];
-				float sx=0.5f*(cursor.anm[CURSOR_LOAD].bmp[curseur]->w-1);
-				float sy=0.5f*(cursor.anm[CURSOR_LOAD].bmp[curseur]->h-1);
-				glBindTexture(GL_TEXTURE_2D,cursor.anm[CURSOR_LOAD].glbmp[curseur]);
-				glBegin(GL_QUADS);
-					glTexCoord2f(0.0f,0.0f);		glVertex3f(x,y,z);
-					glTexCoord2f(1.0f,0.0f);		glVertex3f(x+sx,y,z);
-					glTexCoord2f(1.0f,1.0f);		glVertex3f(x+sx,y,z+sy);
-					glTexCoord2f(0.0f,1.0f);		glVertex3f(x,y,z+sy);
-				glEnd();
-				}
-				break;
-			case MISSION_MOVE:
-				if(!only_build_commands)
-				{
-				int curseur=anim_cursor(CURSOR_MOVE);
-				float x=p_target.x-0.5f*cursor.anm[CURSOR_MOVE].ofs_x[curseur];
-				float y=p_target.y+1.0f;
-				float z=p_target.z-0.5f*cursor.anm[CURSOR_MOVE].ofs_y[curseur];
-				float sx=0.5f*(cursor.anm[CURSOR_MOVE].bmp[curseur]->w-1);
-				float sy=0.5f*(cursor.anm[CURSOR_MOVE].bmp[curseur]->h-1);
-				glBindTexture(GL_TEXTURE_2D,cursor.anm[CURSOR_MOVE].glbmp[curseur]);
-				glBegin(GL_QUADS);
-					glTexCoord2f(0.0f,0.0f);		glVertex3f(x,y,z);
-					glTexCoord2f(1.0f,0.0f);		glVertex3f(x+sx,y,z);
-					glTexCoord2f(1.0f,1.0f);		glVertex3f(x+sx,y,z+sy);
-					glTexCoord2f(0.0f,1.0f);		glVertex3f(x,y,z+sy);
-				glEnd();
-				}
-				break;
 			case MISSION_BUILD:
 				if(cur->p!=NULL)
 					cur->target=((UNIT*)(cur->p))->Pos;
@@ -4111,97 +4103,41 @@ bool UNIT::is_on_radar( byte &p_mask )
 					glColor4f(1.0f,1.0f,1.0f,1.0f);
 					}
 				break;
+			case MISSION_UNLOAD:
+			case MISSION_LOAD:
+			case MISSION_MOVE:
 			case MISSION_BUILD_2:
 			case MISSION_REPAIR:
-				if(!only_build_commands)
-				{
-				if(cur->p!=NULL)
-					cur->target=((UNIT*)(cur->p))->Pos;
-				int curseur=anim_cursor(CURSOR_REPAIR);
-				float x=cur->target.x-0.5f*cursor.anm[CURSOR_REPAIR].ofs_x[curseur];
-				float y=cur->target.y+1.0f;
-				float z=cur->target.z-0.5f*cursor.anm[CURSOR_REPAIR].ofs_y[curseur];
-				float sx=0.5f*(cursor.anm[CURSOR_REPAIR].bmp[curseur]->w-1);
-				float sy=0.5f*(cursor.anm[CURSOR_REPAIR].bmp[curseur]->h-1);
-				glBindTexture(GL_TEXTURE_2D,cursor.anm[CURSOR_REPAIR].glbmp[curseur]);
-				glBegin(GL_QUADS);
-					glTexCoord2f(0.0f,0.0f);		glVertex3f(x,y,z);
-					glTexCoord2f(1.0f,0.0f);		glVertex3f(x+sx,y,z);
-					glTexCoord2f(1.0f,1.0f);		glVertex3f(x+sx,y,z+sy);
-					glTexCoord2f(0.0f,1.0f);		glVertex3f(x,y,z+sy);
-				glEnd();
-				}
-				break;
 			case MISSION_RECLAIM:
-				if(!only_build_commands)
-				{
-				if(cur->p!=NULL)
-					cur->target=((UNIT*)(cur->p))->Pos;
-				int curseur=anim_cursor(CURSOR_RECLAIM);
-				float x=cur->target.x-0.5f*cursor.anm[CURSOR_RECLAIM].ofs_x[curseur];
-				float y=cur->target.y+1.0f;
-				float z=cur->target.z-0.5f*cursor.anm[CURSOR_RECLAIM].ofs_y[curseur];
-				float sx=0.5f*(cursor.anm[CURSOR_REPAIR].bmp[curseur]->w-1);
-				float sy=0.5f*(cursor.anm[CURSOR_REPAIR].bmp[curseur]->h-1);
-				glBindTexture(GL_TEXTURE_2D,cursor.anm[CURSOR_RECLAIM].glbmp[curseur]);
-				glBegin(GL_QUADS);
-					glTexCoord2f(0.0f,0.0f);		glVertex3f(x,y,z);
-					glTexCoord2f(1.0f,0.0f);		glVertex3f(x+sx,y,z);
-					glTexCoord2f(1.0f,1.0f);		glVertex3f(x+sx,y,z+sy);
-					glTexCoord2f(0.0f,1.0f);		glVertex3f(x,y,z+sy);
-				glEnd();
-				}
-				break;
+			case MISSION_REVIVE:
 			case MISSION_PATROL:
-				if(!only_build_commands)
-				{
-				int curseur=anim_cursor(CURSOR_PATROL);
-				float x=p_target.x-0.5f*cursor.anm[CURSOR_PATROL].ofs_x[curseur];
-				float y=p_target.y+1.0f;
-				float z=p_target.z-0.5f*cursor.anm[CURSOR_PATROL].ofs_y[curseur];
-				float sx=0.5f*(cursor.anm[CURSOR_PATROL].bmp[curseur]->w-1);
-				float sy=0.5f*(cursor.anm[CURSOR_PATROL].bmp[curseur]->h-1);
-				glBindTexture(GL_TEXTURE_2D,cursor.anm[CURSOR_PATROL].glbmp[curseur]);
-				glBegin(GL_QUADS);
-					glTexCoord2f(0.0f,0.0f);		glVertex3f(x,y,z);
-					glTexCoord2f(1.0f,0.0f);		glVertex3f(x+sx,y,z);
-					glTexCoord2f(1.0f,1.0f);		glVertex3f(x+sx,y,z+sy);
-					glTexCoord2f(0.0f,1.0f);		glVertex3f(x,y,z+sy);
-				glEnd();
-				}
-				break;
 			case MISSION_GUARD:
-				if(!only_build_commands)
-				{
-				if(cur->p!=NULL)
-					cur->target=((UNIT*)(cur->p))->Pos;
-				int curseur=anim_cursor(CURSOR_GUARD);
-				float x=cur->target.x-0.5f*cursor.anm[CURSOR_GUARD].ofs_x[curseur];
-				float y=cur->target.y+1.0f;
-				float z=cur->target.z-0.5f*cursor.anm[CURSOR_GUARD].ofs_y[curseur];
-				float sx=0.5f*(cursor.anm[CURSOR_GUARD].bmp[curseur]->w-1);
-				float sy=0.5f*(cursor.anm[CURSOR_GUARD].bmp[curseur]->h-1);
-				glBindTexture(GL_TEXTURE_2D,cursor.anm[CURSOR_GUARD].glbmp[curseur]);
-				glBegin(GL_QUADS);
-					glTexCoord2f(0.0f,0.0f);		glVertex3f(x,y,z);
-					glTexCoord2f(1.0f,0.0f);		glVertex3f(x+sx,y,z);
-					glTexCoord2f(1.0f,1.0f);		glVertex3f(x+sx,y,z+sy);
-					glTexCoord2f(0.0f,1.0f);		glVertex3f(x,y,z+sy);
-				glEnd();
-				}
-				break;
 			case MISSION_ATTACK:
 				if(!only_build_commands)
 				{
 				if(cur->p!=NULL)
 					cur->target=((UNIT*)(cur->p))->Pos;
-				int curseur=anim_cursor(CURSOR_ATTACK);
-				float x=cur->target.x-0.5f*cursor.anm[CURSOR_ATTACK].ofs_x[curseur];
+				int cursor_type = CURSOR_ATTACK;
+				switch( cur->mission )
+				{
+				case MISSION_GUARD:		cursor_type = CURSOR_GUARD;		break;
+				case MISSION_ATTACK:	cursor_type = CURSOR_ATTACK;	break;
+				case MISSION_PATROL:	cursor_type = CURSOR_PATROL;	break;
+				case MISSION_RECLAIM:	cursor_type = CURSOR_RECLAIM;	break;
+				case MISSION_BUILD_2:
+				case MISSION_REPAIR:	cursor_type = CURSOR_REPAIR;	break;
+				case MISSION_MOVE:		cursor_type = CURSOR_MOVE;		break;
+				case MISSION_LOAD:		cursor_type = CURSOR_LOAD;		break;
+				case MISSION_UNLOAD:	cursor_type = CURSOR_UNLOAD;	break;
+				case MISSION_REVIVE:	cursor_type = CURSOR_REVIVE;	break;
+				};
+				int curseur=anim_cursor( cursor_type );
+				float x=cur->target.x-0.5f*cursor.anm[ cursor_type ].ofs_x[curseur];
 				float y=cur->target.y+1.0f;
-				float z=cur->target.z-0.5f*cursor.anm[CURSOR_ATTACK].ofs_y[curseur];
-				float sx=0.5f*(cursor.anm[CURSOR_ATTACK].bmp[curseur]->w-1);
-				float sy=0.5f*(cursor.anm[CURSOR_ATTACK].bmp[curseur]->h-1);
-				glBindTexture(GL_TEXTURE_2D,cursor.anm[CURSOR_ATTACK].glbmp[curseur]);
+				float z=cur->target.z-0.5f*cursor.anm[ cursor_type ].ofs_y[curseur];
+				float sx=0.5f*(cursor.anm[ cursor_type ].bmp[curseur]->w-1);
+				float sy=0.5f*(cursor.anm[ cursor_type ].bmp[curseur]->h-1);
+				glBindTexture(GL_TEXTURE_2D,cursor.anm[ cursor_type ].glbmp[curseur]);
 				glBegin(GL_QUADS);
 					glTexCoord2f(0.0f,0.0f);		glVertex3f(x,y,z);
 					glTexCoord2f(1.0f,0.0f);		glVertex3f(x+sx,y,z);
@@ -4748,9 +4684,13 @@ void INGAME_UNITS::complete_menu(int index,bool hide_info,bool hide_bpic,int dec
 		}
 
 	if( !hide_info ) {
+		LeaveCS();
+
+		unit[index].Lock();
+
 		glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
 		gfx->print_center(gfx->normal_font, ta3d_sidedata.side_int_data[ players.side_view ].UnitName.x1, ta3d_sidedata.side_int_data[ players.side_view ].UnitName.y1,0.0f,0xFFFFFFFF,unit_manager.unit_type[unit[index].type_id].name);
-		if(target && (unit[index].mission->flags & MISSION_FLAG_TARGET_WEAPON) != MISSION_FLAG_TARGET_WEAPON) {
+		if(target && unit[index].mission && (unit[index].mission->flags & MISSION_FLAG_TARGET_WEAPON) != MISSION_FLAG_TARGET_WEAPON) {
 			glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
 			gfx->print_center(gfx->normal_font, ta3d_sidedata.side_int_data[ players.side_view ].UnitName2.x1, ta3d_sidedata.side_int_data[ players.side_view ].UnitName2.y1,0.0f,0xFFFFFFFF,unit_manager.unit_type[target->type_id].name);
 			}
@@ -4837,6 +4777,9 @@ void INGAME_UNITS::complete_menu(int index,bool hide_info,bool hide_bpic,int dec
 				}
 
 		glEnd();
+
+		unit[index].UnLock();
+		EnterCS();
 		}
 	else {
 		glDisable( GL_BLEND );
