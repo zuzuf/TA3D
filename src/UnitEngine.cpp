@@ -563,7 +563,7 @@ bool UNIT::is_on_radar( byte &p_mask )
 					upos.x=upos.y=upos.z=0.0f;
 					upos=upos+Pos;
 					if(mission->p!=NULL
-					&& (mission->mission == MISSION_REPAIR || mission->mission == MISSION_BUILD || mission->mission == MISSION_BUILD_2)
+					&& (mission->mission == MISSION_REPAIR || mission->mission == MISSION_BUILD || mission->mission == MISSION_BUILD_2 )
 					&& ((UNIT*)mission->p)->flags && ((UNIT*)mission->p)->model!=NULL) {
 						size=((UNIT*)mission->p)->model->size2;
 						center=&((UNIT*)mission->p)->model->center;
@@ -571,10 +571,19 @@ bool UNIT::is_on_radar( byte &p_mask )
 						src_data = &((UNIT*)mission->p)->data;
 						((UNIT*)mission->p)->compute_model_coord();
 						}
-					else if(mission->mission==MISSION_RECLAIM) {		// Récupération d'objets
-						D.x=D.y=D.z=0.f;
-						center=&D;
-						size=32.0f;
+					else if( mission->mission == MISSION_RECLAIM || mission->mission == MISSION_REVIVE ) {		// Récupération d'objets
+						int feature_type = features.feature[ mission->data ].type;
+						if( mission->data >= 0 && feature_type >= 0 && feature_manager.feature[ feature_type ].model ) {
+							size = feature_manager.feature[ feature_type ].model->size2;
+							center = &feature_manager.feature[ feature_type ].model->center;
+							src = &feature_manager.feature[ feature_type ].model->obj;
+							src_data = NULL;
+							}
+						else {
+							D.x = D.y = D.z = 0.f;
+							center = &D;
+							size = 32.0f;
+							}
 						}
 					else
 						c_part=false;
@@ -2953,11 +2962,10 @@ bool UNIT::is_on_radar( byte &p_mask )
 									int y=((int)(features.feature[mission->data].Pos.z)-8+map->map_h_d)>>3;
 									map->rect(x-(feature_manager.feature[features.feature[mission->data].type].footprintx>>1),y-(feature_manager.feature[features.feature[mission->data].type].footprintz>>1),feature_manager.feature[features.feature[mission->data].type].footprintx,feature_manager.feature[features.feature[mission->data].type].footprintz,-1);
 									map->map_data[y][x].stuff=-1;
-									launch_script(get_script_index(SCRIPT_stopbuilding));
-									launch_script(get_script_index(SCRIPT_stop));
 
 									if( mission->mission == MISSION_REVIVE
 									&& feature_manager.feature[features.feature[mission->data].type].name ) {			// Creates the corresponding unit
+										bool success = false;
 										String wreckage_name = feature_manager.feature[features.feature[mission->data].type].name;
 										wreckage_name = wreckage_name.substr( 0, wreckage_name.length() - 5 );		// Remove the _dead/_heap suffix
 
@@ -2985,20 +2993,21 @@ bool UNIT::is_on_radar( byte &p_mask )
 											if( unit_p ) {
 												mission->mission = MISSION_REPAIR;		// Now let's repair what we've resurrected
 												mission->p = unit_p;
-												mission->data = 0;
-												}
-											else {
-												play_sound( "cant1" );
-												next_mission();
+												mission->data = 1;
+												success = true;
 												}
 											}
-										else {
+										if( !success ) {
 											play_sound( "cant1" );
+											launch_script(get_script_index(SCRIPT_stopbuilding));
+											launch_script(get_script_index(SCRIPT_stop));
 											next_mission();
 											}
 										}
 									else {
 										features.delete_feature(mission->data);			// Supprime l'objet
+										launch_script(get_script_index(SCRIPT_stopbuilding));
+										launch_script(get_script_index(SCRIPT_stop));
 										next_mission();
 										}
 									}
@@ -3259,13 +3268,18 @@ bool UNIT::is_on_radar( byte &p_mask )
 										}
 
 									if( port[ INBUILDSTANCE ] != 0.0f ) {
-										float conso_metal=((float)(unit_manager.unit_type[type_id].WorkerTime*unit_manager.unit_type[target_unit->type_id].BuildCostMetal))/unit_manager.unit_type[target_unit->type_id].BuildTime;
+										float conso_energy=((float)(unit_manager.unit_type[type_id].WorkerTime*unit_manager.unit_type[target_unit->type_id].BuildCostEnergy))/unit_manager.unit_type[target_unit->type_id].BuildTime;
+										if( players.energy[owner_id] >= conso_energy * dt ) {
+											energy_cons += conso_energy;
+											target_unit->hp += dt*unit_manager.unit_type[type_id].WorkerTime*unit_manager.unit_type[target_unit->type_id].MaxDamage/unit_manager.unit_type[target_unit->type_id].BuildTime;
+											}
+/*										float conso_metal=((float)(unit_manager.unit_type[type_id].WorkerTime*unit_manager.unit_type[target_unit->type_id].BuildCostMetal))/unit_manager.unit_type[target_unit->type_id].BuildTime;
 										float conso_energy=((float)(unit_manager.unit_type[type_id].WorkerTime*unit_manager.unit_type[target_unit->type_id].BuildCostEnergy))/unit_manager.unit_type[target_unit->type_id].BuildTime;
 										if(players.metal[owner_id]>=conso_metal*dt && players.energy[owner_id]>=conso_energy*dt) {
 											metal_cons+=conso_metal;
 											energy_cons+=conso_energy;
 											target_unit->hp+=dt*unit_manager.unit_type[type_id].WorkerTime*unit_manager.unit_type[target_unit->type_id].MaxDamage/unit_manager.unit_type[target_unit->type_id].BuildTime;
-											}
+											}*/
 										target_unit->built=true;
 										}
 									}

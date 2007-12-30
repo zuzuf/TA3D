@@ -359,7 +359,7 @@ public:
 		canfly=false;			// si l'unité peut voler
 		Scale=1.0f;				// Echelle
 		BankScale=0;
-		BuildDistance=10.0f;	// Distance maximale de construction
+		BuildDistance=0.0f;		// Distance maximale de construction
 		CanReclamate=false;		// si elle peut récupérer
 		EnergyMake=0;			// Production d'énergie de l'unité
 		MetalMake=0.0f;			// Production de métal de l'unité

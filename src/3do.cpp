@@ -1187,7 +1187,7 @@ uint16 OBJECT::set_obj_id( uint16 id )
 bool OBJECT::random_pos( SCRIPT_DATA *data_s, int id, VECTOR *vec )
 {
 	if( id == obj_id ) {
-		if( nb_t_index > 2 && !(data_s->flag[script_index] & FLAG_HIDE) ) {
+		if( nb_t_index > 2 && (data_s == NULL || !(data_s->flag[script_index] & FLAG_HIDE)) ) {
 			int rnd_idx = (rand_from_table() % (nb_t_index / 3)) * 3;
 			float a = (rand_from_table() & 0xFF) / 255.0f;
 			float b = (1.0f - a) * (rand_from_table() & 0xFF) / 255.0f;
@@ -1195,15 +1195,19 @@ bool OBJECT::random_pos( SCRIPT_DATA *data_s, int id, VECTOR *vec )
 			vec->x = a * points[ t_index[ rnd_idx ] ].x + b * points[ t_index[ rnd_idx + 1 ] ].x + c * points[ t_index[ rnd_idx + 2 ] ].x;
 			vec->y = a * points[ t_index[ rnd_idx ] ].y + b * points[ t_index[ rnd_idx + 1 ] ].y + c * points[ t_index[ rnd_idx + 2 ] ].y;
 			vec->z = a * points[ t_index[ rnd_idx ] ].z + b * points[ t_index[ rnd_idx + 1 ] ].z + c * points[ t_index[ rnd_idx + 2 ] ].z;
-			*vec = data_s->pos[script_index] + *vec * data_s->matrix[script_index];
+			if( data_s )
+				*vec = data_s->pos[script_index] + *vec * data_s->matrix[script_index];
 			}
 		else
 			return false;
 		return true;
 		}
 	if( id > obj_id ) {
-		if( child != NULL && child->random_pos( data_s, id, vec ) )
+		if( child != NULL && child->random_pos( data_s, id, vec ) ) {
+			if( data_s == NULL )
+				*vec = *vec + pos_from_parent;
 			return true;
+			}
 		else
 			return false;
 		}
@@ -1251,7 +1255,7 @@ bool OBJECT::random_pos( SCRIPT_DATA *data_s, int id, VECTOR *vec )
 			for(byte i=0;i<nb;i++) {
 				VECTOR t_mod;
 				bool random_vector = true;
-				if( src != NULL && src_data != NULL )
+				if( src != NULL )
 					for( int base_n = rand_from_table(), n = 0 ; random_vector && n < src->nb_sub_obj ; n++ )
 						random_vector = !src->random_pos( src_data, (base_n + n) % src->nb_sub_obj, &t_mod );
 				if( random_vector ) {

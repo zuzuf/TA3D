@@ -396,6 +396,8 @@ void UNIT_TYPE::show_info(float fade,GFX_FONT fnt)
 				free(dup_ligne);
 		}while(strstr(ligne,"}")==NULL && nb<1000 && pos<limit);
 		delete[] ligne;
+		if( canresurrect && BuildDistance == 0.0f )
+			BuildDistance = SightDistance;
 		if(Weapon1>-1)	{
 			weapon[0]=&(weapon_manager.weapon[Weapon1]);
 			weapon_damage[0] = weapon[0]->get_damage_for_unit( Unitname );
