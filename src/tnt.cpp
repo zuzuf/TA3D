@@ -337,7 +337,7 @@ MAP	*load_tnt_map(byte *data)		// Charge une map au format TA, extraite d'une ar
 	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR_MIPMAP_LINEAR);
 	destroy_bitmap(low_def);
 
-	map->lava_map=allegro_gl_make_texture(lava_map);		// Build the lava texture map
+	map->lava_map = allegro_gl_make_texture(lava_map);		// Build the lava texture map
 	glBindTexture(GL_TEXTURE_2D,map->lava_map);
 	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
@@ -483,8 +483,8 @@ MAP	*load_tnt_map(byte *data)		// Charge une map au format TA, extraite d'une ar
 	map->low_nb_idx = (2+map->low_w*2)*map->low_h;			// Draw this as GL_TRIANGLE_STRIP
 	int low_nb_vtx = (map->low_w+1)*(map->low_h+1);
 	map->low_vtx=(POINTF*) malloc(sizeof(POINTF)*low_nb_vtx);
+	POINTF *tmp_vtx = (POINTF*) malloc(sizeof(POINTF)*low_nb_vtx);
 	map->low_vtx_flat=(POINTF*) malloc(sizeof(POINTF)*low_nb_vtx);
-//	map->low_col=(float*) malloc(sizeof(float)*low_nb_vtx*4);
 	map->low_col=(uint8*) malloc(low_nb_vtx*4);
 	map->low_tcoord=(float*) malloc(sizeof(float)*low_nb_vtx*2);
 	map->low_index=(GLuint*) malloc(sizeof(GLuint)*map->low_nb_idx);
@@ -497,13 +497,25 @@ MAP	*load_tnt_map(byte *data)		// Charge une map au format TA, extraite d'une ar
 			int Y=y*((map->bloc_h<<1)-1)/map->low_h;
 			map->low_vtx[i].y=map->get_nh(X,Y);
 			map->low_vtx[i].z+=map->get_zdec(X,Y);
-			map->low_vtx_flat[i]=map->low_vtx[i];
+			tmp_vtx[i]=map->low_vtx_flat[i]=map->low_vtx[i];
 			map->low_vtx_flat[i].y=0.0f;
 			map->low_tcoord[i<<1]=((float)x)/map->low_w;
 			map->low_tcoord[(i<<1)+1]=((float)y)/map->low_h;
 			map->low_col[(i<<2)+3]=255;
 			i++;
 			}
+	if( map->water )
+		for( y = 1 ; y < map->low_h ; y++ )				// Make sure we'll see what is above water
+			for( x = 1 ; x < map->low_w ; x++ ) {
+				i = x + y * (map->low_w + 1);
+				if( tmp_vtx[ i ].y < map->sealvl
+					&& ( tmp_vtx[ i - 1 ].y > map->sealvl ||
+						tmp_vtx[ i + 1 ].y > map->sealvl ||
+						tmp_vtx[ i - map->low_w - 1 ].y > map->sealvl ||
+						tmp_vtx[ i + map->low_w + 1 ].y > map->sealvl ) )
+					map->low_vtx[i].y = map->sealvl;
+				}
+	free( tmp_vtx );
 	Console->AddEntry("MAP: creating low definition geometry (step 2)");
 	i=0;
 	for(y=0;y<map->low_h;y++)				// Build the mesh

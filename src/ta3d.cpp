@@ -188,6 +188,16 @@ map_file=HPIManager->PullFromHPI(game_data->map_filename,&ota_size);
 if(map_file) {
 	Console->AddEntry("Loading map informations");
 	map->ota_data.load((char*)map_file,ota_size);
+
+	if( map->ota_data.lavaworld ) {			// make sure we'll draw lava and not water
+		gfx->destroy_texture( map->lava_map );
+
+		BITMAP *tmp = create_bitmap_ex(32, 16, 16 );
+		clear_to_color( tmp, 0xFFFFFFFF );
+		map->lava_map = gfx->make_texture( tmp );
+		destroy_bitmap( tmp );
+		}
+
 	free(map_file);
 	}
 

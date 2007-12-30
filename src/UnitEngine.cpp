@@ -42,7 +42,6 @@ INGAME_UNITS units;
 
 float sq( const float &a )	{	return a * a;	}
 
-//#define MAKE_HASH( h, f )			h = (h << 5) - h + f;
 #define PUT_IN_BUFFER( o, b, p ) 	memcpy( b + p, &o, sizeof( o ) );	p += sizeof( o );
 #define PUT_VEC_IN_BUFFER_LOW( v, b, p )	{ sint16 tmp16;\
 													tmp16 = (sint16)(v.x * 128.0f); PUT_IN_BUFFER( tmp16, b, p ); \

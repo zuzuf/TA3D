@@ -1560,8 +1560,18 @@ draw_shadow_basic_next:
 			T.x+=data_s->axe[0][script_index].pos;
 			T.y+=data_s->axe[1][script_index].pos;
 			T.z+=data_s->axe[2][script_index].pos;
-			M_Dir=M*RotateX(-data_s->axe[0][script_index].angle*DEG2RAD)*RotateY(-data_s->axe[1][script_index].angle*DEG2RAD)*RotateZ(-data_s->axe[2][script_index].angle*DEG2RAD);
-			M=RotateX(-data_s->axe[0][script_index].angle*DEG2RAD)*RotateY(-data_s->axe[1][script_index].angle*DEG2RAD)*RotateZ(-data_s->axe[2][script_index].angle*DEG2RAD);
+			MATRIX_4x4 l_M = Scale( 1.0f );
+			if( data_s->axe[0][script_index].angle != 0.0f )
+				l_M = l_M * RotateX(-data_s->axe[0][script_index].angle*DEG2RAD);
+			if( data_s->axe[1][script_index].angle != 0.0f )
+				l_M = l_M * RotateY(-data_s->axe[1][script_index].angle*DEG2RAD);
+			if( data_s->axe[2][script_index].angle != 0.0f )
+				l_M = l_M * RotateZ(-data_s->axe[2][script_index].angle*DEG2RAD);
+			M_Dir = M * l_M;
+			M = l_M;
+
+//			M_Dir=M*RotateX(-data_s->axe[0][script_index].angle*DEG2RAD)*RotateY(-data_s->axe[1][script_index].angle*DEG2RAD)*RotateZ(-data_s->axe[2][script_index].angle*DEG2RAD);
+//			M=RotateX(-data_s->axe[0][script_index].angle*DEG2RAD)*RotateY(-data_s->axe[1][script_index].angle*DEG2RAD)*RotateZ(-data_s->axe[2][script_index].angle*DEG2RAD);
 			AM=RotateZ(data_s->axe[2][script_index].angle*DEG2RAD)*RotateY(data_s->axe[1][script_index].angle*DEG2RAD)*RotateX(data_s->axe[0][script_index].angle*DEG2RAD);
 			hide=data_s->flag[script_index]&FLAG_HIDE;
 			}
@@ -1739,8 +1749,17 @@ hit_is_exploding:
 			T.x += data_s->axe[0][script_index].pos;
 			T.y += data_s->axe[1][script_index].pos;
 			T.z += data_s->axe[2][script_index].pos;
-			Dir = ((Dir * RotateX(-data_s->axe[0][script_index].angle*DEG2RAD)) * RotateY(-data_s->axe[1][script_index].angle*DEG2RAD)) * RotateZ(-data_s->axe[2][script_index].angle*DEG2RAD);
-			Pos = (((Pos - T) * RotateX(-data_s->axe[0][script_index].angle*DEG2RAD)) * RotateY(-data_s->axe[1][script_index].angle*DEG2RAD)) * RotateZ(-data_s->axe[2][script_index].angle*DEG2RAD);
+			MATRIX_4x4 l_M = Scale( 1.0f );
+			if( data_s->axe[0][script_index].angle != 0.0f )
+				l_M = l_M * RotateX(-data_s->axe[0][script_index].angle*DEG2RAD);
+			if( data_s->axe[1][script_index].angle != 0.0f )
+				l_M = l_M * RotateY(-data_s->axe[1][script_index].angle*DEG2RAD);
+			if( data_s->axe[2][script_index].angle != 0.0f )
+				l_M = l_M * RotateZ(-data_s->axe[2][script_index].angle*DEG2RAD);
+			Dir = Dir * l_M;
+			Pos = (Pos - T) * l_M;
+//			Dir = ((Dir * RotateX(-data_s->axe[0][script_index].angle*DEG2RAD)) * RotateY(-data_s->axe[1][script_index].angle*DEG2RAD)) * RotateZ(-data_s->axe[2][script_index].angle*DEG2RAD);
+//			Pos = (((Pos - T) * RotateX(-data_s->axe[0][script_index].angle*DEG2RAD)) * RotateY(-data_s->axe[1][script_index].angle*DEG2RAD)) * RotateZ(-data_s->axe[2][script_index].angle*DEG2RAD);
 			AM = RotateZ(data_s->axe[2][script_index].angle*DEG2RAD)*RotateY(data_s->axe[1][script_index].angle*DEG2RAD)*RotateX(data_s->axe[0][script_index].angle*DEG2RAD);
 			hide = data_s->flag[script_index]&FLAG_HIDE;
 			}
