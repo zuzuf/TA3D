@@ -2594,7 +2594,7 @@ bool UNIT::is_on_radar( byte &p_mask )
 							if(!(dist < 15.0f && fabs( Angle.y - f_TargetAngle ) >= 1.0f)) {
 								if( fabs( Angle.y - f_TargetAngle ) >= 45.0f ) {
 									if( J % V > 0.0f && V.Norm() > unit_manager.unit_type[type_id].BrakeRate * dt )
-										V = V - ( fabs( Angle.y - f_TargetAngle ) - 45.0f ) / 135.0f * unit_manager.unit_type[type_id].BrakeRate * dt * J;
+										V = V - ((( fabs( Angle.y - f_TargetAngle ) - 35.0f ) / 135.0f + 1.0f) * 0.5f * unit_manager.unit_type[type_id].BrakeRate * dt) * J;
 									}
 								else {
 									float speed = V.Norm();
@@ -2736,6 +2736,88 @@ bool UNIT::is_on_radar( byte &p_mask )
 
 				switch(mission->mission)						// Commandes générales / General orders
 				{
+				case MISSION_GET_REPAIRED:
+					if( mission->p && (((UNIT*)mission->p)->flags & 1) ) {
+						UNIT *target_unit = (UNIT*) mission->p;
+
+						if( !(mission->flags & MISSION_FLAG_PAD_CHECKED) ) {
+							mission->flags |= MISSION_FLAG_PAD_CHECKED;
+							int param[] = { 0, 1 };
+							target_unit->run_script_function( map, target_unit->get_script_index( SCRIPT_QueryLandingPad ), 2, param );
+							mission->data = param[ 0 ];
+							}
+
+						target_unit->compute_model_coord();
+						int piece_id = mission->data >= 0 ? mission->data : (-mission->data - 1);
+						mission->target = target_unit->Pos + target_unit->data.pos[ piece_id ];
+
+						VECTOR Dir = mission->target - Pos;
+						Dir.y = 0.0f;
+						float dist = Dir.Sq();
+						int maxdist = 6;
+						if( dist > maxdist * maxdist && unit_manager.unit_type[type_id].BMcode ) {	// Si l'unité est trop loin du chantier
+							mission->flags &= ~MISSION_FLAG_BEING_REPAIRED;
+							c_time = 0.0f;
+							mission->flags |= MISSION_FLAG_MOVE;
+							mission->move_data = maxdist*8/80;
+							if( mission->path )
+								mission->path->Pos = mission->target;			// Update path in real time!
+							}
+						else if( !(mission->flags & MISSION_FLAG_MOVE) ) {
+							b_TargetAngle = true;
+							f_TargetAngle = target_unit->Angle.y;
+							if( mission->data >= 0 ) {
+								mission->flags |= MISSION_FLAG_BEING_REPAIRED;
+								Dir = mission->target - Pos;
+								Pos = Pos + 3.0f * dt * Dir;
+								Pos.x = mission->target.x;
+								Pos.z = mission->target.z;
+								if( Dir.Sq() < 3.0f ) {
+									target_unit->Lock();
+									if( target_unit->pad1 != 0xFFFF && target_unit->pad2 != 0xFFFF ) {		// We can't land here
+										target_unit->UnLock();
+										next_mission();
+										if( mission && mission->mission == MISSION_STOP )		// Don't stop we were patroling
+											next_mission();
+										break;
+										}
+									if( target_unit->pad1 == 0xFFFF )			// tell others we're here
+										target_unit->pad1 = piece_id;
+									else target_unit->pad2 = piece_id;
+									target_unit->UnLock();
+									mission->data = -mission->data - 1;
+									}
+								}
+							else {						// being repaired
+								Pos = mission->target;
+								V.x = V.y = V.z = 0.0f;
+
+								if( target_unit->port[ ACTIVATION ] ) {
+									float conso_energy=((float)(unit_manager.unit_type[ target_unit->type_id ].WorkerTime * unit_manager.unit_type[ type_id ].BuildCostEnergy)) / unit_manager.unit_type[ type_id ].BuildTime;
+									if( players.energy[owner_id] >= conso_energy * dt ) {
+										energy_cons += conso_energy;
+										hp += dt * unit_manager.unit_type[ target_unit->type_id ].WorkerTime * unit_manager.unit_type[ type_id ].MaxDamage / unit_manager.unit_type[ type_id ].BuildTime;
+										}
+									if( hp >= unit_manager.unit_type[ type_id ].MaxDamage ) {		// Unit has been repaired
+										hp = unit_manager.unit_type[ type_id ].MaxDamage;
+										target_unit->Lock();
+										if( target_unit->pad1 == piece_id )			// tell others we've left
+											target_unit->pad1 = 0xFFFF;
+										else target_unit->pad2 = 0xFFFF;
+										target_unit->UnLock();
+										next_mission();
+										if( mission && mission->mission == MISSION_STOP )		// Don't stop we were patroling
+											next_mission();
+										break;
+										}
+									built=true;
+									}
+								}
+							}
+						}
+					else
+						next_mission();
+					break;
 				case MISSION_STANDBY_MINE:		// Don't even try to do something else, the unit must die !!
 					if( self_destruct < 0.0f ) {
 						int dx = unit_manager.unit_type[type_id].SightDistance+(int)(h+0.5f)>>3;
@@ -3096,12 +3178,51 @@ bool UNIT::is_on_radar( byte &p_mask )
 					break;
 				case MISSION_PATROL:					// Mode patrouille
 					{
+						pad_timer += dt;
+
 						if( mission->next == NULL )
 							add_mission(MISSION_PATROL,&Pos,false,0,NULL,NULL,MISSION_FLAG_CAN_ATTACK,0,0);	// Retour à la case départ après l'éxécution de tous les ordres / back to beginning
 
 						mission->flags |= MISSION_FLAG_CAN_ATTACK;
-						if( unit_manager.unit_type[ type_id ].canfly )
+						if( unit_manager.unit_type[ type_id ].canfly ) {			// Don't stop moving and check if it can be repaired
 							mission->flags |= MISSION_FLAG_DONT_STOP_MOVE;
+							
+							if( hp < unit_manager.unit_type[ type_id ].MaxDamage && !attacked && pad_timer >= 5.0f ) {	// Check if a repair pad is free
+								bool attacking = false;
+								for( int i = 0 ; i < 3 ; i++ )
+									if( weapon[ i ].state != WEAPON_FLAG_IDLE ) {
+										attacking = true;
+										break;
+										}
+								if( !attacking ) {
+									pad_timer = 0.0f;
+									bool going_to_repair_pad = false;
+									units.EnterCS_from_outside();
+									for( List< uint16 >::iterator i = units.repair_pads[ owner_id ].begin() ; i != units.repair_pads[ owner_id ].end() ; i++ ) {
+										units.unit[ *i ].Lock();
+										VECTOR Dir = units.unit[ *i ].Pos - Pos;
+										Dir.y = 0.0f;
+										if( (units.unit[ *i ].pad1 == 0xFFFF || units.unit[ *i ].pad2 == 0xFFFF)
+										&& Dir.Sq() <= sq( unit_manager.unit_type[ type_id ].ManeuverLeashLength ) ) {	// He can repair us :)
+											add_mission( MISSION_GET_REPAIRED, &units.unit[ *i ].Pos, true, 0, &(units.unit[ *i ]),NULL);
+											int target_idx = *i;
+											units.EnterCS_from_outside();
+											units.repair_pads[ owner_id ].erase( i );
+											units.repair_pads[ owner_id ].push_back( target_idx );		// So we don't try it before others :)
+											units.LeaveCS_from_outside();
+											units.unit[ target_idx ].UnLock();
+											going_to_repair_pad = true;
+											break;
+											}
+										units.unit[ *i ].UnLock();
+										}
+									units.LeaveCS_from_outside();
+									if( going_to_repair_pad )
+										break;
+									}
+								}
+							}
+
 						if( (mission->flags & MISSION_FLAG_MOVE) == 0 ) {			// Monitor the moving process
 							if( !unit_manager.unit_type[ type_id ].canfly || ( mission->next == NULL || ( mission->next != NULL && mission->mission != MISSION_PATROL ) ) ) {
 								V.x = V.y = V.z = 0.0f;			// Stop the unit
@@ -3550,6 +3671,7 @@ bool UNIT::is_on_radar( byte &p_mask )
 				case MISSION_REPAIR:
 				case MISSION_BUILD:
 				case MISSION_BUILD_2:
+				case MISSION_GET_REPAIRED:
 					if(unit_manager.unit_type[type_id].canfly)
 						activate();
 					break;
@@ -3846,7 +3968,7 @@ bool UNIT::is_on_radar( byte &p_mask )
 			Angle = Angle + dt * V_Angle;
 			VECTOR OPos = Pos;
 			if( precomputed_position ) {
-				if( unit_manager.unit_type[type_id].canmove && unit_manager.unit_type[type_id].BMcode )
+				if( unit_manager.unit_type[type_id].canmove && unit_manager.unit_type[type_id].BMcode && !flying )
 					V.y-=units.g_dt;			// L'unité subit la force de gravitation
 				Pos = NPos;
 				Pos.y = OPos.y + V.y * dt;
@@ -3903,10 +4025,12 @@ bool UNIT::is_on_radar( byte &p_mask )
 				}
 			if(unit_manager.unit_type[type_id].canfly && build_percent_left==0.0f) {
 				if(mission && ( (mission->flags & MISSION_FLAG_MOVE) || mission->mission == MISSION_BUILD || mission->mission == MISSION_BUILD_2 || mission->mission == MISSION_REPAIR
-				|| mission->mission == MISSION_ATTACK || mission->mission == MISSION_MOVE || nb_attached > 0
-				|| Pos.x < -map->map_w_d || Pos.x > map->map_w_d || Pos.z < -map->map_h_d || Pos.z > map->map_h_d )) {
-					float ideal_h=max(min_h,map->sealvl)+unit_manager.unit_type[type_id].CruiseAlt*H_DIV;
-					V.y=(ideal_h-Pos.y)*2.0f;
+				|| mission->mission == MISSION_ATTACK || mission->mission == MISSION_MOVE || mission->mission == MISSION_GET_REPAIRED || mission->mission == MISSION_PATROL
+				|| mission->mission == MISSION_RECLAIM || nb_attached > 0 || Pos.x < -map->map_w_d || Pos.x > map->map_w_d || Pos.z < -map->map_h_d || Pos.z > map->map_h_d )) {
+					if( !(mission->mission == MISSION_GET_REPAIRED && (mission->flags & MISSION_FLAG_BEING_REPAIRED) ) ) {
+						float ideal_h=max(min_h,map->sealvl)+unit_manager.unit_type[type_id].CruiseAlt*H_DIV;
+						V.y=(ideal_h-Pos.y)*2.0f;
+						}
 					flying = true;
 					}
 				else {
@@ -5087,7 +5211,10 @@ int INGAME_UNITS::create(int type_id,int owner)
 	free_index_size[owner]--;
 	idx_list[index_list_size++] = unit_index;
 	unit[unit_index].init(type_id,owner);
-	unit[unit_index].Angle.y=((rand_from_table()%2001)-1000)*0.01f;	// Angle de 10° maximum
+	unit[unit_index].Angle.y = ((rand_from_table()%2001)-1000)*0.01f;	// Angle de 10° maximum
+
+	if( unit_manager.unit_type[ type_id ].IsAirBase )			// Say we're here !
+		repair_pads[ owner ].push_front( unit_index );
 
 	players.nb_unit[owner]++;
 
@@ -5242,6 +5369,16 @@ void INGAME_UNITS::kill(int index,MAP *map,int prev)			// Détruit une unité
 	unit[index].Lock();
 
 	if(unit[index].flags) {
+		if( unit[ index ].type_id >= 0 && unit_manager.unit_type[ unit[ index ].type_id ].IsAirBase ) {		// Remove it from repair_pads list
+			EnterCS();
+			for( List< uint16 >::iterator i = repair_pads[ unit[ index ].owner_id ].begin() ; i != repair_pads[ unit[ index ].owner_id ].end() ; i++ )
+				if( *i == index ) {
+					repair_pads[ unit[ index ].owner_id ].erase( i );
+					break;
+					}
+			LeaveCS();
+			}
+
 		if( unit[index].flags & 1 ) {
 			if( unit[ index ].mission
 			&& !unit_manager.unit_type[ unit[ index ].type_id ].BMcode

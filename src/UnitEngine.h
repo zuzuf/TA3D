@@ -46,6 +46,8 @@ void *create_unit(int type_id,int owner,VECTOR pos,MAP *map);
 #define MISSION_FLAG_DONT_STOP_MOVE	0x40
 #define MISSION_FLAG_COMMAND_FIRED	0x80
 #define MISSION_FLAG_TARGET_CHECKED	0x08			// For MISSION_CAPTURE to tell when data has been set to the time left before capture is finished
+#define MISSION_FLAG_PAD_CHECKED	0x08			// For MISSION_GET_REPAIRED to tell when data has been set to the landing pad
+#define MISSION_FLAG_BEING_REPAIRED	0x04			// For MISSION_GET_REPAIRED to tell the unit is being repaired
 
 struct MISSION			// Structure pour stocker les ordres
 {
@@ -224,7 +226,8 @@ public:
 #define SCRIPT_QueryBuildInfo	0x21
 #define SCRIPT_SweetSpot		0x22
 #define SCRIPT_RockUnit			0x23
-#define NB_SCRIPT				0x24
+#define SCRIPT_QueryLandingPad	0x24
+#define NB_SCRIPT				0x25
 
 class UNIT	:	protected cCriticalSection				// Classe pour la gestion des unités	/ Class to store units's data
 {
@@ -318,7 +321,9 @@ public:
 	float			metal_extracted;
 
 	bool			requesting_pathfinder;
-	
+	uint16			pad1, pad2;			// Repair pads currently used
+	float			pad_timer;			// Store last try to find a free landing pad
+
 		// Following variables are used to control the synchronization of data between game clients
 private:
 	uint32			sync_hash;
@@ -475,6 +480,9 @@ public:
 		if( full )
 			CreateCS();
 		EnterCS();
+
+		pad1 = 0xFFFF; pad2 = 0xFFFF;
+		pad_timer = 0.0f;
 
 		requesting_pathfinder = false;
 
@@ -635,7 +643,8 @@ public:
 								"RequestState","TransportPickup","TransportDrop",
 								"QueryTransport","BeginTransport","EndTransport",
 								"SetSpeed","SetDirection","SetMaxReloadTime",
-								"QueryBuildInfo","SweetSpot","RockUnit"};
+								"QueryBuildInfo","SweetSpot","RockUnit",
+								"QueryLandingPad"};
 		script_idx[id]=get_script_index(script_name[id]);
 		return script_idx[id];
 	}
@@ -849,6 +858,7 @@ public:
 	uint16	*idx_list;
 	uint16	*free_idx;
 	uint16	free_index_size[10];
+	Vector< List< uint16 > >	repair_pads;		// Lists of built repair pads
 
 /*----------------------- Variables réservées au joueur courant ----------------------------*/
 
@@ -912,6 +922,8 @@ public:
 		mini_pos = NULL;
 		mini_col = NULL;
 		requests.clear();
+		repair_pads.clear();
+		repair_pads.resize( 10 );
 
 		last_on = -1;
 		current_tick = 0;
@@ -966,7 +978,7 @@ public:
 	inline void EnterCS_from_outside()	{		EnterCS();	}
 	inline void LeaveCS_from_outside()	{		LeaveCS();	}
 
-	inline INGAME_UNITS() : requests()
+	inline INGAME_UNITS() : requests(), repair_pads()
 	{
 		CreateCS();				// Thread safe model
 

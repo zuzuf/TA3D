@@ -80,6 +80,7 @@
 #define MISSION_STANDBY_MINE	0x0E		// Mine mission, must explode when an enemy gets too close
 #define MISSION_REVIVE			0x0F		// Resurrect a wreckage
 #define MISSION_CAPTURE			0x10		// Capture an enemy unit
+#define MISSION_GET_REPAIRED	0x20		// For aircrafts getting repaired by air repair pads
 
 using namespace TA3D;
 using namespace TA3D::INTERFACES;
