@@ -875,9 +875,6 @@ do
 		cam.RPos = moving_target + cam.RPos;
 		}
 
-	if(build>=0 && !IsOnGUI )		// Check if this unit can be built there
-		can_be_there=can_be_built(cursor_on_map(&cam,map),map,build,players.local_human_id);
-
 	if(!selected)
 		current_order=SIGNAL_ORDER_NONE;
 
@@ -1136,17 +1133,48 @@ do
 		if(!TA3D_SHIFT_PRESSED)	current_order=SIGNAL_ORDER_NONE;
 		}
 
-	if(build>=0 && cursor_type==CURSOR_DEFAULT && mouse_b!=1 && omb3 ==1 && !IsOnGUI ) {	// The cursor orders to build something
-		if( can_be_there ) {
-			sound_manager->PlayTDFSound( "OKTOBUILD", "sound" , NULL );
-			VECTOR target = cursor_on_map(&cam,map);
-			units.give_order_build(players.local_human_id,build,target,!TA3D_SHIFT_PRESSED);
-			build_order_given = true;
+	if(build>=0 && cursor_type==CURSOR_DEFAULT && mouse_b != 1 && omb3 == 1 && !IsOnGUI ) {	// The cursor orders to build something
+		VECTOR target=cursor_on_map(&cam,map);
+		sel_x[1] = ((int)(target.x)+map->map_w_d)>>3;
+		sel_y[1] = ((int)(target.z)+map->map_h_d)>>3;
+
+		int d = max( abs( sel_x[1] - sel_x[0] ), abs( sel_y[1] - sel_y[0] ) );
+
+		int ox = sel_x[0] + 0xFFFF;
+		int oy = sel_y[0] + 0xFFFF;
+
+		for( int c = 0 ; c <= d ; c++ ) {
+			target.x = sel_x[0] + (sel_x[1] - sel_x[0]) * c / max( d, 1 );
+			target.z = sel_y[0] + (sel_y[1] - sel_y[0]) * c / max( d, 1 );
+
+			if( abs( ox - (int)target.x ) < unit_manager.unit_type[ build ].FootprintX
+			&& abs( oy - (int)target.z ) < unit_manager.unit_type[ build ].FootprintZ )	continue;
+			ox = (int)target.x;
+			oy = (int)target.z;
+
+			target.y=max(map->get_max_rect_h((int)target.x,(int)target.z, unit_manager.unit_type[ build ].FootprintX, unit_manager.unit_type[ build ].FootprintZ ),map->sealvl);
+			target.x=target.x*8.0f-map->map_w_d;
+			target.z=target.z*8.0f-map->map_h_d;
+
+			can_be_there = can_be_built( target, map, build, players.local_human_id );
+
+			if( can_be_there ) {
+				units.give_order_build(players.local_human_id,build,target,!( TA3D_SHIFT_PRESSED || c != 0 ));
+				build_order_given = true;
+				}
+			}
+		if( build_order_given ) {
 			if(!TA3D_SHIFT_PRESSED)
 				build=-1;
+			sound_manager->PlayTDFSound( "OKTOBUILD", "sound" , NULL );
 			}
 		else
 			sound_manager->PlayTDFSound( "NOTOKTOBUILD", "sound" , NULL );
+		}
+	else if(build>=0 && cursor_type==CURSOR_DEFAULT && mouse_b == 1 && omb3 != 1 && !IsOnGUI ) {	// Giving the order to build a row
+		VECTOR target = cursor_on_map(&cam,map);
+		sel_x[ 0 ] = ((int)(target.x)+map->map_w_d)>>3;
+		sel_y[ 0 ] = ((int)(target.z)+map->map_h_d)>>3;
 		}
 
 	if( !TA3D_SHIFT_PRESSED && build_order_given )
@@ -1170,7 +1198,7 @@ do
 //---------------------------------	Code de sélection d'unités
 
 	if( !IsOnGUI ) {
-		if((mouse_b==2 && omb3!=2) || (mouse_b==1 && omb3==1 && selected && ( abs( amx - mouse_x ) >= 2 || abs( amy - mouse_y ) >= 2 ) ) ) {					// Deselect units
+		if((mouse_b==2 && omb3!=2) || (mouse_b==1 && build == -1 && omb3==1 && selected && ( abs( amx - mouse_x ) >= 2 || abs( amy - mouse_y ) >= 2 ) ) ) {					// Deselect units
 			if( mouse_b == 2 && current_order != SIGNAL_ORDER_NONE && current_order != SIGNAL_ORDER_MOVE )
 				current_order = SIGNAL_ORDER_NONE;
 			else {
@@ -1886,69 +1914,93 @@ do
 
 	if(build>=0 && !IsOnGUI ) {			// Display the building we want to build (with nice selection quads)
 		VECTOR target=cursor_on_map(&cam,map);
-		target.x=((int)(target.x)+map->map_w_d)>>3;
-		target.z=((int)(target.z)+map->map_h_d)>>3;
-		target.y=max(map->get_max_rect_h((int)target.x,(int)target.z, unit_manager.unit_type[ build ].FootprintX, unit_manager.unit_type[ build ].FootprintZ ),map->sealvl);
-		target.x=target.x*8.0f-map->map_w_d;
-		target.z=target.z*8.0f-map->map_h_d;
-		cam.SetView();
-		glTranslatef(target.x,target.y,target.z);
-		glScalef(unit_manager.unit_type[build].Scale,unit_manager.unit_type[build].Scale,unit_manager.unit_type[build].Scale);
-		if(unit_manager.unit_type[build].model) {
-			gfx->ReInitAllTex( true );
-			if(can_be_there)
+		sel_x[1] = ((int)(target.x)+map->map_w_d)>>3;
+		sel_y[1] = ((int)(target.z)+map->map_h_d)>>3;
+
+		if( mouse_b != 1 && omb3 != 1 ) {
+			sel_x[0] = sel_x[1];
+			sel_y[0] = sel_y[1];
+			}
+		
+		int d = max( abs( sel_x[1] - sel_x[0] ), abs( sel_y[1] - sel_y[0] ) );
+
+		int ox = sel_x[0] + 0xFFFF;
+		int oy = sel_y[0] + 0xFFFF;
+
+		for( int c = 0 ; c <= d ; c++ ) {
+			target.x = sel_x[0] + (sel_x[1] - sel_x[0]) * c / max( d, 1 );
+			target.z = sel_y[0] + (sel_y[1] - sel_y[0]) * c / max( d, 1 );
+
+			if( abs( ox - (int)target.x ) < unit_manager.unit_type[ build ].FootprintX
+			&& abs( oy - (int)target.z ) < unit_manager.unit_type[ build ].FootprintZ )	continue;
+			ox = (int)target.x;
+			oy = (int)target.z;
+
+			target.y=max(map->get_max_rect_h((int)target.x,(int)target.z, unit_manager.unit_type[ build ].FootprintX, unit_manager.unit_type[ build ].FootprintZ ),map->sealvl);
+			target.x=target.x*8.0f-map->map_w_d;
+			target.z=target.z*8.0f-map->map_h_d;
+
+			can_be_there = can_be_built( target, map, build, players.local_human_id );
+
+			cam.SetView();
+			glTranslatef(target.x,target.y,target.z);
+			glScalef(unit_manager.unit_type[build].Scale,unit_manager.unit_type[build].Scale,unit_manager.unit_type[build].Scale);
+			if(unit_manager.unit_type[build].model) {
+				gfx->ReInitAllTex( true );
+				if(can_be_there)
+					glColor4f(1.0f,1.0f,1.0f,1.0f);
+				else
+					glColor4f(1.0f,0.0f,0.0f,0.0f);
+				unit_manager.unit_type[build].model->draw(0.0f,NULL,false,false,false,0,NULL,NULL,NULL,0.0f,NULL,false,players.local_human_id,false);
 				glColor4f(1.0f,1.0f,1.0f,1.0f);
-			else
-				glColor4f(1.0f,0.0f,0.0f,0.0f);
-			unit_manager.unit_type[build].model->draw(0.0f,NULL,false,false,false,0,NULL,NULL,NULL,0.0f,NULL,false,players.local_human_id,false);
-			glColor4f(1.0f,1.0f,1.0f,1.0f);
+				}
+			cam.SetView();
+			glTranslatef(target.x,target.y,target.z);
+			float DX = (unit_manager.unit_type[build].FootprintX<<2);
+			float DZ = (unit_manager.unit_type[build].FootprintZ<<2);
+			float red=1.0f, green=0.0f;
+			if(can_be_there) {
+				green=1.0f;
+				red=0.0f;
+				}
+			glDisable(GL_CULL_FACE);
+			glDisable(GL_TEXTURE_2D);
+			glDisable(GL_LIGHTING);
+			glEnable(GL_BLEND);
+			glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+			glBegin(GL_QUADS);
+				glColor4f(red,green,0.0f,1.0f);
+				glVertex3f(-DX,0.0f,-DZ);			// First quad
+				glVertex3f(DX,0.0f,-DZ);
+				glColor4f(red,green,0.0f,0.0f);
+				glVertex3f(DX+2.0f,5.0f,-DZ-2.0f);
+				glVertex3f(-DX-2.0f,5.0f,-DZ-2.0f);
+
+				glColor4f(red,green,0.0f,1.0f);
+				glVertex3f(-DX,0.0f,-DZ);			// Second quad
+				glVertex3f(-DX,0.0f,DZ);
+				glColor4f(red,green,0.0f,0.0f);
+				glVertex3f(-DX-2.0f,5.0f,DZ+2.0f);
+				glVertex3f(-DX-2.0f,5.0f,-DZ-2.0f);
+
+				glColor4f(red,green,0.0f,1.0f);
+				glVertex3f(DX,0.0f,-DZ);			// Third quad
+				glVertex3f(DX,0.0f,DZ);
+				glColor4f(red,green,0.0f,0.0f);
+				glVertex3f(DX+2.0f,5.0f,DZ+2.0f);
+				glVertex3f(DX+2.0f,5.0f,-DZ-2.0f);
+
+				glColor4f(red,green,0.0f,1.0f);
+				glVertex3f(-DX,0.0f,DZ);			// Fourth quad
+				glVertex3f(DX,0.0f,DZ);
+				glColor4f(red,green,0.0f,0.0f);
+				glVertex3f(DX+2.0f,5.0f,DZ+2.0f);
+				glVertex3f(-DX-2.0f,5.0f,DZ+2.0f);
+			glEnd();
+			glDisable(GL_BLEND);
+			glEnable(GL_LIGHTING);
+			glEnable(GL_CULL_FACE);
 			}
-		cam.SetView();
-		glTranslatef(target.x,target.y,target.z);
-		float DX = (unit_manager.unit_type[build].FootprintX<<2);
-		float DZ = (unit_manager.unit_type[build].FootprintZ<<2);
-		float red=1.0f, green=0.0f;
-		if(can_be_there) {
-			green=1.0f;
-			red=0.0f;
-			}
-		glDisable(GL_CULL_FACE);
-		glDisable(GL_TEXTURE_2D);
-		glDisable(GL_LIGHTING);
-		glEnable(GL_BLEND);
-		glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
-		glBegin(GL_QUADS);
-			glColor4f(red,green,0.0f,1.0f);
-			glVertex3f(-DX,0.0f,-DZ);			// First quad
-			glVertex3f(DX,0.0f,-DZ);
-			glColor4f(red,green,0.0f,0.0f);
-			glVertex3f(DX+2.0f,5.0f,-DZ-2.0f);
-			glVertex3f(-DX-2.0f,5.0f,-DZ-2.0f);
-
-			glColor4f(red,green,0.0f,1.0f);
-			glVertex3f(-DX,0.0f,-DZ);			// Second quad
-			glVertex3f(-DX,0.0f,DZ);
-			glColor4f(red,green,0.0f,0.0f);
-			glVertex3f(-DX-2.0f,5.0f,DZ+2.0f);
-			glVertex3f(-DX-2.0f,5.0f,-DZ-2.0f);
-
-			glColor4f(red,green,0.0f,1.0f);
-			glVertex3f(DX,0.0f,-DZ);			// Third quad
-			glVertex3f(DX,0.0f,DZ);
-			glColor4f(red,green,0.0f,0.0f);
-			glVertex3f(DX+2.0f,5.0f,DZ+2.0f);
-			glVertex3f(DX+2.0f,5.0f,-DZ-2.0f);
-
-			glColor4f(red,green,0.0f,1.0f);
-			glVertex3f(-DX,0.0f,DZ);			// Fourth quad
-			glVertex3f(DX,0.0f,DZ);
-			glColor4f(red,green,0.0f,0.0f);
-			glVertex3f(DX+2.0f,5.0f,DZ+2.0f);
-			glVertex3f(-DX-2.0f,5.0f,DZ+2.0f);
-		glEnd();
-		glDisable(GL_BLEND);
-		glEnable(GL_LIGHTING);
-		glEnable(GL_CULL_FACE);
 		}
 
 	units.draw(&cam,map,false,false,true,lp_CONFIG->height_line);			// Dessine les unités non encore dessinées / Draw units which have not been drawn

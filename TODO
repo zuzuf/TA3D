@@ -1,5 +1,6 @@
 TODO list
 ---------
+_add a console command to give resources to a given player (for AI debugging)
 _read the music from a CD
 _add glossiness (or reflection) to all TA3D models.
 _make 3D replacement models for 2D map features
@@ -10,6 +11,7 @@ _networking code
 _improve A.I.
 _D3D support
 
+*you can build things in a row by holding down your mouse button
 *air repair pads works
 *units can be captured
 *units can be resurrected (for example by the CORNECRO)
@@ -42,6 +44,7 @@ _some parts of the maps might not be drawn (visibility limit) like hills
 _slow down with lots of 3D sprites on some gfx hardware (speed increased but bug not yet fixed)
 _fix all other bugs ( :-) )
 
+*fixed MAP::hit sometimes not returning a solution when it should
 *fixed some parts of low definition map being hidden into water
 *fixed some lava bugs
 *fixed unit model exploding system

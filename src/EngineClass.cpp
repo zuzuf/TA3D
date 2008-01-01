@@ -1340,12 +1340,13 @@ VECTOR MAP::hit(VECTOR Pos,VECTOR Dir,bool water, float length, bool allow_out)	
 			step=1.0f/fabs(Dir.z);
 		}
 	int nb=0;
+	int nb_limit = (int)(Pos.y) + 1000;
 	float dwm=map_w_d;
 	float dhm=map_h_d;
 	Dir=(1.0f*step)*Dir;
 	float len_step = Dir.Norm();
 	while(((sealvl<Pos.y && water) || !water) && get_max_h((int)(Pos.x+map_w_d)>>3,(int)(Pos.z+map_h_d)>>3)<Pos.y) {
-		if(nb>=1000 || length<0.0f)
+		if(nb >= nb_limit || length<0.0f)
 			return Pos;
 		length-=len_step;
 		nb++;
@@ -1356,7 +1357,7 @@ VECTOR MAP::hit(VECTOR Pos,VECTOR Dir,bool water, float length, bool allow_out)	
 	length+=len_step;
 	Pos=Pos-Dir;
 	while(((sealvl<Pos.y && water) || !water) && get_unit_h(Pos.x,Pos.z)<Pos.y) {
-		if(nb>=1000 || length<0.0f)
+		if(nb >= nb_limit || length<0.0f)
 			return Pos;
 		length-=len_step;
 		nb++;
