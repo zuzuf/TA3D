@@ -588,9 +588,10 @@ byte *cHPIHandler::IsInDiskCache( const String &FileName, uint32 *p_FileSize )
 
 			if( p_FileSize )	*p_FileSize = FileSize;
 
-			byte *data = new byte[ FileSize ];
+			byte *data = new byte[ FileSize + 1 ];
 			
 			fread( data, FileSize, 1, cache_file );
+			data[ FileSize ] = 0;					// Null terminated buffer
 			
 			fclose( cache_file );
 

@@ -5622,7 +5622,7 @@ int INGAME_UNITS::Run()
 			wind_change = false;
 		LeaveCS();
 
-		while( msec_timer - tick_timer < tick )
+		while( msec_timer - tick_timer + 1 < tick )
 			rest( 1 );
 
 		while( msec_timer - tick_timer >= tick + 200 ) {		// Prevent the game to run too fast for too long, we don't have to speed up to compute what we hadn't time to

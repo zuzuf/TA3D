@@ -334,8 +334,7 @@ void load_features()				// Charge tout les éléments
 			int i=list[e];
 			if(feature[i].type<0)	continue;
 			if(!feature_manager.feature[feature[i].type].m3d && feature_manager.feature[feature[i].type].anim.nb_bmp>0) {
-				if(feature_manager.feature[feature[i].type].animating)
-					feature[i].frame=(feature[i].frame+1)%feature_manager.feature[feature[i].type].anim.nb_bmp;
+				feature[i].frame = (units.current_tick >> 1) % feature_manager.feature[feature[i].type].anim.nb_bmp;
 
 				if(!feature[i].draw)	continue;
 

@@ -689,7 +689,7 @@ GLuint GFX::load_texture(String file, byte filter_type, uint32 *width, uint32 *h
 		destroy_bitmap(bmp);
 		bmp=tmp;
 		}
-	bool with_alpha = strstr(strlwr((char*)(file.substr(file.length()-4, 4).c_str())),".tga") != NULL;
+	bool with_alpha = Lowercase( get_extension( file.c_str() ) ) == "tga";
 	if( with_alpha ) {
 		with_alpha = false;
 		for( int y = 0 ; y < bmp->h && !with_alpha ; y++ )

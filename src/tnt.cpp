@@ -231,14 +231,9 @@ MAP	*load_tnt_map(byte *data)		// Charge une map au format TA, extraite d'une ar
 		allegro_gl_flip();
 		tmp=create_bitmap_ex(16,bmp_tex[i]->w,bmp_tex[i]->h);
 		blit(bmp_tex[i],tmp,0,0,0,0,tmp->w,tmp->h);
-		map->tex[i]=allegro_gl_make_texture( tmp );
+		map->tex[i] = gfx->make_texture( tmp );
 		destroy_bitmap(bmp_tex[i]);
 		bmp_tex[i]=tmp;
-
-		glBindTexture(GL_TEXTURE_2D,map->tex[i]);
-		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR_MIPMAP_LINEAR);
-//		destroy_bitmap(bmp_tex[i]);
 		}
 	printf("textures des morceaux comprimées en %f sec.\n",(msec_timer-event_timer) * 0.001f );
 
@@ -331,16 +326,10 @@ MAP	*load_tnt_map(byte *data)		// Charge une map au format TA, extraite d'une ar
 			}
 	for(i=0;i<n_bmp;i++)				// Delete allegro bitmap textures
 		destroy_bitmap(bmp_tex[i]);
-	map->low_tex=allegro_gl_make_texture(low_def);		// Build the low details texture map
-	glBindTexture(GL_TEXTURE_2D,map->low_tex);
-	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR_MIPMAP_LINEAR);
+	map->low_tex = gfx->make_texture(low_def);		// Build the low details texture map
 	destroy_bitmap(low_def);
 
-	map->lava_map = allegro_gl_make_texture(lava_map);		// Build the lava texture map
-	glBindTexture(GL_TEXTURE_2D,map->lava_map);
-	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
+	map->lava_map = gfx->make_texture(lava_map,FILTER_LINEAR);		// Build the lava texture map
 	destroy_bitmap(lava_map);
 
 	Console->AddEntry("MAP: computing height data (step 1)");
