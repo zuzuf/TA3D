@@ -556,9 +556,9 @@ const void WEAPON::move(const float dt,MAP *map)				// Anime les armes
 				if(py+y<0 || py+y>=map->bloc_h_db)	continue;
 
 				bool land_test = true;
-				IDX_LIST_NODE *cur = map->map_data[py+y][px+x].air_idx.head;
-
 				map->Lock();
+
+				IDX_LIST_NODE *cur = map->map_data[py+y][px+x].air_idx.head;
 
 				for( ; land_test || cur != NULL ; ) {
 					if( land_test ) {
@@ -673,6 +673,7 @@ const void WEAPON::move(const float dt,MAP *map)				// Anime les armes
 				if(py+y<0 || py+y>=map->bloc_h_db)	continue;
 
 				bool land_test = true;
+				map->Lock();
 				IDX_LIST_NODE *cur = map->map_data[py+y][px+x].air_idx.head;
 
 				for( ; land_test || cur != NULL ; ) {
@@ -746,6 +747,7 @@ const void WEAPON::move(const float dt,MAP *map)				// Anime les armes
 							}
 						}
 					}
+				map->UnLock();
 				}
 		oidx.clear();
 		}
