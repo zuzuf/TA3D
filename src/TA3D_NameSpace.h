@@ -238,7 +238,7 @@ namespace TA3D
 	TA3D_API_E FILE *TA3D_OpenFile( const String &FileName, const String Mode );
 	TA3D_API_E String RemoveComments( String &sstring );
 
-	Vector< String > ReadVectorString( String base_str );			// Reads something like string1, string2, string3, string4, ..., string n to make a vector of string{i}
+	Vector< String > ReadVectorString( String base_str, const String &separator = "," );			// Reads something like string1, string2, string3, string4, ..., string n to make a vector of string{i}
 
 	char *replace_chars(char *str);
 	void *GetMem( sint32 size, sint32 zero );

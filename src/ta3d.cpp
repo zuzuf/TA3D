@@ -2792,18 +2792,19 @@ do
 	gfx->flip();
 
 	if(cmd) {		// Analyse les commandes tapées dans la console
-		if(strstr(cmd,"fps_on")) lp_CONFIG->showfps=true;				// Affiche le nombre d'images/seconde
-		if(strstr(cmd,"fps_off")) lp_CONFIG->showfps=false;				// Cache le nombre d'images/seconde
-		if(strstr(cmd,"zshoot")) {									// Prend une capture d'écran(tampon de profondeur seulement)
+		Vector< String > params = ReadVectorString( cmd, " " );
+		if( params[0] == "fps_on" ) lp_CONFIG->showfps=true;				// Affiche le nombre d'images/seconde
+		else if( params[0] == "fps_off" ) lp_CONFIG->showfps=false;				// Cache le nombre d'images/seconde
+		else if( params[0] == "zshoot" ) {									// Prend une capture d'écran(tampon de profondeur seulement)
 			BITMAP *bmp=create_bitmap_ex(32,SCREEN_W,SCREEN_H);
 			clear(bmp);
 			glReadPixels(0,0,SCREEN_W,SCREEN_H,GL_DEPTH_COMPONENT,GL_INT,bmp->line[0]);
 			save_bitmap( (TA3D_OUTPUT_DIR + "z.tga").c_str(),bmp,NULL);
 			destroy_bitmap(bmp);
 			}
-		else if(strstr(cmd,"video shoot")) video_shoot^=true;		// Capture video
-		else if(strstr(cmd,"shoot")) shoot=true;					// Prend une capture d'écran
-		if(strstr(cmd,"reload shaders") && g_useProgram) {
+		else if( params[0] == "video shoot" ) video_shoot ^= true;		// Capture video
+		else if( params[0] == "shoot" ) shoot = true;					// Prend une capture d'écran
+		else if( params[0] == "reload shaders" && g_useProgram) {
 			water_shader.destroy();
 			water_shader.load("shaders/water.frag","shaders/water.vert");
 			water_shader_reflec.destroy();
@@ -2817,58 +2818,46 @@ do
 			map->detail_shader.destroy();
 			map->detail_shader.load( "shaders/details.frag", "shaders/details.vert" );
 			}
-		if(strstr(cmd,"show mission info"))	show_mission_info ^= true;
-		if(strstr(cmd,"view debug"))	view_dbg^=true;
-		if(strstr(cmd,"ia debug"))	ia_debug^=true;
-		if(strstr(cmd,"internal name")) internal_name^=true;		// Affiche/Cache le nom interne de l'unité
-		if(strstr(cmd,"internal idx")) internal_idx^=true;		// Show/Hide unit indexes in unit array
-		if(strstr(cmd,"exit")) done=true;					// Quitte le programme
-		if(strstr(cmd,"wireframe")) 	lp_CONFIG->wireframe^=true;
-		if(strstr(cmd,"priority")) lp_CONFIG->priority_level=atoi(strstr(cmd,"priority")+9);
-		if(strstr(cmd,"water quality")) lp_CONFIG->water_quality=atoi(strstr(cmd,"water quality")+14)%5;
-		if(strstr(cmd,"shadow quality")) lp_CONFIG->shadow_quality=atoi(strstr(cmd,"shadow quality")+15);
-		else if(strstr(cmd,"shadow ray")) lp_CONFIG->shadow_r=atof(strstr(cmd,"shadow ray")+11);
-		else if(strstr(cmd,"shadow")) lp_CONFIG->shadow^=true;
-		if(strstr(cmd,"details"))	lp_CONFIG->detail_tex ^= true;
-		if(strstr(cmd,"particle"))	lp_CONFIG->particle^=true;
-		if(strstr(cmd,"waves")) lp_CONFIG->waves^=true;
-		if(strstr(cmd,"show script")) show_script^=true;
-		if(strstr(cmd,"show model")) show_model^=true;
-		if(strstr(cmd,"rotate light")) rotate_light^=true;
-		if(strstr(cmd,"shake"))
+		else if( params[0] == "show mission info" )	show_mission_info ^= true;
+		else if( params[0] == "view debug" )	view_dbg^=true;
+		else if( params[0] == "ia debug" )	ia_debug^=true;
+		else if( params[0] == "internal name" ) internal_name^=true;		// Affiche/Cache le nom interne de l'unité
+		else if( params[0] == "internal idx" ) internal_idx^=true;		// Show/Hide unit indexes in unit array
+		else if( params[0] == "exit" ) done=true;					// Quitte le programme
+		else if( params[0] == "wireframe" ) 	lp_CONFIG->wireframe^=true;
+		else if( params[0] == "priority" && params.size() == 2 ) lp_CONFIG->priority_level = atoi( params[1].c_str() );
+		else if( params[0] == "water quality" &&  params.size() == 2 ) lp_CONFIG->water_quality = atoi( params[1].c_str() )%5;
+		else if( params[0] == "shadow" && params.size() == 3) {
+			if( params[1] == "quality" ) lp_CONFIG->shadow_quality = atoi( params[2].c_str() );
+			else if( params[1] == "ray" ) lp_CONFIG->shadow_r = atof( params[2].c_str() );
+			}
+		else if( params[0] == "shadow" && params.size() == 1 ) lp_CONFIG->shadow^=true;
+		else if( params[0] == "details" )	lp_CONFIG->detail_tex ^= true;
+		else if( params[0] == "particle" )	lp_CONFIG->particle^=true;
+		else if( params[0] == "waves" ) lp_CONFIG->waves^=true;
+		else if( params[0] == "show script" ) show_script^=true;
+		else if( params[0] == "show model" ) show_model^=true;
+		else if( params[0] == "rotate light" ) rotate_light^=true;
+		else if( params[0] == "shake" )
 			cam.set_shake( 1.0f, 32.0f );
-		if(strstr(cmd,"freecam")) {
+		else if( params[0] == "freecam" ) {
 			freecam^=true;
 			if(!freecam)	r2=0.0f;
 			}
-		if(strstr(cmd,"fps_limit ")) {
-			speed_limit=atoi(strstr(cmd,"fps_limit ")+10);
+		else if( params[0] == "fps_limit" && params.size() == 2 ) {
+			speed_limit = atoi( params[1].c_str() );
 			if(speed_limit==0.0f) speed_limit=-1.0f;
 			delay=1.0f/speed_limit;
 			}
-		if(strstr(cmd,"spawn ")) {
-			char *cur_pos = cmd+6;
+		else if( params[0] == "spawn" && params.size() >= 2 ) {
 			int unit_type = -1;
 			int player_id = players.local_human_id;
 			int nb_to_spawn=1;
-			char *f = cur_pos;
-			char mem = 0;
-			while(f[0]!=0 && f[0]!=32)	f++;
-			mem = f[0];			f[0] = 0;
-			unit_type = unit_manager.get_unit_index(cur_pos);
-			f[0] = mem;
-			if(mem) {
-				f++;
-				cur_pos=f;
-				while(f[0]!=0 && f[0]!=32)	f++;
-				mem = f[0];			f[0] = 0;
-				player_id = atoi(cur_pos);
-				f[0] = mem;
-				if(mem) {
-					f++;
-					cur_pos=f;
-					nb_to_spawn=atoi(cur_pos);
-					}
+			unit_type = unit_manager.get_unit_index( params[1].c_str() );
+			if( params.size() >= 3 ) {
+				player_id = atoi( params[2].c_str() );
+				if( params.size() >= 4 )
+					nb_to_spawn = atoi( params[3].c_str() );
 				}
 			ThreadSynchroniser->EnterSync();		// Make sure we won't destroy something we mustn't
 			units.EnterCS_from_outside();
@@ -2906,11 +2895,11 @@ do
 			units.LeaveCS_from_outside();
 			ThreadSynchroniser->LeaveSync();
 			}
-		if(strstr(cmd,"timefactor "))
-			lp_CONFIG->timefactor=atof(strstr(cmd,"timefactor ")+11);
-		if(strstr(cmd,"addhp "))
+		else if( params[0] == "timefactor" && params.size() == 2)
+			lp_CONFIG->timefactor = atof( params[1].c_str() );
+		else if( params[0] == "addhp" && params.size() == 2) {
 			if(selected) {					// Sur les unités sélectionnées
-				int value=atoi(strstr(cmd,"addhp ")+6);
+				int value = atoi( params[1].c_str() );
 				for(uint16 e=0;e<units.index_list_size;e++) {
 					i = units.idx_list[e];
 					if( (units.unit[i].flags & 1) && units.unit[i].owner_id==players.local_human_id && units.unit[i].sel) {
@@ -2922,7 +2911,8 @@ do
 						}
 					}
 				}
-		if(strstr(cmd,"deactivate")) {
+			}
+		else if( params[0] == "deactivate" ) {
 			if(selected)					// Sur les unités sélectionnées
 				for(uint16 e=0;e<units.index_list_size;e++) {
 					i = units.idx_list[e];
@@ -2930,7 +2920,7 @@ do
 						units.unit[i].deactivate();
 					}
 			}
-		else if(strstr(cmd,"activate")) {
+		else if( params[0] == "activate" ) {
 			if(selected)					// Sur les unités sélectionnées
 				for(uint16 e=0;e<units.index_list_size;e++) {
 					i = units.idx_list[e];
@@ -2938,7 +2928,7 @@ do
 						units.unit[i].activate();
 					}
 			}
-		if(strstr(cmd,"reset_script"))							// Réinitialise les scripts
+		else if( params[0] == "reset_script" ) {							// Réinitialise les scripts
 			if(selected) {					// Sur les unités sélectionnées
 				for(uint16 e=0;e<units.index_list_size;e++) {
 					i = units.idx_list[e];
@@ -2946,7 +2936,8 @@ do
 						units.unit[i].reset_script();
 					}
 				}
-		if(strstr(cmd,"unitinfo"))
+			}
+		else if( params[0] == "unitinfo" ) {
 			if(selected && cur_sel!=-1) {					// Sur les unités sélectionnées
 				char *unit_info[]={"ACTIVATION","STANDINGMOVEORDERS","STANDINGFIREORDERS","HEALTH","INBUILDSTANCE","BUSY","PIECE_XZ","PIECE_Y","UNIT_XZ","UNIT_Y","UNIT_HEIGHT","XZ_ATAN","XZ_HYPOT","ATAN",
 								   "HYPOT","GROUND_HEIGHT","BUILD_PERCENT_LEFT","YARD_OPEN","BUGGER_OFF","ARMORED"};
@@ -2959,7 +2950,8 @@ do
 						}
 					}
 				}
-		if(strstr(cmd,"kill"))							// Détruit les unités sélectionnées
+			}
+		else if( params[0] == "kill" ) {							// Détruit les unités sélectionnées
 			if(selected) {					// Sur les unités sélectionnées
 				for(uint16 e=0;e<units.index_list_size;e++) {
 					i = units.idx_list[e];
@@ -2969,18 +2961,41 @@ do
 				selected=false;
 				cur_sel=-1;
 				}
-		if(strstr(cmd,"script "))							// Force l'éxecution d'un script
+			}
+		else if( params[0] == "script" && params[1].size() == 2) {							// Force l'éxecution d'un script
 			if(selected) {					// Sur les unités sélectionnées
-				int id=atoi(strstr(cmd,"script ")+7);
+				int id = atoi( params[1].c_str() );
 				for(uint16 e=0;e<units.index_list_size;e++) {
 					i = units.idx_list[e];
 					if( (units.unit[i].flags & 1) && units.unit[i].owner_id==players.local_human_id && units.unit[i].sel)
 						units.unit[i].launch_script(id);
 					}
 				}
-
-		if(strstr(cmd,"metal")) cheat_metal^=true;				// cheat codes
-		if(strstr(cmd,"energy")) cheat_energy^=true;			// cheat codes
+			}
+		else if( params[0] == "give" ) {							// Give resources to player_id
+			bool success = false;
+			if( params.size() == 4 ) {
+				int player_id = atoi( params[2].c_str() );
+				int amount = atoi( params[3].c_str() );
+				if( player_id >= 0 && player_id < players.nb_player ) {
+					if( params[1] == "metal" || params[1] == "both" ) {
+						players.metal[ player_id ] = players.c_metal[ player_id ] = players.c_metal[ player_id ] + amount;					// cheat codes
+						success = true;
+						}
+					if( params[1] == "energy" || params[1] == "both" ) {
+						players.energy[ player_id ] = players.c_energy[ player_id ] = players.c_energy[ player_id ] + amount;					// cheat codes
+						success = true;
+						}
+					}
+				}
+			if( !success ) {
+				Console->AddEntry("command error:");
+				Console->AddEntry("correct syntax is: give metal/energy/both player_id amount");
+				}
+			}
+		else if( params[0] == "metal" ) cheat_metal^=true;				// cheat codes
+		else if( params[0] == "energy" ) cheat_energy^=true;			// cheat codes
+		params.clear();
 		free(cmd);
 		}
 	if(cheat_metal)

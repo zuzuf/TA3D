@@ -1903,7 +1903,9 @@ bool UNIT::is_on_radar( byte &p_mask )
 					int type=feature_manager.get_feature_index(unit_manager.unit_type[type_id].Unitname);
 					if( type >= 0 ) {
 						map->map_data[y][x].stuff=features.add_feature(Pos,type);
+						LeaveCS();
 						clear_from_map();
+						EnterCS();
 						if(type!=-1 && feature_manager.feature[type].blocking)
 							map->rect(x-(feature_manager.feature[type].footprintx>>1),y-(feature_manager.feature[type].footprintz>>1),feature_manager.feature[type].footprintx,feature_manager.feature[type].footprintz,-2-map->map_data[y][x].stuff);
 						flags = 4;
@@ -1957,7 +1959,9 @@ bool UNIT::is_on_radar( byte &p_mask )
 					{
 					case 1:			// Some good looking corpse
 						{
+							LeaveCS();
 							clear_from_map();
+							EnterCS();
 							int x=((int)(Pos.x)+map->map_w_d-8)>>3;
 							int y=((int)(Pos.z)+map->map_h_d-8)>>3;
 							if(x>0 && y>0 && x<(map->bloc_w<<1) && y<(map->bloc_h<<1))
@@ -1979,7 +1983,9 @@ bool UNIT::is_on_radar( byte &p_mask )
 						break;
 					case 2:			// Some exploded corpse
 						{
+							LeaveCS();
 							clear_from_map();
+							EnterCS();
 							int x=(int)((Pos.x)+map->map_w_d-8)>>3;
 							int y=(int)((Pos.z)+map->map_h_d-8)>>3;
 							if(x>0 && y>0 && x<(map->bloc_w<<1) && y<(map->bloc_h<<1))
@@ -2698,7 +2704,9 @@ bool UNIT::is_on_radar( byte &p_mask )
 						else {
 							bool place_is_empty = map->check_rect(n_px-(unit_manager.unit_type[type_id].FootprintX>>1),n_py-(unit_manager.unit_type[type_id].FootprintZ>>1),unit_manager.unit_type[type_id].FootprintX,unit_manager.unit_type[type_id].FootprintZ,idx);
 							if( !place_is_empty ) {
+								LeaveCS();
 								clear_from_map();
+								EnterCS();
 								Console->AddEntry("Unit is blocked!! (2) -> probably spawned on something");
 								}
 							}
@@ -3113,9 +3121,8 @@ bool UNIT::is_on_radar( byte &p_mask )
 												unit_p->Angle.y = obj_angle;
 												unit_p->hp = 0.01f;					// Need to be repaired :P
 												unit_p->build_percent_left = 0.0f;	// It's finished ...
-												unit_p->draw_on_map();
-
 												unit_p->UnLock();
+												unit_p->draw_on_map();
 												}
 											EnterCS();
 
@@ -4583,6 +4590,7 @@ void UNIT::draw_on_map()
 		units.map->air_rect( cur_px-(unit_manager.unit_type[type_id].FootprintX>>1), cur_py-(unit_manager.unit_type[type_id].FootprintZ>>1), unit_manager.unit_type[type_id].FootprintX, unit_manager.unit_type[type_id].FootprintZ, idx );
 	else {
 		// First check we're on a "legal" place if it can move
+		EnterCS();
 		if( unit_manager.unit_type[ type_id ].canmove && unit_manager.unit_type[ type_id ].BMcode
 		&& !can_be_there( cur_px, cur_py, units.map, type_id, owner_id ) ) {
 			// Try to find a suitable place
@@ -4628,6 +4636,7 @@ void UNIT::draw_on_map()
 				}
 
 			}
+		LeaveCS();
 
 		units.map->rect( cur_px-(unit_manager.unit_type[type_id].FootprintX>>1), cur_py-(unit_manager.unit_type[type_id].FootprintZ>>1), unit_manager.unit_type[type_id].FootprintX, unit_manager.unit_type[type_id].FootprintZ, idx, unit_manager.unit_type[type_id].yardmap, port[YARD_OPEN]!=0.0f );
 		drawn_open = port[YARD_OPEN]!=0.0f;
@@ -4876,95 +4885,97 @@ void INGAME_UNITS::complete_menu(int index,bool hide_info,bool hide_bpic,int dec
 
 		unit[index].Lock();
 
-		glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
-		gfx->print_center(gfx->normal_font, ta3d_sidedata.side_int_data[ players.side_view ].UnitName.x1, ta3d_sidedata.side_int_data[ players.side_view ].UnitName.y1,0.0f,0xFFFFFFFF,unit_manager.unit_type[unit[index].type_id].name);
-		if(target && unit[index].mission && (unit[index].mission->flags & MISSION_FLAG_TARGET_WEAPON) != MISSION_FLAG_TARGET_WEAPON) {
+		if( unit[index].type_id >= 0 && (unit[index].flags & 1) ) {
 			glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
-			gfx->print_center(gfx->normal_font, ta3d_sidedata.side_int_data[ players.side_view ].UnitName2.x1, ta3d_sidedata.side_int_data[ players.side_view ].UnitName2.y1,0.0f,0xFFFFFFFF,unit_manager.unit_type[target->type_id].name);
-			}
-		else if( unit[index].planned_weapons>0.0f && unit[index].owner_id == players.local_human_id ) {
-			glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
-			gfx->print_center(gfx->normal_font, ta3d_sidedata.side_int_data[ players.side_view ].UnitName2.x1, ta3d_sidedata.side_int_data[ players.side_view ].UnitName2.y1,0.0f,0xFFFFFFFF,TRANSLATE("weapon"));
-			}
-
-		glBlendFunc(GL_ONE,GL_ONE_MINUS_SRC_COLOR);
-		glTexEnvi(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_MODULATE);
-
-		if( unit[index].owner_id == players.local_human_id  ) {
-			char buf[10];
-			gfx->set_color( ta3d_sidedata.side_int_data[ players.side_view ].metal_color );
-			uszprintf(buf,10,"+%f",unit[index].cur_metal_prod);	*(strstr(buf,".")+2)=0;
-			gfx->print_center(gfx->small_font, ta3d_sidedata.side_int_data[ players.side_view ].UnitMetalMake.x1, ta3d_sidedata.side_int_data[ players.side_view ].UnitMetalMake.y1,0.0f,buf);
-			uszprintf(buf,10,"-%f",unit[index].cur_metal_cons);	*(strstr(buf,".")+2)=0;
-			gfx->print_center(gfx->small_font, ta3d_sidedata.side_int_data[ players.side_view ].UnitMetalUse.x1, ta3d_sidedata.side_int_data[ players.side_view ].UnitMetalUse.y1,0.0f,buf);
-
-			gfx->set_color( ta3d_sidedata.side_int_data[ players.side_view ].energy_color );
-			uszprintf(buf,10,"+%f",unit[index].cur_energy_prod);	*(strstr(buf,".")+2)=0;
-			gfx->print_center(gfx->small_font, ta3d_sidedata.side_int_data[ players.side_view ].UnitEnergyMake.x1, ta3d_sidedata.side_int_data[ players.side_view ].UnitEnergyMake.y1,0.0f,buf);
-			uszprintf(buf,10,"-%f",unit[index].cur_energy_cons);	*(strstr(buf,".")+2)=0;
-			gfx->print_center(gfx->small_font, ta3d_sidedata.side_int_data[ players.side_view ].UnitEnergyUse.x1, ta3d_sidedata.side_int_data[ players.side_view ].UnitEnergyUse.y1,0.0f,buf);
-			}
-
-		glColor4f(1.0f,1.0f,1.0f,1.0f);
-
-		glDisable(GL_TEXTURE_2D);
-
-		glDisable(GL_BLEND);
-
-		glBegin(GL_QUADS);
-			glColor4f(1.0f,0.0f,0.0f,1.0f);
-
-			if( unit[index].owner_id == players.local_human_id || !unit_manager.unit_type[unit[index].type_id].HideDamage ) {
-				glVertex2i( ta3d_sidedata.side_int_data[ players.side_view ].DamageBar.x1, ta3d_sidedata.side_int_data[ players.side_view ].DamageBar.y1 );
-				glVertex2i( ta3d_sidedata.side_int_data[ players.side_view ].DamageBar.x2, ta3d_sidedata.side_int_data[ players.side_view ].DamageBar.y1 );
-				glVertex2i( ta3d_sidedata.side_int_data[ players.side_view ].DamageBar.x2, ta3d_sidedata.side_int_data[ players.side_view ].DamageBar.y2 );
-				glVertex2i( ta3d_sidedata.side_int_data[ players.side_view ].DamageBar.x1, ta3d_sidedata.side_int_data[ players.side_view ].DamageBar.y2 );
+			gfx->print_center(gfx->normal_font, ta3d_sidedata.side_int_data[ players.side_view ].UnitName.x1, ta3d_sidedata.side_int_data[ players.side_view ].UnitName.y1,0.0f,0xFFFFFFFF,unit_manager.unit_type[unit[index].type_id].name);
+			if(target && unit[index].mission && (unit[index].mission->flags & MISSION_FLAG_TARGET_WEAPON) != MISSION_FLAG_TARGET_WEAPON) {
+				glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+				gfx->print_center(gfx->normal_font, ta3d_sidedata.side_int_data[ players.side_view ].UnitName2.x1, ta3d_sidedata.side_int_data[ players.side_view ].UnitName2.y1,0.0f,0xFFFFFFFF,unit_manager.unit_type[target->type_id].name);
+				}
+			else if( unit[index].planned_weapons>0.0f && unit[index].owner_id == players.local_human_id ) {
+				glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+				gfx->print_center(gfx->normal_font, ta3d_sidedata.side_int_data[ players.side_view ].UnitName2.x1, ta3d_sidedata.side_int_data[ players.side_view ].UnitName2.y1,0.0f,0xFFFFFFFF,TRANSLATE("weapon"));
 				}
 
-			if( unit[index].owner_id == players.local_human_id ) {
-				if(target && (unit[index].mission->flags & MISSION_FLAG_TARGET_WEAPON)!=MISSION_FLAG_TARGET_WEAPON && !unit_manager.unit_type[target->type_id].HideDamage) {			// Si l'unité a une cible
-					glVertex2i( ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.x1, ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.y1 );
-					glVertex2i( ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.x2, ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.y1 );
-					glVertex2i( ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.x2, ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.y2 );
-					glVertex2i( ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.x1, ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.y2 );
+			glBlendFunc(GL_ONE,GL_ONE_MINUS_SRC_COLOR);
+			glTexEnvi(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_MODULATE);
+
+			if( unit[index].owner_id == players.local_human_id  ) {
+				char buf[10];
+				gfx->set_color( ta3d_sidedata.side_int_data[ players.side_view ].metal_color );
+				uszprintf(buf,10,"+%f",unit[index].cur_metal_prod);	*(strstr(buf,".")+2)=0;
+				gfx->print_center(gfx->small_font, ta3d_sidedata.side_int_data[ players.side_view ].UnitMetalMake.x1, ta3d_sidedata.side_int_data[ players.side_view ].UnitMetalMake.y1,0.0f,buf);
+				uszprintf(buf,10,"-%f",unit[index].cur_metal_cons);	*(strstr(buf,".")+2)=0;
+				gfx->print_center(gfx->small_font, ta3d_sidedata.side_int_data[ players.side_view ].UnitMetalUse.x1, ta3d_sidedata.side_int_data[ players.side_view ].UnitMetalUse.y1,0.0f,buf);
+
+				gfx->set_color( ta3d_sidedata.side_int_data[ players.side_view ].energy_color );
+				uszprintf(buf,10,"+%f",unit[index].cur_energy_prod);	*(strstr(buf,".")+2)=0;
+				gfx->print_center(gfx->small_font, ta3d_sidedata.side_int_data[ players.side_view ].UnitEnergyMake.x1, ta3d_sidedata.side_int_data[ players.side_view ].UnitEnergyMake.y1,0.0f,buf);
+				uszprintf(buf,10,"-%f",unit[index].cur_energy_cons);	*(strstr(buf,".")+2)=0;
+				gfx->print_center(gfx->small_font, ta3d_sidedata.side_int_data[ players.side_view ].UnitEnergyUse.x1, ta3d_sidedata.side_int_data[ players.side_view ].UnitEnergyUse.y1,0.0f,buf);
+				}
+
+			glColor4f(1.0f,1.0f,1.0f,1.0f);
+
+			glDisable(GL_TEXTURE_2D);
+
+			glDisable(GL_BLEND);
+
+			glBegin(GL_QUADS);
+				glColor4f(1.0f,0.0f,0.0f,1.0f);
+
+				if( unit[index].owner_id == players.local_human_id || !unit_manager.unit_type[unit[index].type_id].HideDamage ) {
+					glVertex2i( ta3d_sidedata.side_int_data[ players.side_view ].DamageBar.x1, ta3d_sidedata.side_int_data[ players.side_view ].DamageBar.y1 );
+					glVertex2i( ta3d_sidedata.side_int_data[ players.side_view ].DamageBar.x2, ta3d_sidedata.side_int_data[ players.side_view ].DamageBar.y1 );
+					glVertex2i( ta3d_sidedata.side_int_data[ players.side_view ].DamageBar.x2, ta3d_sidedata.side_int_data[ players.side_view ].DamageBar.y2 );
+					glVertex2i( ta3d_sidedata.side_int_data[ players.side_view ].DamageBar.x1, ta3d_sidedata.side_int_data[ players.side_view ].DamageBar.y2 );
 					}
-				else if( unit[index].planned_weapons>0.0f ) {
-					glVertex2i( ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.x1, ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.y1 );
-					glVertex2i( ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.x2, ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.y1 );
-					glVertex2i( ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.x2, ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.y2 );
-					glVertex2i( ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.x1, ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.y2 );
+
+				if( unit[index].owner_id == players.local_human_id ) {
+					if(target && (unit[index].mission->flags & MISSION_FLAG_TARGET_WEAPON)!=MISSION_FLAG_TARGET_WEAPON && !unit_manager.unit_type[target->type_id].HideDamage) {			// Si l'unité a une cible
+						glVertex2i( ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.x1, ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.y1 );
+						glVertex2i( ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.x2, ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.y1 );
+						glVertex2i( ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.x2, ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.y2 );
+						glVertex2i( ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.x1, ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.y2 );
+						}
+					else if( unit[index].planned_weapons>0.0f ) {
+						glVertex2i( ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.x1, ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.y1 );
+						glVertex2i( ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.x2, ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.y1 );
+						glVertex2i( ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.x2, ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.y2 );
+						glVertex2i( ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.x1, ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.y2 );
+						}
 					}
-				}
 
-			glColor3f(0.0f,1.0f,0.0f);
+				glColor3f(0.0f,1.0f,0.0f);
 
-			if( unit[index].hp>0 && ( unit[index].owner_id == players.local_human_id || !unit_manager.unit_type[unit[index].type_id].HideDamage ) ) {
-				glVertex2f( ta3d_sidedata.side_int_data[ players.side_view ].DamageBar.x1, ta3d_sidedata.side_int_data[ players.side_view ].DamageBar.y1 );
-				glVertex2f( ta3d_sidedata.side_int_data[ players.side_view ].DamageBar.x1 + unit[index].hp / unit_manager.unit_type[unit[index].type_id].MaxDamage * (ta3d_sidedata.side_int_data[ players.side_view ].DamageBar.x2-ta3d_sidedata.side_int_data[ players.side_view ].DamageBar.x1), ta3d_sidedata.side_int_data[ players.side_view ].DamageBar.y1 );
-				glVertex2f( ta3d_sidedata.side_int_data[ players.side_view ].DamageBar.x1 + unit[index].hp / unit_manager.unit_type[unit[index].type_id].MaxDamage * (ta3d_sidedata.side_int_data[ players.side_view ].DamageBar.x2-ta3d_sidedata.side_int_data[ players.side_view ].DamageBar.x1), ta3d_sidedata.side_int_data[ players.side_view ].DamageBar.y2 );
-				glVertex2f( ta3d_sidedata.side_int_data[ players.side_view ].DamageBar.x1, ta3d_sidedata.side_int_data[ players.side_view ].DamageBar.y2 );
-				}
+				if( unit[index].hp>0 && ( unit[index].owner_id == players.local_human_id || !unit_manager.unit_type[unit[index].type_id].HideDamage ) ) {
+					glVertex2f( ta3d_sidedata.side_int_data[ players.side_view ].DamageBar.x1, ta3d_sidedata.side_int_data[ players.side_view ].DamageBar.y1 );
+					glVertex2f( ta3d_sidedata.side_int_data[ players.side_view ].DamageBar.x1 + unit[index].hp / unit_manager.unit_type[unit[index].type_id].MaxDamage * (ta3d_sidedata.side_int_data[ players.side_view ].DamageBar.x2-ta3d_sidedata.side_int_data[ players.side_view ].DamageBar.x1), ta3d_sidedata.side_int_data[ players.side_view ].DamageBar.y1 );
+					glVertex2f( ta3d_sidedata.side_int_data[ players.side_view ].DamageBar.x1 + unit[index].hp / unit_manager.unit_type[unit[index].type_id].MaxDamage * (ta3d_sidedata.side_int_data[ players.side_view ].DamageBar.x2-ta3d_sidedata.side_int_data[ players.side_view ].DamageBar.x1), ta3d_sidedata.side_int_data[ players.side_view ].DamageBar.y2 );
+					glVertex2f( ta3d_sidedata.side_int_data[ players.side_view ].DamageBar.x1, ta3d_sidedata.side_int_data[ players.side_view ].DamageBar.y2 );
+					}
 
-			if( unit[index].owner_id == players.local_human_id ) {
-				if(target && (unit[index].mission->flags & MISSION_FLAG_TARGET_WEAPON)!=MISSION_FLAG_TARGET_WEAPON && !unit_manager.unit_type[target->type_id].HideDamage) {			// Si l'unité a une cible
-					if(target->hp>0) {
+				if( unit[index].owner_id == players.local_human_id ) {
+					if(target && (unit[index].mission->flags & MISSION_FLAG_TARGET_WEAPON)!=MISSION_FLAG_TARGET_WEAPON && !unit_manager.unit_type[target->type_id].HideDamage) {			// Si l'unité a une cible
+						if(target->hp>0) {
+							glVertex2f( ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.x1, ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.y1 );
+							glVertex2f( ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.x1 + target->hp / unit_manager.unit_type[target->type_id].MaxDamage * (ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.x2-ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.x1), ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.y1 );
+							glVertex2f( ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.x1 + target->hp / unit_manager.unit_type[target->type_id].MaxDamage * (ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.x2-ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.x1), ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.y2 );
+							glVertex2f( ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.x1, ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.y2 );
+							}
+						}
+					else if( unit[index].planned_weapons>0.0f ) {						// construit une arme / build a weapon
+						float p=1.0f-(unit[index].planned_weapons-(int)unit[index].planned_weapons);
+						if(p==1.0f)	p=0.0f;
 						glVertex2f( ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.x1, ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.y1 );
-						glVertex2f( ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.x1 + target->hp / unit_manager.unit_type[target->type_id].MaxDamage * (ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.x2-ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.x1), ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.y1 );
-						glVertex2f( ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.x1 + target->hp / unit_manager.unit_type[target->type_id].MaxDamage * (ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.x2-ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.x1), ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.y2 );
+						glVertex2f( ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.x1 + p * (ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.x2-ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.x1), ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.y1 );
+						glVertex2f( ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.x1 + p * (ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.x2-ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.x1), ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.y2 );
 						glVertex2f( ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.x1, ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.y2 );
 						}
 					}
-				else if( unit[index].planned_weapons>0.0f ) {						// construit une arme / build a weapon
-					float p=1.0f-(unit[index].planned_weapons-(int)unit[index].planned_weapons);
-					if(p==1.0f)	p=0.0f;
-					glVertex2f( ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.x1, ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.y1 );
-					glVertex2f( ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.x1 + p * (ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.x2-ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.x1), ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.y1 );
-					glVertex2f( ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.x1 + p * (ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.x2-ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.x1), ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.y2 );
-					glVertex2f( ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.x1, ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.y2 );
-					}
-				}
 
-		glEnd();
+			glEnd();
+			}
 
 		unit[index].UnLock();
 		EnterCS();
@@ -5077,7 +5088,9 @@ void INGAME_UNITS::move(float dt,MAP *map,int key_frame,bool wind_change)
 		unit[ i ].Lock();
 
 		if( !(unit[ i ].flags & 1) ) {		// ho ho what is it doing there ??
+			unit[ i ].UnLock();
 			unit[ i ].clear_from_map();
+			unit[ i ].Lock();
 			kill(i,map,e);
 			e--;			// Can't skip a unit
 			unit[ i ].UnLock();
@@ -5389,7 +5402,9 @@ void INGAME_UNITS::kill(int index,MAP *map,int prev)			// Détruit une unité
 				((UNIT*)(unit[ index ].mission->p))->built = false;
 				((UNIT*)(unit[ index ].mission->p))->UnLock();
 				}
+			unit[index].UnLock();
 			unit[index].clear_from_map();
+			unit[index].Lock();
 			players.nb_unit[ unit[index].owner_id ]--;
 			players.losses[ unit[index].owner_id ]++;		// Statistiques
 			}

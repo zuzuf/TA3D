@@ -114,12 +114,12 @@ namespace TA3D
 		return Result;
 	}
 
-	Vector< String > ReadVectorString( String base_str )			// Reads something like string1, string2, string3, string4, ..., string n to make a vector of string{i}
+	Vector< String > ReadVectorString( String base_str, const String &separator )			// Reads something like string1, string2, string3, string4, ..., string n to make a vector of string{i}
 	{
 		Vector< String >	result;
 
 		while( base_str != "" ) {			// Reads the whole string
-			int i = base_str.find( "," );
+			int i = base_str.find( separator );
 			if( i == -1 ) {
 				result.push_back( TrimString( base_str ) );
 				base_str = "";
