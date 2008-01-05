@@ -441,7 +441,7 @@ const void WEAPON::move(const float dt,MAP *map)				// Anime les armes
 		O.x=O.y=O.z=0.0f;
 		smoke_time=0.0f;
 		if(visible)
-			particle_engine.make_smoke(O+Pos,0,1,0.0f,-1.0f, -2.0f);
+			particle_engine.make_smoke(O+Pos,0,1,0.0f,-1.0f, -2.0f, 0.3f);
 		}
 
 	VECTOR hit_vec;
@@ -556,21 +556,24 @@ const void WEAPON::move(const float dt,MAP *map)				// Anime les armes
 				if(py+y<0 || py+y>=map->bloc_h_db)	continue;
 
 				bool land_test = true;
+
+				List< uint32 > air_list;
+
 				map->Lock();
+				for( IDX_LIST_NODE *cur = map->map_data[py+y][px+x].air_idx.head ; cur != NULL ; cur = cur->next )
+					air_list.push_back( cur->idx );
+				map->UnLock();
 
-				IDX_LIST_NODE *cur = map->map_data[py+y][px+x].air_idx.head;
+				List< uint32 >::iterator cur = air_list.begin();
 
-				for( ; land_test || cur != NULL ; ) {
+				for( ; land_test || cur != air_list.end() ; ) {
 					if( land_test ) {
 						t_idx = map->map_data[py+y][px+x].unit_idx;
 						land_test = false;
 						}
 					else {
-						t_idx = cur->idx;
-						if( cur == cur->next )
-							cur = NULL;
-						else
-							cur = cur->next;
+						t_idx = *cur;
+						cur++;
 						}
 
 					if(t_idx == -1 || t_idx == oidx || t_idx == shooter_idx || t_idx == hit_idx)	continue;
@@ -604,7 +607,6 @@ const void WEAPON::move(const float dt,MAP *map)				// Anime les armes
 							}
 					oidx=t_idx;
 					}
-				map->UnLock();
 				}
 			if(hit_idx>=0) {
 				units.unit[hit_idx].Lock();
@@ -673,20 +675,24 @@ const void WEAPON::move(const float dt,MAP *map)				// Anime les armes
 				if(py+y<0 || py+y>=map->bloc_h_db)	continue;
 
 				bool land_test = true;
-				map->Lock();
-				IDX_LIST_NODE *cur = map->map_data[py+y][px+x].air_idx.head;
 
-				for( ; land_test || cur != NULL ; ) {
+				List< uint32 > air_list;
+
+				map->Lock();
+				for( IDX_LIST_NODE *cur = map->map_data[py+y][px+x].air_idx.head ; cur != NULL ; cur = cur->next )
+					air_list.push_back( cur->idx );
+				map->UnLock();
+
+				List< uint32 >::iterator cur = air_list.begin();
+
+				for( ; land_test || cur != air_list.end() ; ) {
 					if( land_test ) {
 						t_idx = map->map_data[py+y][px+x].unit_idx;
 						land_test = false;
 						}
 					else {
-						t_idx = cur->idx;
-						if( cur == cur->next )
-							cur = NULL;
-						else
-							cur = cur->next;
+						t_idx = *cur;
+						cur++;
 						}
 					if(t_idx==-1)	continue;
 					if( t_idx >= 0 ) {
@@ -747,7 +753,6 @@ const void WEAPON::move(const float dt,MAP *map)				// Anime les armes
 							}
 						}
 					}
-				map->UnLock();
 				}
 		oidx.clear();
 		}
@@ -1156,18 +1161,18 @@ void FX::draw(CAMERA *cam, MAP *map, ANIM **anims)
 
 	if(cam->mirror) {
 		glBegin(GL_QUADS);
-			glTexCoord2f(0.0f,0.0f);	glVertex3f( -hux-wsx,  huy+wsy, -huz-wsz);
-			glTexCoord2f(1.0f,0.0f);	glVertex3f( -hux+wsx,  huy-wsy, -huz+wsz);
-			glTexCoord2f(1.0f,1.0f);	glVertex3f(  hux+wsx, -huy-wsy,  huz+wsz);
-			glTexCoord2f(0.0f,1.0f);	glVertex3f(  hux-wsx, -huy+wsy,  huz-wsz);
+			glTexCoord2f(0.0f,0.0f);	glVertex3f(  hux-wsx, -huy+wsy,  huz-wsz);
+			glTexCoord2f(1.0f,0.0f);	glVertex3f(  hux+wsx, -huy-wsy,  huz+wsz);
+			glTexCoord2f(1.0f,1.0f);	glVertex3f( -hux+wsx,  huy-wsy, -huz+wsz);
+			glTexCoord2f(0.0f,1.0f);	glVertex3f( -hux-wsx,  huy+wsy, -huz-wsz);
 		glEnd();
 		}
 	else {
 		glBegin(GL_QUADS);
-			glTexCoord2f(0.0f,0.0f);	glVertex3f( -hux-wsx, -huy-wsy, -huz-wsz);
-			glTexCoord2f(1.0f,0.0f);	glVertex3f( -hux+wsx, -huy+wsy, -huz+wsz);
-			glTexCoord2f(1.0f,1.0f);	glVertex3f(  hux+wsx,  huy+wsy,  huz+wsz);
-			glTexCoord2f(0.0f,1.0f);	glVertex3f(  hux-wsx,  huy-wsy,  huz-wsz);
+			glTexCoord2f(0.0f,0.0f);	glVertex3f(  hux-wsx,  huy-wsy,  huz-wsz);
+			glTexCoord2f(1.0f,0.0f);	glVertex3f(  hux+wsx,  huy+wsy,  huz+wsz);
+			glTexCoord2f(1.0f,1.0f);	glVertex3f( -hux+wsx, -huy+wsy, -huz+wsz);
+			glTexCoord2f(0.0f,1.0f);	glVertex3f( -hux-wsx, -huy-wsy, -huz-wsz);
 		glEnd();
 		}
 	glPopMatrix();

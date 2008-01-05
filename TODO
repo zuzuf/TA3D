@@ -1,5 +1,7 @@
 TODO list
 ---------
+_implement shields
+_implement invisibility
 _add a console command to give resources to a given player (for AI debugging)
 _read the music from a CD
 _add glossiness (or reflection) to all TA3D models.
@@ -11,6 +13,7 @@ _networking code
 _improve A.I.
 _D3D support
 
+*weapon smoke density decreased
 *you can build things in a row by holding down your mouse button
 *air repair pads works
 *units can be captured
@@ -44,6 +47,7 @@ _some parts of the maps might not be drawn (visibility limit) like hills
 _slow down with lots of 3D sprites on some gfx hardware (speed increased but bug not yet fixed)
 _fix all other bugs ( :-) )
 
+*fixed explosion drawing bug : sprites aren't drawn upside down any more
 *fixed MAP::hit sometimes not returning a solution when it should
 *fixed some parts of low definition map being hidden into water
 *fixed some lava bugs

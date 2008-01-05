@@ -2802,9 +2802,9 @@ do
 			save_bitmap( (TA3D_OUTPUT_DIR + "z.tga").c_str(),bmp,NULL);
 			destroy_bitmap(bmp);
 			}
-		else if( params[0] == "video shoot" ) video_shoot ^= true;		// Capture video
+		else if( params[0] == "video" && params[1] == "shoot" ) video_shoot ^= true;		// Capture video
 		else if( params[0] == "shoot" ) shoot = true;					// Prend une capture d'écran
-		else if( params[0] == "reload shaders" && g_useProgram) {
+		else if( params[0] == "reload" && params[1] == "shaders" && g_useProgram) {
 			water_shader.destroy();
 			water_shader.load("shaders/water.frag","shaders/water.vert");
 			water_shader_reflec.destroy();
@@ -2818,15 +2818,15 @@ do
 			map->detail_shader.destroy();
 			map->detail_shader.load( "shaders/details.frag", "shaders/details.vert" );
 			}
-		else if( params[0] == "show mission info" )	show_mission_info ^= true;
-		else if( params[0] == "view debug" )	view_dbg^=true;
-		else if( params[0] == "ia debug" )	ia_debug^=true;
-		else if( params[0] == "internal name" ) internal_name^=true;		// Affiche/Cache le nom interne de l'unité
-		else if( params[0] == "internal idx" ) internal_idx^=true;		// Show/Hide unit indexes in unit array
+		else if( params[0] == "show" && params[1] == "mission" && params[2] == "info" )	show_mission_info ^= true;
+		else if( params[0] == "view" && params[1] == "debug" )	view_dbg^=true;
+		else if( params[0] == "ia" && params[1] == "debug" )	ia_debug^=true;
+		else if( params[0] == "internal" && params[1] == "name" ) internal_name^=true;		// Affiche/Cache le nom interne de l'unité
+		else if( params[0] == "internal" && params[1] == "idx" ) internal_idx^=true;		// Show/Hide unit indexes in unit array
 		else if( params[0] == "exit" ) done=true;					// Quitte le programme
 		else if( params[0] == "wireframe" ) 	lp_CONFIG->wireframe^=true;
 		else if( params[0] == "priority" && params.size() == 2 ) lp_CONFIG->priority_level = atoi( params[1].c_str() );
-		else if( params[0] == "water quality" &&  params.size() == 2 ) lp_CONFIG->water_quality = atoi( params[1].c_str() )%5;
+		else if( params[0] == "water" && params[1] == "quality" &&  params.size() == 3 ) lp_CONFIG->water_quality = atoi( params[2].c_str() )%5;
 		else if( params[0] == "shadow" && params.size() == 3) {
 			if( params[1] == "quality" ) lp_CONFIG->shadow_quality = atoi( params[2].c_str() );
 			else if( params[1] == "ray" ) lp_CONFIG->shadow_r = atof( params[2].c_str() );
@@ -2835,9 +2835,9 @@ do
 		else if( params[0] == "details" )	lp_CONFIG->detail_tex ^= true;
 		else if( params[0] == "particle" )	lp_CONFIG->particle^=true;
 		else if( params[0] == "waves" ) lp_CONFIG->waves^=true;
-		else if( params[0] == "show script" ) show_script^=true;
-		else if( params[0] == "show model" ) show_model^=true;
-		else if( params[0] == "rotate light" ) rotate_light^=true;
+		else if( params[0] == "show" && params[1] == "script" ) show_script^=true;
+		else if( params[0] == "show" && params[1] == "model" ) show_model^=true;
+		else if( params[0] == "rotate" && params[1] == "light" ) rotate_light^=true;
 		else if( params[0] == "shake" )
 			cam.set_shake( 1.0f, 32.0f );
 		else if( params[0] == "freecam" ) {
