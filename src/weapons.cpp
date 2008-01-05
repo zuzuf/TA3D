@@ -760,9 +760,10 @@ const void WEAPON::move(const float dt,MAP *map)				// Anime les armes
 	if(hit && visible && weapon_manager.weapon[weapon_id].areaofeffect>=256) {			// Effet de souffle / Shock wave
 		POINTF O;
 		O.x=O.y=O.z=0.0f;
-		particle_engine.make_shockwave(O+Pos,1,weapon_manager.weapon[weapon_id].areaofeffect>>2,weapon_manager.weapon[weapon_id].areaofeffect*0.5f);
+		fx_manager.add_flash( Pos, weapon_manager.weapon[weapon_id].areaofeffect >> 1 );
+		particle_engine.make_shockwave(O+Pos,1,weapon_manager.weapon[weapon_id].areaofeffect,weapon_manager.weapon[weapon_id].areaofeffect*0.75f);
 		particle_engine.make_shockwave(O+Pos,0,weapon_manager.weapon[weapon_id].areaofeffect,weapon_manager.weapon[weapon_id].areaofeffect*0.5f);
-		particle_engine.make_nuke(O+Pos,1,weapon_manager.weapon[weapon_id].areaofeffect>>2,weapon_manager.weapon[weapon_id].areaofeffect*0.25f);
+		particle_engine.make_nuke(O+Pos,1,weapon_manager.weapon[weapon_id].areaofeffect>>1,weapon_manager.weapon[weapon_id].areaofeffect*0.25f);
 		}
 
 	if(hit && weapon_manager.weapon[weapon_id].interceptor) {
@@ -795,7 +796,7 @@ const void WEAPON::move(const float dt,MAP *map)				// Anime les armes
 		else
 			if( weapon_manager.weapon[weapon_id].soundhit )	sound_manager->PlaySound( weapon_manager.weapon[weapon_id].soundhit , &Pos );
 		if(hit && weapon_manager.weapon[weapon_id].explosiongaf!=NULL && weapon_manager.weapon[weapon_id].explosionart!=NULL && Pos.y!=map->sealvl) {
-			if(visible)
+			if( visible && weapon_manager.weapon[weapon_id].areaofeffect < 256 )		// Nuclear type explosion don't draw sprites :)
 				fx_manager.add(weapon_manager.weapon[weapon_id].explosiongaf,weapon_manager.weapon[weapon_id].explosionart,Pos,1.0f);
 			}
 		else if(hit && Pos.y==map->sealvl) {

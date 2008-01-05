@@ -106,6 +106,8 @@ struct PARTICLE					// Structure définissant une particule
 	short		py;
 	bool		use_wind;		// Affected by wind ?
 	bool		light_emitter;	// For fire effects
+	bool		slow_down;		// Decrease speed ?
+	float		slow_factor;
 };
 
 class PARTICLE_ENGINE : protected cCriticalSection,			// Moteur à particules

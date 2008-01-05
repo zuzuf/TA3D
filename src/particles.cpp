@@ -211,6 +211,7 @@ void PARTICLE_SYSTEM::draw()
 			part[cur_part].dsize=0.0f;
 			part[cur_part].ddsize=0.0f;
 			part[cur_part].light_emitter=false;
+			part[cur_part].slow_down=false;
 			nb_part++;
 			}
 		LeaveCS();
@@ -320,6 +321,7 @@ void PARTICLE_SYSTEM::draw()
 			part[cur_part].dsize=0.0f;
 			part[cur_part].ddsize=0.0f;
 			part[cur_part].light_emitter=false;
+			part[cur_part].slow_down=false;
 			nb_part++;
 			}
 		LeaveCS();
@@ -357,23 +359,31 @@ void PARTICLE_SYSTEM::draw()
 			else
 				part[cur_part].life=3.0f;
 			part[cur_part].mass=0.0f;
-			part[cur_part].smoking=tex==0 ? -1.0f : 2.5-(rand_from_table()%101)*0.01f;
-			part[cur_part].gltex=tex;
-			part[cur_part].col[0]=1.0f;
-			part[cur_part].col[1]=1.0f;
-			part[cur_part].col[2]=1.0f;
-			part[cur_part].col[3]=1.0f;
-			part[cur_part].dcol[0]=0.0f;
-			part[cur_part].dcol[1]=0.0f;
-			part[cur_part].dcol[2]=0.0f;
-			part[cur_part].dcol[3]=-1.0f/part[cur_part].life;
+			part[cur_part].smoking = -1.0f;
+			part[cur_part].gltex = 0;
+			part[cur_part].col[0]=8.0f;
+			part[cur_part].col[1]=8.0f;
+			part[cur_part].col[2]=8.0f;
+			part[cur_part].col[3]=1.2f;
+			part[cur_part].dcol[0]=-0.3f/part[cur_part].life;
+			part[cur_part].dcol[1]=-0.3f/part[cur_part].life;
+			part[cur_part].dcol[2]=-0.3f/part[cur_part].life;
+			part[cur_part].dcol[3]=-1.2f/part[cur_part].life;
 			part[cur_part].angle=0.0f;
 			part[cur_part].v_rot=(rand_from_table()%200)*0.01f-0.1f;
 			part[cur_part].size=1.0f;
 			part[cur_part].use_wind=false;
-			part[cur_part].dsize=10.0f;
-			part[cur_part].ddsize=0.0f;
-			part[cur_part].light_emitter=false;
+			if( tex == 1 ) {
+				part[cur_part].dsize = 0.0f;
+				part[cur_part].ddsize = 20.0f;
+				}
+			else {
+				part[cur_part].dsize = 10.0f;
+				part[cur_part].ddsize = 0.0f;
+				}
+			part[cur_part].light_emitter = false;
+			part[cur_part].slow_down = true;
+			part[cur_part].slow_factor = 0.01f;
 			nb_part++;
 			}
 
@@ -406,29 +416,28 @@ void PARTICLE_SYSTEM::draw()
 			part[cur_part].V.x=((rand_from_table()%2001)-1000);
 			part[cur_part].V.z=((rand_from_table()%2001)-1000);
 			part[cur_part].V.Unit();
-			part[cur_part].V=(pow((float)(rand_from_table()%100),2.0f)*0.0050f*(((rand_from_table()%2)==0) ? -1.0f : 1.0f)+50.0f)*pre*part[cur_part].V;
-			if(tex==0)
-				part[cur_part].life=3.0f+(rand_from_table()%200)*0.01f;
-			else
-				part[cur_part].life=3.0f;
+			part[cur_part].V=(100.0f - pow((float)(rand_from_table()%100),2.0f)*0.01f)*pre*part[cur_part].V;
+			part[cur_part].life=3.0f + part[cur_part].V.Sq() * 0.0001f;
 			part[cur_part].mass=1.0f;
-			part[cur_part].smoking=tex==0 ? -1.0f : 2.5f-(rand_from_table()%101)*0.01f;
+			part[cur_part].smoking=-1.0f;
 			part[cur_part].gltex=tex;
 			part[cur_part].col[0]=1.0f;
 			part[cur_part].col[1]=1.0f;
 			part[cur_part].col[2]=1.0f;
 			part[cur_part].col[3]=1.0f;
 			part[cur_part].dcol[0]=0.0f;
-			part[cur_part].dcol[1]=0.0f;
+			part[cur_part].dcol[1]=-0.8f/part[cur_part].life;
 			part[cur_part].dcol[2]=0.0f;
 			part[cur_part].dcol[3]=-1.0f/part[cur_part].life;
 			part[cur_part].angle=0.0f;
-			part[cur_part].v_rot=(rand_from_table()%200)*0.01f-0.1f;
+			part[cur_part].v_rot = ((rand_from_table()%200)*0.01f-0.1f) * part[cur_part].V.Norm() * 0.015f / pre;
 			part[cur_part].size=4.0f;
 			part[cur_part].use_wind=true;
 			part[cur_part].dsize=10.0f;
 			part[cur_part].ddsize=0.0f;
-			part[cur_part].light_emitter=false;
+			part[cur_part].light_emitter = (i & 1);
+			part[cur_part].slow_down = true;
+			part[cur_part].slow_factor = 1.0f;
 			nb_part++;
 			}
 		LeaveCS();
@@ -478,6 +487,7 @@ void PARTICLE_SYSTEM::draw()
 			part[cur_part].dsize=10.0f;
 			part[cur_part].ddsize=ddsize;
 			part[cur_part].light_emitter=false;
+			part[cur_part].slow_down=false;
 			nb_part++;
 			}
 		LeaveCS();
@@ -526,6 +536,7 @@ void PARTICLE_SYSTEM::draw()
 			part[cur_part].dsize=15.0f;
 			part[cur_part].ddsize=-23.0f;
 			part[cur_part].light_emitter=true;
+			part[cur_part].slow_down=false;
 			nb_part++;
 			}
 		LeaveCS();
@@ -581,6 +592,8 @@ void PARTICLE_SYSTEM::draw()
 				part[i].V=part[i].V-part[i].mass*G+RAND+wind_dir;
 			else
 				part[i].V=part[i].V-part[i].mass*G+RAND;
+			if(part[i].slow_down)
+				part[i].V = exp( -dt * part[i].slow_factor ) * part[i].V;
 			if(part[i].mass>0.0f)
 				part[i].V=factor*part[i].V;
 			else
@@ -623,7 +636,8 @@ void PARTICLE_SYSTEM::draw()
 		glDisable(GL_LIGHTING);
 		glDisable(GL_CULL_FACE);
 		glDepthMask(GL_FALSE);
-		glBlendFunc(GL_SRC_ALPHA,GL_ONE);
+//		glBlendFunc(GL_SRC_ALPHA,GL_ONE);
+		glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
 		glEnable(GL_BLEND);
 
 		glDisableClientState(GL_NORMAL_ARRAY);
@@ -636,7 +650,7 @@ void PARTICLE_SYSTEM::draw()
 		glTexCoordPointer(2, GL_FLOAT, 0, texcoord);
 		glColorPointer(4,GL_UNSIGNED_BYTE,0,color);
 
-		for( sint8 light_emitters = 1 ; light_emitters >= 0 ; light_emitters-- ) {
+		for( sint8 light_emitters = 0 ; light_emitters <= 1 ; light_emitters++ ) {
 
 			uint32 i;
 			sint32 j=-1;
@@ -711,7 +725,8 @@ void PARTICLE_SYSTEM::draw()
 			if( j >= 0 )
 				glDrawElements(GL_QUADS, (j+1<<2),GL_UNSIGNED_SHORT,index);		// dessine le tout
 
-			glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+			glBlendFunc(GL_SRC_ALPHA,GL_ONE);
+//			glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
 			}
 
 		LeaveCS();
