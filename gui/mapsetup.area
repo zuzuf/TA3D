@@ -1,0 +1,7 @@
+[area]
+{
+	name=map setup area;
+	skin=gui/default.skn;
+	windows=gui/mapsetup.tdf;
+	background=gfx/mapsetup.jpg;
+}

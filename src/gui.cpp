@@ -550,7 +550,7 @@ void WND::draw( String &help_msg, bool Focus, bool Deg, SKIN *skin )
 					}
 					break;
 				case OBJ_LIST:
-					ListBox(x+Objets[i].x1, y+Objets[i].y1, x+Objets[i].x2, y+Objets[i].y2, Objets[i].Text, Objets[i].Pos, Objets[i].Data , skin, Objets[i].s );
+					ListBox(x+Objets[i].x1, y+Objets[i].y1, x+Objets[i].x2, y+Objets[i].y2, Objets[i].Text, Objets[i].Pos, Objets[i].Data , skin, Objets[i].s, Objets[i].Flag );
 					break;
 				case OBJ_LINE:
 					gfx->line(x+Objets[i].x1,y+Objets[i].y1,x+Objets[i].x2,y+Objets[i].y2,Objets[i].Data);
@@ -1417,6 +1417,7 @@ void WND::load_tdf( const String &filename, SKIN *skin )			// Load a window from
 		if( wndFile->PullAsBool( obj_key + "highlight" ) )		obj_flags |= FLAG_HIGHLIGHT;
 		if( wndFile->PullAsBool( obj_key + "fill" ) )			obj_flags |= FLAG_FILL;
 		if( wndFile->PullAsBool( obj_key + "hidden" ) )			obj_flags |= FLAG_HIDDEN;
+		if( wndFile->PullAsBool( obj_key + "no border" ) )		obj_flags |= FLAG_NO_BORDER;
 
 		if( wndFile->PullAsBool( obj_key + "cant be clicked" ) )	obj_negative_flags |= FLAG_CAN_BE_CLICKED;
 		if( wndFile->PullAsBool( obj_key + "cant get focus" ) )		obj_negative_flags |= FLAG_CAN_GET_FOCUS;
@@ -1561,7 +1562,7 @@ void button (float x,float y,float x2,float y2,const String &Title,bool Etat,flo
 |        Draw a list box displaying the content of Entry                     |
 \---------------------------------------------------------------------------*/
 
-void ListBox(float x1,float y1, float x2, float y2,const Vector<String> &Entry,int Index, int Scroll, SKIN *skin, float size )
+void ListBox(float x1,float y1, float x2, float y2,const Vector<String> &Entry,int Index, int Scroll, SKIN *skin, float size, uint32 flags )
 {
 	float old_size = gui_font.get_size();
 	gui_font.change_size( size );
@@ -1570,7 +1571,8 @@ void ListBox(float x1,float y1, float x2, float y2,const Vector<String> &Entry,i
 		gfx->set_alpha_blending();
 		gfx->set_color( 0xFFFFFFFF );
 
-		skin->text_background.draw( x1, y1, x2, y2 );
+		if( !(flags & FLAG_NO_BORDER) )
+			skin->text_background.draw( x1, y1, x2, y2 );
 
 		int i;
 		for( i = 0 ; i < Entry.size() ; i++ ) {
@@ -1598,13 +1600,15 @@ void ListBox(float x1,float y1, float x2, float y2,const Vector<String> &Entry,i
 		gfx->unset_alpha_blending();
 		}
 	else {
-		gfx->rectfill(x1,y1,x2,y2,Blanc);
-		gfx->rect(x1,y1,x2,y2,GrisF);
-		gfx->rect(x1+1,y1+1,x2-1,y2-1,Noir);
-		gfx->line(x1,y2,x2,y2,GrisC);
-		gfx->line(x2,y1,x2,y2,GrisC);
-		gfx->line(x1+1,y2-1,x2-1,y2-1,Blanc);
-		gfx->line(x2-1,y1+1,x2-1,y2-1,Blanc);
+		if( !(flags & FLAG_NO_BORDER) ) {
+			gfx->rectfill(x1,y1,x2,y2,Blanc);
+			gfx->rect(x1,y1,x2,y2,GrisF);
+			gfx->rect(x1+1,y1+1,x2-1,y2-1,Noir);
+			gfx->line(x1,y2,x2,y2,GrisC);
+			gfx->line(x2,y1,x2,y2,GrisC);
+			gfx->line(x1+1,y2-1,x2-1,y2-1,Blanc);
+			gfx->line(x2-1,y1+1,x2-1,y2-1,Blanc);
+			}
 
 		int i;
 		for(i=0;i<Entry.size();i++) {

@@ -91,7 +91,7 @@ class SKIN;			// Class SKIN to handle GUI skins for GUIOBJ objects and WND windo
 
 void button ( float x, float y, float x2, float y2, const String &Title, bool Etat, float s=1.0f , SKIN *skin=NULL );
 void FloatMenu( float x, float y, const Vector<String> &Entry, int Index, int StartEntry=0 , SKIN *skin=NULL, float size = 1.0f );
-void ListBox( float x1, float y1, float x2, float y2, const Vector<String> &Entry, int Index, int Scroll , SKIN *skin=NULL, float size = 1.0f );
+void ListBox( float x1, float y1, float x2, float y2, const Vector<String> &Entry, int Index, int Scroll , SKIN *skin=NULL, float size = 1.0f, uint32 flags = 0 );
 void OptionButton( float x, float y, const String &Title, bool Etat , SKIN *skin=NULL, float size = 1.0f );
 void OptionCase( float x, float y, const String &Title, bool Etat , SKIN *skin=NULL, float size = 1.0f );
 void TextBar( float x1, float y1, float x2, float y2, const String &Caption, bool Etat , SKIN *skin=NULL, float size = 1.0f );
@@ -125,7 +125,8 @@ extern bool	use_normal_alpha_function;
 #define FLAG_BUILD_PIC						0x080			// If it's a build pic, replace the picture with the current unit's one
 #define FLAG_DISABLED						0x100
 #define FLAG_CENTERED						0x200			// Centered
-#define FLAG_TEXT_ADJUST					0x400			// Tell the text renderer to prin '\n' correctly and to fit in the given space
+#define FLAG_TEXT_ADJUST					0x400			// Tell the text renderer to print '\n' correctly and to fit in the given space
+#define FLAG_NO_BORDER						0x800			// Tell the object not to draw its borders so you can see the background instead
 
 class GUIOBJ					// Structure pour les objets contenus dans les fenêtres
 {

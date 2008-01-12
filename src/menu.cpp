@@ -335,30 +335,21 @@ uint32 GetMultiPlayerMapList( std::list<std::string> *li )
 
 char *select_map(String *def_choice)		// Cette fonction affiche un menu permettant à l'utilisateur de choisir une carte dans une liste et de la prévisualiser à l'écran
 {
-	SKIN	skin;
-	skin.load_tdf("gui/default.skn");
+	cursor_type=CURSOR_DEFAULT;
 
-	gfx->SCREEN_W_TO_640 = 640.0f / SCREEN_W;				// To have mouse sensibility undependent from the resolution
-	gfx->SCREEN_H_TO_480 = 480.0f / SCREEN_H;
-
-	bool done=false;
+	float resize_w = SCREEN_W / 640.0f;
+	float resize_h = SCREEN_H / 480.0f;
 
 	gfx->set_2D_mode();
 
 	gfx->ReInitTexSys();
 
-	set_uformat(U_ASCII);		// Juste histoire d'avoir un affichage correct des textes
+	reset_keyboard();
+	while(key[KEY_ESC])	rest(1);
 
-	glScalef(SCREEN_W/640.0f,SCREEN_H/480.0f,1.0f);
-
-	int i;
-
-	float dt=0.0f;
-	int time = msec_timer;
-	float Conv = 0.001f;
-
-	float h=gfx->TA_font.height();
-	float data_h = 24.0f;
+	AREA mapsetup_area("map setup");
+	mapsetup_area.load_tdf("gui/mapsetup.area");
+	if( !mapsetup_area.background )	mapsetup_area.background = gfx->glfond;
 
 	List< String > map_list;
 	uint32 n = GetMultiPlayerMapList( &map_list );
@@ -373,148 +364,110 @@ char *select_map(String *def_choice)		// Cette fonction affiche un menu permetta
 
 	char *choice=NULL;
 
-	int dec=0;			// Pour la gestion de la liste déroulante
-	int amz=mouse_z;
-	int o_sel=-1;
-	int sel_index=0;
-	int index=-1;
-	int m_timer = msec_timer;
+	GLuint mini = 0;
+	int dx = 0;
+	int dy = 0;
+	float ldx = dx*70.0f/252.0f;
+	float ldy = dy*70.0f/252.0f;
 
-	bool dmini=false;		// Pour la minimap
-	GLuint mini;
-	int dx=0;
-	int dy=0;
 
-	bool ok_status=false;		// Pour les boutons
-	bool cancel_status=false;
-	bool o_ok_status=false;
-	bool o_cancel_status=false;
+	GUIOBJ *minimap_obj = mapsetup_area.get_object( "mapsetup.minimap" );
+	float mini_map_x1 = 0.0f;
+	float mini_map_y1 = 0.0f;
+	float mini_map_x2 = 0.0f;
+	float mini_map_y2 = 0.0f;
+	float mini_map_x = 0.0f;
+	float mini_map_y = 0.0f;
+	if( minimap_obj ) {
+		mini_map_x1 = minimap_obj->x1;
+		mini_map_y1 = minimap_obj->y1;
+		mini_map_x2 = minimap_obj->x2;
+		mini_map_y2 = minimap_obj->y2;
+		ldx = dx * ( mini_map_x2 - mini_map_x1 ) / 504.0f;
+		ldy = dy * ( mini_map_y2 - mini_map_y1 ) / 504.0f;
+
+		mini_map_x = (mini_map_x1 + mini_map_x2) * 0.5f;
+		mini_map_y = (mini_map_y1 + mini_map_y2) * 0.5f;
+
+		minimap_obj->Data = 0;
+		minimap_obj->x1 = mini_map_x - ldx;
+		minimap_obj->y1 = mini_map_y - ldy;
+		minimap_obj->x2 = mini_map_x + ldx;
+		minimap_obj->y2 = mini_map_y + ldy;
+		minimap_obj->u2 = dx / 252.0f;
+		minimap_obj->v2 = dy / 252.0f;
+		}
 
 	MAP_OTA	map_data;
+	int sel_index = -1;
+	int o_sel = -1;
 
 	if( def_choice ) {
 		*def_choice = def_choice->substr(5,def_choice->length()-9);
-		i = 0;
-		for( i_map = map_list.begin() ; i_map != map_list.end() ; i_map++, i++ )
-			if( *i_map == *def_choice ) {
+		int i = 0;
+		GUIOBJ *gui_map_list = mapsetup_area.get_object("mapsetup.map_list");
+		if( gui_map_list )
+			gui_map_list->Text.resize( map_list.size() );
+		for( i_map = map_list.begin() ; i_map != map_list.end() ; i_map++, i++ ) {
+			if( gui_map_list )
+				gui_map_list->Text[ i ] = *i_map;
+			if( *i_map == *def_choice && gui_map_list ) {
+				gui_map_list->Pos = i;
+				gui_map_list->Data = i;			// Make it visible
 				sel_index = i;
-				break;
 				}
-		if(sel_index>=dec+(int)(440.0f/h)-1)
-			dec=sel_index-(int)(440.0f/h)+1;
-		if(sel_index>=0 && sel_index<dec)
-			dec=sel_index;
+			}
 		}
+
+	bool done=false;
 
 	int amx = -1;
 	int amy = -1;
+	int amz = -1;
 	int amb = -1;
-	int am_z = -1;
-	reset_keyboard();
 
 	do
 	{
-		while( amx == mouse_x && amy == mouse_y && am_z == mouse_z && amb == mouse_b && mouse_b == 0 && !key[ KEY_ENTER ] && !key[ KEY_ESC ] && !done )
+		bool key_is_pressed = false;
+		do {
+			key_is_pressed = keypressed();
+			mapsetup_area.check();
 			rest( 1 );
+		} while( amx == mouse_x && amy == mouse_y && amz == mouse_z && amb == mouse_b && mouse_b == 0 && !key[ KEY_ENTER ] && !key[ KEY_ESC ] && !done && !key_is_pressed && !mapsetup_area.scrolling );
+
 		amx = mouse_x;
 		amy = mouse_y;
-		am_z = mouse_z;
+		amz = mouse_z;
 		amb = mouse_b;
 
-		time=msec_timer;
-
-		o_ok_status=ok_status;
-		o_cancel_status=cancel_status;
-		ok_status=false;
-		cancel_status=false;
-		if(mouse_b==1 && mouse_y*gfx->SCREEN_H_TO_480>=440 && mouse_y*gfx->SCREEN_H_TO_480<=460) {
-			cancel_status=(mouse_x*gfx->SCREEN_W_TO_640>=360 && mouse_x*gfx->SCREEN_W_TO_640<=440);
-			ok_status=(mouse_x*gfx->SCREEN_W_TO_640>=520 && mouse_x*gfx->SCREEN_W_TO_640<=600);
+		if( mapsetup_area.get_state( "mapsetup.b_ok" ) || key[KEY_ENTER] ) {
+			while( key[KEY_ENTER] )	{	rest( 20 );	poll_keyboard();	}
+			clear_keybuf();
+			done=true;		// If user click "OK" or hit enter then leave the window
 			}
 
-		if(mouse_b==0 && !ok_status && o_ok_status) {		// Click sur ok
-			if(sel_index!=-1) {
-				done=true;
-				i_map=map_list.begin();
-				for(i=0;i<sel_index && i_map!=map_list.end();i++)	i_map++;
-				String tmp = String("maps\\") + *i_map + String(".tnt");
-				choice = strdup(tmp.c_str());		// Copie le nom de la carte sélectionnée
-				}
-			}
-		if(mouse_b==0 && !cancel_status && o_cancel_status)			// Click sur retour
-			done=true;
-
-		if(key[KEY_ESC]) {
-			while(key[KEY_ESC]) {
-				rest(1);
-				poll_keyboard();
-				}
-			done=true;
-			}
-		if(key[KEY_ENTER]) {
-			if(sel_index!=-1) {
-				done=true;
-				i_map=map_list.begin();
-				for(i=0;i<sel_index && i_map!=map_list.end();i++)	i_map++;
-				String tmp = String("maps\\") + *i_map + String(".tnt");
-				choice = strdup(tmp.c_str());		// Copie le nom de la carte sélectionnée
-				}
-			}
-		bool check=false;
-		if((msec_timer-m_timer)*Conv>=0.1f) {
-			if(key[KEY_DOWN])	{	sel_index++;	m_timer=msec_timer;	check=true;	}
-			if(key[KEY_UP])		{	sel_index--;	m_timer=msec_timer;	check=true;	}
-			if(o_sel!=sel_index && sel_index==-1)	sel_index=0;
-			if(sel_index<-1)	sel_index=-1;
-			if(sel_index>=n)	sel_index=n-1;
+		if( mapsetup_area.get_state( "mapsetup.b_cancel" ) || key[KEY_ESC] ) {
+			while( key[KEY_ESC] )	{	rest( 20 );	poll_keyboard();	}
+			clear_keybuf();
+			done=true;		// If user click "Cancel" or hit ESC then leave the screen returning NULL
+			if( choice )	free( choice );
+			choice = NULL;
 			}
 
-		if(check) {
-			if(sel_index>=dec+(int)(440.0f/h)-1)
-				dec=sel_index-(int)(440.0f/h)+1;
-			if(sel_index>=0 && sel_index<dec)
-				dec=sel_index;
-			}
+		if( mapsetup_area.get_object("mapsetup.map_list") )
+			sel_index = mapsetup_area.get_object("mapsetup.map_list")->Pos;
 
-		dec+=amz-mouse_z;
-		if((msec_timer-m_timer)*Conv>=0.2f) {
-			if(mouse_x*gfx->SCREEN_W_TO_640>=15.0f && mouse_x*gfx->SCREEN_W_TO_640<300.0f && mouse_y*gfx->SCREEN_H_TO_480>=30.0f && mouse_y*gfx->SCREEN_H_TO_480<30.0f+h) {
-				m_timer=msec_timer;
-				dec--;
-				}
-			if(mouse_x*gfx->SCREEN_W_TO_640>=15.0f && mouse_x*gfx->SCREEN_W_TO_640<300.0f && mouse_y*gfx->SCREEN_H_TO_480>=470.0f-h && mouse_y*gfx->SCREEN_H_TO_480<470.0f) {
-				m_timer=msec_timer;
-				dec++;
-				}
-			}
-
-		if( mouse_x*gfx->SCREEN_W_TO_640 > 300 && mouse_x*gfx->SCREEN_W_TO_640 < 320 && mouse_y*gfx->SCREEN_H_TO_480 > 25 && mouse_y*gfx->SCREEN_H_TO_480 < 470 )
-			if( mouse_b == 1 )
-				dec = ((int)(mouse_y * gfx->SCREEN_H_TO_480) - 26) * (int)(n+2-440.0f/h) / 443;
-
-		if(dec<0) dec=0;
-		if(dec>n+1-440.0f/h) dec=(int)(n+1-440.0f/h);
-		amz=mouse_z;
-
-		if(mouse_x*gfx->SCREEN_W_TO_640>=15.0f && mouse_x*gfx->SCREEN_W_TO_640<300.0f && mouse_y*gfx->SCREEN_H_TO_480>=30.0f && mouse_y*gfx->SCREEN_H_TO_480<470.0f) {
-			index=(int)((mouse_y*gfx->SCREEN_H_TO_480-30.0f)/h+dec);
-			if(index>=n) index=-1;		// On ne sort pas de l'intervalle fixé
-			if(mouse_b==1)
-				sel_index=index;
-			}
-		else
-			index=-1;
-
-		if(sel_index!=o_sel && sel_index>=0) {
-			if(dmini)
-				glDeleteTextures(1,&mini);
-			i_map=map_list.begin();
-			for(i=0;i<sel_index && i_map!=map_list.end();i++)	i_map++;
-			String tmp=String("maps\\") + *i_map + String(".tnt");
-			mini=load_tnt_minimap_fast((char*)tmp.c_str(),&dx,&dy);
-			dmini=(mini!=0);
-			tmp=String("maps\\") + *i_map + String(".ota");								// Read the ota file
-			uint32 ota_size=0;
+		if( sel_index != o_sel && sel_index >= 0) {
+			o_sel = sel_index;
+			gfx->destroy_texture( mini );
+			i_map = map_list.begin();
+			for( int i = 0 ; i < sel_index && i_map != map_list.end() ; i++)	i_map++;
+			String tmp = String("maps\\") + *i_map + String(".tnt");
+			mini = load_tnt_minimap_fast((char*)tmp.c_str(),&dx,&dy);
+			if( choice )	free( choice );		// Don't forget to free memory
+			choice = strdup(tmp.c_str());													// Copy the map name
+			tmp = String("maps\\") + *i_map + String(".ota");								// Read the ota file
+			uint32 ota_size = 0;
 			byte *data = HPIManager->PullFromHPI(tmp,&ota_size);
 			if(data) {
 				map_data.load((char*)data,ota_size);
@@ -522,187 +475,52 @@ char *select_map(String *def_choice)		// Cette fonction affiche un menu permetta
 				}
 			else
 				map_data.destroy();
+			if( minimap_obj ) {	// Update the minimap on GUI
+				gfx->destroy_texture( minimap_obj->Data );			// Make things clean
+				minimap_obj->Data = mini;
+				mini = 0;
+				ldx = dx * ( mini_map_x2 - mini_map_x1 ) / 504.0f;
+				ldy = dy * ( mini_map_y2 - mini_map_y1 ) / 504.0f;
+				minimap_obj->x1 = mini_map_x-ldx;
+				minimap_obj->y1 = mini_map_y-ldy;
+				minimap_obj->x2 = mini_map_x+ldx;
+				minimap_obj->y2 = mini_map_y+ldy;
+				minimap_obj->u2 = dx/252.0f;
+				minimap_obj->v2 = dy/252.0f;
+				}
+
+			String map_info = "";
+			if(map_data.missionname)
+				map_info += String( map_data.missionname ) + "\n";
+			if(map_data.numplayers)
+				map_info += "\n" + TRANSLATE("players: ") + String( map_data.numplayers ) + "\n";
+			if(map_data.missiondescription)
+				map_info += String( "\n" ) + map_data.missiondescription;
+			mapsetup_area.set_caption("mapsetup.map_info", map_info );
 			}
 
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);		// Efface l'écran
+								// Efface tout
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		glColor4f(1.0f,1.0f,1.0f,1.0f);
-		gfx->drawtexture(gfx->glfond,0.0f,0.0f,640.0f,480.0);
-
-		glDisable(GL_TEXTURE_2D);
-		glEnable(GL_BLEND);
-		glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
-		glColor4f(0.0f,0.0f,0.0f,0.5f);
-		gfx->rectfill(10.0,25.0f,630.0f,470.0f);
-		glColor4f(1.0f,1.0f,1.0f,0.5f);
-		gfx->rect(10.0f,25.0f,630.0f,470.0f);
-		gfx->rect(347.0f,50.0f,603.0f,306.0f);
-
-		gfx->set_alpha_blending();
-		glBegin( GL_QUADS );
-			glColor4f( 0.0f, 0.0f, 0.5f, 0.5f );
-			glVertex2i( 300, 26 );
-			glVertex2i( 300, 469 );
-			glColor4f( 0.0f, 0.0f, 1.0f, 0.5f );
-			glVertex2i( 310, 469 );
-			glVertex2i( 310, 26 );
-
-			glVertex2i( 310, 469 );
-			glVertex2i( 310, 26 );
-			glColor4f( 0.0f, 0.0f, 0.5f, 0.5f );
-			glVertex2i( 320, 26 );
-			glVertex2i( 320, 469 );
-
-			{
-				int py = dec * 443 / (int)(n+2-440.0f/h);
-				if( py < 0 )	py = 0;
-				int py_h = (dec + 1) * 443 / (int)(n+2-440.0f/h);
-				if( py_h < 0 )	py_h = 443;
-				py += 26;
-				py_h += 26;
-
-				glColor4f( 0.25f, 0.25f, 0.5f, 0.5f );
-				glVertex2i( 300, py );
-				glVertex2i( 300, py_h );
-				glColor4f( 0.5f, 0.5f, 1.0f, 0.5f );
-				glVertex2i( 310, py_h );
-				glVertex2i( 310, py );
-
-				glVertex2i( 310, py_h );
-				glVertex2i( 310, py );
-				glColor4f( 0.25f, 0.25f, 0.5f, 0.5f );
-				glVertex2i( 320, py );
-				glVertex2i( 320, py_h );
-			}
-		glEnd();
-		gfx->unset_alpha_blending();
-
-		glColor4f(1.0f,1.0f,1.0f,0.5f);
-		gfx->line(300.0f,26.0f,300.0f,469.0f);
-		gfx->line(320.0f,26.0f,320.0f,469.0f);
+		mapsetup_area.draw();
 
 		glEnable(GL_TEXTURE_2D);
-
-		glColor4f(1.0f,1.0f,1.0f,1.0f);
-		glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
-		gfx->print(gfx->TA_font,320.0f-gfx->TA_font.length(TRANSLATE("Maps"))*0.5f,6.0f,0.0f,0xFFFFFFFF,TRANSLATE("Maps"));
-
-		i=0;
-		for(i_map=map_list.begin();i_map!=map_list.end();i_map++) {
-			if(30.0f+h*(i-dec)<470.0f-h && h*(i-dec)>=0) {
-				if(i==index || i==sel_index) {
-					glDisable(GL_TEXTURE_2D);
-					glEnable(GL_BLEND);
-					glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
-					glBegin(GL_QUADS);
-						if(i==sel_index)
-							glColor4f(0.0f,0.0f,0.5f,0.5f);
-						else
-							glColor4f(0.25f,0.25f,0.5f,0.5f);
-						glVertex2f(15.0f,30.0f+h*(i-dec));
-						glVertex2f(299.0f,30.0f+h*(i-dec));
-						if(i==sel_index)
-							glColor4f(0.0f,0.0f,1.0f,0.5f);
-						else
-							glColor4f(0.5f,0.5f,1.0f,0.5f);
-						glVertex2f(299.0f,30.0f+h*(i-dec+0.5f));
-						glVertex2f(15.0f,30.0f+h*(i-dec+0.5f));
-
-						glVertex2f(15.0f,30.0f+h*(i-dec+0.5f));
-						glVertex2f(299.0f,30.0f+h*(i-dec+0.5f));
-						if(i==sel_index)
-							glColor4f(0.0f,0.0f,0.5f,0.5f);
-						else
-							glColor4f(0.25f,0.25f,0.5f,0.5f);
-						glVertex2f(299.0f,30.0f+h*(i-dec+1));
-						glVertex2f(15.0f,30.0f+h*(i-dec+1));
-					glEnd();
-					glColor4f(1.0f,1.0f,1.0f,0.5f);
-					glEnable(GL_TEXTURE_2D);
-					glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
-					}
-				gfx->print(gfx->TA_font,20.0f,30.0f+h*(i-dec),0.0f,0xFFFFFFFF,i_map->c_str());
-				}
-			i++;
-			}
-
-		glColor4f(1.0f,1.0f,1.0f,1.0f);
-
-		glDisable(GL_BLEND);
-
-		if(dmini) {
-			glBindTexture(GL_TEXTURE_2D,mini);
-			float ldx=dx*256.0f/252.0f*0.5f;
-			float ldy=dy*256.0f/252.0f*0.5f;
-			glBegin(GL_QUADS);
-
-				glTexCoord2f(0.0f,0.0f);
-				glVertex2f(475.0f-ldx,178.0f-ldy);
-
-				glTexCoord2f(dx/252.0f,0.0f);
-				glVertex2f(475.0f+ldx,178.0f-ldy);
-					
-				glTexCoord2f(dx/252.0f,dy/252.0f);
-				glVertex2f(475.0f+ldx,178.0f+ldy);
-			
-				glTexCoord2f(0.0f,dy/252.0f);
-				glVertex2f(475.0f-ldx,178.0f+ldy);
-
-			glEnd();
-			}
-		glColor4f(1.0f,1.0f,1.0f,1.0f);
-		glEnable(GL_TEXTURE_2D);
-		glEnable(GL_BLEND);
-		glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
-
-		if(map_data.missionname)
-			gfx->print(gfx->TA_font,480.0f-gfx->TA_font.length(map_data.missionname)*0.5f,320.0f,0.0f,0xFFFFFFFF,map_data.missionname);
-		if(map_data.missiondescription) {
-			glBlendFunc(GL_ONE,GL_ONE_MINUS_SRC_COLOR);
-			if(strstr(map_data.missiondescription,"\n")) {
-				char *txt = map_data.missiondescription;
-				char *rem = strstr(txt,"\n");
-				float y_pos = 320.0f+data_h+3.0f;
-				while( rem != NULL ) {
-					rem[0] = 0;
-					gfx->print(gfx->normal_font,340.0f,y_pos,0.0f,0xFFFFFFFF,txt);
-					y_pos += 8.0f;
-					rem[0] = '\n';
-					txt = rem + 1;
-					rem = strstr(txt,"\n");
-					}
-				gfx->print(gfx->normal_font,340.0f,y_pos,0.0f,0xFFFFFFFF,txt);
-				}
-			else
-				gfx->print(gfx->normal_font,340.0f,320.0f+data_h,0.0f,0xFFFFFFFF,map_data.missiondescription);
-			glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
-			}
-		if(map_data.numplayers) {
-			float len=(gfx->TA_font.length(TRANSLATE("players: "))+gfx->TA_font.length(map_data.numplayers))*0.5f;
-			gfx->print(gfx->TA_font,480.0f-len,320.0f+data_h*3.0f,0.0f,0xFFFFFFFF,TRANSLATE("players: "));
-			gfx->print(gfx->TA_font,480.0f-len+gfx->TA_font.length(TRANSLATE("players: ")),320.0f+data_h*3.0f,0.0f,0xFFFFFFFF,map_data.numplayers);
-			}
-
-		o_sel=sel_index;
-
-		glDisable(GL_BLEND);
-
-		button( 360, 440, 440, 460, TRANSLATE("back"), cancel_status, 1.0f, &skin );
-		button( 520, 440, 600, 460, TRANSLATE("ok"), ok_status, 1.0f, &skin );
-
-		draw_cursor();
-
+		gfx->set_color(0xFFFFFFFF);
+		draw_cursor(resize_w,resize_h);
+		
+					// Affiche
 		gfx->flip();
 	}while(!done);
 
-	skin.destroy();
+	if( mapsetup_area.background == gfx->glfond )	mapsetup_area.background = 0;
+	mapsetup_area.destroy();
 
-	if(dmini)
-		glDeleteTextures(1,&mini);
+	gfx->destroy_texture( mini );
 
-	gfx->unset_2D_mode();
+	gfx->unset_2D_mode();	// Quitte le mode de dessin d'allegro
 
-	set_uformat(U_UTF8);
+	reset_mouse();
+	while(key[KEY_ESC]) {	rest(1);	poll_keyboard();	}
 
 	return choice;
 }

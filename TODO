@@ -13,6 +13,8 @@ _networking code
 _improve A.I.
 _D3D support
 
+*map selection menu rewritten using GUI module
+*atomic explosions have been improved
 *weapon smoke density decreased
 *you can build things in a row by holding down your mouse button
 *air repair pads works
