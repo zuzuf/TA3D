@@ -2470,24 +2470,57 @@ do
 		GUIOBJ *onoff_obj = game_area.get_object( current_gui + "." + ta3d_sidedata.side_pref[ players.side_view ] + "ONOFF" );
 		if( onoff_obj == NULL )
 			onoff_obj = game_area.get_object( current_gui + ".ARMONOFF" );
-		if( onoff_obj != NULL )
-		for( uint16 e = 0 ; e < units.index_list_size ; e++ ) {
-			uint16 i = units.idx_list[e];
-			if( (units.unit[i].flags & 1) && units.unit[i].owner_id == players.local_human_id && units.unit[i].sel && unit_manager.unit_type[ units.unit[i].type_id ].onoffable ) {
-				if( onoff_obj->nb_stages > 1 ) {
-					onoff_obj->current_state &= 1;
-					if( onoff_obj->current_state == 0 )
-						units.unit[i].deactivate();
-					else
-						units.unit[i].activate();
+		if( onoff_obj != NULL ) {
+			units.EnterCS_from_outside();
+			for( uint16 e = 0 ; e < units.index_list_size ; e++ ) {
+				uint16 i = units.idx_list[e];
+				units.LeaveCS_from_outside();
+				units.unit[i].Lock();
+				if( (units.unit[i].flags & 1) && units.unit[i].owner_id == players.local_human_id && units.unit[i].sel && unit_manager.unit_type[ units.unit[i].type_id ].onoffable ) {
+					if( onoff_obj->nb_stages > 1 ) {
+						onoff_obj->current_state &= 1;
+						if( onoff_obj->current_state == 0 )
+							units.unit[i].deactivate();
+						else
+							units.unit[i].activate();
+						}
+					else {
+						if( units.unit[i].port[ ACTIVATION ] )
+							units.unit[i].deactivate();
+						else
+							units.unit[i].activate();
+						}
 					}
-				else {
-					if( units.unit[i].port[ ACTIVATION ] )
-						units.unit[i].deactivate();
-					else
-						units.unit[i].activate();
-					}
+				units.unit[i].UnLock();
+				units.EnterCS_from_outside();
 				}
+			units.LeaveCS_from_outside();
+			}
+		}
+
+	if( game_area.get_state( current_gui + "." + ta3d_sidedata.side_pref[ players.side_view ] + "CLOAK" )
+	|| game_area.get_state( current_gui + ".ARMCLOAK" ) ) {		// Toggle the cloak value
+		GUIOBJ *cloak_obj = game_area.get_object( current_gui + "." + ta3d_sidedata.side_pref[ players.side_view ] + "CLOAK" );
+		if( cloak_obj == NULL )
+			cloak_obj = game_area.get_object( current_gui + ".ARMCLOAK" );
+		if( cloak_obj != NULL ) {
+			units.EnterCS_from_outside();
+			for( uint16 e = 0 ; e < units.index_list_size ; e++ ) {
+				uint16 i = units.idx_list[e];
+				units.LeaveCS_from_outside();
+				units.unit[i].Lock();
+				if( (units.unit[i].flags & 1) && units.unit[i].owner_id == players.local_human_id && units.unit[i].sel && unit_manager.unit_type[ units.unit[i].type_id ].CloakCost > 0 ) {
+					if( cloak_obj->nb_stages > 1 ) {
+						cloak_obj->current_state &= 1;
+						units.unit[i].cloaking = cloak_obj->current_state != 0;
+						}
+					else
+						units.unit[i].cloaking ^= true;
+					}
+				units.unit[i].UnLock();
+				units.EnterCS_from_outside();
+				}
+			units.LeaveCS_from_outside();
 			}
 		}
 
@@ -2499,11 +2532,17 @@ do
 			sorder_obj = game_area.get_object( current_gui + ".ARMFIREORD" );
 		if( sorder_obj != NULL ) {
 			sorder_obj->current_state %= 3;
+			units.EnterCS_from_outside();
 			for( uint16 e = 0 ; e < units.index_list_size ; e++ ) {
 				uint16 i = units.idx_list[e];
+				units.LeaveCS_from_outside();
+				units.unit[i].Lock();
 				if( (units.unit[i].flags & 1) && units.unit[i].owner_id == players.local_human_id && units.unit[i].sel )
 					units.unit[i].port[ STANDINGFIREORDERS ] = sorder_obj->current_state;
+				units.unit[i].UnLock();
+				units.EnterCS_from_outside();
 				}
+			units.LeaveCS_from_outside();
 			}
 		}
 
@@ -2515,11 +2554,17 @@ do
 			sorder_obj = game_area.get_object( current_gui + ".ARMMOVEORD" );
 		if( sorder_obj != NULL ) {
 			sorder_obj->current_state %= 3;
+			units.EnterCS_from_outside();
 			for( uint16 e = 0 ; e < units.index_list_size ; e++ ) {
 				uint16 i = units.idx_list[e];
+				units.LeaveCS_from_outside();
+				units.unit[i].Lock();
 				if( (units.unit[i].flags & 1) && units.unit[i].owner_id == players.local_human_id && units.unit[i].sel )
 					units.unit[i].port[ STANDINGMOVEORDERS ] = sorder_obj->current_state;
+				units.unit[i].UnLock();
+				units.EnterCS_from_outside();
 				}
+			units.LeaveCS_from_outside();
 			}
 		}
 
@@ -2565,11 +2610,17 @@ do
 		break;
 	case SIGNAL_ORDER_STOP:
 		sound_manager->PlayTDFSound( "IMMEDIATEORDERS", "sound" , NULL );
+		units.EnterCS_from_outside();
 		for( uint16 e = 0 ; e < units.index_list_size ; e++ ) {
 			uint16 i = units.idx_list[e];
+			units.LeaveCS_from_outside();
+			units.unit[i].Lock();
 			if( (units.unit[i].flags & 1) && units.unit[i].owner_id == players.local_human_id && units.unit[i].sel && unit_manager.unit_type[ units.unit[i].type_id ].canstop )
 				units.unit[i].set_mission(MISSION_STOP);
+			units.unit[i].UnLock();
+			units.EnterCS_from_outside();
 			}
+		units.LeaveCS_from_outside();
 	case SIGNAL_ORDER_ONOFF:
 		current_order=SIGNAL_ORDER_NONE;
 		break;
@@ -2578,6 +2629,7 @@ do
 		current_order=SIGNAL_ORDER_NONE;
 
 	if(sel>=0 && mouse_b==2 && omb2!=2) {
+		units.unit[cur_sel_index].Lock();
 		MISSION *cur=units.unit[cur_sel_index].mission;
 		MISSION **old=&(units.unit[cur_sel_index].mission);
 		int nb=1;
@@ -2610,6 +2662,7 @@ do
 				units.kill(((UNIT*)(units.unit[cur_sel_index].mission->p))->idx,map,prev);
 			units.unit[cur_sel_index].next_mission();
 			}
+		units.unit[cur_sel_index].UnLock();
 		}
 	if(sel>=0 && mouse_b==1 && omb2!=1) {
 		build=sel;

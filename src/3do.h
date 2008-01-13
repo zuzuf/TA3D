@@ -901,14 +901,14 @@ public:
 
 		if( data_s == NULL && animated )
 			obj.draw(t,NULL,sel,false,notex,side,chg_col);
-		else if( data_s == NULL && dlist == 0 && !sel && !notex ) {
+		else if( data_s == NULL && dlist == 0 && !sel && !notex && !chg_col ) {
 			dlist = glGenLists (1);
 			glNewList (dlist, GL_COMPILE);
 				obj.draw_dl(data_s,false,side,chg_col);
 			glEndList();
 			glCallList( dlist );
 			}
-		else if( data_s == NULL && !sel && !notex )
+		else if( data_s == NULL && !sel && !notex && !chg_col )
 			glCallList( dlist );
 		else {
 			obj.draw(t,data_s,sel,false,notex,side,chg_col);

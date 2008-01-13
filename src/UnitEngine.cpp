@@ -448,7 +448,7 @@ bool UNIT::is_on_radar( byte &p_mask )
 			GuardLeave();
 #endif
 			LeaveCS();
-			return;	// Unité non visible
+			return;	// Unit is not visible
 			}
 
 		on_radar &= map->view[py][px] > 1;
@@ -472,7 +472,8 @@ bool UNIT::is_on_radar( byte &p_mask )
 			return;		// Si l'objet est hors champ on ne le dessine pas
 			}
 
-		visible=true;
+		if( !cloaked || owner_id == players.local_human_id )		// Don't show cloaked units
+			visible=true;
 
 		on_radar |= cam->RPos.y>gfx->low_def_limit;
 
@@ -536,7 +537,7 @@ bool UNIT::is_on_radar( byte &p_mask )
 				glEnd();
 				}
 			}
-		else {
+		else if( visible ) {
 			glTranslatef( Pos.x, Pos.y, Pos.z );
 			glRotatef(Angle.x,1.0f,0.0f,0.0f);
 			glRotatef(Angle.z,0.0f,0.0f,1.0f);
@@ -607,7 +608,11 @@ bool UNIT::is_on_radar( byte &p_mask )
 					}
 
 			if(build_percent_left==0.0f) {
-				model->draw(t,&data,owner_id==players.local_human_id && sel,false,c_part,build_part,target,&upos,&M,size,center,reverse,owner_id,true,src,src_data);
+				if( cloaked || ( cloaking && owner_id != players.local_human_id ) )
+					glColor4ub( 0xFF, 0xFF, 0xFF, 0x7F );
+				model->draw(t,&data,owner_id==players.local_human_id && sel,false,c_part,build_part,target,&upos,&M,size,center,reverse,owner_id,!cloaked,src,src_data);
+				if( cloaked || ( cloaking && owner_id != players.local_human_id ) )
+					gfx->set_color( 0xFFFFFFFF );
 				if(height_line && h>1.0f && unit_manager.unit_type[type_id].canfly) {		// For flying units, draw a line that shows how high is the unit
 					glPopMatrix();
 					glPushMatrix();
@@ -2105,6 +2110,33 @@ bool UNIT::is_on_radar( byte &p_mask )
 		if(data.nb_piece>0)
 			data.move(dt,units.g_dt);
 
+		if( cloaking ) {
+			int conso_energy = (mission == NULL || !(mission->flags & MISSION_FLAG_MOVE) ) ? unit_manager.unit_type[ type_id ].CloakCost : unit_manager.unit_type[ type_id ].CloakCostMoving;
+			if( players.energy[ owner_id ] >= (energy_cons + conso_energy) * dt ) {
+				energy_cons += conso_energy;
+				int dx = unit_manager.unit_type[type_id].mincloakdistance >> 3;
+				byte mask = 1 << owner_id;
+				bool found = false;
+				for(int y = cur_py - dx ; y <= cur_py + dx && !found ; y++ )
+					if( y >= 0 && y < map->bloc_h_db - 1 )
+						for(int x = cur_px - dx ; x <= cur_px + dx ; x++ )
+							if( x >= 0 && x < map->bloc_w_db - 1 ) {
+								int cur_idx = map->map_data[y][x].unit_idx;
+
+								if(cur_idx>=0 && cur_idx < units.max_unit && (units.unit[cur_idx].flags & 1) && units.unit[cur_idx].owner_id != owner_id
+								   && sq( unit_manager.unit_type[ type_id ].mincloakdistance ) < (Pos - units.unit[ cur_idx ].Pos).Sq() ) {
+								   	found = true;
+								   	break;
+									}
+								}
+				cloaked = !found;
+				}
+			else
+				cloaked = false;
+			}
+		else
+			cloaked = false;
+
 		if(attached)
 			goto script_exec;
 
@@ -3279,6 +3311,18 @@ bool UNIT::is_on_radar( byte &p_mask )
 						WEAPON *target_weapon = (mission->flags & MISSION_FLAG_TARGET_WEAPON) == MISSION_FLAG_TARGET_WEAPON ? (WEAPON*) mission->p : NULL;
 						if((target_unit!=NULL && (target_unit->flags&1)) || (target_weapon!=NULL && target_weapon->weapon_id!=-1) || (target_weapon==NULL && target_unit==NULL) ) {
 
+							if( target_unit ) {				// Check if we can target the unit
+								byte mask = 1 << owner_id;
+								if( target_unit->cloaked && sq( unit_manager.unit_type[ target_unit->type_id ].mincloakdistance ) > (Pos - target_unit->Pos).Sq()
+								  && !target_unit->is_on_radar( mask ) ) {
+									for( byte i = 0 ; i < 3 ; i++ )
+										if( weapon[ i ].target == mission->p )		// Stop shooting
+											weapon[ i ].state = WEAPON_FLAG_IDLE;
+									next_mission();
+									break;
+									}
+								}
+
 							if( jump_commands && mission->data != 0
 							&& unit_manager.unit_type[type_id].attackrunlength == 0 )	break;					// Just do basic checks every tick, and advanced ones when needed
 
@@ -3444,17 +3488,10 @@ bool UNIT::is_on_radar( byte &p_mask )
 
 									if( port[ INBUILDSTANCE ] != 0.0f ) {
 										float conso_energy=((float)(unit_manager.unit_type[type_id].WorkerTime*unit_manager.unit_type[target_unit->type_id].BuildCostEnergy))/unit_manager.unit_type[target_unit->type_id].BuildTime;
-										if( players.energy[owner_id] >= conso_energy * dt ) {
+										if( players.energy[owner_id] >= (energy_cons + conso_energy) * dt ) {
 											energy_cons += conso_energy;
 											target_unit->hp += dt*unit_manager.unit_type[type_id].WorkerTime*unit_manager.unit_type[target_unit->type_id].MaxDamage/unit_manager.unit_type[target_unit->type_id].BuildTime;
 											}
-/*										float conso_metal=((float)(unit_manager.unit_type[type_id].WorkerTime*unit_manager.unit_type[target_unit->type_id].BuildCostMetal))/unit_manager.unit_type[target_unit->type_id].BuildTime;
-										float conso_energy=((float)(unit_manager.unit_type[type_id].WorkerTime*unit_manager.unit_type[target_unit->type_id].BuildCostEnergy))/unit_manager.unit_type[target_unit->type_id].BuildTime;
-										if(players.metal[owner_id]>=conso_metal*dt && players.energy[owner_id]>=conso_energy*dt) {
-											metal_cons+=conso_metal;
-											energy_cons+=conso_energy;
-											target_unit->hp+=dt*unit_manager.unit_type[type_id].WorkerTime*unit_manager.unit_type[target_unit->type_id].MaxDamage/unit_manager.unit_type[target_unit->type_id].BuildTime;
-											}*/
 										target_unit->built=true;
 										}
 									}
@@ -3494,10 +3531,12 @@ bool UNIT::is_on_radar( byte &p_mask )
 						if(target_unit->flags) {
 							if(target_unit->build_percent_left <= 0.0f) {
 								target_unit->build_percent_left = 0.0f;
-								if(unit_manager.unit_type[target_unit->type_id].ActivateWhenBuilt ) {				// Activation automatique
+								if(unit_manager.unit_type[target_unit->type_id].ActivateWhenBuilt ) {		// Start activated
 									target_unit->port[ ACTIVATION ] = 0;
 									target_unit->activate();
 									}
+								if(unit_manager.unit_type[target_unit->type_id].init_cloaked )				// Start cloaked
+									target_unit->cloaking = true;
 								if(!unit_manager.unit_type[type_id].BMcode) {		// Ordre de se déplacer
 									VECTOR target=Pos;
 									target.z+=128.0f;
@@ -3520,7 +3559,7 @@ bool UNIT::is_on_radar( byte &p_mask )
 							else if( port[ INBUILDSTANCE ] != 0 ) {
 								float conso_metal=((float)(unit_manager.unit_type[type_id].WorkerTime*unit_manager.unit_type[target_unit->type_id].BuildCostMetal))/unit_manager.unit_type[target_unit->type_id].BuildTime;
 								float conso_energy=((float)(unit_manager.unit_type[type_id].WorkerTime*unit_manager.unit_type[target_unit->type_id].BuildCostEnergy))/unit_manager.unit_type[target_unit->type_id].BuildTime;
-								if(players.metal[owner_id]>=conso_metal*dt && players.energy[owner_id]>=conso_energy*dt) {
+								if(players.metal[owner_id]>= (metal_cons + conso_metal)*dt && players.energy[owner_id]>= (energy_cons+conso_energy)*dt) {
 									metal_cons+=conso_metal;
 									energy_cons+=conso_energy;
 									target_unit->build_percent_left-=dt*unit_manager.unit_type[type_id].WorkerTime*100.0f/unit_manager.unit_type[target_unit->type_id].BuildTime;
@@ -3838,7 +3877,10 @@ bool UNIT::is_on_radar( byte &p_mask )
 											cur = cur->next;
 											}
 										if(cur_idx>=0 && cur_idx<units.max_unit && units.unit[cur_idx].flags && units.unit[cur_idx].owner_id != owner_id
-										&& unit_manager.unit_type[units.unit[cur_idx].type_id].ShootMe && ( (units.map->sight_map->line[y>>1][x>>1] & mask) || units.unit[cur_idx].is_on_radar( mask ) )
+										&& unit_manager.unit_type[units.unit[cur_idx].type_id].ShootMe
+										&& ( units.unit[cur_idx].is_on_radar( mask ) ||
+										   ( (units.map->sight_map->line[y>>1][x>>1] & mask)
+										   && ( !units.unit[cur_idx].cloaked || sq( unit_manager.unit_type[ units.unit[ cur_idx ].type_id ].mincloakdistance ) > (Pos - units.unit[ cur_idx ].Pos).Sq() ) ) )
 										&& !unit_manager.unit_type[ units.unit[cur_idx].type_id ].checkCategory( unit_manager.unit_type[type_id].BadTargetCategory ) ) {
 											if( !returning_fire
 											|| ( units.unit[cur_idx].weapon[0].state != WEAPON_FLAG_IDLE && units.unit[cur_idx].weapon[0].target == this )

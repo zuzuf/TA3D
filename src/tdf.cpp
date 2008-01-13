@@ -252,6 +252,7 @@ void load_features()				// Charge tout les éléments
 	{
 		if(nb_features<=0) return;
 		cam->SetView();			// Positionne la caméra
+		gfx->ReInitAllTex( true );
 		glAlphaFunc(GL_GREATER,0.1);
 		glEnable(GL_ALPHA_TEST);
 
@@ -396,6 +397,9 @@ void load_features()				// Charge tout les éléments
 					glRotatef( feature[i].angle, 0.0f, 1.0f, 0.0f );
 					glRotatef( feature[i].angle_x, 1.0f, 0.0f, 0.0f );
 					feature_manager.feature[feature[i].type].model->draw(t,NULL,false,false,false,0,NULL,NULL,NULL,0.0f,NULL,false,0,!feature[i].grey);
+
+					gfx->ReInitAllTex( true );
+
 					glPopMatrix();
 					glEnable(GL_BLEND);
 					if(!feature_manager.feature[feature[i].type].converted)				// To fix opacity with converted models
@@ -409,6 +413,10 @@ void load_features()				// Charge tout les éléments
 				}
 			}
 		LeaveCS();
+
+		glColor4ub( 255, 255, 255, 255 );
+
+		gfx->ReInitAllTex( true );
 
 		glEnable(GL_POLYGON_OFFSET_FILL);
 		quad_table.draw_all();

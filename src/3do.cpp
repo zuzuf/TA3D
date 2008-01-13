@@ -789,6 +789,7 @@ void OBJECT::draw_optimised( bool set )
 		bool explodes = script_index>=0 && data_s && (data_s->flag[script_index] & FLAG_EXPLODE);
 		bool hide=false;
 		bool set=false;
+		float color_factor[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
 		glPushMatrix();
 		if( explodes && !exploding_parts )
 			goto draw_next;
@@ -820,10 +821,22 @@ void OBJECT::draw_optimised( bool set )
 			glRotatef( R.z, 0.0f, 0.0f, 1.0f );
 			}
 		hide |= explodes ^ exploding_parts;
-		if( gl_dlist[ side ] && !hide )
+		if( !chg_col )
+			glGetFloatv( GL_CURRENT_COLOR, color_factor );
+		if( gl_dlist[ side ] && !hide && chg_col && !notex ) {
 			glCallList( gl_dlist[ side ] );
+			alset = false;
+			set = false;
+			}
 		else if( !hide ) {
-			glNewList( gl_dlist[ side ], GL_COMPILE_AND_EXECUTE);
+			bool creating_list = false;
+			if( chg_col && !notex && gl_dlist[ side ] == 0 ) {
+				gl_dlist[ side ] = glGenLists( 1 );
+				glNewList( gl_dlist[ side ], GL_COMPILE_AND_EXECUTE);
+				alset = false;
+				set = false;
+				creating_list = true;
+				}
 			if(nb_t_index>0 && nb_vtx>0 && t_index!=NULL) {
 				bool activated_tex=false;
 				if(surface.Flag&SURFACE_ADVANCED) {
@@ -835,7 +848,13 @@ void OBJECT::draw_optimised( bool set )
 						if(surface.Flag&SURFACE_PLAYER_COLOR)
 							glColor4f(player_color[side*3],player_color[side*3+1],player_color[side*3+2],surface.Color[3]);		// Couleur de matière
 						else
-							glColor4f(surface.Color[0],surface.Color[1],surface.Color[2],surface.Color[3]);		// Couleur de matière
+							glColor4fv(surface.Color);		// Couleur de matière
+						}
+					else if( !chg_col && !notex ){
+						if(surface.Flag&SURFACE_PLAYER_COLOR)
+							glColor4f(player_color[side*3]*color_factor[0],player_color[side*3+1]*color_factor[1],player_color[side*3+2]*color_factor[2],surface.Color[3]*color_factor[3]);		// Couleur de matière
+						else
+							glColor4f(surface.Color[0]*color_factor[0],surface.Color[1]*color_factor[1],surface.Color[2]*color_factor[2],surface.Color[3]*color_factor[3]);		// Couleur de matière
 						}
 
 					if(surface.Flag&SURFACE_GOURAUD)			// Type d'éclairage
@@ -848,7 +867,7 @@ void OBJECT::draw_optimised( bool set )
 					else
 						glDisable(GL_LIGHTING);
 
-					if(surface.Flag&SURFACE_BLENDED) {			// La transparence
+					if(surface.Flag&SURFACE_BLENDED || (!chg_col && color_factor[3] != 1.0f ) ) {			// La transparence
 						glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
 						glEnable(GL_BLEND);
 						}
@@ -916,6 +935,12 @@ void OBJECT::draw_optimised( bool set )
 							glEnable(GL_TEXTURE_2D);
 						alset=true;
 						}
+					if( !chg_col && color_factor[3] != 1.0f ) {			// La transparence
+						glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+						glEnable(GL_BLEND);
+						}
+					else
+						glDisable(GL_BLEND);
 					set=true;
 					if(!dtex) {
 						alset=false;
@@ -960,7 +985,8 @@ void OBJECT::draw_optimised( bool set )
 	//				glEnable(GL_TEXTURE_2D);
 					}
 				}
-			glEndList();
+			if( creating_list )
+				glEndList();
 			}
 #ifdef DEBUG_MODE_3DO
 		if(nb_l_index>0 && nb_vtx>0) {
@@ -999,6 +1025,8 @@ void OBJECT::draw_optimised( bool set )
 			glEnable(GL_CULL_FACE);
 			alset=false;
 			}
+		if( !chg_col )
+			glColor4fv( color_factor );
 		if(child && !(explodes && !exploding_parts) ) {
 			glPushMatrix();
 			alset=child->draw(t,data_s,sel_primitive,alset,notex,side,chg_col, exploding_parts && !explodes );

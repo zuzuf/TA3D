@@ -956,7 +956,7 @@ int WND::check(int AMx,int AMy,int AMz,int AMb,bool timetoscroll, SKIN *skin )
 							|| mouse_y - y <= Objets[i].y1 + skin->text_background.y1
 							|| mouse_y - y >= Objets[i].y2 + skin->text_background.y2) )			// We're on ListBox decoration!
 							break;
-						Objets[i].Pos = (uint32) ((mouse_y - y - Objets[i].y1 - ( skin ? skin->text_background.y1:0) - 4) / ( gui_font.height() * Objets[i].s ) + Objets[i].Data);						Objets[i].Etat = true;
+						Objets[i].Pos = (uint32) ((mouse_y - y - Objets[i].y1 - ( skin ? skin->text_background.y1:4) ) / ( gui_font.height() * Objets[i].s ) + Objets[i].Data);						Objets[i].Etat = true;
 						}
 					break;
 				case OBJ_TA_BUTTON:

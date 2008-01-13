@@ -203,6 +203,8 @@ public:
 	bool	antiweapons;
 	bool	emitting_points_computed;	// Just to test if we need to get emitting point from script
 	uint8	selfdestructcountdown;
+	bool	init_cloaked;
+	int		mincloakdistance;
 
 /*-----------------------------------------------------------------------*/
 
@@ -295,6 +297,8 @@ public:
 		BuildList=NULL;
 		PicList=NULL;
 
+		init_cloaked = false;
+		mincloakdistance = 10;
 		DefaultMissionType=MISSION_STANDBY;
 		attackrunlength=0;
 		yardmap=NULL;

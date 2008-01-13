@@ -141,7 +141,7 @@ public:
 	{
 		if(stack==NULL) {			// Si la pile est vide, renvoie 0 et un message pour le débuggage
 #ifdef DEBUG_MODE
-			Console->AddEntry("interpréteur de scripts: pile vide\n");
+			Console->AddEntry("COB VM: stack is empty!\n");
 #endif
 			return 0;
 			}
@@ -297,6 +297,8 @@ public:
 	float					shadow_scale_dir;
 	bool					hidden;				// Used when unit is attached to another one but is hidden (i.e. transport ship)
 	bool					flying;
+	bool					cloaked;			// Is the unit cloaked
+	bool					cloaking;			// Cloaking the unit if enough energy
 
 		// Following variables are used to control the drawing of the unit on the presence maps
 	bool			drawn_open;			// Used to store the last state the unit was drawn on the presence map (opened or closed)
@@ -409,6 +411,19 @@ public:
 	inline void clear_mission()
 	{
 		if(mission==NULL)	return;
+
+		if( mission->mission == MISSION_GET_REPAIRED && mission->p ) {		// Don't forget to detach the planes from air repair pads!
+			UNIT *target_unit = (UNIT*)(mission->p);
+			target_unit->Lock();
+			if( target_unit->flags & 1 ) {
+				int piece_id = mission->data >= 0 ? mission->data : (-mission->data - 1);
+				if( target_unit->pad1 == piece_id )			// tell others we've left
+					target_unit->pad1 = 0xFFFF;
+				else target_unit->pad2 = 0xFFFF;
+				}
+			target_unit->UnLock();
+			}
+
 		MISSION *old=mission;
 		mission=mission->next;
 		if(old->path)				// Détruit le chemin si nécessaire
@@ -502,6 +517,9 @@ public:
 		old_px = old_py = -10000;
 
 		flying = false;
+
+		cloaked = false;
+		cloaking = false;
 
 		hidden = false;
 		shadow_scale_dir = -1.0f;

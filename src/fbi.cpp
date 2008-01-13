@@ -246,6 +246,8 @@ void UNIT_TYPE::show_info(float fade,GFX_FONT fnt)
 			else if(f=strstr(ligne,"healtime="))			HealTime=atoi(f+9)*30;		// To have it in seconds
 			else if(f=strstr(ligne,"cloakcost="))			CloakCost=atoi(f+10);
 			else if(f=strstr(ligne,"cloakcostmoving="))		CloakCostMoving=atoi(f+16);
+			else if(f=strstr(ligne,"init_cloaked="))		init_cloaked=f[13]=='1';
+			else if(f=strstr(ligne,"mincloakdistance="))	mincloakdistance=atoi(f+17)>>1;
 			else if(f=strstr(ligne,"builddistance="))		BuildDistance=atoi(f+14);
 			else if(f=strstr(ligne,"activatewhenbuilt="))	ActivateWhenBuilt=(f[18]=='1');
 			else if(f=strstr(ligne,"immunetoparalyzer="))	ImmuneToParalyzer=(f[18]=='1');
