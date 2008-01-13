@@ -875,11 +875,27 @@ int WND::check(int AMx,int AMy,int AMz,int AMb,bool timetoscroll, SKIN *skin )
 				int TotalScroll = Objets[i].Text.size() - (int)( (Objets[i].y2 - Objets[i].y1 - skin->text_background.y1 + skin->text_background.y2) / ( gui_font.height() * Objets[i].s ) );
 				if( TotalScroll < 0 )	TotalScroll = 0;
 
-				int nscroll = (int)Objets[i].Data - mouse_z + AMz;
-				if( nscroll < 0 )					nscroll = 0;
-				else if( nscroll > TotalScroll )	nscroll = TotalScroll;
+				if( mouse_b == 1
+					&& mouse_x - x >= Objets[i].x2 + skin->text_background.x2 - skin->scroll[0].w
+					&& mouse_x - x <= Objets[i].x2 + skin->text_background.x2
+					&& mouse_y - y >= Objets[i].y1 + skin->text_background.y1
+					&& mouse_y - y <= Objets[i].y2 + skin->text_background.y2 ) {			// We're on the scroll bar!
+					
+					if( mouse_y - y > Objets[i].y1 + skin->text_background.y1 + skin->scroll[0].y1
+					&& mouse_y - y < Objets[i].y2 + skin->text_background.y2 + skin->scroll[0].y2 ) {		// Set scrolling position
+						Objets[i].Data = (int)( 0.5f + TotalScroll * (mouse_y - y - Objets[i].y1 - skin->text_background.y1 - skin->scroll[0].y1 - (skin->scroll[0].w - skin->scroll[ 0 ].x1 + skin->scroll[ 0 ].x2 ) * 0.5f )
+										/ ( Objets[i].y2 - Objets[i].y1 - skin->text_background.y1 + skin->text_background.y2 - skin->scroll[0].y1 + skin->scroll[0].y2 - ( skin->scroll[0].w - skin->scroll[ 0 ].x1 + skin->scroll[ 0 ].x2 ) * 0.5f ) );
+						}
+					if( Objets[i].Data > TotalScroll )
+						Objets[i].Data = TotalScroll;
+					}
+				else {
+					int nscroll = (int)Objets[i].Data - mouse_z + AMz;
+					if( nscroll < 0 )					nscroll = 0;
+					else if( nscroll > TotalScroll )	nscroll = TotalScroll;
 
-				Objets[i].Data = nscroll;
+					Objets[i].Data = nscroll;
+					}
 				}
 			break;
 		};

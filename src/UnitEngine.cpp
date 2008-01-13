@@ -2200,6 +2200,13 @@ bool UNIT::is_on_radar( byte &p_mask )
 			case WEAPON_FLAG_AIM:											// Vise une unité / aiming code
 				if( weapon[i].target == NULL || ((weapon[i].state&WEAPON_FLAG_WEAPON)==WEAPON_FLAG_WEAPON && ((WEAPON*)(weapon[i].target))->weapon_id!=-1)
 				|| ((weapon[i].state&WEAPON_FLAG_WEAPON)!=WEAPON_FLAG_WEAPON && (((UNIT*)(weapon[i].target))->flags&1))) {
+					if( (weapon[i].state&WEAPON_FLAG_WEAPON)!=WEAPON_FLAG_WEAPON && weapon[i].target != NULL && ((UNIT*)(weapon[i].target))->cloaked
+					&& ((UNIT*)(weapon[i].target))->owner_id != owner_id )	{
+						weapon[i].data = -1;
+						weapon[i].state = WEAPON_FLAG_IDLE;
+						break;
+						}
+
 					if( !(weapon[i].state & WEAPON_FLAG_COMMAND_FIRE) && unit_manager.unit_type[type_id].weapon[ i ]->commandfire ) {	// Not allowed to fire
 						weapon[i].data = -1;
 						weapon[i].state = WEAPON_FLAG_IDLE;
@@ -3313,8 +3320,7 @@ bool UNIT::is_on_radar( byte &p_mask )
 
 							if( target_unit ) {				// Check if we can target the unit
 								byte mask = 1 << owner_id;
-								if( target_unit->cloaked && sq( unit_manager.unit_type[ target_unit->type_id ].mincloakdistance ) > (Pos - target_unit->Pos).Sq()
-								  && !target_unit->is_on_radar( mask ) ) {
+								if( target_unit->cloaked && !target_unit->is_on_radar( mask ) ) {
 									for( byte i = 0 ; i < 3 ; i++ )
 										if( weapon[ i ].target == mission->p )		// Stop shooting
 											weapon[ i ].state = WEAPON_FLAG_IDLE;
@@ -3880,7 +3886,7 @@ bool UNIT::is_on_radar( byte &p_mask )
 										&& unit_manager.unit_type[units.unit[cur_idx].type_id].ShootMe
 										&& ( units.unit[cur_idx].is_on_radar( mask ) ||
 										   ( (units.map->sight_map->line[y>>1][x>>1] & mask)
-										   && ( !units.unit[cur_idx].cloaked || sq( unit_manager.unit_type[ units.unit[ cur_idx ].type_id ].mincloakdistance ) > (Pos - units.unit[ cur_idx ].Pos).Sq() ) ) )
+										   && !units.unit[cur_idx].cloaked ) )
 										&& !unit_manager.unit_type[ units.unit[cur_idx].type_id ].checkCategory( unit_manager.unit_type[type_id].BadTargetCategory ) ) {
 											if( !returning_fire
 											|| ( units.unit[cur_idx].weapon[0].state != WEAPON_FLAG_IDLE && units.unit[cur_idx].weapon[0].target == this )
