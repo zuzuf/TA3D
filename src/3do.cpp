@@ -981,8 +981,9 @@ void OBJECT::draw_optimised( bool set )
 						glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 						glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 						}
-	//				glActiveTextureARB(GL_TEXTURE0_ARB);
-	//				glEnable(GL_TEXTURE_2D);
+					glClientActiveTextureARB(GL_TEXTURE0_ARB);
+					glActiveTextureARB(GL_TEXTURE0_ARB);
+					glEnable(GL_TEXTURE_2D);
 					}
 				}
 			if( creating_list )

@@ -375,26 +375,32 @@ do
 		for(int i=0;i<cur_data.nb_piece;i++)
 			cur_data.flag[i] = FLAG_ANIMATE;
 		TheModel->draw(msec_timer * 0.001f,&cur_data,false,false,false,0,NULL,NULL,NULL,0.0f,NULL,false,0,false);
+		gfx->ReInitAllTex( true );
+		glEnable(GL_TEXTURE_2D);
 		glClear(GL_DEPTH_BUFFER_BIT);
 		for( int i=0 ; i < cur_data.nb_piece ; i++ )
 			cur_data.flag[i] = ((i == EditWnd.Objets[1].Data) ? 0 : FLAG_HIDE) | FLAG_ANIMATE;
 		glColor3f(1.0f,1.0f,1.0f);
 		TheModel->draw(msec_timer * 0.001f,&cur_data,false,false,false,0,NULL,NULL,NULL,0.0f,NULL,false,0,false);
 		glColor3f(1.0f,1.0f,1.0f);
-		glDisable(GL_TEXTURE_2D);
+		gfx->ReInitAllTex( true );
+		glEnable(GL_TEXTURE_2D);
 		}
 	else if(TheModel) {					// Affichage normal
-		glColor3f(1.0f,1.0f,1.0f);
+		glColor4f(1.0f,1.0f,1.0f,1.0f);
 		for(int i=0;i<cur_data.nb_piece;i++)
 			cur_data.flag[i]= ((i != cur_part) ? 0 : FLAG_HIDE) | FLAG_ANIMATE;
-		TheModel->draw(msec_timer * 0.001f,&cur_data,false,false,false,0,NULL,NULL,NULL,0.0f,NULL,false,0,true);
+		TheModel->draw(msec_timer * 0.001f,&cur_data,false,false,false,0,NULL,NULL,NULL,0.0f,NULL,false,0,false);
+		gfx->ReInitAllTex( true );
+		glEnable(GL_TEXTURE_2D);
 		for(int i=0;i<cur_data.nb_piece;i++)
 			cur_data.flag[i]= ((i == cur_part) ? 0 : FLAG_HIDE) | FLAG_ANIMATE;
 		float col = cos(msec_timer*0.002f)*0.375f+0.625f;
 		glColor3f(col,col,col);
 		TheModel->draw(msec_timer * 0.001f,&cur_data,false,false,false,0,NULL,NULL,NULL,0.0f,NULL,false,0,false);
 		glColor3f(1.0f,1.0f,1.0f);
-		glDisable(GL_TEXTURE_2D);
+		gfx->ReInitAllTex( true );
+		glEnable(GL_TEXTURE_2D);
 		}
 	glEnable( GL_CULL_FACE );
 
