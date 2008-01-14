@@ -470,7 +470,7 @@ void load_features()				// Charge tout les éléments
 					glTranslatef(feature[i].Pos.x,feature[i].Pos.y,feature[i].Pos.z);
 					glRotatef( feature[i].angle, 0.0f, 1.0f, 0.0f );
 					glRotatef( feature[i].angle_x, 1.0f, 0.0f, 0.0f );
-					VECTOR R_Dir = (sqrt(feature_manager.feature[feature[i].type].model->size)*2.0f) * Dir * RotateY( -feature[i].angle * DEG2RAD ) * RotateX( -feature[i].angle_x * DEG2RAD );
+					VECTOR R_Dir = (sqrt(feature_manager.feature[feature[i].type].model->size)*2.0f+feature[i].Pos.y) * Dir * RotateY( -feature[i].angle * DEG2RAD ) * RotateX( -feature[i].angle_x * DEG2RAD );
 					if(g_useStencilTwoSide)													// Si l'extension GL_EXT_stencil_two_side est disponible
 						feature_manager.feature[feature[i].type].model->draw_shadow( R_Dir,t,NULL);
 					else

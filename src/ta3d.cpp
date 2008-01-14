@@ -2942,6 +2942,13 @@ do
 					units.unit[id].cur_px = (int)target_pos.x;
 					units.unit[id].cur_py = (int)target_pos.z;
 					units.unit[id].draw_on_map();
+
+					if(unit_manager.unit_type[units.unit[id].type_id].ActivateWhenBuilt ) {		// Start activated
+						units.unit[id].port[ ACTIVATION ] = 0;
+						units.unit[id].activate();
+						}
+					if(unit_manager.unit_type[units.unit[id].type_id].init_cloaked )				// Start cloaked
+						units.unit[id].cloaking = true;
 					}
 				units.unit[ id ].UnLock();
 				}

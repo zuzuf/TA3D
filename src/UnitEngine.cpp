@@ -97,7 +97,7 @@ uint32 UNIT::write_sync_data( byte *buf, int buf_pos )
 	return buf_pos;
 }
 
-bool UNIT::is_on_radar( byte &p_mask )
+bool UNIT::is_on_radar( byte p_mask )
 {
 	int px = cur_px>>1;
 	int py = cur_py>>1;
@@ -451,6 +451,8 @@ bool UNIT::is_on_radar( byte &p_mask )
 			return;	// Unit is not visible
 			}
 
+		bool radar_detected = on_radar;
+
 		on_radar &= map->view[py][px] > 1;
 
 		VECTOR D;
@@ -472,14 +474,18 @@ bool UNIT::is_on_radar( byte &p_mask )
 			return;		// Si l'objet est hors champ on ne le dessine pas
 			}
 
-		if( !cloaked || owner_id == players.local_human_id )		// Don't show cloaked units
+		if( !cloaked || owner_id == players.local_human_id ) {		// Don't show cloaked units
 			visible=true;
-
-		on_radar |= cam->RPos.y>gfx->low_def_limit;
+			on_radar |= cam->RPos.y>gfx->low_def_limit;
+			}
+		else {
+			on_radar |= radar_detected;
+			visible = on_radar;
+			}
 
 		MATRIX_4x4 M;
 		glPushMatrix();
-		if( on_radar && visible ) {			// for mega zoom, draw only an icon
+		if( on_radar ) {			// for mega zoom, draw only an icon
 			glTranslatef( Pos.x, max(Pos.y,map->sealvl), Pos.z );
 			glEnable(GL_TEXTURE_2D);
 			int unit_nature = ICON_UNKNOWN;
@@ -2211,7 +2217,7 @@ bool UNIT::is_on_radar( byte &p_mask )
 				if( weapon[i].target == NULL || ((weapon[i].state&WEAPON_FLAG_WEAPON)==WEAPON_FLAG_WEAPON && ((WEAPON*)(weapon[i].target))->weapon_id!=-1)
 				|| ((weapon[i].state&WEAPON_FLAG_WEAPON)!=WEAPON_FLAG_WEAPON && (((UNIT*)(weapon[i].target))->flags&1))) {
 					if( (weapon[i].state&WEAPON_FLAG_WEAPON)!=WEAPON_FLAG_WEAPON && weapon[i].target != NULL && ((UNIT*)(weapon[i].target))->cloaked
-					&& ((UNIT*)(weapon[i].target))->owner_id != owner_id )	{
+					&& ((UNIT*)(weapon[i].target))->owner_id != owner_id && !((UNIT*)(weapon[i].target))->is_on_radar( 1 << owner_id ) )	{
 						weapon[i].data = -1;
 						weapon[i].state = WEAPON_FLAG_IDLE;
 						break;
@@ -2343,17 +2349,17 @@ bool UNIT::is_on_radar( byte &p_mask )
 								if(unit_manager.unit_type[type_id].weapon[ i ]->lineofsight) {
 									if(target_unit==NULL) {
 										if( target_weapon == NULL )
-											aim_dir=weapon[i].target_pos-(Pos+data.pos[start_piece]);
+											weapon[i].aim_dir=weapon[i].target_pos-(Pos+data.pos[start_piece]);
 										else
-											aim_dir=((WEAPON*)(weapon[i].target))->Pos-(Pos+data.pos[start_piece]);
+											weapon[i].aim_dir=((WEAPON*)(weapon[i].target))->Pos-(Pos+data.pos[start_piece]);
 										}
 									else
-										aim_dir = ((UNIT*)(weapon[i].target))->Pos+target_pos_on_unit-(Pos+data.pos[start_piece]);
-									aim_dir = aim_dir + target_translation;
-									aim_dir.Unit();
+										weapon[i].aim_dir = ((UNIT*)(weapon[i].target))->Pos+target_pos_on_unit-(Pos+data.pos[start_piece]);
+									weapon[i].aim_dir = weapon[i].aim_dir + target_translation;
+									weapon[i].aim_dir.Unit();
 									}
 								else
-									aim_dir=cos(aiming[1]*TA2RAD)*(cos(aiming[0]*TA2RAD+Angle.y*DEG2RAD)*I+sin(aiming[0]*TA2RAD+Angle.y*DEG2RAD)*J)+sin(aiming[1]*TA2RAD)*IJ;
+									weapon[i].aim_dir=cos(aiming[1]*TA2RAD)*(cos(aiming[0]*TA2RAD+Angle.y*DEG2RAD)*I+sin(aiming[0]*TA2RAD+Angle.y*DEG2RAD)*J)+sin(aiming[1]*TA2RAD)*IJ;
 								switch( i )
 								{
 								case 0:
@@ -2446,20 +2452,8 @@ bool UNIT::is_on_radar( byte &p_mask )
 									Dir.y=1.0f;
 									Dir.z=0.0f;
 									}
-								else {
-									Dir = aim_dir;
-/*									if(unit_manager.unit_type[type_id].weapon[ i ]->lineofsight && !unit_manager.unit_type[type_id].weapon[ i ]->turret) {
-										if( weapon[i].target == NULL )
-											Dir = weapon[i].target_pos-(Pos+data.pos[start_piece]);
-										else {
-											if( weapon[i].state & WEAPON_FLAG_WEAPON )
-												Dir = ((WEAPON*)(weapon[i].target))->Pos-(Pos+data.pos[start_piece]);
-											else
-												Dir = ((UNIT*)(weapon[i].target))->Pos+((UNIT*)(weapon[i].target))->model->center-(Pos+data.pos[start_piece]);
-											}
-										Dir.Unit();
-										}*/
-									}
+								else
+									Dir = weapon[i].aim_dir;
 								}
 							if( weapon[i].target == NULL )
 								shoot(-1,Pos+data.pos[start_piece],Dir,i, weapon[i].target_pos );
@@ -5063,8 +5057,8 @@ void INGAME_UNITS::move(float dt,MAP *map,int key_frame,bool wind_change)
 		pathfinder_calls[ i ] = requests[ i ].empty() ? -1 : requests[ i ].front();
 
 	uint32 i;
+	EnterCS();
 	for( uint16 e = 0 ; e < index_list_size ; e++ ) {		// Compte les stocks de ressources et les productions
-		EnterCS();
 		i = idx_list[e];
 		LeaveCS();
 
@@ -5129,7 +5123,9 @@ void INGAME_UNITS::move(float dt,MAP *map,int key_frame,bool wind_change)
 				}
 			}
 		unit[i].UnLock();
+		EnterCS();
 		}
+	LeaveCS();
 
 	exp_dt_1=exp(-dt);
 	exp_dt_2=exp(-2.0f*dt);
@@ -5137,8 +5133,8 @@ void INGAME_UNITS::move(float dt,MAP *map,int key_frame,bool wind_change)
 	g_dt=dt*map->ota_data.gravity;
 	int *path_exec = new int[ players.nb_player ];
 	memset( path_exec, 0, sizeof( int ) * players.nb_player );
+	EnterCS();
 	for( uint16 e = 0 ; e < index_list_size ; e++ ) {
-		EnterCS();
 		i = idx_list[e];
 		LeaveCS();
 
@@ -5151,6 +5147,7 @@ void INGAME_UNITS::move(float dt,MAP *map,int key_frame,bool wind_change)
 			kill(i,map,e);
 			e--;			// Can't skip a unit
 			unit[ i ].UnLock();
+			EnterCS();
 			continue;
 			}
 
@@ -5178,7 +5175,9 @@ void INGAME_UNITS::move(float dt,MAP *map,int key_frame,bool wind_change)
 			unit[i].cur_metal_prod = unit[i].metal_prod;
 			unit[ i ].UnLock();
 			}
+		EnterCS();
 		}
+	LeaveCS();
 
 	delete[] path_exec;
 
@@ -5500,18 +5499,20 @@ void INGAME_UNITS::draw(CAMERA *cam,MAP *map,bool underwater,bool limit,bool cul
 	float sea_lvl = limit ? map->sealvl-5.0f : map->sealvl;
 	float virtual_t = (float)current_tick / TICKS_PER_SEC;
 	cam->SetView();
+	EnterCS();
 	for(uint16 e=0;e<index_list_size;e++) {
-		EnterCS();
 		uint16 i = idx_list[e];
 		LeaveCS();
 
-		gfx->GFX_EnterCS();
+//		gfx->GFX_EnterCS();
 		unit[i].Lock();
 		if( (unit[i].flags & 1) && ((unit[i].Pos.y + unit[i].model->bottom <= map->sealvl && underwater) || (unit[i].Pos.y + unit[i].model->top >= sea_lvl && !underwater)))				// Si il y a une unité
 			unit[i].draw(virtual_t,cam,map,height_line);
 		unit[i].UnLock();
-		gfx->GFX_LeaveCS();
+//		gfx->GFX_LeaveCS();
+		EnterCS();
 		}
+	LeaveCS();
 
 	if( !cullface )
 		glEnable(GL_CULL_FACE);
@@ -5676,7 +5677,7 @@ int INGAME_UNITS::Run()
 
 		gfx->GFX_EnterCS();
 
-		if( map->fog_of_war != FOW_DISABLED & (current_tick & 0xF) == 0 ) {
+		if( !(current_tick & 0xF) ) {
 			if( map->fog_of_war & FOW_GREY )
 				memset( map->sight_map->line[0], 0, map->sight_map->w * map->sight_map->h );		// Clear FOW map
 			memset( map->radar_map->line[0], 0, map->radar_map->w * map->radar_map->h );		// Clear radar map

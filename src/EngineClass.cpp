@@ -1618,20 +1618,25 @@ void PLAYERS::player_control()
 		byte	*sync_data = new byte[ 35 * units.max_unit ];
 		uint32	sync_pos = 0;
 
+		units.EnterCS_from_outside();
 		for( int e = 0 ; e < units.nb_unit ; e++ ) {
-			units.EnterCS_from_outside();
 			int i = units.idx_list[ e ];
+			if( i < 0 || i >= units.max_unit )	continue;		// Error !!
 			units.LeaveCS_from_outside();
 
 			units.unit[ i ].Lock();
 			if( !(units.unit[ i ].flags & 1) )	{
 				units.unit[ i ].UnLock();
+				units.EnterCS_from_outside();
 				continue;
 				}
 			if( !(control[ units.unit[ i ].owner_id ] & PLAYER_CONTROL_FLAG_REMOTE) )
 				sync_pos = units.unit[ i ].write_sync_data( sync_data, sync_pos );
 			units.unit[ i ].UnLock();
+
+			units.EnterCS_from_outside();
 			}
+		units.LeaveCS_from_outside();
 
 //		printf("packet size (uncompressed) = %d\n", sync_pos );
 

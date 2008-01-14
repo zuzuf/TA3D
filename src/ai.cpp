@@ -306,10 +306,13 @@ void f_scan_unit( AI_PLAYER *ai )							// Scan the units the AI player currentl
 		}
 
 	int e;
+	units.EnterCS_from_outside();
 	for( e = ai->unit_id ; e < units.nb_unit && e < ai->unit_id + 100 ; e++ ) {
 		int i = units.idx_list[ e ];
+		if( i < 0 || i >= units.max_unit )	continue;		// Error
+		units.LeaveCS_from_outside();
 		units.unit[ i ].Lock();
-		if( units.unit[ i ].flags && units.unit[ i ].type_id >= 0 ) {
+		if( (units.unit[ i ].flags & 1) && units.unit[ i ].type_id >= 0 ) {
 			if( units.unit[ i ].owner_id == ai->player_id ) {
 				ai->weights[ units.unit[ i ].type_id ].nb++;
 				if( ai->weights[ units.unit[ i ].type_id ].type & AI_FLAG_ARMY )
@@ -334,7 +337,9 @@ void f_scan_unit( AI_PLAYER *ai )							// Scan the units the AI player currentl
 				}
 			}
 		units.unit[ i ].UnLock();
+		units.EnterCS_from_outside();
 		}
+	units.LeaveCS_from_outside();
 	ai->unit_id = e >= units.nb_unit ? 0 : e;
 }
 
@@ -424,7 +429,7 @@ void f_think( AI_PLAYER *ai, MAP *map )				// La vrai fonction qui simule l'Inte
 
 	for( List<uint16>::iterator i = ai->army_list.begin() ; i != ai->army_list.end() ; i++ ) {				// Give instructions to idle army units
 		units.unit[ *i ].Lock();
-		if( units.unit[ *i ].flags && units.unit[ *i ].do_nothing() ) {
+		if( (units.unit[ *i ].flags & 1) && units.unit[ *i ].do_nothing() ) {
 			sint16 player_target = -1;
 			float best_weight = 15.0f;
 			for( int e = 0 ; e < players.nb_player ; e++ )				// Who can we attack ?
@@ -442,8 +447,13 @@ void f_think( AI_PLAYER *ai, MAP *map )				// La vrai fonction qui simule l'Inte
 						target_id = -1;
 						ai->enemy_list[ player_target ].pop_front();		// Remove what we've just read
 						}
-					else
+					else {
+						if( units.unit[ target_id ].cloaked && !units.unit[ target_id ].is_on_radar( 1 << ai->player_id ) ) {		// This one is cloaked, not on radar
+							target_id = -1;
+							continue;
+							}
 						ai->enemy_list[ player_target ].begin()->c++;
+						}
 					}
 				if( target_id >= 0 )
 					units.unit[ *i ].add_mission( MISSION_ATTACK, &units.unit[ target_id ].Pos, false, 0, (&units.unit[ target_id ]), NULL, MISSION_FLAG_COMMAND_FIRE );

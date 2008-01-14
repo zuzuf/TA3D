@@ -171,6 +171,7 @@ public:
 	void	*target;
 	sint16	data;
 	byte	flags;
+	VECTOR	aim_dir;		// Vecteur de visée
 
 	inline void init()
 	{
@@ -182,6 +183,7 @@ public:
 		target_pos.x = target_pos.y = target_pos.z = 0.0f;
 		time = 0.0f;
 		data = -1;
+		aim_dir.x = aim_dir.y = aim_dir.z = 0.0f;
 	}
 
 	WEAPON_DATA()
@@ -260,7 +262,6 @@ public:
 	bool					compute_coord;	// Indique s'il est nécessaire de recalculer les coordonnées du modèle 3d
 	Vector< short >			*script_val;	// Tableau de valeurs retournées par les scripts
 	uint16					idx;			// Indice dans le tableau d'unité
-	VECTOR					aim_dir;		// Vecteur de visée
 	float					h;				// Altitude (par rapport au sol)
 	bool					visible;		// Indique si l'unité est visible / Tell if the unit is currently visible
 	bool					on_radar;		// Radar drawing mode (icons)
@@ -347,7 +348,7 @@ public:
 
 	void draw_on_FOW( bool jamming = false );
 
-	bool is_on_radar( byte &p_mask );
+	bool is_on_radar( byte p_mask );
 
 	inline void start_mission_script(int mission_type)
 	{

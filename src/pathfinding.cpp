@@ -234,13 +234,11 @@ SECTOR **map_data, float **map, int bloc_w, int bloc_h, float dh_max, float low_
 void compute_coord(PATH_NODE *path,int map_w,int map_h,int bloc_w,int bloc_h)
 {
 	PATH_NODE *tmp = path;
-	float m_w = ((float)map_w) / bloc_w;
-	float m_h = ((float)map_h) / bloc_h;
-	float h_w = map_w * 0.5f;
-	float h_h = map_h * 0.5f;
+	int h_w = map_w >> 1;
+	int h_h = map_h >> 1;
 	while(tmp) {
-		tmp->Pos.x = tmp->x * m_w - h_w;
-		tmp->Pos.z = tmp->y * m_h - h_h;
+		tmp->Pos.x = (tmp->x << 3) + 4 - h_w;
+		tmp->Pos.z = (tmp->y << 3) + 4 - h_h;
 		tmp->Pos.y = 0.0f;
 		tmp = tmp->next;
 		}
@@ -248,10 +246,10 @@ void compute_coord(PATH_NODE *path,int map_w,int map_h,int bloc_w,int bloc_h)
 
 PATH_NODE *find_path( SECTOR **map_data, float **map, byte **zone, int map_w, int map_h, int bloc_w, int bloc_h, float dh_max, float low_level, float high_level, VECTOR Start, VECTOR End, int mw, int mh, int u_idx, int m_dist, float hover_h )
 {
-	int start_x = (int)((Start.x + map_w * 0.5f) * bloc_w / map_w);
-	int start_y = (int)((Start.z + map_h * 0.5f) * bloc_h / map_h);
-	int end_x = (int)((End.x + map_w * 0.5f) * bloc_w / map_w);
-	int end_y = (int)((End.z + map_h * 0.5f) * bloc_h / map_h);
+	int start_x = (int)Start.x + (map_w >> 1) + 4 >> 3;
+	int start_y = (int)Start.z + (map_h >> 1) + 4 >> 3;
+	int end_x = (int)End.x + (map_w >> 1) + 4 >> 3;
+	int end_y = (int)End.z + (map_h >> 1) + 4 >> 3;
 
 	int START_X = start_x << 1;
 	int START_Y = start_y << 1;
