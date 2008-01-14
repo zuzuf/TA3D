@@ -2872,7 +2872,7 @@ void AREA::load_tdf( const String &filename )			// Loads a TDF file telling whic
 
 	name = areaFile->PullAsString( "area.name", name );					// The TDF may override the area name
 
-	String skin_name = areaFile->PullAsString( "area.skin" );
+	String skin_name = ( lp_CONFIG != NULL && !lp_CONFIG->skin_name.empty() ) ? lp_CONFIG->skin_name : areaFile->PullAsString( "area.skin" );
 	if( TA3D_exists( skin_name ) ) {			// Loads a skin
 		skin = new SKIN;
 		skin->load_tdf( skin_name );
@@ -2883,8 +2883,20 @@ void AREA::load_tdf( const String &filename )			// Loads a TDF file telling whic
 		load_window( windows_to_load[ i ] );
 
 	String background_name = areaFile->PullAsString( "area.background" );
+	if( skin && !skin->suffix.empty() ) {
+		int ext_len = strlen( get_extension( background_name.c_str() ) );
+		if( ext_len > 0 )
+			background_name = background_name.substr( 0, background_name.size() - ext_len - 1 ) + skin->suffix + "." + get_extension( background_name.c_str() );
+		else
+			background_name += skin->suffix;
+		}
 	if( TA3D_exists( background_name ) )			// Loads a background image
 		background = gfx->load_texture( background_name );
+	else if( skin && !skin->suffix.empty() ) {
+		background_name = areaFile->PullAsString( "area.background" );			// No suffixed version, retry with default background
+		if( TA3D_exists( background_name ) )			// Loads a background image
+			background = gfx->load_texture( background_name );
+		}
 
 	delete areaFile; 
 
@@ -2932,6 +2944,8 @@ void SKIN_OBJECT::draw( float X1, float Y1, float X2, float Y2, bool bkg )
 
 void SKIN::init()
 {
+	suffix = "";
+
 	for( int i = 0 ; i < 2 ; i++ )
 		button_img[i].init();
 	text_background.init();
@@ -2968,6 +2982,8 @@ void SKIN::destroy()
 	wnd_title_bar.destroy();
 	selection_gfx.destroy();
 
+	suffix.clear();
+
 	Name.clear();
 	gfx->destroy_texture(  wnd_background );
 }
@@ -3002,6 +3018,8 @@ void SKIN::load_tdf( const String &filename )			// Loads the skin from a TDF fil
 	if( e != -1 )	Name = Name.substr( e + 1, Name.size() - e - 1 );
 
 	Name = skinFile->PullAsString( "skin.name", Name );					// The TDF may override the skin name
+
+	suffix = skinFile->PullAsString( "skin.suffix", "" );				// The prefix to use for 
 
 	wnd_border.load( skinFile->PullAsString( "skin.window borders" ), "skin.border_", skinFile );
 	button_img[0].load( skinFile->PullAsString( "skin.button0" ), "skin.button_", skinFile );

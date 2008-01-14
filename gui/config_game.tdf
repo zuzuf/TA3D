@@ -2,13 +2,13 @@
 {
 	title=Display;
 	uformat=UTF8;
-	x=442;
+	x=446;
 	y=166;
 	width=738;
 	height=720;
 	draw borders=false;
 	show title=false;
-	number of objects=21;
+	number of objects=23;
 	hidden=true;
 	lock=true;
 	color=0x00000000;			// Fully transparent so we can see the AREA background
@@ -240,6 +240,28 @@
 		y1=395;
 		x2=730;
 		y2=425;
+		value=0;
+		size=1.5;
+	}
+	[object21]		// Option "skin"
+	{
+		name=t_skin;
+		type=TEXT;
+		caption=current skin;
+		x1=0;
+		y1=430;
+		value=0xFFFFFFFF;
+		size=2;
+	}
+	[object22]		// Option "skin"
+	{
+		name=skin;
+		type=MENU;
+		entry=,default.skn;
+		x1=420;
+		y1=430;
+		x2=730;
+		y2=460;
 		value=0;
 		size=1.5;
 	}

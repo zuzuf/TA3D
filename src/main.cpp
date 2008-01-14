@@ -107,6 +107,8 @@ void LoadConfigFile( void )
 	TA3D::VARS::lp_CONFIG->camera_def_h = cfgFile->PullAsFloat( "TA3D.Camera Default Height", 200.0f );
 	TA3D::VARS::lp_CONFIG->camera_zoom_speed = cfgFile->PullAsFloat( "TA3D.Camera Zoom Speed", 1.0f );
 
+	TA3D::VARS::lp_CONFIG->skin_name = cfgFile->PullAsString( "TA3D.Skin", "" );
+
 	TA3D::VARS::TA3D_CURRENT_MOD = TA3D::VARS::lp_CONFIG->last_MOD;
 
 	TA3D::VARS::lp_CONFIG->player_name = cfgFile->PullAsString( "TA3D.Player name", "player" );
@@ -220,6 +222,7 @@ void SaveConfigFile( void )
 	m_File << " Camera Default Angle=" << TA3D::VARS::lp_CONFIG->camera_def_angle << ";\n";
 	m_File << "Camera Default Height=" << TA3D::VARS::lp_CONFIG->camera_def_h << ";\n";
 	m_File << "    Camera Zoom Speed=" << TA3D::VARS::lp_CONFIG->camera_zoom_speed << ";\n";
+	m_File << "                 Skin=" << TA3D::VARS::lp_CONFIG->skin_name << ";\n";
 	m_File << "}\n";
 
 	m_File.flush();

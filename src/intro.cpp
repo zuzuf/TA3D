@@ -38,7 +38,21 @@
 
 void play_intro(char *txt_file)
 {
-	GLuint glfond = gfx->load_texture("gfx/intro.jpg");
+	GLuint glfond = 0;
+
+	if( !lp_CONFIG->skin_name.empty() && TA3D_exists( lp_CONFIG->skin_name ) ) {			// Loads a skin
+		SKIN *skin = new SKIN;
+		skin->load_tdf( lp_CONFIG->skin_name );
+
+		if( !skin->suffix.empty() )
+			glfond = gfx->load_texture("gfx/intro" + skin->suffix + ".jpg");
+		else
+			glfond = gfx->load_texture("gfx/intro.jpg");
+
+		delete skin;
+		}
+	else
+		glfond = gfx->load_texture("gfx/intro.jpg");
 
 	bool done=false;
 
@@ -179,7 +193,19 @@ void loading(float percent,const String &msg)
 	bool init=(Glfond==0);
 	if(init) {
 		messages.clear();
-		Glfond = gfx->load_texture("gfx/load.jpg");
+		if( !lp_CONFIG->skin_name.empty() && TA3D_exists( lp_CONFIG->skin_name ) ) {			// Loads a skin
+			SKIN *skin = new SKIN;
+			skin->load_tdf( lp_CONFIG->skin_name );
+
+			if( !skin->suffix.empty() )
+				Glfond = gfx->load_texture("gfx/load" + skin->suffix + ".jpg");
+			else
+				Glfond = gfx->load_texture("gfx/load.jpg");
+
+			delete skin;
+			}
+		else
+			Glfond = gfx->load_texture("gfx/load.jpg");
 		}
 
 	gfx->set_2D_mode();

@@ -88,6 +88,8 @@ namespace TA3D
 		String	last_MOD;
 		String	player_name;				// Name of local player
 
+		String	skin_name;					// The skin used ( empty means default )
+
 		// Variables used to communicate with all the code
 		bool	quickrestart;				// Should be false, set to true when need to restart to enable options/parameters
 		bool	quickstart;					// Tell to speed up the starting process
@@ -95,6 +97,8 @@ namespace TA3D
 
 		TA3DCONFIG()
 		{
+			skin_name = "";
+
 			camera_zoom = ZOOM_NORMAL;
 			camera_def_angle = 63.44f;		// TA angle
 			camera_def_h = 200.0f;

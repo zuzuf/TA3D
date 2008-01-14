@@ -646,7 +646,10 @@ void config_menu(void)
 	if( config_area.get_object("*.mod") ) {
 		GUIOBJ *obj = config_area.get_object("*.mod");
 
-		obj->Text[0] = obj->Text[1];
+		if( obj->Text.size() >= 2 )
+			obj->Text[0] = obj->Text[1];
+		else
+			obj->Text.resize( 1 );
 
 		al_ffblk search;
 		String current_selection = TA3D_CURRENT_MOD.length() > 6 ? TA3D_CURRENT_MOD.substr( 5, TA3D_CURRENT_MOD.length() - 6 ) : "";
@@ -665,6 +668,28 @@ void config_menu(void)
 			}
 		}
 	config_area.set_caption("*.player_name", lp_CONFIG->player_name );
+
+	if( config_area.get_object("*.skin") ) {
+		GUIOBJ *obj = config_area.get_object("*.skin");
+
+		obj->Text.resize( 1 );
+		obj->Text[ 0 ] = TRANSLATE( "default.skn" );
+
+		al_ffblk search;
+
+		if( al_findfirst( "gui/*.skn", &search, FA_RDONLY | FA_DIREC ) == 0 ) {
+			do
+			{
+				if( String( search.name ) != ".." && String( search.name ) != "." ) {		// Have to exclude both .. & . because of windows finding . as something interesting
+					obj->Text.push_back( search.name );
+					if( "gui/" + Lowercase( search.name ) == Lowercase( lp_CONFIG->skin_name ) )
+						obj->Text[0] = search.name;
+					}
+			} while( al_findnext( &search ) == 0 );
+
+			al_findclose(&search);
+			}
+		}
 
 	if( config_area.get_object("*.l_files") ) {
 		GUIOBJ *obj = config_area.get_object("*.l_files");
@@ -861,6 +886,13 @@ void config_menu(void)
 			if( obj && obj->Data != -1 ) {
 				obj->Text[0] = obj->Text[ 1 + obj->Data ];
 				lp_CONFIG->last_MOD = obj->Data > 0 ? "mods/" + obj->Text[0] + "/" : "";
+				}
+			}
+		if( config_area.get_state( "*.skin" ) ) {
+			GUIOBJ *obj = config_area.get_object( "*.skin" );
+			if( obj && obj->Data != -1 ) {
+				obj->Text[0] = obj->Text[ 1 + obj->Data ];
+				lp_CONFIG->skin_name = obj->Data > 0 ? "gui/" + obj->Text[0] : "";
 				}
 			}
 
