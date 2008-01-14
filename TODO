@@ -50,6 +50,8 @@ _some parts of the maps might not be drawn (visibility limit) like hills
 _slow down with lots of 3D sprites on some gfx hardware (speed increased but bug not yet fixed)
 _fix all other bugs ( :-) )
 
+*fixed buildangle variable in FBI code
+*fixed yard map bug that prevented CORVP from building units
 *fixed explosion drawing bug : sprites aren't drawn upside down any more
 *fixed MAP::hit sometimes not returning a solution when it should
 *fixed some parts of low definition map being hidden into water

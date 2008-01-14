@@ -726,10 +726,11 @@ void PARTICLE_SYSTEM::draw()
 				glDrawElements(GL_QUADS, (j+1<<2),GL_UNSIGNED_SHORT,index);		// dessine le tout
 
 			glBlendFunc(GL_SRC_ALPHA,GL_ONE);
-//			glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
 			}
 
 		LeaveCS();
+
+		glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
 
 		glDisableClientState(GL_NORMAL_ARRAY);
 		glEnableClientState(GL_VERTEX_ARRAY);				// Vertices

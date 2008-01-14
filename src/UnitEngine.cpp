@@ -479,7 +479,7 @@ bool UNIT::is_on_radar( byte &p_mask )
 
 		MATRIX_4x4 M;
 		glPushMatrix();
-		if( on_radar ) {			// for mega zoom, draw only an icon
+		if( on_radar && visible ) {			// for mega zoom, draw only an icon
 			glTranslatef( Pos.x, max(Pos.y,map->sealvl), Pos.z );
 			glEnable(GL_TEXTURE_2D);
 			int unit_nature = ICON_UNKNOWN;
@@ -687,6 +687,11 @@ bool UNIT::is_on_radar( byte &p_mask )
 		if( model == NULL )
 			Console->AddEntry( "Warning : model is NULL!!" );
 
+		if( cloaked && owner_id != players.local_human_id ) {		// Unit is cloaked
+			LeaveCS();
+			return;
+			}
+
 		if(!visible) {
 			VECTOR S_Pos = drawn_Pos-(h/Dir.y)*Dir;//map->hit(Pos,Dir);
 			int px=((int)(S_Pos.x)+map->map_w_d)>>4;
@@ -739,6 +744,11 @@ bool UNIT::is_on_radar( byte &p_mask )
 #endif
 		EnterCS();
 		if( on_radar || hidden )	{
+			LeaveCS();
+			return;
+			}
+
+		if( cloaked && owner_id != players.local_human_id ) {		// Unit is cloaked
 			LeaveCS();
 			return;
 			}
@@ -2378,7 +2388,10 @@ bool UNIT::is_on_radar( byte &p_mask )
 			case WEAPON_FLAG_SHOOT:											// Tire sur une unité / fire!
 				if( weapon[i].target == NULL || (( weapon[i].state & WEAPON_FLAG_WEAPON ) == WEAPON_FLAG_WEAPON && ((WEAPON*)(weapon[i].target))->weapon_id!=-1)
 				|| (( weapon[i].state & WEAPON_FLAG_WEAPON ) != WEAPON_FLAG_WEAPON && (((UNIT*)(weapon[i].target))->flags&1))) {
-					if( weapon[i].burst > 0 && weapon[i].delay <= unit_manager.unit_type[type_id].weapon[ i ]->burstrate )		break;
+					if( weapon[i].burst > 0 && weapon[i].delay <= unit_manager.unit_type[type_id].weapon[ i ]->burstrate ) {
+						weapon[i].state = WEAPON_FLAG_AIM;		// Continue aiming, so we'll increase precision
+						break;
+						}
 					int query_id=-1;
 					int Aim_script = -1;
 					int Fire_script = -1;
@@ -2435,7 +2448,7 @@ bool UNIT::is_on_radar( byte &p_mask )
 									}
 								else {
 									Dir = aim_dir;
-									if(unit_manager.unit_type[type_id].weapon[ i ]->lineofsight && !unit_manager.unit_type[type_id].weapon[ i ]->turret) {
+/*									if(unit_manager.unit_type[type_id].weapon[ i ]->lineofsight && !unit_manager.unit_type[type_id].weapon[ i ]->turret) {
 										if( weapon[i].target == NULL )
 											Dir = weapon[i].target_pos-(Pos+data.pos[start_piece]);
 										else {
@@ -2445,7 +2458,7 @@ bool UNIT::is_on_radar( byte &p_mask )
 												Dir = ((UNIT*)(weapon[i].target))->Pos+((UNIT*)(weapon[i].target))->model->center-(Pos+data.pos[start_piece]);
 											}
 										Dir.Unit();
-										}
+										}*/
 									}
 								}
 							if( weapon[i].target == NULL )
@@ -2668,8 +2681,8 @@ bool UNIT::is_on_radar( byte &p_mask )
 						NPos.z += (rand_from_table() % 201) * 0.01f - 1.0f;
 						was_locked = false;
 						}
-					n_px = ((int)(NPos.x)+map->map_w_d)>>3;
-					n_py = ((int)(NPos.z)+map->map_h_d)>>3;
+					n_px = ((int)(NPos.x)+map->map_w_d+4)>>3;
+					n_py = ((int)(NPos.z)+map->map_h_d+4)>>3;
 					precomputed_position = true;
 					if( !flying ) {
 						if( n_px != cur_px || n_py != cur_py ) {			// has something changed ??
@@ -3586,8 +3599,8 @@ bool UNIT::is_on_radar( byte &p_mask )
 											target_unit->Pos.z = old_pos.z;
 											}
 										else {
-											target_unit->cur_px = ((int)(target_unit->Pos.x)+map->map_w_d)>>3;
-											target_unit->cur_py = ((int)(target_unit->Pos.z)+map->map_h_d)>>3;
+											target_unit->cur_px = ((int)(target_unit->Pos.x)+map->map_w_d+4)>>3;
+											target_unit->cur_py = ((int)(target_unit->Pos.z)+map->map_h_d+4)>>3;
 											}
 										target_unit->Angle = Angle;
 										target_unit->Angle.y += data.axe[1][(*script_val)[script_id_buildinfo]].angle;
@@ -3644,25 +3657,21 @@ bool UNIT::is_on_radar( byte &p_mask )
 								V.x = 0.0f;
 								V.y = 0.0f;
 								V.z = 0.0f;
-								if(map->check_rect((((int)(mission->target.x)+map->map_w_d)>>3)-(unit_manager.unit_type[mission->data].FootprintX>>1),(((int)(mission->target.z)+map->map_h_d)>>3)-(unit_manager.unit_type[mission->data].FootprintZ>>1),unit_manager.unit_type[mission->data].FootprintX,unit_manager.unit_type[mission->data].FootprintZ,-1)) {				// Vérifie s'il y a la place de construire l'unité
-									LeaveCS();
-									mission->p=create_unit(mission->data,owner_id,mission->target,map);
-									EnterCS();
-									if( !unit_manager.unit_type[type_id].BMcode && mission->p != NULL ) {
-										int script_id_buildinfo = get_script_index(SCRIPT_QueryBuildInfo);
-										if( script_id_buildinfo >= 0 ) {
-											int param[] = { 0 };
-											run_script_function( map, script_id_buildinfo, 1, param );
-											if( param[0] >= 0 ) {
-												compute_model_coord();
-												((UNIT*)(mission->p))->Pos = Pos + data.pos[ param[0] ];
-												LeaveCS();
-												((UNIT*)(mission->p))->draw_on_map();
-												EnterCS();
-												mission->target = ((UNIT*)(mission->p))->Pos;
-												}
+								if( !unit_manager.unit_type[type_id].BMcode ) {
+									int script_id_buildinfo = get_script_index(SCRIPT_QueryBuildInfo);
+									if( script_id_buildinfo >= 0 ) {
+										int param[] = { -1 };
+										run_script_function( map, script_id_buildinfo, 1, param );
+										if( param[0] >= 0 ) {
+											compute_model_coord();
+											mission->target = Pos + data.pos[ param[0] ];
 											}
 										}
+									}
+								if(map->check_rect((((int)(mission->target.x)+map->map_w_d+4)>>3)-(unit_manager.unit_type[mission->data].FootprintX>>1),(((int)(mission->target.z)+map->map_h_d+4)>>3)-(unit_manager.unit_type[mission->data].FootprintZ>>1),unit_manager.unit_type[mission->data].FootprintX,unit_manager.unit_type[mission->data].FootprintZ,-1)) {				// Check it we have an empty place to build our unit
+									LeaveCS();
+									mission->p = create_unit(mission->data,owner_id,mission->target,map);
+									EnterCS();
 									if(mission->p) {
 										((UNIT*)(mission->p))->hp=0.000001f;
 										((UNIT*)(mission->p))->built=true;
@@ -4034,8 +4043,8 @@ bool UNIT::is_on_radar( byte &p_mask )
 				if( unit_manager.unit_type[type_id].canmove && unit_manager.unit_type[type_id].BMcode )
 					V.y-=units.g_dt;			// L'unité subit la force de gravitation
 				Pos = Pos+dt*V;			// Déplace l'unité
-				cur_px = ((int)(Pos.x)+map->map_w_d)>>3;
-				cur_py = ((int)(Pos.z)+map->map_h_d)>>3;
+				cur_px = ((int)(Pos.x)+map->map_w_d+4)>>3;
+				cur_py = ((int)(Pos.z)+map->map_h_d+4)>>3;
 				}
 			if( units.current_tick - ripple_timer >= 7 && Pos.y <= map->sealvl && Pos.y + model->top >= map->sealvl && (unit_manager.unit_type[type_id].fastCategory & CATEGORY_NOTSUB)
 			&& cur_px >= 0 && cur_py >= 0 && cur_px < map->bloc_w_db && cur_py < map->bloc_h_db && !map->map_data[ cur_py ][ cur_px ].lava && map->water ) {
@@ -4677,8 +4686,8 @@ void UNIT::draw_on_map()
 					}
 				}
 			if( found ) {
-				Pos.x = (cur_px<<3) + 8 - units.map->map_w_d;
-				Pos.z = (cur_py<<3) + 8 - units.map->map_h_d;
+				Pos.x = (cur_px<<3) + 4 - units.map->map_w_d;
+				Pos.z = (cur_py<<3) + 4 - units.map->map_h_d;
 				if( mission && (mission->flags & MISSION_FLAG_MOVE) )
 					mission->flags |= MISSION_FLAG_REFRESH_PATH;
 				}
@@ -4749,8 +4758,8 @@ void *create_unit(int type_id,int owner,VECTOR pos,MAP *map)
 
 		units.unit[id].Pos=pos;
 		units.unit[id].build_percent_left=100.0f;
-		units.unit[id].cur_px = ((int)(units.unit[id].Pos.x)+map->map_w_d)>>3;
-		units.unit[id].cur_py = ((int)(units.unit[id].Pos.z)+map->map_h_d)>>3;
+		units.unit[id].cur_px = ((int)(units.unit[id].Pos.x)+map->map_w_d+4)>>3;
+		units.unit[id].cur_py = ((int)(units.unit[id].Pos.z)+map->map_h_d+4)>>3;
 		units.unit[id].UnLock();
 
 		units.unit[id].draw_on_map();
@@ -4832,8 +4841,8 @@ const bool can_be_built(const VECTOR Pos,MAP *map,const int unit_type_id, const 
 
 	int w = unit_manager.unit_type[unit_type_id].FootprintX;
 	int h = unit_manager.unit_type[unit_type_id].FootprintZ;
-	int x = ((int)(Pos.x+map->map_w_d)>>3)-(w>>1);
-	int y = ((int)(Pos.z+map->map_h_d)>>3)-(h>>1);
+	int x = ((int)(Pos.x)+map->map_w_d+4>>3)-(w>>1);
+	int y = ((int)(Pos.z)+map->map_h_d+4>>3)-(h>>1);
 	if(x<0 || y<0 || x+w>=(map->bloc_w<<1) || y+h>=(map->bloc_h<<1))	return false;	// check if it is inside the map
 
 	if(!map->check_rect(x,y,w,h,-1))	return false;		// There already something
@@ -5272,7 +5281,7 @@ int INGAME_UNITS::create(int type_id,int owner)
 	free_index_size[owner]--;
 	idx_list[index_list_size++] = unit_index;
 	unit[unit_index].init(type_id,owner);
-	unit[unit_index].Angle.y = ((rand_from_table()%2001)-1000)*0.01f;	// Angle de 10° maximum
+	unit[unit_index].Angle.y = ((rand_from_table()%20001)-10000) * 0.0001f * unit_manager.unit_type[ type_id ].BuildAngle * TA2DEG;	// Angle de 10° maximum
 
 	if( unit_manager.unit_type[ type_id ].IsAirBase )			// Say we're here !
 		repair_pads[ owner ].push_front( unit_index );
@@ -5327,7 +5336,7 @@ void INGAME_UNITS::draw_mini(float map_w,float map_h,int mini_w,int mini_h,SECTO
 				units.unit[ i ].UnLock();
 				continue;
 				}
-			if( (!(map->view_map->line[py>>1][px>>1]&mask) || !(map->sight_map->line[py>>1][px>>1]&mask)) && !unit[i].on_mini_radar ) {
+			if( (!(map->view_map->line[py>>1][px>>1]&mask) || !(map->sight_map->line[py>>1][px>>1]&mask) || (unit[i].cloaked && unit[i].owner_id != players.local_human_id ) ) && !unit[i].on_mini_radar ) {
 				units.unit[ i ].UnLock();
 				continue;	// Unité non visible / Unit is not visible
 				}
