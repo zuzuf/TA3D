@@ -198,14 +198,14 @@ void loading(float percent,const String &msg)
 			skin->load_tdf( lp_CONFIG->skin_name );
 
 			if( !skin->suffix.empty() )
-				Glfond = gfx->load_texture("gfx/load" + skin->suffix + ".jpg");
+				Glfond = gfx->load_texture_mask("gfx/load" + skin->suffix + ".jpg", 7);
 			else
-				Glfond = gfx->load_texture("gfx/load.jpg");
+				Glfond = gfx->load_texture_mask("gfx/load.jpg", 7);
 
 			delete skin;
 			}
 		else
-			Glfond = gfx->load_texture("gfx/load.jpg");
+			Glfond = gfx->load_texture_mask("gfx/load.jpg", 7);
 		}
 
 	gfx->set_2D_mode();
@@ -239,11 +239,20 @@ void loading(float percent,const String &msg)
 	glDisable(GL_TEXTURE_2D);
 	glColor3f(0.5f,0.8f,0.3f);
 	glBegin(GL_QUADS);
-		glVertex2f(100.0f,862.0f);
-		glVertex2f(100.0f+10.72f*percent,862.0f);
+		glVertex2f(100.0f,858.0f);
+		glVertex2f(100.0f+10.72f*percent,858.0f);
 		glVertex2f(100.0f+10.72f*percent,917.0f);
 		glVertex2f(100.0f,917.0f);
 	glEnd();
+
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+	glColor4f(1.0f,1.0f,1.0f,1.0f);
+
+	gfx->drawtexture(Glfond,100.0f,856.0f,1172.0f,917.0f,100.0f / 1280.0f,862.0f/1024.0f,1172.0f/1280.0f,917.0f/1024.0f);
+
+	glDisable(GL_BLEND);
+
 	glEnable(GL_TEXTURE_2D);
 
 	glEnable(GL_BLEND);

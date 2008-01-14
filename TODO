@@ -14,6 +14,7 @@ _improve A.I.
 _D3D support
 
 *new skin
+*scaling support for GUI widgets
 *new skin mechanism for menu backgrounds
 *3D tree size x 1.5
 *map selection menu rewritten using GUI module

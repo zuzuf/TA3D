@@ -4,4 +4,6 @@
 	skin=gui/default.skn;
 	windows=gui/mapsetup.tdf;
 	background=gfx/mapsetup.jpg;
+	width=1280;
+	height=1024;
 }

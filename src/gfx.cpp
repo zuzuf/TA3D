@@ -707,6 +707,50 @@ GLuint GFX::load_texture(String file, byte filter_type, uint32 *width, uint32 *h
 	return gl_tex;
 }
 
+GLuint	GFX::load_texture_mask( String file, int level, byte filter_type, uint32 *width, uint32 *height, bool clamp )
+{
+	if( !exists( file.c_str() ) )	return 0;		// The file doesn't exist
+
+	set_color_depth(32);
+	BITMAP *bmp = load_bitmap( file.c_str(), NULL);
+	if( bmp == NULL )	return 0;					// Operation failed
+	if( width )		*width = bmp->w;
+	if( height )	*height = bmp->h;
+	if( bitmap_color_depth(bmp) != 32 ) {
+		BITMAP *tmp = create_bitmap_ex( 32, bmp->w, bmp->h );
+		blit( bmp, tmp, 0, 0, 0, 0, bmp->w, bmp->h);
+		destroy_bitmap(bmp);
+		bmp=tmp;
+		}
+	bool with_alpha = Lowercase( get_extension( file.c_str() ) ) == "tga";
+	if( with_alpha ) {
+		with_alpha = false;
+		for( int y = 0 ; y < bmp->h && !with_alpha ; y++ )
+			for( int x = 0 ; x < bmp->w && !with_alpha ; x++ )
+				with_alpha |= bmp->line[y][(x<<2)+3] != 255;
+		}
+	else
+		for( int y = 0 ; y < bmp->h ; y++ )
+			for( int x = 0 ; x < bmp->w ; x++ )
+				bmp->line[y][(x<<2)+3] = 255;
+
+	for( int y = 0 ; y < bmp->h ; y++ )
+		for( int x = 0 ; x < bmp->w ; x++ )
+			if( bmp->line[y][(x<<2)] < level && bmp->line[y][(x<<2)+1] < level && bmp->line[y][(x<<2)+2] < level ) {
+				bmp->line[y][(x<<2)+3] = 0;
+				with_alpha = true;
+				}
+	if(g_useTextureCompression)
+		allegro_gl_set_texture_format( with_alpha ? GL_COMPRESSED_RGBA_ARB : GL_COMPRESSED_RGB_ARB );
+	else
+		allegro_gl_set_texture_format( with_alpha ? GL_RGBA8 : GL_RGB8 );
+	allegro_gl_use_alpha_channel( with_alpha );
+	GLuint gl_tex = make_texture( bmp, filter_type, clamp );
+	allegro_gl_use_alpha_channel(false);
+	destroy_bitmap(bmp);
+	return gl_tex;
+}
+
 GLuint	GFX::load_texture_from_cache( String file, byte filter_type, uint32 *width, uint32 *height, bool clamp )
 {
 	if( ati_workaround )	return 0;

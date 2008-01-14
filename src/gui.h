@@ -372,8 +372,8 @@ class SKIN_OBJECT
 {
 public:
 	GLuint		tex;
-	sint32		x1, y1;
-	sint32		x2, y2;
+	float		x1, y1;
+	float		x2, y2;
 	float		t_x1, t_y1;
 	float		t_x2, t_y2;
 	uint32		w, h;							// Texture size
@@ -401,7 +401,7 @@ public:
 		init();
 	}
 
-	void load( const String filename, const String prefix, cTAFileParser *parser );
+	void load( const String filename, const String prefix, cTAFileParser *parser, float border_size = 1.0f );
 	
 	void draw( float X1, float Y1, float X2, float Y2, bool bkg = true );
 };
@@ -439,7 +439,7 @@ public:
 		destroy();
 	}
 
-	void load_tdf( const String &filename );		// Loads the skin from a TDF file
+	void load_tdf( const String &filename, float skin_scale = 1.0f );		// Loads the skin from a TDF file
 };
 
 #endif
