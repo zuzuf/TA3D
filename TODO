@@ -1,7 +1,7 @@
 TODO list
 ---------
+_implement 32bits animated sprites (kind of extended GAFs)
 _implement shields
-_implement invisibility
 _add a console command to give resources to a given player (for AI debugging)
 _read the music from a CD
 _add glossiness (or reflection) to all TA3D models.
@@ -13,6 +13,7 @@ _networking code
 _improve A.I.
 _D3D support
 
+*support for invisibility
 *new skin
 *scaling support for GUI widgets
 *new skin mechanism for menu backgrounds

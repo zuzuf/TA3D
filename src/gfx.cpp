@@ -162,11 +162,14 @@ GFX::~GFX()
 
 void GFX::Init()
 {
+	if( Console )	Console->AddEntry( "allocating palette memory" );
 	TA3D::VARS::pal=new RGB[256];      // Allocate a new palette
 
+	if( Console )	Console->AddEntry( "loading TA's palette" );
 	byte *palette=HPIManager->PullFromHPI( "palettes\\palette.pal" );
 	if(palette)
 	{
+		if( Console )	Console->AddEntry( "allocating palette memory - success" );
 		for(int i=0;i<256;i++)
 		{
 			pal[i].r=palette[i<<2]>>2;
@@ -176,23 +179,31 @@ void GFX::Init()
 		free(palette);
 		set_palette(pal);      // Activate the palette
 	}
+	else if( Console )	Console->AddEntry( "allocating palette memory - failed" );
 
+	if( Console )	Console->AddEntry( "loading hattfint12.gaf" );
 	TA_font.load_gaf_font( "anims\\hattfont12.gaf", 1.0f );
+	if( Console )	Console->AddEntry( "creating normal font" );
 	normal_font.copy( font , 1.0f );
 	normal_font.set_clear( true );
+	if( Console )	Console->AddEntry( "creating small font" );
 	small_font.copy( font , 0.75f );
 	small_font.set_clear( true );
+	if( Console )	Console->AddEntry( "loading GUI font" );
 	ta3d_gui_font.load_gaf_font( "anims\\hattfont12.gaf" , 1.0f );
 
+	if( Console )	Console->AddEntry( "activating palette" );
 	if(palette)
 		set_palette(pal);      // Activate the palette
 
+	if( Console )	Console->AddEntry( "loading background" );
 	load_background();
 
 	gui_font = ta3d_gui_font;
 	gui_font_h = gui_font.height();
 	use_normal_alpha_function = true;
 	alpha_blending_set = false;
+	if( Console )	Console->AddEntry( "GFX::Init() : work done!" );
 }
 
 
