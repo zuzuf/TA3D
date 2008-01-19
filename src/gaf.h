@@ -26,9 +26,12 @@
 #ifndef __GAF_CLASSES
 #define __GAF_CLASSES
 
+#define GAF_STANDARD	0x00010100
+#define GAF_TRUECOLOR	0x00010101
+
 struct GAFHEADER
 {
-	int		IDVersion;	/* Version stamp - always 0x00010100 */
+	int		IDVersion;	/* Version stamp - always 0x00010100 */ // 0x00010101 is used for truecolor mode
 	int		Entries;	/* Number of items contained in this file */
 	int		Unknown1;	/* Always 0 */
 };
@@ -53,8 +56,8 @@ struct GAFFRAMEDATA
 	short	Height;			/* Height of the frame */
 	short	XPos;			/* X offset */
 	short	YPos;			/* Y offset */
-	char	Transparency;	/* Transparency color for uncompressed images - always 9 */
-	char	Compressed;		/* Compression flag */
+	char	Transparency;	/* Transparency color for uncompressed images - always 9 */	// In truecolor mode : alpha channel present
+	char	Compressed;		/* Compression flag */	// Useless in truecolor mode
 	short	FramePointers;	/* Count of subframes */
 	int		Unknown2;		/* Unknown - always 0 */
 	int		PtrFrameData;	/* Pointer to pixels or subframes */

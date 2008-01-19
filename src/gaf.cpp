@@ -363,155 +363,186 @@ BITMAP *read_gaf_img(byte *buf,int entry_idx,int img_idx,short *ofs_x,short *ofs
 
 	BITMAP *frame_img;
 
-	for( int subframe = 0 ; subframe < nb_subframe || subframe < 1 ; subframe++ ) {
+	if( header.IDVersion == GAF_TRUECOLOR ) {
+		f_pos = framedata.PtrFrameData;
+		int img_size = 0;
+		img_size = *((int*)(buf+f_pos));		f_pos+=4;
 
-		if( nb_subframe ) {
-			f_pos = frames[ subframe ];
-			framedata.Width=*((short*)(buf+f_pos));			f_pos+=2;
-			framedata.Height=*((short*)(buf+f_pos));		f_pos+=2;
-			framedata.XPos=*((short*)(buf+f_pos));			f_pos+=2;
-			framedata.YPos=*((short*)(buf+f_pos));			f_pos+=2;
-			framedata.Transparency=*((char*)(buf+f_pos));	f_pos+=1;
-			framedata.Compressed=*((char*)(buf+f_pos));		f_pos+=1;
-			framedata.FramePointers=*((short*)(buf+f_pos));	f_pos+=2;
-			framedata.Unknown2=*((int*)(buf+f_pos));		f_pos+=4;
-			framedata.PtrFrameData=*((int*)(buf+f_pos));	f_pos+=4;
-			framedata.Unknown3=*((int*)(buf+f_pos));		f_pos+=4;
+		set_color_depth( 32 );
+		frame_img = load_memory_jpg( buf + f_pos, img_size, NULL );
+		f_pos += img_size;
+
+		if( framedata.Transparency != 0 && frame_img != NULL ) {								// Read alpha channel
+			img_size = *((int*)(buf+f_pos));		f_pos+=4;
+			BITMAP *img_alpha = load_memory_jpg( buf + f_pos, img_size, NULL );	f_pos += img_size;
+			if( img_alpha ) {
+				if( bitmap_color_depth( frame_img ) != 32 ) {
+					BITMAP *tmp = create_bitmap_ex( 32, frame_img->w, frame_img->h );
+					blit( frame_img, tmp, 0, 0, 0, 0, frame_img->w, frame_img->h );
+					destroy_bitmap( frame_img );
+					frame_img = tmp;
+					}
+				set_color_depth( 32 );
+				for( int y = 0 ; y < frame_img->h ; y++ )
+					for( int x = 0 ; x < frame_img->w ; x++ ) {
+						int c = getpixel( frame_img, x, y );
+						putpixel( frame_img, x, y, makeacol( getr(c), getg(c), getb(c), img_alpha->line[y][x<<2] ) );
+						}
+				destroy_bitmap( img_alpha );
+				}
 			}
+		}
+	else {
+		for( int subframe = 0 ; subframe < nb_subframe || subframe < 1 ; subframe++ ) {
 
-		BITMAP *img;
-
-		if(framedata.Compressed) {			// Si l'image est comprimée
-			if(!truecol) {
-				img=create_bitmap_ex(8,framedata.Width,framedata.Height);
-				clear(img);
+			if( nb_subframe ) {
+				f_pos = frames[ subframe ];
+				framedata.Width=*((short*)(buf+f_pos));			f_pos+=2;
+				framedata.Height=*((short*)(buf+f_pos));		f_pos+=2;
+				framedata.XPos=*((short*)(buf+f_pos));			f_pos+=2;
+				framedata.YPos=*((short*)(buf+f_pos));			f_pos+=2;
+				framedata.Transparency=*((char*)(buf+f_pos));	f_pos+=1;
+				framedata.Compressed=*((char*)(buf+f_pos));		f_pos+=1;
+				framedata.FramePointers=*((short*)(buf+f_pos));	f_pos+=2;
+				framedata.Unknown2=*((int*)(buf+f_pos));		f_pos+=4;
+				framedata.PtrFrameData=*((int*)(buf+f_pos));	f_pos+=4;
+				framedata.Unknown3=*((int*)(buf+f_pos));		f_pos+=4;
 				}
-			else {
-				img=create_bitmap_ex(32,framedata.Width,framedata.Height);
-				clear_to_color(img,0);
-				}
 
-			short length;
-			f_pos=framedata.PtrFrameData;
-			for(i=0;i<img->h;i++) {			// Décode les lignes les unes après les autres
-				length=*((short*)(buf+f_pos));
-				f_pos+=2;
-				int x=0,e=0;
-				do
-				{
-					byte mask=buf[f_pos++];
-					e++;
-					if(mask&0x01) {
-						if(!truecol)
-							x+=mask>>1;
-						else {
-							int l=mask>>1;
+			BITMAP *img;
+
+			if(framedata.Compressed) {			// Si l'image est comprimée
+				if(!truecol) {
+					img=create_bitmap_ex(8,framedata.Width,framedata.Height);
+					clear(img);
+					}
+				else {
+					img=create_bitmap_ex(32,framedata.Width,framedata.Height);
+					clear_to_color(img,0);
+					}
+
+				short length;
+				f_pos=framedata.PtrFrameData;
+				for(i=0;i<img->h;i++) {			// Décode les lignes les unes après les autres
+					length=*((short*)(buf+f_pos));
+					f_pos+=2;
+					int x=0,e=0;
+					do
+					{
+						byte mask=buf[f_pos++];
+						e++;
+						if(mask&0x01) {
+							if(!truecol)
+								x+=mask>>1;
+							else {
+								int l=mask>>1;
+								while(l>0) {
+									putpixel(img,x++,i,0x00000000);
+									l--;
+									}
+								}
+							}
+						else if(mask&0x02) {
+							int l=(mask>>2)+1;
 							while(l>0) {
-								putpixel(img,x++,i,0x00000000);
+								if(!truecol)
+									img->line[i][x++]=buf[f_pos];
+								else
+									putpixel(img,x++,i,makeacol(pal[buf[f_pos]].r<<2,pal[buf[f_pos]].g<<2,pal[buf[f_pos]].b<<2,0xFF));
+								l--;
+								}
+							f_pos++;
+							e++;
+							}
+						else {
+							int l=(mask>>2)+1;
+							while(l>0) {
+								if(truecol) {
+									putpixel(img,x++,i,makeacol(pal[buf[f_pos]].r<<2,pal[buf[f_pos]].g<<2,pal[buf[f_pos]].b<<2,0xFF));
+									f_pos++;
+									}
+								else
+									img->line[i][x++]=buf[f_pos++];
+								e++;
 								l--;
 								}
 							}
-						}
-					else if(mask&0x02) {
-						int l=(mask>>2)+1;
-						while(l>0) {
-							if(!truecol)
-								img->line[i][x++]=buf[f_pos];
+					}while(e<length && x<img->w);
+					f_pos+=length-e;
+					}
+				}
+			else {								// Si l'image n'est pas comprimée
+				img=create_bitmap_ex(8,framedata.Width,framedata.Height);
+				clear(img);
+
+				f_pos=framedata.PtrFrameData;
+				for(i=0;i<img->h;i++) {			// Copie les octets de l'image
+					memcpy(img->line[i],buf+f_pos,img->w);
+					f_pos+=img->w;
+					}
+
+				if(truecol) {
+					BITMAP *tmp = create_bitmap_ex(32,framedata.Width,framedata.Height);
+					blit( img, tmp, 0, 0, 0, 0, img->w, img->h );
+					for( int y = 0 ; y < tmp->h ; y++ )
+						for( int x = 0 ; x < tmp->w ; x++ )
+							if( img->line[y][x] == framedata.Transparency )
+								((uint32*)(tmp->line[y]))[x] = 0x00000000;
 							else
-								putpixel(img,x++,i,makeacol(pal[buf[f_pos]].r<<2,pal[buf[f_pos]].g<<2,pal[buf[f_pos]].b<<2,0xFF));
-							l--;
-							}
-						f_pos++;
-						e++;
+								((uint32*)(tmp->line[y]))[x] |= makeacol( 0,0,0, 0xFF );
+					destroy_bitmap( img );
+					img = tmp;
+					}
+				}
+
+			if( nb_subframe == 0 )
+				frame_img = img;
+			else {
+				if( subframe == 0 ) {
+					if(!truecol) {
+						frame_img = create_bitmap_ex(8,frame_w,frame_h);
+						clear(frame_img);
 						}
 					else {
-						int l=(mask>>2)+1;
-						while(l>0) {
-							if(truecol) {
-								putpixel(img,x++,i,makeacol(pal[buf[f_pos]].r<<2,pal[buf[f_pos]].g<<2,pal[buf[f_pos]].b<<2,0xFF));
-								f_pos++;
-								}
-							else
-								img->line[i][x++]=buf[f_pos++];
-							e++;
-							l--;
-							}
+						frame_img = create_bitmap_ex(32,frame_w,frame_h);
+						clear_to_color(frame_img,0);
 						}
-				}while(e<length && x<img->w);
-				f_pos+=length-e;
-				}
-			}
-		else {								// Si l'image n'est pas comprimée
-			img=create_bitmap_ex(8,framedata.Width,framedata.Height);
-			clear(img);
-
-			f_pos=framedata.PtrFrameData;
-			for(i=0;i<img->h;i++) {			// Copie les octets de l'image
-				memcpy(img->line[i],buf+f_pos,img->w);
-				f_pos+=img->w;
-				}
-
-			if(truecol) {
-				BITMAP *tmp = create_bitmap_ex(32,framedata.Width,framedata.Height);
-				blit( img, tmp, 0, 0, 0, 0, img->w, img->h );
-				for( int y = 0 ; y < tmp->h ; y++ )
-					for( int x = 0 ; x < tmp->w ; x++ )
-						if( img->line[y][x] == framedata.Transparency )
-							((uint32*)(tmp->line[y]))[x] = 0x00000000;
-						else
-							((uint32*)(tmp->line[y]))[x] |= makeacol( 0,0,0, 0xFF );
-				destroy_bitmap( img );
-				img = tmp;
-				}
-			}
-
-		if( nb_subframe == 0 )
-			frame_img = img;
-		else {
-			if( subframe == 0 ) {
-				if(!truecol) {
-					frame_img = create_bitmap_ex(8,frame_w,frame_h);
-					clear(frame_img);
+					draw_sprite( frame_img, img, frame_x - framedata.XPos, frame_y - framedata.YPos );
 					}
 				else {
-					frame_img = create_bitmap_ex(32,frame_w,frame_h);
-					clear_to_color(frame_img,0);
-					}
-				draw_sprite( frame_img, img, frame_x - framedata.XPos, frame_y - framedata.YPos );
-				}
-			else {
-				if( truecol ) {
-					for( int y = 0 ; y < img->h ; y++ ) {
-						int Y = y + frame_y - framedata.YPos;
-						if( Y < 0 || Y >= frame_img->h )	continue;
-						int X = frame_x - framedata.XPos;
-						for( int x = 0 ; x < img->w ; x++ ) {
-							if( X >= 0 && X < frame_img->w ) {
-								int r = frame_img->line[Y][(X<<2)];
-								int g = frame_img->line[Y][(X<<2)+1];
-								int b = frame_img->line[Y][(X<<2)+2];
+					if( truecol ) {
+						for( int y = 0 ; y < img->h ; y++ ) {
+							int Y = y + frame_y - framedata.YPos;
+							if( Y < 0 || Y >= frame_img->h )	continue;
+							int X = frame_x - framedata.XPos;
+							for( int x = 0 ; x < img->w ; x++ ) {
+								if( X >= 0 && X < frame_img->w ) {
+									int r = frame_img->line[Y][(X<<2)];
+									int g = frame_img->line[Y][(X<<2)+1];
+									int b = frame_img->line[Y][(X<<2)+2];
 
-								int r2 = img->line[y][(x<<2)];
-								int g2 = img->line[y][(x<<2)+1];
-								int b2 = img->line[y][(x<<2)+2];
-								int a2 = img->line[y][(x<<2)+3];
+									int r2 = img->line[y][(x<<2)];
+									int g2 = img->line[y][(x<<2)+1];
+									int b2 = img->line[y][(x<<2)+2];
+									int a2 = img->line[y][(x<<2)+3];
 
-								r = r * (255 - a2) + r2 * a2 >> 8;
-								g = g * (255 - g2) + g2 * a2 >> 8;
-								b = b * (255 - b2) + b2 * a2 >> 8;
+									r = r * (255 - a2) + r2 * a2 >> 8;
+									g = g * (255 - g2) + g2 * a2 >> 8;
+									b = b * (255 - b2) + b2 * a2 >> 8;
 
-								frame_img->line[Y][(X<<2)] = r;
-								frame_img->line[Y][(X<<2)+1] = g;
-								frame_img->line[Y][(X<<2)+2] = b;
+									frame_img->line[Y][(X<<2)] = r;
+									frame_img->line[Y][(X<<2)+1] = g;
+									frame_img->line[Y][(X<<2)+2] = b;
+									}
+								X++;
 								}
-							X++;
 							}
 						}
+					else
+						masked_blit( img, frame_img, 0, 0, frame_x - framedata.XPos, frame_y - framedata.YPos, img->w, img->h );
 					}
-				else
-					masked_blit( img, frame_img, 0, 0, frame_x - framedata.XPos, frame_y - framedata.YPos, img->w, img->h );
+				destroy_bitmap( img );
 				}
-			destroy_bitmap( img );
 			}
 		}
 

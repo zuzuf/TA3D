@@ -1,8 +1,6 @@
 TODO list
 ---------
-_implement 32bits animated sprites (kind of extended GAFs)
 _implement shields
-_add a console command to give resources to a given player (for AI debugging)
 _read the music from a CD
 _add glossiness (or reflection) to all TA3D models.
 _make 3D replacement models for 2D map features
@@ -13,6 +11,8 @@ _networking code
 _improve A.I.
 _D3D support
 
+*support for 32bits animated sprites (extended GAF format for TA3D ;) )
+*new console command to give resources to a given player (for AI debugging)
 *support for invisibility
 *new skin
 *scaling support for GUI widgets

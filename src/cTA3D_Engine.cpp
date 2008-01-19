@@ -139,7 +139,7 @@ namespace TA3D
 		set_window_title("Total Annihilation 3D");
 
 		GuardInfo( "Loading and creating cursors." );
-		byte *data=HPIManager->PullFromHPI("anims\\CURSORS.GAF");	// Load cursors
+		byte *data=HPIManager->PullFromHPI("anims\\cursors.gaf");	// Load cursors
 		cursor.init();
 		cursor.load_gaf(data ,true);
 		cursor.convert();

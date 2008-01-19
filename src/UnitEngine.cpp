@@ -3255,7 +3255,7 @@ bool UNIT::is_on_radar( byte p_mask )
 										units.unit[ *i ].Lock();
 										VECTOR Dir = units.unit[ *i ].Pos - Pos;
 										Dir.y = 0.0f;
-										if( (units.unit[ *i ].pad1 == 0xFFFF || units.unit[ *i ].pad2 == 0xFFFF)
+										if( (units.unit[ *i ].pad1 == 0xFFFF || units.unit[ *i ].pad2 == 0xFFFF) && units.unit[ *i ].build_percent_left == 0.0f
 										&& Dir.Sq() <= sq( unit_manager.unit_type[ type_id ].ManeuverLeashLength ) ) {	// He can repair us :)
 											add_mission( MISSION_GET_REPAIRED, &units.unit[ *i ].Pos, true, 0, &(units.unit[ *i ]),NULL);
 											int target_idx = *i;

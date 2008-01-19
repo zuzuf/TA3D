@@ -95,6 +95,8 @@ hpiview_SOURCES= \
 	cInterface.cpp cInterface.h \
 	cLogger.cpp cLogger.h \
 	cError.cpp cError.h \
+	jpeg/decode.cpp jpeg/encode.cpp jpeg/io.cpp jpeg/ta3d_jpg.cpp \
+	jpeg/dct.h jpeg/internal.h jpeg/ta3d_jpg.h \
 	TA3D_Platform.h matrix.h ta3dbase.h vector.h thread.h
 
 INSTALL=../install-sh

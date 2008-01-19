@@ -60,7 +60,9 @@ am_hpiview_OBJECTS = hpiview.$(OBJEXT) cTAFileParser.$(OBJEXT) \
 	gfx.$(OBJEXT) gaf.$(OBJEXT) console.$(OBJEXT) \
 	TA3D_hpi.$(OBJEXT) TA3D_NameSpace.$(OBJEXT) stdafx.$(OBJEXT) \
 	cThread.$(OBJEXT) cCriticalSection.$(OBJEXT) \
-	cInterface.$(OBJEXT) cLogger.$(OBJEXT) cError.$(OBJEXT)
+	cInterface.$(OBJEXT) cLogger.$(OBJEXT) cError.$(OBJEXT) \
+	decode.$(OBJEXT) encode.$(OBJEXT) io.$(OBJEXT) \
+	ta3d_jpg.$(OBJEXT)
 hpiview_OBJECTS = $(am_hpiview_OBJECTS)
 hpiview_LDADD = $(LDADD)
 am_ta3d_OBJECTS = ta3d.$(OBJEXT) main.$(OBJEXT) i18n.$(OBJEXT) \
@@ -282,6 +284,8 @@ hpiview_SOURCES = \
 	cInterface.cpp cInterface.h \
 	cLogger.cpp cLogger.h \
 	cError.cpp cError.h \
+	jpeg/decode.cpp jpeg/encode.cpp jpeg/io.cpp jpeg/ta3d_jpg.cpp \
+	jpeg/dct.h jpeg/internal.h jpeg/ta3d_jpg.h \
 	TA3D_Platform.h matrix.h ta3dbase.h vector.h thread.h
 
 all: all-am
