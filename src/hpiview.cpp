@@ -226,7 +226,7 @@ if(argc>=2) {
 
 			std::ofstream   m_File;
 
-			m_File.open( format("%s.txt", argv[2]).c_str(), std::ios::out | std::ios::trunc );
+			m_File.open( format("%s.txt", get_filename( argv[2] )).c_str(), std::ios::out | std::ios::trunc );
 
 			m_File << "[gadget0]\n{\n";
 			m_File << "    filename=" << argv[2] << ";\n";
@@ -266,7 +266,7 @@ if(argc>=2) {
 
 		String filename = parser.PullAsString( "gadget0.filename" );
 
-		FILE *gaf_file = TA3D_OpenFile( filename, "wb" );
+		FILE *gaf_file = TA3D_OpenFile( get_filename( filename.c_str() ), "wb" );
 
 		if( gaf_file ) {
 			set_color_depth( 32 );
