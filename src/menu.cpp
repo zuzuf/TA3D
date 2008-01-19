@@ -675,19 +675,13 @@ void config_menu(void)
 		obj->Text.resize( 1 );
 		obj->Text[ 0 ] = TRANSLATE( "default.skn" );
 
-		al_ffblk search;
+		List<String> skin_list;
+		uint32 n = HPIManager->GetFilelist("gui\\*.skn",&skin_list);
 
-		if( al_findfirst( "gui/*.skn", &search, FA_RDONLY | FA_DIREC ) == 0 ) {
-			do
-			{
-				if( String( search.name ) != ".." && String( search.name ) != "." ) {		// Have to exclude both .. & . because of windows finding . as something interesting
-					obj->Text.push_back( search.name );
-					if( "gui/" + Lowercase( search.name ) == Lowercase( lp_CONFIG->skin_name ) )
-						obj->Text[0] = search.name;
-					}
-			} while( al_findnext( &search ) == 0 );
-
-			al_findclose(&search);
+		for( List< String >::iterator i = skin_list.begin() ; i != skin_list.end() ; i++ ) {
+			obj->Text.push_back( i->substr( 4, i->size() - 4 ) );
+			if( "gui/" + Lowercase( i->substr( 4, i->size() - 4 ) ) == Lowercase( lp_CONFIG->skin_name ) )
+				obj->Text[0] = i->substr( 4, i->size() - 4 );
 			}
 		}
 
