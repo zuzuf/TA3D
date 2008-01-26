@@ -376,11 +376,19 @@ public:
 		return idx;
 	}
 
+	inline void Lock()		{	EnterCS();	}
+	inline void UnLock()	{	LeaveCS();	}
+
 	inline void delete_feature(int index)				// Attention bug potentiel: penser à décaler les indices dans l'objet MAP!!
 	{
 		if(nb_features<=0) return;
 
 		EnterCS();
+
+		if( feature[index].type <= 0 ) {
+			LeaveCS();
+			return;
+			}
 
 		if( feature[ index ].shadow_dlist != 0 )
 			feature[ index ].delete_shadow_dlist = true;

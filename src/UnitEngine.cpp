@@ -3105,7 +3105,15 @@ bool UNIT::is_on_radar( byte p_mask )
 						else
 							next_mission();
 						}
-					else if(mission->data>=0 && mission->data<features.max_features && features.feature[mission->data].type>=0)	{	// Récupère un élément du décors/une carcasse
+					else if(mission->data>=0 && mission->data<features.max_features )	{	// Récupère un élément du décors/une carcasse
+						features.Lock();
+						if( features.feature[mission->data].type <= 0 )	{
+							features.UnLock();
+							next_mission();
+							break;
+							}
+						bool feature_locked = true;
+
 						VECTOR Dir=features.feature[mission->data].Pos-Pos;
 						Dir.y=0.0f;
 						mission->target=features.feature[mission->data].Pos;
@@ -3155,6 +3163,8 @@ bool UNIT::is_on_radar( byte p_mask )
 										int wreckage_type_id = unit_manager.get_unit_index( wreckage_name.c_str() );
 										VECTOR obj_pos = features.feature[mission->data].Pos;
 										float obj_angle = features.feature[mission->data].angle;
+										features.UnLock();
+										feature_locked = false;
 										features.delete_feature(mission->data);			// Supprime l'objet
 
 										if( wreckage_type_id >= 0 ) {
@@ -3187,6 +3197,8 @@ bool UNIT::is_on_radar( byte p_mask )
 											}
 										}
 									else {
+										features.UnLock();
+										feature_locked = false;
 										features.delete_feature(mission->data);			// Supprime l'objet
 										launch_script(get_script_index(SCRIPT_stopbuilding));
 										launch_script(get_script_index(SCRIPT_stop));
@@ -3195,6 +3207,8 @@ bool UNIT::is_on_radar( byte p_mask )
 									}
 								}
 							}
+						if( feature_locked )
+							features.UnLock();
 						}
 					else
 						next_mission();

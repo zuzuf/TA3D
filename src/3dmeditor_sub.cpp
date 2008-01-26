@@ -256,6 +256,19 @@ void button_child(int mnu_index)
 	if(cur_part<0 || cur_part>=nb_obj())	return;
 	char *father_name = strdup( GetVal( TRANSLATE( "Nom du noeud père" ) ).c_str() );
 	int father_id=-1;
+	if( obj_table[cur_part] == &(TheModel->obj) ) {
+		OBJECT obj = TheModel->obj;
+		for( int i = 0 ; i < nb_obj() ; i++ )
+			if( obj_table[i] == TheModel->obj.next ) {
+				cur_part = i;
+				break;
+				}
+		TheModel->obj = *(TheModel->obj.next);
+		*(obj.next) = obj;
+		obj.next->next = TheModel->obj.next;
+		TheModel->obj.next = obj.next;
+		obj.init();
+		}
 	for(int i=0;i<nb_obj();i++)
 		if(strcmp(obj_table[i]->name,father_name)==0) {
 			father_id=i;

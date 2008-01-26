@@ -507,7 +507,7 @@ void f_think( AI_PLAYER *ai, MAP *map )				// La vrai fonction qui simule l'Inte
 			int spy = py;
 			bool found = false;
 			int best_metal = 0;
-			for( int r = 5 ; r < 20 && !found ; r++ ) {		// Circular check
+			for( int r = 5 ; r < 50 && !found ; r++ ) {		// Circular check
 				int r2 = r * r;
 				for( int y = (r>>1) ; y <= r && !found ; y++ ) {
 					int x = (int)(sqrt( r2 - y * y ) + 0.5f);

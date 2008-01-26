@@ -54,6 +54,7 @@ _some parts of the maps might not be drawn (visibility limit) like hills
 _slow down with lots of 3D sprites on some gfx hardware (speed increased but bug not yet fixed)
 _fix all other bugs ( :-) )
 
+*lots of thread safety bugs fixed
 *fixed weapon aiming bug
 *fixed buildangle variable in FBI code
 *fixed yard map bug that prevented CORVP from building units
