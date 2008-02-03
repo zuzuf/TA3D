@@ -1218,9 +1218,6 @@ void WND::load_gui( const String &filename, cHashTable< Vector< TA3D::INTERFACES
 
 	NbObj = wndFile->PullAsInt( "gadget0.totalgadgets" );
 
-	build_pic_x = SCREEN_W;
-	build_pic_y = SCREEN_H;
-
 	Objets = new GUIOBJ[NbObj];
 
 	for( uint16 i = 0 ; i < NbObj ; i++ ) {		// Loads each object
@@ -1293,11 +1290,8 @@ void WND::load_gui( const String &filename, cHashTable< Vector< TA3D::INTERFACES
 			if( wndFile->PullAsBool( obj_key + "common.grayedout" ) == 4 )
 				Objets[i].Flag |= FLAG_DISABLED;
 //			if( wndFile->PullAsInt( obj_key + "common.commonattribs" ) == 4 ) {
-			if( wndFile->PullAsInt( obj_key + "common.attribs" ) == 32 ) {
+			if( wndFile->PullAsInt( obj_key + "common.attribs" ) == 32 )
 				Objets[i].Flag |= FLAG_HIDDEN | FLAG_BUILD_PIC;
-				build_pic_x = min( build_pic_x, X1 );
-				build_pic_y = min( build_pic_y, Y1 );
-				}
 			}
 		else if( obj_type == TA_ID_TEXT_FIELD )
 			Objets[i].create_textbar( X1, Y1, X1 + W, Y1 + H, Caption.size() > 0 ? Caption[0] : "", wndFile->PullAsInt( obj_key + "maxchars" ), NULL );
@@ -1319,9 +1313,6 @@ void WND::load_gui( const String &filename, cHashTable< Vector< TA3D::INTERFACES
 
 		Objets[i].Flag |= obj_flags;
 		}
-
-	build_pic_x += x;
-	build_pic_y += y;
 
 	delete wndFile; 
 

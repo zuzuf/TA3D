@@ -253,8 +253,6 @@ public:
 	bool		was_hidden;		// In order to do some cleaning
 	uint32		color;			// Background color of the window ( can use alpha channel )
 	bool		background_wnd;	// Background window -> stay in background
-	int			build_pic_x;	// Where should build pics be drawn in build menus ?
-	int			build_pic_y;
 	bool		get_focus;		// Has this window priority over the others ?
 
 private:

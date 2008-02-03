@@ -1197,7 +1197,7 @@ public:
 #define SIGNAL_ORDER_CAPTURE	0xB
 #define SIGNAL_ORDER_DGUN		0xC
 
-	void complete_menu(int index,bool hide_info = false, bool hide_bpic = false, int dec_x = 0, int dec_y = 0 );
+	void complete_menu(int index,bool hide_info = false, bool hide_bpic = false );
 };
 
 extern INGAME_UNITS units;

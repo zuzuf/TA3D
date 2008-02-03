@@ -2166,9 +2166,9 @@ do
 	/*------------------- Draw GUI components -------------------------------------------------------*/
 
 	if( current_gui != String( ta3d_sidedata.side_pref[ players.side_view ] ) + "gen" )
-		unit_manager.unit_build_menu(n,omb2,dt, 0, 0, true );	// Draw GUI background
+		unit_manager.unit_build_menu(n,omb2,dt, true );	// Draw GUI background
 	else
-		unit_manager.unit_build_menu(-1,omb2,dt, 0, 0, true);	// Draw GUI background
+		unit_manager.unit_build_menu(-1,omb2,dt, true);	// Draw GUI background
 
 	game_area.draw();
 
@@ -2176,7 +2176,7 @@ do
 
 	WND *current_wnd = game_area.get_wnd( current_gui );
 	if( current_gui != String( ta3d_sidedata.side_pref[ players.side_view ] ) + "gen" )
-		sel = unit_manager.unit_build_menu(n,omb2,dt, current_wnd ? current_wnd->build_pic_x : 0, current_wnd ? current_wnd->build_pic_y : 0 );	// Menu correspondant à l'unité / Unit's menu
+		sel = unit_manager.unit_build_menu(n,omb2,dt );	// Menu correspondant à l'unité / Unit's menu
 	else
 		sel = unit_manager.unit_build_menu(-1,omb2,dt);	// Menu correspondant à l'unité / Unit's menu
 	if(sel==-2) {										// Crée des armes / build weapons
@@ -2417,7 +2417,7 @@ do
 		}
 		
 	if( current_gui != String( ta3d_sidedata.side_pref[ players.side_view ] ) + "gen" && current_gui != "" )		// Show information about units
-		units.complete_menu(cur_sel_index, sel != -1 || units.last_on <= -2, false, current_wnd ? current_wnd->build_pic_x : 0, current_wnd ? current_wnd->build_pic_y : 0 );
+		units.complete_menu(cur_sel_index, sel != -1 || units.last_on <= -2, false );
 	else
 		units.complete_menu(cur_sel_index, sel != -1 || units.last_on <= -2, true );
 
@@ -2456,12 +2456,16 @@ do
 	if( game_area.get_state( current_gui + "." + ta3d_sidedata.side_pref[ players.side_view ] + "PREV" )
 	|| game_area.get_state( current_gui + ".ARMPREV" ) ) {
 		sound_manager->PlayTDFSound( "NEXTBUILDMENU", "sound" , NULL );
-		unit_manager.unit_type[ old_gui_sel ].page = (unit_manager.unit_type[ old_gui_sel ].page + ((unit_manager.unit_type[ old_gui_sel ].nb_unit+5)/6)-1)%((unit_manager.unit_type[old_gui_sel].nb_unit+5)/6);
+		if( unit_manager.unit_type[ old_gui_sel ].nb_pages > 0 )
+			unit_manager.unit_type[ old_gui_sel ].page = (unit_manager.unit_type[ old_gui_sel ].page + unit_manager.unit_type[ old_gui_sel ].nb_pages-1)%unit_manager.unit_type[old_gui_sel].nb_pages;
+//		unit_manager.unit_type[ old_gui_sel ].page = (unit_manager.unit_type[ old_gui_sel ].page + ((unit_manager.unit_type[ old_gui_sel ].nb_unit+5)/6)-1)%((unit_manager.unit_type[old_gui_sel].nb_unit+5)/6);
 		}
 	if( game_area.get_state( current_gui + "." + ta3d_sidedata.side_pref[ players.side_view ] + "NEXT" )
 	|| game_area.get_state( current_gui + ".ARMNEXT" ) ) {
 		sound_manager->PlayTDFSound( "NEXTBUILDMENU", "sound" , NULL );
-		unit_manager.unit_type[ old_gui_sel ].page= (unit_manager.unit_type[ old_gui_sel ].page+1)%((unit_manager.unit_type[ old_gui_sel ].nb_unit+5)/6);
+		if( unit_manager.unit_type[ old_gui_sel ].nb_pages > 0 )
+			unit_manager.unit_type[ old_gui_sel ].page= (unit_manager.unit_type[ old_gui_sel ].page+1)%unit_manager.unit_type[ old_gui_sel ].nb_pages;
+//		unit_manager.unit_type[ old_gui_sel ].page= (unit_manager.unit_type[ old_gui_sel ].page+1)%((unit_manager.unit_type[ old_gui_sel ].nb_unit+5)/6);
 		}
 
 	if( game_area.get_state( current_gui + "." + ta3d_sidedata.side_pref[ players.side_view ] + "ONOFF" )
@@ -2846,215 +2850,217 @@ do
 
 	if(cmd) {		// Analyse les commandes tapées dans la console
 		Vector< String > params = ReadVectorString( cmd, " " );
-		if( params[0] == "fps_on" ) lp_CONFIG->showfps=true;				// Affiche le nombre d'images/seconde
-		else if( params[0] == "fps_off" ) lp_CONFIG->showfps=false;				// Cache le nombre d'images/seconde
-		else if( params[0] == "zshoot" ) {									// Prend une capture d'écran(tampon de profondeur seulement)
-			BITMAP *bmp=create_bitmap_ex(32,SCREEN_W,SCREEN_H);
-			clear(bmp);
-			glReadPixels(0,0,SCREEN_W,SCREEN_H,GL_DEPTH_COMPONENT,GL_INT,bmp->line[0]);
-			save_bitmap( (TA3D_OUTPUT_DIR + "z.tga").c_str(),bmp,NULL);
-			destroy_bitmap(bmp);
-			}
-		else if( params[0] == "video" && params[1] == "shoot" ) video_shoot ^= true;		// Capture video
-		else if( params[0] == "shoot" ) shoot = true;					// Prend une capture d'écran
-		else if( params[0] == "reload" && params[1] == "shaders" && g_useProgram) {
-			water_shader.destroy();
-			water_shader.load("shaders/water.frag","shaders/water.vert");
-			water_shader_reflec.destroy();
-			water_shader_reflec.load("shaders/water_reflec.frag","shaders/water.vert");
-			water_pass1.destroy();
-			water_pass1.load("shaders/water_pass1.frag","shaders/water_pass1.vert");
-			water_pass1_low.destroy();
-			water_pass1_low.load("shaders/water_pass1_low.frag","shaders/water_pass1.vert");
-			water_pass2.destroy();
-			water_pass2.load("shaders/water_pass2.frag","shaders/water_pass2.vert");
-			map->detail_shader.destroy();
-			map->detail_shader.load( "shaders/details.frag", "shaders/details.vert" );
-			}
-		else if( params[0] == "show" && params[1] == "mission" && params[2] == "info" )	show_mission_info ^= true;
-		else if( params[0] == "view" && params[1] == "debug" )	view_dbg^=true;
-		else if( params[0] == "ia" && params[1] == "debug" )	ia_debug^=true;
-		else if( params[0] == "internal" && params[1] == "name" ) internal_name^=true;		// Affiche/Cache le nom interne de l'unité
-		else if( params[0] == "internal" && params[1] == "idx" ) internal_idx^=true;		// Show/Hide unit indexes in unit array
-		else if( params[0] == "exit" ) done=true;					// Quitte le programme
-		else if( params[0] == "wireframe" ) 	lp_CONFIG->wireframe^=true;
-		else if( params[0] == "priority" && params.size() == 2 ) lp_CONFIG->priority_level = atoi( params[1].c_str() );
-		else if( params[0] == "water" && params[1] == "quality" &&  params.size() == 3 ) lp_CONFIG->water_quality = atoi( params[2].c_str() )%5;
-		else if( params[0] == "shadow" && params.size() == 3) {
-			if( params[1] == "quality" ) lp_CONFIG->shadow_quality = atoi( params[2].c_str() );
-			else if( params[1] == "ray" ) lp_CONFIG->shadow_r = atof( params[2].c_str() );
-			}
-		else if( params[0] == "shadow" && params.size() == 1 ) lp_CONFIG->shadow^=true;
-		else if( params[0] == "details" )	lp_CONFIG->detail_tex ^= true;
-		else if( params[0] == "particle" )	lp_CONFIG->particle^=true;
-		else if( params[0] == "waves" ) lp_CONFIG->waves^=true;
-		else if( params[0] == "show" && params[1] == "script" ) show_script^=true;
-		else if( params[0] == "show" && params[1] == "model" ) show_model^=true;
-		else if( params[0] == "rotate" && params[1] == "light" ) rotate_light^=true;
-		else if( params[0] == "shake" )
-			cam.set_shake( 1.0f, 32.0f );
-		else if( params[0] == "freecam" ) {
-			freecam^=true;
-			if(!freecam)	r2=0.0f;
-			}
-		else if( params[0] == "fps_limit" && params.size() == 2 ) {
-			speed_limit = atoi( params[1].c_str() );
-			if(speed_limit==0.0f) speed_limit=-1.0f;
-			delay=1.0f/speed_limit;
-			}
-		else if( params[0] == "spawn" && params.size() >= 2 ) {
-			int unit_type = -1;
-			int player_id = players.local_human_id;
-			int nb_to_spawn=1;
-			unit_type = unit_manager.get_unit_index( params[1].c_str() );
-			if( params.size() >= 3 ) {
-				player_id = atoi( params[2].c_str() );
-				if( params.size() >= 4 )
-					nb_to_spawn = atoi( params[3].c_str() );
+		if( params.size() > 0 ) {
+			if( params[0] == "fps_on" ) lp_CONFIG->showfps=true;				// Affiche le nombre d'images/seconde
+			else if( params[0] == "fps_off" ) lp_CONFIG->showfps=false;				// Cache le nombre d'images/seconde
+			else if( params[0] == "zshoot" ) {									// Prend une capture d'écran(tampon de profondeur seulement)
+				BITMAP *bmp=create_bitmap_ex(32,SCREEN_W,SCREEN_H);
+				clear(bmp);
+				glReadPixels(0,0,SCREEN_W,SCREEN_H,GL_DEPTH_COMPONENT,GL_INT,bmp->line[0]);
+				save_bitmap( (TA3D_OUTPUT_DIR + "z.tga").c_str(),bmp,NULL);
+				destroy_bitmap(bmp);
 				}
-			ThreadSynchroniser->EnterSync();		// Make sure we won't destroy something we mustn't
-			units.EnterCS_from_outside();
-			for(i=0;i<nb_to_spawn;i++) {
-				int id=0;
-				if( unit_type < 0 || unit_type >= unit_manager.nb_unit )
-					id = units.create( abs( TA3D_RAND() ) % unit_manager.nb_unit,player_id);
-				else
-					id = units.create(unit_type,player_id);
-				if( id == -1 )	break;		// Ho ho no more space to store that unit, limit reached
-				units.unit[ id ].Lock();
-				int e=0;
+			else if( params.size() == 2 && params[0] == "video" && params[1] == "shoot" ) video_shoot ^= true;		// Capture video
+			else if( params[0] == "shoot" ) shoot = true;					// Prend une capture d'écran
+			else if( params.size() == 2 && params[0] == "reload" && params[1] == "shaders" && g_useProgram) {
+				water_shader.destroy();
+				water_shader.load("shaders/water.frag","shaders/water.vert");
+				water_shader_reflec.destroy();
+				water_shader_reflec.load("shaders/water_reflec.frag","shaders/water.vert");
+				water_pass1.destroy();
+				water_pass1.load("shaders/water_pass1.frag","shaders/water_pass1.vert");
+				water_pass1_low.destroy();
+				water_pass1_low.load("shaders/water_pass1_low.frag","shaders/water_pass1.vert");
+				water_pass2.destroy();
+				water_pass2.load("shaders/water_pass2.frag","shaders/water_pass2.vert");
+				map->detail_shader.destroy();
+				map->detail_shader.load( "shaders/details.frag", "shaders/details.vert" );
+				}
+			else if( params.size() == 3 && params[0] == "show" && params[1] == "mission" && params[2] == "info" )	show_mission_info ^= true;
+			else if( params.size() == 2 && params[0] == "view" && params[1] == "debug" )	view_dbg^=true;
+			else if( params.size() == 2 && params[0] == "ia" && params[1] == "debug" )	ia_debug^=true;
+			else if( params.size() == 2 && params[0] == "internal" && params[1] == "name" ) internal_name^=true;		// Affiche/Cache le nom interne de l'unité
+			else if( params.size() == 2 && params[0] == "internal" && params[1] == "idx" ) internal_idx^=true;		// Show/Hide unit indexes in unit array
+			else if( params[0] == "exit" ) done=true;					// Quitte le programme
+			else if( params[0] == "wireframe" ) 	lp_CONFIG->wireframe^=true;
+			else if( params[0] == "priority" && params.size() == 2 ) lp_CONFIG->priority_level = atoi( params[1].c_str() );
+			else if(  params.size() == 3 && params[0] == "water" && params[1] == "quality" ) lp_CONFIG->water_quality = atoi( params[2].c_str() )%5;
+			else if( params[0] == "shadow" && params.size() == 3) {
+				if( params[1] == "quality" ) lp_CONFIG->shadow_quality = atoi( params[2].c_str() );
+				else if( params[1] == "ray" ) lp_CONFIG->shadow_r = atof( params[2].c_str() );
+				}
+			else if( params[0] == "shadow" && params.size() == 1 ) lp_CONFIG->shadow^=true;
+			else if( params[0] == "details" )	lp_CONFIG->detail_tex ^= true;
+			else if( params[0] == "particle" )	lp_CONFIG->particle^=true;
+			else if( params[0] == "waves" ) lp_CONFIG->waves^=true;
+			else if( params.size() == 2 && params[0] == "show" && params[1] == "script" ) show_script^=true;
+			else if( params.size() == 2 && params[0] == "show" && params[1] == "model" ) show_model^=true;
+			else if( params.size() == 2 && params[0] == "rotate" && params[1] == "light" ) rotate_light^=true;
+			else if( params[0] == "shake" )
+				cam.set_shake( 1.0f, 32.0f );
+			else if( params[0] == "freecam" ) {
+				freecam^=true;
+				if(!freecam)	r2=0.0f;
+				}
+			else if( params[0] == "fps_limit" && params.size() == 2 ) {
+				speed_limit = atoi( params[1].c_str() );
+				if(speed_limit==0.0f) speed_limit=-1.0f;
+				delay=1.0f/speed_limit;
+				}
+			else if( params[0] == "spawn" && params.size() >= 2 ) {
+				int unit_type = -1;
+				int player_id = players.local_human_id;
+				int nb_to_spawn=1;
+				unit_type = unit_manager.get_unit_index( params[1].c_str() );
+				if( params.size() >= 3 ) {
+					player_id = atoi( params[2].c_str() );
+					if( params.size() >= 4 )
+						nb_to_spawn = atoi( params[3].c_str() );
+					}
+				ThreadSynchroniser->EnterSync();		// Make sure we won't destroy something we mustn't
+				units.EnterCS_from_outside();
+				for(i=0;i<nb_to_spawn;i++) {
+					int id=0;
+					if( unit_type < 0 || unit_type >= unit_manager.nb_unit )
+						id = units.create( abs( TA3D_RAND() ) % unit_manager.nb_unit,player_id);
+					else
+						id = units.create(unit_type,player_id);
+					if( id == -1 )	break;		// Ho ho no more space to store that unit, limit reached
+					units.unit[ id ].Lock();
+					int e=0;
 
-				do {
-					units.unit[id].Pos.x=(TA3D_RAND()%map->map_w)-map->map_w_d;
-					units.unit[id].Pos.z=(TA3D_RAND()%map->map_h)-map->map_h_d;
-					e++;
-				}while(e<100 && !can_be_built( units.unit[id].Pos, map, units.unit[id].type_id, player_id ));
-				if(!can_be_built( units.unit[id].Pos, map, units.unit[id].type_id, player_id )) {
-					units.unit[id].flags = 4;
-					units.kill(id,map,units.idx_list[units.index_list_size-1]);
-					}
-				else {								// Compute unit's Y coordinate
-					VECTOR target_pos = units.unit[id].Pos;
-					target_pos.x=((int)(target_pos.x)+map->map_w_d)>>3;
-					target_pos.z=((int)(target_pos.z)+map->map_h_d)>>3;
-					target_pos.y=max(map->get_max_rect_h((int)target_pos.x,(int)target_pos.z, unit_manager.unit_type[ units.unit[id].type_id ].FootprintX, unit_manager.unit_type[ units.unit[id].type_id ].FootprintZ ),map->sealvl);
-					units.unit[id].Pos.y = target_pos.y;
-					units.unit[id].cur_px = (int)target_pos.x;
-					units.unit[id].cur_py = (int)target_pos.z;
-					units.unit[id].draw_on_map();
+					do {
+						units.unit[id].Pos.x=(TA3D_RAND()%map->map_w)-map->map_w_d;
+						units.unit[id].Pos.z=(TA3D_RAND()%map->map_h)-map->map_h_d;
+						e++;
+					}while(e<100 && !can_be_built( units.unit[id].Pos, map, units.unit[id].type_id, player_id ));
+					if(!can_be_built( units.unit[id].Pos, map, units.unit[id].type_id, player_id )) {
+						units.unit[id].flags = 4;
+						units.kill(id,map,units.idx_list[units.index_list_size-1]);
+						}
+					else {								// Compute unit's Y coordinate
+						VECTOR target_pos = units.unit[id].Pos;
+						target_pos.x=((int)(target_pos.x)+map->map_w_d)>>3;
+						target_pos.z=((int)(target_pos.z)+map->map_h_d)>>3;
+						target_pos.y=max(map->get_max_rect_h((int)target_pos.x,(int)target_pos.z, unit_manager.unit_type[ units.unit[id].type_id ].FootprintX, unit_manager.unit_type[ units.unit[id].type_id ].FootprintZ ),map->sealvl);
+						units.unit[id].Pos.y = target_pos.y;
+						units.unit[id].cur_px = (int)target_pos.x;
+						units.unit[id].cur_py = (int)target_pos.z;
+						units.unit[id].draw_on_map();
 
-					if(unit_manager.unit_type[units.unit[id].type_id].ActivateWhenBuilt ) {		// Start activated
-						units.unit[id].port[ ACTIVATION ] = 0;
-						units.unit[id].activate();
+						if(unit_manager.unit_type[units.unit[id].type_id].ActivateWhenBuilt ) {		// Start activated
+							units.unit[id].port[ ACTIVATION ] = 0;
+							units.unit[id].activate();
+							}
+						if(unit_manager.unit_type[units.unit[id].type_id].init_cloaked )				// Start cloaked
+							units.unit[id].cloaking = true;
 						}
-					if(unit_manager.unit_type[units.unit[id].type_id].init_cloaked )				// Start cloaked
-						units.unit[id].cloaking = true;
+					units.unit[ id ].UnLock();
 					}
-				units.unit[ id ].UnLock();
+				units.LeaveCS_from_outside();
+				ThreadSynchroniser->LeaveSync();
 				}
-			units.LeaveCS_from_outside();
-			ThreadSynchroniser->LeaveSync();
-			}
-		else if( params[0] == "timefactor" && params.size() == 2)
-			lp_CONFIG->timefactor = atof( params[1].c_str() );
-		else if( params[0] == "addhp" && params.size() == 2) {
-			if(selected) {					// Sur les unités sélectionnées
-				int value = atoi( params[1].c_str() );
-				for(uint16 e=0;e<units.index_list_size;e++) {
-					i = units.idx_list[e];
-					if( (units.unit[i].flags & 1) && units.unit[i].owner_id==players.local_human_id && units.unit[i].sel) {
-						units.unit[i].hp+=value;
-						if(units.unit[i].hp<0)
-							units.unit[i].hp=0;
-						else if(units.unit[i].hp>unit_manager.unit_type[units.unit[i].type_id].MaxDamage)
-							units.unit[i].hp=unit_manager.unit_type[units.unit[i].type_id].MaxDamage;
-						}
-					}
-				}
-			}
-		else if( params[0] == "deactivate" ) {
-			if(selected)					// Sur les unités sélectionnées
-				for(uint16 e=0;e<units.index_list_size;e++) {
-					i = units.idx_list[e];
-					if( (units.unit[i].flags & 1) && units.unit[i].owner_id==players.local_human_id && units.unit[i].sel)
-						units.unit[i].deactivate();
-					}
-			}
-		else if( params[0] == "activate" ) {
-			if(selected)					// Sur les unités sélectionnées
-				for(uint16 e=0;e<units.index_list_size;e++) {
-					i = units.idx_list[e];
-					if( (units.unit[i].flags & 1) && units.unit[i].owner_id==players.local_human_id && units.unit[i].sel)
-						units.unit[i].activate();
-					}
-			}
-		else if( params[0] == "reset_script" ) {							// Réinitialise les scripts
-			if(selected) {					// Sur les unités sélectionnées
-				for(uint16 e=0;e<units.index_list_size;e++) {
-					i = units.idx_list[e];
-					if( (units.unit[i].flags & 1) && units.unit[i].owner_id==players.local_human_id && units.unit[i].sel)
-						units.unit[i].reset_script();
-					}
-				}
-			}
-		else if( params[0] == "unitinfo" ) {
-			if(selected && cur_sel!=-1) {					// Sur les unités sélectionnées
-				char *unit_info[]={"ACTIVATION","STANDINGMOVEORDERS","STANDINGFIREORDERS","HEALTH","INBUILDSTANCE","BUSY","PIECE_XZ","PIECE_Y","UNIT_XZ","UNIT_Y","UNIT_HEIGHT","XZ_ATAN","XZ_HYPOT","ATAN",
-								   "HYPOT","GROUND_HEIGHT","BUILD_PERCENT_LEFT","YARD_OPEN","BUGGER_OFF","ARMORED"};
-				for(uint16 e=0;e<units.index_list_size;e++) {
-					i = units.idx_list[e];
-					if( (units.unit[i].flags & 1) && units.unit[i].owner_id==players.local_human_id && units.unit[i].sel) {
-						printf("flags=%d\n", units.unit[i].flags);
-						for(int f=1;f<21;f++)
-							printf("%s=%d\n",unit_info[f-1],units.unit[i].port[f]);
+			else if( params[0] == "timefactor" && params.size() == 2)
+				lp_CONFIG->timefactor = atof( params[1].c_str() );
+			else if( params[0] == "addhp" && params.size() == 2) {
+				if(selected) {					// Sur les unités sélectionnées
+					int value = atoi( params[1].c_str() );
+					for(uint16 e=0;e<units.index_list_size;e++) {
+						i = units.idx_list[e];
+						if( (units.unit[i].flags & 1) && units.unit[i].owner_id==players.local_human_id && units.unit[i].sel) {
+							units.unit[i].hp+=value;
+							if(units.unit[i].hp<0)
+								units.unit[i].hp=0;
+							else if(units.unit[i].hp>unit_manager.unit_type[units.unit[i].type_id].MaxDamage)
+								units.unit[i].hp=unit_manager.unit_type[units.unit[i].type_id].MaxDamage;
+							}
 						}
 					}
 				}
-			}
-		else if( params[0] == "kill" ) {							// Détruit les unités sélectionnées
-			if(selected) {					// Sur les unités sélectionnées
-				for(uint16 e=0;e<units.index_list_size;e++) {
-					i = units.idx_list[e];
-					if( (units.unit[i].flags & 1) && units.unit[i].owner_id==players.local_human_id && units.unit[i].sel)
-						units.kill(i,map,e);
-					}
-				selected=false;
-				cur_sel=-1;
-				}
-			}
-		else if( params[0] == "script" && params[1].size() == 2) {							// Force l'éxecution d'un script
-			if(selected) {					// Sur les unités sélectionnées
-				int id = atoi( params[1].c_str() );
-				for(uint16 e=0;e<units.index_list_size;e++) {
-					i = units.idx_list[e];
-					if( (units.unit[i].flags & 1) && units.unit[i].owner_id==players.local_human_id && units.unit[i].sel)
-						units.unit[i].launch_script(id);
-					}
-				}
-			}
-		else if( params[0] == "give" ) {							// Give resources to player_id
-			bool success = false;
-			if( params.size() == 4 ) {
-				int player_id = atoi( params[2].c_str() );
-				int amount = atoi( params[3].c_str() );
-				if( player_id >= 0 && player_id < players.nb_player ) {
-					if( params[1] == "metal" || params[1] == "both" ) {
-						players.metal[ player_id ] = players.c_metal[ player_id ] = players.c_metal[ player_id ] + amount;					// cheat codes
-						success = true;
+			else if( params[0] == "deactivate" ) {
+				if(selected)					// Sur les unités sélectionnées
+					for(uint16 e=0;e<units.index_list_size;e++) {
+						i = units.idx_list[e];
+						if( (units.unit[i].flags & 1) && units.unit[i].owner_id==players.local_human_id && units.unit[i].sel)
+							units.unit[i].deactivate();
 						}
-					if( params[1] == "energy" || params[1] == "both" ) {
-						players.energy[ player_id ] = players.c_energy[ player_id ] = players.c_energy[ player_id ] + amount;					// cheat codes
-						success = true;
+				}
+			else if( params[0] == "activate" ) {
+				if(selected)					// Sur les unités sélectionnées
+					for(uint16 e=0;e<units.index_list_size;e++) {
+						i = units.idx_list[e];
+						if( (units.unit[i].flags & 1) && units.unit[i].owner_id==players.local_human_id && units.unit[i].sel)
+							units.unit[i].activate();
+						}
+				}
+			else if( params[0] == "reset_script" ) {							// Réinitialise les scripts
+				if(selected) {					// Sur les unités sélectionnées
+					for(uint16 e=0;e<units.index_list_size;e++) {
+						i = units.idx_list[e];
+						if( (units.unit[i].flags & 1) && units.unit[i].owner_id==players.local_human_id && units.unit[i].sel)
+							units.unit[i].reset_script();
 						}
 					}
 				}
-			if( !success ) {
-				Console->AddEntry("command error:");
-				Console->AddEntry("correct syntax is: give metal/energy/both player_id amount");
+			else if( params[0] == "unitinfo" ) {
+				if(selected && cur_sel!=-1) {					// Sur les unités sélectionnées
+					char *unit_info[]={"ACTIVATION","STANDINGMOVEORDERS","STANDINGFIREORDERS","HEALTH","INBUILDSTANCE","BUSY","PIECE_XZ","PIECE_Y","UNIT_XZ","UNIT_Y","UNIT_HEIGHT","XZ_ATAN","XZ_HYPOT","ATAN",
+									   "HYPOT","GROUND_HEIGHT","BUILD_PERCENT_LEFT","YARD_OPEN","BUGGER_OFF","ARMORED"};
+					for(uint16 e=0;e<units.index_list_size;e++) {
+						i = units.idx_list[e];
+						if( (units.unit[i].flags & 1) && units.unit[i].owner_id==players.local_human_id && units.unit[i].sel) {
+							printf("flags=%d\n", units.unit[i].flags);
+							for(int f=1;f<21;f++)
+								printf("%s=%d\n",unit_info[f-1],units.unit[i].port[f]);
+							}
+						}
+					}
 				}
+			else if( params[0] == "kill" ) {							// Détruit les unités sélectionnées
+				if(selected) {					// Sur les unités sélectionnées
+					for(uint16 e=0;e<units.index_list_size;e++) {
+						i = units.idx_list[e];
+						if( (units.unit[i].flags & 1) && units.unit[i].owner_id==players.local_human_id && units.unit[i].sel)
+							units.kill(i,map,e);
+						}
+					selected=false;
+					cur_sel=-1;
+					}
+				}
+			else if( params[0] == "script" && params.size() == 2) {							// Force l'éxecution d'un script
+				if(selected) {					// Sur les unités sélectionnées
+					int id = atoi( params[1].c_str() );
+					for(uint16 e=0;e<units.index_list_size;e++) {
+						i = units.idx_list[e];
+						if( (units.unit[i].flags & 1) && units.unit[i].owner_id==players.local_human_id && units.unit[i].sel)
+							units.unit[i].launch_script(id);
+						}
+					}
+				}
+			else if( params[0] == "give" ) {							// Give resources to player_id
+				bool success = false;
+				if( params.size() == 4 ) {
+					int player_id = atoi( params[2].c_str() );
+					int amount = atoi( params[3].c_str() );
+					if( player_id >= 0 && player_id < players.nb_player ) {
+						if( params[1] == "metal" || params[1] == "both" ) {
+							players.metal[ player_id ] = players.c_metal[ player_id ] = players.c_metal[ player_id ] + amount;					// cheat codes
+							success = true;
+							}
+						if( params[1] == "energy" || params[1] == "both" ) {
+							players.energy[ player_id ] = players.c_energy[ player_id ] = players.c_energy[ player_id ] + amount;					// cheat codes
+							success = true;
+							}
+						}
+					}
+				if( !success ) {
+					Console->AddEntry("command error:");
+					Console->AddEntry("correct syntax is: give metal/energy/both player_id amount");
+					}
+				}
+			else if( params[0] == "metal" ) cheat_metal^=true;				// cheat codes
+			else if( params[0] == "energy" ) cheat_energy^=true;			// cheat codes
 			}
-		else if( params[0] == "metal" ) cheat_metal^=true;				// cheat codes
-		else if( params[0] == "energy" ) cheat_energy^=true;			// cheat codes
 		params.clear();
 		free(cmd);
 		}

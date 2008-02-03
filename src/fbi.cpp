@@ -39,6 +39,123 @@
 
 UNIT_MANAGER unit_manager;
 
+void UNIT_TYPE::AddUnitBuild(int index, int px, int py, int pw, int ph, int p, GLuint Pic )
+{
+	if(index<-1) return;		// N'ajoute pas d'indices incorrects (-1 indique une arme) / don't add an incorrect index (-1 stands for weapon building)
+
+	int i;
+	if(BuildList && nb_unit>0)		// Vérifie si l'unité n'est pas déjà répertoriée / check if not already there
+		for(i=0;i<nb_unit;i++)
+			if(BuildList[i]==index) {		// Update the data we have
+				if( Pic != 0 ) {
+					gfx->destroy_texture( PicList[i] );
+					PicList[i] = Pic;
+					}
+				Pic_x[ i ] = px;
+				Pic_y[ i ] = py;
+				Pic_w[ i ] = pw;
+				Pic_h[ i ] = ph;
+				Pic_p[ i ] = p;
+				return;
+				}
+
+	nb_unit++;
+	if(BuildList==NULL)
+		nb_unit=1;
+	short *Blist=(short*) malloc(sizeof(short)*nb_unit);
+	short *Px=(short*) malloc(sizeof(short)*nb_unit);
+	short *Py=(short*) malloc(sizeof(short)*nb_unit);
+	short *Pw=(short*) malloc(sizeof(short)*nb_unit);
+	short *Ph=(short*) malloc(sizeof(short)*nb_unit);
+	short *Pp=(short*) malloc(sizeof(short)*nb_unit);
+	GLuint *Plist=(GLuint*) malloc(sizeof(GLuint)*nb_unit);
+	if(BuildList && nb_unit>1)
+		for(i=0;i<nb_unit-1;i++) {
+			Blist[i] = BuildList[i];
+			Plist[i] = PicList[i];
+			Px[i] = Pic_x[i];
+			Py[i] = Pic_y[i];
+			Pw[i] = Pic_w[i];
+			Ph[i] = Pic_h[i];
+			Pp[i] = Pic_p[i];
+			}
+	Blist[nb_unit-1]=index;
+	Plist[nb_unit-1]=Pic;
+	Px[nb_unit-1]=px;
+	Py[nb_unit-1]=py;
+	Pw[nb_unit-1]=pw;
+	Ph[nb_unit-1]=ph;
+	Pp[nb_unit-1]=p;
+	if(BuildList)	free(BuildList);
+	if(PicList)		free(PicList);
+	if(Pic_x)		free(Pic_x);
+	if(Pic_y)		free(Pic_y);
+	if(Pic_p)		free(Pic_p);
+	BuildList=Blist;
+	PicList=Plist;
+	Pic_x = Px;
+	Pic_y = Py;
+	Pic_w = Pw;
+	Pic_h = Ph;
+	Pic_p = Pp;
+}
+
+void UNIT_MANAGER::analyse(String filename,int unit_index)
+{
+	cTAFileParser gui_parser( filename, false, false, true );
+
+	String number = filename.substr( 0, filename.size() - 4 );
+	int first = number.size() - 1;
+	while( first >= 0 && number[ first ] >= '0' && number[ first ] <= '9' )	first--;
+	first++;
+	number = number.substr( first, number.size() - first );
+
+	int page = atoi( number.c_str() ) - 1;		// Extract the page number
+
+	int NbObj = gui_parser.PullAsInt( "gadget0.totalgadgets" );
+
+	int x_offset = gui_parser.PullAsInt( "gadget0.common.xpos" );
+	int y_offset = gui_parser.PullAsInt( "gadget0.common.ypos" );
+
+	for( int i = 1 ; i <= NbObj ; i++ ) {
+		int attribs = gui_parser.PullAsInt( format( "gadget%d.common.commonattribs", i ) );
+		if( attribs & 4 ) {			// Unit Build Pic
+			int x = gui_parser.PullAsInt( format( "gadget%d.common.xpos", i ) ) + x_offset;
+			int y = gui_parser.PullAsInt( format( "gadget%d.common.ypos", i ) ) + y_offset;
+			int w = gui_parser.PullAsInt( format( "gadget%d.common.width", i ) );
+			int h = gui_parser.PullAsInt( format( "gadget%d.common.height", i ) );
+			String name = gui_parser.PullAsString( format( "gadget%d.common.name", i ) );
+			int idx = get_unit_index( name.c_str() );
+			
+			if( idx >= 0 )
+				unit_type[unit_index].AddUnitBuild(idx, x, y, w, h, page);
+			}
+		else if( attribs & 8 ) {	// Weapon Build Pic
+			int x = gui_parser.PullAsInt( format( "gadget%d.common.xpos", i ) ) + x_offset;
+			int y = gui_parser.PullAsInt( format( "gadget%d.common.ypos", i ) ) + y_offset;
+			int w = gui_parser.PullAsInt( format( "gadget%d.common.width", i ) );
+			int h = gui_parser.PullAsInt( format( "gadget%d.common.height", i ) );
+			String name = gui_parser.PullAsString( format( "gadget%d.common.name", i ) );
+
+			byte *gaf_file = HPIManager->PullFromHPI( format( "anims\\%s1.gaf", unit_type[unit_index].Unitname ).c_str() );
+			if( gaf_file ) {
+				BITMAP *img = read_gaf_img( gaf_file, get_gaf_entry_index( gaf_file, (char*)name.c_str() ), 0 );
+
+				GLuint tex = 0;
+				if( img ) {
+					tex = gfx->make_texture( img );
+					destroy_bitmap( img );
+					}
+
+				free( gaf_file );
+				unit_type[unit_index].AddUnitBuild(page, x, y, w, h, -1, tex);
+				}
+			else
+				unit_type[unit_index].AddUnitBuild(page, x, y, w, h, -1);
+			}
+		}
+}
+
 void UNIT_TYPE::show_info(float fade,GFX_FONT fnt)
 {
 	glEnable(GL_BLEND);
@@ -419,8 +536,130 @@ void UNIT_TYPE::show_info(float fade,GFX_FONT fnt)
 			}
 		else
 			Console->AddEntry("attention: unité sans nom!");
+		load_dl();
 		return nb_inconnu;
 	}
+
+void UNIT_TYPE::load_dl()
+{
+	if( side == NULL )	return;
+	int side_id = -1;
+	for( int i = 0 ; i < ta3d_sidedata.nb_side && side_id == -1 ; i++ )
+		if( strcasecmp( ta3d_sidedata.side_name[ i ], side ) == 0 )
+			side_id = i;
+	if( side_id == -1 )		return;
+	cTAFileParser dl_parser( ta3d_sidedata.guis_dir + ta3d_sidedata.side_pref[ side_id ] + "dl.gui", false, false, true );
+
+	int NbObj = dl_parser.PullAsInt( "gadget0.totalgadgets" );
+
+	int x_offset = dl_parser.PullAsInt( "gadget0.common.xpos" );
+	int y_offset = dl_parser.PullAsInt( "gadget0.common.ypos" );
+
+	dl_num = 0;
+	
+	for( int i = 1 ; i <= NbObj ; i++ )
+		if( dl_parser.PullAsInt( format( "gadget%d.common.attribs", i ) ) == 32 )
+			dl_num++;
+
+	dl_x = (short*) malloc( sizeof(short) * dl_num );
+	dl_y = (short*) malloc( sizeof(short) * dl_num );
+	dl_w = (short*) malloc( sizeof(short) * dl_num );
+	dl_h = (short*) malloc( sizeof(short) * dl_num );
+
+	int e = 0;
+	for( int i = 1 ; i <= NbObj ; i++ )
+		if( dl_parser.PullAsInt( format( "gadget%d.common.attribs", i ) ) == 32 ) {
+			dl_x[e] = dl_parser.PullAsInt( format( "gadget%d.common.xpos", i ) ) + x_offset;
+			dl_y[e] = dl_parser.PullAsInt( format( "gadget%d.common.ypos", i ) ) + y_offset;
+			dl_w[e] = dl_parser.PullAsInt( format( "gadget%d.common.width", i ) );
+			dl_h[e] = dl_parser.PullAsInt( format( "gadget%d.common.height", i ) );
+			e++;
+			}
+}
+
+inline bool overlaps( int x1, int y1, int w1, int h1, int x2, int y2, int w2, int h2 )
+{
+	int w = w1 + w2;
+	int h = h1 + h2;
+	int X1 = min( x1, x2 );
+	int Y1 = min( y1, y2 );
+	int X2 = max( x1 + w1, x2 + w2 );
+	int Y2 = max( y1 + h1, y2 + h2 );
+
+	return X2 - X1 < w && Y2 - Y1 < h;
+}
+
+void UNIT_TYPE::FixBuild()
+{
+	if( dl_num <= 0 )	return;
+
+	int next_id = 0;
+	bool filled = true;
+	int last = -2;
+
+	for( int i = 0 ; i < nb_unit - 1 ; i++ )		// Ok it's O(N²) but we don't need something fast
+		for( int e = i + 1 ; e < nb_unit ; e++ )
+			if( (Pic_p[e] < Pic_p[i] && Pic_p[e] != -1) || Pic_p[i] == -1 ) {
+				SWAP( Pic_p[e], Pic_p[i] )
+				SWAP( Pic_x[e], Pic_x[i] )
+				SWAP( Pic_y[e], Pic_y[i] )
+				SWAP( Pic_w[e], Pic_w[i] )
+				SWAP( Pic_h[e], Pic_h[i] )
+				SWAP( PicList[e], PicList[i] )
+				SWAP( BuildList[e], BuildList[i] )
+				}
+
+	bool first_time = true;
+	nb_pages = -1;
+	for( int i = 0 ; i < nb_unit ; i++ )		// We can't trust Pic_p data, because sometimes we get >= 10000 !! so only order is important
+		if( Pic_p[ i ] != -1 ) {
+			if( last == Pic_p[ i ] && !first_time )
+				Pic_p[ i ] = nb_pages;
+			else {
+				last = Pic_p[ i ];
+				Pic_p[ i ] = ++nb_pages;
+				}
+			first_time = false;
+			}
+
+	if( nb_pages == -1 )	nb_pages = 0;
+
+	for( int i = 0 ; i < nb_unit ; i++ )
+		if( Pic_p[ i ] == -1 && dl_num > 0 ) {
+			Pic_p[ i ] = nb_pages;
+			Pic_x[ i ] = dl_x[ next_id ];
+			Pic_y[ i ] = dl_y[ next_id ];
+			Pic_w[ i ] = dl_h[ next_id ];
+			Pic_h[ i ] = dl_w[ next_id ];
+			next_id = (next_id + 1) % dl_num;
+			filled = true;
+			if( next_id == 0 ) {
+				nb_pages++;
+				filled = false;
+				}
+			}
+	if( !filled )	nb_pages--;
+	for( int i = nb_unit - 1 ; i > 0 ; i-- ) {
+		for( int e = i - 1 ; e >= 0 ; e-- )
+			if( Pic_p[ e ] == Pic_p[ i ] && overlaps( Pic_x[ e ], Pic_y[ e ], Pic_w[ e ], Pic_h[ e ], Pic_x[ i ], Pic_y[ i ], Pic_w[ i ], Pic_h[ i ] ) ) {
+				Pic_p[ i ]++;
+				e = i;
+				}
+		nb_pages = max( nb_pages, Pic_p[ i ] );
+		}
+	for( int i = 0 ; i < nb_unit - 1 ; i++ )		// Ok it's O(N²) but we don't need something fast
+		for( int e = i + 1 ; e < nb_unit ; e++ )
+			if( Pic_p[e] < Pic_p[i] ) {
+				SWAP( Pic_p[e], Pic_p[i] )
+				SWAP( Pic_x[e], Pic_x[i] )
+				SWAP( Pic_y[e], Pic_y[i] )
+				SWAP( Pic_w[e], Pic_w[i] )
+				SWAP( Pic_h[e], Pic_h[i] )
+				SWAP( PicList[e], PicList[i] )
+				SWAP( BuildList[e], BuildList[i] )
+				}
+	nb_pages++;
+}
 
 void UNIT_MANAGER::destroy()
 {
@@ -471,7 +710,7 @@ void UNIT_MANAGER::load_panel_texture( const String &player_side, const String &
 	panelbottom.width = w;	panelbottom.height = h;
 }
 
-int UNIT_MANAGER::unit_build_menu(int index,int omb,float &dt,int dec_x, int dec_y, bool GUI)				// Affiche et gère le menu des unités
+int UNIT_MANAGER::unit_build_menu(int index,int omb,float &dt, bool GUI)				// Affiche et gère le menu des unités
 {
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
@@ -520,20 +759,25 @@ int UNIT_MANAGER::unit_build_menu(int index,int omb,float &dt,int dec_x, int dec
 	int sel=-1;
 
 	glDisable(GL_BLEND);
-	for(int i=6*page;i<min((int)unit_type[index].nb_unit,6*page+6);i++) {		// Affiche les différentes images d'unités constructibles
+	for( int i = 0 ; i < unit_type[index].nb_unit ; i++ ) {		// Affiche les différentes images d'unités constructibles
+		if( unit_type[index].Pic_p[i] != page )	continue;
+		int px = unit_type[index].Pic_x[ i ];
+		int py = unit_type[index].Pic_y[ i ];
+		int pw = unit_type[index].Pic_w[ i ];
+		int ph = unit_type[index].Pic_h[ i ];
 		if(unit_type[index].BuildList[i]==-1)					// Weapon construction!
-			gfx->drawtexture(unit_type[index].PicList[i],(i&1)*64+dec_x,(i-6*page>>1)*64+dec_y,(i&1)*64+64+dec_x,64+(i-6*page>>1)*64+dec_y);
+			gfx->drawtexture(unit_type[index].PicList[i],px,py,px+pw,py+ph);
 		else
-			gfx->drawtexture(unit_type[unit_type[index].BuildList[i]].glpic,(i&1)*64+dec_x,(i-6*page>>1)*64+dec_y,(i&1)*64+64+dec_x,64+(i-6*page>>1)*64+dec_y);
+			gfx->drawtexture(unit_type[unit_type[index].BuildList[i]].glpic,px,py,px+pw,py+ph);
 
-		if(mouse_x>=(i&1)*64+dec_x && mouse_x<(i&1)*64+64+dec_x && mouse_y>=(i-6*page>>1)*64+dec_y && mouse_y<64+(i-6*page>>1)*64+dec_y) {
+		if(mouse_x>=px && mouse_x<px+pw && mouse_y>=py && mouse_y<py+ph) {
 			glEnable(GL_BLEND);
 			glBlendFunc(GL_SRC_ALPHA,GL_ONE);
 			glColor4f(1.0f,1.0f,1.0f,0.75f);
 			if(unit_type[index].BuildList[i]==-1)					// Weapon construction!
-				gfx->drawtexture(unit_type[index].PicList[i],(i&1)*64+dec_x,(i-6*page>>1)*64+dec_y,(i&1)*64+64+dec_x,64+(i-6*page>>1)*64+dec_y);
+				gfx->drawtexture(unit_type[index].PicList[i],px,py,px+pw,py+ph);
 			else
-				gfx->drawtexture(unit_type[unit_type[index].BuildList[i]].glpic,(i&1)*64+dec_x,(i-6*page>>1)*64+dec_y,(i&1)*64+64+dec_x,64+(i-6*page>>1)*64+dec_y);
+				gfx->drawtexture(unit_type[unit_type[index].BuildList[i]].glpic,px,py,px+pw,py+ph);
 			glDisable(GL_BLEND);
 			sel=unit_type[index].BuildList[i];
 			if(sel==-1)
@@ -547,21 +791,20 @@ int UNIT_MANAGER::unit_build_menu(int index,int omb,float &dt,int dec_x, int dec
 			glDisable(GL_TEXTURE_2D);
 			glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
 			glColor4f(1.0f,1.0f,1.0f,unit_type[index].click_time);
-			int mx = (i&1)*64+dec_x;
-			int my = (i-6*page>>1)*64+dec_y;
-			gfx->rectfill( mx,my,mx+64,my+64 );
+			int mx = px;
+			int my = py;
+			gfx->rectfill( mx,my,mx+pw,my+ph );
 			glColor4f(1.0f,1.0f,0.0f,0.75f);
-			gfx->line( mx, my+64*unit_type[index].click_time, mx+64, my+64*unit_type[index].click_time );
-			gfx->line( mx, my+64*(1.0f-unit_type[index].click_time), mx+64, my+64*(1.0f-unit_type[index].click_time) );
-			gfx->line( mx+64*unit_type[index].click_time, my, mx+64*unit_type[index].click_time, my+64 );
-			gfx->line( mx+64*(1.0f-unit_type[index].click_time), my, mx+64*(1.0f-unit_type[index].click_time), my+64 );
+			gfx->line( mx, my+ph*unit_type[index].click_time, mx+pw, my+ph*unit_type[index].click_time );
+			gfx->line( mx, my+ph*(1.0f-unit_type[index].click_time), mx+pw, my+ph*(1.0f-unit_type[index].click_time) );
+			gfx->line( mx+pw*unit_type[index].click_time, my, mx+pw*unit_type[index].click_time, my+ph );
+			gfx->line( mx+pw*(1.0f-unit_type[index].click_time), my, mx+pw*(1.0f-unit_type[index].click_time), my+ph );
 			glColor4f(1.0f,1.0f,1.0f,0.75f);
 			glEnable(GL_TEXTURE_2D);
 			glDisable(GL_BLEND);
 			}
 		}
 	glColor4f(1.0f,1.0f,1.0f,1.0f);
-//	glDisable(GL_BLEND);
 
 	if( unit_type[index].last_click != -1 )
 		unit_type[index].click_time -= dt;

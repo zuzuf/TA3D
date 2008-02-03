@@ -290,8 +290,9 @@ bool UNIT::is_on_radar( byte p_mask )
 			}
 
 		int old_mission=-1;
-		if( !def_mode )
+		if( !def_mode ) {
 			if(mission!=NULL)	old_mission = mission->mission;
+			}
 		else
 			clear_def_mission();
 
@@ -306,11 +307,19 @@ bool UNIT::is_on_radar( byte p_mask )
 		case MISSION_RECLAIM:
 		case MISSION_BUILD_2:
 			launch_script(get_script_index(SCRIPT_stopbuilding));
-			launch_script(get_script_index(SCRIPT_stop));
+			deactivate();
 			if( !unit_manager.unit_type[type_id].BMcode ) {		// Delete the unit we were building
-				((UNIT*)(mission->p))->built = false;
-				((UNIT*)(mission->p))->hp = 0.0f;
+				sint32 prev = -1;
+				for(int i = units.nb_unit-1; i>=0 ; i--)
+					if(units.idx_list[i] == ((UNIT*)(mission->p))->idx) {
+						prev = i;
+						break;
+						}
+				if( prev >= 0 )
+					units.kill(((UNIT*)(mission->p))->idx,units.map,prev);
 				}
+			else
+				launch_script(get_script_index(SCRIPT_stop));
 			break;
 		case MISSION_ATTACK:
 			if( mission_type != MISSION_ATTACK && ( !unit_manager.unit_type[type_id].canfly
@@ -4873,7 +4882,7 @@ const bool can_be_built(const VECTOR Pos,MAP *map,const int unit_type_id, const 
 	return true;
 }
 
-void INGAME_UNITS::complete_menu(int index,bool hide_info,bool hide_bpic,int dec_x,int dec_y)
+void INGAME_UNITS::complete_menu(int index,bool hide_info,bool hide_bpic)
 {
 	EnterCS();
 
@@ -4907,7 +4916,13 @@ void INGAME_UNITS::complete_menu(int index,bool hide_info,bool hide_bpic,int dec
 			int page=unit_manager.unit_type[unit[index].type_id].page;
 
 			glBlendFunc(GL_ONE,GL_ONE_MINUS_SRC_COLOR);
-			for(int i=6*page;i<min((int)unit_manager.unit_type[unit[index].type_id].nb_unit,6*page+6);i++) {		// Affiche les différentes images d'unités constructibles
+			for( int i = 0 ; i < unit_manager.unit_type[unit[index].type_id].nb_unit ; i++ ) {		// Affiche les différentes images d'unités constructibles
+				if( unit_manager.unit_type[unit[index].type_id].Pic_p[i] != page )	continue;
+				int px = unit_manager.unit_type[unit[index].type_id].Pic_x[ i ];
+				int py = unit_manager.unit_type[unit[index].type_id].Pic_y[ i ];
+				int pw = unit_manager.unit_type[unit[index].type_id].Pic_w[ i ];
+				int ph = unit_manager.unit_type[unit[index].type_id].Pic_h[ i ];
+
 				int nb=0;
 				MISSION *m=unit[index].mission;
 				while(m) {
@@ -4919,7 +4934,7 @@ void INGAME_UNITS::complete_menu(int index,bool hide_info,bool hide_bpic,int dec
 					char buf[10];
 					uszprintf(buf,10,"%d",nb);
 					glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
-					gfx->print(gfx->TA_font,(i&1)*64+32-0.5f*gfx->TA_font.length(buf)+dec_x,dec_y+(i-6*page>>1)*64+32-0.5f*gfx->TA_font.height(),0.0f,0xFFFFFFFF,buf);
+					gfx->print(gfx->TA_font,px+pw*0.5f-0.5f*gfx->TA_font.length(buf),py+ph*0.5f-0.5f*gfx->TA_font.height(),0.0f,0xFFFFFFFF,buf);
 					}
 				else if(unit_manager.unit_type[unit[index].type_id].BuildList[i]==-1) {		// Il s'agit d'une arme / It's a weapon
 					char buf[10];
@@ -4928,7 +4943,7 @@ void INGAME_UNITS::complete_menu(int index,bool hide_info,bool hide_bpic,int dec
 					else
 						uszprintf(buf,10,"%d(%d)",(int)unit[index].planned_weapons+1,stock);
 					glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
-					gfx->print(gfx->TA_font,dec_x+(i&1)*64+32-0.5f*gfx->TA_font.length(buf),dec_y+(i-6*page>>1)*64+32-0.5f*gfx->TA_font.height(),0.0f,0xFFFFFFFF,buf);
+					gfx->print(gfx->TA_font,px+pw*0.5f-0.5f*gfx->TA_font.length(buf),py+ph*0.5f-0.5f*gfx->TA_font.height(),0.0f,0xFFFFFFFF,buf);
 					}
 				}
 			}

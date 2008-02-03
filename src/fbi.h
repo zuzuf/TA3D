@@ -214,7 +214,19 @@ public:
 
 	short	nb_unit;			// Nombre d'unités que cette unité peut construire
 	short	*BuildList;			// Liste des unités que cette unité peut construire
+	short	*Pic_x;				// Coordinates
+	short	*Pic_y;
+	short	*Pic_w;				// Size
+	short	*Pic_h;
+	short	*Pic_p;				// Page where the pic has to be shown
 	GLuint	*PicList;
+	short	nb_pages;
+	
+	short	dl_num;				// How many build pics
+	short	*dl_x;
+	short 	*dl_y;
+	short	*dl_w;
+	short	*dl_h;
 
 /*-----------------------------------------------------------------------*/
 
@@ -224,35 +236,11 @@ public:
 
 /*-----------------------------------------------------------------------*/
 
-	inline void AddUnitBuild(int index, GLuint Pic = 0 )
-	{
-		if(index<-1) return;		// N'ajoute pas d'indices incorrects (-1 indique une arme) / don't add an incorrect index (-1 stands for weapon building)
+	#define SWAP( a, b ) { sint32 tmp = a; a = b; b = tmp; }
 
-		int i;
-		if(BuildList && nb_unit>0)		// Vérifie si l'unité n'est pas déjà répertoriée / check if not already there
-			for(i=0;i<nb_unit;i++)
-				if(BuildList[i]==index)
-					return;
+	void AddUnitBuild(int index, int px, int py, int pw, int ph, int p, GLuint Pic = 0 );
 
-		nb_unit++;
-		if(BuildList==NULL)
-			nb_unit=1;
-		short *Blist=(short*) malloc(sizeof(short)*nb_unit);
-		GLuint *Plist=(GLuint*) malloc(sizeof(GLuint)*nb_unit);
-		if(BuildList && nb_unit>1)
-			for(i=0;i<nb_unit-1;i++) {
-				Blist[i] = BuildList[i];
-				Plist[i] = PicList[i];
-				}
-		Blist[nb_unit-1]=index;
-		Plist[nb_unit-1]=Pic;
-		if(BuildList)
-			free(BuildList);
-		if(PicList)
-			free(PicList);
-		BuildList=Blist;
-		PicList=Plist;
-	}
+	void FixBuild();
 
 	inline bool canbuild(int index)
 	{
@@ -293,9 +281,21 @@ public:
 
 		page=0;
 
+		nb_pages;
 		nb_unit=0;
 		BuildList=NULL;
 		PicList=NULL;
+		Pic_x=NULL;				// Coordinates
+		Pic_y=NULL;
+		Pic_w=NULL;				// Coordinates
+		Pic_h=NULL;
+		Pic_p=NULL;				// Page where the pic has to be shown
+
+		dl_num = 0;				// How many build pics
+		dl_x = NULL;
+		dl_y = NULL;
+		dl_w = NULL;
+		dl_h = NULL;
 
 		init_cloaked = false;
 		mincloakdistance = 10;
@@ -430,8 +430,17 @@ public:
 		if( BadTargetCategory )			free( BadTargetCategory );
 		if( NoChaseCategory )			free( NoChaseCategory );
 
-		if(BuildList)
-			free(BuildList);
+		if( dl_x )	free( dl_x );
+		if( dl_y )	free( dl_y );
+		if( dl_w )	free( dl_w );
+		if( dl_h )	free( dl_h );
+
+		if(BuildList)		free(BuildList);
+		if(Pic_x)		free(Pic_x);
+		if(Pic_y)		free(Pic_y);
+		if(Pic_w)		free(Pic_w);
+		if(Pic_h)		free(Pic_h);
+		if(Pic_p)		free(Pic_p);
 
 		if(PicList) {
 			for( int i = 0 ; i < nb_unit ; i++ )
@@ -475,6 +484,8 @@ private:
 public:
 
 	int load(char *data,int size=99999999);
+
+	void load_dl();
 
 	void show_info(float fade,GFX_FONT fnt);
 };
@@ -560,74 +571,7 @@ private:
 	}
 public:
 
-	inline void analyse(char *data,int unit_index,int size=99999999)
-	{
-		char *pos=data;
-		char *ligne=NULL;
-		int nb=0;
-		pos = strstr(pos,"\n");
-		if( pos == NULL )	pos = data;
-		else pos++;
-		int totalgadgets=100;
-		int curgadget=0;
-		int sub=0;
-		char *limit=data+size;
-		char *nom = NULL;
-		bool weapon_ok = false;
-		do
-		{
-			nb++;
-			if(ligne)
-				delete[] ligne;
-			ligne=get_line(pos);
-			strlwr(ligne);
-			while(pos[0]!=0 && pos[0]!=13 && pos[0]!=10)	pos++;
-			while(pos[0]==13 || pos[0]==10)	pos++;
-
-			if(strstr(ligne,"{"))	sub++;
-			if(strstr(ligne,"}")) {
-				sub--;
-				weapon_ok = false;
-				if( nom )	free(nom);
-				nom = NULL;
-				if(sub==0)	curgadget++;
-				}
-
-			if(strstr(ligne,"totalgadgets=")) {		// Entête ?
-				totalgadgets=atoi(strstr(ligne,"totalgadgets=")+13);
-				}
-			else if(strstr(ligne,"name=")) {		// Vérifie s'il s'agit d'une unité et l'ajoute à la liste si c'est le cas
-				if( nom )	free(nom);
-				nom = strdup( strstr(ligne,"name=")+5 );
-				if(strstr(nom,";"))
-					*(strstr(nom,";"))=0;
-				strupr(nom);
-				}
-			else if(strstr(ligne,"commonattribs=")) {	// Il s'agit peut-être d'une arme / May be it's a weapon
-				if(atoi(strstr(ligne,"commonattribs=")+14)&8)
-					weapon_ok = true;
-				}
-			if( weapon_ok && nom != NULL ) {
-				byte *gaf_file = HPIManager->PullFromHPI( format( "anims\\%s1.gaf", unit_type[unit_index].Unitname ).c_str() );
-				if( gaf_file ) {
-					BITMAP *img = read_gaf_img( gaf_file, get_gaf_entry_index( gaf_file, nom ), 0 );
-
-					GLuint tex = 0;
-					if( img ) {
-						tex = gfx->make_texture( img );
-						destroy_bitmap( img );
-						}
-
-					free( gaf_file );
-					unit_type[unit_index].AddUnitBuild(-1, tex);
-					}
-				else
-					unit_type[unit_index].AddUnitBuild(-1);
-				}
-
-		}while(strlen(ligne)>0 && nb<2000 && curgadget<=totalgadgets && pos<limit);
-		delete[] ligne;
-	}
+	void analyse(String filename,int unit_index);
 
 	inline void analyse2(char *data,int size=9999999)
 	{
@@ -672,30 +616,8 @@ public:
 			if(unit_index==-1) continue;		// Au cas où l'unité n'existerait pas
 			int idx=get_unit_index(unitname);
 			if(idx>=0 && idx<nb_unit && unit_type[idx].unitpic)
-				unit_type[unit_index].AddUnitBuild(idx);
+				unit_type[unit_index].AddUnitBuild(idx, -1, -1, 64, 64, -1);
 			}while(pos[0]=='[' && nb<2000 && data<limit);
-	}
-
-	inline void gather_unit_build_data(char *unit_name)
-	{
-		strupr(unit_name);
-		int unit_index=get_unit_index(unit_name);
-		if(unit_index==-1) return;		// Au cas où l'unité n'existerait pas
-		uint32 file_size;
-
-		List<String> file_list;
-		HPIManager->GetFilelist( ta3d_sidedata.guis_dir + "*.gui",&file_list);
-
-		for(List<String>::iterator file=file_list.begin();file!=file_list.end();file++) {		// Cherche un fichier pouvant contenir des informations sur l'unité unit_name
-			strupr((char*)file->c_str());
-			if(strstr((char*)file->c_str(),unit_name)) {			// A trouvé un fichier qui convient
-				byte *data=HPIManager->PullFromHPI(*file,&file_size);		// Lit le fichier
-
-				analyse((char*)data,unit_index,file_size);
-
-				free(data);
-				}
-			}
 	}
 
 	inline void gather_build_data()
@@ -717,26 +639,6 @@ public:
 
 	inline void gather_all_build_data()
 	{
-		uint32 file_size;
-
-		List<String> file_list;
-		uint32 nb_file = HPIManager->GetFilelist( ta3d_sidedata.guis_dir + "*.gui",&file_list);
-
-		for(List<String>::iterator file=file_list.begin();file!=file_list.end();file++) {		// Cherche un fichier pouvant contenir des informations sur l'unité unit_name
-			byte *data=HPIManager->PullFromHPI(*file,&file_size);		// Lit le fichier
-			if(data) {
-				char *f=NULL;
-				for(uint32 i=0;i<nb_unit;i++) {
-					if(f=strstr((char*)Uppercase( *file ).c_str(),unit_type[i].Unitname))
-						if(f[strlen(unit_type[i].Unitname)]=='.'
-						||(f[strlen(unit_type[i].Unitname)]>='0' && f[strlen(unit_type[i].Unitname)]<='9'))
-						analyse((char*)data,i,file_size);
-					}
-
-				free(data);
-				}
-			}
-
 		cTAFileParser sidedata_parser( ta3d_sidedata.gamedata_dir + "sidedata.tdf", false, true );
 		for( uint32 i = 0 ; i < nb_unit ; i++ ) {
 			int n = 1;
@@ -744,13 +646,30 @@ public:
 			while( canbuild != "" ) {
 				int idx = get_unit_index( (char*)canbuild.c_str() );
 				if(idx>=0 && idx<nb_unit && unit_type[idx].unitpic)
-					unit_type[ i ].AddUnitBuild(idx);
+					unit_type[ i ].AddUnitBuild(idx, -1, -1, 64, 64, -1);
 				n++;
 				canbuild = sidedata_parser.PullAsString( format( "canbuild.%s.canbuild%d", unit_type[ i ].Unitname, n ) );
 				}
 			}
 
 		gather_build_data();			// Read additionnal build data
+
+		uint32 file_size;
+		List<String> file_list;
+		uint32 nb_file = HPIManager->GetFilelist( ta3d_sidedata.guis_dir + "*.gui",&file_list);
+
+		for(List<String>::iterator file=file_list.begin();file!=file_list.end();file++) {		// Cherche un fichier pouvant contenir des informations sur l'unité unit_name
+			char *f=NULL;
+			for(uint32 i=0;i<nb_unit;i++) {
+				if(f=strstr((char*)Uppercase( *file ).c_str(),unit_type[i].Unitname))
+					if(f[strlen(unit_type[i].Unitname)]=='.'
+					||(f[strlen(unit_type[i].Unitname)]>='0' && f[strlen(unit_type[i].Unitname)]<='9'))
+					analyse(*file,i);
+				}
+			}
+
+		for( uint32 i = 0 ; i < nb_unit ; i++ )
+			unit_type[ i ].FixBuild();
 	}
 
 	inline void load_script_file(char *unit_name)
@@ -779,7 +698,7 @@ public:
 		free(uprname);
 	}
 
-	int unit_build_menu(int index,int omb,float &dt,int dec_x=0, int dec_y=0,bool GUI=false);				// Affiche et gère le menu des unités
+	int unit_build_menu(int index,int omb,float &dt,bool GUI=false);				// Affiche et gère le menu des unités
 
 	inline void Identify()			// Identifie les pièces aux quelles les scripts font référence
 	{
