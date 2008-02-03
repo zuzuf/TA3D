@@ -11,6 +11,7 @@ _networking code
 _improve A.I.
 _D3D support
 
+*fire effect improved (fire particles are spawned from the 3D models when available :) )
 *build pics code rewritten to support big build pics
 *support for 32bits animated sprites (extended GAF format for TA3D ;) )
 *new console command to give resources to a given player (for AI debugging)

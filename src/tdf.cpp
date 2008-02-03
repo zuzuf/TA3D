@@ -532,8 +532,23 @@ void FEATURES::move(float dt,MAP *map,bool clean)
 		feature[i].dt+=dt;
 		if(feature[i].dt>0.2f && feature[i].draw) {
 			if(feature[i].burning && feature[i].dt>0.3f) {
+				VECTOR t_mod;
+				bool random_vector = true;
+				if(feature_manager.feature[feature[i].type].m3d && feature_manager.feature[feature[i].type].model!=NULL ) {
+					OBJECT *obj = &(feature_manager.feature[feature[i].type].model->obj);
+					for( int base_n = rand_from_table(), n = 0 ; random_vector && n < obj->nb_sub_obj ; n++ )
+						random_vector = obj->random_pos( NULL, (base_n + n) % obj->nb_sub_obj, &t_mod );
+					}
+				else
+					random_vector = false;
+
+				if( random_vector )
+					t_mod = feature[i].Pos+t_mod;
+				else
+					t_mod = feature[i].Pos;
+
 				feature[i].dt=0.0f;
-				particle_engine.make_fire(O+feature[i].Pos,1,1,30.0f);
+				particle_engine.make_fire(O+t_mod,1,1,30.0f);
 				}
 			else if(!feature[i].burning) {
 				feature[i].dt=0.0f;

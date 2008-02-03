@@ -465,7 +465,9 @@ private:
 	bool	compute_min_max;
 
 	uint16	obj_id;				// Used to generate a random position on the object
+public:
 	uint16	nb_sub_obj;
+private:
 
 //-------------- EXPERIMENTAL CODE -----------------
 
