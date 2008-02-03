@@ -405,6 +405,15 @@ public:
 		free(old);
 		if(mission==NULL)
 			set_mission(unit_manager.unit_type[type_id].DefaultMissionType);
+
+				// Skip a stop order before a normal order if the unit can fly (prevent planes from looking for a place to land when they don't need to land !!)
+		if( unit_manager.unit_type[type_id].canfly && mission->mission == MISSION_STOP && mission->next != NULL && mission->next->mission != MISSION_STOP ) {
+			old = mission;
+			mission = mission->next;
+			if(old->path)				// Détruit le chemin si nécessaire
+				destroy_path(old->path);
+			free(old);
+			}
 		start_mission_script(mission->mission);
 		c_time=0.0f;
 	}

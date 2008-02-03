@@ -55,6 +55,8 @@ _some parts of the maps might not be drawn (visibility limit) like hills
 _slow down with lots of 3D sprites on some gfx hardware (speed increased but bug not yet fixed)
 _fix all other bugs ( :-) )
 
+*fixed planes trying to land somewhere when they've something else to do
+*fixed audio module not reloaded when changing current mod in config screen
 *fixed factories unable to build anything when they've been ordered to stop
 *lots of thread safety bugs fixed
 *fixed weapon aiming bug

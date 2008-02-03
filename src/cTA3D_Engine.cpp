@@ -123,6 +123,7 @@ namespace TA3D
 		sound_manager = new TA3D::INTERFACES::cAudio ( 1.0f, 0.0f, 0.0f );
 		sound_manager->StopMusic();
 		sound_manager->LoadTDFSounds( true );
+		sound_manager->LoadTDFSounds( false );
 
 		if( !sound_manager->IsFMODRunning() && !lp_CONFIG->quickstart ) {
 			set_uformat(U_UTF8);   // fixed size, 8-bit ASCII characters
