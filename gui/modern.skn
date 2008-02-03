@@ -2,7 +2,7 @@
 {
 	name=modern_skin;
 
-	suffix=_mdrn;
+	prefix=mdrn_;
 
 	button0=gfx/default_skin/button0.tga;
 	button1=gfx/default_skin/button1.tga;

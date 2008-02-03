@@ -420,7 +420,7 @@ public:
 	SKIN_OBJECT			checkbox[2];							// Checkbox images
 	SKIN_OBJECT			option[2];								// Option button images
 	SKIN_OBJECT 		scroll[3];								// Scroll bar
-	String				suffix;								// suffix for various files
+	String				prefix;									// prefix for various files
 
 public:
 

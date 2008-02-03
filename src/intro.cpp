@@ -44,8 +44,8 @@ void play_intro(char *txt_file)
 		SKIN *skin = new SKIN;
 		skin->load_tdf( lp_CONFIG->skin_name );
 
-		if( !skin->suffix.empty() )
-			glfond = gfx->load_texture("gfx/intro" + skin->suffix + ".jpg");
+		if( !skin->prefix.empty() )
+			glfond = gfx->load_texture("gfx/" + skin->prefix + "intro.jpg");
 		else
 			glfond = gfx->load_texture("gfx/intro.jpg");
 
@@ -197,8 +197,8 @@ void loading(float percent,const String &msg)
 			SKIN *skin = new SKIN;
 			skin->load_tdf( lp_CONFIG->skin_name );
 
-			if( !skin->suffix.empty() )
-				Glfond = gfx->load_texture_mask("gfx/load" + skin->suffix + ".jpg", 7);
+			if( !skin->prefix.empty() )
+				Glfond = gfx->load_texture_mask("gfx/" + skin->prefix + "load.jpg", 7);
 			else
 				Glfond = gfx->load_texture_mask("gfx/load.jpg", 7);
 
