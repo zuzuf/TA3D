@@ -127,8 +127,28 @@ void UNIT_MANAGER::analyse(String filename,int unit_index)
 			String name = gui_parser.PullAsString( format( "gadget%d.common.name", i ) );
 			int idx = get_unit_index( name.c_str() );
 			
-			if( idx >= 0 )
-				unit_type[unit_index].AddUnitBuild(idx, x, y, w, h, page);
+			if( idx >= 0 ) {
+				String name = gui_parser.PullAsString( format( "gadget%d.common.name", i ) );
+
+				byte *gaf_file = HPIManager->PullFromHPI( format( "anims\\%s%d.gaf", unit_type[unit_index].Unitname, page + 1 ).c_str() );
+				if( gaf_file ) {
+					BITMAP *img = read_gaf_img( gaf_file, get_gaf_entry_index( gaf_file, (char*)name.c_str() ), 0 );
+
+					GLuint tex = 0;
+					if( img ) {
+						w = img->w;
+						h = img->h;
+						tex = gfx->make_texture( img );
+						destroy_bitmap( img );
+						}
+
+					free( gaf_file );
+
+					unit_type[unit_index].AddUnitBuild(idx, x, y, w, h, page, tex);
+					}
+				else
+					unit_type[unit_index].AddUnitBuild(idx, x, y, w, h, page);
+				}
 			}
 		else if( attribs & 8 ) {	// Weapon Build Pic
 			int x = gui_parser.PullAsInt( format( "gadget%d.common.xpos", i ) ) + x_offset;
@@ -137,21 +157,23 @@ void UNIT_MANAGER::analyse(String filename,int unit_index)
 			int h = gui_parser.PullAsInt( format( "gadget%d.common.height", i ) );
 			String name = gui_parser.PullAsString( format( "gadget%d.common.name", i ) );
 
-			byte *gaf_file = HPIManager->PullFromHPI( format( "anims\\%s1.gaf", unit_type[unit_index].Unitname ).c_str() );
+			byte *gaf_file = HPIManager->PullFromHPI( format( "anims\\%s%d.gaf", unit_type[unit_index].Unitname, page + 1 ).c_str() );
 			if( gaf_file ) {
 				BITMAP *img = read_gaf_img( gaf_file, get_gaf_entry_index( gaf_file, (char*)name.c_str() ), 0 );
 
 				GLuint tex = 0;
 				if( img ) {
+					w = img->w;
+					h = img->h;
 					tex = gfx->make_texture( img );
 					destroy_bitmap( img );
 					}
 
 				free( gaf_file );
-				unit_type[unit_index].AddUnitBuild(page, x, y, w, h, -1, tex);
+				unit_type[unit_index].AddUnitBuild(-1, x, y, w, h, page, tex);
 				}
 			else
-				unit_type[unit_index].AddUnitBuild(page, x, y, w, h, -1);
+				unit_type[unit_index].AddUnitBuild(-1, x, y, w, h, page);
 			}
 		}
 }
@@ -629,8 +651,8 @@ void UNIT_TYPE::FixBuild()
 			Pic_p[ i ] = nb_pages;
 			Pic_x[ i ] = dl_x[ next_id ];
 			Pic_y[ i ] = dl_y[ next_id ];
-			Pic_w[ i ] = dl_h[ next_id ];
-			Pic_h[ i ] = dl_w[ next_id ];
+			Pic_w[ i ] = dl_w[ next_id ];
+			Pic_h[ i ] = dl_h[ next_id ];
 			next_id = (next_id + 1) % dl_num;
 			filled = true;
 			if( next_id == 0 ) {
@@ -645,9 +667,8 @@ void UNIT_TYPE::FixBuild()
 				Pic_p[ i ]++;
 				e = i;
 				}
-		nb_pages = max( nb_pages, Pic_p[ i ] );
 		}
-	for( int i = 0 ; i < nb_unit - 1 ; i++ )		// Ok it's O(N²) but we don't need something fast
+	for( int i = 0 ; i < nb_unit - 1 ; i++ )  		// Ok it's O(N²) but we don't need something fast
 		for( int e = i + 1 ; e < nb_unit ; e++ )
 			if( Pic_p[e] < Pic_p[i] ) {
 				SWAP( Pic_p[e], Pic_p[i] )
@@ -658,6 +679,8 @@ void UNIT_TYPE::FixBuild()
 				SWAP( PicList[e], PicList[i] )
 				SWAP( BuildList[e], BuildList[i] )
 				}
+	for( int i = 0 ; i < nb_unit ; i++ )
+		nb_pages = max( nb_pages, Pic_p[ i ] );
 	nb_pages++;
 }
 
@@ -765,7 +788,8 @@ int UNIT_MANAGER::unit_build_menu(int index,int omb,float &dt, bool GUI)				// A
 		int py = unit_type[index].Pic_y[ i ];
 		int pw = unit_type[index].Pic_w[ i ];
 		int ph = unit_type[index].Pic_h[ i ];
-		if(unit_type[index].BuildList[i]==-1)					// Weapon construction!
+//		if(unit_type[index].BuildList[i]==-1)					// Weapon construction!
+		if(unit_type[index].PicList[i])							// If a texture is given use it
 			gfx->drawtexture(unit_type[index].PicList[i],px,py,px+pw,py+ph);
 		else
 			gfx->drawtexture(unit_type[unit_type[index].BuildList[i]].glpic,px,py,px+pw,py+ph);
@@ -774,7 +798,8 @@ int UNIT_MANAGER::unit_build_menu(int index,int omb,float &dt, bool GUI)				// A
 			glEnable(GL_BLEND);
 			glBlendFunc(GL_SRC_ALPHA,GL_ONE);
 			glColor4f(1.0f,1.0f,1.0f,0.75f);
-			if(unit_type[index].BuildList[i]==-1)					// Weapon construction!
+//			if(unit_type[index].BuildList[i]==-1)					// Weapon construction!
+			if(unit_type[index].PicList[i])							// If a texture is given use it
 				gfx->drawtexture(unit_type[index].PicList[i],px,py,px+pw,py+ph);
 			else
 				gfx->drawtexture(unit_type[unit_type[index].BuildList[i]].glpic,px,py,px+pw,py+ph);
