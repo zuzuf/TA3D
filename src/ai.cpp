@@ -646,7 +646,7 @@ int	AI_PLAYER::Run()
 			}
 
 		float time_factor = units.apparent_timefactor;
-		while( time_factor == 0.0f ) {
+		while( (time_factor == 0.0f || lp_CONFIG->pause) && !thread_ask_to_stop ) {
 			time_factor = units.apparent_timefactor;
 			rest( 10 );
 			}

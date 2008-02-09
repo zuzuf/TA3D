@@ -334,17 +334,33 @@ void load_features()				// Charge tout les éléments
 				}
 			int i=list[e];
 			if(feature[i].type<0)	continue;
+			if(!feature[i].draw)	continue;
+
+			if( cam->mirror && ((feature_manager.feature[feature[i].type].height>5.0f && feature_manager.feature[feature[i].type].m3d)			// Perform a small visibility check
+			|| (feature_manager.feature[feature[i].type].m3d && feature_manager.feature[feature[i].type].model!=NULL)) ) {
+				VECTOR Pos = feature[i].Pos;
+				if( feature_manager.feature[feature[i].type].m3d )
+					Pos.y += feature_manager.feature[feature[i].type].model->size2;
+				else
+					Pos.y += feature_manager.feature[feature[i].type].height*0.5f;
+				Pos.y = 2.0f * units.map->sealvl - Pos.y;				// Mirrored position
+
+				VECTOR Dir = Pos - cam->RPos;
+				Dir.Unit();
+				Pos = units.map->hit( cam->RPos, Dir );
+
+				if( Pos.y > units.map->sealvl )			continue;				// If it's not visible don't draw it
+				}
+				
 			if(!feature_manager.feature[feature[i].type].m3d && feature_manager.feature[feature[i].type].anim.nb_bmp>0) {
 				feature[i].frame = (units.current_tick >> 1) % feature_manager.feature[feature[i].type].anim.nb_bmp;
-
-				if(!feature[i].draw)	continue;
 
 				if(!texture_loaded || old!=feature_manager.feature[feature[i].type].anim.glbmp[feature[i].frame]) {
 					old=feature_manager.feature[feature[i].type].anim.glbmp[feature[i].frame];
 					texture_loaded=true;
 					glBindTexture(GL_TEXTURE_2D,feature_manager.feature[feature[i].type].anim.glbmp[feature[i].frame]);
 					}
-				VECTOR Pos=feature[i].Pos;
+				VECTOR Pos = feature[i].Pos;
 				float	h=feature_manager.feature[feature[i].type].height*0.5f;
 				float	dw=0.5f*feature_manager.feature[feature[i].type].anim.w[feature[i].frame];
 				if(feature_manager.feature[feature[i].type].height>5.0f) {
@@ -379,7 +395,6 @@ void load_features()				// Charge tout les éléments
 					}
 				}
 			else if(feature_manager.feature[feature[i].type].m3d && feature_manager.feature[feature[i].type].model!=NULL) {
-				if(!feature[i].draw)	continue;
 
 				if( !feature_manager.feature[feature[i].type].model->animated && !feature[i].sinking )
 					drawing_table.queue_instance( feature_manager.feature[feature[i].type].model->id, INSTANCE( feature[i].Pos, feature[i].grey ? 0x7F7F7FFF : 0xFFFFFFFF, feature[i].angle ) );

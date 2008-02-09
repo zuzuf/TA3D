@@ -94,9 +94,12 @@ namespace TA3D
 		bool	quickrestart;				// Should be false, set to true when need to restart to enable options/parameters
 		bool	quickstart;					// Tell to speed up the starting process
 		bool	restorestart;				// Tell it's a restart to restore previous config file
+		bool	pause;						// Tell the engine it's in pause mode, so wait for this to be false again
 
 		TA3DCONFIG()
 		{
+			pause = false;
+
 			skin_name = "";
 
 			camera_zoom = ZOOM_NORMAL;

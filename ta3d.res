@@ -1,3 +1,11 @@
+[Pause the game]
+{
+	FRENCH=Pause;
+}
+[Resume the game]
+{
+	FRENCH=Reprendre la partie;
+}
 [game time]
 {
 	FRENCH=temps de jeu;

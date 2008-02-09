@@ -5676,6 +5676,25 @@ void INGAME_UNITS::remove_order(int player_id,VECTOR target)
 
 uint32 INGAME_UNITS::InterfaceMsg( const lpcImsg msg )
 {
+	if( msg->MsgID == TA3D_IM_GUI_MSG )	{			// for GUI messages, test if it's a message for us
+		if( msg->lpParm1 == NULL )
+			return INTERFACE_RESULT_HANDLED;		// Oups badly written things
+		String message = Lowercase( (char*) msg->lpParm1 );				// Get the string associated with the signal
+
+		if( message == "pause game" ) {
+			lp_CONFIG->pause = true;
+			return INTERFACE_RESULT_HANDLED;
+			}
+		else if( message == "resume game" ) {
+			lp_CONFIG->pause = false;
+			return INTERFACE_RESULT_HANDLED;
+			}
+		else if( message == "toggle pause" ) {
+			lp_CONFIG->pause ^= true;
+			return INTERFACE_RESULT_HANDLED;
+			}
+		}
+	
 	return INTERFACE_RESULT_CONTINUE;						// Temporary, for now it does nothing
 }
 
@@ -5737,6 +5756,8 @@ int INGAME_UNITS::Run()
 		else	step = 1.0f;
 
 		ThreadSynchroniser->LeaveSync();
+
+		while( lp_CONFIG->pause && !thread_ask_to_stop )	rest( 10 );			// in pause mode wait for pause to be false again
 
 		unit_engine_thread_sync = 1;
 		while( unit_engine_thread_sync && !thread_ask_to_stop ) {

@@ -299,6 +299,8 @@ sun.LightSpecular[2]=0.0f;
 sun.LightSpecular[3]=0.0f;
 sun.Directionnal=true;
 
+lp_CONFIG->pause = false;
+
 float speed_limit= lp_CONFIG->fps_limit;
 float delay=(speed_limit==0.0f) ? 0.0f : 1.0f/speed_limit;
 int nb_shoot=0;
@@ -485,7 +487,7 @@ do
 
 	/*------------------------ handle wind speed and dir -----------------------*/
 
-	if(t-wind_t>=10.0f) {		// Make a change every 10 sec.
+	if(t-wind_t>=10.0f) {		// Make a change every 10 sec. (simulation time)
 		wind_t=t;
 		map->wind+=(rand_from_table()%2001)-1000;
 		if(map->wind<map->ota_data.minwindspeed)
@@ -595,9 +597,11 @@ do
 		sky_angle += sky_data->rotation_speed * dt * units.apparent_timefactor; 
 
 	unit_info-=dt;
-	light_angle+=dt*units.apparent_timefactor;
+	if( !lp_CONFIG->pause ) {
+		light_angle+=dt*units.apparent_timefactor;
 
-	t+=dt*lp_CONFIG->timefactor;
+		t += dt * units.apparent_timefactor;
+		}
 	nbfps++;
 	if(nbfps>=10 && (msec_timer-fpscount)*Conv>=0.05f) {
 		fps=(int)(nbfps/((msec_timer-fpscount)*Conv));
@@ -1461,10 +1465,12 @@ do
 /*--------------bloc regroupant ce qui est relatif au temps-------------------*/
 
 			// That code was rewritten multithreaded
-	float timetosimulate=dt*units.apparent_timefactor;							// Physics calculations take place here
-	wind_change=false;						// Don't try to run following code in separate thread
-	features.move(timetosimulate, map);					// Animate objects
-	fx_manager.move(timetosimulate);
+	if( !lp_CONFIG->pause ) {
+		float timetosimulate=dt*units.apparent_timefactor;							// Physics calculations take place here
+		wind_change=false;						// Don't try to run following code in separate thread
+		features.move(timetosimulate, map);					// Animate objects
+		fx_manager.move(timetosimulate);
+		}
 
 /*----------------------------------------------------------------------------*/
 
@@ -1574,7 +1580,7 @@ do
 			if(lp_CONFIG->wireframe)
 				glPolygonMode (GL_FRONT_AND_BACK, GL_LINE);
 
-			map->draw(&refcam,1<<players.local_human_id,false,0.0f,t,dt*lp_CONFIG->timefactor,false,false,false);
+			map->draw(&refcam,1<<players.local_human_id,false,0.0f,t,dt*units.apparent_timefactor,false,false,false);
 
 			if(lp_CONFIG->wireframe)
 				glPolygonMode (GL_FRONT_AND_BACK, GL_FILL);
@@ -1676,7 +1682,7 @@ do
 	if(lp_CONFIG->wireframe)
 		glPolygonMode (GL_FRONT_AND_BACK, GL_LINE);
 
-	map->draw(&cam,1<<players.local_human_id,false,0.0f,t,dt*lp_CONFIG->timefactor);
+	map->draw(&cam,1<<players.local_human_id,false,0.0f,t,dt*units.apparent_timefactor);
 
 	if(lp_CONFIG->wireframe)
 		glPolygonMode (GL_FRONT_AND_BACK, GL_FILL);
@@ -3037,6 +3043,8 @@ do
 						}
 					}
 				}
+			else if( params[0] == "pause" )								// Toggle pause mode
+				lp_CONFIG->pause ^= true;
 			else if( params[0] == "give" ) {							// Give resources to player_id
 				bool success = false;
 				if( params.size() == 4 ) {

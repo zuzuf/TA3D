@@ -11,6 +11,8 @@ _networking code
 _improve A.I.
 _D3D support
 
+*improved performance on water maps with water quality set to "extreme" (don't draw invisible features anymore on the reflection map)
+*game can be paused and resumed
 *fire effect improved (fire particles are spawned from the 3D models when available :) )
 *build pics code rewritten to support big build pics
 *support for 32bits animated sprites (extended GAF format for TA3D ;) )

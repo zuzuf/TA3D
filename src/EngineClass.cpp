@@ -1038,7 +1038,7 @@ void MAP::draw(CAMERA *cam,byte player_mask,bool FLAT,float niv,float t,float dt
 				if( check_visibility ) {
 					bool under_water = (h_map[Y|1][X|1] < sealvl && h_map[Y][X|1] < sealvl && h_map[Y|1][X] < sealvl && h_map[Y][X] < sealvl);
 
-					if( (bloc[i].lava || (under_water && ota_data.lavaworld) )
+					if( (bloc[i].lava || (under_water && ota_data.lavaworld) ) && !lp_CONFIG->pause
 						&& (rand_from_table()%1000000)<=lavaprob) {		// Lava emiting code moved here because of lava effect using fragment program
 						POINTF POS;
 						POS.x = (x<<4) - dwm + 8.0f;
@@ -1050,7 +1050,7 @@ void MAP::draw(CAMERA *cam,byte player_mask,bool FLAT,float niv,float t,float dt
 						V.Unit();
 						particle_engine.emit_lava(POS,V,1,10,(rand_from_table()%1000)*0.01f+30.0f);
 						}
-					else if( !map_data[ Y ][ X ].lava && water && !ota_data.lavaworld && !under_water &&										// A wave
+					else if( !map_data[ Y ][ X ].lava && water && !ota_data.lavaworld && !under_water && !lp_CONFIG->pause &&										// A wave
 						(h_map[Y|1][X|1] < sealvl || h_map[Y][X|1] < sealvl || h_map[Y|1][X] < sealvl || h_map[Y][X] < sealvl) &&
 						(h_map[Y|1][X|1] >= sealvl || h_map[Y|1][X] >= sealvl || h_map[Y][X|1] >= sealvl || h_map[Y][X] >= sealvl) &&
 						(rand_from_table()%4000)<=lavaprob &&
