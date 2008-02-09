@@ -1,0 +1,54 @@
+[window]
+{
+	title=Scripts available;
+	name=scripts;
+	uformat=UTF8;
+	x=220;
+	y=90;
+	width=200;
+	height=300;
+	screen width=640;
+	screen height=480;
+	fullscreen=true;
+	draw borders=true;
+	show title=true;
+	number of objects=3;
+	hidden=true;
+	color=0xFFFFFFFF;
+	background=gfx/background.jpg;
+	repeat background=true;
+	[object0]
+	{
+		name=b_ok;
+		type=BUTTON;
+		caption=OK;
+		x1=10;
+		y1=24;
+		x2=80;
+		y2=44;
+		size=1;
+		on click=scripts.hide;
+	}
+	[object1]
+	{
+		name=b_cancel;
+		type=BUTTON;
+		caption=cancel;
+		x1=120;
+		y1=24;
+		x2=190;
+		y2=44;
+		size=1;
+		on click=scripts.hide;
+	}
+	[object2]
+	{
+		name=script_list;
+		type=LIST;
+		x1=10;
+		y1=50;
+		x2=190;
+		y2=290;
+		size=0.9;
+	}
+}

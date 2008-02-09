@@ -1346,6 +1346,8 @@ void WND::load_tdf( const String &filename, SKIN *skin )			// Load a window from
 
 	if( e != -1 )	Name = Name.substr( e + 1, Name.size() - e - 1 );
 
+	Name = wndFile->PullAsString( "window.name", Name );
+
 	hidden = wndFile->PullAsBool( "window.hidden" );
 
 	String wnd_uformat = wndFile->PullAsString( "window.uformat" );
@@ -2840,10 +2842,28 @@ void AREA::load_tdf( const String &filename )			// Loads a TDF file telling whic
 
 	cTAFileParser *areaFile;
 
+	String skin_name = ( lp_CONFIG != NULL && !lp_CONFIG->skin_name.empty() ) ? lp_CONFIG->skin_name : "";
+	if( skin_name != "" && TA3D_exists( skin_name ) ) {			// Loads a skin
+		skin = new SKIN;
+		skin->load_tdf( skin_name, 1.0f );
+		}
+
 	try { // we need to try catch this cause the config file may not exists
 		 // and if it don't exists it will throw an error on reading it, which
 		 // will be caught in our main function and the application will exit.
-		areaFile = new TA3D::UTILS::cTAFileParser( filename );
+		String real_filename = filename;
+		if( skin != NULL && !skin->prefix.empty() ) {
+			int name_len = strlen( get_filename( real_filename.c_str() ) );
+			if( name_len > 0 )
+				real_filename = real_filename.substr( 0, real_filename.size() - name_len ) + skin->prefix + get_filename( real_filename.c_str() );
+			else
+				real_filename += skin->prefix;
+			if( !HPIManager->Exists( real_filename ) )		// If it doesn't exist revert to the default name
+				real_filename = filename;
+			}
+		if( skin )	delete( skin );
+		skin = NULL;
+		areaFile = new TA3D::UTILS::cTAFileParser( real_filename );
 	}
 	catch( ... )
 	{
@@ -2863,7 +2883,7 @@ void AREA::load_tdf( const String &filename )			// Loads a TDF file telling whic
 
 	name = areaFile->PullAsString( "area.name", name );					// The TDF may override the area name
 
-	String skin_name = ( lp_CONFIG != NULL && !lp_CONFIG->skin_name.empty() ) ? lp_CONFIG->skin_name : areaFile->PullAsString( "area.skin" );
+	skin_name = ( lp_CONFIG != NULL && !lp_CONFIG->skin_name.empty() ) ? lp_CONFIG->skin_name : areaFile->PullAsString( "area.skin" );
 	if( TA3D_exists( skin_name ) ) {			// Loads a skin
 		int area_width = areaFile->PullAsInt( "area.width", SCREEN_W );
 		int area_height = areaFile->PullAsInt( "area.height", SCREEN_W );
