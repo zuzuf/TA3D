@@ -5252,11 +5252,12 @@ int INGAME_UNITS::create(int type_id,int owner)
 	if(type_id<0 || type_id>=unit_manager.nb_unit)	return -1;
 	if(owner<0 || owner>=NB_PLAYERS)	return -1;
 	if(nb_unit>=MAX_UNIT_PER_PLAYER*NB_PLAYERS)		return -1;
+	if( free_index_size[owner] <= 0 && max_unit > 0 )	return -1;
 
 	EnterCS();
 
 	nb_unit++;
-	if(nb_unit>=max_unit) {
+	if(nb_unit>max_unit && max_unit == 0) {
 		if( mini_idx )		delete[]	mini_idx;
 		if( mini_col )		delete[]	mini_col;
 		if( mini_pos )		delete[]	mini_pos;
