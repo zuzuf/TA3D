@@ -61,7 +61,7 @@ namespace FMOD
         FMOD_RESULT F_API setOutput              (FMOD_OUTPUTTYPE output);
         FMOD_RESULT F_API getOutput              (FMOD_OUTPUTTYPE *output);
         FMOD_RESULT F_API getNumDrivers          (int *numdrivers);
-        FMOD_RESULT F_API getDriverName          (int id, char *name, int namelen);
+        FMOD_RESULT F_API getDriverInfo          (int id, char *name, int namelen, FMOD_GUID *guid);
         FMOD_RESULT F_API getDriverCaps          (int id, FMOD_CAPS *caps, int *minfrequency, int *maxfrequency, FMOD_SPEAKERMODE *controlpanelspeakermode);
         FMOD_RESULT F_API setDriver              (int driver);
         FMOD_RESULT F_API getDriver              (int *driver);
@@ -154,7 +154,7 @@ namespace FMOD
         FMOD_RESULT F_API setRecordDriver        (int driver);
         FMOD_RESULT F_API getRecordDriver        (int *driver);
         FMOD_RESULT F_API getRecordNumDrivers    (int *numdrivers);
-        FMOD_RESULT F_API getRecordDriverName    (int id, char *name, int namelen);
+        FMOD_RESULT F_API getRecordDriverInfo    (int id, char *name, int namelen, FMOD_GUID *guid);
         FMOD_RESULT F_API getRecordDriverCaps    (int id, FMOD_CAPS *caps, int *minfrequency, int *maxfrequency);
         FMOD_RESULT F_API getRecordPosition      (unsigned int *position);  
 

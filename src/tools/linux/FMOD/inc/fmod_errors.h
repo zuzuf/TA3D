@@ -44,7 +44,7 @@ static char *FMOD_ErrorString(FMOD_RESULT errcode)
         case FMOD_ERR_EVENT_INFOONLY:         return "Can't execute this command on an EVENT_INFOONLY event. ";
         case FMOD_ERR_EVENT_INTERNAL:         return "An error occured that wasn't supposed to.  See debug log for reason. ";
         case FMOD_ERR_EVENT_MAXSTREAMS:       return "Event failed because 'Max streams' was hit when FMOD_INIT_FAIL_ON_MAXSTREAMS was specified. ";
-        case FMOD_ERR_EVENT_MISMATCH:         return "FSB mis-matches the FEV it was compiled with. ";
+        case FMOD_ERR_EVENT_MISMATCH:         return "FSB mismatches the FEV it was compiled with or FEV was built for a different platform. ";
         case FMOD_ERR_EVENT_NAMECONFLICT:     return "A category with the same name already exists. ";
         case FMOD_ERR_EVENT_NOTFOUND:         return "The requested event, event group, event category or event property could not be found. ";
         case FMOD_ERR_FILE_BAD:               return "Error loading file. ";
@@ -86,6 +86,7 @@ static char *FMOD_ErrorString(FMOD_RESULT errcode)
         case FMOD_ERR_OUTPUT_ALLOCATED:       return "Error initializing output device, but more specifically, the output device is already in use and cannot be reused. ";
         case FMOD_ERR_OUTPUT_CREATEBUFFER:    return "Error creating hardware sound buffer. ";
         case FMOD_ERR_OUTPUT_DRIVERCALL:      return "A call to a standard soundcard driver failed, which could possibly mean a bug in the driver or resources were missing or exhausted. ";
+        case FMOD_ERR_OUTPUT_ENUMERATION:     return "Error enumerating the available driver list. List may be inconsistent due to a recent device addition or removal. ";
         case FMOD_ERR_OUTPUT_FORMAT:          return "Soundcard does not support the minimum features needed for this soundsystem (16bit stereo output). ";
         case FMOD_ERR_OUTPUT_INIT:            return "Error initializing output device. ";
         case FMOD_ERR_OUTPUT_NOHARDWARE:      return "FMOD_HARDWARE was specified but the sound card does not have the resources nescessary to play it. ";
