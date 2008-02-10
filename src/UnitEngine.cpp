@@ -3276,6 +3276,7 @@ bool UNIT::is_on_radar( byte p_mask )
 								if( !attacking ) {
 									pad_timer = 0.0f;
 									bool going_to_repair_pad = false;
+									LeaveCS();
 									units.EnterCS_from_outside();
 									for( List< uint16 >::iterator i = units.repair_pads[ owner_id ].begin() ; i != units.repair_pads[ owner_id ].end() ; i++ ) {
 										units.unit[ *i ].Lock();
@@ -3296,6 +3297,7 @@ bool UNIT::is_on_radar( byte p_mask )
 										units.unit[ *i ].UnLock();
 										}
 									units.LeaveCS_from_outside();
+									EnterCS();
 									if( going_to_repair_pad )
 										break;
 									}

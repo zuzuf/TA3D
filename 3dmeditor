@@ -1,4 +1,5 @@
  #!/bin/sh
+export LD_LIBRARY_PATH=./
 NF=3dmeditor
 tgfile=`ls -l $0 | awk '{print $NF}'`
 exe=`dirname $tgfile`
