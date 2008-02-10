@@ -338,7 +338,7 @@ public:
 	byte		owner;
 	uint32		idx;
 	bool		visible;
-	sint32		damage;
+	float		damage;
 	bool		just_explode;		// When set the weapon behaves as if it had hit something
 
 	inline void init()

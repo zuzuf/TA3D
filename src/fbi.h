@@ -164,7 +164,7 @@ public:
 	bool	Upright;			// Si l'unité est debout
 	int		Weapon1;			// Arme 1
 	char	*BadTargetCategory;		// Type d'unité non attaquable
-	bool	DamageModifier;
+	float	DamageModifier;
 	bool	canattack;			// Si l'unité peut attaquer
 	bool	ActivateWhenBuilt;	// L'unité s'active lorsqu'elle est achevée
 	bool	onoffable;			// (Dés)activable
@@ -376,7 +376,7 @@ public:
 		w_badTargetCategory[1]=NULL;	// Type d'unité non ciblable par les armes
 		w_badTargetCategory[2]=NULL;	// Type d'unité non ciblable par les armes
 		BadTargetCategory=NULL;	// Type d'unité non attacable
-		DamageModifier=false;
+		DamageModifier=1.0f;	// How much of the weapon damage it takes
 		canattack=false;			// Si l'unité peut attaquer
 		ActivateWhenBuilt=false;// L'unité s'active lorsqu'elle est achevée
 		onoffable=false;		// (Dés)activable

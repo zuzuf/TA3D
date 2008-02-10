@@ -264,6 +264,15 @@ namespace TA3D
 		return Result;
 	}
 
+	static inline String ReplaceChar( const String &Search, const char &CharToSearch, const char &CharToReplace )
+	{
+		String Result = Search;
+		for( int i = 0 ; i < Result.size() ; i++ )
+			if( Result[ i ] == CharToSearch )
+				Result[ i ] = CharToReplace;
+		return Result;
+	}
+
 	static inline bool StartsWith( const String &a, const String &b )
 	{
 		String y = Lowercase( a );

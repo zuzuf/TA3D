@@ -11,6 +11,8 @@ _networking code
 _improve A.I.
 _D3D support
 
+*support for HitByWeapon BOS/COB function
+*added support for unit DamageModifier variable
 *improved performance on water maps with water quality set to "extreme" (don't draw invisible features anymore on the reflection map)
 *game can be paused and resumed
 *fire effect improved (fire particles are spawned from the 3D models when available :) )
@@ -58,6 +60,8 @@ _some parts of the maps might not be drawn (visibility limit) like hills
 _slow down with lots of 3D sprites on some gfx hardware (speed increased but bug not yet fixed)
 _fix all other bugs ( :-) )
 
+*fixed the "set" command in BOS/COB VM (solar collectors now deactivate when hit by a weapon !!)
+*fixed config file format bug with "last map" and "last script" which was sometimes not saved correctly
 *fixed planes trying to land somewhere when they've something else to do
 *fixed audio module not reloaded when changing current mod in config screen
 *fixed factories unable to build anything when they've been ordered to stop

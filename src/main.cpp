@@ -97,8 +97,8 @@ void LoadConfigFile( void )
 	TA3D::VARS::lp_CONFIG->detail_tex = cfgFile->PullAsBool( "TA3D.Detail Texture" );
 	TA3D::VARS::lp_CONFIG->draw_console_loading = cfgFile->PullAsBool( "TA3D.Draw Console Loading" );
 
-	TA3D::VARS::lp_CONFIG->last_script = cfgFile->PullAsString( "TA3D.Last Script", "scripts\\default.c" );
-	TA3D::VARS::lp_CONFIG->last_map = cfgFile->PullAsString( "TA3D.Last Map", "" );
+	TA3D::VARS::lp_CONFIG->last_script = ReplaceChar( cfgFile->PullAsString( "TA3D.Last Script", "scripts\\default.c" ), '/', '\\' );
+	TA3D::VARS::lp_CONFIG->last_map = ReplaceChar( cfgFile->PullAsString( "TA3D.Last Map", "" ), '/', '\\' );
 	TA3D::VARS::lp_CONFIG->last_FOW = cfgFile->PullAsInt( "TA3D.Last FOW", 0 );
 	TA3D::VARS::lp_CONFIG->last_MOD = cfgFile->PullAsString( "TA3D.Last MOD", "" );
 
@@ -212,8 +212,9 @@ void SaveConfigFile( void )
 	m_File << "      Show FullScreen=" << TA3D::VARS::lp_CONFIG->fullscreen << ";\n";
 	m_File << "       Detail Texture=" << TA3D::VARS::lp_CONFIG->detail_tex << ";\n";
 	m_File << " Draw Console Loading=" << TA3D::VARS::lp_CONFIG->draw_console_loading << ";\n";
-	m_File << "          Last Script=" << TA3D::VARS::lp_CONFIG->last_script << ";\n";
-	m_File << "             Last Map=" << TA3D::VARS::lp_CONFIG->last_map << ";\n";
+	m_File << "          Last Script=" << ReplaceChar( TA3D::VARS::lp_CONFIG->last_script, '\\', '/' ) << ";\n";
+	m_File << "             Last Map=" << ReplaceChar( TA3D::VARS::lp_CONFIG->last_map, '\\', '/' ) << ";\n";
+
 	m_File << "             Last FOW=" << (int)TA3D::VARS::lp_CONFIG->last_FOW << ";\n";
 	TA3D::VARS::lp_CONFIG->last_MOD = TA3D::VARS::TA3D_CURRENT_MOD;
 	m_File << "             Last MOD=" << TA3D::VARS::lp_CONFIG->last_MOD << ";\n";

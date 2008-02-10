@@ -614,15 +614,20 @@ const void WEAPON::move(const float dt,MAP *map)				// Anime les armes
 					bool ok = units.unit[hit_idx].hp>0.0f;		// Juste pour identifier l'assassin...
 //					if( damage < 0 )
 //						damage = weapon_manager.weapon[weapon_id].damage;
-					damage = weapon_manager.weapon[weapon_id].get_damage_for_unit( unit_manager.unit_type[ units.unit[hit_idx].type_id ].Unitname );
+					damage = weapon_manager.weapon[weapon_id].get_damage_for_unit( unit_manager.unit_type[ units.unit[hit_idx].type_id ].Unitname ) * units.unit[ hit_idx ].damage_modifier();
 					units.unit[hit_idx].hp -= damage;		// L'unité touchée encaisse les dégats
 					units.unit[hit_idx].flags&=0xEF;		// This unit must explode if it has been damaged by a weapon even if it is being reclaimed
 					if(ok && units.unit[hit_idx].hp<=0.0f && units.unit[shooter_idx].owner_id < players.nb_player
 					&& units.unit[hit_idx].owner_id!=units.unit[shooter_idx].owner_id)		// Non,non les unités que l'on se détruit ne comptent pas dans le nombre de tués mais dans les pertes
 						players.kills[units.unit[shooter_idx].owner_id]++;
 					if(units.unit[hit_idx].hp<=0.0f)
-						units.unit[hit_idx].severity=max(units.unit[hit_idx].severity, damage);
-					units.unit[hit_idx].launch_script(units.unit[hit_idx].get_script_index("hitbyweapon"));
+						units.unit[hit_idx].severity=max(units.unit[hit_idx].severity, (int)damage);
+
+					VECTOR D = V * RotateY( -units.unit[hit_idx].Angle.y * DEG2RAD );
+					D.Unit();
+					int param[] = { (int)(10.0f*DEG2TA*D.z), (int)(10.0f*DEG2TA*D.x) };
+					units.unit[hit_idx].launch_script(units.unit[hit_idx].get_script_index("hitbyweapon"),2,param,true);
+
 					units.unit[hit_idx].attacked=true;
 					}
 				units.unit[hit_idx].UnLock();
@@ -717,15 +722,20 @@ const void WEAPON::move(const float dt,MAP *map)				// Anime les armes
 								oidx.push_back( t_idx );
 								bool ok = units.unit[ t_idx ].hp > 0.0f;
 								damage = weapon_manager.weapon[weapon_id].get_damage_for_unit( unit_manager.unit_type[ units.unit[ t_idx ].type_id ].Unitname );
-								float cur_damage = damage * weapon_manager.weapon[weapon_id].edgeeffectiveness;
+								float cur_damage = damage * weapon_manager.weapon[weapon_id].edgeeffectiveness * units.unit[ t_idx ].damage_modifier();
 								units.unit[t_idx].hp -= cur_damage;		// L'unité touchée encaisse les dégats
 								units.unit[t_idx].flags&=0xEF;		// This unit must explode if it has been damaged by a weapon even if it is being reclaimed
 								if(ok && units.unit[t_idx].hp<=0.0f && units.unit[shooter_idx].owner_id < players.nb_player
 								&& units.unit[t_idx].owner_id!=units.unit[shooter_idx].owner_id)		// Non,non les unités que l'on se détruit ne comptent pas dans le nombre de tués mais dans les pertes
 									players.kills[units.unit[shooter_idx].owner_id]++;
 								if(units.unit[t_idx].hp<=0.0f)
-									units.unit[t_idx].severity=max(units.unit[t_idx].severity,(int)cur_damage);
-								units.unit[t_idx].launch_script(units.unit[t_idx].get_script_index("hitbyweapon"));
+									units.unit[t_idx].severity = max(units.unit[t_idx].severity,(int)cur_damage);
+
+								VECTOR D = (units.unit[t_idx].Pos - Pos) * RotateY( -units.unit[t_idx].Angle.y * DEG2RAD );
+								D.Unit();
+								int param[] = { (int)(10.0f*DEG2TA*D.z), (int)(10.0f*DEG2TA*D.x) };
+								units.unit[t_idx].launch_script(units.unit[t_idx].get_script_index("hitbyweapon"),2,param,true);
+
 								units.unit[t_idx].attacked=true;
 								}
 							units.unit[t_idx].UnLock();

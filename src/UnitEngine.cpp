@@ -1758,7 +1758,6 @@ bool UNIT::is_on_radar( byte p_mask )
 			if( print_code )
 					printf("%d %d\n",v1,v2);
 #endif
-					port[v2]=v1;
 					switch(v2)
 					{
 					case ACTIVATION:
@@ -1768,10 +1767,12 @@ bool UNIT::is_on_radar( byte p_mask )
 							activate();
 						break;
 					case YARD_OPEN:
+						port[v2] = v1;
 						if(!map->check_rect((((int)(Pos.x+map->map_w_d))>>3)-(unit_manager.unit_type[type_id].FootprintX>>1),(((int)(Pos.z+map->map_h_d))>>3)-(unit_manager.unit_type[type_id].FootprintZ>>1),unit_manager.unit_type[type_id].FootprintX,unit_manager.unit_type[type_id].FootprintZ,idx))
 							port[v2] ^= 1;
 						break;
 					case BUGGER_OFF:
+						port[v2]=v1;
 						if(port[v2])	{
 							int px=((int)(Pos.x)+map->map_w_d)>>3;
 							int py=((int)(Pos.z)+map->map_h_d)>>3;
@@ -1791,6 +1792,8 @@ bool UNIT::is_on_radar( byte p_mask )
 												}
 							}
 						break;
+					default:
+						port[v2]=v1;
 					};
 				}
 				break;	//added
@@ -2883,7 +2886,7 @@ bool UNIT::is_on_radar( byte p_mask )
 					break;
 				case MISSION_STANDBY_MINE:		// Don't even try to do something else, the unit must die !!
 					if( self_destruct < 0.0f ) {
-						int dx = unit_manager.unit_type[type_id].SightDistance+(int)(h+0.5f)>>3;
+						int dx = (unit_manager.unit_type[type_id].SightDistance+(int)(h+0.5f)>>3) + 1;
 						int enemy_idx=-1;
 						int sx=rand_from_table()&1;
 						int sy=rand_from_table()&1;
