@@ -233,7 +233,7 @@ namespace TA3D
 
 	static sint32 SearchString( const String &Search, const String &StringToSearch, bool IgnoreCase )
 	{
-		static const std::basic_string <char>::size_type NotFound = -1;
+		static const std::basic_string <char>::size_type NotFound = std::string::npos;
 		std::basic_string <char>::size_type iFind;
 		String sz1, sz2;
 
