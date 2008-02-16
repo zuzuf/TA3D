@@ -74,7 +74,7 @@ Console->AddEntry("Loading graphical features");
 loading(200.0f/7.0f,TRANSLATE("Loading graphical features"));
 /*-----------------------charge les éléments graphiques--------------*/
 
-load_features();
+load_features(loading);
 feature_manager.clean();
 
 model_manager.compute_ids();
@@ -83,7 +83,7 @@ Console->AddEntry("Loading weapons");
 loading(250.0f/7.0f,TRANSLATE("Loading weapons"));
 /*-----------------------charge les armes----------------------------*/
 
-load_weapons();
+load_weapons(loading);
 
 weapons.init();
 
@@ -91,7 +91,7 @@ Console->AddEntry("Loading units");
 loading(300.0f/7.0f,TRANSLATE("Loading units"));
 /*-----------------------charge les unités---------------------------*/
 
-load_all_units();
+load_all_units(loading);
 
 Console->AddEntry("Freeing unused memory");
 loading(400.0f/7.0f,TRANSLATE("Free unused memory"));

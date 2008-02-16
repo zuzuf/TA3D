@@ -240,7 +240,7 @@ public:
 
 extern FEATURE_MANAGER		feature_manager;
 
-void load_features();				// Charge tout les éléments
+void load_features(void (*progress)(float percent,const String &msg)=NULL);				// Charge tout les éléments
 
 struct FEATURE_DATA
 {

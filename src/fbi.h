@@ -726,7 +726,7 @@ public:
 	}
 };
 
-int load_all_units();
+int load_all_units(void (*progress)(float percent,const String &msg)=NULL);
 
 extern UNIT_MANAGER unit_manager;
 

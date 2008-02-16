@@ -234,6 +234,7 @@ public:
 	int			nb_weapons;
 	WEAPON_DEF	*weapon;
 	ANIM		cannonshell;	// Animation pour les tirs de cannons
+	cHashTable< int >	weapon_hashtable;		// hashtable used to speed up operations on WEAPON_DEF objects
 
 	void init()
 	{
@@ -242,7 +243,7 @@ public:
 		cannonshell.init();
 	}
 
-	WEAPON_MANAGER()
+	WEAPON_MANAGER() : weapon_hashtable()
 	{
 		init();
 	}
@@ -255,12 +256,15 @@ public:
 				weapon[i].destroy();
 		if(weapon)
 			free(weapon);
+		weapon_hashtable.EmptyHashTable();
+		weapon_hashtable.InitTable( __DEFAULT_HASH_TABLE_SIZE );
 		init();
 	}
 
 	~WEAPON_MANAGER()
 	{
 		destroy();
+		weapon_hashtable.EmptyHashTable();
 	}
 
 	int add_weapon(char *name)			// Ajoute un élément
@@ -272,10 +276,12 @@ public:
 				n_weapon[i]=weapon[i];
 		if(weapon)	free(weapon);
 		weapon=n_weapon;
-//		weapon[nb_weapons-1] = WEAPON_DEF();
 		weapon[nb_weapons-1].init();
 		weapon[nb_weapons-1].internal_name=strdup(name);
 		weapon[nb_weapons-1].nb_id=nb_weapons-1;
+
+		weapon_hashtable.Insert( Lowercase( name ), nb_weapons );
+
 		return nb_weapons-1;
 	}
 
@@ -297,25 +303,13 @@ public:
 	{
 		if(name==NULL)	return -1;
 		if(nb_weapons<=0)	return -1;
-		for(int i=0;i<nb_weapons;i++)
-			if(strcasecmp(name,weapon[i].internal_name)==0)
-				return i;
-		return -1;
-	}
-
-	int get_weapon_index(int weapon_id)
-	{
-		if(nb_weapons<=0)	return -1;
-		for(int i=0;i<nb_weapons;i++)
-			if(weapon[i].weapon_id==weapon_id)
-				return i;
-		return -1;
+		return weapon_hashtable.Find( Lowercase( name ) ) - 1;
 	}
 };
 
 extern WEAPON_MANAGER		weapon_manager;
 
-void load_weapons();				// Charge tout les éléments
+void load_weapons(void (*progress)(float percent,const String &msg)=NULL);				// Charge tout les éléments
 
 class WEAPON						// Objet arme utilisé pendant le jeu
 {

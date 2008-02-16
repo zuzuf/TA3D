@@ -906,14 +906,21 @@ int UNIT_MANAGER::unit_build_menu(int index,int omb,float &dt, bool GUI)				// A
 	return sel;
 }
 
-int load_all_units()
+int load_all_units(void (*progress)(float percent,const String &msg))
 {
 	unit_manager.init();
 	int nb_inconnu=0;
 	List<String> file_list;
 	HPIManager->GetFilelist( ta3d_sidedata.unit_dir + "*" + ta3d_sidedata.unit_ext,&file_list);
 
+	int n = 0;
+
 	for(List<String>::iterator i=file_list.begin();i!=file_list.end();i++) {
+
+		if(progress!=NULL && !(n & 0xF))
+			progress((300.0f+n*50.0f/(file_list.size()+1))/7.0f,TRANSLATE("Loading units"));
+		n++;
+
 		char *nom=strdup(strstr(i->c_str(),"\\")+1);			// Vérifie si l'unité n'est pas déjà chargée
 		*(strstr(nom,"."))=0;
 		strupr(nom);
@@ -947,7 +954,6 @@ int load_all_units()
 			Console->AddEntry("loading %s", nom);
 			}
 		free(nom);
-		allegro_gl_flip();
 		}
 
 	for(uint32 i=0;i<unit_manager.nb_unit;i++)
@@ -959,7 +965,7 @@ int load_all_units()
 
 					// Correct some data given in the FBI file using data from the moveinfo.tdf file
 	cTAFileParser parser( ta3d_sidedata.gamedata_dir + "moveinfo.tdf" );
-	int n = 0;
+	n = 0;
 	while( parser.PullAsString( format( "CLASS%d.name", n ) ) != "" )
 		n++;
 

@@ -10,8 +10,9 @@ _networking code
 _improve A.I.
 _D3D support
 
+*added loading menu progress bar animation for TDF, FBI and WEAPONS modules
 *shields implemented
-*some speed optimisations in TDF, FBI, 3DO modules (faster loading time :) )
+*some speed optimisations in WEAPONS, TDF, FBI, 3DO modules (faster loading time :) )
 *some speed optimisations in GUI module
 *support for HitByWeapon BOS/COB function
 *added support for unit DamageModifier variable

@@ -1344,12 +1344,19 @@ int FX_MANAGER::add_ripple(VECTOR Pos,float size)
 	return idx;
 }
 
-void load_weapons()				// Charge toutes les armes
+void load_weapons(void (*progress)(float percent,const String &msg))				// Charge toutes les armes
 {
 	List<String> file_list;
 	HPIManager->GetFilelist( ta3d_sidedata.weapon_dir + "*.tdf",&file_list);
 
+	int n = 0;
+
 	for(List<String>::iterator cur_file=file_list.begin();cur_file!=file_list.end();cur_file++) {
+
+		if(progress!=NULL && !(n & 0xF))
+			progress((250.0f+n*50.0f/(file_list.size()+1))/7.0f,TRANSLATE("Loading weapons"));
+		n++;
+
 		uint32 file_size=0;
 		byte *data=HPIManager->PullFromHPI(cur_file->c_str(),&file_size);
 		if(data) {
@@ -1357,8 +1364,6 @@ void load_weapons()				// Charge toutes les armes
 			free(data);
 			}
 		}
-
-	gfx->flip();
 
 	fx_manager.fx_data=HPIManager->PullFromHPI("anims\\fx.gaf");			// Load weapon animation data and stores it into a cache since it's often used
 	if(fx_manager.fx_data) {
