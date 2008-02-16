@@ -977,6 +977,11 @@ public:
 	MODEL		*model;			// Tableau de modèles
 	char		**name;			// Tableau contenant les noms des modèles
 
+private:
+	cHashTable< int >	model_hashtable;		// hashtable used to speed up operations on MODEL objects
+
+public:
+
 	void init()
 	{
 		nb_models=0;
@@ -984,7 +989,7 @@ public:
 		name=NULL;
 	}
 
-	MODEL_MANAGER()
+	MODEL_MANAGER() : model_hashtable()
 	{
 		init();
 	}
@@ -1001,42 +1006,43 @@ public:
 				free(name[i]);
 			free(name);
 			}
+
+		model_hashtable.EmptyHashTable();
+		model_hashtable.InitTable( __DEFAULT_HASH_TABLE_SIZE );
+
 		init();
 	}
 
 	~MODEL_MANAGER()
 	{
 		destroy();
+		model_hashtable.EmptyHashTable();
 	}
 
 	MODEL *get_model(const char *nom)
 	{
-		String s1, s2, s3,s4,s5;
-
 		if(nom==NULL)
 		return NULL;
 
-		s1 = String( "objects3d\\" ) + String( nom ) + String( ".3do" );
-		s2 = String( nom ) + String( ".3do" );
-		s3 = String( "objects3d\\" ) + String( nom ) + String( ".3dm" );
-		s4 = String( nom );
-		s5 = String( nom ) + String( ".3dm" );
+		int e = model_hashtable.Find( "objects3d\\" + Lowercase( nom ) + ".3do" ) - 1;
+		if( e >= 0 )
+			return &(model[e]);
 
-		const char *c1 = s1.c_str();
-		const char *c2 = s2.c_str();
-		const char *c3 = s3.c_str();
-		const char *c4 = s4.c_str();
-		const char *c5 = s5.c_str();
+		e = model_hashtable.Find( "objects3d\\" + Lowercase( nom ) + ".3dm" ) - 1;
+		if( e >= 0 )
+			return &(model[e]);
 
-		for( int i=0;i<nb_models;i++ )
-		{
-			if( strcasecmp( c1, name[i] ) == 0 ) return &(model[i]);
-			if( strcasecmp( c2, name[i] ) == 0 ) return &(model[i]);
-			if( strcasecmp( c3, name[i] ) == 0 ) return &(model[i]);
-			if( strcasecmp( c4, name[i] ) == 0 ) return &(model[i]);
-			if( strcasecmp( c5, name[i] ) == 0 ) return &(model[i]);
-		}
+		e = model_hashtable.Find( Lowercase( nom ) ) - 1;
+		if( e >= 0 )
+			return &(model[e]);
 
+		e = model_hashtable.Find( Lowercase( nom ) + ".3do" ) - 1;
+		if( e >= 0 )
+			return &(model[e]);
+
+		e = model_hashtable.Find( Lowercase( nom ) + ".3dm" ) - 1;
+		if( e >= 0 )
+			return &(model[e]);
 		return NULL;
 	}
 
@@ -1068,6 +1074,9 @@ public:
 		name=n_name;
 		model[nb_models].init();
 		name[nb_models]=strdup(filename);
+		
+		model_hashtable.Insert( Lowercase( filename ), nb_models + 1 );
+
 		model[nb_models].create_from_2d(bmp,w,h,max_h);
 		nb_models++;
 	}

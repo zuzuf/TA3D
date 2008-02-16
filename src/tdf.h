@@ -71,9 +71,11 @@ public:
 	short	sparktime;			// Seems to be in seconds
 	byte	spreadchance;
 	char	*burnweapon;
+	bool	need_convert;
 
 	void init()
 	{
+		need_convert=true;
 		flamable=false;
 		burnmin = 0;
 		burnmax = 0;
@@ -137,6 +139,15 @@ public:
 	{
 		destroy();
 	}
+	
+	inline void convert()
+	{
+		if( need_convert ) {
+			need_convert = false;
+			anim.convert(false,true);
+			anim.clean();
+			}
+	}
 };
 
 class FEATURE_MANAGER
@@ -144,6 +155,11 @@ class FEATURE_MANAGER
 public:
 	int		nb_features;
 	FEATURE	*feature;
+	
+private:
+	cHashTable< int >	feature_hashtable;		// hashtable used to speed up operations on FEATURE objects
+
+public:
 
 	void init()
 	{
@@ -151,7 +167,7 @@ public:
 		feature=NULL;
 	}
 
-	FEATURE_MANAGER()
+	FEATURE_MANAGER() : feature_hashtable()
 	{
 		init();
 	}
@@ -163,19 +179,25 @@ public:
 				feature[i].destroy();
 		if(feature)
 			free(feature);
+
+		feature_hashtable.EmptyHashTable();
+		feature_hashtable.InitTable( __DEFAULT_HASH_TABLE_SIZE );
+
 		init();
 	}
 
 	~FEATURE_MANAGER()
 	{
 		destroy();
+		feature_hashtable.EmptyHashTable();
 	}
 
 	void clean()
 	{
 		if(feature==NULL) return;
 		for(int i=0;i<nb_features;i++)
-			feature[i].anim.clean();
+			if( !feature[i].need_convert )
+				feature[i].anim.clean();
 	}
 
 	int add_feature(char *name)			// Ajoute un élément
@@ -189,6 +211,7 @@ public:
 		feature=n_feature;
 		feature[nb_features-1].init();
 		feature[nb_features-1].name=strdup(name);
+		feature_hashtable.Insert( Lowercase( name ), nb_features );
 		return nb_features-1;
 	}
 
@@ -210,17 +233,8 @@ public:
 	{
 		if(name==NULL)	return -1;
 		if(nb_features<=0)	return -1;
-		for(int i=0;i<nb_features;i++) {
-			if(strcasecmp(name,feature[i].name)==0)
-				return i;
-			}
-		for(int i=0;i<nb_features;i++)
-			if(feature[i].filename!=NULL && strcasecmp(name,feature[i].filename)==0)
-				return i;
-		for(int i=0;i<nb_features;i++)
-			if(feature[i].seqname!=NULL && strcasecmp(name,feature[i].seqname)==0)
-				return i;
-		return -1;
+		if(name == NULL)	return -1;
+		return feature_hashtable.Find( Lowercase( name ) ) - 1;
 	}
 };
 

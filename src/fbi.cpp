@@ -565,7 +565,50 @@ void UNIT_TYPE::show_info(float fade,GFX_FONT fnt)
 void UNIT_TYPE::load_dl()
 {
 	if( side == NULL )	return;
+	dl_data = unit_manager.h_dl_data.Find( Lowercase( side ) );
+	
+	if( dl_data )	return;			// Ok it's already loaded
+
+	dl_data = new DL_DATA;
+	
+	unit_manager.l_dl_data.push_back( dl_data );		// Put it there so it'll be deleted when finished
+	
+	unit_manager.h_dl_data.Insert( Lowercase( side ), dl_data );
+
 	int side_id = -1;
+	for( int i = 0 ; i < ta3d_sidedata.nb_side && side_id == -1 ; i++ )
+		if( strcasecmp( ta3d_sidedata.side_name[ i ], side ) == 0 )
+			side_id = i;
+	if( side_id == -1 )		return;
+	cTAFileParser dl_parser( ta3d_sidedata.guis_dir + ta3d_sidedata.side_pref[ side_id ] + "dl.gui", false, false, true );
+
+	int NbObj = dl_parser.PullAsInt( "gadget0.totalgadgets" );
+
+	int x_offset = dl_parser.PullAsInt( "gadget0.common.xpos" );
+	int y_offset = dl_parser.PullAsInt( "gadget0.common.ypos" );
+
+	dl_data->dl_num = 0;
+	
+	for( int i = 1 ; i <= NbObj ; i++ )
+		if( dl_parser.PullAsInt( format( "gadget%d.common.attribs", i ) ) == 32 )
+			dl_data->dl_num++;
+
+	dl_data->dl_x = (short*) malloc( sizeof(short) * dl_data->dl_num );
+	dl_data->dl_y = (short*) malloc( sizeof(short) * dl_data->dl_num );
+	dl_data->dl_w = (short*) malloc( sizeof(short) * dl_data->dl_num );
+	dl_data->dl_h = (short*) malloc( sizeof(short) * dl_data->dl_num );
+
+	int e = 0;
+	for( int i = 1 ; i <= NbObj ; i++ )
+		if( dl_parser.PullAsInt( format( "gadget%d.common.attribs", i ) ) == 32 ) {
+			dl_data->dl_x[e] = dl_parser.PullAsInt( format( "gadget%d.common.xpos", i ) ) + x_offset;
+			dl_data->dl_y[e] = dl_parser.PullAsInt( format( "gadget%d.common.ypos", i ) ) + y_offset;
+			dl_data->dl_w[e] = dl_parser.PullAsInt( format( "gadget%d.common.width", i ) );
+			dl_data->dl_h[e] = dl_parser.PullAsInt( format( "gadget%d.common.height", i ) );
+			e++;
+			}
+
+/*	int side_id = -1;
 	for( int i = 0 ; i < ta3d_sidedata.nb_side && side_id == -1 ; i++ )
 		if( strcasecmp( ta3d_sidedata.side_name[ i ], side ) == 0 )
 			side_id = i;
@@ -596,7 +639,7 @@ void UNIT_TYPE::load_dl()
 			dl_w[e] = dl_parser.PullAsInt( format( "gadget%d.common.width", i ) );
 			dl_h[e] = dl_parser.PullAsInt( format( "gadget%d.common.height", i ) );
 			e++;
-			}
+			}*/
 }
 
 inline bool overlaps( int x1, int y1, int w1, int h1, int x2, int y2, int w2, int h2 )
@@ -613,7 +656,7 @@ inline bool overlaps( int x1, int y1, int w1, int h1, int x2, int y2, int w2, in
 
 void UNIT_TYPE::FixBuild()
 {
-	if( dl_num <= 0 )	return;
+	if( dl_data == NULL || dl_data->dl_num <= 0 )	return;
 
 	int next_id = 0;
 	bool filled = true;
@@ -647,13 +690,13 @@ void UNIT_TYPE::FixBuild()
 	if( nb_pages == -1 )	nb_pages = 0;
 
 	for( int i = 0 ; i < nb_unit ; i++ )
-		if( Pic_p[ i ] == -1 && dl_num > 0 ) {
+		if( Pic_p[ i ] == -1 ) {
 			Pic_p[ i ] = nb_pages;
-			Pic_x[ i ] = dl_x[ next_id ];
-			Pic_y[ i ] = dl_y[ next_id ];
-			Pic_w[ i ] = dl_w[ next_id ];
-			Pic_h[ i ] = dl_h[ next_id ];
-			next_id = (next_id + 1) % dl_num;
+			Pic_x[ i ] = dl_data->dl_x[ next_id ];
+			Pic_y[ i ] = dl_data->dl_y[ next_id ];
+			Pic_w[ i ] = dl_data->dl_w[ next_id ];
+			Pic_h[ i ] = dl_data->dl_h[ next_id ];
+			next_id = (next_id + 1) % dl_data->dl_num;
 			filled = true;
 			if( next_id == 0 ) {
 				nb_pages++;
@@ -686,6 +729,17 @@ void UNIT_TYPE::FixBuild()
 
 void UNIT_MANAGER::destroy()
 {
+	unit_hashtable.EmptyHashTable();
+	unit_hashtable.InitTable( __DEFAULT_HASH_TABLE_SIZE );
+
+	h_dl_data.EmptyHashTable();
+	h_dl_data.InitTable( __DEFAULT_HASH_TABLE_SIZE );
+
+	for( List< DL_DATA* >::iterator i = l_dl_data.begin() ; i != l_dl_data.end() ; i++ )
+		delete	*i;
+	
+	l_dl_data.clear();
+
 	if(nb_unit>0 && unit_type!=NULL) {
 		for(int i=0;i<nb_unit;i++)
 			unit_type[i].destroy();

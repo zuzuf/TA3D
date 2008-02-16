@@ -93,10 +93,12 @@ FEATURES features;
 				else if(strstr(ligne,"filename=")) {
 					if(strstr(ligne,";"))	*(strstr(ligne,";"))=0;
 					feature[index].filename=strdup(strstr(ligne,"filename=")+9);
+					feature_hashtable.Insert( Lowercase( feature[index].filename ), index + 1 );
 					}
 				else if(strstr(ligne,"seqname=")) {
 					if(strstr(ligne,";"))	*(strstr(ligne,";"))=0;
 					feature[index].seqname=strdup(strstr(ligne,"seqname=")+8);
+					feature_hashtable.Insert( Lowercase( feature[index].seqname ), index + 1 );
 					}
 				else if(strstr(ligne,"animating="))
 					feature[index].animating=(*(strstr(ligne,"animating=")+10)=='1');
@@ -207,10 +209,12 @@ FEATURES features;
 							feature[i].anim.destroy();
 							index=-1;
 							}
-						if(index>=0) {
+						if(index < 0)
+							feature[i].need_convert = false;
+/*						if(index>=0) {
 							feature[i].anim.convert(false,true);
 							feature[i].anim.clean();
-							}
+							}*/
 						}
 					}
 				}
@@ -355,6 +359,9 @@ void load_features()				// Charge tout les éléments
 				}
 				
 			if(!feature_manager.feature[feature[i].type].m3d && feature_manager.feature[feature[i].type].anim.nb_bmp>0) {
+
+				feature_manager.feature[feature[i].type].convert();		// Convert texture data if needed
+
 				feature[i].frame = (units.current_tick >> 1) % feature_manager.feature[feature[i].type].anim.nb_bmp;
 
 				if(!texture_loaded || old!=feature_manager.feature[feature[i].type].anim.glbmp[feature[i].frame]) {

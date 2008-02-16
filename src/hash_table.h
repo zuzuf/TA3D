@@ -124,13 +124,13 @@ namespace TA3D
             
          T Find( const String &key )
          {
-         	if(m_u32TableSize == 0)	return NULL;
+         	if(m_u32TableSize == 0)	return (T) NULL;
             uint32 hash = GetHash( key );
 
             typename std::list< cBucket<T> >::iterator cur = std::find_if( std::vector< std::list< TA3D::UTILS::cBucket<T> > >::at(hash).begin(),
                std::vector< std::list< TA3D::UTILS::cBucket<T> > >::at(hash).end(), std::bind2nd( ModHashFind<T>(), key ) );
 
-            return ( (cur == std::vector< std::list< TA3D::UTILS::cBucket<T> > >::at(hash).end()) ? NULL : (*cur).m_T_data );
+            return ( (cur == std::vector< std::list< TA3D::UTILS::cBucket<T> > >::at(hash).end()) ? (T) NULL : (*cur).m_T_data );
          }
 
          bool Insert( const String &key, T v )

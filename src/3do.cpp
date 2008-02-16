@@ -1923,6 +1923,7 @@ int MODEL_MANAGER::load_all(void (*progress)(float percent,const String &msg))
 			n++;
 			model[i+nb_models].init();
 			name[i+nb_models] = strdup(e->c_str());
+
 			if(get_model( String( name[i+nb_models] ).substr( 0, e->size() - 4 ).c_str() )==NULL) {				// Vérifie si le modèle n'est pas déjà chargé
 				byte *data = HPIManager->PullFromHPI(*e);
 				if( data ) {
@@ -1936,6 +1937,9 @@ int MODEL_MANAGER::load_all(void (*progress)(float percent,const String &msg))
 					if( data ) {
 						model[i+nb_models].load_3dm(data);
 						free(data);
+
+						model_hashtable.Insert( Lowercase( *e ), nb_models + i + 1 );
+
 						i++;
 						}
 					}
@@ -1966,6 +1970,7 @@ int MODEL_MANAGER::load_all(void (*progress)(float percent,const String &msg))
 			n++;
 			model[i+nb_models].init();
 			name[i+nb_models] = strdup(e->c_str());
+
 			if(get_model( String( name[i+nb_models] ).substr( 0, e->size() - 4 ).c_str() )==NULL) {				// Vérifie si le modèle n'est pas déjà chargé
 				uint32	data_size = 0;
 				byte *data = HPIManager->PullFromHPI(*e, &data_size);
@@ -1973,6 +1978,9 @@ int MODEL_MANAGER::load_all(void (*progress)(float percent,const String &msg))
 					if( data_size > 0 )						// If the file isn't empty
 						model[i+nb_models].load_3do(data,e->c_str());
 					free(data);
+					
+					model_hashtable.Insert( Lowercase( *e ), nb_models + i + 1 );
+
 					i++;
 					}
 				}

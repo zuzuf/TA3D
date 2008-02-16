@@ -232,8 +232,8 @@ void GUIOBJ::create_optionc(float X1,float Y1,const String &Caption,bool ETAT,vo
 	x1=X1;													y1=Y1;
 	x2=X1+(int)(gui_font.length( Caption )*size)+4;			y2=Y1;
 	if( skin && skin->checkbox[0].tex && skin->checkbox[1].tex ) {
-		x2 += max( skin->checkbox[0].w, skin->checkbox[1].w ) * size;
-		y2 += max( skin->checkbox[0].h, skin->checkbox[1].h ) * size;
+		x2 += max( skin->checkbox[0].sw, skin->checkbox[1].sw );
+		y2 += max( skin->checkbox[0].sh, skin->checkbox[1].sh );
 		}
 	else {
 		x2+=8;
@@ -254,8 +254,8 @@ void GUIOBJ::create_optionb(float X1,float Y1,const String &Caption,bool ETAT,vo
 	x1=X1;												y1=Y1;
 	x2=X1+(int)(gui_font.length( Caption )*size)+4;		y2=Y1;
 	if( skin && skin->option[0].tex && skin->option[1].tex ) {
-		x2 += max( skin->option[0].w, skin->option[1].w ) * size;
-		y2 += max( skin->option[0].h, skin->option[1].h ) * size;
+		x2 += max( skin->option[0].sw, skin->option[1].sw );
+		y2 += max( skin->option[0].sh, skin->option[1].sh );
 		}
 	else {
 		x2+=8;
@@ -876,15 +876,15 @@ int WND::check(int AMx,int AMy,int AMz,int AMb,bool timetoscroll, SKIN *skin )
 				if( TotalScroll < 0 )	TotalScroll = 0;
 
 				if( mouse_b == 1
-					&& mouse_x - x >= Objets[i].x2 + skin->text_background.x2 - skin->scroll[0].w
+					&& mouse_x - x >= Objets[i].x2 + skin->text_background.x2 - skin->scroll[0].sw
 					&& mouse_x - x <= Objets[i].x2 + skin->text_background.x2
 					&& mouse_y - y >= Objets[i].y1 + skin->text_background.y1
 					&& mouse_y - y <= Objets[i].y2 + skin->text_background.y2 ) {			// We're on the scroll bar!
 					
 					if( mouse_y - y > Objets[i].y1 + skin->text_background.y1 + skin->scroll[0].y1
 					&& mouse_y - y < Objets[i].y2 + skin->text_background.y2 + skin->scroll[0].y2 ) {		// Set scrolling position
-						Objets[i].Data = (int)( 0.5f + TotalScroll * (mouse_y - y - Objets[i].y1 - skin->text_background.y1 - skin->scroll[0].y1 - (skin->scroll[0].w - skin->scroll[ 0 ].x1 + skin->scroll[ 0 ].x2 ) * 0.5f )
-										/ ( Objets[i].y2 - Objets[i].y1 - skin->text_background.y1 + skin->text_background.y2 - skin->scroll[0].y1 + skin->scroll[0].y2 - ( skin->scroll[0].w - skin->scroll[ 0 ].x1 + skin->scroll[ 0 ].x2 ) * 0.5f ) );
+						Objets[i].Data = (int)( 0.5f + TotalScroll * (mouse_y - y - Objets[i].y1 - skin->text_background.y1 - skin->scroll[0].y1 - (skin->scroll[0].sw - skin->scroll[ 0 ].x1 + skin->scroll[ 0 ].x2 ) * 0.5f )
+										/ ( Objets[i].y2 - Objets[i].y1 - skin->text_background.y1 + skin->text_background.y2 - skin->scroll[0].y1 + skin->scroll[0].y2 - ( skin->scroll[0].sw - skin->scroll[ 0 ].x1 + skin->scroll[ 0 ].x2 ) * 0.5f ) );
 						}
 					if( Objets[i].Data > TotalScroll )
 						Objets[i].Data = TotalScroll;
@@ -940,7 +940,7 @@ int WND::check(int AMx,int AMy,int AMz,int AMb,bool timetoscroll, SKIN *skin )
 				{
 				case OBJ_LIST:
 					if( skin
-						&& mouse_x - x >= Objets[i].x2 + skin->text_background.x2 - skin->scroll[0].w
+						&& mouse_x - x >= Objets[i].x2 + skin->text_background.x2 - skin->scroll[0].sw
 						&& mouse_x - x <= Objets[i].x2 + skin->text_background.x2
 						&& mouse_y - y >= Objets[i].y1 + skin->text_background.y1
 						&& mouse_y - y <= Objets[i].y2 + skin->text_background.y2 ) {			// We're on the scroll bar!
@@ -959,8 +959,8 @@ int WND::check(int AMx,int AMy,int AMz,int AMb,bool timetoscroll, SKIN *skin )
 								sound_manager->PlayTDFSoundNow("SPECIALORDERS.sound");
 							}
 						else {							// Set scrolling position
-							Objets[i].Data = (int)( 0.5f + TotalScroll * (mouse_y - y - Objets[i].y1 - skin->text_background.y1 - skin->scroll[0].y1 - (skin->scroll[0].w - skin->scroll[ 0 ].x1 + skin->scroll[ 0 ].x2 ) * 0.5f )
-											/ ( Objets[i].y2 - Objets[i].y1 - skin->text_background.y1 + skin->text_background.y2 - skin->scroll[0].y1 + skin->scroll[0].y2 - ( skin->scroll[0].w - skin->scroll[ 0 ].x1 + skin->scroll[ 0 ].x2 ) * 0.5f ) );
+							Objets[i].Data = (int)( 0.5f + TotalScroll * (mouse_y - y - Objets[i].y1 - skin->text_background.y1 - skin->scroll[0].y1 - (skin->scroll[0].sw - skin->scroll[ 0 ].x1 + skin->scroll[ 0 ].x2 ) * 0.5f )
+											/ ( Objets[i].y2 - Objets[i].y1 - skin->text_background.y1 + skin->text_background.y2 - skin->scroll[0].y1 + skin->scroll[0].y2 - ( skin->scroll[0].sw - skin->scroll[ 0 ].x1 + skin->scroll[ 0 ].x2 ) * 0.5f ) );
 							}
 						if( Objets[i].Data > TotalScroll )
 							Objets[i].Data = TotalScroll;
@@ -989,7 +989,7 @@ int WND::check(int AMx,int AMy,int AMz,int AMb,bool timetoscroll, SKIN *skin )
 				case OBJ_OPTIONC:		// Case à cocher
 					if(was_on_floating_menu)	break;
 					if( skin && skin->checkbox[0].tex && skin->checkbox[1].tex) {
-						if(mouse_x<=x+Objets[i].x1+skin->checkbox[Objets[i].Etat?1:0].w && mouse_y<=y+Objets[i].y1+skin->checkbox[Objets[i].Etat?1:0].h)
+						if(mouse_x<=x+Objets[i].x1+skin->checkbox[Objets[i].Etat?1:0].sw && mouse_y<=y+Objets[i].y1+skin->checkbox[Objets[i].Etat?1:0].sh)
 							Objets[i].Etat^=true;
 						}
 					else if(mouse_x<=x+Objets[i].x1+12 && mouse_y<=y+Objets[i].y1+12)
@@ -1000,7 +1000,7 @@ int WND::check(int AMx,int AMy,int AMz,int AMb,bool timetoscroll, SKIN *skin )
 				case OBJ_OPTIONB:		// Bouton d'option
 					if(was_on_floating_menu)	break;
 					if( skin && skin->option[0].tex && skin->option[1].tex) {
-						if(mouse_x<=x+Objets[i].x1+skin->option[Objets[i].Etat?1:0].w && mouse_y <= y + Objets[i].y1+skin->option[Objets[i].Etat?1:0].h)
+						if(mouse_x<=x+Objets[i].x1+skin->option[Objets[i].Etat?1:0].sw && mouse_y <= y + Objets[i].y1+skin->option[Objets[i].Etat?1:0].sh)
 							Objets[i].Etat^=true;
 						}
 					else
@@ -1134,9 +1134,9 @@ String WND::get_caption( const String &message )									// Return the state of 
 
 GUIOBJ *WND::get_object( const String &message )		// Return a pointer to the specified object
 {
-	for( uint16 e = 0 ; e < NbObj ; e++ )
-		if( Lowercase( Objets[ e ].Name ) == Lowercase( message ) )
-			return &(Objets[ e ]);				// Return what we found
+	sint16 e = obj_hashtable.Find( Lowercase( message ) ) - 1;
+	if( e >= 0 )
+		return &(Objets[ e ]);
 	return NULL;
 }
 
@@ -1225,6 +1225,8 @@ void WND::load_gui( const String &filename, cHashTable< Vector< TA3D::INTERFACES
 		int obj_type = wndFile->PullAsInt( obj_key + "common.id" );
 
 		Objets[i].Name = wndFile->PullAsString( obj_key + "common.name", format( "gadget%d", i + 1 ) );
+
+		obj_hashtable.Insert( Lowercase( Objets[i].Name ), i + 1 );
 
 		int X1 = (int)(wndFile->PullAsInt( obj_key + "common.xpos" )*x_factor);				// Reads data from TDF
 		int Y1 = (int)(wndFile->PullAsInt( obj_key + "common.ypos" )*y_factor);
@@ -1403,6 +1405,8 @@ void WND::load_tdf( const String &filename, SKIN *skin )			// Load a window from
 		String obj_type = wndFile->PullAsString( obj_key + "type" );
 
 		Objets[i].Name = wndFile->PullAsString( obj_key + "name", format( "object%d", i ) );
+
+		obj_hashtable.Insert( Lowercase( Objets[i].Name ), i + 1 );
 
 		Objets[i].help_msg = TRANSLATE( wndFile->PullAsString( obj_key + "help", "" ) );
 
@@ -1594,7 +1598,7 @@ void ListBox(float x1,float y1, float x2, float y2,const Vector<String> &Entry,i
 					gfx->rectfill( x1 + skin->text_background.x1, y1 + skin->text_background.y1 + gui_font.height()*i, x2 + skin->text_background.x2, y1 + skin->text_background.y1+gui_font.height()*(i+1), Bleu );
 				}
 			String str = Entry[ e ];
-			while( gui_font.length( str ) >= x2 - x1 - skin->text_background.x1 + skin->text_background.x2 - skin->scroll[0].w && str.size() > 0 )
+			while( gui_font.length( str ) >= x2 - x1 - skin->text_background.x1 + skin->text_background.x2 - skin->scroll[0].sw && str.size() > 0 )
 				str.resize( str.size() - 1 );
 			gfx->print(gui_font,x1+skin->text_background.x1,y1+skin->text_background.y1+gui_font.height()*i,0.0f,use_normal_alpha_function ? Blanc : Noir,str);
 			}
@@ -1602,7 +1606,7 @@ void ListBox(float x1,float y1, float x2, float y2,const Vector<String> &Entry,i
 		int TotalScroll = Entry.size() - (int)( (y2 - y1 - skin->text_background.y1 + skin->text_background.y2) / gui_font.height() );
 		if( TotalScroll < 0 )	TotalScroll = 0;
 
-		ScrollBar(	x2 + skin->text_background.x2 - skin->scroll[ 0 ].w, y1 + skin->text_background.y1,
+		ScrollBar(	x2 + skin->text_background.x2 - skin->scroll[ 0 ].sw, y1 + skin->text_background.y1,
 					x2 + skin->text_background.x2, y2 + skin->text_background.y2,
 					TotalScroll ? ((float)Scroll) / TotalScroll : 0.0f, true, skin, size );
 
@@ -1801,9 +1805,9 @@ void OptionButton(float x,float y,const String &Title,bool Etat, SKIN *skin, flo
 		gfx->set_alpha_blending();
 		gfx->set_color( 1.0f, 1.0f, 1.0f, 1.0f );
 
-		skin->option[ Etat ? 1 : 0 ].draw( x, y, x + skin->option[ Etat ? 1 : 0 ].w * size, y + skin->option[ Etat ? 1 : 0 ].h * size );
+		skin->option[ Etat ? 1 : 0 ].draw( x, y, x + skin->option[ Etat ? 1 : 0 ].sw, y + skin->option[ Etat ? 1 : 0 ].sh );
 
-		gfx->print(gui_font, x + (skin->option[ Etat ? 1 : 0 ].w + 4) * size, y + ( skin->option[ Etat ? 1 : 0 ].h * size - gui_font.height() ) * 0.5f,0.0f,use_normal_alpha_function ? Blanc : Noir,Title);
+		gfx->print(gui_font, x + skin->option[ Etat ? 1 : 0 ].sw + 4.0f * size, y + ( skin->option[ Etat ? 1 : 0 ].sh - gui_font.height() ) * 0.5f,0.0f,use_normal_alpha_function ? Blanc : Noir,Title);
 
 		gfx->unset_alpha_blending();
 		}
@@ -1852,9 +1856,9 @@ void OptionCase(float x,float y,const String &Title,bool Etat, SKIN *skin, float
 		gfx->set_alpha_blending();
 		gfx->set_color( 1.0f, 1.0f, 1.0f, 1.0f );
 
-		skin->checkbox[ Etat ? 1 : 0 ].draw( x, y, x + skin->checkbox[ Etat ? 1 : 0 ].w * size, y + skin->checkbox[ Etat ? 1 : 0 ].h * size );
+		skin->checkbox[ Etat ? 1 : 0 ].draw( x, y, x + skin->checkbox[ Etat ? 1 : 0 ].sw, y + skin->checkbox[ Etat ? 1 : 0 ].sh );
 
-		gfx->print(gui_font, x + (skin->checkbox[ Etat ? 1 : 0 ].w + 4) * size, y + ( skin->checkbox[ Etat ? 1 : 0 ].h * size - gui_font.height() ) * 0.5f,0.0f,use_normal_alpha_function ? Blanc : Noir,Title);
+		gfx->print(gui_font, x + skin->checkbox[ Etat ? 1 : 0 ].sw + 4.0f * size, y + ( skin->checkbox[ Etat ? 1 : 0 ].sh - gui_font.height() ) * 0.5f,0.0f,use_normal_alpha_function ? Blanc : Noir,Title);
 
 		gfx->unset_alpha_blending();
 		}
@@ -2532,7 +2536,7 @@ const String GetVal(const String &Title)
 
 /*---------------------- Functions related to the AREA object --------------------------------------------------------------*/
 
-AREA::AREA( const String area_name ) : gui_hashtable(), cached_key()
+AREA::AREA( const String area_name ) : gui_hashtable(), cached_key(), wnd_hashtable()
 {
 	CreateCS();				// Thread safe model
 
@@ -2566,6 +2570,9 @@ void AREA::destroy()
 	gui_hashtable.EmptyHashTable();
 	gui_hashtable.InitTable( __DEFAULT_HASH_TABLE_SIZE );
 
+	wnd_hashtable.EmptyHashTable();
+	wnd_hashtable.InitTable( __DEFAULT_HASH_TABLE_SIZE );
+
 	name.clear();
 
 	for( uint16 i = 0 ; i < vec_wnd.size() ; i++ )
@@ -2589,6 +2596,7 @@ AREA::~AREA()
 	cached_wnd = NULL;
 
 	gui_hashtable.EmptyHashTable();
+	wnd_hashtable.EmptyHashTable();
 
 	name.clear();
 
@@ -2625,11 +2633,10 @@ uint32 AREA::InterfaceMsg( const lpcImsg msg )
 		String key = message.substr( 0, i );						// Extracts the key
 		message = message.substr( i+1, message.size() - i -1 );		// Extracts the end of the message
 
-		for( uint16 e = 0 ; e < vec_wnd.size() ; e++ )				// Search the window corresponding to the key
-			if( Lowercase( vec_wnd[ e ]->Name ) == key ) {		// If we find it, then pass it the end of the message we've been given
-				result = vec_wnd[ e ]->msg( message );
-				break;
-				}
+		WND *the_wnd = get_wnd( key );
+		
+		if( the_wnd )
+			the_wnd->msg( message );
 		}
 	else
 		if( message == "clear" )	{
@@ -2638,6 +2645,9 @@ uint32 AREA::InterfaceMsg( const lpcImsg msg )
 
 			vec_wnd.clear();
 			vec_z_order.clear();
+
+			wnd_hashtable.EmptyHashTable();
+			wnd_hashtable.InitTable( __DEFAULT_HASH_TABLE_SIZE );
 			}
 		else if( message == "end_the_game" )	{	}
 
@@ -2725,12 +2735,12 @@ WND	*AREA::get_wnd( const String &message )			// Return the specified window
 	if( lmsg == cached_key && cached_wnd )
 		return cached_wnd;
 
-	for( uint16 e = 0 ; e < vec_wnd.size() ; e++ )				// Search the window corresponding to the key
-		if( Lowercase( vec_wnd[ e ]->Name ) == lmsg ) {
-			cached_key = lmsg;
-			cached_wnd = vec_wnd[ e ];
-			return vec_wnd[ e ];
-			}
+	sint16 e = wnd_hashtable.Find( lmsg ) - 1;
+	if( e >= 0 ) {
+		cached_key = lmsg;
+		cached_wnd = vec_wnd[ e ];
+		return vec_wnd[ e ];
+		}
 	return NULL;
 }
 
@@ -2816,6 +2826,8 @@ uint16 AREA::load_window( const String &filename )
 	for( uint16 i = wnd_idx ; i > 0 ; i-- )		// The new window appear on top of the others
 		vec_z_order[ i ] = vec_z_order[ i-1 ];
 	vec_z_order[ 0 ] = wnd_idx;
+
+	wnd_hashtable.Insert( Lowercase( vec_wnd[ wnd_idx ]->Name ), wnd_idx + 1 );		// + 1 because it returns 0 on Find failure
 
 	return wnd_idx;
 }
@@ -2943,6 +2955,8 @@ void SKIN_OBJECT::load( const String filename, const String prefix, cTAFileParse
 		y1 *= border_size;
 		x2 *= border_size;
 		y2 *= border_size;
+		sw = w * border_size;
+		sh = h * border_size;
 		}
 }
 

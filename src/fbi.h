@@ -85,6 +85,31 @@
 using namespace TA3D;
 using namespace TA3D::INTERFACES;
 
+class DL_DATA
+{
+public:
+	short	dl_num;				// How many build pics
+	short	*dl_x;
+	short 	*dl_y;
+	short	*dl_w;
+	short	*dl_h;
+
+	DL_DATA()
+	{
+		dl_num = 0;
+		dl_x = dl_y = NULL;
+		dl_w = dl_h = NULL;
+	}
+	
+	~DL_DATA()
+	{
+		if( dl_x )	delete[] dl_x;
+		if( dl_y )	delete[] dl_y;
+		if( dl_w )	delete[] dl_w;
+		if( dl_h )	delete[] dl_h;
+	}
+};
+
 class UNIT_TYPE			// Structure pour la description des unités du jeu
 {
 public:
@@ -221,13 +246,9 @@ public:
 	short	*Pic_p;				// Page where the pic has to be shown
 	GLuint	*PicList;
 	short	nb_pages;
-	
-	short	dl_num;				// How many build pics
-	short	*dl_x;
-	short 	*dl_y;
-	short	*dl_w;
-	short	*dl_h;
 
+	DL_DATA *dl_data;
+	
 /*-----------------------------------------------------------------------*/
 
 	byte	page;				// Pour le menu de construction
@@ -291,11 +312,7 @@ public:
 		Pic_h=NULL;
 		Pic_p=NULL;				// Page where the pic has to be shown
 
-		dl_num = 0;				// How many build pics
-		dl_x = NULL;
-		dl_y = NULL;
-		dl_w = NULL;
-		dl_h = NULL;
+		dl_data = NULL;
 
 		init_cloaked = false;
 		mincloakdistance = 10;
@@ -430,11 +447,6 @@ public:
 		if( BadTargetCategory )			free( BadTargetCategory );
 		if( NoChaseCategory )			free( NoChaseCategory );
 
-		if( dl_x )	free( dl_x );
-		if( dl_y )	free( dl_y );
-		if( dl_w )	free( dl_w );
-		if( dl_h )	free( dl_h );
-
 		if(BuildList)		free(BuildList);
 		if(Pic_x)		free(Pic_x);
 		if(Pic_y)		free(Pic_y);
@@ -499,9 +511,13 @@ public:
 private:
 	GFX_TEXTURE	panel;			// The texture used by the panel
 	GFX_TEXTURE	paneltop,panelbottom;
-	
+	cHashTable< int >	unit_hashtable;		// hashtable used to speed up operations on UNIT_TYPE objects
+
 public:
 
+	List< DL_DATA* >		l_dl_data;		// To clean things at the end
+	cHashTable< DL_DATA* >	h_dl_data;		// To speed things up
+	
 	inline void init()
 	{
 		nb_unit=0;
@@ -511,7 +527,7 @@ public:
 		panelbottom.init();
 	}
 
-	UNIT_MANAGER()
+	UNIT_MANAGER() : unit_hashtable(), l_dl_data(), h_dl_data()
 	{
 		init();
 	}
@@ -521,6 +537,8 @@ public:
 	~UNIT_MANAGER()
 	{
 		destroy();
+		unit_hashtable.EmptyHashTable();
+		h_dl_data.EmptyHashTable();
 	}
 
 	void load_panel_texture( const String &player_side, const String &intgaf );
@@ -536,27 +554,27 @@ public:
 			}
 		unit_type=n_type;
 		unit_type[nb_unit].init();
-		return unit_type[nb_unit++].load((char*)data,size);
+		int result =  unit_type[nb_unit].load((char*)data,size);
+		if( unit_type[ nb_unit ].Unitname )
+			unit_hashtable.Insert( Lowercase( unit_type[ nb_unit ].Unitname ), nb_unit + 1 );
+		if( unit_type[ nb_unit ].name )
+			unit_hashtable.Insert( Lowercase( unit_type[ nb_unit ].name ), nb_unit + 1 );
+		if( unit_type[ nb_unit ].ObjectName )
+			unit_hashtable.Insert( Lowercase( unit_type[ nb_unit ].ObjectName ), nb_unit + 1 );
+		if( unit_type[ nb_unit ].Description )
+			unit_hashtable.Insert( Lowercase( unit_type[ nb_unit ].Description ), nb_unit + 1 );
+		if( unit_type[ nb_unit ].Designation_Name )
+			unit_hashtable.Insert( Lowercase( unit_type[ nb_unit ].Designation_Name ), nb_unit + 1 );
+		nb_unit++;
+		return result;
 	}
 
 	inline int get_unit_index(const char *unit_name)		// Cherche l'indice de l'unité unit_name dans la liste d'unités
 	{
-		for(int i=0;i<nb_unit;i++)
-			if(strcasecmp(unit_type[i].Unitname,unit_name)==0)
-				return i;
-		for(int i=0;i<nb_unit;i++)
-			if(unit_type[i].name && strcasecmp(unit_type[i].name,unit_name)==0)
-				return i;
-		for(int i=0;i<nb_unit;i++)
-			if(unit_type[i].ObjectName && strcasecmp(unit_type[i].ObjectName,unit_name)==0)
-				return i;
-		for(int i=0;i<nb_unit;i++)
-			if(unit_type[i].Description && strcasecmp(unit_type[i].Description,unit_name)==0)
-				return i;
-		for(int i=0;i<nb_unit;i++)
-			if(unit_type[i].Designation_Name && strcasecmp(unit_type[i].Designation_Name,unit_name)==0)
-				return i;
-		return -1;
+		if( unit_name )
+			return unit_hashtable.Find( Lowercase( unit_name ) ) - 1;
+		else
+			return -1;
 	}
 
 private:

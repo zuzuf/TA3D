@@ -239,6 +239,7 @@ public:
 	String		Name;			// Name of the window
 	GUIOBJ		*Objets;		// Objects within the window
 	int			NbObj;			// Number of objects
+	cHashTable< int >	obj_hashtable;		// hashtable used to speed up operations on GUIOBJ objects
 
 	GLuint		background;		// Uses a background
 	bool		repeat_bkg;		// Repeat or scale background ?
@@ -261,7 +262,7 @@ private:
 
 public:
 
-	inline WND()			// Constructor
+	inline WND() : obj_hashtable()			// Constructor
 	{
 		get_focus = false;
 		title_h = 0;
@@ -286,7 +287,7 @@ public:
 		size_factor = 1.0f;
 	}
 
-	inline WND( const String &filename )			// Constructor
+	inline WND( const String &filename ) : obj_hashtable()			// Constructor
 	{
 		get_focus = false;
 		bkg_w = bkg_h = 1;
@@ -309,7 +310,7 @@ public:
 		load_tdf( filename );
 	}
 
-	inline ~WND()	{		destroy();	}
+	inline ~WND()	{	obj_hashtable.EmptyHashTable();		destroy();	}
 
 	void draw( String &help_msg, bool Focus=true,bool Deg=true, SKIN *skin=NULL );						// Draw the window
 	byte WinMov(int AMx,int AMy,int AMb,int Mx,int My,int Mb, SKIN *skin=NULL );						// Handle window's moves
@@ -335,6 +336,7 @@ private:
 	int					amx, amy, amz, amb;	// Remember last cursor position
 	SKIN				*skin;				// The skin used by the area
 	cHashTable< Vector< TA3D::INTERFACES::GFX_TEXTURE >* >			gui_hashtable;		// hashtable used to speed up loading of *.gui files and save memory
+	cHashTable< int >	wnd_hashtable;		// hashtable used to speed up operations on WND objects
 	String				cached_key;
 	WND					*cached_wnd;
 	uint32				scroll_timer;
@@ -375,6 +377,7 @@ public:
 	float		t_x1, t_y1;
 	float		t_x2, t_y2;
 	uint32		w, h;							// Texture size
+	float		sw,sh;
 
 	SKIN_OBJECT()	{	init();	}
 
@@ -391,6 +394,8 @@ public:
 		t_y2 = 0.0f;
 		w = 0;
 		h = 0;
+		sw = 0.0f;
+		sh = 0.0f;
 	}
 
 	inline void destroy()

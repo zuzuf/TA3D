@@ -1,6 +1,5 @@
 TODO list
 ---------
-_implement shields
 _read the music from a CD
 _add glossiness (or reflection) to all TA3D models.
 _make 3D replacement models for 2D map features
@@ -11,6 +10,9 @@ _networking code
 _improve A.I.
 _D3D support
 
+*shields implemented
+*some speed optimisations in TDF, FBI, 3DO modules (faster loading time :) )
+*some speed optimisations in GUI module
 *support for HitByWeapon BOS/COB function
 *added support for unit DamageModifier variable
 *improved performance on water maps with water quality set to "extreme" (don't draw invisible features anymore on the reflection map)
