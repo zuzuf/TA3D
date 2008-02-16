@@ -343,11 +343,13 @@ void load_features()				// Charge tout les éléments
 					Pos.y += feature_manager.feature[feature[i].type].model->size2;
 				else
 					Pos.y += feature_manager.feature[feature[i].type].height*0.5f;
-				Pos.y = 2.0f * units.map->sealvl - Pos.y;				// Mirrored position
 
-				VECTOR Dir = Pos - cam->RPos;
-				Dir.Unit();
-				Pos = units.map->hit( cam->RPos, Dir );
+				float a = cam->RPos.y - units.map->sealvl;
+				float b = Pos.y - units.map->sealvl;
+				float c = a + b;
+				if( c == 0.0f )	continue;
+				Pos = (a / c) * Pos + (b / c) * cam->RPos;
+				Pos.y = units.map->get_unit_h( Pos.x, Pos.z );
 
 				if( Pos.y > units.map->sealvl )			continue;				// If it's not visible don't draw it
 				}
