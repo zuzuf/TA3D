@@ -167,6 +167,14 @@ namespace TA3D {
 			sint32												fCounter;
 			List< m_WorkListItem >								WorkList;			// List to store work to do when entering main thread
 
+#ifdef TA3D_PLATFORM_MINGW
+			FMOD_SOUND						*basic_sound;
+			FMOD_CHANNEL					*basic_channel;
+#else
+			FMOD::Sound						*basic_sound;
+			FMOD::Channel					*basic_channel;
+#endif
+
 		private:
 			uint32 InterfaceMsg( const lpcImsg msg );
 
@@ -189,6 +197,9 @@ namespace TA3D {
 			// if either key is null or "" aborts.
 			void PlayTDFSound( const String &Key1,  const String Key2, const VECTOR3D *vec = NULL );
 
+			void PlaySoundFileNow( const String &Filename );				// Loads and play a sound
+
+			void StopSoundFileNow();											// Stop playing
 
 			void SetListenerPos( const VECTOR3D *vec );
 

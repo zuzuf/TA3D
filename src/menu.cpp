@@ -1593,6 +1593,12 @@ void campaign_main_menu(void)
 
 	std::list< String > campaign_list;
 	HPIManager->GetFilelist("camps\\*.tdf",&campaign_list);
+	for(std::list< String >::iterator i = campaign_list.begin() ; i != campaign_list.end() ; )		// Removes sub directories entries
+		if( SearchString( i->substr( 6, i->size() - 6 ), "/", true ) != -1 || SearchString( i->substr( 6, i->size() - 6 ), "\\", true ) != -1 )
+			campaign_list.erase( i++ );
+		else
+			i++;
+
 	if( campaign_area.get_object("campaign.campaign_list") && campaign_list.size() > 0 ) {
 		GUIOBJ *guiobj = campaign_area.get_object("campaign.campaign_list");
 		guiobj->Text.clear();
@@ -1620,6 +1626,7 @@ void campaign_main_menu(void)
 	int amz = -1;
 	int amb = -1;
 	int last_campaign_id = -1;
+	String	campaign_name = "";
 	int mission_id = -1;
 
 	do
@@ -1642,7 +1649,8 @@ void campaign_main_menu(void)
 				if( !campaign_parser )	delete campaign_parser;
 				last_campaign_id = guiobj->Pos;
 				mission_id = -1;
-				campaign_parser = new cTAFileParser( "camps\\" + guiobj->Text[ guiobj->Pos ] + ".tdf" );
+				campaign_name = "camps\\" + guiobj->Text[ guiobj->Pos ] + ".tdf";
+				campaign_parser = new cTAFileParser( campaign_name );
 
 				guiobj = campaign_area.get_object("campaign.mission_list");
 				if( guiobj ) {
@@ -1704,6 +1712,169 @@ void campaign_main_menu(void)
 	if( campaign_parser )	delete	campaign_parser;
 
 	gfx->unset_2D_mode();	// Quitte le mode de dessin d'allegro
+
+	reset_mouse();
+	while(key[KEY_ESC]) {	rest(1);	poll_keyboard();	}
+
+	if(start_game) {					// Open the briefing screen and start playing the campaign
+
+		brief_screen( campaign_name, mission_id );
+
+		while(key[KEY_ESC]) {	rest(1);	poll_keyboard();	}
+		}
+}
+
+void brief_screen( String campaign_name, int mission_id )
+{
+	cursor_type=CURSOR_DEFAULT;
+
+	float resize_w = SCREEN_W / 640.0f;
+	float resize_h = SCREEN_H / 480.0f;
+
+	gfx->set_2D_mode();
+
+	AREA brief_area("brief");
+	brief_area.load_tdf("gui/brief.area");
+	if( !brief_area.background )	brief_area.background = gfx->glfond;
+
+	cTAFileParser	brief_parser( campaign_name );			// Loads the campaign file
+	cTAFileParser	ota_parser( "maps\\" + brief_parser.PullAsString( format( "MISSION%d.missionfile", mission_id ) ) );
+
+	String narration_file = "camps\\briefs\\" + ota_parser.PullAsString( "GlobalHeader.narration" ) + ".wav";		// The narration file
+	String brief_file = "camps\\briefs\\" + ota_parser.PullAsString( "GlobalHeader.brief" ) + ".txt";				// The brief file
+
+	{
+		byte *data = HPIManager->PullFromHPI( brief_file );
+		if( data ) {
+			String brief_info = (const char*)data;
+			brief_area.set_caption( "brief.info", brief_info );
+			free(data);
+			}
+	}
+	
+	ANIMS planet_animation;
+	{
+		String planet_file = Lowercase( ota_parser.PullAsString("GlobalHeader.planet") );
+		
+		if( planet_file == "green planet" )				planet_file = "anims\\greenbrief.gaf";
+		else if( planet_file == "archipelago" )			planet_file = "anims\\archibrief.gaf";
+		else if( planet_file == "desert" )				planet_file = "anims\\desertbrief.gaf";
+		else if( planet_file == "lava" )				planet_file = "anims\\lavabrief.gaf";
+		else if( planet_file == "wet desert" )			planet_file = "anims\\wdesertbrief.gaf";
+		else if( planet_file == "metal" )				planet_file = "anims\\metalbrief.gaf";
+		else if( planet_file == "red planet" )			planet_file = "anims\\marsbrief.gaf";
+		else if( planet_file == "lunar" )				planet_file = "anims\\lunarbrief.gaf";
+		else if( planet_file == "lush" )				planet_file = "anims\\lushbrief.gaf";
+		else if( planet_file == "ice" )					planet_file = "anims\\icebrief.gaf";
+		else if( planet_file == "slate" )				planet_file = "anims\\slatebrief.gaf";
+		else if( planet_file == "water" )				planet_file = "anims\\waterbrief.gaf";
+
+		byte *data = HPIManager->PullFromHPI( planet_file );
+		if( data ) {
+			planet_animation.load_gaf( data, true, NULL );
+			free( data );
+			}
+	}
+
+	sound_manager->PlaySoundFileNow( narration_file );
+
+	bool done=false;
+
+	bool start_game = false;
+
+	int amx = -1;
+	int amy = -1;
+	int amz = -1;
+	int amb = -1;
+	float planet_frame = 0.0f;
+	
+	int pan_id = 0;
+	int rotate_id = 0;
+	for( int i = 0 ; i < planet_animation.nb_anim ; i++ )
+		if( Lowercase( String( planet_animation.anm[ i ].name ).substr( String( planet_animation.anm[ i ].name ).size() - 3, 3 ) ) == "pan" )
+			pan_id = i;
+		else if( Lowercase( String( planet_animation.anm[ i ].name ).substr( String( planet_animation.anm[ i ].name ).size() - 6, 6 ) ) == "rotate" )
+			rotate_id = i;
+
+	float pan_x1, pan_x2;
+
+	if( brief_area.get_object( "brief.panning0" ) ) {
+		pan_x1 = brief_area.get_object( "brief.panning0" )->x1;
+		pan_x2 = brief_area.get_object( "brief.panning0" )->x2;
+		}
+			
+	int time_ref = msec_timer;
+
+	do
+	{
+		bool key_is_pressed = false;
+		do {
+			key_is_pressed = keypressed();
+			brief_area.check();
+			rest( 1 );
+		} while( amx == mouse_x && amy == mouse_y && amz == mouse_z && amb == mouse_b && mouse_b == 0 && !key[ KEY_ENTER ]
+			&& !key[ KEY_ESC ] && !done && !key_is_pressed && !brief_area.scrolling && (int)planet_frame == (int)((msec_timer - time_ref) * 0.01f) );
+
+		amx = mouse_x;
+		amy = mouse_y;
+		amz = mouse_z;
+		amb = mouse_b;
+
+		planet_frame = (msec_timer - time_ref) * 0.01f;
+
+		if( brief_area.get_object( "brief.planet" ) ) {
+			GUIOBJ *guiobj = brief_area.get_object( "brief.planet" );
+			guiobj->Data = planet_animation.anm[rotate_id].glbmp[ ((int)planet_frame) % planet_animation.anm[rotate_id].nb_bmp ];
+			}
+
+		float pan_frame = planet_frame / (pan_x2 - pan_x1);
+
+		if( brief_area.get_object( "brief.panning0" ) ) {
+			GUIOBJ *guiobj = brief_area.get_object( "brief.panning0" );
+			guiobj->Data = planet_animation.anm[pan_id].glbmp[ ((int)pan_frame) % planet_animation.anm[pan_id].nb_bmp ];
+			guiobj->x2 = pan_x2 + (pan_x1 - pan_x2) * (pan_frame - ((int)pan_frame));
+			guiobj->u1 = (pan_frame - ((int)pan_frame));
+			}
+
+		if( brief_area.get_object( "brief.panning1" ) ) {
+			GUIOBJ *guiobj = brief_area.get_object( "brief.panning1" );
+			guiobj->Data = planet_animation.anm[pan_id].glbmp[ ((int)pan_frame + 1) % planet_animation.anm[pan_id].nb_bmp ];
+			guiobj->x1 = pan_x2 + (pan_x1 - pan_x2) * (pan_frame - ((int)pan_frame));
+			guiobj->u2 = (pan_frame - ((int)pan_frame));
+			}
+
+		if( brief_area.get_state( "brief.b_ok" ) || key[KEY_ENTER] ) {
+			while( key[KEY_ENTER] )	{	rest( 20 );	poll_keyboard();	}
+			clear_keybuf();
+			done=true;		// If user click "OK" or hit enter then leave the window
+			start_game = true;
+			}
+		if( brief_area.get_state( "brief.b_cancel" ) ) done=true;		// En cas de click sur "retour", on quitte la fenêtre
+
+		if(key[KEY_ESC]) done=true;			// Quitte si on appuie sur echap
+					// Efface tout
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+		brief_area.draw();
+
+		glEnable(GL_TEXTURE_2D);
+		gfx->set_color(0xFFFFFFFF);
+		draw_cursor(resize_w,resize_h);
+		
+					// Affiche
+		gfx->flip();
+	}while(!done);
+
+	if( brief_area.get_object( "brief.planet" ) )	brief_area.get_object( "brief.planet" )->Data = 0;
+	if( brief_area.get_object( "brief.panning0" ) )	brief_area.get_object( "brief.panning0" )->Data = 0;
+	if( brief_area.get_object( "brief.panning1" ) )	brief_area.get_object( "brief.panning1" )->Data = 0;
+
+	if( brief_area.background == gfx->glfond )	brief_area.background = 0;
+	brief_area.destroy();
+
+	gfx->unset_2D_mode();	// Quitte le mode de dessin d'allegro
+
+	sound_manager->StopSoundFileNow();
 
 	reset_mouse();
 	while(key[KEY_ESC]) {	rest(1);	poll_keyboard();	}

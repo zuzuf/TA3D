@@ -207,6 +207,17 @@ void cAudio::SavePlayList( void )
 	if( m_FMODRunning )
 	{
 #ifdef TA3D_PLATFORM_MINGW
+		if( basic_sound )
+			FMOD_Sound_Release( basic_sound );
+#else
+		if( basic_sound )
+			basic_sound->release();
+#endif
+
+		basic_sound = NULL;
+		basic_channel = NULL;
+
+#ifdef TA3D_PLATFORM_MINGW
 		FMOD_System_Close(m_lpFMODSystem);
 		FMOD_System_Release(m_lpFMODSystem);
 #else
@@ -580,6 +591,9 @@ if( m_lpFMODSystem->init( 32, FMOD_INIT_NORMAL | FMOD_INIT_3D_RIGHTHANDED, 0 ) !
 {
 	m_min_ticks = 500;
 
+	basic_sound = NULL;
+	basic_channel = NULL;
+
 	StartUpAudio();
 
 	m_SoundList = new TA3D::UTILS::clpHashTable< m_SoundListItem * >;
@@ -722,6 +736,58 @@ uint32 cAudio::InterfaceMsg( const lpcImsg msg )
 		}
 
 	return INTERFACE_RESULT_CONTINUE;
+}
+
+void cAudio::PlaySoundFileNow( const String &Filename )				// Loads and play a sound
+{
+#ifdef TA3D_PLATFORM_MINGW
+	if( basic_sound )
+		FMOD_Sound_Release( basic_sound );
+#else
+	if( basic_sound )
+		basic_sound->release();
+#endif
+
+	basic_sound = NULL;
+	basic_channel = NULL;
+	
+	uint32 sound_file_size = 0;
+
+	byte *data = HPIManager->PullFromHPI( Filename, &sound_file_size );
+
+	if( data ) {
+		FMOD_CREATESOUNDEXINFO exinfo;
+
+		memset(&exinfo, 0, sizeof(FMOD_CREATESOUNDEXINFO));
+		exinfo.cbsize = sizeof(FMOD_CREATESOUNDEXINFO);
+		exinfo.length = sound_file_size;
+
+#ifdef TA3D_PLATFORM_MINGW
+		FMOD_System_CreateSound( m_lpFMODSystem, (const char *)data, FMOD_SOFTWARE | FMOD_OPENMEMORY, &exinfo, &basic_sound );
+		FMOD_Sound_SetMode->( basic_sound, FMOD_LOOP_OFF );
+		FMOD_System_PlaySound( m_lpFMODSystem, FMOD_CHANNEL_FREE, basic_sound, 0, &basic_channel);
+#else
+		m_lpFMODSystem->createSound( (const char *)data, FMOD_SOFTWARE | FMOD_OPENMEMORY, &exinfo, &basic_sound);
+		basic_sound->setMode(FMOD_LOOP_OFF);
+		m_lpFMODSystem->playSound( FMOD_CHANNEL_FREE, basic_sound, 0, &basic_channel);
+#endif
+
+		free(data);
+		}
+}
+
+void cAudio::StopSoundFileNow()				// Stop playing
+{
+#ifdef TA3D_PLATFORM_MINGW
+	if( basic_sound )
+		FMOD_Sound_Release( basic_sound );
+#else
+	if( basic_sound )
+		basic_sound->release();
+#endif
+
+	basic_sound = NULL;
+	basic_channel = NULL;
 }
 
 bool cAudio::LoadSound( const String &Filename, const bool LoadAs3D,
