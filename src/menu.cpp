@@ -1591,6 +1591,26 @@ void campaign_main_menu(void)
 	campaign_area.load_tdf("gui/campaign.area");
 	if( !campaign_area.background )	campaign_area.background = gfx->glfond;
 
+	std::list< String > campaign_list;
+	HPIManager->GetFilelist("camps\\*.tdf",&campaign_list);
+	if( campaign_area.get_object("campaign.campaign_list") && campaign_list.size() > 0 ) {
+		GUIOBJ *guiobj = campaign_area.get_object("campaign.campaign_list");
+		guiobj->Text.clear();
+		guiobj->Text.resize( campaign_list.size() );
+		int n = 0;
+		for(std::list< String >::iterator i = campaign_list.begin() ; i != campaign_list.end() ; i++, n++ )
+			guiobj->Text[n] = i->substr(6, i->size() - 10 );
+		}
+
+	ANIMS side_logos;
+	{
+		byte *data = HPIManager->PullFromHPI( "anims\\newgame.gaf" );
+		side_logos.load_gaf( data, true, NULL );
+		if( data )	free( data );
+	}
+
+	cTAFileParser	*campaign_parser = NULL;
+
 	bool done=false;
 
 	bool start_game = false;
@@ -1599,6 +1619,8 @@ void campaign_main_menu(void)
 	int amy = -1;
 	int amz = -1;
 	int amb = -1;
+	int last_campaign_id = -1;
+	int mission_id = -1;
 
 	do
 	{
@@ -1613,6 +1635,44 @@ void campaign_main_menu(void)
 		amy = mouse_y;
 		amz = mouse_z;
 		amb = mouse_b;
+
+		if( campaign_area.get_object("campaign.campaign_list") && campaign_list.size() > 0 ) {				// If we don't have campaign data, then load them
+			GUIOBJ *guiobj = campaign_area.get_object("campaign.campaign_list");
+			if( guiobj->Pos >= 0 && guiobj->Pos < guiobj->Text.size() && last_campaign_id != guiobj->Pos ) {
+				if( !campaign_parser )	delete campaign_parser;
+				last_campaign_id = guiobj->Pos;
+				mission_id = -1;
+				campaign_parser = new cTAFileParser( "camps\\" + guiobj->Text[ guiobj->Pos ] + ".tdf" );
+
+				guiobj = campaign_area.get_object("campaign.mission_list");
+				if( guiobj ) {
+					guiobj->Text.clear();
+					int i = 0;
+					String current_name = "";
+					while( !(current_name = campaign_parser->PullAsString( format( "MISSION%d.missionname", i ) ) ).empty() ) {
+						guiobj->Text.push_back( current_name );
+						i++;
+						}
+					}
+					
+				guiobj = campaign_area.get_object("campaign.logo");
+				if( guiobj ) {
+					guiobj->Data = 0;
+					for( int i = 0 ; i < ta3d_sidedata.nb_side ; i++ )
+						if( Lowercase( ta3d_sidedata.side_name[ i ] ) == Lowercase( campaign_parser->PullAsString( "HEADER.campaignside" ) ) ) {
+							if( side_logos.nb_anim > i )
+								guiobj->Data = side_logos.anm[i].glbmp[0];
+							break;
+							}
+					}
+				}
+			}
+
+		if( campaign_area.get_object("campaign.mission_list") ) {
+			GUIOBJ *guiobj = campaign_area.get_object("campaign.mission_list");
+			if( guiobj->Pos >= 0 && guiobj->Pos < guiobj->Text.size() )
+				mission_id = guiobj->Pos;
+			}
 
 		if( campaign_area.get_state( "campaign.b_ok" ) || key[KEY_ENTER] ) {
 			while( key[KEY_ENTER] )	{	rest( 20 );	poll_keyboard();	}
@@ -1636,8 +1696,12 @@ void campaign_main_menu(void)
 		gfx->flip();
 	}while(!done);
 
+	if( campaign_area.get_object("campaign.logo") )	campaign_area.get_object("campaign.logo")->Data = 0;
+
 	if( campaign_area.background == gfx->glfond )	campaign_area.background = 0;
 	campaign_area.destroy();
+
+	if( campaign_parser )	delete	campaign_parser;
 
 	gfx->unset_2D_mode();	// Quitte le mode de dessin d'allegro
 

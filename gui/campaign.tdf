@@ -61,13 +61,13 @@
 	}
 	[object4]
 	{
-		name=campaign_info;
-		type=TEXT;
-		x1=708;
-		y1=622;
-		x2=1170;
-		y2=880;
-		value=0xFFFFFFFF;
+		name=mission_list;
+		type=LIST;
+		x1=685;
+		y1=665;
+		x2=1195;
+		y2=900;
+		no border=true;
 		size=1.8;
 	}
 }

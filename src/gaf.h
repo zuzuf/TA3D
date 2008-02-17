@@ -188,6 +188,8 @@ public:
 
 	void load_gaf( byte *buf, bool doConvert=false, const char *fname = NULL )
 	{
+		if( buf == NULL )	return;
+
 		nb_anim=get_gaf_nb_entry(buf);
 
 		anm = new ANIM[nb_anim];
