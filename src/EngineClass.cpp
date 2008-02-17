@@ -222,6 +222,10 @@ void MAP_OTA::load(char *data,int ota_size)
 			if((strstr(ligne,";")))	*(strstr(ligne,";"))=0;
 			planet=strdup(f+7);
 			}
+		else if(f=strstr(ligne,"glamour=")) {
+			if((strstr(ligne,";")))	*(strstr(ligne,";"))=0;
+			glamour=strdup(f+8);
+			}
 		else if(f=strstr(ligne,"missiondescription=")) {
 			if((strstr(ligne,";")))	*(strstr(ligne,";"))=0;
 			missiondescription=strdup(f+19);

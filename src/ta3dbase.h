@@ -454,9 +454,11 @@ public:
 	Vector< uint32 >	metal;				// Idem with metal
 	char				*game_script;		// Which script to run
 	uint8				fog_of_war;			// flags to configure FOW
+	bool				campaign;			// Are we in campaign mode ?
 
 	inline GAME_DATA()
 	{
+		campaign = false;
 		fog_of_war = FOW_DISABLED;
 		map_filename=NULL;
 		game_script=NULL;
@@ -509,4 +511,4 @@ void PutTex(GLuint Tex,float x1,float y1,float x2,float y2);
 GLuint LoadTex(char *file);
 GLuint LoadMaskedTex(char *file,char *filealpha);
 BITMAP *LoadMaskedTexBmp(char *file,char *filealpha);
-void play(GAME_DATA *game_data);
+int play(GAME_DATA *game_data);

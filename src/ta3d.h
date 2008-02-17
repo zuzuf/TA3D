@@ -100,7 +100,7 @@ BITMAP *load_memory_pcx(byte *data,RGB *cpal)
 	width++;
 	height++;
 
-	BITMAP *pcx=create_bitmap(width,height);
+	BITMAP *pcx = create_bitmap(width,height);
 	clear(pcx);
 
 	int pos=128;

@@ -43,6 +43,7 @@ public:
 	char	*missionname;
 	char	*planet;
 	char	*missiondescription;
+	char	*glamour;
 	int		tidalstrength;
 	int		solarstrength;
 	bool	lavaworld;
@@ -64,6 +65,7 @@ public:
 	{
 		network = false;
 		planet=NULL;
+		glamour=NULL;
 		missionname=NULL;
 		missiondescription=NULL;
 		numplayers=NULL;
@@ -85,6 +87,7 @@ public:
 
 	void destroy()
 	{
+		if(glamour)				free(glamour);
 		if(planet)				free(planet);
 		if(missionname)			free(missionname);
 		if(missiondescription)	free(missiondescription);

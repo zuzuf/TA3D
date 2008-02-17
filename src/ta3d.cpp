@@ -37,11 +37,11 @@ VECTOR cursor_on_map( CAMERA *cam,MAP *map, bool on_mini_map = false );
 /*--------------------------------------------------------------------\
 |                              Game Engine                            |
 \--------------------------------------------------------------------*/
-void play(GAME_DATA *game_data)
+int play(GAME_DATA *game_data)
 {
 if(game_data==NULL)	{
 	Console->AddEntry("error: cannot start a game!! (game_data is NULL, no game information)");
-	return;
+	return -1;
 	}
 
 gfx->SCREEN_W_TO_640 = 1.0f;				// To have mouse sensibility undependent from the resolution
@@ -168,7 +168,7 @@ loading(600.0f/7.0f,TRANSLATE("Loading the map"));
 Console->AddEntry("Extracting '%s'", game_data->map_filename);
 byte *map_file=HPIManager->PullFromHPI(game_data->map_filename);
 
-if(!map_file)	return;
+if(!map_file)	return -1;
 MAP *map=load_tnt_map(map_file);
 free(map_file);
 
@@ -3150,6 +3150,31 @@ switch(exit_mode)
 case EXIT_NONE:
 	break;
 case EXIT_VICTORY:
+	if( game_data->campaign && map->ota_data.glamour && HPIManager->Exists( "bitmaps\\glamour\\" + String( map->ota_data.glamour ) + ".pcx" ) ) {
+		uint32 pcx_size = 0;
+		byte *data = HPIManager->PullFromHPI( "bitmaps\\glamour\\" + String( map->ota_data.glamour ) + ".pcx", &pcx_size );
+		if( data ) {
+			FILE *dst = TA3D_OpenFile( TA3D_OUTPUT_DIR + "cache/glamour.pcx", "wb" );
+			fwrite( data, pcx_size, 1, dst );
+			fclose( dst );
+			free(data);
+
+			GLuint	glamour_tex = gfx->load_texture( TA3D_OUTPUT_DIR + "cache/glamour.pcx" );
+
+			gfx->set_2D_mode();
+			
+			gfx->drawtexture( glamour_tex, 0, 0, SCREEN_W, SCREEN_H );
+			
+			gfx->destroy_texture( glamour_tex );
+
+			gfx->unset_2D_mode();
+
+			gfx->flip();
+
+			while( !keypressed() ) {	rest(1);	poll_keyboard();	}
+			while( keypressed() )	readkey();
+			}
+		}
 	break;
 case EXIT_DEFEAT:
 	break;
@@ -3185,7 +3210,8 @@ features.destroy();
 Console->AddEntry("freeing memory used for textures");
 texture_manager.destroy();
 
-stats_menu();
+if( !game_data->campaign )
+	stats_menu();
 
 Console->AddEntry("freeing memory used for players");
 players.destroy();
@@ -3193,6 +3219,7 @@ players.destroy();
 delete HPIManager;
 HPIManager=new cHPIHandler("");
 
+return exit_mode;
 }
 
 int anim_cursor(int type)

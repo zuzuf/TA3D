@@ -1738,7 +1738,9 @@ void brief_screen( String campaign_name, int mission_id )
 	if( !brief_area.background )	brief_area.background = gfx->glfond;
 
 	cTAFileParser	brief_parser( campaign_name );			// Loads the campaign file
-	cTAFileParser	ota_parser( "maps\\" + brief_parser.PullAsString( format( "MISSION%d.missionfile", mission_id ) ) );
+
+	String map_filename = "maps\\" + brief_parser.PullAsString( format( "MISSION%d.missionfile", mission_id ) );
+	cTAFileParser	ota_parser( map_filename );
 
 	String narration_file = "camps\\briefs\\" + ota_parser.PullAsString( "GlobalHeader.narration" ) + ".wav";		// The narration file
 	String brief_file = "camps\\briefs\\" + ota_parser.PullAsString( "GlobalHeader.brief" ) + ".txt";				// The brief file
@@ -1883,6 +1885,50 @@ void brief_screen( String campaign_name, int mission_id )
 	while(key[KEY_ESC]) {	rest(1);	poll_keyboard();	}
 
 	if(start_game) {					// Open the briefing screen and start playing the campaign
+		int schema = 0;
+
+		GAME_DATA game_data;
+
+		game_data.game_script = strdup( "scripts\\default.lua" );
+		game_data.map_filename = strdup( ( map_filename.substr( 0, map_filename.size() - 3 ) + "tnt" ).c_str() );		// Remember the last map we played
+		game_data.fog_of_war = FOW_ALL;
+
+		game_data.nb_players = ota_parser.PullAsInt( "GlobalHeader.numplayers" );
+
+		game_data.player_control[ 0 ] = PLAYER_CONTROL_LOCAL_HUMAN;
+		game_data.player_names[ 0 ] = brief_parser.PullAsString( "HEADER.campaignside" );
+		game_data.player_sides[ 0 ] = brief_parser.PullAsString( "HEADER.campaignside" );
+		game_data.ai_level[ 0 ] = 0;
+		game_data.energy[ 0 ] = ota_parser.PullAsInt( format( "GlobalHeader.Schema %d.humanenergy", schema ) );
+		game_data.metal[ 0 ] = ota_parser.PullAsInt( format( "GlobalHeader.Schema %d.humanmetal", schema ) );
+
+		player_color_map[ 0 ] = 0;
+
+		for( int i = 1 ; i < game_data.nb_players ; i++ ) {
+			game_data.player_control[ i ] = PLAYER_CONTROL_LOCAL_AI;
+			game_data.player_names[ i ] = brief_parser.PullAsString( "HEADER.campaignside" );
+			game_data.player_sides[ i ] = brief_parser.PullAsString( "HEADER.campaignside" );			// Has no meaning here since we are in campaign mode units are spawned by a script
+			game_data.ai_level[ i ] = schema;
+			game_data.energy[ i ] = ota_parser.PullAsInt( format( "GlobalHeader.Schema %d.computerenergy", schema ) );
+			game_data.metal[ i ] = ota_parser.PullAsInt( format( "GlobalHeader.Schema %d.computermetal", schema ) );
+
+			player_color_map[ i ] = i;
+			}
+
+		game_data.campaign = true;
+
+		gfx->unset_2D_mode();
+		GuardStart( play );
+			play(&game_data);
+		GuardCatch();
+		if( IsExceptionInProgress() ) // if guard threw an error this will be true.
+		{
+			GuardDisplayAndLogError();   // record and display the error.
+			exit(1);                      // we outa here.
+		}
+		gfx->set_2D_mode();
+		gfx->ReInitTexSys();
+		glScalef(SCREEN_W/640.0f,SCREEN_H/480.0f,1.0f);
 
 		while(key[KEY_ESC]) {	rest(1);	poll_keyboard();	}
 		}
