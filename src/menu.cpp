@@ -1822,6 +1822,9 @@ void brief_screen( String campaign_name, int mission_id )
 
 		planet_frame = (msec_timer - time_ref) * 0.01f;
 
+		if( brief_area.get_state( "brief.info" ) )
+			brief_area.get_object( "brief.info" )->Pos++;
+
 		if( brief_area.get_object( "brief.planet" ) ) {
 			GUIOBJ *guiobj = brief_area.get_object( "brief.planet" );
 			guiobj->Data = planet_animation.anm[rotate_id].glbmp[ ((int)planet_frame) % planet_animation.anm[rotate_id].nb_bmp ];

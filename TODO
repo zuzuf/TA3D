@@ -10,6 +10,7 @@ _networking code
 _improve A.I.
 _D3D support
 
+*added campaign menu and mission briefing menu
 *added loading menu progress bar animation for TDF, FBI and WEAPONS modules
 *shields implemented
 *some speed optimisations in WEAPONS, TDF, FBI, 3DO modules (faster loading time :) )

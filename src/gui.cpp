@@ -602,9 +602,12 @@ void WND::draw( String &help_msg, bool Focus, bool Deg, SKIN *skin )
 					break;
 				case OBJ_TEXT:
 					if( !(Objets[i].Flag & FLAG_TEXT_ADJUST ) )
-						gfx->print(gui_font,x+Objets[i].x1,Objets[i].y1+y,0.0f,Objets[i].Data,Objets[i].Text[0],Objets[i].s);
-					else
-						draw_text_adjust( x+Objets[i].x1, y+Objets[i].y1, x+Objets[i].x2, y+Objets[i].y2, Objets[i].Text[0], Objets[i].s );
+						gfx->print(gui_font,x+Objets[i].x1,Objets[i].y1+y,0.0f,Objets[i].Data,Objets[i].Text[0],Objets[i].s );
+					else {
+						Objets[i].Data = draw_text_adjust( x+Objets[i].x1, y+Objets[i].y1, x+Objets[i].x2, y+Objets[i].y2, Objets[i].Text[0], Objets[i].s, Objets[i].Pos, Objets[i].Flag & FLAG_MISSION_MODE );
+						if( Objets[i].Data > 0 )
+							Objets[i].Pos %= Objets[i].Data;
+						}
 					break;
 				case OBJ_MENU:			// Menu déroulant
 					if(!Objets[i].Etat)
@@ -1043,6 +1046,8 @@ int WND::check(int AMx,int AMy,int AMz,int AMb,bool timetoscroll, SKIN *skin )
 						Objets[i].Etat ^= true;
 					}
 					break;
+				default:
+					Objets[i].Etat = true;
 				};
 						// Send a signal to the interface ( the OnClick signal defined at initialization time)
 				for( uint16 cur = 0 ; cur < Objets[i].OnClick.size() ; cur++ )
@@ -1091,13 +1096,9 @@ uint32 WND::msg( const String &message )									// Respond to Interface message
 	uint32	result = INTERFACE_RESULT_CONTINUE;
 
 	if( i != -1 ) {				// When it targets a subobject
-		String key = Lowercase( message.substr( 0, i ) );
-
-		for( uint16 e = 0 ; e < NbObj ; e++ )
-			if( Lowercase( Objets[ e ].Name ) == key ) {
-				result = Objets[ e ].msg( message.substr( i+1, message.size() - i - 1 ) );	// Read the end of the message
-				break;
-				}
+		GUIOBJ *obj = get_object( message );
+		if( obj )
+			return obj->msg( message.substr( i+1, message.size() - i - 1 ) );
 		}
 	else						// When it targets the window itself
 		if( Lowercase( message ) == "show" )				{	hidden = false;		result = INTERFACE_RESULT_HANDLED;	}
@@ -1108,9 +1109,9 @@ uint32 WND::msg( const String &message )									// Respond to Interface message
 
 bool WND::get_state( const String &message )									// Return the state of given object
 {
-	for( uint16 e = 0 ; e < NbObj ; e++ )
-		if( Lowercase( Objets[ e ].Name ) == Lowercase( message ) )
-			return Objets[ e ].Etat;	// Return what we found
+	GUIOBJ *obj = get_object( message );
+	if( obj )
+		return obj->Etat;
 	if( message == "" )
 		return !hidden;
 	else
@@ -1119,13 +1120,13 @@ bool WND::get_state( const String &message )									// Return the state of give
 
 String WND::get_caption( const String &message )									// Return the state of given object
 {
-	for( uint16 e = 0 ; e < NbObj ; e++ )
-		if( Lowercase( Objets[ e ].Name ) == Lowercase( message ) ) {
-			if( Objets[ e ].Text.size() > 0 )
-				return Objets[ e ].Text[0];	// Return what we found
-			else
-				return "";					// We were looking for something that doesn't exist
-			}
+	GUIOBJ *obj = get_object( message );
+	if( obj ) {
+		if( obj->Text.size() > 0 )
+			return obj->Text[0];
+		else
+			return "";
+		}
 	if( message == "" )
 		return Title;
 	else
@@ -1466,6 +1467,14 @@ void WND::load_tdf( const String &filename, SKIN *skin )			// Load a window from
 				Objets[i].Flag |= FLAG_TEXT_ADJUST;
 				}
 			}
+		else if( obj_type == "MISSION" ) {
+			Objets[i].create_text( X1, Y1, caption, val, size );
+			if( X2 > 0 && Y2 > Y1 ) {
+				Objets[i].x2 = X2;
+				Objets[i].y2 = Y2;
+				Objets[i].Flag |= FLAG_TEXT_ADJUST | FLAG_MISSION_MODE | FLAG_CAN_BE_CLICKED;
+				}
+			}
 		else if( obj_type == "LINE" )
 			Objets[i].create_line( X1, Y1, X2, Y2, val );
 		else if( obj_type == "BOX" )
@@ -1639,31 +1648,78 @@ void ListBox(float x1,float y1, float x2, float y2,const Vector<String> &Entry,i
 |        Draw a the given text within the given space                        |
 \---------------------------------------------------------------------------*/
 
-void draw_text_adjust( float x1, float y1, float x2, float y2, String msg, float size )
+int draw_text_adjust( float x1, float y1, float x2, float y2, String msg, float size, int pos, bool mission_mode )
 {
 	String current = "";
+	String current_word = "";
 	Vector< String > Entry;
 	int last = 0;
 	for( int i = 0 ; i < msg.length() ; i++ )
-		if( msg[i] == '\n' || gui_font.length( current + msg[i] ) * size >= x2 - x1 ) {
+		if( msg[i] == '\r' )	continue;
+		else if( msg[i] == '\n' || gui_font.length( current + ' ' + current_word + msg[i] ) * size >= x2 - x1 ) {
+			if( gui_font.length( current + ' ' + current_word + msg[i] ) * size < x2 - x1 ) {
+				current += ' ' + current_word;
+				current_word.clear();
+				}
+			else
+				current_word += msg[i];
 			Entry.push_back( current );
 			last = i + 1;
 			current.clear();
 			}
-		else
-			current += msg[i];
+		else {
+			if( msg[i] == ' ' ) {
+				if( !current.empty() )
+					current += ' ';
+				current += current_word;
+				current_word.clear();
+				}
+			else
+				current_word += msg[i];
+			}
 
-	if( last + 1 < msg.length() )
+	current += current_word;
+
+	if( last + 1 < msg.length() && !current.empty() )
 		Entry.push_back( current );
 
 	gfx->set_alpha_blending();
 	gfx->set_color( 1.0f, 1.0f, 1.0f, 1.0f );
 
-	for( int e = 0 ; e < Entry.size() ; e++ )
-		if( y1 + gui_font.height() * size * e <= y2 )
-			gfx->print( gui_font, x1, y1 + gui_font.height() * size * e, 0.0f, use_normal_alpha_function ? Blanc : Noir, Entry[e], size );
+	if( mission_mode ) {
+		for( int e = pos ; e < Entry.size() ; e++ )
+			if( y1 + gui_font.height() * size * (e + 1 - pos) <= y2 ) {
+				uint32	current_color = 0xFFFFFFFF;
+				float x_offset = 0.0f;
+				char tmp[2];
+				tmp[1] = 0;
+				for( int i = 0 ; i < Entry[e].size() ; i++ )
+					if( Entry[e][i] == '&' ) {
+						current_color = 0xFFFFFFFF;									// Default: white
+						if( i + 1 < Entry[e].size() && Entry[e][i+1] == 'R' ) {
+							current_color = 0xFF0000FF;								// Red
+							i++;
+							}
+						else if( i + 1 < Entry[e].size() && Entry[e][i+1] == 'Y' ) {
+							current_color = 0xFF00FFFF;								// Yellow
+							i++;
+							}
+						}
+					else {
+						tmp[0] = Entry[e][i];
+						gfx->print( gui_font, x1 + x_offset, y1 + gui_font.height() * size * (e - pos), 0.0f, current_color, tmp, size );
+						x_offset += gui_font.length( tmp ) * size;
+						}
+				}
+		}
+	else
+		for( int e = pos ; e < Entry.size() ; e++ )
+			if( y1 + gui_font.height() * size * (e + 1 - pos) <= y2 )
+				gfx->print( gui_font, x1, y1 + gui_font.height() * size * (e - pos), 0.0f, use_normal_alpha_function ? Blanc : Noir, Entry[e], size );
 
 	gfx->unset_alpha_blending();
+
+	return Entry.size();
 }
 
 /*---------------------------------------------------------------------------\

@@ -68,7 +68,7 @@
 	[object5]			// mission info
 	{
 		name=info;
-		type=TEXT;
+		type=MISSION;		// It's a TEXT formatted with a mission string
 		x1=88;
 		y1=552;
 		x2=1176;

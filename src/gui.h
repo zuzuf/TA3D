@@ -98,7 +98,7 @@ void TextBar( float x1, float y1, float x2, float y2, const String &Caption, boo
 void ProgressBar( float x1, float y1, float x2, float y2, int Value , SKIN *skin=NULL, float size = 1.0f );
 void PopupMenu( float x1, float y1, const String &msg, SKIN *skin=NULL, float size = 1.0f );
 void ScrollBar( float x1, float y1, float x2, float y2, float Value, bool vertical=true, SKIN *skin = NULL, float size = 1.0f );
-void draw_text_adjust( float x1, float y1, float x2, float y2, String msg, float size );
+int draw_text_adjust( float x1, float y1, float x2, float y2, String msg, float size, int pos = 0, bool mission_mode = false );
 
 /*--------------------------------------------------------------------------------------------------*/
 
@@ -115,18 +115,19 @@ extern float gui_font_h;
 
 extern bool	use_normal_alpha_function;
 
-#define	FLAG_CAN_BE_CLICKED					0x001			// If you can click it
-#define	FLAG_CAN_GET_FOCUS					0x002			// If it can be selected
-#define	FLAG_HIGHLIGHT						0x004			// If it's highlighted when selected
-#define	FLAG_FILL							0x008			// If it must be filled (for type BOX)
-#define FLAG_SWITCH							0x010			// If it behaves like a switch
-#define FLAG_HIDDEN							0x020			// If it's not visible
-#define FLAG_MULTI_STATE					0x040			// If it can have more than 2 states
-#define FLAG_BUILD_PIC						0x080			// If it's a build pic, replace the picture with the current unit's one
-#define FLAG_DISABLED						0x100
-#define FLAG_CENTERED						0x200			// Centered
-#define FLAG_TEXT_ADJUST					0x400			// Tell the text renderer to print '\n' correctly and to fit in the given space
-#define FLAG_NO_BORDER						0x800			// Tell the object not to draw its borders so you can see the background instead
+#define	FLAG_CAN_BE_CLICKED					0x0001			// If you can click it
+#define	FLAG_CAN_GET_FOCUS					0x0002			// If it can be selected
+#define	FLAG_HIGHLIGHT						0x0004			// If it's highlighted when selected
+#define	FLAG_FILL							0x0008			// If it must be filled (for type BOX)
+#define FLAG_SWITCH							0x0010			// If it behaves like a switch
+#define FLAG_HIDDEN							0x0020			// If it's not visible
+#define FLAG_MULTI_STATE					0x0040			// If it can have more than 2 states
+#define FLAG_BUILD_PIC						0x0080			// If it's a build pic, replace the picture with the current unit's one
+#define FLAG_DISABLED						0x0100
+#define FLAG_CENTERED						0x0200			// Centered
+#define FLAG_TEXT_ADJUST					0x0400			// Tell the text renderer to print '\n' correctly and to fit in the given space
+#define FLAG_NO_BORDER						0x0800			// Tell the object not to draw its borders so you can see the background instead
+#define FLAG_MISSION_MODE					0x1000			// Tell the object not to draw its borders so you can see the background instead
 
 class GUIOBJ					// Structure pour les objets contenus dans les fenêtres
 {
