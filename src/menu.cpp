@@ -211,7 +211,8 @@ void main_menu(void)
 
 		draw_cursor();
 
-		if( mouse_b || key[KEY_ENTER] || key[KEY_SPACE] || lp_CONFIG->quickstart ) {
+		if( mouse_b || key[KEY_ENTER] || key[KEY_SPACE] || lp_CONFIG->quickstart || key[KEY_C] ) {
+			if( key[KEY_C] )		index = 3;			// Shortcut to campaign menu
 			if( key[KEY_ENTER] )	index = 2;			// Shortcut to game room
 			if( key[KEY_SPACE] )	index = 1;			// Shortcut to config menu
 
@@ -222,7 +223,7 @@ void main_menu(void)
 			gfx->SCREEN_H_TO_480 = 1.0f;
 			if( lp_CONFIG->quickstart )
 				index = 1;
-			if( index >= 0 && index <= 2 ) {		// free some memory
+			if( index >= 0 && index <= 3 ) {		// free some memory
 				destroy_bitmap(tst[0]);
 				destroy_bitmap(tst[1]);
 				destroy_bitmap(tst[2]);
@@ -243,9 +244,12 @@ void main_menu(void)
 			case 2:
 				setup_game();
 				break;
+			case 3:
+				campaign_main_menu();
+				break;
 			};
 			current_mod = TA3D_CURRENT_MOD.length() > 6 ? TA3D_CURRENT_MOD.substr( 5, TA3D_CURRENT_MOD.length() - 6 ) : "";
-			if( index >= 0 && index <= 2 ) {
+			if( index >= 0 && index <= 3 ) {
 				mnu[0] = gfx->load_texture( TRANSLATE( "gfx/en/exit.tga" ).c_str(), FILTER_LINEAR );
 				mnu[1] = gfx->load_texture( TRANSLATE( "gfx/en/options.tga" ).c_str(), FILTER_LINEAR );
 				mnu[2] = gfx->load_texture( TRANSLATE( "gfx/en/play.tga" ).c_str(), FILTER_LINEAR );
@@ -1572,4 +1576,76 @@ void battle_room(void)				// Let players create/join a game
 	gfx->unset_2D_mode();
 
 	set_uformat(U_UTF8);
+}
+
+void campaign_main_menu(void)
+{
+	cursor_type=CURSOR_DEFAULT;
+
+	float resize_w = SCREEN_W / 640.0f;
+	float resize_h = SCREEN_H / 480.0f;
+
+	gfx->set_2D_mode();
+
+	AREA campaign_area("campaign");
+	campaign_area.load_tdf("gui/campaign.area");
+	if( !campaign_area.background )	campaign_area.background = gfx->glfond;
+
+	bool done=false;
+
+	bool start_game = false;
+
+	int amx = -1;
+	int amy = -1;
+	int amz = -1;
+	int amb = -1;
+
+	do
+	{
+		bool key_is_pressed = false;
+		do {
+			key_is_pressed = keypressed();
+			campaign_area.check();
+			rest( 1 );
+		} while( amx == mouse_x && amy == mouse_y && amz == mouse_z && amb == mouse_b && mouse_b == 0 && !key[ KEY_ENTER ] && !key[ KEY_ESC ] && !done && !key_is_pressed && !campaign_area.scrolling );
+
+		amx = mouse_x;
+		amy = mouse_y;
+		amz = mouse_z;
+		amb = mouse_b;
+
+		if( campaign_area.get_state( "campaign.b_ok" ) || key[KEY_ENTER] ) {
+			while( key[KEY_ENTER] )	{	rest( 20 );	poll_keyboard();	}
+			clear_keybuf();
+			done=true;		// If user click "OK" or hit enter then leave the window
+			start_game = true;
+			}
+		if( campaign_area.get_state( "campaign.b_cancel" ) ) done=true;		// En cas de click sur "retour", on quitte la fenêtre
+
+		if(key[KEY_ESC]) done=true;			// Quitte si on appuie sur echap
+					// Efface tout
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+		campaign_area.draw();
+
+		glEnable(GL_TEXTURE_2D);
+		gfx->set_color(0xFFFFFFFF);
+		draw_cursor(resize_w,resize_h);
+		
+					// Affiche
+		gfx->flip();
+	}while(!done);
+
+	if( campaign_area.background == gfx->glfond )	campaign_area.background = 0;
+	campaign_area.destroy();
+
+	gfx->unset_2D_mode();	// Quitte le mode de dessin d'allegro
+
+	reset_mouse();
+	while(key[KEY_ESC]) {	rest(1);	poll_keyboard();	}
+
+	if(start_game) {					// Open the briefing screen and start playing the campaign
+
+		while(key[KEY_ESC]) {	rest(1);	poll_keyboard();	}
+		}
 }

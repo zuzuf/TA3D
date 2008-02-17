@@ -36,4 +36,6 @@ void setup_game(void);		// Setup a game and launch it
 
 void battle_room(void);		// Everything you need to launch a network game
 
+void campaign_main_menu(void);		// The campaign main menu, select the campaign you want to play
+
 #endif
