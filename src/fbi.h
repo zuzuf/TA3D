@@ -86,6 +86,8 @@
 #define MISSION_WAIT			0x21		// Wait for a specified time
 #define MISSION_WAIT_ATTACKED	0x22		// Wait until a specified unit is attacked
 
+#define MISSION_FLAG_AUTO		0x10000		// Mission is sent from UNIT::move so don't ignore it
+
 using namespace TA3D;
 using namespace TA3D::INTERFACES;
 

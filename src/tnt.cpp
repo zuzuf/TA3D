@@ -105,10 +105,12 @@ MAP	*load_tnt_map(byte *data)		// Charge une map au format TA, extraite d'une ar
 	blit(map->mini,tmp,0,0,0,0,tmp->w,tmp->h);
 	destroy_bitmap(map->mini);
 	map->mini=tmp;
-	map->mini_w=0;
-	map->mini_h=0;
-	while( map->mini_w<252 && ( ((int*)(map->mini->line[0]))[map->mini_w] & 0xFCFCFCFC ) != makecol(120,148,252) ) map->mini_w++;
-	while( map->mini_h<252 && ( ((int*)(map->mini->line[map->mini_h]))[0] & 0xFCFCFCFC ) != makecol(120,148,252) ) map->mini_h++;
+	map->mini_w=251;
+	map->mini_h=251;
+	while( map->mini_w>0 && ( ( ((int*)(map->mini->line[0]))[map->mini_w] & 0xFCFCFCFC ) == makecol(120,148,252) || ((int*)(map->mini->line[0]))[map->mini_w] == 0 ) ) map->mini_w--;
+	while( map->mini_h>0 && ( ( ((int*)(map->mini->line[map->mini_h]))[0] & 0xFCFCFCFC ) == makecol(120,148,252) || ((int*)(map->mini->line[map->mini_h]))[0] == 0 ) ) map->mini_h--;
+	map->mini_w++;
+	map->mini_h++;
 	if(g_useTextureCompression)
 		allegro_gl_set_texture_format(GL_COMPRESSED_RGB_ARB);
 	else
@@ -575,10 +577,12 @@ GLuint load_tnt_minimap(byte *data,int *sw,int *sh)		// Charge une minimap d'une
 	blit(mini,tmp,0,0,0,0,tmp->w,tmp->h);
 	destroy_bitmap(mini);
 	mini=tmp;
-	int mini_w=0;
-	int mini_h=0;
-	while(mini_w<252 && ( ((int*)(mini->line[0]))[mini_w] & 0xFCFCFCFC ) != makecol(120,148,252) ) mini_w++;
-	while(mini_h<252 && ( ((int*)(mini->line[mini_h]))[0] & 0xFCFCFCFC ) != makecol(120,148,252) ) mini_h++;
+	int mini_w=251;
+	int mini_h=251;
+	while( mini_w>0 && ( ( ((int*)(mini->line[0]))[mini_w] & 0xFCFCFCFC ) == makecol(120,148,252) || ((int*)(mini->line[0]))[mini_w] == 0 ) ) mini_w--;
+	while( mini_h>0 && ( ( ((int*)(mini->line[mini_h]))[0] & 0xFCFCFCFC ) == makecol(120,148,252) || ((int*)(mini->line[mini_h]))[0] == 0 ) ) mini_h--;
+	mini_w++;
+	mini_h++;
 	if(g_useTextureCompression)
 		allegro_gl_set_texture_format(GL_COMPRESSED_RGB_ARB);
 	else
@@ -646,10 +650,12 @@ GLuint load_tnt_minimap_fast(char *filename,int *sw,int *sh)		// Charge une mini
 	blit(mini,tmp,0,0,0,0,tmp->w,tmp->h);
 	destroy_bitmap(mini);
 	mini=tmp;
-	int mini_w=0;
-	int mini_h=0;
-	while(mini_w<252 && ( ((int*)(mini->line[0]))[mini_w] & 0xFCFCFCFC ) != makecol(120,148,252) ) mini_w++;
-	while(mini_h<252 && ( ((int*)(mini->line[mini_h]))[0] & 0xFCFCFCFC ) != makecol(120,148,252) ) mini_h++;
+	int mini_w=251;
+	int mini_h=251;
+	while( mini_w>0 && ( ( ((int*)(mini->line[0]))[mini_w] & 0xFCFCFCFC ) == makecol(120,148,252) || ((int*)(mini->line[0]))[mini_w] == 0 ) ) mini_w--;
+	while( mini_h>0 && ( ( ((int*)(mini->line[mini_h]))[0] & 0xFCFCFCFC ) == makecol(120,148,252) || ((int*)(mini->line[mini_h]))[0] == 0 ) ) mini_h--;
+	mini_w++;
+	mini_h++;
 	if(g_useTextureCompression)
 		allegro_gl_set_texture_format(GL_COMPRESSED_RGB_ARB);
 	else

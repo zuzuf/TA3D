@@ -1630,6 +1630,7 @@ void campaign_main_menu(void)
 	int last_campaign_id = -1;
 	String	campaign_name = "";
 	int mission_id = -1;
+	int nb_mission = 0;
 
 	do
 	{
@@ -1655,12 +1656,14 @@ void campaign_main_menu(void)
 				campaign_parser = new cTAFileParser( campaign_name );
 
 				guiobj = campaign_area.get_object("campaign.mission_list");
+				nb_mission = 0;
 				if( guiobj ) {
 					guiobj->Text.clear();
 					int i = 0;
 					String current_name = "";
 					while( !(current_name = campaign_parser->PullAsString( format( "MISSION%d.missionname", i ) ) ).empty() ) {
 						guiobj->Text.push_back( current_name );
+						nb_mission++;
 						i++;
 						}
 					}
@@ -1720,13 +1723,15 @@ void campaign_main_menu(void)
 
 	if(start_game) {					// Open the briefing screen and start playing the campaign
 
-		brief_screen( campaign_name, mission_id );
+		int exit_mode = 0;
+		while( mission_id < nb_mission && (exit_mode = brief_screen( campaign_name, mission_id )) >= 0 )
+			if( exit_mode == EXIT_VICTORY )	mission_id++;
 
 		while(key[KEY_ESC]) {	rest(1);	poll_keyboard();	}
 		}
 }
 
-void brief_screen( String campaign_name, int mission_id )
+int brief_screen( String campaign_name, int mission_id )
 {
 	cursor_type=CURSOR_DEFAULT;
 
@@ -1924,7 +1929,7 @@ void brief_screen( String campaign_name, int mission_id )
 
 		game_data.game_script = strdup( "scripts/__campaign_script.lua" );
 		game_data.map_filename = strdup( ( map_filename.substr( 0, map_filename.size() - 3 ) + "tnt" ).c_str() );		// Remember the last map we played
-		game_data.fog_of_war = 0;//FOW_ALL;
+		game_data.fog_of_war = FOW_ALL;
 
 		game_data.nb_players = ota_parser.PullAsInt( "GlobalHeader.numplayers", 2 );
 		if( game_data.nb_players == 0 )				// Yes it can happen !!
@@ -1933,7 +1938,7 @@ void brief_screen( String campaign_name, int mission_id )
 		game_data.player_control[ 0 ] = PLAYER_CONTROL_LOCAL_HUMAN;
 		game_data.player_names[ 0 ] = brief_parser.PullAsString( "HEADER.campaignside" );
 		game_data.player_sides[ 0 ] = brief_parser.PullAsString( "HEADER.campaignside" );
-		game_data.ai_level[ 0 ] = 0;
+		game_data.ai_level[ 0 ] = schema;
 		game_data.energy[ 0 ] = ota_parser.PullAsInt( format( "GlobalHeader.Schema %d.humanenergy", schema ) );
 		game_data.metal[ 0 ] = ota_parser.PullAsInt( format( "GlobalHeader.Schema %d.humanmetal", schema ) );
 
@@ -1958,8 +1963,9 @@ void brief_screen( String campaign_name, int mission_id )
 			game_data.use_only = strdup( ("camps\\useonly\\" + String( game_data.use_only )).c_str() );
 
 		gfx->unset_2D_mode();
+		int exit_mode = 0;
 		GuardStart( play );
-			play(&game_data);
+			exit_mode = play(&game_data);
 		GuardCatch();
 		if( IsExceptionInProgress() ) // if guard threw an error this will be true.
 		{
@@ -1971,5 +1977,8 @@ void brief_screen( String campaign_name, int mission_id )
 		glScalef(SCREEN_W/640.0f,SCREEN_H/480.0f,1.0f);
 
 		while(key[KEY_ESC]) {	rest(1);	poll_keyboard();	}
+		
+		return exit_mode;
 		}
+	return -1;
 }

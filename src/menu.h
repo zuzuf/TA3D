@@ -38,6 +38,6 @@ void battle_room(void);		// Everything you need to launch a network game
 
 void campaign_main_menu(void);		// The campaign main menu, select the campaign you want to play
 
-void brief_screen( String campaign_name, int mission_id );			// The brief screen where you are told about your mission objectives
+int brief_screen( String campaign_name, int mission_id );			// The brief screen where you are told about your mission objectives
 
 #endif

@@ -154,11 +154,25 @@ AREA	game_area;			// Area object that will handle game GUI
 
 game_area.load_tdf( "gui/game.area" );					// Loads the game area
 
+try
+{
 game_area.load_window( ta3d_sidedata.guis_dir + ta3d_sidedata.side_pref[ players.side_view ] + "gen.gui" );			// Load the order interface
 I_Msg( TA3D::TA3D_IM_GUI_MSG, (void*)(String( ta3d_sidedata.side_pref[ players.side_view ] ) + "gen.hide").c_str(), NULL, NULL );	// Hide it
+}
+catch(...)
+{
+	Console->AddEntry("WARNING : *gen.gui file missing!!");
+}
 
+try
+{
 game_area.load_window( ta3d_sidedata.guis_dir + ta3d_sidedata.side_pref[ players.side_view ] + "dl.gui" );			// Load the default build interface
 I_Msg( TA3D::TA3D_IM_GUI_MSG, (void*)(String( ta3d_sidedata.side_pref[ players.side_view ] ) + "dl.hide").c_str(), NULL, NULL );	// Hide it
+}
+catch(...)
+{
+	Console->AddEntry("WARNING : *dl.gui file missing!!");
+}
 
 for( int i = 0 ; i < unit_manager.nb_unit ; i++ ) {		// Loads the GUI
 	if( !(i & 0xF) )
@@ -326,10 +340,6 @@ bool ordered_destruct = false;
 
 bool tilde=false;
 bool done=false;
-
-#define EXIT_NONE		0x0
-#define EXIT_VICTORY	0x1
-#define EXIT_DEFEAT		0x2
 
 int	exit_mode=EXIT_NONE;
 
@@ -2110,8 +2120,10 @@ do
 
 	if(key[KEY_ESC])
 		I_Msg( TA3D::TA3D_IM_GUI_MSG, (char*)"esc_menu.show", NULL, NULL );
-	if(game_area.get_state("esc_menu.b_exit"))
+	if(game_area.get_state("esc_menu.b_exit")) {
+		exit_mode = -1;
 		done=true;
+		}
 	if(key[KEY_TILDE]) {
 		if(!tilde)
 			Console->ToggleShow();
@@ -3187,7 +3199,8 @@ case EXIT_VICTORY:
 
 			gfx->flip();
 
-			while( !keypressed() ) {	rest(1);	poll_keyboard();	}
+			while( !keypressed() && mouse_b == 0 ) {	rest(1);	poll_keyboard(); 	poll_mouse();	}
+			while( mouse_b )	poll_mouse();
 			while( keypressed() )	readkey();
 			}
 		}

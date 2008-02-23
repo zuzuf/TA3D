@@ -327,6 +327,8 @@ public:
 	uint16			pad1, pad2;			// Repair pads currently used
 	float			pad_timer;			// Store last try to find a free landing pad
 
+	bool			command_locked;		// Used for missions
+
 		// Following variables are used to control the synchronization of data between game clients
 private:
 	uint32			sync_hash;
@@ -381,6 +383,7 @@ public:
 	{
 		last_path_refresh = 10.0f;		// By default allow to compute a new path
 		if(mission==NULL) {
+			command_locked = false;
 			set_mission( unit_manager.unit_type[type_id].DefaultMissionType, NULL, false, 0, false );
 			return;
 			}
@@ -400,6 +403,7 @@ public:
 			break;
 		};
 		if(mission->mission==MISSION_STOP && mission->next==NULL) {
+			command_locked = false;
 			mission->data=0;
 			return;
 			}
@@ -408,8 +412,10 @@ public:
 		if(old->path)				// Détruit le chemin si nécessaire
 			destroy_path(old->path);
 		free(old);
-		if(mission==NULL)
+		if(mission==NULL) {
+			command_locked = false;
 			set_mission(unit_manager.unit_type[type_id].DefaultMissionType);
+			}
 
 				// Skip a stop order before a normal order if the unit can fly (prevent planes from looking for a place to land when they don't need to land !!)
 		if( unit_manager.unit_type[type_id].canfly && mission->mission == MISSION_STOP && mission->next != NULL && mission->next->mission != MISSION_STOP ) {
@@ -505,12 +511,28 @@ public:
 			self_destruct = -1.0f;
 	}
 
+	inline void lock_command()
+	{
+		EnterCS();
+			command_locked = true;
+		LeaveCS();
+	}
+
+	inline void unlock_command()
+	{
+		EnterCS();
+			command_locked = false;
+		LeaveCS();
+	}
+
 	inline void init(int unit_type=-1,int owner=-1,bool full=false)
 	{
 		if( full )
 			CreateCS();
 		EnterCS();
 
+		command_locked = false;
+		
 		pad1 = 0xFFFF; pad2 = 0xFFFF;
 		pad_timer = 0.0f;
 

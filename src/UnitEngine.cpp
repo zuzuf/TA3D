@@ -113,6 +113,15 @@ bool UNIT::is_on_radar( byte p_mask )
 		GuardEnter( UNIT::add_mission );
 #endif
 		EnterCS();
+		
+		if( command_locked && !(mission_type & MISSION_FLAG_AUTO) ) {
+			LeaveCS();
+#ifdef	ADVANCED_DEBUG_MODE
+			GuardLeave( UNIT::add_mission );
+#endif
+			return;
+			}
+		mission_type &= ~MISSION_FLAG_AUTO;
 
 		bool def_mode = false;
 		if( !unit_manager.unit_type[type_id].BMcode )
@@ -208,7 +217,7 @@ bool UNIT::is_on_radar( byte p_mask )
 			new_mission->target = *target;
 
 		MISSION *stop = !inserted ? (MISSION*) malloc(sizeof(MISSION)) : NULL;
-		if( !inserted ) {
+		if( stop ) {
 			stop->mission = MISSION_STOP;
 			stop->step = true;
 			stop->time = 0.0f;
@@ -228,7 +237,7 @@ bool UNIT::is_on_radar( byte p_mask )
 				}
 			}
 
-		if( step && mission && !inserted ) {
+		if( step && mission && stop ) {
 			stop->next = def_mode ? def_mission : mission;
 			mission = new_mission;
 			if( !def_mode )
@@ -239,10 +248,12 @@ bool UNIT::is_on_radar( byte p_mask )
 			if( mission_base && !inserted ) {				// Ajoute l'ordre aux autres
 				MISSION *cur = mission_base;
 				while(cur->next!=NULL)	cur=cur->next;
-				if( ( ( cur->mission == MISSION_MOVE || cur->mission == MISSION_PATROL )		// Don't stop if it's not necessary
+				if( ( ( ( cur->mission == MISSION_MOVE || cur->mission == MISSION_PATROL || cur->mission == MISSION_STANDBY
+					|| cur->mission == MISSION_VTOL_STANDBY || cur->mission == MISSION_STOP )		// Don't stop if it's not necessary
 					&& ( mission_type == MISSION_MOVE || mission_type == MISSION_PATROL ) )
 				|| ( ( cur->mission == MISSION_BUILD || cur->mission == MISSION_BUILD_2 )
-					&& mission_type == MISSION_BUILD && !unit_manager.unit_type[type_id].BMcode ) ) {		// Prevent factories from closing when already building a unit
+					&& mission_type == MISSION_BUILD && !unit_manager.unit_type[type_id].BMcode ) )
+				&& new_mission->next != NULL ) {		// Prevent factories from closing when already building a unit
 					stop = new_mission->next;
 					free( new_mission );
 					new_mission = stop;
@@ -272,6 +283,15 @@ bool UNIT::is_on_radar( byte p_mask )
 		GuardEnter( UNIT::set_mission );
 #endif
 		EnterCS();
+		
+		if( command_locked && !( mission_type & MISSION_FLAG_AUTO ) ) {
+			LeaveCS();
+#ifdef	ADVANCED_DEBUG_MODE
+			GuardLeave( UNIT::set_mission );
+#endif
+			return;
+			}
+		mission_type &= ~MISSION_FLAG_AUTO;
 
 		bool def_mode = false;
 		if( !unit_manager.unit_type[type_id].BMcode )
@@ -1786,7 +1806,7 @@ bool UNIT::is_on_radar( byte p_mask )
 													units.unit[cur_idx].Lock();
 													VECTOR target = units.unit[cur_idx].Pos;
 													target.z+=100.0f;
-													units.unit[cur_idx].add_mission(MISSION_MOVE,&target,true);
+													units.unit[cur_idx].add_mission(MISSION_MOVE | MISSION_FLAG_AUTO,&target,true);
 													units.unit[cur_idx].UnLock();
 													}
 												}
@@ -2117,7 +2137,7 @@ bool UNIT::is_on_radar( byte p_mask )
 					target.z = -map->map_h_d+256;
 				else if(target.z > map->map_h_d-256)
 					target.z = map->map_h_d-256;
-				add_mission(MISSION_MOVE,&target,true,0,NULL,NULL,0,1);		// Stay on map
+				add_mission(MISSION_MOVE | MISSION_FLAG_AUTO,&target,true,0,NULL,NULL,0,1);		// Stay on map
 				}
 
 		flags &= 0xEF;		// To fix a bug
@@ -2739,7 +2759,7 @@ bool UNIT::is_on_radar( byte p_mask )
 										else if(target.z > map->map_h_d-256)
 											target.z = map->map_h_d-256;
 										next_mission();
-										add_mission(MISSION_MOVE,&target,true,0,NULL,NULL,0,1);		// Stay on map
+										add_mission(MISSION_MOVE | MISSION_FLAG_AUTO,&target,true,0,NULL,NULL,0,1);		// Stay on map
 										}
 									else if( !can_be_there( cur_px, cur_py, map, type_id, owner_id, idx )) {
 										NPos = Pos;
@@ -3241,17 +3261,17 @@ bool UNIT::is_on_radar( byte p_mask )
 					if(mission->p!=NULL && (((UNIT*)mission->p)->flags & 1) && ((UNIT*)mission->p)->owner_id==owner_id) {		// On ne défend pas n'importe quoi
 						if(unit_manager.unit_type[type_id].Builder) {
 							if(((UNIT*)mission->p)->build_percent_left > 0.0f || ((UNIT*)mission->p)->hp<unit_manager.unit_type[((UNIT*)mission->p)->type_id].MaxDamage) {		// Répare l'unité
-								add_mission(MISSION_REPAIR,&((UNIT*)mission->p)->Pos,true,0,((UNIT*)mission->p),NULL);
+								add_mission(MISSION_REPAIR | MISSION_FLAG_AUTO,&((UNIT*)mission->p)->Pos,true,0,((UNIT*)mission->p),NULL);
 								break;
 								}
 							else if(((UNIT*)mission->p)->mission!=NULL && (((UNIT*)mission->p)->mission->mission==MISSION_BUILD_2 || ((UNIT*)mission->p)->mission->mission==MISSION_REPAIR)) {		// L'aide à construire
-								add_mission(MISSION_REPAIR,&((UNIT*)mission->p)->mission->target,true,0,((UNIT*)mission->p)->mission->p,NULL);
+								add_mission(MISSION_REPAIR | MISSION_FLAG_AUTO,&((UNIT*)mission->p)->mission->target,true,0,((UNIT*)mission->p)->mission->p,NULL);
 								break;
 								}
 							}
 						if(unit_manager.unit_type[type_id].canattack) {
 							if(((UNIT*)mission->p)->mission!=NULL && ((UNIT*)mission->p)->mission->mission==MISSION_ATTACK) {		// L'aide à attaquer
-								add_mission(MISSION_ATTACK,&((UNIT*)mission->p)->mission->target,true,0,((UNIT*)mission->p)->mission->p,NULL);
+								add_mission(MISSION_ATTACK | MISSION_FLAG_AUTO,&((UNIT*)mission->p)->mission->target,true,0,((UNIT*)mission->p)->mission->p,NULL);
 								break;
 								}
 							}
@@ -3271,7 +3291,7 @@ bool UNIT::is_on_radar( byte p_mask )
 						pad_timer += dt;
 
 						if( mission->next == NULL )
-							add_mission(MISSION_PATROL,&Pos,false,0,NULL,NULL,MISSION_FLAG_CAN_ATTACK,0,0);	// Retour à la case départ après l'éxécution de tous les ordres / back to beginning
+							add_mission(MISSION_PATROL | MISSION_FLAG_AUTO,&Pos,false,0,NULL,NULL,MISSION_FLAG_CAN_ATTACK,0,0);	// Retour à la case départ après l'éxécution de tous les ordres / back to beginning
 
 						mission->flags |= MISSION_FLAG_CAN_ATTACK;
 						if( unit_manager.unit_type[ type_id ].canfly ) {			// Don't stop moving and check if it can be repaired
@@ -3295,7 +3315,7 @@ bool UNIT::is_on_radar( byte p_mask )
 										Dir.y = 0.0f;
 										if( (units.unit[ *i ].pad1 == 0xFFFF || units.unit[ *i ].pad2 == 0xFFFF) && units.unit[ *i ].build_percent_left == 0.0f
 										&& Dir.Sq() <= sq( unit_manager.unit_type[ type_id ].ManeuverLeashLength ) ) {	// He can repair us :)
-											add_mission( MISSION_GET_REPAIRED, &units.unit[ *i ].Pos, true, 0, &(units.unit[ *i ]),NULL);
+											add_mission( MISSION_GET_REPAIRED | MISSION_FLAG_AUTO, &units.unit[ *i ].Pos, true, 0, &(units.unit[ *i ]),NULL);
 											int target_idx = *i;
 											units.EnterCS_from_outside();
 											units.repair_pads[ owner_id ].erase( i );
@@ -3592,7 +3612,7 @@ bool UNIT::is_on_radar( byte p_mask )
 								if(!unit_manager.unit_type[type_id].BMcode) {		// Ordre de se déplacer
 									VECTOR target=Pos;
 									target.z+=128.0f;
-									target_unit->set_mission(MISSION_MOVE,&target,false,5,true,NULL,NULL,0,5);		// Fait sortir l'unité du bâtiment
+									target_unit->set_mission(MISSION_MOVE | MISSION_FLAG_AUTO,&target,false,5,true,NULL,NULL,0,5);		// Fait sortir l'unité du bâtiment
 									MISSION *target_mission = target_unit->mission;
 									while( target_mission->next != NULL )	target_mission = target_mission->next;
 									MISSION *cur = def_mission;
@@ -3946,7 +3966,7 @@ bool UNIT::is_on_radar( byte p_mask )
 						}
 					if(enemy_idx>=0) {			// Si on a trouvé une unité, on l'attaque
 						if( do_nothing() )
-							set_mission(MISSION_ATTACK,&(units.unit[enemy_idx].Pos),false,0,true,&(units.unit[enemy_idx]),NULL);
+							set_mission(MISSION_ATTACK | MISSION_FLAG_AUTO,&(units.unit[enemy_idx].Pos),false,0,true,&(units.unit[enemy_idx]),NULL);
 						else
 							for( int i = 0 ; i < 3 ; i++ )
 								if( weapon[i].state == WEAPON_FLAG_IDLE && unit_manager.unit_type[type_id].weapon[ i ] != NULL
@@ -3998,7 +4018,7 @@ bool UNIT::is_on_radar( byte p_mask )
 							}
 						}
 					if(enemy_idx>=0)			// If we found a target, then attack it, here  we use attack because we need the mission list to act properly
-						add_mission(MISSION_ATTACK,&(weapons.weapon[enemy_idx].Pos),false,0,&(weapons.weapon[enemy_idx]),NULL,12);	// 12 = 4 | 8, targets a weapon and automatic fire
+						add_mission(MISSION_ATTACK | MISSION_FLAG_AUTO,&(weapons.weapon[enemy_idx].Pos),false,0,&(weapons.weapon[enemy_idx]),NULL,12);	// 12 = 4 | 8, targets a weapon and automatic fire
 					}
 				}
 			}
@@ -4142,7 +4162,7 @@ bool UNIT::is_on_radar( byte p_mask )
 						float find_angle = (rand_from_table() % 360) * DEG2RAD;
 						next_target.x += cos( find_angle ) * (32.0f + unit_manager.unit_type[type_id].FootprintX * 8.0f);
 						next_target.z += sin( find_angle ) * (32.0f + unit_manager.unit_type[type_id].FootprintZ * 8.0f);
-						add_mission( MISSION_MOVE, &next_target, true );
+						add_mission( MISSION_MOVE | MISSION_FLAG_AUTO, &next_target, true );
 						}
 					}
 				}
@@ -4985,8 +5005,14 @@ void INGAME_UNITS::complete_menu(int index,bool hide_info,bool hide_bpic)
 			glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
 			gfx->print_center(gfx->normal_font, ta3d_sidedata.side_int_data[ players.side_view ].UnitName.x1, ta3d_sidedata.side_int_data[ players.side_view ].UnitName.y1,0.0f,0xFFFFFFFF,unit_manager.unit_type[unit[index].type_id].name);
 			if(target && unit[index].mission && (unit[index].mission->flags & MISSION_FLAG_TARGET_WEAPON) != MISSION_FLAG_TARGET_WEAPON) {
-				glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
-				gfx->print_center(gfx->normal_font, ta3d_sidedata.side_int_data[ players.side_view ].UnitName2.x1, ta3d_sidedata.side_int_data[ players.side_view ].UnitName2.y1,0.0f,0xFFFFFFFF,unit_manager.unit_type[target->type_id].name);
+				unit[index].UnLock();
+				target->Lock();
+				if( (target->flags & 1) && target->type_id >= 0 ) {
+					glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+					gfx->print_center(gfx->normal_font, ta3d_sidedata.side_int_data[ players.side_view ].UnitName2.x1, ta3d_sidedata.side_int_data[ players.side_view ].UnitName2.y1,0.0f,0xFFFFFFFF,unit_manager.unit_type[target->type_id].name);
+					}
+				target->UnLock();
+				unit[index].Lock();
 				}
 			else if( unit[index].planned_weapons>0.0f && unit[index].owner_id == players.local_human_id ) {
 				glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
@@ -5028,11 +5054,17 @@ void INGAME_UNITS::complete_menu(int index,bool hide_info,bool hide_bpic)
 					}
 
 				if( unit[index].owner_id == players.local_human_id ) {
-					if(target && (unit[index].mission->flags & MISSION_FLAG_TARGET_WEAPON)!=MISSION_FLAG_TARGET_WEAPON && !unit_manager.unit_type[target->type_id].HideDamage) {			// Si l'unité a une cible
-						glVertex2i( ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.x1, ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.y1 );
-						glVertex2i( ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.x2, ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.y1 );
-						glVertex2i( ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.x2, ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.y2 );
-						glVertex2i( ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.x1, ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.y2 );
+					if(target && (unit[index].mission->flags & MISSION_FLAG_TARGET_WEAPON)!=MISSION_FLAG_TARGET_WEAPON ) {
+						unit[index].UnLock();
+						target->Lock();
+						if( (target->flags & 1) && target->type_id >= 0 && !unit_manager.unit_type[target->type_id].HideDamage ) {			// Si l'unité a une cible
+							glVertex2i( ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.x1, ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.y1 );
+							glVertex2i( ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.x2, ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.y1 );
+							glVertex2i( ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.x2, ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.y2 );
+							glVertex2i( ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.x1, ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.y2 );
+							}
+						target->UnLock();
+						unit[index].Lock();
 						}
 					else if( unit[index].planned_weapons>0.0f ) {
 						glVertex2i( ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.x1, ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.y1 );
@@ -5052,13 +5084,17 @@ void INGAME_UNITS::complete_menu(int index,bool hide_info,bool hide_bpic)
 					}
 
 				if( unit[index].owner_id == players.local_human_id ) {
-					if(target && (unit[index].mission->flags & MISSION_FLAG_TARGET_WEAPON)!=MISSION_FLAG_TARGET_WEAPON && !unit_manager.unit_type[target->type_id].HideDamage) {			// Si l'unité a une cible
-						if(target->hp>0) {
+					if(target && (unit[index].mission->flags & MISSION_FLAG_TARGET_WEAPON)!=MISSION_FLAG_TARGET_WEAPON ) {
+						unit[index].UnLock();
+						target->Lock();
+						if( (target->flags & 1) && target->type_id >= 0 && !unit_manager.unit_type[target->type_id].HideDamage && target->hp>0) {
 							glVertex2f( ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.x1, ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.y1 );
 							glVertex2f( ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.x1 + target->hp / unit_manager.unit_type[target->type_id].MaxDamage * (ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.x2-ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.x1), ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.y1 );
 							glVertex2f( ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.x1 + target->hp / unit_manager.unit_type[target->type_id].MaxDamage * (ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.x2-ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.x1), ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.y2 );
 							glVertex2f( ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.x1, ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.y2 );
 							}
+						target->UnLock();
+						unit[index].Lock();
 						}
 					else if( unit[index].planned_weapons>0.0f ) {						// construit une arme / build a weapon
 						float p=1.0f-(unit[index].planned_weapons-(int)unit[index].planned_weapons);
@@ -5655,7 +5691,7 @@ void INGAME_UNITS::remove_order(int player_id,VECTOR target)
 	EnterCS();
 	for(uint16 e=0;e<index_list_size;e++) {
 		uint16 i = idx_list[e];
-		if(unit[i].flags!=0 && unit[i].owner_id==player_id && unit[i].sel && unit[i].build_percent_left==0.0f ) {	// && unit_manager.unit_type[unit[i].type_id].Builder) {
+		if( (unit[i].flags & 1) && !unit[i].command_locked && unit[i].owner_id==player_id && unit[i].sel && unit[i].build_percent_left==0.0f ) {	// && unit_manager.unit_type[unit[i].type_id].Builder) {
 			MISSION *mission = unit_manager.unit_type[unit[i].type_id].BMcode ? unit[i].mission : unit[i].def_mission;
 			MISSION *prec = mission;
 			if( mission != NULL && unit_manager.unit_type[unit[i].type_id].BMcode )		mission = mission->next;		// Don't read the first one ( which is being executed )

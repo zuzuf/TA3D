@@ -580,6 +580,8 @@ void UNIT_TYPE::load_dl()
 		if( strcasecmp( ta3d_sidedata.side_name[ i ], side ) == 0 )
 			side_id = i;
 	if( side_id == -1 )		return;
+	try
+	{
 	cTAFileParser dl_parser( ta3d_sidedata.guis_dir + ta3d_sidedata.side_pref[ side_id ] + "dl.gui", false, false, true );
 
 	int NbObj = dl_parser.PullAsInt( "gadget0.totalgadgets" );
@@ -608,38 +610,13 @@ void UNIT_TYPE::load_dl()
 			e++;
 			}
 
-/*	int side_id = -1;
-	for( int i = 0 ; i < ta3d_sidedata.nb_side && side_id == -1 ; i++ )
-		if( strcasecmp( ta3d_sidedata.side_name[ i ], side ) == 0 )
-			side_id = i;
-	if( side_id == -1 )		return;
-	cTAFileParser dl_parser( ta3d_sidedata.guis_dir + ta3d_sidedata.side_pref[ side_id ] + "dl.gui", false, false, true );
-
-	int NbObj = dl_parser.PullAsInt( "gadget0.totalgadgets" );
-
-	int x_offset = dl_parser.PullAsInt( "gadget0.common.xpos" );
-	int y_offset = dl_parser.PullAsInt( "gadget0.common.ypos" );
-
-	dl_num = 0;
-	
-	for( int i = 1 ; i <= NbObj ; i++ )
-		if( dl_parser.PullAsInt( format( "gadget%d.common.attribs", i ) ) == 32 )
-			dl_num++;
-
-	dl_x = (short*) malloc( sizeof(short) * dl_num );
-	dl_y = (short*) malloc( sizeof(short) * dl_num );
-	dl_w = (short*) malloc( sizeof(short) * dl_num );
-	dl_h = (short*) malloc( sizeof(short) * dl_num );
-
-	int e = 0;
-	for( int i = 1 ; i <= NbObj ; i++ )
-		if( dl_parser.PullAsInt( format( "gadget%d.common.attribs", i ) ) == 32 ) {
-			dl_x[e] = dl_parser.PullAsInt( format( "gadget%d.common.xpos", i ) ) + x_offset;
-			dl_y[e] = dl_parser.PullAsInt( format( "gadget%d.common.ypos", i ) ) + y_offset;
-			dl_w[e] = dl_parser.PullAsInt( format( "gadget%d.common.width", i ) );
-			dl_h[e] = dl_parser.PullAsInt( format( "gadget%d.common.height", i ) );
-			e++;
-			}*/
+	}
+	catch(...)
+	{
+		Console->AddEntry("WARNING : *dl.gui file missing!!");
+		delete dl_data;
+		dl_data = NULL;
+	}
 }
 
 inline bool overlaps( int x1, int y1, int w1, int h1, int x2, int y2, int w2, int h2 )

@@ -50,6 +50,10 @@ using namespace TA3D::VARS::CONSTANTS;
 #define TA3D_LANG_ITALIAN		0x4
 #define TA3D_LANG_JAPANESE		0x5
 
+#define EXIT_NONE		0x0
+#define EXIT_VICTORY	0x1
+#define EXIT_DEFEAT		0x2
+
 extern float	player_color[30];
 extern byte		player_color_map[10];
 

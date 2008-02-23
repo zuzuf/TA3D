@@ -429,8 +429,15 @@ int function_create_unit( lua_State *L )		// ta3d_create_unit( player_id, unit_t
 	if( unit_type_id >= 0 && unit_type_id < unit_manager.nb_unit && player_id >= 0 && player_id < NB_PLAYERS ) {
 		units.EnterCS_from_outside();
 		int idx = units.create( unit_type_id, player_id );
-		if( idx >= 0 && idx < units.max_unit && units.unit[ idx ].flags )
+		if( idx >= 0 && idx < units.max_unit && units.unit[ idx ].flags ) {
+			if(unit_manager.unit_type[ unit_type_id ].ActivateWhenBuilt ) {		// Start activated
+				units.unit[ idx ].Lock();
+				units.unit[ idx ].port[ ACTIVATION ] = 0;
+				units.unit[ idx ].activate();
+				units.unit[ idx ].UnLock();
+				}
 			units.unit[ idx ].draw_on_map();
+			}
 		units.LeaveCS_from_outside();
 
 		if( idx >= 0 && idx < units.max_unit && units.unit[ idx ].flags ) {
@@ -632,6 +639,28 @@ int function_set_standing_orders( lua_State *L )		// ta3d_set_standing_orders( u
 			}
 		units.LeaveCS_from_outside();
 		}
+
+	return 0;
+}
+
+int function_lock_orders( lua_State *L )		// ta3d_lock_orders( unit_id )
+{
+	int unit_id = (int) lua_tonumber( L, -1 );
+	lua_pop( L, 1 );
+
+	if( unit_id >= 0 && unit_id < units.max_unit )
+		units.unit[ unit_id ].lock_command();
+
+	return 0;
+}
+
+int function_unlock_orders( lua_State *L )		// ta3d_unlock_orders( unit_id )
+{
+	int unit_id = (int) lua_tonumber( L, -1 );
+	lua_pop( L, 1 );
+
+	if( unit_id >= 0 && unit_id < units.max_unit )
+		units.unit[ unit_id ].unlock_command();
 
 	return 0;
 }
@@ -973,6 +1002,8 @@ void register_functions( lua_State *L )
 	lua_register( L, "ta3d_add_wait_attacked_mission", function_add_wait_attacked_mission );
 	lua_register( L, "ta3d_add_guard_mission", function_add_guard_mission );
 	lua_register( L, "ta3d_set_standing_orders", function_set_standing_orders );
+	lua_register( L, "ta3d_unlock_orders", function_unlock_orders );
+	lua_register( L, "ta3d_lock_orders", function_lock_orders );
 }
 
 void LUA_PROGRAM::load(char *filename, MAP *map)					// Load a lua script
@@ -1230,6 +1261,9 @@ void generate_script_from_mission( String Filename, cTAFileParser *ota_parser, i
 		
 		Vector< String > orders = ReadVectorString( ota_parser->PullAsString( unit_key + ".InitialMission" ), "," );
 
+		bool selectable = false;
+		bool orders_given = false;
+
 		for( int e = 0 ; e < orders.size() ; e++ ) {							// Converts InitialMission to a mission list
 			Vector< String > params = ReadVectorString( orders[ e ], " " );		// Read all the mission parameters
 			if( params.size() == 0 )	continue;
@@ -1253,10 +1287,12 @@ void generate_script_from_mission( String Filename, cTAFileParser *ota_parser, i
 					float pos_z = atof( params[ 2 ].c_str() ) * 0.5f;
 					m_File << format( "ta3d_add_move_mission( unit_id, %f - 0.5 * ta3d_map_w(), %f - 0.5 * ta3d_map_h() )\n", pos_x, pos_z );
 					}
+				orders_given = true;
 				}
 			else if( params[ 0 ] == "a" ) {		// Attack
 				if( params.size() >= 2 )
 					m_File << "ta3d_add_attack_mission( unit_id, " + params[ 1 ] + " )\n";
+				orders_given = true;
 				}
 			else if( params[ 1 ] == "b" ) {		// Build
 				if( params.size() == 3 ) {			// Factories
@@ -1269,6 +1305,7 @@ void generate_script_from_mission( String Filename, cTAFileParser *ota_parser, i
 					float pos_z = atof( params[ 3 ].c_str() ) * 0.5f;
 					m_File << format( "ta3d_add_build_mission( unit_id, %f - 0.5 * ta3d_map_w(), %f - 0.5 * ta3d_map_h(), ", pos_x, pos_z ) + params[ 1 ] + " )\n";
 					}
+				orders_given = true;
 				}
 			else if( params[ 0 ] == "d" )		// Destroy
 				m_File << "ta3d_kill_unit( unit_id )\n";
@@ -1280,28 +1317,37 @@ void generate_script_from_mission( String Filename, cTAFileParser *ota_parser, i
 					m_File << format( "ta3d_add_patrol_mission( unit_id, %f - 0.5 * ta3d_map_w(), %f - 0.5 * ta3d_map_h() )\n", pos_x, pos_z );
 					e++;
 					}
+				orders_given = true;
 				}
 			else if( params[ 0 ] == "w" ) {		// Wait
 				if( params.size() >= 2 ) {
 					float time = atof( params[ 1 ].c_str() );
 					m_File << format( "ta3d_add_wait_mission( unit_id, %f )\n", time );
 					}
+				orders_given = true;
 				}
 			else if( params[ 0 ] == "wa" ) {		// Wait attacked
 				if( params.size() >= 2 )
 					m_File << "ta3d_add_wait_mission( unit_id, " + params[ 1 ] + " )\n";
 				else
 					m_File << "ta3d_add_wait_mission( unit_id, unit_id )\n";
+				orders_given = true;
 				}
 			else if( params[ 0 ] == "g" ) {		// Guard
 				if( params.size() >= 2 )
 					m_File << "ta3d_add_guard_mission( unit_id, " + params[ 1 ] + " )\n";
+				orders_given = true;
 				}
 			else if( params[ 0 ] == "o" ) {		// Set standing orders
 				if( params.size() >= 3 )
 					m_File << "ta3d_set_standing_orders( unit_id, " << params[ 1 ] << ", " << params[ 2 ] << " )\n";
 				}
+			else if( params[ 0 ] == "s" )		// Make it selectable
+				selectable = true;
 			}
+		
+		if( !selectable && orders_given )
+			m_File << "ta3d_lock_orders( unit_id )\n";
 		
 		i++;
 		}
