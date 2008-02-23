@@ -482,6 +482,160 @@ int function_set_unit_health( lua_State *L )		// ta3d_set_unit_health( unit_id, 
 	return 0;
 }
 
+int function_add_build_mission( lua_State *L )		// ta3d_add_build_mission( unit_id, pos_x, pos_z, unit_type )
+{
+	int unit_id = (int) lua_tonumber( L, -4 );
+	float pos_x = (float) lua_tonumber( L, -3 );
+	float pos_z = (float) lua_tonumber( L, -2 );
+	int unit_type_id = lua_isstring( L, -1 ) ? unit_manager.get_unit_index( lua_tostring( L, -1 ) ) : (int) lua_tonumber( L, -1 ) ;
+	lua_pop( L, 4 );
+
+	if( unit_id >= 0 && unit_id < units.max_unit && unit_type_id >= 0 && unit_manager.unit_type[ unit_type_id ].Builder ) {
+		VECTOR target;
+		target.x=((int)(pos_x)+lua_map->map_w_d)>>3;
+		target.z=((int)(pos_z)+lua_map->map_h_d)>>3;
+		target.y=max(lua_map->get_max_rect_h((int)target.x,(int)target.z, unit_manager.unit_type[ unit_type_id ].FootprintX, unit_manager.unit_type[ unit_type_id ].FootprintZ ),lua_map->sealvl);
+		target.x=target.x*8.0f-lua_map->map_w_d;
+		target.z=target.z*8.0f-lua_map->map_h_d;
+
+		units.EnterCS_from_outside();
+		if( units.unit[ unit_id ].flags )
+			units.unit[ unit_id ].add_mission(MISSION_BUILD,&target,false,unit_type_id);
+		units.LeaveCS_from_outside();
+		}
+
+	return 0;
+}
+
+int function_add_move_mission( lua_State *L )		// ta3d_add_move_mission( unit_id, pos_x, pos_z )
+{
+	int unit_id = (int) lua_tonumber( L, -3 );
+	float pos_x = (float) lua_tonumber( L, -2 );
+	float pos_z = (float) lua_tonumber( L, -1 );
+	lua_pop( L, 3 );
+
+	if( unit_id >= 0 && unit_id < units.max_unit ) {
+		VECTOR target;
+		target.x = pos_x;
+		target.y = lua_map->get_unit_h( pos_x, pos_z );
+		target.z = pos_z;
+
+		units.EnterCS_from_outside();
+		if( units.unit[ unit_id ].flags )
+			units.unit[ unit_id ].add_mission(MISSION_MOVE,&target,false,0);
+		units.LeaveCS_from_outside();
+		}
+
+	return 0;
+}
+
+int function_add_attack_mission( lua_State *L )		// ta3d_add_attack_mission( unit_id, target_id )
+{
+	int unit_id = (int) lua_tonumber( L, -2 );
+	int target_id = (int) lua_tonumber( L, -1 );
+	lua_pop( L, 2 );
+
+	if( unit_id >= 0 && unit_id < units.max_unit && target_id >= 0 && target_id < units.max_unit ) {
+		VECTOR target = units.unit[ target_id ].Pos;
+
+		units.EnterCS_from_outside();
+		if( units.unit[ unit_id ].flags )
+			units.unit[ unit_id ].add_mission(MISSION_ATTACK,&(target),false,0,&(units.unit[target_id]),NULL,MISSION_FLAG_COMMAND_FIRE );
+		units.LeaveCS_from_outside();
+		}
+
+	return 0;
+}
+
+int function_add_patrol_mission( lua_State *L )		// ta3d_add_patrol_mission( unit_id, pos_x, pos_z )
+{
+	int unit_id = (int) lua_tonumber( L, -3 );
+	float pos_x = (float) lua_tonumber( L, -2 );
+	float pos_z = (float) lua_tonumber( L, -1 );
+	lua_pop( L, 3 );
+
+	if( unit_id >= 0 && unit_id < units.max_unit ) {
+		VECTOR target;
+		target.x = pos_x;
+		target.y = lua_map->get_unit_h( pos_x, pos_z );
+		target.z = pos_z;
+
+		units.EnterCS_from_outside();
+		if( units.unit[ unit_id ].flags )
+			units.unit[ unit_id ].add_mission(MISSION_PATROL,&target,false,0);
+		units.LeaveCS_from_outside();
+		}
+
+	return 0;
+}
+
+int function_add_wait_mission( lua_State *L )		// ta3d_add_wait_mission( unit_id, time )
+{
+	int unit_id = (int) lua_tonumber( L, -2 );
+	float time = (float) lua_tonumber( L, -1 );
+	lua_pop( L, 2 );
+
+	if( unit_id >= 0 && unit_id < units.max_unit ) {
+		units.EnterCS_from_outside();
+		if( units.unit[ unit_id ].flags )
+			units.unit[ unit_id ].add_mission(MISSION_WAIT,NULL,false,(int)(time * 1000));
+		units.LeaveCS_from_outside();
+		}
+
+	return 0;
+}
+
+int function_add_wait_attacked_mission( lua_State *L )		// ta3d_add_wait_attacked_mission( unit_id, target_id )
+{
+	int unit_id = (int) lua_tonumber( L, -2 );
+	int target_id = (int) lua_tonumber( L, -1 );
+	lua_pop( L, 2 );
+
+	if( unit_id >= 0 && unit_id < units.max_unit && target_id >= 0 && target_id < units.max_unit ) {
+		units.EnterCS_from_outside();
+		if( units.unit[ unit_id ].flags )
+			units.unit[ unit_id ].add_mission(MISSION_WAIT_ATTACKED,NULL,false,target_id);
+		units.LeaveCS_from_outside();
+		}
+
+	return 0;
+}
+
+int function_add_guard_mission( lua_State *L )		// ta3d_add_guard_mission( unit_id, target_id )
+{
+	int unit_id = (int) lua_tonumber( L, -2 );
+	int target_id = (int) lua_tonumber( L, -1 );
+	lua_pop( L, 2 );
+
+	if( unit_id >= 0 && unit_id < units.max_unit && target_id >= 0 && target_id < units.max_unit ) {
+		units.EnterCS_from_outside();
+		if( units.unit[ unit_id ].flags )
+			units.unit[ unit_id ].add_mission(MISSION_GUARD,&units.unit[ target_id ].Pos,false,0,&(units.unit[ target_id ]),NULL);
+		units.LeaveCS_from_outside();
+		}
+
+	return 0;
+}
+
+int function_set_standing_orders( lua_State *L )		// ta3d_set_standing_orders( unit_id, move_order, fire_order )
+{
+	int unit_id = (int) lua_tonumber( L, -3 );
+	int move_order = (int) lua_tonumber( L, -2 );
+	int fire_order = (int) lua_tonumber( L, -1 );
+	lua_pop( L, 3 );
+
+	if( unit_id >= 0 && unit_id < units.max_unit ) {
+		units.EnterCS_from_outside();
+		if( units.unit[ unit_id ].flags ) {
+			units.unit[ unit_id ].port[ STANDINGMOVEORDERS ] = move_order;
+			units.unit[ unit_id ].port[ STANDINGFIREORDERS ] = fire_order;
+			}
+		units.LeaveCS_from_outside();
+		}
+
+	return 0;
+}
+
 int function_get_unit_health( lua_State *L )		// ta3d_get_unit_health( unit_id )
 {
 	int unit_id = (int) lua_tonumber( L, -1 );
@@ -811,6 +965,14 @@ void register_functions( lua_State *L )
 	lua_register( L, "ta3d_set_unit_health", function_set_unit_health );
 	lua_register( L, "ta3d_get_unit_health", function_get_unit_health );
 	lua_register( L, "ta3d_is_unit_of_type", function_is_unit_of_type );
+	lua_register( L, "ta3d_add_build_mission", function_add_build_mission );
+	lua_register( L, "ta3d_add_move_mission", function_add_move_mission );
+	lua_register( L, "ta3d_add_attack_mission", function_add_attack_mission );
+	lua_register( L, "ta3d_add_patrol_mission", function_add_patrol_mission );
+	lua_register( L, "ta3d_add_wait_mission", function_add_wait_mission );
+	lua_register( L, "ta3d_add_wait_attacked_mission", function_add_wait_attacked_mission );
+	lua_register( L, "ta3d_add_guard_mission", function_add_guard_mission );
+	lua_register( L, "ta3d_set_standing_orders", function_set_standing_orders );
 }
 
 void LUA_PROGRAM::load(char *filename, MAP *map)					// Load a lua script
@@ -1063,6 +1225,83 @@ void generate_script_from_mission( String Filename, cTAFileParser *ota_parser, i
 		String Ident = ota_parser->PullAsString( unit_key + ".Ident" );
 		if( !Ident.empty() )
 			m_File << Ident << " = unit_id\n";		// Links the unit_id to the given name
+
+		m_File << unit_name << " = unit_id\n";		// Links the unit_id to the given unit_name so it can be used as an identifier
+		
+		Vector< String > orders = ReadVectorString( ota_parser->PullAsString( unit_key + ".InitialMission" ), "," );
+
+		for( int e = 0 ; e < orders.size() ; e++ ) {							// Converts InitialMission to a mission list
+			Vector< String > params = ReadVectorString( orders[ e ], " " );		// Read all the mission parameters
+			if( params.size() == 0 )	continue;
+			
+			params[ 0 ] = Lowercase( params[ 0 ] );
+			
+			if( params[ 0 ][ 0 ] == 'p' && params[ 0 ].size() > 1 ) {			// something like p3000 2000, convert it to p 3000 2000
+				params.resize( params.size() + 1 );
+				for( int i = params.size() - 1 ; i > 0 ; i++ )
+					if( i == 1 ) {
+						params[ 1 ] = params[ 0 ].substr( 1, params[ 0 ].size() - 1 );
+						params[ 0 ] = params[ 0 ][ 0 ];
+						}
+					else
+						params[ i ] = params[ i - 1 ];
+				}
+
+			if( params[ 0 ] == "m" ) {			// Move
+				if( params.size() >= 3 ) {
+					float pos_x = atof( params[ 1 ].c_str() ) * 0.5f;
+					float pos_z = atof( params[ 2 ].c_str() ) * 0.5f;
+					m_File << format( "ta3d_add_move_mission( unit_id, %f - 0.5 * ta3d_map_w(), %f - 0.5 * ta3d_map_h() )\n", pos_x, pos_z );
+					}
+				}
+			else if( params[ 0 ] == "a" ) {		// Attack
+				if( params.size() >= 2 )
+					m_File << "ta3d_add_attack_mission( unit_id, " + params[ 1 ] + " )\n";
+				}
+			else if( params[ 1 ] == "b" ) {		// Build
+				if( params.size() == 3 ) {			// Factories
+					m_File << "for i = 1, " + params[ 2 ] + " do\n";
+					m_File << "	ta3d_add_build_mission( unit_id, unit_x( unit_id ), unit_z( unit_id ), " + params[ 1 ] + " )\n";
+					m_File << "end\n";
+					}
+				else if( params.size() == 4 ) {		// Mobile builders
+					float pos_x = atof( params[ 2 ].c_str() ) * 0.5f;
+					float pos_z = atof( params[ 3 ].c_str() ) * 0.5f;
+					m_File << format( "ta3d_add_build_mission( unit_id, %f - 0.5 * ta3d_map_w(), %f - 0.5 * ta3d_map_h(), ", pos_x, pos_z ) + params[ 1 ] + " )\n";
+					}
+				}
+			else if( params[ 0 ] == "d" )		// Destroy
+				m_File << "ta3d_kill_unit( unit_id )\n";
+			else if( params[ 0 ] == "p" ) {		// Patrol
+				int e = 0;
+				while( params.size() >= 3 + e * 2 ) {
+					float pos_x = atof( params[ 2 * e + 1 ].c_str() ) * 0.5f;
+					float pos_z = atof( params[ 2 * e + 2 ].c_str() ) * 0.5f;
+					m_File << format( "ta3d_add_patrol_mission( unit_id, %f - 0.5 * ta3d_map_w(), %f - 0.5 * ta3d_map_h() )\n", pos_x, pos_z );
+					e++;
+					}
+				}
+			else if( params[ 0 ] == "w" ) {		// Wait
+				if( params.size() >= 2 ) {
+					float time = atof( params[ 1 ].c_str() );
+					m_File << format( "ta3d_add_wait_mission( unit_id, %f )\n", time );
+					}
+				}
+			else if( params[ 0 ] == "wa" ) {		// Wait attacked
+				if( params.size() >= 2 )
+					m_File << "ta3d_add_wait_mission( unit_id, " + params[ 1 ] + " )\n";
+				else
+					m_File << "ta3d_add_wait_mission( unit_id, unit_id )\n";
+				}
+			else if( params[ 0 ] == "g" ) {		// Guard
+				if( params.size() >= 2 )
+					m_File << "ta3d_add_guard_mission( unit_id, " + params[ 1 ] + " )\n";
+				}
+			else if( params[ 0 ] == "o" ) {		// Set standing orders
+				if( params.size() >= 3 )
+					m_File << "ta3d_set_standing_orders( unit_id, " << params[ 1 ] << ", " << params[ 2 ] << " )\n";
+				}
+			}
 		
 		i++;
 		}
@@ -1091,6 +1330,22 @@ void generate_script_from_mission( String Filename, cTAFileParser *ota_parser, i
 	if( !ota_parser->PullAsString( "GlobalHeader.AllUnitsKilledOfType" ).empty() ) {
 		m_File << "	if not ta3d_has_unit( 0, \"" << ota_parser->PullAsString( "GlobalHeader.AllUnitsKilledOfType" ) << "\" ) then\n";
 		m_File << "		ta3d_print( 288, 236, \"DEFEAT\" )\n		timer = ta3d_time()\n		end_signal = SIGNAL_DEFEAT\n";
+		m_File << "	end\n";
+		}
+
+	if( ota_parser->PullAsInt( "GlobalHeader.DestroyAllUnits" ) == 1 ) {
+		m_File << "	annihilated = 0\n";
+		m_File << "	for i = 1, ta3d_nb_players() do\n";
+		m_File << "		if ta3d_annihilated( i ) then\n";
+		m_File << "			annihilated = annihilated + 1\n";
+		m_File << "		end\n";
+		m_File << "	end\n";
+		m_File << "	if annihilated == ta3d_nb_players() - 1 then\n";
+		m_File << "		ta3d_play( \"VICTORY2\" )\n";
+		m_File << "		ta3d_draw_image( \"gfx/victory.tga\", 160, 140, 480, 340 )\n";
+		m_File << "		timer = ta3d_time()\n";
+		m_File << "		end_signal = SIGNAL_VICTORY\n";
+		m_File << "		return 0\n";
 		m_File << "	end\n";
 		}
 

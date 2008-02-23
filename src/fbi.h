@@ -82,6 +82,10 @@
 #define MISSION_CAPTURE			0x10		// Capture an enemy unit
 #define MISSION_GET_REPAIRED	0x20		// For aircrafts getting repaired by air repair pads
 
+	// Specific campaign missions
+#define MISSION_WAIT			0x21		// Wait for a specified time
+#define MISSION_WAIT_ATTACKED	0x22		// Wait until a specified unit is attacked
+
 using namespace TA3D;
 using namespace TA3D::INTERFACES;
 

@@ -37,7 +37,7 @@ CXXFLAGS="$CXXFLAGS -I/usr/i586-mingw32msvc/include"],
 [
 make -C "src/lua/" clean
 make -C "src/lua/" linux
-LIBS="$LIBS $allegro_LIBS -lagl -L./lua/ -llua"
+LIBS="$LIBS -lagl -L./lua/ -llua $allegro_LIBS"
 CXXFLAGS="$CXXFLAGS $allegro_CFLAGS"])
 
 CXXFLAGS="$CXXFLAGS -ffast-math -mmmx"

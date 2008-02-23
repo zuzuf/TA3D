@@ -1782,7 +1782,7 @@ void brief_screen( String campaign_name, int mission_id )
 		else if( planet_file == "lush" )				planet_file = "anims\\lushbrief.gaf";
 		else if( planet_file == "ice" )					planet_file = "anims\\icebrief.gaf";
 		else if( planet_file == "slate" )				planet_file = "anims\\slatebrief.gaf";
-		else if( planet_file == "water" )				planet_file = "anims\\waterbrief.gaf";
+		else if( planet_file == "water world" )			planet_file = "anims\\waterbrief.gaf";
 
 		byte *data = HPIManager->PullFromHPI( planet_file );
 		if( data ) {
@@ -1790,6 +1790,18 @@ void brief_screen( String campaign_name, int mission_id )
 			free( data );
 			}
 	}
+
+	int schema = 0;
+
+	if( brief_area.get_object( "brief.schema" ) ) {
+		GUIOBJ *obj = brief_area.get_object( "brief.schema" );
+		obj->Text.clear();
+		obj->Text.resize( ota_parser.PullAsInt( "GlobalHeader.SCHEMACOUNT" ) + 1 );
+		for( int i = 0 ; i < obj->Text.size() - 1 ; i++ )
+			obj->Text[ i + 1 ] = ota_parser.PullAsString( format( "GlobalHeader.Schema %d.Type", i ) );
+		if( obj->Text.size() > 1 )
+			obj->Text[ 0 ] = obj->Text[ 1 ];
+		}
 
 	sound_manager->PlaySoundFileNow( narration_file );
 
@@ -1836,6 +1848,14 @@ void brief_screen( String campaign_name, int mission_id )
 		amb = mouse_b;
 
 		planet_frame = (msec_timer - time_ref) * 0.01f;
+
+		if( brief_area.get_state( "brief.schema" ) ) {
+			GUIOBJ *obj = brief_area.get_object( "brief.schema" );
+			if( obj->Data != -1 ) {
+				obj->Text[ 0 ] = obj->Text[ obj->Data + 1 ];
+				schema = obj->Data;
+				}
+			}
 
 		if( brief_area.get_state( "brief.info" ) )
 			brief_area.get_object( "brief.info" )->Pos++;
@@ -1898,17 +1918,17 @@ void brief_screen( String campaign_name, int mission_id )
 	while(key[KEY_ESC]) {	rest(1);	poll_keyboard();	}
 
 	if(start_game) {					// Open the briefing screen and start playing the campaign
-		int schema = 0;
-
 		GAME_DATA game_data;
 
 		generate_script_from_mission( "scripts/__campaign_script.lua", &ota_parser, schema );	// Generate the script which will be removed later
 
 		game_data.game_script = strdup( "scripts/__campaign_script.lua" );
 		game_data.map_filename = strdup( ( map_filename.substr( 0, map_filename.size() - 3 ) + "tnt" ).c_str() );		// Remember the last map we played
-		game_data.fog_of_war = FOW_ALL;
+		game_data.fog_of_war = 0;//FOW_ALL;
 
-		game_data.nb_players = ota_parser.PullAsInt( "GlobalHeader.numplayers" );
+		game_data.nb_players = ota_parser.PullAsInt( "GlobalHeader.numplayers", 2 );
+		if( game_data.nb_players == 0 )				// Yes it can happen !!
+			game_data.nb_players = 2;
 
 		game_data.player_control[ 0 ] = PLAYER_CONTROL_LOCAL_HUMAN;
 		game_data.player_names[ 0 ] = brief_parser.PullAsString( "HEADER.campaignside" );

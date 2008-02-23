@@ -8,7 +8,7 @@
 	height=1024;
 	draw borders=false;
 	show title=false;
-	number of objects=6;
+	number of objects=7;
 	hidden=false;
 	lock=true;
 	color=0x00000000;			// Fully transparent so we can see the AREA background
@@ -74,5 +74,16 @@
 		x2=1176;
 		y2=876;
 		size=1.8;
+	}
+	[object6]			// the scheam (difficulty level) to use
+	{
+		name=schema;
+		type=MENU;
+		x1=975;
+		y1=75;
+		x2=1155;
+		y2=115;
+		size=1.8;
+		Entry=;
 	}
 }

@@ -529,7 +529,7 @@ s,@DEFS@,|#_!!_#|-DHAVE_CONFIG_H,g
 s,@ECHO_C@,|#_!!_#|,g
 s,@ECHO_N@,|#_!!_#|-n,g
 s,@ECHO_T@,|#_!!_#|,g
-s,@LIBS@,|#_!!_#|-lfmodex64 -lz -lGLU -lGL  -L/usr/local/lib -Wl\,--export-dynamic -lalleg-4.2.2 -lalleg_unsharable -lagl -L./lua/ -llua,g
+s,@LIBS@,|#_!!_#|-lfmodex64 -lz -lGLU -lGL  -lagl -L./lua/ -llua -L/usr/local/lib -Wl\,--export-dynamic -lalleg-4.2.2 -lalleg_unsharable,g
 s,@build_alias@,|#_!!_#|,g
 s,@host_alias@,|#_!!_#|,g
 s,@target_alias@,|#_!!_#|,g

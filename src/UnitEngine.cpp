@@ -2802,6 +2802,17 @@ bool UNIT::is_on_radar( byte p_mask )
 
 				switch(mission->mission)						// Commandes générales / General orders
 				{
+				case MISSION_WAIT:					// Wait for a specified time (campaign)
+					mission->flags = 0;			// Don't move, do not shoot !! just wait
+					if( mission->time >= mission->data * 0.001f )	// Done :)
+						next_mission();
+					break;
+				case MISSION_WAIT_ATTACKED:			// Wait until a specified unit is attacked (campaign)
+					if( mission->data < 0 || mission->data >= units.max_unit || !(units.unit[ mission->data ].flags & 1) )
+						next_mission();
+					else if( units.unit[ mission->data ].attacked )
+						next_mission();
+					break;
 				case MISSION_GET_REPAIRED:
 					if( mission->p && (((UNIT*)mission->p)->flags & 1) ) {
 						UNIT *target_unit = (UNIT*) mission->p;
