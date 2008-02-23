@@ -572,6 +572,8 @@ void cHPIHandler::PutInCache( const String &FileName, uint32 FileSize, byte *dat
 
 byte *cHPIHandler::IsInDiskCache( const String &FileName, uint32 *p_FileSize )
 {
+	if( SearchString( FileName, ".lua", true ) >= 0 )	return NULL;	// May be in cache but doesn't use cache (ie: campaign script)
+	
 	String cacheable_filename = Lowercase( FileName );
 
 	for( int i = 0 ; i < cacheable_filename.size() ; i++ )

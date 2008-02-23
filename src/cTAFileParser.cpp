@@ -62,6 +62,10 @@ namespace TA3D
 						m_cKey = format("gadget%d", gadget_mode );
 						gadget_mode++;
 						changed = true;
+						if( !m_bKeysCaseSenstive )
+							InsertOrUpdate( m_cKey, Lowercase( Line.substr( 1, i-2 ) ) );		// Link the key with its original name
+						else
+							InsertOrUpdate( m_cKey, Line.substr( 1, i-2 ) );		// Link the key with its original name
 						}
 
 					key_level.push_front( m_cKey );

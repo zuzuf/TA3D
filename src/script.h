@@ -167,4 +167,6 @@ public:
 	int run(MAP *map,float dt,int viewer_id);					// Execute le script
 };
 
+void generate_script_from_mission( String Filename, cTAFileParser *ota_parser, int schema = 0 );
+
 #endif

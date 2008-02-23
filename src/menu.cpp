@@ -38,6 +38,8 @@
 #include "gui.h"
 #include "taconfig.h"
 
+void generate_script_from_mission( String Filename, cTAFileParser *ota_parser, int schema = 0 );	// To access the script generator in the 'script' module
+
 using namespace TA3D::EXCEPTION;
 
 #define p_size			10.0f
@@ -1743,9 +1745,20 @@ void brief_screen( String campaign_name, int mission_id )
 	cTAFileParser	ota_parser( map_filename );
 
 	String narration_file = "camps\\briefs\\" + ota_parser.PullAsString( "GlobalHeader.narration" ) + ".wav";		// The narration file
-	String brief_file = "camps\\briefs\\" + ota_parser.PullAsString( "GlobalHeader.brief" ) + ".txt";				// The brief file
+	String language_suffix = "";
+	switch( LANG )
+	{
+	case TA3D_LANG_ENGLISH:	language_suffix = "";			break;
+	case TA3D_LANG_FRENCH:	language_suffix = "-french";	break;
+	case TA3D_LANG_GERMAN:	language_suffix = "-german";	break;
+	case TA3D_LANG_SPANISH:	language_suffix = "-spanish";	break;
+	case TA3D_LANG_ITALIAN:	language_suffix = "-italian";	break;
+	};
+	String brief_file = "camps\\briefs" + language_suffix + "\\" + ota_parser.PullAsString( "GlobalHeader.brief" ) + ".txt";				// The brief file
 
 	{
+		if( !HPIManager->Exists( brief_file ) )			// try without the suffix if we cannot find it
+			brief_file = "camps\\briefs\\" + ota_parser.PullAsString( "GlobalHeader.brief" ) + ".txt";
 		byte *data = HPIManager->PullFromHPI( brief_file );
 		if( data ) {
 			String brief_info = (const char*)data;
@@ -1889,7 +1902,9 @@ void brief_screen( String campaign_name, int mission_id )
 
 		GAME_DATA game_data;
 
-		game_data.game_script = strdup( "scripts\\default.lua" );
+		generate_script_from_mission( "scripts/__campaign_script.lua", &ota_parser, schema );	// Generate the script which will be removed later
+
+		game_data.game_script = strdup( "scripts/__campaign_script.lua" );
 		game_data.map_filename = strdup( ( map_filename.substr( 0, map_filename.size() - 3 ) + "tnt" ).c_str() );		// Remember the last map we played
 		game_data.fog_of_war = FOW_ALL;
 
@@ -1916,6 +1931,11 @@ void brief_screen( String campaign_name, int mission_id )
 			}
 
 		game_data.campaign = true;
+		game_data.use_only = (char*)ota_parser.PullAsString( "GlobalHeader.useonlyunits" ).c_str();
+		if( strlen( game_data.use_only ) == 0 )
+			game_data.use_only = NULL;
+		else
+			game_data.use_only = strdup( ("camps\\useonly\\" + String( game_data.use_only )).c_str() );
 
 		gfx->unset_2D_mode();
 		GuardStart( play );

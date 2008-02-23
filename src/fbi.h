@@ -257,6 +257,8 @@ public:
 
 /*-----------------------------------------------------------------------*/
 
+	bool	not_used;			// Do we have the right to use this unit ? (campaign mode)
+
 	#define SWAP( a, b ) { sint32 tmp = a; a = b; b = tmp; }
 
 	void AddUnitBuild(int index, int px, int py, int pw, int ph, int p, GLuint Pic = 0 );
@@ -281,6 +283,8 @@ public:
 
 	inline void init()
 	{
+		not_used = false;
+
 		commander = false;
 
 		selfdestructcountdown = 5;

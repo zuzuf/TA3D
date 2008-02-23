@@ -335,10 +335,6 @@ void MAP_OTA::load(char *data,int ota_size)
 		else if(f=strstr(ligne,"destroyallunits=")) {}
 		else if(f=strstr(ligne,"allunitskilled=")) {}
 		else if(f=strstr(ligne,"featurename=")) {}
-		else {
-			if(strlen(ligne)>1 && strstr(ligne,"{")==NULL && strstr(ligne,"}")==NULL && strstr(ligne,"[")==NULL)
-				Console->AddEntry("(OTA) inconnu: %s",ligne);
-			}
 
 	} while(nb<1000 && pos<limit);
 	delete[] ligne;

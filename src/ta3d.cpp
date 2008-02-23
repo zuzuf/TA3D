@@ -130,6 +130,22 @@ if( players.local_human_id >= 0 ) {
 
 units.init( true );
 
+if( game_data->use_only ) {			// We are told not to use all units !!
+	cTAFileParser useonly_parser( game_data->use_only, false, false, true );		// In gadgets mode so we can read the special key :)
+	int i = 0;
+	for( ; i < unit_manager.nb_unit ; i++ )
+		unit_manager.unit_type[ i ].not_used = true;
+	String unit_name = "";
+	i = 0;
+	while( !(unit_name = useonly_parser.PullAsString( format( "gadget%d", i ) ) ).empty() ) {
+		int idx = unit_manager.get_unit_index( unit_name.c_str() );
+		if( idx >= 0 )
+			unit_manager.unit_type[ idx ].not_used = false;
+		
+		i++;
+		}
+	}
+
 Console->AddEntry("Loading GUI");
 loading(550.0f/7.0f,TRANSLATE("Loading GUI"));
 //-------------------	Code related to the GUI		--------------------------

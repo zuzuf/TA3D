@@ -842,25 +842,29 @@ int UNIT_MANAGER::unit_build_menu(int index,int omb,float &dt, bool GUI)				// A
 		int py = unit_type[index].Pic_y[ i ];
 		int pw = unit_type[index].Pic_w[ i ];
 		int ph = unit_type[index].Pic_h[ i ];
-//		if(unit_type[index].BuildList[i]==-1)					// Weapon construction!
+		bool unused = unit_type[index].BuildList[i] >= 0 && unit_type[unit_type[index].BuildList[i]].not_used;
+		if( unused )
+			glColor4f(0.3f,0.3f,0.3f,1.0f);			// Make it darker
+		else
+			glColor4f(1.0f,1.0f,1.0f,1.0f);
+
 		if(unit_type[index].PicList[i])							// If a texture is given use it
 			gfx->drawtexture(unit_type[index].PicList[i],px,py,px+pw,py+ph);
 		else
 			gfx->drawtexture(unit_type[unit_type[index].BuildList[i]].glpic,px,py,px+pw,py+ph);
 
-		if(mouse_x>=px && mouse_x<px+pw && mouse_y>=py && mouse_y<py+ph) {
+		if(mouse_x>=px && mouse_x<px+pw && mouse_y>=py && mouse_y<py+ph && !unused) {
 			glEnable(GL_BLEND);
 			glBlendFunc(GL_SRC_ALPHA,GL_ONE);
 			glColor4f(1.0f,1.0f,1.0f,0.75f);
-//			if(unit_type[index].BuildList[i]==-1)					// Weapon construction!
 			if(unit_type[index].PicList[i])							// If a texture is given use it
 				gfx->drawtexture(unit_type[index].PicList[i],px,py,px+pw,py+ph);
 			else
 				gfx->drawtexture(unit_type[unit_type[index].BuildList[i]].glpic,px,py,px+pw,py+ph);
 			glDisable(GL_BLEND);
-			sel=unit_type[index].BuildList[i];
-			if(sel==-1)
-				sel=-2;
+			sel = unit_type[index].BuildList[i];
+			if(sel == -1)
+				sel = -2;
 			}
 
 		if( ( unit_type[index].BuildList[i] == unit_type[index].last_click

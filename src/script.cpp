@@ -320,6 +320,21 @@ int function_has_unit( lua_State *L )		// ta3d_has_unit( player_id, unit_type_id
 	return 1;
 }
 
+int function_is_unit_of_type( lua_State *L )		// ta3d_is_unit_of_type( unit_id, unit_type_id )
+{
+	int unit_id = (int) lua_tonumber( L, -2 );
+	if( unit_id >= 0 && unit_id < units.max_unit ) {
+		int unit_type = lua_isstring( L, -1 ) ? unit_manager.get_unit_index( lua_tostring( L, -1 ) ) : (int) lua_tonumber( L, -1 ) ;
+		lua_pop( L, 2 );
+		lua_pushboolean( L, (units.unit[unit_id].flags & 1) && units.unit[unit_id].type_id == unit_type );
+		}
+	else {
+		lua_pop( L, 2 );
+		lua_pushboolean( L, false );
+		}
+	return 1;
+}
+
 int function_move_unit( lua_State *L )		// ta3d_move_unit( unit_id, x, z )
 {
 	int unit_id = (int) lua_tonumber( L, -3 );
@@ -445,6 +460,39 @@ int function_change_unit_owner( lua_State *L )		// ta3d_change_unit_owner( unit_
 	if( unit_id >= 0 && unit_id < units.max_unit && player_id >= 0 && player_id < NB_PLAYERS && units.unit[ unit_id ].flags ) {
 		units.EnterCS_from_outside();
 		units.unit[ unit_id ].owner_id = player_id;
+		units.LeaveCS_from_outside();
+		}
+
+	return 0;
+}
+
+int function_set_unit_health( lua_State *L )		// ta3d_set_unit_health( unit_id, health_percentage )
+{
+	float health = (float) lua_tonumber( L, -1 ) * 0.01f;
+	int unit_id = (int) lua_tonumber( L, -2 );
+	lua_pop( L, 2 );
+
+	if( unit_id >= 0 && unit_id < units.max_unit ) {
+		units.EnterCS_from_outside();
+		if( units.unit[ unit_id ].flags )
+			units.unit[ unit_id ].hp = health * unit_manager.unit_type[ units.unit[ unit_id ].type_id ].MaxDamage;
+		units.LeaveCS_from_outside();
+		}
+
+	return 0;
+}
+
+int function_get_unit_health( lua_State *L )		// ta3d_get_unit_health( unit_id )
+{
+	int unit_id = (int) lua_tonumber( L, -1 );
+	lua_pop( L, 1 );
+
+	if( unit_id >= 0 && unit_id < units.max_unit ) {
+		units.EnterCS_from_outside();
+		if( units.unit[ unit_id ].flags )
+			lua_pushnumber( L, units.unit[ unit_id ].hp * 100.0f / unit_manager.unit_type[ units.unit[ unit_id ].type_id ].MaxDamage );
+		else
+			lua_pushnumber( L, 0 );
 		units.LeaveCS_from_outside();
 		}
 
@@ -760,6 +808,9 @@ void register_functions( lua_State *L )
 	lua_register( L, "ta3d_attack", function_attack );
 	lua_register( L, "ta3d_wait", function_wait );
 	lua_register( L, "ta3d_sleep", function_sleep );
+	lua_register( L, "ta3d_set_unit_health", function_set_unit_health );
+	lua_register( L, "ta3d_get_unit_health", function_get_unit_health );
+	lua_register( L, "ta3d_is_unit_of_type", function_is_unit_of_type );
 }
 
 void LUA_PROGRAM::load(char *filename, MAP *map)					// Load a lua script
@@ -830,8 +881,10 @@ void LUA_PROGRAM::load(char *filename, MAP *map)					// Load a lua script
 		else
 			running = true;
 		}
-	else
+	else {
+		Console->AddEntry("failed opening '%s'", filename );
 		running = false;
+		}
 }
 
 int LUA_PROGRAM::run(MAP *map,float dt,int viewer_id)									// Execute le script
@@ -972,5 +1025,106 @@ void DRAW_LIST::draw(GFX_FONT &fnt)
 	glPopMatrix();
 	if(next)
 		next->draw(fnt);
+}
+
+// Create the script that will do what the mission description .ota file tells us to do
+void generate_script_from_mission( String Filename, cTAFileParser *ota_parser, int schema )
+{
+	std::ofstream   m_File;
+
+	m_File.open( Filename.c_str(), std::ios::out | std::ios::trunc );
+
+	if( !m_File.is_open() )	{
+		Console->AddEntry("ERROR : could not open file '%s' (%s, %d)", Filename.c_str(), __FILE__, __LINE__ );
+		return;
+		}
+
+	m_File << "#include \"signals.h\"\n";
+
+	m_File << "\nta3d_clf()\nta3d_init_res()\n";
+
+	m_File << "ta3d_set_cam_pos( 0, ta3d_start_x( 0 ), ta3d_start_z( 0 ) )\n";
+
+	int i = 0;
+	String unit_name = "";
+
+	while( !(unit_name = ota_parser->PullAsString( format( "GlobalHeader.Schema %d.units.unit%d.Unitname", schema, i ) ) ).empty() ) {
+		String unit_key = format( "GlobalHeader.Schema %d.units.unit%d", schema, i );
+		int player_id = ota_parser->PullAsInt( unit_key + ".player" ) - 1;
+		float x = ota_parser->PullAsFloat( unit_key + ".XPos" ) * 0.5f;
+		float z = ota_parser->PullAsFloat( unit_key + ".ZPos" ) * 0.5f;
+		
+		m_File << format( "\nunit_id = ta3d_create_unit( %d, \"", player_id ) << unit_name << format( "\", %f - 0.5 * ta3d_map_w(), %f - 0.5 * ta3d_map_h() )\n", x, z );
+		
+		float health = ota_parser->PullAsFloat( unit_key + ".HealthPercentage", -1.0f );
+		if( health != -1.0f )
+			m_File << format( "ta3d_set_unit_health( unit_id, %f )\n", health );
+
+		String Ident = ota_parser->PullAsString( unit_key + ".Ident" );
+		if( !Ident.empty() )
+			m_File << Ident << " = unit_id\n";		// Links the unit_id to the given name
+		
+		i++;
+		}
+
+	m_File << "\ntimer = ta3d_time()\nend_signal = 0\n";
+
+	m_File << "check = {}\nfirst_launch = true\n";
+	m_File << "for i = 0, ta3d_get_max_unit_number() do\n";
+	m_File << "	check[ i ] = false\n";
+	m_File << "end\n";
+
+	m_File << "\nfunction main()\n";
+
+	m_File << "	if end_signal ~= 0 and ta3d_time() - timer >= 5 then\n";
+	m_File << "		return end_signal\n";
+	m_File << "	elseif end_signal ~= 0 then\n";
+	m_File << "		return 0\n";
+	m_File << "	end\n";
+
+	if( ota_parser->PullAsInt( "GlobalHeader.AllUnitsKilled" ) == 1 ) {
+		m_File << "	if ta3d_annihilated( 0 ) then\n";
+		m_File << "		ta3d_print( 288, 236, \"DEFEAT\" )\n		timer = ta3d_time()\n		end_signal = SIGNAL_DEFEAT\n";
+		m_File << "	end\n";
+		}
+
+	if( !ota_parser->PullAsString( "GlobalHeader.AllUnitsKilledOfType" ).empty() ) {
+		m_File << "	if not ta3d_has_unit( 0, \"" << ota_parser->PullAsString( "GlobalHeader.AllUnitsKilledOfType" ) << "\" ) then\n";
+		m_File << "		ta3d_print( 288, 236, \"DEFEAT\" )\n		timer = ta3d_time()\n		end_signal = SIGNAL_DEFEAT\n";
+		m_File << "	end\n";
+		}
+
+	if( !ota_parser->PullAsString( "GlobalHeader.MoveUnitToRadius" ).empty() ) {
+		Vector< String > params = ReadVectorString( ota_parser->PullAsString( "GlobalHeader.MoveUnitToRadius" ) );
+		m_File << "	for i = 0, ta3d_get_max_unit_number() do\n";
+		if( Lowercase( params[0] ) == "anytype" )
+			m_File << "		if ta3d_get_unit_owner( i ) == 0 then\n";
+		else
+			m_File << "		if ta3d_get_unit_owner( i ) == 0 and ta3d_is_unit_of_type( i, \"" << params[0] << "\" ) then\n";
+		m_File << "			dx = ta3d_unit_x( i ) + 0.5 * (ta3d_map_w() - " << params[ 1 ] << " )\n";
+		m_File << "			dz = ta3d_unit_z( i ) + 0.5 * (ta3d_map_h() - " << params[ 2 ] << " )\n";
+		m_File << "			dist = dx * dx + dz * dz\n";
+		float dist = atoi( params[ 3 ].c_str() ) * 0.5f;
+		m_File << "			if dist <= " << format("%f", dist * dist ) << " then\n";
+		m_File << "				if not first_launch and not check[ i ] then\n";
+		m_File << "					ta3d_play( \"VICTORY2\" )\n";
+		m_File << "					ta3d_draw_image( \"gfx/victory.tga\", 160, 140, 480, 340 )\n";
+		m_File << "					timer = ta3d_time()\n";
+		m_File << "					end_signal = SIGNAL_VICTORY\n";
+		m_File << "					return 0\n";
+		m_File << "				end\n";
+		m_File << "				check[ i ] = true\n";
+		m_File << "			end\n";
+		m_File << "		end\n";
+		m_File << "	end\n";
+		}
+
+	m_File << "	first_launch = false\n";
+
+	m_File << "	return 0\n";
+	m_File << "end\n";
+
+	m_File.flush();
+	m_File.close();
 }
 

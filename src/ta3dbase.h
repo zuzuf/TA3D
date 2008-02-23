@@ -455,9 +455,11 @@ public:
 	char				*game_script;		// Which script to run
 	uint8				fog_of_war;			// flags to configure FOW
 	bool				campaign;			// Are we in campaign mode ?
+	char				*use_only;			// The use only file to read
 
 	inline GAME_DATA()
 	{
+		use_only = NULL;
 		campaign = false;
 		fog_of_war = FOW_DISABLED;
 		map_filename=NULL;
@@ -482,6 +484,7 @@ public:
 
 	inline ~GAME_DATA()
 	{
+		if(use_only)		free(use_only);
 		if(map_filename)	free(map_filename);
 		if(game_script)		free(game_script);
 		map_filename=NULL;

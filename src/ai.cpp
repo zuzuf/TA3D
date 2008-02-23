@@ -356,7 +356,7 @@ void f_refresh_unit_weights( AI_PLAYER *ai )				// Refresh unit weights accordin
 	float total_unit_inv = 2.0f / (ai->total_unit + 1);
 
 	for( uint16 i = 0 ; i < unit_manager.nb_unit ; i++ ) {
-		if( ai->weights[ i ].type )	{
+		if( ai->weights[ i ].type && !unit_manager.unit_type[ i ].not_used )	{
 			if( ai->weights[ i ].type & AI_FLAG_ARMY )	{
 				ai->nb_units[ AI_UNIT_TYPE_ARMY ] += ai->weights[ i ].nb;
 				ai->weights[ i ].w = (ai->weights[ i ].w + ai->order_weight[ ORDER_ARMY ] * 0.1f + 1.0f - ai->weights[ i ].nb * total_unit_inv) * exp( -0.1f * ai->weights[ i ].w ) + 0.1f * ai->order_weight[ ORDER_ARMY ];
