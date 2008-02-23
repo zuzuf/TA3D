@@ -764,7 +764,7 @@ void cAudio::PlaySoundFileNow( const String &Filename )				// Loads and play a s
 
 #ifdef TA3D_PLATFORM_MINGW
 		FMOD_System_CreateSound( m_lpFMODSystem, (const char *)data, FMOD_SOFTWARE | FMOD_OPENMEMORY, &exinfo, &basic_sound );
-		FMOD_Sound_SetMode->( basic_sound, FMOD_LOOP_OFF );
+		FMOD_Sound_SetMode( basic_sound, FMOD_LOOP_OFF );
 		FMOD_System_PlaySound( m_lpFMODSystem, FMOD_CHANNEL_FREE, basic_sound, 0, &basic_channel);
 #else
 		m_lpFMODSystem->createSound( (const char *)data, FMOD_SOFTWARE | FMOD_OPENMEMORY, &exinfo, &basic_sound);
