@@ -232,10 +232,12 @@ void main_menu(void)
 				destroy_bitmap(tst[0]);
 				destroy_bitmap(tst[1]);
 				destroy_bitmap(tst[2]);
+				destroy_bitmap(tst[3]);
 
 				glDeleteTextures(1,&mnu[0]);
 				glDeleteTextures(1,&mnu[1]);
 				glDeleteTextures(1,&mnu[2]);
+				glDeleteTextures(1,&mnu[3]);
 				}
 			switch(index)
 			{
@@ -254,16 +256,18 @@ void main_menu(void)
 				break;
 			};
 			current_mod = TA3D_CURRENT_MOD.length() > 6 ? TA3D_CURRENT_MOD.substr( 5, TA3D_CURRENT_MOD.length() - 6 ) : "";
-			if( index >= 0 && index <= 3 ) {
+			if( index >= 0 && index <= 4 ) {
 				mnu[0] = gfx->load_texture( TRANSLATE( "gfx/en/exit.tga" ).c_str(), FILTER_LINEAR );
 				mnu[1] = gfx->load_texture( TRANSLATE( "gfx/en/options.tga" ).c_str(), FILTER_LINEAR );
 				mnu[2] = gfx->load_texture( TRANSLATE( "gfx/en/play.tga" ).c_str(), FILTER_LINEAR );
+				mnu[3] = gfx->load_texture( TRANSLATE( "gfx/en/campaign.tga" ).c_str(), FILTER_LINEAR );
 				set_color_depth( 32 );
 				tst[0] = load_bitmap( TRANSLATE( "gfx/en/exit.tga" ).c_str(),NULL);
 				tst[1] = load_bitmap( TRANSLATE( "gfx/en/options.tga" ).c_str(),NULL);
 				tst[2] = load_bitmap( TRANSLATE( "gfx/en/play.tga" ).c_str(),NULL);
+				tst[3] = load_bitmap( TRANSLATE( "gfx/en/campaign.tga" ).c_str(),NULL);
 
-				for( i = 0 ; i < 3 ; i++ )
+				for( i = 0 ; i < 4 ; i++ )
 					if( tst[i] ) {
 						tst_w[i] = tst[i]->w >> 1;
 						tst_h[i] = tst[i]->h >> 1;
