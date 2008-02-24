@@ -217,7 +217,7 @@ int function_get_key( lua_State *L )		// ta3d_get_key()
 
 int function_time( lua_State *L )		// ta3d_time()
 {
-	lua_pushnumber( L, msec_timer * 0.001f );
+	lua_pushnumber( L, units.current_tick / (float)TICKS_PER_SEC );
 	return 1;
 }
 
@@ -316,6 +316,26 @@ int function_has_unit( lua_State *L )		// ta3d_has_unit( player_id, unit_type_id
 	else {
 		lua_pop( L, 2 );
 		lua_pushboolean( L, false );
+		}
+	return 1;
+}
+
+int function_nb_unit_of_type( lua_State *L )		// ta3d_nb_unit_of_type( player_id, unit_type_id )
+{
+	int player_id = (int) lua_tonumber( L, -2 );
+	if( player_id >= 0 && player_id < NB_PLAYERS ) {
+		int unit_type = lua_isstring( L, -1 ) ? unit_manager.get_unit_index( lua_tostring( L, -1 ) ) : (int) lua_tonumber( L, -1 ) ;
+		int nb = 0;
+		uint16 last_possible_idx = min( (int)units.max_unit, ( player_id + 1 ) * MAX_UNIT_PER_PLAYER);
+		for( uint16 i = player_id * MAX_UNIT_PER_PLAYER ; i < last_possible_idx ; i++ )
+			if( units.unit[i].flags && units.unit[i].owner_id == player_id && units.unit[i].type_id == unit_type )
+				nb++;
+		lua_pop( L, 2 );
+		lua_pushnumber( L, nb );
+		}
+	else {
+		lua_pop( L, 2 );
+		lua_pushnumber( L, 0 );
 		}
 	return 1;
 }
@@ -1004,6 +1024,7 @@ void register_functions( lua_State *L )
 	lua_register( L, "ta3d_set_standing_orders", function_set_standing_orders );
 	lua_register( L, "ta3d_unlock_orders", function_unlock_orders );
 	lua_register( L, "ta3d_lock_orders", function_lock_orders );
+	lua_register( L, "ta3d_nb_unit_of_type", function_nb_unit_of_type );
 }
 
 void LUA_PROGRAM::load(char *filename, MAP *map)					// Load a lua script
@@ -1357,7 +1378,48 @@ void generate_script_from_mission( String Filename, cTAFileParser *ota_parser, i
 	m_File << "check = {}\nfirst_launch = true\n";
 	m_File << "for i = 0, ta3d_get_max_unit_number() do\n";
 	m_File << "	check[ i ] = false\n";
+	m_File << "end\n\n";
+
+	m_File << "pos_x = {}\n";
+	m_File << "pos_z = {}\n";
+	m_File << "exist = {}\n";
+	m_File << "for i = 0, ta3d_get_max_unit_number() do\n";
+	m_File << "	if ta3d_get_unit_owner( i ) == -1 then\n";
+	m_File << "		exist[ i ] = false\n";
+	m_File << "	else\n";
+	m_File << "		exist[ i ] = true\n";
+	m_File << "		pos_x[ i ] = ta3d_unit_x( i )\n";
+	m_File << "		pos_z[ i ] = ta3d_unit_z( i )\n";
+	m_File << "	end\n";
 	m_File << "end\n";
+
+	if( !ota_parser->PullAsString( "GlobalHeader.KillUnitType" ).empty() ) {
+		Vector< String > params = ReadVectorString( ota_parser->PullAsString( "GlobalHeader.KillUnitType" ), "," );
+		if( params.size() >= 2 ) {
+			m_File << "\nKillUnitType_nb = ta3d_nb_unit_of_type( 1, \"" << params[ 0 ] << "\" )\n" ;
+			m_File << "KilledUnitType = 0\n";
+			}
+		}
+
+	if( !ota_parser->PullAsString( "GlobalHeader.UnitTypeKilled" ).empty() ) {
+		Vector< String > params = ReadVectorString( ota_parser->PullAsString( "GlobalHeader.UnitTypeKilled" ), "," );
+		if( params.size() >= 2 ) {
+			m_File << "\nUnitTypeKilled_nb = ta3d_nb_unit_of_type( 1, \"" << params[ 0 ] << "\" )\n" ;
+			m_File << "UnitTypeKilled_count = 0\n";
+			}
+		}
+
+	m_File << "AnyUnitPassesZ = false\n";
+	m_File << "UnitTypePassesZ = false\n";
+	m_File << "AnyUnitPassesX = false\n";
+	m_File << "UnitTypePassesX = false\n";
+	m_File << "BuildUnitType = false\n";
+	m_File << "CaptureUnitType = false\n";
+	m_File << "KillUnitType = false\n";
+	m_File << "KillAllOfType = false\n";
+	m_File << "KilledEnemyCommander = false\n";
+	m_File << "DestroyAllUnits = false\n";
+	m_File << "MoveUnitToRadius = false\n";
 
 	m_File << "\nfunction main()\n";
 
@@ -1365,18 +1427,171 @@ void generate_script_from_mission( String Filename, cTAFileParser *ota_parser, i
 	m_File << "		return end_signal\n";
 	m_File << "	elseif end_signal ~= 0 then\n";
 	m_File << "		return 0\n";
-	m_File << "	end\n";
+	m_File << "	end\n\n";
+
+			// DEFEAT conditions
+
+	if( ota_parser->PullAsInt( "GlobalHeader.DeathTimerRunsOut" ) > 0 ) {
+		m_File << "	if ta3d_time() >= " << ota_parser->PullAsString( "GlobalHeader.DeathTimerRunsOut" ) << " then\n";
+		m_File << "		ta3d_print( 288, 236, \"DEFEAT\" )\n		timer = ta3d_time()\n		end_signal = SIGNAL_DEFEAT\n		return 0\n";
+		m_File << "	end\n\n";
+		}
+	
+	if( !ota_parser->PullAsString( "GlobalHeader.UnitTypeKilled" ).empty() ) {
+		Vector< String > params = ReadVectorString( ota_parser->PullAsString( "GlobalHeader.UnitTypeKilled" ), "," );
+		if( params.size() >= 2 ) {
+			m_File << "	new_UnitTypeKilled_nb = ta3d_nb_unit_of_type( \"" << params[ 0 ] << "\" )\n";
+			m_File << "	if UnitTypeKilled_nb > new_UnitTypeKilled_nb then\n";
+			m_File << "		UnitTypeKilled_count = UnitTypeKilled_count + UnitTypeKilled_nb - new_UnitTypeKilled_nb\n";
+			m_File << "	end\n";
+			m_File << "	if UnitTypeKilled_count >= " << params[ 1 ] << " then\n";
+			m_File << "		ta3d_print( 288, 236, \"DEFEAT\" )\n		timer = ta3d_time()\n		end_signal = SIGNAL_DEFEAT\n		return 0\n";
+			m_File << "	end\n";
+			m_File << "	UnitTypeKilled_nb = new_UnitTypeKilled_nb\n\n";
+			}
+		}
 
 	if( ota_parser->PullAsInt( "GlobalHeader.AllUnitsKilled" ) == 1 ) {
 		m_File << "	if ta3d_annihilated( 0 ) then\n";
-		m_File << "		ta3d_print( 288, 236, \"DEFEAT\" )\n		timer = ta3d_time()\n		end_signal = SIGNAL_DEFEAT\n";
-		m_File << "	end\n";
+		m_File << "		ta3d_print( 288, 236, \"DEFEAT\" )\n		timer = ta3d_time()\n		end_signal = SIGNAL_DEFEAT\n		return 0\n";
+		m_File << "	end\n\n";
 		}
 
 	if( !ota_parser->PullAsString( "GlobalHeader.AllUnitsKilledOfType" ).empty() ) {
-		m_File << "	if not ta3d_has_unit( 0, \"" << ota_parser->PullAsString( "GlobalHeader.AllUnitsKilledOfType" ) << "\" ) then\n";
-		m_File << "		ta3d_print( 288, 236, \"DEFEAT\" )\n		timer = ta3d_time()\n		end_signal = SIGNAL_DEFEAT\n";
+		String type = ota_parser->PullAsString( "GlobalHeader.AllUnitsKilledOfType" );
+		m_File << "	if not ta3d_has_unit( 0, \"" << type << "\" ) and not ta3d_has_unit( 1, \"" << type << "\" ) then\n";
+		m_File << "		ta3d_print( 288, 236, \"DEFEAT\" )\n		timer = ta3d_time()\n		end_signal = SIGNAL_DEFEAT\n		return 0\n";
+		m_File << "	end\n\n";
+		}
+
+	if( ota_parser->PullAsInt( "GlobalHeader.CommanderKilled" ) == 1 ) {
+		m_File << "	if not ta3d_has_unit( 0, ta3d_commander( 0 ) ) then\n";
+		m_File << "		ta3d_print( 288, 236, \"DEFEAT\" )\n		timer = ta3d_time()\n		end_signal = SIGNAL_DEFEAT\n		return 0\n";
+		m_File << "	end\n\n";
+		}
+
+			// VICTORY conditions
+
+	m_File << "	victory_conditions = 0\n";
+	int nb_victory_conditions = 0;
+
+	m_File << "	if UnitTypePassesX then\n	victory_conditions = victory_conditions + 1\n	end\n";
+	m_File << "	if UnitTypePassesZ then\n	victory_conditions = victory_conditions + 1\n	end\n";
+	m_File << "	if AnyUnitPassesX then\n	victory_conditions = victory_conditions + 1\n	end\n";
+	m_File << "	if AnyUnitPassesZ then\n	victory_conditions = victory_conditions + 1\n	end\n";
+	m_File << "	if BuildUnitType then\n	victory_conditions = victory_conditions + 1\n	end\n";
+	m_File << "	if KillUnitType then\n	victory_conditions = victory_conditions + 1\n	end\n";
+	m_File << "	if CaptureUnitType then\n	victory_conditions = victory_conditions + 1\n	end\n";
+	m_File << "	if KillAllOfType then\n	victory_conditions = victory_conditions + 1\n	end\n";
+	m_File << "	if KilledEnemyCommander then\n	victory_conditions = victory_conditions + 1\n	end\n";
+	m_File << "	if DestroyAllUnits then\n	victory_conditions = victory_conditions + 1\n	end\n";
+	m_File << "	if MoveUnitToRadius then\n	victory_conditions = victory_conditions + 1\n	end\n";
+
+	if( !ota_parser->PullAsString( "GlobalHeader.AnyUnitPassesZ" ).empty()
+	 || !ota_parser->PullAsString( "GlobalHeader.UnitTypePassesZ" ).empty()
+	 || !ota_parser->PullAsString( "GlobalHeader.AnyUnitPassesX" ).empty()
+	 || !ota_parser->PullAsString( "GlobalHeader.UnitTypePassesX" ).empty() ) {
+
+		if( !ota_parser->PullAsString( "GlobalHeader.AnyUnitPassesZ" ).empty() )
+			m_File << "	ZPass0 = 0.5 * ( " << ota_parser->PullAsString( "GlobalHeader.AnyUnitPassesZ" ) << " - ta3d_map_h() )\n";
+		if( !ota_parser->PullAsString( "GlobalHeader.UnitTypePassesZ" ).empty() ) {
+			Vector< String > params = ReadVectorString( ota_parser->PullAsString( "GlobalHeader.UnitTypePassesZ" ), "," );
+			if( params.size() == 2 )
+				m_File << "	ZPass1 = 0.5 * ( " << params[ 1 ] << " - ta3d_map_h() )\n";
+			}
+		if( !ota_parser->PullAsString( "GlobalHeader.AnyUnitPassesX" ).empty() )
+			m_File << "	XPass0 = 0.5 * ( " << ota_parser->PullAsString( "GlobalHeader.AnyUnitPassesX" ) << " - ta3d_map_w() )\n";
+		if( !ota_parser->PullAsString( "GlobalHeader.UnitTypePassesX" ).empty() ) {
+			Vector< String > params = ReadVectorString( ota_parser->PullAsString( "GlobalHeader.UnitTypePassesX" ), "," );
+			if( params.size() == 2 )
+				m_File << "	XPass1 = 0.5 * ( " << params[ 1 ] << " - ta3d_map_w() )\n";
+			}
+
+		m_File << "	for i = 0, ta3d_get_max_unit_number() do\n";
+		m_File << "		unit_z = ta3d_unit_z( i )\n";
+		m_File << "		unit_x = ta3d_unit_x( i )\n";
+		m_File << "		unit_exist = ( ta3d_get_unit_owner( i ) ~= -1 )\n";
+		if( !ota_parser->PullAsString( "GlobalHeader.AnyUnitPassesZ" ).empty() ) {
+			m_File << "		if exist[ i ] and unit_exist and (pos_z[ i ] - ZPass0) * (unit_z - ZPass0) <= 0 and not AnyUnitPassesZ then\n";
+			m_File << "			victory_conditions = victory_conditions + 1\n";	nb_victory_conditions++;
+			m_File << "			AnyUnitPassesZ = true\n";
+			m_File << "		end\n";
+			}
+		if( !ota_parser->PullAsString( "GlobalHeader.UnitTypePassesZ" ).empty() ) {
+			Vector< String > params = ReadVectorString( ota_parser->PullAsString( "GlobalHeader.UnitTypePassesZ" ), "," );
+			if( params.size() == 2 ) {
+				m_File << "		if exist[ i ] and unit_exist and ta3d_is_unit_of_type( i, \"" << params[ 0 ] << "\" ) and (pos_z[ i ] - ZPass1) * (unit_z - ZPass1) <= 0 and not UnitTypePassesZ then\n";
+				m_File << "			victory_conditions = victory_conditions + 1\n";	nb_victory_conditions++;
+				m_File << "			UnitTypePassesZ = true\n";
+				m_File << "		end\n";
+				}
+			}
+		if( !ota_parser->PullAsString( "GlobalHeader.AnyUnitPassesX" ).empty() ) {
+			m_File << "		if exist[ i ] and unit_exist and (pos_x[ i ] - XPass0) * (unit_x - XPass0) <= 0 and not AnyUnitPassesX then\n";
+			m_File << "			victory_conditions = victory_conditions + 1\n";	nb_victory_conditions++;
+			m_File << "			AnyUnitPassesX = true\n";
+			m_File << "		end\n";
+			}
+		if( !ota_parser->PullAsString( "GlobalHeader.UnitTypePassesX" ).empty() ) {
+			Vector< String > params = ReadVectorString( ota_parser->PullAsString( "GlobalHeader.UnitTypePassesX" ), "," );
+			if( params.size() == 2 ) {
+				m_File << "		if exist[ i ] and unit_exist and ta3d_is_unit_of_type( i, \"" << params[ 0 ] << "\" ) and (pos_x[ i ] - XPass1) * (unit_x - XPass1) <= 0 and not UnitTypePassesX then\n";
+				m_File << "			victory_conditions = victory_conditions + 1\n";	nb_victory_conditions++;
+				m_File << "			UnitTypePassesX = true\n";
+				m_File << "		end\n";
+				}
+			}
+		m_File << "		if unit_exist then\n";
+		m_File << "			exist[ i ] = true\n";
+		m_File << "			pos_x[ i ] = unit_x\n";
+		m_File << "			pos_z[ i ] = unit_z\n";
+		m_File << "		else\n";
+		m_File << "			exist[ i ] = false\n";
+		m_File << "		end\n";
 		m_File << "	end\n";
+		}
+
+	if( !ota_parser->PullAsString( "GlobalHeader.BuildUnitType" ).empty() ) {
+		m_File << "	if ta3d_has_unit( 0, \"" + ota_parser->PullAsString( "GlobalHeader.BuildUnitType" ) + "\" ) and not BuildUnitType then\n";
+		m_File << "		victory_conditions = victory_conditions + 1\n";	nb_victory_conditions++;
+		m_File << "		BuildUnitType = true\n";
+		m_File << "	end\n\n";
+		}
+
+	if( !ota_parser->PullAsString( "GlobalHeader.CaptureUnitType" ).empty() ) {
+		m_File << "	if ta3d_has_unit( 0, \"" + ota_parser->PullAsString( "GlobalHeader.CaptureUnitType" ) + "\" ) and not CaptureUnitType then\n";
+		m_File << "		victory_conditions = victory_conditions + 1\n";	nb_victory_conditions++;
+		m_File << "		CaptureUnitType = true\n";
+		m_File << "	end\n\n";
+		}
+
+	if( !ota_parser->PullAsString( "GlobalHeader.KillUnitType" ).empty() ) {
+		Vector< String > params = ReadVectorString( ota_parser->PullAsString( "GlobalHeader.KillUnitType" ), "," );
+		if( params.size() >= 2 ) {
+			m_File << "	new_KillUnitType_nb = ta3d_nb_unit_of_type( \"" << params[ 0 ] << "\" )\n";
+			m_File << "	if KillUnitType_nb > new_KillUnitType_nb then\n";
+			m_File << "		KilledUnitType = KilledUnitType + KillUnitType_nb - new_KillUnitType_nb\n";
+			m_File << "	end\n";
+			m_File << "	if KilledUnitType >= " << params[ 1 ] << " and not KillUnitType then\n";
+			m_File << "		victory_conditions = victory_conditions + 1\n";	nb_victory_conditions++;
+			m_File << "		KillUnitType = true\n";
+			m_File << "	end\n";
+			m_File << "	KillUnitType_nb = new_KillUnitType_nb\n\n";
+			}
+		}
+
+	if( !ota_parser->PullAsString( "GlobalHeader.KillAllOfType" ).empty() ) {
+		m_File << "	if not ta3d_has_unit( 1, \"" + ota_parser->PullAsString( "GlobalHeader.KillAllOfType" ) + "\" ) and not KillAllOfType then\n";
+		m_File << "		victory_conditions = victory_conditions + 1\n";	nb_victory_conditions++;
+		m_File << "		KillAllOfType = true\n";
+		m_File << "	end\n\n";
+		}
+
+	if( ota_parser->PullAsInt( "GlobalHeader.KilledEnemyCommander" ) == 1 ) {
+		m_File << "	if not ta3d_has_unit( 1, ta3d_commander( 1 ) ) and not KilledEnemyCommander then\n";
+		m_File << "		victory_conditions = victory_conditions + 1\n";	nb_victory_conditions++;
+		m_File << "		KilledEnemyCommander = true\n";
+		m_File << "	end\n\n";
 		}
 
 	if( ota_parser->PullAsInt( "GlobalHeader.DestroyAllUnits" ) == 1 ) {
@@ -1386,13 +1601,10 @@ void generate_script_from_mission( String Filename, cTAFileParser *ota_parser, i
 		m_File << "			annihilated = annihilated + 1\n";
 		m_File << "		end\n";
 		m_File << "	end\n";
-		m_File << "	if annihilated == ta3d_nb_players() - 1 then\n";
-		m_File << "		ta3d_play( \"VICTORY2\" )\n";
-		m_File << "		ta3d_draw_image( \"gfx/victory.tga\", 160, 140, 480, 340 )\n";
-		m_File << "		timer = ta3d_time()\n";
-		m_File << "		end_signal = SIGNAL_VICTORY\n";
-		m_File << "		return 0\n";
-		m_File << "	end\n";
+		m_File << "	if annihilated == ta3d_nb_players() - 1 and not DestroyAllUnits then\n";
+		m_File << "		victory_conditions = victory_conditions + 1\n";	nb_victory_conditions++;
+		m_File << "		DestroyAllUnits = true\n";
+		m_File << "	end\n\n";
 		}
 
 	if( !ota_parser->PullAsString( "GlobalHeader.MoveUnitToRadius" ).empty() ) {
@@ -1407,18 +1619,22 @@ void generate_script_from_mission( String Filename, cTAFileParser *ota_parser, i
 		m_File << "			dist = dx * dx + dz * dz\n";
 		float dist = atoi( params[ 3 ].c_str() ) * 0.5f;
 		m_File << "			if dist <= " << format("%f", dist * dist ) << " then\n";
-		m_File << "				if not first_launch and not check[ i ] then\n";
-		m_File << "					ta3d_play( \"VICTORY2\" )\n";
-		m_File << "					ta3d_draw_image( \"gfx/victory.tga\", 160, 140, 480, 340 )\n";
-		m_File << "					timer = ta3d_time()\n";
-		m_File << "					end_signal = SIGNAL_VICTORY\n";
-		m_File << "					return 0\n";
+		m_File << "				if not first_launch and not check[ i ] and not MoveUnitToRadius then\n";
+		m_File << "					victory_conditions = victory_conditions + 1\n";	nb_victory_conditions++;
+		m_File << "					MoveUnitToRadius = true\n";
 		m_File << "				end\n";
 		m_File << "				check[ i ] = true\n";
 		m_File << "			end\n";
 		m_File << "		end\n";
 		m_File << "	end\n";
 		}
+
+	m_File << "	if victory_conditions == " << nb_victory_conditions << " then\n";
+	m_File << "		ta3d_play( \"VICTORY2\" )\n";
+	m_File << "		ta3d_draw_image( \"gfx/victory.tga\", 160, 140, 480, 340 )\n";
+	m_File << "		timer = ta3d_time()\n";
+	m_File << "		end_signal = SIGNAL_VICTORY\n";
+	m_File << "	end\n";
 
 	m_File << "	first_launch = false\n";
 

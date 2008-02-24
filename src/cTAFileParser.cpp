@@ -32,10 +32,7 @@ namespace TA3D
 			if( iFind == NotFound )
 				return Data;
 
-			if( Data[ iFind ] == '\n' )
-				return Data.substr( 0, iFind );
-			else
-				return Data.substr( 0, iFind + 1 );
+			return Data.substr( 0, iFind + 1 );
 		}
 
 		bool cTAFileParser::ProcessData(  String &Data )
@@ -44,13 +41,13 @@ namespace TA3D
 				return true;
 
 			String Line = GetLine( Data );         // extract line
-			Data.erase( 0, Line.length() +1 );      // erase line from data.
+			Data.erase( 0, Line.length() );      // erase line from data.
 
 			int i = (int)Line.find( "//" );        // search for start of comment.
 			if( i != -1 )        // if we find a comment, we will erase everything
 				Line.resize( i );// from the comment to the end of the line.
 
- 			Line = TrimString( Line ); // strip out crap from string.
+ 			Line = TrimString( Line, " \t\n\r{" ); // strip out crap from string.
 			i = (int)Line.length();
 
 			if( i > 3 ) // check for new key.
@@ -82,7 +79,7 @@ namespace TA3D
 					return false;
 				}
 			}
-			else if( Line == "}" )  // close the current active key.
+			else if( Line[ i - 1 ] == '}' )  // close the current active key.
 			{
 				if( key_level.empty() )
 					m_cKey = "";

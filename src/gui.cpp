@@ -576,16 +576,22 @@ void WND::draw( String &help_msg, bool Focus, bool Deg, SKIN *skin )
 					glBindTexture(GL_TEXTURE_2D, 0);
 					break;
 				case OBJ_BUTTON:		// Boutton
+					if( Objets[i].Text.size() == 0 )
+						Objets[i].Text.push_back( "" );
 					button(x+Objets[i].x1,y+Objets[i].y1,x+Objets[i].x2,y+Objets[i].y2,Objets[i].Text[0],Objets[i].activated,Objets[i].s, skin );
 					if(Objets[i].Focus && Focus)
 						gfx->rectdot(Objets[i].x1+x-2,Objets[i].y1+y-2,Objets[i].x2+x+2,Objets[i].y2+y+2,GrisF);
 					break;
 				case OBJ_OPTIONC:		// Case à cocher
+					if( Objets[i].Text.size() == 0 )
+						Objets[i].Text.push_back( "" );
 					OptionCase(x+Objets[i].x1,y+Objets[i].y1,Objets[i].Text[0],Objets[i].Etat, skin, Objets[i].s );
 					if(Objets[i].Focus && Focus)
 						gfx->rectdot(Objets[i].x1+x-2,Objets[i].y1+y-2,Objets[i].x2+x+2,Objets[i].y2+y+2,GrisF);
 					break;
 				case OBJ_OPTIONB:		// Boutton d'option	
+					if( Objets[i].Text.size() == 0 )
+						Objets[i].Text.push_back( "" );
 					OptionButton(x+Objets[i].x1,y+Objets[i].y1,Objets[i].Text[0],Objets[i].Etat, skin, Objets[i].s );
 					if(Objets[i].Focus && Focus)
 						gfx->rectdot(Objets[i].x1+x-2,Objets[i].y1+y-2,Objets[i].x2+x+2,Objets[i].y2+y+2,GrisF);
@@ -596,11 +602,15 @@ void WND::draw( String &help_msg, bool Focus, bool Deg, SKIN *skin )
 						gfx->rectdot(Objets[i].x1+x-2,Objets[i].y1+y-2,Objets[i].x2+x+2,Objets[i].y2+y+2,GrisF);
 					break;
 				case OBJ_TEXTBAR:		// Barre de saisie de texte
+					if( Objets[i].Text.size() == 0 )
+						Objets[i].Text.push_back( "" );
 					TextBar(x+Objets[i].x1,y+Objets[i].y1,x+Objets[i].x2,y+Objets[i].y2,Objets[i].Text[0],Objets[i].Focus, skin, Objets[i].s );
 					if(Objets[i].Focus && Focus)
 						gfx->rectdot(Objets[i].x1+x-2,Objets[i].y1+y-2,Objets[i].x2+x+2,Objets[i].y2+y+2,GrisF);
 					break;
 				case OBJ_TEXT:
+					if( Objets[i].Text.size() == 0 )
+						Objets[i].Text.push_back( "" );
 					if( !(Objets[i].Flag & FLAG_TEXT_ADJUST ) )
 						gfx->print(gui_font,x+Objets[i].x1,Objets[i].y1+y,0.0f,Objets[i].Data,Objets[i].Text[0],Objets[i].s );
 					else {
@@ -610,6 +620,8 @@ void WND::draw( String &help_msg, bool Focus, bool Deg, SKIN *skin )
 						}
 					break;
 				case OBJ_MENU:			// Menu déroulant
+					if( Objets[i].Text.size() == 0 )
+						Objets[i].Text.push_back( "" );
 					if(!Objets[i].Etat)
 						button( x+Objets[i].x1, y+Objets[i].y1, x+Objets[i].x2, y+Objets[i].y2, Objets[i].Text[0], Objets[i].activated || Objets[i].Etat, Objets[i].s, skin );
 					break;
@@ -1096,7 +1108,7 @@ uint32 WND::msg( const String &message )									// Respond to Interface message
 	uint32	result = INTERFACE_RESULT_CONTINUE;
 
 	if( i != -1 ) {				// When it targets a subobject
-		GUIOBJ *obj = get_object( message );
+		GUIOBJ *obj = get_object( message.substr( 0, i ) );
 		if( obj )
 			return obj->msg( message.substr( i+1, message.size() - i - 1 ) );
 		}
@@ -1687,12 +1699,15 @@ int draw_text_adjust( float x1, float y1, float x2, float y2, String msg, float 
 	gfx->set_color( 1.0f, 1.0f, 1.0f, 1.0f );
 
 	if( mission_mode ) {
+		int	old_format = get_uformat();
+		set_uformat( U_ASCII );
+
+		uint32	current_color = 0xFFFFFFFF;
+		char tmp[2];
+		tmp[1] = 0;
 		for( int e = pos ; e < Entry.size() ; e++ )
 			if( y1 + gui_font.height() * size * (e + 1 - pos) <= y2 ) {
-				uint32	current_color = 0xFFFFFFFF;
 				float x_offset = 0.0f;
-				char tmp[2];
-				tmp[1] = 0;
 				for( int i = 0 ; i < Entry[e].size() ; i++ )
 					if( Entry[e][i] == '&' ) {
 						current_color = 0xFFFFFFFF;									// Default: white
@@ -1711,6 +1726,7 @@ int draw_text_adjust( float x1, float y1, float x2, float y2, String msg, float 
 						x_offset += gui_font.length( tmp ) * size;
 						}
 				}
+		set_uformat( old_format );
 		}
 	else
 		for( int e = pos ; e < Entry.size() ; e++ )

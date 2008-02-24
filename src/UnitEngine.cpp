@@ -3099,7 +3099,7 @@ bool UNIT::is_on_radar( byte p_mask )
 								if( unit_manager.unit_type[type_id].BMcode && port[ INBUILDSTANCE ] != 0.0f ) {
 									play_sound( "working" );
 									// Récupère l'unité
-									float recup = dt * unit_manager.unit_type[type_id].WorkerTime*unit_manager.unit_type[target_unit->type_id].MaxDamage/unit_manager.unit_type[target_unit->type_id].BuildTime;
+									float recup = dt * 4.5f * unit_manager.unit_type[target_unit->type_id].MaxDamage / unit_manager.unit_type[type_id].WorkerTime;
 									if( mission->mission == MISSION_CAPTURE ) {
 										mission->data -= (int)(recup * 100.0f + 0.5f);
 										if( mission->data <= 0 ) {			// Unit has been captured

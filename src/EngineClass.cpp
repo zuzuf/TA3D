@@ -521,7 +521,7 @@ void MAP::update_player_visibility( int player_id, int px, int py, int r, int rd
 					int lx=px+x;
 					if(rx<0)	rx=0;
 					if(lx>=sonar_map->w)	lx=sonar_map->w-1;
-					for(; rx & 3 ; rx++ )
+					for(; (rx & 3) && rx < view_map->w ; rx++ )
 						sonar_map->line[ry][rx] |= mask;
 					rx >>= 2;
 					int lx2 = lx >> 2;
@@ -538,7 +538,7 @@ void MAP::update_player_visibility( int player_id, int px, int py, int r, int rd
 						int lx=px+x;
 						if(rx<0)	rx=0;
 						if(lx>=sonar_map->w)	lx=sonar_map->w-1;
-						for(; rx & 3 ; rx++ )
+						for(; (rx & 3) && rx < view_map->w ; rx++ )
 							sonar_map->line[ry][rx] |= mask;
 						rx >>= 2;
 						int lx2 = lx >> 2;
@@ -559,7 +559,7 @@ void MAP::update_player_visibility( int player_id, int px, int py, int r, int rd
 					int lx=px+x;
 					if(rx<0)	rx=0;
 					if(lx>=radar_map->w)	lx=radar_map->w-1;
-					for(; rx & 3 ; rx++ )
+					for(; (rx & 3) && rx < view_map->w ; rx++ )
 						radar_map->line[ry][rx] |= mask;
 					rx >>= 2;
 					int lx2 = lx >> 2;
@@ -576,7 +576,7 @@ void MAP::update_player_visibility( int player_id, int px, int py, int r, int rd
 						int lx=px+x;
 						if(rx<0)	rx=0;
 						if(lx>=radar_map->w)	lx=radar_map->w-1;
-						for(; rx & 3 ; rx++ )
+						for(; (rx & 3) && rx < view_map->w ; rx++ )
 							radar_map->line[ry][rx] |= mask;
 						rx >>= 2;
 						int lx2 = lx >> 2;
@@ -597,7 +597,7 @@ void MAP::update_player_visibility( int player_id, int px, int py, int r, int rd
 					int lx=px+x;
 					if(rx<0)	rx=0;
 					if(lx>=sight_map->w)	lx=sight_map->w-1;
-					for(; rx & 3 ; rx++ )
+					for(; (rx & 3) && rx < view_map->w ; rx++ )
 						sight_map->line[ry][rx] |= mask;
 					rx >>= 2;
 					int lx2 = lx >> 2;
@@ -614,7 +614,7 @@ void MAP::update_player_visibility( int player_id, int px, int py, int r, int rd
 						int lx=px+x;
 						if(rx<0)	rx=0;
 						if(lx>=sight_map->w)	lx=sight_map->w-1;
-						for(; rx & 3 ; rx++ )
+						for(; (rx & 3) && rx < view_map->w ; rx++ )
 							sight_map->line[ry][rx] |= mask;
 						rx >>= 2;
 						int lx2 = lx >> 2;
@@ -635,7 +635,7 @@ void MAP::update_player_visibility( int player_id, int px, int py, int r, int rd
 					int lx=px+x;
 					if(rx<0)	rx=0;
 					if(lx>=view_map->w)	lx=view_map->w-1;
-					for(; rx & 3 ; rx++ )
+					for(; (rx & 3) && rx < view_map->w ; rx++ )
 						view_map->line[ry][rx] |= mask;
 					rx >>= 2;
 					int lx2 = lx >> 2;
@@ -652,7 +652,7 @@ void MAP::update_player_visibility( int player_id, int px, int py, int r, int rd
 						int lx=px+x;
 						if(rx<0)	rx=0;
 						if(lx>=view_map->w)	lx=view_map->w-1;
-						for(; rx & 3 ; rx++ )
+						for(; (rx & 3) && rx < view_map->w ; rx++ )
 							view_map->line[ry][rx] |= mask;
 						rx >>= 2;
 						int lx2 = lx >> 2;

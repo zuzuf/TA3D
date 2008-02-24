@@ -1762,8 +1762,12 @@ int brief_screen( String campaign_name, int mission_id )
 	String brief_file = "camps\\briefs" + language_suffix + "\\" + ota_parser.PullAsString( "GlobalHeader.brief" ) + ".txt";				// The brief file
 
 	{
+		if( !HPIManager->Exists( brief_file ) )			// try without the .txt
+			brief_file = "camps\\briefs" + language_suffix + "\\" + ota_parser.PullAsString( "GlobalHeader.brief" );
 		if( !HPIManager->Exists( brief_file ) )			// try without the suffix if we cannot find it
 			brief_file = "camps\\briefs\\" + ota_parser.PullAsString( "GlobalHeader.brief" ) + ".txt";
+		if( !HPIManager->Exists( brief_file ) )			// try without the suffix if we cannot find it
+			brief_file = "camps\\briefs\\" + ota_parser.PullAsString( "GlobalHeader.brief" );
 		byte *data = HPIManager->PullFromHPI( brief_file );
 		if( data ) {
 			String brief_info = (const char*)data;
