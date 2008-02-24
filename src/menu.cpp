@@ -82,21 +82,23 @@ void main_menu(void)
 	int time = msec_timer;
 	float Conv = 0.001f;
 
-	BITMAP *tst[3];
-	GLuint mnu[3];
+	BITMAP *tst[4];
+	GLuint mnu[4];
 	GLuint flame = gfx->load_texture( "gfx/part.tga", FILTER_LINEAR );
 	mnu[0] = gfx->load_texture( TRANSLATE( "gfx/en/exit.tga" ).c_str(), FILTER_LINEAR );
 	mnu[1] = gfx->load_texture( TRANSLATE( "gfx/en/options.tga" ).c_str(), FILTER_LINEAR );
 	mnu[2] = gfx->load_texture( TRANSLATE( "gfx/en/play.tga" ).c_str(), FILTER_LINEAR );
+	mnu[3] = gfx->load_texture( TRANSLATE( "gfx/en/campaign.tga" ).c_str(), FILTER_LINEAR );
 	set_color_depth( 32 );
 	tst[0] = load_bitmap( TRANSLATE( "gfx/en/exit.tga" ).c_str(),NULL);
 	tst[1] = load_bitmap( TRANSLATE( "gfx/en/options.tga" ).c_str(),NULL);
 	tst[2] = load_bitmap( TRANSLATE( "gfx/en/play.tga" ).c_str(),NULL);
+	tst[3] = load_bitmap( TRANSLATE( "gfx/en/campaign.tga" ).c_str(),NULL);
 
-	int tst_w[3];
-	int tst_h[3];
+	int tst_w[4];
+	int tst_h[4];
 
-	for( i = 0 ; i < 3 ; i++ )
+	for( i = 0 ; i < 4 ; i++ )
 		if( tst[i] ) {
 			tst_w[i] = tst[i]->w >> 1;
 			tst_h[i] = tst[i]->h >> 1;
@@ -104,8 +106,8 @@ void main_menu(void)
 		else
 			tst_w[i] = tst_h[i] = 0;
 
-	int px[3]={	320,	160,	480 };
-	int py[3]={	400,	300,	300 };
+	int px[4]={	160,	160,	480,	480	};
+	int py[4]={	400,	300,	300,	400	};
 
 	VECTOR part[ MENU_NB_PART ];
 	VECTOR target[ MENU_NB_PART ];
@@ -148,10 +150,10 @@ void main_menu(void)
 		glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
 
 		int index=-1;
-		for(i=0;i<3;i++)
+		for(i=0;i<4;i++)
 			if(px[i]-tst_w[i] < mouse_x*gfx->SCREEN_W_TO_640 && px[i]+tst_w[i] > mouse_x*gfx->SCREEN_W_TO_640 && py[i]-tst_h[i] < mouse_y*gfx->SCREEN_H_TO_480 && py[i]+tst_h[i] > mouse_y*gfx->SCREEN_H_TO_480 ) {
 				index=i;
-				i=3;
+				i=4;
 				}
 
 		glColor4f(1.0f,1.0f,1.0f,1.0f);
@@ -172,6 +174,7 @@ void main_menu(void)
 		case 0:
 		case 1:
 		case 2:
+		case 3:
 			{
 				int x;
 				int y;
@@ -200,7 +203,7 @@ void main_menu(void)
 		n++;
 		glColor4f(1.0f,1.0f,1.0f,1.0f);
 
-		for(i=0;i<3;i++) {
+		for(i=0;i<4;i++) {
 			if(i==index)
 				glBlendFunc(GL_SRC_COLOR,GL_ONE_MINUS_SRC_ALPHA);
 			else

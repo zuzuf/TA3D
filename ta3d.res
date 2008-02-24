@@ -108,6 +108,10 @@
 {
 	FRENCH=noir;
 }
+[gfx/en/campaign.tga]
+{
+	FRENCH=gfx/fr/campaign.tga;
+}
 [gfx/en/exit.tga]
 {
 	FRENCH=gfx/fr/exit.tga;
