@@ -569,17 +569,14 @@ void UNIT_TYPE::load_dl()
 	
 	if( dl_data )	return;			// Ok it's already loaded
 
-	dl_data = new DL_DATA;
-	
-	unit_manager.l_dl_data.push_back( dl_data );		// Put it there so it'll be deleted when finished
-	
-	unit_manager.h_dl_data.Insert( Lowercase( side ), dl_data );
-
 	int side_id = -1;
 	for( int i = 0 ; i < ta3d_sidedata.nb_side && side_id == -1 ; i++ )
 		if( strcasecmp( ta3d_sidedata.side_name[ i ], side ) == 0 )
 			side_id = i;
 	if( side_id == -1 )		return;
+
+	dl_data = new DL_DATA;
+	
 	try
 	{
 	cTAFileParser dl_parser( ta3d_sidedata.guis_dir + ta3d_sidedata.side_pref[ side_id ] + "dl.gui", false, false, true );
@@ -610,6 +607,9 @@ void UNIT_TYPE::load_dl()
 			e++;
 			}
 
+	unit_manager.l_dl_data.push_back( dl_data );		// Put it there so it'll be deleted when finished
+	
+	unit_manager.h_dl_data.Insert( Lowercase( side ), dl_data );
 	}
 	catch(...)
 	{
