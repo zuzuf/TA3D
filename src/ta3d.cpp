@@ -2492,14 +2492,12 @@ do
 		sound_manager->PlayTDFSound( "NEXTBUILDMENU", "sound" , NULL );
 		if( unit_manager.unit_type[ old_gui_sel ].nb_pages > 0 )
 			unit_manager.unit_type[ old_gui_sel ].page = (unit_manager.unit_type[ old_gui_sel ].page + unit_manager.unit_type[ old_gui_sel ].nb_pages-1)%unit_manager.unit_type[old_gui_sel].nb_pages;
-//		unit_manager.unit_type[ old_gui_sel ].page = (unit_manager.unit_type[ old_gui_sel ].page + ((unit_manager.unit_type[ old_gui_sel ].nb_unit+5)/6)-1)%((unit_manager.unit_type[old_gui_sel].nb_unit+5)/6);
 		}
 	if( game_area.get_state( current_gui + "." + ta3d_sidedata.side_pref[ players.side_view ] + "NEXT" )
 	|| game_area.get_state( current_gui + ".ARMNEXT" ) ) {
 		sound_manager->PlayTDFSound( "NEXTBUILDMENU", "sound" , NULL );
 		if( unit_manager.unit_type[ old_gui_sel ].nb_pages > 0 )
 			unit_manager.unit_type[ old_gui_sel ].page= (unit_manager.unit_type[ old_gui_sel ].page+1)%unit_manager.unit_type[ old_gui_sel ].nb_pages;
-//		unit_manager.unit_type[ old_gui_sel ].page= (unit_manager.unit_type[ old_gui_sel ].page+1)%((unit_manager.unit_type[ old_gui_sel ].nb_unit+5)/6);
 		}
 
 	if( game_area.get_state( current_gui + "." + ta3d_sidedata.side_pref[ players.side_view ] + "ONOFF" )
@@ -2575,8 +2573,15 @@ do
 				uint16 i = units.idx_list[e];
 				units.LeaveCS_from_outside();
 				units.unit[i].Lock();
-				if( (units.unit[i].flags & 1) && units.unit[i].owner_id == players.local_human_id && units.unit[i].sel )
+				if( (units.unit[i].flags & 1) && units.unit[i].owner_id == players.local_human_id && units.unit[i].sel ) {
 					units.unit[i].port[ STANDINGFIREORDERS ] = sorder_obj->current_state;
+					if( SFORDER_FIRE_AT_WILL != units.unit[i].port[ STANDINGFIREORDERS ] ) {
+						for( int f = 0 ; f < 3 ; f++ )
+							units.unit[i].weapon[ f ].state = WEAPON_FLAG_IDLE;
+						if( units.unit[i].mission && units.unit[i].mission->mission == MISSION_ATTACK && !( units.unit[i].mission->flags & MISSION_FLAG_COMMAND_FIRE ) )
+							units.unit[i].next_mission();
+						}
+					}
 				units.unit[i].UnLock();
 				units.EnterCS_from_outside();
 				}
