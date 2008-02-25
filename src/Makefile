@@ -55,22 +55,22 @@ am_3dmeditor_OBJECTS = 3dmeditor.$(OBJEXT) 3dmeditor_sub.$(OBJEXT) \
 	encode.$(OBJEXT) io.$(OBJEXT) ta3d_jpg.$(OBJEXT)
 3dmeditor_OBJECTS = $(am_3dmeditor_OBJECTS)
 3dmeditor_LDADD = $(LDADD)
-am_hpiview_OBJECTS = hpiview.$(OBJEXT) cTAFileParser.$(OBJEXT) \
-	i18n.$(OBJEXT) TA3D_Exception.$(OBJEXT) glfunc.$(OBJEXT) \
-	gfx.$(OBJEXT) gaf.$(OBJEXT) console.$(OBJEXT) \
-	TA3D_hpi.$(OBJEXT) TA3D_NameSpace.$(OBJEXT) stdafx.$(OBJEXT) \
-	cThread.$(OBJEXT) cCriticalSection.$(OBJEXT) \
-	cInterface.$(OBJEXT) cLogger.$(OBJEXT) cError.$(OBJEXT) \
-	decode.$(OBJEXT) encode.$(OBJEXT) io.$(OBJEXT) \
-	ta3d_jpg.$(OBJEXT)
+am_hpiview_OBJECTS = hpiview.$(OBJEXT) install.$(OBJEXT) \
+	cTAFileParser.$(OBJEXT) i18n.$(OBJEXT) \
+	TA3D_Exception.$(OBJEXT) glfunc.$(OBJEXT) gfx.$(OBJEXT) \
+	gaf.$(OBJEXT) console.$(OBJEXT) TA3D_hpi.$(OBJEXT) \
+	TA3D_NameSpace.$(OBJEXT) stdafx.$(OBJEXT) cThread.$(OBJEXT) \
+	cCriticalSection.$(OBJEXT) cInterface.$(OBJEXT) \
+	cLogger.$(OBJEXT) cError.$(OBJEXT) decode.$(OBJEXT) \
+	encode.$(OBJEXT) io.$(OBJEXT) ta3d_jpg.$(OBJEXT)
 hpiview_OBJECTS = $(am_hpiview_OBJECTS)
 hpiview_LDADD = $(LDADD)
-am_ta3d_OBJECTS = ta3d.$(OBJEXT) main.$(OBJEXT) i18n.$(OBJEXT) \
-	cTA3D_Engine.$(OBJEXT) cTAFileParser.$(OBJEXT) gfx.$(OBJEXT) \
-	pathfinding.$(OBJEXT) menu.$(OBJEXT) 3do.$(OBJEXT) \
-	cob.$(OBJEXT) console.$(OBJEXT) EngineClass.$(OBJEXT) \
-	UnitEngine.$(OBJEXT) fbi.$(OBJEXT) gaf.$(OBJEXT) \
-	glfunc.$(OBJEXT) gui.$(OBJEXT) intro.$(OBJEXT) \
+am_ta3d_OBJECTS = ta3d.$(OBJEXT) main.$(OBJEXT) install.$(OBJEXT) \
+	i18n.$(OBJEXT) cTA3D_Engine.$(OBJEXT) cTAFileParser.$(OBJEXT) \
+	gfx.$(OBJEXT) pathfinding.$(OBJEXT) menu.$(OBJEXT) \
+	3do.$(OBJEXT) cob.$(OBJEXT) console.$(OBJEXT) \
+	EngineClass.$(OBJEXT) UnitEngine.$(OBJEXT) fbi.$(OBJEXT) \
+	gaf.$(OBJEXT) glfunc.$(OBJEXT) gui.$(OBJEXT) intro.$(OBJEXT) \
 	particles.$(OBJEXT) lzw.$(OBJEXT) tdf.$(OBJEXT) tnt.$(OBJEXT) \
 	weapons.$(OBJEXT) script.$(OBJEXT) ai.$(OBJEXT) \
 	taconfig.$(OBJEXT) icon.$(OBJEXT) stdafx.$(OBJEXT) \
@@ -192,6 +192,7 @@ top_srcdir = ..
 ta3d_SOURCES = \
 	ta3d.cpp ta3d.h \
 	main.cpp \
+	install.cpp \
 	i18n.cpp i18n.h \
 	cTA3D_Engine.cpp cTA3D_Engine.h \
 	cTAFileParser.cpp cTAFileParser.h \
@@ -269,6 +270,7 @@ ta3d_SOURCES = \
 hpiview_SOURCES = \
 	hpiview.cpp \
 	hash_table.h \
+	install.cpp \
 	cTAFileParser.cpp cTAFileParser.h \
 	i18n.cpp i18n.h \
 	TA3D_Exception.cpp TA3D_Exception.h \
@@ -390,6 +392,7 @@ include ./$(DEPDIR)/gui.Po
 include ./$(DEPDIR)/hpiview.Po
 include ./$(DEPDIR)/i18n.Po
 include ./$(DEPDIR)/icon.Po
+include ./$(DEPDIR)/install.Po
 include ./$(DEPDIR)/intro.Po
 include ./$(DEPDIR)/io.Po
 include ./$(DEPDIR)/lzw.Po

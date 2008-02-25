@@ -2,6 +2,7 @@ bin_PROGRAMS=ta3d 3dmeditor hpiview
 ta3d_SOURCES= \
 	ta3d.cpp ta3d.h \
 	main.cpp \
+	install.cpp \
 	i18n.cpp i18n.h \
 	cTA3D_Engine.cpp cTA3D_Engine.h \
 	cTAFileParser.cpp cTAFileParser.h \
@@ -80,6 +81,7 @@ ta3d_SOURCES= \
 hpiview_SOURCES= \
 	hpiview.cpp \
 	hash_table.h \
+	install.cpp \
 	cTAFileParser.cpp cTAFileParser.h \
 	i18n.cpp i18n.h \
 	TA3D_Exception.cpp TA3D_Exception.h \

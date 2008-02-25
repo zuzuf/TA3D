@@ -4,12 +4,13 @@ _read the music from a CD
 _add glossiness (or reflection) to all TA3D models.
 _make 3D replacement models for 2D map features
 _implement standing move orders
-_increase loading speed and lower memory cost by not loading unused features
+_increase loading speed and lower memory cost by not loading unused features (done in some modules)
 _add support for TTF fonts ( seems impossible due to memory restrictions )
 _networking code
 _improve A.I.
 _D3D support
 
+*the resource installer is more resistant to errors and now support all the TA CDs (CD1, CD2, BT, CC) so you can easily install campaign resources and all the addons 
 *support for campaign mode and missions
 *added campaign menu and mission briefing menu
 *added loading menu progress bar animation for TDF, FBI and WEAPONS modules
