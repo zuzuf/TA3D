@@ -558,6 +558,7 @@ void UNIT_TYPE::show_info(float fade,GFX_FONT fnt)
 			}
 		else
 			Console->AddEntry("attention: unité sans nom!");
+		if (canfly==1) {TurnRate = TurnRate * 3; }				// A hack thanks to Doors
 		load_dl();
 		return nb_inconnu;
 	}
