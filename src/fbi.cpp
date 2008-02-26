@@ -46,7 +46,7 @@ void UNIT_TYPE::AddUnitBuild(int index, int px, int py, int pw, int ph, int p, G
 	int i;
 	if(BuildList && nb_unit>0)		// Vérifie si l'unité n'est pas déjà répertoriée / check if not already there
 		for(i=0;i<nb_unit;i++)
-			if(BuildList[i]==index) {		// Update the data we have
+			if(BuildList[i]==index && Pic_p[ i ] < 0 ) {		// Update the data we have
 				if( Pic != 0 ) {
 					gfx->destroy_texture( PicList[i] );
 					PicList[i] = Pic;
@@ -634,23 +634,22 @@ inline bool overlaps( int x1, int y1, int w1, int h1, int x2, int y2, int w2, in
 
 void UNIT_TYPE::FixBuild()
 {
-	if( dl_data == NULL || dl_data->dl_num <= 0 )	return;
+	if( dl_data && dl_data->dl_num > 0 )
+		for( int i = 0 ; i < nb_unit - 1 ; i++ )		// Ok it's O(N²) but we don't need something fast
+			for( int e = i + 1 ; e < nb_unit ; e++ )
+				if( (Pic_p[e] < Pic_p[i] && Pic_p[e] != -1) || Pic_p[i] == -1 ) {
+					SWAP( Pic_p[e], Pic_p[i] )
+					SWAP( Pic_x[e], Pic_x[i] )
+					SWAP( Pic_y[e], Pic_y[i] )
+					SWAP( Pic_w[e], Pic_w[i] )
+					SWAP( Pic_h[e], Pic_h[i] )
+					SWAP( PicList[e], PicList[i] )
+					SWAP( BuildList[e], BuildList[i] )
+					}
 
 	int next_id = 0;
 	bool filled = true;
 	int last = -2;
-
-	for( int i = 0 ; i < nb_unit - 1 ; i++ )		// Ok it's O(N²) but we don't need something fast
-		for( int e = i + 1 ; e < nb_unit ; e++ )
-			if( (Pic_p[e] < Pic_p[i] && Pic_p[e] != -1) || Pic_p[i] == -1 ) {
-				SWAP( Pic_p[e], Pic_p[i] )
-				SWAP( Pic_x[e], Pic_x[i] )
-				SWAP( Pic_y[e], Pic_y[i] )
-				SWAP( Pic_w[e], Pic_w[i] )
-				SWAP( Pic_h[e], Pic_h[i] )
-				SWAP( PicList[e], PicList[i] )
-				SWAP( BuildList[e], BuildList[i] )
-				}
 
 	bool first_time = true;
 	nb_pages = -1;
@@ -667,20 +666,21 @@ void UNIT_TYPE::FixBuild()
 
 	if( nb_pages == -1 )	nb_pages = 0;
 
-	for( int i = 0 ; i < nb_unit ; i++ )
-		if( Pic_p[ i ] == -1 ) {
-			Pic_p[ i ] = nb_pages;
-			Pic_x[ i ] = dl_data->dl_x[ next_id ];
-			Pic_y[ i ] = dl_data->dl_y[ next_id ];
-			Pic_w[ i ] = dl_data->dl_w[ next_id ];
-			Pic_h[ i ] = dl_data->dl_h[ next_id ];
-			next_id = (next_id + 1) % dl_data->dl_num;
-			filled = true;
-			if( next_id == 0 ) {
-				nb_pages++;
-				filled = false;
+	if( dl_data && dl_data->dl_num > 0 )
+		for( int i = 0 ; i < nb_unit ; i++ )
+			if( Pic_p[ i ] == -1 ) {
+				Pic_p[ i ] = nb_pages;
+				Pic_x[ i ] = dl_data->dl_x[ next_id ];
+				Pic_y[ i ] = dl_data->dl_y[ next_id ];
+				Pic_w[ i ] = dl_data->dl_w[ next_id ];
+				Pic_h[ i ] = dl_data->dl_h[ next_id ];
+				next_id = (next_id + 1) % dl_data->dl_num;
+				filled = true;
+				if( next_id == 0 ) {
+					nb_pages++;
+					filled = false;
+					}
 				}
-			}
 	if( !filled )	nb_pages--;
 	for( int i = nb_unit - 1 ; i > 0 ; i-- ) {
 		for( int e = i - 1 ; e >= 0 ; e-- )

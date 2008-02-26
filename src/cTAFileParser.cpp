@@ -79,7 +79,7 @@ namespace TA3D
 					return false;
 				}
 			}
-			else if( Line[ i - 1 ] == '}' )  // close the current active key.
+			else if( i > 0 && Line[ i - 1 ] == '}' )  // close the current active key.
 			{
 				if( key_level.empty() )
 					m_cKey = "";
