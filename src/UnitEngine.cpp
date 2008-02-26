@@ -2414,6 +2414,7 @@ bool UNIT::is_on_radar( byte p_mask )
 								};
 							weapon[i].time = 0.0f;
 							weapon[i].state = WEAPON_FLAG_SHOOT;									// (puis) on lui demande de tirer / tell it to fire
+							weapon[i].burst=0;
 							}
 						}
 					}
@@ -2426,10 +2427,8 @@ bool UNIT::is_on_radar( byte p_mask )
 			case WEAPON_FLAG_SHOOT:											// Tire sur une unité / fire!
 				if( weapon[i].target == NULL || (( weapon[i].state & WEAPON_FLAG_WEAPON ) == WEAPON_FLAG_WEAPON && ((WEAPON*)(weapon[i].target))->weapon_id!=-1)
 				|| (( weapon[i].state & WEAPON_FLAG_WEAPON ) != WEAPON_FLAG_WEAPON && (((UNIT*)(weapon[i].target))->flags&1))) {
-					if( weapon[i].burst > 0 && weapon[i].delay <= unit_manager.unit_type[type_id].weapon[ i ]->burstrate ) {
-						weapon[i].state = WEAPON_FLAG_AIM;		// Continue aiming, so we'll increase precision
+					if( weapon[i].burst > 0 && weapon[i].delay < unit_manager.unit_type[type_id].weapon[ i ]->burstrate )
 						break;
-						}
 					int query_id=-1;
 					int Aim_script = -1;
 					int Fire_script = -1;
@@ -2500,7 +2499,7 @@ bool UNIT::is_on_radar( byte p_mask )
 								weapon[i].burst=0;
 							weapon[i].delay=0.0f;
 							}
-						if( unit_manager.unit_type[type_id].weapon[ i ]->commandfire && !unit_manager.unit_type[type_id].weapon[ i ]->dropped ) {		// Shoot only once
+						if( weapon[i].burst == 0 && unit_manager.unit_type[type_id].weapon[ i ]->commandfire && !unit_manager.unit_type[type_id].weapon[ i ]->dropped ) {		// Shoot only once
 							weapon[i].state = WEAPON_FLAG_IDLE;
 							weapon[i].data = -1;
 							if( mission != NULL )
@@ -2514,7 +2513,7 @@ bool UNIT::is_on_radar( byte p_mask )
 								weapon[i].time = 0.0f;
 								}
 							}
-						else {
+						else if( weapon[i].target != NULL || weapon[i].burst == 0 ) {
 							launch_script(get_script_index(SCRIPT_TargetCleared));
 							weapon[i].state = WEAPON_FLAG_IDLE;
 							weapon[i].data = -1;
