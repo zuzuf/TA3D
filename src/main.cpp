@@ -296,6 +296,11 @@ int main(int argc,char *argv[])
 
 	GuardStart( main );
 		LoadConfigFile(); /* Load Config File */
+
+		allegro_init();
+			TA3D_clear_cache();
+		allegro_exit();
+		
 	GuardCatch();
 	if( IsExceptionInProgress() )
 	{

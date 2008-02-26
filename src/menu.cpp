@@ -944,6 +944,9 @@ void config_menu(void)
 		if( lp_CONFIG->last_MOD != TA3D_CURRENT_MOD ) {			// Refresh the file structure
 			TA3D_CURRENT_MOD = lp_CONFIG->last_MOD;
 			delete HPIManager;
+			
+			TA3D_clear_cache();		// Clear the cache
+			
 			HPIManager = new cHPIHandler("");
 			ta3d_sidedata.load_data();				// Refresh side data so we load the correct values
 

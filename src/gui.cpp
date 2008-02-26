@@ -1669,15 +1669,21 @@ int draw_text_adjust( float x1, float y1, float x2, float y2, String msg, float 
 	for( int i = 0 ; i < msg.length() ; i++ )
 		if( msg[i] == '\r' )	continue;
 		else if( msg[i] == '\n' || gui_font.length( current + ' ' + current_word + msg[i] ) * size >= x2 - x1 ) {
+			bool line_too_long = true;
 			if( gui_font.length( current + ' ' + current_word + msg[i] ) * size < x2 - x1 ) {
 				current += ' ' + current_word;
 				current_word.clear();
+				line_too_long = false;
 				}
-			else
+			else if( msg[i] != '\n' )
 				current_word += msg[i];
 			Entry.push_back( current );
 			last = i + 1;
 			current.clear();
+			if( msg[ i ] == '\n' && line_too_long ) {
+				Entry.push_back( current_word );
+				current_word.clear();
+				}
 			}
 		else {
 			if( msg[i] == ' ' ) {
@@ -1728,10 +1734,11 @@ int draw_text_adjust( float x1, float y1, float x2, float y2, String msg, float 
 				}
 		set_uformat( old_format );
 		}
-	else
+	else {
 		for( int e = pos ; e < Entry.size() ; e++ )
 			if( y1 + gui_font.height() * size * (e + 1 - pos) <= y2 )
 				gfx->print( gui_font, x1, y1 + gui_font.height() * size * (e - pos), 0.0f, use_normal_alpha_function ? Blanc : Noir, Entry[e], size );
+		}
 
 	gfx->unset_alpha_blending();
 

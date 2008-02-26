@@ -251,6 +251,7 @@ namespace TA3D
 	void *GetMem( sint32 size, sint32 zero );
 	bool TA3D_exists( const String &filename );			// just a wrapper for allegro's exists function which only use C strings
 	void CheckOutputDir();
+	void TA3D_clear_cache();							// Clear the cache if needed (useful when mod has changed)
 }
 
 using namespace TA3D;
