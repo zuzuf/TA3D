@@ -66,6 +66,7 @@ _some parts of the maps might not be drawn (visibility limit) like hills
 _slow down with lots of 3D sprites on some gfx hardware (speed increased but bug not yet fixed)
 _fix all other bugs ( :-) )
 
+*fixed formula for extracted metal
 *fixed clicking "holding fire" not ordering firing units to stop firing
 *fixed minimap size detection failing
 *fixed the "set" command in BOS/COB VM (solar collectors now deactivate when hit by a weapon !!)

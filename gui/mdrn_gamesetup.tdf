@@ -1468,7 +1468,7 @@
 		x2=1193;
 		y2=884;
 		value=0xFFFFFFFF;
-		size=1.75;
+		size=1.5;
 		caption=;
 	}
 }

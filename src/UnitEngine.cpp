@@ -5148,22 +5148,22 @@ void INGAME_UNITS::move(float dt,MAP *map,int key_frame,bool wind_change)
 			int metal_base = 0;
 			int px=unit[i].cur_px;
 			int py=unit[i].cur_py;
-			int end_y = py + (unit_manager.unit_type[unit[i].type_id].FootprintZ >> 1 );
-			int end_x = px + (unit_manager.unit_type[unit[i].type_id].FootprintX >> 1 );
 			int start_x = px - (unit_manager.unit_type[unit[i].type_id].FootprintX >> 1 );
-			for( int ry = py - (unit_manager.unit_type[unit[i].type_id].FootprintZ >> 1 ) ; ry <= end_y ; ry++ )
+			int start_y = py - (unit_manager.unit_type[unit[i].type_id].FootprintZ >> 1 );
+			int end_y = start_y + unit_manager.unit_type[unit[i].type_id].FootprintZ;
+			int end_x = start_x + unit_manager.unit_type[unit[i].type_id].FootprintX;
+			for( int ry = start_y ; ry <= end_y ; ry++ )
 				if( ry >= 0 && ry < map->bloc_h_db )
 					for( int rx = start_x ; rx <= end_x ; rx++ )
 						if( rx >= 0 && rx < map->bloc_w_db )
-							if(map->map_data[ry][rx].stuff>=0)
-								metal_base += feature_manager.feature[features.feature[map->map_data[ry][rx].stuff].type].metal;
-			if( metal_base == 0 ) {
-				if( unit_manager.unit_type[unit[i].type_id].fastCategory & CATEGORY_LEVEL3 )
-					metal_base = map->ota_data.MohoMetal+map->ota_data.SurfaceMetal;
-				else
-					metal_base = map->ota_data.SurfaceMetal;
-				}
-			unit[i].metal_extracted = 9.09f*metal_base*unit_manager.unit_type[unit[i].type_id].ExtractsMetal;
+							if(map->map_data[ry][rx].stuff>=0) {
+								metal_base = feature_manager.feature[features.feature[map->map_data[ry][rx].stuff].type].metal * unit_manager.unit_type[unit[i].type_id].FootprintZ * unit_manager.unit_type[unit[i].type_id].FootprintX;
+								ry = end_y;
+								break;
+								}
+							else
+								metal_base += map->ota_data.SurfaceMetal;
+			unit[i].metal_extracted = metal_base * unit_manager.unit_type[unit[i].type_id].ExtractsMetal;
 
 			int param[] = { metal_base<<2 };
 			unit[i].run_script_function( map, unit[i].get_script_index(SCRIPT_SetSpeed),1,param);
