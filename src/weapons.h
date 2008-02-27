@@ -394,6 +394,9 @@ public:
 
 	inline void set_data( MAP *map )	{	p_map = map;	}
 
+	inline void Lock()		{	EnterCS();	}
+	inline void UnLock()	{	LeaveCS();	}
+
 	void init(bool real=true)
 	{
 		EnterCS();

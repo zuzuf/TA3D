@@ -3104,8 +3104,8 @@ bool UNIT::is_on_radar( byte p_mask )
 										if( mission->data <= 0 ) {			// Unit has been captured
 											LeaveCS();
 
-											target_unit->Lock();
 											target_unit->clear_from_map();
+											target_unit->Lock();
 
 											UNIT *new_unit = (UNIT*) create_unit( target_unit->type_id, owner_id, target_unit->Pos, map);
 											if( new_unit ) {
@@ -3314,13 +3314,13 @@ bool UNIT::is_on_radar( byte p_mask )
 										Dir.y = 0.0f;
 										if( (units.unit[ *i ].pad1 == 0xFFFF || units.unit[ *i ].pad2 == 0xFFFF) && units.unit[ *i ].build_percent_left == 0.0f
 										&& Dir.Sq() <= sq( unit_manager.unit_type[ type_id ].ManeuverLeashLength ) ) {	// He can repair us :)
-											add_mission( MISSION_GET_REPAIRED | MISSION_FLAG_AUTO, &units.unit[ *i ].Pos, true, 0, &(units.unit[ *i ]),NULL);
 											int target_idx = *i;
-											units.EnterCS_from_outside();
+											units.unit[ target_idx ].UnLock();
+											EnterCS();
+												add_mission( MISSION_GET_REPAIRED | MISSION_FLAG_AUTO, &units.unit[ *i ].Pos, true, 0, &(units.unit[ *i ]),NULL);
+											LeaveCS();
 											units.repair_pads[ owner_id ].erase( i );
 											units.repair_pads[ owner_id ].push_back( target_idx );		// So we don't try it before others :)
-											units.LeaveCS_from_outside();
-											units.unit[ target_idx ].UnLock();
 											going_to_repair_pad = true;
 											break;
 											}
@@ -4665,7 +4665,10 @@ bool UNIT::is_on_radar( byte p_mask )
 		if(unit_manager.unit_type[type_id].weapon[w_id]->startsmoke && visible)
 			particle_engine.make_smoke(O+startpos,0,1,0.0f,-1.0f,0.0f, 0.3f);
 		LeaveCS();
-		int w_idx=weapons.add_weapon(unit_manager.unit_type[type_id].weapon[w_id]->nb_id,idx);
+
+		weapons.Lock();
+		
+		int w_idx = weapons.add_weapon(unit_manager.unit_type[type_id].weapon[w_id]->nb_id,idx);
 		EnterCS();
 		weapons.weapon[w_idx].damage = unit_manager.unit_type[type_id].weapon_damage[ w_id ];
 		weapons.weapon[w_idx].Pos=startpos;
@@ -4679,14 +4682,16 @@ bool UNIT::is_on_radar( byte p_mask )
 		weapons.weapon[w_idx].target=target;
 		if( target >= 0 ) {
 			if(unit_manager.unit_type[type_id].weapon[w_id]->interceptor)
-				weapons.weapon[w_idx].target_pos=weapons.weapon[target].Pos;
+				weapons.weapon[w_idx].target_pos = weapons.weapon[target].Pos;
 			else
-				weapons.weapon[w_idx].target_pos=units.unit[target].Pos+units.unit[target].model->center;
+				weapons.weapon[w_idx].target_pos = target_pos;
 			}
 		else
 			weapons.weapon[w_idx].target_pos = target_pos;
 		weapons.weapon[w_idx].stime=0.0f;
 		weapons.weapon[w_idx].visible=visible;
+
+		weapons.UnLock();
 	}
 
 void UNIT::draw_on_map()
@@ -4759,11 +4764,16 @@ void UNIT::clear_from_map()
 {
 	if( !drawn )	return;
 
+	int type = type_id;
+
+	if( type == -1 || !(flags & 1) )
+		return;
+
 	drawn = false;
 	if( drawn_flying )
-		units.map->air_rect( drawn_x-(unit_manager.unit_type[type_id].FootprintX>>1), drawn_y-(unit_manager.unit_type[type_id].FootprintZ>>1), unit_manager.unit_type[type_id].FootprintX, unit_manager.unit_type[type_id].FootprintZ, idx, true );
+		units.map->air_rect( drawn_x-(unit_manager.unit_type[type].FootprintX>>1), drawn_y-(unit_manager.unit_type[type].FootprintZ>>1), unit_manager.unit_type[type].FootprintX, unit_manager.unit_type[type].FootprintZ, idx, true );
 	else
-		units.map->rect( drawn_x-(unit_manager.unit_type[type_id].FootprintX>>1), drawn_y-(unit_manager.unit_type[type_id].FootprintZ>>1), unit_manager.unit_type[type_id].FootprintX, unit_manager.unit_type[type_id].FootprintZ, -1, unit_manager.unit_type[type_id].yardmap, drawn_open );
+		units.map->rect( drawn_x-(unit_manager.unit_type[type].FootprintX>>1), drawn_y-(unit_manager.unit_type[type].FootprintZ>>1), unit_manager.unit_type[type].FootprintX, unit_manager.unit_type[type].FootprintZ, -1, unit_manager.unit_type[type].yardmap, drawn_open );
 }
 
 void UNIT::draw_on_FOW( bool jamming )
@@ -5222,11 +5232,8 @@ void INGAME_UNITS::move(float dt,MAP *map,int key_frame,bool wind_change)
 
 		if( !(unit[ i ].flags & 1) ) {		// ho ho what is it doing there ??
 			unit[ i ].UnLock();
-			unit[ i ].clear_from_map();
-			unit[ i ].Lock();
 			kill(i,map,e);
 			e--;			// Can't skip a unit
-			unit[ i ].UnLock();
 			EnterCS();
 			continue;
 			}
@@ -5359,9 +5366,10 @@ int INGAME_UNITS::create(int type_id,int owner)
 		}
 	int unit_index = free_idx[owner*MAX_UNIT_PER_PLAYER+free_index_size[owner]-1];
 	free_index_size[owner]--;
-	idx_list[index_list_size++] = unit_index;
 	unit[unit_index].init(type_id,owner);
 	unit[unit_index].Angle.y = ((rand_from_table()%20001)-10000) * 0.0001f * unit_manager.unit_type[ type_id ].BuildAngle * TA2DEG;	// Angle de 10° maximum
+
+	idx_list[index_list_size++] = unit_index;
 
 	if( unit_manager.unit_type[ type_id ].IsAirBase )			// Say we're here !
 		repair_pads[ owner ].push_front( unit_index );
@@ -5518,50 +5526,51 @@ void INGAME_UNITS::kill(int index,MAP *map,int prev)			// Détruit une unité
 
 	unit[index].Lock();
 
-	if(unit[index].flags) {
-		if( unit[ index ].type_id >= 0 && unit_manager.unit_type[ unit[ index ].type_id ].IsAirBase ) {		// Remove it from repair_pads list
-			EnterCS();
-			for( List< uint16 >::iterator i = repair_pads[ unit[ index ].owner_id ].begin() ; i != repair_pads[ unit[ index ].owner_id ].end() ; i++ )
-				if( *i == index ) {
-					repair_pads[ unit[ index ].owner_id ].erase( i );
-					break;
-					}
-			LeaveCS();
-			}
-
-		if( unit[index].flags & 1 ) {
-			if( unit[ index ].mission
-			&& !unit_manager.unit_type[ unit[ index ].type_id ].BMcode
-			&& ( unit[ index ].mission->mission == MISSION_BUILD_2 || unit[ index ].mission->mission == MISSION_BUILD )		// It was building something that we must destroy too
-			&& unit[ index ].mission->p != NULL ) {
-				((UNIT*)(unit[ index ].mission->p))->Lock();
-				((UNIT*)(unit[ index ].mission->p))->hp = 0.0f;
-				((UNIT*)(unit[ index ].mission->p))->built = false;
-				((UNIT*)(unit[ index ].mission->p))->UnLock();
-				}
-			unit[index].UnLock();
-			unit[index].clear_from_map();
-			unit[index].Lock();
-			players.nb_unit[ unit[index].owner_id ]--;
-			players.losses[ unit[index].owner_id ]++;		// Statistiques
-			}
-		if(unit_manager.unit_type[unit[index].type_id].canload && unit[index].nb_attached>0)
-			for( int i = 0 ; i < unit[index].nb_attached ; i++ ) {
-				unit[unit[index].attached_list[i]].Lock();
-				unit[unit[index].attached_list[i]].hp = 0.0f;
-				unit[unit[index].attached_list[i]].UnLock();
-				}
-		unit[index].destroy();		// Détruit l'unité
+	if( unit[ index ].type_id >= 0 && unit_manager.unit_type[ unit[ index ].type_id ].IsAirBase ) {		// Remove it from repair_pads list
+		int owner_id = unit[ index ].owner_id;
 
 		EnterCS();
-
-		uint16 owner = index/MAX_UNIT_PER_PLAYER;
-		free_idx[ MAX_UNIT_PER_PLAYER * owner + free_index_size[ owner ]++ ] = index;
-		idx_list[ prev ] = idx_list[ --index_list_size ];
-		nb_unit--;		// Unité détruite
-
+		for( List< uint16 >::iterator i = repair_pads[ owner_id ].begin() ; i != repair_pads[ owner_id ].end() ; i++ )
+			if( *i == index ) {
+				repair_pads[ owner_id ].erase( i );
+				break;
+				}
 		LeaveCS();
 		}
+
+	if( unit[index].flags & 1 ) {
+		if( unit[ index ].mission
+		&& !unit_manager.unit_type[ unit[ index ].type_id ].BMcode
+		&& ( unit[ index ].mission->mission == MISSION_BUILD_2 || unit[ index ].mission->mission == MISSION_BUILD )		// It was building something that we must destroy too
+		&& unit[ index ].mission->p != NULL ) {
+			((UNIT*)(unit[ index ].mission->p))->Lock();
+			((UNIT*)(unit[ index ].mission->p))->hp = 0.0f;
+			((UNIT*)(unit[ index ].mission->p))->built = false;
+			((UNIT*)(unit[ index ].mission->p))->UnLock();
+			}
+		players.nb_unit[ unit[index].owner_id ]--;
+		players.losses[ unit[index].owner_id ]++;		// Statistiques
+
+		unit[index].UnLock();
+		unit[index].clear_from_map();
+		unit[index].Lock();
+		}
+	if(unit[index].type_id >= 0 && unit_manager.unit_type[unit[index].type_id].canload && unit[index].nb_attached>0)
+		for( int i = 0 ; i < unit[index].nb_attached ; i++ ) {
+			unit[unit[index].attached_list[i]].Lock();
+			unit[unit[index].attached_list[i]].hp = 0.0f;
+			unit[unit[index].attached_list[i]].UnLock();
+			}
+	unit[index].destroy();		// Détruit l'unité
+
+	EnterCS();
+
+	uint16 owner = index/MAX_UNIT_PER_PLAYER;
+	free_idx[ MAX_UNIT_PER_PLAYER * owner + free_index_size[ owner ]++ ] = index;
+	idx_list[ prev ] = idx_list[ --index_list_size ];
+	nb_unit--;		// Unité détruite
+
+	LeaveCS();
 
 	unit[index].UnLock();
 }
@@ -5690,6 +5699,8 @@ void INGAME_UNITS::remove_order(int player_id,VECTOR target)
 	EnterCS();
 	for(uint16 e=0;e<index_list_size;e++) {
 		uint16 i = idx_list[e];
+		LeaveCS();
+		unit[i].Lock();
 		if( (unit[i].flags & 1) && !unit[i].command_locked && unit[i].owner_id==player_id && unit[i].sel && unit[i].build_percent_left==0.0f ) {	// && unit_manager.unit_type[unit[i].type_id].Builder) {
 			MISSION *mission = unit_manager.unit_type[unit[i].type_id].BMcode ? unit[i].mission : unit[i].def_mission;
 			MISSION *prec = mission;
@@ -5722,6 +5733,8 @@ void INGAME_UNITS::remove_order(int player_id,VECTOR target)
 					}
 				}
 			}
+		unit[i].UnLock();
+		EnterCS();
 		}
 	LeaveCS();
 }
@@ -5770,6 +5783,8 @@ int INGAME_UNITS::Run()
 
 	while( !thread_ask_to_stop ) {
 		counter += step;
+
+		printf("tick %d\n", current_tick);
 
 		move( dt, map, current_tick, wind_change );					// Animate units
 

@@ -1014,7 +1014,9 @@ do
 					}
 				else if( cursor_type == CURSOR_CAPTURE && can_be_captured ) {
 					for( uint16 e = 0 ; e < units.index_list_size ; e++ ) {
+						units.EnterCS_from_outside();
 						i = units.idx_list[e];
+						units.LeaveCS_from_outside();
 						units.unit[ i ].Lock();
 						if( (units.unit[i].flags & 1) && units.unit[i].owner_id == players.local_human_id && units.unit[i].sel && unit_manager.unit_type[units.unit[i].type_id].CanCapture ) {
 							if( TA3D_SHIFT_PRESSED )
@@ -1028,33 +1030,37 @@ do
 					}
 				else if(cursor_type==CURSOR_REPAIR) {
 					for(uint16 e=0;e<units.index_list_size;e++) {
+						units.EnterCS_from_outside();
 						i = units.idx_list[e];
+						units.LeaveCS_from_outside();
+						units.unit[i].Lock();
 						if( (units.unit[i].flags & 1) && units.unit[i].owner_id==players.local_human_id && units.unit[i].sel
 						&& unit_manager.unit_type[units.unit[i].type_id].Builder && unit_manager.unit_type[units.unit[i].type_id].BMcode) {
-							units.EnterCS_from_outside();
 							if( !TA3D_SHIFT_PRESSED )
 								units.unit[ i ].play_sound( "repair" );
 							if(TA3D_SHIFT_PRESSED)
 								units.unit[i].add_mission(MISSION_REPAIR,&(units.unit[pointing].Pos),false,0,&(units.unit[pointing]));
 							else
 								units.unit[i].set_mission(MISSION_REPAIR,&(units.unit[pointing].Pos),false,0,true,&(units.unit[pointing]));
-							units.LeaveCS_from_outside();
 							}
+						units.unit[i].UnLock();
 						}
 					if(!TA3D_SHIFT_PRESSED)	current_order=SIGNAL_ORDER_NONE;
 					}
 				else if(cursor_type==CURSOR_RECLAIM) {
 					for(uint16 e=0;e<units.index_list_size;e++) {
+						units.EnterCS_from_outside();
 						i = units.idx_list[e];
+						units.LeaveCS_from_outside();
+						units.unit[i].Lock();
 						if( (units.unit[i].flags & 1) && units.unit[i].owner_id==players.local_human_id && units.unit[i].sel
 						&& unit_manager.unit_type[units.unit[i].type_id].CanReclamate && unit_manager.unit_type[units.unit[i].type_id].BMcode ) {
-							units.EnterCS_from_outside();
 							if(TA3D_SHIFT_PRESSED)
 								units.unit[i].add_mission(MISSION_RECLAIM,&(units.unit[pointing].Pos),false,0,&(units.unit[pointing]));
 							else
 								units.unit[i].set_mission(MISSION_RECLAIM,&(units.unit[pointing].Pos),false,0,true,&(units.unit[pointing]));
-							units.LeaveCS_from_outside();
 							}
+						units.unit[i].UnLock();
 						}
 					if(!TA3D_SHIFT_PRESSED)	current_order=SIGNAL_ORDER_NONE;
 					}
@@ -1092,7 +1098,6 @@ do
 						units.unit[ i ].Lock();
 						if( (units.unit[i].flags & 1) && units.unit[i].owner_id==players.local_human_id && units.unit[i].sel && unit_manager.unit_type[units.unit[i].type_id].canattack
 						&& ( unit_manager.unit_type[units.unit[i].type_id].BMcode || !unit_manager.unit_type[units.unit[i].type_id].Builder ) ) {
-							units.EnterCS_from_outside();
 							if( ( unit_manager.unit_type[ units.unit[i].type_id ].weapon[ 0 ] && unit_manager.unit_type[ units.unit[i].type_id ].weapon[ 0 ]->stockpile )
 							|| ( unit_manager.unit_type[ units.unit[i].type_id ].weapon[ 1 ] && unit_manager.unit_type[ units.unit[i].type_id ].weapon[ 1 ]->stockpile )
 							|| ( unit_manager.unit_type[ units.unit[i].type_id ].weapon[ 2 ] && unit_manager.unit_type[ units.unit[i].type_id ].weapon[ 2 ]->stockpile ) )
@@ -1101,7 +1106,6 @@ do
 								units.unit[i].add_mission(MISSION_ATTACK,&(cursor_pos),false,0,NULL,NULL,commandfire );
 							else
 								units.unit[i].set_mission(MISSION_ATTACK,&(cursor_pos),false,0,true,NULL,NULL,commandfire );
-							units.LeaveCS_from_outside();
 							}
 						units.unit[ i ].UnLock();
 						}
@@ -1115,16 +1119,18 @@ do
 		int idx = -units.last_on - 2;
 		if(idx>=0 && features.feature[ idx ].type >= 0 && feature_manager.feature[ features.feature[ idx ].type ].reclaimable )
 			for(uint16 e=0;e<units.index_list_size;e++) {
+				units.EnterCS_from_outside();
 				i = units.idx_list[e];
+				units.LeaveCS_from_outside();
+				units.unit[i].Lock();
 				if( (units.unit[i].flags & 1) && units.unit[i].owner_id==players.local_human_id && units.unit[i].sel
 				&& unit_manager.unit_type[units.unit[i].type_id].canresurrect && unit_manager.unit_type[units.unit[i].type_id].BMcode ) {
-					units.EnterCS_from_outside();
 					if(TA3D_SHIFT_PRESSED)
 						units.unit[i].add_mission(MISSION_REVIVE,&cur_pos,false,idx,NULL);
 					else
 						units.unit[i].set_mission(MISSION_REVIVE,&cur_pos,false,idx,true,NULL);
-					units.LeaveCS_from_outside();
 					}
+				units.unit[i].UnLock();
 				}
 		if(!TA3D_SHIFT_PRESSED)	current_order=SIGNAL_ORDER_NONE;
 		}
@@ -1134,16 +1140,18 @@ do
 		int idx = -units.last_on - 2;
 		if( idx >= 0 && features.feature[ idx ].type >= 0 && feature_manager.feature[ features.feature[ idx ].type ].reclaimable )
 			for(uint16 e=0;e<units.index_list_size;e++) {
+				units.EnterCS_from_outside();
 				i = units.idx_list[e];
+				units.LeaveCS_from_outside();
+				units.unit[i].Lock();
 				if( (units.unit[i].flags & 1) && units.unit[i].owner_id==players.local_human_id && units.unit[i].sel
 				&& unit_manager.unit_type[units.unit[i].type_id].CanReclamate && unit_manager.unit_type[units.unit[i].type_id].BMcode ) {
-					units.EnterCS_from_outside();
 					if(TA3D_SHIFT_PRESSED)
 						units.unit[i].add_mission(MISSION_RECLAIM,&cur_pos,false,idx,NULL);
 					else
 						units.unit[i].set_mission(MISSION_RECLAIM,&cur_pos,false,idx,true,NULL);
-					units.LeaveCS_from_outside();
 					}
+				units.unit[i].UnLock();
 				}
 		if(!TA3D_SHIFT_PRESSED)	current_order=SIGNAL_ORDER_NONE;
 		}
@@ -2281,10 +2289,11 @@ do
 		byte sforder = 0;
 		byte smorder = 0;
 
-		units.EnterCS_from_outside();
-
 		for( uint16 e = 0 ; e < units.index_list_size ; e++ ) {
+			units.EnterCS_from_outside();
 			uint32 i = units.idx_list[e];
+			units.LeaveCS_from_outside();
+			units.unit[i].Lock();
 			if( (units.unit[i].flags & 1) && units.unit[i].owner_id == players.local_human_id && units.unit[i].sel) {
 				onoffable |= unit_manager.unit_type[ units.unit[i].type_id ].onoffable;
 				canstop |= unit_manager.unit_type[ units.unit[i].type_id ].canstop;
@@ -2305,6 +2314,7 @@ do
 				if( unit_manager.unit_type[ units.unit[i].type_id ].onoffable )
 					onoff_state |= units.unit[ i ].port[ ACTIVATION ] ? 2 : 1;
 				}
+			units.unit[i].UnLock();
 			}
 
 		if( onoff_state == 0 )	onoff_state = 3;
@@ -2444,8 +2454,6 @@ do
 				I_Msg( TA3D::TA3D_IM_GUI_MSG, (void*)( gen_gui + ".ARMBLAST.show" ).c_str(), NULL, NULL );	// Show it
 				}
 			}
-
-		units.LeaveCS_from_outside();
 
 	/*------------------- End of GUI update ---------------------------------------------------------*/
 		}
@@ -2790,8 +2798,12 @@ do
 	if(show_model && cur_sel>=0 && unit_manager.unit_type[cur_sel].model)
 		unit_manager.unit_type[cur_sel].model->print_struct(32.0f,128.0f,gfx->normal_font);
 
-	if(internal_name && last_on >= 0 && unit_manager.unit_type[ units.unit[ last_on ].type_id ].Unitname!=NULL)
-		gfx->print(gfx->normal_font,128.0f,32.0f,0.0f,0xFFFFFFFF,format("internal name %s",unit_manager.unit_type[ units.unit[ last_on ].type_id ].Unitname));
+	if(internal_name && last_on >= 0 ) {
+		units.unit[ last_on ].Lock();
+		if( units.unit[ last_on ].type_id >= 0 && unit_manager.unit_type[ units.unit[ last_on ].type_id ].Unitname!=NULL)
+			gfx->print(gfx->normal_font,128.0f,32.0f,0.0f,0xFFFFFFFF,format("internal name %s",unit_manager.unit_type[ units.unit[ last_on ].type_id ].Unitname));
+		units.unit[ last_on ].UnLock();
+		}
 	else if(internal_name && cur_sel >= 0 && unit_manager.unit_type[cur_sel].Unitname!=NULL)
 		gfx->print(gfx->normal_font,128.0f,32.0f,0.0f,0xFFFFFFFF,format("internal name %s",unit_manager.unit_type[cur_sel].Unitname));
 
