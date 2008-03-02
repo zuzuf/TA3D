@@ -128,6 +128,13 @@ void install_TA_files( String def_path )
 		
 	if( success ) {
 		allegro_message( "please mount/insert your TA cdrom now (TA CD 2) if you want to install campaign files" );
+
+										// Look for a path where we can find totala4.hpi
+		for(int i = 0 ; i < nb_possible_path ; i++ ) {
+			path_to_TA_cd = possible_path[ i ];
+			if( exists( ( path_to_TA_cd + "totala4.hpi" ).c_str() ) )		break;		// We found a path to TA's cd ( in fact to needed files )
+			}
+
 		if( exists( ( path_to_TA_cd + "totala4.hpi" ).c_str() ) ) {
 			rectfill( screen, 0, 0, 640, 480, 0x7F7F7F );
 
@@ -170,6 +177,11 @@ void install_TA_files( String def_path )
 			String file_destination[] = { "btdata.ccx", "btmaps.ccx", "tactics1.hpi", "tactics2.hpi", "tactics3.hpi", "tactics4.hpi", "tactics5.hpi", "tactics6.hpi", "tactics7.hpi", "tactics8.hpi" };
 			int Y = 0;
 			rectfill( screen, 0, 0, 640, 480, 0x7F7F7F );
+											// Look for a path where we can find the files we need
+			for(int i = 0 ; i < nb_possible_path ; i++ ) {
+				path_to_TA_cd = possible_path[ i ];
+				if( exists( ( path_to_TA_cd + file_to_copy[ 0 ] ).c_str() ) )		break;		// We found a path to TA's cd ( in fact to needed files )
+				}
 			for( int i = 0 ; i < nb_files ; i++ )
 				if( exists( ( path_to_TA_cd + file_to_copy[ i ] ).c_str() ) && bt_success ) {
 					textprintf_centre_ex( screen, font, 320, 40 + Y, 0x0, -1, format( "Copying %s (step %d/%d)", file_to_copy[ i ].c_str(), 1+i, nb_files ).c_str() );
@@ -223,6 +235,11 @@ void install_TA_files( String def_path )
 			String file_to_copy[] = { "cc/ccdata.ccx", "cc/ccmaps.ccx", "cc/ccmiss.ccx" };
 			String file_destination[] = { "ccdata.ccx", "ccmaps.ccx", "ccmiss.ccx" };
 			rectfill( screen, 0, 0, 640, 480, 0x7F7F7F );
+											// Look for a path where we can find the files we need
+			for(int i = 0 ; i < nb_possible_path ; i++ ) {
+				path_to_TA_cd = possible_path[ i ];
+				if( exists( ( path_to_TA_cd + file_to_copy[ 0 ] ).c_str() ) )		break;		// We found a path to TA's cd ( in fact to needed files )
+				}
 			for( int i = 0 ; i < nb_files ; i++ )
 				if( exists( ( path_to_TA_cd + file_to_copy[ i ] ).c_str() ) && cc_success ) {
 					textprintf_centre_ex( screen, font, 320, 40 + Y, 0x0, -1, format( "Copying %s (step %d/%d)", file_to_copy[ i ].c_str(), 1+i, nb_files ).c_str() );

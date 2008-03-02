@@ -61,7 +61,8 @@ _D3D support
 
 bug list
 --------
-_add a flag to movement data to make units leaving their factory face the exit before moving
+_There should be ither restriction to use 12-icon build menu on resolutions lesser than 1024x768 or it should be sizeble, since now on 800x600 or 640xx480 size of 12-icon build menu don`t match size of othe GUI parts and covers some of function buttons.
+_AI still can`t place metal extractors directly where it should be placed _add a flag to movement data to make units leaving their factory face the exit before moving
 _some parts of the maps might not be drawn (visibility limit) like hills
 _slow down with lots of 3D sprites on some gfx hardware (speed increased but bug not yet fixed)
 _fix all other bugs ( :-) )
