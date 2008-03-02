@@ -10,55 +10,6 @@ _networking code
 _improve A.I.
 _D3D support
 
-*the resource installer is more resistant to errors and now support all the TA CDs (CD1, CD2, BT, CC) so you can easily install campaign resources and all the addons 
-*support for campaign mode and missions
-*added campaign menu and mission briefing menu
-*added loading menu progress bar animation for TDF, FBI and WEAPONS modules
-*shields implemented
-*some speed optimisations in WEAPONS, TDF, FBI, 3DO modules (faster loading time :) )
-*some speed optimisations in GUI module
-*support for HitByWeapon BOS/COB function
-*added support for unit DamageModifier variable
-*improved performance on water maps with water quality set to "extreme" (don't draw invisible features anymore on the reflection map)
-*game can be paused and resumed
-*fire effect improved (fire particles are spawned from the 3D models when available :) )
-*build pics code rewritten to support big build pics
-*support for 32bits animated sprites (extended GAF format for TA3D ;) )
-*new console command to give resources to a given player (for AI debugging)
-*support for invisibility
-*new skin
-*scaling support for GUI widgets
-*new skin mechanism for menu backgrounds
-*3D tree size x 1.5
-*map selection menu rewritten using GUI module
-*atomic explosions have been improved
-*weapon smoke density decreased
-*you can build things in a row by holding down your mouse button
-*air repair pads works
-*units can be captured
-*units can be resurrected (for example by the CORNECRO)
-*pressing SPACE key shows game statistics
-*new music configuration system, it autogenerate and autoupdate the playlist at startup, so you just put your files in music and it works !!
-*new confirm dialog when changing screen resolution
-*new hot restart mechanism
-*TA3D_Audio now explicitly uses ALSA on Linux, so you can have sound and your favorite music player started
-*patrol orders has been greatly improved
-*TA3D now requires Allegro >= 4.2.2 (configure doesn't accept 4.2.0 any more since it has bugs that crash TA3D)
-*new quickrestart mechanism when you select a new configuration that require restarting TA3D
-*now you can run TA3D in 16bits or 32bits (you can select color depth in config menu)
-*new HPI cache system
-*new texture cache system to speed up loading process (the first time it's slower because it creates the cache)
-*reduced memory footprint of textures
-*improved ListBox widget in GUI module
-*end game statistics screen rewritten using GUI module
-*ai module cleaned
-*ia module renamed to ai
-*when you click to build something on the map, the according sound is played
-*support for floating help messages when cursor is over a widget
-*menus have been redesigned to be more like TA
-*GUI skin has been changed, it's more TA like now
-*new loading screen
-
 bug list
 --------
 _There should be ither restriction to use 12-icon build menu on resolutions lesser than 1024x768 or it should be sizeble, since now on 800x600 or 640xx480 size of 12-icon build menu don`t match size of othe GUI parts and covers some of function buttons.
@@ -66,37 +17,6 @@ _AI still can`t place metal extractors directly where it should be placed _add a
 _some parts of the maps might not be drawn (visibility limit) like hills
 _slow down with lots of 3D sprites on some gfx hardware (speed increased but bug not yet fixed)
 _fix all other bugs ( :-) )
-
-*fixed formula for extracted metal
-*fixed clicking "holding fire" not ordering firing units to stop firing
-*fixed minimap size detection failing
-*fixed the "set" command in BOS/COB VM (solar collectors now deactivate when hit by a weapon !!)
-*fixed config file format bug with "last map" and "last script" which was sometimes not saved correctly
-*fixed planes trying to land somewhere when they've something else to do
-*fixed audio module not reloaded when changing current mod in config screen
-*fixed factories unable to build anything when they've been ordered to stop
-*lots of thread safety bugs fixed
-*fixed weapon aiming bug
-*fixed buildangle variable in FBI code
-*fixed yard map bug that prevented CORVP from building units
-*fixed explosion drawing bug : sprites aren't drawn upside down any more
-*fixed MAP::hit sometimes not returning a solution when it should
-*fixed some parts of low definition map being hidden into water
-*fixed some lava bugs
-*fixed unit model exploding system
-*fixed weapon damage system
-*fixed a bug that prevented object position to be calculated properly on some 3DO models
-*fixed nanolathe particles going away
-*fixed some unit script limitations
-*fixed transporter script bug
-*fixed key shortcuts in GUI ('A' & 'a' are recognized as the same key now)
-*fixed weapon models rotation bug
-*fixed widgets zoom factor for text
-*pathfinding FIXED !!!
-*fixed armcom & armllt laser colors and adapted size
-*fixed reclaim sound not being played when it should
-*fixed commander radar being activated only when building
-*fixed shadows that appear where they shouldn't
 
 idea list
 ---------
