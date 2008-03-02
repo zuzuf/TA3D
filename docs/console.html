@@ -137,39 +137,47 @@ MM_reloadPage(true);
 Press ")" under linux and "`" or "&#178;" under windows to show/hide console while playing.<br>
 (n is an integer, f a floating point number) 
 <br><br>
-<br>1. <b>fps_on</b> : show the frame rate(frame per sec.) 
-<br><br>2. <b>fps_off</b> : hide the frame rate 
-<br><br>3. <b>spawn <font class="style2">name_of_unit player_id nb_unit </font></b> : create specifyed unit(s) for the player. Usage:
-<br><font class="style2">name_of_unit</font> - specify type of unit by it`s name, usefull for units testing ("any" = random)
-<br><font class="style2">player_id </font>- specify unit side (0 - player, 1 - computer)
-<br><font class="style2">nb_unit </font>- number of units to spawn
-<br><br>4. <b>shoot</b> : make a screen shot 
-<br><br>5. <b>show model</b> : show/hide information about the 3d model of the selected unit 
-<br><br>6. <b>timefactor <font class="style2">f</font></b> : set the game speed (1 - is normal)
-<br><br>7. <b>metal</b> : activate/deactivate cheat code for full metal 
-<br><br>8. <b>energy</b> : activate/deactivate cheat code for full energy 
-<br><br>9. <b>internal name</b> : show/hide internal names of units 
-<br><br>10. <b>unitinfo</b> : print information about selected units in the shell 
-<br><br>11. <b>exit</b> : leave the game 
-<br><br>12. <b>wireframe</b> : activate/deactivate the wireframe mode 
-<br><br>13. <b>priority <font class="style2">n</font></b> : 0, 1 or 2, define the program priority(0:low, 1:medium, 2:high) 
-<br><br>14. <b>shadow quality <font class="style2">n</font></b> : quality of shadows (n=1: normal, more n is high more the shadows are nice but the game will run slower) 
-<br><br>15. <b>shadow ray <font class="style2">f</font></b> : shadow diffusion (need a high enough shadow quality) 
-<br><br>16. <b>shadow</b> : activate/deactivate shadows 
-<br><br>17. <b>particle</b> : show/hide particles 
-<br><br>18. <b>trees</b> : show/hide some features(trees,...) 
-<br><br>19. <b>show script</b> : show/hide scripts linked to the selected unit 
-<br><br>20. <b>rotate light</b> : activate/deactivate the rotating light 
-<br><br>21. <b>freecam</b> : activate/deactivate the free camera mode 
-<br><br>22. <b>fps_limit <font class="style2">n</font></b> : set a frame rate limit (n<=0 : no limit) 
-<br><br>23. <b>addhp <font class="style2">n</font></b> : add n hit point to selected units (n can be negative) 
-<br><br>24. <b>reset_script</b> : stop all running scripts of selected units 
-<br><br>25. <b>kill</b> : kill selected units 
-<br><br>26. <b>script <font class="style2">n</font></b> : launch the script number n on each selected unit 
-<br><br>27. <b>ai debug</b> : show information about A.I. for debugging 
-<br><br>28. <b>change state</b> : change musical background 
-<br><br>29. <b>video shoot</b> : activate/deactivate video recording 
-<br><br>30. <b>zshoot</b> : make a shot of the zbuffer 
+<br>1. <b>fps_on/fps_off</b> : show/hide the fps
+<br><br>2. <b>zshoot</b> : make a shot of the zbuffer 
+<br><br>3. <b>video shoot</b> : activate/deactivate video recording 
+<br><br>4. <b>reload shaders</b> : reload the vertex & fragment programs used for water and details texture 
+
+<br><br>5. <b>show mission info</b> : prints current mission and mission flags of the selected unit
+<br><br>6. <b>view debug</b> : draw on minimap the area that's computed by the renderer
+<br><br>7. <b>ia debug</b> : show debug info about AI
+<br><br>8. <b>internal name</b> : display the short name of the selected unit
+<br><br>9. <b>internal idx</b> : display the index of the selected unit
+<br><br>10. <b>exit</b> : leave the game
+<br><br>11. <b>wireframe</b> : toggle wireframe mode
+<br><br>12. <b>priority n</b> : set main thread priority to 0 (low - normal), 1 (medium) or 2 (high - might slow down the rest of the engine)
+
+<br><br>13. <b>water quality n</b> : form 0 to 4 (0 - low, 1 - normal, 2 - high, 3 - higher, 4 - extreme (3 but with reflection on water))
+
+<br><br>14. <b>shadow quality n</b> : quality of shadows (if you want them smooth)
+<br><br>15. <b>shadow ray n</b> : smoothness of shadows
+<br><br>16. <b>shadow</b> : toggle shadows
+<br><br>17. <b>details</b> : toggle details texture
+<br><br>18. <b>particle</b> : toggle particles
+<br><br>19. <b>waves</b> : toggle waves on coasts
+<br><br>20. <b>show script</b> : display scripting info about selected unit
+<br><br>21. <b>show model</b> : display 3D model info about selected unit
+<br><br>22. <b>rotate light</b> : make the sun light rotate
+<br><br>23. <b>shake</b> : make the screen shake like when a big weapons detonates
+<br><br>24. <b>freecam</b> : toggle free camera mode
+<br><br>25. <b>fps_limit</b> : limit the frame rate (<= 0 means no limit)
+<br><br>26. <b>spawn UNIT player_id nb</b> : spawns nb units of type UNIT for player_id, if UNIT isn't a correct unit type it spawns units of random type
+
+<br><br>27. <b>timefactor s</b> : set game speed
+<br><br>28. <b>addhp h</b> : add h hit points to selected units (can be negative)
+<br><br>29. <b>activate/deactivate</b> : activate or deactivate selected units
+<br><br>30. <b>reset_script</b> : reset selected units's script environment
+<br><br>31. <b>unitinfo</b> : print info about selected units to the console
+<br><br>32. <b>kill</b> : kill selected units
+<br><br>33. <b>script n</b> : start script n on selected units
+<br><br>34. <b>pause</b> : toggle pause/resume game
+<br><br>35. <b>give metal/energy/both player_id amount</b> : give amount of resources to player_id
+<br><br>36. <b>metal</b> : toggle infinite metal cheat
+<br><br>37. <b>energy</b> : toggle infinite energy cheat 
 	</td></tr>
       </table>
       </td>

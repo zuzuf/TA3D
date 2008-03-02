@@ -140,7 +140,7 @@ MM_reloadPage(true);
 
 <p align="justify" class="style1">TA3D is modders-friendly. Some of TA3D features are listed below.<br><br>
 1. <font class="style2"><b>Model changing</b></font><br>
-Now it`s easy to change models in TA3D ! <br>
+<br>Now it`s easy to change models in TA3D ! <br>
 TA3D supports all TA model formats and have own - 3dm. This format stores model information and texture in one file.<br>
 There is TA3D 3D model Editor (3dmeditor.exe), which always can be found in /ta3d/ directory. <br>
 3dmeditor support different operations with *.asc *.3do *.3ds models and converting them in TA3D native format - *.3dm. Also 3dmeditor allow texturing (adding alpha-channel for transparency), scaling, and many other operations with model.<br><br>
@@ -151,13 +151,66 @@ When loading, TA3D looks if there is a replacement model for TA resources (*.3dm
 If you want to make a model for the metal01 image in moonmetal.gaf you'll have to call it moonmetal-metal01.3dm for TA3D to load it instead of the gaf image. You can also use one model for more than one image. There are a feature in TA3D to load an alternate model when reading a file, like a link, the first byte of the file must be set to 0 then the name of the replacement model in the form: objects3d\model_name.3dm (it must be a 3dm!!). <br><br>
 
 2. <font class="style2"><b>3DMeditor main window</b></font><br>
-<img src="res/3dm.jpg"><br><br>
+<br><img src="res/3dm.jpg"><br>
+3dmeditor included in every package of TA3D.<br>
+It allows texturing, adding transparency, scaling, converting models format, and periodically animation of 3D models (yeah, this allows to have animated map features, like spinning dishes of radar towers and animated trees).<br><br>
 
-
-3.  <font class="style2"><b>Sky texturing</b></font><br>
-There are several sky types in TA3D. You can change texture, speed, texturing style in ta3d/sky/ *.tdf files.<br>
+3. <font class="style2"><b>Sky texturing</b></font><br>
+<br>There are several sky types in TA3D. You can change texture, speed, texturing style in ta3d/sky/ *.tdf files.<br>
 Just open with any text editor.<br><br>
 
+4. <font class="style2"><b>New GAF support</b></font><br>
+<br>
+TA3D have support for 24/32bits GAFs (alpha channel is saved only if needed). <br>
+It's an extension of the GAF format specific to TA3D, you cannot read those HD GAFs with TA.<br>
+24/32bits gafs can be used for everything normal GAFs are used:<br><br>
+
+<font class="style2">
+* cursors animation <br>
+* explosions animation<br>
+* unit textures <br>
+* in game GUI (build menus, buttons, backgrounds, ...) <br>
+* everywhere where they can be :)
+</font>
+<br><br>
+
+Currently there is only one tool to make those GAFs: <font class="style2">hpiview</font> <br>
+You have to use it that way: <br><br>
+
+<font class="style2">./hpiview create_gaf gaf_descriptor</font><br>
+or<br>
+<font class="style2">hpiview.exe create_gaf gaf_descriptor</font><br><br>
+
+where gaf_descriptor is the name of the text file that describes the file you want to create. It's made like this:<br>
+Code:<br><br>
+
+<font class="style2">
+[gadget0]<br>
+{<br>
+  entries=the number of anims you want to put in the file;<br>
+  filename=the destination file.gaf;<br>
+}<br>
+[gadget1]          // The first animation<br>
+{<br>
+  frames=number of frames;<br>
+  name=the name of this animation; // has to be set otherwise you won't be able to find your animation in the resulting GAF<br>
+  [frame0]    // The first frame<br>
+  {<br>
+    XPos=the offset on the x axis;<br>
+    YPos=the offets on the y axis;<br>
+    filename=the image file to use as this frame;<br>
+  }<br>
+  [frame...]<br>
+  ...<br>
+}<br><br>
+</font>
+
+If you want an example of this syntax you can extract the content of a GAF (any GAF type is supported) with hpiview:<br><br>
+
+<font class="style2">./hpiview extract_gaf anims\\cursors.gaf</font><br><br>
+
+this command will extract all the frames within anims\cursors.gaf (note the \\, if you don't want to type \\ you can type "anims\cursors.gaf"), and it'll create a anims\cursors.gaf.txt file with the above syntax so that you can modify the frames and then put them back into GAF format (but it'll be 24/32bits GAF not TA 8bits GAF).<br><br>
+This feature is available in current SVN. <br><br>
       </td></tr>
       </table>
       </td>
