@@ -158,6 +158,57 @@ Si vous voulez créer un modèle pour l'image metal01 de moonmetal.gaf vous devr
 Il y a plusieurs types de ciels dans TA3D. Vous pouvez en changer la texture, la vitesse de rotation, et le type de texturage dans les fichiers ta3d/sky/*.tdf .<br>
 Il suffit de les éditer avec un éditeur de texte.<br><br>
 
+4. <font class="style2"><b>Support du nouveau format GAF</b></font><br>
+<br>
+TA3D supporte les GAFs 24/32bits (le canal alpha est enregistré seulement si nécessaire). <br>
+C'est une extension du format GAF spécifique à TA3D, vous ne pouvez pas lire ces fichiers GAFs HD avec TA.<br>
+Les fichiers GAF 24/32bits peuvent être utilisés partout où le GAF normal est utilisé:<br><br>
+
+<font class="style2">
+* animation des curseurs<br>
+* animation des explosions<br>
+* textures des unités<br>
+* interface du jeu (menus de construction, boutons, images de fond des menus, ...) <br>
+* partout où on peut mettre du GAF :)
+</font>
+<br><br>
+
+Actuellement il n'y a qu'un seul outils pour créer ces GAFs: <font class="style2">hpiview</font> <br>
+Il s'utilise comme suit: <br><br>
+
+<font class="style2">./hpiview create_gaf gaf_descriptor</font><br>
+ou<br>
+<font class="style2">hpiview.exe create_gaf gaf_descriptor</font><br><br>
+
+où gaf_descriptor est le nom du fichier texte qui contient la description du fichier que vous voulez créer. Ce fichier est structuré comme ceci:<br>
+Code:<br><br>
+
+<font class="style2">
+[gadget0]<br>
+{<br>
+  entries=le nombre d'animations que vous voulez mettre dans le fichier;<br>
+  filename=le fichier de destination.gaf;<br>
+}<br>
+[gadget1]          // La première animation<br>
+{<br>
+  frames=nombre d'images;<br>
+  name=le nom de l'animation; // doit être rempli sinon vous ne pourrez pas retrouver l'animation dans le GAF produit<br>
+  [frame0]    // La première image<br>
+  {<br>
+    XPos=décalage sur l'axe des X;<br>
+    YPos=décalage sur l'axe des Y;<br>
+    filename=le fichier image à utiliser pour cette image;<br>
+  }<br>
+  [frame...]<br>
+  ...<br>
+}<br><br>
+</font>
+
+Si vous voulez un exemple de la syntaxe à utiliser vous pouvez extraire un GAF existant (tout les GAF sont supportés) avec hpiview:<br><br>
+
+<font class="style2">./hpiview extract_gaf anims\\cursors.gaf</font><br><br>
+
+cette commande va extraire toutes les images contenues dans anims\cursors.gaf (remarquez le \\, si vous ne voulez pas taper \\ vous pouvez taper "anims\cursors.gaf"), et cela créera un fichier anims\cursors.gaf.txt avec la structure décrite ci-dessus vous permettant de modifier les images et de les remettre au format GAF (mais ce sera un GAF 24/32bits pas un GAF TA 8bits).<br><br>
       </td></tr>
       </table>
       </td>

@@ -138,15 +138,17 @@ MM_reloadPage(true);
           <td width="560" valign="top" class="gdfgfgd">
 <center><H1>Installation</H1></center>
 <p align="left" class="style2">Windows</p>
-<p align="justify" class="style1"> Pour installer TA3D sous Windows XP lancez simplement ta3d-0-4-1.exe et décompresser son contenu dans un nouveau dossier (par exemple C:/ta3d/) puis lancez install.bat avec le CD-ROM de TA dans votre lecteur cdrom (Cela copiera totala1.hpi et totala2.hpi dans le dossier de TA3D).
+<p align="justify" class="style1"> Pour installer TA3D sous Windows XP lancez simplement ta3d-0-4-2.exe et décompresser son contenu dans un nouveau dossier (par exemple C:/ta3d/) puis lancez install.bat avec le CD-ROM de TA dans votre lecteur cdrom (Cela copiera totala1.hpi et totala2.hpi dans le dossier de TA3D).
 <br><br>Vous pouvez aussi copier <font class="style2">totala1.hpi</font> et <font class="style2">totala2.hpi</font> à la main.
 <br><br>Lancez TA3D.exe pour lancer TA3D. (impressionant, hein?)
 <br><br><font class="style2">Note:</font> En cas de plantage essayez de réduire la qualité de l'eau, celle-ci utilise les shaders 2.0 à partir de "normal".
 </p>
 
 <p align="left" class="style2">Linux</p>
+
+<p align="left" class="style2">Comment compiler TA3D soi-même</p>
 <p align="justify" class="style1">
-Pour compiler TA3D sous Linux vous aurez besoin des librairies Allegro, AllegroGL, FMODex 4 et zlib installées avec leurs fichiers de développement.
+Pour compiler TA3D sous Linux vous aurez besoin des librairies Allegro, AllegroGL, FMODex 4 et zlib installées avec leurs fichiers de développement ainsi que le paquet source de TA3D.
 <br>Il vous faut aussi le compilateur GCC avec le support du C++(g++). 
 
 <br><br>
@@ -157,6 +159,16 @@ Pour compiler TA3D tapez dans une console:
 <p align="justify" class="style1"> Pour installer les fichiers ressources lancez install-sh avec le CD-ROM de TA dans votre lecteur cdrom (Cela copiera totala1.hpi et totala2.hpi dans le dossier de ta3d).
 
 <br>Pour lancer TA3D: 
+<br># ./ta3d 
+</p>
+
+<p align="left" class="style2">Comment installer un paquet binaire</p>
+<p align="justify" class="style1">
+Des paquets binaires sont maintenant disponibles pour Linux, pour systèmes 32 et 64 bits. Vous ne devriez pas avoir besoin d'autres paquets que ceux disponibles sur notre site web (ils contiennent les versions requises d'Allegro et AllegroGL ainsi que la librairie FMODex). Décompactez simplement l'archive qui correspond le mieux à votre système et lancer le script install-sh pour installer les ressources requises depuis les cds de Total Annihilation.<br>
+<br>
+NB: si ces paquets ne fonctionnent pas sur votre système (erreurs à propos de quelque chose qui manque ou qui n'est pas compatible) vous pouvez essayer de compiler TA3D vous-même depuis les sources qui ne sont pas incluses dans les paquets binaires.
+
+<br>Pour lancer TA3D:
 <br># ./ta3d 
 </p>
 
