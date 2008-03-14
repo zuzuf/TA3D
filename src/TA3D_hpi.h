@@ -157,6 +157,8 @@ namespace TA3D
             // Member Variables:
          private:
             std::string m_cDir;     // used when building dir structurs.
+            
+            std::string m_Path;		// used when looking for files in the real file system
 
             TA3D::UTILS::clpHashTable< HPIITEM * > *m_Archive;
 

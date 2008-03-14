@@ -75,7 +75,7 @@ AMTAR = ${SHELL} /home/roland/progc++/ta3d/missing --run tar
 AUTOCONF = ${SHELL} /home/roland/progc++/ta3d/missing --run autoconf
 AUTOHEADER = ${SHELL} /home/roland/progc++/ta3d/missing --run autoheader
 AUTOMAKE = ${SHELL} /home/roland/progc++/ta3d/missing --run automake-1.10
-AWK = mawk
+AWK = gawk
 CC = gcc
 CCDEPMODE = depmode=gcc3
 CFLAGS = -g -O2

@@ -474,6 +474,7 @@ void cHPIHandler::LocateAndReadFiles( const std::string &Path, const std::string
 
 void cHPIHandler::SearchDirForArchives( const std::string &Path )
 {
+	m_Path = Path;
 	schar ext[4][6] = { "*.ufo", "*.hpi", "*.ccx", "*.gp3" };
 
 	for( uint32 i = 0; i < 4; i++ )
@@ -627,7 +628,7 @@ TA3D::UTILS::HPI::cHPIHandler::CACHEFILEDATA *cHPIHandler::IsInCache( const Stri
 
 byte *cHPIHandler::PullFromHPI( const std::string &FileName , uint32 *file_length )
 {
-	String UNIX_filename = FileName;
+	String UNIX_filename = m_Path + FileName;
 	for( uint16 i = 0 ; i < UNIX_filename.size() ; i++ )
 		if( UNIX_filename[i] == '\\' )
 			UNIX_filename[i] = '/';
@@ -643,7 +644,7 @@ byte *cHPIHandler::PullFromHPI( const std::string &FileName , uint32 *file_lengt
 
 	uint32	FileSize;
 
-	UNIX_filename = TA3D_CURRENT_MOD + FileName;
+	UNIX_filename = m_Path + TA3D_CURRENT_MOD + FileName;
 	for( uint16 i = 0 ; i < UNIX_filename.size() ; i++ )
 		if( UNIX_filename[i] == '\\' )
 			UNIX_filename[i] = '/';
@@ -680,7 +681,7 @@ byte *cHPIHandler::PullFromHPI( const std::string &FileName , uint32 *file_lengt
 		return data;
 		}
 
-	UNIX_filename = FileName;
+	UNIX_filename = m_Path + FileName;
 	for( uint16 i = 0 ; i < UNIX_filename.size() ; i++ )
 		if( UNIX_filename[i] == '\\' )
 			UNIX_filename[i] = '/';
@@ -721,7 +722,7 @@ byte *cHPIHandler::PullFromHPI( const std::string &FileName , uint32 *file_lengt
 
 byte *cHPIHandler::PullFromHPI_zone( const std::string &FileName , uint32 start , uint32 length , uint32 *file_length )
 {
-	String UNIX_filename = TA3D_CURRENT_MOD + FileName;
+	String UNIX_filename = m_Path + TA3D_CURRENT_MOD + FileName;
 	for( uint16 i = 0 ; i < UNIX_filename.size() ; i++ )
 		if( UNIX_filename[i] == '\\' )
 			UNIX_filename[i] = '/';
@@ -743,7 +744,7 @@ byte *cHPIHandler::PullFromHPI_zone( const std::string &FileName , uint32 start 
 	if( iterFind != NULL && iterFind->hfd->priority )				// Prioritary file!!
 		return DecodeFileToMem_zone( iterFind , start , length , file_length );
 
-	UNIX_filename = FileName;
+	UNIX_filename = m_Path + FileName;
 	for( uint16 i = 0 ; i < UNIX_filename.size() ; i++ )
 		if( UNIX_filename[i] == '\\' )
 			UNIX_filename[i] = '/';
@@ -766,13 +767,13 @@ byte *cHPIHandler::PullFromHPI_zone( const std::string &FileName , uint32 start 
 
 bool cHPIHandler::Exists( const std::string &FileName )
 {
-	String UNIX_filename = TA3D_CURRENT_MOD + FileName;
+	String UNIX_filename = m_Path + TA3D_CURRENT_MOD + FileName;
 	for( uint16 i = 0 ; i < UNIX_filename.size() ; i++ )
 		if( UNIX_filename[i] == '\\' )
 			UNIX_filename[i] = '/';
 	if( exists( UNIX_filename.c_str() ) )	return true;
 
-	UNIX_filename = FileName;
+	UNIX_filename = m_Path + FileName;
 	for( uint16 i = 0 ; i < UNIX_filename.size() ; i++ )
 		if( UNIX_filename[i] == '\\' )
 			UNIX_filename[i] = '/';
@@ -788,7 +789,7 @@ uint32 cHPIHandler::GetFilelist( const std::string &Search, std::list<std::strin
 	uint32 list_size = m_Archive->WildCardSearch( Search, li );
 	al_ffblk info;
 
-	String UNIX_search = Search;
+	String UNIX_search = m_Path + Search;
 	for( uint16 i = 0 ; i < UNIX_search.size() ; i++ )
 		if( UNIX_search[i] == '\\' )
 			UNIX_search[i] = '/';
@@ -817,7 +818,7 @@ uint32 cHPIHandler::GetFilelist( const std::string &Search, std::list<std::strin
 		}
 
 	if( TA3D_CURRENT_MOD != "" ) {
-		UNIX_search = TA3D_CURRENT_MOD + Search;
+		UNIX_search = m_Path + TA3D_CURRENT_MOD + Search;
 		for( uint16 i = 0 ; i < UNIX_search.size() ; i++ )
 			if( UNIX_search[i] == '\\' )
 				UNIX_search[i] = '/';
