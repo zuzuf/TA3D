@@ -5784,8 +5784,6 @@ int INGAME_UNITS::Run()
 	while( !thread_ask_to_stop ) {
 		counter += step;
 
-		printf("tick %d\n", current_tick);
-
 		move( dt, map, current_tick, wind_change );					// Animate units
 
 		EnterCS();
