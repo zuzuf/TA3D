@@ -1,6 +1,7 @@
 [window]
 {
 	title=confirm;
+	name=config_confirm;
 	uformat=UTF8;
 	x=440;
 	y=412;
