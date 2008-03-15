@@ -645,8 +645,8 @@ const void WEAPON::move(const float dt,MAP *map)				// Anime les armes
 
 				features.feature[-hit_idx-2].hp -= damage;		// The feature hit is taking damage
 				if(features.feature[-hit_idx-2].hp<=0.0f && !features.feature[-hit_idx-2].burning) {
-					int sx=((int)(features.feature[-hit_idx-2].Pos.x)+map->map_w_d-4)>>3;		// Delete the feature
-					int sy=((int)(features.feature[-hit_idx-2].Pos.z)+map->map_h_d-4)>>3;
+					int sx=((int)(features.feature[-hit_idx-2].Pos.x)+map->map_w_d-8)>>3;		// Delete the feature
+					int sy=((int)(features.feature[-hit_idx-2].Pos.z)+map->map_h_d-8)>>3;
 					VECTOR feature_pos = features.feature[-hit_idx-2].Pos;
 					map->rect(sx-(feature_manager.feature[features.feature[-hit_idx-2].type].footprintx>>1),sy-(feature_manager.feature[features.feature[-hit_idx-2].type].footprintz>>1),feature_manager.feature[features.feature[-hit_idx-2].type].footprintx,feature_manager.feature[features.feature[-hit_idx-2].type].footprintz,-1);
 					int feature_type = features.feature[-hit_idx-2].type;
@@ -754,8 +754,8 @@ const void WEAPON::move(const float dt,MAP *map)				// Anime les armes
 								float cur_damage = damage * weapon_manager.weapon[weapon_id].edgeeffectiveness;
 								features.feature[-t_idx-2].hp -= cur_damage;		// L'objet touché encaisse les dégats
 								if(features.feature[-t_idx-2].hp<=0.0f) {
-									int sx=((int)(features.feature[-t_idx-2].Pos.x)+map->map_w_d-4)>>3;		// Efface l'objet
-									int sy=((int)(features.feature[-t_idx-2].Pos.z)+map->map_h_d-4)>>3;
+									int sx=((int)(features.feature[-t_idx-2].Pos.x)+map->map_w_d-8)>>3;		// Efface l'objet
+									int sy=((int)(features.feature[-t_idx-2].Pos.z)+map->map_h_d-8)>>3;
 									map->rect(sx-(feature_manager.feature[features.feature[-t_idx-2].type].footprintx>>1),sy-(feature_manager.feature[features.feature[-t_idx-2].type].footprintz>>1),feature_manager.feature[features.feature[-t_idx-2].type].footprintx,feature_manager.feature[features.feature[-t_idx-2].type].footprintz,-1);
 									features.delete_feature(-t_idx-2);			// Supprime l'objet
 									}

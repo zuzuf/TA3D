@@ -2013,7 +2013,9 @@ bool UNIT::is_on_radar( byte p_mask )
 					case 1:			// Some good looking corpse
 						{
 							LeaveCS();
+							flags = 1;				// Set it to 1 otherwise it won't remove it from map
 							clear_from_map();
+							flags = 4;
 							EnterCS();
 							int x=((int)(Pos.x)+map->map_w_d-8)>>3;
 							int y=((int)(Pos.z)+map->map_h_d-8)>>3;
@@ -2021,8 +2023,8 @@ bool UNIT::is_on_radar( byte p_mask )
 								if(map->map_data[y][x].stuff==-1) {
 									int type=feature_manager.get_feature_index(unit_manager.unit_type[type_id].Corpse);
 									if( type >= 0 ) {
-										Pos.x=(x<<3)-0.5f*map->map_w+8.0f;
-										Pos.z=(y<<3)-0.5f*map->map_h+8.0f;
+										Pos.x=(x<<3)-map->map_w_d+8.0f;
+										Pos.z=(y<<3)-map->map_h_d+8.0f;
 										map->map_data[y][x].stuff=features.add_feature(Pos,type);
 										if( map->map_data[y][x].stuff >= 0 ) {			// Keep unit orientation
 											features.feature[ map->map_data[y][x].stuff ].angle = Angle.y;
@@ -2037,7 +2039,9 @@ bool UNIT::is_on_radar( byte p_mask )
 					case 2:			// Some exploded corpse
 						{
 							LeaveCS();
+							flags = 1;				// Set it to 1 otherwise it won't remove it from map
 							clear_from_map();
+							flags = 4;
 							EnterCS();
 							int x=(int)((Pos.x)+map->map_w_d-8)>>3;
 							int y=(int)((Pos.z)+map->map_h_d-8)>>3;
@@ -2045,8 +2049,8 @@ bool UNIT::is_on_radar( byte p_mask )
 								if(map->map_data[y][x].stuff==-1) {
 									int type=feature_manager.get_feature_index( (String( unit_manager.unit_type[type_id].name) + "_heap").c_str() );
 									if( type >= 0 ) {
-										Pos.x=(x<<3)-0.5f*map->map_w+8.0f;
-										Pos.z=(y<<3)-0.5f*map->map_h+8.0f;
+										Pos.x=(x<<3)-map->map_w_d+8.0f;
+										Pos.z=(y<<3)-map->map_h_d+8.0f;
 										map->map_data[y][x].stuff=features.add_feature(Pos,type);
 										if( map->map_data[y][x].stuff >= 0 ) {			// Keep unit orientation
 											features.feature[ map->map_data[y][x].stuff ].angle = Angle.y;
@@ -4184,7 +4188,7 @@ bool UNIT::is_on_radar( byte p_mask )
 				}
 			nb_running-=e;
 			}
-		if( (o_px != cur_px || o_py != cur_py || first_move || was_flying ^ flying || (port[YARD_OPEN] != 0.0f) ^ was_open) && build_percent_left <= 0.0f || !drawn ) {
+		if( (o_px != cur_px || o_py != cur_py || first_move || (was_flying ^ flying) || ((port[YARD_OPEN] != 0.0f) ^ was_open)) && build_percent_left <= 0.0f || !drawn ) {
 			first_move = build_percent_left > 0.0f;
 			LeaveCS();
 			draw_on_map();
@@ -5550,9 +5554,7 @@ void INGAME_UNITS::kill(int index,MAP *map,int prev)			// Détruit une unité
 			}
 		players.nb_unit[ unit[index].owner_id ]--;
 		players.losses[ unit[index].owner_id ]++;		// Statistiques
-		}
 
-	if( unit[index].flags ) {			// Remove it from map
 		unit[index].UnLock();
 		unit[index].clear_from_map();
 		unit[index].Lock();

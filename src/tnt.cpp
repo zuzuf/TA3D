@@ -452,8 +452,8 @@ MAP	*load_tnt_map(byte *data)		// Charge une map au format TA, extraite d'une ar
 			map->map_data[y][x].stuff=-1;
 			if(type<=header.tileanims) {
 				VECTOR Pos;
-				Pos.x=(x<<3)-0.5f*map->map_w+8.0f;
-				Pos.z=(y<<3)-0.5f*map->map_h+8.0f;
+				Pos.x=(x<<3)-map->map_w_d+8.0f;
+				Pos.z=(y<<3)-map->map_h_d+8.0f;
 				if( !feature_manager.feature[TDF_index[type]].m3d )
 					Pos.y = map->get_max_rect_h( x, y, feature_manager.feature[TDF_index[type]].footprintx, feature_manager.feature[TDF_index[type]].footprintz );
 				else
