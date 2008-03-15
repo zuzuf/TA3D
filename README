@@ -1,4 +1,4 @@
-TA3D version 0.4.1
+TA3D version 0.4.2
 
 this software is under GPL (see COPYING)
 
@@ -17,6 +17,8 @@ _mouse commands on the rendered terrain
 _run under Linux (developped under Linux)
 _run under windows
 _enhanced explosion effects
+_campaign mode
+_...
 
 and additionnal features:
 _water effect for oceans, lakes and rivers, and lava effect
@@ -30,7 +32,7 @@ _a random map generator
 _a new map format, with more details
 _a system to make the terrain destructible
 
-en probably more!
+and probably more!
 
 NB: TA3D requires Allegro v 4.2.2 or better, AllegroGL >= 0.4.0 and zlib
 
@@ -54,6 +56,8 @@ _tourne nativement sous Linux(développé sous Linux d'ailleurs)
 _tourne sous windows
 _support des "armes"
 _effets d'explosion améliorés
+_le mode campagne
+_...
 
 et des fonctions supplémentaires:
 _un effet de fluides pour les océans et les lacs de lave entre autres
@@ -106,6 +110,10 @@ to launch TA3D just type ./ta3d , it will launch the menu allowing you to launch
 
 console can be enabled with ")".("²" under windows)
 
+this software is still in development and authors cannot be held responsible for any
+consequence of this software on your life, your computer, your dog, ...
+
+PS: si vous aimez ce logiciel faites le connaître :-)
 ----------
 
 pour lancer ta3d tapez simplement ./ta3d pour lancer le menu vous permettant de lancer une partie et de
