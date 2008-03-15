@@ -616,6 +616,7 @@ void config_menu(void)
 	config_area.set_state("*.shadow", lp_CONFIG->shadow);
 	config_area.set_state("*.height_line", lp_CONFIG->height_line);
 	config_area.set_state("*.detail_tex", lp_CONFIG->detail_tex);
+	config_area.set_state("*.use_texture_cache", lp_CONFIG->use_texture_cache);
 	config_area.set_state("*.draw_console_loading", lp_CONFIG->draw_console_loading);
 	config_area.set_state("*.fullscreen", lp_CONFIG->fullscreen);
 	if( config_area.get_object("*.LANG") )
@@ -816,6 +817,7 @@ void config_menu(void)
 		lp_CONFIG->detail_tex = config_area.get_state( "*.detail_tex" );
 		lp_CONFIG->draw_console_loading = config_area.get_state( "*.draw_console_loading" );
 		lp_CONFIG->fullscreen = config_area.get_state( "*.fullscreen" );
+		lp_CONFIG->use_texture_cache = config_area.get_state( "*.use_texture_cache" );
 		if( config_area.get_state( "*.camera_zoom" ) ) {
 			GUIOBJ *obj = config_area.get_object( "*.camera_zoom" );
 			if( obj && obj->Data != -1 ) {

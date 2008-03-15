@@ -1,3 +1,11 @@
+[warning: you might have texturing\nissues with this!!]
+{
+	FRENCH=attention: vous pouvez avoir des problemes\nde textures avec cette option!!;
+}
+[use texture cache]
+{
+	FRENCH=Utiliser le cache de texture;
+}
 [Pause the game]
 {
 	FRENCH=Pause;

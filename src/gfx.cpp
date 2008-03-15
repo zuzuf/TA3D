@@ -764,7 +764,7 @@ GLuint	GFX::load_texture_mask( String file, int level, byte filter_type, uint32 
 
 GLuint	GFX::load_texture_from_cache( String file, byte filter_type, uint32 *width, uint32 *height, bool clamp )
 {
-	if( ati_workaround )	return 0;
+	if( ati_workaround || !lp_CONFIG->use_texture_cache )	return 0;
 
 	file = TA3D_OUTPUT_DIR + "cache/" + file;
 
@@ -856,7 +856,7 @@ GLuint	GFX::load_texture_from_cache( String file, byte filter_type, uint32 *widt
 
 void	GFX::save_texture_to_cache( String file, GLuint tex, uint32 width, uint32 height )
 {
-	if( ati_workaround )	return;
+	if( ati_workaround || !lp_CONFIG->use_texture_cache )	return;
 
 	file = TA3D_OUTPUT_DIR + "cache/" + file;
 

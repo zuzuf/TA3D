@@ -8,7 +8,7 @@
 	height=720;
 	draw borders=false;
 	show title=false;
-	number of objects=25;
+	number of objects=27;
 	hidden=false;
 	lock=true;
 	color=0x00000000;			// Fully transparent so we can see the AREA background
@@ -276,5 +276,27 @@
 		y2=465;
 		value=0;
 		size=1.5;
+	}
+	[object25]		// Option "use_texture_cache"
+	{
+		name=t_use_texture_cache;
+		type=TEXT;
+		caption=use texture cache;
+		help=warning: you might have texturing\nissues with this!!;
+		x1=0;
+		y1=470;
+		value=0xFFFFFFFF;
+		size=2;
+	}
+	[object26]		// Option "use_texture_cache"
+	{
+		name=use_texture_cache;
+		type=OPTIONC;
+		caption=;
+		help=warning: you might have texturing\nissues with this!!;
+		x1=690;
+		y1=470;
+		value=0;
+		size=1.6;
 	}
 }

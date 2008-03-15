@@ -5550,11 +5550,14 @@ void INGAME_UNITS::kill(int index,MAP *map,int prev)			// Détruit une unité
 			}
 		players.nb_unit[ unit[index].owner_id ]--;
 		players.losses[ unit[index].owner_id ]++;		// Statistiques
+		}
 
+	if( unit[index].flags ) {			// Remove it from map
 		unit[index].UnLock();
 		unit[index].clear_from_map();
 		unit[index].Lock();
 		}
+
 	if(unit[index].type_id >= 0 && unit_manager.unit_type[unit[index].type_id].canload && unit[index].nb_attached>0)
 		for( int i = 0 ; i < unit[index].nb_attached ; i++ ) {
 			unit[unit[index].attached_list[i]].Lock();

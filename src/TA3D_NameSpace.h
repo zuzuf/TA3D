@@ -89,6 +89,8 @@ namespace TA3D
 		String	player_name;				// Name of local player
 
 		String	skin_name;					// The skin used ( empty means default )
+		
+		bool	use_texture_cache;			// Use the texture cache ? (default : disabled because on some systems it doesn't work)
 
 		// Variables used to communicate with all the code
 		bool	quickrestart;				// Should be false, set to true when need to restart to enable options/parameters
@@ -98,6 +100,8 @@ namespace TA3D
 
 		TA3DCONFIG()
 		{
+			use_texture_cache = false;
+			
 			pause = false;
 
 			skin_name = "";
