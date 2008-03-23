@@ -792,11 +792,11 @@ void config_menu(void)
 		if( config_area.get_state( "*.b_cancel" ) ) done=true;		// En cas de click sur "retour", on quitte la fenêtre
 
 		lp_CONFIG->showfps = config_area.get_state( "*.showfps" );
-		if( config_area.get_state( "*.fps_limit" ) ) {
+		if( config_area.get_value( "*.fps_limit" ) >= 0 ) {
 			GUIOBJ *obj = config_area.get_object( "*.fps_limit" );
 			if( obj && obj->Data != -1 ) {
-				obj->Text[0] = fps_limits[ obj->Data ];
-				switch( obj->Data )
+				obj->Text[0] = fps_limits[ obj->Value ];
+				switch( obj->Value )
 				{
 				case 0:		lp_CONFIG->fps_limit = 50;	break;
 				case 1:		lp_CONFIG->fps_limit = 60;	break;
@@ -818,90 +818,90 @@ void config_menu(void)
 		lp_CONFIG->draw_console_loading = config_area.get_state( "*.draw_console_loading" );
 		lp_CONFIG->fullscreen = config_area.get_state( "*.fullscreen" );
 		lp_CONFIG->use_texture_cache = config_area.get_state( "*.use_texture_cache" );
-		if( config_area.get_state( "*.camera_zoom" ) ) {
+		if( config_area.get_value( "*.camera_zoom" ) >= 0 ) {
 			GUIOBJ *obj = config_area.get_object( "*.camera_zoom" );
-			if( obj && obj->Data != -1 ) {
-				obj->Text[0] = obj->Text[ 1 + obj->Data ];
-				lp_CONFIG->camera_zoom = obj->Data;
+			if( obj && obj->Value >= -1 ) {
+				obj->Text[0] = obj->Text[ 1 + obj->Value ];
+				lp_CONFIG->camera_zoom = obj->Value;
 				}
 			}
-		if( config_area.get_state( "*.camera_def_angle" ) ) {
+		if( config_area.get_value( "*.camera_def_angle" ) >= 0 ) {
 			GUIOBJ *obj = config_area.get_object( "*.camera_def_angle" );
-			if( obj && obj->Data != -1 ) {
-				obj->Text[0] = obj->Text[ 1 + obj->Data ];
+			if( obj && obj->Value >= 0 ) {
+				obj->Text[0] = obj->Text[ 1 + obj->Value ];
 				lp_CONFIG->camera_def_angle = atof( obj->Text[0].c_str() );
 				}
 			}
-		if( config_area.get_state( "*.camera_def_h" ) ) {
+		if( config_area.get_value( "*.camera_def_h" ) >= 0 ) {
 			GUIOBJ *obj = config_area.get_object( "*.camera_def_h" );
-			if( obj && obj->Data != -1 ) {
-				obj->Text[0] = obj->Text[ 1 + obj->Data ];
+			if( obj && obj->Value >= 0 ) {
+				obj->Text[0] = obj->Text[ 1 + obj->Value ];
 				lp_CONFIG->camera_def_h = atof( obj->Text[0].c_str() );
 				}
 			}
-		if( config_area.get_state( "*.camera_zoom_speed" ) ) {
+		if( config_area.get_value( "*.camera_zoom_speed" ) >= 0 ) {
 			GUIOBJ *obj = config_area.get_object( "*.camera_zoom_speed" );
-			if( obj && obj->Data != -1 ) {
-				obj->Text[0] = obj->Text[ 1 + obj->Data ];
+			if( obj && obj->Value >= 0 ) {
+				obj->Text[0] = obj->Text[ 1 + obj->Value ];
 				lp_CONFIG->camera_zoom_speed = atof( obj->Text[0].c_str() );
 				}
 			}
-		if( config_area.get_state( "*.LANG" ) ) {
+		if( config_area.get_value( "*.LANG" ) >= 0 ) {
 			GUIOBJ *obj = config_area.get_object( "*.LANG" );
-			if( obj && obj->Data != -1 ) {
-				obj->Text[0] = obj->Text[ 1 + obj->Data ];
-				lp_CONFIG->Lang = obj->Data;
+			if( obj && obj->Value != -1 ) {
+				obj->Text[0] = obj->Text[ 1 + obj->Value ];
+				lp_CONFIG->Lang = obj->Value;
 				}
 			}
-		if( config_area.get_state( "*.screenres" ) ) {
+		if( config_area.get_value( "*.screenres" ) >= 0 ) {
 			GUIOBJ *obj = config_area.get_object( "*.screenres" );
-			if( obj && obj->Data != -1 ) {
-				obj->Text[0] = obj->Text[ 1 + obj->Data ];
-				lp_CONFIG->screen_width = res_width[ obj->Data ];
-				lp_CONFIG->screen_height = res_height[ obj->Data ];
-				lp_CONFIG->color_depth = res_bpp[ obj->Data ];
+			if( obj && obj->Value != -1 ) {
+				obj->Text[0] = obj->Text[ 1 + obj->Value ];
+				lp_CONFIG->screen_width = res_width[ obj->Value ];
+				lp_CONFIG->screen_height = res_height[ obj->Value ];
+				lp_CONFIG->color_depth = res_bpp[ obj->Value ];
 				}
 			}
-		if( config_area.get_state( "*.shadow_quality" ) ) {
+		if( config_area.get_value( "*.shadow_quality" ) >= 0 ) {
 			GUIOBJ *obj = config_area.get_object( "*.shadow_quality" );
-			if( obj && obj->Data != -1 ) {
-				obj->Text[0] = obj->Text[ 1 + obj->Data ];
-				lp_CONFIG->shadow_quality = obj->Data * 3 + 1;
+			if( obj && obj->Value != -1 ) {
+				obj->Text[0] = obj->Text[ 1 + obj->Value ];
+				lp_CONFIG->shadow_quality = obj->Value * 3 + 1;
 				}
 			}
-		if( config_area.get_state( "*.timefactor" ) ) {
+		if( config_area.get_value( "*.timefactor" ) >= 0 ) {
 			GUIOBJ *obj = config_area.get_object( "*.timefactor" );
-			if( obj && obj->Data != -1 ) {
-				obj->Text[0] = obj->Text[ 1 + obj->Data ];
-				lp_CONFIG->timefactor = obj->Data + 1;
+			if( obj && obj->Value != -1 ) {
+				obj->Text[0] = obj->Text[ 1 + obj->Value ];
+				lp_CONFIG->timefactor = obj->Value + 1;
 				}
 			}
-		if( config_area.get_state( "*.fsaa" ) ) {
+		if( config_area.get_value( "*.fsaa" ) >= 0 ) {
 			GUIOBJ *obj = config_area.get_object( "*.fsaa" );
-			if( obj && obj->Data != -1 ) {
-				obj->Text[0] = obj->Text[ 1 + obj->Data ];
-				lp_CONFIG->fsaa = obj->Data << 1;
+			if( obj && obj->Value != -1 ) {
+				obj->Text[0] = obj->Text[ 1 + obj->Value ];
+				lp_CONFIG->fsaa = obj->Value << 1;
 				}
 			}
-		if( config_area.get_state( "*.water_quality" ) ) {
+		if( config_area.get_value( "*.water_quality" ) >= 0 ) {
 			GUIOBJ *obj = config_area.get_object( "*.water_quality" );
-			if( obj && obj->Data != -1 ) {
-				obj->Text[0] = obj->Text[ 1 + obj->Data ];
-				lp_CONFIG->water_quality = obj->Data;
+			if( obj && obj->Value != -1 ) {
+				obj->Text[0] = obj->Text[ 1 + obj->Value ];
+				lp_CONFIG->water_quality = obj->Value;
 				}
 			}
-		if( config_area.get_state( "*.mod" ) ) {
+		if( config_area.get_value( "*.mod" ) >= 0 ) {
 			GUIOBJ *obj = config_area.get_object( "*.mod" );
-			if( obj && obj->Data != -1 ) {
-				obj->Text[0] = obj->Text[ 1 + obj->Data ];
-				lp_CONFIG->last_MOD = obj->Data > 0 ? "mods/" + obj->Text[0] + "/" : "";
+			if( obj && obj->Value != -1 ) {
+				obj->Text[0] = obj->Text[ 1 + obj->Value ];
+				lp_CONFIG->last_MOD = obj->Value > 0 ? "mods/" + obj->Text[0] + "/" : "";
 				}
 			}
-		if( config_area.get_state( "*.skin" ) ) {
+		if( config_area.get_value( "*.skin" ) >= 0 ) {
 			GUIOBJ *obj = config_area.get_object( "*.skin" );
-			if( obj && obj->Data != -1 ) {
-				obj->Text[0] = obj->Text[ 1 + obj->Data ];
-				lp_CONFIG->skin_name = obj->Data > 0 ? "gui/" + obj->Text[0] : "";
+			if( obj && obj->Value != -1 ) {
+				obj->Text[0] = obj->Text[ 1 + obj->Value ];
+				lp_CONFIG->skin_name = obj->Value > 0 ? "gui/" + obj->Text[0] : "";
 				}
 			}
 
@@ -1239,11 +1239,11 @@ void setup_game(void)
 		amz = mouse_z;
 		amb = mouse_b;
 
-		if( setupgame_area.get_state( "gamesetup.FOW" ) ) {
+		if( setupgame_area.get_value( "gamesetup.FOW" ) >= 0 ) {
 			GUIOBJ *obj = setupgame_area.get_object( "gamesetup.FOW" );
-			if( obj && obj->Data != -1 ) {
-				obj->Text[0] = obj->Text[ 1 + obj->Data ];
-				game_data.fog_of_war = obj->Data;
+			if( obj && obj->Value != -1 ) {
+				obj->Text[0] = obj->Text[ 1 + obj->Value ];
+				game_data.fog_of_war = obj->Value;
 				}
 			}
 
@@ -1870,11 +1870,11 @@ int brief_screen( String campaign_name, int mission_id )
 
 		planet_frame = (msec_timer - time_ref) * 0.01f;
 
-		if( brief_area.get_state( "brief.schema" ) ) {
+		if( brief_area.get_value( "brief.schema" ) >= 0 ) {
 			GUIOBJ *obj = brief_area.get_object( "brief.schema" );
-			if( obj->Data != -1 ) {
-				obj->Text[ 0 ] = obj->Text[ obj->Data + 1 ];
-				schema = obj->Data;
+			if( obj->Value != -1 ) {
+				obj->Text[ 0 ] = obj->Text[ obj->Value + 1 ];
+				schema = obj->Value;
 				}
 			}
 

@@ -141,6 +141,7 @@ public:
 	void				(*Func)(int);	// Pointer to linked function
 	uint32				Data;			// Additional data
 	uint32				Pos;			// Position in a list
+	sint32				Value;			// Used by floatting menus
 	float				s;				// Size factor (for text)
 	uint32				Flag;			// Flags
 	bool				MouseOn;		// If the cursor is on it
@@ -164,6 +165,7 @@ public:
 
 	GUIOBJ()			// Constructor of the object
 	{
+		Value = -1;
 		help_msg.clear();
 		shortcut_key = -1;
 		nb_stages = 0;
@@ -320,6 +322,7 @@ public:
 
 	uint32	msg( const String &message );											// Respond to Interface message
 	bool	get_state( const String &message );										// Return the state of specified object
+	sint32	get_value( const String &message );										// Return the value of specified object
 	String	get_caption( const String &message );									// Return the caption of specified object
 	GUIOBJ	*get_object( const String &message );									// Return a pointer to the specified object
 
@@ -362,9 +365,11 @@ public:
 
 		WND		*get_wnd( const String &message );			// Return the specified window
 		bool	get_state( const String &message );			// Return the state of specified object in the specified window
+		sint32	get_value( const String &message );			// Return the value of specified object in the specified window
 		String	get_caption( const String &message );		// Return the caption of specified object in the specified window
 		GUIOBJ	*get_object( const String &message, bool skip_hidden = false );		// Return a pointer to the specified object
 		void	set_state( const String &message, const bool &state );			// Set the state of specified object in the specified window
+		void	set_value( const String &message, const sint32 &value );		// Set the value of specified object in the specified window
 		void	set_enable_flag( const String &message, const bool &enable );	// Set the enabled/disabled state of specified object in the specified window
 		void	set_caption( const String &message, const String &caption );	// Set the caption of specified object in the specified window
 };

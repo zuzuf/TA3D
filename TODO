@@ -11,16 +11,21 @@ _networking code
 _improve A.I.
 _D3D support
 
+* added a test to prevent making textures that can't fit within the maximum texture size available on the OpenGL renderer (hope it'll fix the SIS bug)
+
 bug list
 --------
-_the second mission of arm campaign is immediately won ...
-_when the pointer is over a floatting menu, it selects without clicking (config menu) ...
 _sometimes weapons go through their target without hitting them !!
 _There should be either restriction to use 12-icon build menu on resolutions lesser than 1024x768 or it should be sizeable, since now on 800x600 or 640xx480 size of 12-icon build menu don`t match size of othe GUI parts and covers some of function buttons.
 _AI still can`t place metal extractors directly where it should be placed _add a flag to movement data to make units leaving their factory face the exit before moving
 _some parts of the maps might not be drawn (visibility limit) like hills
 _slow down with lots of 3D sprites on some gfx hardware (speed increased but bug not yet fixed)
 _fix all other bugs ( :-) )
+
+* fixed click on hidden widgets when floatting menus are unrolled
+* enable ATI workarounds with SIS cards
+* fixed gui bug with floatting menus : "when the pointer is over a floatting menu, it selects without clicking (config menu) ..."
+* fixed : the second mission of arm campaign is no more won immediately ...
 
 idea list
 ---------

@@ -114,6 +114,7 @@ GFX::GFX()
 			allegro_gl_set_texture_format(GL_RGB8); 
 
 	ati_workaround = strncasecmp( (const char*)glGetString( GL_VENDOR ), "ATI", 3 ) == 0;		// Enable ATI workarounds if we have an ATI card
+	ati_workaround |= strstr( Uppercase( (const char*)glGetString( GL_VENDOR ) ).c_str(), "SIS" ) != NULL;		// Enable ATI workarounds if we have an SIS card
 
 	TA3D::VARS::pal = NULL;
 
@@ -605,6 +606,21 @@ const void GFX::print_right(const GFX_FONT &font, const float &x,const float &y,
 GLuint	GFX::make_texture(BITMAP *bmp, byte filter_type, bool clamp )
 {
 	EnterCS();
+
+	int max_tex_size;
+	glGetIntegerv(GL_MAX_TEXTURE_SIZE,&max_tex_size);
+
+	if( bmp->w > max_tex_size || bmp->h > max_tex_size ) {
+		BITMAP *tmp = create_bitmap_ex( bitmap_color_depth( bmp ), min( bmp->w, max_tex_size ), min( bmp->h, max_tex_size ) );
+		
+		stretch_blit( bmp, tmp, 0, 0, bmp->w, bmp->h, 0, 0, tmp->w, tmp->h );
+		
+		GLuint tex = make_texture( tmp, filter_type, clamp );
+		
+		destroy_bitmap( tmp );
+		
+		return tex;
+		}
 
 	glPushAttrib( GL_ALL_ATTRIB_BITS );
 

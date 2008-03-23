@@ -722,6 +722,8 @@ int WND::check(int AMx,int AMy,int AMz,int AMb,bool timetoscroll, SKIN *skin )
 	bool was_on_floating_menu = false;
 	int  on_menu = -1;
 	bool close_all = false;
+	
+	bool already_clicked = false;
 
 	for(int i=0;i<NbObj;i++) {
 		if( Objets[i].Type == OBJ_NONE )
@@ -734,7 +736,7 @@ int WND::check(int AMx,int AMy,int AMz,int AMb,bool timetoscroll, SKIN *skin )
 		if(mouse_x>=x+Objets[i].x1 && mouse_x<=x+Objets[i].x2
 			&& mouse_y>=y+Objets[i].y1 && mouse_y<=y+Objets[i].y2 )	continue;
 
-		if(Objets[i].Type==OBJ_MENU && Objets[i].Etat && !Objets[i].MouseOn && !was_on_floating_menu ) {
+		if(Objets[i].Type==OBJ_MENU && Objets[i].Etat && Objets[i].MouseOn && !was_on_floating_menu ) {
 			float m_width = 168.0f * Objets[i].s;
 			if( skin ) {
 				for( int e = 0 ; e < Objets[i].Text.size() - ( 1 + Objets[i].Pos ) ; e++ )
@@ -824,6 +826,7 @@ int WND::check(int AMx,int AMy,int AMz,int AMb,bool timetoscroll, SKIN *skin )
 		{
 		case OBJ_MENU:			// Choses à faire quoi qu'il arrive
 			Objets[i].Data=-1;		// Pas de séléction
+			if( !Objets[i].Etat )	Objets[i].Value = -1;
 			{
 			float m_width = 168.0f * Objets[i].s;
 			if( skin ) {
@@ -950,7 +953,8 @@ int WND::check(int AMx,int AMy,int AMz,int AMb,bool timetoscroll, SKIN *skin )
 				}
 
 			if( ( (mouse_b!=1 && AMb==1) || clicked ) && Objets[i].MouseOn && MouseWasOn
-			 && ((Objets[i].Flag & FLAG_CAN_BE_CLICKED) || (Objets[i].Flag & FLAG_SWITCH))) {		// Click sur l'objet
+			 && ((Objets[i].Flag & FLAG_CAN_BE_CLICKED) || (Objets[i].Flag & FLAG_SWITCH)) && !already_clicked ) {		// Click sur l'objet
+			 	already_clicked = true;
 				switch(Objets[i].Type)
 				{
 				case OBJ_LIST:
@@ -1051,6 +1055,7 @@ int WND::check(int AMx,int AMy,int AMz,int AMb,bool timetoscroll, SKIN *skin )
 						if( index >= Objets[i].Text.size() - 1 ) index = Objets[i].Text.size()-2;
 						if( Objets[i].Func != NULL )
 							(*Objets[i].Func)(index);		// Lance la fonction associée
+						Objets[i].Value = Objets[i].Data;
 						Objets[i].Etat = false;
 						close_all = true;
 						}
@@ -1128,6 +1133,14 @@ bool WND::get_state( const String &message )									// Return the state of give
 		return !hidden;
 	else
 		return false;
+}
+
+sint32 WND::get_value( const String &message )									// Return the state of given object
+{
+	GUIOBJ *obj = get_object( message );
+	if( obj )
+		return obj->Value;
+	return -1;
 }
 
 String WND::get_caption( const String &message )									// Return the state of given object
@@ -2757,6 +2770,30 @@ bool AREA::get_state( const String &message )			// Return the state of specified
 	return false;
 }
 
+sint32 AREA::get_value( const String &message )			// Return the state of specified object in the specified window
+{
+	int i = message.find( "." );
+	if( i != -1 ) {
+		String key = message.substr( 0, i );						// Extracts the key
+
+		String obj_name = message.substr( i+1, message.size() - i -1 );
+
+		if( key == "*" )
+			for( uint16 e = 0 ; e < vec_wnd.size() ; e++ ) {				// Search the window containing the object corresponding to the key
+				GUIOBJ *the_obj = vec_wnd[ e ]->get_object( obj_name );
+				if( the_obj )
+					return the_obj->Value;	// Return what we found
+				}
+		else {
+			WND *the_wnd = get_wnd( key );
+
+			if( the_wnd )
+				return the_wnd->get_value( obj_name );
+			}
+		}
+	return -1;
+}
+
 String AREA::get_caption( const String &message )		// Return the caption of specified object in the specified window
 {
 	int i = message.find( "." );
@@ -2839,6 +2876,13 @@ void AREA::set_state( const String &message, const bool &state )			// Set the st
 	GUIOBJ	*guiobj = get_object( message );
 	if( guiobj )
 		guiobj->Etat = state;
+}
+
+void AREA::set_value( const String &message, const sint32 &value )			// Set the value of specified object in the specified window
+{
+	GUIOBJ	*guiobj = get_object( message );
+	if( guiobj )
+		guiobj->Value = value;
 }
 
 void AREA::set_caption( const String &message, const String &caption )		// set the caption of specified object in the specified window
