@@ -1,5 +1,6 @@
 TODO list
 ---------
+_add support for team management
 _read the music from a CD
 _add glossiness (or reflection) to all TA3D models.
 _make 3D replacement models for 2D map features
@@ -12,6 +13,9 @@ _D3D support
 
 bug list
 --------
+_the second mission of arm campaign is immediately won ...
+_when the pointer is over a floatting menu, it selects without clicking (config menu) ...
+_sometimes weapons go through their target without hitting them !!
 _There should be either restriction to use 12-icon build menu on resolutions lesser than 1024x768 or it should be sizeable, since now on 800x600 or 640xx480 size of 12-icon build menu don`t match size of othe GUI parts and covers some of function buttons.
 _AI still can`t place metal extractors directly where it should be placed _add a flag to movement data to make units leaving their factory face the exit before moving
 _some parts of the maps might not be drawn (visibility limit) like hills

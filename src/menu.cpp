@@ -1819,7 +1819,7 @@ int brief_screen( String campaign_name, int mission_id )
 		obj->Text.clear();
 		obj->Text.resize( ota_parser.PullAsInt( "GlobalHeader.SCHEMACOUNT" ) + 1 );
 		for( int i = 0 ; i < obj->Text.size() - 1 ; i++ )
-			obj->Text[ i + 1 ] = ota_parser.PullAsString( format( "GlobalHeader.Schema %d.Type", i ) );
+			obj->Text[ i + 1 ] = TRANSLATE( ota_parser.PullAsString( format( "GlobalHeader.Schema %d.Type", i ) ) );
 		if( obj->Text.size() > 1 )
 			obj->Text[ 0 ] = obj->Text[ 1 ];
 		}
@@ -1954,9 +1954,16 @@ int brief_screen( String campaign_name, int mission_id )
 		game_data.player_control[ 0 ] = PLAYER_CONTROL_LOCAL_HUMAN;
 		game_data.player_names[ 0 ] = brief_parser.PullAsString( "HEADER.campaignside" );
 		game_data.player_sides[ 0 ] = brief_parser.PullAsString( "HEADER.campaignside" );
-		game_data.ai_level[ 0 ] = schema;
 		game_data.energy[ 0 ] = ota_parser.PullAsInt( format( "GlobalHeader.Schema %d.humanenergy", schema ) );
 		game_data.metal[ 0 ] = ota_parser.PullAsInt( format( "GlobalHeader.Schema %d.humanmetal", schema ) );
+
+		String schema_type = Lowercase( ota_parser.PullAsString( format( "GlobalHeader.Schema %d.Type", schema ) ) );
+		if( schema_type == "easy" )
+			game_data.ai_level[ 0 ] = 0;
+		else if( schema_type == "medium" )
+			game_data.ai_level[ 0 ] = 1;
+		else if( schema_type == "hard" )
+			game_data.ai_level[ 0 ] = 2;
 
 		player_color_map[ 0 ] = 0;
 
@@ -1964,7 +1971,7 @@ int brief_screen( String campaign_name, int mission_id )
 			game_data.player_control[ i ] = PLAYER_CONTROL_LOCAL_AI;
 			game_data.player_names[ i ] = brief_parser.PullAsString( "HEADER.campaignside" );
 			game_data.player_sides[ i ] = brief_parser.PullAsString( "HEADER.campaignside" );			// Has no meaning here since we are in campaign mode units are spawned by a script
-			game_data.ai_level[ i ] = schema;
+			game_data.ai_level[ i ] = game_data.ai_level[ 0 ];
 			game_data.energy[ i ] = ota_parser.PullAsInt( format( "GlobalHeader.Schema %d.computerenergy", schema ) );
 			game_data.metal[ i ] = ota_parser.PullAsInt( format( "GlobalHeader.Schema %d.computermetal", schema ) );
 

@@ -1440,7 +1440,7 @@ void generate_script_from_mission( String Filename, cTAFileParser *ota_parser, i
 	if( !ota_parser->PullAsString( "GlobalHeader.UnitTypeKilled" ).empty() ) {
 		Vector< String > params = ReadVectorString( ota_parser->PullAsString( "GlobalHeader.UnitTypeKilled" ), "," );
 		if( params.size() >= 2 ) {
-			m_File << "	new_UnitTypeKilled_nb = ta3d_nb_unit_of_type( \"" << params[ 0 ] << "\" )\n";
+			m_File << "	new_UnitTypeKilled_nb = ta3d_nb_unit_of_type( 1, \"" << params[ 0 ] << "\" )\n";
 			m_File << "	if UnitTypeKilled_nb > new_UnitTypeKilled_nb then\n";
 			m_File << "		UnitTypeKilled_count = UnitTypeKilled_count + UnitTypeKilled_nb - new_UnitTypeKilled_nb\n";
 			m_File << "	end\n";
@@ -1475,17 +1475,17 @@ void generate_script_from_mission( String Filename, cTAFileParser *ota_parser, i
 	m_File << "	victory_conditions = 0\n";
 	int nb_victory_conditions = 0;
 
-	m_File << "	if UnitTypePassesX then\n	victory_conditions = victory_conditions + 1\n	end\n";
-	m_File << "	if UnitTypePassesZ then\n	victory_conditions = victory_conditions + 1\n	end\n";
-	m_File << "	if AnyUnitPassesX then\n	victory_conditions = victory_conditions + 1\n	end\n";
-	m_File << "	if AnyUnitPassesZ then\n	victory_conditions = victory_conditions + 1\n	end\n";
-	m_File << "	if BuildUnitType then\n	victory_conditions = victory_conditions + 1\n	end\n";
-	m_File << "	if KillUnitType then\n	victory_conditions = victory_conditions + 1\n	end\n";
-	m_File << "	if CaptureUnitType then\n	victory_conditions = victory_conditions + 1\n	end\n";
-	m_File << "	if KillAllOfType then\n	victory_conditions = victory_conditions + 1\n	end\n";
-	m_File << "	if KilledEnemyCommander then\n	victory_conditions = victory_conditions + 1\n	end\n";
-	m_File << "	if DestroyAllUnits then\n	victory_conditions = victory_conditions + 1\n	end\n";
-	m_File << "	if MoveUnitToRadius then\n	victory_conditions = victory_conditions + 1\n	end\n";
+	m_File << "	if UnitTypePassesX then\n		victory_conditions = victory_conditions + 1\n	end\n";
+	m_File << "	if UnitTypePassesZ then\n		victory_conditions = victory_conditions + 1\n	end\n";
+	m_File << "	if AnyUnitPassesX then\n		victory_conditions = victory_conditions + 1\n	end\n";
+	m_File << "	if AnyUnitPassesZ then\n		victory_conditions = victory_conditions + 1\n	end\n";
+	m_File << "	if BuildUnitType then\n		victory_conditions = victory_conditions + 1\n	end\n";
+	m_File << "	if KillUnitType then\n		victory_conditions = victory_conditions + 1\n	end\n";
+	m_File << "	if CaptureUnitType then\n		victory_conditions = victory_conditions + 1\n	end\n";
+	m_File << "	if KillAllOfType then\n		victory_conditions = victory_conditions + 1\n	end\n";
+	m_File << "	if KilledEnemyCommander then\n		victory_conditions = victory_conditions + 1\n	end\n";
+	m_File << "	if DestroyAllUnits then\n		victory_conditions = victory_conditions + 1\n	end\n";
+	m_File << "	if MoveUnitToRadius then\n		victory_conditions = victory_conditions + 1\n	end\n";
 
 	if( !ota_parser->PullAsString( "GlobalHeader.AnyUnitPassesZ" ).empty()
 	 || !ota_parser->PullAsString( "GlobalHeader.UnitTypePassesZ" ).empty()
@@ -1568,7 +1568,7 @@ void generate_script_from_mission( String Filename, cTAFileParser *ota_parser, i
 	if( !ota_parser->PullAsString( "GlobalHeader.KillUnitType" ).empty() ) {
 		Vector< String > params = ReadVectorString( ota_parser->PullAsString( "GlobalHeader.KillUnitType" ), "," );
 		if( params.size() >= 2 ) {
-			m_File << "	new_KillUnitType_nb = ta3d_nb_unit_of_type( \"" << params[ 0 ] << "\" )\n";
+			m_File << "	new_KillUnitType_nb = ta3d_nb_unit_of_type( 1, \"" << params[ 0 ] << "\" )\n";
 			m_File << "	if KillUnitType_nb > new_KillUnitType_nb then\n";
 			m_File << "		KilledUnitType = KilledUnitType + KillUnitType_nb - new_KillUnitType_nb\n";
 			m_File << "	end\n";
