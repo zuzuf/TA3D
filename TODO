@@ -11,6 +11,7 @@ _networking code
 _improve A.I.
 _D3D support
 
+* added support for mission features (features described in *.ota files)
 * added a test to prevent making textures that can't fit within the maximum texture size available on the OpenGL renderer (hope it'll fix the SIS bug)
 
 bug list

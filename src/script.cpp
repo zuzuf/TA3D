@@ -355,6 +355,27 @@ int function_is_unit_of_type( lua_State *L )		// ta3d_is_unit_of_type( unit_id, 
 	return 1;
 }
 
+int function_has_mobile_units( lua_State *L ) 		// ta3d_has_mobile_units( player_id )
+{
+	int player_id = (int) lua_tonumber( L, -1 );
+	lua_pop( L, 1 );
+	if( player_id >= 0 && player_id < NB_PLAYERS ) {
+		bool result = false;
+		for( uint16 e = 0 ; e < units.index_list_size && !result ; e++ ) {
+			uint16 i = units.idx_list[ e ];
+			if( (units.unit[ i ].flags & 1) && units.unit[ i ].owner_id == player_id ) {
+				int type = units.unit[ i ].type_id;
+				if( type >= 0 && type < unit_manager.nb_unit && unit_manager.unit_type[ type ].canmove && unit_manager.unit_type[ type ].BMcode )
+					result = true;
+				}
+			}
+		lua_pushboolean( L, result );
+		}
+	else
+		lua_pushboolean( L, false );
+	return 1;
+}
+
 int function_move_unit( lua_State *L )		// ta3d_move_unit( unit_id, x, z )
 {
 	int unit_id = (int) lua_tonumber( L, -3 );
@@ -960,6 +981,32 @@ int function_sleep( lua_State *L )			// ta3d_sleep( time )
 	return 0;
 }
 
+int function_create_feature( lua_State *L )		// ta3d_create_feature( feature_type, x, z )
+{
+	int feature_type_id = lua_isstring( L, -3 ) ? feature_manager.get_feature_index( lua_tostring( L, -3 ) ) : (int) lua_tonumber( L, -3 ) ;
+	float X = (float) lua_tonumber( L, -2 );
+	float Z = (float) lua_tonumber( L, -1 );
+
+	lua_pop( L, 3 );
+
+	if( feature_type_id >= 0 && feature_type_id < feature_manager.nb_features ) {
+		int x = (int)(X + lua_map->map_w_d - 8)>>3;
+		int y = (int)(Z + lua_map->map_h_d - 8)>>3;
+		if(x>0 && y>0 && x<(lua_map->bloc_w<<1) && y<(lua_map->bloc_h<<1))
+			if(lua_map->map_data[y][x].stuff==-1) {
+				VECTOR Pos;
+				Pos.x = (x<<3)-lua_map->map_w_d+8.0f;
+				Pos.z = (y<<3)-lua_map->map_h_d+8.0f;
+				Pos.y = lua_map->get_unit_h( Pos.x, Pos.z );
+				lua_map->map_data[y][x].stuff = features.add_feature( Pos, feature_type_id );
+				if(feature_type_id!=-1 && lua_map->map_data[y][x].stuff != -1 && feature_manager.feature[feature_type_id].blocking)
+					lua_map->rect(x-(feature_manager.feature[feature_type_id].footprintx>>1),y-(feature_manager.feature[feature_type_id].footprintz>>1),feature_manager.feature[feature_type_id].footprintx,feature_manager.feature[feature_type_id].footprintz,-2-lua_map->map_data[y][x].stuff);
+			}
+		}
+
+	return 0;
+}
+
 void register_functions( lua_State *L )
 {
 	lua_register( L, "ta3d_print", function_print );
@@ -1025,6 +1072,8 @@ void register_functions( lua_State *L )
 	lua_register( L, "ta3d_unlock_orders", function_unlock_orders );
 	lua_register( L, "ta3d_lock_orders", function_lock_orders );
 	lua_register( L, "ta3d_nb_unit_of_type", function_nb_unit_of_type );
+	lua_register( L, "ta3d_create_feature", function_create_feature );
+	lua_register( L, "ta3d_has_mobile_units", function_has_mobile_units );
 }
 
 void LUA_PROGRAM::load(char *filename, MAP *map)					// Load a lua script
@@ -1373,6 +1422,18 @@ void generate_script_from_mission( String Filename, cTAFileParser *ota_parser, i
 		i++;
 		}
 
+	i = 0;
+	String feature_name = "";
+
+	while( !(feature_name = ota_parser->PullAsString( format( "GlobalHeader.Schema %d.features.feature%d.Featurename", schema, i ) ) ).empty() ) {
+		String unit_key = format( "GlobalHeader.Schema %d.features.feature%d", schema, i );
+		float x = ota_parser->PullAsFloat( unit_key + ".XPos" ) * 16.0f;
+		float z = ota_parser->PullAsFloat( unit_key + ".ZPos" ) * 16.0f;
+		
+		m_File << "\nta3d_create_feature( \"" << feature_name << "\", " << x << " - 0.5 * ta3d_map_w(), " << z << " - 0.5 * ta3d_map_h() )\n";
+		i++;
+		}
+
 	m_File << "\ntimer = ta3d_time()\nend_signal = 0\n";
 
 	m_File << "check = {}\nfirst_launch = true\n";
@@ -1420,6 +1481,7 @@ void generate_script_from_mission( String Filename, cTAFileParser *ota_parser, i
 	m_File << "KilledEnemyCommander = false\n";
 	m_File << "DestroyAllUnits = false\n";
 	m_File << "MoveUnitToRadius = false\n";
+	m_File << "KillAllMobileUnits = false\n";
 
 	m_File << "\nfunction main()\n";
 
@@ -1486,6 +1548,14 @@ void generate_script_from_mission( String Filename, cTAFileParser *ota_parser, i
 	m_File << "	if KilledEnemyCommander then\n		victory_conditions = victory_conditions + 1\n	end\n";
 	m_File << "	if DestroyAllUnits then\n		victory_conditions = victory_conditions + 1\n	end\n";
 	m_File << "	if MoveUnitToRadius then\n		victory_conditions = victory_conditions + 1\n	end\n";
+	m_File << "	if KillAllMobileUnits then\n		victory_conditions = victory_conditions + 1\n	end\n";
+
+	if( ota_parser->PullAsInt( "GlobalHeader.KillAllMobileUnits" ) == 1 ) {
+		m_File << "	if not KillAllMobileUnits and not ta3d_has_mobile_units( 1 ) then\n";
+		m_File << "		KillAllMobileUnits = true\n";
+		m_File << "		victory_conditions = victory_conditions + 1\n";	nb_victory_conditions++;
+		m_File << "	end\n";
+		}
 
 	if( !ota_parser->PullAsString( "GlobalHeader.AnyUnitPassesZ" ).empty()
 	 || !ota_parser->PullAsString( "GlobalHeader.UnitTypePassesZ" ).empty()
