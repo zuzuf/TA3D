@@ -16,6 +16,8 @@
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA*/
 
 
+#ifndef __TA3D__NETWORK__H
+#define __TA3D__NETWORK__H
 
 #include "ta3dsock.h"
 #include "superqueue.h"
@@ -221,3 +223,5 @@ struct net_thread_params{
 	int sockid;
 	FILE* file;
 };
+
+#endif

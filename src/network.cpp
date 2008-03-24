@@ -17,7 +17,6 @@
 
 #include "stdafx.h"
 #include "TA3D_NameSpace.h"
-#include "network.h"
 
 
 /******************************/

@@ -78,7 +78,9 @@ am_ta3d_OBJECTS = ta3d.$(OBJEXT) main.$(OBJEXT) install.$(OBJEXT) \
 	TA3D_hpi.$(OBJEXT) TA3D_NameSpace.$(OBJEXT) cThread.$(OBJEXT) \
 	cCriticalSection.$(OBJEXT) cInterface.$(OBJEXT) \
 	cLogger.$(OBJEXT) cError.$(OBJEXT) decode.$(OBJEXT) \
-	encode.$(OBJEXT) io.$(OBJEXT) ta3d_jpg.$(OBJEXT)
+	encode.$(OBJEXT) io.$(OBJEXT) ta3d_jpg.$(OBJEXT) \
+	SocketClass.$(OBJEXT) ta3dsock.$(OBJEXT) superqueue.$(OBJEXT) \
+	network.$(OBJEXT)
 ta3d_OBJECTS = $(am_ta3d_OBJECTS)
 ta3d_LDADD = $(LDADD)
 DEFAULT_INCLUDES = -I. -I$(top_builddir)@am__isrc@
@@ -231,12 +233,16 @@ ta3d_SOURCES = \
 	cError.cpp cError.h \
 	jpeg/decode.cpp jpeg/encode.cpp jpeg/io.cpp jpeg/ta3d_jpg.cpp \
 	jpeg/dct.h jpeg/internal.h jpeg/ta3d_jpg.h \
+	SocketClass.cpp SocketClass.h \
+	ta3dsock.cpp ta3dsock.h \
+	superqueue.cpp superqueue.h \
+	network.cpp network.h \
 	TA3D_Platform.h matrix.h ta3dbase.h vector.h thread.h
 
 
-#	SocketClass.cpp SocketClass.h
-#	ta3dsock.cpp ta3dsock.h
-#	superqueue.cpp superqueue.h
+#	SocketClass.cpp SocketClass.h \
+#	ta3dsock.cpp ta3dsock.h \
+#	superqueue.cpp superqueue.h \
 #	network.cpp network.h
 3dmeditor_SOURCES = \
 	3dmeditor.cpp ta3d.h \
@@ -367,6 +373,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/3do.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/3ds.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/EngineClass.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/SocketClass.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/TA3D_Audio.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/TA3D_Exception.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/TA3D_NameSpace.Po@am__quote@
@@ -398,12 +405,15 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/lzw.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/main.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/menu.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/network.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/particles.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/pathfinding.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/script.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/stdafx.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/superqueue.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ta3d.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ta3d_jpg.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ta3dsock.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/taconfig.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tdf.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tnt.Po@am__quote@

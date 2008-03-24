@@ -20,7 +20,6 @@
 #include "matrix.h"				// Some math routines
 #include "gaf.h"				// read pictures/animations from GAF files
 #include "gui.h"				// Graphical User Interface
-//#include "network.h"			// Network
 #include "TA3D_hpi.h"			// HPI handler
 
 #define TA3D_SHIFT_PRESSED	( key[KEY_LSHIFT] || key[KEY_RSHIFT] )

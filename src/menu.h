@@ -32,9 +32,9 @@ void config_menu(void);
 
 void stats_menu(void);
 
-void setup_game(void);		// Setup a game and launch it
+void setup_game(bool network_game = false, const char *host = NULL);		// Setup a game and launch it
 
-void battle_room(void);		// Everything you need to launch a network game
+void network_room(void);		// Everything you need to host/join a network game
 
 void campaign_main_menu(void);		// The campaign main menu, select the campaign you want to play
 

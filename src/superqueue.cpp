@@ -17,7 +17,6 @@
 
 #include "stdafx.h"
 #include "TA3D_NameSpace.h"
-#include "superqueue.h"
 
 /********************************/
 /**  methods for SuperQueue  ****/

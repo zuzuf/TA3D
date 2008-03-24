@@ -216,19 +216,20 @@ void main_menu(void)
 
 		draw_cursor();
 
-		if( mouse_b || key[KEY_ENTER] || key[KEY_SPACE] || lp_CONFIG->quickstart || key[KEY_C] ) {
+		if( mouse_b || key[KEY_ENTER] || key[KEY_SPACE] || lp_CONFIG->quickstart || key[KEY_C] || key[KEY_B] ) {
+			if( key[KEY_B] )		index = 4;			// Shortcut to battle room
 			if( key[KEY_C] )		index = 3;			// Shortcut to campaign menu
 			if( key[KEY_ENTER] )	index = 2;			// Shortcut to game room
 			if( key[KEY_SPACE] )	index = 1;			// Shortcut to config menu
 
-			while( key[KEY_ENTER] || key[KEY_SPACE] )	{ rest( 20 );	poll_keyboard();	}
+			while( key[KEY_B] || key[KEY_C] || key[KEY_ENTER] || key[KEY_SPACE] )	{ rest( 20 );	poll_keyboard();	}
 			clear_keybuf();
 
 			gfx->SCREEN_W_TO_640 = 1.0f;				// To have mouse sensibility undependent from the resolution
 			gfx->SCREEN_H_TO_480 = 1.0f;
 			if( lp_CONFIG->quickstart )
 				index = 1;
-			if( index >= 0 && index <= 3 ) {		// free some memory
+			if( index >= 0 && index <= 4 ) {		// free some memory
 				destroy_bitmap(tst[0]);
 				destroy_bitmap(tst[1]);
 				destroy_bitmap(tst[2]);
@@ -253,6 +254,9 @@ void main_menu(void)
 				break;
 			case 3:
 				campaign_main_menu();
+				break;
+			case 4:
+				network_room();
 				break;
 			};
 			current_mod = TA3D_CURRENT_MOD.length() > 6 ? TA3D_CURRENT_MOD.substr( 5, TA3D_CURRENT_MOD.length() - 6 ) : "";
@@ -1066,8 +1070,14 @@ void stats_menu(void)
 	while(key[KEY_ESC]) {	rest(1);	poll_keyboard();	}
 }
 
-void setup_game(void)
+void setup_game(bool network_game, const char *host)
 {
+	Network	TA3D_network;
+	if( network_game ) {
+		if( host )
+			TA3D_network.HostGame( (char*) host, "1234", 2, 0 );
+		}
+
 	cursor_type=CURSOR_DEFAULT;
 
 	float resize_w = SCREEN_W / 640.0f;
@@ -1239,6 +1249,20 @@ void setup_game(void)
 		amz = mouse_z;
 		amb = mouse_b;
 
+		if( key[KEY_ENTER] && !setupgame_area.get_caption("gamesetup.t_chat").empty() ) {
+			String message = "<" + lp_CONFIG->player_name + "> " + setupgame_area.get_caption("gamesetup.t_chat");
+			GUIOBJ *chat_list = setupgame_area.get_object("gamesetup.chat_list");
+
+			if( chat_list ) {
+				chat_list->Text.push_back( message );
+				if( chat_list->Text.size() > 5 )
+					chat_list->Data++;
+				chat_list->Pos = chat_list->Text.size() - 1;
+				}
+
+			setupgame_area.set_caption("gamesetup.t_chat", "");
+			}
+
 		if( setupgame_area.get_value( "gamesetup.FOW" ) >= 0 ) {
 			GUIOBJ *obj = setupgame_area.get_object( "gamesetup.FOW" );
 			if( obj && obj->Value != -1 ) {
@@ -1256,7 +1280,7 @@ void setup_game(void)
 				}
 			}
 
-		if( setupgame_area.get_state( "gamesetup.b_ok" ) || key[KEY_ENTER] ) {
+		if( setupgame_area.get_state( "gamesetup.b_ok" ) ) {
 			while( key[KEY_ENTER] )	{	rest( 20 );	poll_keyboard();	}
 			clear_keybuf();
 			done=true;		// If user click "OK" or hit enter then leave the window
@@ -1453,143 +1477,176 @@ void setup_game(void)
 		}
 }
 
-void battle_room(void)				// Let players create/join a game
-{
-	gfx->SCREEN_W_TO_640 = 640.0f / SCREEN_W;				// To have mouse sensibility undependent from the resolution
-	gfx->SCREEN_H_TO_480 = 480.0f / SCREEN_H;
+/*-----------------------------------------------------------------------------\
+|                            void network_room(void)                           |
+|                                                                              |
+|    Displays the list of available servers and allow to join/host a game      |
+\-----------------------------------------------------------------------------*/
 
-	bool done=false;
+void network_room(void)				// Let players create/join a game
+{
+	set_uformat(U_UTF8);
+
+	float resize_w = SCREEN_W / 640.0f;
+	float resize_h = SCREEN_H / 480.0f;
 
 	gfx->set_2D_mode();
 
 	gfx->ReInitTexSys();
 
-	set_uformat(U_ASCII);		// Juste histoire d'avoir un affichage correct des textes
-
-	glScalef(SCREEN_W/640.0f,SCREEN_H/480.0f,1.0f);
-
 //	Network	TA3D_network;
 //	TA3D_network.HostGame("my_game","1234",2,0);
 
-	std::list<String>	servers;					// the server list
-	std::list<String>::iterator	l_s_servers;		// iterator to read the server list
+	List<String>	servers;					// the server list
 	servers.push_front(TRANSLATE("No server found"));
 
-	float dt=0.0f;
-	int time = msec_timer;
-	float Conv = 0.001f;
+	AREA networkgame_area("network game area");
+	networkgame_area.load_tdf("gui/networkgame.area");
+	if( !networkgame_area.background )	networkgame_area.background = gfx->glfond;
 
-	float h=gfx->TA_font.height();
+	GLuint mini = 0;
+	int dx = 0;
+	int dy = 0;
+	float ldx = dx*70.0f/252.0f;
+	float ldy = dy*70.0f/252.0f;
 
-	bool ok_status=false;		// Pour les boutons
-	bool cancel_status=false;
-	bool o_ok_status=false;
-	bool o_cancel_status=false;
-	reset_keyboard();
+
+	GUIOBJ *minimap_obj = networkgame_area.get_object( "networkgame.minimap" );
+	float mini_map_x1 = 0.0f;
+	float mini_map_y1 = 0.0f;
+	float mini_map_x2 = 0.0f;
+	float mini_map_y2 = 0.0f;
+	float mini_map_x = 0.0f;
+	float mini_map_y = 0.0f;
+	if( minimap_obj ) {
+		mini_map_x1 = minimap_obj->x1;
+		mini_map_y1 = minimap_obj->y1;
+		mini_map_x2 = minimap_obj->x2;
+		mini_map_y2 = minimap_obj->y2;
+		ldx = dx * ( mini_map_x2 - mini_map_x1 ) / 504.0f;
+		ldy = dy * ( mini_map_y2 - mini_map_y1 ) / 504.0f;
+
+		mini_map_x = (mini_map_x1 + mini_map_x2) * 0.5f;
+		mini_map_y = (mini_map_y1 + mini_map_y2) * 0.5f;
+
+		minimap_obj->Data = 0;
+		minimap_obj->x1 = mini_map_x - ldx;
+		minimap_obj->y1 = mini_map_y - ldy;
+		minimap_obj->x2 = mini_map_x + ldx;
+		minimap_obj->y2 = mini_map_y + ldy;
+		minimap_obj->u2 = dx / 252.0f;
+		minimap_obj->v2 = dy / 252.0f;
+		}
+
+	MAP_OTA	map_data;
+	int sel_index = -1;
+	int o_sel = -1;
+
+	bool done=false;
+
+	int amx = -1;
+	int amy = -1;
+	int amz = -1;
+	int amb = -1;
 
 	do
 	{
-		do
-		{
-			dt=(msec_timer-time)*Conv;
-			rest(1);
-		}while(dt<0.02f);
-		time=msec_timer;
+		bool key_is_pressed = false;
+		do {
+			key_is_pressed = keypressed();
+			networkgame_area.check();
+			rest( 1 );
+		} while( amx == mouse_x && amy == mouse_y && amz == mouse_z && amb == mouse_b && mouse_b == 0 && !key[ KEY_ENTER ] && !key[ KEY_ESC ] && !done && !key_is_pressed && !networkgame_area.scrolling );
 
-		o_ok_status=ok_status;
-		o_cancel_status=cancel_status;
-		ok_status=false;
-		cancel_status=false;
-		if(mouse_b==1 && mouse_y*gfx->SCREEN_H_TO_480>=440 && mouse_y*gfx->SCREEN_H_TO_480<=460) {
-			ok_status=(mouse_x*gfx->SCREEN_W_TO_640>=360 && mouse_x*gfx->SCREEN_W_TO_640<=440);
-			cancel_status=(mouse_x*gfx->SCREEN_W_TO_640>=520 && mouse_x*gfx->SCREEN_W_TO_640<=600);
+		amx = mouse_x;
+		amy = mouse_y;
+		amz = mouse_z;
+		amb = mouse_b;
+
+		if( networkgame_area.get_state( "hosting.b_ok" ) || ( key[KEY_ENTER] && networkgame_area.get_state( "hosting" ) ) ) {
+			while( key[KEY_ENTER] )	{	rest( 20 );	poll_keyboard();	}
+			clear_keybuf();
+			setup_game( true, networkgame_area.get_caption( "hosting.t_hostname" ).c_str() );	// Host a game
+			done = true;
 			}
 
-		if(mouse_b==0 && !ok_status && o_ok_status) {		// Click sur ok
-			done=true;
+		if( networkgame_area.get_state( "networkgame.b_ok" ) ) {
+			while( key[KEY_ENTER] )	{	rest( 20 );	poll_keyboard();	}
+			clear_keybuf();
+			done=true;		// If user click "OK" or hit enter then leave the window
 			}
-		if(mouse_b==0 && !cancel_status && o_cancel_status)			// Click sur retour
-			done=true;
 
-		if(key[KEY_ESC]) {
-			while(key[KEY_ESC]) {
-				rest(1);
-				poll_keyboard();
+		if( networkgame_area.get_state( "networkgame.b_cancel" ) || key[KEY_ESC] ) {
+			while( key[KEY_ESC] )	{	rest( 20 );	poll_keyboard();	}
+			clear_keybuf();
+			done=true;		// If user click "Cancel" or hit ESC then leave the screen returning NULL
+			}
+
+		if( networkgame_area.get_object("networkgame.server_list") )
+			sel_index = networkgame_area.get_object("networkgame.server_list")->Pos;
+
+		if( sel_index != o_sel && sel_index >= 0) {
+			o_sel = sel_index;
+			gfx->destroy_texture( mini );
+			List< String >::iterator i_server = servers.begin();
+			for( int i = 0 ; i < sel_index && i_server != servers.end() ; i++)	i_server++;
+			String tmp = String("maps\\") + *i_server + String(".tnt");
+			mini = load_tnt_minimap_fast((char*)tmp.c_str(),&dx,&dy);
+			tmp = String("maps\\") + *i_server + String(".ota");								// Read the ota file
+			uint32 ota_size = 0;
+			byte *data = HPIManager->PullFromHPI(tmp,&ota_size);
+			if(data) {
+				map_data.load((char*)data,ota_size);
+				free(data);
 				}
-			done=true;
-			}
-		if(key[KEY_ENTER])
-			done=true;
+			else
+				map_data.destroy();
+			if( minimap_obj ) {	// Update the minimap on GUI
+				gfx->destroy_texture( minimap_obj->Data );			// Make things clean
+				minimap_obj->Data = mini;
+				mini = 0;
+				ldx = dx * ( mini_map_x2 - mini_map_x1 ) / 504.0f;
+				ldy = dy * ( mini_map_y2 - mini_map_y1 ) / 504.0f;
+				minimap_obj->x1 = mini_map_x-ldx;
+				minimap_obj->y1 = mini_map_y-ldy;
+				minimap_obj->x2 = mini_map_x+ldx;
+				minimap_obj->y2 = mini_map_y+ldy;
+				minimap_obj->u2 = dx/252.0f;
+				minimap_obj->v2 = dy/252.0f;
+				}
 
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);		// Efface l'écran
-
-		glColor4f(1.0f,1.0f,1.0f,1.0f);
-		gfx->drawtexture(gfx->glfond,0.0f,0.0f,640.0f,480.0);
-
-		glDisable(GL_TEXTURE_2D);
-		glEnable(GL_BLEND);
-		glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
-		glColor4f(0.0f,0.0f,0.0f,0.5f);
-		glBegin(GL_QUADS);
-			glVertex2f(10.0f,25.0f);
-			glVertex2f(630.0f,25.0f);
-			glVertex2f(630.0f,470.0f);
-			glVertex2f(10.0f,470.0f);
-		glEnd();
-		glColor4f(1.0f,1.0f,1.0f,0.5f);
-		glBegin(GL_LINE_LOOP);
-			glVertex2f(10.0f,25.0f);
-			glVertex2f(630.0f,25.0f);
-			glVertex2f(630.0f,470.0f);
-			glVertex2f(10.0f,470.0f);
-		glEnd();
-		glBegin(GL_LINE_LOOP);
-			glVertex2f(347.0f,50.0f);
-			glVertex2f(603.0f,50.0f);
-			glVertex2f(603.0f,306.0f);
-			glVertex2f(347.0f,306.0f);
-		glEnd();
-		glBegin(GL_LINES);
-			glVertex2f(320.0f,26.0f);
-			glVertex2f(320.0f,469.0f);
-			glVertex2f(10.0f,32.0f+h);
-			glVertex2f(320.0f,32.0f+h);
-		glEnd();
-		glEnable(GL_TEXTURE_2D);
-
-		glColor4f(1.0f,1.0f,1.0f,1.0f);
-		glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
-		gfx->print(gfx->TA_font,320.0f-gfx->TA_font.length(TRANSLATE("Battle room"))*0.5f,0.0f,0.0f,0xFFFFFFFF,TRANSLATE("Battle room"));
-		gfx->print(gfx->TA_font,165.0f-gfx->TA_font.length(TRANSLATE("Server list"))*0.5f,32.0f,0.0f,0xFFFFFFFF,TRANSLATE("Server list"));
-
-		glColor4f(1.0f,1.0f,1.0f,1.0f);
-
-		int i=0;
-		for(l_s_servers=servers.begin();l_s_servers!=servers.end();l_s_servers++) {
-			gfx->print(gfx->TA_font,20.0f,h*i+64.0f,0.0f,0xFFFFFFFF,l_s_servers->c_str());
-			i++;
+			String map_info = "";
+			if(map_data.missionname)
+				map_info += String( map_data.missionname ) + "\n";
+			if(map_data.numplayers)
+				map_info += "\n" + TRANSLATE("players: ") + String( map_data.numplayers ) + "\n";
+			if(map_data.missiondescription)
+				map_info += String( "\n" ) + map_data.missiondescription;
+			networkgame_area.set_caption("networkgame.map_info", map_info );
 			}
 
-		glDisable(GL_BLEND);
+								// Efface tout
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		glColor4f(1.0f,1.0f,1.0f,1.0f);
+		networkgame_area.draw();
+
 		glEnable(GL_TEXTURE_2D);
-		glEnable(GL_BLEND);
-		glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
-
-		glDisable(GL_BLEND);
-
-		glbutton(TRANSLATE("ok"),360.0f,440.0f,440.0f,460.0f,ok_status);
-		glbutton(TRANSLATE("back"),520.0f,440.0f,600.0f,460.0f,cancel_status);
-
-		draw_cursor();
-
+		gfx->set_color(0xFFFFFFFF);
+		draw_cursor(resize_w,resize_h);
+		
+					// Affiche
 		gfx->flip();
 	}while(!done);
 
-	gfx->unset_2D_mode();
+	if( networkgame_area.background == gfx->glfond )	networkgame_area.background = 0;
+	networkgame_area.destroy();
 
-	set_uformat(U_UTF8);
+	gfx->destroy_texture( mini );
+
+	gfx->unset_2D_mode();	// Quitte le mode de dessin d'allegro
+
+	reset_mouse();
+	while(key[KEY_ESC]) {	rest(1);	poll_keyboard();	}
 }
 
 void campaign_main_menu(void)

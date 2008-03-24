@@ -78,7 +78,9 @@ am_ta3d_OBJECTS = ta3d.$(OBJEXT) main.$(OBJEXT) install.$(OBJEXT) \
 	TA3D_hpi.$(OBJEXT) TA3D_NameSpace.$(OBJEXT) cThread.$(OBJEXT) \
 	cCriticalSection.$(OBJEXT) cInterface.$(OBJEXT) \
 	cLogger.$(OBJEXT) cError.$(OBJEXT) decode.$(OBJEXT) \
-	encode.$(OBJEXT) io.$(OBJEXT) ta3d_jpg.$(OBJEXT)
+	encode.$(OBJEXT) io.$(OBJEXT) ta3d_jpg.$(OBJEXT) \
+	SocketClass.$(OBJEXT) ta3dsock.$(OBJEXT) superqueue.$(OBJEXT) \
+	network.$(OBJEXT)
 ta3d_OBJECTS = $(am_ta3d_OBJECTS)
 ta3d_LDADD = $(LDADD)
 DEFAULT_INCLUDES = -I. -I$(top_builddir)
@@ -231,12 +233,16 @@ ta3d_SOURCES = \
 	cError.cpp cError.h \
 	jpeg/decode.cpp jpeg/encode.cpp jpeg/io.cpp jpeg/ta3d_jpg.cpp \
 	jpeg/dct.h jpeg/internal.h jpeg/ta3d_jpg.h \
+	SocketClass.cpp SocketClass.h \
+	ta3dsock.cpp ta3dsock.h \
+	superqueue.cpp superqueue.h \
+	network.cpp network.h \
 	TA3D_Platform.h matrix.h ta3dbase.h vector.h thread.h
 
 
-#	SocketClass.cpp SocketClass.h
-#	ta3dsock.cpp ta3dsock.h
-#	superqueue.cpp superqueue.h
+#	SocketClass.cpp SocketClass.h \
+#	ta3dsock.cpp ta3dsock.h \
+#	superqueue.cpp superqueue.h \
 #	network.cpp network.h
 3dmeditor_SOURCES = \
 	3dmeditor.cpp ta3d.h \
@@ -367,6 +373,7 @@ include ./$(DEPDIR)/3dmeditor_sub.Po
 include ./$(DEPDIR)/3do.Po
 include ./$(DEPDIR)/3ds.Po
 include ./$(DEPDIR)/EngineClass.Po
+include ./$(DEPDIR)/SocketClass.Po
 include ./$(DEPDIR)/TA3D_Audio.Po
 include ./$(DEPDIR)/TA3D_Exception.Po
 include ./$(DEPDIR)/TA3D_NameSpace.Po
@@ -398,12 +405,15 @@ include ./$(DEPDIR)/io.Po
 include ./$(DEPDIR)/lzw.Po
 include ./$(DEPDIR)/main.Po
 include ./$(DEPDIR)/menu.Po
+include ./$(DEPDIR)/network.Po
 include ./$(DEPDIR)/particles.Po
 include ./$(DEPDIR)/pathfinding.Po
 include ./$(DEPDIR)/script.Po
 include ./$(DEPDIR)/stdafx.Po
+include ./$(DEPDIR)/superqueue.Po
 include ./$(DEPDIR)/ta3d.Po
 include ./$(DEPDIR)/ta3d_jpg.Po
+include ./$(DEPDIR)/ta3dsock.Po
 include ./$(DEPDIR)/taconfig.Po
 include ./$(DEPDIR)/tdf.Po
 include ./$(DEPDIR)/tnt.Po

@@ -9,7 +9,7 @@
 	height=1024;
 	draw borders=false;
 	show title=false;
-	number of objects=140;
+	number of objects=142;
 	hidden=false;
 	lock=true;
 	color=0x00000000;			// Fully transparent so we can see the AREA background
@@ -1470,5 +1470,29 @@
 		value=0xFFFFFFFF;
 		size=1.5;
 		caption=;
+	}
+	[object140]		// chat message list
+	{
+		name=chat_list;
+		type=LIST;
+		x1=86;
+		y1=732;
+		x2=858;
+		y2=908;
+		entry=;
+		no border=true;		// Don't draw the border since it's drawn on the background
+		size=1.8;
+	}
+	[object141]		// text input for char
+	{
+		name=t_chat;
+		type=TEXTBAR;
+		x1=86;
+		y1=920;
+		x2=780;
+		y2=980;
+		caption=;
+		value=0xFFFFFFFF;
+		size=1.8;
 	}
 }

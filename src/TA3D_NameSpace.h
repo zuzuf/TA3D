@@ -39,6 +39,7 @@
 #include "gfx.h"
 #include "console.h"
 #include "i18n.h"
+#include "network.h"			// Network
 
 #define	ZOOM_NORMAL			0x0
 #define	ZOOM_FIXED_ANGLE	0x1
