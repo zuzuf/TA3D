@@ -217,7 +217,7 @@ void TA3DSock::pumpIn(){
 char TA3DSock::getPacket(){
 	if(tiremain>0){
 		if(uiremain>0){
-			return 'X';
+			return 0;
 		}
 		else{
 			return udpinbuf[0];
@@ -250,6 +250,15 @@ int TA3DSock::takeFive(int time){
 	return 0;
 }
 
+
+int TA3DSock::sendSpecial(struct chat* chat){
+	loadByte(strlen(chat->message)+2);
+	loadByte('X');
+	loadString(chat->message);
+	loadByte('\0');
+	sendTCP();
+	return 0;
+}
 
 int TA3DSock::sendChat(struct chat* chat){
 	loadByte(strlen(chat->message)+2);
@@ -298,6 +307,22 @@ int TA3DSock::sendEvent(struct event* event){
 }
 
 
+int TA3DSock::makeSpecial(struct chat* chat){
+	if(tcpinbuf[0] != 'X'){
+		Console->AddEntry("makeSpecial error: the data doesn't start with a 'X'\n");
+		return -1;
+	}
+	if(tiremain = -1){
+		return -1;
+	}
+	chat->from = tcpinbuf[1];
+	strncpy(chat->message,tcpinbuf+2,256);
+	(chat->message)[255] = '\0';
+	tibp = 0;
+	tiremain = -1;
+
+	return 0;
+}
 
 int TA3DSock::makeChat(struct chat* chat){
 	if(tcpinbuf[0] != 'C'){

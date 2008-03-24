@@ -1483,6 +1483,8 @@ void setup_game(bool network_game, const char *host)
 |    Displays the list of available servers and allow to join/host a game      |
 \-----------------------------------------------------------------------------*/
 
+#define SERVER_LIST_REFRESH_DELAY	1000
+
 void network_room(void)				// Let players create/join a game
 {
 	set_uformat(U_UTF8);
@@ -1494,8 +1496,10 @@ void network_room(void)				// Let players create/join a game
 
 	gfx->ReInitTexSys();
 
-//	Network	TA3D_network;
-//	TA3D_network.HostGame("my_game","1234",2,0);
+	Network	TA3D_network;
+	TA3D_network.InitBroadcast("255.255.255.255","1234");		// Broadcast mode
+
+	int server_list_timer = msec_timer - SERVER_LIST_REFRESH_DELAY;
 
 	List<String>	servers;					// the server list
 	servers.push_front(TRANSLATE("No server found"));
@@ -1553,7 +1557,7 @@ void network_room(void)				// Let players create/join a game
 	{
 		bool key_is_pressed = false;
 		do {
-			key_is_pressed = keypressed();
+			key_is_pressed = keypressed() || msec_timer - server_list_timer >= SERVER_LIST_REFRESH_DELAY;
 			networkgame_area.check();
 			rest( 1 );
 		} while( amx == mouse_x && amy == mouse_y && amz == mouse_z && amb == mouse_b && mouse_b == 0 && !key[ KEY_ENTER ] && !key[ KEY_ESC ] && !done && !key_is_pressed && !networkgame_area.scrolling );
@@ -1563,10 +1567,22 @@ void network_room(void)				// Let players create/join a game
 		amz = mouse_z;
 		amb = mouse_b;
 
+		if( msec_timer - server_list_timer >= SERVER_LIST_REFRESH_DELAY ) {		// Refresh server list
+			server_list_timer = msec_timer;
+			if( TA3D_network.broadcastMessage( "PING SERVER LIST" ) ) {
+				printf("error : could not broadcast packet to refresh server list!!\n");
+				}
+			}
+
 		if( networkgame_area.get_state( "hosting.b_ok" ) || ( key[KEY_ENTER] && networkgame_area.get_state( "hosting" ) ) ) {
 			while( key[KEY_ENTER] )	{	rest( 20 );	poll_keyboard();	}
 			clear_keybuf();
 			setup_game( true, networkgame_area.get_caption( "hosting.t_hostname" ).c_str() );	// Host a game
+
+			gfx->ReInitTexSys();
+			glScalef(SCREEN_W/640.0f,SCREEN_H/480.0f,1.0f);
+			gfx->set_2D_mode();
+
 			done = true;
 			}
 

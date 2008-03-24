@@ -102,6 +102,9 @@
 **
 ***/
 
+#ifndef __TA3D_SOCKET_CLASS__
+#define __TA3D_SOCKET_CLASS__
+
 class Socket{
 
 	//int ready; //perhaps unnecessary
@@ -127,6 +130,7 @@ class Socket{
 		Socket(char *hostname, char *port);
 		Socket(char *hostname, char *port, int transport);
 		Socket(char *hostname, char *port, int transport, int network);
+		Socket(char *hostname, char *port, int transport, int network, bool broadcast);
 		~Socket();
 
 		//utilities
@@ -143,6 +147,7 @@ class Socket{
 		int Open(char *hostname, char *port);
 		int Open(char *hostname, char *port, int transport);
 		int Open(char* hostname, char *port, int transport, int network);
+		int Open(char* hostname, char *port, int transport, int network, bool broadcast);
 		int Close();
 
 		//communication
@@ -151,5 +156,6 @@ class Socket{
 		
 		int SendString(char* data);//if data is null terminated
 
+		int takeFive(int time);
 };
-
+#endif

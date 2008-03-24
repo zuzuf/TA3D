@@ -160,7 +160,15 @@ void SocketThread::proc(void* param){
 		packtype = sock->getPacket();
 
 		switch(packtype){
-			case 'X':
+			case 'X'://special
+				sock->makeSpecial(&chat);
+				network->xqmutex.Lock();
+					if(dead){
+						network->xqmutex.Unlock();
+						break;
+					}
+					network->specialq.enqueue(&chat);
+				network->xqmutex.Unlock();
 				break;
 			case 'C'://chat
 				sock->makeChat(&chat);
@@ -209,6 +217,36 @@ void SocketThread::proc(void* param){
 	return;
 }
 
+
+void BroadCastThread::proc(void* param){
+	BroadcastSock* sock;
+	Network* network;
+
+	network = ((struct net_thread_params*)param)->network;
+	sock = &(network->broadcast_socket);
+
+	String msg;
+	
+	while(!dead){
+	
+		//sleep until data is coming
+		sock->takeFive(1000);
+		if(dead) break;
+
+		msg = sock->makeMessage();
+		if( !msg.empty() ) {
+			network->bqmutex.Lock();
+				if(dead){
+					network->bqmutex.Unlock();
+					break;
+				}
+				network->broadcastq.push_back( msg );
+			network->bqmutex.Unlock();
+			}
+	}
+
+	return;
+}
 
 //NEED TESTING
 void SendFileThread::proc(void* param){
@@ -347,6 +385,8 @@ void AdminThread::proc(void* param){
 /******************************/
 
 Network::Network() : 
+broadcastq(),
+specialq(64,sizeof(struct chat)) , 
 chatq(64,sizeof(struct chat)) , 
 orderq(32,sizeof(struct order)) , 
 syncq(128,sizeof(struct sync)) , 
@@ -355,8 +395,22 @@ eventq(32,sizeof(struct event)) {
 }
 
 Network::~Network(){
+	listen_thread.Join();
+	admin_thread.Join();
+	getfile_thread.Join();
+	sendfile_thread.Join();
+
+	tohost_socket.Close();//administrative channel
+	listen_socket.Close();
+	broadcast_socket.Close();
+	broadcastq.clear();
+	players.Shutdown();
 }
 
+void Network::InitBroadcast( char* target, char* port )
+{
+	broadcast_socket.Open( target, port, 0 );
+}
 
 
 
@@ -393,7 +447,7 @@ int Network::HostGame(char* name,char* port,int network,int proto){
 	if (network == 2){
 		Socket sock("gamelist.ta3d.net","7778");
 		char buff[256];
-		if(!listen_socket.isOpen()){
+		if(!sock.isOpen()){
 			Console->AddEntry("Network: advertising game failed\n");
 			sock.Close();
 		}
@@ -444,7 +498,7 @@ int Network::Connect(char* target,char* port,int proto){
 	int P = num2af(proto);	
 
 	tohost_socket.Open(target,port,SOCK_STREAM,P);
-	if(!listen_socket.isOpen()){
+	if(!tohost_socket.isOpen()){
 		//error couldnt connect to game
 		Console->AddEntry("Network: error connecting to game at [%s]:%s\n",target,port);
 		myMode = 0;
@@ -473,6 +527,8 @@ void Network::Disconnect(){
 
 	admin_thread.Join();
 	tohost_socket.Close();
+
+	broadcast_socket.Close();
 
 	slmutex.Lock();
 		players.Shutdown();
@@ -529,8 +585,22 @@ int Network::dropPlayer(int num){
 
 
 
+int Network::sendSpecial(struct chat* chat){
+	if( !tohost_socket.isOpen() || chat == NULL )	return -1;
+	char tmp[255];
+	tmp[0] = 'X';
+	tmp[1] = ';';
+	memcpy( tmp, chat->message, 253 );
+	return tohost_socket.Send( tmp, 255 );
+}
+
 int Network::sendChat(struct chat* chat){
-	return 0;
+	if( !tohost_socket.isOpen() || chat == NULL )	return -1;
+	char tmp[255];
+	tmp[0] = 'C';
+	tmp[1] = ';';
+	memcpy( tmp, chat->message, 253 );
+	return tohost_socket.Send( tmp, 255 );
 }
 
 int Network::sendOrder(struct order* order){
@@ -552,6 +622,14 @@ int Network::sendFile(int player,FILE* file){
 	return 0;
 }
 
+
+int Network::getNextSpecial(struct chat* chat){
+	int v;
+	xqmutex.Lock();
+		v = specialq.dequeue(chat);
+	xqmutex.Unlock();
+	return v;
+}
 
 int Network::getNextChat(struct chat* chat){
 	int v;
@@ -597,3 +675,24 @@ int Network::num2af(int proto){
 	}
 	return AF_UNSPEC;
 }
+
+int Network::broadcastMessage( const char *msg )
+{
+	if( !broadcast_socket.isOpen() )
+		return -1;
+
+	return broadcast_socket.sendMessage( msg );
+}
+
+std::string Network::getNextBroadcastedMessage()
+{
+	std::string msg;
+	bqmutex.Lock();
+		if( !broadcastq.empty() ) {
+			msg = broadcastq.front();
+			broadcastq.pop_front();
+			}
+	bqmutex.Unlock();
+	return msg;
+}
+

@@ -20,6 +20,7 @@
 #define __TA3D__NETWORK__H
 
 #include "ta3dsock.h"
+#include "broadcastsock.h"
 #include "superqueue.h"
 #include "thread.h"
 
@@ -80,6 +81,10 @@ class GetFileThread : public Thread{
 };
 
 class AdminThread : public Thread{
+	virtual void proc(void* param);
+};
+
+class BroadCastThread : public Thread{
 	virtual void proc(void* param);
 };
 
@@ -146,6 +151,7 @@ class Network{
 	friend class SendFileThread;
 	friend class GetFileThread;
 	friend class AdminThread;
+	friend class BroadCastThread;
 
 	TA3DSock listen_socket;
 	ListenThread listen_thread;
@@ -156,6 +162,8 @@ class Network{
 	GetFileThread getfile_thread;
 	SendFileThread sendfile_thread;
 
+	BroadcastSock broadcast_socket;	// Used to discover LAN servers
+
 	char gamename[128];//displays on the internet gamelist
 	char creatorName[64];//name of the game owner
 	int adminDir[10];//which players are admins
@@ -164,12 +172,17 @@ class Network{
 
 	//these 5 things need to be syncronized with a mutex
 	SockList players;
+	SuperQueue specialq;
 	SuperQueue chatq;
 	SuperQueue orderq;
 	SuperQueue syncq;
 	SuperQueue eventq;
 
+	std::list< std::string > broadcastq;
+
 	Mutex slmutex;
+	Mutex bqmutex;
+	Mutex xqmutex;
 	Mutex cqmutex;
 	Mutex oqmutex;
 	Mutex sqmutex;
@@ -197,9 +210,12 @@ class Network{
 		int Connect(char* target,char* port,int proto);
 		void Disconnect();
 
+		void InitBroadcast( char* target, char* port);
+
 		//int listNetGames(GamesList& list);
 		//int listLanGames(GamesList& list);
 
+		int sendSpecial(struct chat* chat);
 		int sendChat(struct chat* chat);
 		int sendOrder(struct order* order);
 		int sendSync(struct sync* sync);
@@ -208,12 +224,14 @@ class Network{
 
 		int dropPlayer(int num);
 
+		int getNextSpecial(struct chat* chat);
 		int getNextChat(struct chat* chat);
 		int getNextOrder(struct order* order);
 		int getNextSync(struct sync* sync);
 		int getNextEvent(struct event* event);
 		
-
+		int broadcastMessage( const char *msg );
+		std::string getNextBroadcastedMessage();
 };
 
 

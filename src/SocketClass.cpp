@@ -35,6 +35,19 @@ Socket::~Socket(){
 }
 
 
+Socket::Socket(char *hostname, char *port, int transport, int network, bool broadcast){
+	strncpy(number,"new socket",NI_MAXHOST);
+	strncpy(service,"???",NI_MAXSERV);
+	stype = STYPE_BROKEN;
+	sockreports = 1;
+	sockerrors = 1;
+	int x;
+	x = Open(hostname,port,transport,network,true);
+	if (x<0){
+		//Console->AddEntry("Socket initialization for %s port %s failed!\n",hostname,port);
+	}
+}
+
 Socket::Socket(char *hostname, char *port, int transport, int network){
 	strncpy(number,"new socket",NI_MAXHOST);
 	strncpy(service,"???",NI_MAXSERV);
@@ -79,6 +92,10 @@ int Socket::Open(char *hostname, char *port, int transport){
 }
 
 int Socket::Open(char *hostname, char *port, int transport, int network){
+	return Open(hostname,port,transport,network,false);
+}
+
+int Socket::Open(char *hostname, char *port, int transport, int network, bool broadcast){
 	//create a socket
 	if (stype != STYPE_BROKEN){
 		sockError("Open: this socket is already open");
@@ -170,7 +187,6 @@ int Socket::Open(char *hostname, char *port, int transport, int network){
 	//try to connect to one of them
 	for(ptr = result; ptr; ptr = ptr->ai_next){
 
-
 		s = socket(ptr->ai_family, ptr->ai_socktype, ptr->ai_protocol);
       if (s < 0) {
         	sockError("Open: socket() error, trying another address...");
@@ -238,8 +254,8 @@ int Socket::Open(char *hostname, char *port, int transport, int network){
 		NULL, 
 		0,
 		NI_NUMERICHOST);
-	
-	freeaddrinfo(result);
+
+//	freeaddrinfo(result);			// FIXME : frees used addresses ...
 
 	sockReport("socket opened");
 
@@ -418,8 +434,10 @@ int Socket::Send(void* data,int num){
 
 	int v;
 
-	if(stype == STYPE_UDP_SENDER)
+	if(stype == STYPE_UDP_SENDER) {
+		printf("C: sending to %d.%d.%d.%d\n", ((unsigned char*)address.ai_addr->sa_data)[0],((unsigned char*)address.ai_addr->sa_data)[1],((unsigned char*)address.ai_addr->sa_data)[2],((unsigned char*)address.ai_addr->sa_data)[3]);
 		v = sendto(fd,data,num,0,address.ai_addr,address.ai_addrlen);
+		}
 	else
 		v = send(fd,data,num,0);
 	if(v<0){
@@ -529,3 +547,22 @@ int Socket::platformSetNonBlock(){
 
 void Socket::platformGetError(){}
 #endif
+
+int Socket::takeFive(int time){
+#ifdef TA3D_PLATFORM_LINUX
+
+	fd_set set;
+
+	FD_ZERO(&set);
+	FD_SET(fd,&set);
+	
+	struct timeval t;
+	t.tv_sec = time/1000;
+	t.tv_usec = 1000*(time%1000);
+
+	select(fd+1,&set,NULL,NULL,&t);
+
+#endif
+		
+	return 0;
+}

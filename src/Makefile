@@ -79,8 +79,8 @@ am_ta3d_OBJECTS = ta3d.$(OBJEXT) main.$(OBJEXT) install.$(OBJEXT) \
 	cCriticalSection.$(OBJEXT) cInterface.$(OBJEXT) \
 	cLogger.$(OBJEXT) cError.$(OBJEXT) decode.$(OBJEXT) \
 	encode.$(OBJEXT) io.$(OBJEXT) ta3d_jpg.$(OBJEXT) \
-	SocketClass.$(OBJEXT) ta3dsock.$(OBJEXT) superqueue.$(OBJEXT) \
-	network.$(OBJEXT)
+	SocketClass.$(OBJEXT) ta3dsock.$(OBJEXT) \
+	broadcastsock.$(OBJEXT) superqueue.$(OBJEXT) network.$(OBJEXT)
 ta3d_OBJECTS = $(am_ta3d_OBJECTS)
 ta3d_LDADD = $(LDADD)
 DEFAULT_INCLUDES = -I. -I$(top_builddir)
@@ -235,6 +235,7 @@ ta3d_SOURCES = \
 	jpeg/dct.h jpeg/internal.h jpeg/ta3d_jpg.h \
 	SocketClass.cpp SocketClass.h \
 	ta3dsock.cpp ta3dsock.h \
+	broadcastsock.cpp broadcastsock.h \
 	superqueue.cpp superqueue.h \
 	network.cpp network.h \
 	TA3D_Platform.h matrix.h ta3dbase.h vector.h thread.h
@@ -380,6 +381,7 @@ include ./$(DEPDIR)/TA3D_NameSpace.Po
 include ./$(DEPDIR)/TA3D_hpi.Po
 include ./$(DEPDIR)/UnitEngine.Po
 include ./$(DEPDIR)/ai.Po
+include ./$(DEPDIR)/broadcastsock.Po
 include ./$(DEPDIR)/cCriticalSection.Po
 include ./$(DEPDIR)/cError.Po
 include ./$(DEPDIR)/cInterface.Po
