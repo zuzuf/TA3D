@@ -153,7 +153,7 @@ class Socket{
 
 		//communication
 		int Send(void* data,int num);//send num bytes of data
-		int Recv(void* data,int num);//recv a packet or num bytes if thats smaller
+		int Recv(void* data,int num, uint32 *address = NULL);//recv a packet or num bytes if thats smaller
 		
 		int SendString(char* data);//if data is null terminated
 

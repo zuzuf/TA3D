@@ -398,6 +398,7 @@ void AdminThread::proc(void* param){
 
 Network::Network() : 
 multicastq(),
+multicastaddressq(),
 specialq(64,sizeof(struct chat)) , 
 chatq(64,sizeof(struct chat)) , 
 orderq(32,sizeof(struct order)) , 
@@ -417,6 +418,7 @@ Network::~Network(){
 	listen_socket.Close();
 	multicast_socket.Close();
 	multicastq.clear();
+	multicastaddressq.clear();
 	players.Shutdown();
 }
 
@@ -711,10 +713,23 @@ std::string Network::getNextBroadcastedMessage()
 		if( !multicastq.empty() ) {
 			msg = multicastq.front();
 			multicastq.pop_front();
+			if( multicastq.size() + 1 < multicastaddressq.size() )
+				multicastaddressq.pop_front();
 			}
 	mqmutex.Unlock();
 	return msg;
 }
+
+uint32 Network::getLastMessageAddress()
+{
+	uint32 address;
+	mqmutex.Lock();
+		if( !multicastaddressq.empty() )
+			address = multicastaddressq.front();
+	mqmutex.Unlock();
+	return address;
+}
+
 
 bool Network::BroadcastedMessages()
 {
@@ -722,6 +737,14 @@ bool Network::BroadcastedMessages()
 		bool result = !multicastq.empty();
 	mqmutex.Unlock();
 	return result;
+}
+
+std::string ip2str( uint32 ip ) {
+	std::string address = "";
+	for( int i = 0 ; i < 3 ; i++ )
+		address += format( "%d.", ((unsigned char*)&ip)[i] );
+	address += format( "%d", ((unsigned char*)&ip)[3] );
+	return address;
 }
 
 

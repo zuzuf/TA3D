@@ -93,6 +93,8 @@ struct SERVER_DATA
 {
 	String		name;				// Its name
 	int			timer;				// Allow it to timeout
+	int			nb_open;			// How many player slots are open ?
+	String		host;				// The host name of this server
 };
 
 
@@ -186,6 +188,7 @@ class Network{
 	SuperQueue eventq;
 
 	std::list< std::string > multicastq;
+	std::list< uint32 > multicastaddressq;
 
 	Mutex slmutex;
 	Mutex mqmutex;
@@ -239,6 +242,7 @@ class Network{
 		
 		int broadcastMessage( const char *msg );
 		std::string getNextBroadcastedMessage();
+		uint32 getLastMessageAddress();
 		bool BroadcastedMessages();
 };
 
@@ -249,5 +253,7 @@ struct net_thread_params{
 	int sockid;
 	FILE* file;
 };
+
+std::string ip2str( uint32 ip );
 
 #endif

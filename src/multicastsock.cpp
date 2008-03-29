@@ -120,10 +120,10 @@ void MulticastSock::recvUDP(){
 		return;
 	else if(uiremain == -1){
 		uint8_t remain;
-		udpsocket.Recv(&remain,1);//get new number
+		udpsocket.Recv(&remain,1,&address);//get new number
 		if(remain == 0){
 			uint16_t remain2;
-			udpsocket.Recv(&remain2,2);//get big number
+			udpsocket.Recv(&remain2,2,&address);//get big number
 			uiremain = ntohs(remain2);
 		}
 		else if(remain>0) uiremain = remain;
@@ -154,6 +154,11 @@ char MulticastSock::getPacket(){
 
 int MulticastSock::takeFive(int time){
 	return udpsocket.takeFive( time );
+}
+
+
+uint32 MulticastSock::getAddress() {
+	return address;
 }
 
 

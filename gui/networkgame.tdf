@@ -8,7 +8,7 @@
 	height=1024;
 	draw borders=false;
 	show title=false;
-	number of objects=6;
+	number of objects=10;
 	hidden=false;
 	lock=true;
 	color=0x00000000;			// Fully transparent so we can see the AREA background
@@ -38,16 +38,7 @@
 		y2=997;
 		size=2;
 	}
-	[object2]		// mini-map
-	{
-		name=minimap;
-		type=IMG;
-		x1=724;
-		y1=179;
-		x2=1150;
-		y2=605;
-	}
-	[object3]		// server list
+	[object2]		// server list
 	{
 		name=server_list;
 		type=LIST;
@@ -59,18 +50,7 @@
 		no border=true;		// Don't draw the border since it's drawn on the background
 		size=1.8;
 	}
-	[object4]
-	{
-		name=map_info;
-		type=TEXT;
-		x1=708;
-		y1=622;
-		x2=1170;
-		y2=880;
-		value=0xFFFFFFFF;
-		size=1.8;
-	}
-	[object5]		// Host
+	[object3]		// Host
 	{
 		name=b_host;
 		type=BUTTON;
@@ -81,5 +61,71 @@
 		y2=997;
 		on click=hosting.show;
 		size=2;
+	}
+	[object4]
+	{
+		name=l_server_name;
+		type=TEXT;
+		x1=940;
+		y1=193;
+		caption=server name:;
+		value=0xFFFFFFFF;
+		size=2;
+		centered=true;
+	}
+	[object5]
+	{
+		name=server_name;
+		type=TEXT;
+		x1=940;
+		y1=259;
+		caption=no server selected;
+		value=0xFFFFFFFF;
+		size=2;
+		centered=true;
+	}
+	[object6]
+	{
+		name=l_host;
+		type=TEXT;
+		x1=940;
+		y1=370;
+		caption=host address:;
+		value=0xFFFFFFFF;
+		size=2;
+		centered=true;
+	}
+	[object7]
+	{
+		name=host;
+		type=TEXT;
+		x1=940;
+		y1=436;
+		caption=;
+		value=0xFFFFFFFF;
+		size=2;
+		centered=true;
+	}
+	[object8]
+	{
+		name=l_open_slots;
+		type=TEXT;
+		x1=940;
+		y1=547;
+		caption=slots available:;
+		value=0xFFFFFFFF;
+		size=2;
+		centered=true;
+	}
+	[object9]
+	{
+		name=open_slots;
+		type=TEXT;
+		x1=940;
+		y1=613;
+		caption=;
+		value=0xFFFFFFFF;
+		size=2;
+		centered=true;
 	}
 }

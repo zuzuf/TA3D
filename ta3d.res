@@ -1,3 +1,7 @@
+[closed]
+{
+	FRENCH=fermé;
+}
 [warning: you might have texturing\nissues with this!!]
 {
 	FRENCH=attention: vous pouvez avoir des problemes\nde textures avec cette option!!;

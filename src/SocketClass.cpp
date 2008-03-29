@@ -476,7 +476,7 @@ int Socket::Send(void* data,int num){
 }
 
 
-int Socket::Recv(void* data, int num){
+int Socket::Recv(void* data, int num, uint32 *address){
 	
 	if(stype == STYPE_BROKEN){
 		sockError("Recv: socket must be open before receiving");
@@ -492,14 +492,16 @@ int Socket::Recv(void* data, int num){
 //	}
 
 	int v;
-	struct sockaddr addr;
-	socklen_t len;
+	struct sockaddr_in addr;
+	socklen_t len = sizeof( addr );
 
 
-	if(stype == STYPE_UDP_RECEIVER){
-		v = recvfrom(fd,data,num,0,&addr,&len);
-		if(!memcmp(&addr,address.ai_addr,len))//unexpected change of sender
-			dgramUpdateAddress(&addr,&len);
+	if(stype == STYPE_UDP_RECEIVER || stype == STYPE_UDP_SENDER){
+		v = recvfrom(fd,data,num,0,(struct sockaddr*)&addr,&len);
+		if( address )
+			*address = v > 0 ? addr.sin_addr.s_addr : 0;
+//		if(stype == STYPE_UDP_RECEIVER && !memcmp(&addr,address.ai_addr,len))//unexpected change of sender
+//			dgramUpdateAddress(&addr,&len);
 	}
 	else{
 		v = recv(fd,data,num,0);

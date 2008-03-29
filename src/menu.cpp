@@ -1076,8 +1076,10 @@ void setup_game(bool network_game, const char *host)
 	if( network_game ) {
 		if( host ) {
 			TA3D_network.InitMulticast("224.0.0.3","1234");		// multicast mode
-//			TA3D_network.HostGame( (char*) host, "4242", 2, 0 );
+			TA3D_network.HostGame( (char*) host, "4242", 2, 0 );
 			}
+		else
+			TA3D_network.Connect( (char*) host, "4242", 0 );
 		}
 
 	cursor_type=CURSOR_DEFAULT;
@@ -1085,10 +1087,10 @@ void setup_game(bool network_game, const char *host)
 	float resize_w = SCREEN_W / 640.0f;
 	float resize_h = SCREEN_H / 480.0f;
 
-	uint16	player_str_n = 3;
+	uint16	player_str_n = 4;
 	uint16	ai_level_str_n = 4;
-	String	player_str[3] = { lp_CONFIG->player_name, TRANSLATE("computer"), TRANSLATE("open") };
-	byte	player_control[3] = { PLAYER_CONTROL_LOCAL_HUMAN, PLAYER_CONTROL_LOCAL_AI, PLAYER_CONTROL_NONE };
+	String	player_str[4] = { lp_CONFIG->player_name, TRANSLATE("computer"), TRANSLATE("open"), TRANSLATE("closed") };
+	byte	player_control[4] = { PLAYER_CONTROL_LOCAL_HUMAN, PLAYER_CONTROL_LOCAL_AI, PLAYER_CONTROL_NONE, PLAYER_CONTROL_NONE };
 	String	ai_level_str[4] = { TRANSLATE("easy"), TRANSLATE("medium"), TRANSLATE("hard"), TRANSLATE("bloody") };
 	uint16	side_str_n = ta3d_sidedata.nb_side;
 	Vector<String>	side_str;
@@ -1252,8 +1254,16 @@ void setup_game(bool network_game, const char *host)
 		while( !multicast_msg.empty() ) {
 			Vector<String> params = ReadVectorString( multicast_msg, " " );
 			if( params.size() == 3 && params[0] == "PING" && params[1] == "SERVER" ) {
-				if( params[2] == "LIST" && host )						// Sending information about this server
-					TA3D_network.broadcastMessage( format( "PONG SERVER %s", host ).c_str() );
+				if( params[2] == "LIST" && host ) {						// Sending information about this server
+					uint16 nb_open = 0;
+					for( uint16 f = 0 ; f < 10 ; f++ )
+						if( setupgame_area.get_caption(format("gamesetup.name%d", f)) == player_str[2] ) 
+							nb_open++;
+					if( TA3D_CURRENT_MOD.empty() )
+						TA3D_network.broadcastMessage( format( "PONG SERVER %s . %s %d", host, ReplaceChar( TA3D_ENGINE_VERSION,' ','?' ).c_str(), nb_open ).c_str() );
+					else
+						TA3D_network.broadcastMessage( format( "PONG SERVER %s %s %s %d", host, ReplaceChar( TA3D_CURRENT_MOD, ' ', '?' ).c_str(), ReplaceChar( TA3D_ENGINE_VERSION,' ','?' ).c_str(), nb_open ).c_str() );
+					}
 				}
 			multicast_msg = TA3D_network.getNextBroadcastedMessage();
 			}
@@ -1521,41 +1531,6 @@ void network_room(void)				// Let players create/join a game
 	networkgame_area.load_tdf("gui/networkgame.area");
 	if( !networkgame_area.background )	networkgame_area.background = gfx->glfond;
 
-	GLuint mini = 0;
-	int dx = 0;
-	int dy = 0;
-	float ldx = dx*70.0f/252.0f;
-	float ldy = dy*70.0f/252.0f;
-
-
-	GUIOBJ *minimap_obj = networkgame_area.get_object( "networkgame.minimap" );
-	float mini_map_x1 = 0.0f;
-	float mini_map_y1 = 0.0f;
-	float mini_map_x2 = 0.0f;
-	float mini_map_y2 = 0.0f;
-	float mini_map_x = 0.0f;
-	float mini_map_y = 0.0f;
-	if( minimap_obj ) {
-		mini_map_x1 = minimap_obj->x1;
-		mini_map_y1 = minimap_obj->y1;
-		mini_map_x2 = minimap_obj->x2;
-		mini_map_y2 = minimap_obj->y2;
-		ldx = dx * ( mini_map_x2 - mini_map_x1 ) / 504.0f;
-		ldy = dy * ( mini_map_y2 - mini_map_y1 ) / 504.0f;
-
-		mini_map_x = (mini_map_x1 + mini_map_x2) * 0.5f;
-		mini_map_y = (mini_map_y1 + mini_map_y2) * 0.5f;
-
-		minimap_obj->Data = 0;
-		minimap_obj->x1 = mini_map_x - ldx;
-		minimap_obj->y1 = mini_map_y - ldy;
-		minimap_obj->x2 = mini_map_x + ldx;
-		minimap_obj->y2 = mini_map_y + ldy;
-		minimap_obj->u2 = dx / 252.0f;
-		minimap_obj->v2 = dy / 252.0f;
-		}
-
-	MAP_OTA	map_data;
 	int sel_index = -1;
 	int o_sel = -1;
 
@@ -1581,42 +1556,48 @@ void network_room(void)				// Let players create/join a game
 		amz = mouse_z;
 		amb = mouse_b;
 
-		if( msec_timer - server_list_timer >= SERVER_LIST_REFRESH_DELAY ) {		// Refresh server list
-			server_list_timer = msec_timer;
+		if( TA3D_network.BroadcastedMessages() ) {
 			String msg = TA3D_network.getNextBroadcastedMessage();
 			while( !msg.empty() ) {
-				printf("received '%s'\n", msg.c_str());
+//				printf("received '%s'\n", msg.c_str());
 				Vector<String> params = ReadVectorString( msg, " " );
-				if( params.size() == 3 && params[0] == "PONG" && params[1] == "SERVER" ) {
+				if( params.size() == 6 && params[0] == "PONG" && params[1] == "SERVER" ) {		// It looks like "PONG SERVER <name> <mod> <version> <nb open player slots>
 					String name = params[2];
-					bool updated = false;
-					for( List< SERVER_DATA >::iterator server_i = servers.begin() ; server_i != servers.end() ; server_i++ )		// Update the list
-						if( server_i->name == name ) {
-							updated = true;
-							server_i->timer = msec_timer;
-							break;
+					String mod = ReplaceChar( params[3], '?', ' ' );
+					if( mod == "." )	mod = "";
+					String version = ReplaceChar( params[4], '?', ' ' );
+					String host_address = ip2str( TA3D_network.getLastMessageAddress() );
+					int nb_open = atoi( params[5].c_str() );
+					
+					if( version == TA3D_ENGINE_VERSION && mod == TA3D_CURRENT_MOD && nb_open != 0 ) {
+						bool updated = false;
+						for( List< SERVER_DATA >::iterator server_i = servers.begin() ; server_i != servers.end() ; server_i++ )		// Update the list
+							if( server_i->name == name ) {
+								updated = true;
+								server_i->timer = msec_timer;
+								server_i->nb_open = nb_open;
+								server_i->host = host_address;
+								break;
+								}
+						if( !updated ) {
+							SERVER_DATA new_server;
+							new_server.name = name;
+							new_server.timer = msec_timer;
+							new_server.nb_open = nb_open;
+							new_server.host = host_address;
+							servers.push_back( new_server );
 							}
-					if( !updated ) {
-						SERVER_DATA new_server;
-						new_server.name = name;
-						new_server.timer = msec_timer;
-						servers.push_back( new_server );
 						}
 					}
 
 				msg = TA3D_network.getNextBroadcastedMessage();
 				}
 
-			int optimal = 1;
-
-			for( List< SERVER_DATA >::iterator server_i = servers.begin() ; server_i != servers.end() ; )  {		// Remove those who timeout
+			for( List< SERVER_DATA >::iterator server_i = servers.begin() ; server_i != servers.end() ; )		// Remove those who timeout
 				if( msec_timer - server_i->timer >= 30000 )
 					servers.erase( server_i++ );
-				else {
-					optimal = max( optimal, (int)(msec_timer - server_i->timer) / SERVER_LIST_REFRESH_DELAY );
+				else
 					server_i++;
-					}
-				}
 			
 			GUIOBJ *obj = networkgame_area.get_object("networkgame.server_list");
 			if( obj ) {
@@ -1631,7 +1612,34 @@ void network_room(void)				// Let players create/join a game
 				if( obj->Text.size() == 0 )
 					obj->Text.push_back(TRANSLATE("No server found"));
 				}
+			}
 				
+		if( msec_timer - server_list_timer >= SERVER_LIST_REFRESH_DELAY ) {		// Refresh server list
+			int optimal = 1;
+
+			for( List< SERVER_DATA >::iterator server_i = servers.begin() ; server_i != servers.end() ; )		// Remove those who timeout
+				if( msec_timer - server_i->timer >= 30000 )
+					servers.erase( server_i++ );
+				else {
+					optimal = max( optimal, (int)(msec_timer - server_i->timer) / SERVER_LIST_REFRESH_DELAY );
+					server_i++;
+					}
+			
+			GUIOBJ *obj = networkgame_area.get_object("networkgame.server_list");
+			if( obj ) {
+				obj->Text.resize( servers.size() );
+				List<String> server_names;
+				for( List< SERVER_DATA >::iterator server_i = servers.begin() ; server_i != servers.end() ; server_i++ )		// Remove those who timeout
+					server_names.push_back( server_i->name );
+				server_names.sort();
+				int i = 0;
+				for( List< String >::iterator server_i = server_names.begin() ; server_i != server_names.end() ; server_i++, i++ )		// Remove those who timeout
+					obj->Text[i] = *server_i;
+				if( obj->Text.size() == 0 )
+					obj->Text.push_back(TRANSLATE("No server found"));
+				}
+
+			server_list_timer = msec_timer;
 			for( int i = 0 ; i < optimal ; i++ )
 				if( TA3D_network.broadcastMessage( "PING SERVER LIST" ) ) {
 					printf("error : could not multicast packet to refresh server list!!\n");
@@ -1667,44 +1675,17 @@ void network_room(void)				// Let players create/join a game
 		if( networkgame_area.get_object("networkgame.server_list") )
 			sel_index = networkgame_area.get_object("networkgame.server_list")->Pos;
 
-		if( sel_index != o_sel && sel_index >= 0 && false) {			// Deactivated for now
+		if( sel_index != o_sel && sel_index >= 0 ) {			// Update displayed server info
+			GUIOBJ *obj = networkgame_area.get_object("networkgame.server_list");
 			o_sel = sel_index;
-			gfx->destroy_texture( mini );
 			List< SERVER_DATA >::iterator i_server = servers.begin();
-			for( int i = 0 ; i < sel_index && i_server != servers.end() ; i++)	i_server++;
-			String tmp = String("maps\\") + i_server->name + String(".tnt");
-			mini = load_tnt_minimap_fast((char*)tmp.c_str(),&dx,&dy);
-			tmp = String("maps\\") + i_server->name + String(".ota");								// Read the ota file
-			uint32 ota_size = 0;
-			byte *data = HPIManager->PullFromHPI(tmp,&ota_size);
-			if(data) {
-				map_data.load((char*)data,ota_size);
-				free(data);
-				}
-			else
-				map_data.destroy();
-			if( minimap_obj ) {	// Update the minimap on GUI
-				gfx->destroy_texture( minimap_obj->Data );			// Make things clean
-				minimap_obj->Data = mini;
-				mini = 0;
-				ldx = dx * ( mini_map_x2 - mini_map_x1 ) / 504.0f;
-				ldy = dy * ( mini_map_y2 - mini_map_y1 ) / 504.0f;
-				minimap_obj->x1 = mini_map_x-ldx;
-				minimap_obj->y1 = mini_map_y-ldy;
-				minimap_obj->x2 = mini_map_x+ldx;
-				minimap_obj->y2 = mini_map_y+ldy;
-				minimap_obj->u2 = dx/252.0f;
-				minimap_obj->v2 = dy/252.0f;
-				}
+			for( int i = 0 ; i_server != servers.end() && i_server->name != obj->Text[ sel_index ] ; i++)	i_server++;
 
-			String map_info = "";
-			if(map_data.missionname)
-				map_info += String( map_data.missionname ) + "\n";
-			if(map_data.numplayers)
-				map_info += "\n" + TRANSLATE("players: ") + String( map_data.numplayers ) + "\n";
-			if(map_data.missiondescription)
-				map_info += String( "\n" ) + map_data.missiondescription;
-			networkgame_area.set_caption("networkgame.map_info", map_info );
+			if( i_server != servers.end() ) {
+				networkgame_area.set_caption("networkgame.server_name", i_server->name );
+				networkgame_area.set_caption("networkgame.host", i_server->host );
+				networkgame_area.set_caption("networkgame.open_slots", format( "%d", i_server->nb_open ) );
+				}
 			}
 
 								// Efface tout
@@ -1722,8 +1703,6 @@ void network_room(void)				// Let players create/join a game
 
 	if( networkgame_area.background == gfx->glfond )	networkgame_area.background = 0;
 	networkgame_area.destroy();
-
-	gfx->destroy_texture( mini );
 
 	gfx->unset_2D_mode();	// Quitte le mode de dessin d'allegro
 
