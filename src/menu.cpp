@@ -1255,6 +1255,10 @@ void setup_game(bool network_game, const char *host)
 				if( params[2] == "LIST" && host ) {
 					printf("received PING SERVER LIST, sending PONG SERVER %s\n", host );
 					TA3D_network.broadcastMessage( format( "PONG SERVER %s", host ).c_str() );
+					TA3D_network.broadcastMessage( format( "PONG SERVER %s", host ).c_str() );
+					TA3D_network.broadcastMessage( format( "PONG SERVER %s", host ).c_str() );
+					TA3D_network.broadcastMessage( format( "PONG SERVER %s", host ).c_str() );
+					TA3D_network.broadcastMessage( format( "PONG SERVER %s", host ).c_str() );
 					}
 				}
 			multicast_msg = TA3D_network.getNextBroadcastedMessage();

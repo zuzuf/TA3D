@@ -236,6 +236,8 @@ int Socket::Open(char *hostname, char *port, int transport, int network, char *m
 	if( multicast && stype == STYPE_UDP_SENDER ) {
 		int optReUseAddr = 1;
 		setsockopt(s, SOL_SOCKET, SO_REUSEADDR, &optReUseAddr, sizeof(int));
+
+		bind(s, ptr->ai_addr, ptr->ai_addrlen);
 		}
 		
 	if( multicast ) {
@@ -484,10 +486,10 @@ int Socket::Recv(void* data, int num){
 		sockError("Recv: tcp server socket can't recv");
 		return -1;
 	}
-	if(stype == STYPE_UDP_SENDER){
-		sockError("Recv: udp sender socket can't recv");
-		return -1;
-	}
+//	if(stype == STYPE_UDP_SENDER){
+//		sockError("Recv: udp sender socket can't recv");
+//		return -1;
+//	}
 
 	int v;
 	struct sockaddr addr;

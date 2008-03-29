@@ -25,18 +25,16 @@
 
 int MulticastSock::Open(char* hostname,char* port,int network){
 
-	udpin.Open(NULL,port,SOCK_DGRAM,network,hostname);
 	if(hostname)
-		udpout.Open(hostname,port,SOCK_DGRAM,network,hostname);
+		udpsocket.Open(hostname,port,SOCK_DGRAM,network,hostname);
 	
-	if( !( udpin.isOpen() && (udpout.isOpen() || hostname == NULL) ) ){
+	if( !udpsocket.isOpen() || hostname == NULL ){
 		if( hostname )
 			Console->AddEntry("couldn't open %s for UDP", hostname );
 		else
 			Console->AddEntry("couldn't open UDP sockets" );
 		//one of them didnt work... quit
-		udpin.Close();
-		udpout.Close();
+		udpsocket.Close();
 		return -1;
 	}
 	
@@ -51,12 +49,11 @@ int MulticastSock::Open(char* hostname,char* port,int network){
 
 
 int MulticastSock::isOpen(){
-	return udpin.isOpen();
+	return udpsocket.isOpen();
 }
 
 void MulticastSock::Close(){
-	udpin.Close();
-	udpout.Close();
+	udpsocket.Close();
 }
 
 
@@ -103,12 +100,12 @@ void MulticastSock::loadFloat(float x){
 
 
 void MulticastSock::sendUDP(){
-	if( !udpout.isOpen() ) {
+	if( !udpsocket.isOpen() ) {
 		Console->AddEntry("WARNING: broadcast socket closed!!");
 		}
 	int n = 0;
 	while(n!=obp) {
-		int v = udpout.Send(outbuf,obp);
+		int v = udpsocket.Send(outbuf,obp);
 		if( v <= 0 ) {
 			Console->AddEntry("ERROR : couldn't broadcast data");
 			break;
@@ -123,11 +120,10 @@ void MulticastSock::recvUDP(){
 		return;
 	else if(uiremain == -1){
 		uint8_t remain;
-		int p = udpin.Recv(&remain,1);//get new number
-		if( p < 0 )	return;
+		udpsocket.Recv(&remain,1);//get new number
 		if(remain == 0){
 			uint16_t remain2;
-			udpin.Recv(&remain2,2);//get big number
+			udpsocket.Recv(&remain2,2);//get big number
 			uiremain = ntohs(remain2);
 		}
 		else if(remain>0) uiremain = remain;
@@ -135,7 +131,7 @@ void MulticastSock::recvUDP(){
 		return;
 	}
 	int n = 0;
-	n = udpin.Recv(udpinbuf+uibp,uiremain);
+	n = udpsocket.Recv(udpinbuf+uibp,uiremain);
 	if( n > 0 ) {
 		uibp += n;
 		uiremain -= n;
@@ -157,7 +153,7 @@ char MulticastSock::getPacket(){
 
 
 int MulticastSock::takeFive(int time){
-	return udpin.takeFive( time );
+	return udpsocket.takeFive( time );
 }
 
 

@@ -70,8 +70,7 @@
 //a LAN network
 class MulticastSock{
 
-	Socket udpin;
-	Socket udpout;
+	Socket udpsocket;
 
 	//only touched by main thread
 	char outbuf[MULTICAST_BUFFER_SIZE];
