@@ -35,14 +35,14 @@ Socket::~Socket(){
 }
 
 
-Socket::Socket(char *hostname, char *port, int transport, int network, bool broadcast){
+Socket::Socket(char *hostname, char *port, int transport, int network, char *multicast){
 	strncpy(number,"new socket",NI_MAXHOST);
 	strncpy(service,"???",NI_MAXSERV);
 	stype = STYPE_BROKEN;
 	sockreports = 1;
 	sockerrors = 1;
 	int x;
-	x = Open(hostname,port,transport,network,true);
+	x = Open(hostname,port,transport,network,multicast);
 	if (x<0){
 		//Console->AddEntry("Socket initialization for %s port %s failed!\n",hostname,port);
 	}
@@ -95,7 +95,7 @@ int Socket::Open(char *hostname, char *port, int transport, int network){
 	return Open(hostname,port,transport,network,false);
 }
 
-int Socket::Open(char *hostname, char *port, int transport, int network, bool multicast){
+int Socket::Open(char *hostname, char *port, int transport, int network, char *multicast){
 	//create a socket
 	if (stype != STYPE_BROKEN){
 		sockError("Open: this socket is already open");
@@ -238,11 +238,11 @@ int Socket::Open(char *hostname, char *port, int transport, int network, bool mu
 		setsockopt(s, SOL_SOCKET, SO_REUSEADDR, &optReUseAddr, sizeof(int));
 		}
 		
-	if( multicast && hostname ) {
+	if( multicast ) {
 		struct ip_mreq mreq;
 		int i=0;
 
-		if (inet_aton( hostname, &mreq.imr_multiaddr) < 0) {sockError("inet_aton mreq"); return -1;}
+		if (inet_aton( multicast, &mreq.imr_multiaddr) < 0) {sockError("inet_aton mreq"); return -1;}
 		mreq.imr_interface.s_addr = htonl(INADDR_ANY);
 		if (setsockopt(s, IPPROTO_IP, IP_ADD_MEMBERSHIP, &mreq, sizeof(mreq)) < 0)
 		{sockError("setsockopt IP_ADD_MEMBERSHIP "); return -1;}
@@ -401,6 +401,9 @@ int Socket::Accept(Socket& sock){
 	return 0;
 }
 
+int Socket::getstype() {
+	return stype;
+}
 
 char* Socket::getNumber(){
 	return number;
@@ -419,14 +422,14 @@ int Socket::getAF(){
 
 void Socket::sockError(char* message){
 	if(sockreports){
-		Console->AddEntry("sockError ([%s]:%s): %s\n",number,service,message);
+		Console->AddEntry("sockError ([%s]:%s): %s",number,service,message);
 	}
 }
 
 
 void Socket::sockReport(char* message){
 	if(sockerrors){
-		Console->AddEntry("sockReport ([%s]:%s): %s\n",number,service,message);
+		Console->AddEntry("sockReport ([%s]:%s): %s",number,service,message);
 	}
 }
 
@@ -435,33 +438,33 @@ void Socket::sockReport(char* message){
 int Socket::Send(void* data,int num){
 	
 	if(stype == STYPE_BROKEN){
-		sockError("Send: socket must be open before sending\n");
+		sockError("Send: socket must be open before sending");
 		return -1;
 	}
 	if(stype == STYPE_TCP_SERVER){
-		sockError("Send: tcp server socket can't send\n");
+		sockError("Send: tcp server socket can't send");
 		return -1;
 	}
 	if(stype == STYPE_UDP_RECEIVER){
-		sockError("Send: udp receiver socket can't send\n");
+		sockError("Send: udp receiver socket can't send");
 		return -1;
 	}
 
 	int v;
 
 	if(stype == STYPE_UDP_SENDER) {
-		printf("C: sending to %d.%d.%d.%d\n", ((unsigned char*)address.ai_addr->sa_data)[0],((unsigned char*)address.ai_addr->sa_data)[1],((unsigned char*)address.ai_addr->sa_data)[2],((unsigned char*)address.ai_addr->sa_data)[3]);
+//		printf("C: sending to %d.%d.%d.%d\n", ((unsigned char*)address.ai_addr->sa_data)[0],((unsigned char*)address.ai_addr->sa_data)[1],((unsigned char*)address.ai_addr->sa_data)[2],((unsigned char*)address.ai_addr->sa_data)[3]);
 		v = sendto(fd,data,num,0,address.ai_addr,address.ai_addrlen);
 		}
 	else
 		v = send(fd,data,num,0);
 	if(v<0){
 		if(errno==ECONNRESET){//THIS IS BROKEN, NEED TO USE platformGetError()
-			sockError("Send: connection reset by peer\n");
+			sockError("Send: connection reset by peer");
 			Close();
 		}
 		else{
-			sockError("Send: socket error occured, closing socket\n");
+			sockError("Send: socket error occured, closing socket");
 			Close();
 		}
 	}
@@ -474,15 +477,15 @@ int Socket::Send(void* data,int num){
 int Socket::Recv(void* data, int num){
 	
 	if(stype == STYPE_BROKEN){
-		sockError("Recv: socket must be open before receiving\n");
+		sockError("Recv: socket must be open before receiving");
 		return -1;
 	}
 	if(stype == STYPE_TCP_SERVER){
-		sockError("Recv: tcp server socket can't recv\n");
+		sockError("Recv: tcp server socket can't recv");
 		return -1;
 	}
 	if(stype == STYPE_UDP_SENDER){
-		sockError("Recv: udp sender socket can't recv\n");
+		sockError("Recv: udp sender socket can't recv");
 		return -1;
 	}
 

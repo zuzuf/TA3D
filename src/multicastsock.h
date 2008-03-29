@@ -63,20 +63,22 @@
 */
 
 
-//BroadcastSock- specialized low-level networking
+#define MULTICAST_BUFFER_SIZE	512
+
+//MulticastSock- specialized low-level networking
 //used internally by Network to discover servers over
 //a LAN network
-class BroadcastSock{
+class MulticastSock{
 
 	Socket udpin;
 	Socket udpout;
 
 	//only touched by main thread
-	char outbuf[512];
+	char outbuf[MULTICAST_BUFFER_SIZE];
 	int obp;
 
 	//only touched by socket thread
-	char udpinbuf[512];
+	char udpinbuf[MULTICAST_BUFFER_SIZE];
 	int uibp;
 	int uiremain;
 	
@@ -93,8 +95,8 @@ class BroadcastSock{
 	int max(int a, int b) {return (a>b ? a : b);}
 
 	public:
-		BroadcastSock() {obp=0;uibp=0;uiremain=-1;}
-		~BroadcastSock() {}
+		MulticastSock() {obp=0;uibp=0;uiremain=-1;}
+		~MulticastSock() {}
 
 		int Open(char* hostname,char* port,int network);
 		void Close();

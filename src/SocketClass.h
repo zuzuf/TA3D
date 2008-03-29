@@ -130,7 +130,7 @@ class Socket{
 		Socket(char *hostname, char *port);
 		Socket(char *hostname, char *port, int transport);
 		Socket(char *hostname, char *port, int transport, int network);
-		Socket(char *hostname, char *port, int transport, int network, bool multicast);
+		Socket(char *hostname, char *port, int transport, int network, char *multicast);
 		~Socket();
 
 		//utilities
@@ -140,6 +140,7 @@ class Socket{
 		char* getNumber();   			//human readable ip address
 		char* getService();  			//human readable port number
 		int getAF();
+		int getstype();
 		int isOpen();						//broken or not
 		//int Select();					//block until ready for reading
 		
@@ -147,7 +148,7 @@ class Socket{
 		int Open(char *hostname, char *port);
 		int Open(char *hostname, char *port, int transport);
 		int Open(char* hostname, char *port, int transport, int network);
-		int Open(char* hostname, char *port, int transport, int network, bool multicast);
+		int Open(char* hostname, char *port, int transport, int network, char *multicast);
 		int Close();
 
 		//communication

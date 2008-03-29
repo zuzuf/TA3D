@@ -108,6 +108,7 @@ void ListenThread::proc(void* param){
 	
 	Network* network;
 	network = ((struct net_thread_params*)param)->network;
+	delete ((struct net_thread_params*)param);
 	
 	struct event event;
 	event.type = 45; //arbitrary number for "new player connected" event
@@ -145,6 +146,7 @@ void SocketThread::proc(void* param){
 
 	network = ((struct net_thread_params*)param)->network;
 	sockid = ((struct net_thread_params*)param)->sockid;
+	delete ((struct net_thread_params*)param);
 	sock = network->players.getSock(sockid);
 	
 	while(!dead){
@@ -218,12 +220,14 @@ void SocketThread::proc(void* param){
 }
 
 
-void BroadCastThread::proc(void* param){
-	BroadcastSock* sock;
+void MultiCastThread::proc(void* param){
+	MulticastSock* sock;
 	Network* network;
 
 	network = ((struct net_thread_params*)param)->network;
-	sock = &(network->broadcast_socket);
+	sock = &(network->multicast_socket);
+
+	delete ((struct net_thread_params*)param);
 
 	String msg;
 	
@@ -233,17 +237,22 @@ void BroadCastThread::proc(void* param){
 		sock->takeFive(1000);
 		if(dead) break;
 
+		//ready for reading, absorb some bytes	
+		sock->pumpIn();
+
 		msg = sock->makeMessage();
 		if( !msg.empty() ) {
-			network->bqmutex.Lock();
+			network->mqmutex.Lock();
 				if(dead){
-					network->bqmutex.Unlock();
+					network->mqmutex.Unlock();
 					break;
 				}
-				network->broadcastq.push_back( msg );
-			network->bqmutex.Unlock();
+				network->multicastq.push_back( msg );
+			network->mqmutex.Unlock();
 			}
 	}
+
+	Console->AddEntry("Multicast thread closed!");
 
 	return;
 }
@@ -261,6 +270,8 @@ void SendFileThread::proc(void* param){
 	network = ((struct net_thread_params*)param)->network;
 	sockid = ((struct net_thread_params*)param)->sockid;
 	file = ((struct net_thread_params*)param)->file;
+
+	delete ((struct net_thread_params*)param);
 
 	fseek(file,0,SEEK_END);
 	length = ftell(file);
@@ -316,6 +327,8 @@ void GetFileThread::proc(void* param){
 	//blank file open for writing
 	file = ((struct net_thread_params*)param)->file;
 
+	delete ((struct net_thread_params*)param);
+
 	network->slmutex.Lock();
 		sourcesock = network->players.getSock(sockid);
 	network->slmutex.Unlock();
@@ -357,6 +370,7 @@ void GetFileThread::proc(void* param){
 void AdminThread::proc(void* param){
 	Network* network;
 	network = ((struct net_thread_params*)param)->network;
+	delete ((struct net_thread_params*)param);
 	while(!dead){
 		if(network->myMode == 1){
 			//if you are the game 'server' then this thread
@@ -371,8 +385,6 @@ void AdminThread::proc(void* param){
 		sleep(1);//testing
 	}
 	
-
-	
 	return;
 }
 
@@ -385,7 +397,7 @@ void AdminThread::proc(void* param){
 /******************************/
 
 Network::Network() : 
-broadcastq(),
+multicastq(),
 specialq(64,sizeof(struct chat)) , 
 chatq(64,sizeof(struct chat)) , 
 orderq(32,sizeof(struct order)) , 
@@ -399,23 +411,23 @@ Network::~Network(){
 	admin_thread.Join();
 	getfile_thread.Join();
 	sendfile_thread.Join();
-	broadcast_thread.Join();
+	multicast_thread.Join();
 
 	tohost_socket.Close();//administrative channel
 	listen_socket.Close();
-	broadcast_socket.Close();
-	broadcastq.clear();
+	multicast_socket.Close();
+	multicastq.clear();
 	players.Shutdown();
 }
 
-void Network::InitBroadcast( char* target, char* port )
+void Network::InitMulticast( char* target, char* port )
 {
-	broadcast_socket.Open( target, port, 0 );
+	multicast_socket.Open( target, port, 0 );
 		//spawn broadcast thread
-	net_thread_params params;
-	params.network = this;
-	Console->AddEntry("Network: spawning broadcast thread\n");
-	broadcast_thread.Spawn(&params);
+	net_thread_params *params = new net_thread_params;
+	params->network = this;
+	Console->AddEntry("Network: spawning multicast thread\n");
+	multicast_thread.Spawn(params);
 }
 
 
@@ -473,14 +485,16 @@ int Network::HostGame(char* name,char* port,int network,int proto){
 	}
 	
 	//spawn listening thread
-	net_thread_params params;
-	params.network = this;
+	net_thread_params *params = new net_thread_params;
+	params->network = this;
 	Console->AddEntry("Network: spawning listen thread\n");
-	listen_thread.Spawn(&params);
+	listen_thread.Spawn(params);
 	
 	//spawn listening thread
+	params = new net_thread_params;
+	params->network = this;
 	Console->AddEntry("Network: spawning admin thread\n");
-	admin_thread.Spawn(&params);
+	admin_thread.Spawn(params);
 	
 	Console->AddEntry("Network: network game running\n");
 
@@ -513,9 +527,9 @@ int Network::Connect(char* target,char* port,int proto){
 
 	//get game info or start admin thread here
 	Console->AddEntry("Network: spawning admin thread\n");
-	struct net_thread_params params;
-	params.network = this;
-	admin_thread.Spawn(&params);
+	net_thread_params *params = new net_thread_params;
+	params->network = this;
+	admin_thread.Spawn(params);
 
 	Console->AddEntry("Network: successfully connected to game at [%s]:%s\n",target,port);
 
@@ -531,10 +545,10 @@ void Network::Disconnect(){
 	listen_thread.Join();
 	listen_socket.Close();
 
-	admin_thread.Join();
 	tohost_socket.Close();
 
-	broadcast_socket.Close();
+	multicast_thread.Join();
+	multicast_socket.Close();
 
 	slmutex.Lock();
 		players.Shutdown();
@@ -549,7 +563,6 @@ void Network::Disconnect(){
 int Network::addPlayer(TA3DSock* sock){
 	int n;
 	SocketThread* thread;
-	struct net_thread_params params;
 
 	slmutex.Lock();
 		n = players.Add(sock);
@@ -562,10 +575,11 @@ int Network::addPlayer(TA3DSock* sock){
 		return -1;
 	}
 
-	params.network = this;
-	params.sockid = n;
+	net_thread_params *params = new net_thread_params;
+	params->network = this;
+	params->sockid = n;
 	Console->AddEntry("spawning socket thread\n");
-	thread->Spawn(&params);
+	thread->Spawn(params);
 
 	//send a new player event
 	//eventNewPlayer(n);
@@ -684,21 +698,21 @@ int Network::num2af(int proto){
 
 int Network::broadcastMessage( const char *msg )
 {
-	if( !broadcast_socket.isOpen() )
+	if( !multicast_socket.isOpen() )
 		return -1;
 
-	return broadcast_socket.sendMessage( msg );
+	return multicast_socket.sendMessage( msg );
 }
 
 std::string Network::getNextBroadcastedMessage()
 {
 	std::string msg;
-	bqmutex.Lock();
-		if( !broadcastq.empty() ) {
-			msg = broadcastq.front();
-			broadcastq.pop_front();
+	mqmutex.Lock();
+		if( !multicastq.empty() ) {
+			msg = multicastq.front();
+			multicastq.pop_front();
 			}
-	bqmutex.Unlock();
+	mqmutex.Unlock();
 	return msg;
 }
 

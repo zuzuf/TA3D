@@ -1074,8 +1074,10 @@ void setup_game(bool network_game, const char *host)
 {
 	Network	TA3D_network;
 	if( network_game ) {
-		if( host )
-			TA3D_network.HostGame( (char*) host, "1234", 2, 0 );
+		if( host ) {
+			TA3D_network.InitMulticast("224.0.0.3","1234");		// multicast mode
+			TA3D_network.HostGame( (char*) host, "4242", 2, 0 );
+			}
 		}
 
 	cursor_type=CURSOR_DEFAULT;
@@ -1238,11 +1240,23 @@ void setup_game(bool network_game, const char *host)
 	do
 	{
 		bool key_is_pressed = false;
+		String multicast_msg = "";
 		do {
+			multicast_msg = TA3D_network.getNextBroadcastedMessage();
 			key_is_pressed = keypressed();
 			setupgame_area.check();
 			rest( 1 );
-		} while( amx == mouse_x && amy == mouse_y && amz == mouse_z && amb == mouse_b && mouse_b == 0 && !key[ KEY_ENTER ] && !key[ KEY_ESC ] && !done && !key_is_pressed && !setupgame_area.scrolling );
+		} while( amx == mouse_x && amy == mouse_y && amz == mouse_z && amb == mouse_b && mouse_b == 0 && !key[ KEY_ENTER ] && !key[ KEY_ESC ] && !done
+			&& !key_is_pressed && !setupgame_area.scrolling && !multicast_msg.empty() );
+
+		while( !multicast_msg.empty() ) {
+			Vector<String> params = ReadVectorString( multicast_msg );
+			if( params.size() == 3 && params[0] == "PING" && params[1] == "SERVER" ) {
+				if( params[2] == "LIST" && host )
+					TA3D_network.broadcastMessage( format( "PONG SERVER %s", host ).c_str() );
+				}
+			multicast_msg = TA3D_network.getNextBroadcastedMessage();
+			}
 
 		amx = mouse_x;
 		amy = mouse_y;
@@ -1483,7 +1497,7 @@ void setup_game(bool network_game, const char *host)
 |    Displays the list of available servers and allow to join/host a game      |
 \-----------------------------------------------------------------------------*/
 
-#define SERVER_LIST_REFRESH_DELAY	1000
+#define SERVER_LIST_REFRESH_DELAY	5000
 
 void network_room(void)				// Let players create/join a game
 {
@@ -1497,12 +1511,11 @@ void network_room(void)				// Let players create/join a game
 	gfx->ReInitTexSys();
 
 	Network	TA3D_network;
-	TA3D_network.InitBroadcast("224.0.0.3","1234");		// multicast mode
+	TA3D_network.InitMulticast("224.0.0.3","1234");		// multicast mode
 
 	int server_list_timer = msec_timer - SERVER_LIST_REFRESH_DELAY;
 
-	List<String>	servers;					// the server list
-	servers.push_front(TRANSLATE("No server found"));
+	List< SERVER_DATA >	servers;					// the server list
 
 	AREA networkgame_area("network game area");
 	networkgame_area.load_tdf("gui/networkgame.area");
@@ -1571,9 +1584,42 @@ void network_room(void)				// Let players create/join a game
 			server_list_timer = msec_timer;
 			String msg = TA3D_network.getNextBroadcastedMessage();
 			while( !msg.empty() ) {
-				printf("received '%s'\n", msg.c_str() );
+				Vector<String> params = ReadVectorString( msg, " " );
+				if( params.size() == 3 && params[0] == "PONG" && params[1] == "SERVER" ) {
+					String name = params[2];
+					bool updated = false;
+					for( List< SERVER_DATA >::iterator server_i = servers.begin() ; server_i != servers.end() ; server_i++ )		// Update the list
+						if( server_i->name == name ) {
+							updated = true;
+							server_i->timer = msec_timer;
+							break;
+							}
+					if( !updated ) {
+						SERVER_DATA new_server;
+						new_server.name = name;
+						new_server.timer = msec_timer;
+						servers.push_back( new_server );
+						}
+					}
+
 				msg = TA3D_network.getNextBroadcastedMessage();
 				}
+
+				for( List< SERVER_DATA >::iterator server_i = servers.begin() ; server_i != servers.end() ; )		// Remove those who timeout
+					if( msec_timer - server_i->timer >= 10000 )
+						servers.erase( server_i++ );
+					else
+						server_i++;
+				
+				GUIOBJ *obj = networkgame_area.get_object("networkgame.server_list");
+				if( obj ) {
+					obj->Text.resize( servers.size() );
+					int i = 0;
+					for( List< SERVER_DATA >::iterator server_i = servers.begin() ; server_i != servers.end() ; server_i++, i++ )		// Remove those who timeout
+						obj->Text[i] = server_i->name;
+					if( obj->Text.size() == 0 )
+						obj->Text.push_back(TRANSLATE("No server found"));
+					}
 				
 			if( TA3D_network.broadcastMessage( "PING SERVER LIST" ) ) {
 				printf("error : could not multicast packet to refresh server list!!\n");
@@ -1610,11 +1656,11 @@ void network_room(void)				// Let players create/join a game
 		if( sel_index != o_sel && sel_index >= 0) {
 			o_sel = sel_index;
 			gfx->destroy_texture( mini );
-			List< String >::iterator i_server = servers.begin();
+			List< SERVER_DATA >::iterator i_server = servers.begin();
 			for( int i = 0 ; i < sel_index && i_server != servers.end() ; i++)	i_server++;
-			String tmp = String("maps\\") + *i_server + String(".tnt");
+			String tmp = String("maps\\") + i_server->name + String(".tnt");
 			mini = load_tnt_minimap_fast((char*)tmp.c_str(),&dx,&dy);
-			tmp = String("maps\\") + *i_server + String(".ota");								// Read the ota file
+			tmp = String("maps\\") + i_server->name + String(".ota");								// Read the ota file
 			uint32 ota_size = 0;
 			byte *data = HPIManager->PullFromHPI(tmp,&ota_size);
 			if(data) {

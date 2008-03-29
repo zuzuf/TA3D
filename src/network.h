@@ -84,10 +84,16 @@ class AdminThread : public Thread{
 	virtual void proc(void* param);
 };
 
-class BroadCastThread : public Thread{
+class MultiCastThread : public Thread{
 	virtual void proc(void* param);
 };
 
+
+struct SERVER_DATA
+{
+	String		name;				// Its name
+	int			timer;				// Allow it to timeout
+};
 
 
 
@@ -151,7 +157,7 @@ class Network{
 	friend class SendFileThread;
 	friend class GetFileThread;
 	friend class AdminThread;
-	friend class BroadCastThread;
+	friend class MultiCastThread;
 
 	TA3DSock listen_socket;
 	ListenThread listen_thread;
@@ -162,8 +168,8 @@ class Network{
 	GetFileThread getfile_thread;
 	SendFileThread sendfile_thread;
 
-	BroadcastSock broadcast_socket;	// Used to discover LAN servers
-	BroadCastThread broadcast_thread;
+	MulticastSock multicast_socket;	// Used to discover LAN servers
+	MultiCastThread multicast_thread;
 
 	char gamename[128];//displays on the internet gamelist
 	char creatorName[64];//name of the game owner
@@ -179,10 +185,10 @@ class Network{
 	SuperQueue syncq;
 	SuperQueue eventq;
 
-	std::list< std::string > broadcastq;
+	std::list< std::string > multicastq;
 
 	Mutex slmutex;
-	Mutex bqmutex;
+	Mutex mqmutex;
 	Mutex xqmutex;
 	Mutex cqmutex;
 	Mutex oqmutex;
@@ -211,7 +217,7 @@ class Network{
 		int Connect(char* target,char* port,int proto);
 		void Disconnect();
 
-		void InitBroadcast( char* target, char* port);
+		void InitMulticast( char* target, char* port);
 
 		//int listNetGames(GamesList& list);
 		//int listLanGames(GamesList& list);
