@@ -1253,8 +1253,7 @@ void setup_game(bool network_game, const char *host)
 			Vector<String> params = ReadVectorString( multicast_msg, " " );
 			if( params.size() == 3 && params[0] == "PING" && params[1] == "SERVER" ) {
 				if( params[2] == "LIST" && host )						// Sending information about this server
-					for( int i = 0 ; i < 10 ; i++ )
-						TA3D_network.broadcastMessage( format( "PONG SERVER %s", host ).c_str() );
+					TA3D_network.broadcastMessage( format( "PONG SERVER %s", host ).c_str() );
 				}
 			multicast_msg = TA3D_network.getNextBroadcastedMessage();
 			}
@@ -1574,7 +1573,8 @@ void network_room(void)				// Let players create/join a game
 			key_is_pressed = keypressed() || msec_timer - server_list_timer >= SERVER_LIST_REFRESH_DELAY;
 			networkgame_area.check();
 			rest( 1 );
-		} while( amx == mouse_x && amy == mouse_y && amz == mouse_z && amb == mouse_b && mouse_b == 0 && !key[ KEY_ENTER ] && !key[ KEY_ESC ] && !done && !key_is_pressed && !networkgame_area.scrolling );
+		} while( amx == mouse_x && amy == mouse_y && amz == mouse_z && amb == mouse_b && mouse_b == 0 && !key[ KEY_ENTER ]
+			&& !key[ KEY_ESC ] && !done && !key_is_pressed && !networkgame_area.scrolling && !TA3D_network.BroadcastedMessages() );
 
 		amx = mouse_x;
 		amy = mouse_y;
