@@ -1252,14 +1252,9 @@ void setup_game(bool network_game, const char *host)
 		while( !multicast_msg.empty() ) {
 			Vector<String> params = ReadVectorString( multicast_msg, " " );
 			if( params.size() == 3 && params[0] == "PING" && params[1] == "SERVER" ) {
-				if( params[2] == "LIST" && host ) {
-					printf("received PING SERVER LIST, sending PONG SERVER %s\n", host );
-					TA3D_network.broadcastMessage( format( "PONG SERVER %s", host ).c_str() );
-					TA3D_network.broadcastMessage( format( "PONG SERVER %s", host ).c_str() );
-					TA3D_network.broadcastMessage( format( "PONG SERVER %s", host ).c_str() );
-					TA3D_network.broadcastMessage( format( "PONG SERVER %s", host ).c_str() );
-					TA3D_network.broadcastMessage( format( "PONG SERVER %s", host ).c_str() );
-					}
+				if( params[2] == "LIST" && host )						// Sending information about this server
+					for( int i = 0 ; i < 10 ; i++ )
+						TA3D_network.broadcastMessage( format( "PONG SERVER %s", host ).c_str() );
 				}
 			multicast_msg = TA3D_network.getNextBroadcastedMessage();
 			}
@@ -1612,11 +1607,15 @@ void network_room(void)				// Let players create/join a game
 				msg = TA3D_network.getNextBroadcastedMessage();
 				}
 
+			int optimal = 1;
+
 			for( List< SERVER_DATA >::iterator server_i = servers.begin() ; server_i != servers.end() ; )  {		// Remove those who timeout
 				if( msec_timer - server_i->timer >= 30000 )
 					servers.erase( server_i++ );
-				else
+				else {
+					optimal = max( optimal, (int)(msec_timer - server_i->timer) / SERVER_LIST_REFRESH_DELAY );
 					server_i++;
+					}
 				}
 			
 			GUIOBJ *obj = networkgame_area.get_object("networkgame.server_list");
@@ -1633,9 +1632,10 @@ void network_room(void)				// Let players create/join a game
 					obj->Text.push_back(TRANSLATE("No server found"));
 				}
 				
-			if( TA3D_network.broadcastMessage( "PING SERVER LIST" ) ) {
-				printf("error : could not multicast packet to refresh server list!!\n");
-				}
+			for( int i = 0 ; i < optimal ; i++ )
+				if( TA3D_network.broadcastMessage( "PING SERVER LIST" ) ) {
+					printf("error : could not multicast packet to refresh server list!!\n");
+					}
 			}
 
 		if( networkgame_area.get_state( "hosting.b_ok" ) || ( key[KEY_ENTER] && networkgame_area.get_state( "hosting" ) ) ) {

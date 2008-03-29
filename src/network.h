@@ -239,6 +239,7 @@ class Network{
 		
 		int broadcastMessage( const char *msg );
 		std::string getNextBroadcastedMessage();
+		bool BroadcastedMessages();
 };
 
 

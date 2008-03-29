@@ -716,3 +716,12 @@ std::string Network::getNextBroadcastedMessage()
 	return msg;
 }
 
+bool Network::BroadcastedMessages()
+{
+	mqmutex.Lock();
+		bool result = !multicastq.empty();
+	mqmutex.Unlock();
+	return result;
+}
+
+
