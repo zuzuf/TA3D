@@ -95,7 +95,7 @@ int Socket::Open(char *hostname, char *port, int transport, int network){
 	return Open(hostname,port,transport,network,false);
 }
 
-int Socket::Open(char *hostname, char *port, int transport, int network, bool broadcast){
+int Socket::Open(char *hostname, char *port, int transport, int network, bool multicast){
 	//create a socket
 	if (stype != STYPE_BROKEN){
 		sockError("Open: this socket is already open");
@@ -232,6 +232,21 @@ int Socket::Open(char *hostname, char *port, int transport, int network, bool br
 		freeaddrinfo(result);
 		return -1;
 	}
+
+	if( multicast && stype == STYPE_UDP_SENDER ) {
+		int optReUseAddr = 1;
+		setsockopt(s, SOL_SOCKET, SO_REUSEADDR, &optReUseAddr, sizeof(int));
+		}
+		
+	if( multicast && hostname ) {
+		struct ip_mreq mreq;
+		int i=0;
+
+		if (inet_aton( hostname, &mreq.imr_multiaddr) < 0) {sockError("inet_aton mreq"); return -1;}
+		mreq.imr_interface.s_addr = htonl(INADDR_ANY);
+		if (setsockopt(s, IPPROTO_IP, IP_ADD_MEMBERSHIP, &mreq, sizeof(mreq)) < 0)
+		{sockError("setsockopt IP_ADD_MEMBERSHIP "); return -1;}
+		}
 
 	//set up socket details
 	fd = s;

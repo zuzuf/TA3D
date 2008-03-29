@@ -399,6 +399,7 @@ Network::~Network(){
 	admin_thread.Join();
 	getfile_thread.Join();
 	sendfile_thread.Join();
+	broadcast_thread.Join();
 
 	tohost_socket.Close();//administrative channel
 	listen_socket.Close();
@@ -410,6 +411,11 @@ Network::~Network(){
 void Network::InitBroadcast( char* target, char* port )
 {
 	broadcast_socket.Open( target, port, 0 );
+		//spawn broadcast thread
+	net_thread_params params;
+	params.network = this;
+	Console->AddEntry("Network: spawning broadcast thread\n");
+	broadcast_thread.Spawn(&params);
 }
 
 

@@ -20,7 +20,7 @@
 #define __TA3D__NETWORK__H
 
 #include "ta3dsock.h"
-#include "broadcastsock.h"
+#include "multicastsock.h"
 #include "superqueue.h"
 #include "thread.h"
 
@@ -163,6 +163,7 @@ class Network{
 	SendFileThread sendfile_thread;
 
 	BroadcastSock broadcast_socket;	// Used to discover LAN servers
+	BroadCastThread broadcast_thread;
 
 	char gamename[128];//displays on the internet gamelist
 	char creatorName[64];//name of the game owner

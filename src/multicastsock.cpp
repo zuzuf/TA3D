@@ -25,7 +25,7 @@
 
 int BroadcastSock::Open(char* hostname,char* port,int network){
 
-	udpin.Open(NULL,port,SOCK_DGRAM,network);
+	udpin.Open(NULL,port,SOCK_DGRAM,network,true);
 	if(hostname)
 		udpout.Open(hostname,port,SOCK_DGRAM,network,true);
 	

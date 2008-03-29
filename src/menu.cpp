@@ -1497,7 +1497,7 @@ void network_room(void)				// Let players create/join a game
 	gfx->ReInitTexSys();
 
 	Network	TA3D_network;
-	TA3D_network.InitBroadcast("255.255.255.255","1234");		// Broadcast mode
+	TA3D_network.InitBroadcast("224.0.0.3","1234");		// multicast mode
 
 	int server_list_timer = msec_timer - SERVER_LIST_REFRESH_DELAY;
 
@@ -1569,8 +1569,14 @@ void network_room(void)				// Let players create/join a game
 
 		if( msec_timer - server_list_timer >= SERVER_LIST_REFRESH_DELAY ) {		// Refresh server list
 			server_list_timer = msec_timer;
+			String msg = TA3D_network.getNextBroadcastedMessage();
+			while( !msg.empty() ) {
+				printf("received '%s'\n", msg.c_str() );
+				msg = TA3D_network.getNextBroadcastedMessage();
+				}
+				
 			if( TA3D_network.broadcastMessage( "PING SERVER LIST" ) ) {
-				printf("error : could not broadcast packet to refresh server list!!\n");
+				printf("error : could not multicast packet to refresh server list!!\n");
 				}
 			}
 

@@ -130,7 +130,7 @@ class Socket{
 		Socket(char *hostname, char *port);
 		Socket(char *hostname, char *port, int transport);
 		Socket(char *hostname, char *port, int transport, int network);
-		Socket(char *hostname, char *port, int transport, int network, bool broadcast);
+		Socket(char *hostname, char *port, int transport, int network, bool multicast);
 		~Socket();
 
 		//utilities
@@ -147,7 +147,7 @@ class Socket{
 		int Open(char *hostname, char *port);
 		int Open(char *hostname, char *port, int transport);
 		int Open(char* hostname, char *port, int transport, int network);
-		int Open(char* hostname, char *port, int transport, int network, bool broadcast);
+		int Open(char* hostname, char *port, int transport, int network, bool multicast);
 		int Close();
 
 		//communication
