@@ -123,14 +123,11 @@ void MulticastSock::recvUDP(){
 		return;
 	else if(uiremain == -1){
 		uint8_t remain;
-		Console->AddEntry("a");
 		udpin.Recv(&remain,1);//get new number
-		Console->AddEntry("b");
 		if(remain == 0){
 			uint16_t remain2;
 			udpin.Recv(&remain2,2);//get big number
 			uiremain = ntohs(remain2);
-			Console->AddEntry("c");
 		}
 		else if(remain>0) uiremain = remain;
 		else Console->AddEntry("udp packet error cannot determine size\n");
@@ -138,8 +135,10 @@ void MulticastSock::recvUDP(){
 	}
 	int n = 0;
 	n = udpin.Recv(udpinbuf+uibp,uiremain);
-	uibp += n;
-	uiremain -= n;
+	if( n > 0 ) {
+		uibp += n;
+		uiremain -= n;
+		}
 }
 
 

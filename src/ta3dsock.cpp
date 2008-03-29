@@ -178,7 +178,7 @@ void TA3DSock::recvTCP(){
 			tiremain = ntohs(remain2);
 		}
 		else if(remain>0) tiremain = remain;
-		else Console->AddEntry("tcp packet error cannot determine size\n");
+		else Console->AddEntry("tcp packet error cannot determine size");
 		return;
 	}
 	int n = 0;
@@ -199,13 +199,15 @@ void TA3DSock::recvUDP(){
 			uiremain = ntohs(remain2);
 		}
 		else if(remain>0) uiremain = remain;
-		else Console->AddEntry("udp packet error cannot determine size\n");
+		else Console->AddEntry("udp packet error cannot determine size");
 		return;
 	}
 	int n = 0;
 	n = udpin.Recv(udpinbuf+uibp,uiremain);
-	uibp += n;
-	uiremain -= n;
+	if( n > 0 ) {
+		uibp += n;
+		uiremain -= n;
+		}
 }
 
 
@@ -309,7 +311,7 @@ int TA3DSock::sendEvent(struct event* event){
 
 int TA3DSock::makeSpecial(struct chat* chat){
 	if(tcpinbuf[0] != 'X'){
-		Console->AddEntry("makeSpecial error: the data doesn't start with a 'X'\n");
+		Console->AddEntry("makeSpecial error: the data doesn't start with a 'X'");
 		return -1;
 	}
 	if(tiremain = -1){
@@ -326,7 +328,7 @@ int TA3DSock::makeSpecial(struct chat* chat){
 
 int TA3DSock::makeChat(struct chat* chat){
 	if(tcpinbuf[0] != 'C'){
-		Console->AddEntry("makeChat error: the data doesn't start with a 'C'\n");
+		Console->AddEntry("makeChat error: the data doesn't start with a 'C'");
 		return -1;
 	}
 	if(tiremain = -1){
@@ -343,7 +345,7 @@ int TA3DSock::makeChat(struct chat* chat){
 
 int TA3DSock::makeOrder(struct order* order){
 	if(tcpinbuf[0] != 'O'){
-		Console->AddEntry("makeOrder error: the data doesn't start with an 'O'\n");
+		Console->AddEntry("makeOrder error: the data doesn't start with an 'O'");
 		return -1;
 	}
 	if(tiremain = -1){
@@ -378,7 +380,7 @@ int TA3DSock::makeOrder(struct order* order){
 
 int TA3DSock::makeSync(struct sync* sync){
 	if(udpinbuf[0] != 'S'){
-		Console->AddEntry("makeSync error: the data doesn't start with an 'S'\n");
+		Console->AddEntry("makeSync error: the data doesn't start with an 'S'");
 		return -1;
 	}
 	if(uiremain = -1){
@@ -416,7 +418,7 @@ int TA3DSock::makeSync(struct sync* sync){
 
 int TA3DSock::makeEvent(struct event* event){
 	if(tcpinbuf[0] != 'E'){
-		Console->AddEntry("makeEvent error: the data doesn't start with an 'E'\n");
+		Console->AddEntry("makeEvent error: the data doesn't start with an 'E'");
 		return -1;
 	}
 	if(tiremain = -1){
