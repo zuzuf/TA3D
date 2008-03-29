@@ -498,8 +498,8 @@ int Socket::Recv(void* data, int num, uint32 *address){
 
 	if(stype == STYPE_UDP_RECEIVER || stype == STYPE_UDP_SENDER){
 		v = recvfrom(fd,data,num,0,(struct sockaddr*)&addr,&len);
-		if( address )
-			*address = v > 0 ? addr.sin_addr.s_addr : 0;
+		if( address && v > 0 )
+			*address = addr.sin_addr.s_addr;
 //		if(stype == STYPE_UDP_RECEIVER && !memcmp(&addr,address.ai_addr,len))//unexpected change of sender
 //			dgramUpdateAddress(&addr,&len);
 	}

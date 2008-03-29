@@ -1070,11 +1070,11 @@ void stats_menu(void)
 	while(key[KEY_ESC]) {	rest(1);	poll_keyboard();	}
 }
 
-void setup_game(bool network_game, const char *host)
+void setup_game(bool client, const char *host)
 {
 	Network	TA3D_network;
-	if( network_game ) {
-		if( host ) {
+	if( host ) {
+		if( !client ) {
 			TA3D_network.InitMulticast("224.0.0.3","1234");		// multicast mode
 			TA3D_network.HostGame( (char*) host, "4242", 2, 0 );
 			}
@@ -1531,8 +1531,8 @@ void network_room(void)				// Let players create/join a game
 	networkgame_area.load_tdf("gui/networkgame.area");
 	if( !networkgame_area.background )	networkgame_area.background = gfx->glfond;
 
-	int sel_index = -1;
-	int o_sel = -1;
+	String sel_index = "";
+	String o_sel = "";
 
 	bool done=false;
 
@@ -1577,6 +1577,7 @@ void network_room(void)				// Let players create/join a game
 								server_i->timer = msec_timer;
 								server_i->nb_open = nb_open;
 								server_i->host = host_address;
+								if( name == o_sel )	o_sel += "_";
 								break;
 								}
 						if( !updated ) {
@@ -1651,7 +1652,7 @@ void network_room(void)				// Let players create/join a game
 			clear_keybuf();
 			TA3D_network.Disconnect();
 			String host = ReplaceChar( networkgame_area.get_caption( "hosting.t_hostname" ), ' ', '_' );
-			setup_game( true, host.c_str() );	// Host a game
+			setup_game( false, host.c_str() );	// Host a game
 
 			gfx->ReInitTexSys();
 			glScalef(SCREEN_W/640.0f,SCREEN_H/480.0f,1.0f);
@@ -1660,7 +1661,7 @@ void network_room(void)				// Let players create/join a game
 			done = true;
 			}
 
-		if( networkgame_area.get_state( "networkgame.b_ok" ) ) {
+		if( networkgame_area.get_state( "networkgame.b_join" ) ) {
 			while( key[KEY_ENTER] )	{	rest( 20 );	poll_keyboard();	}
 			clear_keybuf();
 			done=true;		// If user click "OK" or hit enter then leave the window
@@ -1670,21 +1671,23 @@ void network_room(void)				// Let players create/join a game
 			while( key[KEY_ESC] )	{	rest( 20 );	poll_keyboard();	}
 			clear_keybuf();
 			done=true;		// If user click "Cancel" or hit ESC then leave the screen returning NULL
+			sel_index = "";
 			}
 
-		if( networkgame_area.get_object("networkgame.server_list") )
-			sel_index = networkgame_area.get_object("networkgame.server_list")->Pos;
-
-		if( sel_index != o_sel && sel_index >= 0 ) {			// Update displayed server info
+		if( networkgame_area.get_object("networkgame.server_list") && !done ) {
 			GUIOBJ *obj = networkgame_area.get_object("networkgame.server_list");
-			o_sel = sel_index;
-			List< SERVER_DATA >::iterator i_server = servers.begin();
-			for( int i = 0 ; i_server != servers.end() && i_server->name != obj->Text[ sel_index ] ; i++)	i_server++;
+			sel_index = obj->Pos >= 0 && obj->Pos < obj->Text.size() ? obj->Text[ obj->Pos ]: "";
 
-			if( i_server != servers.end() ) {
-				networkgame_area.set_caption("networkgame.server_name", i_server->name );
-				networkgame_area.set_caption("networkgame.host", i_server->host );
-				networkgame_area.set_caption("networkgame.open_slots", format( "%d", i_server->nb_open ) );
+			if( sel_index != o_sel ) {			// Update displayed server info
+				o_sel = sel_index;
+				List< SERVER_DATA >::iterator i_server = servers.begin();
+				while( i_server != servers.end() && i_server->name != sel_index )	i_server++;
+
+				if( i_server != servers.end() ) {
+					networkgame_area.set_caption("networkgame.server_name", i_server->name );
+					networkgame_area.set_caption("networkgame.host", i_server->host );
+					networkgame_area.set_caption("networkgame.open_slots", format( "%d", i_server->nb_open ) );
+					}
 				}
 			}
 
@@ -1708,6 +1711,14 @@ void network_room(void)				// Let players create/join a game
 
 	reset_mouse();
 	while(key[KEY_ESC]) {	rest(1);	poll_keyboard();	}
+
+	if( !sel_index.empty() ) {			// Join a game
+		List< SERVER_DATA >::iterator i_server = servers.begin();
+		while( i_server != servers.end() && i_server->name != sel_index )	i_server++;
+
+		if( i_server != servers.end() )			// Server not found !!
+			setup_game( true, i_server->host.c_str() );
+		}
 }
 
 void campaign_main_menu(void)

@@ -248,6 +248,7 @@ void MultiCastThread::proc(void* param){
 					break;
 				}
 				network->multicastq.push_back( msg );
+				network->multicastaddressq.push_back( sock->getAddress() );
 			network->mqmutex.Unlock();
 			}
 	}
@@ -376,11 +377,18 @@ void AdminThread::proc(void* param){
 			//if you are the game 'server' then this thread
 			//handles requests and delegations on the administrative
 			//channel
+
+			struct chat msg;
+			if( !network->getNextSpecial( &msg ) ) {
+				printf("received '%s'\n", msg.message);
+				}
 		}
 		else if(network->myMode == 2){
 			//if you are a mere client then this thread responds to
 			//stuff on the administrative channel such as change of host
 			//and other things
+			struct chat msg;
+			network->sendSpecial( strtochat( &msg, "message" ) );
 		}
 		sleep(1);//testing
 	}

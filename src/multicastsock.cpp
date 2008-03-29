@@ -131,7 +131,7 @@ void MulticastSock::recvUDP(){
 		return;
 	}
 	int n = 0;
-	n = udpsocket.Recv(udpinbuf+uibp,uiremain);
+	n = udpsocket.Recv(udpinbuf+uibp,uiremain,&address);
 	if( n > 0 ) {
 		uibp += n;
 		uiremain -= n;

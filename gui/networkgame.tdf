@@ -16,11 +16,11 @@
 	fullscreen=true;			// Scale the window to fit the screen
 	screen width=1280;
 	screen height=1024;
-	[object0]		// OK
+	[object0]		// Join
 	{
-		name=b_ok;
+		name=b_join;
 		type=BUTTON;
-		caption=OK;
+		caption=Join;
 		x1=1039;
 		y1=964;
 		x2=1185;
