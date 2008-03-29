@@ -1499,7 +1499,7 @@ void setup_game(bool network_game, const char *host)
 |    Displays the list of available servers and allow to join/host a game      |
 \-----------------------------------------------------------------------------*/
 
-#define SERVER_LIST_REFRESH_DELAY	5000
+#define SERVER_LIST_REFRESH_DELAY	1000
 
 void network_room(void)				// Let players create/join a game
 {
@@ -1586,6 +1586,7 @@ void network_room(void)				// Let players create/join a game
 			server_list_timer = msec_timer;
 			String msg = TA3D_network.getNextBroadcastedMessage();
 			while( !msg.empty() ) {
+				printf("received '%s'\n", msg.c_str());
 				Vector<String> params = ReadVectorString( msg, " " );
 				if( params.size() == 3 && params[0] == "PONG" && params[1] == "SERVER" ) {
 					String name = params[2];
@@ -1608,18 +1609,22 @@ void network_room(void)				// Let players create/join a game
 				}
 
 			for( List< SERVER_DATA >::iterator server_i = servers.begin() ; server_i != servers.end() ; )  {		// Remove those who timeout
-				if( msec_timer - server_i->timer >= 10000 )
+				if( msec_timer - server_i->timer >= 30000 )
 					servers.erase( server_i++ );
 				else
 					server_i++;
 				}
 			
 			GUIOBJ *obj = networkgame_area.get_object("networkgame.server_list");
-			if( obj && false ) {
+			if( obj ) {
 				obj->Text.resize( servers.size() );
+				List<String> server_names;
+				for( List< SERVER_DATA >::iterator server_i = servers.begin() ; server_i != servers.end() ; server_i++ )		// Remove those who timeout
+					server_names.push_back( server_i->name );
+				server_names.sort();
 				int i = 0;
-				for( List< SERVER_DATA >::iterator server_i = servers.begin() ; server_i != servers.end() ; server_i++, i++ )		// Remove those who timeout
-					obj->Text[i] = server_i->name;
+				for( List< String >::iterator server_i = server_names.begin() ; server_i != server_names.end() ; server_i++, i++ )		// Remove those who timeout
+					obj->Text[i] = *server_i;
 				if( obj->Text.size() == 0 )
 					obj->Text.push_back(TRANSLATE("No server found"));
 				}

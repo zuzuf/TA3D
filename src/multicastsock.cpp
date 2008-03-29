@@ -123,7 +123,8 @@ void MulticastSock::recvUDP(){
 		return;
 	else if(uiremain == -1){
 		uint8_t remain;
-		udpin.Recv(&remain,1);//get new number
+		int p = udpin.Recv(&remain,1);//get new number
+		if( p < 0 )	return;
 		if(remain == 0){
 			uint16_t remain2;
 			udpin.Recv(&remain2,2);//get big number
