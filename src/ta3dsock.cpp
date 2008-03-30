@@ -88,6 +88,12 @@ int TA3DSock::Accept(TA3DSock** sock,int timeout){
 	(*sock)->udpout.Open((*sock)->tcpsock.getNumber(),(*sock)->tcpsock.getService(),SOCK_DGRAM,(*sock)->tcpsock.getAF());
 
 	if(!((*sock)->tcpsock.isOpen() && (*sock)->udpin.isOpen() && (*sock)->udpout.isOpen()) ){
+		if( (*sock)->tcpsock.isOpen() )
+			printf("tcp open\n");
+		if( (*sock)->udpin.isOpen() )
+			printf("udpin open\n");
+		if( (*sock)->udpout.isOpen() )
+			printf("udpout open\n");
 		//one of them didnt work... quit
 		(*sock)->tcpsock.Close();
 		(*sock)->udpin.Close();
@@ -254,8 +260,8 @@ int TA3DSock::takeFive(int time){
 
 
 int TA3DSock::sendSpecial(struct chat* chat){
-	loadByte(strlen(chat->message)+2);
 	loadByte('X');
+	loadByte(chat->from);
 	loadString(chat->message);
 	loadByte('\0');
 	sendTCP();
@@ -263,8 +269,8 @@ int TA3DSock::sendSpecial(struct chat* chat){
 }
 
 int TA3DSock::sendChat(struct chat* chat){
-	loadByte(strlen(chat->message)+2);
 	loadByte('C');
+	loadByte(chat->from);
 	loadString(chat->message);
 	loadByte('\0');
 	sendTCP();
@@ -305,6 +311,7 @@ int TA3DSock::sendEvent(struct event* event){
 	loadByte(event->type);
 	loadByte(event->player1);
 	loadByte(event->player2);
+	sendTCP();
 	return 0;
 }
 
@@ -318,8 +325,8 @@ int TA3DSock::makeSpecial(struct chat* chat){
 		return -1;
 	}
 	chat->from = tcpinbuf[1];
-	strncpy(chat->message,tcpinbuf+2,256);
-	(chat->message)[255] = '\0';
+	strncpy(chat->message,tcpinbuf+2,253);
+	(chat->message)[252] = '\0';
 	tibp = 0;
 	tiremain = -1;
 
@@ -335,8 +342,8 @@ int TA3DSock::makeChat(struct chat* chat){
 		return -1;
 	}
 	chat->from = tcpinbuf[1];
-	strncpy(chat->message,tcpinbuf+2,256);
-	(chat->message)[255] = '\0';
+	strncpy(chat->message,tcpinbuf+2,253);
+	(chat->message)[252] = '\0';
 	tibp = 0;
 	tiremain = -1;
 

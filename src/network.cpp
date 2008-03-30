@@ -617,20 +617,43 @@ int Network::dropPlayer(int num){
 
 int Network::sendSpecial(struct chat* chat){
 	if( !tohost_socket.isOpen() || chat == NULL )	return -1;
-	char tmp[255];
-	tmp[0] = 'X';
-	tmp[1] = ';';
-	memcpy( tmp, chat->message, 253 );
-	return tohost_socket.Send( tmp, 255 );
+	if( myMode == 1 ) {				// Server mode
+		int v = 0;
+		for( int i = 1 ; i <= players.getMaxId() ; i++ )  {
+			TA3DSock *sock = players.getSock( i );
+			if( sock )
+				v += sock->sendSpecial( chat );
+			}
+		return v;
+		}
+	else if( myMode == 2 ) {			// Client mode
+		char tmp[255];
+		tmp[0] = 'X';
+		memcpy( tmp + 1, &chat->from, 1 );
+		memcpy( tmp + 2, chat->message, 253 );
+		return tohost_socket.Send( tmp, 255 );
+		}
+	return -1;						// Not connected, it shouldn't be possible to get here if we're not connected ...
 }
 
 int Network::sendChat(struct chat* chat){
 	if( !tohost_socket.isOpen() || chat == NULL )	return -1;
-	char tmp[255];
-	tmp[0] = 'C';
-	tmp[1] = ';';
-	memcpy( tmp, chat->message, 253 );
-	return tohost_socket.Send( tmp, 255 );
+	if( myMode == 1 ) {				// Server mode
+		int v = 0;
+		for( int i = 1 ; i <= players.getMaxId() ; i++ )  {
+			TA3DSock *sock = players.getSock( i );
+			if( sock )
+				v += sock->sendSpecial( chat );
+			}
+		return v;
+		}
+	else if( myMode == 2 ) {			// Client mode
+		char tmp[255];
+		tmp[0] = 'C';
+		memcpy( tmp + 1, &chat->from, 1 );
+		memcpy( tmp + 2, chat->message, 253 );
+		return tohost_socket.Send( tmp, 255 );
+		}
 }
 
 int Network::sendOrder(struct order* order){
