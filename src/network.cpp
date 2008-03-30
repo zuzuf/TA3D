@@ -115,7 +115,7 @@ void ListenThread::proc(void* param){
 	//fill in other info for new player connected event
 	
 
-	while(!dead){
+	while(!dead && network->listen_socket.isOpen() ){
 		
 		v = network->listen_socket.Accept(&newsock,100);
 		if(v<0){
@@ -149,11 +149,10 @@ void SocketThread::proc(void* param){
 	delete ((struct net_thread_params*)param);
 	sock = network->players.getSock(sockid);
 	
-	while(!dead){
+	while(!dead && sock->isOpen()){
 	
 		//sleep until data is coming
 		sock->takeFive(1000);
-		rest(1);
 		if(dead) break;
 
 		//ready for reading, absorb some bytes	
@@ -235,7 +234,7 @@ void MultiCastThread::proc(void* param){
 
 	String msg;
 	
-	while(!dead){
+	while(!dead && sock->isOpen() ){
 	
 		//sleep until data is coming
 		sock->takeFive(1000);
@@ -382,17 +381,11 @@ void AdminThread::proc(void* param){
 			//handles requests and delegations on the administrative
 			//channel
 
-			struct chat msg;
-			if( network->getNextSpecial( &msg ) == 0 ) {
-				printf("received '%s'\n", msg.message);
-				}
 		}
 		else if(network->myMode == 2){
 			//if you are a mere client then this thread responds to
 			//stuff on the administrative channel such as change of host
 			//and other things
-			struct chat msg;
-			network->sendSpecial( strtochat( &msg, "message" ) );
 		}
 		sleep(1);//testing
 	}
@@ -431,6 +424,7 @@ Network::~Network(){
 	multicast_socket.Close();
 	multicastq.clear();
 	multicastaddressq.clear();
+	
 	players.Shutdown();
 }
 

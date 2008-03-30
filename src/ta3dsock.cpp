@@ -220,11 +220,16 @@ void TA3DSock::recvTCP(){
 		return;
 	else if(tiremain == -1){
 		uint8_t remain;
-		tcpsock.Recv(&remain,1);//get new number
+		int p = tcpsock.Recv(&remain,1);//get new number
+		if( p <= 0 )
+			tiremain = -1;
 		if(remain == 0){
 			uint16_t remain2;
-			tcpsock.Recv(&remain2,2);//get big number
-			tiremain = ntohs(remain2);
+			p = tcpsock.Recv(&remain2,2);//get big number
+			if( p <= 0 )
+				tiremain = 0;
+			else
+				tiremain = ntohs(remain2);
 		}
 		else if(remain>0) tiremain = remain;
 		else Console->AddEntry("tcp packet error cannot determine size");
@@ -373,7 +378,7 @@ int TA3DSock::makeSpecial(struct chat* chat){
 		return -1;
 	}
 	chat->from = tcpinbuf[1] - 1;
-	printf("message = '%s'\n", tcpinbuf+2);
+//	printf("message = '%s'\n", tcpinbuf+2);
 	memcpy(chat->message,tcpinbuf+2,253);
 	(chat->message)[252] = '\0';
 	tibp = 0;

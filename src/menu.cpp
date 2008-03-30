@@ -1243,13 +1243,33 @@ void setup_game(bool client, const char *host)
 	{
 		bool key_is_pressed = false;
 		String multicast_msg = "";
+		String chat_msg = "";
+		struct chat received_chat_msg;
 		do {
 			multicast_msg = TA3D_network.getNextBroadcastedMessage();
+			if( TA3D_network.getNextChat( &received_chat_msg ) == 0 )
+				chat_msg = received_chat_msg.message;
 			key_is_pressed = keypressed();
 			setupgame_area.check();
 			rest( 1 );
 		} while( amx == mouse_x && amy == mouse_y && amz == mouse_z && amb == mouse_b && mouse_b == 0 && !key[ KEY_ENTER ] && !key[ KEY_ESC ] && !done
-			&& !key_is_pressed && !setupgame_area.scrolling && multicast_msg.empty() );
+			&& !key_is_pressed && !setupgame_area.scrolling && multicast_msg.empty() && chat_msg.empty() );
+
+		while( !chat_msg.empty() ) {
+			GUIOBJ *chat_list = setupgame_area.get_object("gamesetup.chat_list");
+
+			if( chat_list ) {
+				chat_list->Text.push_back( chat_msg );
+				if( chat_list->Text.size() > 5 )
+					chat_list->Data++;
+				chat_list->Pos = chat_list->Text.size() - 1;
+				}
+
+			if( TA3D_network.getNextChat( &received_chat_msg ) == 0 )
+				chat_msg = received_chat_msg.message;
+			else
+				chat_msg = "";
+			}
 
 		while( !multicast_msg.empty() ) {
 			Vector<String> params = ReadVectorString( multicast_msg, " " );
@@ -1275,6 +1295,10 @@ void setup_game(bool client, const char *host)
 
 		if( key[KEY_ENTER] && !setupgame_area.get_caption("gamesetup.t_chat").empty() ) {
 			String message = "<" + lp_CONFIG->player_name + "> " + setupgame_area.get_caption("gamesetup.t_chat");
+			if( host ) {
+				struct chat msg;
+				TA3D_network.sendChat( strtochat( &msg, message ) );
+				}
 			GUIOBJ *chat_list = setupgame_area.get_object("gamesetup.chat_list");
 
 			if( chat_list ) {
