@@ -171,6 +171,7 @@ class TA3DSock{
 		int sendOrder(struct order* order);
 		int sendSync(struct sync* sync);
 		int sendEvent(struct event* event);
+		void cleanPacket();
 
 		//these are for incoming packets
 		int makeSpecial(struct chat* chat);

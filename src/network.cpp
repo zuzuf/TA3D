@@ -153,6 +153,7 @@ void SocketThread::proc(void* param){
 	
 		//sleep until data is coming
 		sock->takeFive(1000);
+		rest(1);
 		if(dead) break;
 
 		//ready for reading, absorb some bytes	
@@ -176,12 +177,15 @@ void SocketThread::proc(void* param){
 				network->xqmutex.Unlock();
 				break;
 			case 'C'://chat
-				sock->makeChat(&chat);
 				network->cqmutex.Lock();
 					if(dead){
 						network->cqmutex.Unlock();
 						break;
 					}
+					if( sock->makeChat(&chat) == -1 ) {
+						network->cqmutex.Unlock();
+						break;
+						}
 					network->chatq.enqueue(&chat);
 				network->cqmutex.Unlock();
 				break;
@@ -214,6 +218,10 @@ void SocketThread::proc(void* param){
 					}
 					network->eventq.enqueue(&event);
 				network->eqmutex.Unlock();
+			case 0:
+				break;
+			default:
+				sock->cleanPacket();
 		}
 		
 

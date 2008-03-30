@@ -221,13 +221,15 @@ void TA3DSock::recvTCP(){
 	else if(tiremain == -1){
 		uint8_t remain;
 		int p = tcpsock.Recv(&remain,1);//get new number
-		if( p <= 0 )
+		if( p <= 0 ) {
 			tiremain = -1;
+			return;
+			}
 		if(remain == 0){
 			uint16_t remain2;
 			p = tcpsock.Recv(&remain2,2);//get big number
 			if( p <= 0 )
-				tiremain = 0;
+				tiremain = -1;
 			else
 				tiremain = ntohs(remain2);
 		}
@@ -283,6 +285,15 @@ char TA3DSock::getPacket(){
 	}
 	else{
 		return tcpinbuf[0];
+	}
+}
+
+void TA3DSock::cleanPacket(){
+	if(tiremain<=0) {
+		tcpinbuf[tibp] = 0;
+		printf("tcpinbuf = '%s'\n", tcpinbuf);
+		tibp = 0;
+		tiremain = -1;
 	}
 }
 

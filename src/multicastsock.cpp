@@ -120,10 +120,18 @@ void MulticastSock::recvUDP(){
 		return;
 	else if(uiremain == -1){
 		uint8_t remain;
-		udpsocket.Recv(&remain,1,&address);//get new number
+		int p = udpsocket.Recv(&remain,1,&address);//get new number
+		if( p < 0 ) {
+			uiremain = -1;
+			return;
+			}
 		if(remain == 0){
 			uint16_t remain2;
-			udpsocket.Recv(&remain2,2,&address);//get big number
+			p = udpsocket.Recv(&remain2,2,&address);//get big number
+			if( p < 0 ) {
+				uiremain = -1;
+				return;
+				}
 			uiremain = ntohs(remain2);
 		}
 		else if(remain>0) uiremain = remain;

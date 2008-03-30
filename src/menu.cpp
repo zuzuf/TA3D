@@ -1279,10 +1279,11 @@ void setup_game(bool client, const char *host)
 					for( uint16 f = 0 ; f < 10 ; f++ )
 						if( setupgame_area.get_caption(format("gamesetup.name%d", f)) == player_str[2] ) 
 							nb_open++;
-					if( TA3D_CURRENT_MOD.empty() )
-						TA3D_network.broadcastMessage( format( "PONG SERVER %s . %s %d", host, ReplaceChar( TA3D_ENGINE_VERSION,' ','?' ).c_str(), nb_open ).c_str() );
-					else
-						TA3D_network.broadcastMessage( format( "PONG SERVER %s %s %s %d", host, ReplaceChar( TA3D_CURRENT_MOD, ' ', '?' ).c_str(), ReplaceChar( TA3D_ENGINE_VERSION,' ','?' ).c_str(), nb_open ).c_str() );
+					for( int i = 0 ; i < 3 ; i++ )
+						if( TA3D_CURRENT_MOD.empty() )
+							TA3D_network.broadcastMessage( format( "PONG SERVER %s . %s %d", host, ReplaceChar( TA3D_ENGINE_VERSION,' ','?' ).c_str(), nb_open ).c_str() );
+						else
+							TA3D_network.broadcastMessage( format( "PONG SERVER %s %s %s %d", host, ReplaceChar( TA3D_CURRENT_MOD, ' ', '?' ).c_str(), ReplaceChar( TA3D_ENGINE_VERSION,' ','?' ).c_str(), nb_open ).c_str() );
 					}
 				}
 			multicast_msg = TA3D_network.getNextBroadcastedMessage();
