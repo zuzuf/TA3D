@@ -164,12 +164,15 @@ void SocketThread::proc(void* param){
 
 		switch(packtype){
 			case 'X'://special
-				sock->makeSpecial(&chat);
 				network->xqmutex.Lock();
 					if(dead){
 						network->xqmutex.Unlock();
 						break;
 					}
+					if( sock->makeSpecial(&chat) == -1 ) {
+						network->xqmutex.Unlock();
+						break;
+						}
 					network->specialq.enqueue(&chat);
 				network->xqmutex.Unlock();
 				break;

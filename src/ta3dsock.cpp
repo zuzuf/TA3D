@@ -369,11 +369,12 @@ int TA3DSock::makeSpecial(struct chat* chat){
 		Console->AddEntry("makeSpecial error: the data doesn't start with a 'X'");
 		return -1;
 	}
-	if(tiremain = -1){
+	if(tiremain == -1){
 		return -1;
 	}
-	chat->from = tcpinbuf[1];
-	strncpy(chat->message,tcpinbuf+2,253);
+	chat->from = tcpinbuf[1] - 1;
+	printf("message = '%s'\n", tcpinbuf+2);
+	memcpy(chat->message,tcpinbuf+2,253);
 	(chat->message)[252] = '\0';
 	tibp = 0;
 	tiremain = -1;
@@ -386,11 +387,11 @@ int TA3DSock::makeChat(struct chat* chat){
 		Console->AddEntry("makeChat error: the data doesn't start with a 'C'");
 		return -1;
 	}
-	if(tiremain = -1){
+	if(tiremain == -1){
 		return -1;
 	}
-	chat->from = tcpinbuf[1];
-	strncpy(chat->message,tcpinbuf+2,253);
+	chat->from = tcpinbuf[1] - 1;
+	memcpy(chat->message,tcpinbuf+2,253);
 	(chat->message)[252] = '\0';
 	tibp = 0;
 	tiremain = -1;
@@ -403,7 +404,7 @@ int TA3DSock::makeOrder(struct order* order){
 		Console->AddEntry("makeOrder error: the data doesn't start with an 'O'");
 		return -1;
 	}
-	if(tiremain = -1){
+	if(tiremain == -1){
 		return -1;
 	}
 	uint32_t temp;
@@ -438,7 +439,7 @@ int TA3DSock::makeSync(struct sync* sync){
 		Console->AddEntry("makeSync error: the data doesn't start with an 'S'");
 		return -1;
 	}
-	if(uiremain = -1){
+	if(uiremain == -1){
 		return -1;
 	}
 	uint32_t temp;
@@ -476,7 +477,7 @@ int TA3DSock::makeEvent(struct event* event){
 		Console->AddEntry("makeEvent error: the data doesn't start with an 'E'");
 		return -1;
 	}
-	if(tiremain = -1){
+	if(tiremain == -1){
 		return -1;
 	}
 	event->type = tcpinbuf[1];
