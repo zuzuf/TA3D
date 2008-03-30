@@ -164,7 +164,7 @@ class Network{
 	TA3DSock listen_socket;
 	ListenThread listen_thread;
 
-	Socket tohost_socket;//administrative channel
+	TA3DSock *tohost_socket;//administrative channel
 	AdminThread admin_thread;
 
 	GetFileThread getfile_thread;

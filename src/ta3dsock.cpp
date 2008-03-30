@@ -203,8 +203,13 @@ void TA3DSock::loadFloat(float x){
 
 void TA3DSock::sendTCP(){
 	int n = 0;
-	while(n!=obp);
-		n += tcpsock.Send(outbuf,obp);
+	int inc = 0;
+	int count = 0;
+	while(n != obp && count < 100 ) {
+		inc = tcpsock.Send(outbuf,obp);
+		n += inc;
+		if( inc == 0 )	count++;
+		}
 	obp = 0;
 }
 

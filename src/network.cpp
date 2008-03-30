@@ -418,6 +418,7 @@ orderq(32,sizeof(struct order)) ,
 syncq(128,sizeof(struct sync)) , 
 eventq(32,sizeof(struct event)) {
 	myMode = 0;
+	tohost_socket = NULL;
 }
 
 Network::~Network(){
@@ -427,7 +428,7 @@ Network::~Network(){
 	sendfile_thread.Join();
 	multicast_thread.Join();
 
-	tohost_socket.Close();//administrative channel
+//	tohost_socket.Close();//administrative channel, shutdown in players.Shutdown()
 	listen_socket.Close();
 	multicast_socket.Close();
 	multicastq.clear();
@@ -533,13 +534,18 @@ int Network::Connect(char* target,char* port,int proto){
 
 	int P = num2af(proto);	
 
-	tohost_socket.Open(target,port,SOCK_STREAM,P);
-	if(!tohost_socket.isOpen()){
+	tohost_socket = new TA3DSock();
+
+//	tohost_socket->Open(target,port,SOCK_STREAM,P);
+	tohost_socket->Open(target,port,P);
+	if(!tohost_socket->isOpen()){
 		//error couldnt connect to game
 		Console->AddEntry("Network: error connecting to game at [%s]:%s\n",target,port);
 		myMode = 0;
 		return -1;
 	}
+
+	addPlayer( tohost_socket );
 
 	//get game info or start admin thread here
 	Console->AddEntry("Network: spawning admin thread\n");
@@ -561,7 +567,8 @@ void Network::Disconnect(){
 	listen_thread.Join();
 	listen_socket.Close();
 
-	tohost_socket.Close();
+//	tohost_socket.Close();
+	tohost_socket = NULL;
 
 	multicast_thread.Join();
 	multicast_socket.Close();
@@ -633,14 +640,8 @@ int Network::sendSpecial(struct chat* chat){
 		return v;
 		}
 	else if( myMode == 2 ) {			// Client mode
-		if( !tohost_socket.isOpen() || chat == NULL )	return -1;
-		char tmp[256];
-		int len;
-		tmp[0] = len = 3 + strlen( chat->message );
-		tmp[1] = 'X';
-		tmp[2] = chat->from + 1;
-		memcpy( tmp + 3, chat->message, 253 );
-		return tohost_socket.Send( tmp, len + 1 );
+		if( tohost_socket == NULL || !tohost_socket->isOpen() || chat == NULL )	return -1;
+		return tohost_socket->sendSpecial( chat );
 		}
 	return -1;						// Not connected, it shouldn't be possible to get here if we're not connected ...
 }
@@ -657,14 +658,8 @@ int Network::sendChat(struct chat* chat){
 		return v;
 		}
 	else if( myMode == 2 ) {			// Client mode
-		if( !tohost_socket.isOpen() || chat == NULL )	return -1;
-		char tmp[256];
-		int len;
-		tmp[0] = len = 3 + strlen( chat->message );
-		tmp[1] = 'C';
-		tmp[2] = chat->from + 1;
-		memcpy( tmp + 3, chat->message, 253 );
-		return tohost_socket.Send( tmp, len + 1 );
+		if( tohost_socket == NULL || !tohost_socket->isOpen() || chat == NULL )	return -1;
+		return tohost_socket->sendChat( chat );
 		}
 }
 
