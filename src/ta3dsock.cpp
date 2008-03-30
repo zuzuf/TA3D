@@ -26,17 +26,35 @@
 int TA3DSock::Open(char* hostname,char* port,int network){
 
 	tcpsock.Open(hostname,port,SOCK_STREAM,network);
-	udpin.Open(NULL,port,SOCK_DGRAM,network);
-	if(hostname)
-		udpout.Open(hostname,port,SOCK_DGRAM,network);
-	
-	if( !( tcpsock.isOpen() && udpin.isOpen() && (udpout.isOpen() || hostname == NULL) ) ){
+
+	if(!tcpsock.isOpen() ){
+		if( tcpsock.isOpen() )
+			printf("tcp open\n");
+		if( udpin.isOpen() )
+			printf("udpin open\n");
+		if( udpout.isOpen() )
+			printf("udpout open\n");
 		//one of them didnt work... quit
-		tcpsock.Close();
-		udpin.Close();
-		udpout.Close();
+		if( tcpsock.isOpen() )
+			tcpsock.Close();
+		if( udpin.isOpen() )
+			udpin.Close();
+		if( udpout.isOpen() )
+			udpout.Close();
 		return -1;
 	}
+
+//	udpin.Open(NULL,port,SOCK_DGRAM,network);
+//	if(hostname)
+//		udpout.Open(hostname,port,SOCK_DGRAM,network);
+//	
+//	if( !( tcpsock.isOpen() && udpin.isOpen() && (udpout.isOpen() || hostname == NULL) ) ){
+//		//one of them didnt work... quit
+//		tcpsock.Close();
+//		udpin.Close();
+//		udpout.Close();
+//		return -1;
+//	}
 
 	return 0;
 
@@ -54,18 +72,36 @@ int TA3DSock::Accept(TA3DSock** sock){
 		return -1;
 	}
 
-	//this is fishy....maybe not
-	(*sock)->udpin.Open(NULL,(*sock)->tcpsock.getService(),SOCK_DGRAM,(*sock)->tcpsock.getAF());
-	(*sock)->udpout.Open((*sock)->tcpsock.getNumber(),(*sock)->tcpsock.getService(),SOCK_DGRAM,(*sock)->tcpsock.getAF());
-
-	if(!((*sock)->tcpsock.isOpen() && (*sock)->udpin.isOpen() && (*sock)->udpout.isOpen()) ){
+	if(!(*sock)->tcpsock.isOpen() ){
+		if( (*sock)->tcpsock.isOpen() )
+			printf("tcp open\n");
+		if( (*sock)->udpin.isOpen() )
+			printf("udpin open\n");
+		if( (*sock)->udpout.isOpen() )
+			printf("udpout open\n");
 		//one of them didnt work... quit
-		(*sock)->tcpsock.Close();
-		(*sock)->udpin.Close();
-		(*sock)->udpout.Close();
+		if( (*sock)->tcpsock.isOpen() )
+			(*sock)->tcpsock.Close();
+		if( (*sock)->udpin.isOpen() )
+			(*sock)->udpin.Close();
+		if( (*sock)->udpout.isOpen() )
+			(*sock)->udpout.Close();
 		delete sock;
 		return -1;
 	}
+
+	//this is fishy....maybe not
+//	(*sock)->udpin.Open(NULL,(*sock)->tcpsock.getService(),SOCK_DGRAM,(*sock)->tcpsock.getAF());
+//	(*sock)->udpout.Open((*sock)->tcpsock.getNumber(),(*sock)->tcpsock.getService(),SOCK_DGRAM,(*sock)->tcpsock.getAF());
+
+//	if(!((*sock)->tcpsock.isOpen() && (*sock)->udpin.isOpen() && (*sock)->udpout.isOpen()) ){
+//		//one of them didnt work... quit
+//		(*sock)->tcpsock.Close();
+//		(*sock)->udpin.Close();
+//		(*sock)->udpout.Close();
+//		delete sock;
+//		return -1;
+//	}
 
 	return 0;
 }
@@ -270,7 +306,7 @@ int TA3DSock::takeFive(int time){
 
 int TA3DSock::sendSpecial(struct chat* chat){
 	loadByte('X');
-	loadByte(chat->from);
+	loadByte(chat->from + 1);
 	loadString(chat->message);
 	loadByte('\0');
 	sendTCP();
@@ -279,7 +315,7 @@ int TA3DSock::sendSpecial(struct chat* chat){
 
 int TA3DSock::sendChat(struct chat* chat){
 	loadByte('C');
-	loadByte(chat->from);
+	loadByte(chat->from + 1);
 	loadString(chat->message);
 	loadByte('\0');
 	sendTCP();

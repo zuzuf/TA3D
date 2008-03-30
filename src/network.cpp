@@ -629,7 +629,7 @@ int Network::sendSpecial(struct chat* chat){
 	else if( myMode == 2 ) {			// Client mode
 		char tmp[255];
 		tmp[0] = 'X';
-		memcpy( tmp + 1, &chat->from, 1 );
+		tmp[1] = chat->from + 1;
 		memcpy( tmp + 2, chat->message, 253 );
 		return tohost_socket.Send( tmp, 255 );
 		}
@@ -650,7 +650,7 @@ int Network::sendChat(struct chat* chat){
 	else if( myMode == 2 ) {			// Client mode
 		char tmp[255];
 		tmp[0] = 'C';
-		memcpy( tmp + 1, &chat->from, 1 );
+		tmp[1] = chat->from + 1;
 		memcpy( tmp + 2, chat->message, 253 );
 		return tohost_socket.Send( tmp, 255 );
 		}
