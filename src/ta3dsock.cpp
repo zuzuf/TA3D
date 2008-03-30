@@ -84,10 +84,11 @@ int TA3DSock::Accept(TA3DSock** sock,int timeout){
 	
 
 	//this is fishy....maybe not
-	(*sock)->udpin.Open(NULL,(*sock)->tcpsock.getService(),SOCK_DGRAM,(*sock)->tcpsock.getAF());
-	(*sock)->udpout.Open((*sock)->tcpsock.getNumber(),(*sock)->tcpsock.getService(),SOCK_DGRAM,(*sock)->tcpsock.getAF());
+//	(*sock)->udpin.Open(NULL,(*sock)->tcpsock.getService(),SOCK_DGRAM,(*sock)->tcpsock.getAF());
+//	(*sock)->udpout.Open((*sock)->tcpsock.getNumber(),(*sock)->tcpsock.getService(),SOCK_DGRAM,(*sock)->tcpsock.getAF());
 
-	if(!((*sock)->tcpsock.isOpen() && (*sock)->udpin.isOpen() && (*sock)->udpout.isOpen()) ){
+//	if(!((*sock)->tcpsock.isOpen() && (*sock)->udpin.isOpen() && (*sock)->udpout.isOpen()) ){
+	if(!(*sock)->tcpsock.isOpen() ){
 		if( (*sock)->tcpsock.isOpen() )
 			printf("tcp open\n");
 		if( (*sock)->udpin.isOpen() )
@@ -95,9 +96,12 @@ int TA3DSock::Accept(TA3DSock** sock,int timeout){
 		if( (*sock)->udpout.isOpen() )
 			printf("udpout open\n");
 		//one of them didnt work... quit
-		(*sock)->tcpsock.Close();
-		(*sock)->udpin.Close();
-		(*sock)->udpout.Close();
+		if( (*sock)->tcpsock.isOpen() )
+			(*sock)->tcpsock.Close();
+		if( (*sock)->udpin.isOpen() )
+			(*sock)->udpin.Close();
+		if( (*sock)->udpout.isOpen() )
+			(*sock)->udpout.Close();
 		delete sock;
 		return -1;
 	}
@@ -110,9 +114,12 @@ int TA3DSock::isOpen(){
 }
 
 void TA3DSock::Close(){
-	tcpsock.Close();
-	udpin.Close();
-	udpout.Close();
+	if( tcpsock.isOpen() )
+		tcpsock.Close();
+	if( udpin.isOpen() )
+		udpin.Close();
+	if( udpout.isOpen() )
+		udpout.Close();
 }
 
 
@@ -189,8 +196,10 @@ void TA3DSock::recvTCP(){
 	}
 	int n = 0;
 	n = tcpsock.Recv(tcpinbuf+tibp,tiremain);
-	tibp += n;
-	tiremain -= n;
+	if( n > 0 ) {
+		tibp += n;
+		tiremain -= n;
+		}
 }
 
 void TA3DSock::recvUDP(){
