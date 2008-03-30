@@ -269,12 +269,12 @@ void TA3DSock::pumpIn(){
 
 char TA3DSock::getPacket(){
 	if(tiremain>0){
-		if(uiremain>0){
+//		if(uiremain>0){
 			return 0;
-		}
+/*		}
 		else{
 			return udpinbuf[0];
-		}
+		}*/
 	}
 	else{
 		return tcpinbuf[0];
@@ -306,19 +306,21 @@ int TA3DSock::takeFive(int time){
 
 
 int TA3DSock::sendSpecial(struct chat* chat){
+	loadByte(2 + strlen( chat->message ) );
 	loadByte('X');
 	loadByte(chat->from + 1);
 	loadString(chat->message);
-	loadByte('\0');
+//	loadByte('\0');
 	sendTCP();
 	return 0;
 }
 
 int TA3DSock::sendChat(struct chat* chat){
+	loadByte(2 + strlen( chat->message ) );
 	loadByte('C');
 	loadByte(chat->from + 1);
 	loadString(chat->message);
-	loadByte('\0');
+//	loadByte('\0');
 	sendTCP();
 	return 0;
 }

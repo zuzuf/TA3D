@@ -389,7 +389,6 @@ void AdminThread::proc(void* param){
 			//stuff on the administrative channel such as change of host
 			//and other things
 			struct chat msg;
-			printf("sending 'message'");
 			network->sendSpecial( strtochat( &msg, "message" ) );
 		}
 		sleep(1);//testing
@@ -629,11 +628,13 @@ int Network::sendSpecial(struct chat* chat){
 		return v;
 		}
 	else if( myMode == 2 ) {			// Client mode
-		char tmp[255];
-		tmp[0] = 'X';
-		tmp[1] = chat->from + 1;
-		memcpy( tmp + 2, chat->message, 253 );
-		return tohost_socket.Send( tmp, 255 );
+		char tmp[256];
+		int len;
+		tmp[0] = len = 2 + strlen( chat->message );
+		tmp[1] = 'X';
+		tmp[2] = chat->from + 1;
+		memcpy( tmp + 3, chat->message, 253 );
+		return tohost_socket.Send( tmp, len );
 		}
 	return -1;						// Not connected, it shouldn't be possible to get here if we're not connected ...
 }
@@ -650,11 +651,13 @@ int Network::sendChat(struct chat* chat){
 		return v;
 		}
 	else if( myMode == 2 ) {			// Client mode
-		char tmp[255];
-		tmp[0] = 'C';
-		tmp[1] = chat->from + 1;
-		memcpy( tmp + 2, chat->message, 253 );
-		return tohost_socket.Send( tmp, 255 );
+		char tmp[256];
+		int len;
+		tmp[0] = len = 2 + strlen( chat->message );
+		tmp[1] = 'C';
+		tmp[2] = chat->from + 1;
+		memcpy( tmp + 3, chat->message, 253 );
+		return tohost_socket.Send( tmp, len + 1 );
 		}
 }
 
