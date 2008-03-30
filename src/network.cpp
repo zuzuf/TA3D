@@ -614,8 +614,8 @@ int Network::dropPlayer(int num){
 
 
 int Network::sendSpecial(struct chat* chat){
-	if( !tohost_socket.isOpen() || chat == NULL )	return -1;
 	if( myMode == 1 ) {				// Server mode
+		if( chat == NULL )	return -1;
 		int v = 0;
 		for( int i = 1 ; i <= players.getMaxId() ; i++ )  {
 			TA3DSock *sock = players.getSock( i );
@@ -625,6 +625,7 @@ int Network::sendSpecial(struct chat* chat){
 		return v;
 		}
 	else if( myMode == 2 ) {			// Client mode
+		if( !tohost_socket.isOpen() || chat == NULL )	return -1;
 		char tmp[256];
 		int len;
 		tmp[0] = len = 3 + strlen( chat->message );
@@ -637,17 +638,18 @@ int Network::sendSpecial(struct chat* chat){
 }
 
 int Network::sendChat(struct chat* chat){
-	if( !tohost_socket.isOpen() || chat == NULL )	return -1;
 	if( myMode == 1 ) {				// Server mode
+		if( chat == NULL )	return -1;
 		int v = 0;
 		for( int i = 1 ; i <= players.getMaxId() ; i++ )  {
 			TA3DSock *sock = players.getSock( i );
 			if( sock )
-				v += sock->sendSpecial( chat );
+				v += sock->sendChat( chat );
 			}
 		return v;
 		}
 	else if( myMode == 2 ) {			// Client mode
+		if( !tohost_socket.isOpen() || chat == NULL )	return -1;
 		char tmp[256];
 		int len;
 		tmp[0] = len = 3 + strlen( chat->message );
