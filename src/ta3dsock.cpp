@@ -264,7 +264,7 @@ void TA3DSock::recvUDP(){
 
 void TA3DSock::pumpIn(){
 	recvTCP();
-	recvUDP();
+//	recvUDP();
 }
 
 char TA3DSock::getPacket(){
@@ -288,17 +288,18 @@ int TA3DSock::takeFive(int time){
 	fd_set set;
 
 	tcp = tcpsock.getFD();
-	udp = udpin.getFD();
+//	udp = udpin.getFD();
 
 	FD_ZERO(&set);
 	FD_SET(tcp,&set);
-	FD_SET(udp,&set);
+//	FD_SET(udp,&set);
 	
 	struct timeval t;
 	t.tv_sec = time/1000;
 	t.tv_usec = 1000*(time%1000);
 
-	select(max(tcp,udp)+1,&set,NULL,NULL,&t);
+//	select(max(tcp,udp)+1,&set,NULL,NULL,&t);
+	select(tcp+1,&set,NULL,NULL,&t);
 	
 	return 0;
 }

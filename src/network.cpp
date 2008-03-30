@@ -153,6 +153,7 @@ void SocketThread::proc(void* param){
 	
 		//sleep until data is coming
 		sock->takeFive(1000);
+		rest(1);
 		if(dead) break;
 
 		//ready for reading, absorb some bytes	
@@ -379,7 +380,7 @@ void AdminThread::proc(void* param){
 			//channel
 
 			struct chat msg;
-			if( !network->getNextSpecial( &msg ) ) {
+			if( network->getNextSpecial( &msg ) == 0 ) {
 				printf("received '%s'\n", msg.message);
 				}
 		}
@@ -388,6 +389,7 @@ void AdminThread::proc(void* param){
 			//stuff on the administrative channel such as change of host
 			//and other things
 			struct chat msg;
+			printf("sending 'message'");
 			network->sendSpecial( strtochat( &msg, "message" ) );
 		}
 		sleep(1);//testing
