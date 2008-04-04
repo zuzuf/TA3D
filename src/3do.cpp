@@ -870,9 +870,13 @@ void OBJECT::draw_optimised( bool set )
 					if(surface.Flag&SURFACE_BLENDED || (!chg_col && color_factor[3] != 1.0f ) ) {			// La transparence
 						glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
 						glEnable(GL_BLEND);
+						glAlphaFunc( GL_GREATER, 0.1 );
+						glEnable( GL_ALPHA_TEST );
 						}
-					else
+					else {
+						glDisable( GL_ALPHA_TEST );
 						glDisable(GL_BLEND);
+						}
 
 					if( surface.Flag&SURFACE_TEXTURED && !notex ) {		// Les textures et effets de texture
 						activated_tex=true;
@@ -1083,9 +1087,13 @@ draw_next:
 				if(surface.Flag&SURFACE_BLENDED) {			// La transparence
 					glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
 					glEnable(GL_BLEND);
+					glAlphaFunc( GL_GREATER, 0.1 );
+					glEnable( GL_ALPHA_TEST );
 					}
-				else
+				else {
+					glDisable( GL_ALPHA_TEST );
 					glDisable(GL_BLEND);
+					}
 
 				if( surface.Flag&SURFACE_TEXTURED ) {		// Les textures et effets de texture
 					activated_tex=true;

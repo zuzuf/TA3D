@@ -5589,6 +5589,9 @@ void INGAME_UNITS::draw(CAMERA *cam,MAP *map,bool underwater,bool limit,bool cul
 		glEnable(GL_CULL_FACE);
 	else
 		glDisable(GL_CULL_FACE);
+	
+	if( cam->RPos.y > gfx->low_def_limit )
+		glDisable(GL_DEPTH_TEST);
 	glDisable(GL_BLEND);
 	glColor4f(1.0f,1.0f,1.0f,1.0f);
 	float sea_lvl = limit ? map->sealvl-5.0f : map->sealvl;
@@ -5608,6 +5611,11 @@ void INGAME_UNITS::draw(CAMERA *cam,MAP *map,bool underwater,bool limit,bool cul
 		EnterCS();
 		}
 	LeaveCS();
+
+	glDisable(GL_ALPHA_TEST);
+
+	if( cam->RPos.y > gfx->low_def_limit )
+		glEnable(GL_DEPTH_TEST);
 
 	if( !cullface )
 		glEnable(GL_CULL_FACE);

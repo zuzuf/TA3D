@@ -455,6 +455,7 @@ void load_features(void (*progress)(float percent,const String &msg))				// Char
 
 		drawing_table.draw_all();
 
+		glDisable(GL_ALPHA_TEST);
 		glDepthFunc( GL_LESS );
 		glEnable(GL_TEXTURE_2D);
 	}
