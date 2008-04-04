@@ -1249,6 +1249,10 @@ void setup_game(bool client, const char *host)
 			multicast_msg = TA3D_network.getNextBroadcastedMessage();
 			if( TA3D_network.getNextChat( &received_chat_msg ) == 0 )
 				chat_msg = received_chat_msg.message;
+			if( host && !TA3D_network.isConnected() ) {					// We're disconnected !!
+				done = true;
+				break;
+				}
 			key_is_pressed = keypressed();
 			setupgame_area.check();
 			rest( 1 );

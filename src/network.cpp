@@ -634,6 +634,8 @@ int Network::dropPlayer(TA3DSock* sock)
 	for( int v = 1 ; v <= players.getMaxId() ; v++ )
 		if( players.getSock( v ) == sock ) {
 			players.Remove( v );
+			if( sock == tohost_socket )
+				tohost_socket = NULL;
 			break;
 			}
 	slmutex.Unlock();
@@ -788,6 +790,11 @@ bool Network::BroadcastedMessages()
 		bool result = !multicastq.empty();
 	mqmutex.Unlock();
 	return result;
+}
+
+bool Network::isConnected()
+{
+	return myMode == 1 || ( myMode == 2 && tohost_socket != NULL && tohost_socket->isOpen() );
 }
 
 std::string ip2str( uint32 ip ) {

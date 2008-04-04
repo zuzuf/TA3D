@@ -241,6 +241,8 @@ class Network{
 		int getNextSync(struct sync* sync);
 		int getNextEvent(struct event* event);
 		
+		bool isConnected();
+		
 		int broadcastMessage( const char *msg );
 		std::string getNextBroadcastedMessage();
 		uint32 getLastMessageAddress();
