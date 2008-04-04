@@ -233,6 +233,7 @@ class Network{
 		int sendFile(int player,FILE* file);
 
 		int dropPlayer(int num);
+		int dropPlayer(TA3DSock* sock);
 
 		int getNextSpecial(struct chat* chat);
 		int getNextChat(struct chat* chat);

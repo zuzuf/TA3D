@@ -1532,7 +1532,7 @@ void setup_game(bool client, const char *host)
 |    Displays the list of available servers and allow to join/host a game      |
 \-----------------------------------------------------------------------------*/
 
-#define SERVER_LIST_REFRESH_DELAY	10000
+#define SERVER_LIST_REFRESH_DELAY	1000
 
 void network_room(void)				// Let players create/join a game
 {

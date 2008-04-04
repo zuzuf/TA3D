@@ -227,6 +227,9 @@ void SocketThread::proc(void* param){
 
 	}
 
+	if( !sock->isOpen() )
+		network->dropPlayer( sock );
+
 	return;
 }
 
@@ -611,10 +614,10 @@ int Network::addPlayer(TA3DSock* sock){
 }
 
 int Network::dropPlayer(int num){
-	if(!adminDir[myID]){
-		Console->AddEntry("you can't drop players because you aren't the game admin\n");
-		return -1;
-	}
+//	if(!adminDir[myID]){
+//		Console->AddEntry("you can't drop players because you aren't the game admin\n");
+//		return -1;
+//	}
 
 	int v;
 
@@ -625,7 +628,17 @@ int Network::dropPlayer(int num){
 	return v;
 }
 
-
+int Network::dropPlayer(TA3DSock* sock)
+{
+	slmutex.Lock();
+	for( int v = 1 ; v <= players.getMaxId() ; v++ )
+		if( players.getSock( v ) == sock ) {
+			players.Remove( v );
+			break;
+			}
+	slmutex.Unlock();
+	return 0;
+}
 
 
 int Network::sendSpecial(struct chat* chat){
