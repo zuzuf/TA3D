@@ -1979,11 +1979,16 @@ void network_room(void)				// Let players create/join a game
 	while(key[KEY_ESC]) {	rest(1);	poll_keyboard();	}
 
 	if( !sel_index.empty() ) {			// Join a game
+		TA3D_network.Disconnect();
 		List< SERVER_DATA >::iterator i_server = servers.begin();
 		while( i_server != servers.end() && i_server->name != sel_index )	i_server++;
 
-		if( i_server != servers.end() )			// Server not found !!
+		if( i_server != servers.end() )	{		// Server not found !!
 			setup_game( true, i_server->host.c_str() );
+			gfx->ReInitTexSys();
+			glScalef(SCREEN_W/640.0f,SCREEN_H/480.0f,1.0f);
+			gfx->set_2D_mode();
+			}
 		}
 }
 

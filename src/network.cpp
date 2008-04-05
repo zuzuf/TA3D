@@ -385,7 +385,7 @@ void GetFileThread::proc(void* param){
 		return;
 	}
 
-	filesock_serv.Accept( filesock );
+	filesock_serv.Accept( filesock, 10000 );
 
 	if(!filesock.isOpen()){
 		Console->AddEntry("GetFile: error couldn't connect to sender");
