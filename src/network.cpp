@@ -297,6 +297,11 @@ void SendFileThread::proc(void* param){
 
 	delete ((struct net_thread_params*)param);
 
+	if( file == NULL ) {
+		dead = 1;
+		return;
+		}
+
 	fseek(file,0,SEEK_END);
 	length = ftell(file);
 	fseek(file,0,SEEK_SET);
@@ -306,7 +311,7 @@ void SendFileThread::proc(void* param){
 	network->slmutex.Unlock();
 	for(i = 0;i<10;i++){
 		//put the standard file port here
-		filesock.Open(destsock->getAddress(),"7779",SOCK_STREAM,destsock->getAF());
+		filesock.Open(destsock->getAddress(),"7778",SOCK_STREAM,destsock->getAF());
 		if (filesock.isOpen())
 			break;
 	}
@@ -314,9 +319,14 @@ void SendFileThread::proc(void* param){
 	if (!filesock.isOpen()){
 		Console->AddEntry("SendFile: error unable to connect to target\n");
 		dead = 1;
+		fclose( file );
 		return;
 	}
 	
+	length = htonl( length );
+	filesock.Send(&length,4);
+	
+	printf("starting file transfer...\n");
 	while(!dead){
 		n = fread(buffer,1,256,file);
 		filesock.Send(buffer,n);
@@ -325,8 +335,10 @@ void SendFileThread::proc(void* param){
 		}
 		sleep(1);
 	}
+	printf("file transfer finished...\n");
 
 	dead = 1;
+	fclose( file );
 	return;
 }
 
@@ -350,6 +362,11 @@ void GetFileThread::proc(void* param){
 
 	//blank file open for writing
 	file = ((struct net_thread_params*)param)->file;
+	
+	if( file == NULL ) {
+		dead = 1;
+		return;
+		}
 
 	delete ((struct net_thread_params*)param);
 
@@ -363,6 +380,7 @@ void GetFileThread::proc(void* param){
 	if(!filesock.isOpen()){
 		Console->AddEntry("GetFile: error couldn't open socket\n");
 		dead = 1;
+		fclose( file );
 		return;
 	}
 
@@ -376,8 +394,10 @@ void GetFileThread::proc(void* param){
 	sofar = 0;	
 	while(!dead){
 		n = filesock.Recv(buffer,256);
-		fwrite(buffer,1,n,file);
-		sofar += n;
+		if( n > 0 ) {
+			fwrite(buffer,1,n,file);
+			sofar += n;
+			}
 		if(sofar >= length){
 			break;
 		}
@@ -385,6 +405,7 @@ void GetFileThread::proc(void* param){
 	}
 
 	dead = 1;
+	fclose( file );
 	return;
 }
 	
@@ -397,6 +418,7 @@ void AdminThread::proc(void* param){
 	delete ((struct net_thread_params*)param);
 	while(!dead){
 		network->cleanPlayer();
+		network->cleanFileThread();
 		if(network->myMode == 1){
 			//if you are the game 'server' then this thread
 			//handles requests and delegations on the administrative
@@ -422,6 +444,8 @@ void AdminThread::proc(void* param){
 /******************************/
 
 Network::Network() : 
+getfile_thread(),
+sendfile_thread(),
 multicastq(),
 multicastaddressq(),
 specialq(64,sizeof(struct chat)) , 
@@ -432,14 +456,26 @@ eventq(32,sizeof(struct event)) {
 	myMode = 0;
 	tohost_socket = NULL;
 	playerDirty = false;
+	fileDirty = false;
 }
 
 Network::~Network(){
 	listen_thread.Join();
 	admin_thread.Join();
-	getfile_thread.Join();
-	sendfile_thread.Join();
+//	getfile_thread.Join();
+//	sendfile_thread.Join();
 	multicast_thread.Join();
+
+	for( List< GetFileThread* >::iterator i = getfile_thread.begin() ; i != getfile_thread.end() ; i++ ) {
+		(*i)->Join();
+		delete *i;
+		}
+	for( List< SendFileThread* >::iterator i = sendfile_thread.begin() ; i != sendfile_thread.end() ; i++ ) {
+		(*i)->Join();
+		delete *i;
+		}
+	getfile_thread.clear();
+	sendfile_thread.clear();
 
 //	tohost_socket.Close();//administrative channel, shutdown in players.Shutdown()
 	listen_socket.Close();
@@ -586,6 +622,17 @@ void Network::Disconnect(){
 	multicast_thread.Join();
 	multicast_socket.Close();
 
+	for( List< GetFileThread* >::iterator i = getfile_thread.begin() ; i != getfile_thread.end() ; i++ ) {
+		(*i)->Join();
+		delete *i;
+		}
+	for( List< SendFileThread* >::iterator i = sendfile_thread.begin() ; i != sendfile_thread.end() ; i++ ) {
+		(*i)->Join();
+		delete *i;
+		}
+	getfile_thread.clear();
+	sendfile_thread.clear();
+
 	slmutex.Lock();
 		players.Shutdown();
 	slmutex.Unlock();
@@ -664,6 +711,37 @@ int Network::cleanPlayer()
 void Network::setPlayerDirty()
 {
 	playerDirty = true;
+}
+
+void Network::setFileDirty()
+{
+	fileDirty = true;
+}
+
+void Network::cleanFileThread()
+{
+	if( !fileDirty )	return;
+	ftmutex.Lock();
+	for( List< GetFileThread* >::iterator i = getfile_thread.begin() ; i != getfile_thread.end() ; ) {
+		if( (*i)->isDead() ) {
+			(*i)->Join();
+			delete *i;
+			getfile_thread.erase( i++ );
+			}
+		else
+			i++;
+		}
+	for( List< SendFileThread* >::iterator i = sendfile_thread.begin() ; i != sendfile_thread.end() ; ) {
+		if( (*i)->isDead() ) {
+			(*i)->Join();
+			delete *i;
+			sendfile_thread.erase( i++ );
+			}
+		else
+			i++;
+		}
+	ftmutex.Unlock();
+	fileDirty = false;
 }
 
 int Network::getMyID()
@@ -755,7 +833,19 @@ int Network::sendEvent(struct event* event, int src_id){
 	return 0;
 }
 
-int Network::sendFile(int player,FILE* file, int src_id){
+int Network::sendFile(int player,FILE* file){
+	ftmutex.Lock();
+	SendFileThread *thread = new SendFileThread();
+	sendfile_thread.push_back( thread );
+
+	net_thread_params *params = new net_thread_params;
+	params->network = this;
+	params->sockid = player;
+	params->file = file;
+	Console->AddEntry("spawning sendFile thread\n");
+	thread->Spawn(params);
+
+	ftmutex.Unlock();
 	return 0;
 }
 
@@ -798,6 +888,22 @@ int Network::getNextEvent(struct event* event){
 		v = eventq.dequeue(event);
 	eqmutex.Unlock();
 	return v;
+}
+
+int Network::getFile(int player,FILE* file){
+	ftmutex.Lock();
+	GetFileThread *thread = new GetFileThread();
+	getfile_thread.push_back( thread );
+
+	net_thread_params *params = new net_thread_params;
+	params->network = this;
+	params->sockid = player;
+	params->file = file;
+	Console->AddEntry("spawning getFile thread\n");
+	thread->Spawn(params);
+
+	ftmutex.Unlock();
+	return 0;
 }
 
 

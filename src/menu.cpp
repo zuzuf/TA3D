@@ -1387,6 +1387,12 @@ void setup_game(bool client, const char *host)
 						game_data.game_script = strdup( script_name.c_str() );
 						}
 					}
+				else if( params[0] == "REQUEST" ) {
+					if( params[1] == "FILE" ) {
+						String file_name = ReplaceChar( params[2], 1, ' ' );
+						TA3D_network.sendFile( from, TA3D_OpenFile( file_name, "rb" ) );
+						}
+					}
 				}
 			else if( params.size() == 8 ) {
 				if( params[0] == "PLAYER_INFO" ) {							// We've received player information, let's update :)
@@ -1660,7 +1666,12 @@ void setup_game(bool client, const char *host)
 			gfx->set_2D_mode();
 
 			if(new_map) {
-				if( host )	TA3D_network.sendSpecial( format( "SET MAP %s", ReplaceChar( new_map, ' ', 1 ).c_str() ) );
+				if( host && !client )	TA3D_network.sendSpecial( format( "SET MAP %s", ReplaceChar( new_map, ' ', 1 ).c_str() ) );
+				
+				if( client && !HPIManager->Exists( new_map ) ) {
+					TA3D_network.sendSpecial( format( "REQUEST FILE %s", ReplaceChar(new_map, ' ', 1 ).c_str() ) );
+					TA3D_network.getFile( 1, TA3D_OpenFile( new_map, "wb" ) );
+					}
 				gfx->destroy_texture( glimg );
 
 				if(game_data.map_filename)	free(game_data.map_filename);

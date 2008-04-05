@@ -167,8 +167,8 @@ class Network{
 	TA3DSock *tohost_socket;//administrative channel
 	AdminThread admin_thread;
 
-	GetFileThread getfile_thread;
-	SendFileThread sendfile_thread;
+	List< GetFileThread* > getfile_thread;
+	List< SendFileThread* > sendfile_thread;
 
 	MulticastSock multicast_socket;	// Used to discover LAN servers
 	MultiCastThread multicast_thread;
@@ -197,8 +197,10 @@ class Network{
 	Mutex oqmutex;
 	Mutex sqmutex;
 	Mutex eqmutex;
+	Mutex ftmutex;
 
 	bool playerDirty;
+	bool fileDirty;
 	
 	//0=dontcare 4=ipv4 6=ipv6
 	int num2af(int proto);
@@ -223,6 +225,7 @@ class Network{
 		void Disconnect();
 
 		void setPlayerDirty();
+		void setFileDirty();
 
 		void InitMulticast( char* target, char* port);
 
@@ -235,16 +238,18 @@ class Network{
 		int sendOrder(struct order* order, int src_id = -1);
 		int sendSync(struct sync* sync, int src_id = -1);
 		int sendEvent(struct event* event, int src_id = -1);
-		int sendFile(int player,FILE* file, int src_id = -1);
+		int sendFile(int player,FILE* file);
 
 		int dropPlayer(int num);
 		int cleanPlayer();
+		void cleanFileThread();
 
 		int getNextSpecial(struct chat* chat);
 		int getNextChat(struct chat* chat);
 		int getNextOrder(struct order* order);
 		int getNextSync(struct sync* sync);
 		int getNextEvent(struct event* event);
+		int getFile(int player,FILE* file);
 		
 		bool isConnected();
 		int getMyID();

@@ -74,6 +74,9 @@ class Thread : public BaseThread{
 			dead = 1;
 			WaitForSingleObject(thread,2000);
 		}
+		virtual bool isDead(){
+			return dead;
+		}
 };
 
 class Mutex{
@@ -130,6 +133,9 @@ class Thread : public BaseThread{
 			}
 			dead = 1;
 			pthread_join(thread,NULL);
+		}
+		virtual bool isDead(){
+			return dead;
 		}
 };
 
