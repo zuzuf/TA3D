@@ -311,7 +311,7 @@ void SendFileThread::proc(void* param){
 	network->slmutex.Unlock();
 	for(i = 0;i<10;i++){
 		//put the standard file port here
-		filesock.Open(destsock->getAddress(),"7778",SOCK_STREAM,destsock->getAF());
+		filesock.Open(destsock->getAddress(),"7778",SOCK_STREAM);
 		if (filesock.isOpen())
 			break;
 	}
@@ -376,7 +376,7 @@ void GetFileThread::proc(void* param){
 	network->slmutex.Unlock();
 
 	//put the standard file port here
-	filesock_serv = Socket(NULL,"7778",SOCK_STREAM,sourcesock->getAF());
+	filesock_serv = Socket(NULL,"7778",SOCK_STREAM);
 	
 	if(!filesock_serv.isOpen()){
 		Console->AddEntry("GetFile: error couldn't open socket\n");
