@@ -341,6 +341,14 @@ namespace TA3D
 			hash = (hash << 5) - hash + str[i];
 		return hash;
 	}
+	
+	static inline int find( Vector< String > vec, String str )
+	{
+		for( int i = 0 ; i < vec.size() ; i++ )
+			if( vec[i] == str )
+				return i;
+		return -1;
+	}
 } 
 
 // zuzuf: to prevent some warnings

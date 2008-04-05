@@ -452,6 +452,7 @@ public:
 	Vector< String >	player_names;		// Their names
 	Vector< String >	player_sides;		// Their sides
 	Vector< byte >		player_control;		// Who control them
+	Vector< int >		player_network_id;	// Network ID of players
 	Vector< byte >		ai_level;			// What's their level (for AI)
 	Vector< uint32 >	energy;				// How much energy do they have when game starts
 	Vector< uint32 >	metal;				// Idem with metal
@@ -481,8 +482,11 @@ public:
 		ai_level.resize(10);
 		energy.resize(10);
 		metal.resize(10);
-		for( uint16 i = 0 ; i < 10 ; i++ )
+		player_network_id.resize(10);
+		for( uint16 i = 0 ; i < 10 ; i++ ) {
 			energy[i] = metal[i] = 10000;
+			player_network_id[i] = -1;
+			}
 	}
 
 	inline ~GAME_DATA()
@@ -496,6 +500,7 @@ public:
 		player_names.clear();
 		player_sides.clear();
 		player_control.clear();
+		player_network_id.clear();
 		ai_level.clear();
 		energy.clear();
 		metal.clear();

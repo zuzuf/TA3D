@@ -148,8 +148,8 @@ void SocketThread::proc(void* param){
 	while(!dead && sock->isOpen()){
 	
 		//sleep until data is coming
-		sock->takeFive(1000);
 		rest(1);
+		sock->takeFive(1000);
 		if(dead) break;
 
 		//ready for reading, absorb some bytes	
@@ -169,8 +169,11 @@ void SocketThread::proc(void* param){
 						network->xqmutex.Unlock();
 						break;
 						}
+					chat.from = sockid;
 					network->specialq.enqueue(&chat);
 				network->xqmutex.Unlock();
+//				if( sockid != -1 )
+//					network->sendSpecial(&chat, sockid);
 				break;
 			case 'C'://chat
 				network->cqmutex.Lock();
@@ -184,6 +187,8 @@ void SocketThread::proc(void* param){
 						}
 					network->chatq.enqueue(&chat);
 				network->cqmutex.Unlock();
+				if( sockid != -1 )
+					network->sendChat(&chat, sockid);
 				break;
 			case 'O'://order
 				sock->makeOrder(&order);
@@ -194,6 +199,8 @@ void SocketThread::proc(void* param){
 					}
 					network->orderq.enqueue(&order);
 				network->oqmutex.Unlock();
+				if( sockid != -1 )
+					network->sendOrder(&order, sockid);
 				break;
 			case 'S'://sync
 				sock->makeSync(&sync);
@@ -204,6 +211,8 @@ void SocketThread::proc(void* param){
 					}
 					network->syncq.enqueue(&sync);
 				network->sqmutex.Unlock();
+				if( sockid != -1 )
+					network->sendSync(&sync, sockid);
 				break;
 			case 'E'://event
 				sock->makeEvent(&event);
@@ -214,6 +223,8 @@ void SocketThread::proc(void* param){
 					}
 					network->eventq.enqueue(&event);
 				network->eqmutex.Unlock();
+				if( sockid != -1 )
+					network->sendEvent(&event, sockid);
 			case 0:
 				break;
 			default:
@@ -390,7 +401,6 @@ void AdminThread::proc(void* param){
 			//if you are the game 'server' then this thread
 			//handles requests and delegations on the administrative
 			//channel
-
 		}
 		else if(network->myMode == 2){
 			//if you are a mere client then this thread responds to
@@ -656,58 +666,96 @@ void Network::setPlayerDirty()
 	playerDirty = true;
 }
 
+int Network::getMyID()
+{
+	switch( myMode )
+	{
+	case 1:						// Server
+		return 1;
+	case 2:						// Client
+		struct chat special_msg;
+		if( sendSpecial( strtochat( &special_msg, "REQUEST PLAYER_ID" ) ) )
+			return -1;
+		else {
+			int timeout = 30000;
+			int my_id = -1;
+			while( my_id == -1 && timeout-- ) {
+				rest(1);
+				if( getNextSpecial( &special_msg ) == 0 ) {
+					Vector< String > params = ReadVectorString( special_msg.message, " " );
+					if( params.size() == 3 && params[0] == "RESPONSE" && params[1] == "PLAYER_ID" ) {
+						my_id = atoi( params[2].c_str() );
+						break;
+						}
+					}
+				}
+			if( timeout == 0 )				// Timeout reached
+				return -1;
+			return my_id;
+			}
+		break;
+	};
+	return -1;					// Not connected
+}
 
-int Network::sendSpecial(struct chat* chat){
+
+int Network::sendSpecial( String msg, int src_id, int dst_id)
+{
+	struct chat chat;
+	return sendSpecial( strtochat( &chat, msg ), src_id, dst_id );
+}
+
+int Network::sendSpecial(struct chat* chat, int src_id, int dst_id){
 	if( myMode == 1 ) {				// Server mode
 		if( chat == NULL )	return -1;
 		int v = 0;
 		for( int i = 1 ; i <= players.getMaxId() ; i++ )  {
 			TA3DSock *sock = players.getSock( i );
-			if( sock )
+			if( sock && i != src_id && ( dst_id == -1 || i == dst_id ) )
 				v += sock->sendSpecial( chat );
 			}
 		return v;
 		}
-	else if( myMode == 2 ) {			// Client mode
+	else if( myMode == 2 && src_id == -1 ) {			// Client mode
 		if( tohost_socket == NULL || !tohost_socket->isOpen() || chat == NULL )	return -1;
 		return tohost_socket->sendSpecial( chat );
 		}
 	return -1;						// Not connected, it shouldn't be possible to get here if we're not connected ...
 }
 
-int Network::sendChat(struct chat* chat){
+int Network::sendChat(struct chat* chat, int src_id){
 	if( myMode == 1 ) {				// Server mode
 		if( chat == NULL )	return -1;
 		int v = 0;
 		for( int i = 1 ; i <= players.getMaxId() ; i++ )  {
 			TA3DSock *sock = players.getSock( i );
-			if( sock )
+			if( sock && i != src_id )
 				v += sock->sendChat( chat );
 			}
 		return v;
 		}
-	else if( myMode == 2 ) {			// Client mode
+	else if( myMode == 2 && src_id == -1 ) {			// Client mode
 		if( tohost_socket == NULL || !tohost_socket->isOpen() || chat == NULL )	return -1;
 		return tohost_socket->sendChat( chat );
 		}
 }
 
-int Network::sendOrder(struct order* order){
+int Network::sendOrder(struct order* order, int src_id){
 	//determine who to send the order to
 	//send to all other players?
 	//send to 'host'?
 	return 0;
 }
 
-int Network::sendSync(struct sync* sync){
+int Network::sendSync(struct sync* sync, int src_id){
 	return 0;
 }
 
-int Network::sendEvent(struct event* event){
+int Network::sendEvent(struct event* event, int src_id){
 	return 0;
 }
 
-int Network::sendFile(int player,FILE* file){
+int Network::sendFile(int player,FILE* file, int src_id){
 	return 0;
 }
 

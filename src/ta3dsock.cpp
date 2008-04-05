@@ -329,7 +329,7 @@ int TA3DSock::takeFive(int time){
 int TA3DSock::sendSpecial(struct chat* chat){
 	loadByte(3 + strlen( chat->message ) );
 	loadByte('X');
-	loadByte(chat->from + 1);
+	loadShort(chat->from);
 	loadString(chat->message);
 //	loadByte('\0');
 	sendTCP();
@@ -339,7 +339,7 @@ int TA3DSock::sendSpecial(struct chat* chat){
 int TA3DSock::sendChat(struct chat* chat){
 	loadByte(3 + strlen( chat->message ) );
 	loadByte('C');
-	loadByte(chat->from + 1);
+	loadShort(chat->from);
 	loadString(chat->message);
 //	loadByte('\0');
 	sendTCP();
@@ -393,9 +393,9 @@ int TA3DSock::makeSpecial(struct chat* chat){
 	if(tiremain == -1){
 		return -1;
 	}
-	chat->from = tcpinbuf[1] - 1;
+	chat->from = ((uint16*)(tcpinbuf+1))[0];
 //	printf("message = '%s'\n", tcpinbuf+2);
-	memcpy(chat->message,tcpinbuf+2,253);
+	memcpy(chat->message,tcpinbuf+3,253);
 	(chat->message)[252] = '\0';
 	tibp = 0;
 	tiremain = -1;
@@ -411,8 +411,8 @@ int TA3DSock::makeChat(struct chat* chat){
 	if(tiremain == -1){
 		return -1;
 	}
-	chat->from = tcpinbuf[1] - 1;
-	memcpy(chat->message,tcpinbuf+2,253);
+	chat->from = ((uint16*)(tcpinbuf+1))[0];
+	memcpy(chat->message,tcpinbuf+3,253);
 	(chat->message)[252] = '\0';
 	tibp = 0;
 	tiremain = -1;

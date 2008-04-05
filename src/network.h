@@ -229,12 +229,13 @@ class Network{
 		//int listNetGames(GamesList& list);
 		//int listLanGames(GamesList& list);
 
-		int sendSpecial(struct chat* chat);
-		int sendChat(struct chat* chat);
-		int sendOrder(struct order* order);
-		int sendSync(struct sync* sync);
-		int sendEvent(struct event* event);
-		int sendFile(int player,FILE* file);
+		int sendSpecial( std::string msg, int src_id = -1, int dst_id = -1);
+		int sendSpecial(struct chat* chat, int src_id = -1, int dst_id = -1);
+		int sendChat(struct chat* chat, int src_id = -1);
+		int sendOrder(struct order* order, int src_id = -1);
+		int sendSync(struct sync* sync, int src_id = -1);
+		int sendEvent(struct event* event, int src_id = -1);
+		int sendFile(int player,FILE* file, int src_id = -1);
 
 		int dropPlayer(int num);
 		int cleanPlayer();
@@ -246,6 +247,7 @@ class Network{
 		int getNextEvent(struct event* event);
 		
 		bool isConnected();
+		int getMyID();
 		
 		int broadcastMessage( const char *msg );
 		std::string getNextBroadcastedMessage();

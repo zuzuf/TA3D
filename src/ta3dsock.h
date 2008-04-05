@@ -66,8 +66,8 @@
 //chat order sync and event
 //these are sent and received over the network
 struct chat{
-	char from;//uint8 who said
-	char message[253];//said what
+	unsigned short from; 			//uint16 who said
+	char message[253];	//said what
 };//max size = 254
 
 struct order{
