@@ -1651,9 +1651,8 @@ void setup_game(bool client, const char *host)
 				map_filename = game_data.map_filename;
 				new_map = select_map( &map_filename );
 				}
-			else {
+			else
 				new_map = strdup( set_map.c_str() );
-				}
 
 			gfx->SCREEN_W_TO_640 = 1.0f;				// To have mouse sensibility undependent from the resolution
 			gfx->SCREEN_H_TO_480 = 1.0f;
@@ -1661,7 +1660,7 @@ void setup_game(bool client, const char *host)
 			gfx->set_2D_mode();
 
 			if(new_map) {
-				if( host )	TA3D_network.sendSpecial( format( "SET MAP %d", ReplaceChar( new_map, ' ', 1 ).c_str() ) );
+				if( host )	TA3D_network.sendSpecial( format( "SET MAP %s", ReplaceChar( new_map, ' ', 1 ).c_str() ) );
 				gfx->destroy_texture( glimg );
 
 				if(game_data.map_filename)	free(game_data.map_filename);
