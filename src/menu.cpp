@@ -1294,7 +1294,7 @@ void setup_game(bool client, const char *host)
 							String msg;								// SYNTAX: PLAYER_INFO player_id network_id side_id ai_level metal energy player_name
 							int side_id = find( side_str, game_data.player_sides[i] );
 							msg = format( "PLAYER_INFO %d %d %d %d %d %d %s", 	i, game_data.player_network_id[i],
-																				side_id, game_data.player_control[i] == PLAYER_CONTROL_NONE ? -1 : game_data.ai_level[i],
+																				side_id, (game_data.player_control[i] == PLAYER_CONTROL_NONE || game_data.player_control[i] == PLAYER_CONTROL_CLOSED) ? -1 : game_data.ai_level[i],
 																				game_data.metal[i], game_data.energy[i],
 																				ReplaceChar(game_data.player_names[i], ' ', 1).c_str() );
 							TA3D_network.sendSpecial( msg, -1, from );
@@ -1346,11 +1346,11 @@ void setup_game(bool client, const char *host)
 							sint16 e = player_color_map[i];
 							sint16 f = -1;
 							for( sint16 g = 0; g<10 ; g++ )						// Look for the next color
-								if( game_data.player_control[g] == PLAYER_CONTROL_NONE && player_color_map[g] > e && (f == -1 || player_color_map[g] < player_color_map[f]) )
+								if( (game_data.player_control[g] == PLAYER_CONTROL_NONE || game_data.player_control[g] == PLAYER_CONTROL_CLOSED) && player_color_map[g] > e && (f == -1 || player_color_map[g] < player_color_map[f]) )
 									f = g;
 							if( f == -1 )
 								for( uint16 g = 0; g<10 ; g++ )
-									if( game_data.player_control[g] == PLAYER_CONTROL_NONE && (f == -1 || player_color_map[g] < player_color_map[f]) )
+									if( (game_data.player_control[g] == PLAYER_CONTROL_NONE || game_data.player_control[g] == PLAYER_CONTROL_CLOSED) && (f == -1 || player_color_map[g] < player_color_map[f]) )
 										f = g;
 							if( f != -1 ) {
 								sint16 g = player_color_map[f];
@@ -1419,7 +1419,7 @@ void setup_game(bool client, const char *host)
 						GUIOBJ *guiobj =  setupgame_area.get_object( format("gamesetup.color%d", i) );
 						if( guiobj ) {
 							guiobj->Data = gfx->makeintcol(player_color[player_color_map[i]*3],player_color[player_color_map[i]*3+1],player_color[player_color_map[i]*3+2]);			// Update gui
-							if( game_data.player_control[i] == PLAYER_CONTROL_NONE )
+							if( player_control[i] == PLAYER_CONTROL_NONE || player_control[i] == PLAYER_CONTROL_CLOSED )
 								guiobj->Flag |= FLAG_HIDDEN;
 							else
 								guiobj->Flag &= ~FLAG_HIDDEN;
@@ -1572,7 +1572,7 @@ void setup_game(bool client, const char *host)
 				setupgame_area.set_caption( format( "gamesetup.ai%d", i ), (game_data.player_control[i] & PLAYER_CONTROL_FLAG_AI) ? ai_level_str[game_data.ai_level[i]] : String("") );
 				guiobj = setupgame_area.get_object( format( "gamesetup.color%d", i ) );
 				if( guiobj ) {
-					if( player_control[e] == PLAYER_CONTROL_NONE )
+					if( player_control[e] == PLAYER_CONTROL_NONE || player_control[e] == PLAYER_CONTROL_CLOSED )
 						guiobj->Flag |= FLAG_HIDDEN;
 					else
 						guiobj->Flag &= ~FLAG_HIDDEN;
@@ -1604,11 +1604,11 @@ void setup_game(bool client, const char *host)
 				sint16 e = player_color_map[i];
 				sint16 f = -1;
 				for( sint16 g = 0; g<10 ; g++ )						// Look for the next color
-					if( game_data.player_control[g] == PLAYER_CONTROL_NONE && player_color_map[g] > e && (f == -1 || player_color_map[g] < player_color_map[f]) )
+					if( (game_data.player_control[g] == PLAYER_CONTROL_NONE || game_data.player_control[g] == PLAYER_CONTROL_CLOSED) && player_color_map[g] > e && (f == -1 || player_color_map[g] < player_color_map[f]) )
 						f = g;
 				if( f == -1 )
 					for( uint16 g = 0; g<10 ; g++ )
-						if( game_data.player_control[g] == PLAYER_CONTROL_NONE && (f == -1 || player_color_map[g] < player_color_map[f]) )
+						if( (game_data.player_control[g] == PLAYER_CONTROL_NONE || game_data.player_control[g] == PLAYER_CONTROL_CLOSED) && (f == -1 || player_color_map[g] < player_color_map[f]) )
 							f = g;
 				if( f != -1 ) {
 					sint16 g = player_color_map[f];
