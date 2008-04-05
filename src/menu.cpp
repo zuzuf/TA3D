@@ -1272,6 +1272,7 @@ void setup_game(bool client, const char *host)
 			&& !key_is_pressed && !setupgame_area.scrolling && multicast_msg.empty() && chat_msg.empty() && special_msg.empty() );
 
 		while( !special_msg.empty() ) {													// Special receiver (sync config data)
+			printf("received '%s'\n", special_msg.c_str() );
 			int from = received_special_msg.from;
 			Vector< String > params = ReadVectorString( received_special_msg.message, " " );
 			if( params.size() == 2 ) {
