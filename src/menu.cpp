@@ -1252,6 +1252,8 @@ void setup_game(bool client, const char *host)
 	int amy = -1;
 	int amz = -1;
 	int amb = -1;
+	
+	String set_map = "";
 
 	do
 	{
@@ -1360,6 +1362,25 @@ void setup_game(bool client, const char *host)
 								}
 							TA3D_network.sendSpecial("NOTIFY UPDATE");
 							}
+						}
+					}
+				else if( params[0] == "SET" ) {
+					if( params[1] == "FOW" ) {
+						int value = atoi( params[2].c_str() );
+						GUIOBJ *obj = setupgame_area.get_object( "gamesetup.FOW" );
+						if( obj && value >= 0 && value < 4 ) {
+							obj->Value = value;
+							obj->Text[0] = obj->Text[ 1 + obj->Value ];
+							game_data.fog_of_war = obj->Value;
+							}
+						}
+					else if( params[1] == "MAP" )
+						set_map = ReplaceChar( params[2], 1, ' ' );
+					else if( params[1] == "SCRIPT" ) {
+						String script_name = ReplaceChar( params[2], 1, ' ' );
+						setupgame_area.set_caption( "gamesetup.script_name", script_name );
+						free( game_data.game_script );
+						game_data.game_script = strdup( script_name.c_str() );
 						}
 					}
 				}
@@ -1496,9 +1517,12 @@ void setup_game(bool client, const char *host)
 			if( obj && obj->Value != -1 ) {
 				obj->Text[0] = obj->Text[ 1 + obj->Value ];
 				game_data.fog_of_war = obj->Value;
+				if( host )	TA3D_network.sendSpecial( format( "SET FOW %d", obj->Value ) );
 				}
-			if( host )	TA3D_network.sendSpecial( "NOTIFY UPDATE" );
 			}
+
+		if( client )
+			I_Msg( TA3D::TA3D_IM_GUI_MSG, (void*)"scripts.hide", NULL, NULL );	// Hide the scripts window in client mode
 
 		if( setupgame_area.get_state( "scripts.b_ok" ) && !client ) {
 			guiobj = setupgame_area.get_object( "scripts.script_list" );
@@ -1506,8 +1530,8 @@ void setup_game(bool client, const char *host)
 				setupgame_area.set_caption( "gamesetup.script_name", guiobj->Text[ guiobj->Pos ] );
 				free( game_data.game_script );
 				game_data.game_script = strdup( guiobj->Text[ guiobj->Pos ].c_str() );
+				if( host )	TA3D_network.sendSpecial( "SET SCRIPT " + ReplaceChar( guiobj->Text[ guiobj->Pos ], ' ', 1 ) );
 				}
-			if( host )	TA3D_network.sendSpecial( "NOTIFY UPDATE" );
 			}
 
 		if( setupgame_area.get_state( "gamesetup.b_ok" ) && !client ) {
@@ -1520,7 +1544,11 @@ void setup_game(bool client, const char *host)
 
 		for(uint16 i = 0 ; i < 10 ; i++ ) {
 			if( client && game_data.player_network_id[i] != my_player_id )	continue;							// You cannot change other player's settings
-			if( setupgame_area.get_state( format("gamesetup.b_name%d", i) ) ) {		// Change player type
+			if( setupgame_area.get_state( format("gamesetup.b_name%d", i) ) && !client ) {		// Change player type
+				if( game_data.player_network_id[i] >= 0 && game_data.player_network_id[i] != my_player_id ) {		// Kick player !!
+					TA3D_network.dropPlayer( game_data.player_network_id[i] );
+					TA3D_network.sendSpecial( "NOTIFY UPDATE" );
+					}
 				uint16 e = 0;
 				for( uint16 f = 0 ; f<player_str_n ; f++ )
 					if( setupgame_area.get_caption(format("gamesetup.name%d", i)) == player_str[f].c_str() ) {	e = f;	break;	}
@@ -1608,12 +1636,20 @@ void setup_game(bool client, const char *host)
 				}
 			}
 
-		if( minimap_obj != NULL && 
-		( setupgame_area.get_state( "gamesetup.minimap" ) || setupgame_area.get_state( "gamesetup.change_map" ) ) && !client ) {		// Clic on the mini-map
-			gfx->unset_2D_mode();
-			reset_mouse();
-			String map_filename = game_data.map_filename;
-			char *new_map = select_map( &map_filename );
+		if( minimap_obj != NULL &&
+		( ( setupgame_area.get_state( "gamesetup.minimap" ) || setupgame_area.get_state( "gamesetup.change_map" ) ) && !client )
+		|| ( client && !set_map.empty() ) ) {		// Clic on the mini-map or received map set command
+			String map_filename;
+			char *new_map;
+			if( !client ) {
+				gfx->unset_2D_mode();
+				reset_mouse();
+				map_filename = game_data.map_filename;
+				new_map = select_map( &map_filename );
+				}
+			else {
+				new_map = strdup( set_map.c_str() );
+				}
 
 			gfx->SCREEN_W_TO_640 = 1.0f;				// To have mouse sensibility undependent from the resolution
 			gfx->SCREEN_H_TO_480 = 1.0f;
@@ -1645,11 +1681,12 @@ void setup_game(bool client, const char *host)
 				if(map_data.missiondescription)
 					map_info += map_data.missiondescription;
 				setupgame_area.set_caption("gamesetup.map_info", map_info );
+				if( host )	TA3D_network.sendSpecial( format( "SET MAP %d", ReplaceChar( new_map, ' ', 1 ).c_str() ) );
 				}
 
 			minimap_obj->Data = glimg;		// Synchronize the picture on GUI
-			if( host )	TA3D_network.sendSpecial( "NOTIFY UPDATE" );
 			}
+		set_map = "";
 
 		if(key[KEY_ESC]) done=true;			// Quitte si on appuie sur echap
 					// Efface tout
