@@ -1291,10 +1291,16 @@ void setup_game(bool client, const char *host)
 							if( client && game_data.player_network_id[i] != my_player_id )	continue;		// We don't send updates about things we wan't update
 							String msg;								// SYNTAX: PLAYER_INFO player_id network_id side_id ai_level metal energy player_name
 							int side_id = find( side_str, game_data.player_sides[i] );
-							msg = format( "PLAYER_INFO %d %d %d %d %d %d %s", 	i, -1,
+							msg = format( "PLAYER_INFO %d %d %d %d %d %d %s", 	i, game_data.player_network_id[i],
 																				side_id, game_data.ai_level[i],
 																				game_data.metal[i], game_data.energy[i],
 																				ReplaceChar(game_data.player_names[i], ' ', 1).c_str() );
+							TA3D_network.sendSpecial( msg, -1, from );
+							}
+						if( !client ) {			// Send server to client specific information (player colors, map name, ...)
+							String msg = "PLAYERCOLORMAP";
+							for( int i = 0 ; i < 10 ; i++ )
+								msg += format( " %d", player_color_map[i] );
 							TA3D_network.sendSpecial( msg, -1, from );
 							}
 						}
@@ -1320,6 +1326,33 @@ void setup_game(bool client, const char *host)
 							}
 						else
 							TA3D_network.dropPlayer( from );		// No more room for this player !!
+						}
+					else if( params[1] == "COLORCHANGE" ) {
+						int i = atoi( params[2].c_str() );
+						if( i == from ) {						// From client to server only
+							sint16 e = player_color_map[i];
+							sint16 f = -1;
+							for( sint16 g = 0; g<10 ; g++ )						// Look for the next color
+								if( game_data.player_control[g] == PLAYER_CONTROL_NONE && player_color_map[g] > e && (f == -1 || player_color_map[g] < player_color_map[f]) )
+									f = g;
+							if( f == -1 )
+								for( uint16 g = 0; g<10 ; g++ )
+									if( game_data.player_control[g] == PLAYER_CONTROL_NONE && (f == -1 || player_color_map[g] < player_color_map[f]) )
+										f = g;
+							if( f != -1 ) {
+								sint16 g = player_color_map[f];
+								player_color_map[i] = g;								// update game data
+								player_color_map[f] = e;
+
+								guiobj =  setupgame_area.get_object( format("gamesetup.color%d", i) );
+								if( guiobj )
+									guiobj->Data = gfx->makeintcol(player_color[player_color_map[i]*3],player_color[player_color_map[i]*3+1],player_color[player_color_map[i]*3+2]);			// Update gui
+								guiobj =  setupgame_area.get_object( format("gamesetup.color%d", f) );
+								if( guiobj )
+									guiobj->Data = gfx->makeintcol(player_color[player_color_map[f]*3],player_color[player_color_map[f]*3+1],player_color[player_color_map[f]*3+2]);			// Update gui
+								}
+							TA3D_network.sendSpecial("NOTIFY UPDATE");
+							}
 						}
 					}
 				}
@@ -1347,6 +1380,21 @@ void setup_game(bool client, const char *host)
 						}
 					else
 						Console->AddEntry("packet error : %s", received_special_msg.message);
+					}
+				}
+			else if( params.size() == 11 ) {
+				if( params[0] == "PLAYERCOLORMAP" ) {
+					for( int i = 0 ; i < 10 ; i++ ) {
+						player_color_map[i] = atoi( params[i+1].c_str() );
+						GUIOBJ *guiobj =  setupgame_area.get_object( format("gamesetup.color%d", i) );
+						if( guiobj ) {
+							guiobj->Data = gfx->makeintcol(player_color[player_color_map[i]*3],player_color[player_color_map[i]*3+1],player_color[player_color_map[i]*3+2]);			// Update gui
+							if( game_data.player_control[i] == PLAYER_CONTROL_NONE )
+								guiobj->Flag |= FLAG_HIDDEN;
+							else
+								guiobj->Flag &= ~FLAG_HIDDEN;
+							}
+						}
 					}
 				}
 
@@ -1496,6 +1544,7 @@ void setup_game(bool client, const char *host)
 				if( host )	TA3D_network.sendSpecial( "NOTIFY UPDATE" );
 				}
 			if( setupgame_area.get_state( format("gamesetup.b_color%d", i) ) ) {	// Change player color
+				if( client )	TA3D_network.sendSpecial(format("NOTIFY COLORCHANGE %d", i));
 				sint16 e = player_color_map[i];
 				sint16 f = -1;
 				for( sint16 g = 0; g<10 ; g++ )						// Look for the next color
@@ -1517,7 +1566,7 @@ void setup_game(bool client, const char *host)
 					if( guiobj )
 						guiobj->Data = gfx->makeintcol(player_color[player_color_map[f]*3],player_color[player_color_map[f]*3+1],player_color[player_color_map[f]*3+2]);			// Update gui
 					}
-				if( host )	TA3D_network.sendSpecial( "NOTIFY UPDATE" );
+				if( host && !client )	TA3D_network.sendSpecial( "NOTIFY UPDATE" );
 				}
 			if( setupgame_area.get_state( format("gamesetup.b_energy%d", i) ) ) {	// Change player energy stock
 				game_data.energy[i] = (game_data.energy[i] + 500) % 10500;
