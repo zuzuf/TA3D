@@ -1323,13 +1323,19 @@ void setup_game(bool client, const char *host)
 							game_data.player_control[slot] = PLAYER_CONTROL_REMOTE_HUMAN;
 							game_data.player_names[slot] = ReplaceChar( params[2], 1, ' ' );
 							setupgame_area.set_caption( format( "gamesetup.name%d", slot ), game_data.player_names[slot]);						// Update gui
+
+							GUIOBJ *guiobj =  setupgame_area.get_object( format("gamesetup.color%d", slot) );
+							if( guiobj ) {
+								guiobj->Data = gfx->makeintcol(player_color[player_color_map[slot]*3],player_color[player_color_map[slot]*3+1],player_color[player_color_map[slot]*3+2]);			// Update gui
+								guiobj->Flag &= ~FLAG_HIDDEN;
+								}
 							}
 						else
 							TA3D_network.dropPlayer( from );		// No more room for this player !!
 						}
 					else if( params[1] == "COLORCHANGE" ) {
 						int i = atoi( params[2].c_str() );
-						if( i == from ) {						// From client to server only
+						if( i == from && !client ) {						// From client to server only
 							sint16 e = player_color_map[i];
 							sint16 f = -1;
 							for( sint16 g = 0; g<10 ; g++ )						// Look for the next color
@@ -1376,7 +1382,7 @@ void setup_game(bool client, const char *host)
 						else if( n_id < 0 && ai_level < 0 )
 							game_data.player_control[i] = PLAYER_CONTROL_NONE;
 						else
-							game_data.player_control[i] = n_id == my_player_id ? PLAYER_CONTROL_LOCAL_HUMAN : PLAYER_CONTROL_REMOTE_HUMAN;
+							game_data.player_control[i] = (n_id == my_player_id) ? PLAYER_CONTROL_LOCAL_HUMAN : PLAYER_CONTROL_REMOTE_HUMAN;
 
 						setupgame_area.set_caption( format( "gamesetup.name%d", i ),game_data.player_names[i]);									// Update gui
 						setupgame_area.set_caption( format( "gamesetup.ai%d", i ), (game_data.player_control[i] & PLAYER_CONTROL_FLAG_AI) ? ai_level_str[game_data.ai_level[i]] : String("") );
@@ -1402,13 +1408,8 @@ void setup_game(bool client, const char *host)
 					for( int i = 0 ; i < 10 ; i++ ) {
 						player_color_map[i] = atoi( params[i+1].c_str() );
 						GUIOBJ *guiobj =  setupgame_area.get_object( format("gamesetup.color%d", i) );
-						if( guiobj ) {
+						if( guiobj )
 							guiobj->Data = gfx->makeintcol(player_color[player_color_map[i]*3],player_color[player_color_map[i]*3+1],player_color[player_color_map[i]*3+2]);			// Update gui
-							if( game_data.player_control[i] == PLAYER_CONTROL_NONE )
-								guiobj->Flag |= FLAG_HIDDEN;
-							else
-								guiobj->Flag &= ~FLAG_HIDDEN;
-							}
 						}
 					}
 				}
