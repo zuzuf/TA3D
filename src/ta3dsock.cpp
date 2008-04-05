@@ -327,7 +327,7 @@ int TA3DSock::takeFive(int time){
 
 
 int TA3DSock::sendSpecial(struct chat* chat){
-	loadByte(3 + strlen( chat->message ) );
+	loadByte(4 + strlen( chat->message ) );
 	loadByte('X');
 	loadShort(chat->from);
 	loadString(chat->message);
@@ -337,7 +337,7 @@ int TA3DSock::sendSpecial(struct chat* chat){
 }
 
 int TA3DSock::sendChat(struct chat* chat){
-	loadByte(3 + strlen( chat->message ) );
+	loadByte(4 + strlen( chat->message ) );
 	loadByte('C');
 	loadShort(chat->from);
 	loadString(chat->message);

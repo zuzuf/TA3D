@@ -1272,13 +1272,15 @@ void setup_game(bool client, const char *host)
 			&& !key_is_pressed && !setupgame_area.scrolling && multicast_msg.empty() && chat_msg.empty() && special_msg.empty() );
 
 		while( !special_msg.empty() ) {													// Special receiver (sync config data)
-			printf("received '%s'\n", special_msg.c_str() );
 			int from = received_special_msg.from;
+			printf("received '%s' from %d\n", special_msg.c_str(), from );
 			Vector< String > params = ReadVectorString( received_special_msg.message, " " );
 			if( params.size() == 2 ) {
 				if( params[0] == "REQUEST" ) {
-					if( params[1] == "PLAYER_ID" )
+					if( params[1] == "PLAYER_ID" ) {
+						printf("sending response ...\n");
 						TA3D_network.sendSpecial( format( "RESPONSE PLAYER_ID %d", from ), -1, from );
+						}
 					else if( params[1] == "GAME_DATA" ) {
 						for( int i = 0 ; i < 10 ; i++ ) {			// Send player information
 							String msg;								// SYNTAX: PLAYER_INFO player_id network_id side_id ai_level metal energy

@@ -679,7 +679,7 @@ int Network::getMyID()
 		else {
 			int timeout = 30000;
 			int my_id = -1;
-			while( my_id == -1 && timeout-- ) {
+			while( my_id == -1 && timeout-- && false ) {
 				rest(1);
 				if( getNextSpecial( &special_msg ) == 0 ) {
 					printf("received '%s'\n", special_msg.message );
