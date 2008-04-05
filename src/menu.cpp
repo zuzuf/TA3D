@@ -1973,8 +1973,6 @@ void network_room(void)				// Let players create/join a game
 	if( networkgame_area.background == gfx->glfond )	networkgame_area.background = 0;
 	networkgame_area.destroy();
 
-	gfx->unset_2D_mode();	// Quitte le mode de dessin d'allegro
-
 	reset_mouse();
 	while(key[KEY_ESC]) {	rest(1);	poll_keyboard();	}
 
@@ -1990,6 +1988,7 @@ void network_room(void)				// Let players create/join a game
 			gfx->set_2D_mode();
 			}
 		}
+	gfx->unset_2D_mode();	// Quitte le mode de dessin d'allegro
 }
 
 void campaign_main_menu(void)
