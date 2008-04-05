@@ -43,10 +43,6 @@ int SockList::Add(TA3DSock* sock){
 	if (maxid > 10000) //arbitrary limit
 		return -1;
 	slnode *node,*ptr;
-	node = list;
-
-	while(node)
-		node=node->next;
 
 	node = new slnode;
 	maxid++;
@@ -227,8 +223,9 @@ void SocketThread::proc(void* param){
 
 	}
 
+	dead = 1;
 	if( !sock->isOpen() )
-		network->dropPlayer( sock );
+		network->setPlayerDirty();
 
 	return;
 }
@@ -267,6 +264,7 @@ void MultiCastThread::proc(void* param){
 			}
 	}
 
+	dead = 1;
 	Console->AddEntry("Multicast thread closed!");
 
 	return;
@@ -387,6 +385,7 @@ void AdminThread::proc(void* param){
 	network = ((struct net_thread_params*)param)->network;
 	delete ((struct net_thread_params*)param);
 	while(!dead){
+		network->cleanPlayer();
 		if(network->myMode == 1){
 			//if you are the game 'server' then this thread
 			//handles requests and delegations on the administrative
@@ -422,6 +421,7 @@ syncq(128,sizeof(struct sync)) ,
 eventq(32,sizeof(struct event)) {
 	myMode = 0;
 	tohost_socket = NULL;
+	playerDirty = false;
 }
 
 Network::~Network(){
@@ -628,18 +628,32 @@ int Network::dropPlayer(int num){
 	return v;
 }
 
-int Network::dropPlayer(TA3DSock* sock)
+int Network::cleanPlayer()
 {
+	if( !playerDirty )	return 0;
 	slmutex.Lock();
-	for( int v = 1 ; v <= players.getMaxId() ; v++ )
-		if( players.getSock( v ) == sock ) {
-			players.Remove( v );
-			if( sock == tohost_socket )
+	int v = 0;
+	for( int i = 1 ; i <= players.getMaxId() ; i++ ) {
+		TA3DSock *sock = players.getSock( i );
+		if( sock && !sock->isOpen() ) {
+			v = players.Remove( i );
+			if( sock == tohost_socket ) {
+				multicast_thread.Join();
+				multicast_socket.Close();
+
 				tohost_socket = NULL;
-			break;
+				myMode = 0;
+				}
 			}
+		}
 	slmutex.Unlock();
-	return 0;
+	playerDirty = false;
+	return v;
+}
+
+void Network::setPlayerDirty()
+{
+	playerDirty = true;
 }
 
 

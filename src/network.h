@@ -197,6 +197,8 @@ class Network{
 	Mutex oqmutex;
 	Mutex sqmutex;
 	Mutex eqmutex;
+
+	bool playerDirty;
 	
 	//0=dontcare 4=ipv4 6=ipv6
 	int num2af(int proto);
@@ -220,6 +222,8 @@ class Network{
 		int Connect(char* target,char* port,int proto);
 		void Disconnect();
 
+		void setPlayerDirty();
+
 		void InitMulticast( char* target, char* port);
 
 		//int listNetGames(GamesList& list);
@@ -233,7 +237,7 @@ class Network{
 		int sendFile(int player,FILE* file);
 
 		int dropPlayer(int num);
-		int dropPlayer(TA3DSock* sock);
+		int cleanPlayer();
 
 		int getNextSpecial(struct chat* chat);
 		int getNextChat(struct chat* chat);

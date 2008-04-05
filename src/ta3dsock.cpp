@@ -205,7 +205,7 @@ void TA3DSock::sendTCP(){
 	int n = 0;
 	int inc = 0;
 	int count = 0;
-	while(n != obp && count < 100 ) {
+	while(n != obp && count < 100 && isOpen() ) {
 		inc = tcpsock.Send(outbuf,obp);
 		n += inc;
 		if( inc == 0 )	count++;
