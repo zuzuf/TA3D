@@ -1100,7 +1100,7 @@ void setup_game(bool client, const char *host)
 	uint16	player_str_n = 4;
 	uint16	ai_level_str_n = 4;
 	String	player_str[4] = { lp_CONFIG->player_name, TRANSLATE("computer"), TRANSLATE("open"), TRANSLATE("closed") };
-	byte	player_control[4] = { PLAYER_CONTROL_LOCAL_HUMAN, PLAYER_CONTROL_LOCAL_AI, PLAYER_CONTROL_NONE, PLAYER_CONTROL_NONE };
+	byte	player_control[4] = { PLAYER_CONTROL_LOCAL_HUMAN, PLAYER_CONTROL_LOCAL_AI, PLAYER_CONTROL_NONE, PLAYER_CONTROL_CLOSED };
 	String	ai_level_str[4] = { TRANSLATE("easy"), TRANSLATE("medium"), TRANSLATE("hard"), TRANSLATE("bloody") };
 	uint16	side_str_n = ta3d_sidedata.nb_side;
 	Vector<String>	side_str;
@@ -1304,6 +1304,10 @@ void setup_game(bool client, const char *host)
 							for( int i = 0 ; i < 10 ; i++ )
 								msg += format( " %d", player_color_map[i] );
 							TA3D_network.sendSpecial( msg, -1, from );
+							
+							TA3D_network.sendSpecial( format( "SET FOW %d", game_data.fog_of_war ), -1, from );
+							TA3D_network.sendSpecial( format( "SET SCRIPT %s", ReplaceChar( game_data.game_script, ' ', 1 ).c_str() ), -1, from );
+							TA3D_network.sendSpecial( format( "SET MAP %s", ReplaceChar( game_data.map_filename, ' ', 1 ).c_str() ), -1, from );
 							}
 						}
 					}
@@ -1657,6 +1661,7 @@ void setup_game(bool client, const char *host)
 			gfx->set_2D_mode();
 
 			if(new_map) {
+				if( host )	TA3D_network.sendSpecial( format( "SET MAP %d", ReplaceChar( new_map, ' ', 1 ).c_str() ) );
 				gfx->destroy_texture( glimg );
 
 				if(game_data.map_filename)	free(game_data.map_filename);
@@ -1681,7 +1686,6 @@ void setup_game(bool client, const char *host)
 				if(map_data.missiondescription)
 					map_info += map_data.missiondescription;
 				setupgame_area.set_caption("gamesetup.map_info", map_info );
-				if( host )	TA3D_network.sendSpecial( format( "SET MAP %d", ReplaceChar( new_map, ' ', 1 ).c_str() ) );
 				}
 
 			minimap_obj->Data = glimg;		// Synchronize the picture on GUI
