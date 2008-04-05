@@ -1320,6 +1320,7 @@ void setup_game(bool client, const char *host)
 								break;
 								}
 						if( slot >= 0 ) {
+							game_data.player_network_id[slot] = from;
 							game_data.player_control[slot] = PLAYER_CONTROL_REMOTE_HUMAN;
 							game_data.player_names[slot] = ReplaceChar( params[2], 1, ' ' );
 							setupgame_area.set_caption( format( "gamesetup.name%d", slot ), game_data.player_names[slot]);						// Update gui

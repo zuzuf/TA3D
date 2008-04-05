@@ -671,7 +671,7 @@ int Network::getMyID()
 	switch( myMode )
 	{
 	case 1:						// Server
-		return 1;
+		return 0;
 	case 2:						// Client
 		struct chat special_msg;
 		if( sendSpecial( strtochat( &special_msg, "REQUEST PLAYER_ID" ) ) )
