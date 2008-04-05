@@ -349,6 +349,7 @@ void SendFileThread::proc(void* param){
 void GetFileThread::proc(void* param){
 	TA3DSock* sourcesock;
 	Socket filesock;
+	Socket filesock_serv;
 	Network* network;
 	int sockid;
 	FILE* file;
@@ -375,15 +376,24 @@ void GetFileThread::proc(void* param){
 	network->slmutex.Unlock();
 
 	//put the standard file port here
-	filesock = Socket(NULL,"7778",SOCK_STREAM,sourcesock->getAF());
+	filesock_serv = Socket(NULL,"7778",SOCK_STREAM,sourcesock->getAF());
 	
-	if(!filesock.isOpen()){
+	if(!filesock_serv.isOpen()){
 		Console->AddEntry("GetFile: error couldn't open socket\n");
 		dead = 1;
 		fclose( file );
 		return;
 	}
 
+	filesock_serv.Accept( filesock );
+
+	if(!filesock.isOpen()){
+		Console->AddEntry("GetFile: error couldn't open socket\n");
+		dead = 1;
+		fclose( file );
+		return;
+	}
+	
 	n=0;
 	while(!dead && n<4){
 		n += filesock.Recv(buffer+n,4);
