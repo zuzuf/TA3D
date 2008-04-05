@@ -317,7 +317,7 @@ void SendFileThread::proc(void* param){
 	}
 	
 	if (!filesock.isOpen()){
-		Console->AddEntry("SendFile: error unable to connect to target\n");
+		Console->AddEntry("SendFile: error unable to connect to target");
 		dead = 1;
 		fclose( file );
 		return;
@@ -379,7 +379,7 @@ void GetFileThread::proc(void* param){
 	filesock_serv = Socket(NULL,"7778",SOCK_STREAM);
 	
 	if(!filesock_serv.isOpen()){
-		Console->AddEntry("GetFile: error couldn't open socket\n");
+		Console->AddEntry("GetFile: error couldn't open socket");
 		dead = 1;
 		fclose( file );
 		return;
@@ -388,7 +388,7 @@ void GetFileThread::proc(void* param){
 	filesock_serv.Accept( filesock );
 
 	if(!filesock.isOpen()){
-		Console->AddEntry("GetFile: error couldn't open socket\n");
+		Console->AddEntry("GetFile: error couldn't connect to sender");
 		dead = 1;
 		fclose( file );
 		return;
