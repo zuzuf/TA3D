@@ -679,10 +679,9 @@ int Network::getMyID()
 		else {
 			int timeout = 30000;
 			int my_id = -1;
-			while( my_id == -1 && timeout-- && false ) {
+			while( my_id == -1 && timeout-- ) {
 				rest(1);
 				if( getNextSpecial( &special_msg ) == 0 ) {
-					printf("received '%s'\n", special_msg.message );
 					Vector< String > params = ReadVectorString( special_msg.message, " " );
 					if( params.size() == 3 && params[0] == "RESPONSE" && params[1] == "PLAYER_ID" ) {
 						my_id = atoi( params[2].c_str() );

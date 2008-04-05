@@ -1086,6 +1086,8 @@ void setup_game(bool client, const char *host)
 		
 		if( client ) {
 			special msg;
+			TA3D_network.sendSpecial( strtochat( &msg, format( "NOTIFY NEW_PLAYER %s", ReplaceChar( lp_CONFIG->player_name, ' ', 1 ).c_str() ) ) );
+			rest(10);
 			TA3D_network.sendSpecial( strtochat( &msg, "REQUEST GAME_DATA" ) );
 			}
 		}
@@ -1142,22 +1144,26 @@ void setup_game(bool client, const char *host)
 		}
 	game_data.fog_of_war = lp_CONFIG->last_FOW;
 
-
-	game_data.player_names[0] = player_str[0];
-	game_data.player_sides[0] = side_str[0];
-	game_data.player_control[0] = player_control[0];
-	game_data.ai_level[0] = AI_TYPE_EASY;
-
-	game_data.player_names[1] = player_str[1];
-	game_data.player_sides[1] = side_str[1];
-	game_data.player_control[1] = player_control[1];
-	game_data.ai_level[1] = AI_TYPE_EASY;
-
-	for(uint16 i = 2; i < 10 ; i++) {
+	for(uint16 i = 0 ; i < 10 ; i++) {
 		game_data.player_names[i] = player_str[2];
 		game_data.player_sides[i] = side_str[0];
 		game_data.player_control[i] = player_control[2];
 		game_data.ai_level[i] = AI_TYPE_EASY;
+		}
+
+	if( !client ) {
+		game_data.player_names[0] = player_str[0];
+		game_data.player_sides[0] = side_str[0];
+		game_data.player_control[0] = player_control[0];
+		game_data.player_network_id[0] = my_player_id;
+		game_data.ai_level[0] = AI_TYPE_EASY;
+
+		if( !host ) {
+			game_data.player_names[1] = player_str[1];
+			game_data.player_sides[1] = side_str[1];
+			game_data.player_control[1] = player_control[1];
+			game_data.ai_level[1] = AI_TYPE_EASY;
+			}
 		}
 
 	gfx->set_2D_mode();
@@ -1271,34 +1277,56 @@ void setup_game(bool client, const char *host)
 		} while( amx == mouse_x && amy == mouse_y && amz == mouse_z && amb == mouse_b && mouse_b == 0 && !key[ KEY_ENTER ] && !key[ KEY_ESC ] && !done
 			&& !key_is_pressed && !setupgame_area.scrolling && multicast_msg.empty() && chat_msg.empty() && special_msg.empty() );
 
+//-------------------------------------------------------------- Network Code : syncing information --------------------------------------------------------------
+
 		while( !special_msg.empty() ) {													// Special receiver (sync config data)
 			int from = received_special_msg.from;
-			printf("received '%s' from %d\n", special_msg.c_str(), from );
 			Vector< String > params = ReadVectorString( received_special_msg.message, " " );
 			if( params.size() == 2 ) {
 				if( params[0] == "REQUEST" ) {
-					if( params[1] == "PLAYER_ID" ) {
-						printf("sending response ...\n");
+					if( params[1] == "PLAYER_ID" )					// Sending player's network ID
 						TA3D_network.sendSpecial( format( "RESPONSE PLAYER_ID %d", from ), -1, from );
-						}
-					else if( params[1] == "GAME_DATA" ) {
+					else if( params[1] == "GAME_DATA" ) {			// Sending game information
 						for( int i = 0 ; i < 10 ; i++ ) {			// Send player information
-							String msg;								// SYNTAX: PLAYER_INFO player_id network_id side_id ai_level metal energy
+							if( client && game_data.player_network_id[i] != my_player_id )	continue;		// We don't send updates about things we wan't update
+							String msg;								// SYNTAX: PLAYER_INFO player_id network_id side_id ai_level metal energy player_name
 							int side_id = find( side_str, game_data.player_sides[i] );
-							msg = format( "PLAYER_INFO %d %d %d %d %d %d", i, -1, side_id, game_data.ai_level[i], game_data.metal[i], game_data.energy[i] );
+							msg = format( "PLAYER_INFO %d %d %d %d %d %d %s", 	i, -1,
+																				side_id, game_data.ai_level[i],
+																				game_data.metal[i], game_data.energy[i],
+																				ReplaceChar(game_data.player_names[i], ' ', 1).c_str() );
 							TA3D_network.sendSpecial( msg, -1, from );
 							}
 						}
 					}
 				else if( params[0] == "NOTIFY" ) {
 					if( params[1] == "UPDATE" )
-						TA3D_network.sendSpecial( "REQUEST GAME_DATA" );
+						TA3D_network.sendSpecial( "REQUEST GAME_DATA" );			// We're told there are things to update, so ask for update
 					}
 				}
-			else if( params.size() == 7 ) {
+			else if( params.size() == 3 ) {
+				if( params[0] == "NOTIFY" ) {
+					if( params[1] == "NEW_PLAYER" ) {								// Add new player
+						int slot = -1;
+						for( int i = 0 ; i < 10 ; i++ )
+							if( game_data.player_control[i] == PLAYER_CONTROL_NONE ) {
+								slot = i;
+								break;
+								}
+						if( slot >= 0 ) {
+							game_data.player_control[slot] = PLAYER_CONTROL_REMOTE_HUMAN;
+							game_data.player_names[slot] = ReplaceChar( params[2], 1, ' ' );
+							setupgame_area.set_caption( format( "gamesetup.name%d", slot ), game_data.player_names[slot]);						// Update gui
+							}
+						else
+							TA3D_network.dropPlayer( from );		// No more room for this player !!
+						}
+					}
+				}
+			else if( params.size() == 8 ) {
 				if( params[0] == "PLAYER_INFO" ) {							// We've received player information, let's update :)
 					int i = atoi( params[1].c_str() );
-					if( i >= 0 && i < 10 ) {
+					if( i >= 0 && i < 10 && (client || from == i ) ) {		// Server doesn't accept someone telling him what to do
 						int n_id = atoi( params[2].c_str() );
 						int side_id = atoi( params[3].c_str() );
 						int ai_level = atoi( params[4].c_str() );
@@ -1309,8 +1337,9 @@ void setup_game(bool client, const char *host)
 						game_data.ai_level[i] = ai_level;
 						game_data.metal[i] = metal_q;
 						game_data.energy[i] = energy_q;
+						game_data.player_names[i] = ReplaceChar( params[7], 1, ' ' );
 
-//						setupgame_area.set_caption( format( "gamesetup.name%d", i ),player_str[e]);									// Update gui
+						setupgame_area.set_caption( format( "gamesetup.name%d", i ),game_data.player_names[i]);									// Update gui
 						setupgame_area.set_caption( format( "gamesetup.ai%d", i ), (game_data.player_control[i] & PLAYER_CONTROL_FLAG_AI) ? ai_level_str[game_data.ai_level[i]] : String("") );
 						setupgame_area.set_caption( format("gamesetup.side%d", i) , side_str[side_id] );							// Update gui
 						setupgame_area.set_caption( format("gamesetup.energy%d", i), format("%d",game_data.energy[i]) );			// Update gui
@@ -1327,6 +1356,8 @@ void setup_game(bool client, const char *host)
 				special_msg = "";
 			}
 
+//-------------------------------------------------------------- Network Code : chat system --------------------------------------------------------------
+
 		while( !chat_msg.empty() ) {													// Chat receiver
 			GUIOBJ *chat_list = setupgame_area.get_object("gamesetup.chat_list");
 
@@ -1342,6 +1373,8 @@ void setup_game(bool client, const char *host)
 			else
 				chat_msg = "";
 			}
+
+//-------------------------------------------------------------- Network Code : advert system --------------------------------------------------------------
 
 		while( !multicast_msg.empty() ) {												// Multicast message receiver
 			Vector<String> params = ReadVectorString( multicast_msg, " " );
@@ -1360,6 +1393,8 @@ void setup_game(bool client, const char *host)
 				}
 			multicast_msg = TA3D_network.getNextBroadcastedMessage();
 			}
+
+//-------------------------------------------------------------- End of Network Code --------------------------------------------------------------
 
 		amx = mouse_x;
 		amy = mouse_y;
@@ -1412,7 +1447,7 @@ void setup_game(bool client, const char *host)
 		if( setupgame_area.get_state( "gamesetup.b_cancel" ) ) done=true;		// En cas de click sur "retour", on quitte la fenêtre
 
 		for(uint16 i = 0 ; i < 10 ; i++ ) {
-			if( client && i != my_player_id )	continue;							// You cannot change other player's settings
+			if( client && game_data.player_network_id[i] != my_player_id )	continue;							// You cannot change other player's settings
 			if( setupgame_area.get_state( format("gamesetup.b_name%d", i) ) ) {		// Change player type
 				uint16 e = 0;
 				for( uint16 f = 0 ; f<player_str_n ; f++ )
