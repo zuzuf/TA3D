@@ -1292,7 +1292,7 @@ void setup_game(bool client, const char *host)
 							String msg;								// SYNTAX: PLAYER_INFO player_id network_id side_id ai_level metal energy player_name
 							int side_id = find( side_str, game_data.player_sides[i] );
 							msg = format( "PLAYER_INFO %d %d %d %d %d %d %s", 	i, game_data.player_network_id[i],
-																				side_id, game_data.ai_level[i],
+																				side_id, game_data.player_control[i] == PLAYER_CONTROL_NONE ? -1 : game_data.ai_level[i],
 																				game_data.metal[i], game_data.energy[i],
 																				ReplaceChar(game_data.player_names[i], ' ', 1).c_str() );
 							TA3D_network.sendSpecial( msg, -1, from );
@@ -1367,16 +1367,31 @@ void setup_game(bool client, const char *host)
 						int energy_q = atoi( params[6].c_str() );
 						game_data.player_network_id[i] = n_id;
 						game_data.player_sides[i] = side_str[ side_id ];
-						game_data.ai_level[i] = ai_level;
+						game_data.ai_level[i] = ai_level >= 0 ? ai_level : 0;
 						game_data.metal[i] = metal_q;
 						game_data.energy[i] = energy_q;
 						game_data.player_names[i] = ReplaceChar( params[7], 1, ' ' );
+						if( n_id < 0 && ai_level >= 0 )
+							game_data.player_control[i] = PLAYER_CONTROL_LOCAL_AI;
+						else if( n_id < 0 && ai_level < 0 )
+							game_data.player_control[i] = PLAYER_CONTROL_NONE;
+						else
+							game_data.player_control[i] = n_id == my_player_id ? PLAYER_CONTROL_LOCAL_HUMAN : PLAYER_CONTROL_REMOTE_HUMAN;
 
 						setupgame_area.set_caption( format( "gamesetup.name%d", i ),game_data.player_names[i]);									// Update gui
 						setupgame_area.set_caption( format( "gamesetup.ai%d", i ), (game_data.player_control[i] & PLAYER_CONTROL_FLAG_AI) ? ai_level_str[game_data.ai_level[i]] : String("") );
 						setupgame_area.set_caption( format("gamesetup.side%d", i) , side_str[side_id] );							// Update gui
 						setupgame_area.set_caption( format("gamesetup.energy%d", i), format("%d",game_data.energy[i]) );			// Update gui
 						setupgame_area.set_caption( format("gamesetup.metal%d", i), format("%d",game_data.metal[i]) );				// Update gui
+
+						GUIOBJ *guiobj =  setupgame_area.get_object( format("gamesetup.color%d", i) );
+						if( guiobj ) {
+							guiobj->Data = gfx->makeintcol(player_color[player_color_map[i]*3],player_color[player_color_map[i]*3+1],player_color[player_color_map[i]*3+2]);			// Update gui
+							if( game_data.player_control[i] == PLAYER_CONTROL_NONE )
+								guiobj->Flag |= FLAG_HIDDEN;
+							else
+								guiobj->Flag &= ~FLAG_HIDDEN;
+							}
 						}
 					else
 						Console->AddEntry("packet error : %s", received_special_msg.message);
