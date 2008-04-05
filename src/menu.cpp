@@ -1335,7 +1335,7 @@ void setup_game(bool client, const char *host)
 						}
 					else if( params[1] == "COLORCHANGE" ) {
 						int i = atoi( params[2].c_str() );
-						if( i == from && !client ) {						// From client to server only
+						if( !client ) {						// From client to server only
 							sint16 e = player_color_map[i];
 							sint16 f = -1;
 							for( sint16 g = 0; g<10 ; g++ )						// Look for the next color
@@ -1394,6 +1394,13 @@ void setup_game(bool client, const char *host)
 						if( guiobj ) {
 							guiobj->Data = gfx->makeintcol(player_color[player_color_map[i]*3],player_color[player_color_map[i]*3+1],player_color[player_color_map[i]*3+2]);			// Update gui
 							if( game_data.player_control[i] == PLAYER_CONTROL_NONE )
+								guiobj->Flag |= FLAG_HIDDEN;
+							else
+								guiobj->Flag &= ~FLAG_HIDDEN;
+							}
+						guiobj =  setupgame_area.get_object( format("gamesetup.ai%d", i) );
+						if( guiobj ) {
+							if( !(game_data.player_control[i] & PLAYER_CONTROL_FLAG_AI) )
 								guiobj->Flag |= FLAG_HIDDEN;
 							else
 								guiobj->Flag &= ~FLAG_HIDDEN;
