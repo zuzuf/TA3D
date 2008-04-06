@@ -329,6 +329,7 @@ int Socket::Accept(Socket& sock,int timeout){
 	s = accept(fd,address.ai_addr,&(address.ai_addrlen));//3rd parameter has problem on winsock?
 	if (s < 0){
 		sockError("Accept: accept() error");
+		sockError(strerror(errno));
 		return -1;
 	}
 
@@ -378,6 +379,7 @@ int Socket::Accept(Socket& sock){
 	s = accept(fd,address.ai_addr,&(address.ai_addrlen));
 	if (s < 0){
 		sockError("Accept: accept() error");
+		sockError(strerror(errno));
 		return -1;
 	}
 
