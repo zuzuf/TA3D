@@ -1127,7 +1127,7 @@ float Network::getFileTransferProgress()
 			}
 	
 	ftmutex.Unlock();
-	return size ? 100.0f * pos / size : 100.0f;;
+	return size ? 100.0f * pos / size : 100.0f;
 }
 
 void Network::updateFileTransferInformation( String id, int size, int pos )
