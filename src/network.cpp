@@ -353,7 +353,7 @@ void SendFileThread::proc(void* param){
 			int p = -1;
 			int recv_pos = 0;
 			while( p <= 0 && !dead && filesock.isOpen() ) {
-				p = filesock.Send(&recv_pos,4);
+				p = filesock.Recv(&recv_pos,4);
 				if( p == 4 ) {
 					recv_pos = ntohl( recv_pos );
 					if( recv_pos < pos - FILE_TRANSFER_BUFFER_SIZE ) {
