@@ -8,7 +8,7 @@
 	height=1024;
 	draw borders=false;
 	show title=false;
-	number of objects=142;
+	number of objects=143;
 	hidden=false;
 	lock=true;
 	color=0x00000000;			// Fully transparent so we can see the AREA background
@@ -1482,7 +1482,7 @@
 		no border=true;		// Don't draw the border since it's drawn on the background
 		size=1.8;
 	}
-	[object141]		// text input for char
+	[object141]		// text input for chat
 	{
 		name=t_chat;
 		type=TEXTBAR;
@@ -1493,5 +1493,17 @@
 		caption=;
 		value=0xFFFFFFFF;
 		size=1.8;
+	}
+	[object142]		// Progress bar for file transfer
+	{
+		name=p_transfer;
+		type=PBAR;
+		x1=400;
+		y1=40;
+		x2=850;
+		y2=110;
+		value=0;
+		size=2.0;
+		hidden=true;
 	}
 }

@@ -1264,6 +1264,7 @@ void setup_game(bool client, const char *host)
 		struct chat received_chat_msg;
 		struct chat received_special_msg;
 		bool playerDropped = false;
+		int progress_timer = msec_timer;
 		do {
 			playerDropped = TA3D_network.getPlayerDropped();
 			multicast_msg = TA3D_network.getNextBroadcastedMessage();
@@ -1278,10 +1279,22 @@ void setup_game(bool client, const char *host)
 			key_is_pressed = keypressed();
 			setupgame_area.check();
 			rest( 1 );
+			if( msec_timer - progress_timer >= 500 && TA3D_network.getFileTransferProgress() != 100.0f )	break;
 		} while( amx == mouse_x && amy == mouse_y && amz == mouse_z && amb == mouse_b && mouse_b == 0 && !key[ KEY_ENTER ] && !key[ KEY_ESC ] && !done
 			&& !key_is_pressed && !setupgame_area.scrolling && multicast_msg.empty() && chat_msg.empty() && special_msg.empty() && !playerDropped );
 
 //-------------------------------------------------------------- Network Code : syncing information --------------------------------------------------------------
+
+		if( TA3D_network.getFileTransferProgress() != 100.0f ) {
+			GUIOBJ *obj = setupgame_area.get_object( "gamesetup.p_transfer" );
+			if( obj )
+				obj->Flag &= ~FLAG_HIDDEN;
+			setupgame_area.set_value( "gamesetup.p_transfer", (int)TA3D_network.getFileTransferProgress() );
+			}
+		else {
+			GUIOBJ *obj = setupgame_area.get_object( "gamesetup.p_transfer" );
+			if( obj )	obj->Flag |= FLAG_HIDDEN;
+			}
 
 		if( playerDropped ) {
 			for( int i = 0 ; i < 10 ; i++ )
