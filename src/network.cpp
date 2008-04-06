@@ -318,7 +318,7 @@ void SendFileThread::proc(void* param){
 		String host = destsock->getAddress();
 		printf("connecting to '%s'\n", host.c_str() );
 		//put the standard file port here
-		filesock.Open( (char*)host.c_str(),"4343",SOCK_STREAM);
+		filesock.Open( (char*)host.c_str(),"7778",SOCK_STREAM);
 		if (filesock.isOpen())
 			break;
 	}
@@ -386,7 +386,7 @@ void GetFileThread::proc(void* param){
 	network->slmutex.Unlock();
 
 	//put the standard file port here
-	filesock_serv = Socket(NULL,"4343",SOCK_STREAM);
+	filesock_serv = Socket(NULL,"7778",SOCK_STREAM);
 	
 	if(!filesock_serv.isOpen()){
 		Console->AddEntry("GetFile: error couldn't open socket");

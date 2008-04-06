@@ -65,6 +65,8 @@ Socket::Socket(char *hostname, char *port, int transport){
 	strncpy(number,"new socket",NI_MAXHOST);
 	strncpy(service,"???",NI_MAXSERV);
 	stype = STYPE_BROKEN;
+	sockreports = 1;
+	sockerrors = 1;
 	int x;
 	x = Open(hostname,port,transport,AF_UNSPEC);
 	if (x<0){
@@ -76,6 +78,8 @@ Socket::Socket(char *hostname, char *port){
 	strncpy(number,"new socket",NI_MAXHOST);
 	strncpy(service,"???",NI_MAXSERV);
 	stype = STYPE_BROKEN;
+	sockreports = 1;
+	sockerrors = 1;
 	int x;
 	x = Open(hostname,port,SOCK_STREAM,AF_UNSPEC);
 	if (x<0){
