@@ -315,9 +315,10 @@ void SendFileThread::proc(void* param){
 	int timer = msec_timer;
 	while(msec_timer - timer < 10000){
 		rest(1);
-		printf("connecting to '%s'\n", destsock->getAddress());
+		String host = destsock->getAddress();
+		printf("connecting to '%s'\n", host.c_str() );
 		//put the standard file port here
-		filesock.Open(destsock->getAddress(),"7778",SOCK_STREAM);
+		filesock.Open( (char*)host.c_str(),"4343",SOCK_STREAM);
 		if (filesock.isOpen())
 			break;
 	}
@@ -373,19 +374,19 @@ void GetFileThread::proc(void* param){
 	filename = ((struct net_thread_params*)param)->filename;
 	file = TA3D_OpenFile( filename, "wb" );
 	
+	delete ((struct net_thread_params*)param);
+
 	if( file == NULL ) {
 		dead = 1;
 		return;
 		}
-
-	delete ((struct net_thread_params*)param);
 
 	network->slmutex.Lock();
 		sourcesock = network->players.getSock(sockid);
 	network->slmutex.Unlock();
 
 	//put the standard file port here
-	filesock_serv = Socket(NULL,"7778",SOCK_STREAM);
+	filesock_serv = Socket(NULL,"4343",SOCK_STREAM);
 	
 	if(!filesock_serv.isOpen()){
 		Console->AddEntry("GetFile: error couldn't open socket");
@@ -397,7 +398,7 @@ void GetFileThread::proc(void* param){
 
 	int timer = msec_timer;
 
-	while( filesock_serv.Accept( filesock, 10000 ) < 0 && msec_timer - timer < 10000 )	rest(1);
+	while( filesock_serv.Accept( filesock, 100 ) < 0 && msec_timer - timer < 10000 )	rest(1);
 
 	if(!filesock.isOpen()){
 		Console->AddEntry("GetFile: error couldn't connect to sender");
