@@ -500,7 +500,7 @@ void GetFileThread::proc(void* param){
 				return;
 				}
 			}
-		sleep(1);
+		rest(0);
 	}
 
 	Console->AddEntry("file transfer finished...");
