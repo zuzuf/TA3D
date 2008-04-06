@@ -320,7 +320,7 @@ void SendFileThread::proc(void* param){
 		rest(100);
 		String host = destsock->getAddress();
 		//put the standard file port here
-		filesock.Open( (char*)host.c_str(),"7778",SOCK_STREAM);
+		filesock.Open( (char*)host.c_str(),(char*)port.c_str(),SOCK_STREAM);
 		if (filesock.isOpen())
 			break;
 	}
@@ -371,7 +371,7 @@ void SendFileThread::proc(void* param){
 				rest(100);
 				String host = destsock->getAddress();
 				//put the standard file port here
-				filesock.Open( (char*)host.c_str(),"7778",SOCK_STREAM);
+				filesock.Open( (char*)host.c_str(),(char*)port.c_str(),SOCK_STREAM);
 				if (filesock.isOpen())
 					break;
 			}
@@ -443,7 +443,7 @@ void GetFileThread::proc(void* param){
 	network->slmutex.Unlock();
 
 	//put the standard file port here
-	filesock_serv.Open(NULL,"7778",SOCK_STREAM);
+	filesock_serv.Open(NULL,(char*)port.c_str(),SOCK_STREAM);
 	
 	if(!filesock_serv.isOpen()){
 		Console->AddEntry("GetFile: error couldn't open socket");
@@ -774,6 +774,58 @@ void Network::Disconnect(){
 
 }
 
+void Network::stopFileTransfer( const String &port )
+{
+	ftmutex.Lock();
+
+	if( port.empty() ) {
+		for( List< GetFileThread* >::iterator i = getfile_thread.begin() ; i != getfile_thread.end() ; i++ ) {
+			(*i)->Join();
+			delete *i;
+			}
+		for( List< SendFileThread* >::iterator i = sendfile_thread.begin() ; i != sendfile_thread.end() ; i++ ) {
+			(*i)->Join();
+			delete *i;
+			}
+		getfile_thread.clear();
+		sendfile_thread.clear();
+		transfer_progress.clear();
+		}
+	else {
+		for( List< GetFileThread* >::iterator i = getfile_thread.begin() ; i != getfile_thread.end() ; )
+			if( (*i)->port == port ) {
+				(*i)->Join();
+				delete *i;
+				getfile_thread.erase( i++ );
+				}
+			else
+				i++;
+		for( List< SendFileThread* >::iterator i = sendfile_thread.begin() ; i != sendfile_thread.end() ; )
+			if( (*i)->port == port ) {
+				(*i)->Join();
+				delete *i;
+				sendfile_thread.erase( i++ );
+				}
+			else
+				i++;
+		}
+
+	setFileDirty();
+
+	ftmutex.Unlock();
+}
+
+bool Network::isTransferFinished( const String &port )
+{
+	for( List< GetFileThread* >::iterator i = getfile_thread.begin() ; i != getfile_thread.end() ; i++ )
+		if( (*i)->port == port )
+			return false;
+	for( List< SendFileThread* >::iterator i = sendfile_thread.begin() ; i != sendfile_thread.end() ; i++ )
+		if( (*i)->port == port )
+			return false;
+	return true;
+}
+
 
 //not completely finished
 int Network::addPlayer(TA3DSock* sock){
@@ -979,10 +1031,11 @@ int Network::sendEvent(struct event* event, int src_id){
 	return 0;
 }
 
-int Network::sendFile(int player, const String &filename){
+int Network::sendFile(int player, const String &filename, const String &port){
 	ftmutex.Lock();
 	SendFileThread *thread = new SendFileThread();
 	sendfile_thread.push_back( thread );
+	thread->port = port;
 
 	net_thread_params *params = new net_thread_params;
 	params->network = this;
@@ -1036,9 +1089,18 @@ int Network::getNextEvent(struct event* event){
 	return v;
 }
 
-int Network::getFile(int player, const String &filename){
+String Network::getFile(int player, const String &filename){
 	ftmutex.Lock();
+
+	int port_nb = 7776;						// Take the next port not in use
+	for( List< GetFileThread* >::iterator i = getfile_thread.begin() ; i != getfile_thread.end() ; i++ )
+		port_nb = max( atoi( (*i)->port.c_str() ), port_nb ) ;
+	port_nb++;
+	
+	String port = format( "%d", port_nb );
+
 	GetFileThread *thread = new GetFileThread();
+	thread->port = port;
 	getfile_thread.push_back( thread );
 
 	net_thread_params *params = new net_thread_params;
@@ -1049,7 +1111,7 @@ int Network::getFile(int player, const String &filename){
 	thread->Spawn(params);
 
 	ftmutex.Unlock();
-	return 0;
+	return port;
 }
 
 

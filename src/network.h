@@ -73,11 +73,15 @@ class SocketThread : public Thread{
 //sends a large file in the background
 class SendFileThread : public Thread{
 	virtual void proc(void* param);
+	public :
+		String	port;
 };
 
 //gets a large file in the background and writes to disk
 class GetFileThread : public Thread{
 	virtual void proc(void* param);
+	public :
+		String	port;
 };
 
 class AdminThread : public Thread{
@@ -248,7 +252,7 @@ class Network{
 		int sendOrder(struct order* order, int src_id = -1);
 		int sendSync(struct sync* sync, int src_id = -1);
 		int sendEvent(struct event* event, int src_id = -1);
-		int sendFile(int player, const String &filename);
+		int sendFile(int player, const String &filename, const String &port);
 
 		int dropPlayer(int num);
 		int cleanPlayer();
@@ -259,7 +263,10 @@ class Network{
 		int getNextOrder(struct order* order);
 		int getNextSync(struct sync* sync);
 		int getNextEvent(struct event* event);
-		int getFile(int player, const String &filename);
+		String getFile(int player, const String &filename);
+		
+		void stopFileTransfer( const String &port = "");
+		bool isTransferFinished( const String &port );
 		
 		bool isConnected();
 		int getMyID();

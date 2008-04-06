@@ -1254,6 +1254,9 @@ void setup_game(bool client, const char *host)
 	int amb = -1;
 	
 	String set_map = "";
+	String previous_tnt_port = "";
+	String previous_ota_port = "";
+	String previous_lua_port = "";
 
 	do
 	{
@@ -1417,19 +1420,31 @@ void setup_game(bool client, const char *host)
 							game_data.fog_of_war = obj->Value;
 							}
 						}
-					else if( params[1] == "MAP" )
+					else if( params[1] == "MAP" ) {
 						set_map = ReplaceChar( params[2], 1, ' ' );
+						if( set_map == game_data.map_filename )	set_map = "";		// Don't reload map !!
+						}
 					else if( params[1] == "SCRIPT" ) {
 						String script_name = ReplaceChar( params[2], 1, ' ' );
-						setupgame_area.set_caption( "gamesetup.script_name", script_name );
-						free( game_data.game_script );
-						game_data.game_script = strdup( script_name.c_str() );
+						if( script_name != game_data.game_script ) {
+							setupgame_area.set_caption( "gamesetup.script_name", script_name );
+							free( game_data.game_script );
+							game_data.game_script = strdup( script_name.c_str() );
+
+							if( client && !HPIManager->Exists( script_name.c_str() ) ) {
+								TA3D_network.stopFileTransfer( previous_lua_port );
+								previous_lua_port = TA3D_network.getFile( 1, ReplaceChar( script_name, '\\', '/') );
+								TA3D_network.sendSpecial( format( "REQUEST FILE %s %s", ReplaceChar(script_name, ' ', 1 ).c_str(), previous_lua_port.c_str() ) );
+								}
+							}
 						}
 					}
-				else if( params[0] == "REQUEST" ) {
+				}
+			else if( params.size() == 4 ) {
+				if( params[0] == "REQUEST" ) {					// REQUEST FILE filename port
 					if( params[1] == "FILE" ) {
 						String file_name = ReplaceChar( params[2], 1, ' ' );
-						TA3D_network.sendFile( from, file_name );
+						TA3D_network.sendFile( from, file_name, params[3] );
 						}
 					}
 				}
@@ -1497,6 +1512,9 @@ void setup_game(bool client, const char *host)
 			else
 				special_msg = "";
 			}
+
+		if( set_map.empty() && TA3D_network.isTransferFinished( previous_ota_port ) && TA3D_network.isTransferFinished( previous_tnt_port ) )
+			set_map = game_data.map_filename;
 
 //-------------------------------------------------------------- Network Code : chat system --------------------------------------------------------------
 
@@ -1735,8 +1753,18 @@ void setup_game(bool client, const char *host)
 				setupgame_area.set_caption("gamesetup.map_info", map_info );
 
 				if( client && !HPIManager->Exists( new_map_name.c_str() ) ) {
-					TA3D_network.sendSpecial( format( "REQUEST FILE %s", ReplaceChar(new_map_name, ' ', 1 ).c_str() ) );
-					TA3D_network.getFile( 1, ReplaceChar( new_map_name, '\\', '/') );
+					TA3D_network.stopFileTransfer( previous_tnt_port );
+
+					previous_tnt_port = TA3D_network.getFile( 1, ReplaceChar( new_map_name, '\\', '/') );
+					TA3D_network.sendSpecial( format( "REQUEST FILE %s %s", ReplaceChar(new_map_name, ' ', 1 ).c_str(), previous_tnt_port.c_str() ) );
+					}
+
+				new_map_name = new_map_name.substr( 0, new_map_name.size() - 3 ) + "ota";
+
+				if( client && !HPIManager->Exists( new_map_name.c_str() ) ) {
+					TA3D_network.stopFileTransfer( previous_ota_port );
+					previous_ota_port = TA3D_network.getFile( 1, ReplaceChar( new_map_name, '\\', '/') );
+					TA3D_network.sendSpecial( format( "REQUEST FILE %s %s", ReplaceChar(new_map_name, ' ', 1 ).c_str(), previous_ota_port.c_str() ) );
 					}
 				}
 
