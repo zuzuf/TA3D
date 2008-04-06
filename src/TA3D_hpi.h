@@ -208,26 +208,33 @@ namespace TA3D
 				return ((char*)data)[ pos++ ];
 			}
 
-			inline void tread( void *buf, int size )
+			inline int tread( void *buf, int size )
 			{
-				if( data == NULL || pos < 0 || pos >= length )	return;
+				if( data == NULL || pos < 0 || pos >= length )	return 0;
 				if( pos + size > length )
 					size = length - pos;
 				memcpy( buf, data+pos, size );
+				return size;
 			}
 
 			char *tgets( void *buf, int size );
 
 			inline void tseek( int &offset )	{	pos += offset;	}
+			
+			inline bool teof()	{	return pos >= length;	}
+			
+			inline int tsize()	{	return length;	}
 		};
 
 		TA3D_FILE	*ta3d_fopen( String filename );
 		void		ta3d_fclose( TA3D_FILE *file );
 		char		ta3d_fgetc( TA3D_FILE *file );
-		void		ta3d_fread( void *buf, int size, TA3D_FILE *file );
-		void		ta3d_fread( void *buf, int size, int repeat, TA3D_FILE *file );
+		int			ta3d_fread( void *buf, int size, TA3D_FILE *file );
+		int			ta3d_fread( void *buf, int size, int repeat, TA3D_FILE *file );
 		char		*ta3d_fgets( void *buf, int size, TA3D_FILE *file );
 		void		ta3d_fseek( int offset, TA3D_FILE *file );
+		bool		ta3d_feof( TA3D_FILE *file );
+		int			ta3d_fsize( TA3D_FILE *file );
       } // namespace HPI
    } // namespace utils
 } // namespace TA3D

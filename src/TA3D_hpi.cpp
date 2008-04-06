@@ -915,16 +915,18 @@ char		TA3D::UTILS::HPI::ta3d_fgetc( TA3D_FILE *file )
 		return 0;
 }
 
-void		TA3D::UTILS::HPI::ta3d_fread( void *buf, int size, TA3D_FILE *file )
+int		TA3D::UTILS::HPI::ta3d_fread( void *buf, int size, TA3D_FILE *file )
 {
 	if( file )
-		file->tread( buf, size );
+		return file->tread( buf, size );
+	return 0;
 }
 
-void		TA3D::UTILS::HPI::ta3d_fread( void *buf, int size, int repeat, TA3D_FILE *file )
+int		TA3D::UTILS::HPI::ta3d_fread( void *buf, int size, int repeat, TA3D_FILE *file )
 {
 	if( file )
-		file->tread( buf, size * repeat );
+		return file->tread( buf, size * repeat );
+	return 0;
 }
 
 char		*TA3D::UTILS::HPI::ta3d_fgets( void *buf, int size, TA3D_FILE *file )
@@ -939,3 +941,14 @@ void		TA3D::UTILS::HPI::ta3d_fseek( int offset, TA3D_FILE *file )
 	if( file )
 		file->tseek( offset );
 }
+
+bool		TA3D::UTILS::HPI::ta3d_feof( TA3D_FILE *file )
+{
+	return file ? file->teof() : true;
+}
+
+int			TA3D::UTILS::HPI::ta3d_fsize( TA3D_FILE *file )
+{
+	return file ? file->tsize() : 0;
+}
+

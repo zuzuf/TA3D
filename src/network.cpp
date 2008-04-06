@@ -17,6 +17,9 @@
 
 #include "stdafx.h"
 #include "TA3D_NameSpace.h"
+#include "TA3D_hpi.h"
+
+using namespace TA3D::UTILS::HPI;
 
 
 /******************************/
@@ -287,13 +290,13 @@ void SendFileThread::proc(void* param){
 	Socket filesock;
 	Network* network;
 	int sockid;
-	FILE* file;
+	TA3D_FILE* file;
 	int length,n,i;
 	char buffer[256];
 	
 	network = ((struct net_thread_params*)param)->network;
 	sockid = ((struct net_thread_params*)param)->sockid;
-	file = ((struct net_thread_params*)param)->file;
+	file = (TA3D_FILE*)((struct net_thread_params*)param)->file;
 
 	delete ((struct net_thread_params*)param);
 
@@ -302,9 +305,7 @@ void SendFileThread::proc(void* param){
 		return;
 		}
 
-	fseek(file,0,SEEK_END);
-	length = ftell(file);
-	fseek(file,0,SEEK_SET);
+	length = ta3d_fsize(file);
 
 	network->slmutex.Lock();
 		destsock = network->players.getSock(sockid);
@@ -322,7 +323,7 @@ void SendFileThread::proc(void* param){
 	if (!filesock.isOpen()){
 		Console->AddEntry("SendFile: error unable to connect to target");
 		dead = 1;
-		fclose( file );
+		ta3d_fclose( file );
 		return;
 	}
 	
@@ -331,9 +332,9 @@ void SendFileThread::proc(void* param){
 	
 	printf("starting file transfer...\n");
 	while(!dead){
-		n = fread(buffer,1,256,file);
+		n = ta3d_fread(buffer,1,256,file);
 		filesock.Send(buffer,n);
-		if(feof(file)){
+		if(ta3d_feof(file)){
 			break;
 		}
 		sleep(1);
@@ -341,7 +342,7 @@ void SendFileThread::proc(void* param){
 	printf("file transfer finished...\n");
 
 	dead = 1;
-	fclose( file );
+	ta3d_fclose( file );
 	return;
 }
 

@@ -1390,7 +1390,7 @@ void setup_game(bool client, const char *host)
 				else if( params[0] == "REQUEST" ) {
 					if( params[1] == "FILE" ) {
 						String file_name = ReplaceChar( params[2], 1, ' ' );
-						TA3D_network.sendFile( from, TA3D_OpenFile( file_name, "rb" ) );
+						TA3D_network.sendFile( from, (FILE*)ta3d_fopen( file_name ) );
 						}
 					}
 				}
@@ -1670,7 +1670,7 @@ void setup_game(bool client, const char *host)
 				
 				if( client && !HPIManager->Exists( new_map ) ) {
 					TA3D_network.sendSpecial( format( "REQUEST FILE %s", ReplaceChar(new_map, ' ', 1 ).c_str() ) );
-					TA3D_network.getFile( 1, TA3D_OpenFile( new_map, "wb" ) );
+					TA3D_network.getFile( 1, TA3D_OpenFile( ReplaceChar( new_map, '\\', '/'), "wb" ) );
 					}
 				gfx->destroy_texture( glimg );
 
