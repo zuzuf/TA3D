@@ -82,6 +82,7 @@ class GetFileThread : public Thread{
 	virtual void proc(void* param);
 	public :
 		String	port;
+		int		port_nb;
 };
 
 class AdminThread : public Thread{

@@ -304,6 +304,8 @@ void SendFileThread::proc(void* param){
 
 	delete ((struct net_thread_params*)param);
 
+	printf("sending to port %s\n", port.c_str() );
+	
 	if( file == NULL ) {
 		dead = 1;
 		network->setFileDirty();
@@ -395,7 +397,9 @@ void SendFileThread::proc(void* param){
 		rest(1);
 	}
 	
-	rest(5000);			// Wait 5 sec to let last packets the time to reach the receiver
+	timer = msec_timer;
+	while( msec_timer - timer < 5000 && !dead )
+		rest(1);			// Wait 5 sec to let last packets the time to reach the receiver
 	
 	Console->AddEntry("file transfer finished...");
 
@@ -1094,13 +1098,14 @@ String Network::getFile(int player, const String &filename){
 
 	int port_nb = 7776;						// Take the next port not in use
 	for( List< GetFileThread* >::iterator i = getfile_thread.begin() ; i != getfile_thread.end() ; i++ )
-		port_nb = max( atoi( (*i)->port.c_str() ), port_nb ) ;
+		port_nb = max( (*i)->port_nb, port_nb ) ;
 	port_nb++;
 	
 	String port = format( "%d", port_nb );
 
 	GetFileThread *thread = new GetFileThread();
 	thread->port = port;
+	thread->port_nb = port_nb;
 	getfile_thread.push_back( thread );
 
 	net_thread_params *params = new net_thread_params;

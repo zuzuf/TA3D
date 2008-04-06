@@ -1513,7 +1513,8 @@ void setup_game(bool client, const char *host)
 				special_msg = "";
 			}
 
-		if( set_map.empty() && TA3D_network.isTransferFinished( previous_ota_port ) && TA3D_network.isTransferFinished( previous_tnt_port ) )
+		if( set_map.empty() && TA3D_network.isTransferFinished( previous_ota_port ) && TA3D_network.isTransferFinished( previous_tnt_port )
+			&& (!previous_tnt_port.empty() || !previous_ota_port.empty()) )
 			set_map = game_data.map_filename;
 
 //-------------------------------------------------------------- Network Code : chat system --------------------------------------------------------------
