@@ -1452,8 +1452,8 @@ void setup_game(bool client, const char *host)
 			else if( params.size() == 8 ) {
 				if( params[0] == "PLAYER_INFO" ) {							// We've received player information, let's update :)
 					int i = atoi( params[1].c_str() );
-					if( i >= 0 && i < 10 && (client || from == i ) ) {		// Server doesn't accept someone telling him what to do
-						int n_id = atoi( params[2].c_str() );
+					int n_id = atoi( params[2].c_str() );
+					if( i >= 0 && i < 10 && (client || from == n_id ) ) {		// Server doesn't accept someone telling him what to do
 						int side_id = atoi( params[3].c_str() );
 						int ai_level = atoi( params[4].c_str() );
 						int metal_q = atoi( params[5].c_str() );
@@ -1480,7 +1480,7 @@ void setup_game(bool client, const char *host)
 						GUIOBJ *guiobj =  setupgame_area.get_object( format("gamesetup.color%d", i) );
 						if( guiobj ) {
 							guiobj->Data = gfx->makeintcol(player_color[player_color_map[i]*3],player_color[player_color_map[i]*3+1],player_color[player_color_map[i]*3+2]);			// Update gui
-							if( player_control[i] == PLAYER_CONTROL_NONE || player_control[i] == PLAYER_CONTROL_CLOSED )
+							if( game_data.player_control[i] == PLAYER_CONTROL_NONE || game_data.player_control[i] == PLAYER_CONTROL_CLOSED )
 								guiobj->Flag |= FLAG_HIDDEN;
 							else
 								guiobj->Flag &= ~FLAG_HIDDEN;

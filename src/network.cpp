@@ -304,8 +304,6 @@ void SendFileThread::proc(void* param){
 
 	delete ((struct net_thread_params*)param);
 
-	printf("sending to port %s\n", port.c_str() );
-	
 	if( file == NULL ) {
 		dead = 1;
 		network->setFileDirty();
