@@ -284,7 +284,7 @@ void MultiCastThread::proc(void* param){
 	return;
 }
 
-#define FILE_TRANSFER_BUFFER_SIZE		1400
+#define FILE_TRANSFER_BUFFER_SIZE		204800
 
 //NEED TESTING
 void SendFileThread::proc(void* param){
