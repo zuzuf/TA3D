@@ -284,7 +284,7 @@ void MultiCastThread::proc(void* param){
 	return;
 }
 
-#define FILE_TRANSFER_BUFFER_SIZE		0x1000
+#define FILE_TRANSFER_BUFFER_SIZE		1400
 
 //NEED TESTING
 void SendFileThread::proc(void* param){
@@ -316,7 +316,7 @@ void SendFileThread::proc(void* param){
 		destsock = network->players.getSock(sockid);
 	network->slmutex.Unlock();
 	int timer = msec_timer;
-	while(msec_timer - timer < 10000){				// Try connecting during 10sec
+	while(msec_timer - timer < 10000 && !dead ){				// Try connecting during 10sec
 		rest(100);
 		String host = destsock->getAddress();
 		//put the standard file port here
@@ -351,7 +351,7 @@ void SendFileThread::proc(void* param){
 		
 		if( !filesock.isOpen() ) {							// Connection lost
 			timer = msec_timer;
-			while(msec_timer - timer < 30000){				// Try reconnecting during 30sec
+			while(msec_timer - timer < 30000 && !dead ){				// Try reconnecting during 30sec
 				rest(100);
 				String host = destsock->getAddress();
 				//put the standard file port here
@@ -437,7 +437,7 @@ void GetFileThread::proc(void* param){
 
 	int timer = msec_timer;
 
-	while( filesock_serv.Accept( filesock, 100 ) < 0 && msec_timer - timer < 10000 )	rest(1);		// Wait 10sec for incoming connection
+	while( filesock_serv.Accept( filesock, 100 ) < 0 && msec_timer - timer < 10000 && !dead )	rest(1);		// Wait 10sec for incoming connection
 
 	if(!filesock.isOpen()){
 		Console->AddEntry("GetFile: error couldn't connect to sender");
@@ -456,7 +456,7 @@ void GetFileThread::proc(void* param){
 		if( !filesock.isOpen() ) {				// Connection lost, try reconnecting
 			timer = msec_timer;
 
-			while( filesock_serv.Accept( filesock, 100 ) < 0 && msec_timer - timer < 30000 )	rest(1);		// Wait 30sec for incoming connection
+			while( filesock_serv.Accept( filesock, 100 ) < 0 && msec_timer - timer < 30000 && !dead )	rest(1);		// Wait 30sec for incoming connection
 
 			if(!filesock.isOpen()){
 				Console->AddEntry("GetFile: error connection lost");
@@ -486,7 +486,7 @@ void GetFileThread::proc(void* param){
 		if( !filesock.isOpen() ) {				// Connection lost, try reconnecting
 			timer = msec_timer;
 
-			while( filesock_serv.Accept( filesock, 100 ) < 0 && msec_timer - timer < 30000 )	rest(1);		// Wait 30sec for incoming connection
+			while( filesock_serv.Accept( filesock, 100 ) < 0 && msec_timer - timer < 30000 && !dead )	rest(1);		// Wait 30sec for incoming connection
 
 			if(!filesock.isOpen()){
 				Console->AddEntry("GetFile: error connection lost");
@@ -1127,7 +1127,7 @@ float Network::getFileTransferProgress()
 			}
 	
 	ftmutex.Unlock();
-	return size ? (float)pos / size : 100.0f;;
+	return size ? 100.0f * pos / size : 100.0f;;
 }
 
 void Network::updateFileTransferInformation( String id, int size, int pos )
