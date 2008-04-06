@@ -143,7 +143,12 @@ class SockList{
 };
 
 
-
+struct FileTransferProgress
+{
+	void	*id;			// Pointer to transfer thread
+	int		size;
+	int		pos;
+};
 
 /****
 **
@@ -169,6 +174,7 @@ class Network{
 
 	List< GetFileThread* > getfile_thread;
 	List< SendFileThread* > sendfile_thread;
+	List< FileTransferProgress > transfer_progress;
 
 	MulticastSock multicast_socket;	// Used to discover LAN servers
 	MultiCastThread multicast_thread;
@@ -201,11 +207,13 @@ class Network{
 
 	bool playerDirty;
 	bool fileDirty;
+	bool playerDropped;
 	
 	//0=dontcare 4=ipv4 6=ipv6
 	int num2af(int proto);
 	
 	int addPlayer(TA3DSock* sock);
+	void updateFileTransferInformation( void *id, int size, int pos );
 
 	//this stuff places specific events in the event queue
 	void eventFileComing(int player);
@@ -226,6 +234,8 @@ class Network{
 
 		void setPlayerDirty();
 		void setFileDirty();
+		bool getPlayerDropped();
+		bool pollPlayer(int id);
 
 		void InitMulticast( char* target, char* port);
 
@@ -253,6 +263,8 @@ class Network{
 		
 		bool isConnected();
 		int getMyID();
+		
+		float getFileTransferProgress();
 		
 		int broadcastMessage( const char *msg );
 		std::string getNextBroadcastedMessage();

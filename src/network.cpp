@@ -284,6 +284,8 @@ void MultiCastThread::proc(void* param){
 	return;
 }
 
+#define FILE_TRANSFER_BUFFER_SIZE		0x1000
+
 //NEED TESTING
 void SendFileThread::proc(void* param){
 	TA3DSock* destsock;
@@ -292,7 +294,7 @@ void SendFileThread::proc(void* param){
 	int sockid;
 	TA3D_FILE* file;
 	int length,n,i;
-	char buffer[256];
+	char buffer[ FILE_TRANSFER_BUFFER_SIZE ];
 	String filename;
 	
 	network = ((struct net_thread_params*)param)->network;
@@ -304,6 +306,7 @@ void SendFileThread::proc(void* param){
 
 	if( file == NULL ) {
 		dead = 1;
+		network->setFileDirty();
 		return;
 		}
 
@@ -313,10 +316,9 @@ void SendFileThread::proc(void* param){
 		destsock = network->players.getSock(sockid);
 	network->slmutex.Unlock();
 	int timer = msec_timer;
-	while(msec_timer - timer < 10000){
-		rest(1);
+	while(msec_timer - timer < 10000){				// Try connecting during 10sec
+		rest(100);
 		String host = destsock->getAddress();
-		printf("connecting to '%s'\n", host.c_str() );
 		//put the standard file port here
 		filesock.Open( (char*)host.c_str(),"7778",SOCK_STREAM);
 		if (filesock.isOpen())
@@ -328,25 +330,27 @@ void SendFileThread::proc(void* param){
 		dead = 1;
 		ta3d_fclose( file );
 		delete_file( filename.c_str() );
+		network->setFileDirty();
 		return;
 	}
 	
 	length = htonl( length );
 	filesock.Send(&length,4);
 	
-	printf("starting file transfer...\n");
+	Console->AddEntry("starting file transfer...");
 	while(!dead){
-		n = ta3d_fread(buffer,1,256,file);
+		n = ta3d_fread(buffer,1,FILE_TRANSFER_BUFFER_SIZE,file);
 		filesock.Send(buffer,n);
 		if(ta3d_feof(file)){
 			break;
 		}
 		sleep(1);
 	}
-	printf("file transfer finished...\n");
+	Console->AddEntry("file transfer finished...");
 
 	dead = 1;
 	ta3d_fclose( file );
+	network->setFileDirty();
 	return;
 }
 
@@ -363,7 +367,7 @@ void GetFileThread::proc(void* param){
 	FILE* file;
 	String filename;
 	int length,n,sofar;
-	char buffer[256];
+	char buffer[ FILE_TRANSFER_BUFFER_SIZE ];
 	
 	network = ((struct net_thread_params*)param)->network;
 
@@ -378,6 +382,7 @@ void GetFileThread::proc(void* param){
 
 	if( file == NULL ) {
 		dead = 1;
+		network->setFileDirty();
 		return;
 		}
 
@@ -393,20 +398,24 @@ void GetFileThread::proc(void* param){
 		dead = 1;
 		fclose( file );
 		delete_file( filename.c_str() );
+		network->setFileDirty();
 		return;
 	}
 
 	int timer = msec_timer;
 
-	while( filesock_serv.Accept( filesock, 100 ) < 0 && msec_timer - timer < 10000 )	rest(1);
+	while( filesock_serv.Accept( filesock, 100 ) < 0 && msec_timer - timer < 10000 )	rest(1);		// Wait 10sec for incoming connection
 
 	if(!filesock.isOpen()){
 		Console->AddEntry("GetFile: error couldn't connect to sender");
 		dead = 1;
 		fclose( file );
 		delete_file( filename.c_str() );
+		network->setFileDirty();
 		return;
 	}
+
+	Console->AddEntry("starting file transfer...");
 	
 	n=0;
 	while(!dead && n<4){
@@ -415,9 +424,10 @@ void GetFileThread::proc(void* param){
 	memcpy(&length,buffer,4);
 	length = ntohl(length);
 
-	sofar = 0;	
+	sofar = 0;
+	if( dead ) length = 1;			// In order to delete the file
 	while(!dead){
-		n = filesock.Recv(buffer,256);
+		n = filesock.Recv(buffer, FILE_TRANSFER_BUFFER_SIZE );
 		if( n > 0 ) {
 			fwrite(buffer,1,n,file);
 			sofar += n;
@@ -428,8 +438,14 @@ void GetFileThread::proc(void* param){
 		sleep(1);
 	}
 
-	dead = 1;
+	Console->AddEntry("file transfer finished...");
+
 	fclose( file );
+	if( dead && sofar < length )				// Delete the file if transfer has been aborted
+		delete_file( filename.c_str() );
+
+	dead = 1;
+	network->setFileDirty();
 	return;
 }
 	
@@ -468,6 +484,7 @@ void AdminThread::proc(void* param){
 /******************************/
 
 Network::Network() : 
+transfer_progress(),
 getfile_thread(),
 sendfile_thread(),
 multicastq(),
@@ -500,6 +517,7 @@ Network::~Network(){
 		}
 	getfile_thread.clear();
 	sendfile_thread.clear();
+	transfer_progress.clear();
 
 //	tohost_socket.Close();//administrative channel, shutdown in players.Shutdown()
 	listen_socket.Close();
@@ -516,7 +534,7 @@ void Network::InitMulticast( char* target, char* port )
 		//spawn broadcast thread
 	net_thread_params *params = new net_thread_params;
 	params->network = this;
-	Console->AddEntry("Network: spawning multicast thread\n");
+	Console->AddEntry("Network: spawning multicast thread");
 	multicast_thread.Spawn(params);
 }
 
@@ -546,7 +564,7 @@ int Network::HostGame(char* name,char* port,int network,int proto){
 	strcpy(gamename,name);
 	listen_socket.Open(NULL,port,P);
 	if(!listen_socket.isOpen()){
-		Console->AddEntry("Network: failed to host game on port %s\n",port);
+		Console->AddEntry("Network: failed to host game on port %s",port);
 		myMode = 0;
 		return -1;
 	}
@@ -556,7 +574,7 @@ int Network::HostGame(char* name,char* port,int network,int proto){
 		Socket sock("gamelist.ta3d.net","7778");
 		char buff[256];
 		if(!sock.isOpen()){
-			Console->AddEntry("Network: advertising game failed\n");
+			Console->AddEntry("Network: advertising game failed");
 			sock.Close();
 		}
 		else{
@@ -570,23 +588,23 @@ int Network::HostGame(char* name,char* port,int network,int proto){
 			Console->AddEntry("NI_MAXSERV = %d\n",NI_MAXSERV);
 			sock.SendString(buff);
 			sock.Close();
-			Console->AddEntry("Network: game advertised on the internet\n");
+			Console->AddEntry("Network: game advertised on the internet");
 		}
 	}
 	
 	//spawn listening thread
 	net_thread_params *params = new net_thread_params;
 	params->network = this;
-	Console->AddEntry("Network: spawning listen thread\n");
+	Console->AddEntry("Network: spawning listen thread");
 	listen_thread.Spawn(params);
 	
 	//spawn listening thread
 	params = new net_thread_params;
 	params->network = this;
-	Console->AddEntry("Network: spawning admin thread\n");
+	Console->AddEntry("Network: spawning admin thread");
 	admin_thread.Spawn(params);
 	
-	Console->AddEntry("Network: network game running\n");
+	Console->AddEntry("Network: network game running");
 
 	return 0;
 
@@ -601,7 +619,7 @@ int Network::Connect(char* target,char* port,int proto){
 		myMode = 2;
 	}
 	else{
-		Console->AddEntry("Connect: you can't connect to a game, you are already hosting one!\n");
+		Console->AddEntry("Connect: you can't connect to a game, you are already hosting one!");
 		return -1;
 	}
 
@@ -609,11 +627,10 @@ int Network::Connect(char* target,char* port,int proto){
 
 	tohost_socket = new TA3DSock();
 
-//	tohost_socket->Open(target,port,SOCK_STREAM,P);
 	tohost_socket->Open(target,port,P);
 	if(!tohost_socket->isOpen()){
 		//error couldnt connect to game
-		Console->AddEntry("Network: error connecting to game at [%s]:%s\n",target,port);
+		Console->AddEntry("Network: error connecting to game at [%s]:%s",target,port);
 		myMode = 0;
 		return -1;
 	}
@@ -621,12 +638,12 @@ int Network::Connect(char* target,char* port,int proto){
 	addPlayer( tohost_socket );
 
 	//get game info or start admin thread here
-	Console->AddEntry("Network: spawning admin thread\n");
+	Console->AddEntry("Network: spawning admin thread");
 	net_thread_params *params = new net_thread_params;
 	params->network = this;
 	admin_thread.Spawn(params);
 
-	Console->AddEntry("Network: successfully connected to game at [%s]:%s\n",target,port);
+	Console->AddEntry("Network: successfully connected to game at [%s]:%s",target,port);
 
 	return 0;
 }
@@ -640,11 +657,12 @@ void Network::Disconnect(){
 	listen_thread.Join();
 	listen_socket.Close();
 
-//	tohost_socket.Close();
 	tohost_socket = NULL;
 
 	multicast_thread.Join();
 	multicast_socket.Close();
+
+	ftmutex.Lock();
 
 	for( List< GetFileThread* >::iterator i = getfile_thread.begin() ; i != getfile_thread.end() ; i++ ) {
 		(*i)->Join();
@@ -656,6 +674,9 @@ void Network::Disconnect(){
 		}
 	getfile_thread.clear();
 	sendfile_thread.clear();
+	transfer_progress.clear();
+
+	ftmutex.Unlock();
 
 	slmutex.Lock();
 		players.Shutdown();
@@ -678,14 +699,14 @@ int Network::addPlayer(TA3DSock* sock){
 	thread = players.getThread(n);
 
 	if(thread==NULL){
-		Console->AddEntry("thread not found???\n");
+		Console->AddEntry("thread not found???");
 		return -1;
 	}
 
 	net_thread_params *params = new net_thread_params;
 	params->network = this;
 	params->sockid = n;
-	Console->AddEntry("spawning socket thread\n");
+	Console->AddEntry("spawning socket thread");
 	thread->Spawn(params);
 
 	//send a new player event
@@ -704,6 +725,7 @@ int Network::dropPlayer(int num){
 
 	slmutex.Lock();
 		v = players.Remove(num);
+		playerDropped = true;
 	slmutex.Unlock();
 
 	return v;
@@ -748,6 +770,12 @@ void Network::cleanFileThread()
 	ftmutex.Lock();
 	for( List< GetFileThread* >::iterator i = getfile_thread.begin() ; i != getfile_thread.end() ; ) {
 		if( (*i)->isDead() ) {
+			for( List< FileTransferProgress >::iterator e = transfer_progress.begin() ; e != transfer_progress.end() ; )
+				if( e->id == (void*)(*i) )
+					transfer_progress.erase( e++ );
+				else
+					e++;
+
 			(*i)->Join();
 			delete *i;
 			getfile_thread.erase( i++ );
@@ -757,6 +785,12 @@ void Network::cleanFileThread()
 		}
 	for( List< SendFileThread* >::iterator i = sendfile_thread.begin() ; i != sendfile_thread.end() ; ) {
 		if( (*i)->isDead() ) {
+			for( List< FileTransferProgress >::iterator e = transfer_progress.begin() ; e != transfer_progress.end() ; )
+				if( e->id == (void*)(*i) )
+					transfer_progress.erase( e++ );
+				else
+					e++;
+
 			(*i)->Join();
 			delete *i;
 			sendfile_thread.erase( i++ );
@@ -866,7 +900,7 @@ int Network::sendFile(int player, const String &filename){
 	params->network = this;
 	params->sockid = player;
 	params->filename = filename;
-	Console->AddEntry("spawning sendFile thread\n");
+	Console->AddEntry("spawning sendFile thread");
 	thread->Spawn(params);
 
 	ftmutex.Unlock();
@@ -923,7 +957,7 @@ int Network::getFile(int player, const String &filename){
 	params->network = this;
 	params->sockid = player;
 	params->filename = filename;
-	Console->AddEntry("spawning getFile thread\n");
+	Console->AddEntry("spawning getFile thread");
 	thread->Spawn(params);
 
 	ftmutex.Unlock();
@@ -987,6 +1021,68 @@ bool Network::BroadcastedMessages()
 bool Network::isConnected()
 {
 	return myMode == 1 || ( myMode == 2 && tohost_socket != NULL && tohost_socket->isOpen() );
+}
+
+bool Network::getPlayerDropped()
+{
+	slmutex.Lock();
+
+	bool result = playerDropped;
+	playerDropped = false;
+
+	slmutex.Unlock();
+
+	return result;
+}
+
+bool Network::pollPlayer(int id)
+{
+	slmutex.Lock();
+	
+	bool result = (players.getSock( id ) != NULL);
+
+	slmutex.Unlock();
+	
+	return result;
+}
+
+float Network::getFileTransferProgress()
+{
+	ftmutex.Lock();
+		if( transfer_progress.empty() ) {
+			ftmutex.Unlock();
+			return 100.0f;
+			}
+
+		int pos = 0;
+		int size = 0;
+		for( List< FileTransferProgress >::iterator i = transfer_progress.begin() ; i != transfer_progress.end() ; i++ ) {
+			pos += i->pos;
+			size += i->size;
+			}
+	
+	ftmutex.Unlock();
+	return size ? (float)pos / size : 100.0f;;
+}
+
+void Network::updateFileTransferInformation( void *id, int size, int pos )
+{
+	ftmutex.Lock();
+	for( List< FileTransferProgress >::iterator i = transfer_progress.begin() ; i != transfer_progress.end() ; i++ )
+		if( i->id == id ) {
+			i->size = size;
+			i->pos = pos;
+			ftmutex.Unlock();
+			return;
+			}
+	
+	FileTransferProgress info;
+	info.id = id;
+	info.size = size;
+	info.pos = pos;
+	transfer_progress.push_back( info );
+
+	ftmutex.Lock();
 }
 
 std::string ip2str( uint32 ip ) {

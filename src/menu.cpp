@@ -1263,7 +1263,9 @@ void setup_game(bool client, const char *host)
 		String special_msg = "";
 		struct chat received_chat_msg;
 		struct chat received_special_msg;
+		bool playerDropped = false;
 		do {
+			playerDropped = TA3D_network.getPlayerDropped();
 			multicast_msg = TA3D_network.getNextBroadcastedMessage();
 			if( TA3D_network.getNextChat( &received_chat_msg ) == 0 )
 				chat_msg = received_chat_msg.message;
@@ -1277,9 +1279,31 @@ void setup_game(bool client, const char *host)
 			setupgame_area.check();
 			rest( 1 );
 		} while( amx == mouse_x && amy == mouse_y && amz == mouse_z && amb == mouse_b && mouse_b == 0 && !key[ KEY_ENTER ] && !key[ KEY_ESC ] && !done
-			&& !key_is_pressed && !setupgame_area.scrolling && multicast_msg.empty() && chat_msg.empty() && special_msg.empty() );
+			&& !key_is_pressed && !setupgame_area.scrolling && multicast_msg.empty() && chat_msg.empty() && special_msg.empty() && !playerDropped );
 
 //-------------------------------------------------------------- Network Code : syncing information --------------------------------------------------------------
+
+		if( playerDropped ) {
+			for( int i = 0 ; i < 10 ; i++ )
+				if( game_data.player_network_id[i] > 0 && !TA3D_network.pollPlayer( game_data.player_network_id[i] ) ) {	// Remove player i
+					game_data.player_names[i] = player_str[2];
+					game_data.player_sides[i] = side_str[0];
+					game_data.player_control[i] = player_control[2];
+					game_data.ai_level[i] = AI_TYPE_EASY;
+					game_data.player_network_id[i] = -1;
+
+					setupgame_area.set_caption( format( "gamesetup.name%d", i ),game_data.player_names[i]);									// Update gui
+					setupgame_area.set_caption( format( "gamesetup.ai%d", i ), (game_data.player_control[i] & PLAYER_CONTROL_FLAG_AI) ? ai_level_str[game_data.ai_level[i]] : String("") );
+					setupgame_area.set_caption( format("gamesetup.side%d", i) , side_str[0] );							// Update gui
+
+					GUIOBJ *guiobj =  setupgame_area.get_object( format("gamesetup.color%d", i) );
+					if( guiobj )
+						guiobj->Flag |= FLAG_HIDDEN;
+					guiobj =  setupgame_area.get_object( format("gamesetup.ai%d", i) );
+					if( guiobj )
+						guiobj->Flag |= FLAG_HIDDEN;
+					}
+			}
 
 		while( !special_msg.empty() ) {													// Special receiver (sync config data)
 			int from = received_special_msg.from;
