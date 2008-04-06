@@ -1147,7 +1147,7 @@ void Network::updateFileTransferInformation( String id, int size, int pos )
 	info.pos = pos;
 	transfer_progress.push_back( info );
 
-	ftmutex.Lock();
+	ftmutex.Unlock();
 }
 
 std::string ip2str( uint32 ip ) {
