@@ -252,6 +252,8 @@ namespace TA3D
 
 	Vector< String > ReadVectorString( String base_str, const String &separator = "," );			// Reads something like string1, string2, string3, string4, ..., string n to make a vector of string{i}
 
+	void create_path( const String &path );
+
 	char *replace_chars(char *str);
 	void *GetMem( sint32 size, sint32 zero );
 	bool TA3D_exists( const String &filename );			// just a wrapper for allegro's exists function which only use C strings

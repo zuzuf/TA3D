@@ -349,6 +349,17 @@ namespace TA3D
 				return i;
 		return -1;
 	}
+	
+	static inline String get_path( const String &str )
+	{
+		String path = str;
+		for( int i = path.size() - 1 ; i >= 0 ; i-- )
+			if( path[i] == '/' || path[i] == '\\' ) {
+				path.resize( i );
+				break;
+				}
+		return path;
+	}
 } 
 
 // zuzuf: to prevent some warnings

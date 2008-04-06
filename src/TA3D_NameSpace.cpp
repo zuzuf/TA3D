@@ -77,9 +77,23 @@ namespace TA3D
 		return result;
 	}
 
+	void create_path( const String &path )
+	{
+		if( !file_exists( path.c_str(), FA_DIREC, NULL ) ) {
+			create_path( get_path( path ) );
+#if defined TA3D_PLATFORM_WINDOWS
+			mkdir( path.c_str() );
+#else
+			mkdir( path.c_str(), 0xFFF );
+#endif
+			}
+	}
+
 	FILE *TA3D_OpenFile( const String &FileName, const String Mode )
 	{
 		FILE *file;
+
+		create_path( get_path( FileName ) );		// Create tree structure if it doesn't exist
 
 #if defined TA3D_PLATFORM_MSVC
 		errno_t err;
