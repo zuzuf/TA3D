@@ -238,7 +238,7 @@ class Network{
 		int sendOrder(struct order* order, int src_id = -1);
 		int sendSync(struct sync* sync, int src_id = -1);
 		int sendEvent(struct event* event, int src_id = -1);
-		int sendFile(int player,FILE* file);
+		int sendFile(int player, const String &filename);
 
 		int dropPlayer(int num);
 		int cleanPlayer();
@@ -249,7 +249,7 @@ class Network{
 		int getNextOrder(struct order* order);
 		int getNextSync(struct sync* sync);
 		int getNextEvent(struct event* event);
-		int getFile(int player,FILE* file);
+		int getFile(int player, const String &filename);
 		
 		bool isConnected();
 		int getMyID();
@@ -265,7 +265,7 @@ class Network{
 struct net_thread_params{
 	Network* network;
 	int sockid;
-	FILE* file;
+	String filename;
 };
 
 std::string ip2str( uint32 ip );

@@ -1390,7 +1390,7 @@ void setup_game(bool client, const char *host)
 				else if( params[0] == "REQUEST" ) {
 					if( params[1] == "FILE" ) {
 						String file_name = ReplaceChar( params[2], 1, ' ' );
-						TA3D_network.sendFile( from, (FILE*)ta3d_fopen( file_name ) );
+						TA3D_network.sendFile( from, file_name );
 						}
 					}
 				}
@@ -1668,10 +1668,8 @@ void setup_game(bool client, const char *host)
 			if(new_map) {
 				if( host && !client )	TA3D_network.sendSpecial( format( "SET MAP %s", ReplaceChar( new_map, ' ', 1 ).c_str() ) );
 				
-				if( client && !HPIManager->Exists( new_map ) ) {
-					TA3D_network.sendSpecial( format( "REQUEST FILE %s", ReplaceChar(new_map, ' ', 1 ).c_str() ) );
-					TA3D_network.getFile( 1, TA3D_OpenFile( ReplaceChar( new_map, '\\', '/'), "wb" ) );
-					}
+				String new_map_name = new_map;
+				
 				gfx->destroy_texture( glimg );
 
 				if(game_data.map_filename)	free(game_data.map_filename);
@@ -1696,6 +1694,11 @@ void setup_game(bool client, const char *host)
 				if(map_data.missiondescription)
 					map_info += map_data.missiondescription;
 				setupgame_area.set_caption("gamesetup.map_info", map_info );
+
+				if( client && !HPIManager->Exists( new_map_name.c_str() ) ) {
+					TA3D_network.sendSpecial( format( "REQUEST FILE %s", ReplaceChar(new_map_name, ' ', 1 ).c_str() ) );
+					TA3D_network.getFile( 1, ReplaceChar( new_map_name, '\\', '/') );
+					}
 				}
 
 			minimap_obj->Data = glimg;		// Synchronize the picture on GUI

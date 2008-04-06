@@ -293,10 +293,12 @@ void SendFileThread::proc(void* param){
 	TA3D_FILE* file;
 	int length,n,i;
 	char buffer[256];
+	String filename;
 	
 	network = ((struct net_thread_params*)param)->network;
 	sockid = ((struct net_thread_params*)param)->sockid;
-	file = (TA3D_FILE*)((struct net_thread_params*)param)->file;
+	filename = ((struct net_thread_params*)param)->filename;
+	file = ta3d_fopen( filename );
 
 	delete ((struct net_thread_params*)param);
 
@@ -324,6 +326,7 @@ void SendFileThread::proc(void* param){
 		Console->AddEntry("SendFile: error unable to connect to target");
 		dead = 1;
 		ta3d_fclose( file );
+		delete_file( filename.c_str() );
 		return;
 	}
 	
@@ -357,6 +360,7 @@ void GetFileThread::proc(void* param){
 	Network* network;
 	int sockid;
 	FILE* file;
+	String filename;
 	int length,n,sofar;
 	char buffer[256];
 	
@@ -366,7 +370,8 @@ void GetFileThread::proc(void* param){
 	sockid = ((struct net_thread_params*)param)->sockid;
 
 	//blank file open for writing
-	file = ((struct net_thread_params*)param)->file;
+	filename = ((struct net_thread_params*)param)->filename;
+	file = TA3D_OpenFile( filename, "wb" );
 	
 	if( file == NULL ) {
 		dead = 1;
@@ -386,6 +391,7 @@ void GetFileThread::proc(void* param){
 		Console->AddEntry("GetFile: error couldn't open socket");
 		dead = 1;
 		fclose( file );
+		delete_file( filename.c_str() );
 		return;
 	}
 
@@ -397,6 +403,7 @@ void GetFileThread::proc(void* param){
 		Console->AddEntry("GetFile: error couldn't connect to sender");
 		dead = 1;
 		fclose( file );
+		delete_file( filename.c_str() );
 		return;
 	}
 	
@@ -849,7 +856,7 @@ int Network::sendEvent(struct event* event, int src_id){
 	return 0;
 }
 
-int Network::sendFile(int player,FILE* file){
+int Network::sendFile(int player, const String &filename){
 	ftmutex.Lock();
 	SendFileThread *thread = new SendFileThread();
 	sendfile_thread.push_back( thread );
@@ -857,7 +864,7 @@ int Network::sendFile(int player,FILE* file){
 	net_thread_params *params = new net_thread_params;
 	params->network = this;
 	params->sockid = player;
-	params->file = file;
+	params->filename = filename;
 	Console->AddEntry("spawning sendFile thread\n");
 	thread->Spawn(params);
 
@@ -906,7 +913,7 @@ int Network::getNextEvent(struct event* event){
 	return v;
 }
 
-int Network::getFile(int player,FILE* file){
+int Network::getFile(int player, const String &filename){
 	ftmutex.Lock();
 	GetFileThread *thread = new GetFileThread();
 	getfile_thread.push_back( thread );
@@ -914,7 +921,7 @@ int Network::getFile(int player,FILE* file){
 	net_thread_params *params = new net_thread_params;
 	params->network = this;
 	params->sockid = player;
-	params->file = file;
+	params->filename = filename;
 	Console->AddEntry("spawning getFile thread\n");
 	thread->Spawn(params);
 
