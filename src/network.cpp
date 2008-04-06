@@ -430,7 +430,7 @@ void GetFileThread::proc(void* param){
 
 	//blank file open for writing
 	filename = ((struct net_thread_params*)param)->filename;
-	file = TA3D_OpenFile( filename, "wb" );
+	file = TA3D_OpenFile( filename + ".part", "wb" );
 	
 	delete ((struct net_thread_params*)param);
 
@@ -451,7 +451,7 @@ void GetFileThread::proc(void* param){
 		Console->AddEntry("GetFile: error couldn't open socket");
 		dead = 1;
 		fclose( file );
-		delete_file( filename.c_str() );
+		delete_file( (filename + ".part").c_str() );
 		network->setFileDirty();
 		return;
 	}
@@ -464,7 +464,7 @@ void GetFileThread::proc(void* param){
 		Console->AddEntry("GetFile: error couldn't connect to sender");
 		dead = 1;
 		fclose( file );
-		delete_file( filename.c_str() );
+		delete_file( (filename + ".part").c_str() );
 		network->setFileDirty();
 		return;
 	}
@@ -483,7 +483,7 @@ void GetFileThread::proc(void* param){
 				Console->AddEntry("GetFile: error connection lost");
 				dead = 1;
 				fclose( file );
-				delete_file( filename.c_str() );
+				delete_file( (filename + ".part").c_str() );
 				network->setFileDirty();
 				return;
 				}
@@ -518,7 +518,7 @@ void GetFileThread::proc(void* param){
 				Console->AddEntry("GetFile: error connection lost");
 				dead = 1;
 				fclose( file );
-				delete_file( filename.c_str() );
+				delete_file( (filename + ".part").c_str() );
 				network->updateFileTransferInformation( filename + format("%d", sockid), 0, 0 );
 				network->setFileDirty();
 				return;
@@ -533,7 +533,9 @@ void GetFileThread::proc(void* param){
 
 	fclose( file );
 	if( dead && sofar < length )				// Delete the file if transfer has been aborted
-		delete_file( filename.c_str() );
+		delete_file( (filename + ".part").c_str() );
+	else
+		rename( (filename + ".part").c_str(), filename.c_str() );
 
 	dead = 1;
 	network->setFileDirty();
