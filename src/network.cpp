@@ -341,6 +341,30 @@ void SendFileThread::proc(void* param){
 	while(!dead){
 		n = ta3d_fread(buffer,1,FILE_TRANSFER_BUFFER_SIZE,file);
 		filesock.Send(buffer,n);
+		
+		if( !filesock.isOpen() ) {							// Connection lost
+			timer = msec_timer;
+			while(msec_timer - timer < 30000){				// Try reconnecting during 30sec
+				rest(100);
+				String host = destsock->getAddress();
+				//put the standard file port here
+				filesock.Open( (char*)host.c_str(),"7778",SOCK_STREAM);
+				if (filesock.isOpen())
+					break;
+			}
+	
+			if (!filesock.isOpen()){
+				Console->AddEntry("SendFile: connection lost!!");
+				dead = 1;
+				ta3d_fclose( file );
+				delete_file( filename.c_str() );
+				network->setFileDirty();
+				return;
+				}
+			else
+				filesock.Send(buffer,n);		// Resend data;
+			}
+
 		if(ta3d_feof(file)){
 			break;
 		}
@@ -420,6 +444,21 @@ void GetFileThread::proc(void* param){
 	n=0;
 	while(!dead && n<4){
 		n += filesock.Recv(buffer+n,4);
+		if( !filesock.isOpen() ) {				// Connection lost, try reconnecting
+			timer = msec_timer;
+
+			while( filesock_serv.Accept( filesock, 100 ) < 0 && msec_timer - timer < 30000 )	rest(1);		// Wait 30sec for incoming connection
+
+			if(!filesock.isOpen()){
+				Console->AddEntry("GetFile: error connection lost");
+				dead = 1;
+				fclose( file );
+				delete_file( filename.c_str() );
+				network->setFileDirty();
+				return;
+				}
+			n = 0;
+			}
 	}
 	memcpy(&length,buffer,4);
 	length = ntohl(length);
@@ -434,6 +473,20 @@ void GetFileThread::proc(void* param){
 			}
 		if(sofar >= length){
 			break;
+		if( !filesock.isOpen() ) {				// Connection lost, try reconnecting
+			timer = msec_timer;
+
+			while( filesock_serv.Accept( filesock, 100 ) < 0 && msec_timer - timer < 30000 )	rest(1);		// Wait 30sec for incoming connection
+
+			if(!filesock.isOpen()){
+				Console->AddEntry("GetFile: error connection lost");
+				dead = 1;
+				fclose( file );
+				delete_file( filename.c_str() );
+				network->setFileDirty();
+				return;
+				}
+			}
 		}
 		sleep(1);
 	}
