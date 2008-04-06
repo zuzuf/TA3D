@@ -797,17 +797,29 @@ void Network::stopFileTransfer( const String &port )
 	else {
 		for( List< GetFileThread* >::iterator i = getfile_thread.begin() ; i != getfile_thread.end() ; )
 			if( (*i)->port == port ) {
-				(*i)->Join();
-				delete *i;
+				GetFileThread *p = *i;
 				getfile_thread.erase( i++ );
+
+				ftmutex.Unlock();
+				p->Join();
+				delete p;
+				ftmutex.Lock();
+
+				break;
 				}
 			else
 				i++;
 		for( List< SendFileThread* >::iterator i = sendfile_thread.begin() ; i != sendfile_thread.end() ; )
 			if( (*i)->port == port ) {
-				(*i)->Join();
-				delete *i;
+				SendFileThread *p = *i;
 				sendfile_thread.erase( i++ );
+
+				ftmutex.Unlock();
+				p->Join();
+				delete p;
+				ftmutex.Lock();
+				
+				break;
 				}
 			else
 				i++;
