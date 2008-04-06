@@ -80,7 +80,9 @@ namespace TA3D
 	void create_path( const String &path )
 	{
 		if( !file_exists( path.c_str(), FA_DIREC, NULL ) ) {
-			create_path( get_path( path ) );
+			String parent = get_path( path );
+			if( !parent.empty() )
+				create_path( parent );
 #if defined TA3D_PLATFORM_WINDOWS
 			mkdir( path.c_str() );
 #else
