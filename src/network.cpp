@@ -502,7 +502,7 @@ void GetFileThread::proc(void* param){
 			fwrite(buffer,1,n,file);
 
 			int pos = htonl( sofar );
-			filesock.Send(&pos,n);
+			filesock.Send(&pos,4);
 			}
 		if(sofar >= length)
 			break;
