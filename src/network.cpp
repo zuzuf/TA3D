@@ -309,7 +309,10 @@ void SendFileThread::proc(void* param){
 	network->slmutex.Lock();
 		destsock = network->players.getSock(sockid);
 	network->slmutex.Unlock();
-	for(i = 0;i<10;i++){
+	int timer = msec_timer;
+	while(msec_timer - timer < 10000){
+		rest(1);
+		printf("connecting to '%s'\n", destsock->getAddress());
 		//put the standard file port here
 		filesock.Open(destsock->getAddress(),"7778",SOCK_STREAM);
 		if (filesock.isOpen())
