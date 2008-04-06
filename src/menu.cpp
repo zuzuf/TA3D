@@ -1432,7 +1432,8 @@ void setup_game(bool client, const char *host)
 							game_data.game_script = strdup( script_name.c_str() );
 
 							if( client && !HPIManager->Exists( script_name.c_str() ) ) {
-								TA3D_network.stopFileTransfer( previous_lua_port );
+								if( !previous_lua_port.empty() )
+									TA3D_network.stopFileTransfer( previous_lua_port );
 								previous_lua_port = TA3D_network.getFile( 1, ReplaceChar( script_name, '\\', '/') );
 								TA3D_network.sendSpecial( format( "REQUEST FILE %s %s", ReplaceChar(script_name, ' ', 1 ).c_str(), previous_lua_port.c_str() ) );
 								}
@@ -1754,7 +1755,8 @@ void setup_game(bool client, const char *host)
 				setupgame_area.set_caption("gamesetup.map_info", map_info );
 
 				if( client && !HPIManager->Exists( new_map_name.c_str() ) ) {
-					TA3D_network.stopFileTransfer( previous_tnt_port );
+					if( !previous_tnt_port.empty() )
+						TA3D_network.stopFileTransfer( previous_tnt_port );
 
 					previous_tnt_port = TA3D_network.getFile( 1, ReplaceChar( new_map_name, '\\', '/') );
 					TA3D_network.sendSpecial( format( "REQUEST FILE %s %s", ReplaceChar(new_map_name, ' ', 1 ).c_str(), previous_tnt_port.c_str() ) );
@@ -1763,7 +1765,8 @@ void setup_game(bool client, const char *host)
 				new_map_name = new_map_name.substr( 0, new_map_name.size() - 3 ) + "ota";
 
 				if( client && !HPIManager->Exists( new_map_name.c_str() ) ) {
-					TA3D_network.stopFileTransfer( previous_ota_port );
+					if( !previous_ota_port.empty() )
+						TA3D_network.stopFileTransfer( previous_ota_port );
 					previous_ota_port = TA3D_network.getFile( 1, ReplaceChar( new_map_name, '\\', '/') );
 					TA3D_network.sendSpecial( format( "REQUEST FILE %s %s", ReplaceChar(new_map_name, ' ', 1 ).c_str(), previous_ota_port.c_str() ) );
 					}
