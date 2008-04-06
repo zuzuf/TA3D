@@ -1488,7 +1488,8 @@ void setup_game(bool client, const char *host)
 							}
 						guiobj =  setupgame_area.get_object( format("gamesetup.ai%d", i) );
 						if( guiobj ) {
-							if( !(game_data.player_control[i] & PLAYER_CONTROL_FLAG_AI) )
+							if( !(game_data.player_control[i] & PLAYER_CONTROL_FLAG_AI)
+								|| game_data.player_control[i] == PLAYER_CONTROL_NONE || game_data.player_control[i] == PLAYER_CONTROL_CLOSED )
 								guiobj->Flag |= FLAG_HIDDEN;
 							else
 								guiobj->Flag &= ~FLAG_HIDDEN;
