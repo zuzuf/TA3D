@@ -473,7 +473,7 @@ void GetFileThread::proc(void* param){
 	
 	n=0;
 	while(!dead && n<4){
-		n += filesock.Recv(buffer+n,4);
+		int p = filesock.Recv(buffer+n,4);
 		if( !filesock.isOpen() ) {				// Connection lost, try reconnecting
 			timer = msec_timer;
 
@@ -487,8 +487,9 @@ void GetFileThread::proc(void* param){
 				network->setFileDirty();
 				return;
 				}
-			n = 0;
+			p = 0;
 			}
+		n += p;
 	}
 	memcpy(&length,buffer,4);
 	length = ntohl(length);
