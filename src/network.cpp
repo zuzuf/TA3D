@@ -777,7 +777,7 @@ void Network::Disconnect(){
 
 }
 
-void Network::stopFileTransfer( const String &port )
+void Network::stopFileTransfer( const String &port, int to_id )
 {
 	ftmutex.Lock();
 
@@ -810,7 +810,7 @@ void Network::stopFileTransfer( const String &port )
 			else
 				i++;
 		for( List< SendFileThread* >::iterator i = sendfile_thread.begin() ; i != sendfile_thread.end() ; )
-			if( (*i)->port == port ) {
+			if( (*i)->port == port && (to_id == -1 || to_id == (*i)->player_id ) ) {
 				SendFileThread *p = *i;
 				sendfile_thread.erase( i++ );
 
@@ -1051,6 +1051,7 @@ int Network::sendFile(int player, const String &filename, const String &port){
 	SendFileThread *thread = new SendFileThread();
 	sendfile_thread.push_back( thread );
 	thread->port = port;
+	thread->player_id = player;
 
 	net_thread_params *params = new net_thread_params;
 	params->network = this;

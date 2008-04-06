@@ -75,6 +75,7 @@ class SendFileThread : public Thread{
 	virtual void proc(void* param);
 	public :
 		String	port;
+		int		player_id;
 };
 
 //gets a large file in the background and writes to disk
@@ -266,7 +267,7 @@ class Network{
 		int getNextEvent(struct event* event);
 		String getFile(int player, const String &filename);
 		
-		void stopFileTransfer( const String &port = "");
+		void stopFileTransfer( const String &port = "", int to_id = -1);
 		bool isTransferFinished( const String &port );
 		
 		bool isConnected();
