@@ -337,10 +337,17 @@ void SendFileThread::proc(void* param){
 	length = htonl( length );
 	filesock.Send(&length,4);
 	
+	int pos = 0;
+	
 	Console->AddEntry("starting file transfer...");
 	while(!dead){
 		n = ta3d_fread(buffer,1,FILE_TRANSFER_BUFFER_SIZE,file);
 		filesock.Send(buffer,n);
+
+		if( n > 0 ) {
+			pos += n;
+			network->updateFileTransferInformation( filename + format("%d", sockid), length, pos );
+			}
 		
 		if( !filesock.isOpen() ) {							// Connection lost
 			timer = msec_timer;
@@ -359,6 +366,7 @@ void SendFileThread::proc(void* param){
 				ta3d_fclose( file );
 				delete_file( filename.c_str() );
 				network->setFileDirty();
+				network->updateFileTransferInformation( filename + format("%d", sockid), 0, 0 );
 				return;
 				}
 			else
@@ -372,6 +380,7 @@ void SendFileThread::proc(void* param){
 	}
 	Console->AddEntry("file transfer finished...");
 
+	network->updateFileTransferInformation( filename + format("%d", sockid), 0, 0 );
 	dead = 1;
 	ta3d_fclose( file );
 	network->setFileDirty();
@@ -471,7 +480,8 @@ void GetFileThread::proc(void* param){
 			fwrite(buffer,1,n,file);
 			sofar += n;
 			}
-		if(sofar >= length){
+		network->updateFileTransferInformation( filename + format("%d", sockid), length, sofar );
+		if(sofar >= length)
 			break;
 		if( !filesock.isOpen() ) {				// Connection lost, try reconnecting
 			timer = msec_timer;
@@ -484,14 +494,16 @@ void GetFileThread::proc(void* param){
 				fclose( file );
 				delete_file( filename.c_str() );
 				network->setFileDirty();
+				network->updateFileTransferInformation( filename + format("%d", sockid), 0, 0 );
 				return;
 				}
 			}
-		}
 		sleep(1);
 	}
 
 	Console->AddEntry("file transfer finished...");
+
+	network->updateFileTransferInformation( filename + format("%d", sockid), 0, 0 );
 
 	fclose( file );
 	if( dead && sofar < length )				// Delete the file if transfer has been aborted
@@ -824,7 +836,7 @@ void Network::cleanFileThread()
 	for( List< GetFileThread* >::iterator i = getfile_thread.begin() ; i != getfile_thread.end() ; ) {
 		if( (*i)->isDead() ) {
 			for( List< FileTransferProgress >::iterator e = transfer_progress.begin() ; e != transfer_progress.end() ; )
-				if( e->id == (void*)(*i) )
+				if( e->size == 0 )
 					transfer_progress.erase( e++ );
 				else
 					e++;
@@ -839,7 +851,7 @@ void Network::cleanFileThread()
 	for( List< SendFileThread* >::iterator i = sendfile_thread.begin() ; i != sendfile_thread.end() ; ) {
 		if( (*i)->isDead() ) {
 			for( List< FileTransferProgress >::iterator e = transfer_progress.begin() ; e != transfer_progress.end() ; )
-				if( e->id == (void*)(*i) )
+				if( e->size == 0 )
 					transfer_progress.erase( e++ );
 				else
 					e++;
@@ -1118,7 +1130,7 @@ float Network::getFileTransferProgress()
 	return size ? (float)pos / size : 100.0f;;
 }
 
-void Network::updateFileTransferInformation( void *id, int size, int pos )
+void Network::updateFileTransferInformation( String id, int size, int pos )
 {
 	ftmutex.Lock();
 	for( List< FileTransferProgress >::iterator i = transfer_progress.begin() ; i != transfer_progress.end() ; i++ )

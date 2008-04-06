@@ -145,7 +145,7 @@ class SockList{
 
 struct FileTransferProgress
 {
-	void	*id;			// Pointer to transfer thread
+	String	id;				// Pointer to transfer thread
 	int		size;
 	int		pos;
 };
@@ -213,7 +213,7 @@ class Network{
 	int num2af(int proto);
 	
 	int addPlayer(TA3DSock* sock);
-	void updateFileTransferInformation( void *id, int size, int pos );
+	void updateFileTransferInformation( String id, int size, int pos );
 
 	//this stuff places specific events in the event queue
 	void eventFileComing(int player);
