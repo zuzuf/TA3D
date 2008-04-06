@@ -79,7 +79,6 @@ namespace TA3D
 
 	void create_path( const String &path )
 	{
-		printf("checking path '%s'\n", path.c_str() );
 		if( !file_exists( path.c_str(), FA_DIREC, NULL ) ) {
 			String parent = get_path( path );
 			if( !parent.empty() )

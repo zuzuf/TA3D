@@ -352,9 +352,10 @@ namespace TA3D
 	
 	static inline String get_path( const String &str )
 	{
-		String path = str;
-		for( int i = path.size() - 1 ; i >= 0 ; i-- )
-			if( path[i] == '/' || path[i] == '\\' ) {
+		String path;
+		for( int i = str.size() - 1 ; i >= 0 ; i-- )
+			if( str[i] == '/' || str[i] == '\\' ) {
+				path = str;
 				path.resize( i );
 				break;
 				}
