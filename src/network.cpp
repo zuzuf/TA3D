@@ -349,6 +349,20 @@ void SendFileThread::proc(void* param){
 		if( n > 0 ) {
 			pos += n;
 			network->updateFileTransferInformation( filename + format("%d", sockid), real_length, pos );
+
+			int p = -1;
+			int recv_pos = 0;
+			while( p < 0 && !dead && filesock.isOpen() ) {
+				p = filesock.Send(&recv_pos,4);
+				if( p == 4 ) {
+					recv_pos = ntohl( recv_pos );
+					if( recv_pos < pos - FILE_TRANSFER_BUFFER_SIZE ) {
+						rest(1);
+						p = -1;
+						}
+					}
+				}
+
 			}
 		
 		if( !filesock.isOpen() ) {							// Connection lost
@@ -378,8 +392,11 @@ void SendFileThread::proc(void* param){
 		if(ta3d_feof(file)){
 			break;
 		}
-		sleep(1);
+		rest(1);
 	}
+	
+	rest(5000);			// Wait 5 sec to let last packets the time to reach the receiver
+	
 	Console->AddEntry("file transfer finished...");
 
 	network->updateFileTransferInformation( filename + format("%d", sockid), 0, 0 );
@@ -479,9 +496,13 @@ void GetFileThread::proc(void* param){
 	while(!dead){
 		n = filesock.Recv(buffer, FILE_TRANSFER_BUFFER_SIZE );
 		if( n > 0 ) {
-			fwrite(buffer,1,n,file);
 			sofar += n;
 			network->updateFileTransferInformation( filename + format("%d", sockid), length, sofar );
+
+			fwrite(buffer,1,n,file);
+
+			int pos = htonl( sofar );
+			filesock.Send(&pos,n);
 			}
 		if(sofar >= length)
 			break;
