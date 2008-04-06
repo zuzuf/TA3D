@@ -214,6 +214,7 @@ namespace TA3D
 				if( pos + size > length )
 					size = length - pos;
 				memcpy( buf, data+pos, size );
+				pos += size;
 				return size;
 			}
 

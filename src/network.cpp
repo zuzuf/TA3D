@@ -473,7 +473,6 @@ void GetFileThread::proc(void* param){
 	}
 	memcpy(&length,buffer,4);
 	length = ntohl(length);
-	printf("length = %d\n", length);
 
 	sofar = 0;
 	if( dead ) length = 1;			// In order to delete the file
