@@ -367,7 +367,7 @@ void SendFileThread::proc(void* param){
 		
 		if( !filesock.isOpen() ) {							// Connection lost
 			timer = msec_timer;
-			while(msec_timer - timer < 30000 && !dead ){				// Try reconnecting during 30sec
+			while(msec_timer - timer < 10000 && !dead ){				// Try reconnecting during 10sec
 				rest(100);
 				String host = destsock->getAddress();
 				//put the standard file port here
@@ -477,7 +477,7 @@ void GetFileThread::proc(void* param){
 		if( !filesock.isOpen() ) {				// Connection lost, try reconnecting
 			timer = msec_timer;
 
-			while( filesock_serv.Accept( filesock, 100 ) < 0 && msec_timer - timer < 30000 && !dead )	rest(1);		// Wait 30sec for incoming connection
+			while( filesock_serv.Accept( filesock, 100 ) < 0 && msec_timer - timer < 10000 && !dead )	rest(1);		// Wait 10sec for incoming connection
 
 			if(!filesock.isOpen()){
 				Console->AddEntry("GetFile: error connection lost");
@@ -489,7 +489,7 @@ void GetFileThread::proc(void* param){
 				}
 			p = 0;
 			}
-		n += p;
+		n += p > 0 ? p : 0;
 	}
 	memcpy(&length,buffer,4);
 	length = ntohl(length);
@@ -512,15 +512,15 @@ void GetFileThread::proc(void* param){
 		if( !filesock.isOpen() ) {				// Connection lost, try reconnecting
 			timer = msec_timer;
 
-			while( filesock_serv.Accept( filesock, 100 ) < 0 && msec_timer - timer < 30000 && !dead )	rest(1);		// Wait 30sec for incoming connection
+			while( filesock_serv.Accept( filesock, 100 ) < 0 && msec_timer - timer < 10000 && !dead )	rest(1);		// Wait 10sec for incoming connection
 
 			if(!filesock.isOpen()){
 				Console->AddEntry("GetFile: error connection lost");
 				dead = 1;
 				fclose( file );
 				delete_file( filename.c_str() );
-				network->setFileDirty();
 				network->updateFileTransferInformation( filename + format("%d", sockid), 0, 0 );
+				network->setFileDirty();
 				return;
 				}
 			}
