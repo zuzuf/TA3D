@@ -223,7 +223,7 @@ namespace TA3D
 			
 			inline bool teof()	{	return pos >= length;	}
 			
-			inline int tsize()	{	return length;	}
+			inline int tsize()	{	return (int)length;	}
 		};
 
 		TA3D_FILE	*ta3d_fopen( String filename );

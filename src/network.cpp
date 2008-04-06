@@ -333,7 +333,9 @@ void SendFileThread::proc(void* param){
 		network->setFileDirty();
 		return;
 	}
-	
+
+	int real_length = length;
+
 	length = htonl( length );
 	filesock.Send(&length,4);
 	
@@ -346,7 +348,7 @@ void SendFileThread::proc(void* param){
 
 		if( n > 0 ) {
 			pos += n;
-			network->updateFileTransferInformation( filename + format("%d", sockid), length, pos );
+			network->updateFileTransferInformation( filename + format("%d", sockid), real_length, pos );
 			}
 		
 		if( !filesock.isOpen() ) {							// Connection lost
@@ -471,6 +473,7 @@ void GetFileThread::proc(void* param){
 	}
 	memcpy(&length,buffer,4);
 	length = ntohl(length);
+	printf("length = %d\n", length);
 
 	sofar = 0;
 	if( dead ) length = 1;			// In order to delete the file
@@ -479,8 +482,8 @@ void GetFileThread::proc(void* param){
 		if( n > 0 ) {
 			fwrite(buffer,1,n,file);
 			sofar += n;
+			network->updateFileTransferInformation( filename + format("%d", sockid), length, sofar );
 			}
-		network->updateFileTransferInformation( filename + format("%d", sockid), length, sofar );
 		if(sofar >= length)
 			break;
 		if( !filesock.isOpen() ) {				// Connection lost, try reconnecting

@@ -1287,10 +1287,11 @@ void setup_game(bool client, const char *host)
 
 		if( TA3D_network.getFileTransferProgress() != 100.0f ) {
 			GUIOBJ *obj = setupgame_area.get_object( "gamesetup.p_transfer" );
-			if( obj )
+			if( obj ) {
 				obj->Flag &= ~FLAG_HIDDEN;
-			int progress = (int)TA3D_network.getFileTransferProgress();
-			setupgame_area.set_value( "gamesetup.p_transfer", progress );
+				int progress = (int)TA3D_network.getFileTransferProgress();
+				obj->Data = progress;
+				}
 			}
 		else {
 			GUIOBJ *obj = setupgame_area.get_object( "gamesetup.p_transfer" );
