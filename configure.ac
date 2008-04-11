@@ -32,8 +32,8 @@ AC_ARG_ENABLE(mingw32,
 [
 make -C "src/lua/" clean
 make -C "src/lua/" mingw CC=$CC RANLIB=$host-ranlib
-LIBS="-L./lua/ -llua -lagl -lalleg -luser32 -lgdi32 -lopengl32 -lglu32 -lz.dll -lfmodex"
-CXXFLAGS="$CXXFLAGS -I/usr/i586-mingw32msvc/include"],
+LIBS="-L./lua/ -llua -lagl -lalleg -luser32 -lgdi32 -lopengl32 -lglu32 -lz.dll -lfmodex -lws2_32"
+CXXFLAGS="$CXXFLAGS -D_WIN32_WINNT=0x0501 -I/usr/i586-mingw32msvc/include"],
 [
 make -C "src/lua/" clean
 make -C "src/lua/" linux

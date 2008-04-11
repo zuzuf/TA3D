@@ -15,23 +15,51 @@
     along with this program; if not, write to the Free Software
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA*/
 
+#if defined NETWORK_STANDALONE_UNIT_TEST
+#include "SocketClass.h"
+#else
 #include "stdafx.h"
 #include "TA3D_NameSpace.h"
+#endif
 
+
+#if defined TA3D_PLATFORM_WINDOWS
+
+int Socket::initWinData()
+{
+  int result = WSAStartup(MAKEWORD(2,2), &init_win32);
+  if (0 != result)
+    {
+      //problem!
+      throw(result);
+    }
+  else
+    {
+      return 0;
+    }
+}
+#endif
 
 Socket::Socket(){
 	sockreports = 1;
 	sockerrors = 1;
-	//Console->AddEntry("default constructor\n");
 	strncpy(number,"new socket",NI_MAXHOST);
 	strncpy(service,"???",NI_MAXSERV);
 	stype = STYPE_BROKEN;
+#if defined TA3D_PLATFORM_WINDOWS
+	initWinData();
+#endif
+	//Console->AddEntry("default constructor\n");
+	sockReport("default constructor");
 }
 
 
 Socket::~Socket(){
 	if (stype != STYPE_BROKEN)
 		close(fd);
+#if defined TA3D_PLATFORM_WINDOWS
+	WSACleanup();
+#endif	
 }
 
 
@@ -41,6 +69,9 @@ Socket::Socket(char *hostname, char *port, int transport, int network, char *mul
 	stype = STYPE_BROKEN;
 	sockreports = 1;
 	sockerrors = 1;
+#if defined TA3D_PLATFORM_WINDOWS
+	initWinData();
+#endif
 	int x;
 	x = Open(hostname,port,transport,network,multicast);
 	if (x<0){
@@ -67,6 +98,9 @@ Socket::Socket(char *hostname, char *port, int transport){
 	stype = STYPE_BROKEN;
 	sockreports = 1;
 	sockerrors = 1;
+#if defined TA3D_PLATFORM_WINDOWS
+	initWinData();
+#endif
 	int x;
 	x = Open(hostname,port,transport,AF_UNSPEC);
 	if (x<0){
@@ -80,6 +114,9 @@ Socket::Socket(char *hostname, char *port){
 	stype = STYPE_BROKEN;
 	sockreports = 1;
 	sockerrors = 1;
+#if defined TA3D_PLATFORM_WINDOWS
+	initWinData();
+#endif
 	int x;
 	x = Open(hostname,port,SOCK_STREAM,AF_UNSPEC);
 	if (x<0){
@@ -107,7 +144,9 @@ int Socket::Open(char *hostname, char *port, int transport, int network, char *m
 	}
 
 	struct addrinfo *result,hints,*ptr,*cur;
-	int err,s,v;
+	int err,v;
+
+	ta3d_socket s;
 
 
 	//determine stype
@@ -131,7 +170,8 @@ int Socket::Open(char *hostname, char *port, int transport, int network, char *m
 
 
 	//set up the hints
-	hints.ai_flags          = 0/*AI_ADDRCONFIG not available on winxp*/;
+	//	hints.ai_flags          = 0/*AI_ADDRCONFIG not available on winxp*/;
+	memset(&hints, 0, sizeof(hints));
 	if(hostname == NULL){
 		hints.ai_flags |= AI_PASSIVE;
 	}
@@ -162,7 +202,9 @@ int Socket::Open(char *hostname, char *port, int transport, int network, char *m
 	err = getaddrinfo(hostname,port,&hints,&result);
 	if(err){
 		sockError("Open: getaddrinfo() error...");
+#if !defined TA3D_PLATFORM_WINDOWS
 		sockError((char *)gai_strerror(err));
+#endif
 		stype = STYPE_BROKEN;
 		return -1;
 	}
@@ -239,28 +281,62 @@ int Socket::Open(char *hostname, char *port, int transport, int network, char *m
 
 	if( multicast && stype == STYPE_UDP_SENDER ) {
 		int optReUseAddr = 1;
+#if defined TA3D_PLATFORM_LINUX
 		setsockopt(s, SOL_SOCKET, SO_REUSEADDR, &optReUseAddr, sizeof(int));
-
+#elif defined TA3D_PLATFORM_WINDOWS
+		setsockopt(s, SOL_SOCKET, SO_REUSEADDR, (char *)&optReUseAddr, sizeof(int));
+#endif
 		bind(s, ptr->ai_addr, ptr->ai_addrlen);
 		}
 		
 	if( multicast ) {
 		struct ip_mreq mreq;
-		int i=0;
-
-		if (inet_aton( multicast, &mreq.imr_multiaddr) < 0) {sockError("inet_aton mreq"); return -1;}
+		//		int i=0;
+#if defined TA3D_PLATFORM_LINUX
+		if (inet_aton( multicast, &mreq.imr_multiaddr) < 0)
+		  {
+		    sockError("inet_aton mreq");
+		    stype = STYPE_BROKEN;
+		    close(s);
+		    freeaddrinfo(result);
+		    return -1;
+		  }
 		mreq.imr_interface.s_addr = htonl(INADDR_ANY);
-		if (setsockopt(s, IPPROTO_IP, IP_ADD_MEMBERSHIP, &mreq, sizeof(mreq)) < 0)
-		{sockError("setsockopt IP_ADD_MEMBERSHIP "); return -1;}
+		if (setsockopt(s, IPPROTO_IP, IP_ADD_MEMBERSHIP, (char *)&mreq, sizeof(mreq)) < 0)
+		{
+		  sockError("setsockopt IP_ADD_MEMBERSHIP ");
+		  return -1;
 		}
-
+#elif defined TA3D_PLATFORM_WINDOWS
+		// on Vista, it is necessary to use RtlIpv4StringToAddress function!
+		mreq.imr_multiaddr.s_addr = inet_addr ( multicast);
+		if (INADDR_NONE == inet_addr ( multicast))
+		  {
+		    sockError("inet_addr mreq");
+		    stype = STYPE_BROKEN;
+		    close(s);
+		    freeaddrinfo(result);
+		    return -1;
+		  }
+		mreq.imr_interface.s_addr = htonl(INADDR_ANY);
+		if (setsockopt(s, IPPROTO_IP, IP_ADD_MEMBERSHIP, (char *)&mreq, sizeof(mreq)) < 0)
+		  {
+		    sockError("setsockopt IP_ADD_MEMBERSHIP ");
+		    stype = STYPE_BROKEN;
+		    close(s);
+		    freeaddrinfo(result);
+		    return -1;
+		  }
+#endif
+	}
 	//set up socket details
 	fd = s;
 	memcpy(&address,ptr,sizeof(struct addrinfo));
 	strncpy(service,port,NI_MAXSERV);
 	v = platformSetNonBlock();
 	if (v<0){
-		Console->AddEntry("Open: SetNonBlock failed\n");
+	  //Console->AddEntry("Open: SetNonBlock failed\n");
+		sockError("Open: SetNonBlock failed");
 		stype = STYPE_BROKEN;
 		close(s);
 		freeaddrinfo(result);
@@ -289,6 +365,14 @@ int Socket::Close(){
 	if (stype == STYPE_BROKEN)
 		return 0;
 
+#if defined TA3D_PLATFORM_WINDOWS
+	if((STYPE_TCP_SERVER == stype)
+	   ||
+	   (STYPE_TCP_CLIENT == stype))
+	  {
+	    shutdown(fd, 2);
+	  }
+#endif
 	close(fd);
 	sockReport("socket closed");
 	strncpy(number,"closed socket",NI_MAXHOST);
@@ -313,7 +397,8 @@ int Socket::Accept(Socket& sock,int timeout){
 		return -1;
 	}
 
-	int s,v;
+	int v;
+	ta3d_socket s;
 	fd_set fds;
 	FD_ZERO(&fds);
 	FD_SET(fd,&fds);
@@ -326,7 +411,12 @@ int Socket::Accept(Socket& sock,int timeout){
 	if(!FD_ISSET(fd,&fds)){
 		return -1;
 	}
-	s = accept(fd,address.ai_addr,&(address.ai_addrlen));//3rd parameter has problem on winsock?
+#if defined TA3D_PLATFORM_LINUX
+	s = accept(fd,address.ai_addr,&(address.ai_addrlen));
+#elif defined TA3D_PLATFORM_WINDOWS
+	s = accept(fd, address.ai_addr, ((int *)&(address.ai_addrlen)));
+#endif
+
 	if (s < 0){
 		sockError("Accept: accept() error");
 		sockError(strerror(errno));
@@ -338,7 +428,8 @@ int Socket::Accept(Socket& sock,int timeout){
 	sock.stype = STYPE_TCP_CLIENT;
 	v = sock.platformSetNonBlock();
 	if (v<0){
-		Console->AddEntry("Open: SetNonBlock failed\n");
+	  //Console->AddEntry("Open: SetNonBlock failed\n");
+		sockError("Open: SetNonBlock failed");
 		close(s);
 		return -1;
 	}
@@ -374,9 +465,14 @@ int Socket::Accept(Socket& sock){
 		return -1;
 	}
 
-	int s,v;
+	int v;
+	ta3d_socket s;
 
+#if defined TA3D_PLATFORM_LINUX
 	s = accept(fd,address.ai_addr,&(address.ai_addrlen));
+#elif defined TA3D_PLATFORM_WINDOWS
+	s = accept(fd, address.ai_addr, ((int *)&(address.ai_addrlen)));
+#endif
 	if (s < 0){
 		sockError("Accept: accept() error");
 		sockError(strerror(errno));
@@ -388,7 +484,8 @@ int Socket::Accept(Socket& sock){
 	sock.stype = STYPE_TCP_CLIENT;
 	v = sock.platformSetNonBlock();
 	if (v<0){
-		Console->AddEntry("Open: SetNonBlock failed\n");
+	  //Console->AddEntry("Open: SetNonBlock failed\n");
+		sockError("Open: SetNonBlock failed");
 		close(s);
 		return -1;
 	}
@@ -409,35 +506,25 @@ int Socket::Accept(Socket& sock){
 	return 0;
 }
 
-int Socket::getstype() {
-	return stype;
-}
 
-char* Socket::getNumber(){
-	return number;
-}
-
-
-char* Socket::getService(){
-	return service;
-}
-
-int Socket::getAF(){
-	return AF;
-}
-
-
-
-void Socket::sockError(char* message){
+inline void Socket::sockError(char* message){
 	if(sockreports){
-		Console->AddEntry("sockError ([%s]:%s): %s",number,service,message);
+#if defined NETWORK_STANDALONE_UNIT_TEST
+	  printf ("sockError ([%s]:%s): %s\n",number,service,message);
+#else
+	  Console->AddEntry("sockError ([%s]:%s): %s",number,service,message);
+#endif
 	}
 }
 
 
-void Socket::sockReport(char* message){
+inline void Socket::sockReport(char* message){
 	if(sockerrors){
-		Console->AddEntry("sockReport ([%s]:%s): %s",number,service,message);
+#if defined NETWORK_STANDALONE_UNIT_TEST
+	  printf ("sockReport ([%s]:%s): %s\n",number,service,message);
+#else
+	  Console->AddEntry("sockReport ([%s]:%s): %s",number,service,message);
+#endif
 	}
 }
 
@@ -459,7 +546,7 @@ int Socket::Send(void* data,int num){
 	}
 
 	int v;
-
+#if defined TA3D_PLATFORM_LINUX
 	if(stype == STYPE_UDP_SENDER) {
 //		printf("C: sending to %d.%d.%d.%d\n", ((unsigned char*)address.ai_addr->sa_data)[0],((unsigned char*)address.ai_addr->sa_data)[1],((unsigned char*)address.ai_addr->sa_data)[2],((unsigned char*)address.ai_addr->sa_data)[3]);
 		v = sendto(fd,data,num,0,address.ai_addr,address.ai_addrlen);
@@ -476,8 +563,20 @@ int Socket::Send(void* data,int num){
 			Close();
 		}
 	}
-	
-	
+#elif defined TA3D_PLATFORM_WINDOWS
+	if(stype == STYPE_UDP_SENDER)
+		v = sendto(fd,(const char*)data,num,0,address.ai_addr,address.ai_addrlen);
+	else
+		v = send(fd,(const char*)data,num,0);
+	if( SOCKET_ERROR == v )
+	  {
+	    sockError("Send: socket error occured, closing socket\n");
+	    Close();
+	    return(-1);
+	  }
+#endif
+
+
 	return v;
 }
 
@@ -503,26 +602,36 @@ int Socket::Recv(void* data, int num, uint32 *address){
 
 
 	if(stype == STYPE_UDP_RECEIVER || stype == STYPE_UDP_SENDER){
+#if defined TA3D_PLATFORM_LINUX
 		v = recvfrom(fd,data,num,0,(struct sockaddr*)&addr,&len);
+#elif defined TA3D_PLATFORM_WINDOWS
+		v = recvfrom(fd, (char*)data,num,0,(struct sockaddr*)&addr, &len);
+#endif
 		if( address && v > 0 )
 			*address = addr.sin_addr.s_addr;
 //		if(stype == STYPE_UDP_RECEIVER && !memcmp(&addr,address.ai_addr,len))//unexpected change of sender
 //			dgramUpdateAddress(&addr,&len);
 	}
 	else{
+#if defined TA3D_PLATFORM_LINUX
 		v = recv(fd,data,num,0);
+		if(v<0){
+		  if (errno != EWOULDBLOCK){
+		    sockError("Recv: socket error occured, closing socket\n");
+		    Close();
+		  }
+		}
+
+#elif defined TA3D_PLATFORM_WINDOWS
+		v = recv(fd,(char*)data,num,0);
+
+#endif
 		if (v==0){
-			sockReport("Recv: connection closed by remote host\n");
-			Close();
+		  sockReport("Recv: connection closed by remote host\n");
+		  Close();
 		}
 	}
 
-	if(v<0){
-			if (errno != EWOULDBLOCK){//this doesnt work on windows
-				sockError("Recv: socket error occured, closing socket\n");
-				Close();
-			}
-	}
 	
 	return v;
 }
@@ -554,16 +663,7 @@ void Socket::dgramUpdateAddress(struct sockaddr *from, socklen_t *fromlen){
 		NI_NUMERICHOST);
 }
 
-#ifdef TA3D_PLATFORM_WINDOWS
-void Socket::platformSetNonBlock(){
-	ioctlsocket(fd,FIONBIO,1);
-}
-
-void Socket::platformGetError(){}
-#endif
-
-
-#ifdef TA3D_PLATFORM_LINUX
+#if defined TA3D_PLATFORM_LINUX
 int Socket::platformSetNonBlock(){
 	int flags;
 	if (-1 == (flags = fcntl(fd, F_GETFL, 0))){
@@ -573,11 +673,22 @@ int Socket::platformSetNonBlock(){
 }     
 
 
-void Socket::platformGetError(){}
+inline int Socket::platformGetError(){}
+#elif defined TA3D_PLATFORM_WINDOWS
+int Socket::platformSetNonBlock(){
+  u_long mode = 1;
+  ioctlsocket(fd, FIONBIO, &mode);
+  return(0);
+
+  //return (ioctlsocket(fd,FIONBIO,1));
+}
+
+inline int Socket::platformGetError(){}
 #endif
 
+
 int Socket::takeFive(int time){
-#ifdef TA3D_PLATFORM_LINUX
+  //#if defined TA3D_PLATFORM_LINUX
 
 	fd_set set;
 
@@ -590,7 +701,7 @@ int Socket::takeFive(int time){
 
 	select(fd+1,&set,NULL,NULL,&t);
 
-#endif
+	//#endif
 		
 	return 0;
 }

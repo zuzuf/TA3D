@@ -21,6 +21,7 @@
 #include <string.h>
 
 #ifdef TA3D_PLATFORM_LINUX
+
 #include <arpa/inet.h>
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -28,12 +29,18 @@
 #include <netdb.h>
 #include <errno.h> /*andrewF says that this is bad during multithreading*/
 #include <fcntl.h>
-#endif
 
-#ifdef TA3D_PLATFORM_WINDOWS
+#elif defined TA3D_PLATFORM_WINDOWS
+
 #include <winsock2.h>
 #include <ws2tcpip.h>
+
+#define sleep rest
+
+#else
+#error "Unable to build socket library because platform is not defined"
 #endif
+
 
 #define STYPE_BROKEN -1
 #define STYPE_TCP_SERVER 0
@@ -41,7 +48,31 @@
 #define STYPE_UDP_SENDER 2
 #define STYPE_UDP_RECEIVER 3
 
+/*!
+ * Windows and Unix do not use the same type for socket file descriptor
+ * Then an abstraction is needed
+ */
+#ifdef TA3D_PLATFORM_LINUX
+#define ta3d_socket int
+#elif defined TA3D_PLATFORM_WINDOWS
+#define ta3d_socket SOCKET
+#endif
 
+/*!
+ * This value is defined in netbd.h but it is not available on Windows
+ */
+#ifndef NI_MAXHOST
+# define NI_MAXHOST      1025
+#endif
+#ifndef NI_MAXSERV
+# define NI_MAXSERV      32
+#endif
+
+#if defined NETWORK_STANDALONE_UNIT_TEST
+#if !defined uint32
+#define uint32 unsigned long int
+#endif
+#endif
 
 /****
 **
@@ -108,7 +139,7 @@
 class Socket{
 
 	//int ready; //perhaps unnecessary
-	int fd; 							//system socket number, file descriptor
+	ta3d_socket fd; 							//system socket number, file descriptor
 	addrinfo address; 	//new connection info struct supports ipv6
 	char number[NI_MAXHOST]; 	//ip address
 	char service[NI_MAXSERV];  //service/port number
@@ -117,13 +148,19 @@ class Socket{
 
 	int sockreports;
 	int sockerrors;
+
+#if defined TA3D_PLATFORM_WINDOWS
+	WSADATA init_win32;
+	int initWinData();//needed for windows platform and initialize 
+#endif
+
 	
 	void dgramUpdateAddress(struct sockaddr *from, socklen_t *fromlen);
 	void sockError(char* message);
 	void sockReport(char* message);
 
 	int platformSetNonBlock();
-	void platformGetError();
+	int platformGetError();
 
 	public:
 		Socket();
@@ -136,11 +173,11 @@ class Socket{
 		//utilities
 		int Accept(Socket& sock); 
 		int Accept(Socket& sock,int timeout);    	//wait for incoming connections
-		int getFD() {return fd;}
-		char* getNumber();   			//human readable ip address
-		char* getService();  			//human readable port number
-		int getAF();
-		int getstype();
+		inline ta3d_socket getFD() {return fd;}
+		inline /*const*/ char* getNumber(){return number;}   			//human readable ip address
+		inline /*const*/ char* getService(){return service;}  			//human readable port number
+		inline int getAF(){return AF;}
+		inline int getstype(){return stype;}
 		int isOpen();						//broken or not
 		//int Select();					//block until ready for reading
 		

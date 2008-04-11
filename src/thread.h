@@ -39,15 +39,16 @@ class BaseThread{
 		virtual ~BaseThread(){dead=1;}
 		virtual int Spawn(void* param)=0;
 		virtual void Join()=0;
-
 };
 
 
 
+#define TA3D_PLATFORM_WINDOWS
 #ifdef TA3D_PLATFORM_WINDOWS
 
-#include <windows.h>
 class Thread : public BaseThread{
+
+	private:
 
 	DWORD threadid;
 	HANDLE thread;
@@ -57,7 +58,7 @@ class Thread : public BaseThread{
 	};
 	struct thread_params secondary;
 	
-	virtual void proc(void* param);
+	virtual void proc(void* param) = 0;
 	static DWORD WINAPI run(LPVOID param){
 		((struct thread_params*)param)->thisthread->proc(((struct thread_params*)param)->more);
 		return 0;
@@ -68,11 +69,11 @@ class Thread : public BaseThread{
 			dead = 0;
 			secondary.thisthread = this;
 			secondary.more = param;
-			thread = CreateThread(NULL,0,run,&secondary,0,&threadid);
+			thread = ::CreateThread(NULL,0,run,&secondary,0,&threadid);
 		}
 		virtual void Join(){
 			dead = 1;
-			WaitForSingleObject(thread,2000);
+			::WaitForSingleObject(thread,2000);
 		}
 		virtual bool isDead(){
 			return dead;
