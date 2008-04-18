@@ -20,25 +20,12 @@
 #include <unistd.h>
 #include <string.h>
 
-#ifdef TA3D_PLATFORM_LINUX
+#include <nl.h>			// Our low-level network layer, OS abstraction layer
 
-#include <arpa/inet.h>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <sys/select.h>
-#include <netdb.h>
-#include <errno.h> /*andrewF says that this is bad during multithreading*/
-#include <fcntl.h>
-
-#elif defined TA3D_PLATFORM_WINDOWS
-
-#include <winsock2.h>
-#include <ws2tcpip.h>
+#if defined TA3D_PLATFORM_WINDOWS
 
 #define sleep rest
 
-#else
-#error "Unable to build socket library because platform is not defined"
 #endif
 
 
@@ -47,16 +34,17 @@
 #define STYPE_TCP_CLIENT 1
 #define STYPE_UDP_SENDER 2
 #define STYPE_UDP_RECEIVER 3
+#define STYPE_BROADCAST 4
+
+#define PROTOCOL_TCPIP		NL_RELIABLE_PACKETS
+#define PROTOCOL_UDP		NL_UNRELIABLE
+#define PROTOCOL_BROADCAST	NL_BROADCAST
 
 /*!
  * Windows and Unix do not use the same type for socket file descriptor
  * Then an abstraction is needed
  */
-#ifdef TA3D_PLATFORM_LINUX
-#define ta3d_socket int
-#elif defined TA3D_PLATFORM_WINDOWS
-#define ta3d_socket SOCKET
-#endif
+#define ta3d_socket NLsocket
 
 /*!
  * This value is defined in netbd.h but it is not available on Windows
@@ -138,59 +126,47 @@
 
 class Socket{
 
-	//int ready; //perhaps unnecessary
-	ta3d_socket fd; 							//system socket number, file descriptor
-	addrinfo address; 	//new connection info struct supports ipv6
+	ta3d_socket fd;
+
+	NLaddress	address;
 	char number[NI_MAXHOST]; 	//ip address
 	char service[NI_MAXSERV];  //service/port number
 	int stype;               	//what kind of socket
-	int AF;							//ipv4, ipv6, unspec, or something completely different
 
 	int sockreports;
 	int sockerrors;
 
-#if defined TA3D_PLATFORM_WINDOWS
-	WSADATA init_win32;
-	int initWinData();//needed for windows platform and initialize 
-#endif
-
-	
-	void dgramUpdateAddress(struct sockaddr *from, socklen_t *fromlen);
-	void sockError(char* message);
-	void sockReport(char* message);
+	void sockError(const char* message);
+	void sockReport(const char* message);
 
 	int platformSetNonBlock();
 	int platformGetError();
+	
+	char *getError();
 
 	public:
 		Socket();
 		Socket(char *hostname, char *port);
 		Socket(char *hostname, char *port, int transport);
-		Socket(char *hostname, char *port, int transport, int network);
-		Socket(char *hostname, char *port, int transport, int network, char *multicast);
 		~Socket();
 
 		//utilities
 		int Accept(Socket& sock); 
 		int Accept(Socket& sock,int timeout);    	//wait for incoming connections
 		inline ta3d_socket getFD() {return fd;}
-		inline /*const*/ char* getNumber(){return number;}   			//human readable ip address
+		inline /*const*/ char* getNumber()	{	return number;	}   			//human readable ip address
 		inline /*const*/ char* getService(){return service;}  			//human readable port number
-		inline int getAF(){return AF;}
 		inline int getstype(){return stype;}
 		int isOpen();						//broken or not
-		//int Select();					//block until ready for reading
 		
 		//open and close manually
 		int Open(char *hostname, char *port);
 		int Open(char *hostname, char *port, int transport);
-		int Open(char* hostname, char *port, int transport, int network);
-		int Open(char* hostname, char *port, int transport, int network, char *multicast);
 		int Close();
 
 		//communication
 		int Send(void* data,int num);//send num bytes of data
-		int Recv(void* data,int num, uint32 *address = NULL);//recv a packet or num bytes if thats smaller
+		int Recv(void* data,int num);//recv a packet or num bytes if thats smaller
 		
 		int SendString(char* data);//if data is null terminated
 

@@ -5263,13 +5263,13 @@ if test "${enable_mingw32+set}" = set; then
   enableval=$enable_mingw32;
 make -C "src/lua/" clean
 make -C "src/lua/" mingw CC=$CC RANLIB=$host-ranlib
-LIBS="-L./lua/ -llua -lagl -lalleg -luser32 -lgdi32 -lopengl32 -lglu32 -lz.dll -lfmodex -lws2_32"
+LIBS="-L./lua/ -llua -lagl -lalleg -luser32 -lgdi32 -lopengl32 -lglu32 -lz.dll -lfmodex -lNL"
 CXXFLAGS="$CXXFLAGS -D_WIN32_WINNT=0x0501 -I/usr/i586-mingw32msvc/include"
 else
 
 make -C "src/lua/" clean
 make -C "src/lua/" linux
-LIBS="$LIBS -lagl -L./lua/ -llua $allegro_LIBS"
+LIBS="$LIBS -lagl -L./lua/ -llua -lNL $allegro_LIBS"
 CXXFLAGS="$CXXFLAGS $allegro_CFLAGS"
 fi
 

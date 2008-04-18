@@ -320,7 +320,7 @@ void SendFileThread::proc(void* param){
 		rest(100);
 		String host = destsock->getAddress();
 		//put the standard file port here
-		filesock.Open( (char*)host.c_str(),(char*)port.c_str(),SOCK_STREAM);
+		filesock.Open( (char*)host.c_str(),(char*)port.c_str(),PROTOCOL_TCPIP);
 		if (filesock.isOpen())
 			break;
 	}
@@ -336,7 +336,7 @@ void SendFileThread::proc(void* param){
 
 	int real_length = length;
 
-	length = htonl( length );
+	length = nlSwapl( length );
 	filesock.Send(&length,4);
 	
 	int pos = 0;
@@ -355,7 +355,7 @@ void SendFileThread::proc(void* param){
 			while( p <= 0 && !dead && filesock.isOpen() ) {
 				p = filesock.Recv(&recv_pos,4);
 				if( p == 4 ) {
-					recv_pos = ntohl( recv_pos );
+					recv_pos = nlSwapl( recv_pos );
 					if( recv_pos < pos - FILE_TRANSFER_BUFFER_SIZE ) {
 						rest(1);
 						p = -1;
@@ -371,7 +371,7 @@ void SendFileThread::proc(void* param){
 				rest(100);
 				String host = destsock->getAddress();
 				//put the standard file port here
-				filesock.Open( (char*)host.c_str(),(char*)port.c_str(),SOCK_STREAM);
+				filesock.Open( (char*)host.c_str(),(char*)port.c_str(),PROTOCOL_TCPIP);
 				if (filesock.isOpen())
 					break;
 			}
@@ -445,7 +445,7 @@ void GetFileThread::proc(void* param){
 	network->slmutex.Unlock();
 
 	//put the standard file port here
-	filesock_serv.Open(NULL,(char*)port.c_str(),SOCK_STREAM);
+	filesock_serv.Open(NULL,(char*)port.c_str(),PROTOCOL_TCPIP);
 	
 	if(!filesock_serv.isOpen()){
 		Console->AddEntry("GetFile: error couldn't open socket");
@@ -492,7 +492,7 @@ void GetFileThread::proc(void* param){
 		n += p > 0 ? p : 0;
 	}
 	memcpy(&length,buffer,4);
-	length = ntohl(length);
+	length = nlSwapl(length);
 
 	sofar = 0;
 	if( dead ) length = 1;			// In order to delete the file
@@ -504,7 +504,7 @@ void GetFileThread::proc(void* param){
 
 			fwrite(buffer,1,n,file);
 
-			int pos = htonl( sofar );
+			int pos = nlSwapl( sofar );
 			filesock.Send(&pos,4);
 			}
 		if(sofar >= length)
@@ -591,6 +591,10 @@ eventq(32,sizeof(struct event)) {
 	tohost_socket = NULL;
 	playerDirty = false;
 	fileDirty = false;
+	
+	nlInit();						// Start NL
+	
+	nlSelectNetwork( NL_IP );		// We want IP networking
 }
 
 Network::~Network(){
@@ -619,11 +623,13 @@ Network::~Network(){
 	multicastaddressq.clear();
 	
 	players.Shutdown();
+	
+	nlShutdown();
 }
 
 void Network::InitMulticast( char* target, char* port )
 {
-	multicast_socket.Open( target, port, 0 );
+	multicast_socket.Open( target, port );
 		//spawn broadcast thread
 	net_thread_params *params = new net_thread_params;
 	params->network = this;
@@ -637,7 +643,7 @@ void Network::InitMulticast( char* target, char* port )
 //port is the port the game listens on for connections
 //proto 4=ipv4only 6=ipv6only 0=automatic
 //not finished
-int Network::HostGame(char* name,char* port,int network,int proto){
+int Network::HostGame(char* name,char* port,int network){
 
 	if(myMode == 0){
 		myMode = 1;
@@ -648,14 +654,12 @@ int Network::HostGame(char* name,char* port,int network,int proto){
 	}
 
 
-	int P = num2af(proto);
-
 	myID = 0;
 	adminDir[0] = 1;
 
 	//setup game
 	strcpy(gamename,name);
-	listen_socket.Open(NULL,port,P);
+	listen_socket.Open(NULL,port);
 	if(!listen_socket.isOpen()){
 		Console->AddEntry("Network: failed to host game on port %s",port);
 		myMode = 0;
@@ -706,7 +710,7 @@ int Network::HostGame(char* name,char* port,int network,int proto){
 
 
 //not finished
-int Network::Connect(char* target,char* port,int proto){
+int Network::Connect(char* target,char* port){
 
 	if(myMode == 0){
 		myMode = 2;
@@ -716,11 +720,9 @@ int Network::Connect(char* target,char* port,int proto){
 		return -1;
 	}
 
-	int P = num2af(proto);	
-
 	tohost_socket = new TA3DSock();
 
-	tohost_socket->Open(target,port,P);
+	tohost_socket->Open(target,port);
 	if(!tohost_socket->isOpen()){
 		//error couldnt connect to game
 		Console->AddEntry("Network: error connecting to game at [%s]:%s",target,port);
@@ -1135,18 +1137,6 @@ String Network::getFile(int player, const String &filename){
 }
 
 
-int Network::num2af(int proto){
-	switch(proto){
-		case 0:
-			return AF_UNSPEC;
-		case 4:
-			return AF_INET;
-		case 6:
-			return AF_INET6;
-	}
-	return AF_UNSPEC;
-}
-
 int Network::broadcastMessage( const char *msg )
 {
 	if( !multicast_socket.isOpen() )
@@ -1169,9 +1159,9 @@ std::string Network::getNextBroadcastedMessage()
 	return msg;
 }
 
-uint32 Network::getLastMessageAddress()
+String Network::getLastMessageAddress()
 {
-	uint32 address;
+	String address;
 	mqmutex.Lock();
 		if( !multicastaddressq.empty() )
 			address = multicastaddressq.front();
@@ -1254,13 +1244,4 @@ void Network::updateFileTransferInformation( String id, int size, int pos )
 
 	ftmutex.Unlock();
 }
-
-std::string ip2str( uint32 ip ) {
-	std::string address = "";
-	for( int i = 0 ; i < 3 ; i++ )
-		address += format( "%d.", ((unsigned char*)&ip)[i] );
-	address += format( "%d", ((unsigned char*)&ip)[3] );
-	return address;
-}
-
 

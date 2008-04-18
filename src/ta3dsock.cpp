@@ -23,9 +23,9 @@
 /******************************/
 
 
-int TA3DSock::Open(char* hostname,char* port,int network){
+int TA3DSock::Open(char* hostname,char* port){
 
-	tcpsock.Open(hostname,port,SOCK_STREAM,network);
+	tcpsock.Open(hostname,port,PROTOCOL_TCPIP);
 
 	if(!tcpsock.isOpen() ){
 		if( tcpsock.isOpen() )
@@ -47,14 +47,6 @@ int TA3DSock::Open(char* hostname,char* port,int network){
 //	udpin.Open(NULL,port,SOCK_DGRAM,network);
 //	if(hostname)
 //		udpout.Open(hostname,port,SOCK_DGRAM,network);
-//	
-//	if( !( tcpsock.isOpen() && udpin.isOpen() && (udpout.isOpen() || hostname == NULL) ) ){
-//		//one of them didnt work... quit
-//		tcpsock.Close();
-//		udpin.Close();
-//		udpout.Close();
-//		return -1;
-//	}
 
 	return 0;
 
@@ -94,15 +86,6 @@ int TA3DSock::Accept(TA3DSock** sock){
 //	(*sock)->udpin.Open(NULL,(*sock)->tcpsock.getService(),SOCK_DGRAM,(*sock)->tcpsock.getAF());
 //	(*sock)->udpout.Open((*sock)->tcpsock.getNumber(),(*sock)->tcpsock.getService(),SOCK_DGRAM,(*sock)->tcpsock.getAF());
 
-//	if(!((*sock)->tcpsock.isOpen() && (*sock)->udpin.isOpen() && (*sock)->udpout.isOpen()) ){
-//		//one of them didnt work... quit
-//		(*sock)->tcpsock.Close();
-//		(*sock)->udpin.Close();
-//		(*sock)->udpout.Close();
-//		delete sock;
-//		return -1;
-//	}
-
 	return 0;
 }
 
@@ -112,10 +95,6 @@ int TA3DSock::Accept(TA3DSock** sock,int timeout){
 	v = tcpsock.Accept((*sock)->tcpsock,timeout);
 	
 	if(v<0){
-#ifdef TA3D_PLATFORM_WINDOWS
-		if( WSAGetLastError() )
-			printf("accept error %d\n", WSAGetLastError());
-#endif
 		//accept error
 		delete (*sock);
 		return -1;
@@ -167,14 +146,14 @@ void TA3DSock::Close(){
 //byte shuffling
 void TA3DSock::loadLong(uint32_t x){//uint32
 	uint32_t temp;
-	temp = htonl(x);
+	temp = nlSwapl(x);
 	memcpy(outbuf+obp,&temp,4);
 	obp += 4;
 }
 
 void TA3DSock::loadShort(uint16_t x){//uint16
 	uint16_t temp;
-	temp = htons(x);
+	temp = nlSwaps(x);
 	memcpy(outbuf+obp,&temp,2);
 	obp += 2;
 }
@@ -198,8 +177,8 @@ void TA3DSock::loadString(char* x){//null terminated
 }	
 
 void TA3DSock::loadFloat(float x){
-	uint32_t temp;
-	temp = htonl((uint32_t)x);
+	float temp;
+	temp = nlSwapf(x);
 	memcpy(outbuf+obp,&temp,4);
 	obp += 4;
 }
@@ -240,7 +219,7 @@ void TA3DSock::recvTCP(){
 			if( p <= 0 )
 				tiremain = -1;
 			else
-				tiremain = ntohs(remain2);
+				tiremain = nlSwaps(remain2);
 		}
 		else if(remain>0) tiremain = remain;
 		else Console->AddEntry("tcp packet error cannot determine size");
@@ -263,7 +242,7 @@ void TA3DSock::recvUDP(){
 		if(remain == 0){
 			uint16_t remain2;
 			udpin.Recv(&remain2,2);//get big number
-			uiremain = ntohs(remain2);
+			uiremain = nlSwaps(remain2);
 		}
 		else if(remain>0) uiremain = remain;
 		else Console->AddEntry("udp packet error cannot determine size");
@@ -309,24 +288,7 @@ void TA3DSock::cleanPacket(){
 
 
 int TA3DSock::takeFive(int time){
-	int tcp,udp;
-	fd_set set;
-
-	tcp = tcpsock.getFD();
-//	udp = udpin.getFD();
-
-	FD_ZERO(&set);
-	FD_SET(tcp,&set);
-//	FD_SET(udp,&set);
-	
-	struct timeval t;
-	t.tv_sec = time/1000;
-	t.tv_usec = 1000*(time%1000);
-
-//	select(max(tcp,udp)+1,&set,NULL,NULL,&t);
-	select(tcp+1,&set,NULL,NULL,&t);
-	
-	return 0;
+	return tcpsock.takeFive( time );
 }
 
 
@@ -435,21 +397,21 @@ int TA3DSock::makeOrder(struct order* order){
 	uint32_t temp;
 
 	memcpy(&temp,tcpinbuf+1,4);
-	order->timestamp = ntohl(temp);
+	order->timestamp = nlSwapl(temp);
 
 	memcpy(&temp,tcpinbuf+5,4);
-	order->unit = ntohl(temp);
+	order->unit = nlSwapl(temp);
 
 	order->command = tcpinbuf[9];
 
 	memcpy(&temp,tcpinbuf+10,4);
-	order->x = (float)ntohl(temp);
+	order->x = (float)nlSwapl(temp);
 
 	memcpy(&temp,tcpinbuf+14,4);
-	order->y = (float)ntohl(temp);
+	order->y = (float)nlSwapl(temp);
 
 	memcpy(&temp,tcpinbuf+18,4);
-	order->target = ntohl(temp);
+	order->target = nlSwapl(temp);
 
 	order->additional = tcpinbuf[19];
 	
@@ -471,25 +433,25 @@ int TA3DSock::makeSync(struct sync* sync){
 	uint16_t stemp;
 
 	memcpy(&temp,udpinbuf+1,4);
-	sync->timestamp = ntohl(temp);
+	sync->timestamp = nlSwapl(temp);
 
 	memcpy(&temp,udpinbuf+5,4);
-	sync->unit = ntohl(temp);
+	sync->unit = nlSwapl(temp);
 
 	memcpy(&temp,udpinbuf+9,4);
-	sync->x = (float)ntohl(temp);
+	sync->x = (float)nlSwapl(temp);
 
 	memcpy(&temp,udpinbuf+13,4);
-	sync->y = (float)ntohl(temp);
+	sync->y = (float)nlSwapl(temp);
 
 	memcpy(&temp,udpinbuf+17,4);
-	sync->vx = (float)ntohl(temp);
+	sync->vx = (float)nlSwapl(temp);
 
 	memcpy(&temp,udpinbuf+21,4);
-	sync->vy = (float)ntohl(temp);
+	sync->vy = (float)nlSwapl(temp);
 
 	memcpy(&stemp,udpinbuf+25,2);
-	sync->orientation = ntohl(stemp);
+	sync->orientation = nlSwapl(stemp);
 	
 	uibp = 0;
 	uiremain = -1;

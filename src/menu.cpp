@@ -1077,10 +1077,10 @@ void setup_game(bool client, const char *host)
 	if( host ) {
 		if( !client ) {
 			TA3D_network.InitMulticast("224.0.0.3","1234");		// multicast mode
-			TA3D_network.HostGame( (char*) host, "4242", 2, 0 );
+			TA3D_network.HostGame( (char*) host, "4242", 2 );
 			}
 		else
-			TA3D_network.Connect( (char*) host, "4242", 0 );
+			TA3D_network.Connect( (char*) host, "4242" );
 		
 		my_player_id = TA3D_network.getMyID();			// Get player id
 		
@@ -1910,7 +1910,7 @@ void network_room(void)				// Let players create/join a game
 					String mod = ReplaceChar( params[3], '?', ' ' );
 					if( mod == "." )	mod = "";
 					String version = ReplaceChar( params[4], '?', ' ' );
-					String host_address = ip2str( TA3D_network.getLastMessageAddress() );
+					String host_address = TA3D_network.getLastMessageAddress();
 					int nb_open = atoi( params[5].c_str() );
 					
 					if( version == TA3D_ENGINE_VERSION && mod == TA3D_CURRENT_MOD && nb_open != 0 ) {

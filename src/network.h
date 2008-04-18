@@ -200,7 +200,7 @@ class Network{
 	SuperQueue eventq;
 
 	std::list< std::string > multicastq;
-	std::list< uint32 > multicastaddressq;
+	std::list< std::string > multicastaddressq;
 
 	Mutex slmutex;
 	Mutex mqmutex;
@@ -214,9 +214,6 @@ class Network{
 	bool playerDirty;
 	bool fileDirty;
 	bool playerDropped;
-	
-	//0=dontcare 4=ipv4 6=ipv6
-	int num2af(int proto);
 	
 	int addPlayer(TA3DSock* sock);
 	void updateFileTransferInformation( String id, int size, int pos );
@@ -234,8 +231,8 @@ class Network{
 		Network();
 		~Network();
 
-		int HostGame(char* name,char* port,int network,int proto);
-		int Connect(char* target,char* port,int proto);
+		int HostGame(char* name,char* port,int network);
+		int Connect(char* target,char* port);
 		void Disconnect();
 
 		void setPlayerDirty();
@@ -277,7 +274,7 @@ class Network{
 		
 		int broadcastMessage( const char *msg );
 		std::string getNextBroadcastedMessage();
-		uint32 getLastMessageAddress();
+		std::string getLastMessageAddress();
 		bool BroadcastedMessages();
 };
 
@@ -288,7 +285,5 @@ struct net_thread_params{
 	int sockid;
 	String filename;
 };
-
-std::string ip2str( uint32 ip );
 
 #endif

@@ -81,8 +81,6 @@ class MulticastSock{
 	int uibp;
 	int uiremain;
 	
-	uint32 address;
-	
 	//byte shuffling
 	void loadLong(uint32_t x);//uint32
 	void loadShort(uint16_t x);//uint16
@@ -99,7 +97,7 @@ class MulticastSock{
 		MulticastSock() {obp=0;uibp=0;uiremain=-1;}
 		~MulticastSock() {}
 
-		int Open(char* hostname,char* port,int network);
+		int Open(char* hostname,char* port);
 		void Close();
 
 		int isOpen();
@@ -109,7 +107,7 @@ class MulticastSock{
 		//these are for incoming packets
 		std::string makeMessage();
 
-		uint32 getAddress();
+		String getAddress();
 
 		char getPacket();//if packet is ready return the type, else return -1
 		void pumpIn();//get input from sockets non-blocking

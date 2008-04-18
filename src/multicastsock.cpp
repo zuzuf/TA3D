@@ -23,10 +23,10 @@
 /***********************************/
 
 
-int MulticastSock::Open(char* hostname,char* port,int network){
+int MulticastSock::Open(char* hostname,char* port){
 
 	if(hostname)
-		udpsocket.Open(hostname,port,SOCK_DGRAM,network,hostname);
+		udpsocket.Open(hostname,port,PROTOCOL_BROADCAST);
 	
 	if( !udpsocket.isOpen() || hostname == NULL ){
 		if( hostname )
@@ -61,14 +61,14 @@ void MulticastSock::Close(){
 //byte shuffling
 void MulticastSock::loadLong(uint32_t x){//uint32
 	uint32_t temp;
-	temp = htonl(x);
+	temp = nlSwapl(x);
 	memcpy(outbuf+obp,&temp,4);
 	obp += 4;
 }
 
 void MulticastSock::loadShort(uint16_t x){//uint16
 	uint16_t temp;
-	temp = htons(x);
+	temp = nlSwaps(x);
 	memcpy(outbuf+obp,&temp,2);
 	obp += 2;
 }
@@ -92,8 +92,8 @@ void MulticastSock::loadString(char* x){//null terminated
 }	
 
 void MulticastSock::loadFloat(float x){
-	uint32_t temp;
-	temp = htonl((uint32_t)x);
+	float temp;
+	temp = nlSwapf(x);
 	memcpy(outbuf+obp,&temp,4);
 	obp += 4;
 }
@@ -120,26 +120,26 @@ void MulticastSock::recvUDP(){
 		return;
 	else if(uiremain == -1){
 		uint8_t remain;
-		int p = udpsocket.Recv(&remain,1,&address);//get new number
+		int p = udpsocket.Recv(&remain,1);//get new number
 		if( p < 0 ) {
 			uiremain = -1;
 			return;
 			}
 		if(remain == 0){
 			uint16_t remain2;
-			p = udpsocket.Recv(&remain2,2,&address);//get big number
+			p = udpsocket.Recv(&remain2,2);//get big number
 			if( p < 0 ) {
 				uiremain = -1;
 				return;
 				}
-			uiremain = ntohs(remain2);
+			uiremain = nlSwaps(remain2);
 		}
 		else if(remain>0) uiremain = remain;
 		else Console->AddEntry("udp packet error cannot determine size\n");
 		return;
 	}
 	int n = 0;
-	n = udpsocket.Recv(udpinbuf+uibp,uiremain,&address);
+	n = udpsocket.Recv(udpinbuf+uibp,uiremain);
 	if( n > 0 ) {
 		uibp += n;
 		uiremain -= n;
@@ -165,8 +165,8 @@ int MulticastSock::takeFive(int time){
 }
 
 
-uint32 MulticastSock::getAddress() {
-	return address;
+String MulticastSock::getAddress() {
+	return udpsocket.getNumber();
 }
 
 

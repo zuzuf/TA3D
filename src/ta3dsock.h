@@ -154,14 +154,13 @@ class TA3DSock{
 		TA3DSock() {obp=0;tibp=0;uibp=0;tiremain=-1;uiremain=-1;}
 		~TA3DSock() {}
 
-		int Open(char* hostname,char* port,int network);
+		int Open(char* hostname,char* port);
 		int Accept(TA3DSock** sock);
 		int Accept(TA3DSock** sock,int timeout);
 		void Close();
 
 		char* getAddress() {return tcpsock.getNumber();}
 		char* getPort() {return tcpsock.getService();}
-		int getAF() {return tcpsock.getAF();}
 		Socket& getSock() {return tcpsock;}
 		int isOpen();
 
