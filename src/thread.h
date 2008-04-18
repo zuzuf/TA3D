@@ -37,13 +37,12 @@ class BaseThread{
 	public:
 		BaseThread(){dead=1;}
 		virtual ~BaseThread(){dead=1;}
-		virtual int Spawn(void* param)=0;
+		virtual void Spawn(void* param)=0;
 		virtual void Join()=0;
 };
 
 
 
-#define TA3D_PLATFORM_WINDOWS
 #ifdef TA3D_PLATFORM_WINDOWS
 
 class Thread : public BaseThread{
@@ -65,7 +64,7 @@ class Thread : public BaseThread{
 	}
 
 	public:
-		virtual int Spawn(void* param){
+		virtual void Spawn(void* param){
 			dead = 0;
 			secondary.thisthread = this;
 			secondary.more = param;
@@ -117,15 +116,13 @@ class Thread : public BaseThread{
 
 
 	public:
-		virtual int Spawn(void* param){
+		virtual void Spawn(void* param){
 			dead = 0;
 			
 			secondary.thisthread = this;
 			secondary.more = param;
 
 			pthread_create(&thread,NULL,run,&secondary);
-		
-			return 0;
 		}
 		virtual void Join(){
 			if(dead){

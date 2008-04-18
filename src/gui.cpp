@@ -1315,7 +1315,7 @@ void WND::load_gui( const String &filename, cHashTable< Vector< TA3D::INTERFACES
 				}
 			Objets[i].current_state = wndFile->PullAsInt( obj_key + "status" );
 			Objets[i].shortcut_key = wndFile->PullAsInt( obj_key + "quickkey", -1 );
-			if( wndFile->PullAsBool( obj_key + "common.grayedout" ) == 4 )
+			if( wndFile->PullAsBool( obj_key + "common.grayedout" ) )
 				Objets[i].Flag |= FLAG_DISABLED;
 //			if( wndFile->PullAsInt( obj_key + "common.commonattribs" ) == 4 ) {
 			if( wndFile->PullAsInt( obj_key + "common.attribs" ) == 32 )

@@ -1031,6 +1031,7 @@ int Network::sendChat(struct chat* chat, int src_id){
 		if( tohost_socket == NULL || !tohost_socket->isOpen() || chat == NULL )	return -1;
 		return tohost_socket->sendChat( chat );
 		}
+	return -1;						// Not connected, it shouldn't be possible to get here if we're not connected ...
 }
 
 int Network::sendOrder(struct order* order, int src_id){

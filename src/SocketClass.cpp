@@ -50,7 +50,7 @@ Socket::Socket(){
 	initWinData();
 #endif
 	//Console->AddEntry("default constructor\n");
-	sockReport("default constructor");
+//	sockReport("default constructor");
 }
 
 
@@ -429,7 +429,7 @@ int Socket::Accept(Socket& sock,int timeout){
 	v = sock.platformSetNonBlock();
 	if (v<0){
 	  //Console->AddEntry("Open: SetNonBlock failed\n");
-		sockError("Open: SetNonBlock failed");
+		sockError("Accept: SetNonBlock failed");
 		close(s);
 		return -1;
 	}
@@ -485,7 +485,7 @@ int Socket::Accept(Socket& sock){
 	v = sock.platformSetNonBlock();
 	if (v<0){
 	  //Console->AddEntry("Open: SetNonBlock failed\n");
-		sockError("Open: SetNonBlock failed");
+		sockError("Accept: SetNonBlock failed");
 		close(s);
 		return -1;
 	}

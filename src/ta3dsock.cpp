@@ -112,6 +112,10 @@ int TA3DSock::Accept(TA3DSock** sock,int timeout){
 	v = tcpsock.Accept((*sock)->tcpsock,timeout);
 	
 	if(v<0){
+#ifdef TA3D_PLATFORM_WINDOWS
+		if( WSAGetLastError() )
+			printf("accept error %d\n", WSAGetLastError());
+#endif
 		//accept error
 		delete (*sock);
 		return -1;
