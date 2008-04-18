@@ -16,6 +16,8 @@
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA*/
 
 
+#include "cCriticalSection.h"
+
 
 /*
 **  Guide to thread classes
@@ -79,18 +81,6 @@ class Thread : public BaseThread{
 		}
 };
 
-class Mutex{
-	int locked;
-	CRITICAL_SECTION mutex;
-
-	public:
-		Mutex() {locked=0; InitializeCriticalSection(&mutex);}
-		~Mutex() {DeleteCriticalSection(&mutex);}
-		void Lock() {locked=1; EnterCriticalSection(&mutex);}
-		void Unlock() {locked=0; LeaveCriticalSection(&mutex);}
-		int isLocked() {return locked;}
-};
-	
 #endif /*WIN32*/
 
 
@@ -137,15 +127,16 @@ class Thread : public BaseThread{
 		}
 };
 
-class Mutex{
+#endif /*LINUX*/
+
+class Mutex : protected cCriticalSection {
 	int locked;
-	pthread_mutex_t mutex;
 
 	public:
-		Mutex() {locked=0; pthread_mutex_init(&mutex,NULL);}
-		~Mutex() {pthread_mutex_destroy(&mutex);}
-		void Lock() {locked=1; pthread_mutex_lock(&mutex);}
-		void Unlock() {locked=0; pthread_mutex_unlock(&mutex);}
+		Mutex() {locked=0; CreateCS();}
+		~Mutex() {DeleteCS();}
+		void Lock() {locked=1; EnterCS();}
+		void Unlock() {locked=0; LeaveCS();}
 		int isLocked() {return locked;}
 };
-#endif /*LINUX*/
+

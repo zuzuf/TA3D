@@ -31,7 +31,7 @@ namespace TA3D
 
 		void EnterCS();
 		void LeaveCS();
-
+		
 	// Member Variables
 	private:
 #if defined TA3D_PLATFORM_WINDOWS
