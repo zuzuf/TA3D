@@ -978,6 +978,8 @@ int Network::getMyID()
 						break;
 						}
 					}
+				if( (timeout % 1000) == 0 )				// Resend
+					sendSpecial( strtochat( &special_msg, "REQUEST PLAYER_ID" ) );
 				}
 			if( timeout == 0 )				// Timeout reached
 				return -1;

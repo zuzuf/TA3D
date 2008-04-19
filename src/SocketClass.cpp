@@ -235,8 +235,8 @@ int Socket::Accept(Socket& sock,int timeout){
 
 	strncpy(sock.service,service,NI_MAXSERV);
 	
-	nlAddrToString(&address, number);
-	for( char *f = number ; *f ; f++ )			// Get rid of the port
+	nlAddrToString(&sock.address, sock.number);
+	for( char *f = sock.number ; *f ; f++ )			// Get rid of the port
 		if( *f == ':' ) {
 			*f = 0;
 			break;
