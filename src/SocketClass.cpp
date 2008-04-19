@@ -327,12 +327,16 @@ int Socket::Recv(void* data, int num){
 	}
 
 	int v = nlRead( fd, data, num );
+	
+#ifdef TA3D_PLATFORM_WINDOWS
+	if( v == NL_INVALID && nlGetError() == 	NL_SYSTEM_ERROR && nlGetSystemError() == 10040 )		// Windows raise an error if you read only the beginning of the buffer !!
+		v = num;
+#endif
 	if( v == NL_INVALID && nlGetError() != NL_BUFFER_SIZE ){		// If buffer is too small then return what we've read but don't close the connection
 		sockError( format("Recv: %s", getError() ).c_str() );
-		if( nlGetError() == NL_CON_PENDING )					// Don't close connection, it's not even opened yet !!
-			return -1;
 		switch( nlGetError() )
 		{
+		case NL_SYSTEM_ERROR :
 		case NL_INVALID_SOCKET :
 		case NL_CON_REFUSED :
 		case NL_MESSAGE_END :

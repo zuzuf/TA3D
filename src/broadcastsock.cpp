@@ -121,16 +121,7 @@ void BroadcastSock::recvUDP(){
 			uiremain = -1;
 			return;
 			}
-		if(remain == 0){
-			uint16_t remain2;
-			p = udpsocket.Recv(&remain2,2);//get big number
-			if( p < 0 ) {
-				uiremain = -1;
-				return;
-				}
-			uiremain = nlSwaps(remain2);
-		}
-		else if(remain>0) uiremain = remain;
+		if(remain>0) uiremain = remain;
 		else Console->AddEntry("udp packet error cannot determine size");
 		return;
 	}
@@ -139,6 +130,10 @@ void BroadcastSock::recvUDP(){
 	if( n > 0 ) {
 		uibp += n;
 		uiremain -= n;
+		}
+	else if( n < 0 ) {
+		uiremain = -1;
+		uibp = 0;
 		}
 }
 
@@ -167,8 +162,8 @@ String BroadcastSock::getAddress() {
 
 
 int BroadcastSock::sendMessage( const char* msg ){
+	
 	loadString((char*)msg);
-	loadByte('\0');
 	sendUDP();
 	return 0;
 }
