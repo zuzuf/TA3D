@@ -272,6 +272,8 @@ char TA3DSock::getPacket(){
 		}*/
 	}
 	else{
+		if( tcpinbuf[0] )
+			printf("tcpinbuf(1) = '%s'\n", tcpinbuf);
 		return tcpinbuf[0];
 	}
 }
