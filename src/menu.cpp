@@ -259,6 +259,12 @@ void main_menu(void)
 				network_room();
 				break;
 			};
+
+			gfx->SetDefState();
+			gfx->set_2D_mode();
+			gfx->ReInitTexSys();
+			glScalef(SCREEN_W/640.0f,SCREEN_H/480.0f,1.0f);
+
 			current_mod = TA3D_CURRENT_MOD.length() > 6 ? TA3D_CURRENT_MOD.substr( 5, TA3D_CURRENT_MOD.length() - 6 ) : "";
 			if( index >= 0 && index <= 4 ) {
 				mnu[0] = gfx->load_texture( TRANSLATE( "gfx/en/exit.tga" ).c_str(), FILTER_LINEAR );
@@ -768,21 +774,21 @@ void config_menu(void)
 
 		if( config_area.get_state( "*.b_activate" ) ) {
 			GUIOBJ *obj = config_area.get_object("*.l_files");
-			if( obj && obj->Pos >= 0 ) {
+			if( obj && obj->Pos >= 0 && obj->Text.size() > obj->Pos ) {
 				sound_manager->SetPlayListFileMode( obj->Pos, false, false );
 				obj->Text[ obj->Pos ][ 1 ] = '*';
 				}
 			}
 		if( config_area.get_state( "*.b_deactivate" ) ) {
 			GUIOBJ *obj = config_area.get_object("*.l_files");
-			if( obj && obj->Pos >= 0 ) {
+			if( obj && obj->Pos >= 0 && obj->Text.size() > obj->Pos ) {
 				sound_manager->SetPlayListFileMode( obj->Pos, false, true );
 				obj->Text[ obj->Pos ][ 1 ] = ' ';
 				}
 			}
 		if( config_area.get_state( "*.b_battle" ) ) {
 			GUIOBJ *obj = config_area.get_object("*.l_files");
-			if( obj && obj->Pos >= 0 ) {
+			if( obj && obj->Pos >= 0 && obj->Text.size() > obj->Pos ) {
 				sound_manager->SetPlayListFileMode( obj->Pos, true, false );
 				obj->Text[ obj->Pos ][ 1 ] = 'B';
 				}
@@ -1553,7 +1559,7 @@ void setup_game(bool client, const char *host)
 
 //-------------------------------------------------------------- Network Code : advert system --------------------------------------------------------------
 
-		while( !broadcast_msg.empty() ) {												// Multicast message receiver
+		while( !broadcast_msg.empty() ) {												// Broadcast message receiver
 			Vector<String> params = ReadVectorString( broadcast_msg, " " );
 			if( params.size() == 3 && params[0] == "PING" && params[1] == "SERVER" ) {
 				if( params[2] == "LIST" && host ) {						// Sending information about this server
@@ -1561,11 +1567,10 @@ void setup_game(bool client, const char *host)
 					for( uint16 f = 0 ; f < 10 ; f++ )
 						if( setupgame_area.get_caption(format("gamesetup.name%d", f)) == player_str[2] ) 
 							nb_open++;
-					for( int i = 0 ; i < 3 ; i++ )
-						if( TA3D_CURRENT_MOD.empty() )
-							TA3D_network.broadcastMessage( format( "PONG SERVER %s . %s %d", host, ReplaceChar( TA3D_ENGINE_VERSION,' ','?' ).c_str(), nb_open ).c_str() );
-						else
-							TA3D_network.broadcastMessage( format( "PONG SERVER %s %s %s %d", host, ReplaceChar( TA3D_CURRENT_MOD, ' ', '?' ).c_str(), ReplaceChar( TA3D_ENGINE_VERSION,' ','?' ).c_str(), nb_open ).c_str() );
+					if( TA3D_CURRENT_MOD.empty() )
+						TA3D_network.broadcastMessage( format( "PONG SERVER %s . %s %d", host, ReplaceChar( TA3D_ENGINE_VERSION,' ','?' ).c_str(), nb_open ).c_str() );
+					else
+						TA3D_network.broadcastMessage( format( "PONG SERVER %s %s %s %d", host, ReplaceChar( TA3D_CURRENT_MOD, ' ', '?' ).c_str(), ReplaceChar( TA3D_ENGINE_VERSION,' ','?' ).c_str(), nb_open ).c_str() );
 					}
 				}
 			broadcast_msg = TA3D_network.getNextBroadcastedMessage();
@@ -1978,15 +1983,11 @@ void network_room(void)				// Let players create/join a game
 			}
 				
 		if( msec_timer - server_list_timer >= SERVER_LIST_REFRESH_DELAY ) {		// Refresh server list
-			int optimal = 1;
-
 			for( List< SERVER_DATA >::iterator server_i = servers.begin() ; server_i != servers.end() ; )		// Remove those who timeout
 				if( msec_timer - server_i->timer >= 30000 )
 					servers.erase( server_i++ );
-				else {
-					optimal = max( optimal, (int)(msec_timer - server_i->timer) / SERVER_LIST_REFRESH_DELAY );
+				else
 					server_i++;
-					}
 			
 			GUIOBJ *obj = networkgame_area.get_object("networkgame.server_list");
 			if( obj ) {
@@ -2003,10 +2004,9 @@ void network_room(void)				// Let players create/join a game
 				}
 
 			server_list_timer = msec_timer;
-			for( int i = 0 ; i < optimal ; i++ )
-				if( TA3D_network.broadcastMessage( "PING SERVER LIST" ) ) {
-					printf("error : could not multicast packet to refresh server list!!\n");
-					}
+			if( TA3D_network.broadcastMessage( "PING SERVER LIST" ) ) {
+				printf("error : could not broadcast packet to refresh server list!!\n");
+				}
 			}
 
 		if( networkgame_area.get_state( "hosting.b_ok" ) || ( key[KEY_ENTER] && networkgame_area.get_state( "hosting" ) ) ) {

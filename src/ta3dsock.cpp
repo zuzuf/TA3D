@@ -29,7 +29,7 @@ int TA3DSock::Open(char* hostname,char* port){
 
 	udpsock.Open(hostname,port,PROTOCOL_UDP);
 
-	if(!( tcpsock.isOpen() && udpsock.isOpen() ) ){
+	if(!( tcpsock.isOpen() && ( udpsock.isOpen() || hostname == NULL ) ) ){
 		if( tcpsock.isOpen() )
 			printf("tcp open\n");
 		if( udpsock.isOpen() )
@@ -58,6 +58,9 @@ int TA3DSock::Accept(TA3DSock** sock){
 		return -1;
 	}
 
+	//this is fishy....maybe not
+	(*sock)->udpsock.Open((*sock)->tcpsock.getNumber(),(*sock)->tcpsock.getService(),PROTOCOL_UDP);
+
 	if(!(*sock)->tcpsock.isOpen() ){
 		if( (*sock)->tcpsock.isOpen() )
 			printf("tcp open\n");
@@ -71,9 +74,6 @@ int TA3DSock::Accept(TA3DSock** sock){
 		delete *sock;
 		return -1;
 	}
-
-	//this is fishy....maybe not
-	(*sock)->udpsock.Open((*sock)->tcpsock.getNumber(),(*sock)->tcpsock.getService(),PROTOCOL_UDP);
 
 	return 0;
 }
@@ -112,7 +112,7 @@ int TA3DSock::Accept(TA3DSock** sock,int timeout){
 }
 
 int TA3DSock::isOpen(){
-	return tcpsock.isOpen() && udpsock.isOpen();
+	return tcpsock.isOpen();
 }
 
 void TA3DSock::Close(){

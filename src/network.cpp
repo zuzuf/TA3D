@@ -971,7 +971,7 @@ int Network::getMyID()
 		else {
 			int timeout = 5000;
 			int my_id = -1;
-			while( my_id == -1 && timeout-- ) {
+			while( my_id == -1 && timeout-- && myMode == 2 && tohost_socket && tohost_socket->isOpen() ) {
 				rest(1);
 				if( getNextSpecial( &special_msg ) == 0 ) {
 					Vector< String > params = ReadVectorString( special_msg.message, " " );
