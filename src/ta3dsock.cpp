@@ -204,46 +204,52 @@ void TA3DSock::sendUDP(){
 }
 
 void TA3DSock::recvTCP(){
-	char buf[256];
-	int v = tcpsock.Recv( buf, 256 );
-	if( v > 0 )
-		printf("buf = '%s'\n", buf);
-	return;
-	if(tiremain == 0)
-		return;
-	else if(tiremain == -1){
-		uint8_t remain;
-		int p = tcpsock.Recv(&remain,1);//get new number
-		printf("remain = %d\n", remain );
-		printf("p = %d\n", p );
-		if( p <= 0 ) {
-			tiremain = -1;
-			return;
-			}
-		if(remain == 0){
-			uint16_t remain2;
-			p = tcpsock.Recv(&remain2,2);//get big number
-			printf("remain2 = %d\n", remain2 );
-			printf("p = %d\n", p );
-			if( p <= 0 )
-				tiremain = -1;
-			else
-				tiremain = remain2;
-		}
-		else if(remain>0) tiremain = remain;
-		else Console->AddEntry("tcp packet error cannot determine size");
-		return;
-	}
-	int n = 0;
-	n = tcpsock.Recv(tcpinbuf+tibp,tiremain);
-	if( n == NL_INVALID )
-		printf("tiremain = %d\n", tiremain);
-	if( n > 0 ) {
-		printf("tcpinbuf(1) = '%s'\n", tcpinbuf);
+	if( tiremain == 0 )	return;
 
-		tibp += n;
-		tiremain -= n;
+	int p = tcpsock.Recv( tcpinbuf, 512 );
+	if( p <= 0 ) {
+		tiremain = -1;
+		return;
 		}
+	tiremain = 0;
+	tibp = p;
+	return;
+		
+//	if(tiremain == 0)
+//		return;
+//	else if(tiremain == -1){
+//		uint8_t remain;
+//		int p = tcpsock.Recv(&remain,1);//get new number
+//		printf("remain = %d\n", remain );
+//		printf("p = %d\n", p );
+//		if( p <= 0 ) {
+//			tiremain = -1;
+//			return;
+//			}
+//		if(remain == 0){
+//			uint16_t remain2;
+//			p = tcpsock.Recv(&remain2,2);//get big number
+//			printf("remain2 = %d\n", remain2 );
+//			printf("p = %d\n", p );
+//			if( p <= 0 )
+//				tiremain = -1;
+//			else
+//				tiremain = remain2;
+//		}
+//		else if(remain>0) tiremain = remain;
+//		else Console->AddEntry("tcp packet error cannot determine size");
+//		return;
+//	}
+//	int n = 0;
+//	n = tcpsock.Recv(tcpinbuf+tibp,tiremain);
+//	if( n == NL_INVALID )
+//		printf("tiremain = %d\n", tiremain);
+//	if( n > 0 ) {
+//		printf("tcpinbuf(1) = '%s'\n", tcpinbuf);
+
+//		tibp += n;
+//		tiremain -= n;
+//		}
 }
 
 void TA3DSock::recvUDP(){
@@ -306,7 +312,6 @@ int TA3DSock::takeFive(int time){
 
 
 int TA3DSock::sendSpecial(struct chat* chat){
-	loadByte(4 + strlen( chat->message ) );
 	loadByte('X');
 	loadShort(chat->from);
 	loadString(chat->message);
@@ -316,7 +321,6 @@ int TA3DSock::sendSpecial(struct chat* chat){
 }
 
 int TA3DSock::sendChat(struct chat* chat){
-	loadByte(4 + strlen( chat->message ) );
 	loadByte('C');
 	loadShort(chat->from);
 	loadString(chat->message);
@@ -326,7 +330,6 @@ int TA3DSock::sendChat(struct chat* chat){
 }
 
 int TA3DSock::sendOrder(struct order* order){
-	loadByte(23);
 	loadByte('O');
 	loadLong(order->timestamp);
 	loadLong(order->unit);
@@ -340,7 +343,6 @@ int TA3DSock::sendOrder(struct order* order){
 }
 
 int TA3DSock::sendSync(struct sync* sync){
-	loadByte(27);
 	loadByte('S');
 	loadLong(sync->timestamp);
 	loadLong(sync->unit);
@@ -354,7 +356,6 @@ int TA3DSock::sendSync(struct sync* sync){
 }
 
 int TA3DSock::sendEvent(struct event* event){
-	loadByte(4);
 	loadByte('E');
 	loadByte(event->type);
 	loadByte(event->player1);
