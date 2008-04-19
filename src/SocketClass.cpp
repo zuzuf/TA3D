@@ -320,6 +320,8 @@ int Socket::Recv(void* data, int num){
 		return -1;
 		}
 
+	if( v == NL_INVALID )	v = num;		// We've filled all the buffer
+		
 	if( stype == STYPE_UDP_RECEIVER || stype == STYPE_UDP_SENDER || stype == STYPE_BROADCAST ) {
 		nlGetRemoteAddr( fd, &address );
 		nlAddrToString(&address, number);

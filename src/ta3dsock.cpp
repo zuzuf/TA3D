@@ -146,14 +146,14 @@ void TA3DSock::Close(){
 //byte shuffling
 void TA3DSock::loadLong(uint32_t x){//uint32
 	uint32_t temp;
-	temp = nlSwapl(x);
+	temp = x;
 	memcpy(outbuf+obp,&temp,4);
 	obp += 4;
 }
 
 void TA3DSock::loadShort(uint16_t x){//uint16
 	uint16_t temp;
-	temp = nlSwaps(x);
+	temp = x;
 	memcpy(outbuf+obp,&temp,2);
 	obp += 2;
 }
@@ -188,8 +188,8 @@ void TA3DSock::sendTCP(){
 	int n = 0;
 	int inc = 0;
 	int count = 0;
-	while(n != obp && count < 100 && isOpen() ) {
-		inc = tcpsock.Send(outbuf,obp);
+	while(n < obp && count < 100 && isOpen() ) {
+		inc = tcpsock.Send(outbuf + n,obp + n);
 		n += inc;
 		if( inc == 0 )	count++;
 		}
@@ -198,17 +198,24 @@ void TA3DSock::sendTCP(){
 
 void TA3DSock::sendUDP(){
 	int n = 0;
-	while(n!=obp);
-		n += udpout.Send(outbuf,obp);
+	while(n<obp)
+		n += udpout.Send(outbuf + n,obp);
 	obp = 0;
 }
 
 void TA3DSock::recvTCP(){
+	char buf[256];
+	int v = tcpsock.Recv( buf, 256 );
+	if( v > 0 )
+		printf("buf = '%s'\n", buf);
+	return;
 	if(tiremain == 0)
 		return;
 	else if(tiremain == -1){
 		uint8_t remain;
 		int p = tcpsock.Recv(&remain,1);//get new number
+		printf("remain = %d\n", remain );
+		printf("p = %d\n", p );
 		if( p <= 0 ) {
 			tiremain = -1;
 			return;
@@ -216,10 +223,12 @@ void TA3DSock::recvTCP(){
 		if(remain == 0){
 			uint16_t remain2;
 			p = tcpsock.Recv(&remain2,2);//get big number
+			printf("remain2 = %d\n", remain2 );
+			printf("p = %d\n", p );
 			if( p <= 0 )
 				tiremain = -1;
 			else
-				tiremain = nlSwaps(remain2);
+				tiremain = remain2;
 		}
 		else if(remain>0) tiremain = remain;
 		else Console->AddEntry("tcp packet error cannot determine size");
@@ -227,7 +236,11 @@ void TA3DSock::recvTCP(){
 	}
 	int n = 0;
 	n = tcpsock.Recv(tcpinbuf+tibp,tiremain);
+	if( n == NL_INVALID )
+		printf("tiremain = %d\n", tiremain);
 	if( n > 0 ) {
+		printf("tcpinbuf(1) = '%s'\n", tcpinbuf);
+
 		tibp += n;
 		tiremain -= n;
 		}
@@ -242,7 +255,7 @@ void TA3DSock::recvUDP(){
 		if(remain == 0){
 			uint16_t remain2;
 			udpin.Recv(&remain2,2);//get big number
-			uiremain = nlSwaps(remain2);
+			uiremain = remain2;
 		}
 		else if(remain>0) uiremain = remain;
 		else Console->AddEntry("udp packet error cannot determine size");
@@ -272,8 +285,6 @@ char TA3DSock::getPacket(){
 		}*/
 	}
 	else{
-		if( tcpinbuf[0] )
-			printf("tcpinbuf(1) = '%s'\n", tcpinbuf);
 		return tcpinbuf[0];
 	}
 }
@@ -399,7 +410,7 @@ int TA3DSock::makeOrder(struct order* order){
 	uint32_t temp;
 
 	memcpy(&temp,tcpinbuf+1,4);
-	order->timestamp = nlSwapl(temp);
+	order->timestamp = temp;
 
 	memcpy(&temp,tcpinbuf+5,4);
 	order->unit = nlSwapl(temp);
