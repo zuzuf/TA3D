@@ -1246,6 +1246,8 @@ void setup_game(bool client, const char *host)
 
 	bool done=false;
 
+	if( host && my_player_id == -1 )	done = true;		// Leave now, we aren't connected but we're in network mode
+
 	bool start_game = false;
 
 	int amx = -1;

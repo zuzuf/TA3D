@@ -121,8 +121,12 @@ int Socket::Open(char *hostname, char *port, int transport){
 		// Try to connect
 
 	int n_port = atoi( port );
-
-	ta3d_socket s = nlOpen( n_port, transport );
+	
+	ta3d_socket s;
+	if( stype == STYPE_TCP_CLIENT )
+		s = nlOpen( 0, transport );
+	else
+		s = nlOpen( n_port, transport );
 	
 	if( s == NL_INVALID ) {
 		stype = STYPE_BROKEN;
@@ -132,8 +136,9 @@ int Socket::Open(char *hostname, char *port, int transport){
 
 	switch( stype )
 	{
-	case STYPE_UDP_SENDER:
 	case STYPE_TCP_CLIENT:
+		nlSetAddrPort(&address, n_port);
+	case STYPE_UDP_SENDER:
 		if( nlConnect( s, &address ) == NL_FALSE ) {
 			stype = STYPE_BROKEN;
 			sockReport( format( "connect error : %s", getError() ).c_str() );
