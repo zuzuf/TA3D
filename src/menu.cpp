@@ -1358,6 +1358,22 @@ void setup_game(bool client, const char *host)
 				else if( params[0] == "NOTIFY" ) {
 					if( params[1] == "UPDATE" )
 						TA3D_network.sendSpecial( "REQUEST GAME_DATA" );			// We're told there are things to update, so ask for update
+					else if( params[1] == "PLAYER_LEFT" ) {
+						TA3D_network.dropPlayer( from );
+						TA3D_network.sendSpecial( "REQUEST GAME_DATA" );			// We're told there are things to update, so ask for update
+						for( int i = 0 ; i < 10 ; i++ )
+							if( game_data.player_network_id[i] == from ) {
+								game_data.player_network_id[i] = -1;
+								game_data.player_control[i] = player_control[2];
+								game_data.player_names[i] = player_str[2];
+
+								setupgame_area.set_caption( format( "gamesetup.name%d", i ),game_data.player_names[i]);			// Update gui
+
+								GUIOBJ *guiobj =  setupgame_area.get_object( format("gamesetup.color%d", i) );
+								if( guiobj )	guiobj->Flag |= FLAG_HIDDEN;
+								break;
+								}
+						}
 					}
 				}
 			else if( params.size() == 3 ) {
@@ -1841,6 +1857,8 @@ void setup_game(bool client, const char *host)
 
 		while(key[KEY_ESC]) {	rest(1);	poll_keyboard();	}
 		}
+	else if( client )
+		TA3D_network.sendSpecial( "NOTIFY PLAYER_LEFT" );
 }
 
 /*-----------------------------------------------------------------------------\
