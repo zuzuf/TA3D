@@ -245,12 +245,12 @@ void SocketThread::proc(void* param){
 }
 
 
-void MultiCastThread::proc(void* param){
-	MulticastSock* sock;
+void BroadCastThread::proc(void* param){
+	BroadcastSock* sock;
 	Network* network;
 
 	network = ((struct net_thread_params*)param)->network;
-	sock = &(network->multicast_socket);
+	sock = &(network->broadcast_socket);
 
 	delete ((struct net_thread_params*)param);
 
@@ -272,8 +272,8 @@ void MultiCastThread::proc(void* param){
 					network->mqmutex.Unlock();
 					break;
 				}
-				network->multicastq.push_back( msg );
-				network->multicastaddressq.push_back( sock->getAddress() );
+				network->broadcastq.push_back( msg );
+				network->broadcastaddressq.push_back( sock->getAddress() );
 			network->mqmutex.Unlock();
 			}
 	}
@@ -627,7 +627,7 @@ Network::~Network(){
 	nlShutdown();
 }
 
-void Network::InitMulticast( char* target, char* port )
+void Network::InitBroadcast( char* port )
 {
 	multicast_socket.Open( target, port );
 		//spawn broadcast thread
@@ -1139,21 +1139,21 @@ String Network::getFile(int player, const String &filename){
 
 int Network::broadcastMessage( const char *msg )
 {
-	if( !multicast_socket.isOpen() )
+	if( !broadcast_socket.isOpen() )
 		return -1;
 
-	return multicast_socket.sendMessage( msg );
+	return broadcast_socket.sendMessage( msg );
 }
 
 std::string Network::getNextBroadcastedMessage()
 {
 	std::string msg;
 	mqmutex.Lock();
-		if( !multicastq.empty() ) {
-			msg = multicastq.front();
-			multicastq.pop_front();
-			if( multicastq.size() + 1 < multicastaddressq.size() )
-				multicastaddressq.pop_front();
+		if( !broadcastq.empty() ) {
+			msg = broadcastq.front();
+			broadcastq.pop_front();
+			if( broadcastq.size() + 1 < broadcastaddressq.size() )
+				broadcastaddressq.pop_front();
 			}
 	mqmutex.Unlock();
 	return msg;
@@ -1163,8 +1163,8 @@ String Network::getLastMessageAddress()
 {
 	String address;
 	mqmutex.Lock();
-		if( !multicastaddressq.empty() )
-			address = multicastaddressq.front();
+		if( !broadcastaddressq.empty() )
+			address = broadcastaddressq.front();
 	mqmutex.Unlock();
 	return address;
 }
@@ -1173,7 +1173,7 @@ String Network::getLastMessageAddress()
 bool Network::BroadcastedMessages()
 {
 	mqmutex.Lock();
-		bool result = !multicastq.empty();
+		bool result = !broadcastq.empty();
 	mqmutex.Unlock();
 	return result;
 }

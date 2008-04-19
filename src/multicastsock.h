@@ -97,7 +97,7 @@ class MulticastSock{
 		MulticastSock() {obp=0;uibp=0;uiremain=-1;}
 		~MulticastSock() {}
 
-		int Open(char* hostname,char* port);
+		int Open(char* port);
 		void Close();
 
 		int isOpen();

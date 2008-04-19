@@ -23,16 +23,12 @@
 /***********************************/
 
 
-int MulticastSock::Open(char* hostname,char* port){
+int MulticastSock::Open(char* port){
 
-	if(hostname)
-		udpsocket.Open(hostname,port,PROTOCOL_BROADCAST);
+	udpsocket.Open(NULL,port,PROTOCOL_BROADCAST);
 	
-	if( !udpsocket.isOpen() || hostname == NULL ){
-		if( hostname )
-			Console->AddEntry("couldn't open %s for UDP", hostname );
-		else
-			Console->AddEntry("couldn't open UDP sockets" );
+	if( !udpsocket.isOpen()  ){
+		Console->AddEntry("couldn't open UDP socket for broadcasting" );
 		//one of them didnt work... quit
 		udpsocket.Close();
 		return -1;
@@ -135,7 +131,7 @@ void MulticastSock::recvUDP(){
 			uiremain = nlSwaps(remain2);
 		}
 		else if(remain>0) uiremain = remain;
-		else Console->AddEntry("udp packet error cannot determine size\n");
+		else Console->AddEntry("udp packet error cannot determine size");
 		return;
 	}
 	int n = 0;

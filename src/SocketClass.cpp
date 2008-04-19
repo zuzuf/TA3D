@@ -105,10 +105,13 @@ int Socket::Open(char *hostname, char *port, int transport){
 		}
 
 
-	if( hostname && nlGetAddrFromNameAsync( hostname, &address ) == NL_FALSE ) {		// Get the address
-		stype = STYPE_BROKEN;
-		sockReport("failed getting address");
-		return -1;
+	if( hostname ) {
+		bool valid = nlGetAddrFromNameAsync( hostname, &address ) != NL_FALSE;
+	 	if( !valid || address.valid == NL_FALSE ) {		// Get the address
+			stype = STYPE_BROKEN;
+			sockReport("failed getting address");
+			return -1;
+			}
 		}
 
 		// Try to connect

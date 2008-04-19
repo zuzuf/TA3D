@@ -20,7 +20,7 @@
 #define __TA3D__NETWORK__H
 
 #include "ta3dsock.h"
-#include "multicastsock.h"
+#include "broadcastsock.h"
 #include "superqueue.h"
 #include "thread.h"
 
@@ -90,7 +90,7 @@ class AdminThread : public Thread{
 	virtual void proc(void* param);
 };
 
-class MultiCastThread : public Thread{
+class BroadCastThread : public Thread{
 	virtual void proc(void* param);
 };
 
@@ -170,7 +170,7 @@ class Network{
 	friend class SendFileThread;
 	friend class GetFileThread;
 	friend class AdminThread;
-	friend class MultiCastThread;
+	friend class BroadCastThread;
 
 	TA3DSock listen_socket;
 	ListenThread listen_thread;
@@ -182,8 +182,8 @@ class Network{
 	List< SendFileThread* > sendfile_thread;
 	List< FileTransferProgress > transfer_progress;
 
-	MulticastSock multicast_socket;	// Used to discover LAN servers
-	MultiCastThread multicast_thread;
+	BroadcastSock broadcast_socket;	// Used to discover LAN servers
+	BroadCastThread broadcast_thread;
 
 	char gamename[128];//displays on the internet gamelist
 	char creatorName[64];//name of the game owner
@@ -199,8 +199,8 @@ class Network{
 	SuperQueue syncq;
 	SuperQueue eventq;
 
-	std::list< std::string > multicastq;
-	std::list< std::string > multicastaddressq;
+	std::list< std::string > broadcastq;
+	std::list< std::string > broadcastaddressq;
 
 	Mutex slmutex;
 	Mutex mqmutex;
@@ -240,7 +240,7 @@ class Network{
 		bool getPlayerDropped();
 		bool pollPlayer(int id);
 
-		void InitMulticast( char* target, char* port);
+		void InitBroadcast( char* port);
 
 		//int listNetGames(GamesList& list);
 		//int listLanGames(GamesList& list);
