@@ -121,8 +121,7 @@ class TA3DSock{
 	char name[64];//player name
 
 	Socket tcpsock;
-	Socket udpin;
-	Socket udpout;
+	Socket udpsock;
 
 	//only touched by main thread
 	char outbuf[512];

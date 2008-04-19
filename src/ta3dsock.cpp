@@ -27,26 +27,20 @@ int TA3DSock::Open(char* hostname,char* port){
 
 	tcpsock.Open(hostname,port,PROTOCOL_TCPIP);
 
-	if(!tcpsock.isOpen() ){
+	udpsock.Open(hostname,port,PROTOCOL_UDP);
+
+	if(!( tcpsock.isOpen() && udpsock.isOpen() ) ){
 		if( tcpsock.isOpen() )
 			printf("tcp open\n");
-		if( udpin.isOpen() )
-			printf("udpin open\n");
-		if( udpout.isOpen() )
-			printf("udpout open\n");
+		if( udpsock.isOpen() )
+			printf("udp open\n");
 		//one of them didnt work... quit
 		if( tcpsock.isOpen() )
 			tcpsock.Close();
-		if( udpin.isOpen() )
-			udpin.Close();
-		if( udpout.isOpen() )
-			udpout.Close();
+		if( udpsock.isOpen() )
+			udpsock.Close();
 		return -1;
 	}
-
-//	udpin.Open(NULL,port,SOCK_DGRAM,network);
-//	if(hostname)
-//		udpout.Open(hostname,port,SOCK_DGRAM,network);
 
 	return 0;
 
@@ -67,24 +61,19 @@ int TA3DSock::Accept(TA3DSock** sock){
 	if(!(*sock)->tcpsock.isOpen() ){
 		if( (*sock)->tcpsock.isOpen() )
 			printf("tcp open\n");
-		if( (*sock)->udpin.isOpen() )
-			printf("udpin open\n");
-		if( (*sock)->udpout.isOpen() )
-			printf("udpout open\n");
+		if( (*sock)->udpsock.isOpen() )
+			printf("udp open\n");
 		//one of them didnt work... quit
 		if( (*sock)->tcpsock.isOpen() )
 			(*sock)->tcpsock.Close();
-		if( (*sock)->udpin.isOpen() )
-			(*sock)->udpin.Close();
-		if( (*sock)->udpout.isOpen() )
-			(*sock)->udpout.Close();
-		delete sock;
+		if( (*sock)->udpsock.isOpen() )
+			(*sock)->udpsock.Close();
+		delete *sock;
 		return -1;
 	}
 
 	//this is fishy....maybe not
-//	(*sock)->udpin.Open(NULL,(*sock)->tcpsock.getService(),SOCK_DGRAM,(*sock)->tcpsock.getAF());
-//	(*sock)->udpout.Open((*sock)->tcpsock.getNumber(),(*sock)->tcpsock.getService(),SOCK_DGRAM,(*sock)->tcpsock.getAF());
+	(*sock)->udpsock.Open((*sock)->tcpsock.getNumber(),(*sock)->tcpsock.getService(),PROTOCOL_UDP);
 
 	return 0;
 }
@@ -103,25 +92,19 @@ int TA3DSock::Accept(TA3DSock** sock,int timeout){
 	
 
 	//this is fishy....maybe not
-//	(*sock)->udpin.Open(NULL,(*sock)->tcpsock.getService(),SOCK_DGRAM,(*sock)->tcpsock.getAF());
-//	(*sock)->udpout.Open((*sock)->tcpsock.getNumber(),(*sock)->tcpsock.getService(),SOCK_DGRAM,(*sock)->tcpsock.getAF());
+	(*sock)->udpsock.Open((*sock)->tcpsock.getNumber(),(*sock)->tcpsock.getService(),PROTOCOL_UDP);
 
-//	if(!((*sock)->tcpsock.isOpen() && (*sock)->udpin.isOpen() && (*sock)->udpout.isOpen()) ){
-	if(!(*sock)->tcpsock.isOpen() ){
+	if(!((*sock)->tcpsock.isOpen() && (*sock)->udpsock.isOpen()) ){
 		if( (*sock)->tcpsock.isOpen() )
 			printf("tcp open\n");
-		if( (*sock)->udpin.isOpen() )
-			printf("udpin open\n");
-		if( (*sock)->udpout.isOpen() )
-			printf("udpout open\n");
+		if( (*sock)->udpsock.isOpen() )
+			printf("udp open\n");
 		//one of them didnt work... quit
 		if( (*sock)->tcpsock.isOpen() )
 			(*sock)->tcpsock.Close();
-		if( (*sock)->udpin.isOpen() )
-			(*sock)->udpin.Close();
-		if( (*sock)->udpout.isOpen() )
-			(*sock)->udpout.Close();
-		delete sock;
+		if( (*sock)->udpsock.isOpen() )
+			(*sock)->udpsock.Close();
+		delete *sock;
 		return -1;
 	}
 
@@ -129,16 +112,14 @@ int TA3DSock::Accept(TA3DSock** sock,int timeout){
 }
 
 int TA3DSock::isOpen(){
-	return tcpsock.isOpen();
+	return tcpsock.isOpen() && udpsock.isOpen();
 }
 
 void TA3DSock::Close(){
 	if( tcpsock.isOpen() )
 		tcpsock.Close();
-	if( udpin.isOpen() )
-		udpin.Close();
-	if( udpout.isOpen() )
-		udpout.Close();
+	if( udpsock.isOpen() )
+		udpsock.Close();
 }
 
 
@@ -196,8 +177,14 @@ void TA3DSock::sendTCP(){
 
 void TA3DSock::sendUDP(){
 	int n = 0;
-	while(n<obp)
-		n += udpout.Send(outbuf + n,obp);
+	while(n < obp) {
+		int v = udpsock.Send(outbuf + n,obp);
+		if( v <= 0 ) {
+			Console->AddEntry("ERROR : could not send data over UDP!");
+			break;
+			}
+		n += v;
+		}
 	obp = 0;
 }
 
@@ -216,40 +203,30 @@ void TA3DSock::recvTCP(){
 void TA3DSock::recvUDP(){
 	if(uiremain == 0)
 		return;
-	else if(uiremain == -1){
-		uint8_t remain;
-		udpin.Recv(&remain,1);//get new number
-		if(remain == 0){
-			uint16_t remain2;
-			udpin.Recv(&remain2,2);//get big number
-			uiremain = remain2;
-		}
-		else if(remain>0) uiremain = remain;
-		else Console->AddEntry("udp packet error cannot determine size");
+	memset( udpinbuf, 0, MULTICAST_BUFFER_SIZE );
+	int p = udpsock.Recv(udpinbuf,MULTICAST_BUFFER_SIZE);//get new number
+	if( p <= 0 ) {
+		uiremain = -1;
 		return;
-	}
-	int n = 0;
-	n = udpin.Recv(udpinbuf+uibp,uiremain);
-	if( n > 0 ) {
-		uibp += n;
-		uiremain -= n;
 		}
+	uibp = p;
+	uiremain = 0;
 }
 
 
 void TA3DSock::pumpIn(){
 	recvTCP();
-//	recvUDP();
+	recvUDP();
 }
 
 char TA3DSock::getPacket(){
 	if(tiremain>0){
-//		if(uiremain>0){
+		if(uiremain>0){
 			return 0;
-/*		}
+		}
 		else{
 			return udpinbuf[0];
-		}*/
+		}
 	}
 	else{
 		return tcpinbuf[0];
@@ -263,12 +240,27 @@ void TA3DSock::cleanPacket(){
 		tibp = 0;
 		tiremain = -1;
 	}
+	else if(uiremain<=0) {
+		udpinbuf[uibp] = 0;
+		printf("udpinbuf = '%s'\n", udpinbuf);
+		uibp = 0;
+		uiremain = -1;
+	}
 }
 
 
 
 int TA3DSock::takeFive(int time){
-	return tcpsock.takeFive( time );
+	NLint group = nlGroupCreate();
+	nlGroupAddSocket( group, tcpsock.getFD() );
+	nlGroupAddSocket( group, udpsock.getFD() );
+	
+	ta3d_socket s[2];
+	NLint v = nlPollGroup( group, NL_READ_STATUS, s, 2, time);
+
+	nlGroupDestroy( group );
+
+	return v;
 }
 
 
