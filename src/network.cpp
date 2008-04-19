@@ -254,6 +254,8 @@ void BroadCastThread::proc(void* param){
 
 	String msg;
 	
+	dead = 0;
+	
 	while(!dead && sock->isOpen() ){
 	
 		//sleep until data is coming
@@ -277,7 +279,7 @@ void BroadCastThread::proc(void* param){
 	}
 
 	dead = 1;
-	Console->AddEntry("Multicast thread closed!");
+	Console->AddEntry("Broadcast thread closed!");
 
 	return;
 }
@@ -628,7 +630,7 @@ void Network::InitBroadcast( char* port )
 		//spawn broadcast thread
 	net_thread_params *params = new net_thread_params;
 	params->network = this;
-	Console->AddEntry("Network: spawning multicast thread");
+	Console->AddEntry("Network: spawning broadcast thread");
 	broadcast_thread.Spawn(params);
 }
 

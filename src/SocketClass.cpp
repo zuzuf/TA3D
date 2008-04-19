@@ -110,9 +110,9 @@ int Socket::Open(char *hostname, char *port, int transport){
 
 
 	if( hostname ) {
-		bool valid = nlGetAddrFromNameAsync( hostname, &address ) != NL_FALSE;		// Get the address
+		bool valid = nlGetAddrFromName( hostname, &address ) != NL_FALSE;		// Get the address
 	 	if( !valid || address.valid == NL_FALSE ) {
-			bool valid = nlGetAddrFromNameAsync( format( "%s:%s", hostname, port ).c_str(), &address ) != NL_FALSE;		// Retry adding port
+			bool valid = nlGetAddrFromName( format( "%s:%s", hostname, port ).c_str(), &address ) != NL_FALSE;		// Retry adding port
 	 		
 		 	if( !valid || address.valid == NL_FALSE ) {
 				stype = STYPE_BROKEN;
@@ -331,7 +331,13 @@ int Socket::Recv(void* data, int num){
 		sockError( format("Recv: %s", getError() ).c_str() );
 		if( nlGetError() == NL_CON_PENDING )					// Don't close connection, it's not even opened yet !!
 			return -1;
-		Close();
+		switch( nlGetError() )
+		{
+		case NL_INVALID_SOCKET :
+		case NL_CON_REFUSED :
+		case NL_MESSAGE_END :
+			Close();
+		};
 		return -1;
 		}
 

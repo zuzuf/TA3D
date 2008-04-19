@@ -5,16 +5,16 @@
 #define HAVE_INTTYPES_H 1
 
 /* Define to 1 if you have the `fmodex' library (-lfmodex). */
-/* #undef HAVE_LIBFMODEX */
+#define HAVE_LIBFMODEX 1
 
 /* Define to 1 if you have the `fmodex64' library (-lfmodex64). */
-#define HAVE_LIBFMODEX64 1
+/* #undef HAVE_LIBFMODEX64 */
 
 /* Define to 1 if you have the `GL' library (-lGL). */
-#define HAVE_LIBGL 1
+/* #undef HAVE_LIBGL */
 
 /* Define to 1 if you have the `GLU' library (-lGLU). */
-#define HAVE_LIBGLU 1
+/* #undef HAVE_LIBGLU */
 
 /* Define to 1 if you have the `z' library (-lz). */
 #define HAVE_LIBZ 1
@@ -53,10 +53,10 @@
 /* #undef HAVE_STRSTR */
 
 /* Define to 1 if you have the <sys/select.h> header file. */
-#define HAVE_SYS_SELECT_H 1
+/* #undef HAVE_SYS_SELECT_H */
 
 /* Define to 1 if you have the <sys/socket.h> header file. */
-#define HAVE_SYS_SOCKET_H 1
+/* #undef HAVE_SYS_SOCKET_H */
 
 /* Define to 1 if you have the <sys/stat.h> header file. */
 #define HAVE_SYS_STAT_H 1
@@ -92,7 +92,7 @@
 #define SELECT_TYPE_ARG1 int
 
 /* Define to the type of args 2, 3 and 4 for `select'. */
-#define SELECT_TYPE_ARG234 (fd_set *)
+#define SELECT_TYPE_ARG234 (int *)
 
 /* Define to the type of arg 5 for `select'. */
 #define SELECT_TYPE_ARG5 (struct timeval *)

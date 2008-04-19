@@ -32,12 +32,22 @@ AC_ARG_ENABLE(mingw32,
 [
 make -C "src/lua/" clean
 make -C "src/lua/" mingw CC=$CC RANLIB=$host-ranlib
-LIBS="-L./lua/ -llua -lagl -lalleg -luser32 -lgdi32 -lopengl32 -lglu32 -lz.dll -lfmodex -lNL"
-CXXFLAGS="$CXXFLAGS -D_WIN32_WINNT=0x0501 -I/usr/i586-mingw32msvc/include"],
+
+make -C "src/hawknl/src/" -f makefile.mingw clean
+make -C "src/hawknl/src/" -f makefile.mingw CC=$CC AR=$host-ar
+
+cp src/lua/lua51.dll ./
+cp src/hawknl/src/NL.dll ./
+
+LIBS="-L./lua/ -llua -lagl -lalleg -luser32 -lgdi32 -lopengl32 -lglu32 -lz.dll -lfmodex -L./hawknl/src/ -lNL"
+CXXFLAGS="$CXXFLAGS -I/usr/i586-mingw32msvc/include"],
 [
 make -C "src/lua/" clean
 make -C "src/lua/" linux
-LIBS="$LIBS -lagl -L./lua/ -llua -lNL $allegro_LIBS"
+
+make -C "src/hawknl/src/" -f makefile.linux clean
+make -C "src/hawknl/src/" -f makefile.linux
+LIBS="$LIBS -lagl -L./lua/ -llua -L./hawknl/src/ -lNL $allegro_LIBS"
 CXXFLAGS="$CXXFLAGS $allegro_CFLAGS"])
 
 CXXFLAGS="$CXXFLAGS -ffast-math -mmmx"

@@ -20,7 +20,7 @@
 #include <unistd.h>
 #include <string.h>
 
-#include <nl.h>			// Our low-level network layer, OS abstraction layer
+#include "hawknl/include/nl.h"			// Our low-level network layer, OS abstraction layer
 
 #if defined TA3D_PLATFORM_WINDOWS
 
