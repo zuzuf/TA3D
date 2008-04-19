@@ -299,6 +299,8 @@ int Socket::Send(void* data,int num){
 
 	if(v == NL_INVALID ){
 		sockError( format("Send: %s", getError() ).c_str() );
+		if( nlGetError() == NL_CON_PENDING )					// Don't close connection, it's not even opened yet !!
+			return -1;
 		Close();
 		return -1;
 		}
@@ -320,6 +322,8 @@ int Socket::Recv(void* data, int num){
 	int v = nlRead( fd, data, num );
 	if( v == NL_INVALID && nlGetError() != NL_BUFFER_SIZE ){		// If buffer is too small then return what we've read but don't close the connection
 		sockError( format("Recv: %s", getError() ).c_str() );
+		if( nlGetError() == NL_CON_PENDING )					// Don't close connection, it's not even opened yet !!
+			return -1;
 		Close();
 		return -1;
 		}
