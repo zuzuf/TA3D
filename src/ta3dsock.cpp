@@ -213,43 +213,6 @@ void TA3DSock::recvTCP(){
 		}
 	tiremain = 0;
 	tibp = p;
-	return;
-		
-//	if(tiremain == 0)
-//		return;
-//	else if(tiremain == -1){
-//		uint8_t remain;
-//		int p = tcpsock.Recv(&remain,1);//get new number
-//		printf("remain = %d\n", remain );
-//		printf("p = %d\n", p );
-//		if( p <= 0 ) {
-//			tiremain = -1;
-//			return;
-//			}
-//		if(remain == 0){
-//			uint16_t remain2;
-//			p = tcpsock.Recv(&remain2,2);//get big number
-//			printf("remain2 = %d\n", remain2 );
-//			printf("p = %d\n", p );
-//			if( p <= 0 )
-//				tiremain = -1;
-//			else
-//				tiremain = remain2;
-//		}
-//		else if(remain>0) tiremain = remain;
-//		else Console->AddEntry("tcp packet error cannot determine size");
-//		return;
-//	}
-//	int n = 0;
-//	n = tcpsock.Recv(tcpinbuf+tibp,tiremain);
-//	if( n == NL_INVALID )
-//		printf("tiremain = %d\n", tiremain);
-//	if( n > 0 ) {
-//		printf("tcpinbuf(1) = '%s'\n", tcpinbuf);
-
-//		tibp += n;
-//		tiremain -= n;
-//		}
 }
 
 void TA3DSock::recvUDP(){
@@ -315,7 +278,6 @@ int TA3DSock::sendSpecial(struct chat* chat){
 	loadByte('X');
 	loadShort(chat->from);
 	loadString(chat->message);
-//	loadByte('\0');
 	sendTCP();
 	return 0;
 }
@@ -324,7 +286,6 @@ int TA3DSock::sendChat(struct chat* chat){
 	loadByte('C');
 	loadShort(chat->from);
 	loadString(chat->message);
-//	loadByte('\0');
 	sendTCP();
 	return 0;
 }
@@ -374,7 +335,6 @@ int TA3DSock::makeSpecial(struct chat* chat){
 		return -1;
 	}
 	chat->from = ((uint16*)(tcpinbuf+1))[0];
-//	printf("message = '%s'\n", tcpinbuf+2);
 	memcpy(chat->message,tcpinbuf+3,253);
 	(chat->message)[252] = '\0';
 	tibp = 0;

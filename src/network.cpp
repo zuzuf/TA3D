@@ -172,12 +172,9 @@ void SocketThread::proc(void* param){
 						network->xqmutex.Unlock();
 						break;
 						}
-					printf("received '%s'\n", chat.message);
 					chat.from = sockid;
 					network->specialq.enqueue(&chat);
 				network->xqmutex.Unlock();
-//				if( sockid != -1 )
-//					network->sendSpecial(&chat, sockid);
 				break;
 			case 'C'://chat
 				network->cqmutex.Lock();
