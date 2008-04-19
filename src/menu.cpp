@@ -1076,7 +1076,7 @@ void setup_game(bool client, const char *host)
 	int my_player_id = -1;
 	if( host ) {
 		if( !client ) {
-			TA3D_network.InitMulticast("224.0.0.3","1234");		// multicast mode
+			TA3D_network.InitBroadcast("1234");		// broadcast mode
 			TA3D_network.HostGame( (char*) host, "4242", 2 );
 			}
 		else
@@ -1261,7 +1261,7 @@ void setup_game(bool client, const char *host)
 	do
 	{
 		bool key_is_pressed = false;
-		String multicast_msg = "";
+		String broadcast_msg = "";
 		String chat_msg = "";
 		String special_msg = "";
 		struct chat received_chat_msg;
@@ -1270,7 +1270,7 @@ void setup_game(bool client, const char *host)
 		int progress_timer = msec_timer;
 		do {
 			playerDropped = TA3D_network.getPlayerDropped();
-			multicast_msg = TA3D_network.getNextBroadcastedMessage();
+			broadcast_msg = TA3D_network.getNextBroadcastedMessage();
 			if( TA3D_network.getNextChat( &received_chat_msg ) == 0 )
 				chat_msg = received_chat_msg.message;
 			if( TA3D_network.getNextSpecial( &received_special_msg ) == 0 )
@@ -1284,7 +1284,7 @@ void setup_game(bool client, const char *host)
 			rest( 1 );
 			if( msec_timer - progress_timer >= 500 && TA3D_network.getFileTransferProgress() != 100.0f )	break;
 		} while( amx == mouse_x && amy == mouse_y && amz == mouse_z && amb == mouse_b && mouse_b == 0 && !key[ KEY_ENTER ] && !key[ KEY_ESC ] && !done
-			&& !key_is_pressed && !setupgame_area.scrolling && multicast_msg.empty() && chat_msg.empty() && special_msg.empty() && !playerDropped );
+			&& !key_is_pressed && !setupgame_area.scrolling && broadcast_msg.empty() && chat_msg.empty() && special_msg.empty() && !playerDropped );
 
 //-------------------------------------------------------------- Network Code : syncing information --------------------------------------------------------------
 
@@ -1543,8 +1543,8 @@ void setup_game(bool client, const char *host)
 
 //-------------------------------------------------------------- Network Code : advert system --------------------------------------------------------------
 
-		while( !multicast_msg.empty() ) {												// Multicast message receiver
-			Vector<String> params = ReadVectorString( multicast_msg, " " );
+		while( !broadcast_msg.empty() ) {												// Multicast message receiver
+			Vector<String> params = ReadVectorString( broadcast_msg, " " );
 			if( params.size() == 3 && params[0] == "PING" && params[1] == "SERVER" ) {
 				if( params[2] == "LIST" && host ) {						// Sending information about this server
 					uint16 nb_open = 0;
@@ -1558,7 +1558,7 @@ void setup_game(bool client, const char *host)
 							TA3D_network.broadcastMessage( format( "PONG SERVER %s %s %s %d", host, ReplaceChar( TA3D_CURRENT_MOD, ' ', '?' ).c_str(), ReplaceChar( TA3D_ENGINE_VERSION,' ','?' ).c_str(), nb_open ).c_str() );
 					}
 				}
-			multicast_msg = TA3D_network.getNextBroadcastedMessage();
+			broadcast_msg = TA3D_network.getNextBroadcastedMessage();
 			}
 
 //-------------------------------------------------------------- End of Network Code --------------------------------------------------------------
@@ -1865,7 +1865,7 @@ void network_room(void)				// Let players create/join a game
 	gfx->ReInitTexSys();
 
 	Network	TA3D_network;
-	TA3D_network.InitMulticast("224.0.0.3","1234");		// multicast mode
+	TA3D_network.InitBroadcast("1234");		// broadcast mode
 
 	int server_list_timer = msec_timer - SERVER_LIST_REFRESH_DELAY;
 

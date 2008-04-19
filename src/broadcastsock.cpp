@@ -19,11 +19,11 @@
 #include "TA3D_NameSpace.h"
 
 /***********************************/
-/**  methods for MulticastSock  ****/
+/**  methods for BroadcastSock  ****/
 /***********************************/
 
 
-int MulticastSock::Open(char* port){
+int BroadcastSock::Open(char* port){
 
 	udpsocket.Open(NULL,port,PROTOCOL_BROADCAST);
 	
@@ -44,37 +44,37 @@ int MulticastSock::Open(char* port){
 
 
 
-int MulticastSock::isOpen(){
+int BroadcastSock::isOpen(){
 	return udpsocket.isOpen();
 }
 
-void MulticastSock::Close(){
+void BroadcastSock::Close(){
 	udpsocket.Close();
 }
 
 
 
 //byte shuffling
-void MulticastSock::loadLong(uint32_t x){//uint32
+void BroadcastSock::loadLong(uint32_t x){//uint32
 	uint32_t temp;
 	temp = nlSwapl(x);
 	memcpy(outbuf+obp,&temp,4);
 	obp += 4;
 }
 
-void MulticastSock::loadShort(uint16_t x){//uint16
+void BroadcastSock::loadShort(uint16_t x){//uint16
 	uint16_t temp;
 	temp = nlSwaps(x);
 	memcpy(outbuf+obp,&temp,2);
 	obp += 2;
 }
 
-void MulticastSock::loadByte(uint8_t x){//uint8
+void BroadcastSock::loadByte(uint8_t x){//uint8
 	memcpy(outbuf+obp,&x,1);
 	obp += 1;
 }
 
-void MulticastSock::loadString(char* x){//null terminated
+void BroadcastSock::loadString(char* x){//null terminated
 	int n = strlen(x);
 	if(n < 256){
 		memcpy(outbuf+obp,x,n);
@@ -87,7 +87,7 @@ void MulticastSock::loadString(char* x){//null terminated
 	loadByte('\0');
 }	
 
-void MulticastSock::loadFloat(float x){
+void BroadcastSock::loadFloat(float x){
 	float temp;
 	temp = nlSwapf(x);
 	memcpy(outbuf+obp,&temp,4);
@@ -95,7 +95,7 @@ void MulticastSock::loadFloat(float x){
 }
 
 
-void MulticastSock::sendUDP(){
+void BroadcastSock::sendUDP(){
 	if( !udpsocket.isOpen() ) {
 		Console->AddEntry("WARNING: broadcast socket closed!!");
 		}
@@ -111,7 +111,7 @@ void MulticastSock::sendUDP(){
 	obp = 0;
 }
 
-void MulticastSock::recvUDP(){
+void BroadcastSock::recvUDP(){
 	if(uiremain == 0)
 		return;
 	else if(uiremain == -1){
@@ -143,11 +143,11 @@ void MulticastSock::recvUDP(){
 }
 
 
-void MulticastSock::pumpIn(){
+void BroadcastSock::pumpIn(){
 	recvUDP();
 }
 
-char MulticastSock::getPacket(){
+char BroadcastSock::getPacket(){
 	if(uiremain>0)
 		return 0;
 	else
@@ -156,24 +156,24 @@ char MulticastSock::getPacket(){
 
 
 
-int MulticastSock::takeFive(int time){
+int BroadcastSock::takeFive(int time){
 	return udpsocket.takeFive( time );
 }
 
 
-String MulticastSock::getAddress() {
+String BroadcastSock::getAddress() {
 	return udpsocket.getNumber();
 }
 
 
-int MulticastSock::sendMessage( const char* msg ){
+int BroadcastSock::sendMessage( const char* msg ){
 	loadString((char*)msg);
 	loadByte('\0');
 	sendUDP();
 	return 0;
 }
 
-std::string MulticastSock::makeMessage(){
+std::string BroadcastSock::makeMessage(){
 	if(uiremain != 0){
 		return "";
 	}

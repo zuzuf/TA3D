@@ -43,7 +43,7 @@ ta3d_SOURCES= \
 	jpeg/dct.h jpeg/internal.h jpeg/ta3d_jpg.h \
 	SocketClass.cpp SocketClass.h \
 	ta3dsock.cpp ta3dsock.h \
-	multicastsock.cpp multicastsock.h \
+	broadcastsock.cpp broadcastsock.h \
 	superqueue.cpp superqueue.h \
 	network.cpp network.h \
 	TA3D_Platform.h matrix.h ta3dbase.h vector.h thread.h

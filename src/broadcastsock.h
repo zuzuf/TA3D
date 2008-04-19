@@ -68,7 +68,7 @@
 //MulticastSock- specialized low-level networking
 //used internally by Network to discover servers over
 //a LAN network
-class MulticastSock{
+class BroadcastSock{
 
 	Socket udpsocket;
 
@@ -94,8 +94,8 @@ class MulticastSock{
 	int max(int a, int b) {return (a>b ? a : b);}
 
 	public:
-		MulticastSock() {obp=0;uibp=0;uiremain=-1;}
-		~MulticastSock() {}
+		BroadcastSock() {obp=0;uibp=0;uiremain=-1;}
+		~BroadcastSock() {}
 
 		int Open(char* port);
 		void Close();

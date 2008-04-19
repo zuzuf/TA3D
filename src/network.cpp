@@ -580,8 +580,8 @@ Network::Network() :
 transfer_progress(),
 getfile_thread(),
 sendfile_thread(),
-multicastq(),
-multicastaddressq(),
+broadcastq(),
+broadcastaddressq(),
 specialq(64,sizeof(struct chat)) , 
 chatq(64,sizeof(struct chat)) , 
 orderq(32,sizeof(struct order)) , 
@@ -602,7 +602,7 @@ Network::~Network(){
 	admin_thread.Join();
 //	getfile_thread.Join();
 //	sendfile_thread.Join();
-	multicast_thread.Join();
+	broadcast_thread.Join();
 
 	for( List< GetFileThread* >::iterator i = getfile_thread.begin() ; i != getfile_thread.end() ; i++ ) {
 		(*i)->Join();
@@ -618,9 +618,9 @@ Network::~Network(){
 
 //	tohost_socket.Close();//administrative channel, shutdown in players.Shutdown()
 	listen_socket.Close();
-	multicast_socket.Close();
-	multicastq.clear();
-	multicastaddressq.clear();
+	broadcast_socket.Close();
+	broadcastq.clear();
+	broadcastaddressq.clear();
 	
 	players.Shutdown();
 	
@@ -629,12 +629,12 @@ Network::~Network(){
 
 void Network::InitBroadcast( char* port )
 {
-	multicast_socket.Open( target, port );
+	broadcast_socket.Open( port );
 		//spawn broadcast thread
 	net_thread_params *params = new net_thread_params;
 	params->network = this;
 	Console->AddEntry("Network: spawning multicast thread");
-	multicast_thread.Spawn(params);
+	broadcast_thread.Spawn(params);
 }
 
 
@@ -754,8 +754,8 @@ void Network::Disconnect(){
 
 	tohost_socket = NULL;
 
-	multicast_thread.Join();
-	multicast_socket.Close();
+	broadcast_thread.Join();
+	broadcast_socket.Close();
 
 	ftmutex.Lock();
 
@@ -900,8 +900,8 @@ int Network::cleanPlayer()
 		if( sock && !sock->isOpen() ) {
 			v = players.Remove( i );
 			if( sock == tohost_socket ) {
-				multicast_thread.Join();
-				multicast_socket.Close();
+				broadcast_thread.Join();
+				broadcast_socket.Close();
 
 				tohost_socket = NULL;
 				myMode = 0;
