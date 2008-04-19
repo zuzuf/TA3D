@@ -969,7 +969,7 @@ int Network::getMyID()
 		if( sendSpecial( strtochat( &special_msg, "REQUEST PLAYER_ID" ) ) )
 			return -1;
 		else {
-			int timeout = 30000;
+			int timeout = 5000;
 			int my_id = -1;
 			while( my_id == -1 && timeout-- ) {
 				rest(1);

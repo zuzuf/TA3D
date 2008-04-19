@@ -8,7 +8,7 @@
 	height=1024;
 	draw borders=false;
 	show title=false;
-	number of objects=10;
+	number of objects=11;
 	hidden=false;
 	lock=true;
 	color=0x00000000;			// Fully transparent so we can see the AREA background
@@ -127,5 +127,17 @@
 		value=0xFFFFFFFF;
 		size=2;
 		centered=true;
+	}
+	[object10]
+	{
+		name=b_joinip;
+		type=BUTTON;
+		x1=791;
+		y1=68;
+		x2=1039;
+		y2=103;
+		caption=Join IP;
+		size=2;
+		on click=joinip.show;
 	}
 }

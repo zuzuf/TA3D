@@ -1886,6 +1886,8 @@ void network_room(void)				// Let players create/join a game
 	int amy = -1;
 	int amz = -1;
 	int amb = -1;
+	
+	String join_host = "";
 
 	do
 	{
@@ -2007,10 +2009,22 @@ void network_room(void)				// Let players create/join a game
 			done = true;
 			}
 
+		if( networkgame_area.get_state( "joinip.b_ok" ) ) {
+			join_host = networkgame_area.get_caption( "joinip.t_hostname" );
+			done = true;
+			}
+
 		if( networkgame_area.get_state( "networkgame.b_join" ) ) {
 			while( key[KEY_ENTER] )	{	rest( 20 );	poll_keyboard();	}
 			clear_keybuf();
 			done=true;		// If user click "OK" or hit enter then leave the window
+			List< SERVER_DATA >::iterator i_server = servers.begin();
+			while( i_server != servers.end() && i_server->name != sel_index )	i_server++;
+
+			if( i_server != servers.end() )		// Server not found !!
+				join_host = i_server->host;
+			else
+				join_host.clear();
 			}
 
 		if( networkgame_area.get_state( "networkgame.b_cancel" ) || key[KEY_ESC] ) {
@@ -2056,17 +2070,13 @@ void network_room(void)				// Let players create/join a game
 	reset_mouse();
 	while(key[KEY_ESC]) {	rest(1);	poll_keyboard();	}
 
-	if( !sel_index.empty() ) {			// Join a game
+	if( !join_host.empty() ) {			// Join a game
 		TA3D_network.Disconnect();
-		List< SERVER_DATA >::iterator i_server = servers.begin();
-		while( i_server != servers.end() && i_server->name != sel_index )	i_server++;
 
-		if( i_server != servers.end() )	{		// Server not found !!
-			setup_game( true, i_server->host.c_str() );
-			gfx->ReInitTexSys();
-			glScalef(SCREEN_W/640.0f,SCREEN_H/480.0f,1.0f);
-			gfx->set_2D_mode();
-			}
+		setup_game( true, join_host.c_str() );
+		gfx->ReInitTexSys();
+		glScalef(SCREEN_W/640.0f,SCREEN_H/480.0f,1.0f);
+		gfx->set_2D_mode();
 		}
 	gfx->unset_2D_mode();	// Quitte le mode de dessin d'allegro
 }
