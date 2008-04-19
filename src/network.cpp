@@ -334,7 +334,7 @@ void SendFileThread::proc(void* param){
 
 	int real_length = length;
 
-	length = nlSwapl( length );
+	length = length;
 	filesock.Send(&length,4);
 	
 	int pos = 0;
@@ -353,7 +353,7 @@ void SendFileThread::proc(void* param){
 			while( p <= 0 && !dead && filesock.isOpen() ) {
 				p = filesock.Recv(&recv_pos,4);
 				if( p == 4 ) {
-					recv_pos = nlSwapl( recv_pos );
+					recv_pos = recv_pos;
 					if( recv_pos < pos - FILE_TRANSFER_BUFFER_SIZE ) {
 						rest(1);
 						p = -1;

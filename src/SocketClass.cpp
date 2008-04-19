@@ -24,6 +24,10 @@
 
 char *Socket::getError()
 {
+	NLint error = nlGetError();
+	
+	if( error == NL_SYSTEM_ERROR )
+		return (char*) nlGetSystemErrorStr( nlGetSystemError() );
 	return (char*) nlGetErrorStr( nlGetError() );
 }
 
