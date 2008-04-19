@@ -336,7 +336,7 @@ void SendFileThread::proc(void* param){
 
 	filesock.Send(&length,4);
 	
-	sleep( 1000 );
+	rest( 1000 );
 	
 	int pos = 0;
 	
@@ -354,7 +354,6 @@ void SendFileThread::proc(void* param){
 			while( p <= 0 && !dead && filesock.isOpen() ) {
 				p = filesock.Recv(&recv_pos,4);
 				if( p == 4 ) {
-					printf("recv_pos = %d\n", recv_pos );
 					recv_pos = recv_pos;
 					if( recv_pos < pos - FILE_TRANSFER_BUFFER_SIZE ) {
 						rest(1);
@@ -492,8 +491,6 @@ void GetFileThread::proc(void* param){
 		n += p > 0 ? p : 0;
 	}
 	memcpy(&length,buffer,4);
-
-	printf("length = %d\n", length );
 
 	sofar = 0;
 	if( dead ) length = 1;			// In order to delete the file

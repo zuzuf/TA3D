@@ -295,12 +295,19 @@ int Socket::Send(void* data,int num){
 		return -1;
 	}
 
+	int count = 0;
+	retry:
 	int v = nlWrite( fd, data, num );
 
 	if(v == NL_INVALID ){
 		sockError( format("Send: %s", getError() ).c_str() );
-		if( nlGetError() == NL_CON_PENDING )					// Don't close connection, it's not even opened yet !!
-			return -1;
+		if( nlGetError() == NL_CON_PENDING ) {					// Don't close connection, it's not even opened yet !!
+			count++;
+			if( count < 1000 ) {
+				rest(1);
+				goto retry;
+				}
+			}
 		Close();
 		return -1;
 		}

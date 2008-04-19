@@ -11,7 +11,8 @@ _networking code
 _improve A.I.
 _D3D support
 
-* added support for multicasting (LAN server discovery)
+* low level networking layer used HawkNL library
+* added support for broadcasting (LAN server discovery)
 * added networking code
 * added support for mission features (features described in *.ota files)
 * added a test to prevent making textures that can't fit within the maximum texture size available on the OpenGL renderer (hope it'll fix the SIS bug)
@@ -26,6 +27,7 @@ _some parts of the maps might not be drawn (visibility limit) like hills
 _slow down with lots of 3D sprites on some gfx hardware (speed increased but bug not yet fixed)
 _fix all other bugs ( :-) )
 
+* fixed lots of bugs in networking code
 * fixed some transparency drawing bugs with trees
 * fixed tactical icons hidden by map geometry
 * fixed some bugs in networking code
