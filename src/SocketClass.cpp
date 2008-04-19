@@ -106,11 +106,15 @@ int Socket::Open(char *hostname, char *port, int transport){
 
 
 	if( hostname ) {
-		bool valid = nlGetAddrFromNameAsync( hostname, &address ) != NL_FALSE;
-	 	if( !valid || address.valid == NL_FALSE ) {		// Get the address
-			stype = STYPE_BROKEN;
-			sockReport("failed getting address");
-			return -1;
+		bool valid = nlGetAddrFromNameAsync( hostname, &address ) != NL_FALSE;		// Get the address
+	 	if( !valid || address.valid == NL_FALSE ) {
+			bool valid = nlGetAddrFromNameAsync( format( "%s:%s", hostname, port ).c_str(), &address ) != NL_FALSE;		// Retry adding port
+	 		
+		 	if( !valid || address.valid == NL_FALSE ) {
+				stype = STYPE_BROKEN;
+				sockReport( format( "failed getting address for '%s'", hostname ).c_str() );
+				return -1;
+				}
 			}
 		}
 
@@ -154,6 +158,11 @@ int Socket::Open(char *hostname, char *port, int transport){
 	strncpy(service,port,NI_MAXSERV);
 	
 	nlAddrToString(&address, number);
+	for( char *f = number ; *f ; f++ )			// Get rid of the port
+		if( *f == ':' ) {
+			*f = 0;
+			break;
+			}
 	
 	sockReport("socket opened");
 
@@ -218,6 +227,11 @@ int Socket::Accept(Socket& sock,int timeout){
 	strncpy(sock.service,service,NI_MAXSERV);
 	
 	nlAddrToString(&address, number);
+	for( char *f = number ; *f ; f++ )			// Get rid of the port
+		if( *f == ':' ) {
+			*f = 0;
+			break;
+			}
 
 	sockReport("new connection accepted");
 	sock.sockReport("connection established");
@@ -295,14 +309,21 @@ int Socket::Recv(void* data, int num){
 	}
 
 	int v = nlRead( fd, data, num );
-	if( v == NL_INVALID ){
+	if( v == NL_INVALID && nlGetError() != NL_BUFFER_SIZE ){		// If buffer is too small then return what we've read but don't close the connection
 		sockError( format("Recv: %s", getError() ).c_str() );
 		Close();
 		return -1;
 		}
 
-	if( stype == STYPE_UDP_RECEIVER || stype == STYPE_UDP_SENDER || stype == STYPE_BROADCAST )
+	if( stype == STYPE_UDP_RECEIVER || stype == STYPE_UDP_SENDER || stype == STYPE_BROADCAST ) {
+		nlGetRemoteAddr( fd, &address );
 		nlAddrToString(&address, number);
+		for( char *f = number ; *f ; f++ )			// Get rid of the port
+			if( *f == ':' ) {
+				*f = 0;
+				break;
+				}
+		}
 	
 	return v;
 }

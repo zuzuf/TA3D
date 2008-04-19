@@ -600,8 +600,6 @@ eventq(32,sizeof(struct event)) {
 Network::~Network(){
 	listen_thread.Join();
 	admin_thread.Join();
-//	getfile_thread.Join();
-//	sendfile_thread.Join();
 	broadcast_thread.Join();
 
 	for( List< GetFileThread* >::iterator i = getfile_thread.begin() ; i != getfile_thread.end() ; i++ ) {
@@ -616,7 +614,6 @@ Network::~Network(){
 	sendfile_thread.clear();
 	transfer_progress.clear();
 
-//	tohost_socket.Close();//administrative channel, shutdown in players.Shutdown()
 	listen_socket.Close();
 	broadcast_socket.Close();
 	broadcastq.clear();
