@@ -1488,14 +1488,6 @@ void setup_game(bool client, const char *host)
 							else
 								guiobj->Flag &= ~FLAG_HIDDEN;
 							}
-						guiobj =  setupgame_area.get_object( format("gamesetup.ai%d", i) );
-						if( guiobj ) {
-							if( !(game_data.player_control[i] & PLAYER_CONTROL_FLAG_AI)
-								|| game_data.player_control[i] == PLAYER_CONTROL_NONE || game_data.player_control[i] == PLAYER_CONTROL_CLOSED )
-								guiobj->Flag |= FLAG_HIDDEN;
-							else
-								guiobj->Flag &= ~FLAG_HIDDEN;
-							}
 						}
 					else
 						Console->AddEntry("packet error : %s", received_special_msg.message);
@@ -1639,6 +1631,10 @@ void setup_game(bool client, const char *host)
 
 				game_data.player_names[i] = player_str[e];								// Update game data
 				game_data.player_control[i] = player_control[e];
+				if( player_control[e] == PLAYER_CONTROL_LOCAL_HUMAN )
+					game_data.player_network_id[i] = my_player_id;
+				else
+					game_data.player_network_id[i] = -1;
 
 				setupgame_area.set_caption( format( "gamesetup.name%d", i ),player_str[e]);			// Update gui
 				setupgame_area.set_caption( format( "gamesetup.ai%d", i ), (game_data.player_control[i] & PLAYER_CONTROL_FLAG_AI) ? ai_level_str[game_data.ai_level[i]] : String("") );

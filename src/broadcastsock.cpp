@@ -114,27 +114,14 @@ void BroadcastSock::sendUDP(){
 void BroadcastSock::recvUDP(){
 	if(uiremain == 0)
 		return;
-	else if(uiremain == -1){
-		uint8_t remain;
-		int p = udpsocket.Recv(&remain,1);//get new number
-		if( p < 0 ) {
-			uiremain = -1;
-			return;
-			}
-		if(remain>0) uiremain = remain;
-		else Console->AddEntry("udp packet error cannot determine size");
-		return;
-	}
-	int n = 0;
-	n = udpsocket.Recv(udpinbuf+uibp,uiremain);
-	if( n > 0 ) {
-		uibp += n;
-		uiremain -= n;
-		}
-	else if( n < 0 ) {
+	memset( udpinbuf, 0, MULTICAST_BUFFER_SIZE );
+	int p = udpsocket.Recv(udpinbuf,MULTICAST_BUFFER_SIZE);//get new number
+	if( p <= 0 ) {
 		uiremain = -1;
-		uibp = 0;
+		return;
 		}
+	uibp = p;
+	uiremain = 0;
 }
 
 
