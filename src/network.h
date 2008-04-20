@@ -284,6 +284,7 @@ class Network{
 		int sendFileResponse( int player, uint16 port, byte *data, int size );
 };
 
+extern Network	network_manager;
 
 //needed by netthreads
 struct net_thread_params{

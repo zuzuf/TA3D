@@ -21,6 +21,7 @@
 
 using namespace TA3D::UTILS::HPI;
 
+Network	network_manager;
 
 /******************************/
 /**  methods for SockList  ****/
@@ -251,7 +252,7 @@ void SocketThread::proc(void* param){
 				{
 					int port = sock->getFilePort();
 					for( List< SendFileThread* >::iterator i = network->sendfile_thread.begin() ; i != network->sendfile_thread.end() ; i++ )
-						if( (*i)->port == port ) {
+						if( (*i)->port == port && (*i)->player_id == sockid ) {
 							port = -1;
 							sock->getFileData( (byte*)&((*i)->progress) );
 							break;
@@ -430,7 +431,7 @@ void GetFileThread::proc(void* param){
 	while( !dead && ready && msec_timer - timer < 5000 ) rest( 1 );
 	memcpy(&length,buffer,4);
 	
-	if( msec_timer - timer >= 5000 ) {				// Time out
+	if( ready ) {				// Time out
 		dead = 1;
 		fclose( file );
 		delete_file( (filename + ".part").c_str() );
@@ -448,7 +449,7 @@ void GetFileThread::proc(void* param){
 		while( !dead && ready && msec_timer - timer < 5000 ) rest( 1 );			// Get paquet data
 		n = buffer_size;
 
-		if( msec_timer - timer >= 5000 ) {				// Time out
+		if( ready ) {				// Time out
 			dead = 1;
 			fclose( file );
 			delete_file( (filename + ".part").c_str() );

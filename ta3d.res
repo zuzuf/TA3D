@@ -1,3 +1,39 @@
+[server name:]
+{
+	FRENCH=nom du serveur:;
+}
+[host address:]
+{
+	FRENCH=adresse IP:;
+}
+[slots available:]
+{
+	FRENCH=places libres:;
+}
+[no server selected]
+{
+	FRENCH=aucun serveur sélectionné;
+}
+[host a game]
+{
+	FRENCH=héberger une partie;
+}
+[Join IP]
+{
+	FRENCH=Rejoindre IP;
+}
+[Join]
+{
+	FRENCH=Rejoindre;
+}
+[no name]
+{
+	FRENCH=sans nom;
+}
+[Enter server IP/Name]
+{
+	FRENCH=Entrez l'IP/Nom du serveur;
+}
 [closed]
 {
 	FRENCH=fermé;

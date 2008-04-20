@@ -1078,23 +1078,22 @@ void stats_menu(void)
 
 void setup_game(bool client, const char *host)
 {
-	Network	TA3D_network;
 	int my_player_id = -1;
 	if( host ) {
 		if( !client ) {
-			TA3D_network.InitBroadcast("1234");		// broadcast mode
-			TA3D_network.HostGame( (char*) host, "4242", 2 );
+			network_manager.InitBroadcast("1234");		// broadcast mode
+			network_manager.HostGame( (char*) host, "4242", 2 );
 			}
 		else
-			TA3D_network.Connect( (char*) host, "4242" );
+			network_manager.Connect( (char*) host, "4242" );
 		
-		my_player_id = TA3D_network.getMyID();			// Get player id
+		my_player_id = network_manager.getMyID();			// Get player id
 		
 		if( client ) {
 			special msg;
-			TA3D_network.sendSpecial( strtochat( &msg, format( "NOTIFY NEW_PLAYER %s", ReplaceChar( lp_CONFIG->player_name, ' ', 1 ).c_str() ) ) );
+			network_manager.sendSpecial( strtochat( &msg, format( "NOTIFY NEW_PLAYER %s", ReplaceChar( lp_CONFIG->player_name, ' ', 1 ).c_str() ) ) );
 			rest(10);
-			TA3D_network.sendSpecial( strtochat( &msg, "REQUEST GAME_DATA" ) );
+			network_manager.sendSpecial( strtochat( &msg, "REQUEST GAME_DATA" ) );
 			}
 		}
 
@@ -1124,6 +1123,7 @@ void setup_game(bool client, const char *host)
 		uint32 n = HPIManager->GetFilelist("maps\\*.tnt",&map_list);
 
 		if( n == 0 ) {
+			network_manager.Disconnect();
 			Popup(TRANSLATE("Error"),TRANSLATE("No maps found"));
 			Console->AddEntry("no maps found!!");
 			reset_mouse();
@@ -1140,6 +1140,7 @@ void setup_game(bool client, const char *host)
 		uint32 n = HPIManager->GetFilelist("scripts\\*.lua",&script_list);
 
 		if( n == 0 ) {
+			network_manager.Disconnect();
 			Popup(TRANSLATE("Error"),TRANSLATE("No scripts found"));
 			Console->AddEntry("no scripts found!!");
 			reset_mouse();
@@ -1277,30 +1278,30 @@ void setup_game(bool client, const char *host)
 		bool playerDropped = false;
 		int progress_timer = msec_timer;
 		do {
-			playerDropped = TA3D_network.getPlayerDropped();
-			broadcast_msg = TA3D_network.getNextBroadcastedMessage();
-			if( TA3D_network.getNextChat( &received_chat_msg ) == 0 )
+			playerDropped = network_manager.getPlayerDropped();
+			broadcast_msg = network_manager.getNextBroadcastedMessage();
+			if( network_manager.getNextChat( &received_chat_msg ) == 0 )
 				chat_msg = received_chat_msg.message;
-			if( TA3D_network.getNextSpecial( &received_special_msg ) == 0 )
+			if( network_manager.getNextSpecial( &received_special_msg ) == 0 )
 				special_msg = received_special_msg.message;
-			if( host && !TA3D_network.isConnected() ) {					// We're disconnected !!
+			if( host && !network_manager.isConnected() ) {					// We're disconnected !!
 				done = true;
 				break;
 				}
 			key_is_pressed = keypressed();
 			setupgame_area.check();
 			rest( 1 );
-			if( msec_timer - progress_timer >= 500 && TA3D_network.getFileTransferProgress() != 100.0f )	break;
+			if( msec_timer - progress_timer >= 500 && network_manager.getFileTransferProgress() != 100.0f )	break;
 		} while( amx == mouse_x && amy == mouse_y && amz == mouse_z && amb == mouse_b && mouse_b == 0 && !key[ KEY_ENTER ] && !key[ KEY_ESC ] && !done
 			&& !key_is_pressed && !setupgame_area.scrolling && broadcast_msg.empty() && chat_msg.empty() && special_msg.empty() && !playerDropped );
 
 //-------------------------------------------------------------- Network Code : syncing information --------------------------------------------------------------
 
-		if( TA3D_network.getFileTransferProgress() != 100.0f ) {
+		if( network_manager.getFileTransferProgress() != 100.0f ) {
 			GUIOBJ *obj = setupgame_area.get_object( "gamesetup.p_transfer" );
 			if( obj ) {
 				obj->Flag &= ~FLAG_HIDDEN;
-				int progress = (int)TA3D_network.getFileTransferProgress();
+				int progress = (int)network_manager.getFileTransferProgress();
 				obj->Data = progress;
 				}
 			}
@@ -1311,7 +1312,7 @@ void setup_game(bool client, const char *host)
 
 		if( playerDropped ) {
 			for( int i = 0 ; i < 10 ; i++ )
-				if( game_data.player_network_id[i] > 0 && !TA3D_network.pollPlayer( game_data.player_network_id[i] ) ) {	// Remove player i
+				if( game_data.player_network_id[i] > 0 && !network_manager.pollPlayer( game_data.player_network_id[i] ) ) {	// Remove player i
 					game_data.player_names[i] = player_str[2];
 					game_data.player_sides[i] = side_str[0];
 					game_data.player_control[i] = player_control[2];
@@ -1337,7 +1338,7 @@ void setup_game(bool client, const char *host)
 			if( params.size() == 2 ) {
 				if( params[0] == "REQUEST" ) {
 					if( params[1] == "PLAYER_ID" )					// Sending player's network ID
-						TA3D_network.sendSpecial( format( "RESPONSE PLAYER_ID %d", from ), -1, from );
+						network_manager.sendSpecial( format( "RESPONSE PLAYER_ID %d", from ), -1, from );
 					else if( params[1] == "GAME_DATA" ) {			// Sending game information
 						for( int i = 0 ; i < 10 ; i++ ) {			// Send player information
 							if( client && game_data.player_network_id[i] != my_player_id )	continue;		// We don't send updates about things we wan't update
@@ -1347,26 +1348,26 @@ void setup_game(bool client, const char *host)
 																				side_id, (game_data.player_control[i] == PLAYER_CONTROL_NONE || game_data.player_control[i] == PLAYER_CONTROL_CLOSED) ? -1 : game_data.ai_level[i],
 																				game_data.metal[i], game_data.energy[i],
 																				ReplaceChar(game_data.player_names[i], ' ', 1).c_str() );
-							TA3D_network.sendSpecial( msg, -1, from );
+							network_manager.sendSpecial( msg, -1, from );
 							}
 						if( !client ) {			// Send server to client specific information (player colors, map name, ...)
 							String msg = "PLAYERCOLORMAP";
 							for( int i = 0 ; i < 10 ; i++ )
 								msg += format( " %d", player_color_map[i] );
-							TA3D_network.sendSpecial( msg, -1, from );
+							network_manager.sendSpecial( msg, -1, from );
 							
-							TA3D_network.sendSpecial( format( "SET FOW %d", game_data.fog_of_war ), -1, from );
-							TA3D_network.sendSpecial( format( "SET SCRIPT %s", ReplaceChar( game_data.game_script, ' ', 1 ).c_str() ), -1, from );
-							TA3D_network.sendSpecial( format( "SET MAP %s", ReplaceChar( game_data.map_filename, ' ', 1 ).c_str() ), -1, from );
+							network_manager.sendSpecial( format( "SET FOW %d", game_data.fog_of_war ), -1, from );
+							network_manager.sendSpecial( format( "SET SCRIPT %s", ReplaceChar( game_data.game_script, ' ', 1 ).c_str() ), -1, from );
+							network_manager.sendSpecial( format( "SET MAP %s", ReplaceChar( game_data.map_filename, ' ', 1 ).c_str() ), -1, from );
 							}
 						}
 					}
 				else if( params[0] == "NOTIFY" ) {
 					if( params[1] == "UPDATE" )
-						TA3D_network.sendSpecial( "REQUEST GAME_DATA" );			// We're told there are things to update, so ask for update
+						network_manager.sendSpecial( "REQUEST GAME_DATA" );			// We're told there are things to update, so ask for update
 					else if( params[1] == "PLAYER_LEFT" ) {
-						TA3D_network.dropPlayer( from );
-						TA3D_network.sendSpecial( "REQUEST GAME_DATA" );			// We're told there are things to update, so ask for update
+						network_manager.dropPlayer( from );
+						network_manager.sendSpecial( "REQUEST GAME_DATA" );			// We're told there are things to update, so ask for update
 						for( int i = 0 ; i < 10 ; i++ )
 							if( game_data.player_network_id[i] == from ) {
 								game_data.player_network_id[i] = -1;
@@ -1402,10 +1403,10 @@ void setup_game(bool client, const char *host)
 								guiobj->Data = gfx->makeintcol(player_color[player_color_map[slot]*3],player_color[player_color_map[slot]*3+1],player_color[player_color_map[slot]*3+2]);			// Update gui
 								guiobj->Flag &= ~FLAG_HIDDEN;
 								}
-							TA3D_network.sendSpecial( "NOTIFY UPDATE", from );			// Tell others that things have changed
+							network_manager.sendSpecial( "NOTIFY UPDATE", from );			// Tell others that things have changed
 							}
 						else
-							TA3D_network.dropPlayer( from );		// No more room for this player !!
+							network_manager.dropPlayer( from );		// No more room for this player !!
 						}
 					else if( params[1] == "COLORCHANGE" ) {
 						int i = atoi( params[2].c_str() );
@@ -1431,7 +1432,7 @@ void setup_game(bool client, const char *host)
 								if( guiobj )
 									guiobj->Data = gfx->makeintcol(player_color[player_color_map[f]*3],player_color[player_color_map[f]*3+1],player_color[player_color_map[f]*3+2]);			// Update gui
 								}
-							TA3D_network.sendSpecial("NOTIFY UPDATE");
+							network_manager.sendSpecial("NOTIFY UPDATE");
 							}
 						}
 					}
@@ -1458,9 +1459,9 @@ void setup_game(bool client, const char *host)
 
 							if( client && !HPIManager->Exists( script_name.c_str() ) ) {
 								if( !previous_lua_port.empty() )
-									TA3D_network.stopFileTransfer( previous_lua_port );
-								previous_lua_port = TA3D_network.getFile( 1, ReplaceChar( script_name, '\\', '/') );
-								TA3D_network.sendSpecial( format( "REQUEST FILE %s %s", ReplaceChar(script_name, ' ', 1 ).c_str(), previous_lua_port.c_str() ) );
+									network_manager.stopFileTransfer( previous_lua_port );
+								previous_lua_port = network_manager.getFile( 1, ReplaceChar( script_name, '\\', '/') );
+								network_manager.sendSpecial( format( "REQUEST FILE %s %s", ReplaceChar(script_name, ' ', 1 ).c_str(), previous_lua_port.c_str() ) );
 								}
 							}
 						}
@@ -1470,8 +1471,8 @@ void setup_game(bool client, const char *host)
 				if( params[0] == "REQUEST" ) {					// REQUEST FILE filename port
 					if( params[1] == "FILE" ) {
 						String file_name = ReplaceChar( params[2], 1, ' ' );
-						TA3D_network.stopFileTransfer( params[3], from );
-						TA3D_network.sendFile( from, file_name, params[3] );
+						network_manager.stopFileTransfer( params[3], from );
+						network_manager.sendFile( from, file_name, params[3] );
 						}
 					}
 				}
@@ -1527,13 +1528,13 @@ void setup_game(bool client, const char *host)
 					}
 				}
 
-			if( TA3D_network.getNextSpecial( &received_special_msg ) == 0 )
+			if( network_manager.getNextSpecial( &received_special_msg ) == 0 )
 				special_msg = received_special_msg.message;
 			else
 				special_msg = "";
 			}
 
-		if( set_map.empty() && TA3D_network.isTransferFinished( previous_ota_port ) && TA3D_network.isTransferFinished( previous_tnt_port )
+		if( set_map.empty() && network_manager.isTransferFinished( previous_ota_port ) && network_manager.isTransferFinished( previous_tnt_port )
 			&& (!previous_tnt_port.empty() || !previous_ota_port.empty()) ) {
 			set_map = game_data.map_filename;
 			previous_ota_port = "";
@@ -1552,7 +1553,7 @@ void setup_game(bool client, const char *host)
 				chat_list->Pos = chat_list->Text.size() - 1;
 				}
 
-			if( TA3D_network.getNextChat( &received_chat_msg ) == 0 )
+			if( network_manager.getNextChat( &received_chat_msg ) == 0 )
 				chat_msg = received_chat_msg.message;
 			else
 				chat_msg = "";
@@ -1569,12 +1570,12 @@ void setup_game(bool client, const char *host)
 						if( setupgame_area.get_caption(format("gamesetup.name%d", f)) == player_str[2] ) 
 							nb_open++;
 					if( TA3D_CURRENT_MOD.empty() )
-						TA3D_network.broadcastMessage( format( "PONG SERVER %s . %s %d", host, ReplaceChar( TA3D_ENGINE_VERSION,' ','?' ).c_str(), nb_open ).c_str() );
+						network_manager.broadcastMessage( format( "PONG SERVER %s . %s %d", host, ReplaceChar( TA3D_ENGINE_VERSION,' ','?' ).c_str(), nb_open ).c_str() );
 					else
-						TA3D_network.broadcastMessage( format( "PONG SERVER %s %s %s %d", host, ReplaceChar( TA3D_CURRENT_MOD, ' ', '?' ).c_str(), ReplaceChar( TA3D_ENGINE_VERSION,' ','?' ).c_str(), nb_open ).c_str() );
+						network_manager.broadcastMessage( format( "PONG SERVER %s %s %s %d", host, ReplaceChar( TA3D_CURRENT_MOD, ' ', '?' ).c_str(), ReplaceChar( TA3D_ENGINE_VERSION,' ','?' ).c_str(), nb_open ).c_str() );
 					}
 				}
-			broadcast_msg = TA3D_network.getNextBroadcastedMessage();
+			broadcast_msg = network_manager.getNextBroadcastedMessage();
 			}
 
 //-------------------------------------------------------------- End of Network Code --------------------------------------------------------------
@@ -1588,7 +1589,7 @@ void setup_game(bool client, const char *host)
 			String message = "<" + lp_CONFIG->player_name + "> " + setupgame_area.get_caption("gamesetup.t_chat");
 			if( host ) {
 				struct chat msg;
-				TA3D_network.sendChat( strtochat( &msg, message ) );
+				network_manager.sendChat( strtochat( &msg, message ) );
 				}
 			GUIOBJ *chat_list = setupgame_area.get_object("gamesetup.chat_list");
 
@@ -1607,7 +1608,7 @@ void setup_game(bool client, const char *host)
 			if( obj && obj->Value != -1 ) {
 				obj->Text[0] = obj->Text[ 1 + obj->Value ];
 				game_data.fog_of_war = obj->Value;
-				if( host )	TA3D_network.sendSpecial( format( "SET FOW %d", obj->Value ) );
+				if( host )	network_manager.sendSpecial( format( "SET FOW %d", obj->Value ) );
 				}
 			}
 
@@ -1620,7 +1621,7 @@ void setup_game(bool client, const char *host)
 				setupgame_area.set_caption( "gamesetup.script_name", guiobj->Text[ guiobj->Pos ] );
 				free( game_data.game_script );
 				game_data.game_script = strdup( guiobj->Text[ guiobj->Pos ].c_str() );
-				if( host )	TA3D_network.sendSpecial( "SET SCRIPT " + ReplaceChar( guiobj->Text[ guiobj->Pos ], ' ', 1 ) );
+				if( host )	network_manager.sendSpecial( "SET SCRIPT " + ReplaceChar( guiobj->Text[ guiobj->Pos ], ' ', 1 ) );
 				}
 			}
 
@@ -1636,8 +1637,8 @@ void setup_game(bool client, const char *host)
 			if( client && game_data.player_network_id[i] != my_player_id )	continue;							// You cannot change other player's settings
 			if( setupgame_area.get_state( format("gamesetup.b_name%d", i) ) && !client ) {		// Change player type
 				if( game_data.player_network_id[i] >= 0 && game_data.player_network_id[i] != my_player_id ) {		// Kick player !!
-					TA3D_network.dropPlayer( game_data.player_network_id[i] );
-					TA3D_network.sendSpecial( "NOTIFY UPDATE" );
+					network_manager.dropPlayer( game_data.player_network_id[i] );
+					network_manager.sendSpecial( "NOTIFY UPDATE" );
 					}
 				uint16 e = 0;
 				for( uint16 f = 0 ; f<player_str_n ; f++ )
@@ -1667,7 +1668,7 @@ void setup_game(bool client, const char *host)
 					else
 						guiobj->Flag &= ~FLAG_HIDDEN;
 					}
-				if( host )	TA3D_network.sendSpecial( "NOTIFY UPDATE" );
+				if( host )	network_manager.sendSpecial( "NOTIFY UPDATE" );
 				}
 			if( setupgame_area.get_state( format("gamesetup.b_side%d", i) ) ) {	// Change player side
 				uint16 e = 0;
@@ -1677,7 +1678,7 @@ void setup_game(bool client, const char *host)
 				setupgame_area.set_caption( format("gamesetup.side%d", i) , side_str[e] );			// Update gui
 
 				game_data.player_sides[i] = side_str[e];								// update game data
-				if( host )	TA3D_network.sendSpecial( "NOTIFY UPDATE" );
+				if( host )	network_manager.sendSpecial( "NOTIFY UPDATE" );
 				}
 			if( setupgame_area.get_state( format("gamesetup.b_ai%d", i) ) ) {	// Change player level (for AI)
 				uint16 e = 0;
@@ -1687,10 +1688,10 @@ void setup_game(bool client, const char *host)
 				setupgame_area.set_caption( format("gamesetup.ai%d", i), game_data.player_control[i] & PLAYER_CONTROL_FLAG_AI ? ai_level_str[e] : String("") );			// Update gui
 
 				game_data.ai_level[i] = e;								// update game data
-				if( host )	TA3D_network.sendSpecial( "NOTIFY UPDATE" );
+				if( host )	network_manager.sendSpecial( "NOTIFY UPDATE" );
 				}
 			if( setupgame_area.get_state( format("gamesetup.b_color%d", i) ) ) {	// Change player color
-				if( client )	TA3D_network.sendSpecial(format("NOTIFY COLORCHANGE %d", i));
+				if( client )	network_manager.sendSpecial(format("NOTIFY COLORCHANGE %d", i));
 				sint16 e = player_color_map[i];
 				sint16 f = -1;
 				for( sint16 g = 0; g<10 ; g++ )						// Look for the next color
@@ -1712,21 +1713,21 @@ void setup_game(bool client, const char *host)
 					if( guiobj )
 						guiobj->Data = gfx->makeintcol(player_color[player_color_map[f]*3],player_color[player_color_map[f]*3+1],player_color[player_color_map[f]*3+2]);			// Update gui
 					}
-				if( host && !client )	TA3D_network.sendSpecial( "NOTIFY UPDATE" );
+				if( host && !client )	network_manager.sendSpecial( "NOTIFY UPDATE" );
 				}
 			if( setupgame_area.get_state( format("gamesetup.b_energy%d", i) ) ) {	// Change player energy stock
 				game_data.energy[i] = (game_data.energy[i] + 500) % 10500;
 				if( game_data.energy[i] == 0 ) game_data.energy[i] = 500;
 
 				setupgame_area.set_caption( format("gamesetup.energy%d", i), format("%d",game_data.energy[i]) );			// Update gui
-				if( host )	TA3D_network.sendSpecial( "NOTIFY UPDATE" );
+				if( host )	network_manager.sendSpecial( "NOTIFY UPDATE" );
 				}
 			if( setupgame_area.get_state( format("gamesetup.b_metal%d", i) ) ) {	// Change player metal stock
 				game_data.metal[i] = (game_data.metal[i] + 500) % 10500;
 				if( game_data.metal[i] == 0 ) game_data.metal[i] = 500;
 
 				setupgame_area.set_caption( format("gamesetup.metal%d", i), format("%d",game_data.metal[i]) );			// Update gui
-				if( host )	TA3D_network.sendSpecial( "NOTIFY UPDATE" );
+				if( host )	network_manager.sendSpecial( "NOTIFY UPDATE" );
 				}
 			}
 
@@ -1750,7 +1751,7 @@ void setup_game(bool client, const char *host)
 			gfx->set_2D_mode();
 
 			if(new_map) {
-				if( host && !client )	TA3D_network.sendSpecial( format( "SET MAP %s", ReplaceChar( new_map, ' ', 1 ).c_str() ) );
+				if( host && !client )	network_manager.sendSpecial( format( "SET MAP %s", ReplaceChar( new_map, ' ', 1 ).c_str() ) );
 				
 				String new_map_name = new_map;
 				
@@ -1781,18 +1782,18 @@ void setup_game(bool client, const char *host)
 
 				if( client && !HPIManager->Exists( new_map_name.c_str() ) ) {
 					if( !previous_tnt_port.empty() )
-						TA3D_network.stopFileTransfer( previous_tnt_port );
-					previous_tnt_port = TA3D_network.getFile( 1, ReplaceChar( new_map_name, '\\', '/') );
-					TA3D_network.sendSpecial( format( "REQUEST FILE %s %s", ReplaceChar(new_map_name, ' ', 1 ).c_str(), previous_tnt_port.c_str() ) );
+						network_manager.stopFileTransfer( previous_tnt_port );
+					previous_tnt_port = network_manager.getFile( 1, ReplaceChar( new_map_name, '\\', '/') );
+					network_manager.sendSpecial( format( "REQUEST FILE %s %s", ReplaceChar(new_map_name, ' ', 1 ).c_str(), previous_tnt_port.c_str() ) );
 					}
 
 				new_map_name = new_map_name.substr( 0, new_map_name.size() - 3 ) + "ota";
 
 				if( client && !HPIManager->Exists( new_map_name.c_str() ) ) {
 					if( !previous_ota_port.empty() )
-						TA3D_network.stopFileTransfer( previous_ota_port );
-					previous_ota_port = TA3D_network.getFile( 1, ReplaceChar( new_map_name, '\\', '/') );
-					TA3D_network.sendSpecial( format( "REQUEST FILE %s %s", ReplaceChar(new_map_name, ' ', 1 ).c_str(), previous_ota_port.c_str() ) );
+						network_manager.stopFileTransfer( previous_ota_port );
+					previous_ota_port = network_manager.getFile( 1, ReplaceChar( new_map_name, '\\', '/') );
+					network_manager.sendSpecial( format( "REQUEST FILE %s %s", ReplaceChar(new_map_name, ' ', 1 ).c_str(), previous_ota_port.c_str() ) );
 					}
 				}
 
@@ -1864,7 +1865,8 @@ void setup_game(bool client, const char *host)
 		while(key[KEY_ESC]) {	rest(1);	poll_keyboard();	}
 		}
 	else if( client )
-		TA3D_network.sendSpecial( "NOTIFY PLAYER_LEFT" );
+		network_manager.sendSpecial( "NOTIFY PLAYER_LEFT" );
+	network_manager.Disconnect();
 }
 
 /*-----------------------------------------------------------------------------\
@@ -1886,8 +1888,7 @@ void network_room(void)				// Let players create/join a game
 
 	gfx->ReInitTexSys();
 
-	Network	TA3D_network;
-	TA3D_network.InitBroadcast("1234");		// broadcast mode
+	network_manager.InitBroadcast("1234");		// broadcast mode
 
 	int server_list_timer = msec_timer - SERVER_LIST_REFRESH_DELAY;
 
@@ -1917,15 +1918,15 @@ void network_room(void)				// Let players create/join a game
 			networkgame_area.check();
 			rest( 1 );
 		} while( amx == mouse_x && amy == mouse_y && amz == mouse_z && amb == mouse_b && mouse_b == 0 && !key[ KEY_ENTER ]
-			&& !key[ KEY_ESC ] && !done && !key_is_pressed && !networkgame_area.scrolling && !TA3D_network.BroadcastedMessages() );
+			&& !key[ KEY_ESC ] && !done && !key_is_pressed && !networkgame_area.scrolling && !network_manager.BroadcastedMessages() );
 
 		amx = mouse_x;
 		amy = mouse_y;
 		amz = mouse_z;
 		amb = mouse_b;
 
-		if( TA3D_network.BroadcastedMessages() ) {
-			String msg = TA3D_network.getNextBroadcastedMessage();
+		if( network_manager.BroadcastedMessages() ) {
+			String msg = network_manager.getNextBroadcastedMessage();
 			while( !msg.empty() ) {
 //				printf("received '%s'\n", msg.c_str());
 				Vector<String> params = ReadVectorString( msg, " " );
@@ -1934,7 +1935,7 @@ void network_room(void)				// Let players create/join a game
 					String mod = ReplaceChar( params[3], '?', ' ' );
 					if( mod == "." )	mod = "";
 					String version = ReplaceChar( params[4], '?', ' ' );
-					String host_address = TA3D_network.getLastMessageAddress();
+					String host_address = network_manager.getLastMessageAddress();
 					int nb_open = atoi( params[5].c_str() );
 					
 					if( version == TA3D_ENGINE_VERSION && mod == TA3D_CURRENT_MOD && nb_open != 0 ) {
@@ -1959,7 +1960,7 @@ void network_room(void)				// Let players create/join a game
 						}
 					}
 
-				msg = TA3D_network.getNextBroadcastedMessage();
+				msg = network_manager.getNextBroadcastedMessage();
 				}
 
 			for( List< SERVER_DATA >::iterator server_i = servers.begin() ; server_i != servers.end() ; )		// Remove those who timeout
@@ -2005,15 +2006,14 @@ void network_room(void)				// Let players create/join a game
 				}
 
 			server_list_timer = msec_timer;
-			if( TA3D_network.broadcastMessage( "PING SERVER LIST" ) ) {
+			if( network_manager.broadcastMessage( "PING SERVER LIST" ) )
 				printf("error : could not broadcast packet to refresh server list!!\n");
-				}
 			}
 
 		if( networkgame_area.get_state( "hosting.b_ok" ) || ( key[KEY_ENTER] && networkgame_area.get_state( "hosting" ) ) ) {
 			while( key[KEY_ENTER] )	{	rest( 20 );	poll_keyboard();	}
 			clear_keybuf();
-			TA3D_network.Disconnect();
+			network_manager.Disconnect();
 			String host = ReplaceChar( networkgame_area.get_caption( "hosting.t_hostname" ), ' ', '_' );
 			setup_game( false, host.c_str() );	// Host a game
 
@@ -2085,9 +2085,9 @@ void network_room(void)				// Let players create/join a game
 	reset_mouse();
 	while(key[KEY_ESC]) {	rest(1);	poll_keyboard();	}
 
-	if( !join_host.empty() ) {			// Join a game
-		TA3D_network.Disconnect();
+	network_manager.Disconnect();
 
+	if( !join_host.empty() ) {			// Join a game
 		setup_game( true, join_host.c_str() );
 		gfx->ReInitTexSys();
 		glScalef(SCREEN_W/640.0f,SCREEN_H/480.0f,1.0f);
