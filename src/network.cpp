@@ -237,8 +237,10 @@ void SocketThread::proc(void* param){
 						if( (*i)->port == port ) {
 							port = -1;
 							while( !(*i)->ready && !(*i)->isDead() )	rest(1);
-							(*i)->buffer_size = sock->getFileData( (*i)->buffer );
-							(*i)->ready = false;
+							if( !(*i)->isDead() ) {
+								(*i)->buffer_size = sock->getFileData( (*i)->buffer );
+								(*i)->ready = false;
+								}
 							break;
 							}
 					if( port != -1 )
@@ -361,7 +363,15 @@ void SendFileThread::proc(void* param){
 			pos += n;
 			network->updateFileTransferInformation( filename + format("%d", sockid), real_length, pos );
 
-			while( progress < pos - FILE_TRANSFER_BUFFER_SIZE && !dead )	rest(1);
+			int timer = msec_timer;
+			while( progress < pos - FILE_TRANSFER_BUFFER_SIZE && !dead && msec_timer - timer < 5000 )	rest(1);
+			if( msec_timer - timer >= 5000 ) {
+				dead = 1;
+				network->updateFileTransferInformation( filename + format("%d", sockid), 0, 0 );
+				network->setFileDirty();
+				ta3d_fclose( file );
+				return;
+				}
 			}
 		
 		if(ta3d_feof(file))		break;
@@ -370,8 +380,7 @@ void SendFileThread::proc(void* param){
 	}
 	
 	timer = msec_timer;
-	while( msec_timer - timer < 5000 && !dead )
-		rest(1);			// Wait 5 sec to let last packets the time to reach the receiver
+	while( progress < pos - FILE_TRANSFER_BUFFER_SIZE && !dead && msec_timer - timer < 5000 )	rest(1);		// Wait for client to say ok
 	
 	Console->AddEntry("file transfer finished...");
 
@@ -413,20 +422,41 @@ void GetFileThread::proc(void* param){
 		return;
 		}
 
-	int timer = msec_timer;
-
 	Console->AddEntry("starting file transfer...");
 
+	int timer = msec_timer;
+
 	ready = true;
-	while( !dead && ready ) rest( 1 );
+	while( !dead && ready && msec_timer - timer < 5000 ) rest( 1 );
 	memcpy(&length,buffer,4);
+	
+	if( msec_timer - timer >= 5000 ) {				// Time out
+		dead = 1;
+		fclose( file );
+		delete_file( (filename + ".part").c_str() );
+		network->setFileDirty();
+		delete[] buffer;
+		network->updateFileTransferInformation( filename + format("%d", sockid), 0, 0 );
+		return;
+		}
 	
 	sofar = 0;
 	if( dead ) length = 1;			// In order to delete the file
 	while(!dead){
 		ready = true;
-		while( !dead && ready ) rest( 1 );			// Get paquet data
+		timer = msec_timer;
+		while( !dead && ready && msec_timer - timer < 5000 ) rest( 1 );			// Get paquet data
 		n = buffer_size;
+
+		if( msec_timer - timer >= 5000 ) {				// Time out
+			dead = 1;
+			fclose( file );
+			delete_file( (filename + ".part").c_str() );
+			network->setFileDirty();
+			delete[] buffer;
+			network->updateFileTransferInformation( filename + format("%d", sockid), 0, 0 );
+			return;
+			}
 
 		if( n > 0 ) {
 			sofar += n;
@@ -454,6 +484,7 @@ void GetFileThread::proc(void* param){
 
 	dead = 1;
 	network->setFileDirty();
+	delete[] buffer;
 	return;
 }
 	
