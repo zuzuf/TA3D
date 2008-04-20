@@ -16,6 +16,9 @@
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA*/
 
 
+#ifndef TA3D_NETWORK_THREAD
+#define TA3D_NETWORK_THREAD
+
 #include "cCriticalSection.h"
 
 
@@ -140,3 +143,4 @@ class Mutex : protected cCriticalSection {
 		int isLocked() {return locked;}
 };
 
+#endif

@@ -42,6 +42,7 @@ ta3d_SOURCES= \
 	jpeg/decode.cpp jpeg/encode.cpp jpeg/io.cpp jpeg/ta3d_jpg.cpp \
 	jpeg/dct.h jpeg/internal.h jpeg/ta3d_jpg.h \
 	SocketClass.cpp SocketClass.h \
+	udpsock.cpp udpsock.h \
 	ta3dsock.cpp ta3dsock.h \
 	broadcastsock.cpp broadcastsock.h \
 	superqueue.cpp superqueue.h \

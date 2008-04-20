@@ -17,6 +17,7 @@
 
 #include "SocketClass.h"
 
+#include "thread.h"
 
 
 
@@ -115,14 +116,13 @@ inline std::string chattostr( struct chat *chat_msg )
 
 //TA3DSock- specialized low-level networking
 //used internally by Network to send the data
-//to the players. It is basically three regular
-//sockets.
+//to the players. It is basically a TCP socket
 class TA3DSock{
 
 	char name[64];//player name
 
 	Socket tcpsock;
-	Socket udpsock;
+	Mutex tcpmutex;
 
 	//only touched by main thread
 	char outbuf[TA3DSOCK_BUFFER_SIZE];
@@ -130,11 +130,8 @@ class TA3DSock{
 
 	//only touched by socket thread
 	char tcpinbuf[TA3DSOCK_BUFFER_SIZE];
-	char udpinbuf[TA3DSOCK_BUFFER_SIZE];
 	int tibp;
-	int uibp;
 	int tiremain;//how much is left to recv
-	int uiremain;
 	
 	//byte shuffling
 	void loadLong(uint32_t x);//uint32
@@ -144,14 +141,12 @@ class TA3DSock{
 	void loadFloat(float x);
 
 	void sendTCP();
-	void sendUDP();
 	void recvTCP();
-	void recvUDP();
 
 	int max(int a, int b) {return (a>b ? a : b);}
 
 	public:
-		TA3DSock() {obp=0;tibp=0;uibp=0;tiremain=-1;uiremain=-1;}
+		TA3DSock() {obp=0;tibp=0;tiremain=-1;}
 		~TA3DSock() {}
 
 		int Open(char* hostname,char* port);

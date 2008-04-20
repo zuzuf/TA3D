@@ -27,20 +27,8 @@ int TA3DSock::Open(char* hostname,char* port){
 
 	tcpsock.Open(hostname,port,PROTOCOL_TCPIP);
 
-	udpsock.Open(hostname,port,PROTOCOL_UDP);
-
-	if(!( tcpsock.isOpen() && ( udpsock.isOpen() || hostname == NULL ) ) ){
-		if( tcpsock.isOpen() )
-			printf("tcp open\n");
-		if( udpsock.isOpen() )
-			printf("udp open\n");
-		//one of them didnt work... quit
-		if( tcpsock.isOpen() )
-			tcpsock.Close();
-		if( udpsock.isOpen() )
-			udpsock.Close();
+	if(!tcpsock.isOpen())
 		return -1;
-	}
 
 	return 0;
 
@@ -58,19 +46,7 @@ int TA3DSock::Accept(TA3DSock** sock){
 		return -1;
 	}
 
-	//this is fishy....maybe not
-	(*sock)->udpsock.Open((*sock)->tcpsock.getNumber(),(*sock)->tcpsock.getService(),PROTOCOL_UDP);
-
 	if(!(*sock)->tcpsock.isOpen() ){
-		if( (*sock)->tcpsock.isOpen() )
-			printf("tcp open\n");
-		if( (*sock)->udpsock.isOpen() )
-			printf("udp open\n");
-		//one of them didnt work... quit
-		if( (*sock)->tcpsock.isOpen() )
-			(*sock)->tcpsock.Close();
-		if( (*sock)->udpsock.isOpen() )
-			(*sock)->udpsock.Close();
 		delete *sock;
 		return -1;
 	}
@@ -90,20 +66,7 @@ int TA3DSock::Accept(TA3DSock** sock,int timeout){
 	}
 
 	
-
-	//this is fishy....maybe not
-	(*sock)->udpsock.Open((*sock)->tcpsock.getNumber(),(*sock)->tcpsock.getService(),PROTOCOL_UDP);
-
-	if(!((*sock)->tcpsock.isOpen() && (*sock)->udpsock.isOpen()) ){
-		if( (*sock)->tcpsock.isOpen() )
-			printf("tcp open\n");
-		if( (*sock)->udpsock.isOpen() )
-			printf("udp open\n");
-		//one of them didnt work... quit
-		if( (*sock)->tcpsock.isOpen() )
-			(*sock)->tcpsock.Close();
-		if( (*sock)->udpsock.isOpen() )
-			(*sock)->udpsock.Close();
+	if(!(*sock)->tcpsock.isOpen() ){
 		delete *sock;
 		return -1;
 	}
@@ -118,8 +81,6 @@ int TA3DSock::isOpen(){
 void TA3DSock::Close(){
 	if( tcpsock.isOpen() )
 		tcpsock.Close();
-	if( udpsock.isOpen() )
-		udpsock.Close();
 }
 
 
@@ -146,13 +107,13 @@ void TA3DSock::loadByte(uint8_t x){//uint8
 
 void TA3DSock::loadString(char* x){//null terminated
 	int n = strlen(x);
-	if(n < 256){
+	if(n < TA3DSOCK_BUFFER_SIZE - obp - 1){
 		memcpy(outbuf+obp,x,n);
 		obp+=n;
 	}
 	else{
-		memcpy(outbuf+obp,x,256);
-		obp+=256;
+		memcpy(outbuf+obp,x,TA3DSOCK_BUFFER_SIZE - obp - 1);
+		obp+=TA3DSOCK_BUFFER_SIZE - obp - 1;
 	}
 	loadByte('\0');
 }	
@@ -167,15 +128,21 @@ void TA3DSock::loadFloat(float x){
 
 void TA3DSock::sendTCP(byte *data, int size)
 {
+	tcpmutex.Lock();
+
 	int n = 0;
 	int count = 0;
 	while( !n && count < 100 && isOpen() ) {
 		n = tcpsock.Send(data,size);
 		count++;
 		}
+
+	tcpmutex.Unlock();
 }
 
 void TA3DSock::sendTCP(){
+	tcpmutex.Lock();
+
 	int n = 0;
 	int count = 0;
 	while( !n && count < 100 && isOpen() ) {
@@ -183,19 +150,8 @@ void TA3DSock::sendTCP(){
 		count++;
 		}
 	obp = 0;
-}
 
-void TA3DSock::sendUDP(){
-	int n = 0;
-	while(n < obp) {
-		int v = udpsock.Send(outbuf + n,obp);
-		if( v <= 0 ) {
-			Console->AddEntry("ERROR : could not send data over UDP!");
-			break;
-			}
-		n += v;
-		}
-	obp = 0;
+	tcpmutex.Unlock();
 }
 
 void TA3DSock::recvTCP(){
@@ -211,38 +167,16 @@ void TA3DSock::recvTCP(){
 	tibp = p;
 }
 
-void TA3DSock::recvUDP(){
-	if(uiremain == 0)
-		return;
-	memset( udpinbuf, 0, TA3DSOCK_BUFFER_SIZE );
-	int p = udpsock.Recv(udpinbuf,TA3DSOCK_BUFFER_SIZE);//get new number
-	if( p <= 0 ) {
-		rest(1);
-		uiremain = -1;
-		return;
-		}
-	uibp = p;
-	uiremain = 0;
-}
-
 
 void TA3DSock::pumpIn(){
 	recvTCP();
-	recvUDP();
 }
 
 char TA3DSock::getPacket(){
-	if(tiremain>0){
-		if(uiremain>0){
-			return 0;
-		}
-		else{
-			return udpinbuf[0];
-		}
-	}
-	else{
+	if(tiremain>0)
+		return 0;
+	else
 		return tcpinbuf[0];
-	}
 }
 
 void TA3DSock::cleanPacket(){
@@ -252,47 +186,37 @@ void TA3DSock::cleanPacket(){
 		tibp = 0;
 		tiremain = -1;
 	}
-	else if(uiremain<=0) {
-		udpinbuf[uibp] = 0;
-		printf("udpinbuf = '%s'\n", udpinbuf);
-		uibp = 0;
-		uiremain = -1;
-	}
 }
 
 
 
 int TA3DSock::takeFive(int time){
-	NLint group = nlGroupCreate();
-	nlGroupAddSocket( group, tcpsock.getFD() );
-	nlGroupAddSocket( group, udpsock.getFD() );
-	
-	ta3d_socket s[2];
-	NLint v = nlPollGroup( group, NL_READ_STATUS, s, 2, time);
-
-	nlGroupDestroy( group );
-
-	return v;
+	return tcpsock.takeFive( time );
 }
 
 
 int TA3DSock::sendSpecial(struct chat* chat){
+	tcpmutex.Lock();
 	loadByte('X');
 	loadShort(chat->from);
 	loadString(chat->message);
 	sendTCP();
+	tcpmutex.Unlock();
 	return 0;
 }
 
 int TA3DSock::sendChat(struct chat* chat){
+	tcpmutex.Lock();
 	loadByte('C');
 	loadShort(chat->from);
 	loadString(chat->message);
 	sendTCP();
+	tcpmutex.Unlock();
 	return 0;
 }
 
 int TA3DSock::sendOrder(struct order* order){
+	tcpmutex.Lock();
 	loadByte('O');
 	loadLong(order->timestamp);
 	loadLong(order->unit);
@@ -302,28 +226,33 @@ int TA3DSock::sendOrder(struct order* order){
 	loadLong(order->target);
 	loadByte(order->additional);
 	sendTCP();
+	tcpmutex.Unlock();
 	return 0;
 }
 
 int TA3DSock::sendSync(struct sync* sync){
-	loadByte('S');
-	loadLong(sync->timestamp);
-	loadLong(sync->unit);
-	loadFloat(sync->x);
-	loadFloat(sync->y);
-	loadFloat(sync->vx);
-	loadFloat(sync->vy);
-	loadShort(sync->orientation);
-	sendUDP();
+	tcpmutex.Lock();
+//	loadByte('S');
+//	loadLong(sync->timestamp);
+//	loadLong(sync->unit);
+//	loadFloat(sync->x);
+//	loadFloat(sync->y);
+//	loadFloat(sync->vx);
+//	loadFloat(sync->vy);
+//	loadShort(sync->orientation);
+//	sendUDP();
+	tcpmutex.Unlock();
 	return 0;
 }
 
 int TA3DSock::sendEvent(struct event* event){
+	tcpmutex.Lock();
 	loadByte('E');
 	loadByte(event->type);
 	loadByte(event->player1);
 	loadByte(event->player2);
 	sendTCP();
+	tcpmutex.Unlock();
 	return 0;
 }
 
@@ -398,39 +327,39 @@ int TA3DSock::makeOrder(struct order* order){
 }
 
 int TA3DSock::makeSync(struct sync* sync){
-	if(udpinbuf[0] != 'S'){
-		Console->AddEntry("makeSync error: the data doesn't start with an 'S'");
-		return -1;
-	}
-	if(uiremain == -1){
-		return -1;
-	}
-	uint32_t temp;
-	uint16_t stemp;
+//	if(udpinbuf[0] != 'S'){
+//		Console->AddEntry("makeSync error: the data doesn't start with an 'S'");
+//		return -1;
+//	}
+//	if(uiremain == -1){
+//		return -1;
+//	}
+//	uint32_t temp;
+//	uint16_t stemp;
 
-	memcpy(&temp,udpinbuf+1,4);
-	sync->timestamp = nlSwapl(temp);
+//	memcpy(&temp,udpinbuf+1,4);
+//	sync->timestamp = nlSwapl(temp);
 
-	memcpy(&temp,udpinbuf+5,4);
-	sync->unit = nlSwapl(temp);
+//	memcpy(&temp,udpinbuf+5,4);
+//	sync->unit = nlSwapl(temp);
 
-	memcpy(&temp,udpinbuf+9,4);
-	sync->x = (float)nlSwapl(temp);
+//	memcpy(&temp,udpinbuf+9,4);
+//	sync->x = (float)nlSwapl(temp);
 
-	memcpy(&temp,udpinbuf+13,4);
-	sync->y = (float)nlSwapl(temp);
+//	memcpy(&temp,udpinbuf+13,4);
+//	sync->y = (float)nlSwapl(temp);
 
-	memcpy(&temp,udpinbuf+17,4);
-	sync->vx = (float)nlSwapl(temp);
+//	memcpy(&temp,udpinbuf+17,4);
+//	sync->vx = (float)nlSwapl(temp);
 
-	memcpy(&temp,udpinbuf+21,4);
-	sync->vy = (float)nlSwapl(temp);
+//	memcpy(&temp,udpinbuf+21,4);
+//	sync->vy = (float)nlSwapl(temp);
 
-	memcpy(&stemp,udpinbuf+25,2);
-	sync->orientation = nlSwapl(stemp);
-	
-	uibp = 0;
-	uiremain = -1;
+//	memcpy(&stemp,udpinbuf+25,2);
+//	sync->orientation = nlSwapl(stemp);
+//	
+//	uibp = 0;
+//	uiremain = -1;
 
 	return 0;
 }

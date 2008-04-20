@@ -20,6 +20,7 @@
 #define __TA3D__NETWORK__H
 
 #include "ta3dsock.h"
+#include "udpsock.h"
 #include "broadcastsock.h"
 #include "superqueue.h"
 #include "thread.h"

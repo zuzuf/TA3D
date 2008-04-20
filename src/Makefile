@@ -79,7 +79,7 @@ am_ta3d_OBJECTS = ta3d.$(OBJEXT) main.$(OBJEXT) install.$(OBJEXT) \
 	cCriticalSection.$(OBJEXT) cInterface.$(OBJEXT) \
 	cLogger.$(OBJEXT) cError.$(OBJEXT) decode.$(OBJEXT) \
 	encode.$(OBJEXT) io.$(OBJEXT) ta3d_jpg.$(OBJEXT) \
-	SocketClass.$(OBJEXT) ta3dsock.$(OBJEXT) \
+	SocketClass.$(OBJEXT) udpsock.$(OBJEXT) ta3dsock.$(OBJEXT) \
 	broadcastsock.$(OBJEXT) superqueue.$(OBJEXT) network.$(OBJEXT)
 ta3d_OBJECTS = $(am_ta3d_OBJECTS)
 ta3d_LDADD = $(LDADD)
@@ -234,6 +234,7 @@ ta3d_SOURCES = \
 	jpeg/decode.cpp jpeg/encode.cpp jpeg/io.cpp jpeg/ta3d_jpg.cpp \
 	jpeg/dct.h jpeg/internal.h jpeg/ta3d_jpg.h \
 	SocketClass.cpp SocketClass.h \
+	udpsock.cpp udpsock.h \
 	ta3dsock.cpp ta3dsock.h \
 	broadcastsock.cpp broadcastsock.h \
 	superqueue.cpp superqueue.h \
@@ -419,6 +420,7 @@ include ./$(DEPDIR)/ta3dsock.Po
 include ./$(DEPDIR)/taconfig.Po
 include ./$(DEPDIR)/tdf.Po
 include ./$(DEPDIR)/tnt.Po
+include ./$(DEPDIR)/udpsock.Po
 include ./$(DEPDIR)/weapons.Po
 
 .cpp.o:
