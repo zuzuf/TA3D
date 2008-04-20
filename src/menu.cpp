@@ -1646,7 +1646,7 @@ void setup_game(bool client, const char *host)
 
 		for(uint16 i = 0 ; i < 10 ; i++ ) {
 			if( setupgame_area.get_state( format("gamesetup.ready%d", i ) ) != game_data.ready[i] ) {
-				if( game_data.player_network_id[i] == my_player_id ) {
+				if( game_data.player_control[i] == PLAYER_CONTROL_LOCAL_HUMAN ) {
 					network_manager.sendSpecial( "NOTIFY UPDATE" );
 					game_data.ready[i] = !game_data.ready[i];
 					}
