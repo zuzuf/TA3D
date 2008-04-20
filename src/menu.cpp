@@ -1251,8 +1251,9 @@ void setup_game(bool client, const char *host)
 		setupgame_area.set_caption("gamesetup.map_info", map_info );
 	}
 
-	for( int i = 0 ; i < 10 ; i++ )
-		setupgame_area.msg(format("gamesetup.ready%d.%s",i, host ? "show" : "hide"));
+	if( !host )
+		for( int i = 0 ; i < 10 ; i++ )
+			setupgame_area.msg(format("gamesetup.ready%d.hide",i));
 
 	bool done=false;
 
@@ -1272,6 +1273,10 @@ void setup_game(bool client, const char *host)
 
 	do
 	{
+		if( host )
+			for( int i = 0 ; i < 10 ; i++ )
+				setupgame_area.msg(format("gamesetup.ready%d.%s",i, (game_data.player_control[i] != PLAYER_CONTROL_LOCAL_HUMAN && game_data.player_control[i] != PLAYER_CONTROL_REMOTE_HUMAN ) ? "hide" : "show" ));
+
 		bool key_is_pressed = false;
 		String broadcast_msg = "";
 		String chat_msg = "";
@@ -1640,11 +1645,15 @@ void setup_game(bool client, const char *host)
 		if( setupgame_area.get_state( "gamesetup.b_cancel" ) ) done=true;		// En cas de click sur "retour", on quitte la fenêtre
 
 		for(uint16 i = 0 ; i < 10 ; i++ ) {
-			if( client && game_data.player_network_id[i] != my_player_id )	continue;							// You cannot change other player's settings
 			if( setupgame_area.get_state( format("gamesetup.ready%d", i ) ) != game_data.ready[i] ) {
-				network_manager.sendSpecial( "NOTIFY UPDATE" );
-				game_data.ready[i] = !game_data.ready[i];
+				if( game_data.player_network_id[i] == my_player_id ) {
+					network_manager.sendSpecial( "NOTIFY UPDATE" );
+					game_data.ready[i] = !game_data.ready[i];
+					}
+				else
+					setupgame_area.set_state( format("gamesetup.ready%d", i ), game_data.ready[i] );
 				}
+			if( client && game_data.player_network_id[i] != my_player_id )	continue;							// You cannot change other player's settings
 			if( setupgame_area.get_state( format("gamesetup.b_name%d", i) ) && !client ) {		// Change player type
 				if( game_data.player_network_id[i] >= 0 && game_data.player_network_id[i] != my_player_id ) {		// Kick player !!
 					network_manager.dropPlayer( game_data.player_network_id[i] );
@@ -1885,7 +1894,7 @@ void setup_game(bool client, const char *host)
 |    Displays the list of available servers and allow to join/host a game      |
 \-----------------------------------------------------------------------------*/
 
-#define SERVER_LIST_REFRESH_DELAY	10000
+#define SERVER_LIST_REFRESH_DELAY	5000
 
 void network_room(void)				// Let players create/join a game
 {
