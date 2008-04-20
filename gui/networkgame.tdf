@@ -59,7 +59,7 @@
 		y1=964;
 		x2=783;
 		y2=997;
-		on click=hosting.show;
+		on click=hosting.show, hosting.t_hostname.focus;
 		size=2;
 	}
 	[object4]
@@ -138,6 +138,6 @@
 		y2=103;
 		caption=Join IP;
 		size=2;
-		on click=joinip.show;
+		on click=joinip.show, joinip.t_hostname.focus;
 	}
 }

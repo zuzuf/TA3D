@@ -129,6 +129,8 @@ extern bool	use_normal_alpha_function;
 #define FLAG_NO_BORDER						0x0800			// Tell the object not to draw its borders so you can see the background instead
 #define FLAG_MISSION_MODE					0x1000			// Tell the object not to draw its borders so you can see the background instead
 
+class WND;
+
 class GUIOBJ					// Structure pour les objets contenus dans les fenêtres
 {
 public:
@@ -212,7 +214,7 @@ public:
 
 	uint32	num_entries();
 
-	uint32	msg( const String &message );			// Reacts to a message transfered from the Interface
+	uint32	msg( const String &message, WND *wnd = NULL );			// Reacts to a message transfered from the Interface
 
 	void set_caption( String caption );
 

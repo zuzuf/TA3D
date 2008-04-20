@@ -81,7 +81,6 @@ void UDPSock::recv(){
 		udpmutex.Unlock();
 		return;
 		}
-	printf("recv : received '%s'\n", udpinbuf );
 	uibp = p;
 	uiremain = 0;
 	udpmutex.Unlock();
@@ -176,7 +175,6 @@ int UDPSock::makeSpecial(struct chat* chat){
 	if(uiremain == -1){
 		return -1;
 	}
-	printf("makeSpecial : received '%s'\n", udpinbuf );
 	chat->from = ((uint16*)(udpinbuf+1))[0];
 	memcpy(chat->message,udpinbuf+3,253);
 	(chat->message)[252] = '\0';

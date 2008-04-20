@@ -414,7 +414,7 @@ void GUIOBJ::set_caption( String caption )
 		Text[0].resize( Data - 1 );
 }
 
-uint32 GUIOBJ::msg( const String &message )		// Reacts to a message transfered from the Interface
+uint32 GUIOBJ::msg( const String &message, WND *wnd )		// Reacts to a message transfered from the Interface
 {
 	uint32	result	= INTERFACE_RESULT_CONTINUE;
 	if( Lowercase( message ) == "hide" )					{	Flag |= FLAG_HIDDEN;			result = INTERFACE_RESULT_HANDLED;	}
@@ -432,6 +432,14 @@ uint32 GUIOBJ::msg( const String &message )		// Reacts to a message transfered f
 	else if( StartsWith( Lowercase( message ) ,"caption=" ) )	{			// Change the GUIOBJ's caption
 		if( Text.size() > 0 )
 			Text[0] = message.substr( 8, message.size() - 8 );
+		result = INTERFACE_RESULT_HANDLED;
+		}
+	else if( Lowercase( message ) == "focus" ) {
+		if( wnd ) {
+			for( int i = 0 ; i < wnd->NbObj ; i++ )
+				wnd->Objets[i].Focus = false;
+			Focus = true;
+			}
 		result = INTERFACE_RESULT_HANDLED;
 		}
 
@@ -1115,7 +1123,7 @@ uint32 WND::msg( const String &message )									// Respond to Interface message
 	if( i != -1 ) {				// When it targets a subobject
 		GUIOBJ *obj = get_object( message.substr( 0, i ) );
 		if( obj )
-			return obj->msg( message.substr( i+1, message.size() - i - 1 ) );
+			return obj->msg( message.substr( i+1, message.size() - i - 1 ), this );
 		}
 	else						// When it targets the window itself
 		if( Lowercase( message ) == "show" )				{	hidden = false;		result = INTERFACE_RESULT_HANDLED;	}
