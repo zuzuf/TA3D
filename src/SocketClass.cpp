@@ -97,11 +97,11 @@ int Socket::Open(char *hostname, char *port, int transport){
 	}
 	if(hostname == NULL && transport == PROTOCOL_UDP ){
 		sockReport("making udp receiver");
-		stype = STYPE_UDP_RECEIVER;
+		stype = STYPE_UDP;
 	}
 	else if(transport == PROTOCOL_UDP){
 		sockReport("making udp sender");
-		stype = STYPE_UDP_SENDER;
+		stype = STYPE_UDP;
 	}
 	if( transport == PROTOCOL_BROADCAST ) {
 		sockReport("making udp broadcaster");
@@ -127,7 +127,7 @@ int Socket::Open(char *hostname, char *port, int transport){
 	int n_port = atoi( port );
 	
 	ta3d_socket s;
-	if( stype == STYPE_TCP_CLIENT || stype == STYPE_UDP_SENDER )
+	if( stype == STYPE_TCP_CLIENT )
 		s = nlOpen( 0, transport );
 	else
 		s = nlOpen( n_port, transport );
@@ -140,8 +140,9 @@ int Socket::Open(char *hostname, char *port, int transport){
 
 	switch( stype )
 	{
+	case STYPE_UDP:
+		if( hostname == NULL )	break;
 	case STYPE_TCP_CLIENT:
-	case STYPE_UDP_SENDER:
 		nlSetAddrPort(&address, n_port);
 		if( nlConnect( s, &address ) == NL_FALSE ) {
 			stype = STYPE_BROKEN;
@@ -155,8 +156,6 @@ int Socket::Open(char *hostname, char *port, int transport){
 			sockReport( format( "listen error : %s", getError() ).c_str() );
 			return -1;
 			}
-		break;
-	case STYPE_UDP_RECEIVER:		// We're ready to receive
 		break;
 	case STYPE_BROADCAST:			// We're ready to broadcast/receive
 		break;
@@ -290,10 +289,6 @@ int Socket::Send(void* data,int num){
 		sockError("Send: tcp server socket can't send");
 		return -1;
 	}
-	if(stype == STYPE_UDP_RECEIVER){
-		sockError("Send: udp receiver socket can't send");
-		return -1;
-	}
 
 	int count = 0;
 	retry:
@@ -347,7 +342,7 @@ int Socket::Recv(void* data, int num){
 
 	if( v == NL_INVALID )	v = num;		// We've filled all the buffer
 		
-	if( stype == STYPE_UDP_RECEIVER || stype == STYPE_UDP_SENDER || stype == STYPE_BROADCAST ) {
+	if( stype == STYPE_UDP || stype == STYPE_BROADCAST ) {
 		nlGetRemoteAddr( fd, &address );
 		nlAddrToString(&address, number);
 		for( char *f = number ; *f ; f++ )			// Get rid of the port

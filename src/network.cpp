@@ -276,6 +276,76 @@ void SocketThread::proc(void* param){
 	return;
 }
 
+void UDPThread::proc(void* param){
+	Network* network;
+	UDPSock *sock;
+	int packtype;
+
+	struct chat chat;
+	struct order order;
+	struct sync sync;
+	struct event event;
+
+	network = ((struct net_thread_params*)param)->network;
+	sock = &(network->udp_socket);
+	delete ((struct net_thread_params*)param);
+	
+	while(!dead && sock->isOpen()){
+	
+		//sleep until data is coming
+		rest(1);
+		sock->takeFive(1000);
+		if(dead) break;
+
+		//ready for reading, absorb some bytes	
+		sock->pumpIn();
+
+		//see if there is a packet ready to process
+		packtype = sock->getPacket();
+
+		int player_id = -1;
+
+		if( packtype )
+			for( int i = 1 ; i <= network->players.getMaxId() ; i++ ) {
+				TA3DSock *s = network->players.getSock( i );
+				if( s && s->getAddress() == sock->getAddress() ) {
+					player_id = i;
+					break;
+					}
+				}
+
+		switch(packtype){
+			case 'X'://special
+				network->xqmutex.Lock();
+					if(dead){
+						network->xqmutex.Unlock();
+						break;
+					}
+					if( sock->makeSpecial(&chat) == -1 ) {
+						network->xqmutex.Unlock();
+						break;
+						}
+					chat.from = player_id;
+					network->specialq.enqueue(&chat);
+				network->xqmutex.Unlock();
+				break;
+			case 0:
+				break;
+
+			default:
+				sock->cleanPacket();
+		}
+		
+
+	}
+
+	dead = 1;
+	if( !sock->isOpen() )
+		network->setPlayerDirty();
+
+	return;
+}
+
 
 void BroadCastThread::proc(void* param){
 	BroadcastSock* sock;
@@ -524,6 +594,8 @@ void AdminThread::proc(void* param){
 /******************************/
 
 Network::Network() : 
+udp_socket(),
+udp_thread(),
 transfer_progress(),
 getfile_thread(),
 sendfile_thread(),
@@ -548,6 +620,7 @@ Network::~Network(){
 	listen_thread.Join();
 	admin_thread.Join();
 	broadcast_thread.Join();
+	udp_thread.Join();
 
 	for( List< GetFileThread* >::iterator i = getfile_thread.begin() ; i != getfile_thread.end() ; i++ ) {
 		(*i)->Join();
@@ -565,6 +638,7 @@ Network::~Network(){
 	broadcast_socket.Close();
 	broadcastq.clear();
 	broadcastaddressq.clear();
+	udp_socket.Close();
 	
 	players.Shutdown();
 	
@@ -604,6 +678,7 @@ int Network::HostGame(char* name,char* port,int network){
 	//setup game
 	strcpy(gamename,name);
 	listen_socket.Open(NULL,port);
+	udp_socket.Open(NULL,port);
 	if(!listen_socket.isOpen()){
 		Console->AddEntry("Network: failed to host game on port %s",port);
 		myMode = 0;
@@ -639,7 +714,13 @@ int Network::HostGame(char* name,char* port,int network){
 	Console->AddEntry("Network: spawning listen thread");
 	listen_thread.Spawn(params);
 	
-	//spawn listening thread
+	//spawn udp thread
+	params = new net_thread_params;
+	params->network = this;
+	Console->AddEntry("Network: spawning udp thread");
+	udp_thread.Spawn(params);
+
+	//spawn admin thread
 	params = new net_thread_params;
 	params->network = this;
 	Console->AddEntry("Network: spawning admin thread");
@@ -667,6 +748,7 @@ int Network::Connect(char* target,char* port){
 	tohost_socket = new TA3DSock();
 
 	tohost_socket->Open(target,port);
+	udp_socket.Open(target,port);
 	if(!tohost_socket->isOpen()){
 		//error couldnt connect to game
 		Console->AddEntry("Network: error connecting to game at [%s]:%s",target,port);
@@ -682,6 +764,12 @@ int Network::Connect(char* target,char* port){
 	params->network = this;
 	admin_thread.Spawn(params);
 
+	//get game info or start admin thread here
+	Console->AddEntry("Network: spawning udp thread");
+	params = new net_thread_params;
+	params->network = this;
+	udp_thread.Spawn(params);
+
 	Console->AddEntry("Network: successfully connected to game at [%s]:%s",target,port);
 
 	return 0;
@@ -695,6 +783,9 @@ void Network::Disconnect(){
 	
 	listen_thread.Join();
 	listen_socket.Close();
+
+	udp_thread.Join();
+	udp_socket.Close();
 
 	tohost_socket = NULL;
 
@@ -941,6 +1032,30 @@ int Network::getMyID()
 	return -1;					// Not connected
 }
 
+
+int Network::sendSpecialUDP( String msg, int src_id, int dst_id)
+{
+	struct chat chat;
+	return sendSpecialUDP( strtochat( &chat, msg ), src_id, dst_id );
+}
+
+int Network::sendSpecialUDP(struct chat* chat, int src_id, int dst_id){
+	if( myMode == 1 ) {				// Server mode
+		if( chat == NULL )	return -1;
+		int v = 0;
+		for( int i = 1 ; i <= players.getMaxId() ; i++ )  {
+			TA3DSock *sock = players.getSock( i );
+			if( sock && i != src_id && ( dst_id == -1 || i == dst_id ) )
+				v += udp_socket.sendSpecial( chat, sock->getAddress() );
+			}
+		return v;
+		}
+	else if( myMode == 2 && src_id == -1 ) {			// Client mode
+		if( tohost_socket == NULL || !tohost_socket->isOpen() || chat == NULL )	return -1;
+		return udp_socket.sendSpecial( chat, tohost_socket->getAddress() );
+		}
+	return -1;						// Not connected, it shouldn't be possible to get here if we're not connected ...
+}
 
 int Network::sendSpecial( String msg, int src_id, int dst_id)
 {

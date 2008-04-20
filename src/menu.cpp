@@ -1348,7 +1348,7 @@ void setup_game(bool client, const char *host)
 																				side_id, (game_data.player_control[i] == PLAYER_CONTROL_NONE || game_data.player_control[i] == PLAYER_CONTROL_CLOSED) ? -1 : game_data.ai_level[i],
 																				game_data.metal[i], game_data.energy[i],
 																				ReplaceChar(game_data.player_names[i], ' ', 1).c_str() );
-							network_manager.sendSpecial( msg, -1, from );
+							network_manager.sendSpecialUDP( msg, -1, from );
 							}
 						if( !client ) {			// Send server to client specific information (player colors, map name, ...)
 							String msg = "PLAYERCOLORMAP";

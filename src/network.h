@@ -98,6 +98,10 @@ class BroadCastThread : public Thread{
 	virtual void proc(void* param);
 };
 
+class UDPThread : public Thread{
+	virtual void proc(void* param);
+};
+
 
 struct SERVER_DATA
 {
@@ -175,9 +179,13 @@ class Network{
 	friend class GetFileThread;
 	friend class AdminThread;
 	friend class BroadCastThread;
+	friend class UDPThread;
 
 	TA3DSock listen_socket;
 	ListenThread listen_thread;
+	
+	UDPSock	udp_socket;
+	UDPThread	udp_thread;
 
 	TA3DSock *tohost_socket;//administrative channel
 	AdminThread admin_thread;
@@ -248,6 +256,9 @@ class Network{
 
 		//int listNetGames(GamesList& list);
 		//int listLanGames(GamesList& list);
+
+		int sendSpecialUDP( std::string msg, int src_id = -1, int dst_id = -1);
+		int sendSpecialUDP(struct chat* chat, int src_id = -1, int dst_id = -1);
 
 		int sendSpecial( std::string msg, int src_id = -1, int dst_id = -1);
 		int sendSpecial(struct chat* chat, int src_id = -1, int dst_id = -1);
