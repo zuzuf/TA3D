@@ -472,7 +472,7 @@ int TA3DSock::getFileData(byte *buffer)	// Fill the buffer with the data and ret
 		return -1;
 	int size = tibp - 3;
 	if( buffer )
-		memcpy( buffer, tcpinbuf, size );
+		memcpy( buffer, tcpinbuf + 3, size );
 
 	tibp = 0;
 	tiremain = -1;
