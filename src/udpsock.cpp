@@ -78,6 +78,7 @@ void UDPSock::recv(){
 	if( p <= 0 ) {
 		rest(1);
 		uiremain = -1;
+		udpmutex.Unlock();
 		return;
 		}
 	uibp = p;
