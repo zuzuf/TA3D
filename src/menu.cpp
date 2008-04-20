@@ -1274,8 +1274,16 @@ void setup_game(bool client, const char *host)
 	do
 	{
 		if( host )
-			for( int i = 0 ; i < 10 ; i++ )
-				setupgame_area.msg(format("gamesetup.ready%d.%s",i, (game_data.player_control[i] != PLAYER_CONTROL_LOCAL_HUMAN && game_data.player_control[i] != PLAYER_CONTROL_REMOTE_HUMAN ) ? "hide" : "show" ));
+			for( int i = 0 ; i < 10 ; i++ ) {
+				GUIOBJ *obj = setupgame_area.get_object(format("gamesetup.ready%d",i));
+				if( obj ) {
+					if(game_data.player_control[i] != PLAYER_CONTROL_LOCAL_HUMAN && game_data.player_control[i] != PLAYER_CONTROL_REMOTE_HUMAN)
+						obj->Flag |= FLAG_HIDDEN;
+					else
+						obj->Flag &= ~FLAG_HIDDEN;
+					obj->Etat = game_data.ready[i];
+					}
+				}
 
 		bool key_is_pressed = false;
 		String broadcast_msg = "";
@@ -1355,7 +1363,7 @@ void setup_game(bool client, const char *host)
 							msg = format( "PLAYER_INFO %d %d %d %d %d %d %s %d", 	i, game_data.player_network_id[i],
 																				side_id, (game_data.player_control[i] == PLAYER_CONTROL_NONE || game_data.player_control[i] == PLAYER_CONTROL_CLOSED) ? -1 : game_data.ai_level[i],
 																				game_data.metal[i], game_data.energy[i],
-																				ReplaceChar(game_data.player_names[i], ' ', 1).c_str(), setupgame_area.get_state(format("gamesetup.ready%d",i)) );
+																				ReplaceChar(game_data.player_names[i], ' ', 1).c_str(), game_data.ready[i] );
 							network_manager.sendSpecial( msg, -1, from );
 							}
 						if( !client ) {			// Send server to client specific information (player colors, map name, ...)

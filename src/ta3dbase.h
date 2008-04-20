@@ -456,7 +456,7 @@ public:
 	Vector< byte >		ai_level;			// What's their level (for AI)
 	Vector< uint32 >	energy;				// How much energy do they have when game starts
 	Vector< uint32 >	metal;				// Idem with metal
-	Vector< bool >		ready;				// Who is ready ?
+	Vector< byte >		ready;				// Who is ready ?
 	char				*game_script;		// Which script to run
 	uint8				fog_of_war;			// flags to configure FOW
 	bool				campaign;			// Are we in campaign mode ?
