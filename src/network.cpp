@@ -748,7 +748,7 @@ int Network::Connect(char* target,char* port){
 	tohost_socket = new TA3DSock();
 
 	tohost_socket->Open(target,port);
-	udp_socket.Open(target,port);
+	udp_socket.Open(NULL,port);
 	if(!tohost_socket->isOpen()){
 		//error couldnt connect to game
 		Console->AddEntry("Network: error connecting to game at [%s]:%s",target,port);

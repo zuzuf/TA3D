@@ -142,6 +142,9 @@ int Socket::Open(char *hostname, char *port, int transport){
 	{
 	case STYPE_UDP:
 		if( hostname == NULL )	break;
+		nlSetAddrPort(&address, n_port);
+		nlSetRemoteAddr( s, &address );
+		break;
 	case STYPE_TCP_CLIENT:
 		nlSetAddrPort(&address, n_port);
 		if( nlConnect( s, &address ) == NL_FALSE ) {
