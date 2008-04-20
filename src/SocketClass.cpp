@@ -261,7 +261,15 @@ inline void Socket::sockError(const char* message){
 #if defined NETWORK_STANDALONE_UNIT_TEST
 	  printf ("sockError ([%s]:%s): %s\n",number,service,message);
 #else
-	  Console->AddEntry("sockError ([%s]:%s): %s",number,service,message);
+	  char *type = "broken";
+	  switch( stype )
+	  {
+	  case STYPE_UDP:			type = "UDP";	break;
+	  case STYPE_TCP_CLIENT:	type = "TCP";	break;
+	  case STYPE_TCP_SERVER:	type = "TCP";	break;
+	  case STYPE_BROADCAST:		type = "BROADCAST";	break;
+	  };
+	  Console->AddEntry("sockError (%s,[%s]:%s): %s",type,number,service,message);
 #endif
 	}
 }
@@ -272,7 +280,15 @@ inline void Socket::sockReport(const char* message){
 #if defined NETWORK_STANDALONE_UNIT_TEST
 	  printf ("sockReport ([%s]:%s): %s\n",number,service,message);
 #else
-	  Console->AddEntry("sockReport ([%s]:%s): %s",number,service,message);
+	  char *type = "broken";
+	  switch( stype )
+	  {
+	  case STYPE_UDP:			type = "UDP";	break;
+	  case STYPE_TCP_CLIENT:	type = "TCP";	break;
+	  case STYPE_TCP_SERVER:	type = "TCP";	break;
+	  case STYPE_BROADCAST:		type = "BROADCAST";	break;
+	  };
+	  Console->AddEntry("sockReport (%s,[%s]:%s): %s",type,number,service,message);
 #endif
 	}
 }

@@ -57,7 +57,7 @@ void UDPSock::send(const std::string &address){
 
 	int n = 0;
 	while(n < obp) {
-		int v = udpsock.Send(outbuf + n,obp);
+		int v = udpsock.Send(outbuf + n,obp - n);
 		if( v <= 0 ) {
 			Console->AddEntry("ERROR : could not send data over UDP!");
 			break;
