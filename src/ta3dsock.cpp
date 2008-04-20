@@ -165,6 +165,16 @@ void TA3DSock::loadFloat(float x){
 }
 
 
+void TA3DSock::sendTCP(byte *data, int size)
+{
+	int n = 0;
+	int count = 0;
+	while( !n && count < 100 && isOpen() ) {
+		n = tcpsock.Send(data,size);
+		count++;
+		}
+}
+
 void TA3DSock::sendTCP(){
 	int n = 0;
 	int count = 0;
@@ -191,8 +201,9 @@ void TA3DSock::sendUDP(){
 void TA3DSock::recvTCP(){
 	if( tiremain == 0 )	return;
 
-	int p = tcpsock.Recv( tcpinbuf, 512 );
+	int p = tcpsock.Recv( tcpinbuf, TA3DSOCK_BUFFER_SIZE );
 	if( p <= 0 ) {
+		rest(1);
 		tiremain = -1;
 		return;
 		}
@@ -203,9 +214,10 @@ void TA3DSock::recvTCP(){
 void TA3DSock::recvUDP(){
 	if(uiremain == 0)
 		return;
-	memset( udpinbuf, 0, MULTICAST_BUFFER_SIZE );
-	int p = udpsock.Recv(udpinbuf,MULTICAST_BUFFER_SIZE);//get new number
+	memset( udpinbuf, 0, TA3DSOCK_BUFFER_SIZE );
+	int p = udpsock.Recv(udpinbuf,TA3DSOCK_BUFFER_SIZE);//get new number
 	if( p <= 0 ) {
+		rest(1);
 		uiremain = -1;
 		return;
 		}
@@ -438,3 +450,33 @@ int TA3DSock::makeEvent(struct event* event){
 	tiremain = -1;
 	return 0;
 }
+
+int TA3DSock::getFilePort()				// For file transfer, first call this one to get the port which allows us to grab the right thread and buffer
+{
+	if( tcpinbuf[0] != 'F' && tcpinbuf[0] != 'R' ) {
+		Console->AddEntry("getFilePort error: the data doesn't start with an 'F' or an 'R'");
+		return -1;
+		}
+	if(tiremain == -1)
+		return -1;
+	return *((uint16*)(tcpinbuf+1));
+}
+
+int TA3DSock::getFileData(byte *buffer)	// Fill the buffer with the data and returns the size of the paquet
+{
+	if( tcpinbuf[0] != 'F' && tcpinbuf[0] != 'R' ) {
+		Console->AddEntry("getFilePort error: the data doesn't start with an 'F' or an 'R'");
+		return -1;
+		}
+	if(tiremain == -1)
+		return -1;
+	int size = tibp - 3;
+	if( buffer )
+		memcpy( buffer, tcpinbuf, size );
+
+	tibp = 0;
+	tiremain = -1;
+	
+	return size;
+}
+

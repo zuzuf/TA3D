@@ -228,6 +228,37 @@ void SocketThread::proc(void* param){
 					network->sendEvent(&event, sockid);
 			case 0:
 				break;
+
+				// For file transfert
+			case 'F':						// File data
+				{
+					int port = sock->getFilePort();
+					for( List< GetFileThread* >::iterator i = network->getfile_thread.begin() ; i != network->getfile_thread.end() ; i++ )
+						if( (*i)->port == port ) {
+							port = -1;
+							while( !(*i)->ready && !(*i)->isDead() )	rest(1);
+							(*i)->buffer_size = sock->getFileData( (*i)->buffer );
+							(*i)->ready = false;
+							break;
+							}
+					if( port != -1 )
+						sock->getFileData( NULL );
+				}
+				break;
+			case 'R':						// File response (send back the amount of data that has been received)
+				{
+					int port = sock->getFilePort();
+					for( List< SendFileThread* >::iterator i = network->sendfile_thread.begin() ; i != network->sendfile_thread.end() ; i++ )
+						if( (*i)->port == port ) {
+							port = -1;
+							sock->getFileData( (byte*)&((*i)->progress) );
+							break;
+							}
+					if( port != -1 )
+						sock->getFileData( NULL );
+				}
+				break;
+
 			default:
 				sock->cleanPacket();
 		}
@@ -289,12 +320,11 @@ void BroadCastThread::proc(void* param){
 //NEED TESTING
 void SendFileThread::proc(void* param){
 	TA3DSock* destsock;
-	Socket filesock;
 	Network* network;
 	int sockid;
 	TA3D_FILE* file;
 	int length,n,i;
-	char buffer[ FILE_TRANSFER_BUFFER_SIZE ];
+	byte buffer[ FILE_TRANSFER_BUFFER_SIZE ];
 	String filename;
 	
 	network = ((struct net_thread_params*)param)->network;
@@ -312,87 +342,30 @@ void SendFileThread::proc(void* param){
 
 	length = ta3d_fsize(file);
 
-	network->slmutex.Lock();
-		destsock = network->players.getSock(sockid);
-	network->slmutex.Unlock();
 	int timer = msec_timer;
-	while(msec_timer - timer < 10000 && !dead ){				// Try connecting during 10sec
-		rest(100);
-		String host = destsock->getAddress();
-		//put the standard file port here
-		filesock.Open( (char*)host.c_str(),(char*)port.c_str(),PROTOCOL_TCPIP);
-		if (filesock.isOpen())
-			break;
-	}
-	
-	if (!filesock.isOpen()){
-		Console->AddEntry("SendFile: error unable to connect to target");
-		dead = 1;
-		ta3d_fclose( file );
-		delete_file( filename.c_str() );
-		network->setFileDirty();
-		return;
-	}
 
 	int real_length = length;
 
-	filesock.Send(&length,4);
-	
-	rest( 1000 );
-	
 	int pos = 0;
+	progress = 0;
+	
+	network->sendFileData(sockid,port,(byte*)&length,4);
 	
 	Console->AddEntry("starting file transfer...");
 	while(!dead){
 		n = ta3d_fread(buffer,1,FILE_TRANSFER_BUFFER_SIZE,file);
-		filesock.Send(buffer,n);
+
+		network->sendFileData(sockid,port,buffer,n);
 
 		if( n > 0 ) {
 			pos += n;
 			network->updateFileTransferInformation( filename + format("%d", sockid), real_length, pos );
 
-			int p = -1;
-			int recv_pos = 0;
-			while( p <= 0 && !dead && filesock.isOpen() ) {
-				p = filesock.Recv(&recv_pos,4);
-				if( p == 4 ) {
-					recv_pos = recv_pos;
-					if( recv_pos < pos - FILE_TRANSFER_BUFFER_SIZE ) {
-						rest(1);
-						p = -1;
-						}
-					}
-				}
-
+			while( progress < pos - FILE_TRANSFER_BUFFER_SIZE && !dead )	rest(1);
 			}
 		
-		if( !filesock.isOpen() ) {							// Connection lost
-			timer = msec_timer;
-			while(msec_timer - timer < 10000 && !dead ){				// Try reconnecting during 10sec
-				rest(100);
-				String host = destsock->getAddress();
-				//put the standard file port here
-				filesock.Open( (char*)host.c_str(),(char*)port.c_str(),PROTOCOL_TCPIP);
-				if (filesock.isOpen())
-					break;
-			}
-	
-			if (!filesock.isOpen()){
-				Console->AddEntry("SendFile: connection lost!!");
-				dead = 1;
-				ta3d_fclose( file );
-				delete_file( filename.c_str() );
-				network->setFileDirty();
-				network->updateFileTransferInformation( filename + format("%d", sockid), 0, 0 );
-				return;
-				}
-			else
-				filesock.Send(buffer,n);		// Resend data;
-			}
+		if(ta3d_feof(file))		break;
 
-		if(ta3d_feof(file)){
-			break;
-		}
 		rest(1);
 	}
 	
@@ -415,14 +388,12 @@ void SendFileThread::proc(void* param){
 //doesnt support resume after broken transfer
 void GetFileThread::proc(void* param){
 	TA3DSock* sourcesock;
-	Socket filesock;
-	Socket filesock_serv;
 	Network* network;
 	int sockid;
 	FILE* file;
 	String filename;
 	int length,n,sofar;
-	char buffer[ FILE_TRANSFER_BUFFER_SIZE ];
+	buffer = new byte[ FILE_TRANSFER_BUFFER_SIZE ];
 	
 	network = ((struct net_thread_params*)param)->network;
 
@@ -438,66 +409,25 @@ void GetFileThread::proc(void* param){
 	if( file == NULL ) {
 		dead = 1;
 		network->setFileDirty();
+		delete[] buffer;
 		return;
 		}
 
-	network->slmutex.Lock();
-		sourcesock = network->players.getSock(sockid);
-	network->slmutex.Unlock();
-
-	//put the standard file port here
-	filesock_serv.Open(NULL,(char*)port.c_str(),PROTOCOL_TCPIP);
-	
-	if(!filesock_serv.isOpen()){
-		Console->AddEntry("GetFile: error couldn't open socket");
-		dead = 1;
-		fclose( file );
-		delete_file( (filename + ".part").c_str() );
-		network->setFileDirty();
-		return;
-	}
-
 	int timer = msec_timer;
 
-	while( filesock_serv.Accept( filesock, 100 ) < 0 && msec_timer - timer < 10000 && !dead )	rest(1);		// Wait 10sec for incoming connection
-
-	if(!filesock.isOpen()){
-		Console->AddEntry("GetFile: error couldn't connect to sender");
-		dead = 1;
-		fclose( file );
-		delete_file( (filename + ".part").c_str() );
-		network->setFileDirty();
-		return;
-	}
-
 	Console->AddEntry("starting file transfer...");
-	
-	n=0;
-	while(!dead && n<4){
-		int p = filesock.Recv(buffer+n,4);
-		if( !filesock.isOpen() ) {				// Connection lost, try reconnecting
-			timer = msec_timer;
 
-			while( filesock_serv.Accept( filesock, 100 ) < 0 && msec_timer - timer < 10000 && !dead )	rest(1);		// Wait 10sec for incoming connection
-
-			if(!filesock.isOpen()){
-				Console->AddEntry("GetFile: error connection lost");
-				dead = 1;
-				fclose( file );
-				delete_file( (filename + ".part").c_str() );
-				network->setFileDirty();
-				return;
-				}
-			p = 0;
-			}
-		n += p > 0 ? p : 0;
-	}
+	ready = true;
+	while( !dead && !ready ) rest( 1 );
 	memcpy(&length,buffer,4);
-
+	
 	sofar = 0;
 	if( dead ) length = 1;			// In order to delete the file
 	while(!dead){
-		n = filesock.Recv(buffer, FILE_TRANSFER_BUFFER_SIZE );
+		ready = true;
+		while( !dead && !ready ) rest( 1 );			// Get paquet data
+		n = buffer_size;
+
 		if( n > 0 ) {
 			sofar += n;
 			network->updateFileTransferInformation( filename + format("%d", sockid), length, sofar );
@@ -505,25 +435,10 @@ void GetFileThread::proc(void* param){
 			fwrite(buffer,1,n,file);
 
 			int pos = sofar;
-			filesock.Send(&pos,4);
+			network->sendFileResponse(sockid,port,(byte*)&pos,4);
 			}
 		if(sofar >= length)
 			break;
-		if( !filesock.isOpen() ) {				// Connection lost, try reconnecting
-			timer = msec_timer;
-
-			while( filesock_serv.Accept( filesock, 100 ) < 0 && msec_timer - timer < 10000 && !dead )	rest(1);		// Wait 10sec for incoming connection
-
-			if(!filesock.isOpen()){
-				Console->AddEntry("GetFile: error connection lost");
-				dead = 1;
-				fclose( file );
-				delete_file( (filename + ".part").c_str() );
-				network->updateFileTransferInformation( filename + format("%d", sockid), 0, 0 );
-				network->setFileDirty();
-				return;
-				}
-			}
 		rest(0);
 	}
 
@@ -796,8 +711,9 @@ void Network::stopFileTransfer( const String &port, int to_id )
 		transfer_progress.clear();
 		}
 	else {
+		int nb_port = atoi( port.c_str() );
 		for( List< GetFileThread* >::iterator i = getfile_thread.begin() ; i != getfile_thread.end() ; )
-			if( (*i)->port == port ) {
+			if( (*i)->port == nb_port ) {
 				GetFileThread *p = *i;
 				getfile_thread.erase( i++ );
 
@@ -811,7 +727,7 @@ void Network::stopFileTransfer( const String &port, int to_id )
 			else
 				i++;
 		for( List< SendFileThread* >::iterator i = sendfile_thread.begin() ; i != sendfile_thread.end() ; )
-			if( (*i)->port == port && (to_id == -1 || to_id == (*i)->player_id ) ) {
+			if( (*i)->port == nb_port && (to_id == -1 || to_id == (*i)->player_id ) ) {
 				SendFileThread *p = *i;
 				sendfile_thread.erase( i++ );
 
@@ -833,11 +749,12 @@ void Network::stopFileTransfer( const String &port, int to_id )
 
 bool Network::isTransferFinished( const String &port )
 {
+	int nb_port = atoi( port.c_str() );
 	for( List< GetFileThread* >::iterator i = getfile_thread.begin() ; i != getfile_thread.end() ; i++ )
-		if( (*i)->port == port )
+		if( (*i)->port == nb_port )
 			return false;
 	for( List< SendFileThread* >::iterator i = sendfile_thread.begin() ; i != sendfile_thread.end() ; i++ )
-		if( (*i)->port == port )
+		if( (*i)->port == nb_port )
 			return false;
 	return true;
 }
@@ -1035,6 +952,36 @@ int Network::sendChat(struct chat* chat, int src_id){
 	return -1;						// Not connected, it shouldn't be possible to get here if we're not connected ...
 }
 
+int Network::sendFileData( int player, uint16 port, byte *data, int size )
+{
+	TA3DSock *sock = players.getSock( player );
+	if( sock ) {
+		size += 3;
+		byte buffer[size];
+		buffer[0] = 'F';
+		memcpy( buffer+1, &port, sizeof( port ) );
+		memcpy( buffer+3, data, size - 3 );
+		sock->sendTCP( buffer, size );
+		return 0;
+		}
+	return -1;
+}
+
+int Network::sendFileResponse( int player, uint16 port, byte *data, int size )
+{
+	TA3DSock *sock = players.getSock( player );
+	if( sock ) {
+		size += 3;
+		byte buffer[size];
+		buffer[0] = 'R';
+		memcpy( buffer+1, &port, sizeof( port ) );
+		memcpy( buffer+3, data, size - 3 );
+		sock->sendTCP( buffer, size );
+		return 0;
+		}
+	return -1;
+}
+
 int Network::sendOrder(struct order* order, int src_id){
 	//determine who to send the order to
 	//send to all other players?
@@ -1054,7 +1001,7 @@ int Network::sendFile(int player, const String &filename, const String &port){
 	ftmutex.Lock();
 	SendFileThread *thread = new SendFileThread();
 	sendfile_thread.push_back( thread );
-	thread->port = port;
+	thread->port = atoi( port.c_str() );
 	thread->player_id = player;
 
 	net_thread_params *params = new net_thread_params;
@@ -1112,16 +1059,13 @@ int Network::getNextEvent(struct event* event){
 String Network::getFile(int player, const String &filename){
 	ftmutex.Lock();
 
-	int port_nb = 7776;						// Take the next port not in use
+	int port = 7776;						// Take the next port not in use
 	for( List< GetFileThread* >::iterator i = getfile_thread.begin() ; i != getfile_thread.end() ; i++ )
-		port_nb = max( (*i)->port_nb, port_nb ) ;
-	port_nb++;
+		port = max( (*i)->port, port ) ;
+	port++;
 	
-	String port = format( "%d", port_nb );
-
 	GetFileThread *thread = new GetFileThread();
 	thread->port = port;
-	thread->port_nb = port_nb;
 	getfile_thread.push_back( thread );
 
 	net_thread_params *params = new net_thread_params;
@@ -1132,7 +1076,7 @@ String Network::getFile(int player, const String &filename){
 	thread->Spawn(params);
 
 	ftmutex.Unlock();
-	return port;
+	return format( "%d", port );
 }
 
 

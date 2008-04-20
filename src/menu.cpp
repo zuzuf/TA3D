@@ -1402,6 +1402,7 @@ void setup_game(bool client, const char *host)
 								guiobj->Data = gfx->makeintcol(player_color[player_color_map[slot]*3],player_color[player_color_map[slot]*3+1],player_color[player_color_map[slot]*3+2]);			// Update gui
 								guiobj->Flag &= ~FLAG_HIDDEN;
 								}
+							TA3D_network.sendSpecial( "NOTIFY UPDATE", from );			// Tell others that things have changed
 							}
 						else
 							TA3D_network.dropPlayer( from );		// No more room for this player !!

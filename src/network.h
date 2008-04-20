@@ -74,16 +74,19 @@ class SocketThread : public Thread{
 class SendFileThread : public Thread{
 	virtual void proc(void* param);
 	public :
-		String	port;
+		int		port;
 		int		player_id;
+		int		progress;
 };
 
 //gets a large file in the background and writes to disk
 class GetFileThread : public Thread{
 	virtual void proc(void* param);
 	public :
-		String	port;
-		int		port_nb;
+		int		port;
+		byte	*buffer;
+		int		buffer_size;
+		bool	ready;
 };
 
 class AdminThread : public Thread{
@@ -276,6 +279,9 @@ class Network{
 		std::string getNextBroadcastedMessage();
 		std::string getLastMessageAddress();
 		bool BroadcastedMessages();
+		
+		int sendFileData( int player, uint16 port, byte *data, int size );
+		int sendFileResponse( int player, uint16 port, byte *data, int size );
 };
 
 

@@ -62,6 +62,7 @@
 ** total = 5
 */
 
+#define		TA3DSOCK_BUFFER_SIZE		2560
 
 //chat order sync and event
 //these are sent and received over the network
@@ -124,12 +125,12 @@ class TA3DSock{
 	Socket udpsock;
 
 	//only touched by main thread
-	char outbuf[512];
+	char outbuf[TA3DSOCK_BUFFER_SIZE];
 	int obp;
 
 	//only touched by socket thread
-	char tcpinbuf[512];
-	char udpinbuf[512];
+	char tcpinbuf[TA3DSOCK_BUFFER_SIZE];
+	char udpinbuf[TA3DSOCK_BUFFER_SIZE];
 	int tibp;
 	int uibp;
 	int tiremain;//how much is left to recv
@@ -158,6 +159,8 @@ class TA3DSock{
 		int Accept(TA3DSock** sock,int timeout);
 		void Close();
 
+		void sendTCP(byte *data, int size);
+
 		char* getAddress() {return tcpsock.getNumber();}
 		char* getPort() {return tcpsock.getService();}
 		Socket& getSock() {return tcpsock;}
@@ -177,6 +180,9 @@ class TA3DSock{
 		int makeOrder(struct order* order);
 		int makeSync(struct sync* sync);
 		int makeEvent(struct event* event);
+
+		int getFilePort();				// For file transfer, first call this one to get the port which allows us to grab the right thread and buffer
+		int getFileData(byte *buffer);	// Fill the buffer with the data and returns the size of the paquet
 
 		char getPacket();//if packet is ready return the type, else return -1
 		void pumpIn();//get input from sockets non-blocking
