@@ -418,14 +418,14 @@ void GetFileThread::proc(void* param){
 	Console->AddEntry("starting file transfer...");
 
 	ready = true;
-	while( !dead && !ready ) rest( 1 );
+	while( !dead && ready ) rest( 1 );
 	memcpy(&length,buffer,4);
 	
 	sofar = 0;
 	if( dead ) length = 1;			// In order to delete the file
 	while(!dead){
 		ready = true;
-		while( !dead && !ready ) rest( 1 );			// Get paquet data
+		while( !dead && ready ) rest( 1 );			// Get paquet data
 		n = buffer_size;
 
 		if( n > 0 ) {
