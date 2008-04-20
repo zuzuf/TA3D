@@ -9,7 +9,7 @@
 	height=1024;
 	draw borders=false;
 	show title=false;
-	number of objects=143;
+	number of objects=153;
 	hidden=false;
 	lock=true;
 	color=0x00000000;			// Fully transparent so we can see the AREA background
@@ -1217,7 +1217,7 @@
 		type=BOX;
 		x1=700;
 		y1=200;
-		x2=840;
+		x2=800;
 		y2=240;
 		value=0x0;
 		highlight=true;
@@ -1237,7 +1237,7 @@
 		type=BOX;
 		x1=700;
 		y1=240;
-		x2=840;
+		x2=800;
 		y2=280;
 		value=0x0;
 		highlight=true;
@@ -1257,7 +1257,7 @@
 		type=BOX;
 		x1=700;
 		y1=280;
-		x2=840;
+		x2=800;
 		y2=320;
 		value=0x0;
 		highlight=true;
@@ -1277,7 +1277,7 @@
 		type=BOX;
 		x1=700;
 		y1=320;
-		x2=840;
+		x2=800;
 		y2=360;
 		value=0x0;
 		highlight=true;
@@ -1297,7 +1297,7 @@
 		type=BOX;
 		x1=700;
 		y1=360;
-		x2=840;
+		x2=800;
 		y2=400;
 		value=0x0;
 		highlight=true;
@@ -1317,7 +1317,7 @@
 		type=BOX;
 		x1=700;
 		y1=400;
-		x2=840;
+		x2=800;
 		y2=440;
 		value=0x0;
 		highlight=true;
@@ -1337,7 +1337,7 @@
 		type=BOX;
 		x1=700;
 		y1=440;
-		x2=840;
+		x2=800;
 		y2=480;
 		value=0x0;
 		highlight=true;
@@ -1357,7 +1357,7 @@
 		type=BOX;
 		x1=700;
 		y1=480;
-		x2=840;
+		x2=800;
 		y2=520;
 		value=0x0;
 		highlight=true;
@@ -1377,7 +1377,7 @@
 		type=BOX;
 		x1=700;
 		y1=520;
-		x2=840;
+		x2=800;
 		y2=560;
 		value=0x0;
 		highlight=true;
@@ -1397,7 +1397,7 @@
 		type=BOX;
 		x1=700;
 		y1=560;
-		x2=840;
+		x2=800;
 		y2=600;
 		value=0x0;
 		highlight=true;
@@ -1506,5 +1506,105 @@
 		value=0;
 		size=2.0;
 		hidden=true;
+	}
+	[object143]		// ready0
+	{
+		name=ready0;
+		type=OPTIONC;
+		x1=810;
+		y1=205;
+		x2=830;
+		y2=225;
+		value=0;
+	}
+	[object144]		// ready1
+	{
+		name=ready1;
+		type=OPTIONC;
+		x1=810;
+		y1=245;
+		x2=830;
+		y2=265;
+		value=0;
+	}
+	[object145]		// ready2
+	{
+		name=ready2;
+		type=OPTIONC;
+		x1=810;
+		y1=285;
+		x2=830;
+		y2=315;
+		value=0;
+	}
+	[object146]		// ready3
+	{
+		name=ready3;
+		type=OPTIONC;
+		x1=810;
+		y1=325;
+		x2=830;
+		y2=355;
+		value=0;
+	}
+	[object147]		// ready4
+	{
+		name=ready4;
+		type=OPTIONC;
+		x1=810;
+		y1=365;
+		x2=830;
+		y2=395;
+		value=0;
+	}
+	[object148]		// ready5
+	{
+		name=ready5;
+		type=OPTIONC;
+		x1=810;
+		y1=405;
+		x2=830;
+		y2=435;
+		value=0;
+	}
+	[object149]		// ready6
+	{
+		name=ready6;
+		type=OPTIONC;
+		x1=810;
+		y1=445;
+		x2=830;
+		y2=475;
+		value=0;
+	}
+	[object150]		// ready7
+	{
+		name=ready7;
+		type=OPTIONC;
+		x1=810;
+		y1=485;
+		x2=830;
+		y2=515;
+		value=0;
+	}
+	[object151]		// ready8
+	{
+		name=ready8;
+		type=OPTIONC;
+		x1=810;
+		y1=525;
+		x2=830;
+		y2=555;
+		value=0;
+	}
+	[object152]		// ready9
+	{
+		name=ready9;
+		type=OPTIONC;
+		x1=810;
+		y1=565;
+		x2=830;
+		y2=595;
+		value=0;
 	}
 }

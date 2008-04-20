@@ -2724,9 +2724,14 @@ uint32 AREA::InterfaceMsg( const lpcImsg msg )
 		return INTERFACE_RESULT_HANDLED;		// Oups badly written things
 		}
 
+	return this->msg( (char*) msg->lpParm1 );
+}
+
+int	AREA::msg( String message )				// Send that message to the area
+{
 	uint32	result = INTERFACE_RESULT_CONTINUE;
 
-	String message = Lowercase( (char*) msg->lpParm1 );				// Get the string associated with the signal
+	message = Lowercase( message );				// Get the string associated with the signal
 
 	int i = message.find( "." );
 	if( i != -1 ) {
@@ -2736,7 +2741,7 @@ uint32 AREA::InterfaceMsg( const lpcImsg msg )
 		WND *the_wnd = get_wnd( key );
 		
 		if( the_wnd )
-			the_wnd->msg( message );
+			result = the_wnd->msg( message );
 		}
 	else
 		if( message == "clear" )	{

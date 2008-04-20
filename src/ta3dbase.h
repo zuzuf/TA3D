@@ -456,6 +456,7 @@ public:
 	Vector< byte >		ai_level;			// What's their level (for AI)
 	Vector< uint32 >	energy;				// How much energy do they have when game starts
 	Vector< uint32 >	metal;				// Idem with metal
+	Vector< bool >		ready;				// Who is ready ?
 	char				*game_script;		// Which script to run
 	uint8				fog_of_war;			// flags to configure FOW
 	bool				campaign;			// Are we in campaign mode ?
@@ -475,6 +476,7 @@ public:
 		ai_level.clear();
 		energy.clear();
 		metal.clear();
+		ready.clear();
 
 		player_names.resize(10);
 		player_sides.resize(10);
@@ -482,10 +484,12 @@ public:
 		ai_level.resize(10);
 		energy.resize(10);
 		metal.resize(10);
+		ready.resize(10);
 		player_network_id.resize(10);
 		for( uint16 i = 0 ; i < 10 ; i++ ) {
 			energy[i] = metal[i] = 10000;
 			player_network_id[i] = -1;
+			ready[i] = false;
 			}
 	}
 
@@ -504,6 +508,7 @@ public:
 		ai_level.clear();
 		energy.clear();
 		metal.clear();
+		ready.clear();
 	}
 };
 

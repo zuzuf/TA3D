@@ -374,6 +374,7 @@ public:
 		void	set_value( const String &message, const sint32 &value );		// Set the value of specified object in the specified window
 		void	set_enable_flag( const String &message, const bool &enable );	// Set the enabled/disabled state of specified object in the specified window
 		void	set_caption( const String &message, const String &caption );	// Set the caption of specified object in the specified window
+		int		msg( String message );				// Send that message to the area
 };
 
 class SKIN_OBJECT

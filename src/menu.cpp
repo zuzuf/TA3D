@@ -1251,6 +1251,9 @@ void setup_game(bool client, const char *host)
 		setupgame_area.set_caption("gamesetup.map_info", map_info );
 	}
 
+	for( int i = 0 ; i < 10 ; i++ )
+		setupgame_area.msg(format("gamesetup.ready%d.%s",i, host ? "show" : "hide"));
+
 	bool done=false;
 
 	if( host && my_player_id == -1 )	done = true;		// Leave now, we aren't connected but we're in network mode
@@ -1344,10 +1347,10 @@ void setup_game(bool client, const char *host)
 							if( client && game_data.player_network_id[i] != my_player_id )	continue;		// We don't send updates about things we wan't update
 							String msg;								// SYNTAX: PLAYER_INFO player_id network_id side_id ai_level metal energy player_name
 							int side_id = find( side_str, game_data.player_sides[i] );
-							msg = format( "PLAYER_INFO %d %d %d %d %d %d %s", 	i, game_data.player_network_id[i],
+							msg = format( "PLAYER_INFO %d %d %d %d %d %d %s %d", 	i, game_data.player_network_id[i],
 																				side_id, (game_data.player_control[i] == PLAYER_CONTROL_NONE || game_data.player_control[i] == PLAYER_CONTROL_CLOSED) ? -1 : game_data.ai_level[i],
 																				game_data.metal[i], game_data.energy[i],
-																				ReplaceChar(game_data.player_names[i], ' ', 1).c_str() );
+																				ReplaceChar(game_data.player_names[i], ' ', 1).c_str(), setupgame_area.get_state(format("gamesetup.ready%d",i)) );
 							network_manager.sendSpecial( msg, -1, from );
 							}
 						if( !client ) {			// Send server to client specific information (player colors, map name, ...)
@@ -1476,7 +1479,7 @@ void setup_game(bool client, const char *host)
 						}
 					}
 				}
-			else if( params.size() == 8 ) {
+			else if( params.size() == 9 ) {
 				if( params[0] == "PLAYER_INFO" ) {							// We've received player information, let's update :)
 					int i = atoi( params[1].c_str() );
 					int n_id = atoi( params[2].c_str() );
@@ -1485,12 +1488,14 @@ void setup_game(bool client, const char *host)
 						int ai_level = atoi( params[4].c_str() );
 						int metal_q = atoi( params[5].c_str() );
 						int energy_q = atoi( params[6].c_str() );
+						bool ready = atoi( params[8].c_str() );
 						game_data.player_network_id[i] = n_id;
 						game_data.player_sides[i] = side_str[ side_id ];
 						game_data.ai_level[i] = ai_level >= 0 ? ai_level : 0;
 						game_data.metal[i] = metal_q;
 						game_data.energy[i] = energy_q;
 						game_data.player_names[i] = ReplaceChar( params[7], 1, ' ' );
+						game_data.ready[i] = ready;
 						if( n_id < 0 && ai_level >= 0 )
 							game_data.player_control[i] = PLAYER_CONTROL_LOCAL_AI;
 						else if( n_id < 0 && ai_level < 0 )
@@ -1503,6 +1508,7 @@ void setup_game(bool client, const char *host)
 						setupgame_area.set_caption( format("gamesetup.side%d", i) , side_str[side_id] );							// Update gui
 						setupgame_area.set_caption( format("gamesetup.energy%d", i), format("%d",game_data.energy[i]) );			// Update gui
 						setupgame_area.set_caption( format("gamesetup.metal%d", i), format("%d",game_data.metal[i]) );				// Update gui
+						setupgame_area.set_state( format("gamesetup.ready%d", i), ready );											// Update gui
 
 						GUIOBJ *guiobj =  setupgame_area.get_object( format("gamesetup.color%d", i) );
 						if( guiobj ) {
@@ -1635,6 +1641,10 @@ void setup_game(bool client, const char *host)
 
 		for(uint16 i = 0 ; i < 10 ; i++ ) {
 			if( client && game_data.player_network_id[i] != my_player_id )	continue;							// You cannot change other player's settings
+			if( setupgame_area.get_state( format("gamesetup.ready%d", i ) ) != game_data.ready[i] ) {
+				network_manager.sendSpecial( "NOTIFY UPDATE" );
+				game_data.ready[i] = !game_data.ready[i];
+				}
 			if( setupgame_area.get_state( format("gamesetup.b_name%d", i) ) && !client ) {		// Change player type
 				if( game_data.player_network_id[i] >= 0 && game_data.player_network_id[i] != my_player_id ) {		// Kick player !!
 					network_manager.dropPlayer( game_data.player_network_id[i] );
@@ -1875,7 +1885,7 @@ void setup_game(bool client, const char *host)
 |    Displays the list of available servers and allow to join/host a game      |
 \-----------------------------------------------------------------------------*/
 
-#define SERVER_LIST_REFRESH_DELAY	1000
+#define SERVER_LIST_REFRESH_DELAY	10000
 
 void network_room(void)				// Let players create/join a game
 {
