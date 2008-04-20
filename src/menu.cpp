@@ -1397,6 +1397,11 @@ void setup_game(bool client, const char *host)
 								break;
 								}
 						}
+					else if( params[1] == "START" ) {				// Game is starting ...
+						clear_keybuf();
+						done=true;		// If user click "OK" or hit enter then leave the window
+						start_game = true;
+						}
 					}
 				}
 			else if( params.size() == 3 ) {
@@ -1645,10 +1650,18 @@ void setup_game(bool client, const char *host)
 			}
 
 		if( setupgame_area.get_state( "gamesetup.b_ok" ) && !client ) {
-			while( key[KEY_ENTER] )	{	rest( 20 );	poll_keyboard();	}
-			clear_keybuf();
-			done=true;		// If user click "OK" or hit enter then leave the window
-			start_game = true;
+			bool ready = true;
+			for( int i = 0 ; i < 10 ; i++ )
+				if( game_data.player_control[i] == PLAYER_CONTROL_LOCAL_HUMAN || game_data.player_control[i] == PLAYER_CONTROL_REMOTE_HUMAN )
+					ready &= game_data.ready[i];
+
+			if( ready ) {
+				while( key[KEY_ENTER] )	{	rest( 20 );	poll_keyboard();	}
+				clear_keybuf();
+				done=true;		// If user click "OK" or hit enter then leave the window
+				start_game = true;
+				network_manager.sendSpecial( "NOTIFY START" );
+				}
 			}
 		if( setupgame_area.get_state( "gamesetup.b_cancel" ) ) done=true;		// En cas de click sur "retour", on quitte la fenêtre
 
