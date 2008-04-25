@@ -51,7 +51,7 @@ namespace TA3D
 
 		// Use this to enter functions.  If you do use this you must use GuardLeave();
 		#define GuardEnter(name) \
-			static char *__GUARD__BLOCK__NAME__ = #name; \
+			static const char *__GUARD__BLOCK__NAME__ = #name; \
 			int	__GUARD__UFORMAT__ = get_uformat();	\
 			set_uformat( U_UTF8 );	\
 			GuardLog( TA3D::format( "%sGuarded:%s (%s l.%d)\n", GuardIndentPadding(), __GUARD__BLOCK__NAME__, __FILE__, __LINE__) ); \
@@ -80,7 +80,7 @@ namespace TA3D
 		#define GuardStart(name) \
 			{ \
 				GuardReset(); \
-				static char *__GUARD__BLOCK__NAME__ = #name; \
+				static const char *__GUARD__BLOCK__NAME__ = #name; \
 				GuardLog( TA3D::format( "Guard:%s (%s l.%d)\n", __GUARD__BLOCK__NAME__, __FILE__, __LINE__) ); \
 				GuardIncrementIndent(); \
 				try \
@@ -90,7 +90,7 @@ namespace TA3D
 		//    the try catch macro.
 #define GuardCatch() \
 			} \
-			catch( char *ErrorName ) \
+			catch( const char *ErrorName ) \
 			{ \
 				GuardLog( format( "\nString Error thrown\n%s\n", ErrorName ) ); \
 				SetExceptionStatus (true); \

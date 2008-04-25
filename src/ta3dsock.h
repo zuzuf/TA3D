@@ -137,7 +137,7 @@ class TA3DSock{
 	void loadLong(uint32_t x);//uint32
 	void loadShort(uint16_t x);//uint16
 	void loadByte(uint8_t x);//uint8
-	void loadString(char* x);//null terminated
+	void loadString(const char* x);//null terminated
 	void loadFloat(float x);
 
 	void sendTCP();
@@ -149,7 +149,7 @@ class TA3DSock{
 		TA3DSock() {obp=0;tibp=0;tiremain=-1;}
 		~TA3DSock() {}
 
-		int Open(char* hostname,char* port);
+		int Open(const char* hostname,const char* port);
 		int Accept(TA3DSock** sock);
 		int Accept(TA3DSock** sock,int timeout);
 		void Close();

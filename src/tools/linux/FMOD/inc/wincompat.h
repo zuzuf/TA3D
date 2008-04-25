@@ -14,6 +14,7 @@
 #include <termios.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #ifndef TRUE
   #define TRUE 1
@@ -23,16 +24,17 @@
 #endif
 
 #define _kbhit kbhit
+#define _getch getch
 #define stricmp strcasecmp
 #define strnicmp strncasecmp
 
 #define Sleep(x) usleep((x)*1000)
 
-static int            inited=0;
+static int    inited=0;
 static struct termios ori;
 
 static void tcatexit(){
-   tcsetattr(0,0,&ori);
+   tcsetattr(0,TCSANOW,&ori);
 }
 
 static void init_terminal(){
@@ -40,7 +42,8 @@ static void init_terminal(){
    tcgetattr(0,&t);
    tcgetattr(0,&ori);
    t.c_lflag &= ~(ICANON);
-   tcsetattr(0,0,&t);
+   t.c_lflag &= ~(ECHO);
+   tcsetattr(0,TCSANOW,&t);
    atexit(tcatexit);
 }
 

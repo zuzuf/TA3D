@@ -150,7 +150,7 @@ public:
 
 	void init(bool load=true);
 
-	int addtex(char *file,char *filealpha);
+	int addtex(const char *file,const char *filealpha);
 
 	PARTICLE_ENGINE() : particle_systems(), gltex()
 	{

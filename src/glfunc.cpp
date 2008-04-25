@@ -93,7 +93,7 @@ void install_ext()
 	if(glActiveTextureARB!=NULL && glMultiTexCoord2fARB!=NULL && glClientActiveTextureARB!=NULL) MultiTexturing=true;
 }
 
-GLhandleARB load_fragment_shader_memory(char *data,int filesize)
+GLhandleARB load_fragment_shader_memory(const char *data,int filesize)
 {
 	GLhandleARB	shader = glCreateShaderObjectARB(GL_FRAGMENT_SHADER_ARB);
 	int compiled = 0;
@@ -118,7 +118,7 @@ GLhandleARB load_fragment_shader_memory(char *data,int filesize)
 	return shader;
 }
 
-GLhandleARB load_vertex_shader_memory(char *data,int filesize)
+GLhandleARB load_vertex_shader_memory(const char *data,int filesize)
 {
 	GLhandleARB	shader = glCreateShaderObjectARB(GL_VERTEX_SHADER_ARB);
 	int compiled = 0;
@@ -143,7 +143,7 @@ GLhandleARB load_vertex_shader_memory(char *data,int filesize)
 	return shader;
 }
 
-GLhandleARB load_fragment_shader(char *filename)
+GLhandleARB load_fragment_shader(const char *filename)
 {
 	FILE *file=TA3D_OpenFile(filename,"rt");
 	GLhandleARB	shader = glCreateShaderObjectARB(GL_FRAGMENT_SHADER_ARB);
@@ -181,7 +181,7 @@ GLhandleARB load_fragment_shader(char *filename)
 	return shader;
 }
 
-GLhandleARB load_vertex_shader(char *filename)
+GLhandleARB load_vertex_shader(const char *filename)
 {
 	FILE *file=TA3D_OpenFile(filename,"rt");
 	GLhandleARB	shader = glCreateShaderObjectARB(GL_VERTEX_SHADER_ARB);
@@ -219,7 +219,7 @@ GLhandleARB load_vertex_shader(char *filename)
 	return shader;
 }
 
-void SHADER::load_memory(char *fragment_data,int frag_len,char *vertex_data,int vert_len)
+void SHADER::load_memory(const char *fragment_data,int frag_len,const char *vertex_data,int vert_len)
 {
 	if(!g_useProgram)	return;
 
@@ -245,7 +245,7 @@ void SHADER::load_memory(char *fragment_data,int frag_len,char *vertex_data,int 
 		}
 }
 
-void SHADER::load(char *fragment_file,char *vertex_file)
+void SHADER::load(const char *fragment_file,const char *vertex_file)
 {
 	if(!g_useProgram)	return;
 

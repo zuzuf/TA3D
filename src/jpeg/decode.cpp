@@ -401,7 +401,7 @@ read_sos_chunk(void)
 static int
 read_appn_chunk(int n)
 {
-	char *header_id;
+	const char *header_id;
 	int i;
 	
 	if (n == CHUNK_APP0)

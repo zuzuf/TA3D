@@ -73,7 +73,7 @@ namespace TA3D
 			void stdout_on()	{	m_std_output = true;	}
 			void stdout_off()	{	m_std_output = false;	}
 
-			void AddEntry(char *txt, ...);
+			void AddEntry(const char *txt, ...);
 			void AddEntry( String NewEntry );
 
 			char *draw( TA3D::INTERFACES::GFX_FONT fnt, float dt, float fsize=8, bool force_show=false );

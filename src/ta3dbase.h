@@ -435,7 +435,7 @@ private:
 	}
 
 public:
-	int	get_side_id(char *side);
+	int	get_side_id(const char *side);
 	void load_data();
 };
 
@@ -524,7 +524,7 @@ const int rand_from_table();
 
 BITMAP *load_memory_pcx(byte *data,RGB *cpal);
 void PutTex(GLuint Tex,float x1,float y1,float x2,float y2);
-GLuint LoadTex(char *file);
-GLuint LoadMaskedTex(char *file,char *filealpha);
-BITMAP *LoadMaskedTexBmp(char *file,char *filealpha);
+GLuint LoadTex(const char *file);
+GLuint LoadMaskedTex(const char *file,const char *filealpha);
+BITMAP *LoadMaskedTexBmp(const char *file,const char *filealpha);
 int play(GAME_DATA *game_data);

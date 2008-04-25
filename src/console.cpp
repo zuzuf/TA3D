@@ -318,7 +318,7 @@ void cConsole::AddEntry( String NewEntry )
 	LeaveCS();
 }
 
-void cConsole::AddEntry(char *txt, ...)		// Ajoute une nouvelle entrée
+void cConsole::AddEntry(const char *txt, ...)		// Ajoute une nouvelle entrée
 {
 	EnterCS();
 

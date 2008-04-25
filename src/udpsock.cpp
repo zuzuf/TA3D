@@ -23,7 +23,7 @@
 /*****************************/
 
 
-int UDPSock::Open(char* hostname,char* port){
+int UDPSock::Open(const char* hostname,const char* port){
 
 	udp_port = atoi( port );
 
@@ -133,7 +133,7 @@ void UDPSock::loadByte(uint8_t x){//uint8
 	obp += 1;
 }
 
-void UDPSock::loadString(char* x){//null terminated
+void UDPSock::loadString(const char* x){//null terminated
 	int n = strlen(x);
 	if(n < UDPSOCK_BUFFER_SIZE - obp - 1 ){
 		memcpy(outbuf+obp,x,n);

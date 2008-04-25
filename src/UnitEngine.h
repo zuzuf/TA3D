@@ -687,7 +687,7 @@ public:
 	inline int get_script_index(int id)
 	{
 		if(script_idx[id]!=-2)	return script_idx[id];
-		char *script_name[]= {	"QueryPrimary","AimPrimary","FirePrimary",
+		const char *script_name[]= {	"QueryPrimary","AimPrimary","FirePrimary",
 								"QuerySecondary","AimSecondary","FireSecondary",
 								"QueryTertiary","AimTertiary","FireTertiary",
 								"TargetCleared","stopbuilding","stop",
@@ -704,7 +704,7 @@ public:
 		return script_idx[id];
 	}
 
-	inline int get_script_index(char *script_name)			// Cherche l'indice du script dont on fournit le nom
+	inline int get_script_index(const char *script_name)			// Cherche l'indice du script dont on fournit le nom
 	{
 		if(script)
 			for(int i=0;i<script->nb_script;i++)

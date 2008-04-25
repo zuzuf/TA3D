@@ -798,7 +798,7 @@ int intersect(POINTF O,VECTOR Dir,OBJECT *obj,POINTF *PA,POINTF *PB)	// Calcule 
 |                                   RGB *LoadPal(..)                               |
 |        Procédure qui charge la palette graphique d'un fichier pal                |
 \---------------------------------------------------------------------------------*/
-RGB *LoadPal(char *filename)
+RGB *LoadPal(const char *filename)
 {
 	RGB *pal=new RGB[256];		// Génère une nouvelle palette
 

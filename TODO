@@ -19,6 +19,7 @@ _D3D support
 
 bug list
 --------
+_invisible units should be visible when an enemy is close enough
 _sometimes weapons go through their target without hitting them !!
 _There should be either restriction to use 12-icon build menu on resolutions lesser than 1024x768 or it should be sizeable, since now on 800x600 or 640x480 size of 12-icon build menu don`t match size of othe GUI parts and covers some of function buttons.
 _AI still can`t place metal extractors directly where it should be placed

@@ -49,7 +49,7 @@ Socket::~Socket(){
 }
 
 
-Socket::Socket(char *hostname, char *port, int transport){
+Socket::Socket(const char *hostname, const char *port, int transport){
 	strncpy(number,"new socket",NI_MAXHOST);
 	strncpy(service,"???",NI_MAXSERV);
 	stype = STYPE_BROKEN;
@@ -62,7 +62,7 @@ Socket::Socket(char *hostname, char *port, int transport){
 	}
 }
 
-Socket::Socket(char *hostname, char *port){
+Socket::Socket(const char *hostname, const char *port){
 	strncpy(number,"new socket",NI_MAXHOST);
 	strncpy(service,"???",NI_MAXSERV);
 	stype = STYPE_BROKEN;
@@ -75,11 +75,11 @@ Socket::Socket(char *hostname, char *port){
 	}
 }
 
-int Socket::Open(char *hostname, char *port){
+int Socket::Open(const char *hostname, const char *port){
 	return Open(hostname,port,PROTOCOL_TCPIP);
 }
 
-int Socket::Open(char *hostname, char *port, int transport){
+int Socket::Open(const char *hostname, const char *port, int transport){
 	//create a socket
 	if (stype != STYPE_BROKEN){
 		sockError("Open: this socket is already open");
@@ -264,7 +264,7 @@ inline void Socket::sockError(const char* message){
 #if defined NETWORK_STANDALONE_UNIT_TEST
 	  printf ("sockError ([%s]:%s): %s\n",number,service,message);
 #else
-	  char *type = "broken";
+	  const char *type = "broken";
 	  switch( stype )
 	  {
 	  case STYPE_UDP:			type = "UDP";	break;
@@ -283,7 +283,7 @@ inline void Socket::sockReport(const char* message){
 #if defined NETWORK_STANDALONE_UNIT_TEST
 	  printf ("sockReport ([%s]:%s): %s\n",number,service,message);
 #else
-	  char *type = "broken";
+	  const char *type = "broken";
 	  switch( stype )
 	  {
 	  case STYPE_UDP:			type = "UDP";	break;
@@ -298,7 +298,7 @@ inline void Socket::sockReport(const char* message){
 
 
 
-int Socket::Send(void* data,int num){
+int Socket::Send(const void* data,int num){
 	
 	if(stype == STYPE_BROKEN){
 		sockError("Send: socket must be open before sending");
@@ -376,7 +376,7 @@ int Socket::Recv(void* data, int num){
 
 
 
-int Socket::SendString(char* data){
+int Socket::SendString(const char* data){
 	return Send(data,strlen(data)+1);
 }
 

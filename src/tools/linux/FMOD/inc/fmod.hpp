@@ -1,5 +1,5 @@
 /* ========================================================================================== */
-/* FMOD Ex - C++ header file. Copyright (c), Firelight Technologies Pty, Ltd. 2004.           */
+/* FMOD Ex - C++ header file. Copyright (c), Firelight Technologies Pty, Ltd. 2004-2008.      */
 /*                                                                                            */
 /* Use this header in conjunction with fmod.h (which contains all the constants / callbacks)  */
 /* to develop using C++ classes.                                                              */
@@ -26,6 +26,7 @@ namespace FMOD
     class SoundGroup;
     class Reverb;
     class DSP;
+    class DSPConnection;
     class Geometry;
 
     /*
@@ -146,9 +147,10 @@ namespace FMOD
                                                  
         // System level DSP access.
         FMOD_RESULT F_API getDSPHead             (DSP **dsp);
-        FMOD_RESULT F_API addDSP                 (DSP *dsp);
+        FMOD_RESULT F_API addDSP                 (DSP *dsp, DSPConnection **connection);
         FMOD_RESULT F_API lockDSP                ();
         FMOD_RESULT F_API unlockDSP              ();
+        FMOD_RESULT F_API getDSPClock            (unsigned int *hi, unsigned int *lo);
                                                
         // Recording API.
         FMOD_RESULT F_API setRecordDriver        (int driver);
@@ -236,6 +238,11 @@ namespace FMOD
         FMOD_RESULT F_API getLoopCount           (int *loopcount);
         FMOD_RESULT F_API setLoopPoints          (unsigned int loopstart, FMOD_TIMEUNIT loopstarttype, unsigned int loopend, FMOD_TIMEUNIT loopendtype);
         FMOD_RESULT F_API getLoopPoints          (unsigned int *loopstart, FMOD_TIMEUNIT loopstarttype, unsigned int *loopend, FMOD_TIMEUNIT loopendtype);
+
+        // For MOD/S3M/XM/IT/MID sequenced formats only.
+        FMOD_RESULT F_API getMusicNumChannels    (int *numchannels);
+        FMOD_RESULT F_API setMusicChannelVolume  (int channel, float volume);
+        FMOD_RESULT F_API getMusicChannelVolume  (int channel, float *volume);
                             
         // Userdata set/get.
         FMOD_RESULT F_API setUserData            (void *userdata);
@@ -264,8 +271,8 @@ namespace FMOD
         FMOD_RESULT F_API getFrequency           (float *frequency);
         FMOD_RESULT F_API setPan                 (float pan);
         FMOD_RESULT F_API getPan                 (float *pan);
-        FMOD_RESULT F_API setDelay               (unsigned int startdelay, unsigned int enddelay);
-        FMOD_RESULT F_API getDelay               (unsigned int *startdelay, unsigned int *enddelay);
+        FMOD_RESULT F_API setDelay               (FMOD_DELAYTYPE delaytype, unsigned int delayhi, unsigned int delaylo);
+        FMOD_RESULT F_API getDelay               (FMOD_DELAYTYPE delaytype, unsigned int *delayhi, unsigned int *delaylo);
         FMOD_RESULT F_API setSpeakerMix          (float frontleft, float frontright, float center, float lfe, float backleft, float backright, float sideleft, float sideright);
         FMOD_RESULT F_API getSpeakerMix          (float *frontleft, float *frontright, float *center, float *lfe, float *backleft, float *backright, float *sideleft, float *sideright);
         FMOD_RESULT F_API setSpeakerLevels       (FMOD_SPEAKER speaker, float *levels, int numlevels);
@@ -307,7 +314,7 @@ namespace FMOD
 
         // DSP functionality only for channels playing sounds created with FMOD_SOFTWARE.
         FMOD_RESULT F_API getDSPHead             (DSP **dsp);
-        FMOD_RESULT F_API addDSP                 (DSP *dsp);
+        FMOD_RESULT F_API addDSP                 (DSP *dsp, DSPConnection **connection);
 
         // Information only functions.
         FMOD_RESULT F_API isPlaying              (bool *isplaying);
@@ -374,7 +381,7 @@ namespace FMOD
 
         // DSP functionality only for channel groups playing sounds created with FMOD_SOFTWARE.
         FMOD_RESULT F_API getDSPHead              (DSP **dsp);
-        FMOD_RESULT F_API addDSP                  (DSP *dsp);
+        FMOD_RESULT F_API addDSP                  (DSP *dsp, DSPConnection **connection);
 
         // Information only functions.
         FMOD_RESULT F_API getName                 (char *name, int namelen);
@@ -439,22 +446,14 @@ namespace FMOD
         FMOD_RESULT F_API getSystemObject        (System **system);
 
         // Connection / disconnection / input and output enumeration.
-        FMOD_RESULT F_API addInput               (DSP *target);
+        FMOD_RESULT F_API addInput               (DSP *target, DSPConnection **connection);
         FMOD_RESULT F_API disconnectFrom         (DSP *target);
         FMOD_RESULT F_API disconnectAll          (bool inputs, bool outputs);
         FMOD_RESULT F_API remove                 ();
         FMOD_RESULT F_API getNumInputs           (int *numinputs);
         FMOD_RESULT F_API getNumOutputs          (int *numoutputs);
-        FMOD_RESULT F_API getInput               (int index, DSP **input);
-        FMOD_RESULT F_API getOutput              (int index, DSP **output);
-        FMOD_RESULT F_API setInputMix            (int index, float volume);
-        FMOD_RESULT F_API getInputMix            (int index, float *volume);
-        FMOD_RESULT F_API setInputLevels         (int index, FMOD_SPEAKER speaker, float *levels, int numlevels);
-        FMOD_RESULT F_API getInputLevels         (int index, FMOD_SPEAKER speaker, float *levels, int numlevels);
-        FMOD_RESULT F_API setOutputMix           (int index, float volume);
-        FMOD_RESULT F_API getOutputMix           (int index, float *volume);
-        FMOD_RESULT F_API setOutputLevels        (int index, FMOD_SPEAKER speaker, float *levels, int numlevels);
-        FMOD_RESULT F_API getOutputLevels        (int index, FMOD_SPEAKER speaker, float *levels, int numlevels);
+        FMOD_RESULT F_API getInput               (int index, DSP **input, DSPConnection **inputconnection);
+        FMOD_RESULT F_API getOutput              (int index, DSP **output, DSPConnection **outputconnection);
 
         // DSP unit control.
         FMOD_RESULT F_API setActive              (bool active);
@@ -479,6 +478,31 @@ namespace FMOD
         // Userdata set/get.
         FMOD_RESULT F_API setUserData            (void *userdata);
         FMOD_RESULT F_API getUserData            (void **userdata);
+    };
+
+
+    /*
+        'DSPConnection' API
+    */
+    class DSPConnection
+    {
+      private:
+
+        DSPConnection();    /* Constructor made private so user cannot statically instance a DSPConnection class.  
+                               Appropriate DSPConnection creation or retrieval function must be used. */
+
+      public:
+
+        FMOD_RESULT F_API getInput              (DSP **input);
+        FMOD_RESULT F_API getOutput             (DSP **output);
+        FMOD_RESULT F_API setMix                (float volume);
+        FMOD_RESULT F_API getMix                (float *volume);
+        FMOD_RESULT F_API setLevels             (FMOD_SPEAKER speaker, float *levels, int numlevels);
+        FMOD_RESULT F_API getLevels             (FMOD_SPEAKER speaker, float *levels, int numlevels);
+
+        // Userdata set/get.
+        FMOD_RESULT F_API setUserData           (void *userdata);
+        FMOD_RESULT F_API getUserData           (void **userdata);
     };
 
 

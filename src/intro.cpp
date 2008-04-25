@@ -36,7 +36,7 @@
 #define LAST_LINE		14
 #define INTRO_TOP		580.0f
 
-void play_intro(char *txt_file)
+void play_intro(const char *txt_file)
 {
 	GLuint glfond = 0;
 

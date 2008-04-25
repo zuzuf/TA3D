@@ -23,7 +23,7 @@
 /***********************************/
 
 
-int BroadcastSock::Open(char* port){
+int BroadcastSock::Open(const char* port){
 
 	udpsocket.Open(NULL,port,PROTOCOL_BROADCAST);
 	
@@ -74,7 +74,7 @@ void BroadcastSock::loadByte(uint8_t x){//uint8
 	obp += 1;
 }
 
-void BroadcastSock::loadString(char* x){//null terminated
+void BroadcastSock::loadString(const char* x){//null terminated
 	int n = strlen(x);
 	if(n < 256){
 		memcpy(outbuf+obp,x,n);

@@ -94,7 +94,7 @@ void PARTICLE_SYSTEM::draw()
 	glPopMatrix();
 }
 
-	int PARTICLE_ENGINE::addtex(char *file,char *filealpha)
+	int PARTICLE_ENGINE::addtex(const char *file,const char *filealpha)
 	{
 		EnterCS();
 

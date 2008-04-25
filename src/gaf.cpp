@@ -229,7 +229,7 @@ char *get_gaf_entry_name(byte *buf,int entry_idx)
 	return strdup(entry.Name);
 }
 
-int get_gaf_entry_index(byte *buf,char *name)
+int get_gaf_entry_index(byte *buf,const char *name)
 {
 	int nb_entry=get_gaf_nb_entry(buf);
 

@@ -1651,9 +1651,10 @@ void setup_game(bool client, const char *host)
 
 		if( setupgame_area.get_state( "gamesetup.b_ok" ) && !client ) {
 			bool ready = true;
-			for( int i = 0 ; i < 10 ; i++ )
-				if( game_data.player_control[i] == PLAYER_CONTROL_LOCAL_HUMAN || game_data.player_control[i] == PLAYER_CONTROL_REMOTE_HUMAN )
-					ready &= game_data.ready[i];
+			if( host )
+				for( int i = 0 ; i < 10 ; i++ )
+					if( game_data.player_control[i] == PLAYER_CONTROL_LOCAL_HUMAN || game_data.player_control[i] == PLAYER_CONTROL_REMOTE_HUMAN )
+						ready &= game_data.ready[i];
 
 			if( ready ) {
 				while( key[KEY_ENTER] )	{	rest( 20 );	poll_keyboard();	}

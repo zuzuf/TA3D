@@ -21,5 +21,5 @@
 |                                                                              |
 \-----------------------------------------------------------------------------*/
 
-void play_intro(char *txt_file = "intro.txt");
+void play_intro(const char *txt_file = "intro.txt");
 void loading(float percent,const String &msg);

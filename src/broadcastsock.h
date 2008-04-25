@@ -85,7 +85,7 @@ class BroadcastSock{
 	void loadLong(uint32_t x);//uint32
 	void loadShort(uint16_t x);//uint16
 	void loadByte(uint8_t x);//uint8
-	void loadString(char* x);//null terminated
+	void loadString(const char* x);//null terminated
 	void loadFloat(float x);
 
 	void sendUDP();
@@ -97,7 +97,7 @@ class BroadcastSock{
 		BroadcastSock() {obp=0;uibp=0;uiremain=-1;}
 		~BroadcastSock() {}
 
-		int Open(char* port);
+		int Open(const char* port);
 		void Close();
 
 		int isOpen();

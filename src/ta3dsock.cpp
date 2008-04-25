@@ -23,7 +23,7 @@
 /******************************/
 
 
-int TA3DSock::Open(char* hostname,char* port){
+int TA3DSock::Open(const char* hostname,const char* port){
 
 	tcpsock.Open(hostname,port,PROTOCOL_TCPIP);
 
@@ -105,7 +105,7 @@ void TA3DSock::loadByte(uint8_t x){//uint8
 	obp += 1;
 }
 
-void TA3DSock::loadString(char* x){//null terminated
+void TA3DSock::loadString(const char* x){//null terminated
 	int n = strlen(x);
 	if(n < TA3DSOCK_BUFFER_SIZE - obp - 1){
 		memcpy(outbuf+obp,x,n);

@@ -232,12 +232,12 @@ MainWnd.NbObj=2;
 MainWnd.Objets=new GUIOBJ[MainWnd.NbObj];
 
 					// Menu fichier
-char *mnu_fichier_list[] = {"Fichiers","Nouveau","Ouvrir","Sauver","Importer(*.ASC)","Importer(*.3DO)","Importer(*.3DS)","Quitter"};
+const char *mnu_fichier_list[] = {"Fichiers","Nouveau","Ouvrir","Sauver","Importer(*.ASC)","Importer(*.3DO)","Importer(*.3DS)","Quitter"};
 Vector<String> mnu_fichier( mnu_fichier_list, &(mnu_fichier_list[8]));
 TRANSLATE( mnu_fichier );
 MainWnd.Objets[0].create_menu(3,12,83,24,mnu_fichier,mnu_file);
 					// Menu surface
-char *mnu_surface_list[] = {"Surface","Editer","Copier","Coller","Reinitialiser","Coller sur toutes"};
+const char *mnu_surface_list[] = {"Surface","Editer","Copier","Coller","Reinitialiser","Coller sur toutes"};
 Vector<String> mnu_surface( mnu_surface_list, &(mnu_surface_list[6]));
 TRANSLATE( mnu_surface );
 MainWnd.Objets[1].create_menu(86,12,166,24,mnu_surface,mnu_surf);

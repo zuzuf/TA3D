@@ -31,7 +31,7 @@ namespace TA3D
 	}
 }
 
-RGB *LoadPal(char *filename);
+RGB *LoadPal(const char *filename);
 void init();
 
 /*---------------------------------------------------------------------------------------------------\

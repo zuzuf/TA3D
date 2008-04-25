@@ -46,7 +46,7 @@ class UDPSock{
 	void loadLong(uint32_t x);//uint32
 	void loadShort(uint16_t x);//uint16
 	void loadByte(uint8_t x);//uint8
-	void loadString(char* x);//null terminated
+	void loadString(const char* x);//null terminated
 	void loadFloat(float x);
 
 	void send( const std::string &address );
@@ -58,7 +58,7 @@ class UDPSock{
 		UDPSock() {obp=0;uibp=0;uiremain=-1;}
 		~UDPSock() {}
 
-		int Open(char* hostname,char* port);
+		int Open(const char* hostname,const char* port);
 		void Close();
 
 		char* getAddress() {return udpsock.getNumber();}

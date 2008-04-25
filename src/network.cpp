@@ -645,7 +645,7 @@ Network::~Network(){
 	nlShutdown();
 }
 
-void Network::InitBroadcast( char* port )
+void Network::InitBroadcast( const char* port )
 {
 	broadcast_socket.Open( port );
 		//spawn broadcast thread
@@ -661,7 +661,7 @@ void Network::InitBroadcast( char* port )
 //port is the port the game listens on for connections
 //proto 4=ipv4only 6=ipv6only 0=automatic
 //not finished
-int Network::HostGame(char* name,char* port,int network){
+int Network::HostGame(const char* name,const char* port,int network){
 
 	if(myMode == 0){
 		myMode = 1;
@@ -735,7 +735,7 @@ int Network::HostGame(char* name,char* port,int network){
 
 
 //not finished
-int Network::Connect(char* target,char* port){
+int Network::Connect(const char* target,const char* port){
 
 	if(myMode == 0){
 		myMode = 2;

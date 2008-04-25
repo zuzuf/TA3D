@@ -45,7 +45,7 @@ void I18N_TRANSLATER::refresh_language()
 
 	loaded_language = lp_CONFIG->Lang;
 
-	char *languages[] = { "english", "french", "german", "spanish", "italian", "japanese" };
+	const char *languages[] = { "english", "french", "german", "spanish", "italian", "japanese" };
 	language = format( ".%s", languages[ loaded_language ] );				// Select the corresponding sub-key
 }
 
@@ -57,7 +57,7 @@ void I18N_TRANSLATER::load_translations( const String &filename, bool adding, bo
 
 	loaded_language = lp_CONFIG->Lang;
 
-	char *languages[] = { "english", "french", "german", "spanish", "italian", "japanese" };
+	const char *languages[] = { "english", "french", "german", "spanish", "italian", "japanese" };
 	language = format( ".%s", languages[ loaded_language ] );				// Select the corresponding sub-key
 }
 

@@ -68,7 +68,7 @@ int get_gaf_nb_entry(byte *buf);
 
 char *get_gaf_entry_name(byte *buf,int entry_idx);
 
-int get_gaf_entry_index(byte *buf,char *name);
+int get_gaf_entry_index(byte *buf,const char *name);
 
 int get_gaf_nb_img(byte *buf,int entry_idx);
 
@@ -213,7 +213,7 @@ public:
 			anm[i].clean();
 	}
 
-	int find_entry(char *name)
+	int find_entry(const char *name)
 	{
 		for(int i=0;i<nb_anim;i++)
 			if(anm[i].name!=NULL && strcasecmp(anm[i].name,name)==0)

@@ -243,8 +243,8 @@ class Network{
 		Network();
 		~Network();
 
-		int HostGame(char* name,char* port,int network);
-		int Connect(char* target,char* port);
+		int HostGame(const char* name,const char* port,int network);
+		int Connect(const char* target,const char* port);
 		void Disconnect();
 
 		void setPlayerDirty();
@@ -252,7 +252,7 @@ class Network{
 		bool getPlayerDropped();
 		bool pollPlayer(int id);
 
-		void InitBroadcast( char* port);
+		void InitBroadcast( const char* port);
 
 		//int listNetGames(GamesList& list);
 		//int listLanGames(GamesList& list);

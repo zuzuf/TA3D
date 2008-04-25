@@ -223,8 +223,8 @@ void UNIT_TYPE::show_info(float fade,GFX_FONT fnt)
 		char *limit=data+size;
 		while(*pos!='{') pos++;
 		pos=strstr(pos,"\n")+1;
-		char *lang_name="name=";
-		char *lang_desc="description=";
+		const char *lang_name="name=";
+		const char *lang_desc="description=";
 		switch(LANG)
 		{
 		case TA3D_LANG_FRENCH:

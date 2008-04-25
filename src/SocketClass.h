@@ -145,8 +145,8 @@ class Socket{
 
 	public:
 		Socket();
-		Socket(char *hostname, char *port);
-		Socket(char *hostname, char *port, int transport);
+		Socket(const char *hostname, const char *port);
+		Socket(const char *hostname, const char *port, int transport);
 		~Socket();
 
 		//utilities
@@ -159,15 +159,15 @@ class Socket{
 		int isOpen();						//broken or not
 		
 		//open and close manually
-		int Open(char *hostname, char *port);
-		int Open(char *hostname, char *port, int transport);
+		int Open(const char *hostname, const char *port);
+		int Open(const char *hostname, const char *port, int transport);
 		int Close();
 
 		//communication
-		int Send(void* data,int num);//send num bytes of data
+		int Send(const void* data,int num);//send num bytes of data
 		int Recv(void* data,int num);//recv a packet or num bytes if thats smaller
 		
-		int SendString(char* data);//if data is null terminated
+		int SendString(const char* data);//if data is null terminated
 
 		int takeFive(int time);
 };

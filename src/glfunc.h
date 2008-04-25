@@ -31,10 +31,10 @@ extern bool g_useProgram;
 extern bool g_useFBO;
 
 void install_ext();
-GLhandleARB load_fragment_shader_memory(char *data,int filesize);
-GLhandleARB load_vertex_shader_memory(char *data,int filesize);
-GLhandleARB load_fragment_shader(char *filename);
-GLhandleARB load_vertex_shader(char *filename);
+GLhandleARB load_fragment_shader_memory(const char *data,int filesize);
+GLhandleARB load_vertex_shader_memory(const char *data,int filesize);
+GLhandleARB load_fragment_shader(const char *filename);
+GLhandleARB load_vertex_shader(const char *filename);
 
 class SHADER
 {
@@ -49,9 +49,9 @@ public:
 		succes=false;
 	}
 
-	void load(char *fragment_file,char *vertex_file);
+	void load(const char *fragment_file,const char *vertex_file);
 
-	void load_memory(char *fragment_data,int frag_len,char *vertex_data,int vert_len);
+	void load_memory(const char *fragment_data,int frag_len,const char *vertex_data,int vert_len);
 
 	inline void destroy()
 	{
@@ -77,49 +77,49 @@ public:
 			glUseProgramObjectARB(0);
 	}
 
-	inline void setvar1f(char *var_name,float v0)
+	inline void setvar1f(const char *var_name,float v0)
 	{
 		if(succes)
 			glUniform1fARB(glGetUniformLocationARB(program, var_name), v0);
 	}
 
-	inline void setvar2f(char *var_name,float v0,float v1)
+	inline void setvar2f(const char *var_name,float v0,float v1)
 	{
 		if(succes)
 			glUniform2fARB(glGetUniformLocationARB(program, var_name), v0, v1);
 	}
 
-	inline void setvar3f(char *var_name,float v0,float v1,float v2)
+	inline void setvar3f(const char *var_name,float v0,float v1,float v2)
 	{
 		if(succes)
 			glUniform3fARB(glGetUniformLocationARB(program, var_name), v0, v1, v2);
 	}
 
-	inline void setvar4f(char *var_name,float v0,float v1,float v2,float v3)
+	inline void setvar4f(const char *var_name,float v0,float v1,float v2,float v3)
 	{
 		if(succes)
 			glUniform4fARB(glGetUniformLocationARB(program, var_name), v0, v1, v2, v3);
 	}
 
-	inline void setvar1i(char *var_name,int v0)
+	inline void setvar1i(const char *var_name,int v0)
 	{
 		if(succes)
 			glUniform1iARB(glGetUniformLocationARB(program, var_name), v0);
 	}
 
-	inline void setvar2i(char *var_name,int v0,int v1)
+	inline void setvar2i(const char *var_name,int v0,int v1)
 	{
 		if(succes)
 			glUniform2iARB(glGetUniformLocationARB(program, var_name), v0, v1);
 	}
 
-	inline void setvar3i(char *var_name,int v0,int v1,int v2)
+	inline void setvar3i(const char *var_name,int v0,int v1,int v2)
 	{
 		if(succes)
 			glUniform3iARB(glGetUniformLocationARB(program, var_name), v0, v1, v2);
 	}
 
-	inline void setvar4i(char *var_name,int v0,int v1,int v2,int v3)
+	inline void setvar4i(const char *var_name,int v0,int v1,int v2,int v3)
 	{
 		if(succes)
 			glUniform4iARB(glGetUniformLocationARB(program, var_name), v0, v1, v2, v3);

@@ -149,7 +149,7 @@ void PutTex(GLuint Tex,float x1,float y1,float x2,float y2)
 	glEnd();
 }
 
-GLuint LoadTex(char *file)
+GLuint LoadTex(const char *file)
 {
 	set_color_depth(32);
 	allegro_gl_use_alpha_channel(true);
@@ -169,7 +169,7 @@ GLuint LoadTex(char *file)
 	return gl_bmp;
 }
 
-GLuint LoadMaskedTex(char *file,char *filealpha)
+GLuint LoadMaskedTex(const char *file,const char *filealpha)
 {
 	set_color_depth(32);
 	BITMAP *bmp=load_bitmap(file,NULL);
@@ -196,7 +196,7 @@ GLuint LoadMaskedTex(char *file,char *filealpha)
 	return gl_bmp;
 }
 
-BITMAP *LoadMaskedTexBmp(char *file,char *filealpha)
+BITMAP *LoadMaskedTexBmp(const char *file,const char *filealpha)
 {
 	set_color_depth(32);
 	BITMAP *bmp=load_bitmap(file,NULL);
@@ -303,7 +303,7 @@ void SIDEDATA::load_data()
 		}
 }
 
-int	SIDEDATA::get_side_id(char *side)
+int	SIDEDATA::get_side_id(const char *side)
 {
 	for(int i=0;i<nb_side;i++)
 		if(strcasecmp(side,side_name[i])==0)
