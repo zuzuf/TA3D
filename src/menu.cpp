@@ -134,6 +134,9 @@ void main_menu(void)
 		if( reset ) {
 			first = true;
 
+			glMatrixMode(GL_MODELVIEW);
+			glLoadIdentity();
+
 			glEnable(GL_TEXTURE_2D);
 			gfx->set_color( 0xFFFFFFFF );
 
@@ -143,9 +146,6 @@ void main_menu(void)
 			gfx->SCREEN_H_TO_480 = 1.0f;
 			cursor_type=CURSOR_DEFAULT;		// Curseur par standard
 			}
-
-								// Efface tout
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		main_area.draw();
 
@@ -168,10 +168,6 @@ void main_menu(void)
 void solo_menu()
 {
 	cursor_type=CURSOR_DEFAULT;
-
-	gfx->set_2D_mode();
-
-	gfx->ReInitTexSys();
 
 	reset_keyboard();
 	while(key[KEY_ESC])	rest(1);
@@ -236,9 +232,6 @@ void solo_menu()
 			done=true;
 			}
 
-								// Efface tout
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
 		solo_area.draw();
 
 		glEnable(GL_TEXTURE_2D);
@@ -251,8 +244,6 @@ void solo_menu()
 
 	if( solo_area.background == gfx->glfond )	solo_area.background = 0;
 	solo_area.destroy();
-
-	gfx->unset_2D_mode();	// Quitte le mode de dessin d'allegro
 
 	clear_keybuf();
 
@@ -306,10 +297,6 @@ char *select_map(String *def_choice)		// Cette fonction affiche un menu permetta
 
 	float resize_w = SCREEN_W / 640.0f;
 	float resize_h = SCREEN_H / 480.0f;
-
-	gfx->set_2D_mode();
-
-	gfx->ReInitTexSys();
 
 	reset_keyboard();
 	while(key[KEY_ESC])	rest(1);
@@ -466,9 +453,6 @@ char *select_map(String *def_choice)		// Cette fonction affiche un menu permetta
 			mapsetup_area.set_caption("mapsetup.map_info", map_info );
 			}
 
-								// Efface tout
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
 		mapsetup_area.draw();
 
 		glEnable(GL_TEXTURE_2D);
@@ -483,8 +467,6 @@ char *select_map(String *def_choice)		// Cette fonction affiche un menu permetta
 	mapsetup_area.destroy();
 
 	gfx->destroy_texture( mini );
-
-	gfx->unset_2D_mode();	// Quitte le mode de dessin d'allegro
 
 	reset_mouse();
 	while(key[KEY_ESC]) {	rest(1);	poll_keyboard();	}
@@ -507,8 +489,6 @@ void config_menu(void)
 
 	float resize_w = SCREEN_W / 640.0f;
 	float resize_h = SCREEN_H / 480.0f;
-
-	gfx->set_2D_mode();
 
 	AREA config_area("config");
 	config_area.load_tdf("gui/config.area");
@@ -861,9 +841,6 @@ void config_menu(void)
 
 		if(key[KEY_ESC]) done=true;			// Quitte si on appuie sur echap
 
-					// Efface tout
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
 		config_area.draw();
 
 		glEnable(GL_TEXTURE_2D);
@@ -875,8 +852,6 @@ void config_menu(void)
 	}while(!done);
 
 	if( config_area.background == gfx->glfond )	config_area.background = 0;
-
-	gfx->unset_2D_mode();	// Quitte le mode de dessin d'allegro
 
 	reset_mouse();
 	while(key[KEY_ESC]) {	rest(1);	poll_keyboard();	}
@@ -998,8 +973,6 @@ void stats_menu(void)
 			}
 
 		if(key[KEY_ESC]) done=true;			// Quitte si on appuie sur echap
-					// Efface tout
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		statistics_area.draw();
 
@@ -1116,8 +1089,6 @@ void setup_game(bool client, const char *host)
 			game_data.ai_level[1] = AI_TYPE_EASY;
 			}
 		}
-
-	gfx->set_2D_mode();
 
 	int dx, dy;
 	GLuint glimg = load_tnt_minimap_fast(game_data.map_filename,&dx,&dy);
@@ -1722,8 +1693,6 @@ void setup_game(bool client, const char *host)
 			String map_filename;
 			char *new_map;
 			if( !client ) {
-				gfx->unset_2D_mode();
-				reset_mouse();
 				map_filename = game_data.map_filename;
 				new_map = select_map( &map_filename );
 				}
@@ -1787,8 +1756,6 @@ void setup_game(bool client, const char *host)
 		set_map = "";
 
 		if(key[KEY_ESC]) done=true;			// Quitte si on appuie sur echap
-					// Efface tout
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		setupgame_area.draw();
 
@@ -1806,8 +1773,6 @@ void setup_game(bool client, const char *host)
 	map_data.destroy();
 
 	gfx->destroy_texture(glimg);
-
-	gfx->unset_2D_mode();	// Quitte le mode de dessin d'allegro
 
 	reset_mouse();
 	while(key[KEY_ESC]) {	rest(1);	poll_keyboard();	}
@@ -1844,7 +1809,6 @@ void setup_game(bool client, const char *host)
 			}
 			gfx->set_2D_mode();
 			gfx->ReInitTexSys();
-			glScalef(SCREEN_W/640.0f,SCREEN_H/480.0f,1.0f);
 			}
 
 		while(key[KEY_ESC]) {	rest(1);	poll_keyboard();	}
@@ -1868,10 +1832,6 @@ void network_room(void)				// Let players create/join a game
 
 	float resize_w = SCREEN_W / 640.0f;
 	float resize_h = SCREEN_H / 480.0f;
-
-	gfx->set_2D_mode();
-
-	gfx->ReInitTexSys();
 
 	network_manager.InitBroadcast("1234");		// broadcast mode
 
@@ -1913,7 +1873,6 @@ void network_room(void)				// Let players create/join a game
 		if( network_manager.BroadcastedMessages() ) {
 			String msg = network_manager.getNextBroadcastedMessage();
 			while( !msg.empty() ) {
-//				printf("received '%s'\n", msg.c_str());
 				Vector<String> params = ReadVectorString( msg, " " );
 				if( params.size() == 6 && params[0] == "PONG" && params[1] == "SERVER" ) {		// It looks like "PONG SERVER <name> <mod> <version> <nb open player slots>
 					String name = params[2];
@@ -2000,11 +1959,8 @@ void network_room(void)				// Let players create/join a game
 			clear_keybuf();
 			network_manager.Disconnect();
 			String host = ReplaceChar( networkgame_area.get_caption( "hosting.t_hostname" ), ' ', '_' );
-			setup_game( false, host.c_str() );	// Host a game
 
-			gfx->ReInitTexSys();
-			glScalef(SCREEN_W/640.0f,SCREEN_H/480.0f,1.0f);
-			gfx->set_2D_mode();
+			setup_game( false, host.c_str() );	// Host a game
 
 			done = true;
 			}
@@ -2051,9 +2007,6 @@ void network_room(void)				// Let players create/join a game
 				}
 			}
 
-								// Efface tout
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
 		networkgame_area.draw();
 
 		glEnable(GL_TEXTURE_2D);
@@ -2074,11 +2027,9 @@ void network_room(void)				// Let players create/join a game
 
 	if( !join_host.empty() ) {			// Join a game
 		setup_game( true, join_host.c_str() );
-		gfx->ReInitTexSys();
-		glScalef(SCREEN_W/640.0f,SCREEN_H/480.0f,1.0f);
 		gfx->set_2D_mode();
+		gfx->ReInitTexSys();
 		}
-	gfx->unset_2D_mode();	// Quitte le mode de dessin d'allegro
 }
 
 void campaign_main_menu(void)
@@ -2087,8 +2038,6 @@ void campaign_main_menu(void)
 
 	float resize_w = SCREEN_W / 640.0f;
 	float resize_h = SCREEN_H / 480.0f;
-
-	gfx->set_2D_mode();
 
 	AREA campaign_area("campaign");
 	campaign_area.load_tdf("gui/campaign.area");
@@ -2197,8 +2146,6 @@ void campaign_main_menu(void)
 		if( campaign_area.get_state( "campaign.b_cancel" ) ) done=true;		// En cas de click sur "retour", on quitte la fenêtre
 
 		if(key[KEY_ESC]) done=true;			// Quitte si on appuie sur echap
-					// Efface tout
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		campaign_area.draw();
 
@@ -2216,8 +2163,6 @@ void campaign_main_menu(void)
 	campaign_area.destroy();
 
 	if( campaign_parser )	delete	campaign_parser;
-
-	gfx->unset_2D_mode();	// Quitte le mode de dessin d'allegro
 
 	reset_mouse();
 	while(key[KEY_ESC]) {	rest(1);	poll_keyboard();	}
@@ -2238,8 +2183,6 @@ int brief_screen( String campaign_name, int mission_id )
 
 	float resize_w = SCREEN_W / 640.0f;
 	float resize_h = SCREEN_H / 480.0f;
-
-	gfx->set_2D_mode();
 
 	AREA brief_area("brief");
 	brief_area.load_tdf("gui/brief.area");
@@ -2400,8 +2343,6 @@ int brief_screen( String campaign_name, int mission_id )
 		if( brief_area.get_state( "brief.b_cancel" ) ) done=true;		// En cas de click sur "retour", on quitte la fenêtre
 
 		if(key[KEY_ESC]) done=true;			// Quitte si on appuie sur echap
-					// Efface tout
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		brief_area.draw();
 
@@ -2419,8 +2360,6 @@ int brief_screen( String campaign_name, int mission_id )
 
 	if( brief_area.background == gfx->glfond )	brief_area.background = 0;
 	brief_area.destroy();
-
-	gfx->unset_2D_mode();	// Quitte le mode de dessin d'allegro
 
 	sound_manager->StopSoundFileNow();
 
@@ -2486,7 +2425,6 @@ int brief_screen( String campaign_name, int mission_id )
 		}
 		gfx->set_2D_mode();
 		gfx->ReInitTexSys();
-		glScalef(SCREEN_W/640.0f,SCREEN_H/480.0f,1.0f);
 
 		while(key[KEY_ESC]) {	rest(1);	poll_keyboard();	}
 		
