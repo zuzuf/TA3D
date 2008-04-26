@@ -3,16 +3,16 @@
 	title=Game menu;
 	uformat=UTF8;
 	x=220;
-	y=160;
+	y=140;
 	width=200;
-	height=160;
+	height=200;
 	fullscreen=true;
 	screen width=640;
 	screen height=480;
 	draw borders=true;
 	show title=false;
 	lock=true;
-	number of objects=5;
+	number of objects=6;
 	hidden=true;
 	color=0xFFFFFFFF;
 	background=gfx/background.jpg;
@@ -67,13 +67,25 @@
 	}
 	[object4]
 	{
-		name=b_exit;
+		name=b_save;
 		type=BUTTON;
-		caption=Leave game;
+		caption=Save game;
 		x1=10;
 		y1=120;
 		x2=190;
 		y2=150;
+		on click=esc_menu.hide, save_menu.show;
+		size=1;
+	}
+	[object5]
+	{
+		name=b_exit;
+		type=BUTTON;
+		caption=Leave game;
+		x1=10;
+		y1=160;
+		x2=190;
+		y2=190;
 		size=1;
 	}
 }

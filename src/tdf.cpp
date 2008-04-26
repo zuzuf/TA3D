@@ -530,28 +530,6 @@ void FEATURES::move(float dt,MAP *map,bool clean)
 			delete_feature(i);
 			continue;
 			}
-		if( feature[i].sinking ) {					// A boat is sinking
-			if( feature[i].angle_x > -45.0f && !feature[i].dive ) {
-				feature[i].angle_x -= dt * 15.0f;
-				feature[i].dive_speed = 0.0f;
-				}
-			else
-				feature[i].dive = true;
-			float sea_ground = map->get_unit_h( feature[i].Pos.x, feature[i].Pos.z );
-			if( sea_ground < feature[i].Pos.y ) {
-				if( sin( -feature[i].angle_x * DEG2RAD ) * feature_manager.feature[feature[i].type].footprintx * 8.0f > feature[i].Pos.y - sea_ground ) {
-					feature[i].angle_x = RAD2DEG * asin( ( sea_ground - feature[i].Pos.y ) / ( feature_manager.feature[feature[i].type].footprintx * 8.0f) );
-					feature[i].dive = true;
-					}
-				feature[i].dive_speed = ( feature[i].dive_speed + 3.0f * dt ) * exp( -dt );
-				feature[i].Pos.y -= feature[i].dive_speed * dt;
-				}
-			else {
-				feature[i].sinking = false;
-				feature[i].dive_speed = 0.0f;
-				feature[i].angle_x = 0.0f;
-				}
-			}
 		if(!feature_manager.feature[feature[i].type].vent && !feature[i].burning ) {
 			feature[i].draw=false;
 			continue;
@@ -614,6 +592,19 @@ void FEATURES::burn_feature( int idx )
 		else
 			feature[ idx ].BW_idx = -1;
 		feature[ idx ].weapon_counter = 0;
+		}
+
+	LeaveCS();
+}
+
+void FEATURES::sink_feature( int idx )
+{
+	EnterCS();
+
+	if( idx >= 0 && idx < max_features && feature[ idx ].type >= 0
+	&& feature_manager.feature[ feature[ idx ].type ].flamable && !feature[ idx ].sinking ) {		// We get something to sink
+		feature[ idx ].sinking = true;
+		sinking_features.push_back( idx );		// It's burning 8)
 		}
 
 	LeaveCS();
@@ -692,6 +683,34 @@ void FEATURES::move_forest(const float &dt)			// Simulates forest fires & tree r
 
 		if( !erased ) i++;			// We don't want to skip an element :) 
 		}
+
+	for( List< uint32 >::iterator i = sinking_features.begin() ; i != sinking_features.end() ; )		// A boat is sinking
+		if( feature[*i].sinking ) {
+			if( feature[*i].angle_x > -45.0f && !feature[*i].dive ) {
+				feature[*i].angle_x -= dt * 15.0f;
+				feature[*i].dive_speed = 0.0f;
+				}
+			else
+				feature[*i].dive = true;
+			float sea_ground = the_map->get_unit_h( feature[*i].Pos.x, feature[*i].Pos.z );
+			if( sea_ground < feature[*i].Pos.y ) {
+				if( sin( -feature[*i].angle_x * DEG2RAD ) * feature_manager.feature[feature[*i].type].footprintx * 8.0f > feature[*i].Pos.y - sea_ground ) {
+					feature[*i].angle_x = RAD2DEG * asin( ( sea_ground - feature[*i].Pos.y ) / ( feature_manager.feature[feature[*i].type].footprintx * 8.0f) );
+					feature[*i].dive = true;
+					}
+				feature[*i].dive_speed = ( feature[*i].dive_speed + 3.0f * dt ) * exp( -dt );
+				feature[*i].Pos.y -= feature[*i].dive_speed * dt;
+				}
+			else {
+				feature[*i].sinking = false;
+				feature[*i].dive_speed = 0.0f;
+				feature[*i].angle_x = 0.0f;
+				}
+			i++;
+			}
+		else
+			sinking_features.erase( i++ );
+
 	LeaveCS();
 }
 

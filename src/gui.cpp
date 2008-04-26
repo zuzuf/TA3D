@@ -883,6 +883,7 @@ int WND::check(int AMx,int AMy,int AMz,int AMb,bool timetoscroll, SKIN *skin )
 					if(Objets[i].Func!=NULL)
 						(*Objets[i].Func)(Objets[i].Text[0].length());
 					break;
+				case 27:
 				case 0:
 					break;
 				default:
@@ -2921,10 +2922,10 @@ uint16 AREA::check()					// Checks events for all windows
 	poll_mouse();
 	poll_keyboard();
 	uint16 is_on_gui = 0;
-	bool scroll = msec_timer - scroll_timer >= 500;
+	bool scroll = msec_timer - scroll_timer >= 250;
 	if( scroll )
-		while( msec_timer - scroll_timer >= 500 )
-			scroll_timer += 500;
+		while( msec_timer - scroll_timer >= 250 )
+			scroll_timer += 250;
 	for( uint16 i = 0 ; i < vec_wnd.size() ; i++ )
 		if( !is_on_gui || ( vec_wnd[ vec_z_order[ i ] ]->get_focus && !vec_wnd[ vec_z_order[ i ] ]->hidden ) ) {
 			is_on_gui |= vec_wnd[ vec_z_order[ i ] ]->check( amx, amy, amz, amb, scroll, skin );			// Do things in the right order
@@ -2936,7 +2937,7 @@ uint16 AREA::check()					// Checks events for all windows
 				}
 			}
 
-	if( !Console->activated() )
+	if( Console == NULL || !Console->activated() )
 		clear_keybuf();
 
 	scrolling = scroll;

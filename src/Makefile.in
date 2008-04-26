@@ -67,8 +67,8 @@ hpiview_OBJECTS = $(am_hpiview_OBJECTS)
 hpiview_LDADD = $(LDADD)
 am_ta3d_OBJECTS = ta3d.$(OBJEXT) main.$(OBJEXT) install.$(OBJEXT) \
 	i18n.$(OBJEXT) cTA3D_Engine.$(OBJEXT) cTAFileParser.$(OBJEXT) \
-	gfx.$(OBJEXT) pathfinding.$(OBJEXT) menu.$(OBJEXT) \
-	3do.$(OBJEXT) cob.$(OBJEXT) console.$(OBJEXT) \
+	restore.$(OBJEXT) gfx.$(OBJEXT) pathfinding.$(OBJEXT) \
+	menu.$(OBJEXT) 3do.$(OBJEXT) cob.$(OBJEXT) console.$(OBJEXT) \
 	EngineClass.$(OBJEXT) UnitEngine.$(OBJEXT) fbi.$(OBJEXT) \
 	gaf.$(OBJEXT) glfunc.$(OBJEXT) gui.$(OBJEXT) intro.$(OBJEXT) \
 	particles.$(OBJEXT) lzw.$(OBJEXT) tdf.$(OBJEXT) tnt.$(OBJEXT) \
@@ -198,6 +198,7 @@ ta3d_SOURCES = \
 	i18n.cpp i18n.h \
 	cTA3D_Engine.cpp cTA3D_Engine.h \
 	cTAFileParser.cpp cTAFileParser.h \
+	restore.cpp restore.h \
 	gfx.cpp gfx.h \
 	pathfinding.cpp pathfinding.h \
 	menu.cpp menu.h \
@@ -411,6 +412,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/network.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/particles.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/pathfinding.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/restore.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/script.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/stdafx.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/superqueue.Po@am__quote@

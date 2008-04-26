@@ -86,7 +86,7 @@ namespace TA3D
 #if defined TA3D_PLATFORM_WINDOWS
 			mkdir( path.c_str() );
 #else
-			mkdir( path.c_str(), 0xFFF );
+			mkdir( path.c_str(), 0x1FF );
 #endif
 			}
 	}
@@ -177,9 +177,15 @@ namespace TA3D
 #if defined TA3D_PLATFORM_WINDOWS
 			mkdir( (TA3D_OUTPUT_DIR+"cache").c_str() );
 #else
-			mkdir( (TA3D_OUTPUT_DIR+"cache").c_str(), 0xFFF );
+			mkdir( (TA3D_OUTPUT_DIR+"cache").c_str(), 0x1FF );
 #endif
 			}
+			
+#if defined TA3D_PLATFORM_WINDOWS
+		mkdir( (TA3D_OUTPUT_DIR+"savegame").c_str() );
+#else
+		mkdir( (TA3D_OUTPUT_DIR+"savegame").c_str(), 0x1FF );
+#endif
 	}
 
 	void TA3D_clear_cache()							// Clear the cache if needed (useful when mod has changed)
@@ -226,5 +232,23 @@ namespace TA3D
 				fclose( cache_info );
 				}
 			}
+	}
+
+	List< String > GetFileList( const String pattern )	// return the list of files corresponding to pattern
+	{
+		List< String >	result;
+
+		struct al_ffblk info;
+
+		if (al_findfirst(pattern.c_str(), &info, FA_ALL) != 0)
+			return result;
+
+		do {
+			result.push_back( info.name );
+		} while (al_findnext(&info) == 0);
+
+		al_findclose(&info);
+
+		return result;
 	}
 }

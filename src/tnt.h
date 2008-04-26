@@ -47,7 +47,7 @@ struct TNTHEADER		// Structure de l'en-tête du fichier TNT
 	int		pad1,pad2,pad3,pad4;
 };
 
-MAP	*load_tnt_map(byte *data);		// Charge une map au format TA, extraite d'une archive HPI/UFO
+MAP	*load_tnt_map(byte *data );		// Charge une map au format TA, extraite d'une archive HPI/UFO
 
 GLuint load_tnt_minimap(byte *data,int *sw,int *sh);		// Charge une minimap d'une carte, extraite d'une archive HPI/UFO
 

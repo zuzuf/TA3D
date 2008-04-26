@@ -6,6 +6,7 @@ ta3d_SOURCES= \
 	i18n.cpp i18n.h \
 	cTA3D_Engine.cpp cTA3D_Engine.h \
 	cTAFileParser.cpp cTAFileParser.h \
+	restore.cpp restore.h \
 	gfx.cpp gfx.h \
 	pathfinding.cpp pathfinding.h \
 	menu.cpp menu.h \

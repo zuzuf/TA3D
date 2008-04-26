@@ -283,6 +283,7 @@ public:
 	int				*list;				// Liste d'objets à afficher
 	int				list_size;
 	List< uint32 >	burning_features;	// because it's faster that way
+	List< uint32 >	sinking_features;	// because it's faster that way
 
 	protected:
 		VECTOR	*p_wind_dir;
@@ -302,7 +303,7 @@ public:
 		list_size=0;
 	}
 
-	FEATURES() : burning_features()
+	FEATURES() : burning_features(), sinking_features()
 	{
 		CreateCS();
 		init();
@@ -322,6 +323,7 @@ public:
 			free(list);
 		init();
 		burning_features.clear();
+		sinking_features.clear();
 	}
 
 	~FEATURES()
@@ -333,6 +335,7 @@ public:
 	void compute_on_map_pos( int idx );
 	
 	void burn_feature( int idx );
+	void sink_feature( int idx );
 
 	inline int add_feature(VECTOR Pos,int type)
 	{

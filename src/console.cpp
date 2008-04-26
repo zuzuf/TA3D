@@ -405,11 +405,6 @@ char *cConsole::draw( TA3D::INTERFACES::GFX_FONT fnt, float dt, float fsize, boo
 
 	set_uformat(U_UTF8);
 
-	char keyb=0;
-
-	if(keypressed())
-		keyb=readkey();
-
 	fsize++;
 
 	if( m_Show )	m_Visible+=dt;
@@ -422,6 +417,11 @@ char *cConsole::draw( TA3D::INTERFACES::GFX_FONT fnt, float dt, float fsize, boo
 		LeaveCS();
 		return NULL;
 		}
+
+	char keyb=0;
+
+	if(keypressed())
+		keyb=readkey();
 
 	float maxh = fsize * m_LastEntries.size()* m_Visible + 5.0f;
 

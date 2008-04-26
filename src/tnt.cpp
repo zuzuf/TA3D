@@ -36,7 +36,7 @@
 #include "tdf.h"
 #include "tnt.h"
 
-MAP	*load_tnt_map(byte *data)		// Charge une map au format TA, extraite d'une archive HPI/UFO
+MAP	*load_tnt_map(byte *data )		// Charge une map au format TA, extraite d'une archive HPI/UFO
 {
 	MAP	*map=new MAP;		// Crée une nouvelle carte
 

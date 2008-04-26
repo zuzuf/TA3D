@@ -98,6 +98,7 @@ namespace TA3D
 		bool	quickstart;					// Tell to speed up the starting process
 		bool	restorestart;				// Tell it's a restart to restore previous config file
 		bool	pause;						// Tell the engine it's in pause mode, so wait for this to be false again
+		bool	paused;						// The engine writes its current state here, used by save/load code
 
 		TA3DCONFIG()
 		{
@@ -259,6 +260,7 @@ namespace TA3D
 	bool TA3D_exists( const String &filename );			// just a wrapper for allegro's exists function which only use C strings
 	void CheckOutputDir();
 	void TA3D_clear_cache();							// Clear the cache if needed (useful when mod has changed)
+	List< String > GetFileList( const String pattern );	// return the list of files corresponding to pattern
 }
 
 using namespace TA3D;

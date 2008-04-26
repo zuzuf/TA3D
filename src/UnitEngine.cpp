@@ -515,7 +515,7 @@ bool UNIT::is_on_radar( byte p_mask )
 		MATRIX_4x4 M;
 		glPushMatrix();
 		if( on_radar ) {			// for mega zoom, draw only an icon
-			glTranslatef( Pos.x, max(Pos.y,map->sealvl), Pos.z );
+			glTranslatef( Pos.x, max(Pos.y,map->sealvl+5.0f), Pos.z );
 			glEnable(GL_TEXTURE_2D);
 			int unit_nature = ICON_UNKNOWN;
 			float size = (D%cam->Dir) * 12.0f / gfx->height;
@@ -2028,7 +2028,8 @@ bool UNIT::is_on_radar( byte p_mask )
 										map->map_data[y][x].stuff=features.add_feature(Pos,type);
 										if( map->map_data[y][x].stuff >= 0 ) {			// Keep unit orientation
 											features.feature[ map->map_data[y][x].stuff ].angle = Angle.y;
-											features.feature[ map->map_data[y][x].stuff ].sinking = sinking;
+											if( sinking )
+												features.sink_feature( map->map_data[y][x].stuff );
 											}
 										if(type!=-1 && map->map_data[y][x].stuff != -1 && feature_manager.feature[type].blocking)
 											map->rect(x-(feature_manager.feature[type].footprintx>>1),y-(feature_manager.feature[type].footprintz>>1),feature_manager.feature[type].footprintx,feature_manager.feature[type].footprintz,-2-map->map_data[y][x].stuff);
@@ -2054,7 +2055,8 @@ bool UNIT::is_on_radar( byte p_mask )
 										map->map_data[y][x].stuff=features.add_feature(Pos,type);
 										if( map->map_data[y][x].stuff >= 0 ) {			// Keep unit orientation
 											features.feature[ map->map_data[y][x].stuff ].angle = Angle.y;
-											features.feature[ map->map_data[y][x].stuff ].sinking = sinking;
+											if( sinking )
+												features.sink_feature( map->map_data[y][x].stuff );
 											}
 										if(type!=-1 && map->map_data[y][x].stuff != -1 && feature_manager.feature[type].blocking)
 											map->rect(x-(feature_manager.feature[type].footprintx>>1),y-(feature_manager.feature[type].footprintz>>1),feature_manager.feature[type].footprintx,feature_manager.feature[type].footprintz,-2-map->map_data[y][x].stuff);
@@ -5602,12 +5604,10 @@ void INGAME_UNITS::draw(CAMERA *cam,MAP *map,bool underwater,bool limit,bool cul
 		uint16 i = idx_list[e];
 		LeaveCS();
 
-//		gfx->GFX_EnterCS();
 		unit[i].Lock();
 		if( (unit[i].flags & 1) && ((unit[i].Pos.y + unit[i].model->bottom <= map->sealvl && underwater) || (unit[i].Pos.y + unit[i].model->top >= sea_lvl && !underwater)))				// Si il y a une unité
 			unit[i].draw(virtual_t,cam,map,height_line);
 		unit[i].UnLock();
-//		gfx->GFX_LeaveCS();
 		EnterCS();
 		}
 	LeaveCS();
@@ -5835,7 +5835,11 @@ int INGAME_UNITS::Run()
 
 		ThreadSynchroniser->LeaveSync();
 
-		while( lp_CONFIG->pause && !thread_ask_to_stop )	rest( 10 );			// in pause mode wait for pause to be false again
+		while( lp_CONFIG->pause && !thread_ask_to_stop ) {
+			lp_CONFIG->paused = true;
+			rest( 10 );			// in pause mode wait for pause to be false again
+			}
+		lp_CONFIG->paused = false;
 
 		unit_engine_thread_sync = 1;
 		while( unit_engine_thread_sync && !thread_ask_to_stop ) {
