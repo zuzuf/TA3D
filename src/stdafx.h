@@ -150,7 +150,7 @@ template<class T> inline T min(T a, T b)	{	return (a > b) ? b : a;	}
 #endif
 
 	// This macro will reduce code size and make it easier to read
-#define foreach( a, b )	for( typeof( a.begin() ) b = a.begin() ; b != a.end() ; b++ )
+#define foreach( a, b )	for( typeof( (a).begin() ) b = (a).begin() ; b != (a).end() ; b++ )
 
 namespace TA3D
 {

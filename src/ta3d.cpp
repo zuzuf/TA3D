@@ -2157,7 +2157,11 @@ do
 				obj_file_list->Text.push_back( *i );
 			}
 		}
-
+	if(game_area.get_state("save_menu.l_file")) {				// Click on the list
+		GUIOBJ *obj = game_area.get_object("save_menu.l_file");
+		if( obj && obj->Pos >= 0 && obj->Pos < obj->Text.size() )
+			game_area.set_caption("save_menu.t_name", obj->Text[ obj->Pos ] );
+		}
 	if(game_area.get_state("save_menu.b_save")) {				// Save the game
 		game_area.set_state("save_menu.b_save", false);
 		String filename = game_area.get_caption("save_menu.t_name");
