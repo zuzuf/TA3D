@@ -58,260 +58,114 @@ void main_menu(void)
 
 	while( mouse_b || key[ KEY_ENTER ] || key[ KEY_ESC ] || key[ KEY_SPACE ] )	rest( 10 );
 
-	GLuint tex_formatA,tex_format;
-	if(g_useTextureCompression) {
-		tex_formatA=GL_COMPRESSED_RGBA_ARB;
-		tex_format=GL_COMPRESSED_RGB_ARB;
-		}
-	else {
-		tex_formatA=GL_RGBA8;
-		tex_format=GL_RGB8;
-		}
-
-	bool done=false;
+	gfx->SetDefState();
 
 	gfx->set_2D_mode();
 
 	gfx->ReInitTexSys();
 
-	glScalef(SCREEN_W/640.0f,SCREEN_H/480.0f,1.0f);
+	gfx->SCREEN_W_TO_640 = 1.0f;				// To have mouse sensibility undependent from the resolution
+	gfx->SCREEN_H_TO_480 = 1.0f;
 
-	int i;
-
-	float dt=0.0f;
-	int time = msec_timer;
-	float Conv = 0.001f;
-
-	BITMAP *tst[4];
-	GLuint mnu[4];
-	GLuint flame = gfx->load_texture( "gfx/part.tga", FILTER_LINEAR );
-	mnu[0] = gfx->load_texture( TRANSLATE( "gfx/en/exit.tga" ).c_str(), FILTER_LINEAR );
-	mnu[1] = gfx->load_texture( TRANSLATE( "gfx/en/options.tga" ).c_str(), FILTER_LINEAR );
-	mnu[2] = gfx->load_texture( TRANSLATE( "gfx/en/play.tga" ).c_str(), FILTER_LINEAR );
-	mnu[3] = gfx->load_texture( TRANSLATE( "gfx/en/campaign.tga" ).c_str(), FILTER_LINEAR );
-	set_color_depth( 32 );
-	tst[0] = load_bitmap( TRANSLATE( "gfx/en/exit.tga" ).c_str(),NULL);
-	tst[1] = load_bitmap( TRANSLATE( "gfx/en/options.tga" ).c_str(),NULL);
-	tst[2] = load_bitmap( TRANSLATE( "gfx/en/play.tga" ).c_str(),NULL);
-	tst[3] = load_bitmap( TRANSLATE( "gfx/en/campaign.tga" ).c_str(),NULL);
-
-	int tst_w[4];
-	int tst_h[4];
-
-	for( i = 0 ; i < 4 ; i++ )
-		if( tst[i] ) {
-			tst_w[i] = tst[i]->w >> 1;
-			tst_h[i] = tst[i]->h >> 1;
-			}
-		else
-			tst_w[i] = tst_h[i] = 0;
-
-	int px[4]={	160,	160,	480,	480	};
-	int py[4]={	400,	300,	300,	400	};
-
-	VECTOR part[ MENU_NB_PART ];
-	VECTOR target[ MENU_NB_PART ];
-	for( i = 0 ; i < MENU_NB_PART ; i++ ) {
-		part[i].x=-p_size;	part[i].y=-p_size;
-		part[i].z=0.0f;
-		target[i].x = target[i].y = -p_size;
-		target[i].z = 0.0f;
-		}
-
-	int n=0;
+	AREA main_area("main");
+	main_area.load_tdf("gui/main.area");
 
 	cursor_type=CURSOR_DEFAULT;
 
 	String current_mod = TA3D_CURRENT_MOD.length() > 6 ? TA3D_CURRENT_MOD.substr( 5, TA3D_CURRENT_MOD.length() - 6 ) : "";
 
+	bool done=false;
+	bool first=true;
+
+	int amx = -1;
+	int amy = -1;
+	int amz = -1;
+	int amb = -1;
+
 	do
 	{
-		poll_keyboard();
+		bool key_is_pressed = false;
+		do {
+			key_is_pressed = keypressed();
+			main_area.check();
+			rest( 1 );
+		} while( amx == mouse_x && amy == mouse_y && amz == mouse_z && amb == mouse_b && mouse_b == 0 && !key[ KEY_ENTER ] && !key[ KEY_ESC ] && !done && !key_is_pressed && !main_area.scrolling && !first );
 
-		do
-		{
-			dt = (msec_timer-time)*Conv;
-			rest(1);
-		}while(dt<0.01f);
-		time = msec_timer;
+		first = false;
+
+		amx = mouse_x;
+		amy = mouse_y;
+		amz = mouse_z;
+		amb = mouse_b;
 
 		if(key[KEY_ESC])	done=true;
 
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);		// Efface l'écran
-
-		gfx->drawtexture(gfx->glfond,0.0f,0.0f,640.0f,480.0);
-
-		glEnable(GL_BLEND);
-		glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
-		gfx->print(gfx->TA_font,320.0f-gfx->TA_font.length(TA3D_ENGINE_VERSION)*0.5f,448.0f,0.0f,0xFFFFFFFF,TA3D_ENGINE_VERSION);
+		main_area.set_caption("main.t_version", TA3D_ENGINE_VERSION );
 		if( !current_mod.empty() )
-			gfx->print(gfx->TA_font,320.0f-gfx->TA_font.length("MOD: " + current_mod)*0.5f,430.0f,0.0f,0xFFFFFFFF,"MOD: " + current_mod);
+			main_area.set_caption("main.t_mod", "MOD: " + current_mod );
+		else
+			main_area.set_caption("main.t_mod", "" );
 
-		glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+		bool reset = false;
 
-		int index=-1;
-		for(i=0;i<4;i++)
-			if(px[i]-tst_w[i] < mouse_x*gfx->SCREEN_W_TO_640 && px[i]+tst_w[i] > mouse_x*gfx->SCREEN_W_TO_640 && py[i]-tst_h[i] < mouse_y*gfx->SCREEN_H_TO_480 && py[i]+tst_h[i] > mouse_y*gfx->SCREEN_H_TO_480 ) {
-				index=i;
-				i=4;
-				}
-
-		glColor4f(1.0f,1.0f,1.0f,1.0f);
-
-		glBlendFunc(GL_SRC_ALPHA,GL_ONE);
-
-		for( i = 0 ; i < MENU_NB_PART ; i++ )
-			part[i] += 3.0f * dt * (target[i] - part[i]);
-
-		part[ n % MENU_NB_PART ].x = 576 + ( (TA3D_RAND() % 2001) - 1000 ) * 0.002f;
-		part[ n % MENU_NB_PART ].y = 256 + ( (TA3D_RAND() % 2001) - 1000 ) * 0.002f;
-
-		switch(index)
-		{
-		case -1:
-			target[ n % MENU_NB_PART ] = part[ n % MENU_NB_PART ];
-			break;
-		case 0:
-		case 1:
-		case 2:
-		case 3:
-			{
-				int x;
-				int y;
-				do
-				{
-					x = TA3D_RAND() % tst[index]->w;
-					y = TA3D_RAND() % tst[index]->h;
-				}while( tst[index]->line[y][(x<<2)+3] < 10 );
-				target[ n % MENU_NB_PART ].x = px[index] + x - tst_w[ index ];
-				target[ n % MENU_NB_PART ].y = py[index] + y - tst_h[ index ];
-			}
-			break;
-		};
-
-		for( i = 0 ; i < MENU_NB_PART ; i++ ) {
-			int d = MENU_NB_PART - ( ( n - i ) % MENU_NB_PART );
-			float coef = sqrt( ((float)d) / MENU_NB_PART );
-			glColor4f( coef, coef, coef, coef );
+		if( key[KEY_ESC] || main_area.get_state( "main.b_exit" ) )
+			done=true;
+		if( key[KEY_SPACE] || main_area.get_state( "main.b_options" ) || lp_CONFIG->quickstart ) {
 			glPushMatrix();
-			glTranslatef(part[i].x,part[i].y,0.0f);
-			glRotatef((i&1) ? n : -n,0.0f,0.0f,1.0f);
-			glTranslatef(-part[i].x,-part[i].y,0.0f);
-			gfx->drawtexture(flame,part[i].x-p_size,part[i].y-p_size,part[i].x+p_size,part[i].y+p_size);
+			config_menu();
+			lp_CONFIG->quickstart = false;
+			reset = true;
 			glPopMatrix();
 			}
-		n++;
-		glColor4f(1.0f,1.0f,1.0f,1.0f);
-
-		for(i=0;i<4;i++) {
-			if(i==index)
-				glBlendFunc(GL_SRC_COLOR,GL_ONE_MINUS_SRC_ALPHA);
-			else
-				glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
-				gfx->drawtexture(mnu[i],px[i]-tst_w[i],py[i]-tst_h[i],px[i]+tst_w[i],py[i]+tst_h[i]);
+		if( key[KEY_ENTER] || main_area.get_state( "main.b_solo" ) ) {
+			glPushMatrix();
+			setup_game();
+			glPopMatrix();
+			reset = true;
 			}
-		glColor4f(1.0f,1.0f,1.0f,1.0f);
+		if( key[KEY_C] ) {
+			glPushMatrix();
+			campaign_main_menu();
+			glPopMatrix();
+			reset = true;
+			}
+		if( key[KEY_B] || main_area.get_state( "main.b_multi" ) ) {
+			glPushMatrix();
+			network_room();
+			glPopMatrix();
+			reset = true;
+			}
 
-		glDisable(GL_BLEND);
+		if( reset ) {
+			first = true;
 
-		draw_cursor();
+			glEnable(GL_TEXTURE_2D);
+			gfx->set_color( 0xFFFFFFFF );
 
-		if( mouse_b || key[KEY_ENTER] || key[KEY_SPACE] || lp_CONFIG->quickstart || key[KEY_C] || key[KEY_B] ) {
-			if( key[KEY_B] )		index = 4;			// Shortcut to battle room
-			if( key[KEY_C] )		index = 3;			// Shortcut to campaign menu
-			if( key[KEY_ENTER] )	index = 2;			// Shortcut to game room
-			if( key[KEY_SPACE] )	index = 1;			// Shortcut to config menu
-
-			while( key[KEY_B] || key[KEY_C] || key[KEY_ENTER] || key[KEY_SPACE] )	{ rest( 20 );	poll_keyboard();	}
-			clear_keybuf();
+			current_mod = TA3D_CURRENT_MOD.length() > 6 ? TA3D_CURRENT_MOD.substr( 5, TA3D_CURRENT_MOD.length() - 6 ) : "";
 
 			gfx->SCREEN_W_TO_640 = 1.0f;				// To have mouse sensibility undependent from the resolution
 			gfx->SCREEN_H_TO_480 = 1.0f;
-			if( lp_CONFIG->quickstart )
-				index = 1;
-			if( index >= 0 && index <= 4 ) {		// free some memory
-				destroy_bitmap(tst[0]);
-				destroy_bitmap(tst[1]);
-				destroy_bitmap(tst[2]);
-				destroy_bitmap(tst[3]);
-
-				glDeleteTextures(1,&mnu[0]);
-				glDeleteTextures(1,&mnu[1]);
-				glDeleteTextures(1,&mnu[2]);
-				glDeleteTextures(1,&mnu[3]);
-				}
-			switch(index)
-			{
-			case 0:
-				done=true;
-				break;
-			case 1:
-				config_menu();
-				lp_CONFIG->quickstart = false;
-				break;
-			case 2:
-				setup_game();
-				break;
-			case 3:
-				campaign_main_menu();
-				break;
-			case 4:
-				network_room();
-				break;
-			};
-
-			gfx->SetDefState();
-			gfx->set_2D_mode();
-			gfx->ReInitTexSys();
-			glScalef(SCREEN_W/640.0f,SCREEN_H/480.0f,1.0f);
-
-			current_mod = TA3D_CURRENT_MOD.length() > 6 ? TA3D_CURRENT_MOD.substr( 5, TA3D_CURRENT_MOD.length() - 6 ) : "";
-			if( index >= 0 && index <= 4 ) {
-				mnu[0] = gfx->load_texture( TRANSLATE( "gfx/en/exit.tga" ).c_str(), FILTER_LINEAR );
-				mnu[1] = gfx->load_texture( TRANSLATE( "gfx/en/options.tga" ).c_str(), FILTER_LINEAR );
-				mnu[2] = gfx->load_texture( TRANSLATE( "gfx/en/play.tga" ).c_str(), FILTER_LINEAR );
-				mnu[3] = gfx->load_texture( TRANSLATE( "gfx/en/campaign.tga" ).c_str(), FILTER_LINEAR );
-				set_color_depth( 32 );
-				tst[0] = load_bitmap( TRANSLATE( "gfx/en/exit.tga" ).c_str(),NULL);
-				tst[1] = load_bitmap( TRANSLATE( "gfx/en/options.tga" ).c_str(),NULL);
-				tst[2] = load_bitmap( TRANSLATE( "gfx/en/play.tga" ).c_str(),NULL);
-				tst[3] = load_bitmap( TRANSLATE( "gfx/en/campaign.tga" ).c_str(),NULL);
-
-				for( i = 0 ; i < 4 ; i++ )
-					if( tst[i] ) {
-						tst_w[i] = tst[i]->w >> 1;
-						tst_h[i] = tst[i]->h >> 1;
-						}
-					else
-						tst_w[i] = tst_h[i] = 0;
-
-				for( i = 0 ; i < MENU_NB_PART ; i++ ) {
-					part[i].x=-p_size;	part[i].y=-p_size;
-					part[i].z=0.0f;
-					target[i].x = target[i].y = -p_size;
-					target[i].z = 0.0f;
-					}
-				n = 0;
-				}
-			gfx->SCREEN_W_TO_640 = 640.0f / SCREEN_W;				// To have mouse sensibility undependent from the resolution
-			gfx->SCREEN_H_TO_480 = 480.0f / SCREEN_H;
 			cursor_type=CURSOR_DEFAULT;		// Curseur par standard
-			while( mouse_b )	rest( 10 );
 			}
 
-		gfx->flip();
-	}while(!done && !lp_CONFIG->quickrestart);
+								// Efface tout
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	destroy_bitmap(tst[0]);
-	destroy_bitmap(tst[1]);
-	destroy_bitmap(tst[2]);
+		main_area.draw();
+
+		glEnable(GL_TEXTURE_2D);
+		gfx->set_color(0xFFFFFFFF);
+		draw_cursor();
+		
+		gfx->flip();
+
+	}while(!done && !lp_CONFIG->quickrestart);
+		
+	if( main_area.background == gfx->glfond )	main_area.background = 0;
+	main_area.destroy();
 
 	gfx->set_2D_mode();
-
-	glDeleteTextures(1,&flame);
-	glDeleteTextures(1,&mnu[0]);
-	glDeleteTextures(1,&mnu[1]);
-	glDeleteTextures(1,&mnu[2]);
 
 	GuardLeave();
 }

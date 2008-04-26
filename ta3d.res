@@ -156,21 +156,9 @@
 {
 	FRENCH=noir;
 }
-[gfx/en/campaign.tga]
+[Multiplayer]
 {
-	FRENCH=gfx/fr/campaign.tga;
-}
-[gfx/en/exit.tga]
-{
-	FRENCH=gfx/fr/exit.tga;
-}
-[gfx/en/options.tga]
-{
-	FRENCH=gfx/fr/options.tga;
-}
-[gfx/en/play.tga]
-{
-	FRENCH=gfx/fr/play.tga;
+	FRENCH=Multijoueur;
 }
 [GL_ARB_texture_compression available]
 {
