@@ -1,3 +1,15 @@
+[Save]
+{
+	FRENCH=Sauver;
+}
+[Load]
+{
+	FRENCH=Charger;
+}
+[Campaign]
+{
+	FRENCH=Campagne;
+}
 [server name:]
 {
 	FRENCH=nom du serveur:;

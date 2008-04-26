@@ -3314,7 +3314,7 @@ bool UNIT::is_on_radar( byte p_mask )
 									bool going_to_repair_pad = false;
 									LeaveCS();
 									units.EnterCS_from_outside();
-									for( List< uint16 >::iterator i = units.repair_pads[ owner_id ].begin() ; i != units.repair_pads[ owner_id ].end() ; i++ ) {
+									foreach( units.repair_pads[ owner_id ], i ) {
 										units.unit[ *i ].Lock();
 										VECTOR Dir = units.unit[ *i ].Pos - Pos;
 										Dir.y = 0.0f;
@@ -5536,7 +5536,7 @@ void INGAME_UNITS::kill(int index,MAP *map,int prev)			// Détruit une unité
 		int owner_id = unit[ index ].owner_id;
 
 		EnterCS();
-		for( List< uint16 >::iterator i = repair_pads[ owner_id ].begin() ; i != repair_pads[ owner_id ].end() ; i++ )
+		foreach( repair_pads[ owner_id ], i )
 			if( *i == index ) {
 				repair_pads[ owner_id ].erase( i );
 				break;

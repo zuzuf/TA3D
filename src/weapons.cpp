@@ -710,7 +710,7 @@ const void WEAPON::move(const float dt,MAP *map)				// Anime les armes
 						}
 					bool already=(t_idx==shooter_idx || t_idx==hit_idx || t_idx >= units.max_unit);
 					if(!already)
-						for(List< int >::iterator i = oidx.begin() ; i != oidx.end() ; i++ )
+						foreach( oidx, i )
 							if( t_idx == *i ) {
 								already=true;
 								break;
@@ -1351,7 +1351,7 @@ void load_weapons(void (*progress)(float percent,const String &msg))				// Charg
 
 	int n = 0;
 
-	for(List<String>::iterator cur_file=file_list.begin();cur_file!=file_list.end();cur_file++) {
+	foreach( file_list, cur_file ) {
 
 		if(progress!=NULL && !(n & 0xF))
 			progress((250.0f+n*50.0f/(file_list.size()+1))/7.0f,TRANSLATE("Loading weapons"));

@@ -1,6 +1,6 @@
 [window]
 {
-	title=Save;
+	title=Load;
 	uformat=UTF8;
 	x=120;
 	y=80;
@@ -11,8 +11,8 @@
 	screen height=480;
 	draw borders=true;
 	show title=true;
-	lock=true;
-	number of objects=4;
+	lock=false;
+	number of objects=3;
 	hidden=true;
 	color=0xFFFFFFFF;
 	background=gfx/background.jpg;
@@ -26,7 +26,7 @@
 		x1=10;
 		y1=30;
 		x2=390;
-		y2=250;
+		y2=280;
 		size=1;
 	}
 	[object1]
@@ -38,31 +38,19 @@
 		y1=290;
 		x2=350;
 		y2=310;
-		on click=save_menu.hide;
+		on click=load_menu.hide;
 		size=1;
 	}
 	[object2]
 	{
-		name=b_save;
+		name=b_load;
 		type=BUTTON;
-		caption=Save;
+		caption=Load;
 		x1=50;
 		y1=290;
 		x2=150;
 		y2=310;
-		on click=save_menu.hide;
-		size=1;
-	}
-	[object3]
-	{
-		name=t_name;
-		type=TEXTBAR;
-		caption=no name;
-		value=45;
-		x1=10;
-		y1=260;
-		x2=390;
-		y2=290;
+		on click=load_menu.hide;
 		size=1;
 	}
 }

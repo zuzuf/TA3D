@@ -26,6 +26,8 @@
 
 void main_menu(void);
 
+void solo_menu(void);
+
 char *select_map(String *def_choice = NULL);
 
 void config_menu(void);

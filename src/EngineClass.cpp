@@ -1710,7 +1710,7 @@ SKY_DATA	*choose_a_sky( const String &mapname, const String &planet )
 	HPIManager->GetFilelist( "sky\\*.tdf", &file_list );
 	uint32	nb_sky = 0;
 
-	for( List< String >::iterator it = file_list.begin() ; it != file_list.end() ; it++ ) {
+	foreach( file_list, it ) {
 		SKY_DATA *sky_data = new SKY_DATA;
 		sky_data->load_tdf( *it );
 
@@ -1735,7 +1735,7 @@ SKY_DATA	*choose_a_sky( const String &mapname, const String &planet )
 		}
 
 	if( nb_sky == 0 )			// Look for a default sky
-		for( List< String >::iterator it = file_list.begin() ; it != file_list.end() ; it++ ) {
+		foreach( file_list, it ) {
 			SKY_DATA *sky_data = new SKY_DATA;
 			sky_data->load_tdf( *it );
 
@@ -1760,7 +1760,7 @@ SKY_DATA	*choose_a_sky( const String &mapname, const String &planet )
 				}
 		}
 
-	for( List< SKY_DATA* >::iterator it = sky_list.begin() ; it != sky_list.end() ; it++ )
+	foreach( sky_list, it )
 		if( *it != NULL )
 			delete *it;
 	sky_list.clear();

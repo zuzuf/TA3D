@@ -69,6 +69,7 @@ void main_menu(void)
 
 	AREA main_area("main");
 	main_area.load_tdf("gui/main.area");
+	if( !main_area.background )	main_area.background = gfx->glfond;
 
 	cursor_type=CURSOR_DEFAULT;
 
@@ -119,13 +120,7 @@ void main_menu(void)
 			}
 		if( key[KEY_ENTER] || main_area.get_state( "main.b_solo" ) ) {
 			glPushMatrix();
-			setup_game();
-			glPopMatrix();
-			reset = true;
-			}
-		if( key[KEY_C] ) {
-			glPushMatrix();
-			campaign_main_menu();
+			solo_menu();
 			glPopMatrix();
 			reset = true;
 			}
@@ -168,6 +163,101 @@ void main_menu(void)
 	gfx->set_2D_mode();
 
 	GuardLeave();
+}
+
+void solo_menu()
+{
+	cursor_type=CURSOR_DEFAULT;
+
+	gfx->set_2D_mode();
+
+	gfx->ReInitTexSys();
+
+	reset_keyboard();
+	while(key[KEY_ESC])	rest(1);
+
+	AREA solo_area("solo");
+	solo_area.load_tdf("gui/solo.area");
+	if( !solo_area.background )	solo_area.background = gfx->glfond;
+
+	if( solo_area.get_object("load_menu.l_file") ) {
+		GUIOBJ *obj = solo_area.get_object("load_menu.l_file");
+		List<String> file_list = GetFileList( TA3D_OUTPUT_DIR + "savegame/*.sav" );
+		
+		file_list.sort();
+		
+		obj->Text.clear();
+		obj->Text.reserve( file_list.size() );
+		foreach( file_list, i )	obj->Text.push_back( *i );
+		}
+
+	bool done=false;
+
+	int amx = -1;
+	int amy = -1;
+	int amz = -1;
+	int amb = -1;
+
+	do
+	{
+		bool key_is_pressed = false;
+		do {
+			key_is_pressed = keypressed();
+			solo_area.check();
+			rest( 1 );
+		} while( amx == mouse_x && amy == mouse_y && amz == mouse_z && amb == mouse_b && mouse_b == 0 && !key[ KEY_ENTER ] && !key[ KEY_ESC ] && !done && !key_is_pressed && !solo_area.scrolling );
+
+		amx = mouse_x;
+		amy = mouse_y;
+		amz = mouse_z;
+		amb = mouse_b;
+
+		if( solo_area.get_state( "solo.b_skirmish" ) || key[KEY_ENTER] ) {
+			while( key[KEY_ENTER] )	{	rest( 20 );	poll_keyboard();	}
+			clear_keybuf();
+			
+			glPushMatrix();
+			setup_game();
+			glPopMatrix();
+			}
+
+		if( solo_area.get_state( "solo.b_campaign" ) || key[KEY_C] ) {
+			while( key[KEY_ESC] )	{	rest( 20 );	poll_keyboard();	}
+			clear_keybuf();
+
+			glPushMatrix();
+			campaign_main_menu();
+			glPopMatrix();
+			}
+
+		if( solo_area.get_state( "solo.b_back" ) || key[KEY_ESC] ) {
+			while( key[KEY_ESC] )	{	rest( 20 );	poll_keyboard();	}
+			clear_keybuf();
+			done=true;
+			}
+
+								// Efface tout
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+		solo_area.draw();
+
+		glEnable(GL_TEXTURE_2D);
+		gfx->set_color(0xFFFFFFFF);
+		draw_cursor();
+		
+					// Affiche
+		gfx->flip();
+	}while(!done);
+
+	if( solo_area.background == gfx->glfond )	solo_area.background = 0;
+	solo_area.destroy();
+
+	gfx->unset_2D_mode();	// Quitte le mode de dessin d'allegro
+
+	clear_keybuf();
+
+	reset_mouse();
+	while(key[KEY_ESC]) {	rest(1);	poll_keyboard();	}
 }
 
 uint32 GetMultiPlayerMapList( std::list<std::string> *li )
