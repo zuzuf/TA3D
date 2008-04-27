@@ -11,6 +11,7 @@ _networking code
 _improve A.I.
 _D3D support
 
+* added support for saving/loading games
 * pressing ESC also pause the game
 * added shootall console command to kill all enemy units
 * low level networking layer used HawkNL library

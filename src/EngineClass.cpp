@@ -56,6 +56,15 @@ int NB_PLAYERS;
 
 MAP *the_map=NULL;
 
+void MAP::clean_map()		// Used to remove all objects when loading a saved game
+{
+	for( int y = 0 ; y < bloc_h_db ; y++ )
+		for( int x = 0 ; x < bloc_w_db ; x++ ) {
+			map_data[y][x].stuff = -1;
+			map_data[y][x].unit_idx = -1;
+			}
+}
+
 void MAP::destroy()
 {
 /*------------- Experimental: code for new map format -----------------------*/

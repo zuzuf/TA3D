@@ -17,5 +17,7 @@
     
 void save_game( const String filename, GAME_DATA *game_data );
 
-void load_game( const String filename, GAME_DATA *game_data );
+void load_game_data( const String filename, GAME_DATA *game_data );
+
+void load_game( GAME_DATA *game_data );
 

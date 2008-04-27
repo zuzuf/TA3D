@@ -525,7 +525,7 @@ public:
 		LeaveCS();
 	}
 
-	inline void init(int unit_type=-1,int owner=-1,bool full=false)
+	inline void init(int unit_type=-1,int owner=-1,bool full=false,bool basic=false)
 	{
 		if( full )
 			CreateCS();
@@ -617,17 +617,20 @@ public:
 		port[BUILD_PERCENT_LEFT]=0;
 		build_percent_left=0.0f;
 		if(unit_type!=-1) {
-			set_mission(MISSION_STANDBY);
+			if( !basic )
+				set_mission(MISSION_STANDBY);
 			type_id=unit_type;
 			model=unit_manager.unit_type[type_id].model;
 			hp=unit_manager.unit_type[type_id].MaxDamage;
 			script=unit_manager.unit_type[type_id].script;
 			port[STANDINGMOVEORDERS]=unit_manager.unit_type[type_id].StandingMoveOrder;
 			port[STANDINGFIREORDERS]=unit_manager.unit_type[type_id].StandingFireOrder;
-			set_mission(unit_manager.unit_type[type_id].DefaultMissionType);
+			if( !basic )
+				set_mission(unit_manager.unit_type[type_id].DefaultMissionType);
 			if(script) {
 				data.load(script->nb_piece);
-				launch_script(get_script_index(SCRIPT_create));
+				if( !basic )
+					launch_script(get_script_index(SCRIPT_create));
 				}
 			}
 		LeaveCS();
@@ -947,7 +950,7 @@ public:
 
 	Vector< List< uint16 > >	requests;		// Store all the request for pathfinder calls
 
-	private:
+	public:
 
 	GLushort	*mini_idx;			// Array to draw the units on mini map
 	float		*mini_pos;			// Position on mini map
@@ -990,9 +993,6 @@ public:
 		apparent_timefactor = 1.0f;
 		thread_running = false;
 		thread_ask_to_stop = false;
-
-		for( int i = 0 ; i < 12 ; i++ )
-			icons[ i ] = 0;
 
 		if( register_interface ) {
 			InitInterface();		// Initialization of the interface
@@ -1046,11 +1046,12 @@ public:
 	{
 		EnterCS();
 
-		for( int i = 0 ; i < 13 ; i++ )
-			gfx->destroy_texture( icons[ i ] );
+		if( delete_interface ) {
+			for( int i = 0 ; i < 13 ; i++ )
+				gfx->destroy_texture( icons[ i ] );
 
-		if( delete_interface )
 			DeleteInterface();			// Shut down the interface
+			}
 
 		if( mini_idx )			delete[] mini_idx;
 		if( mini_pos )			delete[] mini_pos;

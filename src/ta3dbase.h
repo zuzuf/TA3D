@@ -461,9 +461,12 @@ public:
 	uint8				fog_of_war;			// flags to configure FOW
 	bool				campaign;			// Are we in campaign mode ?
 	char				*use_only;			// The use only file to read
+	String				saved_file;			// If not empty it's the name of the file to load
 
 	inline GAME_DATA()
 	{
+		saved_file.clear();
+
 		use_only = NULL;
 		campaign = false;
 		fog_of_war = FOW_DISABLED;
@@ -509,6 +512,7 @@ public:
 		energy.clear();
 		metal.clear();
 		ready.clear();
+		saved_file.clear();
 	}
 };
 

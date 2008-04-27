@@ -240,7 +240,6 @@ class SECTOR			// Structure pour regrouper les informations sur le terrain (vari
 public:
 	float		dh;					// dérivée maximale en valeur absolue de l'altitude
 	bool		underwater;			// indique si le bloc est sous l'eau
-//	byte		view;				// Indique quels sont les joueurs voyant ce morceau de terrain
 	sint32		stuff;				// Indique l'élément graphique présent sur ce secteur
 	sint16		unit_idx;			// Indice de l'unité qui se trouve sur ce secteur
 	bool		lava;				// Is that under lava ?? Used for pathfinding
@@ -251,7 +250,6 @@ public:
 	{
 		dh = 0.0f;
 		underwater = false;
-//		view = 0;				// Personne ne peut voir ce secteur au début
 		stuff = -1;
 		unit_idx = -1;
 		lava = false;
@@ -328,7 +326,6 @@ public:
 	POINTF		*low_vtx;
 	POINTF		*low_vtx_flat;
 	float		*low_tcoord;
-//	float		*low_col;
 	uint8		*low_col;
 	GLuint		*low_index;
 	GLuint		low_tex;
@@ -417,6 +414,8 @@ public:
 	}
 
 	void destroy();
+	
+	void clean_map();		// Used to remove all objects when loading a saved game
 
 	~MAP()
 	{

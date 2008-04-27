@@ -617,7 +617,7 @@ const void WEAPON::move(const float dt,MAP *map)				// Anime les armes
 					damage = weapon_manager.weapon[weapon_id].get_damage_for_unit( unit_manager.unit_type[ units.unit[hit_idx].type_id ].Unitname ) * units.unit[ hit_idx ].damage_modifier();
 					units.unit[hit_idx].hp -= damage;		// L'unité touchée encaisse les dégats
 					units.unit[hit_idx].flags&=0xEF;		// This unit must explode if it has been damaged by a weapon even if it is being reclaimed
-					if(ok && units.unit[hit_idx].hp<=0.0f && units.unit[shooter_idx].owner_id < players.nb_player
+					if(ok && shooter_idx >= 0 && shooter_idx < players.nb_player && units.unit[hit_idx].hp<=0.0f && units.unit[shooter_idx].owner_id < players.nb_player
 					&& units.unit[hit_idx].owner_id!=units.unit[shooter_idx].owner_id)		// Non,non les unités que l'on se détruit ne comptent pas dans le nombre de tués mais dans les pertes
 						players.kills[units.unit[shooter_idx].owner_id]++;
 					if(units.unit[hit_idx].hp<=0.0f)
@@ -725,7 +725,7 @@ const void WEAPON::move(const float dt,MAP *map)				// Anime les armes
 								float cur_damage = damage * weapon_manager.weapon[weapon_id].edgeeffectiveness * units.unit[ t_idx ].damage_modifier();
 								units.unit[t_idx].hp -= cur_damage;		// L'unité touchée encaisse les dégats
 								units.unit[t_idx].flags&=0xEF;		// This unit must explode if it has been damaged by a weapon even if it is being reclaimed
-								if(ok && units.unit[t_idx].hp<=0.0f && units.unit[shooter_idx].owner_id < players.nb_player
+								if(ok && shooter_idx >= 0 && shooter_idx < players.nb_player && units.unit[t_idx].hp<=0.0f && units.unit[shooter_idx].owner_id < players.nb_player
 								&& units.unit[t_idx].owner_id!=units.unit[shooter_idx].owner_id)		// Non,non les unités que l'on se détruit ne comptent pas dans le nombre de tués mais dans les pertes
 									players.kills[units.unit[shooter_idx].owner_id]++;
 								if(units.unit[t_idx].hp<=0.0f)

@@ -37,6 +37,7 @@
 #include "menu.h"
 #include "gui.h"
 #include "taconfig.h"
+#include "restore.h"
 
 void generate_script_from_mission( String Filename, cTAFileParser *ota_parser, int schema = 0 );	// To access the script generator in the 'script' module
 
@@ -224,6 +225,29 @@ void solo_menu()
 			glPushMatrix();
 			campaign_main_menu();
 			glPopMatrix();
+			}
+
+		if( solo_area.get_state( "load_menu.b_load" ) ) {
+			solo_area.set_state( "load_menu.b_load", false );
+			GUIOBJ *obj_list = solo_area.get_object( "load_menu.l_file" );
+			if( obj_list && obj_list->Pos >= 0 && obj_list->Pos < obj_list->Text.size() ) {
+				GAME_DATA game_data;
+				load_game_data( TA3D_OUTPUT_DIR + "savegame/" + obj_list->Text[ obj_list->Pos ], &game_data );
+
+				if( !game_data.saved_file.empty() ) {
+					gfx->unset_2D_mode();
+					GuardStart( play );
+						play(&game_data);
+					GuardCatch();
+					if( IsExceptionInProgress() ) // if guard threw an error this will be true.
+					{
+						GuardDisplayAndLogError();   // record and display the error.
+						exit(1);                      // we outa here.
+					}
+					gfx->set_2D_mode();
+					gfx->ReInitTexSys();
+					}
+				}
 			}
 
 		if( solo_area.get_state( "solo.b_back" ) || key[KEY_ESC] ) {

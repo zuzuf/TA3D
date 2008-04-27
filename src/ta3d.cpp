@@ -456,6 +456,11 @@ delay=(speed_limit==0.0f) ? 0.0f : 1.0f/speed_limit;
 LUA_PROGRAM	game_script;					// Script that will rule the game
 game_script.load(game_data->game_script, map);	// Load the script
 
+if( !game_data->saved_file.empty() ) {			// We have something to load
+	load_game( game_data );
+	done = !game_data->saved_file.empty();		// If loading the game fails, then exit
+	}
+
 //-----------------------   Code related to threads   ------------------------
 
 unit_engine_thread_sync = 0;
