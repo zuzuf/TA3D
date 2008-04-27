@@ -555,45 +555,44 @@ do
 	VECTOR old_cam_pos = cam.RPos;
 	float old_r1=r1,old_r2=r2,old_r3=r3;
 	float old_zscroll = camera_zscroll;
-	if( !IsOnGUI ) {
-		if(!freecam) {
-			int delta=mouse_z-omz;
-			camera_zscroll += delta * 2.0f * lp_CONFIG->camera_zoom_speed;
-			if( camera_zscroll < -25.0f ) camera_zscroll = -25.0f;
-			else if( camera_zscroll > 20.0f ) camera_zscroll = 20.0f;
+	if(!freecam) {
+		int delta = IsOnGUI ? 0 : mouse_z-omz;
+		camera_zscroll += delta * 2.0f * lp_CONFIG->camera_zoom_speed;
+		if( camera_zscroll < -25.0f ) camera_zscroll = -25.0f;
+		else if( camera_zscroll > 20.0f ) camera_zscroll = 20.0f;
 
-			if( (msec_timer - cam_def_timer) * Conv >= 1.0f && delta != 0
-			&& ( ( camera_zscroll > 0.0f && old_zscroll <= 0.0f )
-			 || ( camera_zscroll < 0.0f && old_zscroll >= 0.0f ) ) )	{		// Just to make it lock near def position
-				cam_def_timer = msec_timer;
-				old_zscroll = 0.0f;
-				if( camera_zscroll > -lp_CONFIG->camera_def_angle )	old_zscroll += 0.00001f;
-				else old_zscroll -= 0.00001f;
-				}
+		if( (msec_timer - cam_def_timer) * Conv >= 1.0f && delta != 0
+		&& ( ( camera_zscroll > 0.0f && old_zscroll <= 0.0f )
+		 || ( camera_zscroll < 0.0f && old_zscroll >= 0.0f ) ) )	{		// Just to make it lock near def position
+			cam_def_timer = msec_timer;
+			old_zscroll = 0.0f;
+			if( camera_zscroll > -lp_CONFIG->camera_def_angle )	old_zscroll += 0.00001f;
+			else old_zscroll -= 0.00001f;
+			}
 
-			if( (msec_timer - cam_def_timer) * Conv < 0.5f )
-				camera_zscroll = old_zscroll;
+		if( (msec_timer - cam_def_timer) * Conv < 0.5f )
+			camera_zscroll = old_zscroll;
 
-			float angle_factor = max( fabs(-lp_CONFIG->camera_def_angle+45.0f) / 20.0f, fabs(-lp_CONFIG->camera_def_angle+90.0f) / 25.0f );
+		float angle_factor = max( fabs(-lp_CONFIG->camera_def_angle+45.0f) / 20.0f, fabs(-lp_CONFIG->camera_def_angle+90.0f) / 25.0f );
 
-			r1 = -lp_CONFIG->camera_def_angle + camera_zscroll * angle_factor;
-			if( r1 > -45.0f ) 		r1 = -45.0f;
-			else if( r1 < -90.0f )	r1 = -90.0f;
+		r1 = -lp_CONFIG->camera_def_angle + camera_zscroll * angle_factor;
+		if( r1 > -45.0f ) 		r1 = -45.0f;
+		else if( r1 < -90.0f )	r1 = -90.0f;
 
-			cam_h = lp_CONFIG->camera_def_h + (exp(-camera_zscroll * 0.15f) - 1.0f) / (exp(3.75f) - 1.0f) * max(map->map_w,map->map_h);
-			if( delta > 0 && !IsOnGUI ) {
-				if( !cam_has_target || abs( mouse_x - cam_target_mx ) > 2 || abs( mouse_y - cam_target_my ) > 2 ) {
-					cam_target = cursor_on_map(&cam,map);
-					cam_target_mx = mouse_x;
-					cam_target_my = mouse_y;
-					cam_has_target=true;
-					}
+		cam_h = lp_CONFIG->camera_def_h + (exp(-camera_zscroll * 0.15f) - 1.0f) / (exp(3.75f) - 1.0f) * max(map->map_w,map->map_h);
+		if( delta > 0 && !IsOnGUI ) {
+			if( !cam_has_target || abs( mouse_x - cam_target_mx ) > 2 || abs( mouse_y - cam_target_my ) > 2 ) {
+				cam_target = cursor_on_map(&cam,map);
+				cam_target_mx = mouse_x;
+				cam_target_my = mouse_y;
+				cam_has_target=true;
 				}
 			}
-		else {
-			cam.RPos=cam.RPos-0.5f*(mouse_z-omz)*cam.Dir;
-			cam_has_target=false;
-			}
+		}
+	else {
+		int delta = IsOnGUI ? 0 : mouse_z-omz;
+		cam.RPos=cam.RPos-0.5f*delta*cam.Dir;
+		cam_has_target=false;
 		}
 	omz=mouse_z;
 
@@ -3105,8 +3104,10 @@ do
 					units.EnterCS_from_outside();
 					for(uint16 e=0;e<units.index_list_size;e++) {
 						i = units.idx_list[e];
+						units.LeaveCS_from_outside();
 						if( (units.unit[i].flags & 1) && units.unit[i].owner_id==players.local_human_id && units.unit[i].sel)
 							units.unit[i].reset_script();
+						units.EnterCS_from_outside();
 						}
 					units.LeaveCS_from_outside();
 					}
@@ -3132,10 +3133,12 @@ do
 					units.EnterCS_from_outside();
 					for(uint16 e=0;e<units.index_list_size;e++) {
 						i = units.idx_list[e];
+						units.LeaveCS_from_outside();
 						if( (units.unit[i].flags & 1) && units.unit[i].owner_id==players.local_human_id && units.unit[i].sel) {
 							units.kill(i,map,e);
 							e--;
 							}
+						units.EnterCS_from_outside();
 						}
 					units.LeaveCS_from_outside();
 					selected=false;
@@ -3146,10 +3149,12 @@ do
 				units.EnterCS_from_outside();
 				for(uint16 e=0;e<units.max_unit;e++) {
 					i = units.idx_list[e];
+					units.LeaveCS_from_outside();
 					if( (units.unit[i].flags & 1) && units.unit[i].owner_id != players.local_human_id ) {
 						units.kill(i,map,e);
 						e--;
 						}
+					units.EnterCS_from_outside();
 					}
 				units.LeaveCS_from_outside();
 				}

@@ -601,8 +601,7 @@ void FEATURES::sink_feature( int idx )
 {
 	EnterCS();
 
-	if( idx >= 0 && idx < max_features && feature[ idx ].type >= 0
-	&& feature_manager.feature[ feature[ idx ].type ].flamable && !feature[ idx ].sinking ) {		// We get something to sink
+	if( idx >= 0 && idx < max_features && feature[ idx ].type >= 0 && !feature[ idx ].sinking ) {		// We get something to sink
 		feature[ idx ].sinking = true;
 		sinking_features.push_back( idx );		// It's burning 8)
 		}

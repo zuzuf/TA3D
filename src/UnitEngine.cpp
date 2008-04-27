@@ -4778,6 +4778,8 @@ void UNIT::draw_on_map()
 				if( mission && (mission->flags & MISSION_FLAG_MOVE) )
 					mission->flags |= MISSION_FLAG_REFRESH_PATH;
 				}
+			else
+				printf("error: units overlaps on yardmap !!\n");
 
 			}
 		LeaveCS();
