@@ -283,6 +283,7 @@ class Network{
 		bool isTransferFinished( const String &port );
 		
 		bool isConnected();
+		bool isServer();
 		int getMyID();
 		
 		float getFileTransferProgress();

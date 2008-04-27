@@ -746,12 +746,15 @@ int Network::Connect(const char* target,const char* port){
 	}
 
 	tohost_socket = new TA3DSock();
+	myID = -1;
 
 	tohost_socket->Open(target,port);
 	udp_socket.Open(NULL,port);
 	if(!tohost_socket->isOpen()){
 		//error couldnt connect to game
 		Console->AddEntry("Network: error connecting to game at [%s]:%s",target,port);
+		delete tohost_socket;
+		tohost_socket = NULL;
 		myMode = 0;
 		return -1;
 	}
@@ -1000,23 +1003,25 @@ void Network::cleanFileThread()
 
 int Network::getMyID()
 {
+	if( myID != -1 )	return myID;
 	switch( myMode )
 	{
 	case 1:						// Server
-		return 0;
+		myID = 0;
+		return myID;
 	case 2:						// Client
 		struct chat special_msg;
 		if( sendSpecial( strtochat( &special_msg, "REQUEST PLAYER_ID" ) ) )
 			return -1;
 		else {
 			int timeout = 5000;
-			int my_id = -1;
-			while( my_id == -1 && timeout-- && myMode == 2 && tohost_socket && tohost_socket->isOpen() ) {
+			myID = -1;
+			while( myID == -1 && timeout-- && myMode == 2 && tohost_socket && tohost_socket->isOpen() ) {
 				rest(1);
 				if( getNextSpecial( &special_msg ) == 0 ) {
 					Vector< String > params = ReadVectorString( special_msg.message, " " );
 					if( params.size() == 3 && params[0] == "RESPONSE" && params[1] == "PLAYER_ID" ) {
-						my_id = atoi( params[2].c_str() );
+						myID = atoi( params[2].c_str() );
 						break;
 						}
 					}
@@ -1025,7 +1030,7 @@ int Network::getMyID()
 				}
 			if( timeout == 0 )				// Timeout reached
 				return -1;
-			return my_id;
+			return myID;
 			}
 		break;
 	};
@@ -1271,6 +1276,11 @@ bool Network::BroadcastedMessages()
 bool Network::isConnected()
 {
 	return myMode == 1 || ( myMode == 2 && tohost_socket != NULL && tohost_socket->isOpen() );
+}
+
+bool Network::isServer()
+{
+	return myMode == 1;
 }
 
 bool Network::getPlayerDropped()

@@ -1232,6 +1232,7 @@ void setup_game(bool client, const char *host)
 		struct chat received_special_msg;
 		bool playerDropped = false;
 		int progress_timer = msec_timer;
+		int ping_timer = msec_timer;					// Used to send simple PING requests in order to detect when a connection fails
 		do {
 			playerDropped = network_manager.getPlayerDropped();
 			broadcast_msg = network_manager.getNextBroadcastedMessage();
@@ -1248,11 +1249,18 @@ void setup_game(bool client, const char *host)
 			rest( 1 );
 			if( msec_timer - progress_timer >= 500 && network_manager.getFileTransferProgress() != 100.0f )	break;
 		} while( amx == mouse_x && amy == mouse_y && amz == mouse_z && amb == mouse_b && mouse_b == 0 && !key[ KEY_ENTER ] && !key[ KEY_ESC ] && !done
-			&& !key_is_pressed && !setupgame_area.scrolling && broadcast_msg.empty() && chat_msg.empty() && special_msg.empty() && !playerDropped );
+			&& !key_is_pressed && !setupgame_area.scrolling && broadcast_msg.empty() && chat_msg.empty() && special_msg.empty() && !playerDropped
+			&& ( msec_timer - ping_timer < 2000 || host == NULL || client ) );
 
 //-------------------------------------------------------------- Network Code : syncing information --------------------------------------------------------------
 
+		if( host && !client && msec_timer - ping_timer >= 2000 ) {		// Send a ping request
+			network_manager.sendSpecial("PING");
+			ping_timer = msec_timer;
+			}
+
 		if( network_manager.getFileTransferProgress() != 100.0f ) {
+			progress_timer = msec_timer;
 			GUIOBJ *obj = setupgame_area.get_object( "gamesetup.p_transfer" );
 			if( obj ) {
 				obj->Flag &= ~FLAG_HIDDEN;
@@ -1290,7 +1298,11 @@ void setup_game(bool client, const char *host)
 		while( !special_msg.empty() ) {													// Special receiver (sync config data)
 			int from = received_special_msg.from;
 			Vector< String > params = ReadVectorString( received_special_msg.message, " " );
-			if( params.size() == 2 ) {
+			if( params.size() == 1 ) {
+				if( params[0] == "PING" )
+					network_manager.sendSpecial("PONG", -1, from);
+				}
+			else if( params.size() == 2 ) {
 				if( params[0] == "REQUEST" ) {
 					if( params[1] == "PLAYER_ID" )					// Sending player's network ID
 						network_manager.sendSpecial( format( "RESPONSE PLAYER_ID %d", from ), -1, from );
