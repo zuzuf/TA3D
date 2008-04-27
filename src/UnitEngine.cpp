@@ -551,14 +551,36 @@ bool UNIT::is_on_radar( byte p_mask )
 			glDisable( GL_CULL_FACE );
 			glDisable(GL_LIGHTING);
 			glDisable(GL_BLEND);
-			glColor3f(player_color[player_color_map[owner_id]*3],player_color[player_color_map[owner_id]*3+1],player_color[player_color_map[owner_id]*3+2]);
 			glTranslatef( model->center.x, model->center.y, model->center.z );
-			glBegin(GL_QUADS);
-				glTexCoord2f(0.0f, 0.0f);		glVertex3f( -size, 0.0f, -size);
-				glTexCoord2f(1.0f, 0.0f);		glVertex3f(  size, 0.0f, -size);
-				glTexCoord2f(1.0f, 1.0f);		glVertex3f(  size, 0.0f,  size);
-				glTexCoord2f(0.0f, 1.0f);		glVertex3f( -size, 0.0f,  size);
-			glEnd();
+			if( player_color[player_color_map[owner_id]*3] != 0.0f || player_color[player_color_map[owner_id]*3+1] != 0.0f || player_color[player_color_map[owner_id]*3+2] != 0.0f ) {
+				glColor3f(player_color[player_color_map[owner_id]*3],player_color[player_color_map[owner_id]*3+1],player_color[player_color_map[owner_id]*3+2]);
+				glBegin(GL_QUADS);
+					glTexCoord2f(0.0f, 0.0f);		glVertex3f( -size, 0.0f, -size);
+					glTexCoord2f(1.0f, 0.0f);		glVertex3f(  size, 0.0f, -size);
+					glTexCoord2f(1.0f, 1.0f);		glVertex3f(  size, 0.0f,  size);
+					glTexCoord2f(0.0f, 1.0f);		glVertex3f( -size, 0.0f,  size);
+				glEnd();
+				}
+			else {								// If it's black, then invert colors
+				glColor3f(1.0f,1.0f,1.0f);
+				glDisable(GL_TEXTURE_2D);
+				glBegin(GL_QUADS);
+					glTexCoord2f(0.0f, 0.0f);		glVertex3f( -size, 0.0f, -size);
+					glTexCoord2f(1.0f, 0.0f);		glVertex3f(  size, 0.0f, -size);
+					glTexCoord2f(1.0f, 1.0f);		glVertex3f(  size, 0.0f,  size);
+					glTexCoord2f(0.0f, 1.0f);		glVertex3f( -size, 0.0f,  size);
+				glEnd();
+				glEnable(GL_TEXTURE_2D);
+				glBlendFunc( GL_ZERO, GL_ONE_MINUS_SRC_COLOR ); 
+				glEnable(GL_BLEND);
+				glBegin(GL_QUADS);
+					glTexCoord2f(0.0f, 0.0f);		glVertex3f( -size, 0.0f, -size);
+					glTexCoord2f(1.0f, 0.0f);		glVertex3f(  size, 0.0f, -size);
+					glTexCoord2f(1.0f, 1.0f);		glVertex3f(  size, 0.0f,  size);
+					glTexCoord2f(0.0f, 1.0f);		glVertex3f( -size, 0.0f,  size);
+				glEnd();
+				glDisable(GL_BLEND);
+				}
 			glEnable( GL_CULL_FACE );
 			if(owner_id==players.local_human_id && sel) {
 				glDisable( GL_TEXTURE_2D );
@@ -5361,10 +5383,10 @@ int INGAME_UNITS::create(int type_id,int owner)
 			}
 		unit=n_unit;
 		}
-		if(unit==NULL)
-			printf("error: memory alloc failed\n");
-		if(free_index_size[owner]<=0) {
-			printf("unit limit reached!\n");
+	if(unit==NULL)
+		printf("error: memory alloc failed\n");
+	if(free_index_size[owner]<=0) {
+		printf("unit limit reached!\n");
 
 		LeaveCS();
 
@@ -5418,8 +5440,10 @@ void INGAME_UNITS::draw_mini(float map_w,float map_h,int mini_w,int mini_h,SECTO
 										i );
 		}
 
+	EnterCS();
 	for( uint16 e=0 ; e < index_list_size ; e++) {
 		uint16 i = idx_list[e];
+		LeaveCS();
 
 		units.unit[ i ].Lock();
 
@@ -5428,10 +5452,12 @@ void INGAME_UNITS::draw_mini(float map_w,float map_h,int mini_w,int mini_h,SECTO
 			int py=unit[i].cur_py;
 			if(px<0 || py<0 || px>=b_w || py>=b_h) {
 				units.unit[ i ].UnLock();
+				EnterCS();
 				continue;
 				}
 			if( (!(map->view_map->line[py>>1][px>>1]&mask) || !(map->sight_map->line[py>>1][px>>1]&mask) || (unit[i].cloaked && unit[i].owner_id != players.local_human_id ) ) && !unit[i].on_mini_radar ) {
 				units.unit[ i ].UnLock();
+				EnterCS();
 				continue;	// Unité non visible / Unit is not visible
 				}
 //			unit[i].flags|=0x10;
@@ -5440,7 +5466,9 @@ void INGAME_UNITS::draw_mini(float map_w,float map_h,int mini_w,int mini_h,SECTO
 			mini_col[ nb++ ] = player_col_32_h[ unit[i].owner_id ];
 			}
 		units.unit[ i ].UnLock();
+		EnterCS();
 		}
+	LeaveCS();
 	glEnableClientState(GL_VERTEX_ARRAY);		// vertex coordinates
 	glEnableClientState(GL_COLOR_ARRAY);		// Colors(for fog of war)
 	glDisableClientState(GL_TEXTURE_COORD_ARRAY);		// vertex coordinates
@@ -5481,12 +5509,15 @@ void INGAME_UNITS::draw_mini(float map_w,float map_h,int mini_w,int mini_h,SECTO
 
 	int cur_id = -1;
 	glBegin( GL_POINTS );
+	EnterCS();
 	for(uint16 e=0;e<index_list_size;e++) {
 		uint16 i = idx_list[e];
+		LeaveCS();
 
 		units.unit[ i ].Lock();
 		if( units.unit[ i ].cur_px < 0 || units.unit[ i ].cur_py < 0 || units.unit[ i ].cur_px >= b_w || units.unit[ i ].cur_py >= b_h ) {
 			units.unit[ i ].UnLock();
+			EnterCS();
 			continue;
 			}
 
@@ -5518,7 +5549,9 @@ void INGAME_UNITS::draw_mini(float map_w,float map_h,int mini_w,int mini_h,SECTO
 			glVertex2f(pos_x,pos_y);
 			}
 		units.unit[ i ].UnLock();
+		EnterCS();
 		}
+	LeaveCS();
 	glEnd();
 	glPointSize(1.0f);
 	glEnable(GL_TEXTURE_2D);

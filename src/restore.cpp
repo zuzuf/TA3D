@@ -648,10 +648,8 @@ void load_game( GAME_DATA *game_data )
 		LOAD( units.unit[i].type_id );
 		int player_id = i / MAX_UNIT_PER_PLAYER;
 		
-		if( units.unit[i].type_id < 0 || !(units.unit[i].flags & 1) ) {
-			units.free_idx[ units.free_index_size[i]++ ] = i;
+		if( units.unit[i].type_id < 0 || !(units.unit[i].flags & 1) )
 			continue;
-			}
 		units.idx_list[units.index_list_size++] = i;
 
 		readstring( tmp, 1024, file );
@@ -879,6 +877,12 @@ void load_game( GAME_DATA *game_data )
 			units.unit[i].drawn = false;
 			units.unit[i].draw_on_map();
 			}
+		}
+
+	for( int i = 0 ; i < units.max_unit ; i++ ) {			// Build the free index list
+		int player_id = i / MAX_UNIT_PER_PLAYER;
+		if( units.unit[i].type_id < 0 || !(units.unit[i].flags & 1) )
+			units.free_idx[ player_id * MAX_UNIT_PER_PLAYER + (units.free_index_size[player_id]++) ] = i;
 		}
 
 	units.LeaveCS_from_outside();

@@ -177,17 +177,6 @@ void solo_menu()
 	solo_area.load_tdf("gui/solo.area");
 	if( !solo_area.background )	solo_area.background = gfx->glfond;
 
-	if( solo_area.get_object("load_menu.l_file") ) {
-		GUIOBJ *obj = solo_area.get_object("load_menu.l_file");
-		List<String> file_list = GetFileList( TA3D_OUTPUT_DIR + "savegame/*.sav" );
-		
-		file_list.sort();
-		
-		obj->Text.clear();
-		obj->Text.reserve( file_list.size() );
-		foreach( file_list, i )	obj->Text.push_back( *i );
-		}
-
 	bool done=false;
 
 	int amx = -1;
@@ -225,6 +214,17 @@ void solo_menu()
 			glPushMatrix();
 			campaign_main_menu();
 			glPopMatrix();
+			}
+
+		if( solo_area.get_state( "solo.b_load" ) && solo_area.get_object("load_menu.l_file") ) {
+			GUIOBJ *obj = solo_area.get_object("load_menu.l_file");
+			List<String> file_list = GetFileList( TA3D_OUTPUT_DIR + "savegame/*.sav" );
+		
+			file_list.sort();
+		
+			obj->Text.clear();
+			obj->Text.reserve( file_list.size() );
+			foreach( file_list, i )	obj->Text.push_back( *i );
 			}
 
 		if( solo_area.get_state( "load_menu.b_load" ) ) {
