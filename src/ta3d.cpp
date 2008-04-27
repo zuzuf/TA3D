@@ -3064,6 +3064,7 @@ do
 			else if( params[0] == "addhp" && params.size() == 2) {
 				if(selected) {					// Sur les unités sélectionnées
 					int value = atoi( params[1].c_str() );
+					units.EnterCS_from_outside();
 					for(uint16 e=0;e<units.index_list_size;e++) {
 						i = units.idx_list[e];
 						if( (units.unit[i].flags & 1) && units.unit[i].owner_id==players.local_human_id && units.unit[i].sel) {
@@ -3074,37 +3075,47 @@ do
 								units.unit[i].hp=unit_manager.unit_type[units.unit[i].type_id].MaxDamage;
 							}
 						}
+					units.LeaveCS_from_outside();
 					}
 				}
 			else if( params[0] == "deactivate" ) {
-				if(selected)					// Sur les unités sélectionnées
+				if(selected) {					// Sur les unités sélectionnées
+					units.EnterCS_from_outside();
 					for(uint16 e=0;e<units.index_list_size;e++) {
 						i = units.idx_list[e];
 						if( (units.unit[i].flags & 1) && units.unit[i].owner_id==players.local_human_id && units.unit[i].sel)
 							units.unit[i].deactivate();
 						}
+					units.LeaveCS_from_outside();
+					}
 				}
 			else if( params[0] == "activate" ) {
-				if(selected)					// Sur les unités sélectionnées
+				if(selected) {					// Sur les unités sélectionnées
+					units.EnterCS_from_outside();
 					for(uint16 e=0;e<units.index_list_size;e++) {
 						i = units.idx_list[e];
 						if( (units.unit[i].flags & 1) && units.unit[i].owner_id==players.local_human_id && units.unit[i].sel)
 							units.unit[i].activate();
 						}
+					units.LeaveCS_from_outside();
+					}
 				}
 			else if( params[0] == "reset_script" ) {							// Réinitialise les scripts
 				if(selected) {					// Sur les unités sélectionnées
+					units.EnterCS_from_outside();
 					for(uint16 e=0;e<units.index_list_size;e++) {
 						i = units.idx_list[e];
 						if( (units.unit[i].flags & 1) && units.unit[i].owner_id==players.local_human_id && units.unit[i].sel)
 							units.unit[i].reset_script();
 						}
+					units.LeaveCS_from_outside();
 					}
 				}
 			else if( params[0] == "unitinfo" ) {
 				if(selected && cur_sel!=-1) {					// Sur les unités sélectionnées
 					const char *unit_info[]={"ACTIVATION","STANDINGMOVEORDERS","STANDINGFIREORDERS","HEALTH","INBUILDSTANCE","BUSY","PIECE_XZ","PIECE_Y","UNIT_XZ","UNIT_Y","UNIT_HEIGHT","XZ_ATAN","XZ_HYPOT","ATAN",
 									   "HYPOT","GROUND_HEIGHT","BUILD_PERCENT_LEFT","YARD_OPEN","BUGGER_OFF","ARMORED"};
+					units.EnterCS_from_outside();
 					for(uint16 e=0;e<units.index_list_size;e++) {
 						i = units.idx_list[e];
 						if( (units.unit[i].flags & 1) && units.unit[i].owner_id==players.local_human_id && units.unit[i].sel) {
@@ -3113,36 +3124,45 @@ do
 								printf("%s=%d\n",unit_info[f-1],units.unit[i].port[f]);
 							}
 						}
+					units.LeaveCS_from_outside();
 					}
 				}
 			else if( params[0] == "kill" ) {							// Détruit les unités sélectionnées
 				if(selected) {					// Sur les unités sélectionnées
+					units.EnterCS_from_outside();
 					for(uint16 e=0;e<units.index_list_size;e++) {
 						i = units.idx_list[e];
-						if( (units.unit[i].flags & 1) && units.unit[i].owner_id==players.local_human_id && units.unit[i].sel)
+						if( (units.unit[i].flags & 1) && units.unit[i].owner_id==players.local_human_id && units.unit[i].sel) {
 							units.kill(i,map,e);
+							e--;
+							}
 						}
+					units.LeaveCS_from_outside();
 					selected=false;
 					cur_sel=-1;
 					}
 				}
 			else if( params[0] == "shootall" ) {							// Destroy enemy units
-				for(uint16 e=0;e<units.index_list_size;e++) {
+				units.EnterCS_from_outside();
+				for(uint16 e=0;e<units.max_unit;e++) {
 					i = units.idx_list[e];
-					if( (units.unit[i].flags & 1) && units.unit[i].owner_id != players.local_human_id )
+					if( (units.unit[i].flags & 1) && units.unit[i].owner_id != players.local_human_id ) {
 						units.kill(i,map,e);
+						e--;
+						}
 					}
-				selected=false;
-				cur_sel=-1;
+				units.LeaveCS_from_outside();
 				}
 			else if( params[0] == "script" && params.size() == 2) {							// Force l'éxecution d'un script
 				if(selected) {					// Sur les unités sélectionnées
 					int id = atoi( params[1].c_str() );
+					units.EnterCS_from_outside();
 					for(uint16 e=0;e<units.index_list_size;e++) {
 						i = units.idx_list[e];
 						if( (units.unit[i].flags & 1) && units.unit[i].owner_id==players.local_human_id && units.unit[i].sel)
 							units.unit[i].launch_script(id);
 						}
+					units.LeaveCS_from_outside();
 					}
 				}
 			else if( params[0] == "pause" )								// Toggle pause mode

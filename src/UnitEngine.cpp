@@ -515,6 +515,7 @@ bool UNIT::is_on_radar( byte p_mask )
 		MATRIX_4x4 M;
 		glPushMatrix();
 		if( on_radar ) {			// for mega zoom, draw only an icon
+			glDisable(GL_DEPTH_TEST);
 			glTranslatef( Pos.x, max(Pos.y,map->sealvl+5.0f), Pos.z );
 			glEnable(GL_TEXTURE_2D);
 			int unit_nature = ICON_UNKNOWN;
@@ -593,6 +594,7 @@ bool UNIT::is_on_radar( byte p_mask )
 					glVertex3f( -size, 0.0f, -size);
 				glEnd();
 				}
+			glEnable(GL_DEPTH_TEST);
 			}
 		else if( visible ) {
 			glTranslatef( Pos.x, Pos.y, Pos.z );
