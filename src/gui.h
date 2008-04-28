@@ -27,6 +27,7 @@
 
 #include "gfx.h"
 #include "hash_table.h"
+#include "cCriticalSection.h"
 
 void glbutton(const String &caption,float x1,float y1,float x2,float y2,bool etat=false);
 
@@ -234,7 +235,7 @@ public:
 	void create_ta_button(float X1,float Y1,const Vector< String > &Caption, const Vector< GLuint > &states, int nb_st);
 };
 
-class WND						// Class for the window object
+class WND : protected cCriticalSection						// Class for the window object
 {
 public:
 	int			x,y;            // coordinates
@@ -290,6 +291,7 @@ public:
 		background = 0;
 		background_wnd = false;
 		size_factor = 1.0f;
+		CreateCS();
 	}
 
 	inline WND( const String &filename ) : obj_hashtable()			// Constructor
@@ -312,10 +314,11 @@ public:
 		draw_borders = true;
 		background = 0;
 		size_factor = 1.0f;
+		CreateCS();
 		load_tdf( filename );
 	}
 
-	inline ~WND()	{	obj_hashtable.EmptyHashTable();		destroy();	}
+	inline ~WND()	{	obj_hashtable.EmptyHashTable();		destroy(); DeleteCS();	}
 
 	void draw( String &help_msg, bool Focus=true,bool Deg=true, SKIN *skin=NULL );						// Draw the window
 	byte WinMov(int AMx,int AMy,int AMb,int Mx,int My,int Mb, SKIN *skin=NULL );						// Handle window's moves

@@ -461,6 +461,9 @@ uint32	GUIOBJ::num_entries()
 void WND::draw( String &help_msg, bool Focus, bool Deg, SKIN *skin )
 {
 	if( hidden )	return;		// If it's hidden don't draw it
+	
+	EnterCS();
+	
 	int old_u_format = get_uformat();
 	set_uformat( u_format );
 			// Fenêtre
@@ -670,6 +673,7 @@ void WND::draw( String &help_msg, bool Focus, bool Deg, SKIN *skin )
 					break;
 				};
 		}
+	LeaveCS();
 	set_uformat( old_u_format );
 }			// Fin de draw(...)
 
@@ -679,6 +683,7 @@ void WND::draw( String &help_msg, bool Focus, bool Deg, SKIN *skin )
 
 byte WND::WinMov(int AMx,int AMy,int AMb,int Mx,int My,int Mb, SKIN *skin)
 {
+	EnterCS();
 	byte WinMouse=0;
 	if(AMb==1&&Mb==1 && !Lock)
 		if( AMx >= x + 3 && AMx <= x + width - 4 )
@@ -693,6 +698,7 @@ byte WND::WinMov(int AMx,int AMy,int AMb,int Mx,int My,int Mb, SKIN *skin)
 	else
 		if( Mx >= x && Mx <= x + width && My >= y && My <= y + height )
 			WinMouse=1;
+	LeaveCS();
 	return WinMouse;
 }				// Fin de WinMov
 
@@ -701,6 +707,8 @@ byte WND::WinMov(int AMx,int AMy,int AMb,int Mx,int My,int Mb, SKIN *skin)
 	\---------------------------------------------------------------------------*/
 void WND::destroy()
 {
+	EnterCS();
+
 	Title.clear();
 	Name.clear();
 	if( delete_gltex ) {
@@ -713,6 +721,8 @@ void WND::destroy()
 		NbObj=0;
 		Objets=NULL;
 		}
+
+	LeaveCS();
 }
 
 	/*---------------------------------------------------------------------------\
@@ -720,8 +730,10 @@ void WND::destroy()
 	\---------------------------------------------------------------------------*/
 int WND::check(int AMx,int AMy,int AMz,int AMb,bool timetoscroll, SKIN *skin )
 {
+	EnterCS();
 	if( hidden )	{
 		was_hidden = true;
+		LeaveCS();
 		return 0;		// if it's hidden you cannot interact with it
 		}
 	if( was_hidden )
@@ -733,7 +745,10 @@ int WND::check(int AMx,int AMy,int AMz,int AMb,bool timetoscroll, SKIN *skin )
 		// Vérifie si la souris est sur la fenêtre et/ou si elle la déplace
 	IsOnGUI=WinMov(AMx,AMy,AMb,mouse_x,mouse_y,mouse_b,skin);
 			// S'il n'y a pas d'objets, on arrête
-	if(NbObj<=0 || Objets==NULL)	return IsOnGUI;
+	if(NbObj<=0 || Objets==NULL) {
+		LeaveCS();
+		return IsOnGUI;
+		}
 
 			// Interactions utilisateur/objets
 	int index,e;
@@ -1124,65 +1139,97 @@ int WND::check(int AMx,int AMy,int AMz,int AMb,bool timetoscroll, SKIN *skin )
 		for( int i = 0 ; i < NbObj ; i++ )
 			if( Objets[i].Type == OBJ_MENU )
 				Objets[i].Etat = false;
+	LeaveCS();
 	return IsOnGUI;
 }			// Fin de check
 
 uint32 WND::msg( const String &message )									// Respond to Interface message
 {
+	EnterCS();
 	int i = message.find( "." );
 	uint32	result = INTERFACE_RESULT_CONTINUE;
 
 	if( i != -1 ) {				// When it targets a subobject
 		GUIOBJ *obj = get_object( message.substr( 0, i ) );
-		if( obj )
-			return obj->msg( message.substr( i+1, message.size() - i - 1 ), this );
+		if( obj ) {
+			result = obj->msg( message.substr( i+1, message.size() - i - 1 ), this );
+			LeaveCS();
+			return result;
+			}
 		}
 	else						// When it targets the window itself
 		if( Lowercase( message ) == "show" )				{	hidden = false;		result = INTERFACE_RESULT_HANDLED;	}
 		else if( Lowercase( message ) == "hide" )			{	hidden = true;		result = INTERFACE_RESULT_HANDLED;	}
 
+	LeaveCS();
 	return result;
 }
 
 bool WND::get_state( const String &message )									// Return the state of given object
 {
+	EnterCS();
 	GUIOBJ *obj = get_object( message );
-	if( obj )
-		return obj->Etat;
-	if( message == "" )
-		return !hidden;
-	else
-		return false;
+	if( obj ) {
+		bool result = obj->Etat;
+		LeaveCS();
+		return result;
+		}
+	if( message == "" ) {
+		bool result = !hidden;
+		LeaveCS();
+		return result;
+		}
+	LeaveCS();
+	return false;
 }
 
 sint32 WND::get_value( const String &message )									// Return the state of given object
 {
+	EnterCS();
 	GUIOBJ *obj = get_object( message );
-	if( obj )
-		return obj->Value;
+	if( obj ) {
+		sint32 v = obj->Value;
+		LeaveCS();
+		return v;
+		}
+	LeaveCS();
 	return -1;
 }
 
 String WND::get_caption( const String &message )									// Return the state of given object
 {
+	EnterCS();
 	GUIOBJ *obj = get_object( message );
 	if( obj ) {
-		if( obj->Text.size() > 0 )
-			return obj->Text[0];
-		else
+		if( obj->Text.size() > 0 ) {
+			String result = obj->Text[0];
+			LeaveCS();
+			return result;
+			}
+		else {
+			LeaveCS();
 			return "";
+			}
 		}
-	if( message == "" )
-		return Title;
-	else
-		return "";
+	if( message == "" ) {
+		String result = Title;
+		LeaveCS();
+		return result;
+		}
+	LeaveCS();
+	return "";
 }
 
 GUIOBJ *WND::get_object( const String &message )		// Return a pointer to the specified object
 {
+	EnterCS();
 	sint16 e = obj_hashtable.Find( Lowercase( message ) ) - 1;
-	if( e >= 0 )
-		return &(Objets[ e ]);
+	if( e >= 0 ) {
+		GUIOBJ *the_obj = &(Objets[ e ]);
+		LeaveCS();
+		return the_obj;
+		}
+	LeaveCS();
 	return NULL;
 }
 
@@ -2747,6 +2794,8 @@ uint32 AREA::InterfaceMsg( const lpcImsg msg )
 
 int	AREA::msg( String message )				// Send that message to the area
 {
+	EnterCS();
+
 	uint32	result = INTERFACE_RESULT_CONTINUE;
 
 	message = Lowercase( message );				// Get the string associated with the signal
@@ -2774,11 +2823,15 @@ int	AREA::msg( String message )				// Send that message to the area
 			}
 		else if( message == "end_the_game" )	{	}
 
+	LeaveCS();
+
 	return result;				// Ok we're done with it
 }
 
 bool AREA::get_state( const String &message )			// Return the state of specified object in the specified window
 {
+	EnterCS();
+
 	int i = message.find( "." );
 	if( i != -1 ) {
 		String key = message.substr( 0, i );						// Extracts the key
@@ -2788,27 +2841,38 @@ bool AREA::get_state( const String &message )			// Return the state of specified
 		if( key == "*" )
 			for( uint16 e = 0 ; e < vec_wnd.size() ; e++ ) {				// Search the window containing the object corresponding to the key
 				GUIOBJ *the_obj = vec_wnd[ e ]->get_object( obj_name );
-				if( the_obj )
-					return the_obj->Etat;	// Return what we found
+				if( the_obj ) {
+					bool result = the_obj->Etat;
+					LeaveCS();
+					return result;	// Return what we found
+					}
 				}
 		else {
 			WND *the_wnd = get_wnd( key );
 
-			if( the_wnd )
-				return the_wnd->get_state( obj_name );
+			if( the_wnd ) {
+				bool result = the_wnd->get_state( obj_name );
+				LeaveCS();
+				return result;
+				}
 			}
 		}
 	else {
 		WND *the_wnd = get_wnd( message );
 
-		if( the_wnd )
-			return the_wnd->get_state( "" );
+		if( the_wnd ) {
+			bool result = the_wnd->get_state( "" );
+			LeaveCS();
+			return result;
+			}
 		}
+	LeaveCS();
 	return false;
 }
 
 sint32 AREA::get_value( const String &message )			// Return the state of specified object in the specified window
 {
+	EnterCS();
 	int i = message.find( "." );
 	if( i != -1 ) {
 		String key = message.substr( 0, i );						// Extracts the key
@@ -2818,21 +2882,29 @@ sint32 AREA::get_value( const String &message )			// Return the state of specifi
 		if( key == "*" )
 			for( uint16 e = 0 ; e < vec_wnd.size() ; e++ ) {				// Search the window containing the object corresponding to the key
 				GUIOBJ *the_obj = vec_wnd[ e ]->get_object( obj_name );
-				if( the_obj )
-					return the_obj->Value;	// Return what we found
+				if( the_obj ) {
+					sint32 v = the_obj->Value;
+					LeaveCS();
+					return v;	// Return what we found
+					}
 				}
 		else {
 			WND *the_wnd = get_wnd( key );
 
-			if( the_wnd )
-				return the_wnd->get_value( obj_name );
+			if( the_wnd ) {
+				sint32 v = the_wnd->get_value( obj_name );
+				LeaveCS();
+				return v;
+				}
 			}
 		}
+	LeaveCS();
 	return -1;
 }
 
 String AREA::get_caption( const String &message )		// Return the caption of specified object in the specified window
 {
+	EnterCS();
 	int i = message.find( "." );
 	if( i != -1 ) {
 		String key = message.substr( 0, i );						// Extracts the key
@@ -2842,24 +2914,31 @@ String AREA::get_caption( const String &message )		// Return the caption of spec
 		if( key == "*" )
 			for( uint16 e = 0 ; e < vec_wnd.size() ; e++ ) {				// Search the window containing the object corresponding to the key
 				GUIOBJ *the_obj = vec_wnd[ e ]->get_object( obj_name );
-				if( the_obj )
+				if( the_obj ) {
+					String result;
 					if( the_obj->Text.size() > 0 )
-						return the_obj->Text[0];	// Return what we found
-					else
-						return "";					// We were looking for something that doesn't exist
+						result = the_obj->Text[0];	// Return what we found
+					LeaveCS();
+					return result;
+					}
 				}
 		else {
 			WND *the_wnd = get_wnd( key );
 
-			if( the_wnd )
-				return the_wnd->get_caption( obj_name );
+			if( the_wnd ) {
+				String result = the_wnd->get_caption( obj_name );
+				LeaveCS();
+				return result;
+				}
 			}
 		}
+	LeaveCS();
 	return "";
 }
 
 GUIOBJ *AREA::get_object( const String &message, bool skip_hidden )		// Return a pointer to the specified object
 {
+	EnterCS();
 	int i = message.find( "." );
 	if( i != -1 ) {
 		String key = message.substr( 0, i );						// Extracts the key
@@ -2869,36 +2948,50 @@ GUIOBJ *AREA::get_object( const String &message, bool skip_hidden )		// Return a
 		if( key == "*" )
 			for( uint16 e = 0 ; e < vec_wnd.size() ; e++ ) {				// Search the window containing the object corresponding to the key
 				GUIOBJ *the_obj = vec_wnd[ e ]->get_object( obj_name );
-				if( the_obj )
+				if( the_obj ) {
+					LeaveCS();
 					return the_obj;
+					}
 				}
 		else {
 			WND *the_wnd = get_wnd( key );
 
-			if( the_wnd )
-				return the_wnd->get_object( obj_name );
+			if( the_wnd ) {
+				GUIOBJ *the_obj = the_wnd->get_object( obj_name );
+				LeaveCS();
+				return the_obj;
+				}
 			}
 		}
+	LeaveCS();
 	return NULL;
 }
 
 WND	*AREA::get_wnd( const String &message )			// Return the specified window
 {
+	EnterCS();
 	String lmsg = Lowercase( message );
-	if( lmsg == cached_key && cached_wnd )
-		return cached_wnd;
+	if( lmsg == cached_key && cached_wnd ) {
+		WND *the_wnd = cached_wnd;
+		LeaveCS();
+		return the_wnd;
+		}
 
 	sint16 e = wnd_hashtable.Find( lmsg ) - 1;
 	if( e >= 0 ) {
 		cached_key = lmsg;
 		cached_wnd = vec_wnd[ e ];
-		return vec_wnd[ e ];
+		WND *the_wnd = vec_wnd[ e ];
+		LeaveCS();
+		return the_wnd;
 		}
+	LeaveCS();
 	return NULL;
 }
 
 void AREA::set_enable_flag( const String &message, const bool &enable )		// Set the enabled/disabled state of specified object in the specified window
 {
+	EnterCS();
 	GUIOBJ	*guiobj = get_object( message );
 	if( guiobj ) {
 		if( enable )
@@ -2906,31 +2999,39 @@ void AREA::set_enable_flag( const String &message, const bool &enable )		// Set 
 		else
 			guiobj->Flag |= FLAG_DISABLED;
 		}
+	LeaveCS();
 }
 
 void AREA::set_state( const String &message, const bool &state )			// Set the state of specified object in the specified window
 {
+	EnterCS();
 	GUIOBJ	*guiobj = get_object( message );
 	if( guiobj )
 		guiobj->Etat = state;
+	LeaveCS();
 }
 
 void AREA::set_value( const String &message, const sint32 &value )			// Set the value of specified object in the specified window
 {
+	EnterCS();
 	GUIOBJ	*guiobj = get_object( message );
 	if( guiobj )
 		guiobj->Value = value;
+	LeaveCS();
 }
 
 void AREA::set_data( const String &message, const sint32 &data )			// Set the value of specified object in the specified window
 {
+	EnterCS();
 	GUIOBJ	*guiobj = get_object( message );
 	if( guiobj )
 		guiobj->Data = data;
+	LeaveCS();
 }
 
 void AREA::set_caption( const String &message, const String &caption )		// set the caption of specified object in the specified window
 {
+	EnterCS();
 	GUIOBJ	*guiobj = get_object( message );
 	if( guiobj && guiobj->Text.size() > 0 ) {
 		if( guiobj->Flag & FLAG_CENTERED ) {
@@ -2945,6 +3046,7 @@ void AREA::set_caption( const String &message, const String &caption )		// set t
 			guiobj->x2 += length * 0.5f;
 			}
 		}
+	LeaveCS();
 }
 
 uint16 AREA::check()					// Checks events for all windows
@@ -2956,6 +3058,7 @@ uint16 AREA::check()					// Checks events for all windows
 	if( scroll )
 		while( msec_timer - scroll_timer >= 250 )
 			scroll_timer += 250;
+	EnterCS();
 	for( uint16 i = 0 ; i < vec_wnd.size() ; i++ )
 		if( !is_on_gui || ( vec_wnd[ vec_z_order[ i ] ]->get_focus && !vec_wnd[ vec_z_order[ i ] ]->hidden ) ) {
 			is_on_gui |= vec_wnd[ vec_z_order[ i ] ]->check( amx, amy, amz, amb, scroll, skin );			// Do things in the right order
@@ -2966,6 +3069,7 @@ uint16 AREA::check()					// Checks events for all windows
 				vec_z_order[ 0 ] = old;				// Get the focus
 				}
 			}
+	LeaveCS();
 
 	if( Console == NULL || !Console->activated() )
 		clear_keybuf();
@@ -2981,6 +3085,8 @@ uint16 AREA::check()					// Checks events for all windows
 
 uint16 AREA::load_window( const String &filename )
 {
+	EnterCS();
+
 	uint16 wnd_idx = vec_wnd.size();
 	vec_wnd.push_back( new WND );				// Adds a window to the vector
 	vec_z_order.push_back( wnd_idx );
@@ -2996,6 +3102,8 @@ uint16 AREA::load_window( const String &filename )
 
 	wnd_hashtable.Insert( Lowercase( vec_wnd[ wnd_idx ]->Name ), wnd_idx + 1 );		// + 1 because it returns 0 on Find failure
 
+	LeaveCS();
+
 	return wnd_idx;
 }
 
@@ -3006,11 +3114,16 @@ void AREA::draw()
 		glDisable( GL_TEXTURE_2D );
 		glBindTexture( GL_TEXTURE_2D, 0 );
 		}
+
+	EnterCS();
+
 	String help_msg = "";
 	for( sint32 i = vec_wnd.size() - 1 ; i >=0 ; i-- )			// Draws all the windows in focus reversed order so the focused window is drawn on top of the others
 		vec_wnd[ vec_z_order[ i ] ]->draw( help_msg, i == 0, true , skin );
 	if( help_msg != "" )
 		PopupMenu( mouse_x + 20, mouse_y + 20, help_msg, skin );
+
+	LeaveCS();
 }
 
 void AREA::load_tdf( const String &filename )			// Loads a TDF file telling which windows to load and which skin to use
