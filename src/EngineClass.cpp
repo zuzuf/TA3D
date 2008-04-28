@@ -1623,7 +1623,8 @@ void PLAYERS::player_control()
 		if( control[ i ] == PLAYER_CONTROL_LOCAL_AI && ai_command )
 			ai_command[ i ].monitor();
 
-	if( (units.current_tick % 3) == 0 ) {
+	if( (units.current_tick % 3) == 0 && last_ticksynced != units.current_tick ) {
+		last_ticksynced = units.current_tick;
 //		byte	*sync_data = new byte[ 35 * units.max_unit ];
 //		uint32	sync_pos = 0;
 
@@ -1681,6 +1682,7 @@ int PLAYERS::Run()
 	thread_is_running = true;
 
 	players_thread_sync = 0;
+	last_ticksynced = 9999;
 
 	while( !thread_ask_to_stop ) {
 		players.player_control();

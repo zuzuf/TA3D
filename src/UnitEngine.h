@@ -329,9 +329,11 @@ public:
 
 	bool			command_locked;		// Used for missions
 
+		
 		// Following variables are used to control the synchronization of data between game clients
-private:
+public:
 	uint32			sync_hash;
+	uint32			last_synctick;
 
 public:
 
@@ -530,6 +532,8 @@ public:
 		if( full )
 			CreateCS();
 		EnterCS();
+		
+		last_synctick = 0;
 
 		command_locked = false;
 		

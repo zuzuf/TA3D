@@ -21,7 +21,7 @@
 #include "gui.h"
 #include "ta3dbase.h"
 
-class TA3DNetwork
+class TA3DNetwork : protected cCriticalSection
 {
 private:
 	class NetworkMessage

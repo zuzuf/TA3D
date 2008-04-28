@@ -910,6 +910,7 @@ public:
 	double		metal_total[10];
 
 	protected:
+		uint32		last_ticksynced;
 		TA3DNetwork	*ta3d_network;
 		MAP			*map;
 		bool		thread_is_running;

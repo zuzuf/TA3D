@@ -28,12 +28,14 @@ TA3DNetwork::TA3DNetwork( AREA *area, GAME_DATA *game_data ) : messages()
 	enter = false;
 	this->area = area;
 	this->game_data = game_data;
+	CreateCS();
 }
 
 TA3DNetwork::~TA3DNetwork()
 {
 	foreach( messages, i )	i->text.clear();
 	messages.clear();
+	DeleteCS();
 }
 
 void TA3DNetwork::check()
@@ -53,10 +55,12 @@ void TA3DNetwork::check()
 
 					int player_id = game_data->net2id( chat.from );
 					if( player_id >= 0 ) {
+						EnterCS();
 						if( messages.size() > 10 )		// Prevent flooding the screen with chat messages
 							messages.pop_front();
 						msg = "<" + game_data->player_names[ player_id ] + "> " + msg;
 						messages.push_back( NetworkMessage( msg, msec_timer ) );
+						LeaveCS();
 						}
 					}
 				}
@@ -132,15 +136,14 @@ void TA3DNetwork::check()
 		if( network_manager.getNextSync( &sync_msg ) )
 			break;
 
-		printf("received sync packet (%d,%d)\n", sync_msg.timestamp, sync_msg.unit);
-			
 		if( abs(sync_msg.timestamp - units.current_tick) < 30 && sync_msg.unit < units.max_unit ) {
 			units.unit[sync_msg.unit].Lock();
-			if( !(units.unit[sync_msg.unit].flags & 1) ) {
+			if( !(units.unit[sync_msg.unit].flags & 1) || units.unit[sync_msg.unit].last_synctick >= sync_msg.timestamp )	{
 				units.unit[sync_msg.unit].UnLock();
 				continue;
 				}
-			
+
+			units.unit[sync_msg.unit].last_synctick = sync_msg.timestamp;			
 			units.unit[sync_msg.unit].Pos.x = sync_msg.x / 65536.0f - the_map->map_w_d;
 			units.unit[sync_msg.unit].Pos.y = sync_msg.y / 65536.0f;
 			units.unit[sync_msg.unit].Pos.z = sync_msg.z / 65536.0f - the_map->map_h_d;
@@ -155,8 +158,6 @@ void TA3DNetwork::check()
 			units.unit[sync_msg.unit].Angle.y = sync_msg.orientation * 360.0f / 65536.0f;
 
 			units.unit[sync_msg.unit].UnLock();
-			
-			units.unit[sync_msg.unit].draw_on_map();
 			}
 		}
 
@@ -173,6 +174,7 @@ void TA3DNetwork::draw()
 {
 	if( !network_manager.isConnected() )	return;		// Only works in network mode
 	
+	EnterCS();
 	if( !messages.empty() ) {
 		float Y = SCREEN_H * 0.5f;
 		foreach( messages, i ) {
@@ -185,4 +187,5 @@ void TA3DNetwork::draw()
 			Y += gfx->TA_font.height();
 			}
 		}
+	LeaveCS();
 }
