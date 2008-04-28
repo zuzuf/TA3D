@@ -2874,13 +2874,13 @@ do
 	if(unit_info>0.0f && unit_info_id>=0)
 		unit_manager.unit_type[unit_info_id].show_info(unit_info,gfx->TA_font);
 
-	if(selected && cur_sel!=-1 && show_mission_info ) {					// Sur les unités sélectionnées
+	if(last_on != -1 && show_mission_info ) {					// Sur les unités sélectionnées
 		const char *unit_info[]={"MISSION_STANDBY","MISSION_VTOL_STANDBY","MISSION_GUARD_NOMOVE","MISSION_MOVE","MISSION_BUILD","MISSION_BUILD_2","MISSION_STOP","MISSION_REPAIR","MISSION_ATTACK",
 							"MISSION_PATROL","MISSION_GUARD","MISSION_RECLAIM","MISSION_LOAD","MISSION_UNLOAD","MISSION_STANDBY_MINE"};
 		float y = 32.0f;
 		for( i = 0; i < units.max_unit ; i++ ) {
 			units.unit[ i ].Lock();
-			if( (units.unit[i].flags & 1) && units.unit[i].owner_id==0 && units.unit[i].sel) {
+			if( (units.unit[i].flags & 1) && last_on == i) {
 				if(units.unit[i].mission!=NULL && units.unit[i].mission->mission<=0x0E) {
 					gfx->print(gfx->normal_font,128.0f,y,0.0f,0xFFFFFFFF,format("MISSION: %s",unit_info[units.unit[i].mission->mission]));
 					String flags = "";
