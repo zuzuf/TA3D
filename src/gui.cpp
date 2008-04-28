@@ -1410,6 +1410,8 @@ void WND::load_tdf( const String &filename, SKIN *skin )			// Load a window from
 	if( y < 0 ) y+=SCREEN_H;
 	width = wndFile->PullAsInt( "window.width" );
 	height = wndFile->PullAsInt( "window.height" );
+	if( width < 0 )		width += SCREEN_W;
+	if( height < 0 )	height += SCREEN_H;
 	repeat_bkg = wndFile->PullAsBool( "window.repeat background", false );
 	get_focus = wndFile->PullAsBool( "window.get focus", false );
 
@@ -1466,10 +1468,14 @@ void WND::load_tdf( const String &filename, SKIN *skin )			// Load a window from
 		uint32 obj_flags = 0;
 		uint32 obj_negative_flags = 0;
 
-		if( X1<0 )	X1+=SCREEN_W;
-		if( X2<0 )	X2+=SCREEN_W;
-		if( Y1<0 )	Y1+=SCREEN_H;
-		if( Y2<0 )	Y2+=SCREEN_H;
+		if( X1<0 )	X1+=width;
+		if( X2<0 )	X2+=width;
+		if( Y1<0 )	Y1+=height;
+		if( Y2<0 )	Y2+=height;
+//		if( X1<0 )	X1+=SCREEN_W;
+//		if( X2<0 )	X2+=SCREEN_W;
+//		if( Y1<0 )	Y1+=SCREEN_H;
+//		if( Y2<0 )	Y2+=SCREEN_H;
 
 		if( wndFile->PullAsBool( obj_key + "can be clicked" ) )	obj_flags |= FLAG_CAN_BE_CLICKED;
 		if( wndFile->PullAsBool( obj_key + "can get focus" ) )	obj_flags |= FLAG_CAN_GET_FOCUS;
@@ -2791,6 +2797,12 @@ bool AREA::get_state( const String &message )			// Return the state of specified
 			if( the_wnd )
 				return the_wnd->get_state( obj_name );
 			}
+		}
+	else {
+		WND *the_wnd = get_wnd( message );
+
+		if( the_wnd )
+			return the_wnd->get_state( "" );
 		}
 	return false;
 }

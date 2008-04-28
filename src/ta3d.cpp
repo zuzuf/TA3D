@@ -28,6 +28,7 @@
 #include "ta3d.h"			// Some core include
 #include "menu.h"			// Game menus
 #include "restore.h"		// Save/Load mecanisms
+#include "TA3D_Network.h"	// Network functionnalities such as chat
 
 #ifndef SCROLL_SPEED
 	#define SCROLL_SPEED		400.0f
@@ -487,6 +488,10 @@ players.Start();
 
 /*------------------------- end of players management ----------------------*/
 
+/*---------------------------- network management --------------------------*/
+
+TA3DNetwork	ta3d_network( &game_area, game_data );
+
 if( network_manager.isConnected() )
 	game_area.msg("esc_menu.b_save.disable");
 
@@ -494,6 +499,10 @@ wait_room( game_data );
 
 do
 {
+	/*---------------------- handle Network events ------------------------------*/
+
+	ta3d_network.check();
+
 	/*------------------------ handle GUI events -------------------------------*/
 
 	bool IsOnGUI = false;
@@ -649,7 +658,7 @@ do
 
 /*------------bloc regroupant ce qui est relatif aux commandes----------------*/
 
-	if( players.local_human_id >= 0 && !Console->activated() ) {
+	if( players.local_human_id >= 0 && !Console->activated() && !game_area.get_state("chat") ) {
 		if( key[ KEY_SPACE ] ) {				// Show gamestatus window
 			if( show_gamestatus == 0.0f ) {
 				I_Msg( TA3D::TA3D_IM_GUI_MSG, (void*)"gamestatus.show", NULL, NULL );	// Show it
@@ -2184,7 +2193,7 @@ do
 		lp_CONFIG->pause = false;
 		}
 
-	if(key[KEY_TILDE]) {
+	if(key[KEY_TILDE] && !game_area.get_state("chat")) {
 		if(!tilde)
 			Console->ToggleShow();
 		tilde=true;
@@ -2908,6 +2917,8 @@ do
 			}
 		show_timefactor -= dt;
 		}
+
+	ta3d_network.draw();				// Draw network related stuffs (ie: chat messages, ...)
 
 	char *cmd=NULL;
 	if(!shoot || video_shoot)

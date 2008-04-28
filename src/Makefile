@@ -74,8 +74,9 @@ am_ta3d_OBJECTS = ta3d.$(OBJEXT) main.$(OBJEXT) install.$(OBJEXT) \
 	particles.$(OBJEXT) lzw.$(OBJEXT) tdf.$(OBJEXT) tnt.$(OBJEXT) \
 	weapons.$(OBJEXT) script.$(OBJEXT) ai.$(OBJEXT) \
 	taconfig.$(OBJEXT) icon.$(OBJEXT) stdafx.$(OBJEXT) \
-	TA3D_Audio.$(OBJEXT) TA3D_Exception.$(OBJEXT) \
-	TA3D_hpi.$(OBJEXT) TA3D_NameSpace.$(OBJEXT) cThread.$(OBJEXT) \
+	TA3D_Network.$(OBJEXT) TA3D_Audio.$(OBJEXT) \
+	TA3D_Exception.$(OBJEXT) TA3D_hpi.$(OBJEXT) \
+	TA3D_NameSpace.$(OBJEXT) cThread.$(OBJEXT) \
 	cCriticalSection.$(OBJEXT) cInterface.$(OBJEXT) \
 	cLogger.$(OBJEXT) cError.$(OBJEXT) decode.$(OBJEXT) \
 	encode.$(OBJEXT) io.$(OBJEXT) ta3d_jpg.$(OBJEXT) \
@@ -222,6 +223,7 @@ ta3d_SOURCES = \
 	taconfig.cpp taconfig.h \
 	icon.cpp \
 	stdafx.cpp stdafx.h \
+	TA3D_Network.cpp TA3D_Network.h \
 	TA3D_Audio.cpp TA3D_Audio.h \
 	TA3D_Exception.cpp TA3D_Exception.h \
 	hash_table.h \
@@ -380,6 +382,7 @@ include ./$(DEPDIR)/SocketClass.Po
 include ./$(DEPDIR)/TA3D_Audio.Po
 include ./$(DEPDIR)/TA3D_Exception.Po
 include ./$(DEPDIR)/TA3D_NameSpace.Po
+include ./$(DEPDIR)/TA3D_Network.Po
 include ./$(DEPDIR)/TA3D_hpi.Po
 include ./$(DEPDIR)/UnitEngine.Po
 include ./$(DEPDIR)/ai.Po

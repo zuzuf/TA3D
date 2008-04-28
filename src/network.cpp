@@ -1050,6 +1050,7 @@ int Network::sendSpecialUDP( String msg, int src_id, int dst_id)
 }
 
 int Network::sendSpecialUDP(struct chat* chat, int src_id, int dst_id){
+	chat->from = myID;
 	if( myMode == 1 ) {				// Server mode
 		if( chat == NULL )	return -1;
 		int v = 0;
@@ -1080,6 +1081,7 @@ int Network::sendSpecial( String msg, int src_id, int dst_id)
 }
 
 int Network::sendSpecial(struct chat* chat, int src_id, int dst_id, bool all){
+	chat->from = myID;
 	if( myMode == 1 ) {				// Server mode
 		if( chat == NULL )	return -1;
 		int v = 0;
@@ -1098,6 +1100,7 @@ int Network::sendSpecial(struct chat* chat, int src_id, int dst_id, bool all){
 }
 
 int Network::sendChat(struct chat* chat, int src_id){
+	chat->from = myID;
 	if( myMode == 1 ) {				// Server mode
 		if( chat == NULL )	return -1;
 		int v = 0;

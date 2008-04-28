@@ -1826,7 +1826,7 @@ void setup_game(bool client, const char *host)
 
 			game_data.nb_players = 0;
 			for(uint16 i = 0 ; i<10 ; i++)		// Move players to the top of the vector, so it's easier to access data
-				if( game_data.player_control[i] != PLAYER_CONTROL_NONE ) {
+				if( game_data.player_control[i] != PLAYER_CONTROL_NONE && game_data.player_control[i] != PLAYER_CONTROL_CLOSED ) {
 					game_data.player_control[game_data.nb_players] = game_data.player_control[i];
 					game_data.player_names[game_data.nb_players] = game_data.player_names[i];
 					game_data.player_sides[game_data.nb_players] = game_data.player_sides[i];
@@ -2511,6 +2511,19 @@ void wait_room(void *p_game_data)
 	int amb = -1;
 	
 	network_manager.sendAll("READY");
+
+	if( network_manager.isServer() ) {			// If server is late the game should begin once he is there
+		bool ready = true;
+		for( int i = 0 ; i < game_data->nb_players && ready ; i++ )
+			if( !wait_area.get_state( format( "wait.ready%d", i ) ) )
+				ready = false;
+			
+		if( ready ) {
+			network_manager.sendAll( "START" );			// Tell everyone to start the game!!
+			rest(1);
+			done = true;
+			}
+		}
 	
 	do
 	{

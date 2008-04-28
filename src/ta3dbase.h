@@ -15,6 +15,9 @@
     along with this program; if not, write to the Free Software
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA*/
 
+#ifndef __TA3D__BASE__H
+#define __TA3D__BASE__H
+
 #include "TA3D_Exception.h"
 #include "glfunc.h"
 #include "matrix.h"				// Some math routines
@@ -496,6 +499,14 @@ public:
 			}
 	}
 
+	inline int net2id( int id )
+	{
+		for( int i = 0 ; i < nb_players ; i++ )
+			if( player_network_id[ i ] == id )
+				return i;
+		return -1;
+	}
+
 	inline ~GAME_DATA()
 	{
 		if(use_only)		free(use_only);
@@ -532,3 +543,5 @@ GLuint LoadTex(const char *file);
 GLuint LoadMaskedTex(const char *file,const char *filealpha);
 BITMAP *LoadMaskedTexBmp(const char *file,const char *filealpha);
 int play(GAME_DATA *game_data);
+
+#endif

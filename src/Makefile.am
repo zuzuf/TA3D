@@ -30,6 +30,7 @@ ta3d_SOURCES= \
 	taconfig.cpp taconfig.h \
 	icon.cpp \
 	stdafx.cpp stdafx.h \
+	TA3D_Network.cpp TA3D_Network.h \
 	TA3D_Audio.cpp TA3D_Audio.h \
 	TA3D_Exception.cpp TA3D_Exception.h \
 	hash_table.h \
