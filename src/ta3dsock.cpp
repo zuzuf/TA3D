@@ -248,6 +248,14 @@ int TA3DSock::sendSync(struct sync* sync){
 	return 0;
 }
 
+int TA3DSock::sendPing(){
+	tcpmutex.Lock();
+	loadByte('P');
+	loadByte(0);
+	sendTCP();
+	tcpmutex.Unlock();
+}
+
 int TA3DSock::sendEvent(struct event* event){
 	tcpmutex.Lock();
 	loadByte('E');
@@ -288,6 +296,20 @@ int TA3DSock::makeChat(struct chat* chat){
 	chat->from = ((uint16*)(tcpinbuf+1))[0];
 	memcpy(chat->message,tcpinbuf+3,253);
 	(chat->message)[252] = '\0';
+	tibp = 0;
+	tiremain = -1;
+
+	return 0;
+}
+
+int TA3DSock::makePing(){
+	if(tcpinbuf[0] != 'P'){
+		Console->AddEntry("makePing error: the data doesn't start with a 'P'");
+		return -1;
+	}
+	if(tiremain == -1){
+		return -1;
+	}
 	tibp = 0;
 	tiremain = -1;
 

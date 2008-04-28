@@ -1193,6 +1193,9 @@ void setup_game(bool client, const char *host)
 	if( !host )
 		for( int i = 0 ; i < 10 ; i++ )
 			setupgame_area.msg(format("gamesetup.ready%d.hide",i));
+	uint32 player_timer[10];
+	for( int i = 0 ; i < 10 ; i++ )
+		player_timer[i] = msec_timer;
 
 	bool done=false;
 
@@ -1258,8 +1261,12 @@ void setup_game(bool client, const char *host)
 //-------------------------------------------------------------- Network Code : syncing information --------------------------------------------------------------
 
 		if( host && !client && msec_timer - ping_timer >= 2000 ) {		// Send a ping request
-			network_manager.sendSpecial("PING");
+			network_manager.sendPing();
 			ping_timer = msec_timer;
+			
+			for( int i = 0 ; i < 10 ; i++ )					// ping time out
+				if( game_data.player_network_id[i] > 0 && msec_timer - player_timer[ game_data.player_network_id[i] ] > 10000 )
+					network_manager.dropPlayer( game_data.player_network_id[i] );
 			}
 
 		if( network_manager.getFileTransferProgress() != 100.0f ) {
@@ -1302,8 +1309,11 @@ void setup_game(bool client, const char *host)
 			int from = received_special_msg.from;
 			Vector< String > params = ReadVectorString( received_special_msg.message, " " );
 			if( params.size() == 1 ) {
-				if( params[0] == "PING" )
-					network_manager.sendSpecial("PONG", -1, from);
+				if( params[0] == "PONG" ) {
+					int player_id = game_data.net2id( from );
+					if( player_id >= 0 )
+						player_timer[ player_id ] = msec_timer;
+					}
 				}
 			else if( params.size() == 2 ) {
 				if( params[0] == "REQUEST" ) {
@@ -2489,13 +2499,19 @@ void wait_room(void *p_game_data)
 	wait_area.load_tdf("gui/wait.area");
 	if( !wait_area.background )	wait_area.background = gfx->glfond;
 
+	bool dead_player[10];
+	uint32 player_timer[10];
+
 	for( int i = game_data->nb_players ; i < 10 ; i++ ) {
+		dead_player[i] = true;
 		wait_area.msg(format("wait.name%d.hide",i));
 		wait_area.msg(format("wait.progress%d.hide",i));
 		wait_area.msg(format("wait.ready%d.hide",i));
 		}
 
 	for( int i = 0 ; i < game_data->nb_players ; i++ ) {
+		player_timer[i] = msec_timer;
+		dead_player[i] = false;
 		if( (game_data->player_control[i] & PLAYER_CONTROL_FLAG_AI) || game_data->player_control[i] == PLAYER_CONTROL_LOCAL_HUMAN ) {
 			wait_area.set_data( format("wait.progress%d", i), 100 );
 			wait_area.set_state( format("wait.ready%d", i), true );
@@ -2511,19 +2527,6 @@ void wait_room(void *p_game_data)
 	int amb = -1;
 	
 	network_manager.sendAll("READY");
-
-	if( network_manager.isServer() ) {			// If server is late the game should begin once he is there
-		bool ready = true;
-		for( int i = 0 ; i < game_data->nb_players && ready ; i++ )
-			if( !wait_area.get_state( format( "wait.ready%d", i ) ) )
-				ready = false;
-			
-		if( ready ) {
-			network_manager.sendAll( "START" );			// Tell everyone to start the game!!
-			rest(1);
-			done = true;
-			}
-		}
 	
 	do
 	{
@@ -2549,14 +2552,23 @@ void wait_room(void *p_game_data)
 
 //-------------------------------------------------------------- Network Code : syncing information --------------------------------------------------------------
 
+		bool check_ready = false;
+
 		if( network_manager.isServer() && msec_timer - ping_timer >= 2000 ) {		// Send a ping request
-			network_manager.sendSpecial("PING");
+			network_manager.sendPing();
 			ping_timer = msec_timer;
+			check_ready = true;
+
+			if( network_manager.isServer() )
+				for( int i = 0 ; i < game_data->nb_players ; i++ )			// Ping time out
+					if( game_data->player_network_id[i] > 0 && msec_timer - player_timer[i] > 10000 )
+						network_manager.dropPlayer( game_data->player_network_id[i] );
 			}
 
 		if( playerDropped ) {
 			for( int i = 0 ; i < game_data->nb_players ; i++ )
 				if( game_data->player_network_id[i] > 0 && !network_manager.pollPlayer(game_data->player_network_id[i]) ) {		// A player is disconnected
+					dead_player[i] = true;
 					wait_area.msg(format("wait.name%d.hide",i));
 					wait_area.msg(format("wait.progress%d.hide",i));
 					wait_area.msg(format("wait.ready%d.hide",i));
@@ -2573,24 +2585,14 @@ void wait_room(void *p_game_data)
 					}
 			Vector< String > params = ReadVectorString( received_special_msg.message, " " );
 			if( params.size() == 1 ) {
-				if( params[0] == "PING" )
-					network_manager.sendSpecial("PONG", -1, from);
+				if( params[0] == "PONG" ) {
+					if( player_id >= 0 )
+						player_timer[player_id] = msec_timer;
+					}
 				else if( params[0] == "READY" ) {
 					wait_area.set_data( format( "wait.progress%d", player_id ), 100 );
 					wait_area.set_state( format( "wait.ready%d", player_id ), true );
-
-					if( network_manager.isServer() ) {
-						bool ready = true;
-						for( int i = 0 ; i < game_data->nb_players && ready ; i++ )
-							if( !wait_area.get_state( format( "wait.ready%d", i ) ) )
-								ready = false;
-							
-						if( ready ) {
-							network_manager.sendAll( "START" );			// Tell everyone to start the game!!
-							rest(1);
-							done = true;
-							}
-						}
+					check_ready = true;
 					}
 				else if( params[0] == "START" )
 					done = true;
@@ -2606,6 +2608,19 @@ void wait_room(void *p_game_data)
 				special_msg = received_special_msg.message;
 			else
 				special_msg = "";
+			}
+
+		if( network_manager.isServer() && check_ready ) {			// If server is late the game should begin once he is there
+			bool ready = true;
+			for( int i = 0 ; i < game_data->nb_players && ready ; i++ )
+				if( !wait_area.get_state( format( "wait.ready%d", i ) ) && !dead_player[i] )
+					ready = false;
+			
+			if( ready ) {
+				network_manager.sendAll( "START" );			// Tell everyone to start the game!!
+				rest(1);
+				done = true;
+				}
 			}
 
 //-------------------------------------------------------------- End of Network Code --------------------------------------------------------------

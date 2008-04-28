@@ -163,6 +163,7 @@ class TA3DSock{
 
 		//these are for outgoing packets
 		int sendSpecial(struct chat* chat, bool all=false);
+		int sendPing();
 		int sendChat(struct chat* chat);
 		int sendOrder(struct order* order);
 		int sendSync(struct sync* sync);
@@ -175,6 +176,7 @@ class TA3DSock{
 		int makeOrder(struct order* order);
 		int makeSync(struct sync* sync);
 		int makeEvent(struct event* event);
+		int makePing();
 
 		int getFilePort();				// For file transfer, first call this one to get the port which allows us to grab the right thread and buffer
 		int getFileData(byte *buffer);	// Fill the buffer with the data and returns the size of the paquet

@@ -163,6 +163,10 @@ void SocketThread::proc(void* param){
 		packtype = sock->getPacket();
 
 		switch(packtype){
+			case 'P':		// ping
+				if( sockid != -1 )
+					network->sendSpecial("PONG", sockid);
+				break;
 			case 'A'://special (resend to all!!)
 			case 'X'://special
 				network->xqmutex.Lock();
@@ -1042,7 +1046,6 @@ int Network::getMyID()
 	return -1;					// Not connected
 }
 
-
 int Network::sendSpecialUDP( String msg, int src_id, int dst_id)
 {
 	struct chat chat;
@@ -1095,6 +1098,24 @@ int Network::sendSpecial(struct chat* chat, int src_id, int dst_id, bool all){
 	else if( myMode == 2 && src_id == -1 ) {			// Client mode
 		if( tohost_socket == NULL || !tohost_socket->isOpen() || chat == NULL )	return -1;
 		return tohost_socket->sendSpecial( chat, all );
+		}
+	return -1;						// Not connected, it shouldn't be possible to get here if we're not connected ...
+}
+
+int Network::sendPing( int src_id, int dst_id )
+{
+	if( myMode == 1 ) {				// Server mode
+		int v = 0;
+		for( int i = 1 ; i <= players.getMaxId() ; i++ )  {
+			TA3DSock *sock = players.getSock( i );
+			if( sock && i != src_id )
+				v += sock->sendPing();
+			}
+		return v;
+		}
+	else if( myMode == 2 && src_id == -1 ) {			// Client mode
+		if( tohost_socket == NULL || !tohost_socket->isOpen() )	return -1;
+		return tohost_socket->sendPing();
 		}
 	return -1;						// Not connected, it shouldn't be possible to get here if we're not connected ...
 }
