@@ -163,6 +163,7 @@ void SocketThread::proc(void* param){
 		packtype = sock->getPacket();
 
 		switch(packtype){
+			case 'A'://special (resend to all!!)
 			case 'X'://special
 				network->xqmutex.Lock();
 					if(dead){
@@ -176,6 +177,8 @@ void SocketThread::proc(void* param){
 					chat.from = sockid;
 					network->specialq.enqueue(&chat);
 				network->xqmutex.Unlock();
+				if( packtype == 'A' && network->isServer() )
+					network->sendSpecial( &chat, sockid );
 				break;
 			case 'C'://chat
 				network->cqmutex.Lock();
@@ -775,6 +778,8 @@ int Network::Connect(const char* target,const char* port){
 
 	Console->AddEntry("Network: successfully connected to game at [%s]:%s",target,port);
 
+	getMyID();
+
 	return 0;
 }
 
@@ -1062,13 +1067,19 @@ int Network::sendSpecialUDP(struct chat* chat, int src_id, int dst_id){
 	return -1;						// Not connected, it shouldn't be possible to get here if we're not connected ...
 }
 
+int Network::sendAll( std::string msg )
+{
+	struct chat chat;
+	return sendSpecial( strtochat( &chat, msg ), -1, -1, true );
+}
+
 int Network::sendSpecial( String msg, int src_id, int dst_id)
 {
 	struct chat chat;
 	return sendSpecial( strtochat( &chat, msg ), src_id, dst_id );
 }
 
-int Network::sendSpecial(struct chat* chat, int src_id, int dst_id){
+int Network::sendSpecial(struct chat* chat, int src_id, int dst_id, bool all){
 	if( myMode == 1 ) {				// Server mode
 		if( chat == NULL )	return -1;
 		int v = 0;
@@ -1081,7 +1092,7 @@ int Network::sendSpecial(struct chat* chat, int src_id, int dst_id){
 		}
 	else if( myMode == 2 && src_id == -1 ) {			// Client mode
 		if( tohost_socket == NULL || !tohost_socket->isOpen() || chat == NULL )	return -1;
-		return tohost_socket->sendSpecial( chat );
+		return tohost_socket->sendSpecial( chat, all );
 		}
 	return -1;						// Not connected, it shouldn't be possible to get here if we're not connected ...
 }

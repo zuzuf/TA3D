@@ -195,9 +195,12 @@ int TA3DSock::takeFive(int time){
 }
 
 
-int TA3DSock::sendSpecial(struct chat* chat){
+int TA3DSock::sendSpecial(struct chat* chat, bool all){
 	tcpmutex.Lock();
-	loadByte('X');
+	if( all )
+		loadByte('A');
+	else
+		loadByte('X');
 	loadShort(chat->from);
 	loadString(chat->message);
 	sendTCP();
@@ -258,8 +261,8 @@ int TA3DSock::sendEvent(struct event* event){
 
 
 int TA3DSock::makeSpecial(struct chat* chat){
-	if(tcpinbuf[0] != 'X'){
-		Console->AddEntry("makeSpecial error: the data doesn't start with a 'X'");
+	if(tcpinbuf[0] != 'X' && tcpinbuf[0] != 'A'){
+		Console->AddEntry("makeSpecial error: the data doesn't start with a 'X' or a 'A'");
 		return -1;
 	}
 	if(tiremain == -1){

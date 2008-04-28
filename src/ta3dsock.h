@@ -162,7 +162,7 @@ class TA3DSock{
 		int isOpen();
 
 		//these are for outgoing packets
-		int sendSpecial(struct chat* chat);
+		int sendSpecial(struct chat* chat, bool all=false);
 		int sendChat(struct chat* chat);
 		int sendOrder(struct order* order);
 		int sendSync(struct sync* sync);

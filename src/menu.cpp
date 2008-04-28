@@ -2468,3 +2468,132 @@ int brief_screen( String campaign_name, int mission_id )
 		}
 	return -1;
 }
+
+void wait_room(void *p_game_data)
+{
+	GAME_DATA *game_data = (GAME_DATA*) p_game_data;
+	if( !network_manager.isConnected() )	return;
+
+	gfx->set_2D_mode();
+
+	gfx->ReInitTexSys();
+
+	cursor_type=CURSOR_DEFAULT;
+
+	AREA wait_area("wait");
+	wait_area.load_tdf("gui/wait.area");
+	if( !wait_area.background )	wait_area.background = gfx->glfond;
+
+	for( int i = game_data->nb_players ; i < 10 ; i++ ) {
+		wait_area.msg(format("wait.name%d.hide",i));
+		wait_area.msg(format("wait.progress%d.hide",i));
+		wait_area.msg(format("wait.ready%d.hide",i));
+		}
+
+	for( int i = 0 ; i < game_data->nb_players ; i++ )
+		if( game_data->player_control[i] & PLAYER_CONTROL_FLAG_AI ) {
+			wait_area.set_value( format("wait.progress%d", i), 100 );
+			wait_area.set_value( format("wait.ready%d", i), 1 );
+			}
+
+	bool done=false;
+
+	int amx = -1;
+	int amy = -1;
+	int amz = -1;
+	int amb = -1;
+	
+	network_manager.sendAll("READY");
+	
+	do
+	{
+		bool key_is_pressed = false;
+		String special_msg = "";
+		struct chat received_special_msg;
+		bool playerDropped = false;
+		int ping_timer = msec_timer;					// Used to send simple PING requests in order to detect when a connection fails
+		do {
+			playerDropped = network_manager.getPlayerDropped();
+			if( network_manager.getNextSpecial( &received_special_msg ) == 0 )
+				special_msg = received_special_msg.message;
+			if( !network_manager.isConnected() ) {					// We're disconnected !!
+				done = true;
+				break;
+				}
+			key_is_pressed = keypressed();
+			wait_area.check();
+			rest( 1 );
+		} while( amx == mouse_x && amy == mouse_y && amz == mouse_z && amb == mouse_b && mouse_b == 0 && !key[ KEY_ENTER ] && !key[ KEY_ESC ] && !done
+			&& !key_is_pressed && !wait_area.scrolling && special_msg.empty() && !playerDropped
+			&& ( msec_timer - ping_timer < 2000 || !network_manager.isServer() ) );
+
+//-------------------------------------------------------------- Network Code : syncing information --------------------------------------------------------------
+
+		if( network_manager.isServer() && msec_timer - ping_timer >= 2000 ) {		// Send a ping request
+			network_manager.sendSpecial("PING");
+			ping_timer = msec_timer;
+			}
+
+		if( playerDropped ) {
+			}
+
+		while( !special_msg.empty() ) {													// Special receiver (sync config data)
+			int from = received_special_msg.from;
+			int player_id = 0;
+			for( int i = 0 ; i < game_data->nb_players ; i++ )
+				if( game_data->player_network_id[i] == from ) {
+					player_id = 0;
+					break;
+					}
+			Vector< String > params = ReadVectorString( received_special_msg.message, " " );
+			if( params.size() == 1 ) {
+				if( params[0] == "PING" )
+					network_manager.sendSpecial("PONG", -1, from);
+				else if( params[0] == "READY" ) {
+					wait_area.set_value( format( "wait.progress%d", player_id ), 100 );
+					wait_area.set_value( format( "wait.ready%d", player_id ), 1 );
+					}
+				else if( params[0] == "START" )
+					done = true;
+				}
+			else if( params.size() == 2 ) {
+				if( params[0] == "LOADING" ) {
+					int percent = min( 100, max( 0, atoi( params[1].c_str() ) ) );
+					wait_area.set_value( format( "wait.progress%d", player_id ), percent );
+					}
+				}
+
+			if( network_manager.getNextSpecial( &received_special_msg ) == 0 )
+				special_msg = received_special_msg.message;
+			else
+				special_msg = "";
+			}
+
+//-------------------------------------------------------------- End of Network Code --------------------------------------------------------------
+
+		amx = mouse_x;
+		amy = mouse_y;
+		amz = mouse_z;
+		amb = mouse_b;
+
+		if(key[KEY_ESC]) done=true;			// Quitte si on appuie sur echap
+
+		wait_area.draw();
+
+		glEnable(GL_TEXTURE_2D);
+		gfx->set_color(0xFFFFFFFF);
+		draw_cursor();
+		
+					// Affiche
+		gfx->flip();
+	}while(!done);
+
+	if( wait_area.background == gfx->glfond )	wait_area.background = 0;
+	wait_area.destroy();
+
+	gfx->unset_2D_mode();
+
+	reset_mouse();
+	while(key[KEY_ESC]) {	rest(1);	poll_keyboard();	}
+}
+

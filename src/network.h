@@ -260,8 +260,9 @@ class Network{
 		int sendSpecialUDP( std::string msg, int src_id = -1, int dst_id = -1);
 		int sendSpecialUDP(struct chat* chat, int src_id = -1, int dst_id = -1);
 
+		int sendAll( std::string msg );
 		int sendSpecial( std::string msg, int src_id = -1, int dst_id = -1);
-		int sendSpecial(struct chat* chat, int src_id = -1, int dst_id = -1);
+		int sendSpecial(struct chat* chat, int src_id = -1, int dst_id = -1, bool all = false);
 		int sendChat(struct chat* chat, int src_id = -1);
 		int sendOrder(struct order* order, int src_id = -1);
 		int sendSync(struct sync* sync, int src_id = -1);

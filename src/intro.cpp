@@ -188,6 +188,9 @@ List< String >	messages;
 
 void loading(float percent,const String &msg)
 {
+	if( network_manager.isConnected() )
+		network_manager.sendAll(format("LOADING %d", (int)percent));
+
 	set_uformat(U_UTF8);
 
 	bool init=(Glfond==0);

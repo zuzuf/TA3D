@@ -423,6 +423,8 @@ uint32 GUIOBJ::msg( const String &message, WND *wnd )		// Reacts to a message tr
 	else if( Lowercase( message ) == "unswitch" )			{	Flag &= ~FLAG_SWITCH;			result = INTERFACE_RESULT_HANDLED;	}
 	else if( Lowercase( message ) == "fill" )				{	Flag |= FLAG_FILL;				result = INTERFACE_RESULT_HANDLED;	}
 	else if( Lowercase( message ) == "unfill" )				{	Flag &= ~FLAG_FILL;				result = INTERFACE_RESULT_HANDLED;	}
+	else if( Lowercase( message ) == "enable" )				{	Flag &= ~FLAG_DISABLED;			result = INTERFACE_RESULT_HANDLED;	}
+	else if( Lowercase( message ) == "disable" )			{	Flag |= FLAG_DISABLED;			result = INTERFACE_RESULT_HANDLED;	}
 	else if( Lowercase( message ) == "highlight" )			{	Flag |= FLAG_HIGHLIGHT;			result = INTERFACE_RESULT_HANDLED;	}
 	else if( Lowercase( message ) == "unhighlight" )		{	Flag &= ~FLAG_HIGHLIGHT;		result = INTERFACE_RESULT_HANDLED;	}
 	else if( Lowercase( message ) == "can_get_focus" )		{	Flag |= FLAG_CAN_GET_FOCUS;		result = INTERFACE_RESULT_HANDLED;	}
@@ -634,6 +636,15 @@ void WND::draw( String &help_msg, bool Focus, bool Deg, SKIN *skin )
 						button( x+Objets[i].x1, y+Objets[i].y1, x+Objets[i].x2, y+Objets[i].y2, Objets[i].Text[0], Objets[i].activated || Objets[i].Etat, Objets[i].s, skin );
 					break;
 				};
+				if( Objets[i].Type != OBJ_TA_BUTTON && (Objets[i].Flag & FLAG_DISABLED) ) {		// Make it darker when disabled
+					glEnable(GL_BLEND);
+					glDisable(GL_TEXTURE_2D);
+					glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+					glColor4f(0.0f,0.0f,0.0f,0.5f);
+					gfx->rectfill(x+Objets[i].x1,y+Objets[i].y1,x+Objets[i].x2,y+Objets[i].y2);
+					glEnable(GL_TEXTURE_2D);
+					glDisable(GL_BLEND);
+					}
 				if( (Objets[i].Flag & FLAG_HIGHLIGHT) && Objets[i].MouseOn) {		// Highlight the object
 					glEnable(GL_BLEND);
 					glDisable(GL_TEXTURE_2D);

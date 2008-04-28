@@ -487,6 +487,11 @@ players.Start();
 
 /*------------------------- end of players management ----------------------*/
 
+if( network_manager.isConnected() )
+	game_area.msg("esc_menu.b_save.disable");
+
+wait_room( game_data );
+
 do
 {
 	/*------------------------ handle GUI events -------------------------------*/
