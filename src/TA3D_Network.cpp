@@ -132,7 +132,7 @@ void TA3DNetwork::check()
 		if( network_manager.getNextSync( &sync_msg ) )
 			break;
 			
-		if( sync_msg.timestamp <= units.current_tick && sync_msg.unit < units.max_unit ) {
+		if( abs(sync_msg.timestamp - units.current_tick) < 30 && sync_msg.unit < units.max_unit ) {
 			units.unit[sync_msg.unit].Lock();
 			if( !(units.unit[sync_msg.unit].flags & 1) ) {
 				units.unit[sync_msg.unit].UnLock();

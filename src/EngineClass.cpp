@@ -1623,7 +1623,7 @@ void PLAYERS::player_control()
 		if( control[ i ] == PLAYER_CONTROL_LOCAL_AI && ai_command )
 			ai_command[ i ].monitor();
 
-	if( (units.current_tick % 3) == 0 && false ) {
+	if( (units.current_tick % 3) == 0 ) {
 		byte	*sync_data = new byte[ 35 * units.max_unit ];
 		uint32	sync_pos = 0;
 
