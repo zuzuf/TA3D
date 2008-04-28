@@ -5860,7 +5860,7 @@ int INGAME_UNITS::Run()
 			wind_change = false;
 		LeaveCS();
 
-		if( !network_manager.isConnected() || (network_manager.isConnected() && !network_manager.isServer() && server_tick <= current_tick) )
+		if( !(network_manager.isConnected() && !network_manager.isServer() && server_tick <= current_tick) )
 			while( msec_timer - tick_timer + 1 < tick )
 				rest( 1 );
 
