@@ -83,15 +83,15 @@ struct order{
 };//max size = 22
 
 struct sync{
-	int timestamp;//uint32 what time is this snapshot
-	int unit;//uint32 sync what unit
-	float x,y;
-	float vx,vy;
-	short orientation;//uint16 where 0=0 and 65535~=2pi? ie rad=(rot1/65536.0)*2pi?
-};//max size = 26
+	uint32 timestamp;	//uint32 what tick is this snapshot
+	uint16 unit;		//uint16 sync what unit
+	uint32 x,y,z;
+	sint32 vx,vz;
+	uint16 orientation;//uint16 where 0=0 and 65535~=2pi? ie rad=(rot1/65536.0)*2pi?
+};//max size = 28
 
 struct event{
-	char type;//uint8 what type of event
+	byte type;//uint8 what type of event
 	char player1;//uint8 optional parameters
 	char player2;//uint8
 };//max size = 3

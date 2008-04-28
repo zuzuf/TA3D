@@ -337,6 +337,18 @@ void UDPThread::proc(void* param){
 					network->specialq.enqueue(&chat);
 				network->xqmutex.Unlock();
 				break;
+			case 'S'://sync
+				sock->makeSync(&sync);
+				network->sqmutex.Lock();
+					if(dead){
+						network->sqmutex.Unlock();
+						break;
+					}
+					network->syncq.enqueue(&sync);
+				network->sqmutex.Unlock();
+				if( player_id != -1 )
+					network->sendSync(&sync, player_id);
+				break;
 			case 0:
 				break;
 
@@ -825,6 +837,8 @@ void Network::Disconnect(){
 		players.Shutdown();
 	slmutex.Unlock();
 
+	cleanQueues();
+
 	myMode = 0;
 
 }
@@ -1180,7 +1194,21 @@ int Network::sendOrder(struct order* order, int src_id){
 }
 
 int Network::sendSync(struct sync* sync, int src_id){
-	return 0;
+	if( myMode == 1 ) {				// Server mode
+		if( sync == NULL )	return -1;
+		int v = 0;
+		for( int i = 1 ; i <= players.getMaxId() ; i++ )  {
+			TA3DSock *sock = players.getSock( i );
+			if( sock && i != src_id )
+				v += udp_socket.sendSync( sync, sock->getAddress() );
+			}
+		return v;
+		}
+	else if( myMode == 2 && src_id == -1 ) {			// Client mode
+		if( tohost_socket == NULL || !tohost_socket->isOpen() || sync == NULL )	return -1;
+		return udp_socket.sendSync( sync, tohost_socket->getAddress() );
+		}
+	return -1;						// Not connected, it shouldn't be possible to get here if we're not connected ...
 }
 
 int Network::sendEvent(struct event* event, int src_id){
@@ -1300,6 +1328,25 @@ String Network::getLastMessageAddress()
 			address = broadcastaddressq.front();
 	mqmutex.Unlock();
 	return address;
+}
+
+void Network::cleanQueues()
+{
+	struct chat		chat;
+	struct order	order;
+	struct sync		sync;
+	struct event	event;
+
+	while( getNextSpecial(&chat) == 0 )	{}
+	while( getNextChat(&chat) == 0 )	{}
+	while( getNextOrder(&order) == 0 )	{}
+	while( getNextSync(&sync) == 0 )	{}
+	while( getNextEvent(&event) == 0 )	{}
+
+	mqmutex.Lock();
+		broadcastq.clear();
+		broadcastaddressq.clear();
+	mqmutex.Unlock();
 }
 
 

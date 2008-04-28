@@ -462,13 +462,24 @@ if( !game_data->saved_file.empty() ) {			// We have something to load
 	done = !game_data->saved_file.empty();		// If loading the game fails, then exit
 	}
 
+sound_manager->PlayMusic();
+
+/*---------------------------- network management --------------------------*/
+
+TA3DNetwork	ta3d_network( &game_area, game_data );
+
+if( network_manager.isConnected() ) {
+	players.set_network( &ta3d_network );
+	game_area.msg("esc_menu.b_save.disable");
+	}
+
+wait_room( game_data );
+
 //-----------------------   Code related to threads   ------------------------
 
 unit_engine_thread_sync = 0;
 weapon_engine_thread_sync = 0;
 particle_engine_thread_sync = 0;
-
-sound_manager->PlayMusic();
 
 units.Start();			// Start the Unit Engine
 
@@ -488,21 +499,8 @@ players.Start();
 
 /*------------------------- end of players management ----------------------*/
 
-/*---------------------------- network management --------------------------*/
-
-TA3DNetwork	ta3d_network( &game_area, game_data );
-
-if( network_manager.isConnected() )
-	game_area.msg("esc_menu.b_save.disable");
-
-wait_room( game_data );
-
 do
 {
-	/*---------------------- handle Network events ------------------------------*/
-
-	ta3d_network.check();
-
 	/*------------------------ handle GUI events -------------------------------*/
 
 	bool IsOnGUI = false;

@@ -1639,8 +1639,21 @@ void PLAYERS::player_control()
 				units.EnterCS_from_outside();
 				continue;
 				}
-			if( !(control[ units.unit[ i ].owner_id ] & PLAYER_CONTROL_FLAG_REMOTE) )
-				sync_pos = units.unit[ i ].write_sync_data( sync_data, sync_pos );
+			if( !(control[ units.unit[ i ].owner_id ] & PLAYER_CONTROL_FLAG_REMOTE) ) {
+				struct sync sync;
+				sync.timestamp = units.current_tick;
+				sync.unit = i;
+				sync.x = (uint32)((units.unit[ i ].Pos.x + the_map->map_w_d) * 65536.0f);
+				sync.y = (uint32)(units.unit[ i ].Pos.y * 65536.0f);
+				sync.z = (uint32)((units.unit[ i ].Pos.z + the_map->map_h_d) * 65536.0f);
+				sync.vx = (int)(units.unit[ i ].V.x * 65536.0f);
+				sync.vz = (int)(units.unit[ i ].V.z * 65536.0f);
+				float angle = units.unit[ i ].Angle.y;
+				while( angle < 0.0f )	angle += 360.0f;
+				sync.orientation = (uint16)(angle * 65535.0f / 360.0f);
+				network_manager.sendSync( &sync );
+				}
+//				sync_pos = units.unit[ i ].write_sync_data( sync_data, sync_pos );
 			units.unit[ i ].UnLock();
 
 			units.EnterCS_from_outside();
@@ -1671,6 +1684,13 @@ int PLAYERS::Run()
 
 	while( !thread_ask_to_stop ) {
 		players.player_control();
+
+		/*---------------------- handle Network events ------------------------------*/
+
+		if( ta3d_network )
+			ta3d_network->check();
+
+		/*---------------------- end of Network events ------------------------------*/
 
 		ThreadSynchroniser->EnterSync();
 		ThreadSynchroniser->LeaveSync();

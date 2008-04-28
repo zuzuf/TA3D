@@ -116,14 +116,14 @@ int UDPSock::takeFive(int time){
 //byte shuffling
 void UDPSock::loadLong(uint32_t x){//uint32
 	uint32_t temp;
-	temp = x;
+	temp = nlSwapl(x);
 	memcpy(outbuf+obp,&temp,4);
 	obp += 4;
 }
 
 void UDPSock::loadShort(uint16_t x){//uint16
 	uint16_t temp;
-	temp = x;
+	temp = nlSwaps(x);
 	memcpy(outbuf+obp,&temp,2);
 	obp += 2;
 }
@@ -166,6 +166,63 @@ int UDPSock::sendSpecial(struct chat* chat, const std::string &address){
 	return 0;
 }
 
+int UDPSock::sendSync(struct sync* sync, const std::string &address){
+	udpmutex.Lock();
+
+	loadByte('S');
+	loadLong(sync->timestamp);
+	loadShort(sync->unit);
+	loadLong(sync->x);
+	loadLong(sync->y);
+	loadLong(sync->z);
+	loadLong(sync->vx);
+	loadLong(sync->vz);
+	loadShort(sync->orientation);
+	send( address );
+
+	udpmutex.Unlock();
+	return 0;
+}
+
+int UDPSock::makeSync(struct sync* sync){
+	if(udpinbuf[0] != 'S'){
+		Console->AddEntry("makeSync error: the data doesn't start with an 'S'");
+		return -1;
+	}
+	if(uiremain == -1){
+		return -1;
+	}
+	uint32 temp;
+	uint16 stemp;
+
+	memcpy(&temp,udpinbuf+1,4);
+	sync->timestamp = nlSwapl(temp);
+
+	memcpy(&stemp,udpinbuf+5,2);
+	sync->unit = nlSwaps(stemp);
+
+	memcpy(&temp,udpinbuf+7,4);
+	sync->x = nlSwapl(temp);
+
+	memcpy(&temp,udpinbuf+11,4);
+	sync->y = nlSwapl(temp);
+
+	memcpy(&temp,udpinbuf+15,4);
+	sync->z = nlSwapl(temp);
+
+	memcpy(&temp,udpinbuf+19,4);
+	sync->vx = nlSwapl(temp);
+
+	memcpy(&temp,udpinbuf+23,4);
+	sync->vz = nlSwapl(temp);
+
+	memcpy(&stemp,udpinbuf+27,2);
+	sync->orientation = nlSwaps(stemp);
+	
+	uibp = 0;
+	uiremain = -1;
+	return 0;
+}
 
 int UDPSock::makeSpecial(struct chat* chat){
 	if(udpinbuf[0] != 'X'){

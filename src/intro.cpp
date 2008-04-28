@@ -186,10 +186,14 @@ GLuint Glfond = 0;
 
 List< String >	messages;
 
+int last_percent = 0;
+
 void loading(float percent,const String &msg)
 {
-	if( network_manager.isConnected() )
-		network_manager.sendAll(format("LOADING %d", (int)percent));
+	if( network_manager.isConnected() && last_percent != (int)percent ) {
+		last_percent = (int)percent;
+		network_manager.sendAll(format("LOADING %d", last_percent));
+		}
 
 	set_uformat(U_UTF8);
 

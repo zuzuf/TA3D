@@ -1479,7 +1479,7 @@ void setup_game(bool client, const char *host)
 						game_data.player_names[i] = ReplaceChar( params[7], 1, ' ' );
 						game_data.ready[i] = ready;
 						if( n_id < 0 && ai_level >= 0 )
-							game_data.player_control[i] = PLAYER_CONTROL_LOCAL_AI;
+							game_data.player_control[i] = PLAYER_CONTROL_REMOTE_AI;		// AIs are on the server, no need to replicate them
 						else if( n_id < 0 && ai_level < 0 )
 							game_data.player_control[i] = PLAYER_CONTROL_NONE;
 						else
@@ -2636,6 +2636,10 @@ void wait_room(void *p_game_data)
 					// Affiche
 		gfx->flip();
 	}while(!done);
+
+	network_manager.cleanQueues();
+
+	lp_CONFIG->timefactor = 1.0f;		// We can't afford running a network game at more than 1x !! (at least at the beginning, and not knowing if there are internet players)
 
 	if( wait_area.background == gfx->glfond )	wait_area.background = 0;
 	wait_area.destroy();

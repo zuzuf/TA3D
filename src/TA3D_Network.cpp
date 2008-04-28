@@ -18,6 +18,8 @@
 #include "stdafx.h"
 #include "TA3D_NameSpace.h"
 #include "TA3D_Network.h"
+#include "EngineClass.h"
+#include "UnitEngine.h"
 
 #define CHAT_MESSAGE_TIMEOUT	10000
 
@@ -71,13 +73,16 @@ void TA3DNetwork::check()
 	if( area->get_state("chat") )		// Chat is visible, so give it the focus so we can type the message
 		area->msg("chat.focus");
 
-	String chat_msg;
-	struct chat received_chat_msg;
+	int n = 5;
+	while( n-- ) {													// Chat receiver
+		String chat_msg;
+		struct chat received_chat_msg;
 
-	if( network_manager.getNextChat( &received_chat_msg ) == 0 )
-		chat_msg = received_chat_msg.message;
+		if( network_manager.getNextChat( &received_chat_msg ) == 0 )
+			chat_msg = received_chat_msg.message;
+		else
+			break;
 
-	while( !chat_msg.empty() ) {													// Chat receiver
 		int player_id = game_data->net2id( received_chat_msg.from );
 		if( player_id >= 0 ) {
 			if( messages.size() > 10 )		// Prevent flooding the screen with chat messages
@@ -85,11 +90,6 @@ void TA3DNetwork::check()
 			chat_msg = "<" + game_data->player_names[ player_id ] + "> " + chat_msg;
 			messages.push_back( NetworkMessage( chat_msg, msec_timer ) );
 			}
-
-		if( network_manager.getNextChat( &received_chat_msg ) == 0 )
-			chat_msg = received_chat_msg.message;
-		else
-			chat_msg = "";
 		}
 
 	foreach_( messages, i )
@@ -97,6 +97,74 @@ void TA3DNetwork::check()
 			messages.erase( i++ );
 		else
 			i++;
+
+	n = 100;
+	while( n-- ) {													// Special message receiver
+		String special_msg;
+		special received_special_msg;
+
+		if( network_manager.getNextSpecial( &received_special_msg ) == 0 )
+			special_msg = received_special_msg.message;
+		else
+			break;
+
+		int player_id = game_data->net2id( received_special_msg.from );
+
+		Vector<String> params = ReadVectorString( special_msg, " " );
+		if( params.size() == 2 ) {
+			if( params[0] == "TICK" )
+				units.server_tick = atoi( params[1].c_str() );
+			}
+		}
+
+	n = 100;
+	while( n-- ) {													// Special order receiver
+		struct order order_msg;
+
+		if( network_manager.getNextOrder( &order_msg ) )
+			break;
+		}
+
+	n = 100;
+	while( n-- ) {													// Special sync receiver
+		struct sync sync_msg;
+
+		if( network_manager.getNextSync( &sync_msg ) )
+			break;
+			
+		if( sync_msg.timestamp <= units.current_tick && sync_msg.unit < units.max_unit ) {
+			units.unit[sync_msg.unit].Lock();
+			if( !(units.unit[sync_msg.unit].flags & 1) ) {
+				units.unit[sync_msg.unit].UnLock();
+				continue;
+				}
+			
+			units.unit[sync_msg.unit].Pos.x = sync_msg.x / 65536.0f - the_map->map_w_d;
+			units.unit[sync_msg.unit].Pos.y = sync_msg.y / 65536.0f;
+			units.unit[sync_msg.unit].Pos.z = sync_msg.z / 65536.0f - the_map->map_h_d;
+
+			units.unit[sync_msg.unit].V.x = sync_msg.vx / 65536.0f;
+			units.unit[sync_msg.unit].V.z = sync_msg.vz / 65536.0f;
+			units.unit[sync_msg.unit].V.y = 0.0f;
+
+				// Guess where the unit should be now
+			units.unit[sync_msg.unit].Pos = units.unit[sync_msg.unit].Pos + (units.current_tick - sync_msg.timestamp) * units.unit[sync_msg.unit].V;
+
+			units.unit[sync_msg.unit].Angle.y = sync_msg.orientation * 360.0f / 65536.0f;
+
+			units.unit[sync_msg.unit].UnLock();
+			
+			units.unit[sync_msg.unit].draw_on_map();
+			}
+		}
+
+	n = 100;
+	while( n-- ) {													// Special sync receiver
+		struct event event_msg;
+
+		if( network_manager.getNextEvent( &event_msg ) )
+			break;
+		}
 }
 
 void TA3DNetwork::draw()

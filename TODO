@@ -11,6 +11,11 @@ _networking code
 _improve A.I.
 _D3D support
 
+* added multiplayer entry in main menu
+* new single player menu
+* new main menu
+* new "wait for other players" screen when loading is finished (networking mode)
+* in game chat system
 * tactical icons are rendered in inverted colors for black player, otherwise you don't see icons
 * added support for saving/loading games
 * pressing ESC also pause the game

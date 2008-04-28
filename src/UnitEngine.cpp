@@ -5825,6 +5825,8 @@ int INGAME_UNITS::Run()
 	float step = 1.0f;
 	if( lp_CONFIG->timefactor > 0.0f )	step = 1.0f / lp_CONFIG->timefactor;
 	current_tick = 0;
+	if( network_manager.isServer() )
+		server_tick = 0;
 	apparent_timefactor = lp_CONFIG->timefactor;
 
 	unit_engine_thread_sync = 0;
@@ -5858,8 +5860,9 @@ int INGAME_UNITS::Run()
 			wind_change = false;
 		LeaveCS();
 
-		while( msec_timer - tick_timer + 1 < tick )
-			rest( 1 );
+		if( !network_manager.isConnected() || (network_manager.isConnected() && !network_manager.isServer() && server_tick <= current_tick) )
+			while( msec_timer - tick_timer + 1 < tick )
+				rest( 1 );
 
 		while( msec_timer - tick_timer >= tick + 200 ) {		// Prevent the game to run too fast for too long, we don't have to speed up to compute what we hadn't time to
 			counter += 1.0f;
@@ -5877,6 +5880,17 @@ int INGAME_UNITS::Run()
 			rest( 10 );			// in pause mode wait for pause to be false again
 			}
 		lp_CONFIG->paused = false;
+
+		if( network_manager.isConnected() ) {
+			if( network_manager.isServer() )
+				network_manager.sendSpecial(format("TICK %d", current_tick + 1));
+			else {
+				while( current_tick > server_tick && !thread_ask_to_stop ) {
+					players_thread_sync = 0;
+					rest(1);
+					}
+				}
+			}
 
 		unit_engine_thread_sync = 1;
 		while( unit_engine_thread_sync && !thread_ask_to_stop ) {

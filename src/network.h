@@ -273,6 +273,7 @@ class Network{
 		int dropPlayer(int num);
 		int cleanPlayer();
 		void cleanFileThread();
+		void cleanQueues();
 
 		int getNextSpecial(struct chat* chat);
 		int getNextChat(struct chat* chat);

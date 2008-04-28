@@ -850,6 +850,7 @@ public:
 };
 
 #include "ai.h"					// For Artificial Intelligence
+#include "TA3D_Network.h"		// For network synchronization
 
 extern int NB_PLAYERS;
 
@@ -909,12 +910,15 @@ public:
 	double		metal_total[10];
 
 	protected:
+		TA3DNetwork	*ta3d_network;
 		MAP			*map;
 		bool		thread_is_running;
 		bool		thread_ask_to_stop;
 		int			Run();
 		void		SignalExitThread();
 	public:
+
+	inline void set_network( TA3DNetwork *net )	{	ta3d_network = net;	}
 
 	inline void set_map( MAP *p_map )	{	map = p_map;	}
 
@@ -964,6 +968,7 @@ public:
 
 	inline void init(int E=10000,int M=10000)		// Initialise les données des joueurs
 	{
+		ta3d_network = NULL;
 		side_view = 0;
 		nb_player=0;
 		NB_PLAYERS=0;
