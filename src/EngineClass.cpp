@@ -1624,8 +1624,8 @@ void PLAYERS::player_control()
 			ai_command[ i ].monitor();
 
 	if( (units.current_tick % 3) == 0 ) {
-		byte	*sync_data = new byte[ 35 * units.max_unit ];
-		uint32	sync_pos = 0;
+//		byte	*sync_data = new byte[ 35 * units.max_unit ];
+//		uint32	sync_pos = 0;
 
 		units.EnterCS_from_outside();
 		for( int e = 0 ; e < units.nb_unit ; e++ ) {
@@ -1662,15 +1662,15 @@ void PLAYERS::player_control()
 
 //		printf("packet size (uncompressed) = %d\n", sync_pos );
 
-		byte *c_data = LZW_compress( sync_data, sync_pos );
+//		byte *c_data = LZW_compress( sync_data, sync_pos );
 	
 //		printf("packet size (compressed) = %d\n", ((uint32*)c_data)[0] );
 
 //		printf("ratio = %f\n", ((float)sync_pos) / ((uint32*)c_data)[0] );
 
-		delete[] c_data;
+//		delete[] c_data;
 
-		delete[] sync_data;
+//		delete[] sync_data;
 		}
 }
 
