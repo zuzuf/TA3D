@@ -2910,6 +2910,13 @@ void AREA::set_value( const String &message, const sint32 &value )			// Set the 
 		guiobj->Value = value;
 }
 
+void AREA::set_data( const String &message, const sint32 &data )			// Set the value of specified object in the specified window
+{
+	GUIOBJ	*guiobj = get_object( message );
+	if( guiobj )
+		guiobj->Data = data;
+}
+
 void AREA::set_caption( const String &message, const String &caption )		// set the caption of specified object in the specified window
 {
 	GUIOBJ	*guiobj = get_object( message );

@@ -1209,6 +1209,9 @@ void setup_game(bool client, const char *host)
 	String previous_tnt_port = "";
 	String previous_ota_port = "";
 	String previous_lua_port = "";
+	
+	if( host && client )
+		setupgame_area.msg("gamesetup.b_ok.disable");
 
 	do
 	{
@@ -1487,6 +1490,8 @@ void setup_game(bool client, const char *host)
 							else
 								guiobj->Flag &= ~FLAG_HIDDEN;
 							}
+						if( !client )
+							network_manager.sendSpecial("NOTIFY UPDATE", from);
 						}
 					else
 						Console->AddEntry("packet error : %s", received_special_msg.message);
@@ -2491,9 +2496,9 @@ void wait_room(void *p_game_data)
 		}
 
 	for( int i = 0 ; i < game_data->nb_players ; i++ )
-		if( game_data->player_control[i] & PLAYER_CONTROL_FLAG_AI ) {
-			wait_area.set_value( format("wait.progress%d", i), 100 );
-			wait_area.set_value( format("wait.ready%d", i), 1 );
+		if( (game_data->player_control[i] & PLAYER_CONTROL_FLAG_AI) || game_data->player_control[i] == PLAYER_CONTROL_LOCAL_HUMAN ) {
+			wait_area.set_data( format("wait.progress%d", i), 100 );
+			wait_area.set_state( format("wait.ready%d", i), true );
 			}
 
 	bool done=false;
@@ -2535,6 +2540,12 @@ void wait_room(void *p_game_data)
 			}
 
 		if( playerDropped ) {
+			for( int i = 0 ; i < game_data->nb_players ; i++ )
+				if( game_data->player_network_id[i] > 0 && !network_manager.pollPlayer(game_data->player_network_id[i]) ) {		// A player is disconnected
+					wait_area.msg(format("wait.name%d.hide",i));
+					wait_area.msg(format("wait.progress%d.hide",i));
+					wait_area.msg(format("wait.ready%d.hide",i));
+					}
 			}
 
 		while( !special_msg.empty() ) {													// Special receiver (sync config data)
@@ -2542,7 +2553,7 @@ void wait_room(void *p_game_data)
 			int player_id = 0;
 			for( int i = 0 ; i < game_data->nb_players ; i++ )
 				if( game_data->player_network_id[i] == from ) {
-					player_id = 0;
+					player_id = i;
 					break;
 					}
 			Vector< String > params = ReadVectorString( received_special_msg.message, " " );
@@ -2550,8 +2561,20 @@ void wait_room(void *p_game_data)
 				if( params[0] == "PING" )
 					network_manager.sendSpecial("PONG", -1, from);
 				else if( params[0] == "READY" ) {
-					wait_area.set_value( format( "wait.progress%d", player_id ), 100 );
-					wait_area.set_value( format( "wait.ready%d", player_id ), 1 );
+					wait_area.set_data( format( "wait.progress%d", player_id ), 100 );
+					wait_area.set_state( format( "wait.ready%d", player_id ), true );
+
+					if( network_manager.isServer() ) {
+						bool ready = true;
+						for( int i = 0 ; i < game_data->nb_players && ready ; i++ )
+							if( !wait_area.get_state( format( "wait.ready%d", i ) ) )
+								ready = false;
+							
+						if( ready ) {
+							network_manager.sendAll( "START" );			// Tell everyone to start the game!!
+							rest(1);
+							}
+						}
 					}
 				else if( params[0] == "START" )
 					done = true;
@@ -2559,7 +2582,7 @@ void wait_room(void *p_game_data)
 			else if( params.size() == 2 ) {
 				if( params[0] == "LOADING" ) {
 					int percent = min( 100, max( 0, atoi( params[1].c_str() ) ) );
-					wait_area.set_value( format( "wait.progress%d", player_id ), percent );
+					wait_area.set_data( format( "wait.progress%d", player_id ), percent );
 					}
 				}
 
@@ -2576,7 +2599,7 @@ void wait_room(void *p_game_data)
 		amz = mouse_z;
 		amb = mouse_b;
 
-		if(key[KEY_ESC]) done=true;			// Quitte si on appuie sur echap
+//		if(key[KEY_ESC]) done=true;			// Quitte si on appuie sur echap
 
 		wait_area.draw();
 
