@@ -2577,12 +2577,7 @@ void wait_room(void *p_game_data)
 
 		while( !special_msg.empty() ) {													// Special receiver (sync config data)
 			int from = received_special_msg.from;
-			int player_id = 0;
-			for( int i = 0 ; i < game_data->nb_players ; i++ )
-				if( game_data->player_network_id[i] == from ) {
-					player_id = i;
-					break;
-					}
+			int player_id = game_data->net2id( from );
 			Vector< String > params = ReadVectorString( received_special_msg.message, " " );
 			if( params.size() == 1 ) {
 				if( params[0] == "PONG" ) {

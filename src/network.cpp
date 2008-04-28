@@ -183,7 +183,7 @@ void SocketThread::proc(void* param){
 					network->specialq.enqueue(&chat);
 				network->xqmutex.Unlock();
 				if( packtype == 'A' && network->isServer() )
-					network->sendSpecial( &chat, chat.from );
+					network->sendSpecial( &chat, sockid, -1, true );
 				break;
 			case 'C'://chat
 				network->cqmutex.Lock();
