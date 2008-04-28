@@ -131,6 +131,8 @@ void TA3DNetwork::check()
 
 		if( network_manager.getNextSync( &sync_msg ) )
 			break;
+
+		printf("received sync packet (%d,%d)\n", sync_msg.timestamp, sync_msg.unit);
 			
 		if( abs(sync_msg.timestamp - units.current_tick) < 30 && sync_msg.unit < units.max_unit ) {
 			units.unit[sync_msg.unit].Lock();

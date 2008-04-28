@@ -116,14 +116,14 @@ int UDPSock::takeFive(int time){
 //byte shuffling
 void UDPSock::loadLong(uint32_t x){//uint32
 	uint32_t temp;
-	temp = nlSwapl(x);
+	temp = x;
 	memcpy(outbuf+obp,&temp,4);
 	obp += 4;
 }
 
 void UDPSock::loadShort(uint16_t x){//uint16
 	uint16_t temp;
-	temp = nlSwaps(x);
+	temp = x;
 	memcpy(outbuf+obp,&temp,2);
 	obp += 2;
 }
@@ -196,28 +196,36 @@ int UDPSock::makeSync(struct sync* sync){
 	uint16 stemp;
 
 	memcpy(&temp,udpinbuf+1,4);
-	sync->timestamp = nlSwapl(temp);
+	sync->timestamp = temp;
+//	sync->timestamp = nlSwapl(temp);
 
 	memcpy(&stemp,udpinbuf+5,2);
-	sync->unit = nlSwaps(stemp);
+	sync->unit = stemp;
+//	sync->unit = nlSwaps(stemp);
 
 	memcpy(&temp,udpinbuf+7,4);
-	sync->x = nlSwapl(temp);
+	sync->x = temp;
+//	sync->x = nlSwapl(temp);
 
 	memcpy(&temp,udpinbuf+11,4);
-	sync->y = nlSwapl(temp);
+	sync->y = temp;
+//	sync->y = nlSwapl(temp);
 
 	memcpy(&temp,udpinbuf+15,4);
-	sync->z = nlSwapl(temp);
+	sync->z = temp;
+//	sync->z = nlSwapl(temp);
 
 	memcpy(&temp,udpinbuf+19,4);
-	sync->vx = nlSwapl(temp);
+	sync->vx = temp;
+//	sync->vx = nlSwapl(temp);
 
 	memcpy(&temp,udpinbuf+23,4);
-	sync->vz = nlSwapl(temp);
+	sync->vz = temp;
+//	sync->vz = nlSwapl(temp);
 
 	memcpy(&stemp,udpinbuf+27,2);
-	sync->orientation = nlSwaps(stemp);
+	sync->orientation = stemp;
+//	sync->orientation = nlSwaps(stemp);
 	
 	uibp = 0;
 	uiremain = -1;
