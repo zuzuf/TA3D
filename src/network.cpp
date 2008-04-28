@@ -178,11 +178,12 @@ void SocketThread::proc(void* param){
 						network->xqmutex.Unlock();
 						break;
 						}
-					chat.from = sockid;
+					if( packtype != 'A' )
+						chat.from = sockid;
 					network->specialq.enqueue(&chat);
 				network->xqmutex.Unlock();
 				if( packtype == 'A' && network->isServer() )
-					network->sendSpecial( &chat, sockid );
+					network->sendSpecial( &chat, chat.from );
 				break;
 			case 'C'://chat
 				network->cqmutex.Lock();
@@ -1084,7 +1085,8 @@ int Network::sendSpecial( String msg, int src_id, int dst_id)
 }
 
 int Network::sendSpecial(struct chat* chat, int src_id, int dst_id, bool all){
-	chat->from = myID;
+	if( src_id == -1 )
+		chat->from = myID;
 	if( myMode == 1 ) {				// Server mode
 		if( chat == NULL )	return -1;
 		int v = 0;
@@ -1121,7 +1123,8 @@ int Network::sendPing( int src_id, int dst_id )
 }
 
 int Network::sendChat(struct chat* chat, int src_id){
-	chat->from = myID;
+	if( src_id == -1 )
+		chat->from = myID;
 	if( myMode == 1 ) {				// Server mode
 		if( chat == NULL )	return -1;
 		int v = 0;

@@ -1265,7 +1265,7 @@ void setup_game(bool client, const char *host)
 			ping_timer = msec_timer;
 			
 			for( int i = 0 ; i < 10 ; i++ )					// ping time out
-				if( game_data.player_network_id[i] > 0 && msec_timer - player_timer[ game_data.player_network_id[i] ] > 10000 )
+				if( game_data.player_network_id[i] > 0 && msec_timer - player_timer[ game_data.player_network_id[i] ] > 5000 )
 					network_manager.dropPlayer( game_data.player_network_id[i] );
 			}
 
