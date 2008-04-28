@@ -1093,7 +1093,7 @@ int Network::sendSpecial(struct chat* chat, int src_id, int dst_id, bool all){
 		for( int i = 1 ; i <= players.getMaxId() ; i++ )  {
 			TA3DSock *sock = players.getSock( i );
 			if( sock && i != src_id && ( dst_id == -1 || i == dst_id ) )
-				v += sock->sendSpecial( chat );
+				v += sock->sendSpecial( chat, all );
 			}
 		return v;
 		}
