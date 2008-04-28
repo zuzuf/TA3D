@@ -2495,11 +2495,13 @@ void wait_room(void *p_game_data)
 		wait_area.msg(format("wait.ready%d.hide",i));
 		}
 
-	for( int i = 0 ; i < game_data->nb_players ; i++ )
+	for( int i = 0 ; i < game_data->nb_players ; i++ ) {
 		if( (game_data->player_control[i] & PLAYER_CONTROL_FLAG_AI) || game_data->player_control[i] == PLAYER_CONTROL_LOCAL_HUMAN ) {
 			wait_area.set_data( format("wait.progress%d", i), 100 );
 			wait_area.set_state( format("wait.ready%d", i), true );
 			}
+		wait_area.set_caption( format("wait.name%d", i), game_data->player_names[i] );
+		}
 
 	bool done=false;
 
@@ -2573,6 +2575,7 @@ void wait_room(void *p_game_data)
 						if( ready ) {
 							network_manager.sendAll( "START" );			// Tell everyone to start the game!!
 							rest(1);
+							done = true;
 							}
 						}
 					}
