@@ -4853,7 +4853,7 @@ void *create_unit(int type_id,int owner,VECTOR pos,MAP *map)
 			struct event event;
 			event.type = EVENT_UNIT_CREATION;
 			event.opt1 = id;
-			event.opt2 = type_id;
+			event.opt2 = owner;
 			event.x = (uint32)((pos.x + map->map_w_d) * 655356.0f);
 			event.z = (uint32)((pos.z + map->map_w_d) * 655356.0f);
 			memcpy( event.str, unit_manager.unit_type[ type_id ].Unitname, strlen( unit_manager.unit_type[ type_id ].Unitname ) + 1 );
