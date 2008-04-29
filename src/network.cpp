@@ -1212,7 +1212,21 @@ int Network::sendSync(struct sync* sync, int src_id){
 }
 
 int Network::sendEvent(struct event* event, int src_id){
-	return 0;
+	if( myMode == 1 ) {				// Server mode
+		if( event == NULL )	return -1;
+		int v = 0;
+		for( int i = 1 ; i <= players.getMaxId() ; i++ )  {
+			TA3DSock *sock = players.getSock( i );
+			if( sock && i != src_id )
+				v += sock->sendEvent( event );
+			}
+		return v;
+		}
+	else if( myMode == 2 && src_id == -1 ) {			// Client mode
+		if( tohost_socket == NULL || !tohost_socket->isOpen() || event == NULL )	return -1;
+		return tohost_socket->sendEvent( event );
+		}
+	return -1;
 }
 
 int Network::sendFile(int player, const String &filename, const String &port){
