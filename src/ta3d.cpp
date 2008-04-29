@@ -470,6 +470,7 @@ TA3DNetwork	ta3d_network( &game_area, game_data );
 
 if( network_manager.isConnected() ) {
 	players.set_network( &ta3d_network );
+	g_ta3d_network = &ta3d_network;
 	game_area.msg("esc_menu.b_save.disable");
 	}
 

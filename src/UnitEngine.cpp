@@ -35,6 +35,7 @@
 #include "tdf.h"					// Pour la gestion des éléments du jeu
 #include "EngineClass.h"
 #include "UnitEngine.h"
+#include "TA3D_Network.h"
 
 using namespace TA3D::EXCEPTION;
 
@@ -4848,6 +4849,17 @@ void *create_unit(int type_id,int owner,VECTOR pos,MAP *map)
 {
 	int id = units.create(type_id,owner);
 	if(id>=0) {
+		if( network_manager.isConnected() && g_ta3d_network->isLocal( owner ) ) {		// Send event packet if needed
+			struct event event;
+			event.type = EVENT_UNIT_CREATION;
+			event.opt1 = id;
+			event.opt2 = type_id;
+			event.x = (uint32)((pos.x + map->map_w_d) * 655356.0f);
+			event.z = (uint32)((pos.z + map->map_w_d) * 655356.0f);
+			memcpy( event.str, unit_manager.unit_type[ type_id ].Unitname, strlen( unit_manager.unit_type[ type_id ].Unitname ) + 1 );
+			network_manager.sendEvent( &event );
+			}
+
 		units.unit[id].Lock();
 
 		units.unit[id].Pos=pos;
@@ -5409,7 +5421,7 @@ int INGAME_UNITS::create(int type_id,int owner)
 	players.nb_unit[owner]++;
 
 	LeaveCS();
-
+	
 	return unit_index;
 }
 

@@ -260,8 +260,11 @@ int TA3DSock::sendEvent(struct event* event){
 	tcpmutex.Lock();
 	loadByte('E');
 	loadByte(event->type);
-	loadByte(event->player1);
-	loadByte(event->player2);
+	loadShort(event->opt1);
+	loadShort(event->opt2);
+	loadLong(event->x);
+	loadLong(event->z);
+	loadString(event->str);
 	sendTCP();
 	tcpmutex.Unlock();
 	return 0;
@@ -398,8 +401,12 @@ int TA3DSock::makeEvent(struct event* event){
 		return -1;
 	}
 	event->type = tcpinbuf[1];
-	event->player1 = tcpinbuf[2];
-	event->player2 = tcpinbuf[3];
+
+	memcpy(&event->opt1,tcpinbuf+2,2);
+	memcpy(&event->opt2,tcpinbuf+4,2);
+	memcpy(&event->x,tcpinbuf+6,4);
+	memcpy(&event->z,tcpinbuf+10,4);
+	memcpy(&event->str,tcpinbuf+14,16);
 	tibp = 0;
 	tiremain = -1;
 	return 0;

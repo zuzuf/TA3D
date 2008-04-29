@@ -68,33 +68,42 @@
 //chat order sync and event
 //these are sent and received over the network
 struct chat{
-	unsigned short from; 			//uint16 who said
+	uint16 from; 		//uint16 who said
 	char message[253];	//said what
 };//max size = 254
 
 struct order{
-	int timestamp;//uint32 what time the order happened
-	int unit;//uin32 order what unit
-	char command;//uint8 move,fire,stop,guard,reclaim,etc
-	float x;
-	float y;
-	int target;//uint32 enough to tell it a target unit
-	char additional;//uint8 0=cancel current activity 1=add to order queue
+	uint32	timestamp;	//uint32 what time the order happened
+	uint16	unit;		//uin16 order what unit
+	byte	command;		//uint8 move,fire,stop,guard,reclaim,etc
+	uint32	x;
+	uint32	y;
+	uint16	target;		//uint16 enough to tell it a target unit
+	byte	additional;	//uint8 0=cancel current activity 1=add to order queue
 };//max size = 22
 
 struct sync{
-	uint32 timestamp;	//uint32 what tick is this snapshot
-	uint16 unit;		//uint16 sync what unit
-	uint32 x,y,z;
-	sint32 vx,vz;
-	uint16 orientation;//uint16 where 0=0 and 65535~=2pi? ie rad=(rot1/65536.0)*2pi?
+	uint32	timestamp;	//uint32 what tick is this snapshot
+	uint16	unit;		//uint16 sync what unit
+	uint32	x,y,z;
+	sint32	vx,vz;
+	uint16	orientation;//uint16 where 0=0 and 65535~=2pi? ie rad=(rot1/65536.0)*2pi?
+	uint16	hp;
 };//max size = 28
 
+#define	EVENT_UNIT_CREATION			0x00
+#define EVENT_UNIT_DEATH			0x01
+#define EVENT_WEAPON_CREATION		0x02
+#define EVENT_WEAPON_DEATH			0x03
+
 struct event{
-	byte type;//uint8 what type of event
-	char player1;//uint8 optional parameters
-	char player2;//uint8
-};//max size = 3
+	byte	type;		//uint8 what type of event
+	uint16	opt1;		//uint16 optional parameters
+	uint16	opt2;		//uint16
+	uint32	x;			//uint32
+	uint32	z;			//uint32
+	char	str[16];	//unit name ? weapon name ?
+};//max size = 29
 
 typedef chat special;
 

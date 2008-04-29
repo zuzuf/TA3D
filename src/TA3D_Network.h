@@ -46,6 +46,10 @@ public:
 
 	void check();
 	void draw();
+
+	bool isLocal( int player_id );
 };
+
+extern TA3DNetwork *g_ta3d_network;
 
 #endif

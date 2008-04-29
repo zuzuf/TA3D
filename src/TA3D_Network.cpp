@@ -23,6 +23,8 @@
 
 #define CHAT_MESSAGE_TIMEOUT	10000
 
+TA3DNetwork *g_ta3d_network = NULL;
+
 TA3DNetwork::TA3DNetwork( AREA *area, GAME_DATA *game_data ) : messages()
 {
 	enter = false;
@@ -136,7 +138,7 @@ void TA3DNetwork::check()
 		if( network_manager.getNextSync( &sync_msg ) )
 			break;
 
-		if( abs(sync_msg.timestamp - units.current_tick) < 30 && sync_msg.unit < units.max_unit ) {
+		if( units.current_tick - sync_msg.timestamp < 10 && sync_msg.unit < units.max_unit ) {
 			units.unit[sync_msg.unit].Lock();
 			if( !(units.unit[sync_msg.unit].flags & 1) || units.unit[sync_msg.unit].last_synctick >= sync_msg.timestamp )	{
 				units.unit[sync_msg.unit].UnLock();
@@ -167,6 +169,24 @@ void TA3DNetwork::check()
 
 		if( network_manager.getNextEvent( &event_msg ) )
 			break;
+
+		switch( event_msg.type )
+		{
+		case EVENT_UNIT_CREATION:
+			{
+				int idx = unit_manager.get_unit_index( event_msg.str );
+				if( idx >= 0 ) {
+					VECTOR pos;
+					pos.x = (event_msg.x / 65536.0f) - the_map->map_w_d;
+					pos.z = (event_msg.z / 65536.0f) - the_map->map_h_d;
+					pos.y = the_map->get_unit_h( pos.x, pos.z );
+					create_unit( idx, event_msg.opt2,pos,the_map);
+					}
+				else
+					Console->AddEntry("Error: cannot create unit, %s not found", event_msg.str);
+			}
+			break;
+		};
 		}
 }
 
@@ -188,4 +208,9 @@ void TA3DNetwork::draw()
 			}
 		}
 	LeaveCS();
+}
+
+bool TA3DNetwork::isLocal( int player_id )
+{
+	return !(game_data->player_control[ player_id ] & PLAYER_CONTROL_FLAG_REMOTE);
 }
