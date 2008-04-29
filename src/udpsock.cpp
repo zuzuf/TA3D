@@ -226,6 +226,12 @@ int UDPSock::makeSync(struct sync* sync){
 	memcpy(&stemp,udpinbuf+27,2);
 	sync->orientation = stemp;
 //	sync->orientation = nlSwaps(stemp);
+
+	memcpy(&stemp,udpinbuf+29,2);
+	sync->hp = stemp;
+
+	memcpy(&stemp,udpinbuf+31,2);
+	sync->build_percent_left = stemp;
 	
 	uibp = 0;
 	uiremain = -1;

@@ -89,6 +89,7 @@ struct sync{
 	sint32	vx,vz;
 	uint16	orientation;//uint16 where 0=0 and 65535~=2pi? ie rad=(rot1/65536.0)*2pi?
 	uint16	hp;
+	uint8	build_percent_left;
 };//max size = 28
 
 #define	EVENT_UNIT_CREATION			0x00

@@ -159,6 +159,9 @@ void TA3DNetwork::check()
 
 			units.unit[sync_msg.unit].Angle.y = sync_msg.orientation * 360.0f / 65536.0f;
 
+			units.unit[sync_msg.unit].hp = sync_msg.hp;
+			units.unit[sync_msg.unit].build_percent_left = sync_msg.build_percent_left / 2.55f;
+
 			units.unit[sync_msg.unit].UnLock();
 			}
 		}

@@ -1652,6 +1652,9 @@ void PLAYERS::player_control()
 				float angle = units.unit[ i ].Angle.y;
 				while( angle < 0.0f )	angle += 360.0f;
 				sync.orientation = (uint16)(angle * 65535.0f / 360.0f);
+				sync.hp = (uint16)units.unit[ i ].hp;
+				sync.build_percent_left = (uint8)(units.unit[ i ].build_percent_left * 2.55f);
+
 				network_manager.sendSync( &sync );
 				}
 //				sync_pos = units.unit[ i ].write_sync_data( sync_data, sync_pos );
