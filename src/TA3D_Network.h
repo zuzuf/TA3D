@@ -48,6 +48,7 @@ public:
 	void draw();
 
 	bool isLocal( int player_id );
+	bool isRemoteHuman( int player_id );
 };
 
 extern TA3DNetwork *g_ta3d_network;

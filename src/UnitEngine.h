@@ -948,7 +948,7 @@ public:
 	bool	wind_change;
 	MAP		*map;
 	uint32	current_tick;
-	uint32	server_tick;				// Where is the server ?
+	uint32	client_tick[10];
 	float	apparent_timefactor;
 	uint32	last_tick[5];
 	sint32	last_on;				// Indicate the unit index which was under the cursor (mini map orders)

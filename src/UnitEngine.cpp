@@ -5837,8 +5837,8 @@ int INGAME_UNITS::Run()
 	float step = 1.0f;
 	if( lp_CONFIG->timefactor > 0.0f )	step = 1.0f / lp_CONFIG->timefactor;
 	current_tick = 0;
-	if( network_manager.isServer() )
-		server_tick = 0;
+	for( int i = 0 ; i < 10 ; i++ )
+		client_tick[i] = 0;
 	apparent_timefactor = lp_CONFIG->timefactor;
 
 	unit_engine_thread_sync = 0;
@@ -5872,7 +5872,13 @@ int INGAME_UNITS::Run()
 			wind_change = false;
 		LeaveCS();
 
-		if( !(network_manager.isConnected() && !network_manager.isServer() && server_tick <= current_tick) )
+		uint32 min_tick = current_tick + 30000;
+		if( network_manager.isConnected() )
+			for( int i = 0 ; i < players.nb_player ; i++ )
+				if( g_ta3d_network->isRemoteHuman( i ) )
+					min_tick = min( min_tick, client_tick[i] );
+
+		if( !(network_manager.isConnected() && min_tick > current_tick) )
 			while( msec_timer - tick_timer + 1 < tick )
 				rest( 1 );
 
@@ -5894,13 +5900,15 @@ int INGAME_UNITS::Run()
 		lp_CONFIG->paused = false;
 
 		if( network_manager.isConnected() ) {
-			if( network_manager.isServer() )
-				network_manager.sendSpecial(format("TICK %d", current_tick + 1));
-			else {
-				while( current_tick > server_tick && !thread_ask_to_stop ) {
-					players_thread_sync = 0;
-					rest(1);
-					}
+			network_manager.sendSpecial(format("TICK %d", current_tick + 1));		// + 1 to prevent it from running too slow
+			while( current_tick > min_tick && !thread_ask_to_stop ) {
+				players_thread_sync = 0;
+				rest(1);
+
+				min_tick = current_tick;
+				for( int i = 0 ; i < players.nb_player ; i++ )
+					if( g_ta3d_network->isRemoteHuman( i ) )
+						min_tick = min( min_tick, client_tick[i] );
 				}
 			}
 

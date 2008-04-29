@@ -118,8 +118,10 @@ void TA3DNetwork::check()
 
 		Vector<String> params = ReadVectorString( special_msg, " " );
 		if( params.size() == 2 ) {
-			if( params[0] == "TICK" )
-				units.server_tick = atoi( params[1].c_str() );
+			if( params[0] == "TICK" ) {
+				if( player_id >= 0 )
+					units.client_tick[ player_id ] = atoi( params[1].c_str() );
+				}
 			}
 		}
 
@@ -217,3 +219,9 @@ bool TA3DNetwork::isLocal( int player_id )
 {
 	return !(game_data->player_control[ player_id ] & PLAYER_CONTROL_FLAG_REMOTE);
 }
+
+bool TA3DNetwork::isRemoteHuman( int player_id )
+{
+	return game_data->player_control[ player_id ] & PLAYER_CONTROL_REMOTE_HUMAN;
+}
+
