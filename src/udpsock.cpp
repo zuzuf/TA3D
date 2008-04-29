@@ -178,6 +178,8 @@ int UDPSock::sendSync(struct sync* sync, const std::string &address){
 	loadLong(sync->vx);
 	loadLong(sync->vz);
 	loadShort(sync->orientation);
+	loadShort(sync->hp);
+	loadShort(sync->build_percent_left);
 	send( address );
 
 	udpmutex.Unlock();
