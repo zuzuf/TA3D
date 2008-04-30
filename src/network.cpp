@@ -178,7 +178,7 @@ void SocketThread::proc(void* param){
 						network->xqmutex.Unlock();
 						break;
 						}
-					if( packtype != 'A' )
+					if( packtype != 'A' && network->isServer() )
 						chat.from = sockid;
 					network->specialq.enqueue(&chat);
 				network->xqmutex.Unlock();
@@ -333,7 +333,8 @@ void UDPThread::proc(void* param){
 						network->xqmutex.Unlock();
 						break;
 						}
-					chat.from = player_id;
+					if( network->isServer() )
+						chat.from = player_id;
 					network->specialq.enqueue(&chat);
 				network->xqmutex.Unlock();
 				break;
