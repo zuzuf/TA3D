@@ -107,7 +107,7 @@ AMTAR = ${SHELL} /home/roland/progc++/ta3d/missing --run tar
 AUTOCONF = ${SHELL} /home/roland/progc++/ta3d/missing --run autoconf
 AUTOHEADER = ${SHELL} /home/roland/progc++/ta3d/missing --run autoheader
 AUTOMAKE = ${SHELL} /home/roland/progc++/ta3d/missing --run automake-1.10
-AWK = gawk
+AWK = mawk
 CC = gcc
 CCDEPMODE = depmode=gcc3
 CFLAGS = -g -O2
@@ -115,7 +115,7 @@ CPP = gcc -E
 CPPFLAGS = 
 CXX = g++
 CXXDEPMODE = depmode=gcc3
-CXXFLAGS = -g -O0 -march=nocona -I/usr/local/include -ffast-math -mmmx
+CXXFLAGS = -g -O0 -march=athlon64 -I/usr/local/include -ffast-math -mmmx
 CYGPATH_W = echo
 DEFS = -DHAVE_CONFIG_H
 DEPDIR = .deps

@@ -222,6 +222,6 @@ bool TA3DNetwork::isLocal( int player_id )
 
 bool TA3DNetwork::isRemoteHuman( int player_id )
 {
-	return game_data->player_control[ player_id ] & PLAYER_CONTROL_REMOTE_HUMAN;
+	return game_data->player_control[ player_id ] == PLAYER_CONTROL_REMOTE_HUMAN;
 }
 
