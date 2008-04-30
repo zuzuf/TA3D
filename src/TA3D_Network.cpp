@@ -177,9 +177,9 @@ void TA3DNetwork::check()
 				}
 
 			units.unit[sync_msg.unit].last_synctick = sync_msg.timestamp;			
-			units.unit[sync_msg.unit].Pos.x = sync_msg.x / 65536.0f - the_map->map_w_d;
+			units.unit[sync_msg.unit].Pos.x = sync_msg.x / 65536.0f;
 			units.unit[sync_msg.unit].Pos.y = sync_msg.y / 65536.0f;
-			units.unit[sync_msg.unit].Pos.z = sync_msg.z / 65536.0f - the_map->map_h_d;
+			units.unit[sync_msg.unit].Pos.z = sync_msg.z / 65536.0f;
 
 			units.unit[sync_msg.unit].V.x = sync_msg.vx / 65536.0f;
 			units.unit[sync_msg.unit].V.z = sync_msg.vz / 65536.0f;
