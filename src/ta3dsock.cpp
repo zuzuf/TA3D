@@ -173,7 +173,7 @@ void TA3DSock::pumpIn(){
 }
 
 char TA3DSock::getPacket(){
-	if(tiremain>0)
+	if(tiremain != 0)
 		return 0;
 	else
 		return tcpinbuf[0];

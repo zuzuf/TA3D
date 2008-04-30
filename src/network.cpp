@@ -170,14 +170,10 @@ void SocketThread::proc(void* param){
 			case 'A'://special (resend to all!!)
 			case 'X'://special
 				network->xqmutex.Lock();
-					if(dead){
+					if( dead || sock->makeSpecial(&chat) == -1 ){
 						network->xqmutex.Unlock();
 						break;
 					}
-					if( sock->makeSpecial(&chat) == -1 ) {
-						network->xqmutex.Unlock();
-						break;
-						}
 					if( packtype != 'A' && network->isServer() )
 						chat.from = sockid;
 					network->specialq.enqueue(&chat);
@@ -187,23 +183,18 @@ void SocketThread::proc(void* param){
 				break;
 			case 'C'://chat
 				network->cqmutex.Lock();
-					if(dead){
+					if( dead || sock->makeChat(&chat) == -1 ){
 						network->cqmutex.Unlock();
 						break;
 					}
-					if( sock->makeChat(&chat) == -1 ) {
-						network->cqmutex.Unlock();
-						break;
-						}
 					network->chatq.enqueue(&chat);
 				network->cqmutex.Unlock();
 				if( network->isServer() )
 					network->sendChat(&chat, sockid);
 				break;
 			case 'O'://order
-				sock->makeOrder(&order);
 				network->oqmutex.Lock();
-					if(dead){
+					if( dead || sock->makeOrder(&order) == -1 ){
 						network->oqmutex.Unlock();
 						break;
 					}
@@ -213,9 +204,8 @@ void SocketThread::proc(void* param){
 					network->sendOrder(&order, sockid);
 				break;
 			case 'S'://sync
-				sock->makeSync(&sync);
 				network->sqmutex.Lock();
-					if(dead){
+					if( dead || sock->makeSync(&sync) == -1 ){
 						network->sqmutex.Unlock();
 						break;
 					}
@@ -225,12 +215,12 @@ void SocketThread::proc(void* param){
 					network->sendSync(&sync, sockid);
 				break;
 			case 'E'://event
-				sock->makeEvent(&event);
 				network->eqmutex.Lock();
-					if(dead){
+					if( dead || sock->makeEvent(&event) == -1 ){
 						network->eqmutex.Unlock();
 						break;
 					}
+					printf("received event\n");
 					network->eventq.enqueue(&event);
 				network->eqmutex.Unlock();
 				if( network->isServer() )
@@ -325,23 +315,18 @@ void UDPThread::proc(void* param){
 		switch(packtype){
 			case 'X'://special
 				network->xqmutex.Lock();
-					if(dead){
+					if( dead || sock->makeSpecial(&chat) == -1 ){
 						network->xqmutex.Unlock();
 						break;
 					}
-					if( sock->makeSpecial(&chat) == -1 ) {
-						network->xqmutex.Unlock();
-						break;
-						}
 					if( network->isServer() )
 						chat.from = player_id;
 					network->specialq.enqueue(&chat);
 				network->xqmutex.Unlock();
 				break;
 			case 'S'://sync
-				sock->makeSync(&sync);
 				network->sqmutex.Lock();
-					if(dead){
+					if( dead || sock->makeSync(&sync) == -1 ){
 						network->sqmutex.Unlock();
 						break;
 					}

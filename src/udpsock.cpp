@@ -92,7 +92,7 @@ void UDPSock::pumpIn(){
 }
 
 char UDPSock::getPacket(){
-	if(uiremain>0)
+	if(uiremain != 0)
 		return 0;
 	else
 		return udpinbuf[0];
