@@ -4884,7 +4884,7 @@ int UNIT::launch_script(int id,int nb_param,int *param,bool force)			// Start a 
 	return nb_running++;
 }
 
-void *create_unit( int type_id, int owner, VECTOR pos, MAP *map, bool sync )
+void *create_unit( int type_id, int owner, VECTOR pos, MAP *map, bool sync, bool script )
 {
 	int id = units.create(type_id,owner);
 	if(id>=0) {
@@ -4896,7 +4896,7 @@ void *create_unit( int type_id, int owner, VECTOR pos, MAP *map, bool sync )
 				struct event event;
 				event.type = EVENT_UNIT_CREATION;
 				event.opt1 = id;
-				event.opt2 = owner;
+				event.opt2 = script ? (owner | 0x1000) : owner;
 				event.x = (uint32)((pos.x + map->map_w_d) * 65536.0f);
 				event.z = (uint32)((pos.z + map->map_w_d) * 65536.0f);
 				memcpy( event.str, unit_manager.unit_type[ type_id ].Unitname, strlen( unit_manager.unit_type[ type_id ].Unitname ) + 1 );

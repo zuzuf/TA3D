@@ -209,12 +209,21 @@ void TA3DNetwork::check()
 					pos.x = (event_msg.x / 65536.0f) - the_map->map_w_d;
 					pos.z = (event_msg.z / 65536.0f) - the_map->map_h_d;
 					pos.y = the_map->get_unit_h( pos.x, pos.z );
-					UNIT *unit = (UNIT*)create_unit( idx, event_msg.opt2,pos,the_map,false);		// We don't want to send sync data for this ...
+					UNIT *unit = (UNIT*)create_unit( idx, (event_msg.opt2 & 0xFF),pos,the_map,false);		// We don't want to send sync data for this ...
 					if( unit ) {
 						unit->Lock();
 						printf("created unit (%s) idx = %d (%d)\n", event_msg.str, unit->idx, units.current_tick);
-						unit->hp = 0.001f;
-						unit->built = true;
+
+						if( event_msg.opt2 & 0x1000 ) {								// Created by a script, so give it 100% HP
+							unit->hp = unit_manager.unit_type[ idx ].MaxDamage;
+							unit->built = false;
+							unit->build_percent_left = 0.0f;
+							}
+						else {
+							unit->hp = 0.001f;
+							unit->built = true;
+							unit->build_percent_left = 100.0f;
+							}
 						unit->UnLock();
 						}
 					else
