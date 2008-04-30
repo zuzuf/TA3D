@@ -1623,7 +1623,7 @@ void PLAYERS::player_control()
 		if( control[ i ] == PLAYER_CONTROL_LOCAL_AI && ai_command )
 			ai_command[ i ].monitor();
 
-	if( (units.current_tick % 3) == 0 && last_ticksynced != units.current_tick ) {
+	if( (units.current_tick % 3) == 0 && last_ticksynced != units.current_tick && network_manager.isConnected() ) {
 		last_ticksynced = units.current_tick;
 //		byte	*sync_data = new byte[ 35 * units.max_unit ];
 //		uint32	sync_pos = 0;
@@ -1635,12 +1635,12 @@ void PLAYERS::player_control()
 			units.LeaveCS_from_outside();
 
 			units.unit[ i ].Lock();
-			if( !(units.unit[ i ].flags & 1) )	{
+			if( !(units.unit[ i ].flags & 1) || units.unit[i].hp <= 0.0f )	{
 				units.unit[ i ].UnLock();
 				units.EnterCS_from_outside();
 				continue;
 				}
-			if( !(control[ units.unit[ i ].owner_id ] & PLAYER_CONTROL_FLAG_REMOTE) ) {
+			if( g_ta3d_network->isLocal( units.unit[ i ].owner_id ) ) {
 				struct sync sync;
 				sync.timestamp = units.current_tick;
 				sync.unit = i;

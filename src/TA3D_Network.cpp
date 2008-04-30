@@ -179,16 +179,29 @@ void TA3DNetwork::check()
 		{
 		case EVENT_UNIT_CREATION:
 			{
+				units.EnterCS_from_outside();
+
 				int idx = unit_manager.get_unit_index( event_msg.str );
 				if( idx >= 0 ) {
 					VECTOR pos;
 					pos.x = (event_msg.x / 65536.0f) - the_map->map_w_d;
 					pos.z = (event_msg.z / 65536.0f) - the_map->map_h_d;
 					pos.y = the_map->get_unit_h( pos.x, pos.z );
-					create_unit( idx, event_msg.opt2,pos,the_map);
+					UNIT *unit = (UNIT*)create_unit( idx, event_msg.opt2,pos,the_map);
+					if( unit ) {
+						unit->Lock();
+						printf("created unit (%s) idx = %d (%d)\n", event_msg.str, unit->idx, units.current_tick);
+						unit->hp = 0.001f;
+						unit->built = true;
+						unit->UnLock();
+						}
+					else
+						Console->AddEntry("Error: cannot create unit of type %s", event_msg.str);
 					}
 				else
 					Console->AddEntry("Error: cannot create unit, %s not found", event_msg.str);
+
+				units.LeaveCS_from_outside();
 			}
 			break;
 		};

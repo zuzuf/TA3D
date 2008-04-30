@@ -197,7 +197,7 @@ void SocketThread::proc(void* param){
 						}
 					network->chatq.enqueue(&chat);
 				network->cqmutex.Unlock();
-				if( sockid != -1 )
+				if( network->isServer() )
 					network->sendChat(&chat, sockid);
 				break;
 			case 'O'://order
@@ -209,7 +209,7 @@ void SocketThread::proc(void* param){
 					}
 					network->orderq.enqueue(&order);
 				network->oqmutex.Unlock();
-				if( sockid != -1 )
+				if( network->isServer() )
 					network->sendOrder(&order, sockid);
 				break;
 			case 'S'://sync
@@ -221,7 +221,7 @@ void SocketThread::proc(void* param){
 					}
 					network->syncq.enqueue(&sync);
 				network->sqmutex.Unlock();
-				if( sockid != -1 )
+				if( network->isServer() )
 					network->sendSync(&sync, sockid);
 				break;
 			case 'E'://event
@@ -233,7 +233,7 @@ void SocketThread::proc(void* param){
 					}
 					network->eventq.enqueue(&event);
 				network->eqmutex.Unlock();
-				if( sockid != -1 )
+				if( network->isServer() )
 					network->sendEvent(&event, sockid);
 			case 0:
 				break;
@@ -347,7 +347,7 @@ void UDPThread::proc(void* param){
 					}
 					network->syncq.enqueue(&sync);
 				network->sqmutex.Unlock();
-				if( player_id != -1 )
+				if( network->isServer() )
 					network->sendSync(&sync, player_id);
 				break;
 			case 0:
