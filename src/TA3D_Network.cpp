@@ -25,6 +25,8 @@
 
 TA3DNetwork *g_ta3d_network = NULL;
 
+const float	tick_conv = 1.0f / TICKS_PER_SEC;
+
 TA3DNetwork::TA3DNetwork( AREA *area, GAME_DATA *game_data ) : messages()
 {
 	enter = false;
@@ -140,7 +142,34 @@ void TA3DNetwork::check()
 		if( network_manager.getNextSync( &sync_msg ) )
 			break;
 
-		if( units.current_tick - sync_msg.timestamp < 10 && sync_msg.unit < units.max_unit ) {
+		if( units.current_tick - sync_msg.timestamp >= 10 )		continue;		// It's too old
+
+		if( sync_msg.hp == 0 )	{		// It's a weapon
+			if( sync_msg.unit < weapons.max_weapon ) {
+				weapons.Lock();
+
+				if( weapons.weapon[ sync_msg.unit ].weapon_id < 0 || weapons.weapon[ sync_msg.unit ].last_timestamp >= sync_msg.timestamp )	{
+					weapons.UnLock();
+					continue;
+					}
+
+				weapons.weapon[ sync_msg.unit ].last_timestamp = sync_msg.timestamp;
+
+				weapons.weapon[ sync_msg.unit ].Pos.x = sync_msg.x / 65536.0f;
+				weapons.weapon[ sync_msg.unit ].Pos.y = sync_msg.y / 65536.0f;
+				weapons.weapon[ sync_msg.unit ].Pos.z = sync_msg.z / 65536.0f;
+
+				weapons.weapon[ sync_msg.unit ].V.x = sync_msg.vx / 65536.0f;
+				weapons.weapon[ sync_msg.unit ].V.z = sync_msg.vz / 65536.0f;
+				weapons.weapon[ sync_msg.unit ].V.y = (sync_msg.orientation - 16384.0f) / 256.0f;
+
+					// Guess where the weapon should be now
+				weapons.weapon[ sync_msg.unit ].Pos = weapons.weapon[ sync_msg.unit ].Pos + ((units.current_tick - sync_msg.timestamp) * tick_conv) * weapons.weapon[ sync_msg.unit ].V;
+
+				weapons.UnLock();
+				}
+			}
+		else if( sync_msg.unit < units.max_unit ) {
 			units.unit[sync_msg.unit].Lock();
 			if( !(units.unit[sync_msg.unit].flags & 1) || units.unit[sync_msg.unit].last_synctick >= sync_msg.timestamp )	{
 				units.unit[sync_msg.unit].UnLock();
@@ -157,7 +186,7 @@ void TA3DNetwork::check()
 			units.unit[sync_msg.unit].V.y = 0.0f;
 
 				// Guess where the unit should be now
-			units.unit[sync_msg.unit].Pos = units.unit[sync_msg.unit].Pos + (units.current_tick - sync_msg.timestamp) * units.unit[sync_msg.unit].V;
+			units.unit[sync_msg.unit].Pos = units.unit[sync_msg.unit].Pos + ((units.current_tick - sync_msg.timestamp) * tick_conv) * units.unit[sync_msg.unit].V;
 
 			units.unit[sync_msg.unit].Angle.y = sync_msg.orientation * 360.0f / 65536.0f;
 
@@ -177,6 +206,42 @@ void TA3DNetwork::check()
 
 		switch( event_msg.type )
 		{
+		case EVENT_UNIT_DAMAGE:
+			if( event_msg.opt1 < units.max_unit && ( units.unit[ event_msg.opt1 ].flags & 1 ) ) {
+				units.unit[ event_msg.opt1 ].Lock();
+
+				float damage = event_msg.opt2 / 65536.0f;
+
+				units.unit[ event_msg.opt1 ].hp -= damage;
+
+				units.unit[ event_msg.opt1 ].flags &= 0xEF;		// This unit must explode if it has been damaged by a weapon even if it is being reclaimed
+				if( units.unit[ event_msg.opt1 ].hp <= 0.0f )
+					units.unit[ event_msg.opt1 ].severity = max( units.unit[ event_msg.opt1 ].severity, (int)damage );
+				
+				units.unit[ event_msg.opt1 ].UnLock();
+
+				printf("(%d), received order to damage %d\n", units.current_tick, event_msg.opt1 );
+				}
+			break;
+		case EVENT_WEAPON_CREATION:
+			if( event_msg.opt1 < units.max_unit && ( units.unit[ event_msg.opt1 ].flags & 1 ) ) {
+				VECTOR target_pos( event_msg.x / 32768.0f, event_msg.y / 32768.0f, event_msg.z / 32768.0f );
+				VECTOR Dir( ((sint16*)event_msg.str)[6] / 16384.0f, ((sint16*)event_msg.str)[7] / 16384.0f, ((sint16*)event_msg.str)[8] / 16384.0f );
+				VECTOR startpos( ((sint16*)event_msg.str)[0] / 32768.0f, ((sint16*)event_msg.str)[1] / 32678.0f, ((sint16*)event_msg.str)[2] / 32768.0f );
+				
+				units.unit[ event_msg.opt1 ].Lock();
+				int w_idx = units.unit[ event_msg.opt1 ].shoot( event_msg.opt2, startpos, Dir, ((sint16*)event_msg.str)[9], target_pos );
+				units.unit[ event_msg.opt1 ].UnLock();
+
+				if( w_idx >= 0 ) {
+					weapons.Lock();
+					weapons.weapon[w_idx].local = false;
+					weapons.UnLock();
+					}
+
+				printf("(%d), received order to shoot from %d\n", units.current_tick, event_msg.opt1 );
+			}
+			break;
 		case EVENT_UNIT_SCRIPT:
 			if( event_msg.opt1 < units.max_unit && (units.unit[ event_msg.opt1 ].flags & 1) )
 				units.unit[ event_msg.opt1 ].launch_script( event_msg.x, event_msg.z, (int*)event_msg.str, event_msg.opt2 );
@@ -192,7 +257,7 @@ void TA3DNetwork::check()
 						break;
 						}
 						
-				printf("received order to kill %d\n", event_msg.opt1 );
+				printf("(%d), received order to kill %d\n", units.current_tick, event_msg.opt1 );
 
 				units.LeaveCS_from_outside();
 
@@ -203,16 +268,16 @@ void TA3DNetwork::check()
 			{
 				units.EnterCS_from_outside();
 
-				int idx = unit_manager.get_unit_index( event_msg.str );
+				int idx = unit_manager.get_unit_index( (char*)event_msg.str );
 				if( idx >= 0 ) {
 					VECTOR pos;
-					pos.x = (event_msg.x / 65536.0f) - the_map->map_w_d;
-					pos.z = (event_msg.z / 65536.0f) - the_map->map_h_d;
+					pos.x = event_msg.x / 65536.0f;
+					pos.z = event_msg.z / 65536.0f;
 					pos.y = the_map->get_unit_h( pos.x, pos.z );
 					UNIT *unit = (UNIT*)create_unit( idx, (event_msg.opt2 & 0xFF),pos,the_map,false);		// We don't want to send sync data for this ...
 					if( unit ) {
 						unit->Lock();
-						printf("created unit (%s) idx = %d (%d)\n", event_msg.str, unit->idx, units.current_tick);
+						printf("(%d), created unit (%s) idx = %d\n", units.current_tick, event_msg.str, unit->idx );
 
 						if( event_msg.opt2 & 0x1000 ) {								// Created by a script, so give it 100% HP
 							unit->hp = unit_manager.unit_type[ idx ].MaxDamage;
@@ -269,3 +334,11 @@ bool TA3DNetwork::isRemoteHuman( int player_id )
 	return game_data->player_control[ player_id ] == PLAYER_CONTROL_REMOTE_HUMAN;
 }
 
+void TA3DNetwork::sendDamageEvent( int idx, float damage )
+{
+	struct event event;
+	event.type = EVENT_UNIT_DAMAGE;
+	event.opt1 = idx;
+	event.opt2 = damage * 32768.0f;
+	network_manager.sendEvent( &event );
+}

@@ -49,6 +49,7 @@ public:
 
 	bool isLocal( int player_id );
 	bool isRemoteHuman( int player_id );
+	void sendDamageEvent( int idx, float damage );
 };
 
 extern TA3DNetwork *g_ta3d_network;

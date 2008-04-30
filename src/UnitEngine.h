@@ -842,7 +842,7 @@ public:
 		LeaveCS();
 	}
 
-	void shoot(int target,VECTOR startpos,VECTOR Dir,int w_id,const VECTOR &target_pos);
+	int shoot(int target,VECTOR startpos,VECTOR Dir,int w_id,const VECTOR &target_pos);
 
 	bool hit(VECTOR P,VECTOR Dir,VECTOR *hit_vec, float length = 100.0f);
 

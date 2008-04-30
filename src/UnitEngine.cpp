@@ -2777,7 +2777,7 @@ bool UNIT::is_on_radar( byte p_mask )
 									else
 										Console->AddEntry("Unit is blocked!! (1)");
 									}
-								else if( !flying ) {
+								else if( !flying && !local ) {
 									if(Pos.x<-map->map_w_d || Pos.x>map->map_w_d || Pos.z<-map->map_h_d || Pos.z>map->map_h_d) {
 										VECTOR target = Pos;
 										if(target.x < -map->map_w_d+256)
@@ -3896,7 +3896,7 @@ bool UNIT::is_on_radar( byte p_mask )
 				break;
 			};
 
-			if( (mission->flags & MISSION_FLAG_MOVE) && !jump_commands ) {		// Set unit orientation if it's on the ground
+			if( ( (mission->flags & MISSION_FLAG_MOVE) || local ) && !jump_commands ) {		// Set unit orientation if it's on the ground
 				if(!unit_manager.unit_type[type_id].canfly && !unit_manager.unit_type[type_id].Upright
 				&& unit_manager.unit_type[type_id].TEDclass!=CLASS_SHIP
 				&& unit_manager.unit_type[type_id].TEDclass!=CLASS_WATER
@@ -3934,7 +3934,7 @@ bool UNIT::is_on_radar( byte p_mask )
 			bool returning_fire = ( port[ STANDINGFIREORDERS ] == SFORDER_RETURN_FIRE && attacked );
 			if( ( ((mission->flags & MISSION_FLAG_CAN_ATTACK) == MISSION_FLAG_CAN_ATTACK) || do_nothing() )
 			&& ( port[ STANDINGFIREORDERS ] == SFORDER_FIRE_AT_WILL || returning_fire )
-			&& !jump_commands ) {
+			&& !jump_commands && local ) {
 				// Si l'unité peut attaquer d'elle même les unités enemies proches, elle le fait / Attack nearby enemies
 
 				bool can_fire = unit_manager.unit_type[type_id].AutoFire && unit_manager.unit_type[type_id].canattack;
@@ -4683,7 +4683,7 @@ bool UNIT::is_on_radar( byte p_mask )
 		return index;
 	}
 
-	void UNIT::shoot(int target,VECTOR startpos,VECTOR Dir,int w_id,const VECTOR &target_pos)
+	int UNIT::shoot(int target,VECTOR startpos,VECTOR Dir,int w_id,const VECTOR &target_pos)
 	{
 		if( get_script_index( SCRIPT_RockUnit ) >= 0 ) {		// Don't do calculations that won't be used
 			VECTOR D = Dir * RotateY( -Angle.y * DEG2RAD );
@@ -4697,12 +4697,30 @@ bool UNIT::is_on_radar( byte p_mask )
 			particle_engine.make_smoke(O+startpos,0,1,0.0f,-1.0f,0.0f, 0.3f);
 		LeaveCS();
 
+		if( network_manager.isConnected() && local ) {		// Send synchronization packet
+			struct event event;
+			event.type = EVENT_WEAPON_CREATION;
+			event.opt1 = idx;
+			event.opt2 = target;
+			event.x = (sint32)(target_pos.x * 32768.0f);
+			event.y = (sint32)(target_pos.y * 32768.0f);
+			event.z = (sint32)(target_pos.z * 32768.0f);
+			((sint32*)event.str)[0] = (sint32)(startpos.x * 32768.0f);
+			((sint32*)event.str)[1] = (sint32)(startpos.y * 32768.0f);
+			((sint32*)event.str)[2] = (sint32)(startpos.z * 32768.0f);
+			((sint16*)event.str)[6] = (sint16)(Dir.x * 16384.0f);
+			((sint16*)event.str)[7] = (sint16)(Dir.y * 16384.0f);
+			((sint16*)event.str)[8] = (sint16)(Dir.z * 16384.0f);
+			((sint16*)event.str)[9] = w_id;
+			}
+
 		weapons.Lock();
 		
 		int w_idx = weapons.add_weapon(unit_manager.unit_type[type_id].weapon[w_id]->nb_id,idx);
 		EnterCS();
 		weapons.weapon[w_idx].damage = unit_manager.unit_type[type_id].weapon_damage[ w_id ];
-		weapons.weapon[w_idx].Pos=startpos;
+		weapons.weapon[w_idx].Pos = startpos;
+		weapons.weapon[w_idx].local = local;
 		if(unit_manager.unit_type[type_id].weapon[w_id]->startvelocity==0.0f && !unit_manager.unit_type[type_id].weapon[w_id]->selfprop)
 			weapons.weapon[w_idx].V = unit_manager.unit_type[type_id].weapon[w_id]->weaponvelocity*Dir;
 		else
@@ -4723,6 +4741,8 @@ bool UNIT::is_on_radar( byte p_mask )
 		weapons.weapon[w_idx].visible=visible;
 
 		weapons.UnLock();
+		
+		return w_idx;
 	}
 
 void UNIT::draw_on_map()
@@ -4897,8 +4917,8 @@ void *create_unit( int type_id, int owner, VECTOR pos, MAP *map, bool sync, bool
 				event.type = EVENT_UNIT_CREATION;
 				event.opt1 = id;
 				event.opt2 = script ? (owner | 0x1000) : owner;
-				event.x = (uint32)((pos.x + map->map_w_d) * 65536.0f);
-				event.z = (uint32)((pos.z + map->map_w_d) * 65536.0f);
+				event.x = (sint32)(pos.x * 65536.0f);
+				event.z = (sint32)(pos.z * 65536.0f);
 				memcpy( event.str, unit_manager.unit_type[ type_id ].Unitname, strlen( unit_manager.unit_type[ type_id ].Unitname ) + 1 );
 				network_manager.sendEvent( &event );
 				}

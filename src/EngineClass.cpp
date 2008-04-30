@@ -1640,15 +1640,15 @@ void PLAYERS::player_control()
 				units.EnterCS_from_outside();
 				continue;
 				}
-			if( g_ta3d_network->isLocal( units.unit[ i ].owner_id ) ) {
+			if( units.unit[ i ].local ) {
 				struct sync sync;
 				sync.timestamp = units.current_tick;
 				sync.unit = i;
-				sync.x = (uint32)((units.unit[ i ].Pos.x + the_map->map_w_d) * 65536.0f);
-				sync.y = (uint32)(units.unit[ i ].Pos.y * 65536.0f);
-				sync.z = (uint32)((units.unit[ i ].Pos.z + the_map->map_h_d) * 65536.0f);
-				sync.vx = (int)(units.unit[ i ].V.x * 65536.0f);
-				sync.vz = (int)(units.unit[ i ].V.z * 65536.0f);
+				sync.x = (sint32)(units.unit[ i ].Pos.x * 65536.0f);
+				sync.y = (sint32)(units.unit[ i ].Pos.y * 65536.0f);
+				sync.z = (sint32)(units.unit[ i ].Pos.z * 65536.0f);
+				sync.vx = (sint32)(units.unit[ i ].V.x * 65536.0f);
+				sync.vz = (sint32)(units.unit[ i ].V.z * 65536.0f);
 				float angle = units.unit[ i ].Angle.y;
 				while( angle < 0.0f )	angle += 360.0f;
 				sync.orientation = (uint16)(angle * 65535.0f / 360.0f);
@@ -1663,6 +1663,36 @@ void PLAYERS::player_control()
 			units.EnterCS_from_outside();
 			}
 		units.LeaveCS_from_outside();
+
+		weapons.Lock();
+		for( int e = 0 ; e < weapons.nb_weapon ; e++ ) {
+			int i = weapons.idx_list[ e ];
+			if( i < 0 || i >= weapons.max_weapon )	continue;		// Error !!
+			weapons.UnLock();
+
+			if( weapons.weapon[ i ].weapon_id >= 0 || !weapons.weapon[i].dying )	{
+				weapons.Lock();
+				continue;
+				}
+			if( weapons.weapon[ i ].local ) {
+				struct sync sync;
+				sync.timestamp = units.current_tick;
+				sync.unit = i;
+				sync.x = (sint32)(weapons.weapon[ i ].Pos.x * 65536.0f);
+				sync.y = (sint32)(weapons.weapon[ i ].Pos.y * 65536.0f);
+				sync.z = (sint32)(weapons.weapon[ i ].Pos.z * 65536.0f);
+				sync.vx = (sint32)(weapons.weapon[ i ].V.x * 65536.0f);
+				sync.vz = (sint32)(weapons.weapon[ i ].V.z * 65536.0f);
+				sync.orientation = (uint16)( weapons.weapon[ i ].V.y * 256.0f + 16384.0f );
+				sync.hp = 0;					// Means it's a weapon
+				sync.build_percent_left = 0;
+
+				network_manager.sendSync( &sync );
+				}
+
+			weapons.Lock();
+			}
+		weapons.UnLock();
 
 //		printf("packet size (uncompressed) = %d\n", sync_pos );
 

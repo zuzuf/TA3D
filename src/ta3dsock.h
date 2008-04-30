@@ -85,26 +85,27 @@ struct order{
 struct sync{
 	uint32	timestamp;	//uint32 what tick is this snapshot
 	uint16	unit;		//uint16 sync what unit
-	uint32	x,y,z;
+	sint32	x,y,z;
 	sint32	vx,vz;
 	uint16	orientation;//uint16 where 0=0 and 65535~=2pi? ie rad=(rot1/65536.0)*2pi?
-	uint16	hp;
+	uint16	hp;			// 0 if it's a weapon, non 0 if it's a unit, since we don't send data about dead unit through UDP
 	uint8	build_percent_left;
 };//max size = 28
 
 #define	EVENT_UNIT_CREATION			0x00
 #define EVENT_UNIT_DEATH			0x01
 #define EVENT_WEAPON_CREATION		0x02
-#define EVENT_WEAPON_DEATH			0x03
+#define EVENT_UNIT_DAMAGE			0x03
 #define EVENT_UNIT_SCRIPT			0x04
 
 struct event{
 	byte	type;		//uint8 what type of event
 	uint16	opt1;		//uint16 optional parameters
 	uint16	opt2;		//uint16
-	uint32	x;			//uint32
-	uint32	z;			//uint32
-	char	str[16];	//unit name ? weapon name ?
+	sint32	x;			//uint32
+	sint32	y;			//uint32
+	sint32	z;			//uint32
+	byte	str[24];	//unit name ? weapon name ?
 };//max size = 29
 
 typedef chat special;

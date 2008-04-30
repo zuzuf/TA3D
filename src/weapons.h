@@ -334,9 +334,12 @@ public:
 	bool		visible;
 	float		damage;
 	bool		just_explode;		// When set the weapon behaves as if it had hit something
+	bool		local;
+	uint32		last_timestamp;
 
 	inline void init()
 	{
+		last_timestamp = 0;
 		just_explode = false;
 		damage = -1;
 		visible=true;
@@ -356,6 +359,7 @@ public:
 		dying=false;
 		smoke_time=0.0f;
 		owner=0;
+		local = true;
 	}
 
 	WEAPON()

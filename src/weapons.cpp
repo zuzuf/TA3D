@@ -610,7 +610,7 @@ const void WEAPON::move(const float dt,MAP *map)				// Anime les armes
 				}
 			if(hit_idx>=0) {
 				units.unit[hit_idx].Lock();
-				if( units.unit[hit_idx].flags & 1 ) {
+				if( (units.unit[hit_idx].flags & 1) && units.unit[hit_idx].local ) {
 					bool ok = units.unit[hit_idx].hp>0.0f;		// Juste pour identifier l'assassin...
 //					if( damage < 0 )
 //						damage = weapon_manager.weapon[weapon_id].damage;
@@ -623,6 +623,9 @@ const void WEAPON::move(const float dt,MAP *map)				// Anime les armes
 					if(units.unit[hit_idx].hp<=0.0f)
 						units.unit[hit_idx].severity=max(units.unit[hit_idx].severity, (int)damage);
 
+					if( network_manager.isConnected() )			// Send damage event
+						g_ta3d_network->sendDamageEvent( hit_idx, damage );
+				
 					VECTOR D = V * RotateY( -units.unit[hit_idx].Angle.y * DEG2RAD );
 					D.Unit();
 					int param[] = { (int)(10.0f*DEG2TA*D.z), (int)(10.0f*DEG2TA*D.x) };
