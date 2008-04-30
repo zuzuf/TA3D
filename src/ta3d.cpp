@@ -464,6 +464,10 @@ if( network_manager.isConnected() ) {
 	game_area.msg("esc_menu.b_save.disable");
 	}
 
+sound_manager->PlayMusic();
+
+wait_room( game_data );
+
 /*----------------------------- script management --------------------------*/
 
 LUA_PROGRAM	game_script;					// Script that will rule the game
@@ -474,12 +478,6 @@ if( !game_data->saved_file.empty() ) {			// We have something to load
 	load_game( game_data );
 	done = !game_data->saved_file.empty();		// If loading the game fails, then exit
 	}
-
-sound_manager->PlayMusic();
-
-/*---------------------------- network management --------------------------*/
-
-wait_room( game_data );
 
 //-----------------------   Code related to threads   ------------------------
 
