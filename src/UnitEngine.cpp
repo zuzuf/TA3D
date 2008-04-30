@@ -2174,7 +2174,7 @@ bool UNIT::is_on_radar( byte p_mask )
 		flags &= 0xEF;		// To fix a bug
 
 		if(build_percent_left > 0.0f)	{		// Unit isn't finished
-			if(!built) {
+			if(!built && local) {
 				hp -= dt * 1000.0f / ( 6 * unit_manager.unit_type[type_id].BuildTime ) * unit_manager.unit_type[type_id].MaxDamage;
 				build_percent_left += dt * 100000.0f / ( 6 * unit_manager.unit_type[type_id].BuildTime );
 				}
@@ -4849,18 +4849,21 @@ void *create_unit(int type_id,int owner,VECTOR pos,MAP *map)
 {
 	int id = units.create(type_id,owner);
 	if(id>=0) {
-		if( network_manager.isConnected() && g_ta3d_network->isLocal( owner ) ) {		// Send event packet if needed
-			struct event event;
-			event.type = EVENT_UNIT_CREATION;
-			event.opt1 = id;
-			event.opt2 = owner;
-			event.x = (uint32)((pos.x + map->map_w_d) * 65536.0f);
-			event.z = (uint32)((pos.z + map->map_w_d) * 65536.0f);
-			memcpy( event.str, unit_manager.unit_type[ type_id ].Unitname, strlen( unit_manager.unit_type[ type_id ].Unitname ) + 1 );
-			network_manager.sendEvent( &event );
-			}
-
 		units.unit[id].Lock();
+
+		if( network_manager.isConnected() ) {
+			units.unit[id].local = g_ta3d_network->isLocal( owner );
+			if( units.unit[id].local ) {		// Send event packet if needed
+				struct event event;
+				event.type = EVENT_UNIT_CREATION;
+				event.opt1 = id;
+				event.opt2 = owner;
+				event.x = (uint32)((pos.x + map->map_w_d) * 65536.0f);
+				event.z = (uint32)((pos.z + map->map_w_d) * 65536.0f);
+				memcpy( event.str, unit_manager.unit_type[ type_id ].Unitname, strlen( unit_manager.unit_type[ type_id ].Unitname ) + 1 );
+				network_manager.sendEvent( &event );
+				}
+			}
 
 		units.unit[id].Pos=pos;
 		units.unit[id].build_percent_left=100.0f;

@@ -1635,7 +1635,7 @@ void PLAYERS::player_control()
 			units.LeaveCS_from_outside();
 
 			units.unit[ i ].Lock();
-			if( !(units.unit[ i ].flags & 1) || units.unit[i].hp <= 0.0f )	{
+			if( !(units.unit[ i ].flags & 1) || units.unit[i].hp < 1.0f )	{
 				units.unit[ i ].UnLock();
 				units.EnterCS_from_outside();
 				continue;

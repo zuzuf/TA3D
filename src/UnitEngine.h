@@ -334,6 +334,7 @@ public:
 public:
 	uint32			sync_hash;
 	uint32			last_synctick;
+	bool			local;
 
 public:
 
