@@ -4712,6 +4712,8 @@ bool UNIT::is_on_radar( byte p_mask )
 			((sint16*)event.str)[7] = (sint16)(Dir.y * 16384.0f);
 			((sint16*)event.str)[8] = (sint16)(Dir.z * 16384.0f);
 			((sint16*)event.str)[9] = w_id;
+			
+			network_manager.sendEvent( &event );
 			}
 
 		weapons.Lock();
