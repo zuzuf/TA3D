@@ -191,6 +191,8 @@ void TA3DNetwork::check()
 						e = i;
 						break;
 						}
+						
+				printf("received order to kill %d\n", event_msg.opt1 );
 
 				units.LeaveCS_from_outside();
 

@@ -634,8 +634,7 @@ public:
 				set_mission(unit_manager.unit_type[type_id].DefaultMissionType);
 			if(script) {
 				data.load(script->nb_piece);
-				if( !basic )
-					launch_script(get_script_index(SCRIPT_create));
+				launch_script(get_script_index(SCRIPT_create));
 				}
 			}
 		LeaveCS();

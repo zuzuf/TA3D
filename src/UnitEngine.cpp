@@ -5625,6 +5625,13 @@ void INGAME_UNITS::kill(int index,MAP *map,int prev)			// Détruit une unité
 
 	unit[index].Lock();
 
+	if( unit[index].local && network_manager.isConnected() ) {		// Send EVENT_UNIT_DEATH
+		struct event event;
+		event.type = EVENT_UNIT_DEATH;
+		event.opt1 = index;
+		network_manager.sendEvent( &event );
+		}
+
 	if( unit[ index ].type_id >= 0 && unit_manager.unit_type[ unit[ index ].type_id ].IsAirBase ) {		// Remove it from repair_pads list
 		int owner_id = unit[ index ].owner_id;
 
@@ -5638,13 +5645,6 @@ void INGAME_UNITS::kill(int index,MAP *map,int prev)			// Détruit une unité
 		}
 
 	if( unit[index].flags & 1 ) {
-		if( unit[index].local && network_manager.isConnected() ) {		// Send EVENT_UNIT_DEATH
-			struct event event;
-			event.type = EVENT_UNIT_DEATH;
-			event.opt1 = index;
-			network_manager.sendEvent( &event );
-			}
-
 		if( unit[ index ].mission
 		&& !unit_manager.unit_type[ unit[ index ].type_id ].BMcode
 		&& ( unit[ index ].mission->mission == MISSION_BUILD_2 || unit[ index ].mission->mission == MISSION_BUILD )		// It was building something that we must destroy too
