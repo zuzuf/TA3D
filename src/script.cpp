@@ -469,24 +469,19 @@ int function_create_unit( lua_State *L )		// ta3d_create_unit( player_id, unit_t
 
 	if( unit_type_id >= 0 && unit_type_id < unit_manager.nb_unit && player_id >= 0 && player_id < NB_PLAYERS ) {
 		units.EnterCS_from_outside();
-		int idx = units.create( unit_type_id, player_id );
-		if( idx >= 0 && idx < units.max_unit && units.unit[ idx ].flags ) {
-			if(unit_manager.unit_type[ unit_type_id ].ActivateWhenBuilt ) {		// Start activated
-				units.unit[ idx ].Lock();
-				units.unit[ idx ].port[ ACTIVATION ] = 0;
-				units.unit[ idx ].activate();
-				units.unit[ idx ].UnLock();
-				}
-			units.unit[ idx ].draw_on_map();
+		VECTOR pos;
+		pos.x = x;
+		pos.z = z;
+		pos.y = max( lua_map->get_max_rect_h((int)x,(int)z, unit_manager.unit_type[ unit_type_id ].FootprintX, unit_manager.unit_type[ unit_type_id ].FootprintZ ), lua_map->sealvl);
+		UNIT *unit = (UNIT*)create_unit( unit_type_id, player_id, pos, the_map );
+		int idx = unit ? unit->idx : -1;
+		if( unit && unit_manager.unit_type[ unit_type_id ].ActivateWhenBuilt ) {		// Start activated
+			unit->Lock();
+			unit->port[ ACTIVATION ] = 0;
+			unit->activate();
+			unit->UnLock();
 			}
 		units.LeaveCS_from_outside();
-
-		if( idx >= 0 && idx < units.max_unit && units.unit[ idx ].flags ) {
-			lua_pushnumber( L, idx );
-			lua_pushnumber( L, x );
-			lua_pushnumber( L, z );
-			function_move_unit( L );		// Move it to the correct location
-			}
 
 		if( idx >= 0 && idx < units.max_unit && units.unit[ idx ].flags )
 			lua_pushnumber( L, idx );
