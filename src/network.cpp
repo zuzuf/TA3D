@@ -618,6 +618,8 @@ eventq(32,sizeof(struct event)) {
 	fileDirty = false;
 	
 	nlInit();						// Start NL
+
+	nlEnable( NL_SOCKET_STATS );	// Activates statistics
 	
 	nlSelectNetwork( NL_IP );		// We want IP networking
 }
@@ -824,6 +826,13 @@ void Network::Disconnect(){
 	slmutex.Unlock();
 
 	cleanQueues();
+
+	Console->AddEntry("network statistics (AVE) : %d bytes/sec. received", nlGetInteger( NL_BYTES_RECEIVED ) );
+	Console->AddEntry("network statistics (MAX) : %d bytes/sec. received", nlGetInteger( NL_AVE_BYTES_RECEIVED ) );
+	Console->AddEntry("network statistics (TOTAL) : %d received", nlGetInteger( NL_HIGH_BYTES_RECEIVED ) );
+	Console->AddEntry("network statistics (AVE) : %d bytes/sec. sent", nlGetInteger( NL_BYTES_SENT ) );
+	Console->AddEntry("network statistics (MAX) : %d bytes/sec. sent", nlGetInteger( NL_AVE_BYTES_SENT ) );
+	Console->AddEntry("network statistics (TOTAL) : %d sent", nlGetInteger( NL_HIGH_BYTES_SENT ) );
 
 	myMode = 0;
 
