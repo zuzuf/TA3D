@@ -227,7 +227,7 @@ void TA3DNetwork::check()
 			if( event_msg.opt1 < units.max_unit && ( units.unit[ event_msg.opt1 ].flags & 1 ) ) {
 				VECTOR target_pos( event_msg.x / 32768.0f, event_msg.y / 32768.0f, event_msg.z / 32768.0f );
 				VECTOR Dir( ((sint16*)event_msg.str)[6] / 16384.0f, ((sint16*)event_msg.str)[7] / 16384.0f, ((sint16*)event_msg.str)[8] / 16384.0f );
-				VECTOR startpos( ((sint16*)event_msg.str)[0] / 32768.0f, ((sint16*)event_msg.str)[1] / 32678.0f, ((sint16*)event_msg.str)[2] / 32768.0f );
+				VECTOR startpos( ((sint32*)event_msg.str)[0] / 32768.0f, ((sint32*)event_msg.str)[1] / 32678.0f, ((sint32*)event_msg.str)[2] / 32768.0f );
 				
 				units.unit[ event_msg.opt1 ].Lock();
 				int w_idx = units.unit[ event_msg.opt1 ].shoot( event_msg.opt2, startpos, Dir, ((sint16*)event_msg.str)[9], target_pos );

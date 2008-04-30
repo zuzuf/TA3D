@@ -1670,7 +1670,7 @@ void PLAYERS::player_control()
 			if( i < 0 || i >= weapons.max_weapon )	continue;		// Error !!
 			weapons.UnLock();
 
-			if( weapons.weapon[ i ].weapon_id >= 0 || !weapons.weapon[i].dying )	{
+			if( weapons.weapon[ i ].weapon_id >= 0 || weapons.weapon[i].dying )	{
 				weapons.Lock();
 				continue;
 				}
