@@ -721,32 +721,7 @@ public:
 		return -1;
 	}
 
-	inline int launch_script(int id,int nb_param=0,int *param=NULL,bool force=false)			// Start a script as a separate "thread" of the unit
-	{
-		if(script==NULL)	return -2;
-		if(id<0 || id>=script->nb_script)
-			return -2;
-		if( !force )
-			if(is_running(id))			// le script tourne déjà / script already running
-				return -1;
-		if( nb_running >= 25 )	{	// Too much scripts running
-			Console->AddEntry("Warning: too much script running!!");
-			return -3;
-			}
-		EnterCS();
-		if( script_env->size() <= nb_running )
-			script_env->resize( nb_running + 1 );
-		(*script_env)[nb_running].init();
-		(*script_env)[nb_running].env = new SCRIPT_ENV_STACK;
-		(*script_env)[nb_running].env->init();
-		(*script_env)[nb_running].env->cur=id;
-		(*script_env)[nb_running].running=true;
-		if(nb_param>0 && param!=NULL)
-			for(int i=0;i<nb_param;i++)
-				(*script_env)[nb_running].env->var[i]=param[i];
-		LeaveCS();
-		return nb_running++;
-	}
+	int launch_script(int id,int nb_param=0,int *param=NULL,bool force=false);			// Start a script as a separate "thread" of the unit
 
 	inline bool is_running(int script_index)								// Is the script still running ?
 	{

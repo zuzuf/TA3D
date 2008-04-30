@@ -177,6 +177,26 @@ void TA3DNetwork::check()
 
 		switch( event_msg.type )
 		{
+		case EVENT_UNIT_SCRIPT:
+			if( event_msg.opt1 < units.max_unit && (units.unit[ event_msg.opt1 ].flags & 1) )
+				units.unit[ event_msg.opt1 ].launch_script( event_msg.x, event_msg.z, (int*)event_msg.str, event_msg.opt2 );
+			break;
+		case EVENT_UNIT_DEATH:
+			{
+				int e = -1;
+				units.EnterCS_from_outside();
+
+				for( int i = 0 ; i < units.max_unit ; i++ )
+					if( units.idx_list[ i ] == event_msg.opt1 ) {
+						e = i;
+						break;
+						}
+
+				units.LeaveCS_from_outside();
+
+				units.kill( event_msg.opt1, the_map, e );
+			}
+			break;
 		case EVENT_UNIT_CREATION:
 			{
 				units.EnterCS_from_outside();

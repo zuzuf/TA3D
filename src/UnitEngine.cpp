@@ -4845,6 +4845,45 @@ const void UNIT::play_sound( const String &key )
 	LeaveCS();
 }
 
+int UNIT::launch_script(int id,int nb_param,int *param,bool force)			// Start a script as a separate "thread" of the unit
+{
+	if(script==NULL)	return -2;
+	if(id<0 || id>=script->nb_script)
+		return -2;
+	if( !force )
+		if(is_running(id))			// le script tourne déjà / script already running
+			return -1;
+	if( nb_running >= 25 )	{	// Too much scripts running
+		Console->AddEntry("Warning: too much script running!!");
+		return -3;
+		}
+
+	if( local && network_manager.isConnected() ) {			// Send synchronization event
+		struct event event;
+		event.type = EVENT_UNIT_SCRIPT;
+		event.opt1 = idx;
+		event.opt2 = force;
+		event.x = id;
+		event.z = nb_param;
+		memcpy( event.str, param, sizeof(int) * nb_param );
+		network_manager.sendEvent( &event );
+		}
+
+	EnterCS();
+	if( script_env->size() <= nb_running )
+		script_env->resize( nb_running + 1 );
+	(*script_env)[nb_running].init();
+	(*script_env)[nb_running].env = new SCRIPT_ENV_STACK;
+	(*script_env)[nb_running].env->init();
+	(*script_env)[nb_running].env->cur=id;
+	(*script_env)[nb_running].running=true;
+	if(nb_param>0 && param!=NULL)
+		for(int i=0;i<nb_param;i++)
+			(*script_env)[nb_running].env->var[i]=param[i];
+	LeaveCS();
+	return nb_running++;
+}
+
 void *create_unit(int type_id,int owner,VECTOR pos,MAP *map)
 {
 	int id = units.create(type_id,owner);
@@ -5293,8 +5332,10 @@ void INGAME_UNITS::move(float dt,MAP *map,int key_frame,bool wind_change)
 		players.c_nb_unit[unit[i].owner_id]++;			// Compte les unités de chaque joueur
 		unit[ i ].UnLock();
 		if(unit[i].move(dt,map,path_exec,key_frame)==-1) {			// Vérifie si l'unité a été détruite
-			kill(i,map,e);
-			e--;			// Can't skip a unit
+			if( unit[i].local ) {				// Don't kill remote units, since we're told when to kill them
+				kill(i,map,e);
+				e--;			// Can't skip a unit
+				}
 			}
 		else {
 			unit[ i ].Lock();
@@ -5597,6 +5638,13 @@ void INGAME_UNITS::kill(int index,MAP *map,int prev)			// Détruit une unité
 		}
 
 	if( unit[index].flags & 1 ) {
+		if( unit[index].local && network_manager.isConnected() ) {		// Send EVENT_UNIT_DEATH
+			struct event event;
+			event.type = EVENT_UNIT_DEATH;
+			event.opt1 = index;
+			network_manager.sendEvent( &event );
+			}
+
 		if( unit[ index ].mission
 		&& !unit_manager.unit_type[ unit[ index ].type_id ].BMcode
 		&& ( unit[ index ].mission->mission == MISSION_BUILD_2 || unit[ index ].mission->mission == MISSION_BUILD )		// It was building something that we must destroy too

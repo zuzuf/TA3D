@@ -306,7 +306,7 @@ void UDPThread::proc(void* param){
 		if( packtype )
 			for( int i = 1 ; i <= network->players.getMaxId() ; i++ ) {
 				TA3DSock *s = network->players.getSock( i );
-				if( s && s->getAddress() == sock->getAddress() ) {
+				if( s && strcmp( s->getAddress(), sock->getAddress() ) == 0 ) {
 					player_id = i;
 					break;
 					}

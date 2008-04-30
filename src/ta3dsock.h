@@ -96,6 +96,7 @@ struct sync{
 #define EVENT_UNIT_DEATH			0x01
 #define EVENT_WEAPON_CREATION		0x02
 #define EVENT_WEAPON_DEATH			0x03
+#define EVENT_UNIT_SCRIPT			0x04
 
 struct event{
 	byte	type;		//uint8 what type of event
