@@ -3035,13 +3035,13 @@ void AREA::set_caption( const String &message, const String &caption )		// set t
 	GUIOBJ	*guiobj = get_object( message );
 	if( guiobj && guiobj->Text.size() > 0 ) {
 		if( guiobj->Flag & FLAG_CENTERED ) {
-			float length = gui_font.length( guiobj->Text[ 0 ] );
+			float length = gui_font.length( guiobj->Text[ 0 ] ) * guiobj->s;
 			guiobj->x1 += length * 0.5f;
 			guiobj->x2 -= length * 0.5f;
 			}
 		guiobj->Text[0] = caption;
 		if( guiobj->Flag & FLAG_CENTERED ) {
-			float length = gui_font.length( guiobj->Text[ 0 ] );
+			float length = gui_font.length( guiobj->Text[ 0 ] ) * guiobj->s;
 			guiobj->x1 -= length * 0.5f;
 			guiobj->x2 += length * 0.5f;
 			}

@@ -454,6 +454,18 @@ if(g_useProgram && g_useFBO && map->water) {
 
 delay=(speed_limit==0.0f) ? 0.0f : 1.0f/speed_limit;
 
+/*---------------------------- network management --------------------------*/
+
+TA3DNetwork	ta3d_network( &game_area, game_data );
+
+if( network_manager.isConnected() ) {
+	players.set_network( &ta3d_network );
+	g_ta3d_network = &ta3d_network;
+	game_area.msg("esc_menu.b_save.disable");
+	}
+
+/*----------------------------- script management --------------------------*/
+
 LUA_PROGRAM	game_script;					// Script that will rule the game
 if( !network_manager.isConnected() || network_manager.isServer() )
 	game_script.load(game_data->game_script, map);	// Load the script
@@ -466,14 +478,6 @@ if( !game_data->saved_file.empty() ) {			// We have something to load
 sound_manager->PlayMusic();
 
 /*---------------------------- network management --------------------------*/
-
-TA3DNetwork	ta3d_network( &game_area, game_data );
-
-if( network_manager.isConnected() ) {
-	players.set_network( &ta3d_network );
-	g_ta3d_network = &ta3d_network;
-	game_area.msg("esc_menu.b_save.disable");
-	}
 
 wait_room( game_data );
 
