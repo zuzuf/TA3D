@@ -473,12 +473,16 @@ int function_create_unit( lua_State *L )		// ta3d_create_unit( player_id, unit_t
 		pos.x = x;
 		pos.z = z;
 		pos.y = max( lua_map->get_max_rect_h((int)x,(int)z, unit_manager.unit_type[ unit_type_id ].FootprintX, unit_manager.unit_type[ unit_type_id ].FootprintZ ), lua_map->sealvl);
-		UNIT *unit = (UNIT*)create_unit( unit_type_id, player_id, pos, the_map );
+		UNIT *unit = (UNIT*)create_unit( unit_type_id, player_id, pos, the_map, true );		// Force synchronization
 		int idx = unit ? unit->idx : -1;
-		if( unit && unit_manager.unit_type[ unit_type_id ].ActivateWhenBuilt ) {		// Start activated
+		if( unit ) {
 			unit->Lock();
-			unit->port[ ACTIVATION ] = 0;
-			unit->activate();
+			unit->hp = unit_manager.unit_type[ unit_type_id ].MaxDamage;
+			unit->build_percent_left = 0.0f;
+			if( unit_manager.unit_type[ unit_type_id ].ActivateWhenBuilt ) {		// Start activated
+				unit->port[ ACTIVATION ] = 0;
+				unit->activate();
+				}
 			unit->UnLock();
 			}
 		units.LeaveCS_from_outside();

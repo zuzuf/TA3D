@@ -4884,7 +4884,7 @@ int UNIT::launch_script(int id,int nb_param,int *param,bool force)			// Start a 
 	return nb_running++;
 }
 
-void *create_unit(int type_id,int owner,VECTOR pos,MAP *map)
+void *create_unit( int type_id, int owner, VECTOR pos, MAP *map, bool sync )
 {
 	int id = units.create(type_id,owner);
 	if(id>=0) {
@@ -4892,7 +4892,7 @@ void *create_unit(int type_id,int owner,VECTOR pos,MAP *map)
 
 		if( network_manager.isConnected() ) {
 			units.unit[id].local = g_ta3d_network->isLocal( owner );
-			if( units.unit[id].local ) {		// Send event packet if needed
+			if( sync ) {		// Send event packet if needed
 				struct event event;
 				event.type = EVENT_UNIT_CREATION;
 				event.opt1 = id;

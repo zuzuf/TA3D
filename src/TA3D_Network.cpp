@@ -209,7 +209,7 @@ void TA3DNetwork::check()
 					pos.x = (event_msg.x / 65536.0f) - the_map->map_w_d;
 					pos.z = (event_msg.z / 65536.0f) - the_map->map_h_d;
 					pos.y = the_map->get_unit_h( pos.x, pos.z );
-					UNIT *unit = (UNIT*)create_unit( idx, event_msg.opt2,pos,the_map);
+					UNIT *unit = (UNIT*)create_unit( idx, event_msg.opt2,pos,the_map,false);		// We don't want to send sync data for this ...
 					if( unit ) {
 						unit->Lock();
 						printf("created unit (%s) idx = %d (%d)\n", event_msg.str, unit->idx, units.current_tick);

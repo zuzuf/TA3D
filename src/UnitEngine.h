@@ -35,7 +35,7 @@
 #define UNPACKZ(xz) ((sint16)((xz)&0xFFFF))
 #define PACKXZ(x,z) ((((int)(x))<<16) | (((int)(z))&0xFFFF))
 
-void *create_unit(int type_id,int owner,VECTOR pos,MAP *map);
+void *create_unit(int type_id,int owner,VECTOR pos,MAP *map,bool sync=true);
 
 #define MISSION_FLAG_CAN_ATTACK		0x01
 #define MISSION_FLAG_SEARCH_PATH	0x02
