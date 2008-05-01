@@ -57,7 +57,7 @@ int function_print( lua_State *L )		// ta3d_print( x, y, str )
 			struct event print_event;
 			print_event.type = EVENT_PRINT;
 			print_event.x = (float) lua_tonumber( L, -3 );
-			print_event.z = (float) lua_tonumber( L, -2 );
+			print_event.y = (float) lua_tonumber( L, -2 );
 			memcpy( print_event.str, str, strlen( str ) + 1 );
 		
 			network_manager.sendEvent( &print_event );
@@ -1225,9 +1225,9 @@ void LUA_PROGRAM::load(char *filename, MAP *map)					// Load a lua script
 
 int LUA_PROGRAM::run(MAP *map,float dt,int viewer_id)									// Execute le script
 {
-	lua_program->Lock();
+	EnterCS();
 	draw_list.draw(gfx->TA_font);			// Execute la liste de commandes de dessin
-	lua_program->UnLock();
+	LeaveCS();
 
 	if( !running )	return	-1;
 

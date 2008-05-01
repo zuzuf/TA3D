@@ -254,9 +254,9 @@ int UDPSock::sendEvent(struct event* event, const std::string &address){
 		putFloat(event->x);
 		putFloat(event->y);
 		putFloat(event->z);
-		putLong(((real32*)(event->str))[0]);
-		putLong(((real32*)(event->str))[1]);
-		putLong(((real32*)(event->str))[2]);
+		putFloat(((real32*)(event->str))[0]);
+		putFloat(((real32*)(event->str))[1]);
+		putFloat(((real32*)(event->str))[2]);
 		putLong(((sint16*)(event->str))[6]);
 		putLong(((sint16*)(event->str))[7]);
 		putLong(((sint16*)(event->str))[8]);

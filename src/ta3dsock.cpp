@@ -358,13 +358,13 @@ int TA3DSock::sendEvent(struct event* event){
 		putFloat(event->x);
 		putFloat(event->y);
 		putFloat(event->z);
-		putLong(((real32*)(event->str))[0]);
-		putLong(((real32*)(event->str))[1]);
-		putLong(((real32*)(event->str))[2]);
-		putLong(((sint16*)(event->str))[6]);
-		putLong(((sint16*)(event->str))[7]);
-		putLong(((sint16*)(event->str))[8]);
-		putLong(((sint16*)(event->str))[9]);
+		putFloat(((real32*)(event->str))[0]);
+		putFloat(((real32*)(event->str))[1]);
+		putFloat(((real32*)(event->str))[2]);
+		putShort(((sint16*)(event->str))[6]);
+		putShort(((sint16*)(event->str))[7]);
+		putShort(((sint16*)(event->str))[8]);
+		putShort(((sint16*)(event->str))[9]);
 		break;
 	case EVENT_UNIT_SCRIPT:
 		putShort(event->opt1);
@@ -568,10 +568,10 @@ int TA3DSock::makeEvent(struct event* event){
 		((real32*)(event->str))[0] = getFloat();
 		((real32*)(event->str))[1] = getFloat();
 		((real32*)(event->str))[2] = getFloat();
-		((sint16*)(event->str))[6] = getLong();
-		((sint16*)(event->str))[7] = getLong();
-		((sint16*)(event->str))[8] = getLong();
-		((sint16*)(event->str))[9] = getLong();
+		((sint16*)(event->str))[6] = getShort();
+		((sint16*)(event->str))[7] = getShort();
+		((sint16*)(event->str))[8] = getShort();
+		((sint16*)(event->str))[9] = getShort();
 		break;
 	case EVENT_UNIT_SCRIPT:
 		event->opt1 = getShort();
