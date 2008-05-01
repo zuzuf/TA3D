@@ -319,6 +319,10 @@ int TA3DSock::sendEvent(struct event* event){
 	putByte(event->type);
 	switch( event->type )
 	{
+	case EVENT_SCRIPT_SIGNAL:
+		putShort(event->opt1);
+		putShort(event->opt2);
+		break;
 	case EVENT_UNIT_EXPLODE:
 		putShort(event->opt1);
 		putShort(event->opt2);
@@ -327,6 +331,7 @@ int TA3DSock::sendEvent(struct event* event){
 		putFloat(event->z);
 		break;
 	case EVENT_DRAW:
+		putShort(event->opt1);
 		putFloat(event->x);
 		putFloat(event->y);
 		putFloat(event->z);
@@ -334,14 +339,17 @@ int TA3DSock::sendEvent(struct event* event){
 		putString((const char*)(event->str));
 		break;
 	case EVENT_PRINT:
+		putShort(event->opt1);
 		putFloat(event->x);
 		putFloat(event->y);
 		putString((const char*)(event->str));
 		break;
 	case EVENT_PLAY:
+		putShort(event->opt1);
 		putString((const char*)(event->str));
 		break;
 	case EVENT_CLS:
+		putShort(event->opt1);
 	case EVENT_CLF:
 	case EVENT_INIT_RES:
 		break;
@@ -533,6 +541,10 @@ int TA3DSock::makeEvent(struct event* event){
 
 	switch( event->type )
 	{
+	case EVENT_SCRIPT_SIGNAL:
+		event->opt1 = getShort();
+		event->opt2 = getShort();
+		break;
 	case EVENT_UNIT_EXPLODE:
 		event->opt1 = getShort();
 		event->opt2 = getShort();
@@ -541,6 +553,7 @@ int TA3DSock::makeEvent(struct event* event){
 		event->z = getFloat();
 		break;
 	case EVENT_DRAW:
+		event->opt1 = getShort();
 		event->x = getFloat();
 		event->y = getFloat();
 		event->z = getFloat();
@@ -548,14 +561,17 @@ int TA3DSock::makeEvent(struct event* event){
 		getBuffer((char*)(event->str),24);
 		break;
 	case EVENT_PRINT:
+		event->opt1 = getShort();
 		event->x = getFloat();
 		event->y = getFloat();
 		getBuffer((char*)(event->str),24);
 		break;
 	case EVENT_PLAY:
+		event->opt1 = getShort();
 		getBuffer((char*)(event->str),24);
 		break;
 	case EVENT_CLS:
+		event->opt1 = getShort();
 	case EVENT_CLF:
 	case EVENT_INIT_RES:
 		break;

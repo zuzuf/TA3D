@@ -33,6 +33,7 @@ TA3DNetwork::TA3DNetwork( AREA *area, GAME_DATA *game_data ) : messages()
 	enter = false;
 	this->area = area;
 	this->game_data = game_data;
+	signal = 0;
 	CreateCS();
 }
 
@@ -215,6 +216,10 @@ void TA3DNetwork::check()
 
 		switch( event_msg.type )
 		{
+		case EVENT_SCRIPT_SIGNAL:
+			if( event_msg.opt1 == players.local_human_id || event_msg.opt1 == 0xFFFF )				// Do it only if the packet is for us
+				g_ta3d_network->set_signal( event_msg.opt2 );
+			break;
 		case EVENT_UNIT_EXPLODE:				// BOOOOM and corpse creation :)
 			if( event_msg.opt1 < units.max_unit && ( units.unit[ event_msg.opt1 ].flags & 1 ) ) {		// If it's false then game is out of sync !!
 				units.unit[ event_msg.opt1 ].Lock();
@@ -232,12 +237,14 @@ void TA3DNetwork::check()
 				}
 			break;
 		case EVENT_CLS:
-			lua_program->Lock();
-			lua_program->draw_list.destroy();
-			lua_program->UnLock();
+			if( event_msg.opt1 == players.local_human_id || event_msg.opt1 == 0xFFFF ) {			// Do it only if the packet is for us
+				lua_program->Lock();
+				lua_program->draw_list.destroy();
+				lua_program->UnLock();
+				}
 			break;
 		case EVENT_DRAW:
-			{
+			if( event_msg.opt1 == players.local_human_id || event_msg.opt1 == 0xFFFF ) {			// Do it only if the packet is for us
 				DRAW_OBJECT draw_obj;
 				draw_obj.type = DRAW_TYPE_BITMAP;
 				draw_obj.x[0] = event_msg.x;
@@ -247,10 +254,10 @@ void TA3DNetwork::check()
 				draw_obj.text = strdup( TRANSLATE( (char*)event_msg.str ).c_str() );		// We can't load it now because of thread safety
 				draw_obj.tex = 0;
 				lua_program->draw_list.add( draw_obj );
-			}
+				}
 			break;
 		case EVENT_PRINT:
-			{
+			if( event_msg.opt1 == players.local_human_id || event_msg.opt1 == 0xFFFF ) {			// Do it only if the packet is for us
 				DRAW_OBJECT draw_obj;
 				draw_obj.type = DRAW_TYPE_TEXT;
 				draw_obj.r[0] = 1.0f;
@@ -260,10 +267,12 @@ void TA3DNetwork::check()
 				draw_obj.y[0] = event_msg.y;
 				draw_obj.text = strdup( TRANSLATE( (char*)event_msg.str ).c_str() );
 				lua_program->draw_list.add( draw_obj );
-			}
+				}
 			break;
 		case EVENT_PLAY:
-			sound_manager->PlaySound( (char*)event_msg.str, false );
+			if( event_msg.opt1 == players.local_human_id || event_msg.opt1 == 0xFFFF ) {			// Do it only if the packet is for us
+				sound_manager->PlaySound( (char*)event_msg.str, false );
+				}
 			break;
 		case EVENT_CLF:
 			the_map->clear_FOW();

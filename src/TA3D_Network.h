@@ -39,10 +39,15 @@ private:
 	AREA						*area;
 	GAME_DATA					*game_data;
 
+	int							signal;
+
 public:
 
 	TA3DNetwork( AREA *area, GAME_DATA *game_data );
 	~TA3DNetwork();
+
+	inline void set_signal( int s )	{	signal = s;	}
+	inline int	get_signal()	{	return signal;	}
 
 	void check();
 	void draw();

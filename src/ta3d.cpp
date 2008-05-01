@@ -2212,45 +2212,50 @@ do
 	int signal = 0;
 	if( !network_manager.isConnected() || network_manager.isServer() ) {
 		signal = game_script.run(map,((float)(units.current_tick - script_timer)) / TICKS_PER_SEC,players.local_human_id);
-		script_timer = units.current_tick;
 
-		switch(signal)
-		{
-		case 0:				// Rien de spécial
-			break;
-		case -1:			// Fin du script
-			game_script.stop();
-			break;
-		case -2:			// Pause
-			break;
-		case -3:			// Attente d'un évènement
-			break;
-		case 1:				// Fin de partie (match nul)
-			done=true;
-			exit_mode=EXIT_NONE;
-			break;
-		case 2:				// Fin de partie (victoire)
-			done=true;
-			exit_mode=EXIT_VICTORY;
-			break;
-		case 3:				// Fin de partie (défaite)
-			done=true;
-			exit_mode=EXIT_DEFEAT;
-			break;
-		case 4:				// Caméra en mode normal
-			if(freecam) {
-				freecam=false;
-				r2=0.0f;
-				}
-			break;
-		case 5:				// Caméra libre
-			if(!freecam)
-				freecam=true;
-			break;
-		};
+		script_timer = units.current_tick;
 		}
 	else
 		game_script.run(NULL,0.0f,0);		// In client mode we only want to display text, pictures, ... everything drawn by the script on the server
+
+	if( network_manager.isConnected() )
+		signal = g_ta3d_network->get_signal();
+
+	switch(signal)
+	{
+	case 0:				// Rien de spécial
+		break;
+	case -1:			// Fin du script
+		if( !network_manager.isConnected() || network_manager.isServer() )
+			game_script.stop();
+		break;
+	case -2:			// Pause
+		break;
+	case -3:			// Attente d'un évènement
+		break;
+	case 1:				// Fin de partie (match nul)
+		done=true;
+		exit_mode=EXIT_NONE;
+		break;
+	case 2:				// Fin de partie (victoire)
+		done=true;
+		exit_mode=EXIT_VICTORY;
+		break;
+	case 3:				// Fin de partie (défaite)
+		done = !network_manager.isServer();			// Server can't leave, otherwise game stops
+		exit_mode=EXIT_DEFEAT;
+		break;
+	case 4:				// Caméra en mode normal
+		if(freecam) {
+			freecam=false;
+			r2=0.0f;
+			}
+		break;
+	case 5:				// Caméra libre
+		if(!freecam)
+			freecam=true;
+		break;
+	};
 
 	if(selecting) {						// Affiche le rectangle de selection
 		glDisable(GL_TEXTURE_2D);

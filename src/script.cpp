@@ -39,31 +39,41 @@
 LUA_PROGRAM	*lua_program = NULL;
 MAP *lua_map = NULL;
 
-int function_print( lua_State *L )		// ta3d_print( x, y, str )
+int function_print_for( lua_State *L )		// ta3d_print_for( x, y, str, player_id )
 {
-	const char *str = lua_tostring( L, -1 );		// Read the result
+	const char *str = lua_tostring( L, -2 );		// Read the result
 	if( str ) {
-		DRAW_OBJECT draw_obj;
-		draw_obj.type = DRAW_TYPE_TEXT;
-		draw_obj.r[0] = 1.0f;
-		draw_obj.g[0] = 1.0f;
-		draw_obj.b[0] = 1.0f;
-		draw_obj.x[0] = (float) lua_tonumber( L, -3 );
-		draw_obj.y[0] = (float) lua_tonumber( L, -2 );
-		draw_obj.text = strdup( TRANSLATE( str ).c_str() );
-		lua_program->draw_list.add( draw_obj );
+		if( (int) lua_tonumber( L, -1 ) == players.local_human_id || (int) lua_tonumber( L, -1 ) == -1 ) {
+			DRAW_OBJECT draw_obj;
+			draw_obj.type = DRAW_TYPE_TEXT;
+			draw_obj.r[0] = 1.0f;
+			draw_obj.g[0] = 1.0f;
+			draw_obj.b[0] = 1.0f;
+			draw_obj.x[0] = (float) lua_tonumber( L, -4 );
+			draw_obj.y[0] = (float) lua_tonumber( L, -3 );
+			draw_obj.text = strdup( TRANSLATE( str ).c_str() );
+			lua_program->draw_list.add( draw_obj );
+			}
 
 		if( network_manager.isServer() ) {
 			struct event print_event;
 			print_event.type = EVENT_PRINT;
-			print_event.x = (float) lua_tonumber( L, -3 );
-			print_event.y = (float) lua_tonumber( L, -2 );
+			print_event.opt1 = (int) lua_tonumber( L, -1 );
+			print_event.x = (float) lua_tonumber( L, -4 );
+			print_event.y = (float) lua_tonumber( L, -3 );
 			memcpy( print_event.str, str, strlen( str ) + 1 );
 		
 			network_manager.sendEvent( &print_event );
 			}
 		}
-	lua_pop( L, 3 );
+	lua_pop( L, 4 );
+	return 0;
+}
+
+int function_print( lua_State *L )		// ta3d_print( x, y, str )
+{
+	lua_pushnumber( L, -1.0f );
+	function_print_for( L );
 	return 0;
 }
 
@@ -127,19 +137,31 @@ int function_triangle( lua_State *L )		// ta3d_line( x1,y1,x2,y2,x3,y3,r,g,b )
 	return 0;
 }
 
-int function_cls( lua_State *L )		// ta3d_cls()
+int function_cls_for( lua_State *L )		// ta3d_cls_for( player_id )
 {
-	lua_program->Lock();
-	lua_program->draw_list.destroy();
-	lua_program->UnLock();
+	if( (int) lua_tonumber( L, -1 ) == players.local_human_id || (int) lua_tonumber( L, -1 ) == -1 ) {
+		lua_program->Lock();
+		lua_program->draw_list.destroy();
+		lua_program->UnLock();
+		}
 
 	if( network_manager.isServer() ) {
 		struct event cls_event;
 		cls_event.type = EVENT_CLS;
+		cls_event.opt1 = (int) lua_tonumber( L, -1 );
 	
 		network_manager.sendEvent( &cls_event );
 		}
 
+	lua_pop( L, 1 );
+
+	return 0;
+}
+
+int function_cls( lua_State *L )		// ta3d_cls()
+{
+	lua_pushnumber( L, -1.0f );
+	function_cls_for( L );
 	return 0;
 }
 
@@ -241,21 +263,24 @@ int function_time( lua_State *L )		// ta3d_time()
 	return 1;
 }
 
-int function_draw_image( lua_State *L )		// ta3d_draw_image( str image_name, x1, y1, x2, y2 )
+int function_draw_image_for( lua_State *L )		// ta3d_draw_image_for( str image_name, x1, y1, x2, y2, player_id )
 {
-	DRAW_OBJECT draw_obj;
-	draw_obj.type = DRAW_TYPE_BITMAP;
-	draw_obj.x[0] = (float) lua_tonumber( L, -4 );
-	draw_obj.y[0] = (float) lua_tonumber( L, -3 );
-	draw_obj.x[1] = (float) lua_tonumber( L, -2 );
-	draw_obj.y[1] = (float) lua_tonumber( L, -1 );
-	draw_obj.tex = gfx->load_texture( TRANSLATE( lua_tostring( L, -5 ) ) );
-	draw_obj.text = NULL;
-	lua_program->draw_list.add( draw_obj );
+	if( (int) lua_tonumber( L, -1 ) == players.local_human_id || (int) lua_tonumber( L, -1 ) == -1 ) {
+		DRAW_OBJECT draw_obj;
+		draw_obj.type = DRAW_TYPE_BITMAP;
+		draw_obj.x[0] = (float) lua_tonumber( L, -5 );
+		draw_obj.y[0] = (float) lua_tonumber( L, -4 );
+		draw_obj.x[1] = (float) lua_tonumber( L, -3 );
+		draw_obj.y[1] = (float) lua_tonumber( L, -2 );
+		draw_obj.tex = gfx->load_texture( TRANSLATE( lua_tostring( L, -6 ) ) );
+		draw_obj.text = NULL;
+		lua_program->draw_list.add( draw_obj );
+		}
 
 	if( network_manager.isServer() ) {
 		struct event draw_event;
 		draw_event.type = EVENT_DRAW;
+		draw_event.opt1 = (int) lua_tonumber( L, -1 );
 		draw_event.x = (float) lua_tonumber( L, -4 );
 		draw_event.y = (float) lua_tonumber( L, -3 );
 		draw_event.z = (float) lua_tonumber( L, -2 );
@@ -265,8 +290,15 @@ int function_draw_image( lua_State *L )		// ta3d_draw_image( str image_name, x1,
 		network_manager.sendEvent( &draw_event );
 		}
 
-	lua_pop( L, 5 );
+	lua_pop( L, 6 );
 
+	return 0;
+}
+
+int function_draw_image( lua_State *L )		// ta3d_draw_image( str image_name, x1, y1, x2, y2 )
+{
+	lua_pushnumber( L, -1.0f );
+	function_draw_image_for( L );
 	return 0;
 }
 
@@ -841,11 +873,17 @@ int function_kill_unit( lua_State *L )		// ta3d_kill_unit( unit_id )
 	lua_pop( L, 1 );
 
 	if( unit_id >= 0 && unit_id < units.max_unit && units.unit[ unit_id ].flags ) {
-		units.EnterCS_from_outside();
 
-		units.unit[ unit_id ].hp = 0.0f;
-
-		units.LeaveCS_from_outside();
+		units.unit[ unit_id ].Lock();
+		if( !network_manager.isConnected() || units.unit[ unit_id ].local )
+			units.unit[ unit_id ].hp = 0.0f;
+		else {
+			struct event event;
+			event.type = EVENT_UNIT_DEATH;
+			event.opt1 = unit_id;
+			network_manager.sendEvent( &event );
+			}
+		units.unit[ unit_id ].UnLock();
 		}
 
 	return 0;
@@ -868,20 +906,29 @@ int function_kick_unit( lua_State *L )		// ta3d_kick_unit( unit_id, damage )
 	return 0;
 }
 
-int function_play( lua_State *L )		// ta3d_play( filename )
+int function_play_for( lua_State *L )		// ta3d_play_for( filename, player_id )
 {
-	sound_manager->PlaySound( (char*) lua_tostring( L, -1 ), false );
+	if( (int) lua_tonumber( L, -1 ) == players.local_human_id || (int) lua_tonumber( L, -1 ) == -1 )
+		sound_manager->PlaySound( (char*) lua_tostring( L, -2 ), false );
 
 	if( network_manager.isServer() ) {
 		struct event play_event;
 		play_event.type = EVENT_PLAY;
-		memcpy( play_event.str, lua_tostring( L, -1 ), strlen( lua_tostring( L, -1 ) ) + 1 );
+		play_event.opt1 = (int) lua_tonumber( L, -1 );
+		memcpy( play_event.str, lua_tostring( L, -2 ), strlen( lua_tostring( L, -2 ) ) + 1 );
 		
 		network_manager.sendEvent( &play_event );
 		}
 
-	lua_pop( L, 1 );
+	lua_pop( L, 2 );
 
+	return 0;
+}
+
+int function_play( lua_State *L )		// ta3d_play( filename )
+{
+	lua_pushnumber( L, -1.0f );
+	function_play_for( L );
 	return 0;
 }
 
@@ -1073,12 +1120,32 @@ int function_create_feature( lua_State *L )		// ta3d_create_feature( feature_typ
 	return 0;
 }
 
+int function_send_signal( lua_State *L )		// ta3d_send_signal( player_id, signal )
+{
+	int player_id = (int) lua_tonumber( L, -2 );
+	int signal_id = (int) lua_tonumber( L, -1 );
+	
+	if( player_id == players.local_human_id || player_id == -1 )
+		g_ta3d_network->set_signal( signal_id );
+	
+	if( network_manager.isServer() ) {
+		struct event signal_event;
+		signal_event.type = EVENT_SCRIPT_SIGNAL;
+		signal_event.opt1 = player_id;
+		signal_event.opt2 = signal_id;
+		}
+	
+	return 0;
+}
+
 void register_functions( lua_State *L )
 {
 	lua_register( L, "ta3d_print", function_print );
+	lua_register( L, "ta3d_print_for", function_print_for );
 	lua_register( L, "ta3d_logmsg", function_logmsg );
 	lua_register( L, "ta3d_line", function_line );
 	lua_register( L, "ta3d_cls", function_cls );
+	lua_register( L, "ta3d_cls_for", function_cls_for );
 	lua_register( L, "ta3d_point", function_point );
 	lua_register( L, "ta3d_triangle", function_triangle );
 	lua_register( L, "ta3d_signal", function_signal );
@@ -1092,6 +1159,7 @@ void register_functions( lua_State *L )
 	lua_register( L, "ta3d_get_key", function_get_key );
 	lua_register( L, "ta3d_time", function_time );
 	lua_register( L, "ta3d_draw_image", function_draw_image );
+	lua_register( L, "ta3d_draw_image_for", function_draw_image_for );
 	lua_register( L, "ta3d_nb_players", function_nb_players );
 	lua_register( L, "ta3d_get_unit_number_for_player", function_get_unit_number_for_player );
 	lua_register( L, "ta3d_get_unit_owner", function_get_unit_owner );
@@ -1112,6 +1180,7 @@ void register_functions( lua_State *L )
 	lua_register( L, "ta3d_kill_unit", function_kill_unit );
 	lua_register( L, "ta3d_kick_unit", function_kick_unit );
 	lua_register( L, "ta3d_play", function_play );
+	lua_register( L, "ta3d_play_for", function_play_for );
 	lua_register( L, "ta3d_set_cam_pos", function_set_cam_pos );
 	lua_register( L, "ta3d_set_cam_mode", function_set_cam_mode );
 	lua_register( L, "ta3d_clf", function_clf );
@@ -1140,6 +1209,7 @@ void register_functions( lua_State *L )
 	lua_register( L, "ta3d_nb_unit_of_type", function_nb_unit_of_type );
 	lua_register( L, "ta3d_create_feature", function_create_feature );
 	lua_register( L, "ta3d_has_mobile_units", function_has_mobile_units );
+	lua_register( L, "ta3d_send_signal", function_send_signal );
 }
 
 LUA_PROGRAM::LUA_PROGRAM()
