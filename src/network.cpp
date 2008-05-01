@@ -153,7 +153,6 @@ void SocketThread::proc(void* param){
 	while(!dead && sock->isOpen()){
 	
 		//sleep until data is coming
-		rest(1);
 		sock->takeFive(1000);
 		if(dead) break;
 
@@ -292,7 +291,6 @@ void UDPThread::proc(void* param){
 	while(!dead && sock->isOpen()){
 	
 		//sleep until data is coming
-		rest(1);
 		sock->takeFive(1000);
 		if(dead) break;
 
@@ -464,7 +462,7 @@ void SendFileThread::proc(void* param){
 			network->updateFileTransferInformation( filename + format("%d", sockid), real_length, pos );
 
 			int timer = msec_timer;
-			while( progress < pos - FILE_TRANSFER_BUFFER_SIZE && !dead && msec_timer - timer < 5000 )	rest(1);
+			while( progress < pos - FILE_TRANSFER_BUFFER_SIZE && !dead && msec_timer - timer < 5000 )	rest(0);
 			if( msec_timer - timer >= 5000 ) {
 				dead = 1;
 				network->updateFileTransferInformation( filename + format("%d", sockid), 0, 0 );
@@ -527,7 +525,7 @@ void GetFileThread::proc(void* param){
 	int timer = msec_timer;
 
 	ready = true;
-	while( !dead && ready && msec_timer - timer < 5000 ) rest( 1 );
+	while( !dead && ready && msec_timer - timer < 5000 ) rest( 0 );
 	memcpy(&length,buffer,4);
 	
 	if( ready ) {				// Time out
@@ -545,7 +543,7 @@ void GetFileThread::proc(void* param){
 	while(!dead){
 		ready = true;
 		timer = msec_timer;
-		while( !dead && ready && msec_timer - timer < 5000 ) rest( 1 );			// Get paquet data
+		while( !dead && ready && msec_timer - timer < 5000 ) rest( 0 );			// Get paquet data
 		n = buffer_size;
 
 		if( ready ) {				// Time out
