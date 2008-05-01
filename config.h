@@ -80,13 +80,13 @@
 #define PACKAGE_NAME "TA3D"
 
 /* Define to the full name and version of this package. */
-#define PACKAGE_STRING "TA3D 0.4.3"
+#define PACKAGE_STRING "TA3D 0.5.0"
 
 /* Define to the one symbol short name of this package. */
 #define PACKAGE_TARNAME "ta3d"
 
 /* Define to the version of this package. */
-#define PACKAGE_VERSION "0.4.3"
+#define PACKAGE_VERSION "0.5.0"
 
 /* Define to the type of arg 1 for `select'. */
 #define SELECT_TYPE_ARG1 int
@@ -101,7 +101,7 @@
 #define STDC_HEADERS 1
 
 /* Version number of package */
-#define VERSION "0.4.3"
+#define VERSION "0.5.0"
 
 /* Define to empty if `const' does not conform to ANSI C. */
 /* #undef const */
