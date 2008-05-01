@@ -1142,6 +1142,13 @@ void register_functions( lua_State *L )
 	lua_register( L, "ta3d_has_mobile_units", function_has_mobile_units );
 }
 
+LUA_PROGRAM::LUA_PROGRAM()
+{
+	lua_program = this;
+	CreateCS();
+	init();
+}
+
 void LUA_PROGRAM::load(char *filename, MAP *map)					// Load a lua script
 {
 	destroy();			// Au cas où

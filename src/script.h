@@ -147,11 +147,7 @@ public:
 		init();
 	}
 
-	LUA_PROGRAM()
-	{
-		CreateCS();
-		init();
-	}
+	LUA_PROGRAM();
 
 	~LUA_PROGRAM()
 	{
