@@ -278,15 +278,29 @@ int TA3DSock::sendOrder(struct order* order){
 
 int TA3DSock::sendSync(struct sync* sync){
 	tcpmutex.Lock();
-//	putByte('S');
-//	putLong(sync->timestamp);
-//	putLong(sync->unit);
-//	putFloat(sync->x);
-//	putFloat(sync->y);
-//	putFloat(sync->vx);
-//	putFloat(sync->vy);
-//	putShort(sync->orientation);
-//	sendUDP();
+
+	putByte('S');
+	putLong(sync->timestamp);
+	putShort(sync->unit);
+	putFloat(sync->x);
+	putFloat(sync->y);
+	putFloat(sync->z);
+	
+	if( sync->hp ) {			// Unit sync
+		putShort(sync->hp);
+		putFloat(sync->vx);
+		putFloat(sync->vz);
+		putShort(sync->orientation);
+		putByte(sync->build_percent_left);
+		}
+	else {						// Weapon sync
+		putShort(sync->hp);
+		putFloat(sync->vx);
+		putFloat(sync->vy);
+		putFloat(sync->vz);
+		}
+	sendTCP();
+
 	tcpmutex.Unlock();
 	return 0;
 }
@@ -305,6 +319,11 @@ int TA3DSock::sendEvent(struct event* event){
 	putByte(event->type);
 	switch( event->type )
 	{
+	case EVENT_UNIT_SYNCED:
+		putShort(event->opt1);
+		putShort(event->opt2);
+		putLong(event->x);
+		break;
 	case EVENT_UNIT_DAMAGE:
 		putShort(event->opt1);
 		putShort(event->opt2);
@@ -434,39 +453,37 @@ int TA3DSock::makeOrder(struct order* order){
 }
 
 int TA3DSock::makeSync(struct sync* sync){
-//	if(udpinbuf[0] != 'S'){
-//		Console->AddEntry("makeSync error: the data doesn't start with an 'S'");
-//		return -1;
-//	}
-//	if(uiremain == -1){
-//		return -1;
-//	}
-//	uint32_t temp;
-//	uint16_t stemp;
+	if(tcpinbuf[0] != 'S'){
+		Console->AddEntry("makeSync error: the data doesn't start with an 'S'");
+		return -1;
+	}
+	if(tiremain == -1){
+		return -1;
+	}
+	tibrp = 1;
+	
+	sync->timestamp = getLong();
+	sync->unit = getShort();
+	sync->x = getFloat();
+	sync->y = getFloat();
+	sync->z = getFloat();
 
-//	memcpy(&temp,udpinbuf+1,4);
-//	sync->timestamp = nlSwapl(temp);
+	sync->hp = getShort();
 
-//	memcpy(&temp,udpinbuf+5,4);
-//	sync->unit = nlSwapl(temp);
+	if( sync->hp ) {		// Unit sync packet
+		sync->vx = getFloat();
+		sync->vz = getFloat();
+		sync->orientation = getShort();
+		sync->build_percent_left = getByte();
+		}
+	else {					// Weapon sync
+		sync->vx = getFloat();
+		sync->vy = getFloat();
+		sync->vz = getFloat();
+		}
 
-//	memcpy(&temp,udpinbuf+9,4);
-//	sync->x = (float)nlSwapl(temp);
-
-//	memcpy(&temp,udpinbuf+13,4);
-//	sync->y = (float)nlSwapl(temp);
-
-//	memcpy(&temp,udpinbuf+17,4);
-//	sync->vx = (float)nlSwapl(temp);
-
-//	memcpy(&temp,udpinbuf+21,4);
-//	sync->vy = (float)nlSwapl(temp);
-
-//	memcpy(&stemp,udpinbuf+25,2);
-//	sync->orientation = nlSwapl(stemp);
-//	
-//	uibp = 0;
-//	uiremain = -1;
+	tibp = 0;
+	tiremain = -1;
 
 	return 0;
 }
@@ -484,6 +501,11 @@ int TA3DSock::makeEvent(struct event* event){
 
 	switch( event->type )
 	{
+	case EVENT_UNIT_SYNCED:
+		event->opt1 = getShort();
+		event->opt2 = getShort();
+		event->x = getLong();
+		break;
 	case EVENT_UNIT_DAMAGE:
 		event->opt1 = getShort();
 		event->opt2 = getShort();

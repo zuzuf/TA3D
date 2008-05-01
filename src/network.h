@@ -267,7 +267,9 @@ class Network{
 		int sendChat(struct chat* chat, int src_id = -1);
 		int sendOrder(struct order* order, int src_id = -1);
 		int sendSync(struct sync* sync, int src_id = -1);
+		int sendSyncTCP(struct sync* sync, int src_id = -1);
 		int sendEvent(struct event* event, int src_id = -1);
+		int sendEventUDP(struct event* event, int dst_id = -1);
 		int sendFile(int player, const String &filename, const String &port);
 
 		int dropPlayer(int num);

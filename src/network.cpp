@@ -18,6 +18,7 @@
 #include "stdafx.h"
 #include "TA3D_NameSpace.h"
 #include "TA3D_hpi.h"
+#include "TA3D_Network.h"
 
 using namespace TA3D::UTILS::HPI;
 
@@ -334,6 +335,28 @@ void UDPThread::proc(void* param){
 				network->sqmutex.Unlock();
 				if( network->isServer() )
 					network->sendSync(&sync, player_id);
+				break;
+			case 'E'://UDP event, used to tell someone we've synced a unit, so check destination and resend it if necessary
+				{
+					network->eqmutex.Lock();
+						if( dead || sock->makeEvent(&event) == -1 ){
+							network->eqmutex.Unlock();
+							break;
+						}
+						if( event.type != EVENT_UNIT_SYNCED ) {		// We only accept EVENT_UNIT_SYNCED
+							network->eqmutex.Unlock();
+							break;
+							}
+						int dest = g_ta3d_network->getNetworkID( event.opt1 );
+						printf("received event\n");
+						if( dest == network_manager.getMyID() ) {
+							network->eventq.enqueue(&event);
+							dest = -1;
+							}
+					network->eqmutex.Unlock();
+					if( network->isServer() && dest != -1 )
+						network->sendEventUDP(&event, dest);
+				}
 				break;
 			case 0:
 				break;
@@ -827,12 +850,12 @@ void Network::Disconnect(){
 
 	cleanQueues();
 
-	Console->AddEntry("network statistics (AVE) : %d bytes/sec. received", nlGetInteger( NL_BYTES_RECEIVED ) );
-	Console->AddEntry("network statistics (MAX) : %d bytes/sec. received", nlGetInteger( NL_AVE_BYTES_RECEIVED ) );
-	Console->AddEntry("network statistics (TOTAL) : %d received", nlGetInteger( NL_HIGH_BYTES_RECEIVED ) );
-	Console->AddEntry("network statistics (AVE) : %d bytes/sec. sent", nlGetInteger( NL_BYTES_SENT ) );
-	Console->AddEntry("network statistics (MAX) : %d bytes/sec. sent", nlGetInteger( NL_AVE_BYTES_SENT ) );
-	Console->AddEntry("network statistics (TOTAL) : %d sent", nlGetInteger( NL_HIGH_BYTES_SENT ) );
+	Console->AddEntry("network statistics (AVE) : %d bytes/sec. received", nlGetInteger( NL_AVE_BYTES_RECEIVED ) );
+	Console->AddEntry("network statistics (MAX) : %d bytes/sec. received", nlGetInteger( NL_HIGH_BYTES_RECEIVED ) );
+	Console->AddEntry("network statistics (TOTAL) : %d received", nlGetInteger( NL_BYTES_RECEIVED ) );
+	Console->AddEntry("network statistics (AVE) : %d bytes/sec. sent", nlGetInteger( NL_AVE_BYTES_SENT ) );
+	Console->AddEntry("network statistics (MAX) : %d bytes/sec. sent", nlGetInteger( NL_HIGH_BYTES_SENT ) );
+	Console->AddEntry("network statistics (TOTAL) : %d sent", nlGetInteger( NL_BYTES_SENT ) );
 
 	myMode = 0;
 
@@ -1206,20 +1229,54 @@ int Network::sendSync(struct sync* sync, int src_id){
 	return -1;						// Not connected, it shouldn't be possible to get here if we're not connected ...
 }
 
-int Network::sendEvent(struct event* event, int src_id){
+int Network::sendSyncTCP(struct sync* sync, int src_id){
+	if( myMode == 1 ) {				// Server mode
+		if( sync == NULL )	return -1;
+		int v = 0;
+		for( int i = 1 ; i <= players.getMaxId() ; i++ )  {
+			TA3DSock *sock = players.getSock( i );
+			if( sock && i != src_id )
+				v += sock->sendSync( sync );
+			}
+		return v;
+		}
+	else if( myMode == 2 && src_id == -1 ) {			// Client mode
+		if( tohost_socket == NULL || !tohost_socket->isOpen() || sync == NULL )	return -1;
+		return tohost_socket->sendSync( sync );
+		}
+	return -1;						// Not connected, it shouldn't be possible to get here if we're not connected ...
+}
+
+int Network::sendEvent(struct event* event, int dst_id){
+	if( myMode == 1 ) {				// Server mode
+		if( event == NULL )	return -1;
+		int v = 0;
+		TA3DSock *sock = players.getSock( dst_id );
+		if( sock )
+			v = sock->sendEvent( event );
+		return v;
+		}
+	else if( myMode == 2 ) {			// Client mode
+		if( tohost_socket == NULL || !tohost_socket->isOpen() || event == NULL )	return -1;
+		return tohost_socket->sendEvent( event );
+		}
+	return -1;
+}
+
+int Network::sendEventUDP(struct event* event, int src_id){
 	if( myMode == 1 ) {				// Server mode
 		if( event == NULL )	return -1;
 		int v = 0;
 		for( int i = 1 ; i <= players.getMaxId() ; i++ )  {
 			TA3DSock *sock = players.getSock( i );
 			if( sock && i != src_id )
-				v += sock->sendEvent( event );
+				v += udp_socket.sendEvent( event, sock->getAddress() );
 			}
 		return v;
 		}
 	else if( myMode == 2 && src_id == -1 ) {			// Client mode
 		if( tohost_socket == NULL || !tohost_socket->isOpen() || event == NULL )	return -1;
-		return tohost_socket->sendEvent( event );
+		return udp_socket.sendEvent( event, tohost_socket->getAddress() );
 		}
 	return -1;
 }

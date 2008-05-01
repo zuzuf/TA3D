@@ -77,10 +77,12 @@ class UDPSock{
 		//these are for outgoing packets
 		int sendSpecial(struct chat* chat, const std::string &address);
 		int sendSync(struct sync* sync, const std::string &address);
+		int sendEvent(struct event* event, const std::string &address);
 		void cleanPacket();
 
 		//these are for incoming packets
 		int makeSpecial(struct chat* chat);
+		int makeEvent(struct event* event);
 		int makeSync(struct sync* sync);
 
 		char getPacket();//if packet is ready return the type, else return -1

@@ -171,12 +171,12 @@ void TA3DNetwork::check()
 			}
 		else if( sync_msg.unit < units.max_unit ) {
 			units.unit[sync_msg.unit].Lock();
-			if( !(units.unit[sync_msg.unit].flags & 1) || units.unit[sync_msg.unit].last_synctick >= sync_msg.timestamp )	{
+			if( !(units.unit[sync_msg.unit].flags & 1) || units.unit[sync_msg.unit].last_synctick[0] >= sync_msg.timestamp )	{
 				units.unit[sync_msg.unit].UnLock();
 				continue;
 				}
 
-			units.unit[sync_msg.unit].last_synctick = sync_msg.timestamp;			
+			units.unit[sync_msg.unit].last_synctick[0] = sync_msg.timestamp;
 			units.unit[sync_msg.unit].Pos.x = sync_msg.x;
 			units.unit[sync_msg.unit].Pos.y = sync_msg.y;
 			units.unit[sync_msg.unit].Pos.z = sync_msg.z;
@@ -194,6 +194,13 @@ void TA3DNetwork::check()
 			units.unit[sync_msg.unit].build_percent_left = sync_msg.build_percent_left / 2.55f;
 
 			units.unit[sync_msg.unit].UnLock();
+			
+			struct event sync_event;
+			sync_event.opt1 = sync_msg.unit;
+			sync_event.opt2 = network_manager.getMyID();
+			sync_event.x = sync_msg.timestamp;
+			
+			network_manager.sendEventUDP( &sync_event );
 			}
 		}
 
@@ -206,11 +213,23 @@ void TA3DNetwork::check()
 
 		switch( event_msg.type )
 		{
+		case EVENT_UNIT_SYNCED:
+			if( event_msg.opt1 < units.max_unit && ( units.unit[ event_msg.opt1 ].flags & 1 ) ) {
+				units.unit[ event_msg.opt1 ].Lock();
+
+				int player_id = game_data->net2id( event_msg.opt2 );
+
+				if( player_id >= 0 )
+					units.unit[ event_msg.opt1 ].last_synctick[player_id] = event_msg.opt2;
+
+				units.unit[ event_msg.opt1 ].UnLock();
+				}
+			break;
 		case EVENT_UNIT_DAMAGE:
 			if( event_msg.opt1 < units.max_unit && ( units.unit[ event_msg.opt1 ].flags & 1 ) ) {
 				units.unit[ event_msg.opt1 ].Lock();
 
-				float damage = event_msg.opt2 / 65536.0f;
+				float damage = event_msg.opt2 / 16.0f;
 
 				units.unit[ event_msg.opt1 ].hp -= damage;
 
@@ -339,6 +358,20 @@ void TA3DNetwork::sendDamageEvent( int idx, float damage )
 	struct event event;
 	event.type = EVENT_UNIT_DAMAGE;
 	event.opt1 = idx;
-	event.opt2 = damage * 32768.0f;
+	event.opt2 = damage * 16.0f;
 	network_manager.sendEvent( &event );
 }
+
+int TA3DNetwork::getNetworkID( int unit_id )
+{
+	if( unit_id < units.max_unit )	return -1;
+	units.unit[ unit_id ].Lock();
+	if( !(units.unit[ unit_id ].flags & 1) ) {
+		units.unit[ unit_id ].UnLock();
+		return -1;
+		}
+	int result = game_data->player_network_id[ units.unit[ unit_id ].owner_id ];
+	units.unit[ unit_id ].UnLock();
+	return result;
+}
+

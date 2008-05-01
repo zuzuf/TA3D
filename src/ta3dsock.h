@@ -97,6 +97,7 @@ struct sync{
 #define EVENT_WEAPON_CREATION		0x02
 #define EVENT_UNIT_DAMAGE			0x03
 #define EVENT_UNIT_SCRIPT			0x04
+#define EVENT_UNIT_SYNCED			0x05		// UDP : Used to tell a unit was synced
 
 struct event{
 	byte	type;		//uint8 what type of event

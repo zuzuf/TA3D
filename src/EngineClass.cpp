@@ -1655,7 +1655,28 @@ void PLAYERS::player_control()
 				sync.hp = (uint16)units.unit[ i ].hp;
 				sync.build_percent_left = (uint8)(units.unit[ i ].build_percent_left * 2.55f);
 
-				network_manager.sendSync( &sync );
+				uint32 latest_sync = units.current_tick;
+				for( int f = 0 ; f < NB_PLAYERS ; f++ )
+					if( g_ta3d_network->isRemoteHuman( f ) )
+						latest_sync = min( latest_sync, units.unit[ i ].last_synctick[f] );
+
+				if( latest_sync < units.unit[i].previous_sync.timestamp - 10 ) {		// We have to sync now
+					network_manager.sendSyncTCP( &sync );
+					units.unit[i].previous_sync = sync;
+					}
+				else {
+					if( sync.x != units.unit[i].previous_sync.x
+					||	sync.y != units.unit[i].previous_sync.y
+					||	sync.z != units.unit[i].previous_sync.z
+					||	sync.vx != units.unit[i].previous_sync.vx
+					||	sync.vz != units.unit[i].previous_sync.vz
+					||	sync.hp != units.unit[i].previous_sync.hp
+					||	sync.orientation != units.unit[i].previous_sync.orientation
+					||	sync.build_percent_left != units.unit[i].previous_sync.build_percent_left ) {			// Don't send what isn't needed
+						network_manager.sendSync( &sync );
+						units.unit[i].previous_sync = sync;
+						}
+					}
 				}
 			units.unit[ i ].UnLock();
 

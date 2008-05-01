@@ -209,6 +209,59 @@ int UDPSock::sendSpecial(struct chat* chat, const std::string &address){
 	return 0;
 }
 
+int UDPSock::sendEvent(struct event* event, const std::string &address){
+	udpmutex.Lock();
+	putByte('E');
+	putByte(event->type);
+	switch( event->type )
+	{
+	case EVENT_UNIT_SYNCED:
+		putShort(event->opt1);
+		putShort(event->opt2);
+		putLong(event->x);
+		break;
+	case EVENT_UNIT_DAMAGE:
+		putShort(event->opt1);
+		putShort(event->opt2);
+		break;
+	case EVENT_WEAPON_CREATION:
+		putShort(event->opt1);
+		putShort(event->opt2);
+		putLong(event->x);
+		putLong(event->y);
+		putLong(event->z);
+		putLong(((sint32*)(event->str))[0]);
+		putLong(((sint32*)(event->str))[1]);
+		putLong(((sint32*)(event->str))[2]);
+		putLong(((sint16*)(event->str))[6]);
+		putLong(((sint16*)(event->str))[7]);
+		putLong(((sint16*)(event->str))[8]);
+		putLong(((sint16*)(event->str))[9]);
+		break;
+	case EVENT_UNIT_SCRIPT:
+		putShort(event->opt1);
+		putShort(event->opt2);
+		putLong(event->x);
+		putLong(event->z);
+		for( int i = 0 ; i < event->z ; i++ )
+			putLong(((sint32*)(event->str))[i]);
+		break;
+	case EVENT_UNIT_DEATH:
+		putShort(event->opt1);
+		break;
+	case EVENT_UNIT_CREATION:
+		putShort(event->opt1);
+		putShort(event->opt2);
+		putLong(event->x);
+		putLong(event->z);
+		putString((const char*)(event->str));
+		break;
+	};
+	send(address);
+	udpmutex.Unlock();
+	return 0;
+}
+
 int UDPSock::sendSync(struct sync* sync, const std::string &address){
 	udpmutex.Lock();
 
@@ -269,6 +322,67 @@ int UDPSock::makeSync(struct sync* sync){
 		sync->vz = getFloat();
 		}
 	
+	uibp = 0;
+	uiremain = -1;
+	return 0;
+}
+
+int UDPSock::makeEvent(struct event* event){
+	if(udpinbuf[0] != 'E'){
+		Console->AddEntry("makeEvent error: the data doesn't start with an 'E'");
+		return -1;
+	}
+	if(uiremain == -1){
+		return -1;
+	}
+	uibrp = 1;
+	event->type = getByte();
+
+	switch( event->type )
+	{
+	case EVENT_UNIT_SYNCED:
+		event->opt1 = getShort();
+		event->opt2 = getShort();
+		event->x = getLong();
+		break;
+	case EVENT_UNIT_DAMAGE:
+		event->opt1 = getShort();
+		event->opt2 = getShort();
+		break;
+	case EVENT_WEAPON_CREATION:
+		event->opt1 = getShort();
+		event->opt2 = getShort();
+		event->x = getLong();
+		event->y = getLong();
+		event->z = getLong();
+		((sint32*)(event->str))[0] = getLong();
+		((sint32*)(event->str))[1] = getLong();
+		((sint32*)(event->str))[2] = getLong();
+		((sint16*)(event->str))[6] = getLong();
+		((sint16*)(event->str))[7] = getLong();
+		((sint16*)(event->str))[8] = getLong();
+		((sint16*)(event->str))[9] = getLong();
+		break;
+	case EVENT_UNIT_SCRIPT:
+		event->opt1 = getShort();
+		event->opt2 = getShort();
+		event->x = getLong();
+		event->z = getLong();
+		for( int i = 0 ; i < event->z ; i++ )
+			((sint32*)(event->str))[i] = getLong();
+		break;
+	case EVENT_UNIT_DEATH:
+		event->opt1 = getShort();
+		break;
+	case EVENT_UNIT_CREATION:
+		event->opt1 = getShort();
+		event->opt2 = getShort();
+		event->x = getLong();
+		event->z = getLong();
+		getBuffer((char*)(event->str),24);
+		break;
+	};
+
 	uibp = 0;
 	uiremain = -1;
 	return 0;

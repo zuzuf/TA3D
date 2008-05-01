@@ -333,8 +333,9 @@ public:
 		// Following variables are used to control the synchronization of data between game clients
 public:
 	uint32			sync_hash;
-	uint32			last_synctick;
+	uint32			*last_synctick;
 	bool			local;
+	struct	sync	previous_sync;		// previous sync data
 
 public:
 
@@ -504,6 +505,7 @@ public:
 		script_idx = new char[NB_SCRIPT];	// Index of scripts to prevent multiple search
 		attached_list = new short[20];
 		link_list = new short[20];
+		last_synctick = new uint32[10];
 	}
 
 	inline void toggle_self_destruct()
@@ -621,6 +623,7 @@ public:
 		def_mission=NULL;
 		port[BUILD_PERCENT_LEFT]=0;
 		build_percent_left=0.0f;
+		memset( last_synctick, 0, 40 );
 		if(unit_type!=-1) {
 			if( !basic )
 				set_mission(MISSION_STANDBY);
@@ -677,6 +680,7 @@ public:
 			delete[] script_idx;	// Index of scripts to prevent multiple search
 			delete[] attached_list;
 			delete[] link_list;
+			delete[] last_synctick;
 			}
 	}
 
