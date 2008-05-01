@@ -1492,7 +1492,7 @@
 		x2=780;
 		y2=980;
 		caption=;
-		value=0xFFFFFFFF;
+		value=200;
 		size=1.8;
 	}
 	[object142]		// Progress bar for file transfer

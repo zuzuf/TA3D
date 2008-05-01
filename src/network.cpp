@@ -346,7 +346,7 @@ void UDPThread::proc(void* param){
 							break;
 							}
 						int dest = g_ta3d_network->getNetworkID( event.opt1 );
-						printf("received event\n");
+						printf("received UDP event\n");
 						if( dest == network_manager.getMyID() ) {
 							network->eventq.enqueue(&event);
 							dest = -1;
@@ -848,12 +848,13 @@ void Network::Disconnect(){
 
 	cleanQueues();
 
-	Console->AddEntry("network statistics (AVE) : %d bytes/sec. received", nlGetInteger( NL_AVE_BYTES_RECEIVED ) );
-	Console->AddEntry("network statistics (MAX) : %d bytes/sec. received", nlGetInteger( NL_HIGH_BYTES_RECEIVED ) );
-	Console->AddEntry("network statistics (TOTAL) : %d received", nlGetInteger( NL_BYTES_RECEIVED ) );
-	Console->AddEntry("network statistics (AVE) : %d bytes/sec. sent", nlGetInteger( NL_AVE_BYTES_SENT ) );
-	Console->AddEntry("network statistics (MAX) : %d bytes/sec. sent", nlGetInteger( NL_HIGH_BYTES_SENT ) );
-	Console->AddEntry("network statistics (TOTAL) : %d sent", nlGetInteger( NL_BYTES_SENT ) );
+	Console->AddEntry("network statistics :" );
+	Console->AddEntry("average bytes/sec. received : %d bytes/sec.", nlGetInteger( NL_AVE_BYTES_RECEIVED ) );
+	Console->AddEntry("maximum bytes/sec. received : %d bytes/sec.", nlGetInteger( NL_HIGH_BYTES_RECEIVED ) );
+	Console->AddEntry("total bytes received : %d bytes", nlGetInteger( NL_BYTES_RECEIVED ) );
+	Console->AddEntry("average bytes/sec. sent : %d bytes/sec.", nlGetInteger( NL_AVE_BYTES_SENT ) );
+	Console->AddEntry("maximum bytes/sec. sent : %d bytes/sec.", nlGetInteger( NL_HIGH_BYTES_SENT ) );
+	Console->AddEntry("total bytes sent : %d bytes", nlGetInteger( NL_BYTES_SENT ) );
 
 	myMode = 0;
 

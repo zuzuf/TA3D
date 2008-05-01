@@ -1663,6 +1663,7 @@ void PLAYERS::player_control()
 				if( latest_sync < units.unit[i].previous_sync.timestamp - 10 ) {		// We have to sync now
 					network_manager.sendSyncTCP( &sync );
 					units.unit[i].previous_sync = sync;
+					printf("sending TCP sync packet!\n");
 					}
 				else {
 					if( sync.x != units.unit[i].previous_sync.x

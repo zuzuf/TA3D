@@ -196,6 +196,7 @@ void TA3DNetwork::check()
 			units.unit[sync_msg.unit].UnLock();
 			
 			struct event sync_event;
+			sync_event.type = EVENT_UNIT_SYNCED;
 			sync_event.opt1 = sync_msg.unit;
 			sync_event.opt2 = network_manager.getMyID();
 			sync_event.x = sync_msg.timestamp;
@@ -220,7 +221,7 @@ void TA3DNetwork::check()
 				int player_id = game_data->net2id( event_msg.opt2 );
 
 				if( player_id >= 0 )
-					units.unit[ event_msg.opt1 ].last_synctick[player_id] = event_msg.opt2;
+					units.unit[ event_msg.opt1 ].last_synctick[player_id] = event_msg.x;
 
 				units.unit[ event_msg.opt1 ].UnLock();
 				}
