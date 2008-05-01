@@ -1620,7 +1620,7 @@ void PLAYERS::show_resources()
 inline bool need_sync( struct sync &a, struct sync &b )
 {
 	return fabs( a.x - b.x ) > 0.001f
-	||	fabs( a.y - b.y ) > 0.001f
+	||	fabs( a.y - b.y ) > 1.0f
 	||	fabs( a.z - b.z ) > 0.001f
 	||	fabs( a.vx - b.vx ) > 0.001f
 	||	fabs( a.vz - b.vz ) > 0.001f
