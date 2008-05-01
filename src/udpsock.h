@@ -41,13 +41,21 @@ class UDPSock{
 	char udpinbuf[UDPSOCK_BUFFER_SIZE];
 	int uibp;
 	int uiremain;//how much is left to recv
+	int uibrp;
 	
 	//byte shuffling
-	void loadLong(uint32_t x);//uint32
-	void loadShort(uint16_t x);//uint16
-	void loadByte(uint8_t x);//uint8
-	void loadString(const char* x);//null terminated
-	void loadFloat(float x);
+	void putLong(uint32_t x);//uint32
+	void putShort(uint16_t x);//uint16
+	void putByte(uint8_t x);//uint8
+	void putString(const char* x);//null terminated
+	void putFloat(float x);
+
+	uint32	getLong();//uint32
+	uint16	getShort();//uint16
+	byte	getByte();//uint8
+	void	getString(char* x);//null terminated
+	void	getBuffer(char* x, int size);
+	float	getFloat();
 
 	void send( const std::string &address );
 	void recv();

@@ -114,26 +114,26 @@ int UDPSock::takeFive(int time){
 }
 
 //byte shuffling
-void UDPSock::loadLong(uint32_t x){//uint32
+void UDPSock::putLong(uint32_t x){//uint32
 	uint32_t temp;
 	temp = x;
 	memcpy(outbuf+obp,&temp,4);
 	obp += 4;
 }
 
-void UDPSock::loadShort(uint16_t x){//uint16
+void UDPSock::putShort(uint16_t x){//uint16
 	uint16_t temp;
 	temp = x;
 	memcpy(outbuf+obp,&temp,2);
 	obp += 2;
 }
 
-void UDPSock::loadByte(uint8_t x){//uint8
+void UDPSock::putByte(uint8_t x){//uint8
 	memcpy(outbuf+obp,&x,1);
 	obp += 1;
 }
 
-void UDPSock::loadString(const char* x){//null terminated
+void UDPSock::putString(const char* x){//null terminated
 	int n = strlen(x);
 	if(n < UDPSOCK_BUFFER_SIZE - obp - 1 ){
 		memcpy(outbuf+obp,x,n);
@@ -143,23 +143,66 @@ void UDPSock::loadString(const char* x){//null terminated
 		memcpy(outbuf+obp,x,UDPSOCK_BUFFER_SIZE - obp - 1);
 		obp+=UDPSOCK_BUFFER_SIZE - obp - 1;
 	}
-	loadByte('\0');
+	putByte('\0');
 }	
 
-void UDPSock::loadFloat(float x){
+void UDPSock::putFloat(float x){
 	float temp;
-	temp = nlSwapf(x);
+	temp = x;
 	memcpy(outbuf+obp,&temp,4);
 	obp += 4;
+}
+
+uint32 UDPSock::getLong()	//uint32
+{
+	uint32 result = *((uint32*)(udpinbuf+uibrp));
+	uibrp += 4;
+	return result;
+}
+
+uint16 UDPSock::getShort()	//uint16
+{
+	uint16 result = *((uint16*)(udpinbuf+uibrp));
+	uibrp += 2;
+	return result;
+}
+
+byte UDPSock::getByte()	//uint8
+{
+	byte result = *((byte*)(udpinbuf+uibrp));
+	uibrp ++;
+	return result;
+}
+
+void UDPSock::getString(char* x)	//null terminated
+{
+	while( *x = *((char*)(udpinbuf+uibrp)) ) {
+		uibrp++;
+		x++;
+		}
+	uibrp++;
+}
+
+void UDPSock::getBuffer(char* x, int size)
+{
+	memcpy( x, udpinbuf + uibrp, size );
+	uibrp += size;
+}
+
+float UDPSock::getFloat()
+{
+	float result = *((float*)(udpinbuf+uibrp));
+	uibrp += 4;
+	return result;
 }
 
 
 int UDPSock::sendSpecial(struct chat* chat, const std::string &address){
 	udpmutex.Lock();
 
-	loadByte('X');
-	loadShort(chat->from);
-	loadString(chat->message);
+	putByte('X');
+	putShort(chat->from);
+	putString(chat->message);
 	send( address );
 
 	udpmutex.Unlock();
@@ -169,17 +212,26 @@ int UDPSock::sendSpecial(struct chat* chat, const std::string &address){
 int UDPSock::sendSync(struct sync* sync, const std::string &address){
 	udpmutex.Lock();
 
-	loadByte('S');
-	loadLong(sync->timestamp);
-	loadShort(sync->unit);
-	loadLong(sync->x);
-	loadLong(sync->y);
-	loadLong(sync->z);
-	loadLong(sync->vx);
-	loadLong(sync->vz);
-	loadShort(sync->orientation);
-	loadShort(sync->hp);
-	loadShort(sync->build_percent_left);
+	putByte('S');
+	putLong(sync->timestamp);
+	putShort(sync->unit);
+	putFloat(sync->x);
+	putFloat(sync->y);
+	putFloat(sync->z);
+	
+	if( sync->hp ) {			// Unit sync
+		putShort(sync->hp);
+		putFloat(sync->vx);
+		putFloat(sync->vz);
+		putShort(sync->orientation);
+		putByte(sync->build_percent_left);
+		}
+	else {						// Weapon sync
+		putShort(sync->hp);
+		putFloat(sync->vx);
+		putFloat(sync->vy);
+		putFloat(sync->vz);
+		}
 	send( address );
 
 	udpmutex.Unlock();
@@ -194,46 +246,28 @@ int UDPSock::makeSync(struct sync* sync){
 	if(uiremain == -1){
 		return -1;
 	}
-	uint32 temp;
-	uint16 stemp;
 
-	memcpy(&temp,udpinbuf+1,4);
-	sync->timestamp = temp;
-//	sync->timestamp = nlSwapl(temp);
+	uibrp = 1;
+	
+	sync->timestamp = getLong();
+	sync->unit = getShort();
+	sync->x = getFloat();
+	sync->y = getFloat();
+	sync->z = getFloat();
 
-	memcpy(&stemp,udpinbuf+5,2);
-	sync->unit = stemp;
-//	sync->unit = nlSwaps(stemp);
+	sync->hp = getShort();
 
-	memcpy(&temp,udpinbuf+7,4);
-	sync->x = temp;
-//	sync->x = nlSwapl(temp);
-
-	memcpy(&temp,udpinbuf+11,4);
-	sync->y = temp;
-//	sync->y = nlSwapl(temp);
-
-	memcpy(&temp,udpinbuf+15,4);
-	sync->z = temp;
-//	sync->z = nlSwapl(temp);
-
-	memcpy(&temp,udpinbuf+19,4);
-	sync->vx = temp;
-//	sync->vx = nlSwapl(temp);
-
-	memcpy(&temp,udpinbuf+23,4);
-	sync->vz = temp;
-//	sync->vz = nlSwapl(temp);
-
-	memcpy(&stemp,udpinbuf+27,2);
-	sync->orientation = stemp;
-//	sync->orientation = nlSwaps(stemp);
-
-	memcpy(&stemp,udpinbuf+29,2);
-	sync->hp = stemp;
-
-	memcpy(&stemp,udpinbuf+31,2);
-	sync->build_percent_left = stemp;
+	if( sync->hp ) {		// Unit sync packet
+		sync->vx = getFloat();
+		sync->vz = getFloat();
+		sync->orientation = getShort();
+		sync->build_percent_left = getByte();
+		}
+	else {					// Weapon sync
+		sync->vx = getFloat();
+		sync->vy = getFloat();
+		sync->vz = getFloat();
+		}
 	
 	uibp = 0;
 	uiremain = -1;
@@ -248,9 +282,12 @@ int UDPSock::makeSpecial(struct chat* chat){
 	if(uiremain == -1){
 		return -1;
 	}
-	chat->from = ((uint16*)(udpinbuf+1))[0];
-	memcpy(chat->message,udpinbuf+3,253);
+	uibrp = 1;
+
+	chat->from = getShort();
+	getBuffer( chat->message, 253 );
 	(chat->message)[252] = '\0';
+
 	uibp = 0;
 	uiremain = -1;
 

@@ -1644,11 +1644,11 @@ void PLAYERS::player_control()
 				struct sync sync;
 				sync.timestamp = units.current_tick;
 				sync.unit = i;
-				sync.x = (sint32)(units.unit[ i ].Pos.x * 65536.0f);
-				sync.y = (sint32)(units.unit[ i ].Pos.y * 65536.0f);
-				sync.z = (sint32)(units.unit[ i ].Pos.z * 65536.0f);
-				sync.vx = (sint32)(units.unit[ i ].V.x * 65536.0f);
-				sync.vz = (sint32)(units.unit[ i ].V.z * 65536.0f);
+				sync.x = units.unit[ i ].Pos.x;
+				sync.y = units.unit[ i ].Pos.y;
+				sync.z = units.unit[ i ].Pos.z;
+				sync.vx = units.unit[ i ].V.x;
+				sync.vz = units.unit[ i ].V.z;
 				float angle = units.unit[ i ].Angle.y;
 				while( angle < 0.0f )	angle += 360.0f;
 				sync.orientation = (uint16)(angle * 65535.0f / 360.0f);
@@ -1657,7 +1657,6 @@ void PLAYERS::player_control()
 
 				network_manager.sendSync( &sync );
 				}
-//				sync_pos = units.unit[ i ].write_sync_data( sync_data, sync_pos );
 			units.unit[ i ].UnLock();
 
 			units.EnterCS_from_outside();
@@ -1678,12 +1677,12 @@ void PLAYERS::player_control()
 				struct sync sync;
 				sync.timestamp = units.current_tick;
 				sync.unit = i;
-				sync.x = (sint32)(weapons.weapon[ i ].Pos.x * 65536.0f);
-				sync.y = (sint32)(weapons.weapon[ i ].Pos.y * 65536.0f);
-				sync.z = (sint32)(weapons.weapon[ i ].Pos.z * 65536.0f);
-				sync.vx = (sint32)(weapons.weapon[ i ].V.x * 65536.0f);
-				sync.vz = (sint32)(weapons.weapon[ i ].V.z * 65536.0f);
-				sync.orientation = (uint16)( weapons.weapon[ i ].V.y * 256.0f + 16384.0f );
+				sync.x = weapons.weapon[ i ].Pos.x;
+				sync.y = weapons.weapon[ i ].Pos.y;
+				sync.z = weapons.weapon[ i ].Pos.z;
+				sync.vx = weapons.weapon[ i ].V.x;
+				sync.vz = weapons.weapon[ i ].V.z;
+				sync.vy = weapons.weapon[ i ].V.y;
 				sync.hp = 0;					// Means it's a weapon
 				sync.build_percent_left = 0;
 

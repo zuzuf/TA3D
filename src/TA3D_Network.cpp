@@ -155,13 +155,13 @@ void TA3DNetwork::check()
 
 				weapons.weapon[ sync_msg.unit ].last_timestamp = sync_msg.timestamp;
 
-				weapons.weapon[ sync_msg.unit ].Pos.x = sync_msg.x / 65536.0f;
-				weapons.weapon[ sync_msg.unit ].Pos.y = sync_msg.y / 65536.0f;
-				weapons.weapon[ sync_msg.unit ].Pos.z = sync_msg.z / 65536.0f;
+				weapons.weapon[ sync_msg.unit ].Pos.x = sync_msg.x;
+				weapons.weapon[ sync_msg.unit ].Pos.y = sync_msg.y;
+				weapons.weapon[ sync_msg.unit ].Pos.z = sync_msg.z;
 
-				weapons.weapon[ sync_msg.unit ].V.x = sync_msg.vx / 65536.0f;
-				weapons.weapon[ sync_msg.unit ].V.z = sync_msg.vz / 65536.0f;
-				weapons.weapon[ sync_msg.unit ].V.y = (sync_msg.orientation - 16384.0f) / 256.0f;
+				weapons.weapon[ sync_msg.unit ].V.x = sync_msg.vx;
+				weapons.weapon[ sync_msg.unit ].V.z = sync_msg.vz;
+				weapons.weapon[ sync_msg.unit ].V.y = sync_msg.vy;
 
 					// Guess where the weapon should be now
 				weapons.weapon[ sync_msg.unit ].Pos = weapons.weapon[ sync_msg.unit ].Pos + ((units.current_tick - sync_msg.timestamp) * tick_conv) * weapons.weapon[ sync_msg.unit ].V;
@@ -177,12 +177,12 @@ void TA3DNetwork::check()
 				}
 
 			units.unit[sync_msg.unit].last_synctick = sync_msg.timestamp;			
-			units.unit[sync_msg.unit].Pos.x = sync_msg.x / 65536.0f;
-			units.unit[sync_msg.unit].Pos.y = sync_msg.y / 65536.0f;
-			units.unit[sync_msg.unit].Pos.z = sync_msg.z / 65536.0f;
+			units.unit[sync_msg.unit].Pos.x = sync_msg.x;
+			units.unit[sync_msg.unit].Pos.y = sync_msg.y;
+			units.unit[sync_msg.unit].Pos.z = sync_msg.z;
 
-			units.unit[sync_msg.unit].V.x = sync_msg.vx / 65536.0f;
-			units.unit[sync_msg.unit].V.z = sync_msg.vz / 65536.0f;
+			units.unit[sync_msg.unit].V.x = sync_msg.vx;
+			units.unit[sync_msg.unit].V.z = sync_msg.vz;
 			units.unit[sync_msg.unit].V.y = 0.0f;
 
 				// Guess where the unit should be now

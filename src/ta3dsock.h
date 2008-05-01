@@ -85,8 +85,8 @@ struct order{
 struct sync{
 	uint32	timestamp;	//uint32 what tick is this snapshot
 	uint16	unit;		//uint16 sync what unit
-	sint32	x,y,z;
-	sint32	vx,vz;
+	real32	x,y,z;
+	real32	vx,vy,vz;
 	uint16	orientation;//uint16 where 0=0 and 65535~=2pi? ie rad=(rot1/65536.0)*2pi?
 	uint16	hp;			// 0 if it's a weapon, non 0 if it's a unit, since we don't send data about dead unit through UDP
 	uint8	build_percent_left;
@@ -144,13 +144,21 @@ class TA3DSock{
 	char tcpinbuf[TA3DSOCK_BUFFER_SIZE];
 	int tibp;
 	int tiremain;//how much is left to recv
+	int tibrp;
 	
 	//byte shuffling
-	void loadLong(uint32_t x);//uint32
-	void loadShort(uint16_t x);//uint16
-	void loadByte(uint8_t x);//uint8
-	void loadString(const char* x);//null terminated
-	void loadFloat(float x);
+	void putLong(uint32_t x);//uint32
+	void putShort(uint16_t x);//uint16
+	void putByte(uint8_t x);//uint8
+	void putString(const char* x);//null terminated
+	void putFloat(float x);
+
+	uint32	getLong();//uint32
+	uint16	getShort();//uint16
+	byte	getByte();//uint8
+	void	getString(char* x);//null terminated
+	void	getBuffer(char* x, int size);
+	float	getFloat();
 
 	void sendTCP();
 	void recvTCP();
