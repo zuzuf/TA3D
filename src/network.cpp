@@ -346,6 +346,7 @@ void UDPThread::proc(void* param){
 							break;
 							}
 						int dest = g_ta3d_network->getNetworkID( event.opt1 );
+						printf("received UDP event for network ID = %d\n", dest);
 						if( dest == network_manager.getMyID() ) {
 							network->eventq.enqueue(&event);
 							dest = -1;

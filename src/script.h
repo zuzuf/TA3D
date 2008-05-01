@@ -71,7 +71,7 @@ public:
 	void destroy()
 	{
 		if(prim.type==DRAW_TYPE_BITMAP)		glDeleteTextures(1,&prim.tex);
-		if(prim.type==DRAW_TYPE_TEXT && prim.text!=NULL)
+		if(( prim.type==DRAW_TYPE_TEXT || prim.type==DRAW_TYPE_BITMAP ) && prim.text!=NULL)
 			free(prim.text);
 		if(next) {
 			next->destroy();
@@ -85,20 +85,12 @@ public:
 		init();
 	}
 
-	void add(DRAW_OBJECT &obj)
-	{
-		if(next==NULL) {
-			next=new DRAW_LIST;
-			next->prim=obj;
-			next->next=NULL;
-			}
-		else next->add(obj);
-	}
+	void add(DRAW_OBJECT &obj);
 
 	void draw(GFX_FONT &fnt);
 };
 
-class LUA_PROGRAM
+class LUA_PROGRAM : protected cCriticalSection
 {
 	byte		*buffer;
 	lua_State	*L;				// Pointer to the lua data
@@ -115,6 +107,9 @@ public:
 	bool		sleeping;		// Indique si le programme marque une pause
 	bool		waiting;		// Indique si le programme attend une action utilisateur
 	DRAW_LIST	draw_list;		// Liste de commandes d'affichage
+
+	inline void Lock()		{	EnterCS();	}
+	inline void UnLock()	{	LeaveCS();	}
 
 	inline void stop()
 	{
@@ -154,18 +149,22 @@ public:
 
 	LUA_PROGRAM()
 	{
+		CreateCS();
 		init();
 	}
 
 	~LUA_PROGRAM()
 	{
 		destroy();
+		DeleteCS();
 	}
 
 	void load(char *filename, MAP *map);					// Load a lua script
 
 	int run(MAP *map,float dt,int viewer_id);					// Execute le script
 };
+
+extern LUA_PROGRAM	*lua_program;
 
 void generate_script_from_mission( String Filename, cTAFileParser *ota_parser, int schema = 0 );
 

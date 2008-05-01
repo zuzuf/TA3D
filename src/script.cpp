@@ -52,6 +52,16 @@ int function_print( lua_State *L )		// ta3d_print( x, y, str )
 		draw_obj.y[0] = (float) lua_tonumber( L, -2 );
 		draw_obj.text = strdup( TRANSLATE( str ).c_str() );
 		lua_program->draw_list.add( draw_obj );
+
+		if( network_manager.isServer() ) {
+			struct event print_event;
+			print_event.type = EVENT_PRINT;
+			print_event.x = (float) lua_tonumber( L, -3 );
+			print_event.z = (float) lua_tonumber( L, -2 );
+			memcpy( print_event.str, str, strlen( str ) + 1 );
+		
+			network_manager.sendEvent( &print_event );
+			}
 		}
 	lua_pop( L, 3 );
 	return 0;
@@ -119,7 +129,17 @@ int function_triangle( lua_State *L )		// ta3d_line( x1,y1,x2,y2,x3,y3,r,g,b )
 
 int function_cls( lua_State *L )		// ta3d_cls()
 {
+	lua_program->Lock();
 	lua_program->draw_list.destroy();
+	lua_program->UnLock();
+
+	if( network_manager.isServer() ) {
+		struct event cls_event;
+		cls_event.type = EVENT_CLS;
+	
+		network_manager.sendEvent( &cls_event );
+		}
+
 	return 0;
 }
 
@@ -230,7 +250,21 @@ int function_draw_image( lua_State *L )		// ta3d_draw_image( str image_name, x1,
 	draw_obj.x[1] = (float) lua_tonumber( L, -2 );
 	draw_obj.y[1] = (float) lua_tonumber( L, -1 );
 	draw_obj.tex = gfx->load_texture( TRANSLATE( lua_tostring( L, -5 ) ) );
+	draw_obj.text = NULL;
 	lua_program->draw_list.add( draw_obj );
+
+	if( network_manager.isServer() ) {
+		struct event draw_event;
+		draw_event.type = EVENT_DRAW;
+		draw_event.x = (float) lua_tonumber( L, -4 );
+		draw_event.y = (float) lua_tonumber( L, -3 );
+		draw_event.z = (float) lua_tonumber( L, -2 );
+		draw_event.opt3 = (sint32)( ((float) lua_tonumber( L, -4 )) * 16384.0f );
+		memcpy( draw_event.str, lua_tostring( L, -5 ), strlen( lua_tostring( L, -5 ) ) + 1 );
+		
+		network_manager.sendEvent( &draw_event );
+		}
+
 	lua_pop( L, 5 );
 
 	return 0;
@@ -837,6 +871,15 @@ int function_kick_unit( lua_State *L )		// ta3d_kick_unit( unit_id, damage )
 int function_play( lua_State *L )		// ta3d_play( filename )
 {
 	sound_manager->PlaySound( (char*) lua_tostring( L, -1 ), false );
+
+	if( network_manager.isServer() ) {
+		struct event play_event;
+		play_event.type = EVENT_PLAY;
+		memcpy( play_event.str, lua_tostring( L, -1 ), strlen( lua_tostring( L, -1 ) ) + 1 );
+		
+		network_manager.sendEvent( &play_event );
+		}
+
 	lua_pop( L, 1 );
 
 	return 0;
@@ -847,6 +890,15 @@ int function_set_cam_pos( lua_State *L )		// ta3d_set_cam_pos( player_id,x,z )
 	if( (int) lua_tonumber( L, -3 ) == players.local_human_id ) {
 		game_cam->RPos.x = (float) lua_tonumber( L, -2 );
 		game_cam->RPos.z = (float) lua_tonumber( L, -1 );
+		}
+	else if( network_manager.isServer() ) {
+		struct event cam_event;
+		cam_event.type = EVENT_CAMERA_POS;
+		cam_event.opt1 = (int) lua_tonumber( L, -3 );
+		cam_event.x = (float) lua_tonumber( L, -2 );
+		cam_event.z = (float) lua_tonumber( L, -1 );
+		
+		network_manager.sendEvent( &cam_event );
 		}
 	lua_pop( L, 3 );
 
@@ -867,8 +919,16 @@ int function_set_cam_mode( lua_State *L )		// ta3d_set_cam_mode( mode )	-> uses 
 int function_clf( lua_State *L )				// ta3d_clf()
 {
 	lua_map->clear_FOW();
+	units.EnterCS_from_outside();
 	for( int i = 0 ; i < units.index_list_size ; i++ )
 		units.unit[ units.idx_list[ i ] ].old_px = -10000;
+	units.LeaveCS_from_outside();
+		
+	if( network_manager.isServer() ) {
+		struct event clf_event;
+		clf_event.type = EVENT_CLF;
+		network_manager.sendEvent( &clf_event );
+		}
 	return 0;
 }
 
@@ -902,6 +962,13 @@ int function_init_res( lua_State *L )			// ta3d_init_res()
 		players.metal[i] = players.com_metal[i];
 		players.energy[i] = players.com_energy[i];
 		}
+
+	if( network_manager.isServer() ) {
+		struct event init_res_event;
+		init_res_event.type = EVENT_INIT_RES;
+		network_manager.sendEvent( &init_res_event );
+		}
+
 	return 0;
 }
 
@@ -1151,7 +1218,9 @@ void LUA_PROGRAM::load(char *filename, MAP *map)					// Load a lua script
 
 int LUA_PROGRAM::run(MAP *map,float dt,int viewer_id)									// Execute le script
 {
+	lua_program->Lock();
 	draw_list.draw(gfx->TA_font);			// Execute la liste de commandes de dessin
+	lua_program->UnLock();
 
 	if( !running )	return	-1;
 
@@ -1212,6 +1281,18 @@ int LUA_PROGRAM::run(MAP *map,float dt,int viewer_id)									// Execute le scri
 		result = lua_signal;
 
 	return result;
+}
+
+void DRAW_LIST::add(DRAW_OBJECT &obj)
+{
+	lua_program->Lock();
+	if(next==NULL) {
+		next=new DRAW_LIST;
+		next->prim=obj;
+		next->next=NULL;
+		}
+	else next->add(obj);
+	lua_program->UnLock();
 }
 
 void DRAW_LIST::draw(GFX_FONT &fnt)
@@ -1278,6 +1359,11 @@ void DRAW_LIST::draw(GFX_FONT &fnt)
 		glDisable(GL_BLEND);
 		break;
 	case DRAW_TYPE_BITMAP:
+		if( prim.tex == 0 && prim.text != NULL ) {
+			prim.tex = gfx->load_texture( prim.text );
+			free( prim.text );
+			prim.text = NULL;
+			}
 		glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
 		glEnable(GL_BLEND);
 		gfx->drawtexture(prim.tex,prim.x[0],prim.y[0],prim.x[1],prim.y[1]);

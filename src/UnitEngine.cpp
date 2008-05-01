@@ -4702,12 +4702,12 @@ bool UNIT::is_on_radar( byte p_mask )
 			event.type = EVENT_WEAPON_CREATION;
 			event.opt1 = idx;
 			event.opt2 = target;
-			event.x = (sint32)(target_pos.x * 32768.0f);
-			event.y = (sint32)(target_pos.y * 32768.0f);
-			event.z = (sint32)(target_pos.z * 32768.0f);
-			((sint32*)event.str)[0] = (sint32)(startpos.x * 32768.0f);
-			((sint32*)event.str)[1] = (sint32)(startpos.y * 32768.0f);
-			((sint32*)event.str)[2] = (sint32)(startpos.z * 32768.0f);
+			event.x = target_pos.x;
+			event.y = target_pos.y;
+			event.z = target_pos.z;
+			((real32*)event.str)[0] = startpos.x;
+			((real32*)event.str)[1] = startpos.y;
+			((real32*)event.str)[2] = startpos.z;
 			((sint16*)event.str)[6] = (sint16)(Dir.x * 16384.0f);
 			((sint16*)event.str)[7] = (sint16)(Dir.y * 16384.0f);
 			((sint16*)event.str)[8] = (sint16)(Dir.z * 16384.0f);
@@ -4885,8 +4885,8 @@ int UNIT::launch_script(int id,int nb_param,int *param,bool force)			// Start a 
 		event.type = EVENT_UNIT_SCRIPT;
 		event.opt1 = idx;
 		event.opt2 = force;
-		event.x = id;
-		event.z = nb_param;
+		event.opt3 = id;
+		event.opt4 = nb_param;
 		memcpy( event.str, param, sizeof(int) * nb_param );
 		network_manager.sendEvent( &event );
 		}
@@ -4919,8 +4919,8 @@ void *create_unit( int type_id, int owner, VECTOR pos, MAP *map, bool sync, bool
 				event.type = EVENT_UNIT_CREATION;
 				event.opt1 = id;
 				event.opt2 = script ? (owner | 0x1000) : owner;
-				event.x = (sint32)(pos.x * 65536.0f);
-				event.z = (sint32)(pos.z * 65536.0f);
+				event.x = pos.x;
+				event.z = pos.z;
 				memcpy( event.str, unit_manager.unit_type[ type_id ].Unitname, strlen( unit_manager.unit_type[ type_id ].Unitname ) + 1 );
 				network_manager.sendEvent( &event );
 				}

@@ -98,14 +98,23 @@ struct sync{
 #define EVENT_UNIT_DAMAGE			0x03
 #define EVENT_UNIT_SCRIPT			0x04
 #define EVENT_UNIT_SYNCED			0x05		// UDP : Used to tell a unit was synced
+#define EVENT_CAMERA_POS			0x06		// Used by scripts
+#define EVENT_CLF					0x07		// script ta3d_clf()
+#define EVENT_INIT_RES				0x08		// script ta3d_init_res()
+#define EVENT_PLAY					0x09		// play a sound file
+#define EVENT_PRINT					0x0A		// display a message
+#define EVENT_CLS					0x0B		// clear script screen
+#define EVENT_DRAW					0x0C		// draw a picture
 
 struct event{
 	byte	type;		//uint8 what type of event
 	uint16	opt1;		//uint16 optional parameters
 	uint16	opt2;		//uint16
-	sint32	x;			//uint32
-	sint32	y;			//uint32
-	sint32	z;			//uint32
+	uint32	opt3;		//uint32
+	uint32	opt4;		//uint32
+	real32	x;			//real32
+	real32	y;			//real32
+	real32	z;			//real32
 	byte	str[24];	//unit name ? weapon name ?
 };//max size = 29
 

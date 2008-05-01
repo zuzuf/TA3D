@@ -20,6 +20,7 @@
 #include "TA3D_Network.h"
 #include "EngineClass.h"
 #include "UnitEngine.h"
+#include "script.h"
 
 #define CHAT_MESSAGE_TIMEOUT	10000
 
@@ -128,7 +129,7 @@ void TA3DNetwork::check()
 		}
 
 	n = 100;
-	while( n-- ) {													// Special order receiver
+	while( n-- ) {													// Order message receiver
 		struct order order_msg;
 
 		if( network_manager.getNextOrder( &order_msg ) )
@@ -136,7 +137,7 @@ void TA3DNetwork::check()
 		}
 
 	n = 100;
-	while( n-- ) {													// Special sync receiver
+	while( n-- ) {													// Sync message receiver
 		struct sync sync_msg;
 
 		if( network_manager.getNextSync( &sync_msg ) )
@@ -199,14 +200,14 @@ void TA3DNetwork::check()
 			sync_event.type = EVENT_UNIT_SYNCED;
 			sync_event.opt1 = sync_msg.unit;
 			sync_event.opt2 = network_manager.getMyID();
-			sync_event.x = sync_msg.timestamp;
+			sync_event.opt3 = sync_msg.timestamp;
 			
-			network_manager.sendEventUDP( &sync_event );
+			network_manager.sendEventUDP( &sync_event, network_manager.isServer() ? getNetworkID( sync_msg.unit ) : 0 );		// server side we can't just let 0
 			}
 		}
 
 	n = 100;
-	while( n-- ) {													// Special sync receiver
+	while( n-- ) {													// Event message receiver
 		struct event event_msg;
 
 		if( network_manager.getNextEvent( &event_msg ) )
@@ -214,6 +215,59 @@ void TA3DNetwork::check()
 
 		switch( event_msg.type )
 		{
+		case EVENT_CLS:
+			lua_program->Lock();
+			lua_program->draw_list.destroy();
+			lua_program->UnLock();
+			break;
+		case EVENT_DRAW:
+			{
+				DRAW_OBJECT draw_obj;
+				draw_obj.type = DRAW_TYPE_BITMAP;
+				draw_obj.x[0] = event_msg.x;
+				draw_obj.y[0] = event_msg.y;
+				draw_obj.x[1] = event_msg.z;
+				draw_obj.y[1] = event_msg.opt3 / 16384.0f;
+				draw_obj.text = strdup( TRANSLATE( (char*)event_msg.str ).c_str() );		// We can't load it now because of thread safety
+				draw_obj.tex = 0;
+				lua_program->draw_list.add( draw_obj );
+			}
+			break;
+		case EVENT_PRINT:
+			{
+				DRAW_OBJECT draw_obj;
+				draw_obj.type = DRAW_TYPE_TEXT;
+				draw_obj.r[0] = 1.0f;
+				draw_obj.g[0] = 1.0f;
+				draw_obj.b[0] = 1.0f;
+				draw_obj.x[0] = event_msg.x;
+				draw_obj.y[0] = event_msg.y;
+				draw_obj.text = strdup( TRANSLATE( (char*)event_msg.str ).c_str() );
+				lua_program->draw_list.add( draw_obj );
+			}
+			break;
+		case EVENT_PLAY:
+			sound_manager->PlaySound( (char*)event_msg.str, false );
+			break;
+		case EVENT_CLF:
+			the_map->clear_FOW();
+			units.EnterCS_from_outside();
+			for( int i = 0 ; i < units.index_list_size ; i++ )
+				units.unit[ units.idx_list[ i ] ].old_px = -10000;
+			units.LeaveCS_from_outside();
+			break;
+		case EVENT_INIT_RES:
+			for( uint16 i = 0 ; i < players.nb_player ; i++ ) {
+				players.metal[i] = players.com_metal[i];
+				players.energy[i] = players.com_energy[i];
+				}
+			break;
+		case EVENT_CAMERA_POS:
+			if( event_msg.opt1 == players.local_human_id ) {			// Move the camera only if the packet is for us
+				game_cam->RPos.x = event_msg.x;
+				game_cam->RPos.z = event_msg.z;
+				}
+			break;
 		case EVENT_UNIT_SYNCED:
 			if( event_msg.opt1 < units.max_unit && ( units.unit[ event_msg.opt1 ].flags & 1 ) ) {
 				units.unit[ event_msg.opt1 ].Lock();
@@ -245,9 +299,9 @@ void TA3DNetwork::check()
 			break;
 		case EVENT_WEAPON_CREATION:
 			if( event_msg.opt1 < units.max_unit && ( units.unit[ event_msg.opt1 ].flags & 1 ) ) {
-				VECTOR target_pos( event_msg.x / 32768.0f, event_msg.y / 32768.0f, event_msg.z / 32768.0f );
+				VECTOR target_pos( event_msg.x, event_msg.y, event_msg.z );
 				VECTOR Dir( ((sint16*)event_msg.str)[6] / 16384.0f, ((sint16*)event_msg.str)[7] / 16384.0f, ((sint16*)event_msg.str)[8] / 16384.0f );
-				VECTOR startpos( ((sint32*)event_msg.str)[0] / 32768.0f, ((sint32*)event_msg.str)[1] / 32678.0f, ((sint32*)event_msg.str)[2] / 32768.0f );
+				VECTOR startpos( ((real32*)event_msg.str)[0], ((real32*)event_msg.str)[1], ((real32*)event_msg.str)[2] );
 				
 				units.unit[ event_msg.opt1 ].Lock();
 				int w_idx = units.unit[ event_msg.opt1 ].shoot( event_msg.opt2, startpos, Dir, ((sint16*)event_msg.str)[9], target_pos );
@@ -264,7 +318,7 @@ void TA3DNetwork::check()
 			break;
 		case EVENT_UNIT_SCRIPT:
 			if( event_msg.opt1 < units.max_unit && (units.unit[ event_msg.opt1 ].flags & 1) )
-				units.unit[ event_msg.opt1 ].launch_script( event_msg.x, event_msg.z, (int*)event_msg.str, event_msg.opt2 );
+				units.unit[ event_msg.opt1 ].launch_script( event_msg.opt3, event_msg.opt4, (int*)event_msg.str, event_msg.opt2 );
 			break;
 		case EVENT_UNIT_DEATH:
 			{
@@ -291,8 +345,8 @@ void TA3DNetwork::check()
 				int idx = unit_manager.get_unit_index( (char*)event_msg.str );
 				if( idx >= 0 ) {
 					VECTOR pos;
-					pos.x = event_msg.x / 65536.0f;
-					pos.z = event_msg.z / 65536.0f;
+					pos.x = event_msg.x;
+					pos.z = event_msg.z;
 					pos.y = the_map->get_unit_h( pos.x, pos.z );
 					UNIT *unit = (UNIT*)create_unit( idx, (event_msg.opt2 & 0xFF),pos,the_map,false);		// We don't want to send sync data for this ...
 					if( unit ) {

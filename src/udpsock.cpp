@@ -215,6 +215,11 @@ int UDPSock::sendEvent(struct event* event, const std::string &address){
 	putByte(event->type);
 	switch( event->type )
 	{
+	case EVENT_CAMERA_POS:
+		putShort(event->opt1);
+		putFloat(event->x);
+		putFloat(event->z);
+		break;
 	case EVENT_UNIT_SYNCED:
 		putShort(event->opt1);
 		putShort(event->opt2);
@@ -340,10 +345,15 @@ int UDPSock::makeEvent(struct event* event){
 
 	switch( event->type )
 	{
+	case EVENT_CAMERA_POS:
+		event->opt1 = getShort();
+		event->x = getFloat();
+		event->z = getFloat();
+		break;
 	case EVENT_UNIT_SYNCED:
 		event->opt1 = getShort();
 		event->opt2 = getShort();
-		event->x = getLong();
+		event->opt3 = getLong();
 		break;
 	case EVENT_UNIT_DAMAGE:
 		event->opt1 = getShort();
@@ -352,12 +362,12 @@ int UDPSock::makeEvent(struct event* event){
 	case EVENT_WEAPON_CREATION:
 		event->opt1 = getShort();
 		event->opt2 = getShort();
-		event->x = getLong();
-		event->y = getLong();
-		event->z = getLong();
-		((sint32*)(event->str))[0] = getLong();
-		((sint32*)(event->str))[1] = getLong();
-		((sint32*)(event->str))[2] = getLong();
+		event->x = getFloat();
+		event->y = getFloat();
+		event->z = getFloat();
+		((real32*)(event->str))[0] = getFloat();
+		((real32*)(event->str))[1] = getFloat();
+		((real32*)(event->str))[2] = getFloat();
 		((sint16*)(event->str))[6] = getLong();
 		((sint16*)(event->str))[7] = getLong();
 		((sint16*)(event->str))[8] = getLong();
@@ -366,8 +376,8 @@ int UDPSock::makeEvent(struct event* event){
 	case EVENT_UNIT_SCRIPT:
 		event->opt1 = getShort();
 		event->opt2 = getShort();
-		event->x = getLong();
-		event->z = getLong();
+		event->opt3 = getLong();
+		event->opt4 = getLong();
 		for( int i = 0 ; i < event->z ; i++ )
 			((sint32*)(event->str))[i] = getLong();
 		break;
@@ -377,8 +387,8 @@ int UDPSock::makeEvent(struct event* event){
 	case EVENT_UNIT_CREATION:
 		event->opt1 = getShort();
 		event->opt2 = getShort();
-		event->x = getLong();
-		event->z = getLong();
+		event->x = getFloat();
+		event->z = getFloat();
 		getBuffer((char*)(event->str),24);
 		break;
 	};

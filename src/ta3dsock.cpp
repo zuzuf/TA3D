@@ -319,10 +319,34 @@ int TA3DSock::sendEvent(struct event* event){
 	putByte(event->type);
 	switch( event->type )
 	{
+	case EVENT_DRAW:
+		putFloat(event->x);
+		putFloat(event->y);
+		putFloat(event->z);
+		putLong(event->opt3);
+		putString((const char*)(event->str));
+		break;
+	case EVENT_PRINT:
+		putFloat(event->x);
+		putFloat(event->y);
+		putString((const char*)(event->str));
+		break;
+	case EVENT_PLAY:
+		putString((const char*)(event->str));
+		break;
+	case EVENT_CLS:
+	case EVENT_CLF:
+	case EVENT_INIT_RES:
+		break;
+	case EVENT_CAMERA_POS:
+		putShort(event->opt1);
+		putFloat(event->x);
+		putFloat(event->z);
+		break;
 	case EVENT_UNIT_SYNCED:
 		putShort(event->opt1);
 		putShort(event->opt2);
-		putLong(event->x);
+		putLong(event->opt3);
 		break;
 	case EVENT_UNIT_DAMAGE:
 		putShort(event->opt1);
@@ -331,12 +355,12 @@ int TA3DSock::sendEvent(struct event* event){
 	case EVENT_WEAPON_CREATION:
 		putShort(event->opt1);
 		putShort(event->opt2);
-		putLong(event->x);
-		putLong(event->y);
-		putLong(event->z);
-		putLong(((sint32*)(event->str))[0]);
-		putLong(((sint32*)(event->str))[1]);
-		putLong(((sint32*)(event->str))[2]);
+		putFloat(event->x);
+		putFloat(event->y);
+		putFloat(event->z);
+		putLong(((real32*)(event->str))[0]);
+		putLong(((real32*)(event->str))[1]);
+		putLong(((real32*)(event->str))[2]);
 		putLong(((sint16*)(event->str))[6]);
 		putLong(((sint16*)(event->str))[7]);
 		putLong(((sint16*)(event->str))[8]);
@@ -345,8 +369,8 @@ int TA3DSock::sendEvent(struct event* event){
 	case EVENT_UNIT_SCRIPT:
 		putShort(event->opt1);
 		putShort(event->opt2);
-		putLong(event->x);
-		putLong(event->z);
+		putLong(event->opt3);
+		putLong(event->opt4);
 		for( int i = 0 ; i < event->z ; i++ )
 			putLong(((sint32*)(event->str))[i]);
 		break;
@@ -357,8 +381,8 @@ int TA3DSock::sendEvent(struct event* event){
 		printf("sending unit creation event (%s)\n", event->str);
 		putShort(event->opt1);
 		putShort(event->opt2);
-		putLong(event->x);
-		putLong(event->z);
+		putFloat(event->x);
+		putFloat(event->z);
 		putString((const char*)(event->str));
 		break;
 	};
@@ -502,6 +526,30 @@ int TA3DSock::makeEvent(struct event* event){
 
 	switch( event->type )
 	{
+	case EVENT_DRAW:
+		event->x = getFloat();
+		event->y = getFloat();
+		event->z = getFloat();
+		event->opt3 = getLong();
+		getBuffer((char*)(event->str),24);
+		break;
+	case EVENT_PRINT:
+		event->x = getFloat();
+		event->y = getFloat();
+		getBuffer((char*)(event->str),24);
+		break;
+	case EVENT_PLAY:
+		getBuffer((char*)(event->str),24);
+		break;
+	case EVENT_CLS:
+	case EVENT_CLF:
+	case EVENT_INIT_RES:
+		break;
+	case EVENT_CAMERA_POS:
+		event->opt1 = getShort();
+		event->x = getFloat();
+		event->z = getFloat();
+		break;
 	case EVENT_UNIT_SYNCED:
 		event->opt1 = getShort();
 		event->opt2 = getShort();

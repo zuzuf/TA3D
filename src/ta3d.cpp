@@ -2249,6 +2249,8 @@ do
 			break;
 		};
 		}
+	else
+		game_script.run(NULL,0.0f,0);		// In client mode we only want to display text, pictures, ... everything drawn by the script on the server
 
 	if(selecting) {						// Affiche le rectangle de selection
 		glDisable(GL_TEXTURE_2D);
