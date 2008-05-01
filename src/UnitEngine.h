@@ -536,8 +536,6 @@ public:
 			CreateCS();
 		EnterCS();
 		
-		last_synctick = 0;
-
 		command_locked = false;
 		
 		pad1 = 0xFFFF; pad2 = 0xFFFF;
