@@ -1133,6 +1133,8 @@ int function_send_signal( lua_State *L )		// ta3d_send_signal( player_id, signal
 		signal_event.type = EVENT_SCRIPT_SIGNAL;
 		signal_event.opt1 = player_id == -1 ? 0xFFFF : player_id;
 		signal_event.opt2 = signal_id;
+		
+		network_manager.sendEvent( &signal_event );
 		}
 	
 	return 0;
