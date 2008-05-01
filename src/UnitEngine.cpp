@@ -3254,6 +3254,8 @@ bool UNIT::is_on_radar( byte p_mask )
 										float obj_angle = features.feature[mission->data].angle;
 										features.UnLock();
 										feature_locked = false;
+										if( network_manager.isConnected() )
+											g_ta3d_network->sendFeatureDeathEvent( mission->data );
 										features.delete_feature(mission->data);			// Supprime l'objet
 
 										if( wreckage_type_id >= 0 ) {
@@ -3288,6 +3290,8 @@ bool UNIT::is_on_radar( byte p_mask )
 									else {
 										features.UnLock();
 										feature_locked = false;
+										if( network_manager.isConnected() )
+											g_ta3d_network->sendFeatureDeathEvent( mission->data );
 										features.delete_feature(mission->data);			// Supprime l'objet
 										launch_script(get_script_index(SCRIPT_stopbuilding));
 										launch_script(get_script_index(SCRIPT_stop));

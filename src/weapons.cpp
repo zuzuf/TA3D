@@ -772,12 +772,12 @@ const void WEAPON::move(const float dt,MAP *map)				// Anime les armes
 								features.feature[-t_idx-2].hp -= cur_damage;		// L'objet touché encaisse les dégats
 								if(features.feature[-t_idx-2].hp<=0.0f && local) {
 									if( network_manager.isConnected() )
-										g_ta3d_network->sendFeatureDeathEvent( -hit_idx-2 );
+										g_ta3d_network->sendFeatureDeathEvent( -t_idx-2 );
 									int sx=((int)(features.feature[-t_idx-2].Pos.x)+map->map_w_d-8)>>3;		// Efface l'objet
 									int sy=((int)(features.feature[-t_idx-2].Pos.z)+map->map_h_d-8)>>3;
 									VECTOR feature_pos = features.feature[-hit_idx-2].Pos;
 									map->rect(sx-(feature_manager.feature[features.feature[-t_idx-2].type].footprintx>>1),sy-(feature_manager.feature[features.feature[-t_idx-2].type].footprintz>>1),feature_manager.feature[features.feature[-t_idx-2].type].footprintx,feature_manager.feature[features.feature[-t_idx-2].type].footprintz,-1);
-									int feature_type = features.feature[-hit_idx-2].type;
+									int feature_type = features.feature[-t_idx-2].type;
 									features.delete_feature(-t_idx-2);			// Supprime l'objet
 
 											// Replace the feature if needed
