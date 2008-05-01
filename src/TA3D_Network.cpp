@@ -365,7 +365,7 @@ void TA3DNetwork::sendDamageEvent( int idx, float damage )
 
 int TA3DNetwork::getNetworkID( int unit_id )
 {
-	if( unit_id < units.max_unit )	return -1;
+	if( unit_id >= units.max_unit )	return -1;
 	units.unit[ unit_id ].Lock();
 	if( !(units.unit[ unit_id ].flags & 1) ) {
 		units.unit[ unit_id ].UnLock();
