@@ -216,6 +216,39 @@ void TA3DNetwork::check()
 
 		switch( event_msg.type )
 		{
+		case EVENT_FEATURE_CREATION:
+			{
+				int sx = event_msg.opt3;		// Burn the object
+				int sy = event_msg.opt4;
+				int type = feature_manager.get_feature_index( (const char*)(event_msg.str) );
+				if( type >= 0 ) {
+					VECTOR feature_pos( event_msg.x, event_msg.y, event_msg.z );
+					the_map->map_data[sy][sx].stuff = features.add_feature( feature_pos, type );
+					if(feature_manager.feature[type].blocking)
+						the_map->rect(sx-(feature_manager.feature[type].footprintx>>1),sy-(feature_manager.feature[type].footprintz>>1),feature_manager.feature[type].footprintx,feature_manager.feature[type].footprintz,-2-the_map->map_data[sy][sx].stuff);
+					}
+			}
+			break;
+		case EVENT_FEATURE_FIRE:
+			{
+				int sx = event_msg.opt3;		// Burn the object
+				int sy = event_msg.opt4;
+				int idx = the_map->map_data[sy][sx].stuff;
+				if( !features.feature[idx].burning )
+					features.burn_feature( idx );
+			}
+			break;
+		case EVENT_FEATURE_DEATH:
+			{
+				int sx = event_msg.opt3;		// Remove the object
+				int sy = event_msg.opt4;
+				int idx = the_map->map_data[sy][sx].stuff;
+				if( idx >= 0 ) {
+					the_map->rect(sx-(feature_manager.feature[features.feature[idx].type].footprintx>>1),sy-(feature_manager.feature[features.feature[idx].type].footprintz>>1),feature_manager.feature[features.feature[idx].type].footprintx,feature_manager.feature[features.feature[idx].type].footprintz,-1);
+					features.delete_feature(idx);			// Delete it
+					}
+			}
+			break;
 		case EVENT_SCRIPT_SIGNAL:
 			if( event_msg.opt1 == players.local_human_id || event_msg.opt1 == 0xFFFF )				// Do it only if the packet is for us
 				g_ta3d_network->set_signal( event_msg.opt2 );
@@ -446,6 +479,45 @@ void TA3DNetwork::sendDamageEvent( int idx, float damage )
 	network_manager.sendEvent( &event );
 }
 
+void TA3DNetwork::sendFeatureCreationEvent( int idx )
+{
+	if( idx < 0 || features.feature[ idx ].type < 0 )	return;
+	struct event event;
+	event.type = EVENT_FEATURE_CREATION;
+	event.opt3 = features.feature[ idx ].px;
+	event.opt4 = features.feature[ idx ].py;
+	event.x = features.feature[ idx ].Pos.x;
+	event.y = features.feature[ idx ].Pos.y;
+	event.z = features.feature[ idx ].Pos.z;
+	char *name = feature_manager.feature[ features.feature[ idx ].type ].name;
+	if( name ) {
+		memcpy( event.str, name, strlen( name ) + 1 ) ;
+		network_manager.sendEvent( &event );
+		}
+}
+
+void TA3DNetwork::sendFeatureDeathEvent( int idx )
+{
+	if( idx < 0 || features.feature[ idx ].type < 0 )	return;
+
+	struct event event;
+	event.type = EVENT_FEATURE_DEATH;
+	event.opt3 = features.feature[ idx ].px;
+	event.opt4 = features.feature[ idx ].py;
+	network_manager.sendEvent( &event );
+}
+
+void TA3DNetwork::sendFeatureFireEvent( int idx )
+{
+	if( idx < 0 || features.feature[ idx ].type < 0 )	return;
+
+	struct event event;
+	event.type = EVENT_FEATURE_FIRE;
+	event.opt3 = features.feature[ idx ].px;
+	event.opt4 = features.feature[ idx ].py;
+	network_manager.sendEvent( &event );
+}
+
 int TA3DNetwork::getNetworkID( int unit_id )
 {
 	if( unit_id >= units.max_unit )	return -1;
@@ -458,4 +530,3 @@ int TA3DNetwork::getNetworkID( int unit_id )
 	units.unit[ unit_id ].UnLock();
 	return result;
 }
-

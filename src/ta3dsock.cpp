@@ -319,6 +319,19 @@ int TA3DSock::sendEvent(struct event* event){
 	putByte(event->type);
 	switch( event->type )
 	{
+	case EVENT_FEATURE_CREATION:
+		putLong(event->opt3);
+		putLong(event->opt4);
+		putFloat(event->x);
+		putFloat(event->y);
+		putFloat(event->z);
+		putString((const char*)(event->str));
+		break;
+	case EVENT_FEATURE_DEATH:
+	case EVENT_FEATURE_FIRE:
+		putLong(event->opt3);
+		putLong(event->opt4);
+		break;
 	case EVENT_SCRIPT_SIGNAL:
 		putShort(event->opt1);
 		putShort(event->opt2);
@@ -541,6 +554,19 @@ int TA3DSock::makeEvent(struct event* event){
 
 	switch( event->type )
 	{
+	case EVENT_FEATURE_CREATION:
+		event->opt3 = getLong();
+		event->opt4 = getLong();
+		event->x = getFloat();
+		event->y = getFloat();
+		event->z = getFloat();
+		getBuffer((char*)(event->str),24);
+		break;
+	case EVENT_FEATURE_DEATH:
+	case EVENT_FEATURE_FIRE:
+		event->opt3 = getLong();
+		event->opt4 = getLong();
+		break;
 	case EVENT_SCRIPT_SIGNAL:
 		event->opt1 = getShort();
 		event->opt2 = getShort();

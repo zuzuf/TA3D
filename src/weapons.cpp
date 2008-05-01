@@ -635,19 +635,25 @@ const void WEAPON::move(const float dt,MAP *map)				// Anime les armes
 					}
 				units.unit[hit_idx].UnLock();
 				}
-			if(hit_idx<=-2 && features.feature[-hit_idx-2].type>=0) {
+			if(hit_idx<=-2 && features.feature[-hit_idx-2].type>=0) {			// Only local weapons here, otherwise weapons would destroy features multiple times
 //				if( damage < 0 )
 					damage = weapon_manager.weapon[weapon_id].damage;
 
 										// Start a fire ?
-				if( feature_manager.feature[ features.feature[-hit_idx-2].type ].flamable && !features.feature[-hit_idx-2].burning && weapon_manager.weapon[weapon_id].firestarter ) {
+				if( feature_manager.feature[ features.feature[-hit_idx-2].type ].flamable && !features.feature[-hit_idx-2].burning && weapon_manager.weapon[weapon_id].firestarter && local ) {
 					int starter_score = rand_from_table() % 100;
-					if( starter_score < weapon_manager.weapon[weapon_id].firestarter )
+					if( starter_score < weapon_manager.weapon[weapon_id].firestarter ) {
 						features.burn_feature( -hit_idx-2 );
+						if( network_manager.isConnected() )
+							g_ta3d_network->sendFeatureFireEvent( -hit_idx-2 );
+						}
 					}
 
 				features.feature[-hit_idx-2].hp -= damage;		// The feature hit is taking damage
-				if(features.feature[-hit_idx-2].hp<=0.0f && !features.feature[-hit_idx-2].burning) {
+				if(features.feature[-hit_idx-2].hp<=0.0f && !features.feature[-hit_idx-2].burning && local) {
+					if( network_manager.isConnected() )
+						g_ta3d_network->sendFeatureDeathEvent( -hit_idx-2 );
+
 					int sx=((int)(features.feature[-hit_idx-2].Pos.x)+map->map_w_d-8)>>3;		// Delete the feature
 					int sy=((int)(features.feature[-hit_idx-2].Pos.z)+map->map_h_d-8)>>3;
 					VECTOR feature_pos = features.feature[-hit_idx-2].Pos;
@@ -662,6 +668,8 @@ const void WEAPON::move(const float dt,MAP *map)				// Anime les armes
 							map->map_data[sy][sx].stuff=features.add_feature(feature_pos,type);
 							if(type!=-1 && feature_manager.feature[type].blocking)
 								map->rect(sx-(feature_manager.feature[type].footprintx>>1),sy-(feature_manager.feature[type].footprintz>>1),feature_manager.feature[type].footprintx,feature_manager.feature[type].footprintz,-2-map->map_data[sy][sx].stuff);
+							if( network_manager.isConnected() )
+								g_ta3d_network->sendFeatureDeathEvent( map->map_data[sy][sx].stuff );
 							}
 						}
 					}
@@ -748,10 +756,13 @@ const void WEAPON::move(const float dt,MAP *map)				// Anime les armes
 							}
 						else if(t_idx<-1 && !weapon_manager.weapon[weapon_id].unitsonly && ((VECTOR)(features.feature[-t_idx-2].Pos-Pos)).Sq()<=d) {
 													// Start a fire ?
-							if( feature_manager.feature[ features.feature[-t_idx-2].type ].flamable && !features.feature[-t_idx-2].burning && weapon_manager.weapon[weapon_id].firestarter ) {
+							if( feature_manager.feature[ features.feature[-t_idx-2].type ].flamable && !features.feature[-t_idx-2].burning && weapon_manager.weapon[weapon_id].firestarter && local ) {
 								int starter_score = rand_from_table() % 100;
-								if( starter_score < weapon_manager.weapon[weapon_id].firestarter )
+								if( starter_score < weapon_manager.weapon[weapon_id].firestarter ) {
 									features.burn_feature( -t_idx-2 );
+									if( network_manager.isConnected() )
+										g_ta3d_network->sendFeatureDeathEvent( -hit_idx-2 );
+									}
 								}
 
 							oidx.push_back( t_idx );
@@ -759,11 +770,27 @@ const void WEAPON::move(const float dt,MAP *map)				// Anime les armes
 								damage = weapon_manager.weapon[weapon_id].damage;
 								float cur_damage = damage * weapon_manager.weapon[weapon_id].edgeeffectiveness;
 								features.feature[-t_idx-2].hp -= cur_damage;		// L'objet touché encaisse les dégats
-								if(features.feature[-t_idx-2].hp<=0.0f) {
+								if(features.feature[-t_idx-2].hp<=0.0f && local) {
+									if( network_manager.isConnected() )
+										g_ta3d_network->sendFeatureDeathEvent( -hit_idx-2 );
 									int sx=((int)(features.feature[-t_idx-2].Pos.x)+map->map_w_d-8)>>3;		// Efface l'objet
 									int sy=((int)(features.feature[-t_idx-2].Pos.z)+map->map_h_d-8)>>3;
+									VECTOR feature_pos = features.feature[-hit_idx-2].Pos;
 									map->rect(sx-(feature_manager.feature[features.feature[-t_idx-2].type].footprintx>>1),sy-(feature_manager.feature[features.feature[-t_idx-2].type].footprintz>>1),feature_manager.feature[features.feature[-t_idx-2].type].footprintx,feature_manager.feature[features.feature[-t_idx-2].type].footprintz,-1);
+									int feature_type = features.feature[-hit_idx-2].type;
 									features.delete_feature(-t_idx-2);			// Supprime l'objet
+
+											// Replace the feature if needed
+									if( feature_manager.feature[ feature_type ].feature_dead ) {
+										int type=feature_manager.get_feature_index( feature_manager.feature[ feature_type ].feature_dead );
+										if( type >= 0 ) {
+											map->map_data[sy][sx].stuff=features.add_feature(feature_pos,type);
+											if(type!=-1 && feature_manager.feature[type].blocking)
+												map->rect(sx-(feature_manager.feature[type].footprintx>>1),sy-(feature_manager.feature[type].footprintz>>1),feature_manager.feature[type].footprintx,feature_manager.feature[type].footprintz,-2-map->map_data[sy][sx].stuff);
+											if( network_manager.isConnected() )
+												g_ta3d_network->sendFeatureDeathEvent( map->map_data[sy][sx].stuff );
+											}
+										}
 									}
 								}
 							}

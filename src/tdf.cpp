@@ -33,6 +33,7 @@
 #include "tdf.h"
 #include "EngineClass.h"
 #include "UnitEngine.h"
+#include "TA3D_Network.h"
 
 FEATURE_MANAGER		feature_manager;
 FEATURES features;
@@ -628,6 +629,9 @@ void FEATURES::move_forest(const float &dt)			// Simulates forest fires & tree r
 			}
 		feature[ *i ].burning_time += dt;
 		if( feature[ *i ].burning_time >= feature[ *i ].time_to_burn ) {		// If we aren't burning anymore :(
+			if( network_manager.isServer() )
+				g_ta3d_network->sendFeatureDeathEvent( *i );
+
 			feature[ *i ].burning = false;
 			feature[ *i ].hp = 0.0f;
 			
@@ -643,6 +647,8 @@ void FEATURES::move_forest(const float &dt)			// Simulates forest fires & tree r
 					the_map->map_data[ sy ][ sx ].stuff = features.add_feature( feature[ *i ].Pos, burnt_type );
 					if( burnt_type != -1 && feature_manager.feature[ burnt_type ].blocking )
 						the_map->rect( sx-(feature_manager.feature[ burnt_type ].footprintx>>1), sy-(feature_manager.feature[ burnt_type ].footprintz>>1), feature_manager.feature[ burnt_type ].footprintx, feature_manager.feature[ burnt_type ].footprintz,-2-the_map->map_data[sy][sx].stuff );
+					if( network_manager.isServer() )
+						g_ta3d_network->sendFeatureDeathEvent( the_map->map_data[ sy ][ sx ].stuff );
 					}
 				}
 
@@ -661,21 +667,27 @@ void FEATURES::move_forest(const float &dt)			// Simulates forest fires & tree r
 					weapons.weapon[ w_idx ].just_explode = true;
 					weapons.weapon[ w_idx ].Pos = feature[ *i ].Pos;
 					weapons.weapon[ w_idx ].owner = 0xFF;
+					weapons.weapon[ w_idx ].local = true;
 					}
 				}
 
 			feature[ *i ].weapon_counter = ( feature[ *i ].weapon_counter + TICKS_PER_SEC - 1 ) % TICKS_PER_SEC;
 
-			feature[ *i ].last_spread += dt;
-			if( feature[ *i ].burning_time >= feature_manager.feature[ feature[ *i ].type ].sparktime && feature[ *i ].last_spread >= 0.1f ) {		// Can spread
-				feature[ *i ].last_spread = 0.0f;
-				int spread_score = rand_from_table() % 100;
-				if( spread_score < feature_manager.feature[ feature[ *i ].type ].spreadchance ) {		// It tries to spread :)
-					int rnd_x = feature[ *i ].px + (rand_from_table() % 12) - 6 + wind_x;		// Random pos in neighborhood, but affected by wind :)
-					int rnd_y = feature[ *i ].py + (rand_from_table() % 12) - 6 + wind_z;
+			if( !network_manager.isConnected() || network_manager.isServer() ) {
+				feature[ *i ].last_spread += dt;
+				if( feature[ *i ].burning_time >= feature_manager.feature[ feature[ *i ].type ].sparktime && feature[ *i ].last_spread >= 0.1f ) {		// Can spread
+					feature[ *i ].last_spread = 0.0f;
+					int spread_score = rand_from_table() % 100;
+					if( spread_score < feature_manager.feature[ feature[ *i ].type ].spreadchance ) {		// It tries to spread :)
+						int rnd_x = feature[ *i ].px + (rand_from_table() % 12) - 6 + wind_x;		// Random pos in neighborhood, but affected by wind :)
+						int rnd_y = feature[ *i ].py + (rand_from_table() % 12) - 6 + wind_z;
 					
-					if( rnd_x >= 0 && rnd_y >= 0 && rnd_x < the_map->bloc_w_db && rnd_y < the_map->bloc_h_db )		// Check coordinates are valid
-						burn_feature( units.map->map_data[ rnd_y ][ rnd_x ].stuff );			// Burn it if there is something to burn 8)
+						if( rnd_x >= 0 && rnd_y >= 0 && rnd_x < the_map->bloc_w_db && rnd_y < the_map->bloc_h_db ) {		// Check coordinates are valid
+							burn_feature( units.map->map_data[ rnd_y ][ rnd_x ].stuff );			// Burn it if there is something to burn 8)
+							if( network_manager.isServer() )
+								g_ta3d_network->sendFeatureFireEvent( units.map->map_data[ rnd_y ][ rnd_x ].stuff );
+							}
+						}
 					}
 				}
 			}

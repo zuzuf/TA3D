@@ -55,6 +55,9 @@ public:
 	bool isLocal( int player_id );
 	bool isRemoteHuman( int player_id );
 	void sendDamageEvent( int idx, float damage );
+	void sendFeatureCreationEvent( int idx );
+	void sendFeatureDeathEvent( int idx );
+	void sendFeatureFireEvent( int idx );
 	int getNetworkID( int unit_id );
 };
 
