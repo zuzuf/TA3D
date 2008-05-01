@@ -15,7 +15,7 @@ function main()
 				ta3d_send_signal( current_player, end_signal[ current_player ] )
 				signal_sent[ current_player ] = true
 			end
-		elseif end_signal == 0 then
+		elseif end_signal[ current_player ] == 0 then
 
 			win = true
 			for i = 0, ta3d_nb_players() - 1 do

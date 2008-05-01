@@ -58,7 +58,7 @@ int function_print_for( lua_State *L )		// ta3d_print_for( x, y, str, player_id 
 		if( network_manager.isServer() ) {
 			struct event print_event;
 			print_event.type = EVENT_PRINT;
-			print_event.opt1 = (int) lua_tonumber( L, -1 );
+			print_event.opt1 = ((int) lua_tonumber( L, -1 )) == -1 ? 0xFFFF : (int) lua_tonumber( L, -1 );
 			print_event.x = (float) lua_tonumber( L, -4 );
 			print_event.y = (float) lua_tonumber( L, -3 );
 			memcpy( print_event.str, str, strlen( str ) + 1 );
@@ -148,7 +148,7 @@ int function_cls_for( lua_State *L )		// ta3d_cls_for( player_id )
 	if( network_manager.isServer() ) {
 		struct event cls_event;
 		cls_event.type = EVENT_CLS;
-		cls_event.opt1 = (int) lua_tonumber( L, -1 );
+		cls_event.opt1 = ((int) lua_tonumber( L, -1 )) == -1 ? 0xFFFF : (int) lua_tonumber( L, -1 );
 	
 		network_manager.sendEvent( &cls_event );
 		}
@@ -280,7 +280,7 @@ int function_draw_image_for( lua_State *L )		// ta3d_draw_image_for( str image_n
 	if( network_manager.isServer() ) {
 		struct event draw_event;
 		draw_event.type = EVENT_DRAW;
-		draw_event.opt1 = (int) lua_tonumber( L, -1 );
+		draw_event.opt1 = ((int) lua_tonumber( L, -1 )) == -1 ? 0xFFFF : (int) lua_tonumber( L, -1 );
 		draw_event.x = (float) lua_tonumber( L, -4 );
 		draw_event.y = (float) lua_tonumber( L, -3 );
 		draw_event.z = (float) lua_tonumber( L, -2 );
@@ -914,7 +914,7 @@ int function_play_for( lua_State *L )		// ta3d_play_for( filename, player_id )
 	if( network_manager.isServer() ) {
 		struct event play_event;
 		play_event.type = EVENT_PLAY;
-		play_event.opt1 = (int) lua_tonumber( L, -1 );
+		play_event.opt1 = ((int) lua_tonumber( L, -1 )) == -1 ? 0xFFFF : (int) lua_tonumber( L, -1 );
 		memcpy( play_event.str, lua_tostring( L, -2 ), strlen( lua_tostring( L, -2 ) ) + 1 );
 		
 		network_manager.sendEvent( &play_event );
@@ -1131,7 +1131,7 @@ int function_send_signal( lua_State *L )		// ta3d_send_signal( player_id, signal
 	if( network_manager.isServer() ) {
 		struct event signal_event;
 		signal_event.type = EVENT_SCRIPT_SIGNAL;
-		signal_event.opt1 = player_id;
+		signal_event.opt1 = player_id == -1 ? 0xFFFF : player_id;
 		signal_event.opt2 = signal_id;
 		}
 	
