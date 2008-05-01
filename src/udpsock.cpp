@@ -215,6 +215,25 @@ int UDPSock::sendEvent(struct event* event, const std::string &address){
 	putByte(event->type);
 	switch( event->type )
 	{
+	case EVENT_DRAW:
+		putFloat(event->x);
+		putFloat(event->y);
+		putFloat(event->z);
+		putLong(event->opt3);
+		putString((const char*)(event->str));
+		break;
+	case EVENT_PRINT:
+		putFloat(event->x);
+		putFloat(event->y);
+		putString((const char*)(event->str));
+		break;
+	case EVENT_PLAY:
+		putString((const char*)(event->str));
+		break;
+	case EVENT_CLS:
+	case EVENT_CLF:
+	case EVENT_INIT_RES:
+		break;
 	case EVENT_CAMERA_POS:
 		putShort(event->opt1);
 		putFloat(event->x);
@@ -223,7 +242,7 @@ int UDPSock::sendEvent(struct event* event, const std::string &address){
 	case EVENT_UNIT_SYNCED:
 		putShort(event->opt1);
 		putShort(event->opt2);
-		putLong(event->x);
+		putLong(event->opt3);
 		break;
 	case EVENT_UNIT_DAMAGE:
 		putShort(event->opt1);
@@ -232,12 +251,12 @@ int UDPSock::sendEvent(struct event* event, const std::string &address){
 	case EVENT_WEAPON_CREATION:
 		putShort(event->opt1);
 		putShort(event->opt2);
-		putLong(event->x);
-		putLong(event->y);
-		putLong(event->z);
-		putLong(((sint32*)(event->str))[0]);
-		putLong(((sint32*)(event->str))[1]);
-		putLong(((sint32*)(event->str))[2]);
+		putFloat(event->x);
+		putFloat(event->y);
+		putFloat(event->z);
+		putLong(((real32*)(event->str))[0]);
+		putLong(((real32*)(event->str))[1]);
+		putLong(((real32*)(event->str))[2]);
 		putLong(((sint16*)(event->str))[6]);
 		putLong(((sint16*)(event->str))[7]);
 		putLong(((sint16*)(event->str))[8]);
@@ -246,19 +265,20 @@ int UDPSock::sendEvent(struct event* event, const std::string &address){
 	case EVENT_UNIT_SCRIPT:
 		putShort(event->opt1);
 		putShort(event->opt2);
-		putLong(event->x);
-		putLong(event->z);
-		for( int i = 0 ; i < event->z ; i++ )
+		putLong(event->opt3);
+		putLong(event->opt4);
+		for( int i = 0 ; i < event->opt4 ; i++ )
 			putLong(((sint32*)(event->str))[i]);
 		break;
 	case EVENT_UNIT_DEATH:
 		putShort(event->opt1);
 		break;
 	case EVENT_UNIT_CREATION:
+		printf("sending unit creation event (%s)\n", event->str);
 		putShort(event->opt1);
 		putShort(event->opt2);
-		putLong(event->x);
-		putLong(event->z);
+		putFloat(event->x);
+		putFloat(event->z);
 		putString((const char*)(event->str));
 		break;
 	};
@@ -345,6 +365,25 @@ int UDPSock::makeEvent(struct event* event){
 
 	switch( event->type )
 	{
+	case EVENT_DRAW:
+		event->x = getFloat();
+		event->y = getFloat();
+		event->z = getFloat();
+		event->opt3 = getLong();
+		getBuffer((char*)(event->str),24);
+		break;
+	case EVENT_PRINT:
+		event->x = getFloat();
+		event->y = getFloat();
+		getBuffer((char*)(event->str),24);
+		break;
+	case EVENT_PLAY:
+		getBuffer((char*)(event->str),24);
+		break;
+	case EVENT_CLS:
+	case EVENT_CLF:
+	case EVENT_INIT_RES:
+		break;
 	case EVENT_CAMERA_POS:
 		event->opt1 = getShort();
 		event->x = getFloat();
@@ -378,7 +417,7 @@ int UDPSock::makeEvent(struct event* event){
 		event->opt2 = getShort();
 		event->opt3 = getLong();
 		event->opt4 = getLong();
-		for( int i = 0 ; i < event->z ; i++ )
+		for( int i = 0 ; i < event->opt4 ; i++ )
 			((sint32*)(event->str))[i] = getLong();
 		break;
 	case EVENT_UNIT_DEATH:

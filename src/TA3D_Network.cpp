@@ -275,7 +275,7 @@ void TA3DNetwork::check()
 				int player_id = game_data->net2id( event_msg.opt2 );
 
 				if( player_id >= 0 )
-					units.unit[ event_msg.opt1 ].last_synctick[player_id] = event_msg.x;
+					units.unit[ event_msg.opt1 ].last_synctick[player_id] = event_msg.opt3;
 
 				units.unit[ event_msg.opt1 ].UnLock();
 				}

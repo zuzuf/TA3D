@@ -371,7 +371,7 @@ int TA3DSock::sendEvent(struct event* event){
 		putShort(event->opt2);
 		putLong(event->opt3);
 		putLong(event->opt4);
-		for( int i = 0 ; i < event->z ; i++ )
+		for( int i = 0 ; i < event->opt4 ; i++ )
 			putLong(((sint32*)(event->str))[i]);
 		break;
 	case EVENT_UNIT_DEATH:
@@ -553,7 +553,7 @@ int TA3DSock::makeEvent(struct event* event){
 	case EVENT_UNIT_SYNCED:
 		event->opt1 = getShort();
 		event->opt2 = getShort();
-		event->x = getLong();
+		event->opt3 = getLong();
 		break;
 	case EVENT_UNIT_DAMAGE:
 		event->opt1 = getShort();
@@ -562,12 +562,12 @@ int TA3DSock::makeEvent(struct event* event){
 	case EVENT_WEAPON_CREATION:
 		event->opt1 = getShort();
 		event->opt2 = getShort();
-		event->x = getLong();
-		event->y = getLong();
-		event->z = getLong();
-		((sint32*)(event->str))[0] = getLong();
-		((sint32*)(event->str))[1] = getLong();
-		((sint32*)(event->str))[2] = getLong();
+		event->x = getFloat();
+		event->y = getFloat();
+		event->z = getFloat();
+		((real32*)(event->str))[0] = getFloat();
+		((real32*)(event->str))[1] = getFloat();
+		((real32*)(event->str))[2] = getFloat();
 		((sint16*)(event->str))[6] = getLong();
 		((sint16*)(event->str))[7] = getLong();
 		((sint16*)(event->str))[8] = getLong();
@@ -576,9 +576,9 @@ int TA3DSock::makeEvent(struct event* event){
 	case EVENT_UNIT_SCRIPT:
 		event->opt1 = getShort();
 		event->opt2 = getShort();
-		event->x = getLong();
-		event->z = getLong();
-		for( int i = 0 ; i < event->z ; i++ )
+		event->opt3 = getLong();
+		event->opt4 = getLong();
+		for( int i = 0 ; i < event->opt4 ; i++ )
 			((sint32*)(event->str))[i] = getLong();
 		break;
 	case EVENT_UNIT_DEATH:
@@ -587,8 +587,8 @@ int TA3DSock::makeEvent(struct event* event){
 	case EVENT_UNIT_CREATION:
 		event->opt1 = getShort();
 		event->opt2 = getShort();
-		event->x = getLong();
-		event->z = getLong();
+		event->x = getFloat();
+		event->z = getFloat();
 		getBuffer((char*)(event->str),24);
 		break;
 	};
