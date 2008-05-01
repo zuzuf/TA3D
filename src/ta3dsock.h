@@ -105,6 +105,7 @@ struct sync{
 #define EVENT_PRINT					0x0A		// display a message
 #define EVENT_CLS					0x0B		// clear script screen
 #define EVENT_DRAW					0x0C		// draw a picture
+#define EVENT_UNIT_EXPLODE			0x0D		// a unit explodes
 
 struct event{
 	byte	type;		//uint8 what type of event

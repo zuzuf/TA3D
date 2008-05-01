@@ -259,7 +259,7 @@ int function_draw_image( lua_State *L )		// ta3d_draw_image( str image_name, x1,
 		draw_event.x = (float) lua_tonumber( L, -4 );
 		draw_event.y = (float) lua_tonumber( L, -3 );
 		draw_event.z = (float) lua_tonumber( L, -2 );
-		draw_event.opt3 = (sint32)( ((float) lua_tonumber( L, -4 )) * 16384.0f );
+		draw_event.opt3 = (sint32)( ((float) lua_tonumber( L, -1 )) * 16384.0f );
 		memcpy( draw_event.str, lua_tostring( L, -5 ), strlen( lua_tostring( L, -5 ) ) + 1 );
 		
 		network_manager.sendEvent( &draw_event );

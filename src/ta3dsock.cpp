@@ -319,6 +319,13 @@ int TA3DSock::sendEvent(struct event* event){
 	putByte(event->type);
 	switch( event->type )
 	{
+	case EVENT_UNIT_EXPLODE:
+		putShort(event->opt1);
+		putShort(event->opt2);
+		putFloat(event->x);
+		putFloat(event->y);
+		putFloat(event->z);
+		break;
 	case EVENT_DRAW:
 		putFloat(event->x);
 		putFloat(event->y);
@@ -526,6 +533,13 @@ int TA3DSock::makeEvent(struct event* event){
 
 	switch( event->type )
 	{
+	case EVENT_UNIT_EXPLODE:
+		event->opt1 = getShort();
+		event->opt2 = getShort();
+		event->x = getFloat();
+		event->y = getFloat();
+		event->z = getFloat();
+		break;
 	case EVENT_DRAW:
 		event->x = getFloat();
 		event->y = getFloat();

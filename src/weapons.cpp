@@ -721,7 +721,7 @@ const void WEAPON::move(const float dt,MAP *map)				// Anime les armes
 					if(!already) {
 						if(t_idx>=0) {
 							units.unit[t_idx].Lock();
-							if( (units.unit[t_idx].flags & 1) && ((VECTOR)(units.unit[t_idx].Pos-Pos)).Sq()<=d) {
+							if( (units.unit[t_idx].flags & 1) && units.unit[t_idx].local && ((VECTOR)(units.unit[t_idx].Pos-Pos)).Sq()<=d) {
 								oidx.push_back( t_idx );
 								bool ok = units.unit[ t_idx ].hp > 0.0f;
 								damage = weapon_manager.weapon[weapon_id].get_damage_for_unit( unit_manager.unit_type[ units.unit[ t_idx ].type_id ].Unitname );
@@ -733,6 +733,9 @@ const void WEAPON::move(const float dt,MAP *map)				// Anime les armes
 									players.kills[units.unit[shooter_idx].owner_id]++;
 								if(units.unit[t_idx].hp<=0.0f)
 									units.unit[t_idx].severity = max(units.unit[t_idx].severity,(int)cur_damage);
+
+								if( network_manager.isConnected() )			// Send damage event
+									g_ta3d_network->sendDamageEvent( t_idx, cur_damage );
 
 								VECTOR D = (units.unit[t_idx].Pos - Pos) * RotateY( -units.unit[t_idx].Angle.y * DEG2RAD );
 								D.Unit();

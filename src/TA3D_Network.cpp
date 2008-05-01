@@ -172,7 +172,7 @@ void TA3DNetwork::check()
 			}
 		else if( sync_msg.unit < units.max_unit ) {
 			units.unit[sync_msg.unit].Lock();
-			if( !(units.unit[sync_msg.unit].flags & 1) || units.unit[sync_msg.unit].last_synctick[0] >= sync_msg.timestamp )	{
+			if( !(units.unit[sync_msg.unit].flags & 1) || units.unit[sync_msg.unit].exploding || units.unit[sync_msg.unit].last_synctick[0] >= sync_msg.timestamp )	{
 				units.unit[sync_msg.unit].UnLock();
 				continue;
 				}
@@ -215,6 +215,22 @@ void TA3DNetwork::check()
 
 		switch( event_msg.type )
 		{
+		case EVENT_UNIT_EXPLODE:				// BOOOOM and corpse creation :)
+			if( event_msg.opt1 < units.max_unit && ( units.unit[ event_msg.opt1 ].flags & 1 ) ) {		// If it's false then game is out of sync !!
+				units.unit[ event_msg.opt1 ].Lock();
+
+				printf("(%d), received order to explode %d\n", units.current_tick, event_msg.opt1 );
+
+				units.unit[ event_msg.opt1 ].severity = event_msg.opt2;
+				units.unit[ event_msg.opt1 ].Pos.x = event_msg.x;
+				units.unit[ event_msg.opt1 ].Pos.y = event_msg.y;
+				units.unit[ event_msg.opt1 ].Pos.z = event_msg.z;
+
+				units.unit[ event_msg.opt1 ].explode();			// BOOM :)
+
+				units.unit[ event_msg.opt1 ].UnLock();
+				}
+			break;
 		case EVENT_CLS:
 			lua_program->Lock();
 			lua_program->draw_list.destroy();
@@ -284,6 +300,10 @@ void TA3DNetwork::check()
 			if( event_msg.opt1 < units.max_unit && ( units.unit[ event_msg.opt1 ].flags & 1 ) ) {
 				units.unit[ event_msg.opt1 ].Lock();
 
+				if( units.unit[ event_msg.opt1 ].exploding ) {
+					units.unit[ event_msg.opt1 ].UnLock();
+					break;
+					}
 				float damage = event_msg.opt2 / 16.0f;
 
 				units.unit[ event_msg.opt1 ].hp -= damage;

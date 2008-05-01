@@ -1927,6 +1927,98 @@ bool UNIT::is_on_radar( byte p_mask )
 		return 0;
 	}
 
+	void UNIT::explode()
+	{
+		exploding = true;
+		if( local && network_manager.isConnected() ) {		// Sync unit destruction (and corpse creation ;) )
+			struct event explode_event;
+			explode_event.type = EVENT_UNIT_EXPLODE;
+			explode_event.opt1 = idx;
+			explode_event.opt2 = severity;
+			explode_event.x = Pos.x;
+			explode_event.y = Pos.y;
+			explode_event.z = Pos.z;
+			network_manager.sendEvent( &explode_event );
+			}
+			
+		fx_manager.add_flash( Pos, max(unit_manager.unit_type[type_id].FootprintX, unit_manager.unit_type[type_id].FootprintZ) * 32 );
+		int param[]={ severity * 100 / unit_manager.unit_type[type_id].MaxDamage, 0 };
+		run_script_function(the_map,get_script_index(SCRIPT_killed),2,param);
+		if( attached )	param[1] = 3;			// When we were flying we just disappear
+		bool sinking = the_map->get_unit_h( Pos.x, Pos.z ) <= the_map->sealvl;
+		switch( param[1] )
+		{
+		case 1:			// Some good looking corpse
+			{
+				LeaveCS();
+				flags = 1;				// Set it to 1 otherwise it won't remove it from map
+				clear_from_map();
+				flags = 4;
+				EnterCS();
+				int x=((int)(Pos.x)+the_map->map_w_d-8)>>3;
+				int y=((int)(Pos.z)+the_map->map_h_d-8)>>3;
+				if(x>0 && y>0 && x<(the_map->bloc_w<<1) && y<(the_map->bloc_h<<1))
+					if(the_map->map_data[y][x].stuff==-1) {
+						int type=feature_manager.get_feature_index(unit_manager.unit_type[type_id].Corpse);
+						if( type >= 0 ) {
+							Pos.x=(x<<3)-the_map->map_w_d+8.0f;
+							Pos.z=(y<<3)-the_map->map_h_d+8.0f;
+							the_map->map_data[y][x].stuff=features.add_feature(Pos,type);
+							if( the_map->map_data[y][x].stuff >= 0 ) {			// Keep unit orientation
+								features.feature[ the_map->map_data[y][x].stuff ].angle = Angle.y;
+								if( sinking )
+									features.sink_feature( the_map->map_data[y][x].stuff );
+								}
+							if(type!=-1 && the_map->map_data[y][x].stuff != -1 && feature_manager.feature[type].blocking)
+								the_map->rect(x-(feature_manager.feature[type].footprintx>>1),y-(feature_manager.feature[type].footprintz>>1),feature_manager.feature[type].footprintx,feature_manager.feature[type].footprintz,-2-the_map->map_data[y][x].stuff);
+							}
+					}
+			}
+			break;
+		case 2:			// Some exploded corpse
+			{
+				LeaveCS();
+				flags = 1;				// Set it to 1 otherwise it won't remove it from map
+				clear_from_map();
+				flags = 4;
+				EnterCS();
+				int x=(int)((Pos.x)+the_map->map_w_d-8)>>3;
+				int y=(int)((Pos.z)+the_map->map_h_d-8)>>3;
+				if(x>0 && y>0 && x<(the_map->bloc_w<<1) && y<(the_map->bloc_h<<1))
+					if(the_map->map_data[y][x].stuff==-1) {
+						int type=feature_manager.get_feature_index( (String( unit_manager.unit_type[type_id].name) + "_heap").c_str() );
+						if( type >= 0 ) {
+							Pos.x=(x<<3)-the_map->map_w_d+8.0f;
+							Pos.z=(y<<3)-the_map->map_h_d+8.0f;
+							the_map->map_data[y][x].stuff=features.add_feature(Pos,type);
+							if( the_map->map_data[y][x].stuff >= 0 ) {			// Keep unit orientation
+								features.feature[ the_map->map_data[y][x].stuff ].angle = Angle.y;
+								if( sinking )
+									features.sink_feature( the_map->map_data[y][x].stuff );
+								}
+							if(type!=-1 && the_map->map_data[y][x].stuff != -1 && feature_manager.feature[type].blocking)
+								the_map->rect(x-(feature_manager.feature[type].footprintx>>1),y-(feature_manager.feature[type].footprintz>>1),feature_manager.feature[type].footprintx,feature_manager.feature[type].footprintz,-2-the_map->map_data[y][x].stuff);
+							}
+					}
+			}
+			break;
+		default:
+			flags = 1;		// Nothing replaced just remove the unit from position map
+		};
+		LeaveCS();
+		int w_id = weapons.add_weapon(weapon_manager.get_weapon_index( self_destruct == 0.0f ? unit_manager.unit_type[type_id].SelfDestructAs : unit_manager.unit_type[type_id].ExplodeAs ),idx);
+		EnterCS();
+		if(w_id>=0) {
+			weapons.weapon[w_id].Pos = Pos;
+			weapons.weapon[w_id].target_pos = Pos;
+			weapons.weapon[w_id].target = -1;
+			weapons.weapon[w_id].just_explode = true;
+			}
+		for(int i=0;i<data.nb_piece;i++)
+			if(!(data.flag[i]&FLAG_EXPLODE))// || (data.flag[i]&FLAG_EXPLODE && (data.explosion_flag[i]&EXPLODE_BITMAPONLY)))
+				data.flag[i]|=FLAG_HIDE;
+	}
+
 	inline float ballistic_angle(float v,float g,float d,float y_s,float y_e)			// Calculs de ballistique pour l'angle de tir
 	{
 #ifdef	ADVANCED_DEBUG_MODE
@@ -2013,7 +2105,7 @@ bool UNIT::is_on_radar( byte p_mask )
 				}
 			}
 
-		if(hp<=0.0f) {			// L'unité est détruite
+		if(hp<=0.0f && (local || exploding) ) {			// L'unité est détruite
 			if( mission
 			&& !unit_manager.unit_type[ type_id ].BMcode
 			&& ( mission->mission == MISSION_BUILD_2 || mission->mission == MISSION_BUILD )		// It was building something that we must destroy too
@@ -2027,84 +2119,8 @@ bool UNIT::is_on_radar( byte p_mask )
 			{
 			case 1:				// Début de la mort de l'unité	(Lance le script)
 				flags = 4;		// Don't remove the data on the position map because they will be replaced
-				if( build_percent_left == 0.0f ) {
-					fx_manager.add_flash( Pos, max(unit_manager.unit_type[type_id].FootprintX, unit_manager.unit_type[type_id].FootprintZ) * 32 );
-					int param[]={ severity * 100 / unit_manager.unit_type[type_id].MaxDamage, 0 };
-					run_script_function(map,get_script_index(SCRIPT_killed),2,param);
-					if( attached )	param[1] = 3;			// When we were flying we just disappear
-					bool sinking = map->get_unit_h( Pos.x, Pos.z ) <= map->sealvl;
-					switch( param[1] )
-					{
-					case 1:			// Some good looking corpse
-						{
-							LeaveCS();
-							flags = 1;				// Set it to 1 otherwise it won't remove it from map
-							clear_from_map();
-							flags = 4;
-							EnterCS();
-							int x=((int)(Pos.x)+map->map_w_d-8)>>3;
-							int y=((int)(Pos.z)+map->map_h_d-8)>>3;
-							if(x>0 && y>0 && x<(map->bloc_w<<1) && y<(map->bloc_h<<1))
-								if(map->map_data[y][x].stuff==-1) {
-									int type=feature_manager.get_feature_index(unit_manager.unit_type[type_id].Corpse);
-									if( type >= 0 ) {
-										Pos.x=(x<<3)-map->map_w_d+8.0f;
-										Pos.z=(y<<3)-map->map_h_d+8.0f;
-										map->map_data[y][x].stuff=features.add_feature(Pos,type);
-										if( map->map_data[y][x].stuff >= 0 ) {			// Keep unit orientation
-											features.feature[ map->map_data[y][x].stuff ].angle = Angle.y;
-											if( sinking )
-												features.sink_feature( map->map_data[y][x].stuff );
-											}
-										if(type!=-1 && map->map_data[y][x].stuff != -1 && feature_manager.feature[type].blocking)
-											map->rect(x-(feature_manager.feature[type].footprintx>>1),y-(feature_manager.feature[type].footprintz>>1),feature_manager.feature[type].footprintx,feature_manager.feature[type].footprintz,-2-map->map_data[y][x].stuff);
-										}
-								}
-						}
-						break;
-					case 2:			// Some exploded corpse
-						{
-							LeaveCS();
-							flags = 1;				// Set it to 1 otherwise it won't remove it from map
-							clear_from_map();
-							flags = 4;
-							EnterCS();
-							int x=(int)((Pos.x)+map->map_w_d-8)>>3;
-							int y=(int)((Pos.z)+map->map_h_d-8)>>3;
-							if(x>0 && y>0 && x<(map->bloc_w<<1) && y<(map->bloc_h<<1))
-								if(map->map_data[y][x].stuff==-1) {
-									int type=feature_manager.get_feature_index( (String( unit_manager.unit_type[type_id].name) + "_heap").c_str() );
-									if( type >= 0 ) {
-										Pos.x=(x<<3)-map->map_w_d+8.0f;
-										Pos.z=(y<<3)-map->map_h_d+8.0f;
-										map->map_data[y][x].stuff=features.add_feature(Pos,type);
-										if( map->map_data[y][x].stuff >= 0 ) {			// Keep unit orientation
-											features.feature[ map->map_data[y][x].stuff ].angle = Angle.y;
-											if( sinking )
-												features.sink_feature( map->map_data[y][x].stuff );
-											}
-										if(type!=-1 && map->map_data[y][x].stuff != -1 && feature_manager.feature[type].blocking)
-											map->rect(x-(feature_manager.feature[type].footprintx>>1),y-(feature_manager.feature[type].footprintz>>1),feature_manager.feature[type].footprintx,feature_manager.feature[type].footprintz,-2-map->map_data[y][x].stuff);
-										}
-								}
-						}
-						break;
-					default:
-						flags = 1;		// Nothing replaced just remove the unit from position map
-					};
-					LeaveCS();
-					int w_id = weapons.add_weapon(weapon_manager.get_weapon_index( self_destruct == 0.0f ? unit_manager.unit_type[type_id].SelfDestructAs : unit_manager.unit_type[type_id].ExplodeAs ),idx);
-					EnterCS();
-					if(w_id>=0) {
-						weapons.weapon[w_id].Pos = Pos;
-						weapons.weapon[w_id].target_pos = Pos;
-						weapons.weapon[w_id].target = -1;
-						weapons.weapon[w_id].just_explode = true;
-						}
-					for(int i=0;i<data.nb_piece;i++)
-						if(!(data.flag[i]&FLAG_EXPLODE))// || (data.flag[i]&FLAG_EXPLODE && (data.explosion_flag[i]&EXPLODE_BITMAPONLY)))
-							data.flag[i]|=FLAG_HIDE;
-				 }
+				if( build_percent_left == 0.0f && local )
+					explode();
 				else
 					flags = 1;
 				weapon[0].delay=1.0f;
@@ -2157,7 +2173,7 @@ bool UNIT::is_on_radar( byte p_mask )
 				}
 			goto script_exec;
 			}
-		else if(!jump_commands && do_nothing())
+		else if(!jump_commands && do_nothing() && local)
 			if(Pos.x<-map->map_w_d || Pos.x>map->map_w_d || Pos.z<-map->map_h_d || Pos.z>map->map_h_d) {
 				VECTOR target = Pos;
 				if(target.x < -map->map_w_d+256)

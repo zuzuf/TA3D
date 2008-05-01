@@ -335,6 +335,7 @@ public:
 	uint32			sync_hash;
 	uint32			*last_synctick;
 	bool			local;
+	bool			exploding;
 	struct	sync	previous_sync;		// previous sync data
 
 public:
@@ -535,6 +536,8 @@ public:
 		if( full )
 			CreateCS();
 		EnterCS();
+
+		exploding = false;
 		
 		command_locked = false;
 		
@@ -867,6 +870,8 @@ public:
 				V.x = V.y = V.z = 0.0f;		// Stop unit's movement
 			}
 	}
+	
+	void explode();
 };
 
 #define	ICON_UNKNOWN		0x0
