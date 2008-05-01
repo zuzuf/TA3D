@@ -1617,6 +1617,18 @@ void PLAYERS::show_resources()
 	units.LeaveCS_from_outside();
 }
 
+inline bool need_sync( struct sync &a, struct sync &b )
+{
+	return fabs( a.x - b.x ) > 0.001f
+	||	fabs( a.y - b.y ) > 0.001f
+	||	fabs( a.z - b.z ) > 0.001f
+	||	fabs( a.vx - b.vx ) > 0.001f
+	||	fabs( a.vz - b.vz ) > 0.001f
+	||	a.hp != b.hp
+	||	a.orientation != b.orientation
+	||	a.build_percent_left != b.build_percent_left;
+}
+
 void PLAYERS::player_control()
 {
 	for( byte i = 0 ; i < nb_player ; i++ )
@@ -1666,14 +1678,7 @@ void PLAYERS::player_control()
 					printf("sending TCP sync packet!\n");
 					}
 				else {
-					if( sync.x != units.unit[i].previous_sync.x
-					||	sync.y != units.unit[i].previous_sync.y
-					||	sync.z != units.unit[i].previous_sync.z
-					||	sync.vx != units.unit[i].previous_sync.vx
-					||	sync.vz != units.unit[i].previous_sync.vz
-					||	sync.hp != units.unit[i].previous_sync.hp
-					||	sync.orientation != units.unit[i].previous_sync.orientation
-					||	sync.build_percent_left != units.unit[i].previous_sync.build_percent_left ) {			// Don't send what isn't needed
+					if( need_sync( sync, units.unit[i].previous_sync ) ) {			// Don't send what isn't needed
 						network_manager.sendSync( &sync );
 						units.unit[i].previous_sync = sync;
 						}
