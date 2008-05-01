@@ -1247,13 +1247,16 @@ int Network::sendSyncTCP(struct sync* sync, int src_id){
 	return -1;						// Not connected, it shouldn't be possible to get here if we're not connected ...
 }
 
-int Network::sendEvent(struct event* event, int dst_id){
+int Network::sendEvent(struct event* event, int src_id){
 	if( myMode == 1 ) {				// Server mode
 		if( event == NULL )	return -1;
 		int v = 0;
-		TA3DSock *sock = players.getSock( dst_id );
-		if( sock )
-			v = sock->sendEvent( event );
+		for( int i = 1 ; i <= players.getMaxId() ; i++ )  {
+			if( i == src_id )	continue;
+			TA3DSock *sock = players.getSock( i );
+			if( sock )
+				v = sock->sendEvent( event );
+			}
 		return v;
 		}
 	else if( myMode == 2 ) {			// Client mode
@@ -1263,18 +1266,16 @@ int Network::sendEvent(struct event* event, int dst_id){
 	return -1;
 }
 
-int Network::sendEventUDP(struct event* event, int src_id){
+int Network::sendEventUDP(struct event* event, int dst_id){
 	if( myMode == 1 ) {				// Server mode
 		if( event == NULL )	return -1;
 		int v = 0;
-		for( int i = 1 ; i <= players.getMaxId() ; i++ )  {
-			TA3DSock *sock = players.getSock( i );
-			if( sock && i != src_id )
-				v += udp_socket.sendEvent( event, sock->getAddress() );
-			}
+		TA3DSock *sock = players.getSock( dst_id );
+		if( sock )
+			v += udp_socket.sendEvent( event, sock->getAddress() );
 		return v;
 		}
-	else if( myMode == 2 && src_id == -1 ) {			// Client mode
+	else if( myMode == 2 ) {			// Client mode
 		if( tohost_socket == NULL || !tohost_socket->isOpen() || event == NULL )	return -1;
 		return udp_socket.sendEvent( event, tohost_socket->getAddress() );
 		}

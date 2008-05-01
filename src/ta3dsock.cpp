@@ -354,6 +354,7 @@ int TA3DSock::sendEvent(struct event* event){
 		putShort(event->opt1);
 		break;
 	case EVENT_UNIT_CREATION:
+		printf("sending unit creation event (%s)\n", event->str);
 		putShort(event->opt1);
 		putShort(event->opt2);
 		putLong(event->x);
