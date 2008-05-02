@@ -95,10 +95,12 @@ void TA3DNetwork::check()
 
 		int player_id = game_data->net2id( received_chat_msg.from );
 		if( player_id >= 0 ) {
+			EnterCS();
 			if( messages.size() > 10 )		// Prevent flooding the screen with chat messages
 				messages.pop_front();
 			chat_msg = "<" + game_data->player_names[ player_id ] + "> " + chat_msg;
 			messages.push_back( NetworkMessage( chat_msg, msec_timer ) );
+			LeaveCS();
 			}
 		}
 
