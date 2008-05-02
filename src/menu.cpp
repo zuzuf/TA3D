@@ -1563,9 +1563,9 @@ void setup_game(bool client, const char *host)
 						if( setupgame_area.get_caption(format("gamesetup.name%d", f)) == player_str[2] ) 
 							nb_open++;
 					if( TA3D_CURRENT_MOD.empty() )
-						network_manager.broadcastMessage( format( "PONG SERVER %s . %s %d", host, ReplaceChar( TA3D_ENGINE_VERSION,' ','?' ).c_str(), nb_open ).c_str() );
+						network_manager.broadcastMessage( format( "PONG SERVER %s . %s %d", ReplaceChar( host, ' ', 1).c_str(), ReplaceChar( TA3D_ENGINE_VERSION,' ', 1 ).c_str(), nb_open ).c_str() );
 					else
-						network_manager.broadcastMessage( format( "PONG SERVER %s %s %s %d", host, ReplaceChar( TA3D_CURRENT_MOD, ' ', '?' ).c_str(), ReplaceChar( TA3D_ENGINE_VERSION,' ','?' ).c_str(), nb_open ).c_str() );
+						network_manager.broadcastMessage( format( "PONG SERVER %s %s %s %d", ReplaceChar( host, ' ', 1).c_str(), ReplaceChar( TA3D_CURRENT_MOD, ' ', 1 ).c_str(), ReplaceChar( TA3D_ENGINE_VERSION,' ',1 ).c_str(), nb_open ).c_str() );
 					}
 				}
 			broadcast_msg = network_manager.getNextBroadcastedMessage();
@@ -1929,10 +1929,10 @@ void network_room(void)				// Let players create/join a game
 			while( !msg.empty() ) {
 				Vector<String> params = ReadVectorString( msg, " " );
 				if( params.size() == 6 && params[0] == "PONG" && params[1] == "SERVER" ) {		// It looks like "PONG SERVER <name> <mod> <version> <nb open player slots>
-					String name = params[2];
-					String mod = ReplaceChar( params[3], '?', ' ' );
+					String name = ReplaceChar( params[2], 1, ' ' );
+					String mod = ReplaceChar( params[3], 1, ' ' );
 					if( mod == "." )	mod = "";
-					String version = ReplaceChar( params[4], '?', ' ' );
+					String version = ReplaceChar( params[4], 1, ' ' );
 					String host_address = network_manager.getLastMessageAddress();
 					int nb_open = atoi( params[5].c_str() );
 					

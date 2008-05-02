@@ -442,8 +442,8 @@ int main(int argc,char *argv[])
 	start = msec_timer;      // Initalize timer.
 
 	// while our engine does some loading and intializing, lets show our intro.
-	if( !lp_CONFIG->quickstart ) {
-		GuardStart( main );
+	if( !lp_CONFIG->quickstart && lp_CONFIG->file_param.empty() ) {
+		GuardStart( intro );
 			play_intro();
 		GuardCatch();
 		if( IsExceptionInProgress() )
@@ -452,7 +452,7 @@ int main(int argc,char *argv[])
 			// We need to guard deleting the engine in case something bad goes wrong during
 			//   the cleanup process, note that this might not exit right away because it
 			//   might take a few seconds to kill the thread.
-			GuardStart( main );
+			GuardStart( intro );
 				delete Engine;
 				delete TA3D::VARS::lp_CONFIG;
 			GuardCatch();
