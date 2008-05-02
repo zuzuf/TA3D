@@ -99,9 +99,12 @@ namespace TA3D
 		bool	restorestart;				// Tell it's a restart to restore previous config file
 		bool	pause;						// Tell the engine it's in pause mode, so wait for this to be false again
 		bool	paused;						// The engine writes its current state here, used by save/load code
+		String	file_param;					// File parameter (command line parameter), used to give complex instructions
 
 		TA3DCONFIG()
 		{
+			file_param.clear();
+		
 			use_texture_cache = false;
 			
 			pause = false;

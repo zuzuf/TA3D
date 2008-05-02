@@ -52,6 +52,7 @@ void LoadConfigFile( void );
 void makeBackup( const String FileName );
 void restoreBackup( const String FileName );
 void SaveConfigFile( void );
+void ReadFileParameter( void );
 
 void main_menu(void)
 {
@@ -72,9 +73,11 @@ void main_menu(void)
 	main_area.load_tdf("gui/main.area");
 	if( !main_area.background )	main_area.background = gfx->glfond;
 
-	cursor_type=CURSOR_DEFAULT;
+	cursor_type = CURSOR_DEFAULT;
 
 	String current_mod = TA3D_CURRENT_MOD.length() > 6 ? TA3D_CURRENT_MOD.substr( 5, TA3D_CURRENT_MOD.length() - 6 ) : "";
+
+	ReadFileParameter();			// If there is a file parameter, read it
 
 	bool done=false;
 	bool first=true;

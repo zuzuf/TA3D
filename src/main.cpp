@@ -47,6 +47,72 @@ void Timer()
 }
 END_OF_FUNCTION(Timer); /* I guess allegro needs this. */
 
+/*
+** Function: ReadFileParameter
+**    Notes: This function will eventually load a file given as command line parameter
+**             and run given commands. This is used to start a multiplayer game from
+**             an external Lobby client
+*/
+void ReadFileParameter( void )
+{
+	if( TA3D::VARS::lp_CONFIG == NULL || TA3D::VARS::lp_CONFIG->file_param.empty() )	return;		// Nothing to do
+	
+	Console->AddEntry("reading file parameter '%s'", TA3D::VARS::lp_CONFIG->file_param.c_str() );
+	
+	cTAFileParser parser( TA3D::VARS::lp_CONFIG->file_param );
+	
+	String current_mod = TA3D::VARS::TA3D_CURRENT_MOD;
+
+	TA3D::VARS::TA3D_CURRENT_MOD = TA3D::VARS::lp_CONFIG->last_MOD = parser.PullAsString("TA3D.MOD", current_mod);
+	TA3D::VARS::lp_CONFIG->last_script = ReplaceChar( parser.PullAsString( "TA3D.Script", TA3D::VARS::lp_CONFIG->last_script ), '/', '\\' );
+	TA3D::VARS::lp_CONFIG->last_map = ReplaceChar( parser.PullAsString( "TA3D.Map", TA3D::VARS::lp_CONFIG->last_map ), '/', '\\' );
+	TA3D::VARS::lp_CONFIG->last_FOW = parser.PullAsInt( "TA3D.FOW", TA3D::VARS::lp_CONFIG->last_FOW );
+
+	if( current_mod != TA3D::VARS::TA3D_CURRENT_MOD ) {		// Refresh file structure
+		delete HPIManager;
+		
+		TA3D_clear_cache();		// Clear the cache
+		
+		HPIManager = new cHPIHandler("");
+		ta3d_sidedata.load_data();				// Refresh side data so we load the correct values
+
+		delete sound_manager;
+		sound_manager = new TA3D::INTERFACES::cAudio ( 1.0f, 0.0f, 0.0f );
+		sound_manager->StopMusic();
+		sound_manager->LoadTDFSounds( true );
+		sound_manager->LoadTDFSounds( false );
+		}
+
+	if( parser.PullAsBool( "TA3D.Network game" ) ) {
+		if( parser.PullAsBool( "TA3D.Server" ) ) {			// Server code
+			char *host_name = strdup( parser.PullAsString( "TA3D.Server name", TA3D::VARS::lp_CONFIG->player_name ).c_str() );
+			setup_game( false, host_name );		// Start the game in networking mode as server
+			free( host_name );
+			}
+		else {												// Client code
+			char *host_name = strdup( parser.PullAsString( "TA3D.Server name", "" ).c_str() );
+			setup_game( true, host_name );		// Start the game in networking mode as server
+			free( host_name );
+			}
+		}
+	
+	TA3D::VARS::TA3D_CURRENT_MOD = TA3D::VARS::lp_CONFIG->last_MOD = current_mod;
+
+	if( current_mod != TA3D::VARS::TA3D_CURRENT_MOD ) {		// Refresh file structure
+		delete HPIManager;
+		
+		TA3D_clear_cache();		// Clear the cache
+		
+		HPIManager = new cHPIHandler("");
+		ta3d_sidedata.load_data();				// Refresh side data so we load the correct values
+
+		delete sound_manager;
+		sound_manager = new TA3D::INTERFACES::cAudio ( 1.0f, 0.0f, 0.0f );
+		sound_manager->StopMusic();
+		sound_manager->LoadTDFSounds( true );
+		sound_manager->LoadTDFSounds( false );
+		}
+}
 
 /*
 ** Function: LoadConfigFile
@@ -266,6 +332,12 @@ void ParseCommandLine( int argc, char *argv[] )
 			}
 		else if( !strcmp( argv[ i ], "--restore" ) )			// Tell TA3D not to display the quickstart confirm dialog
 			lp_CONFIG->restorestart = true;
+		else if( !strcmp( argv[ i ], "--file-param" ) ) {		// Pass a file as parameter, used for complex things
+			if( i + 1 < argc ) {
+				i++;
+				lp_CONFIG->file_param = argv[ i ];		// Copy the file name
+				}
+			}
 		}
 
 	GuardLeave();
