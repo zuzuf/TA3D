@@ -6018,7 +6018,7 @@ int INGAME_UNITS::Run()
 								min_tick = min( min_tick, client_tick[i] );
 					}
 			else if( current_tick > min_tick )
-				tick *= max( current_tick - min_tick - 2, (uint32)1 );
+				tick += ( current_tick - min_tick ) * 250 / TICKS_PER_SEC;
 			}
 
 		unit_engine_thread_sync = 1;
