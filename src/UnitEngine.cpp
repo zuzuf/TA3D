@@ -5978,9 +5978,11 @@ int INGAME_UNITS::Run()
 						min_tick = min( min_tick, client_tick[i] );
 			}
 
-		if( !(network_manager.isConnected() && min_tick > current_tick) )
-			while( msec_timer - tick_timer + 1 < tick )
-				rest( 1 );
+		if( network_manager.isConnected() && min_tick > current_tick )
+			tick -= (min_tick - current_tick) * 250 / TICKS_PER_SEC;
+
+		while( msec_timer - tick_timer + 1 < tick )
+			rest( 1 );
 
 		while( msec_timer - tick_timer >= tick + 200 ) {		// Prevent the game to run too fast for too long, we don't have to speed up to compute what we hadn't time to
 			counter += 1.0f;
