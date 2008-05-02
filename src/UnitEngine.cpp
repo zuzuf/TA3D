@@ -5978,8 +5978,11 @@ int INGAME_UNITS::Run()
 						min_tick = min( min_tick, client_tick[i] );
 			}
 
-		if( network_manager.isConnected() && min_tick > current_tick )
-			tick -= (min_tick - current_tick) * 250 / TICKS_PER_SEC;
+		if( network_manager.isConnected() && min_tick > current_tick ) {
+			int delay = (min_tick - current_tick) * 250 / TICKS_PER_SEC;
+			if( tick >= delay )
+				tick -= delay;
+			}
 
 		while( msec_timer - tick_timer + 1 < tick )
 			rest( 1 );
