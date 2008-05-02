@@ -669,7 +669,7 @@ const void WEAPON::move(const float dt,MAP *map)				// Anime les armes
 							if(type!=-1 && feature_manager.feature[type].blocking)
 								map->rect(sx-(feature_manager.feature[type].footprintx>>1),sy-(feature_manager.feature[type].footprintz>>1),feature_manager.feature[type].footprintx,feature_manager.feature[type].footprintz,-2-map->map_data[sy][sx].stuff);
 							if( network_manager.isConnected() )
-								g_ta3d_network->sendFeatureDeathEvent( map->map_data[sy][sx].stuff );
+								g_ta3d_network->sendFeatureCreationEvent( map->map_data[sy][sx].stuff );
 							}
 						}
 					}
@@ -761,7 +761,7 @@ const void WEAPON::move(const float dt,MAP *map)				// Anime les armes
 								if( starter_score < weapon_manager.weapon[weapon_id].firestarter ) {
 									features.burn_feature( -t_idx-2 );
 									if( network_manager.isConnected() )
-										g_ta3d_network->sendFeatureDeathEvent( -hit_idx-2 );
+										g_ta3d_network->sendFeatureFireEvent( -t_idx-2 );
 									}
 								}
 
@@ -788,7 +788,7 @@ const void WEAPON::move(const float dt,MAP *map)				// Anime les armes
 											if(type!=-1 && feature_manager.feature[type].blocking)
 												map->rect(sx-(feature_manager.feature[type].footprintx>>1),sy-(feature_manager.feature[type].footprintz>>1),feature_manager.feature[type].footprintx,feature_manager.feature[type].footprintz,-2-map->map_data[sy][sx].stuff);
 											if( network_manager.isConnected() )
-												g_ta3d_network->sendFeatureDeathEvent( map->map_data[sy][sx].stuff );
+												g_ta3d_network->sendFeatureCreationEvent( map->map_data[sy][sx].stuff );
 											}
 										}
 									}
