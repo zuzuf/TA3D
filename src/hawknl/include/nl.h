@@ -101,14 +101,14 @@ extern "C" {
 #endif /* !WINDOWS_APP */
 
 /* Any more needed here? */
-#if defined WIN32 || defined WIN64 || defined __i386__ || defined __alpha__ || defined __mips__
+#if defined WIN32 || defined WIN64 || defined __amd64__ || defined __i386__ || defined __alpha__ || defined __mips__
   #define NL_LITTLE_ENDIAN
 #else
   #define NL_BIG_ENDIAN
 #endif
 
-/* How do we detect Solaris 64 and Linux 64 bit? */
-#if defined WIN64
+/* How do we detect Solaris 64 bit? */
+#if defined WIN64 || defined __amd64__
 #define IS_64_BIT
 #endif
 
