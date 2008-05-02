@@ -2012,7 +2012,7 @@ void network_room(void)				// Let players create/join a game
 			while( key[KEY_ENTER] )	{	rest( 20 );	poll_keyboard();	}
 			clear_keybuf();
 			network_manager.Disconnect();
-			String host = ReplaceChar( networkgame_area.get_caption( "hosting.t_hostname" ), ' ', '_' );
+			String host = networkgame_area.get_caption( "hosting.t_hostname" );
 
 			setup_game( false, host.c_str() );	// Host a game
 
