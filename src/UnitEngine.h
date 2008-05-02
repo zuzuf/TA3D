@@ -537,6 +537,8 @@ public:
 			CreateCS();
 		EnterCS();
 
+		local = true;		// Is local by default, set to remote by create_unit when needed
+
 		exploding = false;
 		
 		command_locked = false;
