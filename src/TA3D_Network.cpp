@@ -148,8 +148,6 @@ void TA3DNetwork::check()
 		if( network_manager.getNextSync( &sync_msg ) )
 			break;
 
-		if( units.current_tick - sync_msg.timestamp >= TICKS_PER_SEC )		continue;		// It's too old
-
 		if( sync_msg.hp == 0 )	{		// It's a weapon
 			if( sync_msg.unit < weapons.max_weapon ) {
 				weapons.Lock();
