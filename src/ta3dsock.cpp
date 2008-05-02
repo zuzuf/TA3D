@@ -120,7 +120,7 @@ void TA3DSock::putString(const char* x){//null terminated
 
 void TA3DSock::putFloat(float x){
 	float temp;
-	temp = nlSwapf(x);
+	temp = x;//nlSwapf(x);
 	memcpy(outbuf+obp,&temp,4);
 	obp += 4;
 }
