@@ -116,14 +116,14 @@ int UDPSock::takeFive(int time){
 //byte shuffling
 void UDPSock::putLong(uint32_t x){//uint32
 	uint32_t temp;
-	temp = x;
+	temp = nlSwapl( x );
 	memcpy(outbuf+obp,&temp,4);
 	obp += 4;
 }
 
 void UDPSock::putShort(uint16_t x){//uint16
 	uint16_t temp;
-	temp = x;
+	temp = nlSwaps( x );
 	memcpy(outbuf+obp,&temp,2);
 	obp += 2;
 }
@@ -148,21 +148,21 @@ void UDPSock::putString(const char* x){//null terminated
 
 void UDPSock::putFloat(float x){
 	float temp;
-	temp = x;//nlSwapf(x);
+	temp = nlSwapf(x);
 	memcpy(outbuf+obp,&temp,4);
 	obp += 4;
 }
 
 uint32 UDPSock::getLong()	//uint32
 {
-	uint32 result = *((uint32*)(udpinbuf+uibrp));
+	uint32 result = nlSwapl( *((uint32*)(udpinbuf+uibrp)) );
 	uibrp += 4;
 	return result;
 }
 
 uint16 UDPSock::getShort()	//uint16
 {
-	uint16 result = *((uint16*)(udpinbuf+uibrp));
+	uint16 result = nlSwaps( *((uint16*)(udpinbuf+uibrp)) );
 	uibrp += 2;
 	return result;
 }
@@ -191,7 +191,7 @@ void UDPSock::getBuffer(char* x, int size)
 
 float UDPSock::getFloat()
 {
-	float result = *((float*)(udpinbuf+uibrp));
+	float result = nlSwapf( *((float*)(udpinbuf+uibrp)) );
 	uibrp += 4;
 	return result;
 }

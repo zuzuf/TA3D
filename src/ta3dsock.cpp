@@ -88,14 +88,14 @@ void TA3DSock::Close(){
 //byte shuffling
 void TA3DSock::putLong(uint32_t x){//uint32
 	uint32_t temp;
-	temp = x;
+	temp = nlSwapl(x);
 	memcpy(outbuf+obp,&temp,4);
 	obp += 4;
 }
 
 void TA3DSock::putShort(uint16_t x){//uint16
 	uint16_t temp;
-	temp = x;
+	temp = nlSwaps(x);
 	memcpy(outbuf+obp,&temp,2);
 	obp += 2;
 }
@@ -120,21 +120,21 @@ void TA3DSock::putString(const char* x){//null terminated
 
 void TA3DSock::putFloat(float x){
 	float temp;
-	temp = x;//nlSwapf(x);
+	temp = nlSwapf(x);
 	memcpy(outbuf+obp,&temp,4);
 	obp += 4;
 }
 
 uint32 TA3DSock::getLong()	//uint32
 {
-	uint32 result = *((uint32*)(tcpinbuf+tibrp));
+	uint32 result = nlSwapl( *((uint32*)(tcpinbuf+tibrp)) );
 	tibrp += 4;
 	return result;
 }
 
 uint16 TA3DSock::getShort()	//uint16
 {
-	uint16 result = *((uint16*)(tcpinbuf+tibrp));
+	uint16 result = nlSwaps( *((uint16*)(tcpinbuf+tibrp)) );
 	tibrp += 2;
 	return result;
 }
@@ -163,7 +163,7 @@ void TA3DSock::getBuffer(char* x, int size)
 
 float TA3DSock::getFloat()
 {
-	float result = *((float*)(tcpinbuf+tibrp));
+	float result = nlSwapf( *((float*)(tcpinbuf+tibrp)) );
 	tibrp += 4;
 	return result;
 }

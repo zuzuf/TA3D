@@ -641,6 +641,9 @@ eventq(32,sizeof(struct event)) {
 	nlInit();						// Start NL
 
 	nlEnable( NL_SOCKET_STATS );	// Activates statistics
+
+	nlEnable( NL_LITTLE_ENDIAN_DATA );	// Little endian because most copies of TA3D will probably run on little endian hardware
+										// so don't waste CPU cycles doing useless conversions
 	
 	nlSelectNetwork( NL_IP );		// We want IP networking
 }
@@ -848,6 +851,7 @@ void Network::Disconnect(){
 
 	cleanQueues();
 
+	Console->AddEntry("");
 	Console->AddEntry("network statistics :" );
 	Console->AddEntry("average bytes/sec. received : %d bytes/sec.", nlGetInteger( NL_AVE_BYTES_RECEIVED ) );
 	Console->AddEntry("maximum bytes/sec. received : %d bytes/sec.", nlGetInteger( NL_HIGH_BYTES_RECEIVED ) );
@@ -855,6 +859,8 @@ void Network::Disconnect(){
 	Console->AddEntry("average bytes/sec. sent : %d bytes/sec.", nlGetInteger( NL_AVE_BYTES_SENT ) );
 	Console->AddEntry("maximum bytes/sec. sent : %d bytes/sec.", nlGetInteger( NL_HIGH_BYTES_SENT ) );
 	Console->AddEntry("total bytes sent : %d bytes", nlGetInteger( NL_BYTES_SENT ) );
+
+	nlClear( NL_ALL_STATS );
 
 	myMode = 0;
 
