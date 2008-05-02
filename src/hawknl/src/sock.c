@@ -1756,12 +1756,12 @@ NLchar *sock_AddrToString(const NLaddress *address, NLchar *string)
     port = ntohs(((struct sockaddr_in *)address)->sin_port);
     if(port == 0)
     {
-        _stprintf(string, TEXT("%du.%du.%du.%du"), (addr >> 24) & 0xff, (addr >> 16)
+        _stprintf(string, TEXT("%d.%d.%d.%d"), (addr >> 24) & 0xff, (addr >> 16)
             & 0xff, (addr >> 8) & 0xff, addr & 0xff);
     }
     else
     {
-        _stprintf(string, TEXT("%du.%du.%du.%du:%u"), (addr >> 24) & 0xff, (addr >> 16)
+        _stprintf(string, TEXT("%d.%d.%d.%d:%u"), (addr >> 24) & 0xff, (addr >> 16)
             & 0xff, (addr >> 8) & 0xff, addr & 0xff, port);
     }
     return string;
@@ -1773,7 +1773,7 @@ NLboolean sock_StringToAddr(const NLchar *string, NLaddress *address)
     NLulong     ipaddress, port = 0;
     int         ret;
 
-    ret = _stscanf((const NLchar *)string, (const NLchar *)TEXT("%du.%du.%du.%du:%du"), &a1, &a2, &a3, &a4, &port);
+    ret = _stscanf((const NLchar *)string, (const NLchar *)TEXT("%d.%d.%d.%d:%d"), &a1, &a2, &a3, &a4, &port);
 
     if(a1 > 255 || a2 > 255 || a3 > 255 || a4 > 255 || port > 65535 || ret < 4)
     {

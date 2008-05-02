@@ -2640,8 +2640,6 @@ void wait_room(void *p_game_data)
 		gfx->flip();
 	}while(!done);
 
-	network_manager.cleanQueues();
-
 	lp_CONFIG->timefactor = 1.0f;		// We can't afford running a network game at more than 1x !! (at least at the beginning, and not knowing if there are internet players)
 
 	if( wait_area.background == gfx->glfond )	wait_area.background = 0;
