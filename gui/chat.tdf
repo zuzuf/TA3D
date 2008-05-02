@@ -8,6 +8,9 @@
 	height=34;
 	draw borders=false;
 	show title=false;
+	fullscreen=true;
+	screen width=0;			// We don't want to resize X
+	screen height=600;
 	lock=true;
 	number of objects=1;
 	hidden=true;

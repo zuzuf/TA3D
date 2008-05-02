@@ -1453,12 +1453,8 @@ void WND::load_tdf( const String &filename, SKIN *skin )			// Load a window from
 	Title = TRANSLATE( wndFile->PullAsString( "window.title" ) );
 	x = wndFile->PullAsInt( "window.x" );
 	y = wndFile->PullAsInt( "window.y" );
-	if( x < 0 )	x+=SCREEN_W;
-	if( y < 0 ) y+=SCREEN_H;
 	width = wndFile->PullAsInt( "window.width" );
 	height = wndFile->PullAsInt( "window.height" );
-	if( width < 0 )		width += SCREEN_W;
-	if( height < 0 )	height += SCREEN_H;
 	repeat_bkg = wndFile->PullAsBool( "window.repeat background", false );
 	get_focus = wndFile->PullAsBool( "window.get focus", false );
 
@@ -1468,14 +1464,18 @@ void WND::load_tdf( const String &filename, SKIN *skin )			// Load a window from
 		int ref_width = wndFile->PullAsInt( "window.screen width", width );
 		int ref_height = wndFile->PullAsInt( "window.screen height", height );
 		if( ref_width > 0.0f )
-			x_factor = (float)gfx->width / ref_width;
+			x_factor = ((float)gfx->width) / ref_width;
 		if( ref_height > 0.0f )
-			y_factor = (float)gfx->height / ref_height;
+			y_factor = ((float)gfx->height) / ref_height;
 		width = (int)(width * x_factor);
 		height = (int)(height * y_factor);
 		x = (int)(x * x_factor);
 		y = (int)(y * y_factor);
 		}
+	if( x < 0 )	x+=SCREEN_W;
+	if( y < 0 ) y+=SCREEN_H;
+	if( width < 0 )		width += SCREEN_W;
+	if( height < 0 )	height += SCREEN_H;
 	size_factor = gfx->height / 600.0f;			// For title bar
 
 	background_wnd = wndFile->PullAsBool( "window.background window" );

@@ -1219,6 +1219,9 @@ void setup_game(bool client, const char *host)
 	if( host && client )
 		setupgame_area.msg("gamesetup.b_ok.disable");
 
+	int progress_timer = msec_timer;
+	int ping_timer = msec_timer;					// Used to send simple PING requests in order to detect when a connection fails
+
 	do
 	{
 		if( host )
@@ -1240,8 +1243,6 @@ void setup_game(bool client, const char *host)
 		struct chat received_chat_msg;
 		struct chat received_special_msg;
 		bool playerDropped = false;
-		int progress_timer = msec_timer;
-		int ping_timer = msec_timer;					// Used to send simple PING requests in order to detect when a connection fails
 		do {
 			playerDropped = network_manager.getPlayerDropped();
 			broadcast_msg = network_manager.getNextBroadcastedMessage();
@@ -2531,13 +2532,14 @@ void wait_room(void *p_game_data)
 	
 	network_manager.sendAll("READY");
 	
+	int ping_timer = msec_timer;					// Used to send simple PING requests in order to detect when a connection fails
+
 	do
 	{
 		bool key_is_pressed = false;
 		String special_msg = "";
 		struct chat received_special_msg;
 		bool playerDropped = false;
-		int ping_timer = msec_timer;					// Used to send simple PING requests in order to detect when a connection fails
 		do {
 			playerDropped = network_manager.getPlayerDropped();
 			if( network_manager.getNextSpecial( &received_special_msg ) == 0 )
@@ -2611,7 +2613,7 @@ void wait_room(void *p_game_data)
 		if( network_manager.isServer() && check_ready ) {			// If server is late the game should begin once he is there
 			bool ready = true;
 			for( int i = 0 ; i < game_data->nb_players && ready ; i++ )
-				if( !wait_area.get_state( format( "wait.ready%d", i ) ) && !dead_player[i] )
+				if( !wait_area.get_state( format( "wait.ready%d", i ) ) && !dead_player[i] && game_data->player_network_id[i] > 0 )
 					ready = false;
 			
 			if( ready ) {
