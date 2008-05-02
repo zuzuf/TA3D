@@ -1598,17 +1598,19 @@ void PLAYERS::show_resources()
 		gfx->set_color( ta3d_sidedata.side_int_data[ players.side_view ].metal_color );
 
 		if(metal_s[0]) {
+			float metal_percent = metal_s[_id] ? metal[_id] / metal_s[_id] : 0.0f;
 			glVertex2f( ta3d_sidedata.side_int_data[ players.side_view ].MetalBar.x1, ta3d_sidedata.side_int_data[ players.side_view ].MetalBar.y1 );
-			glVertex2f( ta3d_sidedata.side_int_data[ players.side_view ].MetalBar.x1 + metal[_id] / metal_s[_id] * (ta3d_sidedata.side_int_data[ players.side_view ].MetalBar.x2-ta3d_sidedata.side_int_data[ players.side_view ].MetalBar.x1), ta3d_sidedata.side_int_data[ players.side_view ].MetalBar.y1 );
-			glVertex2f( ta3d_sidedata.side_int_data[ players.side_view ].MetalBar.x1 + metal[_id] / metal_s[_id] * (ta3d_sidedata.side_int_data[ players.side_view ].MetalBar.x2-ta3d_sidedata.side_int_data[ players.side_view ].MetalBar.x1), ta3d_sidedata.side_int_data[ players.side_view ].MetalBar.y2 );
+			glVertex2f( ta3d_sidedata.side_int_data[ players.side_view ].MetalBar.x1 + metal_percent * (ta3d_sidedata.side_int_data[ players.side_view ].MetalBar.x2-ta3d_sidedata.side_int_data[ players.side_view ].MetalBar.x1), ta3d_sidedata.side_int_data[ players.side_view ].MetalBar.y1 );
+			glVertex2f( ta3d_sidedata.side_int_data[ players.side_view ].MetalBar.x1 + metal_percent * (ta3d_sidedata.side_int_data[ players.side_view ].MetalBar.x2-ta3d_sidedata.side_int_data[ players.side_view ].MetalBar.x1), ta3d_sidedata.side_int_data[ players.side_view ].MetalBar.y2 );
 			glVertex2f( ta3d_sidedata.side_int_data[ players.side_view ].MetalBar.x1, ta3d_sidedata.side_int_data[ players.side_view ].MetalBar.y2 );
 			}
 
 		gfx->set_color( ta3d_sidedata.side_int_data[ players.side_view ].energy_color );
 		if(energy_s[0]) {
+			float energy_percent = energy_s[_id] ? energy[_id] / energy_s[_id] : 0.0f;
 			glVertex2f( ta3d_sidedata.side_int_data[ players.side_view ].EnergyBar.x1, ta3d_sidedata.side_int_data[ players.side_view ].EnergyBar.y1 );
-			glVertex2f( ta3d_sidedata.side_int_data[ players.side_view ].EnergyBar.x1 + energy[_id] / energy_s[_id] * (ta3d_sidedata.side_int_data[ players.side_view ].EnergyBar.x2-ta3d_sidedata.side_int_data[ players.side_view ].EnergyBar.x1), ta3d_sidedata.side_int_data[ players.side_view ].EnergyBar.y1 );
-			glVertex2f( ta3d_sidedata.side_int_data[ players.side_view ].EnergyBar.x1 + energy[_id] / energy_s[_id] * (ta3d_sidedata.side_int_data[ players.side_view ].EnergyBar.x2-ta3d_sidedata.side_int_data[ players.side_view ].EnergyBar.x1), ta3d_sidedata.side_int_data[ players.side_view ].EnergyBar.y2 );
+			glVertex2f( ta3d_sidedata.side_int_data[ players.side_view ].EnergyBar.x1 + energy_percent * (ta3d_sidedata.side_int_data[ players.side_view ].EnergyBar.x2-ta3d_sidedata.side_int_data[ players.side_view ].EnergyBar.x1), ta3d_sidedata.side_int_data[ players.side_view ].EnergyBar.y1 );
+			glVertex2f( ta3d_sidedata.side_int_data[ players.side_view ].EnergyBar.x1 + energy_percent * (ta3d_sidedata.side_int_data[ players.side_view ].EnergyBar.x2-ta3d_sidedata.side_int_data[ players.side_view ].EnergyBar.x1), ta3d_sidedata.side_int_data[ players.side_view ].EnergyBar.y2 );
 			glVertex2f( ta3d_sidedata.side_int_data[ players.side_view ].EnergyBar.x1, ta3d_sidedata.side_int_data[ players.side_view ].EnergyBar.y2 );
 			}
 	glEnd();
