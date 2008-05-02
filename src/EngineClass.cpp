@@ -1674,7 +1674,9 @@ void PLAYERS::player_control()
 					if( g_ta3d_network->isRemoteHuman( f ) )
 						latest_sync = min( latest_sync, units.unit[ i ].last_synctick[f] );
 
-				if( latest_sync < units.unit[i].previous_sync.timestamp - 10 ) {		// We have to sync now
+				if( latest_sync < units.unit[i].previous_sync.timestamp - 10
+				|| units.unit[i].previous_sync.hp != sync.hp
+				|| units.unit[i].previous_sync.build_percent_left != sync.build_percent_left ) {		// We have to sync now
 					network_manager.sendSyncTCP( &sync );
 					units.unit[i].previous_sync = sync;
 					printf("sending TCP sync packet!\n");

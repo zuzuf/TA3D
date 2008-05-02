@@ -5966,10 +5966,17 @@ int INGAME_UNITS::Run()
 		LeaveCS();
 
 		uint32 min_tick = current_tick + 30000;
-		if( network_manager.isConnected() )
-			for( int i = 0 ; i < players.nb_player ; i++ )
-				if( g_ta3d_network->isRemoteHuman( i ) )
-					min_tick = min( min_tick, client_tick[i] );
+		if( network_manager.isConnected() ) {
+			if( network_manager.isServer() ) {
+				for( int i = 0 ; i < players.nb_player ; i++ )
+					if( g_ta3d_network->isRemoteHuman( i ) )
+						min_tick = min( min_tick, client_tick[i] );
+				}
+			else
+				for( int i = 0 ; i < players.nb_player ; i++ )
+					if( g_ta3d_network->isRemoteHuman( i ) && client_tick[i] > 0 )
+						min_tick = min( min_tick, client_tick[i] );
+			}
 
 		if( !(network_manager.isConnected() && min_tick > current_tick) )
 			while( msec_timer - tick_timer + 1 < tick )
@@ -5999,9 +6006,15 @@ int INGAME_UNITS::Run()
 				rest(1);
 
 				min_tick = current_tick;
-				for( int i = 0 ; i < players.nb_player ; i++ )
-					if( g_ta3d_network->isRemoteHuman( i ) )
-						min_tick = min( min_tick, client_tick[i] );
+				if( network_manager.isServer() ) {
+					for( int i = 0 ; i < players.nb_player ; i++ )
+						if( g_ta3d_network->isRemoteHuman( i ) )
+							min_tick = min( min_tick, client_tick[i] );
+					}
+				else
+					for( int i = 0 ; i < players.nb_player ; i++ )
+						if( g_ta3d_network->isRemoteHuman( i ) && client_tick[i] > 0 )
+							min_tick = min( min_tick, client_tick[i] );
 				}
 			}
 
