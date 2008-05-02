@@ -5922,16 +5922,17 @@ int INGAME_UNITS::Run()
 {
 	thread_running = true;
 	float dt = 1.0f / TICKS_PER_SEC;
-	int unit_timer = msec_timer;
-	int tick_timer;
+	uint32 unit_timer = msec_timer;
+	uint32 tick_timer;
 	float counter = 0.0f;
 	int tick = 1000 / TICKS_PER_SEC;
 	tick_timer = msec_timer;
+	uint32 net_timer = msec_timer;
 	float step = 1.0f;
 	if( lp_CONFIG->timefactor > 0.0f )	step = 1.0f / lp_CONFIG->timefactor;
 	current_tick = 0;
 	for( int i = 0 ; i < 10 ; i++ )
-		client_tick[i] = 0;
+		client_tick[i] = client_speed[i] = 0;
 	apparent_timefactor = lp_CONFIG->timefactor;
 
 	unit_engine_thread_sync = 0;
@@ -5965,7 +5966,7 @@ int INGAME_UNITS::Run()
 			wind_change = false;
 		LeaveCS();
 
-		uint32 min_tick = current_tick + 30000;
+		uint32 min_tick = 1000 * current_tick + 30000;
 		if( network_manager.isConnected() ) {
 			if( network_manager.isServer() ) {
 				for( int i = 0 ; i < players.nb_player ; i++ )
@@ -5977,6 +5978,7 @@ int INGAME_UNITS::Run()
 					if( g_ta3d_network->isRemoteHuman( i ) && client_tick[i] > 0 )
 						min_tick = min( min_tick, client_tick[i] );
 			}
+		min_tick /= 1000;
 
 		if( network_manager.isConnected() && min_tick > current_tick ) {
 			int delay = (min_tick - current_tick) * 250 / TICKS_PER_SEC;
@@ -6005,13 +6007,20 @@ int INGAME_UNITS::Run()
 		lp_CONFIG->paused = false;
 
 		if( network_manager.isConnected() ) {
-			network_manager.sendSpecial(format("TICK %d", current_tick + 1));		// + 1 to prevent it from running too slow
+			net_timer = msec_timer - net_timer;
+			for( int i = 0 ; i < players.nb_player ; i++ )
+				if( g_ta3d_network->isRemoteHuman( i ) )
+					client_tick[ i ] += client_speed[ i ] * net_timer / (1000 * TICKS_PER_SEC);
+
+			net_timer = msec_timer;
+
+			network_manager.sendSpecial(format("TICK %d %d", current_tick + 1, (int)(1000.0f * apparent_timefactor) ));		// + 1 to prevent it from running too slow
 			if( current_tick > min_tick + TICKS_PER_SEC )
 				while( current_tick > min_tick && !thread_ask_to_stop ) {
 					players_thread_sync = 0;
 					rest(1);
 
-					min_tick = current_tick;
+					min_tick = current_tick * 1000;
 					if( network_manager.isServer() ) {
 						for( int i = 0 ; i < players.nb_player ; i++ )
 							if( g_ta3d_network->isRemoteHuman( i ) )
@@ -6021,6 +6030,7 @@ int INGAME_UNITS::Run()
 						for( int i = 0 ; i < players.nb_player ; i++ )
 							if( g_ta3d_network->isRemoteHuman( i ) && client_tick[i] > 0 )
 								min_tick = min( min_tick, client_tick[i] );
+					min_tick /= 1000;
 					}
 			else if( current_tick > min_tick )
 				tick += ( current_tick - min_tick ) * 250 / TICKS_PER_SEC;

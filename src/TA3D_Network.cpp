@@ -123,10 +123,12 @@ void TA3DNetwork::check()
 		int player_id = game_data->net2id( received_special_msg.from );
 
 		Vector<String> params = ReadVectorString( special_msg, " " );
-		if( params.size() == 2 ) {
+		if( params.size() == 3 ) {
 			if( params[0] == "TICK" ) {
-				if( player_id >= 0 )
-					units.client_tick[ player_id ] = atoi( params[1].c_str() );
+				if( player_id >= 0 ) {
+					units.client_tick[ player_id ] = atoi( params[1].c_str() ) * 1000;
+					units.client_speed[ player_id ] = atoi( params[2].c_str() );
+					}
 				}
 			}
 		}
@@ -146,7 +148,7 @@ void TA3DNetwork::check()
 		if( network_manager.getNextSync( &sync_msg ) )
 			break;
 
-		if( units.current_tick - sync_msg.timestamp >= 10 )		continue;		// It's too old
+		if( units.current_tick - sync_msg.timestamp >= TICKS_PER_SEC )		continue;		// It's too old
 
 		if( sync_msg.hp == 0 )	{		// It's a weapon
 			if( sync_msg.unit < weapons.max_weapon ) {

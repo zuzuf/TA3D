@@ -933,6 +933,7 @@ public:
 	MAP		*map;
 	uint32	current_tick;
 	uint32	client_tick[10];
+	uint32	client_speed[10];
 	float	apparent_timefactor;
 	uint32	last_tick[5];
 	sint32	last_on;				// Indicate the unit index which was under the cursor (mini map orders)
