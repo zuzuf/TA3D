@@ -1,5 +1,6 @@
 TODO list
 ---------
+_add the possibility to lock/unlock the mouse inside the game's window
 _add support for team management
 _read the music from a CD
 _add glossiness (or reflection) to all TA3D models.
@@ -11,6 +12,7 @@ _networking code
 _improve A.I.
 _D3D support
 
+* multiplayer :)
 * added multiplayer entry in main menu
 * new single player menu
 * new main menu
@@ -20,7 +22,7 @@ _D3D support
 * added support for saving/loading games
 * pressing ESC also pause the game
 * added shootall console command to kill all enemy units
-* low level networking layer used HawkNL library
+* low level networking layer uses HawkNL library
 * added support for broadcasting (LAN server discovery)
 * added networking code
 * added support for mission features (features described in *.ota files)
