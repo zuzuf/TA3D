@@ -1016,7 +1016,7 @@ void OBJECT::draw_optimised( bool set )
 			if(!set)
 				glVertexPointer( 3, GL_FLOAT, 0, points);
 			glPolygonMode (GL_FRONT_AND_BACK, GL_LINE);
-			glColor3f(1.0f,1.0f,0.0f);
+			glColor3f(0.0f,1.0f,0.0f);
 			glTranslatef( 0.0f, 2.0f, 0.0f );
 			glDrawElements(GL_QUADS, 4,GL_UNSIGNED_SHORT,sel);		// dessine la primitive de sélection
 			glTranslatef( 0.0f, -2.0f, 0.0f );
