@@ -462,7 +462,7 @@ void SendFileThread::proc(void* param){
 			network->updateFileTransferInformation( filename + format("%d", sockid), real_length, pos );
 
 			int timer = msec_timer;
-			while( progress < pos - FILE_TRANSFER_BUFFER_SIZE && !dead && msec_timer - timer < 5000 )	rest(0);
+			while( progress < pos - 10 * FILE_TRANSFER_BUFFER_SIZE && !dead && msec_timer - timer < 5000 )	rest(0);
 			if( msec_timer - timer >= 5000 ) {
 				dead = 1;
 				network->updateFileTransferInformation( filename + format("%d", sockid), 0, 0 );
