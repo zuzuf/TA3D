@@ -322,9 +322,6 @@ char *select_map(String *def_choice)		// Cette fonction affiche un menu permetta
 {
 	cursor_type=CURSOR_DEFAULT;
 
-	float resize_w = SCREEN_W / 640.0f;
-	float resize_h = SCREEN_H / 480.0f;
-
 	reset_keyboard();
 	while(key[KEY_ESC])	rest(1);
 
@@ -484,7 +481,7 @@ char *select_map(String *def_choice)		// Cette fonction affiche un menu permetta
 
 		glEnable(GL_TEXTURE_2D);
 		gfx->set_color(0xFFFFFFFF);
-		draw_cursor(resize_w,resize_h);
+		draw_cursor();
 		
 					// Affiche
 		gfx->flip();
@@ -513,9 +510,6 @@ void config_menu(void)
 		}
 
 	TA3DCONFIG	saved_config = *lp_CONFIG;
-
-	float resize_w = SCREEN_W / 640.0f;
-	float resize_h = SCREEN_H / 480.0f;
 
 	AREA config_area("config");
 	config_area.load_tdf("gui/config.area");
@@ -872,7 +866,7 @@ void config_menu(void)
 
 		glEnable(GL_TEXTURE_2D);
 		gfx->set_color(0xFFFFFFFF);
-		draw_cursor( resize_w, resize_h);
+		draw_cursor();
 		
 					// Affiche
 		gfx->flip();
@@ -928,9 +922,6 @@ void config_menu(void)
 void stats_menu(void)
 {
 	cursor_type=CURSOR_DEFAULT;
-
-	float resize_w = SCREEN_W / 640.0f;
-	float resize_h = SCREEN_H / 480.0f;
 
 	gfx->set_2D_mode();
 
@@ -1005,7 +996,7 @@ void stats_menu(void)
 
 		glEnable(GL_TEXTURE_2D);
 		gfx->set_color(0xFFFFFFFF);
-		draw_cursor(resize_w,resize_h);
+		draw_cursor();
 		
 					// Affiche
 		gfx->flip();
@@ -1042,9 +1033,6 @@ void setup_game(bool client, const char *host)
 		}
 
 	cursor_type=CURSOR_DEFAULT;
-
-	float resize_w = SCREEN_W / 640.0f;
-	float resize_h = SCREEN_H / 480.0f;
 
 	uint16	player_str_n = 4;
 	uint16	ai_level_str_n = 4;
@@ -1821,7 +1809,7 @@ void setup_game(bool client, const char *host)
 
 		glEnable(GL_TEXTURE_2D);
 		gfx->set_color(0xFFFFFFFF);
-		draw_cursor(resize_w,resize_h);
+		draw_cursor();
 		
 					// Affiche
 		gfx->flip();
@@ -1889,9 +1877,6 @@ void setup_game(bool client, const char *host)
 void network_room(void)				// Let players create/join a game
 {
 	set_uformat(U_UTF8);
-
-	float resize_w = SCREEN_W / 640.0f;
-	float resize_h = SCREEN_H / 480.0f;
 
 	network_manager.InitBroadcast("1234");		// broadcast mode
 
@@ -2071,7 +2056,7 @@ void network_room(void)				// Let players create/join a game
 
 		glEnable(GL_TEXTURE_2D);
 		gfx->set_color(0xFFFFFFFF);
-		draw_cursor(resize_w,resize_h);
+		draw_cursor();
 		
 					// Affiche
 		gfx->flip();
@@ -2211,7 +2196,7 @@ void campaign_main_menu(void)
 
 		glEnable(GL_TEXTURE_2D);
 		gfx->set_color(0xFFFFFFFF);
-		draw_cursor(resize_w,resize_h);
+		draw_cursor();
 		
 					// Affiche
 		gfx->flip();
@@ -2240,9 +2225,6 @@ void campaign_main_menu(void)
 int brief_screen( String campaign_name, int mission_id )
 {
 	cursor_type=CURSOR_DEFAULT;
-
-	float resize_w = SCREEN_W / 640.0f;
-	float resize_h = SCREEN_H / 480.0f;
 
 	AREA brief_area("brief");
 	brief_area.load_tdf("gui/brief.area");
@@ -2408,7 +2390,7 @@ int brief_screen( String campaign_name, int mission_id )
 
 		glEnable(GL_TEXTURE_2D);
 		gfx->set_color(0xFFFFFFFF);
-		draw_cursor(resize_w,resize_h);
+		draw_cursor();
 		
 					// Affiche
 		gfx->flip();

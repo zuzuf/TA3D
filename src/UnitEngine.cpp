@@ -4718,11 +4718,16 @@ bool UNIT::is_on_radar( byte p_mask )
 			particle_engine.make_smoke(O+startpos,0,1,0.0f,-1.0f,0.0f, 0.3f);
 		LeaveCS();
 
+		weapons.Lock();
+		
+		int w_idx = weapons.add_weapon(unit_manager.unit_type[type_id].weapon[w_id]->nb_id,idx);
+
 		if( network_manager.isConnected() && local ) {		// Send synchronization packet
 			struct event event;
 			event.type = EVENT_WEAPON_CREATION;
 			event.opt1 = idx;
 			event.opt2 = target;
+			event.opt3 = w_idx;				// Will be used with the index_conversion_table
 			event.x = target_pos.x;
 			event.y = target_pos.y;
 			event.z = target_pos.z;
@@ -4737,9 +4742,6 @@ bool UNIT::is_on_radar( byte p_mask )
 			network_manager.sendEvent( &event );
 			}
 
-		weapons.Lock();
-		
-		int w_idx = weapons.add_weapon(unit_manager.unit_type[type_id].weapon[w_id]->nb_id,idx);
 		EnterCS();
 		weapons.weapon[w_idx].damage = unit_manager.unit_type[type_id].weapon_damage[ w_id ];
 		weapons.weapon[w_idx].Pos = startpos;

@@ -149,26 +149,29 @@ void TA3DNetwork::check()
 			break;
 
 		if( sync_msg.hp == 0 )	{		// It's a weapon
-			if( sync_msg.unit < weapons.max_weapon ) {
+			weapons.Lock();
+			int idx = sync_msg.unit < weapons.index_conversion_table[sync_msg.orientation].size() ? weapons.index_conversion_table[sync_msg.orientation][sync_msg.unit] : -1;
+			weapons.UnLock();
+			if( idx >= 0 && idx < weapons.max_weapon ) {
 				weapons.Lock();
 
-				if( weapons.weapon[ sync_msg.unit ].weapon_id < 0 || weapons.weapon[ sync_msg.unit ].last_timestamp >= sync_msg.timestamp )	{
+				if( weapons.weapon[ idx ].weapon_id < 0 || weapons.weapon[ idx ].last_timestamp >= sync_msg.timestamp )	{
 					weapons.UnLock();
 					continue;
 					}
 
-				weapons.weapon[ sync_msg.unit ].last_timestamp = sync_msg.timestamp;
+				weapons.weapon[ idx ].last_timestamp = sync_msg.timestamp;
 
-				weapons.weapon[ sync_msg.unit ].Pos.x = sync_msg.x;
-				weapons.weapon[ sync_msg.unit ].Pos.y = sync_msg.y;
-				weapons.weapon[ sync_msg.unit ].Pos.z = sync_msg.z;
+				weapons.weapon[ idx ].Pos.x = sync_msg.x;
+				weapons.weapon[ idx ].Pos.y = sync_msg.y;
+				weapons.weapon[ idx ].Pos.z = sync_msg.z;
 
-				weapons.weapon[ sync_msg.unit ].V.x = sync_msg.vx;
-				weapons.weapon[ sync_msg.unit ].V.z = sync_msg.vz;
-				weapons.weapon[ sync_msg.unit ].V.y = sync_msg.vy;
+				weapons.weapon[ idx ].V.x = sync_msg.vx;
+				weapons.weapon[ idx ].V.z = sync_msg.vz;
+				weapons.weapon[ idx ].V.y = sync_msg.vy;
 
 					// Guess where the weapon should be now
-				weapons.weapon[ sync_msg.unit ].Pos = weapons.weapon[ sync_msg.unit ].Pos + ((units.current_tick - sync_msg.timestamp) * tick_conv) * weapons.weapon[ sync_msg.unit ].V;
+				weapons.weapon[ idx ].Pos = weapons.weapon[ idx ].Pos + ((units.current_tick - sync_msg.timestamp) * tick_conv) * weapons.weapon[ idx ].V;
 
 				weapons.UnLock();
 				}
@@ -369,11 +372,15 @@ void TA3DNetwork::check()
 				
 				units.unit[ event_msg.opt1 ].Lock();
 				int w_idx = units.unit[ event_msg.opt1 ].shoot( event_msg.opt2, startpos, Dir, ((sint16*)event_msg.str)[9], target_pos );
+				int player_id = units.unit[ event_msg.opt1 ].owner_id;
 				units.unit[ event_msg.opt1 ].UnLock();
 
 				if( w_idx >= 0 ) {
 					weapons.Lock();
 					weapons.weapon[w_idx].local = false;
+					if( weapons.index_conversion_table[ player_id ].size() <= event_msg.opt3 )				// Too few entries ?
+						weapons.index_conversion_table[ player_id ].resize( event_msg.opt3 + 10, -1 );
+					weapons.index_conversion_table[ player_id ][ event_msg.opt3 ] = w_idx;
 					weapons.UnLock();
 					}
 

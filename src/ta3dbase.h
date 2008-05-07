@@ -99,7 +99,7 @@ extern int build_part;
 extern int cursor_type;
 
 int anim_cursor(int type=-1);
-void draw_cursor(float size_w=1.0f, float size_h=1.0f);
+void draw_cursor();
 
 const float DEG2RAD=PI/180.0f;
 const float RAD2DEG=180.0f/PI;

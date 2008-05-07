@@ -295,6 +295,7 @@ int TA3DSock::sendSync(struct sync* sync){
 		}
 	else {						// Weapon sync
 		putShort(sync->hp);
+		putShort(sync->orientation);		// The owner_id ...
 		putFloat(sync->vx);
 		putFloat(sync->vy);
 		putFloat(sync->vz);
@@ -383,6 +384,7 @@ int TA3DSock::sendEvent(struct event* event){
 	case EVENT_WEAPON_CREATION:
 		putShort(event->opt1);
 		putShort(event->opt2);
+		putLong(event->opt3);
 		putFloat(event->x);
 		putFloat(event->y);
 		putFloat(event->z);
@@ -530,6 +532,7 @@ int TA3DSock::makeSync(struct sync* sync){
 		sync->build_percent_left = getByte();
 		}
 	else {					// Weapon sync
+		sync->orientation = getShort();		// The owner_id ...
 		sync->vx = getFloat();
 		sync->vy = getFloat();
 		sync->vz = getFloat();
@@ -618,6 +621,7 @@ int TA3DSock::makeEvent(struct event* event){
 	case EVENT_WEAPON_CREATION:
 		event->opt1 = getShort();
 		event->opt2 = getShort();
+		event->opt3 = getLong();
 		event->x = getFloat();
 		event->y = getFloat();
 		event->z = getFloat();

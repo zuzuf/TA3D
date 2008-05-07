@@ -306,6 +306,7 @@ int UDPSock::sendSync(struct sync* sync, const std::string &address){
 		}
 	else {						// Weapon sync
 		putShort(sync->hp);
+		putShort(sync->orientation);
 		putFloat(sync->vx);
 		putFloat(sync->vy);
 		putFloat(sync->vz);
@@ -342,6 +343,7 @@ int UDPSock::makeSync(struct sync* sync){
 		sync->build_percent_left = getByte();
 		}
 	else {					// Weapon sync
+		sync->orientation = getShort();
 		sync->vx = getFloat();
 		sync->vy = getFloat();
 		sync->vz = getFloat();

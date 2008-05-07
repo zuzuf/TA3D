@@ -1700,11 +1700,11 @@ void PLAYERS::player_control()
 			if( i < 0 || i >= weapons.max_weapon )	continue;		// Error !!
 			weapons.UnLock();
 
-			if( weapons.weapon[ i ].weapon_id >= 0 || weapons.weapon[i].dying )	{
+			if( weapons.weapon[ i ].weapon_id < 0 || weapons.weapon[i].dying )	{
 				weapons.Lock();
 				continue;
 				}
-			if( weapons.weapon[ i ].local ) {
+			if( weapons.weapon[ i ].local && weapons.weapon[ i ].shooter_idx >= 0 ) {
 				struct sync sync;
 				sync.timestamp = units.current_tick;
 				sync.unit = i;
@@ -1715,6 +1715,7 @@ void PLAYERS::player_control()
 				sync.vz = weapons.weapon[ i ].V.z;
 				sync.vy = weapons.weapon[ i ].V.y;
 				sync.hp = 0;					// Means it's a weapon
+				sync.orientation = weapons.weapon[ i ].owner;
 				sync.build_percent_left = 0;
 
 				network_manager.sendSync( &sync );

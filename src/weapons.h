@@ -385,6 +385,7 @@ public:
 	uint32		*idx_list;
 	uint32		free_index_size;	// Pre allocated list of unused indexes
 	uint32		*free_idx;
+	Vector< Vector< sint32 > >	index_conversion_table;		// Table used in multiplayer mode to convert indexes between clients
 
 	protected:
 		bool	thread_running;
@@ -404,6 +405,12 @@ public:
 	void init(bool real=true)
 	{
 		EnterCS();
+
+		index_conversion_table.clear();
+
+		index_conversion_table.resize( 10 );
+		for( int i = 0 ; i < 10 ; i++ )
+			index_conversion_table.clear();
 
 		thread_running = false;
 		thread_ask_to_stop = false;
