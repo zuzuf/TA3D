@@ -165,7 +165,8 @@ void SocketThread::proc(void* param){
 		switch(packtype){
 			case 'P':		// ping
 				if( sockid != -1 )
-					network->sendSpecial("PONG", sockid);
+					network->sendSpecial("PONG", -1, sockid);
+				sock->makePing();
 				break;
 			case 'A'://special (resend to all!!)
 			case 'X'://special
@@ -1147,7 +1148,7 @@ int Network::sendPing( int src_id, int dst_id )
 		int v = 0;
 		for( int i = 1 ; i <= players.getMaxId() ; i++ )  {
 			TA3DSock *sock = players.getSock( i );
-			if( sock && i != src_id )
+			if( sock && i != src_id && ( dst_id == -1 || i == dst_id ) )
 				v += sock->sendPing();
 			}
 		return v;

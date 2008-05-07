@@ -1382,6 +1382,7 @@ void setup_game(bool client, const char *host)
 								break;
 								}
 						if( slot >= 0 ) {
+							player_timer[ slot ] = msec_timer;				// If we forget this, player will be droped immediately
 							game_data.player_network_id[slot] = from;
 							game_data.player_control[slot] = PLAYER_CONTROL_REMOTE_HUMAN;
 							game_data.player_names[slot] = ReplaceChar( params[2], 1, ' ' );
