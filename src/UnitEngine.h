@@ -1066,7 +1066,7 @@ public:
 		DeleteCS();					// End the safe thread things
 	}
 
-	void kill(int index,MAP *map,int prev);			// Détruit une unité
+	void kill(int index,MAP *map,int prev,bool sync = true);			// Détruit une unité
 
 	void draw(CAMERA *cam,MAP *map,bool underwater=false,bool limit=false,bool cullface = true,bool height_line=true);					// Dessine les unités visibles
 

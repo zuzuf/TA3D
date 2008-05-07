@@ -399,7 +399,7 @@ void TA3DNetwork::check()
 
 				units.LeaveCS_from_outside();
 
-				units.kill( event_msg.opt1, the_map, e );
+				units.kill( event_msg.opt1, the_map, e, false );
 			}
 			break;
 		case EVENT_UNIT_CREATION:

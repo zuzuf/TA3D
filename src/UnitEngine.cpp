@@ -3167,6 +3167,7 @@ bool UNIT::is_on_radar( byte p_mask )
 
 											target_unit->flags = 0x14;
 											target_unit->hp = 0.0f;
+											target_unit->local = true;		// Force synchronization in networking mode
 
 											target_unit->UnLock();
 
@@ -5661,13 +5662,13 @@ void INGAME_UNITS::draw_mini(float map_w,float map_h,int mini_w,int mini_h,SECTO
 	last_on = -1;
 }
 
-void INGAME_UNITS::kill(int index,MAP *map,int prev)			// Détruit une unité
+void INGAME_UNITS::kill(int index,MAP *map,int prev,bool sync)			// Détruit une unité
 {
 	if(index<0 || index>max_unit || prev<0 || prev>=index_list_size)	return;		// On ne peut pas détruire une unité qui n'existe pas
 
 	unit[index].Lock();
 
-	if( unit[index].local && network_manager.isConnected() ) {		// Send EVENT_UNIT_DEATH
+	if( unit[index].local && network_manager.isConnected() && sync ) {		// Send EVENT_UNIT_DEATH
 		struct event event;
 		event.type = EVENT_UNIT_DEATH;
 		event.opt1 = index;
