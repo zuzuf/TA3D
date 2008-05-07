@@ -410,7 +410,7 @@ public:
 
 		index_conversion_table.resize( 10 );
 		for( int i = 0 ; i < 10 ; i++ )
-			index_conversion_table.clear();
+			index_conversion_table[i].clear();
 
 		thread_running = false;
 		thread_ask_to_stop = false;

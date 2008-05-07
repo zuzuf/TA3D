@@ -3114,7 +3114,7 @@ bool UNIT::is_on_radar( byte p_mask )
 									}
 								if( !(mission->flags & MISSION_FLAG_TARGET_CHECKED) ) {
 									mission->flags |= MISSION_FLAG_TARGET_CHECKED;
-									mission->data = unit_manager.unit_type[target_unit->type_id].MaxDamage * 100;
+									mission->data = min( unit_manager.unit_type[target_unit->type_id].BuildCostMetal * 100, 10000 );
 									}
 								}
 							VECTOR Dir=target_unit->Pos-Pos;
@@ -3147,7 +3147,7 @@ bool UNIT::is_on_radar( byte p_mask )
 									// Récupère l'unité
 									float recup = dt * 4.5f * unit_manager.unit_type[target_unit->type_id].MaxDamage / unit_manager.unit_type[type_id].WorkerTime;
 									if( mission->mission == MISSION_CAPTURE ) {
-										mission->data -= (int)(recup * 100.0f + 0.5f);
+										mission->data -= (int)(dt * 1000.0f + 0.5f);
 										if( mission->data <= 0 ) {			// Unit has been captured
 											LeaveCS();
 

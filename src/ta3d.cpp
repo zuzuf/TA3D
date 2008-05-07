@@ -464,9 +464,9 @@ TA3DNetwork	ta3d_network( &game_area, game_data );
 
 if( network_manager.isConnected() ) {
 	players.set_network( &ta3d_network );
-	g_ta3d_network = &ta3d_network;
 	game_area.msg("esc_menu.b_save.disable");
 	}
+g_ta3d_network = &ta3d_network;
 
 sound_manager->PlayMusic();
 
@@ -2222,7 +2222,7 @@ do
 	else
 		game_script.run(NULL,0.0f,0);		// In client mode we only want to display text, pictures, ... everything drawn by the script on the server
 
-	if( network_manager.isConnected() )
+	if( network_manager.isConnected() || signal == 0 )
 		signal = g_ta3d_network->get_signal();
 
 	switch(signal)
