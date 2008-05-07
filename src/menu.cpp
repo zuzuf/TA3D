@@ -1269,7 +1269,7 @@ void setup_game(bool client, const char *host)
 			ping_timer = msec_timer;
 			
 			for( int i = 0 ; i < 10 ; i++ )					// ping time out
-				if( game_data.player_network_id[i] > 0 && msec_timer - player_timer[ game_data.player_network_id[i] ] > 5000 )
+				if( game_data.player_network_id[i] > 0 && msec_timer - player_timer[ game_data.player_network_id[i] ] > 10000 )
 					network_manager.dropPlayer( game_data.player_network_id[i] );
 			}
 
@@ -1751,6 +1751,8 @@ void setup_game(bool client, const char *host)
 			if( !client ) {
 				map_filename = game_data.map_filename;
 				new_map = select_map( &map_filename );
+				for( int i = 0 ; i < 10 ; i++ )
+					player_timer[ i ] = msec_timer;
 				}
 			else
 				new_map = strdup( set_map.c_str() );
