@@ -673,9 +673,10 @@ bool UNIT::is_on_radar( byte p_mask )
 			float size=0.0f;
 			OBJECT *src = NULL;
 			SCRIPT_DATA *src_data = NULL;
+			VECTOR v_target;				// Needed in network mode
 
 			if(build_percent_left==0.0f && mission!=NULL
-			&& port[ INBUILDSTANCE ] != 0 ) {
+			&& port[ INBUILDSTANCE ] != 0 && local ) {
 				if(c_time>=0.125f) {
 					reverse=(mission->mission==MISSION_RECLAIM);
 					c_time=0.0f;
@@ -710,7 +711,7 @@ bool UNIT::is_on_radar( byte p_mask )
 					target=&(mission->target);
 					}
 				}
-			else if( !local && nanolathe_target > 0 ) {
+			else if( !local && nanolathe_target >= 0 && port[ INBUILDSTANCE ] != 0 ) {
 				if(c_time>=0.125f) {
 					reverse = nanolathe_reverse;
 					c_time=0.0f;
@@ -724,9 +725,11 @@ bool UNIT::is_on_radar( byte p_mask )
 						src = &target->model->obj;
 						src_data = &target->data;
 						target->compute_model_coord();
+						v_target = target->Pos;
 						}
 					else {		// Reclaiming features
 						int feature_type = features.feature[ nanolathe_target ].type;
+						v_target = features.feature[ nanolathe_target ].Pos;
 						if( feature_type >= 0 && feature_manager.feature[ feature_type ].model ) {
 							size = feature_manager.feature[ feature_type ].model->size2;
 							center = &feature_manager.feature[ feature_type ].model->center;
@@ -739,6 +742,7 @@ bool UNIT::is_on_radar( byte p_mask )
 							size = 32.0f;
 							}
 						}
+					target = &v_target;
 					}
 				}
 

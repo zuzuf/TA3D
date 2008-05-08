@@ -224,18 +224,18 @@ void TA3DNetwork::check()
 		case EVENT_UNIT_NANOLATHE:				// Sync nanolathe effect
 			if( event_msg.opt1 < units.max_unit && (units.unit[ event_msg.opt1 ].flags & 1) ) {
 				units.unit[ event_msg.opt1 ].Lock();
-				if( event_msg.opt3 & 4 )		// Stop nanolathing
+				if( event_msg.opt2 & 4 )		// Stop nanolathing
 					units.unit[ event_msg.opt1 ].nanolathe_target = -1;
 				else {							// Start nanolathing
-					units.unit[ event_msg.opt1 ].nanolathe_reverse = event_msg.opt3 & 2;
-					units.unit[ event_msg.opt1 ].nanolathe_feature = event_msg.opt3 & 1;
-					if( event_msg.opt3 & 1 ) {		// It's a feature
+					units.unit[ event_msg.opt1 ].nanolathe_reverse = event_msg.opt2 & 2;
+					units.unit[ event_msg.opt1 ].nanolathe_feature = event_msg.opt2 & 1;
+					if( event_msg.opt2 & 1 ) {		// It's a feature
 						int sx = event_msg.opt3;
 						int sy = event_msg.opt4;
 						units.unit[ event_msg.opt1 ].nanolathe_target = the_map->map_data[sy][sx].stuff;
 						}
 					else							// It's a unit
-						units.unit[ event_msg.opt1 ].nanolathe_target = event_msg.opt2;
+						units.unit[ event_msg.opt1 ].nanolathe_target = event_msg.opt3;
 					}
 				units.unit[ event_msg.opt1 ].UnLock();
 				}
