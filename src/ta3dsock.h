@@ -118,9 +118,16 @@ struct event{
 	uint16	opt2;		//uint16
 	uint32	opt3;		//uint32
 	uint32	opt4;		//uint32
+	byte	opt5;		//byte
 	real32	x;			//real32
 	real32	y;			//real32
 	real32	z;			//real32
+	real32	vx;			//real32
+	real32	vy;			//real32
+	real32	vz;			//real32
+	sint16	dx;			//sint16
+	sint16	dy;			//sint16
+	sint16	dz;			//sint16
 	byte	str[24];	//unit name ? weapon name ?
 };//max size = 29
 

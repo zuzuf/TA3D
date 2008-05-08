@@ -384,23 +384,56 @@ void TA3DNetwork::check()
 				}
 			break;
 		case EVENT_WEAPON_CREATION:
-			if( event_msg.opt1 < units.max_unit && ( units.unit[ event_msg.opt1 ].flags & 1 ) ) {
+			{
 				VECTOR target_pos( event_msg.x, event_msg.y, event_msg.z );
-				VECTOR Dir( ((sint16*)event_msg.str)[6] / 16384.0f, ((sint16*)event_msg.str)[7] / 16384.0f, ((sint16*)event_msg.str)[8] / 16384.0f );
-				VECTOR startpos( ((real32*)event_msg.str)[0], ((real32*)event_msg.str)[1], ((real32*)event_msg.str)[2] );
+				VECTOR Dir( event_msg.dx / 16384.0f, event_msg.dy / 16384.0f, event_msg.dz / 16384.0f );
+				VECTOR startpos( event_msg.vx, event_msg.vy, event_msg.vz );
 				
-				units.unit[ event_msg.opt1 ].Lock();
-				int w_idx = units.unit[ event_msg.opt1 ].shoot( event_msg.opt2, startpos, Dir, ((sint16*)event_msg.str)[9], target_pos );
-				int player_id = units.unit[ event_msg.opt1 ].owner_id;
-				units.unit[ event_msg.opt1 ].UnLock();
+				int w_type = weapon_manager.get_weapon_index( (char*)event_msg.str );
+				if( w_type >= 0 ) {
+					int w_idx = weapons.add_weapon(w_type,event_msg.opt1);
+					int player_id = event_msg.opt5;
 
-				if( w_idx >= 0 ) {
-					weapons.Lock();
-					weapons.weapon[w_idx].local = false;
-					if( weapons.index_conversion_table[ player_id ].size() <= event_msg.opt3 )				// Too few entries ?
-						weapons.index_conversion_table[ player_id ].resize( event_msg.opt3 + 10, -1 );
-					weapons.index_conversion_table[ player_id ][ event_msg.opt3 ] = w_idx;
-					weapons.UnLock();
+					POINTF O;
+					O.x=O.y=O.z=0.0f;
+					if(weapon_manager.weapon[w_type].startsmoke)
+						particle_engine.make_smoke(O+startpos,0,1,0.0f,-1.0f,0.0f, 0.3f);
+
+					if( w_idx >= 0 ) {
+						weapons.Lock();
+						weapons.weapon[w_idx].local = false;
+						if( weapons.index_conversion_table[ player_id ].size() <= event_msg.opt3 )				// Too few entries ?
+							weapons.index_conversion_table[ player_id ].resize( event_msg.opt3 + 10, -1 );
+						weapons.index_conversion_table[ player_id ][ event_msg.opt3 ] = w_idx;
+
+						weapons.weapon[w_idx].damage = event_msg.opt4;
+						weapons.weapon[w_idx].Pos = startpos;
+						weapons.weapon[w_idx].local = false;
+						if(weapon_manager.weapon[w_type].startvelocity==0.0f && !weapon_manager.weapon[w_type].selfprop)
+							weapons.weapon[w_idx].V = weapon_manager.weapon[w_type].weaponvelocity*Dir;
+						else
+							weapons.weapon[w_idx].V = weapon_manager.weapon[w_type].startvelocity*Dir;
+						if( weapon_manager.weapon[w_type].dropped || !(weapon_manager.weapon[w_type].rendertype & RENDER_TYPE_LASER) ) {
+							units.unit[ event_msg.opt1 ].Lock();
+							if( (units.unit[ event_msg.opt1 ].flags & 1) )
+								weapons.weapon[w_idx].V = weapons.weapon[w_idx].V + units.unit[ event_msg.opt1 ].V;
+							units.unit[ event_msg.opt1 ].UnLock();
+							}
+						weapons.weapon[w_idx].owner = player_id;
+						weapons.weapon[w_idx].target = event_msg.opt2;
+						if( event_msg.opt2 < weapons.max_weapon ) {
+							if(weapon_manager.weapon[w_type].interceptor)
+								weapons.weapon[w_idx].target_pos = weapons.weapon[event_msg.opt2].Pos;
+							else
+								weapons.weapon[w_idx].target_pos = target_pos;
+							}
+						else
+							weapons.weapon[w_idx].target_pos = target_pos;
+						weapons.weapon[w_idx].stime = 0.0f;
+						weapons.weapon[w_idx].visible = true;
+
+						weapons.UnLock();
+						}
 					}
 
 				printf("(%d), received order to shoot from %d\n", units.current_tick, event_msg.opt1 );

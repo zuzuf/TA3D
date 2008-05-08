@@ -4843,16 +4843,18 @@ bool UNIT::is_on_radar( byte p_mask )
 			event.opt1 = idx;
 			event.opt2 = target;
 			event.opt3 = w_idx;				// Will be used with the index_conversion_table
+			event.opt4 = unit_manager.unit_type[type_id].weapon_damage[ w_id ];
+			event.opt5 = owner_id;
 			event.x = target_pos.x;
 			event.y = target_pos.y;
 			event.z = target_pos.z;
-			((real32*)event.str)[0] = startpos.x;
-			((real32*)event.str)[1] = startpos.y;
-			((real32*)event.str)[2] = startpos.z;
-			((sint16*)event.str)[6] = (sint16)(Dir.x * 16384.0f);
-			((sint16*)event.str)[7] = (sint16)(Dir.y * 16384.0f);
-			((sint16*)event.str)[8] = (sint16)(Dir.z * 16384.0f);
-			((sint16*)event.str)[9] = w_id;
+			event.vx = startpos.x;
+			event.vy = startpos.y;
+			event.vz = startpos.z;
+			event.dx = (sint16)(Dir.x * 16384.0f);
+			event.dy = (sint16)(Dir.y * 16384.0f);
+			event.dz = (sint16)(Dir.z * 16384.0f);
+			memcpy( event.str, unit_manager.unit_type[type_id].weapon[w_id]->internal_name, strlen(unit_manager.unit_type[type_id].weapon[w_id]->internal_name) + 1 );
 			
 			network_manager.sendEvent( &event );
 			}
