@@ -58,6 +58,7 @@ public:
 	void sendFeatureCreationEvent( int idx );
 	void sendFeatureDeathEvent( int idx );
 	void sendFeatureFireEvent( int idx );
+	void sendUnitNanolatheEvent( int idx, int target, bool feature, bool reverse );
 	int getNetworkID( int unit_id );
 };
 

@@ -320,6 +320,13 @@ int TA3DSock::sendEvent(struct event* event){
 	putByte(event->type);
 	switch( event->type )
 	{
+	case EVENT_UNIT_NANOLATHE:
+		putShort(event->opt1);
+		putShort(event->opt2);
+		putLong(event->opt3);
+		if( event->opt2 & 2 )			// It's a feature, so we send its coordinates, not its index since we cannot sync it
+			putLong(event->opt4);
+		break;
 	case EVENT_FEATURE_CREATION:
 		putLong(event->opt3);
 		putLong(event->opt4);
@@ -557,6 +564,13 @@ int TA3DSock::makeEvent(struct event* event){
 
 	switch( event->type )
 	{
+	case EVENT_UNIT_NANOLATHE:
+		event->opt1 = getShort();
+		event->opt2 = getShort();
+		event->opt3 = getLong();
+		if( event->opt2 & 2 )			// It's a feature, so we send its coordinates, not its index since we cannot sync it
+			event->opt4 = getLong();
+		break;
 	case EVENT_FEATURE_CREATION:
 		event->opt3 = getLong();
 		event->opt4 = getLong();

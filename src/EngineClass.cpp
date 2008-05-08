@@ -1704,9 +1704,9 @@ void PLAYERS::player_control()
 				weapons.Lock();
 				continue;
 				}
-			if( weapons.weapon[ i ].local && weapons.weapon[ i ].shooter_idx >= 0 ) {
+			if( weapons.weapon[ i ].local && weapons.weapon[ i ].shooter_idx >= 0 && units.current_tick - weapons.weapon[ i ].last_timestamp > (TICKS_PER_SEC << 1) ) {
 				struct sync sync;
-				sync.timestamp = units.current_tick;
+				weapons.weapon[ i ].last_timestamp = sync.timestamp = units.current_tick;
 				sync.unit = i;
 				sync.x = weapons.weapon[ i ].Pos.x;
 				sync.y = weapons.weapon[ i ].Pos.y;

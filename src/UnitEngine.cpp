@@ -438,6 +438,60 @@ bool UNIT::is_on_radar( byte p_mask )
 #endif
 	}
 
+	void UNIT::next_mission()
+	{
+		last_path_refresh = 10.0f;		// By default allow to compute a new path
+		if( nanolathe_target >= 0 ) {
+			nanolathe_target = -1;
+			g_ta3d_network->sendUnitNanolatheEvent( idx, -1, false, false );
+			}
+
+		if(mission==NULL) {
+			command_locked = false;
+			set_mission( unit_manager.unit_type[type_id].DefaultMissionType, NULL, false, 0, false );
+			return;
+			}
+		switch(mission->mission)		// Commandes de fin de mission
+		{
+		case MISSION_REPAIR:
+		case MISSION_RECLAIM:
+		case MISSION_BUILD_2:
+			if( mission->next == NULL || unit_manager.unit_type[type_id].BMcode || mission->next->mission != MISSION_BUILD ) {
+				launch_script(get_script_index(SCRIPT_stopbuilding));
+				deactivate();
+				}
+			break;
+		case MISSION_ATTACK:
+			deactivate();
+			break;
+		};
+		if(mission->mission==MISSION_STOP && mission->next==NULL) {
+			command_locked = false;
+			mission->data=0;
+			return;
+			}
+		MISSION *old=mission;
+		mission=mission->next;
+		if(old->path)				// Détruit le chemin si nécessaire
+			destroy_path(old->path);
+		free(old);
+		if(mission==NULL) {
+			command_locked = false;
+			set_mission(unit_manager.unit_type[type_id].DefaultMissionType);
+			}
+
+				// Skip a stop order before a normal order if the unit can fly (prevent planes from looking for a place to land when they don't need to land !!)
+		if( unit_manager.unit_type[type_id].canfly && mission->mission == MISSION_STOP && mission->next != NULL && mission->next->mission != MISSION_STOP ) {
+			old = mission;
+			mission = mission->next;
+			if(old->path)				// Détruit le chemin si nécessaire
+				destroy_path(old->path);
+			free(old);
+			}
+		start_mission_script(mission->mission);
+		c_time=0.0f;
+	}
+
 	void UNIT::draw(float t, CAMERA *cam,MAP *map,bool height_line)
 	{
 #ifdef	ADVANCED_DEBUG_MODE
@@ -616,7 +670,7 @@ bool UNIT::is_on_radar( byte p_mask )
 			SCRIPT_DATA *src_data = NULL;
 
 			if(build_percent_left==0.0f && mission!=NULL
-			&& port[ INBUILDSTANCE ] != 0 )
+			&& port[ INBUILDSTANCE ] != 0 ) {
 				if(c_time>=0.125f) {
 					reverse=(mission->mission==MISSION_RECLAIM);
 					c_time=0.0f;
@@ -632,7 +686,7 @@ bool UNIT::is_on_radar( byte p_mask )
 						src_data = &((UNIT*)mission->p)->data;
 						((UNIT*)mission->p)->compute_model_coord();
 						}
-					else if( mission->mission == MISSION_RECLAIM || mission->mission == MISSION_REVIVE ) {		// Récupération d'objets
+					else if( mission->mission == MISSION_RECLAIM || mission->mission == MISSION_REVIVE ) {		// Reclaiming features
 						int feature_type = features.feature[ mission->data ].type;
 						if( mission->data >= 0 && feature_type >= 0 && feature_manager.feature[ feature_type ].model ) {
 							size = feature_manager.feature[ feature_type ].model->size2;
@@ -650,6 +704,38 @@ bool UNIT::is_on_radar( byte p_mask )
 						c_part=false;
 					target=&(mission->target);
 					}
+				}
+			else if( !local && nanolathe_target > 0 ) {
+				if(c_time>=0.125f) {
+					reverse = nanolathe_reverse;
+					c_time=0.0f;
+					c_part=true;
+					upos.x=upos.y=upos.z=0.0f;
+					upos=upos+Pos;
+					if(!nanolathe_feature) {
+						UNIT *target = &(units.unit[ nanolathe_target ]);
+						size = target->model->size2;
+						center = &target->model->center;
+						src = &target->model->obj;
+						src_data = &target->data;
+						target->compute_model_coord();
+						}
+					else {		// Reclaiming features
+						int feature_type = features.feature[ nanolathe_target ].type;
+						if( feature_type >= 0 && feature_manager.feature[ feature_type ].model ) {
+							size = feature_manager.feature[ feature_type ].model->size2;
+							center = &feature_manager.feature[ feature_type ].model->center;
+							src = &feature_manager.feature[ feature_type ].model->obj;
+							src_data = NULL;
+							}
+						else {
+							D.x = D.y = D.z = 0.f;
+							center = &D;
+							size = 32.0f;
+							}
+						}
+					}
+				}
 
 			if( c_part )					// Get the nanolathing points
 				if( !unit_manager.unit_type[ type_id ].emitting_points_computed ) {		// Compute model emitting points if not already done
@@ -3143,6 +3229,11 @@ bool UNIT::is_on_radar( byte p_mask )
 									}
 
 								if( unit_manager.unit_type[type_id].BMcode && port[ INBUILDSTANCE ] != 0.0f ) {
+									if( local && network_manager.isConnected() && nanolathe_target < 0 ) {		// Synchronize nanolathe emission
+										nanolathe_target = target_unit->idx;
+										g_ta3d_network->sendUnitNanolatheEvent( idx, target_unit->idx, false, mission->mission == MISSION_RECLAIM );
+										}
+
 									play_sound( "working" );
 									// Récupère l'unité
 									float recup = dt * 4.5f * unit_manager.unit_type[target_unit->type_id].MaxDamage / unit_manager.unit_type[type_id].WorkerTime;
@@ -3195,7 +3286,7 @@ bool UNIT::is_on_radar( byte p_mask )
 						else
 							next_mission();
 						}
-					else if(mission->data>=0 && mission->data<features.max_features )	{	// Récupère un élément du décors/une carcasse
+					else if(mission->data>=0 && mission->data<features.max_features )	{	// Reclaim a feature/wreckage
 						features.Lock();
 						if( features.feature[mission->data].type <= 0 )	{
 							features.UnLock();
@@ -3209,7 +3300,7 @@ bool UNIT::is_on_radar( byte p_mask )
 						mission->target=features.feature[mission->data].Pos;
 						float dist=Dir.Sq();
 						int maxdist = mission->mission == MISSION_REVIVE ? (int)(unit_manager.unit_type[type_id].SightDistance) : (int)(unit_manager.unit_type[type_id].BuildDistance);
-						if(dist>maxdist*maxdist && unit_manager.unit_type[type_id].BMcode) {	// Si l'unité est trop loin du chantier
+						if(dist>maxdist*maxdist && unit_manager.unit_type[type_id].BMcode) {	// If the unit is too far from its target
 							c_time = 0.0f;
 							mission->flags |= MISSION_FLAG_MOVE | MISSION_FLAG_REFRESH_PATH;
 							mission->move_data = maxdist*7/80;
@@ -3229,8 +3320,13 @@ bool UNIT::is_on_radar( byte p_mask )
 								mission->last_d=-1.0f;
 								}
 							if( unit_manager.unit_type[type_id].BMcode && port[ INBUILDSTANCE ] != 0 ) {
+								if( local && network_manager.isConnected() && nanolathe_target < 0 ) {		// Synchronize nanolathe emission
+									nanolathe_target = mission->data;
+									g_ta3d_network->sendUnitNanolatheEvent( idx, mission->data, true, true );
+									}
+
 								play_sound( "working" );
-											// Récupère l'objet
+											// Reclaim the object
 								float recup=dt*unit_manager.unit_type[type_id].WorkerTime;
 								if(recup>features.feature[mission->data].hp)	recup=features.feature[mission->data].hp;
 								features.feature[mission->data].hp-=recup;
@@ -3238,8 +3334,8 @@ bool UNIT::is_on_radar( byte p_mask )
 									metal_prod+=recup*feature_manager.feature[features.feature[mission->data].type].metal/(dt*feature_manager.feature[features.feature[mission->data].type].damage);
 									energy_prod+=recup*feature_manager.feature[features.feature[mission->data].type].energy/(dt*feature_manager.feature[features.feature[mission->data].type].damage);
 									}
-								if( features.feature[mission->data].hp <= 0.0f ) {		// Travail terminé
-									int x=((int)(features.feature[mission->data].Pos.x)-8+map->map_w_d)>>3;		// Efface l'objet
+								if( features.feature[mission->data].hp <= 0.0f ) {		// Job done
+									int x=((int)(features.feature[mission->data].Pos.x)-8+map->map_w_d)>>3;		// Remove the object
 									int y=((int)(features.feature[mission->data].Pos.z)-8+map->map_h_d)>>3;
 									map->rect(x-(feature_manager.feature[features.feature[mission->data].type].footprintx>>1),y-(feature_manager.feature[features.feature[mission->data].type].footprintz>>1),feature_manager.feature[features.feature[mission->data].type].footprintx,feature_manager.feature[features.feature[mission->data].type].footprintz,-1);
 									map->map_data[y][x].stuff=-1;
@@ -3257,7 +3353,7 @@ bool UNIT::is_on_radar( byte p_mask )
 										feature_locked = false;
 										if( network_manager.isConnected() )
 											g_ta3d_network->sendFeatureDeathEvent( mission->data );
-										features.delete_feature(mission->data);			// Supprime l'objet
+										features.delete_feature(mission->data);			// Delete the object
 
 										if( wreckage_type_id >= 0 ) {
 											LeaveCS();
@@ -3293,7 +3389,7 @@ bool UNIT::is_on_radar( byte p_mask )
 										feature_locked = false;
 										if( network_manager.isConnected() )
 											g_ta3d_network->sendFeatureDeathEvent( mission->data );
-										features.delete_feature(mission->data);			// Supprime l'objet
+										features.delete_feature(mission->data);			// Delete the object
 										launch_script(get_script_index(SCRIPT_stopbuilding));
 										launch_script(get_script_index(SCRIPT_stop));
 										next_mission();
@@ -3610,6 +3706,11 @@ bool UNIT::is_on_radar( byte p_mask )
 										}
 
 									if( port[ INBUILDSTANCE ] != 0.0f ) {
+										if( local && network_manager.isConnected() && nanolathe_target < 0 ) {		// Synchronize nanolathe emission
+											nanolathe_target = target_unit->idx;
+											g_ta3d_network->sendUnitNanolatheEvent( idx, target_unit->idx, false, false );
+											}
+
 										float conso_energy=((float)(unit_manager.unit_type[type_id].WorkerTime*unit_manager.unit_type[target_unit->type_id].BuildCostEnergy))/unit_manager.unit_type[target_unit->type_id].BuildTime;
 										if( players.energy[owner_id] >= (energy_cons + conso_energy) * dt ) {
 											energy_cons += conso_energy;
@@ -3680,6 +3781,11 @@ bool UNIT::is_on_radar( byte p_mask )
 								next_mission();
 								}
 							else if( port[ INBUILDSTANCE ] != 0 ) {
+								if( local && network_manager.isConnected() && nanolathe_target < 0 ) {		// Synchronize nanolathe emission
+									nanolathe_target = target_unit->idx;
+									g_ta3d_network->sendUnitNanolatheEvent( idx, target_unit->idx, false, false );
+									}
+
 								float conso_metal=((float)(unit_manager.unit_type[type_id].WorkerTime*unit_manager.unit_type[target_unit->type_id].BuildCostMetal))/unit_manager.unit_type[target_unit->type_id].BuildTime;
 								float conso_energy=((float)(unit_manager.unit_type[type_id].WorkerTime*unit_manager.unit_type[target_unit->type_id].BuildCostEnergy))/unit_manager.unit_type[target_unit->type_id].BuildTime;
 								if(players.metal[owner_id]>= (metal_cons + conso_metal)*dt && players.energy[owner_id]>= (energy_cons+conso_energy)*dt) {

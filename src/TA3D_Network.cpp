@@ -221,6 +221,25 @@ void TA3DNetwork::check()
 
 		switch( event_msg.type )
 		{
+		case EVENT_UNIT_NANOLATHE:				// Sync nanolathe effect
+			if( event_msg.opt1 < units.max_unit && (units.unit[ event_msg.opt1 ].flags & 1) ) {
+				units.unit[ event_msg.opt1 ].Lock();
+				if( event_msg.opt3 & 4 )		// Stop nanolathing
+					units.unit[ event_msg.opt1 ].nanolathe_target = -1;
+				else {							// Start nanolathing
+					units.unit[ event_msg.opt1 ].nanolathe_reverse = event_msg.opt3 & 2;
+					units.unit[ event_msg.opt1 ].nanolathe_feature = event_msg.opt3 & 1;
+					if( event_msg.opt3 & 1 ) {		// It's a feature
+						int sx = event_msg.opt3;
+						int sy = event_msg.opt4;
+						units.unit[ event_msg.opt1 ].nanolathe_target = the_map->map_data[sy][sx].stuff;
+						}
+					else							// It's a unit
+						units.unit[ event_msg.opt1 ].nanolathe_target = event_msg.opt2;
+					}
+				units.unit[ event_msg.opt1 ].UnLock();
+				}
+			break;
 		case EVENT_FEATURE_CREATION:
 			{
 				int sx = event_msg.opt3;		// Burn the object
@@ -524,6 +543,24 @@ void TA3DNetwork::sendFeatureFireEvent( int idx )
 	event.type = EVENT_FEATURE_FIRE;
 	event.opt3 = features.feature[ idx ].px;
 	event.opt4 = features.feature[ idx ].py;
+	network_manager.sendEvent( &event );
+}
+
+void TA3DNetwork::sendUnitNanolatheEvent( int idx, int target, bool feature, bool reverse )
+{
+	if( idx < 0 || idx >= units.max_unit || !( units.unit[ idx ].flags & 1 ) )	return;
+	
+	struct event event;
+	event.type = EVENT_UNIT_NANOLATHE;
+	event.opt1 = idx;
+	event.opt2 = (reverse ? 1 : 0) | (feature ? 2 : 0) | (target < 0 ? 4 : 0);
+	if( feature ) {
+		if( target < 0 || target >= features.max_features || features.feature[ target ].type < 0 )	return;
+		event.opt3 = features.feature[ target ].px;
+		event.opt4 = features.feature[ target ].py;
+		}
+	else
+		event.opt3 = target;
 	network_manager.sendEvent( &event );
 }
 

@@ -337,6 +337,9 @@ public:
 	bool			local;
 	bool			exploding;
 	struct	sync	previous_sync;		// previous sync data
+	sint32			nanolathe_target;
+	bool			nanolathe_reverse;
+	bool			nanolathe_feature;
 
 public:
 
@@ -384,55 +387,7 @@ public:
 			}
 	}
 
-	inline void next_mission()
-	{
-		last_path_refresh = 10.0f;		// By default allow to compute a new path
-		if(mission==NULL) {
-			command_locked = false;
-			set_mission( unit_manager.unit_type[type_id].DefaultMissionType, NULL, false, 0, false );
-			return;
-			}
-		switch(mission->mission)		// Commandes de fin de mission
-		{
-		case MISSION_REPAIR:
-		case MISSION_RECLAIM:
-		case MISSION_BUILD_2:
-			if( mission->next == NULL || unit_manager.unit_type[type_id].BMcode || mission->next->mission != MISSION_BUILD ) {
-				launch_script(get_script_index(SCRIPT_stopbuilding));
-//				launch_script(get_script_index(SCRIPT_stop));
-				deactivate();
-				}
-			break;
-		case MISSION_ATTACK:
-			deactivate();
-			break;
-		};
-		if(mission->mission==MISSION_STOP && mission->next==NULL) {
-			command_locked = false;
-			mission->data=0;
-			return;
-			}
-		MISSION *old=mission;
-		mission=mission->next;
-		if(old->path)				// Détruit le chemin si nécessaire
-			destroy_path(old->path);
-		free(old);
-		if(mission==NULL) {
-			command_locked = false;
-			set_mission(unit_manager.unit_type[type_id].DefaultMissionType);
-			}
-
-				// Skip a stop order before a normal order if the unit can fly (prevent planes from looking for a place to land when they don't need to land !!)
-		if( unit_manager.unit_type[type_id].canfly && mission->mission == MISSION_STOP && mission->next != NULL && mission->next->mission != MISSION_STOP ) {
-			old = mission;
-			mission = mission->next;
-			if(old->path)				// Détruit le chemin si nécessaire
-				destroy_path(old->path);
-			free(old);
-			}
-		start_mission_script(mission->mission);
-		c_time=0.0f;
-	}
+	void next_mission();
 
 	inline void clear_mission()
 	{
@@ -538,6 +493,10 @@ public:
 		EnterCS();
 
 		local = true;		// Is local by default, set to remote by create_unit when needed
+
+		nanolathe_target = -1;		// Used for remote units only
+		nanolathe_reverse = false;
+		nanolathe_feature = false;
 
 		exploding = false;
 		
