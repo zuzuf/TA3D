@@ -579,7 +579,7 @@ int TA3DSock::makeEvent(struct event* event){
 		event->x = getFloat();
 		event->y = getFloat();
 		event->z = getFloat();
-		getBuffer((char*)(event->str),24);
+		getBuffer((char*)(event->str),128);
 		break;
 	case EVENT_FEATURE_DEATH:
 	case EVENT_FEATURE_FIRE:
@@ -603,17 +603,17 @@ int TA3DSock::makeEvent(struct event* event){
 		event->y = getFloat();
 		event->z = getFloat();
 		event->opt3 = getLong();
-		getBuffer((char*)(event->str),24);
+		getBuffer((char*)(event->str),128);
 		break;
 	case EVENT_PRINT:
 		event->opt1 = getShort();
 		event->x = getFloat();
 		event->y = getFloat();
-		getBuffer((char*)(event->str),24);
+		getBuffer((char*)(event->str),128);
 		break;
 	case EVENT_PLAY:
 		event->opt1 = getShort();
-		getBuffer((char*)(event->str),24);
+		getBuffer((char*)(event->str),128);
 		break;
 	case EVENT_CLS:
 		event->opt1 = getShort();
@@ -649,7 +649,7 @@ int TA3DSock::makeEvent(struct event* event){
 		event->dx = getShort();
 		event->dy = getShort();
 		event->dz = getShort();
-		getBuffer((char*)(event->str),24);
+		getBuffer((char*)(event->str),128);
 		break;
 	case EVENT_UNIT_SCRIPT:
 		event->opt1 = getShort();
@@ -667,7 +667,7 @@ int TA3DSock::makeEvent(struct event* event){
 		event->opt2 = getShort();
 		event->x = getFloat();
 		event->z = getFloat();
-		getBuffer((char*)(event->str),24);
+		getBuffer((char*)(event->str),128);
 		break;
 	};
 

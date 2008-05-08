@@ -128,8 +128,8 @@ struct event{
 	sint16	dx;			//sint16
 	sint16	dy;			//sint16
 	sint16	dz;			//sint16
-	byte	str[24];	//unit name ? weapon name ?
-};//max size = 29
+	byte	str[128];	//unit name ? weapon name ?
+};//max size = 172
 
 typedef chat special;
 
