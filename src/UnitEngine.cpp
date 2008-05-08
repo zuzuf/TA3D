@@ -294,6 +294,11 @@ bool UNIT::is_on_radar( byte p_mask )
 			}
 		mission_type &= ~MISSION_FLAG_AUTO;
 
+		if( nanolathe_target >= 0 && network_manager.isConnected() ) {
+			nanolathe_target = -1;
+			g_ta3d_network->sendUnitNanolatheEvent( idx, -1, false, false );
+			}
+
 		bool def_mode = false;
 		if( !unit_manager.unit_type[type_id].BMcode )
 			switch( mission_type )
@@ -441,7 +446,7 @@ bool UNIT::is_on_radar( byte p_mask )
 	void UNIT::next_mission()
 	{
 		last_path_refresh = 10.0f;		// By default allow to compute a new path
-		if( nanolathe_target >= 0 ) {
+		if( nanolathe_target >= 0 && network_manager.isConnected() ) {
 			nanolathe_target = -1;
 			g_ta3d_network->sendUnitNanolatheEvent( idx, -1, false, false );
 			}
