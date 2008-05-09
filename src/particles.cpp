@@ -145,11 +145,11 @@ void PARTICLE_SYSTEM::draw()
 		part=tmp;
 
 		if( point == NULL )
-			point=(VECTOR*) malloc(sizeof(VECTOR)*4000);
+			point=(VECTOR*) malloc(sizeof(VECTOR)*4096);
 		if( texcoord == NULL )
-			texcoord=(GLfloat*) malloc(sizeof(GLfloat)*8000);
+			texcoord=(GLfloat*) malloc(sizeof(GLfloat)*8192);
 		if( color == NULL )
-			color=(GLubyte*) malloc(sizeof(GLubyte)*16000);
+			color=(GLubyte*) malloc(sizeof(GLubyte)*16384);
 		LeaveCS();
 	}
 
@@ -706,7 +706,7 @@ void PARTICLE_SYSTEM::draw()
 
 				((uint32*)color)[i_bis-3] = ((uint32*)color)[i_bis-2] = ((uint32*)color)[i_bis-1] = ((uint32*)color)[i_bis] = col;
 
-				if( j >= 999 ) {
+				if( j >= 1023 ) {
 					glDrawArrays( GL_QUADS, 0, (j+1<<2) );					// Draw everything
 					j = -1;
 					}
