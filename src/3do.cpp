@@ -2668,22 +2668,21 @@ void QUAD_TABLE::draw_all()
 
 	VECTOR	*P = new VECTOR[ max_size << 2 ];
 	uint32	*C = new uint32[ max_size << 2 ];
-	GLuint	*I = new GLuint[ max_size << 2 ];
 	GLfloat	*T = new GLfloat[ max_size << 3 ];
 
 	int e = 0;
 	for( int i = 0 ; i < max_size ; i++ ) {
 		T[e<<1] = 0.0f;		T[(e<<1)+1] = 0.0f;
-		I[ e++ ] = e;
+		e++;
 
 		T[e<<1] = 1.0f;		T[(e<<1)+1] = 0.0f;
-		I[ e++ ] = e;
+		e++;
 
 		T[e<<1] = 1.0f;		T[(e<<1)+1] = 1.0f;
-		I[ e++ ] = e;
+		e++;
 
 		T[e<<1] = 0.0f;		T[(e<<1)+1] = 1.0f;
-		I[ e++ ] = e;
+		e++;
 		}
 
 
@@ -2697,18 +2696,17 @@ void QUAD_TABLE::draw_all()
 
 	for( uint16 i = 0 ; i < DRAWING_TABLE_SIZE ; i++ )
 		for( List< QUAD_QUEUE* >::iterator e = hash_table[ i ].begin() ; e != hash_table[ i ].end() ; e++ )
-			(*e)->draw_queue( P, C, I, T );
+			(*e)->draw_queue( P, C, T );
 
 	glDisableClientState(GL_COLOR_ARRAY);
 	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 
 	delete[] P;
 	delete[] C;
-	delete[] I;
 	delete[] T;
 }
 
-void QUAD_QUEUE::draw_queue( VECTOR *P, uint32 *C, GLuint	*I, GLfloat	*T )
+void QUAD_QUEUE::draw_queue( VECTOR *P, uint32 *C, GLfloat	*T )
 {
 	if( queue.size() == 0 )	return;
 	glPushMatrix();
@@ -2741,7 +2739,7 @@ void QUAD_QUEUE::draw_queue( VECTOR *P, uint32 *C, GLuint	*I, GLfloat	*T )
 		}
 	glBindTexture( GL_TEXTURE_2D, texture_id );
 
-	glDrawElements(GL_QUADS, queue.size()<<2,GL_UNSIGNED_INT,I);		// draw this map
+	glDrawArrays(GL_QUADS, 0, queue.size()<<2);		// draw those quads
 
 	glPopMatrix();
 }

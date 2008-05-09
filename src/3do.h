@@ -1145,7 +1145,7 @@ public:
 
 	~QUAD_QUEUE()	{	queue.clear();	}
 
-	void draw_queue( VECTOR *P, uint32 *C, GLuint	*I, GLfloat	*T );
+	void draw_queue( VECTOR *P, uint32 *C, GLfloat	*T );
 };
 
 class QUAD_TABLE							// Kind of hash table used to speed up rendering of separated quads
