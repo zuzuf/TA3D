@@ -1466,7 +1466,7 @@ void SKY::build(int d,float size, bool full_sphere)
 	w = size;
 
 	nb_vtx=(s+1)*((s<<1)+1);
-	nb_idx=s*s*12;
+	nb_idx = s*(s*2+1)*2;				// We'll use GL_TRIANGLE_STRIP
 
 	point=(VECTOR*) malloc(sizeof(VECTOR)*nb_vtx);
 	texcoord=(float*) malloc(sizeof(float)*nb_vtx*2);
@@ -1490,14 +1490,10 @@ void SKY::build(int d,float size, bool full_sphere)
 			i++;
 			}
 	i=0;
-	for(int y=0;y<s;y++)
-		for(int x=0;x<s*2;x++) {
-			index[i++]=y*(s*2+1)+x+1;
+	for(int y=0;y<s;y++)				// We'll use GL_TRIANGLE_STRIP
+		for(int x=0;x<=s*2;x++) {
 			index[i++]=y*(s*2+1)+x;
 			index[i++]=(y+1)*(s*2+1)+x;
-			index[i++]=y*(s*2+1)+x+1;
-			index[i++]=(y+1)*(s*2+1)+x;
-			index[i++]=(y+1)*(s*2+1)+x+1;
 			}
 }
 
@@ -1510,7 +1506,7 @@ void SKY::draw()
 	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 	glTexCoordPointer(2, GL_FLOAT, 0, texcoord);
 
-	glDrawElements(GL_TRIANGLES, nb_idx,GL_UNSIGNED_SHORT,index);		// dessine le tout
+	glDrawElements(GL_TRIANGLE_STRIP, nb_idx,GL_UNSIGNED_SHORT,index);		// dessine le tout
 }
 
 int PLAYERS::add(char *NOM,char *SIDE,byte _control,int E,int M,byte AI_level)

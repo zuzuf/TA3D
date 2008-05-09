@@ -45,7 +45,6 @@ public:
 	float			dcol[4];
 	bool			use_wind;
 	bool			light_emitter;
-	GLushort		*index;
 	GLuint			tex;
 	uint16			cur_idx;			// Used to fill the point array
 
@@ -54,7 +53,6 @@ public:
 		nb_particles = 0;
 		pos = NULL;
 		V = NULL;
-		index = NULL;
 		life = 1.0f;
 		size = 1.0f;
 		dsize = 0.0f;
@@ -73,11 +71,8 @@ public:
 			delete[]	pos;
 		if( V )
 			delete[]	V;
-		if( index )
-			delete[]	index;
 		pos = NULL;
 		V = NULL;
-		index = NULL;
 	}
 
 	void create( uint16 nb, GLuint gltex );
@@ -128,10 +123,9 @@ public:
 	uint32		free_index_size;	// Pre allocated list of unused indexes
 	uint32		*free_idx;
 
-	VECTOR		*point;			// Tableau de points pour dessiner les particules
-	GLfloat		*texcoord;		// Tableau pour les coordonnées de texture
-	GLushort	*index;			// Tableau d'indices
-	GLubyte		*color;			// Tableau pour les couleurs
+	VECTOR		*point;			// Vertex array
+	GLfloat		*texcoord;		// Texture coordinates array
+	GLubyte		*color;			// Color array
 
 	protected:
 		bool	thread_running;

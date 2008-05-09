@@ -39,7 +39,6 @@ PARTICLE_ENGINE	particle_engine;
 void PARTICLE_SYSTEM::create( uint16 nb, GLuint gltex )
 {
 	nb_particles = nb;
-	index = new GLushort[ nb ];
 	pos = new VECTOR[ nb ];
 	V = new VECTOR[ nb ];
 	common_V.x = common_V.y = common_V.z = 0.0f;
@@ -47,9 +46,6 @@ void PARTICLE_SYSTEM::create( uint16 nb, GLuint gltex )
 	tex = gltex;
 
 	cur_idx = 0;
-
-	for( int i = 0 ; i < nb ; i++ )
-		index[ i ] = i;
 }
 
 void PARTICLE_SYSTEM::move( const float &dt, VECTOR *p_wind_dir, float g, float factor, float factor2 )
@@ -88,8 +84,7 @@ void PARTICLE_SYSTEM::draw()
 
 	glVertexPointer( 3, GL_FLOAT, 0, pos);
 
-	if( index != NULL )
-		glDrawElements(GL_POINTS, nb_particles, GL_UNSIGNED_SHORT, index);		// draw particles
+	glDrawArrays( GL_POINTS, 0, nb_particles );
 
 	glPopMatrix();
 }
@@ -155,11 +150,6 @@ void PARTICLE_SYSTEM::draw()
 			texcoord=(GLfloat*) malloc(sizeof(GLfloat)*8000);
 		if( color == NULL )
 			color=(GLubyte*) malloc(sizeof(GLubyte)*16000);
-		if( index == NULL ) {
-			index=(GLushort*) malloc(sizeof(GLushort)*4000);
-			for(uint32 i=0;i<4000;i++)
-				index[i]=i;
-			}
 		LeaveCS();
 	}
 
@@ -717,13 +707,13 @@ void PARTICLE_SYSTEM::draw()
 				((uint32*)color)[i_bis-3] = ((uint32*)color)[i_bis-2] = ((uint32*)color)[i_bis-1] = ((uint32*)color)[i_bis] = col;
 
 				if( j >= 999 ) {
-					glDrawElements(GL_QUADS, (j+1<<2),GL_UNSIGNED_SHORT,index);		// dessine le tout
+					glDrawArrays( GL_QUADS, 0, (j+1<<2) );					// Draw everything
 					j = -1;
 					}
 				}
 
 			if( j >= 0 )
-				glDrawElements(GL_QUADS, (j+1<<2),GL_UNSIGNED_SHORT,index);		// dessine le tout
+				glDrawArrays( GL_QUADS, 0, (j+1<<2) );					// Draw everything
 
 			glBlendFunc(GL_SRC_ALPHA,GL_ONE);
 			}
@@ -809,7 +799,6 @@ void PARTICLE_ENGINE::init(bool load)
 
 	point=NULL;
 	texcoord=NULL;
-	index=NULL;
 	color=NULL;
 
 	LeaveCS();
@@ -849,13 +838,10 @@ void PARTICLE_ENGINE::destroy()
 		free(point);
 	if(texcoord)
 		free(texcoord);
-	if(index)
-		free(index);
 	if(color)
 		free(color);
 	point=NULL;
 	texcoord=NULL;
-	index=NULL;
 	color=NULL;
 
 	LeaveCS();
