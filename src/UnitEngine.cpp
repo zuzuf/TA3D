@@ -5889,7 +5889,7 @@ void INGAME_UNITS::draw_shadow(CAMERA *cam,VECTOR Dir,MAP *map,float alpha)					
 
 	cam->SetView();
 
-	if(g_useStencilTwoSide && false) {					// Si l'extension GL_EXT_stencil_two_side est disponible
+	if(g_useStencilTwoSide) {					// Si l'extension GL_EXT_stencil_two_side est disponible
 		glEnable(GL_STENCIL_TEST);
 		glEnable(GL_STENCIL_TEST_TWO_SIDE_EXT);
 		glDisable(GL_CULL_FACE);

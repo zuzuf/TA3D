@@ -1408,7 +1408,7 @@ int MAP::check_metal(int x1, int y1, int unit_idx )
 					if( map_data[ry][rx].stuff >=0 )
 						metal_base += feature_manager.feature[ features.feature[ map_data[ry][rx].stuff ].type ].metal;
 	if( metal_base == 0 )
-		metal_base = -ota_data.SurfaceMetal;
+		metal_base = ota_data.SurfaceMetal;
 	return metal_base;
 }
 
