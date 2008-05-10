@@ -65,6 +65,8 @@ void save_game( const String filename, GAME_DATA *game_data )
 	foreach( game_data->ai_level, i )			fputc( *i, file );
 	foreach( game_data->energy, i )				SAVE( *i );
 	foreach( game_data->metal, i )				SAVE( *i );
+	for( int i = 0 ; i < 10 ; i++ )
+		SAVE( player_color_map[i] );
 
 	for( int i = 0 ; i < 10 ; i++ ) {
 		SAVE( players.energy[i] );
@@ -421,6 +423,9 @@ void load_game_data( const String filename, GAME_DATA *game_data )
 	foreach( game_data->energy, i )				LOAD( *i );
 	foreach( game_data->metal, i )				LOAD( *i );
 
+	for( int i = 0 ; i < 10 ; i++ )
+		LOAD( player_color_map[i] );
+
 	game_data->saved_file = filename;
 	
 	fclose( file );
@@ -459,6 +464,9 @@ void load_game( GAME_DATA *game_data )
 	foreach( game_data->ai_level, i )			*i = fgetc( file );
 	foreach( game_data->energy, i )				LOAD( *i );
 	foreach( game_data->metal, i )				LOAD( *i );
+
+	for( int i = 0 ; i < 10 ; i++ )
+		LOAD( player_color_map[i] );
 
 	for( int i = 0 ; i < 10 ; i++ ) {
 		LOAD( players.energy[i] );

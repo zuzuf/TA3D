@@ -1598,7 +1598,7 @@ void setup_game(bool client, const char *host)
 			}
 
 		if( client )
-			I_Msg( TA3D::TA3D_IM_GUI_MSG, (void*)"scripts.hide", NULL, NULL );	// Hide the scripts window in client mode
+			setupgame_area.msg("scripts.hide");	// Hide the scripts window in client mode
 
 		if( setupgame_area.get_state( "scripts.b_ok" ) && !client ) {
 			guiobj = setupgame_area.get_object( "scripts.script_list" );
