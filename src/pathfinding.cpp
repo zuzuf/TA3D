@@ -29,12 +29,16 @@
 #include "matrix.h"
 #include "TA3D_NameSpace.h"
 #include "ta3dbase.h"
-#include "3do.h"					// Pour la lecture des fichiers 3D
-#include "cob.h"					// Pour la lecture et l'éxecution des scripts
-#include "tdf.h"					// Pour la gestion des éléments du jeu
-//#include "fbi.h"					// Pour la gestion des unités
-//#include "weapons.h"				// Pour la gestion des armes
-#include "EngineClass.h"			// Inclus le moteur(dont le fichier pathfinding.h)
+#include "3do.h"					// For 3D models / Pour la lecture des fichiers 3D
+#include "cob.h"					// For unit scripts / Pour la lecture et l'éxecution des scripts
+#include "tdf.h"					// For map features / Pour la gestion des éléments du jeu
+//#include "fbi.h"					// For unit types / Pour la gestion des unités
+//#include "weapons.h"				// For weapons / Pour la gestion des armes
+#include "EngineClass.h"			// The engine, also includes pathfinding.h / Inclus le moteur(dont le fichier pathfinding.h)
+
+#define PATHFINDER_MAX_LENGTH			10000
+
+PATH_NODE *nodes[ PATHFINDER_MAX_LENGTH + 100 ];			// This array is used to compute a direct path, we need it because it decreases the computation time
 
 inline int path_len( PATH_NODE *path )
 {
@@ -56,7 +60,7 @@ inline int sgn( int a )
 	return a < 0 ? -1 : a > 0 ? 1 : 0;
 }
 
-void destroy_path(PATH_NODE *path)		// Détruit un chemin
+void destroy_path(PATH_NODE *path)		// Destroy a path / Détruit un chemin
 {
 	while( path ) {
 		PATH_NODE *next = path->next;
@@ -77,34 +81,38 @@ void simplify_path(PATH_NODE *path)
 			i = i->next;
 }
 
-PATH_NODE *direct_path(VECTOR End)		// Chemin direct vers la cible
+PATH_NODE *direct_path(VECTOR End)		// Creates a direct path to the target / Chemin direct vers la cible
 {
 	return new PATH_NODE( 0, 0, End );
 }
 
 void make_path_direct(SECTOR **map_data,float **h_map,float dh_max,float h_min,float h_max,PATH_NODE *path,int mw,int mh,int bw,int bh,int u_idx,float hover_h)			// Elimine les étapes inutiles (qui rendent un chemin indirect)
 {
-	if(path == NULL)	return;
+	if(path == NULL || path->next == NULL)	return;			// Let's say it's already direct
+	int length = 0;
 	PATH_NODE *cur = path;
-	List< PATH_NODE* >	stack;
-	int depth = 0;
-	while( cur->next!=NULL && cur->next->next!=NULL && depth < 10 ) {		// Tant qu'il y a des points à tester
-		if(is_direct( map_data, h_map, dh_max, h_min, h_max, *cur, *(cur->next->next), mw, mh, bw, bh, u_idx, hover_h )) {		// Si le chemin est direct, on élimine le point du milieu
-			PATH_NODE *tmp = cur->next->next;
-			delete cur->next;
-			cur->next = tmp;
-			if( !stack.empty() ) {
-				cur = stack.back();
-				stack.pop_back();
-				depth--;
+	do {								// Fill the array
+		nodes[ length++ ] = cur;
+		cur = cur->next;
+	} while( cur );
+
+	int s = 0;
+	int e = length - 1;
+	
+	while( s < length - 1 ) {
+		if(is_direct( map_data, h_map, dh_max, h_min, h_max, *(nodes[ s ]), *(nodes[ e ]), mw, mh, bw, bh, u_idx, hover_h )) {		// Si le chemin est direct, on élimine le point du milieu
+			if( s + 1 < e ) {			// Destroy now useless nodes
+				nodes[ e - 1 ]->next = NULL;
+				destroy_path( nodes[ s + 1] );
 				}
+			nodes[ s ]->next = nodes[ e ];
+			nodes[ s ]->made_direct = true;
+			s = e;
+			e = length - 1;
 			}
 		else {
-			depth++;
-			if( depth <= 2 )
-				cur->made_direct = true;
-			stack.push_back( cur );
-			cur = cur->next;		// Si le chemin n'est pas direct, on avance
+			e = e + s >> 1;
+			if( s + 1 >= e )	break;			// We're done
 			}
 		}
 }
@@ -267,7 +275,7 @@ PATH_NODE *find_path( SECTOR **map_data, float **map, byte **zone, int map_w, in
 	char order_dx[] = { -1, 0, 1, 1, 1, 0, -1, -1 };
 	char order_dy[] = { -1, -1, -1, 0, 1, 1, 1, 0 };
 
-	int PATH_MAX_LENGTH = (int)(sqrt( sq( end_x - start_x ) + sq( end_y - start_y ) ) * 12.0f);
+	int PATH_MAX_LENGTH = min( (int)(sqrt( sq( end_x - start_x ) + sq( end_y - start_y ) ) * 3.0f), PATHFINDER_MAX_LENGTH );
 
 	m_dist *= m_dist;
 	m_dist <<= 2;
@@ -286,7 +294,7 @@ PATH_NODE *find_path( SECTOR **map_data, float **map, byte **zone, int map_w, in
 		return NULL;			// So we can't find a path
 		}
 
-	while( n < PATH_MAX_LENGTH && ( ( ( path->x != END_X || path->y != END_Y ) && m_dist == 0 ) || ( m_dist > 0 && sq( path->x - END_X ) + sq( path->y - END_Y ) > m_dist ) ) ) {
+	while( n < PATH_MAX_LENGTH && ( ( m_dist == 0 && ( path->x != END_X || path->y != END_Y ) ) || ( m_dist > 0 && sq( path->x - END_X ) + sq( path->y - END_Y ) > m_dist ) ) ) {
 		zone[ path->y ][ path->x ]++;
 
 		int m = -1;
@@ -301,9 +309,11 @@ PATH_NODE *find_path( SECTOR **map_data, float **map, byte **zone, int map_w, in
 		if( nx < 0 || ny < 0 || nx >= bloc_w_db || ny >= bloc_h_db )
 			break;		// If we have to go out there is a problem ...
 
+		if( zone[ ny ][ nx ] >= 3 )	break;		// Looping ...
+
 		int NX = nx >> 1, NY = ny >> 1;
 
-		if( !check_rect_full( map_data, map, NX - mw_h, NY - mh_h, smw, smh, u_idx, dh_max, low_level, high_level, bloc_w, bloc_h, hover_h ) || zone[ ny ][ nx ] ) {
+		if( zone[ ny ][ nx ] || !check_rect_full( map_data, map, NX - mw_h, NY - mh_h, smw, smh, u_idx, dh_max, low_level, high_level, bloc_w, bloc_h, hover_h ) ) {
 			int dist[ 8 ];
 			int rdist[ 8 ];
 			bool zoned[ 8 ];
@@ -316,7 +326,7 @@ PATH_NODE *find_path( SECTOR **map_data, float **map, byte **zone, int map_w, in
 				zoned[ e ] = false;
 				if( nx < 0 || ny < 0 || nx >= bloc_w_db || ny >= bloc_h_db )	continue;
 				zoned[ e ] = zone[ ny ][ nx ];
-				if( (path->x >> 1) != NX || (path->y >> 1) != NY )				// No need to do it twice
+				if( ((path->x >> 1) != NX || (path->y >> 1) != NY) && !zone[ NY ][ NX ] )				// No need to do it twice
 					if( !check_rect_full( map_data, map, NX - mw_h, NY - mh_h, smw, smh, u_idx, dh_max, low_level, high_level, bloc_w, bloc_h, hover_h ) )
 						continue;
 				rdist[ e ] = dist[ e ] = sq( END_X - nx ) + sq( END_Y - ny );
