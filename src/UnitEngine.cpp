@@ -619,6 +619,7 @@ bool UNIT::is_on_radar( byte p_mask )
 			OBJECT *src = NULL;
 			SCRIPT_DATA *src_data = NULL;
 			VECTOR v_target;				// Needed in network mode
+			UNIT *unit_target = NULL;
 
 			if(build_percent_left==0.0f && mission!=NULL
 			&& port[ INBUILDSTANCE ] != 0 && local ) {
@@ -629,13 +630,21 @@ bool UNIT::is_on_radar( byte p_mask )
 					upos.x=upos.y=upos.z=0.0f;
 					upos=upos+Pos;
 					if(mission->p!=NULL
-					&& (mission->mission == MISSION_REPAIR || mission->mission == MISSION_BUILD || mission->mission == MISSION_BUILD_2 || mission->mission == MISSION_CAPTURE )
-					&& ((UNIT*)mission->p)->flags && ((UNIT*)mission->p)->model!=NULL) {
-						size=((UNIT*)mission->p)->model->size2;
-						center=&((UNIT*)mission->p)->model->center;
-						src = &((UNIT*)mission->p)->model->obj;
-						src_data = &((UNIT*)mission->p)->data;
-						((UNIT*)mission->p)->compute_model_coord();
+					&& (mission->mission == MISSION_REPAIR || mission->mission == MISSION_BUILD || mission->mission == MISSION_BUILD_2 || mission->mission == MISSION_CAPTURE ) ) {
+						unit_target = ((UNIT*)mission->p);
+						unit_target->Lock();
+						if( (unit_target->flags & 1) && unit_target->model!=NULL) {
+							size=unit_target->model->size2;
+							center=&unit_target->model->center;
+							src = &unit_target->model->obj;
+							src_data = &unit_target->data;
+							unit_target->compute_model_coord();
+							}
+						else {
+							unit_target->UnLock();
+							unit_target = NULL;
+							c_part = false;
+							}
 						}
 					else if( mission->mission == MISSION_RECLAIM || mission->mission == MISSION_REVIVE ) {		// Reclaiming features
 						int feature_type = features.feature[ mission->data ].type;
@@ -664,13 +673,21 @@ bool UNIT::is_on_radar( byte p_mask )
 					upos.x=upos.y=upos.z=0.0f;
 					upos=upos+Pos;
 					if(!nanolathe_feature) {
-						UNIT *target = &(units.unit[ nanolathe_target ]);
-						size = target->model->size2;
-						center = &target->model->center;
-						src = &target->model->obj;
-						src_data = &target->data;
-						target->compute_model_coord();
-						v_target = target->Pos;
+						unit_target = &(units.unit[ nanolathe_target ]);
+						unit_target->Lock();
+						if( (unit_target->flags & 1) && unit_target->model ) {
+							size = unit_target->model->size2;
+							center = &unit_target->model->center;
+							src = &unit_target->model->obj;
+							src_data = &unit_target->data;
+							unit_target->compute_model_coord();
+							v_target = unit_target->Pos;
+							}
+						else {
+							unit_target->UnLock();
+							unit_target = NULL;
+							c_part = false;
+							}
 						}
 					else {		// Reclaiming features
 						int feature_type = features.feature[ nanolathe_target ].type;
@@ -765,6 +782,8 @@ bool UNIT::is_on_radar( byte p_mask )
 				model->draw(t,&data,owner_id==players.local_human_id && sel,true,false,build_part,target,&upos,&M,size,center,reverse,owner_id);
 				glPolygonMode (GL_FRONT_AND_BACK, GL_FILL);
 				}
+			if( unit_target )
+				unit_target->UnLock();
 			}
 		glPopMatrix();
 		LeaveCS();

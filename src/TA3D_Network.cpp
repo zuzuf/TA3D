@@ -242,34 +242,40 @@ void TA3DNetwork::check()
 			break;
 		case EVENT_FEATURE_CREATION:
 			{
-				int sx = event_msg.opt3;		// Burn the object
-				int sy = event_msg.opt4;
-				int type = feature_manager.get_feature_index( (const char*)(event_msg.str) );
-				if( type >= 0 ) {
-					VECTOR feature_pos( event_msg.x, event_msg.y, event_msg.z );
-					the_map->map_data[sy][sx].stuff = features.add_feature( feature_pos, type );
-					if(feature_manager.feature[type].blocking)
-						the_map->rect(sx-(feature_manager.feature[type].footprintx>>1),sy-(feature_manager.feature[type].footprintz>>1),feature_manager.feature[type].footprintx,feature_manager.feature[type].footprintz,-2-the_map->map_data[sy][sx].stuff);
+				uint32 sx = event_msg.opt3;		// Burn the object
+				uint32 sy = event_msg.opt4;
+				if( sx < the_map->bloc_w_db && sy < the_map->bloc_h_db ) {
+					int type = feature_manager.get_feature_index( (const char*)(event_msg.str) );
+					if( type >= 0 ) {
+						VECTOR feature_pos( event_msg.x, event_msg.y, event_msg.z );
+						the_map->map_data[sy][sx].stuff = features.add_feature( feature_pos, type );
+						if(feature_manager.feature[type].blocking)
+							the_map->rect(sx-(feature_manager.feature[type].footprintx>>1),sy-(feature_manager.feature[type].footprintz>>1),feature_manager.feature[type].footprintx,feature_manager.feature[type].footprintz,-2-the_map->map_data[sy][sx].stuff);
+						}
 					}
 			}
 			break;
 		case EVENT_FEATURE_FIRE:
 			{
-				int sx = event_msg.opt3;		// Burn the object
-				int sy = event_msg.opt4;
-				int idx = the_map->map_data[sy][sx].stuff;
-				if( !features.feature[idx].burning )
-					features.burn_feature( idx );
+				uint32 sx = event_msg.opt3;		// Burn the object
+				uint32 sy = event_msg.opt4;
+				if( sx < the_map->bloc_w_db && sy < the_map->bloc_h_db ) {
+					int idx = the_map->map_data[sy][sx].stuff;
+					if( !features.feature[idx].burning )
+						features.burn_feature( idx );
+					}
 			}
 			break;
 		case EVENT_FEATURE_DEATH:
 			{
-				int sx = event_msg.opt3;		// Remove the object
-				int sy = event_msg.opt4;
-				int idx = the_map->map_data[sy][sx].stuff;
-				if( idx >= 0 ) {
-					the_map->rect(sx-(feature_manager.feature[features.feature[idx].type].footprintx>>1),sy-(feature_manager.feature[features.feature[idx].type].footprintz>>1),feature_manager.feature[features.feature[idx].type].footprintx,feature_manager.feature[features.feature[idx].type].footprintz,-1);
-					features.delete_feature(idx);			// Delete it
+				uint32 sx = event_msg.opt3;		// Remove the object
+				uint32 sy = event_msg.opt4;
+				if( sx < the_map->bloc_w_db && sy < the_map->bloc_h_db ) {
+					int idx = the_map->map_data[sy][sx].stuff;
+					if( idx >= 0 ) {
+						the_map->rect(sx-(feature_manager.feature[features.feature[idx].type].footprintx>>1),sy-(feature_manager.feature[features.feature[idx].type].footprintz>>1),feature_manager.feature[features.feature[idx].type].footprintx,feature_manager.feature[features.feature[idx].type].footprintz,-1);
+						features.delete_feature(idx);			// Delete it
+						}
 					}
 			}
 			break;
@@ -536,7 +542,7 @@ void TA3DNetwork::sendDamageEvent( int idx, float damage )
 	struct event event;
 	event.type = EVENT_UNIT_DAMAGE;
 	event.opt1 = idx;
-	event.opt2 = damage * 16.0f;
+	event.opt2 = (int)(damage * 16.0f);
 	network_manager.sendEvent( &event );
 }
 
