@@ -43,61 +43,6 @@ INGAME_UNITS units;
 
 float sq( const float &a )	{	return a * a;	}
 
-#define PUT_IN_BUFFER( o, b, p ) 	memcpy( b + p, &o, sizeof( o ) );	p += sizeof( o );
-#define PUT_VEC_IN_BUFFER_LOW( v, b, p )	{ sint16 tmp16;\
-													tmp16 = (sint16)(v.x * 128.0f); PUT_IN_BUFFER( tmp16, b, p ); \
-													tmp16 = (sint16)(v.y * 128.0f); PUT_IN_BUFFER( tmp16, b, p ); \
-													tmp16 = (sint16)(v.z * 128.0f); PUT_IN_BUFFER( tmp16, b, p ); }
-
-inline void MAKE_HASH( uint32 &h, int f )
-{
-	for( int i = 0 ; i < 4 ; i++ )
-		h = (h << 5) - h + ((byte*)&f)[ i ];
-}
-
-uint32 UNIT::write_sync_data( byte *buf, int buf_pos )
-{
-	EnterCS();
-
-	uint32 new_hash = 0;
-	uint32 check_hash = 0;
-	MAKE_HASH( check_hash, (int)Pos.x );
-	MAKE_HASH( check_hash, (int)Pos.y );
-	MAKE_HASH( check_hash, (int)Pos.z );
-
-	MAKE_HASH( new_hash, (int)(V.x * 16.0f) );
-	MAKE_HASH( new_hash, (int)(V.y * 16.0f) );
-	MAKE_HASH( new_hash, (int)(V.z * 16.0f) );
-
-	MAKE_HASH( check_hash, (int)Angle.x );
-	MAKE_HASH( check_hash, (int)Angle.y );
-	MAKE_HASH( check_hash, (int)Angle.z );
-
-	MAKE_HASH( new_hash, (int)(V_Angle.x * 16.0f) );
-	MAKE_HASH( new_hash, (int)(V_Angle.y * 16.0f) );
-	MAKE_HASH( new_hash, (int)(V_Angle.z * 16.0f) );
-
-	if( sync_hash != new_hash ) {
-		buf[ buf_pos++ ] = 1;
-		PUT_IN_BUFFER( new_hash, buf, buf_pos );
-//		PUT_IN_BUFFER( Pos, buf, buf_pos );
-
-		PUT_VEC_IN_BUFFER_LOW( V, buf, buf_pos );
-//		PUT_VEC_IN_BUFFER_LOW( Angle, buf, buf_pos );
-		PUT_VEC_IN_BUFFER_LOW( V_Angle, buf, buf_pos );
-		}
-	else
-		buf[ buf_pos++ ] = 0;
-
-	PUT_IN_BUFFER( check_hash, buf, buf_pos );
-
-	sync_hash = new_hash;
-
-	LeaveCS();
-
-	return buf_pos;
-}
-
 bool UNIT::is_on_radar( byte p_mask )
 {
 	int px = cur_px>>1;

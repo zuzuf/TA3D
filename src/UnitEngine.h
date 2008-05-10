@@ -343,8 +343,6 @@ public:
 
 public:
 
-	uint32 write_sync_data( byte *buf, int buf_pos );
-
 	inline void Lock()		{	EnterCS();	}
 	inline void UnLock()	{	LeaveCS();	}
 
