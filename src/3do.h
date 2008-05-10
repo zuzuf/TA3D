@@ -525,7 +525,7 @@ public:
 
 	bool hit_fast(VECTOR Pos,VECTOR Dir,SCRIPT_DATA *data_s,VECTOR *I);
 
-	bool random_pos( SCRIPT_DATA *data_s, int id, VECTOR *vec );
+	int random_pos( SCRIPT_DATA *data_s, int id, VECTOR *vec );
 
 	bool compute_emitter()
 	{

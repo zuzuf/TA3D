@@ -469,7 +469,7 @@ void OBJECT::optimise_mesh()			// EXPERIMENTAL, function to merge all objects in
 					else
 						blit(texture_manager.tex[index_tex[i]].bmp[0],bmp,0,0,px[i],py[i],texture_manager.tex[index_tex[i]].bmp[0]->w,texture_manager.tex[index_tex[i]].bmp[0]->h);
 				dtex=e+1;
-				String cache_filename = filename ? String( filename ) + format("-%s-%d.bin", name ? name : "none", e ) : String( "" );
+				String cache_filename = filename ? String( filename ) + format("-%s-%d.bin", name ? name : "none", player_color_map[e] ) : String( "" );
 				gltex[e] = gfx->load_texture_from_cache( cache_filename );
 				if( !gltex[ e ] ) {
 					gltex[e] = allegro_gl_make_texture(bmp);
@@ -852,7 +852,7 @@ void OBJECT::draw_optimised( bool set )
 						}
 					else if( !chg_col && !notex ){
 						if(surface.Flag&SURFACE_PLAYER_COLOR)
-							glColor4f(player_color[side*3]*color_factor[0],player_color[side*3+1]*color_factor[1],player_color[side*3+2]*color_factor[2],surface.Color[3]*color_factor[3]);		// Couleur de matière
+							glColor4f(player_color[player_color_map[side]*3]*color_factor[0],player_color[player_color_map[side]*3+1]*color_factor[1],player_color[player_color_map[side]*3+2]*color_factor[2],surface.Color[3]*color_factor[3]);		// Couleur de matière
 						else
 							glColor4f(surface.Color[0]*color_factor[0],surface.Color[1]*color_factor[1],surface.Color[2]*color_factor[2],surface.Color[3]*color_factor[3]);		// Couleur de matière
 						}
@@ -1069,7 +1069,7 @@ draw_next:
 				set=false;
 				if(chg_col) {
 					if(surface.Flag&SURFACE_PLAYER_COLOR)
-						glColor4f(player_color[side*3],player_color[side*3+1],player_color[side*3+2],surface.Color[3]);		// Couleur de matière
+						glColor4f(player_color[player_color_map[side]*3],player_color[player_color_map[side]*3+1],player_color[player_color_map[side]*3+2],surface.Color[3]);		// Couleur de matière
 					else
 						glColor4f(surface.Color[0],surface.Color[1],surface.Color[2],surface.Color[3]);		// Couleur de matière
 					}
@@ -1221,10 +1221,10 @@ uint16 OBJECT::set_obj_id( uint16 id )
 	return id;
 }
 
-bool OBJECT::random_pos( SCRIPT_DATA *data_s, int id, VECTOR *vec )
+int OBJECT::random_pos( SCRIPT_DATA *data_s, int id, VECTOR *vec )
 {
 	if( id == obj_id ) {
-		if( nb_t_index > 2 && (data_s == NULL || !(data_s->flag[script_index] & FLAG_HIDE)) ) {
+		if( nb_t_index > 2 && (data_s == NULL || script_index < 0 || !(data_s->flag[script_index] & FLAG_HIDE)) ) {
 			int rnd_idx = (rand_from_table() % (nb_t_index / 3)) * 3;
 			float a = (rand_from_table() & 0xFF) / 255.0f;
 			float b = (1.0f - a) * (rand_from_table() & 0xFF) / 255.0f;
@@ -1232,25 +1232,30 @@ bool OBJECT::random_pos( SCRIPT_DATA *data_s, int id, VECTOR *vec )
 			vec->x = a * points[ t_index[ rnd_idx ] ].x + b * points[ t_index[ rnd_idx + 1 ] ].x + c * points[ t_index[ rnd_idx + 2 ] ].x;
 			vec->y = a * points[ t_index[ rnd_idx ] ].y + b * points[ t_index[ rnd_idx + 1 ] ].y + c * points[ t_index[ rnd_idx + 2 ] ].y;
 			vec->z = a * points[ t_index[ rnd_idx ] ].z + b * points[ t_index[ rnd_idx + 1 ] ].z + c * points[ t_index[ rnd_idx + 2 ] ].z;
-			if( data_s )
+			if( data_s && script_index >= 0 )
 				*vec = data_s->pos[script_index] + *vec * data_s->matrix[script_index];
 			}
 		else
-			return false;
-		return true;
+			return 0;
+		return (data_s && script_index >= 0) ? 2 : 1 ;
 		}
 	if( id > obj_id ) {
-		if( child != NULL && child->random_pos( data_s, id, vec ) ) {
-			if( data_s == NULL )
-				*vec = *vec + pos_from_parent;
-			return true;
+		if( child != NULL ) {
+			int r = child->random_pos( data_s, id, vec );
+			if( r ) {
+				if( r == 1 )
+					*vec = *vec + pos_from_parent;
+				return r;
+				}
+			else
+				return 0;
 			}
 		else
-			return false;
+			return 0;
 		}
-	if( next != NULL && next->random_pos( data_s, id, vec ) )
-		return true;
-	return false;
+	if( next != NULL )
+		return next->random_pos( data_s, id, vec );
+	return 0;
 }
 
 	void OBJECT::compute_coord(SCRIPT_DATA *data_s,VECTOR *pos,bool c_part,int p_tex,VECTOR *target,POINTF *upos,MATRIX_4x4 *M,float size,VECTOR *center,bool reverse,OBJECT *src,SCRIPT_DATA *src_data)

@@ -39,6 +39,8 @@ _some parts of the maps might not be drawn (visibility limit) like hills
 _slow down with lots of 3D sprites on some gfx hardware (speed increased but bug not yet fixed)
 _fix all other bugs ( :-) )
 
+* fixed unit colors being wrong when texture cache is enabled
+* fixed nanospray sometimes going to space
 * fixed crash in Config->Audio when clicking something with no music listed
 * fixed lots of bugs in networking code
 * fixed some transparency drawing bugs with trees
