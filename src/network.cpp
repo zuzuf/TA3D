@@ -716,29 +716,6 @@ int Network::HostGame(const char* name,const char* port,int network){
 		myMode = 0;
 		return -1;
 	}
-
-	//advertise
-	if (network == 2){
-		Socket sock("gamelist.ta3d.net","7778");
-		char buff[256];
-		if(!sock.isOpen()){
-			Console->AddEntry("Network: advertising game failed");
-			sock.Close();
-		}
-		else{
-			//magic protocol that gamelist server understands
-			buff[0] = 'N';
-			buff[1] = ';';
-			buff[2] = '\0';
-			strncat(buff,gamename,128);
-			strcat(buff,";");
-			strncat(buff,port,32);
-			Console->AddEntry("NI_MAXSERV = %d\n",NI_MAXSERV);
-			sock.SendString(buff);
-			sock.Close();
-			Console->AddEntry("Network: game advertised on the internet");
-		}
-	}
 	
 	//spawn listening thread
 	net_thread_params *params = new net_thread_params;
@@ -1500,5 +1477,146 @@ void Network::updateFileTransferInformation( String id, int size, int pos )
 	transfer_progress.push_back( info );
 
 	ftmutex.Unlock();
+}
+
+String Network::HttpRequest( const String &servername, const String &request )
+{
+    NLsocket    sock;
+    NLaddress   addr;
+    NLbyte      buffer[4096];
+    String      f;
+    NLint       count;
+    NLint       crfound = 0;
+    NLint       lffound = 0;
+
+    nlGetAddrFromName( servername.c_str(), &addr);
+
+    /* use the standard HTTP port */
+    nlSetAddrPort(&addr, 80);
+
+    /* open the socket and connect to the server */
+    sock = nlOpen(0, NL_RELIABLE);
+    if(sock == NL_INVALID) {
+    	Console->AddEntry("Network::HttpRequest : error : could not open socket!");
+    	return "";
+        }
+    if(nlConnect(sock, &addr) == NL_FALSE)
+    {
+    	Console->AddEntry("Network::HttpRequest : error : could not connect to server!");
+    	return "";
+    }
+
+    f.clear();
+
+    sprintf(buffer, "GET %s HTTP/1.0\r\nHost:%s\nAccept: */*\r\nUser-Agent: TA3D\r\n\r\n"
+                    , request.c_str(), servername.c_str() );
+    while(nlWrite(sock, (NLvoid *)buffer, (NLint)strlen(buffer)) < 0)
+    {
+        if(nlGetError() == NL_CON_PENDING)
+        {
+            nlThreadYield();
+            continue;
+        }
+    	Console->AddEntry("Network::HttpRequest : error : could not send request to server!");
+    	return "";
+    }
+
+	while(true) {
+		count = nlRead(sock, (NLvoid *)buffer, (NLint)sizeof(buffer) - 1);
+		if(count < 0) {
+			NLint err = nlGetError();
+
+			/* is the connection closed? */
+			if(err == NL_MESSAGE_END)
+				break;
+			else
+				return "";
+			}
+		if(count > 0) {
+			/* parse out the HTTP header */
+			if(lffound < 2) {
+				int i;
+
+				for( i = 0 ; i < count ; i++ ) {
+					if(buffer[i] == 0x0D)
+						crfound++;
+					else {
+						if(buffer[i] == 0x0A)
+							lffound++;
+						else
+							/* reset the CR and LF counters back to 0 */
+							crfound = lffound = 0;
+						}
+					if(lffound == 2) {
+						/* i points to the second LF */
+						/* NUL terminate the header string and print it out */
+						buffer[i] = buffer[i-1] = 0x0;
+
+						f += buffer;
+						break;
+						}
+					}
+				if(lffound < 2)
+					/* we reached the end of buffer, so print it out */
+					buffer[count + 1] = 0x0;
+				}
+			else
+				f += String( buffer, count );
+			}
+		}
+    return f;
+}
+
+int Network::listNetGames(List< SERVER_DATA > &list)
+{
+	String gamelist = HttpRequest( lp_CONFIG->net_server, "/getserverlist.php" );
+	
+	foreach_( list, i )								// Remove internet servers to get a clean list
+		if( i->internet )	list.erase( i++ );
+		else				i++;
+
+	if( gamelist.empty() )
+		return 0;
+
+	Vector< String > line = ReadVectorString( gamelist, "\n" );
+
+	int nb_servers = 0;
+	int old = -1;
+	SERVER_DATA cur_server;
+	cur_server.internet = true;
+	String server_version = "";
+	String server_mod = "";
+	foreach( line, entry ) {
+		Vector< String >	params = ReadVectorString( *entry );
+		if( params.size() < 2 )	continue;
+		if( params.size() == 2 && params[1] == "servers" ) {
+			nb_servers = atoi( params[0].c_str() );
+			continue;
+			}
+		int cur = atoi( params[0].c_str() );
+		if( cur != old ) {						// We've all we need for this one
+			if( server_version != TA3D_ENGINE_VERSION || server_mod != TA3D_CURRENT_MOD )		// Not compatible!!
+				nb_servers--;
+			else
+				list.push_back( cur_server );
+			}
+
+		if( params[1] == "name:" )			cur_server.name = params.size() >= 3 ? params[2] : "";
+		else if( params[1] == "IP:" )		cur_server.host = params.size() >= 3 ? params[2] : "";
+		else if( params[1] == "slots:" )	cur_server.nb_open = params.size() >= 3 ? atoi( params[2].c_str() ) : 0;
+		else if( params[1] == "mod:" )		server_mod = params.size() >= 3 ? params[2] : "";
+		else if( params[1] == "version:" )	server_version = params.size() >= 3 ? params[2] : "";
+
+		old = cur;
+		}
+	if( old != -1 )
+		list.push_back( cur_server );
+	return nb_servers;
+}
+
+int Network::registerToNetServer( const String &name, const int Slots )
+{
+	String request = format("/register.php?name=%s&mod=%s&version=%s&slots=%d", name.c_str(), TA3D_CURRENT_MOD.c_str(), TA3D_ENGINE_VERSION, Slots );
+	String result = HttpRequest( lp_CONFIG->net_server, request );
 }
 

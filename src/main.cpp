@@ -177,6 +177,8 @@ void LoadConfigFile( void )
 
 	TA3D::VARS::lp_CONFIG->skin_name = cfgFile->PullAsString( "TA3D.Skin", "" );
 
+	TA3D::VARS::lp_CONFIG->net_server = cfgFile->PullAsString( "TA3D.Net Server", "ta3d.darkstars.co.uk" );
+
 	TA3D::VARS::TA3D_CURRENT_MOD = TA3D::VARS::lp_CONFIG->last_MOD;
 
 	TA3D::VARS::lp_CONFIG->player_name = cfgFile->PullAsString( "TA3D.Player name", "player" );
@@ -293,6 +295,7 @@ void SaveConfigFile( void )
 	m_File << "    Camera Zoom Speed=" << TA3D::VARS::lp_CONFIG->camera_zoom_speed << ";\n";
 	m_File << "                 Skin=" << TA3D::VARS::lp_CONFIG->skin_name << ";\n";
 	m_File << "    Use Texture Cache=" << TA3D::VARS::lp_CONFIG->use_texture_cache << ";\n";
+	m_File << "           Net Server=" << TA3D::VARS::lp_CONFIG->net_server << ";\n";
 	m_File << "}\n";
 
 	m_File.flush();

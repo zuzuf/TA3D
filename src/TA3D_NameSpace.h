@@ -93,6 +93,8 @@ namespace TA3D
 		
 		bool	use_texture_cache;			// Use the texture cache ? (default : disabled because on some systems it doesn't work)
 
+		String	net_server;					// The server that monitor the game server list
+
 		// Variables used to communicate with all the code
 		bool	quickrestart;				// Should be false, set to true when need to restart to enable options/parameters
 		bool	quickstart;					// Tell to speed up the starting process
@@ -103,6 +105,8 @@ namespace TA3D
 
 		TA3DCONFIG()
 		{
+			net_server = "ta3d.darkstars.co.uk";
+
 			file_param.clear();
 		
 			use_texture_cache = false;

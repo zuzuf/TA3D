@@ -444,7 +444,11 @@ void TA3DNetwork::check()
 
 						weapons.UnLock();
 						}
+					else
+						printf("WARNING: couldn't create weapon '%s'\n", (char*)event_msg.str );
 					}
+				else
+					printf("WARNING: couldn't identify weapon '%s'\n", (char*)event_msg.str );
 
 				printf("(%d), received order to shoot from %d\n", units.current_tick, event_msg.opt1 );
 			}

@@ -109,6 +109,7 @@ struct SERVER_DATA
 	int			timer;				// Allow it to timeout
 	int			nb_open;			// How many player slots are open ?
 	String		host;				// The host name of this server
+	bool		internet;			// Internet server ?
 };
 
 
@@ -254,8 +255,9 @@ class Network{
 
 		void InitBroadcast( const char* port);
 
-		//int listNetGames(GamesList& list);
-		//int listLanGames(GamesList& list);
+		int listNetGames( List< SERVER_DATA> &list);
+		int registerToNetServer( const String &name, const int Slots );
+		String HttpRequest( const String &servername, const String &request );
 
 		int sendSpecialUDP( std::string msg, int src_id = -1, int dst_id = -1);
 		int sendSpecialUDP(struct chat* chat, int src_id = -1, int dst_id = -1);

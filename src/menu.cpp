@@ -1011,6 +1011,8 @@ void stats_menu(void)
 	while(key[KEY_ESC]) {	rest(1);	poll_keyboard();	}
 }
 
+#define INTERNET_AD_COUNTDOWN		150000
+
 void setup_game(bool client, const char *host)
 {
 	int my_player_id = -1;
@@ -1210,6 +1212,8 @@ void setup_game(bool client, const char *host)
 	int progress_timer = msec_timer;
 	int ping_timer = msec_timer;					// Used to send simple PING requests in order to detect when a connection fails
 
+	int internet_ad_timer = msec_timer - INTERNET_AD_COUNTDOWN;	// Resend every 150 sec
+
 	do
 	{
 		if( host )
@@ -1248,9 +1252,18 @@ void setup_game(bool client, const char *host)
 			if( msec_timer - progress_timer >= 500 && network_manager.getFileTransferProgress() != 100.0f )	break;
 		} while( amx == mouse_x && amy == mouse_y && amz == mouse_z && amb == mouse_b && mouse_b == 0 && !key[ KEY_ENTER ] && !key[ KEY_ESC ] && !done
 			&& !key_is_pressed && !setupgame_area.scrolling && broadcast_msg.empty() && chat_msg.empty() && special_msg.empty() && !playerDropped
-			&& ( msec_timer - ping_timer < 2000 || host == NULL || client ) );
+			&& ( (msec_timer - ping_timer < 2000 && msec_timer - internet_ad_timer >= INTERNET_AD_COUNTDOWN ) || host == NULL || client ) );
 
 //-------------------------------------------------------------- Network Code : syncing information --------------------------------------------------------------
+
+		if( host && !client && msec_timer - internet_ad_timer >= INTERNET_AD_COUNTDOWN ) {		// Advertise the game on the Internet
+			internet_ad_timer = msec_timer;	// Resend every 150 sec
+			uint16 nb_open = 0;
+			for( uint16 f = 0 ; f < 10 ; f++ )
+				if( setupgame_area.get_caption(format("gamesetup.name%d", f)) == player_str[2] ) 
+					nb_open++;
+			network_manager.registerToNetServer( host, nb_open );
+			}
 
 		if( host && !client && msec_timer - ping_timer >= 2000 ) {		// Send a ping request
 			network_manager.sendPing();
@@ -1881,6 +1894,7 @@ void network_room(void)				// Let players create/join a game
 	network_manager.InitBroadcast("1234");		// broadcast mode
 
 	int server_list_timer = msec_timer - SERVER_LIST_REFRESH_DELAY;
+	int internet_server_list_timer = msec_timer - INTERNET_AD_COUNTDOWN;
 
 	List< SERVER_DATA >	servers;					// the server list
 
@@ -1904,7 +1918,7 @@ void network_room(void)				// Let players create/join a game
 	{
 		bool key_is_pressed = false;
 		do {
-			key_is_pressed = keypressed() || msec_timer - server_list_timer >= SERVER_LIST_REFRESH_DELAY;
+			key_is_pressed = keypressed() || msec_timer - server_list_timer >= SERVER_LIST_REFRESH_DELAY || msec_timer - internet_server_list_timer >= INTERNET_AD_COUNTDOWN;
 			networkgame_area.check();
 			rest( 1 );
 		} while( amx == mouse_x && amy == mouse_y && amz == mouse_z && amb == mouse_b && mouse_b == 0 && !key[ KEY_ENTER ]
@@ -1940,6 +1954,7 @@ void network_room(void)				// Let players create/join a game
 								}
 						if( !updated ) {
 							SERVER_DATA new_server;
+							new_server.internet = false;
 							new_server.name = name;
 							new_server.timer = msec_timer;
 							new_server.nb_open = nb_open;
@@ -1973,6 +1988,11 @@ void network_room(void)				// Let players create/join a game
 				}
 			}
 				
+		if( msec_timer - internet_server_list_timer >= INTERNET_AD_COUNTDOWN ) {		// Refresh server list
+			internet_server_list_timer = msec_timer;
+			network_manager.listNetGames( servers );
+			}
+
 		if( msec_timer - server_list_timer >= SERVER_LIST_REFRESH_DELAY ) {		// Refresh server list
 			for( List< SERVER_DATA >::iterator server_i = servers.begin() ; server_i != servers.end() ; )		// Remove those who timeout
 				if( msec_timer - server_i->timer >= 30000 )
