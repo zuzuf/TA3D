@@ -5006,8 +5006,9 @@ int UNIT::launch_script(int id,int nb_param,int *param,bool force)			// Start a 
 	if(nb_param>0 && param!=NULL)
 		for(int i=0;i<nb_param;i++)
 			(*script_env)[nb_running].env->var[i]=param[i];
+	int script_id = nb_running++;
 	LeaveCS();
-	return nb_running++;
+	return script_id;
 }
 
 void *create_unit( int type_id, int owner, VECTOR pos, MAP *map, bool sync, bool script )
