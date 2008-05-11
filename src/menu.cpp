@@ -1968,7 +1968,7 @@ void network_room(void)				// Let players create/join a game
 				}
 
 			for( List< SERVER_DATA >::iterator server_i = servers.begin() ; server_i != servers.end() ; )		// Remove those who timeout
-				if( msec_timer - server_i->timer >= 30000 )
+				if( !server_i->internet && msec_timer - server_i->timer >= 30000 )
 					servers.erase( server_i++ );
 				else
 					server_i++;
@@ -1991,11 +1991,25 @@ void network_room(void)				// Let players create/join a game
 		if( msec_timer - internet_server_list_timer >= INTERNET_AD_COUNTDOWN ) {		// Refresh server list
 			internet_server_list_timer = msec_timer;
 			network_manager.listNetGames( servers );
+
+			GUIOBJ *obj = networkgame_area.get_object("networkgame.server_list");
+			if( obj ) {
+				obj->Text.resize( servers.size() );
+				List<String> server_names;
+				for( List< SERVER_DATA >::iterator server_i = servers.begin() ; server_i != servers.end() ; server_i++ )		// Remove those who timeout
+					server_names.push_back( server_i->name );
+				server_names.sort();
+				int i = 0;
+				for( List< String >::iterator server_i = server_names.begin() ; server_i != server_names.end() ; server_i++, i++ )		// Remove those who timeout
+					obj->Text[i] = *server_i;
+				if( obj->Text.size() == 0 )
+					obj->Text.push_back(TRANSLATE("No server found"));
+				}
 			}
 
 		if( msec_timer - server_list_timer >= SERVER_LIST_REFRESH_DELAY ) {		// Refresh server list
 			for( List< SERVER_DATA >::iterator server_i = servers.begin() ; server_i != servers.end() ; )		// Remove those who timeout
-				if( msec_timer - server_i->timer >= 30000 )
+				if( !server_i->internet && msec_timer - server_i->timer >= 30000 )
 					servers.erase( server_i++ );
 				else
 					server_i++;

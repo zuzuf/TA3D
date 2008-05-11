@@ -1549,19 +1549,17 @@ String Network::HttpRequest( const String &servername, const String &request )
 						}
 					if(lffound == 2) {
 						/* i points to the second LF */
-						/* NUL terminate the header string and print it out */
-						buffer[i] = buffer[i-1] = 0x0;
-
-						f += buffer;
+						/* NUL terminate the string and put it in the buffer string */
+						buffer[count] = 0x0;
+						f += buffer+i+1;
 						break;
 						}
 					}
-				if(lffound < 2)
-					/* we reached the end of buffer, so print it out */
-					buffer[count + 1] = 0x0;
 				}
-			else
-				f += String( buffer, count );
+			else {
+				buffer[ count ] = 0x0;
+				f += buffer;
+				}
 			}
 		}
     return f;
@@ -1587,7 +1585,7 @@ int Network::listNetGames(List< SERVER_DATA > &list)
 	String server_version = "";
 	String server_mod = "";
 	foreach( line, entry ) {
-		Vector< String >	params = ReadVectorString( *entry );
+		Vector< String >	params = ReadVectorString( *entry, " " );
 		if( params.size() < 2 )	continue;
 		if( params.size() == 2 && params[1] == "servers" ) {
 			nb_servers = atoi( params[0].c_str() );
@@ -1601,22 +1599,35 @@ int Network::listNetGames(List< SERVER_DATA > &list)
 				list.push_back( cur_server );
 			}
 
-		if( params[1] == "name:" )			cur_server.name = params.size() >= 3 ? params[2] : "";
+		if( params[1] == "name:" ) {
+			cur_server.name = "";
+			for( int i = 2 ; i < params.size() ; i++ )	cur_server.name += i > 2 ? " " + params[i] : params[i];
+			}
 		else if( params[1] == "IP:" )		cur_server.host = params.size() >= 3 ? params[2] : "";
 		else if( params[1] == "slots:" )	cur_server.nb_open = params.size() >= 3 ? atoi( params[2].c_str() ) : 0;
-		else if( params[1] == "mod:" )		server_mod = params.size() >= 3 ? params[2] : "";
-		else if( params[1] == "version:" )	server_version = params.size() >= 3 ? params[2] : "";
+		else if( params[1] == "mod:" ) {
+			server_mod = "";
+			for( int i = 2 ; i < params.size() ; i++ ) server_mod += i > 2 ? " " + params[i] : params[i];
+			}
+		else if( params[1] == "version:" ) {
+			server_version = "";
+			for( int i = 2 ; i < params.size() ; i++ ) server_version += i > 2 ? " " + params[i] : params[i];
+			}
 
 		old = cur;
 		}
-	if( old != -1 )
-		list.push_back( cur_server );
+	if( old != -1 ) {
+		if( server_version != TA3D_ENGINE_VERSION || server_mod != TA3D_CURRENT_MOD )		// Not compatible!!
+			nb_servers--;
+		else
+			list.push_back( cur_server );
+		}
 	return nb_servers;
 }
 
 int Network::registerToNetServer( const String &name, const int Slots )
 {
-	String request = format("/register.php?name=%s&mod=%s&version=%s&slots=%d", name.c_str(), TA3D_CURRENT_MOD.c_str(), TA3D_ENGINE_VERSION, Slots );
+	String request = format("/register.php?name=%s&mod=%s&version=%s&slots=%d", ReplaceString( name, " ", "%20", false ).c_str(), ReplaceString( TA3D_CURRENT_MOD, " ", "%20", false ).c_str(), ReplaceString( TA3D_ENGINE_VERSION, " ", "%20", false ).c_str(), Slots );
 	String result = HttpRequest( lp_CONFIG->net_server, request );
 }
 
