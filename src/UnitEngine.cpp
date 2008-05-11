@@ -1111,9 +1111,9 @@ bool UNIT::is_on_radar( byte p_mask )
 					data.axe[axis][obj].rot_angle=-v1*TA2DEG;
 					data.axe[axis][obj].rot_accel=0.0f;
 					data.axe[axis][obj].rot_angle-=data.axe[axis][obj].angle;
-					while(data.axe[axis][obj].rot_angle>180.0f)					// Fait le tour dans le sens le plus rapide
+					while(data.axe[axis][obj].rot_angle>180.0f && !isNaN(data.axe[axis][obj].rot_angle))					// Fait le tour dans le sens le plus rapide
 						data.axe[axis][obj].rot_angle-=360.0f;
-					while(data.axe[axis][obj].rot_angle<-180.0f)					// Fait le tour dans le sens le plus rapide
+					while(data.axe[axis][obj].rot_angle<-180.0f && !isNaN(data.axe[axis][obj].rot_angle))					// Fait le tour dans le sens le plus rapide
 						data.axe[axis][obj].rot_angle+=360.0f;
 					if(data.axe[axis][obj].rot_angle>0.0f)
 						data.axe[axis][obj].rot_speed=fabs(v2*TA2DEG);
@@ -4191,7 +4191,7 @@ bool UNIT::is_on_radar( byte p_mask )
 
 			// Change the unit's angle the way we need it to be changed
 
-			if( b_TargetAngle && unit_manager.unit_type[type_id].BMcode ) {	// Don't remove the class check otherwise factories can spin
+			if( b_TargetAngle && !isNaN(f_TargetAngle) && unit_manager.unit_type[type_id].BMcode ) {	// Don't remove the class check otherwise factories can spin
 				while( fabs( f_TargetAngle - Angle.y ) > 180.0f ) {
 					if( f_TargetAngle < Angle.y )
 						Angle.y -= 360.0f;
