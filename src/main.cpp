@@ -305,6 +305,7 @@ void SaveConfigFile( void )
 }
 
 void install_TA_files( String def_path = "" );
+int hpiview(int argc,char *argv[]);
 
 /*
 ** Function: ParseCommandLine
@@ -317,13 +318,13 @@ void install_TA_files( String def_path = "" );
 **           Remember if you throw an error, or generate one, you are responsible for
 **             cleaning up what you initialized!
 */
-void ParseCommandLine( int argc, char *argv[] )
+int ParseCommandLine( int argc, char *argv[] )
 {
 	GuardEnter( ParseCommandLine );
 
-	if( argc >= 2 && strcasecmp( argv[ 1 ], "install" ) == 0 ) {			// Installation of TA's files
-		install_TA_files( argc >= 3 ? argv[2] : "" );
-		exit(0);
+	if( hpiview( argc, argv ) ) {				// Run hpiview
+		GuardLeave();
+		return 1;							// We're done
 		}
 
 	for( int i = 1 ; i < argc ; i++ ) {
@@ -344,6 +345,8 @@ void ParseCommandLine( int argc, char *argv[] )
 		}
 
 	GuardLeave();
+	
+	return 0;
 }
 
 /*
@@ -389,7 +392,11 @@ int main(int argc,char *argv[])
 	}
 
 	GuardStart( main );
-		ParseCommandLine( argc, argv );   /* process any command line args passed */
+		if( ParseCommandLine( argc, argv ) ) {   /* process any command line args passed */
+												// Job done, exit
+			delete TA3D::VARS::lp_CONFIG;
+			exit(1);
+			}
 	GuardCatch();
 	if( IsExceptionInProgress() )
 	{

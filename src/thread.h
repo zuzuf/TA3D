@@ -118,10 +118,8 @@ class Thread : public BaseThread{
 			pthread_create(&thread,NULL,run,&secondary);
 		}
 		virtual void Join(){
-			if(dead){
-				printf("tried to join a dead thread\n");
+			if(dead)
 				return;
-			}
 			dead = 1;
 			pthread_join(thread,NULL);
 		}

@@ -676,3 +676,69 @@ GLuint load_tnt_minimap_fast(char *filename,int *sw,int *sh)		// Charge une mini
 
 	return glmini;
 }
+
+BITMAP *load_tnt_minimap_fast_bmp(char *filename)		// Load a minimap into a BITMAP* structure from a HPI/UFO archive
+{
+	byte *data = HPIManager->PullFromHPI_zone(filename,0,64,NULL);
+
+	if(data==NULL)	return 0;
+
+	TNTHEADER	header;		// Structure pour l'en-tête du fichier
+
+	int y;
+
+	header.IDversion=((int*)data)[0];
+	header.Width=((int*)data)[1];
+	header.Height=((int*)data)[2];
+	header.PTRmapdata=((int*)data)[3];
+	header.PTRmapattr=((int*)data)[4];
+	header.PTRtilegfx=((int*)data)[5];
+	header.tiles=((int*)data)[6];
+	header.tileanims=((int*)data)[7];
+	header.PTRtileanim=((int*)data)[8];
+	header.sealevel=((int*)data)[9];
+	header.PTRminimap=((int*)data)[10];
+	header.unknown1=((int*)data)[11];
+	header.pad1=((int*)data)[12];
+	header.pad2=((int*)data)[13];
+	header.pad3=((int*)data)[14];
+	header.pad4=((int*)data)[15];
+
+	free(data);
+
+	data = HPIManager->PullFromHPI_zone(filename,header.PTRminimap,252*252+8,NULL);
+	if(data==NULL)	return 0;
+
+	int f_pos;
+		// Read the minimap
+	int w,h;
+	f_pos=header.PTRminimap;
+	w=*((int*)(data+f_pos));		f_pos+=4;
+	h=*((int*)(data+f_pos));		f_pos+=4;
+	BITMAP *mini = create_bitmap_ex(8,252,252);
+	for(y=0;y<252;y++) {
+		memcpy(mini->line[y],data+f_pos,252);
+		f_pos+=252;
+		}
+	BITMAP *tmp=create_bitmap(mini->w,mini->h);
+	set_palette( pal );
+	blit(mini,tmp,0,0,0,0,tmp->w,tmp->h);
+	destroy_bitmap(mini);
+	mini=tmp;
+	int mini_w=251;
+	int mini_h=251;
+	while( mini_w>0 && ( ( ((int*)(mini->line[0]))[mini_w] & 0xFCFCFCFC ) == makecol(120,148,252) || ((int*)(mini->line[0]))[mini_w] == 0 ) ) mini_w--;
+	while( mini_h>0 && ( ( ((int*)(mini->line[mini_h]))[0] & 0xFCFCFCFC ) == makecol(120,148,252) || ((int*)(mini->line[mini_h]))[0] == 0 ) ) mini_h--;
+	mini_w++;
+	mini_h++;
+
+	tmp = create_bitmap(mini_w,mini_h);
+	blit(mini,tmp,0,0,0,0,mini_w,mini_h);
+
+	destroy_bitmap(mini);
+	mini=tmp;
+
+	free(data);
+
+	return mini;
+}

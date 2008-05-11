@@ -30,7 +30,7 @@ POST_INSTALL = :
 NORMAL_UNINSTALL = :
 PRE_UNINSTALL = :
 POST_UNINSTALL = :
-bin_PROGRAMS = ta3d$(EXEEXT) 3dmeditor$(EXEEXT) hpiview$(EXEEXT)
+bin_PROGRAMS = ta3d$(EXEEXT) 3dmeditor$(EXEEXT)
 subdir = src
 DIST_COMMON = $(srcdir)/Makefile.am $(srcdir)/Makefile.in
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
@@ -55,22 +55,13 @@ am_3dmeditor_OBJECTS = 3dmeditor.$(OBJEXT) 3dmeditor_sub.$(OBJEXT) \
 	encode.$(OBJEXT) io.$(OBJEXT) ta3d_jpg.$(OBJEXT)
 3dmeditor_OBJECTS = $(am_3dmeditor_OBJECTS)
 3dmeditor_LDADD = $(LDADD)
-am_hpiview_OBJECTS = hpiview.$(OBJEXT) install.$(OBJEXT) \
-	cTAFileParser.$(OBJEXT) i18n.$(OBJEXT) \
-	TA3D_Exception.$(OBJEXT) glfunc.$(OBJEXT) gfx.$(OBJEXT) \
-	gaf.$(OBJEXT) console.$(OBJEXT) TA3D_hpi.$(OBJEXT) \
-	TA3D_NameSpace.$(OBJEXT) stdafx.$(OBJEXT) cThread.$(OBJEXT) \
-	cCriticalSection.$(OBJEXT) cInterface.$(OBJEXT) \
-	cLogger.$(OBJEXT) cError.$(OBJEXT) decode.$(OBJEXT) \
-	encode.$(OBJEXT) io.$(OBJEXT) ta3d_jpg.$(OBJEXT)
-hpiview_OBJECTS = $(am_hpiview_OBJECTS)
-hpiview_LDADD = $(LDADD)
-am_ta3d_OBJECTS = ta3d.$(OBJEXT) main.$(OBJEXT) install.$(OBJEXT) \
-	i18n.$(OBJEXT) cTA3D_Engine.$(OBJEXT) cTAFileParser.$(OBJEXT) \
-	restore.$(OBJEXT) gfx.$(OBJEXT) pathfinding.$(OBJEXT) \
-	menu.$(OBJEXT) 3do.$(OBJEXT) cob.$(OBJEXT) console.$(OBJEXT) \
-	EngineClass.$(OBJEXT) UnitEngine.$(OBJEXT) fbi.$(OBJEXT) \
-	gaf.$(OBJEXT) glfunc.$(OBJEXT) gui.$(OBJEXT) intro.$(OBJEXT) \
+am_ta3d_OBJECTS = ta3d.$(OBJEXT) main.$(OBJEXT) hpiview.$(OBJEXT) \
+	install.$(OBJEXT) i18n.$(OBJEXT) cTA3D_Engine.$(OBJEXT) \
+	cTAFileParser.$(OBJEXT) restore.$(OBJEXT) gfx.$(OBJEXT) \
+	pathfinding.$(OBJEXT) menu.$(OBJEXT) 3do.$(OBJEXT) \
+	cob.$(OBJEXT) console.$(OBJEXT) EngineClass.$(OBJEXT) \
+	UnitEngine.$(OBJEXT) fbi.$(OBJEXT) gaf.$(OBJEXT) \
+	glfunc.$(OBJEXT) gui.$(OBJEXT) intro.$(OBJEXT) \
 	particles.$(OBJEXT) lzw.$(OBJEXT) tdf.$(OBJEXT) tnt.$(OBJEXT) \
 	weapons.$(OBJEXT) script.$(OBJEXT) ai.$(OBJEXT) \
 	taconfig.$(OBJEXT) icon.$(OBJEXT) stdafx.$(OBJEXT) \
@@ -96,8 +87,8 @@ COMPILE = $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) \
 	$(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
 CCLD = $(CC)
 LINK = $(CCLD) $(AM_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o $@
-SOURCES = $(3dmeditor_SOURCES) $(hpiview_SOURCES) $(ta3d_SOURCES)
-DIST_SOURCES = $(3dmeditor_SOURCES) $(hpiview_SOURCES) $(ta3d_SOURCES)
+SOURCES = $(3dmeditor_SOURCES) $(ta3d_SOURCES)
+DIST_SOURCES = $(3dmeditor_SOURCES) $(ta3d_SOURCES)
 ETAGS = etags
 CTAGS = ctags
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
@@ -195,6 +186,7 @@ top_srcdir = ..
 ta3d_SOURCES = \
 	ta3d.cpp ta3d.h \
 	main.cpp \
+	hpiview.cpp \
 	install.cpp \
 	i18n.cpp i18n.h \
 	cTA3D_Engine.cpp cTA3D_Engine.h \
@@ -278,29 +270,6 @@ ta3d_SOURCES = \
 	jpeg/dct.h jpeg/internal.h jpeg/ta3d_jpg.h \
 	TA3D_Platform.h matrix.h ta3dbase.h vector.h thread.h
 
-hpiview_SOURCES = \
-	hpiview.cpp \
-	hash_table.h \
-	install.cpp \
-	cTAFileParser.cpp cTAFileParser.h \
-	i18n.cpp i18n.h \
-	TA3D_Exception.cpp TA3D_Exception.h \
-	glfunc.cpp glfunc.h \
-	gfx.cpp gfx.h \
-	gaf.cpp gaf.h \
-	console.cpp console.h \
-	TA3D_hpi.cpp TA3D_hpi.h \
-	TA3D_NameSpace.cpp TA3D_NameSpace.h \
-	stdafx.cpp stdafx.h \
-	cThread.cpp cThread.h \
-	cCriticalSection.cpp cCriticalSection.h \
-	cInterface.cpp cInterface.h \
-	cLogger.cpp cLogger.h \
-	cError.cpp cError.h \
-	jpeg/decode.cpp jpeg/encode.cpp jpeg/io.cpp jpeg/ta3d_jpg.cpp \
-	jpeg/dct.h jpeg/internal.h jpeg/ta3d_jpg.h \
-	TA3D_Platform.h matrix.h ta3dbase.h vector.h thread.h
-
 all: all-am
 
 .SUFFIXES:
@@ -360,9 +329,6 @@ clean-binPROGRAMS:
 3dmeditor$(EXEEXT): $(3dmeditor_OBJECTS) $(3dmeditor_DEPENDENCIES) 
 	@rm -f 3dmeditor$(EXEEXT)
 	$(CXXLINK) $(3dmeditor_OBJECTS) $(3dmeditor_LDADD) $(LIBS)
-hpiview$(EXEEXT): $(hpiview_OBJECTS) $(hpiview_DEPENDENCIES) 
-	@rm -f hpiview$(EXEEXT)
-	$(CXXLINK) $(hpiview_OBJECTS) $(hpiview_LDADD) $(LIBS)
 ta3d$(EXEEXT): $(ta3d_OBJECTS) $(ta3d_DEPENDENCIES) 
 	@rm -f ta3d$(EXEEXT)
 	$(CXXLINK) $(ta3d_OBJECTS) $(ta3d_LDADD) $(LIBS)
@@ -678,8 +644,6 @@ uninstall-am: uninstall-binPROGRAMS
 all:
 	!(test -e ta3d) || mv ta3d ../ta3d-bin
 	!(test -e ta3d.exe) || mv ta3d.exe ../ta3d-bin.exe
-	!(test -e hpiview) || mv hpiview ../
-	!(test -e hpiview.exe) || mv hpiview.exe ../
 	!(test -e 3dmeditor) || mv 3dmeditor ../3dmeditor-bin
 	!(test -e 3dmeditor.exe) || mv 3dmeditor.exe ../
 # Tell versions [3.59,3.63) of GNU make to not export all variables.

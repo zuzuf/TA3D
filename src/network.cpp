@@ -1502,6 +1502,7 @@ String Network::HttpRequest( const String &servername, const String &request )
         }
     if(nlConnect(sock, &addr) == NL_FALSE)
     {
+    	nlClose( sock );
     	Console->AddEntry("Network::HttpRequest : error : could not connect to server!");
     	return "";
     }
@@ -1518,6 +1519,7 @@ String Network::HttpRequest( const String &servername, const String &request )
             continue;
         }
     	Console->AddEntry("Network::HttpRequest : error : could not send request to server!");
+    	nlClose( sock );
     	return "";
     }
 
@@ -1529,8 +1531,10 @@ String Network::HttpRequest( const String &servername, const String &request )
 			/* is the connection closed? */
 			if(err == NL_MESSAGE_END)
 				break;
-			else
+			else {
+		    	nlClose( sock );
 				return "";
+				}
 			}
 		if(count > 0) {
 			/* parse out the HTTP header */
@@ -1562,6 +1566,7 @@ String Network::HttpRequest( const String &servername, const String &request )
 				}
 			}
 		}
+   	nlClose( sock );
     return f;
 }
 

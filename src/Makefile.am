@@ -1,7 +1,8 @@
-bin_PROGRAMS=ta3d 3dmeditor hpiview
+bin_PROGRAMS=ta3d 3dmeditor
 ta3d_SOURCES= \
 	ta3d.cpp ta3d.h \
 	main.cpp \
+	hpiview.cpp \
 	install.cpp \
 	i18n.cpp i18n.h \
 	cTA3D_Engine.cpp cTA3D_Engine.h \
@@ -86,35 +87,10 @@ ta3d_SOURCES= \
 	jpeg/dct.h jpeg/internal.h jpeg/ta3d_jpg.h \
 	TA3D_Platform.h matrix.h ta3dbase.h vector.h thread.h
 
-hpiview_SOURCES= \
-	hpiview.cpp \
-	hash_table.h \
-	install.cpp \
-	cTAFileParser.cpp cTAFileParser.h \
-	i18n.cpp i18n.h \
-	TA3D_Exception.cpp TA3D_Exception.h \
-	glfunc.cpp glfunc.h \
-	gfx.cpp gfx.h \
-	gaf.cpp gaf.h \
-	console.cpp console.h \
-	TA3D_hpi.cpp TA3D_hpi.h \
-	TA3D_NameSpace.cpp TA3D_NameSpace.h \
-	stdafx.cpp stdafx.h \
-	cThread.cpp cThread.h \
-	cCriticalSection.cpp cCriticalSection.h \
-	cInterface.cpp cInterface.h \
-	cLogger.cpp cLogger.h \
-	cError.cpp cError.h \
-	jpeg/decode.cpp jpeg/encode.cpp jpeg/io.cpp jpeg/ta3d_jpg.cpp \
-	jpeg/dct.h jpeg/internal.h jpeg/ta3d_jpg.h \
-	TA3D_Platform.h matrix.h ta3dbase.h vector.h thread.h
-
 INSTALL=../install-sh
 
 all:
 	!(test -e ta3d) || mv ta3d ../ta3d-bin
 	!(test -e ta3d.exe) || mv ta3d.exe ../ta3d-bin.exe
-	!(test -e hpiview) || mv hpiview ../
-	!(test -e hpiview.exe) || mv hpiview.exe ../
 	!(test -e 3dmeditor) || mv 3dmeditor ../3dmeditor-bin
 	!(test -e 3dmeditor.exe) || mv 3dmeditor.exe ../
