@@ -1,22 +1,33 @@
 <?php
 if( $_SERVER["HTTP_USER_AGENT"] != "TA3D" )	exit();			// Only accepts requests from TA3D clients
 
-$db = mysql_connect('host', 'login', 'password');		// Connection to MySQL
-mysql_select_db('database',$db);
+include "functions.php";
 
-$time = time();
-mysql_query("DELETE FROM `serverlist` WHERE serverlist.`time` <= " . ($time - 160) );		// Stay 160 sec
+clear_list();
 
-$req = "SELECT * FROM serverlist";
-$result = mysql_query( $req );
-echo mysql_num_rows( $result ) . " servers\n";
-$i = 0;
-while( $data = mysql_fetch_assoc( $result ) ) {
-	echo $i . " name: " . $data["name"] . "\n";
-	echo $i . " IP: " . $data["IP"] . "\n";
-	echo $i . " mod: " . $data["mod"] . "\n";
-	echo $i . " version: " . $data["version"] . "\n";
-	echo $i . " slots: " . $data["slots"] . "\n";
-	$i++;
+$file = fopen("serverlist.txt", "rt");
+
+if( !empty( $file ) ) {
+	$nb_entry = fgets( $file ) + 0;
+	echo $nb_entry . " servers\n";
+	
+	for( $i = 0 ; $i < $nb_entry ; $i++ ) {
+		$_name = fgets( $file );
+		$_IP = fgets( $file );
+		$_mod = fgets( $file );
+		$_version = fgets( $file );
+		$_slots = fgets( $file );
+		$_time = fgets( $file );
+		
+		echo $i . " name: " . $_name;
+		echo $i . " IP: " . $_IP;
+		echo $i . " mod: " . $_mod;
+		echo $i . " version: " . $_version;
+		echo $i . " slots: " . $_slots;
+		}
+	
+	fclose( $file );
 	}
+else
+	echo "0 servers\n";
 ?>
