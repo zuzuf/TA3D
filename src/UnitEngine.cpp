@@ -4192,20 +4192,20 @@ bool UNIT::is_on_radar( byte p_mask )
 			// Change the unit's angle the way we need it to be changed
 
 			if( b_TargetAngle && !isNaN(f_TargetAngle) && unit_manager.unit_type[type_id].BMcode ) {	// Don't remove the class check otherwise factories can spin
-				while( fabs( f_TargetAngle - Angle.y ) > 180.0f ) {
+				while( !isNaN(f_TargetAngle) && fabs( f_TargetAngle - Angle.y ) > 180.0f ) {
 					if( f_TargetAngle < Angle.y )
 						Angle.y -= 360.0f;
 					else
 						Angle.y += 360.0f;
 					}
-				if( fabs( f_TargetAngle - Angle.y ) >= 1.0f ) {
+				if( !isNaN(f_TargetAngle) && fabs( f_TargetAngle - Angle.y ) >= 1.0f ) {
 					float aspeed = unit_manager.unit_type[type_id].TurnRate;
 					if( f_TargetAngle < Angle.y )
 						aspeed =- aspeed;
 					float a = f_TargetAngle - Angle.y;
 					V_Angle.y = aspeed;
 					float b = f_TargetAngle - (Angle.y + dt*V_Angle.y);
-					if((a < 0.0f && b > 0.0f) || (a > 0.0f && b < 0.0f)) {
+					if(((a < 0.0f && b > 0.0f) || (a > 0.0f && b < 0.0f)) && !isNaN(f_TargetAngle) ) {
 						V_Angle.y = 0.0f;
 						Angle.y = f_TargetAngle;
 						}

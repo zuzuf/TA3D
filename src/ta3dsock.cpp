@@ -500,10 +500,10 @@ int TA3DSock::makeOrder(struct order* order){
 	order->command = tcpinbuf[9];
 
 	memcpy(&temp,tcpinbuf+10,4);
-	order->x = (float)nlSwapl(temp);
+	order->x = nlSwapl(temp);
 
 	memcpy(&temp,tcpinbuf+14,4);
-	order->y = (float)nlSwapl(temp);
+	order->y = nlSwapl(temp);
 
 	memcpy(&temp,tcpinbuf+18,4);
 	order->target = nlSwapl(temp);
