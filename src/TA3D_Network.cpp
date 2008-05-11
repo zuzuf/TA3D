@@ -195,6 +195,10 @@ void TA3DNetwork::check()
 				// Guess where the unit should be now
 			units.unit[sync_msg.unit].Pos = units.unit[sync_msg.unit].Pos + ((((int)units.current_tick) - (int)sync_msg.timestamp) * tick_conv) * units.unit[sync_msg.unit].V;
 
+			units.unit[sync_msg.unit].cur_px = ((int)(units.unit[sync_msg.unit].Pos.x)+the_map->map_w_d+4)>>3;
+			units.unit[sync_msg.unit].cur_py = ((int)(units.unit[sync_msg.unit].Pos.z)+the_map->map_h_d+4)>>3;
+
+
 			units.unit[sync_msg.unit].Angle.y = sync_msg.orientation * 360.0f / 65536.0f;
 
 			units.unit[sync_msg.unit].hp = sync_msg.hp;
