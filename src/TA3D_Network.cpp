@@ -104,11 +104,13 @@ void TA3DNetwork::check()
 			}
 		}
 
+	EnterCS();
 	foreach_( messages, i )
 		if( msec_timer - i->timer >= CHAT_MESSAGE_TIMEOUT )
 			messages.erase( i++ );
 		else
 			i++;
+	LeaveCS();
 
 	n = 100;
 	while( n-- ) {													// Special message receiver
