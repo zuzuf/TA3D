@@ -1838,6 +1838,9 @@ void setup_game(bool client, const char *host)
 	reset_mouse();
 	while(key[KEY_ESC]) {	rest(1);	poll_keyboard();	}
 
+	if( network_manager.isServer() )
+		network_manager.registerToNetServer( host, 0 );				// Tell the world we're gone
+
 	if(start_game) {
 		if(game_data.map_filename && game_data.game_script) {
 			lp_CONFIG->last_script = game_data.game_script;		// Remember the last script we played
