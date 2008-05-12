@@ -286,20 +286,13 @@ int TA3DSock::sendSync(struct sync* sync){
 	putFloat(sync->y);
 	putFloat(sync->z);
 	
-	if( sync->hp ) {			// Unit sync
-		putShort(sync->hp);
-		putFloat(sync->vx);
-		putFloat(sync->vz);
-		putShort(sync->orientation);
-		putByte(sync->build_percent_left);
-		}
-	else {						// Weapon sync
-		putShort(sync->hp);
-		putShort(sync->orientation);		// The owner_id ...
-		putFloat(sync->vx);
-		putFloat(sync->vy);
-		putFloat(sync->vz);
-		}
+	putShort(sync->hp);
+	putFloat(sync->vx);
+	putFloat(sync->vz);
+	putShort(sync->orientation);
+	putByte(sync->build_percent_left);
+	putByte(sync->flags);
+
 	sendTCP();
 
 	tcpmutex.Unlock();
@@ -533,19 +526,11 @@ int TA3DSock::makeSync(struct sync* sync){
 	sync->z = getFloat();
 
 	sync->hp = getShort();
-
-	if( sync->hp ) {		// Unit sync packet
-		sync->vx = getFloat();
-		sync->vz = getFloat();
-		sync->orientation = getShort();
-		sync->build_percent_left = getByte();
-		}
-	else {					// Weapon sync
-		sync->orientation = getShort();		// The owner_id ...
-		sync->vx = getFloat();
-		sync->vy = getFloat();
-		sync->vz = getFloat();
-		}
+	sync->vx = getFloat();
+	sync->vz = getFloat();
+	sync->orientation = getShort();
+	sync->build_percent_left = getByte();
+	sync->flags = getByte();
 
 	tibp = 0;
 	tiremain = -1;

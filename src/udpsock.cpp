@@ -297,20 +297,13 @@ int UDPSock::sendSync(struct sync* sync, const std::string &address){
 	putFloat(sync->y);
 	putFloat(sync->z);
 	
-	if( sync->hp ) {			// Unit sync
-		putShort(sync->hp);
-		putFloat(sync->vx);
-		putFloat(sync->vz);
-		putShort(sync->orientation);
-		putByte(sync->build_percent_left);
-		}
-	else {						// Weapon sync
-		putShort(sync->hp);
-		putShort(sync->orientation);
-		putFloat(sync->vx);
-		putFloat(sync->vy);
-		putFloat(sync->vz);
-		}
+	putShort(sync->hp);
+	putFloat(sync->vx);
+	putFloat(sync->vz);
+	putShort(sync->orientation);
+	putByte(sync->build_percent_left);
+	putByte(sync->flags);
+
 	send( address );
 
 	udpmutex.Unlock();
@@ -335,19 +328,11 @@ int UDPSock::makeSync(struct sync* sync){
 	sync->z = getFloat();
 
 	sync->hp = getShort();
-
-	if( sync->hp ) {		// Unit sync packet
-		sync->vx = getFloat();
-		sync->vz = getFloat();
-		sync->orientation = getShort();
-		sync->build_percent_left = getByte();
-		}
-	else {					// Weapon sync
-		sync->orientation = getShort();
-		sync->vx = getFloat();
-		sync->vy = getFloat();
-		sync->vz = getFloat();
-		}
+	sync->vx = getFloat();
+	sync->vz = getFloat();
+	sync->orientation = getShort();
+	sync->build_percent_left = getByte();
+	sync->flags = getByte();
 	
 	uibp = 0;
 	uiremain = -1;

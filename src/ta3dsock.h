@@ -82,14 +82,17 @@ struct order{
 	byte	additional;	//uint8 0=cancel current activity 1=add to order queue
 };//max size = 22
 
+#define SYNC_FLAG_FLYING	0x01
+
 struct sync{
 	uint32	timestamp;	//uint32 what tick is this snapshot
 	uint16	unit;		//uint16 sync what unit
 	real32	x,y,z;
 	real32	vx,vy,vz;
 	uint16	orientation;//uint16 where 0=0 and 65535~=2pi? ie rad=(rot1/65536.0)*2pi?
-	uint16	hp;			// 0 if it's a weapon, non 0 if it's a unit, since we don't send data about dead unit through UDP
+	uint16	hp;
 	uint8	build_percent_left;
+	uint8	flags;		// Some flags (flying, etc..)
 };//max size = 28
 
 #define	EVENT_UNIT_CREATION			0x00

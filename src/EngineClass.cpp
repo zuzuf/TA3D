@@ -1635,8 +1635,6 @@ void PLAYERS::player_control()
 
 	if( (units.current_tick % 3) == 0 && last_ticksynced != units.current_tick && network_manager.isConnected() ) {
 		last_ticksynced = units.current_tick;
-//		byte	*sync_data = new byte[ 35 * units.max_unit ];
-//		uint32	sync_pos = 0;
 
 		units.EnterCS_from_outside();
 		for( int e = 0 ; e < units.nb_unit ; e++ ) {
@@ -1654,6 +1652,9 @@ void PLAYERS::player_control()
 				struct sync sync;
 				sync.timestamp = units.current_tick;
 				sync.unit = i;
+				sync.flags = 0;
+				if( units.unit[ i ].flying )
+					sync.flags |= SYNC_FLAG_FLYING;
 				sync.x = units.unit[ i ].Pos.x;
 				sync.y = units.unit[ i ].Pos.y;
 				sync.z = units.unit[ i ].Pos.z;
@@ -1675,7 +1676,7 @@ void PLAYERS::player_control()
 				|| ( units.unit[i].previous_sync.build_percent_left != sync.build_percent_left && sync.build_percent_left == 0.0f ) ) {		// We have to sync now
 					network_manager.sendSyncTCP( &sync );
 					units.unit[i].previous_sync = sync;
-					printf("sending TCP sync packet!\n");
+//					printf("sending TCP sync packet!\n");
 					}
 				else {
 					if( need_sync( sync, units.unit[i].previous_sync ) ) {			// Don't send what isn't needed
@@ -1689,18 +1690,6 @@ void PLAYERS::player_control()
 			units.EnterCS_from_outside();
 			}
 		units.LeaveCS_from_outside();
-
-//		printf("packet size (uncompressed) = %d\n", sync_pos );
-
-//		byte *c_data = LZW_compress( sync_data, sync_pos );
-	
-//		printf("packet size (compressed) = %d\n", ((uint32*)c_data)[0] );
-
-//		printf("ratio = %f\n", ((float)sync_pos) / ((uint32*)c_data)[0] );
-
-//		delete[] c_data;
-
-//		delete[] sync_data;
 		}
 }
 

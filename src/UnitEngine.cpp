@@ -2900,7 +2900,7 @@ bool UNIT::is_on_radar( byte p_mask )
 					requesting_pathfinder = false;
 					}
 
-				if( flying ) {						// Force planes to stay on map
+				if( flying && local ) {						// Force planes to stay on map
 					if(Pos.x<-map->map_w_d || Pos.x>map->map_w_d || Pos.z<-map->map_h_d || Pos.z>map->map_h_d) {
 						if( Pos.x < -map->map_w_d )
 							V.x += dt * ( -map->map_w_d - Pos.x ) * 0.1f;
@@ -3996,7 +3996,7 @@ bool UNIT::is_on_radar( byte p_mask )
 				break;
 			};
 
-			if( ( (mission->flags & MISSION_FLAG_MOVE) || local ) && !jump_commands ) {		// Set unit orientation if it's on the ground
+			if( ( (mission->flags & MISSION_FLAG_MOVE) || !local ) && !jump_commands ) {		// Set unit orientation if it's on the ground
 				if(!unit_manager.unit_type[type_id].canfly && !unit_manager.unit_type[type_id].Upright
 				&& unit_manager.unit_type[type_id].TEDclass!=CLASS_SHIP
 				&& unit_manager.unit_type[type_id].TEDclass!=CLASS_WATER
@@ -4270,7 +4270,7 @@ bool UNIT::is_on_radar( byte p_mask )
 				if(V.y<0.0f)
 					V.y=0.0f;
 				}
-			if(unit_manager.unit_type[type_id].canfly && build_percent_left==0.0f) {
+			if(unit_manager.unit_type[type_id].canfly && build_percent_left==0.0f && local) {
 				if(mission && ( (mission->flags & MISSION_FLAG_MOVE) || mission->mission == MISSION_BUILD || mission->mission == MISSION_BUILD_2 || mission->mission == MISSION_REPAIR
 				|| mission->mission == MISSION_ATTACK || mission->mission == MISSION_MOVE || mission->mission == MISSION_GET_REPAIRED || mission->mission == MISSION_PATROL
 				|| mission->mission == MISSION_RECLAIM || nb_attached > 0 || Pos.x < -map->map_w_d || Pos.x > map->map_w_d || Pos.z < -map->map_h_d || Pos.z > map->map_h_d )) {
