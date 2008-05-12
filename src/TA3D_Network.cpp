@@ -150,35 +150,7 @@ void TA3DNetwork::check()
 		if( network_manager.getNextSync( &sync_msg ) )
 			break;
 
-		if( sync_msg.hp == 0 )	{		// It's a weapon
-			weapons.Lock();
-			int idx = sync_msg.unit < weapons.index_conversion_table[sync_msg.orientation].size() ? weapons.index_conversion_table[sync_msg.orientation][sync_msg.unit] : -1;
-			weapons.UnLock();
-			if( idx >= 0 && idx < weapons.max_weapon ) {
-				weapons.Lock();
-
-				if( weapons.weapon[ idx ].weapon_id < 0 || weapons.weapon[ idx ].last_timestamp >= sync_msg.timestamp )	{
-					weapons.UnLock();
-					continue;
-					}
-
-				weapons.weapon[ idx ].last_timestamp = sync_msg.timestamp;
-
-				weapons.weapon[ idx ].Pos.x = sync_msg.x;
-				weapons.weapon[ idx ].Pos.y = sync_msg.y;
-				weapons.weapon[ idx ].Pos.z = sync_msg.z;
-
-				weapons.weapon[ idx ].V.x = sync_msg.vx;
-				weapons.weapon[ idx ].V.z = sync_msg.vz;
-				weapons.weapon[ idx ].V.y = sync_msg.vy;
-
-					// Guess where the weapon should be now
-				weapons.weapon[ idx ].Pos = weapons.weapon[ idx ].Pos + ((units.current_tick - sync_msg.timestamp) * tick_conv) * weapons.weapon[ idx ].V;
-
-				weapons.UnLock();
-				}
-			}
-		else if( sync_msg.unit < units.max_unit ) {
+		if( sync_msg.unit < units.max_unit ) {
 			units.unit[sync_msg.unit].Lock();
 			if( !(units.unit[sync_msg.unit].flags & 1) || units.unit[sync_msg.unit].exploding || units.unit[sync_msg.unit].last_synctick[0] >= sync_msg.timestamp )	{
 				units.unit[sync_msg.unit].UnLock();
@@ -207,6 +179,7 @@ void TA3DNetwork::check()
 			units.unit[sync_msg.unit].build_percent_left = sync_msg.build_percent_left / 2.55f;
 
 			units.unit[sync_msg.unit].UnLock();
+			units.unit[sync_msg.unit].draw_on_map();
 			
 			struct event sync_event;
 			sync_event.type = EVENT_UNIT_SYNCED;
@@ -414,9 +387,6 @@ void TA3DNetwork::check()
 					if( w_idx >= 0 ) {
 						weapons.Lock();
 						weapons.weapon[w_idx].local = false;
-						if( weapons.index_conversion_table[ player_id ].size() <= event_msg.opt3 )				// Too few entries ?
-							weapons.index_conversion_table[ player_id ].resize( event_msg.opt3 + 10, -1 );
-						weapons.index_conversion_table[ player_id ][ event_msg.opt3 ] = w_idx;
 
 						weapons.weapon[w_idx].damage = event_msg.opt4;
 						weapons.weapon[w_idx].Pos = startpos;
@@ -443,6 +413,9 @@ void TA3DNetwork::check()
 							weapons.weapon[w_idx].target_pos = target_pos;
 						weapons.weapon[w_idx].stime = 0.0f;
 						weapons.weapon[w_idx].visible = true;
+
+						for( uint32 i = event_msg.opt3 ; i < units.current_tick && weapons.weapon[w_idx].weapon_id >= 0 ; i++ )		// Guess what happened (compensate latency)
+							weapons.weapon[w_idx].move(tick_conv,the_map);
 
 						weapons.UnLock();
 						}

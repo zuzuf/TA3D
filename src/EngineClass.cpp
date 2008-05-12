@@ -1690,37 +1690,6 @@ void PLAYERS::player_control()
 			}
 		units.LeaveCS_from_outside();
 
-		weapons.Lock();
-		for( int e = 0 ; e < weapons.nb_weapon ; e++ ) {
-			int i = weapons.idx_list[ e ];
-			if( i < 0 || i >= weapons.max_weapon )	continue;		// Error !!
-			weapons.UnLock();
-
-			if( weapons.weapon[ i ].weapon_id < 0 || weapons.weapon[i].dying )	{
-				weapons.Lock();
-				continue;
-				}
-			if( weapons.weapon[ i ].local && weapons.weapon[ i ].shooter_idx >= 0 && units.current_tick - weapons.weapon[ i ].last_timestamp > (TICKS_PER_SEC << 1) ) {
-				struct sync sync;
-				weapons.weapon[ i ].last_timestamp = sync.timestamp = units.current_tick;
-				sync.unit = i;
-				sync.x = weapons.weapon[ i ].Pos.x;
-				sync.y = weapons.weapon[ i ].Pos.y;
-				sync.z = weapons.weapon[ i ].Pos.z;
-				sync.vx = weapons.weapon[ i ].V.x;
-				sync.vz = weapons.weapon[ i ].V.z;
-				sync.vy = weapons.weapon[ i ].V.y;
-				sync.hp = 0;					// Means it's a weapon
-				sync.orientation = weapons.weapon[ i ].owner;
-				sync.build_percent_left = 0;
-
-				network_manager.sendSync( &sync );
-				}
-
-			weapons.Lock();
-			}
-		weapons.UnLock();
-
 //		printf("packet size (uncompressed) = %d\n", sync_pos );
 
 //		byte *c_data = LZW_compress( sync_data, sync_pos );

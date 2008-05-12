@@ -4806,7 +4806,7 @@ bool UNIT::is_on_radar( byte p_mask )
 			event.type = EVENT_WEAPON_CREATION;
 			event.opt1 = idx;
 			event.opt2 = target;
-			event.opt3 = w_idx;				// Will be used with the index_conversion_table
+			event.opt3 = units.current_tick;				// Will be used to extrapolate those data on client side
 			event.opt4 = unit_manager.unit_type[type_id].weapon_damage[ w_id ];
 			event.opt5 = owner_id;
 			event.x = target_pos.x;
