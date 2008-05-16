@@ -44,24 +44,24 @@ am__installdirs = "$(DESTDIR)$(bindir)"
 binPROGRAMS_INSTALL = $(INSTALL_PROGRAM)
 PROGRAMS = $(bin_PROGRAMS)
 am_3dmeditor_OBJECTS = 3dmeditor.$(OBJEXT) 3dmeditor_sub.$(OBJEXT) \
-	cTAFileParser.$(OBJEXT) 3ds.$(OBJEXT) i18n.$(OBJEXT) \
-	gfx.$(OBJEXT) 3do.$(OBJEXT) console.$(OBJEXT) gaf.$(OBJEXT) \
-	glfunc.$(OBJEXT) gui.$(OBJEXT) particles.$(OBJEXT) \
-	taconfig.$(OBJEXT) stdafx.$(OBJEXT) TA3D_Audio.$(OBJEXT) \
-	TA3D_Exception.$(OBJEXT) TA3D_hpi.$(OBJEXT) \
-	TA3D_NameSpace.$(OBJEXT) cThread.$(OBJEXT) \
+	backtrace.$(OBJEXT) cTAFileParser.$(OBJEXT) 3ds.$(OBJEXT) \
+	i18n.$(OBJEXT) gfx.$(OBJEXT) 3do.$(OBJEXT) console.$(OBJEXT) \
+	gaf.$(OBJEXT) glfunc.$(OBJEXT) gui.$(OBJEXT) \
+	particles.$(OBJEXT) taconfig.$(OBJEXT) stdafx.$(OBJEXT) \
+	TA3D_Audio.$(OBJEXT) TA3D_Exception.$(OBJEXT) \
+	TA3D_hpi.$(OBJEXT) TA3D_NameSpace.$(OBJEXT) cThread.$(OBJEXT) \
 	cCriticalSection.$(OBJEXT) cInterface.$(OBJEXT) \
 	cLogger.$(OBJEXT) cError.$(OBJEXT) decode.$(OBJEXT) \
 	encode.$(OBJEXT) io.$(OBJEXT) ta3d_jpg.$(OBJEXT)
 3dmeditor_OBJECTS = $(am_3dmeditor_OBJECTS)
 3dmeditor_LDADD = $(LDADD)
-am_ta3d_OBJECTS = ta3d.$(OBJEXT) main.$(OBJEXT) hpiview.$(OBJEXT) \
-	install.$(OBJEXT) i18n.$(OBJEXT) cTA3D_Engine.$(OBJEXT) \
-	cTAFileParser.$(OBJEXT) restore.$(OBJEXT) gfx.$(OBJEXT) \
-	pathfinding.$(OBJEXT) menu.$(OBJEXT) 3do.$(OBJEXT) \
-	cob.$(OBJEXT) console.$(OBJEXT) EngineClass.$(OBJEXT) \
-	UnitEngine.$(OBJEXT) fbi.$(OBJEXT) gaf.$(OBJEXT) \
-	glfunc.$(OBJEXT) gui.$(OBJEXT) intro.$(OBJEXT) \
+am_ta3d_OBJECTS = ta3d.$(OBJEXT) main.$(OBJEXT) backtrace.$(OBJEXT) \
+	hpiview.$(OBJEXT) install.$(OBJEXT) i18n.$(OBJEXT) \
+	cTA3D_Engine.$(OBJEXT) cTAFileParser.$(OBJEXT) \
+	restore.$(OBJEXT) gfx.$(OBJEXT) pathfinding.$(OBJEXT) \
+	menu.$(OBJEXT) 3do.$(OBJEXT) cob.$(OBJEXT) console.$(OBJEXT) \
+	EngineClass.$(OBJEXT) UnitEngine.$(OBJEXT) fbi.$(OBJEXT) \
+	gaf.$(OBJEXT) glfunc.$(OBJEXT) gui.$(OBJEXT) intro.$(OBJEXT) \
 	particles.$(OBJEXT) lzw.$(OBJEXT) tdf.$(OBJEXT) tnt.$(OBJEXT) \
 	weapons.$(OBJEXT) script.$(OBJEXT) ai.$(OBJEXT) \
 	taconfig.$(OBJEXT) icon.$(OBJEXT) stdafx.$(OBJEXT) \
@@ -106,7 +106,7 @@ CPP = gcc -E
 CPPFLAGS = 
 CXX = g++
 CXXDEPMODE = depmode=gcc3
-CXXFLAGS = -g -O0 -march=athlon64 -I/usr/local/include -ffast-math -mmmx
+CXXFLAGS = -g -O0 -march=athlon64 -I/usr/local/include -rdynamic -ffast-math -mmmx
 CYGPATH_W = echo
 DEFS = -DHAVE_CONFIG_H
 DEPDIR = .deps
@@ -186,6 +186,7 @@ top_srcdir = ..
 ta3d_SOURCES = \
 	ta3d.cpp ta3d.h \
 	main.cpp \
+	backtrace.cpp backtrace.h \
 	hpiview.cpp \
 	install.cpp \
 	i18n.cpp i18n.h \
@@ -244,6 +245,7 @@ ta3d_SOURCES = \
 3dmeditor_SOURCES = \
 	3dmeditor.cpp ta3d.h \
 	3dmeditor_sub.cpp 3dmeditor.h \
+	backtrace.cpp backtrace.h \
 	cTAFileParser.cpp cTAFileParser.h \
 	3ds.cpp 3ds.h \
 	i18n.cpp i18n.h \
@@ -352,6 +354,7 @@ include ./$(DEPDIR)/TA3D_Network.Po
 include ./$(DEPDIR)/TA3D_hpi.Po
 include ./$(DEPDIR)/UnitEngine.Po
 include ./$(DEPDIR)/ai.Po
+include ./$(DEPDIR)/backtrace.Po
 include ./$(DEPDIR)/broadcastsock.Po
 include ./$(DEPDIR)/cCriticalSection.Po
 include ./$(DEPDIR)/cError.Po

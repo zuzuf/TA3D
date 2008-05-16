@@ -5284,7 +5284,7 @@ CXXFLAGS="$CXXFLAGS $allegro_CFLAGS"
 fi
 
 
-CXXFLAGS="$CXXFLAGS -ffast-math -mmmx"
+CXXFLAGS="$CXXFLAGS -rdynamic -ffast-math -mmmx"
 
 # Checks for header files.
 { echo "$as_me:$LINENO: checking for ANSI C header files" >&5

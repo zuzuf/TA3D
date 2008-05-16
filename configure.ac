@@ -50,7 +50,7 @@ make -C "src/hawknl/src/" -f makefile.linux
 LIBS="$LIBS -lagl -L./lua/ -llua -L./hawknl/src/ -lNL $allegro_LIBS"
 CXXFLAGS="$CXXFLAGS $allegro_CFLAGS"])
 
-CXXFLAGS="$CXXFLAGS -ffast-math -mmmx"
+CXXFLAGS="$CXXFLAGS -rdynamic -ffast-math -mmmx"
 
 # Checks for header files.
 AC_HEADER_STDC

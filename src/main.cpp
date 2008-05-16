@@ -32,6 +32,7 @@
 #include "cTA3D_Engine.h"			// The engine class.
 #include "ta3dbase.h"				// Just for the LANG var
 #include "EngineClass.h"
+#include "backtrace.h"				// Some debugging tools
 
 // below defination defines accuracy of timer i guess.
 #define precision   MSEC_TO_TIMER(1)
@@ -355,6 +356,8 @@ int ParseCommandLine( int argc, char *argv[] )
 */
 int main(int argc,char *argv[])
 {
+	init_signals();
+	
 	GuardStart( main ); // start guard.
 		GuardInfo( "Preparing output dir\n" ); // what we are doing.
 		CheckOutputDir();

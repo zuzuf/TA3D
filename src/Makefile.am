@@ -2,6 +2,7 @@ bin_PROGRAMS=ta3d 3dmeditor
 ta3d_SOURCES= \
 	ta3d.cpp ta3d.h \
 	main.cpp \
+	backtrace.cpp backtrace.h \
 	hpiview.cpp \
 	install.cpp \
 	i18n.cpp i18n.h \
@@ -61,6 +62,7 @@ ta3d_SOURCES= \
 3dmeditor_SOURCES= \
 	3dmeditor.cpp ta3d.h \
 	3dmeditor_sub.cpp 3dmeditor.h \
+	backtrace.cpp backtrace.h \
 	cTAFileParser.cpp cTAFileParser.h \
 	3ds.cpp 3ds.h \
 	i18n.cpp i18n.h \

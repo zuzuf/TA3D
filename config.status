@@ -556,7 +556,7 @@ s,@AMTAR@,|#_!!_#|${SHELL} /home/roland/progc++/ta3d/missing --run tar,g
 s,@am__tar@,|#_!!_#|${AMTAR} chof - "$$tardir",g
 s,@am__untar@,|#_!!_#|${AMTAR} xf -,g
 s,@CXX@,|#_!!_#|g++,g
-s,@CXXFLAGS@,|#_!!_#|-g -O0 -march=athlon64 -I/usr/local/include -ffast-math -mmmx,g
+s,@CXXFLAGS@,|#_!!_#|-g -O0 -march=athlon64 -I/usr/local/include -rdynamic -ffast-math -mmmx,g
 s,@LDFLAGS@,|#_!!_#|,g
 s,@CPPFLAGS@,|#_!!_#|,g
 s,@ac_ct_CXX@,|#_!!_#|g++,g
