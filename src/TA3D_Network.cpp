@@ -376,6 +376,7 @@ void TA3DNetwork::check()
 				
 				int w_type = weapon_manager.get_weapon_index( (char*)event_msg.str );
 				if( w_type >= 0 ) {
+					weapons.Lock();
 					int w_idx = weapons.add_weapon(w_type,event_msg.opt1);
 					int player_id = event_msg.opt5;
 
@@ -385,7 +386,6 @@ void TA3DNetwork::check()
 						particle_engine.make_smoke(O+startpos,0,1,0.0f,-1.0f,0.0f, 0.3f);
 
 					if( w_idx >= 0 ) {
-						weapons.Lock();
 						weapons.weapon[w_idx].local = false;
 
 						weapons.weapon[w_idx].damage = event_msg.opt4;
@@ -416,11 +416,10 @@ void TA3DNetwork::check()
 
 						for( uint32 i = event_msg.opt3 ; i < units.current_tick && weapons.weapon[w_idx].weapon_id >= 0 ; i++ )		// Guess what happened (compensate latency)
 							weapons.weapon[w_idx].move(tick_conv,the_map);
-
-						weapons.UnLock();
 						}
 					else
 						printf("WARNING: couldn't create weapon '%s'\n", (char*)event_msg.str );
+					weapons.UnLock();
 					}
 				else
 					printf("WARNING: couldn't identify weapon '%s'\n", (char*)event_msg.str );
