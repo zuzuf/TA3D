@@ -317,7 +317,7 @@ public:
 	sint16			old_py;
 
 	VECTOR			move_target_computed;
-	bool			was_locked;
+	float			was_locked;
 
 	float			self_destruct;		// Count down for self-destruction
 	float			build_percent_left;
@@ -505,7 +505,7 @@ public:
 
 		requesting_pathfinder = false;
 
-		was_locked = false;
+		was_locked = 0.0f;
 
 		metal_extracted = 0.0f;
 

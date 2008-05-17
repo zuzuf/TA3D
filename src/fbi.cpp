@@ -355,13 +355,15 @@ void UNIT_TYPE::show_info(float fade,GFX_FONT fnt)
 				}
 			else if(f=strstr(ligne,"category=")) {
 				while( f[9] == ' ' )	f++;
+				if(strstr(f,";"))
+					*(strstr(f,";"))=0;
 				if( Category )		delete Category;
 				if( categories )	delete categories;
 				Category = new cHashTable< int >(128);
 				categories = new Vector<String>;
 				*categories = ReadVectorString( f + 9, " " );
 				for( int i = 0 ; i < categories->size() ; i++ )
-					Category->InsertOrUpdate( (*categories)[i], 1 );
+					Category->InsertOrUpdate( Lowercase( (*categories)[i] ), 1 );
 				fastCategory = 0;
 				if( checkCategory( "kamikaze" ) )	fastCategory |= CATEGORY_KAMIKAZE;
 				if( checkCategory( "notair" ) )		fastCategory |= CATEGORY_NOTAIR;

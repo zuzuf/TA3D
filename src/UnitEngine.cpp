@@ -2745,7 +2745,7 @@ bool UNIT::is_on_radar( byte p_mask )
 							if(mission->path == NULL) {		// End of path reached
 								J = move_target_computed - Pos;
 								J.y = 0.0f;
-								if( J.Sq() <= 16384.0f || flying ) {
+								if( J.Sq() <= 256.0f || flying ) {
 									if( !(mission->flags & MISSION_FLAG_DONT_STOP_MOVE) && (mission == NULL || mission->mission != MISSION_PATROL ) )
 										play_sound( "arrived1" );
 									mission->flags &= ~MISSION_FLAG_MOVE;
@@ -2808,34 +2808,45 @@ bool UNIT::is_on_radar( byte p_mask )
 
 					NPos = Pos + dt*V;			// Check if the unit can go where V brings it
 					if( was_locked ) {				// Random move to solve the unit lock problem
-						NPos.x += (rand_from_table() % 201) * 0.01f - 1.0f;
-						NPos.z += (rand_from_table() % 201) * 0.01f - 1.0f;
-						was_locked = false;
+						if( V.x > 0.0f )
+							NPos.x += (rand_from_table() % 101) * 0.01f;
+						else
+							NPos.x -= (rand_from_table() % 101) * 0.01f;
+						if( V.z > 0.0f )
+							NPos.z += (rand_from_table() % 101) * 0.01f;
+						else
+							NPos.z -= (rand_from_table() % 101) * 0.01f;
+
+						if( was_locked >= 5.0f ) {
+							was_locked = 5.0f;
+							mission->flags |= MISSION_FLAG_REFRESH_PATH;			// Refresh path because this shouldn't happen unless
+																					// obstacles have moved
+							}
 						}
 					n_px = ((int)(NPos.x)+map->map_w_d+4)>>3;
 					n_py = ((int)(NPos.z)+map->map_h_d+4)>>3;
 					precomputed_position = true;
+					bool locked = false;
 					if( !flying ) {
 						if( n_px != cur_px || n_py != cur_py ) {			// has something changed ??
 							bool place_is_empty = can_be_there( n_px, n_py, map, type_id, owner_id, idx );
 							if( !(flags & 64) && !place_is_empty) {
-								mission->flags |= MISSION_FLAG_REFRESH_PATH;			// Refresh path because this shouldn't happen unless
-								if(!unit_manager.unit_type[type_id].canfly) {			// obstacles have moved
-									was_locked = true;
+								if(!unit_manager.unit_type[type_id].canfly) {
+									locked = true;
 									// Check some basic solutions first
-									if( fabs( V.x ) > 0.0f
-									&& can_be_there( n_px, cur_py, map, type_id, owner_id, idx )) {
-										V.x = (V.x < 0.0f ? -sqrt( sq(V.z) + sq(V.x) ) : sqrt( sq(V.z) + sq(V.x) ) );
-										V.z = 0.0f;
-										NPos.z = Pos.z;
-										n_py = cur_py;
-										}
-									else if( fabs( V.z ) > 0.0f
+									if( cur_px != n_px
 									&& can_be_there( cur_px, n_py, map, type_id, owner_id, idx )) {
-										V.z = (V.z < 0.0f ? -sqrt( sq(V.z) + sq(V.x) ) : sqrt( sq(V.z) + sq(V.x) ) );
+										V.z = V.z != 0.0f ? (V.z < 0.0f ? -sqrt( sq(V.z) + sq(V.x) ) : sqrt( sq(V.z) + sq(V.x) ) ) : 0.0f;
 										V.x = 0.0f;
 										NPos.x = Pos.x;
 										n_px = cur_px;
+										}
+									else if( cur_py != n_py
+									&& can_be_there( n_px, cur_py, map, type_id, owner_id, idx )) {
+										V.x = V.x != 0.0 ? (V.x < 0.0f ? -sqrt( sq(V.z) + sq(V.x) ) : sqrt( sq(V.z) + sq(V.x) ) ) : 0.0f;
+										V.z = 0.0f;
+										NPos.z = Pos.z;
+										n_py = cur_py;
 										}
 									else if( can_be_there( cur_px, cur_py, map, type_id, owner_id, idx )) {
 										V.x = V.y = V.z = 0.0f;		// Don't move since we can't
@@ -2852,7 +2863,7 @@ bool UNIT::is_on_radar( byte p_mask )
 									else
 										Console->AddEntry("Unit is blocked!! (1)");
 									}
-								else if( !flying && !local ) {
+								else if( !flying && local ) {
 									if(Pos.x<-map->map_w_d || Pos.x>map->map_w_d || Pos.z<-map->map_h_d || Pos.z>map->map_h_d) {
 										VECTOR target = Pos;
 										if(target.x < -map->map_w_d+256)
@@ -2894,6 +2905,10 @@ bool UNIT::is_on_radar( byte p_mask )
 								}
 							}
 						}
+					if( locked )
+						was_locked += dt;
+					else
+						was_locked = 0.0f;
 					}
 				else {
 					was_moving = false;
