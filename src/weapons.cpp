@@ -419,6 +419,8 @@ void WEAPON_MANAGER::load_tdf(char *data,int size)
 
 const void WEAPON::move(const float dt,MAP *map)				// Anime les armes
 {
+	if( weapon_id < 0 )	return;
+
 	smoke_time+=dt;
 	f_time-=dt;
 	a_time+=dt;

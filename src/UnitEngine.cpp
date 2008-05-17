@@ -3183,7 +3183,7 @@ bool UNIT::is_on_radar( byte p_mask )
 							int maxdist = mission->mission == MISSION_CAPTURE ? (int)(unit_manager.unit_type[type_id].SightDistance) : (int)(unit_manager.unit_type[type_id].BuildDistance);
 							if(dist>maxdist*maxdist && unit_manager.unit_type[type_id].BMcode) {	// Si l'unité est trop loin du chantier
 								c_time=0.0f;
-								mission->flags |= MISSION_FLAG_MOVE | MISSION_FLAG_REFRESH_PATH;
+								mission->flags |= MISSION_FLAG_MOVE;// | MISSION_FLAG_REFRESH_PATH;
 								mission->move_data = maxdist*7/80;
 								mission->last_d = 0.0f;
 								}
@@ -3275,7 +3275,7 @@ bool UNIT::is_on_radar( byte p_mask )
 						int maxdist = mission->mission == MISSION_REVIVE ? (int)(unit_manager.unit_type[type_id].SightDistance) : (int)(unit_manager.unit_type[type_id].BuildDistance);
 						if(dist>maxdist*maxdist && unit_manager.unit_type[type_id].BMcode) {	// If the unit is too far from its target
 							c_time = 0.0f;
-							mission->flags |= MISSION_FLAG_MOVE | MISSION_FLAG_REFRESH_PATH;
+							mission->flags |= MISSION_FLAG_MOVE;// | MISSION_FLAG_REFRESH_PATH;
 							mission->move_data = maxdist*7/80;
 							mission->last_d=0.0f;
 							}
@@ -3396,7 +3396,7 @@ bool UNIT::is_on_radar( byte p_mask )
 								}
 							}
 						if(((VECTOR)(Pos-((UNIT*)mission->p)->Pos)).Sq()>=25600.0f) {			// On reste assez près
-							mission->flags |= MISSION_FLAG_MOVE | MISSION_FLAG_REFRESH_PATH;
+							mission->flags |= MISSION_FLAG_MOVE;// | MISSION_FLAG_REFRESH_PATH;
 							mission->move_data = 10;
 							mission->target = ((UNIT*)mission->p)->Pos;
 							c_time=0.0f;
@@ -3726,6 +3726,7 @@ bool UNIT::is_on_radar( byte p_mask )
 					{
 						UNIT *target_unit=(UNIT*) mission->p;
 						if(target_unit->flags) {
+							target_unit->Lock();
 							if(target_unit->build_percent_left <= 0.0f) {
 								target_unit->build_percent_left = 0.0f;
 								if(unit_manager.unit_type[target_unit->type_id].ActivateWhenBuilt ) {		// Start activated
@@ -3799,6 +3800,7 @@ bool UNIT::is_on_radar( byte p_mask )
 								activate();
 								target_unit->built=true;
 								}
+							target_unit->UnLock();
 							}
 						else
 							next_mission();
