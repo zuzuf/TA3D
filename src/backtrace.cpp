@@ -17,7 +17,14 @@
 
 #include "stdafx.h"
 #include "TA3D_NameSpace.h"
+
+#ifdef TA3D_PLATFORM_LINUX
+#define TA3D_BACKTRACE_SUPPORT
+#endif
+
+#ifdef TA3D_BACKTRACE_SUPPORT
 #include <execinfo.h>
+#endif
 #include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -29,6 +36,8 @@ void backtrace_handler (int signum)
 	size_t size;
 	char **strings;
 	size_t i;
+
+#ifdef TA3D_BACKTRACE_SUPPORT
 	std::ofstream   m_File;
 
 	m_File.open( (TA3D_OUTPUT_DIR + "backtrace.txt").c_str(), std::ios::out | std::ios::trunc );
@@ -79,13 +88,29 @@ our forums (http://ta3d.darkstars.co.uk/)\nand keep this file, it'll help us deb
 
 		free (strings);
 		}
+#else
+	String szErrReport = "An error has occured.\nDebugging information could not be logged because this isn't\nnot supported for your system.\nPlease report to \
+our forums (http://ta3d.darkstars.co.uk/) so we can fix it.";
+#ifdef TA3D_PLATFORM_WINDOWS
+	::MessageBoxA( NULL, szErrReport.c_str(), "TA3D Application Error", MB_OK  | MB_TOPMOST | MB_ICONERROR );
+#else
+	allegro_init();
+	allegro_message( szErrReport.c_str() );
+	allegro_exit();
+#endif
+#endif
 	exit(-1);
 }
 
 int init_signals (void)
 {
+#ifdef TA3D_PLATFORM_WINDOWS
+	int signum[] = { SIGFPE, SIGILL, SIGSEGV, SIGABRT };
+	int nb_signals = 4;
+#else
 	int signum[] = { SIGFPE, SIGILL, SIGSEGV, SIGBUS, SIGABRT, SIGIOT, SIGTRAP, SIGSYS };
 	int nb_signals = 8;
+#endif
 	for( int i = 0 ; i < nb_signals ; i++ )
 		if (signal (signum[i], backtrace_handler) == SIG_IGN)
 			signal (signum[i], SIG_IGN);
