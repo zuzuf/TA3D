@@ -43,11 +43,16 @@ FX_MANAGER			fx_manager;
 
 uint32	WEAPON_DEF::get_damage_for_unit( const String &unit_name )
 {
-	List< uint32 >::iterator dmg = specific_damage->begin();
-	for( List< String >::iterator i = specific_damage_name->begin() ; i != specific_damage_name->end() ; i++, dmg++ )
-		if( Lowercase( *i ) == Lowercase( unit_name ) ) {
-			return *dmg;
+	uint32 dmg = damage_hashtable->Find( Lowercase( unit_name ) );
+	if( dmg )
+		return dmg;
+	int unit_type = unit_manager.get_unit_index( unit_name.c_str() );
+	if( unit_type >= 0 && unit_manager.unit_type[ unit_type ].categories ) {
+		foreach( *(unit_manager.unit_type[ unit_type ].categories), i ) {
+			dmg = damage_hashtable->Find( *i );
+			if( dmg )	return dmg;
 			}
+		}
 	return damage;
 }
 
@@ -103,8 +108,7 @@ void WEAPON_MANAGER::load_tdf(char *data,int size)
 						unit_name = TrimString( unit_name );
 						unit_name.resize( unit_name.find( "=" ) );
 						int dmg = atoi( f + 1 );
-						weapon[index].specific_damage_name->push_front( unit_name );
-						weapon[index].specific_damage->push_front( dmg );
+						weapon[index].damage_hashtable->Insert( unit_name, dmg );
 						}
 				} while(strstr(ligne,"}")==NULL && nb<1000 && pos<limit);
 				}
@@ -612,8 +616,6 @@ const void WEAPON::move(const float dt,MAP *map)				// Anime les armes
 				units.unit[hit_idx].Lock();
 				if( (units.unit[hit_idx].flags & 1) && units.unit[hit_idx].local ) {
 					bool ok = units.unit[hit_idx].hp>0.0f;		// Juste pour identifier l'assassin...
-//					if( damage < 0 )
-//						damage = weapon_manager.weapon[weapon_id].damage;
 					damage = weapon_manager.weapon[weapon_id].get_damage_for_unit( unit_manager.unit_type[ units.unit[hit_idx].type_id ].Unitname ) * units.unit[ hit_idx ].damage_modifier();
 					units.unit[hit_idx].hp -= damage;		// L'unité touchée encaisse les dégats
 					units.unit[hit_idx].flags&=0xEF;		// This unit must explode if it has been damaged by a weapon even if it is being reclaimed
@@ -636,8 +638,7 @@ const void WEAPON::move(const float dt,MAP *map)				// Anime les armes
 				units.unit[hit_idx].UnLock();
 				}
 			if(hit_idx<=-2 && features.feature[-hit_idx-2].type>=0) {			// Only local weapons here, otherwise weapons would destroy features multiple times
-//				if( damage < 0 )
-					damage = weapon_manager.weapon[weapon_id].damage;
+				damage = weapon_manager.weapon[weapon_id].damage;
 
 										// Start a fire ?
 				if( feature_manager.feature[ features.feature[-hit_idx-2].type ].flamable && !features.feature[-hit_idx-2].burning && weapon_manager.weapon[weapon_id].firestarter && local ) {

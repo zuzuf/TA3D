@@ -12,6 +12,9 @@ _networking code
 _improve A.I.
 _D3D support
 
+* added support for Damage categories (not supported in TA, but doesn't break compatibility)
+* added a backtrace module to log the call stack state after a crash
+* added support for Internet Server list
 * multiplayer :)
 * added multiplayer entry in main menu
 * new single player menu

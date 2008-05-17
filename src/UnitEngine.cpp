@@ -4807,7 +4807,7 @@ bool UNIT::is_on_radar( byte p_mask )
 			event.opt1 = idx;
 			event.opt2 = target;
 			event.opt3 = units.current_tick;				// Will be used to extrapolate those data on client side
-			event.opt4 = unit_manager.unit_type[type_id].weapon_damage[ w_id ];
+			event.opt4 = unit_manager.unit_type[type_id].weapon[ w_id ]->damage;
 			event.opt5 = owner_id;
 			event.x = target_pos.x;
 			event.y = target_pos.y;
@@ -4824,7 +4824,7 @@ bool UNIT::is_on_radar( byte p_mask )
 			}
 
 		EnterCS();
-		weapons.weapon[w_idx].damage = unit_manager.unit_type[type_id].weapon_damage[ w_id ];
+		weapons.weapon[w_idx].damage = unit_manager.unit_type[type_id].weapon[ w_id ]->damage;
 		weapons.weapon[w_idx].Pos = startpos;
 		weapons.weapon[w_idx].local = local;
 		if(unit_manager.unit_type[type_id].weapon[w_id]->startvelocity==0.0f && !unit_manager.unit_type[type_id].weapon[w_id]->selfprop)

@@ -131,7 +131,8 @@ public:
 	char	*Unitname;
 	byte	FootprintX;
 	byte	FootprintZ;
-	char	*Category;
+	cHashTable< int >	*Category;
+	Vector< String >	*categories;
 	uint32	fastCategory;
 	short	MaxSlope;
 	byte	BMcode;
@@ -282,9 +283,7 @@ public:
 	inline bool checkCategory( const char *cat )
 	{
 		if( Category == NULL || cat == NULL )	return false;
-		if( strstr( Category, Lowercase( cat ).c_str() ) )
-			return true;
-		return false;
+		return Category->Exists( Lowercase( cat ) );
 	}
 
 	inline void init()
@@ -295,8 +294,6 @@ public:
 
 		selfdestructcountdown = 5;
 
-		weapon_damage[0] = weapon_damage[1] = weapon_damage[2] = 0;
-	
 		last_click = -1;
 		click_time = 0.0f;
 
@@ -355,7 +352,8 @@ public:
 		ObjectName=NULL;
 		FootprintX=0;
 		FootprintZ=0;
-		Category=NULL;
+		Category = NULL;
+		categories = NULL;
 		fastCategory=0;
 		MaxSlope=255;
 		BMcode=0;
@@ -484,6 +482,8 @@ public:
 		if(ObjectName)	free(ObjectName);
 		if(Designation_Name)	free(Designation_Name);
 		if(Description)	free(Description);
+		if(Category)	delete Category;
+		if(categories)	delete categories;
 
 		init();
 	}

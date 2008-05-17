@@ -354,9 +354,14 @@ void UNIT_TYPE::show_info(float fade,GFX_FONT fnt)
 				BadTargetCategory = strdup( f + 18 );
 				}
 			else if(f=strstr(ligne,"category=")) {
-				if( Category )	free( Category );		// To prevent memory leaks
 				while( f[9] == ' ' )	f++;
-				Category = strdup( f + 9 );
+				if( Category )		delete Category;
+				if( categories )	delete categories;
+				Category = new cHashTable< int >(128);
+				categories = new Vector<String>;
+				*categories = ReadVectorString( f + 9, " " );
+				for( int i = 0 ; i < categories->size() ; i++ )
+					Category->InsertOrUpdate( (*categories)[i], 1 );
 				fastCategory = 0;
 				if( checkCategory( "kamikaze" ) )	fastCategory |= CATEGORY_KAMIKAZE;
 				if( checkCategory( "notair" ) )		fastCategory |= CATEGORY_NOTAIR;
@@ -539,18 +544,12 @@ void UNIT_TYPE::show_info(float fade,GFX_FONT fnt)
 		delete[] ligne;
 		if( canresurrect && BuildDistance == 0.0f )
 			BuildDistance = SightDistance;
-		if(Weapon1>-1)	{
+		if(Weapon1>-1)
 			weapon[0]=&(weapon_manager.weapon[Weapon1]);
-			weapon_damage[0] = weapon[0]->get_damage_for_unit( Unitname );
-			}
-		if(Weapon2>-1)	{
+		if(Weapon2>-1)
 			weapon[1]=&(weapon_manager.weapon[Weapon2]);
-			weapon_damage[1] = weapon[1]->get_damage_for_unit( Unitname );
-			}
-		if(Weapon3>-1)	{
+		if(Weapon3>-1)
 			weapon[2]=&(weapon_manager.weapon[Weapon3]);
-			weapon_damage[2] = weapon[2]->get_damage_for_unit( Unitname );
-			}
 		if(Unitname) {
 			model=model_manager.get_model(ObjectName);
 			if(model==NULL)

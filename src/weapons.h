@@ -115,13 +115,11 @@ public:
 	bool	interceptor;			// Prend pour cible des armes / Target weapons only
 	float	coverage;				// Zone de protection
 	bool	toairweapon;			// Only attacks flying units ?
-	List< String >	*specific_damage_name;
-	List< uint32 >	*specific_damage;
+	cHashTable< int >	*damage_hashtable;		// hashtable used to get specific damages quickly
 
 	inline void init()
 	{
-		specific_damage_name = new List< String >;
-		specific_damage = new List< uint32 >;
+		damage_hashtable = new cHashTable< int >( 128 );
 
 		soundstart = NULL;
 		soundhit = NULL;
@@ -210,14 +208,11 @@ public:
 		if(soundtrigger)	free(soundtrigger);
 		if(internal_name)	free(internal_name);
 		if(name)	free(name);
-		delete specific_damage_name;
-		delete specific_damage;
+		if( damage_hashtable )	delete damage_hashtable;
 		init();
-		delete specific_damage_name;		// Because init will reallocate everything
-		delete specific_damage;
 	}
 
-	WEAPON_DEF() : specific_damage_name(), specific_damage()
+	WEAPON_DEF() : damage_hashtable()
 	{
 		init();
 	}
@@ -225,6 +220,7 @@ public:
 	~WEAPON_DEF()
 	{
 		destroy();
+		if( damage_hashtable )	delete damage_hashtable;
 	}
 };
 
