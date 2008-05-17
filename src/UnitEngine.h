@@ -351,6 +351,11 @@ public:
 		return (mission==NULL || ((mission->mission==MISSION_STOP || mission->mission==MISSION_STANDBY || mission->mission==MISSION_VTOL_STANDBY) && mission->next==NULL)) && !port[ INBUILDSTANCE ];
 	}
 
+	inline bool do_nothing_ai()
+	{
+		return (mission==NULL || ((mission->mission==MISSION_STOP || mission->mission==MISSION_STANDBY || mission->mission==MISSION_VTOL_STANDBY || mission->mission==MISSION_MOVE) && mission->next==NULL)) && !port[ INBUILDSTANCE ];
+	}
+
 	inline float damage_modifier()
 	{
 		return port[ ARMORED ] ? unit_manager.unit_type[ type_id ].DamageModifier : 1.0f;

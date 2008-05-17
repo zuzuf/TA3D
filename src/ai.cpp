@@ -429,7 +429,7 @@ void f_think( AI_PLAYER *ai, MAP *map )				// La vrai fonction qui simule l'Inte
 
 	for( List<uint16>::iterator i = ai->army_list.begin() ; i != ai->army_list.end() ; i++ ) {				// Give instructions to idle army units
 		units.unit[ *i ].Lock();
-		if( (units.unit[ *i ].flags & 1) && units.unit[ *i ].do_nothing() ) {
+		if( (units.unit[ *i ].flags & 1) && units.unit[ *i ].do_nothing_ai() ) {
 			sint16 player_target = -1;
 			float best_weight = 15.0f;
 			for( int e = 0 ; e < players.nb_player ; e++ )				// Who can we attack ?
@@ -464,7 +464,7 @@ void f_think( AI_PLAYER *ai, MAP *map )				// La vrai fonction qui simule l'Inte
 
 	for( List<uint16>::iterator i = ai->factory_list.begin() ; i != ai->factory_list.end() ; i++ ) {				// Give instructions to idle factories
 		units.unit[ *i ].Lock();
-		if( (units.unit[ *i ].flags & 1) && units.unit[ *i ].do_nothing() && unit_manager.unit_type[ units.unit[ *i ].type_id ].nb_unit > 0 ) {
+		if( (units.unit[ *i ].flags & 1) && units.unit[ *i ].do_nothing_ai() && unit_manager.unit_type[ units.unit[ *i ].type_id ].nb_unit > 0 ) {
 			short list_size = unit_manager.unit_type[ units.unit[ *i ].type_id ].nb_unit;
 			short *BuildList = unit_manager.unit_type[ units.unit[ *i ].type_id ].BuildList;
 			for( int e = 0 ; e < list_size ; e++ )
@@ -487,7 +487,7 @@ void f_think( AI_PLAYER *ai, MAP *map )				// La vrai fonction qui simule l'Inte
 
 	for( List<uint16>::iterator i = ai->builder_list.begin() ; i != ai->builder_list.end() ; i++ ) {				// Give instructions to idle builders
 		units.unit[ *i ].Lock();
-		if( (units.unit[ *i ].flags & 1) && units.unit[ *i ].do_nothing() && unit_manager.unit_type[ units.unit[ *i ].type_id ].nb_unit > 0 ) {
+		if( (units.unit[ *i ].flags & 1) && units.unit[ *i ].do_nothing_ai() && unit_manager.unit_type[ units.unit[ *i ].type_id ].nb_unit > 0 ) {
 			short list_size = unit_manager.unit_type[ units.unit[ *i ].type_id ].nb_unit;
 			short *BuildList = unit_manager.unit_type[ units.unit[ *i ].type_id ].BuildList;
 			for( int e = 0 ; e < list_size ; e++ )
