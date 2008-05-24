@@ -74,7 +74,6 @@ namespace TA3D
 					m_cKey = ReplaceString( m_cKey, "\\n", "\n", false );
 					m_cKey = ReplaceString( m_cKey, "\\r", "\r", false );
 
-//					while( Data.size() )										// Better using the stack this way, otherwise it might crash with huge files
 					while( **Data )										// Better using the stack this way, otherwise it might crash with huge files
 						if( ProcessData( Data ) )	break;
 					return false;
@@ -186,6 +185,58 @@ namespace TA3D
 			free(data);
 		}
 
+		void cTAFileParser::Load( char *data, bool bClearTable, bool toUTF8, bool g_mode )
+		{
+			if( bClearTable ) {
+				uint32 old_tablesize = m_u32TableSize;
+				EmptyHashTable();
+				InitTable( old_tablesize );
+			}
+
+			if( !data )
+				throw ( "no data provided!!" );
+
+			if( toUTF8 ) {		// Convert from ASCII to UTF8, required because TA3D works with UTF8 and TA with ASCII
+				uint32 size = strlen( data );
+				char *tmp = (char*) malloc( size * 2 );
+
+				do_uconvert( (const char*)data, U_ASCII, tmp, U_UTF8, size * 2 );
+
+				data = (char*)tmp;
+			}
+
+			m_cKey = "";
+			key_level.clear();
+
+			// erase all line feeds. (linear algorithm)
+			char *tmp = data;
+			int e = 0, i = 0;
+			for( ; tmp[i] ; i++ ) {
+				if( tmp[ i ] != '\r' ) {
+					if( e )	tmp[ i - e ] = tmp[ i ];
+				}
+				else
+					e++;
+			}
+			if( e > 0 )
+				tmp[i] = 0;
+
+			gadget_mode = g_mode ? 0 : -1;
+
+			// now process the remaining.
+			while( *tmp )
+				ProcessData( &tmp );
+			if( toUTF8 )
+				free(data);
+		}
+		
+		cTAFileParser::cTAFileParser( char *data, bool bKeysCaseSenstive, bool toUTF8, bool g_mode )
+		{
+			m_bKeysCaseSenstive = bKeysCaseSenstive;
+			InitTable( 4096 );
+			Load( data, true, toUTF8, g_mode );
+		}
+		
 		cTAFileParser::cTAFileParser( const String &FileName,  bool bKeysCaseSenstive, bool toUTF8, bool g_mode )
 		{
 			m_bKeysCaseSenstive = bKeysCaseSenstive;
