@@ -248,6 +248,7 @@ public:
 	VECTOR					V_Angle;		// Variation de l'orientation dans l'espace
 	bool					sel;			// Unité sélectionnée?
 	SCRIPT_DATA				data;			// Données pour l'animation de l'unité par le script
+	bool					drawing;
 	sint16					*port;			// Ports
 	MISSION					*mission;		// Orders given to the unit
 	MISSION					*def_mission;	// Orders given to units built by this plant
@@ -495,6 +496,8 @@ public:
 			CreateCS();
 		EnterCS();
 
+		drawing = false;
+
 		local = true;		// Is local by default, set to remote by create_unit when needed
 
 		nanolathe_target = -1;		// Used for remote units only
@@ -626,6 +629,7 @@ public:
 
 	inline void destroy(bool full=false)
 	{
+		while( drawing )	rest(0);
 		EnterCS();
 		for(int i=0;i<nb_running;i++)
 			(*script_env)[i].destroy();

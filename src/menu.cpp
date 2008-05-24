@@ -1016,6 +1016,7 @@ void stats_menu(void)
 void setup_game(bool client, const char *host)
 {
 	int my_player_id = -1;
+	bool advertise = false;
 	if( host ) {
 		if( !client ) {
 			network_manager.InitBroadcast("1234");		// broadcast mode
@@ -1209,6 +1210,9 @@ void setup_game(bool client, const char *host)
 	if( host && client )
 		setupgame_area.msg("gamesetup.b_ok.disable");
 
+	if( host && !client )
+		setupgame_area.msg("gamesetup.advertise.show");
+
 	int progress_timer = msec_timer;
 	int ping_timer = msec_timer;					// Used to send simple PING requests in order to detect when a connection fails
 
@@ -1252,11 +1256,19 @@ void setup_game(bool client, const char *host)
 			if( msec_timer - progress_timer >= 500 && network_manager.getFileTransferProgress() != 100.0f )	break;
 		} while( amx == mouse_x && amy == mouse_y && amz == mouse_z && amb == mouse_b && mouse_b == 0 && !key[ KEY_ENTER ] && !key[ KEY_ESC ] && !done
 			&& !key_is_pressed && !setupgame_area.scrolling && broadcast_msg.empty() && chat_msg.empty() && special_msg.empty() && !playerDropped
-			&& ( (msec_timer - ping_timer < 2000 && msec_timer - internet_ad_timer >= INTERNET_AD_COUNTDOWN ) || host == NULL || client ) );
+			&& ( (msec_timer - ping_timer < 2000 && (msec_timer - internet_ad_timer >= INTERNET_AD_COUNTDOWN || !advertise) ) || host == NULL || client ) );
 
 //-------------------------------------------------------------- Network Code : syncing information --------------------------------------------------------------
 
-		if( host && !client && msec_timer - internet_ad_timer >= INTERNET_AD_COUNTDOWN ) {		// Advertise the game on the Internet
+		if( setupgame_area.get_state( "gamesetup.advertise" ) != advertise ) {
+			advertise ^= true;
+			if( advertise )
+				internet_ad_timer = msec_timer - INTERNET_AD_COUNTDOWN;
+			else
+				network_manager.registerToNetServer( host, 0 );
+			}
+
+		if( host && !client && msec_timer - internet_ad_timer >= INTERNET_AD_COUNTDOWN && advertise ) {		// Advertise the game on the Internet
 			internet_ad_timer = msec_timer;	// Resend every 150 sec
 			uint16 nb_open = 0;
 			for( uint16 f = 0 ; f < 10 ; f++ )
@@ -1990,8 +2002,14 @@ void network_room(void)				// Let players create/join a game
 					obj->Text.push_back(TRANSLATE("No server found"));
 				}
 			}
-				
-		if( msec_timer - internet_server_list_timer >= INTERNET_AD_COUNTDOWN ) {		// Refresh server list
+
+		bool refresh_all = false;
+		if( networkgame_area.get_state("networkgame.b_refresh") ) {
+			refresh_all = true;
+			servers.clear();
+			}
+
+		if( msec_timer - internet_server_list_timer >= INTERNET_AD_COUNTDOWN || refresh_all ) {		// Refresh server list
 			internet_server_list_timer = msec_timer;
 			network_manager.listNetGames( servers );
 
@@ -2010,7 +2028,7 @@ void network_room(void)				// Let players create/join a game
 				}
 			}
 
-		if( msec_timer - server_list_timer >= SERVER_LIST_REFRESH_DELAY ) {		// Refresh server list
+		if( msec_timer - server_list_timer >= SERVER_LIST_REFRESH_DELAY || refresh_all ) {		// Refresh server list
 			for( List< SERVER_DATA >::iterator server_i = servers.begin() ; server_i != servers.end() ; )		// Remove those who timeout
 				if( !server_i->internet && msec_timer - server_i->timer >= 30000 )
 					servers.erase( server_i++ );

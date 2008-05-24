@@ -620,6 +620,8 @@ bool UNIT::is_on_radar( byte p_mask )
 			SCRIPT_DATA *src_data = NULL;
 			VECTOR v_target;				// Needed in network mode
 			UNIT *unit_target = NULL;
+			MODEL *the_model = model;
+			drawing = true;
 
 			if(build_percent_left==0.0f && mission!=NULL
 			&& port[ INBUILDSTANCE ] != 0 && local ) {
@@ -632,6 +634,7 @@ bool UNIT::is_on_radar( byte p_mask )
 					if(mission->p!=NULL
 					&& (mission->mission == MISSION_REPAIR || mission->mission == MISSION_BUILD || mission->mission == MISSION_BUILD_2 || mission->mission == MISSION_CAPTURE ) ) {
 						unit_target = ((UNIT*)mission->p);
+						LeaveCS();
 						unit_target->Lock();
 						if( (unit_target->flags & 1) && unit_target->model!=NULL) {
 							size=unit_target->model->size2;
@@ -642,6 +645,7 @@ bool UNIT::is_on_radar( byte p_mask )
 							}
 						else {
 							unit_target->UnLock();
+							EnterCS();
 							unit_target = NULL;
 							c_part = false;
 							}
@@ -674,6 +678,7 @@ bool UNIT::is_on_radar( byte p_mask )
 					upos=upos+Pos;
 					if(!nanolathe_feature) {
 						unit_target = &(units.unit[ nanolathe_target ]);
+						LeaveCS();
 						unit_target->Lock();
 						if( (unit_target->flags & 1) && unit_target->model ) {
 							size = unit_target->model->size2;
@@ -685,6 +690,7 @@ bool UNIT::is_on_radar( byte p_mask )
 							}
 						else {
 							unit_target->UnLock();
+							EnterCS();
 							unit_target = NULL;
 							c_part = false;
 							}
@@ -727,7 +733,7 @@ bool UNIT::is_on_radar( byte p_mask )
 			if(build_percent_left==0.0f) {
 				if( cloaked || ( cloaking && owner_id != players.local_human_id ) )
 					glColor4ub( 0xFF, 0xFF, 0xFF, 0x7F );
-				model->draw(t,&data,owner_id==players.local_human_id && sel,false,c_part,build_part,target,&upos,&M,size,center,reverse,owner_id,!cloaked,src,src_data);
+				the_model->draw(t,&data,owner_id==players.local_human_id && sel,false,c_part,build_part,target,&upos,&M,size,center,reverse,owner_id,!cloaked,src,src_data);
 				if( cloaked || ( cloaking && owner_id != players.local_human_id ) )
 					gfx->set_color( 0xFFFFFFFF );
 				if(height_line && h>1.0f && unit_manager.unit_type[type_id].canfly) {		// For flying units, draw a line that shows how high is the unit
@@ -750,15 +756,15 @@ bool UNIT::is_on_radar( byte p_mask )
 
 				glClipPlane(GL_CLIP_PLANE0, eqn);
 				glEnable(GL_CLIP_PLANE0);
-				model->draw(t,&data,owner_id==players.local_human_id && sel,true,c_part,build_part,target,&upos,&M,size,center,reverse,owner_id,true,src,src_data);
+				the_model->draw(t,&data,owner_id==players.local_human_id && sel,true,c_part,build_part,target,&upos,&M,size,center,reverse,owner_id,true,src,src_data);
 
 				eqn[1]=-eqn[1];	eqn[3]=-eqn[3];
 				glClipPlane(GL_CLIP_PLANE0, eqn);
-				model->draw(t,&data,owner_id==players.local_human_id && sel,false,false,build_part,target,&upos,&M,size,center,reverse,owner_id);
+				the_model->draw(t,&data,owner_id==players.local_human_id && sel,false,false,build_part,target,&upos,&M,size,center,reverse,owner_id);
 				glDisable(GL_CLIP_PLANE0);
 
 				glPolygonMode (GL_FRONT_AND_BACK, GL_LINE);
-				model->draw(t,&data,owner_id==players.local_human_id && sel,true,false,build_part,target,&upos,&M,size,center,reverse,owner_id);
+				the_model->draw(t,&data,owner_id==players.local_human_id && sel,true,false,build_part,target,&upos,&M,size,center,reverse,owner_id);
 				glPolygonMode (GL_FRONT_AND_BACK, GL_FILL);
 				}
 			else if(build_percent_left<=66.0f) {
@@ -769,22 +775,25 @@ bool UNIT::is_on_radar( byte p_mask )
 				glClipPlane(GL_CLIP_PLANE0, eqn);
 				glEnable(GL_CLIP_PLANE0);
 				glPolygonMode (GL_FRONT_AND_BACK, GL_LINE);
-				model->draw(t,&data,owner_id==players.local_human_id && sel,true,c_part,build_part,target,&upos,&M,size,center,reverse,owner_id,true,src,src_data);
+				the_model->draw(t,&data,owner_id==players.local_human_id && sel,true,c_part,build_part,target,&upos,&M,size,center,reverse,owner_id,true,src,src_data);
 				glPolygonMode (GL_FRONT_AND_BACK, GL_FILL);
 
 				eqn[1]=-eqn[1];	eqn[3]=-eqn[3];
 				glClipPlane(GL_CLIP_PLANE0, eqn);
-				model->draw(t,&data,owner_id==players.local_human_id && sel,true,false,build_part,target,&upos,&M,size,center,reverse,owner_id);
+				the_model->draw(t,&data,owner_id==players.local_human_id && sel,true,false,build_part,target,&upos,&M,size,center,reverse,owner_id);
 				glDisable(GL_CLIP_PLANE0);
 				}
 			else {
 				glPolygonMode (GL_FRONT_AND_BACK, GL_LINE);
-				model->draw(t,&data,owner_id==players.local_human_id && sel,true,false,build_part,target,&upos,&M,size,center,reverse,owner_id);
+				the_model->draw(t,&data,owner_id==players.local_human_id && sel,true,false,build_part,target,&upos,&M,size,center,reverse,owner_id);
 				glPolygonMode (GL_FRONT_AND_BACK, GL_FILL);
 				}
-			if( unit_target )
+			if( unit_target ) {
 				unit_target->UnLock();
+				EnterCS();
+				}
 			}
+		drawing = false;
 		glPopMatrix();
 		LeaveCS();
 #ifdef	ADVANCED_DEBUG_MODE
@@ -2129,16 +2138,24 @@ bool UNIT::is_on_radar( byte p_mask )
 			int y=(int)((Pos.z)+map->map_h_d-8)>>3;
 			if( x > 0 && y > 0 && x < (map->bloc_w<<1) && y < (map->bloc_h<<1) )
 				if(map->map_data[y][x].stuff==-1) {
-					int type=feature_manager.get_feature_index(unit_manager.unit_type[type_id].Unitname);
+					int type=feature_manager.get_feature_index(unit_manager.unit_type[type_id].Corpse);
 					if( type >= 0 ) {
+						features.Lock();
 						map->map_data[y][x].stuff=features.add_feature(Pos,type);
+						if(map->map_data[y][x].stuff == -1)
+							Console->AddEntry("ERROR: could not turn %s into a feature! cannot create feature!", unit_manager.unit_type[type_id].Unitname);
+						else
+							features.feature[map->map_data[y][x].stuff].angle = Angle.y;
 						LeaveCS();
 						clear_from_map();
 						EnterCS();
 						if(type!=-1 && feature_manager.feature[type].blocking)
 							map->rect(x-(feature_manager.feature[type].footprintx>>1),y-(feature_manager.feature[type].footprintz>>1),feature_manager.feature[type].footprintx,feature_manager.feature[type].footprintz,-2-map->map_data[y][x].stuff);
+						features.UnLock();
 						flags = 4;
 						}
+					else
+						Console->AddEntry("ERROR: could not turn %s into a feature! feature not found!", unit_manager.unit_type[type_id].Unitname);
 					}
 			LeaveCS();
 #ifdef	ADVANCED_DEBUG_MODE
@@ -6048,22 +6065,24 @@ int INGAME_UNITS::Run()
 
 		EnterCS();
 
-		gfx->GFX_EnterCS();
+		if( map->fog_of_war ) {
+			gfx->GFX_EnterCS();
 
-		if( !(current_tick & 0xF) ) {
-			if( map->fog_of_war & FOW_GREY )
-				memset( map->sight_map->line[0], 0, map->sight_map->w * map->sight_map->h );		// Clear FOW map
-			memset( map->radar_map->line[0], 0, map->radar_map->w * map->radar_map->h );		// Clear radar map
-			memset( map->sonar_map->line[0], 0, map->sonar_map->w * map->sonar_map->h );		// Clear sonar map
+			if( !(current_tick & 0xF) ) {
+				if( map->fog_of_war & FOW_GREY )
+					memset( map->sight_map->line[0], 0, map->sight_map->w * map->sight_map->h );		// Clear FOW map
+				memset( map->radar_map->line[0], 0, map->radar_map->w * map->radar_map->h );		// Clear radar map
+				memset( map->sonar_map->line[0], 0, map->sonar_map->w * map->sonar_map->h );		// Clear sonar map
 
-			for( int i = 0; i < index_list_size ; i++ )			// update fog of war, radar and sonar data
-				unit[ idx_list[ i ] ].draw_on_FOW();
+				for( int i = 0; i < index_list_size ; i++ )			// update fog of war, radar and sonar data
+					unit[ idx_list[ i ] ].draw_on_FOW();
 
-			for( int i = 0; i < index_list_size ; i++ )			// update radar and sonar jamming data
-				unit[ idx_list[ i ] ].draw_on_FOW( true );
+				for( int i = 0; i < index_list_size ; i++ )			// update radar and sonar jamming data
+					unit[ idx_list[ i ] ].draw_on_FOW( true );
+				}
+
+			gfx->GFX_LeaveCS();
 			}
-
-		gfx->GFX_LeaveCS();
 
 			wind_change = false;
 		LeaveCS();

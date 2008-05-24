@@ -1,3 +1,15 @@
+[enable if you want to be\nvisible from Internet]
+{
+	FRENCH=Activez ceci si vous voulez etre\nvisible depuis Internet;
+}
+[Advertise on Internet]
+{
+	FRENCH=Serveur Internet;
+}
+[Refresh]
+{
+	FRENCH=Rafraîchir;
+}
 [Save]
 {
 	FRENCH=Sauver;

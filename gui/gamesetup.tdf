@@ -8,7 +8,7 @@
 	height=1024;
 	draw borders=false;
 	show title=false;
-	number of objects=153;
+	number of objects=154;
 	hidden=false;
 	lock=true;
 	color=0x00000000;			// Fully transparent so we can see the AREA background
@@ -1604,6 +1604,18 @@
 		y1=565;
 		x2=830;
 		y2=595;
+		value=0;
+	}
+	[object153]		// advertise ?
+	{
+		name=advertise;
+		type=OPTIONB;
+		x1=465;
+		y1=111;
+		caption=Advertise on Internet;
+		help=enable if you want to be\nvisible from Internet;
+		hidden=true;
+		size=2;
 		value=0;
 	}
 }

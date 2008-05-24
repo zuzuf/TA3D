@@ -8,7 +8,7 @@
 	height=1024;
 	draw borders=false;
 	show title=false;
-	number of objects=11;
+	number of objects=12;
 	hidden=false;
 	lock=true;
 	color=0x00000000;			// Fully transparent so we can see the AREA background
@@ -139,5 +139,16 @@
 		caption=Join IP;
 		size=2;
 		on click=joinip.show, joinip.t_hostname.focus;
+	}
+	[object11]
+	{
+		name=b_refresh;
+		type=BUTTON;
+		x1=75;
+		y1=943;
+		x2=325;
+		y2=979;
+		caption=Refresh;
+		size=2;
 	}
 }
