@@ -83,6 +83,7 @@ struct order{
 };//max size = 22
 
 #define SYNC_FLAG_FLYING	0x01
+#define SYNC_FLAG_CLOAKING	0x02
 
 struct sync{
 	uint32	timestamp;	//uint32 what tick is this snapshot

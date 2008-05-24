@@ -1655,6 +1655,8 @@ void PLAYERS::player_control()
 				sync.flags = 0;
 				if( units.unit[ i ].flying )
 					sync.flags |= SYNC_FLAG_FLYING;
+				if( units.unit[ i ].cloaking )
+					sync.flags |= SYNC_FLAG_CLOAKING;
 				sync.x = units.unit[ i ].Pos.x;
 				sync.y = units.unit[ i ].Pos.y;
 				sync.z = units.unit[ i ].Pos.z;
@@ -1672,6 +1674,7 @@ void PLAYERS::player_control()
 						latest_sync = min( latest_sync, units.unit[ i ].last_synctick[f] );
 
 				if( latest_sync < units.unit[i].previous_sync.timestamp - 10
+				|| units.unit[i].previous_sync.flags != sync.flags
 				|| units.unit[i].previous_sync.hp != sync.hp
 				|| ( units.unit[i].previous_sync.build_percent_left != sync.build_percent_left && sync.build_percent_left == 0.0f ) ) {		// We have to sync now
 					network_manager.sendSyncTCP( &sync );

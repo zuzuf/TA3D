@@ -157,6 +157,9 @@ void TA3DNetwork::check()
 				continue;
 				}
 
+			units.unit[sync_msg.unit].flying = sync_msg.flags & SYNC_FLAG_FLYING;
+			units.unit[sync_msg.unit].cloaking = sync_msg.flags & SYNC_FLAG_CLOAKING;
+
 			units.unit[sync_msg.unit].last_synctick[0] = sync_msg.timestamp;
 			units.unit[sync_msg.unit].Pos.x = sync_msg.x;
 			units.unit[sync_msg.unit].Pos.y = sync_msg.y;
