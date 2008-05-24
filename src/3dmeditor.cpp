@@ -308,9 +308,17 @@ do
 		if(mouse_b==4)			// Appui sur le bouton du milieu pour regler le zoom
 			ScaleFactor+=((mouse_y-amy)+(mouse_x-amx)+(mouse_z-amz))*0.1f;
 		if(mouse_b==2 && cur_part>=0 && cur_part<nb_obj()) {			// Left-clic to move current object
-			obj_table[cur_part]->pos_from_parent.y-=(mouse_y-amy)*0.1f;
-			obj_table[cur_part]->pos_from_parent.x+=0.1f*(mouse_x-amx)*cos(r2*DEG2RAD);
-			obj_table[cur_part]->pos_from_parent.z+=0.1f*(mouse_x-amx)*sin(r2*DEG2RAD);
+			VECTOR DP( 0.1f*(mouse_x-amx)*cos(r2*DEG2RAD), -(mouse_y-amy)*0.1f, 0.1f*(mouse_x-amx)*sin(r2*DEG2RAD) );
+			obj_table[cur_part]->pos_from_parent = obj_table[cur_part]->pos_from_parent + DP;
+			for( int i = 0 ; i < obj_table[cur_part]->nb_vtx ; i++ )
+				obj_table[cur_part]->points[ i ] = obj_table[cur_part]->points[ i ] - DP;
+			if( obj_table[cur_part]->child ) {
+				OBJECT *cur = obj_table[cur_part]->child;
+				while( cur ) {
+					cur->pos_from_parent = cur->pos_from_parent - DP;
+					cur = cur->next;
+					}
+				}
 			}
 		}
 
@@ -323,6 +331,15 @@ do
 
 	show_mouse(NULL);					// Cache la souris
 	if(key[KEY_ESC] || ClickOnExit) done=true;			// Quitte si on appuie sur echap ou clique sur quitter
+	
+	if( key[ KEY_X ] && !key[ KEY_LSHIFT ] ) {	r1 = 0.0f;		r2 = 0.0f;		r3 = 0.0f;	}
+	if( key[ KEY_Y ] && !key[ KEY_LSHIFT ] ) {	r1 = 90.0f;		r2 = 0.0f;		r3 = 0.0f;	}
+	if( key[ KEY_Z ] && !key[ KEY_LSHIFT ] ) {	r1 = 0.0f;		r2 = -90.0f;		r3 = 0.0f;	}
+
+	if( key[ KEY_X ] && key[ KEY_LSHIFT ] ) {	r1 = 0.0f;		r2 = 180.0f;	r3 = 0.0f;	}
+	if( key[ KEY_Y ] && key[ KEY_LSHIFT ] ) {	r1 = -90.0f;	r2 = 0.0f;		r3 = 0.0f;	}
+	if( key[ KEY_Z ] && key[ KEY_LSHIFT ] ) {	r1 = 0.0f;		r2 = 90.0f;	r3 = 0.0f;	}
+	
 	gfx->SetDefState();
 				// Efface tout
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -403,6 +420,41 @@ do
 		glEnable(GL_TEXTURE_2D);
 		}
 	glEnable( GL_CULL_FACE );
+
+	//----------- draw the sphere that shows where is attached the current object ------------------
+
+	glDisable( GL_DEPTH_TEST );
+	glDisable( GL_CULL_FACE );
+	glDisable( GL_LIGHTING );
+	MATRIX_4x4 M = Scale( 1.0f );
+	TheModel->compute_coord( &cur_data, &M );
+	VECTOR P = cur_data.pos[ cur_part ];
+
+	glPushMatrix();
+	glDisable(GL_TEXTURE_2D);
+	glColor4ub( 0xFF, 0x0, 0x0, 0xFF );
+	glTranslatef( P.x, P.y, P.z );
+
+	glBegin( GL_TRIANGLES );
+
+	float s = 5.0f;
+	
+	for( int i = 0 ; i < 8 ; i++ ) {
+		glVertex3f( (i & 1) ? s : -s, 0.0f, 0.0f );
+		glVertex3f( 0.0f, (i & 2) ? s : -s, 0.0f );
+		glVertex3f( 0.0f, 0.0f, (i & 4) ? s : -s );
+		}
+	
+	glEnd();
+
+	glColor4ub( 0xFF, 0xFF, 0xFF, 0xFF );
+	glEnable(GL_TEXTURE_2D);
+	glPopMatrix();
+	glEnable( GL_CULL_FACE );
+	glEnable( GL_LIGHTING );
+	glEnable( GL_DEPTH_TEST );
+	
+	//----------------------------------------------------------------------------------------------
 
 	gfx->set_2D_mode();		// Passe en mode dessin allegro
 	
