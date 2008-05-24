@@ -24,24 +24,24 @@ namespace TA3D
 {
 	namespace UTILS
 	{
-		String cTAFileParser::GetLine( const String &Data )
+		String cTAFileParser::GetLine( char **Data )
 		{
-			std::basic_string <char>::size_type NotFound = -1;
-			std::basic_string <char>::size_type iFind = Data.find_first_of( "\n;{}" );
-
-			if( iFind == NotFound )
-				return Data;
-
-			return Data.substr( 0, iFind + 1 );
+			for( char *result = *Data ; **Data ; (*Data)++ )
+				if( **Data == '\n' || **Data == ';' || **Data == '{' || **Data == '}' ) {
+					(*Data)++;
+					return String( result, *Data );
+					}
+			
+			return *Data;
 		}
 
-		bool cTAFileParser::ProcessData(  String &Data )
+		bool cTAFileParser::ProcessData(  char **Data )
 		{
-			if( Data.length() == 0 )
+			if( **Data == 0 )
 				return true;
 
 			String Line = GetLine( Data );         // extract line
-			Data.erase( 0, Line.length() );      // erase line from data.
+			if( Line.size() == 0 )	return false;
 
 			int i = (int)Line.find( "//" );        // search for start of comment.
 			if( i != -1 )        // if we find a comment, we will erase everything
@@ -74,7 +74,8 @@ namespace TA3D
 					m_cKey = ReplaceString( m_cKey, "\\n", "\n", false );
 					m_cKey = ReplaceString( m_cKey, "\\r", "\r", false );
 
-					while( Data.size() )										// Better using the stack this way, otherwise it might crash with huge files
+//					while( Data.size() )										// Better using the stack this way, otherwise it might crash with huge files
+					while( **Data )										// Better using the stack this way, otherwise it might crash with huge files
 						if( ProcessData( Data ) )	break;
 					return false;
 				}
@@ -161,14 +162,13 @@ namespace TA3D
 				data = (byte*)tmp;
 				}
 
-			std::string tmp = String( (char *)data );
 			m_cKey = "";
 			key_level.clear();
-			free(data);
 
 			// erase all line feeds. (linear algorithm)
-			int e = 0;
-			for( int i = 0 ; i < tmp.size() ; i++ ) {
+			char *tmp = (char*)data;
+			int e = 0, i = 0;
+			for( ; tmp[i] ; i++ ) {
 				if( tmp[ i ] != '\r' ) {
 					if( e )	tmp[ i - e ] = tmp[ i ];
 					}
@@ -176,13 +176,14 @@ namespace TA3D
 					e++;
 				}
 			if( e > 0 )
-				tmp.resize( tmp.size() - e );
+				tmp[i] = 0;
 
 			gadget_mode = g_mode ? 0 : -1;
 
 			// now process the remaining.
-			while( tmp.size() )
-				ProcessData( tmp );
+			while( *tmp )
+				ProcessData( &tmp );
+			free(data);
 		}
 
 		cTAFileParser::cTAFileParser( const String &FileName,  bool bKeysCaseSenstive, bool toUTF8, bool g_mode )

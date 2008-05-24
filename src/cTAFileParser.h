@@ -31,8 +31,8 @@ namespace TA3D
 			bool m_bKeysCaseSenstive;	// Is it case sensitive ?
 			int gadget_mode;
 
-			bool ProcessData( String &Data );
-			String GetLine( const String &Data );
+			bool ProcessData( char **Data );
+			String GetLine( char **Data );
 
 		protected:
 			// A hash map of key/values
