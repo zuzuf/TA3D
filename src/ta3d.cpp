@@ -1685,7 +1685,7 @@ do
 
 	gfx->SetDefState();
 	glClearColor(FogColor[0],FogColor[1],FogColor[2],FogColor[3]);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);		// Clear screen
+	glClear(GL_DEPTH_BUFFER_BIT);		// Clear screen
 
 	cam.SetView();
 
@@ -2207,7 +2207,6 @@ do
 	else
 		tilde=false;
 
-	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 	gfx->ReInitAllTex( true );
 
 	gfx->set_2D_mode();		// Affiche console, infos,...

@@ -811,7 +811,7 @@ void MAP::draw(CAMERA *cam,byte player_mask,bool FLAT,float niv,float t,float dt
 			glDisable(GL_TEXTURE_GEN_T);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-			glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+			glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 			glActiveTextureARB(GL_TEXTURE0_ARB );
 			}
 		}
@@ -842,7 +842,6 @@ void MAP::draw(CAMERA *cam,byte player_mask,bool FLAT,float niv,float t,float dt
 	uint8	buf_c[18000];
 	short	buf_size=0;				// in blocs
 	uint16	index_size=0;
-	float	buf_t2[9000];			// Coordinates for details texture
 	bool	was_flat=false;
 	glEnableClientState(GL_VERTEX_ARRAY);		// vertex coordinates
 	glEnableClientState(GL_COLOR_ARRAY);		// Colors(for fog of war)
@@ -850,8 +849,6 @@ void MAP::draw(CAMERA *cam,byte player_mask,bool FLAT,float niv,float t,float dt
 	glVertexPointer( 3, GL_FLOAT, 0, buf_p);
 
 	if( lp_CONFIG->detail_tex && !FLAT && enable_details ) {
-		glClientActiveTextureARB(GL_TEXTURE1_ARB );
-		glTexCoordPointer(2, GL_FLOAT, 0, buf_t2);
 		detail_shader.on();
 		detail_shader.setvar1f( "coef", color_factor );
 		detail_shader.setvar1i( "details", 1 );
@@ -1153,20 +1150,18 @@ void MAP::draw(CAMERA *cam,byte player_mask,bool FLAT,float niv,float t,float dt
 				buf_size=0;
 				index_size=0;
 				was_flat = false;
-				old_tex=bloc[i].tex;
-				glBindTexture(GL_TEXTURE_2D,bloc[i].tex);
+				if( old_tex != bloc[i].tex ) {
+					old_tex=bloc[i].tex;
+					glBindTexture(GL_TEXTURE_2D,bloc[i].tex);
+					}
 				}
 			ox=x;
 
 			uint16 buf_pos=buf_size*9;
-			if(!FLAT)
-				for(byte e=0;e<9;e++) {					// Copie le bloc
+			if(!FLAT) {
+				for(byte e=0;e<9;e++)					// Copie le bloc
 					buf_p[buf_pos+e]=bloc[i].point[e];
-					if( lp_CONFIG->detail_tex ) {
-						buf_t2[ (buf_pos+e << 1) ] = bloc[i].point[e].x * 0.015625f;
-						buf_t2[ (buf_pos+e << 1) + 1 ] = bloc[i].point[e].z * 0.015625f;
-						}
-					}
+				}
 			else
 				for(byte e=0;e<9;e++) {					// Copie le bloc
 					buf_p[buf_pos+e].x=flat[e].x+T.x;
