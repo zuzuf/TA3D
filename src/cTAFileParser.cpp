@@ -185,7 +185,7 @@ namespace TA3D
 			free(data);
 		}
 
-		void cTAFileParser::Load( char *data, bool bClearTable, bool toUTF8, bool g_mode )
+		void cTAFileParser::LoadMemory( char *data, bool bClearTable, bool toUTF8, bool g_mode )
 		{
 			if( bClearTable ) {
 				uint32 old_tablesize = m_u32TableSize;
@@ -229,14 +229,7 @@ namespace TA3D
 			if( toUTF8 )
 				free(data);
 		}
-		
-		cTAFileParser::cTAFileParser( char *data, bool bKeysCaseSenstive, bool toUTF8, bool g_mode )
-		{
-			m_bKeysCaseSenstive = bKeysCaseSenstive;
-			InitTable( 4096 );
-			Load( data, true, toUTF8, g_mode );
-		}
-		
+
 		cTAFileParser::cTAFileParser( const String &FileName,  bool bKeysCaseSenstive, bool toUTF8, bool g_mode )
 		{
 			m_bKeysCaseSenstive = bKeysCaseSenstive;

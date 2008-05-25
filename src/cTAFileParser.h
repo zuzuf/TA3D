@@ -43,8 +43,7 @@ namespace TA3D
 			cTAFileParser( uint32 TableSize = 4096 );
 			~cTAFileParser();
 
-			void Load( char *data, bool bClearTable=false, bool toUTF8 = false, bool g_mode = false );
-			cTAFileParser( char *data, bool bKeysCaseSenstive = false, bool toUTF8 = false, bool g_mode = false );
+			void LoadMemory( char *data, bool bClearTable=false, bool toUTF8 = false, bool g_mode = false );
 
 			sint32	PullAsInt( const std::string &KeyName , sint32 def = 0 );
 			real32	PullAsFloat( const std::string &KeyName , real32 def = 0.0f );
