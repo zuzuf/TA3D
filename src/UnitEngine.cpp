@@ -2217,34 +2217,40 @@ bool UNIT::is_on_radar( byte p_mask )
 				else
 					flags = 1;
 				weapon[0].delay=1.0f;
-				LeaveCS();
+				if( flags == 1 ) {
+					LeaveCS();
 #ifdef	ADVANCED_DEBUG_MODE
-				GuardLeave();
+					GuardLeave();
 #endif
-				return -1;
+					return -1;
+					}
 				break;
 			case 4:				// Vérifie si le script est terminé
-				if(!is_running(get_script_index(SCRIPT_killed))) {
-					if(weapon[0].delay<=0.0f && !data.explode ) {
-						flags = 1;
-						LeaveCS();
-						clear_from_map();
+				if(weapon[0].delay<=0.0f || !data.explode ) {
+					flags = 1;
+					LeaveCS();
+					clear_from_map();
 #ifdef	ADVANCED_DEBUG_MODE
-						GuardLeave();
+					GuardLeave();
 #endif
-						return -1;
-						}
-					weapon[0].delay-=dt;
-					for(int i=0;i<data.nb_piece;i++)
-						if(!(data.flag[i]&FLAG_EXPLODE))// || (data.flag[i]&FLAG_EXPLODE && (data.explosion_flag[i]&EXPLODE_BITMAPONLY)))
-							data.flag[i]|=FLAG_HIDE;
+					return -1;
 					}
+				weapon[0].delay-=dt;
+				for(int i=0;i<data.nb_piece;i++)
+					if(!(data.flag[i]&FLAG_EXPLODE))// || (data.flag[i]&FLAG_EXPLODE && (data.explosion_flag[i]&EXPLODE_BITMAPONLY)))
+						data.flag[i]|=FLAG_HIDE;
 				break;
 			case 0x14:				// Unit has been captured, this is a FAKE unit, just here to be removed
 				flags=4;
 				return -1;
 			default:		// It doesn't explode (it has been reclaimed for example)
-				flags=4;
+				flags=1;
+				LeaveCS();
+				clear_from_map();
+#ifdef	ADVANCED_DEBUG_MODE
+				GuardLeave();
+#endif
+				return -1;
 			};
 			if(data.nb_piece>0 && build_percent_left == 0.0f) {
 				data.move(dt,map->ota_data.gravity);
@@ -3886,9 +3892,9 @@ bool UNIT::is_on_radar( byte p_mask )
 							if( mission->flags & MISSION_FLAG_MOVE )			// Stop moving if needed
 								stop_moving();
 							if(unit_manager.unit_type[type_id].BMcode || (!unit_manager.unit_type[type_id].BMcode && port[ INBUILDSTANCE ] && port[YARD_OPEN] && !port[BUGGER_OFF])) {
-								LeaveCS();
+/*								LeaveCS();
 								draw_on_map();
-								EnterCS();
+								EnterCS();*/
 								V.x = 0.0f;
 								V.y = 0.0f;
 								V.z = 0.0f;
@@ -4367,7 +4373,8 @@ bool UNIT::is_on_radar( byte p_mask )
 				}
 			nb_running-=e;
 			}
-		if( (o_px != cur_px || o_py != cur_py || first_move || (was_flying ^ flying) || ((port[YARD_OPEN] != 0.0f) ^ was_open)) && build_percent_left <= 0.0f || !drawn ) {
+		if( hp > 0.0f && 
+			((o_px != cur_px || o_py != cur_py || first_move || (was_flying ^ flying) || ((port[YARD_OPEN] != 0.0f) ^ was_open)) && build_percent_left <= 0.0f || !drawn ) ) {
 			first_move = build_percent_left > 0.0f;
 			LeaveCS();
 			draw_on_map();
@@ -4905,6 +4912,9 @@ bool UNIT::is_on_radar( byte p_mask )
 
 void UNIT::draw_on_map()
 {
+	if( type_id == -1 || !(flags & 1) )
+		return;
+
 	if( drawn )	clear_from_map();
 	if( attached )	return;
 
@@ -5495,7 +5505,7 @@ void INGAME_UNITS::move(float dt,MAP *map,int key_frame,bool wind_change)
 
 		unit[ i ].Lock();
 
-		if( !(unit[ i ].flags & 1) ) {		// ho ho what is it doing there ??
+		if( unit[ i ].flags == 0 ) {		// ho ho what is it doing there ??
 			unit[ i ].UnLock();
 			kill(i,map,e);
 			e--;			// Can't skip a unit
@@ -5800,7 +5810,7 @@ void INGAME_UNITS::draw_mini(float map_w,float map_h,int mini_w,int mini_h,SECTO
 
 void INGAME_UNITS::kill(int index,MAP *map,int prev,bool sync)			// Détruit une unité
 {
-	if(index<0 || index>max_unit || prev<0 || prev>=index_list_size)	return;		// On ne peut pas détruire une unité qui n'existe pas
+	if(index<0 || index>=max_unit || prev<0 || prev>=index_list_size)	return;		// On ne peut pas détruire une unité qui n'existe pas
 
 	unit[index].Lock();
 

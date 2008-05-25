@@ -3066,7 +3066,7 @@ do
 					}while(e<100 && !can_be_built( units.unit[id].Pos, map, units.unit[id].type_id, player_id ));
 					if(!can_be_built( units.unit[id].Pos, map, units.unit[id].type_id, player_id )) {
 						units.unit[id].flags = 4;
-						units.kill(id,map,units.idx_list[units.index_list_size-1]);
+						units.kill(id,map,units.index_list_size-1);
 						}
 					else {								// Compute unit's Y coordinate
 						VECTOR target_pos = units.unit[id].Pos;

@@ -1217,7 +1217,7 @@ void MAP::draw(CAMERA *cam,byte player_mask,bool FLAT,float niv,float t,float dt
 					}
 				}
 
-#define DEBUG_UNIT_POS
+//#define DEBUG_UNIT_POS
 
 #ifndef DEBUG_UNIT_POS
 			if( FLAT || map_data[Y][X].flat ) {

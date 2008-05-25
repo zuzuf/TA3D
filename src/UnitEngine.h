@@ -387,7 +387,7 @@ public:
 		};
 		if( mission_type != MISSION_STOP ) {
 			flags &= 191;
-			flags |= 1;
+//			flags |= 1;
 			}
 	}
 
