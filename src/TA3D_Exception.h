@@ -51,7 +51,6 @@ namespace TA3D
 
 		// Use this to enter functions.  If you do use this you must use GuardLeave();
 		#define GuardEnter(name) \
-			printf("GuardEnter");\
 			static const char *__GUARD__BLOCK__NAME__ = #name; \
 			int	__GUARD__UFORMAT__ = get_uformat();	\
 			set_uformat( U_UTF8 );	\
@@ -61,7 +60,6 @@ namespace TA3D
 
 		// if u used GuardLeave(), you will need to use this to leave.
 		#define GuardLeave() \
-			printf("GuardLeave");\
 			GuardDecrementIndent(); \
 			__GUARD__UFORMAT__ = get_uformat();	\
 			set_uformat( U_UTF8 );	\
@@ -70,7 +68,6 @@ namespace TA3D
 
 		// use to record information within your function.
 		#define GuardInfo( szStr ) \
-			printf("GuardInfo");\
 			GuardLog( TA3D::format( "%sINFO:   %s (%s l.%d)\n", GuardIndentPadding(), szStr, __FILE__, __LINE__ ) );
 
 

@@ -1217,7 +1217,7 @@ void MAP::draw(CAMERA *cam,byte player_mask,bool FLAT,float niv,float t,float dt
 					}
 				}
 
-//#define DEBUG_UNIT_POS
+#define DEBUG_UNIT_POS
 
 #ifndef DEBUG_UNIT_POS
 			if( FLAT || map_data[Y][X].flat ) {
@@ -1264,7 +1264,10 @@ void MAP::draw(CAMERA *cam,byte player_mask,bool FLAT,float niv,float t,float dt
 			X&=0xFFFFFE;
 			if(map_data[Z][X].unit_idx!=-1 ) {		// Shows unit's pos on map
 				color[0]=color[1]=color[2]=color[3]=color[4]=color[5]=color[6]=color[7]=color[12]=color[13]=color[14]=color[15]=color[16]=color[17]=color[18]=color[19]=0;
-				color[0]=color[4]=color[12]=color[16]=255;
+				if(map_data[Z][X].unit_idx>=0 )		// Shows unit's pos on map
+					color[0]=color[4]=color[12]=color[16]=255;
+				else		// It's a feature
+					color[1]=color[5]=color[13]=color[17]=255;
 				}
 			else if( !map_data[Z][X].air_idx.isEmpty() ) {		// Shows unit's pos on map
 				color[0]=color[1]=color[2]=color[3]=color[4]=color[5]=color[6]=color[7]=color[12]=color[13]=color[14]=color[15]=color[16]=color[17]=color[18]=color[19]=0;
@@ -1272,7 +1275,10 @@ void MAP::draw(CAMERA *cam,byte player_mask,bool FLAT,float niv,float t,float dt
 				}
 			if(map_data[Z][X+1].unit_idx!=-1 ) {		// Shows unit's pos on map
 				color[8]=color[9]=color[10]=color[11]=color[20]=color[21]=color[22]=color[23]=0;
-				color[8]=color[20]=255;
+				if(map_data[Z][X+1].unit_idx>=0 )		// Shows unit's pos on map
+					color[8]=color[20]=255;
+				else
+					color[9]=color[21]=255;
 				}
 			else if( !map_data[Z][X+1].air_idx.isEmpty() ) {		// Shows unit's pos on map
 				color[8]=color[9]=color[10]=color[11]=color[20]=color[21]=color[22]=color[23]=0;
@@ -1280,7 +1286,10 @@ void MAP::draw(CAMERA *cam,byte player_mask,bool FLAT,float niv,float t,float dt
 				}
 			if(map_data[Z+1][X].unit_idx!=-1 ) {		// Shows unit's pos on map
 				color[24]=color[25]=color[26]=color[27]=color[28]=color[29]=color[30]=color[31]=0;
-				color[24]=color[28]=255;
+				if(map_data[Z+1][X].unit_idx>=0 )		// Shows unit's pos on map
+					color[24]=color[28]=255;
+				else
+					color[25]=color[29]=255;
 				}
 			else if( !map_data[Z+1][X].air_idx.isEmpty() ) {		// Shows unit's pos on map
 				color[24]=color[25]=color[26]=color[27]=color[28]=color[29]=color[30]=color[31]=0;
@@ -1288,7 +1297,10 @@ void MAP::draw(CAMERA *cam,byte player_mask,bool FLAT,float niv,float t,float dt
 				}
 			if(map_data[Z+1][X+1].unit_idx!=-1 ) {		// Shows unit's pos on map
 				color[32]=color[33]=color[34]=color[35]=0;
-				color[32]=255;
+				if(map_data[Z+1][X+1].unit_idx>=0 )		// Shows unit's pos on map
+					color[32]=255;
+				else
+					color[33]=255;
 				}
 			else if( !map_data[Z+1][X+1].air_idx.isEmpty() ) {		// Shows unit's pos on map
 				color[32]=color[33]=color[34]=color[35]=0;

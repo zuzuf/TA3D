@@ -449,6 +449,11 @@ bool UNIT::is_on_radar( byte p_mask )
 #endif
 
 		EnterCS();
+		
+		if( !(flags & 1) ) {
+			LeaveCS();
+			return;
+			}
 
 		visible = false;
 		on_radar = false;
@@ -807,6 +812,11 @@ bool UNIT::is_on_radar( byte p_mask )
 		GuardEnter( UNIT::draw_shadow );
 #endif
 		EnterCS();
+		if( !(flags & 1) ) {
+			LeaveCS();
+			return;
+			}
+		
 		if( on_radar || hidden )	{
 			LeaveCS();
 			return;
@@ -871,6 +881,10 @@ bool UNIT::is_on_radar( byte p_mask )
 		GuardEnter( UNIT::draw_shadow_basic );
 #endif
 		EnterCS();
+		if( !(flags & 1) ) {
+			LeaveCS();
+			return;
+			}
 		if( on_radar || hidden )	{
 			LeaveCS();
 			return;
@@ -2072,6 +2086,9 @@ bool UNIT::is_on_radar( byte p_mask )
 			break;
 		default:
 			flags = 1;		// Nothing replaced just remove the unit from position map
+			LeaveCS();
+			clear_from_map();
+			EnterCS();
 		};
 		LeaveCS();
 		int w_id = weapons.add_weapon(weapon_manager.get_weapon_index( self_destruct == 0.0f ? unit_manager.unit_type[type_id].SelfDestructAs : unit_manager.unit_type[type_id].ExplodeAs ),idx);
@@ -2211,6 +2228,7 @@ bool UNIT::is_on_radar( byte p_mask )
 					if(weapon[0].delay<=0.0f && !data.explode ) {
 						flags = 1;
 						LeaveCS();
+						clear_from_map();
 #ifdef	ADVANCED_DEBUG_MODE
 						GuardLeave();
 #endif
@@ -5816,12 +5834,12 @@ void INGAME_UNITS::kill(int index,MAP *map,int prev,bool sync)			// Détruit une
 			((UNIT*)(unit[ index ].mission->p))->UnLock();
 			}
 		players.nb_unit[ unit[index].owner_id ]--;
-		players.losses[ unit[index].owner_id ]++;		// Statistiques
-
-		unit[index].UnLock();
-		unit[index].clear_from_map();
-		unit[index].Lock();
+		players.losses[ unit[index].owner_id ]++;		// Statistics
 		}
+
+	unit[index].UnLock();
+	unit[index].clear_from_map();
+	unit[index].Lock();
 
 	if(unit[index].type_id >= 0 && unit_manager.unit_type[unit[index].type_id].canload && unit[index].nb_attached>0)
 		for( int i = 0 ; i < unit[index].nb_attached ; i++ ) {
@@ -5866,9 +5884,12 @@ void INGAME_UNITS::draw(CAMERA *cam,MAP *map,bool underwater,bool limit,bool cul
 		LeaveCS();
 
 		unit[i].Lock();
-		if( (unit[i].flags & 1) && ((unit[i].Pos.y + unit[i].model->bottom <= map->sealvl && underwater) || (unit[i].Pos.y + unit[i].model->top >= sea_lvl && !underwater)))				// Si il y a une unité
+		if( (unit[i].flags & 1) && ((unit[i].Pos.y + unit[i].model->bottom <= map->sealvl && underwater) || (unit[i].Pos.y + unit[i].model->top >= sea_lvl && !underwater))) {				// Si il y a une unité
+			unit[i].UnLock();
 			unit[i].draw(virtual_t,cam,map,height_line);
-		unit[i].UnLock();
+			}
+		else
+			unit[i].UnLock();
 		EnterCS();
 		}
 	LeaveCS();
