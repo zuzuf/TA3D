@@ -330,6 +330,8 @@ public:
 
 	bool			command_locked;		// Used for missions
 
+	uint8			yardmap_timer;		// To redraw the unit on yardmap periodically
+	uint8			death_timer;		// To remove dead units
 		
 		// Following variables are used to control the synchronization of data between game clients
 public:
@@ -495,6 +497,9 @@ public:
 		if( full )
 			CreateCS();
 		EnterCS();
+
+		yardmap_timer = 1;
+		death_timer = 0;
 
 		drawing = false;
 

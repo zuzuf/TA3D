@@ -2208,6 +2208,14 @@ bool UNIT::is_on_radar( byte p_mask )
 				((UNIT*)(mission->p))->built = false;
 				((UNIT*)(mission->p))->UnLock();
 				}
+			death_timer++;
+			if( death_timer == 255 ) {		// Ok we've been dead for a long time now ...
+				LeaveCS();
+#ifdef	ADVANCED_DEBUG_MODE
+				GuardLeave();
+#endif
+				return -1;
+				}
 			switch(flags&0x17)
 			{
 			case 1:				// Début de la mort de l'unité	(Lance le script)
@@ -4373,12 +4381,14 @@ bool UNIT::is_on_radar( byte p_mask )
 				}
 			nb_running-=e;
 			}
+		yardmap_timer--;
 		if( hp > 0.0f && 
-			((o_px != cur_px || o_py != cur_py || first_move || (was_flying ^ flying) || ((port[YARD_OPEN] != 0.0f) ^ was_open)) && build_percent_left <= 0.0f || !drawn ) ) {
+			((o_px != cur_px || o_py != cur_py || first_move || (was_flying ^ flying) || ((port[YARD_OPEN] != 0.0f) ^ was_open) || yardmap_timer == 0) && build_percent_left <= 0.0f || !drawn ) ) {
 			first_move = build_percent_left > 0.0f;
 			LeaveCS();
 			draw_on_map();
 			EnterCS();
+			yardmap_timer = TICKS_PER_SEC + (rand_from_table() & 15);
 			}
 
 		built=false;
