@@ -18,12 +18,13 @@ void main()
 		vec3 D = 2.0 * texture2D( view, t_coord ).xyz - vec3(1.0,1.0,1.0);
 		vec3 R = reflect( D, N );
 
-		vec2 scr_pos_r = clamp( t_coord + 0.005 * R.xz, 0.0, 1.0 );
+		vec2 dec = 0.005 * R.xz;
+		vec2 scr_pos_r = clamp( t_coord + dec, 0.0, 1.0 );
 
 		vec4 ref = texture2D( sky, scr_pos_r );
 		float trans = clamp( D.y, 0.0, 1.0);
 
-		vec2 scr_pos = clamp( t_coord * coef - 0.005 * R.xz, 0.0, 1.0 );
+		vec2 scr_pos = clamp( t_coord * coef - dec, 0.0, 1.0 );
 
 		vec4 scr_col = texture2D( rtex, scr_pos );
 		vec3 water_col = texture2D( water_color, t_coord ).rgb;

@@ -6,11 +6,12 @@ _read the music from a CD
 _add glossiness (or reflection) to all TA3D models.
 _make 3D replacement models for 2D map features
 _implement standing move orders
-_increase loading speed and lower memory cost by not loading unused features (done in some modules)
+_increase loading speed and lower memory usage by not loading unused features (done in some modules)
 _add support for TTF fonts ( seems impossible due to memory restrictions )
 _improve A.I.
 _D3D support
 
+* rendering unit orders paths is faster (uses ARRAYs instead of immediate mode :s)
 * in tactical view path icons are replaced with half transparent white lines (faster and visible :) )
 * improved pathfinding and path following code performance
 * improved global renderer performance

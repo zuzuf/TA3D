@@ -4527,6 +4527,9 @@ bool UNIT::is_on_radar( byte p_mask )
 		VECTOR n_target=Pos;
 		float rab=(msec_timer%1000)*0.001f;
 		uint32	remaining_build_commands = !(unit_manager.unit_type[ type_id ].BMcode) ? 0 : 0xFFFFFFF;
+		
+		List< VECTOR >	points;
+		
 		while(cur) {
 			if(cur->step) {				// S'il s'agit d'une étape on ne la montre pas
 				cur=cur->next;
@@ -4581,21 +4584,15 @@ bool UNIT::is_on_radar( byte p_mask )
 						glEnable(GL_DEPTH_TEST);
 						}
 					else {
-						glBindTexture(GL_TEXTURE_2D,cursor.anm[CURSOR_CROSS_LINK].glbmp[curseur]);
-						glBegin(GL_QUADS);
-							for(int i=0;i<rec;i++) {
-								x=p_target.x+(n_target.x-p_target.x)*(i+rab)/rec;
-								z=p_target.z+(n_target.z-p_target.z)*(i+rab)/rec;
-								y = max( units.map->get_unit_h( x, z ), units.map->sealvl );
-								x-=dx;
-								y+=0.75f;
-								z-=dz;
-								glTexCoord2f(0.0f,0.0f);		glVertex3f(x,y,z);
-								glTexCoord2f(1.0f,0.0f);		glVertex3f(x+sx,y,z);
-								glTexCoord2f(1.0f,1.0f);		glVertex3f(x+sx,y,z+sy);
-								glTexCoord2f(0.0f,1.0f);		glVertex3f(x,y,z+sy);
-								}
-						glEnd();
+						for(int i=0;i<rec;i++) {
+							x=p_target.x+(n_target.x-p_target.x)*(i+rab)/rec;
+							z=p_target.z+(n_target.z-p_target.z)*(i+rab)/rec;
+							y = max( units.map->get_unit_h( x, z ), units.map->sealvl );
+							y+=0.75f;
+							x-=dx;
+							z-=dz;
+							points.push_back( VECTOR( x, y, z ) );
+							}
 						}
 					}
 				p_target = n_target;
@@ -4741,6 +4738,52 @@ bool UNIT::is_on_radar( byte p_mask )
 			glEnable(GL_DEPTH_TEST);
 			cur=cur->next;
 			}
+
+		if( !points.empty() ) {
+			int curseur=anim_cursor(CURSOR_CROSS_LINK);
+			float dx=0.5f*cursor.anm[CURSOR_CROSS_LINK].ofs_x[curseur];
+			float dz=0.5f*cursor.anm[CURSOR_CROSS_LINK].ofs_y[curseur];
+			float sx=0.5f*(cursor.anm[CURSOR_CROSS_LINK].bmp[curseur]->w-1);
+			float sy=0.5f*(cursor.anm[CURSOR_CROSS_LINK].bmp[curseur]->h-1);
+
+			VECTOR *P = new VECTOR[ points.size() << 2 ];
+			float *T = new float[ points.size() << 3 ];
+			
+			int n = 0;
+			foreach( points, i ) {
+				P[n] = *i;
+				T[n<<1] = 0.0f;		T[(n<<1)+1] = 0.0f;
+				n++;
+
+				P[n] = *i;	P[n].x += sx;
+				T[n<<1] = 1.0f;		T[(n<<1)+1] = 0.0f;
+				n++;
+
+				P[n] = *i;	P[n].x += sx;	P[n].z += sy;
+				T[n<<1] = 1.0f;		T[(n<<1)+1] = 1.0f;
+				n++;
+
+				P[n] = *i;	P[n].z += sy;
+				T[n<<1] = 0.0f;		T[(n<<1)+1] = 1.0f;
+				n++;
+				}
+			
+			glDisableClientState( GL_NORMAL_ARRAY );
+			glDisableClientState( GL_COLOR_ARRAY );
+			glEnableClientState( GL_VERTEX_ARRAY );
+			glEnableClientState( GL_TEXTURE_COORD_ARRAY );
+			
+			glVertexPointer( 3, GL_FLOAT, 0, P);
+			glClientActiveTextureARB(GL_TEXTURE0_ARB );
+			glTexCoordPointer(2, GL_FLOAT, 0, T);
+			glBindTexture(GL_TEXTURE_2D,cursor.anm[CURSOR_CROSS_LINK].glbmp[curseur]);
+			
+			glDrawArrays( GL_QUADS, 0, n );
+			
+			delete[] P;
+			delete[] T;
+			}
+
 		glDisable(GL_BLEND);
 		
 		LeaveCS();
@@ -4773,11 +4816,13 @@ bool UNIT::is_on_radar( byte p_mask )
 
 		for(uint16 e=0;e<index_list_size;e++) {
 			uint16 i = idx_list[e];
+			LeaveCS();
 			unit[ i ].Lock();
 			if( (unit[i].flags & 1) && unit[i].owner_id==players.local_human_id && unit[i].build_percent_left==0.0f && unit[i].visible) {		// Ne sélectionne que les unités achevées
 				if(key[KEY_LSHIFT] && unit[i].sel) {
 					selected=true;
 					unit[ i ].UnLock();
+					EnterCS();
 					continue;
 					}
 				if(!key[KEY_LSHIFT])
@@ -4787,6 +4832,7 @@ bool UNIT::is_on_radar( byte p_mask )
 				float d=Vec.Sq();
 				if(d>16384.0f && (Vec%cam->Dir)<=0.0f) {
 					unit[ i ].UnLock();
+					EnterCS();
 					continue;
 					}
 
@@ -4798,6 +4844,7 @@ bool UNIT::is_on_radar( byte p_mask )
 					selected=unit[i].sel=true;
 				}
 			unit[ i ].UnLock();
+			EnterCS();
 			}
 
 		LeaveCS();
@@ -4821,14 +4868,15 @@ bool UNIT::is_on_radar( byte p_mask )
 		bool detectable=false;
 		int i;
 
+		EnterCS();
 		for(uint16 e=0;e<index_list_size;e++) {
-			EnterCS();
 			i = idx_list[e];
 			LeaveCS();
 
 			unit[ i ].Lock();
 			if( !(unit[i].flags & 1) || !unit[i].visible ) {
 				unit[ i ].UnLock();
+				EnterCS();
 				continue;		// Si l'unité n'existe pas on la zappe
 				}
 			unit[i].flags &= 0xFD;	// Enlève l'indicateur de possibilité d'intersection
@@ -4841,7 +4889,9 @@ bool UNIT::is_on_radar( byte p_mask )
 				unit[i].flags|=0x2;		// Unité détectable
 				}
 			unit[ i ].UnLock();
+			EnterCS();
 			}
+		LeaveCS();
 
 		if(!detectable) {			// If no unit is near the cursor, then skip the precise method
 			last_on = index;
@@ -4851,14 +4901,15 @@ bool UNIT::is_on_radar( byte p_mask )
 
 		float best_dist = 1000000.0f;
 
+		EnterCS();
 		for(uint16 e=0;e<index_list_size;e++) {
-			EnterCS();
 			i = idx_list[e];
 			LeaveCS();
 
 			unit[ i ].Lock();
 			if( !(unit[i].flags & 1) || !unit[i].visible ) {
 				unit[ i ].UnLock();
+				EnterCS();
 				continue;		// Si l'unité n'existe pas on la zappe
 				}
 			if((unit[i].flags&0x2)==0x2) {			// Si l'unité existe et est sélectionnable
@@ -4873,7 +4924,9 @@ bool UNIT::is_on_radar( byte p_mask )
 					}
 				}
 			unit[ i ].UnLock();
+			EnterCS();
 			}
+		LeaveCS();
 
 		last_on = index;
 
@@ -4896,14 +4949,15 @@ bool UNIT::is_on_radar( byte p_mask )
 
 		byte player_mask = 1 << players.local_human_id;
 
+		EnterCS();
 		for(uint16 e=0;e<index_list_size;e++) {
-			EnterCS();
 			i = idx_list[e];
 			LeaveCS();
 
 			unit[ i ].Lock();
 			if( !(unit[i].flags & 1) ) {
 				unit[ i ].UnLock();
+				EnterCS();
 				continue;		// Si l'unité n'existe pas on la zappe
 				}
 
@@ -4912,11 +4966,13 @@ bool UNIT::is_on_radar( byte p_mask )
 				int py = unit[i].cur_py >> 1;
 				if( px < 0 || py < 0 || px >= map->bloc_w || py >= map->bloc_h ) {
 					unit[ i ].UnLock();
+					EnterCS();
 					continue;	// Out of the map
 					}
 				if( !( map->view_map->line[ py ][ px ] & player_mask ) && !(map->sight_map->line[ py ][ px ] & player_mask)
 				&& !unit[i].is_on_radar( player_mask ) ) {
 					unit[ i ].UnLock();
+					EnterCS();
 					continue;	// Not visible
 					}
 				}
@@ -4933,7 +4989,9 @@ bool UNIT::is_on_radar( byte p_mask )
 			if( abs(mouse_x - x) <= 1 && abs(mouse_y - y) <= 1 )	index = i;
 
 			unit[ i ].UnLock();
+			EnterCS();
 			}
+		LeaveCS();
 
 		last_on = index;
 		return index;
@@ -5955,6 +6013,7 @@ void INGAME_UNITS::kill(int index,MAP *map,int prev,bool sync)			// Détruit une
 			unit[unit[index].attached_list[i]].hp = 0.0f;
 			unit[unit[index].attached_list[i]].UnLock();
 			}
+	unit[index].UnLock();
 	unit[index].destroy();		// Détruit l'unité
 
 	EnterCS();
@@ -5965,8 +6024,6 @@ void INGAME_UNITS::kill(int index,MAP *map,int prev,bool sync)			// Détruit une
 	nb_unit--;		// Unité détruite
 
 	LeaveCS();
-
-	unit[index].UnLock();
 }
 
 void INGAME_UNITS::draw(CAMERA *cam,MAP *map,bool underwater,bool limit,bool cullface,bool height_line)					// Dessine les unités visibles
