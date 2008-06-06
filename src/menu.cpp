@@ -2572,14 +2572,13 @@ void wait_room(void *p_game_data)
 	int amz = -1;
 	int amb = -1;
 
-	network_manager.sendAll("NOT_READY");
-
 	{									// We can only use units available on all clients
 		String msg = "USING";
 		for( int i = 0 ; i < unit_manager.nb_unit ; i++ )
 			if( !unit_manager.unit_type[ i ].not_used )
 				msg = msg + " " + unit_manager.unit_type[ i ].Unitname;
 		network_manager.sendAll( msg );
+		printf("sending %s\n", msg.c_str() );
 	}
 	
 	network_manager.sendAll("READY");
@@ -2637,6 +2636,8 @@ void wait_room(void *p_game_data)
 			int player_id = game_data->net2id( from );
 			Vector< String > params = ReadVectorString( received_special_msg.message, " " );
 			if( params.size() >= 1 && params[0] == "USING" ) {									// We can only use units available on all clients, so check the list
+				network_manager.sendAll("NOT_READY");
+				
 				String msg = "MISSING";
 				bool missing = false;
 				for( int i = 1 ; i < params.size() ; i++ )
@@ -2647,24 +2648,24 @@ void wait_room(void *p_game_data)
 				if( missing )
 					network_manager.sendAll( msg );
 				network_manager.sendAll("READY");
+				check_ready = true;
 				}
 			else if( params.size() >= 1 && params[0] == "MISSING" ) {
+				network_manager.sendAll("NOT_READY");
 				for( int i = 1 ; i < params.size() ; i++ ) {
 					int idx = unit_manager.get_unit_index( params[i].c_str() );
 					if( idx >= 0 )
 						unit_manager.unit_type[ idx ].not_used = true;
 					}
+				network_manager.sendAll("READY");
 				}
 			else if( params.size() == 1 ) {
 				if( params[0] == "PONG" ) {
 					if( player_id >= 0 )
 						player_timer[player_id] = msec_timer;
 					}
-				else if( params[0] == "NOT_READY" ) {
-					for( int i = 0 ; i < game_data->nb_players ; i++ )				// Nobody is ready since we'll have to look for missing units :)
-						wait_area.set_state( format( "wait.ready%d", i ), false );
-					check_ready = true;
-					}
+				else if( params[0] == "NOT_READY" )
+					wait_area.set_state( format( "wait.ready%d", player_id ), false );
 				else if( params[0] == "READY" ) {
 					wait_area.set_data( format( "wait.progress%d", player_id ), 100 );
 					wait_area.set_state( format( "wait.ready%d", player_id ), true );
