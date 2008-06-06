@@ -2573,12 +2573,10 @@ void wait_room(void *p_game_data)
 	int amb = -1;
 
 	{									// We can only use units available on all clients
-		String msg = "USING";
 		for( int i = 0 ; i < unit_manager.nb_unit ; i++ )
 			if( !unit_manager.unit_type[ i ].not_used )
-				msg = msg + " " + unit_manager.unit_type[ i ].Unitname;
-		network_manager.sendAll( msg );
-		printf("sending %s\n", msg.c_str() );
+				network_manager.sendAll( format( "USING %s", unit_manager.unit_type[ i ].Unitname ) );
+		network_manager.sendAll("END USING");
 	}
 	
 	network_manager.sendAll("READY");
@@ -2635,31 +2633,7 @@ void wait_room(void *p_game_data)
 			int from = received_special_msg.from;
 			int player_id = game_data->net2id( from );
 			Vector< String > params = ReadVectorString( received_special_msg.message, " " );
-			if( params.size() >= 1 && params[0] == "USING" ) {									// We can only use units available on all clients, so check the list
-				network_manager.sendAll("NOT_READY");
-				
-				String msg = "MISSING";
-				bool missing = false;
-				for( int i = 1 ; i < params.size() ; i++ )
-					if( unit_manager.get_unit_index( params[i].c_str() ) == -1 ) {			// Tell it's missing
-						msg = msg + " " + params[i];
-						missing = true;
-						}
-				if( missing )
-					network_manager.sendAll( msg );
-				network_manager.sendAll("READY");
-				check_ready = true;
-				}
-			else if( params.size() >= 1 && params[0] == "MISSING" ) {
-				network_manager.sendAll("NOT_READY");
-				for( int i = 1 ; i < params.size() ; i++ ) {
-					int idx = unit_manager.get_unit_index( params[i].c_str() );
-					if( idx >= 0 )
-						unit_manager.unit_type[ idx ].not_used = true;
-					}
-				network_manager.sendAll("READY");
-				}
-			else if( params.size() == 1 ) {
+			if( params.size() == 1 ) {
 				if( params[0] == "PONG" ) {
 					if( player_id >= 0 )
 						player_timer[player_id] = msec_timer;
@@ -2678,6 +2652,19 @@ void wait_room(void *p_game_data)
 				if( params[0] == "LOADING" ) {
 					int percent = min( 100, max( 0, atoi( params[1].c_str() ) ) );
 					wait_area.set_data( format( "wait.progress%d", player_id ), percent );
+					}
+				else if( params[0] == "USING" ) {									// We can only use units available on all clients, so check the list
+					network_manager.sendAll("NOT_READY");
+				
+					if( unit_manager.get_unit_index( params[1].c_str() ) == -1 )			// Tell it's missing
+						network_manager.sendAll( "MISSING " + params[1] );
+					}
+				else if( params[0] == "END" && params[1] == "USING" )
+					network_manager.sendAll("READY");
+				else if( params[0] == "MISSING" ) {
+					int idx = unit_manager.get_unit_index( params[1].c_str() );
+					if( idx >= 0 )
+						unit_manager.unit_type[ idx ].not_used = true;
 					}
 				}
 
