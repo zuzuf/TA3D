@@ -11,6 +11,7 @@ _add support for TTF fonts ( seems impossible due to memory restrictions )
 _improve A.I.
 _D3D support
 
+* in tactical view path icons are replaced with half transparent white lines (faster and visible :) )
 * improved pathfinding and path following code performance
 * improved global renderer performance
 * support for available unit types detection (networking mode)
@@ -44,6 +45,7 @@ _some parts of the maps might not be drawn (visibility limit) like hills
 _slow down with lots of 3D sprites on some gfx hardware (speed increased but bug not yet fixed)
 _fix all other bugs ( :-) )
 
+* fixed very ugly bug that could allow a unit to acquire a wrong target if the target has died and been replaced in memory before the mission is executed !
 * fixed units being spawned not being cleared correctly from yard map
 * fixed unit colors being wrong when texture cache is enabled
 * fixed nanospray sometimes going to space

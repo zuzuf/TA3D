@@ -61,6 +61,7 @@ struct MISSION			// Structure pour stocker les ordres
 	byte		flags;		// Données supplémentaires
 	float		last_d;		// Dernière distance enregistrée
 	void		*p;			// Pointer to whatever we need
+	uint32		target_ID;	// Identify a target unit
 	int			move_data;	// Required data for the moving part of the order
 	uint16		node;		// Tell which patrol node is this mission
 };
@@ -263,6 +264,7 @@ public:
 	bool					compute_coord;	// Indique s'il est nécessaire de recalculer les coordonnées du modèle 3d
 	Vector< short >			*script_val;	// Tableau de valeurs retournées par les scripts
 	uint16					idx;			// Indice dans le tableau d'unité
+	uint32					ID;				// the number of the unit (in total creation order) so we can identify it even if we move it :)
 	float					h;				// Altitude (par rapport au sol)
 	bool					visible;		// Indique si l'unité est visible / Tell if the unit is currently visible
 	bool					on_radar;		// Radar drawing mode (icons)
@@ -498,6 +500,8 @@ public:
 			CreateCS();
 		EnterCS();
 
+		ID = 0;
+
 		yardmap_timer = 1;
 		death_timer = 0;
 
@@ -636,6 +640,7 @@ public:
 	{
 		while( drawing )	rest(0);
 		EnterCS();
+		ID = 0;
 		for(int i=0;i<nb_running;i++)
 			(*script_env)[i].destroy();
 		while(mission) clear_mission();
@@ -902,6 +907,7 @@ public:
 	bool	thread_ask_to_stop;
 	bool	wind_change;
 	MAP		*map;
+	uint32	next_unit_ID;			// Used to make it unique
 	uint32	current_tick;
 	uint32	client_tick[10];
 	uint32	client_speed[10];
@@ -937,6 +943,7 @@ public:
 	{
 		EnterCS();
 		
+		next_unit_ID = 1;
 		mini_idx = NULL;
 		mini_pos = NULL;
 		mini_col = NULL;

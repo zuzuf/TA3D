@@ -170,6 +170,7 @@ void save_game( const String filename, GAME_DATA *game_data )
 
 	SAVE( units.nb_unit );
 	SAVE( units.max_unit );
+	SAVE( units.next_unit_ID );
 
 	foreach( units.repair_pads, pad_list ) {
 		int list_size = pad_list->size();
@@ -184,6 +185,8 @@ void save_game( const String filename, GAME_DATA *game_data )
 		SAVE( units.unit[i].type_id );
 		
 		if( units.unit[i].type_id < 0 || !(units.unit[i].flags & 1) )	continue;
+
+		SAVE( units.unit[i].ID );		// Store its ID so we don't lose its "name"
 
 		fputs( unit_manager.unit_type[units.unit[i].type_id].Unitname, file );		// Store the name so it doesn't rely on the feature order
 		fputc( 0, file );
@@ -285,6 +288,7 @@ void save_game( const String filename, GAME_DATA *game_data )
 				fputc( 1, file );
 				SAVE( cur->mission );
 				SAVE( cur->target );
+				SAVE( cur->target_ID );
 				SAVE( cur->step );
 				SAVE( cur->time );
 				SAVE( cur->data );
@@ -626,6 +630,7 @@ void load_game( GAME_DATA *game_data )
 
 	LOAD( units.nb_unit );
 	LOAD( units.max_unit );
+	LOAD( units.next_unit_ID );
 
 	foreach( units.repair_pads, pad_list ) {
 		int list_size;
@@ -666,6 +671,8 @@ void load_game( GAME_DATA *game_data )
 		if( units.unit[i].type_id < 0 || !(units.unit[i].flags & 1) )
 			continue;
 		units.idx_list[units.index_list_size++] = i;
+
+		LOAD( units.unit[i].ID );
 
 		readstring( tmp, 1024, file );
 		units.unit[i].type_id = unit_manager.get_unit_index( tmp );
@@ -777,6 +784,7 @@ void load_game( GAME_DATA *game_data )
 					(*cur)->next = NULL;
 					LOAD( (*cur)->mission );
 					LOAD( (*cur)->target );
+					LOAD( (*cur)->target_ID );
 					LOAD( (*cur)->step );
 					LOAD( (*cur)->time );
 					LOAD( (*cur)->data );

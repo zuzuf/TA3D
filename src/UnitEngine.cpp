@@ -67,8 +67,29 @@ bool UNIT::is_on_radar( byte p_mask )
 #endif
 			return;
 			}
+			
 		mission_type &= ~MISSION_FLAG_AUTO;
 
+		uint32 target_ID = 0;
+		
+		if( pointer != NULL )
+			switch( mission_type )
+			{
+			case MISSION_GET_REPAIRED:
+			case MISSION_CAPTURE:
+			case MISSION_LOAD:
+			case MISSION_BUILD_2:
+			case MISSION_RECLAIM:
+			case MISSION_REPAIR:
+			case MISSION_GUARD:
+				target_ID = ((UNIT*)pointer)->ID;
+				break;
+			case MISSION_ATTACK:
+				if( !(m_flags&MISSION_FLAG_TARGET_WEAPON) )
+					target_ID = ((UNIT*)pointer)->ID;
+				break;
+			};
+			
 		bool def_mode = false;
 		if( !unit_manager.unit_type[type_id].BMcode )
 			switch( mission_type )
@@ -122,6 +143,7 @@ bool UNIT::is_on_radar( byte p_mask )
 		MISSION *new_mission = (MISSION*) malloc(sizeof(MISSION));
 		new_mission->next = NULL;
 		new_mission->mission = mission_type;
+		new_mission->target_ID = target_ID;
 		new_mission->step = step;
 		new_mission->time = 0.0f;
 		new_mission->data = dat;
@@ -239,6 +261,26 @@ bool UNIT::is_on_radar( byte p_mask )
 			}
 		mission_type &= ~MISSION_FLAG_AUTO;
 
+		uint32 target_ID = 0;
+		
+		if( pointer != NULL )
+			switch( mission_type )
+			{
+			case MISSION_GET_REPAIRED:
+			case MISSION_CAPTURE:
+			case MISSION_LOAD:
+			case MISSION_BUILD_2:
+			case MISSION_RECLAIM:
+			case MISSION_REPAIR:
+			case MISSION_GUARD:
+				target_ID = ((UNIT*)pointer)->ID;
+				break;
+			case MISSION_ATTACK:
+				if( !(m_flags&MISSION_FLAG_TARGET_WEAPON) )
+					target_ID = ((UNIT*)pointer)->ID;
+				break;
+			};
+
 		if( nanolathe_target >= 0 && network_manager.isConnected() ) {
 			nanolathe_target = -1;
 			g_ta3d_network->sendUnitNanolatheEvent( idx, -1, false, false );
@@ -320,6 +362,7 @@ bool UNIT::is_on_radar( byte p_mask )
 			def_mission = (MISSION*) malloc(sizeof(MISSION));
 			def_mission->next = NULL;
 			def_mission->mission = mission_type;
+			def_mission->target_ID = target_ID;
 			def_mission->step = step;
 			def_mission->time = 0.0f;
 			def_mission->data = dat;
@@ -351,6 +394,7 @@ bool UNIT::is_on_radar( byte p_mask )
 			mission = (MISSION*) malloc(sizeof(MISSION));
 			mission->next = NULL;
 			mission->mission = mission_type;
+			mission->target_ID = target_ID;
 			mission->step = step;
 			mission->time = 0.0f;
 			mission->data = dat;
@@ -3003,7 +3047,7 @@ bool UNIT::is_on_radar( byte p_mask )
 						next_mission();
 					break;
 				case MISSION_GET_REPAIRED:
-					if( mission->p && (((UNIT*)mission->p)->flags & 1) ) {
+					if( mission->p && (((UNIT*)mission->p)->flags & 1) && ((UNIT*)mission->p)->ID == mission->target_ID ) {
 						UNIT *target_unit = (UNIT*) mission->p;
 
 						if( !(mission->flags & MISSION_FLAG_PAD_CHECKED) ) {
@@ -3170,7 +3214,7 @@ bool UNIT::is_on_radar( byte p_mask )
 				case MISSION_LOAD:
 					if(mission->p!=NULL) {
 						UNIT *target_unit=(UNIT*) mission->p;
-						if( !(target_unit->flags & 1) ) {
+						if( !(target_unit->flags & 1) || target_unit->ID != mission->target_ID ) {
 							next_mission();
 							break;
 							}
@@ -3228,7 +3272,7 @@ bool UNIT::is_on_radar( byte p_mask )
 				case MISSION_RECLAIM:
 					if(mission->p!=NULL)	{		// Récupère une unité
 						UNIT *target_unit=(UNIT*) mission->p;
-						if( (target_unit->flags & 1) ) {
+						if( (target_unit->flags & 1) && target_unit->ID == mission->target_ID ) {
 							if( mission->mission == MISSION_CAPTURE ) {
 								if( unit_manager.unit_type[ target_unit->type_id ].commander || target_unit->owner_id == owner_id ) {
 									play_sound( "cant1" );
@@ -3442,7 +3486,7 @@ bool UNIT::is_on_radar( byte p_mask )
 					break;
 				case MISSION_GUARD:
 					if(jump_commands)	break;
-					if(mission->p!=NULL && (((UNIT*)mission->p)->flags & 1) && ((UNIT*)mission->p)->owner_id==owner_id) {		// On ne défend pas n'importe quoi
+					if(mission->p!=NULL && (((UNIT*)mission->p)->flags & 1) && ((UNIT*)mission->p)->owner_id==owner_id && ((UNIT*)mission->p)->ID == mission->target_ID) {		// On ne défend pas n'importe quoi
 						if(unit_manager.unit_type[type_id].Builder) {
 							if(((UNIT*)mission->p)->build_percent_left > 0.0f || ((UNIT*)mission->p)->hp<unit_manager.unit_type[((UNIT*)mission->p)->type_id].MaxDamage) {		// Répare l'unité
 								add_mission(MISSION_REPAIR | MISSION_FLAG_AUTO,&((UNIT*)mission->p)->Pos,true,0,((UNIT*)mission->p),NULL);
@@ -3566,7 +3610,7 @@ bool UNIT::is_on_radar( byte p_mask )
 					{
 						UNIT *target_unit = (mission->flags & MISSION_FLAG_TARGET_WEAPON) == MISSION_FLAG_TARGET_WEAPON ? NULL : (UNIT*) mission->p;
 						WEAPON *target_weapon = (mission->flags & MISSION_FLAG_TARGET_WEAPON) == MISSION_FLAG_TARGET_WEAPON ? (WEAPON*) mission->p : NULL;
-						if((target_unit!=NULL && (target_unit->flags&1)) || (target_weapon!=NULL && target_weapon->weapon_id!=-1) || (target_weapon==NULL && target_unit==NULL) ) {
+						if((target_unit!=NULL && (target_unit->flags&1) && target_unit->ID == mission->target_ID) || (target_weapon!=NULL && target_weapon->weapon_id!=-1) || (target_weapon==NULL && target_unit==NULL) ) {
 
 							if( target_unit ) {				// Check if we can target the unit
 								byte mask = 1 << owner_id;
@@ -3709,7 +3753,7 @@ bool UNIT::is_on_radar( byte p_mask )
 				case MISSION_REPAIR:
 					{
 						UNIT *target_unit=(UNIT*) mission->p;
-						if(target_unit!=NULL && (target_unit->flags & 1) && target_unit->build_percent_left == 0.0f) {
+						if(target_unit!=NULL && (target_unit->flags & 1) && target_unit->build_percent_left == 0.0f && target_unit->ID == mission->target_ID) {
 							if(target_unit->hp>=unit_manager.unit_type[target_unit->type_id].MaxDamage || !unit_manager.unit_type[type_id].BMcode) {
 								if(unit_manager.unit_type[type_id].BMcode)
 									target_unit->hp=unit_manager.unit_type[target_unit->type_id].MaxDamage;
@@ -3789,7 +3833,7 @@ bool UNIT::is_on_radar( byte p_mask )
 				case MISSION_BUILD_2:
 					{
 						UNIT *target_unit=(UNIT*) mission->p;
-						if(target_unit->flags) {
+						if(target_unit->flags && target_unit->ID == mission->target_ID) {
 							target_unit->Lock();
 							if(target_unit->build_percent_left <= 0.0f) {
 								target_unit->build_percent_left = 0.0f;
@@ -3922,6 +3966,7 @@ bool UNIT::is_on_radar( byte p_mask )
 									mission->p = create_unit(mission->data,owner_id,mission->target,map);
 									EnterCS();
 									if(mission->p) {
+										mission->target_ID = ((UNIT*)mission->p)->ID;
 										((UNIT*)(mission->p))->hp=0.000001f;
 										((UNIT*)(mission->p))->built=true;
 										}
@@ -4459,13 +4504,25 @@ bool UNIT::is_on_radar( byte p_mask )
 		if( !def_orders )	show_orders( only_build_commands, true );
 		EnterCS();
 
+		bool low_def = game_cam->RPos.y > gfx->low_def_limit;
+
 		MISSION *cur = def_orders ? def_mission : mission;
-		glEnable(GL_BLEND);
-		glEnable(GL_TEXTURE_2D);
-		glDisable(GL_LIGHTING);
-		glDisable(GL_CULL_FACE);
-		glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
-		glColor4f(1.0f,1.0f,1.0f,1.0f);
+		if( low_def ) {
+			glEnable(GL_BLEND);
+			glDisable(GL_TEXTURE_2D);
+			glDisable(GL_LIGHTING);
+			glDisable(GL_CULL_FACE);
+			glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+			glColor4f(1.0f,1.0f,1.0f,1.0f);
+			}
+		else {
+			glEnable(GL_BLEND);
+			glEnable(GL_TEXTURE_2D);
+			glDisable(GL_LIGHTING);
+			glDisable(GL_CULL_FACE);
+			glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+			glColor4f(1.0f,1.0f,1.0f,1.0f);
+			}
 		VECTOR p_target=Pos;
 		VECTOR n_target=Pos;
 		float rab=(msec_timer%1000)*0.001f;
@@ -4499,24 +4556,47 @@ bool UNIT::is_on_radar( byte p_mask )
 			case MISSION_RECLAIM:
 			case MISSION_REVIVE:
 			case MISSION_CAPTURE:
+				if( (cur->p && ((UNIT*)(cur->p))->ID != cur->target_ID) || (cur->flags & MISSION_FLAG_TARGET_WEAPON) )	continue;	// Don't show this, it'll be removed
 				n_target=cur->target;
 				n_target.y = max( units.map->get_unit_h( n_target.x, n_target.z ), units.map->sealvl );
 				if(rec>0) {
-					glBindTexture(GL_TEXTURE_2D,cursor.anm[CURSOR_CROSS_LINK].glbmp[curseur]);
-					glBegin(GL_QUADS);
-						for(int i=0;i<rec;i++) {
-							x=p_target.x+(n_target.x-p_target.x)*(i+rab)/rec;
-							z=p_target.z+(n_target.z-p_target.z)*(i+rab)/rec;
-							y = max( units.map->get_unit_h( x, z ), units.map->sealvl );
-							x-=dx;
-							y+=0.75f;
-							z-=dz;
-							glTexCoord2f(0.0f,0.0f);		glVertex3f(x,y,z);
-							glTexCoord2f(1.0f,0.0f);		glVertex3f(x+sx,y,z);
-							glTexCoord2f(1.0f,1.0f);		glVertex3f(x+sx,y,z+sy);
-							glTexCoord2f(0.0f,1.0f);		glVertex3f(x,y,z+sy);
-							}
-					glEnd();
+					if( low_def ) {
+						glDisable(GL_DEPTH_TEST);
+						glColor4ub( 0xFF, 0xFF, 0xFF, 0x7F );
+						glBegin( GL_QUADS );
+							VECTOR D = n_target - p_target;
+							D.y = D.x;
+							D.x = D.z;
+							D.z = -D.y;
+							D.y = 0.0f;
+							D.Unit();
+							D = 5.0f * D;
+							VECTOR P;
+							P = p_target - D;	glVertex3fv( (GLfloat*)&P );
+							P = p_target + D;	glVertex3fv( (GLfloat*)&P );
+							P = n_target + D;	glVertex3fv( (GLfloat*)&P );
+							P = n_target - D;	glVertex3fv( (GLfloat*)&P );
+						glEnd();
+						glColor4ub( 0xFF, 0xFF, 0xFF, 0xFF );
+						glEnable(GL_DEPTH_TEST);
+						}
+					else {
+						glBindTexture(GL_TEXTURE_2D,cursor.anm[CURSOR_CROSS_LINK].glbmp[curseur]);
+						glBegin(GL_QUADS);
+							for(int i=0;i<rec;i++) {
+								x=p_target.x+(n_target.x-p_target.x)*(i+rab)/rec;
+								z=p_target.z+(n_target.z-p_target.z)*(i+rab)/rec;
+								y = max( units.map->get_unit_h( x, z ), units.map->sealvl );
+								x-=dx;
+								y+=0.75f;
+								z-=dz;
+								glTexCoord2f(0.0f,0.0f);		glVertex3f(x,y,z);
+								glTexCoord2f(1.0f,0.0f);		glVertex3f(x+sx,y,z);
+								glTexCoord2f(1.0f,1.0f);		glVertex3f(x+sx,y,z+sy);
+								glTexCoord2f(0.0f,1.0f);		glVertex3f(x,y,z+sy);
+								}
+						glEnd();
+						}
 					}
 				p_target = n_target;
 			};
@@ -4600,7 +4680,10 @@ bool UNIT::is_on_radar( byte p_mask )
 					glEnd();
 					glPopMatrix();
 					glEnable(GL_BLEND);
-					glEnable(GL_TEXTURE_2D);
+					if( low_def )
+						glDisable(GL_TEXTURE_2D);
+					else
+						glEnable(GL_TEXTURE_2D);
 					glDisable(GL_CULL_FACE);
 					glColor4f(1.0f,1.0f,1.0f,1.0f);
 					}
@@ -4641,6 +4724,8 @@ bool UNIT::is_on_radar( byte p_mask )
 				float z=cur->target.z-0.5f*cursor.anm[ cursor_type ].ofs_y[curseur];
 				float sx=0.5f*(cursor.anm[ cursor_type ].bmp[curseur]->w-1);
 				float sy=0.5f*(cursor.anm[ cursor_type ].bmp[curseur]->h-1);
+				if( low_def )
+					glEnable( GL_TEXTURE_2D );
 				glBindTexture(GL_TEXTURE_2D,cursor.anm[ cursor_type ].glbmp[curseur]);
 				glBegin(GL_QUADS);
 					glTexCoord2f(0.0f,0.0f);		glVertex3f(x,y,z);
@@ -4648,6 +4733,8 @@ bool UNIT::is_on_radar( byte p_mask )
 					glTexCoord2f(1.0f,1.0f);		glVertex3f(x+sx,y,z+sy);
 					glTexCoord2f(0.0f,1.0f);		glVertex3f(x,y,z+sy);
 				glEnd();
+				if( low_def )
+					glDisable( GL_TEXTURE_2D );
 				}
 				break;
 			};
@@ -5654,6 +5741,7 @@ int INGAME_UNITS::create(int type_id,int owner)
 	int unit_index = free_idx[owner*MAX_UNIT_PER_PLAYER+free_index_size[owner]-1];
 	free_index_size[owner]--;
 	unit[unit_index].init(type_id,owner);
+	unit[unit_index].ID = next_unit_ID++;		// So now we know who is this unit :)
 	unit[unit_index].Angle.y = ((rand_from_table()%20001)-10000) * 0.0001f * unit_manager.unit_type[ type_id ].BuildAngle * TA2DEG;	// Angle de 10° maximum
 
 	idx_list[index_list_size++] = unit_index;
