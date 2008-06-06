@@ -8,12 +8,14 @@ _make 3D replacement models for 2D map features
 _implement standing move orders
 _increase loading speed and lower memory cost by not loading unused features (done in some modules)
 _add support for TTF fonts ( seems impossible due to memory restrictions )
-_networking code
 _improve A.I.
 _D3D support
 
+* improved pathfinding and path following code performance
+* improved global renderer performance
+* support for available unit types detection (networking mode)
 * added support for Damage categories (not supported in TA, but doesn't break compatibility)
-* added a backtrace module to log the call stack state after a crash
+* added a backtrace module to log the call stack state after a crash (Linux only :'( )
 * added support for Internet Server list
 * multiplayer :)
 * added multiplayer entry in main menu
@@ -42,6 +44,7 @@ _some parts of the maps might not be drawn (visibility limit) like hills
 _slow down with lots of 3D sprites on some gfx hardware (speed increased but bug not yet fixed)
 _fix all other bugs ( :-) )
 
+* fixed units being spawned not being cleared correctly from yard map
 * fixed unit colors being wrong when texture cache is enabled
 * fixed nanospray sometimes going to space
 * fixed crash in Config->Audio when clicking something with no music listed
