@@ -80,6 +80,26 @@
 	#include <alleggl.h>
 #endif
 
+// Just to make sure it'll build with the autotools system since we're moving to CMake
+
+#ifndef PACKAGE_BUGREPORT
+	#define PACKAGE_BUGREPORT "zuzuf86@gmail.com"
+#endif
+
+#ifndef PACKAGE_STRING
+	#define PACKAGE_STRING "TA3D 0.5.0 WIP"
+#endif
+
+#ifndef PACKAGE_VERSION
+	#define PACKAGE_VERSION "0.5.0 WIP"
+#endif
+
+#ifndef TA3D_ENGINE_VERSION
+	#define TA3D_ENGINE_VERSION "TA3D 0.5.0 WIP"
+#endif
+
+// End of autotools compatibility code
+
 // Now lets get gl/glu support.
 #include <GL/glu.h>
 
