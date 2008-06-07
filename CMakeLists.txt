@@ -30,7 +30,7 @@ endif( ${VA} EQUAL 1 )
 
 message( STATUS "CXXFLAGS set to ${CMAKE_CXX_FLAGS}" )
 
-if( WIN32 )
+if( WIN32 OR CMAKE_CROSSCOMPILING )
 	set( ALLEGRO_CONFIG "-lalleg" )
 
 	if( NOT BUILT_LUA )
@@ -64,7 +64,7 @@ elseif( UNIX )
 	set( LIBS agl lua z NL ${OPENGL_LIBRARIES} ${ALLEGRO_CONFIG} )
 
 	set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mmmx -rdynamic -ffast-math" )
-endif( WIN32 )
+endif( WIN32 OR CMAKE_CROSSCOMPILING )
 
 set( CMAKE_RUNTIME_OUTPUT_DIRECTORY ${TA3D_SOURCE_DIR} )
 
