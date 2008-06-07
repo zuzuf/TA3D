@@ -6,6 +6,27 @@ endif( NOT CMAKE_MINOR_VERSION EQUAL 4 OR NOT CMAKE_MAJOR_VERSION EQUAL 2 )
 
 PROJECT(TA3D)
 
+#
+# Platform
+#
+IF(UNIX)
+    IF(APPLE)
+        SET(GUI "Cocoa")
+        ADD_DEFINITIONS("-DTA3D_PLATFORM_DARWIN")
+        SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fvisibility=hidden")
+    ELSE(APPLE)
+        SET(GUI "Linux X11")
+        ADD_DEFINITIONS("-DTA3D_PLATFORM_LINUX")
+    ENDIF(APPLE)
+    ADD_DEFINITIONS("-DTA3D_PLATFORM_UNIX")
+ELSE(UNIX)
+    IF(WIN32)
+        SET(GUI "Win32")
+        ADD_DEFINITIONS("-DTA3D_PLATFORM_WINDOWS -DTA3D_PLATFORM_WIN32")
+    ELSE(WIN32)
+        SET(GUI "Unknown")
+    ENDIF(WIN32)
+ENDIF(UNIX)
 
 
 Include( CheckIncludeFile )
@@ -14,10 +35,13 @@ Include( CheckIncludeFile )
 #
 # OpenGL
 #
-Include( FindOpenGL )
+Include(FindGLU)
+Include(FindGLUT)
+Include(FindOpenGL)
 if( NOT OPENGL_FOUND )
 	message( FATAL_ERROR "OpenGL libraries not found !!" )
 endif( NOT OPENGL_FOUND )
+SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -I${OPENGL_INCLUDE_DIR}")
 
 #
 # Allegro
