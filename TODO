@@ -1,0 +1,67 @@
+TODO list
+---------
+_add the possibility to lock/unlock the mouse inside the game's window
+_add support for team management
+_read the music from a CD
+_add glossiness (or reflection) to all TA3D models.
+_make 3D replacement models for 2D map features
+_implement standing move orders
+_increase loading speed and lower memory usage by not loading unused features (done in some modules)
+_add support for TTF fonts ( seems impossible due to memory restrictions )
+_improve A.I.
+_D3D support
+
+* rendering unit orders paths is faster (uses ARRAYs instead of immediate mode :s)
+* in tactical view path icons are replaced with half transparent white lines (faster and visible :) )
+* improved pathfinding and path following code performance
+* improved global renderer performance
+* support for available unit types detection (networking mode)
+* added support for Damage categories (not supported in TA, but doesn't break compatibility)
+* added a backtrace module to log the call stack state after a crash (Linux only :'( )
+* added support for Internet Server list
+* multiplayer :)
+* added multiplayer entry in main menu
+* new single player menu
+* new main menu
+* new "wait for other players" screen when loading is finished (networking mode)
+* in game chat system
+* tactical icons are rendered in inverted colors for black player, otherwise you don't see icons
+* added support for saving/loading games
+* pressing ESC also pause the game
+* added shootall console command to kill all enemy units
+* low level networking layer uses HawkNL library
+* added support for broadcasting (LAN server discovery)
+* added networking code
+* added support for mission features (features described in *.ota files)
+* added a test to prevent making textures that can't fit within the maximum texture size available on the OpenGL renderer (hope it'll fix the SIS bug)
+
+bug list
+--------
+_invisible units should be visible when an enemy is close enough
+_sometimes weapons go through their target without hitting them !!
+_There should be either restriction to use 12-icon build menu on resolutions lesser than 1024x768 or it should be sizeable, since now on 800x600 or 640x480 size of 12-icon build menu don`t match size of othe GUI parts and covers some of function buttons.
+_AI still can`t place metal extractors directly where it should be placed
+_add a flag to movement data to make units leaving their factory face the exit before moving
+_some parts of the maps might not be drawn (visibility limit) like hills
+_slow down with lots of 3D sprites on some gfx hardware (speed increased but bug not yet fixed)
+_fix all other bugs ( :-) )
+
+* fixed very ugly bug that could allow a unit to acquire a wrong target if the target has died and been replaced in memory before the mission is executed !
+* fixed units being spawned not being cleared correctly from yard map
+* fixed unit colors being wrong when texture cache is enabled
+* fixed nanospray sometimes going to space
+* fixed crash in Config->Audio when clicking something with no music listed
+* fixed lots of bugs in networking code
+* fixed some transparency drawing bugs with trees
+* fixed tactical icons hidden by map geometry
+* fixed some bugs in networking code
+* fixed click on hidden widgets when floatting menus are unrolled
+* enable ATI workarounds with SIS cards
+* fixed gui bug with floatting menus : "when the pointer is over a floatting menu, it selects without clicking (config menu) ..."
+* fixed : the second mission of arm campaign is no more won immediately ...
+
+idea list
+---------
+_random map generator
+_animated background in menus
+_first person view to allow FPS style mods

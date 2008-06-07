@@ -1,0 +1,9 @@
+[area]
+{
+	name=network game area;
+	skin=gui/default.skn;
+	windows=gui/networkgame.tdf, gui/hosting.tdf, gui/joinip.tdf;
+	background=gfx/networkgame.jpg;
+	width=1280;
+	height=1024;
+}
