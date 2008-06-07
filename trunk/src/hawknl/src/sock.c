@@ -89,7 +89,7 @@
 #endif
 
 /* SGI and MacOS X do not include socklen_t */
-#if defined __sgi || defined MACOSX
+#if defined __sgi //|| defined MACOSX
 typedef int socklen_t;
 #endif
 
@@ -1756,13 +1756,23 @@ NLchar *sock_AddrToString(const NLaddress *address, NLchar *string)
     port = ntohs(((struct sockaddr_in *)address)->sin_port);
     if(port == 0)
     {
+        #ifdef __APPLE__
+        _stprintf(string, TEXT("%lu.%lu.%lu.%lu"), (addr >> 24) & 0xff, (addr >> 16)
+            & 0xff, (addr >> 8) & 0xff, addr & 0xff);
+        #else
         _stprintf(string, TEXT("%d.%d.%d.%d"), (addr >> 24) & 0xff, (addr >> 16)
             & 0xff, (addr >> 8) & 0xff, addr & 0xff);
+        #endif
     }
     else
     {
+        #ifdef __APPLE__
+        _stprintf(string, TEXT("%lu.%lu.%lu.%lu:%u"), (addr >> 24) & 0xff, (addr >> 16)
+            & 0xff, (addr >> 8) & 0xff, addr & 0xff, port);
+        #else
         _stprintf(string, TEXT("%d.%d.%d.%d:%u"), (addr >> 24) & 0xff, (addr >> 16)
             & 0xff, (addr >> 8) & 0xff, addr & 0xff, port);
+        #endif
     }
     return string;
 }
@@ -1773,7 +1783,11 @@ NLboolean sock_StringToAddr(const NLchar *string, NLaddress *address)
     NLulong     ipaddress, port = 0;
     int         ret;
 
+    #ifdef __APPLE__
+    ret = _stscanf((const NLchar *)string, (const NLchar *)TEXT("%lu.%lu.%lu.%lu:%lu"), &a1, &a2, &a3, &a4, &port);
+    #else
     ret = _stscanf((const NLchar *)string, (const NLchar *)TEXT("%d.%d.%d.%d:%d"), &a1, &a2, &a3, &a4, &port);
+    #endif
 
     if(a1 > 255 || a2 > 255 || a3 > 255 || a4 > 255 || port > 65535 || ret < 4)
     {
