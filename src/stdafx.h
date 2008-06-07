@@ -100,16 +100,20 @@
 
 // End of autotools compatibility code
 
-// Now lets get gl/glu support.
-#include <GL/glu.h>
+// OpenGL
+# ifdef TA3D_PLATFORM_DARWIN
+#   include <Headers/glu.h> // see `/System/Library/Frameworks/OpenGL.framework`
+# else
+#   include <GL/glu.h>
+# endif
 
 #include "jpeg/ta3d_jpg.h"
-
-// Math include.
 #include <math.h>
 // Cire:
 //   Malloc should not be platform specfic right???
-#include <malloc.h>
+# ifndef TA3D_PLATFORM_DARWIN // TODO Should be completely removed
+#   include <malloc.h>
+# endif
 
 
 // Cire:
