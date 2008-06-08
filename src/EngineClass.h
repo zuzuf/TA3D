@@ -127,7 +127,7 @@ class BLOC				// Blocs composant la carte
 public:
 	byte		nbindex;	// Nombre d'indices	/ Number of indexes
 	byte		nbpoint;	// Nombre de points / Number of points
-	POINTF		*point;		// Points du bloc / Array of points
+	VECTOR		*point;		// Points du bloc / Array of points
 	float		*texcoord;	// Coordonnées de texture / Texture coordinates
 	GLuint		tex;		// Indice de texture OpenGl / OpenGL texture handle
 	bool		lava;		// Indique si le bloc est de type lave / Is that a lava bloc ?
@@ -295,7 +295,7 @@ public:
 	int			mini_w;
 	int			mini_h;
 	float		sealvl;			// Niveau de la mer
-	POINTF		**lvl;			// Bloc de flottants pour le relief de la carte
+	VECTOR		**lvl;			// Bloc de flottants pour le relief de la carte
 	bool		water;			// Indique qu'il faut dessiner la mer
 	bool		tnt;			// Indique si la carte est format tnt(format de total annihilation)
 	float		sea_dec;		// Décalage de la mer
@@ -323,8 +323,8 @@ public:
 
 	int			low_nb_idx;
 	int			low_w,low_h;
-	POINTF		*low_vtx;
-	POINTF		*low_vtx_flat;
+	VECTOR		*low_vtx;
+	VECTOR		*low_vtx_flat;
 	float		*low_tcoord;
 	uint8		*low_col;
 	GLuint		*low_index;

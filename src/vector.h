@@ -30,22 +30,6 @@
 \---------------------------------------------------------------------------*/
 
 /*------------------------------------------------------------------------
-|              Pour les points dans un plan(2D)
-\-------------------------------------*/
-struct POINT2D
-{
-   float x,y;
-};
-
-/*------------------------------------------------------------------------
-|              Pour les points dans l'espace(3D)
-\-------------------------------------*/
-struct POINT3D
-{
-   float x,y,z;
-};
-
-/*------------------------------------------------------------------------
 |              Pour le traitement de vecteurs dans un plan(2D)
 \-------------------------------------*/
 
@@ -53,12 +37,6 @@ class VECTOR2D
 {
 public:         // les coordonnées sont public
    float x,y;      // Coordonnées
-      // Calcul des coordonnées à partir de 2 points
-   inline void V(POINT2D a,POINT2D b)
-   {
-      x=b.x-a.x;
-      y=b.y-a.y;
-   }
       // Fonction qui renvoie le carré scalaire du vecteur
    inline float Sq()
    {
@@ -106,23 +84,14 @@ float x,y,z;    // Coordonnées spatiales du vecteur
 		x=X;	y=Y;	z=Z;
 	}
 
-      // Calcul des coordonnées à partir de 2 points
-   inline const void V(POINT3D a,POINT3D b)
-   {
-      x=b.x-a.x;
-      y=b.y-a.y;
-      z=b.z-a.z;
-   }
-      // Fonction qui renvoie le carr‚ scalaire du vecteur
+      // Fonction qui renvoie le carré scalaire du vecteur
    inline const float Sq()
    {
       return (x*x+y*y+z*z);     // carré scalaire
-//      return dot_product_f(x,y,z,x,y,z);//(x*x+y*y+z*z);     // carré scalaire
    }
       // Fonction qui renvoie la norme du vecteur
    inline const float Norm()
    {
-//   		return hypot( x, hypot( y, z ) );
       return sqrt(x*x+y*y+z*z); // racine du carré scalaire
    }
       // Rend le vecteur unitaire si possible(de norme 1)
@@ -148,7 +117,6 @@ inline const VECTOR3D operator+=(const VECTOR3D& b)     // 3D
 
 // Pour une utilisation courante
 typedef VECTOR3D VECTOR;        // On utilise les vecteurs 3D
-typedef POINT3D POINTF;         // On utilise les points 3D
 
 /*---------------------------------------------------------------------------\
 |           Définition des opérateurs relatifs aux vecteurs                  |
@@ -239,26 +207,6 @@ inline VECTOR3D operator*(const VECTOR3D &a,const VECTOR3D &b)
 }
 
 /*------------------------------------------------------------------------
-|              Création d'un vecteur à partir de points
-\-------------------------------------*/
-inline VECTOR2D operator>>(const POINT2D &a,const POINT2D &b)        // 2D
-{
-   VECTOR2D ab;
-   ab.x=b.x-a.x;
-   ab.y=b.y-a.y;
-   return ab;
-}
-
-inline VECTOR3D operator>>(const POINT3D &a,const POINT3D &b)        // 3D
-{
-   VECTOR3D ab;
-   ab.x=b.x-a.x;
-   ab.y=b.y-a.y;
-   ab.z=b.z-a.z;
-   return ab;
-}
-
-/*------------------------------------------------------------------------
 |              Verification d'égalité
 \-------------------------------------*/
 inline bool operator==(const VECTOR2D &a, const VECTOR2D &b)         // 2D
@@ -266,49 +214,14 @@ inline bool operator==(const VECTOR2D &a, const VECTOR2D &b)         // 2D
    if(a.x==b.x&&a.y==b.y) return true;
    else return false;
 }
-inline bool operator==(const POINT2D &a, const POINT2D &b)           // 2D
-{
-   if(a.x==b.x&&a.y==b.y) return true;
-   else return false;
-}
 
 inline bool operator==(const VECTOR3D &a, const VECTOR3D &b)         // 3D
 {
-   if(a.x==b.x&&a.y==b.y&&a.z==b.z) return true;
-   else return false;
-}
-inline bool operator==(const POINT3D &a, const POINT3D &b)           // 3D
-{
-   //if(a.x==b.x&&a.y==b.y&&a.z==b.z) return true;
+//   if(a.x==b.x&&a.y==b.y&&a.z==b.z) return true;
    if(fabs(a.x-b.x)<0.0001f&&fabs(a.y-b.y)<0.0001f&&fabs(a.z-b.z)<0.0001f) return true;
    else return false;
 }
-
-/*------------------------------------------------------------------------
-|              Translation d'un point par un vecteur
-\-------------------------------------*/
-inline POINT2D operator+(POINT2D a, const VECTOR2D &b)        // 2D
-{
-   a.x+=b.x, a.y+=b.y;
-   return a;
-}
-inline POINT2D operator-(POINT2D a, VECTOR2D &b)        // 2D
-{
-   a.x-=b.x, a.y-=b.y;
-   return a;
-}
-
-inline POINT3D operator+(POINT3D a, const VECTOR3D &b)        // 3D
-{
-   a.x+=b.x, a.y+=b.y, a.z+=b.z;
-   return a;
-}
-inline POINT3D operator-(POINT3D a, const VECTOR3D &b)        // 3D
-{
-   a.x-=b.x, a.y-=b.y, a.z-=b.z;
-   return a;
-}
-
+
 /*------------------------------------------------------------------------
 |              Retourne l'angle en radians entre deux vecteurs
 \-------------------------------------*/
