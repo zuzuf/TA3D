@@ -35,6 +35,7 @@
 #include "tdf.h"					// Pour la gestion des éléments du jeu
 #include "EngineClass.h"
 #include "UnitEngine.h"
+#include "fx.h"
 #include "lzw.h"					// Support for LZW compression
 
 float	player_color[30]={	0.11f,	0.28f,	0.91f,

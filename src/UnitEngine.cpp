@@ -36,6 +36,7 @@
 #include "EngineClass.h"
 #include "UnitEngine.h"
 #include "TA3D_Network.h"
+#include "fx.h"
 
 using namespace TA3D::EXCEPTION;
 

@@ -29,6 +29,7 @@
 #include "menu.h"			// Game menus
 #include "restore.h"		// Save/Load mecanisms
 #include "TA3D_Network.h"	// Network functionnalities such as chat
+#include "fx.h"
 
 #ifndef SCROLL_SPEED
 	#define SCROLL_SPEED		400.0f
