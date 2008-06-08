@@ -29,8 +29,23 @@ namespace TA3D
 		void CreateCS();
 		void DeleteCS();
 
-		void EnterCS();
-		void LeaveCS();
+		inline void EnterCS()
+		{
+#if defined TA3D_PLATFORM_WINDOWS
+			::EnterCriticalSection( &m_hCritSection );
+#else
+			::pthread_mutex_lock( &m_hCritSection );
+#endif
+		}
+
+		inline void LeaveCS()
+		{
+#if defined TA3D_PLATFORM_WINDOWS
+			::LeaveCriticalSection( &m_hCritSection );
+#else
+			::pthread_mutex_unlock( &m_hCritSection );
+#endif
+		}
 		
 	// Member Variables
 	private:
