@@ -24,27 +24,37 @@ using namespace TA3D::UTILS::HPI;
 
 Network	network_manager;
 
+
+
+
 /******************************/
 /**  methods for SockList  ****/
 /******************************/
 
 
-SockList::SockList(){
+SockList::SockList()
+{
 	maxid = 0;
 	list = NULL;
 }
 
-SockList::~SockList(){
+SockList::~SockList()
+{
 	Shutdown();
 }
 
-void SockList::Shutdown(){
-	while(list){
-		Remove(list->id);
-	}
+void
+SockList::Shutdown()
+{
+	while(list)
+    {
+	    Remove(list->id);
+    }
 }
 
-int SockList::Add(TA3DSock* sock){
+int
+SockList::Add(TA3DSock* sock)
+{
 	if (maxid > 10000) //arbitrary limit
 		return -1;
 	slnode *node,*ptr;
@@ -66,12 +76,15 @@ int SockList::Add(TA3DSock* sock){
 	return node->id;
 }
 
-int SockList::Remove(int id){
+int
+SockList::Remove(const int id)
+{
 	slnode *node,*prev;
 
 	if(list==NULL)
 		return -1;
-	if(list->id == id){
+	if(list->id == id)
+    {
 		node = list->next;
 		delete list;
 		list = node;
@@ -80,8 +93,10 @@ int SockList::Remove(int id){
 	
 	node=list->next;
 	prev=list;
-	while(node){
-		if(node->id == id){
+	while(node)
+    {
+		if(node->id == id)
+        {
 			prev->next = node->next;
 			delete node;
 			return 0;
@@ -93,6 +108,28 @@ int SockList::Remove(int id){
 	return -1;
 }
 
+SocketThread*
+SockList::getThread(const int id) const
+{
+	for(slnode* node = list; node; node = node->next)
+    {
+        if (id == node->id)
+			return &(node->thread);
+	}
+	return NULL;
+}
+
+TA3DSock*
+SockList::getSock(const int id) const
+{
+    for(slnode* node = list; node; node = node->next)
+    {
+		if (node->id == id)
+				return node->sock;
+    }
+	return NULL;
+}
+	
 
 
 
@@ -1589,25 +1626,29 @@ int Network::listNetGames(List< SERVER_DATA > &list)
 	cur_server.internet = true;
 	String server_version = "";
 	String server_mod = "";
-	foreach( line, entry ) {
+	foreach( line, entry )
+    {
 		Vector< String >	params = ReadVectorString( *entry, " " );
 		if( params.size() < 2 )	continue;
-		if( params.size() == 2 && params[1] == "servers" ) {
+		if( params.size() == 2 && params[1] == "servers" )
+        {
 			nb_servers = atoi( params[0].c_str() );
 			continue;
-			}
+		}
 		int cur = atoi( params[0].c_str() );
-		if( cur != old ) {						// We've all we need for this one
+		if( cur != old ) 						// We've all we need for this one
+        {
 			if( server_version != TA3D_ENGINE_VERSION || server_mod != TA3D_CURRENT_MOD )		// Not compatible!!
 				nb_servers--;
 			else
 				list.push_back( cur_server );
-			}
+		}
 
-		if( params[1] == "name:" ) {
+		if( params[1] == "name:" )
+        {
 			cur_server.name = "";
 			for( int i = 2 ; i < params.size() ; i++ )	cur_server.name += i > 2 ? " " + params[i] : params[i];
-			}
+		}
 		else if( params[1] == "IP:" )		cur_server.host = params.size() >= 3 ? params[2] : "";
 		else if( params[1] == "slots:" )	cur_server.nb_open = params.size() >= 3 ? atoi( params[2].c_str() ) : 0;
 		else if( params[1] == "mod:" ) {
@@ -1635,4 +1676,5 @@ int Network::registerToNetServer( const String &name, const int Slots )
 	String request = format("/register.php?name=%s&mod=%s&version=%s&slots=%d", ReplaceString( name, " ", "%20", false ).c_str(), ReplaceString( TA3D_CURRENT_MOD, " ", "%20", false ).c_str(), ReplaceString( TA3D_ENGINE_VERSION, " ", "%20", false ).c_str(), Slots );
 	String result = HttpRequest( lp_CONFIG->net_server, request );
 }
+
 
