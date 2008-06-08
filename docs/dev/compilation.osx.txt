@@ -1,0 +1,32 @@
+
+Compilation under Mac OS X
+==========================
+
+1 - Allegro
+-----------
+
+Install Allegro via MacPort (or download it and compile it manually)
+$ sudo port install allegro
+
+
+2 - AllegroGL
+-------------
+
+Download AllegroGL : http://allegrogl.sourceforge.net/wiki/Download
+Edit the makefile make/makefile.osx :
+  Replace 
+    INCLUDE_PATHS = $(addprefix -I, $(INCLUDE_DIR))
+    by
+    INCLUDE_PATHS = $(addprefix -I, $(INCLUDE_DIR))  -I/opt/local/include
+Compile AllegroGL :
+$ ./fix.sh macosx  && make && sudo make install
+
+
+3 - TA3D
+--------
+
+$ cmake . && make
+if you want more verbosity, try :
+$ cmake . && VERBOSE=1 make
+
+
