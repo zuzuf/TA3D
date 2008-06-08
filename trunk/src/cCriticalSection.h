@@ -36,7 +36,9 @@ namespace TA3D
 	private:
 #if defined TA3D_PLATFORM_WINDOWS
 		CRITICAL_SECTION m_hCritSection;
-#elif defined TA3D_PLATFORM_LINUX
+//#elif defined TA3D_PLATFORM_LINUX
+//		
+#else
 		pthread_mutex_t m_hCritSection;
 #endif
 	}; // class cCriticalSection
