@@ -894,6 +894,9 @@ bool UNIT::is_on_radar( byte p_mask )
 				}
 			}
 
+		drawing = true;			// Prevent the model to be set to NULL and the data structure from being reset
+		LeaveCS();
+
 		glPushMatrix();
 		glTranslatef(drawn_Pos.x,drawn_Pos.y,drawn_Pos.z);
 		glRotatef(drawn_Angle.x,1.0f,0.0f,0.0f);
@@ -913,7 +916,8 @@ bool UNIT::is_on_radar( byte p_mask )
 
 		glPopMatrix();
 
-		LeaveCS();
+		drawing = false;
+
 #ifdef	ADVANCED_DEBUG_MODE
 		GuardLeave();
 #endif
@@ -958,6 +962,8 @@ bool UNIT::is_on_radar( byte p_mask )
 				return;	// Unvisible shadow
 				}
 			}
+		drawing = true;			// Prevent the model to be set to NULL and the data structure from being reset
+		LeaveCS();
 
 		glPushMatrix();
 		glTranslatef(drawn_Pos.x,drawn_Pos.y,drawn_Pos.z);
@@ -976,7 +982,6 @@ bool UNIT::is_on_radar( byte p_mask )
 		model->draw_shadow_basic(((shadow_scale_dir*Dir*RotateX(-drawn_Angle.x*DEG2RAD))*RotateZ(-drawn_Angle.z*DEG2RAD))*RotateY(-drawn_Angle.y*DEG2RAD),0.0f,&data);
 
 		glPopMatrix();
-		LeaveCS();
 #ifdef	ADVANCED_DEBUG_MODE
 		GuardLeave();
 #endif

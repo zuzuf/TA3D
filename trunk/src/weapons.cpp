@@ -668,7 +668,7 @@ const void WEAPON::move(const float dt,MAP *map)				// Anime les armes
 						features.delete_feature(-hit_idx-2);			// Supprime l'objet
 
 								// Replace the feature if needed
-						if( feature_manager.feature[ feature_type ].feature_dead ) {
+						if( feature_type!=-1 && feature_manager.feature[ feature_type ].feature_dead ) {
 							int type=feature_manager.get_feature_index( feature_manager.feature[ feature_type ].feature_dead );
 							if( type >= 0 ) {
 								map->map_data[sy][sx].stuff=features.add_feature(feature_pos,type);
@@ -792,7 +792,7 @@ const void WEAPON::move(const float dt,MAP *map)				// Anime les armes
 										features.delete_feature(-t_idx-2);			// Supprime l'objet
 
 												// Replace the feature if needed
-										if( feature_manager.feature[ feature_type ].feature_dead ) {
+										if( feature_type!=-1 && feature_manager.feature[ feature_type ].feature_dead ) {
 											int type=feature_manager.get_feature_index( feature_manager.feature[ feature_type ].feature_dead );
 											if( type >= 0 ) {
 												map->map_data[sy][sx].stuff=features.add_feature(feature_pos,type);

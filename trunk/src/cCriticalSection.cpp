@@ -44,22 +44,4 @@ namespace TA3D
 		::pthread_mutex_unlock( &m_hCritSection );
 #endif
 	}
-
-	void cCriticalSection::EnterCS()
-	{
-#if defined TA3D_PLATFORM_WINDOWS
-		::EnterCriticalSection( &m_hCritSection );
-#else
-		::pthread_mutex_lock( &m_hCritSection );
-#endif
-	}
-
-	void cCriticalSection::LeaveCS()
-	{
-#if defined TA3D_PLATFORM_WINDOWS
-		::LeaveCriticalSection( &m_hCritSection );
-#else
-		::pthread_mutex_unlock( &m_hCritSection );
-#endif
-	}
 } // namespace TA3D
