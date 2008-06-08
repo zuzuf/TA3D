@@ -44,7 +44,7 @@ SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -I${OPENGL_INCLUDE_DIR}")
 # Allegro
 #
 IF(APPLE) # FIXME : Should be UNIX here
-    FIND_PROGRAM(ALLEGRO_CONFIG_BIN NAME allegro-config PATHS /opt/local/bin /opt/sw/bin)
+    FIND_PROGRAM(ALLEGRO_CONFIG_BIN NAME allegro-config PATHS /opt/local/bin /opt/sw/local/bin)
     IF(${ALLEGRO_CONFIG_BIN} MATCHES "ALLEGRO_CONFIG_BIN-NOTFOUND")
         MESSAGE(FATAL_ERROR "Allegro >= 4.2.2 is required")
     ENDIF(${ALLEGRO_CONFIG_BIN} MATCHES "ALLEGRO_CONFIG_BIN-NOTFOUND")
