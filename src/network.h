@@ -115,47 +115,42 @@ struct SERVER_DATA
 
 
 //SockList - a C-style linked list of socket/thread pairs
-class slnode{
-	public:
-		slnode() {next=NULL;}
-		~slnode() {sock->Close(); thread.Join(); delete sock;}
-		int id;
-		TA3DSock* sock;
-		SocketThread thread;
-		slnode* next;
+class slnode
+{
+public:
+	slnode() {next=NULL;}
+	~slnode() {sock->Close(); thread.Join(); delete sock;}
+	int id;
+	TA3DSock* sock;
+	SocketThread thread;
+	slnode* next;
 };
 
-class SockList{
-	slnode* list;
+
+
+class SockList
+{
+private:
+    slnode* list;
 	int maxid;
 
-	public:
-		SockList();
-		~SockList();
+public:
+	SockList();
+	~SockList();
 
-		int getMaxId() {return maxid;}
-		int Add(TA3DSock* sock);
-		int Remove(int id);
-		void Shutdown();//close all sockets
+	int getMaxId() {return maxid;}
+	int Add(TA3DSock* sock);
+	int Remove(const int id);
 
-		TA3DSock* getSock(int id){
-			slnode *node;
-			for(node=list;node;node=node->next)
-				if (node->id == id)
-					return node->sock;
-			return NULL;
-		}
-		SocketThread* getThread(int id){
-			slnode *node;
-			for(node=list;node;node=node->next){
-				if (node->id == id){
-					return &(node->thread);
-				}
-			}
-			return NULL;
-		}
+    /*!
+    ** \brief Close all opened sockets
+    */
+	void Shutdown();
+
+	TA3DSock* getSock(const int id) const;
+    SocketThread* getThread(int id) const;
 		
-};
+}; // class SockList
 
 
 struct FileTransferProgress
@@ -165,15 +160,17 @@ struct FileTransferProgress
 	int		pos;
 };
 
-/****
+
+
+/*! \class Network
 **
-** This is the main network interface for TA3D
+** \brief This is the main network interface for TA3D
 ** it handles all connections provides incoming events
 ** and allows high-level control over the network.
-**
-***/
-class Network{
-	
+*/
+class Network
+{
+private:
 	friend class ListenThread;
 	friend class SocketThread;
 	friend class SendFileThread;
@@ -191,9 +188,9 @@ class Network{
 	TA3DSock *tohost_socket;//administrative channel
 	AdminThread admin_thread;
 
-	List< GetFileThread* > getfile_thread;
-	List< SendFileThread* > sendfile_thread;
-	List< FileTransferProgress > transfer_progress;
+	List<GetFileThread*> getfile_thread;
+	List<SendFileThread*> sendfile_thread;
+	List<FileTransferProgress> transfer_progress;
 
 	BroadcastSock broadcast_socket;	// Used to discover LAN servers
 	BroadCastThread broadcast_thread;
@@ -240,74 +237,78 @@ class Network{
 	void eventTeam(int player1,int player2,int type);
 	//...
 	
-	public:
-		Network();
-		~Network();
+public:
+	Network();
+	~Network();
 
-		int HostGame(const char* name,const char* port,int network);
-		int Connect(const char* target,const char* port);
-		void Disconnect();
+	int HostGame(const char* name,const char* port,int network);
+	int Connect(const char* target,const char* port);
+	void Disconnect();
 
-		void setPlayerDirty();
-		void setFileDirty();
-		bool getPlayerDropped();
-		bool pollPlayer(int id);
+	void setPlayerDirty();
+	void setFileDirty();
+	bool getPlayerDropped();
+	bool pollPlayer(int id);
 
-		void InitBroadcast( const char* port);
+	void InitBroadcast( const char* port);
 
-		int listNetGames( List< SERVER_DATA> &list);
-		int registerToNetServer( const String &name, const int Slots );
-		String HttpRequest( const String &servername, const String &request );
+	int listNetGames( List< SERVER_DATA> &list);
+	int registerToNetServer( const String &name, const int Slots );
+	String HttpRequest( const String &servername, const String &request );
 
-		int sendSpecialUDP( std::string msg, int src_id = -1, int dst_id = -1);
-		int sendSpecialUDP(struct chat* chat, int src_id = -1, int dst_id = -1);
+	int sendSpecialUDP( std::string msg, int src_id = -1, int dst_id = -1);
+	int sendSpecialUDP(struct chat* chat, int src_id = -1, int dst_id = -1);
 
-		int sendPing( int src_id = -1, int dst_id = -1 );
-		int sendAll( std::string msg );
-		int sendSpecial( std::string msg, int src_id = -1, int dst_id = -1);
-		int sendSpecial(struct chat* chat, int src_id = -1, int dst_id = -1, bool all = false);
-		int sendChat(struct chat* chat, int src_id = -1);
-		int sendOrder(struct order* order, int src_id = -1);
-		int sendSync(struct sync* sync, int src_id = -1);
-		int sendSyncTCP(struct sync* sync, int src_id = -1);
-		int sendEvent(struct event* event, int src_id = -1);
-		int sendEventUDP(struct event* event, int dst_id = -1);
-		int sendFile(int player, const String &filename, const String &port);
+	int sendPing( int src_id = -1, int dst_id = -1 );
+	int sendAll( std::string msg );
+	int sendSpecial( std::string msg, int src_id = -1, int dst_id = -1);
+	int sendSpecial(struct chat* chat, int src_id = -1, int dst_id = -1, bool all = false);
+	int sendChat(struct chat* chat, int src_id = -1);
+	int sendOrder(struct order* order, int src_id = -1);
+	int sendSync(struct sync* sync, int src_id = -1);
+	int sendSyncTCP(struct sync* sync, int src_id = -1);
+	int sendEvent(struct event* event, int src_id = -1);
+	int sendEventUDP(struct event* event, int dst_id = -1);
+	int sendFile(int player, const String &filename, const String &port);
 
-		int dropPlayer(int num);
-		int cleanPlayer();
-		void cleanFileThread();
-		void cleanQueues();
+	int dropPlayer(int num);
+	int cleanPlayer();
+	void cleanFileThread();
+	void cleanQueues();
 
-		int getNextSpecial(struct chat* chat);
-		int getNextChat(struct chat* chat);
-		int getNextOrder(struct order* order);
-		int getNextSync(struct sync* sync);
-		int getNextEvent(struct event* event);
-		String getFile(int player, const String &filename);
+	int getNextSpecial(struct chat* chat);
+	int getNextChat(struct chat* chat);
+	int getNextOrder(struct order* order);
+	int getNextSync(struct sync* sync);
+	int getNextEvent(struct event* event);
+	String getFile(int player, const String &filename);
 		
-		void stopFileTransfer( const String &port = "", int to_id = -1);
-		bool isTransferFinished( const String &port );
+	void stopFileTransfer( const String &port = "", int to_id = -1);
+	bool isTransferFinished( const String &port );
 		
-		bool isConnected();
-		bool isServer();
-		int getMyID();
+	bool isConnected();
+	bool isServer();
+	int getMyID();
 		
-		float getFileTransferProgress();
+	float getFileTransferProgress();
 		
-		int broadcastMessage( const char *msg );
-		std::string getNextBroadcastedMessage();
-		std::string getLastMessageAddress();
-		bool BroadcastedMessages();
+	int broadcastMessage( const char *msg );
+	std::string getNextBroadcastedMessage();
+	std::string getLastMessageAddress();
+	bool BroadcastedMessages();
 		
-		int sendFileData( int player, uint16 port, byte *data, int size );
-		int sendFileResponse( int player, uint16 port, byte *data, int size );
-};
+	int sendFileData( int player, uint16 port, byte *data, int size );
+	int sendFileResponse( int player, uint16 port, byte *data, int size );
+
+}; // class Network
+
+
 
 extern Network	network_manager;
 
 //needed by netthreads
-struct net_thread_params{
+struct net_thread_params
+{
 	Network* network;
 	int sockid;
 	String filename;
