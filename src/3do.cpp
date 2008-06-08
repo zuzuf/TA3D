@@ -146,7 +146,7 @@ void OBJECT::optimise_mesh()			// EXPERIMENTAL, function to merge all objects in
 		if( cur->child )	obj_stack.push_front( cur->child );
 		}
 
-	POINTF	*opt_vtx = (POINTF*) malloc( sizeof( POINTF ) * total_vtx );
+	VECTOR	*opt_vtx = (VECTOR*) malloc( sizeof( VECTOR ) * total_vtx );
 	VECTOR	*opt_N = (VECTOR*) malloc( sizeof( VECTOR ) * total_vtx );
 	float	*opt_T = (float*) malloc( sizeof( float ) * total_vtx << 1 );
 	GLushort *opt_idx = (GLushort*) malloc( sizeof( GLushort ) * total_index );
@@ -188,9 +188,9 @@ void OBJECT::optimise_mesh()			// EXPERIMENTAL, function to merge all objects in
 	glGenBuffersARB( 1, &ebo_id );
 	
 	glBindBufferARB(GL_ARRAY_BUFFER_ARB, vbo_id);
-	glBufferDataARB(GL_ARRAY_BUFFER_ARB, total_vtx * ( sizeof( POINTF ) + sizeof( VECTOR ) + sizeof( float ) * 2 ), NULL, GL_STATIC_DRAW_ARB);
-	glBufferSubDataARB(GL_ARRAY_BUFFER_ARB, 0, total_vtx * sizeof( POINTF ), opt_vtx );
-	N_offset = total_vtx * sizeof( POINTF );
+	glBufferDataARB(GL_ARRAY_BUFFER_ARB, total_vtx * ( sizeof( VECTOR ) + sizeof( VECTOR ) + sizeof( float ) * 2 ), NULL, GL_STATIC_DRAW_ARB);
+	glBufferSubDataARB(GL_ARRAY_BUFFER_ARB, 0, total_vtx * sizeof( VECTOR ), opt_vtx );
+	N_offset = total_vtx * sizeof( VECTOR );
 	glBufferSubDataARB(GL_ARRAY_BUFFER_ARB, N_offset, total_vtx * sizeof( VECTOR ), opt_N );
 	T_offset = N_offset + total_vtx * sizeof( VECTOR );
 	glBufferSubDataARB(GL_ARRAY_BUFFER_ARB, T_offset, total_vtx * sizeof( float ) * 2, opt_T );
@@ -251,7 +251,7 @@ void OBJECT::optimise_mesh()			// EXPERIMENTAL, function to merge all objects in
 			next->init();
 			next->load_obj(data,header.OffsetToSiblingObject,dec,filename);
 			}
-		points=(POINTF*) malloc(sizeof(POINTF)*nb_vtx);		// Alloue la mémoire nécessaire pour stocker les points
+		points=(VECTOR*) malloc(sizeof(VECTOR)*nb_vtx);		// Alloue la mémoire nécessaire pour stocker les points
 		int f_pos;
 		float div=0.5f/65536.0f;
 		pos_from_parent.x=header.XFromParent*div;
@@ -492,7 +492,7 @@ void OBJECT::optimise_mesh()			// EXPERIMENTAL, function to merge all objects in
 		nb_total_point+=nb_l_index;
 		if( selprim >= 0 )
 			nb_total_point += 4;
-		POINTF *p=(POINTF*) malloc(sizeof(POINTF)*nb_total_point<<1);			// *2 pour le volume d'ombre
+		VECTOR *p=(VECTOR*) malloc(sizeof(VECTOR)*nb_total_point<<1);			// *2 pour le volume d'ombre
 		int prim_dec = selprim >= 0 ? 4 : 0;
 		for(i=0;i<nb_total_point-nb_l_index-prim_dec;i++) {
 			p[i+nb_total_point]=p[i]=points[t_index[i]];
@@ -585,8 +585,8 @@ void OBJECT::optimise_mesh()			// EXPERIMENTAL, function to merge all objects in
 			int e = 0;
 			for(i=0;i<nb_t_index;i+=3) {
 				VECTOR AB,AC,Normal;
-				AB=points[t_index[i]]>>points[t_index[i+1]];
-				AC=points[t_index[i]]>>points[t_index[i+2]];
+				AB=points[t_index[i+1]] - points[t_index[i]];
+				AC=points[t_index[i+2]] - points[t_index[i]];
 				Normal=AB*AC;	Normal.Unit();
 				F_N[ e++ ] = Normal;
 				for(int e=0;e<3;e++)
@@ -622,7 +622,7 @@ void OBJECT::optimise_mesh()			// EXPERIMENTAL, function to merge all objects in
 
 		nb_vtx=64;
 		nb_t_index=119;
-		points=(POINTF*) malloc(sizeof(POINTF)*nb_vtx);
+		points=(VECTOR*) malloc(sizeof(VECTOR)*nb_vtx);
 		tcoord=(float*) malloc(sizeof(float)*nb_vtx<<1);
 		t_index=(GLushort*) malloc(sizeof(GLushort)*nb_t_index);
 		if(points==NULL || tcoord==NULL || t_index==NULL) {
@@ -756,8 +756,8 @@ void OBJECT::optimise_mesh()			// EXPERIMENTAL, function to merge all objects in
 			N[i].x=N[i].z=N[i].y=0.0f;
 		for(i=0;i<nb_t_index-2;i++) {
 			VECTOR AB,AC,Normal;
-			AB=points[t_index[i]]>>points[t_index[i+1]];
-			AC=points[t_index[i]]>>points[t_index[i+2]];
+			AB=points[t_index[i+1]] - points[t_index[i]];
+			AC=points[t_index[i+2]] - points[t_index[i]];
 			Normal=AB*AC;	Normal.Unit();
 			if( Normal.y < 0.0f )	Normal = -Normal;
 			for(int e=0;e<3;e++)
@@ -1258,7 +1258,7 @@ int OBJECT::random_pos( SCRIPT_DATA *data_s, int id, VECTOR *vec )
 	return 0;
 }
 
-	void OBJECT::compute_coord(SCRIPT_DATA *data_s,VECTOR *pos,bool c_part,int p_tex,VECTOR *target,POINTF *upos,MATRIX_4x4 *M,float size,VECTOR *center,bool reverse,OBJECT *src,SCRIPT_DATA *src_data)
+	void OBJECT::compute_coord(SCRIPT_DATA *data_s,VECTOR *pos,bool c_part,int p_tex,VECTOR *target,VECTOR *upos,MATRIX_4x4 *M,float size,VECTOR *center,bool reverse,OBJECT *src,SCRIPT_DATA *src_data)
 	{
 //		if(!emitter && c_part)	return;
 		VECTOR opos=*pos;
@@ -1275,7 +1275,7 @@ int OBJECT::random_pos( SCRIPT_DATA *data_s, int id, VECTOR *vec )
 				*M=RotateZ(data_s->axe[2][script_index].angle*DEG2RAD)*RotateY(data_s->axe[1][script_index].angle*DEG2RAD)*RotateX(data_s->axe[0][script_index].angle*DEG2RAD)*(*M);
 				data_s->matrix[script_index] = *M;
 				if(nb_l_index==2) {
-					data_s->dir[script_index]=(points[l_index[0]]>>points[l_index[1]])*(*M);
+					data_s->dir[script_index]=(points[l_index[1]] - points[l_index[0]])*(*M);
 					data_s->dir[script_index].Unit();
 					ipos.x=points[l_index[0]].x;
 					ipos.y=points[l_index[0]].y;
@@ -1311,13 +1311,11 @@ int OBJECT::random_pos( SCRIPT_DATA *data_s, int id, VECTOR *vec )
 					}
 				float speed=1.718281828f;			// exp(1.0f) - 1.0f because of speed law: S(t) = So * exp( -t / tref ) and a lifetime of 1 sec
 				if(reverse) {
-					POINTF O;
-					O.x=O.y=O.z=0.0f;
 					Dir=*pos-(t_mod+*target);
 					Dir.x+=upos->x;
 					Dir.y+=upos->y;
 					Dir.z+=upos->z;
-					system = particle_engine.emit_part_fast( system, O+t_mod+*target,Dir,p_tex, i == 0 ? -nb : 1,speed,life,2.0f,true);
+					system = particle_engine.emit_part_fast( system, t_mod+*target,Dir,p_tex, i == 0 ? -nb : 1,speed,life,2.0f,true);
 					}
 				else {
 					Dir=t_mod+*target-*pos;
@@ -1625,8 +1623,7 @@ draw_shadow_basic_next:
 			M = Scale(1.0f);
 			Pos=(Pos-T)*M;
 			if( ( nb_t_index>0 || selprim >= 0 ) && !hide) {
-				POINTF A,B,C,O;
-				O.x=O.y=O.z=0.0f;
+				VECTOR A,B,C;
 				Dir=Dir*M_Dir;
 				Dir.Unit();
 //-----------------Code de calcul d'intersection--------------------------
@@ -1634,11 +1631,11 @@ draw_shadow_basic_next:
 					A=points[t_index[i]];
 					B=points[t_index[i+1]];
 					C=points[t_index[i+2]];
-					VECTOR AB=A>>B;
-					VECTOR AC=A>>C;
+					VECTOR AB=B-A;
+					VECTOR AC=C-A;
 					VECTOR N=AB*AC;
 					if(N%Dir==0.0f)	continue;
-					float dist=-((Pos-(O>>A))%N)/(N%Dir);
+					float dist=-((Pos-A)%N)/(N%Dir);
 					if( dist < 0.0f )	continue;
 					VECTOR P_p=Pos+dist*Dir;
 
@@ -1646,7 +1643,7 @@ draw_shadow_basic_next:
 					if(is_hit && MP%Dir<P_p%Dir)	continue;
 
 					float a,b,c;		// Coefficients pour que P soit le barycentre de A,B,C
-					VECTOR AP=P_p-(O>>A);
+					VECTOR AP=P_p-A;
 					float pre_cal = AB.x*AC.y-AB.y*AC.x;
 					if(AC.y!=0.0f && pre_cal!=0.0f) {
 						b=(AP.x*AC.y-AP.y*AC.x)/pre_cal;
@@ -1692,11 +1689,11 @@ draw_shadow_basic_next:
 						A=points[sel[i]];
 						B=points[sel[i+1]];
 						C=points[sel[3]];
-						VECTOR AB=A>>B;
-						VECTOR AC=A>>C;
+						VECTOR AB=B-A;
+						VECTOR AC=C-A;
 						VECTOR N=AB*AC;
 						if(N%Dir==0.0f)	continue;
-						float dist=-((Pos-(O>>A))%N)/(N%Dir);
+						float dist=-((Pos-A)%N)/(N%Dir);
 						if( dist < 0.0f )	continue;
 						VECTOR P_p=Pos+dist*Dir;
 
@@ -1704,7 +1701,7 @@ draw_shadow_basic_next:
 						if(is_hit && MP%Dir<P_p%Dir)	continue;
 
 						float a,b,c;		// Coefficients pour que P soit le barycentre de A,B,C
-						VECTOR AP=P_p-(O>>A);
+						VECTOR AP=P_p-A;
 						float pre_cal = AB.x*AC.y-AB.y*AC.x;
 						if(AC.y!=0.0f && pre_cal!=0.0f) {
 							b=(AP.x*AC.y-AP.y*AC.x)/pre_cal;
@@ -2172,7 +2169,7 @@ void MODEL::load_asc(char *filename,float size)		// Charge un fichier au format 
 		cur->nb_prim=StructD[i+1]-StructD[i];
 		cur->nb_t_index=cur->nb_prim*3;
 		cur->nb_vtx=cur->nb_t_index;
-		cur->points = (POINTF*) malloc(sizeof(POINTF)*cur->nb_vtx);
+		cur->points = (VECTOR*) malloc(sizeof(VECTOR)*cur->nb_vtx);
 		cur->t_index = (GLushort*) malloc(sizeof(GLushort)*cur->nb_t_index);
 		cur->tcoord = (float*) malloc(sizeof(float)*cur->nb_vtx<<1);
 
@@ -2213,7 +2210,7 @@ void MODEL::load_asc(char *filename,float size)		// Charge un fichier au format 
 					break;
 					}
 		cur->nb_vtx-=removed;
-		POINTF *n_points = (POINTF*) malloc(sizeof(POINTF)*cur->nb_vtx);
+		VECTOR *n_points = (VECTOR*) malloc(sizeof(VECTOR)*cur->nb_vtx);
 		int cur_pt=0;
 		for(i=0;i<cur->nb_t_index;i++) {
 			bool ok=false;
@@ -2242,8 +2239,8 @@ void MODEL::load_asc(char *filename,float size)		// Charge un fichier au format 
 		int e = 0;
 		for(i=0;i<cur->nb_t_index;i+=3) {
 			VECTOR AB,AC,Normal;
-			AB=cur->points[cur->t_index[i]]>>cur->points[cur->t_index[i+1]];
-			AC=cur->points[cur->t_index[i]]>>cur->points[cur->t_index[i+2]];
+			AB=cur->points[cur->t_index[i+1]] - cur->points[cur->t_index[i]];
+			AC=cur->points[cur->t_index[i+2]] - cur->points[cur->t_index[i]];
 			Normal=AB*AC;	Normal.Unit();
 			cur->F_N[ e++ ] = Normal;
 			for(int e=0;e<3;e++)
@@ -2274,7 +2271,7 @@ void OBJECT::save_3dm(FILE *dst, bool compressed)
 
 	fwrite(&nb_vtx,sizeof(nb_vtx),1,dst);
 	if(points!=NULL)
-		fwrite(points,sizeof(POINTF)*nb_vtx,1,dst);
+		fwrite(points,sizeof(VECTOR)*nb_vtx,1,dst);
 
 	fwrite(sel,sizeof(GLushort)*4,1,dst);				// Selection primitive
 
@@ -2410,8 +2407,8 @@ byte *OBJECT::load_3dm(byte *data)
 
 	data=read_from_mem(&nb_vtx,sizeof(nb_vtx),data);
 	if(nb_vtx>0) {
-		points = (POINTF*) malloc(sizeof(POINTF)*nb_vtx<<1);
-		data=read_from_mem(points,sizeof(POINTF)*nb_vtx,data);
+		points = (VECTOR*) malloc(sizeof(VECTOR)*nb_vtx<<1);
+		data=read_from_mem(points,sizeof(VECTOR)*nb_vtx,data);
 		}
 	else
 		points=NULL;
@@ -2535,8 +2532,8 @@ byte *OBJECT::load_3dm(byte *data)
 		int e = 0;
 		for(int i=0;i<nb_t_index;i+=3) {
 			VECTOR AB,AC,Normal;
-			AB=points[t_index[i]]>>points[t_index[i+1]];
-			AC=points[t_index[i]]>>points[t_index[i+2]];
+			AB=points[t_index[i+1]] - points[t_index[i]];
+			AC=points[t_index[i+2]] - points[t_index[i]];
 			Normal=AB*AC;	Normal.Unit();
 			F_N[ e++ ] = Normal;
 			for(int e=0;e<3;e++)

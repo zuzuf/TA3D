@@ -421,7 +421,7 @@ public:
 	char		*name;				// Nom de l'objet
 	OBJECT		*next;				// Objet suivant
 	OBJECT		*child;				// Objet fils
-	POINTF		*points;			// Points composant l'objet
+	VECTOR		*points;			// Points composant l'objet
 	short		nb_p_index;			// Nombre d'indices de points
 	short		nb_l_index;			// Nombre d'indices de lignes
 	short		nb_t_index;			// Nombre d'indices de triangles
@@ -473,7 +473,7 @@ private:
 
 	bool		optimised;
 	GLushort	*optimised_I;
-	POINTF		*optimised_P;
+	VECTOR		*optimised_P;
 	VECTOR		*optimised_N;
 	float		*optimised_T;
 	uint16		optimised_nb_idx;
@@ -511,7 +511,7 @@ public:
 
 	void create_from_2d(BITMAP *bmp,float w,float h,float max_h);
 
-	void compute_coord(SCRIPT_DATA *data_s=NULL,VECTOR *pos=NULL,bool c_part=false,int p_tex=0,VECTOR *target=NULL,POINTF *upos=NULL,MATRIX_4x4 *M=NULL,float size=0.0f,VECTOR *center=NULL,bool reverse=false,OBJECT *src=NULL,SCRIPT_DATA *src_data=NULL);
+	void compute_coord(SCRIPT_DATA *data_s=NULL,VECTOR *pos=NULL,bool c_part=false,int p_tex=0,VECTOR *target=NULL,VECTOR *upos=NULL,MATRIX_4x4 *M=NULL,float size=0.0f,VECTOR *center=NULL,bool reverse=false,OBJECT *src=NULL,SCRIPT_DATA *src_data=NULL);
 
 	bool draw(float t,SCRIPT_DATA *data_s=NULL,bool sel_primitive=false,bool alset=false,bool notex=false,int side=0,bool chg_col=true,bool exploding_parts=false);
 	bool draw_dl(SCRIPT_DATA *data_s=NULL,bool alset=false,int side=0,bool chg_col=true);
@@ -702,11 +702,11 @@ public:
 			child->compute_center(center,dec+pos_from_parent,coef);
 	}
 
-	float compute_size_sq(POINTF center)		// Carré de la taille(on fera une racine après)
+	float compute_size_sq(VECTOR center)		// Carré de la taille(on fera une racine après)
 	{
 		float size=0.0f;
 		for(int i=0;i<nb_vtx;i++) {
-			float dist=((VECTOR)(center>>points[i])).Sq();
+			float dist=(points[i]-center).Sq();
 			if(size<dist)
 				size=dist;
 			}
@@ -836,13 +836,13 @@ public:
 
 		animated = obj.has_animation_data();
 
-		POINTF O;
+		VECTOR O;
 		O.x=O.y=O.z=0.0f;
 		int coef=0;
 		center.x=center.y=center.z=0.0f;
-		obj.compute_center(&center,O>>O,&coef);
+		obj.compute_center(&center,O,&coef);
 		center=(1.0f/coef)*center;
-		size=2.0f*obj.compute_size_sq(O+center);			// On garde le carré pour les comparaisons et on prend une marge en multipliant par 2.0f
+		size=2.0f*obj.compute_size_sq(center);			// On garde le carré pour les comparaisons et on prend une marge en multipliant par 2.0f
 		size2=sqrt(0.5f*size);
 		obj.compute_emitter();
 		compute_topbottom();
@@ -854,13 +854,13 @@ public:
 		if(err==0) {
 			nb_obj = obj.set_obj_id( 0 );
 
-			POINTF O;
+			VECTOR O;
 			O.x=O.y=O.z=0.0f;
 			int coef=0;
 			center.x=center.y=center.z=0.0f;
-			obj.compute_center(&center,O>>O,&coef);
+			obj.compute_center(&center,O,&coef);
 			center=(1.0f/coef)*center;
-			size=2.0f*obj.compute_size_sq(O+center);			// On garde le carré pour les comparaisons et on prend une marge en multipliant par 2.0f
+			size=2.0f*obj.compute_size_sq(center);			// On garde le carré pour les comparaisons et on prend une marge en multipliant par 2.0f
 			size2=sqrt(0.5f*size);
 			obj.compute_emitter();
 			compute_topbottom();
@@ -875,19 +875,19 @@ public:
 		nb_obj = obj.set_obj_id( 0 );
 
 		from_2d = true;
-		POINTF O;
+		VECTOR O;
 		O.x=O.y=O.z=0.0f;
 		int coef=0;
 		center.x=center.y=center.z=0.0f;
-		obj.compute_center(&center,O>>O,&coef);
+		obj.compute_center(&center,O,&coef);
 		center=(1.0f/coef)*center;
 		obj.compute_emitter();
-		size=2.0f*obj.compute_size_sq(O+center);			// On garde le carré pour les comparaisons et on prend une marge en multipliant par 2.0f
+		size=2.0f*obj.compute_size_sq(center);			// On garde le carré pour les comparaisons et on prend une marge en multipliant par 2.0f
 		size2=sqrt(0.5f*size);
 		compute_topbottom();
 	}
 
-	inline void draw(float t,SCRIPT_DATA *data_s=NULL,bool sel=false,bool notex=false,bool c_part=false,int p_tex=0,VECTOR *target=NULL,POINTF *upos=NULL,MATRIX_4x4 *M=NULL,float Size=0.0f,VECTOR *Center=NULL,bool reverse=false,int side=0,bool chg_col=true,OBJECT *src=NULL,SCRIPT_DATA *src_data=NULL)
+	inline void draw(float t,SCRIPT_DATA *data_s=NULL,bool sel=false,bool notex=false,bool c_part=false,int p_tex=0,VECTOR *target=NULL,VECTOR *upos=NULL,MATRIX_4x4 *M=NULL,float Size=0.0f,VECTOR *Center=NULL,bool reverse=false,int side=0,bool chg_col=true,OBJECT *src=NULL,SCRIPT_DATA *src_data=NULL)
 	{
 		if(notex)
 			glDisable(GL_TEXTURE_2D);

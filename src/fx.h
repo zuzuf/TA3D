@@ -106,6 +106,19 @@ public:
 	}
 };
 
+class FX_PARTICLE
+{
+	private:
+		VECTOR	Pos, Speed;
+		float	timer;
+		float	life;
+		
+	public:
+		FX_PARTICLE( VECTOR &P, VECTOR &S, float L );
+		bool move( float dt );
+		void draw();
+};
+
 class FX_MANAGER : cCriticalSection				// This class mustn't be executed in its own thread in order to remain thread safe,
 {												// it must run in main thread (the one that can call OpenGL functions)!!
 private:
@@ -119,6 +132,8 @@ private:
 	ANIM		**cache_anm;
 	int			*use;
 	bool		cache_is_dirty;
+	
+	List< FX_PARTICLE >	particles;			// List of particles bouncing around
 
 public:
 	byte		*fx_data;
@@ -126,61 +141,8 @@ public:
 	GLuint		wave_tex[3];
 	GLuint		ripple_tex;
 
-	inline void init()
-	{
-		cache_is_dirty = false;
-
-		fx_data=NULL;
-
-		max_fx=0;
-		nb_fx=0;
-		fx=NULL;
-
-		max_cache_size=0;
-		cache_size=0;
-		cache_name=NULL;
-		cache_anm=NULL;
-		use=NULL;
-
-		flash_tex = 0;
-		wave_tex[0] = 0;
-		wave_tex[1] = 0;
-		wave_tex[2] = 0;
-		ripple_tex = 0;
-	}
-
-	inline void destroy()
-	{
-		gfx->destroy_texture( flash_tex );
-		gfx->destroy_texture( ripple_tex );
-		gfx->destroy_texture( wave_tex[0] );
-		gfx->destroy_texture( wave_tex[1] );
-		gfx->destroy_texture( wave_tex[2] );
-
-		if(fx_data)	free(fx_data);
-		if(fx) {
-			for(int i=0;i<max_fx;i++)
-				fx[i].destroy();
-			free(fx);
-			}
-		if(cache_size>0) {
-			if(cache_name) {
-				for(int i=0;i<max_cache_size;i++)
-					if(cache_name[i])
-						free(cache_name[i]);
-				free(cache_name);
-				}
-			if(cache_anm) {
-				for(int i=0;i<max_cache_size;i++)
-					if(cache_anm[i]) {
-						cache_anm[i]->destroy();
-						delete cache_anm[i];
-						}
-				free(cache_anm);
-				}
-			}
-		init();
-	}
+	void init();
+	void destroy();
 
 	FX_MANAGER()
 	{
@@ -268,55 +230,23 @@ public:
 					}
 				use[fx[i].anm]--;
 				nb_fx--;
-				if(use[fx[i].anm]<=0) {		// Animation inutilisée
+				if(use[fx[i].anm]<=0) {		// Animation used nowhere
 					free(cache_name[fx[i].anm]);		cache_name[fx[i].anm]=NULL;
 					cache_anm[fx[i].anm]->destroy();	delete cache_anm[fx[i].anm];	cache_anm[fx[i].anm]=NULL;
 					cache_size--;
 					}
 				}
 
-		LeaveCS();
-	}
-
-	inline void draw(CAMERA *cam, MAP *map, float w_lvl=0.0f, bool UW=false)
-	{
-		EnterCS();
-
-		if( cache_is_dirty ) {			// We have work to do
-			for( uint32 i = 0 ; i < max_cache_size ; i++ )
-				if( cache_anm[i] )
-					cache_anm[i]->convert(false,true);
-			cache_is_dirty = false;
-			}
-
-		glColor4f( 1.0f, 1.0f, 1.0f, 1.0f );
-
-		glEnable(GL_TEXTURE_2D);
-		glDisable(GL_LIGHTING);
-		glDisable(GL_CULL_FACE);
-		glEnable(GL_BLEND);
-		glDepthMask(GL_FALSE);
-		glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
-		cam->SetView();
-		glEnable(GL_POLYGON_OFFSET_FILL);
-		glPolygonOffset(0.0f,-1600.0f);
-		if(UW) {
-			for(int i=0;i<max_fx;i++)
-				if( fx[i].playing && fx[i].Pos.y<w_lvl )
-					fx[i].draw(cam,map,cache_anm);
-			}
-		else
-			for(int i=0;i<max_fx;i++)
-				if( fx[i].playing && fx[i].Pos.y>=w_lvl )
-					fx[i].draw(cam,map,cache_anm);
-		glDisable(GL_POLYGON_OFFSET_FILL);
-		glPolygonOffset(0.0f,0.0f);
-		glDisable(GL_BLEND);
-		glDepthMask(GL_TRUE);
+		foreach_( particles, i )
+			if( i->move( dt ) )
+				particles.erase( i++ );
+			else
+				i++;
 
 		LeaveCS();
 	}
 
+	void draw(CAMERA *cam, MAP *map, float w_lvl=0.0f, bool UW=false);
 	int add(char *filename,char *entry_name,VECTOR Pos,float size);
 	int add_flash(VECTOR Pos,float size);
 	int add_wave(VECTOR Pos,float size);

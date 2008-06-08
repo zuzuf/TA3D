@@ -1047,10 +1047,7 @@ void MAP::draw(CAMERA *cam,byte player_mask,bool FLAT,float niv,float t,float dt
 
 					if( (bloc[i].lava || (under_water && ota_data.lavaworld) ) && !lp_CONFIG->pause
 						&& (rand_from_table()%1000000)<=lavaprob) {		// Lava emiting code moved here because of lava effect using fragment program
-						POINTF POS;
-						POS.x = (x<<4) - dwm + 8.0f;
-						POS.z = pre_y - dhm + 8.0f;
-						POS.y = sealvl - 5.0f;
+						VECTOR POS( (x<<4) - dwm + 8.0f, sealvl - 5.0f, pre_y - dhm + 8.0f );
 						V.x = ((rand_from_table()%201)-100);
 						V.y = ((rand_from_table()%51)+50);
 						V.z = ((rand_from_table()%201)-100);

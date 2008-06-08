@@ -383,10 +383,8 @@ void TA3DNetwork::check()
 					int w_idx = weapons.add_weapon(w_type,event_msg.opt1);
 					int player_id = event_msg.opt5;
 
-					POINTF O;
-					O.x=O.y=O.z=0.0f;
 					if(weapon_manager.weapon[w_type].startsmoke)
-						particle_engine.make_smoke(O+startpos,0,1,0.0f,-1.0f,0.0f, 0.3f);
+						particle_engine.make_smoke(startpos,0,1,0.0f,-1.0f,0.0f, 0.3f);
 
 					if( w_idx >= 0 ) {
 						weapons.weapon[w_idx].local = false;

@@ -166,19 +166,19 @@ public:
 
 	void more_memory();			// Alloue de la mémoire supplémentaire
 
-	void emit_part(POINTF pos,VECTOR Dir,int tex,int nb,float speed,float life=10.0f,float psize=10.0f,bool white=false,float trans_factor=1.0f);
+	void emit_part(VECTOR pos,VECTOR Dir,int tex,int nb,float speed,float life=10.0f,float psize=10.0f,bool white=false,float trans_factor=1.0f);
 
-	PARTICLE_SYSTEM *emit_part_fast( PARTICLE_SYSTEM *system, POINTF pos, VECTOR Dir, int tex, int nb, float speed, float life=10.0f, float psize=10.0f, bool white=false, float trans_factor=1.0f );
+	PARTICLE_SYSTEM *emit_part_fast( PARTICLE_SYSTEM *system, VECTOR pos, VECTOR Dir, int tex, int nb, float speed, float life=10.0f, float psize=10.0f, bool white=false, float trans_factor=1.0f );
 
-	void emit_lava(POINTF pos,VECTOR Dir,int tex,int nb,float speed,float life=10.0f);
+	void emit_lava(VECTOR pos,VECTOR Dir,int tex,int nb,float speed,float life=10.0f);
 
-	void make_smoke(POINTF pos,int tex,int nb,float speed,float mass=-1.0f, float ddsize=0.0f,float alpha=1.0f);
+	void make_smoke(VECTOR pos,int tex,int nb,float speed,float mass=-1.0f, float ddsize=0.0f,float alpha=1.0f);
 
-	void make_fire(POINTF pos,int tex,int nb,float speed);
+	void make_fire(VECTOR pos,int tex,int nb,float speed);
 
-	void make_shockwave(POINTF pos,int tex,int nb,float speed);
+	void make_shockwave(VECTOR pos,int tex,int nb,float speed);
 
-	void make_nuke(POINTF pos,int tex,int nb,float speed);
+	void make_nuke(VECTOR pos,int tex,int nb,float speed);
 
 	void move(float dt,VECTOR wind_dir,float g=9.81f);
 
