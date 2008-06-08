@@ -30,8 +30,11 @@
 #include "tdf.h"
 #include "fx.h"
 #include "particles.h"
+#include "3do.h"
 
-FX_MANAGER			fx_manager;
+FX_MANAGER	fx_manager;
+
+MODEL       *particle_model = NULL;
 
 void FX::draw(CAMERA *cam, MAP *map, ANIM **anims)
 {
@@ -221,6 +224,7 @@ int FX_MANAGER::add(char *filename,char *entry_name,VECTOR Pos,float size)
 
 void FX_MANAGER::load_data()
 {
+    particle_model = model_manager.get_model("fxpart");
 	if( flash_tex == 0 )
 		flash_tex = gfx->load_texture( "gfx/flash.tga" );
 	if( ripple_tex == 0 )
@@ -324,6 +328,8 @@ void FX_MANAGER::init()
 {
 	particles.clear();
 
+    particle_model = NULL;
+
 	cache_is_dirty = false;
 
 	fx_data=NULL;
@@ -416,10 +422,37 @@ void FX_MANAGER::draw(CAMERA *cam, MAP *map, float w_lvl, bool UW)
 	glDisable(GL_BLEND);
 	glDepthMask(GL_TRUE);
 
-	foreach( particles, i )
-		i->draw();
+	if(!UW)
+	    foreach( particles, i )
+		    i->draw();
 
 	LeaveCS();
+}
+
+void FX_MANAGER::add_particle( VECTOR &P, VECTOR &S, float L )
+{
+	EnterCS();
+		particles.push_back( FX_PARTICLE( P, S, L ) );
+	LeaveCS();
+}
+
+void FX_MANAGER::add_explosion( VECTOR &P, int n, float power )
+{
+    EnterCS();
+        for( int i = 0 ; i < n ; i++ ) {
+            VECTOR S;
+            float a = (rand_from_table() % 36000) * 0.01f * DEG2RAD;
+            float b = (rand_from_table() % 18000) * 0.01f * DEG2RAD;
+            float s = power * ( (rand_from_table() % 9001) * 0.0001f + 0.1f );
+            S.x = s * cos( a ) * cos( b );
+            S.y = s * sin( b );
+            S.z = s * sin( a ) * cos( b );
+
+            float L = min( 5.0f * S.y / (the_map->ota_data.gravity + 0.1f), 10.0f );
+            
+            particles.push_back( FX_PARTICLE( P, S, L ) );
+            }
+    LeaveCS();
 }
 
 FX_PARTICLE::FX_PARTICLE( VECTOR &P, VECTOR &S, float L )
@@ -435,23 +468,24 @@ bool FX_PARTICLE::move( float dt )
 	life -= dt;
 	timer += dt;
 	
-	Speed.y += dt * the_map->ota_data.gravity;		// React to gravity
+	Speed.y -= dt * the_map->ota_data.gravity;		// React to gravity
 	Pos = Pos + dt * Speed;
 	
 	float min_h = the_map->get_unit_h( Pos.x, Pos.z );
 	if( Pos.y < min_h ) {							// Bouncing on the map :)
-		Pos.y = min_h;
-		float dx = the_map->get_unit_h( Pos.x + 1.0f, Pos.z );
-		float dz = the_map->get_unit_h( Pos.x, Pos.z + 1.0f );
-		VECTOR Normal( dx, -1.0f, dz );
+		Pos.y = 2.0f * min_h - Pos.y;
+		float dx = the_map->get_unit_h( Pos.x + 16.0f, Pos.z );
+		float dz = the_map->get_unit_h( Pos.x, Pos.z + 16.0f );
+		VECTOR Normal( dx, -16.0f, dz );
 		Normal.Unit();
 		
-		Speed = Speed - (2.0f * (Speed % Normal)) * Normal;
+		if( Speed % Normal < 0.0f )
+    		Speed = Speed - (1.5f * (Speed % Normal)) * Normal;
 		}
 	
 	while( timer >= 0.1f ) {			// Emit smoke
 		timer -= 0.1f;
-		particle_engine.make_smoke( Pos, 0, 1, 0.0f );
+		particle_engine.make_dark_smoke( Pos, 0, 1, 0.0f, -1.0f, -1.0f, 0.5f );
 		}
 		
 	return life <= 0.0f;			// When it shoud die, return true
@@ -459,7 +493,12 @@ bool FX_PARTICLE::move( float dt )
 
 void FX_PARTICLE::draw()
 {
+    if( particle_model == NULL )    return;     // Nothing we can draw
 	glPushMatrix();
 	glTranslatef( Pos.x, Pos.y, Pos.z );
+	glScalef( 0.2f, 0.2f, 0.2f );
+
+	particle_model->draw( life );
+
 	glPopMatrix();
 }

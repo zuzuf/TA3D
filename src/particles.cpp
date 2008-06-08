@@ -443,7 +443,7 @@ void PARTICLE_SYSTEM::draw()
 			part[cur_part].V.z=((rand_from_table()%2001)-1000)*0.001f;
 			part[cur_part].V.Unit();
 			part[cur_part].V=((rand_from_table()%100)+1)*pre*part[cur_part].V;
-			part[cur_part].life=5.0f;
+			part[cur_part].life=3.0f;
 			part[cur_part].mass=mass;
 			part[cur_part].smoking=-1.0f;
 			part[cur_part].gltex=tex;
@@ -454,12 +454,60 @@ void PARTICLE_SYSTEM::draw()
 			part[cur_part].dcol[0]=0.0f;
 			part[cur_part].dcol[1]=0.0f;
 			part[cur_part].dcol[2]=0.0f;
-			part[cur_part].dcol[3]=-0.2f*alpha;
+			part[cur_part].dcol[3]=-0.3333f*alpha;
 			part[cur_part].angle=0.0f;
 			part[cur_part].v_rot=(rand_from_table()%200)*0.01f-0.1f;
 			part[cur_part].size=1.0f;
 			part[cur_part].use_wind=mass!=0.0f ? true : false;
 			part[cur_part].dsize=10.0f;
+			part[cur_part].ddsize=ddsize;
+			part[cur_part].light_emitter=false;
+			part[cur_part].slow_down=false;
+			nb_part++;
+			}
+		LeaveCS();
+	}
+
+	void PARTICLE_ENGINE::make_dark_smoke(VECTOR pos,int tex,int nb,float speed,float mass,float ddsize,float alpha)
+	{
+		if( !lp_CONFIG->particle )	return;		// If particles are OFF don't add particles
+		if(game_cam!=NULL && ((VECTOR)(game_cam->Pos-pos)).Sq()>=game_cam->zfar2)	return;
+
+		EnterCS();
+
+		while(nb_part+nb>size)			// Si besoin alloue de la mémoire
+			more_memory();
+
+		float pre=speed*0.01f;
+		for(int i=0;i<nb;i++) {
+			if( !free_index_size )	break;
+
+			uint32	cur_part = free_idx[--free_index_size];
+			idx_list[index_list_size++] = cur_part;
+			part[cur_part].px=-1;
+			part[cur_part].Pos=pos;
+			part[cur_part].V.y=((rand_from_table()%1000)+1)*0.001f;
+			part[cur_part].V.x=((rand_from_table()%2001)-1000)*0.001f;
+			part[cur_part].V.z=((rand_from_table()%2001)-1000)*0.001f;
+			part[cur_part].V.Unit();
+			part[cur_part].V=((rand_from_table()%100)+1)*pre*part[cur_part].V;
+			part[cur_part].life=3.0f;
+			part[cur_part].mass=mass;
+			part[cur_part].smoking=-1.0f;
+			part[cur_part].gltex=tex;
+			part[cur_part].col[0]=0.2f;
+			part[cur_part].col[1]=0.2f;
+			part[cur_part].col[2]=0.2f;
+			part[cur_part].col[3]=alpha;
+			part[cur_part].dcol[0]=0.0f;
+			part[cur_part].dcol[1]=0.0f;
+			part[cur_part].dcol[2]=0.0f;
+			part[cur_part].dcol[3]=-0.3333f*alpha;
+			part[cur_part].angle=0.0f;
+			part[cur_part].v_rot=(rand_from_table()%200)*0.01f-0.1f;
+			part[cur_part].size=1.0f;
+			part[cur_part].use_wind=mass!=0.0f ? true : false;
+			part[cur_part].dsize=3.0f;
 			part[cur_part].ddsize=ddsize;
 			part[cur_part].light_emitter=false;
 			part[cur_part].slow_down=false;
