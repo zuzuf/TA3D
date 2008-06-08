@@ -89,7 +89,7 @@ class Thread : public BaseThread{
 
 
 
-#ifdef TA3D_PLATFORM_LINUX
+#if defined TA3D_PLATFORM_LINUX || defined TA3D_PLATFORM_DARWIN
 #include <pthread.h>
 
 class Thread : public BaseThread{
