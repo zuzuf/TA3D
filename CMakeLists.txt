@@ -1,10 +1,19 @@
 cmake_minimum_required(VERSION 2.4)
 
 if( NOT CMAKE_MINOR_VERSION EQUAL 4 OR NOT CMAKE_MAJOR_VERSION EQUAL 2 )
-	cmake_policy(SET CMP0004 OLD)
+    cmake_policy(SET CMP0004 OLD)
 endif( NOT CMAKE_MINOR_VERSION EQUAL 4 OR NOT CMAKE_MAJOR_VERSION EQUAL 2 )
 
 PROJECT(TA3D)
+
+# We want -O2 -g as default options, but we want to be able to override CXX_FLAGS from commandline
+string( LENGTH "${CMAKE_CXX_FLAGS}" VA )
+
+if( ${VA} EQUAL 1 )
+	SET( CMAKE_CXX_FLAGS "-O2 -g" )
+endif( ${VA} EQUAL 1 )
+
+message( STATUS "CXXFLAGS SET to ${CMAKE_CXX_FLAGS}" )
 
 #
 # Platform
@@ -14,6 +23,7 @@ IF(UNIX)
         ADD_DEFINITIONS("-DTA3D_PLATFORM_DARWIN")
         SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fvisibility=hidden")
     ELSE(APPLE)
+    	SET(LINUX 1)
         ADD_DEFINITIONS("-DTA3D_PLATFORM_LINUX")
     ENDIF(APPLE)
     ADD_DEFINITIONS("-DTA3D_PLATFORM_UNIX")
@@ -36,14 +46,14 @@ Include(FindGLU)
 Include(FindGLUT)
 Include(FindOpenGL)
 if( NOT OPENGL_FOUND )
-	message( FATAL_ERROR "OpenGL libraries not found !!" )
+    message( FATAL_ERROR "OpenGL libraries not found !!" )
 endif( NOT OPENGL_FOUND )
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -I${OPENGL_INCLUDE_DIR}")
 
 #
 # Allegro
 #
-IF(APPLE) # FIXME : Should be UNIX here
+IF(UNIX)
     FIND_PROGRAM(ALLEGRO_CONFIG_BIN NAME allegro-config PATHS /opt/local/bin /opt/sw/local/bin)
     IF(${ALLEGRO_CONFIG_BIN} MATCHES "ALLEGRO_CONFIG_BIN-NOTFOUND")
         MESSAGE(FATAL_ERROR "Allegro >= 4.2.2 is required")
@@ -53,12 +63,12 @@ IF(APPLE) # FIXME : Should be UNIX here
         OUTPUT_VARIABLE ALLEGRO_CONFIG_FLAGS OUTPUT_STRIP_TRAILING_WHITESPACE)
     STRING(REPLACE '\n' "" ALLEGRO_CONFIG_BIN "${ALLEGRO_CONFIG_BIN}")
     SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${ALLEGRO_CONFIG_FLAGS}")
-ELSE(APPLE)
+ELSE(UNIX)
     CHECK_INCLUDE_FILE( allegro.h CMAKE_HAVE_ALLEGRO_H)
     IF(NOT CMAKE_HAVE_ALLEGRO_H AND NOT CMAKE_CROSSCOMPILING )
 	    MESSAGE( FATAL_ERROR "Allegro >= 4.2.2 is required" )
     ENDIF(NOT CMAKE_HAVE_ALLEGRO_H AND NOT CMAKE_CROSSCOMPILING )
-ENDIF(APPLE)
+ENDIF(UNIX)
 
 
 find_library(VAR_LIB_ALLEG_GL agl )
@@ -69,15 +79,6 @@ endif( NOT VAR_LIB_ALLEG_GL )
 link_directories( ${TA3D_SOURCE_DIR}/src/lua/ ${TA3D_SOURCE_DIR}/src/hawknl/src/ )
 
 SET( LIBS "" )
-
-#string( LENGTH ${CMAKE_CXX_FLAGS} VA )
-#if( ${VA} EQUAL 1 )
-#	SET( CMAKE_CXX_FLAGS "-O2 -g" )
-#endif( ${VA} EQUAL 1 )
-SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O2 -g" )
-
-
-# message( STATUS "CXXFLAGS SET to ${CMAKE_CXX_FLAGS}" )
 
 if( WIN32 OR CMAKE_CROSSCOMPILING )
 	SET( ALLEGRO_CONFIG "-lalleg" )
