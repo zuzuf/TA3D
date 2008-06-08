@@ -2,14 +2,30 @@
 Compilation under Mac OS X
 ==========================
 
-1 - Allegro
+Prerequisites
+-------------
+
+The developper tools must be installed (available on all Mac OS X install
+CD/DVD).
+MacPort (http://www.macports.org) or Fink (http://www.finkproject.org/)
+must be installed.
+
+
+1 - CMake
+---------
+
+Install CMake via MacPort
+$ sudo port install cmake
+
+
+2 - Allegro
 -----------
 
-Install Allegro via MacPort (or download it and compile it manually)
+Install Allegro via MacPort
 $ sudo port install allegro
 
 
-2 - AllegroGL
+3 - AllegroGL
 -------------
 
 Download AllegroGL : http://allegrogl.sourceforge.net/wiki/Download
@@ -17,12 +33,12 @@ Edit the makefile make/makefile.osx :
   Replace 
     INCLUDE_PATHS = $(addprefix -I, $(INCLUDE_DIR))
     by
-    INCLUDE_PATHS = $(addprefix -I, $(INCLUDE_DIR))  -I/opt/local/include
+    INCLUDE_PATHS = $(addprefix -I, $(INCLUDE_DIR)) -I/opt/sw/local/include -I/opt/local/include
 Compile AllegroGL :
 $ ./fix.sh macosx  && make && sudo make install
 
 
-3 - TA3D
+4 - TA3D
 --------
 
 $ cmake . && make
