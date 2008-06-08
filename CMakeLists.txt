@@ -9,9 +9,9 @@ PROJECT(TA3D)
 # We want -O2 -g as default options, but we want to be able to override CXX_FLAGS from commandline
 string( LENGTH "${CMAKE_CXX_FLAGS}" VA )
 
-if( ${VA} EQUAL 1 )
+if( ${VA} EQUAL 0 )
 	SET( CMAKE_CXX_FLAGS "-O2 -g" )
-endif( ${VA} EQUAL 1 )
+endif( ${VA} EQUAL 0 )
 
 message( STATUS "CXXFLAGS SET to ${CMAKE_CXX_FLAGS}" )
 
@@ -42,8 +42,6 @@ Include( CheckIncludeFile )
 #
 # OpenGL
 #
-Include(FindGLU)
-Include(FindGLUT)
 Include(FindOpenGL)
 if( NOT OPENGL_FOUND )
     message( FATAL_ERROR "OpenGL libraries not found !!" )
