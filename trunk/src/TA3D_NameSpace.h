@@ -24,6 +24,10 @@
 **         This file should be included 'second' in all other cpp files, it will
 **           give cpp access to our namespace members.
 */
+
+#ifndef __TA3D_NAMESPACE_H__
+# define __TA3D_NAMESPACE_H__
+
 #pragma once
 
 #include "TA3D_Exception.h"
@@ -156,6 +160,7 @@ namespace TA3D
 
 	} sTA3DCONFIG, *LPTA3DCONFIG;
 
+    // TODO Must be removed
 	#define   DEBUG_MODE
 
 	namespace UTILS
@@ -164,7 +169,7 @@ namespace TA3D
 		TA3D_API_SI float  Deg2Rad (float Deg)  { return (Deg * 0.017453292f); }
 		TA3D_API_SI double Deg2Rad (double Deg) { return (Deg * 0.017453292);  }
 		TA3D_API_SI float  Rad2Deg (float Rad)  { return (Rad * 57.29578122f); }
-		TA3D_API_SI double Rad2Deg (double Rad) { return (Rad * 57.29578122);  }   
+		TA3D_API_SI double Rad2Deg (double Rad) { return (Rad * 57.29578122);  }  
 
 		namespace HPI
 		{
@@ -269,6 +274,7 @@ namespace TA3D
 	List< String > GetFileList( const String pattern );	// return the list of files corresponding to pattern
 }
 
+// TODO Must be removed
 using namespace TA3D;
 using namespace TA3D::UTILS;
 
@@ -303,7 +309,6 @@ template<class T> static T Bit (T &bit)
 	return (1 << bit);
 }
 
-
 template<class T> static void SetBit (T &var, T &bit)
 {
 	return (SetMask (var, Bit(bit)));
@@ -312,7 +317,7 @@ template<class T> static void SetBit (T &var, T &bit)
 
 template<class T> static void UnsetBit (T &var, T &bit)
 {
-	return (UnsetMask (var, Bit(bit)));
+    return (UnsetMask (var, Bit(bit)));
 }
 
 
@@ -324,7 +329,7 @@ template<class T> static T Sign (T x)
 	else
 	if ( x < 0)
 		return (-1);
-	//else   
+	//else
 	return (0);
 }
 
@@ -333,6 +338,10 @@ template<class T> static T Sign (T x)
 extern volatile uint32	msec_timer;
 #endif
 
+// TODO Must be removed
 using namespace TA3D;
 using namespace TA3D::VARS;
 using namespace TA3D::TA3D_DEBUG;
+
+
+#endif // __TA3D_NAMESPACE_H__
