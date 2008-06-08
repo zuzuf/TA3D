@@ -15,33 +15,43 @@
     along with this program; if not, write to the Free Software
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA*/
 
-/*
-**  File: TA3D_Audio.h
-** Notes:
-**
-*/
 
-#pragma once
+#ifndef __TA3D_AUDIO_H__
+# define __TA3D_AUDIO_H__
 
-// we need vector to handle 3d sounds.
-#include "vector.h"
-#include "cTAFileParser.h"
+# pragma once // TODO Must be removed
 
-#undef stricmp
-#if defined TA3D_PLATFORM_LINUX
-	#include "tools/linux/FMOD/inc/fmod.hpp"
-	#include "tools/linux/FMOD/inc/fmod_errors.h"
-	#include "tools/linux/FMOD/inc/wincompat.h"
-#elif defined TA3D_PLATFORM_WINDOWS
-	#include "tools/win32/fmod/fmod.hpp"
-	#include "tools/win32/fmod/fmod_errors.h"
+# include "vector.h"
+# include "cTAFileParser.h"
 
-	#pragma comment(lib, "tools/win32/libs/fmodex_vc.lib")
-#endif
+# undef stricmp  // TODO Must be removed
 
-namespace TA3D {
+# ifdef TA3D_PLATFORM_DARWIN
+#   include "tools/darwin/fmod/4.14.07/include/fmod.hpp"
+#   include "tools/darwin/fmod/4.14.07/include/fmod_errors.h"
+# endif
+
+# ifdef TA3D_PLATFORM_LINUX
+#   include "tools/linux/FMOD/inc/fmod.hpp"
+#   include "tools/linux/FMOD/inc/fmod_errors.h"
+#   include "tools/linux/FMOD/inc/wincompat.h"
+# endif
+
+# ifdef TA3D_PLATFORM_WINDOWS
+#   include "tools/win32/fmod/fmod.hpp"
+#   include "tools/win32/fmod/fmod_errors.h"
+#   pragma comment(lib, "tools/win32/libs/fmodex_vc.lib")
+# endif
+
+
+
+
+namespace TA3D
+{
 	namespace INTERFACES
 	{
+
+
 		class cAudio : protected TA3D::cCriticalSection,
 		            protected TA3D::cInterface,
 		            protected TA3D::UTILS::cTAFileParser
@@ -209,3 +219,7 @@ namespace TA3D {
 		}; // class cAudio
 	} // namespace AUDIO
 } // namespace TA3D
+
+
+
+#endif // __TA3D_AUDIO_H__
