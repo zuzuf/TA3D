@@ -197,48 +197,6 @@ matrix_mul_f(&A,&B,&C);
 return C;
 }
 
-        // Multiplication(transformation d'un point)
-inline POINTF operator*(const POINTF &A,const MATRIX_4x4 &B)
-{
-POINTF C;
-C.x=A.x*B.E[0][0]+A.y*B.E[0][1]+A.z*B.E[0][2]+B.E[0][3];
-C.y=A.x*B.E[1][0]+A.y*B.E[1][1]+A.z*B.E[1][2]+B.E[1][3];
-C.z=A.x*B.E[2][0]+A.y*B.E[2][1]+A.z*B.E[2][2]+B.E[2][3];
-return C;
-}
-
-inline POINTF operator*(POINTF &A,MATRIX &B)
-{
-POINTF C;
-fixed x,y,z;
-apply_matrix(&B,ftofix(A.x),ftofix(A.y),ftofix(A.z),&x,&y,&z);
-C.x=fixtof(x);
-C.y=fixtof(y);
-C.z=fixtof(z);
-return C;
-}
-
-inline POINTF operator*(const POINTF &A,const MATRIX_f &B)
-{
-POINTF C;
-apply_matrix_f(&B,A.x,A.y,A.z,&C.x,&C.y,&C.z);
-return C;
-}
-
-inline POINTF glNMult(const POINTF &A,const MATRIX_4x4 &B)
-{
-POINTF C;
-float w;
-C.x=A.x*B.E[0][0]+A.y*B.E[0][1]+A.z*B.E[0][2]+B.E[0][3];
-C.y=A.x*B.E[1][0]+A.y*B.E[1][1]+A.z*B.E[1][2]+B.E[1][3];
-C.z=A.x*B.E[2][0]+A.y*B.E[2][1]+A.z*B.E[2][2]+B.E[2][3];
-w=1.0f/(A.x*B.E[3][0]+A.y*B.E[3][1]+A.z*B.E[3][2]+B.E[3][3]);
-C.x*=w;
-C.y*=w;
-C.z*=w;
-return C;
-}
-
         // Multiplication(transformation d'un vecteur)
 inline VECTOR operator*(const VECTOR &A,const MATRIX_4x4 &B)
 {
@@ -295,6 +253,20 @@ for(int i=0;i<3;i++) {
    B.t[i]*=A;
    }
 return B;
+}
+
+inline VECTOR glNMult(const VECTOR &A,const MATRIX_4x4 &B)
+{
+VECTOR C;
+float w;
+C.x=A.x*B.E[0][0]+A.y*B.E[0][1]+A.z*B.E[0][2]+B.E[0][3];
+C.y=A.x*B.E[1][0]+A.y*B.E[1][1]+A.z*B.E[1][2]+B.E[1][3];
+C.z=A.x*B.E[2][0]+A.y*B.E[2][1]+A.z*B.E[2][2]+B.E[2][3];
+w=1.0f/(A.x*B.E[3][0]+A.y*B.E[3][1]+A.z*B.E[3][2]+B.E[3][3]);
+C.x*=w;
+C.y*=w;
+C.z*=w;
+return C;
 }
 
         // Crée une matrice de translation

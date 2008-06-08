@@ -241,7 +241,7 @@ MAP	*load_tnt_map(byte *data )		// Charge une map au format TA, extraite d'une a
 
 	event_timer = msec_timer;
 
-	map->lvl=(POINTF**) malloc(sizeof(POINTF*)*map->bloc_w*map->bloc_h);
+	map->lvl=(VECTOR**) malloc(sizeof(VECTOR*)*map->bloc_w*map->bloc_h);
 	for(i=0;i<map->bloc_w*map->bloc_h;i++)
 		map->lvl[i]=NULL;
 
@@ -473,9 +473,9 @@ MAP	*load_tnt_map(byte *data )		// Charge une map au format TA, extraite d'une a
 	map->low_h=map->map_h+32>>6;
 	map->low_nb_idx = (2+map->low_w*2)*map->low_h;			// Draw this as GL_TRIANGLE_STRIP
 	int low_nb_vtx = (map->low_w+1)*(map->low_h+1);
-	map->low_vtx=(POINTF*) malloc(sizeof(POINTF)*low_nb_vtx);
-	POINTF *tmp_vtx = (POINTF*) malloc(sizeof(POINTF)*low_nb_vtx);
-	map->low_vtx_flat=(POINTF*) malloc(sizeof(POINTF)*low_nb_vtx);
+	map->low_vtx=(VECTOR*) malloc(sizeof(VECTOR)*low_nb_vtx);
+	VECTOR *tmp_vtx = (VECTOR*) malloc(sizeof(VECTOR)*low_nb_vtx);
+	map->low_vtx_flat=(VECTOR*) malloc(sizeof(VECTOR)*low_nb_vtx);
 	map->low_col=(uint8*) malloc(low_nb_vtx*4);
 	map->low_tcoord=(float*) malloc(sizeof(float)*low_nb_vtx*2);
 	map->low_index=(GLuint*) malloc(sizeof(GLuint)*map->low_nb_idx);

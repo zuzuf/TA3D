@@ -345,7 +345,7 @@ MODEL *load_3ds( const String &filename, float scale )
 										read_obj->tcoord[ (i << 1) + 1 ] = 0.0f;
 										}
 									}
-								fread( read_obj->points, sizeof( POINTF ), read_obj->nb_vtx, src_3ds );
+								fread( read_obj->points, sizeof( VECTOR ), read_obj->nb_vtx, src_3ds );
 								for( int i = 0 ; i < read_obj->nb_vtx ; i++ ) {
 									read_obj->points[ i ] = read_obj->points[ i ].x * local[ 0 ] + read_obj->points[ i ].y * local[ 1 ] + read_obj->points[ i ].z * local[ 2 ] + local[ 3 ];
 									read_obj->points[ i ].x *= scale;

@@ -781,7 +781,7 @@ void MAP::draw(CAMERA *cam,byte player_mask,bool FLAT,float niv,float t,float dt
 	if(!FLAT)
 		glColor4f(1.0f,1.0f,1.0f,1.0f);
 
-	POINTF flat[9];
+	VECTOR flat[9];
 	if(FLAT) {
 		flat[0].x=0.0f;		flat[0].y=niv+cos(t)*0.5f;			flat[0].z=0.0f;
 		flat[1].x=8.0f;		flat[1].y=niv+cos(t+1.0f)*0.5f;		flat[1].z=0.0f;
@@ -838,7 +838,7 @@ void MAP::draw(CAMERA *cam,byte player_mask,bool FLAT,float niv,float t,float dt
 			features.feature[features.list[i]].draw=true;
 		}
 	int lavaprob=(int)(1000*dt);
-	POINTF	buf_p[4500];				// Tampon qui accumule les blocs pour les dessiner en chaîne
+	VECTOR	buf_p[4500];				// Tampon qui accumule les blocs pour les dessiner en chaîne
 	float	buf_t[9000];
 	uint8	buf_c[18000];
 	short	buf_size=0;				// in blocs
@@ -1092,7 +1092,7 @@ void MAP::draw(CAMERA *cam,byte player_mask,bool FLAT,float niv,float t,float dt
 					}
 				bloc[i].point=lvl[pre_y2+x];
 				if(bloc[i].point==NULL) {
-					lvl[pre_y2+x]=bloc[i].point=(POINTF*) malloc(sizeof(POINTF)*9);
+					lvl[pre_y2+x]=bloc[i].point=(VECTOR*) malloc(sizeof(VECTOR)*9);
 					if(tnt) {
 						bloc[i].point[0].x=T.x;			bloc[i].point[0].z=get_zdec(X,Y)+T.z;
 						bloc[i].point[1].x=8.0f+T.x;	bloc[i].point[1].z=get_zdec(X|1,Y)+T.z;

@@ -4808,7 +4808,7 @@ bool UNIT::is_on_radar( byte p_mask )
 		float VH=-(viewportCoords[3]-viewportCoords[1])*0.5f;
 		T=ModelView*Project;		// Matrice de transformation
 
-		POINTF UPos,O;
+		VECTOR UPos,O;
 		O.x=O.y=O.z=0.0f;
 		int X1,Y1,X2,Y2;
 		X1=min(sel_x[0],sel_x[1]);
