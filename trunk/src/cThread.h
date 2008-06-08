@@ -15,36 +15,39 @@
     along with this program; if not, write to the Free Software
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA*/
 
-#pragma once
+#ifndef __TA3D_THREADS_H__
+# define __TA3D_THREADS_H__
 
-#if defined TA3D_PLATFORM_LINUX
-   #include <pthread.h>
+#pragma once // TODO Must be removed
+
+#ifndef TA3D_PLATFORM_WINDOWS
+#   include <pthread.h>
 #endif
 
 namespace TA3D
 {
-   class cThread
-   {
-   protected:
-#if defined TA3D_PLATFORM_WINDOWS
-      DWORD      m_ThreadID;
-      HANDLE      m_hThread;
-#elif defined TA3D_PLATFORM_LINUX
-      pthread_t   m_ThreadID;
-#endif
-      bool      m_bStarted;
-      bool      m_ErroredOnRun;
+    class cThread
+    {
+    protected:
+        #ifdef TA3D_PLATFORM_WINDOWS
+        DWORD      m_ThreadID;
+        HANDLE      m_hThread;
+        #else
+        pthread_t   m_ThreadID;
+        #endif
+        bool      m_bStarted;
+        bool      m_ErroredOnRun;
 
-   public:
-      bool IsRunning();
+    public:
+        bool IsRunning();
 
 
-   private:
-#if defined TA3D_PLATFORM_WINDOWS
-      static unsigned long WINAPI ThreadFunction( void *pV );
-#elif defined TA3D_PLATFORM_LINUX
-      static void *ThreadFunction( void *pV );
-#endif
+    private:
+        #if defined TA3D_PLATFORM_WINDOWS
+        static unsigned long WINAPI ThreadFunction( void *pV );
+        #else
+        static void *ThreadFunction( void *pV );
+        #endif
 
    protected:
       // InitThread used to initialize the threads variables.
@@ -67,4 +70,9 @@ namespace TA3D
       virtual void SignalExitThread() = 0;
 
    }; // class cThread
+
+
 } // namespace TA3D 
+
+
+#endif // __TA3D_THREADS_H__

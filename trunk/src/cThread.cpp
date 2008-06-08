@@ -51,7 +51,7 @@ namespace TA3D {
 
       m_bStarted   = true;
 
-#if defined TA3D_PLATFORM_WINDOWS
+#ifdef TA3D_PLATFORM_WINDOWS
       m_hThread = ::CreateThread( NULL,
          0,
          (LPTHREAD_START_ROUTINE)ThreadFunction,
@@ -61,15 +61,15 @@ namespace TA3D {
          
       if( !m_hThread )
          throw "cThread::Start() Failed to CreateThread";
-#elif defined TA3D_PLATFORM_LINUX
+#else
       if( ::pthread_create( &m_ThreadID, NULL, ThreadFunction, this ) < 0 )
          throw "cThread::Start() Failed to pthread_create";
 #endif
    }
 
-#if defined TA3D_PLATFORM_WINDOWS
+#ifdef TA3D_PLATFORM_WINDOWS
    unsigned long WINAPI cThread::ThreadFunction( void *pV )
-#elif defined TA3D_PLATFORM_LINUX
+#else
    void * cThread::ThreadFunction( void *pV )
 #endif
    {
@@ -89,7 +89,7 @@ namespace TA3D {
          }
 
 
-#if defined TA3D_PLATFORM_LINUX
+#ifndef TA3D_PLATFORM_WINDOWS
       return (void*) result;
 #else
       return result;
@@ -103,10 +103,10 @@ namespace TA3D {
 
       this->SignalExitThread();
 
-#if defined TA3D_PLATFORM_WINDOWS
+#ifdef TA3D_PLATFORM_WINDOWS
    ::WaitForSingleObject( m_hThread, INFINITE );
    ::CloseHandle( m_hThread );
-#elif defined TA3D_PLATFORM_LINUX
+#else
    ::pthread_join( m_ThreadID, NULL );
 #endif
 
