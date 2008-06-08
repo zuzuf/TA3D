@@ -26,7 +26,8 @@
 
 #include "stdafx.h"
 
-
+namespace TA3D
+{
 
 String
 Lowercase(const String& s)
@@ -254,4 +255,4 @@ GetClientPath(void)
 	return szName;
 }
 
-
+}
