@@ -246,11 +246,13 @@ public:
 		LeaveCS();
 	}
 
-	void draw(CAMERA *cam, MAP *map, float w_lvl=0.0f, bool UW=false);
-	int add(char *filename,char *entry_name,VECTOR Pos,float size);
-	int add_flash(VECTOR Pos,float size);
-	int add_wave(VECTOR Pos,float size);
-	int add_ripple(VECTOR Pos,float size);
+	void	draw(CAMERA *cam, MAP *map, float w_lvl=0.0f, bool UW=false);
+	int		add(char *filename,char *entry_name,VECTOR Pos,float size);
+	int		add_flash(VECTOR Pos,float size);
+	int		add_wave(VECTOR Pos,float size);
+	int     add_ripple(VECTOR Pos,float size);
+	void    add_particle( VECTOR &P, VECTOR &S, float L );
+	void    add_explosion( VECTOR &P, int n, float power );
 };
 
 extern FX_MANAGER	fx_manager;

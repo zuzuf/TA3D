@@ -174,6 +174,8 @@ public:
 
 	void make_smoke(VECTOR pos,int tex,int nb,float speed,float mass=-1.0f, float ddsize=0.0f,float alpha=1.0f);
 
+	void make_dark_smoke(VECTOR pos,int tex,int nb,float speed,float mass=-1.0f, float ddsize=0.0f,float alpha=1.0f);
+
 	void make_fire(VECTOR pos,int tex,int nb,float speed);
 
 	void make_shockwave(VECTOR pos,int tex,int nb,float speed);
