@@ -24,7 +24,8 @@ namespace TA3D
 	{
 #if defined TA3D_PLATFORM_WINDOWS
 		::InitializeCriticalSection( &m_hCritSection );
-#elif defined TA3D_PLATFORM_LINUX
+//#elif defined TA3D_PLATFORM_LINUX
+#else
 		pthread_mutexattr_t mutexattr;
 
 		pthread_mutexattr_init(&mutexattr);
@@ -40,7 +41,8 @@ namespace TA3D
 	{
 #if defined TA3D_PLATFORM_WINDOWS
 		::DeleteCriticalSection( &m_hCritSection );
-#elif defined TA3D_PLATFORM_LINUX
+//#elif defined TA3D_PLATFORM_LINUX
+#else
 		::pthread_mutex_unlock( &m_hCritSection );
 #endif
 	}
@@ -49,7 +51,8 @@ namespace TA3D
 	{
 #if defined TA3D_PLATFORM_WINDOWS
 		::EnterCriticalSection( &m_hCritSection );
-#elif defined TA3D_PLATFORM_LINUX
+//#elif defined TA3D_PLATFORM_LINUX
+#else
 		::pthread_mutex_lock( &m_hCritSection );
 #endif
 	}
@@ -58,7 +61,8 @@ namespace TA3D
 	{
 #if defined TA3D_PLATFORM_WINDOWS
 		::LeaveCriticalSection( &m_hCritSection );
-#elif defined TA3D_PLATFORM_LINUX
+//#elif defined TA3D_PLATFORM_LINUX
+#else
 		::pthread_mutex_unlock( &m_hCritSection );
 #endif
 	}
