@@ -18,6 +18,9 @@
 #include "stdafx.h"
 #include "TA3D_NameSpace.h"
 #include "cLogger.h"
+#if defined TA3D_PLATFORM_LINUX || defined TA3D_PLATFORM_DARWIN
+#   include <sys/stat.h>
+#endif
 
 // global variables:
 TA3D::TA3DCONFIG		*TA3D::VARS::lp_CONFIG;
