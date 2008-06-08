@@ -519,9 +519,6 @@ void FEATURES::move(float dt,MAP *map,bool clean)
 {
 	if(nb_features<=0) return;
 
-	POINTF O;
-	O.x=O.y=O.z=0.0f;
-
 	EnterCS();
 
 	for(int e=0;e<list_size;e++) {
@@ -554,11 +551,11 @@ void FEATURES::move(float dt,MAP *map,bool clean)
 					t_mod = feature[i].Pos;
 
 				feature[i].dt=0.0f;
-				particle_engine.make_fire(O+t_mod,1,1,30.0f);
+				particle_engine.make_fire(t_mod,1,1,30.0f);
 				}
 			else if(!feature[i].burning) {
 				feature[i].dt=0.0f;
-				particle_engine.make_smoke(O+feature[i].Pos,0,1,5.0f,-1.0f,0.0f,0.25f);
+				particle_engine.make_smoke(feature[i].Pos,0,1,5.0f,-1.0f,0.0f,0.25f);
 				}
 			}
 		if(clean)

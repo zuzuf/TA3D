@@ -443,11 +443,9 @@ const void WEAPON::move(const float dt,MAP *map)				// Anime les armes
 		}
 	if(!dying && weapon_manager.weapon[weapon_id].selfprop && f_time<=0.0f && ((weapon_manager.weapon[weapon_id].twophase && phase==2) || !weapon_manager.weapon[weapon_id].twophase))	dying=true;
 	if(weapon_manager.weapon[weapon_id].smoketrail && weapon_manager.weapon[weapon_id].smokedelay<smoke_time) {		// Trainée de fumée des missiles
-		POINTF O;
-		O.x=O.y=O.z=0.0f;
 		smoke_time=0.0f;
 		if(visible)
-			particle_engine.make_smoke(O+Pos,0,1,0.0f,-1.0f, -2.0f, 0.3f);
+			particle_engine.make_smoke(Pos,0,1,0.0f,-1.0f, -2.0f, 0.3f);
 		}
 
 	VECTOR hit_vec;
@@ -814,12 +812,10 @@ const void WEAPON::move(const float dt,MAP *map)				// Anime les armes
 		}
 
 	if(hit && visible && weapon_manager.weapon[weapon_id].areaofeffect>=256) {			// Effet de souffle / Shock wave
-		POINTF O;
-		O.x=O.y=O.z=0.0f;
 		fx_manager.add_flash( Pos, weapon_manager.weapon[weapon_id].areaofeffect >> 1 );
-		particle_engine.make_shockwave(O+Pos,1,weapon_manager.weapon[weapon_id].areaofeffect,weapon_manager.weapon[weapon_id].areaofeffect*0.75f);
-		particle_engine.make_shockwave(O+Pos,0,weapon_manager.weapon[weapon_id].areaofeffect,weapon_manager.weapon[weapon_id].areaofeffect*0.5f);
-		particle_engine.make_nuke(O+Pos,1,weapon_manager.weapon[weapon_id].areaofeffect>>1,weapon_manager.weapon[weapon_id].areaofeffect*0.25f);
+		particle_engine.make_shockwave( Pos,1,weapon_manager.weapon[weapon_id].areaofeffect,weapon_manager.weapon[weapon_id].areaofeffect*0.75f);
+		particle_engine.make_shockwave( Pos,0,weapon_manager.weapon[weapon_id].areaofeffect,weapon_manager.weapon[weapon_id].areaofeffect*0.5f);
+		particle_engine.make_nuke( Pos,1,weapon_manager.weapon[weapon_id].areaofeffect>>1,weapon_manager.weapon[weapon_id].areaofeffect*0.25f);
 		}
 
 	if(hit && weapon_manager.weapon[weapon_id].interceptor) {
@@ -874,10 +870,8 @@ const void WEAPON::move(const float dt,MAP *map)				// Anime les armes
 					fx_manager.add(weapon_manager.weapon[weapon_id].explosiongaf,weapon_manager.weapon[weapon_id].explosionart,Pos,1.0f);
 			}
 		if(weapon_manager.weapon[weapon_id].endsmoke) {
-			POINTF O;
-			O.x=O.y=O.z=0.0f;
 			if(visible)
-				particle_engine.make_smoke(O+Pos,0,1,0.0f,-1.0f);
+				particle_engine.make_smoke( Pos,0,1,0.0f,-1.0f);
 			}
 		if( weapon_manager.weapon[weapon_id].noexplode && hit ) {		// Special flag used by dguns
 			dying = false;

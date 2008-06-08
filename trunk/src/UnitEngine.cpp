@@ -662,7 +662,7 @@ bool UNIT::is_on_radar( byte p_mask )
 			M=RotateY(Angle.y*DEG2RAD)*RotateZ(Angle.z*DEG2RAD)*RotateX(Angle.x*DEG2RAD)*Scale(scale);			// Matrice pour le calcul des positions des éléments du modèle de l'unité
 
 			VECTOR *target=NULL,*center=NULL;
-			POINTF upos;
+			VECTOR upos;
 			bool c_part=false;
 			bool reverse=false;
 			float size=0.0f;
@@ -1030,8 +1030,6 @@ bool UNIT::is_on_radar( byte p_mask )
 
 		float divisor=i2pwr16;
 		float div=0.5f*divisor;
-		POINTF O;
-		O.x=O.y=O.z=0.0f;
 		bool done=false;
 		int nb_code=0;
 
@@ -1150,7 +1148,7 @@ bool UNIT::is_on_radar( byte p_mask )
 					data.axe[2][obj].angle = 0.0f;
 					if(visible) {					// Don't draw things which could tell the player there is something there
 						compute_model_coord();
-						particle_engine.make_fire( O + Pos + data.pos[obj],1,10,45.0f);
+						particle_engine.make_fire( Pos + data.pos[obj],1,10,45.0f);
 						}
 					data.flag[obj]|=FLAG_EXPLODE;
 					data.explosion_flag[obj]=explosion_type;
@@ -1490,15 +1488,15 @@ bool UNIT::is_on_radar( byte p_mask )
 							switch(smoke_type)
 							{
 							case 0:
-								particle_engine.emit_part(O+Pos+data.pos[from_piece],dir,fire,1,10.0f,2.5f,5.0f,true);
+								particle_engine.emit_part(Pos+data.pos[from_piece],dir,fire,1,10.0f,2.5f,5.0f,true);
 								break;
 							case 2:
 							case 3:
-								particle_engine.emit_part(O+Pos+data.pos[from_piece],dir,0,1,10.0f,10.0f,10.0f,false, 0.3f);
+								particle_engine.emit_part(Pos+data.pos[from_piece],dir,0,1,10.0f,10.0f,10.0f,false, 0.3f);
 								break;
 							case 257:			// Fumée
 							case 258:
-								particle_engine.emit_part(O+Pos+data.pos[from_piece],dir,0,1,10.0f,10.0f,10.0f,true, 0.3f);
+								particle_engine.emit_part(Pos+data.pos[from_piece],dir,0,1,10.0f,10.0f,10.0f,true, 0.3f);
 								break;
 							};
 							}
@@ -1506,11 +1504,11 @@ bool UNIT::is_on_radar( byte p_mask )
 							switch(smoke_type)
 							{
 							case 0:
-								particle_engine.make_smoke(O+Pos+data.pos[from_piece],fire,1,0.0f,0.0f,0.0f,0.5f);
+								particle_engine.make_smoke(Pos+data.pos[from_piece],fire,1,0.0f,0.0f,0.0f,0.5f);
 								break;
 							case 257:
 							case 258:
-								particle_engine.make_smoke(O+Pos+data.pos[from_piece],0,1,10.0f,-1.0f,0.0f,0.5f);
+								particle_engine.make_smoke(Pos+data.pos[from_piece],0,1,10.0f,-1.0f,0.0f,0.5f);
 								break;
 							};
 						}
@@ -2314,17 +2312,15 @@ bool UNIT::is_on_radar( byte p_mask )
 				data.move(dt,map->ota_data.gravity);
 				if(c_time>=0.1f) {
 					c_time=0.0f;
-					POINTF O;
-					O.x=O.y=O.z=0.0f;
 					for(int i=0;i<data.nb_piece;i++)
 						if(data.flag[i]&FLAG_EXPLODE && (data.explosion_flag[i]&EXPLODE_BITMAPONLY)!=EXPLODE_BITMAPONLY) {
 							if(data.explosion_flag[i]&EXPLODE_FIRE) {
 								compute_model_coord();
-								particle_engine.make_smoke(O+Pos+data.pos[i],fire,1,0.0f,0.0f);
+								particle_engine.make_smoke(Pos+data.pos[i],fire,1,0.0f,0.0f);
 								}
 							if(data.explosion_flag[i]&EXPLODE_SMOKE) {
 								compute_model_coord();
-								particle_engine.make_smoke(O+Pos+data.pos[i],0,1,0.0f,0.0f);
+								particle_engine.make_smoke(Pos+data.pos[i],0,1,0.0f,0.0f);
 								}
 							}
 					}
@@ -5011,10 +5007,8 @@ bool UNIT::is_on_radar( byte p_mask )
 			launch_script( get_script_index( SCRIPT_RockUnit ), 2, param );
 			}
 
-		POINTF O;
-		O.x=O.y=O.z=0.0f;
 		if(unit_manager.unit_type[type_id].weapon[w_id]->startsmoke && visible)
-			particle_engine.make_smoke(O+startpos,0,1,0.0f,-1.0f,0.0f, 0.3f);
+			particle_engine.make_smoke(startpos,0,1,0.0f,-1.0f,0.0f, 0.3f);
 		LeaveCS();
 
 		weapons.Lock();

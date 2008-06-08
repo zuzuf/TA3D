@@ -155,8 +155,6 @@ MODEL *load_3ds( const String &filename, float scale )
 		OBJECT *read_obj = NULL;
 		TA3D_3DS_MATERIAL	*material = NULL;
 		VECTOR local[4];
-		POINTF O;
-		O.x = O.y = O.z = 0.0f;
 		while( fread( &chunk.ID, sizeof( chunk.ID ), 1, src_3ds ) ) {
 			if( fread( &chunk.length, sizeof( chunk.length ), 1, src_3ds ) == 0 )	break;
 			switch( chunk.ID )
@@ -338,7 +336,7 @@ MODEL *load_3ds( const String &filename, float scale )
 							case TRI_VERTEXL:
 //								printf("----TRI_VERTEXL (%d,%d)\n", chunk.ID, chunk.length);
 								fread( &read_obj->nb_vtx, 2, 1, src_3ds );
-								read_obj->points = (POINTF *) malloc( sizeof( POINTF ) * read_obj->nb_vtx );
+								read_obj->points = (VECTOR *) malloc( sizeof( VECTOR ) * read_obj->nb_vtx );
 								read_obj->N = (VECTOR *) malloc( sizeof( VECTOR ) * read_obj->nb_vtx );
 								if( read_obj->tcoord == NULL ) {
 									read_obj->tcoord = (float *) malloc( sizeof( float ) * read_obj->nb_vtx * 2 );
@@ -349,7 +347,7 @@ MODEL *load_3ds( const String &filename, float scale )
 									}
 								fread( read_obj->points, sizeof( POINTF ), read_obj->nb_vtx, src_3ds );
 								for( int i = 0 ; i < read_obj->nb_vtx ; i++ ) {
-									read_obj->points[ i ] = O + read_obj->points[ i ].x * local[ 0 ] + read_obj->points[ i ].y * local[ 1 ] + read_obj->points[ i ].z * local[ 2 ] + local[ 3 ];
+									read_obj->points[ i ] = read_obj->points[ i ].x * local[ 0 ] + read_obj->points[ i ].y * local[ 1 ] + read_obj->points[ i ].z * local[ 2 ] + local[ 3 ];
 									read_obj->points[ i ].x *= scale;
 									read_obj->points[ i ].y *= scale;
 									read_obj->points[ i ].z *= scale;
@@ -416,8 +414,8 @@ MODEL *load_3ds( const String &filename, float scale )
 									fread( &(read_obj->t_index[ i ]), 2, 3, src_3ds );
 									if( read_obj->points ) {
 										VECTOR AB,AC;
-										AB = read_obj->points[ read_obj->t_index[ i ] ] >> read_obj->points[ read_obj->t_index[ i + 1 ] ];
-										AC = read_obj->points[ read_obj->t_index[ i ] ] >> read_obj->points[ read_obj->t_index[ i + 2 ] ];
+										AB = read_obj->points[ read_obj->t_index[ i + 1 ] ] - read_obj->points[ read_obj->t_index[ i ] ];
+										AC = read_obj->points[ read_obj->t_index[ i + 2 ] ] - read_obj->points[ read_obj->t_index[ i ] ];
 										AB = AB * AC;
 										AB.Unit();
 										read_obj->N[ read_obj->t_index[ i ] ] = read_obj->N[ read_obj->t_index[ i ] ] + AB;

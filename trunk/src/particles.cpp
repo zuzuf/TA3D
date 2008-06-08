@@ -153,12 +153,10 @@ void PARTICLE_SYSTEM::draw()
 		LeaveCS();
 	}
 
-	void PARTICLE_ENGINE::emit_part(POINTF pos,VECTOR Dir,int tex,int nb,float speed,float life,float psize,bool white,float trans_factor)
+	void PARTICLE_ENGINE::emit_part(VECTOR pos,VECTOR Dir,int tex,int nb,float speed,float life,float psize,bool white,float trans_factor)
 	{
 		if( !lp_CONFIG->particle )	return;		// If particles are OFF don't add particles
-		POINTF O;
-		O.x=O.y=O.z=0.0f;
-		if(game_cam!=NULL && ((VECTOR)(game_cam->Pos-(O>>pos))).Sq()>=game_cam->zfar2)	return;
+		if(game_cam!=NULL && ((VECTOR)(game_cam->Pos-pos)).Sq()>=game_cam->zfar2)	return;
 		EnterCS();
 		while(nb_part+nb>size)			// Si besoin alloue de la mémoire
 			more_memory();
@@ -169,7 +167,7 @@ void PARTICLE_SYSTEM::draw()
 			uint32	cur_part = free_idx[--free_index_size];
 			idx_list[index_list_size++] = cur_part;
 			part[cur_part].px=-1;
-			part[cur_part].Pos=O>>pos;
+			part[cur_part].Pos=pos;
 			part[cur_part].V=speed*Dir;
 			part[cur_part].life=life;
 			part[cur_part].mass=0.0f;
@@ -207,21 +205,18 @@ void PARTICLE_SYSTEM::draw()
 		LeaveCS();
 	}
 
-	PARTICLE_SYSTEM *PARTICLE_ENGINE::emit_part_fast( PARTICLE_SYSTEM *system, POINTF pos, VECTOR Dir, int tex, int nb, float speed, float life, float psize, bool white, float trans_factor )
+	PARTICLE_SYSTEM *PARTICLE_ENGINE::emit_part_fast( PARTICLE_SYSTEM *system, VECTOR pos, VECTOR Dir, int tex, int nb, float speed, float life, float psize, bool white, float trans_factor )
 	{
 		if( !lp_CONFIG->particle )	return NULL;		// If particles are OFF don't add particles
 		if( tex < 0 || tex >= gltex.size() )	return NULL;		// We don't have that texture !!
-		POINTF O;
-		O.x=O.y=O.z=0.0f;
-
 		if( system ) {			// Step by step
-			system->pos[ system->cur_idx ] = O>>pos;
+			system->pos[ system->cur_idx ] = pos;
 			system->V[ system->cur_idx ] = speed * Dir;
 			system->cur_idx++;
 			}
 		else {
 
-			if(game_cam!=NULL && ((VECTOR)(game_cam->Pos-(O>>pos))).Sq()>=game_cam->zfar2)	return NULL;
+			if(game_cam!=NULL && ((VECTOR)(game_cam->Pos-pos)).Sq()>=game_cam->zfar2)	return NULL;
 
 			system = new PARTICLE_SYSTEM;
 			system->create( abs( nb ), gltex[ tex ] );
@@ -252,11 +247,11 @@ void PARTICLE_SYSTEM::draw()
 			system->dsize = 0.0f;
 			system->light_emitter = false;
 
-			system->common_pos = O>>O;
-			system->common_V = O>>O;
+			system->common_pos = VECTOR();
+			system->common_V = VECTOR();
 
 			for( int i = 0 ; i < ( nb < 0 ? 1 : nb ) ; i++ ) {
-				system->pos[i] = O>>pos;
+				system->pos[i] = pos;
 				system->V[i] = speed * Dir;
 				}
 
@@ -271,12 +266,10 @@ void PARTICLE_SYSTEM::draw()
 		return system;
 	}
 
-	void PARTICLE_ENGINE::emit_lava(POINTF pos,VECTOR Dir,int tex,int nb,float speed,float life)
+	void PARTICLE_ENGINE::emit_lava(VECTOR pos,VECTOR Dir,int tex,int nb,float speed,float life)
 	{
 		if( !lp_CONFIG->particle )	return;		// If particles are OFF don't add particles
-		POINTF O;
-		O.x=O.y=O.z=0.0f;
-		if(game_cam!=NULL && ((VECTOR)(game_cam->Pos-(O>>pos))).Sq()>=game_cam->zfar2)	return;
+		if(game_cam!=NULL && ((VECTOR)(game_cam->Pos-pos)).Sq()>=game_cam->zfar2)	return;
 
 		EnterCS();
 
@@ -289,7 +282,7 @@ void PARTICLE_SYSTEM::draw()
 			uint32	cur_part = free_idx[--free_index_size];
 			idx_list[index_list_size++] = cur_part;
 			part[cur_part].px=-1;
-			part[cur_part].Pos=O>>pos;
+			part[cur_part].Pos=pos;
 			float speed_mul=((rand_from_table()%100)*0.01f+0.01f);
 			part[cur_part].V=speed_mul*speed*Dir;
 			part[cur_part].life=life;
@@ -317,12 +310,9 @@ void PARTICLE_SYSTEM::draw()
 		LeaveCS();
 	}
 
-	void PARTICLE_ENGINE::make_shockwave(POINTF pos,int tex,int nb,float speed)
+	void PARTICLE_ENGINE::make_shockwave(VECTOR pos,int tex,int nb,float speed)
 	{
 		if( !lp_CONFIG->particle )	return;		// If particles are OFF don't add particles
-		POINTF O;
-		O.x=O.y=O.z=0.0f;
-
 		if( nb_part + nb > 20000 )	nb = 20000 - nb_part;
 
 		EnterCS();
@@ -338,7 +328,7 @@ void PARTICLE_SYSTEM::draw()
 			uint32	cur_part = free_idx[--free_index_size];
 			idx_list[index_list_size++] = cur_part;
 			part[cur_part].px=-1;
-			part[cur_part].Pos=O>>pos;
+			part[cur_part].Pos=pos;
 			part[cur_part].V.y=0.0f;
 			part[cur_part].V.x=((rand_from_table()%2001)-1000);
 			part[cur_part].V.z=((rand_from_table()%2001)-1000);
@@ -380,12 +370,9 @@ void PARTICLE_SYSTEM::draw()
 		LeaveCS();
 	}
 
-	void PARTICLE_ENGINE::make_nuke(POINTF pos,int tex,int nb,float speed)
+	void PARTICLE_ENGINE::make_nuke(VECTOR pos,int tex,int nb,float speed)
 	{
 		if( !lp_CONFIG->particle )	return;		// If particles are OFF don't add particles
-		POINTF O;
-		O.x=O.y=O.z=0.0f;
-
 		if( nb_part + nb > 20000 )	nb = 20000 - nb_part;
 
 		EnterCS();
@@ -401,7 +388,7 @@ void PARTICLE_SYSTEM::draw()
 			uint32	cur_part = free_idx[--free_index_size];
 			idx_list[index_list_size++] = cur_part;
 			part[cur_part].px=-1;
-			part[cur_part].Pos=O>>pos;
+			part[cur_part].Pos=pos;
 			part[cur_part].V.y=(rand_from_table()%9001)+1000;
 			part[cur_part].V.x=((rand_from_table()%2001)-1000);
 			part[cur_part].V.z=((rand_from_table()%2001)-1000);
@@ -433,12 +420,10 @@ void PARTICLE_SYSTEM::draw()
 		LeaveCS();
 	}
 
-	void PARTICLE_ENGINE::make_smoke(POINTF pos,int tex,int nb,float speed,float mass,float ddsize,float alpha)
+	void PARTICLE_ENGINE::make_smoke(VECTOR pos,int tex,int nb,float speed,float mass,float ddsize,float alpha)
 	{
 		if( !lp_CONFIG->particle )	return;		// If particles are OFF don't add particles
-		POINTF O;
-		O.x=O.y=O.z=0.0f;
-		if(game_cam!=NULL && ((VECTOR)(game_cam->Pos-(O>>pos))).Sq()>=game_cam->zfar2)	return;
+		if(game_cam!=NULL && ((VECTOR)(game_cam->Pos-pos)).Sq()>=game_cam->zfar2)	return;
 
 		EnterCS();
 
@@ -452,7 +437,7 @@ void PARTICLE_SYSTEM::draw()
 			uint32	cur_part = free_idx[--free_index_size];
 			idx_list[index_list_size++] = cur_part;
 			part[cur_part].px=-1;
-			part[cur_part].Pos=O>>pos;
+			part[cur_part].Pos=pos;
 			part[cur_part].V.y=((rand_from_table()%1000)+1)*0.001f;
 			part[cur_part].V.x=((rand_from_table()%2001)-1000)*0.001f;
 			part[cur_part].V.z=((rand_from_table()%2001)-1000)*0.001f;
@@ -483,12 +468,10 @@ void PARTICLE_SYSTEM::draw()
 		LeaveCS();
 	}
 
-	void PARTICLE_ENGINE::make_fire(POINTF pos,int tex,int nb,float speed)
+	void PARTICLE_ENGINE::make_fire(VECTOR pos,int tex,int nb,float speed)
 	{
 		if( !lp_CONFIG->particle )	return;		// If particles are OFF don't add particles
-		POINTF O;
-		O.x=O.y=O.z=0.0f;
-		if(game_cam!=NULL && ((VECTOR)(game_cam->Pos-(O>>pos))).Sq()>=game_cam->zfar2)	return;
+		if(game_cam!=NULL && ((VECTOR)(game_cam->Pos-pos)).Sq()>=game_cam->zfar2)	return;
 
 		EnterCS();
 
@@ -501,7 +484,7 @@ void PARTICLE_SYSTEM::draw()
 			uint32	cur_part = free_idx[--free_index_size];
 			idx_list[index_list_size++] = cur_part;
 			part[cur_part].px=-1;
-			part[cur_part].Pos=O>>pos;
+			part[cur_part].Pos=pos;
 			part[cur_part].V.y=((rand_from_table()%1000)+5000)*0.001f;
 			part[cur_part].V.x=((rand_from_table()%2001)-1000)*0.001f;
 			part[cur_part].V.z=((rand_from_table()%2001)-1000)*0.001f;
@@ -539,8 +522,6 @@ void PARTICLE_SYSTEM::draw()
 		EnterCS();
 
 		VECTOR G;
-		POINTF O;
-		O.x=O.y=O.z=0.0f;
 		G.x=G.y=G.z=0.0f;
 		G.y=dt*g;
 		wind_dir=dt*wind_dir;

@@ -619,8 +619,8 @@ void obj_maj_normal(int idx)
 		cur->N[i].x=cur->N[i].z=cur->N[i].y=0.0f;
 	for(int i=0;i<cur->nb_t_index;i+=3) {
 		VECTOR AB,AC,Normal;
-		AB=cur->points[cur->t_index[i]]>>cur->points[cur->t_index[i+1]];
-		AC=cur->points[cur->t_index[i]]>>cur->points[cur->t_index[i+2]];
+		AB = cur->points[cur->t_index[i+1]] - cur->points[cur->t_index[i]];
+		AC = cur->points[cur->t_index[i+2]] - cur->points[cur->t_index[i]];
 		Normal=AB*AC;	Normal.Unit();
 		for(int e=0;e<3;e++)
 			cur->N[cur->t_index[i+e]]=cur->N[cur->t_index[i+e]]+Normal;
@@ -645,7 +645,7 @@ void obj_geo_optimize(int idx,bool notex)
 				}
 	cur->nb_vtx-=removed;
 	if( notex ) {
-		POINTF *n_points = (POINTF*) malloc(sizeof(POINTF)*cur->nb_vtx);
+		VECTOR *n_points = (VECTOR*) malloc(sizeof(VECTOR)*cur->nb_vtx);
 		VECTOR *n_N = (VECTOR*) malloc(sizeof(VECTOR)*cur->nb_vtx);
 		int cur_pt=0;
 		for(int i=0;i<cur->nb_t_index;i++) {
@@ -667,7 +667,7 @@ void obj_geo_optimize(int idx,bool notex)
 		cur->N=n_N;
 		}
 	else {
-		POINTF *n_points = (POINTF*) malloc(sizeof(POINTF)*cur->nb_vtx);
+		VECTOR *n_points = (VECTOR*) malloc(sizeof(VECTOR)*cur->nb_vtx);
 		VECTOR *n_N = (VECTOR*) malloc(sizeof(VECTOR)*cur->nb_vtx);
 		float *n_tcoord = (float*) malloc(sizeof(float)*cur->nb_vtx<<1);
 		int cur_pt=0;
@@ -700,7 +700,7 @@ void obj_geo_split(int idx)
 {
 	if(idx<0 || idx>=nb_obj())	return;
 	OBJECT *cur = obj_table[idx];
-	POINTF *n_points = (POINTF*) malloc(sizeof(POINTF)*cur->nb_t_index);
+	VECTOR *n_points = (VECTOR*) malloc(sizeof(VECTOR)*cur->nb_t_index);
 	VECTOR *n_N = (VECTOR*) malloc(sizeof(VECTOR)*cur->nb_t_index);
 	float *n_tcoord = (float*) malloc(sizeof(float)*cur->nb_t_index<<1);
 	for(int i=0;i<cur->nb_t_index;i++) {
@@ -719,14 +719,14 @@ void obj_geo_split(int idx)
 	cur->nb_vtx=cur->nb_t_index;
 }
 
-int intersect(POINTF O,VECTOR Dir,OBJECT *obj,POINTF *PA,POINTF *PB)	// Calcule l'intersection d'un rayon avec une partie de la meshe
+int intersect(VECTOR O,VECTOR Dir,OBJECT *obj,VECTOR *PA,VECTOR *PB)	// Calcule l'intersection d'un rayon avec une partie de la meshe
 {
 	float mdist=1000000.0f;			// Distance du point de départ du rayon à l'objet
 	int index=-1;					// -1 pour aucun triangle touché
 
 	Dir.Unit();		// S'assure que Dir est normalisé
 	for(int i=0;i<obj->nb_t_index/3;i++) {			// Effectue l'opération pour chaque triangle
-		POINTF A,B,C,P;
+		VECTOR A,B,C,P;
 		VECTOR AB,AC,N,AO;
 		float dist,orient;
 
@@ -734,7 +734,7 @@ int intersect(POINTF O,VECTOR Dir,OBJECT *obj,POINTF *PA,POINTF *PB)	// Calcule 
 		B=obj->points[obj->t_index[i*3+1]];
 		C=obj->points[obj->t_index[i*3+2]];
 
-		AB=A>>B;	AC=A>>C;
+		AB=B-A;	AC=C-A;
 		N=AB*AC;								// Calcule un vecteur normal au triangle
 		N.Unit();			// Normalise ce vecteur
 
@@ -742,7 +742,7 @@ int intersect(POINTF O,VECTOR Dir,OBJECT *obj,POINTF *PA,POINTF *PB)	// Calcule 
 
 		if(orient>=0.0f) continue;		// Si le triangle ne fait pas face au rayon, on le saute
 
-		AO=A>>O;
+		AO = O-A;
 
 		dist=-(AO%N);		// Calcule la distance de O au triangle
 		dist/=orient;		// Calcule la distance de 0 à P(point d'intersection avec le plan du triangle)
@@ -751,11 +751,11 @@ int intersect(POINTF O,VECTOR Dir,OBJECT *obj,POINTF *PA,POINTF *PB)	// Calcule 
 
 		P=O+dist*Dir;		// Calcule les coordonnées du point d'intersection
 
-		if(Dir%(O>>P)<0.0f) continue;		// Si le triangle est derrière, on le saute
+		if(Dir%(P-O)<0.0f) continue;		// Si le triangle est derrière, on le saute
 
 							// Maintenant il faut vérifier que le point appartient bien au triangle
 		float a,b,c;		// Coefficients pour que P soit le barycentre de A,B,C
-		VECTOR AP=A>>P;
+		VECTOR AP=P-A;
 		if(AC.y!=0.0f && AB.x*AC.y!=AB.y*AC.x) {
 			b=(AP.x-AP.y*AC.x/AC.y)/(AB.x-AB.y*AC.x/AC.y);
 			a=(AP.y-b*AB.y)/AC.y;

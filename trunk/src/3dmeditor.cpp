@@ -1314,11 +1314,10 @@ void SurfPaint(int index)
 			case EDIT_SELTRI:			// Code pour la sélection
 				startline=true;		// Pour l'outil de traçage de lignes
 				{
-					POINTF A,B,O;
+					VECTOR A,B,O;
 					VECTOR Dir;
-					O.x=O.y=O.z=0.0f;
 					Cam.SetView();
-					O=O+Cam.Pos-obj_table[cur_part]->pos_from_parent;			// Origine du rayon=le point de vue de la caméra
+					O = Cam.Pos-obj_table[cur_part]->pos_from_parent;			// Origine du rayon=le point de vue de la caméra
 					Dir=Cam.Dir+(mouse_x-(SCREEN_W>>1))/(SCREEN_W*0.5f)*Cam.Side-0.75f*(mouse_y-(SCREEN_H>>1))/(SCREEN_H*0.5f)*Cam.Up;
 					int index=intersect(O,Dir,obj_table[cur_part],&A,&B); 		// Obtient l'indice du triangle visé
 
@@ -1372,11 +1371,10 @@ void SurfPaint(int index)
 				break;
 			case EDIT_PAINT:			// Code pour le dessin
 				if(mouse_b==1 && NbSel>0) {			// Si il y a une sélection
-					POINTF A,B,O;
+					VECTOR A,B,O;
 					VECTOR Dir;
-					O.x=O.y=O.z=0.0f;
 					Cam.SetView();
-					O=O+Cam.Pos-obj_table[cur_part]->pos_from_parent;			// Origine du rayon=le point de vue de la caméra
+					O=Cam.Pos-obj_table[cur_part]->pos_from_parent;			// Origine du rayon=le point de vue de la caméra
 					Dir=Cam.Dir+(mouse_x-(SCREEN_W>>1))/(SCREEN_W*0.5f)*Cam.Side-0.75f*(mouse_y-(SCREEN_H>>1))/(SCREEN_H*0.5f)*Cam.Up;
 					int index=intersect(O,Dir,obj_table[cur_part],&A,&B); 		// Obtient l'indice du triangle visé
 					bool Selected=false;
@@ -1859,8 +1857,6 @@ void CylinderTexturing(int part)
 
 	float COS45=0.5f*sqrt(2.0f);		// Valeur à partir de laquelle on utilise les bords droit et gauche de la texture
 	VECTOR I,J,K;
-	POINTF O;
-	O.x=O.y=O.z=0.0f;
 	I=J=K=I-I;
 	I.x=1.0f;				// Vecteur de référence pour les calculs de repérage
 	J.y=1.0f;
@@ -1880,7 +1876,7 @@ void CylinderTexturing(int part)
 			if(obj_table[part]->points[i].x>xmax)	xmax=obj_table[part]->points[i].x;
 			if(obj_table[part]->points[i].x<xmin)	xmin=obj_table[part]->points[i].x;
 			VECTOR V;
-			V=O>>obj_table[part]->points[i];
+			V=obj_table[part]->points[i];
 			V=V-(V%I)*I;
 			float angle=VAngle(J,V);
 			if(K%V<0.0f)
@@ -1913,8 +1909,7 @@ void CylinderTexturing(int part)
 	for(i=0;i<obj_table[part]->nb_vtx;i++) {		// Analyse toutes les normales et les points
 		float COS=obj_table[part]->N[i]%I;
 		if(fabs(COS)<COS45) {			// Milieu
-			VECTOR V;
-			V=O>>obj_table[part]->points[i];
+			VECTOR V = obj_table[part]->points[i];
 			V=V-(V%I)*I;
 			float angle=VAngle(J,V);
 			if(K%V<0.0f)

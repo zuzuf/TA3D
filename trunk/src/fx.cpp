@@ -29,6 +29,7 @@
 #include "EngineClass.h"
 #include "tdf.h"
 #include "fx.h"
+#include "particles.h"
 
 FX_MANAGER			fx_manager;
 
@@ -319,3 +320,146 @@ int FX_MANAGER::add_ripple(VECTOR Pos,float size)
 	return idx;
 }
 
+void FX_MANAGER::init()
+{
+	particles.clear();
+
+	cache_is_dirty = false;
+
+	fx_data=NULL;
+
+	max_fx=0;
+	nb_fx=0;
+	fx=NULL;
+
+	max_cache_size=0;
+	cache_size=0;
+	cache_name=NULL;
+	cache_anm=NULL;
+	use=NULL;
+
+	flash_tex = 0;
+	wave_tex[0] = 0;
+	wave_tex[1] = 0;
+	wave_tex[2] = 0;
+	ripple_tex = 0;
+}
+
+void FX_MANAGER::destroy()
+{
+	particles.clear();
+
+	gfx->destroy_texture( flash_tex );
+	gfx->destroy_texture( ripple_tex );
+	gfx->destroy_texture( wave_tex[0] );
+	gfx->destroy_texture( wave_tex[1] );
+	gfx->destroy_texture( wave_tex[2] );
+
+	if(fx_data)	free(fx_data);
+	if(fx) {
+		for(int i=0;i<max_fx;i++)
+			fx[i].destroy();
+		free(fx);
+		}
+	if(cache_size>0) {
+		if(cache_name) {
+			for(int i=0;i<max_cache_size;i++)
+				if(cache_name[i])
+					free(cache_name[i]);
+			free(cache_name);
+			}
+		if(cache_anm) {
+			for(int i=0;i<max_cache_size;i++)
+				if(cache_anm[i]) {
+					cache_anm[i]->destroy();
+					delete cache_anm[i];
+					}
+			free(cache_anm);
+			}
+		}
+	init();
+}
+
+void FX_MANAGER::draw(CAMERA *cam, MAP *map, float w_lvl, bool UW)
+{
+	EnterCS();
+
+	if( cache_is_dirty ) {			// We have work to do
+		for( uint32 i = 0 ; i < max_cache_size ; i++ )
+			if( cache_anm[i] )
+				cache_anm[i]->convert(false,true);
+		cache_is_dirty = false;
+		}
+
+	glColor4f( 1.0f, 1.0f, 1.0f, 1.0f );
+
+	glEnable(GL_TEXTURE_2D);
+	glDisable(GL_LIGHTING);
+	glDisable(GL_CULL_FACE);
+	glEnable(GL_BLEND);
+	glDepthMask(GL_FALSE);
+	glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+	cam->SetView();
+	glEnable(GL_POLYGON_OFFSET_FILL);
+	glPolygonOffset(0.0f,-1600.0f);
+	if(UW) {
+		for(int i=0;i<max_fx;i++)
+			if( fx[i].playing && fx[i].Pos.y<w_lvl )
+				fx[i].draw(cam,map,cache_anm);
+		}
+	else
+		for(int i=0;i<max_fx;i++)
+			if( fx[i].playing && fx[i].Pos.y >= w_lvl )
+				fx[i].draw(cam,map,cache_anm);
+	glDisable(GL_POLYGON_OFFSET_FILL);
+	glPolygonOffset(0.0f,0.0f);
+	glDisable(GL_BLEND);
+	glDepthMask(GL_TRUE);
+
+	foreach( particles, i )
+		i->draw();
+
+	LeaveCS();
+}
+
+FX_PARTICLE::FX_PARTICLE( VECTOR &P, VECTOR &S, float L )
+{
+	Pos = P;
+	Speed = S;
+	life = L;
+	timer = 0.0f;
+}
+
+bool FX_PARTICLE::move( float dt )
+{
+	life -= dt;
+	timer += dt;
+	
+	Speed.y += dt * the_map->ota_data.gravity;		// React to gravity
+	Pos = Pos + dt * Speed;
+	
+	float min_h = the_map->get_unit_h( Pos.x, Pos.z );
+	if( Pos.y < min_h ) {							// Bouncing on the map :)
+		Pos.y = min_h;
+		float dx = the_map->get_unit_h( Pos.x + 1.0f, Pos.z );
+		float dz = the_map->get_unit_h( Pos.x, Pos.z + 1.0f );
+		VECTOR Normal( dx, -1.0f, dz );
+		Normal.Unit();
+		
+		Speed = Speed - (2.0f * (Speed % Normal)) * Normal;
+		}
+	
+	while( timer >= 0.1f ) {			// Emit smoke
+		timer -= 0.1f;
+		particle_engine.make_smoke( Pos, 0, 1, 0.0f );
+		}
+		
+	return life <= 0.0f;			// When it shoud die, return true
+}
+
+void FX_PARTICLE::draw()
+{
+	glPushMatrix();
+	glTranslatef( Pos.x, Pos.y, Pos.z );
+	glPopMatrix();
+}
