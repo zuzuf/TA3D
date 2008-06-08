@@ -129,7 +129,7 @@ ReplaceString(const String& s, const String& toSearch, const String& replaceWith
     String result = s;
 	int f = 0;
 	while ((f = SearchString(result, toSearch, ignoreCase)) != -1)
-		result = Result.replace(f, toSearch.size(), replaceWith);
+		result = result.replace(f, toSearch.size(), replaceWith);
 	return result;
 }
 
@@ -141,7 +141,7 @@ ReplaceChar(const String& s, const char toSearch, const char replaceWith)
     int l = s.size();
 	for( int i = 0 ; i < l; ++i)
     {
-		if(toSearch == Result[i])
+		if(toSearch == ret[i])
 		    ret[i] = replaceWith;
     }
 	return ret;
