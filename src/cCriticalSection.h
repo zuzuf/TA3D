@@ -16,7 +16,7 @@
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA*/
 #pragma once
 
-#if defined TA3D_PLATFORM_LINUX
+#if defined TA3D_PLATFORM_LINUX || defined TA3D_PLATFORM_DARWIN
 	#include <pthread.h>
 #endif
 
@@ -36,8 +36,6 @@ namespace TA3D
 	private:
 #if defined TA3D_PLATFORM_WINDOWS
 		CRITICAL_SECTION m_hCritSection;
-//#elif defined TA3D_PLATFORM_LINUX
-//		
 #else
 		pthread_mutex_t m_hCritSection;
 #endif
