@@ -93,7 +93,8 @@ our forums (http://ta3d.darkstars.co.uk/)\nand keep this file, it'll help us deb
 our forums (http://ta3d.darkstars.co.uk/) so we can fix it.";
 #ifdef TA3D_PLATFORM_WINDOWS
 	::MessageBoxA( NULL, szErrReport.c_str(), "TA3D Application Error", MB_OK  | MB_TOPMOST | MB_ICONERROR );
-#else
+#endif
+#ifdef TA3D_PLATFORM_LINUX
 	allegro_init();
 	allegro_message( szErrReport.c_str() );
 	allegro_exit();
