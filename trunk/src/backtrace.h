@@ -16,4 +16,12 @@
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA*/
 
 // Obtain a backtrace and print it to stdout.
+
+#ifndef __TA3D_BACKTRACE_H__
+# define __TA3D_BACKTRACE_H__
+
+
 int init_signals (void);
+
+
+#endif // __TA3D_BACKTRACE_H__
