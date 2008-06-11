@@ -1093,7 +1093,7 @@ void WEAPON::draw(CAMERA *cam,MAP *map)				// Dessine les objets produits par le
 				glVertex3f(Pos.x+(rand_from_table()%201)*0.01f-1.0f,Pos.y+(rand_from_table()%201)*0.01f-1.0f,Pos.z+(rand_from_table()%201)*0.01f-1.0f);
 		glEnd();
 		break;
-	};
+	}
 	glPopMatrix();
 }
 
