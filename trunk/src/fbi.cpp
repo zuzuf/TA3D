@@ -361,9 +361,9 @@ void UNIT_TYPE::show_info(float fade,GFX_FONT fnt)
 				if( categories )	delete categories;
 				Category = new cHashTable< int >(128);
 				categories = new Vector<String>;
-				*categories = ReadVectorString( f + 9, " " );
-				for( int i = 0 ; i < categories->size() ; i++ )
-					Category->InsertOrUpdate( Lowercase( (*categories)[i] ), 1 );
+				ReadVectorString(*categories, f + 9, " " );
+                for(Vector<String>::const_iterator i = categories->begin(); i != categories->end(); ++i)
+					Category->InsertOrUpdate(Lowercase(*i), 1);
 				fastCategory = 0;
 				if( checkCategory( "kamikaze" ) )	fastCategory |= CATEGORY_KAMIKAZE;
 				if( checkCategory( "notair" ) )		fastCategory |= CATEGORY_NOTAIR;
@@ -372,7 +372,7 @@ void UNIT_TYPE::show_info(float fade,GFX_FONT fnt)
 				if( checkCategory( "commander" ) )	fastCategory |= CATEGORY_COMMANDER;
 				if( checkCategory( "weapon" ) )		fastCategory |= CATEGORY_WEAPON;
 				if( checkCategory( "level3" ) )		fastCategory |= CATEGORY_LEVEL3;
-				}
+			}
 			else if(f=strstr(ligne,"unitnumber="))			UnitNumber=atoi(f+14);
 			else if(f=strstr(ligne,"canmove="))				canmove=(f[8]=='1');
 			else if(f=strstr(ligne,"canpatrol="))			canpatrol=(f[10]=='1');

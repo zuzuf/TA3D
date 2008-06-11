@@ -3053,8 +3053,10 @@ int play(GAME_DATA *game_data)
         gfx->flip();
 
         if(cmd) {		// Analyse les commandes tapées dans la console
-            Vector< String > params = ReadVectorString( cmd, " " );
-            if( params.size() > 0 ) {
+            Vector<String> params;
+            ReadVectorString(params,  cmd, " ");
+            if( params.size() > 0 )
+            {
                 if( params[0] == "fps_on" ) lp_CONFIG->showfps=true;				// Affiche le nombre d'images/seconde
                 else if( params[0] == "fps_off" ) lp_CONFIG->showfps=false;				// Cache le nombre d'images/seconde
                 else if( params[0] == "zshoot" ) {									// Prend une capture d'écran(tampon de profondeur seulement)

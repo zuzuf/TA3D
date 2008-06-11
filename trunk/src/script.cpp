@@ -1493,18 +1493,22 @@ void generate_script_from_mission( String Filename, cTAFileParser *ota_parser, i
 
 		m_File << unit_name << " = unit_id\n";		// Links the unit_id to the given unit_name so it can be used as an identifier
 		
-		Vector< String > orders = ReadVectorString( ota_parser->PullAsString( unit_key + ".InitialMission" ), "," );
+		Vector<String> orders;
+        ReadVectorString(orders, ota_parser->PullAsString( unit_key + ".InitialMission" ), ",");
 
 		bool selectable = false;
 		bool orders_given = false;
 
-		for( int e = 0 ; e < orders.size() ; e++ ) {							// Converts InitialMission to a mission list
-			Vector< String > params = ReadVectorString( orders[ e ], " " );		// Read all the mission parameters
+		for( int e = 0 ; e < orders.size() ; e++ )	// Converts InitialMission to a mission list
+        {
+			Vector<String> params;
+            ReadVectorString(params, orders[ e ], " " );		// Read all the mission parameters
 			if( params.size() == 0 )	continue;
 			
 			params[ 0 ] = Lowercase( params[ 0 ] );
 			
-			if( params[ 0 ][ 0 ] == 'p' && params[ 0 ].size() > 1 ) {			// something like p3000 2000, convert it to p 3000 2000
+			if( params[ 0 ][ 0 ] == 'p' && params[ 0 ].size() > 1 ) // something like p3000 2000, convert it to p 3000 2000
+            {
 				params.resize( params.size() + 1 );
 				for( int i = params.size() - 1 ; i > 0 ; i++ )
 					if( i == 1 ) {
@@ -1513,7 +1517,7 @@ void generate_script_from_mission( String Filename, cTAFileParser *ota_parser, i
 						}
 					else
 						params[ i ] = params[ i - 1 ];
-				}
+			}
 
 			if( params[ 0 ] == "m" ) {			// Move
 				if( params.size() >= 3 ) {
@@ -1619,7 +1623,8 @@ void generate_script_from_mission( String Filename, cTAFileParser *ota_parser, i
 	m_File << "end\n";
 
 	if( !ota_parser->PullAsString( "GlobalHeader.KillUnitType" ).empty() ) {
-		Vector< String > params = ReadVectorString( ota_parser->PullAsString( "GlobalHeader.KillUnitType" ), "," );
+		Vector<String> params;
+        ReadVectorString(params, ota_parser->PullAsString( "GlobalHeader.KillUnitType" ), "," );
 		if( params.size() >= 2 ) {
 			m_File << "\nKillUnitType_nb = ta3d_nb_unit_of_type( 1, \"" << params[ 0 ] << "\" )\n" ;
 			m_File << "KilledUnitType = 0\n";
@@ -1627,7 +1632,8 @@ void generate_script_from_mission( String Filename, cTAFileParser *ota_parser, i
 		}
 
 	if( !ota_parser->PullAsString( "GlobalHeader.UnitTypeKilled" ).empty() ) {
-		Vector< String > params = ReadVectorString( ota_parser->PullAsString( "GlobalHeader.UnitTypeKilled" ), "," );
+		Vector<String> params;
+        ReadVectorString(params, ota_parser->PullAsString( "GlobalHeader.UnitTypeKilled" ), "," );
 		if( params.size() >= 2 ) {
 			m_File << "\nUnitTypeKilled_nb = ta3d_nb_unit_of_type( 1, \"" << params[ 0 ] << "\" )\n" ;
 			m_File << "UnitTypeKilled_count = 0\n";
@@ -1664,8 +1670,10 @@ void generate_script_from_mission( String Filename, cTAFileParser *ota_parser, i
 		}
 	
 	if( !ota_parser->PullAsString( "GlobalHeader.UnitTypeKilled" ).empty() ) {
-		Vector< String > params = ReadVectorString( ota_parser->PullAsString( "GlobalHeader.UnitTypeKilled" ), "," );
-		if( params.size() >= 2 ) {
+		Vector<String> params;
+        ReadVectorString(params, ota_parser->PullAsString( "GlobalHeader.UnitTypeKilled" ), "," );
+		if( params.size() >= 2 )
+        {
 			m_File << "	new_UnitTypeKilled_nb = ta3d_nb_unit_of_type( 1, \"" << params[ 0 ] << "\" )\n";
 			m_File << "	if UnitTypeKilled_nb > new_UnitTypeKilled_nb then\n";
 			m_File << "		UnitTypeKilled_count = UnitTypeKilled_count + UnitTypeKilled_nb - new_UnitTypeKilled_nb\n";
@@ -1674,10 +1682,11 @@ void generate_script_from_mission( String Filename, cTAFileParser *ota_parser, i
 			m_File << "		ta3d_print( 288, 236, \"DEFEAT\" )\n		timer = ta3d_time()\n		end_signal = SIGNAL_DEFEAT\n		return 0\n";
 			m_File << "	end\n";
 			m_File << "	UnitTypeKilled_nb = new_UnitTypeKilled_nb\n\n";
-			}
 		}
+	}
 
-	if( ota_parser->PullAsInt( "GlobalHeader.AllUnitsKilled" ) == 1 ) {
+	if( ota_parser->PullAsInt( "GlobalHeader.AllUnitsKilled" ) == 1 )
+    {
 		m_File << "	if ta3d_annihilated( 0 ) then\n";
 		m_File << "		ta3d_print( 288, 236, \"DEFEAT\" )\n		timer = ta3d_time()\n		end_signal = SIGNAL_DEFEAT\n		return 0\n";
 		m_File << "	end\n\n";
@@ -1729,14 +1738,16 @@ void generate_script_from_mission( String Filename, cTAFileParser *ota_parser, i
 		if( !ota_parser->PullAsString( "GlobalHeader.AnyUnitPassesZ" ).empty() )
 			m_File << "	ZPass0 = 0.5 * ( " << ota_parser->PullAsString( "GlobalHeader.AnyUnitPassesZ" ) << " - ta3d_map_h() )\n";
 		if( !ota_parser->PullAsString( "GlobalHeader.UnitTypePassesZ" ).empty() ) {
-			Vector< String > params = ReadVectorString( ota_parser->PullAsString( "GlobalHeader.UnitTypePassesZ" ), "," );
+			Vector<String> params;
+            ReadVectorString(params, ota_parser->PullAsString( "GlobalHeader.UnitTypePassesZ" ), "," );
 			if( params.size() == 2 )
 				m_File << "	ZPass1 = 0.5 * ( " << params[ 1 ] << " - ta3d_map_h() )\n";
 			}
 		if( !ota_parser->PullAsString( "GlobalHeader.AnyUnitPassesX" ).empty() )
 			m_File << "	XPass0 = 0.5 * ( " << ota_parser->PullAsString( "GlobalHeader.AnyUnitPassesX" ) << " - ta3d_map_w() )\n";
 		if( !ota_parser->PullAsString( "GlobalHeader.UnitTypePassesX" ).empty() ) {
-			Vector< String > params = ReadVectorString( ota_parser->PullAsString( "GlobalHeader.UnitTypePassesX" ), "," );
+			Vector<String> params;
+            ReadVectorString(params, ota_parser->PullAsString( "GlobalHeader.UnitTypePassesX" ), "," );
 			if( params.size() == 2 )
 				m_File << "	XPass1 = 0.5 * ( " << params[ 1 ] << " - ta3d_map_w() )\n";
 			}
@@ -1752,14 +1763,16 @@ void generate_script_from_mission( String Filename, cTAFileParser *ota_parser, i
 			m_File << "		end\n";
 			}
 		if( !ota_parser->PullAsString( "GlobalHeader.UnitTypePassesZ" ).empty() ) {
-			Vector< String > params = ReadVectorString( ota_parser->PullAsString( "GlobalHeader.UnitTypePassesZ" ), "," );
-			if( params.size() == 2 ) {
+			Vector<String> params;
+            ReadVectorString(params, ota_parser->PullAsString( "GlobalHeader.UnitTypePassesZ" ), "," );
+			if( params.size() == 2 )
+            {
 				m_File << "		if exist[ i ] and unit_exist and ta3d_is_unit_of_type( i, \"" << params[ 0 ] << "\" ) and (pos_z[ i ] - ZPass1) * (unit_z - ZPass1) <= 0 and not UnitTypePassesZ then\n";
 				m_File << "			victory_conditions = victory_conditions + 1\n";	nb_victory_conditions++;
 				m_File << "			UnitTypePassesZ = true\n";
 				m_File << "		end\n";
-				}
 			}
+		}
 		if( !ota_parser->PullAsString( "GlobalHeader.AnyUnitPassesX" ).empty() ) {
 			m_File << "		if exist[ i ] and unit_exist and (pos_x[ i ] - XPass0) * (unit_x - XPass0) <= 0 and not AnyUnitPassesX then\n";
 			m_File << "			victory_conditions = victory_conditions + 1\n";	nb_victory_conditions++;
@@ -1767,7 +1780,8 @@ void generate_script_from_mission( String Filename, cTAFileParser *ota_parser, i
 			m_File << "		end\n";
 			}
 		if( !ota_parser->PullAsString( "GlobalHeader.UnitTypePassesX" ).empty() ) {
-			Vector< String > params = ReadVectorString( ota_parser->PullAsString( "GlobalHeader.UnitTypePassesX" ), "," );
+			Vector<String> params;
+            ReadVectorString(params, ota_parser->PullAsString( "GlobalHeader.UnitTypePassesX" ), "," );
 			if( params.size() == 2 ) {
 				m_File << "		if exist[ i ] and unit_exist and ta3d_is_unit_of_type( i, \"" << params[ 0 ] << "\" ) and (pos_x[ i ] - XPass1) * (unit_x - XPass1) <= 0 and not UnitTypePassesX then\n";
 				m_File << "			victory_conditions = victory_conditions + 1\n";	nb_victory_conditions++;
@@ -1800,7 +1814,8 @@ void generate_script_from_mission( String Filename, cTAFileParser *ota_parser, i
 		}
 
 	if( !ota_parser->PullAsString( "GlobalHeader.KillUnitType" ).empty() ) {
-		Vector< String > params = ReadVectorString( ota_parser->PullAsString( "GlobalHeader.KillUnitType" ), "," );
+		Vector<String> params;
+        ReadVectorString(params, ota_parser->PullAsString( "GlobalHeader.KillUnitType" ), "," );
 		if( params.size() >= 2 ) {
 			m_File << "	new_KillUnitType_nb = ta3d_nb_unit_of_type( 1, \"" << params[ 0 ] << "\" )\n";
 			m_File << "	if KillUnitType_nb > new_KillUnitType_nb then\n";
@@ -1842,7 +1857,8 @@ void generate_script_from_mission( String Filename, cTAFileParser *ota_parser, i
 		}
 
 	if( !ota_parser->PullAsString( "GlobalHeader.MoveUnitToRadius" ).empty() ) {
-		Vector< String > params = ReadVectorString( ota_parser->PullAsString( "GlobalHeader.MoveUnitToRadius" ) );
+		Vector<String> params;
+        ReadVectorString(params, ota_parser->PullAsString( "GlobalHeader.MoveUnitToRadius" ) );
 		m_File << "	for i = 0, ta3d_get_max_unit_number() do\n";
 		if( Lowercase( params[0] ) == "anytype" )
 			m_File << "		if ta3d_get_unit_owner( i ) == 0 then\n";

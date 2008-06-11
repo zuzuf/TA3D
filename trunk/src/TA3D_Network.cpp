@@ -113,7 +113,8 @@ void TA3DNetwork::check()
 	LeaveCS();
 
 	n = 100;
-	while( n-- ) {													// Special message receiver
+	while(--n)	// Special message receiver
+    {
 		String special_msg;
 		special received_special_msg;
 
@@ -124,38 +125,46 @@ void TA3DNetwork::check()
 
 		int player_id = game_data->net2id( received_special_msg.from );
 
-		Vector<String> params = ReadVectorString( special_msg, " " );
-		if( params.size() == 3 ) {
-			if( params[0] == "TICK" ) {
-				if( player_id >= 0 ) {
+		Vector<String> params;
+        ReadVectorString(params, special_msg, " " );
+		if( params.size() == 3 )
+        {
+			if( params[0] == "TICK" )
+            {
+				if( player_id >= 0 )
+                {
 					units.client_tick[ player_id ] = atoi( params[1].c_str() ) * 1000;
 					units.client_speed[ player_id ] = atoi( params[2].c_str() );
-					}
 				}
 			}
 		}
+	}
 
 	n = 100;
-	while( n-- ) {													// Order message receiver
+	while(--n)	// Order message receiver
+    {
 		struct order order_msg;
 
 		if( network_manager.getNextOrder( &order_msg ) )
 			break;
-		}
+	}
 
 	n = 100;
-	while( n-- ) {													// Sync message receiver
+	while(--n) // Sync message receiver
+    {
 		struct sync sync_msg;
 
 		if( network_manager.getNextSync( &sync_msg ) )
 			break;
 
-		if( sync_msg.unit < units.max_unit ) {
+		if( sync_msg.unit < units.max_unit )
+        {
 			units.unit[sync_msg.unit].Lock();
-			if( !(units.unit[sync_msg.unit].flags & 1) || units.unit[sync_msg.unit].exploding || units.unit[sync_msg.unit].last_synctick[0] >= sync_msg.timestamp )	{
+			if( !(units.unit[sync_msg.unit].flags & 1) || units.unit[sync_msg.unit].exploding || units.unit[sync_msg.unit].last_synctick[0] >= sync_msg.timestamp )
+            {
 				units.unit[sync_msg.unit].UnLock();
 				continue;
-				}
+			}
 
 			units.unit[sync_msg.unit].flying = sync_msg.flags & SYNC_FLAG_FLYING;
 			units.unit[sync_msg.unit].cloaking = sync_msg.flags & SYNC_FLAG_CLOAKING;
@@ -191,11 +200,12 @@ void TA3DNetwork::check()
 			sync_event.opt3 = sync_msg.timestamp;
 			
 			network_manager.sendEventUDP( &sync_event, network_manager.isServer() ? getNetworkID( sync_msg.unit ) : 0 );		// server side we can't just let 0
-			}
 		}
+	}
 
 	n = 100;
-	while( n-- ) {													// Event message receiver
+	while(--n) // Event message receiver
+    {
 		struct event event_msg;
 
 		if( network_manager.getNextEvent( &event_msg ) )
