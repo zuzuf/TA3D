@@ -38,6 +38,8 @@ int						TA3D::VARS::ascii_to_scancode[ 256 ];
 
 namespace TA3D
 {
+
+
       // TODO: Construct global config manager class.
       // TODO: Construct global GFX object.
 	char *replace_chars(char *str)
@@ -82,16 +84,17 @@ namespace TA3D
 
 	void create_path( const String &path )
 	{
-		if( !file_exists( path.c_str(), FA_DIREC, NULL ) ) {
+		if( !file_exists( path.c_str(), FA_DIREC, NULL ) )
+        {
 			String parent = get_path( path );
 			if( !parent.empty() )
 				create_path( parent );
-#if defined TA3D_PLATFORM_WINDOWS
+            # if defined TA3D_PLATFORM_WINDOWS
 			mkdir( path.c_str() );
-#else
+            # else
 			mkdir( path.c_str(), 0x1FF );
-#endif
-			}
+            # endif
+		}
 	}
 
 	FILE *TA3D_OpenFile( const String &FileName, const String Mode )
@@ -100,36 +103,50 @@ namespace TA3D
 
 		create_path( get_path( FileName ) );		// Create tree structure if it doesn't exist
 
-#if defined TA3D_PLATFORM_MSVC
+        # if defined TA3D_PLATFORM_MSVC
 		errno_t err;
 		if( ( err = fopen_s( &file, FileName.c_str(), Mode.c_str() )) == 0 )
 			return file;
-#else
+        # else
 		file=fopen( FileName.c_str(), Mode.c_str() );
 		if( file )
 			return file;
-#endif
+        # endif
 		return NULL;
 	}
 
-	String RemoveComments( String &sstring )
+	String RemoveComments(const String &s)
 	{
-		String Result = String( sstring );
+		String Result(s);
 		int i = (int)Result.find("//");
-		if( i != -1 ) {					// If we have found comments, then remove them and clear the string (remove blanks)
+		if(i != -1) // If we have found comments, then remove them and clear the string (remove blanks)
+        {
 			Result.resize(i);		// Remove comments
 
-			for( i = Result.length()-1 ; i>=0 ; i--)				// Find blanks at the end of the string
-				if( Result[i] != 9 && Result[i] != 32 ) {	i++;	break;	}
-
-			if( i < Result.length() )	Result.resize(i);			// Remove them
-
-			for( i = 0 ; i<Result.length() ; i++)				// Find blanks at the beginning of the string
-				if( Result[i] != 9 && Result[i] != 32 ) {	i--;	break;	}
+            // Find blanks at the end of the string
+			for( i = Result.length()-1 ; i>=0 ; --i)
+            {
+				if( Result[i] != 9 && Result[i] != 32 )
+                {
+                    ++i;
+                    break;
+                }
+            }
+			if(i < Result.length())
+                Result.resize(i);
+            // Find blanks at the beginning of the string
+			for( i = 0 ; i<Result.length() ; ++i)
+            {
+				if( Result[i] != 9 && Result[i] != 32 )
+                {
+                    --i;
+                    break;
+                }
+            }
 
 			if( i >= 0 )
 				Result.erase( 0, i );
-			}
+		}
 		return Result;
 	}
 
@@ -159,10 +176,12 @@ namespace TA3D
 	}
 
 
-	bool TA3D_exists( const String &filename )			// just a wrapper for allegro's exists function which only use C strings
+	bool FileExists(const String& filename)
 	{
 		return exists( filename.c_str() );
 	}
+
+
 
 	void CheckOutputDir()
 	{
@@ -204,7 +223,8 @@ namespace TA3D
 			// Check cache date
 		String cache_date = lp_CONFIG ? format("build info : %s , %s\ncurrent mod : %s\n", __DATE__, __TIME__, lp_CONFIG->last_MOD.c_str() ) : format("build info : %s , %s\ncurrent mod : \n", __DATE__, __TIME__ );
 
-		if( TA3D_exists( TA3D_OUTPUT_DIR + "cache/cache_info.txt" ) ) {
+		if( TA3D::FileExists( TA3D_OUTPUT_DIR + "cache/cache_info.txt" ) )
+        {
 			FILE *cache_info = TA3D_OpenFile( TA3D_OUTPUT_DIR + "cache/cache_info.txt", "rb" );
 			if( cache_info ) {
 				char *buf = new char[ cache_date.size() + 1 ];

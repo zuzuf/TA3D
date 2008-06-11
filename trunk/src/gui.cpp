@@ -3187,14 +3187,16 @@ void AREA::load_tdf( const String &filename )			// Loads a TDF file telling whic
 	cTAFileParser *areaFile;
 
 	String skin_name = ( lp_CONFIG != NULL && !lp_CONFIG->skin_name.empty() ) ? lp_CONFIG->skin_name : "";
-	if( skin_name != "" && TA3D_exists( skin_name ) ) {			// Loads a skin
+	if( skin_name != "" && TA3D::FileExists( skin_name ) )
+    {
 		skin = new SKIN;
 		skin->load_tdf( skin_name, 1.0f );
-		}
+	}
 
-	try { // we need to try catch this cause the config file may not exists
+	try  // we need to try catch this cause the config file may not exists
 		 // and if it don't exists it will throw an error on reading it, which
 		 // will be caught in our main function and the application will exit.
+    {
 		String real_filename = filename;
 		if( skin != NULL && !skin->prefix.empty() ) {
 			int name_len = strlen( get_filename( real_filename.c_str() ) );
@@ -3229,7 +3231,7 @@ void AREA::load_tdf( const String &filename )			// Loads a TDF file telling whic
         ? lp_CONFIG->skin_name
         : areaFile->PullAsString( "area.skin" );
 
-	if( TA3D_exists(skin_name)) // Loads a skin
+	if( TA3D::FileExists(skin_name)) // Loads a skin
     {
 		int area_width = areaFile->PullAsInt( "area.width", SCREEN_W );
 		int area_height = areaFile->PullAsInt( "area.height", SCREEN_W );
@@ -3253,13 +3255,13 @@ void AREA::load_tdf( const String &filename )			// Loads a TDF file telling whic
 			background_name += skin->prefix;
 	}
 	
-    if( TA3D_exists(background_name)) // Loads a background image
+    if( TA3D::FileExists(background_name)) // Loads a background image
 		background = gfx->load_texture( background_name );
 	else
         if(skin && !skin->prefix.empty())
         {
 		    background_name = areaFile->PullAsString( "area.background" ); // No prefixed version, retry with default background
-		    if( TA3D_exists( background_name ) ) // Loads a background image
+		    if(TA3D::FileExists(background_name)) // Loads a background image
 			    background = gfx->load_texture( background_name );
 		}
 
@@ -3271,7 +3273,8 @@ void AREA::load_tdf( const String &filename )			// Loads a TDF file telling whic
 
 void SKIN_OBJECT::load( const String filename, const String prefix, cTAFileParser *parser, float border_size )
 {
-	if( TA3D_exists( filename ) ) {
+	if( TA3D::FileExists(filename))
+    {
 		tex = gfx->load_texture( filename, FILTER_LINEAR, &w, &h );
 
 		x1 = parser->PullAsInt( prefix + "x1" );
@@ -3413,7 +3416,8 @@ void SKIN::load_tdf( const String &filename, float skin_scale )			// Loads the s
 	scroll[2].load( skinFile->PullAsString( "skin.s_scroll" ), "skin.s_scroll_", skinFile, skin_scale );
 
 	String tex_file_name = skinFile->PullAsString( "skin.window background" );
-	if( TA3D_exists( tex_file_name ) )	wnd_background = gfx->load_texture( tex_file_name, FILTER_LINEAR );
+	if(TA3D::FileExists( tex_file_name ))
+        wnd_background = gfx->load_texture( tex_file_name, FILTER_LINEAR );
 
 	delete skinFile; 
 
