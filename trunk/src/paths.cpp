@@ -85,6 +85,8 @@ namespace TA3D
     bool
     Paths::Exists(const String& p)
     {
+        if (p.empty())
+            return true;
         struct stat s;
         return (stat(p.c_str(), &s) == 0);
     }
