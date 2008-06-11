@@ -369,7 +369,8 @@ int main(int argc,char *argv[])
 {
     # ifdef TA3D_PLATFORM_USE_NEW_PATHS_TOOLS
     // Load and prepare output directories
-    TA3D::Paths::Initialize();
+    if (!TA3D::Paths::Initialize())
+        return 1;
     # endif
 
     // Initialize signals

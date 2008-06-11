@@ -77,8 +77,12 @@ namespace TA3D
         initForDarwin();
         #   endif
         # endif
-        return MakeDir(Caches) && MakeDir(Savegames)
+        bool res = MakeDir(Caches) && MakeDir(Savegames)
             && MakeDir(Logs) && MakeDir(Resources);
+        // TODO Use the logging system instead
+        if (!res)
+            std::cerr << "Aborting now." << std::endl;
+        return res;
     }
 
 
@@ -107,7 +111,11 @@ namespace TA3D
             pth += *i;
             pth += Separator;
             if (!Exists(pth) && mkdir(pth.c_str(), 01755))
+            {
+                // TODO Use the logging system instead
+                std::cerr << "Impossible to create the folder `" << pth << "`" << std::endl;
                 return false;
+            }
         }
         return true;
     }
