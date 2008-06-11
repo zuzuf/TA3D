@@ -93,14 +93,15 @@ GFX::GFX()
 
 		request_refresh_rate(85);
 
-		if( TA3D::VARS::lp_CONFIG->fullscreen ) {
+		if( TA3D::VARS::lp_CONFIG->fullscreen )
+        {
 #ifdef GFX_OPENGL_FULLSCREEN
 			set_gfx_mode(GFX_OPENGL_FULLSCREEN, TA3D::VARS::lp_CONFIG->screen_width, TA3D::VARS::lp_CONFIG->screen_height, 0, 0);   // Entre en mode graphique OpenGL (plein écran)
 #else
 			allegro_message(TRANSLATE("WARNING: AllegroGL has been built without fullscreen support.\nrunning in fullscreen mode impossible\nplease install libxxf86vm and rebuild both Allegro and AllegroGL\nif you want fullscreen modes.").c_str());
 			set_gfx_mode(GFX_OPENGL_WINDOWED, TA3D::VARS::lp_CONFIG->screen_width, TA3D::VARS::lp_CONFIG->screen_height, 0, 0);      // Entre en mode graphique OpenGL (fenêtré)
 #endif
-			}
+		}
 		else
 			set_gfx_mode(GFX_OPENGL_WINDOWED, TA3D::VARS::lp_CONFIG->screen_width, TA3D::VARS::lp_CONFIG->screen_height, 0, 0);      // Entre en mode graphique OpenGL (fenêtré)
 
