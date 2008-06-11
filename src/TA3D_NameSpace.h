@@ -265,9 +265,14 @@ namespace TA3D
 		}
 	}
 
-	// Below functions located in TA3D_Namespace.cpp
-	TA3D_API_E FILE *TA3D_OpenFile( const String &FileName, const String Mode );
-	TA3D_API_E String RemoveComments( String &sstring );
+	FILE *TA3D_OpenFile( const String &FileName, const String Mode );
+
+    /*!
+    ** \brief Remove final comments (ex: 'somecode(); // here are my comments') and trim the string
+    ** \param s The string to parse
+    ** \return The string without final comments
+    */
+	String RemoveComments(const String& s);
 
 
     /*!
@@ -283,15 +288,26 @@ namespace TA3D
                           const bool emptyBefore = true);
 
 
-	void create_path( const String &path );
+	void create_path(const String &path);
 
 	char *replace_chars(char *str);
 	void *GetMem( sint32 size, sint32 zero );
-	bool TA3D_exists( const String &filename );			// just a wrapper for allegro's exists function which only use C strings
+
+    /*!
+    ** \brief Test if a filename exists
+    ** \param filename Filename to test
+    ** \return True if the file exists, false otherwise
+    */
+	bool FileExists(const String& filename);
+
+
 	void CheckOutputDir();
 	void TA3D_clear_cache();							// Clear the cache if needed (useful when mod has changed)
 	List< String > GetFileList( const String pattern );	// return the list of files corresponding to pattern
-}
+
+} // namespace TA3D
+
+
 
 // TODO Must be removed
 using namespace TA3D;

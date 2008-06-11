@@ -784,7 +784,8 @@ GLuint	GFX::load_texture_from_cache( String file, byte filter_type, uint32 *widt
 
 	file = TA3D_OUTPUT_DIR + "cache/" + file;
 
-	if( TA3D_exists( file ) ) {
+	if(TA3D::FileExists( file ))
+    {
 		FILE *cache_file = TA3D_OpenFile( file, "rb" );
 
 		uint32 mod_hash;

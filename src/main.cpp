@@ -193,41 +193,48 @@ void LoadConfigFile( void )
 
 void makeBackup( const String FileName )
 {
-	if( TA3D_exists( FileName ) ) {
+	if( TA3D::FileExists( FileName ) )
+    {
 		FILE *src = TA3D_OpenFile( FileName, "rb" );
-		if( src ) {
+		if( src )
+        {
 			FILE *dst = TA3D_OpenFile( FileName + ".bak", "wb" );
-			if( dst ) {
+			if( dst )
+            {
 				uint32 src_size = FILE_SIZE( FileName.c_str() );
 				byte *buf = new byte[ src_size ];
 				fread( buf, src_size, 1, src );
 				fwrite( buf, src_size, 1, dst );
 				delete[] buf;
 				fclose( dst );
-				}
-			fclose( src );
 			}
+			fclose( src );
 		}
+	}
 }
 
 void restoreBackup( const String FileName )
 {
-	if( TA3D_exists( FileName + ".bak" ) ) {
+	if( TA3D::FileExists( FileName + ".bak" ) )
+    {
 		FILE *src = TA3D_OpenFile( FileName + ".bak", "rb" );
-		if( src ) {
+		if( src )
+        {
 			FILE *dst = TA3D_OpenFile( FileName, "wb" );
-			if( dst ) {
+			if( dst )
+            {
 				uint32 src_size = FILE_SIZE( (FileName + ".bak").c_str() );
 				byte *buf = new byte[ src_size ];
 				fread( buf, src_size, 1, src );
 				fwrite( buf, src_size, 1, dst );
 				delete[] buf;
 				fclose( dst );
-				}
-			fclose( src );
 			}
+			fclose( src );
 		}
+	}
 }
+
 
 /*
 ** Function: SaveConfigFile
