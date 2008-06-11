@@ -19,6 +19,9 @@
 #include "TA3D_NameSpace.h"
 #include "cLogger.h"
 
+
+
+
 namespace TA3D
 {
 	namespace INTERFACES
@@ -56,15 +59,15 @@ namespace TA3D
 		void cLogger::LogData( const char *txt )
 		{
 			EnterCS();
-				fputs( txt, m_File );
+			fputs(txt, m_File);
 			fflush( m_File );
 			LeaveCS();            
 		}
 
-		void cLogger::LogData( const std::string &txt )
+		void cLogger::LogData(const std::string &txt)
 		{
 			EnterCS();
-				fputs( txt.c_str(), m_File );
+			fputs( txt.c_str(), m_File );
 			fflush( m_File );
 			LeaveCS();
 		}

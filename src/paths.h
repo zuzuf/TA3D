@@ -13,7 +13,11 @@ namespace TA3D
 
     /*! \class Paths
     **
-    ** \brief
+    ** \brief Tools to manage paths for TA3D
+    **
+    ** This tool must be initialized using Initialize()
+    **
+    ** \see TA3D::Paths::Initialize()
     */
     class Paths
     {
@@ -33,6 +37,7 @@ namespace TA3D
 
         //! Folder for logs
         static String Logs;
+
 
     public:
         /*!
@@ -57,6 +62,7 @@ namespace TA3D
         ** return False if any error has occured
         */
         static bool Initialize();
+
 
     }; // class Paths
 
