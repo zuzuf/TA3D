@@ -25,6 +25,14 @@
 #include "tnt.h"
 #include <iostream>
 
+
+
+# ifdef TA3D_PLATFORM_WINDOWS
+#   define PREFIX "  /"
+# else
+#   define PREFIX "  --"
+# endif
+
 using namespace TA3D::UTILS::HPI;
 
 void install_TA_files( String def_path = "" );
@@ -33,16 +41,16 @@ void install_TA_files( String def_path = "" );
 static bool hpiviewCmdHelp(char** argv)
 {
     std::cout << "Available commands :" << std::endl
-        << " create_gaf     -> create a 24/32bits gaf from sprites" << std::endl
-        << " extract        -> extract a file" << std::endl
-        << " extract_gaf    -> extract a gaf into sprites" << std::endl
-        << " help           -> this screen" << std::endl
-        << " install        -> install TA files" << std::endl
-        << " listmods       -> list all available mods" << std::endl
-        << " mapdescription -> extract a map description" << std::endl
-        << " minimap        -> extract a minimap" << std::endl
-        << " print          -> show the content of a file" << std::endl
-        << " show           -> show files matching a pattern" << std::endl
+        << PREFIX << "create_gaf     : create a 24/32bits gaf from sprites" << std::endl
+        << PREFIX << "extract        : extract a file" << std::endl
+        << PREFIX << "extract_gaf    : extract a gaf into sprites" << std::endl
+        << PREFIX << "help           : this screen" << std::endl
+        << PREFIX << "install        : install TA files" << std::endl
+        << PREFIX << "listmods       : list all available mods" << std::endl
+        << PREFIX << "mapdescription : extract a map description" << std::endl
+        << PREFIX << "minimap        : extract a minimap" << std::endl
+        << PREFIX << "print          : show the content of a file" << std::endl
+        << PREFIX << "show           : show files matching a pattern" << std::endl
         << std::endl
         << "For more information on a command type :" << std::endl
         << "# " << argv[0] << " command_name" << std::endl;
@@ -182,17 +190,18 @@ static bool hpiviewCmdListMods(int argc, char** argv)
  */
 static bool hpiviewCmdExtract(int argc, char** argv)
 {
-    if( argc >= 3 )
+    if(argc >= 3)
     {
-        HPIManager=new cHPIHandler("");
+        HPIManager = new cHPIHandler("");
         uint32 file_size32 = 0;
-        byte *data = HPIManager->PullFromHPI(argv[2],&file_size32);
+        byte *data = HPIManager->PullFromHPI(argv[2], &file_size32);
 
         if(data)
         {
-            char *name=argv[2];
-            char *f=argv[2];
-            while(f[0]) {
+            char *name = argv[2];
+            char *f = argv[2];
+            while(f[0])
+            {
                 if(f[0]=='\\' || f[0]=='/')
                     name=f+1;
                 f++;
@@ -479,25 +488,27 @@ int hpiview(int argc, char *argv[])
 
     if(argc>=2)
     {
-        if (!strcasecmp(argv[1], "help"))
+        // TODO Use a better implementation to parse arguments
+        String act(argv[1]);
+        if (act == "help" || act == "--help" || act == "/help" || act == "-h" || act == "/?")
             return hpiviewCmdHelp(argv);
-        if (!strcasecmp(argv[1], "show"))
+        if (act == "show" || act == "/show" || act == "--show")
             return hpiviewCmdShow(argc, argv);
-        if (!strcasecmp(argv[1], "minimap"))
+        if (act == "minimap" || act == "/minimap" || act == "--minimap")
             return hpiviewCmdMiniMap(argc, argv);
-        if (!strcasecmp(argv[1], "mapdescription")) 
+        if (act == "mapdescription" || act == "--mapdescription" || act == "/mapdescription") 
             return hpiviewCmdMapDescription(argc, argv);
-        if (!strcasecmp(argv[1], "listmods")) 
+        if (act == "listmods" || act == "--listmods" || act == "/listmods") 
             return hpiviewCmdListMods(argc, argv);
-        if (!strcasecmp(argv[1], "extract"))
+        if (act == "extract" || act == "--extract" || act == "/extract")
             return hpiviewCmdExtract(argc, argv);
-        if (!strcasecmp(argv[1], "print"))
+        if (act == "print" || act == "--print" || act == "/print")
             return hpiviewCmdPrint(argc, argv);
-        if (!strcasecmp(argv[1], "install"))
+        if (act == "install" || act == "--install" || act == "/install")
             return hpiviewCmdInstallTAFiles(argc, argv);
-        if (!strcasecmp(argv[1], "extract_gaf"))
+        if (act == "extract_gaf" || act == "--extract_gaf" || act == "/extract_gaf")
             return hpiviewCmdExtractGAF(argc, argv);
-        if (!strcasecmp(argv[1], "create_gaf"))
+        if (act == "create_gaf" || act == "--create_gaf" || act == "/create_gaf")
             return hpiviewCmdCreateGAF(argc, argv);
     }
     allegro_exit();
