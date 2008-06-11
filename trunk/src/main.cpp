@@ -33,6 +33,7 @@
 #include "ta3dbase.h"				// Just for the LANG var
 #include "EngineClass.h"
 #include "backtrace.h"				// Some debugging tools
+#include "paths.h"
 
 // below defination defines accuracy of timer i guess.
 #define precision   MSEC_TO_TIMER(1)
@@ -326,22 +327,25 @@ int hpiview(int argc,char *argv[]);
 **           Remember if you throw an error, or generate one, you are responsible for
 **             cleaning up what you initialized!
 */
-int ParseCommandLine( int argc, char *argv[] )
+int ParseCommandLine(int argc, char *argv[])
 {
-	GuardEnter( ParseCommandLine );
+	GuardEnter(ParseCommandLine);
 
-	if( hpiview( argc, argv ) ) {				// Run hpiview
+	if(hpiview(argc, argv))
+    {
 		GuardLeave();
-		return 1;							// We're done
-		}
+		return 1;
+	}
 
-	for( int i = 1 ; i < argc ; i++ ) {
-		if( !strcmp( argv[ i ], "--quick-restart" ) ) {			// Quick restart mecanism (bypass the intro screen)
+	for( int i = 1 ; i < argc ; ++i)
+    {
+		if( !strcmp( argv[ i ], "--quick-restart")) // Quick restart mecanism (bypass the intro screen)
+        {
 			lp_CONFIG->quickstart = true;
 			allegro_init();
 			restoreBackup( TA3D_OUTPUT_DIR + "ta3d.cfg" );		// In case it refuses to restart
 			allegro_exit();
-			}
+		}
 		else if( !strcmp( argv[ i ], "--restore" ) )			// Tell TA3D not to display the quickstart confirm dialog
 			lp_CONFIG->restorestart = true;
 		else if( !strcmp( argv[ i ], "--file-param" ) ) {		// Pass a file as parameter, used for complex things
@@ -363,6 +367,12 @@ int ParseCommandLine( int argc, char *argv[] )
 */
 int main(int argc,char *argv[])
 {
+    # ifdef TA3D_PLATFORM_USE_NEW_PATHS_TOOLS
+    // Load and prepare output directories
+    TA3D::Paths::Initialize();
+    # endif
+
+    // Initialize signals
 	init_signals();
 	
 	GuardStart( main ); // start guard.
@@ -402,12 +412,13 @@ int main(int argc,char *argv[])
 	}
 
 	GuardStart( main );
-		if( ParseCommandLine( argc, argv ) ) {   /* process any command line args passed */
-												// Job done, exit
-			delete TA3D::VARS::lp_CONFIG;
-			exit(1);
-			}
+	if( ParseCommandLine(argc, argv)) 
+    {
+	    delete TA3D::VARS::lp_CONFIG;
+		exit(1);
+	}
 	GuardCatch();
+
 	if( IsExceptionInProgress() )
 	{
 		GuardDisplayAndLogError();
@@ -421,14 +432,13 @@ int main(int argc,char *argv[])
 	**   and processed our command line arguments, its time to create the main engine
 	**   which in turn will create nearly everything it will need.
 	*/
-	TA3D::cTA3D_Engine *Engine = NULL;    // class pointer to our engine.
+	TA3D::cTA3D_Engine* Engine = NULL;
 	GuardStart( main );
-		Engine = new TA3D::cTA3D_Engine;  // Create and intialize engine.
+		Engine = new TA3D::cTA3D_Engine;
 	GuardCatch();
 	if( IsExceptionInProgress() )
 	{
 		GuardDisplayAndLogError();
-
 		delete TA3D::VARS::lp_CONFIG;
 		exit(1);
 	}
@@ -442,7 +452,7 @@ int main(int argc,char *argv[])
 	GuardStart( main );
 		Engine->Start();
 	GuardCatch();
-	if( IsExceptionInProgress() )
+	if(IsExceptionInProgress())
 	{
 		GuardDisplayAndLogError();
 		// We need to guard deleting the engine in case something bad goes wrong during
@@ -451,7 +461,6 @@ int main(int argc,char *argv[])
 			delete Engine;
 			delete TA3D::VARS::lp_CONFIG;
 		GuardCatch();
-
 		exit(1);
 	}
 
@@ -462,11 +471,12 @@ int main(int argc,char *argv[])
 	start = msec_timer;      // Initalize timer.
 
 	// while our engine does some loading and intializing, lets show our intro.
-	if( !lp_CONFIG->quickstart && lp_CONFIG->file_param.empty() ) {
+	if( !lp_CONFIG->quickstart && lp_CONFIG->file_param.empty())
+    {
 		GuardStart( intro );
 			play_intro();
 		GuardCatch();
-		if( IsExceptionInProgress() )
+		if( IsExceptionInProgress())
 		{
 			GuardDisplayAndLogError();
 			// We need to guard deleting the engine in case something bad goes wrong during
@@ -476,7 +486,6 @@ int main(int argc,char *argv[])
 				delete Engine;
 				delete TA3D::VARS::lp_CONFIG;
 			GuardCatch();
-
 			exit(1);
 		}
 	}
@@ -499,7 +508,7 @@ int main(int argc,char *argv[])
 		SaveConfigFile();
 	GuardCatch();
 
-	if( IsExceptionInProgress() )
+	if(IsExceptionInProgress())
 	{
 		GuardDisplayAndLogError();
 		GuardStart( main );
@@ -510,7 +519,7 @@ int main(int argc,char *argv[])
 		exit(1);
 	}
 
-	GuardStart( main )
+	GuardStart(main)
 		delete Engine;
 	GuardCatch();
 

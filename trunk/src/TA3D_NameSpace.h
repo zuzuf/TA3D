@@ -62,6 +62,7 @@ namespace TA3D
 	#define TA3D_API_E extern
 
 
+
 	typedef struct TA3DCONFIG
 	{
 		real32	fps_limit;
