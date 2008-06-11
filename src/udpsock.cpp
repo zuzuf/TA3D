@@ -281,7 +281,7 @@ int UDPSock::sendEvent(struct event* event, const std::string &address){
 		putFloat(event->z);
 		putString((const char*)(event->str));
 		break;
-	};
+	}
 	send(address);
 	udpmutex.Unlock();
 	return 0;
@@ -417,7 +417,7 @@ int UDPSock::makeEvent(struct event* event){
 		event->z = getFloat();
 		getBuffer((char*)(event->str),24);
 		break;
-	};
+	}
 
 	uibp = 0;
 	uiremain = -1;

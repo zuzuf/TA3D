@@ -1346,7 +1346,7 @@ int LUA_PROGRAM::run(MAP *map,float dt,int viewer_id)									// Execute le scri
 			}
 		running = false;
 		return -1;
-	};
+	}
 
 	int result = (int) lua_tonumber( L, lua_gettop( L ) );		// Read the result
 	lua_pop( L, 1 );
@@ -1448,7 +1448,7 @@ void DRAW_LIST::draw(GFX_FONT &fnt)
 		gfx->drawtexture(prim.tex,prim.x[0],prim.y[0],prim.x[1],prim.y[1]);
 		glDisable(GL_BLEND);
 		break;
-	};
+	}
 	glPopMatrix();
 	if(next)
 		next->draw(fnt);
