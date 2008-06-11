@@ -34,11 +34,10 @@
 # ifdef TA3D_PLATFORM_USE_CMAKE
 
 # ifdef TA3D_PLATFORM_WINDOWS
-#   include <allegro/platform/alplatf.h> // Automatic detection from Allegro
-#   ifdef ALLEGRO_MINGW32
+#   ifndef _MSC_VER
 #       define TA3D_PLATFORM_GCC
 #       define TA3D_PLATFORM_MINGW
-#   elif defined ALLEGRO_MSVC
+#   else
 #       define TA3D_PLATFORM_MSVC
 #   endif
 # endif
