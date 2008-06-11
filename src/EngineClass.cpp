@@ -1740,9 +1740,9 @@ void PLAYERS::SignalExitThread()
 	thread_ask_to_stop = false;
 }
 
-void SKY_DATA::load_tdf( const String	&filename )
+void SKY_DATA::load_tdf(const String& filename)
 {
-	cTAFileParser	parser( filename );
+	cTAFileParser parser(filename);
 
 	def = parser.PullAsBool( "sky.default", false );
 	spherical = parser.PullAsBool( "sky.spherical" );
@@ -1750,46 +1750,50 @@ void SKY_DATA::load_tdf( const String	&filename )
 	rotation_speed = parser.PullAsFloat( "sky.rotation speed" );
 	rotation_offset = parser.PullAsFloat( "sky.rotation offset" );
 	texture_name = parser.PullAsString( "sky.texture name" );
-	planet = ReadVectorString( parser.PullAsString( "sky.planet" ) );
+    ReadVectorString(planet, parser.PullAsString( "sky.planet" ) );
 	FogColor[0] = parser.PullAsFloat( "sky.fog R" );
 	FogColor[1] = parser.PullAsFloat( "sky.fog G" );
 	FogColor[2] = parser.PullAsFloat( "sky.fog B" );
 	FogColor[3] = parser.PullAsFloat( "sky.fog A" );
-	MapName = ReadVectorString( parser.PullAsString( "sky.map" ) );
+	ReadVectorString(MapName, parser.PullAsString( "sky.map" ) );
 }
 
-SKY_DATA	*choose_a_sky( const String &mapname, const String &planet )
+SKY_DATA* choose_a_sky( const String& mapname, const String& planet)
 {
-	List< SKY_DATA* >	sky_list;
+	List<SKY_DATA*> sky_list;
 	sky_list.clear();
 
-	List< String >	file_list;
+	List<String> file_list;
 	HPIManager->GetFilelist( "sky\\*.tdf", &file_list );
 	uint32	nb_sky = 0;
 
-	foreach( file_list, it ) {
+	foreach( file_list, it )
+    {
 		SKY_DATA *sky_data = new SKY_DATA;
 		sky_data->load_tdf( *it );
 
 		bool keep = false;
 		for( int i = 0 ; i < sky_data->MapName.size() ; i++ )
-			if( sky_data->MapName[ i ] == mapname ) {
+			if( sky_data->MapName[ i ] == mapname )
+            {
 				keep = true;
 				break;
-				}
+			}
 		if( !keep )
 			for( int i = 0 ; i < sky_data->planet.size() ; i++ )
-				if( sky_data->planet[ i ] == planet ) {
+				if( sky_data->planet[ i ] == planet )
+                {
 					keep = true;
 					break;
-					}
-		if( keep ) {
+				}
+		if( keep )
+        {
 			sky_list.push_back( sky_data );
 			nb_sky++;
-			}
+		}
 		else
 			delete sky_data;
-		}
+	}
 
 	if( nb_sky == 0 )			// Look for a default sky
 		foreach( file_list, it ) {

@@ -133,25 +133,31 @@ namespace TA3D
 		return Result;
 	}
 
-	Vector< String > ReadVectorString( String base_str, const String &separator )			// Reads something like string1, string2, string3, string4, ..., string n to make a vector of string{i}
+
+    void ReadVectorString(Vector<String>& lst, String s, const String& seps, const bool emptyBefore)
 	{
-		Vector< String >	result;
+        // TODO Should be replaced by
+        // boost::algorithm::split(v, *this, boost::is_any_of(separators.c_str()));
+        // to make proper optimizations
 
-		while( base_str != "" ) {			// Reads the whole string
-			int i = base_str.find( separator );
-			if( i == -1 ) {
-				result.push_back( TrimString( base_str ) );
-				base_str = "";
-				}
-			else {
-				String tmp = base_str.substr( 0, i );
-				result.push_back( TrimString( tmp ) );
-				base_str = base_str.substr( i+1, base_str.size() - i - 1 );
-				}
+        if (emptyBefore)
+            lst.clear();
+		while(!s.empty())
+        {
+			int i = s.find(seps);
+			if( i == -1 )
+            {
+				lst.push_back(TrimString(s));
+				return;
 			}
-
-		return result;
+			else
+            {
+				lst.push_back(TrimString( s.substr(0, i)));
+				s = s.substr(i + 1, s.size() - i - 1);
+			}
+		}
 	}
+
 
 	bool TA3D_exists( const String &filename )			// just a wrapper for allegro's exists function which only use C strings
 	{

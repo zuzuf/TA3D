@@ -28,25 +28,31 @@
 #ifndef __TA3D_NAMESPACE_H__
 # define __TA3D_NAMESPACE_H__
 
-#pragma once
+# pragma once // TODO Must be removed
 
-#include "TA3D_Exception.h"
-#include "cInterface.h"
-#include "cError.h"
-#ifndef TA3D_NO_SOUND		// Only for the hpiview program
-#include "TA3D_Audio.h"
-#else
-#include "vector.h"
-#include "cTAFileParser.h"
-#endif
-#include "TA3D_hpi.h"
-#include "gfx.h"
-#include "console.h"
-#include "i18n.h"
-#include "network.h"			// Network
+# include "TA3D_Exception.h"
+# include "cInterface.h"
+# include "cError.h"
+# ifndef TA3D_NO_SOUND // Only for the hpiview program
+#   include "TA3D_Audio.h"
+# else
+#   include "vector.h"
+#   include "cTAFileParser.h"
+# endif
+# include "TA3D_hpi.h"
+# include "gfx.h"
+# include "console.h"
+# include "i18n.h"
+# include "network.h"
 
-#define	ZOOM_NORMAL			0x0
-#define	ZOOM_FIXED_ANGLE	0x1
+# define ZOOM_NORMAL       0x0
+# define ZOOM_FIXED_ANGLE  0x1
+
+//! Default server hostname for TA3D
+# define TA3D_DEFAULT_SERVER_HOSTNAME  "ta3d.darkstars.co.uk"
+
+
+
 
 namespace TA3D
 {
@@ -54,6 +60,7 @@ namespace TA3D
 	#define TA3D_API_EI extern inline
 	#define TA3D_API_S static
 	#define TA3D_API_E extern
+
 
 	typedef struct TA3DCONFIG
 	{
@@ -109,7 +116,7 @@ namespace TA3D
 
 		TA3DCONFIG()
 		{
-			net_server = "ta3d.darkstars.co.uk";
+			net_server = TA3D_DEFAULT_SERVER_HOSTNAME;
 
 			file_param.clear();
 		
@@ -183,9 +190,9 @@ namespace TA3D
 		TA3D_API_E TA3D::cInterfaceManager			*InterfaceManager; 
 		TA3D_API_E TA3D::UTILS::HPI::cHPIHandler	*HPIManager;
 		TA3D_API_E TA3D::TA3D_DEBUG::cConsole		*Console;
-#ifndef TA3D_NO_SOUND		// Only for the hpiview program
+        # ifndef TA3D_NO_SOUND // Only for the hpiview program
 		TA3D_API_E TA3D::INTERFACES::cAudio			*sound_manager;
-#endif
+        # endif
 		TA3D_API_E TA3D::INTERFACES::GFX			*gfx;
 
 		TA3D_API_E RGB								*pal;
@@ -262,7 +269,19 @@ namespace TA3D
 	TA3D_API_E FILE *TA3D_OpenFile( const String &FileName, const String Mode );
 	TA3D_API_E String RemoveComments( String &sstring );
 
-	Vector< String > ReadVectorString( String base_str, const String &separator = "," );			// Reads something like string1, string2, string3, string4, ..., string n to make a vector of string{i}
+
+    /*!
+    ** \brief Split a string based on a list of separators
+    **
+    ** \param[out] lst All found parts
+    ** \param s The string to split
+    ** \param seps Sequence of chars considered as a separator
+    ** \param emptyBefore rue to clear the vector before fulfill it
+    ** \warning Do not take care of string representation (with `'` or `"`)
+    */
+	void ReadVectorString(Vector<String>& lst, String s, const String& seps = ",",
+                          const bool emptyBefore = true);
+
 
 	void create_path( const String &path );
 

@@ -541,27 +541,29 @@ void WND::draw( String &help_msg, bool Focus, bool Deg, SKIN *skin )
 			gfx->print(gui_font,x+4,y+4,0,Blanc,Title);
 			}
 		}
-			// Objets
-	if(NbObj>0 && Objets!=NULL) {
+	if(NbObj>0 && Objets!=NULL)
+    {
 		for(int i=0;i<NbObj;i++)
-			if( !(Objets[i].Flag & FLAG_HIDDEN) )	{			// Affiche les objets d'arrière plan
+			if( !(Objets[i].Flag & FLAG_HIDDEN) )			// Affiche les objets d'arrière plan
+            {
 				if( Objets[i].MouseOn && !Objets[i].help_msg.empty() )
 					help_msg = Objets[i].help_msg;
 				switch(Objets[i].Type)
 				{
 				case OBJ_TA_BUTTON:
-					{
+				{
 					int cur_img =	( Objets[i].Flag & FLAG_DISABLED ) ?
 									Objets[i].gltex_states.size() - 1 :
 									( (Objets[i].activated && Objets[i].nb_stages == 1) ? Objets[i].gltex_states.size() - 2 : Objets[i].current_state );
-					if( cur_img < Objets[i].gltex_states.size() && cur_img >= 0 ) {
+					if( cur_img < Objets[i].gltex_states.size() && cur_img >= 0 )
+                    {
 						gfx->set_color( 0xFFFFFFFF );
 						gfx->set_alpha_blending();
 						Objets[i].gltex_states[ cur_img ].draw( x+Objets[i].x1, y+Objets[i].y1 );
 						gfx->unset_alpha_blending();
-						}
 					}
-					break;
+				    break;
+				}
 				case OBJ_LIST:
 					ListBox(x+Objets[i].x1, y+Objets[i].y1, x+Objets[i].x2, y+Objets[i].y2, Objets[i].Text, Objets[i].Pos, Objets[i].Data , skin, Objets[i].s, Objets[i].Flag );
 					break;
@@ -588,42 +590,42 @@ void WND::draw( String &help_msg, bool Focus, bool Deg, SKIN *skin )
 					glEnd();
 					glBindTexture(GL_TEXTURE_2D, 0);
 					break;
-				case OBJ_BUTTON:		// Boutton
+				case OBJ_BUTTON:		// Button
 					if( Objets[i].Text.size() == 0 )
 						Objets[i].Text.push_back( "" );
 					button(x+Objets[i].x1,y+Objets[i].y1,x+Objets[i].x2,y+Objets[i].y2,Objets[i].Text[0],Objets[i].activated,Objets[i].s, skin );
 					if(Objets[i].Focus && Focus)
 						gfx->rectdot(Objets[i].x1+x-2,Objets[i].y1+y-2,Objets[i].x2+x+2,Objets[i].y2+y+2,GrisF);
 					break;
-				case OBJ_OPTIONC:		// Case à cocher
+				case OBJ_OPTIONC:		// Checkbox
 					if( Objets[i].Text.size() == 0 )
 						Objets[i].Text.push_back( "" );
 					OptionCase(x+Objets[i].x1,y+Objets[i].y1,Objets[i].Text[0],Objets[i].Etat, skin, Objets[i].s );
 					if(Objets[i].Focus && Focus)
 						gfx->rectdot(Objets[i].x1+x-2,Objets[i].y1+y-2,Objets[i].x2+x+2,Objets[i].y2+y+2,GrisF);
 					break;
-				case OBJ_OPTIONB:		// Boutton d'option	
+				case OBJ_OPTIONB:		// Boutton d'option
 					if( Objets[i].Text.size() == 0 )
 						Objets[i].Text.push_back( "" );
 					OptionButton(x+Objets[i].x1,y+Objets[i].y1,Objets[i].Text[0],Objets[i].Etat, skin, Objets[i].s );
 					if(Objets[i].Focus && Focus)
 						gfx->rectdot(Objets[i].x1+x-2,Objets[i].y1+y-2,Objets[i].x2+x+2,Objets[i].y2+y+2,GrisF);
 					break;
-				case OBJ_PBAR:			// Barre de progression
+				case OBJ_PBAR:			// Progress Bar
 					ProgressBar(x+Objets[i].x1,y+Objets[i].y1,x+Objets[i].x2,y+Objets[i].y2,Objets[i].Data, skin, Objets[i].s );
 					if(Objets[i].Focus && Focus)
 						gfx->rectdot(Objets[i].x1+x-2,Objets[i].y1+y-2,Objets[i].x2+x+2,Objets[i].y2+y+2,GrisF);
 					break;
-				case OBJ_TEXTBAR:		// Barre de saisie de texte
+				case OBJ_TEXTBAR:		// Text edit
 					if( Objets[i].Text.size() == 0 )
-						Objets[i].Text.push_back( "" );
+						Objets[i].Text.push_back("");
 					TextBar(x+Objets[i].x1,y+Objets[i].y1,x+Objets[i].x2,y+Objets[i].y2,Objets[i].Text[0],Objets[i].Focus, skin, Objets[i].s );
 					if(Objets[i].Focus && Focus)
 						gfx->rectdot(Objets[i].x1+x-2,Objets[i].y1+y-2,Objets[i].x2+x+2,Objets[i].y2+y+2,GrisF);
 					break;
 				case OBJ_TEXT:
 					if( Objets[i].Text.size() == 0 )
-						Objets[i].Text.push_back( "" );
+						Objets[i].Text.push_back("");
 					if( !(Objets[i].Flag & FLAG_TEXT_ADJUST ) )
 						gfx->print(gui_font,x+Objets[i].x1,Objets[i].y1+y,0.0f,Objets[i].Data,Objets[i].Text[0],Objets[i].s );
 					else {
@@ -632,14 +634,15 @@ void WND::draw( String &help_msg, bool Focus, bool Deg, SKIN *skin )
 							Objets[i].Pos %= Objets[i].Data;
 						}
 					break;
-				case OBJ_MENU:			// Menu déroulant
+				case OBJ_MENU:			// Menu
 					if( Objets[i].Text.size() == 0 )
 						Objets[i].Text.push_back( "" );
 					if(!Objets[i].Etat)
 						button( x+Objets[i].x1, y+Objets[i].y1, x+Objets[i].x2, y+Objets[i].y2, Objets[i].Text[0], Objets[i].activated || Objets[i].Etat, Objets[i].s, skin );
 					break;
 				};
-				if( Objets[i].Type != OBJ_TA_BUTTON && (Objets[i].Flag & FLAG_DISABLED) ) {		// Make it darker when disabled
+				if( Objets[i].Type != OBJ_TA_BUTTON && (Objets[i].Flag & FLAG_DISABLED) ) // Make it darker when disabled
+                {
 					glEnable(GL_BLEND);
 					glDisable(GL_TEXTURE_2D);
 					glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
@@ -647,8 +650,9 @@ void WND::draw( String &help_msg, bool Focus, bool Deg, SKIN *skin )
 					gfx->rectfill(x+Objets[i].x1,y+Objets[i].y1,x+Objets[i].x2,y+Objets[i].y2);
 					glEnable(GL_TEXTURE_2D);
 					glDisable(GL_BLEND);
-					}
-				if( (Objets[i].Flag & FLAG_HIGHLIGHT) && Objets[i].MouseOn) {		// Highlight the object
+				}
+				if( (Objets[i].Flag & FLAG_HIGHLIGHT) && Objets[i].MouseOn) // Highlight the object
+                {
 					glEnable(GL_BLEND);
 					glDisable(GL_TEXTURE_2D);
 					glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
@@ -656,7 +660,7 @@ void WND::draw( String &help_msg, bool Focus, bool Deg, SKIN *skin )
 					gfx->rectfill(x+Objets[i].x1,y+Objets[i].y1,x+Objets[i].x2,y+Objets[i].y2);
 					glEnable(GL_TEXTURE_2D);
 					glDisable(GL_BLEND);
-					}
+				}
 				}
 		for(int i=0;i<NbObj;i++)			// Affiche les objets de premier plan
 			if( !(Objets[i].Flag & FLAG_HIDDEN) )
@@ -674,23 +678,30 @@ void WND::draw( String &help_msg, bool Focus, bool Deg, SKIN *skin )
 				};
 		}
 	LeaveCS();
-	set_uformat( old_u_format );
-}			// Fin de draw(...)
+	set_uformat(old_u_format);
+}
+
+
+
+
+
 
 	/*---------------------------------------------------------------------------\
 	|        Déplace la fenêtre et détecte si la souris s'y trouve               |
 	\---------------------------------------------------------------------------*/
 
-byte WND::WinMov(int AMx,int AMy,int AMb,int Mx,int My,int Mb, SKIN *skin)
+byte
+WND::WinMov(int AMx,int AMy,int AMb,int Mx,int My,int Mb, SKIN *skin)
 {
 	EnterCS();
 	byte WinMouse=0;
-	if(AMb==1&&Mb==1 && !Lock)
+	if(AMb == 1 && Mb == 1 && !Lock)
 		if( AMx >= x + 3 && AMx <= x + width - 4 )
-			if( AMy >= y + 3 && AMy <= y + 3 + title_h ) {
+			if( AMy >= y + 3 && AMy <= y + 3 + title_h )
+            {
 				x+=Mx-AMx;
 				y+=My-AMy;
-				}
+			}
 	if( skin ) {
 		if( Mx >= x - skin->wnd_border.x1 && Mx <= x + width - skin->wnd_border.x2 && My >= y - skin->wnd_border.y1 && My <= y + height - skin->wnd_border.y2 )
 			WinMouse=1;
@@ -702,40 +713,48 @@ byte WND::WinMov(int AMx,int AMy,int AMb,int Mx,int My,int Mb, SKIN *skin)
 	return WinMouse;
 }				// Fin de WinMov
 
+
+
 	/*---------------------------------------------------------------------------\
 	|             Destroy properly a WND object to prevent memory leak           |
 	\---------------------------------------------------------------------------*/
-void WND::destroy()
+void
+WND::destroy()
 {
 	EnterCS();
 
 	Title.clear();
 	Name.clear();
-	if( delete_gltex ) {
+	if( delete_gltex )
+    {
 		gfx->destroy_texture( background );
 		delete_gltex = false;
-		}
+	}
 	background = 0;
-	if(NbObj>0 && Objets!=NULL) {
+	if(NbObj>0 && Objets!=NULL)
+    {
 		delete[] Objets;
 		NbObj=0;
 		Objets=NULL;
-		}
-
+	}
 	LeaveCS();
 }
+
+
 
 	/*---------------------------------------------------------------------------\
 	|             Gère les interactions entre l'utilisateur et les objets        |
 	\---------------------------------------------------------------------------*/
-int WND::check(int AMx,int AMy,int AMz,int AMb,bool timetoscroll, SKIN *skin )
+int
+WND::check(int AMx,int AMy,int AMz,int AMb,bool timetoscroll, SKIN *skin )
 {
 	EnterCS();
-	if( hidden )	{
+	if(hidden)
+    {
 		was_hidden = true;
 		LeaveCS();
 		return 0;		// if it's hidden you cannot interact with it
-		}
+	}
 	if( was_hidden )
 		for( int i = 0 ; i < NbObj ; i++ )
 			if( Objets[i].Type == OBJ_MENU || Objets[i].Type == OBJ_FMENU )
@@ -745,12 +764,13 @@ int WND::check(int AMx,int AMy,int AMz,int AMb,bool timetoscroll, SKIN *skin )
 		// Vérifie si la souris est sur la fenêtre et/ou si elle la déplace
 	IsOnGUI=WinMov(AMx,AMy,AMb,mouse_x,mouse_y,mouse_b,skin);
 			// S'il n'y a pas d'objets, on arrête
-	if(NbObj<=0 || Objets==NULL) {
+	if(NbObj<=0 || Objets==NULL)
+    {
 		LeaveCS();
 		return IsOnGUI;
-		}
-
-			// Interactions utilisateur/objets
+	}
+	
+    // Interactions utilisateur/objets
 	int index,e;
 	byte Key;
 	bool was_on_floating_menu = false;
@@ -759,99 +779,119 @@ int WND::check(int AMx,int AMy,int AMz,int AMb,bool timetoscroll, SKIN *skin )
 	
 	bool already_clicked = false;
 
-	for(int i=0;i<NbObj;i++) {
+	for(int i=0; i < NbObj; ++i)
+    {
 		if( Objets[i].Type == OBJ_NONE )
 			continue;
-		if( Objets[i].Type == OBJ_TA_BUTTON && Objets[i].current_state < Objets[i].gltex_states.size() ) {
+		if( Objets[i].Type == OBJ_TA_BUTTON && Objets[i].current_state < Objets[i].gltex_states.size() )
+        {
 			Objets[i].x2 = Objets[i].x1 + Objets[i].gltex_states[ Objets[i].current_state ].width-1;
 			Objets[i].y2 = Objets[i].y1 + Objets[i].gltex_states[ Objets[i].current_state ].height-1;
-			}
-					// Vérifie si la souris est sur l'objet
+		}
+		
+        // Vérifie si la souris est sur l'objet
 		if(mouse_x>=x+Objets[i].x1 && mouse_x<=x+Objets[i].x2
-			&& mouse_y>=y+Objets[i].y1 && mouse_y<=y+Objets[i].y2 )	continue;
+			&& mouse_y>=y+Objets[i].y1 && mouse_y<=y+Objets[i].y2 )
+            continue;
 
-		if(Objets[i].Type==OBJ_MENU && Objets[i].Etat && Objets[i].MouseOn && !was_on_floating_menu ) {
+		if(Objets[i].Type==OBJ_MENU && Objets[i].Etat && Objets[i].MouseOn && !was_on_floating_menu )
+        {
 			float m_width = 168.0f * Objets[i].s;
-			if( skin ) {
+			if( skin )
+            {
 				for( int e = 0 ; e < Objets[i].Text.size() - ( 1 + Objets[i].Pos ) ; e++ )
 					m_width = max( m_width, gui_font.length( Objets[i].Text[ e ] ) * Objets[i].s );
 
 				m_width += skin->menu_background.x1 - skin->menu_background.x2;
-				}
+			}
 			else
 				m_width = 168.0f;
 
 			if( mouse_x >= x + Objets[i].x1 && mouse_x <= x + Objets[i].x1 + m_width
-				&& mouse_y > y + Objets[i].y2 && mouse_y <= y + Objets[i].y2 + 1 + gui_font.height() * Objets[i].s * Objets[i].Text.size() ) {
+				&& mouse_y > y + Objets[i].y2
+                && mouse_y <= y + Objets[i].y2 + 1 + gui_font.height() * Objets[i].s * Objets[i].Text.size() )
+            {
 				was_on_floating_menu = true;
 				on_menu = i;
-				}
 			}
 		}
+	}
 
-	for(int i=0;i<NbObj;i++) {
+	for(int i=0;i<NbObj;i++)
+    {
 		if( Objets[i].Type == OBJ_NONE )
 			continue;
 
 		bool MouseWasOn = Objets[i].MouseOn;
 		Objets[i].MouseOn = false;
-		if( Objets[i].wait_a_turn ) {
+		if( Objets[i].wait_a_turn )
+        {
 			Objets[i].wait_a_turn = false;
 			continue;
-			}
-		if( (Objets[i].Flag & FLAG_HIDDEN) == FLAG_HIDDEN )	continue;		// Object is hidden so don't handle its events
+		}
+        // Object is hidden so don't handle its events
+		if( (Objets[i].Flag & FLAG_HIDDEN) == FLAG_HIDDEN )
+            continue;
 
 		if( on_menu == i )
 			was_on_floating_menu = false;
 
 					// Vérifie si la souris est sur l'objet
 		if(mouse_x>=x+Objets[i].x1 && mouse_x<=x+Objets[i].x2
-			&& mouse_y>=y+Objets[i].y1 && mouse_y<=y+Objets[i].y2 && !was_on_floating_menu )	Objets[i].MouseOn=true;
-
-		if(Objets[i].Type==OBJ_MENU && Objets[i].Etat && !Objets[i].MouseOn && !was_on_floating_menu ) {
+			&& mouse_y>=y+Objets[i].y1 && mouse_y<=y+Objets[i].y2 && !was_on_floating_menu )
+        {
+            Objets[i].MouseOn=true;
+        }
+		
+        if(Objets[i].Type==OBJ_MENU && Objets[i].Etat && !Objets[i].MouseOn && !was_on_floating_menu )
+        {
 			int e;
 			float m_width = 168.0f * Objets[i].s;
-			if( skin ) {
+			if( skin )
+            {
 				for( e = 0 ; e < Objets[i].Text.size() - ( 1 + Objets[i].Pos ) ; e++ )
 					m_width = max( m_width, gui_font.length( Objets[i].Text[ e ] ) * Objets[i].s );
 
 				m_width += skin->menu_background.x1 - skin->menu_background.x2;
-				}
+			}
 			else
 				m_width = 168.0f;
 
 			if( mouse_x >= x + Objets[i].x1 && mouse_x <= x + Objets[i].x1 + m_width
 				&& mouse_y > y + Objets[i].y2 && mouse_y <= y + Objets[i].y2 + 1 + gui_font.height() * Objets[i].s * Objets[i].Text.size() )
 				Objets[i].MouseOn = true;
-			}
+		}
 
-		if(Objets[i].MouseOn) IsOnGUI |= 2;
+		if(Objets[i].MouseOn)
+            IsOnGUI |= 2;
 
-		if(mouse_b!=0 && Objets[i].MouseOn && !was_on_floating_menu ) {		// Obtient le focus
+		if(mouse_b!=0 && Objets[i].MouseOn && !was_on_floating_menu ) // Obtient le focus
+        {
 			for(e=0;e<NbObj;e++)
-				Objets[e].Focus=false;
+				Objets[e].Focus = false;
 			Objets[i].Focus=true;
-			}
+		}
 
-		if(mouse_b!=0 && !Objets[i].MouseOn)	{	// Perd le focus
+		if(mouse_b!=0 && !Objets[i].MouseOn) // Hav lost the focus
+        {
 			Objets[i].Focus=false;
 			switch(Objets[i].Type)
 			{
-			case OBJ_MENU:
-				Objets[i].Etat=false;
-				break;
+			    case OBJ_MENU: Objets[i].Etat=false; break;
 			};
-			}
+		}
 
-		if(Objets[i].MouseOn && (Objets[i].Type==OBJ_FMENU || Objets[i].Type==OBJ_MENU)) {
-			for(e=0;e<NbObj;e++) {
+		if(Objets[i].MouseOn && (Objets[i].Type==OBJ_FMENU || Objets[i].Type == OBJ_MENU))
+        {
+			for(e=0;e<NbObj;e++)
+            {
 				Objets[e].Focus=false;
 				if(Objets[e].Type==OBJ_BUTTON)
 					Objets[e].Etat=false;
-				}
+			}
 			was_on_floating_menu = Objets[i].Etat;
 			Objets[i].Focus=true;
-			}
+		}
 
 		if( !(Objets[i].Flag & FLAG_CAN_GET_FOCUS) )
 			Objets[i].Focus = false;
@@ -1313,7 +1353,8 @@ void WND::load_gui( const String &filename, cHashTable< Vector< TA3D::INTERFACES
 
 	Objets = new GUIOBJ[NbObj];
 
-	for( uint16 i = 0 ; i < NbObj ; i++ ) {		// Loads each object
+	for( uint16 i = 0 ; i < NbObj ; i++ )		// Loads each object
+    {
 		String obj_key = format( "gadget%d." , i + 1 );
 		int obj_type = wndFile->PullAsInt( obj_key + "common.id" );
 
@@ -1332,54 +1373,63 @@ void WND::load_gui( const String &filename, cHashTable< Vector< TA3D::INTERFACES
 		if( X1<0 )	X1+=SCREEN_W;
 		if( Y1<0 )	Y1+=SCREEN_H;
 
-		if( !wndFile->PullAsBool( obj_key + "common.active" ) )			obj_flags |= FLAG_HIDDEN;
+		if(!wndFile->PullAsBool( obj_key + "common.active"))
+            obj_flags |= FLAG_HIDDEN;
 
-		Vector<String> Caption = ReadVectorString( wndFile->PullAsString( obj_key + "text" ) );
-		for(uint32 e = 0 ; e < Caption.size() ; e++ )
-			Caption[ e ] = TRANSLATE( Caption[ e ] );
+		Vector<String> Caption;
+        ReadVectorString(Caption, wndFile->PullAsString( obj_key + "text" ));
+		for(Vector<String>::iterator e = Caption.begin(); e != Caption.end(); ++e)
+			*e = TRANSLATE(*e);
 
-		if( obj_type == TA_ID_BUTTON ) {
+		if(TA_ID_BUTTON == obj_type)
+        {
 			int t_w[100], t_h[100];
-
-			String key = Lowercase( Objets[i].Name );
-			Vector< TA3D::INTERFACES::GFX_TEXTURE >	*result = gui_hashtable.Find( key );
+			String key = Lowercase(Objets[i].Name);
+			Vector<TA3D::INTERFACES::GFX_TEXTURE>* result = gui_hashtable.Find(key);
 
 			Vector< GLuint > gaf_imgs;
 			bool found_elsewhere = false;
 
-			if( result == NULL ) {
+			if(!result)
+            {
 				gaf_imgs = read_gaf_imgs( "anims\\" + Name + ".gaf", Objets[i].Name, t_w, t_h );
-				if( gaf_imgs.size() == 0 ) {
+				if(!gaf_imgs.size())
+                {
 					gaf_imgs = read_gaf_imgs( "anims\\commongui.gaf", Objets[i].Name, t_w, t_h );
 					found_elsewhere = true;
-					}
-				if( gaf_imgs.size() == 0 ) {
+				}
+				if(!gaf_imgs.size())
+                {
 					List< String >	file_list;
 					HPIManager->GetFilelist( "anims\\*.gaf", &file_list );
-					for( List< String >::iterator e = file_list.begin() ; e != file_list.end() && gaf_imgs.size() == 0 ; e++ )
+					for( List< String >::iterator e = file_list.begin() ; e != file_list.end() && gaf_imgs.size() == 0 ; ++e)
 						gaf_imgs = read_gaf_imgs( *e, Objets[i].Name, t_w, t_h );
-					if( gaf_imgs.size() > 0 )
+					if(gaf_imgs.size() > 0)
 						found_elsewhere = true;
-					}
 				}
-			else {
-				gaf_imgs.resize( result->size() );
-				for( int e = 0 ; e < result->size() ; e++ ) {
+			}
+			else
+            {
+				gaf_imgs.resize(result->size());
+				for( int e = 0 ; e < result->size() ; ++e)
+                {
 					gaf_imgs[ e ] = (*result)[ e ].tex;
 					t_w[ e ] = (*result)[ e ].width;
 					t_h[ e ] = (*result)[ e ].height;
-					}
 				}
-			int nb_stages = wndFile->PullAsInt( obj_key + "stages" );
+			}
+			
+            int nb_stages = wndFile->PullAsInt( obj_key + "stages" );
 			Objets[i].create_ta_button( X1, Y1, Caption, gaf_imgs, nb_stages > 0 ? nb_stages : gaf_imgs.size() - 2 );
 			if( result == NULL && found_elsewhere )
 				gui_hashtable.Insert( key, &Objets[i].gltex_states );
-			for( int e = 0 ; e < Objets[i].gltex_states.size() ; e++ ) {
+			for( int e = 0 ; e < Objets[i].gltex_states.size() ; ++e)
+            {
 				Objets[i].gltex_states[e].width = t_w[ e ];
 				Objets[i].gltex_states[e].height = t_h[ e ];
 				if( result )
 					Objets[i].gltex_states[e].destroy_tex = false;
-				}
+			}
 			Objets[i].current_state = wndFile->PullAsInt( obj_key + "status" );
 			Objets[i].shortcut_key = wndFile->PullAsInt( obj_key + "quickkey", -1 );
 			if( wndFile->PullAsBool( obj_key + "common.grayedout" ) )
@@ -1387,7 +1437,7 @@ void WND::load_gui( const String &filename, cHashTable< Vector< TA3D::INTERFACES
 //			if( wndFile->PullAsInt( obj_key + "common.commonattribs" ) == 4 ) {
 			if( wndFile->PullAsInt( obj_key + "common.attribs" ) == 32 )
 				Objets[i].Flag |= FLAG_HIDDEN | FLAG_BUILD_PIC;
-			}
+		}
 		else if( obj_type == TA_ID_TEXT_FIELD )
 			Objets[i].create_textbar( X1, Y1, X1 + W, Y1 + H, Caption.size() > 0 ? Caption[0] : "", wndFile->PullAsInt( obj_key + "maxchars" ), NULL );
 		else if( obj_type == TA_ID_LABEL )
@@ -1407,7 +1457,7 @@ void WND::load_gui( const String &filename, cHashTable< Vector< TA3D::INTERFACES
 		Objets[i].SendPosTo.clear();
 
 		Objets[i].Flag |= obj_flags;
-		}
+	}
 
 	delete wndFile; 
 
@@ -1534,14 +1584,16 @@ void WND::load_tdf( const String &filename, SKIN *skin )			// Load a window from
 		if( wndFile->PullAsBool( obj_key + "cant be clicked" ) )	obj_negative_flags |= FLAG_CAN_BE_CLICKED;
 		if( wndFile->PullAsBool( obj_key + "cant get focus" ) )		obj_negative_flags |= FLAG_CAN_GET_FOCUS;
 
-		if( wndFile->PullAsBool( obj_key + "centered" ) ) {
+		if( wndFile->PullAsBool(obj_key + "centered"))
+        {
 			obj_flags |= FLAG_CENTERED;
 			X1 -= gui_font.length( caption ) * size * 0.5f;
-			}
+		}
 
-		Vector<String> Entry = ReadVectorString( wndFile->PullAsString( obj_key + "entry" ) );
-		for(uint32 e = 0 ; e < Entry.size() ; e++ )
-			Entry[ e ] = TRANSLATE( Entry[ e ] );
+		Vector<String> Entry;
+        ReadVectorString(Entry, wndFile->PullAsString(obj_key + "entry"));
+        for(Vector<String>::iterator e = Entry.begin(); e != Entry.end(); ++e)
+			*e = TRANSLATE(*e);
 
 		if( obj_type == "BUTTON" )
 			Objets[i].create_button( X1, Y1, X2, Y2, caption, NULL, size );
@@ -1584,10 +1636,10 @@ void WND::load_tdf( const String &filename, SKIN *skin )			// Load a window from
 		else if( obj_type == "LIST" )
 			Objets[i].create_list( X1, Y1, X2, Y2, Entry, size );
 
-		Objets[i].OnClick = ReadVectorString( wndFile->PullAsString( obj_key + "on click" ) );
-		Objets[i].OnHover = ReadVectorString( wndFile->PullAsString( obj_key + "on hover" ) );
-		Objets[i].SendDataTo = ReadVectorString( Lowercase( wndFile->PullAsString( obj_key + "send data to" ) ) );
-		Objets[i].SendPosTo = ReadVectorString( Lowercase( wndFile->PullAsString( obj_key + "send pos to" ) ) );
+		ReadVectorString(Objets[i].OnClick, wndFile->PullAsString( obj_key + "on click" ) );
+		ReadVectorString(Objets[i].OnHover, wndFile->PullAsString( obj_key + "on hover" ) );
+		ReadVectorString(Objets[i].SendDataTo, Lowercase( wndFile->PullAsString( obj_key + "send data to" ) ) );
+		ReadVectorString(Objets[i].SendPosTo, Lowercase( wndFile->PullAsString( obj_key + "send pos to" ) ) );
 
 		Objets[i].Flag |= obj_flags;
 		Objets[i].Flag &= ~obj_negative_flags;
@@ -3164,48 +3216,54 @@ void AREA::load_tdf( const String &filename )			// Loads a TDF file telling whic
 	}
 
 	name = filename;		// Grab the area's name
-
 	sint32 e = name.find( "." );		// Extracts the file name
 
-	if( e != -1 )	name = name.substr( 0, e );
-
+	if( e != -1 )
+        name = name.substr( 0, e );
 	e = name.find_last_of( "/\\" );
-
-	if( e != -1 )	name = name.substr( e + 1, name.size() - e - 1 );
+	if( e != -1 )
+        name = name.substr( e + 1, name.size() - e - 1 );
 
 	name = areaFile->PullAsString( "area.name", name );					// The TDF may override the area name
+	skin_name = (lp_CONFIG != NULL && !lp_CONFIG->skin_name.empty() )
+        ? lp_CONFIG->skin_name
+        : areaFile->PullAsString( "area.skin" );
 
-	skin_name = ( lp_CONFIG != NULL && !lp_CONFIG->skin_name.empty() ) ? lp_CONFIG->skin_name : areaFile->PullAsString( "area.skin" );
-	if( TA3D_exists( skin_name ) ) {			// Loads a skin
+	if( TA3D_exists(skin_name)) // Loads a skin
+    {
 		int area_width = areaFile->PullAsInt( "area.width", SCREEN_W );
 		int area_height = areaFile->PullAsInt( "area.height", SCREEN_W );
 		float skin_scale = min( (float)SCREEN_H / area_height, (float)SCREEN_W / area_width );
 		skin = new SKIN;
-		skin->load_tdf( skin_name, skin_scale );
-		}
+		skin->load_tdf(skin_name, skin_scale);
+	}
 
-	Vector< String > windows_to_load = ReadVectorString( areaFile->PullAsString( "area.windows" ) );
-	for( uint16 i = 0 ; i < windows_to_load.size() ; i++ )
-		load_window( windows_to_load[ i ] );
+	Vector<String> windows_to_load;
+    ReadVectorString(windows_to_load, areaFile->PullAsString("area.windows"));
+    for(Vector<String>::iterator i = windows_to_load.begin(); i != windows_to_load.end(); ++i)
+		load_window(*i);
 
 	String background_name = areaFile->PullAsString( "area.background" );
-	if( skin && !skin->prefix.empty() ) {
+	if(skin && !skin->prefix.empty())
+    {
 		int name_len = strlen( get_filename( background_name.c_str() ) );
 		if( name_len > 0 )
 			background_name = background_name.substr( 0, background_name.size() - name_len ) + skin->prefix + get_filename( background_name.c_str() );
 		else
 			background_name += skin->prefix;
-		}
-	if( TA3D_exists( background_name ) )			// Loads a background image
+	}
+	
+    if( TA3D_exists(background_name)) // Loads a background image
 		background = gfx->load_texture( background_name );
-	else if( skin && !skin->prefix.empty() ) {
-		background_name = areaFile->PullAsString( "area.background" );			// No prefixed version, retry with default background
-		if( TA3D_exists( background_name ) )			// Loads a background image
-			background = gfx->load_texture( background_name );
+	else
+        if(skin && !skin->prefix.empty())
+        {
+		    background_name = areaFile->PullAsString( "area.background" ); // No prefixed version, retry with default background
+		    if( TA3D_exists( background_name ) ) // Loads a background image
+			    background = gfx->load_texture( background_name );
 		}
 
 	delete areaFile; 
-
 	GuardLeave();
 }
 
