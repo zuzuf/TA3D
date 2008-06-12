@@ -562,6 +562,10 @@ void config_menu(void)
       for( uint32 e = 0 ; e < fps_limits.size() ; e++ )
       fps_limits[ e ] = TRANSLATE( fps_limits[ e ] ); */
     Vector<String> fps_limits;
+    fps_limits.push_back(TRANSLATE("15"));
+    fps_limits.push_back(TRANSLATE("25"));
+    fps_limits.push_back(TRANSLATE("30"));
+    fps_limits.push_back(TRANSLATE("40"));
     fps_limits.push_back(TRANSLATE("50"));
     fps_limits.push_back(TRANSLATE("60"));
     fps_limits.push_back(TRANSLATE("70"));
@@ -1719,7 +1723,8 @@ void setup_game(bool client, const char *host)
         if( client )
             setupgame_area.msg("scripts.hide");	// Hide the scripts window in client mode
 
-        if( setupgame_area.get_state( "scripts.b_ok" ) && !client ) {
+        if( setupgame_area.get_state( "scripts.b_ok" ) && !client )
+        {
             guiobj = setupgame_area.get_object( "scripts.script_list" );
             if( guiobj && guiobj->Pos >= 0 && guiobj->Pos < guiobj->num_entries() ) {
                 setupgame_area.set_caption( "gamesetup.script_name", guiobj->Text[ guiobj->Pos ] );
@@ -1729,14 +1734,16 @@ void setup_game(bool client, const char *host)
             }
         }
 
-        if( setupgame_area.get_state( "gamesetup.b_ok" ) && !client ) {
+        if( setupgame_area.get_state( "gamesetup.b_ok" ) && !client )
+        {
             bool ready = true;
             if( host )
                 for( int i = 0 ; i < 10 ; i++ )
                     if( game_data.player_control[i] == PLAYER_CONTROL_LOCAL_HUMAN || game_data.player_control[i] == PLAYER_CONTROL_REMOTE_HUMAN )
                         ready &= game_data.ready[i];
 
-            if( ready ) {
+            if (ready)
+            {
                 while( key[KEY_ENTER] )	{	rest( 20 );	poll_keyboard();	}
                 clear_keybuf();
                 done=true;		// If user click "OK" or hit enter then leave the window
@@ -1744,9 +1751,11 @@ void setup_game(bool client, const char *host)
                 network_manager.sendSpecial( "NOTIFY START" );
             }
         }
-        if( setupgame_area.get_state( "gamesetup.b_cancel" ) ) done=true;		// En cas de click sur "retour", on quitte la fenêtre
+        if( setupgame_area.get_state("gamesetup.b_cancel"))
+            done=true;		// En cas de click sur "retour", on quitte la fenêtre
 
-        for(uint16 i = 0 ; i < 10 ; i++ ) {
+        for(uint16 i = 0 ; i < 10 ; ++i)
+        {
             if( setupgame_area.get_state( format("gamesetup.ready%d", i ) ) != game_data.ready[i] ) {
                 if( game_data.player_control[i] == PLAYER_CONTROL_LOCAL_HUMAN ) {
                     network_manager.sendSpecial( "NOTIFY UPDATE" );
@@ -1755,9 +1764,12 @@ void setup_game(bool client, const char *host)
                 else
                     setupgame_area.set_state( format("gamesetup.ready%d", i ), game_data.ready[i] );
             }
-            if( client && game_data.player_network_id[i] != my_player_id )	continue;							// You cannot change other player's settings
-            if( setupgame_area.get_state( format("gamesetup.b_name%d", i) ) && !client ) {		// Change player type
-                if( game_data.player_network_id[i] >= 0 && game_data.player_network_id[i] != my_player_id ) {		// Kick player !!
+            if(client && game_data.player_network_id[i] != my_player_id )
+                continue;							// You cannot change other player's settings
+            if( setupgame_area.get_state( format("gamesetup.b_name%d", i) ) && !client ) // Change player type
+            {
+                if( game_data.player_network_id[i] >= 0 && game_data.player_network_id[i] != my_player_id ) // Kick player !!
+                {
                     network_manager.dropPlayer( game_data.player_network_id[i] );
                     network_manager.sendSpecial( "NOTIFY UPDATE" );
                 }
@@ -1766,12 +1778,17 @@ void setup_game(bool client, const char *host)
                     if( setupgame_area.get_caption(format("gamesetup.name%d", i)) == player_str[f].c_str() ) {	e = f;	break;	}
                 e = (e+1) % player_str_n;
 
-                if( player_control[e] == PLAYER_CONTROL_LOCAL_HUMAN )					// We can only have one local human player ( or it crashes )
+                if (player_control[e] == PLAYER_CONTROL_LOCAL_HUMAN)// We can only have one local human player ( or it crashes )
+                {
                     for( uint16 f = 0 ; f<10 ; f++ )
-                        if( f!= i && game_data.player_control[f] == PLAYER_CONTROL_LOCAL_HUMAN ) {		// If we already have a local human player pass this player type value
+                    {
+                        if( f!= i && game_data.player_control[f] == PLAYER_CONTROL_LOCAL_HUMAN ) // If we already have a local human player pass this player type value
+                        {
                             e = (e+1) % player_str_n;
                             break;
                         }
+                    }
+                }
 
                 game_data.player_names[i] = player_str[e];								// Update game data
                 game_data.player_control[i] = player_control[e];
@@ -1801,7 +1818,8 @@ void setup_game(bool client, const char *host)
                 game_data.player_sides[i] = side_str[e];								// update game data
                 if( host )	network_manager.sendSpecial( "NOTIFY UPDATE" );
             }
-            if( setupgame_area.get_state( format("gamesetup.b_ai%d", i) ) ) {	// Change player level (for AI)
+            if (setupgame_area.get_state( format("gamesetup.b_ai%d", i) ) ) // Change player level (for AI)
+            {
                 uint16 e = 0;
                 for( uint16 f = 0 ; f<ai_level_str_n ; f++ )
                     if( setupgame_area.get_caption( format("gamesetup.ai%d", i) ) == ai_level_str[f].c_str() ) {	e = f;	break;	}
@@ -1809,20 +1827,29 @@ void setup_game(bool client, const char *host)
                 setupgame_area.set_caption( format("gamesetup.ai%d", i), game_data.player_control[i] & PLAYER_CONTROL_FLAG_AI ? ai_level_str[e] : String("") );			// Update gui
 
                 game_data.ai_level[i] = e;								// update game data
-                if( host )	network_manager.sendSpecial( "NOTIFY UPDATE" );
+                if (host)
+                    network_manager.sendSpecial("NOTIFY UPDATE");
             }
-            if( setupgame_area.get_state( format("gamesetup.b_color%d", i) ) ) {	// Change player color
-                if( client )	network_manager.sendSpecial(format("NOTIFY COLORCHANGE %d", i));
+            if(setupgame_area.get_state( format("gamesetup.b_color%d", i)))	// Change player color
+            {
+                if (client)
+                    network_manager.sendSpecial(format("NOTIFY COLORCHANGE %d", i));
                 sint16 e = player_color_map[i];
                 sint16 f = -1;
                 for( sint16 g = 0; g<10 ; g++ )						// Look for the next color
-                    if( (game_data.player_control[g] == PLAYER_CONTROL_NONE || game_data.player_control[g] == PLAYER_CONTROL_CLOSED) && player_color_map[g] > e && (f == -1 || player_color_map[g] < player_color_map[f]) )
+                {
+                    if( (game_data.player_control[g] == PLAYER_CONTROL_NONE || game_data.player_control[g] == PLAYER_CONTROL_CLOSED)
+                        && player_color_map[g] > e && (f == -1 || player_color_map[g] < player_color_map[f]) )
+                    {
                         f = g;
+                    }
+                }
                 if( f == -1 )
                     for( uint16 g = 0; g<10 ; g++ )
                         if( (game_data.player_control[g] == PLAYER_CONTROL_NONE || game_data.player_control[g] == PLAYER_CONTROL_CLOSED) && (f == -1 || player_color_map[g] < player_color_map[f]) )
                             f = g;
-                if( f != -1 ) {
+                if( f != -1 )
+                {
                     sint16 g = player_color_map[f];
                     player_color_map[i] = g;								// update game data
                     player_color_map[f] = e;
@@ -1834,16 +1861,19 @@ void setup_game(bool client, const char *host)
                     if( guiobj )
                         guiobj->Data = gfx->makeintcol(player_color[player_color_map[f]*3],player_color[player_color_map[f]*3+1],player_color[player_color_map[f]*3+2]);			// Update gui
                 }
-                if( host && !client )	network_manager.sendSpecial( "NOTIFY UPDATE" );
+                if(host && !client)
+                    network_manager.sendSpecial( "NOTIFY UPDATE" );
             }
-            if( setupgame_area.get_state( format("gamesetup.b_energy%d", i) ) ) {	// Change player energy stock
+            if( setupgame_area.get_state( format("gamesetup.b_energy%d", i) ) ) // Change player energy stock
+            {
                 game_data.energy[i] = (game_data.energy[i] + 500) % 10500;
                 if( game_data.energy[i] == 0 ) game_data.energy[i] = 500;
 
                 setupgame_area.set_caption( format("gamesetup.energy%d", i), format("%d",game_data.energy[i]) );			// Update gui
                 if( host )	network_manager.sendSpecial( "NOTIFY UPDATE" );
             }
-            if( setupgame_area.get_state( format("gamesetup.b_metal%d", i) ) ) {	// Change player metal stock
+            if( setupgame_area.get_state( format("gamesetup.b_metal%d", i) ) ) // Change player metal stock
+            {
                 game_data.metal[i] = (game_data.metal[i] + 500) % 10500;
                 if( game_data.metal[i] == 0 ) game_data.metal[i] = 500;
 
@@ -1853,11 +1883,13 @@ void setup_game(bool client, const char *host)
         }
 
         if( minimap_obj != NULL &&
-            ( ( setupgame_area.get_state( "gamesetup.minimap" ) || setupgame_area.get_state( "gamesetup.change_map" ) ) && !client )
-            || ( client && !set_map.empty() ) ) {		// Clic on the mini-map or received map set command
+            ( ( setupgame_area.get_state( "gamesetup.minimap" ) || setupgame_area.get_state("gamesetup.change_map")) && !client)
+            || ( client && !set_map.empty() ) )	// Clic on the mini-map or received map set command
+        {
             String map_filename;
             char *new_map;
-            if( !client ) {
+            if( !client )
+            {
                 map_filename = game_data.map_filename;
                 new_map = select_map( &map_filename );
                 for( int i = 0 ; i < 10 ; i++ )
@@ -1871,14 +1903,17 @@ void setup_game(bool client, const char *host)
             cursor_type=CURSOR_DEFAULT;
             gfx->set_2D_mode();
 
-            if(new_map) {
-                if( host && !client )	network_manager.sendSpecial( format( "SET MAP %s", ReplaceChar( new_map, ' ', 1 ).c_str() ) );
+            if(new_map)
+            {
+                if( host && !client)
+                    network_manager.sendSpecial(format("SET MAP %s", ReplaceChar( new_map, ' ', 1 ).c_str()));
 
                 String new_map_name = new_map;
 
                 gfx->destroy_texture( glimg );
 
-                if(game_data.map_filename)	free(game_data.map_filename);
+                if(game_data.map_filename)
+                    free(game_data.map_filename);
                 game_data.map_filename = new_map;
                 glimg = load_tnt_minimap_fast(game_data.map_filename,&dx,&dy);
                 ldx = dx * ( mini_map_x2 - mini_map_x1 ) / 504.0f;
@@ -1910,11 +1945,12 @@ void setup_game(bool client, const char *host)
 
                 new_map_name = new_map_name.substr( 0, new_map_name.size() - 3 ) + "ota";
 
-                if( client && !HPIManager->Exists( new_map_name.c_str() ) ) {
-                    if( !previous_ota_port.empty() )
-                        network_manager.stopFileTransfer( previous_ota_port );
+                if( client && !HPIManager->Exists( new_map_name.c_str()))
+                {
+                    if( !previous_ota_port.empty())
+                        network_manager.stopFileTransfer(previous_ota_port);
                     previous_ota_port = network_manager.getFile( 1, ReplaceChar( new_map_name, '\\', '/') );
-                    network_manager.sendSpecial( format( "REQUEST FILE %s %s", ReplaceChar(new_map_name, ' ', 1 ).c_str(), previous_ota_port.c_str() ) );
+                    network_manager.sendSpecial( format( "REQUEST FILE %s %s", ReplaceChar(new_map_name, ' ', 1 ).c_str(), previous_ota_port.c_str()));
                 }
             }
 
@@ -1932,7 +1968,8 @@ void setup_game(bool client, const char *host)
 
         // Affiche
         gfx->flip();
-    }while(!done);
+
+    } while(!done);
 
     if( setupgame_area.background == gfx->glfond )	setupgame_area.background = 0;
     setupgame_area.destroy();
@@ -1942,20 +1979,28 @@ void setup_game(bool client, const char *host)
     gfx->destroy_texture(glimg);
 
     reset_mouse();
-    while(key[KEY_ESC]) {	rest(1);	poll_keyboard();	}
+    while (key[KEY_ESC])
+    {
+        rest(1);
+        poll_keyboard();
+    }
 
     if( network_manager.isServer() )
         network_manager.registerToNetServer( host, 0 );				// Tell the world we're gone
 
-    if(start_game) {
-        if(game_data.map_filename && game_data.game_script) {
+    if(start_game)
+    {
+        if(game_data.map_filename && game_data.game_script)
+        {
             lp_CONFIG->last_script = game_data.game_script;		// Remember the last script we played
             lp_CONFIG->last_map = game_data.map_filename;		// Remember the last map we played
             lp_CONFIG->last_FOW = game_data.fog_of_war;
 
             game_data.nb_players = 0;
             for(uint16 i = 0 ; i<10 ; i++)		// Move players to the top of the vector, so it's easier to access data
-                if( game_data.player_control[i] != PLAYER_CONTROL_NONE && game_data.player_control[i] != PLAYER_CONTROL_CLOSED ) {
+            {
+                if( game_data.player_control[i] != PLAYER_CONTROL_NONE && game_data.player_control[i] != PLAYER_CONTROL_CLOSED )
+                {
                     game_data.player_control[game_data.nb_players] = game_data.player_control[i];
                     game_data.player_names[game_data.nb_players] = game_data.player_names[i];
                     game_data.player_sides[game_data.nb_players] = game_data.player_sides[i];
@@ -1967,6 +2012,7 @@ void setup_game(bool client, const char *host)
                     player_color_map[i] = e;
                     game_data.nb_players++;
                 }
+            }
 
             gfx->unset_2D_mode();
             GuardStart( play );
@@ -1981,12 +2027,21 @@ void setup_game(bool client, const char *host)
             gfx->ReInitTexSys();
         }
 
-        while(key[KEY_ESC]) {	rest(1);	poll_keyboard();	}
+        while (key[KEY_ESC])
+        {
+            rest(1);
+            poll_keyboard();
+        }
     }
-    else if( client )
-        network_manager.sendSpecial( "NOTIFY PLAYER_LEFT" );
+    else
+    {
+        if( client )
+            network_manager.sendSpecial( "NOTIFY PLAYER_LEFT" );
+    }
     network_manager.Disconnect();
 }
+
+
 
 /*-----------------------------------------------------------------------------\
   |                            void network_room(void)                           |

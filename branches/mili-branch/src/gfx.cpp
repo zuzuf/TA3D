@@ -63,10 +63,11 @@ void GFX_TEXTURE::destroy()
 {
 	width = 0;
 	height = 0;
-	if( destroy_tex ) {
-		gfx->destroy_texture( tex );
+	if(destroy_tex)
+    {
+		gfx->destroy_texture(tex);
 		destroy_tex = false;
-		}
+	}
 	else
 		tex = 0;
 }
@@ -158,7 +159,6 @@ GFX::GFX()
     if( Console )
     {
         Console->stdout_on();
-
         Console->AddEntry("OpenGL informations:");
         Console->AddEntry("vendor: %s", glGetString( GL_VENDOR ) );
         Console->AddEntry("renderer: %s", glGetString( GL_RENDERER ) );
@@ -168,7 +168,6 @@ GFX::GFX()
             Console->AddEntry("WARNING: ATI card detected! using workarounds for ATI cards");
             LOG_WARNING("WARNING: ATI card detected! using workarounds for ATI cards");
         }
-
         Console->stdout_off();
     }
 }
@@ -194,15 +193,15 @@ GFX::~GFX()
 
 void GFX::Init()
 {
-    if( Console )	Console->AddEntry( "allocating palette memory" );
+    LOG_DEBUG("Allocating palette memory...");
     TA3D::VARS::pal=new RGB[256];      // Allocate a new palette
 
-    if( Console )	Console->AddEntry( "loading TA's palette" );
+    LOG_DEBUG("Loading TA's palette...");
     byte *palette=HPIManager->PullFromHPI( "palettes\\palette.pal" );
     if(palette)
     {
-        if( Console )	Console->AddEntry( "allocating palette memory - success" );
-        for(int i=0;i<256;i++)
+        LOG_DEBUG("Palette memory allocated.");
+        for(int i = 0; i<256; ++i)
         {
             pal[i].r=palette[i<<2]>>2;
             pal[i].g=palette[(i<<2)+1]>>2;
@@ -211,31 +210,43 @@ void GFX::Init()
         free(palette);
         set_palette(pal);      // Activate the palette
     }
-    else if( Console )	Console->AddEntry( "allocating palette memory - failed" );
+    else
+        LOG_WARNING("Failed to allocate palette memory");
 
-    if( Console )	Console->AddEntry( "loading hattfint12.gaf" );
     TA_font.load_gaf_font( "anims\\hattfont12.gaf", 1.0f );
-    if( Console )	Console->AddEntry( "creating normal font" );
+
+    if (Console)
+        Console->AddEntry( "Creating a normal font...");
     normal_font.copy( font , 1.0f );
     normal_font.set_clear( true );
-    if( Console )	Console->AddEntry( "creating small font" );
+    if (Console)
+        Console->AddEntry( "Creating a small font...");
     small_font.copy( font , 0.75f );
     small_font.set_clear( true );
-    if( Console )	Console->AddEntry( "loading GUI font" );
+
+    if(Console)
+        Console->AddEntry( "Loading the GUI font..." );
     ta3d_gui_font.load_gaf_font( "anims\\hattfont12.gaf" , 1.0f );
 
-    if( Console )	Console->AddEntry( "activating palette" );
+    if(Console)
+        Console->AddEntry( "Activating the palette...");
     if(palette)
         set_palette(pal);      // Activate the palette
 
-    if( Console )	Console->AddEntry( "loading background" );
+    if (Console)
+        Console->AddEntry( "Loading background...");
     load_background();
 
     gui_font = ta3d_gui_font;
     gui_font_h = gui_font.height();
     use_normal_alpha_function = true;
     alpha_blending_set = false;
-    if( Console )	Console->AddEntry( "GFX::Init() : work done!" );
+    if(Console)
+    {
+        Console->stdout_on();
+        Console->AddEntry( "Graphics are initialized.");
+        Console->stdout_off();
+    }
 }
 
 
@@ -1118,15 +1129,18 @@ void GFX_FONT::load( const char *filename, const float s)
     }
 }
 
-void GFX_FONT::load_gaf_font( const char *filename, const float s )
+void GFX_FONT::load_gaf_font(const char *filename, const float s )
 {
+    LOG_DEBUG("Loading GAF font: `" << filename << "`...");
     size = s;
     byte *data = HPIManager->PullFromHPI( filename );
-    if( data ) {
+    if(data)
+    {
         ANIM gaf_font;
-        gaf_font.load_gaf( data );			// Load the gaf
+        gaf_font.load_gaf(data);
         int h = 0, mx = 0, my = 0;
-        for(int i = 0 ; i < gaf_font.nb_bmp ; i++ ) {
+        for(int i = 0 ; i < gaf_font.nb_bmp ; ++i)
+        {
             if( abs( gaf_font.ofs_x[ i ] ) > 50 || abs( gaf_font.ofs_y[ i ] ) > 50 ) continue;
             if( -gaf_font.ofs_x[ i ] < mx )	mx = -gaf_font.ofs_x[ i ];
             if( -gaf_font.ofs_y[ i ] < my )	my = -gaf_font.ofs_y[ i ];
@@ -1140,15 +1154,20 @@ void GFX_FONT::load_gaf_font( const char *filename, const float s )
         fc->end = gaf_font.nb_bmp;
         fc->bitmaps = (BITMAP**) malloc( sizeof( BITMAP* ) * gaf_font.nb_bmp );
         fc->next = NULL;
-        for(int i = 0 ; i < gaf_font.nb_bmp ; i++ ) {
+        for (int i = 0 ; i < gaf_font.nb_bmp ; ++i)
+        {
             fc->bitmaps[ i ] = create_bitmap_ex( 32, gaf_font.bmp[ i ]->w, h );
             clear_to_color( fc->bitmaps[ i ], 0xFF00FF );
             if( i != 32 )		// Spaces must remain blank
                 blit( gaf_font.bmp[ i ], fc->bitmaps[ i ], 0,0, -gaf_font.ofs_x[ i ] - mx, -gaf_font.ofs_y[ i ] - my, gaf_font.bmp[ i ]->w, gaf_font.bmp[ i ]->h );
-            for( int y = 0 ; y < fc->bitmaps[ i ]->h ; y++ )
-                for( int x = 0 ; x < fc->bitmaps[ i ]->w ; x++ )
-                    if( getpixel( fc->bitmaps[ i ], x, y ) == 0 )
-                        putpixel( fc->bitmaps[ i ], x, y, 0xFF00FF );
+            for (int y = 0 ; y < fc->bitmaps[ i ]->h ; y++ )
+            {
+                for (int x = 0 ; x < fc->bitmaps[ i ]->w ; ++x)
+                {
+                    if(getpixel(fc->bitmaps[ i ], x, y ) == 0)
+                        putpixel(fc->bitmaps[ i ], x, y, 0xFF00FF);
+                }
+            }
         }
         gaf_font.destroy();					// Destroy the gaf data, we don't need this any more
         free( data );
@@ -1157,18 +1176,22 @@ void GFX_FONT::load_gaf_font( const char *filename, const float s )
         _al->height = h;
         _al->vtable = font_vtable_color;
     }
-    else {
+    else 
+    {
         _al = NULL;
         throw cError( "GFX_FONT::load_gaf_font()", "file could not be read, data = NULL.", true );
         return;
     }
 
     _gl = allegro_gl_convert_allegro_font_ex(_al,AGL_FONT_TYPE_TEXTURED,-1.0f,GL_RGBA8);
-    if( _gl == NULL ) {
+    if(!_gl)
+    {
         throw cError( "GFX_FONT::load_gaf_font()", "font could not be converted to GL font, _gl = NULL.", true );
         return;
     }
 }
+
+
 
 float GFX_FONT::height() const	{	return text_height( _al ) * size;	}
 
