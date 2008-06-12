@@ -4,8 +4,9 @@
 # include <iostream>
 # include <sstream>
 # include <time.h>
-# include <pthread.h>
 # include <errno.h>
+# include "../threads/mutex.h"
+
 
 # ifdef LOGS_USE_DEBUG
 #   define LOG_DEBUG(X)     Logs::logger() << X << Logs::debug
@@ -204,7 +205,7 @@ namespace Logs
 		//! \brief Where do we output ? Anything which is an std::ostream. (cout, cerr, ostringstream...)
 		std::ostream *  pOut;
 		Callback        pCallback;
-		pthread_mutex_t	pMutex;
+        TA3D::Mutex     pMutex;
 	public:
 
 		/*!
@@ -228,12 +229,12 @@ namespace Logs
 		/*!
 		** \brief Locks the object.
 		*/
-		void lock() { pthread_mutex_lock(&pMutex); }
+		void lock() { pMutex.lock(); }
 
 		/*!
 		** \brief Unlocks the object.
 		*/ 
-		void unlock() { pthread_mutex_unlock(&pMutex); }
+		void unlock() { pMutex.unlock(); }
 
 
 		/*!

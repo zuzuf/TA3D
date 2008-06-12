@@ -1,7 +1,7 @@
 
 #include "settings.h"
 #include "../logs/logs.h"
-#include "../paths.h"
+#include "paths.h"
 #include "../TA3D_NameSpace.h"
 #include "../TA3D_Exception.h"
 #include "../ta3dbase.h"

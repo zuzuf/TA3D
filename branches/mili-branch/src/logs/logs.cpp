@@ -50,9 +50,7 @@ namespace Logs
 	Log::Log(std::ostream *outstream, Callback callback) : std::ostringstream(),
 	pOut(outstream),
 	pCallback(callback)
-	{
-		pthread_mutex_init(&pMutex, NULL);
-	}
+	{}
 
 	void Log::streamOutput(std::ostream *stream)
 	{
