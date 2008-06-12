@@ -1,0 +1,66 @@
+[window]
+{
+	title=confirm;
+	name=config_confirm;
+	uformat=UTF8;
+	x=440;
+	y=412;
+	width=400;
+	height=200;
+	draw borders=true;
+	show title=true;
+	number of objects=4;
+	hidden=true;
+	color=0xFFFFFFFF;
+	background=gfx/background.jpg;
+	repeat background=true;
+	background window=false;
+	fullscreen=true;			// Scale the window to fit the screen
+	screen width=1280;
+	screen height=1024;
+	get focus=true;				// Stay over other windows
+	[object0]
+	{
+		name=b_confirm;
+		type=BUTTON;
+		caption=OK;
+		x1=10;
+		y1=160;
+		x2=190;
+		y2=195;
+		size=2;
+	}
+	[object1]
+	{
+		name=b_cancel_changes;
+		type=BUTTON;
+		caption=Cancel;
+		x1=210;
+		y1=160;
+		x2=390;
+		y2=195;
+		size=2;
+	}
+	[object2]
+	{
+		name=t_info;
+		type=TEXT;
+		caption=CONFIRM_CHANGES;
+		x1=10;
+		y1=40;
+		x2=390;
+		y2=100;
+		size=1.8;
+	}
+	[object3]
+	{
+		name=p_wait;
+		type=PBAR;
+		x1=10;
+		y1=100;
+		x2=390;
+		y2=160;
+		value=0;
+		size=1.8;
+	}
+}

@@ -1,0 +1,80 @@
+[window]
+{
+	title=Options;
+	uformat=UTF8;
+	x=0;
+	y=0;
+	width=640;
+	height=480;
+	draw borders=false;
+	show title=false;
+	number of objects=5;
+	hidden=false;
+	lock=true;
+	color=0x00000000;			// Fully transparent so we can see the AREA background
+	background window=true;
+	fullscreen=true;			// Scale the window to fit the screen
+	screen width=1280;
+	screen height=1024;
+	[object0]		// OK
+	{
+		name=b_ok;
+		type=BUTTON;
+		caption=OK;
+		x1=1038;
+		y1=960;
+		x2=1190;
+		y2=998;
+		size=2;
+	}
+	[object1]		// Cancel
+	{
+		name=b_cancel;
+		type=BUTTON;
+		caption=cancel;
+		x1=839;
+		y1=960;
+		x2=990;
+		y2=998;
+		size=2;
+	}
+	[object2]		// Display
+	{
+		name=b_display;
+		type=BUTTON;
+		caption=Display;
+		x1=151;
+		y1=154;
+		x2=303;
+		y2=187;
+		size=2;
+		on click=mdrn_config_display.show, mdrn_config_audio.hide, mdrn_config_game.hide;
+		help=click on this button\nto show display\noptions;
+	}
+	[object3]		// Audio
+	{
+		name=b_audio;
+		type=BUTTON;
+		caption=Audio;
+		x1=151;
+		y1=227;
+		x2=303;
+		y2=258;
+		size=2;
+		on click=mdrn_config_display.hide, mdrn_config_audio.show, mdrn_config_game.hide;
+		help=click on this button\nto show audio\noptions;
+	}
+	[object4]		// Game
+	{
+		name=b_game;
+		type=BUTTON;
+		caption=Game;
+		x1=151;
+		y1=298;
+		x2=303;
+		y2=328;
+		size=2;
+		on click=mdrn_config_display.hide, mdrn_config_audio.hide, mdrn_config_game.show;
+		help=click on this button\nto show game\noptions;
+	}
+}

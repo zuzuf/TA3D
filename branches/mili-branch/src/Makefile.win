@@ -1,0 +1,97 @@
+#
+#           Makefile pour TA3D
+#      Version 0.2.4 Windows
+
+CC = g++
+ARCH =
+ARGS = --no-warnings -O2 -mmmx -g
+INCLUDE = -I/usr/include
+LIBS = -ljpgal -lagl -lalleg -luser32 -lgdi32 -lopengl32 -lglu32 -lz.dll -lalmp3dll
+COMPILE = ${CC} -c ${ARGS} ${ARCH} ${INCLUDE}
+OBJECTS = menu.o stdafx.o TA3D_hpi.o console.o particles.o EngineClass.o 3do.o gaf.o glfunc.o cob.o tdf.o fbi.o gui.o tnt.o intro.o pathfinding.o weapons.o sound.o script.o ia.o music.o taconfig.o icon.o
+
+all : ta3d hpiview
+	mv ta3d.exe ../
+	mv hpiview.exe ../
+
+ta3d : clean ${OBJECTS}
+	${CC} ta3d.cpp ${OBJECTS} ${ARGS} ${ARCH} ${INCLUDE} -o ta3d.exe ${LIBS}
+
+hpiview :
+	${CC} hpiview.cpp console.o TA3D_hpi.o ${ARGS} ${ARCH} ${INCLUDE} -o hpiview.exe ${LIBS}
+
+stdafx.o :
+	${COMPILE} -o stdafx.o stdafx.cpp
+
+TA3D_hpi.o :
+	${COMPILE} -o TA3D_hpi.o TA3D_hpi.cpp
+
+console.o :
+	${COMPILE} -o console.o console.cpp
+
+particles.o :
+	${COMPILE} -o particles.o particles.cpp
+
+EngineClass.o :
+	${COMPILE} -o EngineClass.o EngineClass.cpp
+
+3do.o :
+	${COMPILE} -o 3do.o 3do.cpp
+
+gaf.o :
+	${COMPILE} -o gaf.o gaf.cpp
+
+glfunc.o :
+	${COMPILE} -o glfunc.o glfunc.cpp
+
+cob.o :
+	${COMPILE} -o cob.o cob.cpp
+
+tdf.o :
+	${COMPILE} -o tdf.o tdf.cpp
+
+fbi.o :
+	${COMPILE} -o fbi.o fbi.cpp
+
+gui.o :
+	${COMPILE} -o gui.o gui.cpp
+
+tnt.o :
+	${COMPILE} -o tnt.o tnt.cpp
+
+intro.o :
+	${COMPILE} -o intro.o intro.cpp
+
+menu.o :
+	${COMPILE} -o menu.o menu.cpp
+
+pathfinding.o :
+	${COMPILE} -o pathfinding.o pathfinding.cpp
+
+weapons.o :
+	${COMPILE} -o weapons.o weapons.cpp
+
+sound.o :
+	${COMPILE} -o sound.o sound.cpp
+
+script.o :
+	${COMPILE} -o script.o script.cpp
+
+ia.o :
+	${COMPILE} -o ia.o ia.cpp
+
+music.o :
+	${COMPILE} -o music.o music.cpp
+
+taconfig.o :
+	${COMPILE} -o taconfig.o taconfig.cpp
+
+icon.o :
+	${COMPILE} -o icon.o icon.cpp
+
+clean :
+	rm --force ta3d.exe
+	rm --force ../ta3d.exe
+	rm --force hpiview.exe
+	rm --force ../hpiview.exe
+	rm --force *.o
