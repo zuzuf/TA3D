@@ -212,7 +212,7 @@ public:
 	MATRIX_4x4	*matrix;		// Store local matrixes
 	bool		is_moving;
 
-	inline void init()
+	void init()
 	{
 		is_moving=false;
 		nb_piece=0;
@@ -231,7 +231,7 @@ public:
 		init();
 	}
 
-	inline void destroy()
+	void destroy()
 	{
 		for(int i=0;i<3;i++)
 			if(axe[i])
@@ -254,7 +254,7 @@ public:
 		destroy();
 	}
 
-	inline void load(int nb)
+	void load(int nb)
 	{
 		destroy();		// Au cas où
 		nb_piece=nb;
@@ -376,7 +376,7 @@ public:
 		type = 0;
 	}
 
-	inline void animate( float &t, VECTOR &R, VECTOR &T )
+	void animate( float &t, VECTOR &R, VECTOR &T )
 	{
 		if( type & ROTATION ) {
 			if( type & ROTATION_PERIODIC ) {
@@ -674,7 +674,7 @@ public:
 		destroy();
 	}
 
-	inline void Identify(int nb_piece,char **piece_name)			// Identifie les pièces utilisées par le script
+	void Identify(int nb_piece,char **piece_name)			// Identifie les pièces utilisées par le script
 	{
 		script_index=-1;				// Pièce non utilisée
 		for(int i=0;i<nb_piece;i++)
@@ -723,7 +723,7 @@ public:
 		return size;
 	}
 
-	float print_struct(float Y,float X,TA3D::INTERFACES::GFX_FONT fnt);
+	float print_struct(float Y,float X,TA3D::INTERFACES::GfxFont fnt);
 
 	float compute_top( float top, VECTOR dec )
 	{
@@ -868,7 +868,7 @@ public:
 		return err;
 	}
 
-	inline void create_from_2d(BITMAP *bmp,float w,float h,float max_h)
+	void create_from_2d(BITMAP *bmp,float w,float h,float max_h)
 	{
 		obj.create_from_2d(bmp,w,h,max_h);
 
@@ -887,7 +887,7 @@ public:
 		compute_topbottom();
 	}
 
-	inline void draw(float t,SCRIPT_DATA *data_s=NULL,bool sel=false,bool notex=false,bool c_part=false,int p_tex=0,VECTOR *target=NULL,VECTOR *upos=NULL,MATRIX_4x4 *M=NULL,float Size=0.0f,VECTOR *Center=NULL,bool reverse=false,int side=0,bool chg_col=true,OBJECT *src=NULL,SCRIPT_DATA *src_data=NULL)
+	void draw(float t,SCRIPT_DATA *data_s=NULL,bool sel=false,bool notex=false,bool c_part=false,int p_tex=0,VECTOR *target=NULL,VECTOR *upos=NULL,MATRIX_4x4 *M=NULL,float Size=0.0f,VECTOR *Center=NULL,bool reverse=false,int side=0,bool chg_col=true,OBJECT *src=NULL,SCRIPT_DATA *src_data=NULL)
 	{
 		if(notex)
 			glDisable(GL_TEXTURE_2D);
@@ -921,19 +921,19 @@ public:
 			obj.compute_coord(data_s,&pos,c_part,p_tex,target,upos,M,Size,Center,reverse,src,src_data);
 	}
 
-	inline void draw_optimised( bool set = true )
+	void draw_optimised( bool set = true )
 	{
 		obj.draw_optimised( set );
 	}
 
-	inline void compute_coord(SCRIPT_DATA *data_s=NULL,MATRIX_4x4 *M=NULL)
+	void compute_coord(SCRIPT_DATA *data_s=NULL,MATRIX_4x4 *M=NULL)
 	{
 		VECTOR pos;
 		pos.x=pos.y=pos.z=0.0f;
 		obj.compute_coord(data_s,&pos,false,0,NULL,NULL,M);
 	}
 
-	inline void draw_shadow(VECTOR Dir,float t,SCRIPT_DATA *data_s=NULL)
+	void draw_shadow(VECTOR Dir,float t,SCRIPT_DATA *data_s=NULL)
 	{
 		glDisable(GL_TEXTURE_2D);
 		obj.draw_shadow(Dir,t,data_s,false);
@@ -941,7 +941,7 @@ public:
 			obj.draw_shadow(Dir,t,data_s,false,true);
 	}
 
-	inline void draw_shadow_basic(VECTOR Dir,float t,SCRIPT_DATA *data_s=NULL)
+	void draw_shadow_basic(VECTOR Dir,float t,SCRIPT_DATA *data_s=NULL)
 	{
 		glDisable(GL_TEXTURE_2D);
 		obj.draw_shadow_basic(Dir,t,data_s,false);
@@ -959,12 +959,12 @@ public:
 		return obj.hit_fast(Pos,Dir*M,data_s,I);
 	}
 
-	inline void Identify(int nb_piece,char **piece_name)
+	void Identify(int nb_piece,char **piece_name)
 	{
 		obj.Identify(nb_piece,piece_name);
 	}
 
-	inline void print_struct(float Y,float X,TA3D::INTERFACES::GFX_FONT fnt)
+	void print_struct(float Y,float X,TA3D::INTERFACES::GfxFont fnt)
 	{
 		obj.print_struct(Y,X,fnt);
 	}
@@ -1060,7 +1060,7 @@ public:
 			model[ i ].obj.optimise_mesh();
 	}
 
-	inline void create_from_2d(BITMAP *bmp,float w,float h,float max_h,char *filename)
+	void create_from_2d(BITMAP *bmp,float w,float h,float max_h,char *filename)
 	{
 		MODEL *n_model=(MODEL*) malloc(sizeof(MODEL)*(nb_models+1));
 		char **n_name=(char**) malloc(sizeof(char*)*(nb_models+1));

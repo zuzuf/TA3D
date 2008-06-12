@@ -509,7 +509,7 @@ public:
 
 	void load_dl();
 
-	void show_info(float fade,GFX_FONT fnt);
+	void show_info(float fade,GfxFont fnt);
 };
 
 class UNIT_MANAGER			// Classe pour charger toutes les données relatives aux unités

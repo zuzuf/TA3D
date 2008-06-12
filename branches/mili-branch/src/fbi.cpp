@@ -39,15 +39,23 @@
 
 UNIT_MANAGER unit_manager;
 
-void UNIT_TYPE::AddUnitBuild(int index, int px, int py, int pw, int ph, int p, GLuint Pic )
+
+
+void
+UNIT_TYPE::AddUnitBuild(int index, int px, int py, int pw, int ph, int p, GLuint Pic )
 {
-	if(index<-1) return;		// N'ajoute pas d'indices incorrects (-1 indique une arme) / don't add an incorrect index (-1 stands for weapon building)
+	if(index<-1) // N'ajoute pas d'indices incorrects (-1 indique une arme) / don't add an incorrect index (-1 stands for weapon building)
+        return;
 
 	int i;
 	if(BuildList && nb_unit>0)		// Vérifie si l'unité n'est pas déjà répertoriée / check if not already there
+    {
 		for(i=0;i<nb_unit;i++)
-			if(BuildList[i]==index && Pic_p[ i ] < 0 ) {		// Update the data we have
-				if( Pic != 0 ) {
+        {
+			if(BuildList[i]==index && Pic_p[ i ] < 0 ) // Update the data we have
+            {
+				if( Pic != 0 )
+                {
 					gfx->destroy_texture( PicList[i] );
 					PicList[i] = Pic;
 					}
@@ -58,6 +66,8 @@ void UNIT_TYPE::AddUnitBuild(int index, int px, int py, int pw, int ph, int p, G
 				Pic_p[ i ] = p;
 				return;
 				}
+        }
+    }
 
 	nb_unit++;
 	if(BuildList==NULL)
@@ -70,7 +80,9 @@ void UNIT_TYPE::AddUnitBuild(int index, int px, int py, int pw, int ph, int p, G
 	short *Pp=(short*) malloc(sizeof(short)*nb_unit);
 	GLuint *Plist=(GLuint*) malloc(sizeof(GLuint)*nb_unit);
 	if(BuildList && nb_unit>1)
-		for(i=0;i<nb_unit-1;i++) {
+    {
+		for(i=0;i<nb_unit-1;i++)
+        {
 			Blist[i] = BuildList[i];
 			Plist[i] = PicList[i];
 			Px[i] = Pic_x[i];
@@ -79,6 +91,7 @@ void UNIT_TYPE::AddUnitBuild(int index, int px, int py, int pw, int ph, int p, G
 			Ph[i] = Pic_h[i];
 			Pp[i] = Pic_p[i];
 			}
+    }
 	Blist[nb_unit-1]=index;
 	Plist[nb_unit-1]=Pic;
 	Px[nb_unit-1]=px;
@@ -117,9 +130,11 @@ void UNIT_MANAGER::analyse(String filename,int unit_index)
 	int x_offset = gui_parser.PullAsInt( "gadget0.common.xpos" );
 	int y_offset = gui_parser.PullAsInt( "gadget0.common.ypos" );
 
-	for( int i = 1 ; i <= NbObj ; i++ ) {
+	for( int i = 1 ; i <= NbObj ; i++ )
+    {
 		int attribs = gui_parser.PullAsInt( format( "gadget%d.common.commonattribs", i ) );
-		if( attribs & 4 ) {			// Unit Build Pic
+		if( attribs & 4 ) 	// Unit Build Pic
+        {
 			int x = gui_parser.PullAsInt( format( "gadget%d.common.xpos", i ) ) + x_offset;
 			int y = gui_parser.PullAsInt( format( "gadget%d.common.ypos", i ) ) + y_offset;
 			int w = gui_parser.PullAsInt( format( "gadget%d.common.width", i ) );
@@ -127,7 +142,8 @@ void UNIT_MANAGER::analyse(String filename,int unit_index)
 			String name = gui_parser.PullAsString( format( "gadget%d.common.name", i ) );
 			int idx = get_unit_index( name.c_str() );
 			
-			if( idx >= 0 ) {
+			if( idx >= 0 )
+            {
 				String name = gui_parser.PullAsString( format( "gadget%d.common.name", i ) );
 
 				byte *gaf_file = HPIManager->PullFromHPI( format( "anims\\%s%d.gaf", unit_type[unit_index].Unitname, page + 1 ).c_str() );
@@ -135,7 +151,8 @@ void UNIT_MANAGER::analyse(String filename,int unit_index)
 					BITMAP *img = read_gaf_img( gaf_file, get_gaf_entry_index( gaf_file, (char*)name.c_str() ), 0 );
 
 					GLuint tex = 0;
-					if( img ) {
+					if( img )
+                    {
 						w = img->w;
 						h = img->h;
 						tex = gfx->make_texture( img );
@@ -150,7 +167,9 @@ void UNIT_MANAGER::analyse(String filename,int unit_index)
 					unit_type[unit_index].AddUnitBuild(idx, x, y, w, h, page);
 				}
 			}
-		else if( attribs & 8 ) {	// Weapon Build Pic
+		else
+            if( attribs & 8 ) 	// Weapon Build Pic
+            {
 			int x = gui_parser.PullAsInt( format( "gadget%d.common.xpos", i ) ) + x_offset;
 			int y = gui_parser.PullAsInt( format( "gadget%d.common.ypos", i ) ) + y_offset;
 			int w = gui_parser.PullAsInt( format( "gadget%d.common.width", i ) );
@@ -158,11 +177,13 @@ void UNIT_MANAGER::analyse(String filename,int unit_index)
 			String name = gui_parser.PullAsString( format( "gadget%d.common.name", i ) );
 
 			byte *gaf_file = HPIManager->PullFromHPI( format( "anims\\%s%d.gaf", unit_type[unit_index].Unitname, page + 1 ).c_str() );
-			if( gaf_file ) {
+			if(gaf_file)
+            {
 				BITMAP *img = read_gaf_img( gaf_file, get_gaf_entry_index( gaf_file, (char*)name.c_str() ), 0 );
 
 				GLuint tex = 0;
-				if( img ) {
+				if( img )
+                {
 					w = img->w;
 					h = img->h;
 					tex = gfx->make_texture( img );
@@ -178,7 +199,7 @@ void UNIT_MANAGER::analyse(String filename,int unit_index)
 		}
 }
 
-void UNIT_TYPE::show_info(float fade,GFX_FONT fnt)
+void UNIT_TYPE::show_info(float fade,GfxFont fnt)
 {
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);

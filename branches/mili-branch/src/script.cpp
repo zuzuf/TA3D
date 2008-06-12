@@ -1374,7 +1374,7 @@ void DRAW_LIST::add(DRAW_OBJECT &obj)
 	lua_program->UnLock();
 }
 
-void DRAW_LIST::draw(GFX_FONT &fnt)
+void DRAW_LIST::draw(GfxFont &fnt)
 {
 	glPushMatrix();
 	glScalef(SCREEN_W/640.0f,SCREEN_H/480.0f,1.0f);

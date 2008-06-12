@@ -93,22 +93,20 @@ void installOpenGLExtensions()
 {
 	MultiTexturing = allegro_gl_is_extension_supported("GL_ARB_multitexture");
 
-    # ifndef TA3D_PLATFORM_DARWIN
-	g_useTextureCompression = allegro_gl_is_extension_supported("GL_ARB_texture_compression");
-    # else
+    # ifdef TA3D_PLATFORM_DARWIN
     g_useTextureCompression = false;
+    # else
+	g_useTextureCompression = allegro_gl_is_extension_supported("GL_ARB_texture_compression");
     # endif
 	g_useStencilTwoSide = allegro_gl_is_extension_supported("GL_EXT_stencil_two_side");
 	g_useCopyDepthToColor = allegro_gl_is_extension_supported("GL_NV_copy_depth_to_color");
 	g_useProgram = allegro_gl_is_extension_supported("GL_ARB_shader_objects") && allegro_gl_is_extension_supported("GL_ARB_shading_language_100") && allegro_gl_is_extension_supported("GL_ARB_vertex_shader") && allegro_gl_is_extension_supported("GL_ARB_fragment_shader");
 	g_useFBO = allegro_gl_is_extension_supported("GL_EXT_framebuffer_object");
-
     #if defined TA3D_PLATFORM_WINDOWS && defined TA3D_PLATFORM_MSVC
     installOpenGLExtensionsForWindows();
     #endif
-	
     // Extension: multitexturing
-	if(glActiveTextureARB!=NULL && glMultiTexCoord2fARB!=NULL && glClientActiveTextureARB!=NULL)
+	if (glActiveTextureARB != NULL && glMultiTexCoord2fARB != NULL && glClientActiveTextureARB != NULL)
         MultiTexturing = true;
 }
 
@@ -124,20 +122,22 @@ GLhandleARB load_fragment_shader_memory(const char* data, int filesize)
 	glGetObjectParameterivARB(shader, GL_OBJECT_COMPILE_STATUS_ARB, &compiled);
 
 	if (compiled) 
-	{ // compilation successful!
+	{
+        // compilation successful!
 		Console->AddEntry("pixel shader successfully loaded");
 	}
 	else 
-	{ // compilation error! Check compiler log! 
+	{
+        // compilation error! Check compiler log! 
 		Console->AddEntry("pixel shader : compilation failed");
 		char log[10000];
 		GLsizei len=0;
 		glGetInfoLogARB(shader, 10000, &len, log);
 		Console->AddEntry("%s",log);
 	}
-
 	return shader;
 }
+
 
 GLhandleARB load_vertex_shader_memory(const char *data,int filesize)
 {
@@ -149,29 +149,32 @@ GLhandleARB load_vertex_shader_memory(const char *data,int filesize)
 	glGetObjectParameterivARB(shader, GL_OBJECT_COMPILE_STATUS_ARB, &compiled);
 
 	if (compiled) 
-	{ // compilation successful!
+	{
+        // compilation successful!
 		Console->AddEntry("vertex shader successfully loaded");
 	}
 	else 
-	{ // compilation error! Check compiler log! 
+	{
+        // compilation error! Check compiler log! 
 		Console->AddEntry("vertex shader : compilation failed");
 		char log[10000];
 		GLsizei len=0;
 		glGetInfoLogARB(shader, 10000, &len, log);
 		Console->AddEntry("%s",log);
 	}
-
 	return shader;
 }
+
 
 GLhandleARB load_fragment_shader(const char *filename)
 {
 	FILE *file=TA3D_OpenFile(filename,"rt");
 	GLhandleARB	shader = glCreateShaderObjectARB(GL_FRAGMENT_SHADER_ARB);
-	if(file==NULL)	{
+	if(!file)
+    {
 		Console->AddEntry("error: file %s doesn't exist!", filename);
 		return shader;
-		}
+	}
 	int filesize=FILE_SIZE(filename);
 
 	char *buf=(char*) malloc(filesize+1);
@@ -186,11 +189,13 @@ GLhandleARB load_fragment_shader(const char *filename)
 	glGetObjectParameterivARB(shader, GL_OBJECT_COMPILE_STATUS_ARB, &compiled);
 
 	if (compiled) 
-	{ // compilation successful!
+	{
+        // compilation successful!
 		Console->AddEntry("%s successfully loaded",filename);
 	}
 	else 
-	{ // compilation error! Check compiler log! 
+	{
+        // compilation error! Check compiler log! 
 		Console->AddEntry("%s : compilation failed",filename);
 		char log[10000];
 		GLsizei len=0;
@@ -204,7 +209,7 @@ GLhandleARB load_fragment_shader(const char *filename)
 
 GLhandleARB load_vertex_shader(const char* filename)
 {
-	FILE* file = TA3D_OpenFile(filename,"rt");
+	FILE* file = TA3D_OpenFile(filename, "rt");
 	GLhandleARB	shader = glCreateShaderObjectARB(GL_VERTEX_SHADER_ARB);
 	if(!file)
     {

@@ -87,7 +87,7 @@ public:
 
 	void add(DRAW_OBJECT &obj);
 
-	void draw(GFX_FONT &fnt);
+	void draw(GfxFont &fnt);
 };
 
 class LUA_PROGRAM : protected cCriticalSection

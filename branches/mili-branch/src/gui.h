@@ -31,7 +31,7 @@
 
 void glbutton(const String &caption,float x1,float y1,float x2,float y2,bool etat=false);
 
-const String msg_box(TA3D::INTERFACES::GFX_FONT fnt,const String &title,const String &msg,bool ask);
+const String msg_box(TA3D::INTERFACES::GfxFont fnt,const String &title,const String &msg,bool ask);
 
 //-------------- These are the GUI functions needed by the editors ----------------------------
 
@@ -111,7 +111,7 @@ bool WndAsk( const String &Title, const String &Msg, int ASW_TYPE=ASW_OKCANCEL )
 void Popup( const String &Title, const String &Msg );
 const String GetVal( const String &Title );
 
-extern TA3D::INTERFACES::GFX_FONT gui_font;
+extern TA3D::INTERFACES::GfxFont gui_font;
 extern float gui_font_h;
 
 extern bool	use_normal_alpha_function;

@@ -71,7 +71,7 @@ void glbutton(const String &caption,float x1,float y1,float x2,float y2,bool eta
 	glDisable(GL_BLEND);
 }
 
-const String msg_box(TA3D::INTERFACES::GFX_FONT fnt,const String &title,const String &msg,bool ask)
+const String msg_box(TA3D::INTERFACES::GfxFont fnt,const String &title,const String &msg,bool ask)
 {
 	gfx->set_2D_mode();
 	for(int i=0;i<2;i++) {
@@ -188,7 +188,7 @@ const String msg_box(TA3D::INTERFACES::GFX_FONT fnt,const String &title,const St
 
 //-------------- These are the GUI functions needed by the editors ----------------------------
 
-TA3D::INTERFACES::GFX_FONT gui_font;
+TA3D::INTERFACES::GfxFont gui_font;
 
 void GUIOBJ::create_ta_button( float X1, float Y1, const Vector< String > &Caption, const Vector< GLuint > &states, int nb_st)
 {
