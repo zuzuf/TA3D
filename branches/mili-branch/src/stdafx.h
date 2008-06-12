@@ -29,8 +29,6 @@
 #ifndef __TA3D_STDAFX_H__
 # define __TA3D_STDAFX_H__
 
-# pragma once
-
 # include <cstdio>
 # include <cstdlib>
 # include <map>
@@ -102,11 +100,6 @@
 #include "jpeg/ta3d_jpg.h"
 #include <math.h>
 
-// Cire:
-//   Malloc should not be platform specfic right???
-# ifndef TA3D_PLATFORM_DARWIN // TODO Should be completely removed
-#   include <malloc.h>
-# endif
 
 
 // Cire:

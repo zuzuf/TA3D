@@ -7,6 +7,7 @@
 # include <sys/stat.h>
 #endif 
 #include "TA3D_NameSpace.h"
+#include "logs/logs.h"
 
 
 
@@ -17,6 +18,8 @@ namespace TA3D
     String Paths::Savegames = "";
     String Paths::Logs = "";
     String Paths::Resources = "";
+    String Paths::Preferences = "";
+    String Paths::ConfigFile = "";
     #ifdef TA3D_PLATFORM_WINDOWS
     char Paths::Separator = '\\';
     String Paths::SeparatorAsString = "\\";
@@ -34,6 +37,7 @@ namespace TA3D
         Paths::Savegames = "savegame";
         Paths::Logs = "";
         Paths::Resources = "";
+        Paths::Preferences = "";
     }
 
     # endif
@@ -47,6 +51,7 @@ namespace TA3D
         Paths::Savegames = home + "/savegame";
         Paths::Logs = home + "/log";
         Paths::Resources = "";
+        Paths::Preferences = home;
     }
 
     # else // ifndef TA3D_PLATFORM_DARWIN
@@ -58,6 +63,7 @@ namespace TA3D
         Paths::Savegames = home + "/Library/Preferences/ta3d/savegames";
         Paths::Logs = home + "/Library/Logs/ta3d";
         Paths::Resources = "";
+        Paths::Preferences = home + "/Library/Preferences/ta3d";
     }
 
     # endif // ifndef TA3D_PLATFORM_DARWIN
@@ -77,11 +83,19 @@ namespace TA3D
         initForDarwin();
         #   endif
         # endif
+        ConfigFile = Preferences;
+        ConfigFile += Separator;
+        ConfigFile += "ta3d.fcg";
+        LOG_INFO("Folder: Preferences: `" << Preferences << "`");
+        LOG_INFO("Folder: Cache: `" << Caches << "`");
+        LOG_INFO("Folder: Savegames: `" << Savegames << "`");
+        LOG_INFO("Folder: Resources: `" << Resources << "`");
+        LOG_INFO("Folder: Logs: `" << Logs << "`");
         bool res = MakeDir(Caches) && MakeDir(Savegames)
-            && MakeDir(Logs) && MakeDir(Resources);
-        // TODO Use the logging system instead
+            && MakeDir(Logs) && MakeDir(Resources)
+            && MakeDir(Preferences);
         if (!res)
-            std::cerr << "Aborting now." << std::endl;
+            LOG_CRITICAL("Aborting now.");
         return res;
     }
 
@@ -104,19 +118,27 @@ namespace TA3D
         Vector<String> parts;
         ReadVectorString(parts, p, SeparatorAsString, false);
         String pth = "";
+        bool hasBeenCreated(false);
 
         Vector<String>::const_iterator i = parts.begin();
         for (; i != parts.end(); ++i)
         {
             pth += *i;
             pth += Separator;
-            if (!Exists(pth) && mkdir(pth.c_str(), 01755))
+            if (!Exists(pth))
             {
-                // TODO Use the logging system instead
-                std::cerr << "Impossible to create the folder `" << pth << "`" << std::endl;
-                return false;
+                if (mkdir(pth.c_str(), 01755))
+                {
+                    // TODO Use the logging system instead
+                    LOG_ERROR("Impossible to create the folder `" << pth << "`");
+                    return false;
+                }
+                else
+                    hasBeenCreated = true;
             }
         }
+        if (hasBeenCreated)
+            LOG_INFO("Created folder: `" << p << "`");
         return true;
     }
 

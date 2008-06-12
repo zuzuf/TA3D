@@ -38,6 +38,12 @@ namespace TA3D
         //! Folder for logs
         static String Logs;
 
+        //! Folder for preferences
+        static String Preferences;
+
+        //! Configuration file
+        static String ConfigFile;
+
 
     public:
         /*!

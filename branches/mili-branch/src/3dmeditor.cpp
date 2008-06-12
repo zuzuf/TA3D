@@ -32,6 +32,7 @@
 #include "particles.h"
 #include "gaf.h"
 #include "3do.h"			// Gestion des modèles 3D
+#include "paths.h"
 
 #include "3dmeditor.h"		// GUI functions for the editor
 
@@ -77,11 +78,11 @@ void LoadConfigFile( void )
     try { // we need to try catch this cause the config file may not exists
         // and if it don't exists it will throw an error on reading it, which
         // will be caught in our main function and the application will exit.
-        cfgFile = new TA3D::UTILS::cTAFileParser( TA3D_OUTPUT_DIR + "ta3d.cfg" );
+        cfgFile = new TA3D::UTILS::cTAFileParser(TA3D::Paths::ConfigFile);
     }
     catch( ... )
     {
-        printf("Opening config file %s failed\n", (TA3D_OUTPUT_DIR + "ta3d.cfg").c_str() );
+        printf("Opening config file %s failed\n", (TA3D::Paths::ConfigFile).c_str() );
         return;
     }
 

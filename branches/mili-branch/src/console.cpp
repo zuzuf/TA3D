@@ -31,6 +31,7 @@
 #include "stdafx.h"
 #include "TA3D_NameSpace.h"
 #include "console.h"
+#include "logs/logs.h"
 
 TA3D::TA3D_DEBUG::cConsole *TA3D::VARS::Console;
 
@@ -285,6 +286,7 @@ void cConsole::StartRecording( const FILE *file )
 
 void cConsole::AddEntry( String NewEntry )
 {
+    LOG_INFO(NewEntry);
 	EnterCS();
 
 	if( msec_timer - m_CurrentTimer >= 10 ) {
@@ -376,7 +378,12 @@ void cConsole::AddEntry(const char *txt, ...)		// Ajoute une nouvelle entrée
 	}
 
 	if( m_std_output )
-		printf( "%s\n", NewEntry.c_str() );
+    {
+        LOG_INFO(NewEntry);
+		//printf( "%s\n", NewEntry.c_str() );
+    }
+    else
+        LOG_DEBUG(NewEntry);
 
 	LeaveCS();
 }

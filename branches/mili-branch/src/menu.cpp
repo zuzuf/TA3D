@@ -38,6 +38,10 @@
 #include "gui.h"
 #include "taconfig.h"
 #include "restore.h"
+#include "misc/settings.h"
+#include "paths.h"
+
+
 
 void generate_script_from_mission( String Filename, cTAFileParser *ota_parser, int schema = 0 );	// To access the script generator in the 'script' module
 
@@ -48,11 +52,9 @@ using namespace TA3D::EXCEPTION;
 
 // Some functions from main.cpp used to deal with config file
 
-void LoadConfigFile( void );
-void makeBackup( const String FileName );
-void restoreBackup( const String FileName );
-void SaveConfigFile( void );
-void ReadFileParameter( void );
+
+void ReadFileParameter();
+
 
 void main_menu(void)
 {
@@ -765,8 +767,8 @@ void config_menu(void)
             if( time_out || config_area.get_state("config_confirm.b_cancel_changes" ) || key[KEY_ESC] )
             {
                 I_Msg( TA3D::TA3D_IM_GUI_MSG, (void*)("config_confirm.hide"), NULL, NULL );
-                restoreBackup( TA3D_OUTPUT_DIR + "ta3d.cfg" );
-                LoadConfigFile();
+                TA3D::Settings::Restore(TA3D::Paths::ConfigFile);
+                TA3D::Settings::Load();
                 done = true;
                 save = false;
                 lp_CONFIG->quickstart = false;

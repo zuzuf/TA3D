@@ -16,6 +16,15 @@ ENDIF( ${VA} EQUAL 0 )
 
 message( STATUS "CXXFLAGS SET to ${CMAKE_CXX_FLAGS}" )
 
+
+
+#
+# DEBUG
+#
+ADD_DEFINITIONS("-DLOGS_USE_DEBUG")
+
+
+
 #
 # Platform
 #
