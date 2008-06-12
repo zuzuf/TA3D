@@ -575,39 +575,47 @@ void config_menu(void)
     int res_bpp[100];
 
     GFX_MODE_LIST *mode_list = get_gfx_mode_list( GFX_OPENGL_FULLSCREEN );
-
-    for( int i = 0 ; i < mode_list->num_modes ; ++i)
+    if (mode_list)
     {
-        if( mode_list->mode[ i ].bpp == 32 )
+        for( int i = 0 ; i < mode_list->num_modes ; ++i)
         {
-            bool found = mode_list->mode[ i ].width < 640 || mode_list->mode[ i ].height < 480;
-            if( !found )
-                for( int e = 0 ; e < nb_res ; e++ )
-                    if( res_width[e] == mode_list->mode[ i ].width && res_height[e] == mode_list->mode[ i ].height )
-                    {
-                        found = true;
-                        break;
-                    }
-
-            if( mode_list->mode[ i ].height == 0 ||
-                ( mode_list->mode[ i ].width * 3 != 4 * mode_list->mode[ i ].height &&
-                  mode_list->mode[ i ].width * 9 != 16 * mode_list->mode[ i ].height &&
-                  mode_list->mode[ i ].width * 10 != 16 * mode_list->mode[ i ].height &&
-                  mode_list->mode[ i ].width * 4 != 5 * mode_list->mode[ i ].height ) )	found = true;
-
-            if( !found )
+            if( mode_list->mode[ i ].bpp == 32 )
             {
-                res_bpp[ nb_res ] = 16;
-                res_width[ nb_res ] = mode_list->mode[ i ].width;
-                res_height[ nb_res++ ] = mode_list->mode[ i ].height;
-                res_bpp[ nb_res ] = 32;
-                res_width[ nb_res ] = mode_list->mode[ i ].width;
-                res_height[ nb_res++ ] = mode_list->mode[ i ].height;
+                bool found = mode_list->mode[ i ].width < 640 || mode_list->mode[ i ].height < 480;
+                if( !found )
+                {
+                    for( int e = 0 ; e < nb_res ; e++ )
+                    {
+                        if( res_width[e] == mode_list->mode[ i ].width && res_height[e] == mode_list->mode[ i ].height )
+                        {
+                            found = true;
+                            break;
+                        }
+                    }
+                }
+
+                if( mode_list->mode[ i ].height == 0 ||
+                    ( mode_list->mode[ i ].width * 3 != 4 * mode_list->mode[ i ].height &&
+                      mode_list->mode[ i ].width * 9 != 16 * mode_list->mode[ i ].height &&
+                      mode_list->mode[ i ].width * 10 != 16 * mode_list->mode[ i ].height &&
+                      mode_list->mode[ i ].width * 4 != 5 * mode_list->mode[ i ].height ) )
+                {
+                    found = true;
+                }
+
+                if( !found )
+                {
+                    res_bpp[ nb_res ] = 16;
+                    res_width[ nb_res ] = mode_list->mode[ i ].width;
+                    res_height[ nb_res++ ] = mode_list->mode[ i ].height;
+                    res_bpp[ nb_res ] = 32;
+                    res_width[ nb_res ] = mode_list->mode[ i ].width;
+                    res_height[ nb_res++ ] = mode_list->mode[ i ].height;
+                }
             }
         }
+        destroy_gfx_mode_list( mode_list );
     }
-
-    destroy_gfx_mode_list( mode_list );
 
     config_area.set_state("*.showfps", lp_CONFIG->showfps);
     switch( (int)lp_CONFIG->fps_limit )

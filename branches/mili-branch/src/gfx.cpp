@@ -28,6 +28,7 @@
 #include "gaf.h"
 #include "gfx.h"
 #include "misc/paths.h"
+#include "logs/logs.h"
 
 #include <allegro/internal/aintern.h>
 
@@ -163,7 +164,10 @@ GFX::GFX()
         Console->AddEntry("renderer: %s", glGetString( GL_RENDERER ) );
         Console->AddEntry("version: %s", glGetString( GL_VERSION ) );
         if( ati_workaround )
+        {
             Console->AddEntry("WARNING: ATI card detected! using workarounds for ATI cards");
+            LOG_WARNING("WARNING: ATI card detected! using workarounds for ATI cards");
+        }
 
         Console->stdout_off();
     }
