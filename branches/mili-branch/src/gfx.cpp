@@ -26,7 +26,8 @@
 #include "glfunc.h"
 #include "gui.h"
 #include "gaf.h"
-//#include "gfx.h"			// Included in TA3D_NameSpace.h
+#include "gfx.h"
+#include "paths.h"
 
 #include <allegro/internal/aintern.h>
 
@@ -806,20 +807,20 @@ GLuint	GFX::load_texture_mask( String file, int level, byte filter_type, uint32 
 
 GLuint	GFX::load_texture_from_cache( String file, byte filter_type, uint32 *width, uint32 *height, bool clamp )
 {
-    if( ati_workaround || !lp_CONFIG->use_texture_cache )	return 0;
+    if(ati_workaround || !lp_CONFIG->use_texture_cache)
+        return 0;
 
-    file = TA3D_OUTPUT_DIR + "cache/" + file;
+    file = TA3D::Paths::Caches + file;
 
-    if(TA3D::FileExists( file ))
+    if(TA3D::Paths::Exists(file))
     {
-        FILE *cache_file = TA3D_OpenFile( file, "rb" );
-
+        FILE *cache_file = TA3D_OpenFile(file, "rb");
         uint32 mod_hash;
+        fread(&mod_hash, sizeof( mod_hash ), 1, cache_file);
 
-        fread( &mod_hash, sizeof( mod_hash ), 1, cache_file );
-
-        if( mod_hash != hash_string( TA3D_CURRENT_MOD ) ) {		// Doesn't correspond to current mod
-            fclose( cache_file );
+        if( mod_hash != hash_string( TA3D_CURRENT_MOD)) // Doesn't correspond to current mod
+        {
+            fclose(cache_file);
             return 0;
         }
 
@@ -901,7 +902,7 @@ void	GFX::save_texture_to_cache( String file, GLuint tex, uint32 width, uint32 h
 {
     if( ati_workaround || !lp_CONFIG->use_texture_cache )	return;
 
-    file = TA3D_OUTPUT_DIR + "cache/" + file;
+    file = TA3D::Paths::Caches + file;
 
     int rw = texture_width( tex ), rh = texture_height( tex );		// Also binds tex
 
@@ -935,7 +936,8 @@ void	GFX::save_texture_to_cache( String file, GLuint tex, uint32 width, uint32 h
     glGetTexLevelParameteriv( GL_TEXTURE_2D, 0, GL_TEXTURE_INTERNAL_FORMAT, &internal_format );
     fwrite( &internal_format, sizeof( GLint ), 1, cache_file );
 
-    for( int lod = 0 ; lod  < lod_max ; lod++ ) {
+    for( int lod = 0 ; lod  < lod_max ; lod++ )
+    {
         glGetTexLevelParameteriv( GL_TEXTURE_2D, lod, GL_TEXTURE_COMPRESSED_IMAGE_SIZE_ARB, &size );
         glGetTexLevelParameteriv( GL_TEXTURE_2D, lod, GL_TEXTURE_INTERNAL_FORMAT, &internal_format );
         glGetCompressedTexImageARB( GL_TEXTURE_2D, lod, img );
@@ -949,6 +951,8 @@ void	GFX::save_texture_to_cache( String file, GLuint tex, uint32 width, uint32 h
     fclose( cache_file );
 }
 
+
+
 GLuint	GFX::load_masked_texture(String file, String mask, byte filter_type )
 {
     if( !exists( file.c_str() ) )	return 0;		// The file doesn't exist
@@ -960,14 +964,17 @@ GLuint	GFX::load_masked_texture(String file, String mask, byte filter_type )
     BITMAP *alpha;
     set_color_depth(8);
     alpha=load_bitmap( mask.c_str(), NULL );
-    if( alpha == NULL )	{
+    if(! alpha)
+    {
         destroy_bitmap( alpha );
-        return 0;					// Operation failed
+        return 0;
     }
     set_color_depth(32);
-    for(int y=0;y<bmp->h;y++)
+    for(int y = 0; y < bmp->h; ++y)
+    {
         for(int x=0;x<bmp->w;x++)
             bmp->line[y][(x<<2)+3]=alpha->line[y][x];
+    }
     allegro_gl_use_alpha_channel(true);
     if(g_useTextureCompression)
         allegro_gl_set_texture_format(GL_COMPRESSED_RGBA_ARB);
@@ -980,7 +987,9 @@ GLuint	GFX::load_masked_texture(String file, String mask, byte filter_type )
     return gl_tex;
 }
 
-uint32	GFX::texture_width( const GLuint &gltex )
+
+uint32
+GFX::texture_width(const GLuint& gltex)
 {
     GLint width;
     glBindTexture( GL_TEXTURE_2D, gltex);
@@ -988,7 +997,8 @@ uint32	GFX::texture_width( const GLuint &gltex )
     return width;
 }
 
-uint32	GFX::texture_height( const GLuint &gltex )
+uint32
+GFX::texture_height(const GLuint& gltex)
 {
     GLint height;
     glBindTexture( GL_TEXTURE_2D, gltex);
@@ -996,14 +1006,17 @@ uint32	GFX::texture_height( const GLuint &gltex )
     return height;
 }
 
-void GFX::destroy_texture(GLuint &gltex)
+
+void
+GFX::destroy_texture(GLuint& gltex)
 {
     if( gltex )						// Test if the texture exists
         glDeleteTextures(1,&gltex);
     gltex = 0;						// The texture is destroyed
 }
 
-GLuint	GFX::make_texture_from_screen( byte filter_type)				// Copy pixel data from screen to a texture
+GLuint
+GFX::make_texture_from_screen( byte filter_type)				// Copy pixel data from screen to a texture
 {
     BITMAP *tmp = create_bitmap_ex(32, SCREEN_W, SCREEN_H);
     GLuint gltex = make_texture(tmp, filter_type);
@@ -1015,7 +1028,8 @@ GLuint	GFX::make_texture_from_screen( byte filter_type)				// Copy pixel data fr
     return gltex;
 }
 
-void GFX::set_alpha_blending()
+void
+GFX::set_alpha_blending()
 {
     glPushAttrib(GL_ENABLE_BIT);					// Push OpenGL attribs to pop them later when we unset alpha blending
     glEnable(GL_BLEND);

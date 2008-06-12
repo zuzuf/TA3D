@@ -6,6 +6,7 @@
 
 #include "stdafx.h"
 #include "TA3D_NameSpace.h"
+#include "paths.h"
 
 
 #if defined TA3D_PLATFORM_WINDOWS
@@ -540,21 +541,26 @@ void cHPIHandler::PutInCache( const String &FileName, uint32 FileSize, byte *dat
     String cacheable_filename = Lowercase( FileName );
 
     for( int i = 0 ; i < cacheable_filename.size() ; i++ )
+    {
         if( cacheable_filename[ i ] == '/' )
             cacheable_filename[ i ] = 'S';
+    }
 
-    String cache_filename = TA3D_OUTPUT_DIR + "cache/" + cacheable_filename + ".dat";		// Save file in disk cache
+    String cache_filename = TA3D::Paths::Caches + cacheable_filename + ".dat";		// Save file in disk cache
     FILE *cache_file = TA3D_OpenFile( cache_filename, "wb" );
-    if( cache_file ) {
+    if( cache_file )
+    {
         fwrite( data, FileSize, 1, cache_file );
         fclose( cache_file );
     }
 
-    if( FileSize >= 0x100000 )		return;			// Don't store big files to prevent filling memory with cache data ;)
+    if( FileSize >= 0x100000 )	// Don't store big files to prevent filling memory with cache data ;)
+        return;
 
     int idx = m_file_cache->size();
 
-    if( m_file_cache->size() >= 10 ) {				// Cycle the data within the vector
+    if( m_file_cache->size() >= 10 ) // Cycle the data within the vector
+    {
         free( (*m_file_cache)[ 0 ].name );
         free( (*m_file_cache)[ 0 ].data );
         for( int i = 0 ; i < 9 ; i++ )
@@ -571,7 +577,10 @@ void cHPIHandler::PutInCache( const String &FileName, uint32 FileSize, byte *dat
     memcpy( (*m_file_cache)[ idx ].data, data, FileSize );
 }
 
-byte *cHPIHandler::IsInDiskCache(const String& FileName, uint32 *p_FileSize)
+
+
+byte*
+cHPIHandler::IsInDiskCache(const String& FileName, uint32 *p_FileSize)
 {
     // May be in cache but doesn't use cache (ie: campaign script)
     if(SearchString( FileName, ".lua", true) >= 0)
@@ -584,7 +593,7 @@ byte *cHPIHandler::IsInDiskCache(const String& FileName, uint32 *p_FileSize)
             *i = 'S';
     }
 
-    String cache_filename = TA3D_OUTPUT_DIR + "cache/" + cacheable_filename + ".dat";
+    String cache_filename = TA3D::Paths::Caches + cacheable_filename + ".dat";
 
     if( TA3D::FileExists(cache_filename)) // Check disk cache
     {
@@ -634,12 +643,15 @@ TA3D::UTILS::HPI::cHPIHandler::CACHEFILEDATA *cHPIHandler::IsInCache( const Stri
 byte *cHPIHandler::PullFromHPI( const std::string &FileName , uint32 *file_length )
 {
     String UNIX_filename = m_Path + FileName;
-    for( uint16 i = 0 ; i < UNIX_filename.size() ; i++ )
+    for(uint16 i = 0 ; i < UNIX_filename.size() ; ++i)
+    {
         if( UNIX_filename[i] == '\\' )
             UNIX_filename[i] = '/';
+    }
 
     CACHEFILEDATA *cache_result = IsInCache( UNIX_filename );		// Look for it in the cache
-    if( cache_result ) {
+    if(cache_result)
+    {
         byte *data = (byte*) malloc( cache_result->length );
         memcpy( data, cache_result->data, cache_result->length );
         if( file_length )
@@ -650,13 +662,17 @@ byte *cHPIHandler::PullFromHPI( const std::string &FileName , uint32 *file_lengt
     uint32	FileSize;
 
     UNIX_filename = m_Path + TA3D_CURRENT_MOD + FileName;
-    for( uint16 i = 0 ; i < UNIX_filename.size() ; i++ )
+    for( uint16 i = 0 ; i < UNIX_filename.size() ; ++i)
+    {
         if( UNIX_filename[i] == '\\' )
             UNIX_filename[i] = '/';
+    }
 
-    if( exists( UNIX_filename.c_str() ) ) {			// Current mod has priority
+    if(exists( UNIX_filename.c_str() ) ) // Current mod has priority
+    {
         FILE *src = TA3D_OpenFile( UNIX_filename.c_str(), "rb" );
-        if( src ) {
+        if( src )
+        {
             FileSize = FILE_SIZE( UNIX_filename.c_str() );
             byte *data = (byte*) malloc( FileSize + 1 );
             fread( data, FileSize, 1, src );
@@ -669,16 +685,18 @@ byte *cHPIHandler::PullFromHPI( const std::string &FileName , uint32 *file_lengt
         }
     }
 
+    byte* data = IsInDiskCache( UNIX_filename, &FileSize );
+    if( data )
     {
-        byte 	*data = IsInDiskCache( UNIX_filename, &FileSize );
-        if( data ) {
-            if( file_length )	*file_length = FileSize;
-            return data;
-        }
+        if( file_length )
+            *file_length = FileSize;
+        return data;
     }
 
+
     HPIITEM *iterFind = m_Archive->Find( Lowercase( FileName ) );
-    if( iterFind != NULL && iterFind->hfd->priority ) {		// Prioritary file!!
+    if(iterFind && iterFind->hfd->priority) // Prioritary file!!
+    {
         byte *data = DecodeFileToMem( iterFind , &FileSize );
         PutInCache( UNIX_filename, FileSize, data );
         if( file_length )
@@ -687,13 +705,17 @@ byte *cHPIHandler::PullFromHPI( const std::string &FileName , uint32 *file_lengt
     }
 
     UNIX_filename = m_Path + FileName;
-    for( uint16 i = 0 ; i < UNIX_filename.size() ; i++ )
+    for( uint16 i = 0 ; i < UNIX_filename.size() ; ++i)
+    {
         if( UNIX_filename[i] == '\\' )
             UNIX_filename[i] = '/';
+    }
 
-    if( exists( UNIX_filename.c_str() ) ) {
+    if( exists( UNIX_filename.c_str() ) )
+    {
         FILE *src = TA3D_OpenFile( UNIX_filename.c_str(), "rb" );
-        if( src ) {
+        if( src )
+        {
             FileSize = FILE_SIZE( UNIX_filename.c_str() );
             byte *data = (byte*) malloc( FileSize + 1 );
             fread( data, FileSize, 1, src );
@@ -714,7 +736,8 @@ byte *cHPIHandler::PullFromHPI( const std::string &FileName , uint32 *file_lengt
         }
     }
 
-    if( iterFind != NULL ) {
+    if( iterFind != NULL )
+    {
         byte *data = DecodeFileToMem( iterFind , &FileSize );
         PutInCache( UNIX_filename, FileSize, data );
         if( file_length )
@@ -725,16 +748,23 @@ byte *cHPIHandler::PullFromHPI( const std::string &FileName , uint32 *file_lengt
     return NULL;
 }
 
-byte *cHPIHandler::PullFromHPI_zone( const std::string &FileName , uint32 start , uint32 length , uint32 *file_length )
+
+
+byte*
+cHPIHandler::PullFromHPI_zone( const std::string &FileName , uint32 start , uint32 length , uint32 *file_length )
 {
     String UNIX_filename = m_Path + TA3D_CURRENT_MOD + FileName;
-    for( uint16 i = 0 ; i < UNIX_filename.size() ; i++ )
+    for( uint16 i = 0 ; i < UNIX_filename.size() ; ++i)
+    {
         if( UNIX_filename[i] == '\\' )
             UNIX_filename[i] = '/';
+    }
 
-    if( exists( UNIX_filename.c_str() ) ) {			// Current mod has priority
+    if( exists( UNIX_filename.c_str() ) ) // Current mod has priority
+    {
         FILE *src = TA3D_OpenFile( UNIX_filename.c_str(), "rb" );
-        if( src ) {
+        if( src )
+        {
             byte *data = (byte*) malloc( FILE_SIZE( UNIX_filename.c_str() ) + 1 );
             fread( data, FILE_SIZE( UNIX_filename.c_str() ), 1, src );
             data[ FILE_SIZE( UNIX_filename.c_str() ) ] = 0;				// NULL terminated
@@ -751,12 +781,16 @@ byte *cHPIHandler::PullFromHPI_zone( const std::string &FileName , uint32 start 
 
     UNIX_filename = m_Path + FileName;
     for( uint16 i = 0 ; i < UNIX_filename.size() ; i++ )
+    {
         if( UNIX_filename[i] == '\\' )
             UNIX_filename[i] = '/';
+    }
 
-    if( exists( UNIX_filename.c_str() ) ) {
+    if( exists( UNIX_filename.c_str() ) )
+    {
         FILE *src = TA3D_OpenFile( UNIX_filename.c_str(), "rb" );
-        if( src ) {
+        if( src )
+        {
             byte *data = (byte*) malloc( FILE_SIZE( UNIX_filename.c_str() ) + 1 );
             fread( data, FILE_SIZE( UNIX_filename.c_str() ), 1, src );
             data[ FILE_SIZE( UNIX_filename.c_str() ) ] = 0;				// NULL terminated
@@ -770,24 +804,33 @@ byte *cHPIHandler::PullFromHPI_zone( const std::string &FileName , uint32 start 
     return ( (iterFind != NULL) ? DecodeFileToMem_zone( iterFind , start , length , file_length ) : NULL );
 }
 
-bool cHPIHandler::Exists( const std::string &FileName )
+
+
+bool
+cHPIHandler::Exists( const std::string &FileName )
 {
     String UNIX_filename = m_Path + TA3D_CURRENT_MOD + FileName;
-    for( uint16 i = 0 ; i < UNIX_filename.size() ; i++ )
+    for( uint16 i = 0 ; i < UNIX_filename.size() ; ++i)
+    {
         if( UNIX_filename[i] == '\\' )
             UNIX_filename[i] = '/';
+    }
     if( exists( UNIX_filename.c_str() ) )	return true;
 
     UNIX_filename = m_Path + FileName;
     for( uint16 i = 0 ; i < UNIX_filename.size() ; i++ )
+    {
         if( UNIX_filename[i] == '\\' )
             UNIX_filename[i] = '/';
+    }
     if( exists( UNIX_filename.c_str() ) )	return true;
 
     HPIITEM *iterFind = m_Archive->Find( Lowercase( FileName ) );
 
     return (iterFind != NULL);
 }
+
+
 
 uint32 cHPIHandler::GetFilelist( const std::string &Search, std::list<std::string> *li )
 {
@@ -799,13 +842,17 @@ uint32 cHPIHandler::GetFilelist( const std::string &Search, std::list<std::strin
         if( UNIX_search[i] == '\\' )
             UNIX_search[i] = '/';
 
-    if (al_findfirst(UNIX_search.c_str(), &info, FA_RDONLY | FA_ARCH ) == 0) {
+    if (al_findfirst(UNIX_search.c_str(), &info, FA_RDONLY | FA_ARCH ) == 0)
+    {
         int last = -1;
         for( uint16 i = 0 ; i < UNIX_search.size() ; i++ )
-            if( UNIX_search[i] == '/' ) {
+        {
+            if( UNIX_search[i] == '/' )
+            {
                 UNIX_search[i] = '\\';
                 last = i;
             }
+        }
         if( last >= 0 )
             UNIX_search.resize( last + 1 );
         else
@@ -822,19 +869,26 @@ uint32 cHPIHandler::GetFilelist( const std::string &Search, std::list<std::strin
         list_size = li->size();
     }
 
-    if( TA3D_CURRENT_MOD != "" ) {
+    if( TA3D_CURRENT_MOD != "" )
+    {
         UNIX_search = m_Path + TA3D_CURRENT_MOD + Search;
         for( uint16 i = 0 ; i < UNIX_search.size() ; i++ )
+        {
             if( UNIX_search[i] == '\\' )
                 UNIX_search[i] = '/';
+        }
 
-        if (al_findfirst( UNIX_search.c_str(), &info, FA_RDONLY | FA_ARCH ) == 0) {
+        if (al_findfirst( UNIX_search.c_str(), &info, FA_RDONLY | FA_ARCH ) == 0)
+        {
             int last = -1;
             for( uint16 i = 0 ; i < UNIX_search.size() ; i++ )
-                if( UNIX_search[i] == '/' ) {
+            {
+                if( UNIX_search[i] == '/' )
+                {
                     UNIX_search[i] = '\\';
                     last = i;
                 }
+            }
             if( last >= 0 )
                 UNIX_search.resize( last + 1 );
             else
@@ -855,11 +909,16 @@ uint32 cHPIHandler::GetFilelist( const std::string &Search, std::list<std::strin
     return list_size;
 }
 
-void TA3D_FILE::topen( const String &filename )
+
+
+
+void
+TA3D_FILE::topen( const String &filename )
 {
     destroy();
 
-    if( HPIManager == NULL ) {
+    if (NULL == HPIManager)
+    {
         Console->AddEntry( "Warning: TA3D_FILE used without HPIManager set!! No file opened" );
         return;
     }
@@ -867,37 +926,49 @@ void TA3D_FILE::topen( const String &filename )
     String win_filename;
 
     for( uint16 i = 0 ; i < filename.size() ; i++ )
+    {
         if( filename[ i ] == '/' )
             win_filename += '\\';
         else
             win_filename += filename[ i ];
+    }
 
     data = HPIManager->PullFromHPI( win_filename, &length );
     pos = 0;
 }
 
-char *TA3D_FILE::tgets( void *buf, int size )
+
+char*
+TA3D_FILE::tgets( void *buf, int size )
 {
-    if( data == NULL || pos < 0 || pos >= length )	return NULL;
-    for( char *out_buf = (char*)buf; size > 1 ; size-- ) {
+    if( data == NULL || pos < 0 || pos >= length )
+        return NULL;
+    for( char *out_buf = (char*)buf; size > 1 ; --size)
+    {
         *out_buf = tgetc();
-        if( !*out_buf || *out_buf == '\n' || *out_buf == '\r' )	{
+        if( !*out_buf || *out_buf == '\n' || *out_buf == '\r' )
+        {
             out_buf++;
             *out_buf = 0;
             return (char*)buf;
         }
-        out_buf++;
+        ++out_buf;
     }
     return NULL;
 }
 
-TA3D_FILE	*TA3D::UTILS::HPI::ta3d_fopen( String filename )
+
+
+TA3D_FILE*
+TA3D::UTILS::HPI::ta3d_fopen( String filename )
 {
     TA3D_FILE *file = new TA3D_FILE;
 
-    if( file ) {
+    if( file )
+    {
         file->topen( filename );
-        if( !file->isopen() ) {
+        if( !file->isopen() )
+        {
             delete file;
             file = NULL;
         }
@@ -906,54 +977,66 @@ TA3D_FILE	*TA3D::UTILS::HPI::ta3d_fopen( String filename )
     return file;
 }
 
-void		TA3D::UTILS::HPI::ta3d_fclose( TA3D_FILE *file )
+
+
+void
+TA3D::UTILS::HPI::ta3d_fclose( TA3D_FILE *file )
 {
     if( file )
         delete file;
 }
 
-char		TA3D::UTILS::HPI::ta3d_fgetc( TA3D_FILE *file )
+
+char
+TA3D::UTILS::HPI::ta3d_fgetc( TA3D_FILE *file )
 {
     if( file )
         return file->tgetc();
-    else
-        return 0;
+    return 0;
 }
 
-int		TA3D::UTILS::HPI::ta3d_fread( void *buf, int size, TA3D_FILE *file )
+
+int
+TA3D::UTILS::HPI::ta3d_fread( void *buf, int size, TA3D_FILE *file)
 {
     if( file )
         return file->tread( buf, size );
     return 0;
 }
 
-int		TA3D::UTILS::HPI::ta3d_fread( void *buf, int size, int repeat, TA3D_FILE *file )
+int
+TA3D::UTILS::HPI::ta3d_fread( void *buf, int size, int repeat, TA3D_FILE *file )
 {
     if( file )
         return file->tread( buf, size * repeat );
     return 0;
 }
 
-char		*TA3D::UTILS::HPI::ta3d_fgets( void *buf, int size, TA3D_FILE *file )
+char*
+TA3D::UTILS::HPI::ta3d_fgets( void *buf, int size, TA3D_FILE *file )
 {
     if( file )
         return file->tgets( buf, size );
     return NULL;
 }
 
-void		TA3D::UTILS::HPI::ta3d_fseek( int offset, TA3D_FILE *file )
+void
+TA3D::UTILS::HPI::ta3d_fseek( int offset, TA3D_FILE *file )
 {
     if( file )
         file->tseek( offset );
 }
 
-bool		TA3D::UTILS::HPI::ta3d_feof( TA3D_FILE *file )
+bool
+TA3D::UTILS::HPI::ta3d_feof(TA3D_FILE *file)
 {
     return file ? file->teof() : true;
 }
 
-int			TA3D::UTILS::HPI::ta3d_fsize( TA3D_FILE *file )
+int
+TA3D::UTILS::HPI::ta3d_fsize(TA3D_FILE *file)
 {
     return file ? file->tsize() : 0;
 }
+
 

@@ -23,6 +23,7 @@
 #include "stdafx.h"
 #include "TA3D_NameSpace.h"
 #include "TA3D_Exception.h"
+#include "paths.h"
 
 #ifdef TA3D_PLATFORM_LINUX
 	#include <errno.h>
@@ -112,13 +113,13 @@ namespace TA3D
 		{
 			String szErrReport;
 			std::ofstream   m_File;
-			String FileName = TA3D_OUTPUT_DIR + "error.txt";
+			String FileName = TA3D::Paths::Logs + "error.log";
 			bool m_Logged = false;
 
 			set_uformat( U_ASCII );		// Switch to good string format
 
 			m_File.open( FileName.c_str(), std::ios::out | std::ios::trunc );
-			if( m_File.is_open() )
+			if( m_File.is_open())
 			{
 				m_Logged = true;
 				szErrReport = format( "***** Error Report *****\n%s", g_szGuardLog.c_str() );

@@ -34,11 +34,16 @@
 #include "script.h"               // The game script manager
 #include "ai.h"                  // AI Engine
 #include "fx.h"					// Special FX engine
+#include "paths.h"
 
 using namespace TA3D::EXCEPTION;
 
+
+
 namespace TA3D
 {
+
+
 	cTA3D_Engine::cTA3D_Engine(void)
 	{
 		GuardEnter( cTA3D_Engine Constructor );
@@ -61,7 +66,7 @@ namespace TA3D
 		InterfaceManager = new cInterfaceManager();
 
 		GuardInfo( "Creating logging Interface, and attaching it to Interface Manager" );
-		m_lpcLogger = new TA3D::INTERFACES::cLogger( TA3D_OUTPUT_DIR + "ta3d.log", false );
+		m_lpcLogger = new TA3D::INTERFACES::cLogger(TA3D::Paths::Logs + "ta3d.log", false );
 
 		GuardInfo( "Logging some stuff to ta3d.log" );
 
@@ -113,12 +118,13 @@ namespace TA3D
 			}
 		catch( ... )	{}
 
-		if( !HPIManager->Exists( "gamedata\\sidedata.tdf" ) || !HPIManager->Exists( "gamedata\\allsound.tdf" ) || !HPIManager->Exists( "gamedata\\sound.tdf" ) ) {
+		if( !HPIManager->Exists( "gamedata\\sidedata.tdf" ) || !HPIManager->Exists( "gamedata\\allsound.tdf" ) || !HPIManager->Exists( "gamedata\\sound.tdf" ) )
+        {
 			set_uformat(U_UTF8);   // fixed size, 8-bit ASCII characters
 			allegro_message( TRANSLATE("RESOURCES ERROR").c_str() );
 			set_uformat(U_ASCII);   // fixed size, 8-bit ASCII characters
 			throw( "resources missing!!" );
-			}
+		}
 
 		GuardInfo( "Creating Sound & Music Interface." );
 		sound_manager = new TA3D::INTERFACES::cAudio ( 1.0f, 0.0f, 0.0f );
@@ -126,11 +132,12 @@ namespace TA3D
 		sound_manager->LoadTDFSounds( true );
 		sound_manager->LoadTDFSounds( false );
 
-		if( !sound_manager->IsFMODRunning() && !lp_CONFIG->quickstart ) {
+		if( !sound_manager->IsFMODRunning() && !lp_CONFIG->quickstart )
+        {
 			set_uformat(U_UTF8);   // fixed size, 8-bit ASCII characters
 			allegro_message( TRANSLATE("FMOD WARNING").c_str() );
 			set_uformat(U_ASCII);   // fixed size, 8-bit ASCII characters
-			}
+		}
 
 		GuardInfo( "Creating GFX Interface." );				// Don't try to start sound before gfx, if we have to display the warning message while in fullscreen
 		TA3D::VARS::gfx = new TA3D::INTERFACES::GFX;		// TA3D's main window might lose focus and allegro's message not be shown ...
@@ -184,11 +191,12 @@ namespace TA3D
 		for( int i = 0 ; i < 256 ; i++ )
 			ascii_to_scancode[ i ] = 0;
 
-		for( int i = 0 ; i < KEY_MAX ; i++ ) {
+		for( int i = 0 ; i < KEY_MAX ; ++i)
+        {
 			int ascii_code = scancode_to_ascii( i );
 			if( ascii_code >= 0 && ascii_code < 256 )
 				ascii_to_scancode[ ascii_code ] = i;
-			}
+		}
 
 		GuardLeave();
 	}
@@ -245,12 +253,8 @@ namespace TA3D
 	int cTA3D_Engine::Run()
 	{
 		Init();
-
 		while( !m_SignaledToStop )
-		{
 			rest( 100 );
-		}
-
 		return 1;
 	}
 	void cTA3D_Engine::SignalExitThread()
@@ -258,5 +262,6 @@ namespace TA3D
 		m_SignaledToStop = true;
 		return;
 	}
+
 
 } // namespace TA3D 

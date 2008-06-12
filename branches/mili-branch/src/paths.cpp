@@ -1,6 +1,3 @@
-
-# ifdef TA3D_PLATFORM_USE_NEW_PATHS_TOOLS // TODO Must be remove
-
 #include "paths.h"
 #ifndef TA3D_PLATFORM_WINDOWS
 # include <stdlib.h>
@@ -20,6 +17,7 @@ namespace TA3D
     String Paths::Resources = "";
     String Paths::Preferences = "";
     String Paths::ConfigFile = "";
+    String Paths::Screenshots = "";
     #ifdef TA3D_PLATFORM_WINDOWS
     char Paths::Separator = '\\';
     String Paths::SeparatorAsString = "\\";
@@ -33,11 +31,12 @@ namespace TA3D
 
     static void initForWindows()
     {
-        Paths::Caches = "cache";
-        Paths::Savegames = "savegame";
+        Paths::Caches = "cache\\";
+        Paths::Savegames = "savegame\\";
         Paths::Logs = "";
         Paths::Resources = "";
         Paths::Preferences = "";
+        Paths::Screenshots = "screenshots\\";
     }
 
     # endif
@@ -46,12 +45,13 @@ namespace TA3D
     static void initForDefaultUnixes()
     {
         String home = getenv("HOME");
-        home += "/.ta3d";
-        Paths::Caches = home + "/cache";
-        Paths::Savegames = home + "/savegame";
-        Paths::Logs = home + "/log";
+        home += "/.ta3d/";
+        Paths::Caches = home + "cache/";
+        Paths::Savegames = home + "savegame/";
+        Paths::Logs = home + "log/";
         Paths::Resources = "";
         Paths::Preferences = home;
+        Paths::Screenshots = home + "screenshots/";
     }
 
     # else // ifndef TA3D_PLATFORM_DARWIN
@@ -59,11 +59,12 @@ namespace TA3D
     static void initForDarwin()
     {
         String home = getenv("HOME");
-        Paths::Caches = home + "/Library/Caches/ta3d";
-        Paths::Savegames = home + "/Library/Preferences/ta3d/savegames";
-        Paths::Logs = home + "/Library/Logs/ta3d";
+        Paths::Caches = home + "/Library/Caches/ta3d/";
+        Paths::Savegames = home + "/Library/Preferences/ta3d/savegames/";
+        Paths::Logs = home + "/Library/Logs/ta3d/";
         Paths::Resources = "";
-        Paths::Preferences = home + "/Library/Preferences/ta3d";
+        Paths::Preferences = home + "/Library/Preferences/ta3d/";
+        Paths::Screenshots = home + "/Downloads/";
     }
 
     # endif // ifndef TA3D_PLATFORM_DARWIN
@@ -90,10 +91,12 @@ namespace TA3D
         LOG_INFO("Folder: Cache: `" << Caches << "`");
         LOG_INFO("Folder: Savegames: `" << Savegames << "`");
         LOG_INFO("Folder: Resources: `" << Resources << "`");
+        LOG_INFO("Folder: Screenshots: `" << Screenshots << "`");
         LOG_INFO("Folder: Logs: `" << Logs << "`");
         bool res = MakeDir(Caches) && MakeDir(Savegames)
             && MakeDir(Logs) && MakeDir(Resources)
-            && MakeDir(Preferences);
+            && MakeDir(Preferences)
+            && MakeDir(Screenshots);
         if (!res)
             LOG_CRITICAL("Aborting now.");
         return res;
@@ -147,4 +150,3 @@ namespace TA3D
 } // namespace TA3D
 
 
-# endif // TA3D_PLATFORM_USE_NEW_PATHS_TOOLS

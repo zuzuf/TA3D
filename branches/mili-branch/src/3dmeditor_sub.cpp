@@ -30,10 +30,11 @@
 #include "gaf.h"
 #include "3do.h"			// Gestion des modèles 3D
 #include "3ds.h"			// The 3DS model loader
-
 #include "taconfig.h"		// Configuration
-
 #include "3dmeditor.h"
+#include "paths.h"
+
+
 
 int cur_part=0;
 bool ClickOnExit=false;
@@ -942,7 +943,7 @@ void init()
 
 	TA3D::VARS::gfx = new TA3D::INTERFACES::GFX;       // Creates the gfx object
 
-	TA3D::VARS::Console=new TA3D::TA3D_DEBUG::cConsole( TA3D_OUTPUT_DIR + "Console3DM.log" );   // Create console object, this will be dropped soon
+	TA3D::VARS::Console=new TA3D::TA3D_DEBUG::cConsole(TA3D::Paths::Logs + "Console3DM.log" );   // Create console object, this will be dropped soon
 	i18n.load_translations("3dmeditor.res");   // create translation object.
 	TA3D::VARS::HPIManager = new TA3D::UTILS::HPI::cHPIHandler( GetClientPath() ); // create hpi manager object.
 

@@ -1,8 +1,6 @@
 #ifndef _TA3D_TOOLS_PATHS_H__
 # define _TA3D_TOOLS_PATHS_H__
 
-# ifdef TA3D_PLATFORM_USE_NEW_PATHS_TOOLS
-
 # include "stdafx.h"
 
 
@@ -44,6 +42,9 @@ namespace TA3D
         //! Configuration file
         static String ConfigFile;
 
+        //! Folder for screenshots
+        static String Screenshots;
+
 
     public:
         /*!
@@ -77,7 +78,5 @@ namespace TA3D
 } // namespace TA3D
 
 
-
-# endif // TA3D_PLATFORM_USE_NEW_PATHS_TOOLS
 
 #endif // _TA3D_TOOLS_PATHS_H__

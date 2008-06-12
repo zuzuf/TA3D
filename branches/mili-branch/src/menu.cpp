@@ -40,6 +40,7 @@
 #include "restore.h"
 #include "misc/settings.h"
 #include "paths.h"
+#include "logs/logs.h"
 
 
 
@@ -247,7 +248,7 @@ void solo_menu()
         if( solo_area.get_state( "solo.b_load" ) && solo_area.get_object("load_menu.l_file") )
         {
             GUIOBJ *obj = solo_area.get_object("load_menu.l_file");
-            List<String> file_list = GetFileList( TA3D_OUTPUT_DIR + "savegame/*.sav" );
+            List<String> file_list = GetFileList(TA3D::Paths::Savegames + "*.sav" );
 
             file_list.sort();
 
@@ -263,7 +264,7 @@ void solo_menu()
             if( obj_list && obj_list->Pos >= 0 && obj_list->Pos < obj_list->Text.size() )
             {
                 GAME_DATA game_data;
-                load_game_data( TA3D_OUTPUT_DIR + "savegame/" + obj_list->Text[ obj_list->Pos ], &game_data );
+                load_game_data(TA3D::Paths::Savegames + obj_list->Text[ obj_list->Pos ], &game_data );
 
                 if( !game_data.saved_file.empty() )
                 {
@@ -319,6 +320,8 @@ void solo_menu()
 
 uint32 GetMultiPlayerMapList(std::list<std::string> *li)
 {
+    LOG_ASSERT(li);
+
     std::list< String > map_list;
     uint32 n = HPIManager->GetFilelist("maps\\*.tnt",&map_list);
     std::list< String >::iterator i_map;

@@ -33,6 +33,7 @@
 #include "gaf.h"
 #include "3do.h"			// Gestion des modèles 3D
 #include "paths.h"
+#include "logs/logs.h"
 
 #include "3dmeditor.h"		// GUI functions for the editor
 
@@ -121,21 +122,14 @@ void LoadConfigFile( void )
 
 int main()
 {
-    try
-    {
-        CheckOutputDir();
-    }
-    catch( ... )
-    {
-        // if we get here I have no clue what went wrong.
-        //   most likely outa memory?
+    Logs::level = LOG_LEVEL_DEBUG;
+    // Starting
+    LOG_INFO("*** Welcome to TA3D ***");
 
-        // construct a error object.
-        cError err( "checking output directory", GETSYSERROR(), false );
-        err.DisplayError(); // show the error.
+    // Load and prepare output directories
+    if (!TA3D::Paths::Initialize())
+        return 1;
 
-        exit(1); // were outa here.
-    }
 
     try
     {

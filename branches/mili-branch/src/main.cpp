@@ -180,22 +180,14 @@ int main(int argc,char *argv[])
     Logs::level = LOG_LEVEL_DEBUG;
     // Starting
     LOG_INFO("*** Welcome to TA3D ***");
-    // Set log level to DEBUG
 
-
-    # ifdef TA3D_PLATFORM_USE_NEW_PATHS_TOOLS
     // Load and prepare output directories
     if (!TA3D::Paths::Initialize())
         return 1;
-    # endif
 
     // Initialize signals
 	init_signals();
 	
-	GuardStart( main ); // start guard.
-		GuardInfo( "Preparing output dir\n" ); // what we are doing.
-		CheckOutputDir();
-	GuardCatch();      // close guard
 	if( IsExceptionInProgress() ) // if guard threw an error this will be true.
 	{
 		GuardDisplayAndLogError();   // record and display the error.

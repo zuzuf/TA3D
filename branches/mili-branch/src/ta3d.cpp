@@ -30,6 +30,7 @@
 #include "restore.h"		// Save/Load mecanisms
 #include "TA3D_Network.h"	// Network functionnalities such as chat
 #include "fx.h"
+#include "paths.h"
 
 #ifndef SCROLL_SPEED
 #   define SCROLL_SPEED		400.0f
@@ -2245,7 +2246,7 @@ int play(GAME_DATA *game_data)
             GUIOBJ *obj_file_list = game_area.get_object("save_menu.l_file");
 
             if( obj_file_list ) {
-                List<String> file_list = GetFileList( TA3D_OUTPUT_DIR + "savegame/*.sav" );
+                List<String> file_list = GetFileList(TA3D::Paths::Savegames + "*.sav" );
 
                 file_list.sort();
 
@@ -2268,7 +2269,7 @@ int play(GAME_DATA *game_data)
                 filename = Lowercase( filename );
                 if( filename.substr( filename.length() - 4, 4 ) != ".sav" )
                     filename += ".sav";
-                filename = TA3D_OUTPUT_DIR + "savegame/" + filename;
+                filename = TA3D::Paths::Savegames + filename;
                 save_game( filename, game_data );									// Save the game
             }
             lp_CONFIG->pause = false;
@@ -2995,13 +2996,15 @@ int play(GAME_DATA *game_data)
 
         glDisable(GL_BLEND);
 
-        if( show_timefactor > 0.0f ) {
+        if( show_timefactor > 0.0f )
+        {
             String value = format("x %f", lp_CONFIG->timefactor);
-            if( value.find( "." ) != -1 )
+            if(value.find(".") != -1)
                 value.resize( value.find( "." ) + 2 );
             if( show_timefactor > 0.5f )
                 gfx->print( gfx->TA_font, gfx->width - (int)gfx->TA_font.length( value )>>1, SCREEN_H-80, 0.0f, 0xFFFFFFFF, value );
-            else {
+            else
+            {
                 uint32 c = (uint32)(511.0f * show_timefactor) * 0x01010101;
                 gfx->print( gfx->TA_font, gfx->width - (int)gfx->TA_font.length( value )>>1, SCREEN_H-80, 0.0f, c, value );
             }
@@ -3019,22 +3022,24 @@ int play(GAME_DATA *game_data)
         glEnable(GL_BLEND);
         glBlendFunc(GL_ONE,GL_ONE_MINUS_SRC_COLOR);
 
-        if(lp_CONFIG->showfps) {
+        if(lp_CONFIG->showfps)
+        {
             gfx->print(gfx->TA_font,0.0f,Y,0.0f,0xFFFFFFFF,format("fps: %d",fps));
             Y+=9.0f;
         }
 
         glDisable(GL_BLEND);
 
-        if( mouse_b!=4 || TA3D_CTRL_PRESSED )
+        if(mouse_b!=4 || TA3D_CTRL_PRESSED)
             draw_cursor();
 
-        if(shoot) {
+        if(shoot)
+        {
             BITMAP *shoot_bmp = create_bitmap_ex(32,SCREEN_W,SCREEN_H);
             blit(screen,shoot_bmp,0,0,0,0,SCREEN_W,SCREEN_H);
             char nom[100];
             nom[0]=0;
-            strcat(nom,"shoot000000");
+            strcat(nom,"ta3d-shoot000000");
             nom[strlen(nom)-6]+=(nb_shoot/100000)%10;
             nom[strlen(nom)-5]+=(nb_shoot/10000)%10;
             nom[strlen(nom)-4]+=(nb_shoot/1000)%10;
@@ -3043,16 +3048,17 @@ int play(GAME_DATA *game_data)
             nom[strlen(nom)-1]+=nb_shoot%10;
             nb_shoot = (nb_shoot+1)%1000000;
             strcat(nom,".jpg");
-            save_jpg_ex( (TA3D_OUTPUT_DIR + nom).c_str(),shoot_bmp,NULL,75,JPG_SAMPLING_411,NULL);
+            save_jpg_ex((TA3D::Paths::Screenshots + nom).c_str(), shoot_bmp, NULL, 75, JPG_SAMPLING_411, NULL);
             destroy_bitmap(shoot_bmp);
-            shoot=false;
+            shoot = false;
         }
 
         gfx->unset_2D_mode();
 
         gfx->flip();
 
-        if(cmd) {		// Analyse les commandes tapées dans la console
+        if(cmd) // Analyse les commandes tapées dans la console
+        {
             Vector<String> params;
             ReadVectorString(params,  cmd, " ");
             if( params.size() > 0 )
@@ -3063,7 +3069,7 @@ int play(GAME_DATA *game_data)
                     BITMAP *bmp=create_bitmap_ex(32,SCREEN_W,SCREEN_H);
                     clear(bmp);
                     glReadPixels(0,0,SCREEN_W,SCREEN_H,GL_DEPTH_COMPONENT,GL_INT,bmp->line[0]);
-                    save_bitmap( (TA3D_OUTPUT_DIR + "z.tga").c_str(),bmp,NULL);
+                    save_bitmap( (TA3D::Paths::Screenshots + "z.tga").c_str(),bmp,NULL);
                     destroy_bitmap(bmp);
                 }
                 else if( params.size() == 2 && params[0] == "video" && params[1] == "shoot" ) video_shoot ^= true;		// Capture video
@@ -3316,37 +3322,39 @@ int play(GAME_DATA *game_data)
 
         /*------------ Code de gestion du déroulement de la partie -----------------------------------*/
 
-        if( ( !network_manager.isConnected() || network_manager.isServer() ) && signal==-1) {			// Si le script est terminé, on reprend les règles standard
+        if( ( !network_manager.isConnected() || network_manager.isServer() ) && signal==-1)	// Si le script est terminé, on reprend les règles standard
+        {
             bool win=true;
             for(i=0;i<players.nb_player;i++)
-                if(!players.annihilated[i] && i!=players.local_human_id)	{
+            {
+                if(!players.annihilated[i] && i!=players.local_human_id)
+                {
                     win=false;
                     break;
                 }
-            if(win) {						// Victoire
+            }
+            if(win) // Victoire
+            {
                 done=true;
                 exit_mode=EXIT_VICTORY;
             }
-            if(players.annihilated[players.local_human_id]) {	// Défaite
+            if(players.annihilated[players.local_human_id])	// Défaite
+            {
                 done=true;
                 exit_mode=EXIT_DEFEAT;
             }
         }
 
-    }while(!done);
+    } while(!done);
 
     reset_mouse();
 
     delete sky_data;
 
     players.DestroyThread();				// Shut down the Players thread
-
     players.stop_threads();
-
     weapons.DestroyThread();				// Shut down the Weapon Engine
-
     units.DestroyThread();					// Shut down the Unit Engine
-
     particle_engine.DestroyThread();		// Shut down the Particle Engine
 
     water_obj.destroy();
@@ -3354,7 +3362,8 @@ int play(GAME_DATA *game_data)
 
     game_cam = NULL;
 
-    if(g_useProgram && g_useFBO && map->water) {
+    if(g_useProgram && g_useFBO && map->water)
+    {
         glDeleteFramebuffersEXT(1,&water_FBO);
         water_pass1.destroy();
         water_pass1_low.destroy();
@@ -3385,25 +3394,21 @@ int play(GAME_DATA *game_data)
         case EXIT_NONE:
             break;
         case EXIT_VICTORY:
-            if( game_data->campaign && map->ota_data.glamour && HPIManager->Exists( "bitmaps\\glamour\\" + String( map->ota_data.glamour ) + ".pcx" ) ) {
+            if( game_data->campaign && map->ota_data.glamour && HPIManager->Exists( "bitmaps\\glamour\\" + String( map->ota_data.glamour ) + ".pcx"))
+            {
                 uint32 pcx_size = 0;
                 byte *data = HPIManager->PullFromHPI( "bitmaps\\glamour\\" + String( map->ota_data.glamour ) + ".pcx", &pcx_size );
-                if( data ) {
-                    FILE *dst = TA3D_OpenFile( TA3D_OUTPUT_DIR + "cache/glamour.pcx", "wb" );
+                if(data)
+                {
+                    FILE *dst = TA3D_OpenFile(TA3D::Paths::Caches + "glamour.pcx", "wb");
                     fwrite( data, pcx_size, 1, dst );
                     fclose( dst );
                     free(data);
-
-                    GLuint	glamour_tex = gfx->load_texture( TA3D_OUTPUT_DIR + "cache/glamour.pcx" );
-
+                    GLuint	glamour_tex = gfx->load_texture(TA3D::Paths::Caches + "glamour.pcx");
                     gfx->set_2D_mode();
-
                     gfx->drawtexture( glamour_tex, 0, 0, SCREEN_W, SCREEN_H );
-
                     gfx->destroy_texture( glamour_tex );
-
                     gfx->unset_2D_mode();
-
                     gfx->flip();
 
                     while( !keypressed() && mouse_b == 0 ) {	rest(1);	poll_keyboard(); 	poll_mouse();	}
@@ -3414,7 +3419,7 @@ int play(GAME_DATA *game_data)
             break;
         case EXIT_DEFEAT:
             break;
-    };
+    }
 
     Console->AddEntry("freeing memory used for the map");
     map->destroy();
@@ -3446,14 +3451,13 @@ int play(GAME_DATA *game_data)
     Console->AddEntry("freeing memory used for textures");
     texture_manager.destroy();
 
-    if( !game_data->campaign )
+    if(!game_data->campaign)
         stats_menu();
 
     Console->AddEntry("freeing memory used for players");
     players.destroy();
-
     delete HPIManager;
-    HPIManager=new cHPIHandler("");
+    HPIManager = new cHPIHandler("");
 
     return exit_mode;
 }
@@ -3462,14 +3466,14 @@ int anim_cursor(int type)
 {
     if(type==-1)
         return ((msec_timer-start)/100)%cursor.anm[cursor_type].nb_bmp;
-    else
-        return ((msec_timer-start)/100)%cursor.anm[type].nb_bmp;
+    return ((msec_timer-start)/100)%cursor.anm[type].nb_bmp;
 }
 
 void draw_cursor()
 {
     int curseur=anim_cursor();
-    if(curseur<0 || curseur>=cursor.anm[cursor_type].nb_bmp) {
+    if(curseur<0 || curseur>=cursor.anm[cursor_type].nb_bmp)
+    {
         curseur=0;
         start=msec_timer;
     }
@@ -3483,19 +3487,25 @@ void draw_cursor()
     gfx->unset_alpha_blending();
 }
 
+
+
 VECTOR cursor_on_map(CAMERA *cam,MAP *map, bool on_mini_map )
 {
-    if( on_mini_map ) {			// If the cursor is on the mini_map;
+    if( on_mini_map )			// If the cursor is on the mini_map;
+    {
         VECTOR map_pos;
         map_pos.x = (mouse_x - 64) * 252.0f / 128.0f * map->map_w / map->mini_w;
         map_pos.z = (mouse_y - 64) * 252.0f / 128.0f * map->map_h / map->mini_h;
         map_pos.y = map->get_unit_h( map_pos.x, map_pos.z );
         return map_pos;
     }
-    else {
+    else
+    {
         VECTOR cur_dir;
         cur_dir=cam->Dir+cam->width_factor*2.0f*(mouse_x-gfx->SCREEN_W_HALF)*gfx->SCREEN_W_INV*cam->Side-1.5f*(mouse_y-gfx->SCREEN_H_HALF)*gfx->SCREEN_H_INV*cam->Up;
         cur_dir.Unit();		// Direction pointée par le curseur
         return map->hit(cam->Pos,cur_dir,true,2000000000.0f,true);
     }
 }
+
+

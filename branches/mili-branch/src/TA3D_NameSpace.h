@@ -204,7 +204,6 @@ namespace TA3D
 		TA3D_API_E uint8							particle_engine_thread_sync;
 		TA3D_API_E uint8							players_thread_sync;
 
-		TA3D_API_E String							TA3D_OUTPUT_DIR;
 		TA3D_API_E I18N_TRANSLATER					i18n;
 		
 		TA3D_API_E ThreadSync						*ThreadSynchroniser;
@@ -302,7 +301,6 @@ namespace TA3D
 	bool FileExists(const String& filename);
 
 
-	void CheckOutputDir();
 	void TA3D_clear_cache();							// Clear the cache if needed (useful when mod has changed)
 	List< String > GetFileList( const String pattern );	// return the list of files corresponding to pattern
 
