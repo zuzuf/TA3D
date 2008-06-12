@@ -27,7 +27,7 @@
 #ifndef __CLASSE_PARTICLES
 #define __CLASSE_PARTICLES
 
-#include "cThread.h"
+#include "threads/cThread.h"
 
 class PARTICLE_SYSTEM			// Class defining the fast particle engine
 {

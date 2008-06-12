@@ -17,8 +17,8 @@
 
 #include "stdafx.h"
 #include "TA3D_NameSpace.h"
-#include "cCriticalSection.h"
-#include "cThread.h"
+#include "threads/cCriticalSection.h"
+#include "threads/cThread.h"
 #include "cLogger.h"
 #include "cTA3D_Engine.h"
 #include "ta3dbase.h"

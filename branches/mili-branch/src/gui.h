@@ -27,7 +27,7 @@
 
 #include "gfx.h"
 #include "hash_table.h"
-#include "cCriticalSection.h"
+#include "threads/cCriticalSection.h"
 
 void glbutton(const String &caption,float x1,float y1,float x2,float y2,bool etat=false);
 

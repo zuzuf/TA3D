@@ -23,83 +23,85 @@
 /*****************************/
 
 
-int UDPSock::Open(const char* hostname,const char* port){
-
+int UDPSock::Open(const char* hostname,const char* port)
+{
 	udp_port = atoi( port );
-
 	udpsock.Open(hostname,port,PROTOCOL_UDP);
-
-	if(!udpsock.isOpen())
-		return -1;
-
-	return 0;
-
+	return (!udpsock.isOpen()) ? -1 : 0;
 }
 
-int UDPSock::isOpen(){
+int UDPSock::isOpen()
+{
 	return udpsock.isOpen();
 }
 
-void UDPSock::Close(){
+void UDPSock::Close()
+{
 	if( udpsock.isOpen() )
 		udpsock.Close();
 }
 
 
-void UDPSock::send(const std::string &address){
-	udpmutex.Lock();
+void UDPSock::send(const std::string &address)
+{
+	udpmutex.lock();
 	
 	NLaddress addr;
 	nlStringToAddr( address.c_str(), &addr );
 	nlSetAddrPort( &addr, udp_port );
-
 	nlSetRemoteAddr( udpsock.getFD(), &addr );
 
 	int n = 0;
-	while(n < obp) {
+	while(n < obp)
+    {
 		int v = udpsock.Send(outbuf + n,obp - n);
-		if( v <= 0 ) {
+		if( v <= 0 )
+        {
 			Console->AddEntry("ERROR : could not send data over UDP!");
 			break;
-			}
-		n += v;
 		}
+		n += v;
+	}
 	obp = 0;
-
-	udpmutex.Unlock();
+	udpmutex.unlock();
 }
 
-void UDPSock::recv(){
+void UDPSock::recv()
+{
 	if(uiremain == 0)
 		return;
-	udpmutex.Lock();
+	udpmutex.lock();
 	memset( udpinbuf, 0, UDPSOCK_BUFFER_SIZE );
 	int p = udpsock.Recv(udpinbuf,UDPSOCK_BUFFER_SIZE);//get new number
-	if( p <= 0 ) {
+	if( p <= 0 )
+    {
 		rest(1);
 		uiremain = -1;
-		udpmutex.Unlock();
+		udpmutex.unlock();
 		return;
-		}
+	}
 	uibp = p;
 	uiremain = 0;
-	udpmutex.Unlock();
+	udpmutex.unlock();
 }
 
 
-void UDPSock::pumpIn(){
+void UDPSock::pumpIn()
+{
 	recv();
 }
 
-char UDPSock::getPacket(){
+char UDPSock::getPacket()
+{
 	if(uiremain != 0)
 		return 0;
-	else
-		return udpinbuf[0];
+	return udpinbuf[0];
 }
 
-void UDPSock::cleanPacket(){
-	if(uiremain<=0) {
+void UDPSock::cleanPacket()
+{
+	if(uiremain<=0)
+    {
 		udpinbuf[uibp] = 0;
 		printf("udpinbuf = '%s'\n", udpinbuf);
 		uibp = 0;
@@ -109,31 +111,36 @@ void UDPSock::cleanPacket(){
 
 
 
-int UDPSock::takeFive(int time){
+int UDPSock::takeFive(int time)
+{
 	return udpsock.takeFive( time );
 }
 
 //byte shuffling
-void UDPSock::putLong(uint32_t x){//uint32
+void UDPSock::putLong(uint32_t x)
+{
 	uint32_t temp;
 	temp = nlSwapl( x );
 	memcpy(outbuf+obp,&temp,4);
 	obp += 4;
 }
 
-void UDPSock::putShort(uint16_t x){//uint16
+void UDPSock::putShort(uint16_t x)
+{
 	uint16_t temp;
 	temp = nlSwaps( x );
 	memcpy(outbuf+obp,&temp,2);
 	obp += 2;
 }
 
-void UDPSock::putByte(uint8_t x){//uint8
+void UDPSock::putByte(uint8_t x)
+{
 	memcpy(outbuf+obp,&x,1);
 	obp += 1;
 }
 
-void UDPSock::putString(const char* x){//null terminated
+void UDPSock::putString(const char* x)
+{
 	int n = strlen(x);
 	if(n < UDPSOCK_BUFFER_SIZE - obp - 1 ){
 		memcpy(outbuf+obp,x,n);
@@ -146,7 +153,8 @@ void UDPSock::putString(const char* x){//null terminated
 	putByte('\0');
 }	
 
-void UDPSock::putFloat(float x){
+void UDPSock::putFloat(float x)
+{
 	float temp;
 	temp = nlSwapf(x);
 	memcpy(outbuf+obp,&temp,4);
@@ -197,20 +205,22 @@ float UDPSock::getFloat()
 }
 
 
-int UDPSock::sendSpecial(struct chat* chat, const std::string &address){
-	udpmutex.Lock();
+int UDPSock::sendSpecial(struct chat* chat, const std::string &address)
+{
+	udpmutex.lock();
 
 	putByte('X');
 	putShort(chat->from);
 	putString(chat->message);
 	send( address );
 
-	udpmutex.Unlock();
+	udpmutex.unlock();
 	return 0;
 }
 
-int UDPSock::sendEvent(struct event* event, const std::string &address){
-	udpmutex.Lock();
+int UDPSock::sendEvent(struct event* event, const std::string &address)
+{
+	udpmutex.lock();
 	putByte('E');
 	putByte(event->type);
 	switch( event->type )
@@ -283,12 +293,13 @@ int UDPSock::sendEvent(struct event* event, const std::string &address){
 		break;
 	}
 	send(address);
-	udpmutex.Unlock();
+	udpmutex.unlock();
 	return 0;
 }
 
-int UDPSock::sendSync(struct sync* sync, const std::string &address){
-	udpmutex.Lock();
+int UDPSock::sendSync(struct sync* sync, const std::string &address)
+{
+	udpmutex.lock();
 
 	putByte('S');
 	putLong(sync->timestamp);
@@ -306,11 +317,12 @@ int UDPSock::sendSync(struct sync* sync, const std::string &address){
 
 	send( address );
 
-	udpmutex.Unlock();
+	udpmutex.unlock();
 	return 0;
 }
 
-int UDPSock::makeSync(struct sync* sync){
+int UDPSock::makeSync(struct sync* sync)
+{
 	if(udpinbuf[0] != 'S'){
 		Console->AddEntry("makeSync error: the data doesn't start with an 'S'");
 		return -1;

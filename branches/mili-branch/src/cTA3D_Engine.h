@@ -17,8 +17,8 @@
 
 #pragma once
 
-#include "cCriticalSection.h"
-#include "cThread.h"
+#include "threads/cCriticalSection.h"
+#include "threads/cThread.h"
 #include "cLogger.h"
 
 namespace TA3D

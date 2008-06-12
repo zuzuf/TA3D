@@ -23,30 +23,30 @@
 /******************************/
 
 
-int TA3DSock::Open(const char* hostname,const char* port){
-
+int TA3DSock::Open(const char* hostname,const char* port)
+{
 	tcpsock.Open(hostname,port,PROTOCOL_TCPIP);
-
 	if(!tcpsock.isOpen())
 		return -1;
-
 	return 0;
-
 }
 
 
 
-int TA3DSock::Accept(TA3DSock** sock){
+int TA3DSock::Accept(TA3DSock** sock)
+{
 	int v;
 	(*sock) = new TA3DSock;
 	v = tcpsock.Accept((*sock)->tcpsock);
-	if(v<0){
+	if(v<0)
+    {
 		//accept error
 		delete (*sock);
 		return -1;
 	}
 
-	if(!(*sock)->tcpsock.isOpen() ){
+	if(!(*sock)->tcpsock.isOpen())
+    {
 		delete *sock;
 		return -1;
 	}
@@ -54,19 +54,22 @@ int TA3DSock::Accept(TA3DSock** sock){
 	return 0;
 }
 
-int TA3DSock::Accept(TA3DSock** sock,int timeout){
+int TA3DSock::Accept(TA3DSock** sock,int timeout)
+{
 	int v;
 	*sock = new TA3DSock;
 	v = tcpsock.Accept((*sock)->tcpsock,timeout);
 	
-	if(v<0){
+	if(v<0)
+    {
 		//accept error
 		delete (*sock);
 		return -1;
 	}
 
 	
-	if(!(*sock)->tcpsock.isOpen() ){
+	if(!(*sock)->tcpsock.isOpen() )
+    {
 		delete *sock;
 		return -1;
 	}
@@ -74,11 +77,13 @@ int TA3DSock::Accept(TA3DSock** sock,int timeout){
 	return 0;
 }
 
-int TA3DSock::isOpen(){
+int TA3DSock::isOpen()
+{
 	return tcpsock.isOpen();
 }
 
-void TA3DSock::Close(){
+void TA3DSock::Close()
+{
 	if( tcpsock.isOpen() )
 		tcpsock.Close();
 }
@@ -86,39 +91,45 @@ void TA3DSock::Close(){
 
 
 //byte shuffling
-void TA3DSock::putLong(uint32_t x){//uint32
+void TA3DSock::putLong(uint32_t x)
+{
 	uint32_t temp;
 	temp = nlSwapl(x);
 	memcpy(outbuf+obp,&temp,4);
 	obp += 4;
 }
 
-void TA3DSock::putShort(uint16_t x){//uint16
+void TA3DSock::putShort(uint16_t x)
+{
 	uint16_t temp;
 	temp = nlSwaps(x);
 	memcpy(outbuf+obp,&temp,2);
 	obp += 2;
 }
 
-void TA3DSock::putByte(uint8_t x){//uint8
+void TA3DSock::putByte(uint8_t x)
+{
 	memcpy(outbuf+obp,&x,1);
 	obp += 1;
 }
 
 void TA3DSock::putString(const char* x){//null terminated
 	int n = strlen(x);
-	if(n < TA3DSOCK_BUFFER_SIZE - obp - 1){
+	if(n < TA3DSOCK_BUFFER_SIZE - obp - 1)
+    {
 		memcpy(outbuf+obp,x,n);
 		obp+=n;
 	}
-	else{
+	else
+    {
 		memcpy(outbuf+obp,x,TA3DSOCK_BUFFER_SIZE - obp - 1);
 		obp+=TA3DSOCK_BUFFER_SIZE - obp - 1;
 	}
 	putByte('\0');
 }	
 
-void TA3DSock::putFloat(float x){
+void TA3DSock::putFloat(float x)
+{
 	float temp;
 	temp = nlSwapf(x);
 	memcpy(outbuf+obp,&temp,4);
@@ -132,26 +143,27 @@ uint32 TA3DSock::getLong()	//uint32
 	return result;
 }
 
-uint16 TA3DSock::getShort()	//uint16
+uint16 TA3DSock::getShort()
 {
 	uint16 result = nlSwaps( *((uint16*)(tcpinbuf+tibrp)) );
 	tibrp += 2;
 	return result;
 }
 
-byte TA3DSock::getByte()	//uint8
+byte TA3DSock::getByte()
 {
 	byte result = *((byte*)(tcpinbuf+tibrp));
 	tibrp ++;
 	return result;
 }
 
-void TA3DSock::getString(char* x)	//null terminated
+void TA3DSock::getString(char* x)
 {
-	while( *x = *((char*)(tcpinbuf+tibrp)) ) {
+	while( *x = *((char*)(tcpinbuf+tibrp)) )
+    {
 		tibrp++;
 		x++;
-		}
+	}
 	tibrp++;
 }
 
@@ -171,59 +183,68 @@ float TA3DSock::getFloat()
 
 void TA3DSock::sendTCP(byte *data, int size)
 {
-	tcpmutex.Lock();
+	tcpmutex.lock();
 
 	int n = 0;
 	int count = 0;
-	while( !n && count < 100 && isOpen() ) {
+	while( !n && count < 100 && isOpen() )
+    {
 		n = tcpsock.Send(data,size);
 		count++;
-		}
+	}
 
-	tcpmutex.Unlock();
+	tcpmutex.unlock();
 }
 
-void TA3DSock::sendTCP(){
-	tcpmutex.Lock();
+void TA3DSock::sendTCP()
+{
+	tcpmutex.lock();
 
 	int n = 0;
 	int count = 0;
-	while( !n && count < 100 && isOpen() ) {
+	while( !n && count < 100 && isOpen() )
+    {
 		n = tcpsock.Send(outbuf,obp);
 		count++;
-		}
+	}
 	obp = 0;
 
-	tcpmutex.Unlock();
+	tcpmutex.unlock();
 }
 
-void TA3DSock::recvTCP(){
-	if( tiremain == 0 )	return;
+void TA3DSock::recvTCP()
+{
+	if(!tiremain)
+        return;
 
 	int p = tcpsock.Recv( tcpinbuf, TA3DSOCK_BUFFER_SIZE );
-	if( p <= 0 ) {
+	if( p <= 0 )
+    {
 		rest(1);
 		tiremain = -1;
 		return;
-		}
+	}
 	tiremain = 0;
 	tibp = p;
 }
 
 
-void TA3DSock::pumpIn(){
+void TA3DSock::pumpIn()
+{
 	recvTCP();
 }
 
-char TA3DSock::getPacket(){
+char TA3DSock::getPacket()
+{
 	if(tiremain != 0)
 		return 0;
-	else
-		return tcpinbuf[0];
+	return tcpinbuf[0];
 }
 
-void TA3DSock::cleanPacket(){
-	if(tiremain<=0) {
+void TA3DSock::cleanPacket()
+{
+	if(tiremain<=0)
+    {
 		tcpinbuf[tibp] = 0;
 		printf("tcpinbuf = '%s'\n", tcpinbuf);
 		tibp = 0;
@@ -233,13 +254,15 @@ void TA3DSock::cleanPacket(){
 
 
 
-int TA3DSock::takeFive(int time){
+int TA3DSock::takeFive(int time)
+{
 	return tcpsock.takeFive( time );
 }
 
 
-int TA3DSock::sendSpecial(struct chat* chat, bool all){
-	tcpmutex.Lock();
+int TA3DSock::sendSpecial(struct chat* chat, bool all)
+{
+	tcpmutex.lock();
 	if( all )
 		putByte('A');
 	else
@@ -247,22 +270,24 @@ int TA3DSock::sendSpecial(struct chat* chat, bool all){
 	putShort(chat->from);
 	putString(chat->message);
 	sendTCP();
-	tcpmutex.Unlock();
+	tcpmutex.unlock();
 	return 0;
 }
 
-int TA3DSock::sendChat(struct chat* chat){
-	tcpmutex.Lock();
+int TA3DSock::sendChat(struct chat* chat)
+{
+	tcpmutex.lock();
 	putByte('C');
 	putShort(chat->from);
 	putString(chat->message);
 	sendTCP();
-	tcpmutex.Unlock();
+	tcpmutex.unlock();
 	return 0;
 }
 
-int TA3DSock::sendOrder(struct order* order){
-	tcpmutex.Lock();
+int TA3DSock::sendOrder(struct order* order)
+{
+	tcpmutex.lock();
 	putByte('O');
 	putLong(order->timestamp);
 	putLong(order->unit);
@@ -272,12 +297,13 @@ int TA3DSock::sendOrder(struct order* order){
 	putLong(order->target);
 	putByte(order->additional);
 	sendTCP();
-	tcpmutex.Unlock();
+	tcpmutex.unlock();
 	return 0;
 }
 
-int TA3DSock::sendSync(struct sync* sync){
-	tcpmutex.Lock();
+int TA3DSock::sendSync(struct sync* sync)
+{
+	tcpmutex.lock();
 
 	putByte('S');
 	putLong(sync->timestamp);
@@ -295,20 +321,22 @@ int TA3DSock::sendSync(struct sync* sync){
 
 	sendTCP();
 
-	tcpmutex.Unlock();
+	tcpmutex.unlock();
 	return 0;
 }
 
-int TA3DSock::sendPing(){
-	tcpmutex.Lock();
+int TA3DSock::sendPing()
+{
+	tcpmutex.lock();
 	putByte('P');
 	putByte(0);
 	sendTCP();
-	tcpmutex.Unlock();
+	tcpmutex.unlock();
 }
 
-int TA3DSock::sendEvent(struct event* event){
-	tcpmutex.Lock();
+int TA3DSock::sendEvent(struct event* event)
+{
+	tcpmutex.lock();
 	putByte('E');
 	putByte(event->type);
 	switch( event->type )
@@ -419,7 +447,7 @@ int TA3DSock::sendEvent(struct event* event){
 		break;
 	};
 	sendTCP();
-	tcpmutex.Unlock();
+	tcpmutex.unlock();
 	return 0;
 }
 
@@ -654,7 +682,7 @@ int TA3DSock::makeEvent(struct event* event){
 		event->z = getFloat();
 		getBuffer((char*)(event->str),128);
 		break;
-	};
+	}
 
 	tibp = 0;
 	tiremain = -1;
@@ -663,10 +691,11 @@ int TA3DSock::makeEvent(struct event* event){
 
 int TA3DSock::getFilePort()				// For file transfer, first call this one to get the port which allows us to grab the right thread and buffer
 {
-	if( tcpinbuf[0] != 'F' && tcpinbuf[0] != 'R' ) {
+	if( tcpinbuf[0] != 'F' && tcpinbuf[0] != 'R' )
+    {
 		Console->AddEntry("getFilePort error: the data doesn't start with an 'F' or an 'R'");
 		return -1;
-		}
+	}
 	if(tiremain == -1)
 		return -1;
 	return *((uint16*)(tcpinbuf+1));
@@ -674,10 +703,11 @@ int TA3DSock::getFilePort()				// For file transfer, first call this one to get 
 
 int TA3DSock::getFileData(byte *buffer)	// Fill the buffer with the data and returns the size of the paquet
 {
-	if( tcpinbuf[0] != 'F' && tcpinbuf[0] != 'R' ) {
+	if( tcpinbuf[0] != 'F' && tcpinbuf[0] != 'R' )
+    {
 		Console->AddEntry("getFilePort error: the data doesn't start with an 'F' or an 'R'");
 		return -1;
-		}
+	}
 	if(tiremain == -1)
 		return -1;
 	int size = tibp - 3;

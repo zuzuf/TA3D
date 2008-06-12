@@ -17,7 +17,7 @@
 
 #include "SocketClass.h"
 
-#include "thread.h"
+#include "threads/thread.h"
 
 
 

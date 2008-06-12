@@ -21,8 +21,8 @@
 #define TA3D_BASIC_ENGINE
 #include "ta3dbase.h"		// Moteur
 #include "TA3D_NameSpace.h"
-#include "cCriticalSection.h"
-#include "cThread.h"
+#include "threads/cCriticalSection.h"
+#include "threads/cThread.h"
 #include "cLogger.h"
 #include "gui.h"			// Interface utilisateur
 #include "TA3D_hpi.h"		// Interface HPI requis pour 3do.h

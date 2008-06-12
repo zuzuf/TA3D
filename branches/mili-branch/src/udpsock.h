@@ -16,7 +16,7 @@
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA*/
 
 #include "SocketClass.h"
-#include "thread.h"
+#include "threads/thread.h"
 
 
 #define		UDPSOCK_BUFFER_SIZE		2560

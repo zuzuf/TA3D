@@ -23,7 +23,7 @@
 #include "udpsock.h"
 #include "broadcastsock.h"
 #include "superqueue.h"
-#include "thread.h"
+#include "threads/thread.h"
 
 
 /***
@@ -119,7 +119,7 @@ class slnode
 {
 public:
 	slnode() {next=NULL;}
-	~slnode() {sock->Close(); thread.Join(); delete sock;}
+	~slnode() {sock->Close(); thread.join(); delete sock;}
 	int id;
 	TA3DSock* sock;
 	SocketThread thread;

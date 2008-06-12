@@ -153,7 +153,7 @@ void ListenThread::proc(void* param){
     //fill in other info for new player connected event
 
 
-    while(!dead && network->listen_socket.isOpen() ){
+    while(!pDead && network->listen_socket.isOpen() ){
 
         v = network->listen_socket.Accept(&newsock,100);
         if(v<0){
@@ -187,11 +187,11 @@ void SocketThread::proc(void* param){
     delete ((struct net_thread_params*)param);
     sock = network->players.getSock(sockid);
 
-    while(!dead && sock->isOpen()){
+    while(!pDead && sock->isOpen()){
 
         //sleep until data is coming
         sock->takeFive(1000);
-        if(dead) break;
+        if(pDead) break;
 
         //ready for reading, absorb some bytes	
         sock->pumpIn();
@@ -207,60 +207,60 @@ void SocketThread::proc(void* param){
                 break;
             case 'A'://special (resend to all!!)
             case 'X'://special
-                network->xqmutex.Lock();
-                if( dead || sock->makeSpecial(&chat) == -1 ){
-                    network->xqmutex.Unlock();
+                network->xqmutex.lock();
+                if( pDead || sock->makeSpecial(&chat) == -1 ){
+                    network->xqmutex.unlock();
                     break;
                 }
                 if( packtype != 'A' && network->isServer() )
                     chat.from = sockid;
                 network->specialq.enqueue(&chat);
-                network->xqmutex.Unlock();
+                network->xqmutex.unlock();
                 if( packtype == 'A' && network->isServer() )
                     network->sendSpecial( &chat, sockid, -1, true );
                 break;
             case 'C'://chat
-                network->cqmutex.Lock();
-                if( dead || sock->makeChat(&chat) == -1 ){
-                    network->cqmutex.Unlock();
+                network->cqmutex.lock();
+                if( pDead || sock->makeChat(&chat) == -1 ){
+                    network->cqmutex.unlock();
                     break;
                 }
                 network->chatq.enqueue(&chat);
-                network->cqmutex.Unlock();
+                network->cqmutex.unlock();
                 if( network->isServer() )
                     network->sendChat(&chat, sockid);
                 break;
             case 'O'://order
-                network->oqmutex.Lock();
-                if( dead || sock->makeOrder(&order) == -1 ){
-                    network->oqmutex.Unlock();
+                network->oqmutex.lock();
+                if( pDead || sock->makeOrder(&order) == -1 ){
+                    network->oqmutex.unlock();
                     break;
                 }
                 network->orderq.enqueue(&order);
-                network->oqmutex.Unlock();
+                network->oqmutex.unlock();
                 if( network->isServer() )
                     network->sendOrder(&order, sockid);
                 break;
             case 'S'://sync
-                network->sqmutex.Lock();
-                if( dead || sock->makeSync(&sync) == -1 ){
-                    network->sqmutex.Unlock();
+                network->sqmutex.lock();
+                if( pDead || sock->makeSync(&sync) == -1 ){
+                    network->sqmutex.unlock();
                     break;
                 }
                 network->syncq.enqueue(&sync);
-                network->sqmutex.Unlock();
+                network->sqmutex.unlock();
                 if( network->isServer() )
                     network->sendSync(&sync, sockid);
                 break;
             case 'E'://event
-                network->eqmutex.Lock();
-                if( dead || sock->makeEvent(&event) == -1 ){
-                    network->eqmutex.Unlock();
+                network->eqmutex.lock();
+                if( pDead || sock->makeEvent(&event) == -1 ){
+                    network->eqmutex.unlock();
                     break;
                 }
                 printf("received event\n");
                 network->eventq.enqueue(&event);
-                network->eqmutex.Unlock();
+                network->eqmutex.unlock();
                 if( network->isServer() )
                     network->sendEvent(&event, sockid);
             case 0:
@@ -305,7 +305,7 @@ void SocketThread::proc(void* param){
 
     }
 
-    dead = 1;
+    pDead = 1;
     if( !sock->isOpen() )
         network->setPlayerDirty();
 
@@ -326,11 +326,11 @@ void UDPThread::proc(void* param){
     sock = &(network->udp_socket);
     delete ((struct net_thread_params*)param);
 
-    while(!dead && sock->isOpen()){
+    while(!pDead && sock->isOpen()){
 
         //sleep until data is coming
         sock->takeFive(1000);
-        if(dead) break;
+        if(pDead) break;
 
         //ready for reading, absorb some bytes	
         sock->pumpIn();
@@ -351,36 +351,36 @@ void UDPThread::proc(void* param){
 
         switch(packtype){
             case 'X'://special
-                network->xqmutex.Lock();
-                if( dead || sock->makeSpecial(&chat) == -1 ){
-                    network->xqmutex.Unlock();
+                network->xqmutex.lock();
+                if( pDead || sock->makeSpecial(&chat) == -1 ){
+                    network->xqmutex.unlock();
                     break;
                 }
                 if( network->isServer() )
                     chat.from = player_id;
                 network->specialq.enqueue(&chat);
-                network->xqmutex.Unlock();
+                network->xqmutex.unlock();
                 break;
             case 'S'://sync
-                network->sqmutex.Lock();
-                if( dead || sock->makeSync(&sync) == -1 ){
-                    network->sqmutex.Unlock();
+                network->sqmutex.lock();
+                if( pDead || sock->makeSync(&sync) == -1 ){
+                    network->sqmutex.unlock();
                     break;
                 }
                 network->syncq.enqueue(&sync);
-                network->sqmutex.Unlock();
+                network->sqmutex.unlock();
                 if( network->isServer() )
                     network->sendSync(&sync, player_id);
                 break;
             case 'E'://UDP event, used to tell someone we've synced a unit, so check destination and resend it if necessary
                 {
-                    network->eqmutex.Lock();
-                    if( dead || sock->makeEvent(&event) == -1 ){
-                        network->eqmutex.Unlock();
+                    network->eqmutex.lock();
+                    if( pDead || sock->makeEvent(&event) == -1 ){
+                        network->eqmutex.unlock();
                         break;
                     }
                     if( event.type != EVENT_UNIT_SYNCED ) {		// We only accept EVENT_UNIT_SYNCED
-                        network->eqmutex.Unlock();
+                        network->eqmutex.unlock();
                         break;
                     }
                     int dest = g_ta3d_network->getNetworkID( event.opt1 );
@@ -388,7 +388,7 @@ void UDPThread::proc(void* param){
                         network->eventq.enqueue(&event);
                         dest = -1;
                     }
-                    network->eqmutex.Unlock();
+                    network->eqmutex.unlock();
                     if( network->isServer() && dest != -1 )
                         network->sendEventUDP(&event, dest);
                 }
@@ -403,7 +403,7 @@ void UDPThread::proc(void* param){
 
     }
 
-    dead = 1;
+    pDead = 1;
     if( !sock->isOpen() )
         network->setPlayerDirty();
 
@@ -422,31 +422,31 @@ void BroadCastThread::proc(void* param){
 
     String msg;
 
-    dead = 0;
+    pDead = 0;
 
-    while(!dead && sock->isOpen() ){
+    while(!pDead && sock->isOpen() ){
 
         //sleep until data is coming
         sock->takeFive(1000);
-        if(dead) break;
+        if(pDead) break;
 
         //ready for reading, absorb some bytes	
         sock->pumpIn();
 
         msg = sock->makeMessage();
         if( !msg.empty() ) {
-            network->mqmutex.Lock();
-            if(dead){
-                network->mqmutex.Unlock();
+            network->mqmutex.lock();
+            if(pDead){
+                network->mqmutex.unlock();
                 break;
             }
             network->broadcastq.push_back( msg );
             network->broadcastaddressq.push_back( sock->getAddress() );
-            network->mqmutex.Unlock();
+            network->mqmutex.unlock();
         }
     }
 
-    dead = 1;
+    pDead = 1;
     Console->AddEntry("Broadcast thread closed!");
 
     return;
@@ -472,7 +472,7 @@ void SendFileThread::proc(void* param){
     delete ((struct net_thread_params*)param);
 
     if( file == NULL ) {
-        dead = 1;
+        pDead = 1;
         network->setFileDirty();
         return;
     }
@@ -489,7 +489,7 @@ void SendFileThread::proc(void* param){
     network->sendFileData(sockid,port,(byte*)&length,4);
 
     Console->AddEntry("starting file transfer...");
-    while(!dead){
+    while(!pDead){
         n = ta3d_fread(buffer,1,FILE_TRANSFER_BUFFER_SIZE,file);
 
         network->sendFileData(sockid,port,buffer,n);
@@ -499,9 +499,9 @@ void SendFileThread::proc(void* param){
             network->updateFileTransferInformation( filename + format("%d", sockid), real_length, pos );
 
             int timer = msec_timer;
-            while( progress < pos - 10 * FILE_TRANSFER_BUFFER_SIZE && !dead && msec_timer - timer < 5000 )	rest(0);
+            while( progress < pos - 10 * FILE_TRANSFER_BUFFER_SIZE && !pDead && msec_timer - timer < 5000 )	rest(0);
             if( msec_timer - timer >= 5000 ) {
-                dead = 1;
+                pDead = 1;
                 network->updateFileTransferInformation( filename + format("%d", sockid), 0, 0 );
                 network->setFileDirty();
                 ta3d_fclose( file );
@@ -515,12 +515,12 @@ void SendFileThread::proc(void* param){
     }
 
     timer = msec_timer;
-    while( progress < pos - FILE_TRANSFER_BUFFER_SIZE && !dead && msec_timer - timer < 5000 )	rest(1);		// Wait for client to say ok
+    while( progress < pos - FILE_TRANSFER_BUFFER_SIZE && !pDead && msec_timer - timer < 5000 )	rest(1);		// Wait for client to say ok
 
     Console->AddEntry("file transfer finished...");
 
     network->updateFileTransferInformation( filename + format("%d", sockid), 0, 0 );
-    dead = 1;
+    pDead = 1;
     ta3d_fclose( file );
     network->setFileDirty();
     return;
@@ -551,7 +551,7 @@ void GetFileThread::proc(void* param){
     delete ((struct net_thread_params*)param);
 
     if( file == NULL ) {
-        dead = 1;
+        pDead = 1;
         network->setFileDirty();
         delete[] buffer;
         return;
@@ -562,11 +562,11 @@ void GetFileThread::proc(void* param){
     int timer = msec_timer;
 
     ready = true;
-    while( !dead && ready && msec_timer - timer < 5000 ) rest( 0 );
+    while( !pDead && ready && msec_timer - timer < 5000 ) rest( 0 );
     memcpy(&length,buffer,4);
 
     if( ready ) {				// Time out
-        dead = 1;
+        pDead = 1;
         fclose( file );
         delete_file( (filename + ".part").c_str() );
         network->setFileDirty();
@@ -576,15 +576,15 @@ void GetFileThread::proc(void* param){
     }
 
     sofar = 0;
-    if( dead ) length = 1;			// In order to delete the file
-    while(!dead){
+    if( pDead ) length = 1;			// In order to delete the file
+    while(!pDead){
         ready = true;
         timer = msec_timer;
-        while( !dead && ready && msec_timer - timer < 5000 ) rest( 0 );			// Get paquet data
+        while( !pDead && ready && msec_timer - timer < 5000 ) rest( 0 );			// Get paquet data
         n = buffer_size;
 
         if( ready ) {				// Time out
-            dead = 1;
+            pDead = 1;
             fclose( file );
             delete_file( (filename + ".part").c_str() );
             network->setFileDirty();
@@ -612,12 +612,12 @@ void GetFileThread::proc(void* param){
     network->updateFileTransferInformation( filename + format("%d", sockid), 0, 0 );
 
     fclose( file );
-    if( dead && sofar < length )				// Delete the file if transfer has been aborted
+    if( pDead && sofar < length )				// Delete the file if transfer has been aborted
         delete_file( (filename + ".part").c_str() );
     else
         rename( (filename + ".part").c_str(), filename.c_str() );
 
-    dead = 1;
+    pDead = 1;
     network->setFileDirty();
     delete[] buffer;
     return;
@@ -626,23 +626,28 @@ void GetFileThread::proc(void* param){
 
 
 //not finished
-void AdminThread::proc(void* param){
+void AdminThread::proc(void* param)
+{
     Network* network;
     network = ((struct net_thread_params*)param)->network;
     delete ((struct net_thread_params*)param);
-    while(!dead){
+    while(!pDead)
+    {
         network->cleanPlayer();
         network->cleanFileThread();
-        if(network->myMode == 1){
+        if(network->myMode == 1)
+        {
             //if you are the game 'server' then this thread
             //handles requests and delegations on the administrative
             //channel
         }
-        else if(network->myMode == 2){
-            //if you are a mere client then this thread responds to
-            //stuff on the administrative channel such as change of host
-            //and other things
-        }
+        else
+            if(network->myMode == 2)
+            {
+                //if you are a mere client then this thread responds to
+                //stuff on the administrative channel such as change of host
+                //and other things
+            }
         sleep(1);//testing
     }
 
@@ -686,17 +691,17 @@ Network::Network() :
     }
 
 Network::~Network(){
-    listen_thread.Join();
-    admin_thread.Join();
-    broadcast_thread.Join();
-    udp_thread.Join();
+    listen_thread.join();
+    admin_thread.join();
+    broadcast_thread.join();
+    udp_thread.join();
 
     for( List< GetFileThread* >::iterator i = getfile_thread.begin() ; i != getfile_thread.end() ; i++ ) {
-        (*i)->Join();
+        (*i)->join();
         delete *i;
     }
     for( List< SendFileThread* >::iterator i = sendfile_thread.begin() ; i != sendfile_thread.end() ; i++ ) {
-        (*i)->Join();
+        (*i)->join();
         delete *i;
     }
     getfile_thread.clear();
@@ -721,7 +726,7 @@ void Network::InitBroadcast( const char* port )
     net_thread_params *params = new net_thread_params;
     params->network = this;
     Console->AddEntry("Network: spawning broadcast thread");
-    broadcast_thread.Spawn(params);
+    broadcast_thread.spawn(params);
 }
 
 
@@ -758,19 +763,19 @@ int Network::HostGame(const char* name,const char* port,int network){
     net_thread_params *params = new net_thread_params;
     params->network = this;
     Console->AddEntry("Network: spawning listen thread");
-    listen_thread.Spawn(params);
+    listen_thread.spawn(params);
 
     //spawn udp thread
     params = new net_thread_params;
     params->network = this;
     Console->AddEntry("Network: spawning udp thread");
-    udp_thread.Spawn(params);
+    udp_thread.spawn(params);
 
     //spawn admin thread
     params = new net_thread_params;
     params->network = this;
     Console->AddEntry("Network: spawning admin thread");
-    admin_thread.Spawn(params);
+    admin_thread.spawn(params);
 
     Console->AddEntry("Network: network game running");
 
@@ -811,13 +816,13 @@ int Network::Connect(const char* target,const char* port){
     Console->AddEntry("Network: spawning admin thread");
     net_thread_params *params = new net_thread_params;
     params->network = this;
-    admin_thread.Spawn(params);
+    admin_thread.spawn(params);
 
     //get game info or start admin thread here
     Console->AddEntry("Network: spawning udp thread");
     params = new net_thread_params;
     params->network = this;
-    udp_thread.Spawn(params);
+    udp_thread.spawn(params);
 
     Console->AddEntry("Network: successfully connected to game at [%s]:%s",target,port);
 
@@ -832,36 +837,36 @@ int Network::Connect(const char* target,const char* port){
 //not completely finished
 void Network::Disconnect(){
 
-    listen_thread.Join();
+    listen_thread.join();
     listen_socket.Close();
 
-    udp_thread.Join();
+    udp_thread.join();
     udp_socket.Close();
 
     tohost_socket = NULL;
 
-    broadcast_thread.Join();
+    broadcast_thread.join();
     broadcast_socket.Close();
 
-    ftmutex.Lock();
+    ftmutex.lock();
 
     for( List< GetFileThread* >::iterator i = getfile_thread.begin() ; i != getfile_thread.end() ; i++ ) {
-        (*i)->Join();
+        (*i)->join();
         delete *i;
     }
     for( List< SendFileThread* >::iterator i = sendfile_thread.begin() ; i != sendfile_thread.end() ; i++ ) {
-        (*i)->Join();
+        (*i)->join();
         delete *i;
     }
     getfile_thread.clear();
     sendfile_thread.clear();
     transfer_progress.clear();
 
-    ftmutex.Unlock();
+    ftmutex.unlock();
 
-    slmutex.Lock();
+    slmutex.lock();
     players.Shutdown();
-    slmutex.Unlock();
+    slmutex.unlock();
 
     cleanQueues();
 
@@ -882,15 +887,15 @@ void Network::Disconnect(){
 
 void Network::stopFileTransfer( const String &port, int to_id )
 {
-    ftmutex.Lock();
+    ftmutex.lock();
 
     if( port.empty() ) {
         for( List< GetFileThread* >::iterator i = getfile_thread.begin() ; i != getfile_thread.end() ; i++ ) {
-            (*i)->Join();
+            (*i)->join();
             delete *i;
         }
         for( List< SendFileThread* >::iterator i = sendfile_thread.begin() ; i != sendfile_thread.end() ; i++ ) {
-            (*i)->Join();
+            (*i)->join();
             delete *i;
         }
         getfile_thread.clear();
@@ -904,10 +909,10 @@ void Network::stopFileTransfer( const String &port, int to_id )
                 GetFileThread *p = *i;
                 getfile_thread.erase( i++ );
 
-                ftmutex.Unlock();
-                p->Join();
+                ftmutex.unlock();
+                p->join();
                 delete p;
-                ftmutex.Lock();
+                ftmutex.lock();
 
                 break;
             }
@@ -918,10 +923,10 @@ void Network::stopFileTransfer( const String &port, int to_id )
                 SendFileThread *p = *i;
                 sendfile_thread.erase( i++ );
 
-                ftmutex.Unlock();
-                p->Join();
+                ftmutex.unlock();
+                p->join();
                 delete p;
-                ftmutex.Lock();
+                ftmutex.lock();
 
                 break;
             }
@@ -931,7 +936,7 @@ void Network::stopFileTransfer( const String &port, int to_id )
 
     setFileDirty();
 
-    ftmutex.Unlock();
+    ftmutex.unlock();
 }
 
 bool Network::isTransferFinished( const String &port )
@@ -952,9 +957,9 @@ int Network::addPlayer(TA3DSock* sock){
     int n;
     SocketThread* thread;
 
-    slmutex.Lock();
+    slmutex.lock();
     n = players.Add(sock);
-    slmutex.Unlock();
+    slmutex.unlock();
 
     thread = players.getThread(n);
 
@@ -967,7 +972,7 @@ int Network::addPlayer(TA3DSock* sock){
     params->network = this;
     params->sockid = n;
     Console->AddEntry("spawning socket thread");
-    thread->Spawn(params);
+    thread->spawn(params);
 
     //send a new player event
     //eventNewPlayer(n);
@@ -983,10 +988,10 @@ int Network::dropPlayer(int num){
 
     int v;
 
-    slmutex.Lock();
+    slmutex.lock();
     v = players.Remove(num);
     playerDropped = true;
-    slmutex.Unlock();
+    slmutex.unlock();
 
     return v;
 }
@@ -994,14 +999,14 @@ int Network::dropPlayer(int num){
 int Network::cleanPlayer()
 {
     if( !playerDirty )	return 0;
-    slmutex.Lock();
+    slmutex.lock();
     int v = 0;
     for( int i = 1 ; i <= players.getMaxId() ; i++ ) {
         TA3DSock *sock = players.getSock( i );
         if( sock && !sock->isOpen() ) {
             v = players.Remove( i );
             if( sock == tohost_socket ) {
-                broadcast_thread.Join();
+                broadcast_thread.join();
                 broadcast_socket.Close();
 
                 tohost_socket = NULL;
@@ -1009,7 +1014,7 @@ int Network::cleanPlayer()
             }
         }
     }
-    slmutex.Unlock();
+    slmutex.unlock();
     playerDirty = false;
     return v;
 }
@@ -1027,7 +1032,7 @@ void Network::setFileDirty()
 void Network::cleanFileThread()
 {
     if( !fileDirty )	return;
-    ftmutex.Lock();
+    ftmutex.lock();
     for( List< GetFileThread* >::iterator i = getfile_thread.begin() ; i != getfile_thread.end() ; ) {
         if( (*i)->isDead() ) {
             for( List< FileTransferProgress >::iterator e = transfer_progress.begin() ; e != transfer_progress.end() ; )
@@ -1036,7 +1041,7 @@ void Network::cleanFileThread()
                 else
                     e++;
 
-            (*i)->Join();
+            (*i)->join();
             delete *i;
             getfile_thread.erase( i++ );
         }
@@ -1055,14 +1060,14 @@ void Network::cleanFileThread()
                     e++;
             }
 
-            (*i)->Join();
+            (*i)->join();
             delete *i;
             sendfile_thread.erase( i++ );
         }
         else
             ++i;
     }
-    ftmutex.Unlock();
+    ftmutex.unlock();
     fileDirty = false;
 }
 
@@ -1317,7 +1322,7 @@ int Network::sendEventUDP(struct event* event, int dst_id){
 }
 
 int Network::sendFile(int player, const String &filename, const String &port){
-    ftmutex.Lock();
+    ftmutex.lock();
     SendFileThread *thread = new SendFileThread();
     sendfile_thread.push_back( thread );
     thread->port = atoi( port.c_str() );
@@ -1328,55 +1333,55 @@ int Network::sendFile(int player, const String &filename, const String &port){
     params->sockid = player;
     params->filename = filename;
     Console->AddEntry("spawning sendFile thread");
-    thread->Spawn(params);
+    thread->spawn(params);
 
-    ftmutex.Unlock();
+    ftmutex.unlock();
     return 0;
 }
 
 
 int Network::getNextSpecial(struct chat* chat){
     int v;
-    xqmutex.Lock();
+    xqmutex.lock();
     v = specialq.dequeue(chat);
-    xqmutex.Unlock();
+    xqmutex.unlock();
     return v;
 }
 
 int Network::getNextChat(struct chat* chat){
     int v;
-    cqmutex.Lock();
+    cqmutex.lock();
     v = chatq.dequeue(chat);
-    cqmutex.Unlock();
+    cqmutex.unlock();
     return v;
 }
 
 int Network::getNextOrder(struct order* order){
     int v;
-    oqmutex.Lock();
+    oqmutex.lock();
     v = orderq.dequeue(order);
-    oqmutex.Unlock();
+    oqmutex.unlock();
     return v;
 }
 
 int Network::getNextSync(struct sync* sync){
     int v;
-    sqmutex.Lock();
+    sqmutex.lock();
     v = syncq.dequeue(sync);
-    sqmutex.Unlock();
+    sqmutex.unlock();
     return v;
 }
 
 int Network::getNextEvent(struct event* event){
     int v;
-    eqmutex.Lock();
+    eqmutex.lock();
     v = eventq.dequeue(event);
-    eqmutex.Unlock();
+    eqmutex.unlock();
     return v;
 }
 
 String Network::getFile(int player, const String &filename){
-    ftmutex.Lock();
+    ftmutex.lock();
 
     int port = 7776;						// Take the next port not in use
     for( List< GetFileThread* >::iterator i = getfile_thread.begin() ; i != getfile_thread.end() ; i++ )
@@ -1392,9 +1397,9 @@ String Network::getFile(int player, const String &filename){
     params->sockid = player;
     params->filename = filename;
     Console->AddEntry("spawning getFile thread");
-    thread->Spawn(params);
+    thread->spawn(params);
 
-    ftmutex.Unlock();
+    ftmutex.unlock();
     return format( "%d", port );
 }
 
@@ -1410,24 +1415,24 @@ int Network::broadcastMessage( const char *msg )
 std::string Network::getNextBroadcastedMessage()
 {
     std::string msg;
-    mqmutex.Lock();
+    mqmutex.lock();
     if( !broadcastq.empty() ) {
         msg = broadcastq.front();
         broadcastq.pop_front();
         if( broadcastq.size() + 1 < broadcastaddressq.size() )
             broadcastaddressq.pop_front();
     }
-    mqmutex.Unlock();
+    mqmutex.unlock();
     return msg;
 }
 
 String Network::getLastMessageAddress()
 {
     String address;
-    mqmutex.Lock();
+    mqmutex.lock();
     if( !broadcastaddressq.empty() )
         address = broadcastaddressq.front();
-    mqmutex.Unlock();
+    mqmutex.unlock();
     return address;
 }
 
@@ -1444,18 +1449,18 @@ void Network::cleanQueues()
     while( getNextSync(&sync) == 0 )	{}
     while( getNextEvent(&event) == 0 )	{}
 
-    mqmutex.Lock();
+    mqmutex.lock();
     broadcastq.clear();
     broadcastaddressq.clear();
-    mqmutex.Unlock();
+    mqmutex.unlock();
 }
 
 
 bool Network::BroadcastedMessages()
 {
-    mqmutex.Lock();
+    mqmutex.lock();
     bool result = !broadcastq.empty();
-    mqmutex.Unlock();
+    mqmutex.unlock();
     return result;
 }
 
@@ -1471,32 +1476,32 @@ bool Network::isServer()
 
 bool Network::getPlayerDropped()
 {
-    slmutex.Lock();
+    slmutex.lock();
 
     bool result = playerDropped;
     playerDropped = false;
 
-    slmutex.Unlock();
+    slmutex.unlock();
 
     return result;
 }
 
 bool Network::pollPlayer(int id)
 {
-    slmutex.Lock();
+    slmutex.lock();
 
     bool result = (players.getSock( id ) != NULL);
 
-    slmutex.Unlock();
+    slmutex.unlock();
 
     return result;
 }
 
 float Network::getFileTransferProgress()
 {
-    ftmutex.Lock();
+    ftmutex.lock();
     if( transfer_progress.empty() ) {
-        ftmutex.Unlock();
+        ftmutex.unlock();
         return 100.0f;
     }
 
@@ -1507,28 +1512,30 @@ float Network::getFileTransferProgress()
         size += i->size;
     }
 
-    ftmutex.Unlock();
+    ftmutex.unlock();
     return size ? 100.0f * pos / size : 100.0f;
 }
 
 void Network::updateFileTransferInformation( String id, int size, int pos )
 {
-    ftmutex.Lock();
+    ftmutex.lock();
     for( List< FileTransferProgress >::iterator i = transfer_progress.begin() ; i != transfer_progress.end() ; i++ )
-        if( i->id == id ) {
+    {
+        if( i->id == id )
+        {
             i->size = size;
             i->pos = pos;
-            ftmutex.Unlock();
+            ftmutex.unlock();
             return;
         }
-
+    }
     FileTransferProgress info;
     info.id = id;
     info.size = size;
     info.pos = pos;
     transfer_progress.push_back( info );
 
-    ftmutex.Unlock();
+    ftmutex.unlock();
 }
 
 String Network::HttpRequest( const String &servername, const String &request )

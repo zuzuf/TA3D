@@ -29,7 +29,7 @@
 
 #include "fbi.h"
 #include "weapons.h"
-#include "cThread.h"
+#include "threads/cThread.h"
 
 #define UNPACKX(xz) ((sint16)((xz)>>16))
 #define UNPACKZ(xz) ((sint16)((xz)&0xFFFF))

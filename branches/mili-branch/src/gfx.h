@@ -21,7 +21,8 @@
 //	it contains basic gfx commands like font management, background management, etc...
 //
 
-#pragma once
+#ifndef __TA3D_GFX_H__
+# define __TA3D_GFX_H__
 
 using namespace TA3D;
 
@@ -249,3 +250,6 @@ namespace TA3D
 		};
 	}
 }
+
+
+#endif // __TA3D_GFX_H__
