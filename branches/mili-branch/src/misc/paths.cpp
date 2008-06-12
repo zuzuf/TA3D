@@ -3,8 +3,8 @@
 # include <stdlib.h>
 # include <sys/stat.h>
 #endif 
-#include "TA3D_NameSpace.h"
-#include "logs/logs.h"
+#include "../TA3D_NameSpace.h"
+#include "../logs/logs.h"
 
 
 

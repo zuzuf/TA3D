@@ -23,7 +23,7 @@
 #include "stdafx.h"
 #include "TA3D_NameSpace.h"
 #include "TA3D_Exception.h"
-#include "paths.h"
+#include "misc/paths.h"
 
 #ifdef TA3D_PLATFORM_LINUX
 	#include <errno.h>

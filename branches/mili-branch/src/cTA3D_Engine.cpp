@@ -34,7 +34,7 @@
 #include "script.h"               // The game script manager
 #include "ai.h"                  // AI Engine
 #include "fx.h"					// Special FX engine
-#include "paths.h"
+#include "misc/paths.h"
 
 using namespace TA3D::EXCEPTION;
 

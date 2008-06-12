@@ -33,7 +33,7 @@
 #include "ta3dbase.h"				// Just for the LANG var
 #include "EngineClass.h"
 #include "backtrace.h"				// Some debugging tools
-#include "paths.h"
+#include "misc/paths.h"
 #include "logs/logs.h"
 #include "misc/settings.h"
 

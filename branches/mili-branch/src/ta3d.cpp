@@ -30,7 +30,7 @@
 #include "restore.h"		// Save/Load mecanisms
 #include "TA3D_Network.h"	// Network functionnalities such as chat
 #include "fx.h"
-#include "paths.h"
+#include "misc/paths.h"
 
 #ifndef SCROLL_SPEED
 #   define SCROLL_SPEED		400.0f

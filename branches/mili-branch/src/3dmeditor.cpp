@@ -32,7 +32,7 @@
 #include "particles.h"
 #include "gaf.h"
 #include "3do.h"			// Gestion des modèles 3D
-#include "paths.h"
+#include "misc/paths.h"
 #include "logs/logs.h"
 
 #include "3dmeditor.h"		// GUI functions for the editor

@@ -6,7 +6,7 @@
 
 #include "stdafx.h"
 #include "TA3D_NameSpace.h"
-#include "paths.h"
+#include "misc/paths.h"
 
 
 #if defined TA3D_PLATFORM_WINDOWS

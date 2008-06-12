@@ -32,7 +32,7 @@
 #include "3ds.h"			// The 3DS model loader
 #include "taconfig.h"		// Configuration
 #include "3dmeditor.h"
-#include "paths.h"
+#include "misc/paths.h"
 
 
 

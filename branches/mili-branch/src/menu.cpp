@@ -39,7 +39,7 @@
 #include "taconfig.h"
 #include "restore.h"
 #include "misc/settings.h"
-#include "paths.h"
+#include "misc/paths.h"
 #include "logs/logs.h"
 
 

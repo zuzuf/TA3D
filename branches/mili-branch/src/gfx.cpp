@@ -27,7 +27,7 @@
 #include "gui.h"
 #include "gaf.h"
 #include "gfx.h"
-#include "paths.h"
+#include "misc/paths.h"
 
 #include <allegro/internal/aintern.h>
 

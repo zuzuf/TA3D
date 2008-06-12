@@ -21,7 +21,7 @@
 #if defined TA3D_PLATFORM_LINUX || defined TA3D_PLATFORM_DARWIN
 #   include <sys/stat.h>
 #endif
-#include "paths.h"
+#include "misc/paths.h"
 
 // global variables:
 TA3D::TA3DCONFIG		*TA3D::VARS::lp_CONFIG;

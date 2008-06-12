@@ -1,7 +1,7 @@
 #ifndef _TA3D_TOOLS_PATHS_H__
 # define _TA3D_TOOLS_PATHS_H__
 
-# include "stdafx.h"
+# include "../stdafx.h"
 
 
 
