@@ -21,6 +21,11 @@ add_executable(ta3d-bin ta3d.cpp ta3d.h main.cpp backtrace.cpp backtrace.h hpivi
 
 ADD_DEPENDENCIES(ta3d-bin logs threads misc)
 target_link_libraries(ta3d-bin logs threads misc)
+IF(APPLE)
+    SET(GUI_TYPE MACOSX_BUNDLE)
+    SET(MACOSX_BUNDLE_BUNDLE_NAME "TA3D")
+    SET(MACOSX_BUNDLE_SHORT_VERSION_STRING "ta3d")
+ENDIF(APPLE)
 
 
 
@@ -39,6 +44,12 @@ add_executable(${3DMEDITOR} 3dmeditor.cpp ta3d.h 3dmeditor_sub.cpp 3dmeditor.h b
 
 ADD_DEPENDENCIES(${3DMEDITOR} logs threads misc)
 target_link_libraries(${3DMEDITOR} logs threads misc)
+IF(APPLE)
+    SET(GUI_TYPE MACOSX_BUNDLE)
+    SET(MACOSX_BUNDLE_BUNDLE_NAME "TA3D Editor")
+    SET(MACOSX_BUNDLE_SHORT_VERSION_STRING "ta3d-editor")
+ENDIF(APPLE)
+
 
 
 

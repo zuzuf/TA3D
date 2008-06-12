@@ -76,6 +76,7 @@ GFX::GFX()
     install_allegro_gl();
 
     allegro_gl_clear_settings();         // Initialise AllegroGL
+    #ifndef TA3D_PLATFORM_DARWIN
     allegro_gl_set (AGL_STENCIL_DEPTH, 8 );
     allegro_gl_set (AGL_SAMPLE_BUFFERS, 0 );
     allegro_gl_set (AGL_SAMPLES, TA3D::VARS::lp_CONFIG->fsaa );
@@ -85,7 +86,22 @@ GFX::GFX()
     allegro_gl_set (AGL_FULLSCREEN, TA3D::VARS::lp_CONFIG->fullscreen );
     allegro_gl_set (AGL_DOUBLEBUFFER, 1 );
     allegro_gl_set (AGL_RENDERMETHOD, 1 );
-    allegro_gl_set (AGL_SUGGEST, AGL_RENDERMETHOD | AGL_COLOR_DEPTH | AGL_Z_DEPTH | AGL_DOUBLEBUFFER | AGL_FULLSCREEN | AGL_SAMPLES | AGL_SAMPLE_BUFFERS | AGL_STENCIL_DEPTH | AGL_VIDEO_MEMORY_POLICY );
+    allegro_gl_set (AGL_SUGGEST, AGL_RENDERMETHOD | AGL_COLOR_DEPTH | AGL_Z_DEPTH
+                                | AGL_DOUBLEBUFFER | AGL_FULLSCREEN | AGL_SAMPLES
+                                | AGL_SAMPLE_BUFFERS | AGL_STENCIL_DEPTH
+                                | AGL_VIDEO_MEMORY_POLICY );
+    #else
+    allegro_gl_set(AGL_COLOR_DEPTH, 32);
+    allegro_gl_set(AGL_DOUBLEBUFFER, 1);
+    allegro_gl_set(AGL_Z_DEPTH, 32);
+    allegro_gl_set(AGL_WINDOWED, TRUE);
+    allegro_gl_set(AGL_RENDERMETHOD, 1);
+    allegro_gl_set(AGL_SAMPLES, 4);
+    allegro_gl_set(AGL_SAMPLE_BUFFERS, 1);
+    allegro_gl_set(AGL_SUGGEST, AGL_COLOR_DEPTH | AGL_DOUBLEBUFFER
+                              | AGL_RENDERMETHOD | AGL_Z_DEPTH | AGL_WINDOWED
+                              | AGL_SAMPLES | AGL_SAMPLE_BUFFERS);
+    #endif
 
     allegro_gl_use_mipmapping(TRUE);
 
@@ -109,7 +125,9 @@ GFX::GFX()
 
     precalculations();
 
+    #ifndef TA3D_PLATFORM_DARWIN
     install_ext();      // Pour les fonctions OpenGl supplémentaires
+    #endif
 
     if( g_useTextureCompression )         // Active la compression de texture
         allegro_gl_set_texture_format(GL_COMPRESSED_RGB_ARB);

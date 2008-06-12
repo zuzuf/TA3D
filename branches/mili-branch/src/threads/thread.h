@@ -102,6 +102,7 @@ namespace TA3D
     public:
         virtual void spawn(void* param);
         virtual void join();
+        virtual bool isDead() const {return pDead;}
 
     }; // class Thread
 
