@@ -157,7 +157,7 @@ int main()
 
     init_surf_buf();
 
-    install_ext();
+    installOpenGLExtensions();
 
     HPIManager=new cHPIHandler("");
 

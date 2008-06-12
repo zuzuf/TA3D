@@ -128,11 +128,10 @@ GFX::GFX()
 
     precalculations();
 
-    #ifndef TA3D_PLATFORM_DARWIN
-    install_ext();      // Pour les fonctions OpenGl supplémentaires
-    #endif
+    // Install OpenGL extensions
+    installOpenGLExtensions();
 
-    if( g_useTextureCompression )         // Active la compression de texture
+    if(g_useTextureCompression) // Try to enabled the Texture compression
         allegro_gl_set_texture_format(GL_COMPRESSED_RGB_ARB);
     else
         allegro_gl_set_texture_format(GL_RGB8); 
