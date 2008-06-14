@@ -43,7 +43,24 @@ using namespace TA3D::Exceptions;
 INGAME_UNITS units;
 
 
+
+
+
+/*!
+ * \brief Display the executed code if enabled
+ */
+#define DEBUG_USE_PRINT_CODE 0
+
+#if DEBUG_USE_PRINT_CODE == 1
+#   define DEBUG_PRINT_CODE(X)  if (print_code) LOG_DEBUG(X)
+#else
+#   define DEBUG_PRINT_CODE(X)  
+#endif
+
+
 #define SQUARE(X)  ((X)*(X))
+
+
 
 
 bool UNIT::is_on_radar( byte p_mask )
@@ -1162,8 +1179,10 @@ const int UNIT::run_script(const float &dt,const int &id,MAP *map,int max_code)	
     bool done=false;
     int nb_code=0;
 
-    //#define PRINT_CODE			// Affiche le code éxécuté dans la console
+#if DEBUG_USE_PRINT_CODE == 1
+    bool print_code = false;
     //bool	print_code = Lowercase( unit_manager.unit_type[ type_id ].Unitname ) == "armtship" && ( Lowercase( script->name[script_id] ) == "transportpickup" || Lowercase( script->name[script_id] ) == "boomcalc" );
+#endif
 
     do
     {
@@ -1175,11 +1194,8 @@ const int UNIT::run_script(const float &dt,const int &id,MAP *map,int max_code)	
         switch(script->script_code[script_id][pos++])
         {
             case SCRIPT_MOVE_OBJECT:
-#ifdef PRINT_CODE
-                if( print_code )
-                    printf("MOVE_OBJECT\n");
-#endif
                 {
+                    DEBUG_PRINT_CODE("MOVE_OBJECT");
                     int obj=script->script_code[script_id][pos++];
                     int axis=script->script_code[script_id][pos++];
                     int v1=(*script_env)[id].pop();
@@ -1195,14 +1211,11 @@ const int UNIT::run_script(const float &dt,const int &id,MAP *map,int max_code)	
                         data.axe[axis][obj].move_speed=-fabs(v2*div*0.5f);
                     else
                         data.axe[axis][obj].move_speed=fabs(v2*div*0.5f);
+                    break;
                 }
-                break;
             case SCRIPT_WAIT_FOR_TURN:
-#ifdef PRINT_CODE
-                if( print_code )
-                    printf("WAIT_FOR_TURN\n");
-#endif
                 {
+                    DEBUG_PRINT_CODE("WAIT_FOR_TURN");
                     int obj=script->script_code[script_id][pos++];
                     int axis=script->script_code[script_id][pos++];
                     float a=data.axe[axis][obj].rot_angle;
@@ -1214,59 +1227,44 @@ const int UNIT::run_script(const float &dt,const int &id,MAP *map,int max_code)	
                         data.axe[axis][obj].rot_speed = 0.0f;
                         data.axe[axis][obj].rot_accel = 0.0f;
                     }
+                    done = true;
+                    break;
                 }
-                done=true;
-                break;
             case SCRIPT_RANDOM_NUMBER:
-#ifdef PRINT_CODE
-                if( print_code )
-                    printf("RANDOM_NUMBER\n");
-#endif
                 {
+                    DEBUG_PRINT_CODE("RANDOM_NUMBER");
                     int high=(*script_env)[id].pop();
                     int low=(*script_env)[id].pop();
                     (*script_env)[id].push((rand_from_table()%(high-low+1))+low);
+                    break;
                 }
-                break;
             case SCRIPT_GREATER_EQUAL:
-#ifdef PRINT_CODE
-                if( print_code )
-                    printf("GREATER_EQUAL\n");
-#endif
                 {
+                    DEBUG_PRINT_CODE("GREATER_EQUAL");
                     int v2=(*script_env)[id].pop();
                     int v1=(*script_env)[id].pop();
                     (*script_env)[id].push(v1>=v2 ? 1 : 0);
+                    break;
                 }
-                break;
             case SCRIPT_GREATER:
-#ifdef PRINT_CODE
-                if( print_code )
-                    printf("GREATER\n");
-#endif
                 {
+                    DEBUG_PRINT_CODE("GREATER");
                     int v2=(*script_env)[id].pop();
                     int v1=(*script_env)[id].pop();
                     (*script_env)[id].push(v1>v2 ? 1 : 0);
+                    break;
                 }
-                break;
             case SCRIPT_LESS:
-#ifdef PRINT_CODE
-                if( print_code )
-                    printf("LESS\n");
-#endif
                 {
+                    DEBUG_PRINT_CODE("LESS");
                     int v2=(*script_env)[id].pop();
                     int v1=(*script_env)[id].pop();
                     (*script_env)[id].push(v1<v2 ? 1 : 0);
+                    break;
                 }
-                break;
             case SCRIPT_EXPLODE:
-#ifdef PRINT_CODE
-                if( print_code )
-                    printf("EXPLODE\n");
-#endif
                 {
+                    DEBUG_PRINT_CODE("EXPLODE");
                     int obj = script->script_code[script_id][pos++];
                     int explosion_type = (*script_env)[id].pop();
                     data.axe[0][obj].pos = 0.0f;
@@ -1275,7 +1273,8 @@ const int UNIT::run_script(const float &dt,const int &id,MAP *map,int max_code)	
                     data.axe[1][obj].angle = 0.0f;
                     data.axe[2][obj].pos = 0.0f;
                     data.axe[2][obj].angle = 0.0f;
-                    if(visible) {					// Don't draw things which could tell the player there is something there
+                    if(visible) // Don't draw things which could tell the player there is something there
+                    {
                         compute_model_coord();
                         particle_engine.make_fire( Pos + data.pos[obj],1,10,45.0f);
                         int power = max(unit_manager.unit_type[type_id].FootprintX, unit_manager.unit_type[type_id].FootprintZ);
@@ -1292,19 +1291,17 @@ const int UNIT::run_script(const float &dt,const int &id,MAP *map,int max_code)	
                     data.axe[2][obj].rot_speed=(rand_from_table()%7201)*0.1f-360.0f;
                     data.explode = true;
                     data.explode_time = 1.0f;
+                    break;
                 }
-                break;
             case SCRIPT_TURN_OBJECT:
-#ifdef PRINT_CODE
-                if( print_code )
-                    printf("TURN_OBJECT\n");
-#endif
                 {
+                    DEBUG_PRINT_CODE("TURN_OBJECT");
                     int obj=script->script_code[script_id][pos++];
                     int axis=script->script_code[script_id][pos++];
                     int v1=(*script_env)[id].pop();
                     int v2=(*script_env)[id].pop();
-                    if(axis!=2) {
+                    if(axis!=2)
+                    {
                         v1=-v1;
                         v2=-v2;
                     }
@@ -1324,50 +1321,37 @@ const int UNIT::run_script(const float &dt,const int &id,MAP *map,int max_code)	
                         data.axe[axis][obj].rot_speed=-fabs(v2*TA2DEG);
                     data.axe[axis][obj].rot_limit=true;
                     data.axe[axis][obj].rot_speed_limit=false;
+                    break;
                 }
-                break;
             case SCRIPT_WAIT_FOR_MOVE:
-#ifdef PRINT_CODE
-                if( print_code )
-                    printf("WAIT_FOR_MOVE\n");
-#endif
                 {
+                    DEBUG_PRINT_CODE("WAIT_FOR_MOVE");
                     int obj=script->script_code[script_id][pos++];
                     int axis=script->script_code[script_id][pos++];
                     //					float a=data.axe[axis][obj].rot_angle;
                     if(data.axe[axis][obj].move_distance!=0.0f)
                         pos-=3;
+                    done=true;
+                    break;
                 }
-                done=true;
-                break;
             case SCRIPT_CREATE_LOCAL_VARIABLE:
-#ifdef PRINT_CODE
-                if( print_code )
-                    printf("CREATE_LOCAL_VARIABLE\n");
-#endif
-                break;
-            case SCRIPT_SUBTRACT:
-#ifdef PRINT_CODE
-                if( print_code )
-                    printf("SUBSTRACT\n");
-#endif
                 {
+                    DEBUG_PRINT_CODE("CREATE_LOCAL_VARIABLE");
+                    break;
+                }
+            case SCRIPT_SUBTRACT:
+                {
+                    DEBUG_PRINT_CODE("SUBSTRACT");
                     int v1=(*script_env)[id].pop();
                     int v2=(*script_env)[id].pop();
                     (*script_env)[id].push(v2-v1);
+                    break;
                 }
-                break;
             case SCRIPT_GET_VALUE_FROM_PORT:
-#ifdef PRINT_CODE
-                if( print_code )
-                    printf("GET_VALUE_FROM_PORT: ");
-#endif
                 {
+                    DEBUG_PRINT_CODE("GET_VALUE_FROM_PORT:");
                     int value=(*script_env)[id].pop();
-#ifdef PRINT_CODE
-                    if( print_code )
-                        printf("%d\n",value);
-#endif
+                    DEBUG_PRINT_CODE(value);
                     switch(value)
                     {
                         case MIN_ID:		// returns the lowest valid unit ID number
@@ -1421,8 +1405,7 @@ const int UNIT::run_script(const float &dt,const int &id,MAP *map,int max_code)	
                                     "BUGGER_OFF","ARMORED"};
                                 if(value>20)
                                     value=0;
-                                printf("GET_VALUE_FROM_PORT: ");
-                                printf("opération non gérée : %s\n",op[value]);
+                                LOG_DEBUG("GET_VALUE_FROM_PORT: opération non gérée : " << op[value]);
                             }
                             break;
                     };
@@ -1430,27 +1413,22 @@ const int UNIT::run_script(const float &dt,const int &id,MAP *map,int max_code)	
                 }
                 break;
             case SCRIPT_LESS_EQUAL:
-#ifdef PRINT_CODE
-                if( print_code )
-                    printf("LESS_EQUAL\n");
-#endif
                 {
+                    DEBUG_PRINT_CODE("LESS_EQUAL");
                     int v2=(*script_env)[id].pop();
                     int v1=(*script_env)[id].pop();
                     (*script_env)[id].push(v1<=v2 ? 1 : 0);
+                    break;
                 }
-                break;
             case SCRIPT_SPIN_OBJECT:
-#ifdef PRINT_CODE
-                if( print_code )
-                    printf("SPIN_OBJECT\n");
-#endif
                 {
+                    DEBUG_PRINT_CODE("SPIN_OBJECT");
                     int obj=script->script_code[script_id][pos++];
                     int axis=script->script_code[script_id][pos++];
                     int v1=(*script_env)[id].pop();
                     int v2=(*script_env)[id].pop();
-                    if(axis==1) {
+                    if(axis==1)
+                    {
                         v1=-v1;
                         v2=-v2;
                     }
@@ -1460,7 +1438,8 @@ const int UNIT::run_script(const float &dt,const int &id,MAP *map,int max_code)	
                     data.axe[axis][obj].rot_limit=false;
                     data.axe[axis][obj].rot_speed_limit=true;
                     data.axe[axis][obj].rot_target_speed=v1*TA2DEG;
-                    if(v2) {
+                    if(v2)
+                    {
                         if(data.axe[axis][obj].rot_target_speed>data.axe[axis][obj].rot_speed)
                             data.axe[axis][obj].rot_accel=fabs(v2*TA2DEG);
                         else
@@ -1473,34 +1452,27 @@ const int UNIT::run_script(const float &dt,const int &id,MAP *map,int max_code)	
                 }
                 break;
             case SCRIPT_SLEEP:
-#ifdef PRINT_CODE
-                if( print_code )
-                    printf("SLEEP\n");
-#endif
-                (*script_env)[id].wait=(*script_env)[id].pop()*0.001f;
-                done=true;
-                break;
-            case SCRIPT_MULTIPLY:
-#ifdef PRINT_CODE
-                if( print_code )
-                    printf("MULTIPLY\n");
-#endif
                 {
+                    DEBUG_PRINT_CODE("SLEEP");
+                    (*script_env)[id].wait=(*script_env)[id].pop()*0.001f;
+                    done=true;
+                    break;
+                }
+            case SCRIPT_MULTIPLY:
+                {
+                    DEBUG_PRINT_CODE("MULTIPLY");
                     int v1=(*script_env)[id].pop();
                     int v2=(*script_env)[id].pop();
                     (*script_env)[id].push(v1*v2);
+                    break;
                 }
-                break;
             case SCRIPT_CALL_SCRIPT:
-#ifdef PRINT_CODE
-                if( print_code )
-                    printf("CALL_SCRIPT\n");
-#endif
                 {
+                    DEBUG_PRINT_CODE("CALL_SCRIPT");
                     int function_id=script->script_code[script_id][pos];			// Lit un code
-                    pos++;
+                    ++pos;
                     int num_param=script->script_code[script_id][pos];			// Lit un code
-                    pos++;
+                    ++pos;
                     (*script_env)[id].env->cur=script_id+(pos<<8);
                     SCRIPT_ENV_STACK *old=(*script_env)[id].env;
                     (*script_env)[id].env=new SCRIPT_ENV_STACK;
@@ -1512,107 +1484,88 @@ const int UNIT::run_script(const float &dt,const int &id,MAP *map,int max_code)	
                     done=true;
                     pos=0;
                     script_id=function_id;
+                    break;
                 }
-                break;
             case SCRIPT_SHOW_OBJECT:
-#ifdef PRINT_CODE
-                if( print_code )
-                    printf("SHOW_OBJECT\n");
-#endif
-                data.flag[script->script_code[script_id][pos++]]&=(~FLAG_HIDE);
-                break;
-            case SCRIPT_EQUAL:
-#ifdef PRINT_CODE
-                if( print_code )
-                    printf("EQUAL\n");
-#endif
                 {
+                    DEBUG_PRINT_CODE("SHOW_OBJECT");
+                    data.flag[script->script_code[script_id][pos++]]&=(~FLAG_HIDE);
+                    break;
+                }
+            case SCRIPT_EQUAL:
+                {
+                    DEBUG_PRINT_CODE("EQUAL");
                     int v1=(*script_env)[id].pop();
                     int v2=(*script_env)[id].pop();
                     (*script_env)[id].push(v1==v2 ? 1 : 0);
+                    break;
                 }
-                break;
             case SCRIPT_NOT_EQUAL:
-#ifdef PRINT_CODE
-                if( print_code )
-                    printf("NOT_EQUAL\n");
-#endif
                 {
-                    int v1=(*script_env)[id].pop();
-                    int v2=(*script_env)[id].pop();
+                    DEBUG_PRINT_CODE("NOT_EQUAL");
+                    int v1 = (*script_env)[id].pop();
+                    int v2 = (*script_env)[id].pop();
                     (*script_env)[id].push(v1!=v2 ? 1 : 0);
+                    break;
                 }
-                break;
             case SCRIPT_IF:
-#ifdef PRINT_CODE
-                if( print_code )
-                    printf("IF\n");
-#endif
-                if((*script_env)[id].pop()!=0)
-                    pos++;
-                else {
-                    int target_offset=script->script_code[script_id][pos];			// Lit un code
-                    pos=target_offset-script->dec_offset[script_id];								// Déplace l'éxecution
-                }
-                break;
-            case SCRIPT_HIDE_OBJECT:
-#ifdef PRINT_CODE
-                if( print_code )
-                    printf("HIDE_OBJECT\n");
-#endif
-                data.flag[script->script_code[script_id][pos++]]|=FLAG_HIDE;
-                break;
-            case SCRIPT_SIGNAL:
-#ifdef PRINT_CODE
-                if( print_code )
-                    printf("SIGNAL\n");
-#endif
-                (*script_env)[id].env->cur=script_id+(pos<<8);			// Sauvegarde la position
-                raise_signal((*script_env)[id].pop());					// Tue tout les processus utilisant ce signal
-#ifdef	ADVANCED_DEBUG_MODE
-                GuardLeave();
-#endif
-                return 0;												// Quitte la fonction d'émulation de scripts
-            case SCRIPT_DONT_CACHE:
-#ifdef PRINT_CODE
-                if( print_code )
-                    printf("DONT_CACHE\n");
-#endif
-                pos++;
-                break;
-            case SCRIPT_SET_SIGNAL_MASK:
-#ifdef PRINT_CODE
-                if( print_code )
-                    printf("SET_SIGNAL_MASK\n");
-#endif
-                (*script_env)[id].env->signal_mask=(*script_env)[id].pop();
-                break;
-            case SCRIPT_NOT:
-#ifdef PRINT_CODE
-                if( print_code )
-                    printf("NOT\n");
-#endif
-                (*script_env)[id].push(!(*script_env)[id].pop());
-                break;
-            case SCRIPT_DONT_SHADE:
-#ifdef PRINT_CODE
-                if( print_code )
-                    printf("DONT_SHADE\n");
-#endif
-                pos++;
-                break;
-            case SCRIPT_EMIT_SFX:
-#ifdef PRINT_CODE
-                if( print_code )
-                    printf("EMIT_SFX: ");
-#endif
                 {
+                    DEBUG_PRINT_CODE("IF");
+                    if((*script_env)[id].pop()!=0)
+                        pos++;
+                    else
+                    {
+                        int target_offset=script->script_code[script_id][pos];			// Lit un code
+                        pos=target_offset-script->dec_offset[script_id];								// Déplace l'éxecution
+                    }
+                    break;
+                }
+            case SCRIPT_HIDE_OBJECT:
+                {
+                    DEBUG_PRINT_CODE("HIDE_OBJECT");
+                    data.flag[script->script_code[script_id][pos++]]|=FLAG_HIDE;
+                    break;
+                }
+            case SCRIPT_SIGNAL:
+                {
+                    DEBUG_PRINT_CODE("SIGNAL");
+                    (*script_env)[id].env->cur=script_id+(pos<<8);			// Sauvegarde la position
+                    raise_signal((*script_env)[id].pop());					// Tue tout les processus utilisant ce signal
+#ifdef	ADVANCED_DEBUG_MODE
+                    GuardLeave();
+#endif
+                    return 0;
+                }
+            case SCRIPT_DONT_CACHE:
+                {
+                    DEBUG_PRINT_CODE("DONT_CACHE");
+                    ++pos;
+                    break;
+                }
+            case SCRIPT_SET_SIGNAL_MASK:
+                {
+                    DEBUG_PRINT_CODE("SET_SIGNAL_MASK");
+                    (*script_env)[id].env->signal_mask=(*script_env)[id].pop();
+                    break;
+                }
+            case SCRIPT_NOT:
+                {
+                    DEBUG_PRINT_CODE("NOT");
+                    (*script_env)[id].push(!(*script_env)[id].pop());
+                    break;
+                }
+            case SCRIPT_DONT_SHADE:
+                {
+                    DEBUG_PRINT_CODE("DONT_SHADE");
+                    ++pos;
+                    break;
+                }
+            case SCRIPT_EMIT_SFX:
+                {
+                    DEBUG_PRINT_CODE("EMIT_SFX:");
                     int smoke_type=(*script_env)[id].pop();
                     int from_piece=script->script_code[script_id][pos++];
-#ifdef PRINT_CODE
-                    if( print_code )
-                        printf("smoke_type %d from %d\n",smoke_type,from_piece);
-#endif
+                    DEBUG_PRINT_CODE("smoke_type "<< smoke_type << " from " << from_piece);
                     if(visible)
                     {
                         compute_model_coord();
@@ -1649,85 +1602,75 @@ const int UNIT::run_script(const float &dt,const int &id,MAP *map,int max_code)	
                 }
                 break;
             case SCRIPT_PUSH_CONST:
-#ifdef PRINT_CODE
-                if( print_code )
-                    printf("PUSH_CONST (%d)\n", script->script_code[script_id][pos]);
-#endif
-                (*script_env)[id].push(script->script_code[script_id][pos]);
-                pos++;
-                break;
-            case SCRIPT_PUSH_VAR:
-#ifdef PRINT_CODE
-                if( print_code )
-                    printf("PUSH_VAR (%d) = %d\n", script->script_code[script_id][pos], (*script_env)[id].env->var[script->script_code[script_id][pos]] );
-#endif
-                (*script_env)[id].push((*script_env)[id].env->var[script->script_code[script_id][pos]]);
-                pos++;
-                break;
-            case SCRIPT_SET_VAR:
-#ifdef PRINT_CODE
-                if( print_code )
-                    printf("SET_VAR (%d)\n", script->script_code[script_id][pos]);
-#endif
-                (*script_env)[id].env->var[script->script_code[script_id][pos]]=(*script_env)[id].pop();
-                pos++;
-                break;
-            case SCRIPT_PUSH_STATIC_VAR:
-#ifdef PRINT_CODE
-                if( print_code )
-                    printf("PUSH_STATIC_VAR\n");
-#endif
-                if( script->script_code[script_id][pos] >= s_var->size() )
-                    s_var->resize( script->script_code[script_id][pos] + 1 );
-                (*script_env)[id].push((*s_var)[script->script_code[script_id][pos]]);
-                pos++;
-                break;
-            case SCRIPT_SET_STATIC_VAR:
-#ifdef PRINT_CODE
-                if( print_code )
-                    printf("SET_STATIC_VAR\n");
-#endif
-                if( script->script_code[script_id][pos] >= s_var->size() )
-                    s_var->resize( script->script_code[script_id][pos] + 1 );
-                (*s_var)[script->script_code[script_id][pos]]=(*script_env)[id].pop();
-                pos++;
-                break;
-            case SCRIPT_OR:
-#ifdef PRINT_CODE
-                if( print_code )
-                    printf("OR\n");
-#endif
                 {
+                    DEBUG_PRINT_CODE("PUSH_CONST (" << script->script_code[script_id][pos] << ")");
+                    (*script_env)[id].push(script->script_code[script_id][pos]);
+                    ++pos;
+                    break;
+                }
+            case SCRIPT_PUSH_VAR:
+                {
+                    DEBUG_PRINT_CODE("PUSH_VAR (" << script->script_code[script_id][pos] << ") = "
+                                     << (*script_env)[id].env->var[script->script_code[script_id][pos]]);
+                    (*script_env)[id].push((*script_env)[id].env->var[script->script_code[script_id][pos]]);
+                    ++pos;
+                    break;
+                }
+            case SCRIPT_SET_VAR:
+                {
+                    DEBUG_PRINT_CODE("SET_VAR (" << script->script_code[script_id][pos] << ")");
+                    (*script_env)[id].env->var[script->script_code[script_id][pos]]=(*script_env)[id].pop();
+                    ++pos;
+                    break;
+                }
+            case SCRIPT_PUSH_STATIC_VAR:
+                {
+                    DEBUG_PRINT_CODE("PUSH_STATIC_VAR");
+                    if( script->script_code[script_id][pos] >= s_var->size() )
+                        s_var->resize( script->script_code[script_id][pos] + 1 );
+                    (*script_env)[id].push((*s_var)[script->script_code[script_id][pos]]);
+                    ++pos;
+                    break;
+                }
+            case SCRIPT_SET_STATIC_VAR:
+                {
+                    DEBUG_PRINT_CODE("SET_STATIC_VAR");
+                    if( script->script_code[script_id][pos] >= s_var->size() )
+                        s_var->resize( script->script_code[script_id][pos] + 1 );
+                    (*s_var)[script->script_code[script_id][pos]]=(*script_env)[id].pop();
+                    ++pos;
+                    break;
+                }
+            case SCRIPT_OR:
+                {
+                    DEBUG_PRINT_CODE("OR");
                     int v1=(*script_env)[id].pop(),v2=(*script_env)[id].pop();
                     (*script_env)[id].push(v1|v2);
+                    break;
                 }
-                break;
             case SCRIPT_START_SCRIPT:				// Transfère l'éxecution à un autre script
-#ifdef PRINT_CODE
-                if( print_code )
-                    printf("START_SCRIPT\n");
-#endif
                 {
+                    DEBUG_PRINT_CODE("START_SCRIPT");
                     int function_id=script->script_code[script_id][pos++];			// Lit un code
                     int num_param=script->script_code[script_id][pos++];			// Lit un code
                     int s_id=launch_script(function_id, 0, NULL, true);
-                    if(s_id>=0) {
+                    if(s_id>=0)
+                    {
                         for(int i=num_param-1;i>=0;i--)		// Lit les paramètres
                             (*script_env)[s_id].env->var[i]=(*script_env)[id].pop();
                         (*script_env)[s_id].env->signal_mask=(*script_env)[id].env->signal_mask;
                     }
                     else
-                        for(int i=0;i<num_param;i++)		// Enlève les paramètres de la pile
+                    {
+                        for (int i=0;i<num_param; ++i)		// Enlève les paramètres de la pile
                             (*script_env)[id].pop();
+                    }
                     done=true;
+                    break;
                 }
-                break;
             case SCRIPT_RETURN:		// Retourne au script précédent
-#ifdef PRINT_CODE
-                if( print_code )
-                    printf("RETURN\n");
-#endif
                 {
+                    DEBUG_PRINT_CODE("RETURN");
                     if( script_val->size() <= script_id )
                         script_val->resize( script_id + 1 );
                     (*script_val)[script_id]=(*script_env)[id].env->var[0];
@@ -1735,40 +1678,32 @@ const int UNIT::run_script(const float &dt,const int &id,MAP *map,int max_code)	
                     (*script_env)[id].env=(*script_env)[id].env->next;
                     delete old;
                     (*script_env)[id].pop();		// Enlève la valeur retournée
+                    if((*script_env)[id].env)
+                    {
+                        script_id=((*script_env)[id].env->cur&0xFF);			// Récupère l'identifiant du script en cours d'éxecution et la position d'éxecution
+                        pos=((*script_env)[id].env->cur>>8);
+                    }
+                    done=true;
+                    break;
                 }
-                if((*script_env)[id].env) {
-                    script_id=((*script_env)[id].env->cur&0xFF);			// Récupère l'identifiant du script en cours d'éxecution et la position d'éxecution
-                    pos=((*script_env)[id].env->cur>>8);
-                }
-                done=true;
-                break;
             case SCRIPT_JUMP:						// Commande de saut
-#ifdef PRINT_CODE
-                if( print_code )
-                    printf("JUMP\n");
-#endif
                 {
+                    DEBUG_PRINT_CODE("JUMP");
                     int target_offset=script->script_code[script_id][pos];			// Lit un code
                     pos=target_offset-script->dec_offset[script_id];								// Déplace l'éxecution
+                    break;
                 }
-                break;
             case SCRIPT_ADD:
-#ifdef PRINT_CODE
-                if( print_code )
-                    printf("ADD\n");
-#endif
                 {
+                    DEBUG_PRINT_CODE("ADD");
                     int v1=(*script_env)[id].pop();
                     int v2=(*script_env)[id].pop();
                     (*script_env)[id].push(v1+v2);
+                    break;
                 }
-                break;	//added
             case SCRIPT_STOP_SPIN:
-#ifdef PRINT_CODE
-                if( print_code )
-                    printf("STOP_SPIN\n");
-#endif
                 {
+                    DEBUG_PRINT_CODE("STOP_SPIN");
                     int obj=script->script_code[script_id][pos++];
                     int axis=script->script_code[script_id][pos++];
                     int v=(*script_env)[id].pop();
@@ -1792,25 +1727,19 @@ const int UNIT::run_script(const float &dt,const int &id,MAP *map,int max_code)	
                         else
                             data.axe[axis][obj].rot_accel=abs(v);
                     }
+                    break;
                 }
-                break;	//added
             case SCRIPT_DIVIDE:
-#ifdef PRINT_CODE
-                if( print_code )
-                    printf("DIVIDE\n");
-#endif
                 {
+                    DEBUG_PRINT_CODE("DIVIDE");
                     int v1=(*script_env)[id].pop();
                     int v2=(*script_env)[id].pop();
                     (*script_env)[id].push(v2 / v1);
+                    break;
                 }
-                break;	//added
             case SCRIPT_MOVE_PIECE_NOW:
-#ifdef PRINT_CODE
-                if( print_code )
-                    printf("MOVE_PIECE_NOW\n");
-#endif
                 {
+                    DEBUG_PRINT_CODE("MOVE_PIECE_NOW");
                     int obj=script->script_code[script_id][pos++];
                     int axis=script->script_code[script_id][pos++];
                     data.axe[axis][obj].reset_move();
@@ -1820,14 +1749,11 @@ const int UNIT::run_script(const float &dt,const int &id,MAP *map,int max_code)	
                         data.axe[axis][obj].pos=-(*script_env)[id].pop()*div;
                     else
                         data.axe[axis][obj].pos=(*script_env)[id].pop()*div;
+                    break;
                 }
-                break;	//added
             case SCRIPT_TURN_PIECE_NOW:
-#ifdef PRINT_CODE
-                if( print_code )
-                    printf("TURN_PIECE_NOW\n");
-#endif
                 {
+                    DEBUG_PRINT_CODE("TURN_PIECE_NOW");
                     int obj=script->script_code[script_id][pos++];
                     int axis=script->script_code[script_id][pos++];
                     int v=(*script_env)[id].pop();
@@ -1837,43 +1763,31 @@ const int UNIT::run_script(const float &dt,const int &id,MAP *map,int max_code)	
                     if(axis!=2)
                         v=-v;
                     data.axe[axis][obj].angle=-v*TA2DEG;
+                    break;
                 }
-                break;	//added
             case SCRIPT_CACHE:
-#ifdef PRINT_CODE
-                if( print_code )
-                    printf("CACHE\n");
-#endif
+                DEBUG_PRINT_CODE("CACHE");
                 ++pos;
                 break;	//added
             case SCRIPT_COMPARE_AND:
-#ifdef PRINT_CODE
-                if( print_code )
-                    printf("COMPARE_AND\n");
-#endif
                 {
+                    DEBUG_PRINT_CODE("COMPARE_AND");
                     int v1=(*script_env)[id].pop();
                     int v2=(*script_env)[id].pop();
                     (*script_env)[id].push(v1 && v2);
+                    break;
                 }
-                break;	//added
             case SCRIPT_COMPARE_OR:
-#ifdef PRINT_CODE
-                if( print_code )
-                    printf("COMPARE_OR\n");
-#endif
                 {
+                    DEBUG_PRINT_CODE("COMPARE_OR");
                     int v1=(*script_env)[id].pop();
                     int v2=(*script_env)[id].pop();
                     (*script_env)[id].push(v1 || v2);
+                    break;
                 }
-                break;	//added
             case SCRIPT_CALL_FUNCTION:
-#ifdef PRINT_CODE
-                if( print_code )
-                    printf("CALL_FUNCTION\n");
-#endif
                 {
+                    DEBUG_PRINT_CODE("CALL_FUNCTION");
                     int function_id=script->script_code[script_id][pos++];			// Lit un code
                     int num_param=script->script_code[script_id][pos++];			// Lit un code
                     (*script_env)[id].env->cur=script_id+(pos<<8);
@@ -1885,16 +1799,13 @@ const int UNIT::run_script(const float &dt,const int &id,MAP *map,int max_code)	
                     for(int i=num_param-1;i>=0;i--)		// Lit les paramètres
                         (*script_env)[id].env->var[i]=(*script_env)[id].pop();
                     done=true;
-                    pos=0;
+                    pos = 0;
                     script_id=function_id;
+                    break;
                 }
-                break;	//added
             case SCRIPT_GET:
-#ifdef PRINT_CODE
-                if( print_code )
-                    printf("GET *\n");
-#endif
                 {
+                    DEBUG_PRINT_CODE("GET *");
                     (*script_env)[id].pop();
                     (*script_env)[id].pop();
                     int v2=(*script_env)[id].pop();
@@ -1942,24 +1853,22 @@ const int UNIT::run_script(const float &dt,const int &id,MAP *map,int max_code)	
                         case PIECE_XZ:
                             compute_model_coord();
                             (*script_env)[id].push( PACKXZ((data.pos[v1].x+Pos.x)*2.0f+map->map_w, (data.pos[v1].z+Pos.z)*2.0f+map->map_h));
-#ifdef PRINT_CODE
+#if DEBUG_USE_PRINT_CODE == 1
                             {
                                 int c = (*script_env)[id].pop();
                                 (*script_env)[id].push( c );
-                                if( print_code )
-                                    printf("PIECE_XZ=%d\n", c);
+                                DEBUG_PRINT_CODE("PIECE_XZ = " << c);
                             }
 #endif
                             break;
                         case PIECE_Y:
                             compute_model_coord();
                             (*script_env)[id].push((int)((data.pos[v1].y + Pos.y)*2.0f)<<16);
-#ifdef PRINT_CODE
+#if DEBUG_USE_PRINT_CODE == 1
                             {
                                 int c = (*script_env)[id].pop();
                                 (*script_env)[id].push( c );
-                                if( print_code )
-                                    printf("PIECE_Y=%d\n", c);
+                                DEBUG_PRINT_CODE("PIECE_Y = " << c);
                             }
 #endif
                             break;
@@ -1968,12 +1877,11 @@ const int UNIT::run_script(const float &dt,const int &id,MAP *map,int max_code)	
                                 (*script_env)[id].push( PACKXZ( units.unit[v1].Pos.x*2.0f+map->map_w, units.unit[v1].Pos.z*2.0f+map->map_h ));
                             else
                                 (*script_env)[id].push( PACKXZ( Pos.x*2.0f+map->map_w, Pos.z*2.0f+map->map_h ));
-#ifdef PRINT_CODE
+#if DEBUG_USE_PRINT_CODE == 1
                             {
                                 int c = (*script_env)[id].pop();
                                 (*script_env)[id].push( c );
-                                if( print_code )
-                                    printf("UNIT_XY=%d\n", c);
+                                DEBUG_PRINT_CODE("UNIT_XY = " << c);
                             }
 #endif
                             break;
@@ -1982,12 +1890,11 @@ const int UNIT::run_script(const float &dt,const int &id,MAP *map,int max_code)	
                                 (*script_env)[id].push((int)(units.unit[v1].Pos.y * 2.0f)<<16);
                             else
                                 (*script_env)[id].push((int)(Pos.y * 2.0f)<<16);
-#ifdef PRINT_CODE
+#if DEBUG_USE_PRINT_CODE == 1
                             {
                                 int c = (*script_env)[id].pop();
                                 (*script_env)[id].push( c );
-                                if( print_code )
-                                    printf("UNIT_Y=%d\n", c);
+                                DEBUG_PRINT_CODE("UNIT_Y = " << c);
                             }
 #endif
                             break;
@@ -1996,56 +1903,53 @@ const int UNIT::run_script(const float &dt,const int &id,MAP *map,int max_code)	
                                 (*script_env)[id].push((int)(units.unit[v1].model->top * 2.0f)<<16);
                             else
                                 (*script_env)[id].push((int)(model->top * 2.0f)<<16);
-#ifdef PRINT_CODE
+#if DEBUG_USE_PRINT_CODE == 1
                             {
                                 int c = (*script_env)[id].pop();
                                 (*script_env)[id].push( c );
-                                if( print_code )
-                                    printf("UNIT_HEIGHT=%d\n", c);
+                                DEBUG_PRINT_CODE("UNIT_HEIGHT =" << c);
                             }
 #endif
                             break;
                         case XZ_ATAN:
                             (*script_env)[id].push((int)(atan2( UNPACKX(v1) , UNPACKZ(v1) ) * RAD2TA - Angle.y * DEG2TA) + 32768);
-#ifdef PRINT_CODE
+#if DEBUG_USE_PRINT_CODE == 1
                             {
                                 int c = (*script_env)[id].pop();
                                 (*script_env)[id].push( c );
-                                if( print_code )
-                                    printf("XZ_ATAN[(%d)=(%d,%d)]=%d\n", v1, UNPACKX(v1), UNPACKZ(v1), c);
+                                DEBUG_PRINT_CODE("XZ_ATAN[(" << v1 << ") = ("
+                                                 << UNPACKX(v1) << "," << UNPACKZ(v1) << ")] = " << c);
                             }
 #endif
                             break;
                         case XZ_HYPOT:
                             (*script_env)[id].push((int)hypot( UNPACKX(v1), UNPACKZ(v1) )<<16);
-#ifdef PRINT_CODE
+#if DEBUG_USE_PRINT_CODE == 1
                             {
                                 int c = (*script_env)[id].pop();
                                 (*script_env)[id].push( c );
-                                if( print_code )
-                                    printf("XZ_HYPOT[(%d)=(%d,%d)]=%d\n", v1,UNPACKX(v1), UNPACKZ(v1), c);
+                                DEBUG_PRINT_CODE("XZ_HYPOT[(" << v1 << ") = ("
+                                                 << UNPACKX(v1) << "," << UNPACKZ(v1) << ")] = "<< c);
                             }
 #endif
                             break;
                         case ATAN:
                             (*script_env)[id].push((int)(atan2(v1,v2) * RAD2TA ));
-#ifdef PRINT_CODE
+#if DEBUG_USE_PRINT_CODE == 1
                             {
                                 int c = (*script_env)[id].pop();
                                 (*script_env)[id].push( c );
-                                if( print_code )
-                                    printf("ATAN=%d\n", c);
+                                DEBUG_PRINT_CODE("ATAN =" << c);
                             }
 #endif
                             break;
                         case HYPOT:
                             (*script_env)[id].push((int)hypot(v1,v2));
-#ifdef PRINT_CODE
+#if DEBUG_USE_PRINT_CODE == 1
                             {
                                 int c = (*script_env)[id].pop();
                                 (*script_env)[id].push( c );
-                                if( print_code )
-                                    printf("HYPOT(%d,%d)=%d\n", v1, v2, c);
+                                DEBUG_PRINT_CODE("HYPOT(" << v1 << "," v2 << ") = " << c);
                             }
 #endif
                             break;
@@ -2054,21 +1958,15 @@ const int UNIT::run_script(const float &dt,const int &id,MAP *map,int max_code)	
                             break;
                         default:
                             printf("GET constante inconnue %d\n", val);
-                    };
-                }
+                    }
                 break;	//added
+                }
             case SCRIPT_SET_VALUE:
-#ifdef PRINT_CODE
-                if( print_code )
-                    printf("SET_VALUE *: ");
-#endif
                 {
+                    DEBUG_PRINT_CODE("SET_VALUE *:");
                     int v1=(*script_env)[id].pop();
                     int v2=(*script_env)[id].pop();
-#ifdef PRINT_CODE
-                    if( print_code )
-                        printf("%d %d\n",v1,v2);
-#endif
+                    DEBUG_PRINT_CODE(v1 << " " << v2);
                     switch(v2)
                     {
                         case ACTIVATION:
@@ -2119,11 +2017,8 @@ const int UNIT::run_script(const float &dt,const int &id,MAP *map,int max_code)	
                 }
                 break;	//added
             case SCRIPT_ATTACH_UNIT:
-#ifdef PRINT_CODE
-                if( print_code )
-                    printf("ATTACH_UNIT *\n");
-#endif
                 {
+                    DEBUG_PRINT_CODE("ATTACH_UNIT");
                     int v3 = (*script_env)[id].pop();
                     int v2 = (*script_env)[id].pop();
                     int v1 = (*script_env)[id].pop();
@@ -2150,19 +2045,13 @@ const int UNIT::run_script(const float &dt,const int &id,MAP *map,int max_code)	
                         if( !already_in )
                             target_unit->clear_from_map();
                     }
-                }
                 break;	//added
+                }
             case SCRIPT_DROP_UNIT:
-#ifdef PRINT_CODE
-                if( print_code )
-                    printf("DROP_UNIT *\n");
-#endif
                 {
+                    DEBUG_PRINT_CODE("DROP_UNIT *");
                     int v1 = (*script_env)[id].pop();
-#ifdef PRINT_CODE
-                    if( print_code )
-                        printf("dropping %d\n", v1);
-#endif
+                    DEBUG_PRINT_CODE("Dropping " << v1);
                     if (v1 >= 0 && v1 < units.max_unit && units.unit[ v1 ].flags)
                     {
                         UNIT *target_unit = &(units.unit[v1]);
@@ -2183,10 +2072,10 @@ const int UNIT::run_script(const float &dt,const int &id,MAP *map,int max_code)	
                         target_unit->draw_on_map();
                         EnterCS();
                     }
-                }
                 break;	//added
+                }
             default:
-                printf("UNKNOWN %d, STOPPING SCRIPT\n",script->script_code[script_id][--pos]);
+                LOG_ERROR("UNKNOWN " << script->script_code[script_id][--pos] << ", Stopping script");
                 {
                     if( script_val->size() <= script_id )
                         script_val->resize( script_id + 1 );
@@ -2202,9 +2091,10 @@ const int UNIT::run_script(const float &dt,const int &id,MAP *map,int max_code)	
                 }
                 else
                     (*script_env)[id].running=false;
-                done=true;
+                done = true;
         };
-    }while(!done);
+    } while(!done);
+
     if((*script_env)[id].env)
         (*script_env)[id].env->cur=script_id+(pos<<8);
 #ifdef	ADVANCED_DEBUG_MODE
@@ -2354,11 +2244,13 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
     int n_py = cur_py;
     bool precomputed_position = false;
 
-    if( type_id < 0 || type_id >= unit_manager.nb_unit || flags == 0 )	{		// A unit which cannot exist
+    if( type_id < 0 || type_id >= unit_manager.nb_unit || flags == 0 ) // A unit which cannot exist
+    {
         LeaveCS();
 #ifdef	ADVANCED_DEBUG_MODE
         GuardLeave();
 #endif
+        LOG_ERROR("UNIT::move : A unit which ");
         return	-1;		// Should NEVER happen
     }
 
@@ -4245,7 +4137,7 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
             case CLASS_FORT:
                 break;
             default:
-                printf("type inconnu %d\n",unit_manager.unit_type[type_id].TEDclass);
+                LOG_WARNING("Unknown type :" << unit_manager.unit_type[type_id].TEDclass);
         };
 
         switch(mission->mission)		// Pour le code post déplacement
