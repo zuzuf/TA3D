@@ -85,7 +85,6 @@ namespace TA3D
         #   endif
         # endif
         ConfigFile = Preferences;
-        ConfigFile += Separator;
         ConfigFile += "ta3d.fcg";
         LOG_INFO("Folder: Preferences: `" << Preferences << "`");
         LOG_INFO("Folder: Cache: `" << Caches << "`");
