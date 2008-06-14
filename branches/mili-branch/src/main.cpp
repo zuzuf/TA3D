@@ -45,7 +45,10 @@
 // timer variable, incremented by preccission, set by main.
 volatile uint32	msec_timer = 0;
 
-using namespace TA3D::EXCEPTION;
+using namespace TA3D::Exceptions;
+
+
+
 // intrupt timer, driven by allgegro.
 void Timer()
 {

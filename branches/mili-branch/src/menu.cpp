@@ -46,7 +46,9 @@
 
 void generate_script_from_mission( String Filename, cTAFileParser *ota_parser, int schema = 0 );	// To access the script generator in the 'script' module
 
-using namespace TA3D::EXCEPTION;
+using namespace TA3D::Exceptions;
+
+
 
 #define p_size			10.0f
 #define MENU_NB_PART	200

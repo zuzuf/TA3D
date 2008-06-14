@@ -35,7 +35,7 @@
 #include "particles.h"
 #include "taconfig.h"
 
-using namespace TA3D::EXCEPTION;
+using namespace TA3D::Exceptions;
 
 TEXTURE_MANAGER	texture_manager;
 MODEL_MANAGER	model_manager;

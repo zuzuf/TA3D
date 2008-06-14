@@ -36,7 +36,7 @@
 #include "fx.h"					// Special FX engine
 #include "misc/paths.h"
 
-using namespace TA3D::EXCEPTION;
+using namespace TA3D::Exceptions;
 
 
 
