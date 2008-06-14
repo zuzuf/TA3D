@@ -31,7 +31,7 @@
 # pragma once // TODO Must be removed
 
 # include "TA3D_Exception.h"
-# include "interface.h"
+# include "misc/interface.h"
 # include "cError.h"
 # ifndef TA3D_NO_SOUND // Only for the hpiview program
 #   include "TA3D_Audio.h"

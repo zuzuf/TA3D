@@ -19,10 +19,9 @@
 #ifndef __TA3D_AUDIO_H__
 # define __TA3D_AUDIO_H__
 
-# pragma once // TODO Must be removed
-
 # include "vector.h"
 # include "cTAFileParser.h"
+# include "misc/interface.h"
 
 # undef stricmp  // TODO Must be removed
 
