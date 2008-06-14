@@ -21,20 +21,26 @@
 //	it contains basic gfx commands like font management, background management, etc...
 //
 
-#include "stdafx.h"
-#include "TA3D_NameSpace.h"
-#include "glfunc.h"
-#include "gui.h"
-#include "gaf.h"
+#include "../stdafx.h"
+#include "../TA3D_NameSpace.h"
+#include "../glfunc.h"
+#include "../gui.h"
+#include "../gaf.h"
 #include "gfx.h"
-#include "misc/paths.h"
-#include "logs/logs.h"
-
+#include "../misc/paths.h"
+#include "../logs/logs.h"
 #include <allegro/internal/aintern.h>
+
 
 using namespace TA3D::INTERFACES;
 
+
+
 #define BYTE_TO_FLOAT		0.00390625f
+
+
+
+
 
 void GFX_TEXTURE::draw( const float x1, const float y1 )
 {

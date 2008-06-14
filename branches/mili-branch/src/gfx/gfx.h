@@ -24,6 +24,7 @@
 #ifndef __TA3D_GFX_H__
 # define __TA3D_GFX_H__
 
+
 using namespace TA3D;
 
 namespace TA3D

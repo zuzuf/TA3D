@@ -25,7 +25,7 @@
 #ifndef MODULE_GUI
 #define MODULE_GUI
 
-#include "gfx.h"
+#include "gfx/gfx.h"
 #include "hash_table.h"
 #include "threads/cCriticalSection.h"
 

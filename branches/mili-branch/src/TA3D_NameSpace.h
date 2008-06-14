@@ -40,7 +40,7 @@
 #   include "cTAFileParser.h"
 # endif
 # include "TA3D_hpi.h"
-# include "gfx.h"
+# include "gfx/gfx.h"
 # include "console.h"
 # include "i18n.h"
 # include "network.h"
