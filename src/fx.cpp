@@ -474,9 +474,9 @@ bool FX_PARTICLE::move( float dt )
 	float min_h = the_map->get_unit_h( Pos.x, Pos.z );
 	if( Pos.y < min_h ) {							// Bouncing on the map :)
 		Pos.y = 2.0f * min_h - Pos.y;
-		float dx = the_map->get_unit_h( Pos.x + 16.0f, Pos.z );
-		float dz = the_map->get_unit_h( Pos.x, Pos.z + 16.0f );
-		VECTOR Normal( dx, -16.0f, dz );
+		float dx = the_map->get_unit_h( Pos.x + 16.0f, Pos.z ) - min_h;
+		float dz = the_map->get_unit_h( Pos.x, Pos.z + 16.0f ) - min_h;
+		VECTOR Normal( -dx, 16.0f, -dz );
 		Normal.Unit();
 		
 		if( Speed % Normal < 0.0f )
