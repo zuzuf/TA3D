@@ -336,7 +336,7 @@ public:
 };
 
 class AREA:	protected cCriticalSection,						// This class is a window handler, so it will manage windows, and signals given to them
-			protected cInterface							// This is a global declaration since GUI is everywhere
+			protected IInterface							// This is a global declaration since GUI is everywhere
 {
 private:
 	Vector< WND* >		vec_wnd;			// This vector stores all the windows the area object deals with

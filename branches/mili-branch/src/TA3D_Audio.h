@@ -53,7 +53,7 @@ namespace TA3D
 
 
 		class cAudio : protected TA3D::cCriticalSection,
-		            protected TA3D::cInterface,
+		            protected TA3D::IInterface,
 		            protected TA3D::UTILS::cTAFileParser
 		{
 		private:

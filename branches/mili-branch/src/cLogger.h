@@ -21,8 +21,7 @@ namespace TA3D
 {
 	namespace INTERFACES
 	{
-		class cLogger : protected cCriticalSection,
-						protected cInterface
+		class cLogger : protected cCriticalSection, protected IInterface
 		{
 		private:
 			FILE				*m_File;

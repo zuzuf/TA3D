@@ -868,7 +868,7 @@ public:
 
 
 class INGAME_UNITS :	protected cCriticalSection,			// Class to manage huge number of units during the game
-						protected cInterface,				// It inherits from what we need to use threads
+						protected IInterface,				// It inherits from what we need to use threads
 			            public cThread
 {
 public:

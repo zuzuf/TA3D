@@ -827,7 +827,7 @@ void init()
 
 	try
 	{
-	    InterfaceManager = new cInterfaceManager();
+	    InterfaceManager = new TA3D::IInterfaceManager();
 	}
 	catch( ... )
 	{

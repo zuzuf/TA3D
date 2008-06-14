@@ -15,17 +15,24 @@
     along with this program; if not, write to the Free Software
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA*/
 
-#include "threads/cCriticalSection.h"
+#ifndef __TA3D_I_INTERFACES_H__
+# define __TA3D_I_INTERFACES_H__
 
-#pragma once
+# include "threads/cCriticalSection.h"
+
+
+# define I_Msg( x, xx,xxx,xxxx ) InterfaceManager->DispatchMsg( x,xx,xxx,xxxx )
+# define I_sMsg( x ) InterfaceManager->DispatchMsg( x )
+
+
 
 namespace TA3D
 {
-#define I_Msg( x, xx,xxx,xxxx ) InterfaceManager->DispatchMsg( x,xx,xxx,xxxx )
-#define I_sMsg( x ) InterfaceManager->DispatchMsg( x )
 
-	class cInterfaceManager;
-	class cInterface;
+	class IInterfaceManager;
+	class IInterface;
+
+
 
 	enum TA3D_INTERFACE_MESSAGES
 	{
@@ -36,120 +43,116 @@ namespace TA3D
 
 	enum INTERFACE_RESULT
 	{
-		INTERFACE_RESULT_HANDLED =0,
-		INTERFACE_RESULT_CONTINUE =1
+		INTERFACE_RESULT_HANDLED  = 0,
+		INTERFACE_RESULT_CONTINUE = 1
 	//	INTERFACE_RESULT_IGNORE_THIS_MSG =2
 	};
 
-	typedef struct cInterfaceMessage
+	typedef struct IInterfaceMessage
 	{
-		uint32 MsgID;
+		IInterfaceMessage(const uint32 mid, void *a, void *b, void *c )
+            :MsgID(mid), lpParm1(a), lpParm2(b), lpParm3(c)
+		{}
 
-		void *lpParm1;
-		void *lpParm2;
-		void *lpParm3;
-		cInterfaceMessage( uint32 mid, void *a, void *b, void *c )
-		{
-			MsgID = mid;
-			lpParm1 = a;
-			lpParm2 = b;
-			lpParm3 = c;
-		}
+		const uint32 MsgID;
+
+		void* lpParm1;
+		void* lpParm2;
+		void* lpParm3;
 	} cIMsg, *lpcImsg;
 
-	class cInterface
+
+
+	class IInterface
 	{
-		friend class cInterfaceManager;
+		friend class IInterfaceManager;
 
 	public:
-		virtual ~cInterface() {}
-
-	private:
-		uint32 m_InterfaceID;
-
-		virtual uint32 InterfaceMsg( const lpcImsg msg ) = 0;
+		virtual ~IInterface() {}
 
 	protected:
 		void InitInterface();
 		void DeleteInterface();
-	};
+
+	private:
+		uint32 m_InterfaceID;
+
+        /*!
+        ** \brief Callback to manage  broadcasted messages
+        ** \param msg The received message
+        ** \return The return status
+        */
+		virtual uint32 InterfaceMsg(const lpcImsg msg) = 0;
+
+	}; // class IInterface
 
 
-	class cInterfaceManager : protected cCriticalSection
+
+
+
+	class IInterfaceManager : protected cCriticalSection
 	{
-		friend class cInterface;
-
-	private:
-		std::vector< cInterface * >      m_Interfaces;
-		uint32                     m_NextInterfaceID;
-
-	private:
-		void AddInterface( cInterface *obj )
-		{
-			EnterCS();
-				m_Interfaces.push_back( obj );
-
-				obj->m_InterfaceID = m_NextInterfaceID;
-				m_NextInterfaceID++;
-			LeaveCS();
-		}
-
-		void RemoveInterface( cInterface *obj )
-		{
-			EnterCS();
-
-				std::vector< cInterface * >::iterator cur;
-
-				for( cur = m_Interfaces.begin(); cur < m_Interfaces.end(); cur++ )
-				{
-					if( (*cur)->m_InterfaceID == obj->m_InterfaceID )
-					{
-						m_Interfaces.erase( cur );
-						break;
-					}
-				}
-			LeaveCS();
-		}
-
-		void DispatchMsg( const lpcImsg msg )
-		{
-			EnterCS();
-				std::vector< cInterface * >::iterator cur;
-
-				for( cur = m_Interfaces.begin(); cur < m_Interfaces.end(); cur++ )
-				{
-					if( (*cur)->InterfaceMsg( msg ) == INTERFACE_RESULT_HANDLED )
-						break;
-				}
-			LeaveCS();
-		}
-
 	public:
-		void DispatchMsg( uint32 mID, void *a, void *b, void *c )
-		{
-			EnterCS();
-				cInterfaceMessage *cimsg = new cInterfaceMessage( mID, a, b, c );
+        //! \name Constructor & destructor
+        //{
+        //! Default constructor
+        IInterfaceManager();
+        //! Destructor
+		~IInterfaceManager();
+        //}
 
-				DispatchMsg( cimsg );
+        /*!
+        ** \brief Dispatch a message (from its ID) to all registered interfaces
+        **
+        ** The broadcast of the message when an interface returns
+        ** `INTERFACE_RESULT_HANDLED`.
+        **
+        ** \param mID ID of the message
+        ** \param a Parameter 1
+        ** \param b Parameter 2
+        ** \param c Parameter 3
+        **
+        ** \see IInterface::InterfaceMsg()
+        */
+		void DispatchMsg(const uint32 mID, void* a, void* b, void* c);
 
-				delete cimsg;
+	private:
+        /*!
+        ** \brief Add an interface in the list
+        ** \param i Interface to add
+        ** \warning The parameter `i` must not be null
+        */
+		void AddInterface(IInterface* i);
 
-			LeaveCS();
-		}
+        /*!
+        ** \brief Remove an interface from the list
+        ** \param i Interface to remove
+        ** \warning The parameter `i` must not be null
+        */
+		void RemoveInterface(IInterface* i);
 
-		cInterfaceManager()
-		{
-			CreateCS();
-			m_NextInterfaceID = 1;
-		}
+        /*!
+        ** \brief Dispatch message to all registered interfaces
+        **
+        ** The broadcast of the message when an interface returns
+        ** `INTERFACE_RESULT_HANDLED`.
+        **
+        ** \param msg Message to broadcast
+        **
+        ** \see IInterface::InterfaceMsg()
+        */
+		void DispatchMsg(const lpcImsg msg);
 
-		~cInterfaceManager()
-		{
-			EnterCS();
-				m_Interfaces.clear();
-			LeaveCS();
+    private:
+		friend class IInterface;
+        typedef std::vector<IInterface*> InterfacesList;
 
-			DeleteCS();
-		}
-	};
+	private:
+		InterfacesList pInterfaces;
+		uint32 pNextInterfaceID;
+
+	}; // class IInterfaceManager
 }
+
+
+#endif // __TA3D_I_INTERFACES_H__

@@ -89,8 +89,7 @@ namespace INTERFACES
         void destroy();
     };
 
-    class GFX : 	protected cCriticalSection,
-    protected cInterface
+    class GFX : protected cCriticalSection, protected IInterface
     {
         friend class GfxFont;
 

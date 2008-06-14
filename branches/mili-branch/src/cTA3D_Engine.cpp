@@ -63,7 +63,7 @@ namespace TA3D
 		InitThread();
 
 		GuardInfo( "Creating Interface Manager." );
-		InterfaceManager = new cInterfaceManager();
+		InterfaceManager = new IInterfaceManager();
 
 		GuardInfo( "Creating logging Interface, and attaching it to Interface Manager" );
 		m_lpcLogger = new TA3D::INTERFACES::cLogger(TA3D::Paths::Logs + "ta3d.log", false );

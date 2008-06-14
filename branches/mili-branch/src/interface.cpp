@@ -17,18 +17,95 @@
 
 #include "stdafx.h"
 #include "TA3D_NameSpace.h"
+#include "interface.h"
+#include "logs/logs.h"
 
-TA3D::cInterfaceManager   *TA3D::VARS::InterfaceManager;
-
-
-void cInterface::InitInterface()
+namespace TA3D
 {
-	m_InterfaceID = 0;
 
-	InterfaceManager->AddInterface( this );
+    IInterfaceManager* TA3D::VARS::InterfaceManager;
+
+
+
+    void IInterface::InitInterface()
+    {
+        m_InterfaceID = 0;
+        InterfaceManager->AddInterface(this);
+    }
+
+    void IInterface::DeleteInterface()
+    {
+        InterfaceManager->RemoveInterface(this);
+    } 
+
+
+
+
+    IInterfaceManager::IInterfaceManager()
+        :pNextInterfaceID(1)
+    {
+        CreateCS();
+    }
+
+    IInterfaceManager::~IInterfaceManager()
+    {
+        DeleteCS();
+    }
+
+
+
+    void IInterfaceManager::AddInterface(IInterface* i)
+    {
+        LOG_DEBUG(i);
+        EnterCS();
+        pInterfaces.push_back(i);
+        i->m_InterfaceID = pNextInterfaceID;
+        ++pNextInterfaceID;
+        LeaveCS();
+    }
+
+
+    void IInterfaceManager::RemoveInterface(IInterface* i)
+    {
+        LOG_ASSERT(i);
+        EnterCS();
+        for (InterfacesList::iterator cur = pInterfaces.begin(); cur != pInterfaces.end(); ++cur)
+        {
+            if( (*cur)->m_InterfaceID == i->m_InterfaceID)
+            {
+                pInterfaces.erase(cur);
+                LeaveCS();
+                return;
+            }
+        }
+        LeaveCS();
+    }
+
+
+    void IInterfaceManager::DispatchMsg(const lpcImsg msg)
+    {
+        EnterCS();
+        for (InterfacesList::iterator cur = pInterfaces.begin(); cur != pInterfaces.end(); ++cur)
+        {
+            if( (*cur)->InterfaceMsg( msg ) == INTERFACE_RESULT_HANDLED )
+            {
+                LeaveCS();
+                return;
+            }
+        }
+        LeaveCS();
+    }
+
+
+    void IInterfaceManager::DispatchMsg(const uint32 mID, void* a, void* b, void* c)
+    {
+        EnterCS();
+        IInterfaceMessage *cimsg = new IInterfaceMessage( mID, a, b, c );
+        DispatchMsg( cimsg );
+        delete cimsg;
+        LeaveCS();
+    }
+
+
+
 }
-
-void cInterface::DeleteInterface()
-{
-	InterfaceManager->RemoveInterface( this );
-} 
