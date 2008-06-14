@@ -31,7 +31,7 @@
 
 void glbutton(const String &caption,float x1,float y1,float x2,float y2,bool etat=false);
 
-const String msg_box(TA3D::INTERFACES::GfxFont fnt,const String &title,const String &msg,bool ask);
+const String msg_box(TA3D::Interfaces::GfxFont fnt,const String &title,const String &msg,bool ask);
 
 //-------------- These are the GUI functions needed by the editors ----------------------------
 
@@ -111,7 +111,7 @@ bool WndAsk( const String &Title, const String &Msg, int ASW_TYPE=ASW_OKCANCEL )
 void Popup( const String &Title, const String &Msg );
 const String GetVal( const String &Title );
 
-extern TA3D::INTERFACES::GfxFont gui_font;
+extern TA3D::Interfaces::GfxFont gui_font;
 extern float gui_font_h;
 
 extern bool	use_normal_alpha_function;
@@ -162,7 +162,7 @@ public:
 	bool				wait_a_turn;	// Used to deal with show/hide msg
 
 	byte				current_state;
-	Vector< TA3D::INTERFACES::GFX_TEXTURE >	gltex_states;
+	Vector< TA3D::Interfaces::GfxTexture >	gltex_states;
 	byte				nb_stages;
 	sint16				shortcut_key;
 
@@ -332,7 +332,7 @@ public:
 	GUIOBJ	*get_object( const String &message );									// Return a pointer to the specified object
 
 	void load_tdf( const String &filename, SKIN *skin = NULL );						// Load a window from a *.TDF file describing the window
-	void load_gui( const String &filename, cHashTable< Vector< TA3D::INTERFACES::GFX_TEXTURE >* > &gui_hashtable );// Load a window from a TA *.GUI file describing the interface
+	void load_gui( const String &filename, cHashTable< Vector< TA3D::Interfaces::GfxTexture >* > &gui_hashtable );// Load a window from a TA *.GUI file describing the interface
 };
 
 class AREA:	protected cCriticalSection,						// This class is a window handler, so it will manage windows, and signals given to them
@@ -344,7 +344,7 @@ private:
 	String				name;				// How is that area called ?
 	int					amx, amy, amz, amb;	// Remember last cursor position
 	SKIN				*skin;				// The skin used by the area
-	cHashTable< Vector< TA3D::INTERFACES::GFX_TEXTURE >* >			gui_hashtable;		// hashtable used to speed up loading of *.gui files and save memory
+	cHashTable< Vector< TA3D::Interfaces::GfxTexture >* > gui_hashtable;		// hashtable used to speed up loading of *.gui files and save memory
 	cHashTable< int >	wnd_hashtable;		// hashtable used to speed up operations on WND objects
 	String				cached_key;
 	WND					*cached_wnd;

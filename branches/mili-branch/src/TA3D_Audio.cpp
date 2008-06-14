@@ -19,9 +19,14 @@
 #include "TA3D_NameSpace.h"		//"TA3D_Audio.h" is in our namespace.
 #include "ta3dbase.h"			// just to use the global camera object
 
-using namespace TA3D::INTERFACES;
+using namespace TA3D::Interfaces;
 
-TA3D::INTERFACES::cAudio *TA3D::VARS::sound_manager;
+
+TA3D::Interfaces::cAudio *TA3D::VARS::sound_manager;
+
+
+
+
 
 void cAudio::SetPlayListFileMode( int idx, bool Battle, bool Deactivated )
 {

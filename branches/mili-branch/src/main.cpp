@@ -87,7 +87,7 @@ void ReadFileParameter( void )
 		ta3d_sidedata.load_data();				// Refresh side data so we load the correct values
 
 		delete sound_manager;
-		sound_manager = new TA3D::INTERFACES::cAudio ( 1.0f, 0.0f, 0.0f );
+		sound_manager = new TA3D::Interfaces::cAudio ( 1.0f, 0.0f, 0.0f );
 		sound_manager->StopMusic();
 		sound_manager->LoadTDFSounds( true );
 		sound_manager->LoadTDFSounds( false );
@@ -117,7 +117,7 @@ void ReadFileParameter( void )
 		ta3d_sidedata.load_data();				// Refresh side data so we load the correct values
 
 		delete sound_manager;
-		sound_manager = new TA3D::INTERFACES::cAudio ( 1.0f, 0.0f, 0.0f );
+		sound_manager = new TA3D::Interfaces::cAudio ( 1.0f, 0.0f, 0.0f );
 		sound_manager->StopMusic();
 		sound_manager->LoadTDFSounds( true );
 		sound_manager->LoadTDFSounds( false );

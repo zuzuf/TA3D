@@ -486,7 +486,7 @@ private:
 //---------- END OF EXPERIMENTAL CODE --------------
 
 private:
-	inline bool coupe(int x1,int y1,int dx1,int dy1,int x2,int y2,int dx2,int dy2)
+	bool coupe(int x1,int y1,int dx1,int dy1,int x2,int y2,int dx2,int dy2)
 	{
 		int u1=x1, v1=y1, u2=x2+dx2, v2=y2+dy2;
 		if(u1>x2) u1=x2;
@@ -723,7 +723,7 @@ public:
 		return size;
 	}
 
-	float print_struct(float Y,float X,TA3D::INTERFACES::GfxFont fnt);
+	float print_struct(float Y,float X,TA3D::Interfaces::GfxFont fnt);
 
 	float compute_top( float top, VECTOR dec )
 	{
@@ -949,12 +949,12 @@ public:
 			obj.draw_shadow_basic(Dir,t,data_s,false,true);
 	}
 
-	inline bool hit(VECTOR &Pos,VECTOR &Dir,SCRIPT_DATA *data_s,VECTOR *I,MATRIX_4x4 &M)
+	bool hit(VECTOR &Pos,VECTOR &Dir,SCRIPT_DATA *data_s,VECTOR *I,MATRIX_4x4 &M)
 	{
 		return obj.hit(Pos,Dir,data_s,I,M);
 	}
 
-	inline bool hit_fast(VECTOR &Pos,VECTOR &Dir,SCRIPT_DATA *data_s,VECTOR *I,MATRIX_4x4 &M)
+	bool hit_fast(VECTOR &Pos,VECTOR &Dir,SCRIPT_DATA *data_s,VECTOR *I,MATRIX_4x4 &M)
 	{
 		return obj.hit_fast(Pos,Dir*M,data_s,I);
 	}
@@ -964,7 +964,7 @@ public:
 		obj.Identify(nb_piece,piece_name);
 	}
 
-	void print_struct(float Y,float X,TA3D::INTERFACES::GfxFont fnt)
+	void print_struct(float Y,float X,TA3D::Interfaces::GfxFont fnt)
 	{
 		obj.print_struct(Y,X,fnt);
 	}

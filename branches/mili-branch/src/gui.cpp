@@ -75,7 +75,7 @@ void glbutton(const String &caption,float x1,float y1,float x2,float y2,bool eta
     glDisable(GL_BLEND);
 }
 
-const String msg_box(TA3D::INTERFACES::GfxFont fnt,const String &title,const String &msg,bool ask)
+const String msg_box(TA3D::Interfaces::GfxFont fnt,const String &title,const String &msg,bool ask)
 {
     gfx->set_2D_mode();
     for(int i=0;i<2;i++)
@@ -193,7 +193,7 @@ const String msg_box(TA3D::INTERFACES::GfxFont fnt,const String &title,const Str
 
 //-------------- These are the GUI functions needed by the editors ----------------------------
 
-TA3D::INTERFACES::GfxFont gui_font;
+TA3D::Interfaces::GfxFont gui_font;
 
 void GUIOBJ::create_ta_button( float X1, float Y1, const Vector< String > &Caption, const Vector< GLuint > &states, int nb_st)
 {
@@ -1280,7 +1280,7 @@ GUIOBJ *WND::get_object( const String &message )		// Return a pointer to the spe
 
 
 
-void WND::load_gui( const String &filename, cHashTable< Vector< TA3D::INTERFACES::GFX_TEXTURE >* > &gui_hashtable )	// Load a window from a TA *.GUI file describing the interface
+void WND::load_gui( const String &filename, cHashTable< Vector< TA3D::Interfaces::GfxTexture >* > &gui_hashtable )	// Load a window from a TA *.GUI file describing the interface
 {
     GuardEnter( WND::load_gui );
 
@@ -1391,7 +1391,7 @@ void WND::load_gui( const String &filename, cHashTable< Vector< TA3D::INTERFACES
         {
             int t_w[100], t_h[100];
             String key = Lowercase(Objets[i].Name);
-            Vector<TA3D::INTERFACES::GFX_TEXTURE>* result = gui_hashtable.Find(key);
+            Vector<TA3D::Interfaces::GfxTexture>* result = gui_hashtable.Find(key);
 
             Vector< GLuint > gaf_imgs;
             bool found_elsewhere = false;

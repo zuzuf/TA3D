@@ -23,14 +23,13 @@
 
 namespace TA3D
 {
-	class cTA3D_Engine :   protected cCriticalSection,
-				            public cThread
+	class cTA3D_Engine :   protected cCriticalSection, public cThread
 	{
 	private:
-		TA3D::INTERFACES::cLogger	*m_lpcLogger;
-		bool						m_AllegroRunning;
-		bool						m_GFXModeActive;
-		bool						m_SignaledToStop;
+		TA3D::Interfaces::cLogger* m_lpcLogger;
+		bool m_AllegroRunning;
+		bool m_GFXModeActive;
+		bool m_SignaledToStop;
 
 	private:
 		void Init();
@@ -43,7 +42,7 @@ namespace TA3D
 		cTA3D_Engine( void );
 		virtual ~cTA3D_Engine( void );
 
-		bool GFXModeActive()  { return m_GFXModeActive; }
-		bool AllegroRunning() { return m_AllegroRunning; }
+		bool GFXModeActive() const { return m_GFXModeActive; }
+		bool AllegroRunning() const { return m_AllegroRunning; }
 	};
 } // namespace TA3D

@@ -25,71 +25,29 @@
 # define __TA3D_GFX_H__
 
 
-using namespace TA3D;
+using namespace TA3D; // TODO Remove this
+
+# include "gfxfont.h"
+# include "gfxtexture.h"
+
+
+
+# define FILTER_NONE			0x0
+# define FILTER_LINEAR		    0x1
+# define FILTER_BILINEAR		0x2
+# define FILTER_TRILINEAR	    0x3
+
+
+# define BYTE_TO_FLOAT  0.00390625f
 
 namespace TA3D
 {
-namespace INTERFACES
+namespace Interfaces
 {
 
+    class GfxFont;
 
-    class GfxFont
-    {
-    private:
-        friend class GFX;
-    private:
-        FONT* pAl;
-        FONT* pGl;
-        float size;
-        bool clear;
-
-    public:
-
-        GfxFont();
-
-        void init();
-
-        float length( const String txt) const
-        { return text_length(pAl, txt.c_str()) * size; }
-        
-        float height() const
-        { return text_height(pAl) * size; }
-
-        void set_clear(const bool val) { clear = val; }
-        void load( const char *filename, const float s = 1.0f );
-        void load_gaf_font( const char *filename, const float s = 1.0f );
-        void copy( FONT *fnt, const float s = 1.0f );
-        void destroy();
-        void change_size( const float s) { size = s;	}
-        float get_size() const { return size; }
-
-    }; // class GfxFont
-
-
-
-#define FILTER_NONE			0x0
-#define FILTER_LINEAR		0x1
-#define FILTER_BILINEAR		0x2
-#define FILTER_TRILINEAR	0x3
-
-    class GFX_TEXTURE
-    {
-    public:
-        uint32		width;
-        uint32		height;
-        GLuint		tex;
-        bool		destroy_tex;
-
-        inline void init()	{	width = height = tex = 0;	destroy_tex = false;	}
-        GFX_TEXTURE()	{	init();	}
-        GFX_TEXTURE( const GLuint gltex );
-        void set( const GLuint gltex );
-        void draw( const float x1, const float y1 );
-        void draw( const float x1, const float y1, const uint32 col );
-
-        void destroy();
-    };
-
+    
     class GFX : protected cCriticalSection, protected IInterface
     {
         friend class GfxFont;
@@ -120,32 +78,17 @@ namespace INTERFACES
 
         GFX();
 
-        inline void precalculations()
-        {
-            SCREEN_W_HALF = SCREEN_W>>1;
-            SCREEN_H_HALF = SCREEN_H>>1;
-            SCREEN_W_INV = 1.0f / SCREEN_W;
-            SCREEN_H_INV = 1.0f / SCREEN_H;
-            SCREEN_W_TO_640 = 640.0f / SCREEN_W;
-            SCREEN_H_TO_480 = 480.0f / SCREEN_H;
-        }
+        void precalculations();
 
         virtual ~GFX();
 
-        inline void GFX_EnterCS()	{	EnterCS();	}
-        inline void GFX_LeaveCS()	{	LeaveCS();	}
+        void GFX_EnterCS()	{ EnterCS(); }
+        void GFX_LeaveCS()	{ LeaveCS(); }
 
-        inline void load_background()
-        {
-            if(SCREEN_W<=800)
-                glfond = load_texture( "gfx/menu800.jpg", FILTER_LINEAR );
-            else if(SCREEN_W<=1024)
-                glfond = load_texture( "gfx/menu1024.jpg", FILTER_LINEAR );
-            else
-                glfond = load_texture( "gfx/menu1280.jpg", FILTER_LINEAR );
-        }
 
-        inline void destroy_background()	{	destroy_texture(glfond);	}
+        void load_background();
+
+        void destroy_background() { destroy_texture(glfond); }
 
         void Init();
 
@@ -153,6 +96,8 @@ namespace INTERFACES
         uint32 InterfaceMsg( const lpcImsg msg );
 
     public:
+        //! \name Color management
+        //{
 
         void set_color(const float r, const float g, const float b) const
         { glColor3f(r,g,b); }
@@ -161,76 +106,109 @@ namespace INTERFACES
         { glColor4f(r,g,b,a); }
 
         void set_color(const uint32 col) const
-        { glColor4ub(col&0xFF, (col&0xFF00) >> 8, (col&0xFF0000) >> 16, (col&0xFF000000) >> 24); }
+        { glColor4ub(col & 0xFF, (col & 0xFF00) >> 8, (col & 0xFF0000) >> 16, (col & 0xFF000000) >> 24); }
 
-        void set_alpha(const float &a);
-        const float	get_r(const uint32 &col);
-        const float	get_g(const uint32 &col);
-        const float	get_b(const uint32 &col);
-        const float	get_a(const uint32 &col);
-        uint32	makeintcol(float r, float g, float b);
-        uint32	makeintcol(float r, float g, float b, float a);
+        void set_alpha(const float a) const;
 
-        void line(const float &x1, const float &y1, const float &x2, const float &y2);			// Basic drawing routines
-        void rect(const float &x1, const float &y1, const float &x2, const float &y2);
-        void rectfill(const float &x1, const float &y1, const float &x2, const float &y2);
-        void circle(const float &x, const float &y, const float &r);
-        void circlefill(const float &x, const float &y, const float &r);
-        void circle_zoned(const float &x, const float &y, const float &r, const float &mx, const float &my, const float &Mx, const float &My);
-        void rectdot(const float &x1, const float &y1, const float &x2, const float &y2);
-        void drawtexture(const GLuint &tex, const float &x1, const float &y1, const float &x2, const float &y2);
-        void drawtexture_flip(const GLuint &tex, const float &x1, const float &y1, const float &x2, const float &y2);
-        void drawtexture(const GLuint &tex, const float &x1, const float &y1, const float &x2, const float &y2, const float &u1, const float &v1, const float &u2, const float &v2);
+        /*!
+        ** \brief
+        */
+        float get_r(const uint32 col) const
+        { return ( col & 0xFF)*BYTE_TO_FLOAT; }
+        /*!
+        **
+        */
+        float get_g(const uint32 col) const
+        { return ((col & 0xFF00) >> 8) * BYTE_TO_FLOAT; }
+        /*!
+        **
+        */
+        float get_b(const uint32 col) const
+        { return ((col & 0xFF0000) >> 16) * BYTE_TO_FLOAT; }
+        /*!
+        **
+        */
+        float get_a(const uint32 col) const
+        { return ((col & 0xFF000000) >> 24) * BYTE_TO_FLOAT; }
 
-        void line(const float &x1, const float &y1, const float &x2, const float &y2, const uint32 &col);			// Basic drawing routines (with color arguments)
-        void rect(const float &x1, const float &y1, const float &x2, const float &y2, const uint32 &col);
-        void rectfill(const float &x1, const float &y1, const float &x2, const float &y2, const uint32 &col);
-        void circle(const float &x, const float &y, const float &r, const uint32 &col);
-        void circlefill(const float &x, const float &y, const float &r, const uint32 &col);
-        void circle_zoned(const float &x, const float &y, const float &r, const float &mx, const float &my, const float &Mx, const float &My, const uint32 &col);
-        void rectdot(const float &x1, const float &y1, const float &x2, const float &y2, const uint32 &col);
-        void drawtexture(const GLuint &tex, const float &x1, const float &y1, const float &x2, const float &y2, const uint32 &col);
-        void putpixel(const float &x, const float &y, const uint32 &col);
-        uint32     getpixel(const sint32 &x, const sint32 &y);
 
-        void set_2D_mode();
-        void unset_2D_mode();
+        /*!
+        **
+        */
+        uint32 makeintcol(float r, float g, float b) const
+        { return (int)(255.0f * r) | ((int)(255.0f * g) << 8) | ((int)(255.0f * b) << 16) | 0xFF000000; }
+        /*!
+        **
+        */
+        uint32 makeintcol(float r, float g, float b, float a) const
+        { return (int)(255.0f * r) | ((int)(255.0f * g) << 8) | ((int)(255.0f * b) << 16) | ((int)(255.0f * a) << 24); }
 
-        void print(const GfxFont &font, const float &x, const float &y, const float &z, const String text );		// Font related routines
-        void print(const GfxFont &font, const float &x, const float &y, const float &z, const uint32 &col, const String text );
+        //} // Color management
 
-        void print(const GfxFont &font, const float &x, const float &y, const float &z, const char *text );
-        void print(const GfxFont &font, const float &x, const float &y, const float &z, const uint32 &col, const char *text );
 
-        void print(const GfxFont &font, const float &x, const float &y, const float &z, const String text, float s);		// Font related routines
-        void print(const GfxFont &font, const float &x, const float &y, const float &z, const uint32 &col, const String text, float s);
+        void line(const float x1, const float y1, const float x2, const float y2);			// Basic drawing routines
+        void rect(const float x1, const float y1, const float x2, const float y2);
+        void rectfill(const float x1, const float y1, const float x2, const float y2);
+        void circle(const float x, const float y, const float r);
+        void circlefill(const float x, const float y, const float r);
+        void circle_zoned(const float x, const float y, const float r, const float mx, const float my, const float Mx, const float My);
+        void rectdot(const float x1, const float y1, const float x2, const float y2);
+        void drawtexture(const GLuint &tex, const float x1, const float y1, const float x2, const float y2);
+        void drawtexture_flip(const GLuint &tex, const float x1, const float y1, const float x2, const float y2);
+        void drawtexture(const GLuint &tex, const float x1, const float y1, const float x2, const float y2, const float u1, const float v1, const float u2, const float v2);
 
-        void print(const GfxFont &font, const float &x, const float &y, const float &z, const char *text, float s);
-        void print(const GfxFont &font, const float &x, const float &y, const float &z, const uint32 &col, const char *text, float s);
+        void line(const float x1, const float y1, const float x2, const float y2, const uint32 col);			// Basic drawing routines (with color arguments)
+        void rect(const float x1, const float y1, const float x2, const float y2, const uint32 col);
+        void rectfill(const float x1, const float y1, const float x2, const float y2, const uint32 col);
+        void circle(const float x, const float y, const float r, const uint32 col);
+        void circlefill(const float x, const float y, const float r, const uint32 col);
+        void circle_zoned(const float x, const float y, const float r, const float mx, const float my, const float Mx, const float My, const uint32 col);
+        void rectdot(const float x1, const float y1, const float x2, const float y2, const uint32 col);
+        void drawtexture(const GLuint &tex, const float x1, const float y1, const float x2, const float y2, const uint32 col);
+        void putpixel(const float x, const float y, const uint32 col);
+        uint32 getpixel(const sint32 x, const sint32 y) const;
 
-        void print_center(const GfxFont &font, const float &x, const float &y, const float &z, const String text );		// Font related routines
-        void print_center(const GfxFont &font, const float &x, const float &y, const float &z, const uint32 &col, const String text );
+        //! \name 3D Mode
+        //{
+        void set_2D_mode() const;
+        void unset_2D_mode() const;
+        //}
 
-        void print_center(const GfxFont &font, const float &x, const float &y, const float &z, const char *text );
-        void print_center(const GfxFont &font, const float &x, const float &y, const float &z, const uint32 &col, const char *text );
+        void print(const GfxFont &font, const float x, const float y, const float z, const String text );		// Font related routines
+        void print(const GfxFont &font, const float x, const float y, const float z, const uint32 col, const String text );
 
-        void print_center(const GfxFont &font, const float &x, const float &y, const float &z, const String text, float s);		// Font related routines
-        void print_center(const GfxFont &font, const float &x, const float &y, const float &z, const uint32 &col, const String text, float s);
+        void print(const GfxFont &font, const float x, const float y, const float z, const char *text );
+        void print(const GfxFont &font, const float x, const float y, const float z, const uint32 col, const char *text );
 
-        void print_center(const GfxFont &font, const float &x, const float &y, const float &z, const char *text, float s);
-        void print_center(const GfxFont &font, const float &x, const float &y, const float &z, const uint32 &col, const char *text, float s);
+        void print(const GfxFont &font, const float x, const float y, const float z, const String text, float s);		// Font related routines
+        void print(const GfxFont &font, const float x, const float y, const float z, const uint32 col, const String text, float s);
 
-        void print_right(const GfxFont &font, const float &x, const float &y, const float &z, const String text );		// Font related routines
-        void print_right(const GfxFont &font, const float &x, const float &y, const float &z, const uint32 &col, const String text );
+        void print(const GfxFont &font, const float x, const float y, const float z, const char *text, float s);
+        void print(const GfxFont &font, const float x, const float y, const float z, const uint32 col, const char *text, float s);
 
-        void print_right(const GfxFont &font, const float &x, const float &y, const float &z, const char *text );
-        void print_right(const GfxFont &font, const float &x, const float &y, const float &z, const uint32 &col, const char *text );
+        void print_center(const GfxFont &font, const float x, const float y, const float z, const String text );		// Font related routines
+        void print_center(const GfxFont &font, const float x, const float y, const float z, const uint32 col, const String text );
 
-        void print_right(const GfxFont &font, const float &x, const float &y, const float &z, const String text, float s);		// Font related routines
-        void print_right(const GfxFont &font, const float &x, const float &y, const float &z, const uint32 &col, const String text, float s);
+        void print_center(const GfxFont &font, const float x, const float y, const float z, const char *text );
+        void print_center(const GfxFont &font, const float x, const float y, const float z, const uint32 col, const char *text );
 
-        void print_right(const GfxFont &font, const float &x, const float &y, const float &z, const char *text, float s);
-        void print_right(const GfxFont &font, const float &x, const float &y, const float &z, const uint32 &col, const char *text, float s);
+        void print_center(const GfxFont &font, const float x, const float y, const float z, const String text, float s);		// Font related routines
+        void print_center(const GfxFont &font, const float x, const float y, const float z, const uint32 col, const String text, float s);
+
+        void print_center(const GfxFont &font, const float x, const float y, const float z, const char *text, float s);
+        void print_center(const GfxFont &font, const float x, const float y, const float z, const uint32 col, const char *text, float s);
+
+        void print_right(const GfxFont &font, const float x, const float y, const float z, const String text );		// Font related routines
+        void print_right(const GfxFont &font, const float x, const float y, const float z, const uint32 col, const String text );
+
+        void print_right(const GfxFont &font, const float x, const float y, const float z, const char *text );
+        void print_right(const GfxFont &font, const float x, const float y, const float z, const uint32 col, const char *text );
+
+        void print_right(const GfxFont &font, const float x, const float y, const float z, const String text, float s);		// Font related routines
+        void print_right(const GfxFont &font, const float x, const float y, const float z, const uint32 col, const String text, float s);
+
+        void print_right(const GfxFont &font, const float x, const float y, const float z, const char *text, float s);
+        void print_right(const GfxFont &font, const float x, const float y, const float z, const uint32 col, const char *text, float s);
 
         GLuint	make_texture( BITMAP *bmp, byte filter_type = FILTER_TRILINEAR, bool clamp = true );
         GLuint	create_texture( int w, int h, byte filter_type = FILTER_TRILINEAR, bool clamp = true );
@@ -246,9 +224,8 @@ namespace INTERFACES
         void	disable_texturing();
         void	enable_texturing();
 
-        GLuint	make_texture_from_screen( byte filter_type = FILTER_NONE );
+        GLuint make_texture_from_screen(byte filter_type = FILTER_NONE);
 
-        void flip() const { allegro_gl_flip(); }
 
         void set_alpha_blending();
         void unset_alpha_blending();
@@ -257,7 +234,12 @@ namespace INTERFACES
         void ReInitTexSys( bool matrix_reset = true );
         void ReInitAllTex( bool disable = false);
         void SetDefState();
-    };
+        
+        void flip() const { allegro_gl_flip(); }
+
+    }; // class GFX
+
+
 }
 }
 

@@ -89,7 +89,7 @@
 #define MISSION_FLAG_AUTO		0x10000		// Mission is sent from UNIT::move so don't ignore it
 
 using namespace TA3D;
-using namespace TA3D::INTERFACES;
+using namespace TA3D::Interfaces;
 
 class DL_DATA
 {
@@ -519,8 +519,8 @@ public:
 	UNIT_TYPE	*unit_type;		// Données sur l'unité
 
 private:
-	GFX_TEXTURE	panel;			// The texture used by the panel
-	GFX_TEXTURE	paneltop,panelbottom;
+	GfxTexture	panel;			// The texture used by the panel
+	GfxTexture	paneltop,panelbottom;
 	cHashTable< int >	unit_hashtable;		// hashtable used to speed up operations on UNIT_TYPE objects
 
 public:

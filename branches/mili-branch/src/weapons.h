@@ -39,7 +39,7 @@
 #define RENDER_TYPE_NONE		0x8
 
 using namespace TA3D;
-using namespace TA3D::INTERFACES;
+using namespace TA3D::Interfaces;
 
 class WEAPON_DEF				// Classe définissant un type d'arme
 {

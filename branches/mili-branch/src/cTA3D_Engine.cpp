@@ -66,7 +66,7 @@ namespace TA3D
 		InterfaceManager = new IInterfaceManager();
 
 		GuardInfo( "Creating logging Interface, and attaching it to Interface Manager" );
-		m_lpcLogger = new TA3D::INTERFACES::cLogger(TA3D::Paths::Logs + "ta3d.log", false );
+		m_lpcLogger = new TA3D::Interfaces::cLogger(TA3D::Paths::Logs + "ta3d.log", false );
 
 		GuardInfo( "Logging some stuff to ta3d.log" );
 
@@ -127,7 +127,7 @@ namespace TA3D
 		}
 
 		GuardInfo( "Creating Sound & Music Interface." );
-		sound_manager = new TA3D::INTERFACES::cAudio ( 1.0f, 0.0f, 0.0f );
+		sound_manager = new TA3D::Interfaces::cAudio ( 1.0f, 0.0f, 0.0f );
 		sound_manager->StopMusic();
 		sound_manager->LoadTDFSounds( true );
 		sound_manager->LoadTDFSounds( false );
@@ -140,7 +140,7 @@ namespace TA3D
 		}
 
 		GuardInfo( "Creating GFX Interface." );				// Don't try to start sound before gfx, if we have to display the warning message while in fullscreen
-		TA3D::VARS::gfx = new TA3D::INTERFACES::GFX;		// TA3D's main window might lose focus and allegro's message not be shown ...
+		TA3D::VARS::gfx = new TA3D::Interfaces::GFX;		// TA3D's main window might lose focus and allegro's message not be shown ...
 		m_GFXModeActive = true;
 
 		gfx->Init();

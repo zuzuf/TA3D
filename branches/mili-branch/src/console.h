@@ -76,7 +76,7 @@ namespace TA3D
 			void AddEntry(const char *txt, ...);
 			void AddEntry( String NewEntry );
 
-			char *draw( TA3D::INTERFACES::GfxFont fnt, float dt, float fsize=8, bool force_show=false );
+			char *draw( TA3D::Interfaces::GfxFont fnt, float dt, float fsize=8, bool force_show=false );
 		}; //class cConsole
 	} // namespace TA3D_DEBUG
 } // namespace TA3D

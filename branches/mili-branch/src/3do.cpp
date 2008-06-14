@@ -1891,7 +1891,7 @@ hit_fast_is_exploding:
         return is_hit;
     }
 
-    float OBJECT::print_struct(float Y,float X,TA3D::INTERFACES::GfxFont fnt)
+    float OBJECT::print_struct(float Y,float X,TA3D::Interfaces::GfxFont fnt)
     {
         //	if(nb_vtx==0 || nb_prim==0 || nb_p_index>0 || nb_l_index>0)
         gfx->print(fnt,X,Y,0.0f,0xFFFFFF,format("%s [%d]",name,script_index));

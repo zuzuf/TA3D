@@ -941,7 +941,7 @@ void init()
 
 	jpgalleg_init();
 
-	TA3D::VARS::gfx = new TA3D::INTERFACES::GFX;       // Creates the gfx object
+	TA3D::VARS::gfx = new TA3D::Interfaces::GFX;       // Creates the gfx object
 
 	TA3D::VARS::Console=new TA3D::TA3D_DEBUG::cConsole(TA3D::Paths::Logs + "Console3DM.log" );   // Create console object, this will be dropped soon
 	i18n.load_translations("3dmeditor.res");   // create translation object.

@@ -15,31 +15,40 @@
     along with this program; if not, write to the Free Software
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA*/
 
-#pragma once
+
+#ifndef __TA3D_OLD_LOGGER_H__
+# define __TA3D_OLD_LOGGER_H__
 
 namespace TA3D
 {
-	namespace INTERFACES
-	{
-		class cLogger : protected cCriticalSection, protected IInterface
-		{
-		private:
-			FILE				*m_File;
-			bool				m_bNoInterface;
-
-		public:
-			cLogger( const String &FileName, bool noInterface = false );
-			virtual ~cLogger();
-
-		void LogData( const char *txt );
-		void LogData( const std::string &txt );
-		FILE *get_log_file();
-
-		private:
-			uint32 InterfaceMsg( const lpcImsg msg );
+namespace Interfaces
+{
 
 
+    class cLogger : protected cCriticalSection, protected IInterface
+    {
+    private:
+        FILE				*m_File;
+        bool				m_bNoInterface;
 
-		};
-	}
-} 
+    public:
+        cLogger( const String &FileName, bool noInterface = false );
+        virtual ~cLogger();
+
+        void LogData( const char *txt );
+        void LogData( const std::string &txt );
+        FILE *get_log_file();
+
+    private:
+        uint32 InterfaceMsg( const lpcImsg msg );
+
+
+
+    };
+
+
+} // namespace Interfaces
+} // namespace TA3D
+
+
+#endif // __TA3D_OLD_LOGGER_H__

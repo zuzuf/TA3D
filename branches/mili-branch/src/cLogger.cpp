@@ -24,67 +24,68 @@
 
 namespace TA3D
 {
-	namespace INTERFACES
-	{
-		cLogger::cLogger( const String &FileName, bool noInterface )
-		{
-			m_bNoInterface = true;
+namespace Interfaces
+{
 
-			m_File = TA3D_OpenFile( FileName, "wt" );
+    cLogger::cLogger( const String &FileName, bool noInterface )
+    {
+        m_bNoInterface = true;
 
-			if( !m_File ) // todo fix this.
-				throw( "cLogger::Failed to open file for output" );
+        m_File = TA3D_OpenFile( FileName, "wt" );
 
-			m_bNoInterface = noInterface;
+        if( !m_File ) // todo fix this.
+            throw( "cLogger::Failed to open file for output" );
 
-			CreateCS();
+        m_bNoInterface = noInterface;
 
-			if( !m_bNoInterface )
-				InitInterface();
-		}
+        CreateCS();
 
-		cLogger::~cLogger( )
-		{
-			if( !m_File )
-				return;
+        if( !m_bNoInterface )
+            InitInterface();
+    }
 
-			fclose( m_File );
+    cLogger::~cLogger( )
+    {
+        if( !m_File )
+            return;
 
-			if( !m_bNoInterface )
-				DeleteInterface();
+        fclose( m_File );
 
-			DeleteCS();
-		}
+        if( !m_bNoInterface )
+            DeleteInterface();
 
-		void cLogger::LogData( const char *txt )
-		{
-			EnterCS();
-			fputs(txt, m_File);
-			fflush( m_File );
-			LeaveCS();            
-		}
+        DeleteCS();
+    }
 
-		void cLogger::LogData(const std::string &txt)
-		{
-			EnterCS();
-			fputs( txt.c_str(), m_File );
-			fflush( m_File );
-			LeaveCS();
-		}
+    void cLogger::LogData( const char *txt )
+    {
+        EnterCS();
+        fputs(txt, m_File);
+        fflush( m_File );
+        LeaveCS();            
+    }
 
-		FILE *cLogger::get_log_file()
-		{
-			return m_File;
-		}
+    void cLogger::LogData(const std::string &txt)
+    {
+        EnterCS();
+        fputs( txt.c_str(), m_File );
+        fflush( m_File );
+        LeaveCS();
+    }
 
-		uint32 cLogger::InterfaceMsg( const lpcImsg msg )
-		{
-			if( msg->MsgID != TA3D_IM_DEBUG_MSG )
-				return INTERFACE_RESULT_CONTINUE;
+    FILE *cLogger::get_log_file()
+    {
+        return m_File;
+    }
 
-			LogData( (const char *)(msg->lpParm1) );
+    uint32 cLogger::InterfaceMsg( const lpcImsg msg )
+    {
+        if( msg->MsgID != TA3D_IM_DEBUG_MSG )
+            return INTERFACE_RESULT_CONTINUE;
 
-			return INTERFACE_RESULT_CONTINUE;
-		}
-	}
+        LogData( (const char *)(msg->lpParm1) );
+
+        return INTERFACE_RESULT_CONTINUE;
+    }
+}
 }
