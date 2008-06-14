@@ -85,7 +85,7 @@ namespace TA3D
         #   endif
         # endif
         ConfigFile = Preferences;
-        ConfigFile += "ta3d.fcg";
+        ConfigFile += "ta3d.cfg";
         LOG_INFO("Folder: Preferences: `" << Preferences << "`");
         LOG_INFO("Folder: Cache: `" << Caches << "`");
         LOG_INFO("Folder: Savegames: `" << Savegames << "`");
