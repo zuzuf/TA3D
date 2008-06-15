@@ -422,7 +422,7 @@ void FX_MANAGER::draw(CAMERA *cam, MAP *map, float w_lvl, bool UW)
 	glDisable(GL_BLEND);
 	glDepthMask(GL_TRUE);
 
-	if(!UW)
+	if(!UW && lp_CONFIG->explosion_particles)
 	    foreach( particles, i )
 		    i->draw();
 
@@ -431,6 +431,7 @@ void FX_MANAGER::draw(CAMERA *cam, MAP *map, float w_lvl, bool UW)
 
 void FX_MANAGER::add_particle( VECTOR &P, VECTOR &S, float L )
 {
+    if( !lp_CONFIG->explosion_particles )   return;
 	EnterCS();
 		particles.push_back( FX_PARTICLE( P, S, L ) );
 	LeaveCS();
@@ -438,6 +439,7 @@ void FX_MANAGER::add_particle( VECTOR &P, VECTOR &S, float L )
 
 void FX_MANAGER::add_explosion( VECTOR &P, int n, float power )
 {
+    if( !lp_CONFIG->explosion_particles )   return;
     EnterCS();
         for( int i = 0 ; i < n ; i++ ) {
             VECTOR S;

@@ -3098,6 +3098,7 @@ int play(GAME_DATA *game_data)
                 else if( params[0] == "shadow" && params.size() == 1 ) lp_CONFIG->shadow^=true;
                 else if( params[0] == "details" )	lp_CONFIG->detail_tex ^= true;
                 else if( params[0] == "particle" )	lp_CONFIG->particle^=true;
+                else if( params.size() == 2 && params[0] == "explosion" && params[1] == "particles" )	lp_CONFIG->explosion_particles^=true;
                 else if( params[0] == "waves" ) lp_CONFIG->waves^=true;
                 else if( params.size() == 2 && params[0] == "show" && params[1] == "script" ) show_script^=true;
                 else if( params.size() == 2 && params[0] == "show" && params[1] == "model" ) show_model^=true;

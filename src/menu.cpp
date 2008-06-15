@@ -553,17 +553,15 @@ void config_menu(void)
     config_area.load_tdf("gui/config.area");
     if( !config_area.background )	config_area.background = gfx->glfond;
 
-    /*Vector< String > fps_limits = ReadVectorString( "50,60,70,80,90,100,no limit" );
-      for( uint32 e = 0 ; e < fps_limits.size() ; e++ )
-      fps_limits[ e ] = TRANSLATE( fps_limits[ e ] ); */
-    Vector<String> fps_limits;
-    fps_limits.push_back(TRANSLATE("50"));
-    fps_limits.push_back(TRANSLATE("60"));
-    fps_limits.push_back(TRANSLATE("70"));
-    fps_limits.push_back(TRANSLATE("80"));
-    fps_limits.push_back(TRANSLATE("90"));
-    fps_limits.push_back(TRANSLATE("100"));
-    fps_limits.push_back(TRANSLATE("no limit"));
+    Vector< String > fps_limits;
+    if( config_area.get_object("*.fps_limit") ) {
+        fps_limits = config_area.get_object("*.fps_limit")->Text;
+        fps_limits.erase( fps_limits.begin() );
+        }
+    else
+        ReadVectorString( fps_limits, "50,60,70,80,90,100,no limit" );
+    for( uint32 e = 0 ; e < fps_limits.size() ; e++ )
+        fps_limits[ e ] = TRANSLATE( fps_limits[ e ] );
     int	nb_res = 0;
     int res_width[100];
     int res_height[100];
@@ -605,18 +603,13 @@ void config_menu(void)
     destroy_gfx_mode_list( mode_list );
 
     config_area.set_state("*.showfps", lp_CONFIG->showfps);
-    switch( (int)lp_CONFIG->fps_limit )
-    {
-        case 50:  config_area.set_caption("*.fps_limit", fps_limits[0]); break;
-        case 60:  config_area.set_caption("*.fps_limit", fps_limits[1]); break;
-        case 70:  config_area.set_caption("*.fps_limit", fps_limits[2]); break;
-        case 80:  config_area.set_caption("*.fps_limit", fps_limits[3]); break;
-        case 90:  config_area.set_caption("*.fps_limit", fps_limits[4]); break;
-        case 100: config_area.set_caption("*.fps_limit", fps_limits[5]); break;
-        default:  config_area.set_caption("*.fps_limit", fps_limits[6]);
-    };
+    config_area.set_caption("*.fps_limit", fps_limits[fps_limits.size()-1]);
+    foreach( fps_limits, i )
+        if( format( "%d", (int)lp_CONFIG->fps_limit ) == *i )
+            config_area.set_caption("*.fps_limit", *i);
     config_area.set_state("*.wireframe", lp_CONFIG->wireframe);
     config_area.set_state("*.particle", lp_CONFIG->particle);
+    config_area.set_state("*.explosion_particles", lp_CONFIG->explosion_particles);
     config_area.set_state("*.waves", lp_CONFIG->waves);
     config_area.set_state("*.shadow", lp_CONFIG->shadow);
     config_area.set_state("*.height_line", lp_CONFIG->height_line);
@@ -836,6 +829,7 @@ void config_menu(void)
         }
         lp_CONFIG->wireframe = config_area.get_state( "*.wireframe" );
         lp_CONFIG->particle = config_area.get_state( "*.particle" );
+        lp_CONFIG->explosion_particles = config_area.get_state( "*.explosion_particles" );
         lp_CONFIG->waves = config_area.get_state( "*.waves" );
         lp_CONFIG->shadow = config_area.get_state( "*.shadow" );
         lp_CONFIG->height_line = config_area.get_state( "*.height_line" );
