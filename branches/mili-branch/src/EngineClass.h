@@ -849,7 +849,7 @@ public:
 	void draw();
 };
 
-#include "ai.h"					// For Artificial Intelligence
+#include "ai/ai.h"					// For Artificial Intelligence
 #include "TA3D_Network.h"		// For network synchronization
 
 extern int NB_PLAYERS;

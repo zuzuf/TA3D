@@ -21,8 +21,10 @@
 |                                                                              |
 \-----------------------------------------------------------------------------*/
 
-#ifndef ARTIFICIAL_INTELLIGENCE
-#define ARTIFICIAL_INTELLIGENCE
+#ifndef TA3D_XX_AI_H__
+# define TA3D_XX_AI_H__
+
+
 
 struct NEURON
 {
@@ -251,4 +253,4 @@ public:
 	void think( MAP *map );
 };
 
-#endif
+#endif // TA3D_XX_AI_H__

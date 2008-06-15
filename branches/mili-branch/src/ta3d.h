@@ -219,7 +219,7 @@ BITMAP *LoadMaskedTexBmp(const char *file,const char *filealpha)
 #include "UnitEngine.h"				// The Unit Engine
 #include "tnt.h"					// The TNT loaded
 #include "script.h"					// The game script manager
-#include "ai.h"						// AI Engine
+#include "ai/ai.h"						// AI Engine
 
 inline INT_ELEMENT read_gui_element( cTAFileParser *parser, const String &element, bool bottom = false )
 {
@@ -228,14 +228,15 @@ inline INT_ELEMENT read_gui_element( cTAFileParser *parser, const String &elemen
 	gui_element.y1 = parser->PullAsInt( element + ".y1" );
 	gui_element.x2 = parser->PullAsInt( element + ".x2" );
 	gui_element.y2 = parser->PullAsInt( element + ".y2" );
-
-	if( bottom ) {
+	if (bottom)
+    {
 		gui_element.y1 += SCREEN_H - 480;
 		gui_element.y2 += SCREEN_H - 480;
-		}
-
+	}
 	return gui_element;
 }
+
+
 
 void SIDEDATA::load_data()
 {
