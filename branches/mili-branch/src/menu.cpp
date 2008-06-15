@@ -624,6 +624,7 @@ void config_menu(void)
             config_area.set_caption("*.fps_limit", *i);
     config_area.set_state("*.wireframe", lp_CONFIG->wireframe);
     config_area.set_state("*.particle", lp_CONFIG->particle);
+    config_area.set_state("*.explosion_particles", lp_CONFIG->explosion_particles);
     config_area.set_state("*.waves", lp_CONFIG->waves);
     config_area.set_state("*.shadow", lp_CONFIG->shadow);
     config_area.set_state("*.height_line", lp_CONFIG->height_line);
@@ -843,6 +844,7 @@ void config_menu(void)
         }
         lp_CONFIG->wireframe = config_area.get_state( "*.wireframe" );
         lp_CONFIG->particle = config_area.get_state( "*.particle" );
+        lp_CONFIG->explosion_particles = config_area.get_state( "*.explosion_particles" );
         lp_CONFIG->waves = config_area.get_state( "*.waves" );
         lp_CONFIG->shadow = config_area.get_state( "*.shadow" );
         lp_CONFIG->height_line = config_area.get_state( "*.height_line" );

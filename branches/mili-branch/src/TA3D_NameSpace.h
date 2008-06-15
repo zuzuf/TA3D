@@ -82,6 +82,7 @@ namespace TA3D
 		bool	showfps;
 		bool	wireframe;
 		bool	particle;
+		bool    explosion_particles;
 		bool	waves;
 		bool	shadow;
 		bool	height_line;
@@ -154,6 +155,7 @@ namespace TA3D
 			showfps = false;
 			wireframe = false;
 			particle = true;
+			explosion_particles = true;
 			waves = true;
 			shadow = true;
 			height_line = false;
