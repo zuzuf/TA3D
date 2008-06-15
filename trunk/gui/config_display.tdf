@@ -8,7 +8,7 @@
 	height=720;
 	draw borders=false;
 	show title=false;
-	number of objects=27;
+	number of objects=29;
 	hidden=false;
 	lock=true;
 	color=0x00000000;			// Fully transparent so we can see the AREA background
@@ -296,6 +296,26 @@
 		help=warning: you might have texturing\nissues with this!!;
 		x1=690;
 		y1=470;
+		value=0;
+		size=1.6;
+	}
+	[object27]		// Option "explosion_particles"
+	{
+		name=t_explosion_particles;
+		type=TEXT;
+		caption=explosion particles;
+		x1=0;
+		y1=505;
+		value=0xFFFFFFFF;
+		size=2;
+	}
+	[object28]		// Option "explosion_particles"
+	{
+		name=explosion_particles;
+		type=OPTIONC;
+		caption=;
+		x1=690;
+		y1=505;
 		value=0;
 		size=1.6;
 	}
