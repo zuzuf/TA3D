@@ -15,7 +15,8 @@
     along with this program; if not, write to the Free Software
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA*/
 
-#pragma once
+#ifndef __TA3D_XX_ERRORS_H__
+# define __TA3D_XX_ERRORS_H__
 
 namespace TA3D
 {
@@ -47,4 +48,10 @@ namespace TA3D
 		void DisplayError();
 
 	}; // class cError
+
+
+
 } // namespace TA3D 
+
+
+#endif // __TA3D_XX_ERRORS_H__

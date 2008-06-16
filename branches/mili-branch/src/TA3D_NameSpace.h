@@ -28,7 +28,6 @@
 #ifndef __TA3D_NAMESPACE_H__
 # define __TA3D_NAMESPACE_H__
 
-# pragma once // TODO Must be removed
 
 # include "TA3D_Exception.h"
 # include "misc/interface.h"

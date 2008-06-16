@@ -393,11 +393,6 @@ void cConsole::ToggleShow()
 	m_Show ^= true;
 }
 
-bool cConsole::activated()
-{
-	return m_Show || m_Visible > 0.0f;
-}
-
 char *cConsole::draw( TA3D::Interfaces::GfxFont fnt, float dt, float fsize, bool force_show )
 {
 	EnterCS();

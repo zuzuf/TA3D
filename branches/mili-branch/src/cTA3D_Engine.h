@@ -15,7 +15,9 @@
     along with this program; if not, write to the Free Software
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA*/
 
-#pragma once
+
+#ifndef __TA3D_ENGINE_H__
+# define __TA3D_ENGINE_H__
 
 #include "threads/cCriticalSection.h"
 #include "threads/cThread.h"
@@ -45,4 +47,9 @@ namespace TA3D
 		bool GFXModeActive() const { return m_GFXModeActive; }
 		bool AllegroRunning() const { return m_AllegroRunning; }
 	};
+
+
 } // namespace TA3D
+
+
+#endif // __TA3D_ENGINE_H__

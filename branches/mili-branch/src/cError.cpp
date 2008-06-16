@@ -41,7 +41,7 @@ namespace TA3D
 
 	}
 
-	/* Private */void cError::LogError()
+	void cError::LogError()
 	{
 		if( TA3D::VARS::InterfaceManager == NULL )
 			return;
@@ -122,4 +122,6 @@ namespace TA3D
 
 		return true;
 	}
+
 } // namespace TA3D
+
