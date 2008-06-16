@@ -571,7 +571,7 @@ void load_game( GAME_DATA *game_data )
 
 //----- Load weapon information ------------------------------------------------------------
 
-	weapons.Lock();
+	weapons.lock();
 
 	if( weapons.weapon )	free( weapons.weapon );			// Tableau regroupant les armes
 	if( weapons.idx_list )	delete[] weapons.idx_list;
@@ -622,7 +622,7 @@ void load_game( GAME_DATA *game_data )
 		if( weapons.weapon[e].weapon_id == -1 )
 			weapons.free_idx[ weapons.free_index_size++ ] = e;
 
-	weapons.UnLock();
+	weapons.unlock();
 
 //----- Load unit information --------------------------------------------------------------
 
@@ -639,7 +639,7 @@ void load_game( GAME_DATA *game_data )
 		foreach( *pad_list, i )	LOAD( *i );
 		}
 
-	units.EnterCS_from_outside();
+	units.lock();
 
 	units.mini_idx = new GLushort[ units.max_unit ];
 	units.mini_col = new uint32[ units.max_unit ];
@@ -908,7 +908,7 @@ void load_game( GAME_DATA *game_data )
 			units.free_idx[ player_id * MAX_UNIT_PER_PLAYER + (units.free_index_size[player_id]++) ] = i;
 		}
 
-	units.LeaveCS_from_outside();
+	units.unlock();
 
 	game_data->saved_file.clear();
 

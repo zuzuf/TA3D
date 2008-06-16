@@ -27,6 +27,8 @@
 #ifndef _TA3D_XX_CLASSE_CONSOLE_H__
 # define _TA3D_XX_CLASSE_CONSOLE_H__
 
+# include "threads/thread.h"
+
 
 #define CONSOLE_MAX_LINE	100
 
@@ -35,7 +37,7 @@ namespace TA3D
 namespace TA3D_DEBUG
 {
 
-    class cConsole : protected cCriticalSection
+    class cConsole : public ObjectSync
     {
     private:
         std::list<String>	m_LastEntries;

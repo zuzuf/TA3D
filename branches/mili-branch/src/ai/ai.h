@@ -24,6 +24,7 @@
 #ifndef TA3D_XX_AI_H__
 # define TA3D_XX_AI_H__
 
+# include "../threads/thread.h"
 
 
 struct NEURON
@@ -179,7 +180,7 @@ inline bool operator<( WEIGHT_COEF &a, WEIGHT_COEF &b )		{	return a.c > b.c;	}
 #define AI_TYPE_HARD		0x2
 #define AI_TYPE_BLOODY		0x3
 
-class AI_PLAYER :	protected cCriticalSection,			// Class to manage players controled by AI
+class AI_PLAYER :	public ObjectSync,			// Class to manage players controled by AI
 		            public cThread
 {
 public:
@@ -224,8 +225,6 @@ public:
 
 	AI_PLAYER() : builder_list(), factory_list(), army_list(), enemy_list()
 	{
-		CreateCS();				// Thread safe model
-
 		InitThread();
 
 		init();
@@ -234,8 +233,6 @@ public:
 	~AI_PLAYER()
 	{
 		destroy();
-
-		DeleteCS();
 	}
 
 	void monitor();

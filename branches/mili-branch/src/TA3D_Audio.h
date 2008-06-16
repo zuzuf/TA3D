@@ -22,6 +22,7 @@
 # include "vector.h"
 # include "cTAFileParser.h"
 # include "misc/interface.h"
+# include "threads/thread.h"
 
 # undef stricmp  // TODO Must be removed
 
@@ -51,7 +52,7 @@ namespace Interfaces
 {
 
 
-    class cAudio : protected TA3D::cCriticalSection, protected TA3D::IInterface, protected TA3D::UTILS::cTAFileParser
+    class cAudio : public ObjectSync, protected TA3D::IInterface, protected TA3D::UTILS::cTAFileParser
     {
     private:
         typedef struct m_PlayListItem

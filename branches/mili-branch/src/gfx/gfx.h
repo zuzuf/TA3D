@@ -29,7 +29,7 @@ using namespace TA3D; // TODO Remove this
 
 # include "gfxfont.h"
 # include "gfxtexture.h"
-# include "../threads/mutex.h"
+# include "../threads/thread.h"
 
 
 
@@ -49,7 +49,7 @@ namespace Interfaces
     class GfxFont;
 
     
-    class GFX : protected IInterface
+    class GFX : public ObjectSync, protected IInterface
     {
         friend class GfxFont;
 
@@ -82,11 +82,6 @@ namespace Interfaces
 
         virtual ~GFX();
 
-        // TODO Remove those 2 methods - an internal mutex should never be locked by an external function
-        void lock()	{ pMutex.lock(); }
-        void unlock() { pMutex.unlock(); }
-
-
         void load_background();
 
         void destroy_background() { destroy_texture(glfond); }
@@ -95,7 +90,6 @@ namespace Interfaces
 
     private:
         uint32 InterfaceMsg( const lpcImsg msg );
-        Mutex pMutex;
         
         void preCalculations();
 

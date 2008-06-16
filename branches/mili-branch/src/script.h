@@ -29,6 +29,7 @@
 #define CLASSE_SCRIPT
 
 #include "lua/lua.hpp"
+#include "threads/thread.h"
 
 #ifndef luaL_dobuffer
 #define luaL_dobuffer(L, s, sz) \
@@ -90,7 +91,7 @@ public:
 	void draw(GfxFont &fnt);
 };
 
-class LUA_PROGRAM : protected cCriticalSection
+class LUA_PROGRAM : public ObjectSync
 {
 	byte		*buffer;
 	lua_State	*L;				// Pointer to the lua data
@@ -107,9 +108,6 @@ public:
 	bool		sleeping;		// Indique si le programme marque une pause
 	bool		waiting;		// Indique si le programme attend une action utilisateur
 	DRAW_LIST	draw_list;		// Liste de commandes d'affichage
-
-	inline void Lock()		{	EnterCS();	}
-	inline void UnLock()	{	LeaveCS();	}
 
 	inline void stop()
 	{
@@ -152,7 +150,6 @@ public:
 	~LUA_PROGRAM()
 	{
 		destroy();
-		DeleteCS();
 	}
 
 	void load(char *filename, MAP *map);					// Load a lua script

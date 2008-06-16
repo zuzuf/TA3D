@@ -26,6 +26,7 @@
 #define __FX_H_
 
 #include "gaf.h"
+#include "threads/thread.h"
 
 class FX
 {
@@ -119,7 +120,7 @@ class FX_PARTICLE
 		void draw();
 };
 
-class FX_MANAGER : cCriticalSection				// This class mustn't be executed in its own thread in order to remain thread safe,
+class FX_MANAGER : public ObjectSync	// This class mustn't be executed in its own thread in order to remain thread safe,
 {												// it must run in main thread (the one that can call OpenGL functions)!!
 private:
 	int			max_fx;
@@ -146,16 +147,12 @@ public:
 
 	FX_MANAGER()
 	{
-		CreateCS();
-
 		init();
 	}
 
 	~FX_MANAGER()
 	{
 		destroy();
-
-		DeleteCS();
 	}
 
 	void load_data();
@@ -172,7 +169,7 @@ public:
 
 	inline int put_in_cache(char *filename,ANIM *anm)
 	{
-		EnterCS();
+		pMutex.lock();
 
 		int is_in=is_in_cache(filename);
 		if(is_in>=0)	return is_in;		// On ne le garde pas 2 fois
@@ -213,14 +210,14 @@ public:
 		cache_name[idx]=strdup(filename);
 		cache_size++;
 
-		LeaveCS();
+		pMutex.unlock();
 
 		return idx;
 	}
 
 	inline void move(float dt)
 	{
-		EnterCS();
+		pMutex.lock();
 
 		for(int i=0;i<max_fx;i++)
 			if(fx[i].move(dt,cache_anm)) {
@@ -243,7 +240,7 @@ public:
 			else
 				i++;
 
-		LeaveCS();
+		pMutex.unlock();
 	}
 
 	void	draw(CAMERA *cam, MAP *map, float w_lvl=0.0f, bool UW=false);

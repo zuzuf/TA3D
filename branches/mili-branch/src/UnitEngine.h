@@ -232,7 +232,7 @@ public:
 #define SCRIPT_QueryLandingPad	0x24
 #define NB_SCRIPT				0x25
 
-class UNIT	:	protected cCriticalSection				// Classe pour la gestion des unités	/ Class to store units's data
+class UNIT	: public ObjectSync	// Classe pour la gestion des unités	/ Class to store units's data
 {
 public:
 	SCRIPT					*script;		// Scripts concernant l'unité
@@ -348,9 +348,6 @@ public:
 
 public:
 
-	inline void Lock()		{	EnterCS();	}
-	inline void UnLock()	{	LeaveCS();	}
-
 	inline bool do_nothing()
 	{
 		return (mission==NULL || ((mission->mission==MISSION_STOP || mission->mission==MISSION_STANDBY || mission->mission==MISSION_VTOL_STANDBY) && mission->next==NULL)) && !port[ INBUILDSTANCE ];
@@ -403,14 +400,14 @@ public:
 
 		if( mission->mission == MISSION_GET_REPAIRED && mission->p ) {		// Don't forget to detach the planes from air repair pads!
 			UNIT *target_unit = (UNIT*)(mission->p);
-			target_unit->Lock();
+			target_unit->lock();
 			if( target_unit->flags & 1 ) {
 				int piece_id = mission->data >= 0 ? mission->data : (-mission->data - 1);
 				if( target_unit->pad1 == piece_id )			// tell others we've left
 					target_unit->pad1 = 0xFFFF;
 				else target_unit->pad2 = 0xFFFF;
 				}
-			target_unit->UnLock();
+			target_unit->unlock();
 			}
 
 		MISSION *old=mission;
@@ -428,13 +425,13 @@ public:
 	{
 		if(!compute_coord)	return;
 		if(model==NULL)	return;		// S'il n'y a pas de modèle associé, on quitte la fonction
-		EnterCS();
+		pMutex.lock();
 		compute_coord=false;
 		MATRIX_4x4 M;
 		float scale=unit_manager.unit_type[type_id].Scale;
 		M=RotateZ(Angle.z*DEG2RAD)*RotateY(Angle.y*DEG2RAD)*RotateX(Angle.x*DEG2RAD)*Scale(scale);			// Matrice pour le calcul des positions des éléments du modèle de l'unité
 		model->compute_coord(&data,&M);
-		LeaveCS();
+		pMutex.unlock();
 	}
 
 	inline void raise_signal(uint32 signal)		// Tue les processus associés
@@ -482,23 +479,21 @@ public:
 
 	inline void lock_command()
 	{
-		EnterCS();
+		pMutex.lock();
 			command_locked = true;
-		LeaveCS();
+		pMutex.unlock();
 	}
 
 	inline void unlock_command()
 	{
-		EnterCS();
+		pMutex.lock();
 			command_locked = false;
-		LeaveCS();
+		pMutex.unlock();
 	}
 
 	inline void init(int unit_type=-1,int owner=-1,bool full=false,bool basic=false)
 	{
-		if( full )
-			CreateCS();
-		EnterCS();
+		pMutex.lock();
 
 		ID = 0;
 
@@ -617,7 +612,7 @@ public:
 				launch_script(get_script_index(SCRIPT_create));
 				}
 			}
-		LeaveCS();
+		pMutex.unlock();
 	}
 
 	inline UNIT()
@@ -639,7 +634,7 @@ public:
 	inline void destroy(bool full=false)
 	{
 		while( drawing )	rest(0);
-		EnterCS();
+		pMutex.lock();
 		ID = 0;
 		for(int i=0;i<nb_running;i++)
 			(*script_env)[i].destroy();
@@ -648,9 +643,9 @@ public:
 		init();
 		flags=0;
 		groupe=0;
-		LeaveCS();
-		if(full) {
-			DeleteCS();
+		pMutex.unlock();
+		if(full)
+        {
 			delete	 s_var;			// Tableau de variables pour les scripts
 			delete[] port;			// Ports
 			delete	 script_env;	// Environnements des scripts
@@ -723,7 +718,7 @@ public:
 
 	inline void run_script_function( MAP *map, int id, int nb_param=0, int *param=NULL )	// Launch and run the script, returning it's values to param if not NULL
 	{
-		EnterCS();
+		pMutex.lock();
 		int script_idx = launch_script( id, nb_param, param );
 		if( script_idx >= 0 ) {
 			float dt = 1.0f / TICKS_PER_SEC;
@@ -746,14 +741,14 @@ public:
 				}
 			nb_running-=e;
 			}
-		LeaveCS();
+		pMutex.unlock();
 	}
 
 	inline void kill_script(int script_index)		// Fait un peu de ménage
 	{
 		if(script==NULL)	return;
 		if(script_index<0 || script_index>=script->nb_script)	return;
-		EnterCS();
+		pMutex.lock();
 		for(int i=0;i<nb_running;i++)
 			if((*script_env)[i].running && (*script_env)[i].env!=NULL) {
 				SCRIPT_ENV_STACK *current=(*script_env)[i].env;
@@ -783,16 +778,16 @@ public:
 				}
 			}
 		nb_running-=e;
-		LeaveCS();
+		pMutex.unlock();
 	}
 
 	inline void reset_script()
 	{
-		EnterCS();
+		pMutex.lock();
 		for(int i=0;i<nb_running;i++)
 			(*script_env)[i].destroy();
 		nb_running=0;
-		LeaveCS();
+		pMutex.unlock();
 	}
 
 	const void play_sound( const String &key );
@@ -805,24 +800,24 @@ public:
 
 	inline void activate()
 	{
-		EnterCS();
+		pMutex.lock();
 		if( port[ACTIVATION] == 0 ) {
 			play_sound( "activate" );
 			launch_script(get_script_index(SCRIPT_Activate));
 			port[ACTIVATION] = 1;
 			}
-		LeaveCS();
+		pMutex.unlock();
 	}
 
 	inline void deactivate()
 	{
-		EnterCS();
+		pMutex.lock();
 		if( port[ACTIVATION] != 0 ) {
 			play_sound( "deactivate" );
 			launch_script(get_script_index(SCRIPT_Deactivate));
 			port[ACTIVATION] = 0;
 			}
-		LeaveCS();
+		pMutex.unlock();
 	}
 
 	int shoot(int target,VECTOR startpos,VECTOR Dir,int w_id,const VECTOR &target_pos);
@@ -867,7 +862,7 @@ public:
 #define ICON_KAMIKAZE		0xC
 
 
-class INGAME_UNITS :	protected cCriticalSection,			// Class to manage huge number of units during the game
+class INGAME_UNITS :	public ObjectSync,			// Class to manage huge number of units during the game
 						protected IInterface,				// It inherits from what we need to use threads
 			            public cThread
 {
@@ -934,14 +929,14 @@ public:
 
 	inline void set_wind_change()
 	{
-		EnterCS();
+		pMutex.lock();
 			wind_change = true;
-		LeaveCS();
+		pMutex.unlock();
 	}
 
 	inline void init( bool register_interface = false )
 	{
-		EnterCS();
+		pMutex.lock();
 		
 		next_unit_ID = 1;
 		mini_idx = NULL;
@@ -995,24 +990,18 @@ public:
 		exp_dt_4=0.0f;
 		g_dt=0.0f;
 
-		LeaveCS();
+		pMutex.unlock();
 	}
-
-	inline void EnterCS_from_outside()	{		EnterCS();	}
-	inline void LeaveCS_from_outside()	{		LeaveCS();	}
 
 	inline INGAME_UNITS() : requests(), repair_pads()
 	{
-		CreateCS();				// Thread safe model
-
 		InitThread();
-
 		init();
 	}
 
 	inline void destroy( bool delete_interface = true )
 	{
-		EnterCS();
+		pMutex.lock();
 
 		if( delete_interface ) {
 			for( int i = 0 ; i < 13 ; i++ )
@@ -1032,7 +1021,7 @@ public:
 				unit[i].destroy(true);
 		if(unit)
 			free(unit);
-		LeaveCS();
+		pMutex.unlock();
 
 		init();
 	}
@@ -1040,8 +1029,6 @@ public:
 	~INGAME_UNITS()
 	{
 		destroy( false );
-
-		DeleteCS();					// End the safe thread things
 	}
 
 	void kill(int index,MAP *map,int prev,bool sync = true);			// Détruit une unité
@@ -1064,7 +1051,7 @@ public:
 
 	inline void give_order_move(int player_id,VECTOR target,bool set=true,byte flags=0)
 	{
-		EnterCS();
+		pMutex.lock();
 
 		for(uint16 e=0;e<index_list_size;e++) {
 			uint16 i = idx_list[e];
@@ -1077,12 +1064,12 @@ public:
 					unit[i].play_sound( "ok1" );
 				}
 			}
-		LeaveCS();
+		pMutex.unlock();
 	}
 
 	inline void give_order_patrol(int player_id,VECTOR target,bool set=true)
 	{
-		EnterCS();
+		pMutex.lock();
 		for(uint16 e=0;e<index_list_size;e++) {
 			uint16 i = idx_list[e];
 			if( (unit[i].flags & 1) && unit[i].owner_id==player_id && unit[i].sel && unit[i].build_percent_left ==0.0f && unit_manager.unit_type[unit[i].type_id].canpatrol) {
@@ -1094,12 +1081,12 @@ public:
 					unit[i].play_sound( "ok1" );
 				}
 			}
-		LeaveCS();
+		pMutex.unlock();
 	}
 
 	inline void give_order_guard(int player_id,int target,bool set=true)
 	{
-		EnterCS();
+		pMutex.lock();
 		for(uint16 e=0;e<index_list_size;e++) {
 			uint16 i = idx_list[e];
 			if( (unit[i].flags & 1) && unit[i].owner_id==player_id && unit[i].sel && unit[i].build_percent_left ==0.0f && unit_manager.unit_type[unit[i].type_id].canguard) {
@@ -1111,12 +1098,12 @@ public:
 					unit[i].play_sound( "ok1" );
 				}
 			}
-		LeaveCS();
+		pMutex.unlock();
 	}
 
 	inline void give_order_unload(int player_id,VECTOR target,bool set=true)
 	{
-		EnterCS();
+		pMutex.lock();
 		for(uint16 e=0;e<index_list_size;e++) {
 			uint16 i = idx_list[e];
 			if( (unit[i].flags & 1) && unit[i].owner_id==player_id && unit[i].sel && unit[i].build_percent_left == 0.0f && unit_manager.unit_type[unit[i].type_id].canload
@@ -1129,13 +1116,13 @@ public:
 					unit[i].play_sound( "ok1" );
 				}
 			}
-		LeaveCS();
+		pMutex.unlock();
 	}
 
 	inline void give_order_load(int player_id,int target,bool set=true)
 	{
-		EnterCS();
-		if(unit[target].flags==0 || !unit_manager.unit_type[unit[target].type_id].canmove)	{	LeaveCS();	return;		}
+		pMutex.lock();
+		if(unit[target].flags==0 || !unit_manager.unit_type[unit[target].type_id].canmove)	{	pMutex.unlock();	return;		}
 		switch(unit_manager.unit_type[unit[target].type_id].TEDclass)
 		{
 		case CLASS_UNDEF:
@@ -1144,7 +1131,7 @@ public:
 		case CLASS_PLANT:
 		case CLASS_SPECIAL:
 		case CLASS_FORT:
-			LeaveCS();
+			pMutex.unlock();
 			return;
 			break;
 		};
@@ -1160,7 +1147,7 @@ public:
 					unit[i].play_sound( "ok1" );
 				}
 			}
-		LeaveCS();
+		pMutex.unlock();
 	}
 
 	inline void give_order_build(int player_id,int unit_type_id,VECTOR target,bool set=true)
@@ -1173,8 +1160,9 @@ public:
 		target.x=target.x*8.0f-map->map_w_d;
 		target.z=target.z*8.0f-map->map_h_d;
 
-		EnterCS();
-		for(uint16 e=0;e<index_list_size;e++) {
+		pMutex.lock();
+		for(uint16 e=0;e<index_list_size;e++)
+        {
 			uint16 i = idx_list[e];
 			if( (unit[i].flags & 1) && unit[i].owner_id==player_id && unit[i].sel && unit[i].build_percent_left == 0.0f && unit_manager.unit_type[unit[i].type_id].Builder) {
 				if(set)
@@ -1183,7 +1171,7 @@ public:
 					unit[i].add_mission(MISSION_BUILD,&target,false,unit_type_id);
 				}
 			}
-		LeaveCS();
+		pMutex.unlock();
 	}
 
 	void remove_order(int player_id,VECTOR target);

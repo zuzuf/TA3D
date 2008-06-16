@@ -21,7 +21,6 @@
 #endif
 #include "stdafx.h"
 #include "TA3D_NameSpace.h"
-#include "threads/cCriticalSection.h"
 #include "threads/cThread.h"
 #include "cLogger.h"
 

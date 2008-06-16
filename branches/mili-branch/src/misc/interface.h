@@ -18,7 +18,7 @@
 #ifndef __TA3D_I_INTERFACES_H__
 # define __TA3D_I_INTERFACES_H__
 
-# include "../threads/cCriticalSection.h"
+# include "../threads/thread.h"
 
 
 # define I_Msg( x, xx,xxx,xxxx ) InterfaceManager->DispatchMsg( x,xx,xxx,xxxx )
@@ -90,7 +90,7 @@ namespace TA3D
 
 
 
-	class IInterfaceManager : protected cCriticalSection
+	class IInterfaceManager : public ObjectSync
 	{
 	public:
         //! \name Constructor & destructor

@@ -19,13 +19,12 @@
 #ifndef __TA3D_ENGINE_H__
 # define __TA3D_ENGINE_H__
 
-#include "threads/cCriticalSection.h"
 #include "threads/cThread.h"
 #include "cLogger.h"
 
 namespace TA3D
 {
-	class cTA3D_Engine :   protected cCriticalSection, public cThread
+	class cTA3D_Engine : public ObjectSync, public cThread
 	{
 	private:
 		TA3D::Interfaces::cLogger* m_lpcLogger;

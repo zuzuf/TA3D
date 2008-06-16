@@ -45,67 +45,63 @@ namespace TA3D
 
     IInterfaceManager::IInterfaceManager()
         :pNextInterfaceID(1)
-    {
-        CreateCS();
-    }
+    {}
 
     IInterfaceManager::~IInterfaceManager()
-    {
-        DeleteCS();
-    }
+    {}
 
 
 
     void IInterfaceManager::AddInterface(IInterface* i)
     {
         LOG_DEBUG(i);
-        EnterCS();
+        pMutex.lock();
         pInterfaces.push_back(i);
         i->m_InterfaceID = pNextInterfaceID;
         ++pNextInterfaceID;
-        LeaveCS();
+        pMutex.unlock();
     }
 
 
     void IInterfaceManager::RemoveInterface(IInterface* i)
     {
         LOG_ASSERT(i);
-        EnterCS();
+        pMutex.lock();
         for (InterfacesList::iterator cur = pInterfaces.begin(); cur != pInterfaces.end(); ++cur)
         {
             if( (*cur)->m_InterfaceID == i->m_InterfaceID)
             {
                 pInterfaces.erase(cur);
-                LeaveCS();
+                pMutex.unlock();
                 return;
             }
         }
-        LeaveCS();
+        pMutex.unlock();
     }
 
 
     void IInterfaceManager::DispatchMsg(const lpcImsg msg)
     {
-        EnterCS();
+        pMutex.lock();
         for (InterfacesList::iterator cur = pInterfaces.begin(); cur != pInterfaces.end(); ++cur)
         {
             if( (*cur)->InterfaceMsg( msg ) == INTERFACE_RESULT_HANDLED )
             {
-                LeaveCS();
+                pMutex.unlock();
                 return;
             }
         }
-        LeaveCS();
+        pMutex.unlock();
     }
 
 
     void IInterfaceManager::DispatchMsg(const uint32 mID, void* a, void* b, void* c)
     {
-        EnterCS();
+        pMutex.lock();
         IInterfaceMessage *cimsg = new IInterfaceMessage( mID, a, b, c );
         DispatchMsg( cimsg );
         delete cimsg;
-        LeaveCS();
+        pMutex.unlock();
     }
 
 

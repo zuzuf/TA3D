@@ -26,6 +26,7 @@
 
 #define __CLASSES_TDF
 
+#include "threads/thread.h"
 #include "gaf.h"			// Pour la gestion des fichiers GAF
 #include "particles.h"		// Pour l'accès au moteur à particules
 #include "3do.h"			// Pour pouvoir utiliser des modèles 3D
@@ -272,7 +273,7 @@ struct FEATURE_DATA
 
 class MAP;
 
-class FEATURES :	protected cCriticalSection				// Moteur de gestion des éléments graphiques
+class FEATURES : public ObjectSync	// Moteur de gestion des éléments graphiques
 {
 public:
 	int				nb_features;		// Nombre d'éléments à gérer
@@ -305,7 +306,6 @@ public:
 
 	FEATURES() : burning_features(), sinking_features()
 	{
-		CreateCS();
 		init();
 	}
 
@@ -329,7 +329,6 @@ public:
 	~FEATURES()
 	{
 		destroy();
-		DeleteCS();
 	}
 
 	void compute_on_map_pos( int idx );
@@ -339,13 +338,13 @@ public:
 
 	inline int add_feature(VECTOR Pos,int type)
 	{
+        MutexLocker locker(pMutex);
 		if(type<0 || type>=feature_manager.nb_features)	return -1;
-
-		EnterCS();
 
 		nb_features++;
 		int idx=-1;
-		if(nb_features>max_features) {			// Si besoin alloue plus de mémoire
+		if(nb_features>max_features) // Si besoin alloue plus de mémoire
+        {
 			max_features+=500;				// Alloue la mémoire par paquets de 500 éléments
 			FEATURE_DATA	*n_feature=(FEATURE_DATA*) malloc(sizeof(FEATURE_DATA)*max_features);
 			if(feature && nb_features>0)
@@ -385,27 +384,18 @@ public:
 		feature[idx].dive_speed = 0.0f;
 		feature[idx].angle_x = 0.0f;
 		feature[idx].shadow_dlist = 0;
-
 		compute_on_map_pos( idx );
-
-		LeaveCS();
-
 		return idx;
 	}
 
-	inline void Lock()		{	EnterCS();	}
-	inline void UnLock()	{	LeaveCS();	}
-
 	inline void delete_feature(int index)				// Attention bug potentiel: penser à décaler les indices dans l'objet MAP!!
 	{
-		if(nb_features<=0) return;
+        MutexLocker locker(pMutex);
+		if(nb_features<=0)
+            return;
 
-		EnterCS();
-
-		if( feature[index].type <= 0 ) {
-			LeaveCS();
+		if( feature[index].type <= 0 )
 			return;
-			}
 
 		if( feature[ index ].shadow_dlist != 0 )
 			feature[ index ].delete_shadow_dlist = true;
@@ -415,8 +405,6 @@ public:
 
 		nb_features--;
 		feature[index].type=-1;		// On efface l'objet
-
-		LeaveCS();
 	}
 
 	void move(float dt,MAP *map,bool clean=true);

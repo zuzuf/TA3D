@@ -27,7 +27,8 @@
 
 #include "gfx/gfx.h"
 #include "hash_table.h"
-#include "threads/cCriticalSection.h"
+#include "threads/thread.h"
+
 
 void glbutton(const String &caption,float x1,float y1,float x2,float y2,bool etat=false);
 
@@ -235,7 +236,7 @@ public:
 	void create_ta_button(float X1,float Y1,const Vector< String > &Caption, const Vector< GLuint > &states, int nb_st);
 };
 
-class WND : protected cCriticalSection						// Class for the window object
+class WND : public ObjectSync // Class for the window object
 {
 public:
 	int			x,y;            // coordinates
@@ -291,7 +292,6 @@ public:
 		background = 0;
 		background_wnd = false;
 		size_factor = 1.0f;
-		CreateCS();
 	}
 
 	inline WND( const String &filename ) : obj_hashtable()			// Constructor
@@ -314,11 +314,14 @@ public:
 		draw_borders = true;
 		background = 0;
 		size_factor = 1.0f;
-		CreateCS();
 		load_tdf( filename );
 	}
 
-	inline ~WND()	{	obj_hashtable.EmptyHashTable();		destroy(); DeleteCS();	}
+	inline ~WND()
+    {
+        obj_hashtable.EmptyHashTable();
+        destroy();
+    }
 
 	void draw( String &help_msg, bool Focus=true,bool Deg=true, SKIN *skin=NULL );						// Draw the window
 	byte WinMov(int AMx,int AMy,int AMb,int Mx,int My,int Mb, SKIN *skin=NULL );						// Handle window's moves
@@ -335,7 +338,7 @@ public:
 	void load_gui( const String &filename, cHashTable< Vector< TA3D::Interfaces::GfxTexture >* > &gui_hashtable );// Load a window from a TA *.GUI file describing the interface
 };
 
-class AREA:	protected cCriticalSection,						// This class is a window handler, so it will manage windows, and signals given to them
+class AREA:	public ObjectSync, // This class is a window handler, so it will manage windows, and signals given to them
 			protected IInterface							// This is a global declaration since GUI is everywhere
 {
 private:

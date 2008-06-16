@@ -38,8 +38,6 @@ namespace Interfaces
 
         m_bNoInterface = noInterface;
 
-        CreateCS();
-
         if( !m_bNoInterface )
             InitInterface();
     }
@@ -53,24 +51,22 @@ namespace Interfaces
 
         if( !m_bNoInterface )
             DeleteInterface();
-
-        DeleteCS();
     }
 
     void cLogger::LogData( const char *txt )
     {
-        EnterCS();
+        pMutex.lock();
         fputs(txt, m_File);
         fflush( m_File );
-        LeaveCS();            
+        pMutex.unlock();
     }
 
     void cLogger::LogData(const std::string &txt)
     {
-        EnterCS();
+        pMutex.lock();
         fputs( txt.c_str(), m_File );
         fflush( m_File );
-        LeaveCS();
+        pMutex.unlock();
     }
 
     FILE *cLogger::get_log_file()
@@ -87,5 +83,6 @@ namespace Interfaces
 
         return INTERFACE_RESULT_CONTINUE;
     }
+
 }
 }

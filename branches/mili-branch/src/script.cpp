@@ -140,9 +140,9 @@ int function_triangle( lua_State *L )		// ta3d_line( x1,y1,x2,y2,x3,y3,r,g,b )
 int function_cls_for( lua_State *L )		// ta3d_cls_for( player_id )
 {
 	if( (int) lua_tonumber( L, -1 ) == players.local_human_id || (int) lua_tonumber( L, -1 ) == -1 ) {
-		lua_program->Lock();
+		lua_program->lock();
 		lua_program->draw_list.destroy();
-		lua_program->UnLock();
+		lua_program->unlock();
 		}
 
 	if( network_manager.isServer() ) {
@@ -447,7 +447,7 @@ int function_move_unit( lua_State *L )		// ta3d_move_unit( unit_id, x, z )
 	int unit_id = (int) lua_tonumber( L, -3 );
 
 	if( unit_id >= 0 && unit_id < units.max_unit && units.unit[ unit_id ].flags ) {
-		units.EnterCS_from_outside();
+		units.lock();
 
 		units.unit[ unit_id ].Pos.x = (float) lua_tonumber( L, -2 );
 		units.unit[ unit_id ].Pos.z = (float) lua_tonumber( L, -1 );
@@ -517,7 +517,7 @@ int function_move_unit( lua_State *L )		// ta3d_move_unit( unit_id, x, z )
 			units.unit[ unit_id ].draw_on_map();
 			}
 
-		units.LeaveCS_from_outside();
+		units.unlock();
 		}
 	lua_pop( L, 3 );
 
@@ -534,7 +534,7 @@ int function_create_unit( lua_State *L )		// ta3d_create_unit( player_id, unit_t
 	lua_pop( L, 4 );
 
 	if( unit_type_id >= 0 && unit_type_id < unit_manager.nb_unit && player_id >= 0 && player_id < NB_PLAYERS ) {
-		units.EnterCS_from_outside();
+		units.lock();
 		VECTOR pos;
 		pos.x = x;
 		pos.z = z;
@@ -542,16 +542,16 @@ int function_create_unit( lua_State *L )		// ta3d_create_unit( player_id, unit_t
 		UNIT *unit = (UNIT*)create_unit( unit_type_id, player_id, pos, the_map, true, true );		// Force synchronization
 		int idx = unit ? unit->idx : -1;
 		if( unit ) {
-			unit->Lock();
+			unit->lock();
 			unit->hp = unit_manager.unit_type[ unit_type_id ].MaxDamage;
 			unit->build_percent_left = 0.0f;
 			if( unit_manager.unit_type[ unit_type_id ].ActivateWhenBuilt ) {		// Start activated
 				unit->port[ ACTIVATION ] = 0;
 				unit->activate();
 				}
-			unit->UnLock();
+			unit->unlock();
 			}
-		units.LeaveCS_from_outside();
+		units.unlock();
 
 		if( idx >= 0 && idx < units.max_unit && units.unit[ idx ].flags )
 			lua_pushnumber( L, idx );
@@ -571,9 +571,9 @@ int function_change_unit_owner( lua_State *L )		// ta3d_change_unit_owner( unit_
 	lua_pop( L, 2 );
 
 	if( unit_id >= 0 && unit_id < units.max_unit && player_id >= 0 && player_id < NB_PLAYERS && units.unit[ unit_id ].flags ) {
-		units.EnterCS_from_outside();
+		units.lock();
 		units.unit[ unit_id ].owner_id = player_id;
-		units.LeaveCS_from_outside();
+		units.unlock();
 		}
 
 	return 0;
@@ -586,10 +586,10 @@ int function_set_unit_health( lua_State *L )		// ta3d_set_unit_health( unit_id, 
 	lua_pop( L, 2 );
 
 	if( unit_id >= 0 && unit_id < units.max_unit ) {
-		units.EnterCS_from_outside();
+		units.lock();
 		if( units.unit[ unit_id ].flags )
 			units.unit[ unit_id ].hp = health * unit_manager.unit_type[ units.unit[ unit_id ].type_id ].MaxDamage;
-		units.LeaveCS_from_outside();
+		units.unlock();
 		}
 
 	return 0;
@@ -611,10 +611,10 @@ int function_add_build_mission( lua_State *L )		// ta3d_add_build_mission( unit_
 		target.x=target.x*8.0f-lua_map->map_w_d;
 		target.z=target.z*8.0f-lua_map->map_h_d;
 
-		units.EnterCS_from_outside();
+		units.lock();
 		if( units.unit[ unit_id ].flags )
 			units.unit[ unit_id ].add_mission(MISSION_BUILD,&target,false,unit_type_id);
-		units.LeaveCS_from_outside();
+		units.unlock();
 		}
 
 	return 0;
@@ -633,10 +633,10 @@ int function_add_move_mission( lua_State *L )		// ta3d_add_move_mission( unit_id
 		target.y = lua_map->get_unit_h( pos_x, pos_z );
 		target.z = pos_z;
 
-		units.EnterCS_from_outside();
+		units.lock();
 		if( units.unit[ unit_id ].flags )
 			units.unit[ unit_id ].add_mission(MISSION_MOVE,&target,false,0);
-		units.LeaveCS_from_outside();
+		units.unlock();
 		}
 
 	return 0;
@@ -651,10 +651,10 @@ int function_add_attack_mission( lua_State *L )		// ta3d_add_attack_mission( uni
 	if( unit_id >= 0 && unit_id < units.max_unit && target_id >= 0 && target_id < units.max_unit ) {
 		VECTOR target = units.unit[ target_id ].Pos;
 
-		units.EnterCS_from_outside();
+		units.lock();
 		if( units.unit[ unit_id ].flags )
 			units.unit[ unit_id ].add_mission(MISSION_ATTACK,&(target),false,0,&(units.unit[target_id]),NULL,MISSION_FLAG_COMMAND_FIRE );
-		units.LeaveCS_from_outside();
+		units.unlock();
 		}
 
 	return 0;
@@ -673,10 +673,10 @@ int function_add_patrol_mission( lua_State *L )		// ta3d_add_patrol_mission( uni
 		target.y = lua_map->get_unit_h( pos_x, pos_z );
 		target.z = pos_z;
 
-		units.EnterCS_from_outside();
+		units.lock();
 		if( units.unit[ unit_id ].flags )
 			units.unit[ unit_id ].add_mission(MISSION_PATROL,&target,false,0);
-		units.LeaveCS_from_outside();
+		units.unlock();
 		}
 
 	return 0;
@@ -689,10 +689,10 @@ int function_add_wait_mission( lua_State *L )		// ta3d_add_wait_mission( unit_id
 	lua_pop( L, 2 );
 
 	if( unit_id >= 0 && unit_id < units.max_unit ) {
-		units.EnterCS_from_outside();
+		units.lock();
 		if( units.unit[ unit_id ].flags )
 			units.unit[ unit_id ].add_mission(MISSION_WAIT,NULL,false,(int)(time * 1000));
-		units.LeaveCS_from_outside();
+		units.unlock();
 		}
 
 	return 0;
@@ -705,10 +705,10 @@ int function_add_wait_attacked_mission( lua_State *L )		// ta3d_add_wait_attacke
 	lua_pop( L, 2 );
 
 	if( unit_id >= 0 && unit_id < units.max_unit && target_id >= 0 && target_id < units.max_unit ) {
-		units.EnterCS_from_outside();
+		units.lock();
 		if( units.unit[ unit_id ].flags )
 			units.unit[ unit_id ].add_mission(MISSION_WAIT_ATTACKED,NULL,false,target_id);
-		units.LeaveCS_from_outside();
+		units.unlock();
 		}
 
 	return 0;
@@ -721,10 +721,10 @@ int function_add_guard_mission( lua_State *L )		// ta3d_add_guard_mission( unit_
 	lua_pop( L, 2 );
 
 	if( unit_id >= 0 && unit_id < units.max_unit && target_id >= 0 && target_id < units.max_unit ) {
-		units.EnterCS_from_outside();
+		units.lock();
 		if( units.unit[ unit_id ].flags )
 			units.unit[ unit_id ].add_mission(MISSION_GUARD,&units.unit[ target_id ].Pos,false,0,&(units.unit[ target_id ]),NULL);
-		units.LeaveCS_from_outside();
+		units.unlock();
 		}
 
 	return 0;
@@ -738,12 +738,12 @@ int function_set_standing_orders( lua_State *L )		// ta3d_set_standing_orders( u
 	lua_pop( L, 3 );
 
 	if( unit_id >= 0 && unit_id < units.max_unit ) {
-		units.EnterCS_from_outside();
+		units.lock();
 		if( units.unit[ unit_id ].flags ) {
 			units.unit[ unit_id ].port[ STANDINGMOVEORDERS ] = move_order;
 			units.unit[ unit_id ].port[ STANDINGFIREORDERS ] = fire_order;
 			}
-		units.LeaveCS_from_outside();
+		units.unlock();
 		}
 
 	return 0;
@@ -777,12 +777,12 @@ int function_get_unit_health( lua_State *L )		// ta3d_get_unit_health( unit_id )
 	lua_pop( L, 1 );
 
 	if( unit_id >= 0 && unit_id < units.max_unit ) {
-		units.EnterCS_from_outside();
+		units.lock();
 		if( units.unit[ unit_id ].flags )
 			lua_pushnumber( L, units.unit[ unit_id ].hp * 100.0f / unit_manager.unit_type[ units.unit[ unit_id ].type_id ].MaxDamage );
 		else
 			lua_pushnumber( L, 0 );
-		units.LeaveCS_from_outside();
+		units.unlock();
 		}
 
 	return 0;
@@ -825,9 +825,9 @@ int function_unit_x( lua_State *L )		// ta3d_unit_x( unit_id )
 	lua_pop( L, 1 );
 
 	if( unit_id >= 0 && unit_id < units.max_unit && units.unit[ unit_id ].flags ) {
-		units.EnterCS_from_outside();
+		units.lock();
 		lua_pushnumber( L, units.unit[ unit_id ].Pos.x );
-		units.LeaveCS_from_outside();
+		units.unlock();
 		}
 	else
 		lua_pushnumber( L, 0 );
@@ -841,9 +841,9 @@ int function_unit_y( lua_State *L )		// ta3d_unit_y( unit_id )
 	lua_pop( L, 1 );
 
 	if( unit_id >= 0 && unit_id < units.max_unit && units.unit[ unit_id ].flags ) {
-		units.EnterCS_from_outside();
+		units.lock();
 		lua_pushnumber( L, units.unit[ unit_id ].Pos.y );
-		units.LeaveCS_from_outside();
+		units.unlock();
 		}
 	else
 		lua_pushnumber( L, 0 );
@@ -857,9 +857,9 @@ int function_unit_z( lua_State *L )		// ta3d_unit_z( unit_id )
 	lua_pop( L, 1 );
 
 	if( unit_id >= 0 && unit_id < units.max_unit && units.unit[ unit_id ].flags ) {
-		units.EnterCS_from_outside();
+		units.lock();
 		lua_pushnumber( L, units.unit[ unit_id ].Pos.z );
-		units.LeaveCS_from_outside();
+		units.unlock();
 		}
 	else
 		lua_pushnumber( L, 0 );
@@ -874,7 +874,7 @@ int function_kill_unit( lua_State *L )		// ta3d_kill_unit( unit_id )
 
 	if( unit_id >= 0 && unit_id < units.max_unit && units.unit[ unit_id ].flags ) {
 
-		units.unit[ unit_id ].Lock();
+		units.unit[ unit_id ].lock();
 		if( !network_manager.isConnected() || units.unit[ unit_id ].local )
 			units.unit[ unit_id ].hp = 0.0f;
 		else {
@@ -883,7 +883,7 @@ int function_kill_unit( lua_State *L )		// ta3d_kill_unit( unit_id )
 			event.opt1 = unit_id;
 			network_manager.sendEvent( &event );
 			}
-		units.unit[ unit_id ].UnLock();
+		units.unit[ unit_id ].unlock();
 		}
 
 	return 0;
@@ -896,11 +896,11 @@ int function_kick_unit( lua_State *L )		// ta3d_kick_unit( unit_id, damage )
 	lua_pop( L, 2 );
 
 	if( unit_id >= 0 && unit_id < units.max_unit && units.unit[ unit_id ].flags ) {
-		units.EnterCS_from_outside();
+		units.lock();
 
 		units.unit[ unit_id ].hp -= damage;
 
-		units.LeaveCS_from_outside();
+		units.unlock();
 		}
 
 	return 0;
@@ -966,10 +966,10 @@ int function_set_cam_mode( lua_State *L )		// ta3d_set_cam_mode( mode )	-> uses 
 int function_clf( lua_State *L )				// ta3d_clf()
 {
 	lua_map->clear_FOW();
-	units.EnterCS_from_outside();
+	units.lock();
 	for( int i = 0 ; i < units.index_list_size ; i++ )
 		units.unit[ units.idx_list[ i ] ].old_px = -10000;
-	units.LeaveCS_from_outside();
+	units.unlock();
 		
 	if( network_manager.isServer() ) {
 		struct event clf_event;
@@ -1026,10 +1026,10 @@ int function_give_metal( lua_State *L )			// ta3d_give_metal( player_id, amount 
 	lua_pop( L, 2 );
 
 	if( player_id >= 0 && player_id < players.nb_player ) {
-		units.EnterCS_from_outside();
+		units.lock();
 		players.metal[ player_id ] += amount;
 		players.c_metal[ player_id ] = players.metal[ player_id ];
-		units.LeaveCS_from_outside();
+		units.unlock();
 		}
 	return 0;
 }
@@ -1041,10 +1041,10 @@ int function_give_energy( lua_State *L )			// ta3d_give_energy( player_id, amoun
 	lua_pop( L, 2 );
 
 	if( player_id >= 0 && player_id < players.nb_player ) {
-		units.EnterCS_from_outside();
+		units.lock();
 		players.energy[ player_id ] += amount;
 		players.c_energy[ player_id ] = players.energy[ player_id ];
-		units.LeaveCS_from_outside();
+		units.unlock();
 		}
 	return 0;
 }
@@ -1073,9 +1073,9 @@ int function_attack( lua_State *L )					// ta3d_attack( attacker_id, target_id )
 
 	if( attacker_idx >= 0 && attacker_idx < units.max_unit && units.unit[ attacker_idx ].flags )		// make sure we have an attacker and a target
 		if( target_idx >= 0 && target_idx < units.max_unit && units.unit[ target_idx ].flags ) {
-			units.EnterCS_from_outside();
+			units.lock();
 			units.unit[ attacker_idx ].set_mission( MISSION_ATTACK,&(units.unit[ target_idx ].Pos),false,0,true,&(units.unit[ target_idx ]) );
-			units.LeaveCS_from_outside();
+			units.unlock();
 			}
 	return 0;
 }
@@ -1217,7 +1217,6 @@ void register_functions( lua_State *L )
 LUA_PROGRAM::LUA_PROGRAM()
 {
 	lua_program = this;
-	CreateCS();
 	init();
 }
 
@@ -1297,9 +1296,9 @@ void LUA_PROGRAM::load(char *filename, MAP *map)					// Load a lua script
 
 int LUA_PROGRAM::run(MAP *map,float dt,int viewer_id)									// Execute le script
 {
-	EnterCS();
+    pMutex.lock();
 	draw_list.draw(gfx->TA_font);			// Execute la liste de commandes de dessin
-	LeaveCS();
+    pMutex.unlock();
 
 	if( !running )	return	-1;
 
@@ -1364,14 +1363,14 @@ int LUA_PROGRAM::run(MAP *map,float dt,int viewer_id)									// Execute le scri
 
 void DRAW_LIST::add(DRAW_OBJECT &obj)
 {
-	lua_program->Lock();
+	lua_program->lock();
 	if(next==NULL) {
 		next=new DRAW_LIST;
 		next->prim=obj;
 		next->next=NULL;
 		}
 	else next->add(obj);
-	lua_program->UnLock();
+	lua_program->unlock();
 }
 
 void DRAW_LIST::draw(GfxFont &fnt)

@@ -33,6 +33,9 @@
 #include "TA3D_NameSpace.h"
 #include "ta3dbase.h"
 #include "particles.h"
+#include "threads/thread.h"
+
+
 
 PARTICLE_ENGINE	particle_engine;
 
@@ -91,7 +94,7 @@ void PARTICLE_SYSTEM::draw()
 
 	int PARTICLE_ENGINE::addtex(const char *file,const char *filealpha)
 	{
-		EnterCS();
+		pMutex.lock();
 
 		dsmoke=true;
 		if(partbmp==NULL)
@@ -114,14 +117,14 @@ void PARTICLE_SYSTEM::draw()
 		parttex = gfx->make_texture(partbmp, FILTER_TRILINEAR);
 		allegro_gl_use_alpha_channel(false);
 
-		LeaveCS();
+		pMutex.unlock();
 
 		return (ntex-1);
 	}
 
 	void PARTICLE_ENGINE::more_memory()			// Alloue de la mémoire supplémentaire
 	{
-		EnterCS();
+		pMutex.lock();
 
 #define MEMORY_STEP		10000
 		size += MEMORY_STEP;
@@ -150,14 +153,14 @@ void PARTICLE_SYSTEM::draw()
 			texcoord=(GLfloat*) malloc(sizeof(GLfloat)*8192);
 		if( color == NULL )
 			color=(GLubyte*) malloc(sizeof(GLubyte)*16384);
-		LeaveCS();
+		pMutex.unlock();
 	}
 
 	void PARTICLE_ENGINE::emit_part(VECTOR pos,VECTOR Dir,int tex,int nb,float speed,float life,float psize,bool white,float trans_factor)
 	{
 		if( !lp_CONFIG->particle )	return;		// If particles are OFF don't add particles
 		if(game_cam!=NULL && ((VECTOR)(game_cam->Pos-pos)).Sq()>=game_cam->zfar2)	return;
-		EnterCS();
+		pMutex.lock();
 		while(nb_part+nb>size)			// Si besoin alloue de la mémoire
 			more_memory();
 
@@ -202,7 +205,7 @@ void PARTICLE_SYSTEM::draw()
 			part[cur_part].slow_down=false;
 			nb_part++;
 			}
-		LeaveCS();
+		pMutex.unlock();
 	}
 
 	PARTICLE_SYSTEM *PARTICLE_ENGINE::emit_part_fast( PARTICLE_SYSTEM *system, VECTOR pos, VECTOR Dir, int tex, int nb, float speed, float life, float psize, bool white, float trans_factor )
@@ -258,9 +261,9 @@ void PARTICLE_SYSTEM::draw()
 			system->cur_idx++;
 			}
 		if( system->cur_idx == system->nb_particles ) {		// We're done
-			EnterCS();
+			pMutex.lock();
 				particle_systems.push_back( system );
-			LeaveCS();
+			pMutex.unlock();
 			return NULL;
 			}
 		return system;
@@ -271,7 +274,7 @@ void PARTICLE_SYSTEM::draw()
 		if( !lp_CONFIG->particle )	return;		// If particles are OFF don't add particles
 		if(game_cam!=NULL && ((VECTOR)(game_cam->Pos-pos)).Sq()>=game_cam->zfar2)	return;
 
-		EnterCS();
+		pMutex.lock();
 
 		while(nb_part+nb>size)			// Si besoin alloue de la mémoire
 			more_memory();
@@ -307,7 +310,7 @@ void PARTICLE_SYSTEM::draw()
 			part[cur_part].slow_down=false;
 			nb_part++;
 			}
-		LeaveCS();
+		pMutex.unlock();
 	}
 
 	void PARTICLE_ENGINE::make_shockwave(VECTOR pos,int tex,int nb,float speed)
@@ -315,7 +318,7 @@ void PARTICLE_SYSTEM::draw()
 		if( !lp_CONFIG->particle )	return;		// If particles are OFF don't add particles
 		if( nb_part + nb > 20000 )	nb = 20000 - nb_part;
 
-		EnterCS();
+		pMutex.lock();
 
 		while(nb_part+nb>size)			// Si besoin alloue de la mémoire
 			more_memory();
@@ -367,7 +370,7 @@ void PARTICLE_SYSTEM::draw()
 			nb_part++;
 			}
 
-		LeaveCS();
+		pMutex.unlock();
 	}
 
 	void PARTICLE_ENGINE::make_nuke(VECTOR pos,int tex,int nb,float speed)
@@ -375,7 +378,7 @@ void PARTICLE_SYSTEM::draw()
 		if( !lp_CONFIG->particle )	return;		// If particles are OFF don't add particles
 		if( nb_part + nb > 20000 )	nb = 20000 - nb_part;
 
-		EnterCS();
+		pMutex.lock();
 
 		while(nb_part+nb>size)			// Si besoin alloue de la mémoire
 			more_memory();
@@ -417,7 +420,7 @@ void PARTICLE_SYSTEM::draw()
 			part[cur_part].slow_factor = 1.0f;
 			nb_part++;
 			}
-		LeaveCS();
+		pMutex.unlock();
 	}
 
 	void PARTICLE_ENGINE::make_smoke(VECTOR pos,int tex,int nb,float speed,float mass,float ddsize,float alpha)
@@ -425,7 +428,7 @@ void PARTICLE_SYSTEM::draw()
 		if( !lp_CONFIG->particle )	return;		// If particles are OFF don't add particles
 		if(game_cam!=NULL && ((VECTOR)(game_cam->Pos-pos)).Sq()>=game_cam->zfar2)	return;
 
-		EnterCS();
+		pMutex.lock();
 
 		while(nb_part+nb>size)			// Si besoin alloue de la mémoire
 			more_memory();
@@ -465,7 +468,7 @@ void PARTICLE_SYSTEM::draw()
 			part[cur_part].slow_down=false;
 			nb_part++;
 			}
-		LeaveCS();
+		pMutex.unlock();
 	}
 
 	void PARTICLE_ENGINE::make_dark_smoke(VECTOR pos,int tex,int nb,float speed,float mass,float ddsize,float alpha)
@@ -473,7 +476,7 @@ void PARTICLE_SYSTEM::draw()
 		if( !lp_CONFIG->particle )	return;		// If particles are OFF don't add particles
 		if(game_cam!=NULL && ((VECTOR)(game_cam->Pos-pos)).Sq()>=game_cam->zfar2)	return;
 
-		EnterCS();
+		pMutex.lock();
 
 		while(nb_part+nb>size)			// Si besoin alloue de la mémoire
 			more_memory();
@@ -513,7 +516,7 @@ void PARTICLE_SYSTEM::draw()
 			part[cur_part].slow_down=false;
 			nb_part++;
 			}
-		LeaveCS();
+		pMutex.unlock();
 	}
 
 	void PARTICLE_ENGINE::make_fire(VECTOR pos,int tex,int nb,float speed)
@@ -521,7 +524,7 @@ void PARTICLE_SYSTEM::draw()
 		if( !lp_CONFIG->particle )	return;		// If particles are OFF don't add particles
 		if(game_cam!=NULL && ((VECTOR)(game_cam->Pos-pos)).Sq()>=game_cam->zfar2)	return;
 
-		EnterCS();
+		pMutex.lock();
 
 		while(nb_part+nb>size)			// Si besoin alloue de la mémoire
 			more_memory();
@@ -560,14 +563,14 @@ void PARTICLE_SYSTEM::draw()
 			part[cur_part].slow_down=false;
 			nb_part++;
 			}
-		LeaveCS();
+		pMutex.unlock();
 	}
 
 	void PARTICLE_ENGINE::move(float dt,VECTOR wind_dir,float g)
 	{
 		if( ( ( part == NULL || nb_part == 0 ) && particle_systems.empty() ) || dt == 0.0f ) {	rest( 1 );	return;	}
 
-		EnterCS();
+		pMutex.lock();
 
 		VECTOR G;
 		G.x=G.y=G.z=0.0f;
@@ -583,16 +586,16 @@ void PARTICLE_SYSTEM::draw()
 				i++;
 			else
 				i = particle_systems.erase( i );
-			LeaveCS();
-			EnterCS();
+			pMutex.unlock();
+			pMutex.lock();
 			}
 
 		uint32 i;
 
 		for(sint32 e=0;e<index_list_size;e++) {
 			if( !(e & 15) ) {
-				LeaveCS();						// Pause to give the renderer the time to work and to go at the given engine speed (in ticks per sec.)
-				EnterCS();
+				pMutex.unlock();						// Pause to give the renderer the time to work and to go at the given engine speed (in ticks per sec.)
+				pMutex.lock();
 				}
 
 			i = idx_list[e];
@@ -640,14 +643,14 @@ void PARTICLE_SYSTEM::draw()
 				part[i].light_emitter = false;
 				}
 			}
-		LeaveCS();
+		pMutex.unlock();
 	}
 
 	void PARTICLE_ENGINE::draw(CAMERA *cam,int map_w,int map_h,int bloc_w,int bloc_h,byte **bmap)
 	{
 		if( ( part == NULL || nb_part == 0 ) && particle_systems.empty() )	return;		// no need to run the code if there is nothing to draw
 
-		EnterCS();
+		pMutex.lock();
 
 		cam->SetView();
 
@@ -747,7 +750,7 @@ void PARTICLE_SYSTEM::draw()
 			glBlendFunc(GL_SRC_ALPHA,GL_ONE);
 			}
 
-		LeaveCS();
+		pMutex.unlock();
 
 		glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
 
@@ -769,10 +772,10 @@ void PARTICLE_SYSTEM::draw()
 		// We're using point sprites
 		glEnable (GL_POINT_SPRITE); 
 
-		EnterCS();
+		pMutex.lock();
 		for( List< PARTICLE_SYSTEM* >::iterator i = particle_systems.begin() ; i != particle_systems.end() ; i++ )
 			(*i)->draw();
-		LeaveCS();
+		pMutex.unlock();
 		glDisable (GL_POINT_SPRITE); 
 		coeffs[0] = 1.0f;
 		coeffs[1] = 0.0f;
@@ -788,7 +791,7 @@ void PARTICLE_SYSTEM::draw()
 
 void PARTICLE_ENGINE::init(bool load)
 {
-	EnterCS();
+	pMutex.lock();
 
 	gltex.clear();
 
@@ -830,12 +833,12 @@ void PARTICLE_ENGINE::init(bool load)
 	texcoord=NULL;
 	color=NULL;
 
-	LeaveCS();
+	pMutex.unlock();
 }
 
 void PARTICLE_ENGINE::destroy()
 {
-	EnterCS();
+	pMutex.lock();
 
 	for( int i = 0 ; i < gltex.size() ; i++ )
 		gfx->destroy_texture( gltex[i] );
@@ -873,7 +876,7 @@ void PARTICLE_ENGINE::destroy()
 	texcoord=NULL;
 	color=NULL;
 
-	LeaveCS();
+	pMutex.unlock();
 }
 
 int PARTICLE_ENGINE::Run()
@@ -890,8 +893,8 @@ int PARTICLE_ENGINE::Run()
 
 		move(dt,*p_wind_dir, *p_g);					// Animate particles
 
-		ThreadSynchroniser->EnterSync();
-		ThreadSynchroniser->LeaveSync();
+		ThreadSynchroniser->lock();
+		ThreadSynchroniser->unlock();
 
 		particle_engine_thread_sync = 1;
 

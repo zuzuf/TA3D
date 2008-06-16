@@ -34,20 +34,19 @@ TA3DNetwork::TA3DNetwork( AREA *area, GAME_DATA *game_data ) : messages()
 	this->area = area;
 	this->game_data = game_data;
 	signal = 0;
-	CreateCS();
 }
 
 TA3DNetwork::~TA3DNetwork()
 {
 	foreach( messages, i )	i->text.clear();
 	messages.clear();
-	DeleteCS();
 }
 
 void TA3DNetwork::check()
 {
 	if( !network_manager.isConnected() )	return;		// Only works in network mode
-	if( key[KEY_ENTER] && !Console->activated() ) {
+	if( key[KEY_ENTER] && !Console->activated() )
+    {
 		if( !enter ) {
 			if( area->get_state("chat") ) {		// Chat is visible, so hide it and send the message is not empty
 				area->msg("chat.hide");
@@ -61,12 +60,12 @@ void TA3DNetwork::check()
 
 					int player_id = game_data->net2id( chat.from );
 					if( player_id >= 0 ) {
-						EnterCS();
+						pMutex.lock();
 						if( messages.size() > 10 )		// Prevent flooding the screen with chat messages
 							messages.pop_front();
 						msg = "<" + game_data->player_names[ player_id ] + "> " + msg;
 						messages.push_back( NetworkMessage( msg, msec_timer ) );
-						LeaveCS();
+						pMutex.unlock();
 						}
 					}
 				}
@@ -95,22 +94,22 @@ void TA3DNetwork::check()
 
 		int player_id = game_data->net2id( received_chat_msg.from );
 		if( player_id >= 0 ) {
-			EnterCS();
+			pMutex.lock();
 			if( messages.size() > 10 )		// Prevent flooding the screen with chat messages
 				messages.pop_front();
 			chat_msg = "<" + game_data->player_names[ player_id ] + "> " + chat_msg;
 			messages.push_back( NetworkMessage( chat_msg, msec_timer ) );
-			LeaveCS();
+			pMutex.unlock();
 			}
 		}
 
-	EnterCS();
+	pMutex.lock();
 	foreach_( messages, i )
 		if( msec_timer - i->timer >= CHAT_MESSAGE_TIMEOUT )
 			messages.erase( i++ );
 		else
 			i++;
-	LeaveCS();
+	pMutex.unlock();
 
 	n = 100;
 	while(--n)	// Special message receiver
@@ -159,10 +158,10 @@ void TA3DNetwork::check()
 
 		if( sync_msg.unit < units.max_unit )
         {
-			units.unit[sync_msg.unit].Lock();
+			units.unit[sync_msg.unit].lock();
 			if( !(units.unit[sync_msg.unit].flags & 1) || units.unit[sync_msg.unit].exploding || units.unit[sync_msg.unit].last_synctick[0] >= sync_msg.timestamp )
             {
-				units.unit[sync_msg.unit].UnLock();
+				units.unit[sync_msg.unit].unlock();
 				continue;
 			}
 
@@ -190,7 +189,7 @@ void TA3DNetwork::check()
 			units.unit[sync_msg.unit].hp = sync_msg.hp;
 			units.unit[sync_msg.unit].build_percent_left = sync_msg.build_percent_left / 2.55f;
 
-			units.unit[sync_msg.unit].UnLock();
+			units.unit[sync_msg.unit].unlock();
 			units.unit[sync_msg.unit].draw_on_map();
 			
 			struct event sync_event;
@@ -215,7 +214,7 @@ void TA3DNetwork::check()
 		{
 		case EVENT_UNIT_NANOLATHE:				// Sync nanolathe effect
 			if( event_msg.opt1 < units.max_unit && (units.unit[ event_msg.opt1 ].flags & 1) ) {
-				units.unit[ event_msg.opt1 ].Lock();
+				units.unit[ event_msg.opt1 ].lock();
 				if( event_msg.opt2 & 4 )		// Stop nanolathing
 					units.unit[ event_msg.opt1 ].nanolathe_target = -1;
 				else {							// Start nanolathing
@@ -229,14 +228,15 @@ void TA3DNetwork::check()
 					else							// It's a unit
 						units.unit[ event_msg.opt1 ].nanolathe_target = event_msg.opt3;
 					}
-				units.unit[ event_msg.opt1 ].UnLock();
+				units.unit[ event_msg.opt1 ].unlock();
 				}
 			break;
 		case EVENT_FEATURE_CREATION:
 			{
 				uint32 sx = event_msg.opt3;		// Burn the object
 				uint32 sy = event_msg.opt4;
-				if( sx < the_map->bloc_w_db && sy < the_map->bloc_h_db ) {
+				if( sx < the_map->bloc_w_db && sy < the_map->bloc_h_db )
+                {
 					int type = feature_manager.get_feature_index( (const char*)(event_msg.str) );
 					if( type >= 0 ) {
 						VECTOR feature_pos( event_msg.x, event_msg.y, event_msg.z );
@@ -277,7 +277,7 @@ void TA3DNetwork::check()
 			break;
 		case EVENT_UNIT_EXPLODE:				// BOOOOM and corpse creation :)
 			if( event_msg.opt1 < units.max_unit && ( units.unit[ event_msg.opt1 ].flags & 1 ) ) {		// If it's false then game is out of sync !!
-				units.unit[ event_msg.opt1 ].Lock();
+				units.unit[ event_msg.opt1 ].lock();
 
 				printf("(%d), received order to explode %d\n", units.current_tick, event_msg.opt1 );
 
@@ -288,14 +288,14 @@ void TA3DNetwork::check()
 
 				units.unit[ event_msg.opt1 ].explode();			// BOOM :)
 
-				units.unit[ event_msg.opt1 ].UnLock();
+				units.unit[ event_msg.opt1 ].unlock();
 				}
 			break;
 		case EVENT_CLS:
 			if( event_msg.opt1 == players.local_human_id || event_msg.opt1 == 0xFFFF ) {			// Do it only if the packet is for us
-				lua_program->Lock();
+				lua_program->lock();
 				lua_program->draw_list.destroy();
-				lua_program->UnLock();
+				lua_program->unlock();
 				}
 			break;
 		case EVENT_DRAW:
@@ -331,10 +331,10 @@ void TA3DNetwork::check()
 			break;
 		case EVENT_CLF:
 			the_map->clear_FOW();
-			units.EnterCS_from_outside();
+			units.lock();
 			for( int i = 0 ; i < units.index_list_size ; i++ )
 				units.unit[ units.idx_list[ i ] ].old_px = -10000;
-			units.LeaveCS_from_outside();
+			units.unlock();
 			break;
 		case EVENT_INIT_RES:
 			for( uint16 i = 0 ; i < players.nb_player ; i++ ) {
@@ -350,22 +350,22 @@ void TA3DNetwork::check()
 			break;
 		case EVENT_UNIT_SYNCED:
 			if( event_msg.opt1 < units.max_unit && ( units.unit[ event_msg.opt1 ].flags & 1 ) ) {
-				units.unit[ event_msg.opt1 ].Lock();
+				units.unit[ event_msg.opt1 ].lock();
 
 				int player_id = game_data->net2id( event_msg.opt2 );
 
 				if( player_id >= 0 )
 					units.unit[ event_msg.opt1 ].last_synctick[player_id] = event_msg.opt3;
 
-				units.unit[ event_msg.opt1 ].UnLock();
+				units.unit[ event_msg.opt1 ].unlock();
 				}
 			break;
 		case EVENT_UNIT_DAMAGE:
 			if( event_msg.opt1 < units.max_unit && ( units.unit[ event_msg.opt1 ].flags & 1 ) ) {
-				units.unit[ event_msg.opt1 ].Lock();
+				units.unit[ event_msg.opt1 ].lock();
 
 				if( units.unit[ event_msg.opt1 ].exploding ) {
-					units.unit[ event_msg.opt1 ].UnLock();
+					units.unit[ event_msg.opt1 ].unlock();
 					break;
 					}
 				float damage = event_msg.opt2 / 16.0f;
@@ -376,7 +376,7 @@ void TA3DNetwork::check()
 				if( units.unit[ event_msg.opt1 ].hp <= 0.0f )
 					units.unit[ event_msg.opt1 ].severity = max( units.unit[ event_msg.opt1 ].severity, (int)damage );
 				
-				units.unit[ event_msg.opt1 ].UnLock();
+				units.unit[ event_msg.opt1 ].unlock();
 
 				printf("(%d), received order to damage %d\n", units.current_tick, event_msg.opt1 );
 				}
@@ -389,7 +389,7 @@ void TA3DNetwork::check()
 				
 				int w_type = weapon_manager.get_weapon_index( (char*)event_msg.str );
 				if( w_type >= 0 ) {
-					weapons.Lock();
+					weapons.lock();
 					int w_idx = weapons.add_weapon(w_type,event_msg.opt1);
 					int player_id = event_msg.opt5;
 
@@ -407,10 +407,10 @@ void TA3DNetwork::check()
 						else
 							weapons.weapon[w_idx].V = weapon_manager.weapon[w_type].startvelocity*Dir;
 						if( weapon_manager.weapon[w_type].dropped || !(weapon_manager.weapon[w_type].rendertype & RENDER_TYPE_LASER) ) {
-							units.unit[ event_msg.opt1 ].Lock();
+							units.unit[ event_msg.opt1 ].lock();
 							if( (units.unit[ event_msg.opt1 ].flags & 1) )
 								weapons.weapon[w_idx].V = weapons.weapon[w_idx].V + units.unit[ event_msg.opt1 ].V;
-							units.unit[ event_msg.opt1 ].UnLock();
+							units.unit[ event_msg.opt1 ].unlock();
 							}
 						weapons.weapon[w_idx].owner = player_id;
 						weapons.weapon[w_idx].target = event_msg.opt2;
@@ -430,7 +430,7 @@ void TA3DNetwork::check()
 						}
 					else
 						printf("WARNING: couldn't create weapon '%s'\n", (char*)event_msg.str );
-					weapons.UnLock();
+					weapons.unlock();
 					}
 				else
 					printf("WARNING: couldn't identify weapon '%s'\n", (char*)event_msg.str );
@@ -445,7 +445,7 @@ void TA3DNetwork::check()
 		case EVENT_UNIT_DEATH:
 			{
 				int e = -1;
-				units.EnterCS_from_outside();
+				units.lock();
 
 				for( int i = 0 ; i < units.max_unit ; i++ )
 					if( units.idx_list[ i ] == event_msg.opt1 ) {
@@ -455,14 +455,14 @@ void TA3DNetwork::check()
 						
 				printf("(%d), received order to kill %d\n", units.current_tick, event_msg.opt1 );
 
-				units.LeaveCS_from_outside();
+				units.unlock();
 
 				units.kill( event_msg.opt1, the_map, e, false );
 			}
 			break;
 		case EVENT_UNIT_CREATION:
 			{
-				units.EnterCS_from_outside();
+				units.lock();
 
 				int idx = unit_manager.get_unit_index( (char*)event_msg.str );
 				if( idx >= 0 ) {
@@ -472,7 +472,7 @@ void TA3DNetwork::check()
 					pos.y = the_map->get_unit_h( pos.x, pos.z );
 					UNIT *unit = (UNIT*)create_unit( idx, (event_msg.opt2 & 0xFF),pos,the_map,false);		// We don't want to send sync data for this ...
 					if( unit ) {
-						unit->Lock();
+						unit->lock();
 						printf("(%d), created unit (%s) idx = %d\n", units.current_tick, event_msg.str, unit->idx );
 
 						if( event_msg.opt2 & 0x1000 ) {								// Created by a script, so give it 100% HP
@@ -485,7 +485,7 @@ void TA3DNetwork::check()
 							unit->built = true;
 							unit->build_percent_left = 100.0f;
 							}
-						unit->UnLock();
+						unit->unlock();
 						}
 					else
 						Console->AddEntry("Error: cannot create unit of type %s", event_msg.str);
@@ -493,7 +493,7 @@ void TA3DNetwork::check()
 				else
 					Console->AddEntry("Error: cannot create unit, %s not found", event_msg.str);
 
-				units.LeaveCS_from_outside();
+				units.unlock();
 			}
 			break;
 		};
@@ -504,7 +504,7 @@ void TA3DNetwork::draw()
 {
 	if( !network_manager.isConnected() )	return;		// Only works in network mode
 	
-	EnterCS();
+	pMutex.lock();
 	if( !messages.empty() ) {
 		float Y = SCREEN_H * 0.5f;
 		foreach( messages, i ) {
@@ -517,7 +517,7 @@ void TA3DNetwork::draw()
 			Y += gfx->TA_font.height();
 			}
 		}
-	LeaveCS();
+	pMutex.unlock();
 }
 
 bool TA3DNetwork::isLocal( int player_id )
@@ -599,12 +599,12 @@ void TA3DNetwork::sendUnitNanolatheEvent( int idx, int target, bool feature, boo
 int TA3DNetwork::getNetworkID( int unit_id )
 {
 	if( unit_id >= units.max_unit )	return -1;
-	units.unit[ unit_id ].Lock();
+	units.unit[ unit_id ].lock();
 	if( !(units.unit[ unit_id ].flags & 1) ) {
-		units.unit[ unit_id ].UnLock();
+		units.unit[ unit_id ].unlock();
 		return -1;
 		}
 	int result = game_data->player_network_id[ units.unit[ unit_id ].owner_id ];
-	units.unit[ unit_id ].UnLock();
+	units.unit[ unit_id ].unlock();
 	return result;
 }

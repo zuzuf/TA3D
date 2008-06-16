@@ -333,11 +333,12 @@ void load_features(void (*progress)(float percent,const String &msg))				// Char
 		DRAWING_TABLE	drawing_table;
 		QUAD_TABLE		quad_table;
 
-		EnterCS();
-		for(int e=0;e<list_size;e++) {
+        pMutex.lock();
+		for(int e=0;e<list_size;e++)
+        {
 			if( !(e & 15) ) {
-				LeaveCS();
-				EnterCS();
+                pMutex.unlock();
+                pMutex.lock();
 				}
 			int i=list[e];
 			if(feature[i].type<0)	continue;
@@ -439,7 +440,7 @@ void load_features(void (*progress)(float percent,const String &msg))				// Char
 					}
 				}
 			}
-		LeaveCS();
+        pMutex.unlock();
 
 		glColor4ub( 255, 255, 255, 255 );
 
@@ -466,10 +467,11 @@ void load_features(void (*progress)(float percent,const String &msg))				// Char
 		if(nb_features<=0) return;
 		cam->SetView();			// Positionne la caméra
 		float t = (float)units.current_tick / TICKS_PER_SEC;
-		EnterCS();
-		for(int e=0;e<list_size;e++) {
-			LeaveCS();
-			EnterCS();
+        pMutex.lock();
+		for(int e=0;e<list_size;e++)
+        {
+            pMutex.unlock();
+            pMutex.lock();
 			int i=list[e];
 			if(feature[i].type<0)	continue;
 			if(!feature_manager.feature[feature[i].type].m3d && feature_manager.feature[feature[i].type].anim.nb_bmp>0) {
@@ -512,16 +514,17 @@ void load_features(void (*progress)(float percent,const String &msg))				// Char
 					glCallList( feature[i].shadow_dlist );
 				}
 			}
-		LeaveCS();
+        pMutex.unlock();
 	}
 
 void FEATURES::move(float dt,MAP *map,bool clean)
 {
 	if(nb_features<=0) return;
 
-	EnterCS();
+    pMutex.lock();
 
-	for(int e=0;e<list_size;e++) {
+	for(int e=0;e<list_size;e++)
+    {
 		int i=list[e];
 		if(feature[i].type<0)	continue;
 		if(feature[i].hp<=0.0f && !feature[i].burning) {
@@ -561,7 +564,7 @@ void FEATURES::move(float dt,MAP *map,bool clean)
 		if(clean)
 			feature[i].draw=false;
 		}
-	LeaveCS();
+    pMutex.unlock();
 }
 
 void FEATURES::compute_on_map_pos( int idx )
@@ -572,7 +575,7 @@ void FEATURES::compute_on_map_pos( int idx )
 
 void FEATURES::burn_feature( int idx )
 {
-	EnterCS();
+    pMutex.lock();
 
 	if( idx >= 0 && idx < max_features && feature[ idx ].type >= 0
 	&& feature_manager.feature[ feature[ idx ].type ].flamable && !feature[ idx ].burning ) {		// We get something to burn !!
@@ -592,146 +595,149 @@ void FEATURES::burn_feature( int idx )
 		feature[ idx ].weapon_counter = 0;
 		}
 
-	LeaveCS();
+    pMutex.unlock();
 }
 
 void FEATURES::sink_feature( int idx )
 {
-	EnterCS();
-
-	if( idx >= 0 && idx < max_features && feature[ idx ].type >= 0 && !feature[ idx ].sinking ) {		// We get something to sink
-		feature[ idx ].sinking = true;
-		sinking_features.push_back( idx );		// It's burning 8)
-		}
-
-	LeaveCS();
+    pMutex.lock();
+     // We get something to sink
+    if( idx >= 0 && idx < max_features && feature[ idx ].type >= 0 && !feature[ idx ].sinking )
+    {
+        feature[ idx ].sinking = true;
+        sinking_features.push_back( idx );		// It's burning 8)
+    }
+    pMutex.unlock();
 }
 
 void FEATURES::move_forest(const float &dt)			// Simulates forest fires & tree reproduction
 {
-	EnterCS();
+    pMutex.lock();
 
-	VECTOR wind = 0.1f * *p_wind_dir;
+    VECTOR wind = 0.1f * *p_wind_dir;
 
-	int wind_x = (int)(2.0f * wind.x + 0.5f);
-	int wind_z = (int)(2.0f * wind.z + 0.5f);
+    int wind_x = (int)(2.0f * wind.x + 0.5f);
+    int wind_z = (int)(2.0f * wind.z + 0.5f);
 
-	byte CS_count = 0;
-	bool erased = false;
-	for( List< uint32 >::iterator i = burning_features.begin() ; i != burning_features.end() ; ) {		// Makes fire spread 8)
-		CS_count++;
-		if( !CS_count ) {
-			LeaveCS();
-			EnterCS();
-			}
-		feature[ *i ].burning_time += dt;
-		if( feature[ *i ].burning_time >= feature[ *i ].time_to_burn ) {		// If we aren't burning anymore :(
-			if( network_manager.isServer() )
-				g_ta3d_network->sendFeatureDeathEvent( *i );
+    byte CS_count = 0;
+    bool erased = false;
+    for( List< uint32 >::iterator i = burning_features.begin() ; i != burning_features.end() ; ) {		// Makes fire spread 8)
+        CS_count++;
+        if( !CS_count )
+        {
+            pMutex.unlock();
+            pMutex.lock();
+        }
+        feature[ *i ].burning_time += dt;
+        if( feature[ *i ].burning_time >= feature[ *i ].time_to_burn ) // If we aren't burning anymore :(
+        {
+            if( network_manager.isServer() )
+                g_ta3d_network->sendFeatureDeathEvent( *i );
 
-			feature[ *i ].burning = false;
-			feature[ *i ].hp = 0.0f;
-			
-			int sx=((int)(feature[ *i ].Pos.x)+the_map->map_w_d-4)>>3;		// Delete the feature
-			int sy=((int)(feature[ *i ].Pos.z)+the_map->map_h_d-4)>>3;
-						// Remove it from map
-			the_map->rect(sx-(feature_manager.feature[features.feature[*i].type].footprintx>>1),sy-(feature_manager.feature[features.feature[*i].type].footprintz>>1),feature_manager.feature[features.feature[*i].type].footprintx,feature_manager.feature[features.feature[*i].type].footprintz,-1);
+            feature[ *i ].burning = false;
+            feature[ *i ].hp = 0.0f;
 
-					// Replace the feature if needed (with the burnt feature)
-			if( feature_manager.feature[ feature[*i].type ].feature_burnt ) {
-				int burnt_type = feature_manager.get_feature_index( feature_manager.feature[ feature[*i].type ].feature_burnt );
-				if( burnt_type >= 0 ) {
-					the_map->map_data[ sy ][ sx ].stuff = features.add_feature( feature[ *i ].Pos, burnt_type );
-					if( burnt_type != -1 && feature_manager.feature[ burnt_type ].blocking )
-						the_map->rect( sx-(feature_manager.feature[ burnt_type ].footprintx>>1), sy-(feature_manager.feature[ burnt_type ].footprintz>>1), feature_manager.feature[ burnt_type ].footprintx, feature_manager.feature[ burnt_type ].footprintz,-2-the_map->map_data[sy][sx].stuff );
-					if( network_manager.isServer() )
-						g_ta3d_network->sendFeatureDeathEvent( the_map->map_data[ sy ][ sx ].stuff );
-					}
-				}
+            int sx=((int)(feature[ *i ].Pos.x)+the_map->map_w_d-4)>>3;		// Delete the feature
+            int sy=((int)(feature[ *i ].Pos.z)+the_map->map_h_d-4)>>3;
+            // Remove it from map
+            the_map->rect(sx-(feature_manager.feature[features.feature[*i].type].footprintx>>1),sy-(feature_manager.feature[features.feature[*i].type].footprintz>>1),feature_manager.feature[features.feature[*i].type].footprintx,feature_manager.feature[features.feature[*i].type].footprintz,-1);
 
-			delete_feature( *i );
+            // Replace the feature if needed (with the burnt feature)
+            if( feature_manager.feature[ feature[*i].type ].feature_burnt )
+            {
+                int burnt_type = feature_manager.get_feature_index( feature_manager.feature[ feature[*i].type ].feature_burnt );
+                if( burnt_type >= 0 ) {
+                    the_map->map_data[ sy ][ sx ].stuff = features.add_feature( feature[ *i ].Pos, burnt_type );
+                    if( burnt_type != -1 && feature_manager.feature[ burnt_type ].blocking )
+                        the_map->rect( sx-(feature_manager.feature[ burnt_type ].footprintx>>1), sy-(feature_manager.feature[ burnt_type ].footprintz>>1), feature_manager.feature[ burnt_type ].footprintx, feature_manager.feature[ burnt_type ].footprintz,-2-the_map->map_data[sy][sx].stuff );
+                    if( network_manager.isServer() )
+                        g_ta3d_network->sendFeatureDeathEvent( the_map->map_data[ sy ][ sx ].stuff );
+                }
+            }
 
-			i = burning_features.erase( i );
+            delete_feature( *i );
 
-			erased = true;
-			}
-		else {
-			erased = false;												// Still there
+            i = burning_features.erase( i );
 
-			if( feature[ *i ].BW_idx >= 0 && !feature[ *i ].weapon_counter ) {										// Don't stop damaging things before the end!!
-				int w_idx = weapons.add_weapon( feature[ *i ].BW_idx, -1 );
-				if( w_idx >= 0 ) {
-					weapons.weapon[ w_idx ].just_explode = true;
-					weapons.weapon[ w_idx ].Pos = feature[ *i ].Pos;
-					weapons.weapon[ w_idx ].owner = 0xFF;
-					weapons.weapon[ w_idx ].local = true;
-					}
-				}
+            erased = true;
+        }
+        else {
+            erased = false;												// Still there
 
-			feature[ *i ].weapon_counter = ( feature[ *i ].weapon_counter + TICKS_PER_SEC - 1 ) % TICKS_PER_SEC;
+            if( feature[ *i ].BW_idx >= 0 && !feature[ *i ].weapon_counter ) {										// Don't stop damaging things before the end!!
+                int w_idx = weapons.add_weapon( feature[ *i ].BW_idx, -1 );
+                if( w_idx >= 0 ) {
+                    weapons.weapon[ w_idx ].just_explode = true;
+                    weapons.weapon[ w_idx ].Pos = feature[ *i ].Pos;
+                    weapons.weapon[ w_idx ].owner = 0xFF;
+                    weapons.weapon[ w_idx ].local = true;
+                }
+            }
 
-			if( !network_manager.isConnected() || network_manager.isServer() ) {
-				feature[ *i ].last_spread += dt;
-				if( feature[ *i ].burning_time >= feature_manager.feature[ feature[ *i ].type ].sparktime && feature[ *i ].last_spread >= 0.1f ) {		// Can spread
-					feature[ *i ].last_spread = 0.0f;
-					int spread_score = rand_from_table() % 100;
-					if( spread_score < feature_manager.feature[ feature[ *i ].type ].spreadchance ) {		// It tries to spread :)
-						int rnd_x = feature[ *i ].px + (rand_from_table() % 12) - 6 + wind_x;		// Random pos in neighborhood, but affected by wind :)
-						int rnd_y = feature[ *i ].py + (rand_from_table() % 12) - 6 + wind_z;
-					
-						if( rnd_x >= 0 && rnd_y >= 0 && rnd_x < the_map->bloc_w_db && rnd_y < the_map->bloc_h_db ) {		// Check coordinates are valid
-							burn_feature( units.map->map_data[ rnd_y ][ rnd_x ].stuff );			// Burn it if there is something to burn 8)
-							if( network_manager.isServer() )
-								g_ta3d_network->sendFeatureFireEvent( units.map->map_data[ rnd_y ][ rnd_x ].stuff );
-							}
-						}
-					}
-				}
-			}
+            feature[ *i ].weapon_counter = ( feature[ *i ].weapon_counter + TICKS_PER_SEC - 1 ) % TICKS_PER_SEC;
 
-		if( !erased ) i++;			// We don't want to skip an element :) 
-		}
+            if( !network_manager.isConnected() || network_manager.isServer() ) {
+                feature[ *i ].last_spread += dt;
+                if( feature[ *i ].burning_time >= feature_manager.feature[ feature[ *i ].type ].sparktime && feature[ *i ].last_spread >= 0.1f ) {		// Can spread
+                    feature[ *i ].last_spread = 0.0f;
+                    int spread_score = rand_from_table() % 100;
+                    if( spread_score < feature_manager.feature[ feature[ *i ].type ].spreadchance ) {		// It tries to spread :)
+                        int rnd_x = feature[ *i ].px + (rand_from_table() % 12) - 6 + wind_x;		// Random pos in neighborhood, but affected by wind :)
+                        int rnd_y = feature[ *i ].py + (rand_from_table() % 12) - 6 + wind_z;
 
-	for( List< uint32 >::iterator i = sinking_features.begin() ; i != sinking_features.end() ; )		// A boat is sinking
-		if( feature[*i].sinking ) {
-			if( feature[*i].angle_x > -45.0f && !feature[*i].dive ) {
-				feature[*i].angle_x -= dt * 15.0f;
-				feature[*i].dive_speed = 0.0f;
-				}
-			else
-				feature[*i].dive = true;
-			float sea_ground = the_map->get_unit_h( feature[*i].Pos.x, feature[*i].Pos.z );
-			if( sea_ground < feature[*i].Pos.y ) {
-				if( sin( -feature[*i].angle_x * DEG2RAD ) * feature_manager.feature[feature[*i].type].footprintx * 8.0f > feature[*i].Pos.y - sea_ground ) {
-					feature[*i].angle_x = RAD2DEG * asin( ( sea_ground - feature[*i].Pos.y ) / ( feature_manager.feature[feature[*i].type].footprintx * 8.0f) );
-					feature[*i].dive = true;
-					}
-				feature[*i].dive_speed = ( feature[*i].dive_speed + 3.0f * dt ) * exp( -dt );
-				feature[*i].Pos.y -= feature[*i].dive_speed * dt;
-				}
-			else {
-				feature[*i].sinking = false;
-				feature[*i].dive_speed = 0.0f;
-				feature[*i].angle_x = 0.0f;
-				}
-			i++;
-			}
-		else
-			sinking_features.erase( i++ );
+                        if( rnd_x >= 0 && rnd_y >= 0 && rnd_x < the_map->bloc_w_db && rnd_y < the_map->bloc_h_db ) {		// Check coordinates are valid
+                            burn_feature( units.map->map_data[ rnd_y ][ rnd_x ].stuff );			// Burn it if there is something to burn 8)
+                            if( network_manager.isServer() )
+                                g_ta3d_network->sendFeatureFireEvent( units.map->map_data[ rnd_y ][ rnd_x ].stuff );
+                        }
+                    }
+                }
+            }
+        }
 
-	LeaveCS();
+        if( !erased ) i++;			// We don't want to skip an element :) 
+    }
+
+    for( List< uint32 >::iterator i = sinking_features.begin() ; i != sinking_features.end() ; )		// A boat is sinking
+        if( feature[*i].sinking ) {
+            if( feature[*i].angle_x > -45.0f && !feature[*i].dive ) {
+                feature[*i].angle_x -= dt * 15.0f;
+                feature[*i].dive_speed = 0.0f;
+            }
+            else
+                feature[*i].dive = true;
+            float sea_ground = the_map->get_unit_h( feature[*i].Pos.x, feature[*i].Pos.z );
+            if( sea_ground < feature[*i].Pos.y ) {
+                if( sin( -feature[*i].angle_x * DEG2RAD ) * feature_manager.feature[feature[*i].type].footprintx * 8.0f > feature[*i].Pos.y - sea_ground ) {
+                    feature[*i].angle_x = RAD2DEG * asin( ( sea_ground - feature[*i].Pos.y ) / ( feature_manager.feature[feature[*i].type].footprintx * 8.0f) );
+                    feature[*i].dive = true;
+                }
+                feature[*i].dive_speed = ( feature[*i].dive_speed + 3.0f * dt ) * exp( -dt );
+                feature[*i].Pos.y -= feature[*i].dive_speed * dt;
+            }
+            else {
+                feature[*i].sinking = false;
+                feature[*i].dive_speed = 0.0f;
+                feature[*i].angle_x = 0.0f;
+            }
+            i++;
+        }
+        else
+            sinking_features.erase( i++ );
+
+    pMutex.unlock();
 }
 
 void FEATURES::display_info( int idx )
 {
-	if( idx < 0 || idx >= max_features || feature[ idx ].type < 0 )	return;		// Nothing to display
+    if( idx < 0 || idx >= max_features || feature[ idx ].type < 0 )	return;		// Nothing to display
 
-	if(feature_manager.feature[ feature[ idx ].type ].description) {
-		if( feature_manager.feature[ feature[ idx ].type ].reclaimable )
-			gfx->print(gfx->normal_font,ta3d_sidedata.side_int_data[ players.side_view ].Description.x1,ta3d_sidedata.side_int_data[ players.side_view ].Description.y1,0.0f,0xFFFFFFFF, format("%s M:%d E:%d",TRANSLATE( feature_manager.feature[ feature[ idx ].type ].description ).c_str(),feature_manager.feature[ feature[ idx ].type ].metal,feature_manager.feature[ feature[ idx ].type ].energy) );
-		else
-			gfx->print(gfx->normal_font,ta3d_sidedata.side_int_data[ players.side_view ].Description.x1,ta3d_sidedata.side_int_data[ players.side_view ].Description.y1,0.0f,0xFFFFFFFF, TRANSLATE( feature_manager.feature[ feature[ idx ].type ].description ) );
-		}
+    if(feature_manager.feature[ feature[ idx ].type ].description) {
+        if( feature_manager.feature[ feature[ idx ].type ].reclaimable )
+            gfx->print(gfx->normal_font,ta3d_sidedata.side_int_data[ players.side_view ].Description.x1,ta3d_sidedata.side_int_data[ players.side_view ].Description.y1,0.0f,0xFFFFFFFF, format("%s M:%d E:%d",TRANSLATE( feature_manager.feature[ feature[ idx ].type ].description ).c_str(),feature_manager.feature[ feature[ idx ].type ].metal,feature_manager.feature[ feature[ idx ].type ].energy) );
+        else
+            gfx->print(gfx->normal_font,ta3d_sidedata.side_int_data[ players.side_view ].Description.x1,ta3d_sidedata.side_int_data[ players.side_view ].Description.y1,0.0f,0xFFFFFFFF, TRANSLATE( feature_manager.feature[ feature[ idx ].type ].description ) );
+    }
 
-	glDisable(GL_BLEND);
+    glDisable(GL_BLEND);
 }

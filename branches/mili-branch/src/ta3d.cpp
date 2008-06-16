@@ -1085,7 +1085,7 @@ int play(GAME_DATA *game_data)
                         {
                             uint32 commandfire = current_order == SIGNAL_ORDER_DGUN ? MISSION_FLAG_COMMAND_FIRE : 0;
                             i = units.idx_list[e];
-                            units.unit[ i ].Lock();
+                            units.unit[i].lock();
                             if( (units.unit[i].flags & 1) && units.unit[i].owner_id==players.local_human_id && units.unit[i].sel && unit_manager.unit_type[units.unit[i].type_id].canattack
                                 && ( unit_manager.unit_type[units.unit[i].type_id].BMcode || !unit_manager.unit_type[units.unit[i].type_id].Builder ) ) {
                                 if( ( unit_manager.unit_type[ units.unit[i].type_id ].weapon[ 0 ] && unit_manager.unit_type[ units.unit[i].type_id ].weapon[ 0 ]->stockpile )
@@ -1097,17 +1097,17 @@ int play(GAME_DATA *game_data)
                                 else
                                     units.unit[i].set_mission(MISSION_ATTACK,&(units.unit[pointing].Pos),false,0,true,&(units.unit[pointing]),NULL,commandfire );
                             }
-                            units.unit[ i ].UnLock();
+                            units.unit[i].unlock();
                         }
                         if(!TA3D_SHIFT_PRESSED)	current_order=SIGNAL_ORDER_NONE;
                     }
                     else if( cursor_type == CURSOR_CAPTURE && can_be_captured ) {
                         for( uint16 e = 0 ; e < units.index_list_size ; e++ )
                         {
-                            units.EnterCS_from_outside();
+                            units.lock();
                             i = units.idx_list[e];
-                            units.LeaveCS_from_outside();
-                            units.unit[ i ].Lock();
+                            units.unlock();
+                            units.unit[i].lock();
                             if( (units.unit[i].flags & 1) && units.unit[i].owner_id == players.local_human_id && units.unit[i].sel && unit_manager.unit_type[units.unit[i].type_id].CanCapture )
                             {
                                 if( TA3D_SHIFT_PRESSED )
@@ -1115,17 +1115,17 @@ int play(GAME_DATA *game_data)
                                 else
                                     units.unit[i].set_mission( MISSION_CAPTURE, &(units.unit[pointing].Pos), false, 0, true, &(units.unit[pointing]), NULL );
                             }
-                            units.unit[ i ].UnLock();
+                            units.unit[i].unlock();
                         }
                         if(!TA3D_SHIFT_PRESSED)	current_order = SIGNAL_ORDER_NONE;
                     }
                     else if(cursor_type==CURSOR_REPAIR) {
                         for(uint16 e=0;e<units.index_list_size;e++)
                         {
-                            units.EnterCS_from_outside();
+                            units.lock();
                             i = units.idx_list[e];
-                            units.LeaveCS_from_outside();
-                            units.unit[i].Lock();
+                            units.unlock();
+                            units.unit[i].lock();
                             if( (units.unit[i].flags & 1) && units.unit[i].owner_id==players.local_human_id && units.unit[i].sel
                                 && unit_manager.unit_type[units.unit[i].type_id].Builder && unit_manager.unit_type[units.unit[i].type_id].BMcode) {
                                 if( !TA3D_SHIFT_PRESSED )
@@ -1135,17 +1135,17 @@ int play(GAME_DATA *game_data)
                                 else
                                     units.unit[i].set_mission(MISSION_REPAIR,&(units.unit[pointing].Pos),false,0,true,&(units.unit[pointing]));
                             }
-                            units.unit[i].UnLock();
+                            units.unit[i].unlock();
                         }
                         if(!TA3D_SHIFT_PRESSED)	current_order=SIGNAL_ORDER_NONE;
                     }
                     else if(cursor_type==CURSOR_RECLAIM) {
                         for(uint16 e=0;e<units.index_list_size;e++)
                         {
-                            units.EnterCS_from_outside();
+                            units.lock();
                             i = units.idx_list[e];
-                            units.LeaveCS_from_outside();
-                            units.unit[i].Lock();
+                            units.unlock();
+                            units.unit[i].lock();
                             if( (units.unit[i].flags & 1) && units.unit[i].owner_id==players.local_human_id && units.unit[i].sel
                                 && unit_manager.unit_type[units.unit[i].type_id].CanReclamate && unit_manager.unit_type[units.unit[i].type_id].BMcode ) {
                                 if(TA3D_SHIFT_PRESSED)
@@ -1153,7 +1153,7 @@ int play(GAME_DATA *game_data)
                                 else
                                     units.unit[i].set_mission(MISSION_RECLAIM,&(units.unit[pointing].Pos),false,0,true,&(units.unit[pointing]));
                             }
-                            units.unit[i].UnLock();
+                            units.unit[i].unlock();
                         }
                         if(!TA3D_SHIFT_PRESSED)	current_order=SIGNAL_ORDER_NONE;
                     }
@@ -1190,7 +1190,7 @@ int play(GAME_DATA *game_data)
                         {
                             uint32 commandfire = current_order == SIGNAL_ORDER_DGUN ? MISSION_FLAG_COMMAND_FIRE : 0;
                             i = units.idx_list[e];
-                            units.unit[ i ].Lock();
+                            units.unit[i].lock();
                             if( (units.unit[i].flags & 1) && units.unit[i].owner_id==players.local_human_id && units.unit[i].sel && unit_manager.unit_type[units.unit[i].type_id].canattack
                                 && ( unit_manager.unit_type[units.unit[i].type_id].BMcode || !unit_manager.unit_type[units.unit[i].type_id].Builder ) ) {
                                 if( ( unit_manager.unit_type[ units.unit[i].type_id ].weapon[ 0 ] && unit_manager.unit_type[ units.unit[i].type_id ].weapon[ 0 ]->stockpile )
@@ -1202,7 +1202,7 @@ int play(GAME_DATA *game_data)
                                 else
                                     units.unit[i].set_mission(MISSION_ATTACK,&(cursor_pos),false,0,true,NULL,NULL,commandfire );
                             }
-                            units.unit[ i ].UnLock();
+                            units.unit[i].unlock();
                         }
                         if(!TA3D_SHIFT_PRESSED)	current_order=SIGNAL_ORDER_NONE;
                     }
@@ -1216,10 +1216,10 @@ int play(GAME_DATA *game_data)
             if(idx>=0 && features.feature[ idx ].type >= 0 && feature_manager.feature[ features.feature[ idx ].type ].reclaimable )
                 for(uint16 e=0;e<units.index_list_size;e++)
                 {
-                    units.EnterCS_from_outside();
+                    units.lock();
                     i = units.idx_list[e];
-                    units.LeaveCS_from_outside();
-                    units.unit[i].Lock();
+                    units.unlock();
+                    units.unit[i].lock();
                     if( (units.unit[i].flags & 1) && units.unit[i].owner_id==players.local_human_id && units.unit[i].sel
                         && unit_manager.unit_type[units.unit[i].type_id].canresurrect && unit_manager.unit_type[units.unit[i].type_id].BMcode )
                     {
@@ -1228,7 +1228,7 @@ int play(GAME_DATA *game_data)
                         else
                             units.unit[i].set_mission(MISSION_REVIVE,&cur_pos,false,idx,true,NULL);
                     }
-                    units.unit[i].UnLock();
+                    units.unit[i].unlock();
                 }
             if(!TA3D_SHIFT_PRESSED)	current_order=SIGNAL_ORDER_NONE;
         }
@@ -1240,10 +1240,10 @@ int play(GAME_DATA *game_data)
             if( idx >= 0 && features.feature[ idx ].type >= 0 && feature_manager.feature[ features.feature[ idx ].type ].reclaimable )
                 for(uint16 e=0;e<units.index_list_size;e++)
                 {
-                    units.EnterCS_from_outside();
+                    units.lock();
                     i = units.idx_list[e];
-                    units.LeaveCS_from_outside();
-                    units.unit[i].Lock();
+                    units.unlock();
+                    units.unit[i].lock();
                     if( (units.unit[i].flags & 1) && units.unit[i].owner_id==players.local_human_id && units.unit[i].sel
                         && unit_manager.unit_type[units.unit[i].type_id].CanReclamate && unit_manager.unit_type[units.unit[i].type_id].BMcode ) {
                         if(TA3D_SHIFT_PRESSED)
@@ -1251,7 +1251,7 @@ int play(GAME_DATA *game_data)
                         else
                             units.unit[i].set_mission(MISSION_RECLAIM,&cur_pos,false,idx,true,NULL);
                     }
-                    units.unit[i].UnLock();
+                    units.unit[i].unlock();
                 }
             if(!TA3D_SHIFT_PRESSED)	current_order=SIGNAL_ORDER_NONE;
         }
@@ -2442,10 +2442,10 @@ int play(GAME_DATA *game_data)
             byte smorder = 0;
 
             for( uint16 e = 0 ; e < units.index_list_size ; e++ ) {
-                units.EnterCS_from_outside();
+                units.lock();
                 uint32 i = units.idx_list[e];
-                units.LeaveCS_from_outside();
-                units.unit[i].Lock();
+                units.unlock();
+                units.unit[i].lock();
                 if( (units.unit[i].flags & 1) && units.unit[i].owner_id == players.local_human_id && units.unit[i].sel) {
                     onoffable |= unit_manager.unit_type[ units.unit[i].type_id ].onoffable;
                     canstop |= unit_manager.unit_type[ units.unit[i].type_id ].canstop;
@@ -2466,7 +2466,7 @@ int play(GAME_DATA *game_data)
                     if( unit_manager.unit_type[ units.unit[i].type_id ].onoffable )
                         onoff_state |= units.unit[ i ].port[ ACTIVATION ] ? 2 : 1;
                 }
-                units.unit[i].UnLock();
+                units.unit[i].unlock();
             }
 
             if( onoff_state == 0 )	onoff_state = 3;
@@ -2667,11 +2667,11 @@ int play(GAME_DATA *game_data)
             if( onoff_obj == NULL )
                 onoff_obj = game_area.get_object( current_gui + ".ARMONOFF" );
             if( onoff_obj != NULL ) {
-                units.EnterCS_from_outside();
+                units.lock();
                 for( uint16 e = 0 ; e < units.index_list_size ; e++ ) {
                     uint16 i = units.idx_list[e];
-                    units.LeaveCS_from_outside();
-                    units.unit[i].Lock();
+                    units.unlock();
+                    units.unit[i].lock();
                     if( (units.unit[i].flags & 1) && units.unit[i].owner_id == players.local_human_id && units.unit[i].sel && unit_manager.unit_type[ units.unit[i].type_id ].onoffable ) {
                         if( onoff_obj->nb_stages > 1 ) {
                             onoff_obj->current_state &= 1;
@@ -2687,10 +2687,10 @@ int play(GAME_DATA *game_data)
                                 units.unit[i].activate();
                         }
                     }
-                    units.unit[i].UnLock();
-                    units.EnterCS_from_outside();
+                    units.unit[i].unlock();
+                    units.lock();
                 }
-                units.LeaveCS_from_outside();
+                units.unlock();
             }
         }
 
@@ -2700,11 +2700,11 @@ int play(GAME_DATA *game_data)
             if( cloak_obj == NULL )
                 cloak_obj = game_area.get_object( current_gui + ".ARMCLOAK" );
             if( cloak_obj != NULL ) {
-                units.EnterCS_from_outside();
+                units.lock();
                 for( uint16 e = 0 ; e < units.index_list_size ; e++ ) {
                     uint16 i = units.idx_list[e];
-                    units.LeaveCS_from_outside();
-                    units.unit[i].Lock();
+                    units.unlock();
+                    units.unit[i].lock();
                     if( (units.unit[i].flags & 1) && units.unit[i].owner_id == players.local_human_id && units.unit[i].sel && unit_manager.unit_type[ units.unit[i].type_id ].CloakCost > 0 ) {
                         if( cloak_obj->nb_stages > 1 ) {
                             cloak_obj->current_state &= 1;
@@ -2713,10 +2713,10 @@ int play(GAME_DATA *game_data)
                         else
                             units.unit[i].cloaking ^= true;
                     }
-                    units.unit[i].UnLock();
-                    units.EnterCS_from_outside();
+                    units.unit[i].unlock();
+                    units.lock();
                 }
-                units.LeaveCS_from_outside();
+                units.unlock();
             }
         }
 
@@ -2728,11 +2728,11 @@ int play(GAME_DATA *game_data)
                 sorder_obj = game_area.get_object( current_gui + ".ARMFIREORD" );
             if( sorder_obj != NULL ) {
                 sorder_obj->current_state %= 3;
-                units.EnterCS_from_outside();
+                units.lock();
                 for( uint16 e = 0 ; e < units.index_list_size ; e++ ) {
                     uint16 i = units.idx_list[e];
-                    units.LeaveCS_from_outside();
-                    units.unit[i].Lock();
+                    units.unlock();
+                    units.unit[i].lock();
                     if( (units.unit[i].flags & 1) && units.unit[i].owner_id == players.local_human_id && units.unit[i].sel ) {
                         units.unit[i].port[ STANDINGFIREORDERS ] = sorder_obj->current_state;
                         if( SFORDER_FIRE_AT_WILL != units.unit[i].port[ STANDINGFIREORDERS ] ) {
@@ -2742,10 +2742,10 @@ int play(GAME_DATA *game_data)
                                 units.unit[i].next_mission();
                         }
                     }
-                    units.unit[i].UnLock();
-                    units.EnterCS_from_outside();
+                    units.unit[i].unlock();
+                    units.lock();
                 }
-                units.LeaveCS_from_outside();
+                units.unlock();
             }
         }
 
@@ -2757,17 +2757,17 @@ int play(GAME_DATA *game_data)
                 sorder_obj = game_area.get_object( current_gui + ".ARMMOVEORD" );
             if( sorder_obj != NULL ) {
                 sorder_obj->current_state %= 3;
-                units.EnterCS_from_outside();
+                units.lock();
                 for( uint16 e = 0 ; e < units.index_list_size ; e++ ) {
                     uint16 i = units.idx_list[e];
-                    units.LeaveCS_from_outside();
-                    units.unit[i].Lock();
+                    units.unlock();
+                    units.unit[i].lock();
                     if( (units.unit[i].flags & 1) && units.unit[i].owner_id == players.local_human_id && units.unit[i].sel )
                         units.unit[i].port[ STANDINGMOVEORDERS ] = sorder_obj->current_state;
-                    units.unit[i].UnLock();
-                    units.EnterCS_from_outside();
+                    units.unit[i].unlock();
+                    units.lock();
                 }
-                units.LeaveCS_from_outside();
+                units.unlock();
             }
         }
 
@@ -2813,17 +2813,17 @@ int play(GAME_DATA *game_data)
                 break;
             case SIGNAL_ORDER_STOP:
                 sound_manager->PlayTDFSound( "IMMEDIATEORDERS", "sound" , NULL );
-                units.EnterCS_from_outside();
+                units.lock();
                 for( uint16 e = 0 ; e < units.index_list_size ; e++ ) {
                     uint16 i = units.idx_list[e];
-                    units.LeaveCS_from_outside();
-                    units.unit[i].Lock();
+                    units.unlock();
+                    units.unit[i].lock();
                     if( (units.unit[i].flags & 1) && units.unit[i].owner_id == players.local_human_id && units.unit[i].sel && unit_manager.unit_type[ units.unit[i].type_id ].canstop )
                         units.unit[i].set_mission(MISSION_STOP);
-                    units.unit[i].UnLock();
-                    units.EnterCS_from_outside();
+                    units.unit[i].unlock();
+                    units.lock();
                 }
-                units.LeaveCS_from_outside();
+                units.unlock();
             case SIGNAL_ORDER_ONOFF:
                 current_order=SIGNAL_ORDER_NONE;
                 break;
@@ -2832,7 +2832,7 @@ int play(GAME_DATA *game_data)
             current_order=SIGNAL_ORDER_NONE;
 
         if(sel>=0 && mouse_b==2 && omb2!=2) {
-            units.unit[cur_sel_index].Lock();
+            units.unit[cur_sel_index].lock();
             MISSION *cur=units.unit[cur_sel_index].mission;
             MISSION **old=&(units.unit[cur_sel_index].mission);
             int nb=1;
@@ -2865,7 +2865,7 @@ int play(GAME_DATA *game_data)
                     units.kill(((UNIT*)(units.unit[cur_sel_index].mission->p))->idx,map,prev);
                 units.unit[cur_sel_index].next_mission();
             }
-            units.unit[cur_sel_index].UnLock();
+            units.unit[cur_sel_index].unlock();
         }
         if(sel>=0 && mouse_b==1 && omb2!=1) {
             build=sel;
@@ -2951,10 +2951,10 @@ int play(GAME_DATA *game_data)
             unit_manager.unit_type[cur_sel].model->print_struct(32.0f,128.0f,gfx->normal_font);
 
         if(internal_name && last_on >= 0 ) {
-            units.unit[ last_on ].Lock();
+            units.unit[ last_on ].lock();
             if( units.unit[ last_on ].type_id >= 0 && unit_manager.unit_type[ units.unit[ last_on ].type_id ].Unitname!=NULL)
                 gfx->print(gfx->normal_font,128.0f,32.0f,0.0f,0xFFFFFFFF,format("internal name %s",unit_manager.unit_type[ units.unit[ last_on ].type_id ].Unitname));
-            units.unit[ last_on ].UnLock();
+            units.unit[ last_on ].unlock();
         }
         else if(internal_name && cur_sel >= 0 && unit_manager.unit_type[cur_sel].Unitname!=NULL)
             gfx->print(gfx->normal_font,128.0f,32.0f,0.0f,0xFFFFFFFF,format("internal name %s",unit_manager.unit_type[cur_sel].Unitname));
@@ -2972,7 +2972,7 @@ int play(GAME_DATA *game_data)
                 "MISSION_PATROL","MISSION_GUARD","MISSION_RECLAIM","MISSION_LOAD","MISSION_UNLOAD","MISSION_STANDBY_MINE"};
             float y = 32.0f;
             for( i = 0; i < units.max_unit ; i++ ) {
-                units.unit[ i ].Lock();
+                units.unit[i].lock();
                 if( (units.unit[i].flags & 1) && last_on == i) {
                     if(units.unit[i].mission!=NULL && units.unit[i].mission->mission<=0x0E) {
                         gfx->print(gfx->normal_font,128.0f,y,0.0f,0xFFFFFFFF,format("MISSION: %s",unit_info[units.unit[i].mission->mission]));
@@ -2990,7 +2990,7 @@ int play(GAME_DATA *game_data)
                         gfx->print(gfx->normal_font,128.0f,y,0.0f,0xFFFFFFFF,format("MISSION: NONE"));
                     y += gfx->normal_font.height();
                 }
-                units.unit[ i ].UnLock();
+                units.unit[i].unlock();
             }
         }
 
@@ -3130,8 +3130,8 @@ int play(GAME_DATA *game_data)
                         if( params.size() >= 4 )
                             nb_to_spawn = atoi( params[3].c_str() );
                     }
-                    ThreadSynchroniser->EnterSync();		// Make sure we won't destroy something we mustn't
-                    units.EnterCS_from_outside();
+                    ThreadSynchroniser->lock();		// Make sure we won't destroy something we mustn't
+                    units.lock();
                     for(i=0;i<nb_to_spawn;i++) {
                         int id=0;
                         if( unit_type < 0 || unit_type >= unit_manager.nb_unit )
@@ -3139,7 +3139,7 @@ int play(GAME_DATA *game_data)
                         else
                             id = units.create(unit_type,player_id);
                         if( id == -1 )	break;		// Ho ho no more space to store that unit, limit reached
-                        units.unit[ id ].Lock();
+                        units.unit[ id ].lock();
                         int e=0;
 
                         do {
@@ -3168,17 +3168,17 @@ int play(GAME_DATA *game_data)
                             if(unit_manager.unit_type[units.unit[id].type_id].init_cloaked )				// Start cloaked
                                 units.unit[id].cloaking = true;
                         }
-                        units.unit[ id ].UnLock();
+                        units.unit[ id ].unlock();
                     }
-                    units.LeaveCS_from_outside();
-                    ThreadSynchroniser->LeaveSync();
+                    units.unlock();
+                    ThreadSynchroniser->unlock();
                 }
                 else if( params[0] == "timefactor" && params.size() == 2)
                     lp_CONFIG->timefactor = atof( params[1].c_str() );
                 else if( params[0] == "addhp" && params.size() == 2) {
                     if(selected) {					// Sur les unités sélectionnées
                         int value = atoi( params[1].c_str() );
-                        units.EnterCS_from_outside();
+                        units.lock();
                         for(uint16 e=0;e<units.index_list_size;e++) {
                             i = units.idx_list[e];
                             if( (units.unit[i].flags & 1) && units.unit[i].owner_id==players.local_human_id && units.unit[i].sel) {
@@ -3189,49 +3189,49 @@ int play(GAME_DATA *game_data)
                                     units.unit[i].hp=unit_manager.unit_type[units.unit[i].type_id].MaxDamage;
                             }
                         }
-                        units.LeaveCS_from_outside();
+                        units.unlock();
                     }
                 }
                 else if( params[0] == "deactivate" ) {
                     if(selected) {					// Sur les unités sélectionnées
-                        units.EnterCS_from_outside();
+                        units.lock();
                         for(uint16 e=0;e<units.index_list_size;e++) {
                             i = units.idx_list[e];
                             if( (units.unit[i].flags & 1) && units.unit[i].owner_id==players.local_human_id && units.unit[i].sel)
                                 units.unit[i].deactivate();
                         }
-                        units.LeaveCS_from_outside();
+                        units.unlock();
                     }
                 }
                 else if( params[0] == "activate" ) {
                     if(selected) {					// Sur les unités sélectionnées
-                        units.EnterCS_from_outside();
+                        units.lock();
                         for(uint16 e=0;e<units.index_list_size;e++) {
                             i = units.idx_list[e];
                             if( (units.unit[i].flags & 1) && units.unit[i].owner_id==players.local_human_id && units.unit[i].sel)
                                 units.unit[i].activate();
                         }
-                        units.LeaveCS_from_outside();
+                        units.unlock();
                     }
                 }
                 else if( params[0] == "reset_script" ) {							// Réinitialise les scripts
                     if(selected) {					// Sur les unités sélectionnées
-                        units.EnterCS_from_outside();
+                        units.lock();
                         for(uint16 e=0;e<units.index_list_size;e++) {
                             i = units.idx_list[e];
-                            units.LeaveCS_from_outside();
+                            units.unlock();
                             if( (units.unit[i].flags & 1) && units.unit[i].owner_id==players.local_human_id && units.unit[i].sel)
                                 units.unit[i].reset_script();
-                            units.EnterCS_from_outside();
+                            units.lock();
                         }
-                        units.LeaveCS_from_outside();
+                        units.unlock();
                     }
                 }
                 else if( params[0] == "unitinfo" ) {
                     if(selected && cur_sel!=-1) {					// Sur les unités sélectionnées
                         const char *unit_info[]={"ACTIVATION","STANDINGMOVEORDERS","STANDINGFIREORDERS","HEALTH","INBUILDSTANCE","BUSY","PIECE_XZ","PIECE_Y","UNIT_XZ","UNIT_Y","UNIT_HEIGHT","XZ_ATAN","XZ_HYPOT","ATAN",
                             "HYPOT","GROUND_HEIGHT","BUILD_PERCENT_LEFT","YARD_OPEN","BUGGER_OFF","ARMORED"};
-                        units.EnterCS_from_outside();
+                        units.lock();
                         for(uint16 e=0;e<units.index_list_size;e++) {
                             i = units.idx_list[e];
                             if( (units.unit[i].flags & 1) && units.unit[i].owner_id==players.local_human_id && units.unit[i].sel) {
@@ -3240,49 +3240,49 @@ int play(GAME_DATA *game_data)
                                     printf("%s=%d\n",unit_info[f-1],units.unit[i].port[f]);
                             }
                         }
-                        units.LeaveCS_from_outside();
+                        units.unlock();
                     }
                 }
                 else if( params[0] == "kill" ) {							// Détruit les unités sélectionnées
                     if(selected) {					// Sur les unités sélectionnées
-                        units.EnterCS_from_outside();
+                        units.lock();
                         for(uint16 e=0;e<units.index_list_size;e++) {
                             i = units.idx_list[e];
-                            units.LeaveCS_from_outside();
+                            units.unlock();
                             if( (units.unit[i].flags & 1) && units.unit[i].owner_id==players.local_human_id && units.unit[i].sel) {
                                 units.kill(i,map,e);
                                 e--;
                             }
-                            units.EnterCS_from_outside();
+                            units.lock();
                         }
-                        units.LeaveCS_from_outside();
+                        units.unlock();
                         selected=false;
                         cur_sel=-1;
                     }
                 }
                 else if( params[0] == "shootall" ) {							// Destroy enemy units
-                    units.EnterCS_from_outside();
+                    units.lock();
                     for(uint16 e=0;e<units.max_unit;e++) {
                         i = units.idx_list[e];
-                        units.LeaveCS_from_outside();
+                        units.unlock();
                         if( (units.unit[i].flags & 1) && units.unit[i].owner_id != players.local_human_id ) {
                             units.kill(i,map,e);
                             e--;
                         }
-                        units.EnterCS_from_outside();
+                        units.lock();
                     }
-                    units.LeaveCS_from_outside();
+                    units.unlock();
                 }
                 else if( params[0] == "script" && params.size() == 2) {							// Force l'éxecution d'un script
                     if(selected) {					// Sur les unités sélectionnées
                         int id = atoi( params[1].c_str() );
-                        units.EnterCS_from_outside();
+                        units.lock();
                         for(uint16 e=0;e<units.index_list_size;e++) {
                             i = units.idx_list[e];
                             if( (units.unit[i].flags & 1) && units.unit[i].owner_id==players.local_human_id && units.unit[i].sel)
                                 units.unit[i].launch_script(id);
                         }
-                        units.LeaveCS_from_outside();
+                        units.unlock();
                     }
                 }
                 else if( params[0] == "pause" )								// Toggle pause mode

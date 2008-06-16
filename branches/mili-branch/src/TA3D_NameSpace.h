@@ -43,6 +43,7 @@
 # include "console.h"
 # include "i18n.h"
 # include "network.h"
+# include "threads/thread.h"
 
 # define ZOOM_NORMAL       0x0
 # define ZOOM_FIXED_ANGLE  0x1
@@ -185,8 +186,6 @@ namespace TA3D
 		}
 	}
 
-	class ThreadSync;
-
 	namespace VARS
 	{
 		TA3D_API_E TA3D::IInterfaceManager			*InterfaceManager; 
@@ -207,7 +206,7 @@ namespace TA3D
 
 		TA3D_API_E I18N_TRANSLATER					i18n;
 		
-		TA3D_API_E ThreadSync						*ThreadSynchroniser;
+		TA3D_API_E ObjectSync						*ThreadSynchroniser;
 		TA3D_API_E String							TA3D_CURRENT_MOD;
 		TA3D_API_E int								ascii_to_scancode[ 256 ];
 

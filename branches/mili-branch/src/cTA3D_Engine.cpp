@@ -17,8 +17,8 @@
 
 #include "stdafx.h"
 #include "TA3D_NameSpace.h"
-#include "threads/cCriticalSection.h"
 #include "threads/cThread.h"
+#include "threads/thread.h"
 #include "cLogger.h"
 #include "cTA3D_Engine.h"
 #include "ta3dbase.h"
@@ -180,11 +180,10 @@ namespace TA3D
 
 
 		GuardInfo( "Initalizing Critical section data." );
-		CreateCS();
 
 		GuardInfo( "Initializing Thread Synchroniser object" );
 
-		ThreadSynchroniser = new ThreadSync;
+		ThreadSynchroniser = new ObjectSync;
 
 		GuardInfo( "Initializing the ascii to scancode table" );
 
@@ -205,13 +204,8 @@ namespace TA3D
 	cTA3D_Engine::~cTA3D_Engine(void)
 	{
 		GuardEnter( cTA3D_Engine deconstructor );
-
 		DestroyThread();
-
 		delete ThreadSynchroniser;
-
-		DeleteCS();
-
 		cursor.destroy();
 		ta3d_sidedata.destroy();
 

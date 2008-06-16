@@ -26,6 +26,7 @@
 #include "particles.h"			// Pour le moteur à particules
 #include "tdf.h"				// Pour le gestionnaire de sprites
 #include "taconfig.h"
+#include "threads/thread.h"
 
 #ifndef ENGINE_CLASS		// Ne déclare pas 2 fois les classes du moteur
 #define ENGINE_CLASS		// Définit les classes comme déclarées
@@ -260,7 +261,7 @@ public:
 
 #include "ai/pathfinding.h"		// Algorithme de pathfinding
 
-class MAP : protected cCriticalSection			// Données concernant la carte
+class MAP : public ObjectSync // Données concernant la carte
 {
 public:
 	short		ntex;			// Indique si la texture est chargée et doit être détruite
@@ -408,8 +409,6 @@ public:
 
 	MAP()
 	{
-		CreateCS();
-
 		init();
 	}
 
@@ -420,12 +419,7 @@ public:
 	~MAP()
 	{
 		destroy();
-
-		DeleteCS();
 	}
-
-	inline void Lock()		{	EnterCS();	}
-	inline void UnLock()	{	LeaveCS();	}
 
 	void update_player_visibility( int player_id, int px, int py, int r, int rd, int sn, int rd_j, int sn_j, bool jamming=false, bool black=false );	// r -> sight, rd -> radar range, sn -> sonar range, j for jamming ray
 
@@ -547,11 +541,11 @@ public:
 			if(x1<0)	x1=0;
 			if(x2>bloc_w_db-1)	x2=bloc_w_db-1;
 			if(y2<=y1 || x2<=x1)	return;
-			EnterCS();
+			pMutex.lock();
 			for(int y=y1;y<y2;y++)
 				for(int x=x1;x<x2;x++)
 					map_data[y][x].unit_idx=c;
-			LeaveCS();
+			pMutex.unlock();
 			}
 		else {
 			int i=0;
@@ -563,11 +557,11 @@ public:
 			if(x2>bloc_w_db-1)	x2=bloc_w_db-1;
 			int dw=w-(x2-x1);
 			if(y2<=y1 || x2<=x1)	return;
-			EnterCS();
+			pMutex.lock();
 			for(int y=y1;y<y2;y++) {
 				for(int x=x1;x<x2;x++) {
 					if( !yardmap[i] ) {
-						LeaveCS();
+						pMutex.unlock();
 						return;
 						}
 					if(yardmap[i]=='G' || yardmap[i]=='o' || yardmap[i]=='w' || yardmap[i]=='f' || (yardmap[i]=='c' && !open) || (yardmap[i]=='C' && !open) || (yardmap[i]=='O' && open))
@@ -576,7 +570,7 @@ public:
 					}
 				i+=dw;
 				}
-			LeaveCS();
+			pMutex.unlock();
 			}
 	}
 
@@ -590,11 +584,11 @@ public:
 			if(x1<0)	x1=0;
 			if(x2>bloc_w_db-1)	x2=bloc_w_db-1;
 			if(y2<=y1 || x2<=x1)	return;
-			EnterCS();
+			pMutex.lock();
 			for(int y=y1;y<y2;y++)
 				for(int x=x1;x<x2;x++)
 					map_data[y][x].air_idx.remove(c);
-			LeaveCS();
+			pMutex.unlock();
 			}
 		else {
 			int y2=y1+h;
@@ -604,11 +598,11 @@ public:
 			if(x1<0)	x1=0;
 			if(x2>bloc_w_db-1)	x2=bloc_w_db-1;
 			if(y2<=y1 || x2<=x1)	return;
-			EnterCS();
+			pMutex.lock();
 			for(int y=y1;y<y2;y++)
 				for(int x=x1;x<x2;x++)
 					map_data[y][x].air_idx.push(c);
-			LeaveCS();
+			pMutex.unlock();
 			}
 	}
 
@@ -864,7 +858,7 @@ extern int NB_PLAYERS;
 #define PLAYER_CONTROL_FLAG_REMOTE	0x1
 #define PLAYER_CONTROL_FLAG_AI		0x2
 
-class PLAYERS :			protected cCriticalSection,			// The player control/management class
+class PLAYERS :			public ObjectSync,			// The player control/management class
 			            public cThread						// Classe pour gérer les joueurs et leurs statistiques de partie
 {
 public:
@@ -1014,8 +1008,6 @@ public:
 
 	inline PLAYERS()
 	{
-		CreateCS();
-
 		map = NULL;
 		thread_is_running = false;
 		thread_ask_to_stop = false;
@@ -1047,8 +1039,6 @@ public:
 		ai_command = NULL;
 
 		DestroyThread();
-
-		DeleteCS();
 	}
 };
 

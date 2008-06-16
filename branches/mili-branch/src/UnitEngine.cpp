@@ -78,10 +78,10 @@ void UNIT::add_mission(int mission_type,VECTOR *target,bool step,int dat,void *p
 #ifdef	ADVANCED_DEBUG_MODE
     GuardEnter( UNIT::add_mission );
 #endif
-    EnterCS();
+    MutexLocker locker(pMutex);
 
-    if( command_locked && !(mission_type & MISSION_FLAG_AUTO) ) {
-        LeaveCS();
+    if( command_locked && !(mission_type & MISSION_FLAG_AUTO) )
+    {
 #ifdef	ADVANCED_DEBUG_MODE
         GuardLeave( UNIT::add_mission );
 #endif
@@ -126,10 +126,7 @@ void UNIT::add_mission(int mission_type,VECTOR *target,bool step,int dat,void *p
     }
 
     if( pointer == this && !def_mode ) 	// A unit cannot target itself
-    {
-        LeaveCS();
         return;
-    }
 
     if( mission_type == MISSION_MOVE || mission_type == MISSION_PATROL )
         m_flags |= MISSION_FLAG_MOVE;
@@ -164,10 +161,7 @@ void UNIT::add_mission(int mission_type,VECTOR *target,bool step,int dat,void *p
             }
         }
         if( removed )
-        {
-            LeaveCS();
             return;
-        }
     }
 
     MISSION *new_mission = (MISSION*) malloc(sizeof(MISSION));
@@ -284,8 +278,6 @@ void UNIT::add_mission(int mission_type,VECTOR *target,bool step,int dat,void *p
                     def_mission = new_mission;
             }
     }
-    LeaveCS();
-
 #ifdef	ADVANCED_DEBUG_MODE
     GuardLeave();
 #endif
@@ -296,11 +288,10 @@ void UNIT::set_mission(int mission_type,VECTOR *target,bool step,int dat,bool st
 #ifdef	ADVANCED_DEBUG_MODE
     GuardEnter( UNIT::set_mission );
 #endif
-    EnterCS();
+    MutexLocker locker(pMutex);
 
     if( command_locked && !( mission_type & MISSION_FLAG_AUTO ) )
     {
-        LeaveCS();
 #ifdef	ADVANCED_DEBUG_MODE
         GuardLeave( UNIT::set_mission );
 #endif
@@ -348,10 +339,7 @@ void UNIT::set_mission(int mission_type,VECTOR *target,bool step,int dat,bool st
     }
 
     if( pointer == this && !def_mode ) // A unit cannot target itself
-    {
-        LeaveCS();
         return;
-    }
 
     int old_mission=-1;
     if( !def_mode )
@@ -492,8 +480,6 @@ void UNIT::set_mission(int mission_type,VECTOR *target,bool step,int dat,bool st
             start_mission_script(mission->mission);
         c_time=0.0f;
     }
-    LeaveCS();
-
 #ifdef	ADVANCED_DEBUG_MODE
     GuardLeave();
 #endif
@@ -566,14 +552,10 @@ void UNIT::draw(float t, CAMERA *cam,MAP *map,bool height_line)
 #ifdef	ADVANCED_DEBUG_MODE
     GuardEnter( UNIT::draw );
 #endif
-
-    EnterCS();
+    MutexLocker locker(pMutex);
 
     if (!(flags & 1))
-    {
-        LeaveCS();
         return;
-    }
 
     visible = false;
     on_radar = false;
@@ -587,7 +569,6 @@ void UNIT::draw(float t, CAMERA *cam,MAP *map,bool height_line)
 #ifdef	ADVANCED_DEBUG_MODE
         GuardLeave();
 #endif
-        LeaveCS();
         return;		// S'il n'y a pas de modèle associé, on quitte la fonction
     }
 
@@ -598,7 +579,6 @@ void UNIT::draw(float t, CAMERA *cam,MAP *map,bool height_line)
 #ifdef	ADVANCED_DEBUG_MODE
         GuardLeave();
 #endif
-        LeaveCS();
         return;	// Unité hors de la carte
     }
     byte player_mask = 1 << players.local_human_id;
@@ -609,7 +589,6 @@ void UNIT::draw(float t, CAMERA *cam,MAP *map,bool height_line)
 #ifdef	ADVANCED_DEBUG_MODE
         GuardLeave();
 #endif
-        LeaveCS();
         return;	// Unit is not visible
     }
 
@@ -626,7 +605,6 @@ void UNIT::draw(float t, CAMERA *cam,MAP *map,bool height_line)
 #ifdef	ADVANCED_DEBUG_MODE
         GuardLeave();
 #endif
-        LeaveCS();
         return;
     }
     if ((D%cam->Dir)>cam->zfar2)
@@ -634,7 +612,6 @@ void UNIT::draw(float t, CAMERA *cam,MAP *map,bool height_line)
 #ifdef	ADVANCED_DEBUG_MODE
         GuardLeave();
 #endif
-        LeaveCS();
         return;		// Si l'objet est hors champ on ne le dessine pas
     }
 
@@ -774,8 +751,8 @@ void UNIT::draw(float t, CAMERA *cam,MAP *map,bool height_line)
                                               || mission->mission == MISSION_BUILD_2 || mission->mission == MISSION_CAPTURE))
                     {
                         unit_target = ((UNIT*)mission->p);
-                        LeaveCS();
-                        unit_target->Lock();
+                        pMutex.unlock();
+                        unit_target->lock();
                         if( (unit_target->flags & 1) && unit_target->model!=NULL)
                         {
                             size=unit_target->model->size2;
@@ -786,8 +763,8 @@ void UNIT::draw(float t, CAMERA *cam,MAP *map,bool height_line)
                         }
                         else
                         {
-                            unit_target->UnLock();
-                            EnterCS();
+                            unit_target->unlock();
+                            pMutex.lock();
                             unit_target = NULL;
                             c_part = false;
                         }
@@ -828,8 +805,8 @@ void UNIT::draw(float t, CAMERA *cam,MAP *map,bool height_line)
                         if (!nanolathe_feature)
                         {
                             unit_target = &(units.unit[ nanolathe_target ]);
-                            LeaveCS();
-                            unit_target->Lock();
+                            pMutex.unlock();
+                            unit_target->lock();
                             if ((unit_target->flags & 1) && unit_target->model )
                             {
                                 size = unit_target->model->size2;
@@ -841,8 +818,8 @@ void UNIT::draw(float t, CAMERA *cam,MAP *map,bool height_line)
                             }
                             else
                             {
-                                unit_target->UnLock();
-                                EnterCS();
+                                unit_target->unlock();
+                                pMutex.lock();
                                 unit_target = NULL;
                                 c_part = false;
                             }
@@ -960,13 +937,12 @@ void UNIT::draw(float t, CAMERA *cam,MAP *map,bool height_line)
             }
             if (unit_target)
             {
-                unit_target->UnLock();
-                EnterCS();
+                unit_target->lock();
+                pMutex.lock();
             }
         }
     drawing = false;
     glPopMatrix();
-    LeaveCS();
 #ifdef	ADVANCED_DEBUG_MODE
     GuardLeave();
 #endif
@@ -979,16 +955,16 @@ void UNIT::draw_shadow(CAMERA *cam,VECTOR Dir,MAP *map)
 #ifdef	ADVANCED_DEBUG_MODE
     GuardEnter( UNIT::draw_shadow );
 #endif
-    EnterCS();
+    pMutex.lock();
     if (!(flags & 1))
     {
-        LeaveCS();
+        pMutex.unlock();
         return;
     }
 
     if (on_radar || hidden)
     {
-        LeaveCS();
+        pMutex.unlock();
         return;
     }
 
@@ -997,7 +973,7 @@ void UNIT::draw_shadow(CAMERA *cam,VECTOR Dir,MAP *map)
 
     if( cloaked && owner_id != players.local_human_id ) // Unit is cloaked
     {
-        LeaveCS();
+        pMutex.unlock();
         return;
     }
 
@@ -1011,7 +987,7 @@ void UNIT::draw_shadow(CAMERA *cam,VECTOR Dir,MAP *map)
 #ifdef	ADVANCED_DEBUG_MODE
             GuardLeave();
 #endif
-            LeaveCS();
+            pMutex.unlock();
             return;	// Shadow out of the map
         }
         if(map->view[py][px]!=1)
@@ -1019,13 +995,13 @@ void UNIT::draw_shadow(CAMERA *cam,VECTOR Dir,MAP *map)
 #ifdef	ADVANCED_DEBUG_MODE
             GuardLeave();
 #endif
-            LeaveCS();
+            pMutex.unlock();
             return;	// Unvisible shadow
         }
     }
 
     drawing = true;			// Prevent the model to be set to NULL and the data structure from being reset
-    LeaveCS();
+    pMutex.unlock();
 
     glPushMatrix();
     glTranslatef(drawn_Pos.x,drawn_Pos.y,drawn_Pos.z);
@@ -1060,21 +1036,21 @@ void UNIT::draw_shadow_basic(CAMERA *cam,VECTOR Dir,MAP *map)
 #ifdef	ADVANCED_DEBUG_MODE
     GuardEnter( UNIT::draw_shadow_basic );
 #endif
-    EnterCS();
+    pMutex.lock();
     if (!(flags & 1))
     {
-        LeaveCS();
+        pMutex.unlock();
         return;
     }
     if (on_radar || hidden)
     {
-        LeaveCS();
+        pMutex.unlock();
         return;
     }
 
     if (cloaked && owner_id != players.local_human_id ) // Unit is cloaked
     {
-        LeaveCS();
+        pMutex.unlock();
         return;
     }
 
@@ -1088,7 +1064,7 @@ void UNIT::draw_shadow_basic(CAMERA *cam,VECTOR Dir,MAP *map)
 #ifdef	ADVANCED_DEBUG_MODE
             GuardLeave();
 #endif
-            LeaveCS();
+            pMutex.unlock();
             return;	// Shadow out of the map
         }
         if(map->view[py][px]!=1)
@@ -1096,12 +1072,12 @@ void UNIT::draw_shadow_basic(CAMERA *cam,VECTOR Dir,MAP *map)
 #ifdef	ADVANCED_DEBUG_MODE
             GuardLeave();
 #endif
-            LeaveCS();
+            pMutex.unlock();
             return;	// Unvisible shadow
         }
     }
     drawing = true;			// Prevent the model to be set to NULL and the data structure from being reset
-    LeaveCS();
+    pMutex.unlock();
 
     glPushMatrix();
     glTranslatef(drawn_Pos.x,drawn_Pos.y,drawn_Pos.z);
@@ -1998,11 +1974,11 @@ const int UNIT::run_script(const float &dt,const int &id,MAP *map,int max_code)	
                                                 {
                                                     int cur_idx=map->map_data[y][x].unit_idx;
                                                     if(units.unit[cur_idx].owner_id==owner_id && units.unit[cur_idx].build_percent_left == 0.0f && (units.unit[cur_idx].mission==NULL || units.unit[cur_idx].mission->mission!=MISSION_MOVE)) {
-                                                        units.unit[cur_idx].Lock();
+                                                        units.unit[cur_idx].lock();
                                                         VECTOR target = units.unit[cur_idx].Pos;
                                                         target.z+=100.0f;
                                                         units.unit[cur_idx].add_mission(MISSION_MOVE | MISSION_FLAG_AUTO,&target,true);
-                                                        units.unit[cur_idx].UnLock();
+                                                        units.unit[cur_idx].unlock();
                                                     }
                                                 }
                                             }
@@ -2068,9 +2044,9 @@ const int UNIT::run_script(const float &dt,const int &id,MAP *map,int max_code)	
                             }
                         }
                         // Redraw the unit on presence map
-                        LeaveCS();
+                        pMutex.unlock();
                         target_unit->draw_on_map();
-                        EnterCS();
+                        pMutex.lock();
                     }
                 break;	//added
                 }
@@ -2131,11 +2107,11 @@ void UNIT::explode()
     {
         case 1:			// Some good looking corpse
             {
-                LeaveCS();
+                pMutex.unlock();
                 flags = 1;				// Set it to 1 otherwise it won't remove it from map
                 clear_from_map();
                 flags = 4;
-                EnterCS();
+                pMutex.lock();
                 int x=((int)(Pos.x)+the_map->map_w_d-8)>>3;
                 int y=((int)(Pos.z)+the_map->map_h_d-8)>>3;
                 if(x>0 && y>0 && x<(the_map->bloc_w<<1) && y<(the_map->bloc_h<<1))
@@ -2161,11 +2137,11 @@ void UNIT::explode()
             break;
         case 2:			// Some exploded corpse
             {
-                LeaveCS();
+                pMutex.unlock();
                 flags = 1;				// Set it to 1 otherwise it won't remove it from map
                 clear_from_map();
                 flags = 4;
-                EnterCS();
+                pMutex.lock();
                 int x=(int)((Pos.x)+the_map->map_w_d-8)>>3;
                 int y=(int)((Pos.z)+the_map->map_h_d-8)>>3;
                 if(x>0 && y>0 && x<(the_map->bloc_w<<1) && y<(the_map->bloc_h<<1))
@@ -2188,13 +2164,13 @@ void UNIT::explode()
             break;
         default:
             flags = 1;		// Nothing replaced just remove the unit from position map
-            LeaveCS();
+            pMutex.unlock();
             clear_from_map();
-            EnterCS();
+            pMutex.lock();
     };
-    LeaveCS();
+    pMutex.unlock();
     int w_id = weapons.add_weapon(weapon_manager.get_weapon_index( self_destruct == 0.0f ? unit_manager.unit_type[type_id].SelfDestructAs : unit_manager.unit_type[type_id].ExplodeAs ),idx);
-    EnterCS();
+    pMutex.lock();
     if(w_id>=0) {
         weapons.weapon[w_id].Pos = Pos;
         weapons.weapon[w_id].target_pos = Pos;
@@ -2228,7 +2204,7 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
 #ifdef	ADVANCED_DEBUG_MODE
     GuardEnter( UNIT::move );
 #endif
-    EnterCS();
+    pMutex.lock();
 
     bool was_open = port[YARD_OPEN] != 0;
     bool was_flying = flying;
@@ -2246,7 +2222,7 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
 
     if( type_id < 0 || type_id >= unit_manager.nb_unit || flags == 0 ) // A unit which cannot exist
     {
-        LeaveCS();
+        pMutex.unlock();
 #ifdef	ADVANCED_DEBUG_MODE
         GuardLeave();
 #endif
@@ -2261,24 +2237,24 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
             if(map->map_data[y][x].stuff==-1) {
                 int type=feature_manager.get_feature_index(unit_manager.unit_type[type_id].Corpse);
                 if( type >= 0 ) {
-                    features.Lock();
+                    features.lock();
                     map->map_data[y][x].stuff=features.add_feature(Pos,type);
                     if(map->map_data[y][x].stuff == -1)
                         Console->AddEntry("ERROR: could not turn %s into a feature! cannot create feature!", unit_manager.unit_type[type_id].Unitname);
                     else
                         features.feature[map->map_data[y][x].stuff].angle = Angle.y;
-                    LeaveCS();
+                    pMutex.unlock();
                     clear_from_map();
-                    EnterCS();
+                    pMutex.lock();
                     if(type!=-1 && feature_manager.feature[type].blocking)
                         map->rect(x-(feature_manager.feature[type].footprintx>>1),y-(feature_manager.feature[type].footprintz>>1),feature_manager.feature[type].footprintx,feature_manager.feature[type].footprintz,-2-map->map_data[y][x].stuff);
-                    features.UnLock();
+                    features.unlock();
                     flags = 4;
                 }
                 else
                     Console->AddEntry("ERROR: could not turn %s into a feature! feature not found!", unit_manager.unit_type[type_id].Unitname);
             }
-        LeaveCS();
+        pMutex.unlock();
 #ifdef	ADVANCED_DEBUG_MODE
         GuardLeave();
 #endif
@@ -2307,14 +2283,14 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
             && !unit_manager.unit_type[ type_id ].BMcode
             && ( mission->mission == MISSION_BUILD_2 || mission->mission == MISSION_BUILD )		// It was building something that we must destroy too
             && mission->p != NULL ) {
-            ((UNIT*)(mission->p))->Lock();
+            ((UNIT*)(mission->p))->lock();
             ((UNIT*)(mission->p))->hp = 0.0f;
             ((UNIT*)(mission->p))->built = false;
-            ((UNIT*)(mission->p))->UnLock();
+            ((UNIT*)(mission->p))->unlock();
         }
         death_timer++;
         if( death_timer == 255 ) {		// Ok we've been dead for a long time now ...
-            LeaveCS();
+            pMutex.unlock();
 #ifdef	ADVANCED_DEBUG_MODE
             GuardLeave();
 #endif
@@ -2330,7 +2306,7 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
                     flags = 1;
                 weapon[0].delay=1.0f;
                 if( flags == 1 ) {
-                    LeaveCS();
+                    pMutex.unlock();
 #ifdef	ADVANCED_DEBUG_MODE
                     GuardLeave();
 #endif
@@ -2340,7 +2316,7 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
             case 4:				// Vérifie si le script est terminé
                 if(weapon[0].delay<=0.0f || !data.explode ) {
                     flags = 1;
-                    LeaveCS();
+                    pMutex.unlock();
                     clear_from_map();
 #ifdef	ADVANCED_DEBUG_MODE
                     GuardLeave();
@@ -2357,7 +2333,7 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
                 return -1;
             default:		// It doesn't explode (it has been reclaimed for example)
                 flags=1;
-                LeaveCS();
+                pMutex.unlock();
                 clear_from_map();
 #ifdef	ADVANCED_DEBUG_MODE
                 GuardLeave();
@@ -3054,9 +3030,9 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
                 else {
                     bool place_is_empty = map->check_rect(n_px-(unit_manager.unit_type[type_id].FootprintX>>1),n_py-(unit_manager.unit_type[type_id].FootprintZ>>1),unit_manager.unit_type[type_id].FootprintX,unit_manager.unit_type[type_id].FootprintZ,idx);
                     if( !place_is_empty ) {
-                        LeaveCS();
+                        pMutex.unlock();
                         clear_from_map();
-                        EnterCS();
+                        pMutex.lock();
                         Console->AddEntry("Unit is blocked!! (2) -> probably spawned on something");
                     }
                 }
@@ -3146,9 +3122,9 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
                             Pos.x = mission->target.x;
                             Pos.z = mission->target.z;
                             if( Dir.Sq() < 3.0f ) {
-                                target_unit->Lock();
+                                target_unit->lock();
                                 if( target_unit->pad1 != 0xFFFF && target_unit->pad2 != 0xFFFF ) {		// We can't land here
-                                    target_unit->UnLock();
+                                    target_unit->unlock();
                                     next_mission();
                                     if( mission && mission->mission == MISSION_STOP )		// Don't stop we were patroling
                                         next_mission();
@@ -3157,7 +3133,7 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
                                 if( target_unit->pad1 == 0xFFFF )			// tell others we're here
                                     target_unit->pad1 = piece_id;
                                 else target_unit->pad2 = piece_id;
-                                target_unit->UnLock();
+                                target_unit->unlock();
                                 mission->data = -mission->data - 1;
                             }
                         }
@@ -3173,11 +3149,11 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
                                 }
                                 if( hp >= unit_manager.unit_type[ type_id ].MaxDamage ) {		// Unit has been repaired
                                     hp = unit_manager.unit_type[ type_id ].MaxDamage;
-                                    target_unit->Lock();
+                                    target_unit->lock();
                                     if( target_unit->pad1 == piece_id )			// tell others we've left
                                         target_unit->pad1 = 0xFFFF;
                                     else target_unit->pad2 = 0xFFFF;
-                                    target_unit->UnLock();
+                                    target_unit->unlock();
                                     next_mission();
                                     if( mission && mission->mission == MISSION_STOP )		// Don't stop we were patroling
                                         next_mission();
@@ -3242,9 +3218,9 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
                                     target_unit->attached = false;
                                     target_unit->hidden = false;
                                     nb_attached = 0;
-                                    LeaveCS();
+                                    pMutex.unlock();
                                     target_unit->draw_on_map();
-                                    EnterCS();
+                                    pMutex.lock();
                                 }
                                 else if( attached_list[0] < 0 || attached_list[0] >= units.max_unit
                                          || units.unit[ attached_list[0] ].flags == 0 )
@@ -3384,29 +3360,29 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
                                 if( mission->mission == MISSION_CAPTURE ) {
                                     mission->data -= (int)(dt * 1000.0f + 0.5f);
                                     if( mission->data <= 0 ) {			// Unit has been captured
-                                        LeaveCS();
+                                        pMutex.unlock();
 
                                         target_unit->clear_from_map();
-                                        target_unit->Lock();
+                                        target_unit->lock();
 
                                         UNIT *new_unit = (UNIT*) create_unit( target_unit->type_id, owner_id, target_unit->Pos, map);
                                         if( new_unit ) {
-                                            new_unit->Lock();
+                                            new_unit->lock();
 
                                             new_unit->Angle = target_unit->Angle;
                                             new_unit->hp = target_unit->hp;
                                             new_unit->build_percent_left = target_unit->build_percent_left;
 
-                                            new_unit->UnLock();
+                                            new_unit->unlock();
                                         }
 
                                         target_unit->flags = 0x14;
                                         target_unit->hp = 0.0f;
                                         target_unit->local = true;		// Force synchronization in networking mode
 
-                                        target_unit->UnLock();
+                                        target_unit->unlock();
 
-                                        EnterCS();
+                                        pMutex.lock();
                                         launch_script(get_script_index(SCRIPT_stopbuilding));
                                         launch_script(get_script_index(SCRIPT_stop));
                                         next_mission();
@@ -3431,9 +3407,9 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
                         next_mission();
                 }
                 else if(mission->data>=0 && mission->data<features.max_features )	{	// Reclaim a feature/wreckage
-                    features.Lock();
+                    features.lock();
                     if( features.feature[mission->data].type <= 0 )	{
-                        features.UnLock();
+                        features.unlock();
                         next_mission();
                         break;
                     }
@@ -3493,26 +3469,26 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
                                     int wreckage_type_id = unit_manager.get_unit_index( wreckage_name.c_str() );
                                     VECTOR obj_pos = features.feature[mission->data].Pos;
                                     float obj_angle = features.feature[mission->data].angle;
-                                    features.UnLock();
+                                    features.unlock();
                                     feature_locked = false;
                                     if( network_manager.isConnected() )
                                         g_ta3d_network->sendFeatureDeathEvent( mission->data );
                                     features.delete_feature(mission->data);			// Delete the object
 
                                     if( wreckage_type_id >= 0 ) {
-                                        LeaveCS();
+                                        pMutex.unlock();
                                         UNIT *unit_p = (UNIT*) create_unit( wreckage_type_id, owner_id, obj_pos, map );
 
                                         if( unit_p ) {
-                                            unit_p->Lock();
+                                            unit_p->lock();
 
                                             unit_p->Angle.y = obj_angle;
                                             unit_p->hp = 0.01f;					// Need to be repaired :P
                                             unit_p->build_percent_left = 0.0f;	// It's finished ...
-                                            unit_p->UnLock();
+                                            unit_p->unlock();
                                             unit_p->draw_on_map();
                                         }
-                                        EnterCS();
+                                        pMutex.lock();
 
                                         if( unit_p ) {
                                             mission->mission = MISSION_REPAIR;		// Now let's repair what we've resurrected
@@ -3529,7 +3505,7 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
                                     }
                                 }
                                 else {
-                                    features.UnLock();
+                                    features.unlock();
                                     feature_locked = false;
                                     if( network_manager.isConnected() )
                                         g_ta3d_network->sendFeatureDeathEvent( mission->data );
@@ -3542,7 +3518,7 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
                         }
                     }
                     if( feature_locked )
-                        features.UnLock();
+                        features.unlock();
                 }
                 else
                     next_mission();
@@ -3603,29 +3579,30 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
                             if( !attacking ) {
                                 pad_timer = 0.0f;
                                 bool going_to_repair_pad = false;
-                                LeaveCS();
-                                units.EnterCS_from_outside();
-                                foreach( units.repair_pads[ owner_id ], i ) {
-                                    units.unit[ *i ].Lock();
+                                pMutex.unlock();
+                                units.lock();
+                                foreach( units.repair_pads[ owner_id ], i )
+                                {
+                                    units.unit[ *i ].lock();
                                     VECTOR Dir = units.unit[ *i ].Pos - Pos;
                                     Dir.y = 0.0f;
                                     if( (units.unit[ *i ].pad1 == 0xFFFF || units.unit[ *i ].pad2 == 0xFFFF) && units.unit[ *i ].build_percent_left == 0.0f
                                         && Dir.Sq() <= SQUARE(unit_manager.unit_type[ type_id ].ManeuverLeashLength)) // He can repair us :)
                                         {
                                             int target_idx = *i;
-                                            units.unit[ target_idx ].UnLock();
-                                            EnterCS();
+                                            units.unit[ target_idx ].unlock();
+                                            pMutex.lock();
                                             add_mission( MISSION_GET_REPAIRED | MISSION_FLAG_AUTO, &units.unit[ *i ].Pos, true, 0, &(units.unit[ *i ]),NULL);
-                                            LeaveCS();
+                                            pMutex.unlock();
                                             units.repair_pads[ owner_id ].erase( i );
                                             units.repair_pads[ owner_id ].push_back( target_idx );		// So we don't try it before others :)
                                             going_to_repair_pad = true;
                                             break;
                                         }
-                                    units.unit[ *i ].UnLock();
+                                    units.unit[ *i ].unlock();
                                 }
-                                units.LeaveCS_from_outside();
-                                EnterCS();
+                                units.unlock();
+                                pMutex.lock();
                                 if( going_to_repair_pad )
                                     break;
                             }
@@ -3903,7 +3880,7 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
                 {
                     UNIT *target_unit=(UNIT*) mission->p;
                     if(target_unit->flags && target_unit->ID == mission->target_ID) {
-                        target_unit->Lock();
+                        target_unit->lock();
                         if(target_unit->build_percent_left <= 0.0f) {
                             target_unit->build_percent_left = 0.0f;
                             if(unit_manager.unit_type[target_unit->type_id].ActivateWhenBuilt ) {		// Start activated
@@ -3965,9 +3942,9 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
                                     }
                                     target_unit->Angle = Angle;
                                     target_unit->Angle.y += data.axe[1][(*script_val)[script_id_buildinfo]].angle;
-                                    LeaveCS();
+                                    pMutex.unlock();
                                     target_unit->draw_on_map();
-                                    EnterCS();
+                                    pMutex.lock();
                                 }
                             }
                             mission->target = target_unit->Pos;
@@ -3977,7 +3954,7 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
                             activate();
                             target_unit->built=true;
                         }
-                        target_unit->UnLock();
+                        target_unit->unlock();
                     }
                     else
                         next_mission();
@@ -4013,9 +3990,9 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
                         if( mission->flags & MISSION_FLAG_MOVE )			// Stop moving if needed
                             stop_moving();
                         if(unit_manager.unit_type[type_id].BMcode || (!unit_manager.unit_type[type_id].BMcode && port[ INBUILDSTANCE ] && port[YARD_OPEN] && !port[BUGGER_OFF])) {
-                            /*								LeaveCS();
+                            /*								pMutex.unlock();
                                                             draw_on_map();
-                                                            EnterCS();*/
+                                                            pMutex.lock();*/
                             V.x = 0.0f;
                             V.y = 0.0f;
                             V.z = 0.0f;
@@ -4031,9 +4008,9 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
                                 }
                             }
                             if(map->check_rect((((int)(mission->target.x)+map->map_w_d+4)>>3)-(unit_manager.unit_type[mission->data].FootprintX>>1),(((int)(mission->target.z)+map->map_h_d+4)>>3)-(unit_manager.unit_type[mission->data].FootprintZ>>1),unit_manager.unit_type[mission->data].FootprintX,unit_manager.unit_type[mission->data].FootprintZ,-1)) {				// Check it we have an empty place to build our unit
-                                LeaveCS();
+                                pMutex.unlock();
                                 mission->p = create_unit(mission->data,owner_id,mission->target,map);
-                                EnterCS();
+                                pMutex.lock();
                                 if(mission->p) {
                                     mission->target_ID = ((UNIT*)mission->p)->ID;
                                     ((UNIT*)(mission->p))->hp=0.000001f;
@@ -4499,15 +4476,15 @@ script_exec:
     if( hp > 0.0f && 
         ((o_px != cur_px || o_py != cur_py || first_move || (was_flying ^ flying) || ((port[YARD_OPEN] != 0.0f) ^ was_open) || yardmap_timer == 0) && build_percent_left <= 0.0f || !drawn ) ) {
         first_move = build_percent_left > 0.0f;
-        LeaveCS();
+        pMutex.unlock();
         draw_on_map();
-        EnterCS();
+        pMutex.lock();
         yardmap_timer = TICKS_PER_SEC + (rand_from_table() & 15);
     }
 
     built=false;
     attacked=false;
-    LeaveCS();
+    pMutex.unlock();
 #ifdef	ADVANCED_DEBUG_MODE
     GuardLeave();
 #endif
@@ -4516,9 +4493,9 @@ script_exec:
 
 bool UNIT::hit(VECTOR P,VECTOR Dir,VECTOR *hit_vec, float length)
 {
-    EnterCS();
+    pMutex.lock();
     if(!(flags&1))	{
-        LeaveCS();
+        pMutex.unlock();
         return false;
     }
     if(model) {
@@ -4533,19 +4510,19 @@ bool UNIT::hit(VECTOR P,VECTOR Dir,VECTOR *hit_vec, float length)
                 *hit_vec=((*hit_vec-P)%Dir)*Dir+P;
             }
 
-            LeaveCS();
+            pMutex.unlock();
             return is_hit;
         }
     }
-    LeaveCS();
+    pMutex.unlock();
     return false;
 }
 
 bool UNIT::hit_fast(VECTOR P,VECTOR Dir,VECTOR *hit_vec, float length)
 {
-    EnterCS();
+    pMutex.lock();
     if(!(flags&1))	{
-        LeaveCS();
+        pMutex.unlock();
         return false;
     }
     if(model) {
@@ -4560,18 +4537,18 @@ bool UNIT::hit_fast(VECTOR P,VECTOR Dir,VECTOR *hit_vec, float length)
                 *hit_vec=((*hit_vec-P)%Dir)*Dir+P;
             }
 
-            LeaveCS();
+            pMutex.unlock();
             return is_hit;
         }
     }
-    LeaveCS();
+    pMutex.unlock();
     return false;
 }
 
 void UNIT::show_orders(bool only_build_commands, bool def_orders)				// Dessine les ordres reçus
 {
     if( !def_orders )	show_orders( only_build_commands, true );
-    EnterCS();
+    pMutex.lock();
 
     bool low_def = game_cam->RPos.y > gfx->low_def_limit;
 
@@ -4855,12 +4832,12 @@ void UNIT::show_orders(bool only_build_commands, bool def_orders)				// Dessine 
 
     glDisable(GL_BLEND);
 
-    LeaveCS();
+    pMutex.unlock();
 }
 
 bool INGAME_UNITS::select(CAMERA *cam,int sel_x[],int sel_y[])
 {
-    EnterCS();
+    pMutex.lock();
 
     bool selected=false;
     cam->SetView();
@@ -4885,13 +4862,13 @@ bool INGAME_UNITS::select(CAMERA *cam,int sel_x[],int sel_y[])
 
     for(uint16 e=0;e<index_list_size;e++) {
         uint16 i = idx_list[e];
-        LeaveCS();
-        unit[ i ].Lock();
+        pMutex.unlock();
+        unit[ i ].lock();
         if( (unit[i].flags & 1) && unit[i].owner_id==players.local_human_id && unit[i].build_percent_left==0.0f && unit[i].visible) {		// Ne sélectionne que les unités achevées
             if(key[KEY_LSHIFT] && unit[i].sel) {
                 selected=true;
-                unit[ i ].UnLock();
-                EnterCS();
+                unit[ i ].unlock();
+                pMutex.lock();
                 continue;
             }
             if(!key[KEY_LSHIFT])
@@ -4900,8 +4877,8 @@ bool INGAME_UNITS::select(CAMERA *cam,int sel_x[],int sel_y[])
             VECTOR Vec=unit[i].Pos-cam->Pos;
             float d=Vec.Sq();
             if(d>16384.0f && (Vec%cam->Dir)<=0.0f) {
-                unit[ i ].UnLock();
-                EnterCS();
+                unit[ i ].unlock();
+                pMutex.lock();
                 continue;
             }
 
@@ -4912,11 +4889,11 @@ bool INGAME_UNITS::select(CAMERA *cam,int sel_x[],int sel_y[])
             if(X1<=UPos.x && X2>=UPos.x && Y1<=UPos.y && Y2>=UPos.y)
                 selected=unit[i].sel=true;
         }
-        unit[ i ].UnLock();
-        EnterCS();
+        unit[ i ].unlock();
+        pMutex.lock();
     }
 
-    LeaveCS();
+    pMutex.unlock();
 
     return selected;
 }
@@ -4937,15 +4914,15 @@ int INGAME_UNITS::pick(CAMERA *cam,int sensibility)
     bool detectable=false;
     int i;
 
-    EnterCS();
+    pMutex.lock();
     for(uint16 e=0;e<index_list_size;e++) {
         i = idx_list[e];
-        LeaveCS();
+        pMutex.unlock();
 
-        unit[ i ].Lock();
+        unit[ i ].lock();
         if( !(unit[i].flags & 1) || !unit[i].visible ) {
-            unit[ i ].UnLock();
-            EnterCS();
+            unit[ i ].unlock();
+            pMutex.lock();
             continue;		// Si l'unité n'existe pas on la zappe
         }
         unit[i].flags &= 0xFD;	// Enlève l'indicateur de possibilité d'intersection
@@ -4957,10 +4934,10 @@ int INGAME_UNITS::pick(CAMERA *cam,int sensibility)
             detectable=true;
             unit[i].flags|=0x2;		// Unité détectable
         }
-        unit[ i ].UnLock();
-        EnterCS();
+        unit[ i ].unlock();
+        pMutex.lock();
     }
-    LeaveCS();
+    pMutex.unlock();
 
     if(!detectable) {			// If no unit is near the cursor, then skip the precise method
         last_on = index;
@@ -4970,15 +4947,15 @@ int INGAME_UNITS::pick(CAMERA *cam,int sensibility)
 
     float best_dist = 1000000.0f;
 
-    EnterCS();
+    pMutex.lock();
     for(uint16 e=0;e<index_list_size;e++) {
         i = idx_list[e];
-        LeaveCS();
+        pMutex.unlock();
 
-        unit[ i ].Lock();
+        unit[ i ].lock();
         if( !(unit[i].flags & 1) || !unit[i].visible ) {
-            unit[ i ].UnLock();
-            EnterCS();
+            unit[ i ].unlock();
+            pMutex.lock();
             continue;		// Si l'unité n'existe pas on la zappe
         }
         if((unit[i].flags&0x2)==0x2) {			// Si l'unité existe et est sélectionnable
@@ -4992,10 +4969,10 @@ int INGAME_UNITS::pick(CAMERA *cam,int sensibility)
                 }
             }
         }
-        unit[ i ].UnLock();
-        EnterCS();
+        unit[ i ].unlock();
+        pMutex.lock();
     }
-    LeaveCS();
+    pMutex.unlock();
 
     last_on = index;
 
@@ -5018,15 +4995,15 @@ int INGAME_UNITS::pick_minimap()
 
     byte player_mask = 1 << players.local_human_id;
 
-    EnterCS();
+    pMutex.lock();
     for(uint16 e=0;e<index_list_size;e++) {
         i = idx_list[e];
-        LeaveCS();
+        pMutex.unlock();
 
-        unit[ i ].Lock();
+        unit[ i ].lock();
         if( !(unit[i].flags & 1) ) {
-            unit[ i ].UnLock();
-            EnterCS();
+            unit[ i ].unlock();
+            pMutex.lock();
             continue;		// Si l'unité n'existe pas on la zappe
         }
 
@@ -5034,14 +5011,14 @@ int INGAME_UNITS::pick_minimap()
             int px = unit[i].cur_px >> 1;
             int py = unit[i].cur_py >> 1;
             if( px < 0 || py < 0 || px >= map->bloc_w || py >= map->bloc_h ) {
-                unit[ i ].UnLock();
-                EnterCS();
+                unit[ i ].unlock();
+                pMutex.lock();
                 continue;	// Out of the map
             }
             if( !( map->view_map->line[ py ][ px ] & player_mask ) && !(map->sight_map->line[ py ][ px ] & player_mask)
                 && !unit[i].is_on_radar( player_mask ) ) {
-                unit[ i ].UnLock();
-                EnterCS();
+                unit[ i ].unlock();
+                pMutex.lock();
                 continue;	// Not visible
             }
         }
@@ -5051,16 +5028,16 @@ int INGAME_UNITS::pick_minimap()
 
         if( x == mouse_x && y == mouse_y )	{
             last_on = i;
-            unit[ i ].UnLock();
+            unit[ i ].unlock();
             return i;
         }
 
         if( abs(mouse_x - x) <= 1 && abs(mouse_y - y) <= 1 )	index = i;
 
-        unit[ i ].UnLock();
-        EnterCS();
+        unit[ i ].unlock();
+        pMutex.lock();
     }
-    LeaveCS();
+    pMutex.unlock();
 
     last_on = index;
     return index;
@@ -5076,9 +5053,9 @@ int UNIT::shoot(int target,VECTOR startpos,VECTOR Dir,int w_id,const VECTOR &tar
 
     if(unit_manager.unit_type[type_id].weapon[w_id]->startsmoke && visible)
         particle_engine.make_smoke(startpos,0,1,0.0f,-1.0f,0.0f, 0.3f);
-    LeaveCS();
+    pMutex.unlock();
 
-    weapons.Lock();
+    weapons.lock();
 
     int w_idx = weapons.add_weapon(unit_manager.unit_type[type_id].weapon[w_id]->nb_id,idx);
 
@@ -5104,7 +5081,7 @@ int UNIT::shoot(int target,VECTOR startpos,VECTOR Dir,int w_id,const VECTOR &tar
         network_manager.sendEvent( &event );
     }
 
-    EnterCS();
+    pMutex.lock();
     weapons.weapon[w_idx].damage = unit_manager.unit_type[type_id].weapon[ w_id ]->damage;
     weapons.weapon[w_idx].Pos = startpos;
     weapons.weapon[w_idx].local = local;
@@ -5127,7 +5104,7 @@ int UNIT::shoot(int target,VECTOR startpos,VECTOR Dir,int w_id,const VECTOR &tar
     weapons.weapon[w_idx].stime=0.0f;
     weapons.weapon[w_idx].visible=visible;
 
-    weapons.UnLock();
+    weapons.unlock();
 
     return w_idx;
 }
@@ -5145,7 +5122,7 @@ void UNIT::draw_on_map()
         units.map->air_rect( cur_px-(unit_manager.unit_type[type_id].FootprintX>>1), cur_py-(unit_manager.unit_type[type_id].FootprintZ>>1), unit_manager.unit_type[type_id].FootprintX, unit_manager.unit_type[type_id].FootprintZ, idx );
     else {
         // First check we're on a "legal" place if it can move
-        EnterCS();
+        pMutex.lock();
         if( unit_manager.unit_type[ type_id ].canmove && unit_manager.unit_type[ type_id ].BMcode
             && !can_be_there( cur_px, cur_py, units.map, type_id, owner_id ) ) {
             // Try to find a suitable place
@@ -5193,7 +5170,7 @@ void UNIT::draw_on_map()
                 printf("error: units overlaps on yardmap !!\n");
 
         }
-        LeaveCS();
+        pMutex.unlock();
 
         units.map->rect( cur_px-(unit_manager.unit_type[type_id].FootprintX>>1), cur_py-(unit_manager.unit_type[type_id].FootprintZ>>1), unit_manager.unit_type[type_id].FootprintX, unit_manager.unit_type[type_id].FootprintZ, idx, unit_manager.unit_type[type_id].yardmap, port[YARD_OPEN]!=0.0f );
         drawn_open = port[YARD_OPEN]!=0.0f;
@@ -5247,12 +5224,12 @@ void UNIT::draw_on_FOW( bool jamming )
 
 const void UNIT::play_sound( const String &key )
 {
-    EnterCS();
+    pMutex.lock();
     if( owner_id == players.local_human_id && msec_timer - last_time_sound >= units.sound_min_ticks ) {
         last_time_sound = msec_timer;
         sound_manager->PlayTDFSound( unit_manager.unit_type[ type_id ].soundcategory, key , &Pos );
     }
-    LeaveCS();
+    pMutex.unlock();
 }
 
 int UNIT::launch_script(int id,int nb_param,int *param,bool force)			// Start a script as a separate "thread" of the unit
@@ -5279,7 +5256,7 @@ int UNIT::launch_script(int id,int nb_param,int *param,bool force)			// Start a 
         network_manager.sendEvent( &event );
     }
 
-    EnterCS();
+    pMutex.lock();
     if( script_env->size() <= nb_running )
         script_env->resize( nb_running + 1 );
     (*script_env)[nb_running].init();
@@ -5291,7 +5268,7 @@ int UNIT::launch_script(int id,int nb_param,int *param,bool force)			// Start a 
         for(int i=0;i<nb_param;i++)
             (*script_env)[nb_running].env->var[i]=param[i];
     int script_id = nb_running++;
-    LeaveCS();
+    pMutex.unlock();
     return script_id;
 }
 
@@ -5299,7 +5276,7 @@ void *create_unit( int type_id, int owner, VECTOR pos, MAP *map, bool sync, bool
 {
     int id = units.create(type_id,owner);
     if(id>=0) {
-        units.unit[id].Lock();
+        units.unit[id].lock();
 
         if( network_manager.isConnected() ) {
             units.unit[id].local = g_ta3d_network->isLocal( owner );
@@ -5319,7 +5296,7 @@ void *create_unit( int type_id, int owner, VECTOR pos, MAP *map, bool sync, bool
         units.unit[id].build_percent_left=100.0f;
         units.unit[id].cur_px = ((int)(units.unit[id].Pos.x)+map->map_w_d+4)>>3;
         units.unit[id].cur_py = ((int)(units.unit[id].Pos.z)+map->map_h_d+4)>>3;
-        units.unit[id].UnLock();
+        units.unit[id].unlock();
 
         units.unit[id].draw_on_map();
 
@@ -5426,7 +5403,7 @@ const bool can_be_built(const VECTOR Pos,MAP *map,const int unit_type_id, const 
 
 void INGAME_UNITS::complete_menu(int index,bool hide_info,bool hide_bpic)
 {
-    EnterCS();
+    pMutex.lock();
 
     bool	pointed_only = false;
     if( last_on >= 0 && ( last_on >= max_unit || unit[ last_on ].flags == 0 ) ) 	last_on = -1;
@@ -5434,7 +5411,7 @@ void INGAME_UNITS::complete_menu(int index,bool hide_info,bool hide_bpic)
         if( last_on >= 0 )
             pointed_only = true;
         else {
-            LeaveCS();
+            pMutex.unlock();
             return;		// On n'affiche que des données sur les unités EXISTANTES
         }
     }
@@ -5503,22 +5480,22 @@ void INGAME_UNITS::complete_menu(int index,bool hide_info,bool hide_bpic)
     }
 
     if( !hide_info ) {
-        LeaveCS();
+        pMutex.unlock();
 
-        unit[index].Lock();
+        unit[index].lock();
 
         if( unit[index].type_id >= 0 && (unit[index].flags & 1) ) {
             glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
             gfx->print_center(gfx->normal_font, ta3d_sidedata.side_int_data[ players.side_view ].UnitName.x1, ta3d_sidedata.side_int_data[ players.side_view ].UnitName.y1,0.0f,0xFFFFFFFF,unit_manager.unit_type[unit[index].type_id].name);
             if(target && unit[index].mission && (unit[index].mission->flags & MISSION_FLAG_TARGET_WEAPON) != MISSION_FLAG_TARGET_WEAPON) {
-                unit[index].UnLock();
-                target->Lock();
+                unit[index].unlock();
+                target->lock();
                 if( (target->flags & 1) && target->type_id >= 0 ) {
                     glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
                     gfx->print_center(gfx->normal_font, ta3d_sidedata.side_int_data[ players.side_view ].UnitName2.x1, ta3d_sidedata.side_int_data[ players.side_view ].UnitName2.y1,0.0f,0xFFFFFFFF,unit_manager.unit_type[target->type_id].name);
                 }
-                target->UnLock();
-                unit[index].Lock();
+                target->unlock();
+                unit[index].lock();
             }
             else if( unit[index].planned_weapons>0.0f && unit[index].owner_id == players.local_human_id ) {
                 glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
@@ -5561,16 +5538,16 @@ void INGAME_UNITS::complete_menu(int index,bool hide_info,bool hide_bpic)
 
             if( unit[index].owner_id == players.local_human_id ) {
                 if(target && (unit[index].mission->flags & MISSION_FLAG_TARGET_WEAPON)!=MISSION_FLAG_TARGET_WEAPON ) {
-                    unit[index].UnLock();
-                    target->Lock();
+                    unit[index].unlock();
+                    target->lock();
                     if( (target->flags & 1) && target->type_id >= 0 && !unit_manager.unit_type[target->type_id].HideDamage ) {			// Si l'unité a une cible
                         glVertex2i( ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.x1, ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.y1 );
                         glVertex2i( ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.x2, ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.y1 );
                         glVertex2i( ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.x2, ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.y2 );
                         glVertex2i( ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.x1, ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.y2 );
                     }
-                    target->UnLock();
-                    unit[index].Lock();
+                    target->unlock();
+                    unit[index].lock();
                 }
                 else if( unit[index].planned_weapons>0.0f ) {
                     glVertex2i( ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.x1, ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.y1 );
@@ -5591,16 +5568,16 @@ void INGAME_UNITS::complete_menu(int index,bool hide_info,bool hide_bpic)
 
             if( unit[index].owner_id == players.local_human_id ) {
                 if(target && (unit[index].mission->flags & MISSION_FLAG_TARGET_WEAPON)!=MISSION_FLAG_TARGET_WEAPON ) {
-                    unit[index].UnLock();
-                    target->Lock();
+                    unit[index].unlock();
+                    target->lock();
                     if( (target->flags & 1) && target->type_id >= 0 && !unit_manager.unit_type[target->type_id].HideDamage && target->hp>0) {
                         glVertex2f( ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.x1, ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.y1 );
                         glVertex2f( ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.x1 + target->hp / unit_manager.unit_type[target->type_id].MaxDamage * (ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.x2-ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.x1), ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.y1 );
                         glVertex2f( ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.x1 + target->hp / unit_manager.unit_type[target->type_id].MaxDamage * (ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.x2-ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.x1), ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.y2 );
                         glVertex2f( ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.x1, ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.y2 );
                     }
-                    target->UnLock();
-                    unit[index].Lock();
+                    target->unlock();
+                    unit[index].lock();
                 }
                 else if( unit[index].planned_weapons>0.0f ) {						// construit une arme / build a weapon
                     float p=1.0f-(unit[index].planned_weapons-(int)unit[index].planned_weapons);
@@ -5615,8 +5592,8 @@ void INGAME_UNITS::complete_menu(int index,bool hide_info,bool hide_bpic)
             glEnd();
         }
 
-        unit[index].UnLock();
-        EnterCS();
+        unit[index].unlock();
+        pMutex.lock();
     }
     else {
         glDisable( GL_BLEND );
@@ -5626,7 +5603,7 @@ void INGAME_UNITS::complete_menu(int index,bool hide_info,bool hide_bpic)
 
     set_uformat(U_UTF8);
 
-    LeaveCS();
+    pMutex.unlock();
 }
 
 void INGAME_UNITS::move(float dt,MAP *map,int key_frame,bool wind_change)
@@ -5644,12 +5621,12 @@ void INGAME_UNITS::move(float dt,MAP *map,int key_frame,bool wind_change)
         pathfinder_calls[ i ] = requests[ i ].empty() ? -1 : requests[ i ].front();
 
     uint32 i;
-    EnterCS();
+    pMutex.lock();
     for( uint16 e = 0 ; e < index_list_size ; e++ ) {		// Compte les stocks de ressources et les productions
         i = idx_list[e];
-        LeaveCS();
+        pMutex.unlock();
 
-        unit[i].Lock();
+        unit[i].lock();
 
         if( unit[i].just_created && unit_manager.unit_type[unit[i].type_id].ExtractsMetal ) {	// Compute amount of metal extracted by sec
             int metal_base = 0;
@@ -5709,10 +5686,10 @@ void INGAME_UNITS::move(float dt,MAP *map,int key_frame,bool wind_change)
                     unit[i].energy_cons=unit_manager.unit_type[unit[i].type_id].EnergyUse;
             }
         }
-        unit[i].UnLock();
-        EnterCS();
+        unit[i].unlock();
+        pMutex.lock();
     }
-    LeaveCS();
+    pMutex.unlock();
 
     exp_dt_1=exp(-dt);
     exp_dt_2=exp(-2.0f*dt);
@@ -5720,18 +5697,18 @@ void INGAME_UNITS::move(float dt,MAP *map,int key_frame,bool wind_change)
     g_dt=dt*map->ota_data.gravity;
     int *path_exec = new int[ players.nb_player ];
     memset( path_exec, 0, sizeof( int ) * players.nb_player );
-    EnterCS();
+    pMutex.lock();
     for( uint16 e = 0 ; e < index_list_size ; e++ ) {
         i = idx_list[e];
-        LeaveCS();
+        pMutex.unlock();
 
-        unit[ i ].Lock();
+        unit[ i ].lock();
 
         if( unit[ i ].flags == 0 ) {		// ho ho what is it doing there ??
-            unit[ i ].UnLock();
+            unit[ i ].unlock();
             kill(i,map,e);
             e--;			// Can't skip a unit
-            EnterCS();
+            pMutex.lock();
             continue;
         }
 
@@ -5741,7 +5718,7 @@ void INGAME_UNITS::move(float dt,MAP *map,int key_frame,bool wind_change)
             if(unit[i].built)		nb_built++;
         }
         players.c_nb_unit[unit[i].owner_id]++;			// Compte les unités de chaque joueur
-        unit[ i ].UnLock();
+        unit[ i ].unlock();
         if(unit[i].move(dt,map,path_exec,key_frame)==-1) {			// Vérifie si l'unité a été détruite
             if( unit[i].local ) {				// Don't kill remote units, since we're told when to kill them
                 kill(i,map,e);
@@ -5749,7 +5726,7 @@ void INGAME_UNITS::move(float dt,MAP *map,int key_frame,bool wind_change)
             }
         }
         else {
-            unit[ i ].Lock();
+            unit[ i ].lock();
             players.c_metal_t[unit[i].owner_id] += unit[i].metal_prod;
             players.c_metal_u[unit[i].owner_id] += unit[i].metal_cons;
             players.c_energy_t[unit[i].owner_id] += unit[i].energy_prod;
@@ -5759,11 +5736,11 @@ void INGAME_UNITS::move(float dt,MAP *map,int key_frame,bool wind_change)
             unit[i].cur_energy_prod = unit[i].energy_prod;
             unit[i].cur_metal_cons = unit[i].metal_cons;
             unit[i].cur_metal_prod = unit[i].metal_prod;
-            unit[ i ].UnLock();
+            unit[ i ].unlock();
         }
-        EnterCS();
+        pMutex.lock();
     }
-    LeaveCS();
+    pMutex.unlock();
 
     delete[] path_exec;
 
@@ -5771,7 +5748,7 @@ void INGAME_UNITS::move(float dt,MAP *map,int key_frame,bool wind_change)
     nb_attacked*=exp_r;
     nb_built*=exp_r;
 
-    EnterCS();
+    pMutex.lock();
 
     for(i=0;i<players.nb_player;i++) {
         players.c_annihilated[ i ] = !players.c_nb_unit[ i ];		// Has this player units ?
@@ -5801,7 +5778,7 @@ void INGAME_UNITS::move(float dt,MAP *map,int key_frame,bool wind_change)
 
     players.refresh();
 
-    LeaveCS();
+    pMutex.unlock();
 }
 
 int INGAME_UNITS::create(int type_id,int owner)
@@ -5811,7 +5788,7 @@ int INGAME_UNITS::create(int type_id,int owner)
     if(nb_unit>=MAX_UNIT_PER_PLAYER*NB_PLAYERS)		return -1;
     if( free_index_size[owner] <= 0 && max_unit > 0 )	return -1;
 
-    EnterCS();
+    pMutex.lock();
 
     nb_unit++;
     if(nb_unit>max_unit && max_unit == 0) {
@@ -5859,7 +5836,7 @@ int INGAME_UNITS::create(int type_id,int owner)
     if(free_index_size[owner]<=0) {
         printf("unit limit reached!\n");
 
-        LeaveCS();
+        pMutex.unlock();
 
         return -1;
     }
@@ -5876,7 +5853,7 @@ int INGAME_UNITS::create(int type_id,int owner)
 
     players.nb_unit[owner]++;
 
-    LeaveCS();
+    pMutex.unlock();
 
     return unit_index;
 }
@@ -5912,24 +5889,24 @@ void INGAME_UNITS::draw_mini(float map_w,float map_h,int mini_w,int mini_h,SECTO
                                           i );
     }
 
-    EnterCS();
+    pMutex.lock();
     for( uint16 e=0 ; e < index_list_size ; e++) {
         uint16 i = idx_list[e];
-        LeaveCS();
+        pMutex.unlock();
 
-        units.unit[ i ].Lock();
+        units.unit[ i ].lock();
 
         if(unit[i].flags&1) {
             int px=unit[i].cur_px;
             int py=unit[i].cur_py;
             if(px<0 || py<0 || px>=b_w || py>=b_h) {
-                units.unit[ i ].UnLock();
-                EnterCS();
+                units.unit[ i ].unlock();
+                pMutex.lock();
                 continue;
             }
             if( (!(map->view_map->line[py>>1][px>>1]&mask) || !(map->sight_map->line[py>>1][px>>1]&mask) || (unit[i].cloaked && unit[i].owner_id != players.local_human_id ) ) && !unit[i].on_mini_radar ) {
-                units.unit[ i ].UnLock();
-                EnterCS();
+                units.unit[ i ].unlock();
+                pMutex.lock();
                 continue;	// Unité non visible / Unit is not visible
             }
             //			unit[i].flags|=0x10;
@@ -5937,10 +5914,10 @@ void INGAME_UNITS::draw_mini(float map_w,float map_h,int mini_w,int mini_h,SECTO
             mini_pos[ (nb << 1) + 1 ] = unit[i].Pos.z;
             mini_col[ nb++ ] = player_col_32_h[ unit[i].owner_id ];
         }
-        units.unit[ i ].UnLock();
-        EnterCS();
+        units.unit[ i ].unlock();
+        pMutex.lock();
     }
-    LeaveCS();
+    pMutex.unlock();
     glEnableClientState(GL_VERTEX_ARRAY);		// vertex coordinates
     glEnableClientState(GL_COLOR_ARRAY);		// Colors(for fog of war)
     glDisableClientState(GL_TEXTURE_COORD_ARRAY);		// vertex coordinates
@@ -5981,15 +5958,15 @@ void INGAME_UNITS::draw_mini(float map_w,float map_h,int mini_w,int mini_h,SECTO
 
     int cur_id = -1;
     glBegin( GL_POINTS );
-    EnterCS();
+    pMutex.lock();
     for(uint16 e=0;e<index_list_size;e++) {
         uint16 i = idx_list[e];
-        LeaveCS();
+        pMutex.unlock();
 
-        units.unit[ i ].Lock();
+        units.unit[ i ].lock();
         if( units.unit[ i ].cur_px < 0 || units.unit[ i ].cur_py < 0 || units.unit[ i ].cur_px >= b_w || units.unit[ i ].cur_py >= b_h ) {
-            units.unit[ i ].UnLock();
-            EnterCS();
+            units.unit[ i ].unlock();
+            pMutex.lock();
             continue;
         }
 
@@ -6020,10 +5997,10 @@ void INGAME_UNITS::draw_mini(float map_w,float map_h,int mini_w,int mini_h,SECTO
             glColor3f(player_color[3*player_color_map[cur_id]],player_color[3*player_color_map[cur_id]+1],player_color[3*player_color_map[cur_id]+2]);
             glVertex2f(pos_x,pos_y);
         }
-        units.unit[ i ].UnLock();
-        EnterCS();
+        units.unit[ i ].unlock();
+        pMutex.lock();
     }
-    LeaveCS();
+    pMutex.unlock();
     glEnd();
     glPointSize(1.0f);
     glEnable(GL_TEXTURE_2D);
@@ -6035,7 +6012,7 @@ void INGAME_UNITS::kill(int index,MAP *map,int prev,bool sync)			// Détruit une
 {
     if(index<0 || index>=max_unit || prev<0 || prev>=index_list_size)	return;		// On ne peut pas détruire une unité qui n'existe pas
 
-    unit[index].Lock();
+    unit[index].lock();
 
     if( unit[index].local && network_manager.isConnected() && sync ) {		// Send EVENT_UNIT_DEATH
         struct event event;
@@ -6047,13 +6024,13 @@ void INGAME_UNITS::kill(int index,MAP *map,int prev,bool sync)			// Détruit une
     if( unit[ index ].type_id >= 0 && unit_manager.unit_type[ unit[ index ].type_id ].IsAirBase ) {		// Remove it from repair_pads list
         int owner_id = unit[ index ].owner_id;
 
-        EnterCS();
+        pMutex.lock();
         foreach( repair_pads[ owner_id ], i )
             if( *i == index ) {
                 repair_pads[ owner_id ].erase( i );
                 break;
             }
-        LeaveCS();
+        pMutex.unlock();
     }
 
     if( unit[index].flags & 1 ) {
@@ -6061,36 +6038,36 @@ void INGAME_UNITS::kill(int index,MAP *map,int prev,bool sync)			// Détruit une
             && !unit_manager.unit_type[ unit[ index ].type_id ].BMcode
             && ( unit[ index ].mission->mission == MISSION_BUILD_2 || unit[ index ].mission->mission == MISSION_BUILD )		// It was building something that we must destroy too
             && unit[ index ].mission->p != NULL ) {
-            ((UNIT*)(unit[ index ].mission->p))->Lock();
+            ((UNIT*)(unit[ index ].mission->p))->lock();
             ((UNIT*)(unit[ index ].mission->p))->hp = 0.0f;
             ((UNIT*)(unit[ index ].mission->p))->built = false;
-            ((UNIT*)(unit[ index ].mission->p))->UnLock();
+            ((UNIT*)(unit[ index ].mission->p))->unlock();
         }
         players.nb_unit[ unit[index].owner_id ]--;
         players.losses[ unit[index].owner_id ]++;		// Statistics
     }
 
-    unit[index].UnLock();
+    unit[index].unlock();
     unit[index].clear_from_map();
-    unit[index].Lock();
+    unit[index].lock();
 
     if(unit[index].type_id >= 0 && unit_manager.unit_type[unit[index].type_id].canload && unit[index].nb_attached>0)
         for( int i = 0 ; i < unit[index].nb_attached ; i++ ) {
-            unit[unit[index].attached_list[i]].Lock();
+            unit[unit[index].attached_list[i]].lock();
             unit[unit[index].attached_list[i]].hp = 0.0f;
-            unit[unit[index].attached_list[i]].UnLock();
+            unit[unit[index].attached_list[i]].unlock();
         }
-    unit[index].UnLock();
+    unit[index].unlock();
     unit[index].destroy();		// Détruit l'unité
 
-    EnterCS();
+    pMutex.lock();
 
     uint16 owner = index/MAX_UNIT_PER_PLAYER;
     free_idx[ MAX_UNIT_PER_PLAYER * owner + free_index_size[ owner ]++ ] = index;
     idx_list[ prev ] = idx_list[ --index_list_size ];
     nb_unit--;		// Unité détruite
 
-    LeaveCS();
+    pMutex.unlock();
 }
 
 void INGAME_UNITS::draw(CAMERA *cam,MAP *map,bool underwater,bool limit,bool cullface,bool height_line)					// Dessine les unités visibles
@@ -6110,21 +6087,21 @@ void INGAME_UNITS::draw(CAMERA *cam,MAP *map,bool underwater,bool limit,bool cul
     float sea_lvl = limit ? map->sealvl-5.0f : map->sealvl;
     float virtual_t = (float)current_tick / TICKS_PER_SEC;
     cam->SetView();
-    EnterCS();
+    pMutex.lock();
     for(uint16 e=0;e<index_list_size;e++) {
         uint16 i = idx_list[e];
-        LeaveCS();
+        pMutex.unlock();
 
-        unit[i].Lock();
+        unit[i].lock();
         if( (unit[i].flags & 1) && ((unit[i].Pos.y + unit[i].model->bottom <= map->sealvl && underwater) || (unit[i].Pos.y + unit[i].model->top >= sea_lvl && !underwater))) {				// Si il y a une unité
-            unit[i].UnLock();
+            unit[i].unlock();
             unit[i].draw(virtual_t,cam,map,height_line);
         }
         else
-            unit[i].UnLock();
-        EnterCS();
+            unit[i].unlock();
+        pMutex.lock();
     }
-    LeaveCS();
+    pMutex.unlock();
 
     glDisable(GL_ALPHA_TEST);
 
@@ -6157,16 +6134,16 @@ void INGAME_UNITS::draw_shadow(CAMERA *cam,VECTOR Dir,MAP *map,float alpha)					
 
         for(uint16 e=0;e<index_list_size;e++)
         {
-            EnterCS();
+            pMutex.lock();
             uint16 i = idx_list[e];
-            LeaveCS();
+            pMutex.unlock();
 
             gfx->lock();
 
-            unit[i].Lock();
+            unit[i].lock();
             if(unit[i].flags & 1)				// Si il y a une unité
                 unit[i].draw_shadow(cam,Dir,map);
-            unit[i].UnLock();
+            unit[i].unlock();
 
             gfx->unlock();
         }
@@ -6181,15 +6158,15 @@ void INGAME_UNITS::draw_shadow(CAMERA *cam,VECTOR Dir,MAP *map,float alpha)					
         glEnable(GL_CULL_FACE);
 
         for(uint16 e=0;e<index_list_size;e++) {
-            EnterCS();
+            pMutex.lock();
             uint16 i = idx_list[e];
-            LeaveCS();
+            pMutex.unlock();
 
             gfx->lock();
-            unit[i].Lock();
+            unit[i].lock();
             if(unit[i].flags & 1)					// Si il y a une unité
                 unit[i].draw_shadow_basic(cam,Dir,map);
-            unit[i].UnLock();
+            unit[i].unlock();
             gfx->unlock();
         }
     }
@@ -6224,29 +6201,35 @@ void INGAME_UNITS::draw_shadow(CAMERA *cam,VECTOR Dir,MAP *map,float alpha)					
 
 void INGAME_UNITS::remove_order(int player_id,VECTOR target)
 {
-    EnterCS();
-    for(uint16 e=0;e<index_list_size;e++) {
+    pMutex.lock();
+    for(uint16 e=0;e<index_list_size;e++)
+    {
         uint16 i = idx_list[e];
-        LeaveCS();
-        unit[i].Lock();
+        pMutex.unlock();
+        unit[i].lock();
         if( (unit[i].flags & 1) && !unit[i].command_locked && unit[i].owner_id==player_id && unit[i].sel && unit[i].build_percent_left==0.0f ) {	// && unit_manager.unit_type[unit[i].type_id].Builder) {
             MISSION *mission = unit_manager.unit_type[unit[i].type_id].BMcode ? unit[i].mission : unit[i].def_mission;
             MISSION *prec = mission;
             if( mission != NULL && unit_manager.unit_type[unit[i].type_id].BMcode )		mission = mission->next;		// Don't read the first one ( which is being executed )
 
             MISSION fake;
-            if( !unit_manager.unit_type[unit[i].type_id].BMcode ) {			// It's a hack to make sure it will work with first given order
+            if( !unit_manager.unit_type[unit[i].type_id].BMcode ) // It's a hack to make sure it will work with first given order
+            {
                 fake.next = mission;
                 prec = &fake;
             }
 
-            while( mission ) {					// Reads the mission list
-                if( mission->mission == MISSION_BUILD ) {
+            while( mission ) // Reads the mission list
+            {
+                if( mission->mission == MISSION_BUILD )
+                {
                     prec = mission;
                     mission = mission->next;
                 }
-                else {
-                    if( !mission->step && (mission->target - target).Sq() < 256.0f ) {		// Remove it
+                else
+                {
+                    if( !mission->step && (mission->target - target).Sq() < 256.0f ) // Remove it
+                    {
                         MISSION *tmp = mission;
                         mission = mission->next;
                         prec->next = mission;
@@ -6261,10 +6244,10 @@ void INGAME_UNITS::remove_order(int player_id,VECTOR target)
                 }
             }
         }
-        unit[i].UnLock();
-        EnterCS();
+        unit[i].unlock();
+        pMutex.lock();
         }
-        LeaveCS();
+        pMutex.unlock();
     }
 
     uint32 INGAME_UNITS::InterfaceMsg( const lpcImsg msg )
@@ -6310,7 +6293,7 @@ void INGAME_UNITS::remove_order(int player_id,VECTOR target)
 
         unit_engine_thread_sync = 0;
 
-        ThreadSynchroniser->EnterSync();
+        ThreadSynchroniser->lock();
 
         while( !thread_ask_to_stop )
         {
@@ -6318,7 +6301,7 @@ void INGAME_UNITS::remove_order(int player_id,VECTOR target)
 
             move( dt, map, current_tick, wind_change );					// Animate units
 
-            EnterCS();
+            pMutex.lock();
 
             if( map->fog_of_war )
             {
@@ -6341,11 +6324,13 @@ void INGAME_UNITS::remove_order(int player_id,VECTOR target)
             }
 
             wind_change = false;
-            LeaveCS();
+            pMutex.unlock();
 
             uint32 min_tick = 1000 * current_tick + 30000;
-            if( network_manager.isConnected() ) {
-                if( network_manager.isServer() ) {
+            if( network_manager.isConnected() )
+            {
+                if( network_manager.isServer() )
+                {
                     for( int i = 0 ; i < players.nb_player ; i++ )
                         if( g_ta3d_network->isRemoteHuman( i ) )
                             min_tick = min( min_tick, client_tick[i] );
@@ -6374,7 +6359,7 @@ void INGAME_UNITS::remove_order(int player_id,VECTOR target)
             if( lp_CONFIG->timefactor > 0.0f )	step = 1.0f / lp_CONFIG->timefactor;
             else	step = 1.0f;
 
-            ThreadSynchroniser->LeaveSync();
+            ThreadSynchroniser->unlock();
 
             while( lp_CONFIG->pause && !thread_ask_to_stop ) {
                 lp_CONFIG->paused = true;
@@ -6426,7 +6411,7 @@ void INGAME_UNITS::remove_order(int player_id,VECTOR target)
                 rest( 1 );			// Wait until other thread sync with this one
             }
 
-            ThreadSynchroniser->EnterSync();
+            ThreadSynchroniser->lock();
 
             last_tick[ 0 ] = last_tick[ 1 ];
             last_tick[ 1 ] = last_tick[ 2 ];
@@ -6438,7 +6423,7 @@ void INGAME_UNITS::remove_order(int player_id,VECTOR target)
                 apparent_timefactor = 4000.0f / ( (last_tick[ 4 ] - last_tick[ 0 ]) * TICKS_PER_SEC );
         }
 
-        ThreadSynchroniser->LeaveSync();
+        ThreadSynchroniser->unlock();
 
         thread_running = false;
         thread_ask_to_stop = false;

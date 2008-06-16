@@ -467,7 +467,7 @@ void WND::draw( String &help_msg, bool Focus, bool Deg, SKIN *skin )
 {
     if( hidden )	return;		// If it's hidden don't draw it
 
-    EnterCS();
+    pMutex.lock();
 
     int old_u_format = get_uformat();
     set_uformat( u_format );
@@ -682,7 +682,7 @@ void WND::draw( String &help_msg, bool Focus, bool Deg, SKIN *skin )
                         break;
                 };
     }
-    LeaveCS();
+    pMutex.unlock();
     set_uformat(old_u_format);
 }
 
@@ -698,7 +698,7 @@ void WND::draw( String &help_msg, bool Focus, bool Deg, SKIN *skin )
 byte
 WND::WinMov(int AMx,int AMy,int AMb,int Mx,int My,int Mb, SKIN *skin)
 {
-    EnterCS();
+    pMutex.lock();
     byte WinMouse=0;
     if(AMb == 1 && Mb == 1 && !Lock)
         if( AMx >= x + 3 && AMx <= x + width - 4 )
@@ -714,7 +714,7 @@ WND::WinMov(int AMx,int AMy,int AMb,int Mx,int My,int Mb, SKIN *skin)
     else
         if( Mx >= x && Mx <= x + width && My >= y && My <= y + height )
             WinMouse=1;
-    LeaveCS();
+    pMutex.unlock();
     return WinMouse;
 }				// Fin de WinMov
 
@@ -726,7 +726,7 @@ WND::WinMov(int AMx,int AMy,int AMb,int Mx,int My,int Mb, SKIN *skin)
 void
 WND::destroy()
 {
-    EnterCS();
+    pMutex.lock();
 
     Title.clear();
     Name.clear();
@@ -742,7 +742,7 @@ WND::destroy()
         NbObj=0;
         Objets=NULL;
     }
-    LeaveCS();
+    pMutex.unlock();
 }
 
 
@@ -753,11 +753,11 @@ WND::destroy()
 int
 WND::check(int AMx,int AMy,int AMz,int AMb,bool timetoscroll, SKIN *skin )
 {
-    EnterCS();
+    pMutex.lock();
     if(hidden)
     {
         was_hidden = true;
-        LeaveCS();
+        pMutex.unlock();
         return 0;		// if it's hidden you cannot interact with it
     }
     if( was_hidden )
@@ -771,7 +771,7 @@ WND::check(int AMx,int AMy,int AMz,int AMb,bool timetoscroll, SKIN *skin )
     // S'il n'y a pas d'objets, on arrête
     if(NbObj<=0 || Objets==NULL)
     {
-        LeaveCS();
+        pMutex.unlock();
         return IsOnGUI;
     }
 
@@ -1184,13 +1184,13 @@ WND::check(int AMx,int AMy,int AMz,int AMb,bool timetoscroll, SKIN *skin )
         for( int i = 0 ; i < NbObj ; i++ )
             if( Objets[i].Type == OBJ_MENU )
                 Objets[i].Etat = false;
-    LeaveCS();
+    pMutex.unlock();
     return IsOnGUI;
 }			// Fin de check
 
 uint32 WND::msg( const String &message )									// Respond to Interface message
 {
-    EnterCS();
+    pMutex.lock();
     int i = message.find( "." );
     uint32	result = INTERFACE_RESULT_CONTINUE;
 
@@ -1198,7 +1198,7 @@ uint32 WND::msg( const String &message )									// Respond to Interface message
         GUIOBJ *obj = get_object( message.substr( 0, i ) );
         if( obj ) {
             result = obj->msg( message.substr( i+1, message.size() - i - 1 ), this );
-            LeaveCS();
+            pMutex.unlock();
             return result;
         }
     }
@@ -1206,75 +1206,75 @@ uint32 WND::msg( const String &message )									// Respond to Interface message
         if( Lowercase( message ) == "show" )				{	hidden = false;		result = INTERFACE_RESULT_HANDLED;	}
         else if( Lowercase( message ) == "hide" )			{	hidden = true;		result = INTERFACE_RESULT_HANDLED;	}
 
-    LeaveCS();
+    pMutex.unlock();
     return result;
 }
 
 bool WND::get_state( const String &message )									// Return the state of given object
 {
-    EnterCS();
+    pMutex.lock();
     GUIOBJ *obj = get_object( message );
     if( obj ) {
         bool result = obj->Etat;
-        LeaveCS();
+        pMutex.unlock();
         return result;
     }
     if( message == "" ) {
         bool result = !hidden;
-        LeaveCS();
+        pMutex.unlock();
         return result;
     }
-    LeaveCS();
+    pMutex.unlock();
     return false;
 }
 
 sint32 WND::get_value( const String &message )									// Return the state of given object
 {
-    EnterCS();
+    pMutex.lock();
     GUIOBJ *obj = get_object( message );
     if( obj ) {
         sint32 v = obj->Value;
-        LeaveCS();
+        pMutex.unlock();
         return v;
     }
-    LeaveCS();
+    pMutex.unlock();
     return -1;
 }
 
 String WND::get_caption( const String &message )									// Return the state of given object
 {
-    EnterCS();
+    pMutex.lock();
     GUIOBJ *obj = get_object( message );
     if( obj ) {
         if( obj->Text.size() > 0 ) {
             String result = obj->Text[0];
-            LeaveCS();
+            pMutex.unlock();
             return result;
         }
         else {
-            LeaveCS();
+            pMutex.unlock();
             return "";
         }
     }
     if( message == "" ) {
         String result = Title;
-        LeaveCS();
+        pMutex.unlock();
         return result;
     }
-    LeaveCS();
+    pMutex.unlock();
     return "";
 }
 
 GUIOBJ *WND::get_object( const String &message )		// Return a pointer to the specified object
 {
-    EnterCS();
+    pMutex.lock();
     sint16 e = obj_hashtable.Find( Lowercase( message ) ) - 1;
     if( e >= 0 ) {
         GUIOBJ *the_obj = &(Objets[ e ]);
-        LeaveCS();
+        pMutex.unlock();
         return the_obj;
     }
-    LeaveCS();
+    pMutex.unlock();
     return NULL;
 }
 
@@ -2765,8 +2765,6 @@ const String GetVal(const String &Title)
 
 AREA::AREA( const String area_name ) : gui_hashtable(), cached_key(), wnd_hashtable()
 {
-    CreateCS();				// Thread safe model
-
     cached_wnd = NULL;
 
     name = area_name;		// Gives it a name
@@ -2837,8 +2835,6 @@ AREA::~AREA()
 
     if( skin )					// Destroy the skin
         delete skin;
-
-    DeleteCS();					// End the safe thread things
 }
 
 uint32 AREA::InterfaceMsg( const lpcImsg msg )
@@ -2856,7 +2852,7 @@ uint32 AREA::InterfaceMsg( const lpcImsg msg )
 
 int	AREA::msg( String message )				// Send that message to the area
 {
-    EnterCS();
+    pMutex.lock();
 
     uint32	result = INTERFACE_RESULT_CONTINUE;
 
@@ -2885,14 +2881,14 @@ int	AREA::msg( String message )				// Send that message to the area
         }
         else if( message == "end_the_game" )	{	}
 
-    LeaveCS();
+    pMutex.unlock();
 
     return result;				// Ok we're done with it
 }
 
 bool AREA::get_state( const String &message )			// Return the state of specified object in the specified window
 {
-    EnterCS();
+    pMutex.lock();
 
     int i = message.find( "." );
     if( i != -1 ) {
@@ -2905,7 +2901,7 @@ bool AREA::get_state( const String &message )			// Return the state of specified
                 GUIOBJ *the_obj = vec_wnd[ e ]->get_object( obj_name );
                 if( the_obj ) {
                     bool result = the_obj->Etat;
-                    LeaveCS();
+                    pMutex.unlock();
                     return result;	// Return what we found
                 }
             }
@@ -2914,7 +2910,7 @@ bool AREA::get_state( const String &message )			// Return the state of specified
 
             if( the_wnd ) {
                 bool result = the_wnd->get_state( obj_name );
-                LeaveCS();
+                pMutex.unlock();
                 return result;
             }
         }
@@ -2924,17 +2920,17 @@ bool AREA::get_state( const String &message )			// Return the state of specified
 
         if( the_wnd ) {
             bool result = the_wnd->get_state( "" );
-            LeaveCS();
+            pMutex.unlock();
             return result;
         }
     }
-    LeaveCS();
+    pMutex.unlock();
     return false;
 }
 
 sint32 AREA::get_value( const String &message )			// Return the state of specified object in the specified window
 {
-    EnterCS();
+    pMutex.lock();
     int i = message.find( "." );
     if( i != -1 ) {
         String key = message.substr( 0, i );						// Extracts the key
@@ -2948,7 +2944,7 @@ sint32 AREA::get_value( const String &message )			// Return the state of specifi
                 GUIOBJ *the_obj = vec_wnd[ e ]->get_object( obj_name );
                 if( the_obj ) {
                     sint32 v = the_obj->Value;
-                    LeaveCS();
+                    pMutex.unlock();
                     return v;	// Return what we found
                 }
             }
@@ -2959,18 +2955,18 @@ sint32 AREA::get_value( const String &message )			// Return the state of specifi
 
             if( the_wnd ) {
                 sint32 v = the_wnd->get_value( obj_name );
-                LeaveCS();
+                pMutex.unlock();
                 return v;
             }
         }
     }
-    LeaveCS();
+    pMutex.unlock();
     return -1;
 }
 
 String AREA::get_caption( const String &message )		// Return the caption of specified object in the specified window
 {
-    EnterCS();
+    pMutex.lock();
     int i = message.find( "." );
     if( i != -1 ) {
         String key = message.substr( 0, i );						// Extracts the key
@@ -2984,7 +2980,7 @@ String AREA::get_caption( const String &message )		// Return the caption of spec
                     String result;
                     if( the_obj->Text.size() > 0 )
                         result = the_obj->Text[0];	// Return what we found
-                    LeaveCS();
+                    pMutex.unlock();
                     return result;
                 }
             }
@@ -2993,18 +2989,18 @@ String AREA::get_caption( const String &message )		// Return the caption of spec
 
             if( the_wnd ) {
                 String result = the_wnd->get_caption( obj_name );
-                LeaveCS();
+                pMutex.unlock();
                 return result;
             }
         }
     }
-    LeaveCS();
+    pMutex.unlock();
     return "";
 }
 
 GUIOBJ *AREA::get_object( const String &message, bool skip_hidden )		// Return a pointer to the specified object
 {
-    EnterCS();
+    pMutex.lock();
     int i = message.find( "." );
     if( i != -1 ) {
         String key = message.substr( 0, i );						// Extracts the key
@@ -3015,7 +3011,7 @@ GUIOBJ *AREA::get_object( const String &message, bool skip_hidden )		// Return a
             for( uint16 e = 0 ; e < vec_wnd.size() ; e++ ) {				// Search the window containing the object corresponding to the key
                 GUIOBJ *the_obj = vec_wnd[ e ]->get_object( obj_name );
                 if( the_obj ) {
-                    LeaveCS();
+                    pMutex.unlock();
                     return the_obj;
                 }
             }
@@ -3024,22 +3020,22 @@ GUIOBJ *AREA::get_object( const String &message, bool skip_hidden )		// Return a
 
             if( the_wnd ) {
                 GUIOBJ *the_obj = the_wnd->get_object( obj_name );
-                LeaveCS();
+                pMutex.unlock();
                 return the_obj;
             }
         }
     }
-    LeaveCS();
+    pMutex.unlock();
     return NULL;
 }
 
 WND	*AREA::get_wnd( const String &message )			// Return the specified window
 {
-    EnterCS();
+    pMutex.lock();
     String lmsg = Lowercase( message );
     if( lmsg == cached_key && cached_wnd ) {
         WND *the_wnd = cached_wnd;
-        LeaveCS();
+        pMutex.unlock();
         return the_wnd;
     }
 
@@ -3048,16 +3044,16 @@ WND	*AREA::get_wnd( const String &message )			// Return the specified window
         cached_key = lmsg;
         cached_wnd = vec_wnd[ e ];
         WND *the_wnd = vec_wnd[ e ];
-        LeaveCS();
+        pMutex.unlock();
         return the_wnd;
     }
-    LeaveCS();
+    pMutex.unlock();
     return NULL;
 }
 
 void AREA::set_enable_flag( const String &message, const bool &enable )		// Set the enabled/disabled state of specified object in the specified window
 {
-    EnterCS();
+    pMutex.lock();
     GUIOBJ	*guiobj = get_object( message );
     if( guiobj ) {
         if( enable )
@@ -3065,39 +3061,39 @@ void AREA::set_enable_flag( const String &message, const bool &enable )		// Set 
         else
             guiobj->Flag |= FLAG_DISABLED;
     }
-    LeaveCS();
+    pMutex.unlock();
 }
 
 void AREA::set_state( const String &message, const bool &state )			// Set the state of specified object in the specified window
 {
-    EnterCS();
+    pMutex.lock();
     GUIOBJ	*guiobj = get_object( message );
     if( guiobj )
         guiobj->Etat = state;
-    LeaveCS();
+    pMutex.unlock();
 }
 
 void AREA::set_value( const String &message, const sint32 &value )			// Set the value of specified object in the specified window
 {
-    EnterCS();
+    pMutex.lock();
     GUIOBJ	*guiobj = get_object( message );
     if( guiobj )
         guiobj->Value = value;
-    LeaveCS();
+    pMutex.unlock();
 }
 
 void AREA::set_data( const String &message, const sint32 &data )			// Set the value of specified object in the specified window
 {
-    EnterCS();
+    pMutex.lock();
     GUIOBJ	*guiobj = get_object( message );
     if( guiobj )
         guiobj->Data = data;
-    LeaveCS();
+    pMutex.unlock();
 }
 
 void AREA::set_caption( const String &message, const String &caption )		// set the caption of specified object in the specified window
 {
-    EnterCS();
+    pMutex.lock();
     GUIOBJ	*guiobj = get_object( message );
     if( guiobj && guiobj->Text.size() > 0 ) {
         if( guiobj->Flag & FLAG_CENTERED ) {
@@ -3112,7 +3108,7 @@ void AREA::set_caption( const String &message, const String &caption )		// set t
             guiobj->x2 += length * 0.5f;
         }
     }
-    LeaveCS();
+    pMutex.unlock();
 }
 
 uint16 AREA::check()					// Checks events for all windows
@@ -3124,7 +3120,7 @@ uint16 AREA::check()					// Checks events for all windows
     if( scroll )
         while( msec_timer - scroll_timer >= 250 )
             scroll_timer += 250;
-    EnterCS();
+    pMutex.lock();
     for( uint16 i = 0 ; i < vec_wnd.size() ; i++ )
         if( !is_on_gui || ( vec_wnd[ vec_z_order[ i ] ]->get_focus && !vec_wnd[ vec_z_order[ i ] ]->hidden ) ) {
             is_on_gui |= vec_wnd[ vec_z_order[ i ] ]->check( amx, amy, amz, amb, scroll, skin );			// Do things in the right order
@@ -3135,7 +3131,7 @@ uint16 AREA::check()					// Checks events for all windows
                 vec_z_order[ 0 ] = old;				// Get the focus
             }
         }
-    LeaveCS();
+    pMutex.unlock();
 
     if( Console == NULL || !Console->activated() )
         clear_keybuf();
@@ -3151,7 +3147,7 @@ uint16 AREA::check()					// Checks events for all windows
 
 uint16 AREA::load_window( const String &filename )
 {
-    EnterCS();
+    pMutex.lock();
 
     uint16 wnd_idx = vec_wnd.size();
     vec_wnd.push_back( new WND );				// Adds a window to the vector
@@ -3168,20 +3164,21 @@ uint16 AREA::load_window( const String &filename )
 
     wnd_hashtable.Insert( Lowercase( vec_wnd[ wnd_idx ]->Name ), wnd_idx + 1 );		// + 1 because it returns 0 on Find failure
 
-    LeaveCS();
+    pMutex.unlock();
 
     return wnd_idx;
 }
 
 void AREA::draw()
 {
-    if( background ) {
+    if (background)
+    {
         gfx->drawtexture( background, 0, 0, gfx->width, gfx->height );
         glDisable( GL_TEXTURE_2D );
         glBindTexture( GL_TEXTURE_2D, 0 );
     }
 
-    EnterCS();
+    pMutex.lock();
 
     String help_msg = "";
     for( sint32 i = vec_wnd.size() - 1 ; i >=0 ; i-- )			// Draws all the windows in focus reversed order so the focused window is drawn on top of the others
@@ -3189,7 +3186,7 @@ void AREA::draw()
     if( help_msg != "" )
         PopupMenu( mouse_x + 20, mouse_y + 20, help_msg, skin );
 
-    LeaveCS();
+    pMutex.unlock();
 }
 
 void AREA::load_tdf( const String &filename )			// Loads a TDF file telling which windows to load and which skin to use

@@ -19,13 +19,17 @@
 #ifndef __TA3D_OLD_LOGGER_H__
 # define __TA3D_OLD_LOGGER_H__
 
+# include "threads/thread.h"
+
+
+
 namespace TA3D
 {
 namespace Interfaces
 {
 
 
-    class cLogger : protected cCriticalSection, protected IInterface
+    class cLogger : public ObjectSync, protected IInterface
     {
     private:
         FILE				*m_File;

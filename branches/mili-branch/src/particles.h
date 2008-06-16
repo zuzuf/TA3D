@@ -28,6 +28,7 @@
 #define __CLASSE_PARTICLES
 
 #include "threads/cThread.h"
+#include "threads/thread.h"
 
 class PARTICLE_SYSTEM			// Class defining the fast particle engine
 {
@@ -105,7 +106,7 @@ struct PARTICLE					// Structure définissant une particule
 	float		slow_factor;
 };
 
-class PARTICLE_ENGINE : protected cCriticalSection,			// Moteur à particules
+class PARTICLE_ENGINE : public ObjectSync,			// Moteur à particules
 						public	cThread
 {
 public:
@@ -148,10 +149,7 @@ public:
 
 	PARTICLE_ENGINE() : particle_systems(), gltex()
 	{
-		CreateCS();
-
 		InitThread();
-
 		init(false);
 	}
 
@@ -160,8 +158,6 @@ public:
 	~PARTICLE_ENGINE()
 	{
 		destroy();
-
-		DeleteCS();
 	}
 
 	void more_memory();			// Alloue de la mémoire supplémentaire

@@ -20,8 +20,9 @@
 
 #include "gui.h"
 #include "ta3dbase.h"
+#include "threads/thread.h"
 
-class TA3DNetwork : protected cCriticalSection
+class TA3DNetwork : public ObjectSync 
 {
 private:
 	class NetworkMessage

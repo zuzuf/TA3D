@@ -108,6 +108,16 @@ namespace TA3D
 
 
 
+    class ObjectSync
+    {
+    public:
+        void lock() { pMutex.lock(); }
+        void unlock() { pMutex.unlock(); }
+
+    protected:
+        Mutex pMutex;
+    };
+
 
 } // namespace TA3D
 

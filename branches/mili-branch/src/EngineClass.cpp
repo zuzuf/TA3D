@@ -36,7 +36,7 @@
 #include "EngineClass.h"
 #include "UnitEngine.h"
 #include "fx.h"
-#include "lzw.h"					// Support for LZW compression
+#include "misc/lzw.h"					// Support for LZW compression
 
 float	player_color[30]={	0.11f,	0.28f,	0.91f,
 							0.83f,	0.17f,	0.0f,
@@ -1600,7 +1600,7 @@ int PLAYERS::add(char *NOM,char *SIDE,byte _control,int E,int M,byte AI_level)
 
 void PLAYERS::show_resources()
 {
-    units.EnterCS_from_outside();
+    units.lock();
 
     int _id = (local_human_id != -1) ? local_human_id : 0;
     glEnable(GL_TEXTURE_2D);
@@ -1652,7 +1652,7 @@ void PLAYERS::show_resources()
     glEnd();
     glColor4f(1.0f,1.0f,1.0f,1.0f);
 
-    units.LeaveCS_from_outside();
+    units.unlock();
 }
 
 inline bool need_sync( struct sync &a, struct sync &b )
@@ -1676,16 +1676,16 @@ void PLAYERS::player_control()
     if( (units.current_tick % 3) == 0 && last_ticksynced != units.current_tick && network_manager.isConnected() ) {
         last_ticksynced = units.current_tick;
 
-        units.EnterCS_from_outside();
+        units.lock();
         for( int e = 0 ; e < units.nb_unit ; e++ ) {
             int i = units.idx_list[ e ];
             if( i < 0 || i >= units.max_unit )	continue;		// Error !!
-            units.LeaveCS_from_outside();
+            units.unlock();
 
-            units.unit[ i ].Lock();
+            units.unit[ i ].lock();
             if( !(units.unit[ i ].flags & 1) )	{
-                units.unit[ i ].UnLock();
-                units.EnterCS_from_outside();
+                units.unit[ i ].unlock();
+                units.lock();
                 continue;
             }
             if( units.unit[ i ].local ) {
@@ -1728,11 +1728,11 @@ void PLAYERS::player_control()
                     }
                 }
             }
-            units.unit[ i ].UnLock();
+            units.unit[ i ].unlock();
 
-            units.EnterCS_from_outside();
+            units.lock();
         }
-        units.LeaveCS_from_outside();
+        units.unlock();
     }
 }
 
@@ -1755,8 +1755,8 @@ int PLAYERS::Run()
 
         /*---------------------- end of Network events ------------------------------*/
 
-        ThreadSynchroniser->EnterSync();
-        ThreadSynchroniser->LeaveSync();
+        ThreadSynchroniser->lock();
+        ThreadSynchroniser->unlock();
 
         players_thread_sync = 1;
 

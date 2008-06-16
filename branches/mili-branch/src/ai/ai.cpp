@@ -355,13 +355,13 @@ void f_scan_unit( AI_PLAYER *ai )							// Scan the units the AI player currentl
     }
 
     int e;
-    units.EnterCS_from_outside();
+    units.lock();
     for( e = ai->unit_id ; e < units.nb_unit && e < ai->unit_id + 100 ; e++ )
     {
         int i = units.idx_list[ e ];
         if (i < 0 || i >= units.max_unit )	continue;		// Error
-        units.LeaveCS_from_outside();
-        units.unit[ i ].Lock();
+        units.unlock();
+        units.unit[i].lock();
         if ((units.unit[ i ].flags & 1) && units.unit[ i ].type_id >= 0 )
         {
             if (units.unit[ i ].owner_id == ai->player_id )
@@ -391,10 +391,10 @@ void f_scan_unit( AI_PLAYER *ai )							// Scan the units the AI player currentl
                     ai->enemy_list[ units.unit[ i ].owner_id ].push_back( WEIGHT_COEF( i, 0 ) );
             }
         }
-        units.unit[ i ].UnLock();
-        units.EnterCS_from_outside();
+        units.unit[ i ].unlock();
+        units.lock();
     }
-    units.LeaveCS_from_outside();
+    units.unlock();
     ai->unit_id = e >= units.nb_unit ? 0 : e;
 }
 
@@ -497,7 +497,7 @@ void f_think( AI_PLAYER *ai, MAP *map )				// La vrai fonction qui simule l'Inte
 
     for (List<uint16>::iterator i = ai->army_list.begin() ; i != ai->army_list.end() ; ++i ) // Give instructions to idle army units
     {
-        units.unit[ *i ].Lock();
+        units.unit[ *i ].lock();
         if ((units.unit[ *i ].flags & 1) && units.unit[ *i ].do_nothing_ai() )
         {
             sint16 player_target = -1;
@@ -537,12 +537,12 @@ void f_think( AI_PLAYER *ai, MAP *map )				// La vrai fonction qui simule l'Inte
                     units.unit[ *i ].add_mission( MISSION_ATTACK, &units.unit[ target_id ].Pos, false, 0, (&units.unit[ target_id ]), NULL, MISSION_FLAG_COMMAND_FIRE );
             }
         }
-        units.unit[ *i ].UnLock();
+        units.unit[ *i ].unlock();
     }
 
     for( List<uint16>::iterator i = ai->factory_list.begin() ; i != ai->factory_list.end() ; ++i )	// Give instructions to idle factories
     {
-        units.unit[ *i ].Lock();
+        units.unit[ *i ].lock();
         if ((units.unit[ *i ].flags & 1) && units.unit[ *i ].do_nothing_ai() && unit_manager.unit_type[ units.unit[ *i ].type_id ].nb_unit > 0 ) {
             short list_size = unit_manager.unit_type[ units.unit[ *i ].type_id ].nb_unit;
             short *BuildList = unit_manager.unit_type[ units.unit[ *i ].type_id ].BuildList;
@@ -564,13 +564,13 @@ void f_think( AI_PLAYER *ai, MAP *map )				// La vrai fonction qui simule l'Inte
             units.unit[ *i ].add_mission( MISSION_BUILD, &units.unit[ *i ].Pos, false, selected_idx );
             ai->weights[ selected_idx ].w *= 0.8f;
         }
-        units.unit[ *i ].UnLock();
+        units.unit[ *i ].unlock();
     }
 
     // Give instructions to idle builders
     for( List<uint16>::iterator i = ai->builder_list.begin() ; i != ai->builder_list.end() ; ++i )
     {
-        units.unit[ *i ].Lock();
+        units.unit[ *i ].lock();
         if ((units.unit[ *i ].flags & 1) && units.unit[ *i ].do_nothing_ai() && unit_manager.unit_type[ units.unit[ *i ].type_id ].nb_unit > 0 )
         {
             short list_size = unit_manager.unit_type[ units.unit[ *i ].type_id ].nb_unit;
@@ -659,7 +659,7 @@ void f_think( AI_PLAYER *ai, MAP *map )				// La vrai fonction qui simule l'Inte
                 Console->AddEntry( "AI(%d,%d) -> builder %d building %d, error: no build place found", ai->player_id, msec_timer, *i, selected_idx );
 #endif
         }
-        units.unit[ *i ].UnLock();
+        units.unit[ *i ].unlock();
     }
 
     float factory_needed = 0.0f;
@@ -843,13 +843,13 @@ void AI_PLAYER::destroy()
 
 void AI_PLAYER::change_name(char *new_name)		// Change le nom de l'IA (conduit à la création d'un nouveau fichier)
 {
-    EnterCS();
+    pMutex.lock();
 
     if (name)
         free(name);
     name=strdup(new_name);
 
-    LeaveCS();
+    pMutex.unlock();
 }
 
 void AI_PLAYER::save()
