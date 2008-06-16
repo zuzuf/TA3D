@@ -82,8 +82,9 @@ namespace Interfaces
 
         virtual ~GFX();
 
-        void GFX_EnterCS()	{ pMutex.lock(); }
-        void GFX_LeaveCS()	{ pMutex.unlock(); }
+        // TODO Remove those 2 methods - an internal mutex should never be locked by an external function
+        void lock()	{ pMutex.lock(); }
+        void unlock() { pMutex.unlock(); }
 
 
         void load_background();

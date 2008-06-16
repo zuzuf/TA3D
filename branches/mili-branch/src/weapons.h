@@ -539,58 +539,59 @@ LeaveCS();
 		LeaveCS();
 	}
 
-	void draw(CAMERA *cam=NULL,MAP *map=NULL,bool underwater=false)
-	{
-		if(nb_weapon<=0 || max_weapon<=0) return;
+    void draw(CAMERA *cam=NULL,MAP *map=NULL,bool underwater=false)
+    {
+        if(nb_weapon<=0 || max_weapon<=0) return;
 
-		EnterCS();
-		gfx->GFX_EnterCS();
+        EnterCS();
+        gfx->lock();
 
-		if( cam )
-			cam->SetView();
+        if( cam )
+            cam->SetView();
 
-		for(uint32 e=0;e<index_list_size;e++) {
-			uint32 i = idx_list[e];
-			if((weapon[i].Pos.y<map->sealvl && underwater) || (weapon[i].Pos.y>=map->sealvl && !underwater))
-				weapon[i].draw(cam,map);
-			}
+        for(uint32 e=0;e<index_list_size;e++)
+        {
+            uint32 i = idx_list[e];
+            if((weapon[i].Pos.y<map->sealvl && underwater) || (weapon[i].Pos.y>=map->sealvl && !underwater))
+                weapon[i].draw(cam,map);
+        }
 
-		gfx->GFX_LeaveCS();
-		LeaveCS();
-	}
+        gfx->unlock();
+        LeaveCS();
+    }
 
-	inline void draw_mini(float map_w,float map_h,int mini_w,int mini_h)				// Repère les unités sur la mini-carte
-	{
-		if(nb_weapon<=0 || max_weapon<=0)	return;		// Pas d'unités à dessiner
+    inline void draw_mini(float map_w,float map_h,int mini_w,int mini_h)				// Repère les unités sur la mini-carte
+    {
+        if(nb_weapon<=0 || max_weapon<=0)	return;		// Pas d'unités à dessiner
 
-		EnterCS();
+        EnterCS();
 
-		float rw=128.0f*mini_w/252;
-		float rh=128.0f*mini_h/252;
+        float rw=128.0f*mini_w/252;
+        float rh=128.0f*mini_h/252;
 
-		glColor4f(1.0f,1.0f,1.0f,1.0f);
-		glDisable(GL_TEXTURE_2D);
-		glBegin(GL_POINTS);
-		for(uint32 e=0;e<index_list_size;e++) {
-			uint32 i = idx_list[e];
-			if(weapon_manager.weapon[weapon[i].weapon_id].cruise || weapon_manager.weapon[weapon[i].weapon_id].interceptor) {
-				glEnd();
-				glEnable(GL_TEXTURE_2D);
-				glEnable(GL_BLEND);
-				glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
-				int idx=weapon[i].owner;
-				PutTex(nuclogo.glbmp[idx],weapon[i].Pos.x/map_w*rw+64.0f-nuclogo.ofs_x[idx],weapon[i].Pos.z/map_h*rh+64.0f-nuclogo.ofs_y[idx],weapon[i].Pos.x/map_w*rw+63.0f-nuclogo.ofs_x[idx]+nuclogo.w[idx],weapon[i].Pos.z/map_h*rh+63.0f-nuclogo.ofs_y[idx]+nuclogo.h[idx]);
-				glDisable(GL_BLEND);
-				glDisable(GL_TEXTURE_2D);
-				glBegin(GL_POINTS);
-				}
-			else
-				glVertex2f(weapon[i].Pos.x/map_w*rw+64.0f,weapon[i].Pos.z/map_h*rh+64.0f);
-			}
-		glEnd();
-		glEnable(GL_TEXTURE_2D);
-LeaveCS();
-	}
+        glColor4f(1.0f,1.0f,1.0f,1.0f);
+        glDisable(GL_TEXTURE_2D);
+        glBegin(GL_POINTS);
+        for(uint32 e=0;e<index_list_size;e++) {
+            uint32 i = idx_list[e];
+            if(weapon_manager.weapon[weapon[i].weapon_id].cruise || weapon_manager.weapon[weapon[i].weapon_id].interceptor) {
+                glEnd();
+                glEnable(GL_TEXTURE_2D);
+                glEnable(GL_BLEND);
+                glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+                int idx=weapon[i].owner;
+                PutTex(nuclogo.glbmp[idx],weapon[i].Pos.x/map_w*rw+64.0f-nuclogo.ofs_x[idx],weapon[i].Pos.z/map_h*rh+64.0f-nuclogo.ofs_y[idx],weapon[i].Pos.x/map_w*rw+63.0f-nuclogo.ofs_x[idx]+nuclogo.w[idx],weapon[i].Pos.z/map_h*rh+63.0f-nuclogo.ofs_y[idx]+nuclogo.h[idx]);
+                glDisable(GL_BLEND);
+                glDisable(GL_TEXTURE_2D);
+                glBegin(GL_POINTS);
+            }
+            else
+                glVertex2f(weapon[i].Pos.x/map_w*rw+64.0f,weapon[i].Pos.z/map_h*rh+64.0f);
+        }
+        glEnd();
+        glEnable(GL_TEXTURE_2D);
+        LeaveCS();
+    }
 };
 
 extern INGAME_WEAPONS weapons;

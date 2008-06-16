@@ -6155,19 +6155,20 @@ void INGAME_UNITS::draw_shadow(CAMERA *cam,VECTOR Dir,MAP *map,float alpha)					
         glActiveStencilFaceEXT(GL_BACK);
         glStencilOp(GL_KEEP, GL_KEEP, GL_DECR_WRAP_EXT);
 
-        for(uint16 e=0;e<index_list_size;e++) {
+        for(uint16 e=0;e<index_list_size;e++)
+        {
             EnterCS();
             uint16 i = idx_list[e];
             LeaveCS();
 
-            gfx->GFX_EnterCS();
+            gfx->lock();
 
             unit[i].Lock();
             if(unit[i].flags & 1)				// Si il y a une unité
                 unit[i].draw_shadow(cam,Dir,map);
             unit[i].UnLock();
 
-            gfx->GFX_LeaveCS();
+            gfx->unlock();
         }
     }
     else {										// Si elle ne l'est pas
@@ -6184,16 +6185,16 @@ void INGAME_UNITS::draw_shadow(CAMERA *cam,VECTOR Dir,MAP *map,float alpha)					
             uint16 i = idx_list[e];
             LeaveCS();
 
-            gfx->GFX_EnterCS();
+            gfx->lock();
             unit[i].Lock();
             if(unit[i].flags & 1)					// Si il y a une unité
                 unit[i].draw_shadow_basic(cam,Dir,map);
             unit[i].UnLock();
-            gfx->GFX_LeaveCS();
+            gfx->unlock();
         }
     }
 
-    gfx->GFX_EnterCS();
+    gfx->lock();
     features.draw_shadow(cam,Dir);
 
     glColorMask(0xFF,0xFF,0xFF,0xFF);
@@ -6218,7 +6219,7 @@ void INGAME_UNITS::draw_shadow(CAMERA *cam,VECTOR Dir,MAP *map,float alpha)					
     glDisable(GL_BLEND);
     glColor4f(1.0f,1.0f,1.0f,1.0f);
 
-    gfx->GFX_LeaveCS();
+    gfx->unlock();
 }
 
 void INGAME_UNITS::remove_order(int player_id,VECTOR target)
@@ -6311,15 +6312,17 @@ void INGAME_UNITS::remove_order(int player_id,VECTOR target)
 
         ThreadSynchroniser->EnterSync();
 
-        while( !thread_ask_to_stop ) {
+        while( !thread_ask_to_stop )
+        {
             counter += step;
 
             move( dt, map, current_tick, wind_change );					// Animate units
 
             EnterCS();
 
-            if( map->fog_of_war ) {
-                gfx->GFX_EnterCS();
+            if( map->fog_of_war )
+            {
+                gfx->lock();
 
                 if( !(current_tick & 0xF) ) {
                     if( map->fog_of_war & FOW_GREY )
@@ -6334,7 +6337,7 @@ void INGAME_UNITS::remove_order(int player_id,VECTOR target)
                         unit[ idx_list[ i ] ].draw_on_FOW( true );
                 }
 
-                gfx->GFX_LeaveCS();
+                gfx->unlock();
             }
 
             wind_change = false;
