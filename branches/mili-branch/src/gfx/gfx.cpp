@@ -59,18 +59,18 @@ namespace Interfaces
                         | AGL_VIDEO_MEMORY_POLICY );
 #else
         allegro_gl_set(AGL_COLOR_DEPTH, TA3D::VARS::lp_CONFIG->color_depth);
-        allegro_gl_set(AGL_DOUBLEBUFFER, 1);
+        allegro_gl_set(AGL_DOUBLEBUFFER, TRUE);
         allegro_gl_set(AGL_Z_DEPTH, 32);
         allegro_gl_set(AGL_WINDOWED, TRUE);
-        allegro_gl_set(AGL_RENDERMETHOD, 1);
+        allegro_gl_set(AGL_RENDERMETHOD, TRUE);
         allegro_gl_set (AGL_VIDEO_MEMORY_POLICY, AGL_RELEASE );
         allegro_gl_set (AGL_FULLSCREEN, TA3D::VARS::lp_CONFIG->fullscreen);
         allegro_gl_set(AGL_SAMPLES, TA3D::VARS::lp_CONFIG->fsaa);
         allegro_gl_set(AGL_SAMPLE_BUFFERS, FALSE);
-        allegro_gl_set(AGL_SUGGEST, AGL_COLOR_DEPTH | AGL_DOUBLEBUFFER
+        allegro_gl_set(AGL_SUGGEST, AGL_COLOR_DEPTH
                        | AGL_Z_DEPTH | AGL_WINDOWED
                        | AGL_SAMPLES | AGL_SAMPLE_BUFFERS);
-        allegro_gl_set(AGL_REQUIRE, AGL_RENDERMETHOD);
+        allegro_gl_set(AGL_REQUIRE, AGL_RENDERMETHOD | AGL_DOUBLEBUFFER);
 #endif
 
         allegro_gl_use_mipmapping(TRUE);
