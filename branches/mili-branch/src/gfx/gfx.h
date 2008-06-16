@@ -92,6 +92,9 @@ namespace Interfaces
         uint32 InterfaceMsg( const lpcImsg msg );
         
         void preCalculations();
+        void initAllegroGL();
+        bool checkVideoCardWorkaround() const;
+        void displayInfosAboutOpenGL() const;
 
     public:
         //! \name Color management

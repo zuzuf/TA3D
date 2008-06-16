@@ -39,11 +39,11 @@ namespace TA3D
 namespace Interfaces
 {
 
-    GFX::GFX()
+    void GFX::initAllegroGL()
     {
         install_allegro_gl();
         allegro_gl_clear_settings();         // Initialise AllegroGL
-#ifndef TA3D_PLATFORM_DARWIN
+        #ifndef TA3D_PLATFORM_DARWIN
         allegro_gl_set (AGL_STENCIL_DEPTH, 8 );
         allegro_gl_set (AGL_SAMPLE_BUFFERS, 0 );
         allegro_gl_set (AGL_SAMPLES, TA3D::VARS::lp_CONFIG->fsaa );
@@ -57,7 +57,7 @@ namespace Interfaces
                         | AGL_DOUBLEBUFFER | AGL_FULLSCREEN | AGL_SAMPLES
                         | AGL_SAMPLE_BUFFERS | AGL_STENCIL_DEPTH
                         | AGL_VIDEO_MEMORY_POLICY );
-#else
+        #else
         allegro_gl_set(AGL_COLOR_DEPTH, TA3D::VARS::lp_CONFIG->color_depth);
         allegro_gl_set(AGL_DOUBLEBUFFER, TRUE);
         allegro_gl_set(AGL_Z_DEPTH, 32);
@@ -71,29 +71,28 @@ namespace Interfaces
                        | AGL_Z_DEPTH | AGL_WINDOWED
                        | AGL_SAMPLES | AGL_SAMPLE_BUFFERS);
         allegro_gl_set(AGL_REQUIRE, AGL_RENDERMETHOD | AGL_DOUBLEBUFFER);
-#endif
+        #endif
 
         allegro_gl_use_mipmapping(TRUE);
         allegro_gl_flip_texture(FALSE);
 
-# ifndef TA3D_PLATFORM_DARWIN  // Useless under OS X
+        # ifndef TA3D_PLATFORM_DARWIN  // Useless under OS X
         request_refresh_rate(85);
-# endif
+        # endif
 
         if (TA3D::VARS::lp_CONFIG->fullscreen )
         {
-# ifdef GFX_OPENGL_FULLSCREEN
-            set_gfx_mode(GFX_OPENGL_FULLSCREEN, TA3D::VARS::lp_CONFIG->screen_width, TA3D::VARS::lp_CONFIG->screen_height, 0, 0);   // Entre en mode graphique OpenGL (plein écran)
-# else
+            # ifdef GFX_OPENGL_FULLSCREEN
+            set_gfx_mode(GFX_OPENGL_FULLSCREEN, TA3D::VARS::lp_CONFIG->screen_width, TA3D::VARS::lp_CONFIG->screen_height, 0, 0);
+            # else
             allegro_message(TRANSLATE("WARNING: AllegroGL has been built without fullscreen support.\nrunning in fullscreen mode impossible\nplease install libxxf86vm and rebuild both Allegro and AllegroGL\nif you want fullscreen modes.").c_str());
-            set_gfx_mode(GFX_OPENGL_WINDOWED, TA3D::VARS::lp_CONFIG->screen_width, TA3D::VARS::lp_CONFIG->screen_height, 0, 0);      // Entre en mode graphique OpenGL (fenêtré)
-# endif
+            set_gfx_mode(GFX_OPENGL_WINDOWED, TA3D::VARS::lp_CONFIG->screen_width, TA3D::VARS::lp_CONFIG->screen_height, 0, 0);
+            # endif
         }
         else
-            set_gfx_mode(GFX_OPENGL_WINDOWED, TA3D::VARS::lp_CONFIG->screen_width, TA3D::VARS::lp_CONFIG->screen_height, 0, 0);      // Entre en mode graphique OpenGL (fenêtré)
+            set_gfx_mode(GFX_OPENGL_WINDOWED, TA3D::VARS::lp_CONFIG->screen_width, TA3D::VARS::lp_CONFIG->screen_height, 0, 0);
 
         preCalculations();
-
         // Install OpenGL extensions
         installOpenGLExtensions();
 
@@ -101,10 +100,43 @@ namespace Interfaces
             allegro_gl_set_texture_format(GL_COMPRESSED_RGB_ARB);
         else
             allegro_gl_set_texture_format(GL_RGB8); 
+    }
 
-        ati_workaround = strncasecmp( (const char*)glGetString( GL_VENDOR ), "ATI", 3 ) == 0;		// Enable ATI workarounds if we have an ATI card
-        ati_workaround |= strstr( Uppercase( (const char*)glGetString( GL_VENDOR ) ).c_str(), "SIS" ) != NULL;		// Enable ATI workarounds if we have an SIS card
+    
+    bool GFX::checkVideoCardWorkaround() const
+    {
+        // Check for ATI workarounds (if an ATI card is present)
+        bool workaround = strncasecmp(Uppercase((const char*)glGetString(GL_VENDOR)).c_str(), "ATI", 3) == 0;
+        // Check for SIS workarounds (if an SIS card is present) (the same than ATI)
+        workaround |= strstr(Uppercase((const char*)glGetString(GL_VENDOR)).c_str(), "SIS") != NULL;
+        return workaround;
+    }
 
+    void displayInfosAboutOpenGL() const
+    {
+        if (Console)
+        {
+            Console->stdout_on();
+            Console->AddEntry("OpenGL informations:");
+            Console->AddEntry("vendor: %s", glGetString( GL_VENDOR ) );
+            Console->AddEntry("renderer: %s", glGetString( GL_RENDERER ) );
+            Console->AddEntry("version: %s", glGetString( GL_VERSION ) );
+            if (ati_workaround)
+            {
+                Console->AddEntry("WARNING: ATI card detected! using workarounds for ATI cards");
+                LOG_WARNING("WARNING: ATI card detected! using workarounds for ATI cards");
+            }
+            Console->stdout_off();
+        }
+    }
+
+
+
+    GFX::GFX()
+    {
+        initAllegroGL();
+        ati_workaround = checkVideoCardWorkaround();
+        
         TA3D::VARS::pal = NULL;
 
         width = SCREEN_W;
@@ -118,23 +150,8 @@ namespace Interfaces
         small_font.init();
         TA_font.init();
         ta3d_gui_font.init();
-
         InitInterface();
-
-        if (Console)
-        {
-            Console->stdout_on();
-            Console->AddEntry("OpenGL informations:");
-            Console->AddEntry("vendor: %s", glGetString( GL_VENDOR ) );
-            Console->AddEntry("renderer: %s", glGetString( GL_RENDERER ) );
-            Console->AddEntry("version: %s", glGetString( GL_VERSION ) );
-            if (ati_workaround )
-            {
-                Console->AddEntry("WARNING: ATI card detected! using workarounds for ATI cards");
-                LOG_WARNING("WARNING: ATI card detected! using workarounds for ATI cards");
-            }
-            Console->stdout_off();
-        }
+        displayInfosAboutOpenGL();
     }
 
 
@@ -325,7 +342,7 @@ namespace Interfaces
             glVertex2f( x+r*cos(alpha), y+r*sin(alpha) );
         glEnd();
     }
-    
+
     void GFX::circlefill(const float x, const float y, const float r, const uint32 col)
     {
         set_color(col);
