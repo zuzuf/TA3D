@@ -258,7 +258,7 @@ public:
 	}
 };
 
-#include "pathfinding.h"		// Algorithme de pathfinding
+#include "ai/pathfinding.h"		// Algorithme de pathfinding
 
 class MAP : protected cCriticalSection			// Données concernant la carte
 {
