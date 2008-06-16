@@ -2291,22 +2291,26 @@ void campaign_main_menu(void)
 
     AREA campaign_area("campaign");
     campaign_area.load_tdf("gui/campaign.area");
-    if( !campaign_area.background )	campaign_area.background = gfx->glfond;
+    if (!campaign_area.background)
+        campaign_area.background = gfx->glfond;
 
-    std::list< String > campaign_list;
+    std::list<String> campaign_list;
     HPIManager->GetFilelist("camps\\*.tdf",&campaign_list);
     for(std::list< String >::iterator i = campaign_list.begin() ; i != campaign_list.end() ; )		// Removes sub directories entries
-        if( SearchString( i->substr( 6, i->size() - 6 ), "/", true ) != -1 || SearchString( i->substr( 6, i->size() - 6 ), "\\", true ) != -1 )
-            campaign_list.erase( i++ );
+    {
+        if (SearchString(i->substr(6, i->size() - 6), "/", true) != -1 || SearchString(i->substr(6, i->size() - 6), "\\", true ) != -1)
+            campaign_list.erase(i++);
         else
-            i++;
+            ++i;
+    }
 
-    if( campaign_area.get_object("campaign.campaign_list") && campaign_list.size() > 0 ) {
+    if (campaign_area.get_object("campaign.campaign_list") && campaign_list.size() > 0)
+    {
         GUIOBJ *guiobj = campaign_area.get_object("campaign.campaign_list");
         guiobj->Text.clear();
         guiobj->Text.resize( campaign_list.size() );
         int n = 0;
-        for(std::list< String >::iterator i = campaign_list.begin() ; i != campaign_list.end() ; i++, n++ )
+        for (std::list< String >::iterator i = campaign_list.begin() ; i != campaign_list.end(); ++i, ++n)
             guiobj->Text[n] = i->substr(6, i->size() - 10 );
     }
 
@@ -2317,9 +2321,7 @@ void campaign_main_menu(void)
         if( data )	free( data );
     }
 
-    cTAFileParser	*campaign_parser = NULL;
-
-    bool done=false;
+    cTAFileParser* campaign_parser = NULL;
 
     bool start_game = false;
 
@@ -2331,24 +2333,30 @@ void campaign_main_menu(void)
     String	campaign_name = "";
     int mission_id = -1;
     int nb_mission = 0;
+    bool done = false;
 
     do
     {
         bool key_is_pressed = false;
-        do {
+        do
+        {
             key_is_pressed = keypressed();
             campaign_area.check();
-            rest( 1 );
-        } while( amx == mouse_x && amy == mouse_y && amz == mouse_z && amb == mouse_b && mouse_b == 0 && !key[ KEY_ENTER ] && !key[ KEY_ESC ] && !done && !key_is_pressed && !campaign_area.scrolling );
+            rest(1);
+        } while( amx == mouse_x && amy == mouse_y && amz == mouse_z && amb == mouse_b
+                 && mouse_b == 0 && !key[ KEY_ENTER ] && !key[ KEY_ESC ]
+                 && !done && !key_is_pressed && !campaign_area.scrolling );
 
         amx = mouse_x;
         amy = mouse_y;
         amz = mouse_z;
         amb = mouse_b;
 
-        if( campaign_area.get_object("campaign.campaign_list") && campaign_list.size() > 0 ) {				// If we don't have campaign data, then load them
+        if (campaign_area.get_object("campaign.campaign_list") && campaign_list.size() > 0) // If we don't have campaign data, then load them
+        {
             GUIOBJ *guiobj = campaign_area.get_object("campaign.campaign_list");
-            if( guiobj->Pos >= 0 && guiobj->Pos < guiobj->Text.size() && last_campaign_id != guiobj->Pos ) {
+            if (guiobj->Pos >= 0 && guiobj->Pos < guiobj->Text.size() && last_campaign_id != guiobj->Pos )
+            {
                 if( !campaign_parser )	delete campaign_parser;
                 last_campaign_id = guiobj->Pos;
                 mission_id = -1;
@@ -2357,11 +2365,13 @@ void campaign_main_menu(void)
 
                 guiobj = campaign_area.get_object("campaign.mission_list");
                 nb_mission = 0;
-                if( guiobj ) {
+                if( guiobj )
+                {
                     guiobj->Text.clear();
                     int i = 0;
                     String current_name = "";
-                    while( !(current_name = campaign_parser->PullAsString( format( "MISSION%d.missionname", i ) ) ).empty() ) {
+                    while (!(current_name = campaign_parser->PullAsString(format( "MISSION%d.missionname", i))).empty())
+                    {
                         guiobj->Text.push_back( current_name );
                         nb_mission++;
                         i++;
@@ -2369,33 +2379,45 @@ void campaign_main_menu(void)
                 }
 
                 guiobj = campaign_area.get_object("campaign.logo");
-                if( guiobj ) {
+                if (guiobj)
+                {
                     guiobj->Data = 0;
-                    for( int i = 0 ; i < ta3d_sidedata.nb_side ; i++ )
-                        if( Lowercase( ta3d_sidedata.side_name[ i ] ) == Lowercase( campaign_parser->PullAsString( "HEADER.campaignside" ) ) ) {
+                    for( int i = 0 ; i < ta3d_sidedata.nb_side ; ++i)
+                    {
+                        if (Lowercase(ta3d_sidedata.side_name[i] ) == Lowercase( campaign_parser->PullAsString( "HEADER.campaignside")))
+                        {
                             if( side_logos.nb_anim > i )
                                 guiobj->Data = side_logos.anm[i].glbmp[0];
                             break;
                         }
+                    }
                 }
             }
         }
 
-        if( campaign_area.get_object("campaign.mission_list") ) {
+        if( campaign_area.get_object("campaign.mission_list") )
+        {
             GUIOBJ *guiobj = campaign_area.get_object("campaign.mission_list");
             if( guiobj->Pos >= 0 && guiobj->Pos < guiobj->Text.size() )
                 mission_id = guiobj->Pos;
         }
 
-        if( campaign_area.get_state( "campaign.b_ok" ) || key[KEY_ENTER] ) {
-            while( key[KEY_ENTER] )	{	rest( 20 );	poll_keyboard();	}
+        if ((campaign_area.get_state( "campaign.b_ok") || key[KEY_ENTER]) && campaign_list.size())
+        {
+            while( key[KEY_ENTER] )
+            {
+                rest(20);
+                poll_keyboard();
+            }
             clear_keybuf();
             done=true;		// If user click "OK" or hit enter then leave the window
             start_game = true;
         }
-        if( campaign_area.get_state( "campaign.b_cancel" ) ) done=true;		// En cas de click sur "retour", on quitte la fenêtre
+        if (campaign_area.get_state( "campaign.b_cancel")) // En cas de click sur "retour", on quitte la fenêtre
+            done = true;
 
-        if(key[KEY_ESC]) done=true;			// Quitte si on appuie sur echap
+        if(key[KEY_ESC]) // Quitte si on appuie sur echap
+            done = true;
 
         campaign_area.draw();
 
@@ -2405,29 +2427,40 @@ void campaign_main_menu(void)
 
         // Affiche
         gfx->flip();
-    }while(!done);
+    } while(!done);
 
-    if( campaign_area.get_object("campaign.logo") )	campaign_area.get_object("campaign.logo")->Data = 0;
+    if (campaign_area.get_object("campaign.logo"))
+        campaign_area.get_object("campaign.logo")->Data = 0;
 
-    if( campaign_area.background == gfx->glfond )	campaign_area.background = 0;
+    if (campaign_area.background == gfx->glfond)
+        campaign_area.background = 0;
     campaign_area.destroy();
 
-    if( campaign_parser )	delete	campaign_parser;
+    if (campaign_parser)
+        delete campaign_parser;
 
     reset_mouse();
-    while(key[KEY_ESC]) {	rest(1);	poll_keyboard();	}
+    while(key[KEY_ESC])
+    {
+        rest(1);
+        poll_keyboard();
+    }
 
-    if(start_game) {					// Open the briefing screen and start playing the campaign
-
+    if(start_game) // Open the briefing screen and start playing the campaign
+    {
         int exit_mode = 0;
         while( mission_id < nb_mission && (exit_mode = brief_screen( campaign_name, mission_id )) >= 0 )
             if( exit_mode == EXIT_VICTORY )	mission_id++;
 
-        while(key[KEY_ESC]) {	rest(1);	poll_keyboard();	}
+        while (key[KEY_ESC])
+        {
+            rest(1);
+            poll_keyboard();
+        }
     }
 }
 
-int brief_screen( String campaign_name, int mission_id )
+int brief_screen(String campaign_name, int mission_id)
 {
     cursor_type=CURSOR_DEFAULT;
 
