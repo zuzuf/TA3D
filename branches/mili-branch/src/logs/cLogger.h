@@ -19,7 +19,7 @@
 #ifndef __TA3D_OLD_LOGGER_H__
 # define __TA3D_OLD_LOGGER_H__
 
-# include "threads/thread.h"
+# include "../threads/thread.h"
 
 
 

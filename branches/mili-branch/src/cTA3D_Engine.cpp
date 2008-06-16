@@ -19,7 +19,7 @@
 #include "TA3D_NameSpace.h"
 #include "threads/cThread.h"
 #include "threads/thread.h"
-#include "cLogger.h"
+#include "logs/cLogger.h"
 #include "cTA3D_Engine.h"
 #include "ta3dbase.h"
 

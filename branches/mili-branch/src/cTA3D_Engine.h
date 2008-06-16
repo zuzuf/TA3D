@@ -20,7 +20,7 @@
 # define __TA3D_ENGINE_H__
 
 #include "threads/cThread.h"
-#include "cLogger.h"
+#include "logs/cLogger.h"
 
 namespace TA3D
 {
