@@ -112,7 +112,7 @@ namespace Interfaces
         return workaround;
     }
 
-    void displayInfosAboutOpenGL() const
+    void GFX::displayInfosAboutOpenGL() const
     {
         if (Console)
         {
