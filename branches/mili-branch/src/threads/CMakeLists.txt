@@ -4,6 +4,6 @@ SET(ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../../bin/libs/${CMAKE
 SET(SOURCES cCriticalSection.cpp cCriticalSection.h
             cThread.cpp cThread.h
             thread.h thread.cpp
-            mutex.h)
+            mutex.h mutex.cpp)
 
 ADD_LIBRARY(threads STATIC ${SOURCES})
