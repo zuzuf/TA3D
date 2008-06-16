@@ -41,10 +41,7 @@ namespace Interfaces
 
     GFX::GFX()
     {
-        CreateCS();
-
         install_allegro_gl();
-
         allegro_gl_clear_settings();         // Initialise AllegroGL
 #ifndef TA3D_PLATFORM_DARWIN
         allegro_gl_set (AGL_STENCIL_DEPTH, 8 );
@@ -94,7 +91,7 @@ namespace Interfaces
         else
             set_gfx_mode(GFX_OPENGL_WINDOWED, TA3D::VARS::lp_CONFIG->screen_width, TA3D::VARS::lp_CONFIG->screen_height, 0, 0);      // Entre en mode graphique OpenGL (fenêtré)
 
-        precalculations();
+        preCalculations();
 
         // Install OpenGL extensions
         installOpenGLExtensions();
@@ -152,8 +149,6 @@ namespace Interfaces
         small_font.destroy();
         TA_font.destroy();
         ta3d_gui_font.destroy();
-
-        DeleteCS();
     }
 
 
@@ -227,12 +222,12 @@ namespace Interfaces
     }
 
 
-    void GFX::set_2D_mode() const
+    void GFX::set_2D_mode()
     {
         allegro_gl_set_allegro_mode();
     }
 
-    void GFX::unset_2D_mode() const
+    void GFX::unset_2D_mode()
     {
         allegro_gl_unset_allegro_mode();
     }
@@ -301,7 +296,8 @@ namespace Interfaces
     {
         float d_alpha = DB_PI/(r+1.0f);
         glBegin( GL_LINE_LOOP );
-        for( float alpha = 0.0f; alpha <= DB_PI; alpha+=d_alpha ) {
+        for (float alpha = 0.0f; alpha <= DB_PI; alpha += d_alpha)
+        {
             float rx = x+r*cos(alpha);
             float ry = y+r*sin(alpha);
             if (rx < mx )		rx = mx;
@@ -312,6 +308,7 @@ namespace Interfaces
         }
         glEnd();
     }
+
     void GFX::circle_zoned(const float x, const float y, const float r, const float mx, const float my, const float Mx, const float My, const uint32 col)
     {
         set_color(col);
@@ -323,10 +320,11 @@ namespace Interfaces
         float d_alpha = DB_PI/(r+1.0f);
         glBegin(GL_TRIANGLE_FAN);
         glVertex2f(x,y);
-        for( float alpha = 0.0f; alpha <= DB_PI; alpha+=d_alpha )
+        for( float alpha = 0.0f; alpha <= DB_PI; alpha += d_alpha)
             glVertex2f( x+r*cos(alpha), y+r*sin(alpha) );
         glEnd();
     }
+    
     void GFX::circlefill(const float x, const float y, const float r, const uint32 col)
     {
         set_color(col);
@@ -413,7 +411,7 @@ namespace Interfaces
         print( font, x, y, z, col, text.c_str() );
     }
 
-    void GFX::print(const GfxFont &font, const float x, const float y, const float z, const char *text)		// Font related routines
+    void GFX::print(const GfxFont& font, const float x, const float y, const float z, const char *text)		// Font related routines
     {
         ReInitTexSys( false );
         glPushAttrib(GL_ALL_ATTRIB_BITS);
@@ -552,165 +550,156 @@ namespace Interfaces
         print_right( font, x, y, z, col, text.c_str() );
     }
 
-    void
-        GFX::print_right(const GfxFont &font, const float x, const float y, const float z, const char *text)		// Font related routines
+    void GFX::print_right(const GfxFont &font, const float x, const float y, const float z, const char *text)		// Font related routines
+    {
+        ReInitTexSys( false );
+        glPushAttrib(GL_ALL_ATTRIB_BITS);
+        glEnable(GL_BLEND);
+        if(font.clear)
+            glBlendFunc(GL_ONE,GL_ONE_MINUS_SRC_ALPHA);
+        else
+            glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+
+        float X = x - font.length( text );
+
+        glEnable(GL_TEXTURE_2D);
+        glPushMatrix();
+        glScalef(font.size,font.size,1.0f);
+        allegro_gl_printf_ex(font.pGl, X/font.size, y/font.size, z, text );
+        glPopMatrix();
+        glPopAttrib();
+    }
+
+    void GFX::print_right(const GfxFont &font, const float x, const float y, const float z, const uint32 col, const char *text)		// Font related routines
+    {
+        set_color(col);
+        print_right( font, x, y, z, text );
+    }
+
+
+    void GFX::print_right(const GfxFont &font, const float x, const float y, const float z, const String text, float s)		// Font related routines
+    {
+        print_right( font, x, y, z, text.c_str() , s);
+    }
+
+    void GFX::print_right(const GfxFont &font, const float x, const float y, const float z, const uint32 col, const String text, float s)		// Font related routines
+    {
+        print_right( font, x, y, z, col, text.c_str() , s);
+    }
+
+
+    void GFX::print_right(const GfxFont &font, const float x, const float y, const float z, const char *text,float s)		// Font related routines
+    {
+        ReInitTexSys( false );
+        glPushAttrib(GL_ALL_ATTRIB_BITS);
+        glEnable(GL_BLEND);
+        if(font.clear)
+            glBlendFunc(GL_ONE,GL_ONE_MINUS_SRC_ALPHA);
+        else
+            glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+
+        float X = x - font.length(text);
+
+        glEnable(GL_TEXTURE_2D);
+        glPushMatrix();
+        if (s > 0.0f )
         {
-            ReInitTexSys( false );
-            glPushAttrib(GL_ALL_ATTRIB_BITS);
-            glEnable(GL_BLEND);
-            if(font.clear)
-                glBlendFunc(GL_ONE,GL_ONE_MINUS_SRC_ALPHA);
-            else
-                glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
-
-            float X = x - font.length( text );
-
-            glEnable(GL_TEXTURE_2D);
-            glPushMatrix();
-            glScalef(font.size,font.size,1.0f);
-            allegro_gl_printf_ex(font.pGl, X/font.size, y/font.size, z, text );
-            glPopMatrix();
-            glPopAttrib();
+            glScalef(s,s,1.0f);
+            allegro_gl_printf_ex(font.pGl, X/s, y/s, z, text );
         }
+        glPopMatrix();
+        glPopAttrib();
+    }
 
-    void
-        GFX::print_right(const GfxFont &font, const float x, const float y, const float z, const uint32 col, const char *text)		// Font related routines
+    void GFX::print_right(const GfxFont &font, const float x, const float y, const float z, const uint32 col, const char *text,float s)		// Font related routines
+    {
+        set_color(col);
+        print_right( font, x, y, z, text , s );
+    }
+
+    GLuint GFX::make_texture(BITMAP *bmp, byte filter_type, bool clamp )
+    {
+        MutexLocker locker(pMutex);
+
+        int max_tex_size;
+        glGetIntegerv(GL_MAX_TEXTURE_SIZE,&max_tex_size);
+
+        if (bmp->w > max_tex_size || bmp->h > max_tex_size )
         {
-            set_color(col);
-            print_right( font, x, y, z, text );
-        }
-
-
-    void
-        GFX::print_right(const GfxFont &font, const float x, const float y, const float z, const String text, float s)		// Font related routines
-        {
-            print_right( font, x, y, z, text.c_str() , s);
-        }
-
-    void
-        GFX::print_right(const GfxFont &font, const float x, const float y, const float z, const uint32 col, const String text, float s)		// Font related routines
-        {
-            print_right( font, x, y, z, col, text.c_str() , s);
-        }
-
-
-    void
-        GFX::print_right(const GfxFont &font, const float x, const float y, const float z, const char *text,float s)		// Font related routines
-        {
-            ReInitTexSys( false );
-            glPushAttrib(GL_ALL_ATTRIB_BITS);
-            glEnable(GL_BLEND);
-            if(font.clear)
-                glBlendFunc(GL_ONE,GL_ONE_MINUS_SRC_ALPHA);
-            else
-                glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
-
-            float X = x - font.length(text);
-
-            glEnable(GL_TEXTURE_2D);
-            glPushMatrix();
-            if (s > 0.0f )
-            {
-                glScalef(s,s,1.0f);
-                allegro_gl_printf_ex(font.pGl, X/s, y/s, z, text );
-            }
-            glPopMatrix();
-            glPopAttrib();
-        }
-
-    void
-        GFX::print_right(const GfxFont &font, const float x, const float y, const float z, const uint32 col, const char *text,float s)		// Font related routines
-        {
-            set_color(col);
-            print_right( font, x, y, z, text , s );
-        }
-
-    GLuint
-        GFX::make_texture(BITMAP *bmp, byte filter_type, bool clamp )
-        {
-            EnterCS();
-
-            int max_tex_size;
-            glGetIntegerv(GL_MAX_TEXTURE_SIZE,&max_tex_size);
-
-            if (bmp->w > max_tex_size || bmp->h > max_tex_size )
-            {
-                BITMAP *tmp = create_bitmap_ex(bitmap_color_depth( bmp ),
-                                               min( bmp->w, max_tex_size ), min( bmp->h, max_tex_size));
-                stretch_blit( bmp, tmp, 0, 0, bmp->w, bmp->h, 0, 0, tmp->w, tmp->h );
-                GLuint tex = make_texture( tmp, filter_type, clamp );
-                destroy_bitmap( tmp );
-                return tex;
-            }
-
-            glPushAttrib( GL_ALL_ATTRIB_BITS );
-
-            if (ati_workaround && filter_type != FILTER_NONE
-                && ( !IsPowerOfTwo( bmp->w ) || !IsPowerOfTwo( bmp->h ) ) )
-                filter_type = FILTER_LINEAR;
-
-            if (filter_type == FILTER_NONE || filter_type == FILTER_LINEAR )
-                allegro_gl_use_mipmapping(false);
-            else
-                allegro_gl_use_mipmapping(true);
-            GLuint gl_tex = allegro_gl_make_texture(bmp);
-            if (filter_type == FILTER_NONE || filter_type == FILTER_LINEAR )
-                allegro_gl_use_mipmapping(true);
-            glBindTexture(GL_TEXTURE_2D, gl_tex);
-
-            glMatrixMode(GL_TEXTURE);
-            glLoadIdentity();
-            glMatrixMode(GL_MODELVIEW);
-
-            if (clamp )
-            {
-                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP );
-                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP );
-            }
-            else
-            {
-                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT );
-                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT );
-            }
-
-            switch(filter_type)
-            {
-                case FILTER_NONE:
-                    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
-                    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
-                    break;
-                case FILTER_LINEAR:
-                    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
-                    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
-                    break;
-                case FILTER_BILINEAR:
-                    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
-                    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR_MIPMAP_NEAREST);
-                    break;
-                case FILTER_TRILINEAR:
-                    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
-                    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR_MIPMAP_LINEAR);
-                    break;
-            }
-
-            glPopAttrib();
-
-            LeaveCS();
-            return gl_tex;
-        }
-
-
-    GLuint
-        GFX::create_texture(int w, int h, byte filter_type, bool clamp )
-        {
-            BITMAP* tmp = create_bitmap(w, h);
-            clear( tmp );
+            BITMAP *tmp = create_bitmap_ex(bitmap_color_depth( bmp ),
+                                           min( bmp->w, max_tex_size ), min( bmp->h, max_tex_size));
+            stretch_blit( bmp, tmp, 0, 0, bmp->w, bmp->h, 0, 0, tmp->w, tmp->h );
             GLuint tex = make_texture( tmp, filter_type, clamp );
             destroy_bitmap( tmp );
             return tex;
         }
 
-    void	GFX::blit_texture( BITMAP *src, GLuint &dst )
+        glPushAttrib( GL_ALL_ATTRIB_BITS );
+
+        if (ati_workaround && filter_type != FILTER_NONE
+            && ( !IsPowerOfTwo( bmp->w ) || !IsPowerOfTwo( bmp->h ) ) )
+            filter_type = FILTER_LINEAR;
+
+        if (filter_type == FILTER_NONE || filter_type == FILTER_LINEAR )
+            allegro_gl_use_mipmapping(false);
+        else
+            allegro_gl_use_mipmapping(true);
+        GLuint gl_tex = allegro_gl_make_texture(bmp);
+        if (filter_type == FILTER_NONE || filter_type == FILTER_LINEAR )
+            allegro_gl_use_mipmapping(true);
+        glBindTexture(GL_TEXTURE_2D, gl_tex);
+
+        glMatrixMode(GL_TEXTURE);
+        glLoadIdentity();
+        glMatrixMode(GL_MODELVIEW);
+
+        if (clamp )
+        {
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP );
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP );
+        }
+        else
+        {
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT );
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT );
+        }
+
+        switch(filter_type)
+        {
+            case FILTER_NONE:
+                glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+                glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+                break;
+            case FILTER_LINEAR:
+                glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
+                glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
+                break;
+            case FILTER_BILINEAR:
+                glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
+                glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR_MIPMAP_NEAREST);
+                break;
+            case FILTER_TRILINEAR:
+                glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
+                glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR_MIPMAP_LINEAR);
+                break;
+        }
+
+        glPopAttrib();
+
+        return gl_tex;
+    }
+
+
+    GLuint GFX::create_texture(int w, int h, byte filter_type, bool clamp )
+    {
+        BITMAP* tmp = create_bitmap(w, h);
+        clear( tmp );
+        GLuint tex = make_texture( tmp, filter_type, clamp );
+        destroy_bitmap( tmp );
+        return tex;
+    }
+
+    void GFX::blit_texture( BITMAP *src, GLuint &dst )
     {
         if(!dst)
             return;
@@ -726,44 +715,43 @@ namespace Interfaces
 
 
 
-    GLuint
-        GFX::load_texture(String file, byte filter_type, uint32 *width, uint32 *height, bool clamp )
-        {
-            if (!exists( file.c_str())) // The file doesn't exist
-                return 0;
+    GLuint GFX::load_texture(String file, byte filter_type, uint32 *width, uint32 *height, bool clamp )
+    {
+        if (!exists( file.c_str())) // The file doesn't exist
+            return 0;
 
-            set_color_depth(32);
-            BITMAP *bmp = load_bitmap( file.c_str(), NULL);
-            if (bmp == NULL )	return 0;					// Operation failed
-            if (width )		*width = bmp->w;
-            if (height )	*height = bmp->h;
-            if (bitmap_color_depth(bmp) != 32 )
-            {
-                BITMAP *tmp = create_bitmap_ex( 32, bmp->w, bmp->h );
-                blit( bmp, tmp, 0, 0, 0, 0, bmp->w, bmp->h);
-                destroy_bitmap(bmp);
-                bmp=tmp;
-            }
-            bool with_alpha = Lowercase( get_extension( file.c_str() ) ) == "tga";
-            if (with_alpha)
-            {
-                with_alpha = false;
-                for( int y = 0 ; y < bmp->h && !with_alpha ; y++ )
-                {
-                    for( int x = 0 ; x < bmp->w && !with_alpha ; x++ )
-                        with_alpha |= bmp->line[y][(x<<2)+3] != 255;
-                }
-            }
-            if(g_useTextureCompression)
-                allegro_gl_set_texture_format( with_alpha ? GL_COMPRESSED_RGBA_ARB : GL_COMPRESSED_RGB_ARB );
-            else
-                allegro_gl_set_texture_format( with_alpha ? GL_RGBA8 : GL_RGB8 );
-            allegro_gl_use_alpha_channel( with_alpha );
-            GLuint gl_tex = make_texture( bmp, filter_type, clamp );
-            allegro_gl_use_alpha_channel(false);
+        set_color_depth(32);
+        BITMAP *bmp = load_bitmap( file.c_str(), NULL);
+        if (bmp == NULL )	return 0;					// Operation failed
+        if (width )		*width = bmp->w;
+        if (height )	*height = bmp->h;
+        if (bitmap_color_depth(bmp) != 32 )
+        {
+            BITMAP *tmp = create_bitmap_ex( 32, bmp->w, bmp->h );
+            blit( bmp, tmp, 0, 0, 0, 0, bmp->w, bmp->h);
             destroy_bitmap(bmp);
-            return gl_tex;
+            bmp=tmp;
         }
+        bool with_alpha = Lowercase( get_extension( file.c_str() ) ) == "tga";
+        if (with_alpha)
+        {
+            with_alpha = false;
+            for( int y = 0 ; y < bmp->h && !with_alpha ; y++ )
+            {
+                for( int x = 0 ; x < bmp->w && !with_alpha ; x++ )
+                    with_alpha |= bmp->line[y][(x<<2)+3] != 255;
+            }
+        }
+        if(g_useTextureCompression)
+            allegro_gl_set_texture_format( with_alpha ? GL_COMPRESSED_RGBA_ARB : GL_COMPRESSED_RGB_ARB );
+        else
+            allegro_gl_set_texture_format( with_alpha ? GL_RGBA8 : GL_RGB8 );
+        allegro_gl_use_alpha_channel( with_alpha );
+        GLuint gl_tex = make_texture( bmp, filter_type, clamp );
+        allegro_gl_use_alpha_channel(false);
+        destroy_bitmap(bmp);
+        return gl_tex;
+    }
 
     GLuint	GFX::load_texture_mask( String file, int level, byte filter_type, uint32 *width, uint32 *height, bool clamp )
     {
@@ -822,241 +810,232 @@ namespace Interfaces
 
 
 
-    GLuint
-        GFX::load_texture_from_cache( String file, byte filter_type, uint32 *width, uint32 *height, bool clamp )
+    GLuint GFX::load_texture_from_cache( String file, byte filter_type, uint32 *width, uint32 *height, bool clamp )
+    {
+        if(ati_workaround || !lp_CONFIG->use_texture_cache)
+            return 0;
+
+        file = TA3D::Paths::Caches + file;
+        if(TA3D::Paths::Exists(file))
         {
-            if(ati_workaround || !lp_CONFIG->use_texture_cache)
-                return 0;
+            FILE *cache_file = TA3D_OpenFile(file, "rb");
+            uint32 mod_hash;
+            fread(&mod_hash, sizeof( mod_hash ), 1, cache_file);
 
-            file = TA3D::Paths::Caches + file;
-
-            if(TA3D::Paths::Exists(file))
+            if (mod_hash != hash_string( TA3D_CURRENT_MOD)) // Doesn't correspond to current mod
             {
-                FILE *cache_file = TA3D_OpenFile(file, "rb");
-                uint32 mod_hash;
-                fread(&mod_hash, sizeof( mod_hash ), 1, cache_file);
-
-                if (mod_hash != hash_string( TA3D_CURRENT_MOD)) // Doesn't correspond to current mod
-                {
-                    fclose(cache_file);
-                    return 0;
-                }
-
-                glPushAttrib( GL_ALL_ATTRIB_BITS );
-
-                uint32 rw, rh;
-                fread( &rw, 4, 1, cache_file );
-                fread( &rh, 4, 1, cache_file );
-                if(width)  *width = rw;
-                if(height) *height = rh;
-
-                byte *img = new byte[ rw * rh * 5 ];
-
-                int lod_max = 0;
-                GLint size, internal_format;
-
-                fread( &lod_max, sizeof( lod_max ), 1, cache_file );
-                fread( &internal_format, sizeof( GLint ), 1, cache_file );
-
-                GLuint	tex = gfx->create_texture( 1, 1 );
-
-                glBindTexture( GL_TEXTURE_2D, tex );
-
-                for( int lod = 0 ; lod  < lod_max ; lod++ )
-                {
-                    fread( &size, sizeof( GLint ), 1, cache_file );
-                    fread( &internal_format, sizeof( GLint ), 1, cache_file );
-                    fread( img, size, 1, cache_file );
-                    glCompressedTexImage2DARB( GL_TEXTURE_2D, lod, internal_format, rw, rh, 0, size, img);
-                }
-
-                delete img;
-
-                fclose( cache_file );
-
-                glMatrixMode(GL_TEXTURE);
-                glLoadIdentity();
-                glMatrixMode(GL_MODELVIEW);
-
-                if (clamp )
-                {
-                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP );
-                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP );
-                }
-                else
-                {
-                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT );
-                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT );
-                }
-
-                switch(filter_type)
-                {
-                    case FILTER_NONE:
-                        glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
-                        glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
-                        break;
-                    case FILTER_LINEAR:
-                        glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
-                        glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
-                        break;
-                    case FILTER_BILINEAR:
-                        glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
-                        glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR_MIPMAP_NEAREST);
-                        break;
-                    case FILTER_TRILINEAR:
-                        glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
-                        glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR_MIPMAP_LINEAR);
-                        break;
-                }
-                glPopAttrib();
-                return tex;
+                fclose(cache_file);
+                return 0;
             }
-            return 0; // File isn't in cache
-        }
 
+            glPushAttrib( GL_ALL_ATTRIB_BITS );
 
-    void
-        GFX::save_texture_to_cache( String file, GLuint tex, uint32 width, uint32 height )
-        {
-            if(ati_workaround || !lp_CONFIG->use_texture_cache)
-                return;
-
-            file = TA3D::Paths::Caches + file;
-
-            int rw = texture_width( tex ), rh = texture_height( tex );		// Also binds tex
-
-            GLint	compressed;
-            glGetTexLevelParameteriv( GL_TEXTURE_2D, 0, GL_TEXTURE_COMPRESSED_ARB, &compressed );
-            // Do not save it if it's not compressed -> save disk space, and it would slow things down
-            if(!compressed)
-                return;		
-
-            FILE* cache_file = TA3D_OpenFile( file, "wb" );
-
-            if (cache_file == NULL )
-                return;
-
-            uint32 mod_hash = hash_string( TA3D_CURRENT_MOD );			// Save a hash of current mod
-
-            fwrite( &mod_hash, sizeof( mod_hash ), 1, cache_file );
-
-            fwrite( &width, 4, 1, cache_file );
-            fwrite( &height, 4, 1, cache_file );
+            uint32 rw, rh;
+            fread( &rw, 4, 1, cache_file );
+            fread( &rh, 4, 1, cache_file );
+            if(width)  *width = rw;
+            if(height) *height = rh;
 
             byte *img = new byte[ rw * rh * 5 ];
 
-            float lod_max_f = max( log( rw ), log( rh ) ) / log( 2.0f );
-            int lod_max = ((int) lod_max_f);
-            if (lod_max > lod_max_f )
-                lod_max++;
-
-            fwrite( &lod_max, sizeof( lod_max ), 1, cache_file );
-
+            int lod_max = 0;
             GLint size, internal_format;
-            glGetTexLevelParameteriv( GL_TEXTURE_2D, 0, GL_TEXTURE_INTERNAL_FORMAT, &internal_format );
-            fwrite( &internal_format, sizeof( GLint ), 1, cache_file );
+
+            fread( &lod_max, sizeof( lod_max ), 1, cache_file );
+            fread( &internal_format, sizeof( GLint ), 1, cache_file );
+
+            GLuint	tex = gfx->create_texture( 1, 1 );
+
+            glBindTexture( GL_TEXTURE_2D, tex );
 
             for( int lod = 0 ; lod  < lod_max ; lod++ )
             {
-                glGetTexLevelParameteriv( GL_TEXTURE_2D, lod, GL_TEXTURE_COMPRESSED_IMAGE_SIZE_ARB, &size );
-                glGetTexLevelParameteriv( GL_TEXTURE_2D, lod, GL_TEXTURE_INTERNAL_FORMAT, &internal_format );
-                glGetCompressedTexImageARB( GL_TEXTURE_2D, lod, img );
-                fwrite( &size, sizeof( GLint ), 1, cache_file );
-                fwrite( &internal_format, sizeof( GLint ), 1, cache_file );
-                fwrite( img, size, 1, cache_file );
+                fread( &size, sizeof( GLint ), 1, cache_file );
+                fread( &internal_format, sizeof( GLint ), 1, cache_file );
+                fread( img, size, 1, cache_file );
+                glCompressedTexImage2DARB( GL_TEXTURE_2D, lod, internal_format, rw, rh, 0, size, img);
             }
 
             delete img;
 
             fclose( cache_file );
-        }
 
+            glMatrixMode(GL_TEXTURE);
+            glLoadIdentity();
+            glMatrixMode(GL_MODELVIEW);
 
-
-    GLuint
-        GFX::load_masked_texture(String file, String mask, byte filter_type )
-        {
-            if (!exists( file.c_str() ) )	return 0;		// The file doesn't exist
-            if (!exists( mask.c_str() ) )	return 0;		// The file doesn't exist
-
-            set_color_depth(32);
-            BITMAP *bmp=load_bitmap( file.c_str(), NULL );
-            if (bmp == NULL )	return 0;					// Operation failed
-            BITMAP *alpha;
-            set_color_depth(8);
-            alpha=load_bitmap( mask.c_str(), NULL );
-            if(! alpha)
+            if (clamp )
             {
-                destroy_bitmap( alpha );
-                return 0;
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP );
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP );
             }
-            set_color_depth(32);
-            for(int y = 0; y < bmp->h; ++y)
-            {
-                for(int x=0;x<bmp->w;x++)
-                    bmp->line[y][(x<<2)+3]=alpha->line[y][x];
-            }
-            allegro_gl_use_alpha_channel(true);
-            if(g_useTextureCompression)
-                allegro_gl_set_texture_format(GL_COMPRESSED_RGBA_ARB);
             else
-                allegro_gl_set_texture_format(GL_RGBA8);
-            GLuint gl_tex = make_texture( bmp, filter_type );
-            allegro_gl_use_alpha_channel(false);
-            destroy_bitmap(bmp);
-            destroy_bitmap(alpha);
-            return gl_tex;
+            {
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT );
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT );
+            }
+
+            switch(filter_type)
+            {
+                case FILTER_NONE:
+                    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+                    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+                    break;
+                case FILTER_LINEAR:
+                    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
+                    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
+                    break;
+                case FILTER_BILINEAR:
+                    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
+                    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR_MIPMAP_NEAREST);
+                    break;
+                case FILTER_TRILINEAR:
+                    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
+                    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR_MIPMAP_LINEAR);
+                    break;
+            }
+            glPopAttrib();
+            return tex;
         }
+        return 0; // File isn't in cache
+    }
 
 
-    uint32
-        GFX::texture_width(const GLuint& gltex)
+    void GFX::save_texture_to_cache( String file, GLuint tex, uint32 width, uint32 height )
+    {
+        if(ati_workaround || !lp_CONFIG->use_texture_cache)
+            return;
+
+        file = TA3D::Paths::Caches + file;
+
+        int rw = texture_width( tex ), rh = texture_height( tex );		// Also binds tex
+
+        GLint	compressed;
+        glGetTexLevelParameteriv( GL_TEXTURE_2D, 0, GL_TEXTURE_COMPRESSED_ARB, &compressed );
+        // Do not save it if it's not compressed -> save disk space, and it would slow things down
+        if(!compressed)
+            return;		
+
+        FILE* cache_file = TA3D_OpenFile( file, "wb" );
+
+        if (cache_file == NULL )
+            return;
+
+        uint32 mod_hash = hash_string( TA3D_CURRENT_MOD );			// Save a hash of current mod
+
+        fwrite( &mod_hash, sizeof( mod_hash ), 1, cache_file );
+
+        fwrite( &width, 4, 1, cache_file );
+        fwrite( &height, 4, 1, cache_file );
+
+        byte *img = new byte[ rw * rh * 5 ];
+
+        float lod_max_f = max( log( rw ), log( rh ) ) / log( 2.0f );
+        int lod_max = ((int) lod_max_f);
+        if (lod_max > lod_max_f )
+            lod_max++;
+
+        fwrite( &lod_max, sizeof( lod_max ), 1, cache_file );
+
+        GLint size, internal_format;
+        glGetTexLevelParameteriv( GL_TEXTURE_2D, 0, GL_TEXTURE_INTERNAL_FORMAT, &internal_format );
+        fwrite( &internal_format, sizeof( GLint ), 1, cache_file );
+
+        for( int lod = 0 ; lod  < lod_max ; lod++ )
         {
-            GLint width;
-            glBindTexture( GL_TEXTURE_2D, gltex);
-            glGetTexLevelParameteriv( GL_TEXTURE_2D, 0, GL_TEXTURE_WIDTH, &width );
-            return width;
+            glGetTexLevelParameteriv( GL_TEXTURE_2D, lod, GL_TEXTURE_COMPRESSED_IMAGE_SIZE_ARB, &size );
+            glGetTexLevelParameteriv( GL_TEXTURE_2D, lod, GL_TEXTURE_INTERNAL_FORMAT, &internal_format );
+            glGetCompressedTexImageARB( GL_TEXTURE_2D, lod, img );
+            fwrite( &size, sizeof( GLint ), 1, cache_file );
+            fwrite( &internal_format, sizeof( GLint ), 1, cache_file );
+            fwrite( img, size, 1, cache_file );
         }
 
-    uint32
-        GFX::texture_height(const GLuint& gltex)
+        delete img;
+
+        fclose( cache_file );
+    }
+
+
+
+    GLuint GFX::load_masked_texture(String file, String mask, byte filter_type )
+    {
+        if (!exists(file.c_str()) || !exists(mask.c_str()))
+            return 0;		// The file doesn't exist
+
+        set_color_depth(32);
+        BITMAP* bmp = load_bitmap(file.c_str(), NULL);
+        if (bmp == NULL )	return 0;					// Operation failed
+        BITMAP *alpha;
+        set_color_depth(8);
+        alpha=load_bitmap( mask.c_str(), NULL );
+        if(! alpha)
         {
-            GLint height;
-            glBindTexture( GL_TEXTURE_2D, gltex);
-            glGetTexLevelParameteriv( GL_TEXTURE_2D, 0, GL_TEXTURE_HEIGHT, &height );
-            return height;
+            destroy_bitmap( alpha );
+            return 0;
         }
-
-
-    void
-        GFX::destroy_texture(GLuint& gltex)
+        set_color_depth(32);
+        for(int y = 0; y < bmp->h; ++y)
         {
-            if (gltex )						// Test if the texture exists
-                glDeleteTextures(1,&gltex);
-            gltex = 0;						// The texture is destroyed
+            for(int x=0;x<bmp->w;x++)
+                bmp->line[y][(x<<2)+3]=alpha->line[y][x];
         }
+        allegro_gl_use_alpha_channel(true);
+        if(g_useTextureCompression)
+            allegro_gl_set_texture_format(GL_COMPRESSED_RGBA_ARB);
+        else
+            allegro_gl_set_texture_format(GL_RGBA8);
+        GLuint gl_tex = make_texture( bmp, filter_type );
+        allegro_gl_use_alpha_channel(false);
+        destroy_bitmap(bmp);
+        destroy_bitmap(alpha);
+        return gl_tex;
+    }
 
-    GLuint
-        GFX::make_texture_from_screen( byte filter_type)				// Copy pixel data from screen to a texture
-        {
-            BITMAP *tmp = create_bitmap_ex(32, SCREEN_W, SCREEN_H);
-            GLuint gltex = make_texture(tmp, filter_type);
-            destroy_bitmap(tmp);
 
-            glBindTexture(GL_TEXTURE_2D,gltex);
-            glCopyTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 0, 0, SCREEN_W, SCREEN_H, 0);
+    uint32 GFX::texture_width(const GLuint& gltex)
+    {
+        GLint width;
+        glBindTexture( GL_TEXTURE_2D, gltex);
+        glGetTexLevelParameteriv( GL_TEXTURE_2D, 0, GL_TEXTURE_WIDTH, &width );
+        return width;
+    }
 
-            return gltex;
-        }
+    uint32 GFX::texture_height(const GLuint& gltex)
+    {
+        GLint height;
+        glBindTexture( GL_TEXTURE_2D, gltex);
+        glGetTexLevelParameteriv( GL_TEXTURE_2D, 0, GL_TEXTURE_HEIGHT, &height );
+        return height;
+    }
 
-    void
-        GFX::set_alpha_blending()
-        {
-            glPushAttrib(GL_ENABLE_BIT);					// Push OpenGL attribs to pop them later when we unset alpha blending
-            glEnable(GL_BLEND);
-            glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
-            alpha_blending_set = true;
-        }
+
+    void GFX::destroy_texture(GLuint& gltex)
+    {
+        if (gltex )						// Test if the texture exists
+            glDeleteTextures(1,&gltex);
+        gltex = 0;						// The texture is destroyed
+    }
+
+    GLuint GFX::make_texture_from_screen( byte filter_type)				// Copy pixel data from screen to a texture
+    {
+        BITMAP *tmp = create_bitmap_ex(32, SCREEN_W, SCREEN_H);
+        GLuint gltex = make_texture(tmp, filter_type);
+        destroy_bitmap(tmp);
+
+        glBindTexture(GL_TEXTURE_2D,gltex);
+        glCopyTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 0, 0, SCREEN_W, SCREEN_H, 0);
+
+        return gltex;
+    }
+
+    void GFX::set_alpha_blending()
+    {
+        glPushAttrib(GL_ENABLE_BIT);					// Push OpenGL attribs to pop them later when we unset alpha blending
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+        alpha_blending_set = true;
+    }
 
     void GFX::unset_alpha_blending()
     {
@@ -1142,16 +1121,14 @@ namespace Interfaces
     }
 
 
-    void GFX::precalculations()
+    void GFX::preCalculations()
     {
-
         SCREEN_W_HALF = SCREEN_W>>1;
         SCREEN_H_HALF = SCREEN_H>>1;
         SCREEN_W_INV = 1.0f / SCREEN_W;
         SCREEN_H_INV = 1.0f / SCREEN_H;
         SCREEN_W_TO_640 = 640.0f / SCREEN_W;
         SCREEN_H_TO_480 = 480.0f / SCREEN_H;
-
     }
 
 

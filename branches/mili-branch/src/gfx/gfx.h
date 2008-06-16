@@ -29,6 +29,7 @@ using namespace TA3D; // TODO Remove this
 
 # include "gfxfont.h"
 # include "gfxtexture.h"
+# include "../threads/mutex.h"
 
 
 
@@ -48,7 +49,7 @@ namespace Interfaces
     class GfxFont;
 
     
-    class GFX : protected cCriticalSection, protected IInterface
+    class GFX : protected IInterface
     {
         friend class GfxFont;
 
@@ -78,12 +79,11 @@ namespace Interfaces
 
         GFX();
 
-        void precalculations();
 
         virtual ~GFX();
 
-        void GFX_EnterCS()	{ EnterCS(); }
-        void GFX_LeaveCS()	{ LeaveCS(); }
+        void GFX_EnterCS()	{ pMutex.lock(); }
+        void GFX_LeaveCS()	{ pMutex.unlock(); }
 
 
         void load_background();
@@ -94,6 +94,9 @@ namespace Interfaces
 
     private:
         uint32 InterfaceMsg( const lpcImsg msg );
+        Mutex pMutex;
+        
+        void preCalculations();
 
     public:
         //! \name Color management
@@ -170,8 +173,8 @@ namespace Interfaces
 
         //! \name 3D Mode
         //{
-        void set_2D_mode() const;
-        void unset_2D_mode() const;
+        static void set_2D_mode();
+        static void unset_2D_mode();
         //}
 
         void print(const GfxFont &font, const float x, const float y, const float z, const String text );		// Font related routines
