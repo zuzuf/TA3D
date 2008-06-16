@@ -22,14 +22,14 @@
 |                                                           |
 \----------------------------------------------------------*/
 
+#ifndef __TA3D_ENGINE_CL_H__
+# define __TA3D_ENGINE_CL_H__
 
-#include "particles.h"			// Pour le moteur à particules
+
 #include "tdf.h"				// Pour le gestionnaire de sprites
 #include "taconfig.h"
 #include "threads/thread.h"
-
-#ifndef ENGINE_CLASS		// Ne déclare pas 2 fois les classes du moteur
-#define ENGINE_CLASS		// Définit les classes comme déclarées
+#include "gfx/particles/particles.h"			// Pour le moteur à particules
 
 #define PARTICLE_LIMIT		100000		// pas plus de 100000 particules
 #define HMAP_RESIZE			0.04f
@@ -1085,4 +1085,4 @@ public:
 
 SKY_DATA	*choose_a_sky( const String &mapname, const String &planet );
 
-#endif						// Fin de la déclaration des classes
+#endif // __TA3D_ENGINE_CL_H__

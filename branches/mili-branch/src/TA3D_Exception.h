@@ -35,6 +35,9 @@
 #ifndef __TA3D_EXCEPTIONS_H__
 # define __TA3D_EXCEPTIONS_H__
 
+# include <string>
+# include "stdafx.h"
+
 namespace TA3D
 {
 namespace Exceptions

@@ -30,7 +30,7 @@ using namespace TA3D; // TODO Remove this
 # include "gfxfont.h"
 # include "gfxtexture.h"
 # include "../threads/thread.h"
-
+# include "../misc/interface.h"
 
 
 # define FILTER_NONE			0x0

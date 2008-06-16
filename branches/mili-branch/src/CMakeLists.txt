@@ -29,10 +29,10 @@ else( WIN32 OR CMAKE_CROSSCOMPILING )
 	SET( 3DMEDITOR 3dmeditor-bin )
 endif( WIN32 OR CMAKE_CROSSCOMPILING )
 
-add_executable(${3DMEDITOR} 3dmeditor.cpp ta3d.h 3dmeditor_sub.cpp 3dmeditor.h backtrace.cpp backtrace.h cTAFileParser.cpp cTAFileParser.h 3ds.cpp 3ds.h i18n.cpp i18n.h 3do.cpp 3do.h console.cpp console.h gaf.cpp gaf.h glfunc.cpp glfunc.h gui.cpp gui.h particles.cpp particles.h taconfig.cpp taconfig.h stdafx.cpp stdafx.h TA3D_Audio.cpp TA3D_Audio.h TA3D_Exception.cpp TA3D_Exception.h hash_table.h TA3D_hpi.cpp TA3D_hpi.h TA3D_NameSpace.cpp TA3D_NameSpace.h cError.cpp cError.h TA3D_Platform.h matrix.h ta3dbase.h vector.h)
+add_executable(${3DMEDITOR} 3dmeditor.cpp ta3d.h 3dmeditor_sub.cpp 3dmeditor.h backtrace.cpp backtrace.h cTAFileParser.cpp cTAFileParser.h 3ds.cpp 3ds.h i18n.cpp i18n.h 3do.cpp 3do.h console.cpp console.h gaf.cpp gaf.h glfunc.cpp glfunc.h gui.cpp gui.h taconfig.cpp taconfig.h stdafx.cpp stdafx.h TA3D_Audio.cpp TA3D_Audio.h TA3D_Exception.cpp TA3D_Exception.h hash_table.h TA3D_hpi.cpp TA3D_hpi.h TA3D_NameSpace.cpp TA3D_NameSpace.h cError.cpp cError.h TA3D_Platform.h matrix.h ta3dbase.h vector.h)
 
-ADD_DEPENDENCIES(${3DMEDITOR} logs threads misc tajpeg gfx)
-target_link_libraries(${3DMEDITOR} logs threads misc tajpeg gfx)
+ADD_DEPENDENCIES(${3DMEDITOR} logs threads misc tajpeg gfx particles)
+target_link_libraries(${3DMEDITOR} logs threads misc tajpeg gfx particles)
 IF(APPLE)
     SET(GUI_TYPE MACOSX_BUNDLE)
     SET(MACOSX_BUNDLE_BUNDLE_NAME "TA3D Editor")
@@ -45,10 +45,10 @@ ENDIF(APPLE)
 # --- TA3D
 # --------------------------------------------------------------------
 
-add_executable(ta3d-bin ta3d.cpp ta3d.h main.cpp backtrace.cpp backtrace.h hpiview.cpp install.cpp i18n.cpp i18n.h cTA3D_Engine.cpp cTA3D_Engine.h cTAFileParser.cpp cTAFileParser.h restore.cpp restore.h menu.cpp menu.h 3do.cpp 3do.h cob.cpp cob.h console.cpp console.h EngineClass.cpp EngineClass.h UnitEngine.cpp UnitEngine.h fbi.cpp fbi.h gaf.cpp gaf.h glfunc.cpp glfunc.h gui.cpp gui.h intro.cpp intro.h particles.cpp particles.h tdf.cpp tdf.h tnt.cpp tnt.h weapons.cpp weapons.h fx.cpp fx.h script.cpp script.h taconfig.cpp taconfig.h icon.cpp stdafx.cpp stdafx.h TA3D_Network.cpp TA3D_Network.h TA3D_Audio.cpp TA3D_Audio.h TA3D_Exception.cpp TA3D_Exception.h hash_table.h TA3D_hpi.cpp TA3D_hpi.h TA3D_NameSpace.cpp TA3D_NameSpace.h cError.cpp cError.h SocketClass.cpp SocketClass.h udpsock.cpp udpsock.h ta3dsock.cpp ta3dsock.h broadcastsock.cpp broadcastsock.h superqueue.cpp superqueue.h network.cpp network.h TA3D_Platform.h matrix.h ta3dbase.h vector.h)
+add_executable(ta3d-bin ta3d.cpp ta3d.h main.cpp backtrace.cpp backtrace.h hpiview.cpp install.cpp i18n.cpp i18n.h cTA3D_Engine.cpp cTA3D_Engine.h cTAFileParser.cpp cTAFileParser.h restore.cpp restore.h menu.cpp menu.h 3do.cpp 3do.h cob.cpp cob.h console.cpp console.h EngineClass.cpp EngineClass.h UnitEngine.cpp UnitEngine.h fbi.cpp fbi.h gaf.cpp gaf.h glfunc.cpp glfunc.h gui.cpp gui.h intro.cpp intro.h tdf.cpp tdf.h tnt.cpp tnt.h weapons.cpp weapons.h fx.cpp fx.h script.cpp script.h taconfig.cpp taconfig.h icon.cpp stdafx.cpp stdafx.h TA3D_Network.cpp TA3D_Network.h TA3D_Audio.cpp TA3D_Audio.h TA3D_Exception.cpp TA3D_Exception.h hash_table.h TA3D_hpi.cpp TA3D_hpi.h TA3D_NameSpace.cpp TA3D_NameSpace.h cError.cpp cError.h SocketClass.cpp SocketClass.h udpsock.cpp udpsock.h ta3dsock.cpp ta3dsock.h broadcastsock.cpp broadcastsock.h superqueue.cpp superqueue.h network.cpp network.h TA3D_Platform.h matrix.h ta3dbase.h vector.h)
 
-ADD_DEPENDENCIES(ta3d-bin logs threads misc tajpeg gfx ai)
-target_link_libraries(ta3d-bin logs threads misc tajpeg gfx ai)
+ADD_DEPENDENCIES(ta3d-bin logs threads misc tajpeg gfx particles ai)
+target_link_libraries(ta3d-bin logs threads misc tajpeg gfx particles ai)
 IF(APPLE)
     SET(GUI_TYPE MACOSX_BUNDLE)
     SET(MACOSX_BUNDLE_BUNDLE_NAME "TA3D")

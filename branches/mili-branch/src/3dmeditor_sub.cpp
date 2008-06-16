@@ -25,7 +25,7 @@
 #include "logs/cLogger.h"
 #include "gui.h"			// Interface utilisateur
 #include "TA3D_hpi.h"		// Interface HPI requis pour 3do.h
-#include "particles.h"
+#include "gfx/particles/particles.h"
 #include "gaf.h"
 #include "3do.h"			// Gestion des modèles 3D
 #include "3ds.h"			// The 3DS model loader

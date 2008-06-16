@@ -29,7 +29,7 @@
 #include "EngineClass.h"
 #include "tdf.h"
 #include "fx.h"
-#include "particles.h"
+#include "gfx/particles/particles.h"
 #include "3do.h"
 
 FX_MANAGER	fx_manager;

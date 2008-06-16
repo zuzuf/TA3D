@@ -32,7 +32,7 @@
 #include "TA3D_NameSpace.h"
 #include "ta3dbase.h"
 #include "3do.h"
-#include "particles.h"
+#include "gfx/particles/particles.h"
 #include "taconfig.h"
 
 using namespace TA3D::Exceptions;
@@ -1289,18 +1289,21 @@ draw_next:
         else
             *pos = *pos + pos_from_parent;
 
-        if( c_part && emitter_point ) {			// Emit a  particle
+        if( c_part && emitter_point ) // Emit a  particle
+        {
             VECTOR Dir;
             float life=1.0f;
             byte nb=(rand_from_table()%60)+1;
-            PARTICLE_SYSTEM *system = NULL;
-            for(byte i=0;i<nb;i++) {
+            ParticlesSystem *system = NULL;
+            for(byte i=0;i<nb;i++)
+            {
                 VECTOR t_mod;
                 bool random_vector = true;
                 if( src != NULL )
                     for( int base_n = rand_from_table(), n = 0 ; random_vector && n < src->nb_sub_obj ; n++ )
                         random_vector = !src->random_pos( src_data, (base_n + n) % src->nb_sub_obj, &t_mod );
-                if( random_vector ) {
+                if( random_vector )
+                {
                     t_mod.x=((rand_from_table()%2001)-1000)*0.001f;
                     t_mod.y=((rand_from_table()%2001)-1000)*0.001f;
                     t_mod.z=((rand_from_table()%2001)-1000)*0.001f;
@@ -1310,7 +1313,8 @@ draw_next:
                         t_mod=t_mod+(*center);
                 }
                 float speed=1.718281828f;			// exp(1.0f) - 1.0f because of speed law: S(t) = So * exp( -t / tref ) and a lifetime of 1 sec
-                if(reverse) {
+                if(reverse)
+                {
                     Dir=*pos-(t_mod+*target);
                     Dir.x+=upos->x;
                     Dir.y+=upos->y;
@@ -1334,6 +1338,7 @@ draw_next:
         if(next)
             next->compute_coord(data_s,pos,c_part,p_tex,target,upos,M,size,center,reverse,src,src_data);
     }
+
 
     bool OBJECT::draw_shadow(VECTOR Dir,float t,SCRIPT_DATA *data_s,bool alset,bool exploding_parts)
     {

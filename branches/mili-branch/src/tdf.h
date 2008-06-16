@@ -28,7 +28,7 @@
 
 #include "threads/thread.h"
 #include "gaf.h"			// Pour la gestion des fichiers GAF
-#include "particles.h"		// Pour l'accès au moteur à particules
+#include "gfx/particles/particles.h"		// Pour l'accès au moteur à particules
 #include "3do.h"			// Pour pouvoir utiliser des modèles 3D
 
 class FEATURE
