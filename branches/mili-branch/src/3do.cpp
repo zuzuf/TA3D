@@ -1260,13 +1260,6 @@ draw_next:
 
     void OBJECT::compute_coord(SCRIPT_DATA *data_s,VECTOR *pos,bool c_part,int p_tex,VECTOR *target,VECTOR *upos,MATRIX_4x4 *M,float size,VECTOR *center,bool reverse,OBJECT *src,SCRIPT_DATA *src_data)
     {
-        LOG_ASSERT(NULL != target);
-        LOG_ASSERT(NULL != pos);
-        LOG_ASSERT(NULL != upos);
-        LOG_ASSERT(NULL != center);
-        LOG_ASSERT(NULL != src);
-        LOG_ASSERT(NULL != src_data);
-
         //		if(!emitter && c_part)	return;
         VECTOR opos=*pos;
         MATRIX_4x4 OM;
