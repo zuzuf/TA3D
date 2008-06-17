@@ -17,75 +17,82 @@
 
 #include "SocketClass.h"
 #include "../threads/thread.h"
+#include "ta3dsock.h"
+
+#define UDPSOCK_BUFFER_SIZE 2560
+
+namespace TA3D
+{
 
 
-#define		UDPSOCK_BUFFER_SIZE		2560
 
-struct chat;
+    //UDPSock- specialized low-level networking
+    //used internally by Network to send the data
+    //to the players. It is basically an UDP socket
+    class UDPSock
+    {
 
-//UDPSock- specialized low-level networking
-//used internally by Network to send the data
-//to the players. It is basically an UDP socket
-class UDPSock{
+        Socket udpsock;
+        Mutex udpmutex;
 
-	Socket udpsock;
-	Mutex udpmutex;
-	
-	NLushort	udp_port;
+        NLushort	udp_port;
 
-	//only touched by main thread
-	char outbuf[UDPSOCK_BUFFER_SIZE];
-	int obp;
+        //only touched by main thread
+        char outbuf[UDPSOCK_BUFFER_SIZE];
+        int obp;
 
-	//only touched by socket thread
-	char udpinbuf[UDPSOCK_BUFFER_SIZE];
-	int uibp;
-	int uiremain;//how much is left to recv
-	int uibrp;
-	
-	//byte shuffling
-	void putLong(uint32_t x);//uint32
-	void putShort(uint16_t x);//uint16
-	void putByte(uint8_t x);//uint8
-	void putString(const char* x);//null terminated
-	void putFloat(float x);
+        //only touched by socket thread
+        char udpinbuf[UDPSOCK_BUFFER_SIZE];
+        int uibp;
+        int uiremain;//how much is left to recv
+        int uibrp;
 
-	uint32	getLong();//uint32
-	uint16	getShort();//uint16
-	byte	getByte();//uint8
-	void	getString(char* x);//null terminated
-	void	getBuffer(char* x, int size);
-	float	getFloat();
+        //byte shuffling
+        void putLong(uint32_t x);//uint32
+        void putShort(uint16_t x);//uint16
+        void putByte(uint8_t x);//uint8
+        void putString(const char* x);//null terminated
+        void putFloat(float x);
 
-	void send( const std::string &address );
-	void recv();
+        uint32	getLong();//uint32
+        uint16	getShort();//uint16
+        byte	getByte();//uint8
+        void	getString(char* x);//null terminated
+        void	getBuffer(char* x, int size);
+        float	getFloat();
 
-	int max(int a, int b) {return (a>b ? a : b);}
+        void send( const std::string &address );
+        void recv();
 
-	public:
-		UDPSock() {obp=0;uibp=0;uiremain=-1;}
-		~UDPSock() {}
+        int max(int a, int b) {return (a>b ? a : b);}
 
-		int Open(const char* hostname,const char* port);
-		void Close();
+    public:
+        UDPSock() {obp=0;uibp=0;uiremain=-1;}
+        ~UDPSock() {}
 
-		const char* getAddress() const {return udpsock.getNumber();}
-		const char* getPort() const {return udpsock.getService();}
-		Socket& getSock() {return udpsock;}
-		int isOpen();
+        int Open(const char* hostname,const char* port);
+        void Close();
 
-		//these are for outgoing packets
-		int sendSpecial(struct chat* chat, const std::string &address);
-		int sendSync(struct sync* sync, const std::string &address);
-		int sendEvent(struct event* event, const std::string &address);
-		void cleanPacket();
+        const char* getAddress() const {return udpsock.getNumber();}
+        const char* getPort() const {return udpsock.getService();}
+        Socket& getSock() {return udpsock;}
+        int isOpen();
 
-		//these are for incoming packets
-		int makeSpecial(struct chat* chat);
-		int makeEvent(struct event* event);
-		int makeSync(struct sync* sync);
+        //these are for outgoing packets
+        int sendSpecial(struct chat* chat, const std::string &address);
+        int sendSync(struct sync* sync, const std::string &address);
+        int sendEvent(struct event* event, const std::string &address);
+        void cleanPacket();
 
-		char getPacket();//if packet is ready return the type, else return -1
-		void pumpIn();//get input from sockets non-blocking
-		int takeFive(int time);//sleep until sockets will not block
-};
+        //these are for incoming packets
+        int makeSpecial(struct chat* chat);
+        int makeEvent(struct event* event);
+        int makeSync(struct sync* sync);
+
+        char getPacket();//if packet is ready return the type, else return -1
+        void pumpIn();//get input from sockets non-blocking
+        int takeFive(int time);//sleep until sockets will not block
+    };
+
+} // namespace TA3D
+

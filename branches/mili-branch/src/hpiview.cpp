@@ -15,17 +15,20 @@
     along with this program; if not, write to the Free Software
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA*/
 
+
+// Disabled the Sound System
+# define TA3D_NO_SOUND
+
 #include "stdafx.h"
 #include "matrix.h"
-#define TA3D_NO_SOUND
 #include "TA3D_NameSpace.h"
 #include "ta3dbase.h"
 #include "jpeg/ta3d_jpg.h"
-#include "tnt.h"
-#include "EngineClass.h"
 #include <iostream>
+#include "tnt.h"
 
 
+using namespace TA3D::UTILS::HPI;
 
 # ifdef TA3D_PLATFORM_WINDOWS
 #   define PREFIX "  /"
@@ -33,7 +36,7 @@
 #   define PREFIX "  --"
 # endif
 
-using namespace TA3D::UTILS::HPI;
+//using namespace TA3D::UTILS::HPI;
 
 void install_TA_files( String def_path = "" );
 
@@ -130,9 +133,9 @@ static bool hpiviewCmdMapDescription(int argc, char** argv)
         MAP_OTA map_data;
         map_data.load( argv[2] );
         std::ofstream   m_File;
-        m_File.open( argv[3], std::ios::out | std::ios::trunc );
+        m_File.open(argv[3], std::ios::out | std::ios::trunc);
 
-        if( m_File.is_open() )
+        if (m_File.is_open())
         {
             m_File << "[MAP]\n{\n";
             m_File << " missionname=" << map_data.missionname << ";\n";

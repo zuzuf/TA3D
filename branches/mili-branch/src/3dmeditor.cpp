@@ -49,7 +49,7 @@ END_OF_FUNCTION(Timer);
 
 int expected_players=1;
 CAMERA *game_cam=NULL;
-int LANG=TA3D_LANG_ENGLISH;
+int LANG = TA3D_LANG_ENGLISH;
 
 namespace TA3D
 {

@@ -26,69 +26,72 @@
 
 # include "../threads/thread.h"
 
-
-struct NEURON
+namespace TA3D
 {
-	float	var;			// Variable pour les opérations
-	float	*weight;		// Poids des différents neurones sources
-};
 
-class BRAIN		// NEURON network with n NEURON in input layer and p in output layer
-{
-public:
-	int		nb_neuron;		// Number of NEURONs
-	NEURON	*neuron;		// Array of NEURONs
-	int		n;				// Number of inputs
-	int		p;				// Number of outputs
-	int		q;				// Size of middle layers
-	float	*n_out;			// Result array
 
-	inline void init()
-	{
-		nb_neuron=0;
-		neuron=NULL;
-		n=p=q=0;
-		n_out=NULL;
-	}
+    struct NEURON
+    {
+        float	var;			// Variable pour les opérations
+        float	*weight;		// Poids des différents neurones sources
+    };
 
-	inline void destroy()
-	{
-		if(nb_neuron>0 && neuron) {
-			for(int i=0;i<nb_neuron;i++)
-				if(neuron[i].weight!=NULL)
-					free(neuron[i].weight);
-			free(neuron);
-			}
-		if(n_out)	free(n_out);
-		init();
-	}
+    class BRAIN		// NEURON network with n NEURON in input layer and p in output layer
+    {
+    public:
+        int		nb_neuron;		// Number of NEURONs
+        NEURON	*neuron;		// Array of NEURONs
+        int		n;				// Number of inputs
+        int		p;				// Number of outputs
+        int		q;				// Size of middle layers
+        float	*n_out;			// Result array
 
-	BRAIN()
-	{
-		init();
-	}
+        inline void init()
+        {
+            nb_neuron=0;
+            neuron=NULL;
+            n=p=q=0;
+            n_out=NULL;
+        }
 
-	~BRAIN()
-	{
-		destroy();
-	}
+        inline void destroy()
+        {
+            if(nb_neuron>0 && neuron) {
+                for(int i=0;i<nb_neuron;i++)
+                    if(neuron[i].weight!=NULL)
+                        free(neuron[i].weight);
+                free(neuron);
+            }
+            if(n_out)	free(n_out);
+            init();
+        }
 
-	void build(int nb_in,int nb_out,int rg);			// Create the neural network
+        BRAIN()
+        {
+            init();
+        }
 
-	void active_neuron(int i);
+        ~BRAIN()
+        {
+            destroy();
+        }
 
-	float *work(float entry[],bool seuil=false);			// Make NEURONs work and return the network results
+        void build(int nb_in,int nb_out,int rg);			// Create the neural network
 
-	void mutation();			// Make some changes to the neural network
+        void active_neuron(int i);
 
-	void learn(float *result,float coef=1.0f);		// Make it learn
+        float *work(float entry[],bool seuil=false);			// Make NEURONs work and return the network results
 
-	void save(FILE *file);		// Save the network
+        void mutation();			// Make some changes to the neural network
 
-	int load(FILE *file);		// Load the network
-};
+        void learn(float *result,float coef=1.0f);		// Make it learn
 
-BRAIN *copy_brain(BRAIN *brain,BRAIN *dst=NULL);		// Make a copy
+        void save(FILE *file);		// Save the network
+
+        int load(FILE *file);		// Load the network
+    };
+
+    BRAIN *copy_brain(BRAIN *brain,BRAIN *dst=NULL);		// Make a copy
 
 #define	ORDER_ARMY			0x00			// Order to build an army
 #define	ORDER_METAL_P		0x01			// Order to gather metal
@@ -128,126 +131,128 @@ BRAIN *copy_brain(BRAIN *brain,BRAIN *dst=NULL);		// Make a copy
 #define AI_FLAG_METAL_S		0x40			// Storage
 #define AI_FLAG_ENERGY_S	0x80
 
-class AI_WEIGHT
-{
-public:
-	uint16			nb;						// Number of units of this type the AI has
-	float			w;						// Weight given to this unit
-	float			o_w;					// Remember w for possible changes
-	byte			type;					// Builder, factory, army, defense, ...
-	List<uint16>	built_by;				// Who can build it
-	float			army;
-	float			defense;
-	float			metal_p;
-	float			energy_p;
-	float			metal_s;
-	float			energy_s;
+    class AI_WEIGHT
+    {
+    public:
+        uint16			nb;						// Number of units of this type the AI has
+        float			w;						// Weight given to this unit
+        float			o_w;					// Remember w for possible changes
+        byte			type;					// Builder, factory, army, defense, ...
+        List<uint16>	built_by;				// Who can build it
+        float			army;
+        float			defense;
+        float			metal_p;
+        float			energy_p;
+        float			metal_s;
+        float			energy_s;
 
-	AI_WEIGHT() : built_by()
-	{
-		nb = 0;
-		w = 0.0f;
-		o_w = 0.0f;
-		type = 0;
-		army = 0.0f;
-		defense = 0.0f;
-		metal_p = 0.0f;
-		energy_p = 0.0f;
-		metal_s = 0.0f;
-		energy_s = 0.0f;
-	}
+        AI_WEIGHT() : built_by()
+        {
+            nb = 0;
+            w = 0.0f;
+            o_w = 0.0f;
+            type = 0;
+            army = 0.0f;
+            defense = 0.0f;
+            metal_p = 0.0f;
+            energy_p = 0.0f;
+            metal_s = 0.0f;
+            energy_s = 0.0f;
+        }
 
-	~AI_WEIGHT()
-	{
-		built_by.clear();
-	}
-};
+        ~AI_WEIGHT()
+        {
+            built_by.clear();
+        }
+    };
 
-class WEIGHT_COEF
-{
-public:
-	uint16	idx;
-	uint32	c;
+    class WEIGHT_COEF
+    {
+    public:
+        uint16	idx;
+        uint32	c;
 
-	WEIGHT_COEF()	{	idx = 0;	c = 0;	}
-	WEIGHT_COEF( uint16 a, uint32 b )	{	idx = a;	c = b;	}
-};
+        WEIGHT_COEF()	{	idx = 0;	c = 0;	}
+        WEIGHT_COEF( uint16 a, uint32 b )	{	idx = a;	c = b;	}
+    };
 
-inline bool operator<( WEIGHT_COEF &a, WEIGHT_COEF &b )		{	return a.c > b.c;	}
+    inline bool operator<( WEIGHT_COEF &a, WEIGHT_COEF &b )		{	return a.c > b.c;	}
 
 #define	AI_TYPE_EASY		0x0
 #define AI_TYPE_MEDIUM		0x1
 #define AI_TYPE_HARD		0x2
 #define AI_TYPE_BLOODY		0x3
 
-class AI_PLAYER :	public ObjectSync,			// Class to manage players controled by AI
-		            public cThread
-{
-public:
-	char			*name;			// Attention faudrait pas qu'il se prenne pour quelqu'un!! -> indique aussi le fichier correspondant à l'IA (faut sauvegarder les cervelles)
-	BRAIN			decide;			// Neural network to take decision
-	BRAIN			anticipate;		// Neural network to make it anticipate
-	byte			player_id;		// Identifiant du joueur / all is in the name :)
-	uint16			unit_id;		// Unit index to run throught the unit array
-	uint16			total_unit;
+    class AI_PLAYER :	public ObjectSync,			// Class to manage players controled by AI
+    public cThread
+    {
+    public:
+        char			*name;			// Attention faudrait pas qu'il se prenne pour quelqu'un!! -> indique aussi le fichier correspondant à l'IA (faut sauvegarder les cervelles)
+        BRAIN			decide;			// Neural network to take decision
+        BRAIN			anticipate;		// Neural network to make it anticipate
+        byte			player_id;		// Identifiant du joueur / all is in the name :)
+        uint16			unit_id;		// Unit index to run throught the unit array
+        uint16			total_unit;
 
-	byte			AI_type;		// Which AI do we have to use?
+        byte			AI_type;		// Which AI do we have to use?
 
-	AI_WEIGHT		*weights;		// Vector of weights used to decide what to build
-	uint16			nb_units[ NB_AI_UNIT_TYPE ];
-	uint16			nb_enemy[ 10 ];				// Hom many units has each enemy ?
-	float			order_weight[NB_ORDERS];	// weights of orders
-	float			order_attack[ 10 ];			// weights of attack order per enemy player
-	List<uint16>	builder_list;
-	List<uint16>	factory_list;
-	List<uint16>	army_list;
-	Vector< List<WEIGHT_COEF> >	enemy_list;
+        AI_WEIGHT		*weights;		// Vector of weights used to decide what to build
+        uint16			nb_units[ NB_AI_UNIT_TYPE ];
+        uint16			nb_enemy[ 10 ];				// Hom many units has each enemy ?
+        float			order_weight[NB_ORDERS];	// weights of orders
+        float			order_attack[ 10 ];			// weights of attack order per enemy player
+        List<uint16>	builder_list;
+        List<uint16>	factory_list;
+        List<uint16>	army_list;
+        Vector< List<WEIGHT_COEF> >	enemy_list;
 
-private:
-	void (*fp_scan_unit)( AI_PLAYER* );
+    private:
+        void (*fp_scan_unit)( AI_PLAYER* );
 
-	void (*fp_refresh_unit_weights)( AI_PLAYER* );
+        void (*fp_refresh_unit_weights)( AI_PLAYER* );
 
-	void (*fp_think)( AI_PLAYER*, MAP* );
+        void (*fp_think)( AI_PLAYER*, MAP* );
 
-protected:
-	int			Run();
-	void		SignalExitThread();
+    protected:
+        int			Run();
+        void		SignalExitThread();
 
-	bool		thread_running;
-	bool		thread_ask_to_stop;
+        bool		thread_running;
+        bool		thread_ask_to_stop;
 
-public:
+    public:
 
-	void init();
+        void init();
 
-	void destroy();
+        void destroy();
 
-	AI_PLAYER() : builder_list(), factory_list(), army_list(), enemy_list()
-	{
-		InitThread();
+        AI_PLAYER() : builder_list(), factory_list(), army_list(), enemy_list()
+        {
+            InitThread();
+            init();
+        }
 
-		init();
-	}
+        ~AI_PLAYER()
+        {
+            destroy();
+        }
 
-	~AI_PLAYER()
-	{
-		destroy();
-	}
+        void monitor();
 
-	void monitor();
+        void change_name(char *new_name);		// Change AI's name (-> creates a new file)
 
-	void change_name(char *new_name);		// Change AI's name (-> creates a new file)
+        void save();
 
-	void save();
+        void load(char *filename,int id=0);
 
-	void load(char *filename,int id=0);
+        void scan_unit();
 
-	void scan_unit();
+        void refresh_unit_weights();
 
-	void refresh_unit_weights();
+        void think( MAP *map );
+    };
 
-	void think( MAP *map );
-};
+
+} // namespace TA3D
 
 #endif // TA3D_XX_AI_H__

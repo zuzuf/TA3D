@@ -35,7 +35,6 @@
 #define UNPACKZ(xz) ((sint16)((xz)&0xFFFF))
 #define PACKXZ(x,z) ((((int)(x))<<16) | (((int)(z))&0xFFFF))
 
-void *create_unit(int type_id,int owner,VECTOR pos,MAP *map,bool sync=true,bool script=false);
 
 #define MISSION_FLAG_CAN_ATTACK		0x01
 #define MISSION_FLAG_SEARCH_PATH	0x02
@@ -48,6 +47,18 @@ void *create_unit(int type_id,int owner,VECTOR pos,MAP *map,bool sync=true,bool 
 #define MISSION_FLAG_TARGET_CHECKED	0x08			// For MISSION_CAPTURE to tell when data has been set to the time left before capture is finished
 #define MISSION_FLAG_PAD_CHECKED	0x08			// For MISSION_GET_REPAIRED to tell when data has been set to the landing pad
 #define MISSION_FLAG_BEING_REPAIRED	0x04			// For MISSION_GET_REPAIRED to tell the unit is being repaired
+
+
+
+namespace TA3D
+{
+
+void *create_unit(int type_id,int owner,VECTOR pos,MAP *map,bool sync=true,bool script=false);
+
+
+
+
+
 
 struct MISSION			// Structure pour stocker les ordres
 {
@@ -1200,5 +1211,8 @@ const bool can_be_built( const VECTOR Pos, MAP *map, const int unit_type_id, con
 const bool can_be_there( const int px, const int py, MAP *map, const int unit_type_id, const int player_id, const int unit_id = -1 );
 
 const bool can_be_there_ai( const int px, const int py, MAP *map, const int unit_type_id, const int player_id, const int unit_id = -1 );
+
+
+} // namespace TA3D
 
 #endif

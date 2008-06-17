@@ -46,119 +46,128 @@
 #define DRAW_TYPE_TEXT		0x7
 #define DRAW_TYPE_BITMAP	0x8
 
-struct DRAW_OBJECT					// Pour mémoriser le traçage des primitives
+
+
+namespace TA3D
 {
-	byte	type;
-	float	x[4];
-	float	y[4];
-	float	r[2],g[2],b[2];
-	char	*text;
-	GLuint	tex;
-};
 
-class DRAW_LIST
-{
-public:
-	DRAW_OBJECT		prim;
-	DRAW_LIST		*next;
 
-	void init()
-	{
-		prim.type=DRAW_TYPE_NONE;
-		prim.text=NULL;
-		next=NULL;
-	}
+    struct DRAW_OBJECT					// Pour mémoriser le traçage des primitives
+    {
+        byte	type;
+        float	x[4];
+        float	y[4];
+        float	r[2],g[2],b[2];
+        char	*text;
+        GLuint	tex;
+    };
 
-	void destroy()
-	{
-		if(prim.type==DRAW_TYPE_BITMAP)		glDeleteTextures(1,&prim.tex);
-		if(( prim.type==DRAW_TYPE_TEXT || prim.type==DRAW_TYPE_BITMAP ) && prim.text!=NULL)
-			free(prim.text);
-		if(next) {
-			next->destroy();
-			delete next;
-			}
-		init();
-	}
+    class DRAW_LIST
+    {
+    public:
+        DRAW_OBJECT		prim;
+        DRAW_LIST		*next;
 
-	DRAW_LIST()
-	{
-		init();
-	}
+        void init()
+        {
+            prim.type=DRAW_TYPE_NONE;
+            prim.text=NULL;
+            next=NULL;
+        }
 
-	void add(DRAW_OBJECT &obj);
+        void destroy()
+        {
+            if(prim.type==DRAW_TYPE_BITMAP)		glDeleteTextures(1,&prim.tex);
+            if(( prim.type==DRAW_TYPE_TEXT || prim.type==DRAW_TYPE_BITMAP ) && prim.text!=NULL)
+                free(prim.text);
+            if(next) {
+                next->destroy();
+                delete next;
+            }
+            init();
+        }
 
-	void draw(GfxFont &fnt);
-};
+        DRAW_LIST()
+        {
+            init();
+        }
 
-class LUA_PROGRAM : public ObjectSync
-{
-	byte		*buffer;
-	lua_State	*L;				// Pointer to the lua data
+        void add(DRAW_OBJECT &obj);
 
-	//	Pour l'éxecution du code
-	int			last;			// Dernière lecture du timer
-	int			amx,amy,amz;	// Coordonnées du curseur
-	int			amb;			// Boutons de la souris
-	float		asm_timer;		// Timer to match the game speed
-	bool		running;
+        void draw(GfxFont &fnt);
+    };
 
-public:
-	float		sleep_time;		// Temps d'attente
-	bool		sleeping;		// Indique si le programme marque une pause
-	bool		waiting;		// Indique si le programme attend une action utilisateur
-	DRAW_LIST	draw_list;		// Liste de commandes d'affichage
+    class LUA_PROGRAM : public ObjectSync
+    {
+        byte		*buffer;
+        lua_State	*L;				// Pointer to the lua data
 
-	inline void stop()
-	{
-		destroy();
-	}
+        //	Pour l'éxecution du code
+        int			last;			// Dernière lecture du timer
+        int			amx,amy,amz;	// Coordonnées du curseur
+        int			amb;			// Boutons de la souris
+        float		asm_timer;		// Timer to match the game speed
+        bool		running;
 
-	void init()
-	{
-		running = false;
+    public:
+        float		sleep_time;		// Temps d'attente
+        bool		sleeping;		// Indique si le programme marque une pause
+        bool		waiting;		// Indique si le programme attend une action utilisateur
+        DRAW_LIST	draw_list;		// Liste de commandes d'affichage
 
-		buffer = NULL;
-		L = NULL;
+        inline void stop()
+        {
+            destroy();
+        }
 
-		asm_timer = 0.0f;
+        void init()
+        {
+            running = false;
 
-		draw_list.init();
+            buffer = NULL;
+            L = NULL;
 
-		amx=amy=amz=0;
-		amb=0;
+            asm_timer = 0.0f;
 
-		sleep_time=0.0f;
-		sleeping=false;
-		waiting=false;
-	}
+            draw_list.init();
 
-	void destroy()
-	{
-		if( L )
-			lua_close( L );
-		if( buffer )
-			free( buffer );
-		running = false;
+            amx=amy=amz=0;
+            amb=0;
 
-		draw_list.destroy();
-		init();
-	}
+            sleep_time=0.0f;
+            sleeping=false;
+            waiting=false;
+        }
 
-	LUA_PROGRAM();
+        void destroy()
+        {
+            if( L )
+                lua_close( L );
+            if( buffer )
+                free( buffer );
+            running = false;
 
-	~LUA_PROGRAM()
-	{
-		destroy();
-	}
+            draw_list.destroy();
+            init();
+        }
 
-	void load(char *filename, MAP *map);					// Load a lua script
+        LUA_PROGRAM();
 
-	int run(MAP *map,float dt,int viewer_id);					// Execute le script
-};
+        ~LUA_PROGRAM()
+        {
+            destroy();
+        }
 
-extern LUA_PROGRAM	*lua_program;
+        void load(char *filename, MAP *map);					// Load a lua script
 
-void generate_script_from_mission( String Filename, cTAFileParser *ota_parser, int schema = 0 );
+        int run(MAP *map,float dt,int viewer_id);					// Execute le script
+    };
+
+    extern LUA_PROGRAM	*lua_program;
+
+    void generate_script_from_mission( String Filename, cTAFileParser *ota_parser, int schema = 0 );
+
+
+} // namespace TA3D
 
 #endif

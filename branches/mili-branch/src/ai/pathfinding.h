@@ -67,6 +67,6 @@ namespace TA3D
     void make_path_direct(SECTOR **map_data,float **h_map,float dh_max,float h_min,float h_max,PATH_NODE *path,int mw,int mh,int bw,int bh,int u_idx,float hover_h);
 
 
-}
+} // namespace TA3D
 
 #endif // __TA3D_AI_PATH_FINDING_H__

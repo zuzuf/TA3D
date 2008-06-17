@@ -40,6 +40,12 @@
 
 using namespace TA3D::Exceptions;
 
+
+
+namespace TA3D
+{
+
+
 INGAME_UNITS units;
 
 
@@ -6398,8 +6404,10 @@ void INGAME_UNITS::remove_order(int player_id,VECTOR target)
             }
 
             unit_engine_thread_sync = 1;
-            while( unit_engine_thread_sync && !thread_ask_to_stop ) {
-                if( unit_engine_thread_sync && weapon_engine_thread_sync && particle_engine_thread_sync && players_thread_sync )	{			// Sync engine threads
+            while( unit_engine_thread_sync && !thread_ask_to_stop )
+            {
+                if( unit_engine_thread_sync && weapon_engine_thread_sync && particle_engine_thread_sync && players_thread_sync ) // Sync engine threads
+                {
                     unit_engine_thread_sync = 0;
                     weapon_engine_thread_sync = 0;
                     particle_engine_thread_sync = 0;
@@ -6438,3 +6446,7 @@ void INGAME_UNITS::remove_order(int player_id,VECTOR target)
         if( thread_running )
             thread_ask_to_stop = true;
     }
+
+
+} // namespace TA3D
+

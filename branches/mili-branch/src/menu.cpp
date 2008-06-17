@@ -43,8 +43,11 @@
 #include "logs/logs.h"
 
 
+namespace TA3D
+{
+    void generate_script_from_mission( String Filename, cTAFileParser *ota_parser, int schema = 0 );	// To access the script generator in the 'script' module
+}
 
-void generate_script_from_mission( String Filename, cTAFileParser *ota_parser, int schema = 0 );	// To access the script generator in the 'script' module
 
 using namespace TA3D::Exceptions;
 
@@ -2649,7 +2652,7 @@ int brief_screen(String campaign_name, int mission_id)
     if(start_game) {					// Open the briefing screen and start playing the campaign
         GAME_DATA game_data;
 
-        generate_script_from_mission( "scripts/__campaign_script.lua", &ota_parser, schema );	// Generate the script which will be removed later
+        TA3D::generate_script_from_mission( "scripts/__campaign_script.lua", &ota_parser, schema );	// Generate the script which will be removed later
 
         game_data.game_script = strdup( "scripts/__campaign_script.lua" );
         game_data.map_filename = strdup( ( map_filename.substr( 0, map_filename.size() - 3 ) + "tnt" ).c_str() );		// Remember the last map we played
