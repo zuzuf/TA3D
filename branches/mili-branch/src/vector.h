@@ -15,225 +15,184 @@
     along with this program; if not, write to the Free Software
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA*/
 
-/*---------------------------------------------------------------------------\
-|                              vector.h (pour allegro)                       |
-|   Définition des classes et des fonctions relatives aux vecteurs(2D et 3D) |
-|                                                                            |
-\---------------------------------------------------------------------------*/
 
 #ifndef CLASS_VECTOR
-
-#define CLASS_VECTOR
+# define CLASS_VECTOR
 
 # include <math.h>
 # include <allegro.h>
 
 
-/*---------------------------------------------------------------------------\
-|           Définition des classes                                           |
-\---------------------------------------------------------------------------*/
 
-/*------------------------------------------------------------------------
-|              Pour le traitement de vecteurs dans un plan(2D)
-\-------------------------------------*/
-
+/*!
+** \brief 2-dimensional vector
+*/
 class VECTOR2D
 {
-public:         // les coordonnées sont public
-   float x,y;      // Coordonnées
-      // Fonction qui renvoie le carré scalaire du vecteur
-   inline float Sq()
-   {
-      return (x*x+y*y);         // carré scalaire
-   }
-      // Fonction qui renvoie la norme du vecteur
-   inline float Norm()
-   {
-      return sqrt(x*x+y*y);     // racine du carré scalaire
-   }
-      // Rend le vecteur unitaire si possible(de norme 1)
-   inline void Unit()
-   {
-      if(x!=0.0f || y!=0.0f) {        // Si le vecteur n'est pas nul
-         float n=1.0f/sqrt(x*x+y*y);    // Inverse de la norme du vecteur
-         x*=n;
-         y*=n;
-         }
-   }
+public:
+    //! \name Constructors
+    //{
+    //! Default constructor
+    VECTOR2D() :x(0.0f), y(0.0f) {}
+    //! Constructor by copy
+    VECTOR2D(const VECTOR2D& c) : x(c.x), y(c.y) {}
+    //! Constructor with initial values
+    VECTOR2D(const float ax, const float ay) : x(ax), y(ay) {}
+    //}
 
-inline VECTOR2D operator+=(VECTOR2D& b)     // 2D
-{
-   x+=b.x; y+=b.y;
-   return (*this);
-}
+    float Sq() const { return (x*x + y*y); }         // carré scalaire
 
-};
+    /*!
+    ** \brief Vector norm
+    ** \return The value of the vector norm
+    */
+    float Norm() const { return sqrt(x*x+y*y); }
 
-/*------------------------------------------------------------------------
-|              Pour le traitement de vecteurs dans l'espace(3D)
-\-------------------------------------*/
+    // Rend le vecteur unitaire si possible(de norme 1)
+    void Unit();
 
+    //! \name Operators
+    //{
+
+    /*!
+    ** \brief Operator += with another VECTOR2D
+    */
+    VECTOR2D& operator += (const VECTOR2D& rhs)
+    { x += rhs.x; y += rhs.y; return (*this); }
+
+    VECTOR2D& operator -= (const VECTOR2D& rhs)
+    { x -= rhs.x; y -= rhs.y; return (*this); }
+
+    VECTOR2D& operator *= (const float v)
+    { x *= v; y *= v; return (*this); }
+
+    bool operator == (const VECTOR2D& rhs) const
+    { return (x == rhs.x && y == rhs.y); }
+
+    bool operator != (const VECTOR2D& rhs) const
+    { return !(*this == rhs); } 
+
+    //}
+
+public:
+    float x;
+    float y;
+
+}; // class VECTOR2D
+
+
+
+
+
+/*!
+** \brief 3-dimensional vector
+*/
 class VECTOR3D
 {
-public:         // les coordonnées sont public
-float x,y,z;    // Coordonnées spatiales du vecteur
+public:
+    //! \name Constructors
+    //{
+    //! Default constructor
+    VECTOR3D() :x(0.0f), y(0.0f), z(0.0f) {}
+    //! Constructor by copy
+    VECTOR3D(const VECTOR3D& c) :x(c.x), y(c.y), z(c.z) {}
+    //! Constructor with initial values
+    VECTOR3D(const float ax, const float ay, const float az)
+        :x(ax), y(ay), z(az) {}
+    //}
 
-	VECTOR3D()
-	{
-		x=y=z=0.0f;
-	}
+    // Fonction qui renvoie le carré scalaire du vecteur
+    float Sq() const { return (x*x + y*y + z*z); }
 
-	VECTOR3D( const float &X, const float &Y, const float &Z )
-	{
-		x=X;	y=Y;	z=Z;
-	}
+    // Fonction qui renvoie la norme du vecteur
+    float Norm() const { return sqrt(x*x + y*y + z*z); }
 
-      // Fonction qui renvoie le carré scalaire du vecteur
-   inline const float Sq()
-   {
-      return (x*x+y*y+z*z);     // carré scalaire
-   }
-      // Fonction qui renvoie la norme du vecteur
-   inline const float Norm()
-   {
-      return sqrt(x*x+y*y+z*z); // racine du carré scalaire
-   }
-      // Rend le vecteur unitaire si possible(de norme 1)
-   inline const void Unit()
-   {
-      if(x!=0.0f || y!=0.0f || z!=0.0f) {    // Si le vecteur n'est pas nul
-        float n=Norm();				// Inverse de la norme du vecteur
-        if(n!=0.0f) {
-			n=1.0f/n;
-			x*=n;			y*=n;
-			z*=n;
-			}
-		}
-   }
+    // Rend le vecteur unitaire si possible(de norme 1)
+    void Unit();
 
-inline const VECTOR3D operator+=(const VECTOR3D& b)     // 3D
-{
-   x+=b.x; y+=b.y; z+=b.z;
-   return (*this);
-}
+    //! \name Operators
+    //{
 
-};
+    VECTOR3D& operator += (const VECTOR3D& rhs)
+    { x += rhs.x; y += rhs.y; z += rhs.z; return (*this); }
 
-// Pour une utilisation courante
-typedef VECTOR3D VECTOR;        // On utilise les vecteurs 3D
+    VECTOR3D& operator -= (const VECTOR3D& rhs)
+    { x -= rhs.x; y -= rhs.y; z -= rhs.z; return (*this); }
 
-/*---------------------------------------------------------------------------\
-|           Définition des opérateurs relatifs aux vecteurs                  |
-\---------------------------------------------------------------------------*/
+    VECTOR3D& operator *= (const float v)
+    { x *= v; y *= v; z *= v; return (*this); }
 
-/*------------------------------------------------------------------------
-|              Produit scalaire
-\-------------------------------------*/
-inline const float operator%(const VECTOR2D &a, const VECTOR2D &b)         // 2D
-{
-   return (a.x*b.x+a.y*b.y);
-}
+    VECTOR3D& operator *= (const VECTOR3D rhs)
+    { cross_product_f(x, y, z,  rhs.x, rhs.y, rhs.z,  &x, &y, &z); return (*this); }
 
-inline const float operator%(const VECTOR3D &a, const VECTOR3D &b)         // 3D
-{
-	return a.x*b.x+a.y*b.y+a.z*b.z;
-//   return dot_product_f(a.x,a.y,a.z,b.x,b.y,b.z);
-}
+    bool operator == (const VECTOR3D& rhs) const
+    { return (fabs(x-rhs.x) < 0.0001f && fabs(y-rhs.y) < 0.0001f && fabs(z-rhs.z) < 0.0001f); }
 
-/*------------------------------------------------------------------------
-|              Addition
-\-------------------------------------*/
-inline VECTOR2D operator+(VECTOR2D a, const VECTOR2D &b)      // 2D
-{
-   a.x+=b.x, a.y+=b.y;  // Addition
-   return a;
-}
+    bool operator != (const VECTOR3D& rhs) const
+    { return !(*this == rhs); } 
 
-inline VECTOR3D operator+(VECTOR3D a, const VECTOR3D &b)      // 3D
-{
-   a.x+=b.x, a.y+=b.y, a.z+=b.z;  // Addition
-   return a;
-}
+    //}
 
-/*------------------------------------------------------------------------
-|              Soustraction
-\-------------------------------------*/
-inline VECTOR2D operator-(VECTOR2D a, const VECTOR2D &b)      // 2D
-{
-   a.x-=b.x, a.y-=b.y;  // Soustraction
-   return a;
-}
+public:
+    float x;
+    float y;
+    float z;
 
-inline VECTOR3D operator-(VECTOR3D a, const VECTOR3D &b)      // 3D
-{
-   a.x-=b.x, a.y-=b.y, a.z-=b.z;  // Soustraction
-   return a;
-}
+}; // class VECTOR3D
 
-/*------------------------------------------------------------------------
-|              Opposé
-\-------------------------------------*/
-inline VECTOR2D operator-(VECTOR2D a)                  // 2D
-{
-   a.x=-a.x, a.y=-a.y;
-   return a;
-}
 
-inline VECTOR3D operator-(VECTOR3D a)                  // 3D
-{
-   a.x=-a.x, a.y=-a.y, a.z=-a.z;
-   return a;
-}
+typedef VECTOR3D VECTOR;
+
+
+
+//! \name Operators for Vectors
+//{
+
+inline const VECTOR2D operator + (const VECTOR2D& lhs, const VECTOR2D& rhs)
+{ return VECTOR2D(lhs) += rhs; }
+
+inline const VECTOR2D operator - (const VECTOR2D& lhs)
+{ VECTOR2D r(lhs); r.x = -r.x; r.y = -r.y; return r; }
+
+inline const VECTOR2D operator - (const VECTOR2D& lhs, const VECTOR2D& rhs)
+{ return VECTOR2D(lhs) -= rhs; }
+
+inline const VECTOR2D operator * (const float& v, const VECTOR2D& lhs)
+{ return VECTOR2D(lhs) *= v; }
+
+inline const float operator % (const VECTOR2D& lhs, const VECTOR2D& rhs)
+{ return lhs.x*rhs.x + lhs.y*rhs.y; }
+
+
+inline const VECTOR3D operator + (const VECTOR3D& lhs, const VECTOR3D& rhs)
+{ return VECTOR3D(lhs) += rhs; }
+
+inline const VECTOR3D operator - (const VECTOR3D& lhs)
+{ VECTOR3D r(lhs); r.x = -r.x; r.y = -r.y; r.z = -r.z; return r; }
+
+inline const VECTOR3D operator - (const VECTOR3D& lhs, const VECTOR3D& rhs)
+{ return VECTOR3D(lhs) -= rhs; }
+
+inline const VECTOR3D operator * (const float& v, const VECTOR3D& lhs)
+{ return VECTOR3D(lhs) *= v; }
+
+inline const VECTOR3D operator * (const VECTOR3D& lhs, const VECTOR3D& rhs)
+{ return VECTOR3D(lhs) *= rhs; }
+
+inline const float operator % (const VECTOR3D& lhs, const VECTOR3D& rhs)
+{ return lhs.x*rhs.x + lhs.y*rhs.y + lhs.z*rhs.z; }
+
+//}
+
 
 /*------------------------------------------------------------------------
-|              Scalaire
-\-------------------------------------*/
-inline VECTOR2D operator*(const float &s, VECTOR2D a)         // 2D
-{
-   a.x*=s, a.y*=s;
-   return a;
-}
+  |              Retourne l'angle en radians entre deux vecteurs
+  \-------------------------------------*/
 
-inline VECTOR3D operator*(const float &s, VECTOR3D a)         // 3D
+inline double VAngle(const VECTOR& A, const VECTOR& B)
 {
-   a.x*=s, a.y*=s, a.z*=s;
-   return a;
-}
-
-/*------------------------------------------------------------------------
-|              Produit vectoriel(3D seulement)
-\-------------------------------------*/
-inline VECTOR3D operator*(const VECTOR3D &a,const VECTOR3D &b)
-{
-   VECTOR3D c;
-   cross_product_f(a.x,a.y,a.z,b.x,b.y,b.z,&c.x,&c.y,&c.z);
-   return c;
-}
-
-/*------------------------------------------------------------------------
-|              Verification d'égalité
-\-------------------------------------*/
-inline bool operator==(const VECTOR2D &a, const VECTOR2D &b)         // 2D
-{
-   if(a.x==b.x&&a.y==b.y) return true;
-   else return false;
-}
-
-inline bool operator==(const VECTOR3D &a, const VECTOR3D &b)         // 3D
-{
-//   if(a.x==b.x&&a.y==b.y&&a.z==b.z) return true;
-   if(fabs(a.x-b.x)<0.0001f&&fabs(a.y-b.y)<0.0001f&&fabs(a.z-b.z)<0.0001f) return true;
-   else return false;
-}
-
-/*------------------------------------------------------------------------
-|              Retourne l'angle en radians entre deux vecteurs
-\-------------------------------------*/
-
-inline double VAngle(VECTOR &A,VECTOR &B)
-{
-float a = sqrt( A.Sq() * B.Sq() );
-return a == 0.0f ? 0.0f : acos( ( A % B ) / a );
+    float a = sqrt(A.Sq() * B.Sq());
+    return (a == 0.0f) ? 0.0f : acos((A % B) / a );
 }
 
 #endif
