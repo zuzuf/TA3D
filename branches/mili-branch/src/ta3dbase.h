@@ -19,7 +19,7 @@
 #define __TA3D__BASE__H
 
 #include "TA3D_Exception.h"
-#include "glfunc.h"
+#include "gfx/glfunc.h"
 #include "matrix.h"				// Some math routines
 #include "gaf.h"				// read pictures/animations from GAF files
 #include "gui.h"				// Graphical User Interface

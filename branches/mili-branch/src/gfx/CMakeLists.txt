@@ -5,6 +5,7 @@ SET(ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../../bin/libs/${CMAKE
 
 SET(SOURCES gfx.h gfx.cpp
             gfxfont.cpp gfxfont.h
+            glfunc.h glfunc.cpp
             gfxtexture.cpp gfxtexture.h)
 
 ADD_LIBRARY(gfx STATIC ${SOURCES})

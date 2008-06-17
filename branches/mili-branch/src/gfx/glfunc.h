@@ -22,7 +22,6 @@
 \--------------------------------------------------------------*/
 
 #include <stdio.h>
-#include "logs/logs.h"
 
 extern bool	MultiTexturing;
 extern bool g_useTextureCompression;
