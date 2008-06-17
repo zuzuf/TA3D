@@ -105,7 +105,7 @@ float x,y,z;    // Coordonnées spatiales du vecteur
         float n=Norm();				// Inverse de la norme du vecteur
         if(n!=0.0f) {
 			n=1.0f/n;
-			x*=n;			y*=n;
+			x*=n;			y*=n;
 			z*=n;
 			}
 		}
@@ -225,7 +225,7 @@ inline bool operator==(const VECTOR3D &a, const VECTOR3D &b)         // 3D
    if(fabs(a.x-b.x)<0.0001f&&fabs(a.y-b.y)<0.0001f&&fabs(a.z-b.z)<0.0001f) return true;
    else return false;
 }
-
+
 /*------------------------------------------------------------------------
 |              Retourne l'angle en radians entre deux vecteurs
 \-------------------------------------*/
