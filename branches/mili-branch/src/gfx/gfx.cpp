@@ -66,7 +66,7 @@ namespace Interfaces
         allegro_gl_set (AGL_VIDEO_MEMORY_POLICY, AGL_RELEASE );
         allegro_gl_set (AGL_FULLSCREEN, TA3D::VARS::lp_CONFIG->fullscreen);
         allegro_gl_set(AGL_SAMPLES, TA3D::VARS::lp_CONFIG->fsaa);
-        allegro_gl_set(AGL_SAMPLE_BUFFERS, FALSE);
+        allegro_gl_set(AGL_SAMPLE_BUFFERS, TRUE);
         allegro_gl_set(AGL_SUGGEST, AGL_COLOR_DEPTH
                        | AGL_Z_DEPTH | AGL_WINDOWED
                        | AGL_SAMPLES | AGL_SAMPLE_BUFFERS);
