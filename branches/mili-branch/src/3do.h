@@ -26,6 +26,8 @@
 #ifndef __CLASSE_3DO
 #define __CLASSE_3DO
 
+# include "misc/hash_table.h"
+
 #ifndef __GAF_CLASSES
 #include "gaf.h"
 #endif

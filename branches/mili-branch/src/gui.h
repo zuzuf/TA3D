@@ -26,7 +26,7 @@
 #define MODULE_GUI
 
 #include "gfx/gfx.h"
-#include "hash_table.h"
+#include "misc/hash_table.h"
 #include "threads/thread.h"
 #include "TA3D_NameSpace.h"
 

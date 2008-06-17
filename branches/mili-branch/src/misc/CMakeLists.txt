@@ -4,6 +4,7 @@ SET(ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../../bin/libs/${CMAKE
 SET(SOURCES settings.h settings.cpp
             interface.h interface.cpp
             lzw.h lzw.cpp
+            hash_table.h hashtable.hxx
             paths.h paths.cpp)
 
 ADD_LIBRARY(misc STATIC ${SOURCES})

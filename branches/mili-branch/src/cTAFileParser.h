@@ -18,7 +18,7 @@
 #ifndef __TA3D_X_HASH_TABLE_H__
 # define __TA3D_X_HASH_TABLE_H__
 
-#include "hash_table.h"
+#include "misc/hash_table.h"
 
 
 namespace TA3D
