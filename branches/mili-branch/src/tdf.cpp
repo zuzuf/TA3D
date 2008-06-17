@@ -33,7 +33,7 @@
 #include "tdf.h"
 #include "EngineClass.h"
 #include "UnitEngine.h"
-#include "TA3D_Network.h"
+#include "network/TA3D_Network.h"
 
 FEATURE_MANAGER		feature_manager;
 FEATURES features;

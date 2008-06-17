@@ -42,7 +42,7 @@
 # include "gfx/gfx.h"
 # include "console.h"
 # include "i18n.h"
-# include "network.h"
+# include "network/network.h"
 # include "threads/thread.h"
 
 # define ZOOM_NORMAL       0x0

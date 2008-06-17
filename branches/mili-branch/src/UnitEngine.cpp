@@ -35,7 +35,7 @@
 #include "tdf.h"					// Pour la gestion des éléments du jeu
 #include "EngineClass.h"
 #include "UnitEngine.h"
-#include "TA3D_Network.h"
+#include "network/TA3D_Network.h"
 #include "fx.h"
 
 using namespace TA3D::Exceptions;

@@ -68,8 +68,9 @@
 //MulticastSock- specialized low-level networking
 //used internally by Network to discover servers over
 //a LAN network
-class BroadcastSock{
-
+class BroadcastSock
+{
+private:
 	Socket udpsocket;
 
 	//only touched by main thread
@@ -111,5 +112,5 @@ class BroadcastSock{
 
 		char getPacket();//if packet is ready return the type, else return -1
 		void pumpIn();//get input from sockets non-blocking
-		int takeFive(int time);//sleep until sockets will not block
+		int takeFive(const int time);//sleep until sockets will not block
 };

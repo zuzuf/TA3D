@@ -15,45 +15,51 @@
     along with this program; if not, write to the Free Software
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA*/
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <string.h>
-
-#include "hawknl/include/nl.h"			// Our low-level network layer, OS abstraction layer
-
-#if defined TA3D_PLATFORM_WINDOWS
-
-#define sleep rest
-
-#endif
 
 
-#define STYPE_BROKEN -1
-#define STYPE_TCP_SERVER 0
-#define STYPE_TCP_CLIENT 1
-#define STYPE_UDP 2
-#define STYPE_BROADCAST 3
+#ifndef __TA3D_SOCKET_CLASS__
+#define __TA3D_SOCKET_CLASS__
 
-#define PROTOCOL_TCPIP		NL_RELIABLE_PACKETS
-#define PROTOCOL_UDP		NL_UNRELIABLE
-#define PROTOCOL_BROADCAST	NL_BROADCAST
+# include <stdio.h>
+# include <stdlib.h>
+# include <unistd.h>
+# include <string.h>
+
+// Our low-level network layer, OS abstraction layer
+# include "../hawknl/include/nl.h" 
+
+
+# ifdef TA3D_PLATFORM_WINDOWS
+#   define sleep rest
+# endif
+
+
+# define STYPE_BROKEN      -1
+# define STYPE_TCP_SERVER   0
+# define STYPE_TCP_CLIENT   1
+# define STYPE_UDP          2
+# define STYPE_BROADCAST    3
+
+# define PROTOCOL_TCPIP      NL_RELIABLE_PACKETS
+# define PROTOCOL_UDP        NL_UNRELIABLE
+# define PROTOCOL_BROADCAST  NL_BROADCAST
+
 
 /*!
- * Windows and Unix do not use the same type for socket file descriptor
- * Then an abstraction is needed
- */
-#define ta3d_socket NLsocket
+** \brief Windows and Unix do not use the same type for socket file
+** descriptor then an abstraction is needed
+*/
+# define ta3d_socket NLsocket
 
 /*!
- * This value is defined in netbd.h but it is not available on Windows
- */
-#ifndef NI_MAXHOST
-# define NI_MAXHOST      1025
-#endif
-#ifndef NI_MAXSERV
-# define NI_MAXSERV      32
-#endif
+** \brief This value is defined in netbd.h but it is not available on Windows
+*/
+# ifndef NI_MAXHOST
+#   define NI_MAXHOST  1025
+# endif
+# ifndef NI_MAXSERV
+#   define NI_MAXSERV  32
+# endif
 
 #if defined NETWORK_STANDALONE_UNIT_TEST
 #if !defined uint32
@@ -61,11 +67,12 @@
 #endif
 #endif
 
-/****
+
+
+
+/*! \class Socket
 **
-** Socket
-**
-** This particular socket class is a fairly basic layer
+** \brief This particular socket class is a fairly basic layer
 ** above bsd sockets api. TCP/UDP and ipv6 are supported.
 ** There is no fancy support for sending packets, you may
 ** only use this class to send your pre-prepared bytes.
@@ -98,6 +105,7 @@
 ** examples
 ** some common ways to do common things
 **
+** \code
 ** //connect to a server somewhere on port 12345 (ipv4/ipv6)
 ** Socket mysock("foo.example.net","12345",SOCK_STREAM,AF_UNSPEC); or just
 ** Socket mysock("foo.example.net","12345");
@@ -116,59 +124,60 @@
 **
 ** //receive UDP datagrams on port 12345
 ** Socket mysock(NULL,"12345",SOCK_DATAGRAM);
+** \endcode
 **
-**
-***/
+*/
+class Socket
+{
+private:
+    ta3d_socket fd;
 
-#ifndef __TA3D_SOCKET_CLASS__
-#define __TA3D_SOCKET_CLASS__
+    NLaddress	address;
+    char number[NI_MAXHOST]; 	//ip address
+    char service[NI_MAXSERV];  //service/port number
+    int stype;               	//what kind of socket
 
-class Socket{
+    int sockreports;
+    int sockerrors;
 
-	ta3d_socket fd;
+    void sockError(const char* message);
+    void sockReport(const char* message);
 
-	NLaddress	address;
-	char number[NI_MAXHOST]; 	//ip address
-	char service[NI_MAXSERV];  //service/port number
-	int stype;               	//what kind of socket
+    int platformSetNonBlock();
+    int platformGetError();
 
-	int sockreports;
-	int sockerrors;
+    char *getError();
 
-	void sockError(const char* message);
-	void sockReport(const char* message);
+public:
+    Socket();
+    Socket(const char *hostname, const char *port);
+    Socket(const char *hostname, const char *port, int transport);
+    ~Socket();
 
-	int platformSetNonBlock();
-	int platformGetError();
-	
-	char *getError();
+    //utilities
+    int Accept(Socket& sock); 
+    int Accept(Socket& sock,int timeout);    	//wait for incoming connections
+    ta3d_socket getFD() const {return fd;}
+    const char* getNumber() const {return number;} //human readable ip address
+    const char* getService() const {return service;} //human readable port number
+    int getstype() const {return stype;}
 
-	public:
-		Socket();
-		Socket(const char *hostname, const char *port);
-		Socket(const char *hostname, const char *port, int transport);
-		~Socket();
+    int isOpen() const { return (stype == STYPE_BROKEN) ? 0:1; } //broken or not
 
-		//utilities
-		int Accept(Socket& sock); 
-		int Accept(Socket& sock,int timeout);    	//wait for incoming connections
-		inline ta3d_socket getFD() {return fd;}
-		inline /*const*/ char* getNumber()	{	return number;	}   			//human readable ip address
-		inline /*const*/ char* getService(){return service;}  			//human readable port number
-		inline int getstype(){return stype;}
-		int isOpen();						//broken or not
-		
-		//open and close manually
-		int Open(const char *hostname, const char *port);
-		int Open(const char *hostname, const char *port, int transport);
-		int Close();
+    //open and close manually
+    int Open(const char *hostname, const char *port);
+    int Open(const char *hostname, const char *port, int transport);
+    int Close();
 
-		//communication
-		int Send(const void* data,int num);//send num bytes of data
-		int Recv(void* data,int num);//recv a packet or num bytes if thats smaller
-		
-		int SendString(const char* data);//if data is null terminated
+    //communication
+    int Send(const void* data,int num);//send num bytes of data
+    int Recv(void* data,int num);//recv a packet or num bytes if thats smaller
 
-		int takeFive(int time);
-};
+    int SendString(const char* data) {return Send(data,strlen(data)+1);} //if data is null terminated
+
+    int takeFive(const int time);
+
+}; // class Socket
+
+
 #endif

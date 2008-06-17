@@ -21,8 +21,8 @@
 #include "TA3D_NameSpace.h"
 #include "ta3dbase.h"
 #include "jpeg/ta3d_jpg.h"
-#include "EngineClass.h"
 #include "tnt.h"
+#include "EngineClass.h"
 #include <iostream>
 
 

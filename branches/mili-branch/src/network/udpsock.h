@@ -16,7 +16,7 @@
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA*/
 
 #include "SocketClass.h"
-#include "threads/thread.h"
+#include "../threads/thread.h"
 
 
 #define		UDPSOCK_BUFFER_SIZE		2560
@@ -69,8 +69,8 @@ class UDPSock{
 		int Open(const char* hostname,const char* port);
 		void Close();
 
-		char* getAddress() {return udpsock.getNumber();}
-		char* getPort() {return udpsock.getService();}
+		const char* getAddress() const {return udpsock.getNumber();}
+		const char* getPort() const {return udpsock.getService();}
 		Socket& getSock() {return udpsock;}
 		int isOpen();
 

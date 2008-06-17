@@ -16,8 +16,7 @@
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA*/
 
 #include "SocketClass.h"
-
-#include "threads/thread.h"
+#include "../threads/thread.h"
 
 
 
@@ -203,8 +202,8 @@ class TA3DSock{
 
 		void sendTCP(byte *data, int size);
 
-		char* getAddress() {return tcpsock.getNumber();}
-		char* getPort() {return tcpsock.getService();}
+		const char* getAddress() const {return tcpsock.getNumber();}
+		const char* getPort() const {return tcpsock.getService();}
 		Socket& getSock() {return tcpsock;}
 		int isOpen();
 

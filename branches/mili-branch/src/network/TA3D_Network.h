@@ -18,9 +18,11 @@
 #ifndef __TA3D__TA3D__NETWORK__H
 #define __TA3D__TA3D__NETWORK__H
 
-#include "gui.h"
-#include "ta3dbase.h"
-#include "threads/thread.h"
+#include "../gui.h"
+#include "../ta3dbase.h"
+#include "../threads/thread.h"
+
+
 
 class TA3DNetwork : public ObjectSync 
 {
@@ -31,8 +33,8 @@ private:
 		String	text;
 		uint32	timer;
 		
-		inline NetworkMessage( const String &m, uint32 t )	{	text = m;	timer = t;	}
-		inline ~NetworkMessage()	{	text.clear();	}
+		NetworkMessage(const String& m, uint32 t): text(m), timer(t) {}
+		~NetworkMessage() {text.clear();}
 	};
 
 	List< NetworkMessage >		messages;
@@ -47,8 +49,8 @@ public:
 	TA3DNetwork( AREA *area, GAME_DATA *game_data );
 	~TA3DNetwork();
 
-	inline void set_signal( int s )	{	signal = s;	}
-	inline int	get_signal()	{	return signal;	}
+	void set_signal( int s )	{	signal = s;	}
+	int get_signal() const { return signal; }
 
 	void check();
 	void draw();

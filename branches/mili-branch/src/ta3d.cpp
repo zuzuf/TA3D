@@ -28,7 +28,7 @@
 #include "ta3d.h"			// Some core include
 #include "menu.h"			// Game menus
 #include "restore.h"		// Save/Load mecanisms
-#include "TA3D_Network.h"	// Network functionnalities such as chat
+#include "network/TA3D_Network.h"	// Network functionnalities such as chat
 #include "fx.h"
 #include "misc/paths.h"
 

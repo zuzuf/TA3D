@@ -29,7 +29,12 @@
 #include "tdf.h"				// Pour le gestionnaire de sprites
 #include "taconfig.h"
 #include "threads/thread.h"
-#include "gfx/particles/particles.h"			// Pour le moteur à particules
+#include "gfx/particles/particles.h"
+
+#include "ai/ai.h"
+
+#include "network/TA3D_Network.h"
+
 
 #define PARTICLE_LIMIT		100000		// pas plus de 100000 particules
 #define HMAP_RESIZE			0.04f
@@ -37,6 +42,116 @@
 #define H_DIV		0.5f
 float const tnt_transform=1.0f/tan(63.44f*DEG2RAD)/H_DIV;
 float const tnt_transform_H_DIV=1.0f/tan(63.44f*DEG2RAD);
+
+
+
+
+
+class IDX_LIST_NODE			// Node of the list
+{
+public:
+	sint16			idx;
+	IDX_LIST_NODE	*next;
+
+	IDX_LIST_NODE( sint16 n_idx )	{	idx = n_idx;	next = NULL;	}
+	IDX_LIST_NODE( sint16 n_idx, IDX_LIST_NODE *n_next )	{	idx = n_idx;	next = n_next;	}
+	IDX_LIST_NODE()	{	idx = 0;	next = NULL;	}
+};
+
+class IDX_LIST				// Container
+{
+public:
+	IDX_LIST_NODE	*head;
+
+	void init()	{	head = NULL;	}
+	IDX_LIST()	{	init();	}
+
+	void destroy()
+	{
+		while( head ) {
+			IDX_LIST_NODE *next = head->next;
+			delete head;
+			head = next;
+			}
+	}
+
+	~IDX_LIST()	{	destroy();	}
+
+	inline bool isEmpty()	{	return head == NULL;	}
+
+	inline void push( sint16 idx )
+	{
+		if( head ) {
+			IDX_LIST_NODE *cur = head;
+			while( cur->next ) {
+				if( cur->idx == idx )	return;		// Don't add it twice
+				cur = cur->next;
+				}
+			cur->next = new IDX_LIST_NODE( idx );	// Add idx at the end
+			}
+		else
+			head = new IDX_LIST_NODE( idx );
+	}
+	
+	inline void remove( sint16 idx )		// Assume there is only one occurence of idx in the list
+	{
+		IDX_LIST_NODE *cur = head;
+		IDX_LIST_NODE *prec = NULL;
+		while( cur ) {
+			if( cur->idx == idx ) {
+				if( prec == NULL ) {
+					prec = head;	head = head->next;
+					delete prec;	return;
+					}
+				else {
+					prec->next = cur->next;
+					delete cur;	return;
+					}
+				}
+			prec = cur;
+			cur = cur->next;
+			}
+	}
+
+	inline bool isIn( sint16 idx )
+	{
+		IDX_LIST_NODE *cur = head;
+		while( cur ) {
+			if( cur->idx == idx )	return true;
+			cur = cur->next;
+			}
+		return false;
+	}
+};
+
+
+
+
+
+class SECTOR			// Structure pour regrouper les informations sur le terrain (variations d'altitude, submergé, teneur en metal, ...)
+{
+public:
+	float		dh;					// dérivée maximale en valeur absolue de l'altitude
+	bool		underwater;			// indique si le bloc est sous l'eau
+	sint32		stuff;				// Indique l'élément graphique présent sur ce secteur
+	sint16		unit_idx;			// Indice de l'unité qui se trouve sur ce secteur
+	bool		lava;				// Is that under lava ?? Used for pathfinding
+	IDX_LIST	air_idx;			// This is the list that stores indexes of air units
+	bool		flat;				// Used by the map renderer to simplify geometry
+
+	void init()
+	{
+		dh = 0.0f;
+		underwater = false;
+		stuff = -1;
+		unit_idx = -1;
+		lava = false;
+		air_idx.init();
+		flat = false;
+	}
+};
+
+#include "ai/pathfinding.h"		// Algorithme de pathfinding
 
 class MAP_OTA
 {
@@ -158,109 +273,6 @@ public:
 };
 
 /*------------------- Here is the two classes of a list lighter than a List< sint16 > ----------*/
-
-class IDX_LIST_NODE			// Node of the list
-{
-public:
-	sint16			idx;
-	IDX_LIST_NODE	*next;
-
-	IDX_LIST_NODE( sint16 n_idx )	{	idx = n_idx;	next = NULL;	}
-	IDX_LIST_NODE( sint16 n_idx, IDX_LIST_NODE *n_next )	{	idx = n_idx;	next = n_next;	}
-	IDX_LIST_NODE()	{	idx = 0;	next = NULL;	}
-};
-
-class IDX_LIST				// Container
-{
-public:
-	IDX_LIST_NODE	*head;
-
-	void init()	{	head = NULL;	}
-	IDX_LIST()	{	init();	}
-
-	void destroy()
-	{
-		while( head ) {
-			IDX_LIST_NODE *next = head->next;
-			delete head;
-			head = next;
-			}
-	}
-
-	~IDX_LIST()	{	destroy();	}
-
-	inline bool isEmpty()	{	return head == NULL;	}
-
-	inline void push( sint16 idx )
-	{
-		if( head ) {
-			IDX_LIST_NODE *cur = head;
-			while( cur->next ) {
-				if( cur->idx == idx )	return;		// Don't add it twice
-				cur = cur->next;
-				}
-			cur->next = new IDX_LIST_NODE( idx );	// Add idx at the end
-			}
-		else
-			head = new IDX_LIST_NODE( idx );
-	}
-	
-	inline void remove( sint16 idx )		// Assume there is only one occurence of idx in the list
-	{
-		IDX_LIST_NODE *cur = head;
-		IDX_LIST_NODE *prec = NULL;
-		while( cur ) {
-			if( cur->idx == idx ) {
-				if( prec == NULL ) {
-					prec = head;	head = head->next;
-					delete prec;	return;
-					}
-				else {
-					prec->next = cur->next;
-					delete cur;	return;
-					}
-				}
-			prec = cur;
-			cur = cur->next;
-			}
-	}
-
-	inline bool isIn( sint16 idx )
-	{
-		IDX_LIST_NODE *cur = head;
-		while( cur ) {
-			if( cur->idx == idx )	return true;
-			cur = cur->next;
-			}
-		return false;
-	}
-};
-
-class SECTOR			// Structure pour regrouper les informations sur le terrain (variations d'altitude, submergé, teneur en metal, ...)
-{
-public:
-	float		dh;					// dérivée maximale en valeur absolue de l'altitude
-	bool		underwater;			// indique si le bloc est sous l'eau
-	sint32		stuff;				// Indique l'élément graphique présent sur ce secteur
-	sint16		unit_idx;			// Indice de l'unité qui se trouve sur ce secteur
-	bool		lava;				// Is that under lava ?? Used for pathfinding
-	IDX_LIST	air_idx;			// This is the list that stores indexes of air units
-	bool		flat;				// Used by the map renderer to simplify geometry
-
-	inline void init()
-	{
-		dh = 0.0f;
-		underwater = false;
-		stuff = -1;
-		unit_idx = -1;
-		lava = false;
-		air_idx.init();
-		flat = false;
-	}
-};
-
-#include "ai/pathfinding.h"		// Algorithme de pathfinding
-
 class MAP : public ObjectSync // Données concernant la carte
 {
 public:
@@ -842,9 +854,6 @@ public:
 
 	void draw();
 };
-
-#include "ai/ai.h"					// For Artificial Intelligence
-#include "TA3D_Network.h"		// For network synchronization
 
 extern int NB_PLAYERS;
 

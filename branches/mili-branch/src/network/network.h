@@ -22,8 +22,8 @@
 #include "ta3dsock.h"
 #include "udpsock.h"
 #include "broadcastsock.h"
-#include "superqueue.h"
-#include "threads/thread.h"
+#include "../superqueue.h"
+#include "../threads/thread.h"
 
 
 /***
