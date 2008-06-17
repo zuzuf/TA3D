@@ -2,7 +2,7 @@
 # define __TA3D_GFX_PARTICLES_SYSTEM_H__
 
 # include "../../stdafx.h"
-# include "../../vector.h"
+# include "../../misc/vector.h"
 
 
 namespace TA3D

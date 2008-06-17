@@ -3,7 +3,7 @@
 
 # include "../../threads/cThread.h"
 # include "../../threads/thread.h"
-# include "../../vector.h"
+# include "../../misc/vector.h"
 # include "../../ta3dbase.h"
 # include "particlessystem.h"
 # include "particle.h"

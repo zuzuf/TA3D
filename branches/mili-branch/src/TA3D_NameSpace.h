@@ -35,7 +35,7 @@
 # ifndef TA3D_NO_SOUND // Only for the hpiview program
 #   include "TA3D_Audio.h"
 # else
-#   include "vector.h"
+#   include "misc/vector.h"
 #   include "cTAFileParser.h"
 # endif
 # include "TA3D_hpi.h"

@@ -23,11 +23,12 @@
 |                                                                            |
 \---------------------------------------------------------------------------*/
 
-#include "vector.h"
 
 #ifndef CLASS_MATRIX
+# define CLASS_MATRIX
 
-#define CLASS_MATRIX
+
+#include "misc/vector.h"
 
 class MATRIX_4x4
 {

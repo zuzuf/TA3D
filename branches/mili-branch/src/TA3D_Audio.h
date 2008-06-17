@@ -19,7 +19,7 @@
 #ifndef __TA3D_AUDIO_H__
 # define __TA3D_AUDIO_H__
 
-# include "vector.h"
+# include "misc/vector.h"
 # include "cTAFileParser.h"
 # include "misc/interface.h"
 # include "threads/thread.h"
