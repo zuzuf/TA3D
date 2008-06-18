@@ -89,11 +89,10 @@ namespace Logs
 
 			time ( &rawtime );
 
-            #ifdef WINDOWS
-			struct tm timeinfo;
-            localtime_s(&timeinfo, &rawtime);
-			char asc[32];
-			asctime_s(asc, &timeinfo);
+            #ifdef TA3D_PLATFORM_WINDOWS
+			struct tm* timeinfo = localtime(&rawtime);
+			char* asc;
+			asc = asctime(timeinfo);
             #else
 			struct tm* timeinfo;
             timeinfo = localtime(&rawtime);
