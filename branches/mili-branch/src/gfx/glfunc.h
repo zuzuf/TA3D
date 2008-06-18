@@ -21,6 +21,12 @@
 |  utiliser des extensions d'OpenGl. utilise AllegroGl          |
 \--------------------------------------------------------------*/
 
+#ifndef __TA3D_GFX_GL_FUNCTIONS_H__
+# define __TA3D_GFX_GL_FUNCTIONS_H__
+
+#ifdef TA3D_PLATFORM_WINDOWS
+#  include <alleggl.h>
+#endif
 #include <stdio.h>
 
 extern bool	MultiTexturing;
@@ -129,3 +135,5 @@ public:
 			glUniform4iARB(glGetUniformLocationARB(program, var_name), v0, v1, v2, v3);
 	}
 };
+
+#endif // __TA3D_GFX_GL_FUNCTIONS_H__

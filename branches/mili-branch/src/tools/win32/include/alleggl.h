@@ -23,6 +23,26 @@
 
 #endif /* ALLEGRO_WINDOWS */
 
+
+#if (defined ALLEGRO_GL_DYNAMIC) && (defined ALLEGRO_WINDOWS)
+	#ifdef ALLEGRO_GL_SRC_BUILD
+		#define _AGL_DLL __declspec(dllexport)
+	#else
+		#define _AGL_DLL __declspec(dllimport)
+	#endif /* ALLEGRO_GL_SRC_BUILD */
+#else
+	#define _AGL_DLL
+#endif /* (defined ALLEGRO_GL_DYNAMIC) && (defined ALLEGRO_WINDOWS) */
+
+#define AGL_VAR(type, name) extern _AGL_DLL type name
+
+#if (defined ALLEGRO_GL_DYNAMIC) && (defined ALLEGRO_WINDOWS)
+	#define AGL_FUNC(type, name, args) extern _AGL_DLL type __cdecl name args
+#else
+	#define AGL_FUNC(type, name, args) extern type name args
+#endif /* (defined ALLEGRO_GL_DYNAMIC) && (defined ALLEGRO_WINDOWS) */
+
+
 #ifdef ALLEGRO_MACOSX
 
 #include <OpenGL/OpenGL.h>
@@ -48,8 +68,14 @@
 #include "allegrogl/gl_ext.h"
 
 #ifdef ALLEGRO_WITH_XWINDOWS
-#ifndef HAVE_LIBPTHREAD
-#   error AllegroGL requires Allegro to have pthread support enabled!
+#if (ALLEGRO_SUB_VERSION == 2) && (ALLEGRO_WIP_VERSION < 2)
+#   ifndef HAVE_LIBPTHREAD
+#      error AllegroGL requires Allegro to have pthread support enabled!
+#   endif
+#else
+#   ifndef ALLEGRO_HAVE_LIBPTHREAD
+#      error AllegroGL requires Allegro to have pthread support enabled!
+#   endif
 #endif
 #include <alleggl_config.h>
 #endif
@@ -60,15 +86,15 @@
 /** \name Version Information
   * \{ */
 #define AGL_VERSION     0            ///< Major version number
-#define AGL_SUB_VERSION 2            ///< Minor version number
-#define AGL_WIP_VERSION 5            ///< Work-In-Progress version number
-#define AGL_VERSION_STR "0.2.5 CVS"  ///< Version description string
+#define AGL_SUB_VERSION 4            ///< Minor version number
+#define AGL_WIP_VERSION 2            ///< Work-In-Progress version number
+#define AGL_VERSION_STR "0.4.2"      ///< Version description string
 /** \} */
 /** \} */
 
 /* Version Check */
-#if (ALLEGRO_VERSION <= 3)
-	#error AllegroGL requires Allegro 4.0.0 or later to compile!
+#if (ALLEGRO_VERSION < 4 || (ALLEGRO_VERSION == 4 && ALLEGRO_SUB_VERSION < 2))
+	#error AllegroGL requires Allegro 4.2.0 or later to compile!
 #endif
 #ifndef GL_VERSION_1_1
 	#error AllegroGL requires OpenGL 1.1 libraries or later to compile!
@@ -106,7 +132,7 @@ extern "C" {
 
 
 #define AGL_ERROR_SIZE 256
-extern char allegro_gl_error[AGL_ERROR_SIZE];
+AGL_VAR(char, allegro_gl_error[AGL_ERROR_SIZE]);
 
 
 /** \defgroup core Core routines
@@ -118,14 +144,14 @@ extern char allegro_gl_error[AGL_ERROR_SIZE];
 /** \name Core Functions
  *  \{
  */
-extern int install_allegro_gl(void);
-extern void remove_allegro_gl(void);
+AGL_FUNC(int, install_allegro_gl, (void));
+AGL_FUNC(void, remove_allegro_gl, (void));
 
-extern void allegro_gl_flip (void);
-extern float allegro_gl_opengl_version();
+AGL_FUNC(void, allegro_gl_flip, (void));
+AGL_FUNC(float, allegro_gl_opengl_version, (void));
 
 /** \ingroup core
- *  Backward compatibility #define for programs written
+ *  Backward compatibility \#define for programs written
  *  prior to AGL 0.0.22.
  *  It isn't defined as anything meaningful, so you don't
  *  need to put them in your program.
@@ -135,7 +161,7 @@ extern float allegro_gl_opengl_version();
 #define allegro_gl_begin() ;
 
 /** \ingroup core
- *  Backward compatibility #define for programs written
+ *  Backward compatibility \#define for programs written
  *  prior to AGL 0.0.22.
  *  It isn't defined as anything meaningful, so you don't
  *  need to put them in your program.
@@ -368,11 +394,11 @@ extern float allegro_gl_opengl_version();
 
 /** \name Mode selection functions
  *  \{ */
-extern void allegro_gl_clear_settings (void);
-extern void allegro_gl_set (int option, int value);
-extern int  allegro_gl_get (int option);
-extern void allegro_gl_save_settings();
-extern void allegro_gl_load_settings();
+AGL_FUNC(void, allegro_gl_clear_settings, (void));
+AGL_FUNC(void, allegro_gl_set, (int option, int value));
+AGL_FUNC(int,  allegro_gl_get, (int option));
+AGL_FUNC(void, allegro_gl_save_settings, (void));
+AGL_FUNC(void, allegro_gl_load_settings, (void));
 /** \} */
 /** \} */
 
@@ -451,6 +477,17 @@ extern GFX_DRIVER gfx_allegro_gl_fullscreen;
 #endif
 
 
+/** \defgroup bitmap Bitmap Routines
+ *  AllegroGL provides a function to set color depth for video
+ *  bitmaps.
+ */
+/** \{ */
+/** \name Video Bitmap Rountines
+ *  \{ */
+AGL_FUNC(GLint, allegro_gl_set_video_bitmap_color_depth, (int bpp));
+/** \} */
+/** \} */
+
 
 /** \defgroup texture Texture Routines
  *  AllegroGL provides functions to allow using Allegro BITMAP objects to
@@ -459,20 +496,20 @@ extern GFX_DRIVER gfx_allegro_gl_fullscreen;
 /** \{ */
 /** \name Texture routines
  *  \{ */
-extern int allegro_gl_use_mipmapping(int enable);
-extern int allegro_gl_use_alpha_channel(int enable);
-extern int allegro_gl_flip_texture(int enable);
-extern int allegro_gl_check_texture (BITMAP *bmp);
-extern int allegro_gl_check_texture_ex(int flags, BITMAP *bmp,
-                                       GLint internal_format);
-extern GLint allegro_gl_get_texture_format(BITMAP *bmp);
-extern GLint allegro_gl_set_texture_format(GLint format);
-extern GLenum allegro_gl_get_bitmap_type(BITMAP *bmp);
-extern GLenum allegro_gl_get_bitmap_color_format(BITMAP *bmp);
-extern GLuint allegro_gl_make_texture (BITMAP *bmp);
-extern GLuint allegro_gl_make_masked_texture (BITMAP *bmp);
-extern GLuint allegro_gl_make_texture_ex(int flags, BITMAP *bmp,
-                                         GLint internal_format);
+AGL_FUNC(int, allegro_gl_use_mipmapping, (int enable));
+AGL_FUNC(int, allegro_gl_use_alpha_channel, (int enable));
+AGL_FUNC(int, allegro_gl_flip_texture, (int enable));
+AGL_FUNC(int, allegro_gl_check_texture, (BITMAP *bmp));
+AGL_FUNC(int, allegro_gl_check_texture_ex, (int flags, BITMAP *bmp,
+                                       GLint internal_format));
+AGL_FUNC(GLint, allegro_gl_get_texture_format, (BITMAP *bmp));
+AGL_FUNC(GLint, allegro_gl_set_texture_format, (GLint format));
+AGL_FUNC(GLenum, allegro_gl_get_bitmap_type, (BITMAP *bmp));
+AGL_FUNC(GLenum, allegro_gl_get_bitmap_color_format, (BITMAP *bmp));
+AGL_FUNC(GLuint, allegro_gl_make_texture, (BITMAP *bmp));
+AGL_FUNC(GLuint, allegro_gl_make_masked_texture, (BITMAP *bmp));
+AGL_FUNC(GLuint, allegro_gl_make_texture_ex,(int flags, BITMAP *bmp,
+                                         GLint internal_format));
 
 
 /** AllegroGL will generate mipmaps for this texture.
@@ -516,10 +553,10 @@ extern GLuint allegro_gl_make_texture_ex(int flags, BITMAP *bmp,
  * \{ */
 /** \name Allegro Interfacing routines
  *  \{ */
-extern void allegro_gl_set_allegro_mode (void);
-extern void allegro_gl_unset_allegro_mode (void);
-extern void allegro_gl_set_projection (void);
-extern void allegro_gl_unset_projection (void);
+AGL_FUNC(void, allegro_gl_set_allegro_mode, (void));
+AGL_FUNC(void, allegro_gl_unset_allegro_mode, (void));
+AGL_FUNC(void, allegro_gl_set_projection, (void));
+AGL_FUNC(void, allegro_gl_unset_projection, (void));
 /** \} */
 /** \} */
 
@@ -533,25 +570,25 @@ extern void allegro_gl_unset_projection (void);
 /** \name Matrix conversion routines
  *  \{ */
 
-extern void allegro_gl_MATRIX_to_GLfloat (MATRIX *m, GLfloat gl[16]);
-extern void allegro_gl_MATRIX_to_GLdouble (MATRIX *m, GLdouble gl[16]);
-extern void allegro_gl_MATRIX_f_to_GLfloat (MATRIX_f *m, GLfloat gl[16]);
-extern void allegro_gl_MATRIX_f_to_GLdouble (MATRIX_f *m, GLdouble gl[16]);
+AGL_FUNC(void, allegro_gl_MATRIX_to_GLfloat, (MATRIX *m, GLfloat gl[16]));
+AGL_FUNC(void, allegro_gl_MATRIX_to_GLdouble, (MATRIX *m, GLdouble gl[16]));
+AGL_FUNC(void, allegro_gl_MATRIX_f_to_GLfloat, (MATRIX_f *m, GLfloat gl[16]));
+AGL_FUNC(void, allegro_gl_MATRIX_f_to_GLdouble, (MATRIX_f *m, GLdouble gl[16]));
 
-extern void allegro_gl_GLfloat_to_MATRIX (GLfloat gl[16], MATRIX *m);
-extern void allegro_gl_GLdouble_to_MATRIX (GLdouble gl[16], MATRIX *m);
-extern void allegro_gl_GLfloat_to_MATRIX_f (GLfloat gl[16], MATRIX_f *m);
-extern void allegro_gl_GLdouble_to_MATRIX_f (GLdouble gl[16], MATRIX_f *m);
+AGL_FUNC(void, allegro_gl_GLfloat_to_MATRIX, (GLfloat gl[16], MATRIX *m));
+AGL_FUNC(void, allegro_gl_GLdouble_to_MATRIX, (GLdouble gl[16], MATRIX *m));
+AGL_FUNC(void, allegro_gl_GLfloat_to_MATRIX_f, (GLfloat gl[16], MATRIX_f *m));
+AGL_FUNC(void, allegro_gl_GLdouble_to_MATRIX_f, (GLdouble gl[16], MATRIX_f *m));
 
 /** \} */
 
 /** \name Quaternion conversion routines
  *  \{ */
-extern void allegro_gl_apply_quat(QUAT *q);
-extern void allegro_gl_quat_to_glrotatef(QUAT *q, float *angle,
-                                         float *x, float *y, float *z);
-extern void allegro_gl_quat_to_glrotated(QUAT *q, double *angle,
-                                         double *x, double *y, double *z);
+AGL_FUNC(void, allegro_gl_apply_quat, (QUAT *q));
+AGL_FUNC(void, allegro_gl_quat_to_glrotatef, (QUAT *q, float *angle,
+                                         float *x, float *y, float *z));
+AGL_FUNC(void, allegro_gl_quat_to_glrotated, (QUAT *q, double *angle,
+                                         double *x, double *y, double *z));
 /** \} */
 /** \} */
 
@@ -667,20 +704,20 @@ extern void allegro_gl_quat_to_glrotated(QUAT *q, double *angle,
 #define AGL_FONT_LINES    2
 
 
-extern int allegro_gl_printf(AL_CONST FONT *f, float x, float y, float z,
-                             int color, AL_CONST char *format, ...);
-extern int allegro_gl_printf_ex(AL_CONST FONT *f, float x, float y, float z,
-                                AL_CONST char *format, ...);
-extern FONT *allegro_gl_convert_allegro_font(FONT *f, int type, float scale);
-extern FONT *allegro_gl_convert_allegro_font_ex(FONT *f, int type, float scale,
-                                                GLint format);
+AGL_FUNC(int, allegro_gl_printf, (AL_CONST FONT *f, float x, float y, float z,
+                             int color, AL_CONST char *format, ...));
+AGL_FUNC(int, allegro_gl_printf_ex, (AL_CONST FONT *f, float x, float y, float z,
+                             AL_CONST char *format, ...));
+AGL_FUNC(FONT*, allegro_gl_convert_allegro_font, (FONT *f, int type, float scale));
+AGL_FUNC(FONT*, allegro_gl_convert_allegro_font_ex, (FONT *f, int type, float scale,
+                                                GLint format));
 
-extern void allegro_gl_set_font_generation_mode(int mode);
-extern FONT *allegro_gl_load_system_font(char *name, int style, int w, int h);
-extern FONT *allegro_gl_load_system_font_ex(char *name, int type, int style,
-                                 int w, int h, float depth, int start, int end);
-extern void allegro_gl_destroy_font(FONT *f);
-extern size_t allegro_gl_list_font_textures(FONT *f, GLuint *ids, size_t max_num_id);
+AGL_FUNC(void, allegro_gl_set_font_generation_mode, (int mode));
+AGL_FUNC(FONT*, allegro_gl_load_system_font, (char *name, int style, int w, int h));
+AGL_FUNC(FONT*, allegro_gl_load_system_font_ex, (char *name, int type, int style,
+                                 int w, int h, float depth, int start, int end));
+AGL_FUNC(void, allegro_gl_destroy_font, (FONT *f));
+AGL_FUNC(size_t, allegro_gl_list_font_textures, (FONT *f, GLuint *ids, size_t max_num_id));
 /** \} */
 /** \} */
 
@@ -714,8 +751,8 @@ extern size_t allegro_gl_list_font_textures(FONT *f, GLuint *ids, size_t max_num
 
 #else
 
-extern int allegro_gl_is_extension_supported(const char *);
-extern void *allegro_gl_get_proc_address(const char *);
+AGL_FUNC(int, allegro_gl_is_extension_supported, (const char *));
+AGL_FUNC(void*, allegro_gl_get_proc_address, (const char *));
 
 #if defined ALLEGRO_WINDOWS
 	#define AGL_DEFINE_PROC_TYPE(type, name, args) \
@@ -748,16 +785,16 @@ extern void *allegro_gl_get_proc_address(const char *);
  *  or to save the current state of OpenGL.
  */
 /** \{ */
-extern int algl_do_dialog (DIALOG *dialog, int focus_obj);
-extern int algl_popup_dialog (DIALOG *dialog, int focus_obj);
-extern void algl_draw_mouse (void);
-extern void algl_set_mouse_drawer (void (*user_draw_mouse)(void));
-extern int algl_alert(AL_CONST char *s1, AL_CONST char *s2, AL_CONST char *s3,
-                      AL_CONST char *b1, AL_CONST char *b2, int c1, int c2);
-extern int algl_alert3(AL_CONST char *s1, AL_CONST char *s2, AL_CONST char *s3,
+AGL_FUNC(int, algl_do_dialog, (DIALOG *dialog, int focus_obj));
+AGL_FUNC(int, algl_popup_dialog, (DIALOG *dialog, int focus_obj));
+AGL_FUNC(void, algl_draw_mouse, (void));
+AGL_FUNC(void, algl_set_mouse_drawer, (void (*user_draw_mouse)(void)));
+AGL_FUNC(int, algl_alert, (AL_CONST char *s1, AL_CONST char *s2, AL_CONST char *s3,
+                      AL_CONST char *b1, AL_CONST char *b2, int c1, int c2));
+AGL_FUNC(int, algl_alert3, (AL_CONST char *s1, AL_CONST char *s2, AL_CONST char *s3,
                        AL_CONST char *b1, AL_CONST char *b2, AL_CONST char *b3,
-                       int c1, int c2, int c3);
-extern int d_algl_viewport_proc(int msg, DIALOG *d, int c);
+                       int c1, int c2, int c3));
+AGL_FUNC(int, d_algl_viewport_proc, (int msg, DIALOG *d, int c));
 
 /** \} */
 

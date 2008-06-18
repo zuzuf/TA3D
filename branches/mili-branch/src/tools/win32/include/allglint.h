@@ -92,7 +92,6 @@ int __allegro_gl_score_config (int refnum, struct allegro_gl_display_info *dinfo
 int __allegro_gl_best_config (void);
 
 void __allegro_gl_set_allegro_image_format (int big_endian);
-BITMAP* __allegro_gl_convert_masked_bitmap(int *dest_fmt, BITMAP *source, int source_x, int source_y, int width, int height, int flip);
 
 void __allegro_gl_fill_in_info(void);
 
@@ -120,11 +119,39 @@ void allegro_gl_hide_mouse(void);
 void allegro_gl_move_mouse(int x, int y);
 
 
+extern char const *__allegro_gl_get_format_description(GLint format);
+extern int __allegro_gl_get_num_channels(GLenum format);
 extern GLenum __allegro_gl_get_bitmap_type(BITMAP *bmp, int flags);
 extern GLenum __allegro_gl_get_bitmap_color_format(BITMAP *bmp, int flags);
 extern GLint __allegro_gl_get_texture_format_ex(BITMAP *bmp, int flags);
 extern BITMAP *__allegro_gl_munge_bitmap(int flags, BITMAP *bmp, int x, int y,
                                       int w, int h, GLint *type, GLint *format);
+
+extern int __allegro_gl_blit_operation;
+
+
+/** \internal
+ * Stores info about a glyph before rendering 
+ */
+typedef struct AGL_GLYPH {
+	int glyph_num;
+	int x, y, w, h;
+	int offset_x, offset_y, offset_w, offset_h;
+} AGL_GLYPH;
+
+
+/*   <ofs_x>
+     +--------------------+
+     |                    |
+     |    +-------+       |
+     |    | glyph |       |
+     |    +-------+       |
+     |                    |
+     +--------------------+
+          <   w   ><ofs_w >
+     <      polygon       >
+*/
+
 
 /** \internal
  * Part of the Allegro font vtable's data field.
@@ -135,11 +162,17 @@ typedef struct FONT_AGL_DATA {
 	int start, end;
 	int is_free_chunk;
 
+	float scale;
+	GLint format;
+
 	void *data;
+	AGL_GLYPH *glyph_coords;
 	GLuint list_base;
 	GLuint texture;
 
 	struct FONT_AGL_DATA *next;
+
+        int has_alpha;
 } FONT_AGL_DATA;
 
 extern struct FONT_VTABLE *font_vtable_agl;
@@ -155,6 +188,20 @@ extern struct FONT_VTABLE *font_vtable_agl;
  *  Checks for texture validity only. Used by allegro_gl_check_texture() only.
  */
 #define AGL_TEXTURE_CHECK_VALID_INTERNAL 0x40000000
+
+
+#define AGL_OP_LOGIC_OP			0x0
+#define AGL_OP_BLEND			0x1
+
+#define AGL_H_FLIP		1	/* Flag to request horizontal flipping */
+#define AGL_V_FLIP		2	/* Flag to request vertical flipping */
+#define AGL_REGULAR_BMP	1	/* Must be set for bitmaps that are not sprites.
+							   Otherwise the clipping routine will not test
+							   if source_x and source_y are legal values */
+#define AGL_NO_ROTATION	2	/* If not set the clipping routine is skipped
+							   This is needed for pivot_scaled_x() in order
+							   not to clip rotated bitmaps (in such a case
+							   OpenGL will take care of it) */
 
 
 #define AGL_LOG(level,str)

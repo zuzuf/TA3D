@@ -33,7 +33,7 @@
 #include "3do.h"			// Gestion des modèles 3D
 #include "misc/paths.h"
 #include "logs/logs.h"
-
+#include "gfx/glfunc.h"
 #include "3dmeditor.h"		// GUI functions for the editor
 
 #define precision	MSEC_TO_TIMER(1)
@@ -1076,7 +1076,8 @@ void SurfPaint(int index)
     GLuint brush_U,brush_V,zbuf;
     GLuint brush_FBO;
 
-    if(g_useProgram && g_useFBO) {
+    if(g_useProgram && g_useFBO)
+    {
         glGenFramebuffersEXT(1,&brush_FBO);
 
         BITMAP *tmp=create_bitmap_ex(32,SCREEN_W,SCREEN_H);	// On ne peut pas utiliser screen donc on crée un BITMAP temporaire

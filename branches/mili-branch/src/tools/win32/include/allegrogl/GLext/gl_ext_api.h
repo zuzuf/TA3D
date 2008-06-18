@@ -264,7 +264,18 @@ AGL_API(void, StencilOpSeparate,   (GLenum, GLenum, GLenum, GLenum))
 AGL_API(void, StencilFuncSeparate, (GLenum, GLenum, GLint,  GLuint))
 
 #endif
-	
+
+
+#if defined AGL_VERSION_2_1
+AGL_API(void, UniformMatrix2x3fv, (GLint, GLsizei, GLboolean, const GLfloat *))
+AGL_API(void, UniformMatrix3x2fv, (GLint, GLsizei, GLboolean, const GLfloat *))
+AGL_API(void, UniformMatrix2x4fv, (GLint, GLsizei, GLboolean, const GLfloat *))
+AGL_API(void, UniformMatrix4x2fv, (GLint, GLsizei, GLboolean, const GLfloat *))
+AGL_API(void, UniformMatrix3x4fv, (GLint, GLsizei, GLboolean, const GLfloat *))
+AGL_API(void, UniformMatrix4x3fv, (GLint, GLsizei, GLboolean, const GLfloat *))
+#endif
+
+
 /* </Core> */
 /* <ARB> */
 
@@ -561,7 +572,7 @@ AGL_API(void, DrawBuffersARB, (GLsizei n, const GLenum *bufs))
 #endif
 
 #if defined AGL_ARB_color_buffer_float
-AGL_API(void, ClampColorARB, (GLenum target, GLenum clamp))
+AGL_API(void, ClampColorARB, (GLenum, GLenum clamp))
 #endif
 
 /* </ARB> */
@@ -1557,7 +1568,7 @@ AGL_API(void, LineWidthxOES, (GLfixed width))
 AGL_API(void, PolygonOffsetxOES, (GLfixed factor, GLfixed units))
 AGL_API(void, PixelStorex, (GLenum pname, GLfixed param))
 AGL_API(void, PixelTransferxOES, (GLenum pname, GLfixed param))
-AGL_API(void, PixelMapx, (GLenum GLint, const GLfixed *))
+AGL_API(void, PixelMapx, (GLenum, GLint, const GLfixed *))
 AGL_API(void, GetPixelMapxv, (GLenum, GLint, GLfixed *))
 AGL_API(void, ConvolutionParameterxOES, (GLenum, GLenum, GLfixed))
 AGL_API(void, ConvolutionParameterxvOES, (GLenum, GLenum, const GLfixed *))
@@ -1640,6 +1651,215 @@ AGL_API(void, GenerateMipmapEXT, (GLenum))
 #endif
 
 #if defined AGL_GREMEDY_string_marker
-AGL_API(void, StringMarkerGREMEDY, (GLsizei len, const GLvoid *string))
+AGL_API(void, StringMarkerGREMEDY, (GLsizei, const GLvoid *))
+#endif
+
+#if defined AGL_EXT_stencil_clear_tag
+AGL_API(void, StencilClearTagEXT, (GLsizei, GLuint))
+#endif
+
+#if defined AGL_EXT_framebuffer_blit
+AGL_API(void, BlitFramebufferEXT, (GLint, GLint, GLint, GLint, GLint, GLint, GLint, GLint, GLbitfield, GLenum))
+#endif
+
+#if defined AGL_EXT_framebuffer_multisample
+AGL_API(void, RenderbufferStorageMultisampleEXT, (GLenum, GLsizei, GLenum, GLsizei, GLsizei))
+#endif
+
+#if defined AGL_EXT_timer_query
+AGL_API(void, GetQueryObjecti64vEXT, (GLuint, GLenum, GLint64EXT *))
+AGL_API(void, GetQueryObjectui64vEXT, (GLuint, GLenum, GLuint64EXT *))
+#endif
+
+#if defined AGL_EXT_gpu_program_parameters
+AGL_API(void, ProgramEnvParameters4fvEXT, (GLenum, GLuint, GLsizei, const GLfloat *))
+AGL_API(void, ProgramLocalParameters4fvEXT, (GLenum, GLuint, GLsizei, const GLfloat *))
+#endif
+
+#if defined AGL_APPLE_flush_buffer_range
+AGL_API(void, BufferParameteriAPPLE, (GLenum, GLenum, GLint))
+AGL_API(void, FlushMappedBufferRangeAPPLE, (GLenum, GLintptr, GLsizeiptr))
+#endif
+
+#if defined AGL_EXT_bindable_uniform
+AGL_API(void,     UniformBufferEXT, (GLuint, GLint, GLuint))
+AGL_API(GLint,    GetUniformBufferSizeEXT, (GLuint, GLint))
+AGL_API(GLintptr, GetUniformOffsetEXT, (GLuint program, GLint))
+#endif
+
+#if defined AGL_EXT_draw_buffers2
+AGL_API(void, ColorMaskIndexedEXT, (GLuint, GLboolean, GLboolean, GLboolean, GLboolean))
+AGL_API(void, GetBooleanIndexedvEXT, (GLenum, GLuint, GLboolean *))
+AGL_API(void, GetIntegerIndexedvEXT, (GLenum, GLuint, GLint *))
+AGL_API(void, EnableIndexedEXT, (GLenum, GLuint))
+AGL_API(void, DisableIndexedEXT, (GLenum, GLuint))
+AGL_API(GLboolean, IsEnabledIndexedEXT, (GLenum, GLuint))
+#endif
+
+#if defined AGL_EXT_draw_instanced
+AGL_API(void, DrawArraysInstancedEXT, (GLenum, GLint, GLsizei, GLsizei))
+AGL_API(void, DrawElementsInstancedEXT, (GLenum, GLsizei, GLenum, const GLvoid *, GLsizei))
+#endif
+
+#if defined AGL_EXT_geometry_shader4
+AGL_API(void, ProgramParameteriEXT, (GLuint, GLenum, GLint))
+AGL_API(void, FramebufferTextureEXT, (GLenum, GLenum, GLuint, GLint))
+#if !defined AGL_EXT_texture_array
+AGL_API(void, FramebufferTextureLayerEXT, (GLenum, GLenum, GLuint, GLint, GLint))
+#endif
+AGL_API(void, FramebufferTextureFaceEXT, (GLenum, GLenum, GLuint, GLint, GLenum))
+#endif
+
+#if defined AGL_EXT_gpu_shader4
+AGL_API(void, VertexAttribI1iEXT, (GLuint, GLint))
+AGL_API(void, VertexAttribI2iEXT, (GLuint, GLint, GLint))
+AGL_API(void, VertexAttribI3iEXT, (GLuint, GLint, GLint, GLint))
+AGL_API(void, VertexAttribI4iEXT, (GLuint, GLint, GLint, GLint, GLint))
+AGL_API(void, VertexAttribI1uiEXT, (GLuint, GLuint))
+AGL_API(void, VertexAttribI2uiEXT, (GLuint, GLuint, GLuint))
+AGL_API(void, VertexAttribI3uiEXT, (GLuint, GLuint, GLuint, GLuint))
+AGL_API(void, VertexAttribI4uiEXT, (GLuint, GLuint, GLuint, GLuint, GLuint))
+AGL_API(void, VertexAttribI1ivEXT, (GLuint, const GLint *))
+AGL_API(void, VertexAttribI2ivEXT, (GLuint, const GLint *))
+AGL_API(void, VertexAttribI3ivEXT, (GLuint, const GLint *))
+AGL_API(void, VertexAttribI4ivEXT, (GLuint, const GLint *))
+AGL_API(void, VertexAttribI1uivEXT, (GLuint, const GLuint *))
+AGL_API(void, VertexAttribI2uivEXT, (GLuint, const GLuint *))
+AGL_API(void, VertexAttribI3uivEXT, (GLuint, const GLuint *))
+AGL_API(void, VertexAttribI4uivEXT, (GLuint, const GLuint *))
+AGL_API(void, VertexAttribI4bvEXT, (GLuint, const GLbyte *))
+AGL_API(void, VertexAttribI4svEXT, (GLuint, const GLshort *))
+AGL_API(void, VertexAttribI4ubvEXT, (GLuint, const GLubyte *))
+AGL_API(void, VertexAttribI4usvEXT, (GLuint, const GLushort *))
+AGL_API(void, VertexAttribIPointerEXT, (GLuint, GLint, GLenum, GLsizei, const GLvoid *))
+AGL_API(void, GetVertexAttribIivEXT, (GLuint, GLenum, GLint *))
+AGL_API(void, GetVertexAttribIuivEXT, (GLuint, GLenum, GLint *))
+AGL_API(void, Uniform1uiEXT, (GLint, GLuint))
+AGL_API(void, Uniform2uiEXT, (GLint, GLuint, GLuint))
+AGL_API(void, Uniform3uiEXT, (GLint, GLuint, GLuint, GLuint))
+AGL_API(void, Uniform4uiEXT, (GLint, GLuint, GLuint, GLuint, GLuint))
+AGL_API(void, Uniform1uivEXT, (GLint, GLsizei, const GLuint *))
+AGL_API(void, Uniform2uivEXT, (GLint, GLsizei, const GLuint *))
+AGL_API(void, Uniform3uivEXT, (GLint, GLsizei, const GLuint *))
+AGL_API(void, Uniform4uivEXT, (GLint, GLsizei, const GLuint *))
+AGL_API(void, GetUniformuivEXT, (GLuint, GLint location, GLint *))
+AGL_API(void, BindFragDataLocationEXT, (GLuint, GLuint, const GLchar *))
+AGL_API(GLint, GetFragDataLocationEXT, (GLuint, const GLchar *))
+#endif
+
+#if defined AGL_EXT_texture_array
+AGL_API(void, FramebufferTextureLayerEXT, (GLenum, GLenum, GLuint, GLint, GLint))
+#endif
+
+#if defined AGL_EXT_texture_buffer_object
+AGL_API(void, TexBufferEXT, (GLenum, GLenum, GLuint))
+#endif
+
+#if defined AGL_texture_integer
+AGL_API(void, ClearColorIiEXT,        (GLint,  GLint,  GLint,  GLint))
+AGL_API(void, ClearColorIuiEXT,       (GLuint, GLuint, GLuint, GLuint))
+AGL_API(void, TexParameterIivEXT,     (GLenum, GLenum, GLint *))
+AGL_API(void, TexParameterIuivEXT,    (GLenum, GLenum, GLuint *))
+AGL_API(void, GetTexParameterIivEXT,  (GLenum, GLenum, GLint *))
+AGL_API(void, GetTexParameterIiuvEXT, (GLenum, GLenum, GLuint *))
+#endif
+
+#if defined AGL_NV_depth_buffer_float
+AGL_API(void, DepthRangedNV,  (GLdouble, GLdouble))
+AGL_API(void, ClearDepthdNV,  (GLdouble))
+AGL_API(void, DepthBoundsdNV, (GLdouble, GLdouble))
+#endif
+
+#if defined AGL_NV_framebuffer_multisample_coverage
+AGL_API(void, RenderbufferStorageMultsampleCoverageNV, (GLenum, GLsizei, GLsizei, GLenum, GLsizei, GLsizei))
+#endif
+
+#if defined AGL_NV_geometry_program4
+AGL_API(void, ProgramVertexLimitNV, (GLenum, GLint))
+#if !defined AGL_EXT_geometry_shader4
+AGL_API(void, FramebufferTextureEXT,      (GLenum, GLenum, GLuint, GLint))
+#if !defined AGL_EXT_texture_array
+AGL_API(void, FramebufferTextureLayerEXT, (GLenum, GLenum, GLuint, GLint, GLint))
+#endif
+#endif
+#endif
+
+#if defined AGL_NV_gpu_program4
+AGL_API(void, ProgramLocalParameterI4iNV,    (GLenum, GLuint, GLint, GLint, GLint, GLint))
+AGL_API(void, ProgramLocalParameterI4ivNV,   (GLenum, GLuint, const GLint *))
+AGL_API(void, ProgramLocalParametersI4ivNV,  (GLenum, GLuint, GLsizei, const GLint *))
+AGL_API(void, ProgramLocalParameterI4uiNV,   (GLenum, GLuint, GLuint, GLuint, GLuint, GLuint))
+AGL_API(void, ProgramLocalParameterI4uivNV,  (GLenum, GLuint, const GLuint *))
+AGL_API(void, ProgramLocalParametersI4uivNV, (GLenum, GLuint, GLsizei, const GLuint *))
+AGL_API(void, ProgramEnvParameterI4iNV,      (GLenum, GLuint, GLint, GLint, GLint, GLint))
+AGL_API(void, ProgramEnvParameterI4ivNV,     (GLenum, GLuint, const GLint *))
+AGL_API(void, ProgramEnvParametersI4ivNV,    (GLenum, GLuint, GLsizei, const GLint *))
+AGL_API(void, ProgramEnvParameterI4uiNV,     (GLenum, GLuint, GLuint, GLuint, GLuint, GLuint))
+AGL_API(void, ProgramEnvParameterI4uivNV,    (GLenum, GLuint, const GLuint *))
+AGL_API(void, ProgramEnvParametersI4uivNV,   (GLenum, GLuint, GLsizei, const GLuint *))
+AGL_API(void, GetProgramLocalParameterIivNV, (GLenum, GLuint, GLint *))
+AGL_API(void, GetProgramLocalParameterIuivNV,(GLenum, GLuint, GLuint *))
+AGL_API(void, GetProgramEnvParameterIivNV,   (GLenum, GLuint, GLint *))
+AGL_API(void, GetProgramEnvParameterIuivNV,  (GLenum, GLuint, GLuint *))
+#endif
+
+#if defined AGL_NV_parameter_buffer_object
+#if !defined AGL_NV_transform_feedback
+AGL_API(void, BindBufferRangeNV, (GLenum, GLuint, GLuint, GLintptr, GLsizeiptr))
+AGL_API(void, BindBufferOffsetNV,(GLenum, GLuint, GLuint, GLintptr))
+AGL_API(void, BindBufferBaseNV,  (GLenum, GLuint, GLuint))
+#endif
+AGL_API(void, ProgramBufferParametersfvNV,  (GLenum, GLuint, GLuint, GLsizei, const GLfloat *))
+AGL_API(void, ProgramBufferParametersIivNV, (GLenum, GLuint, GLuint, GLsizei, const GLint *))
+AGL_API(void, ProgramBufferParametersIuivNV,(GLenum, GLuint, GLuint, GLuint, const GLuint *))
+#if !defined AGL_EXT_draw_buffers2
+AGL_API(void, GetIntegerIndexedvEXT, (GLenum, GLuint, GLboolean *))
+#endif
+#endif
+
+#if defined AGL_NV_transform_feedback
+AGL_API(void, BindBufferRangeNV, (GLenum, GLuint, GLuint, GLintptr, GLsizeiptr))
+AGL_API(void, BindBufferOffsetNV,(GLenum, GLuint, GLuint, GLintptr))
+AGL_API(void, BindBufferBaseNV,  (GLenum, GLuint, GLuint))
+AGL_API(void, TransformFeedbackAttribsNV, (GLsizei, const GLint *, GLenum))
+AGL_API(void, TransformFeedbackVaryingsNV,(GLuint, GLsizei, const GLint *, GLenum))
+AGL_API(void, BeginTransformFeedbackNV,   (GLenum))
+AGL_API(void, EndTransformFeedbackNV,     (GLvoid))
+AGL_API(GLint, GetVaryingLocationNV, (GLuint, const GLchar *))
+AGL_API(void, GetActiveVaryingNV,    (GLuint, GLuint, GLsizei, GLsizei *, GLsizei *, GLenum *, GLchar *))
+AGL_API(void, ActiveVaryingNV,       (GLuint, const GLchar *))
+AGL_API(void, GetTransformFeedbackVaryingNV, (GLuint, GLuint, GLint *))
+#if !defined AGL_EXT_draw_buffers2
+AGL_API(void, GetBooleanIndexedvEXT, (GLenum, GLuint, GLboolean *))
+AGL_API(void, GetIntegerIndexedvEXT, (GLenum, GLuint, GLint *))
+#endif
+#endif
+
+#if defined AGL_NV_vertex_program4
+#ifndef AGL_EXT_gpu_shader4
+AGL_API(void, VertexAttribI1iEXT, (GLuint, GLint))
+AGL_API(void, VertexAttribI2iEXT, (GLuint, GLint, GLint))
+AGL_API(void, VertexAttribI3iEXT, (GLuint, GLint, GLint, GLint))
+AGL_API(void, VertexAttribI4iEXT, (GLuint, GLint, GLint, GLint, GLint))
+AGL_API(void, VertexAttribI1uiEXT, (GLuint, GLuint))
+AGL_API(void, VertexAttribI2uiEXT, (GLuint, GLuint, GLuint))
+AGL_API(void, VertexAttribI3uiEXT, (GLuint, GLuint, GLuint, GLuint))
+AGL_API(void, VertexAttribI4uiEXT, (GLuint, GLuint, GLuint, GLuint, GLuint))
+AGL_API(void, VertexAttribI1ivEXT, (GLuint, const GLint *))
+AGL_API(void, VertexAttribI2ivEXT, (GLuint, const GLint *))
+AGL_API(void, VertexAttribI3ivEXT, (GLuint, const GLint *))
+AGL_API(void, VertexAttribI4ivEXT, (GLuint, const GLint *))
+AGL_API(void, VertexAttribI1uivEXT, (GLuint, const GLuint *))
+AGL_API(void, VertexAttribI2uivEXT, (GLuint, const GLuint *))
+AGL_API(void, VertexAttribI3uivEXT, (GLuint, const GLuint *))
+AGL_API(void, VertexAttribI4uivEXT, (GLuint, const GLuint *))
+AGL_API(void, VertexAttribI4bvEXT, (GLuint, const GLbyte *))
+AGL_API(void, VertexAttribI4svEXT, (GLuint, const GLshort *))
+AGL_API(void, VertexAttribI4ubvEXT, (GLuint, const GLubyte *))
+AGL_API(void, VertexAttribI4usvEXT, (GLuint, const GLushort *))
+AGL_API(void, VertexAttribIPointerEXT, (GLuint, GLint, GLenum, GLsizei, const GLvoid *))
+AGL_API(void, GetVertexAttribIivEXT, (GLuint, GLenum, GLint *))
+AGL_API(void, GetVertexAttribIuivEXT, (GLuint, GLenum, GLint *))
+#endif
 #endif
 

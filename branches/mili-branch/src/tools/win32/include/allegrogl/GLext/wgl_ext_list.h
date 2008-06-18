@@ -24,4 +24,6 @@ AGL_EXT(I3D_swap_frame_usage,         0)
 AGL_EXT(NV_render_depth_texture,      0)
 AGL_EXT(NV_render_texture_rectangle,  0)
 AGL_EXT(ATI_pixel_format_float,       0)
+AGL_EXT(EXT_framebuffer_sRGB,         0)
+AGL_EXT(EXT_packed_float,             0)
 

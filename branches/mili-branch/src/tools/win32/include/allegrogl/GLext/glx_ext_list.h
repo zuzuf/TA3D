@@ -27,4 +27,6 @@ AGL_EXT(OML_swap_method,              0)
 AGL_EXT(OML_sync_control,             0)
 AGL_EXT(SGIX_hyperpipe,               0)
 AGL_EXT(MESA_agp_offset,              0)
+AGL_EXT(EXT_framebuffer_sRGB,         0)
+AGL_EXT(EXT_packed_float,             0)
 
