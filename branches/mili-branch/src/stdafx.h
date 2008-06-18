@@ -45,25 +45,27 @@
 
 
 # if defined TA3D_PLATFORM_WINDOWS //&& defined TA3D_PLATFORM_MSVC
-#   pragma warning(disable : 4554) 
-#   pragma warning(disable : 4996)
-#   pragma comment( lib, "tools/win32/libs/alleg.lib" )
-#   pragma comment( lib, "tools/win32/libs/agl.lib" )
-#   pragma comment( lib, "opengl32.lib" )
-#   pragma comment( lib, "glu32.lib" )
-#   pragma comment( lib, "glaux.lib" )
-#   pragma comment( lib, "tools/win32/libs/glew32.lib" )
 #   ifdef TA3D_PLATFORM_MSVC
+#      pragma warning(disable : 4554) 
+#      pragma warning(disable : 4996)
+#      pragma comment( lib, "tools/win32/libs/alleg.lib" )
+#      pragma comment( lib, "tools/win32/libs/agl.lib" )
+#      pragma comment( lib, "opengl32.lib" )
+#      pragma comment( lib, "glu32.lib" )
+#      pragma comment( lib, "glaux.lib" )
+#      pragma comment( lib, "tools/win32/libs/glew32.lib" )
 #      include "tools/win32/include/gl/glew.h"
-#   endif
     // Cire: I had to setup a pragma on c4312, 4005 warnings, because allgero include
     //  was generating alot of compiler noise.
-#   pragma warning( disable : 4312 )
-#   pragma warning( disable : 4005 )
+#      pragma warning( disable : 4312 )
+#      pragma warning( disable : 4005 )
+#   endif
 #   include <alleggl.h> // alleggl also includes allegro
     // Cire: Restore warning states
-#   pragma warning( default : 4005 )
-#   pragma warning( default : 4312 )
+#   ifdef TA3D_PLATFORM_MSVC
+#      pragma warning( default : 4005 )
+#      pragma warning( default : 4312 )
+#   endif
 # else 
     // Cire:
     // Other platfroms may wish to adjust how allegro is included, for
