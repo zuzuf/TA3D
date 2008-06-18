@@ -18,11 +18,15 @@
 #ifndef __TA3D_THREADS_H__
 # define __TA3D_THREADS_H__
 
-#pragma once // TODO Must be removed
 
 #ifndef TA3D_PLATFORM_WINDOWS
-#   include <pthread.h>
+# include <pthread.h>
+#else
+# define __WIN32_LEAN_AND_MEAN__
+# include <windows.h>
 #endif
+
+
 
 namespace TA3D
 {

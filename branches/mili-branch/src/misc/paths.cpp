@@ -1,8 +1,8 @@
 #include "paths.h"
 #ifndef TA3D_PLATFORM_WINDOWS
 # include <stdlib.h>
-# include <sys/stat.h>
 #endif 
+#include <sys/stat.h>
 #include "../TA3D_NameSpace.h"
 #include "../logs/logs.h"
 
@@ -129,7 +129,11 @@ namespace TA3D
             pth += Separator;
             if (!Exists(pth))
             {
+		# ifdef TA3D_PLATFORM_WINDOWS
+                if (mkdir(pth.c_str()))
+		# else
                 if (mkdir(pth.c_str(), 01755))
+		# endif
                 {
                     // TODO Use the logging system instead
                     LOG_ERROR("Impossible to create the folder `" << pth << "`");
