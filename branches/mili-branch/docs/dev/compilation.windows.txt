@@ -1,0 +1,27 @@
+
+Compilation under Windows
+==========================
+
+
+1 - CMake
+---------
+
+Install CMake for Windows via their web site
+http://www.cmake.org
+
+
+4 - TA3D (via MinGW)
+--------
+
+Install MinGW, available on their web site :
+http://www.mingw.org/download.shtml
+You can use the Automated MinGW Installer
+Needed options: MinGW base tools, G++ compiler, MinGW make
+
+Make sure g++, make, and cmake can ba invoked via the command line.
+Otherwise check your env paths.
+
+> cmake -G "MinGW Makefiles" .
+> make
+
+Warning: With MinGW Gcc >3.4.5, Allegro produces a lot of warnings 
