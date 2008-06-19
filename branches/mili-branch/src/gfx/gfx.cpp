@@ -1077,14 +1077,17 @@ namespace Interfaces
 
     void GFX::ReInitAllTex(bool disable)
     {
-        for(uint32 i = 0; i < 8; ++i)
-        {
-            glActiveTextureARB(GL_TEXTURE0_ARB + i);
-            ReInitTexSys();
-            if (disable )
-                glDisable(GL_TEXTURE_2D);
-        }
-        glActiveTextureARB(GL_TEXTURE0_ARB);
+	if (MultiTexturing)
+	{
+            for(uint32 i = 0; i < 8; ++i)
+            {
+                glActiveTextureARB(GL_TEXTURE0_ARB + i);
+                ReInitTexSys();
+                if (disable )
+                    glDisable(GL_TEXTURE_2D);
+            }
+            glActiveTextureARB(GL_TEXTURE0_ARB);
+	}
     }
 
     void GFX::SetDefState()
