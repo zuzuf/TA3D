@@ -67,10 +67,8 @@ namespace Interfaces
         allegro_gl_set (AGL_FULLSCREEN, TA3D::VARS::lp_CONFIG->fullscreen);
         allegro_gl_set(AGL_SAMPLES, TA3D::VARS::lp_CONFIG->fsaa);
         allegro_gl_set(AGL_SAMPLE_BUFFERS, TRUE);
-        allegro_gl_set(AGL_SUGGEST, AGL_COLOR_DEPTH
-                       | AGL_Z_DEPTH | AGL_WINDOWED
-                       | AGL_SAMPLES | AGL_SAMPLE_BUFFERS);
-        allegro_gl_set(AGL_REQUIRE, AGL_RENDERMETHOD | AGL_DOUBLEBUFFER);
+        allegro_gl_set(AGL_SUGGEST, AGL_WINDOWED | AGL_SAMPLES | AGL_SAMPLE_BUFFERS);
+        allegro_gl_set(AGL_REQUIRE, AGL_RENDERMETHOD | AGL_DOUBLEBUFFER | AGL_Z_DEPTH | AGL_COLOR_DEPTH);
         #endif
 
         allegro_gl_use_mipmapping(TRUE);
