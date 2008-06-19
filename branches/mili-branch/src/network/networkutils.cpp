@@ -1,8 +1,7 @@
-
+#include "network.h"
 #include "../threads/thread.h"
 #include "networkutils.h"
 #include "ta3dsock.h"
-#include "network.h"
 #include "TA3D_Network.h"
 
 namespace TA3D

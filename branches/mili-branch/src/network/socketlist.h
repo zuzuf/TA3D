@@ -1,6 +1,7 @@
 #ifndef __TA3D_NET_SOCKET_LIST_H__
 # define __TA3D_NET_SOCKET_LIST_H__
 
+# include "../stdafx.h"
 # include "../threads/thread.h"
 # include "ta3dsock.h"
 # include "networkutils.h"

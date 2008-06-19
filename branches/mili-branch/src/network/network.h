@@ -19,7 +19,7 @@
 #ifndef __TA3D_NET_NETWORK_H__
 # define __TA3D_NET_NETWORK_H__
 
-
+# include "../stdafx.h"
 # include "ta3dsock.h"
 # include "udpsock.h"
 # include "broadcastsock.h"
