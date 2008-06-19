@@ -73,13 +73,21 @@ namespace Logs
 		*/
 		virtual std::string color()
 		{
+            		#ifndef TA3D_PLATFORM_WINDOWS
 			return "[1m";
+			#else
+			return "";
+			#endif
 		}
 
 		//! Reimplement this to reset the color to a default value.
 		virtual std::string resetColor()
 		{
+            		#ifndef TA3D_PLATFORM_WINDOWS
 			return "[0m";
+			#else
+			return "";
+			#endif
 		}
 
 		//! Used to produce the date string
@@ -116,8 +124,12 @@ namespace Logs
 	public:
 		virtual int minimalLevel() { return LOG_LEVEL_DEBUG; }
 		virtual ~LogDebugMsg() {}
+            	#ifndef TA3D_PLATFORM_WINDOWS
 		virtual std::string color() { return "[0m"; }
-		virtual inline std::string header() { return "[debug] "; }
+		#else
+		virtual std::string color() { return ""; }
+		#endif
+		virtual std::string header() { return "[debug] "; }
 	};
 
 	/*!
@@ -128,7 +140,11 @@ namespace Logs
 	public:
 		virtual int minimalLevel() { return LOG_LEVEL_INFO; }
 		virtual ~LogInfoMsg() {}
+            	#ifndef TA3D_PLATFORM_WINDOWS
 		virtual std::string color() { return "[1;32m"; }
+		#else
+		virtual std::string color() { return ""; }
+		#endif
 		virtual inline std::string header() { return "[infos] "; }
 	};
 
@@ -140,7 +156,11 @@ namespace Logs
 	public:
 		virtual int minimalLevel() { return LOG_LEVEL_WARNING; }
 		virtual ~LogWarningMsg() {}
+            	#ifndef TA3D_PLATFORM_WINDOWS
 		virtual std::string color() { return "[1;33m"; }
+		#else
+		virtual std::string color() { return ""; }
+		#endif
 		virtual inline std::string header() { return "[warns] "; }
 	};
 
@@ -152,7 +172,11 @@ namespace Logs
 	public:
 		virtual int minimalLevel() { return LOG_LEVEL_ERROR; }
 		virtual ~LogErrorMsg() {}
+            	#ifndef TA3D_PLATFORM_WINDOWS
 		virtual std::string color() { return "[1;31m"; }
+		#else
+		virtual std::string color() { return ""; }
+		#endif
 		virtual inline std::string header() { return "[error] "; }
 	};
 
@@ -164,7 +188,11 @@ namespace Logs
 	public:
 		virtual int minimalLevel() { return LOG_LEVEL_CRITICAL; }
 		virtual ~LogCriticalMsg() {}
+            	#ifndef TA3D_PLATFORM_WINDOWS
 		virtual std::string color() { return "[1;31m"; }
+		#else
+		virtual std::string color() { return ""; }
+		#endif
 		virtual inline std::string header() { return "[critical] "; }
 	};
 
