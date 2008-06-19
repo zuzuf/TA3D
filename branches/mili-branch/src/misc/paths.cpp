@@ -1,8 +1,13 @@
+#include "../stdafx.h"
 #include "paths.h"
 #ifndef TA3D_PLATFORM_WINDOWS
 # include <stdlib.h>
+#else
+# include <windows.h>
+# include <shlobj.h>
 #endif 
 #include <sys/stat.h>
+#include <string>
 #include "../TA3D_NameSpace.h"
 #include "../logs/logs.h"
 
@@ -29,14 +34,33 @@ namespace TA3D
 
     # ifdef TA3D_PLATFORM_WINDOWS
 
+    /*!
+     * \brief Get the absolute path to the local application data folder
+     * (from the Windows registry)
+     */
+    static std::string localAppData()
+    {
+	LPITEMIDLIST pidl;
+	HRESULT hr = SHGetSpecialFolderLocation(NULL, CSIDL_LOCAL_APPDATA, &pidl);
+	char szPath[_MAX_PATH];
+	BOOL f = SHGetPathFromIDList(pidl, szPath);
+	LPMALLOC pMalloc;
+	hr = SHGetMalloc(&pMalloc);
+	pMalloc->Free(pidl);
+	pMalloc->Release();
+	return szPath;
+    }
+
     static void initForWindows()
     {
-        Paths::Caches = "cache\\";
-        Paths::Savegames = "savegame\\";
-        Paths::Logs = "";
+	std::string root = localAppData();
+	root += Paths::Separator;
+        Paths::Caches = root + "ta3d\\cache\\";
+        Paths::Savegames = root + "ta3d\\savegame\\";
+        Paths::Logs = root + "ta3d\\logs\\";
         Paths::Resources = "";
-        Paths::Preferences = "";
-        Paths::Screenshots = "screenshots\\";
+        Paths::Preferences = root + "ta3d\\settings\\";
+        Paths::Screenshots = root + "ta3d\\screenshots\\";
     }
 
     # endif
@@ -107,6 +131,12 @@ namespace TA3D
     {
         if (p.empty())
             return true;
+	#ifdef TA3D_PLATFORM_WINDOWS
+	// ugly workaround with stat under Windows
+	// FIXME: Find a better way to find driver letters
+	if (p.size() == 2 && ':' == p[1]) 
+	   return true;
+	#endif
         struct stat s;
         return (stat(p.c_str(), &s) == 0);
     }
@@ -126,9 +156,12 @@ namespace TA3D
         for (; i != parts.end(); ++i)
         {
             pth += *i;
+	    #ifndef TA3D_PLATFORM_WINDOWS
             pth += Separator;
-            if (!Exists(pth))
+            #endif
+            if (!Paths::Exists(pth))
             {
+		    LOG_DEBUG(pth << " does not exist !");
 		# ifdef TA3D_PLATFORM_WINDOWS
                 if (mkdir(pth.c_str()))
 		# else
@@ -142,6 +175,9 @@ namespace TA3D
                 else
                     hasBeenCreated = true;
             }
+	    #ifdef TA3D_PLATFORM_WINDOWS
+            pth += Separator;
+	    #endif
         }
         if (hasBeenCreated)
             LOG_INFO("Created folder: `" << p << "`");
