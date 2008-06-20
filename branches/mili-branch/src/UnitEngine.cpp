@@ -4845,18 +4845,19 @@ bool INGAME_UNITS::select(CAMERA *cam,int sel_x[],int sel_y[])
 {
     pMutex.lock();
 
-    bool selected=false;
     cam->SetView();
     MATRIX_4x4 ModelView,Project,T;
     int	viewportCoords[4] = {0, 0, 0, 0};
     glGetIntegerv(GL_VIEWPORT, viewportCoords);
     glGetFloatv(GL_MODELVIEW_MATRIX, (float*)ModelView.E);
     glGetFloatv(GL_PROJECTION_MATRIX, (float*)Project.E);
-    ModelView=Transpose(ModelView);
-    Project=Transpose(Project);
-    float VW=(viewportCoords[2]-viewportCoords[0])*0.5f;
-    float VH=-(viewportCoords[3]-viewportCoords[1])*0.5f;
-    T=ModelView*Project;		// Matrice de transformation
+    ModelView = Transpose(ModelView);
+    Project = Transpose(Project);
+
+    float VW =  (viewportCoords[2] - viewportCoords[0]) * 0.5f;
+    float VH = -(viewportCoords[3] - viewportCoords[1]) * 0.5f;
+
+    MATRX_4x4 T(ModelView * Project); // Matrice de transformation
 
     VECTOR UPos,O;
     O.x=O.y=O.z=0.0f;
@@ -4866,67 +4867,81 @@ bool INGAME_UNITS::select(CAMERA *cam,int sel_x[],int sel_y[])
     X2=max(sel_x[0],sel_x[1]);
     Y2=max(sel_y[0],sel_y[1]);
 
-    for(uint16 e=0;e<index_list_size;e++) {
+    bool selected = false;
+
+    for (uint16 e = 0; e < index_list_size; ++e) 
+    {
         uint16 i = idx_list[e];
         pMutex.unlock();
-        unit[ i ].lock();
-        if( (unit[i].flags & 1) && unit[i].owner_id==players.local_human_id && unit[i].build_percent_left==0.0f && unit[i].visible) {		// Ne sélectionne que les unités achevées
-            if(key[KEY_LSHIFT] && unit[i].sel) {
-                selected=true;
-                unit[ i ].unlock();
+        unit[i].lock();
+
+        // Select only units completely built and visible
+        if ((unit[i].flags & 1) && unit[i].owner_id == players.local_human_id && unit[i].build_percent_left == 0.0f
+            && unit[i].visible)	
+        {
+            if(key[KEY_LSHIFT] && unit[i].sel)
+            {
+                selected = true;
+                unit[i].unlock();
                 pMutex.lock();
                 continue;
             }
             if(!key[KEY_LSHIFT])
-                unit[i].sel=false;
+                unit[i].sel = false;
 
             VECTOR Vec=unit[i].Pos-cam->Pos;
             float d=Vec.Sq();
-            if(d>16384.0f && (Vec%cam->Dir)<=0.0f) {
-                unit[ i ].unlock();
+            if (d > 16384.0f && (Vec%cam->Dir) <= 0.0f)
+            {
+                unit[i].unlock();
                 pMutex.lock();
                 continue;
             }
 
-            UPos=glNMult((O+unit[i].Pos),T);		// Transforme la position de l'unité
-            UPos.x=UPos.x*VW+VW;
-            UPos.y=UPos.y*VH-VH;
+            UPos = glNMult((O+unit[i].Pos), T); // Transforme la position de l'unité
+            UPos.x = UPos.x*VW+VW;
+            UPos.y = UPos.y*VH-VH;
 
-            if(X1<=UPos.x && X2>=UPos.x && Y1<=UPos.y && Y2>=UPos.y)
-                selected=unit[i].sel=true;
+            if(X1 <= UPos.x && X2 >= UPos.x && Y1 <= UPos.y && Y2 >= UPos.y)
+                selected = unit[i].sel = true;
         }
-        unit[ i ].unlock();
+        unit[i].unlock();
         pMutex.lock();
     }
-
     pMutex.unlock();
-
     return selected;
 }
 
+
 int INGAME_UNITS::pick(CAMERA *cam,int sensibility)
 {
-    int index=-1;
+    int index = -1;
 
     if(nb_unit<=0)
-        return index;
+        return -1;
 
-    if( last_on != -1 )	return last_on;		// Things didn't change :-) seen from the mouse cursor since the screen wasn't refreshed
+    // Things didn't change :-) seen from the mouse cursor since the screen wasn't refreshed
+    if (last_on != -1)
+        return last_on;		
 
     VECTOR Dir;
-    Dir=cam->Dir+cam->width_factor*2.0f*(mouse_x-gfx->SCREEN_W_HALF)*gfx->SCREEN_W_INV*cam->Side-1.5f*(mouse_y-gfx->SCREEN_H_HALF)*gfx->SCREEN_H_INV*cam->Up;
+    Dir = cam->Dir + cam->width_factor * 2.0f * (mouse_x-gfx->SCREEN_W_HALF) * gfx->SCREEN_W_INV
+        * cam->Side-1.5f * (mouse_y-gfx->SCREEN_H_HALF)
+        * gfx->SCREEN_H_INV * cam->Up;
     Dir.Unit();		// Direction pointée par le curseur
 
     bool detectable=false;
     int i;
 
     pMutex.lock();
-    for(uint16 e=0;e<index_list_size;e++) {
+    for(uint16 e = 0; e < index_list_size; ++e)
+    {
         i = idx_list[e];
         pMutex.unlock();
 
         unit[ i ].lock();
-        if( !(unit[i].flags & 1) || !unit[i].visible ) {
+        if( !(unit[i].flags & 1) || !unit[i].visible )
+        {
             unit[ i ].unlock();
             pMutex.lock();
             continue;		// Si l'unité n'existe pas on la zappe
@@ -4936,7 +4951,8 @@ int INGAME_UNITS::pick(CAMERA *cam,int sensibility)
         float size=unit[i].model->size*unit_manager.unit_type[unit[i].type_id].Scale*unit_manager.unit_type[unit[i].type_id].Scale;
         center=Dir*center;
         float dist=center.Sq();
-        if(dist<size) {
+        if(dist<size)
+        {
             detectable=true;
             unit[i].flags|=0x2;		// Unité détectable
         }
@@ -4945,43 +4961,47 @@ int INGAME_UNITS::pick(CAMERA *cam,int sensibility)
     }
     pMutex.unlock();
 
-    if(!detectable) {			// If no unit is near the cursor, then skip the precise method
+    if(!detectable) // If no unit is near the cursor, then skip the precise method
+    {
         last_on = index;
-
         return index;
     }
 
     float best_dist = 1000000.0f;
 
     pMutex.lock();
-    for(uint16 e=0;e<index_list_size;e++) {
+    for(uint16 e=0;e<index_list_size;e++)
+    {
         i = idx_list[e];
         pMutex.unlock();
 
-        unit[ i ].lock();
-        if( !(unit[i].flags & 1) || !unit[i].visible ) {
-            unit[ i ].unlock();
+        unit[i].lock();
+        if( !(unit[i].flags & 1) || !unit[i].visible )
+        {
+            unit[i].unlock();
             pMutex.lock();
             continue;		// Si l'unité n'existe pas on la zappe
         }
-        if((unit[i].flags&0x2)==0x2) {			// Si l'unité existe et est sélectionnable
+        if((unit[i].flags&0x2)==0x2) // Si l'unité existe et est sélectionnable
+        {
             unit[i].flags&=0xFD;
             VECTOR D;
-            if( unit[i].hit( cam->Pos, Dir, &D, 1000000.0f ) ) {		// Vecteur "viseur unité" partant de la caméra vers l'unité
+            if( unit[i].hit( cam->Pos, Dir, &D, 1000000.0f ) ) // Vecteur "viseur unité" partant de la caméra vers l'unité
+            {
                 float dist = (D-cam->Pos).Sq();
-                if( dist < best_dist || index == -1 ) {
+                if( dist < best_dist || index == -1 )
+                {
                     best_dist = dist;
                     index = i;
                 }
             }
         }
-        unit[ i ].unlock();
+        unit[i].unlock();
         pMutex.lock();
     }
     pMutex.unlock();
 
     last_on = index;
-
     return index;
 }
 
@@ -4992,7 +5012,9 @@ int INGAME_UNITS::pick_minimap()
     if(nb_unit<=0)
         return index;
 
-    if( last_on != -1 )	return last_on;		// Things didn't change :-) seen from the mouse cursor since the screen wasn't refreshed
+    // Things didn't change :-) seen from the mouse cursor since the screen wasn't refreshed
+    if( last_on != -1 )
+        return last_on;		
 
     int i;
 
@@ -5002,27 +5024,32 @@ int INGAME_UNITS::pick_minimap()
     byte player_mask = 1 << players.local_human_id;
 
     pMutex.lock();
-    for(uint16 e=0;e<index_list_size;e++) {
+    for(uint16 e=0;e<index_list_size;e++)
+    {
         i = idx_list[e];
         pMutex.unlock();
 
         unit[ i ].lock();
-        if( !(unit[i].flags & 1) ) {
+        if( !(unit[i].flags & 1) )
+        {
             unit[ i ].unlock();
             pMutex.lock();
             continue;		// Si l'unité n'existe pas on la zappe
         }
 
-        if( !unit[i].visible ) {			// Additional checks that have to be done
+        if( !unit[i].visible ) // Additional checks that have to be done
+        {
             int px = unit[i].cur_px >> 1;
             int py = unit[i].cur_py >> 1;
-            if( px < 0 || py < 0 || px >= map->bloc_w || py >= map->bloc_h ) {
+            if( px < 0 || py < 0 || px >= map->bloc_w || py >= map->bloc_h )
+            {
                 unit[ i ].unlock();
                 pMutex.lock();
                 continue;	// Out of the map
             }
             if( !( map->view_map->line[ py ][ px ] & player_mask ) && !(map->sight_map->line[ py ][ px ] & player_mask)
-                && !unit[i].is_on_radar( player_mask ) ) {
+                && !unit[i].is_on_radar( player_mask ) )
+            {
                 unit[ i ].unlock();
                 pMutex.lock();
                 continue;	// Not visible
@@ -5032,15 +5059,17 @@ int INGAME_UNITS::pick_minimap()
         int x = (int)(unit[i].Pos.x * conv_x + 64.5f);
         int y = (int)(unit[i].Pos.z * conv_z + 64.5f);
 
-        if( x == mouse_x && y == mouse_y )	{
+        if( x == mouse_x && y == mouse_y )
+        {
             last_on = i;
             unit[ i ].unlock();
             return i;
         }
 
-        if( abs(mouse_x - x) <= 1 && abs(mouse_y - y) <= 1 )	index = i;
+        if( abs(mouse_x - x) <= 1 && abs(mouse_y - y) <= 1 )
+            index = i;
 
-        unit[ i ].unlock();
+        unit[i].unlock();
         pMutex.lock();
     }
     pMutex.unlock();
@@ -5051,7 +5080,8 @@ int INGAME_UNITS::pick_minimap()
 
 int UNIT::shoot(int target,VECTOR startpos,VECTOR Dir,int w_id,const VECTOR &target_pos)
 {
-    if( get_script_index( SCRIPT_RockUnit ) >= 0 ) {		// Don't do calculations that won't be used
+    if( get_script_index( SCRIPT_RockUnit ) >= 0 ) // Don't do calculations that won't be used
+    {
         VECTOR D = Dir * RotateY( -Angle.y * DEG2RAD );
         int param[] = { (int)(-10.0f*DEG2TA*D.z), (int)(-10.0f*DEG2TA*D.x) };
         launch_script( get_script_index( SCRIPT_RockUnit ), 2, param );
@@ -5065,13 +5095,14 @@ int UNIT::shoot(int target,VECTOR startpos,VECTOR Dir,int w_id,const VECTOR &tar
 
     int w_idx = weapons.add_weapon(unit_manager.unit_type[type_id].weapon[w_id]->nb_id,idx);
 
-    if( network_manager.isConnected() && local ) {		// Send synchronization packet
+    if( network_manager.isConnected() && local) // Send synchronization packet
+    {
         struct event event;
         event.type = EVENT_WEAPON_CREATION;
         event.opt1 = idx;
         event.opt2 = target;
-        event.opt3 = units.current_tick;				// Will be used to extrapolate those data on client side
-        event.opt4 = unit_manager.unit_type[type_id].weapon[ w_id ]->damage;
+        event.opt3 = units.current_tick; // Will be used to extrapolate those data on client side
+        event.opt4 = unit_manager.unit_type[type_id].weapon[w_id]->damage;
         event.opt5 = owner_id;
         event.x = target_pos.x;
         event.y = target_pos.y;
@@ -5099,7 +5130,8 @@ int UNIT::shoot(int target,VECTOR startpos,VECTOR Dir,int w_id,const VECTOR &tar
         weapons.weapon[w_idx].V=weapons.weapon[w_idx].V+V;
     weapons.weapon[w_idx].owner=owner_id;
     weapons.weapon[w_idx].target=target;
-    if( target >= 0 ) {
+    if( target >= 0 )
+    {
         if(unit_manager.unit_type[type_id].weapon[w_id]->interceptor)
             weapons.weapon[w_idx].target_pos = weapons.weapon[target].Pos;
         else
@@ -5107,13 +5139,13 @@ int UNIT::shoot(int target,VECTOR startpos,VECTOR Dir,int w_id,const VECTOR &tar
     }
     else
         weapons.weapon[w_idx].target_pos = target_pos;
+    
     weapons.weapon[w_idx].stime=0.0f;
     weapons.weapon[w_idx].visible=visible;
-
     weapons.unlock();
-
     return w_idx;
 }
+
 
 void UNIT::draw_on_map()
 {
@@ -5126,39 +5158,47 @@ void UNIT::draw_on_map()
     drawn_flying = flying;
     if( flying )
         units.map->air_rect( cur_px-(unit_manager.unit_type[type_id].FootprintX>>1), cur_py-(unit_manager.unit_type[type_id].FootprintZ>>1), unit_manager.unit_type[type_id].FootprintX, unit_manager.unit_type[type_id].FootprintZ, idx );
-    else {
+    else
+    {
         // First check we're on a "legal" place if it can move
         pMutex.lock();
         if( unit_manager.unit_type[ type_id ].canmove && unit_manager.unit_type[ type_id ].BMcode
-            && !can_be_there( cur_px, cur_py, units.map, type_id, owner_id ) ) {
+            && !can_be_there( cur_px, cur_py, units.map, type_id, owner_id ) )
+        {
             // Try to find a suitable place
 
             int X = cur_px-(unit_manager.unit_type[type_id].FootprintX>>1);
             int Y = cur_py-(unit_manager.unit_type[type_id].FootprintZ>>1);
             bool found = false;
-            for( int r = 1 ; r < 20 && !found ; r++ ) {		// Circular check
+            for( int r = 1 ; r < 20 && !found ; r++ ) // Circular check
+            {
                 int r2 = r * r;
-                for( int y = 0 ; y <= r ; y++ ) {
+                for( int y = 0 ; y <= r ; y++ )
+                {
                     int x = (int)(sqrt( r2 - y * y ) + 0.5f);
-                    if( can_be_there( cur_px+x, cur_py+y, units.map, type_id, owner_id ) ) {
+                    if( can_be_there( cur_px+x, cur_py+y, units.map, type_id, owner_id ) )
+                    {
                         cur_px += x;
                         cur_py += y;
                         found = true;
                         break;
                     }
-                    if( can_be_there( cur_px+x, cur_py+y, units.map, type_id, owner_id ) ) {
+                    if( can_be_there( cur_px+x, cur_py+y, units.map, type_id, owner_id ) )
+                    {
                         cur_px -= x;
                         cur_py += y;
                         found = true;
                         break;
                     }
-                    if( can_be_there( cur_px+x, cur_py+y, units.map, type_id, owner_id ) ) {
+                    if( can_be_there( cur_px+x, cur_py+y, units.map, type_id, owner_id ) )
+                    {
                         cur_px += x;
                         cur_py -= y;
                         found = true;
                         break;
                     }
-                    if( can_be_there( cur_px+x, cur_py+y, units.map, type_id, owner_id ) ) {
+                    if( can_be_there( cur_px+x, cur_py+y, units.map, type_id, owner_id ) )
+                    {
                         cur_px -= x;
                         cur_py -= y;
                         found = true;
@@ -5166,7 +5206,8 @@ void UNIT::draw_on_map()
                     }
                 }
             }
-            if( found ) {
+            if (found)
+            {
                 Pos.x = (cur_px<<3) + 4 - units.map->map_w_d;
                 Pos.z = (cur_py<<3) + 4 - units.map->map_h_d;
                 if( mission && (mission->flags & MISSION_FLAG_MOVE) )
@@ -5188,7 +5229,8 @@ void UNIT::draw_on_map()
 
 void UNIT::clear_from_map()
 {
-    if( !drawn )	return;
+    if (!drawn)
+        return;
 
     int type = type_id;
 
@@ -5209,13 +5251,15 @@ void UNIT::draw_on_FOW( bool jamming )
 
     bool system_activated = (port[ACTIVATION] && unit_manager.unit_type[ type_id ].onoffable) || !unit_manager.unit_type[ type_id ].onoffable;
 
-    if( jamming ) {
+    if( jamming )
+    {
         radar_jam_range = system_activated ? (unit_manager.unit_type[ type_id ].RadarDistanceJam >> 3) : 0;
         sonar_jam_range = system_activated ? (unit_manager.unit_type[ type_id ].SonarDistanceJam >> 3) : 0;
 
         units.map->update_player_visibility( owner_id, cur_px, cur_py, 0, 0, 0, radar_jam_range, sonar_jam_range, true );
     }
-    else {
+    else
+    {
         sint16 cur_sight = (int)h + unit_manager.unit_type[ type_id ].SightDistance >> 3;
         radar_range = system_activated ? (unit_manager.unit_type[ type_id ].RadarDistance >> 3) : 0;
         sonar_range = system_activated ? (unit_manager.unit_type[ type_id ].SonarDistance >> 3) : 0;
@@ -5231,7 +5275,8 @@ void UNIT::draw_on_FOW( bool jamming )
 const void UNIT::play_sound( const String &key )
 {
     pMutex.lock();
-    if( owner_id == players.local_human_id && msec_timer - last_time_sound >= units.sound_min_ticks ) {
+    if( owner_id == players.local_human_id && msec_timer - last_time_sound >= units.sound_min_ticks )
+    {
         last_time_sound = msec_timer;
         sound_manager->PlayTDFSound( unit_manager.unit_type[ type_id ].soundcategory, key , &Pos );
     }
@@ -5240,18 +5285,24 @@ const void UNIT::play_sound( const String &key )
 
 int UNIT::launch_script(int id,int nb_param,int *param,bool force)			// Start a script as a separate "thread" of the unit
 {
-    if(script==NULL)	return -2;
-    if(id<0 || id>=script->nb_script)
+    MutexLocker locker(pMutex);
+
+    if(!script || id < 0 || id >= script->nb_script)
         return -2;
-    if( !force )
+    if(!force)
+    {
         if(is_running(id))			// le script tourne déjà / script already running
             return -1;
-    if( nb_running >= 25 )	{	// Too much scripts running
+    }
+    if(nb_running >= 25)	// Too much scripts running
+    {
         Console->AddEntry("Warning: too much script running!!");
+        LOG_WARNING("Too much running scripts");
         return -3;
     }
 
-    if( local && network_manager.isConnected() ) {			// Send synchronization event
+    if (local && network_manager.isConnected() ) // Send synchronization event
+    {
         struct event event;
         event.type = EVENT_UNIT_SCRIPT;
         event.opt1 = idx;
@@ -5262,7 +5313,6 @@ int UNIT::launch_script(int id,int nb_param,int *param,bool force)			// Start a 
         network_manager.sendEvent( &event );
     }
 
-    pMutex.lock();
     if( script_env->size() <= nb_running )
         script_env->resize( nb_running + 1 );
     (*script_env)[nb_running].init();
@@ -5271,20 +5321,22 @@ int UNIT::launch_script(int id,int nb_param,int *param,bool force)			// Start a 
     (*script_env)[nb_running].env->cur=id;
     (*script_env)[nb_running].running=true;
     if(nb_param>0 && param!=NULL)
+    {
         for(int i=0;i<nb_param;i++)
             (*script_env)[nb_running].env->var[i]=param[i];
-    int script_id = nb_running++;
-    pMutex.unlock();
-    return script_id;
+    }
+    return nb_running++;
 }
 
 void *create_unit( int type_id, int owner, VECTOR pos, MAP *map, bool sync, bool script )
 {
     int id = units.create(type_id,owner);
-    if(id>=0) {
+    if(id>=0)
+    {
         units.unit[id].lock();
 
-        if( network_manager.isConnected() ) {
+        if( network_manager.isConnected() )
+        {
             units.unit[id].local = g_ta3d_network->isLocal( owner );
             if( sync ) {		// Send event packet if needed
                 struct event event;
@@ -5308,15 +5360,15 @@ void *create_unit( int type_id, int owner, VECTOR pos, MAP *map, bool sync, bool
 
         return &(units.unit[id]);
     }
-
     return NULL;
 }
 
-const bool can_be_there_ai( const int px, const int py, MAP *map, const int unit_type_id, const int player_id, const int unit_id )
-{
-    if(unit_type_id<0 || unit_type_id>=unit_manager.nb_unit)	return false;	// test the ID
 
-    if(map==NULL)	return false;		// to avoid an error
+static bool can_be_there_ai(const int px, const int py, MAP *map, const int unit_type_id,
+                            const int player_id, const int unit_id )
+{
+    if(unit_type_id<0 || unit_type_id>=unit_manager.nb_unit || !map)
+        return false;
 
     int w = unit_manager.unit_type[unit_type_id].FootprintX;
     int h = unit_manager.unit_type[unit_type_id].FootprintZ;
@@ -5325,93 +5377,112 @@ const bool can_be_there_ai( const int px, const int py, MAP *map, const int unit
     int side = unit_manager.unit_type[unit_type_id].ExtractsMetal == 0.0f ? 12 : 0;
     if(x<0 || y<0 || x+w>=(map->bloc_w<<1) || y+h>=(map->bloc_h<<1))	return false;	// check if it is inside the map
 
-    if(!map->check_rect( px - (w + side>>1), py - (h + side>>1), w + side, h + side, unit_id))	return false;		// There is already something
+    if(!map->check_rect( px - (w + side>>1), py - (h + side>>1), w + side, h + side, unit_id))
+        return false;		// There is already something
     float dh = fabs(map->check_rect_dh(x,y,w,h));
     float max_depth = map->check_max_depth(x,y,w,h);
     float min_depth = map->check_min_depth(x,y,w,h);
 
     if(dh>unit_manager.unit_type[unit_type_id].MaxSlope*H_DIV
-       && !( unit_manager.unit_type[unit_type_id].canhover && min_depth <= map->sealvl ) )	return false;	// Check the slope, check if hovering too
+       && !( unit_manager.unit_type[unit_type_id].canhover && min_depth <= map->sealvl ) )
+        return false;	// Check the slope, check if hovering too
 
     // Check if unit can be there
     if(min_depth<unit_manager.unit_type[unit_type_id].MinWaterDepth*H_DIV
-       || (!unit_manager.unit_type[unit_type_id].canhover && max_depth>unit_manager.unit_type[unit_type_id].MaxWaterDepth*H_DIV))	return false;
+       || (!unit_manager.unit_type[unit_type_id].canhover && max_depth>unit_manager.unit_type[unit_type_id].MaxWaterDepth*H_DIV))
+        return false;
 
-    if(!map->check_vents(x,y,w,h,unit_manager.unit_type[unit_type_id].yardmap))	return false;
+    if(!map->check_vents(x,y,w,h,unit_manager.unit_type[unit_type_id].yardmap))
+        return false;
 
-    if(map->check_lava(x+1>>1,y+1>>1,w+1>>1,h+1>>1))	return false;
+    if(map->check_lava(x+1>>1,y+1>>1,w+1>>1,h+1>>1))
+        return false;
 
     return true;
 }
 
-const bool can_be_there( const int px, const int py, MAP *map, const int unit_type_id, const int player_id, const int unit_id )
+static bool can_be_there( const int px, const int py, MAP *map, const int unit_type_id,
+                          const int player_id, const int unit_id )
 {
-    if(unit_type_id<0 || unit_type_id>=unit_manager.nb_unit)	return false;	// test the ID
-
-    if(map==NULL)	return false;		// to avoid an error
+    if(unit_type_id<0 || unit_type_id>=unit_manager.nb_unit || !map)
+        return false;
 
     int w = unit_manager.unit_type[unit_type_id].FootprintX;
     int h = unit_manager.unit_type[unit_type_id].FootprintZ;
     int x = px-(w>>1);
     int y = py-(h>>1);
-    if(x<0 || y<0 || x+w>=(map->bloc_w<<1) || y+h>=(map->bloc_h<<1))	return false;	// check if it is inside the map
+    if(x<0 || y<0 || x+w>=(map->bloc_w<<1) || y+h>=(map->bloc_h<<1))
+        return false;	// check if it is inside the map
 
-    if(!map->check_rect(x,y,w,h,unit_id))	return false;		// There is already something
+    if(!map->check_rect(x,y,w,h,unit_id))
+        return false;		// There is already something
+
     float dh = fabs(map->check_rect_dh(x,y,w,h));
     float max_depth = map->check_max_depth(x,y,w,h);
     float min_depth = map->check_min_depth(x,y,w,h);
 
     if(dh>unit_manager.unit_type[unit_type_id].MaxSlope*H_DIV
-       && !( unit_manager.unit_type[unit_type_id].canhover && min_depth <= map->sealvl ) )	return false;	// Check the slope, check if hovering too
+       && !( unit_manager.unit_type[unit_type_id].canhover && min_depth <= map->sealvl ) )
+        return false;	// Check the slope, check if hovering too
 
     // Check if unit can be there
     if(min_depth<unit_manager.unit_type[unit_type_id].MinWaterDepth*H_DIV
-       || (!unit_manager.unit_type[unit_type_id].canhover && max_depth>unit_manager.unit_type[unit_type_id].MaxWaterDepth*H_DIV))	return false;
+       || (!unit_manager.unit_type[unit_type_id].canhover && max_depth>unit_manager.unit_type[unit_type_id].MaxWaterDepth*H_DIV))
+        return false;
 
-    if(!map->check_vents(x,y,w,h,unit_manager.unit_type[unit_type_id].yardmap))	return false;
+    if(!map->check_vents(x,y,w,h,unit_manager.unit_type[unit_type_id].yardmap))
+        return false;
 
-    if(map->check_lava(x+1>>1,y+1>>1,w+1>>1,h+1>>1))	return false;
+    if(map->check_lava(x+1>>1,y+1>>1,w+1>>1,h+1>>1))
+        return false;
 
     return true;
 }
 
-const bool can_be_built(const VECTOR Pos,MAP *map,const int unit_type_id, const int player_id )
+static bool can_be_built(const VECTOR Pos,MAP *map,const int unit_type_id, const int player_id )
 {
-    if(unit_type_id<0 || unit_type_id>=unit_manager.nb_unit)	return false;	// test the ID
-
-    if(map==NULL)	return false;		// to avoid an error
+    if(unit_type_id<0 || unit_type_id>=unit_manager.nb_unit || !map)
+        return false;
 
     int w = unit_manager.unit_type[unit_type_id].FootprintX;
     int h = unit_manager.unit_type[unit_type_id].FootprintZ;
     int x = ((int)(Pos.x)+map->map_w_d+4>>3)-(w>>1);
     int y = ((int)(Pos.z)+map->map_h_d+4>>3)-(h>>1);
-    if(x<0 || y<0 || x+w>=(map->bloc_w<<1) || y+h>=(map->bloc_h<<1))	return false;	// check if it is inside the map
+    if(x<0 || y<0 || x+w>=(map->bloc_w<<1) || y+h>=(map->bloc_h<<1))
+        return false;	// check if it is inside the map
 
-    if(!map->check_rect(x,y,w,h,-1))	return false;		// There already something
+    if(!map->check_rect(x,y,w,h,-1))
+        return false;		// There already something
     float dh = fabs(map->check_rect_dh(x,y,w,h));
     float max_depth = map->check_max_depth(x,y,w,h);
     float min_depth = map->check_min_depth(x,y,w,h);
 
-    if( !map->check_rect_discovered( x, y, w, h, 1<<player_id ) )	return false;
+    if( !map->check_rect_discovered( x, y, w, h, 1<<player_id ) )
+        return false;
 
-    if(dh>unit_manager.unit_type[unit_type_id].MaxSlope*H_DIV)	return false;	// Check the slope
+    if(dh>unit_manager.unit_type[unit_type_id].MaxSlope*H_DIV)
+        return false;	// Check the slope
 
     // Check if unit can be there
-    if(min_depth<unit_manager.unit_type[unit_type_id].MinWaterDepth*H_DIV || max_depth>unit_manager.unit_type[unit_type_id].MaxWaterDepth*H_DIV)	return false;
+    if(min_depth<unit_manager.unit_type[unit_type_id].MinWaterDepth*H_DIV || max_depth>unit_manager.unit_type[unit_type_id].MaxWaterDepth*H_DIV)
+        return false;
     //	if(depth>0 && (unit_manager.unit_type[unit_type_id].Category&NOTSUB))	return false;
 
-    if(!map->check_vents(x,y,w,h,unit_manager.unit_type[unit_type_id].yardmap))	return false;
+    if(!map->check_vents(x,y,w,h,unit_manager.unit_type[unit_type_id].yardmap))
+        return false;
 
-    if(map->check_lava(x+1>>1,y+1>>1,w+1>>1,h+1>>1))	return false;
+    if(map->check_lava(x+1>>1,y+1>>1,w+1>>1,h+1>>1))
+        return false;
 
     return true;
 }
+
 
 void INGAME_UNITS::complete_menu(int index,bool hide_info,bool hide_bpic)
 {
     pMutex.lock();
 
-    bool	pointed_only = false;
+    bool pointed_only = false;
     if( last_on >= 0 && ( last_on >= max_unit || unit[ last_on ].flags == 0 ) ) 	last_on = -1;
     if(index<0 || index>=max_unit || unit[index].flags==0 || unit[index].type_id < 0 ) {
         if( last_on >= 0 )
@@ -5426,23 +5497,33 @@ void INGAME_UNITS::complete_menu(int index,bool hide_info,bool hide_bpic)
 
     UNIT *target = pointed_only ? NULL : (unit[index].mission!=NULL ? (UNIT*) unit[index].mission->p : NULL);
     if(target && target->flags==0)
-        target=NULL;
+        target = NULL;
 
     glEnable(GL_TEXTURE_2D);
     glEnable(GL_BLEND);
 
-    if( !pointed_only && !hide_bpic ) {
+    if (!pointed_only && !hide_bpic )
+    {
         int stock=0;
-        if(unit_manager.unit_type[unit[index].type_id].weapon[0] && unit_manager.unit_type[unit[index].type_id].weapon[0]->stockpile)	stock=unit[index].weapon[0].stock;
-        else if(unit_manager.unit_type[unit[index].type_id].weapon[1] && unit_manager.unit_type[unit[index].type_id].weapon[1]->stockpile)	stock=unit[index].weapon[1].stock;
-        else if(unit_manager.unit_type[unit[index].type_id].weapon[2] && unit_manager.unit_type[unit[index].type_id].weapon[2]->stockpile)	stock=unit[index].weapon[2].stock;
+        if(unit_manager.unit_type[unit[index].type_id].weapon[0] && unit_manager.unit_type[unit[index].type_id].weapon[0]->stockpile)
+            stock=unit[index].weapon[0].stock;
+        else
+            if(unit_manager.unit_type[unit[index].type_id].weapon[1] && unit_manager.unit_type[unit[index].type_id].weapon[1]->stockpile)
+                stock=unit[index].weapon[1].stock;
+            else
+                if(unit_manager.unit_type[unit[index].type_id].weapon[2] && unit_manager.unit_type[unit[index].type_id].weapon[2]->stockpile)
+                    stock=unit[index].weapon[2].stock;
+
         if((unit_manager.unit_type[unit[index].type_id].Builder && !unit_manager.unit_type[unit[index].type_id].BMcode)
-           || unit[index].planned_weapons>0.0f || stock>0) {		// Affiche la liste de construction
+           || unit[index].planned_weapons>0.0f || stock>0) // Affiche la liste de construction
+        {
             int page=unit_manager.unit_type[unit[index].type_id].page;
 
             glBlendFunc(GL_ONE,GL_ONE_MINUS_SRC_COLOR);
-            for( int i = 0 ; i < unit_manager.unit_type[unit[index].type_id].nb_unit ; i++ ) {		// Affiche les différentes images d'unités constructibles
-                if( unit_manager.unit_type[unit[index].type_id].Pic_p[i] != page )	continue;
+            for( int i = 0 ; i < unit_manager.unit_type[unit[index].type_id].nb_unit ; i++ ) // Affiche les différentes images d'unités constructibles
+            {
+                if( unit_manager.unit_type[unit[index].type_id].Pic_p[i] != page )
+                    continue;
                 int px = unit_manager.unit_type[unit[index].type_id].Pic_x[ i ];
                 int py = unit_manager.unit_type[unit[index].type_id].Pic_y[ i ];
                 int pw = unit_manager.unit_type[unit[index].type_id].Pic_w[ i ];
@@ -5450,31 +5531,38 @@ void INGAME_UNITS::complete_menu(int index,bool hide_info,bool hide_bpic)
 
                 int nb=0;
                 MISSION *m=unit[index].mission;
-                while(m) {
+                while(m)
+                {
                     if((m->mission==MISSION_BUILD || m->mission==MISSION_BUILD_2) && m->data==unit_manager.unit_type[unit[index].type_id].BuildList[i])
                         nb++;
                     m=m->next;
                 }
-                if(nb>0) {
+                if(nb>0)
+                {
                     char buf[10];
                     uszprintf(buf,10,"%d",nb);
                     glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
                     gfx->print(gfx->TA_font,px+pw*0.5f-0.5f*gfx->TA_font.length(buf),py+ph*0.5f-0.5f*gfx->TA_font.height(),0.0f,0xFFFFFFFF,buf);
                 }
-                else if(unit_manager.unit_type[unit[index].type_id].BuildList[i]==-1) {		// Il s'agit d'une arme / It's a weapon
-                    char buf[10];
-                    if((int)unit[index].planned_weapons==unit[index].planned_weapons)
-                        uszprintf(buf,10,"%d(%d)",(int)unit[index].planned_weapons,stock);
-                    else
-                        uszprintf(buf,10,"%d(%d)",(int)unit[index].planned_weapons+1,stock);
-                    glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
-                    gfx->print(gfx->TA_font,px+pw*0.5f-0.5f*gfx->TA_font.length(buf),py+ph*0.5f-0.5f*gfx->TA_font.height(),0.0f,0xFFFFFFFF,buf);
+                else
+                {
+                    if(unit_manager.unit_type[unit[index].type_id].BuildList[i] == -1) // Il s'agit d'une arme / It's a weapon
+                    {
+                        char buf[10];
+                        if((int)unit[index].planned_weapons==unit[index].planned_weapons)
+                            uszprintf(buf,10,"%d(%d)",(int)unit[index].planned_weapons,stock);
+                        else
+                            uszprintf(buf,10,"%d(%d)",(int)unit[index].planned_weapons+1,stock);
+                        glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+                        gfx->print(gfx->TA_font,px+pw*0.5f-0.5f*gfx->TA_font.length(buf),py+ph*0.5f-0.5f*gfx->TA_font.height(),0.0f,0xFFFFFFFF,buf);
+                    }
                 }
             }
         }
     }
 
-    if( last_on >= 0 ) {
+    if( last_on >= 0 )
+    {
         index = last_on;
         if( unit[index].owner_id == players.local_human_id ) {
             target = unit[index].mission!=NULL ? (UNIT*) unit[index].mission->p : NULL;
@@ -5485,33 +5573,39 @@ void INGAME_UNITS::complete_menu(int index,bool hide_info,bool hide_bpic)
             target = NULL;
     }
 
-    if( !hide_info ) {
+    if (!hide_info)
+    {
         pMutex.unlock();
-
         unit[index].lock();
 
-        if( unit[index].type_id >= 0 && (unit[index].flags & 1) ) {
+        if( unit[index].type_id >= 0 && (unit[index].flags & 1) )
+        {
             glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
             gfx->print_center(gfx->normal_font, ta3d_sidedata.side_int_data[ players.side_view ].UnitName.x1, ta3d_sidedata.side_int_data[ players.side_view ].UnitName.y1,0.0f,0xFFFFFFFF,unit_manager.unit_type[unit[index].type_id].name);
-            if(target && unit[index].mission && (unit[index].mission->flags & MISSION_FLAG_TARGET_WEAPON) != MISSION_FLAG_TARGET_WEAPON) {
+            if(target && unit[index].mission && (unit[index].mission->flags & MISSION_FLAG_TARGET_WEAPON) != MISSION_FLAG_TARGET_WEAPON)
+            {
                 unit[index].unlock();
                 target->lock();
-                if( (target->flags & 1) && target->type_id >= 0 ) {
+                if( (target->flags & 1) && target->type_id >= 0 )
+                {
                     glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
                     gfx->print_center(gfx->normal_font, ta3d_sidedata.side_int_data[ players.side_view ].UnitName2.x1, ta3d_sidedata.side_int_data[ players.side_view ].UnitName2.y1,0.0f,0xFFFFFFFF,unit_manager.unit_type[target->type_id].name);
                 }
                 target->unlock();
                 unit[index].lock();
             }
-            else if( unit[index].planned_weapons>0.0f && unit[index].owner_id == players.local_human_id ) {
-                glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
-                gfx->print_center(gfx->normal_font, ta3d_sidedata.side_int_data[ players.side_view ].UnitName2.x1, ta3d_sidedata.side_int_data[ players.side_view ].UnitName2.y1,0.0f,0xFFFFFFFF,TRANSLATE("weapon"));
-            }
+            else
+                if( unit[index].planned_weapons>0.0f && unit[index].owner_id == players.local_human_id )
+                {
+                    glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+                    gfx->print_center(gfx->normal_font, ta3d_sidedata.side_int_data[ players.side_view ].UnitName2.x1, ta3d_sidedata.side_int_data[ players.side_view ].UnitName2.y1,0.0f,0xFFFFFFFF,TRANSLATE("weapon"));
+                }
 
             glBlendFunc(GL_ONE,GL_ONE_MINUS_SRC_COLOR);
             glTexEnvi(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_MODULATE);
 
-            if( unit[index].owner_id == players.local_human_id  ) {
+            if( unit[index].owner_id == players.local_human_id  )
+            {
                 char buf[10];
                 gfx->set_color( ta3d_sidedata.side_int_data[ players.side_view ].metal_color );
                 uszprintf(buf,10,"+%f",unit[index].cur_metal_prod);	*(strstr(buf,".")+2)=0;
@@ -5535,18 +5629,22 @@ void INGAME_UNITS::complete_menu(int index,bool hide_info,bool hide_bpic)
             glBegin(GL_QUADS);
             glColor4f(1.0f,0.0f,0.0f,1.0f);
 
-            if( unit[index].owner_id == players.local_human_id || !unit_manager.unit_type[unit[index].type_id].HideDamage ) {
+            if( unit[index].owner_id == players.local_human_id || !unit_manager.unit_type[unit[index].type_id].HideDamage )
+            {
                 glVertex2i( ta3d_sidedata.side_int_data[ players.side_view ].DamageBar.x1, ta3d_sidedata.side_int_data[ players.side_view ].DamageBar.y1 );
                 glVertex2i( ta3d_sidedata.side_int_data[ players.side_view ].DamageBar.x2, ta3d_sidedata.side_int_data[ players.side_view ].DamageBar.y1 );
                 glVertex2i( ta3d_sidedata.side_int_data[ players.side_view ].DamageBar.x2, ta3d_sidedata.side_int_data[ players.side_view ].DamageBar.y2 );
                 glVertex2i( ta3d_sidedata.side_int_data[ players.side_view ].DamageBar.x1, ta3d_sidedata.side_int_data[ players.side_view ].DamageBar.y2 );
             }
 
-            if( unit[index].owner_id == players.local_human_id ) {
-                if(target && (unit[index].mission->flags & MISSION_FLAG_TARGET_WEAPON)!=MISSION_FLAG_TARGET_WEAPON ) {
+            if( unit[index].owner_id == players.local_human_id )
+            {
+                if(target && (unit[index].mission->flags & MISSION_FLAG_TARGET_WEAPON)!=MISSION_FLAG_TARGET_WEAPON )
+                {
                     unit[index].unlock();
                     target->lock();
-                    if( (target->flags & 1) && target->type_id >= 0 && !unit_manager.unit_type[target->type_id].HideDamage ) {			// Si l'unité a une cible
+                    if( (target->flags & 1) && target->type_id >= 0 && !unit_manager.unit_type[target->type_id].HideDamage )	// Si l'unité a une cible
+                    {
                         glVertex2i( ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.x1, ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.y1 );
                         glVertex2i( ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.x2, ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.y1 );
                         glVertex2i( ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.x2, ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.y2 );
@@ -5555,28 +5653,34 @@ void INGAME_UNITS::complete_menu(int index,bool hide_info,bool hide_bpic)
                     target->unlock();
                     unit[index].lock();
                 }
-                else if( unit[index].planned_weapons>0.0f ) {
-                    glVertex2i( ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.x1, ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.y1 );
-                    glVertex2i( ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.x2, ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.y1 );
-                    glVertex2i( ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.x2, ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.y2 );
-                    glVertex2i( ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.x1, ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.y2 );
-                }
+                else 
+                    if( unit[index].planned_weapons>0.0f )
+                    {
+                        glVertex2i( ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.x1, ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.y1 );
+                        glVertex2i( ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.x2, ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.y1 );
+                        glVertex2i( ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.x2, ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.y2 );
+                        glVertex2i( ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.x1, ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.y2 );
+                    }
             }
 
             glColor3f(0.0f,1.0f,0.0f);
 
-            if( unit[index].hp>0 && ( unit[index].owner_id == players.local_human_id || !unit_manager.unit_type[unit[index].type_id].HideDamage ) ) {
+            if( unit[index].hp>0 && ( unit[index].owner_id == players.local_human_id || !unit_manager.unit_type[unit[index].type_id].HideDamage ) )
+            {
                 glVertex2f( ta3d_sidedata.side_int_data[ players.side_view ].DamageBar.x1, ta3d_sidedata.side_int_data[ players.side_view ].DamageBar.y1 );
                 glVertex2f( ta3d_sidedata.side_int_data[ players.side_view ].DamageBar.x1 + unit[index].hp / unit_manager.unit_type[unit[index].type_id].MaxDamage * (ta3d_sidedata.side_int_data[ players.side_view ].DamageBar.x2-ta3d_sidedata.side_int_data[ players.side_view ].DamageBar.x1), ta3d_sidedata.side_int_data[ players.side_view ].DamageBar.y1 );
                 glVertex2f( ta3d_sidedata.side_int_data[ players.side_view ].DamageBar.x1 + unit[index].hp / unit_manager.unit_type[unit[index].type_id].MaxDamage * (ta3d_sidedata.side_int_data[ players.side_view ].DamageBar.x2-ta3d_sidedata.side_int_data[ players.side_view ].DamageBar.x1), ta3d_sidedata.side_int_data[ players.side_view ].DamageBar.y2 );
                 glVertex2f( ta3d_sidedata.side_int_data[ players.side_view ].DamageBar.x1, ta3d_sidedata.side_int_data[ players.side_view ].DamageBar.y2 );
             }
 
-            if( unit[index].owner_id == players.local_human_id ) {
-                if(target && (unit[index].mission->flags & MISSION_FLAG_TARGET_WEAPON)!=MISSION_FLAG_TARGET_WEAPON ) {
+            if( unit[index].owner_id == players.local_human_id )
+            {
+                if(target && (unit[index].mission->flags & MISSION_FLAG_TARGET_WEAPON)!=MISSION_FLAG_TARGET_WEAPON )
+                {
                     unit[index].unlock();
                     target->lock();
-                    if( (target->flags & 1) && target->type_id >= 0 && !unit_manager.unit_type[target->type_id].HideDamage && target->hp>0) {
+                    if( (target->flags & 1) && target->type_id >= 0 && !unit_manager.unit_type[target->type_id].HideDamage && target->hp>0)
+                    {
                         glVertex2f( ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.x1, ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.y1 );
                         glVertex2f( ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.x1 + target->hp / unit_manager.unit_type[target->type_id].MaxDamage * (ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.x2-ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.x1), ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.y1 );
                         glVertex2f( ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.x1 + target->hp / unit_manager.unit_type[target->type_id].MaxDamage * (ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.x2-ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.x1), ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.y2 );
@@ -5585,14 +5689,17 @@ void INGAME_UNITS::complete_menu(int index,bool hide_info,bool hide_bpic)
                     target->unlock();
                     unit[index].lock();
                 }
-                else if( unit[index].planned_weapons>0.0f ) {						// construit une arme / build a weapon
-                    float p=1.0f-(unit[index].planned_weapons-(int)unit[index].planned_weapons);
-                    if(p==1.0f)	p=0.0f;
-                    glVertex2f( ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.x1, ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.y1 );
-                    glVertex2f( ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.x1 + p * (ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.x2-ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.x1), ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.y1 );
-                    glVertex2f( ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.x1 + p * (ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.x2-ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.x1), ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.y2 );
-                    glVertex2f( ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.x1, ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.y2 );
-                }
+                else 
+                    if( unit[index].planned_weapons>0.0f ) 	// construit une arme / build a weapon
+                    {
+                        float p=1.0f-(unit[index].planned_weapons-(int)unit[index].planned_weapons);
+                        if (p==1.0f)
+                            p=0.0f;
+                        glVertex2f( ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.x1, ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.y1 );
+                        glVertex2f( ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.x1 + p * (ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.x2-ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.x1), ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.y1 );
+                        glVertex2f( ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.x1 + p * (ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.x2-ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.x1), ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.y2 );
+                        glVertex2f( ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.x1, ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.y2 );
+                    }
             }
 
             glEnd();
@@ -5601,12 +5708,12 @@ void INGAME_UNITS::complete_menu(int index,bool hide_info,bool hide_bpic)
         unit[index].unlock();
         pMutex.lock();
     }
-    else {
+    else
+    {
         glDisable( GL_BLEND );
         glDisable( GL_TEXTURE_2D );
     }
     glColor4f(1.0f,1.0f,1.0f,1.0f);
-
     set_uformat(U_UTF8);
 
     pMutex.unlock();
@@ -5614,7 +5721,11 @@ void INGAME_UNITS::complete_menu(int index,bool hide_info,bool hide_bpic)
 
 void INGAME_UNITS::move(float dt,MAP *map,int key_frame,bool wind_change)
 {
-    if(nb_unit<=0 || unit==NULL)	{	rest( 1 );	return;	}		// No units to move
+    if(nb_unit<=0 || unit==NULL)
+    {
+        rest(1);
+        return;// No units to move
+    }
 
     players.clear();		// Réinitialise le compteur de ressources
 
@@ -5628,13 +5739,15 @@ void INGAME_UNITS::move(float dt,MAP *map,int key_frame,bool wind_change)
 
     uint32 i;
     pMutex.lock();
-    for( uint16 e = 0 ; e < index_list_size ; e++ ) {		// Compte les stocks de ressources et les productions
+    for ( uint16 e = 0 ; e < index_list_size ; ++e) // Compte les stocks de ressources et les productions
+    {
         i = idx_list[e];
         pMutex.unlock();
 
         unit[i].lock();
 
-        if( unit[i].just_created && unit_manager.unit_type[unit[i].type_id].ExtractsMetal ) {	// Compute amount of metal extracted by sec
+        if( unit[i].just_created && unit_manager.unit_type[unit[i].type_id].ExtractsMetal ) // Compute amount of metal extracted by sec
+        {
             int metal_base = 0;
             int px=unit[i].cur_px;
             int py=unit[i].cur_py;
@@ -5642,17 +5755,26 @@ void INGAME_UNITS::move(float dt,MAP *map,int key_frame,bool wind_change)
             int start_y = py - (unit_manager.unit_type[unit[i].type_id].FootprintZ >> 1 );
             int end_y = start_y + unit_manager.unit_type[unit[i].type_id].FootprintZ;
             int end_x = start_x + unit_manager.unit_type[unit[i].type_id].FootprintX;
-            for( int ry = start_y ; ry <= end_y ; ry++ )
+            for( int ry = start_y ; ry <= end_y ; ++ry)
+            {
                 if( ry >= 0 && ry < map->bloc_h_db )
+                {
                     for( int rx = start_x ; rx <= end_x ; rx++ )
+                    {
                         if( rx >= 0 && rx < map->bloc_w_db )
-                            if(map->map_data[ry][rx].stuff>=0) {
+                        {
+                            if(map->map_data[ry][rx].stuff>=0)
+                            {
                                 metal_base = feature_manager.feature[features.feature[map->map_data[ry][rx].stuff].type].metal * unit_manager.unit_type[unit[i].type_id].FootprintZ * unit_manager.unit_type[unit[i].type_id].FootprintX;
                                 ry = end_y;
                                 break;
                             }
                             else
                                 metal_base += map->ota_data.SurfaceMetal;
+                        }
+                    }
+                }
+            }
             unit[i].metal_extracted = metal_base * unit_manager.unit_type[unit[i].type_id].ExtractsMetal;
 
             int param[] = { metal_base<<2 };
@@ -5660,7 +5782,8 @@ void INGAME_UNITS::move(float dt,MAP *map,int key_frame,bool wind_change)
             unit[i].just_created=false;
         }
 
-        if(unit[i].build_percent_left==0.0f) {
+        if(unit[i].build_percent_left==0.0f)
+        {
             unit[i].metal_prod=0.0f;
             unit[i].metal_cons=0.0f;
             unit[i].energy_prod=0.0f;
@@ -5670,13 +5793,16 @@ void INGAME_UNITS::move(float dt,MAP *map,int key_frame,bool wind_change)
             players.c_commander[unit[i].owner_id]|=(unit_manager.unit_type[unit[i].type_id].TEDclass==CLASS_COMMANDER);
             unit[i].energy_prod+=unit_manager.unit_type[unit[i].type_id].EnergyMake;
             if((unit[i].port[ACTIVATION] || !unit_manager.unit_type[unit[i].type_id].onoffable)
-               && unit_manager.unit_type[unit[i].type_id].EnergyUse<=players.energy[unit[i].owner_id]) {
+               && unit_manager.unit_type[unit[i].type_id].EnergyUse<=players.energy[unit[i].owner_id])
+            {
                 unit[i].metal_prod+=unit_manager.unit_type[unit[i].type_id].MakesMetal+unit_manager.unit_type[unit[i].type_id].MetalMake;
                 if(unit_manager.unit_type[unit[i].type_id].ExtractsMetal)	// Extracteur de métal
                     unit[i].metal_prod += unit[i].metal_extracted;
-                if(unit_manager.unit_type[unit[i].type_id].WindGenerator) {	// Wind Generator
+                if(unit_manager.unit_type[unit[i].type_id].WindGenerator) // Wind Generator
+                {
                     unit[i].energy_prod+=map->wind*unit_manager.unit_type[unit[i].type_id].WindGenerator*0.0002f;
-                    if(wind_change) {
+                    if(wind_change)
+                    {
                         int param[] = { (int)(map->wind*50.0f) };
                         unit[i].launch_script(unit[i].get_script_index(SCRIPT_SetSpeed),1,param);
                         param[0]=(int)((map->wind_dir-unit[i].Angle.y)*DEG2TA);
@@ -5704,34 +5830,40 @@ void INGAME_UNITS::move(float dt,MAP *map,int key_frame,bool wind_change)
     int *path_exec = new int[ players.nb_player ];
     memset( path_exec, 0, sizeof( int ) * players.nb_player );
     pMutex.lock();
-    for( uint16 e = 0 ; e < index_list_size ; e++ ) {
+    for (uint16 e = 0 ; e < index_list_size ; ++e)
+    {
         i = idx_list[e];
         pMutex.unlock();
-
         unit[ i ].lock();
 
-        if( unit[ i ].flags == 0 ) {		// ho ho what is it doing there ??
+        if( unit[ i ].flags == 0 ) // ho ho what is it doing there ??
+        {
             unit[ i ].unlock();
             kill(i,map,e);
-            e--;			// Can't skip a unit
+            --e;			// Can't skip a unit
             pMutex.lock();
             continue;
         }
 
-        if(unit[i].owner_id==players.local_human_id) {
-            if(unit[i].attacked
-               || (unit[i].mission!=NULL && unit[i].mission->mission==MISSION_ATTACK))	nb_attacked+=100;
-            if(unit[i].built)		nb_built++;
+        if (unit[i].owner_id==players.local_human_id)
+        {
+            if(unit[i].attacked || (unit[i].mission!=NULL && unit[i].mission->mission==MISSION_ATTACK))
+                nb_attacked+=100;
+            if(unit[i].built)
+                nb_built++;
         }
         players.c_nb_unit[unit[i].owner_id]++;			// Compte les unités de chaque joueur
-        unit[ i ].unlock();
-        if(unit[i].move(dt,map,path_exec,key_frame)==-1) {			// Vérifie si l'unité a été détruite
-            if( unit[i].local ) {				// Don't kill remote units, since we're told when to kill them
+        unit[i].unlock();
+        if(unit[i].move(dt,map,path_exec,key_frame) == -1) // Vérifie si l'unité a été détruite
+        {
+            if( unit[i].local ) // Don't kill remote units, since we're told when to kill them
+            {
                 kill(i,map,e);
                 e--;			// Can't skip a unit
             }
         }
-        else {
+        else
+        {
             unit[ i ].lock();
             players.c_metal_t[unit[i].owner_id] += unit[i].metal_prod;
             players.c_metal_u[unit[i].owner_id] += unit[i].metal_cons;
@@ -5756,34 +5888,40 @@ void INGAME_UNITS::move(float dt,MAP *map,int key_frame,bool wind_change)
 
     pMutex.lock();
 
-    for(i=0;i<players.nb_player;i++) {
-        players.c_annihilated[ i ] = !players.c_nb_unit[ i ];		// Has this player units ?
-        if(players.c_commander[i]) {
+    for(i=0;i<players.nb_player; ++i)
+    {
+        players.c_annihilated[i] = !players.c_nb_unit[i]; // Has this player units ?
+        if(players.c_commander[i])
+        {
             players.c_metal_s[i]+=players.com_metal[i];
             players.c_energy_s[i]+=players.com_energy[i];
         }
     }
-    for(i=0;i<players.nb_player;i++) {
+    for (i=0; i < players.nb_player; ++i)
+    {
         players.c_metal[i]+=dt*(players.c_metal_t[i]-players.c_metal_u[i]);
         players.c_energy[i]+=dt*(players.c_energy_t[i]-players.c_energy_u[i]);
         players.metal_total[i]+=dt*players.metal_t[i];
         players.energy_total[i]+=dt*players.energy_t[i];
         if(players.c_metal[i]<0.0f)
             players.c_metal[i]=0.0f;
-        else if(players.c_metal[i]>players.c_metal_s[i])
-            players.c_metal[i]=players.c_metal_s[i];
+        else
+            if(players.c_metal[i]>players.c_metal_s[i])
+                players.c_metal[i]=players.c_metal_s[i];
         if(players.c_energy[i]<0.0f)
             players.c_energy[i]=0.0f;
-        else if(players.c_energy[i]>players.c_energy_s[i])
-            players.c_energy[i]=players.c_energy_s[i];
+        else
+            if(players.c_energy[i]>players.c_energy_s[i])
+                players.c_energy[i]=players.c_energy_s[i];
     }
 
-    for( int i = 0 ; i < 10 ; i++ )
-        if( !requests[ i ].empty() && pathfinder_calls[ i ] == requests[ i ].front() )
+    for( int i = 0 ; i < 10 ; ++i)
+    {
+        if( !requests[ i ].empty() && pathfinder_calls[ i ] == requests[ i ].front())
             requests[ i ].pop_front();
+    }
 
     players.refresh();
-
     pMutex.unlock();
 }
 
@@ -5797,7 +5935,8 @@ int INGAME_UNITS::create(int type_id,int owner)
     pMutex.lock();
 
     nb_unit++;
-    if(nb_unit>max_unit && max_unit == 0) {
+    if(nb_unit>max_unit && max_unit == 0)
+    {
         if( mini_idx )		delete[]	mini_idx;
         if( mini_col )		delete[]	mini_col;
         if( mini_pos )		delete[]	mini_pos;
@@ -5831,7 +5970,8 @@ int INGAME_UNITS::create(int type_id,int owner)
             n_unit[i].flags=0;
             n_unit[i].idx=i;
         }
-        if(unit) {
+        if(unit)
+        {
             memcpy(n_unit,unit,sizeof(UNIT)*(nb_unit-1));
             free(unit);
         }
@@ -5866,7 +6006,8 @@ int INGAME_UNITS::create(int type_id,int owner)
 
 void INGAME_UNITS::draw_mini(float map_w,float map_h,int mini_w,int mini_h,SECTOR **map_data)				// Repère les unités sur la mini-carte
 {
-    if(nb_unit<=0 || unit==NULL)	{
+    if(nb_unit<=0 || unit==NULL)
+    {
         last_on = -1;
         return;		// Pas d'unités à dessiner
     }
@@ -5884,7 +6025,8 @@ void INGAME_UNITS::draw_mini(float map_w,float map_h,int mini_w,int mini_h,SECTO
 
     uint32 player_col_32[ 10 ];
     uint32 player_col_32_h[ 10 ];
-    for( int i = 0 ; i < players.nb_player ; i++ ) {
+    for( int i = 0 ; i < players.nb_player ; ++i)
+    {
         player_col_32[ i ] =  makeacol( (int)(player_color[ player_color_map[ i ] * 3 ] * 255.0f),
                                         (int)(player_color[ player_color_map[ i ] * 3 + 1 ] * 255.0f),
                                         (int)(player_color[ player_color_map[ i ] * 3 + 2 ] * 255.0f),
@@ -5896,21 +6038,25 @@ void INGAME_UNITS::draw_mini(float map_w,float map_h,int mini_w,int mini_h,SECTO
     }
 
     pMutex.lock();
-    for( uint16 e=0 ; e < index_list_size ; e++) {
+    for (uint16 e=0 ; e < index_list_size ; e++)
+    {
         uint16 i = idx_list[e];
         pMutex.unlock();
 
         units.unit[ i ].lock();
 
-        if(unit[i].flags&1) {
+        if(unit[i].flags&1)
+        {
             int px=unit[i].cur_px;
             int py=unit[i].cur_py;
-            if(px<0 || py<0 || px>=b_w || py>=b_h) {
+            if(px<0 || py<0 || px>=b_w || py>=b_h)
+            {
                 units.unit[ i ].unlock();
                 pMutex.lock();
                 continue;
             }
-            if( (!(map->view_map->line[py>>1][px>>1]&mask) || !(map->sight_map->line[py>>1][px>>1]&mask) || (unit[i].cloaked && unit[i].owner_id != players.local_human_id ) ) && !unit[i].on_mini_radar ) {
+            if( (!(map->view_map->line[py>>1][px>>1]&mask) || !(map->sight_map->line[py>>1][px>>1]&mask) || (unit[i].cloaked && unit[i].owner_id != players.local_human_id ) ) && !unit[i].on_mini_radar )
+            {
                 units.unit[ i ].unlock();
                 pMutex.lock();
                 continue;	// Unité non visible / Unit is not visible
@@ -5965,7 +6111,8 @@ void INGAME_UNITS::draw_mini(float map_w,float map_h,int mini_w,int mini_h,SECTO
     int cur_id = -1;
     glBegin( GL_POINTS );
     pMutex.lock();
-    for(uint16 e=0;e<index_list_size;e++) {
+    for(uint16 e=0;e<index_list_size; ++e)
+    {
         uint16 i = idx_list[e];
         pMutex.unlock();
 
@@ -5976,18 +6123,21 @@ void INGAME_UNITS::draw_mini(float map_w,float map_h,int mini_w,int mini_h,SECTO
             continue;
         }
 
-        if( (unit[i].flags&1) && ( (unit[i].owner_id==players.local_human_id && unit[i].sel) || i == last_on ) ) {
+        if( (unit[i].flags&1) && ( (unit[i].owner_id==players.local_human_id && unit[i].sel) || i == last_on ) )
+        {
             cur_id = unit[i].owner_id;
             float pos_x=unit[i].Pos.x*rw+64.0f;
             float pos_y=unit[i].Pos.z*rh+64.0f;
-            if( unit[i].radar_range > 0 ) {
+            if( unit[i].radar_range > 0 )
+            {
                 glEnd();
                 glPointSize(1.0f);
                 gfx->circle_zoned( pos_x, pos_y, (unit[i].radar_range << 3) * rw, 0.0f, 0.0f, 127.0f, 127.0f, 0xFFFFFFFF );
                 glPointSize(3.0f);
                 glBegin( GL_POINTS );
             }
-            if( unit[i].sonar_range > 0 ) {
+            if( unit[i].sonar_range > 0 )
+            {
                 glEnd();
                 glPointSize(1.0f);
                 gfx->circle_zoned( pos_x, pos_y, (unit[i].sonar_range << 3) * rw, 0.0f, 0.0f, 127.0f, 127.0f, makecol( 0, 255, 0 ) );
