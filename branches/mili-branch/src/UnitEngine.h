@@ -28,7 +28,7 @@
 #define MAX_UNIT_PER_PLAYER		2000		// 250 Unités par joueur maximum
 
 #include "fbi.h"
-#include "weapons.h"
+#include "ingame/weapons/weapons.h"
 #include "threads/cThread.h"
 
 #define UNPACKX(xz) ((sint16)((xz)>>16))

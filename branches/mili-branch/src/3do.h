@@ -27,10 +27,8 @@
 #define __CLASSE_3DO
 
 # include "misc/hash_table.h"
-
-#ifndef __GAF_CLASSES
-#include "gaf.h"
-#endif
+# include "ta3dbase.h"
+# include "gaf.h"
 
 		//	Classe pour la gestion des textures du jeu
 class TEXTURE_MANAGER

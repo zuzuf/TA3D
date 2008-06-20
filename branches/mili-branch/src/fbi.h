@@ -31,7 +31,7 @@
 #include "cob.h"				// Pour la gestion des scripts
 #endif
 
-#include "weapons.h"			// Pour la gestion des armes des unités
+#include "ingame/weapons/weapons.h"			// Pour la gestion des armes des unités
 
 #define SFORDER_HOLD_FIRE		0x0
 #define SFORDER_RETURN_FIRE		0x1
