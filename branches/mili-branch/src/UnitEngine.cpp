@@ -4846,7 +4846,7 @@ bool INGAME_UNITS::select(CAMERA *cam,int sel_x[],int sel_y[])
     pMutex.lock();
 
     cam->SetView();
-    MATRIX_4x4 ModelView,Project,T;
+    MATRIX_4x4 ModelView,Project;
     int	viewportCoords[4] = {0, 0, 0, 0};
     glGetIntegerv(GL_VIEWPORT, viewportCoords);
     glGetFloatv(GL_MODELVIEW_MATRIX, (float*)ModelView.E);
@@ -4857,7 +4857,7 @@ bool INGAME_UNITS::select(CAMERA *cam,int sel_x[],int sel_y[])
     float VW =  (viewportCoords[2] - viewportCoords[0]) * 0.5f;
     float VH = -(viewportCoords[3] - viewportCoords[1]) * 0.5f;
 
-    MATRX_4x4 T(ModelView * Project); // Matrice de transformation
+    MATRIX_4x4 T(ModelView * Project); // Matrice de transformation
 
     VECTOR UPos,O;
     O.x=O.y=O.z=0.0f;
@@ -5364,7 +5364,7 @@ void *create_unit( int type_id, int owner, VECTOR pos, MAP *map, bool sync, bool
 }
 
 
-static bool can_be_there_ai(const int px, const int py, MAP *map, const int unit_type_id,
+bool can_be_there_ai(const int px, const int py, MAP *map, const int unit_type_id,
                             const int player_id, const int unit_id )
 {
     if(unit_type_id<0 || unit_type_id>=unit_manager.nb_unit || !map)
@@ -5401,7 +5401,7 @@ static bool can_be_there_ai(const int px, const int py, MAP *map, const int unit
     return true;
 }
 
-static bool can_be_there( const int px, const int py, MAP *map, const int unit_type_id,
+bool can_be_there( const int px, const int py, MAP *map, const int unit_type_id,
                           const int player_id, const int unit_id )
 {
     if(unit_type_id<0 || unit_type_id>=unit_manager.nb_unit || !map)
@@ -5439,7 +5439,7 @@ static bool can_be_there( const int px, const int py, MAP *map, const int unit_t
     return true;
 }
 
-static bool can_be_built(const VECTOR Pos,MAP *map,const int unit_type_id, const int player_id )
+bool can_be_built(const VECTOR Pos,MAP *map,const int unit_type_id, const int player_id )
 {
     if(unit_type_id<0 || unit_type_id>=unit_manager.nb_unit || !map)
         return false;

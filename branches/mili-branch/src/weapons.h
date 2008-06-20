@@ -40,7 +40,7 @@
 
 
 
-using namespace TA3D::Interfaces;
+//using namespace TA3D::Interfaces;
 
 
 namespace TA3D

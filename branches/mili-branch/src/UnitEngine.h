@@ -1206,11 +1206,11 @@ public:
 
 extern INGAME_UNITS units;
 
-const bool can_be_built( const VECTOR Pos, MAP *map, const int unit_type_id, const int player_id );
+bool can_be_built( const VECTOR Pos, MAP *map, const int unit_type_id, const int player_id );
 
-const bool can_be_there( const int px, const int py, MAP *map, const int unit_type_id, const int player_id, const int unit_id = -1 );
+bool can_be_there( const int px, const int py, MAP *map, const int unit_type_id, const int player_id, const int unit_id = -1 );
 
-const bool can_be_there_ai( const int px, const int py, MAP *map, const int unit_type_id, const int player_id, const int unit_id = -1 );
+bool can_be_there_ai( const int px, const int py, MAP *map, const int unit_type_id, const int player_id, const int unit_id = -1 );
 
 
 } // namespace TA3D
