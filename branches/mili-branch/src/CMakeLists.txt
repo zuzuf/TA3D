@@ -98,9 +98,9 @@ ADD_DEPENDENCIES(hpi stdafx tajpeg misc)
 # --------------------------------------------------------------------
 SET(LIBRARY_OUTPUT_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../bin/libs/${CMAKE_SYSTEM_NAME}")
 SET(ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../bin/libs/${CMAKE_SYSTEM_NAME}")
-SET(SOURCES taconfig.cpp taconfig.h matrix.h ta3dbase.h)
+SET(SOURCES taconfig.cpp taconfig.h ta3dbase.h)
 ADD_LIBRARY(config STATIC ${SOURCES})
-ADD_DEPENDENCIES(config stdafx)
+ADD_DEPENDENCIES(config stdafx misc)
 
 
 
@@ -118,7 +118,7 @@ else( WIN32 OR CMAKE_CROSSCOMPILING )
 	SET( 3DMEDITOR 3dmeditor-bin )
 endif( WIN32 OR CMAKE_CROSSCOMPILING )
 
-add_executable(${3DMEDITOR} 3dmeditor.cpp ta3d.h 3dmeditor_sub.cpp 3dmeditor.h cTAFileParser.cpp cTAFileParser.h stdafx.h TA3D_NameSpace.cpp TA3D_NameSpace.h TA3D_Platform.h matrix.h ta3dbase.h)
+add_executable(${3DMEDITOR} 3dmeditor.cpp ta3d.h 3dmeditor_sub.cpp 3dmeditor.h cTAFileParser.cpp cTAFileParser.h stdafx.h TA3D_NameSpace.cpp TA3D_NameSpace.h TA3D_Platform.h ta3dbase.h)
 
 ADD_DEPENDENCIES(${3DMEDITOR} stdafx logs console debuginfos threads misc i18n tajpeg gfx fileformats particles audio hpi config gui)
 target_link_libraries(${3DMEDITOR} stdafx logs console debuginfos threads misc i18n tajpeg gfx fileformats particles audio hpi config gui)
@@ -134,7 +134,7 @@ ENDIF(APPLE)
 # --- TA3D
 # --------------------------------------------------------------------
 
-add_executable(ta3d-bin ta3d.cpp ta3d.h main.cpp install.cpp cTA3D_Engine.cpp cTA3D_Engine.h cTAFileParser.cpp cTAFileParser.h restore.cpp restore.h menu.cpp menu.h cob.cpp cob.h EngineClass.cpp EngineClass.h UnitEngine.cpp UnitEngine.h fbi.cpp fbi.h intro.cpp intro.h tdf.cpp tdf.h tnt.cpp tnt.h weapons.cpp weapons.h fx.cpp fx.h script.cpp script.h icon.cpp stdafx.h TA3D_NameSpace.cpp TA3D_NameSpace.h TA3D_Platform.h matrix.h ta3dbase.h)
+add_executable(ta3d-bin ta3d.cpp ta3d.h main.cpp install.cpp cTA3D_Engine.cpp cTA3D_Engine.h cTAFileParser.cpp cTAFileParser.h restore.cpp restore.h menu.cpp menu.h cob.cpp cob.h EngineClass.cpp EngineClass.h UnitEngine.cpp UnitEngine.h fbi.cpp fbi.h intro.cpp intro.h tdf.cpp tdf.h tnt.cpp tnt.h weapons.cpp weapons.h fx.cpp fx.h script.cpp script.h icon.cpp stdafx.h TA3D_NameSpace.cpp TA3D_NameSpace.h TA3D_Platform.h ta3dbase.h)
 
 ADD_DEPENDENCIES(ta3d-bin stdafx logs console debuginfos threads i18n misc tajpeg gfx fileformats particles ai audio hpi gui config network)
 target_link_libraries(ta3d-bin stdafx logs console debuginfos threads i18n misc tajpeg gfx fileformats particles ai audio hpi gui config network)

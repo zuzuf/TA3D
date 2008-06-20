@@ -24,7 +24,7 @@
 #ifndef __TA3D_3DS
 #define __TA3D_3DS
 
-#include "matrix.h"
+#include "misc/matrix.h"
 #include "3do.h"
 
 //>------ Primary chunk

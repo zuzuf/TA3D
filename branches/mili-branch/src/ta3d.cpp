@@ -21,7 +21,7 @@
 #endif
 #include "stdafx.h"
 #include "TA3D_NameSpace.h"
-#include "matrix.h"
+#include "misc/matrix.h"
 
 #include "intro.h"			// Introduction
 #include "cTA3D_Engine.h"	// The Engine

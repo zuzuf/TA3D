@@ -20,7 +20,7 @@
 
 #include "TA3D_Exception.h"
 #include "gfx/glfunc.h"
-#include "matrix.h"				// Some math routines
+#include "misc/matrix.h"				// Some math routines
 #include "gaf.h"				// read pictures/animations from GAF files
 #include "gui.h"				// Graphical User Interface
 #include "TA3D_hpi.h"			// HPI handler

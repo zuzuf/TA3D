@@ -20,7 +20,7 @@
 # define TA3D_NO_SOUND
 
 #include "stdafx.h"
-#include "matrix.h"
+#include "misc/matrix.h"
 #include "TA3D_NameSpace.h"
 #include "ta3dbase.h"
 #include "jpeg/ta3d_jpg.h"

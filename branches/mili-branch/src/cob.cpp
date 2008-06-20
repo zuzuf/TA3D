@@ -29,7 +29,7 @@
 #include <libcwd/debug.h>
 #endif
 #include "stdafx.h"
-#include "matrix.h"				// Some math routines
+#include "misc/matrix.h"				// Some math routines
 #include "TA3D_NameSpace.h"
 #include "ta3dbase.h"
 #include "cob.h"

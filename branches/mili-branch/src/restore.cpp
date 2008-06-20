@@ -17,7 +17,7 @@
 
 #include "stdafx.h"
 #include "TA3D_NameSpace.h"
-#include "matrix.h"
+#include "misc/matrix.h"
 
 #include "cTA3D_Engine.h"		// The Engine
 #include "ta3dbase.h"			// Some core include
