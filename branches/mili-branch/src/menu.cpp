@@ -30,7 +30,7 @@
 #include "TA3D_NameSpace.h"
 #include "ta3dbase.h"
 #include "3do.h"					// Pour la lecture des fichiers 3D
-#include "cob.h"					// Pour la lecture et l'éxecution des scripts
+#include "scripts/cob.h"					// Pour la lecture et l'éxecution des scripts
 #include "EngineClass.h"			// Inclus le moteur
 #include "fbi.h"					// Pour la gestion des unités
 #include "tnt.h"					// Inclus le chargeur de cartes

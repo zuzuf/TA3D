@@ -28,8 +28,8 @@
 
 #define CLASSE_SCRIPT
 
-#include "lua/lua.hpp"
-#include "threads/thread.h"
+#include "../lua/lua.hpp"
+#include "../threads/thread.h"
 
 #ifndef luaL_dobuffer
 #define luaL_dobuffer(L, s, sz) \

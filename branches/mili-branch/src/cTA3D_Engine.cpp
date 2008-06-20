@@ -24,14 +24,14 @@
 #include "ta3dbase.h"
 
 #include "3do.h"               // For 3DO/3DM management
-#include "cob.h"               // For unit scripts management
+#include "scripts/cob.h"               // For unit scripts management
 #include "tdf.h"               // For 2D features
 #include "EngineClass.h"         // The Core Engine
 
 #include "UnitEngine.h"            // The Unit Engine
 
 #include "tnt.h"               // The TNT loader
-#include "script.h"               // The game script manager
+#include "scripts/script.h"               // The game script manager
 #include "ai/ai.h"                  // AI Engine
 #include "fx.h"					// Special FX engine
 #include "misc/paths.h"

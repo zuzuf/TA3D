@@ -27,9 +27,7 @@
 #ifndef __CLASSE_UNIT
 #define __CLASSE_UNIT
 
-#ifndef __CLASSE_COB
-#include "cob.h"				// Pour la gestion des scripts
-#endif
+#include "scripts/cob.h" // Pour la gestion des scripts
 
 #include "ingame/weapons/weapons.h"			// Pour la gestion des armes des unités
 

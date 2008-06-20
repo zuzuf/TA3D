@@ -30,7 +30,7 @@
 #include "../TA3D_NameSpace.h"
 #include "../ta3dbase.h"
 #include "../3do.h"					// For 3D models / Pour la lecture des fichiers 3D
-#include "../cob.h"					// For unit scripts / Pour la lecture et l'éxecution des scripts
+#include "../scripts/cob.h"					// For unit scripts / Pour la lecture et l'éxecution des scripts
 #include "../tdf.h"					// For map features / Pour la gestion des éléments du jeu
 //#include "fbi.h"					// For unit types / Pour la gestion des unités
 //#include "weapons.h"				// For weapons / Pour la gestion des armes

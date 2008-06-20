@@ -28,10 +28,10 @@
 #include <libcwd/sys.h>
 #include <libcwd/debug.h>
 #endif
-#include "stdafx.h"
-#include "misc/matrix.h"				// Some math routines
-#include "TA3D_NameSpace.h"
-#include "ta3dbase.h"
+#include "../stdafx.h"
+#include "../misc/matrix.h"				// Some math routines
+#include "../TA3D_NameSpace.h"
+#include "../ta3dbase.h"
 #include "cob.h"
 
 	void SCRIPT::load_cob(byte *data)

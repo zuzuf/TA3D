@@ -213,12 +213,12 @@ BITMAP *LoadMaskedTexBmp(const char *file,const char *filealpha)
 #ifndef TA3D_BASIC_ENGINE
 
 #include "3do.h"					// For 3DO/3DM management
-#include "cob.h"					// For unit scripts management
+#include "scripts/cob.h"					// For unit scripts management
 #include "tdf.h"					// For 2D features
 #include "EngineClass.h"			// The Core Engine
 #include "UnitEngine.h"				// The Unit Engine
 #include "tnt.h"					// The TNT loaded
-#include "script.h"					// The game script manager
+#include "scripts/script.h"					// The game script manager
 #include "ai/ai.h"						// AI Engine
 
 inline INT_ELEMENT read_gui_element( cTAFileParser *parser, const String &element, bool bottom = false )

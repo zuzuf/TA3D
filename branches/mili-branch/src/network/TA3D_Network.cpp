@@ -20,7 +20,7 @@
 #include "TA3D_Network.h"
 #include "../EngineClass.h"
 #include "../UnitEngine.h"
-#include "../script.h"
+#include "../scripts/script.h"
 
 
 #define CHAT_MESSAGE_TIMEOUT	10000
