@@ -51,7 +51,7 @@ public:
     // Rend le vecteur unitaire si possible(de norme 1)
     void unit();
 
-    bool isNull() const { return x == 0.0f && y == 0.0f; }
+    bool isNull() const { return (x == 0.0f && y == 0.0f); }
 
     //! \name Operators
     //{
@@ -75,7 +75,7 @@ public:
     { return !(*this == rhs); } 
 
     VECTOR2D& operator = (const VECTOR2D& rhs)
-    { x = rhs.x; y = rhs.y; }
+    { x = rhs.x; y = rhs.y; return *this; }
 
     //}
 
@@ -120,7 +120,7 @@ public:
     ** \brief Get if the vector is a null vector
     ** \return True if the vector is a null vector, false otherwise
     */
-    bool isNull() const { return x == 0.0f && y == 0.0f && z == 0.0f; }
+    bool isNull() const { return (x == 0.0f && y == 0.0f && z == 0.0f); }
 
     //! \name Operators
     //{
@@ -144,7 +144,7 @@ public:
     { return !(*this == rhs); } 
 
     VECTOR3D& operator = (const VECTOR3D& rhs)
-    { x = rhs.x; y = rhs.y; z = rhs.z; }
+    { x = rhs.x; y = rhs.y; z = rhs.z; return *this; }
 
     //}
 
@@ -196,6 +196,7 @@ inline const VECTOR3D operator * (const VECTOR3D& lhs, const VECTOR3D& rhs)
 
 inline const float operator % (const VECTOR3D& lhs, const VECTOR3D& rhs)
 { return lhs.x*rhs.x + lhs.y*rhs.y + lhs.z*rhs.z; }
+
 
 //}
 
