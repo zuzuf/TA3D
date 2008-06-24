@@ -151,7 +151,8 @@ namespace TA3D
         int			*use;
         bool pCacheIsDirty;
 
-        List<FX_PARTICLE> pParticles;	// List of particles bouncing around
+        //! List of particles bouncing around
+        List<FXParticle> pParticles;
 
     public:
         //! 

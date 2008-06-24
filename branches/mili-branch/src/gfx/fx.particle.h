@@ -9,10 +9,10 @@ namespace TA3D
 {
 
 
-    class FX_PARTICLE
+    class FXParticle
     {
     public:
-        FX_PARTICLE(const VECTOR &P, const VECTOR &S, const float L );
+        FXParticle(const VECTOR &P, const VECTOR &S, const float L );
         bool move( float dt );
         void draw();
 
@@ -22,7 +22,7 @@ namespace TA3D
         float timer;
         float life;
 
-    }; // class FX_PARTICLE
+    }; // class FXParticle
 
 
 } // namespace TA3D

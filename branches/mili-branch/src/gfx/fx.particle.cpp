@@ -9,11 +9,13 @@ namespace TA3D
 {
 
 
-    FX_PARTICLE::FX_PARTICLE(const VECTOR &P, const VECTOR &S, const float L )
+    FXParticle::FXParticle(const VECTOR &P, const VECTOR &S, const float L )
         :Pos(P), Speed(S), life(L), timer(0.0f)
     {}
 
-    bool FX_PARTICLE::move(float dt)
+
+
+    bool FXParticle::move(float dt)
     {
         life -= dt;
         timer += dt;
@@ -45,7 +47,7 @@ namespace TA3D
 
 
 
-    void FX_PARTICLE::draw()
+    void FXParticle::draw()
     {
         if(FXManager::currentParticleModel)
         {

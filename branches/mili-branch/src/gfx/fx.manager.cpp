@@ -322,7 +322,7 @@ namespace TA3D
         if (lp_CONFIG->explosion_particles)
         {
             pMutex.lock();
-            pParticles.push_back(FX_PARTICLE(p, s, l));
+            pParticles.push_back(FXParticle(p, s, l));
             pMutex.unlock();
         }
     }
@@ -342,7 +342,7 @@ namespace TA3D
                       s * sin(a) * cos(b));
             float l = min( 5.0f * vs.y / (the_map->ota_data.gravity + 0.1f), 10.0f);
 
-            pParticles.push_back(FX_PARTICLE(p, vs, l));
+            pParticles.push_back(FXParticle(p, vs, l));
         }
         pMutex.unlock();
     }
