@@ -25,8 +25,8 @@
 #ifndef __FX_H_
 #define __FX_H_
 
-#include "gaf.h"
-#include "threads/thread.h"
+#include "../gaf.h"
+#include "../threads/thread.h"
 
 class FX
 {

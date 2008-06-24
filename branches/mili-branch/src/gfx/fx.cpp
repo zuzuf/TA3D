@@ -22,15 +22,15 @@
 |                                                                                    |
 \-----------------------------------------------------------------------------------*/
 
-#include "stdafx.h"
-#include "misc/matrix.h"
-#include "TA3D_NameSpace.h"
-#include "ta3dbase.h"
-#include "EngineClass.h"
-#include "tdf.h"
+#include "../stdafx.h"
+#include "../misc/matrix.h"
+#include "../TA3D_NameSpace.h"
+#include "../ta3dbase.h"
+#include "../EngineClass.h"
+#include "../tdf.h"
 #include "fx.h"
-#include "gfx/particles/particles.h"
-#include "3do.h"
+#include "particles/particles.h"
+#include "../3do.h"
 
 FX_MANAGER	fx_manager;
 

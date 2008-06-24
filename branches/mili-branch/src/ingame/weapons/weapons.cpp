@@ -28,7 +28,7 @@
 #include <libcwd/debug.h>
 #endif
 #include "weapons.h"
-#include "../../fx.h"
+#include "../../gfx/fx.h"
 
 
 namespace TA3D
