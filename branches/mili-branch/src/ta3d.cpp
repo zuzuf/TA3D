@@ -32,6 +32,7 @@
 #include "gfx/fx.h"
 #include "misc/paths.h"
 #include "misc/camera.h"
+#include "misc/material.light.h"
 
 
 #ifndef SCROLL_SPEED
@@ -333,7 +334,7 @@ int play(GAME_DATA *game_data)
 
     glEnable(GL_FOG);
 
-    HWLIGHT	sun;
+    HWLight sun;
     sun.Att=0.0f;
     sun.Dir.x=-1.0f;
     sun.Dir.y=2.0f;
@@ -1875,7 +1876,7 @@ int play(GAME_DATA *game_data)
                     glBindTexture(GL_TEXTURE_2D,map->low_tex);
 
                     cam.setView();
-                    glTranslatef( 0.0f, map->sealvl, map->sea_dec );
+                    glTranslatef(0.0f, map->sealvl, map->sea_dec);
                     water_obj.draw(t,cam.rpos.x,cam.rpos.z,false);
                     glColor4f(1.0f,1.0f,1.0f,0.75f);
 

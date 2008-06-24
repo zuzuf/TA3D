@@ -12,6 +12,7 @@ ADD_LIBRARY(misc STATIC ${SOURCES})
 
 SET(SOURCES vector.cpp vector.h
             matrix.h matrix.cpp
+            material.light.h material.light.cpp
             camera.h camera.cpp)
 
 ADD_LIBRARY(3dtoolbox STATIC ${SOURCES})
