@@ -766,6 +766,7 @@ void UNIT::draw(float t, CAMERA *cam,MAP *map,bool height_line)
                             src = &unit_target->model->obj;
                             src_data = &unit_target->data;
                             unit_target->compute_model_coord();
+                            pMutex.lock();
                         }
                         else
                         {
@@ -776,6 +777,7 @@ void UNIT::draw(float t, CAMERA *cam,MAP *map,bool height_line)
                         }
                     }
                     else
+                    {
                         if( mission->mission == MISSION_RECLAIM || mission->mission == MISSION_REVIVE ) // Reclaiming features
                         {
                             int feature_type = features.feature[ mission->data ].type;
@@ -795,10 +797,12 @@ void UNIT::draw(float t, CAMERA *cam,MAP *map,bool height_line)
                         }
                         else
                             c_part=false;
-                    target=&(mission->target);
+                    }
+                    target = &(mission->target);
                 }
             }
             else 
+            {
                 if( !local && nanolathe_target >= 0 && port[ INBUILDSTANCE ] != 0 )
                 {
                     if (c_time>=0.125f)
@@ -851,10 +855,10 @@ void UNIT::draw(float t, CAMERA *cam,MAP *map,bool height_line)
                         target = &v_target;
                     }
                 }
-
-            if( c_part )					// Get the nanolathing points
+            }
+            if (c_part)	// Get the nanolathing points
             {
-                if( !unit_manager.unit_type[ type_id ].emitting_points_computed ) // Compute model emitting points if not already done
+                if (!unit_manager.unit_type[ type_id ].emitting_points_computed ) // Compute model emitting points if not already done
                 {
                     unit_manager.unit_type[ type_id ].emitting_points_computed = true;
                     int param[] = { -1 };
@@ -871,7 +875,7 @@ void UNIT::draw(float t, CAMERA *cam,MAP *map,bool height_line)
                 }
             }
 
-            if (build_percent_left==0.0f)
+            if (build_percent_left == 0.0f)
             {
                 if( cloaked || ( cloaking && owner_id != players.local_human_id ) )
                     glColor4ub( 0xFF, 0xFF, 0xFF, 0x7F );
@@ -5146,6 +5150,7 @@ int UNIT::shoot(int target,VECTOR startpos,VECTOR Dir,int w_id,const VECTOR &tar
     weapons.weapon[w_idx].stime=0.0f;
     weapons.weapon[w_idx].visible=visible;
     weapons.unlock();
+    pMutex.unlock();
     return w_idx;
 }
 

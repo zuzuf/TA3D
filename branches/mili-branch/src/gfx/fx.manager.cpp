@@ -12,11 +12,10 @@ namespace TA3D
 
     int FXManager::add(const String& filename, const String& entryName, const VECTOR& pos, const float size)
     {
-        MutexLocker locker(pMutex);
-
         if(game_cam != NULL && ((VECTOR)(pos-game_cam->Pos)).sq() >= game_cam->zfar2)
             return -1;
 
+        MutexLocker locker(pMutex);
 
         if(nb_fx+1>max_fx)
         {
@@ -102,11 +101,10 @@ namespace TA3D
 
     int FXManager::addFlash(const VECTOR& pos, const float size)
     {
-        MutexLocker locker(pMutex);
-
         if(game_cam!=NULL && ((VECTOR)(pos-game_cam->Pos)).sq()>=game_cam->zfar2)
             return -1;
 
+        MutexLocker locker(pMutex);
         if(nb_fx + 1 > max_fx)
         {
             max_fx+=100;
@@ -136,10 +134,10 @@ namespace TA3D
 
     int FXManager::addWave(const VECTOR& pos,float size)
     {
-        MutexLocker locker(pMutex);
-
         if (game_cam != NULL && ((VECTOR)(pos-game_cam->Pos)).sq()>=game_cam->zfar2)
             return -1;
+        
+        MutexLocker locker(pMutex);
 
         if(nb_fx+1>max_fx)
         {
@@ -168,10 +166,10 @@ namespace TA3D
 
     int FXManager::addRipple(const VECTOR& pos,float size)
     {
-        MutexLocker locker(pMutex);
-
         if (game_cam != NULL && ((VECTOR)(pos - game_cam->Pos)).sq() >= game_cam->zfar2)
             return -1;
+        
+        MutexLocker locker(pMutex);
 
         if(nb_fx + 1 > max_fx)
         {

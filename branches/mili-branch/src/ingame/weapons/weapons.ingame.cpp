@@ -79,7 +79,7 @@ namespace TA3D
 
     int INGAME_WEAPONS::add_weapon(int weapon_id,int shooter)
     {
-        if(weapon_id<0)
+        if(weapon_id < 0)
             return -1;
 
         MutexLocker locker(pMutex);
@@ -134,14 +134,13 @@ namespace TA3D
     void INGAME_WEAPONS::move(float dt,MAP *map)
     {
         pMutex.lock();
-        if (nb_weapon<=0 || max_weapon<=0)
+        if (nb_weapon <= 0 || max_weapon <= 0)
         {
             pMutex.unlock();
             rest(1);
             return;
         }
 
-        pMutex.lock();
         for (uint32 e=0;e<index_list_size; ++e)
         {
             // TODO Check if it is really necessary by now
@@ -182,8 +181,8 @@ namespace TA3D
                 weapon[i].draw(cam,map);
         }
 
-        pMutex.unlock();
         gfx->unlock();
+        pMutex.unlock();
     }
 
 
@@ -193,15 +192,15 @@ namespace TA3D
         MutexLocker locker(pMutex);
 
         if(nb_weapon<=0 || max_weapon<=0)
-            return;		// Pas d'unités à dessiner
+            return;
 
-        float rw=128.0f*mini_w/252;
-        float rh=128.0f*mini_h/252;
+        float rw = 128.0f * mini_w / 252;
+        float rh = 128.0f * mini_h / 252;
 
-        glColor4f(1.0f,1.0f,1.0f,1.0f);
+        glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
         glDisable(GL_TEXTURE_2D);
         glBegin(GL_POINTS);
-        for(uint32 e=0;e<index_list_size;e++)
+        for (uint32 e = 0; e < index_list_size; ++e)
         {
             uint32 i = idx_list[e];
             if(weapon_manager.weapon[weapon[i].weapon_id].cruise || weapon_manager.weapon[weapon[i].weapon_id].interceptor)
@@ -233,11 +232,11 @@ namespace TA3D
 
         weapon_engine_thread_sync = 0;
 
-        while( !thread_ask_to_stop )
+        while (!thread_ask_to_stop)
         {
-            counter++;
+            ++counter;
             move(dt, p_map);					// Animate weapons
-            features.move_forest( dt );			// Animate the forest
+            features.move_forest(dt);			// Animate the forest
 
             ThreadSynchroniser->lock();
             ThreadSynchroniser->unlock();
