@@ -100,7 +100,7 @@ namespace TA3D
         MutexLocker locker(pMutex);
         if (!lp_CONFIG->particle)	// If particles are OFF don't add particles
             return;
-        if (game_cam!=NULL && ((VECTOR)(game_cam->Pos-pos)).sq()>=game_cam->zfar2)
+        if (Camera::inGame != NULL && ((VECTOR)(Camera::inGame->pos - pos)).sq() >= Camera::inGame->zfar2)
             return;
 
         while (nb_part + nb > size)	// Si besoin alloue de la mémoire
@@ -167,7 +167,7 @@ namespace TA3D
         }
         else
         {
-            if (game_cam != NULL && ((VECTOR)(game_cam->Pos-pos)).sq()>=game_cam->zfar2)
+            if (Camera::inGame != NULL && ((VECTOR)(Camera::inGame->pos - pos)).sq()>=Camera::inGame->zfar2)
                 return NULL;
 
             system = new ParticlesSystem;
@@ -225,7 +225,7 @@ namespace TA3D
     {
         if (!lp_CONFIG->particle ) // If particles are OFF don't add particles
             return;
-        if (game_cam!=NULL && ((VECTOR)(game_cam->Pos-pos)).sq()>=game_cam->zfar2)
+        if (Camera::inGame!=NULL && ((VECTOR)(Camera::inGame->pos - pos)).sq()>=Camera::inGame->zfar2)
             return;
 
         pMutex.lock();
@@ -390,7 +390,7 @@ namespace TA3D
     {
         if (!lp_CONFIG->particle ) // If particles are OFF don't add particles
             return;
-        if (game_cam!=NULL && ((VECTOR)(game_cam->Pos-pos)).sq()>=game_cam->zfar2)
+        if (Camera::inGame!=NULL && ((VECTOR)(Camera::inGame->pos - pos)).sq()>=Camera::inGame->zfar2)
             return;
 
         pMutex.lock();
@@ -442,7 +442,7 @@ namespace TA3D
     {
         if (!lp_CONFIG->particle ) // If particles are OFF don't add particles
             return;
-        if (game_cam != NULL && ((VECTOR)(game_cam->Pos-pos)).sq()>=game_cam->zfar2)
+        if (Camera::inGame != NULL && ((VECTOR)(Camera::inGame->pos - pos)).sq()>=Camera::inGame->zfar2)
             return;
 
         pMutex.lock();
@@ -495,7 +495,7 @@ namespace TA3D
     {
         if (!lp_CONFIG->particle ) // If particles are OFF don't add particles
             return;
-        if (game_cam!=NULL && ((VECTOR)(game_cam->Pos-pos)).sq()>=game_cam->zfar2)
+        if (Camera::inGame != NULL && ((VECTOR)(Camera::inGame->pos - pos)).sq() >= Camera::inGame->zfar2)
             return;
 
         pMutex.lock();
@@ -632,14 +632,14 @@ namespace TA3D
     }
 
 
-    void PARTICLE_ENGINE::draw(CAMERA *cam,int map_w,int map_h,int bloc_w,int bloc_h,byte **bmap)
+    void PARTICLE_ENGINE::draw(Camera *cam,int map_w,int map_h,int bloc_w,int bloc_h,byte **bmap)
     {
         if ((part == NULL || nb_part == 0) && particle_systems.empty())	// no need to run the code if there is nothing to draw
             return;
 
         pMutex.lock();
 
-        cam->SetView();
+        cam->setView();
 
         glEnable(GL_TEXTURE_2D);
         glDisable(GL_LIGHTING);
@@ -694,8 +694,8 @@ namespace TA3D
                     oangle=part[i].angle;
                     float cosinus=cos(part[i].angle);
                     float sinus=sin(part[i].angle);
-                    A=(cosinus-sinus)*cam->Side+(sinus+cosinus)*cam->Up;
-                    B=(cosinus+sinus)*cam->Side+(sinus-cosinus)*cam->Up;
+                    A = (cosinus-sinus) * cam->side + (sinus+cosinus) * cam->up;
+                    B = (cosinus+sinus) * cam->side + (sinus-cosinus) * cam->up;
                     if (cam->mirror)
                     {
                         A.y=-A.y;

@@ -6,6 +6,7 @@
 # include "../../threads/cThread.h"
 # include "weapons.h"
 # include "weapons.single.h"
+# include "../../misc/camera.h"
 
 
 namespace TA3D
@@ -61,7 +62,7 @@ namespace TA3D
         /*!
         ** \brief
         */
-        void draw(CAMERA *cam = NULL, MAP *map = NULL, bool underwater = false);
+        void draw(Camera *cam = NULL, MAP *map = NULL, bool underwater = false);
 
         /*!
         ** \brief

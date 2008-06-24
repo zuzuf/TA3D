@@ -6,11 +6,12 @@
 # include "../gaf.h"
 # include "../ta3dbase.h"
 # include "../EngineClass.h"
+# include "../misc/camera.h"
+
 
 
 namespace TA3D
 {
-
 
 
     class FX
@@ -47,7 +48,7 @@ namespace TA3D
         ** \param map
         ** \param anims
         */
-        void draw(CAMERA& cam, MAP *map, ANIM **anims);
+        void draw(Camera& cam, MAP *map, ANIM **anims);
 
 
     public:
@@ -84,7 +85,7 @@ namespace TA3D
         /*!
         ** \brief
         */
-        void doDrawAnimDefault(CAMERA& cam, ANIM** anims);
+        void doDrawAnimDefault(Camera& cam, ANIM** anims);
 
     }; // class FX
 

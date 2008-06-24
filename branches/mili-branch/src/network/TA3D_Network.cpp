@@ -21,6 +21,7 @@
 #include "../EngineClass.h"
 #include "../UnitEngine.h"
 #include "../scripts/script.h"
+#include "../misc/camera.h"
 
 
 #define CHAT_MESSAGE_TIMEOUT	10000
@@ -362,9 +363,10 @@ namespace TA3D
                     }
                     break;
                 case EVENT_CAMERA_POS:
-                    if( event_msg.opt1 == players.local_human_id ) {			// Move the camera only if the packet is for us
-                        game_cam->RPos.x = event_msg.x;
-                        game_cam->RPos.z = event_msg.z;
+                    if( event_msg.opt1 == players.local_human_id ) 	// Move the camera only if the packet is for us
+                    {
+                        Camera::inGame->rpos.x = event_msg.x;
+                        Camera::inGame->rpos.z = event_msg.z;
                     }
                     break;
                 case EVENT_UNIT_SYNCED:
@@ -383,7 +385,8 @@ namespace TA3D
                     if( event_msg.opt1 < units.max_unit && ( units.unit[ event_msg.opt1 ].flags & 1 ) ) {
                         units.unit[ event_msg.opt1 ].lock();
 
-                        if( units.unit[ event_msg.opt1 ].exploding ) {
+                        if (units.unit[ event_msg.opt1 ].exploding)
+                        {
                             units.unit[ event_msg.opt1 ].unlock();
                             break;
                         }

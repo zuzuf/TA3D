@@ -938,12 +938,12 @@ void cAudio::PurgeSounds( void )
 void cAudio::PlaySound( const String &Filename, const VECTOR3D *vec )
 {
     MutexLocker locker(pMutex);
-    if( vec != NULL && game_cam != NULL && ((VECTOR)(*vec - game_cam->RPos)).sq() > 360000.0f) // If the source is too far, does not even think about playing it!
+    if (vec && Camera::inGame && ((VECTOR)(*vec - Camera::inGame->rpos)).sq() > 360000.0f) // If the source is too far, does not even think about playing it!
         return;
 
     //	Console->AddEntry("playing %s", (char*)Filename.c_str());
 
-    if( !m_FMODRunning )
+    if (!m_FMODRunning)
         return;
 
     String szWav = Lowercase( Filename ); // copy string to szWav so we can work with it.

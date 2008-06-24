@@ -25,6 +25,8 @@
 #include "gui.h"				// Graphical User Interface
 #include "TA3D_hpi.h"			// HPI handler
 
+#include "misc/camera.h"
+
 #define TA3D_SHIFT_PRESSED	( key[KEY_LSHIFT] || key[KEY_RSHIFT] )
 #define TA3D_CTRL_PRESSED	( key[KEY_LCONTROL] || key[KEY_RCONTROL] )
 
@@ -116,137 +118,6 @@ const float i2pwr16=1.0f/65536.0f;
 
 
 
-
-class CAMERA					// Classe pour la gestion de la caméra
-{
-public:
-    VECTOR	Pos;				// Position de la caméra
-    VECTOR	RPos;				// Position de la caméra
-    VECTOR	Dir;				// Direction de la caméra
-    VECTOR	Up;					// Haut de la caméra
-    VECTOR	Side;				// Coté de la caméra(optimisation pour les particules)
-    float	zfar;				// Pour le volume visible
-    float	znear;
-        float	zfar2;				// Carré de la distance maximale
-    bool	mirror;				// Mirroir ??
-    float	mirror_pos;
-
-        float	shake_magnitude;
-    float	shake_duration;
-    float	shake_total_duration;
-    VECTOR	shake_vec;
-
-    float	width_factor;		// To support wide screen modes correctly
-    
-        CAMERA()					// Initialise la caméra
-        {
-            width_factor = 1.0f;
-
-            shake_vec.x = shake_vec.y = shake_vec.z = 0.0f;
-            shake_magnitude = 0.0f;
-            shake_duration = 0.0f;
-                shake_total_duration = 1.0f;
-                Pos.x=Pos.y=Pos.z=0.0f;			// Position (0,0,0)
-            Pos.z=30.0f;
-                RPos=Pos;
-                Dir=Up=Pos;
-                Dir.z=-1.0f;					// Direction
-            Up.y=1.0f;						// Haut
-            zfar=140000.0f;
-                znear=1.0f;
-                Side=Dir*Up;
-                zfar2=zfar*zfar;
-                mirror=false;
-            mirror_pos=0.0f;
-        }
-
-    void set_width_factor( int screen_w, int screen_h )
-    {
-        if( screen_w * 4 == screen_h * 5 )			// 1280x1024 is a 4/3 mode
-            width_factor = 1.0f;
-        else
-            width_factor = screen_w * 0.75f / screen_h;
-    }
-
-    void set_shake( float duration, float magnitude )
-    {
-        magnitude *= 0.1f;
-        if( shake_duration <= 0.0f || magnitude >= shake_magnitude ) {
-            shake_duration = duration;
-            shake_total_duration = duration + 1.0f;
-            shake_magnitude = magnitude;
-        }
-    }
-
-    void update_shake( float &dt )
-    {
-        if( shake_duration > 0.0f ) {
-            shake_duration -= dt;
-            float dt_step = 0.03f;
-            for( float c_dt = 0.0f ; c_dt < dt ; c_dt += dt_step ) {
-                float rdt = min( dt_step, dt - c_dt );
-                VECTOR rand_vec;
-                rand_vec.x = ((TA3D_RAND() % 2001) - 1000) * 0.001f * shake_magnitude;
-                rand_vec.y = ((TA3D_RAND() % 2001) - 1000) * 0.001f * shake_magnitude;
-                rand_vec.z = ((TA3D_RAND() % 2001) - 1000) * 0.001f * shake_magnitude;
-                shake_vec += -rdt * 10.0f * shake_vec + rand_vec;
-                if( shake_vec.x < -20.0f )		shake_vec.x = -20.0f;
-                else if( shake_vec.x > 20.0f)	shake_vec.x = 20.0f;
-                if( shake_vec.y < -20.0f )		shake_vec.y = -20.0f;
-                else if( shake_vec.y > 20.0f)	shake_vec.y = 20.0f;
-                if( shake_vec.z < -20.0f )		shake_vec.z = -20.0f;
-                else if( shake_vec.z > 20.0f)	shake_vec.z = 20.0f;
-            }
-        }
-        else {
-            float dt_step = 0.03f;
-            for( float c_dt = 0.0f ; c_dt < dt ; c_dt += dt_step ) {
-                float rdt = min( dt_step, dt - c_dt );
-                shake_vec += -rdt * 10.0f * shake_vec;
-                if( shake_vec.x < -20.0f )		shake_vec.x = -20.0f;
-                else if( shake_vec.x > 20.0f)	shake_vec.x = 20.0f;
-                if( shake_vec.y < -20.0f )		shake_vec.y = -20.0f;
-                else if( shake_vec.y > 20.0f)	shake_vec.y = 20.0f;
-                if( shake_vec.z < -20.0f )		shake_vec.z = -20.0f;
-                else if( shake_vec.z > 20.0f)	shake_vec.z = 20.0f;
-            }
-        }
-    }
-    
-        void SetMatrix(MATRIX_4x4 View)
-        {
-            Dir.x=Dir.y=Dir.z=0.0f;
-                Up=Dir;
-                Dir.z=-1.0f;
-                Up.y=1.0f;
-                Dir=Dir*View;
-                Up=Up*View;
-                Side=Dir*Up;
-        }
-    
-        inline void SetView()				// Remplace la caméra OpenGl par celle-ci
-        {
-            zfar2=zfar*zfar;
-                glMatrixMode (GL_PROJECTION);			// Matrice de projection
-            glLoadIdentity ();
-                glFrustum (-width_factor*znear, width_factor*znear, -0.75f*znear, 0.75f*znear, znear, zfar);
-                glMatrixMode (GL_MODELVIEW);
-                
-                glLoadIdentity();			// Charge la matrice identité
-            
-                Pos = RPos;
-                
-                VECTOR	FP;
-                FP=Pos+Dir+shake_vec;
-                
-                gluLookAt(Pos.x+shake_vec.x,Pos.y+shake_vec.y,Pos.z+shake_vec.z,FP.x,FP.y,FP.z,Up.x,Up.y,Up.z);
-            if(mirror) {
-                glScalef(1.0f,-1.0f,1.0f);
-                glTranslatef( 0.0f, mirror_pos - 2.0f * shake_vec.y, 0.0f );
-            }
-        }
-};
-
 /*------------------------------------------------------------------------\
   |              Classe pour la gestion de l'éclairage matériel             |
   \------------------------------------------------------------------------*/
@@ -307,7 +178,7 @@ public:
                glDisable(HWNb);
            }
        
-           void Set(CAMERA View)
+           void Set(TA3D::Camera View)
            {
                GLfloat LightPosition[4];
                if(Directionnal) {
@@ -317,7 +188,7 @@ public:
                        LightPosition[3]=0.0f;
                }
                else {
-                   View.SetView();
+                   View.setView();
                        LightPosition[0]=Pos.x;
                        LightPosition[1]=Pos.y;
                        LightPosition[2]=Pos.z;
@@ -534,7 +405,6 @@ public:
 
 extern SIDEDATA ta3d_sidedata;
 
-extern CAMERA *game_cam;
 
 void reset_mouse();
 void reset_keyboard();

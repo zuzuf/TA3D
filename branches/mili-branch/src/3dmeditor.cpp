@@ -35,8 +35,13 @@
 #include "logs/logs.h"
 #include "gfx/glfunc.h"
 #include "3dmeditor.h"		// GUI functions for the editor
+#include "misc/camera.h"
+
+
 
 #define precision	MSEC_TO_TIMER(1)
+
+
 
 volatile uint32 msec_timer = 0;
 
@@ -48,7 +53,6 @@ void Timer()            // procédure Timer
 END_OF_FUNCTION(Timer);
 
 int expected_players=1;
-CAMERA *game_cam=NULL;
 int LANG = TA3D_LANG_ENGLISH;
 
 namespace TA3D
@@ -174,7 +178,7 @@ int main()
 
     bool done=false;
 
-    CAMERA DefCam;
+    Camera DefCam;
 
     glClearColor(0.0f,0.0f,0.0f,0.0f);
 
@@ -338,8 +342,8 @@ int main()
         // Efface tout
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        DefCam.SetView();				// Fixe la caméra
-        glTranslatef(ScaleFactor*DefCam.Dir.x,ScaleFactor*DefCam.Dir.y,ScaleFactor*DefCam.Dir.z);
+        DefCam.setView();				// Fixe la caméra
+        glTranslatef(ScaleFactor * DefCam.dir.x, ScaleFactor * DefCam.dir.y, ScaleFactor * DefCam.dir.z);
 
         glTranslatef(0.0f,-10.0f,0.0f);
 
@@ -1026,7 +1030,7 @@ void SurfPaint(int index)
 
     int amx = mouse_x, amy = mouse_y, amb = mouse_b, amz = mouse_z;
 
-    CAMERA Cam;
+    Camera Cam;
     Cam.znear=0.01f;
     Cam.zfar=1400.0f;
 
@@ -1268,24 +1272,25 @@ void SurfPaint(int index)
         }
 
         MATRIX_4x4 Rot;				// Oriente la caméra
-        Rot=RotateX(r1*PI/180.0f)*RotateY(r2*PI/180.0f);
+        Rot = RotateX(r1*PI/180.0f) * RotateY(r2*PI/180.0f);
 
-        Cam.SetMatrix(Rot);
+        Cam.setMatrix(Rot);
 
         if(!IsOnGUI && Tool!=TOOL_TEX)
-            Cam.RPos=Cam.RPos-0.5f*(mouse_z-amz)*Cam.Dir;		// Déplace la caméra si besoin
+            Cam.rpos = Cam.rpos - 0.5f * (mouse_z-amz) * Cam.dir; // Déplace la caméra si besoin
 
-        Cam.SetView();			// Positionne la caméra
+        Cam.setView();			// Positionne la caméra
 
-        for(int i=0;i<nb_obj();i++)
+        for(int i = 0; i < nb_obj(); ++i)
             cur_data.flag[i]= i==cur_part ? 0 : FLAG_HIDE;
-        obj_table[cur_part]->draw(0.0f,&cur_data);		// Dessine la partie en cours d'édition de la meshe
+        obj_table[cur_part]->draw(0.0f, &cur_data);		// Dessine la partie en cours d'édition de la meshe
         glDisable(GL_TEXTURE_2D);
 
         glPolygonMode (GL_FRONT_AND_BACK, GL_FILL);		// Restore les paramètres de remplissage
         glPolygonMode (GL_BACK, GL_POINTS);
 
-        if(NbSel>0) {												// Affiche la sélection courante
+        if(NbSel>0) // Affiche la sélection courante
+        {
             glColor4f(0.0f,0.0f,1.0f,0.25f);
             glDisable(GL_TEXTURE_2D);
             glDisable(GL_LIGHTING);
@@ -1293,7 +1298,8 @@ void SurfPaint(int index)
             glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
             glTranslatef(obj_table[cur_part]->pos_from_parent.x,obj_table[cur_part]->pos_from_parent.y,obj_table[cur_part]->pos_from_parent.z);
             glBegin(GL_TRIANGLES);
-            for(int i=0;i<NbSel;i++) {
+            for(int i=0;i<NbSel;i++)
+            {
                 index=Sel[i];
                 glVertex3f(obj_table[cur_part]->points[obj_table[cur_part]->t_index[index*3]].x,obj_table[cur_part]->points[obj_table[cur_part]->t_index[index*3]].y,obj_table[cur_part]->points[obj_table[cur_part]->t_index[index*3]].z);
                 glVertex3f(obj_table[cur_part]->points[obj_table[cur_part]->t_index[index*3+1]].x,obj_table[cur_part]->points[obj_table[cur_part]->t_index[index*3+1]].y,obj_table[cur_part]->points[obj_table[cur_part]->t_index[index*3+1]].z);
@@ -1311,12 +1317,13 @@ void SurfPaint(int index)
                     {
                         VECTOR A,B,O;
                         VECTOR Dir;
-                        Cam.SetView();
-                        O = Cam.Pos-obj_table[cur_part]->pos_from_parent;			// Origine du rayon=le point de vue de la caméra
-                        Dir=Cam.Dir+(mouse_x-(SCREEN_W>>1))/(SCREEN_W*0.5f)*Cam.Side-0.75f*(mouse_y-(SCREEN_H>>1))/(SCREEN_H*0.5f)*Cam.Up;
+                        Cam.setView();
+                        O = Cam.pos-obj_table[cur_part]->pos_from_parent;			// Origine du rayon=le point de vue de la caméra
+                        Dir=Cam.dir+(mouse_x-(SCREEN_W>>1))/(SCREEN_W*0.5f)*Cam.side-0.75f*(mouse_y-(SCREEN_H>>1))/(SCREEN_H*0.5f)*Cam.up;
                         int index=intersect(O,Dir,obj_table[cur_part],&A,&B); 		// Obtient l'indice du triangle visé
 
-                        if(index>=0) {		// Si l'indice est valable
+                        if(index>=0) // Si l'indice est valable
+                        {
                             glColor4f(1.0f,1.0f,1.0f,0.25f);
                             glDisable(GL_TEXTURE_2D);
                             glDisable(GL_LIGHTING);
@@ -1329,27 +1336,33 @@ void SurfPaint(int index)
                             glEnd();
                             glDisable(GL_BLEND);
 
-                            if(mouse_b==1) {					// Modifie la sélection
-                                if(key[KEY_LSHIFT] || key[KEY_RSHIFT]) {		// Ajoute le triangle à la sélection
+                            if(mouse_b == 1) // Modifie la sélection
+                            {
+                                if(key[KEY_LSHIFT] || key[KEY_RSHIFT]) // Ajoute le triangle à la sélection
+                                {
                                     bool already=false;		// Vérifie si le triangle n'est pas déjà présent
                                     if(NbSel>0)
                                         for(int i=0;i<NbSel;i++)
-                                            if(Sel[i]==index) {
+                                            if(Sel[i]==index)
+                                            {
                                                 already=true;
                                                 break;
                                             }
                                     if(!already)		// L'ajoute si il n'y est pas déjà
                                         Sel[NbSel++]=index;
                                 }
-                                else if(key[KEY_CAPSLOCK]) {					// Retire le triangle de la sélection
+                                else if(key[KEY_CAPSLOCK]) 	// Retire le triangle de la sélection
+                                {
                                     int pos=-1;				// Cherche la position du triangle
                                     if(NbSel>0)
                                         for(int i=0;i<NbSel;i++)
-                                            if(Sel[i]==index) {
+                                            if(Sel[i]==index)
+                                            {
                                                 pos=i;
                                                 break;
                                             }
-                                    if(pos!=-1) {		// Si le triangle est présent
+                                    if(pos!=-1) 	// Si le triangle est présent
+                                    {
                                         if(pos+1<NbSel)		// Si ce n'est pas le dernier
                                             for(int i=pos;i<NbSel-1;i++)	// Décale tout
                                                 Sel[i]=Sel[i+1];
@@ -1368,19 +1381,22 @@ void SurfPaint(int index)
                         if(mouse_b==1 && NbSel>0) {			// Si il y a une sélection
                             VECTOR A,B,O;
                             VECTOR Dir;
-                            Cam.SetView();
-                            O=Cam.Pos-obj_table[cur_part]->pos_from_parent;			// Origine du rayon=le point de vue de la caméra
-                            Dir=Cam.Dir+(mouse_x-(SCREEN_W>>1))/(SCREEN_W*0.5f)*Cam.Side-0.75f*(mouse_y-(SCREEN_H>>1))/(SCREEN_H*0.5f)*Cam.Up;
+                            Cam.setView();
+                            O=Cam.pos-obj_table[cur_part]->pos_from_parent;			// Origine du rayon=le point de vue de la caméra
+                            Dir=Cam.dir+(mouse_x-(SCREEN_W>>1))/(SCREEN_W*0.5f)*Cam.side-0.75f*(mouse_y-(SCREEN_H>>1))/(SCREEN_H*0.5f)*Cam.up;
                             int index=intersect(O,Dir,obj_table[cur_part],&A,&B); 		// Obtient l'indice du triangle visé
                             bool Selected=false;
                             if(index>=0)					// Vérifie si le triangle est sélectionné
                                 for(int i=0;i<NbSel;i++)
-                                    if(Sel[i]==index) {
+                                    if(Sel[i]==index)
+                                    {
                                         Selected=true;
                                         break;
                                     }
-                            if(Selected) {					// Si le triangle est sélectionné
-                                if(amb!=1) {
+                            if (Selected) // Si le triangle est sélectionné
+                            {
+                                if (amb!=1)
+                                {
                                     if(CancelH[0])
                                         glDeleteTextures(1,CancelH);
                                     for(int i=0;i<9;i++)		// Fait descendre l'historique
@@ -1389,8 +1405,11 @@ void SurfPaint(int index)
                                     NbH++;		// Sauvegarde la texture dans l'historique
                                 }
 
-                                float l=B.x+B.y+B.z;
-                                B.x/=l;		B.y/=l;		B.z/=l;
+                                float l = B.x + B.y + B.z;
+                                B.x /= l;
+                                B.y /= l;
+                                B.z /= l;
+
                                 float u,v;
                                 int p1,p2,p3;
                                 p1=obj_table[cur_part]->t_index[index*3];			// Indices des sommets du triangle
@@ -1447,7 +1466,7 @@ void SurfPaint(int index)
                                                 glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT,GL_DEPTH_ATTACHMENT_EXT,GL_RENDERBUFFER_EXT,zbuf);
                                                 glViewport(0, 0, SCREEN_W, SCREEN_H);
                                                 glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);		// First pass for U coordinate
-                                                Cam.SetView();			// Positionne la caméra
+                                                Cam.setView();			// Positionne la caméra
                                                 for(int i=0;i<nb_obj();i++)
                                                     cur_data.flag[i]= i==cur_part ? 0 : FLAG_HIDE;
                                                 shader_paint_u.on();
@@ -1458,7 +1477,7 @@ void SurfPaint(int index)
                                                 glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT,GL_DEPTH_ATTACHMENT_EXT,GL_RENDERBUFFER_EXT,zbuf);
                                                 glViewport(0, 0, SCREEN_W, SCREEN_H);
                                                 glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);		// Second pass for V coordinate
-                                                Cam.SetView();			// Positionne la caméra
+                                                Cam.setView();			// Positionne la caméra
                                                 shader_paint_v.on();
                                                 obj_table[cur_part]->draw(0.0f,&cur_data);		// Dessine la partie en cours d'édition de la meshe
                                                 shader_paint_v.off();
@@ -1468,12 +1487,15 @@ void SurfPaint(int index)
                                                 BITMAP *tex_U = read_tex_luminance(brush_U);
                                                 BITMAP *tex_V = read_tex_luminance(brush_V);
                                                 BITMAP *brush = read_tex(tool_tex_gl);
-                                                for(int y=0;y<brush->h;y++) {
+                                                for(int y=0;y<brush->h;y++)
+                                                {
                                                     int Y = SCREEN_H-1-(int)(mouse_y-32.0f*tool_tex_size+64.0f*tool_tex_size*y/brush->h);
                                                     if(Y>=0 && Y<SCREEN_H)
-                                                        for(int x=0;x<brush->w;x++) {
+                                                        for(int x=0;x<brush->w;x++)
+                                                        {
                                                             int X = (int)(mouse_x-32.0f*tool_tex_size+64.0f*tool_tex_size*x/brush->w);
-                                                            if(X>=0 && X<SCREEN_W) {
+                                                            if(X>=0 && X<SCREEN_W)
+                                                            {
                                                                 int u = (int)(((unsigned short*)(tex_U->line[Y]))[(X<<2)+1]/65536.0f*n_tex->w);
                                                                 int v = (int)(((unsigned short*)(tex_V->line[Y]))[(X<<2)+1]/65536.0f*n_tex->h);
                                                                 int c1 = getpixel(brush,x,y);

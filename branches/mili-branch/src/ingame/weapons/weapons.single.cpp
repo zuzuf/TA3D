@@ -2,6 +2,7 @@
 #include "../../tdf.h"
 #include "../../UnitEngine.h"
 #include "../../gfx/fx.h"
+#include "../../misc/camera.h"
 
 
 
@@ -350,7 +351,8 @@ namespace TA3D
             }
         }
 
-        if(hit && weapon_manager.weapon[weapon_id].areaofeffect>0) {			// Domages colatéraux
+        if(hit && weapon_manager.weapon[weapon_id].areaofeffect>0) // Domages colatéraux
+        {
             if( damage < 0 )
                 damage = weapon_manager.weapon[weapon_id].damage;
             int t_idx=-1;
@@ -455,11 +457,13 @@ namespace TA3D
                                     }
 
                                     oidx.push_back( t_idx );
-                                    if(features.feature[-t_idx-2].type>=0 && !feature_manager.feature[features.feature[-t_idx-2].type].indestructible && !features.feature[-t_idx-2].burning ) {
+                                    if(features.feature[-t_idx-2].type>=0 && !feature_manager.feature[features.feature[-t_idx-2].type].indestructible && !features.feature[-t_idx-2].burning )
+                                    {
                                         damage = weapon_manager.weapon[weapon_id].damage;
                                         float cur_damage = damage * weapon_manager.weapon[weapon_id].edgeeffectiveness;
                                         features.feature[-t_idx-2].hp -= cur_damage;		// L'objet touché encaisse les dégats
-                                        if(features.feature[-t_idx-2].hp<=0.0f && local) {
+                                        if(features.feature[-t_idx-2].hp<=0.0f && local)
+                                        {
                                             if( network_manager.isConnected() )
                                                 g_ta3d_network->sendFeatureDeathEvent( -t_idx-2 );
                                             int sx=((int)(features.feature[-t_idx-2].Pos.x)+map->map_w_d-8)>>3;		// Efface l'objet
@@ -471,9 +475,11 @@ namespace TA3D
                                             features.delete_feature(-t_idx-2);			// Supprime l'objet
 
                                             // Replace the feature if needed
-                                            if( feature_type!=-1 && feature_manager.feature[ feature_type ].feature_dead ) {
+                                            if( feature_type!=-1 && feature_manager.feature[ feature_type ].feature_dead )
+                                            {
                                                 int type=feature_manager.get_feature_index( feature_manager.feature[ feature_type ].feature_dead );
-                                                if( type >= 0 ) {
+                                                if( type >= 0 )
+                                                {
                                                     map->map_data[sy][sx].stuff=features.add_feature(feature_pos,type);
                                                     if(type!=-1 && feature_manager.feature[type].blocking)
                                                         map->rect(sx-(feature_manager.feature[type].footprintx>>1),sy-(feature_manager.feature[type].footprintz>>1),feature_manager.feature[type].footprintx,feature_manager.feature[type].footprintz,-2-map->map_data[sy][sx].stuff);
@@ -527,12 +533,13 @@ namespace TA3D
             if(hit)
             {
                 Pos=hit_vec;
-                if( visible )
-                    game_cam->set_shake( weapon_manager.weapon[weapon_id].shakeduration, weapon_manager.weapon[weapon_id].shakemagnitude );
+                if (visible)
+                    Camera::inGame->setShake( weapon_manager.weapon[weapon_id].shakeduration, weapon_manager.weapon[weapon_id].shakemagnitude );
             }
-            if(Pos.y==map->sealvl)
+            if (Pos.y == map->sealvl)
             {
-                if( weapon_manager.weapon[weapon_id].soundwater )		sound_manager->PlaySound( weapon_manager.weapon[weapon_id].soundwater , &Pos );
+                if( weapon_manager.weapon[weapon_id].soundwater )
+                    sound_manager->PlaySound( weapon_manager.weapon[weapon_id].soundwater , &Pos);
             }
             else
                 if( weapon_manager.weapon[weapon_id].soundhit )	sound_manager->PlaySound( weapon_manager.weapon[weapon_id].soundhit , &Pos );
@@ -541,34 +548,44 @@ namespace TA3D
                 if( visible && weapon_manager.weapon[weapon_id].areaofeffect < 256 )		// Nuclear type explosion don't draw sprites :)
                     fx_manager.add(weapon_manager.weapon[weapon_id].explosiongaf, weapon_manager.weapon[weapon_id].explosionart, Pos, 1.0f);
             }
-            else if(hit && Pos.y==map->sealvl) {
-                int px=(int)(Pos.x+0.5f)+map->map_w_d>>4;
-                int py=(int)(Pos.z+0.5f)+map->map_h_d>>4;
-                VECTOR P = Pos;
-                P.y += 3.0f;
-                if(px>=0 && px<map->bloc_w && py>=0 && py<map->bloc_h) {
-                    if(map->bloc[map->bmap[py][px]].lava && weapon_manager.weapon[weapon_id].lavaexplosiongaf!=NULL && weapon_manager.weapon[weapon_id].lavaexplosionart!=NULL) {
-                        if(visible)
-                            fx_manager.add(weapon_manager.weapon[weapon_id].lavaexplosiongaf,weapon_manager.weapon[weapon_id].lavaexplosionart,Pos,1.0f);
+            else 
+                if(hit && Pos.y==map->sealvl)
+                {
+                    int px=(int)(Pos.x+0.5f)+map->map_w_d>>4;
+                    int py=(int)(Pos.z+0.5f)+map->map_h_d>>4;
+                    VECTOR P = Pos;
+                    P.y += 3.0f;
+                    if(px>=0 && px<map->bloc_w && py>=0 && py<map->bloc_h)
+                    {
+                        if(map->bloc[map->bmap[py][px]].lava && weapon_manager.weapon[weapon_id].lavaexplosiongaf!=NULL && weapon_manager.weapon[weapon_id].lavaexplosionart!=NULL)
+                        {
+                            if(visible)
+                                fx_manager.add(weapon_manager.weapon[weapon_id].lavaexplosiongaf,weapon_manager.weapon[weapon_id].lavaexplosionart,Pos,1.0f);
+                        }
+                        else 
+                            if(!map->bloc[map->bmap[py][px]].lava && weapon_manager.weapon[weapon_id].waterexplosiongaf!=NULL && weapon_manager.weapon[weapon_id].waterexplosionart!=NULL)
+                                if(visible)
+                                    fx_manager.add(weapon_manager.weapon[weapon_id].waterexplosiongaf,weapon_manager.weapon[weapon_id].waterexplosionart,Pos,1.0f);
                     }
-                    else if(!map->bloc[map->bmap[py][px]].lava && weapon_manager.weapon[weapon_id].waterexplosiongaf!=NULL && weapon_manager.weapon[weapon_id].waterexplosionart!=NULL)
-                        if(visible)
-                            fx_manager.add(weapon_manager.weapon[weapon_id].waterexplosiongaf,weapon_manager.weapon[weapon_id].waterexplosionart,Pos,1.0f);
+                    else 
+                        if(weapon_manager.weapon[weapon_id].explosiongaf!=NULL && weapon_manager.weapon[weapon_id].explosionart!=NULL)
+                            if(visible)
+                                fx_manager.add(weapon_manager.weapon[weapon_id].explosiongaf,weapon_manager.weapon[weapon_id].explosionart,Pos,1.0f);
                 }
-                else if(weapon_manager.weapon[weapon_id].explosiongaf!=NULL && weapon_manager.weapon[weapon_id].explosionart!=NULL)
-                    if(visible)
-                        fx_manager.add(weapon_manager.weapon[weapon_id].explosiongaf,weapon_manager.weapon[weapon_id].explosionart,Pos,1.0f);
-            }
-            if(weapon_manager.weapon[weapon_id].endsmoke) {
+            if(weapon_manager.weapon[weapon_id].endsmoke)
+            {
                 if(visible)
                     particle_engine.make_smoke( Pos,0,1,0.0f,-1.0f);
             }
-            if( weapon_manager.weapon[weapon_id].noexplode && hit ) {		// Special flag used by dguns
+            if( weapon_manager.weapon[weapon_id].noexplode && hit )	// Special flag used by dguns
+            {
                 dying = false;
                 Pos.y += fabs( 3.0f * dt * V.y );
             }
-            else {
-                if(weapon_manager.weapon[weapon_id].rendertype==RENDER_TYPE_LASER) {
+            else
+            {
+                if(weapon_manager.weapon[weapon_id].rendertype==RENDER_TYPE_LASER)
+                {
                     dying=true;
                     killtime=weapon_manager.weapon[weapon_id].duration;
                 }
@@ -576,16 +593,17 @@ namespace TA3D
                     weapon_id=-1;
             }
         }
-        else if(dying && killtime<=0.0f)
-            weapon_id = -1;
-        else if( Pos.x < -map->map_w_d || Pos.x > map->map_w_d || Pos.z < -map->map_h_d || Pos.z > map->map_h_d )		// We're out of the map
-            weapon_id = -1;
+        else 
+            if(dying && killtime<=0.0f)
+                weapon_id = -1;
+            else 
+                if( Pos.x < -map->map_w_d || Pos.x > map->map_w_d || Pos.z < -map->map_h_d || Pos.z > map->map_h_d )		// We're out of the map
+                    weapon_id = -1;
     }
 
 
 
-
-    void WEAPON::draw(CAMERA *cam,MAP *map)				// Dessine les objets produits par les armes
+    void WEAPON::draw(Camera *cam,MAP *map)				// Dessine les objets produits par les armes
     {
         visible = false;
         if(map)
@@ -619,7 +637,7 @@ namespace TA3D
                     float r=(coef*getr(color0)+(1.0f-coef)*getr(color1))/255.0f;
                     float g=(coef*getg(color0)+(1.0f-coef)*getg(color1))/255.0f;
                     float b=(coef*getb(color0)+(1.0f-coef)*getb(color1))/255.0f;
-                    VECTOR D=Pos-cam->Pos;
+                    VECTOR D=Pos-cam->pos;
                     VECTOR Up=D*V;
                     Up.unit();
                     if( damage < 0 )
@@ -675,10 +693,10 @@ namespace TA3D
                     glEnable(GL_TEXTURE_2D);
                     glBindTexture(GL_TEXTURE_2D,weapon_manager.cannonshell.glbmp[anim_sprite]);
                     VECTOR A,B,C,D;
-                    A=Pos+((-0.5f*weapon_manager.cannonshell.h[anim_sprite]-weapon_manager.cannonshell.ofs_y[anim_sprite])*cam->Up+(-0.5f*weapon_manager.cannonshell.w[anim_sprite]-weapon_manager.cannonshell.ofs_x[anim_sprite])*cam->Side);
-                    B=Pos+((-0.5f*weapon_manager.cannonshell.h[anim_sprite]-weapon_manager.cannonshell.ofs_y[anim_sprite])*cam->Up+(0.5f*weapon_manager.cannonshell.w[anim_sprite]-weapon_manager.cannonshell.ofs_x[anim_sprite])*cam->Side);
-                    C=Pos+((0.5f*weapon_manager.cannonshell.h[anim_sprite]-weapon_manager.cannonshell.ofs_y[anim_sprite])*cam->Up+(-0.5f*weapon_manager.cannonshell.w[anim_sprite]-weapon_manager.cannonshell.ofs_x[anim_sprite])*cam->Side);
-                    D=Pos+((0.5f*weapon_manager.cannonshell.h[anim_sprite]-weapon_manager.cannonshell.ofs_y[anim_sprite])*cam->Up+(0.5f*weapon_manager.cannonshell.w[anim_sprite]-weapon_manager.cannonshell.ofs_x[anim_sprite])*cam->Side);
+                    A=Pos+((-0.5f*weapon_manager.cannonshell.h[anim_sprite]-weapon_manager.cannonshell.ofs_y[anim_sprite])*cam->up+(-0.5f*weapon_manager.cannonshell.w[anim_sprite]-weapon_manager.cannonshell.ofs_x[anim_sprite])*cam->side);
+                    B=Pos+((-0.5f*weapon_manager.cannonshell.h[anim_sprite]-weapon_manager.cannonshell.ofs_y[anim_sprite])*cam->up+(0.5f*weapon_manager.cannonshell.w[anim_sprite]-weapon_manager.cannonshell.ofs_x[anim_sprite])*cam->side);
+                    C=Pos+((0.5f*weapon_manager.cannonshell.h[anim_sprite]-weapon_manager.cannonshell.ofs_y[anim_sprite])*cam->up+(-0.5f*weapon_manager.cannonshell.w[anim_sprite]-weapon_manager.cannonshell.ofs_x[anim_sprite])*cam->side);
+                    D=Pos+((0.5f*weapon_manager.cannonshell.h[anim_sprite]-weapon_manager.cannonshell.ofs_y[anim_sprite])*cam->up+(0.5f*weapon_manager.cannonshell.w[anim_sprite]-weapon_manager.cannonshell.ofs_x[anim_sprite])*cam->side);
                     glBegin(GL_QUADS);
                     glTexCoord2f(0.0f,0.0f);		glVertex3f(A.x,A.y,A.z);
                     glTexCoord2f(1.0f,0.0f);		glVertex3f(B.x,B.y,B.z);

@@ -23,13 +23,14 @@
 \----------------------------------------------------------*/
 
 #ifndef __UNITENGINE_CLASS
-#define __UNITENGINE_CLASS
+# define __UNITENGINE_CLASS
 
-#define MAX_UNIT_PER_PLAYER		2000		// 250 Unités par joueur maximum
+# define MAX_UNIT_PER_PLAYER		2000		// 250 Unités par joueur maximum
 
-#include "fbi.h"
-#include "ingame/weapons/weapons.h"
-#include "threads/cThread.h"
+# include "fbi.h"
+# include "ingame/weapons/weapons.h"
+# include "threads/cThread.h"
+# include "misc/camera.h"
 
 #define UNPACKX(xz) ((sint16)((xz)>>16))
 #define UNPACKZ(xz) ((sint16)((xz)&0xFFFF))
@@ -674,11 +675,11 @@ public:
 		destroy();
 	}
 
-	void draw(float t,CAMERA *cam,MAP *map, bool height_line=true);
+	void draw(float t,Camera *cam,MAP *map, bool height_line=true);
 
-	void draw_shadow(CAMERA *cam,VECTOR Dir,MAP *map);
+	void draw_shadow(Camera *cam,VECTOR Dir,MAP *map);
 
-	void draw_shadow_basic(CAMERA *cam,VECTOR Dir,MAP *map);
+	void draw_shadow_basic(Camera *cam,VECTOR Dir,MAP *map);
 
 	inline int get_script_index(int id)
 	{
@@ -1044,9 +1045,9 @@ public:
 
 	void kill(int index,MAP *map,int prev,bool sync = true);			// Détruit une unité
 
-	void draw(CAMERA *cam,MAP *map,bool underwater=false,bool limit=false,bool cullface = true,bool height_line=true);					// Dessine les unités visibles
+	void draw(Camera *cam,MAP *map,bool underwater=false,bool limit=false,bool cullface = true,bool height_line=true);					// Dessine les unités visibles
 
-	void draw_shadow(CAMERA *cam,VECTOR Dir,MAP *map,float alpha=0.5f);					// Dessine les ombres des unités visibles
+	void draw_shadow(Camera *cam,VECTOR Dir,MAP *map,float alpha=0.5f);					// Dessine les ombres des unités visibles
 
 	void draw_mini(float map_w,float map_h,int mini_w,int mini_h,SECTOR **map_data);				// Repère les unités sur la mini-carte
 
@@ -1054,9 +1055,9 @@ public:
 
 	int create(int type_id,int owner);
 
-	bool select(CAMERA *cam,int sel_x[],int sel_y[]);
+	bool select(Camera *cam,int sel_x[],int sel_y[]);
 
-	int pick(CAMERA *cam,int sensibility=1);
+	int pick(Camera* cam,int sensibility=1);
 
 	int pick_minimap();
 

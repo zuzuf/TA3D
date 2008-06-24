@@ -1,9 +1,11 @@
 #include "weapons.ingame.h"
 #include "../../EngineClass.h"
+#include "../../misc/camera.h"
+
+
 
 namespace TA3D
 {
-
 
     INGAME_WEAPONS weapons;
 
@@ -161,7 +163,7 @@ namespace TA3D
 
 
 
-    void INGAME_WEAPONS::draw(CAMERA *cam, MAP* map, bool underwater)
+    void INGAME_WEAPONS::draw(Camera* cam, MAP* map, bool underwater)
     {
         pMutex.lock();
         if(nb_weapon<=0 || max_weapon<=0)
@@ -172,7 +174,7 @@ namespace TA3D
 
         gfx->lock();
         if (cam)
-            cam->SetView();
+            cam->setView();
 
         for(uint32 e=0;e<index_list_size;e++)
         {

@@ -37,6 +37,7 @@
 #include "UnitEngine.h"
 #include "network/TA3D_Network.h"
 #include "gfx/fx.h"
+#include "misc/camera.h"
 
 using namespace TA3D::Exceptions;
 
@@ -553,7 +554,7 @@ void UNIT::next_mission()
 }
 
 
-void UNIT::draw(float t, CAMERA *cam,MAP *map,bool height_line)
+void UNIT::draw(float t, Camera *cam,MAP *map,bool height_line)
 {
 #ifdef	ADVANCED_DEBUG_MODE
     GuardEnter( UNIT::draw );
@@ -603,17 +604,17 @@ void UNIT::draw(float t, CAMERA *cam,MAP *map,bool height_line)
     on_radar &= map->view[py][px] > 1;
 
     VECTOR D;
-    D=Pos-cam->Pos;		// Vecteur "viseur unité" partant de la caméra vers l'unité
+    D=Pos-cam->pos;		// Vecteur "viseur unité" partant de la caméra vers l'unité
 
     float dist=D.sq();
-    if (dist>=16384.0f && (D%cam->Dir)<=0.0f)
+    if (dist>=16384.0f && (D%cam->dir)<=0.0f)
     {
 #ifdef	ADVANCED_DEBUG_MODE
         GuardLeave();
 #endif
         return;
     }
-    if ((D%cam->Dir)>cam->zfar2)
+    if ((D%cam->dir)>cam->zfar2)
     {
 #ifdef	ADVANCED_DEBUG_MODE
         GuardLeave();
@@ -624,7 +625,7 @@ void UNIT::draw(float t, CAMERA *cam,MAP *map,bool height_line)
     if( !cloaked || owner_id == players.local_human_id ) // Don't show cloaked units
     {
         visible=true;
-        on_radar |= cam->RPos.y>gfx->low_def_limit;
+        on_radar |= cam->rpos.y>gfx->low_def_limit;
     }
     else
     {
@@ -640,7 +641,7 @@ void UNIT::draw(float t, CAMERA *cam,MAP *map,bool height_line)
         glTranslatef( Pos.x, max(Pos.y,map->sealvl+5.0f), Pos.z );
         glEnable(GL_TEXTURE_2D);
         int unit_nature = ICON_UNKNOWN;
-        float size = (D%cam->Dir) * 12.0f / gfx->height;
+        float size = (D%cam->dir) * 12.0f / gfx->height;
 
         if( unit_manager.unit_type[ type_id ].fastCategory & CATEGORY_KAMIKAZE )
             unit_nature = ICON_KAMIKAZE;
@@ -960,7 +961,7 @@ void UNIT::draw(float t, CAMERA *cam,MAP *map,bool height_line)
 
 
 
-void UNIT::draw_shadow(CAMERA *cam,VECTOR Dir,MAP *map)
+void UNIT::draw_shadow(Camera *cam,VECTOR Dir,MAP *map)
 {
 #ifdef	ADVANCED_DEBUG_MODE
     GuardEnter( UNIT::draw_shadow );
@@ -1041,7 +1042,7 @@ void UNIT::draw_shadow(CAMERA *cam,VECTOR Dir,MAP *map)
 }
 
 
-void UNIT::draw_shadow_basic(CAMERA *cam,VECTOR Dir,MAP *map)
+void UNIT::draw_shadow_basic(Camera *cam,VECTOR Dir,MAP *map)
 {
 #ifdef	ADVANCED_DEBUG_MODE
     GuardEnter( UNIT::draw_shadow_basic );
@@ -4560,13 +4561,16 @@ bool UNIT::hit_fast(VECTOR P,VECTOR Dir,VECTOR *hit_vec, float length)
 
 void UNIT::show_orders(bool only_build_commands, bool def_orders)				// Dessine les ordres reçus
 {
-    if( !def_orders )	show_orders( only_build_commands, true );
+    if (!def_orders)
+        show_orders( only_build_commands, true );
+    
     pMutex.lock();
 
-    bool low_def = game_cam->RPos.y > gfx->low_def_limit;
+    bool low_def = (Camera::inGame->rpos.y > gfx->low_def_limit);
 
     MISSION *cur = def_orders ? def_mission : mission;
-    if( low_def ) {
+    if( low_def )
+    {
         glEnable(GL_BLEND);
         glDisable(GL_TEXTURE_2D);
         glDisable(GL_LIGHTING);
@@ -4574,7 +4578,8 @@ void UNIT::show_orders(bool only_build_commands, bool def_orders)				// Dessine 
         glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
         glColor4f(1.0f,1.0f,1.0f,1.0f);
     }
-    else {
+    else
+    {
         glEnable(GL_BLEND);
         glEnable(GL_TEXTURE_2D);
         glDisable(GL_LIGHTING);
@@ -4589,8 +4594,10 @@ void UNIT::show_orders(bool only_build_commands, bool def_orders)				// Dessine 
 
     List< VECTOR >	points;
 
-    while(cur) {
-        if(cur->step) {				// S'il s'agit d'une étape on ne la montre pas
+    while(cur)
+    {
+        if(cur->step) 	// S'il s'agit d'une étape on ne la montre pas
+        {
             cur=cur->next;
             continue;
         }
@@ -4618,11 +4625,14 @@ void UNIT::show_orders(bool only_build_commands, bool def_orders)				// Dessine 
                 case MISSION_RECLAIM:
                 case MISSION_REVIVE:
                 case MISSION_CAPTURE:
-                    if( (cur->p && ((UNIT*)(cur->p))->ID != cur->target_ID) || (cur->flags & MISSION_FLAG_TARGET_WEAPON) )	continue;	// Don't show this, it'll be removed
+                    if( (cur->p && ((UNIT*)(cur->p))->ID != cur->target_ID) || (cur->flags & MISSION_FLAG_TARGET_WEAPON) )
+                        continue;	// Don't show this, it'll be removed
                     n_target=cur->target;
                     n_target.y = max( units.map->get_unit_h( n_target.x, n_target.z ), units.map->sealvl );
-                    if(rec>0) {
-                        if( low_def ) {
+                    if(rec>0)
+                    {
+                        if( low_def )
+                        {
                             glDisable(GL_DEPTH_TEST);
                             glColor4ub( 0xFF, 0xFF, 0xFF, 0x7F );
                             glBegin( GL_QUADS );
@@ -4642,8 +4652,10 @@ void UNIT::show_orders(bool only_build_commands, bool def_orders)				// Dessine 
                             glColor4ub( 0xFF, 0xFF, 0xFF, 0xFF );
                             glEnable(GL_DEPTH_TEST);
                         }
-                        else {
-                            for(int i=0;i<rec;i++) {
+                        else
+                        {
+                            for ( int i = 0; i < rec; ++i)
+                            {
                                 x=p_target.x+(n_target.x-p_target.x)*(i+rab)/rec;
                                 z=p_target.z+(n_target.z-p_target.z)*(i+rab)/rec;
                                 y = max( units.map->get_unit_h( x, z ), units.map->sealvl );
@@ -4848,11 +4860,11 @@ void UNIT::show_orders(bool only_build_commands, bool def_orders)				// Dessine 
     pMutex.unlock();
 }
 
-bool INGAME_UNITS::select(CAMERA *cam,int sel_x[],int sel_y[])
+bool INGAME_UNITS::select(Camera *cam,int sel_x[],int sel_y[])
 {
     pMutex.lock();
 
-    cam->SetView();
+    cam->setView();
     MATRIX_4x4 ModelView,Project;
     int	viewportCoords[4] = {0, 0, 0, 0};
     glGetIntegerv(GL_VIEWPORT, viewportCoords);
@@ -4896,9 +4908,9 @@ bool INGAME_UNITS::select(CAMERA *cam,int sel_x[],int sel_y[])
             if(!key[KEY_LSHIFT])
                 unit[i].sel = false;
 
-            VECTOR Vec=unit[i].Pos-cam->Pos;
+            VECTOR Vec=unit[i].Pos-cam->pos;
             float d=Vec.sq();
-            if (d > 16384.0f && (Vec%cam->Dir) <= 0.0f)
+            if (d > 16384.0f && (Vec%cam->dir) <= 0.0f)
             {
                 unit[i].unlock();
                 pMutex.lock();
@@ -4920,7 +4932,7 @@ bool INGAME_UNITS::select(CAMERA *cam,int sel_x[],int sel_y[])
 }
 
 
-int INGAME_UNITS::pick(CAMERA *cam,int sensibility)
+int INGAME_UNITS::pick(Camera *cam,int sensibility)
 {
     int index = -1;
 
@@ -4932,9 +4944,9 @@ int INGAME_UNITS::pick(CAMERA *cam,int sensibility)
         return last_on;		
 
     VECTOR Dir;
-    Dir = cam->Dir + cam->width_factor * 2.0f * (mouse_x-gfx->SCREEN_W_HALF) * gfx->SCREEN_W_INV
-        * cam->Side-1.5f * (mouse_y-gfx->SCREEN_H_HALF)
-        * gfx->SCREEN_H_INV * cam->Up;
+    Dir = cam->dir + cam->widthFactor * 2.0f * (mouse_x-gfx->SCREEN_W_HALF) * gfx->SCREEN_W_INV
+        * cam->side-1.5f * (mouse_y-gfx->SCREEN_H_HALF)
+        * gfx->SCREEN_H_INV * cam->up;
     Dir.unit();		// Direction pointée par le curseur
 
     bool detectable=false;
@@ -4954,7 +4966,7 @@ int INGAME_UNITS::pick(CAMERA *cam,int sensibility)
             continue;		// Si l'unité n'existe pas on la zappe
         }
         unit[i].flags &= 0xFD;	// Enlève l'indicateur de possibilité d'intersection
-        VECTOR center=unit[i].model->center+unit[i].Pos-cam->Pos;
+        VECTOR center=unit[i].model->center+unit[i].Pos-cam->pos;
         float size=unit[i].model->size*unit_manager.unit_type[unit[i].type_id].Scale*unit_manager.unit_type[unit[i].type_id].Scale;
         center=Dir*center;
         float dist=center.sq();
@@ -4993,9 +5005,9 @@ int INGAME_UNITS::pick(CAMERA *cam,int sensibility)
         {
             unit[i].flags&=0xFD;
             VECTOR D;
-            if( unit[i].hit( cam->Pos, Dir, &D, 1000000.0f ) ) // Vecteur "viseur unité" partant de la caméra vers l'unité
+            if( unit[i].hit( cam->pos, Dir, &D, 1000000.0f ) ) // Vecteur "viseur unité" partant de la caméra vers l'unité
             {
-                float dist = (D-cam->Pos).sq();
+                float dist = (D-cam->pos).sq();
                 if( dist < best_dist || index == -1 )
                 {
                     best_dist = dist;
@@ -6234,7 +6246,7 @@ void INGAME_UNITS::kill(int index,MAP *map,int prev,bool sync)			// Détruit une
     pMutex.unlock();
 }
 
-void INGAME_UNITS::draw(CAMERA *cam,MAP *map,bool underwater,bool limit,bool cullface,bool height_line)					// Dessine les unités visibles
+void INGAME_UNITS::draw(Camera *cam,MAP *map,bool underwater,bool limit,bool cullface,bool height_line)					// Dessine les unités visibles
 {
     if(nb_unit<=0 || unit==NULL)	return;		// Pas d'unités à dessiner
 
@@ -6244,20 +6256,23 @@ void INGAME_UNITS::draw(CAMERA *cam,MAP *map,bool underwater,bool limit,bool cul
     else
         glDisable(GL_CULL_FACE);
 
-    if( cam->RPos.y > gfx->low_def_limit )
+    if( cam->rpos.y > gfx->low_def_limit )
         glDisable(GL_DEPTH_TEST);
     glDisable(GL_BLEND);
     glColor4f(1.0f,1.0f,1.0f,1.0f);
     float sea_lvl = limit ? map->sealvl-5.0f : map->sealvl;
     float virtual_t = (float)current_tick / TICKS_PER_SEC;
-    cam->SetView();
+    cam->setView();
     pMutex.lock();
-    for(uint16 e=0;e<index_list_size;e++) {
+    
+    for(uint16 e = 0; e < index_list_size; ++e)
+    {
         uint16 i = idx_list[e];
         pMutex.unlock();
 
         unit[i].lock();
-        if( (unit[i].flags & 1) && ((unit[i].Pos.y + unit[i].model->bottom <= map->sealvl && underwater) || (unit[i].Pos.y + unit[i].model->top >= sea_lvl && !underwater))) {				// Si il y a une unité
+        if( (unit[i].flags & 1) && ((unit[i].Pos.y + unit[i].model->bottom <= map->sealvl && underwater) || (unit[i].Pos.y + unit[i].model->top >= sea_lvl && !underwater))) // Si il y a une unité
+        {
             unit[i].unlock();
             unit[i].draw(virtual_t,cam,map,height_line);
         }
@@ -6269,18 +6284,21 @@ void INGAME_UNITS::draw(CAMERA *cam,MAP *map,bool underwater,bool limit,bool cul
 
     glDisable(GL_ALPHA_TEST);
 
-    if( cam->RPos.y > gfx->low_def_limit )
+    if( cam->rpos.y > gfx->low_def_limit )
         glEnable(GL_DEPTH_TEST);
 
     if( !cullface )
         glEnable(GL_CULL_FACE);
 }
 
-void INGAME_UNITS::draw_shadow(CAMERA *cam,VECTOR Dir,MAP *map,float alpha)					// Dessine les ombres des unités visibles
-{
-    if(nb_unit<=0 || unit==NULL)	return;		// Pas d'unités à dessiner
 
-    cam->SetView();
+
+void INGAME_UNITS::draw_shadow(Camera* cam, VECTOR Dir, MAP* map, float alpha)	// Dessine les ombres des unités visibles
+{
+    if(nb_unit<=0 || unit==NULL) // Pas d'unités à dessiner
+        return;
+
+    cam->setView();
 
     if(g_useStencilTwoSide) {					// Si l'extension GL_EXT_stencil_two_side est disponible
         glEnable(GL_STENCIL_TEST);
@@ -6346,13 +6364,13 @@ void INGAME_UNITS::draw_shadow(CAMERA *cam,VECTOR Dir,MAP *map,float alpha)					
     glEnable(GL_BLEND);
     glColor4f(0.0f,0.0f,0.0f,alpha);
     glBegin(GL_QUADS);
-    VECTOR P = cam->RPos + cam->shake_vec + 1.1f*( cam->Dir + 0.75f * cam->Up - cam->width_factor * cam->Side );
+    VECTOR P = cam->rpos + cam->shakeVector + 1.1f*( cam->dir + 0.75f * cam->up - cam->widthFactor * cam->side );
     glVertex3fv( (const GLfloat*) &P );
-    P = cam->RPos + cam->shake_vec + 1.1f * ( cam->Dir + 0.75f * cam->Up + cam->width_factor * cam->Side );
+    P = cam->rpos + cam->shakeVector + 1.1f * ( cam->dir + 0.75f * cam->up + cam->widthFactor * cam->side );
     glVertex3fv( (const GLfloat*) &P );
-    P = cam->RPos + cam->shake_vec + 1.1f * ( cam->Dir - 0.75f * cam->Up + cam->width_factor * cam->Side );
+    P = cam->rpos + cam->shakeVector + 1.1f * ( cam->dir - 0.75f * cam->up + cam->widthFactor * cam->side );
     glVertex3fv( (const GLfloat*) &P );
-    P = cam->RPos + cam->shake_vec + 1.1f * ( cam->Dir - 0.75f * cam->Up - cam->width_factor * cam->Side );
+    P = cam->rpos + cam->shakeVector + 1.1f * ( cam->dir - 0.75f * cam->up - cam->widthFactor * cam->side );
     glVertex3fv( (const GLfloat*) &P );
     glEnd();
     glDepthMask(GL_TRUE);

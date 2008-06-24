@@ -259,17 +259,18 @@ namespace TA3D
                 feature_manager.feature[i].model=model_manager.get_model(feature_manager.feature[i].filename);
     }
 
-    void FEATURES::draw(CAMERA *cam)
+    void FEATURES::draw(Camera* cam)
     {
-        if(nb_features<=0) return;
-        cam->SetView();			// Positionne la caméra
+        if(nb_features<=0)
+            return;
+        cam->setView();			// Positionne la caméra
         gfx->ReInitAllTex( true );
         glAlphaFunc(GL_GREATER,0.1);
         glEnable(GL_ALPHA_TEST);
 
         glDepthFunc( GL_LEQUAL );
 
-            glDisable(GL_CULL_FACE);
+        glDisable(GL_CULL_FACE);
         glDisable(GL_LIGHTING);
         glColor4f(1.0f,1.0f,1.0f,1.0f);
         glEnable(GL_TEXTURE_2D);
@@ -349,30 +350,34 @@ namespace TA3D
             if(!feature[i].draw)	continue;
 
             if( cam->mirror && ((feature_manager.feature[feature[i].type].height>5.0f && feature_manager.feature[feature[i].type].m3d)			// Perform a small visibility check
-                                || (feature_manager.feature[feature[i].type].m3d && feature_manager.feature[feature[i].type].model!=NULL)) ) {
+                                || (feature_manager.feature[feature[i].type].m3d && feature_manager.feature[feature[i].type].model!=NULL)) )
+            {
                 VECTOR Pos = feature[i].Pos;
                 if( feature_manager.feature[feature[i].type].m3d )
                     Pos.y += feature_manager.feature[feature[i].type].model->size2;
                 else
                     Pos.y += feature_manager.feature[feature[i].type].height*0.5f;
 
-                float a = cam->RPos.y - units.map->sealvl;
+                float a = cam->rpos.y - units.map->sealvl;
                 float b = Pos.y - units.map->sealvl;
                 float c = a + b;
-                if( c == 0.0f )	continue;
-                Pos = (a / c) * Pos + (b / c) * cam->RPos;
+                if( c == 0.0f )
+                    continue;
+                Pos = (a / c) * Pos + (b / c) * cam->rpos;
                 Pos.y = units.map->get_unit_h( Pos.x, Pos.z );
 
-                if( Pos.y > units.map->sealvl )			continue;				// If it's not visible don't draw it
+                if( Pos.y > units.map->sealvl )	// If it's not visible don't draw it
+                    continue;
             }
 
-            if(!feature_manager.feature[feature[i].type].m3d && feature_manager.feature[feature[i].type].anim.nb_bmp>0) {
-
+            if(!feature_manager.feature[feature[i].type].m3d && feature_manager.feature[feature[i].type].anim.nb_bmp>0)
+            {
                 feature_manager.feature[feature[i].type].convert();		// Convert texture data if needed
 
                 feature[i].frame = (units.current_tick >> 1) % feature_manager.feature[feature[i].type].anim.nb_bmp;
 
-                if(!texture_loaded || old!=feature_manager.feature[feature[i].type].anim.glbmp[feature[i].frame]) {
+                if(!texture_loaded || old!=feature_manager.feature[feature[i].type].anim.glbmp[feature[i].frame])
+                {
                     old=feature_manager.feature[feature[i].type].anim.glbmp[feature[i].frame];
                     texture_loaded=true;
                     glBindTexture(GL_TEXTURE_2D,feature_manager.feature[feature[i].type].anim.glbmp[feature[i].frame]);
@@ -380,15 +385,17 @@ namespace TA3D
                 VECTOR Pos = feature[i].Pos;
                 float	h=feature_manager.feature[feature[i].type].height*0.5f;
                 float	dw=0.5f*feature_manager.feature[feature[i].type].anim.w[feature[i].frame];
-                if(feature_manager.feature[feature[i].type].height>5.0f) {
-                    dw*=h/feature_manager.feature[feature[i].type].anim.h[feature[i].frame];
+                if(feature_manager.feature[feature[i].type].height>5.0f)
+                {
+                    dw *= h / feature_manager.feature[feature[i].type].anim.h[feature[i].frame];
 
                     if(feature[i].grey)
                         glColor4ub( 127, 127, 127, 255 );
                     else
                         glColor4ub( 255, 255, 255, 255 );
 
-                    if(!set) {
+                    if (!set)
+                    {
                         set=true;
                         glDisableClientState(GL_NORMAL_ARRAY);
                         glDisableClientState(GL_COLOR_ARRAY);
@@ -404,45 +411,49 @@ namespace TA3D
                     glDrawElements(GL_QUADS, 28,GL_UNSIGNED_BYTE,index);		// dessine le tout
                     glPopMatrix();
                 }
-                else if( !cam->mirror ) {							// no need to draw things we can't see
-                    dw *= 0.5f;
-                    h = 0.25f*feature_manager.feature[feature[i].type].anim.h[feature[i].frame];
+                else
+                    if( !cam->mirror ) 	// no need to draw things we can't see
+                    {
+                        dw *= 0.5f;
+                        h = 0.25f*feature_manager.feature[feature[i].type].anim.h[feature[i].frame];
 
-                    quad_table.queue_quad( feature_manager.feature[feature[i].type].anim.glbmp[feature[i].frame], QUAD( Pos, dw, h, feature[i].grey ? 0x7F7F7FFF : 0xFFFFFFFF ) );
-                }
+                        quad_table.queue_quad( feature_manager.feature[feature[i].type].anim.glbmp[feature[i].frame], QUAD( Pos, dw, h, feature[i].grey ? 0x7F7F7FFF : 0xFFFFFFFF ) );
+                    }
             }
-            else if(feature_manager.feature[feature[i].type].m3d && feature_manager.feature[feature[i].type].model!=NULL) {
+            else
+                if(feature_manager.feature[feature[i].type].m3d && feature_manager.feature[feature[i].type].model!=NULL)
+                {
 
-                if( !feature_manager.feature[feature[i].type].model->animated && !feature[i].sinking )
-                    drawing_table.queue_instance( feature_manager.feature[feature[i].type].model->id, INSTANCE( feature[i].Pos, feature[i].grey ? 0x7F7F7FFF : 0xFFFFFFFF, feature[i].angle ) );
-                else {
-                    if(feature[i].grey)
-                        glColor4ub( 127, 127, 127, 255 );
-                    else
-                        glColor4ub( 255, 255, 255, 255 );
-                    glEnable(GL_LIGHTING);
-                    glDisable(GL_BLEND);
-                    if(!feature_manager.feature[feature[i].type].converted)				// To fix opacity with converted models
-                        glDisable(GL_ALPHA_TEST);
-                    glPushMatrix();
-                    glTranslatef(feature[i].Pos.x,feature[i].Pos.y,feature[i].Pos.z);
-                    glRotatef( feature[i].angle, 0.0f, 1.0f, 0.0f );
-                    glRotatef( feature[i].angle_x, 1.0f, 0.0f, 0.0f );
-                    feature_manager.feature[feature[i].type].model->draw(t,NULL,false,false,false,0,NULL,NULL,NULL,0.0f,NULL,false,0,!feature[i].grey);
+                    if( !feature_manager.feature[feature[i].type].model->animated && !feature[i].sinking )
+                        drawing_table.queue_instance( feature_manager.feature[feature[i].type].model->id, INSTANCE( feature[i].Pos, feature[i].grey ? 0x7F7F7FFF : 0xFFFFFFFF, feature[i].angle ) );
+                    else {
+                        if(feature[i].grey)
+                            glColor4ub( 127, 127, 127, 255 );
+                        else
+                            glColor4ub( 255, 255, 255, 255 );
+                        glEnable(GL_LIGHTING);
+                        glDisable(GL_BLEND);
+                        if(!feature_manager.feature[feature[i].type].converted)				// To fix opacity with converted models
+                            glDisable(GL_ALPHA_TEST);
+                        glPushMatrix();
+                        glTranslatef(feature[i].Pos.x,feature[i].Pos.y,feature[i].Pos.z);
+                        glRotatef( feature[i].angle, 0.0f, 1.0f, 0.0f );
+                        glRotatef( feature[i].angle_x, 1.0f, 0.0f, 0.0f );
+                        feature_manager.feature[feature[i].type].model->draw(t,NULL,false,false,false,0,NULL,NULL,NULL,0.0f,NULL,false,0,!feature[i].grey);
 
-                    gfx->ReInitAllTex( true );
+                        gfx->ReInitAllTex( true );
 
-                    glPopMatrix();
-                    glEnable(GL_BLEND);
-                    if(!feature_manager.feature[feature[i].type].converted)				// To fix opacity with converted models
-                        glEnable(GL_ALPHA_TEST);
-                    glDisable(GL_LIGHTING);
-                    glDisable(GL_CULL_FACE);
-                    glEnable(GL_TEXTURE_2D);
-                    texture_loaded=false;
-                    set=false;
+                        glPopMatrix();
+                        glEnable(GL_BLEND);
+                        if(!feature_manager.feature[feature[i].type].converted)				// To fix opacity with converted models
+                            glEnable(GL_ALPHA_TEST);
+                        glDisable(GL_LIGHTING);
+                        glDisable(GL_CULL_FACE);
+                        glEnable(GL_TEXTURE_2D);
+                        texture_loaded=false;
+                        set=false;
+                    }
                 }
-            }
         }
         pMutex.unlock();
 
@@ -463,59 +474,70 @@ namespace TA3D
 
         glDisable(GL_ALPHA_TEST);
         glDepthFunc( GL_LESS );
-            glEnable(GL_TEXTURE_2D);
+        glEnable(GL_TEXTURE_2D);
     }
 
-    void FEATURES::draw_shadow(CAMERA *cam,VECTOR Dir)
+
+
+    void FEATURES::draw_shadow(Camera* cam,VECTOR Dir)
     {
         if(nb_features<=0) return;
-        cam->SetView();			// Positionne la caméra
+        cam->setView();
         float t = (float)units.current_tick / TICKS_PER_SEC;
         pMutex.lock();
-        for(int e=0;e<list_size;e++)
+        for (int e = 0; e < list_size; ++e)
         {
             pMutex.unlock();
             pMutex.lock();
             int i=list[e];
-            if(feature[i].type<0)	continue;
-            if(!feature_manager.feature[feature[i].type].m3d && feature_manager.feature[feature[i].type].anim.nb_bmp>0) {
-            }
-            else if(feature_manager.feature[feature[i].type].m3d && feature_manager.feature[feature[i].type].model!=NULL) {
-                if(!feature[i].draw)	continue;
-                if(feature[i].grey)	continue;				// No need to draw a texture here
-                if(feature_manager.feature[feature[i].type].converted)	continue;		// Quelques problèmes (graphiques et plantages) avec les modèles convertis
+            if(feature[i].type<0)
+                continue;
+            if(!(!feature_manager.feature[feature[i].type].m3d && feature_manager.feature[feature[i].type].anim.nb_bmp > 0))
+            {
+                if(feature_manager.feature[feature[i].type].m3d && feature_manager.feature[feature[i].type].model!=NULL)
+                {
+                    if (!feature[i].draw)
+                        continue;
+                    if (feature[i].grey)
+                        continue;				// No need to draw a texture here
+                    if (feature_manager.feature[feature[i].type].converted)	// Quelques problèmes (graphiques et plantages) avec les modèles convertis
+                        continue;
 
-                if( feature[ i ].delete_shadow_dlist && feature[ i ].shadow_dlist != 0 ) {
-                    glDeleteLists( feature[ i ].shadow_dlist, 1 );
-                    feature[ i ].shadow_dlist = 0;
-                    feature[ i ].delete_shadow_dlist = false;
-                }
-
-                if( feature_manager.feature[feature[i].type].model->animated || feature[i].sinking || feature[i].shadow_dlist == 0 ) {
-                    bool create_display_list = false;
-                    if( !feature_manager.feature[feature[i].type].model->animated && !feature[i].sinking && feature[i].shadow_dlist == 0 ) {
-                        feature[i].shadow_dlist = glGenLists (1);
-                        glNewList( feature[i].shadow_dlist, GL_COMPILE_AND_EXECUTE);
-                        create_display_list = true;
+                    if (feature[ i ].delete_shadow_dlist && feature[ i ].shadow_dlist != 0 )
+                    {
+                        glDeleteLists( feature[ i ].shadow_dlist, 1 );
+                        feature[ i ].shadow_dlist = 0;
                         feature[ i ].delete_shadow_dlist = false;
                     }
 
-                    glPushMatrix();
-                    glTranslatef(feature[i].Pos.x,feature[i].Pos.y,feature[i].Pos.z);
-                    glRotatef( feature[i].angle, 0.0f, 1.0f, 0.0f );
-                    glRotatef( feature[i].angle_x, 1.0f, 0.0f, 0.0f );
-                    VECTOR R_Dir = (sqrt(feature_manager.feature[feature[i].type].model->size)*2.0f+feature[i].Pos.y) * Dir * RotateY( -feature[i].angle * DEG2RAD ) * RotateX( -feature[i].angle_x * DEG2RAD );
-                    if(g_useStencilTwoSide)													// Si l'extension GL_EXT_stencil_two_side est disponible
-                        feature_manager.feature[feature[i].type].model->draw_shadow( R_Dir,t,NULL);
-                    else
-                        feature_manager.feature[feature[i].type].model->draw_shadow_basic( R_Dir,t,NULL);
-                    glPopMatrix();
+                    if( feature_manager.feature[feature[i].type].model->animated || feature[i].sinking || feature[i].shadow_dlist == 0 )
+                    {
+                        bool create_display_list = false;
+                        if( !feature_manager.feature[feature[i].type].model->animated && !feature[i].sinking && feature[i].shadow_dlist == 0 )
+                        {
+                            feature[i].shadow_dlist = glGenLists (1);
+                            glNewList( feature[i].shadow_dlist, GL_COMPILE_AND_EXECUTE);
+                            create_display_list = true;
+                            feature[ i ].delete_shadow_dlist = false;
+                        }
 
-                    if( create_display_list )
-                        glEndList();
+                        glPushMatrix();
+                        glTranslatef(feature[i].Pos.x,feature[i].Pos.y,feature[i].Pos.z);
+                        glRotatef( feature[i].angle, 0.0f, 1.0f, 0.0f );
+                        glRotatef( feature[i].angle_x, 1.0f, 0.0f, 0.0f );
+                        VECTOR R_Dir = (sqrt(feature_manager.feature[feature[i].type].model->size)*2.0f+feature[i].Pos.y) * Dir * RotateY( -feature[i].angle * DEG2RAD ) * RotateX( -feature[i].angle_x * DEG2RAD );
+                        if(g_useStencilTwoSide)													// Si l'extension GL_EXT_stencil_two_side est disponible
+                            feature_manager.feature[feature[i].type].model->draw_shadow( R_Dir,t,NULL);
+                        else
+                            feature_manager.feature[feature[i].type].model->draw_shadow_basic( R_Dir,t,NULL);
+                        glPopMatrix();
+
+                        if( create_display_list )
+                            glEndList();
+                    }
+                    else
+                        glCallList( feature[i].shadow_dlist );
                 }
-                else
-                    glCallList( feature[i].shadow_dlist );
             }
         }
         pMutex.unlock();

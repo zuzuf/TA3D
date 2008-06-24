@@ -31,12 +31,19 @@
 #include "network/TA3D_Network.h"	// Network functionnalities such as chat
 #include "gfx/fx.h"
 #include "misc/paths.h"
+#include "misc/camera.h"
+
 
 #ifndef SCROLL_SPEED
 #   define SCROLL_SPEED		400.0f
 #endif
 
-VECTOR cursor_on_map( CAMERA *cam,MAP *map, bool on_mini_map = false );
+
+
+VECTOR cursor_on_map( Camera *cam,MAP *map, bool on_mini_map = false );
+
+
+
 
 /*--------------------------------------------------------------------\
   |                              Game Engine                            |
@@ -293,7 +300,7 @@ int play(GAME_DATA *game_data)
     float r1,r2,r3;
     r1=r2=r3=0.0f;
     r1 = -lp_CONFIG->camera_def_angle - 0.00001f;
-    CAMERA cam;
+    Camera cam;
     VECTOR cam_target;
     int cam_target_mx = gfx->SCREEN_W_HALF;
     int cam_target_my = gfx->SCREEN_H_HALF;
@@ -302,19 +309,19 @@ int play(GAME_DATA *game_data)
     int cam_def_timer = msec_timer;		// Just to see if the cam has been long enough at the default angle
     int track_mode = -1;			// Tracking a unit ? negative value => no
     bool last_time_activated_track_mode = false;
-    game_cam=&cam;
+    Camera::inGame=&cam;
 
-    cam.RPos.x = cam.RPos.y = cam.RPos.z = 0.0f;
-    cam.RPos.z += 150.0f;
-    cam.RPos.y = lp_CONFIG->camera_def_h;
+    cam.rpos.x = cam.rpos.y = cam.rpos.z = 0.0f;
+    cam.rpos.z += 150.0f;
+    cam.rpos.y = lp_CONFIG->camera_def_h;
     cam.zfar=500.0f;
-    cam.set_width_factor( gfx->width, gfx->height );
+    cam.setWidthFactor(gfx->width, gfx->height);
 
     float FogD=0.3f;
     float FogNear=cam.zfar*0.5f;
     float FogColor[] = {0.8f,0.8f,0.8f,1.0f};
 
-    memcpy( FogColor, sky_data->FogColor, sizeof( float ) * 4 );
+    memcpy(FogColor, sky_data->FogColor, sizeof( float ) * 4);
 
     GLuint FogMode=GL_LINEAR;
     glFogi (GL_FOG_MODE, FogMode);
@@ -584,12 +591,12 @@ int play(GAME_DATA *game_data)
         else if(units.nb_attacked/(units.nb_attacked+units.nb_built+1)<=0.25f)
             sound_manager->SetMusicMode( false );
 
-        sound_manager->SetListenerPos( &cam.RPos );
+        sound_manager->SetListenerPos( &cam.rpos );
         sound_manager->Update3DSound();
 
         /*-------------------------- end of sound management -----------------------*/
 
-        VECTOR old_cam_pos = cam.RPos;
+        VECTOR old_cam_pos = cam.rpos;
         float old_r1=r1,old_r2=r2,old_r3=r3;
         float old_zscroll = camera_zscroll;
         if(!freecam)
@@ -633,7 +640,7 @@ int play(GAME_DATA *game_data)
         else
         {
             int delta = IsOnGUI ? 0 : mouse_z-omz;
-            cam.RPos=cam.RPos-0.5f*delta*cam.Dir;
+            cam.rpos=cam.rpos-0.5f*delta*cam.dir;
             cam_has_target=false;
         }
         omz=mouse_z;
@@ -827,49 +834,49 @@ int play(GAME_DATA *game_data)
 
         if(mouse_x<128.0f && mouse_y<128.0f && mouse_x>=0.0f && mouse_y>=0.0f && mouse_b == 2 )
         {
-            cam.RPos.x=(mouse_x-64)*map->map_w/128.0f*252.0f/map->mini_w;
-            cam.RPos.z=(mouse_y-64)*map->map_h/128.0f*252.0f/map->mini_h;
+            cam.rpos.x=(mouse_x-64)*map->map_w/128.0f*252.0f/map->mini_w;
+            cam.rpos.z=(mouse_y-64)*map->map_h/128.0f*252.0f/map->mini_h;
             cam_has_target=false;
         }
         if(mouse_x<1)
         {
-            VECTOR move_dir = cam.Side;
+            VECTOR move_dir = cam.side;
             move_dir.y = 0.0f;
             move_dir.unit();
-            cam.RPos = cam.RPos - (SCROLL_SPEED*dt*cam_h / 151.0f)*move_dir;
+            cam.rpos = cam.rpos - (SCROLL_SPEED*dt*cam_h / 151.0f)*move_dir;
             cam_has_target=false;
         }
         else if(mouse_x>=SCREEN_W-1)
         {
-            VECTOR move_dir = cam.Side;
+            VECTOR move_dir = cam.side;
             move_dir.y = 0.0f;
             move_dir.unit();
-            cam.RPos = cam.RPos + (SCROLL_SPEED*dt*cam_h / 151.0f)*move_dir;
+            cam.rpos = cam.rpos + (SCROLL_SPEED*dt*cam_h / 151.0f)*move_dir;
             cam_has_target=false;
         }
         if(mouse_y<1)
         {
-            VECTOR move_dir = cam.Up;
+            VECTOR move_dir = cam.up;
             if(move_dir.x==0.0f && move_dir.z==0.0f) {
-                move_dir = cam.Dir;
+                move_dir = cam.dir;
                 move_dir.y=0.0f;
             }
             else
                 move_dir.y=0.0f;
             move_dir.unit();
-            cam.RPos = cam.RPos+ (SCROLL_SPEED*dt*cam_h / 151.0f) * move_dir;
+            cam.rpos = cam.rpos+ (SCROLL_SPEED*dt*cam_h / 151.0f) * move_dir;
             cam_has_target=false;
         }
         else if(mouse_y>=SCREEN_H-1) {
-            VECTOR move_dir = cam.Up;
+            VECTOR move_dir = cam.up;
             if(move_dir.x==0.0f && move_dir.z==0.0f) {
-                move_dir = cam.Dir;
+                move_dir = cam.dir;
                 move_dir.y=0.0f;
             }
             else
                 move_dir.y=0.0f;
             move_dir.unit();
-            cam.RPos = cam.RPos - (SCROLL_SPEED*dt*cam_h / 151.0f)*move_dir;
+            cam.rpos = cam.rpos - (SCROLL_SPEED*dt*cam_h / 151.0f)*move_dir;
             cam_has_target=false;
         }
 
@@ -889,8 +896,8 @@ int play(GAME_DATA *game_data)
             if(mouse_b==4) {
                 get_mouse_mickeys(&mx,&my);
                 if(omb==mouse_b) {
-                    cam.RPos.x+=mx * cam_h / 151.0f;
-                    cam.RPos.z+=my * cam_h / 151.0f;
+                    cam.rpos.x+=mx * cam_h / 151.0f;
+                    cam.rpos.z+=my * cam_h / 151.0f;
                     cam_has_target=false;
                 }
                 position_mouse(gfx->SCREEN_W_HALF,gfx->SCREEN_H_HALF);
@@ -904,56 +911,56 @@ int play(GAME_DATA *game_data)
 
         if(!freecam)	{
             if(key[KEY_UP]) {
-                cam.RPos.z-=SCROLL_SPEED*dt*cam_h / 151.0f;
+                cam.rpos.z-=SCROLL_SPEED*dt*cam_h / 151.0f;
                 cam_has_target=false;
             }
             if(key[KEY_DOWN]) {
-                cam.RPos.z+=SCROLL_SPEED*dt*cam_h / 151.0f;
+                cam.rpos.z+=SCROLL_SPEED*dt*cam_h / 151.0f;
                 cam_has_target=false;
             }
             if(key[KEY_RIGHT]) {
-                cam.RPos.x+=SCROLL_SPEED*dt*cam_h / 151.0f;
+                cam.rpos.x+=SCROLL_SPEED*dt*cam_h / 151.0f;
                 cam_has_target=false;
             }
             if(key[KEY_LEFT]) {
-                cam.RPos.x-=SCROLL_SPEED*dt*cam_h / 151.0f;
+                cam.rpos.x-=SCROLL_SPEED*dt*cam_h / 151.0f;
                 cam_has_target=false;
             }
 
-            float h=map->get_unit_h(cam.RPos.x,cam.RPos.z);
+            float h=map->get_unit_h(cam.rpos.x,cam.rpos.z);
             if(h<map->sealvl)
                 h=map->sealvl;
             for( int i = 0 ; i < 20 ; i++ )				// Increase precision
                 for( float T = 0.0f ; T < dt ; T += 0.1f )
-                    cam.RPos.y+=(h+cam_h-cam.RPos.y) * min( dt - T, 0.1f );
+                    cam.rpos.y+=(h+cam_h-cam.rpos.y) * min( dt - T, 0.1f );
         }
         else {
             if(key[KEY_UP])
-                cam.RPos=cam.RPos+100.0f*dt*cam_h / 151.0f*cam.Dir;
+                cam.rpos=cam.rpos+100.0f*dt*cam_h / 151.0f*cam.dir;
             if(key[KEY_DOWN])
-                cam.RPos=cam.RPos-100.0f*dt*cam_h / 151.0f*cam.Dir;
+                cam.rpos=cam.rpos-100.0f*dt*cam_h / 151.0f*cam.dir;
             if(key[KEY_RIGHT])
-                cam.RPos=cam.RPos+100.0f*dt*cam_h / 151.0f*cam.Side;
+                cam.rpos=cam.rpos+100.0f*dt*cam_h / 151.0f*cam.side;
             if(key[KEY_LEFT])
-                cam.RPos=cam.RPos-100.0f*dt*cam_h / 151.0f*cam.Side;
+                cam.rpos=cam.rpos-100.0f*dt*cam_h / 151.0f*cam.side;
         }
 
-        if(cam.RPos.x<-map->map_w_d) {
-            cam.RPos.x=-map->map_w_d;
+        if(cam.rpos.x<-map->map_w_d) {
+            cam.rpos.x=-map->map_w_d;
             cam_has_target=false;
         }
-        if(cam.RPos.x>map->map_w_d)	{
-            cam.RPos.x=map->map_w_d;
+        if(cam.rpos.x>map->map_w_d)	{
+            cam.rpos.x=map->map_w_d;
             cam_has_target=false;
         }
-        if(cam.RPos.z<-map->map_h_d+200.0f)	{
-            cam.RPos.z=-map->map_h_d+200.0f;
+        if(cam.rpos.z<-map->map_h_d+200.0f)	{
+            cam.rpos.z=-map->map_h_d+200.0f;
             cam_has_target=false;
         }
-        if(cam.RPos.z>map->map_h_d && !cam_has_target)
-            cam.RPos.z=map->map_h_d;
-        if(cam.RPos.z > map->map_h_d+200.0f)
-            cam.RPos.z = map->map_h_d+200.0f;
+        if(cam.rpos.z>map->map_h_d && !cam_has_target)
+            cam.rpos.z=map->map_h_d;
+        if(cam.rpos.z > map->map_h_d+200.0f)
+            cam.rpos.z = map->map_h_d+200.0f;
 
         MATRIX_4x4 Rotation;
         if( lp_CONFIG->camera_zoom == ZOOM_NORMAL )
@@ -961,15 +968,15 @@ int play(GAME_DATA *game_data)
         else
             Rotation = RotateX( -lp_CONFIG->camera_def_angle * DEG2RAD ) * RotateY( r2 * DEG2RAD ) * RotateZ( r3 * DEG2RAD );
 
-        cam.SetMatrix(Rotation);
-        cam.update_shake( dt );				// Update the shake vector
+        cam.setMatrix(Rotation);
+        cam.updateShake(dt);
 
         if(cam_has_target)
         {
             VECTOR cur_dir;
-            cur_dir = cam.Dir+cam.width_factor*2.0f*(cam_target_mx-gfx->SCREEN_W_HALF)*gfx->SCREEN_W_INV*cam.Side-1.5f*(cam_target_my-gfx->SCREEN_H_HALF)*gfx->SCREEN_H_INV*cam.Up;
+            cur_dir = cam.dir+cam.widthFactor*2.0f*(cam_target_mx-gfx->SCREEN_W_HALF)*gfx->SCREEN_W_INV*cam.side-1.5f*(cam_target_my-gfx->SCREEN_H_HALF)*gfx->SCREEN_H_INV*cam.up;
             cur_dir.unit();		// Direction pointée par le curseur
-            VECTOR moving_target = cam_target - cam.RPos;
+            VECTOR moving_target = cam_target - cam.rpos;
             moving_target = moving_target - (moving_target % cur_dir) * cur_dir;
             float d = moving_target.sq();
             moving_target.y = 0.0f;
@@ -978,7 +985,7 @@ int play(GAME_DATA *game_data)
                 cam_has_target = false;
             else
                 moving_target = d / D * moving_target;
-            cam.RPos = moving_target + cam.RPos;
+            cam.rpos = moving_target + cam.rpos;
         }
 
         if(!selected)
@@ -1611,11 +1618,11 @@ int play(GAME_DATA *game_data)
 
         /*----------------------------------------------------------------------------*/
 
-        cam_h = cam.RPos.y - map->get_unit_h(cam.RPos.x,cam.RPos.z);
+        cam_h = cam.rpos.y - map->get_unit_h(cam.rpos.x,cam.rpos.z);
 
         cam.zfar = 600.0f + max( (cam_h-150.0f)*2.0f, 0.0f );
 
-        if(freecam && cam.RPos.y<map->sealvl) {
+        if(freecam && cam.rpos.y<map->sealvl) {
             FogD=0.03f;
             FogNear=0.0f;
             FogMode=GL_EXP;
@@ -1657,12 +1664,12 @@ int play(GAME_DATA *game_data)
 
             double eqn[4]= { 0.0f, 1.0f, 0.0f, -map->sealvl };
 
-            CAMERA refcam = cam;
+            Camera refcam = cam;
             refcam.zfar *= 2.0f;
             refcam.mirror = true;
-            refcam.mirror_pos = -2.0f*map->sealvl;
+            refcam.mirrorPos = -2.0f*map->sealvl;
 
-            refcam.SetView();
+            refcam.setView();
             glClipPlane(GL_CLIP_PLANE1, eqn);
             glEnable(GL_CLIP_PLANE1);
 
@@ -1670,7 +1677,7 @@ int play(GAME_DATA *game_data)
             sun.Enable();
 
             refcam.zfar*=100.0f;
-            refcam.SetView();
+            refcam.setView();
             glColor4f(1.0f,1.0f,1.0f,1.0f);
             glEnable(GL_TEXTURE_2D);
             glBindTexture(GL_TEXTURE_2D,sky);
@@ -1682,15 +1689,17 @@ int play(GAME_DATA *game_data)
             glFogf (GL_FOG_START, FogNear);
             glFogf (GL_FOG_END, refcam.zfar);
             glDepthMask(GL_FALSE);
-            if( spherical_sky ) {
+            if (spherical_sky)
+            {
                 glCullFace(GL_FRONT);
-                glTranslatef(cam.RPos.x,-map->sealvl,cam.RPos.z);
+                glTranslatef(cam.rpos.x,-map->sealvl,cam.rpos.z);
                 glRotatef( sky_angle, 0.0f, 1.0f, 0.0f );
-                float scale_factor = 15.0f * ( cam.RPos.y + cam.shake_vec.y + sky_obj.w ) / sky_obj.w;
+                float scale_factor = 15.0f * ( cam.rpos.y + cam.shakeVector.y + sky_obj.w ) / sky_obj.w;
                 glScalef( scale_factor, scale_factor, scale_factor );
                 sky_obj.draw();
             }
-            else {
+            else
+            {
                 glBegin(GL_QUADS);
                 glTexCoord2f(0.0f,map->map_h*0.002f);				glVertex3f(-2.0f*map->map_w,300.0f,2.0f*map->map_h);
                 glTexCoord2f(map->map_w*0.002f,map->map_h*0.002f);	glVertex3f(2.0f*map->map_w,300.0f,2.0f*map->map_h);
@@ -1710,9 +1719,9 @@ int play(GAME_DATA *game_data)
             glEnable(GL_FOG);
             glCullFace(GL_FRONT);
             refcam.zfar=(500.0f+(cam_h-150.0f)*2.0f)*2.0f;
-            refcam.SetView();
+            refcam.setView();
 
-            if(cam.RPos.y<=gfx->low_def_limit && lp_CONFIG->water_quality==4)
+            if(cam.rpos.y<=gfx->low_def_limit && lp_CONFIG->water_quality==4)
             {
 
                 if(lp_CONFIG->wireframe)
@@ -1763,12 +1772,12 @@ int play(GAME_DATA *game_data)
         glClearColor(FogColor[0],FogColor[1],FogColor[2],FogColor[3]);
         glClear(GL_DEPTH_BUFFER_BIT);		// Clear screen
 
-        cam.SetView();
+        cam.setView();
 
         sun.Set(cam);
         sun.Enable();
 
-        cam.SetView();
+        cam.setView();
 
         glDisable(GL_FOG);
         glColor3f( 0.0f, 0.0f, 0.0f );				// Black background
@@ -1784,24 +1793,27 @@ int play(GAME_DATA *game_data)
         glEnable(GL_FOG);
 
         cam.zfar*=100.0f;
-        cam.SetView();
+        cam.setView();
         glColor4f(1.0f,1.0f,1.0f,1.0f);
         glEnable(GL_TEXTURE_2D);
         glBindTexture(GL_TEXTURE_2D,sky);
         glDisable(GL_LIGHTING);
         glDepthMask(GL_FALSE);
-        if( spherical_sky ) {
-            glTranslatef( cam.RPos.x, cam.RPos.y+cam.shake_vec.y, cam.RPos.z );
+        if (spherical_sky)
+        {
+            glTranslatef( cam.rpos.x, cam.rpos.y+cam.shakeVector.y, cam.rpos.z );
             glRotatef( sky_angle, 0.0f, 1.0f, 0.0f );
             sky_obj.draw();
-            if( !sky_obj.full ) {
+            if( !sky_obj.full )
+            {
                 glScalef( 1.0f, -1.0f, 1.0f );
                 glCullFace( GL_FRONT );
                 sky_obj.draw();
                 glCullFace( GL_BACK );
             }
         }
-        else {
+        else
+        {
             glBegin(GL_QUADS);
             glTexCoord2f(0.0f,0.0f);							glVertex3f(-2.0f*map->map_w,300.0f,-2.0f*map->map_h);
             glTexCoord2f(map->map_w*0.002f,0.0f);				glVertex3f(2.0f*map->map_w,300.0f,-2.0f*map->map_h);
@@ -1814,7 +1826,7 @@ int play(GAME_DATA *game_data)
         glEnable(GL_LIGHTING);
         glEnable(GL_FOG);
         cam.zfar=500.0f+(cam_h-150.0f)*2.0f;
-        cam.SetView();
+        cam.setView();
 
         if(lp_CONFIG->wireframe)
             glPolygonMode (GL_FRONT_AND_BACK, GL_LINE);
@@ -1862,9 +1874,9 @@ int play(GAME_DATA *game_data)
                     glEnable(GL_TEXTURE_2D);
                     glBindTexture(GL_TEXTURE_2D,map->low_tex);
 
-                    cam.SetView();
+                    cam.setView();
                     glTranslatef( 0.0f, map->sealvl, map->sea_dec );
-                    water_obj.draw(t,cam.RPos.x,cam.RPos.z,false);
+                    water_obj.draw(t,cam.rpos.x,cam.rpos.z,false);
                     glColor4f(1.0f,1.0f,1.0f,0.75f);
 
                     glEnable(GL_LIGHTING);
@@ -1912,9 +1924,9 @@ int play(GAME_DATA *game_data)
                     water_pass1.setvar2f("factor",water_obj.w/map->map_w,water_obj.w/map->map_h);
                 }
 
-                cam.SetView();
+                cam.setView();
                 glTranslatef(0.0f,map->sealvl,0.0f);
-                water_obj.draw(t,cam.RPos.x,cam.RPos.z,true);
+                water_obj.draw(t,cam.rpos.x,cam.rpos.z,true);
 
                 if(lp_CONFIG->water_quality==2)
                     water_pass1_low.off();
@@ -1934,13 +1946,14 @@ int play(GAME_DATA *game_data)
 
                 water_pass2.on();
 
-                cam.SetView();
+                cam.setView();
                 glTranslatef(0.0f,map->sealvl,0.0f);
-                water_obj.draw(t,cam.RPos.x,cam.RPos.z,true);
+                water_obj.draw(t,cam.rpos.x,cam.rpos.z,true);
 
                 water_pass2.off();
 
-                if(lp_CONFIG->water_quality > 2) {
+                if(lp_CONFIG->water_quality > 2)
+                {
                     glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT,GL_COLOR_ATTACHMENT0_EXT,GL_TEXTURE_2D,water_color,0);					// Third pass of water rendering, store water color
 
                     glClear(GL_DEPTH_BUFFER_BIT);		// Efface la texture tampon
@@ -1949,9 +1962,9 @@ int play(GAME_DATA *game_data)
                     glEnable(GL_TEXTURE_2D);
                     glBindTexture(GL_TEXTURE_2D,map->low_tex);
 
-                    cam.SetView();
+                    cam.setView();
                     glTranslatef( 0.0f, map->sealvl, map->sea_dec );
-                    water_obj.draw(t,cam.RPos.x,cam.RPos.z,false);
+                    water_obj.draw(t,cam.rpos.x,cam.rpos.z,false);
                 }
 
                 glBindFramebufferEXT(GL_FRAMEBUFFER_EXT,0);
@@ -1976,9 +1989,9 @@ int play(GAME_DATA *game_data)
                 glDisable(GL_TEXTURE_2D);
                 glClientActiveTextureARB(GL_TEXTURE0_ARB);
 
-                cam.SetView();
+                cam.setView();
                 glTranslatef(0.0f,map->sealvl,0.0f);
-                water_obj.draw(t,cam.RPos.x,cam.RPos.z,true);
+                water_obj.draw(t,cam.rpos.x,cam.rpos.z,true);
 
                 glDisable(GL_STENCIL_TEST);
 
@@ -2031,22 +2044,22 @@ int play(GAME_DATA *game_data)
 
                 glColor4f(1.0f,1.0f,1.0f,1.0f);
                 glDisable(GL_DEPTH_TEST);
-                cam.SetView();
+                cam.setView();
                 glEnable(GL_STENCIL_TEST);
                 glStencilFunc(GL_NOTEQUAL,0, 0xffffffff);
                 glStencilOp(GL_KEEP,GL_KEEP,GL_KEEP);
-                VECTOR cam_pos = cam.RPos + cam.shake_vec;
+                VECTOR cam_pos = cam.rpos + cam.shakeVector;
                 glBegin(GL_QUADS);
-                VECTOR P = cam_pos + 1.1f*(cam.Dir+0.75f*cam.Up-cam.width_factor*cam.Side);
+                VECTOR P = cam_pos + 1.1f * (cam.dir + 0.75f * cam.up-cam.widthFactor * cam.side);
                 glTexCoord2f(0.0f,1.0f);	glVertex3f(P.x,P.y,P.z);
 
-                P = cam_pos + 1.1f*(cam.Dir+0.75f*cam.Up+cam.width_factor*cam.Side);
+                P = cam_pos + 1.1f*(cam.dir+0.75f*cam.up+cam.widthFactor*cam.side);
                 glTexCoord2f(1.0f,1.0f);	glVertex3f(P.x,P.y,P.z);
 
-                P = cam_pos + 1.1f*(cam.Dir-0.75f*cam.Up+cam.width_factor*cam.Side);
+                P = cam_pos + 1.1f*(cam.dir-0.75f*cam.up+cam.widthFactor*cam.side);
                 glTexCoord2f(1.0f,0.0f);	glVertex3f(P.x,P.y,P.z);
 
-                P = cam_pos + 1.1f*(cam.Dir-0.75f*cam.Up-cam.width_factor*cam.Side);
+                P = cam_pos + 1.1f*(cam.dir-0.75f*cam.up-cam.widthFactor*cam.side);
                 glTexCoord2f(0.0f,0.0f);	glVertex3f(P.x,P.y,P.z);
                 glEnd();
                 glDisable(GL_STENCIL_TEST);
@@ -2090,7 +2103,7 @@ int play(GAME_DATA *game_data)
 
                 can_be_there = can_be_built( target, map, build, players.local_human_id );
 
-                cam.SetView();
+                cam.setView();
                 glTranslatef(target.x,target.y,target.z);
                 glScalef(unit_manager.unit_type[build].Scale,unit_manager.unit_type[build].Scale,unit_manager.unit_type[build].Scale);
                 if(unit_manager.unit_type[build].model) {
@@ -2102,7 +2115,7 @@ int play(GAME_DATA *game_data)
                     unit_manager.unit_type[build].model->draw(0.0f,NULL,false,false,false,0,NULL,NULL,NULL,0.0f,NULL,false,players.local_human_id,false);
                     glColor4f(1.0f,1.0f,1.0f,1.0f);
                 }
-                cam.SetView();
+                cam.setView();
                 glTranslatef(target.x,target.y,target.z);
                 float DX = (unit_manager.unit_type[build].FootprintX<<2);
                 float DZ = (unit_manager.unit_type[build].FootprintZ<<2);
@@ -2155,29 +2168,39 @@ int play(GAME_DATA *game_data)
 
         weapons.draw(&cam,map,false);			// Dessine les objets produits par les armes n'ayant pas été dessinés / Draw weapons which have not been drawn
 
-        if(selected && TA3D_SHIFT_PRESSED) {
-            cam.SetView();
+        if(selected && TA3D_SHIFT_PRESSED)
+        {
+            cam.setView();
             bool builders = false;
-            for(uint16 e=0;e<units.index_list_size;e++) {
+            for (uint16 e = 0; e < units.index_list_size; ++e)
+            {
                 i = units.idx_list[e];
-                if( (units.unit[i].flags & 1) && units.unit[i].owner_id==players.local_human_id && units.unit[i].sel) {
+                if( (units.unit[i].flags & 1) && units.unit[i].owner_id==players.local_human_id && units.unit[i].sel)
+                {
                     builders |= unit_manager.unit_type[units.unit[i].type_id].Builder;
                     units.unit[i].show_orders();					// Dessine les ordres reçus par l'unité
                 }
             }
 
             if(builders)
-                for(uint16 e=0;e<units.index_list_size;e++) {
+            {
+                for(uint16 e=0;e<units.index_list_size;e++)
+                {
                     i = units.idx_list[e];
                     if( (units.unit[i].flags & 1) && units.unit[i].owner_id==players.local_human_id && !units.unit[i].sel
                         && unit_manager.unit_type[units.unit[i].type_id].Builder && unit_manager.unit_type[units.unit[i].type_id].BMcode)
+                    {
                         units.unit[i].show_orders(true);					// Dessine les ordres reçus par l'unité
+                    }
                 }
+            }
         }
 
-        if(lp_CONFIG->shadow && cam.RPos.y<=gfx->low_def_limit)
-            if(lp_CONFIG->shadow_quality<=1) {
-                if(rotate_light) {
+        if(lp_CONFIG->shadow && cam.rpos.y<=gfx->low_def_limit)
+            if(lp_CONFIG->shadow_quality<=1)
+            {
+                if(rotate_light)
+                {
                     sun.Dir.x=-1.0f;
                     sun.Dir.y=1.0f;
                     sun.Dir.z=1.0f;
@@ -2189,7 +2212,8 @@ int play(GAME_DATA *game_data)
                     sun.Dir=-Dir;
                     units.draw_shadow(&cam,Dir,map);
                 }
-                else {
+                else
+                {
                     sun.Dir.x=-1.0f;
                     sun.Dir.y=1.0f;
                     sun.Dir.z=1.0f;
@@ -2197,10 +2221,12 @@ int play(GAME_DATA *game_data)
                     units.draw_shadow(&cam,-sun.Dir,map);
                 }
             }
-            else {
+            else
+            {
                 float alpha=1.0f-exp((1.0f/lp_CONFIG->shadow_quality)*log(0.5f));
                 VECTOR Dir;
-                if(rotate_light) {
+                if(rotate_light)
+                {
                     sun.Dir.x=-1.0f;
                     sun.Dir.y=1.0f;
                     sun.Dir.z=1.0f;
@@ -2211,14 +2237,16 @@ int play(GAME_DATA *game_data)
                     Dir.unit();
                     sun.Dir=-Dir;
                 }
-                else {
+                else
+                {
                     sun.Dir.x=-1.0f;
                     sun.Dir.y=1.0f;
                     sun.Dir.z=1.0f;
                     sun.Dir.unit();
                     Dir=-sun.Dir;
                 }
-                for(int i=0;i<lp_CONFIG->shadow_quality;i++) {
+                for(int i=0;i<lp_CONFIG->shadow_quality;i++)
+                {
                     VECTOR RDir;
                     RDir=Dir;
                     RDir.x+=cos(i*PI*2.0f/lp_CONFIG->shadow_quality)*lp_CONFIG->shadow_r;
@@ -2296,7 +2324,7 @@ int play(GAME_DATA *game_data)
 
         gfx->set_2D_mode();		// Affiche console, infos,...
 
-        old_cam_pos=cam.RPos;
+        old_cam_pos=cam.rpos;
         int signal = 0;
         if( !network_manager.isConnected() || network_manager.isServer() ) {
             signal = game_script.run(map,((float)(units.current_tick - script_timer)) / TICKS_PER_SEC,players.local_human_id);
@@ -3119,7 +3147,7 @@ int play(GAME_DATA *game_data)
                 else if( params.size() == 2 && params[0] == "show" && params[1] == "model" ) show_model^=true;
                 else if( params.size() == 2 && params[0] == "rotate" && params[1] == "light" ) rotate_light^=true;
                 else if( params[0] == "shake" )
-                    cam.set_shake( 1.0f, 32.0f );
+                    cam.setShake(1.0f, 32.0f);
                 else if( params[0] == "freecam" ) {
                     freecam^=true;
                     if(!freecam)	r2=0.0f;
@@ -3141,7 +3169,8 @@ int play(GAME_DATA *game_data)
                     }
                     ThreadSynchroniser->lock();		// Make sure we won't destroy something we mustn't
                     units.lock();
-                    for(i=0;i<nb_to_spawn;i++) {
+                    for(i=0;i<nb_to_spawn;i++)
+                    {
                         int id=0;
                         if( unit_type < 0 || unit_type >= unit_manager.nb_unit )
                             id = units.create( abs( TA3D_RAND() ) % unit_manager.nb_unit,player_id);
@@ -3370,7 +3399,7 @@ int play(GAME_DATA *game_data)
     water_obj.destroy();
     sky_obj.destroy();
 
-    game_cam = NULL;
+    Camera::inGame = NULL;
 
     if(g_useProgram && g_useFBO && map->water)
     {
@@ -3499,7 +3528,7 @@ void draw_cursor()
 
 
 
-VECTOR cursor_on_map(CAMERA *cam,MAP *map, bool on_mini_map )
+VECTOR cursor_on_map(Camera* cam,MAP *map, bool on_mini_map )
 {
     if( on_mini_map )			// If the cursor is on the mini_map;
     {
@@ -3509,13 +3538,10 @@ VECTOR cursor_on_map(CAMERA *cam,MAP *map, bool on_mini_map )
         map_pos.y = map->get_unit_h( map_pos.x, map_pos.z );
         return map_pos;
     }
-    else
-    {
-        VECTOR cur_dir;
-        cur_dir=cam->Dir+cam->width_factor*2.0f*(mouse_x-gfx->SCREEN_W_HALF)*gfx->SCREEN_W_INV*cam->Side-1.5f*(mouse_y-gfx->SCREEN_H_HALF)*gfx->SCREEN_H_INV*cam->Up;
-        cur_dir.unit();		// Direction pointée par le curseur
-        return map->hit(cam->Pos,cur_dir,true,2000000000.0f,true);
-    }
+    VECTOR cur_dir;
+    cur_dir = cam->dir + cam->widthFactor * 2.0f * (mouse_x - gfx->SCREEN_W_HALF) * gfx->SCREEN_W_INV * cam->side - 1.5f * (mouse_y - gfx->SCREEN_H_HALF) * gfx->SCREEN_H_INV * cam->up;
+    cur_dir.unit();		// Direction pointée par le curseur
+    return map->hit(cam->pos, cur_dir, true, 2000000000.0f, true);
 }
 
 

@@ -35,6 +35,7 @@
 
 #include "network/TA3D_Network.h"
 
+# include "misc/camera.h"
 
 #define PARTICLE_LIMIT		100000		// pas plus de 100000 particules
 #define HMAP_RESIZE			0.04f
@@ -449,7 +450,7 @@ namespace TA3D
 
         void update_player_visibility( int player_id, int px, int py, int r, int rd, int sn, int rd_j, int sn_j, bool jamming=false, bool black=false );	// r -> sight, rd -> radar range, sn -> sonar range, j for jamming ray
 
-        void draw_mini(int x1=0,int y1=0,int w=252,int h=252,CAMERA *cam=NULL, byte player_mask=0xFF );			// Dessine la mini-carte
+        void draw_mini(int x1=0,int y1=0,int w=252,int h=252, Camera *cam=NULL, byte player_mask=0xFF ); // Dessine la mini-carte
 
         inline const float get_unit_h(float x,float y)
         {
@@ -775,7 +776,7 @@ namespace TA3D
 
         int check_metal(int x1, int y1, int unit_idx );
 
-        void draw(CAMERA *cam,byte player_mask,bool FLAT=false,float niv=0.0f,float t=0.0f,float dt=1.0f,bool depth_only=false,bool check_visibility=true,bool draw_uw=true);
+        void draw(Camera* cam,byte player_mask,bool FLAT=false,float niv=0.0f,float t=0.0f,float dt=1.0f,bool depth_only=false,bool check_visibility=true,bool draw_uw=true);
 
         VECTOR hit(VECTOR Pos,VECTOR Dir,bool water = true, float length = 200000.0f, bool allow_out = false);			// Calcule l'intersection d'un rayon avec la carte(le rayon partant du dessus de la carte)
     };

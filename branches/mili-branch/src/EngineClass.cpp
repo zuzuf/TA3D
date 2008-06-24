@@ -363,7 +363,7 @@ namespace TA3D
             waterdoesdamage=false;
     }
 
-    void MAP::draw_mini(int x1,int y1,int w,int h,CAMERA *cam, byte player_mask )			// Draw the mini-map
+    void MAP::draw_mini(int x1,int y1,int w,int h, Camera* cam, byte player_mask)			// Draw the mini-map
     {
         if(!mini) return;		// Check if it exists
 
@@ -466,28 +466,28 @@ namespace TA3D
             return;
 
         VECTOR A,B,C,D,P;
-        A=cam->Dir + cam->width_factor*(-cam->Side)-0.75f*cam->Up;
-        B=cam->Dir + cam->width_factor*(cam->Side)-0.75f*cam->Up;
-        C=cam->Dir + cam->width_factor*(cam->Side)+0.75f*cam->Up;
-        D=cam->Dir + cam->width_factor*(-cam->Side)+0.75f*cam->Up;
+        A=cam->dir + cam->widthFactor*(-cam->side)-0.75f*cam->up;
+        B=cam->dir + cam->widthFactor*(cam->side)-0.75f*cam->up;
+        C=cam->dir + cam->widthFactor*(cam->side)+0.75f*cam->up;
+        D=cam->dir + cam->widthFactor*(-cam->side)+0.75f*cam->up;
         const int nmax=64;
         float cx[4*nmax+4],cy[4*nmax+4];
         if(A.y<0.0f) {
-            P=cam->Pos+cam->Pos.y/fabs(A.y)*A;	cx[0]=P.x;	cy[0]=P.z; }
+            P=cam->pos+cam->pos.y/fabs(A.y)*A;	cx[0]=P.x;	cy[0]=P.z; }
         else {
-            P=cam->Pos+10000.0f*A;	cx[0]=P.x;	cy[0]=P.z; }
+            P=cam->pos+10000.0f*A;	cx[0]=P.x;	cy[0]=P.z; }
         if(B.y<0.0f) {
-            P=cam->Pos+cam->Pos.y/fabs(B.y)*B;	cx[1]=P.x;	cy[1]=P.z; }
+            P=cam->pos+cam->pos.y/fabs(B.y)*B;	cx[1]=P.x;	cy[1]=P.z; }
         else {
-            P=cam->Pos+10000.0f*B;	cx[1]=P.x;	cy[1]=P.z; }
+            P=cam->pos+10000.0f*B;	cx[1]=P.x;	cy[1]=P.z; }
         if(C.y<0.0f) {
-            P=cam->Pos+cam->Pos.y/fabs(C.y)*C;	cx[2]=P.x;	cy[2]=P.z; }
+            P=cam->pos+cam->pos.y/fabs(C.y)*C;	cx[2]=P.x;	cy[2]=P.z; }
         else {
-            P=cam->Pos+10000.0f*C;	cx[2]=P.x;	cy[2]=P.z; }
+            P=cam->pos+10000.0f*C;	cx[2]=P.x;	cy[2]=P.z; }
         if(D.y<0.0f) {
-            P=cam->Pos+cam->Pos.y/fabs(D.y)*D;	cx[3]=P.x;	cy[3]=P.z; }
+            P=cam->pos+cam->pos.y/fabs(D.y)*D;	cx[3]=P.x;	cy[3]=P.z; }
         else {
-            P=cam->Pos+10000.0f*D;	cx[3]=P.x;	cy[3]=P.z; }
+            P=cam->pos+10000.0f*D;	cx[3]=P.x;	cy[3]=P.z; }
 
         int i;
         for(i=0;i<4;i++)
@@ -715,9 +715,10 @@ namespace TA3D
 
     inline float sq( float a )	{	return a * a;	}
 
-    void MAP::draw(CAMERA *cam,byte player_mask,bool FLAT,float niv,float t,float dt,bool depth_only,bool check_visibility,bool draw_uw)
+
+    void MAP::draw(Camera* cam,byte player_mask,bool FLAT,float niv,float t,float dt,bool depth_only,bool check_visibility,bool draw_uw)
     {
-        cam->SetView();
+        cam->setView();
         if(FLAT && !water)	return;
 
         gfx->lock();
@@ -727,34 +728,35 @@ namespace TA3D
         int i,x,y;
         glDisable(GL_CULL_FACE);
         glDisable(GL_LIGHTING);
-        if(!FLAT) {
+        if(!FLAT)
+        {
             if(ntex>0)
                 gfx->ReInitAllTex( true );
             else
                 glDisableClientState(GL_TEXTURE_COORD_ARRAY);
         }
         VECTOR A,B,C,D,P;
-        A=cam->Dir + cam->width_factor * (-cam->Side)-0.75f*cam->Up;
-        B=cam->Dir + cam->width_factor * (cam->Side)-0.75f*cam->Up;
-        C=cam->Dir + cam->width_factor * (cam->Side)+0.75f*cam->Up;
-        D=cam->Dir + cam->width_factor * (-cam->Side)+0.75f*cam->Up;
+        A=cam->dir + cam->widthFactor * (-cam->side)-0.75f*cam->up;
+        B=cam->dir + cam->widthFactor * (cam->side)-0.75f*cam->up;
+        C=cam->dir + cam->widthFactor * (cam->side)+0.75f*cam->up;
+        D=cam->dir + cam->widthFactor * (-cam->side)+0.75f*cam->up;
         float cx[4],cy[4];
         if(A.y<0.0f) {
-            P=cam->Pos+cam->Pos.y/fabs(A.y)*A;	cx[0]=P.x;	cy[0]=P.z; }
+            P=cam->pos+cam->pos.y/fabs(A.y)*A;	cx[0]=P.x;	cy[0]=P.z; }
         else {
-            P=cam->Pos+10000.0f*A;	cx[0]=P.x;	cy[0]=P.z; }
+            P=cam->pos+10000.0f*A;	cx[0]=P.x;	cy[0]=P.z; }
         if(B.y<0.0f) {
-            P=cam->Pos+cam->Pos.y/fabs(B.y)*B;	cx[1]=P.x;	cy[1]=P.z; }
+            P=cam->pos+cam->pos.y/fabs(B.y)*B;	cx[1]=P.x;	cy[1]=P.z; }
         else {
-            P=cam->Pos+10000.0f*B;	cx[1]=P.x;	cy[1]=P.z; }
+            P=cam->pos+10000.0f*B;	cx[1]=P.x;	cy[1]=P.z; }
         if(C.y<0.0f) {
-            P=cam->Pos+cam->Pos.y/fabs(C.y)*C;	cx[2]=P.x;	cy[2]=P.z; }
+            P=cam->pos+cam->pos.y/fabs(C.y)*C;	cx[2]=P.x;	cy[2]=P.z; }
         else {
-            P=cam->Pos+10000.0f*C;	cx[2]=P.x;	cy[2]=P.z; }
+            P=cam->pos+10000.0f*C;	cx[2]=P.x;	cy[2]=P.z; }
         if(D.y<0.0f) {
-            P=cam->Pos+cam->Pos.y/fabs(D.y)*D;	cx[3]=P.x;	cy[3]=P.z; }
+            P=cam->pos+cam->pos.y/fabs(D.y)*D;	cx[3]=P.x;	cy[3]=P.z; }
         else {
-            P=cam->Pos+10000.0f*D;	cx[3]=P.x;	cy[3]=P.z; }
+            P=cam->pos+10000.0f*D;	cx[3]=P.x;	cy[3]=P.z; }
 
         int minx=bloc_w<<1,maxx=0;
         int miny=bloc_h<<1,maxy=0;
@@ -769,12 +771,12 @@ namespace TA3D
         }
         int y1=bloc_h,y2=0,x1=bloc_w,x2=0,mx,my;
         float limit=cam->zfar*sqrt(2.0f);
-        x1=(int)((cam->Pos.x+0.5f*map_w-limit)/16.0f);
-        y1=(int)((cam->Pos.z+0.5f*map_h-limit)/16.0f);
-        x2=(int)((cam->Pos.x+0.5f*map_w+limit)/16.0f);
-        y2=(int)((cam->Pos.z+0.5f*map_h+limit)/16.0f);
-        mx=(int)((cam->Pos.x+0.5f*map_w)/16.0f);
-        my=(int)((cam->Pos.z+0.5f*map_h)/16.0f);
+        x1=(int)((cam->pos.x+0.5f*map_w-limit)/16.0f);
+        y1=(int)((cam->pos.z+0.5f*map_h-limit)/16.0f);
+        x2=(int)((cam->pos.x+0.5f*map_w+limit)/16.0f);
+        y2=(int)((cam->pos.z+0.5f*map_h+limit)/16.0f);
+        mx=(int)((cam->pos.x+0.5f*map_w)/16.0f);
+        my=(int)((cam->pos.z+0.5f*map_h)/16.0f);
         if(x1<minx)
             x1=minx;
         if(x2>maxx)
@@ -809,8 +811,8 @@ namespace TA3D
         y1-=3;
         if(y1<0) y1=0;
 
-        A=(cam->Dir+0.75f*cam->Up-cam->width_factor*cam->Side);	A.unit();
-        float ref = sq( 0.95f*(A%cam->Dir) );
+        A=(cam->dir+0.75f*cam->up-cam->widthFactor*cam->side);	A.unit();
+        float ref = sq( 0.95f*(A%cam->dir) );
         float dhm=0.5f*map_h;
         float dwm=0.5f*map_w;
 
@@ -899,7 +901,7 @@ namespace TA3D
 
         int	ox=x1;
 
-        bool low_def_view = cam->RPos.y>gfx->low_def_limit;		// Low detail map for mega zoom
+        bool low_def_view = cam->rpos.y>gfx->low_def_limit;		// Low detail map for mega zoom
         if(low_def_view) {							// draw the low detail map
             detail_shader.off();
             glActiveTextureARB(GL_TEXTURE1_ARB );
@@ -935,7 +937,7 @@ namespace TA3D
             glDrawElements(GL_TRIANGLE_STRIP, low_nb_idx,GL_UNSIGNED_INT,low_index);		// draw this map
         }
 
-        if(cam->RPos.y>=900.0f) {
+        if(cam->rpos.y>=900.0f) {
             memset(view[0],1,bloc_w*bloc_h);
             ox1=0;
             ox2=bloc_w-1;
@@ -945,7 +947,7 @@ namespace TA3D
 
         VECTOR T;
         VECTOR	V;
-        if(cam->RPos.y<900.0f)
+        if(cam->rpos.y<900.0f)
             for(y=y1;y<=y2;y++) // Balaye les blocs susceptibles d'être visibles pour dessiner ceux qui le sont
             {
                 int pre_y=y<<4;
@@ -967,15 +969,15 @@ namespace TA3D
                         V.x = (rx1<<4) - dwm;
                         V.y = ph_map[Y|1][X|1];
                         V.z = pre_y - dhm + get_zdec_notest(X|1,Y|1);
-                        V = V - cam->Pos;
-                        if(fabs(V%cam->Dir) > cam->zfar)
+                        V = V - cam->pos;
+                        if(fabs(V%cam->dir) > cam->zfar)
                         {
                             view[y][rx1] = 0;
                             continue;
                         }
                         float d = V.sq();
                         if(d > 16384.0f)
-                            if(sq(V % cam->Dir) < ref * d)
+                            if(sq(V % cam->dir) < ref * d)
                             {
                                 view[y][rx1] = 0;
                                 continue;
@@ -988,14 +990,14 @@ namespace TA3D
                         V.x = (rx2<<4) - dwm;
                         V.y = ph_map[Y|1][X|1];
                         V.z = pre_y - dhm + get_zdec_notest(X|1,Y|1);
-                        V = V - cam->Pos;
-                        if(fabs(V % cam->Dir) > cam->zfar) {
+                        V = V - cam->pos;
+                        if(fabs(V % cam->dir) > cam->zfar) {
                             view[y][rx2] = 0;
                             continue;
                         }
                         float d = V.sq();
                         if(d > 16384.0f)
-                            if(sq(V % cam->Dir) < ref * d) {
+                            if(sq(V % cam->dir) < ref * d) {
                                 view[y][rx2] = 0;
                                 continue;
                             }
@@ -1003,19 +1005,25 @@ namespace TA3D
                     }
                 }
 
-                for(x=rx1;x<=rx2;x++) {
+                for(x=rx1;x<=rx2;x++)
+                {
                     int X=x<<1;
-                    if(!FLAT && check_visibility) {
-                        if(!(view_map->line[y][x]&player_mask)) {
-                            if(water) {
+                    if(!FLAT && check_visibility)
+                    {
+                        if(!(view_map->line[y][x]&player_mask))
+                        {
+                            if(water)
+                            {
                                 if(map_data[Y][X].underwater && map_data[Y|1][X].underwater && map_data[Y][X|1].underwater && map_data[Y|1][X|1].underwater)
                                     view[y][x]=2;
                                 else
                                     view[y][x]=3;
                             }
                         }
-                        else {
-                            if(!(sight_map->line[y][x]&player_mask)) {
+                        else
+                        {
+                            if(!(sight_map->line[y][x]&player_mask))
+                            {
                                 if(map_data[Y][X].underwater || map_data[Y|1][X].underwater || map_data[Y][X|1].underwater || map_data[Y|1][X|1].underwater)
                                     view[y][x]=2;
                                 else
@@ -1023,25 +1031,30 @@ namespace TA3D
                             }
                             else
                                 view[y][x]=1;
-                            if(map_data[Y][X].stuff>=0 && map_data[Y][X].stuff<features.max_features) {		// Indique comme affichables les objets présents sur le bloc
+                            if(map_data[Y][X].stuff>=0 && map_data[Y][X].stuff<features.max_features) // Indique comme affichables les objets présents sur le bloc
+                            {
                                 if(features.feature[map_data[Y][X].stuff].type<0)
                                     map_data[Y][X].stuff=-1;
-                                else {
+                                else
+                                {
                                     features.feature[map_data[Y][X].stuff].draw=true;
                                     features.feature[map_data[Y][X].stuff].grey=(view[y][x]&2)==2;
                                     features.list[features.list_size++]=map_data[Y][X].stuff;
                                 }
                             }
-                            if(map_data[Y][X|1].stuff>=0 && map_data[Y][X|1].stuff<features.max_features) {
+                            if(map_data[Y][X|1].stuff>=0 && map_data[Y][X|1].stuff<features.max_features)
+                            {
                                 if(features.feature[map_data[Y][X|1].stuff].type<0)
                                     map_data[Y][X|1].stuff=-1;
-                                else {
+                                else
+                                {
                                     features.feature[map_data[Y][X|1].stuff].draw=true;
                                     features.feature[map_data[Y][X|1].stuff].grey=(view[y][x]&2)==2;
                                     features.list[features.list_size++]=map_data[Y][X|1].stuff;
                                 }
                             }
-                            if(map_data[Y|1][X].stuff>=0 && map_data[Y|1][X].stuff<features.max_features) {
+                            if(map_data[Y|1][X].stuff>=0 && map_data[Y|1][X].stuff<features.max_features)
+                            {
                                 if(features.feature[map_data[Y|1][X].stuff].type<0)
                                     map_data[Y|1][X].stuff=-1;
                                 else {

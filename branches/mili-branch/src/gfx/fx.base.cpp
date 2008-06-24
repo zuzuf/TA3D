@@ -152,7 +152,7 @@ namespace TA3D
         glPolygonOffset(0.0f, -1600.0f);
     }
 
-    void FX::doDrawAnimDefault(CAMERA& cam, ANIM** anims)
+    void FX::doDrawAnimDefault(Camera& cam, ANIM** anims)
     {
         if (!anims)
         {
@@ -164,17 +164,17 @@ namespace TA3D
         float hsize = size * anims[anm]->h[img];
         glBindTexture(GL_TEXTURE_2D,anims[anm]->glbmp[img]);
 
-        float hux = hsize * cam.Up.x;
-        float wsx = wsize * cam.Side.x;
-        float huy = hsize * cam.Up.y;
-        float wsy = wsize * cam.Side.y;
-        float huz = hsize * cam.Up.z;
-        float wsz = wsize * cam.Side.z;
+        float hux = hsize * cam.up.x;
+        float wsx = wsize * cam.side.x;
+        float huy = hsize * cam.up.y;
+        float wsy = wsize * cam.side.y;
+        float huz = hsize * cam.up.z;
+        float wsz = wsize * cam.side.z;
 
         glPushMatrix();
         glTranslatef(Pos.x, Pos.y, Pos.z);
 
-        if(cam.mirror)
+        if (cam.mirror)
         {
             glBegin(GL_QUADS);
             glTexCoord2f(0.0f,0.0f); glVertex3f(  hux-wsx, -huy+wsy,  huz-wsz);
@@ -208,7 +208,7 @@ namespace TA3D
     }
 
 
-    void FX::draw(CAMERA& cam, MAP *map, ANIM **anims)
+    void FX::draw(Camera& cam, MAP *map, ANIM **anims)
     {
         if(!playing || (map && !doCanDrawAnim(map)))
             return;

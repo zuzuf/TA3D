@@ -12,7 +12,7 @@ namespace TA3D
 
     int FXManager::add(const String& filename, const String& entryName, const VECTOR& pos, const float size)
     {
-        if(game_cam != NULL && ((VECTOR)(pos-game_cam->Pos)).sq() >= game_cam->zfar2)
+        if(Camera::inGame != NULL && ((VECTOR)(pos - Camera::inGame->pos)).sq() >= Camera::inGame->zfar2)
             return -1;
 
         MutexLocker locker(pMutex);
@@ -101,7 +101,7 @@ namespace TA3D
 
     int FXManager::addFlash(const VECTOR& pos, const float size)
     {
-        if(game_cam!=NULL && ((VECTOR)(pos-game_cam->Pos)).sq()>=game_cam->zfar2)
+        if(Camera::inGame != NULL && ((VECTOR)(pos - Camera::inGame->pos)).sq() >= Camera::inGame->zfar2)
             return -1;
 
         MutexLocker locker(pMutex);
@@ -134,7 +134,7 @@ namespace TA3D
 
     int FXManager::addWave(const VECTOR& pos,float size)
     {
-        if (game_cam != NULL && ((VECTOR)(pos-game_cam->Pos)).sq()>=game_cam->zfar2)
+        if (Camera::inGame != NULL && ((VECTOR)(pos-Camera::inGame->pos)).sq() >= Camera::inGame->zfar2)
             return -1;
         
         MutexLocker locker(pMutex);
@@ -166,7 +166,7 @@ namespace TA3D
 
     int FXManager::addRipple(const VECTOR& pos,float size)
     {
-        if (game_cam != NULL && ((VECTOR)(pos - game_cam->Pos)).sq() >= game_cam->zfar2)
+        if (Camera::inGame != NULL && ((VECTOR)(pos - Camera::inGame->pos)).sq() >= Camera::inGame->zfar2)
             return -1;
         
         MutexLocker locker(pMutex);
@@ -279,7 +279,7 @@ namespace TA3D
         init();
     }
 
-    void FXManager::draw(CAMERA& cam, MAP *map, float w_lvl, bool UW)
+    void FXManager::draw(Camera& cam, MAP *map, float w_lvl, bool UW)
     {
         pMutex.lock();
 
@@ -301,7 +301,7 @@ namespace TA3D
         glEnable(GL_BLEND);
         glDepthMask(GL_FALSE);
         glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
-        cam.SetView();
+        cam.setView();
         glEnable(GL_POLYGON_OFFSET_FILL);
         glPolygonOffset(0.0f,-1600.0f);
         if(UW)

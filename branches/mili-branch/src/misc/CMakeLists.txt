@@ -8,6 +8,7 @@ SET(SOURCES settings.h settings.cpp
             hash_table.h hashtable.hxx
             superqueue.h superqueue.cpp
             matrix.h matrix.cpp
+            camera.h camera.cpp
             paths.h paths.cpp)
 
 ADD_LIBRARY(misc STATIC ${SOURCES})

@@ -35,6 +35,7 @@
 #include "../EngineClass.h"
 #include "../UnitEngine.h"
 #include "script.h"
+#include "../misc/camera.h"
 
 
 
@@ -943,21 +944,25 @@ namespace TA3D
 
     int function_set_cam_pos( lua_State *L )		// ta3d_set_cam_pos( player_id,x,z )
     {
-        if( (int) lua_tonumber( L, -3 ) == players.local_human_id ) {
-            game_cam->RPos.x = (float) lua_tonumber( L, -2 );
-            game_cam->RPos.z = (float) lua_tonumber( L, -1 );
+        if( (int) lua_tonumber( L, -3 ) == players.local_human_id )
+        {
+            Camera::inGame->rpos.x = (float) lua_tonumber( L, -2 );
+            Camera::inGame->rpos.z = (float) lua_tonumber( L, -1 );
         }
-        else if( network_manager.isServer() ) {
-            struct event cam_event;
-            cam_event.type = EVENT_CAMERA_POS;
-            cam_event.opt1 = (int) lua_tonumber( L, -3 );
-            cam_event.x = (float) lua_tonumber( L, -2 );
-            cam_event.z = (float) lua_tonumber( L, -1 );
+        else
+        {
+            if (network_manager.isServer())
+            {
+                struct event cam_event;
+                cam_event.type = EVENT_CAMERA_POS;
+                cam_event.opt1 = (int) lua_tonumber( L, -3 );
+                cam_event.x = (float) lua_tonumber( L, -2 );
+                cam_event.z = (float) lua_tonumber( L, -1 );
 
-            network_manager.sendEvent( &cam_event );
+                network_manager.sendEvent( &cam_event );
+            }
         }
         lua_pop( L, 3 );
-
         return 0;
     }
 
@@ -968,7 +973,6 @@ namespace TA3D
         else
             lua_signal = 4;
         lua_pop( L, 1 );
-
         return 0;
     }
 

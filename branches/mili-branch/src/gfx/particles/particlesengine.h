@@ -5,6 +5,7 @@
 # include "../../threads/thread.h"
 # include "../../misc/vector.h"
 # include "../../ta3dbase.h"
+# include "../../misc/camera.h"
 # include "particlessystem.h"
 # include "particle.h"
 
@@ -123,7 +124,7 @@ namespace TA3D
         ** \param bloc_h
         ** \param bmap
         */
-        void draw(CAMERA *cam,int map_w,int map_h,int bloc_w,int bloc_h, byte **bmap);
+        void draw(Camera *cam,int map_w,int map_h,int bloc_w,int bloc_h, byte **bmap);
 
 
     public:

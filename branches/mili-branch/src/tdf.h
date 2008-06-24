@@ -30,6 +30,7 @@
 #include "gaf.h"			// Pour la gestion des fichiers GAF
 #include "gfx/particles/particles.h"		// Pour l'accès au moteur à particules
 #include "3do.h"			// Pour pouvoir utiliser des modèles 3D
+#include "misc/camera.h"
 
 
 namespace TA3D
@@ -416,9 +417,9 @@ namespace TA3D
 
         void move_forest(const float &dt);			// Simulates forest fires & tree reproduction (running in weapon thread, because to be synced with the rest of the engine)
 
-        void draw(CAMERA *cam);
+        void draw(Camera *cam);
 
-        void draw_shadow(CAMERA *cam,VECTOR Dir);
+        void draw_shadow(Camera *cam,VECTOR Dir);
 
         void display_info( int idx );
     };

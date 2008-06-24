@@ -9,7 +9,7 @@
 # include "fx.base.h"
 # include "fx.particle.h"
 # include <list>
-
+# include "../misc/camera.h"
 
 
 
@@ -65,7 +65,7 @@ namespace TA3D
         ** \param w_lvl
         ** \param UW
         */
-        void draw(CAMERA& cam, MAP *map, float w_lvl = 0.0f, bool UW = false);
+        void draw(Camera& cam, MAP *map, float w_lvl = 0.0f, bool UW = false);
 
         /*!
         ** \brief
