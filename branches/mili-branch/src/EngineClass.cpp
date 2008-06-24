@@ -35,7 +35,7 @@
 #include "tdf.h"					// Pour la gestion des éléments du jeu
 #include "EngineClass.h"
 #include "UnitEngine.h"
-#include "fx.h"
+#include "gfx/fx.h"
 #include "misc/lzw.h"					// Support for LZW compression
 
 byte player_color_map[10] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };

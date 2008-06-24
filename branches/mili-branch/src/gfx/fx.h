@@ -31,226 +31,105 @@
 class FX
 {
 public:
-	float		time;		// Durée d'éxistence de l'effet
-	bool		playing;	// Si l'effet est joué
-	VECTOR		Pos;		// Position
-	float		size;		// Taille (proportion de l'image d'origine)
-	int			anm;		// Animation
+    FX();
+    ~FX();
+
+    void init();
+
+    void destroy();
+
+    bool move(float dt,ANIM **anims);
+    void draw(CAMERA *cam, MAP *map, ANIM **anims);
+
+    void load(int anim,VECTOR P,float s);
 
 public:
-	inline void init()
-	{
-		time=0.0f;
-		playing=false;
-		Pos.x=Pos.y=Pos.z=0.0f;
-		size=1.0f;
-		anm=0;
-	}
+    //! Effect duration
+    float time;
+    //! Get if the effect has been played
+    bool playing;
+    //! Position
+    VECTOR Pos;
+    float size;		// Taille (proportion de l'image d'origine)
+    int anm;		// Animation
 
-	inline void destroy()
-	{
-		init();
-	}
+}; // class FX
 
-	FX()
-	{
-		init();
-	}
-
-	~FX()
-	{
-		destroy();
-	}
-
-	inline bool move(float dt,ANIM **anims)
-	{
-		if(!playing)	return false;
-		if(anm == -1) {							// Flash effect
-			if( time > 1.0f )	{
-				playing=false;
-				return true;
-				}
-			time+=dt;
-			return false;
-			}
-		if( anm == -2 || anm == -3 || anm == -4 || anm == -5 ) {							// Wave effect on shores or ripple
-			if( time > 4.0f || ( time > 2.0f && anm == -5 ) )	{
-				playing=false;
-				return true;
-				}
-			time+=dt;
-			return false;
-			}
-		if(anm<0) {
-			playing=false;
-			return false;
-			}
-		time+=dt;
-		if(time*15.0f>=anims[anm]->nb_bmp) {
-			playing=false;
-			return true;
-			}
-		return false;
-	}
-
-	void draw(CAMERA *cam, MAP *map, ANIM **anims);
-
-	inline void load(int anim,VECTOR P,float s)
-	{
-		destroy();
-
-		anm=anim;
-		Pos=P;
-		size=s*0.25f;
-		time=0.0f;
-		playing=true;
-	}
-};
 
 class FX_PARTICLE
 {
-	private:
-		VECTOR	Pos, Speed;
-		float	timer;
-		float	life;
-		
-	public:
-		FX_PARTICLE( VECTOR &P, VECTOR &S, float L );
-		bool move( float dt );
-		void draw();
+public:
+    FX_PARTICLE(const VECTOR &P, const VECTOR &S, const float L );
+    bool move( float dt );
+    void draw();
+
+private:
+    VECTOR Pos;
+    VECTOR Speed;
+    float timer;
+    float life;
+
 };
 
 class FX_MANAGER : public ObjectSync	// This class mustn't be executed in its own thread in order to remain thread safe,
 {												// it must run in main thread (the one that can call OpenGL functions)!!
-private:
-	int			max_fx;
-	int			nb_fx;
-	FX			*fx;
+public:
+    FX_MANAGER();
+    ~FX_MANAGER();
 
-	int			cache_size;			// Cache
-	int			max_cache_size;
-	char		**cache_name;
-	ANIM		**cache_anm;
-	int			*use;
-	bool		cache_is_dirty;
-	
-	List< FX_PARTICLE >	particles;			// List of particles bouncing around
+
+    void init();
+    void destroy();
+    void load_data();
+
+    int FX_MANAGER::is_in_cache(char *filename);
+    int put_in_cache(char *filename,ANIM *anm);
+    void move(const float dt);
+    void draw(CAMERA *cam, MAP *map, float w_lvl=0.0f, bool UW=false);
+    int add(char *filename,char *entry_name,VECTOR Pos,float size);
+    int add_flash(VECTOR Pos,float size);
+    int add_wave(VECTOR Pos,float size);
+    int add_ripple(VECTOR Pos,float size);
+
+    /*!
+    ** \brief Add a particle
+    ** \param p
+    ** \param s
+    ** \param l
+    */
+    void addParticle(const VECTOR &p, const VECTOR &s, const float l);
+
+    /*!
+    ** \brief Add an explosion effect
+    ** \param p
+    ** \param n
+    ** \param power
+    */
+    void addExplosion(const  VECTOR &p, const int n, const float power);
+
 
 public:
-	byte		*fx_data;
-	GLuint		flash_tex;
-	GLuint		wave_tex[3];
-	GLuint		ripple_tex;
+    byte		*fx_data;
+    GLuint		flash_tex;
+    GLuint		wave_tex[3];
+    GLuint		ripple_tex;
 
-	void init();
-	void destroy();
+private:
+    int			max_fx;
+    int			nb_fx;
+    FX			*fx;
 
-	FX_MANAGER()
-	{
-		init();
-	}
+    int			cache_size;			// Cache
+    int			max_cache_size;
+    char		**cache_name;
+    ANIM		**cache_anm;
+    int			*use;
+    bool pCacheIsDirty;
 
-	~FX_MANAGER()
-	{
-		destroy();
-	}
+    List<FX_PARTICLE> particles;			// List of particles bouncing around
 
-	void load_data();
+}; // class FX_MANAGER
 
-	inline int is_in_cache(char *filename)
-	{
-		if(cache_size<=0)	return -1;
-		for(int i=0;i<max_cache_size;i++)
-			if(cache_anm[i]!=NULL && cache_name[i]!=NULL)
-				if(strcasecmp(filename,cache_name[i])==0)
-					return i;
-		return -1;
-	}
-
-	inline int put_in_cache(char *filename,ANIM *anm)
-	{
-		pMutex.lock();
-
-		int is_in=is_in_cache(filename);
-		if(is_in>=0)	return is_in;		// On ne le garde pas 2 fois
-		int idx=-1;
-		if(cache_size+1>max_cache_size) {
-			max_cache_size+=100;
-			char **n_name=(char**)malloc(sizeof(char*)*max_cache_size);
-			ANIM **n_anm=(ANIM**)malloc(sizeof(ANIM*)*max_cache_size);
-			int *n_use=(int*)malloc(sizeof(int)*max_cache_size);
-			for(int i=max_cache_size-100;i<max_cache_size;i++) {
-				n_use[i]=0;
-				n_name[i]=NULL;
-				n_anm[i]=NULL;
-				}
-			if(cache_size>0) {
-				for(int i=0;i<max_cache_size-100;i++) {
-					n_name[i]=cache_name[i];
-					n_anm[i]=cache_anm[i];
-					n_use[i]=use[i];
-					}
-				free(cache_name);
-				free(cache_anm);
-				free(use);
-				}
-			use=n_use;
-			cache_name=n_name;
-			cache_anm=n_anm;
-			idx=cache_size;
-			}
-		else {
-			idx=0;
-			for(int i=0;i<max_cache_size;i++)
-				if(cache_anm[i]==NULL)
-					idx=i;
-			}
-		use[idx]=1;
-		cache_anm[idx]=anm;
-		cache_name[idx]=strdup(filename);
-		cache_size++;
-
-		pMutex.unlock();
-
-		return idx;
-	}
-
-	inline void move(float dt)
-	{
-		pMutex.lock();
-
-		for(int i=0;i<max_fx;i++)
-			if(fx[i].move(dt,cache_anm)) {
-				if( fx[i].anm == -1 || fx[i].anm == -2 || fx[i].anm == -3 || fx[i].anm == -4 || fx[i].anm == -5 )	{
-					nb_fx--;
-					continue;		// Flash, ripple or Wave
-					}
-				use[fx[i].anm]--;
-				nb_fx--;
-				if(use[fx[i].anm]<=0) {		// Animation used nowhere
-					free(cache_name[fx[i].anm]);		cache_name[fx[i].anm]=NULL;
-					cache_anm[fx[i].anm]->destroy();	delete cache_anm[fx[i].anm];	cache_anm[fx[i].anm]=NULL;
-					cache_size--;
-					}
-				}
-
-		foreach_( particles, i )
-			if( i->move( dt ) )
-				particles.erase( i++ );
-			else
-				i++;
-
-		pMutex.unlock();
-	}
-
-	void	draw(CAMERA *cam, MAP *map, float w_lvl=0.0f, bool UW=false);
-	int		add(char *filename,char *entry_name,VECTOR Pos,float size);
-	int		add_flash(VECTOR Pos,float size);
-	int		add_wave(VECTOR Pos,float size);
-	int     add_ripple(VECTOR Pos,float size);
-	void    add_particle( VECTOR &P, VECTOR &S, float L );
-	void    add_explosion( VECTOR &P, int n, float power );
-};
 
 extern FX_MANAGER	fx_manager;
 

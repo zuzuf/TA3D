@@ -33,7 +33,7 @@
 #include "tnt.h"               // The TNT loader
 #include "scripts/script.h"               // The game script manager
 #include "ai/ai.h"                  // AI Engine
-#include "fx.h"					// Special FX engine
+#include "gfx/fx.h"					// Special FX engine
 #include "misc/paths.h"
 
 using namespace TA3D::Exceptions;

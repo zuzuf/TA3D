@@ -36,7 +36,7 @@
 #include "EngineClass.h"
 #include "UnitEngine.h"
 #include "network/TA3D_Network.h"
-#include "fx.h"
+#include "gfx/fx.h"
 
 using namespace TA3D::Exceptions;
 
@@ -1261,7 +1261,7 @@ const int UNIT::run_script(const float &dt,const int &id,MAP *map,int max_code)	
                         particle_engine.make_fire( Pos + data.pos[obj],1,10,45.0f);
                         int power = max(unit_manager.unit_type[type_id].FootprintX, unit_manager.unit_type[type_id].FootprintZ);
                         VECTOR P = Pos + data.pos[obj];
-                        fx_manager.add_explosion( P, power * 3, power * 10.0f );
+                        fx_manager.addExplosion( P, power * 3, power * 10.0f );
                     }
                     data.flag[obj]|=FLAG_EXPLODE;
                     data.explosion_flag[obj]=explosion_type;
@@ -2104,11 +2104,14 @@ void UNIT::explode()
 
     int power = max(unit_manager.unit_type[type_id].FootprintX, unit_manager.unit_type[type_id].FootprintZ);
     fx_manager.add_flash( Pos, power * 32 );
-    fx_manager.add_explosion( Pos, power * 3, power * 10 );
+    fx_manager.addExplosion( Pos, power * 3, power * 10 );
+
     int param[]={ severity * 100 / unit_manager.unit_type[type_id].MaxDamage, 0 };
     run_script_function(the_map,get_script_index(SCRIPT_killed),2,param);
-    if( attached )	param[1] = 3;			// When we were flying we just disappear
+    if( attached )
+        param[1] = 3;			// When we were flying we just disappear
     bool sinking = the_map->get_unit_h( Pos.x, Pos.z ) <= the_map->sealvl;
+
     switch( param[1] )
     {
         case 1:			// Some good looking corpse
