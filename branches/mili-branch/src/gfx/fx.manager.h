@@ -8,6 +8,7 @@
 # include "../EngineClass.h"
 # include "fx.base.h"
 # include "fx.particle.h"
+# include <list>
 
 
 
@@ -51,6 +52,8 @@ namespace TA3D
 
         /*!
         ** \brief
+        **
+        ** \param dt Delta time
         */
         void move(const float dt);
 
@@ -139,20 +142,46 @@ namespace TA3D
         */
         int putInCache(const String& filename, ANIM *anm);
 
-    private:
-        int			max_fx;
-        int			nb_fx;
-        FX			*fx;
+        /*!
+        ** \brief Delete all particles
+        ** \see pParticles
+        */
+        void doClearAllParticles();
 
-        int			cache_size;			// Cache
-        int			max_cache_size;
-        char		**cache_name;
-        ANIM		**cache_anm;
-        int			*use;
+        /*!
+        ** \brief Move all particles
+        **
+        ** Each particles in `pParticles` will be moved via
+        ** a call to FXParticle::move() and will be removed if
+        ** it returns `true`
+        **
+        ** \see FXParticle::move()
+        */
+        void doMoveAllParticles(const float& dt);
+
+        /*!
+        ** \brief Move all FX
+        ** \param dt Delta time
+        */
+        void doMoveAllFX(const float& dt);
+
+    private:
+        typedef std::list<FXParticle*>  ListOfParticles;
+
+    private:
+        int max_fx;
+        int nb_fx;
+        FX* fx;
+
+        int cache_size;			// Cache
+        int max_cache_size;
+        char** cache_name;
+        ANIM** cache_anm;
+        int* use;
         bool pCacheIsDirty;
 
         //! List of particles bouncing around
-        List<FXParticle> pParticles;
+        ListOfParticles pParticles;
 
     public:
         //! 

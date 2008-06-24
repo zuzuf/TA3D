@@ -193,24 +193,33 @@ namespace TA3D
         return idx;
     }
 
+
+
+
+    void FXManager::doClearAllParticles()
+    {
+        if (!pParticles.empty())
+        {
+            for (ListOfParticles::iterator i = pParticles.begin(); i != pParticles.end(); ++i)
+                delete (*i);
+            pParticles.clear();
+        }
+    }
+
     void FXManager::init()
     {
-        pParticles.clear();
-
+        doClearAllParticles();
         currentParticleModel = NULL;
-
         pCacheIsDirty = false;
+        fx_data = NULL;
+        max_fx = 0;
+        nb_fx = 0;
+        fx = NULL;
 
-        fx_data=NULL;
-
-        max_fx=0;
-        nb_fx=0;
-        fx=NULL;
-
-        max_cache_size=0;
-        cache_size=0;
-        cache_name=NULL;
-        cache_anm=NULL;
+        max_cache_size = 0;
+        cache_size = 0;
+        cache_name = NULL;
+        cache_anm = NULL;
         use=NULL;
 
         flash_tex = 0;
@@ -222,7 +231,7 @@ namespace TA3D
 
     void FXManager::destroy()
     {
-        pParticles.clear();
+        doClearAllParticles();
 
         gfx->destroy_texture( flash_tex );
         gfx->destroy_texture( ripple_tex );
@@ -242,8 +251,10 @@ namespace TA3D
             if (cache_name)
             {
                 for(int i=0;i<max_cache_size;i++)
+                {
                     if(cache_name[i])
                         free(cache_name[i]);
+                }
                 free(cache_name);
             }
             if (cache_anm)
@@ -310,8 +321,8 @@ namespace TA3D
 
         if(!UW && lp_CONFIG->explosion_particles)
         {
-            foreach( pParticles, i )
-                i->draw();
+            for (ListOfParticles::iterator i = pParticles.begin(); i != pParticles.end(); ++i)
+                (*i)->draw();
         }
 
         pMutex.unlock();
@@ -322,7 +333,7 @@ namespace TA3D
         if (lp_CONFIG->explosion_particles)
         {
             pMutex.lock();
-            pParticles.push_back(FXParticle(p, s, l));
+            pParticles.push_back(new FXParticle(p, s, l));
             pMutex.unlock();
         }
     }
@@ -342,7 +353,7 @@ namespace TA3D
                       s * sin(a) * cos(b));
             float l = min( 5.0f * vs.y / (the_map->ota_data.gravity + 0.1f), 10.0f);
 
-            pParticles.push_back(FXParticle(p, vs, l));
+            pParticles.push_back(new FXParticle(p, vs, l));
         }
         pMutex.unlock();
     }
@@ -419,39 +430,54 @@ namespace TA3D
     }
 
 
-
-    void FXManager::move(const float dt)
+    void FXManager::doMoveAllParticles(const float& dt)
     {
-        pMutex.lock();
+        for (ListOfParticles::iterator i = pParticles.begin(); i != pParticles.end(); )
+        {
+            if ((*i)->move(dt))
+            {
+                delete (*i);
+                pParticles.erase(i++);
+            }
+            else
+                ++i;
+        }
+    }
 
+
+    void FXManager::doMoveAllFX(const float& dt)
+    {
         for (int i = 0; i < max_fx; ++i)
         {
             if(fx[i].move(dt, cache_anm))
             {
-                if( fx[i].anm == -1 || fx[i].anm == -2 || fx[i].anm == -3 || fx[i].anm == -4 || fx[i].anm == -5 )
+                if (fx[i].anm == -1 || fx[i].anm == -2 || fx[i].anm == -3 || fx[i].anm == -4 || fx[i].anm == -5)
                 {
                     --nb_fx;
                     continue;		// Flash, ripple or Wave
                 }
                 use[fx[i].anm]--;
                 --nb_fx;
-                if(use[fx[i].anm]<=0) // Animation used nowhere
+                if (use[fx[i].anm] <= 0) // Animation used nowhere
                 {
-                    free(cache_name[fx[i].anm]);		cache_name[fx[i].anm]=NULL;
-                    cache_anm[fx[i].anm]->destroy();	delete cache_anm[fx[i].anm];	cache_anm[fx[i].anm]=NULL;
+                    free(cache_name[fx[i].anm]);
+                    cache_name[fx[i].anm] = NULL;
+                    cache_anm[fx[i].anm]->destroy();
+                    delete cache_anm[fx[i].anm];
+                    cache_anm[fx[i].anm] = NULL;
                     --cache_size;
                 }
             }
         }
 
-        foreach_( pParticles, i )
-        {
-            if (i->move(dt))
-                pParticles.erase(i++);
-            else
-                ++i;
-        }
+    }
 
+
+    void FXManager::move(const float dt)
+    {
+        pMutex.lock();
+        doMoveAllFX(dt);
+        doMoveAllParticles(dt);
         pMutex.unlock();
     }
 
