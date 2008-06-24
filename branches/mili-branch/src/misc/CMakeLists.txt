@@ -4,11 +4,14 @@ SET(ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../../bin/libs/${CMAKE
 SET(SOURCES settings.h settings.cpp
             interface.h interface.cpp
             lzw.h lzw.cpp
-            vector.cpp vector.h
             hash_table.h hashtable.hxx
             superqueue.h superqueue.cpp
-            matrix.h matrix.cpp
-            camera.h camera.cpp
             paths.h paths.cpp)
 
 ADD_LIBRARY(misc STATIC ${SOURCES})
+
+SET(SOURCES vector.cpp vector.h
+            matrix.h matrix.cpp
+            camera.h camera.cpp)
+
+ADD_LIBRARY(3dtoolbox STATIC ${SOURCES})

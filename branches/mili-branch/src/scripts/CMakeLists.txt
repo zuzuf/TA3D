@@ -5,4 +5,4 @@ SET(SOURCES cob.cpp cob.h
             script.h script.cpp)
 
 ADD_LIBRARY(scripts STATIC ${SOURCES})
-ADD_DEPENDENCIES(scripts stdafx threads misc)
+ADD_DEPENDENCIES(scripts stdafx threads misc 3dtoolbox)
