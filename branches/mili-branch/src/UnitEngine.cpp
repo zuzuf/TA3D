@@ -2103,7 +2103,7 @@ void UNIT::explode()
     }
 
     int power = max(unit_manager.unit_type[type_id].FootprintX, unit_manager.unit_type[type_id].FootprintZ);
-    fx_manager.add_flash( Pos, power * 32 );
+    fx_manager.addFlash( Pos, power * 32 );
     fx_manager.addExplosion( Pos, power * 3, power * 10 );
 
     int param[]={ severity * 100 / unit_manager.unit_type[type_id].MaxDamage, 0 };
@@ -4403,7 +4403,7 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
                 ripple_timer = units.current_tick;
                 VECTOR ripple_pos = Pos;
                 ripple_pos.y = map->sealvl + 1.0f;
-                fx_manager.add_ripple( ripple_pos, ( (rand_from_table() % 201) - 100 ) * 0.0001f );
+                fx_manager.addRipple( ripple_pos, ( (rand_from_table() % 201) - 100 ) * 0.0001f );
             }
         }
     }

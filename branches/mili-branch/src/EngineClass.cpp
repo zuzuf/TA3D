@@ -1133,7 +1133,7 @@ namespace TA3D
                                 float grad_len = grad.sq();
                                 if( grad_len > 0.0f ) {
                                     grad = (1.0f / sqrt( grad_len )) * grad;
-                                    fx_manager.add_wave( POS, RAD2DEG * ( (grad.x >= 0.0f) ? -acos( grad.z ) : acos( grad.z ) ) );
+                                    fx_manager.addWave( POS, RAD2DEG * ( (grad.x >= 0.0f) ? -acos( grad.z ) : acos( grad.z ) ) );
                                 }
                             }
                         }
