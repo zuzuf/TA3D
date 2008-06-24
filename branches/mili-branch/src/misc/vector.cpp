@@ -18,7 +18,7 @@ void VECTOR3D::unit()
 {
     if(!isNull()) // Si le vecteur n'est pas nul
     {
-        float n = Norm(); // Inverse de la norme du vecteur
+        float n = norm(); // Inverse de la norme du vecteur
         if(n != 0.0f)
         {
             n = 1.0f / n;

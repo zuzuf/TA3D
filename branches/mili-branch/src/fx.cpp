@@ -173,7 +173,7 @@ void FX::draw(CAMERA *cam, MAP *map, ANIM **anims)
 
 int FX_MANAGER::add(char *filename,char *entry_name,VECTOR Pos,float size)
 {
-    if(game_cam!=NULL && ((VECTOR)(Pos-game_cam->Pos)).Sq()>=game_cam->zfar2)	return -1;
+    if(game_cam!=NULL && ((VECTOR)(Pos-game_cam->Pos)).sq()>=game_cam->zfar2)	return -1;
 
     pMutex.lock();
 
@@ -242,7 +242,7 @@ void FX_MANAGER::load_data()
 
 int FX_MANAGER::add_flash(VECTOR Pos,float size)
 {
-    if(game_cam!=NULL && ((VECTOR)(Pos-game_cam->Pos)).Sq()>=game_cam->zfar2)	return -1;
+    if(game_cam!=NULL && ((VECTOR)(Pos-game_cam->Pos)).sq()>=game_cam->zfar2)	return -1;
 
     pMutex.lock();
 
@@ -271,7 +271,7 @@ int FX_MANAGER::add_flash(VECTOR Pos,float size)
 
 int FX_MANAGER::add_wave(VECTOR Pos,float size)
 {
-    if(game_cam!=NULL && ((VECTOR)(Pos-game_cam->Pos)).Sq()>=game_cam->zfar2)	return -1;
+    if(game_cam!=NULL && ((VECTOR)(Pos-game_cam->Pos)).sq()>=game_cam->zfar2)	return -1;
 
     pMutex.lock();
 
@@ -300,7 +300,7 @@ int FX_MANAGER::add_wave(VECTOR Pos,float size)
 
 int FX_MANAGER::add_ripple(VECTOR Pos,float size)
 {
-    if(game_cam!=NULL && ((VECTOR)(Pos-game_cam->Pos)).Sq()>=game_cam->zfar2)	return -1;
+    if(game_cam!=NULL && ((VECTOR)(Pos-game_cam->Pos)).sq()>=game_cam->zfar2)	return -1;
 
     pMutex.lock();
 

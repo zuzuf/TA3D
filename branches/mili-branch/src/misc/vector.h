@@ -40,13 +40,13 @@ public:
     VECTOR2D(const float ax, const float ay) : x(ax), y(ay) {}
     //}
 
-    float Sq() const { return (x*x + y*y); }         // carré scalaire
+    float sq() const { return (x*x + y*y); }         // carré scalaire
 
     /*!
     ** \brief Vector norm
     ** \return The value of the vector norm
     */
-    float Norm() const { return sqrt(x*x+y*y); }
+    float norm() const { return sqrt(x*x+y*y); }
 
     // Rend le vecteur unitaire si possible(de norme 1)
     void unit();
@@ -107,15 +107,19 @@ public:
     //}
 
     // Fonction qui renvoie le carré scalaire du vecteur
-    float Sq() const { return (x*x + y*y + z*z); }
+    float sq() const { return (x*x + y*y + z*z); }
 
     // Fonction qui renvoie la norme du vecteur
-    float Norm() const { return sqrt(x*x + y*y + z*z); }
+    float norm() const { return sqrt(x*x + y*y + z*z); }
 
     // Rend le vecteur unitaire si possible(de norme 1)
     void unit();
 
     
+    /*!
+    ** \brief Get if the vector is a null vector
+    ** \return True if the vector is a null vector, false otherwise
+    */
     bool isNull() const { return x == 0.0f && y == 0.0f && z == 0.0f; }
 
     //! \name Operators
@@ -202,7 +206,7 @@ inline const float operator % (const VECTOR3D& lhs, const VECTOR3D& rhs)
 
 inline double VAngle(const VECTOR& A, const VECTOR& B)
 {
-    float a = sqrt(A.Sq() * B.Sq());
+    float a = sqrt(A.sq() * B.sq());
     return (a == 0.0f) ? 0.0f : acos((A % B) / a );
 }
 

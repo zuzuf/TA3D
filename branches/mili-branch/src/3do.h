@@ -706,7 +706,7 @@ public:
 	{
 		float size=0.0f;
 		for(int i=0;i<nb_vtx;i++) {
-			float dist=(points[i]-center).Sq();
+			float dist=(points[i]-center).sq();
 			if(size<dist)
 				size=dist;
 			}

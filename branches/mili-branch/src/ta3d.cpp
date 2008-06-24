@@ -971,9 +971,9 @@ int play(GAME_DATA *game_data)
             cur_dir.unit();		// Direction pointée par le curseur
             VECTOR moving_target = cam_target - cam.RPos;
             moving_target = moving_target - (moving_target % cur_dir) * cur_dir;
-            float d = moving_target.Sq();
+            float d = moving_target.sq();
             moving_target.y = 0.0f;
-            float D = moving_target.Sq();
+            float D = moving_target.sq();
             if(D == 0.0f)
                 cam_has_target = false;
             else

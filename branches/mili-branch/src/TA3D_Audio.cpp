@@ -938,7 +938,7 @@ void cAudio::PurgeSounds( void )
 void cAudio::PlaySound( const String &Filename, const VECTOR3D *vec )
 {
     MutexLocker locker(pMutex);
-    if( vec != NULL && game_cam != NULL && ((VECTOR)(*vec - game_cam->RPos)).Sq() > 360000.0f )	// If the source is too far, does not even think about playing it!
+    if( vec != NULL && game_cam != NULL && ((VECTOR)(*vec - game_cam->RPos)).sq() > 360000.0f) // If the source is too far, does not even think about playing it!
         return;
 
     //	Console->AddEntry("playing %s", (char*)Filename.c_str());

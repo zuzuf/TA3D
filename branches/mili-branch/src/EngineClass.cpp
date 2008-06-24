@@ -973,7 +973,7 @@ namespace TA3D
                             view[y][rx1] = 0;
                             continue;
                         }
-                        float d = V.Sq();
+                        float d = V.sq();
                         if(d > 16384.0f)
                             if(sq(V % cam->Dir) < ref * d)
                             {
@@ -993,7 +993,7 @@ namespace TA3D
                             view[y][rx2] = 0;
                             continue;
                         }
-                        float d = V.Sq();
+                        float d = V.sq();
                         if(d > 16384.0f)
                             if(sq(V % cam->Dir) < ref * d) {
                                 view[y][rx2] = 0;
@@ -1130,7 +1130,7 @@ namespace TA3D
                                     grad.x += h_map[Y|1][X|1] - sealvl;
                                     grad.z -= h_map[Y|1][X|1] - sealvl;
                                 }
-                                float grad_len = grad.Sq();
+                                float grad_len = grad.sq();
                                 if( grad_len > 0.0f ) {
                                     grad = (1.0f / sqrt( grad_len )) * grad;
                                     fx_manager.add_wave( POS, RAD2DEG * ( (grad.x >= 0.0f) ? -acos( grad.z ) : acos( grad.z ) ) );
@@ -1405,7 +1405,7 @@ namespace TA3D
         float dwm=map_w_d;
         float dhm=map_h_d;
         Dir=(1.0f*step)*Dir;
-        float len_step = Dir.Norm();
+        float len_step = Dir.norm();
         while(((sealvl<Pos.y && water) || !water) && get_max_h((int)(Pos.x+map_w_d)>>3,(int)(Pos.z+map_h_d)>>3)<Pos.y) {
             if(nb >= nb_limit || length<0.0f)
                 return Pos;

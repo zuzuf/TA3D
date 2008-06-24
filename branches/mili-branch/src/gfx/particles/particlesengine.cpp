@@ -100,7 +100,7 @@ namespace TA3D
         MutexLocker locker(pMutex);
         if (!lp_CONFIG->particle)	// If particles are OFF don't add particles
             return;
-        if (game_cam!=NULL && ((VECTOR)(game_cam->Pos-pos)).Sq()>=game_cam->zfar2)
+        if (game_cam!=NULL && ((VECTOR)(game_cam->Pos-pos)).sq()>=game_cam->zfar2)
             return;
 
         while (nb_part + nb > size)	// Si besoin alloue de la mémoire
@@ -167,7 +167,7 @@ namespace TA3D
         }
         else
         {
-            if (game_cam != NULL && ((VECTOR)(game_cam->Pos-pos)).Sq()>=game_cam->zfar2)
+            if (game_cam != NULL && ((VECTOR)(game_cam->Pos-pos)).sq()>=game_cam->zfar2)
                 return NULL;
 
             system = new ParticlesSystem;
@@ -225,7 +225,7 @@ namespace TA3D
     {
         if (!lp_CONFIG->particle ) // If particles are OFF don't add particles
             return;
-        if (game_cam!=NULL && ((VECTOR)(game_cam->Pos-pos)).Sq()>=game_cam->zfar2)
+        if (game_cam!=NULL && ((VECTOR)(game_cam->Pos-pos)).sq()>=game_cam->zfar2)
             return;
 
         pMutex.lock();
@@ -360,7 +360,7 @@ namespace TA3D
             part[cur_part].V.z=((rand_from_table()%2001)-1000);
             part[cur_part].V.unit();
             part[cur_part].V=(100.0f - pow((float)(rand_from_table()%100),2.0f)*0.01f)*pre*part[cur_part].V;
-            part[cur_part].life=3.0f + part[cur_part].V.Sq() * 0.0001f;
+            part[cur_part].life=3.0f + part[cur_part].V.sq() * 0.0001f;
             part[cur_part].mass=1.0f;
             part[cur_part].smoking=-1.0f;
             part[cur_part].gltex=tex;
@@ -373,7 +373,7 @@ namespace TA3D
             part[cur_part].dcol[2]=0.0f;
             part[cur_part].dcol[3]=-1.0f/part[cur_part].life;
             part[cur_part].angle=0.0f;
-            part[cur_part].v_rot = ((rand_from_table()%200)*0.01f-0.1f) * part[cur_part].V.Norm() * 0.015f / pre;
+            part[cur_part].v_rot = ((rand_from_table()%200)*0.01f-0.1f) * part[cur_part].V.norm() * 0.015f / pre;
             part[cur_part].size=4.0f;
             part[cur_part].use_wind=true;
             part[cur_part].dsize=10.0f;
@@ -390,7 +390,7 @@ namespace TA3D
     {
         if (!lp_CONFIG->particle ) // If particles are OFF don't add particles
             return;
-        if (game_cam!=NULL && ((VECTOR)(game_cam->Pos-pos)).Sq()>=game_cam->zfar2)
+        if (game_cam!=NULL && ((VECTOR)(game_cam->Pos-pos)).sq()>=game_cam->zfar2)
             return;
 
         pMutex.lock();
@@ -442,7 +442,7 @@ namespace TA3D
     {
         if (!lp_CONFIG->particle ) // If particles are OFF don't add particles
             return;
-        if (game_cam != NULL && ((VECTOR)(game_cam->Pos-pos)).Sq()>=game_cam->zfar2)
+        if (game_cam != NULL && ((VECTOR)(game_cam->Pos-pos)).sq()>=game_cam->zfar2)
             return;
 
         pMutex.lock();
@@ -495,7 +495,7 @@ namespace TA3D
     {
         if (!lp_CONFIG->particle ) // If particles are OFF don't add particles
             return;
-        if (game_cam!=NULL && ((VECTOR)(game_cam->Pos-pos)).Sq()>=game_cam->zfar2)
+        if (game_cam!=NULL && ((VECTOR)(game_cam->Pos-pos)).sq()>=game_cam->zfar2)
             return;
 
         pMutex.lock();

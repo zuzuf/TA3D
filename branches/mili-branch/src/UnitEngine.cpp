@@ -605,7 +605,7 @@ void UNIT::draw(float t, CAMERA *cam,MAP *map,bool height_line)
     VECTOR D;
     D=Pos-cam->Pos;		// Vecteur "viseur unité" partant de la caméra vers l'unité
 
-    float dist=D.Sq();
+    float dist=D.sq();
     if (dist>=16384.0f && (D%cam->Dir)<=0.0f)
     {
 #ifdef	ADVANCED_DEBUG_MODE
@@ -1023,7 +1023,7 @@ void UNIT::draw_shadow(CAMERA *cam,VECTOR Dir,MAP *map)
         VECTOR H = drawn_Pos;
         H.y += 2.0f * model->size2 + 1.0f;
         VECTOR D = map->hit( H, Dir, true, 2000.0f);
-        shadow_scale_dir = (D - H).Norm();
+        shadow_scale_dir = (D - H).norm();
     }
     model->draw_shadow(((shadow_scale_dir*Dir*RotateX(-drawn_Angle.x*DEG2RAD))*RotateZ(-drawn_Angle.z*DEG2RAD))*RotateY(-drawn_Angle.y*DEG2RAD),0.0f,&data);
 
@@ -1098,7 +1098,7 @@ void UNIT::draw_shadow_basic(CAMERA *cam,VECTOR Dir,MAP *map)
         VECTOR H = drawn_Pos;
         H.y += 2.0f * model->size2 + 1.0f;
         VECTOR D = map->hit( H, Dir, true, 2000.0f);
-        shadow_scale_dir = (D - H).Norm();
+        shadow_scale_dir = (D - H).norm();
     }
     model->draw_shadow_basic(((shadow_scale_dir*Dir*RotateX(-drawn_Angle.x*DEG2RAD))*RotateZ(-drawn_Angle.z*DEG2RAD))*RotateY(-drawn_Angle.y*DEG2RAD),0.0f,&data);
 
@@ -2411,7 +2411,7 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
                             int cur_idx = map->map_data[y][x].unit_idx;
 
                             if(cur_idx>=0 && cur_idx < units.max_unit && (units.unit[cur_idx].flags & 1) && units.unit[cur_idx].owner_id != owner_id
-                               && SQUARE(unit_manager.unit_type[type_id].mincloakdistance) < (Pos - units.unit[ cur_idx ].Pos).Sq() )
+                               && SQUARE(unit_manager.unit_type[type_id].mincloakdistance) < (Pos - units.unit[ cur_idx ].Pos).sq() )
                             {
                                 found = true;
                                 break;
@@ -2519,7 +2519,7 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
                             WEAPON *target_weapon = (weapon[i].state & WEAPON_FLAG_WEAPON ) == WEAPON_FLAG_WEAPON ? (WEAPON*) weapon[i].target : NULL;
 
                             VECTOR target = target_unit==NULL ? (target_weapon==NULL ? weapon[i].target_pos-Pos : target_weapon->Pos-Pos) : target_unit->Pos-Pos;
-                            float dist = target.Sq();
+                            float dist = target.sq();
                             int maxdist = 0;
                             int mindist = 0;
 
@@ -2530,7 +2530,7 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
                                     break;	// We're not shooting at the target
                                 }
                                 float t = 2.0f/map->ota_data.gravity*fabs(target.y);
-                                mindist = (int)sqrt(t*V.Sq())-(unit_manager.unit_type[type_id].attackrunlength+1>>1);
+                                mindist = (int)sqrt(t*V.sq())-(unit_manager.unit_type[type_id].attackrunlength+1>>1);
                                 maxdist = mindist+(unit_manager.unit_type[type_id].attackrunlength);
                             }
                             else
@@ -2544,7 +2544,7 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
 
                             VECTOR target_translation;
                             if( target_unit != NULL )
-                                target_translation = ( target.Norm() / unit_manager.unit_type[type_id].weapon[ i ]->weaponvelocity) * (target_unit->V - V);
+                                target_translation = ( target.norm() / unit_manager.unit_type[type_id].weapon[ i ]->weaponvelocity) * (target_unit->V - V);
 
                             if(unit_manager.unit_type[type_id].weapon[ i ]->turret) {			// Si l'unité doit viser, on la fait viser / if it must aim, we make it aim
                                 if( script_val->size() <= query_id )
@@ -2569,7 +2569,7 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
                                 target = target + target_translation - data.pos[start_piece];
                                 if( target_unit!=NULL )
                                     target = target + target_pos_on_unit;
-                                dist = target.Norm();
+                                dist = target.norm();
                                 target=(1.0f/dist)*target;
                                 VECTOR I,J,IJ,RT;
                                 I.x=0.0f;	I.z=1.0f;	I.y=0.0f;
@@ -2594,12 +2594,12 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
                                         v=unit_manager.unit_type[type_id].weapon[ i ]->startvelocity;
                                     if(target_unit==NULL) {
                                         if( target_weapon==NULL )
-                                            aiming[1]=(int)(ballistic_angle(v,map->ota_data.gravity,D.Norm(),(Pos+data.pos[start_piece]).y,weapon[i].target_pos.y)*DEG2TA);
+                                            aiming[1]=(int)(ballistic_angle(v,map->ota_data.gravity,D.norm(),(Pos+data.pos[start_piece]).y,weapon[i].target_pos.y)*DEG2TA);
                                         else
-                                            aiming[1]=(int)(ballistic_angle(v,map->ota_data.gravity,D.Norm(),(Pos+data.pos[start_piece]).y,target_weapon->Pos.y)*DEG2TA);
+                                            aiming[1]=(int)(ballistic_angle(v,map->ota_data.gravity,D.norm(),(Pos+data.pos[start_piece]).y,target_weapon->Pos.y)*DEG2TA);
                                     }
                                     else
-                                        aiming[1]=(int)(ballistic_angle(v,map->ota_data.gravity,D.Norm(),(Pos+data.pos[start_piece]).y,target_unit->Pos.y+target_unit->model->center.y*0.5f)*DEG2TA);
+                                        aiming[1]=(int)(ballistic_angle(v,map->ota_data.gravity,D.norm(),(Pos+data.pos[start_piece]).y,target_unit->Pos.y+target_unit->model->center.y*0.5f)*DEG2TA);
                                 }
                                 else {
                                     VECTOR K=target;
@@ -2805,7 +2805,7 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
                     mission->path = NULL;
                 }
                 mission->flags &= ~MISSION_FLAG_REFRESH_PATH;
-                float dist = (Target-Pos).Sq();
+                float dist = (Target-Pos).sq();
                 if( ( mission->move_data <= 0 && dist > 100.0f ) || ( ( mission->move_data * mission->move_data << 6 ) < dist ) ) {
                     if( !requesting_pathfinder && last_path_refresh >= 5.0f ) {
                         requesting_pathfinder = true;
@@ -2862,11 +2862,11 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
                     stop_moving();
             }
             if( mission->path ) {				// If we have a path, follow it
-                if( (mission->target - move_target_computed).Sq() >= 10000.0f )			// Follow the target above all...
+                if( (mission->target - move_target_computed).sq() >= 10000.0f )			// Follow the target above all...
                     mission->flags |= MISSION_FLAG_REFRESH_PATH;
                 J = Target - Pos;
                 J.y = 0.0f;
-                float dist = J.Norm();
+                float dist = J.norm();
                 if((dist > mission->last_d && dist < 15.0f) || mission->path == NULL) {
                     if(mission->path) {
                         float dh_max = unit_manager.unit_type[type_id].MaxSlope * H_DIV;
@@ -2879,7 +2879,7 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
                     if(mission->path == NULL) {		// End of path reached
                         J = move_target_computed - Pos;
                         J.y = 0.0f;
-                        if( J.Sq() <= 256.0f || flying ) {
+                        if( J.sq() <= 256.0f || flying ) {
                             if( !(mission->flags & MISSION_FLAG_DONT_STOP_MOVE) && (mission == NULL || mission->mission != MISSION_PATROL ) )
                                 play_sound( "arrived1" );
                             mission->flags &= ~MISSION_FLAG_MOVE;
@@ -2916,11 +2916,11 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
                     V = (V%K)*K + (V%J)*J;
                     if(!(dist < 15.0f && fabs( Angle.y - f_TargetAngle ) >= 1.0f)) {
                         if( fabs( Angle.y - f_TargetAngle ) >= 45.0f ) {
-                            if( J % V > 0.0f && V.Norm() > unit_manager.unit_type[type_id].BrakeRate * dt )
+                            if( J % V > 0.0f && V.norm() > unit_manager.unit_type[type_id].BrakeRate * dt )
                                 V = V - ((( fabs( Angle.y - f_TargetAngle ) - 35.0f ) / 135.0f + 1.0f) * 0.5f * unit_manager.unit_type[type_id].BrakeRate * dt) * J;
                         }
                         else {
-                            float speed = V.Norm();
+                            float speed = V.norm();
                             float time_to_stop = speed / unit_manager.unit_type[type_id].BrakeRate;
                             float min_dist = time_to_stop * (speed-unit_manager.unit_type[type_id].BrakeRate*0.5f*time_to_stop);
                             if(min_dist>=dist && !(mission->flags & MISSION_FLAG_DONT_STOP_MOVE)
@@ -2933,7 +2933,7 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
                         }
                     }
                     else {
-                        float speed = V.Norm();
+                        float speed = V.norm();
                         if( speed > unit_manager.unit_type[type_id].MaxVelocity )
                             V = unit_manager.unit_type[type_id].MaxVelocity / speed * V;
                     }
@@ -3063,7 +3063,7 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
                     V.z += dt * ( -map->map_h_d - Pos.z ) * 0.1f;
                 else if( Pos.z > map->map_h_d )
                     V.z -= dt * ( Pos.z - map->map_h_d ) * 0.1f;
-                float speed = V.Norm();
+                float speed = V.norm();
                 if( speed > unit_manager.unit_type[ type_id ].MaxVelocity && speed > 0.0f ) {
                     V = unit_manager.unit_type[ type_id ].MaxVelocity / speed * V;
                     speed = unit_manager.unit_type[ type_id ].MaxVelocity;
@@ -3108,7 +3108,7 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
 
                     VECTOR Dir = mission->target - Pos;
                     Dir.y = 0.0f;
-                    float dist = Dir.Sq();
+                    float dist = Dir.sq();
                     int maxdist = 6;
                     if( dist > maxdist * maxdist && unit_manager.unit_type[type_id].BMcode ) {	// Si l'unité est trop loin du chantier
                         mission->flags &= ~MISSION_FLAG_BEING_REPAIRED;
@@ -3127,7 +3127,7 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
                             Pos = Pos + 3.0f * dt * Dir;
                             Pos.x = mission->target.x;
                             Pos.z = mission->target.z;
-                            if( Dir.Sq() < 3.0f ) {
+                            if( Dir.sq() < 3.0f ) {
                                 target_unit->lock();
                                 if( target_unit->pad1 != 0xFFFF && target_unit->pad2 != 0xFFFF ) {		// We can't land here
                                     target_unit->unlock();
@@ -3202,7 +3202,7 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
                 if( nb_attached > 0 ) {
                     VECTOR Dir = mission->target-Pos;
                     Dir.y=0.0f;
-                    float dist = Dir.Sq();
+                    float dist = Dir.sq();
                     int maxdist=0;
                     if(unit_manager.unit_type[type_id].TransMaxUnits==1)		// Code for units like the arm atlas
                         maxdist=3;
@@ -3266,7 +3266,7 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
                     VECTOR Dir=target_unit->Pos-Pos;
                     Dir.y=0.0f;
                     mission->target=target_unit->Pos;
-                    float dist = Dir.Sq();
+                    float dist = Dir.sq();
                     int maxdist=0;
                     if(unit_manager.unit_type[type_id].TransMaxUnits==1)		// Code for units like the arm atlas
                         maxdist=3;
@@ -3332,7 +3332,7 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
                         VECTOR Dir=target_unit->Pos-Pos;
                         Dir.y=0.0f;
                         mission->target=target_unit->Pos;
-                        float dist=Dir.Sq();
+                        float dist=Dir.sq();
                         int maxdist = mission->mission == MISSION_CAPTURE ? (int)(unit_manager.unit_type[type_id].SightDistance) : (int)(unit_manager.unit_type[type_id].BuildDistance);
                         if(dist>maxdist*maxdist && unit_manager.unit_type[type_id].BMcode) {	// Si l'unité est trop loin du chantier
                             c_time=0.0f;
@@ -3342,7 +3342,7 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
                         }
                         else if( !(mission->flags & MISSION_FLAG_MOVE) ) {
                             if(mission->last_d>=0.0f) {
-                                int angle = (int)( acos( Dir.z / Dir.Norm() ) * RAD2DEG );
+                                int angle = (int)( acos( Dir.z / Dir.norm() ) * RAD2DEG );
                                 if( Dir.x < 0.0f )
                                     angle = -angle;
                                 angle -= (int)Angle.y;
@@ -3424,7 +3424,7 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
                     VECTOR Dir=features.feature[mission->data].Pos-Pos;
                     Dir.y=0.0f;
                     mission->target=features.feature[mission->data].Pos;
-                    float dist=Dir.Sq();
+                    float dist=Dir.sq();
                     int maxdist = mission->mission == MISSION_REVIVE ? (int)(unit_manager.unit_type[type_id].SightDistance) : (int)(unit_manager.unit_type[type_id].BuildDistance);
                     if(dist>maxdist*maxdist && unit_manager.unit_type[type_id].BMcode) {	// If the unit is too far from its target
                         c_time = 0.0f;
@@ -3434,7 +3434,7 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
                     }
                     else if( !(mission->flags & MISSION_FLAG_MOVE) ) {
                         if(mission->last_d>=0.0f) {
-                            int angle = (int)( acos( Dir.z / Dir.Norm() ) * RAD2DEG );
+                            int angle = (int)( acos( Dir.z / Dir.norm() ) * RAD2DEG );
                             if( Dir.x < 0.0f )
                                 angle = -angle;
                             angle -= (int)Angle.y;
@@ -3548,7 +3548,7 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
                             break;
                         }
                     }
-                    if(((VECTOR)(Pos-((UNIT*)mission->p)->Pos)).Sq()>=25600.0f) {			// On reste assez près
+                    if(((VECTOR)(Pos-((UNIT*)mission->p)->Pos)).sq()>=25600.0f) {			// On reste assez près
                         mission->flags |= MISSION_FLAG_MOVE;// | MISSION_FLAG_REFRESH_PATH;
                         mission->move_data = 10;
                         mission->target = ((UNIT*)mission->p)->Pos;
@@ -3593,7 +3593,7 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
                                     VECTOR Dir = units.unit[ *i ].Pos - Pos;
                                     Dir.y = 0.0f;
                                     if( (units.unit[ *i ].pad1 == 0xFFFF || units.unit[ *i ].pad2 == 0xFFFF) && units.unit[ *i ].build_percent_left == 0.0f
-                                        && Dir.Sq() <= SQUARE(unit_manager.unit_type[ type_id ].ManeuverLeashLength)) // He can repair us :)
+                                        && Dir.sq() <= SQUARE(unit_manager.unit_type[ type_id ].ManeuverLeashLength)) // He can repair us :)
                                         {
                                             int target_idx = *i;
                                             units.unit[ target_idx ].unlock();
@@ -3688,7 +3688,7 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
                         Dir.y = 0.0f;
                         if( target_weapon || target_unit )
                             mission->target = target_unit==NULL ? target_weapon->Pos : target_unit->Pos;
-                        float dist = Dir.Sq();
+                        float dist = Dir.sq();
                         int maxdist = 0;
                         int mindist = 0xFFFFF;
 
@@ -3705,7 +3705,7 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
                             if(unit_manager.unit_type[type_id].attackrunlength>0) {
                                 if( Dir % V < 0.0f )	allowed_to_fire = false;
                                 float t = 2.0f/map->ota_data.gravity*fabs(Pos.y-mission->target.y);
-                                cur_mindist = (int)sqrt(t*V.Sq())-(unit_manager.unit_type[type_id].attackrunlength+1>>1);
+                                cur_mindist = (int)sqrt(t*V.sq())-(unit_manager.unit_type[type_id].attackrunlength+1>>1);
                                 cur_maxdist = cur_mindist+(unit_manager.unit_type[type_id].attackrunlength);
                             }
                             else {
@@ -3815,7 +3815,7 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
                             VECTOR Dir=target_unit->Pos-Pos;
                             Dir.y=0.0f;
                             mission->target=target_unit->Pos;
-                            float dist=Dir.Sq();
+                            float dist=Dir.sq();
                             int maxdist=(int)(unit_manager.unit_type[type_id].BuildDistance
                                               + ( unit_manager.unit_type[target_unit->type_id].FootprintX + unit_manager.unit_type[target_unit->type_id].FootprintZ << 1 ) );
                             if(dist>maxdist*maxdist && unit_manager.unit_type[type_id].BMcode) {	// Si l'unité est trop loin du chantier
@@ -3827,7 +3827,7 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
                             else if( !(mission->flags & MISSION_FLAG_MOVE) ) {
                                 if(mission->data==0) {
                                     mission->data=1;
-                                    int angle = (int)( acos( Dir.z / Dir.Norm() ) * RAD2DEG );
+                                    int angle = (int)( acos( Dir.z / Dir.norm() ) * RAD2DEG );
                                     if( Dir.x < 0.0f )
                                         angle = -angle;
                                     angle -= (int)Angle.y;
@@ -3858,7 +3858,7 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
                         VECTOR Dir=target_unit->Pos-Pos;
                         Dir.y=0.0f;
                         mission->target=target_unit->Pos;
-                        float dist=Dir.Sq();
+                        float dist=Dir.sq();
                         int maxdist=(int)(unit_manager.unit_type[type_id].BuildDistance
                                           + ( unit_manager.unit_type[target_unit->type_id].FootprintX + unit_manager.unit_type[target_unit->type_id].FootprintZ << 1 ));
                         if(dist>maxdist*maxdist && unit_manager.unit_type[type_id].BMcode) {	// Si l'unité est trop loin du chantier
@@ -3868,7 +3868,7 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
                         }
                         else if( !(mission->flags & MISSION_FLAG_MOVE) ) {
                             if( unit_manager.unit_type[type_id].BMcode ) {
-                                int angle = (int)( acos( Dir.z / Dir.Norm() ) * RAD2DEG );
+                                int angle = (int)( acos( Dir.z / Dir.norm() ) * RAD2DEG );
                                 if( Dir.x < 0.0f )
                                     angle = -angle;
                                 angle -= (int)Angle.y;
@@ -3938,7 +3938,7 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
                                     target_unit->Pos=Pos+data.pos[(*script_val)[script_id_buildinfo]];
                                     if( unit_manager.unit_type[ target_unit->type_id ].Floater || ( unit_manager.unit_type[ target_unit->type_id ].canhover && old_pos.y <= map->sealvl ) )
                                         target_unit->Pos.y = old_pos.y;
-                                    if(((VECTOR)(old_pos-target_unit->Pos)).Sq() > 1000000.0f) {			// It must be continuous
+                                    if(((VECTOR)(old_pos-target_unit->Pos)).sq() > 1000000.0f) {			// It must be continuous
                                         target_unit->Pos.x = old_pos.x;
                                         target_unit->Pos.z = old_pos.z;
                                     }
@@ -3970,7 +3970,7 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
                 if(mission->p) {
                     VECTOR Dir = mission->target - Pos;
                     Dir.y = 0.0f;
-                    int angle = (int)( acos( Dir.z / Dir.Norm() ) * RAD2DEG );
+                    int angle = (int)( acos( Dir.z / Dir.norm() ) * RAD2DEG );
                     if( Dir.x < 0.0f )
                         angle = -angle;
                     angle -= (int)Angle.y;
@@ -3985,7 +3985,7 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
                 else {
                     VECTOR Dir = mission->target - Pos;
                     Dir.y = 0.0f;
-                    float dist = Dir.Sq();
+                    float dist = Dir.sq();
                     int maxdist = (int)(unit_manager.unit_type[type_id].BuildDistance
                                         + ( unit_manager.unit_type[mission->data].FootprintX + unit_manager.unit_type[mission->data].FootprintZ << 1 ) );
                     if(dist>maxdist*maxdist && unit_manager.unit_type[type_id].BMcode) {	// Si l'unité est trop loin du chantier
@@ -4135,7 +4135,7 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
                     VECTOR Target = mission->target;
                     J = Target-Pos;
                     J.y = 0.0f;
-                    float dist = J.Norm();
+                    float dist = J.norm();
                     mission->last_d = dist;
                     if(dist > 0.0f)
                         J = 1.0f / dist * J;
@@ -4152,7 +4152,7 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
                     I.x = J.z;
                     I.y = 0.0f;
                     V = (V%K)*K+(V%J)*J+units.exp_dt_4*(V%I)*I;
-                    float speed = V.Sq();
+                    float speed = V.sq();
                     if( speed < unit_manager.unit_type[type_id].MaxVelocity * unit_manager.unit_type[type_id].MaxVelocity )
                         V=V+unit_manager.unit_type[type_id].Acceleration*dt*J;
                 }
@@ -4292,8 +4292,8 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
                     uint32 i = weapons.idx_list[f];
                     if(weapons.weapon[i].weapon_id!=-1 && units.unit[weapons.weapon[i].shooter_idx].owner_id!=owner_id
                        && weapon_manager.weapon[weapons.weapon[i].weapon_id].targetable)
-                        if(((VECTOR)(weapons.weapon[i].target_pos-Pos)).Sq()<=coverage
-                           && ((VECTOR)(weapons.weapon[i].Pos-Pos)).Sq()<=range) {
+                        if(((VECTOR)(weapons.weapon[i].target_pos-Pos)).sq()<=coverage
+                           && ((VECTOR)(weapons.weapon[i].Pos-Pos)).sq()<=range) {
                             int idx=-1;
                             for(e=0;e<mem_size;e++)
                                 if(memory[e]==i) {
@@ -4325,11 +4325,11 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
         VECTOR virtual_G;						// Compute the apparent gravity force ( seen from the plane )
         virtual_G.x = virtual_G.z = 0.0f;		// Standard gravity vector
         virtual_G.y = -4.0f * units.g_dt;
-        float d = J.Sq();
+        float d = J.sq();
         if( d )
             virtual_G = virtual_G + (((old_V - V) % J) / d) * J;		// Add the opposite of the speed derivative projected on the side of the unit
 
-        d = virtual_G.Norm();
+        d = virtual_G.norm();
         if( d ) {
             virtual_G = -1.0f / d * virtual_G;
 
@@ -4396,7 +4396,7 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
             && cur_px >= 0 && cur_py >= 0 && cur_px < map->bloc_w_db && cur_py < map->bloc_h_db && !map->map_data[ cur_py ][ cur_px ].lava && map->water ) {
             VECTOR Diff = OPos - Pos;
             Diff.y = 0.0f;
-            if( Diff.Sq() > 0.1f && lp_CONFIG->waves ) {
+            if( Diff.sq() > 0.1f && lp_CONFIG->waves ) {
                 ripple_timer = units.current_tick;
                 VECTOR ripple_pos = Pos;
                 ripple_pos.y = map->sealvl + 1.0f;
@@ -4506,7 +4506,7 @@ bool UNIT::hit(VECTOR P,VECTOR Dir,VECTOR *hit_vec, float length)
     }
     if(model) {
         VECTOR c_dir=model->center+Pos-P;
-        if( c_dir.Norm()-length <=model->size2 ) {
+        if( c_dir.norm()-length <=model->size2 ) {
             float scale=unit_manager.unit_type[type_id].Scale;
             MATRIX_4x4 M=RotateX(-Angle.x*DEG2RAD)*RotateZ(-Angle.z*DEG2RAD)*RotateY(-Angle.y*DEG2RAD)*Scale(1.0f/scale);
             VECTOR RP=(P-Pos) * M;
@@ -4533,7 +4533,7 @@ bool UNIT::hit_fast(VECTOR P,VECTOR Dir,VECTOR *hit_vec, float length)
     }
     if(model) {
         VECTOR c_dir = model->center+Pos-P;
-        if( c_dir.Sq() <= ( model->size2 + length ) * ( model->size2 + length ) ) {
+        if( c_dir.sq() <= ( model->size2 + length ) * ( model->size2 + length ) ) {
             float scale=unit_manager.unit_type[type_id].Scale;
             MATRIX_4x4 M = RotateX(-Angle.x*DEG2RAD)*RotateZ(-Angle.z*DEG2RAD)*RotateY(-Angle.y*DEG2RAD)*Scale(1.0f/scale);
             VECTOR RP = (P - Pos) * M;
@@ -4595,7 +4595,7 @@ void UNIT::show_orders(bool only_build_commands, bool def_orders)				// Dessine 
             float sx=0.5f*(cursor.anm[CURSOR_CROSS_LINK].bmp[curseur]->w-1);
             float sy=0.5f*(cursor.anm[CURSOR_CROSS_LINK].bmp[curseur]->h-1);
             float x,y,z;
-            float dist=((VECTOR)(cur->target-p_target)).Norm();
+            float dist=((VECTOR)(cur->target-p_target)).norm();
             int rec=(int)(dist/30.0f);
             switch(cur->mission)
             {
@@ -4890,7 +4890,7 @@ bool INGAME_UNITS::select(CAMERA *cam,int sel_x[],int sel_y[])
                 unit[i].sel = false;
 
             VECTOR Vec=unit[i].Pos-cam->Pos;
-            float d=Vec.Sq();
+            float d=Vec.sq();
             if (d > 16384.0f && (Vec%cam->Dir) <= 0.0f)
             {
                 unit[i].unlock();
@@ -4950,7 +4950,7 @@ int INGAME_UNITS::pick(CAMERA *cam,int sensibility)
         VECTOR center=unit[i].model->center+unit[i].Pos-cam->Pos;
         float size=unit[i].model->size*unit_manager.unit_type[unit[i].type_id].Scale*unit_manager.unit_type[unit[i].type_id].Scale;
         center=Dir*center;
-        float dist=center.Sq();
+        float dist=center.sq();
         if(dist<size)
         {
             detectable=true;
@@ -4988,7 +4988,7 @@ int INGAME_UNITS::pick(CAMERA *cam,int sensibility)
             VECTOR D;
             if( unit[i].hit( cam->Pos, Dir, &D, 1000000.0f ) ) // Vecteur "viseur unité" partant de la caméra vers l'unité
             {
-                float dist = (D-cam->Pos).Sq();
+                float dist = (D-cam->Pos).sq();
                 if( dist < best_dist || index == -1 )
                 {
                     best_dist = dist;
@@ -6384,7 +6384,7 @@ void INGAME_UNITS::remove_order(int player_id,VECTOR target)
                 }
                 else
                 {
-                    if( !mission->step && (mission->target - target).Sq() < 256.0f ) // Remove it
+                    if( !mission->step && (mission->target - target).sq() < 256.0f ) // Remove it
                     {
                         MISSION *tmp = mission;
                         mission = mission->next;
