@@ -2577,7 +2577,7 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
                                 IJ.x=0.0f;	IJ.z=0.0f;	IJ.y=1.0f;
                                 RT=target;
                                 RT.y=0.0f;
-                                RT.Unit();
+                                RT.unit();
                                 float angle=acos(I%RT)*RAD2DEG;
                                 if(J%RT<0.0f) angle=-angle;
                                 angle-=Angle.y;
@@ -2604,7 +2604,7 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
                                 else {
                                     VECTOR K=target;
                                     K.y=0.0f;
-                                    K.Unit();
+                                    K.unit();
                                     angle=acos(K%target)*RAD2DEG;
                                     if(target.y<0.0f)
                                         angle=-angle;
@@ -2628,7 +2628,7 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
                                     else
                                         weapon[i].aim_dir = ((UNIT*)(weapon[i].target))->Pos+target_pos_on_unit-(Pos+data.pos[start_piece]);
                                     weapon[i].aim_dir = weapon[i].aim_dir + target_translation;
-                                    weapon[i].aim_dir.Unit();
+                                    weapon[i].aim_dir.unit();
                                 }
                                 else
                                     weapon[i].aim_dir=cos(aiming[1]*TA2RAD)*(cos(aiming[0]*TA2RAD+Angle.y*DEG2RAD)*I+sin(aiming[0]*TA2RAD+Angle.y*DEG2RAD)*J)+sin(aiming[1]*TA2RAD)*IJ;
@@ -2823,7 +2823,7 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
                                 mission->path = direct_path(mission->target);
                             else {
                                 VECTOR Dir = mission->target-Pos;
-                                Dir.Unit();
+                                Dir.unit();
                                 mission->path = direct_path(mission->target-(mission->move_data<<3)*Dir);
                             }
                         }
@@ -4177,7 +4177,7 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
                 C.y = map->get_unit_h(C.x,C.z);
                 VECTOR D=(B-A)*(B-C);
                 if(D.y>=0.0f) {					// On ne met pas une unité à l'envers!!
-                    D.Unit();
+                    D.unit();
                     float dist_sq = sqrt( D.y*D.y+D.z*D.z );
                     float angle_1= dist_sq != 0.0f ? acos( D.y / dist_sq )*RAD2DEG : 0.0f;
                     if(D.z<0.0f)	angle_1=-angle_1;
@@ -4624,7 +4624,7 @@ void UNIT::show_orders(bool only_build_commands, bool def_orders)				// Dessine 
                             D.x = D.z;
                             D.z = -D.y;
                             D.y = 0.0f;
-                            D.Unit();
+                            D.unit();
                             D = 5.0f * D;
                             VECTOR P;
                             P = p_target - D;	glVertex3fv( (GLfloat*)&P );
@@ -4928,7 +4928,7 @@ int INGAME_UNITS::pick(CAMERA *cam,int sensibility)
     Dir = cam->Dir + cam->width_factor * 2.0f * (mouse_x-gfx->SCREEN_W_HALF) * gfx->SCREEN_W_INV
         * cam->Side-1.5f * (mouse_y-gfx->SCREEN_H_HALF)
         * gfx->SCREEN_H_INV * cam->Up;
-    Dir.Unit();		// Direction pointée par le curseur
+    Dir.unit();		// Direction pointée par le curseur
 
     bool detectable=false;
     int i;

@@ -3,9 +3,9 @@
 
 
 
-void VECTOR2D::Unit()
+void VECTOR2D::unit()
 {
-    if (x != 0.0f || y != 0.0f) // Si le vecteur n'est pas nul
+    if (!isNull()) // Si le vecteur n'est pas nul
     {
         float n = 1.0f / sqrt(x*x + y*y);    // Inverse de la norme du vecteur
         x *= n;
@@ -14,12 +14,12 @@ void VECTOR2D::Unit()
 }
 
 
-void VECTOR3D::Unit()
+void VECTOR3D::unit()
 {
-    if(x != 0.0f || y != 0.0f || z != 0.0f) // Si le vecteur n'est pas nul
+    if(!isNull()) // Si le vecteur n'est pas nul
     {
-        float n=Norm();				// Inverse de la norme du vecteur
-        if(n!=0.0f)
+        float n = Norm(); // Inverse de la norme du vecteur
+        if(n != 0.0f)
         {
             n = 1.0f / n;
             x *= n;

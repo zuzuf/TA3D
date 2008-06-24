@@ -49,7 +49,9 @@ public:
     float Norm() const { return sqrt(x*x+y*y); }
 
     // Rend le vecteur unitaire si possible(de norme 1)
-    void Unit();
+    void unit();
+
+    bool isNull() const { return x == 0.0f && y == 0.0f; }
 
     //! \name Operators
     //{
@@ -71,6 +73,9 @@ public:
 
     bool operator != (const VECTOR2D& rhs) const
     { return !(*this == rhs); } 
+
+    VECTOR2D& operator = (const VECTOR2D& rhs)
+    { x = rhs.x; y = rhs.y; }
 
     //}
 
@@ -108,7 +113,10 @@ public:
     float Norm() const { return sqrt(x*x + y*y + z*z); }
 
     // Rend le vecteur unitaire si possible(de norme 1)
-    void Unit();
+    void unit();
+
+    
+    bool isNull() const { return x == 0.0f && y == 0.0f && z == 0.0f; }
 
     //! \name Operators
     //{
@@ -130,6 +138,9 @@ public:
 
     bool operator != (const VECTOR3D& rhs) const
     { return !(*this == rhs); } 
+
+    VECTOR3D& operator = (const VECTOR3D& rhs)
+    { x = rhs.x; y = rhs.y; z = rhs.z; }
 
     //}
 

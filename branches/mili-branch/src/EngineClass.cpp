@@ -809,7 +809,7 @@ namespace TA3D
         y1-=3;
         if(y1<0) y1=0;
 
-        A=(cam->Dir+0.75f*cam->Up-cam->width_factor*cam->Side);	A.Unit();
+        A=(cam->Dir+0.75f*cam->Up-cam->width_factor*cam->Side);	A.unit();
         float ref = sq( 0.95f*(A%cam->Dir) );
         float dhm=0.5f*map_h;
         float dwm=0.5f*map_w;
@@ -1086,8 +1086,10 @@ namespace TA3D
                             continue;
                         }
                     }
-                    else {
-                        if( check_visibility ) {
+                    else
+                    {
+                        if( check_visibility )
+                        {
                             bool under_water = (h_map[Y|1][X|1] < sealvl && h_map[Y][X|1] < sealvl && h_map[Y|1][X] < sealvl && h_map[Y][X] < sealvl);
 
                             if( (bloc[i].lava || (under_water && ota_data.lavaworld) ) && !lp_CONFIG->pause
@@ -1096,7 +1098,7 @@ namespace TA3D
                                 V.x = ((rand_from_table()%201)-100);
                                 V.y = ((rand_from_table()%51)+50);
                                 V.z = ((rand_from_table()%201)-100);
-                                V.Unit();
+                                V.unit();
                                 particle_engine.emit_lava(POS,V,1,10,(rand_from_table()%1000)*0.01f+30.0f);
                             }
                             else if( !map_data[ Y ][ X ].lava && water && !ota_data.lavaworld && !under_water && !lp_CONFIG->pause &&										// A wave

@@ -621,12 +621,12 @@ void obj_maj_normal(int idx)
 		VECTOR AB,AC,Normal;
 		AB = cur->points[cur->t_index[i+1]] - cur->points[cur->t_index[i]];
 		AC = cur->points[cur->t_index[i+2]] - cur->points[cur->t_index[i]];
-		Normal=AB*AC;	Normal.Unit();
+		Normal=AB*AC;	Normal.unit();
 		for(int e=0;e<3;e++)
 			cur->N[cur->t_index[i+e]]=cur->N[cur->t_index[i+e]]+Normal;
 		}
 	for(int i=0;i<cur->nb_vtx;i++)
-		cur->N[i].Unit();
+		cur->N[i].unit();
 }
 
 void obj_geo_optimize(int idx,bool notex)
@@ -724,7 +724,7 @@ int intersect(VECTOR O,VECTOR Dir,OBJECT *obj,VECTOR *PA,VECTOR *PB)	// Calcule 
 	float mdist=1000000.0f;			// Distance du point de départ du rayon à l'objet
 	int index=-1;					// -1 pour aucun triangle touché
 
-	Dir.Unit();		// S'assure que Dir est normalisé
+	Dir.unit();		// S'assure que Dir est normalisé
 	for(int i=0;i<obj->nb_t_index/3;i++) {			// Effectue l'opération pour chaque triangle
 		VECTOR A,B,C,P;
 		VECTOR AB,AC,N,AO;
@@ -736,7 +736,7 @@ int intersect(VECTOR O,VECTOR Dir,OBJECT *obj,VECTOR *PA,VECTOR *PB)	// Calcule 
 
 		AB=B-A;	AC=C-A;
 		N=AB*AC;								// Calcule un vecteur normal au triangle
-		N.Unit();			// Normalise ce vecteur
+		N.unit();			// Normalise ce vecteur
 
 		orient=Dir%N;
 

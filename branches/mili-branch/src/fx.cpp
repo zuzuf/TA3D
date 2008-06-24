@@ -482,7 +482,7 @@ bool FX_PARTICLE::move( float dt )
         float dx = the_map->get_unit_h( Pos.x + 16.0f, Pos.z ) - min_h;
         float dz = the_map->get_unit_h( Pos.x, Pos.z + 16.0f ) - min_h;
         VECTOR Normal( -dx, 16.0f, -dz );
-        Normal.Unit();
+        Normal.unit();
 
         if( Speed % Normal < 0.0f )
             Speed = Speed - (1.5f * (Speed % Normal)) * Normal;

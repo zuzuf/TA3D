@@ -587,13 +587,13 @@ int OBJECT::load_obj(byte *data,int offset,int dec,const char *filename)
             VECTOR AB,AC,Normal;
             AB=points[t_index[i+1]] - points[t_index[i]];
             AC=points[t_index[i+2]] - points[t_index[i]];
-            Normal=AB*AC;	Normal.Unit();
+            Normal=AB*AC;	Normal.unit();
             F_N[ e++ ] = Normal;
             for(int e=0;e<3;e++)
                 N[t_index[i+e]]=N[t_index[i+e]]+Normal;
         }
         for(i=0;i<nb_vtx;i++)
-            N[i].Unit();
+            N[i].unit();
         for(i = nb_vtx; i < (nb_vtx<<1) ; i++)
             N[i] = N[i-nb_vtx];
     }
@@ -758,13 +758,13 @@ void OBJECT::create_from_2d(BITMAP *bmp,float w,float h,float max_h)
         VECTOR AB,AC,Normal;
         AB=points[t_index[i+1]] - points[t_index[i]];
         AC=points[t_index[i+2]] - points[t_index[i]];
-        Normal=AB*AC;	Normal.Unit();
+        Normal=AB*AC;	Normal.unit();
         if( Normal.y < 0.0f )	Normal = -Normal;
         for(int e=0;e<3;e++)
             N[t_index[i+e]]=N[t_index[i+e]]+Normal;
     }
     for(i=0;i<nb_vtx;i++)
-        N[i].Unit();
+        N[i].unit();
 }
 
 void OBJECT::draw_optimised( bool set )
@@ -1278,7 +1278,7 @@ draw_next:
                 data_s->matrix[script_index] = *M;
                 if(nb_l_index==2) {
                     data_s->dir[script_index]=(points[l_index[1]] - points[l_index[0]])*(*M);
-                    data_s->dir[script_index].Unit();
+                    data_s->dir[script_index].unit();
                     ipos.x=points[l_index[0]].x;
                     ipos.y=points[l_index[0]].y;
                     ipos.z=points[l_index[0]].z;
@@ -1309,7 +1309,7 @@ draw_next:
                     t_mod.x=((rand_from_table()%2001)-1000)*0.001f;
                     t_mod.y=((rand_from_table()%2001)-1000)*0.001f;
                     t_mod.z=((rand_from_table()%2001)-1000)*0.001f;
-                    t_mod.Unit();
+                    t_mod.unit();
                     t_mod=(rand_from_table()%1001)*0.001f*size*t_mod;
                     if(center)
                         t_mod=t_mod+(*center);
@@ -1632,7 +1632,7 @@ draw_shadow_basic_next:
         if( ( nb_t_index>0 || selprim >= 0 ) && !hide) {
             VECTOR A,B,C;
             Dir=Dir*M_Dir;
-            Dir.Unit();
+            Dir.unit();
             //-----------------Code de calcul d'intersection--------------------------
             for(short i=0;i<nb_t_index;i+=3) {
                 A=points[t_index[i]];
@@ -2248,13 +2248,13 @@ hit_fast_is_exploding:
                     VECTOR AB,AC,Normal;
                     AB=cur->points[cur->t_index[i+1]] - cur->points[cur->t_index[i]];
                     AC=cur->points[cur->t_index[i+2]] - cur->points[cur->t_index[i]];
-                    Normal=AB*AC;	Normal.Unit();
+                    Normal=AB*AC;	Normal.unit();
                     cur->F_N[ e++ ] = Normal;
                     for(int e=0;e<3;e++)
                         cur->N[cur->t_index[i+e]]=cur->N[cur->t_index[i+e]]+Normal;
                 }
                 for(i=0;i<cur->nb_vtx;i++)
-                    cur->N[i].Unit();
+                    cur->N[i].unit();
                 cur=cur->next;
             }
             
@@ -2532,28 +2532,31 @@ hit_fast_is_exploding:
         }
 
         N = (VECTOR*) malloc(sizeof(VECTOR)*nb_vtx<<1);	// Calculate normals
-        if(nb_t_index>0 && t_index!=NULL) {
+        if(nb_t_index>0 && t_index!=NULL)
+        {
             F_N = new VECTOR[ nb_t_index / 3 ];
             for(int i=0;i<nb_vtx;i++)
                 N[i].x=N[i].z=N[i].y=0.0f;
             int e = 0;
-            for(int i=0;i<nb_t_index;i+=3) {
+            for(int i=0;i<nb_t_index;i+=3)
+            {
                 VECTOR AB,AC,Normal;
                 AB=points[t_index[i+1]] - points[t_index[i]];
                 AC=points[t_index[i+2]] - points[t_index[i]];
-                Normal=AB*AC;	Normal.Unit();
+                Normal=AB*AC;	Normal.unit();
                 F_N[ e++ ] = Normal;
                 for(int e=0;e<3;e++)
                     N[t_index[i+e]]=N[t_index[i+e]]+Normal;
             }
-            for(int i=0;i<nb_vtx;i++)
-                N[i].Unit();
+            for(int i=0;i<nb_vtx; ++i)
+                N[i].unit();
         }
 
         byte link;
         data=read_from_mem(&link,1,data);
 
-        if(link == 2) {		// Load animation data if present
+        if(link == 2) // Load animation data if present
+        {
             animation_data = new ANIMATION;
             data = read_from_mem( &(animation_data->type), 1, data );
             data = read_from_mem( &(animation_data->angle_0), sizeof( VECTOR ), data );
@@ -2566,7 +2569,8 @@ hit_fast_is_exploding:
             data=read_from_mem(&link,1,data);
         }
 
-        if(link) {
+        if(link)
+        {
             child = (OBJECT*) malloc(sizeof(OBJECT));
             child->init();
             data=child->load_3dm(data);
@@ -2575,7 +2579,8 @@ hit_fast_is_exploding:
             child=NULL;
 
         data=read_from_mem(&link,1,data);
-        if(link) {
+        if(link)
+        {
             next = (OBJECT*) malloc(sizeof(OBJECT));
             next->init();
             data=next->load_3dm(data);
@@ -2590,7 +2595,6 @@ hit_fast_is_exploding:
         for( uint16 i = 0 ; i < DRAWING_TABLE_SIZE ; i++ )
             for( List< RENDER_QUEUE* >::iterator e = hash_table[ i ].begin() ; e != hash_table[ i ].end() ; e++ )
                 delete *e;
-
         hash_table.clear();
     }
 

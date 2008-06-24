@@ -331,7 +331,7 @@ int play(GAME_DATA *game_data)
     sun.Dir.x=-1.0f;
     sun.Dir.y=2.0f;
     sun.Dir.z=1.0f;
-    sun.Dir.Unit();
+    sun.Dir.unit();
     sun.LightAmbient[0]=0.25f;
     sun.LightAmbient[1]=0.25f;
     sun.LightAmbient[2]=0.25f;
@@ -835,7 +835,7 @@ int play(GAME_DATA *game_data)
         {
             VECTOR move_dir = cam.Side;
             move_dir.y = 0.0f;
-            move_dir.Unit();
+            move_dir.unit();
             cam.RPos = cam.RPos - (SCROLL_SPEED*dt*cam_h / 151.0f)*move_dir;
             cam_has_target=false;
         }
@@ -843,7 +843,7 @@ int play(GAME_DATA *game_data)
         {
             VECTOR move_dir = cam.Side;
             move_dir.y = 0.0f;
-            move_dir.Unit();
+            move_dir.unit();
             cam.RPos = cam.RPos + (SCROLL_SPEED*dt*cam_h / 151.0f)*move_dir;
             cam_has_target=false;
         }
@@ -856,7 +856,7 @@ int play(GAME_DATA *game_data)
             }
             else
                 move_dir.y=0.0f;
-            move_dir.Unit();
+            move_dir.unit();
             cam.RPos = cam.RPos+ (SCROLL_SPEED*dt*cam_h / 151.0f) * move_dir;
             cam_has_target=false;
         }
@@ -868,7 +868,7 @@ int play(GAME_DATA *game_data)
             }
             else
                 move_dir.y=0.0f;
-            move_dir.Unit();
+            move_dir.unit();
             cam.RPos = cam.RPos - (SCROLL_SPEED*dt*cam_h / 151.0f)*move_dir;
             cam_has_target=false;
         }
@@ -968,7 +968,7 @@ int play(GAME_DATA *game_data)
         {
             VECTOR cur_dir;
             cur_dir = cam.Dir+cam.width_factor*2.0f*(cam_target_mx-gfx->SCREEN_W_HALF)*gfx->SCREEN_W_INV*cam.Side-1.5f*(cam_target_my-gfx->SCREEN_H_HALF)*gfx->SCREEN_H_INV*cam.Up;
-            cur_dir.Unit();		// Direction pointée par le curseur
+            cur_dir.unit();		// Direction pointée par le curseur
             VECTOR moving_target = cam_target - cam.RPos;
             moving_target = moving_target - (moving_target % cur_dir) * cur_dir;
             float d = moving_target.Sq();
@@ -2176,11 +2176,11 @@ int play(GAME_DATA *game_data)
                     sun.Dir.x=-1.0f;
                     sun.Dir.y=1.0f;
                     sun.Dir.z=1.0f;
-                    sun.Dir.Unit();
+                    sun.Dir.unit();
                     VECTOR Dir=-sun.Dir;
                     Dir.x=cos(light_angle);
                     Dir.z=sin(light_angle);
-                    Dir.Unit();
+                    Dir.unit();
                     sun.Dir=-Dir;
                     units.draw_shadow(&cam,Dir,map);
                 }
@@ -2188,7 +2188,7 @@ int play(GAME_DATA *game_data)
                     sun.Dir.x=-1.0f;
                     sun.Dir.y=1.0f;
                     sun.Dir.z=1.0f;
-                    sun.Dir.Unit();
+                    sun.Dir.unit();
                     units.draw_shadow(&cam,-sun.Dir,map);
                 }
             }
@@ -2199,18 +2199,18 @@ int play(GAME_DATA *game_data)
                     sun.Dir.x=-1.0f;
                     sun.Dir.y=1.0f;
                     sun.Dir.z=1.0f;
-                    sun.Dir.Unit();
+                    sun.Dir.unit();
                     Dir=-sun.Dir;
                     Dir.x=cos(light_angle);
                     Dir.z=sin(light_angle);
-                    Dir.Unit();
+                    Dir.unit();
                     sun.Dir=-Dir;
                 }
                 else {
                     sun.Dir.x=-1.0f;
                     sun.Dir.y=1.0f;
                     sun.Dir.z=1.0f;
-                    sun.Dir.Unit();
+                    sun.Dir.unit();
                     Dir=-sun.Dir;
                 }
                 for(int i=0;i<lp_CONFIG->shadow_quality;i++) {
@@ -2218,7 +2218,7 @@ int play(GAME_DATA *game_data)
                     RDir=Dir;
                     RDir.x+=cos(i*PI*2.0f/lp_CONFIG->shadow_quality)*lp_CONFIG->shadow_r;
                     RDir.z+=sin(i*PI*2.0f/lp_CONFIG->shadow_quality)*lp_CONFIG->shadow_r;
-                    RDir.Unit();
+                    RDir.unit();
                     units.draw_shadow(&cam,RDir,map,alpha);
                 }
             }
@@ -3504,7 +3504,7 @@ VECTOR cursor_on_map(CAMERA *cam,MAP *map, bool on_mini_map )
     {
         VECTOR cur_dir;
         cur_dir=cam->Dir+cam->width_factor*2.0f*(mouse_x-gfx->SCREEN_W_HALF)*gfx->SCREEN_W_INV*cam->Side-1.5f*(mouse_y-gfx->SCREEN_H_HALF)*gfx->SCREEN_H_INV*cam->Up;
-        cur_dir.Unit();		// Direction pointée par le curseur
+        cur_dir.unit();		// Direction pointée par le curseur
         return map->hit(cam->Pos,cur_dir,true,2000000000.0f,true);
     }
 }
