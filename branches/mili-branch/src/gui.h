@@ -203,7 +203,7 @@ public:
 		help_msg.clear();
 		Name.clear();
 		Text.clear();
-		for( int i = 0 ; i < gltex_states.size() ; i++ )
+		for(unsigned int i = 0 ; i < gltex_states.size() ; ++i)
 			gltex_states[ i ].destroy();
 		gltex_states.clear();
 

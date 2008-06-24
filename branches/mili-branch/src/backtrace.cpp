@@ -145,6 +145,7 @@ int init_signals (void)
 			signal (signum[i], SIG_IGN);
 
     #endif // ifdef TA3D_PLATFORM_DARWIN
+    return 0; // TODO missing value ?
 }
 
 

@@ -182,7 +182,7 @@ uint32
 hash_string(const String& s)
 {
 	uint32 hash = 0;
-	for( int i = 0 ; i < s.length() ; i++ )
+	for(String::size_type i = 0 ; i < s.length() ; ++i)
 		hash = (hash << 5) - hash + s[i];
 	return hash;
 }
@@ -191,7 +191,7 @@ hash_string(const String& s)
 int
 find(const Vector<String>& v, const String& s)
 {
-    for (int i = 0 ; i < v.size() ; ++i)
+    for (Vector<String>::size_type i = 0 ; i < v.size() ; ++i)
     {
 	    if(s == v[i])
 		    return i;

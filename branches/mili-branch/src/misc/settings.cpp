@@ -109,6 +109,7 @@ namespace Settings
         m_File.flush();
         m_File.close();
         LOG_INFO("Settings has been saved.");
+        return true;
     }
 
 

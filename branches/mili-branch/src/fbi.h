@@ -307,7 +307,7 @@ public:
 
 		page=0;
 
-		nb_pages;
+		nb_pages = 0;
 		nb_unit=0;
 		BuildList=NULL;
 		PicList=NULL;
@@ -646,92 +646,97 @@ public:
 			}while(pos[0]=='[' && nb<2000 && data<limit);
 	}
 
-	inline void gather_build_data()
-	{
-		uint32 file_size=0;
-		List<String> file_list;
-		uint32 nb_file = HPIManager->GetFilelist( ta3d_sidedata.download_dir + "*.tdf",&file_list);
+    inline void gather_build_data()
+    {
+        uint32 file_size=0;
+        List<String> file_list;
+        HPIManager->GetFilelist( ta3d_sidedata.download_dir + "*.tdf",&file_list);
 
-		for(List<String>::iterator file=file_list.begin();file!=file_list.end();file++) {		// Cherche un fichier pouvant contenir des informations sur l'unité unit_name
-			byte *data=HPIManager->PullFromHPI(*file,&file_size);		// Lit le fichier
+        for(List<String>::iterator file=file_list.begin();file!=file_list.end();file++) // Cherche un fichier pouvant contenir des informations sur l'unité unit_name
+        {
+            byte *data=HPIManager->PullFromHPI(*file,&file_size);		// Lit le fichier
 
-			if(data) {
-				analyse2((char*)data,file_size);
+            if(data)
+            {
+                analyse2((char*)data,file_size);
 
-				free(data);
-				}
-			}
-	}
+                free(data);
+            }
+        }
+    }
 
-	inline void gather_all_build_data()
-	{
-		cTAFileParser sidedata_parser( ta3d_sidedata.gamedata_dir + "sidedata.tdf", false, true );
-		for( uint32 i = 0 ; i < nb_unit ; i++ ) {
-			int n = 1;
-			String canbuild = sidedata_parser.PullAsString( Lowercase( format( "canbuild.%s.canbuild%d", unit_type[ i ].Unitname, n ) ) );
-			while( canbuild != "" ) {
-				int idx = get_unit_index( (char*)canbuild.c_str() );
-				if(idx>=0 && idx<nb_unit && unit_type[idx].unitpic)
-					unit_type[ i ].AddUnitBuild(idx, -1, -1, 64, 64, -1);
-				n++;
-				canbuild = sidedata_parser.PullAsString( format( "canbuild.%s.canbuild%d", unit_type[ i ].Unitname, n ) );
-				}
-			}
+    inline void gather_all_build_data()
+    {
+        cTAFileParser sidedata_parser( ta3d_sidedata.gamedata_dir + "sidedata.tdf", false, true );
+        for (short i = 0 ; i < nb_unit ; ++i)
+        {
+            int n = 1;
+            String canbuild = sidedata_parser.PullAsString( Lowercase( format( "canbuild.%s.canbuild%d", unit_type[ i ].Unitname, n ) ) );
+            while( canbuild != "" ) {
+                int idx = get_unit_index( (char*)canbuild.c_str() );
+                if(idx>=0 && idx<nb_unit && unit_type[idx].unitpic)
+                    unit_type[ i ].AddUnitBuild(idx, -1, -1, 64, 64, -1);
+                n++;
+                canbuild = sidedata_parser.PullAsString( format( "canbuild.%s.canbuild%d", unit_type[ i ].Unitname, n ) );
+            }
+        }
 
-		gather_build_data();			// Read additionnal build data
+        gather_build_data();			// Read additionnal build data
 
-		uint32 file_size;
-		List<String> file_list;
-		uint32 nb_file = HPIManager->GetFilelist( ta3d_sidedata.guis_dir + "*.gui",&file_list);
+        uint32 file_size;
+        List<String> file_list;
+        uint32 nb_file = HPIManager->GetFilelist( ta3d_sidedata.guis_dir + "*.gui",&file_list);
 
-		for(List<String>::iterator file=file_list.begin();file!=file_list.end();file++) {		// Cherche un fichier pouvant contenir des informations sur l'unité unit_name
-			char *f=NULL;
-			for(uint32 i=0;i<nb_unit;i++) {
-				if(f=strstr((char*)Uppercase( *file ).c_str(),unit_type[i].Unitname))
-					if(f[strlen(unit_type[i].Unitname)]=='.'
-					||(f[strlen(unit_type[i].Unitname)]>='0' && f[strlen(unit_type[i].Unitname)]<='9'))
-					analyse(*file,i);
-				}
-			}
+        for(List<String>::iterator file=file_list.begin();file!=file_list.end();file++) // Cherche un fichier pouvant contenir des informations sur l'unité unit_name
+        {
+            char *f=NULL;
+            for (int i=0;i<nb_unit; ++i)
+            {
+                if(f=strstr((char*)Uppercase( *file ).c_str(),unit_type[i].Unitname))
+                    if(f[strlen(unit_type[i].Unitname)]=='.'
+                       ||(f[strlen(unit_type[i].Unitname)]>='0' && f[strlen(unit_type[i].Unitname)]<='9'))
+                        analyse(*file,i);
+            }
+        }
 
-		for( uint32 i = 0 ; i < nb_unit ; i++ )
-			unit_type[ i ].FixBuild();
-	}
+        for( uint32 i = 0 ; i < nb_unit ; i++ )
+            unit_type[ i ].FixBuild();
+    }
 
-	inline void load_script_file(char *unit_name)
-	{
-		strupr(unit_name);
-		int unit_index=get_unit_index(unit_name);
-		if(unit_index==-1) return;		// Au cas où l'unité n'existerait pas
-		char *uprname=strdup(unit_name);
-		strupr(uprname);
+    inline void load_script_file(char *unit_name)
+    {
+        strupr(unit_name);
+        int unit_index=get_unit_index(unit_name);
+        if(unit_index==-1) return;		// Au cas où l'unité n'existerait pas
+        char *uprname=strdup(unit_name);
+        strupr(uprname);
 
-		List<String> file_list;
-		HPIManager->GetFilelist( format( "scripts\\%s.cob", unit_name ), &file_list);
+        List<String> file_list;
+        HPIManager->GetFilelist( format( "scripts\\%s.cob", unit_name ), &file_list);
 
-		for(List<String>::iterator file=file_list.begin();file!=file_list.end();file++) {		// Cherche un fichier pouvant contenir des informations sur l'unité unit_name
-			if(strstr(TA3D::Uppercase(*file).c_str(),uprname)) {			// A trouvé un fichier qui convient
-				byte *data=HPIManager->PullFromHPI(*file);		// Lit le fichier
+        for(List<String>::iterator file=file_list.begin();file!=file_list.end();file++) {		// Cherche un fichier pouvant contenir des informations sur l'unité unit_name
+            if(strstr(TA3D::Uppercase(*file).c_str(),uprname)) {			// A trouvé un fichier qui convient
+                byte *data=HPIManager->PullFromHPI(*file);		// Lit le fichier
 
-				unit_type[unit_index].script=(SCRIPT*) malloc(sizeof(SCRIPT));
-				unit_type[unit_index].script->init();
-				unit_type[unit_index].script->load_cob(data);
+                unit_type[unit_index].script=(SCRIPT*) malloc(sizeof(SCRIPT));
+                unit_type[unit_index].script->init();
+                unit_type[unit_index].script->load_cob(data);
 
-				break;
-				}
-			}
+                break;
+            }
+        }
 
-		free(uprname);
-	}
+        free(uprname);
+    }
 
-	int unit_build_menu(int index,int omb,float &dt,bool GUI=false);				// Affiche et gère le menu des unités
+    int unit_build_menu(int index,int omb,float &dt,bool GUI=false);				// Affiche et gère le menu des unités
 
-	inline void Identify()			// Identifie les pièces aux quelles les scripts font référence
-	{
-		for(int i=0;i<nb_unit;i++)
-			if(unit_type[i].script && unit_type[i].model)
-				unit_type[i].model->Identify(unit_type[i].script->nb_piece,unit_type[i].script->piece_name);
-	}
+    inline void Identify()			// Identifie les pièces aux quelles les scripts font référence
+    {
+        for(int i=0;i<nb_unit;i++)
+            if(unit_type[i].script && unit_type[i].model)
+                unit_type[i].model->Identify(unit_type[i].script->nb_piece,unit_type[i].script->piece_name);
+    }
 };
 
 int load_all_units(void (*progress)(float percent,const String &msg)=NULL);
