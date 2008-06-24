@@ -5,12 +5,12 @@
 namespace TA3D
 {
 
-    FX_MANAGER	fx_manager;
-    MODEL* FX_MANAGER::currentParticleModel = NULL;
+    FXManager	fx_manager;
+    MODEL* FXManager::currentParticleModel = NULL;
 
 
 
-    int FX_MANAGER::add(const String& filename, const String& entryName, const VECTOR& pos, const float size)
+    int FXManager::add(const String& filename, const String& entryName, const VECTOR& pos, const float size)
     {
         MutexLocker locker(pMutex);
 
@@ -79,7 +79,7 @@ namespace TA3D
     }
 
 
-    void FX_MANAGER::loadData()
+    void FXManager::loadData()
     {
         pMutex.lock();
         currentParticleModel = model_manager.get_model("fxpart");
@@ -99,7 +99,7 @@ namespace TA3D
         pMutex.unlock();
     }
 
-    int FX_MANAGER::addFlash(const VECTOR& pos, const float size)
+    int FXManager::addFlash(const VECTOR& pos, const float size)
     {
         MutexLocker locker(pMutex);
 
@@ -131,7 +131,7 @@ namespace TA3D
         return idx;
     }
 
-    int FX_MANAGER::addWave(const VECTOR& pos,float size)
+    int FXManager::addWave(const VECTOR& pos,float size)
     {
         MutexLocker locker(pMutex);
 
@@ -161,7 +161,7 @@ namespace TA3D
         return idx;
     }
 
-    int FX_MANAGER::addRipple(const VECTOR& pos,float size)
+    int FXManager::addRipple(const VECTOR& pos,float size)
     {
         MutexLocker locker(pMutex);
 
@@ -193,7 +193,7 @@ namespace TA3D
         return idx;
     }
 
-    void FX_MANAGER::init()
+    void FXManager::init()
     {
         pParticles.clear();
 
@@ -220,7 +220,7 @@ namespace TA3D
         ripple_tex = 0;
     }
 
-    void FX_MANAGER::destroy()
+    void FXManager::destroy()
     {
         pParticles.clear();
 
@@ -262,7 +262,7 @@ namespace TA3D
         init();
     }
 
-    void FX_MANAGER::draw(CAMERA& cam, MAP *map, float w_lvl, bool UW)
+    void FXManager::draw(CAMERA& cam, MAP *map, float w_lvl, bool UW)
     {
         pMutex.lock();
 
@@ -317,7 +317,7 @@ namespace TA3D
         pMutex.unlock();
     }
 
-    void FX_MANAGER::addParticle(const VECTOR &p, const VECTOR &s, const float l)
+    void FXManager::addParticle(const VECTOR &p, const VECTOR &s, const float l)
     {
         if (lp_CONFIG->explosion_particles)
         {
@@ -327,7 +327,7 @@ namespace TA3D
         }
     }
 
-    void FX_MANAGER::addExplosion(const VECTOR &p, const int n, const float power)
+    void FXManager::addExplosion(const VECTOR &p, const int n, const float power)
     {
         if (!lp_CONFIG->explosion_particles)
             return;
@@ -348,7 +348,7 @@ namespace TA3D
     }
 
 
-    int FX_MANAGER::putInCache(const String& filename, ANIM *anm)
+    int FXManager::putInCache(const String& filename, ANIM *anm)
     {
         // Already available in the cache ?
         const int is_in = findInCache(filename);
@@ -403,7 +403,7 @@ namespace TA3D
     }
 
 
-    int FX_MANAGER::findInCache(const String& filename) const
+    int FXManager::findInCache(const String& filename) const
     {
         if (cache_size <= 0)
             return -1;
@@ -420,7 +420,7 @@ namespace TA3D
 
 
 
-    void FX_MANAGER::move(const float dt)
+    void FXManager::move(const float dt)
     {
         pMutex.lock();
 
@@ -456,12 +456,12 @@ namespace TA3D
     }
 
 
-    FX_MANAGER::FX_MANAGER()
+    FXManager::FXManager()
     {
         init();
     }
 
-    FX_MANAGER::~FX_MANAGER()
+    FXManager::~FXManager()
     {
         destroy();
     }

@@ -47,12 +47,12 @@ namespace TA3D
 
     void FX_PARTICLE::draw()
     {
-        if(FX_MANAGER::currentParticleModel)
+        if(FXManager::currentParticleModel)
         {
             glPushMatrix();
             glTranslatef(Pos.x, Pos.y, Pos.z);
             glScalef(0.2f, 0.2f, 0.2f);
-            FX_MANAGER::currentParticleModel->draw(life);
+            FXManager::currentParticleModel->draw(life);
             glPopMatrix();
         }
     }

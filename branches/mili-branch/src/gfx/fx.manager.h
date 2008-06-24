@@ -1,5 +1,5 @@
-#ifndef __TA3D_GFX_FX_MANAGER_H__
-# define __TA3D_GFX_FX_MANAGER_H__
+#ifndef __TA3D_GFX_FXMANAGER_H__
+# define __TA3D_GFX_FXMANAGER_H__
 
 # include "../stdafx.h"
 # include "../threads/thread.h"
@@ -16,22 +16,22 @@ namespace TA3D
 {
 
 
-    /*! \class FX_MANAGER
+    /*! \class FXManager
     **
     ** \brief
     **
     ** \warning This class mustn't be executed in its own thread in order to remain
     ** thread safe. It must run in main thread (the one that can call OpenGL functions)
     */
-    class FX_MANAGER : public ObjectSync
+    class FXManager : public ObjectSync
     {
     public:
         //! \name Constructor & destructor
         //{
         //! Default constructor
-        FX_MANAGER();
+        FXManager();
         //! Destructor
-        ~FX_MANAGER();
+        ~FXManager();
         //}
 
         /*!
@@ -157,13 +157,13 @@ namespace TA3D
         //! 
         static MODEL* currentParticleModel;
 
-    }; // class FX_MANAGER
+    }; // class FXManager
 
 
 
-    extern FX_MANAGER fx_manager;
+    extern FXManager fx_manager;
 
 
 } // namespace TA3D
 
-#endif // __TA3D_GFX_FX_MANAGER_H__
+#endif // __TA3D_GFX_FXMANAGER_H__
