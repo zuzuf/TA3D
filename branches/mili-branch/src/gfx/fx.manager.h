@@ -119,10 +119,14 @@ namespace TA3D
 
 
     public:
-        byte		*fx_data;
-        GLuint		flash_tex;
-        GLuint		wave_tex[3];
-        GLuint		ripple_tex;
+        //! 
+        byte* fx_data;
+        //!
+        GLuint flash_tex;
+        //!
+        GLuint wave_tex[3];
+        //! 
+        GLuint ripple_tex;
 
     private:
         /*!
@@ -169,6 +173,7 @@ namespace TA3D
         typedef std::list<FXParticle*>  ListOfParticles;
 
     private:
+        // TODO Remove all those C style lists...
         int max_fx;
         int nb_fx;
         FX* fx;

@@ -5,7 +5,7 @@
 namespace TA3D
 {
 
-    FXManager	fx_manager;
+    FXManager fx_manager;
     MODEL* FXManager::currentParticleModel = NULL;
 
 
@@ -23,10 +23,10 @@ namespace TA3D
             max_fx+=100;
             FX* n_fx = (FX*) malloc(sizeof(FX)*max_fx);
             memcpy(n_fx,fx,sizeof(FX)*(max_fx-100));
-            for(int i=max_fx-100;i<max_fx;i++)
+            for (int i = max_fx - 100; i < max_fx; ++i)
                 n_fx[i].init();
             free(fx);
-            fx=n_fx;
+            fx = n_fx;
         }
         ++nb_fx;
         int idx = -1;
@@ -55,7 +55,7 @@ namespace TA3D
             if(strcasecmp(filename.c_str(),"fx"))
                 data = HPIManager->PullFromHPI(tmp);
             else
-                data = fx_manager.fx_data;
+                data = fx_data;
             if(data)
             {
                 ANIM *anm=new ANIM;
@@ -67,7 +67,7 @@ namespace TA3D
 
                 anm_idx = putInCache(fullname, anm);
 
-                if(data!=fx_manager.fx_data)
+                if(data != fx_data)
                     free(data);
             }
         }
@@ -85,19 +85,20 @@ namespace TA3D
         currentParticleModel = model_manager.get_model("fxpart");
         // Reload the texture for flashes
         if (flash_tex == 0)
-            flash_tex = gfx->load_texture( "gfx/flash.tga" );
+            flash_tex = gfx->load_texture("gfx/flash.tga");
         // Reload the texture for ripples
         if (ripple_tex == 0)
-            ripple_tex = gfx->load_texture( "gfx/ripple.tga" );
+            ripple_tex = gfx->load_texture("gfx/ripple.tga");
         // Reload textures for waves
         if (wave_tex[0] == 0)
-            wave_tex[0] = gfx->load_texture( "gfx/wave0.tga" );
+            wave_tex[0] = gfx->load_texture("gfx/wave0.tga");
         if (wave_tex[1] == 0)
-            wave_tex[1] = gfx->load_texture( "gfx/wave1.tga" );
+            wave_tex[1] = gfx->load_texture("gfx/wave1.tga");
         if (wave_tex[2] == 0)
-            wave_tex[2] = gfx->load_texture( "gfx/wave2.tga" );
+            wave_tex[2] = gfx->load_texture("gfx/wave2.tga");
         pMutex.unlock();
     }
+
 
     int FXManager::addFlash(const VECTOR& pos, const float size)
     {
@@ -131,6 +132,8 @@ namespace TA3D
         return idx;
     }
 
+
+
     int FXManager::addWave(const VECTOR& pos,float size)
     {
         MutexLocker locker(pMutex);
@@ -149,14 +152,16 @@ namespace TA3D
             fx=n_fx;
         }
         ++nb_fx;
-        int idx=-1;
-        for(int i=0;i<max_fx;i++)
+        int idx = -1;
+        for (int i = 0; i < max_fx; ++i)
+        {
             if(!fx[i].playing)
             {
                 idx=i;
                 break;
             }
-        fx[idx].load(-2-(rand_from_table()%3),pos,size*4.0f);
+        }
+        fx[idx].load(-2 - (rand_from_table() % 3), pos, size * 4.0f);
 
         return idx;
     }
@@ -168,19 +173,19 @@ namespace TA3D
         if (game_cam != NULL && ((VECTOR)(pos - game_cam->Pos)).sq() >= game_cam->zfar2)
             return -1;
 
-        if(nb_fx+1>max_fx)
+        if(nb_fx + 1 > max_fx)
         {
-            max_fx+=100;
-            FX *n_fx=(FX*) malloc(sizeof(FX)*max_fx);
-            memcpy(n_fx,fx,sizeof(FX)*(max_fx-100));
+            max_fx += 100;
+            FX* n_fx = (FX*)malloc(sizeof(FX) * max_fx);
+            memcpy(n_fx, fx, sizeof(FX) * (max_fx - 100));
             for (int i = max_fx - 100;i < max_fx; ++i)
                 n_fx[i].init();
             free(fx);
             fx=n_fx;
         }
-        nb_fx++;
-        int idx=-1;
-        for (int i=0;i<max_fx; ++i)
+        ++nb_fx;
+        int idx = -1;
+        for (int i = 0; i < max_fx; ++i)
         {
             if(!fx[i].playing)
             {
@@ -229,17 +234,20 @@ namespace TA3D
         ripple_tex = 0;
     }
 
+
+
     void FXManager::destroy()
     {
         doClearAllParticles();
 
-        gfx->destroy_texture( flash_tex );
-        gfx->destroy_texture( ripple_tex );
-        gfx->destroy_texture( wave_tex[0] );
-        gfx->destroy_texture( wave_tex[1] );
-        gfx->destroy_texture( wave_tex[2] );
+        gfx->destroy_texture(flash_tex);
+        gfx->destroy_texture(ripple_tex);
+        gfx->destroy_texture(wave_tex[0]);
+        gfx->destroy_texture(wave_tex[1]);
+        gfx->destroy_texture(wave_tex[2]);
 
-        if(fx_data)	free(fx_data);
+        if(fx_data)
+            free(fx_data);
         if(fx)
         {
             for(int i=0;i<max_fx; ++i)
@@ -250,7 +258,7 @@ namespace TA3D
         {
             if (cache_name)
             {
-                for(int i=0;i<max_cache_size;i++)
+                for (int i = 0; i < max_cache_size; ++i)
                 {
                     if(cache_name[i])
                         free(cache_name[i]);
@@ -259,9 +267,9 @@ namespace TA3D
             }
             if (cache_anm)
             {
-                for(int i=0;i<max_cache_size;i++)
+                for (int i = 0;i < max_cache_size; ++i)
                 {
-                    if(cache_anm[i])
+                    if (cache_anm[i])
                     {
                         cache_anm[i]->destroy();
                         delete cache_anm[i];
@@ -277,17 +285,17 @@ namespace TA3D
     {
         pMutex.lock();
 
-        if( pCacheIsDirty )// We have work to do
+        if (pCacheIsDirty)// We have work to do
         {
-            for( uint32 i = 0 ; i < max_cache_size ; i++ )
+            for (uint32 i = 0 ; i < max_cache_size ; ++i)
             {
-                if( cache_anm[i] )
+                if (cache_anm[i])
                     cache_anm[i]->convert(false,true);
             }
             pCacheIsDirty = false;
         }
 
-        glColor4f( 1.0f, 1.0f, 1.0f, 1.0f );
+        glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 
         glEnable(GL_TEXTURE_2D);
         glDisable(GL_LIGHTING);
@@ -370,22 +378,22 @@ namespace TA3D
         if(cache_size + 1 > max_cache_size)
         {
             max_cache_size += 100;
-            char **n_name=(char**)malloc(sizeof(char*)*max_cache_size);
-            ANIM **n_anm=(ANIM**)malloc(sizeof(ANIM*)*max_cache_size);
-            int *n_use=(int*)malloc(sizeof(int)*max_cache_size);
+            char **n_name = (char**)malloc(sizeof(char*)*max_cache_size);
+            ANIM **n_anm = (ANIM**)malloc(sizeof(ANIM*)*max_cache_size);
+            int *n_use = (int*)malloc(sizeof(int)*max_cache_size);
             for (int i = max_cache_size - 100; i < max_cache_size; ++i)
             {
-                n_use[i]=0;
-                n_name[i]=NULL;
-                n_anm[i]=NULL;
+                n_use[i] = 0;
+                n_name[i] = NULL;
+                n_anm[i] = NULL;
             }
-            if (cache_size>0)
+            if (cache_size > 0)
             {
                 for(int i = 0; i < max_cache_size - 100; ++i)
                 {
-                    n_name[i]=cache_name[i];
-                    n_anm[i]=cache_anm[i];
-                    n_use[i]=use[i];
+                    n_name[i] = cache_name[i];
+                    n_anm[i] = cache_anm[i];
+                    n_use[i] = use[i];
                 }
                 free(cache_name);
                 free(cache_anm);
@@ -399,7 +407,7 @@ namespace TA3D
         else
         {
             idx = 0;
-            for(int i=0; i < max_cache_size; ++i)
+            for(int i = 0; i < max_cache_size; ++i)
             {
                 if(cache_anm[i]==NULL)
                     idx=i;

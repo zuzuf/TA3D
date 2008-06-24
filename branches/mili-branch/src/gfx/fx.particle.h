@@ -12,8 +12,8 @@ namespace TA3D
     class FXParticle
     {
     public:
-        FXParticle(const VECTOR &P, const VECTOR &S, const float L );
-        bool move( float dt );
+        FXParticle(const VECTOR &P, const VECTOR &S, const float L);
+        bool move(const float dt);
         void draw();
 
     private:
