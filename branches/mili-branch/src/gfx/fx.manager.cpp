@@ -10,18 +10,18 @@ namespace TA3D
 
 
 
-    int FX_MANAGER::add(const String&filename,char *entry_name,VECTOR Pos,float size)
+    int FX_MANAGER::add(const String& filename, const String& entryName, const VECTOR& pos, const float size)
     {
         MutexLocker locker(pMutex);
 
-        if(game_cam != NULL && ((VECTOR)(Pos-game_cam->Pos)).sq() >= game_cam->zfar2)
+        if(game_cam != NULL && ((VECTOR)(pos-game_cam->Pos)).sq() >= game_cam->zfar2)
             return -1;
 
 
         if(nb_fx+1>max_fx)
         {
             max_fx+=100;
-            FX *n_fx=(FX*) malloc(sizeof(FX)*max_fx);
+            FX* n_fx = (FX*) malloc(sizeof(FX)*max_fx);
             memcpy(n_fx,fx,sizeof(FX)*(max_fx-100));
             for(int i=max_fx-100;i<max_fx;i++)
                 n_fx[i].init();
@@ -46,9 +46,9 @@ namespace TA3D
 
         String fullname(tmp);
         fullname += "-";
-        fullname += entry_name;
+        fullname += entryName;
 
-        int anm_idx = isInCache((char*)fullname.c_str());
+        int anm_idx = findInCache((char*)fullname.c_str());
         if(anm_idx == -1)
         {
             byte *data;
@@ -60,12 +60,12 @@ namespace TA3D
             {
                 ANIM *anm=new ANIM;
                 anm->init();
-                anm->load_gaf(data,get_gaf_entry_index(data,entry_name));
+                anm->load_gaf(data,get_gaf_entry_index(data, entryName.c_str()));
                 // Next line has been removed in order to remain thread safe, conversion is done in main thread
                 //			anm->convert(false,true);
                 pCacheIsDirty = true;				// Set cache as dirty so we will do conversion at draw time
 
-                anm_idx = putInCache((char*)fullname.c_str(),anm);
+                anm_idx = putInCache(fullname, anm);
 
                 if(data!=fx_manager.fx_data)
                     free(data);
@@ -73,20 +73,23 @@ namespace TA3D
         }
         else
             use[anm_idx]++;
-        fx[idx].load(anm_idx,Pos,size);
+        fx[idx].load(anm_idx, pos, size);
 
         return idx;
     }
 
 
-    void FX_MANAGER::load_data()
+    void FX_MANAGER::loadData()
     {
         pMutex.lock();
         currentParticleModel = model_manager.get_model("fxpart");
+        // Reload the texture for flashes
         if (flash_tex == 0)
             flash_tex = gfx->load_texture( "gfx/flash.tga" );
+        // Reload the texture for ripples
         if (ripple_tex == 0)
             ripple_tex = gfx->load_texture( "gfx/ripple.tga" );
+        // Reload textures for waves
         if (wave_tex[0] == 0)
             wave_tex[0] = gfx->load_texture( "gfx/wave0.tga" );
         if (wave_tex[1] == 0)
@@ -96,7 +99,7 @@ namespace TA3D
         pMutex.unlock();
     }
 
-    int FX_MANAGER::addFlash(const VECTOR& pos, float size)
+    int FX_MANAGER::addFlash(const VECTOR& pos, const float size)
     {
         MutexLocker locker(pMutex);
 
@@ -192,7 +195,7 @@ namespace TA3D
 
     void FX_MANAGER::init()
     {
-        particles.clear();
+        pParticles.clear();
 
         currentParticleModel = NULL;
 
@@ -219,7 +222,7 @@ namespace TA3D
 
     void FX_MANAGER::destroy()
     {
-        particles.clear();
+        pParticles.clear();
 
         gfx->destroy_texture( flash_tex );
         gfx->destroy_texture( ripple_tex );
@@ -259,7 +262,7 @@ namespace TA3D
         init();
     }
 
-    void FX_MANAGER::draw(CAMERA *cam, MAP *map, float w_lvl, bool UW)
+    void FX_MANAGER::draw(CAMERA& cam, MAP *map, float w_lvl, bool UW)
     {
         pMutex.lock();
 
@@ -281,21 +284,23 @@ namespace TA3D
         glEnable(GL_BLEND);
         glDepthMask(GL_FALSE);
         glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
-        cam->SetView();
+        cam.SetView();
         glEnable(GL_POLYGON_OFFSET_FILL);
         glPolygonOffset(0.0f,-1600.0f);
         if(UW)
         {
             for(int i=0;i<max_fx;i++)
+            {
                 if( fx[i].playing && fx[i].Pos.y<w_lvl )
-                    fx[i].draw(cam,map,cache_anm);
+                    fx[i].draw(cam, map, cache_anm);
+            }
         }
         else
         {
             for(int i = 0; i < max_fx; ++i)
             {
                 if( fx[i].playing && fx[i].Pos.y >= w_lvl )
-                    fx[i].draw(cam,map,cache_anm);
+                    fx[i].draw(cam, map, cache_anm);
             }
         }
         glDisable(GL_POLYGON_OFFSET_FILL);
@@ -305,7 +310,7 @@ namespace TA3D
 
         if(!UW && lp_CONFIG->explosion_particles)
         {
-            foreach( particles, i )
+            foreach( pParticles, i )
                 i->draw();
         }
 
@@ -317,7 +322,7 @@ namespace TA3D
         if (lp_CONFIG->explosion_particles)
         {
             pMutex.lock();
-            particles.push_back(FX_PARTICLE(p, s, l));
+            pParticles.push_back(FX_PARTICLE(p, s, l));
             pMutex.unlock();
         }
     }
@@ -337,20 +342,20 @@ namespace TA3D
                       s * sin(a) * cos(b));
             float l = min( 5.0f * vs.y / (the_map->ota_data.gravity + 0.1f), 10.0f);
 
-            particles.push_back(FX_PARTICLE(p, vs, l));
+            pParticles.push_back(FX_PARTICLE(p, vs, l));
         }
         pMutex.unlock();
     }
 
 
-    int FX_MANAGER::putInCache(char *filename,ANIM *anm)
+    int FX_MANAGER::putInCache(const String& filename, ANIM *anm)
     {
-        MutexLocker locker(pMutex);
+        // Already available in the cache ?
+        const int is_in = findInCache(filename);
+        if(is_in >= 0)
+            return is_in;
 
-        int is_in = isInCache(filename);
-        if(is_in>=0)
-            return is_in;		// On ne le garde pas 2 fois
-        int idx=-1;
+        int idx = -1;
         if(cache_size + 1 > max_cache_size)
         {
             max_cache_size += 100;
@@ -363,7 +368,7 @@ namespace TA3D
                 n_name[i]=NULL;
                 n_anm[i]=NULL;
             }
-            if(cache_size>0)
+            if (cache_size>0)
             {
                 for(int i = 0; i < max_cache_size - 100; ++i)
                 {
@@ -382,7 +387,7 @@ namespace TA3D
         }
         else
         {
-            idx=0;
+            idx = 0;
             for(int i=0; i < max_cache_size; ++i)
             {
                 if(cache_anm[i]==NULL)
@@ -391,14 +396,14 @@ namespace TA3D
         }
         use[idx] = 1;
         cache_anm[idx] = anm;
-        cache_name[idx] = strdup(filename);
+        cache_name[idx] = strdup(filename.c_str());
         ++cache_size;
 
         return idx;
     }
 
 
-    int FX_MANAGER::isInCache(const String& filename)
+    int FX_MANAGER::findInCache(const String& filename) const
     {
         if (cache_size <= 0)
             return -1;
@@ -414,12 +419,14 @@ namespace TA3D
     }
 
 
+
     void FX_MANAGER::move(const float dt)
     {
         pMutex.lock();
 
-        for(int i=0;i<max_fx;i++)
-            if(fx[i].move(dt,cache_anm))
+        for (int i = 0; i < max_fx; ++i)
+        {
+            if(fx[i].move(dt, cache_anm))
             {
                 if( fx[i].anm == -1 || fx[i].anm == -2 || fx[i].anm == -3 || fx[i].anm == -4 || fx[i].anm == -5 )
                 {
@@ -435,12 +442,15 @@ namespace TA3D
                     --cache_size;
                 }
             }
+        }
 
-        foreach_( particles, i )
-            if( i->move( dt ) )
-                particles.erase( i++ );
+        foreach_( pParticles, i )
+        {
+            if (i->move(dt))
+                pParticles.erase(i++);
             else
-                i++;
+                ++i;
+        }
 
         pMutex.unlock();
     }

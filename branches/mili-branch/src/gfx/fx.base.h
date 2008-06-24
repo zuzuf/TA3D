@@ -17,16 +17,38 @@ namespace TA3D
     {
     public:
         FX();
-        ~FX();
 
         void init();
 
         void destroy();
 
-        bool move(float dt,ANIM **anims);
-        void draw(CAMERA *cam, MAP *map, ANIM **anims);
+        /*!
+        ** \brief
+        **
+        ** \param anim
+        ** \param p
+        ** \param s
+        */
+        void load(const int anim, const VECTOR& p, const float s);
 
-        void load(int anim,VECTOR P,float s);
+        /*!
+        ** \brief 
+        **
+        ** \param dt
+        ** \param anims
+        ** \return
+        */
+        bool move(const float dt, ANIM **anims);
+
+        /*!
+        ** \brief
+        **
+        ** \param cam
+        ** \param map
+        ** \param anims
+        */
+        void draw(CAMERA& cam, MAP *map, ANIM **anims);
+
 
     public:
         //! Effect duration
@@ -37,6 +59,32 @@ namespace TA3D
         VECTOR Pos;
         float size;		// Taille (proportion de l'image d'origine)
         int anm;		// Animation
+
+    private:
+        /*!
+        ** \brief
+        */
+        bool doCanDrawAnim(MAP* map) const;
+
+        /*!
+        ** \brief
+        */
+        void doDrawAnimFlash();
+
+        /*!
+        ** \brief
+        */
+        void doDrawAnimWave(const int animIndx);
+
+        /*!
+        ** \brief 
+        */
+        void doDrawAnimRipple();
+
+        /*!
+        ** \brief
+        */
+        void doDrawAnimDefault(CAMERA& cam, ANIM** anims);
 
     }; // class FX
 

@@ -1,7 +1,7 @@
 
 #include "fx.base.h"
 #include "fx.manager.h"
-
+#include "../logs/logs.h"
 
 namespace TA3D
 {
@@ -10,11 +10,6 @@ namespace TA3D
     FX::FX()
         :time(0.0f), playing(false), Pos(), size(1.0f), anm(0)
     {}
-
-    FX::~FX()
-    {
-        destroy();
-    }
 
     void FX::init()
     {
@@ -31,22 +26,23 @@ namespace TA3D
     }
 
 
-    bool FX::move(float dt,ANIM **anims)
+    bool FX::move(const float dt, ANIM **anims)
     {
-        if(!playing)	return false;
+        if(!playing)
+            return false;
         if(anm == -1) // Flash effect
         {
             if( time > 1.0f )
             {
-                playing=false;
+                playing = false;
                 return true;
             }
-            time+=dt;
+            time += dt;
             return false;
         }
         if (anm == -2 || anm == -3 || anm == -4 || anm == -5 ) // Wave effect on shores or ripple
         {
-            if( time > 4.0f || ( time > 2.0f && anm == -5 ) )
+            if( time > 4.0f || (time > 2.0f && anm == -5))
             {
                 playing = false;
                 return true;
@@ -56,7 +52,7 @@ namespace TA3D
         }
         if(anm < 0)
         {
-            playing=false;
+            playing = false;
             return false;
         }
         time += dt;
@@ -68,158 +64,165 @@ namespace TA3D
         return false;
     }
 
-    void FX::load(int anim,VECTOR P,float s)
+
+    void FX::load(const int anim, const VECTOR& p, const float s)
     {
         destroy();
-
         anm = anim;
-        Pos = P;
+        Pos = p;
         size = s*0.25f;
         time = 0.0f;
         playing = true;
     }
 
-
-    void FX::draw(CAMERA *cam, MAP *map, ANIM **anims)
+    void FX::doDrawAnimFlash()
     {
-        if(!playing)
-            return;
-        if(map!=NULL)
-        {
-            int px=(int)(Pos.x+map->map_w*0.5f)>>4;
-            int py=(int)(Pos.z+map->map_h*0.5f)>>4;
-            if (px<0 || py<0 || px>=map->bloc_w || py>=map->bloc_h)
-                return;
-            byte player_mask = 1 << players.local_human_id;
-            if((map->view[py][px]!=1
-                || !(map->sight_map->line[py][px]&player_mask))
-               && ( anm > -2 || anm < -4 ))
-                return;
-        }
+        glDisable(GL_DEPTH_TEST);
+        glBindTexture(GL_TEXTURE_2D, fx_manager.flash_tex);
+        glBlendFunc(GL_ONE,GL_ONE);
 
-        if( anm == -1 ) // It's a flash
-        {
-            glDisable( GL_DEPTH_TEST );
-            glBindTexture(GL_TEXTURE_2D, fx_manager.flash_tex);
-            glBlendFunc(GL_ONE,GL_ONE);
+        float rsize = -4.0f * time * ( time - 1.0f ) * size;
 
-            float rsize = -4.0f * time * ( time - 1.0f ) * size;
+        glBegin(GL_QUADS);
+        glTexCoord2f(0.0f,0.0f);	glVertex3f(Pos.x - rsize,Pos.y,Pos.z - rsize);
+        glTexCoord2f(1.0f,0.0f);	glVertex3f(Pos.x + rsize,Pos.y,Pos.z - rsize);
+        glTexCoord2f(1.0f,1.0f);	glVertex3f(Pos.x + rsize,Pos.y,Pos.z + rsize);
+        glTexCoord2f(0.0f,1.0f);	glVertex3f(Pos.x - rsize,Pos.y,Pos.z + rsize);
+        glEnd();
+        glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+        glEnable( GL_DEPTH_TEST );
+    }
 
-            glBegin(GL_QUADS);
-            glTexCoord2f(0.0f,0.0f);	glVertex3f(Pos.x - rsize,Pos.y,Pos.z - rsize);
-            glTexCoord2f(1.0f,0.0f);	glVertex3f(Pos.x + rsize,Pos.y,Pos.z - rsize);
-            glTexCoord2f(1.0f,1.0f);	glVertex3f(Pos.x + rsize,Pos.y,Pos.z + rsize);
-            glTexCoord2f(0.0f,1.0f);	glVertex3f(Pos.x - rsize,Pos.y,Pos.z + rsize);
-            glEnd();
-            glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
-            glEnable( GL_DEPTH_TEST );
 
-            return;
-        }
-        if( anm == -2 || anm == -3 || anm == -4 ) // It's a wave
-        {
-            glPolygonOffset(0.0f, 0.0f);
-            glBindTexture(GL_TEXTURE_2D, fx_manager.wave_tex[ anm + 4 ]);
-            gfx->set_alpha_blending();
-
-            glPushMatrix();
-
-            glTranslatef( Pos.x, Pos.y, Pos.z );
-            glRotatef( size, 0.0f, 1.0f, 0.0f );
-
-            float wsize = 24.0f;
-            float hsize = 8.0f;
-            float dec = time * 0.125f;
-
-            glColor4f( 1.0f, 1.0f, 1.0f, 1.0f - 0.5f * fabs( 2.0f - time ) );
-
-            glBegin(GL_QUADS);
-            glTexCoord2f(0.0f,dec );		glVertex3f(-wsize,4.0f,-hsize);
-            glTexCoord2f(1.0f,dec );		glVertex3f(wsize,4.0f,-hsize);
-            glTexCoord2f(1.0f,dec+1.0f );	glVertex3f(wsize,0.0f,hsize);
-            glTexCoord2f(0.0f,dec+1.0f );	glVertex3f(-wsize,0.0f,hsize);
-            glEnd();
-
-            glColor4f( 1.0f, 1.0f, 1.0f, 1.0f );
-
-            glPopMatrix();
-
-            gfx->unset_alpha_blending();
-
-            glPolygonOffset(0.0f,-1600.0f);
-            return;
-        }
-        if( anm == -5 ) // It's a ripple
-        {
-            glPolygonOffset(0.0f,0.0f);
-            glBindTexture(GL_TEXTURE_2D, fx_manager.ripple_tex);
-            gfx->set_alpha_blending();
-
-            glPushMatrix();
-
-            glTranslatef( Pos.x, Pos.y, Pos.z );
-            glRotatef( size*time, 0.0f, 1.0f, 0.0f );
-
-            float rsize = 16.0f * time;
-
-            glColor4f( 1.0f, 1.0f, 1.0f, 0.5f - 0.25f * time );
-
-            glBegin(GL_QUADS);
-            glTexCoord2f(0.0f,0.0f );		glVertex3f(-rsize,0.0f,-rsize);
-            glTexCoord2f(1.0f,0.0f );		glVertex3f(rsize,0.0f,-rsize);
-            glTexCoord2f(1.0f,1.0f );	glVertex3f(rsize,0.0f,rsize);
-            glTexCoord2f(0.0f,1.0f );	glVertex3f(-rsize,0.0f,rsize);
-            glEnd();
-
-            glColor4f( 1.0f, 1.0f, 1.0f, 1.0f );
-
-            glPopMatrix();
-
-            gfx->unset_alpha_blending();
-
-            glPolygonOffset(0.0f,-1600.0f);
-            return;
-        }
-
-        if (NULL == anims[anm])
-        {
-            playing=false;
-            return;
-        }
-        int img=(int)(time*15.0f);
-        float wsize=size*anims[anm]->w[img];
-        float hsize=size*anims[anm]->h[img];
-        glBindTexture(GL_TEXTURE_2D,anims[anm]->glbmp[img]);
-
-        float hux=hsize*cam->Up.x;
-        float wsx=wsize*cam->Side.x;
-        float huy=hsize*cam->Up.y;
-        float wsy=wsize*cam->Side.y;
-        float huz=hsize*cam->Up.z;
-        float wsz=wsize*cam->Side.z;
+    void FX::doDrawAnimWave(const int animIndx)
+    {
+        glPolygonOffset(0.0f, 0.0f);
+        glBindTexture(GL_TEXTURE_2D, fx_manager.wave_tex[animIndx + 4]);
+        gfx->set_alpha_blending();
 
         glPushMatrix();
-        glTranslatef( Pos.x, Pos.y, Pos.z );
 
-        if(cam->mirror)
+        glTranslatef(Pos.x, Pos.y, Pos.z);
+        glRotatef(size, 0.0f, 1.0f, 0.0f);
+
+        float wsize = 24.0f;
+        float hsize = 8.0f;
+        float dec = time * 0.125f;
+
+        glColor4f( 1.0f, 1.0f, 1.0f, 1.0f - 0.5f * fabs( 2.0f - time ) );
+
+        glBegin(GL_QUADS);
+        glTexCoord2f(0.0f,dec );       glVertex3f(-wsize,4.0f,-hsize);
+        glTexCoord2f(1.0f,dec );       glVertex3f(wsize,4.0f,-hsize);
+        glTexCoord2f(1.0f,dec+1.0f );  glVertex3f(wsize,0.0f,hsize);
+        glTexCoord2f(0.0f,dec+1.0f );  glVertex3f(-wsize,0.0f,hsize);
+        glEnd();
+
+        glColor4f( 1.0f, 1.0f, 1.0f, 1.0f );
+        glPopMatrix();
+        gfx->unset_alpha_blending();
+        glPolygonOffset(0.0f, -1600.0f);
+    }
+
+    void FX::doDrawAnimRipple()
+    {
+        glPolygonOffset(0.0f,0.0f);
+        glBindTexture(GL_TEXTURE_2D, fx_manager.ripple_tex);
+        gfx->set_alpha_blending();
+
+        glPushMatrix();
+
+        glTranslatef(Pos.x, Pos.y, Pos.z);
+        glRotatef(size * time, 0.0f, 1.0f, 0.0f);
+
+        float rsize = 16.0f * time;
+
+        glColor4f(1.0f, 1.0f, 1.0f, 0.5f - 0.25f * time);
+
+        glBegin(GL_QUADS);
+        glTexCoord2f(0.0f,0.0f ); glVertex3f( -rsize, 0.0f, -rsize);
+        glTexCoord2f(1.0f,0.0f ); glVertex3f(  rsize, 0.0f, -rsize);
+        glTexCoord2f(1.0f,1.0f ); glVertex3f(  rsize, 0.0f,  rsize);
+        glTexCoord2f(0.0f,1.0f ); glVertex3f( -rsize, 0.0f,  rsize);
+        glEnd();
+
+        glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+        glPopMatrix();
+        gfx->unset_alpha_blending();
+        glPolygonOffset(0.0f, -1600.0f);
+    }
+
+    void FX::doDrawAnimDefault(CAMERA& cam, ANIM** anims)
+    {
+        if (!anims)
+        {
+            playing = false;
+            return;
+        }
+        int img = (int)round((time * 15.0f));
+        float wsize = size * anims[anm]->w[img];
+        float hsize = size * anims[anm]->h[img];
+        glBindTexture(GL_TEXTURE_2D,anims[anm]->glbmp[img]);
+
+        float hux = hsize * cam.Up.x;
+        float wsx = wsize * cam.Side.x;
+        float huy = hsize * cam.Up.y;
+        float wsy = wsize * cam.Side.y;
+        float huz = hsize * cam.Up.z;
+        float wsz = wsize * cam.Side.z;
+
+        glPushMatrix();
+        glTranslatef(Pos.x, Pos.y, Pos.z);
+
+        if(cam.mirror)
         {
             glBegin(GL_QUADS);
-            glTexCoord2f(0.0f,0.0f);	glVertex3f(  hux-wsx, -huy+wsy,  huz-wsz);
-            glTexCoord2f(1.0f,0.0f);	glVertex3f(  hux+wsx, -huy-wsy,  huz+wsz);
-            glTexCoord2f(1.0f,1.0f);	glVertex3f( -hux+wsx,  huy-wsy, -huz+wsz);
-            glTexCoord2f(0.0f,1.0f);	glVertex3f( -hux-wsx,  huy+wsy, -huz-wsz);
+            glTexCoord2f(0.0f,0.0f); glVertex3f(  hux-wsx, -huy+wsy,  huz-wsz);
+            glTexCoord2f(1.0f,0.0f); glVertex3f(  hux+wsx, -huy-wsy,  huz+wsz);
+            glTexCoord2f(1.0f,1.0f); glVertex3f( -hux+wsx,  huy-wsy, -huz+wsz);
+            glTexCoord2f(0.0f,1.0f); glVertex3f( -hux-wsx,  huy+wsy, -huz-wsz);
             glEnd();
         }
         else
         {
             glBegin(GL_QUADS);
-            glTexCoord2f(0.0f,0.0f);	glVertex3f(  hux-wsx,  huy-wsy,  huz-wsz);
-            glTexCoord2f(1.0f,0.0f);	glVertex3f(  hux+wsx,  huy+wsy,  huz+wsz);
-            glTexCoord2f(1.0f,1.0f);	glVertex3f( -hux+wsx, -huy+wsy, -huz+wsz);
-            glTexCoord2f(0.0f,1.0f);	glVertex3f( -hux-wsx, -huy-wsy, -huz-wsz);
+            glTexCoord2f(0.0f,0.0f); glVertex3f(  hux-wsx,  huy-wsy,  huz-wsz);
+            glTexCoord2f(1.0f,0.0f); glVertex3f(  hux+wsx,  huy+wsy,  huz+wsz);
+            glTexCoord2f(1.0f,1.0f); glVertex3f( -hux+wsx, -huy+wsy, -huz+wsz);
+            glTexCoord2f(0.0f,1.0f); glVertex3f( -hux-wsx, -huy-wsy, -huz-wsz);
             glEnd();
         }
         glPopMatrix();
+    }
+    
+
+    bool FX::doCanDrawAnim(MAP* map) const
+    {
+        int px = (int)(Pos.x + map->map_w * 0.5f) >> 4;
+        int py = (int)(Pos.z + map->map_h * 0.5f) >> 4;
+        if (px < 0 || py < 0 || px >= map->bloc_w || py >= map->bloc_h)
+            return false;
+        byte player_mask = 1 << players.local_human_id;
+        return ! (((map->view[py][px] != 1 || !(map->sight_map->line[py][px] & player_mask))
+           && (anm > -2 || anm < -4)));
+    }
+
+
+    void FX::draw(CAMERA& cam, MAP *map, ANIM **anims)
+    {
+        if(!playing || (map && !doCanDrawAnim(map)))
+            return;
+        switch (anm)
+        {
+            // Flash
+            case -1 : { doDrawAnimFlash(); break; }
+                      // Waves
+            case -2 :
+            case -3 :
+            case -4 : { doDrawAnimWave(anm); break; } 
+            case -5 : { doDrawAnimRipple(); break; }
+            default : doDrawAnimDefault(cam, anims);
+        }
     }
 
 

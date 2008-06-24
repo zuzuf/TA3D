@@ -363,7 +363,7 @@ int play(GAME_DATA *game_data)
     fire=particle_engine.addtex("gfx/fire.tga",NULL);
     build_part=particle_engine.addtex("gfx/part.tga",NULL);
 
-    fx_manager.load_data();
+    fx_manager.loadData();
 
     int mx,my,omb=mouse_b,omb2=mouse_b,omb3=mouse_b, amx=mouse_x, amy=mouse_y;
     int	sel_x[2],sel_y[2],selecting=false;
@@ -1712,7 +1712,8 @@ int play(GAME_DATA *game_data)
             refcam.zfar=(500.0f+(cam_h-150.0f)*2.0f)*2.0f;
             refcam.SetView();
 
-            if(cam.RPos.y<=gfx->low_def_limit && lp_CONFIG->water_quality==4) {
+            if(cam.RPos.y<=gfx->low_def_limit && lp_CONFIG->water_quality==4)
+            {
 
                 if(lp_CONFIG->wireframe)
                     glPolygonMode (GL_FRONT_AND_BACK, GL_LINE);
@@ -1731,8 +1732,7 @@ int play(GAME_DATA *game_data)
 
                 particle_engine.draw(&refcam,map->map_w,map->map_h,map->bloc_w,map->bloc_h,map->view);	// Dessine les particules
 
-                fx_manager.draw(&refcam,map,map->sealvl);		// Effets spéciaux en surface / fx above water
-
+                fx_manager.draw(refcam, map, map->sealvl);		// Effets spéciaux en surface / fx above water
             }
 
             glDisable(GL_CLIP_PLANE1);
@@ -1833,15 +1833,18 @@ int play(GAME_DATA *game_data)
         weapons.draw(&cam,map,true);			// Dessine les objets produits par les armes sous l'eau / Draw weapons which are under water
 
         if(map->water)
-            fx_manager.draw(&cam,map,map->sealvl,true);		// Effets spéciaux sous-marins / Draw fx which are under water
+            fx_manager.draw(cam, map, map->sealvl, true); // Effets spéciaux sous-marins / Draw fx which are under water
 
-        if(map->water) {
+        if(map->water)
+        {
             glEnableClientState(GL_TEXTURE_COORD_ARRAY);
             gfx->ReInitAllTex( true );
 
-            if(!g_useProgram || !g_useFBO || lp_CONFIG->water_quality<2) {
+            if(!g_useProgram || !g_useFBO || lp_CONFIG->water_quality<2)
+            {
                 gfx->set_alpha_blending();
-                if(lp_CONFIG->water_quality==1) {					// lp_CONFIG->water_quality=1
+                if(lp_CONFIG->water_quality==1) // lp_CONFIG->water_quality=1
+                {
                     glColor4f(1.0f,1.0f,1.0f,0.5f);
 
                     glActiveTextureARB(GL_TEXTURE0_ARB);
@@ -1850,7 +1853,8 @@ int play(GAME_DATA *game_data)
 
                     map->draw(&cam,1,true,map->sealvl,t,dt*lp_CONFIG->timefactor);
                 }
-                else {									// lp_CONFIG->water_quality=0
+                else 	// lp_CONFIG->water_quality=0
+                {
                     glColor4f(1.0f,1.0f,1.0f,0.5f);
                     glDisable(GL_LIGHTING);
 
@@ -1870,7 +1874,8 @@ int play(GAME_DATA *game_data)
                 }
                 gfx->unset_alpha_blending();
             }
-            else {
+            else
+            {
                 glColor4f(1.0f,1.0f,1.0f,1.0f);
                 glDisable(GL_LIGHTING);
 
@@ -2226,26 +2231,30 @@ int play(GAME_DATA *game_data)
         particle_engine.draw(&cam,map->map_w,map->map_h,map->bloc_w,map->bloc_h,map->view);	// Dessine les particules
 
         if(!map->water)
-            fx_manager.draw(&cam,map,map->sealvl,true);		// Effets spéciaux en surface
-        fx_manager.draw(&cam,map,map->sealvl);		// Effets spéciaux en surface
+            fx_manager.draw(cam, map, map->sealvl, true);		// Effets spéciaux en surface
+        fx_manager.draw(cam, map, map->sealvl);		// Effets spéciaux en surface
 
-        if(key[KEY_ESC] && !game_area.get_state( "esc_menu" ) ) {			// Enter pause mode if we have to show the menu
+        if(key[KEY_ESC] && !game_area.get_state( "esc_menu" ) ) // Enter pause mode if we have to show the menu
+        {
             lp_CONFIG->pause = true;
             I_Msg( TA3D::TA3D_IM_GUI_MSG, (char*)"esc_menu.b_pause.hide", NULL, NULL );
             I_Msg( TA3D::TA3D_IM_GUI_MSG, (char*)"esc_menu.b_resume.show", NULL, NULL );
             I_Msg( TA3D::TA3D_IM_GUI_MSG, (char*)"esc_menu.show", NULL, NULL );
         }
-        if(game_area.get_state("esc_menu.b_exit")) {
+        if(game_area.get_state("esc_menu.b_exit"))
+        {
             exit_mode = -1;
             done=true;
         }
 
-        if(game_area.get_state("esc_menu.b_save")) {				// Fill the file list
+        if(game_area.get_state("esc_menu.b_save")) 	// Fill the file list
+        {
             game_area.set_state("esc_menu.b_save", false);
 
             GUIOBJ *obj_file_list = game_area.get_object("save_menu.l_file");
 
-            if( obj_file_list ) {
+            if( obj_file_list )
+            {
                 List<String> file_list = GetFileList(TA3D::Paths::Savegames + "*.sav" );
 
                 file_list.sort();

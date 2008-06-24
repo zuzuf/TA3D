@@ -10,23 +10,77 @@
 # include "fx.particle.h"
 
 
+
+
 namespace TA3D
 {
 
-    class FX_MANAGER : public ObjectSync	// This class mustn't be executed in its own thread in order to remain thread safe,
-    {												// it must run in main thread (the one that can call OpenGL functions)!!
+
+    /*! \class FX_MANAGER
+    **
+    ** \brief
+    **
+    ** \warning This class mustn't be executed in its own thread in order to remain
+    ** thread safe. It must run in main thread (the one that can call OpenGL functions)
+    */
+    class FX_MANAGER : public ObjectSync
+    {
     public:
+        //! \name Constructor & destructor
+        //{
+        //! Default constructor
         FX_MANAGER();
+        //! Destructor
         ~FX_MANAGER();
+        //}
 
-
+        /*!
+        ** \brief
+        */
         void init();
+
+        /*!
+        ** \brief
+        */
         void destroy();
-        void load_data();
+
+        /*!
+        ** \brief Load needed textures if not already loaded
+        */
+        void loadData();
+
+        /*!
+        ** \brief
+        */
         void move(const float dt);
-        void draw(CAMERA *cam, MAP *map, float w_lvl=0.0f, bool UW=false);
-        int add(const String& filename,char *entry_name,VECTOR Pos,float size);
-        int addFlash(const VECTOR& Pos,float size);
+
+        /*!
+        ** \brief
+        **
+        ** \param cam
+        ** \param map
+        ** \param w_lvl
+        ** \param UW
+        */
+        void draw(CAMERA& cam, MAP *map, float w_lvl = 0.0f, bool UW = false);
+
+        /*!
+        ** \brief
+        **
+        ** \param filename
+        ** \param entryName
+        ** \param pos
+        ** \param size
+        ** \return
+        */
+        int add(const String& filename, const String& entryName, const VECTOR& Pos, const float size);
+
+        /*!
+        ** \brief
+        ** \param pos
+        ** \param size
+        */
+        int addFlash(const VECTOR& pos, const float size);
 
         /*!
         ** \brief Add a wave
@@ -58,7 +112,7 @@ namespace TA3D
         ** \param n
         ** \param power
         */
-        void addExplosion(const  VECTOR &p, const int n, const float power);
+        void addExplosion(const VECTOR &p, const int n, const float power);
 
 
     public:
@@ -69,19 +123,21 @@ namespace TA3D
 
     private:
         /*!
-        ** \brief
-        ** \param filename
+        ** \brief Find the index of a filename in the cache
+        ** \param filename The filename to look for
         ** \return The index of the item, -1 if not found
+        ** \warning This method is not thread-safe
         */
-        int isInCache(const String& filename);
+        int findInCache(const String& filename) const;
 
         /*!
         ** \brief
         ** \param filename
         ** \param anm
         ** \return
+        ** \warning This method is not thread-safe
         */
-        int putInCache(char *filename,ANIM *anm);
+        int putInCache(const String& filename, ANIM *anm);
 
     private:
         int			max_fx;
@@ -95,7 +151,7 @@ namespace TA3D
         int			*use;
         bool pCacheIsDirty;
 
-        List<FX_PARTICLE> particles;			// List of particles bouncing around
+        List<FX_PARTICLE> pParticles;	// List of particles bouncing around
 
     public:
         //! 
