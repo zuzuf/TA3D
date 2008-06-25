@@ -53,7 +53,7 @@ namespace TA3D
         virtual ~BaseThread();
         virtual void spawn(void* param) = 0;
         virtual void join() = 0;
-        virtual bool isDead() {return pDead;}
+        virtual bool isDead() { return (pDead != 0); }
     };
 
 
@@ -102,7 +102,7 @@ namespace TA3D
     public:
         virtual void spawn(void* param);
         virtual void join();
-        virtual bool isDead() const {return pDead;}
+        virtual bool isDead() const { return (pDead != 0); }
 
     }; // class Thread
 
