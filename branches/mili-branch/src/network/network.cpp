@@ -1070,6 +1070,7 @@ namespace TA3D
     {
         String request = format("/register.php?name=%s&mod=%s&version=%s&slots=%d", ReplaceString( name, " ", "%20", false ).c_str(), ReplaceString( TA3D_CURRENT_MOD, " ", "%20", false ).c_str(), ReplaceString( TA3D_ENGINE_VERSION, " ", "%20", false ).c_str(), Slots );
         String result = HttpRequest( lp_CONFIG->net_server, request );
+        return 0; // TODO Fixe me with the good value !
     }
 
 
