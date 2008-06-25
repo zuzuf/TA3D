@@ -27,7 +27,9 @@
 #ifndef __TA3D_MISC_MATRIX_H__
 # define __TA3D_MISC_MATRIX_H__
 
-#include "vector.h"
+# include "vector.h"
+# include <string.h>
+
 
 
 
