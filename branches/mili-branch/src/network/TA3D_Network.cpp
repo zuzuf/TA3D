@@ -39,7 +39,7 @@ namespace TA3D
 
 
 
-    TA3DNetwork::TA3DNetwork( AREA *area, GAME_DATA *game_data )
+    TA3DNetwork::TA3DNetwork( AREA *area, GameData *game_data )
         :messages()
     {
         enter = false;

@@ -21,6 +21,7 @@
 #include "../gui.h"
 #include "../ta3dbase.h"
 #include "../threads/thread.h"
+#include "../ingame/gamedata.h"
 
 
 namespace TA3D
@@ -43,13 +44,13 @@ namespace TA3D
         List< NetworkMessage >		messages;
         bool						enter;
         AREA						*area;
-        GAME_DATA					*game_data;
+        GameData					*game_data;
 
         int							signal;
 
     public:
 
-        TA3DNetwork( AREA *area, GAME_DATA *game_data );
+        TA3DNetwork( AREA *area, GameData *game_data );
         ~TA3DNetwork();
 
         void set_signal( int s )	{	signal = s;	}

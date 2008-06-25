@@ -23,6 +23,7 @@
 #include "ta3dbase.h"			// Some core include
 #include "EngineClass.h"
 #include "UnitEngine.h"
+#include "restore.h"
 
 #define SAVE( i )	fwrite( &(i), sizeof( i ), 1, file )
 #define LOAD( i )	fread( &(i), sizeof( i ), 1, file )
@@ -32,7 +33,7 @@ inline char *readstring( char *str, int limit, FILE *file )
     return str;
 }
 
-void save_game( const String filename, GAME_DATA *game_data )
+void save_game( const String filename, GameData *game_data )
 {
     FILE *file = TA3D_OpenFile( filename, "wb" );
 
@@ -421,7 +422,7 @@ void save_game( const String filename, GAME_DATA *game_data )
     lp_CONFIG->pause = previous_pause_state;
 }
 
-void load_game_data( const String filename, GAME_DATA *game_data )
+void load_game_data( const String filename, GameData *game_data )
 {
     FILE *file = TA3D_OpenFile( filename, "rb" );
 
@@ -483,7 +484,7 @@ void load_game_data( const String filename, GAME_DATA *game_data )
     fclose( file );
 }
 
-void load_game( GAME_DATA *game_data )
+void load_game( GameData *game_data )
 {
     FILE *file = TA3D_OpenFile( game_data->saved_file, "rb" );
 

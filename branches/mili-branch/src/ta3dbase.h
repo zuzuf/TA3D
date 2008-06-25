@@ -24,6 +24,7 @@
 #include "gaf.h"				// read pictures/animations from GAF files
 #include "gui.h"				// Graphical User Interface
 #include "TA3D_hpi.h"			// HPI handler
+#include "ingame/gamedata.h"
 
 #include "misc/camera.h"
 
@@ -118,93 +119,6 @@ const float i2pwr16=1.0f/65536.0f;
 
 
 
-#define	FOW_DISABLED	0x0
-#define	FOW_GREY		0x1
-#define	FOW_BLACK		0x2
-#define FOW_ALL			0x3
-
-class GAME_DATA				// Structure used to pass game information at launch time
-{
-public:
-    char				*map_filename;		// Which map to play
-    int					nb_players;			// How many players
-    Vector< String >	player_names;		// Their names
-    Vector< String >	player_sides;		// Their sides
-    Vector< byte >		player_control;		// Who control them
-    Vector< int >		player_network_id;	// Network ID of players
-    Vector< byte >		ai_level;			// What's their level (for AI)
-    Vector< uint32 >	energy;				// How much energy do they have when game starts
-    Vector< uint32 >	metal;				// Idem with metal
-    Vector< byte >		ready;				// Who is ready ?
-    char				*game_script;		// Which script to run
-    uint8				fog_of_war;			// flags to configure FOW
-    bool				campaign;			// Are we in campaign mode ?
-    char				*use_only;			// The use only file to read
-    String				saved_file;			// If not empty it's the name of the file to load
-
-    inline GAME_DATA()
-    {
-        saved_file.clear();
-
-        use_only = NULL;
-        campaign = false;
-        fog_of_war = FOW_DISABLED;
-        map_filename=NULL;
-        game_script=NULL;
-        nb_players=0;
-        player_names.clear();
-        player_sides.clear();
-        player_control.clear();
-        ai_level.clear();
-        energy.clear();
-        metal.clear();
-        ready.clear();
-
-        player_names.resize(10);
-        player_sides.resize(10);
-        player_control.resize(10);
-        ai_level.resize(10);
-        energy.resize(10);
-        metal.resize(10);
-        ready.resize(10);
-        player_network_id.resize(10);
-        for( uint16 i = 0 ; i < 10 ; i++ ) {
-            energy[i] = metal[i] = 10000;
-            player_network_id[i] = -1;
-            ready[i] = false;
-        }
-    }
-
-    inline int net2id( int id )
-    {
-        for( int i = 0 ; i < nb_players ; i++ )
-            if( player_network_id[ i ] == id )
-                return i;
-        return -1;
-    }
-
-    inline ~GAME_DATA()
-    {
-        if(use_only)		free(use_only);
-        if(map_filename)	free(map_filename);
-        if(game_script)		free(game_script);
-        map_filename=NULL;
-        game_script=NULL;
-        nb_players=0;
-        player_names.clear();
-        player_sides.clear();
-        player_control.clear();
-        player_network_id.clear();
-        ai_level.clear();
-        energy.clear();
-        metal.clear();
-        ready.clear();
-        saved_file.clear();
-    }
-};
-
-
-
 void reset_mouse();
 void reset_keyboard();
 
@@ -216,7 +130,7 @@ void PutTex(GLuint Tex,float x1,float y1,float x2,float y2);
 GLuint LoadTex(const char *file);
 GLuint LoadMaskedTex(const char *file,const char *filealpha);
 BITMAP *LoadMaskedTexBmp(const char *file,const char *filealpha);
-int play(GAME_DATA *game_data);
+int play(GameData *game_data);
 
 
 

@@ -41,6 +41,7 @@
 #include "misc/settings.h"
 #include "misc/paths.h"
 #include "logs/logs.h"
+#include "ingame/gamedata.h"
 
 
 namespace TA3D
@@ -269,7 +270,7 @@ void solo_menu()
             GUIOBJ *obj_list = solo_area.get_object( "load_menu.l_file" );
             if( obj_list && obj_list->Pos >= 0 && obj_list->Pos < obj_list->Text.size() )
             {
-                GAME_DATA game_data;
+                GameData game_data;
                 load_game_data(TA3D::Paths::Savegames + obj_list->Text[ obj_list->Pos ], &game_data );
 
                 if( !game_data.saved_file.empty() )
@@ -1117,7 +1118,7 @@ void setup_game(bool client, const char *host)
             special msg;
             network_manager.sendSpecial( strtochat( &msg, format( "NOTIFY NEW_PLAYER %s", ReplaceChar( lp_CONFIG->player_name, ' ', 1 ).c_str() ) ) );
             rest(10);
-            network_manager.sendSpecial( strtochat( &msg, "REQUEST GAME_DATA" ) );
+            network_manager.sendSpecial( strtochat( &msg, "REQUEST GameData" ) );
         }
     }
 
@@ -1135,7 +1136,7 @@ void setup_game(bool client, const char *host)
     for( int i = 0 ; i < ta3dSideData.nb_side ; i++ )			// Get side data
         side_str[ i ] = ta3dSideData.side_name[ i ];
 
-    GAME_DATA game_data;
+    GameData game_data;
 
     if( HPIManager->Exists( lp_CONFIG->last_map ) )
         game_data.map_filename = strdup( lp_CONFIG->last_map.c_str() );
@@ -1431,7 +1432,7 @@ void setup_game(bool client, const char *host)
                     {
                         if( params[1] == "PLAYER_ID" )					// Sending player's network ID
                             network_manager.sendSpecial( format( "RESPONSE PLAYER_ID %d", from ), -1, from );
-                        else if( params[1] == "GAME_DATA" ) {			// Sending game information
+                        else if( params[1] == "GameData" ) {			// Sending game information
                             for( int i = 0 ; i < 10 ; i++ ) {			// Send player information
                                 if( client && game_data.player_network_id[i] != my_player_id )	continue;		// We don't send updates about things we wan't update
                                 String msg;								// SYNTAX: PLAYER_INFO player_id network_id side_id ai_level metal energy player_name
@@ -1456,10 +1457,10 @@ void setup_game(bool client, const char *host)
                     }
                     else if( params[0] == "NOTIFY" ) {
                         if( params[1] == "UPDATE" )
-                            network_manager.sendSpecial( "REQUEST GAME_DATA" );			// We're told there are things to update, so ask for update
+                            network_manager.sendSpecial( "REQUEST GameData" );			// We're told there are things to update, so ask for update
                         else if( params[1] == "PLAYER_LEFT" ) {
                             network_manager.dropPlayer( from );
-                            network_manager.sendSpecial( "REQUEST GAME_DATA" );			// We're told there are things to update, so ask for update
+                            network_manager.sendSpecial( "REQUEST GameData" );			// We're told there are things to update, so ask for update
                             for( int i = 0 ; i < 10 ; i++ )
                                 if( game_data.player_network_id[i] == from ) {
                                     game_data.player_network_id[i] = -1;
@@ -2654,7 +2655,7 @@ int brief_screen(String campaign_name, int mission_id)
     while(key[KEY_ESC]) {	rest(1);	poll_keyboard();	}
 
     if(start_game) {					// Open the briefing screen and start playing the campaign
-        GAME_DATA game_data;
+        GameData game_data;
 
         TA3D::generate_script_from_mission( "scripts/__campaign_script.lua", &ota_parser, schema );	// Generate the script which will be removed later
 
@@ -2722,7 +2723,7 @@ int brief_screen(String campaign_name, int mission_id)
 
 void wait_room(void *p_game_data)
 {
-    GAME_DATA *game_data = (GAME_DATA*) p_game_data;
+    GameData *game_data = (GameData*) p_game_data;
     if( !network_manager.isConnected() )	return;
 
     gfx->set_2D_mode();

@@ -33,6 +33,7 @@
 #include "misc/paths.h"
 #include "misc/camera.h"
 #include "misc/material.light.h"
+#include "ingame/gamedata.h"
 
 
 #ifndef SCROLL_SPEED
@@ -49,7 +50,7 @@ VECTOR cursor_on_map( Camera *cam,MAP *map, bool on_mini_map = false );
 /*--------------------------------------------------------------------\
   |                              Game Engine                            |
   \--------------------------------------------------------------------*/
-int play(GAME_DATA *game_data)
+int play(GameData *game_data)
 {
 
     if( network_manager.isConnected() )

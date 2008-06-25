@@ -15,9 +15,17 @@
     along with this program; if not, write to the Free Software
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA*/
     
-void save_game( const String filename, GAME_DATA *game_data );
+#ifndef __TA3D_XX_RESTORE_H__
+# define __TA3D_XX_RESTORE_H__
 
-void load_game_data( const String filename, GAME_DATA *game_data );
 
-void load_game( GAME_DATA *game_data );
+# include "ingame/gamedata.h"
 
+
+void save_game( const String filename, GameData *game_data );
+
+void load_game_data( const String filename, GameData *game_data );
+
+void load_game( GameData *game_data );
+
+#endif // __TA3D_XX_RESTORE_H__
