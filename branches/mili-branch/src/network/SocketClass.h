@@ -22,7 +22,9 @@
 
 # include <stdio.h>
 # include <stdlib.h>
-# include <unistd.h>
+# ifndef TA3D_PLATFORM_MSVC
+#   include <unistd.h>
+# endif
 # include <string.h>
 
 // Our low-level network layer, OS abstraction layer
