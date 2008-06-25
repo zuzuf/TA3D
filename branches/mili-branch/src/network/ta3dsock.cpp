@@ -332,6 +332,7 @@ namespace TA3D
         putByte(0);
         sendTCP();
         tcpmutex.unlock();
+		return 1; // TODO Check this value is correct
     }
 
     int TA3DSock::sendEvent(struct event* event)

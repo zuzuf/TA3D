@@ -30,6 +30,7 @@
 #include "../misc/paths.h"
 #include "../logs/logs.h"
 #include <allegro/internal/aintern.h>
+#include <strings.h>
 
 
 

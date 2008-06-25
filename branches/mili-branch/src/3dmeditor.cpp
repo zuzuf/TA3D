@@ -1168,7 +1168,8 @@ void SurfPaint(int index)
                 break;
         };
 
-        if(SPaint.Objets[12].Etat) {								// Change the texture size
+        if(SPaint.Objets[12].Etat) 								// Change the texture size
+		{
             String new_res = GetVal( TRANSLATE( "Nouvelle résolution de la texture" ).c_str() );
             char *new_separator = strstr(new_res.c_str(),"x");
             if(new_separator) {

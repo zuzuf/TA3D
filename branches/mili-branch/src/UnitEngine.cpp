@@ -38,6 +38,7 @@
 #include "network/TA3D_Network.h"
 #include "gfx/fx.h"
 #include "misc/camera.h"
+#include <math.h>
 
 using namespace TA3D::Exceptions;
 
