@@ -13,7 +13,11 @@ PROJECT(TA3D)
 string( LENGTH "${CMAKE_CXX_FLAGS}" VA )
 
 IF( ${VA} EQUAL 0 )
-	SET( CMAKE_CXX_FLAGS "-O2 -g -Wall" )
+    IF(WIN32)
+	    SET( CMAKE_CXX_FLAGS "-O2 -g " )
+    ELSE(WIN32)
+	    SET( CMAKE_CXX_FLAGS "-O2 -g -Wall" )
+    ENDIF(WIN32)
 ENDIF( ${VA} EQUAL 0 )
 
 message( STATUS "CXXFLAGS SET to ${CMAKE_CXX_FLAGS}" )
