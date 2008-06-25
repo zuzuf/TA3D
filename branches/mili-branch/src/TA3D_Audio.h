@@ -40,7 +40,9 @@
 # ifdef TA3D_PLATFORM_WINDOWS
 #   include "tools/win32/fmod/fmod.hpp"
 #   include "tools/win32/fmod/fmod_errors.h"
-#   pragma comment(lib, "tools/win32/libs/fmodex_vc.lib")
+#   ifdef TA3D_PLATFORM_MSVC
+#      pragma comment(lib, "tools/win32/libs/fmodex_vc.lib")
+#   endif
 # endif
 
 
