@@ -758,11 +758,12 @@ namespace TA3D
     {
         if( idx < 0 || idx >= max_features || feature[ idx ].type < 0 )	return;		// Nothing to display
 
-        if(feature_manager.feature[ feature[ idx ].type ].description) {
+        if(feature_manager.feature[ feature[ idx ].type ].description)
+        {
             if( feature_manager.feature[ feature[ idx ].type ].reclaimable )
-                gfx->print(gfx->normal_font,ta3d_sidedata.side_int_data[ players.side_view ].Description.x1,ta3d_sidedata.side_int_data[ players.side_view ].Description.y1,0.0f,0xFFFFFFFF, format("%s M:%d E:%d",TRANSLATE( feature_manager.feature[ feature[ idx ].type ].description ).c_str(),feature_manager.feature[ feature[ idx ].type ].metal,feature_manager.feature[ feature[ idx ].type ].energy) );
+                gfx->print(gfx->normal_font,ta3dSideData.side_int_data[ players.side_view ].Description.x1,ta3dSideData.side_int_data[ players.side_view ].Description.y1,0.0f,0xFFFFFFFF, format("%s M:%d E:%d",TRANSLATE( feature_manager.feature[ feature[ idx ].type ].description ).c_str(),feature_manager.feature[ feature[ idx ].type ].metal,feature_manager.feature[ feature[ idx ].type ].energy) );
             else
-                gfx->print(gfx->normal_font,ta3d_sidedata.side_int_data[ players.side_view ].Description.x1,ta3d_sidedata.side_int_data[ players.side_view ].Description.y1,0.0f,0xFFFFFFFF, TRANSLATE( feature_manager.feature[ feature[ idx ].type ].description ) );
+                gfx->print(gfx->normal_font,ta3dSideData.side_int_data[ players.side_view ].Description.x1,ta3dSideData.side_int_data[ players.side_view ].Description.y1,0.0f,0xFFFFFFFF, TRANSLATE( feature_manager.feature[ feature[ idx ].type ].description ) );
         }
 
         glDisable(GL_BLEND);

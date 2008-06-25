@@ -22,6 +22,7 @@
 #include "../UnitEngine.h"
 #include "../scripts/script.h"
 #include "../misc/camera.h"
+#include "../ingame/sidedata.h"
 
 
 #define CHAT_MESSAGE_TIMEOUT	10000

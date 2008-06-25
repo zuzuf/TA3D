@@ -18,6 +18,7 @@
 #include "stdafx.h"
 #include "TA3D_NameSpace.h"		//"TA3D_Audio.h" is in our namespace.
 #include "ta3dbase.h"			// just to use the global camera object
+#include "ingame/sidedata.h"
 
 using namespace TA3D::Interfaces;
 
@@ -899,39 +900,39 @@ bool cAudio::LoadSound( const String &Filename, const bool LoadAs3D,
 
 void cAudio::LoadTDFSounds( const bool allSounds )
 {
-	pMutex.lock();
-		String FileName;
+    pMutex.lock();
+    String FileName;
 
-		if( allSounds )
-			FileName = ta3d_sidedata.gamedata_dir + "allsound.tdf";
-		else
-			FileName = ta3d_sidedata.gamedata_dir + "sound.tdf";
+    if( allSounds )
+        FileName = ta3dSideData.gamedata_dir + "allsound.tdf";
+    else
+        FileName = ta3dSideData.gamedata_dir + "sound.tdf";
 
-		Console->AddEntry( "Reading %s", FileName.c_str() );
+    Console->AddEntry( "Reading %s", FileName.c_str() );
 
-		Load( FileName );
+    Load( FileName );
 
-		Console->AddEntry( "Loading sounds from %s", FileName.c_str() );
+    Console->AddEntry( "Loading sounds from %s", FileName.c_str() );
 
-		for( iterator iter = begin() ; iter != end() ; iter++ )   
-		{
-			for( std::list< cBucket<String> >::iterator cur = iter->begin() ; cur != iter->end() ; cur++ )
-			{
-				String szWav = String( (*cur).m_T_data );
+    for( iterator iter = begin() ; iter != end() ; iter++ )   
+    {
+        for( std::list< cBucket<String> >::iterator cur = iter->begin() ; cur != iter->end() ; cur++ )
+        {
+            String szWav = String( (*cur).m_T_data );
 
-				LoadSound( szWav, false );
-			}
-		}
-	pMutex.unlock();
+            LoadSound( szWav, false );
+        }
+    }
+    pMutex.unlock();
 }
 
 void cAudio::PurgeSounds( void )
 {
-	pMutex.lock();
-		m_SoundList->EmptyHashTable();
-		EmptyHashTable();
-		WorkList.clear();
-	pMutex.unlock();
+    pMutex.lock();
+    m_SoundList->EmptyHashTable();
+    EmptyHashTable();
+    WorkList.clear();
+    pMutex.unlock();
 }
 
 // Play sound directly from our sound pool

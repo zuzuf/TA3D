@@ -34,6 +34,7 @@
 #include "3do.h"
 #include "gfx/particles/particles.h"
 #include "taconfig.h"
+#include "ingame/sidedata.h"
 
 using namespace TA3D::Exceptions;
 
@@ -1919,12 +1920,14 @@ hit_fast_is_exploding:
     int MODEL_MANAGER::load_all(void (*progress)(float percent,const String &msg))
     {
         List<String> file_list;
-        sint32 new_nb_models = HPIManager->GetFilelist( ta3d_sidedata.model_dir + "*.3dm",&file_list);
+        sint32 new_nb_models = HPIManager->GetFilelist( ta3dSideData.model_dir + "*.3dm",&file_list);
 
-        if(new_nb_models > 0) {
+        if(new_nb_models > 0)
+        {
             MODEL *n_model = (MODEL*) malloc(sizeof(MODEL)*(nb_models+new_nb_models));
             char **n_name = (char**) malloc(sizeof(char*)*(nb_models+new_nb_models));
-            if(model) {
+            if(model)
+            {
                 memcpy(n_model,model,sizeof(MODEL)*nb_models);
                 free(model);
                 memcpy(n_name,name,sizeof(char*)*nb_models);
@@ -1933,7 +1936,8 @@ hit_fast_is_exploding:
             model=n_model;
             name=n_name;
             int i = 0, n = 0;
-            for(List<String>::iterator e=file_list.begin();e!=file_list.end();e++) {
+            for(List<String>::iterator e=file_list.begin();e!=file_list.end(); ++e)
+            {
                 Console->AddEntry( "loading %s", e->c_str() );
                 if(progress!=NULL && !(i & 0xF))
                     progress((100.0f+n*50.0f/(new_nb_models+1))/7.0f,TRANSLATE("Loading 3D Models"));
@@ -1941,17 +1945,21 @@ hit_fast_is_exploding:
                 model[i+nb_models].init();
                 name[i+nb_models] = strdup(e->c_str());
 
-                if(get_model( String( name[i+nb_models] ).substr( 0, e->size() - 4 ).c_str() )==NULL) {				// Vérifie si le modèle n'est pas déjà chargé
+                if(get_model( String( name[i+nb_models] ).substr( 0, e->size() - 4 ).c_str() )==NULL) 	// Vérifie si le modèle n'est pas déjà chargé
+                {
                     byte *data = HPIManager->PullFromHPI(*e);
-                    if( data ) {
-                        if( data[0] == 0 ) {
+                    if( data )
+                    {
+                        if( data[0] == 0 )
+                        {
                             String real_name = (char*)(data+1);
                             real_name = TrimString( real_name );
 
                             free( data );
                             data = HPIManager->PullFromHPI( real_name );
                         }
-                        if( data ) {
+                        if( data )
+                        {
                             model[i+nb_models].load_3dm(data);
                             free(data);
 
@@ -1966,9 +1974,10 @@ hit_fast_is_exploding:
         }
 
         file_list.clear();
-        new_nb_models = HPIManager->GetFilelist( ta3d_sidedata.model_dir + "*.3do",&file_list);
+        new_nb_models = HPIManager->GetFilelist(ta3dSideData.model_dir + "*.3do", &file_list);
 
-        if(new_nb_models > 0) {
+        if(new_nb_models > 0)
+        {
             MODEL *n_model = (MODEL*) malloc(sizeof(MODEL)*(nb_models+new_nb_models));
             char **n_name = (char**) malloc(sizeof(char*)*(nb_models+new_nb_models));
             if(model) {
@@ -1980,7 +1989,8 @@ hit_fast_is_exploding:
             model = n_model;
             name = n_name;
             int i = 0, n = 0;
-            for(List<String>::iterator e=file_list.begin();e!=file_list.end();e++) {
+            for(List<String>::iterator e=file_list.begin();e!=file_list.end();e++)
+            {
                 Console->AddEntry( "loading %s", e->c_str() );
                 if( progress != NULL && !(i & 0xF) )
                     progress((100.0f+(50.0f+n*50.0f/(new_nb_models+1)))/7.0f,TRANSLATE("Loading 3D Models"));
@@ -1988,10 +1998,12 @@ hit_fast_is_exploding:
                 model[i+nb_models].init();
                 name[i+nb_models] = strdup(e->c_str());
 
-                if(get_model( String( name[i+nb_models] ).substr( 0, e->size() - 4 ).c_str() )==NULL) {				// Vérifie si le modèle n'est pas déjà chargé
+                if(get_model( String( name[i+nb_models] ).substr( 0, e->size() - 4 ).c_str() )==NULL) // Vérifie si le modèle n'est pas déjà chargé
+                {
                     uint32	data_size = 0;
                     byte *data = HPIManager->PullFromHPI(*e, &data_size);
-                    if( data ) {
+                    if( data )
+                    {
                         if( data_size > 0 )						// If the file isn't empty
                             model[i+nb_models].load_3do(data,e->c_str());
                         free(data);

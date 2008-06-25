@@ -83,7 +83,7 @@ SET(SOURCES gaf.cpp gaf.h
             3do.cpp 3do.h
             3ds.cpp 3ds.h)
 ADD_LIBRARY(fileformats STATIC ${SOURCES})
-ADD_DEPENDENCIES(fileformats stdafx particles taconfig)
+ADD_DEPENDENCIES(fileformats stdafx particles taconfig ingame)
 
 # --------------------------------------------------------------------
 # --- Audio
@@ -92,7 +92,7 @@ SET(LIBRARY_OUTPUT_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../bin/libs/${CMAKE_SYSTEM_
 SET(ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../bin/libs/${CMAKE_SYSTEM_NAME}")
 SET(SOURCES TA3D_Audio.cpp TA3D_Audio.h)
 ADD_LIBRARY(audio STATIC ${SOURCES})
-ADD_DEPENDENCIES(audio stdafx misc threads)
+ADD_DEPENDENCIES(audio stdafx misc threads ingame)
 
 # --------------------------------------------------------------------
 # --- HPI
@@ -122,8 +122,8 @@ endif( WIN32 OR CMAKE_CROSSCOMPILING )
 
 add_executable(${3DMEDITOR} 3dmeditor.cpp ta3d.h 3dmeditor_sub.cpp 3dmeditor.h cTAFileParser.cpp cTAFileParser.h stdafx.h TA3D_NameSpace.cpp TA3D_NameSpace.h TA3D_Platform.h)
 
-ADD_DEPENDENCIES(${3DMEDITOR} stdafx logs console debuginfos threads 3dtoolbox misc i18n tajpeg gfx fileformats particles audio hpi taconfig gui)
-target_link_libraries(${3DMEDITOR} stdafx logs console debuginfos threads 3dtoolbox misc i18n tajpeg gfx fileformats particles audio hpi taconfig gui)
+ADD_DEPENDENCIES(${3DMEDITOR} stdafx logs console debuginfos threads 3dtoolbox misc i18n tajpeg gfx fileformats particles audio hpi taconfig gui ingame)
+target_link_libraries(${3DMEDITOR} stdafx logs console debuginfos threads 3dtoolbox misc i18n tajpeg gfx fileformats particles audio hpi taconfig gui ingame)
 IF(APPLE)
     SET(GUI_TYPE MACOSX_BUNDLE)
     SET(MACOSX_BUNDLE_BUNDLE_NAME "TA3D Editor")
@@ -138,8 +138,8 @@ ENDIF(APPLE)
 
 add_executable(ta3d-bin ta3d.cpp ta3d.h main.cpp install.cpp cTA3D_Engine.cpp cTA3D_Engine.h cTAFileParser.cpp cTAFileParser.h restore.cpp restore.h menu.cpp menu.h EngineClass.cpp EngineClass.h UnitEngine.cpp UnitEngine.h fbi.cpp fbi.h intro.cpp intro.h tdf.cpp tdf.h tnt.cpp tnt.h icon.cpp stdafx.h TA3D_NameSpace.cpp TA3D_NameSpace.h TA3D_Platform.h)
 
-ADD_DEPENDENCIES(ta3d-bin stdafx logs console debuginfos threads i18n 3dtoolbox misc tajpeg gfx fileformats particles weapons ai audio hpi gui taconfig network scripts)
-target_link_libraries(ta3d-bin stdafx logs console debuginfos threads i18n 3dtoolbox misc tajpeg gfx fileformats particles weapons ai audio hpi gui taconfig network scripts)
+ADD_DEPENDENCIES(ta3d-bin stdafx logs console debuginfos threads i18n 3dtoolbox misc tajpeg gfx fileformats particles weapons ai audio hpi gui taconfig network scripts ingame)
+target_link_libraries(ta3d-bin stdafx logs console debuginfos threads i18n 3dtoolbox misc tajpeg gfx fileformats particles weapons ai audio hpi gui taconfig network scripts ingame)
 IF(APPLE)
     SET(GUI_TYPE MACOSX_BUNDLE)
     SET(MACOSX_BUNDLE_BUNDLE_NAME "TA3D")

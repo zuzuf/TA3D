@@ -135,10 +135,10 @@ int play(GAME_DATA *game_data)
         String prefix = "";
         String intgaf = "";
 
-        for( int i = 0 ; i < ta3d_sidedata.nb_side ; i++ )
-            if( ta3d_sidedata.side_name[ i ] == game_data->player_sides[ players.local_human_id ] ) {
-                prefix = ta3d_sidedata.side_pref[ i ];
-                intgaf = ta3d_sidedata.side_int[ i ];
+        for( int i = 0 ; i < ta3dSideData.nb_side ; i++ )
+            if( ta3dSideData.side_name[ i ] == game_data->player_sides[ players.local_human_id ] ) {
+                prefix = ta3dSideData.side_pref[ i ];
+                intgaf = ta3dSideData.side_int[ i ];
                 break;
             }
 
@@ -175,8 +175,8 @@ int play(GAME_DATA *game_data)
 
     try
     {
-        game_area.load_window( ta3d_sidedata.guis_dir + ta3d_sidedata.side_pref[ players.side_view ] + "gen.gui" );			// Load the order interface
-        I_Msg( TA3D::TA3D_IM_GUI_MSG, (void*)(String( ta3d_sidedata.side_pref[ players.side_view ] ) + "gen.hide").c_str(), NULL, NULL );	// Hide it
+        game_area.load_window( ta3dSideData.guis_dir + ta3dSideData.side_pref[ players.side_view ] + "gen.gui" );			// Load the order interface
+        I_Msg( TA3D::TA3D_IM_GUI_MSG, (void*)(String( ta3dSideData.side_pref[ players.side_view ] ) + "gen.hide").c_str(), NULL, NULL );	// Hide it
     }
     catch(...)
     {
@@ -185,8 +185,8 @@ int play(GAME_DATA *game_data)
 
     try
     {
-        game_area.load_window( ta3d_sidedata.guis_dir + ta3d_sidedata.side_pref[ players.side_view ] + "dl.gui" );			// Load the default build interface
-        I_Msg( TA3D::TA3D_IM_GUI_MSG, (void*)(String( ta3d_sidedata.side_pref[ players.side_view ] ) + "dl.hide").c_str(), NULL, NULL );	// Hide it
+        game_area.load_window( ta3dSideData.guis_dir + ta3dSideData.side_pref[ players.side_view ] + "dl.gui" );			// Load the default build interface
+        I_Msg( TA3D::TA3D_IM_GUI_MSG, (void*)(String( ta3dSideData.side_pref[ players.side_view ] ) + "dl.hide").c_str(), NULL, NULL );	// Hide it
     }
     catch(...)
     {
@@ -197,12 +197,12 @@ int play(GAME_DATA *game_data)
     {
         if( !(i & 0xF) )
             loading( (550.0f + 50.0f * i / (unit_manager.nb_unit+1) )/7.0f,TRANSLATE("Loading GUI"));
-        if( Lowercase( unit_manager.unit_type[ i ].side ) == Lowercase( ta3d_sidedata.side_name[ players.side_view ] ) )
+        if( Lowercase( unit_manager.unit_type[ i ].side ) == Lowercase( ta3dSideData.side_name[ players.side_view ] ) )
         {
             int e = 1;
-            while( HPIManager->Exists( ta3d_sidedata.guis_dir + unit_manager.unit_type[ i ].Unitname + format( "%d.gui", e ) ) )
+            while( HPIManager->Exists( ta3dSideData.guis_dir + unit_manager.unit_type[ i ].Unitname + format( "%d.gui", e ) ) )
             {
-                game_area.load_window( ta3d_sidedata.guis_dir + unit_manager.unit_type[ i ].Unitname + format( "%d.gui", e ) );			// Load the build interface
+                game_area.load_window( ta3dSideData.guis_dir + unit_manager.unit_type[ i ].Unitname + format( "%d.gui", e ) );			// Load the build interface
                 I_Msg( TA3D::TA3D_IM_GUI_MSG, (void*)( unit_manager.unit_type[ i ].Unitname + format( "%d.hide", e) ).c_str(), NULL, NULL );	// Hide it
                 e++;
             }
@@ -2398,7 +2398,7 @@ int play(GAME_DATA *game_data)
 
         /*------------------- Draw GUI components -------------------------------------------------------*/
 
-        if( current_gui != String( ta3d_sidedata.side_pref[ players.side_view ] ) + "gen" )
+        if( current_gui != String( ta3dSideData.side_pref[ players.side_view ] ) + "gen" )
             unit_manager.unit_build_menu(n,omb2,dt, true );	// Draw GUI background
         else
             unit_manager.unit_build_menu(-1,omb2,dt, true);	// Draw GUI background
@@ -2408,7 +2408,7 @@ int play(GAME_DATA *game_data)
         /*------------------- End of GUI drawings -------------------------------------------------------*/
 
         WND *current_wnd = game_area.get_wnd( current_gui );
-        if( current_gui != String( ta3d_sidedata.side_pref[ players.side_view ] ) + "gen" )
+        if( current_gui != String( ta3dSideData.side_pref[ players.side_view ] ) + "gen" )
             sel = unit_manager.unit_build_menu(n,omb2,dt );	// Menu correspondant à l'unité / Unit's menu
         else
             sel = unit_manager.unit_build_menu(-1,omb2,dt);	// Menu correspondant à l'unité / Unit's menu
@@ -2445,9 +2445,9 @@ int play(GAME_DATA *game_data)
             current_gui = String( unit_manager.unit_type[ n ].Unitname ) + "1";
             if( game_area.get_wnd( current_gui ) == NULL ) {
                 if( unit_manager.unit_type[ n ].nb_unit > 0 )				// The default build page
-                    current_gui = String( ta3d_sidedata.side_pref[ players.side_view ] ) + "dl";
+                    current_gui = String( ta3dSideData.side_pref[ players.side_view ] ) + "dl";
                 else
-                    current_gui = String( ta3d_sidedata.side_pref[ players.side_view ] ) + "gen";
+                    current_gui = String( ta3dSideData.side_pref[ players.side_view ] ) + "gen";
             }
             I_Msg( TA3D::TA3D_IM_GUI_MSG, (void*)( current_gui + ".show" ).c_str(), NULL, NULL );	// Show it
             refresh_gui = true;
@@ -2455,7 +2455,7 @@ int play(GAME_DATA *game_data)
         if( n < 0 && ( selected && !old_sel ) ) {
             I_Msg( TA3D::TA3D_IM_GUI_MSG, (void*)( current_gui + ".hide" ).c_str(), NULL, NULL );	// Hide it
             old_sel = true;
-            current_gui = String( ta3d_sidedata.side_pref[ players.side_view ] ) + "gen";
+            current_gui = String( ta3dSideData.side_pref[ players.side_view ] ) + "gen";
             I_Msg( TA3D::TA3D_IM_GUI_MSG, (void*)( current_gui + ".show" ).c_str(), NULL, NULL );	// Show it
             refresh_gui = true;
         }
@@ -2510,21 +2510,21 @@ int play(GAME_DATA *game_data)
 
             if( onoff_state == 0 )	onoff_state = 3;
 
-            game_area.set_enable_flag( current_gui + "." + ta3d_sidedata.side_pref[ players.side_view ] + "STOP", canstop );
-            game_area.set_enable_flag( current_gui + "." + ta3d_sidedata.side_pref[ players.side_view ] + "MOVE", canmove );
-            game_area.set_enable_flag( current_gui + "." + ta3d_sidedata.side_pref[ players.side_view ] + "PATROL", canpatrol );
-            game_area.set_enable_flag( current_gui + "." + ta3d_sidedata.side_pref[ players.side_view ] + "DEFEND", canguard );
-            game_area.set_enable_flag( current_gui + "." + ta3d_sidedata.side_pref[ players.side_view ] + "ATTACK", canattack );
-            game_area.set_enable_flag( current_gui + "." + ta3d_sidedata.side_pref[ players.side_view ] + "RECLAIM", canreclam );
-            game_area.set_enable_flag( current_gui + "." + ta3d_sidedata.side_pref[ players.side_view ] + "LOAD", canload );
-            game_area.set_enable_flag( current_gui + "." + ta3d_sidedata.side_pref[ players.side_view ] + "UNLOAD", canload );
-            game_area.set_enable_flag( current_gui + "." + ta3d_sidedata.side_pref[ players.side_view ] + "REPAIR", builders );
-            game_area.set_enable_flag( current_gui + "." + ta3d_sidedata.side_pref[ players.side_view ] + "ONOFF", onoffable );
-            game_area.set_enable_flag( current_gui + "." + ta3d_sidedata.side_pref[ players.side_view ] + "MOVEORD", canmove );
-            game_area.set_enable_flag( current_gui + "." + ta3d_sidedata.side_pref[ players.side_view ] + "FIREORD", canattack );
-            game_area.set_enable_flag( current_gui + "." + ta3d_sidedata.side_pref[ players.side_view ] + "CAPTURE", cancapture );
-            game_area.set_enable_flag( current_gui + "." + ta3d_sidedata.side_pref[ players.side_view ] + "CLOAK", cancloak );
-            game_area.set_enable_flag( current_gui + "." + ta3d_sidedata.side_pref[ players.side_view ] + "BLAST", candgun );
+            game_area.set_enable_flag( current_gui + "." + ta3dSideData.side_pref[ players.side_view ] + "STOP", canstop );
+            game_area.set_enable_flag( current_gui + "." + ta3dSideData.side_pref[ players.side_view ] + "MOVE", canmove );
+            game_area.set_enable_flag( current_gui + "." + ta3dSideData.side_pref[ players.side_view ] + "PATROL", canpatrol );
+            game_area.set_enable_flag( current_gui + "." + ta3dSideData.side_pref[ players.side_view ] + "DEFEND", canguard );
+            game_area.set_enable_flag( current_gui + "." + ta3dSideData.side_pref[ players.side_view ] + "ATTACK", canattack );
+            game_area.set_enable_flag( current_gui + "." + ta3dSideData.side_pref[ players.side_view ] + "RECLAIM", canreclam );
+            game_area.set_enable_flag( current_gui + "." + ta3dSideData.side_pref[ players.side_view ] + "LOAD", canload );
+            game_area.set_enable_flag( current_gui + "." + ta3dSideData.side_pref[ players.side_view ] + "UNLOAD", canload );
+            game_area.set_enable_flag( current_gui + "." + ta3dSideData.side_pref[ players.side_view ] + "REPAIR", builders );
+            game_area.set_enable_flag( current_gui + "." + ta3dSideData.side_pref[ players.side_view ] + "ONOFF", onoffable );
+            game_area.set_enable_flag( current_gui + "." + ta3dSideData.side_pref[ players.side_view ] + "MOVEORD", canmove );
+            game_area.set_enable_flag( current_gui + "." + ta3dSideData.side_pref[ players.side_view ] + "FIREORD", canattack );
+            game_area.set_enable_flag( current_gui + "." + ta3dSideData.side_pref[ players.side_view ] + "CAPTURE", cancapture );
+            game_area.set_enable_flag( current_gui + "." + ta3dSideData.side_pref[ players.side_view ] + "CLOAK", cancloak );
+            game_area.set_enable_flag( current_gui + "." + ta3dSideData.side_pref[ players.side_view ] + "BLAST", candgun );
 
             game_area.set_enable_flag( current_gui + ".ARMSTOP", canstop );			// Alternate version to support mods
             game_area.set_enable_flag( current_gui + ".ARMMOVE", canmove );
@@ -2542,21 +2542,21 @@ int play(GAME_DATA *game_data)
             game_area.set_enable_flag( current_gui + ".ARMCLOAK", cancloak );
             game_area.set_enable_flag( current_gui + ".ARMBLAST", candgun );
 
-            GUIOBJ *onoff_gui = game_area.get_object( current_gui + "." + ta3d_sidedata.side_pref[ players.side_view ] + "ONOFF");
+            GUIOBJ *onoff_gui = game_area.get_object( current_gui + "." + ta3dSideData.side_pref[ players.side_view ] + "ONOFF");
             if( onoff_gui == NULL )
                 onoff_gui = game_area.get_object( current_gui + ".ARMONOFF");
 
             if( onoff_gui )
                 onoff_gui->current_state = onoff_state - 1;
 
-            GUIOBJ *sorder_gui = game_area.get_object( current_gui + "." + ta3d_sidedata.side_pref[ players.side_view ] + "FIREORD");
+            GUIOBJ *sorder_gui = game_area.get_object( current_gui + "." + ta3dSideData.side_pref[ players.side_view ] + "FIREORD");
             if( sorder_gui == NULL )
                 sorder_gui = game_area.get_object( current_gui + ".ARMFIREORD");
 
             if( sorder_gui )
                 sorder_gui->current_state = sforder;
 
-            sorder_gui = game_area.get_object( current_gui + "." + ta3d_sidedata.side_pref[ players.side_view ] + "MOVEORD");
+            sorder_gui = game_area.get_object( current_gui + "." + ta3dSideData.side_pref[ players.side_view ] + "MOVEORD");
             if( sorder_gui == NULL )
                 sorder_gui = game_area.get_object( current_gui + ".ARMMOVEORD");
 
@@ -2564,36 +2564,36 @@ int play(GAME_DATA *game_data)
                 sorder_gui->current_state = smorder;
 
             if( canload ) {
-                I_Msg( TA3D::TA3D_IM_GUI_MSG, (void*)( current_gui + "." + ta3d_sidedata.side_pref[ players.side_view ] + "LOAD.show" ).c_str(), NULL, NULL );	// Show it
-                I_Msg( TA3D::TA3D_IM_GUI_MSG, (void*)( current_gui + "." + ta3d_sidedata.side_pref[ players.side_view ] + "BLAST.hide" ).c_str(), NULL, NULL );	// Hide it
+                I_Msg( TA3D::TA3D_IM_GUI_MSG, (void*)( current_gui + "." + ta3dSideData.side_pref[ players.side_view ] + "LOAD.show" ).c_str(), NULL, NULL );	// Show it
+                I_Msg( TA3D::TA3D_IM_GUI_MSG, (void*)( current_gui + "." + ta3dSideData.side_pref[ players.side_view ] + "BLAST.hide" ).c_str(), NULL, NULL );	// Hide it
                 I_Msg( TA3D::TA3D_IM_GUI_MSG, (void*)( current_gui + ".ARMLOAD.show" ).c_str(), NULL, NULL );	// Show it
                 I_Msg( TA3D::TA3D_IM_GUI_MSG, (void*)( current_gui + ".ARMBLAST.hide" ).c_str(), NULL, NULL );	// Hide it
             }
             else {
-                I_Msg( TA3D::TA3D_IM_GUI_MSG, (void*)( current_gui + "." + ta3d_sidedata.side_pref[ players.side_view ] + "LOAD.hide" ).c_str(), NULL, NULL );	// Hide it
-                I_Msg( TA3D::TA3D_IM_GUI_MSG, (void*)( current_gui + "." + ta3d_sidedata.side_pref[ players.side_view ] + "BLAST.show" ).c_str(), NULL, NULL );	// Show it
+                I_Msg( TA3D::TA3D_IM_GUI_MSG, (void*)( current_gui + "." + ta3dSideData.side_pref[ players.side_view ] + "LOAD.hide" ).c_str(), NULL, NULL );	// Hide it
+                I_Msg( TA3D::TA3D_IM_GUI_MSG, (void*)( current_gui + "." + ta3dSideData.side_pref[ players.side_view ] + "BLAST.show" ).c_str(), NULL, NULL );	// Show it
                 I_Msg( TA3D::TA3D_IM_GUI_MSG, (void*)( current_gui + ".ARMLOAD.hide" ).c_str(), NULL, NULL );	// Hide it
                 I_Msg( TA3D::TA3D_IM_GUI_MSG, (void*)( current_gui + ".ARMBLAST.show" ).c_str(), NULL, NULL );	// Show it
             }
 
-            if( current_gui != String( ta3d_sidedata.side_pref[ players.side_view ] ) + "gen" ) {
-                String gen_gui = String( ta3d_sidedata.side_pref[ players.side_view ] ) + "gen";
+            if( current_gui != String( ta3dSideData.side_pref[ players.side_view ] ) + "gen" ) {
+                String gen_gui = String( ta3dSideData.side_pref[ players.side_view ] ) + "gen";
 
-                game_area.set_enable_flag( gen_gui + "." + ta3d_sidedata.side_pref[ players.side_view ] + "STOP", canstop );
-                game_area.set_enable_flag( gen_gui + "." + ta3d_sidedata.side_pref[ players.side_view ] + "MOVE", canmove );
-                game_area.set_enable_flag( gen_gui + "." + ta3d_sidedata.side_pref[ players.side_view ] + "PATROL", canpatrol );
-                game_area.set_enable_flag( gen_gui + "." + ta3d_sidedata.side_pref[ players.side_view ] + "DEFEND", canguard );
-                game_area.set_enable_flag( gen_gui + "." + ta3d_sidedata.side_pref[ players.side_view ] + "ATTACK", canattack );
-                game_area.set_enable_flag( gen_gui + "." + ta3d_sidedata.side_pref[ players.side_view ] + "RECLAIM", canreclam );
-                game_area.set_enable_flag( gen_gui + "." + ta3d_sidedata.side_pref[ players.side_view ] + "LOAD", canload );
-                game_area.set_enable_flag( gen_gui + "." + ta3d_sidedata.side_pref[ players.side_view ] + "UNLOAD", canload );
-                game_area.set_enable_flag( gen_gui + "." + ta3d_sidedata.side_pref[ players.side_view ] + "REPAIR", builders );
-                game_area.set_enable_flag( gen_gui + "." + ta3d_sidedata.side_pref[ players.side_view ] + "ONOFF", onoffable );
-                game_area.set_enable_flag( gen_gui + "." + ta3d_sidedata.side_pref[ players.side_view ] + "MOVEORD", canmove );
-                game_area.set_enable_flag( gen_gui + "." + ta3d_sidedata.side_pref[ players.side_view ] + "FIREORD", canattack );
-                game_area.set_enable_flag( gen_gui + "." + ta3d_sidedata.side_pref[ players.side_view ] + "CAPTURE", cancapture );
-                game_area.set_enable_flag( gen_gui + "." + ta3d_sidedata.side_pref[ players.side_view ] + "CLOAK", cancloak );
-                game_area.set_enable_flag( gen_gui + "." + ta3d_sidedata.side_pref[ players.side_view ] + "BLAST", candgun );
+                game_area.set_enable_flag( gen_gui + "." + ta3dSideData.side_pref[ players.side_view ] + "STOP", canstop );
+                game_area.set_enable_flag( gen_gui + "." + ta3dSideData.side_pref[ players.side_view ] + "MOVE", canmove );
+                game_area.set_enable_flag( gen_gui + "." + ta3dSideData.side_pref[ players.side_view ] + "PATROL", canpatrol );
+                game_area.set_enable_flag( gen_gui + "." + ta3dSideData.side_pref[ players.side_view ] + "DEFEND", canguard );
+                game_area.set_enable_flag( gen_gui + "." + ta3dSideData.side_pref[ players.side_view ] + "ATTACK", canattack );
+                game_area.set_enable_flag( gen_gui + "." + ta3dSideData.side_pref[ players.side_view ] + "RECLAIM", canreclam );
+                game_area.set_enable_flag( gen_gui + "." + ta3dSideData.side_pref[ players.side_view ] + "LOAD", canload );
+                game_area.set_enable_flag( gen_gui + "." + ta3dSideData.side_pref[ players.side_view ] + "UNLOAD", canload );
+                game_area.set_enable_flag( gen_gui + "." + ta3dSideData.side_pref[ players.side_view ] + "REPAIR", builders );
+                game_area.set_enable_flag( gen_gui + "." + ta3dSideData.side_pref[ players.side_view ] + "ONOFF", onoffable );
+                game_area.set_enable_flag( gen_gui + "." + ta3dSideData.side_pref[ players.side_view ] + "MOVEORD", canmove );
+                game_area.set_enable_flag( gen_gui + "." + ta3dSideData.side_pref[ players.side_view ] + "FIREORD", canattack );
+                game_area.set_enable_flag( gen_gui + "." + ta3dSideData.side_pref[ players.side_view ] + "CAPTURE", cancapture );
+                game_area.set_enable_flag( gen_gui + "." + ta3dSideData.side_pref[ players.side_view ] + "CLOAK", cancloak );
+                game_area.set_enable_flag( gen_gui + "." + ta3dSideData.side_pref[ players.side_view ] + "BLAST", candgun );
 
                 game_area.set_enable_flag( gen_gui + ".ARMSTOP", canstop );
                 game_area.set_enable_flag( gen_gui + ".ARMMOVE", canmove );
@@ -2611,21 +2611,21 @@ int play(GAME_DATA *game_data)
                 game_area.set_enable_flag( gen_gui + ".ARMCLOAK", cancloak );
                 game_area.set_enable_flag( gen_gui + ".ARMBLAST", candgun );
 
-                onoff_gui = game_area.get_object( gen_gui + "." + ta3d_sidedata.side_pref[ players.side_view ] + "ONOFF");
+                onoff_gui = game_area.get_object( gen_gui + "." + ta3dSideData.side_pref[ players.side_view ] + "ONOFF");
                 if( onoff_gui == NULL )
                     onoff_gui = game_area.get_object( gen_gui + ".ARMONOFF");
 
                 if( onoff_gui )
                     onoff_gui->current_state = onoff_state - 1;
 
-                sorder_gui = game_area.get_object( gen_gui + "." + ta3d_sidedata.side_pref[ players.side_view ] + "FIREORD");
+                sorder_gui = game_area.get_object( gen_gui + "." + ta3dSideData.side_pref[ players.side_view ] + "FIREORD");
                 if( sorder_gui == NULL )
                     sorder_gui = game_area.get_object( gen_gui + ".ARMFIREORD");
 
                 if( sorder_gui )
                     sorder_gui->current_state = sforder;
 
-                sorder_gui = game_area.get_object( gen_gui + "." + ta3d_sidedata.side_pref[ players.side_view ] + "MOVEORD");
+                sorder_gui = game_area.get_object( gen_gui + "." + ta3dSideData.side_pref[ players.side_view ] + "MOVEORD");
                 if( sorder_gui == NULL )
                     sorder_gui = game_area.get_object( gen_gui + ".ARMMOVEORD");
 
@@ -2633,14 +2633,14 @@ int play(GAME_DATA *game_data)
                     sorder_gui->current_state = smorder;
 
                 if( canload ) {
-                    I_Msg( TA3D::TA3D_IM_GUI_MSG, (void*)( gen_gui + "." + ta3d_sidedata.side_pref[ players.side_view ] + "LOAD.show" ).c_str(), NULL, NULL );	// Show it
-                    I_Msg( TA3D::TA3D_IM_GUI_MSG, (void*)( gen_gui + "." + ta3d_sidedata.side_pref[ players.side_view ] + "BLAST.hide" ).c_str(), NULL, NULL );	// Hide it
+                    I_Msg( TA3D::TA3D_IM_GUI_MSG, (void*)( gen_gui + "." + ta3dSideData.side_pref[ players.side_view ] + "LOAD.show" ).c_str(), NULL, NULL );	// Show it
+                    I_Msg( TA3D::TA3D_IM_GUI_MSG, (void*)( gen_gui + "." + ta3dSideData.side_pref[ players.side_view ] + "BLAST.hide" ).c_str(), NULL, NULL );	// Hide it
                     I_Msg( TA3D::TA3D_IM_GUI_MSG, (void*)( gen_gui + ".ARMLOAD.show" ).c_str(), NULL, NULL );	// Show it
                     I_Msg( TA3D::TA3D_IM_GUI_MSG, (void*)( gen_gui + ".ARMBLAST.hide" ).c_str(), NULL, NULL );	// Hide it
                 }
                 else {
-                    I_Msg( TA3D::TA3D_IM_GUI_MSG, (void*)( gen_gui + "." + ta3d_sidedata.side_pref[ players.side_view ] + "LOAD.hide" ).c_str(), NULL, NULL );	// Hide it
-                    I_Msg( TA3D::TA3D_IM_GUI_MSG, (void*)( gen_gui + "." + ta3d_sidedata.side_pref[ players.side_view ] + "BLAST.show" ).c_str(), NULL, NULL );	// Show it
+                    I_Msg( TA3D::TA3D_IM_GUI_MSG, (void*)( gen_gui + "." + ta3dSideData.side_pref[ players.side_view ] + "LOAD.hide" ).c_str(), NULL, NULL );	// Hide it
+                    I_Msg( TA3D::TA3D_IM_GUI_MSG, (void*)( gen_gui + "." + ta3dSideData.side_pref[ players.side_view ] + "BLAST.show" ).c_str(), NULL, NULL );	// Show it
                     I_Msg( TA3D::TA3D_IM_GUI_MSG, (void*)( gen_gui + ".ARMLOAD.hide" ).c_str(), NULL, NULL );	// Hide it
                     I_Msg( TA3D::TA3D_IM_GUI_MSG, (void*)( gen_gui + ".ARMBLAST.show" ).c_str(), NULL, NULL );	// Show it
                 }
@@ -2649,7 +2649,7 @@ int play(GAME_DATA *game_data)
             /*------------------- End of GUI update ---------------------------------------------------------*/
         }
 
-        if( current_gui != String( ta3d_sidedata.side_pref[ players.side_view ] ) + "gen" && current_gui != "" )		// Show information about units
+        if( current_gui != String( ta3dSideData.side_pref[ players.side_view ] ) + "gen" && current_gui != "" )		// Show information about units
             units.complete_menu(cur_sel_index, sel != -1 || units.last_on <= -2, false );
         else
             units.complete_menu(cur_sel_index, sel != -1 || units.last_on <= -2, true );
@@ -2660,49 +2660,49 @@ int play(GAME_DATA *game_data)
 
         /*------------------- GUI reacting code ---------------------------------------------------------*/
 
-        if( game_area.get_state( current_gui + "." + ta3d_sidedata.side_pref[ players.side_view ] + "ORDERS" )
+        if( game_area.get_state( current_gui + "." + ta3dSideData.side_pref[ players.side_view ] + "ORDERS" )
             || game_area.get_state( current_gui + ".ARMORDERS" ) ) {		// Go to the order menu
-            game_area.set_state( current_gui + "." + ta3d_sidedata.side_pref[ players.side_view ] + "ORDERS", false );
+            game_area.set_state( current_gui + "." + ta3dSideData.side_pref[ players.side_view ] + "ORDERS", false );
             game_area.set_state( current_gui + ".ARMORDERS", false );				// Because of mod support
             sound_manager->PlayTDFSound( "ORDERSBUTTON", "sound" , NULL );
             I_Msg( TA3D::TA3D_IM_GUI_MSG, (void*)(current_gui + ".hide").c_str(), NULL, NULL );	// Hide it
-            current_gui = String( ta3d_sidedata.side_pref[ players.side_view ] ) + "gen";
+            current_gui = String( ta3dSideData.side_pref[ players.side_view ] ) + "gen";
             I_Msg( TA3D::TA3D_IM_GUI_MSG, (void*)( current_gui + ".show" ).c_str(), NULL, NULL );	// Show it
         }
 
-        if( ( game_area.get_state( current_gui + "." + ta3d_sidedata.side_pref[ players.side_view ] + "BUILD" ) ||
+        if( ( game_area.get_state( current_gui + "." + ta3dSideData.side_pref[ players.side_view ] + "BUILD" ) ||
               game_area.get_state( current_gui + ".ARMBUILD" ) ) && old_gui_sel >= 0 )	{	// Back to the build menu
-            game_area.set_state( current_gui + "." + ta3d_sidedata.side_pref[ players.side_view ] + "BUILD", false );
+            game_area.set_state( current_gui + "." + ta3dSideData.side_pref[ players.side_view ] + "BUILD", false );
             game_area.set_state( current_gui + ".ARMBUILD", false );
             sound_manager->PlayTDFSound( "BUILDBUTTON", "sound" , NULL );
             I_Msg( TA3D::TA3D_IM_GUI_MSG, (void*)(current_gui + ".hide").c_str(), NULL, NULL );	// Hide it
             current_gui = String( unit_manager.unit_type[ old_gui_sel ].Unitname ) + "1";
             if( game_area.get_wnd( current_gui ) == NULL ) {
                 if( unit_manager.unit_type[ old_gui_sel ].nb_unit > 0 )				// The default build page
-                    current_gui = String( ta3d_sidedata.side_pref[ players.side_view ] ) + "dl";
+                    current_gui = String( ta3dSideData.side_pref[ players.side_view ] ) + "dl";
                 else
-                    current_gui = String( ta3d_sidedata.side_pref[ players.side_view ] ) + "gen";
+                    current_gui = String( ta3dSideData.side_pref[ players.side_view ] ) + "gen";
             }
             I_Msg( TA3D::TA3D_IM_GUI_MSG, (void*)( current_gui + ".show" ).c_str(), NULL, NULL );	// Show it
         }
 
-        if( game_area.get_state( current_gui + "." + ta3d_sidedata.side_pref[ players.side_view ] + "PREV" )
+        if( game_area.get_state( current_gui + "." + ta3dSideData.side_pref[ players.side_view ] + "PREV" )
             || game_area.get_state( current_gui + ".ARMPREV" ) ) {
             sound_manager->PlayTDFSound( "NEXTBUILDMENU", "sound" , NULL );
             if( unit_manager.unit_type[ old_gui_sel ].nb_pages > 0 )
                 unit_manager.unit_type[ old_gui_sel ].page = (unit_manager.unit_type[ old_gui_sel ].page + unit_manager.unit_type[ old_gui_sel ].nb_pages-1)%unit_manager.unit_type[old_gui_sel].nb_pages;
         }
-        if( game_area.get_state( current_gui + "." + ta3d_sidedata.side_pref[ players.side_view ] + "NEXT" )
+        if( game_area.get_state( current_gui + "." + ta3dSideData.side_pref[ players.side_view ] + "NEXT" )
             || game_area.get_state( current_gui + ".ARMNEXT" ) ) {
             sound_manager->PlayTDFSound( "NEXTBUILDMENU", "sound" , NULL );
             if( unit_manager.unit_type[ old_gui_sel ].nb_pages > 0 )
                 unit_manager.unit_type[ old_gui_sel ].page= (unit_manager.unit_type[ old_gui_sel ].page+1)%unit_manager.unit_type[ old_gui_sel ].nb_pages;
         }
 
-        if( game_area.get_state( current_gui + "." + ta3d_sidedata.side_pref[ players.side_view ] + "ONOFF" )
+        if( game_area.get_state( current_gui + "." + ta3dSideData.side_pref[ players.side_view ] + "ONOFF" )
             || game_area.get_state( current_gui + ".ARMONOFF" ) ) {		// Toggle the on/off value
             signal_order = SIGNAL_ORDER_ONOFF;
-            GUIOBJ *onoff_obj = game_area.get_object( current_gui + "." + ta3d_sidedata.side_pref[ players.side_view ] + "ONOFF" );
+            GUIOBJ *onoff_obj = game_area.get_object( current_gui + "." + ta3dSideData.side_pref[ players.side_view ] + "ONOFF" );
             if( onoff_obj == NULL )
                 onoff_obj = game_area.get_object( current_gui + ".ARMONOFF" );
             if( onoff_obj != NULL ) {
@@ -2733,9 +2733,9 @@ int play(GAME_DATA *game_data)
             }
         }
 
-        if( game_area.get_state( current_gui + "." + ta3d_sidedata.side_pref[ players.side_view ] + "CLOAK" )
+        if( game_area.get_state( current_gui + "." + ta3dSideData.side_pref[ players.side_view ] + "CLOAK" )
             || game_area.get_state( current_gui + ".ARMCLOAK" ) ) {		// Toggle the cloak value
-            GUIOBJ *cloak_obj = game_area.get_object( current_gui + "." + ta3d_sidedata.side_pref[ players.side_view ] + "CLOAK" );
+            GUIOBJ *cloak_obj = game_area.get_object( current_gui + "." + ta3dSideData.side_pref[ players.side_view ] + "CLOAK" );
             if( cloak_obj == NULL )
                 cloak_obj = game_area.get_object( current_gui + ".ARMCLOAK" );
             if( cloak_obj != NULL ) {
@@ -2759,10 +2759,10 @@ int play(GAME_DATA *game_data)
             }
         }
 
-        if( game_area.get_state( current_gui + "." + ta3d_sidedata.side_pref[ players.side_view ] + "FIREORD" )
+        if( game_area.get_state( current_gui + "." + ta3dSideData.side_pref[ players.side_view ] + "FIREORD" )
             || game_area.get_state( current_gui + ".ARMFIREORD" ) ) {		// Toggle the fireorder value
             sound_manager->PlayTDFSound( "SETFIREORDERS", "sound" , NULL );
-            GUIOBJ *sorder_obj = game_area.get_object( current_gui + "." + ta3d_sidedata.side_pref[ players.side_view ] + "FIREORD" );
+            GUIOBJ *sorder_obj = game_area.get_object( current_gui + "." + ta3dSideData.side_pref[ players.side_view ] + "FIREORD" );
             if( sorder_obj == NULL )
                 sorder_obj = game_area.get_object( current_gui + ".ARMFIREORD" );
             if( sorder_obj != NULL ) {
@@ -2788,10 +2788,10 @@ int play(GAME_DATA *game_data)
             }
         }
 
-        if( game_area.get_state( current_gui + "." + ta3d_sidedata.side_pref[ players.side_view ] + "MOVEORD" )
+        if( game_area.get_state( current_gui + "." + ta3dSideData.side_pref[ players.side_view ] + "MOVEORD" )
             || game_area.get_state( current_gui + ".ARMMOVEORD" ) ) {		// Toggle the moveorder value
             sound_manager->PlayTDFSound( "SETMOVEORDERS", "sound" , NULL );
-            GUIOBJ *sorder_obj = game_area.get_object( current_gui + "." + ta3d_sidedata.side_pref[ players.side_view ] + "MOVEORD" );
+            GUIOBJ *sorder_obj = game_area.get_object( current_gui + "." + ta3dSideData.side_pref[ players.side_view ] + "MOVEORD" );
             if( sorder_obj == NULL )
                 sorder_obj = game_area.get_object( current_gui + ".ARMMOVEORD" );
             if( sorder_obj != NULL ) {
@@ -2810,27 +2810,27 @@ int play(GAME_DATA *game_data)
             }
         }
 
-        if( game_area.get_state( current_gui + "." + ta3d_sidedata.side_pref[ players.side_view ] + "MOVE" )
+        if( game_area.get_state( current_gui + "." + ta3dSideData.side_pref[ players.side_view ] + "MOVE" )
             || game_area.get_state( current_gui + ".ARMMOVE" ) )														signal_order = SIGNAL_ORDER_MOVE;
-        if( game_area.get_state( current_gui + "." + ta3d_sidedata.side_pref[ players.side_view ] + "PATROL" )
+        if( game_area.get_state( current_gui + "." + ta3dSideData.side_pref[ players.side_view ] + "PATROL" )
             || game_area.get_state( current_gui + ".ARMPATROL" ) )														signal_order = SIGNAL_ORDER_PATROL;
-        if( game_area.get_state( current_gui + "." + ta3d_sidedata.side_pref[ players.side_view ] + "STOP" )
+        if( game_area.get_state( current_gui + "." + ta3dSideData.side_pref[ players.side_view ] + "STOP" )
             || game_area.get_state( current_gui + ".ARMSTOP" ) )														signal_order = SIGNAL_ORDER_STOP;
-        if( game_area.get_state( current_gui + "." + ta3d_sidedata.side_pref[ players.side_view ] + "DEFEND" )
+        if( game_area.get_state( current_gui + "." + ta3dSideData.side_pref[ players.side_view ] + "DEFEND" )
             || game_area.get_state( current_gui + ".ARMDEFEND" ) )														signal_order = SIGNAL_ORDER_GUARD;
-        if( game_area.get_state( current_gui + "." + ta3d_sidedata.side_pref[ players.side_view ] + "ATTACK" )
+        if( game_area.get_state( current_gui + "." + ta3dSideData.side_pref[ players.side_view ] + "ATTACK" )
             || game_area.get_state( current_gui + ".ARMATTACK" ) )														signal_order = SIGNAL_ORDER_ATTACK;
-        if( game_area.get_state( current_gui + "." + ta3d_sidedata.side_pref[ players.side_view ] + "RECLAIM" )
+        if( game_area.get_state( current_gui + "." + ta3dSideData.side_pref[ players.side_view ] + "RECLAIM" )
             || game_area.get_state( current_gui + ".ARMRECLAIM" ) )														signal_order = SIGNAL_ORDER_RECLAM;
-        if( game_area.get_state( current_gui + "." + ta3d_sidedata.side_pref[ players.side_view ] + "LOAD" )
+        if( game_area.get_state( current_gui + "." + ta3dSideData.side_pref[ players.side_view ] + "LOAD" )
             || game_area.get_state( current_gui + ".ARMLOAD" ) )														signal_order = SIGNAL_ORDER_LOAD;
-        if( game_area.get_state( current_gui + "." + ta3d_sidedata.side_pref[ players.side_view ] + "UNLOAD" )
+        if( game_area.get_state( current_gui + "." + ta3dSideData.side_pref[ players.side_view ] + "UNLOAD" )
             || game_area.get_state( current_gui + ".ARMUNLOAD" ) )														signal_order = SIGNAL_ORDER_UNLOAD;
-        if( game_area.get_state( current_gui + "." + ta3d_sidedata.side_pref[ players.side_view ] + "REPAIR" )
+        if( game_area.get_state( current_gui + "." + ta3dSideData.side_pref[ players.side_view ] + "REPAIR" )
             || game_area.get_state( current_gui + ".ARMREPAIR" ) )														signal_order = SIGNAL_ORDER_REPAIR;
-        if( game_area.get_state( current_gui + "." + ta3d_sidedata.side_pref[ players.side_view ] + "CAPTURE" )
+        if( game_area.get_state( current_gui + "." + ta3dSideData.side_pref[ players.side_view ] + "CAPTURE" )
             || game_area.get_state( current_gui + ".ARMCAPTURE" ) )														signal_order = SIGNAL_ORDER_CAPTURE;
-        if( game_area.get_state( current_gui + "." + ta3d_sidedata.side_pref[ players.side_view ] + "BLAST" )
+        if( game_area.get_state( current_gui + "." + ta3dSideData.side_pref[ players.side_view ] + "BLAST" )
             || game_area.get_state( current_gui + ".ARMBLAST" ) )														signal_order = SIGNAL_ORDER_DGUN;
 
         /*------------------- End of GUI reacting code --------------------------------------------------*/

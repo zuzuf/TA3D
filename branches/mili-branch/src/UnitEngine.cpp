@@ -39,6 +39,7 @@
 #include "gfx/fx.h"
 #include "misc/camera.h"
 #include <math.h>
+#include "ingame/sidedata.h"
 
 using namespace TA3D::Exceptions;
 
@@ -5610,7 +5611,7 @@ void INGAME_UNITS::complete_menu(int index,bool hide_info,bool hide_bpic)
         if( unit[index].type_id >= 0 && (unit[index].flags & 1) )
         {
             glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
-            gfx->print_center(gfx->normal_font, ta3d_sidedata.side_int_data[ players.side_view ].UnitName.x1, ta3d_sidedata.side_int_data[ players.side_view ].UnitName.y1,0.0f,0xFFFFFFFF,unit_manager.unit_type[unit[index].type_id].name);
+            gfx->print_center(gfx->normal_font, ta3dSideData.side_int_data[ players.side_view ].UnitName.x1, ta3dSideData.side_int_data[ players.side_view ].UnitName.y1,0.0f,0xFFFFFFFF,unit_manager.unit_type[unit[index].type_id].name);
             if(target && unit[index].mission && (unit[index].mission->flags & MISSION_FLAG_TARGET_WEAPON) != MISSION_FLAG_TARGET_WEAPON)
             {
                 unit[index].unlock();
@@ -5618,7 +5619,7 @@ void INGAME_UNITS::complete_menu(int index,bool hide_info,bool hide_bpic)
                 if( (target->flags & 1) && target->type_id >= 0 )
                 {
                     glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
-                    gfx->print_center(gfx->normal_font, ta3d_sidedata.side_int_data[ players.side_view ].UnitName2.x1, ta3d_sidedata.side_int_data[ players.side_view ].UnitName2.y1,0.0f,0xFFFFFFFF,unit_manager.unit_type[target->type_id].name);
+                    gfx->print_center(gfx->normal_font, ta3dSideData.side_int_data[ players.side_view ].UnitName2.x1, ta3dSideData.side_int_data[ players.side_view ].UnitName2.y1,0.0f,0xFFFFFFFF,unit_manager.unit_type[target->type_id].name);
                 }
                 target->unlock();
                 unit[index].lock();
@@ -5627,7 +5628,7 @@ void INGAME_UNITS::complete_menu(int index,bool hide_info,bool hide_bpic)
                 if( unit[index].planned_weapons>0.0f && unit[index].owner_id == players.local_human_id )
                 {
                     glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
-                    gfx->print_center(gfx->normal_font, ta3d_sidedata.side_int_data[ players.side_view ].UnitName2.x1, ta3d_sidedata.side_int_data[ players.side_view ].UnitName2.y1,0.0f,0xFFFFFFFF,TRANSLATE("weapon"));
+                    gfx->print_center(gfx->normal_font, ta3dSideData.side_int_data[ players.side_view ].UnitName2.x1, ta3dSideData.side_int_data[ players.side_view ].UnitName2.y1,0.0f,0xFFFFFFFF,TRANSLATE("weapon"));
                 }
 
             glBlendFunc(GL_ONE,GL_ONE_MINUS_SRC_COLOR);
@@ -5636,17 +5637,17 @@ void INGAME_UNITS::complete_menu(int index,bool hide_info,bool hide_bpic)
             if( unit[index].owner_id == players.local_human_id  )
             {
                 char buf[10];
-                gfx->set_color( ta3d_sidedata.side_int_data[ players.side_view ].metal_color );
+                gfx->set_color( ta3dSideData.side_int_data[ players.side_view ].metal_color );
                 uszprintf(buf,10,"+%f",unit[index].cur_metal_prod);	*(strstr(buf,".")+2)=0;
-                gfx->print_center(gfx->small_font, ta3d_sidedata.side_int_data[ players.side_view ].UnitMetalMake.x1, ta3d_sidedata.side_int_data[ players.side_view ].UnitMetalMake.y1,0.0f,buf);
+                gfx->print_center(gfx->small_font, ta3dSideData.side_int_data[ players.side_view ].UnitMetalMake.x1, ta3dSideData.side_int_data[ players.side_view ].UnitMetalMake.y1,0.0f,buf);
                 uszprintf(buf,10,"-%f",unit[index].cur_metal_cons);	*(strstr(buf,".")+2)=0;
-                gfx->print_center(gfx->small_font, ta3d_sidedata.side_int_data[ players.side_view ].UnitMetalUse.x1, ta3d_sidedata.side_int_data[ players.side_view ].UnitMetalUse.y1,0.0f,buf);
+                gfx->print_center(gfx->small_font, ta3dSideData.side_int_data[ players.side_view ].UnitMetalUse.x1, ta3dSideData.side_int_data[ players.side_view ].UnitMetalUse.y1,0.0f,buf);
 
-                gfx->set_color( ta3d_sidedata.side_int_data[ players.side_view ].energy_color );
+                gfx->set_color( ta3dSideData.side_int_data[ players.side_view ].energy_color );
                 uszprintf(buf,10,"+%f",unit[index].cur_energy_prod);	*(strstr(buf,".")+2)=0;
-                gfx->print_center(gfx->small_font, ta3d_sidedata.side_int_data[ players.side_view ].UnitEnergyMake.x1, ta3d_sidedata.side_int_data[ players.side_view ].UnitEnergyMake.y1,0.0f,buf);
+                gfx->print_center(gfx->small_font, ta3dSideData.side_int_data[ players.side_view ].UnitEnergyMake.x1, ta3dSideData.side_int_data[ players.side_view ].UnitEnergyMake.y1,0.0f,buf);
                 uszprintf(buf,10,"-%f",unit[index].cur_energy_cons);	*(strstr(buf,".")+2)=0;
-                gfx->print_center(gfx->small_font, ta3d_sidedata.side_int_data[ players.side_view ].UnitEnergyUse.x1, ta3d_sidedata.side_int_data[ players.side_view ].UnitEnergyUse.y1,0.0f,buf);
+                gfx->print_center(gfx->small_font, ta3dSideData.side_int_data[ players.side_view ].UnitEnergyUse.x1, ta3dSideData.side_int_data[ players.side_view ].UnitEnergyUse.y1,0.0f,buf);
             }
 
             glColor4f(1.0f,1.0f,1.0f,1.0f);
@@ -5660,10 +5661,10 @@ void INGAME_UNITS::complete_menu(int index,bool hide_info,bool hide_bpic)
 
             if( unit[index].owner_id == players.local_human_id || !unit_manager.unit_type[unit[index].type_id].HideDamage )
             {
-                glVertex2i( ta3d_sidedata.side_int_data[ players.side_view ].DamageBar.x1, ta3d_sidedata.side_int_data[ players.side_view ].DamageBar.y1 );
-                glVertex2i( ta3d_sidedata.side_int_data[ players.side_view ].DamageBar.x2, ta3d_sidedata.side_int_data[ players.side_view ].DamageBar.y1 );
-                glVertex2i( ta3d_sidedata.side_int_data[ players.side_view ].DamageBar.x2, ta3d_sidedata.side_int_data[ players.side_view ].DamageBar.y2 );
-                glVertex2i( ta3d_sidedata.side_int_data[ players.side_view ].DamageBar.x1, ta3d_sidedata.side_int_data[ players.side_view ].DamageBar.y2 );
+                glVertex2i( ta3dSideData.side_int_data[ players.side_view ].DamageBar.x1, ta3dSideData.side_int_data[ players.side_view ].DamageBar.y1 );
+                glVertex2i( ta3dSideData.side_int_data[ players.side_view ].DamageBar.x2, ta3dSideData.side_int_data[ players.side_view ].DamageBar.y1 );
+                glVertex2i( ta3dSideData.side_int_data[ players.side_view ].DamageBar.x2, ta3dSideData.side_int_data[ players.side_view ].DamageBar.y2 );
+                glVertex2i( ta3dSideData.side_int_data[ players.side_view ].DamageBar.x1, ta3dSideData.side_int_data[ players.side_view ].DamageBar.y2 );
             }
 
             if( unit[index].owner_id == players.local_human_id )
@@ -5674,10 +5675,10 @@ void INGAME_UNITS::complete_menu(int index,bool hide_info,bool hide_bpic)
                     target->lock();
                     if( (target->flags & 1) && target->type_id >= 0 && !unit_manager.unit_type[target->type_id].HideDamage )	// Si l'unité a une cible
                     {
-                        glVertex2i( ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.x1, ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.y1 );
-                        glVertex2i( ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.x2, ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.y1 );
-                        glVertex2i( ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.x2, ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.y2 );
-                        glVertex2i( ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.x1, ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.y2 );
+                        glVertex2i( ta3dSideData.side_int_data[ players.side_view ].DamageBar2.x1, ta3dSideData.side_int_data[ players.side_view ].DamageBar2.y1 );
+                        glVertex2i( ta3dSideData.side_int_data[ players.side_view ].DamageBar2.x2, ta3dSideData.side_int_data[ players.side_view ].DamageBar2.y1 );
+                        glVertex2i( ta3dSideData.side_int_data[ players.side_view ].DamageBar2.x2, ta3dSideData.side_int_data[ players.side_view ].DamageBar2.y2 );
+                        glVertex2i( ta3dSideData.side_int_data[ players.side_view ].DamageBar2.x1, ta3dSideData.side_int_data[ players.side_view ].DamageBar2.y2 );
                     }
                     target->unlock();
                     unit[index].lock();
@@ -5685,10 +5686,10 @@ void INGAME_UNITS::complete_menu(int index,bool hide_info,bool hide_bpic)
                 else 
                     if( unit[index].planned_weapons>0.0f )
                     {
-                        glVertex2i( ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.x1, ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.y1 );
-                        glVertex2i( ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.x2, ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.y1 );
-                        glVertex2i( ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.x2, ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.y2 );
-                        glVertex2i( ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.x1, ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.y2 );
+                        glVertex2i( ta3dSideData.side_int_data[ players.side_view ].DamageBar2.x1, ta3dSideData.side_int_data[ players.side_view ].DamageBar2.y1 );
+                        glVertex2i( ta3dSideData.side_int_data[ players.side_view ].DamageBar2.x2, ta3dSideData.side_int_data[ players.side_view ].DamageBar2.y1 );
+                        glVertex2i( ta3dSideData.side_int_data[ players.side_view ].DamageBar2.x2, ta3dSideData.side_int_data[ players.side_view ].DamageBar2.y2 );
+                        glVertex2i( ta3dSideData.side_int_data[ players.side_view ].DamageBar2.x1, ta3dSideData.side_int_data[ players.side_view ].DamageBar2.y2 );
                     }
             }
 
@@ -5696,10 +5697,10 @@ void INGAME_UNITS::complete_menu(int index,bool hide_info,bool hide_bpic)
 
             if( unit[index].hp>0 && ( unit[index].owner_id == players.local_human_id || !unit_manager.unit_type[unit[index].type_id].HideDamage ) )
             {
-                glVertex2f( ta3d_sidedata.side_int_data[ players.side_view ].DamageBar.x1, ta3d_sidedata.side_int_data[ players.side_view ].DamageBar.y1 );
-                glVertex2f( ta3d_sidedata.side_int_data[ players.side_view ].DamageBar.x1 + unit[index].hp / unit_manager.unit_type[unit[index].type_id].MaxDamage * (ta3d_sidedata.side_int_data[ players.side_view ].DamageBar.x2-ta3d_sidedata.side_int_data[ players.side_view ].DamageBar.x1), ta3d_sidedata.side_int_data[ players.side_view ].DamageBar.y1 );
-                glVertex2f( ta3d_sidedata.side_int_data[ players.side_view ].DamageBar.x1 + unit[index].hp / unit_manager.unit_type[unit[index].type_id].MaxDamage * (ta3d_sidedata.side_int_data[ players.side_view ].DamageBar.x2-ta3d_sidedata.side_int_data[ players.side_view ].DamageBar.x1), ta3d_sidedata.side_int_data[ players.side_view ].DamageBar.y2 );
-                glVertex2f( ta3d_sidedata.side_int_data[ players.side_view ].DamageBar.x1, ta3d_sidedata.side_int_data[ players.side_view ].DamageBar.y2 );
+                glVertex2f( ta3dSideData.side_int_data[ players.side_view ].DamageBar.x1, ta3dSideData.side_int_data[ players.side_view ].DamageBar.y1 );
+                glVertex2f( ta3dSideData.side_int_data[ players.side_view ].DamageBar.x1 + unit[index].hp / unit_manager.unit_type[unit[index].type_id].MaxDamage * (ta3dSideData.side_int_data[ players.side_view ].DamageBar.x2-ta3dSideData.side_int_data[ players.side_view ].DamageBar.x1), ta3dSideData.side_int_data[ players.side_view ].DamageBar.y1 );
+                glVertex2f( ta3dSideData.side_int_data[ players.side_view ].DamageBar.x1 + unit[index].hp / unit_manager.unit_type[unit[index].type_id].MaxDamage * (ta3dSideData.side_int_data[ players.side_view ].DamageBar.x2-ta3dSideData.side_int_data[ players.side_view ].DamageBar.x1), ta3dSideData.side_int_data[ players.side_view ].DamageBar.y2 );
+                glVertex2f( ta3dSideData.side_int_data[ players.side_view ].DamageBar.x1, ta3dSideData.side_int_data[ players.side_view ].DamageBar.y2 );
             }
 
             if( unit[index].owner_id == players.local_human_id )
@@ -5710,10 +5711,10 @@ void INGAME_UNITS::complete_menu(int index,bool hide_info,bool hide_bpic)
                     target->lock();
                     if( (target->flags & 1) && target->type_id >= 0 && !unit_manager.unit_type[target->type_id].HideDamage && target->hp>0)
                     {
-                        glVertex2f( ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.x1, ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.y1 );
-                        glVertex2f( ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.x1 + target->hp / unit_manager.unit_type[target->type_id].MaxDamage * (ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.x2-ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.x1), ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.y1 );
-                        glVertex2f( ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.x1 + target->hp / unit_manager.unit_type[target->type_id].MaxDamage * (ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.x2-ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.x1), ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.y2 );
-                        glVertex2f( ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.x1, ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.y2 );
+                        glVertex2f( ta3dSideData.side_int_data[ players.side_view ].DamageBar2.x1, ta3dSideData.side_int_data[ players.side_view ].DamageBar2.y1 );
+                        glVertex2f( ta3dSideData.side_int_data[ players.side_view ].DamageBar2.x1 + target->hp / unit_manager.unit_type[target->type_id].MaxDamage * (ta3dSideData.side_int_data[ players.side_view ].DamageBar2.x2-ta3dSideData.side_int_data[ players.side_view ].DamageBar2.x1), ta3dSideData.side_int_data[ players.side_view ].DamageBar2.y1 );
+                        glVertex2f( ta3dSideData.side_int_data[ players.side_view ].DamageBar2.x1 + target->hp / unit_manager.unit_type[target->type_id].MaxDamage * (ta3dSideData.side_int_data[ players.side_view ].DamageBar2.x2-ta3dSideData.side_int_data[ players.side_view ].DamageBar2.x1), ta3dSideData.side_int_data[ players.side_view ].DamageBar2.y2 );
+                        glVertex2f( ta3dSideData.side_int_data[ players.side_view ].DamageBar2.x1, ta3dSideData.side_int_data[ players.side_view ].DamageBar2.y2 );
                     }
                     target->unlock();
                     unit[index].lock();
@@ -5724,10 +5725,10 @@ void INGAME_UNITS::complete_menu(int index,bool hide_info,bool hide_bpic)
                         float p=1.0f-(unit[index].planned_weapons-(int)unit[index].planned_weapons);
                         if (p==1.0f)
                             p=0.0f;
-                        glVertex2f( ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.x1, ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.y1 );
-                        glVertex2f( ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.x1 + p * (ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.x2-ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.x1), ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.y1 );
-                        glVertex2f( ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.x1 + p * (ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.x2-ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.x1), ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.y2 );
-                        glVertex2f( ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.x1, ta3d_sidedata.side_int_data[ players.side_view ].DamageBar2.y2 );
+                        glVertex2f( ta3dSideData.side_int_data[ players.side_view ].DamageBar2.x1, ta3dSideData.side_int_data[ players.side_view ].DamageBar2.y1 );
+                        glVertex2f( ta3dSideData.side_int_data[ players.side_view ].DamageBar2.x1 + p * (ta3dSideData.side_int_data[ players.side_view ].DamageBar2.x2-ta3dSideData.side_int_data[ players.side_view ].DamageBar2.x1), ta3dSideData.side_int_data[ players.side_view ].DamageBar2.y1 );
+                        glVertex2f( ta3dSideData.side_int_data[ players.side_view ].DamageBar2.x1 + p * (ta3dSideData.side_int_data[ players.side_view ].DamageBar2.x2-ta3dSideData.side_int_data[ players.side_view ].DamageBar2.x1), ta3dSideData.side_int_data[ players.side_view ].DamageBar2.y2 );
+                        glVertex2f( ta3dSideData.side_int_data[ players.side_view ].DamageBar2.x1, ta3dSideData.side_int_data[ players.side_view ].DamageBar2.y2 );
                     }
             }
 

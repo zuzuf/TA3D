@@ -207,7 +207,7 @@ namespace TA3D
 		DestroyThread();
 		delete ThreadSynchroniser;
 		cursor.destroy();
-		ta3d_sidedata.destroy();
+		ta3dSideData.destroy();
 
 		delete HPIManager;
 		delete sound_manager;
@@ -238,8 +238,8 @@ namespace TA3D
 		fx_manager.init();
 		init_rand_table();
 
-		ta3d_sidedata.init();
-		ta3d_sidedata.load_data();
+		ta3dSideData.init();
+		ta3dSideData.loadData();
 
 		sound_manager->LoadTDFSounds( false );
 	}

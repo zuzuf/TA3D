@@ -30,6 +30,7 @@
 #include "scripts/cob.h" // Pour la gestion des scripts
 
 #include "ingame/weapons/weapons.h"			// Pour la gestion des armes des unités
+#include "ingame/sidedata.h"
 
 #define SFORDER_HOLD_FIRE		0x0
 #define SFORDER_RETURN_FIRE		0x1
@@ -650,7 +651,7 @@ public:
     {
         uint32 file_size=0;
         List<String> file_list;
-        HPIManager->GetFilelist( ta3d_sidedata.download_dir + "*.tdf",&file_list);
+        HPIManager->GetFilelist( ta3dSideData.download_dir + "*.tdf",&file_list);
 
         for(List<String>::iterator file=file_list.begin();file!=file_list.end();file++) // Cherche un fichier pouvant contenir des informations sur l'unité unit_name
         {
@@ -667,7 +668,7 @@ public:
 
     inline void gather_all_build_data()
     {
-        cTAFileParser sidedata_parser( ta3d_sidedata.gamedata_dir + "sidedata.tdf", false, true );
+        cTAFileParser sidedata_parser( ta3dSideData.gamedata_dir + "sidedata.tdf", false, true );
         for (short i = 0 ; i < nb_unit ; ++i)
         {
             int n = 1;
@@ -685,7 +686,7 @@ public:
 
         uint32 file_size;
         List<String> file_list;
-        uint32 nb_file = HPIManager->GetFilelist( ta3d_sidedata.guis_dir + "*.gui",&file_list);
+        uint32 nb_file = HPIManager->GetFilelist( ta3dSideData.guis_dir + "*.gui",&file_list);
 
         for(List<String>::iterator file=file_list.begin();file!=file_list.end();file++) // Cherche un fichier pouvant contenir des informations sur l'unité unit_name
         {

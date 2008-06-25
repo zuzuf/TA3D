@@ -986,7 +986,7 @@ void config_menu(void)
             TA3D_clear_cache();		// Clear the cache
 
             HPIManager = new cHPIHandler("");
-            ta3d_sidedata.load_data();				// Refresh side data so we load the correct values
+            ta3dSideData.loadData();				// Refresh side data so we load the correct values
 
             delete sound_manager;
             sound_manager = new TA3D::Interfaces::cAudio ( 1.0f, 0.0f, 0.0f );
@@ -1128,12 +1128,12 @@ void setup_game(bool client, const char *host)
     String	player_str[4] = { lp_CONFIG->player_name, TRANSLATE("computer"), TRANSLATE("open"), TRANSLATE("closed") };
     byte	player_control[4] = { PLAYER_CONTROL_LOCAL_HUMAN, PLAYER_CONTROL_LOCAL_AI, PLAYER_CONTROL_NONE, PLAYER_CONTROL_CLOSED };
     String	ai_level_str[4] = { TRANSLATE("easy"), TRANSLATE("medium"), TRANSLATE("hard"), TRANSLATE("bloody") };
-    uint16	side_str_n = ta3d_sidedata.nb_side;
+    uint16	side_str_n = ta3dSideData.nb_side;
     Vector<String>	side_str;
 
-    side_str.resize( ta3d_sidedata.nb_side );
-    for( int i = 0 ; i < ta3d_sidedata.nb_side ; i++ )			// Get side data
-        side_str[ i ] = ta3d_sidedata.side_name[ i ];
+    side_str.resize( ta3dSideData.nb_side );
+    for( int i = 0 ; i < ta3dSideData.nb_side ; i++ )			// Get side data
+        side_str[ i ] = ta3dSideData.side_name[ i ];
 
     GAME_DATA game_data;
 
@@ -2389,9 +2389,9 @@ void campaign_main_menu(void)
                 if (guiobj)
                 {
                     guiobj->Data = 0;
-                    for( int i = 0 ; i < ta3d_sidedata.nb_side ; ++i)
+                    for( int i = 0 ; i < ta3dSideData.nb_side ; ++i)
                     {
-                        if (Lowercase(ta3d_sidedata.side_name[i] ) == Lowercase( campaign_parser->PullAsString( "HEADER.campaignside")))
+                        if (Lowercase(ta3dSideData.side_name[i] ) == Lowercase( campaign_parser->PullAsString( "HEADER.campaignside")))
                         {
                             if( side_logos.nb_anim > i )
                                 guiobj->Data = side_logos.anm[i].glbmp[0];

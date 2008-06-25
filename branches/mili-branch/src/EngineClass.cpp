@@ -1601,8 +1601,8 @@ namespace TA3D
         side[nb_player++]=strdup(SIDE);
         if(_control==PLAYER_CONTROL_LOCAL_HUMAN) {
             local_human_id = NB_PLAYERS;
-            for( int i = 0 ; i < ta3d_sidedata.nb_side ; i++ )
-                if( Lowercase( ta3d_sidedata.side_name[ i ] ) == Lowercase( SIDE ) ) {
+            for( int i = 0 ; i < ta3dSideData.nb_side ; i++ )
+                if( Lowercase( ta3dSideData.side_name[ i ] ) == Lowercase( SIDE ) ) {
                     side_view = i;
                     break;
                 }
@@ -1633,46 +1633,48 @@ namespace TA3D
         glTexEnvi(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_MODULATE);
         glBlendFunc(GL_ONE,GL_ONE_MINUS_SRC_COLOR);
         char buf[100];
-        gfx->print(gfx->small_font,ta3d_sidedata.side_int_data[ players.side_view ].MetalNum.x1,ta3d_sidedata.side_int_data[ players.side_view ].MetalNum.y1,0.0f,ta3d_sidedata.side_int_data[ players.side_view ].metal_color,format("%d",(int)metal[_id]));
+        gfx->print(gfx->small_font,ta3dSideData.side_int_data[ players.side_view ].MetalNum.x1,ta3dSideData.side_int_data[ players.side_view ].MetalNum.y1,0.0f,ta3dSideData.side_int_data[ players.side_view ].metal_color,format("%d",(int)metal[_id]));
         uszprintf(buf,100,"%f",metal_t[_id]);
         if( strstr(buf,".") )	*(strstr(buf,".")+2)=0;
-        gfx->print(gfx->small_font,ta3d_sidedata.side_int_data[ players.side_view ].MetalProduced.x1,ta3d_sidedata.side_int_data[ players.side_view ].MetalProduced.y1,0.0f,ta3d_sidedata.side_int_data[ players.side_view ].metal_color,buf);
+        gfx->print(gfx->small_font,ta3dSideData.side_int_data[ players.side_view ].MetalProduced.x1,ta3dSideData.side_int_data[ players.side_view ].MetalProduced.y1,0.0f,ta3dSideData.side_int_data[ players.side_view ].metal_color,buf);
         uszprintf(buf,100,"%f",metal_u[_id]);
         if( strstr(buf,".") )	*(strstr(buf,".")+2)=0;
-        gfx->print(gfx->small_font,ta3d_sidedata.side_int_data[ players.side_view ].MetalConsumed.x1,ta3d_sidedata.side_int_data[ players.side_view ].MetalConsumed.y1,0.0f,ta3d_sidedata.side_int_data[ players.side_view ].metal_color,buf);
-        gfx->print(gfx->small_font,ta3d_sidedata.side_int_data[ players.side_view ].Metal0.x1,ta3d_sidedata.side_int_data[ players.side_view ].Metal0.y1,0.0f,ta3d_sidedata.side_int_data[ players.side_view ].metal_color,"0");
-        gfx->print_right(gfx->small_font,ta3d_sidedata.side_int_data[ players.side_view ].MetalMax.x1,ta3d_sidedata.side_int_data[ players.side_view ].MetalMax.y1,0.0f,ta3d_sidedata.side_int_data[ players.side_view ].metal_color, format( "%d", metal_s[_id] ) );
-        gfx->print(gfx->small_font,ta3d_sidedata.side_int_data[ players.side_view ].EnergyNum.x1,ta3d_sidedata.side_int_data[ players.side_view ].EnergyNum.y1,0.0f,ta3d_sidedata.side_int_data[ players.side_view ].energy_color,format("%d",(int)energy[_id]));
+        gfx->print(gfx->small_font,ta3dSideData.side_int_data[ players.side_view ].MetalConsumed.x1,ta3dSideData.side_int_data[ players.side_view ].MetalConsumed.y1,0.0f,ta3dSideData.side_int_data[ players.side_view ].metal_color,buf);
+        gfx->print(gfx->small_font,ta3dSideData.side_int_data[ players.side_view ].Metal0.x1,ta3dSideData.side_int_data[ players.side_view ].Metal0.y1,0.0f,ta3dSideData.side_int_data[ players.side_view ].metal_color,"0");
+        gfx->print_right(gfx->small_font,ta3dSideData.side_int_data[ players.side_view ].MetalMax.x1,ta3dSideData.side_int_data[ players.side_view ].MetalMax.y1,0.0f,ta3dSideData.side_int_data[ players.side_view ].metal_color, format( "%d", metal_s[_id] ) );
+        gfx->print(gfx->small_font,ta3dSideData.side_int_data[ players.side_view ].EnergyNum.x1,ta3dSideData.side_int_data[ players.side_view ].EnergyNum.y1,0.0f,ta3dSideData.side_int_data[ players.side_view ].energy_color,format("%d",(int)energy[_id]));
         uszprintf(buf,100,"%f",energy_t[_id]);
         if( strstr(buf,".") )	*(strstr(buf,".")+2)=0;
-        gfx->print(gfx->small_font,ta3d_sidedata.side_int_data[ players.side_view ].EnergyProduced.x1,ta3d_sidedata.side_int_data[ players.side_view ].EnergyProduced.y1,0.0f,ta3d_sidedata.side_int_data[ players.side_view ].energy_color,buf);
+        gfx->print(gfx->small_font,ta3dSideData.side_int_data[ players.side_view ].EnergyProduced.x1,ta3dSideData.side_int_data[ players.side_view ].EnergyProduced.y1,0.0f,ta3dSideData.side_int_data[ players.side_view ].energy_color,buf);
         uszprintf(buf,100,"%f",energy_u[_id]);
         if( strstr(buf,".") )	*(strstr(buf,".")+2)=0;
-        gfx->print(gfx->small_font,ta3d_sidedata.side_int_data[ players.side_view ].EnergyConsumed.x1,ta3d_sidedata.side_int_data[ players.side_view ].EnergyConsumed.y1,0.0f,ta3d_sidedata.side_int_data[ players.side_view ].energy_color,buf);
-        gfx->print(gfx->small_font,ta3d_sidedata.side_int_data[ players.side_view ].Energy0.x1,ta3d_sidedata.side_int_data[ players.side_view ].Energy0.y1,0.0f,ta3d_sidedata.side_int_data[ players.side_view ].energy_color,"0");
-        gfx->print_right(gfx->small_font,ta3d_sidedata.side_int_data[ players.side_view ].EnergyMax.x1,ta3d_sidedata.side_int_data[ players.side_view ].EnergyMax.y1,0.0f,ta3d_sidedata.side_int_data[ players.side_view ].energy_color, format( "%d", energy_s[_id] ) );
+        gfx->print(gfx->small_font,ta3dSideData.side_int_data[ players.side_view ].EnergyConsumed.x1,ta3dSideData.side_int_data[ players.side_view ].EnergyConsumed.y1,0.0f,ta3dSideData.side_int_data[ players.side_view ].energy_color,buf);
+        gfx->print(gfx->small_font,ta3dSideData.side_int_data[ players.side_view ].Energy0.x1,ta3dSideData.side_int_data[ players.side_view ].Energy0.y1,0.0f,ta3dSideData.side_int_data[ players.side_view ].energy_color,"0");
+        gfx->print_right(gfx->small_font,ta3dSideData.side_int_data[ players.side_view ].EnergyMax.x1,ta3dSideData.side_int_data[ players.side_view ].EnergyMax.y1,0.0f,ta3dSideData.side_int_data[ players.side_view ].energy_color, format( "%d", energy_s[_id] ) );
 
         glDisable(GL_TEXTURE_2D);
 
         glDisable(GL_BLEND);
         glBegin(GL_QUADS);			// Dessine les barres de metal et d'énergie
-        gfx->set_color( ta3d_sidedata.side_int_data[ players.side_view ].metal_color );
+        gfx->set_color( ta3dSideData.side_int_data[ players.side_view ].metal_color );
 
-        if(metal_s[0]) {
+        if(metal_s[0])
+        {
             float metal_percent = metal_s[_id] ? metal[_id] / metal_s[_id] : 0.0f;
-            glVertex2f( ta3d_sidedata.side_int_data[ players.side_view ].MetalBar.x1, ta3d_sidedata.side_int_data[ players.side_view ].MetalBar.y1 );
-            glVertex2f( ta3d_sidedata.side_int_data[ players.side_view ].MetalBar.x1 + metal_percent * (ta3d_sidedata.side_int_data[ players.side_view ].MetalBar.x2-ta3d_sidedata.side_int_data[ players.side_view ].MetalBar.x1), ta3d_sidedata.side_int_data[ players.side_view ].MetalBar.y1 );
-            glVertex2f( ta3d_sidedata.side_int_data[ players.side_view ].MetalBar.x1 + metal_percent * (ta3d_sidedata.side_int_data[ players.side_view ].MetalBar.x2-ta3d_sidedata.side_int_data[ players.side_view ].MetalBar.x1), ta3d_sidedata.side_int_data[ players.side_view ].MetalBar.y2 );
-            glVertex2f( ta3d_sidedata.side_int_data[ players.side_view ].MetalBar.x1, ta3d_sidedata.side_int_data[ players.side_view ].MetalBar.y2 );
+            glVertex2f( ta3dSideData.side_int_data[ players.side_view ].MetalBar.x1, ta3dSideData.side_int_data[ players.side_view ].MetalBar.y1 );
+            glVertex2f( ta3dSideData.side_int_data[ players.side_view ].MetalBar.x1 + metal_percent * (ta3dSideData.side_int_data[ players.side_view ].MetalBar.x2-ta3dSideData.side_int_data[ players.side_view ].MetalBar.x1), ta3dSideData.side_int_data[ players.side_view ].MetalBar.y1 );
+            glVertex2f( ta3dSideData.side_int_data[ players.side_view ].MetalBar.x1 + metal_percent * (ta3dSideData.side_int_data[ players.side_view ].MetalBar.x2-ta3dSideData.side_int_data[ players.side_view ].MetalBar.x1), ta3dSideData.side_int_data[ players.side_view ].MetalBar.y2 );
+            glVertex2f( ta3dSideData.side_int_data[ players.side_view ].MetalBar.x1, ta3dSideData.side_int_data[ players.side_view ].MetalBar.y2 );
         }
 
-        gfx->set_color( ta3d_sidedata.side_int_data[ players.side_view ].energy_color );
-        if(energy_s[0]) {
+        gfx->set_color( ta3dSideData.side_int_data[ players.side_view ].energy_color );
+        if(energy_s[0])
+        {
             float energy_percent = energy_s[_id] ? energy[_id] / energy_s[_id] : 0.0f;
-            glVertex2f( ta3d_sidedata.side_int_data[ players.side_view ].EnergyBar.x1, ta3d_sidedata.side_int_data[ players.side_view ].EnergyBar.y1 );
-            glVertex2f( ta3d_sidedata.side_int_data[ players.side_view ].EnergyBar.x1 + energy_percent * (ta3d_sidedata.side_int_data[ players.side_view ].EnergyBar.x2-ta3d_sidedata.side_int_data[ players.side_view ].EnergyBar.x1), ta3d_sidedata.side_int_data[ players.side_view ].EnergyBar.y1 );
-            glVertex2f( ta3d_sidedata.side_int_data[ players.side_view ].EnergyBar.x1 + energy_percent * (ta3d_sidedata.side_int_data[ players.side_view ].EnergyBar.x2-ta3d_sidedata.side_int_data[ players.side_view ].EnergyBar.x1), ta3d_sidedata.side_int_data[ players.side_view ].EnergyBar.y2 );
-            glVertex2f( ta3d_sidedata.side_int_data[ players.side_view ].EnergyBar.x1, ta3d_sidedata.side_int_data[ players.side_view ].EnergyBar.y2 );
+            glVertex2f( ta3dSideData.side_int_data[ players.side_view ].EnergyBar.x1, ta3dSideData.side_int_data[ players.side_view ].EnergyBar.y1 );
+            glVertex2f( ta3dSideData.side_int_data[ players.side_view ].EnergyBar.x1 + energy_percent * (ta3dSideData.side_int_data[ players.side_view ].EnergyBar.x2-ta3dSideData.side_int_data[ players.side_view ].EnergyBar.x1), ta3dSideData.side_int_data[ players.side_view ].EnergyBar.y1 );
+            glVertex2f( ta3dSideData.side_int_data[ players.side_view ].EnergyBar.x1 + energy_percent * (ta3dSideData.side_int_data[ players.side_view ].EnergyBar.x2-ta3dSideData.side_int_data[ players.side_view ].EnergyBar.x1), ta3dSideData.side_int_data[ players.side_view ].EnergyBar.y2 );
+            glVertex2f( ta3dSideData.side_int_data[ players.side_view ].EnergyBar.x1, ta3dSideData.side_int_data[ players.side_view ].EnergyBar.y2 );
         }
         glEnd();
         glColor4f(1.0f,1.0f,1.0f,1.0f);

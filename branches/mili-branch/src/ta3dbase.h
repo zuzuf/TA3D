@@ -118,124 +118,6 @@ const float i2pwr16=1.0f/65536.0f;
 
 
 
-/*------------------------------------------------------------------------\
-  |              Classe pour la gestion de l'éclairage matériel             |
-  \------------------------------------------------------------------------*/
-struct INT_ELEMENT
-{
-    uint16	x1, y1;
-    uint16	x2, y2;
-};
-
-struct INT_DATA
-{
-    INT_ELEMENT		EnergyBar;
-    INT_ELEMENT		EnergyNum;
-    INT_ELEMENT		EnergyMax;
-    INT_ELEMENT		Energy0;
-    INT_ELEMENT		EnergyProduced;
-    INT_ELEMENT		EnergyConsumed;
-
-    INT_ELEMENT		MetalBar;
-    INT_ELEMENT		MetalNum;
-    INT_ELEMENT		MetalMax;
-    INT_ELEMENT		Metal0;
-    INT_ELEMENT		MetalProduced;
-    INT_ELEMENT		MetalConsumed;
-
-    INT_ELEMENT		UnitName;
-    INT_ELEMENT		DamageBar;
-
-    INT_ELEMENT		UnitName2;
-    INT_ELEMENT		DamageBar2;
-
-    INT_ELEMENT		UnitMetalMake;
-    INT_ELEMENT		UnitMetalUse;
-    INT_ELEMENT		UnitEnergyMake;
-    INT_ELEMENT		UnitEnergyUse;
-
-    INT_ELEMENT		Name;
-    INT_ELEMENT		Description;
-
-    uint32			metal_color;
-    uint32			energy_color;
-};
-
-class SIDEDATA
-{
-public:
-    int			nb_side;
-    char		*side_name[10];			// The name
-    char		*side_pref[10];			// The prefix
-    char		*side_com[10];			// The commander
-    char		*side_int[10];			// The interface gaf
-    INT_DATA	side_int_data[10];		// The interface data (position of the gui elements)
-    String		unit_ext;
-    String		unit_dir;
-    String		model_dir;
-    String		download_dir;
-    String		weapon_dir;
-    String		guis_dir;
-    String		gamedata_dir;
-
-    void init()
-    {
-        nb_side=0;
-        for(int i=0;i<10;i++)
-            side_name[i] = side_pref[i] = side_com[i] = side_int[i] = NULL;
-        unit_ext = ".fbi";
-        unit_dir = "units\\";
-        model_dir = "objects3d\\";
-        download_dir = "download\\";
-        weapon_dir = "weapons\\";
-        guis_dir = "guis\\";
-        gamedata_dir = "gamedata\\";
-    }
-
-    void destroy()
-    {
-        for(int i=0;i<10;i++) {
-            if(side_name[i])	free(side_name[i]);
-            if(side_pref[i])	free(side_pref[i]);
-            if(side_com[i])		free(side_com[i]);
-            if(side_int[i])		free(side_int[i]);
-        }
-        unit_ext.clear();
-        unit_dir.clear();
-        model_dir.clear();
-        download_dir.clear();
-        weapon_dir.clear();
-        guis_dir.clear();
-        gamedata_dir.clear();
-        init();
-    }
-
-    SIDEDATA() : unit_ext(), unit_dir(), model_dir(), download_dir(), weapon_dir(), guis_dir(), gamedata_dir()
-    {
-        init();
-    }
-
-    ~SIDEDATA()
-    {
-        destroy();
-    }
-
-private:
-    inline char *get_line(char *data)
-    {
-        int pos=0;
-        while(data[pos]!=0 && data[pos]!=13 && data[pos]!=10)	pos++;
-        char *d=new char[pos+1];
-        memcpy(d,data,pos);
-        d[pos]=0;
-        return d;
-    }
-
-public:
-    int	get_side_id(const char *side);
-    void load_data();
-};
-
 #define	FOW_DISABLED	0x0
 #define	FOW_GREY		0x1
 #define	FOW_BLACK		0x2
@@ -321,7 +203,6 @@ public:
     }
 };
 
-extern SIDEDATA ta3d_sidedata;
 
 
 void reset_mouse();
