@@ -26,6 +26,7 @@
 #include "jpeg/ta3d_jpg.h"
 #include <iostream>
 #include "tnt.h"
+#include "logs/logs.h"
 
 
 using namespace TA3D::UTILS::HPI;
@@ -174,15 +175,17 @@ static bool hpiviewCmdListMods(int argc, char** argv)
         {
             List< String > modlist = GetFileList( "mods/*" );
             modlist.sort();
-            foreach( modlist, i )
-                if( (*i)[0] != '.' )
+            for (List<String>::const_iterator i = modlist.begin(); i != modlist.end(); ++i)
+            {
+                if ((*i)[0] != '.')
                     m_File << *i << "\n";
+            }
             m_File.close();
         }
         delete HPIManager;
         return true;
     }
-    std::cerr << "SYNTAX: " << argv[0] << " listmods modlist.txt" << std::endl;
+    LOG_ERROR("Syntax: " << argv[0] << " listmods modlist.txt");
     return true;
 }
 

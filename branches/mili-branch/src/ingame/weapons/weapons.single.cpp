@@ -404,12 +404,16 @@ namespace TA3D
                         }
                         bool already=(t_idx==shooter_idx || t_idx==hit_idx || t_idx >= units.max_unit);
                         if(!already)
-                            foreach( oidx, i )
+                        {
+                            for (List<int>::const_iterator i = oidx.begin(); i != oidx.end(); ++i)
+                            {
                                 if( t_idx == *i )
                                 {
                                     already=true;
                                     break;
                                 }
+                            }
+                        }
                         if(!already)
                         {
                             if(t_idx>=0)

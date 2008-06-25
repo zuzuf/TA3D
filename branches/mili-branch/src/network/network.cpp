@@ -1004,9 +1004,14 @@ namespace TA3D
     {
         String gamelist = HttpRequest( lp_CONFIG->net_server, "/getserverlist.php" );
 
-        foreach_( list, i )								// Remove internet servers to get a clean list
-            if( i->internet )	list.erase( i++ );
-            else				i++;
+        // Remove internet servers to get a clean list
+        for (List<SERVER_DATA>::iterator i = list.begin(); i != list.end(); )
+        {
+            if (i->internet)
+                list.erase(i++);
+            else
+                ++i;
+        }
 
         if( gamelist.empty() )
             return 0;
@@ -1020,7 +1025,7 @@ namespace TA3D
         cur_server.internet = true;
         String server_version = "";
         String server_mod = "";
-        foreach( line, entry )
+        for (Vector<String>::const_iterator entry = line.begin(); entry != line.end(); ++entry)
         {
             Vector<String> params;
             ReadVectorString(params, *entry, " " );

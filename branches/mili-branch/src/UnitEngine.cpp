@@ -3590,12 +3590,13 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
                                     break;
                                 }
                             }
-                            if( !attacking ) {
+                            if( !attacking )
+                            {
                                 pad_timer = 0.0f;
                                 bool going_to_repair_pad = false;
                                 pMutex.unlock();
                                 units.lock();
-                                foreach( units.repair_pads[ owner_id ], i )
+                                for (List<uint16>::iterator i = units.repair_pads[owner_id].begin(); i != units.repair_pads[owner_id].end(); ++i)
                                 {
                                     units.unit[ *i ].lock();
                                     VECTOR Dir = units.unit[ *i ].Pos - Pos;
@@ -3608,7 +3609,7 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
                                             pMutex.lock();
                                             add_mission( MISSION_GET_REPAIRED | MISSION_FLAG_AUTO, &units.unit[ *i ].Pos, true, 0, &(units.unit[ *i ]),NULL);
                                             pMutex.unlock();
-                                            units.repair_pads[ owner_id ].erase( i );
+                                            units.repair_pads[ owner_id ].erase(i);
                                             units.repair_pads[ owner_id ].push_back( target_idx );		// So we don't try it before others :)
                                             going_to_repair_pad = true;
                                             break;
@@ -3623,10 +3624,13 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
                         }
                     }
 
-                    if( (mission->flags & MISSION_FLAG_MOVE) == 0 ) {			// Monitor the moving process
-                        if( !unit_manager.unit_type[ type_id ].canfly || ( mission->next == NULL || ( mission->next != NULL && mission->mission != MISSION_PATROL ) ) ) {
+                    if( (mission->flags & MISSION_FLAG_MOVE) == 0 ) // Monitor the moving process
+                    {
+                        if( !unit_manager.unit_type[ type_id ].canfly || ( mission->next == NULL || ( mission->next != NULL && mission->mission != MISSION_PATROL ) ) )
+                        {
                             V.x = V.y = V.z = 0.0f;			// Stop the unit
-                            if( precomputed_position ) {
+                            if( precomputed_position )
+                            {
                                 NPos = Pos;
                                 n_px = cur_px;
                                 n_py = cur_py;
@@ -3642,7 +3646,8 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
                         cur->next->flags |= MISSION_FLAG_MOVE;
 
                         MISSION *cur_start = mission->next;
-                        while( cur_start != NULL && cur_start->mission != MISSION_PATROL ) {
+                        while( cur_start != NULL && cur_start->mission != MISSION_PATROL )
+                        {
                             cur = cur_start;
                             while( cur->next )	cur = cur->next;
                             cur->next = (MISSION*) malloc(sizeof( MISSION ));
@@ -3659,7 +3664,8 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
             case MISSION_STANDBY:
             case MISSION_VTOL_STANDBY:
                 if(jump_commands)	break;
-                if(mission->data>5) {
+                if(mission->data>5)
+                {
                     if(mission->next)		// If there is a mission after this one
                         next_mission();
                 }
@@ -4801,16 +4807,17 @@ void UNIT::show_orders(bool only_build_commands, bool def_orders)				// Dessine 
                     glTexCoord2f(1.0f,1.0f);		glVertex3f(x+sx,y,z+sy);
                     glTexCoord2f(0.0f,1.0f);		glVertex3f(x,y,z+sy);
                     glEnd();
-                    if( low_def )
+                    if (low_def)
                         glDisable( GL_TEXTURE_2D );
                 }
                 break;
         };
         glEnable(GL_DEPTH_TEST);
-        cur=cur->next;
+        cur = cur->next;
     }
 
-    if( !points.empty() ) {
+    if (!points.empty())
+    {
         int curseur=anim_cursor(CURSOR_CROSS_LINK);
         float dx=0.5f*cursor.anm[CURSOR_CROSS_LINK].ofs_x[curseur];
         float dz=0.5f*cursor.anm[CURSOR_CROSS_LINK].ofs_y[curseur];
@@ -4821,22 +4828,23 @@ void UNIT::show_orders(bool only_build_commands, bool def_orders)				// Dessine 
         float *T = new float[ points.size() << 3 ];
 
         int n = 0;
-        foreach( points, i ) {
+        for (List<VECTOR>::const_iterator i = points.begin(); i != points.end(); ++i)
+        {
             P[n] = *i;
             T[n<<1] = 0.0f;		T[(n<<1)+1] = 0.0f;
-            n++;
+            ++n;
 
             P[n] = *i;	P[n].x += sx;
             T[n<<1] = 1.0f;		T[(n<<1)+1] = 0.0f;
-            n++;
+            ++n;
 
             P[n] = *i;	P[n].x += sx;	P[n].z += sy;
             T[n<<1] = 1.0f;		T[(n<<1)+1] = 1.0f;
-            n++;
+            ++n;
 
             P[n] = *i;	P[n].z += sy;
             T[n<<1] = 0.0f;		T[(n<<1)+1] = 1.0f;
-            n++;
+            ++n;
         }
 
         glDisableClientState( GL_NORMAL_ARRAY );
@@ -5158,7 +5166,7 @@ int UNIT::shoot(int target,VECTOR startpos,VECTOR Dir,int w_id,const VECTOR &tar
     }
     else
         weapons.weapon[w_idx].target_pos = target_pos;
-    
+
     weapons.weapon[w_idx].stime=0.0f;
     weapons.weapon[w_idx].visible=visible;
     weapons.unlock();
@@ -5385,7 +5393,7 @@ void *create_unit( int type_id, int owner, VECTOR pos, MAP *map, bool sync, bool
 
 
 bool can_be_there_ai(const int px, const int py, MAP *map, const int unit_type_id,
-                            const int player_id, const int unit_id )
+                     const int player_id, const int unit_id )
 {
     if(unit_type_id<0 || unit_type_id>=unit_manager.nb_unit || !map)
         return false;
@@ -5422,7 +5430,7 @@ bool can_be_there_ai(const int px, const int py, MAP *map, const int unit_type_i
 }
 
 bool can_be_there( const int px, const int py, MAP *map, const int unit_type_id,
-                          const int player_id, const int unit_id )
+                   const int player_id, const int unit_id )
 {
     if(unit_type_id<0 || unit_type_id>=unit_manager.nb_unit || !map)
         return false;
@@ -6186,34 +6194,42 @@ void INGAME_UNITS::draw_mini(float map_w,float map_h,int mini_w,int mini_h,SECTO
 
 void INGAME_UNITS::kill(int index,MAP *map,int prev,bool sync)			// Détruit une unité
 {
-    if(index<0 || index>=max_unit || prev<0 || prev>=index_list_size)	return;		// On ne peut pas détruire une unité qui n'existe pas
+    if(index<0 || index>=max_unit || prev<0 || prev>=index_list_size)	// On ne peut pas détruire une unité qui n'existe pas
+        return;
 
     unit[index].lock();
 
-    if( unit[index].local && network_manager.isConnected() && sync ) {		// Send EVENT_UNIT_DEATH
+    if (unit[index].local && network_manager.isConnected() && sync ) // Send EVENT_UNIT_DEATH
+    {
         struct event event;
         event.type = EVENT_UNIT_DEATH;
         event.opt1 = index;
         network_manager.sendEvent( &event );
     }
 
-    if( unit[ index ].type_id >= 0 && unit_manager.unit_type[ unit[ index ].type_id ].IsAirBase ) {		// Remove it from repair_pads list
+    if (unit[ index ].type_id >= 0 && unit_manager.unit_type[ unit[ index ].type_id ].IsAirBase ) // Remove it from repair_pads list
+    {
         int owner_id = unit[ index ].owner_id;
 
         pMutex.lock();
-        foreach( repair_pads[ owner_id ], i )
-            if( *i == index ) {
-                repair_pads[ owner_id ].erase( i );
+        for (List<uint16>::iterator i = repair_pads[owner_id].begin(); i != repair_pads[owner_id].end(); ++i)
+        {
+            if (*i == index)
+            {
+                repair_pads[owner_id].erase(i);
                 break;
             }
+        }
         pMutex.unlock();
     }
 
-    if( unit[index].flags & 1 ) {
+    if( unit[index].flags & 1 )
+    {
         if( unit[ index ].mission
             && !unit_manager.unit_type[ unit[ index ].type_id ].BMcode
             && ( unit[ index ].mission->mission == MISSION_BUILD_2 || unit[ index ].mission->mission == MISSION_BUILD )		// It was building something that we must destroy too
-            && unit[ index ].mission->p != NULL ) {
+            && unit[ index ].mission->p != NULL )
+        {
             ((UNIT*)(unit[ index ].mission->p))->lock();
             ((UNIT*)(unit[ index ].mission->p))->hp = 0.0f;
             ((UNIT*)(unit[ index ].mission->p))->built = false;
@@ -6228,7 +6244,8 @@ void INGAME_UNITS::kill(int index,MAP *map,int prev,bool sync)			// Détruit une
     unit[index].lock();
 
     if(unit[index].type_id >= 0 && unit_manager.unit_type[unit[index].type_id].canload && unit[index].nb_attached>0)
-        for( int i = 0 ; i < unit[index].nb_attached ; i++ ) {
+        for(int i = 0 ; i < unit[index].nb_attached ; ++i)
+        {
             unit[unit[index].attached_list[i]].lock();
             unit[unit[index].attached_list[i]].hp = 0.0f;
             unit[unit[index].attached_list[i]].unlock();
@@ -6241,10 +6258,12 @@ void INGAME_UNITS::kill(int index,MAP *map,int prev,bool sync)			// Détruit une
     uint16 owner = index/MAX_UNIT_PER_PLAYER;
     free_idx[ MAX_UNIT_PER_PLAYER * owner + free_index_size[ owner ]++ ] = index;
     idx_list[ prev ] = idx_list[ --index_list_size ];
-    nb_unit--;		// Unité détruite
+    --nb_unit; // Unité détruite
 
     pMutex.unlock();
 }
+
+
 
 void INGAME_UNITS::draw(Camera *cam,MAP *map,bool underwater,bool limit,bool cullface,bool height_line)					// Dessine les unités visibles
 {
@@ -6264,7 +6283,7 @@ void INGAME_UNITS::draw(Camera *cam,MAP *map,bool underwater,bool limit,bool cul
     float virtual_t = (float)current_tick / TICKS_PER_SEC;
     cam->setView();
     pMutex.lock();
-    
+
     for(uint16 e = 0; e < index_list_size; ++e)
     {
         uint16 i = idx_list[e];

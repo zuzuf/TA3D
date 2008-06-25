@@ -49,7 +49,8 @@ namespace TA3D
 
     TA3DNetwork::~TA3DNetwork()
     {
-        foreach( messages, i )	i->text.clear();
+        for (List<NetworkMessage>::iterator i = messages.begin(); i != messages.end(); ++i)
+            i->text.clear();
         messages.clear();
     }
 
@@ -124,11 +125,13 @@ namespace TA3D
         }
 
         pMutex.lock();
-        foreach_( messages, i )
+        for (List<NetworkMessage>::iterator i = messages.begin(); i != messages.end(); )
+        {
             if( msec_timer - i->timer >= CHAT_MESSAGE_TIMEOUT )
-                messages.erase( i++ );
+                messages.erase(i++);
             else
-                i++;
+                ++i;
+        }
         pMutex.unlock();
 
         n = 100;
@@ -527,11 +530,14 @@ namespace TA3D
         if( !network_manager.isConnected() )	return;		// Only works in network mode
 
         pMutex.lock();
-        if( !messages.empty() ) {
+        if( !messages.empty() )
+        {
             float Y = SCREEN_H * 0.5f;
-            foreach( messages, i ) {
+            for (List<NetworkMessage>::const_iterator i = messages.begin(); i != messages.end(); ++i)
+            {
                 int color = 0xFFFFFFFF;
-                if( (int)(msec_timer - i->timer) - CHAT_MESSAGE_TIMEOUT + 1000 >= 0 ) {
+                if( (int)(msec_timer - i->timer) - CHAT_MESSAGE_TIMEOUT + 1000 >= 0 )
+                {
                     color = makeacol( 0xFF, 0xFF, 0xFF, 255 - min( 255, ((int)(msec_timer - i->timer) - CHAT_MESSAGE_TIMEOUT + 1000) * 255 / 1000 ) );
                     Y -= min( 1.0f, ((int)(msec_timer - i->timer) - CHAT_MESSAGE_TIMEOUT + 1000) * 0.001f ) * (gfx->TA_font.height() + Y - SCREEN_H * 0.5f);
                 }

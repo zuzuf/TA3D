@@ -879,6 +879,8 @@ class INGAME_UNITS :	public ObjectSync,			// Class to manage huge number of unit
 			            public cThread
 {
 public:
+    typedef Vector< List< uint16 > >  RepairPodsList;
+public:
 /*----------------------- Variables générales ----------------------------------------------*/
 	uint16	nb_unit;		// Nombre d'unités
 	uint16	max_unit;		// Nombre maximum d'unités stockables dans le tableau
@@ -887,7 +889,7 @@ public:
 	uint16	*idx_list;
 	uint16	*free_idx;
 	uint16	free_index_size[10];
-	Vector< List< uint16 > >	repair_pads;		// Lists of built repair pads
+	RepairPodsList repair_pads;		// Lists of built repair pads
 
 /*----------------------- Variables réservées au joueur courant ----------------------------*/
 

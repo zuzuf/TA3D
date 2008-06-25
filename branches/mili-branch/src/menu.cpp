@@ -258,8 +258,9 @@ void solo_menu()
             file_list.sort();
 
             obj->Text.clear();
-            obj->Text.reserve( file_list.size() );
-            foreach( file_list, i )	obj->Text.push_back( *i );
+            obj->Text.reserve(file_list.size());
+            for (List<String>::const_iterator i = file_list.begin(); i != file_list.end(); ++i)
+                obj->Text.push_back(*i);
         }
 
         if( solo_area.get_state( "load_menu.b_load" ) )
@@ -564,7 +565,8 @@ void config_menu(void)
     if( !config_area.background )	config_area.background = gfx->glfond;
 
     Vector< String > fps_limits;
-    if( config_area.get_object("*.fps_limit") ) {
+    if( config_area.get_object("*.fps_limit") )
+    {
         fps_limits = config_area.get_object("*.fps_limit")->Text;
         fps_limits.erase( fps_limits.begin() );
         }
@@ -622,9 +624,11 @@ void config_menu(void)
 
     config_area.set_state("*.showfps", lp_CONFIG->showfps);
     config_area.set_caption("*.fps_limit", fps_limits[fps_limits.size()-1]);
-    foreach( fps_limits, i )
+    for (Vector<String>::const_iterator i = fps_limits.begin(); i != fps_limits.end(); ++i)
+    {
         if( format( "%d", (int)lp_CONFIG->fps_limit ) == *i )
             config_area.set_caption("*.fps_limit", *i);
+    }
     config_area.set_state("*.wireframe", lp_CONFIG->wireframe);
     config_area.set_state("*.particle", lp_CONFIG->particle);
     config_area.set_state("*.explosion_particles", lp_CONFIG->explosion_particles);

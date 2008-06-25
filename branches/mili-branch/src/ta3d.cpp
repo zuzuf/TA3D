@@ -538,7 +538,7 @@ int play(GAME_DATA *game_data)
         bool IsOnMinimap = mouse_x < 128 && mouse_y < 128;		// Used to handle on mini map commands
         IsOnGUI = (mouse_x < 128 && ( mouse_y >= SCREEN_H - 64 || mouse_y < 128 ) ) || mouse_y < 32 || mouse_y >= SCREEN_H - 32;		// Priority given to game interface
         if( !IsOnGUI )
-            IsOnGUI = game_area.check();
+            IsOnGUI = (game_area.check() != 0);
 
         IsOnGUI |= mouse_x < 128;		// Priority given to game interface
 
@@ -2291,8 +2291,8 @@ int play(GAME_DATA *game_data)
                 obj_file_list->Text.clear();
                 obj_file_list->Text.reserve(file_list.size());
 
-                foreach( file_list, i )
-                    obj_file_list->Text.push_back( *i );
+                for (List<String>::const_iterator i = file_list.begin(); i != file_list.end(); ++i)
+                    obj_file_list->Text.push_back(*i);
             }
         }
         if(game_area.get_state("save_menu.l_file")) {				// Click on the list
@@ -2313,7 +2313,8 @@ int play(GAME_DATA *game_data)
             lp_CONFIG->pause = false;
         }
 
-        if(key[KEY_TILDE] && !game_area.get_state("chat")) {
+        if(key[KEY_TILDE] && !game_area.get_state("chat"))
+        {
             if(!tilde)
                 Console->ToggleShow();
             tilde=true;

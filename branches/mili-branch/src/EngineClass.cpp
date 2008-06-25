@@ -16,11 +16,11 @@
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA*/
 
 /*----------------------------------------------------------\
-|                      EngineClass.cpp                      |
-|    Contient toutes les classes nécessaires au moteur 3D   |
-| et au moteur physique.                                    |
-|                                                           |
-\----------------------------------------------------------*/
+  |                      EngineClass.cpp                      |
+  |    Contient toutes les classes nécessaires au moteur 3D   |
+  | et au moteur physique.                                    |
+  |                                                           |
+  \----------------------------------------------------------*/
 
 #ifdef CWDEBUG
 #include <libcwd/sys.h>
@@ -1827,21 +1827,21 @@ namespace TA3D
         HPIManager->GetFilelist( "sky\\*.tdf", &file_list );
         uint32	nb_sky = 0;
 
-        foreach( file_list, it )
+        for (List<String>::const_iterator it = file_list.begin(); it != file_list.end(); ++it)
         {
             SKY_DATA *sky_data = new SKY_DATA;
-            sky_data->load_tdf( *it );
+            sky_data->load_tdf(*it);
 
             bool keep = false;
-            for( int i = 0 ; i < sky_data->MapName.size() ; i++ )
-                if( sky_data->MapName[ i ] == mapname )
+            for (int i = 0 ; i < sky_data->MapName.size() ; ++i)
+                if( sky_data->MapName[i] == mapname)
                 {
                     keep = true;
                     break;
                 }
             if( !keep )
-                for( int i = 0 ; i < sky_data->planet.size() ; i++ )
-                    if( sky_data->planet[ i ] == planet )
+                for( int i = 0 ; i < sky_data->planet.size() ; ++i)
+                    if (sky_data->planet[ i ] == planet)
                     {
                         keep = true;
                         break;
@@ -1856,12 +1856,14 @@ namespace TA3D
         }
 
         if( nb_sky == 0 )			// Look for a default sky
-            foreach( file_list, it ) {
+            for (List<String>::const_iterator it = file_list.begin(); it != file_list.end(); ++it)
+            {
                 SKY_DATA *sky_data = new SKY_DATA;
-                sky_data->load_tdf( *it );
+                sky_data->load_tdf(*it);
 
                 bool keep = sky_data->def;
-                if( keep ) {
+                if( keep )
+                {
                     sky_list.push_back( sky_data );
                     nb_sky++;
                 }
@@ -1871,19 +1873,23 @@ namespace TA3D
 
         SKY_DATA *selected_sky = NULL;
 
-        if( nb_sky > 0 ) {
+        if( nb_sky > 0 )
+        {
             int select = TA3D_RAND() % nb_sky;
-            for( List< SKY_DATA* >::iterator it = sky_list.begin() ; it != sky_list.end() ; it++, select-- )
-                if( select == 0 ) {
+            for (List<SKY_DATA*>::iterator it = sky_list.begin() ; it != sky_list.end(); ++it, --select)
+                if( select == 0 )
+                {
                     selected_sky = *it;
                     *it = NULL;
                     break;
                 }
         }
 
-        foreach( sky_list, it )
+        for (List<SKY_DATA*>::iterator it = sky_list.begin() ; it != sky_list.end(); ++it)
+        {
             if( *it != NULL )
                 delete *it;
+        }
         sky_list.clear();
 
         return selected_sky;

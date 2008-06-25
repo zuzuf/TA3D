@@ -147,12 +147,8 @@ template<class T> inline T min(T a, T b)	{	return (a > b) ? b : a;	}
 	#define FILE_SIZE	file_size
 #endif
 
-	// This macro will reduce code size and make it easier to read
-#define foreach( a, b )	for( typeof( (a).begin() ) b = (a).begin() ; b != (a).end() ; b++ )
-	// Same as foreach, except it doesn't do ++ at the end of each loop, so you have to do it manually, allow removing elements easily
-#define foreach_( a, b )	for( typeof( (a).begin() ) b = (a).begin() ; b != (a).end() ; )
-
-
+# define foreach(a,b)  Error 
+# define foreach_(a,b)  Error 
 
 
 namespace TA3D

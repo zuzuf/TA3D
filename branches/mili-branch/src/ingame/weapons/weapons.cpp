@@ -42,11 +42,11 @@ namespace TA3D
 
         int n = 0;
 
-        foreach( file_list, cur_file )
+        for (List<String>::const_iterator cur_file = file_list.begin(); cur_file != file_list.end(); ++cur_file)
         {
             if(progress!=NULL && !(n & 0xF))
                 progress((250.0f+n*50.0f/(file_list.size()+1))/7.0f,TRANSLATE("Loading weapons"));
-            n++;
+            ++n;
 
             uint32 file_size=0;
             byte *data=HPIManager->PullFromHPI(cur_file->c_str(),&file_size);
