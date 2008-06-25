@@ -5,3 +5,4 @@ SET(SOURCES ai.h ai.cpp
             pathfinding.h pathfinding.cpp)
 
 ADD_LIBRARY(ai STATIC ${SOURCES})
+ADD_DEPENDENCIES(ai stdafx misc threads taconfig)
