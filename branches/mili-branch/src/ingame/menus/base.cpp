@@ -2,6 +2,8 @@
 #include "base.h"
 #include <typeinfo>
 #include "../../TA3D_Exception.h"
+#include "../../ta3dbase.h"
+
 
 using namespace TA3D::Exceptions;
 
@@ -28,6 +30,12 @@ namespace Menus
     bool Abstract::doGuardInitialize()
     {
         GuardEnter(pTypeName + ".doInitialize()");
+        pMouseX = -1;
+        pMouseY = -1;
+        pMouseZ = -1;
+        pMouseB = -1;
+        cursor_type = CURSOR_DEFAULT;
+        reset_keyboard();
         bool r = doInitialize();
         GuardLeave();
         return r;

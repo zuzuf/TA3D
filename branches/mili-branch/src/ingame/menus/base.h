@@ -3,7 +3,10 @@
 
 # include "../../stdafx.h"
 # include <string>
+# include "../../gui.h"
 
+
+# define RECOMMENDED_TIME_MS_FOR_REST_FOR_MENUS  8
 
 namespace TA3D
 {
@@ -67,6 +70,19 @@ namespace Menus
         ** \see doInitialize()
         */
         virtual void doFinalize() = 0;
+
+    protected:
+        //! Our Window handle
+        std::auto_ptr<AREA> pArea;
+
+        //! Last value of `mouse_x`
+        int pMouseX;
+        //! last value of `mouse_y`
+        int pMouseY;
+        //! Last value of `mouse_z`
+        int pMouseZ;
+        //! Last value of `mouse_b`
+        int pMouseB;
 
     private:
         /*!

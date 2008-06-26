@@ -44,24 +44,17 @@ namespace Menus
         gfx->SCREEN_H_TO_480 = 1.0f;
 
         // Loading the area
-        pMainArea.reset(new AREA("main"));
-        pMainArea->load_tdf("gui/main.area");
-        if (!pMainArea->background)
-            pMainArea->background = gfx->glfond;
+        pArea.reset(new AREA("main"));
+        pArea->load_tdf("gui/main.area");
+        if (!pArea->background)
+            pArea->background = gfx->glfond;
 
-        // Changing the cursor
-        cursor_type = CURSOR_DEFAULT;
         // Current mod
         getInfosAboutTheCurrentMod();
         // If there is a file parameter, read it
         ReadFileParameter(); 
         // Misc
         pDontWaitForEvent = true;
-        pMouseX = -1;
-        pMouseY = -1;
-        pMouseZ = -1;
-        pMouseB = -1;
-
         return true;
     }
 
@@ -80,8 +73,8 @@ namespace Menus
             pMouseB = mouse_b;
 
             // Reset the caption
-            pMainArea->set_caption("main.t_version", TA3D_ENGINE_VERSION );
-            pMainArea->set_caption("main.t_mod", pCurrentModCaption);
+            pArea->set_caption("main.t_version", TA3D_ENGINE_VERSION );
+            pArea->set_caption("main.t_mod", pCurrentModCaption);
 
 
             // If ESC, directly stop
@@ -98,8 +91,8 @@ namespace Menus
 
     void MainMenu::doFinalize()
     {
-        if (pMainArea->background == gfx->glfond)
-            pMainArea->background = 0;
+        if (pArea->background == gfx->glfond)
+            pArea->background = 0;
         gfx->set_2D_mode();
     }
 
@@ -108,7 +101,7 @@ namespace Menus
         pCurrentMod = TA3D_CURRENT_MOD.length() > 6 
             ? TA3D_CURRENT_MOD.substr(5, TA3D_CURRENT_MOD.length() - 6)
             : "";
-        if (!pCurrentMod.empty())
+        if (pCurrentMod.empty())
             pCurrentModCaption = "";
         else
             pCurrentModCaption = "MOD: " + pCurrentMod;
@@ -129,26 +122,25 @@ namespace Menus
         // To have mouse sensibility undependent from the resolution
         gfx->SCREEN_W_TO_640 = 1.0f; 
         gfx->SCREEN_H_TO_480 = 1.0f;
-        cursor_type = CURSOR_DEFAULT;	
     }
 
 
     bool MainMenu::maySwitchToAnotherMenu()
     {
         // Exit
-        if (key[KEY_ESC] || pMainArea->get_state( "main.b_exit"))
+        if (key[KEY_ESC] || pArea->get_state( "main.b_exit"))
             return true;
 
         // Options
-        if (key[KEY_SPACE] || key[KEY_O] || pMainArea->get_state("main.b_options") || lp_CONFIG->quickstart)
+        if (key[KEY_SPACE] || key[KEY_O] || pArea->get_state("main.b_options") || lp_CONFIG->quickstart)
             return goToMenuOptions();
 
         // Solo
-        if( key[KEY_ENTER] || key[KEY_S] || pMainArea->get_state( "main.b_solo"))
+        if( key[KEY_ENTER] || key[KEY_S] || pArea->get_state( "main.b_solo"))
             return goToMenuSolo();
 
         // Multi player room
-        if(key[KEY_B] || key[KEY_M] || pMainArea->get_state("main.b_multi"))
+        if(key[KEY_B] || key[KEY_M] || pArea->get_state("main.b_multi"))
             return goToMenuMultiPlayers();
 
         return false;
@@ -192,16 +184,16 @@ namespace Menus
             // Get if a key was pressed
             keyIsPressed = keypressed();
             // Grab user events
-            pMainArea->check();
+            pArea->check();
             // Wait to reduce CPU consumption 
-            rest(30);
+            rest(RECOMMENDED_TIME_MS_FOR_REST_FOR_MENUS);
 
         } while (!pDontWaitForEvent
                  && pMouseX == mouse_x && pMouseY == mouse_y && pMouseZ == mouse_z && pMouseB == mouse_b
                  && mouse_b == 0
                  && !key[KEY_ENTER] && !key[KEY_ESC] && !key[KEY_SPACE] && !key[KEY_B]
                  && !key[KEY_O] && !key[KEY_M] && !key[KEY_S]
-                 && !keyIsPressed && !pMainArea->scrolling);
+                 && !keyIsPressed && !pArea->scrolling);
 
         // Should wait the an event the next time
         pDontWaitForEvent = false;
@@ -209,7 +201,7 @@ namespace Menus
 
     void MainMenu::redrawTheScreen()
     {
-        pMainArea->draw();
+        pArea->draw();
         glEnable(GL_TEXTURE_2D);
         gfx->set_color(0xFFFFFFFF);
         draw_cursor();

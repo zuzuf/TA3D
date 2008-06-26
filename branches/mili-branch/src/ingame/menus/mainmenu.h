@@ -2,7 +2,6 @@
 # define __TA3D_INGAME_MENUS_X_MAIN_MENU_H__
 
 # include "base.h"
-# include "../../gui.h"
 
 
 namespace TA3D
@@ -87,23 +86,11 @@ namespace Menus
         //! Caption for the current mod (Cache)
         String pCurrentModCaption;
 
-        //! Our Window handle
-        std::auto_ptr<AREA> pMainArea;
-    
         /*!
         ** Get if we should not wait for an event (mouse,keyboard...) if enabled
         ** \see waitForEvent()
         */
         bool pDontWaitForEvent;
-
-        //! Last value of `mouse_x`
-        int pMouseX;
-        //! last value of `mouse_y`
-        int pMouseY;
-        //! Last value of `mouse_z`
-        int pMouseZ;
-        //! Last value of `mouse_b`
-        int pMouseB;
 
     }; // class MainMenu
 
