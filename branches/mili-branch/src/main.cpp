@@ -37,6 +37,7 @@
 #include "logs/logs.h"
 #include "misc/settings.h"
 #include "ingame/sidedata.h"
+#include "ingame/menus/mainmenu.h"
 
 
 
@@ -315,7 +316,8 @@ int main(int argc,char *argv[])
     //  we will continue to keep checking if its running and if so call a helper function
     //  in the engine to do some non-cricticle stuff, every 100 ms or so.
     // While( Engine-> IsRunning() ) { Engine->DoSomeNonImportantShit(); rest( 100 ); }
-    main_menu();
+    // main_menu();
+    TA3D::Menus::MainMenu::Execute();
 
     // if we get here its time to exit, so delete the engine, the engine should clean itself
     //   up and we are outa here, but first lets save our config file, we

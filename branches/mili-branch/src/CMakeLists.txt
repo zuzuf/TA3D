@@ -138,8 +138,8 @@ ENDIF(APPLE)
 
 add_executable(ta3d-bin ta3d.cpp ta3d.h main.cpp install.cpp cTA3D_Engine.cpp cTA3D_Engine.h cTAFileParser.cpp cTAFileParser.h restore.cpp restore.h menu.cpp menu.h EngineClass.cpp EngineClass.h UnitEngine.cpp UnitEngine.h fbi.cpp fbi.h intro.cpp intro.h tdf.cpp tdf.h tnt.cpp tnt.h icon.cpp stdafx.h TA3D_NameSpace.cpp TA3D_NameSpace.h TA3D_Platform.h)
 
-ADD_DEPENDENCIES(ta3d-bin stdafx logs console debuginfos threads i18n 3dtoolbox misc tajpeg gfx fileformats particles weapons ai audio hpi gui taconfig network scripts ingame)
-target_link_libraries(ta3d-bin stdafx logs console debuginfos threads i18n 3dtoolbox misc tajpeg gfx fileformats particles weapons ai audio hpi gui taconfig network scripts ingame)
+ADD_DEPENDENCIES(ta3d-bin stdafx logs console debuginfos threads i18n 3dtoolbox misc ingame menus tajpeg gfx fileformats particles weapons ai audio hpi gui taconfig network scripts)
+target_link_libraries(ta3d-bin stdafx logs console debuginfos threads i18n 3dtoolbox misc ingame menus tajpeg gfx fileformats particles weapons ai audio hpi gui taconfig network scripts)
 IF(APPLE)
     SET(GUI_TYPE MACOSX_BUNDLE)
     SET(MACOSX_BUNDLE_BUNDLE_NAME "TA3D")
