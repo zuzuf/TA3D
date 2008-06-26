@@ -140,15 +140,15 @@ namespace Menus
             return true;
 
         // Options
-        if (key[KEY_SPACE] || pMainArea->get_state("main.b_options") || lp_CONFIG->quickstart)
+        if (key[KEY_SPACE] || key[KEY_O] || pMainArea->get_state("main.b_options") || lp_CONFIG->quickstart)
             return goToMenuOptions();
 
         // Solo
-        if( key[KEY_ENTER] || pMainArea->get_state( "main.b_solo"))
+        if( key[KEY_ENTER] || key[KEY_S] || pMainArea->get_state( "main.b_solo"))
             return goToMenuSolo();
 
         // Multi player room
-        if(key[KEY_B] || pMainArea->get_state("main.b_multi"))
+        if(key[KEY_B] || key[KEY_M] || pMainArea->get_state("main.b_multi"))
             return goToMenuMultiPlayers();
 
         return false;
@@ -200,6 +200,7 @@ namespace Menus
                  && pMouseX == mouse_x && pMouseY == mouse_y && pMouseZ == mouse_z && pMouseB == mouse_b
                  && mouse_b == 0
                  && !key[KEY_ENTER] && !key[KEY_ESC] && !key[KEY_SPACE] && !key[KEY_B]
+                 && !key[KEY_O] && !key[KEY_M] && !key[KEY_S]
                  && !keyIsPressed && !pMainArea->scrolling);
 
         // Should wait the an event the next time
