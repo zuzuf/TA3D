@@ -684,9 +684,8 @@ public:
 
         gather_build_data();			// Read additionnal build data
 
-        uint32 file_size;
         List<String> file_list;
-        uint32 nb_file = HPIManager->getFilelist( ta3dSideData.guis_dir + "*.gui", file_list);
+        HPIManager->getFilelist( ta3dSideData.guis_dir + "*.gui", file_list);
 
         for(List<String>::iterator file=file_list.begin();file!=file_list.end();file++) // Cherche un fichier pouvant contenir des informations sur l'unité unit_name
         {
@@ -700,8 +699,8 @@ public:
             }
         }
 
-        for( uint32 i = 0 ; i < nb_unit ; i++ )
-            unit_type[ i ].FixBuild();
+        for (int i = 0 ; i < nb_unit ; ++i)
+            unit_type[i].FixBuild();
     }
 
     inline void load_script_file(char *unit_name)
