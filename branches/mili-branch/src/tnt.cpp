@@ -546,7 +546,7 @@ namespace TA3D
         return map;
     }
 
-    GLuint load_tnt_minimap(byte *data,int *sw,int *sh)		// Charge une minimap d'une carte, extraite d'une archive HPI/UFO
+    GLuint load_tnt_minimap(byte *data,int& sw,int& sh)		// Charge une minimap d'une carte, extraite d'une archive HPI/UFO
     {
         TNTHEADER	header;		// Structure pour l'en-tête du fichier
 
@@ -603,13 +603,13 @@ namespace TA3D
 
         destroy_bitmap(mini);
 
-        if(sw) *sw=mini_w;
-        if(sh) *sh=mini_h;
+        sw = mini_w;
+        sh = mini_h;
 
         return glmini;
     }
 
-    GLuint load_tnt_minimap_fast(const String& filename, int *sw,int *sh)		// Charge une minimap d'une carte contenue dans une archive HPI/UFO
+    GLuint load_tnt_minimap_fast(const String& filename, int& sw,int& sh)		// Charge une minimap d'une carte contenue dans une archive HPI/UFO
     {
         byte *data=HPIManager->PullFromHPI_zone(filename,0,64,NULL);
 
@@ -676,8 +676,8 @@ namespace TA3D
 
         destroy_bitmap(mini);
 
-        if(sw) *sw=mini_w;
-        if(sh) *sh=mini_h;
+        sw = mini_w;
+        sh = mini_h;
 
         free(data);
 

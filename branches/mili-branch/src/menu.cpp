@@ -64,45 +64,40 @@ void ReadFileParameter();
 
 
 
-uint32 GetMultiPlayerMapList(std::list<std::string> *li)
+uint32 GetMultiPlayerMapList(std::list<std::string>& li)
 {
-    LOG_ASSERT(li);
-
-    std::list< String > map_list;
-    uint32 n = HPIManager->GetFilelist("maps\\*.tnt",&map_list);
-    std::list< String >::iterator i_map;
-    uint32 count;
-
+    std::list<String> map_list;
+    uint32 n = HPIManager->GetFilelist("maps\\*.tnt", &map_list);
     if( n < 1 )
         return 0;
 
-    MAP_OTA	map_data;											// Using MAP_OTA because it's faster than cTAFileParser that fills a hash_table object
-    bool isNetworkGame;
-    count = 0;
+    uint32 count = 0;
 
-    for( i_map=map_list.begin(); i_map!=map_list.end(); i_map++ )
+    std::list<String>::iterator i_map;
+    for (i_map = map_list.begin(); i_map != map_list.end(); ++i_map)
     {
-        *i_map=i_map->substr(5,i_map->length()-9);
+        *i_map = i_map->substr(5,i_map->length()-9);
 
-        isNetworkGame = false;
+        bool isNetworkGame(false);
 
         uint32 ota_size=0;
         byte *data = HPIManager->PullFromHPI( String( "maps\\" ) + *i_map + String( ".ota" ), &ota_size);
-        if(data) {
-            map_data.load((char*)data,ota_size);
+        if(data)
+        {
+            MAP_OTA	map_data;	// Using MAP_OTA because it's faster than cTAFileParser that fills a hash_table object
+            map_data.load((char*)data, ota_size);
             isNetworkGame = map_data.network;
             free(data);
             map_data.destroy();
         }
 
-        if( isNetworkGame )
+        if (isNetworkGame)
         {
-            li->push_back( *i_map );
-            count++;
+            li.push_back(*i_map);
+            ++count;
         }
     }
-
-    li->sort();
+    li.sort();
     return count;
 } 
 
@@ -118,10 +113,11 @@ char *select_map(String *def_choice)		// Cette fonction affiche un menu permetta
     if( !mapsetup_area.background )	mapsetup_area.background = gfx->glfond;
 
     List< String > map_list;
-    uint32 n = GetMultiPlayerMapList( &map_list );
+    uint32 n = GetMultiPlayerMapList(map_list);
     List< String >::iterator i_map;
 
-    if(n==0)	{
+    if (map_list.empty())
+    {
         Popup(TRANSLATE("Error"),TRANSLATE("No maps found"));
         Console->AddEntry("no maps found!!");
         reset_mouse();
@@ -134,17 +130,18 @@ char *select_map(String *def_choice)		// Cette fonction affiche un menu permetta
     int dx = 0;
     int dy = 0;
     float ldx = dx*70.0f/252.0f;
-        float ldy = dy*70.0f/252.0f;
+    float ldy = dy*70.0f/252.0f;
 
 
-        GUIOBJ *minimap_obj = mapsetup_area.get_object( "mapsetup.minimap" );
+    GUIOBJ *minimap_obj = mapsetup_area.get_object( "mapsetup.minimap" );
     float mini_map_x1 = 0.0f;
     float mini_map_y1 = 0.0f;
     float mini_map_x2 = 0.0f;
     float mini_map_y2 = 0.0f;
     float mini_map_x = 0.0f;
     float mini_map_y = 0.0f;
-    if( minimap_obj ) {
+    if( minimap_obj )
+    {
         mini_map_x1 = minimap_obj->x1;
         mini_map_y1 = minimap_obj->y1;
         mini_map_x2 = minimap_obj->x2;
@@ -168,13 +165,15 @@ char *select_map(String *def_choice)		// Cette fonction affiche un menu permetta
     int sel_index = -1;
     int o_sel = -1;
 
-    if( def_choice ) {
+    if( def_choice )
+    {
         *def_choice = def_choice->substr(5,def_choice->length()-9);
         int i = 0;
         GUIOBJ *gui_map_list = mapsetup_area.get_object("mapsetup.map_list");
         if( gui_map_list )
             gui_map_list->Text.resize( map_list.size() );
-        for( i_map = map_list.begin() ; i_map != map_list.end() ; i_map++, i++ ) {
+        for( i_map = map_list.begin() ; i_map != map_list.end() ; i_map++, i++ )
+        {
             if( gui_map_list )
                 gui_map_list->Text[ i ] = *i_map;
             if( *i_map == *def_choice && gui_map_list ) {
@@ -223,31 +222,34 @@ char *select_map(String *def_choice)		// Cette fonction affiche un menu permetta
         if( mapsetup_area.get_object("mapsetup.map_list") )
             sel_index = mapsetup_area.get_object("mapsetup.map_list")->Pos;
 
-        if( sel_index != o_sel && sel_index >= 0) {
+        if( sel_index != o_sel && sel_index >= 0)
+        {
             o_sel = sel_index;
             gfx->destroy_texture( mini );
             i_map = map_list.begin();
             for( int i = 0 ; i < sel_index && i_map != map_list.end() ; i++)	i_map++;
             String tmp = String("maps\\") + *i_map + String(".tnt");
-            mini = load_tnt_minimap_fast((char*)tmp.c_str(),&dx,&dy);
+            mini = load_tnt_minimap_fast((char*)tmp.c_str(),dx,dy);
             if( choice )	free( choice );		// Don't forget to free memory
             choice = strdup(tmp.c_str());													// Copy the map name
             tmp = String("maps\\") + *i_map + String(".ota");								// Read the ota file
             uint32 ota_size = 0;
             byte *data = HPIManager->PullFromHPI(tmp,&ota_size);
-            if(data) {
+            if(data)
+            {
                 map_data.load((char*)data,ota_size);
                 free(data);
             }
             else
                 map_data.destroy();
-            if( minimap_obj ) {	// Update the minimap on GUI
+            if( minimap_obj ) // Update the minimap on GUI
+            {
                 gfx->destroy_texture( minimap_obj->Data );			// Make things clean
                 minimap_obj->Data = mini;
                 mini = 0;
                 ldx = dx * ( mini_map_x2 - mini_map_x1 ) / 504.0f;
-                    ldy = dy * ( mini_map_y2 - mini_map_y1 ) / 504.0f;
-                    minimap_obj->x1 = mini_map_x-ldx;
+                ldy = dy * ( mini_map_y2 - mini_map_y1 ) / 504.0f;
+                minimap_obj->x1 = mini_map_x-ldx;
                 minimap_obj->y1 = mini_map_y-ldy;
                 minimap_obj->x2 = mini_map_x+ldx;
                 minimap_obj->y2 = mini_map_y+ldy;
@@ -309,7 +311,7 @@ void config_menu(void)
     {
         fps_limits = config_area.get_object("*.fps_limit")->Text;
         fps_limits.erase( fps_limits.begin() );
-        }
+    }
     else
         ReadVectorString( fps_limits, "50,60,70,80,90,100,no limit" );
     for( uint32 e = 0 ; e < fps_limits.size() ; e++ )
@@ -935,14 +937,14 @@ void setup_game(bool client, const char *host)
     }
 
     int dx, dy;
-    GLuint glimg = load_tnt_minimap_fast(game_data.map_filename,&dx,&dy);
+    GLuint glimg = load_tnt_minimap_fast(game_data.map_filename,dx,dy);
     char tmp_char[1024];
     MAP_OTA	map_data;
     map_data.load( replace_extension( (char*)tmp_char, game_data.map_filename, "ota", 1024 ) );
     float ldx = dx*70.0f/252.0f;
-        float ldy = dy*70.0f/252.0f;
+    float ldy = dy*70.0f/252.0f;
 
-        AREA setupgame_area("setup");
+    AREA setupgame_area("setup");
     setupgame_area.load_tdf("gui/setupgame.area");
     if( !setupgame_area.background )	setupgame_area.background = gfx->glfond;
     for(uint16 i = 0 ; i < 10 ; i++ ) {
@@ -1654,10 +1656,10 @@ void setup_game(bool client, const char *host)
                 if(game_data.map_filename)
                     free(game_data.map_filename);
                 game_data.map_filename = new_map;
-                glimg = load_tnt_minimap_fast(game_data.map_filename,&dx,&dy);
+                glimg = load_tnt_minimap_fast(game_data.map_filename,dx,dy);
                 ldx = dx * ( mini_map_x2 - mini_map_x1 ) / 504.0f;
-                    ldy = dy * ( mini_map_y2 - mini_map_y1 ) / 504.0f;
-                    minimap_obj->x1 = mini_map_x-ldx;
+                ldy = dy * ( mini_map_y2 - mini_map_y1 ) / 504.0f;
+                minimap_obj->x1 = mini_map_x-ldx;
                 minimap_obj->y1 = mini_map_y-ldy;
                 minimap_obj->x2 = mini_map_x+ldx;
                 minimap_obj->y2 = mini_map_y+ldy;
