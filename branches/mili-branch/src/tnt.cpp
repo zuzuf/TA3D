@@ -609,7 +609,7 @@ namespace TA3D
         return glmini;
     }
 
-    GLuint load_tnt_minimap_fast(char *filename,int *sw,int *sh)		// Charge une minimap d'une carte contenue dans une archive HPI/UFO
+    GLuint load_tnt_minimap_fast(const String& filename, int *sw,int *sh)		// Charge une minimap d'une carte contenue dans une archive HPI/UFO
     {
         byte *data=HPIManager->PullFromHPI_zone(filename,0,64,NULL);
 
@@ -684,7 +684,7 @@ namespace TA3D
         return glmini;
     }
 
-    BITMAP *load_tnt_minimap_fast_bmp(char *filename)		// Load a minimap into a BITMAP* structure from a HPI/UFO archive
+    BITMAP *load_tnt_minimap_fast_bmp(const String& filename)		// Load a minimap into a BITMAP* structure from a HPI/UFO archive
     {
         byte *data = HPIManager->PullFromHPI_zone(filename,0,64,NULL);
 
