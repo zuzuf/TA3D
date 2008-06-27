@@ -344,8 +344,8 @@ namespace TA3D
 
         inline int add_feature(VECTOR Pos,int type)
         {
-            MutexLocker locker(pMutex);
             if(type<0 || type>=feature_manager.nb_features)	return -1;
+            MutexLocker locker(pMutex);
 
             nb_features++;
             int idx=-1;
@@ -396,9 +396,9 @@ namespace TA3D
 
         inline void delete_feature(int index)				// Attention bug potentiel: penser à décaler les indices dans l'objet MAP!!
         {
-            MutexLocker locker(pMutex);
             if(nb_features<=0)
                 return;
+            MutexLocker locker(pMutex);
 
             if( feature[index].type <= 0 )
                 return;
