@@ -692,7 +692,7 @@ public:
             char *f=NULL;
             for (int i=0;i<nb_unit; ++i)
             {
-                if(f=strstr((char*)Uppercase( *file ).c_str(),unit_type[i].Unitname))
+                if ((f = strstr((char*)Uppercase(*file).c_str(), unit_type[i].Unitname)))
                     if(f[strlen(unit_type[i].Unitname)]=='.'
                        ||(f[strlen(unit_type[i].Unitname)]>='0' && f[strlen(unit_type[i].Unitname)]<='9'))
                         analyse(*file,i);
