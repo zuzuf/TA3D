@@ -143,7 +143,7 @@ namespace TA3D
         ** \brief
         ** \param data
         */
-        char* SideData::get_line(char *data) const;
+        char* get_line(char *data) const;
     };
 
 
