@@ -178,7 +178,7 @@ namespace Menus
             // Grab user events
             pArea->check();
             // Wait to reduce CPU consumption 
-            rest(RECOMMENDED_TIME_MS_FOR_REST_FOR_MENUS);
+            rest(TA3D_MENUS_RECOMMENDED_TIME_MS_FOR_RESTING);
 
         } while (!pDontWaitForEvent
                  && pMouseX == mouse_x && pMouseY == mouse_y && pMouseZ == mouse_z && pMouseB == mouse_b

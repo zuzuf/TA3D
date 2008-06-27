@@ -6,7 +6,7 @@
 # include "../../gui.h"
 
 
-# define RECOMMENDED_TIME_MS_FOR_REST_FOR_MENUS  8
+# define TA3D_MENUS_RECOMMENDED_TIME_MS_FOR_RESTING  8
 
 namespace TA3D
 {
@@ -97,7 +97,7 @@ namespace Menus
         virtual void redrawTheScreen();
 
         /*!
-        **
+        ** 
         */
         virtual bool doLoop();
 
