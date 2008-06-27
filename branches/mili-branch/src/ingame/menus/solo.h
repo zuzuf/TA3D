@@ -10,6 +10,10 @@ namespace Menus
 {
 
 
+    /*! \class Solo
+    **
+    ** \brief The Solo menu, to launch a solo campaign, a skirmish, or load a savegame 
+    */
     class Solo : public Abstract
     {
     public:
