@@ -3,9 +3,9 @@
 
 
 #ifndef TA3D_PLATFORM_WINDOWS
-#   include <pthread.h>
+#  include <pthread.h>
 #else
-#   include <windows.h>
+#  include <windows.h>
 #endif
 
 
@@ -28,7 +28,7 @@ namespace TA3D
             # ifdef TA3D_PLATFORM_WINDOWS
 			::EnterCriticalSection(&pCritSection);
             # else
-			::pthread_mutex_lock(&pPthreadLock);
+			pthread_mutex_lock(&pPthreadLock);
             # endif
             pLocked = true;
 		}
@@ -42,7 +42,7 @@ namespace TA3D
             # ifdef TA3D_PLATFORM_WINDOWS
 			::LeaveCriticalSection(&pCritSection);
             # else
-			::pthread_mutex_unlock(&pPthreadLock);
+			pthread_mutex_unlock(&pPthreadLock);
             # endif
 		}
 	
@@ -96,7 +96,8 @@ namespace TA3D
         ~MutexLocker() { pMutex.unlock(); }
     private:
         Mutex& pMutex;
-    };
+
+    }; // MutexLocker
 
 } // namespace TA3D
 

@@ -28,7 +28,7 @@ namespace TA3D
         #ifdef TA3D_PLATFORM_WINDOWS
 		::DeleteCriticalSection(&pCritSection);
         #else
-		::pthread_mutex_unlock(&pPthreadLock);
+		pthread_mutex_unlock(&pPthreadLock);
         #endif
 	}
 
