@@ -4,6 +4,7 @@
 #include "../../logs/logs.h"
 #include "../../ta3dbase.h"
 #include "solo.h"
+#include "../../logs/logs.h"
 
 
 // TODO Must be removed
@@ -12,6 +13,9 @@
 
 // TODO Must be removed
 void ReadFileParameter();
+
+
+# define TA3D_LOG_SECTION_MENU_MAIN_PREFIX "[Main Menu] "
 
 
 namespace TA3D
@@ -37,6 +41,8 @@ namespace Menus
 
     bool MainMenu::doInitialize()
     {
+        LOG_DEBUG(TA3D_LOG_SECTION_MENU_MAIN_PREFIX << "Entering...");
+
         gfx->SetDefState();
         gfx->set_2D_mode();
         gfx->ReInitTexSys();
@@ -79,6 +85,7 @@ namespace Menus
     void MainMenu::doFinalize()
     {
         gfx->set_2D_mode();
+        LOG_DEBUG(TA3D_LOG_SECTION_MENU_MAIN_PREFIX << "Done.");
     }
 
     void MainMenu::getInfosAboutTheCurrentMod()
