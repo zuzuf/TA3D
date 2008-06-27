@@ -12,9 +12,7 @@ namespace TA3D
 
     void INGAME_WEAPONS::set_data(MAP* map)
     {
-        pMutex.lock();
         p_map = map;
-        pMutex.unlock();
     }
 
     void INGAME_WEAPONS::init(bool real)
