@@ -285,7 +285,7 @@ int play(GameData *game_data)
     loading(100.0f,TRANSLATE("Load finished"));
 
     start_time = msec_timer-start_time;
-    printf("loading time: %f sec.\n",(float)start_time * 0.001f);
+    LOG_INFO("Loading time: " << (float)start_time * 0.001f << " sec.");
 
     float Conv=0.001f;
     float dt=0.0f;
@@ -3427,9 +3427,9 @@ int play(GameData *game_data)
     gfx->destroy_texture( arrow_texture );
     gfx->destroy_texture( circle_texture );
 
-    printf("nombre de models chargés: %d \n",model_manager.nb_models);
-    printf("nombre d'unités chargées: %d \n",unit_manager.nb_unit);
-    printf("nombre de textures chargées: %d \n",texture_manager.nbtex);
+    LOG_INFO("Total Models: " << model_manager.nb_models);
+    LOG_INFO("Total Units: " << unit_manager.nb_unit);
+    LOG_INFO("Total Textures: " << texture_manager.nbtex);
 
     switch(exit_mode)
     {
