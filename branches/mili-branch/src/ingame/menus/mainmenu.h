@@ -34,13 +34,11 @@ namespace Menus
         virtual bool doInitialize();
         virtual bool doExecute();
         virtual void doFinalize();
+        virtual void waitForEvent();
+        virtual bool maySwitchToAnotherMenu();
+
 
     private:
-        /*!
-        ** \brief Wait for an user event (mouse, keyboard...)
-        */
-        void waitForEvent();
-
         /*!
         ** \brief Reset the screen and OpenGL settings
         */
@@ -49,7 +47,7 @@ namespace Menus
         /*!
         ** \brief Redraw the entire screen for the main menu
         */
-        void redrawTheScreen();
+        virtual void redrawTheScreen();
 
         /*!
         ** \brief Grab informations about the current mod
@@ -57,26 +55,20 @@ namespace Menus
         void getInfosAboutTheCurrentMod();
 
         /*!
-        ** \brief Execute another menu according the user inputs
-        ** \return True if the execution should be aborted, false otherwise
-        */
-        bool maySwitchToAnotherMenu();
-
-        /*!
         ** \brief Go to the option menu
-        ** \return Always false
+        ** \return Always equals to false
         */
         bool goToMenuOptions();
 
         /*!
         ** \brief Go to the multiplayer menu
-        ** \return Always false
+        ** \return Always equals to false
         */
         bool goToMenuMultiPlayers();
 
         /*! 
         ** \brief Go to the solo menu
-        ** \return Always false
+        ** \return Always equals to false
         */
         bool goToMenuSolo();
 

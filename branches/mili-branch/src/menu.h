@@ -24,7 +24,6 @@
 #ifndef MODULE_MENU
 #define MODULE_MENU
 
-void solo_menu(void);
 
 char *select_map(String *def_choice = NULL);
 

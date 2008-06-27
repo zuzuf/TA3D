@@ -36,6 +36,8 @@ namespace Menus
         pMouseB = -1;
         cursor_type = CURSOR_DEFAULT;
         reset_keyboard();
+        reset_mouse();
+        clear_keybuf();
         bool r = doInitialize();
         GuardLeave();
         return r;
@@ -52,9 +54,60 @@ namespace Menus
     void Abstract::doGuardFinalize()
     {
         GuardEnter(pTypeName + ".doFinalize()");
+        if (pArea->background == gfx->glfond)
+            pArea->background = 0;
         doFinalize();
+        reset_keyboard();
+        clear_keybuf();
+        reset_mouse();
         GuardLeave();
     }
+
+    void Abstract::loadAreaFromTDF(const String& caption, const String& relFilename)
+    {
+        pArea.reset(new AREA(caption));
+        pArea->load_tdf(relFilename);
+        if (!pArea->background)
+            pArea->background = gfx->glfond;
+    }
+        
+    
+    bool Abstract::doLoop()
+    {
+        // Wait for an event (mouse, keyboard...)
+        waitForEvent();
+
+        // Reset the last cached values for the mouse
+        pMouseX = mouse_x;
+        pMouseY = mouse_y;
+        pMouseZ = mouse_z;
+        pMouseB = mouse_b;
+
+        // Manage event
+        bool done = maySwitchToAnotherMenu();
+
+        // Redraw the screen
+        redrawTheScreen();
+
+        return done;
+    }
+
+    bool Abstract::doExecute()
+    {
+        while (!doLoop())
+            ;
+        return true;
+    }
+
+    void Abstract::redrawTheScreen()
+    {
+        pArea->draw();
+        glEnable(GL_TEXTURE_2D);
+        gfx->set_color(0xFFFFFFFF);
+        draw_cursor();
+        gfx->flip();
+    }
+
 
 } // namespace Menus
 } // namespace TA3D

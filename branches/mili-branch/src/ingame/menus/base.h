@@ -60,7 +60,7 @@ namespace Menus
         ** \warning This method will not be called if doInitialize() has previously returned false
         ** \see doInitialize()
         */
-        virtual bool doExecute() = 0;
+        virtual bool doExecute();
 
         /*!
         ** \brief Release all internal variables
@@ -70,6 +70,36 @@ namespace Menus
         ** \see doInitialize()
         */
         virtual void doFinalize() = 0;
+
+        /*!
+        ** \brief Wait for an user event (mouse, keyboard...)
+        */
+        virtual void waitForEvent() = 0;
+
+        /*!
+        ** \brief Init the area	with a given TDF filename
+        **
+        ** \see AREA::load_tdf()
+        ** \see pArea
+        */
+        void loadAreaFromTDF(const String& caption, const String& relFilename);
+
+        /*!
+        ** \brief Execute another menu according the user inputs
+        ** \return True if the execution should be aborted, false otherwise
+        */
+        virtual bool maySwitchToAnotherMenu() = 0;
+
+        /*!
+        ** \brief Redraw the entire screen using the Area
+        ** \see pArea
+        */
+        virtual void redrawTheScreen();
+
+        /*!
+        **
+        */
+        virtual bool doLoop();
 
     protected:
         //! Our Window handle

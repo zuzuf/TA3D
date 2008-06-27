@@ -3,6 +3,8 @@
 #include "../../gfx/gfx.h"
 #include "../../logs/logs.h"
 #include "../../ta3dbase.h"
+#include "solo.h"
+
 
 // TODO Must be removed
 #include "../../menu.h"
@@ -44,10 +46,7 @@ namespace Menus
         gfx->SCREEN_H_TO_480 = 1.0f;
 
         // Loading the area
-        pArea.reset(new AREA("main"));
-        pArea->load_tdf("gui/main.area");
-        if (!pArea->background)
-            pArea->background = gfx->glfond;
+        loadAreaFromTDF("main", "gui/main.area");
 
         // Current mod
         getInfosAboutTheCurrentMod();
@@ -62,37 +61,23 @@ namespace Menus
 
     bool MainMenu::doExecute()
     {
-        bool done = false;
-        do
-        {
-            waitForEvent();
-
-            pMouseX = mouse_x;
-            pMouseY = mouse_y;
-            pMouseZ = mouse_z;
-            pMouseB = mouse_b;
-
-            // Reset the caption
-            pArea->set_caption("main.t_version", TA3D_ENGINE_VERSION );
-            pArea->set_caption("main.t_mod", pCurrentModCaption);
-
-
-            // If ESC, directly stop
-            done = (key[KEY_ESC] || maySwitchToAnotherMenu());
-
-            // Redrw the screen
-            redrawTheScreen();
-
-        } while(!done && !lp_CONFIG->quickrestart);
-
+        while(!doLoop() && !lp_CONFIG->quickrestart)
+            ;
         return true;
+    }
+
+    void MainMenu::redrawTheScreen()
+    {
+        // Reset the caption
+        pArea->set_caption("main.t_version", TA3D_ENGINE_VERSION );
+        pArea->set_caption("main.t_mod", pCurrentModCaption);
+
+        Abstract::redrawTheScreen();
     }
 
 
     void MainMenu::doFinalize()
     {
-        if (pArea->background == gfx->glfond)
-            pArea->background = 0;
         gfx->set_2D_mode();
     }
 
@@ -170,7 +155,7 @@ namespace Menus
     {
 
         glPushMatrix();
-        solo_menu();
+        Menus::Solo::Execute();
         glPopMatrix();
         resetScreen();
         return false;
@@ -197,15 +182,6 @@ namespace Menus
 
         // Should wait the an event the next time
         pDontWaitForEvent = false;
-    }
-
-    void MainMenu::redrawTheScreen()
-    {
-        pArea->draw();
-        glEnable(GL_TEXTURE_2D);
-        gfx->set_color(0xFFFFFFFF);
-        draw_cursor();
-        gfx->flip();
     }
 
 
