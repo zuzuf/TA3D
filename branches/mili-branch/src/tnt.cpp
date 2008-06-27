@@ -611,9 +611,15 @@ namespace TA3D
 
     GLuint load_tnt_minimap_fast(const String& filename, int& sw,int& sh)		// Charge une minimap d'une carte contenue dans une archive HPI/UFO
     {
-        byte *data=HPIManager->PullFromHPI_zone(filename,0,64,NULL);
+        byte* data=HPIManager->PullFromHPI_zone(filename,0,64,NULL);
 
-        if(data==NULL)	return 0;
+        if (!data)
+        {
+            LOG_ERROR("No information about the TNT file : `" << filename << "`");
+            sw = 0;
+            sh = 0;
+            return 0;
+        }
 
         TNTHEADER	header;		// Structure pour l'en-tête du fichier
 
