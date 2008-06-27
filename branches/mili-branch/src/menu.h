@@ -25,8 +25,6 @@
 #define MODULE_MENU
 
 
-char *select_map(String *def_choice = NULL);
-
 void config_menu(void);
 
 void stats_menu(void);

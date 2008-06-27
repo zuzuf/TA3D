@@ -42,6 +42,8 @@
 #include "misc/paths.h"
 #include "logs/logs.h"
 #include "ingame/gamedata.h"
+#include "ingame/menus/mapselector.h"
+
 
 
 namespace TA3D
@@ -64,229 +66,6 @@ void ReadFileParameter();
 
 
 
-uint32 GetMultiPlayerMapList(std::list<std::string>& li)
-{
-    std::list<String> map_list;
-    uint32 n = HPIManager->getFilelist("maps\\*.tnt", map_list);
-    if( n < 1 )
-        return 0;
-
-    uint32 count = 0;
-
-    std::list<String>::iterator i_map;
-    for (i_map = map_list.begin(); i_map != map_list.end(); ++i_map)
-    {
-        *i_map = i_map->substr(5,i_map->length()-9);
-
-        bool isNetworkGame(false);
-
-        uint32 ota_size=0;
-        byte *data = HPIManager->PullFromHPI( String( "maps\\" ) + *i_map + String( ".ota" ), &ota_size);
-        if(data)
-        {
-            MAP_OTA	map_data;	// Using MAP_OTA because it's faster than cTAFileParser that fills a hash_table object
-            map_data.load((char*)data, ota_size);
-            isNetworkGame = map_data.network;
-            free(data);
-            map_data.destroy();
-        }
-
-        if (isNetworkGame)
-        {
-            li.push_back(*i_map);
-            ++count;
-        }
-    }
-    li.sort();
-    return count;
-} 
-
-char *select_map(String *def_choice)		// Cette fonction affiche un menu permettant à l'utilisateur de choisir une carte dans une liste et de la prévisualiser à l'écran
-{
-    cursor_type=CURSOR_DEFAULT;
-
-    reset_keyboard();
-    while(key[KEY_ESC])	rest(1);
-
-    AREA mapsetup_area("map setup");
-    mapsetup_area.load_tdf("gui/mapsetup.area");
-    if( !mapsetup_area.background )	mapsetup_area.background = gfx->glfond;
-
-    List< String > map_list;
-    uint32 n = GetMultiPlayerMapList(map_list);
-    List< String >::iterator i_map;
-
-    if (map_list.empty())
-    {
-        Popup(TRANSLATE("Error"),TRANSLATE("No maps found"));
-        Console->AddEntry("no maps found!!");
-        reset_mouse();
-        return NULL;
-    }
-
-    char *choice=NULL;
-
-    GLuint mini = 0;
-    int dx = 0;
-    int dy = 0;
-    float ldx = dx*70.0f/252.0f;
-    float ldy = dy*70.0f/252.0f;
-
-
-    GUIOBJ *minimap_obj = mapsetup_area.get_object( "mapsetup.minimap" );
-    float mini_map_x1 = 0.0f;
-    float mini_map_y1 = 0.0f;
-    float mini_map_x2 = 0.0f;
-    float mini_map_y2 = 0.0f;
-    float mini_map_x = 0.0f;
-    float mini_map_y = 0.0f;
-    if( minimap_obj )
-    {
-        mini_map_x1 = minimap_obj->x1;
-        mini_map_y1 = minimap_obj->y1;
-        mini_map_x2 = minimap_obj->x2;
-        mini_map_y2 = minimap_obj->y2;
-        ldx = dx * ( mini_map_x2 - mini_map_x1 ) / 504.0f;
-        ldy = dy * ( mini_map_y2 - mini_map_y1 ) / 504.0f;
-
-        mini_map_x = (mini_map_x1 + mini_map_x2) * 0.5f;
-        mini_map_y = (mini_map_y1 + mini_map_y2) * 0.5f;
-
-        minimap_obj->Data = 0;
-        minimap_obj->x1 = mini_map_x - ldx;
-        minimap_obj->y1 = mini_map_y - ldy;
-        minimap_obj->x2 = mini_map_x + ldx;
-        minimap_obj->y2 = mini_map_y + ldy;
-        minimap_obj->u2 = dx / 252.0f;
-        minimap_obj->v2 = dy / 252.0f;
-    }
-
-    MAP_OTA	map_data;
-    int sel_index = -1;
-    int o_sel = -1;
-
-    if( def_choice )
-    {
-        *def_choice = def_choice->substr(5,def_choice->length()-9);
-        int i = 0;
-        GUIOBJ *gui_map_list = mapsetup_area.get_object("mapsetup.map_list");
-        if( gui_map_list )
-            gui_map_list->Text.resize( map_list.size() );
-        for( i_map = map_list.begin() ; i_map != map_list.end() ; i_map++, i++ )
-        {
-            if( gui_map_list )
-                gui_map_list->Text[ i ] = *i_map;
-            if( *i_map == *def_choice && gui_map_list ) {
-                gui_map_list->Pos = i;
-                gui_map_list->Data = i;			// Make it visible
-                sel_index = i;
-            }
-        }
-    }
-
-    bool done=false;
-
-    int amx = -1;
-    int amy = -1;
-    int amz = -1;
-    int amb = -1;
-
-    do
-    {
-        bool key_is_pressed = false;
-        do {
-            key_is_pressed = keypressed();
-            mapsetup_area.check();
-            rest( 1 );
-        } while( amx == mouse_x && amy == mouse_y && amz == mouse_z && amb == mouse_b && mouse_b == 0 && !key[ KEY_ENTER ] && !key[ KEY_ESC ] && !done && !key_is_pressed && !mapsetup_area.scrolling );
-
-        amx = mouse_x;
-        amy = mouse_y;
-        amz = mouse_z;
-        amb = mouse_b;
-
-        if( mapsetup_area.get_state( "mapsetup.b_ok" ) || key[KEY_ENTER] ) {
-            while( key[KEY_ENTER] )	{	rest( 20 );	poll_keyboard();	}
-            clear_keybuf();
-            done=true;		// If user click "OK" or hit enter then leave the window
-        }
-
-        if( mapsetup_area.get_state( "mapsetup.b_cancel" ) || key[KEY_ESC] ) {
-            while( key[KEY_ESC] )	{	rest( 20 );	poll_keyboard();	}
-            clear_keybuf();
-            done=true;		// If user click "Cancel" or hit ESC then leave the screen returning NULL
-            if( choice )	free( choice );
-            choice = NULL;
-        }
-
-        if( mapsetup_area.get_object("mapsetup.map_list") )
-            sel_index = mapsetup_area.get_object("mapsetup.map_list")->Pos;
-
-        if( sel_index != o_sel && sel_index >= 0)
-        {
-            o_sel = sel_index;
-            gfx->destroy_texture( mini );
-            i_map = map_list.begin();
-            for( int i = 0 ; i < sel_index && i_map != map_list.end() ; i++)	i_map++;
-            String tmp = String("maps\\") + *i_map + String(".tnt");
-            mini = load_tnt_minimap_fast((char*)tmp.c_str(),dx,dy);
-            if( choice )	free( choice );		// Don't forget to free memory
-            choice = strdup(tmp.c_str());													// Copy the map name
-            tmp = String("maps\\") + *i_map + String(".ota");								// Read the ota file
-            uint32 ota_size = 0;
-            byte *data = HPIManager->PullFromHPI(tmp,&ota_size);
-            if(data)
-            {
-                map_data.load((char*)data,ota_size);
-                free(data);
-            }
-            else
-                map_data.destroy();
-            if( minimap_obj ) // Update the minimap on GUI
-            {
-                gfx->destroy_texture( minimap_obj->Data );			// Make things clean
-                minimap_obj->Data = mini;
-                mini = 0;
-                ldx = dx * ( mini_map_x2 - mini_map_x1 ) / 504.0f;
-                ldy = dy * ( mini_map_y2 - mini_map_y1 ) / 504.0f;
-                minimap_obj->x1 = mini_map_x-ldx;
-                minimap_obj->y1 = mini_map_y-ldy;
-                minimap_obj->x2 = mini_map_x+ldx;
-                minimap_obj->y2 = mini_map_y+ldy;
-                minimap_obj->u2 = dx/252.0f;
-                minimap_obj->v2 = dy/252.0f;
-            }
-
-            String map_info = "";
-            if(map_data.missionname)
-                map_info += String( map_data.missionname ) + "\n";
-            if(map_data.numplayers)
-                map_info += "\n" + TRANSLATE("players: ") + String( map_data.numplayers ) + "\n";
-            if(map_data.missiondescription)
-                map_info += String( "\n" ) + map_data.missiondescription;
-            mapsetup_area.set_caption("mapsetup.map_info", map_info );
-        }
-
-        mapsetup_area.draw();
-
-        glEnable(GL_TEXTURE_2D);
-        gfx->set_color(0xFFFFFFFF);
-        draw_cursor();
-
-        // Affiche
-        gfx->flip();
-    }while(!done);
-
-    if( mapsetup_area.background == gfx->glfond )	mapsetup_area.background = 0;
-    mapsetup_area.destroy();
-
-    gfx->destroy_texture( mini );
-
-    reset_mouse();
-    while(key[KEY_ESC]) {	rest(1);	poll_keyboard();	}
-
-    return choice;
-}
 
 void config_menu(void)
 {
@@ -1631,8 +1410,9 @@ void setup_game(bool client, const char *host)
             char *new_map;
             if( !client )
             {
-                map_filename = game_data.map_filename;
-                new_map = select_map( &map_filename );
+                String newMapName;
+                Menus::MapSelector::Execute(game_data.map_filename, newMapName);
+                new_map = strdup(newMapName.c_str());
                 for( int i = 0 ; i < 10 ; i++ )
                     player_timer[ i ] = msec_timer;
             }
