@@ -1826,7 +1826,7 @@ namespace TA3D
         sky_list.clear();
 
         List<String> file_list;
-        HPIManager->GetFilelist( "sky\\*.tdf", &file_list );
+        HPIManager->getFilelist( "sky\\*.tdf",  file_list);
         uint32	nb_sky = 0;
 
         for (List<String>::const_iterator it = file_list.begin(); it != file_list.end(); ++it)

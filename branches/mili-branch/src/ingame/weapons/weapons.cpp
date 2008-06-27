@@ -39,7 +39,7 @@ namespace TA3D
     void load_weapons(void (*progress)(float percent,const String &msg))				// Charge toutes les armes
     {
         List<String> file_list;
-        HPIManager->GetFilelist(ta3dSideData.weapon_dir + "*.tdf", &file_list);
+        HPIManager->getFilelist(ta3dSideData.weapon_dir + "*.tdf", file_list);
 
         int n = 0;
 

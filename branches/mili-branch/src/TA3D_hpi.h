@@ -33,6 +33,8 @@
 #ifndef __TA3D_UTILS_HPI_H__
 # define __TA3D_UTILS_HPI_H__
 
+# include <list>
+# include <vector>
 # include "misc/hash_table.h"
 
 
@@ -146,7 +148,8 @@ namespace HPI
             SearchDirForArchives( Path );
         }
 
-        uint32 GetFilelist( const std::string &Search, std::list<std::string> *li );
+        uint32 getFilelist(const String& s, std::list<String>& li);
+        uint32 getFilelist(const String& s, std::vector<String>& li);
 
         // DeConstructor
         ~cHPIHandler();

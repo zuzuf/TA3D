@@ -495,8 +495,10 @@ cHPIHandler::~cHPIHandler()
         delete m_Archive;
     m_Archive = NULL;
 
-    if( m_file_cache ) {
-        for( int i = 0 ; i < m_file_cache->size() ; i++ ) {
+    if( m_file_cache )
+    {
+        for(unsigned int i = 0 ; i < m_file_cache->size() ; ++i)
+        {
             free( (*m_file_cache)[ i ].name );
             free( (*m_file_cache)[ i ].data );
         }
@@ -832,46 +834,58 @@ cHPIHandler::Exists( const std::string &FileName )
 
 
 
-uint32 cHPIHandler::GetFilelist( const std::string &Search, std::list<std::string> *li )
+uint32 cHPIHandler::getFilelist(const String& s, std::vector<String>& li)
 {
-    uint32 list_size = m_Archive->WildCardSearch( Search, li );
+    std::list<String> l;
+    uint32 r = getFilelist(s, l);
+    for (std::list<String>::const_iterator i = l.begin(); i != l.end(); ++i)
+        li.push_back(*i);
+    return r;
+}
+
+
+uint32 cHPIHandler::getFilelist(const String& s, std::list<String>& li)
+{
+    uint32 list_size = m_Archive->WildCardSearch(s, &li);
     al_ffblk info;
 
-    String UNIX_search = m_Path + Search;
-    for( uint16 i = 0 ; i < UNIX_search.size() ; i++ )
+    String UNIX_search = m_Path + s;
+    for (uint16 i = 0 ; i < UNIX_search.size() ; ++i)
+    {
         if( UNIX_search[i] == '\\' )
             UNIX_search[i] = '/';
+    }
 
     if (al_findfirst(UNIX_search.c_str(), &info, FA_RDONLY | FA_ARCH ) == 0)
     {
         int last = -1;
-        for( uint16 i = 0 ; i < UNIX_search.size() ; i++ )
+        for( uint16 i = 0 ; i < UNIX_search.size() ; ++i)
         {
-            if( UNIX_search[i] == '/' )
+            if (UNIX_search[i] == '/')
             {
                 UNIX_search[i] = '\\';
                 last = i;
             }
         }
-        if( last >= 0 )
-            UNIX_search.resize( last + 1 );
+        if (last >= 0)
+            UNIX_search.resize(last + 1);
         else
             UNIX_search = "";
 
         do {
-            li->push_back( UNIX_search + info.name );
+            li.push_back( UNIX_search + info.name );
         } while (al_findnext(&info) == 0);
 
         al_findclose(&info);
 
-        li->sort();
-        li->unique();
-        list_size = li->size();
+        li.sort();
+        li.unique();
+        list_size = li.size();
     }
 
-    if( TA3D_CURRENT_MOD != "" )
+    if (TA3D_CURRENT_MOD != "")
     {
-        UNIX_search = m_Path + TA3D_CURRENT_MOD + Search;
+        UNIX_search = m_Path + TA3D_CURRENT_MOD + s;
         for( uint16 i = 0 ; i < UNIX_search.size() ; i++ )
         {
             if( UNIX_search[i] == '\\' )
@@ -881,7 +895,7 @@ uint32 cHPIHandler::GetFilelist( const std::string &Search, std::list<std::strin
         if (al_findfirst( UNIX_search.c_str(), &info, FA_RDONLY | FA_ARCH ) == 0)
         {
             int last = -1;
-            for( uint16 i = 0 ; i < UNIX_search.size() ; i++ )
+            for( uint16 i = 0 ; i < UNIX_search.size() ; ++i)
             {
                 if( UNIX_search[i] == '/' )
                 {
@@ -889,20 +903,20 @@ uint32 cHPIHandler::GetFilelist( const std::string &Search, std::list<std::strin
                     last = i;
                 }
             }
-            if( last >= 0 )
-                UNIX_search.resize( last + 1 );
+            if (last >= 0)
+                UNIX_search.resize(last + 1);
             else
                 UNIX_search = "";
 
             do {
-                li->push_back( UNIX_search + info.name );
+                li.push_back (UNIX_search + info.name);
             } while (al_findnext(&info) == 0);
 
             al_findclose(&info);
 
-            li->sort();
-            li->unique();
-            list_size = li->size();
+            li.sort();
+            li.unique();
+            list_size = li.size();
         }
     }
 

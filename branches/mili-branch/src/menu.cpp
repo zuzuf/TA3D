@@ -67,7 +67,7 @@ void ReadFileParameter();
 uint32 GetMultiPlayerMapList(std::list<std::string>& li)
 {
     std::list<String> map_list;
-    uint32 n = HPIManager->GetFilelist("maps\\*.tnt", &map_list);
+    uint32 n = HPIManager->getFilelist("maps\\*.tnt", map_list);
     if( n < 1 )
         return 0;
 
@@ -457,7 +457,7 @@ void config_menu(void)
         obj->Text[ 0 ] = TRANSLATE( "default.skn" );
 
         List<String> skin_list;
-        uint32 n = HPIManager->GetFilelist("gui\\*.skn",&skin_list);
+        uint32 n = HPIManager->getFilelist("gui\\*.skn", skin_list);
 
         for( List< String >::iterator i = skin_list.begin() ; i != skin_list.end() ; i++ )
         {
@@ -883,7 +883,7 @@ void setup_game(bool client, const char *host)
         game_data.map_filename = strdup( lp_CONFIG->last_map.c_str() );
     else {
         List<String> map_list;
-        uint32 n = HPIManager->GetFilelist("maps\\*.tnt",&map_list);
+        uint32 n = HPIManager->getFilelist("maps\\*.tnt", map_list);
 
         if( n == 0 ) {
             network_manager.Disconnect();
@@ -900,7 +900,7 @@ void setup_game(bool client, const char *host)
         game_data.game_script = strdup( lp_CONFIG->last_script.c_str() );
     else {
         List<String> script_list;
-        uint32 n = HPIManager->GetFilelist("scripts\\*.lua",&script_list);
+        uint32 n = HPIManager->getFilelist("scripts\\*.lua", script_list);
 
         if( n == 0 ) {
             network_manager.Disconnect();
@@ -990,7 +990,7 @@ void setup_game(bool client, const char *host)
     GUIOBJ *guiobj = setupgame_area.get_object( "scripts.script_list" );
     if( guiobj ) {
         std::list< String > script_list;
-        HPIManager->GetFilelist("scripts\\*.lua",&script_list);
+        HPIManager->getFilelist("scripts\\*.lua", script_list);
         for(std::list< String >::iterator i_script = script_list.begin() ; i_script != script_list.end() ; i_script++ )
             guiobj->Text.push_back( *i_script );
     }
@@ -2044,7 +2044,7 @@ void campaign_main_menu(void)
         campaign_area.background = gfx->glfond;
 
     std::list<String> campaign_list;
-    HPIManager->GetFilelist("camps\\*.tdf",&campaign_list);
+    HPIManager->getFilelist("camps\\*.tdf", campaign_list);
     for(std::list< String >::iterator i = campaign_list.begin() ; i != campaign_list.end() ; )		// Removes sub directories entries
     {
         if (SearchString(i->substr(6, i->size() - 6), "/", true) != -1 || SearchString(i->substr(6, i->size() - 6), "\\", true ) != -1)

@@ -774,7 +774,7 @@ void UNIT_MANAGER::load_panel_texture( const String &player_side, const String &
     GLuint panel_tex = read_gaf_img( "anims\\" + player_side + "main.gaf", gaf_img, &w, &h, true );
     if( panel_tex == 0 ) {
         List< String >	file_list;
-        HPIManager->GetFilelist( "anims\\*.gaf", &file_list );
+        HPIManager->getFilelist( "anims\\*.gaf", file_list);
         for( List< String >::iterator i = file_list.begin() ; i != file_list.end() && panel_tex == 0 ; i++ )
             panel_tex = read_gaf_img( *i, gaf_img, &w, &h, true );
     }
@@ -915,7 +915,7 @@ int load_all_units(void (*progress)(float percent,const String &msg))
     unit_manager.init();
     int nb_inconnu=0;
     List<String> file_list;
-    HPIManager->GetFilelist( ta3dSideData.unit_dir + "*" + ta3dSideData.unit_ext,&file_list);
+    HPIManager->getFilelist( ta3dSideData.unit_dir + "*" + ta3dSideData.unit_ext, file_list);
 
     int n = 0;
 

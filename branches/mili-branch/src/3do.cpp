@@ -1920,7 +1920,7 @@ hit_fast_is_exploding:
     int MODEL_MANAGER::load_all(void (*progress)(float percent,const String &msg))
     {
         List<String> file_list;
-        sint32 new_nb_models = HPIManager->GetFilelist( ta3dSideData.model_dir + "*.3dm",&file_list);
+        sint32 new_nb_models = HPIManager->getFilelist( ta3dSideData.model_dir + "*.3dm", file_list);
 
         if(new_nb_models > 0)
         {
@@ -1974,7 +1974,7 @@ hit_fast_is_exploding:
         }
 
         file_list.clear();
-        new_nb_models = HPIManager->GetFilelist(ta3dSideData.model_dir + "*.3do", &file_list);
+        new_nb_models = HPIManager->getFilelist(ta3dSideData.model_dir + "*.3do", file_list);
 
         if(new_nb_models > 0)
         {

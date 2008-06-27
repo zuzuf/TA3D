@@ -72,7 +72,7 @@ static bool hpiviewCmdShow(int argc, char** argv)
         HPIManager = new cHPIHandler("");
         List<String> file_list;
         String ext = (argc > 2) ? argv[2] : "";
-        HPIManager->GetFilelist(ext, &file_list);
+        HPIManager->getFilelist(ext, file_list);
         file_list.sort();
         for(List<String>::iterator cur_file=file_list.begin();cur_file!=file_list.end(); ++cur_file)
             std::cout << cur_file->c_str() << std::endl;
@@ -235,7 +235,7 @@ static bool hpiviewCmdPrint(int argc, char** argv)
         HPIManager = new cHPIHandler("");
         List<String> file_list;
         String ext = argc > 2 ? argv[2] : "";
-        HPIManager->GetFilelist(ext,&file_list);
+        HPIManager->getFilelist(ext, file_list);
         file_list.sort();
 
         for(List<String>::iterator cur_file = file_list.begin(); cur_file != file_list.end(); ++cur_file)

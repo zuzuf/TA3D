@@ -651,7 +651,7 @@ public:
     {
         uint32 file_size=0;
         List<String> file_list;
-        HPIManager->GetFilelist( ta3dSideData.download_dir + "*.tdf",&file_list);
+        HPIManager->getFilelist( ta3dSideData.download_dir + "*.tdf", file_list);
 
         for(List<String>::iterator file=file_list.begin();file!=file_list.end();file++) // Cherche un fichier pouvant contenir des informations sur l'unité unit_name
         {
@@ -686,7 +686,7 @@ public:
 
         uint32 file_size;
         List<String> file_list;
-        uint32 nb_file = HPIManager->GetFilelist( ta3dSideData.guis_dir + "*.gui",&file_list);
+        uint32 nb_file = HPIManager->getFilelist( ta3dSideData.guis_dir + "*.gui", file_list);
 
         for(List<String>::iterator file=file_list.begin();file!=file_list.end();file++) // Cherche un fichier pouvant contenir des informations sur l'unité unit_name
         {
@@ -713,7 +713,7 @@ public:
         strupr(uprname);
 
         List<String> file_list;
-        HPIManager->GetFilelist( format( "scripts\\%s.cob", unit_name ), &file_list);
+        HPIManager->getFilelist( format( "scripts\\%s.cob", unit_name ), file_list);
 
         for(List<String>::iterator file=file_list.begin();file!=file_list.end();file++) {		// Cherche un fichier pouvant contenir des informations sur l'unité unit_name
             if(strstr(TA3D::Uppercase(*file).c_str(),uprname)) {			// A trouvé un fichier qui convient

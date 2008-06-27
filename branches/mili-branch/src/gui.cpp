@@ -1344,7 +1344,7 @@ void WND::load_gui( const String &filename, cHashTable< Vector< TA3D::Interfaces
         if (background == 0)
         {
             List< String >	file_list;
-            HPIManager->GetFilelist( "anims\\*.gaf", &file_list );
+            HPIManager->getFilelist( "anims\\*.gaf", file_list);
             for( List< String >::iterator i = file_list.begin() ; i != file_list.end() && background == 0 ; i++ )
                 background = read_gaf_img( *i, panel, &w, &h, true );
         }
@@ -1407,7 +1407,7 @@ void WND::load_gui( const String &filename, cHashTable< Vector< TA3D::Interfaces
                 if(!gaf_imgs.size())
                 {
                     List< String >	file_list;
-                    HPIManager->GetFilelist( "anims\\*.gaf", &file_list );
+                    HPIManager->getFilelist( "anims\\*.gaf", file_list);
                     for( List< String >::iterator e = file_list.begin() ; e != file_list.end() && gaf_imgs.size() == 0 ; ++e)
                         gaf_imgs = read_gaf_imgs( *e, Objets[i].Name, t_w, t_h );
                     if(gaf_imgs.size() > 0)
