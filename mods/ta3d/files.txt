@@ -1,4 +1,3 @@
-
 anims/acidmetal.gaf
 anims/acidplant.gaf
 anims/acidvents.gaf
@@ -447,7 +446,6 @@ gamedata/moveinfo.tdf
 gamedata/sidedata.tdf
 gamedata/sound.tdf
 gamedata/translate.tdf
-gui/playerstats.tdf
 guis/armaap1.gui
 guis/armaca1.gui
 guis/armaca2.gui
@@ -497,7 +495,6 @@ guis/armplat1.gui
 guis/armsilo1.gui
 guis/armsy1.gui
 guis/armvp1.gui
-gui/save_menu.tdf
 guis/coraap1.gui
 guis/coraca1.gui
 guis/coraca2.gui
@@ -547,10 +544,6 @@ guis/corsilo1.gui
 guis/corsy1.gui
 guis/cortron1.gui
 guis/corvp1.gui
-gui/solo.area
-gui/solo.tdf
-gui/statistics.area
-gui/statistics.tdf
 objects3d/1x1a.3do
 objects3d/1x1b.3do
 objects3d/1x1c.3do
@@ -1435,14 +1428,6 @@ scripts/corvrad.cob
 scripts/corvroc.cob
 scripts/corwin.cob
 scripts/signals.h
-sky/day-sky2.tdf
-sky/day-sky.tdf
-sky/galaxy.tdf
-sky/hubble.tdf
-sky/milkyway.tdf
-sky/nebulae.tdf
-sky/sky-night2.tdf
-sky/sky-night.tdf
 sounds/1.wav
 sounds/annigun1.wav
 sounds/armsml2.wav
