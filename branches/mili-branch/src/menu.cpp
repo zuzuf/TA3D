@@ -277,7 +277,7 @@ void config_menu(void)
                 GUIOBJ *pbar = config_area.get_object( "config_confirm.p_wait" );
                 if( pbar )
                 {
-                    int new_value = (msec_timer - timer) / 50;
+                    unsigned int new_value = (msec_timer - timer) / 50;
                     if( new_value != pbar->Data )
                     {
                         pbar->Data = new_value;
@@ -355,7 +355,8 @@ void config_menu(void)
         lp_CONFIG->showfps = config_area.get_state( "*.showfps" );
         if( config_area.get_value( "*.fps_limit" ) >= 0 ) {
             GUIOBJ *obj = config_area.get_object( "*.fps_limit" );
-            if( obj && obj->Data != -1 ) {
+            if (obj && obj->Data != uint32(-1))
+            {
                 obj->Text[0] = fps_limits[ obj->Value ];
                 switch( obj->Value )
                 {
@@ -541,7 +542,8 @@ void stats_menu(void)
     statistics_area.load_tdf("gui/statistics.area");
     if( !statistics_area.background )	statistics_area.background = gfx->glfond;
 
-    for( int i = 0 ; i < players.nb_player ; i++ ) {
+    for (unsigned int i = 0 ; i < players.nb_player ; ++i)
+    {
         GUIOBJ *obj;
         uint32 color = gfx->makeintcol( player_color[ 3 * player_color_map[ i ] ], player_color[ 3 * player_color_map[ i ] + 1 ], player_color[ 3 * player_color_map[ i ] + 2 ] );
 
@@ -1858,7 +1860,7 @@ void campaign_main_menu(void)
     int amy = -1;
     int amz = -1;
     int amb = -1;
-    int last_campaign_id = -1;
+    uint32 last_campaign_id = uint32(-1);
     String	campaign_name = "";
     int mission_id = -1;
     int nb_mission = 0;
@@ -2055,11 +2057,12 @@ int brief_screen(String campaign_name, int mission_id)
 
     int schema = 0;
 
-    if( brief_area.get_object( "brief.schema" ) ) {
+    if( brief_area.get_object( "brief.schema" ) )
+    {
         GUIOBJ *obj = brief_area.get_object( "brief.schema" );
         obj->Text.clear();
         obj->Text.resize( ota_parser.PullAsInt( "GlobalHeader.SCHEMACOUNT" ) + 1 );
-        for( int i = 0 ; i < obj->Text.size() - 1 ; i++ )
+        for(unsigned int i = 0 ; i < obj->Text.size() - 1 ; ++i)
             obj->Text[ i + 1 ] = TRANSLATE( ota_parser.PullAsString( format( "GlobalHeader.Schema %d.Type", i ) ) );
         if( obj->Text.size() > 1 )
             obj->Text[ 0 ] = obj->Text[ 1 ];
