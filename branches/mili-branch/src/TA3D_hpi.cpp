@@ -542,7 +542,7 @@ void cHPIHandler::PutInCache( const String &FileName, uint32 FileSize, byte *dat
 
     String cacheable_filename = Lowercase( FileName );
 
-    for( int i = 0 ; i < cacheable_filename.size() ; i++ )
+    for(unsigned int i = 0 ; i < cacheable_filename.size() ; ++i)
     {
         if( cacheable_filename[ i ] == '/' )
             cacheable_filename[ i ] = 'S';
@@ -559,7 +559,7 @@ void cHPIHandler::PutInCache( const String &FileName, uint32 FileSize, byte *dat
     if( FileSize >= 0x100000 )	// Don't store big files to prevent filling memory with cache data ;)
         return;
 
-    int idx = m_file_cache->size();
+    unsigned int idx = m_file_cache->size();
 
     if( m_file_cache->size() >= 10 ) // Cycle the data within the vector
     {
@@ -623,14 +623,14 @@ TA3D::UTILS::HPI::cHPIHandler::CACHEFILEDATA *cHPIHandler::IsInCache( const Stri
         return NULL;
 
     String key = Lowercase( FileName );
-    for( int i = 0 ; i < m_file_cache->size() ; i++ )			// Check RAM Cache
+    for (unsigned int i = 0 ; i < m_file_cache->size() ; ++i) // Check RAM Cache
     {
         if( (*m_file_cache)[ i ].name == key )
         {
             if( i < m_file_cache->size() - 1 )
             {
-                CACHEFILEDATA tmp = (*m_file_cache)[ i ];					// Keep the last file at the end of the vector
-                for( int e = i ; e < m_file_cache->size() - 1 ; e++ )
+                CACHEFILEDATA tmp = (*m_file_cache)[i]; // Keep the last file at the end of the vector
+                for (unsigned int e = i ; e < m_file_cache->size() - 1 ; ++e)
                     (*m_file_cache)[ e ] = (*m_file_cache)[ e + 1 ];
                 i = m_file_cache->size() - 1;
                 (*m_file_cache)[ i ] = tmp;

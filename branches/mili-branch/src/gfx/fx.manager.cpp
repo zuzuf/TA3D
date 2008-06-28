@@ -285,7 +285,7 @@ namespace TA3D
 
         if (pCacheIsDirty)// We have work to do
         {
-            for (uint32 i = 0 ; i < max_cache_size ; ++i)
+            for (int i = 0 ; i < max_cache_size ; ++i)
             {
                 if (cache_anm[i])
                     cache_anm[i]->convert(false,true);
