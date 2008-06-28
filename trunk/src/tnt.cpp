@@ -539,206 +539,99 @@ MAP	*load_tnt_map(byte *data )		// Charge une map au format TA, extraite d'une a
 	return map;
 }
 
-GLuint load_tnt_minimap(byte *data,int *sw,int *sh)		// Charge une minimap d'une carte, extraite d'une archive HPI/UFO
+
+static BITMAP *load_tnt_minimap_bmp(TNTMINIMAP *minimap,int *sw,int *sh)
 {
-	TNTHEADER	header;		// Structure pour l'en-tête du fichier
-
-	int y;
-
-	header.IDversion=((int*)data)[0];
-	header.Width=((int*)data)[1];
-	header.Height=((int*)data)[2];
-	header.PTRmapdata=((int*)data)[3];
-	header.PTRmapattr=((int*)data)[4];
-	header.PTRtilegfx=((int*)data)[5];
-	header.tiles=((int*)data)[6];
-	header.tileanims=((int*)data)[7];
-	header.PTRtileanim=((int*)data)[8];
-	header.sealevel=((int*)data)[9];
-	header.PTRminimap=((int*)data)[10];
-	header.unknown1=((int*)data)[11];
-	header.pad1=((int*)data)[12];
-	header.pad2=((int*)data)[13];
-	header.pad3=((int*)data)[14];
-	header.pad4=((int*)data)[15];
-
-	int f_pos;
-		// Lit la minimap
-	int w,h;
-	f_pos=header.PTRminimap;
-	w=*((int*)(data+f_pos));		f_pos+=4;
-	h=*((int*)(data+f_pos));		f_pos+=4;
-	BITMAP *mini=create_bitmap_ex(8,252,252);
-	for(y=0;y<252;y++) {
-		memcpy(mini->line[y],data+f_pos,252);
-		f_pos+=252;
+	// Copy the mini-map into an 8-bit BITMAP
+	BITMAP *mini8bit=create_bitmap_ex(8,TNTMINIMAP_WIDTH,TNTMINIMAP_HEIGHT);
+	for(int y=0;y<TNTMINIMAP_HEIGHT;y++) {
+		memcpy(mini8bit->line[y],minimap->map[y],TNTMINIMAP_WIDTH);
 		}
-	BITMAP *tmp=create_bitmap(mini->w,mini->h);
-	blit(mini,tmp,0,0,0,0,tmp->w,tmp->h);
-	destroy_bitmap(mini);
-	mini=tmp;
-	int mini_w=251;
-	int mini_h=251;
-	while( mini_w>0 && ( ( ((int*)(mini->line[0]))[mini_w] & 0xFCFCFCFC ) == makecol(120,148,252) || ((int*)(mini->line[0]))[mini_w] == 0 ) ) mini_w--;
-	while( mini_h>0 && ( ( ((int*)(mini->line[mini_h]))[0] & 0xFCFCFCFC ) == makecol(120,148,252) || ((int*)(mini->line[mini_h]))[0] == 0 ) ) mini_h--;
+	
+	// Apply the palette -- increase the color depth
+	BITMAP *mini=create_bitmap(mini8bit->w,mini8bit->h);
+	set_palette( pal );
+	blit(mini8bit,mini,0,0,0,0,mini->w,mini->h);
+	destroy_bitmap(mini8bit);
+
+	// Examine the image for a blank-looking bottom or right edge
+	int mini_w=TNTMINIMAP_WIDTH;
+	int mini_h=TNTMINIMAP_HEIGHT;
+	int blank_color = makecol(120,148,252); // approximately
+	int mask = 0xFCFCFCFC; // XXX this assumes 24- or 32-bit pixels
+	do {
+		--mini_w;
+	} while ( mini_w > 0 &&
+	          ( ( ((int*)(mini->line[0]))[mini_w] & mask ) == blank_color ||
+	              ((int*)(mini->line[0]))[mini_w]          == 0 ) );
+	do {
+		--mini_h;
+	} while( mini_h > 0 &&
+	         ( ( ((int*)(mini->line[mini_h]))[0] & mask ) == blank_color ||
+	             ((int*)(mini->line[mini_h]))[0]          == 0 ) );
 	mini_w++;
 	mini_h++;
-	if(g_useTextureCompression)
-		allegro_gl_set_texture_format(GL_COMPRESSED_RGB_ARB);
-	else
-		allegro_gl_set_texture_format(GL_RGB8);
-	allegro_gl_use_mipmapping(FALSE);
-	GLuint glmini=allegro_gl_make_texture(mini);
-	glBindTexture(GL_TEXTURE_2D,glmini);
-	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
-	allegro_gl_use_mipmapping(TRUE);
-
-	destroy_bitmap(mini);
 
 	if(sw) *sw=mini_w;
 	if(sh) *sh=mini_h;
 
-	return glmini;
+	return mini;
+}
+
+GLuint load_tnt_minimap(byte *data,int *sw,int *sh)		// Charge une minimap d'une carte, extraite d'une archive HPI/UFO
+{
+	TNTHEADER	*header = (TNTHEADER*)data;
+	TNTMINIMAP *minimap = (TNTMINIMAP*) &data[header->PTRminimap];
+	BITMAP		*bitmap = load_tnt_minimap_bmp(minimap, sw, sh);
+
+	if(g_useTextureCompression)
+		allegro_gl_set_texture_format(GL_COMPRESSED_RGB_ARB);
+	else
+		allegro_gl_set_texture_format(GL_RGB8);
+	GLuint texture = gfx->make_texture(bitmap, FILTER_LINEAR, true);
+
+	destroy_bitmap(bitmap);
+	return texture;
 }
 
 GLuint load_tnt_minimap_fast(char *filename,int *sw,int *sh)		// Charge une minimap d'une carte contenue dans une archive HPI/UFO
 {
-	byte *data=HPIManager->PullFromHPI_zone(filename,0,64,NULL);
+	std::auto_ptr<TNTHEADER> header((TNTHEADER*)HPIManager->PullFromHPI_zone(filename,0,sizeof(TNTHEADER),NULL));
+	if(header.get()==NULL)	return 0;
 
-	if(data==NULL)	return 0;
+	std::auto_ptr<byte> minimapdata(HPIManager->PullFromHPI_zone(filename,header->PTRminimap,sizeof(TNTMINIMAP),NULL));
+	if(minimapdata.get()==NULL)	return 0;
 
-	TNTHEADER	header;		// Structure pour l'en-tête du fichier
+	TNTMINIMAP *minimap = (TNTMINIMAP*) &minimapdata.get()[header->PTRminimap];
+	BITMAP		*bitmap = load_tnt_minimap_bmp(minimap, sw, sh);
 
-	int y;
-
-	header.IDversion=((int*)data)[0];
-	header.Width=((int*)data)[1];
-	header.Height=((int*)data)[2];
-	header.PTRmapdata=((int*)data)[3];
-	header.PTRmapattr=((int*)data)[4];
-	header.PTRtilegfx=((int*)data)[5];
-	header.tiles=((int*)data)[6];
-	header.tileanims=((int*)data)[7];
-	header.PTRtileanim=((int*)data)[8];
-	header.sealevel=((int*)data)[9];
-	header.PTRminimap=((int*)data)[10];
-	header.unknown1=((int*)data)[11];
-	header.pad1=((int*)data)[12];
-	header.pad2=((int*)data)[13];
-	header.pad3=((int*)data)[14];
-	header.pad4=((int*)data)[15];
-
-	free(data);
-
-	data=HPIManager->PullFromHPI_zone(filename,header.PTRminimap,252*252+8,NULL);
-	if(data==NULL)	return 0;
-
-	int f_pos;
-		// Lit la minimap
-	int w,h;
-	f_pos=header.PTRminimap;
-	w=*((int*)(data+f_pos));		f_pos+=4;
-	h=*((int*)(data+f_pos));		f_pos+=4;
-	BITMAP *mini=create_bitmap_ex(8,252,252);
-	for(y=0;y<252;y++) {
-		memcpy(mini->line[y],data+f_pos,252);
-		f_pos+=252;
-		}
-	BITMAP *tmp=create_bitmap(mini->w,mini->h);
-	set_palette( pal );
-	blit(mini,tmp,0,0,0,0,tmp->w,tmp->h);
-	destroy_bitmap(mini);
-	mini=tmp;
-	int mini_w=251;
-	int mini_h=251;
-	while( mini_w>0 && ( ( ((int*)(mini->line[0]))[mini_w] & 0xFCFCFCFC ) == makecol(120,148,252) || ((int*)(mini->line[0]))[mini_w] == 0 ) ) mini_w--;
-	while( mini_h>0 && ( ( ((int*)(mini->line[mini_h]))[0] & 0xFCFCFCFC ) == makecol(120,148,252) || ((int*)(mini->line[mini_h]))[0] == 0 ) ) mini_h--;
-	mini_w++;
-	mini_h++;
 	if(g_useTextureCompression)
 		allegro_gl_set_texture_format(GL_COMPRESSED_RGB_ARB);
 	else
 		allegro_gl_set_texture_format(GL_RGB8);
-	allegro_gl_use_mipmapping(FALSE);
-	GLuint glmini=allegro_gl_make_texture(mini);
-	glBindTexture(GL_TEXTURE_2D,glmini);
-	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
-	allegro_gl_use_mipmapping(TRUE);
+	GLuint texture = gfx->make_texture(bitmap, FILTER_LINEAR, true);
 
-	destroy_bitmap(mini);
-
-	if(sw) *sw=mini_w;
-	if(sh) *sh=mini_h;
-
-	free(data);
-
-	return glmini;
+	destroy_bitmap(bitmap);
+	return texture;
 }
+
 
 BITMAP *load_tnt_minimap_fast_bmp(char *filename)		// Load a minimap into a BITMAP* structure from a HPI/UFO archive
 {
-	byte *data = HPIManager->PullFromHPI_zone(filename,0,64,NULL);
+	std::auto_ptr<TNTHEADER> header((TNTHEADER*)HPIManager->PullFromHPI_zone(filename,0,sizeof(TNTHEADER),NULL));
+	if(header.get()==NULL)	return 0;
 
-	if(data==NULL)	return 0;
+	std::auto_ptr<byte> minimapdata(HPIManager->PullFromHPI_zone(filename,header->PTRminimap,sizeof(TNTMINIMAP),NULL));
+	if(minimapdata.get()==NULL)	return 0;
 
-	TNTHEADER	header;		// Structure pour l'en-tête du fichier
+	int sw, sh;
+	TNTMINIMAP *minimap = (TNTMINIMAP*) &minimapdata.get()[header->PTRminimap];
+	BITMAP    *fullsize = load_tnt_minimap_bmp(minimap, &sw, &sh);
 
-	int y;
+	// Copy the full-sized bitmap down to an exact-sized version
+	BITMAP *trimmed = create_bitmap(sw, sh);
+	blit(fullsize,trimmed,0,0,0,0,sw,sh);
+	destroy_bitmap(fullsize);
 
-	header.IDversion=((int*)data)[0];
-	header.Width=((int*)data)[1];
-	header.Height=((int*)data)[2];
-	header.PTRmapdata=((int*)data)[3];
-	header.PTRmapattr=((int*)data)[4];
-	header.PTRtilegfx=((int*)data)[5];
-	header.tiles=((int*)data)[6];
-	header.tileanims=((int*)data)[7];
-	header.PTRtileanim=((int*)data)[8];
-	header.sealevel=((int*)data)[9];
-	header.PTRminimap=((int*)data)[10];
-	header.unknown1=((int*)data)[11];
-	header.pad1=((int*)data)[12];
-	header.pad2=((int*)data)[13];
-	header.pad3=((int*)data)[14];
-	header.pad4=((int*)data)[15];
-
-	free(data);
-
-	data = HPIManager->PullFromHPI_zone(filename,header.PTRminimap,252*252+8,NULL);
-	if(data==NULL)	return 0;
-
-	int f_pos;
-		// Read the minimap
-	int w,h;
-	f_pos=header.PTRminimap;
-	w=*((int*)(data+f_pos));		f_pos+=4;
-	h=*((int*)(data+f_pos));		f_pos+=4;
-	BITMAP *mini = create_bitmap_ex(8,252,252);
-	for(y=0;y<252;y++) {
-		memcpy(mini->line[y],data+f_pos,252);
-		f_pos+=252;
-		}
-	BITMAP *tmp=create_bitmap(mini->w,mini->h);
-	set_palette( pal );
-	blit(mini,tmp,0,0,0,0,tmp->w,tmp->h);
-	destroy_bitmap(mini);
-	mini=tmp;
-	int mini_w=251;
-	int mini_h=251;
-	while( mini_w>0 && ( ( ((int*)(mini->line[0]))[mini_w] & 0xFCFCFCFC ) == makecol(120,148,252) || ((int*)(mini->line[0]))[mini_w] == 0 ) ) mini_w--;
-	while( mini_h>0 && ( ( ((int*)(mini->line[mini_h]))[0] & 0xFCFCFCFC ) == makecol(120,148,252) || ((int*)(mini->line[mini_h]))[0] == 0 ) ) mini_h--;
-	mini_w++;
-	mini_h++;
-
-	tmp = create_bitmap(mini_w,mini_h);
-	blit(mini,tmp,0,0,0,0,mini_w,mini_h);
-
-	destroy_bitmap(mini);
-	mini=tmp;
-
-	free(data);
-
-	return mini;
+	return trimmed;
 }

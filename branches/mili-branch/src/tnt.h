@@ -50,13 +50,27 @@ namespace TA3D
         int		unknown1;
         int		pad1,pad2,pad3,pad4;
     };
+    
+    #define TNTMINIMAP_WIDTH  252
+    #define TNTMINIMAP_HEIGHT 252
 
+    struct TNTMINIMAP
+    {
+	    int w;
+	    int h;
+	    byte map[TNTMINIMAP_HEIGHT][TNTMINIMAP_WIDTH];
+    };
+
+                                        // Load a map in TNT format extracted from a HPI archive
     MAP	*load_tnt_map(byte *data );		// Charge une map au format TA, extraite d'une archive HPI/UFO
 
+                                                                // Load a minimap from a map file extracted from a HPI archive
     GLuint load_tnt_minimap(byte *data,int& sw,int& sh);		// Charge une minimap d'une carte, extraite d'une archive HPI/UFO
 
+                                                                                // Load a minimap from a map file extracted from a HPI archive
     GLuint load_tnt_minimap_fast(const String& filename, int& sw, int& sh);		// Charge une minimap d'une carte contenue dans une archive HPI/UFO
 
+                                                                    // Load a minimap from a map file extracted from a HPI archive
     BITMAP *load_tnt_minimap_fast_bmp(const String& filename);		// Charge une minimap d'une carte contenue dans une archive HPI/UFO
 
 
