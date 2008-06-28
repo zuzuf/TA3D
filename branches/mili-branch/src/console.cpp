@@ -288,7 +288,11 @@ void cConsole::AddEntry( String NewEntry )
 		return;
 	m_CurrentLine++;
 
-	for( int i = 0 ; i < NewEntry.size() ; i++ )	if( NewEntry[ i ] == '\t' )	NewEntry[ i ] = ' ';
+	for(unsigned int i = 0 ; i < NewEntry.size() ; ++i)
+    {
+        if (NewEntry[i] == '\t')
+            NewEntry[i] = ' ';
+    }
 
 	m_LastEntries.push_back( NewEntry );
 
@@ -347,7 +351,11 @@ void cConsole::AddEntry(const char *txt, ...)		// Ajoute une nouvelle entrée
 		String NewEntry( buffer );
 		delete [] buffer;
 
-	for( int i = 0 ; i < NewEntry.size() ; i++ )	if( NewEntry[ i ] == '\t' )	NewEntry[ i ] = ' ';
+	for (unsigned int i = 0 ; i < NewEntry.size() ; ++i)
+    {
+        if (NewEntry[i] == '\t')
+            NewEntry[i] = ' ';
+    }
 
 	m_LastEntries.push_back( NewEntry );
 
