@@ -120,8 +120,8 @@ namespace TA3D
 	String RemoveComments(const String &s)
 	{
 		String Result(s);
-		int i = (int)Result.find("//");
-		if(i != -1) // If we have found comments, then remove them and clear the string (remove blanks)
+        String::size_type i = Result.find("//");
+		if(i != String::npos) // If we have found comments, then remove them and clear the string (remove blanks)
         {
 			Result.resize(i);		// Remove comments
 
