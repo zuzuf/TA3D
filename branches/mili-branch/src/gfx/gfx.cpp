@@ -75,9 +75,7 @@ namespace Interfaces
         allegro_gl_use_mipmapping(TRUE);
         allegro_gl_flip_texture(FALSE);
 
-        # ifndef TA3D_PLATFORM_DARWIN  // Useless under OS X
         request_refresh_rate(85);
-        # endif
 
         if (TA3D::VARS::lp_CONFIG->fullscreen )
         {
