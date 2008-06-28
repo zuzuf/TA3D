@@ -2124,8 +2124,8 @@ void TextBar(float x1,float y1,float x2,float y2,const String &Caption,bool Etat
 			strtoprint = Caption.substr( dec, Caption.length() - dec );
 			}
 
-		gfx->print(gui_font,x1+skin->text_background.x1,y1+skin->text_background.y1,0.0f,use_normal_alpha_function ? Blanc : Noir,strtoprint);
-		if(Etat) gfx->print(gui_font,x1+skin->text_background.x1+gui_font.length( strtoprint ),y1+skin->text_background.y1,0.0f,use_normal_alpha_function ? Blanc : Noir,"_");
+		gfx->print(gui_font,x1+skin->text_background.x1,y1+skin->text_background.y1+skin->text_y_offset,0.0f,use_normal_alpha_function ? Blanc : Noir,strtoprint);
+		if(Etat) gfx->print(gui_font,x1+skin->text_background.x1+gui_font.length( strtoprint ),y1+skin->text_background.y1+skin->text_y_offset,0.0f,use_normal_alpha_function ? Blanc : Noir,"_");
 
 		gfx->unset_alpha_blending();
 		}
@@ -3321,6 +3321,7 @@ void SKIN_OBJECT::draw( float X1, float Y1, float X2, float Y2, bool bkg )
 void SKIN::init()
 {
 	prefix = "";
+	text_y_offset = 0;
 
 	for( int i = 0 ; i < 2 ; i++ )
 		button_img[i].init();
@@ -3396,6 +3397,7 @@ void SKIN::load_tdf( const String &filename, float skin_scale )			// Loads the s
 	Name = skinFile->PullAsString( "skin.name", Name );					// The TDF may override the skin name
 
 	prefix = skinFile->PullAsString( "skin.prefix", "" );				// The prefix to use for 
+    text_y_offset = skinFile->PullAsInt( "skin.text y offset", 0 );
 
 	wnd_border.load( skinFile->PullAsString( "skin.window borders" ), "skin.border_", skinFile, skin_scale );
 	button_img[0].load( skinFile->PullAsString( "skin.button0" ), "skin.button_", skinFile, skin_scale );
