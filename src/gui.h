@@ -439,6 +439,8 @@ public:
 	SKIN_OBJECT			option[2];								// Option button images
 	SKIN_OBJECT 		scroll[3];								// Scroll bar
 	String				prefix;									// prefix for various files
+	
+	int                 text_y_offset;                          // Add an offset in order to display text at the right place
 
 public:
 
