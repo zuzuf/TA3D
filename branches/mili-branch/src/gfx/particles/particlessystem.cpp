@@ -8,7 +8,7 @@ namespace TA3D
 
 
     ParticlesSystem::ParticlesSystem()
-        :common_pos(), common_V(), nb_particles(0), pos(NULL), V(NULL),
+        :nb_particles(0), pos(NULL), V(NULL), common_pos(), common_V(),
         size(1.0f), dsize(1.0f), mass(1.0f), life(1.0f),
         use_wind(true), light_emitter(false), tex(0), cur_idx(0)
     {}
