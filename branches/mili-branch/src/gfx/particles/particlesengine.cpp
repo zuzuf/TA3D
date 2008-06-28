@@ -16,7 +16,11 @@ namespace TA3D
 
 
     PARTICLE_ENGINE::PARTICLE_ENGINE()
-        :particle_systems(), gltex()
+        :nb_part(0), size(0), part(NULL), parttex(0), partbmp(NULL), dsmoke(false),
+        ntex(0), gltex(), index_list_size(0), idx_list(NULL),
+        free_index_size(0), free_idx(NULL), point(NULL),
+        texcoord(NULL), color(NULL), thread_running(false), thread_ask_to_stop(false),
+        p_wind_dir(NULL), p_g(NULL), particle_systems()
     {
         InitThread();
         init(false);
