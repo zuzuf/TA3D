@@ -19,8 +19,8 @@ namespace TA3D
     private:
         VECTOR Pos;
         VECTOR Speed;
-        float timer;
         float life;
+        float timer;
 
     }; // class FXParticle
 
