@@ -5980,7 +5980,7 @@ int INGAME_UNITS::create(int type_id,int owner)
         for( int i = 0 ; i < max_unit ; i++ )
             mini_idx[ i ] = i;
 
-        UNIT *n_unit=(UNIT*) malloc(sizeof(UNIT)*max_unit);
+        UNIT *n_unit = new UNIT[max_unit];
         uint16	*n_idx = new uint16[max_unit];
         uint16	*n_new_idx = new uint16[max_unit];
         if(index_list_size>0)
@@ -6003,7 +6003,7 @@ int INGAME_UNITS::create(int type_id,int owner)
         if(unit)
         {
             memcpy(n_unit,unit,sizeof(UNIT)*(nb_unit-1));
-            free(unit);
+            delete[] unit;
         }
         unit=n_unit;
     }

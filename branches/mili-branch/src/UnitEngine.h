@@ -639,7 +639,7 @@ namespace TA3D
 
         inline UNIT()
         {
-            init();
+//            init();
         }
 
         inline void clear_def_mission()
@@ -1044,7 +1044,8 @@ namespace TA3D
                 for(int i=0;i<max_unit;i++)
                     unit[i].destroy(true);
             if(unit)
-                free(unit);
+                delete[] unit;
+//                free(unit);
             pMutex.unlock();
 
             init();
