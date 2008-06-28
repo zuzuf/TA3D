@@ -161,7 +161,7 @@ namespace TA3D
     {
         if (!lp_CONFIG->particle) // If particles are OFF don't add particles
             return NULL;
-        if (tex < 0 || tex >= gltex.size() ) // We don't have that texture !!
+        if (tex < 0 || tex >= (int)gltex.size() ) // We don't have that texture !!
             return NULL;
         if (system ) // Step by step
         {
@@ -577,7 +577,7 @@ namespace TA3D
 
         uint32 i;
 
-        for (sint32 e=0; e < index_list_size; ++e)
+        for (unsigned int e=0; e < index_list_size; ++e)
         {
             if (!(e & 15) )
             {
@@ -673,7 +673,7 @@ namespace TA3D
             float oangle = 0.0f;
             int h_map_w=map_w>>1;
             int h_map_h=map_h>>1;
-            for(sint32 e=0;e<index_list_size; ++e)	// Calcule la position des points
+            for(unsigned int e = 0; e < index_list_size; ++e) // Calcule la position des points
             {
                 i = idx_list[e];
 
@@ -706,14 +706,13 @@ namespace TA3D
                         B.y=-B.y;
                     }
                 }
-                int i_bis=j << 2;
-                int i_qat=j << 4;
+                int i_bis = j << 2;
                 point[i_bis++]=part[i].Pos-part[i].size*B;
                 point[i_bis++]=part[i].Pos+part[i].size*A;
                 point[i_bis++]=part[i].Pos+part[i].size*B;
                 point[i_bis]=part[i].Pos-part[i].size*A;
 
-                int i_ter=j<<3;
+                int i_ter = j << 3;
                 float px=0.25f*(part[i].gltex&3)+0.001f;
                 float py=0.25f*(part[i].gltex>>2)+0.001f;
                 texcoord[i_ter++]=px;			texcoord[i_ter++]=py;
@@ -844,7 +843,7 @@ namespace TA3D
     {
         pMutex.lock();
 
-        for( int i = 0 ; i < gltex.size() ; ++i)
+        for (unsigned int i = 0 ; i < gltex.size() ; ++i)
             gfx->destroy_texture(gltex[i]);
         gltex.clear();
 
