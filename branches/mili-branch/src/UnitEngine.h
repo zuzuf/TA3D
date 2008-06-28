@@ -637,11 +637,6 @@ namespace TA3D
             pMutex.unlock();
         }
 
-        inline UNIT()
-        {
-//            init();
-        }
-
         inline void clear_def_mission()
         {
             while( def_mission ) {
@@ -678,11 +673,6 @@ namespace TA3D
                 delete[] link_list;
                 delete[] last_synctick;
             }
-        }
-
-        inline ~UNIT()
-        {
-            destroy();
         }
 
         void draw(float t,Camera *cam,MAP *map, bool height_line=true);

@@ -769,7 +769,6 @@ void UNIT::draw(float t, Camera *cam,MAP *map,bool height_line)
                             src = &unit_target->model->obj;
                             src_data = &unit_target->data;
                             unit_target->compute_model_coord();
-                            pMutex.lock();
                         }
                         else
                         {
@@ -950,7 +949,7 @@ void UNIT::draw(float t, Camera *cam,MAP *map,bool height_line)
             }
             if (unit_target)
             {
-                unit_target->lock();
+                unit_target->unlock();
                 pMutex.lock();
             }
         }
