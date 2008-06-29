@@ -1,0 +1,9 @@
+[area]
+{
+	name=network game area;
+	skin=gui/modern.skn;
+	windows=gui/mdrn_networkgame.tdf, gui/mdrn_hosting.tdf, gui/mdrn_joinip.tdf;
+	background=gfx/mdrn_networkgame.jpg;
+	width=1280;
+	height=1024;
+}

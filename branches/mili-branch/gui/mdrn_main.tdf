@@ -22,10 +22,10 @@
 		name=b_solo;
 		type=BUTTON;
 		caption=Solo;
-		x1=342;
+		x1=341;
 		y1=734;
-		x2=489;
-		y2=770;
+		x2=491;
+		y2=772;
 		size=1.8;
 	}
 	[object1]		// Options
@@ -33,10 +33,10 @@
 		name=b_options;
 		type=BUTTON;
 		caption=Options;
-		x1=795;
+		x1=794;
 		y1=734;
-		x2=942;
-		y2=770;
+		x2=944;
+		y2=772;
 		size=1.8;
 	}
 	[object2]		// exit
@@ -44,10 +44,10 @@
 		name=b_exit;
 		type=BUTTON;
 		caption=Exit;
-		x1=795;
+		x1=794;
 		y1=808;
-		x2=942;
-		y2=844;
+		x2=944;
+		y2=846;
 		size=1.8;
 	}
 	[object3]		// multiplayer
@@ -55,10 +55,10 @@
 		name=b_multi;
 		type=BUTTON;
 		caption=Multiplayer;
-		x1=342;
+		x1=341;
 		y1=808;
-		x2=489;
-		y2=844;
+		x2=491;
+		y2=846;
 		size=1.8;
 	}
 	[object4]

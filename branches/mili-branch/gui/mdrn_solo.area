@@ -1,0 +1,9 @@
+[area]
+{
+	name=main area;
+	skin=gui/modern.skn;
+	windows=gui/mdrn_solo.tdf, gui/mdrn_load_menu.tdf;
+	background=gfx/mdrn_solo.jpg;
+	width=1280;
+	height=1024;
+}
