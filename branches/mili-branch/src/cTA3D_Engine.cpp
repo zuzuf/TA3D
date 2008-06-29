@@ -120,10 +120,11 @@ namespace TA3D
 
 		if( !HPIManager->Exists( "gamedata\\sidedata.tdf" ) || !HPIManager->Exists( "gamedata\\allsound.tdf" ) || !HPIManager->Exists( "gamedata\\sound.tdf" ) )
         {
+            LOG_ERROR(TRANSLATE("RESOURCES ERROR"));
 			set_uformat(U_UTF8);   // fixed size, 8-bit ASCII characters
 			allegro_message( TRANSLATE("RESOURCES ERROR").c_str() );
 			set_uformat(U_ASCII);   // fixed size, 8-bit ASCII characters
-			throw( "resources missing!!" );
+			throw ("resources missing!!");
 		}
 
 		GuardInfo( "Creating Sound & Music Interface." );
@@ -134,6 +135,7 @@ namespace TA3D
 
 		if( !sound_manager->IsFMODRunning() && !lp_CONFIG->quickstart )
         {
+            LOG_ERROR(TRANSLATE("FMOD WARNING"));
 			set_uformat(U_UTF8);   // fixed size, 8-bit ASCII characters
 			allegro_message( TRANSLATE("FMOD WARNING").c_str() );
 			set_uformat(U_ASCII);   // fixed size, 8-bit ASCII characters
