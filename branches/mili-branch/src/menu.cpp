@@ -236,7 +236,7 @@ void config_menu(void)
         obj->Text[ 0 ] = TRANSLATE( "default.skn" );
 
         List<String> skin_list;
-        uint32 n = HPIManager->getFilelist("gui\\*.skn", skin_list);
+        HPIManager->getFilelist("gui\\*.skn", skin_list);
 
         for( List< String >::iterator i = skin_list.begin() ; i != skin_list.end() ; i++ )
         {
@@ -1817,9 +1817,6 @@ void campaign_main_menu(void)
 {
     cursor_type=CURSOR_DEFAULT;
 
-    float resize_w = SCREEN_W / 640.0f;
-    float resize_h = SCREEN_H / 480.0f;
-
     AREA campaign_area("campaign");
     campaign_area.load_tdf("gui/campaign.area");
     if (!campaign_area.background)
@@ -2088,7 +2085,8 @@ int brief_screen(String campaign_name, int mission_id)
         else if( Lowercase( String( planet_animation.anm[ i ].name ).substr( String( planet_animation.anm[ i ].name ).size() - 6, 6 ) ) == "rotate" )
             rotate_id = i;
 
-    float pan_x1, pan_x2;
+    float pan_x1 = 0.0f;
+    float pan_x2 = 0.0f;
 
     if( brief_area.get_object( "brief.panning0" ) ) {
         pan_x1 = brief_area.get_object( "brief.panning0" )->x1;
