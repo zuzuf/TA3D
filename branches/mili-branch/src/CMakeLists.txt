@@ -136,7 +136,8 @@ ENDIF(APPLE)
 # --- TA3D
 # --------------------------------------------------------------------
 IF(APPLE)
-	SET(TA3D_BIN ta3d)
+	#SET(TA3D_BIN ta3d)
+	SET(TA3D_BIN ta3d-bin)
 ELSE(APPLE)
 	SET(TA3D_BIN ta3d-bin)
 ENDIF(APPLE)
