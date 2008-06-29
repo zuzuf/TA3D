@@ -16,7 +16,7 @@ IF( ${VA} EQUAL 0 )
     IF(WIN32)
 	    SET( CMAKE_CXX_FLAGS "-O2 -g " )
     ELSE(WIN32)
-	    SET( CMAKE_CXX_FLAGS "-O2 -g -Wall" )
+	    SET( CMAKE_CXX_FLAGS "-O2 -g -Wall -Werror" )
     ENDIF(WIN32)
 ENDIF( ${VA} EQUAL 0 )
 
