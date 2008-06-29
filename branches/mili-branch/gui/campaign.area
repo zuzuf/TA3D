@@ -1,9 +1,0 @@
-[area]
-{
-	name=campaign;
-	skin=gui/default.skn;
-	windows=gui/campaign.tdf;
-	background=gfx/campaign.jpg;
-	width=1280;
-	height=1024;
-}

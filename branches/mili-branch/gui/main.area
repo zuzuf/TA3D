@@ -1,9 +1,0 @@
-[area]
-{
-	name=main area;
-	skin=gui/default.skn;
-	windows=gui/main.tdf;
-	background=gfx/main.jpg;
-	width=1280;
-	height=1024;
-}
