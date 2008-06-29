@@ -39,12 +39,12 @@ extern "C" {
 
 
 /* GL extension declarations */
-#define AGL_API(type, name, args) extern AGL_##name##_t __agl##name;
+#define AGL_API(type, name, args) extern _AGL_DLL AGL_##name##_t __agl##name;
 # 	include "allegrogl/GLext/gl_ext_alias.h"
 #	include "allegrogl/GLext/gl_ext_api.h"
 #undef AGL_API
 #ifdef ALLEGRO_WINDOWS
-#define AGL_API(type, name, args) extern AGL_##name##_t __awgl##name;
+#define AGL_API(type, name, args) extern _AGL_DLL AGL_##name##_t __awgl##name;
 # 	include "allegrogl/GLext/wgl_ext_alias.h"
 #	include "allegrogl/GLext/wgl_ext_api.h"
 #undef AGL_API
@@ -77,11 +77,12 @@ typedef struct AGL_EXTENSION_LIST_WGL {
 #endif
 
 
-extern AGL_EXTENSION_LIST_GL  allegro_gl_extensions_GL;
+
+AGL_VAR(AGL_EXTENSION_LIST_GL, allegro_gl_extensions_GL);
 #ifdef ALLEGRO_UNIX
 extern AGL_EXTENSION_LIST_GLX allegro_gl_extensions_GLX;
 #elif defined ALLEGRO_WINDOWS
-extern AGL_EXTENSION_LIST_WGL allegro_gl_extensions_WGL;
+AGL_VAR(AGL_EXTENSION_LIST_WGL, allegro_gl_extensions_WGL);
 #endif
 
 

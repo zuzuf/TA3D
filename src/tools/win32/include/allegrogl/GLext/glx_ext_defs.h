@@ -85,8 +85,9 @@
 #define GLX_SAMPLES_SGIS                   100001
 #endif
 
-/* Workaround for Debian's xlibmesa-gl-dev */
-#if defined __GLX_glxtokens_h__ && !defined GLX_SAMPLES
+/* Fix for system headers that define GLX_VERSION_1_4 but do not define
+ * GLX_SAMPLES and GLX_SAMPLE_BUFFERS. */
+#ifndef GLX_SAMPLES
 #define GLX_SAMPLE_BUFFERS                 100000
 #define GLX_SAMPLES                        100001
 #endif
@@ -250,8 +251,8 @@ typedef struct {
 #ifndef GLX_ARB_get_proc_address
 #define AGLX_ARB_get_proc_address
 #define GLX_ARB_get_proc_address
-#endif
 typedef void (*__GLXextFuncPtr)(void);
+#endif
 
 #ifndef GLX_SGIX_video_source
 #define AGLX_SGIX_video_source
@@ -374,4 +375,18 @@ typedef struct {
 #define GLX_RGBA_FLOAT_TYPE                0x20B9
 #define GLX_RGBA_FLOAT_BIT                 0x00000004
 #endif
+
+#ifndef GLX_EXT_framebuffer_sRGB
+#define GLX_EXT_framebuffer_sRGB
+#define AGLX_EXT_framebuffer_sRGB
+#define GLX_FRAMEBUFFER_SRGB_CAPABLE_EXT   0x20B2
+#endif
+
+#ifndef GLX_EXT_packed_float
+#define GLX_EXT_packed_float
+#define AGLX_EXT_packed_float
+#define GLX_RGBA_UNSIGNED_FLOAT_TYPE_EXT 0x20B1
+#define GLX_RGBA_UNSIGNED_FLOAT_BIT_EXT  0x00000008
+#endif
+
 

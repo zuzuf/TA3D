@@ -15,22 +15,22 @@
     along with this program; if not, write to the Free Software
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA*/
 
-#pragma once
 
-#include "cCriticalSection.h"
-#include "cThread.h"
-#include "cLogger.h"
+#ifndef __TA3D_ENGINE_H__
+# define __TA3D_ENGINE_H__
+
+#include "threads/cThread.h"
+#include "logs/cLogger.h"
 
 namespace TA3D
 {
-	class cTA3D_Engine :   protected cCriticalSection,
-				            public cThread
+	class cTA3D_Engine : public ObjectSync, public cThread
 	{
 	private:
-		TA3D::INTERFACES::cLogger	*m_lpcLogger;
-		bool						m_AllegroRunning;
-		bool						m_GFXModeActive;
-		bool						m_SignaledToStop;
+		TA3D::Interfaces::cLogger* m_lpcLogger;
+		bool m_AllegroRunning;
+		bool m_GFXModeActive;
+		bool m_SignaledToStop;
 
 	private:
 		void Init();
@@ -43,7 +43,12 @@ namespace TA3D
 		cTA3D_Engine( void );
 		virtual ~cTA3D_Engine( void );
 
-		bool GFXModeActive()  { return m_GFXModeActive; }
-		bool AllegroRunning() { return m_AllegroRunning; }
+		bool GFXModeActive() const { return m_GFXModeActive; }
+		bool AllegroRunning() const { return m_AllegroRunning; }
 	};
+
+
 } // namespace TA3D
+
+
+#endif // __TA3D_ENGINE_H__

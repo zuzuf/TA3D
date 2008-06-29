@@ -417,7 +417,7 @@ MODEL *load_3ds( const String &filename, float scale )
 										AB = read_obj->points[ read_obj->t_index[ i + 1 ] ] - read_obj->points[ read_obj->t_index[ i ] ];
 										AC = read_obj->points[ read_obj->t_index[ i + 2 ] ] - read_obj->points[ read_obj->t_index[ i ] ];
 										AB = AB * AC;
-										AB.Unit();
+										AB.unit();
 										read_obj->N[ read_obj->t_index[ i ] ] = read_obj->N[ read_obj->t_index[ i ] ] + AB;
 										read_obj->N[ read_obj->t_index[ i + 1 ] ] = read_obj->N[ read_obj->t_index[ i + 1 ] ] + AB;
 										read_obj->N[ read_obj->t_index[ i + 2 ] ] = read_obj->N[ read_obj->t_index[ i + 2 ] ] + AB;
@@ -427,7 +427,7 @@ MODEL *load_3ds( const String &filename, float scale )
 									}
 								if( read_obj->points )
 									for( int i = 0 ; i < read_obj->nb_vtx ; i++ )
-										read_obj->N[ i ].Unit();
+										read_obj->N[ i ].unit();
 								break;
 							case TRI_SMOOTH:
 //								printf("----TRI_SMOOTH (%d,%d)\n", chunk.ID, chunk.length);

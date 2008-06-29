@@ -28,22 +28,22 @@
 #ifndef __TA3D_NAMESPACE_H__
 # define __TA3D_NAMESPACE_H__
 
-# pragma once // TODO Must be removed
 
 # include "TA3D_Exception.h"
-# include "cInterface.h"
+# include "misc/interface.h"
 # include "cError.h"
 # ifndef TA3D_NO_SOUND // Only for the hpiview program
 #   include "TA3D_Audio.h"
 # else
-#   include "vector.h"
+#   include "misc/vector.h"
 #   include "cTAFileParser.h"
 # endif
 # include "TA3D_hpi.h"
-# include "gfx.h"
+# include "gfx/gfx.h"
 # include "console.h"
 # include "i18n.h"
-# include "network.h"
+# include "network/network.h"
+# include "threads/thread.h"
 
 # define ZOOM_NORMAL       0x0
 # define ZOOM_FIXED_ANGLE  0x1
@@ -186,17 +186,15 @@ namespace TA3D
 		}
 	}
 
-	class ThreadSync;
-
 	namespace VARS
 	{
-		TA3D_API_E TA3D::cInterfaceManager			*InterfaceManager; 
+		TA3D_API_E TA3D::IInterfaceManager			*InterfaceManager; 
 		TA3D_API_E TA3D::UTILS::HPI::cHPIHandler	*HPIManager;
 		TA3D_API_E TA3D::TA3D_DEBUG::cConsole		*Console;
         # ifndef TA3D_NO_SOUND // Only for the hpiview program
-		TA3D_API_E TA3D::INTERFACES::cAudio			*sound_manager;
+		TA3D_API_E TA3D::Interfaces::cAudio			*sound_manager;
         # endif
-		TA3D_API_E TA3D::INTERFACES::GFX			*gfx;
+		TA3D_API_E TA3D::Interfaces::GFX			*gfx;
 
 		TA3D_API_E RGB								*pal;
 		TA3D_API_E TA3D::TA3DCONFIG					*lp_CONFIG;
@@ -206,10 +204,9 @@ namespace TA3D
 		TA3D_API_E uint8							particle_engine_thread_sync;
 		TA3D_API_E uint8							players_thread_sync;
 
-		TA3D_API_E String							TA3D_OUTPUT_DIR;
 		TA3D_API_E I18N_TRANSLATER					i18n;
 		
-		TA3D_API_E ThreadSync						*ThreadSynchroniser;
+		TA3D_API_E ObjectSync						*ThreadSynchroniser;
 		TA3D_API_E String							TA3D_CURRENT_MOD;
 		TA3D_API_E int								ascii_to_scancode[ 256 ];
 
@@ -304,7 +301,6 @@ namespace TA3D
 	bool FileExists(const String& filename);
 
 
-	void CheckOutputDir();
 	void TA3D_clear_cache();							// Clear the cache if needed (useful when mod has changed)
 	List< String > GetFileList( const String pattern );	// return the list of files corresponding to pattern
 

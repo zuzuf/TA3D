@@ -18,10 +18,16 @@
 #include "stdafx.h"
 #include "TA3D_NameSpace.h"		//"TA3D_Audio.h" is in our namespace.
 #include "ta3dbase.h"			// just to use the global camera object
+#include "ingame/sidedata.h"
 
-using namespace TA3D::INTERFACES;
+using namespace TA3D::Interfaces;
 
-TA3D::INTERFACES::cAudio *TA3D::VARS::sound_manager;
+
+TA3D::Interfaces::cAudio *TA3D::VARS::sound_manager;
+
+
+
+
 
 void cAudio::SetPlayListFileMode( int idx, bool Battle, bool Deactivated )
 {
@@ -225,7 +231,6 @@ void cAudio::SavePlayList( void )
 		m_lpFMODSystem->release();
 #endif
 		DeleteInterface();
-		DeleteCS();
 
 		m_FMODRunning = false;
 	}
@@ -333,7 +338,7 @@ if( m_lpFMODSystem->init( 32, FMOD_INIT_NORMAL | FMOD_INIT_3D_RIGHTHANDED, 0 ) !
 
 	if( m_lpFMODMusicsound != NULL )
 	{
-		EnterCS();
+		pMutex.lock();
 #ifdef TA3D_PLATFORM_MINGW
 			FMOD_Channel_Stop( m_lpFMODMusicchannel );
 			FMOD_Sound_Release( m_lpFMODMusicsound );
@@ -343,7 +348,7 @@ if( m_lpFMODSystem->init( 32, FMOD_INIT_NORMAL | FMOD_INIT_3D_RIGHTHANDED, 0 ) !
 #endif
 			m_lpFMODMusicsound = NULL;
 			m_lpFMODMusicchannel = NULL;
-		LeaveCS();
+		pMutex.unlock();
 	}
 }
 
@@ -358,13 +363,13 @@ if( m_lpFMODSystem->init( 32, FMOD_INIT_NORMAL | FMOD_INIT_3D_RIGHTHANDED, 0 ) !
 	if( m_Playlist.size() < 1 ) // nothing in our list.
 		return;
 
-	EnterCS();
+	pMutex.lock();
 		// walk through vector and delete all the items.
 		for( plItor k_Pos = m_Playlist.begin(); k_Pos != m_Playlist.end(); k_Pos++ )
 			delete( *k_Pos );
 
 		m_Playlist.clear();   // now purge the vector.
-	LeaveCS();
+	pMutex.unlock();
 }
 
 /* public */void cAudio::TogglePauseMusic( void )
@@ -598,7 +603,6 @@ if( m_lpFMODSystem->init( 32, FMOD_INIT_NORMAL | FMOD_INIT_3D_RIGHTHANDED, 0 ) !
 
 	m_SoundList = new TA3D::UTILS::clpHashTable< m_SoundListItem * >;
 
-	CreateCS();
 	InitInterface();
 
 	if( !m_FMODRunning )
@@ -632,15 +636,15 @@ void cAudio::SetListenerPos( const VECTOR3D *vec )
 void cAudio::Update3DSound( void )
 {
 	if( !m_FMODRunning ) {
-		EnterCS();
+		pMutex.lock();
 
 		WorkList.clear();
 
-		LeaveCS();
+		pMutex.unlock();
 		return;
 		}
 
-	EnterCS();
+	pMutex.lock();
 
 #ifdef TA3D_PLATFORM_MINGW
 
@@ -688,7 +692,7 @@ void cAudio::Update3DSound( void )
 
 	WorkList.clear();
 
-LeaveCS();
+pMutex.unlock();
 
 	if( (fCounter++) < 100 ) return;
 
@@ -699,7 +703,7 @@ LeaveCS();
 		return;
 		}
 
-	EnterCS();
+	pMutex.lock();
 
 #ifdef TA3D_PLATFORM_MINGW
 	FMOD_BOOL playing;
@@ -711,7 +715,7 @@ LeaveCS();
 	if( !playing )
 		PlayMusic();
 
-LeaveCS();
+pMutex.unlock();
 }
 
 uint32 cAudio::InterfaceMsg( const lpcImsg msg )
@@ -896,145 +900,139 @@ bool cAudio::LoadSound( const String &Filename, const bool LoadAs3D,
 
 void cAudio::LoadTDFSounds( const bool allSounds )
 {
-	EnterCS();
-		String FileName;
+    pMutex.lock();
+    String FileName;
 
-		if( allSounds )
-			FileName = ta3d_sidedata.gamedata_dir + "allsound.tdf";
-		else
-			FileName = ta3d_sidedata.gamedata_dir + "sound.tdf";
+    if( allSounds )
+        FileName = ta3dSideData.gamedata_dir + "allsound.tdf";
+    else
+        FileName = ta3dSideData.gamedata_dir + "sound.tdf";
 
-		Console->AddEntry( "Reading %s", FileName.c_str() );
+    Console->AddEntry( "Reading %s", FileName.c_str() );
 
-		Load( FileName );
+    Load( FileName );
 
-		Console->AddEntry( "Loading sounds from %s", FileName.c_str() );
+    Console->AddEntry( "Loading sounds from %s", FileName.c_str() );
 
-		for( iterator iter = begin() ; iter != end() ; iter++ )   
-		{
-			for( std::list< cBucket<String> >::iterator cur = iter->begin() ; cur != iter->end() ; cur++ )
-			{
-				String szWav = String( (*cur).m_T_data );
+    for( iterator iter = begin() ; iter != end() ; iter++ )   
+    {
+        for( std::list< cBucket<String> >::iterator cur = iter->begin() ; cur != iter->end() ; cur++ )
+        {
+            String szWav = String( (*cur).m_T_data );
 
-				LoadSound( szWav, false );
-			}
-		}
-	LeaveCS();
+            LoadSound( szWav, false );
+        }
+    }
+    pMutex.unlock();
 }
 
 void cAudio::PurgeSounds( void )
 {
-	EnterCS();
-		m_SoundList->EmptyHashTable();
-		EmptyHashTable();
-		WorkList.clear();
-	LeaveCS();
+    pMutex.lock();
+    m_SoundList->EmptyHashTable();
+    EmptyHashTable();
+    WorkList.clear();
+    pMutex.unlock();
 }
 
 // Play sound directly from our sound pool
 void cAudio::PlaySound( const String &Filename, const VECTOR3D *vec )
 {
-	if( vec != NULL && game_cam != NULL && ((VECTOR)(*vec - game_cam->RPos)).Sq() > 360000.0f )	return;		// If the source is too far, does not even think about playing it!
+    MutexLocker locker(pMutex);
+    if (vec && Camera::inGame && ((VECTOR)(*vec - Camera::inGame->rpos)).sq() > 360000.0f) // If the source is too far, does not even think about playing it!
+        return;
 
-//	Console->AddEntry("playing %s", (char*)Filename.c_str());
+    //	Console->AddEntry("playing %s", (char*)Filename.c_str());
 
-	if( !m_FMODRunning )
-		return;
+    if (!m_FMODRunning)
+        return;
 
-EnterCS();
+    String szWav = Lowercase( Filename ); // copy string to szWav so we can work with it.
 
-	String szWav = Lowercase( Filename ); // copy string to szWav so we can work with it.
+    // if it has a .wav extension then remove it.
+    int i = (int)szWav.find( ".wav" );
+    if( i != -1 )
+        szWav.resize( szWav.length() - 4 );
 
-	// if it has a .wav extension then remove it.
-	int i = (int)szWav.find( ".wav" );
-	if( i != -1 )
-		szWav.resize( szWav.length() - 4 );
+    m_SoundListItem *m_Sound = m_SoundList->Find( szWav );
 
-	m_SoundListItem *m_Sound = m_SoundList->Find( szWav );
+    if( !m_Sound ) {
+        Console->AddEntry("%s not found, aborting", (char*)Filename.c_str());
+        return;
+    }
 
-	if( !m_Sound ) {
-		Console->AddEntry("%s not found, aborting", (char*)Filename.c_str());
-LeaveCS();
-		return;
-		}
+    if( msec_timer - m_Sound->last_time_played < m_min_ticks )
+        return;			// Make sure it doesn't play too often, so it doesn't play too loud!
 
-	if( msec_timer - m_Sound->last_time_played < m_min_ticks ) {
-LeaveCS();
-		return;			// Make sure it doesn't play too often, so it doesn't play too loud!
-		}
+    m_Sound->last_time_played = msec_timer;
 
-	m_Sound->last_time_played = msec_timer;
+    if( !m_Sound->m_SampleHandle || (m_Sound->m_3DSound && !vec) ) {
+        if(!m_Sound->m_SampleHandle)
+            Console->AddEntry("%s not played the good way", (char*)Filename.c_str());
+        else
+            Console->AddEntry("%s : m_Sound->m_SampleHandle is false", (char*)Filename.c_str());
+        return;
+    }
 
-	if( !m_Sound->m_SampleHandle || (m_Sound->m_3DSound && !vec) ) {
-		if(!m_Sound->m_SampleHandle)
-			Console->AddEntry("%s not played the good way", (char*)Filename.c_str());
-		else
-			Console->AddEntry("%s : m_Sound->m_SampleHandle is false", (char*)Filename.c_str());
-LeaveCS();
-		return;
-		}
+    //	Console->AddEntry("plays %s", (char*)Filename.c_str());
 
-//	Console->AddEntry("plays %s", (char*)Filename.c_str());
+    m_WorkListItem	m_Work;
 
-	m_WorkListItem	m_Work;
+    m_Work.m_Sound = m_Sound;
+    m_Work.vec = (VECTOR *)vec;
 
-	m_Work.m_Sound = m_Sound;
-	m_Work.vec = (VECTOR *)vec;
-
-	WorkList.push_back( m_Work );
-
-LeaveCS();
+    WorkList.push_back( m_Work );
 }
 
 void cAudio::PlayTDFSoundNow( const String &Key, const VECTOR3D *vec )		// Wrapper to PlayTDFSound + Update3DSound
 {
-	String szWav = Lowercase( Find( Lowercase( Key ) ) ); // copy string to szWav so we can work with it.
+    String szWav = Lowercase( Find( Lowercase( Key ) ) ); // copy string to szWav so we can work with it.
 
-	// if it has a .wav extension then remove it.
-	int i = (int)szWav.find( ".wav" );
-	if( i != -1 )
-		szWav.resize( szWav.length() - 4 );
+    // if it has a .wav extension then remove it.
+    int i = (int)szWav.find( ".wav" );
+    if( i != -1 )
+        szWav.resize( szWav.length() - 4 );
 
-	m_SoundListItem *m_Sound = m_SoundList->Find( szWav );
+    m_SoundListItem *m_Sound = m_SoundList->Find( szWav );
 
-	if( m_Sound ) {
-		m_Sound->last_time_played = msec_timer - 1000 - m_min_ticks;		// Make sure it'll be played
+    if( m_Sound ) {
+        m_Sound->last_time_played = msec_timer - 1000 - m_min_ticks;		// Make sure it'll be played
 
-		PlayTDFSound( Key, vec );
-		}
-	Update3DSound();
+        PlayTDFSound( Key, vec );
+    }
+    Update3DSound();
 }
 
 // Play sound from TDF by looking up sound filename from internal hash
 void cAudio::PlayTDFSound( const String &Key, const VECTOR3D *vec  )
 {
-	if( Key == "" )	return;
-//	Console->AddEntry("trying to play '%s'", (char*)Key.c_str());
-	if( !Exists( Lowercase( Key ) ) ) {
-		Console->AddEntry("can't find key %s", Key.c_str() );		// output a report to the console but only once
-		InsertOrUpdate( Lowercase( Key ), "" );
-		return;
-		}
-//	Console->AddEntry("%s found", (char*)Key.c_str());
+    if( Key == "" )	return;
+    //	Console->AddEntry("trying to play '%s'", (char*)Key.c_str());
+    if( !Exists( Lowercase( Key ) ) ) {
+        Console->AddEntry("can't find key %s", Key.c_str() );		// output a report to the console but only once
+        InsertOrUpdate( Lowercase( Key ), "" );
+        return;
+    }
+    //	Console->AddEntry("%s found", (char*)Key.c_str());
 
-	String szWav = Find( Lowercase( Key ) );
-	if( szWav != "" )
-		PlaySound( szWav, vec );
+    String szWav = Find( Lowercase( Key ) );
+    if( szWav != "" )
+        PlaySound( szWav, vec );
 }
 
 // keys will be added together and then PlayTDF( key, vec ); if either key is
 // "" it aborts.
 void cAudio::PlayTDFSound( const String &Key1,  const String Key2, const VECTOR3D *vec )
 {
-	if( Key1 == "" || Key2 == "" )
-		return;
+    if( Key1 == "" || Key2 == "" )
+        return;
 
-	String Key = Key1 + String( "." ) + Key2;
+    String Key = Key1 + String( "." ) + Key2;
 
-	PlayTDFSound( Key, vec );
+    PlayTDFSound( Key, vec );
 }
 
 bool cAudio::IsFMODRunning()
 {
-	return m_FMODRunning;
+    return m_FMODRunning;
 }

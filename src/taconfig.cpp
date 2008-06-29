@@ -28,7 +28,7 @@
 #include <libcwd/debug.h>
 #endif
 #include "stdafx.h"
-#include "matrix.h"
+#include "misc/matrix.h"
 #include "TA3D_NameSpace.h"
 #include "ta3dbase.h"
 #include "taconfig.h"

@@ -275,3 +275,14 @@ DECLARE_HANDLE(HPBUFFEREXT);
 #define WGL_TEXTURE_FLOAT_RGB_NV       0x20B7
 #define WGL_TEXTURE_FLOAT_RGBA_NV      0x20B8
 #endif
+
+#ifndef WGL_EXT_framebuffer_sRGB
+#define WGL_EXT_framebuffer_sRGB
+#define WGL_FRAMEBUFFER_SRGB_CAPABLE_EXT 0x20A9
+#endif
+
+#ifndef WGL_EXT_packed_float
+#define WGL_EXT_packed_float
+#define WGL_TYPE_RGBA_UNSIGNED_FLOAT_EXT 0x20A8
+#endif
+

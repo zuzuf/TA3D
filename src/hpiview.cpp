@@ -15,17 +15,21 @@
     along with this program; if not, write to the Free Software
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA*/
 
+
+// Disabled the Sound System
+# define TA3D_NO_SOUND
+
 #include "stdafx.h"
-#include "matrix.h"
-#define TA3D_NO_SOUND
+#include "misc/matrix.h"
 #include "TA3D_NameSpace.h"
 #include "ta3dbase.h"
 #include "jpeg/ta3d_jpg.h"
-#include "EngineClass.h"
-#include "tnt.h"
 #include <iostream>
+#include "tnt.h"
+#include "logs/logs.h"
 
 
+using namespace TA3D::UTILS::HPI;
 
 # ifdef TA3D_PLATFORM_WINDOWS
 #   define PREFIX "  /"
@@ -33,7 +37,7 @@
 #   define PREFIX "  --"
 # endif
 
-using namespace TA3D::UTILS::HPI;
+//using namespace TA3D::UTILS::HPI;
 
 void install_TA_files( String def_path = "" );
 
@@ -68,7 +72,7 @@ static bool hpiviewCmdShow(int argc, char** argv)
         HPIManager = new cHPIHandler("");
         List<String> file_list;
         String ext = (argc > 2) ? argv[2] : "";
-        HPIManager->GetFilelist(ext, &file_list);
+        HPIManager->getFilelist(ext, file_list);
         file_list.sort();
         for(List<String>::iterator cur_file=file_list.begin();cur_file!=file_list.end(); ++cur_file)
             std::cout << cur_file->c_str() << std::endl;
@@ -130,9 +134,9 @@ static bool hpiviewCmdMapDescription(int argc, char** argv)
         MAP_OTA map_data;
         map_data.load( argv[2] );
         std::ofstream   m_File;
-        m_File.open( argv[3], std::ios::out | std::ios::trunc );
+        m_File.open(argv[3], std::ios::out | std::ios::trunc);
 
-        if( m_File.is_open() )
+        if (m_File.is_open())
         {
             m_File << "[MAP]\n{\n";
             m_File << " missionname=" << map_data.missionname << ";\n";
@@ -171,15 +175,17 @@ static bool hpiviewCmdListMods(int argc, char** argv)
         {
             List< String > modlist = GetFileList( "mods/*" );
             modlist.sort();
-            foreach( modlist, i )
-                if( (*i)[0] != '.' )
+            for (List<String>::const_iterator i = modlist.begin(); i != modlist.end(); ++i)
+            {
+                if ((*i)[0] != '.')
                     m_File << *i << "\n";
+            }
             m_File.close();
         }
         delete HPIManager;
         return true;
     }
-    std::cerr << "SYNTAX: " << argv[0] << " listmods modlist.txt" << std::endl;
+    LOG_ERROR("Syntax: " << argv[0] << " listmods modlist.txt");
     return true;
 }
 
@@ -229,7 +235,7 @@ static bool hpiviewCmdPrint(int argc, char** argv)
         HPIManager = new cHPIHandler("");
         List<String> file_list;
         String ext = argc > 2 ? argv[2] : "";
-        HPIManager->GetFilelist(ext,&file_list);
+        HPIManager->getFilelist(ext, file_list);
         file_list.sort();
 
         for(List<String>::iterator cur_file = file_list.begin(); cur_file != file_list.end(); ++cur_file)

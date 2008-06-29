@@ -26,11 +26,11 @@
 #include <libcwd/debug.h>
 #endif
 #include "stdafx.h"
-#include "matrix.h"
+#include "misc/matrix.h"
 #include "TA3D_NameSpace.h"
 #include "ta3dbase.h"
 #include "3do.h"					// Pour la lecture des fichiers 3D
-#include "cob.h"					// Pour la lecture et l'éxecution des scripts
+#include "scripts/cob.h"					// Pour la lecture et l'éxecution des scripts
 #include "EngineClass.h"			// Inclus le moteur
 #include "fbi.h"					// Pour la gestion des unités
 #include "tnt.h"					// Inclus le chargeur de cartes
@@ -38,502 +38,34 @@
 #include "gui.h"
 #include "taconfig.h"
 #include "restore.h"
+#include "misc/settings.h"
+#include "misc/paths.h"
+#include "logs/logs.h"
+#include "ingame/gamedata.h"
+#include "ingame/menus/mapselector.h"
 
-void generate_script_from_mission( String Filename, cTAFileParser *ota_parser, int schema = 0 );	// To access the script generator in the 'script' module
 
-using namespace TA3D::EXCEPTION;
+
+namespace TA3D
+{
+    void generate_script_from_mission( String Filename, cTAFileParser *ota_parser, int schema = 0 );	// To access the script generator in the 'script' module
+}
+
+
+using namespace TA3D::Exceptions;
+
+
 
 #define p_size			10.0f
 #define MENU_NB_PART	200
 
 // Some functions from main.cpp used to deal with config file
 
-void LoadConfigFile( void );
-void makeBackup( const String FileName );
-void restoreBackup( const String FileName );
-void SaveConfigFile( void );
-void ReadFileParameter( void );
 
-void main_menu(void)
-{
-    GuardEnter( main_menu );
+void ReadFileParameter();
 
-    while( mouse_b || key[ KEY_ENTER ] || key[ KEY_ESC ] || key[ KEY_SPACE ] )	rest( 10 );
 
-    gfx->SetDefState();
 
-    gfx->set_2D_mode();
-
-    gfx->ReInitTexSys();
-
-    gfx->SCREEN_W_TO_640 = 1.0f;				// To have mouse sensibility undependent from the resolution
-    gfx->SCREEN_H_TO_480 = 1.0f;
-
-    AREA main_area("main");
-    main_area.load_tdf("gui/main.area");
-    if( !main_area.background )	main_area.background = gfx->glfond;
-
-    cursor_type = CURSOR_DEFAULT;
-
-    String current_mod = TA3D_CURRENT_MOD.length() > 6 ? TA3D_CURRENT_MOD.substr( 5, TA3D_CURRENT_MOD.length() - 6 ) : "";
-
-    ReadFileParameter();			// If there is a file parameter, read it
-
-    bool done=false;
-    bool first=true;
-
-    int amx = -1;
-    int amy = -1;
-    int amz = -1;
-    int amb = -1;
-
-    do
-    {
-        bool key_is_pressed = false;
-        do
-        {
-            key_is_pressed = keypressed();
-            main_area.check();
-            rest( 1 );
-        } while( amx == mouse_x && amy == mouse_y && amz == mouse_z && amb == mouse_b
-                 && mouse_b == 0 && !key[ KEY_ENTER ] && !key[ KEY_ESC ] && !done
-                 && !key_is_pressed && !main_area.scrolling && !first );
-
-        first = false;
-
-        amx = mouse_x;
-        amy = mouse_y;
-        amz = mouse_z;
-        amb = mouse_b;
-
-        if(key[KEY_ESC])	done=true;
-
-        main_area.set_caption("main.t_version", TA3D_ENGINE_VERSION );
-        if( !current_mod.empty() )
-            main_area.set_caption("main.t_mod", "MOD: " + current_mod );
-        else
-            main_area.set_caption("main.t_mod", "" );
-
-        bool reset = false;
-
-        if( key[KEY_ESC] || main_area.get_state( "main.b_exit" ) )
-            done=true;
-        if( key[KEY_SPACE] || main_area.get_state( "main.b_options" ) || lp_CONFIG->quickstart )
-        {
-            glPushMatrix();
-            config_menu();
-            lp_CONFIG->quickstart = false;
-            reset = true;
-            glPopMatrix();
-        }
-        if( key[KEY_ENTER] || main_area.get_state( "main.b_solo" ) )
-        {
-            glPushMatrix();
-            solo_menu();
-            glPopMatrix();
-            reset = true;
-        }
-        if( key[KEY_B] || main_area.get_state( "main.b_multi" ) )
-        {
-            glPushMatrix();
-            network_room();
-            glPopMatrix();
-            reset = true;
-        }
-
-        if( reset )
-        {
-            first = true;
-
-            glMatrixMode(GL_MODELVIEW);
-            glLoadIdentity();
-
-            glEnable(GL_TEXTURE_2D);
-            gfx->set_color( 0xFFFFFFFF );
-
-            current_mod = TA3D_CURRENT_MOD.length() > 6 ? TA3D_CURRENT_MOD.substr( 5, TA3D_CURRENT_MOD.length() - 6 ) : "";
-
-            gfx->SCREEN_W_TO_640 = 1.0f;				// To have mouse sensibility undependent from the resolution
-            gfx->SCREEN_H_TO_480 = 1.0f;
-            cursor_type=CURSOR_DEFAULT;		// Curseur par standard
-        }
-
-        main_area.draw();
-
-        glEnable(GL_TEXTURE_2D);
-        gfx->set_color(0xFFFFFFFF);
-        draw_cursor();
-
-        gfx->flip();
-
-    } while(!done && !lp_CONFIG->quickrestart);
-
-    if( main_area.background == gfx->glfond )	main_area.background = 0;
-    main_area.destroy();
-
-    gfx->set_2D_mode();
-
-    GuardLeave();
-}
-
-
-
-void solo_menu()
-{
-    cursor_type=CURSOR_DEFAULT;
-
-    reset_keyboard();
-    while(key[KEY_ESC])
-        rest(1);
-
-    AREA solo_area("solo");
-    solo_area.load_tdf("gui/solo.area");
-    if( !solo_area.background )	solo_area.background = gfx->glfond;
-
-    bool done=false;
-
-    int amx = -1;
-    int amy = -1;
-    int amz = -1;
-    int amb = -1;
-
-    do
-    {
-        bool key_is_pressed = false;
-        do
-        {
-            key_is_pressed = keypressed();
-            solo_area.check();
-            rest( 1 );
-        } while( amx == mouse_x && amy == mouse_y && amz == mouse_z && amb == mouse_b
-                 && mouse_b == 0 && !key[ KEY_ENTER ] && !key[ KEY_ESC ] && !done
-                 && !key_is_pressed && !solo_area.scrolling );
-
-        amx = mouse_x;
-        amy = mouse_y;
-        amz = mouse_z;
-        amb = mouse_b;
-
-        if( solo_area.get_state( "solo.b_skirmish" ) || key[KEY_ENTER] )
-        {
-            while( key[KEY_ENTER] )
-            {
-                rest( 20 );
-                poll_keyboard();
-            }
-            clear_keybuf();
-
-            glPushMatrix();
-            setup_game();
-            glPopMatrix();
-        }
-
-        if( solo_area.get_state( "solo.b_campaign" ) || key[KEY_C] )
-        {
-            while( key[KEY_ESC] )
-            {
-                rest( 20 );
-                poll_keyboard();
-            }
-            clear_keybuf();
-
-            glPushMatrix();
-            campaign_main_menu();
-            glPopMatrix();
-        }
-
-        if( solo_area.get_state( "solo.b_load" ) && solo_area.get_object("load_menu.l_file") )
-        {
-            GUIOBJ *obj = solo_area.get_object("load_menu.l_file");
-            List<String> file_list = GetFileList( TA3D_OUTPUT_DIR + "savegame/*.sav" );
-
-            file_list.sort();
-
-            obj->Text.clear();
-            obj->Text.reserve( file_list.size() );
-            foreach( file_list, i )	obj->Text.push_back( *i );
-        }
-
-        if( solo_area.get_state( "load_menu.b_load" ) )
-        {
-            solo_area.set_state( "load_menu.b_load", false );
-            GUIOBJ *obj_list = solo_area.get_object( "load_menu.l_file" );
-            if( obj_list && obj_list->Pos >= 0 && obj_list->Pos < obj_list->Text.size() )
-            {
-                GAME_DATA game_data;
-                load_game_data( TA3D_OUTPUT_DIR + "savegame/" + obj_list->Text[ obj_list->Pos ], &game_data );
-
-                if( !game_data.saved_file.empty() )
-                {
-                    gfx->unset_2D_mode();
-                    GuardStart( play );
-                    play(&game_data);
-                    GuardCatch();
-                    if( IsExceptionInProgress() ) // if guard threw an error this will be true.
-                    {
-                        GuardDisplayAndLogError();   // record and display the error.
-                        exit(1);                      // we outa here.
-                    }
-                    gfx->set_2D_mode();
-                    gfx->ReInitTexSys();
-                }
-            }
-        }
-
-        if( solo_area.get_state( "solo.b_back" ) || key[KEY_ESC] )
-        {
-            while( key[KEY_ESC] )
-            {
-                rest( 20 );
-                poll_keyboard();
-            }
-            clear_keybuf();
-            done=true;
-        }
-
-        solo_area.draw();
-
-        glEnable(GL_TEXTURE_2D);
-        gfx->set_color(0xFFFFFFFF);
-        draw_cursor();
-
-        // Affiche
-        gfx->flip();
-    } while(!done);
-
-    if( solo_area.background == gfx->glfond )
-        solo_area.background = 0;
-    solo_area.destroy();
-
-    clear_keybuf();
-
-    reset_mouse();
-    while(key[KEY_ESC])
-    {
-        rest(1);
-        poll_keyboard();
-    }
-}
-
-uint32 GetMultiPlayerMapList(std::list<std::string> *li)
-{
-    std::list< String > map_list;
-    uint32 n = HPIManager->GetFilelist("maps\\*.tnt",&map_list);
-    std::list< String >::iterator i_map;
-    uint32 count;
-
-    if( n < 1 )
-        return 0;
-
-    MAP_OTA	map_data;											// Using MAP_OTA because it's faster than cTAFileParser that fills a hash_table object
-    bool isNetworkGame;
-    count = 0;
-
-    for( i_map=map_list.begin(); i_map!=map_list.end(); i_map++ )
-    {
-        *i_map=i_map->substr(5,i_map->length()-9);
-
-        isNetworkGame = false;
-
-        uint32 ota_size=0;
-        byte *data = HPIManager->PullFromHPI( String( "maps\\" ) + *i_map + String( ".ota" ), &ota_size);
-        if(data) {
-            map_data.load((char*)data,ota_size);
-            isNetworkGame = map_data.network;
-            free(data);
-            map_data.destroy();
-        }
-
-        if( isNetworkGame )
-        {
-            li->push_back( *i_map );
-            count++;
-        }
-    }
-
-    li->sort();
-    return count;
-} 
-
-char *select_map(String *def_choice)		// Cette fonction affiche un menu permettant à l'utilisateur de choisir une carte dans une liste et de la prévisualiser à l'écran
-{
-    cursor_type=CURSOR_DEFAULT;
-
-    reset_keyboard();
-    while(key[KEY_ESC])	rest(1);
-
-    AREA mapsetup_area("map setup");
-    mapsetup_area.load_tdf("gui/mapsetup.area");
-    if( !mapsetup_area.background )	mapsetup_area.background = gfx->glfond;
-
-    List< String > map_list;
-    uint32 n = GetMultiPlayerMapList( &map_list );
-    List< String >::iterator i_map;
-
-    if(n==0)	{
-        Popup(TRANSLATE("Error"),TRANSLATE("No maps found"));
-        Console->AddEntry("no maps found!!");
-        reset_mouse();
-        return NULL;
-    }
-
-    char *choice=NULL;
-
-    GLuint mini = 0;
-    int dx = 0;
-    int dy = 0;
-    float ldx = dx*70.0f/252.0f;
-        float ldy = dy*70.0f/252.0f;
-
-
-        GUIOBJ *minimap_obj = mapsetup_area.get_object( "mapsetup.minimap" );
-    float mini_map_x1 = 0.0f;
-    float mini_map_y1 = 0.0f;
-    float mini_map_x2 = 0.0f;
-    float mini_map_y2 = 0.0f;
-    float mini_map_x = 0.0f;
-    float mini_map_y = 0.0f;
-    if( minimap_obj ) {
-        mini_map_x1 = minimap_obj->x1;
-        mini_map_y1 = minimap_obj->y1;
-        mini_map_x2 = minimap_obj->x2;
-        mini_map_y2 = minimap_obj->y2;
-        ldx = dx * ( mini_map_x2 - mini_map_x1 ) / 504.0f;
-        ldy = dy * ( mini_map_y2 - mini_map_y1 ) / 504.0f;
-
-        mini_map_x = (mini_map_x1 + mini_map_x2) * 0.5f;
-        mini_map_y = (mini_map_y1 + mini_map_y2) * 0.5f;
-
-        minimap_obj->Data = 0;
-        minimap_obj->x1 = mini_map_x - ldx;
-        minimap_obj->y1 = mini_map_y - ldy;
-        minimap_obj->x2 = mini_map_x + ldx;
-        minimap_obj->y2 = mini_map_y + ldy;
-        minimap_obj->u2 = dx / 252.0f;
-        minimap_obj->v2 = dy / 252.0f;
-    }
-
-    MAP_OTA	map_data;
-    int sel_index = -1;
-    int o_sel = -1;
-
-    if( def_choice ) {
-        *def_choice = def_choice->substr(5,def_choice->length()-9);
-        int i = 0;
-        GUIOBJ *gui_map_list = mapsetup_area.get_object("mapsetup.map_list");
-        if( gui_map_list )
-            gui_map_list->Text.resize( map_list.size() );
-        for( i_map = map_list.begin() ; i_map != map_list.end() ; i_map++, i++ ) {
-            if( gui_map_list )
-                gui_map_list->Text[ i ] = *i_map;
-            if( *i_map == *def_choice && gui_map_list ) {
-                gui_map_list->Pos = i;
-                gui_map_list->Data = i;			// Make it visible
-                sel_index = i;
-            }
-        }
-    }
-
-    bool done=false;
-
-    int amx = -1;
-    int amy = -1;
-    int amz = -1;
-    int amb = -1;
-
-    do
-    {
-        bool key_is_pressed = false;
-        do {
-            key_is_pressed = keypressed();
-            mapsetup_area.check();
-            rest( 1 );
-        } while( amx == mouse_x && amy == mouse_y && amz == mouse_z && amb == mouse_b && mouse_b == 0 && !key[ KEY_ENTER ] && !key[ KEY_ESC ] && !done && !key_is_pressed && !mapsetup_area.scrolling );
-
-        amx = mouse_x;
-        amy = mouse_y;
-        amz = mouse_z;
-        amb = mouse_b;
-
-        if( mapsetup_area.get_state( "mapsetup.b_ok" ) || key[KEY_ENTER] ) {
-            while( key[KEY_ENTER] )	{	rest( 20 );	poll_keyboard();	}
-            clear_keybuf();
-            done=true;		// If user click "OK" or hit enter then leave the window
-        }
-
-        if( mapsetup_area.get_state( "mapsetup.b_cancel" ) || key[KEY_ESC] ) {
-            while( key[KEY_ESC] )	{	rest( 20 );	poll_keyboard();	}
-            clear_keybuf();
-            done=true;		// If user click "Cancel" or hit ESC then leave the screen returning NULL
-            if( choice )	free( choice );
-            choice = NULL;
-        }
-
-        if( mapsetup_area.get_object("mapsetup.map_list") )
-            sel_index = mapsetup_area.get_object("mapsetup.map_list")->Pos;
-
-        if( sel_index != o_sel && sel_index >= 0) {
-            o_sel = sel_index;
-            gfx->destroy_texture( mini );
-            i_map = map_list.begin();
-            for( int i = 0 ; i < sel_index && i_map != map_list.end() ; i++)	i_map++;
-            String tmp = String("maps\\") + *i_map + String(".tnt");
-            mini = load_tnt_minimap_fast((char*)tmp.c_str(),&dx,&dy);
-            if( choice )	free( choice );		// Don't forget to free memory
-            choice = strdup(tmp.c_str());													// Copy the map name
-            tmp = String("maps\\") + *i_map + String(".ota");								// Read the ota file
-            uint32 ota_size = 0;
-            byte *data = HPIManager->PullFromHPI(tmp,&ota_size);
-            if(data) {
-                map_data.load((char*)data,ota_size);
-                free(data);
-            }
-            else
-                map_data.destroy();
-            if( minimap_obj ) {	// Update the minimap on GUI
-                gfx->destroy_texture( minimap_obj->Data );			// Make things clean
-                minimap_obj->Data = mini;
-                mini = 0;
-                ldx = dx * ( mini_map_x2 - mini_map_x1 ) / 504.0f;
-                    ldy = dy * ( mini_map_y2 - mini_map_y1 ) / 504.0f;
-                    minimap_obj->x1 = mini_map_x-ldx;
-                minimap_obj->y1 = mini_map_y-ldy;
-                minimap_obj->x2 = mini_map_x+ldx;
-                minimap_obj->y2 = mini_map_y+ldy;
-                minimap_obj->u2 = dx/252.0f;
-                minimap_obj->v2 = dy/252.0f;
-            }
-
-            String map_info = "";
-            if(map_data.missionname)
-                map_info += String( map_data.missionname ) + "\n";
-            if(map_data.numplayers)
-                map_info += "\n" + TRANSLATE("players: ") + String( map_data.numplayers ) + "\n";
-            if(map_data.missiondescription)
-                map_info += String( "\n" ) + map_data.missiondescription;
-            mapsetup_area.set_caption("mapsetup.map_info", map_info );
-        }
-
-        mapsetup_area.draw();
-
-        glEnable(GL_TEXTURE_2D);
-        gfx->set_color(0xFFFFFFFF);
-        draw_cursor();
-
-        // Affiche
-        gfx->flip();
-    }while(!done);
-
-    if( mapsetup_area.background == gfx->glfond )	mapsetup_area.background = 0;
-    mapsetup_area.destroy();
-
-    gfx->destroy_texture( mini );
-
-    reset_mouse();
-    while(key[KEY_ESC]) {	rest(1);	poll_keyboard();	}
-
-    return choice;
-}
 
 void config_menu(void)
 {
@@ -554,10 +86,11 @@ void config_menu(void)
     if( !config_area.background )	config_area.background = gfx->glfond;
 
     Vector< String > fps_limits;
-    if( config_area.get_object("*.fps_limit") ) {
+    if( config_area.get_object("*.fps_limit") )
+    {
         fps_limits = config_area.get_object("*.fps_limit")->Text;
         fps_limits.erase( fps_limits.begin() );
-        }
+    }
     else
         ReadVectorString( fps_limits, "50,60,70,80,90,100,no limit" );
     for( uint32 e = 0 ; e < fps_limits.size() ; e++ )
@@ -568,45 +101,55 @@ void config_menu(void)
     int res_bpp[100];
 
     GFX_MODE_LIST *mode_list = get_gfx_mode_list( GFX_OPENGL_FULLSCREEN );
-
-    for( int i = 0 ; i < mode_list->num_modes ; ++i)
+    if (mode_list)
     {
-        if( mode_list->mode[ i ].bpp == 32 )
+        for( int i = 0 ; i < mode_list->num_modes ; ++i)
         {
-            bool found = mode_list->mode[ i ].width < 640 || mode_list->mode[ i ].height < 480;
-            if( !found )
-                for( int e = 0 ; e < nb_res ; e++ )
-                    if( res_width[e] == mode_list->mode[ i ].width && res_height[e] == mode_list->mode[ i ].height )
-                    {
-                        found = true;
-                        break;
-                    }
-
-            if( mode_list->mode[ i ].height == 0 ||
-                ( mode_list->mode[ i ].width * 3 != 4 * mode_list->mode[ i ].height &&
-                  mode_list->mode[ i ].width * 9 != 16 * mode_list->mode[ i ].height &&
-                  mode_list->mode[ i ].width * 10 != 16 * mode_list->mode[ i ].height &&
-                  mode_list->mode[ i ].width * 4 != 5 * mode_list->mode[ i ].height ) )	found = true;
-
-            if( !found )
+            if( mode_list->mode[ i ].bpp == 32 )
             {
-                res_bpp[ nb_res ] = 16;
-                res_width[ nb_res ] = mode_list->mode[ i ].width;
-                res_height[ nb_res++ ] = mode_list->mode[ i ].height;
-                res_bpp[ nb_res ] = 32;
-                res_width[ nb_res ] = mode_list->mode[ i ].width;
-                res_height[ nb_res++ ] = mode_list->mode[ i ].height;
+                bool found = mode_list->mode[ i ].width < 640 || mode_list->mode[ i ].height < 480;
+                if( !found )
+                {
+                    for( int e = 0 ; e < nb_res ; e++ )
+                    {
+                        if( res_width[e] == mode_list->mode[ i ].width && res_height[e] == mode_list->mode[ i ].height )
+                        {
+                            found = true;
+                            break;
+                        }
+                    }
+                }
+
+                if( mode_list->mode[ i ].height == 0 ||
+                    ( mode_list->mode[ i ].width * 3 != 4 * mode_list->mode[ i ].height &&
+                      mode_list->mode[ i ].width * 9 != 16 * mode_list->mode[ i ].height &&
+                      mode_list->mode[ i ].width * 10 != 16 * mode_list->mode[ i ].height &&
+                      mode_list->mode[ i ].width * 4 != 5 * mode_list->mode[ i ].height ) )
+                {
+                    found = true;
+                }
+
+                if( !found )
+                {
+                    res_bpp[ nb_res ] = 16;
+                    res_width[ nb_res ] = mode_list->mode[ i ].width;
+                    res_height[ nb_res++ ] = mode_list->mode[ i ].height;
+                    res_bpp[ nb_res ] = 32;
+                    res_width[ nb_res ] = mode_list->mode[ i ].width;
+                    res_height[ nb_res++ ] = mode_list->mode[ i ].height;
+                }
             }
         }
+        destroy_gfx_mode_list( mode_list );
     }
-
-    destroy_gfx_mode_list( mode_list );
 
     config_area.set_state("*.showfps", lp_CONFIG->showfps);
     config_area.set_caption("*.fps_limit", fps_limits[fps_limits.size()-1]);
-    foreach( fps_limits, i )
+    for (Vector<String>::const_iterator i = fps_limits.begin(); i != fps_limits.end(); ++i)
+    {
         if( format( "%d", (int)lp_CONFIG->fps_limit ) == *i )
             config_area.set_caption("*.fps_limit", *i);
+    }
     config_area.set_state("*.wireframe", lp_CONFIG->wireframe);
     config_area.set_state("*.particle", lp_CONFIG->particle);
     config_area.set_state("*.explosion_particles", lp_CONFIG->explosion_particles);
@@ -693,7 +236,7 @@ void config_menu(void)
         obj->Text[ 0 ] = TRANSLATE( "default.skn" );
 
         List<String> skin_list;
-        uint32 n = HPIManager->GetFilelist("gui\\*.skn",&skin_list);
+        HPIManager->getFilelist("gui\\*.skn", skin_list);
 
         for( List< String >::iterator i = skin_list.begin() ; i != skin_list.end() ; i++ )
         {
@@ -734,7 +277,7 @@ void config_menu(void)
                 GUIOBJ *pbar = config_area.get_object( "config_confirm.p_wait" );
                 if( pbar )
                 {
-                    int new_value = (msec_timer - timer) / 50;
+                    unsigned int new_value = (msec_timer - timer) / 50;
                     if( new_value != pbar->Data )
                     {
                         pbar->Data = new_value;
@@ -758,8 +301,8 @@ void config_menu(void)
             if( time_out || config_area.get_state("config_confirm.b_cancel_changes" ) || key[KEY_ESC] )
             {
                 I_Msg( TA3D::TA3D_IM_GUI_MSG, (void*)("config_confirm.hide"), NULL, NULL );
-                restoreBackup( TA3D_OUTPUT_DIR + "ta3d.cfg" );
-                LoadConfigFile();
+                TA3D::Settings::Restore(TA3D::Paths::ConfigFile);
+                TA3D::Settings::Load();
                 done = true;
                 save = false;
                 lp_CONFIG->quickstart = false;
@@ -812,7 +355,8 @@ void config_menu(void)
         lp_CONFIG->showfps = config_area.get_state( "*.showfps" );
         if( config_area.get_value( "*.fps_limit" ) >= 0 ) {
             GUIOBJ *obj = config_area.get_object( "*.fps_limit" );
-            if( obj && obj->Data != -1 ) {
+            if (obj && obj->Data != uint32(-1))
+            {
                 obj->Text[0] = fps_limits[ obj->Value ];
                 switch( obj->Value )
                 {
@@ -964,10 +508,10 @@ void config_menu(void)
             TA3D_clear_cache();		// Clear the cache
 
             HPIManager = new cHPIHandler("");
-            ta3d_sidedata.load_data();				// Refresh side data so we load the correct values
+            ta3dSideData.loadData();				// Refresh side data so we load the correct values
 
             delete sound_manager;
-            sound_manager = new TA3D::INTERFACES::cAudio ( 1.0f, 0.0f, 0.0f );
+            sound_manager = new TA3D::Interfaces::cAudio ( 1.0f, 0.0f, 0.0f );
             sound_manager->StopMusic();
             sound_manager->LoadTDFSounds( true );
             sound_manager->LoadTDFSounds( false );
@@ -998,7 +542,8 @@ void stats_menu(void)
     statistics_area.load_tdf("gui/statistics.area");
     if( !statistics_area.background )	statistics_area.background = gfx->glfond;
 
-    for( int i = 0 ; i < players.nb_player ; i++ ) {
+    for (unsigned int i = 0 ; i < players.nb_player ; ++i)
+    {
         GUIOBJ *obj;
         uint32 color = gfx->makeintcol( player_color[ 3 * player_color_map[ i ] ], player_color[ 3 * player_color_map[ i ] + 1 ], player_color[ 3 * player_color_map[ i ] + 2 ] );
 
@@ -1095,7 +640,7 @@ void setup_game(bool client, const char *host)
             special msg;
             network_manager.sendSpecial( strtochat( &msg, format( "NOTIFY NEW_PLAYER %s", ReplaceChar( lp_CONFIG->player_name, ' ', 1 ).c_str() ) ) );
             rest(10);
-            network_manager.sendSpecial( strtochat( &msg, "REQUEST GAME_DATA" ) );
+            network_manager.sendSpecial( strtochat( &msg, "REQUEST GameData" ) );
         }
     }
 
@@ -1106,20 +651,20 @@ void setup_game(bool client, const char *host)
     String	player_str[4] = { lp_CONFIG->player_name, TRANSLATE("computer"), TRANSLATE("open"), TRANSLATE("closed") };
     byte	player_control[4] = { PLAYER_CONTROL_LOCAL_HUMAN, PLAYER_CONTROL_LOCAL_AI, PLAYER_CONTROL_NONE, PLAYER_CONTROL_CLOSED };
     String	ai_level_str[4] = { TRANSLATE("easy"), TRANSLATE("medium"), TRANSLATE("hard"), TRANSLATE("bloody") };
-    uint16	side_str_n = ta3d_sidedata.nb_side;
+    uint16	side_str_n = ta3dSideData.nb_side;
     Vector<String>	side_str;
 
-    side_str.resize( ta3d_sidedata.nb_side );
-    for( int i = 0 ; i < ta3d_sidedata.nb_side ; i++ )			// Get side data
-        side_str[ i ] = ta3d_sidedata.side_name[ i ];
+    side_str.resize( ta3dSideData.nb_side );
+    for( int i = 0 ; i < ta3dSideData.nb_side ; i++ )			// Get side data
+        side_str[ i ] = ta3dSideData.side_name[ i ];
 
-    GAME_DATA game_data;
+    GameData game_data;
 
     if( HPIManager->Exists( lp_CONFIG->last_map ) )
         game_data.map_filename = strdup( lp_CONFIG->last_map.c_str() );
     else {
         List<String> map_list;
-        uint32 n = HPIManager->GetFilelist("maps\\*.tnt",&map_list);
+        uint32 n = HPIManager->getFilelist("maps\\*.tnt", map_list);
 
         if( n == 0 ) {
             network_manager.Disconnect();
@@ -1136,7 +681,7 @@ void setup_game(bool client, const char *host)
         game_data.game_script = strdup( lp_CONFIG->last_script.c_str() );
     else {
         List<String> script_list;
-        uint32 n = HPIManager->GetFilelist("scripts\\*.lua",&script_list);
+        uint32 n = HPIManager->getFilelist("scripts\\*.lua", script_list);
 
         if( n == 0 ) {
             network_manager.Disconnect();
@@ -1173,14 +718,14 @@ void setup_game(bool client, const char *host)
     }
 
     int dx, dy;
-    GLuint glimg = load_tnt_minimap_fast(game_data.map_filename,&dx,&dy);
+    GLuint glimg = load_tnt_minimap_fast(game_data.map_filename,dx,dy);
     char tmp_char[1024];
     MAP_OTA	map_data;
     map_data.load( replace_extension( (char*)tmp_char, game_data.map_filename, "ota", 1024 ) );
     float ldx = dx*70.0f/252.0f;
-        float ldy = dy*70.0f/252.0f;
+    float ldy = dy*70.0f/252.0f;
 
-        AREA setupgame_area("setup");
+    AREA setupgame_area("setup");
     setupgame_area.load_tdf("gui/setupgame.area");
     if( !setupgame_area.background )	setupgame_area.background = gfx->glfond;
     for(uint16 i = 0 ; i < 10 ; i++ ) {
@@ -1226,7 +771,7 @@ void setup_game(bool client, const char *host)
     GUIOBJ *guiobj = setupgame_area.get_object( "scripts.script_list" );
     if( guiobj ) {
         std::list< String > script_list;
-        HPIManager->GetFilelist("scripts\\*.lua",&script_list);
+        HPIManager->getFilelist("scripts\\*.lua", script_list);
         for(std::list< String >::iterator i_script = script_list.begin() ; i_script != script_list.end() ; i_script++ )
             guiobj->Text.push_back( *i_script );
     }
@@ -1409,7 +954,7 @@ void setup_game(bool client, const char *host)
                     {
                         if( params[1] == "PLAYER_ID" )					// Sending player's network ID
                             network_manager.sendSpecial( format( "RESPONSE PLAYER_ID %d", from ), -1, from );
-                        else if( params[1] == "GAME_DATA" ) {			// Sending game information
+                        else if( params[1] == "GameData" ) {			// Sending game information
                             for( int i = 0 ; i < 10 ; i++ ) {			// Send player information
                                 if( client && game_data.player_network_id[i] != my_player_id )	continue;		// We don't send updates about things we wan't update
                                 String msg;								// SYNTAX: PLAYER_INFO player_id network_id side_id ai_level metal energy player_name
@@ -1434,10 +979,10 @@ void setup_game(bool client, const char *host)
                     }
                     else if( params[0] == "NOTIFY" ) {
                         if( params[1] == "UPDATE" )
-                            network_manager.sendSpecial( "REQUEST GAME_DATA" );			// We're told there are things to update, so ask for update
+                            network_manager.sendSpecial( "REQUEST GameData" );			// We're told there are things to update, so ask for update
                         else if( params[1] == "PLAYER_LEFT" ) {
                             network_manager.dropPlayer( from );
-                            network_manager.sendSpecial( "REQUEST GAME_DATA" );			// We're told there are things to update, so ask for update
+                            network_manager.sendSpecial( "REQUEST GameData" );			// We're told there are things to update, so ask for update
                             for( int i = 0 ; i < 10 ; i++ )
                                 if( game_data.player_network_id[i] == from ) {
                                     game_data.player_network_id[i] = -1;
@@ -1700,7 +1245,8 @@ void setup_game(bool client, const char *host)
         if( client )
             setupgame_area.msg("scripts.hide");	// Hide the scripts window in client mode
 
-        if( setupgame_area.get_state( "scripts.b_ok" ) && !client ) {
+        if( setupgame_area.get_state( "scripts.b_ok" ) && !client )
+        {
             guiobj = setupgame_area.get_object( "scripts.script_list" );
             if( guiobj && guiobj->Pos >= 0 && guiobj->Pos < guiobj->num_entries() ) {
                 setupgame_area.set_caption( "gamesetup.script_name", guiobj->Text[ guiobj->Pos ] );
@@ -1710,14 +1256,16 @@ void setup_game(bool client, const char *host)
             }
         }
 
-        if( setupgame_area.get_state( "gamesetup.b_ok" ) && !client ) {
+        if( setupgame_area.get_state( "gamesetup.b_ok" ) && !client )
+        {
             bool ready = true;
             if( host )
                 for( int i = 0 ; i < 10 ; i++ )
                     if( game_data.player_control[i] == PLAYER_CONTROL_LOCAL_HUMAN || game_data.player_control[i] == PLAYER_CONTROL_REMOTE_HUMAN )
                         ready &= game_data.ready[i];
 
-            if( ready ) {
+            if (ready)
+            {
                 while( key[KEY_ENTER] )	{	rest( 20 );	poll_keyboard();	}
                 clear_keybuf();
                 done=true;		// If user click "OK" or hit enter then leave the window
@@ -1725,9 +1273,11 @@ void setup_game(bool client, const char *host)
                 network_manager.sendSpecial( "NOTIFY START" );
             }
         }
-        if( setupgame_area.get_state( "gamesetup.b_cancel" ) ) done=true;		// En cas de click sur "retour", on quitte la fenêtre
+        if( setupgame_area.get_state("gamesetup.b_cancel"))
+            done=true;		// En cas de click sur "retour", on quitte la fenêtre
 
-        for(uint16 i = 0 ; i < 10 ; i++ ) {
+        for(uint16 i = 0 ; i < 10 ; ++i)
+        {
             if( setupgame_area.get_state( format("gamesetup.ready%d", i ) ) != game_data.ready[i] ) {
                 if( game_data.player_control[i] == PLAYER_CONTROL_LOCAL_HUMAN ) {
                     network_manager.sendSpecial( "NOTIFY UPDATE" );
@@ -1736,9 +1286,12 @@ void setup_game(bool client, const char *host)
                 else
                     setupgame_area.set_state( format("gamesetup.ready%d", i ), game_data.ready[i] );
             }
-            if( client && game_data.player_network_id[i] != my_player_id )	continue;							// You cannot change other player's settings
-            if( setupgame_area.get_state( format("gamesetup.b_name%d", i) ) && !client ) {		// Change player type
-                if( game_data.player_network_id[i] >= 0 && game_data.player_network_id[i] != my_player_id ) {		// Kick player !!
+            if(client && game_data.player_network_id[i] != my_player_id )
+                continue;							// You cannot change other player's settings
+            if( setupgame_area.get_state( format("gamesetup.b_name%d", i) ) && !client ) // Change player type
+            {
+                if( game_data.player_network_id[i] >= 0 && game_data.player_network_id[i] != my_player_id ) // Kick player !!
+                {
                     network_manager.dropPlayer( game_data.player_network_id[i] );
                     network_manager.sendSpecial( "NOTIFY UPDATE" );
                 }
@@ -1747,12 +1300,17 @@ void setup_game(bool client, const char *host)
                     if( setupgame_area.get_caption(format("gamesetup.name%d", i)) == player_str[f].c_str() ) {	e = f;	break;	}
                 e = (e+1) % player_str_n;
 
-                if( player_control[e] == PLAYER_CONTROL_LOCAL_HUMAN )					// We can only have one local human player ( or it crashes )
+                if (player_control[e] == PLAYER_CONTROL_LOCAL_HUMAN)// We can only have one local human player ( or it crashes )
+                {
                     for( uint16 f = 0 ; f<10 ; f++ )
-                        if( f!= i && game_data.player_control[f] == PLAYER_CONTROL_LOCAL_HUMAN ) {		// If we already have a local human player pass this player type value
+                    {
+                        if( f!= i && game_data.player_control[f] == PLAYER_CONTROL_LOCAL_HUMAN ) // If we already have a local human player pass this player type value
+                        {
                             e = (e+1) % player_str_n;
                             break;
                         }
+                    }
+                }
 
                 game_data.player_names[i] = player_str[e];								// Update game data
                 game_data.player_control[i] = player_control[e];
@@ -1782,7 +1340,8 @@ void setup_game(bool client, const char *host)
                 game_data.player_sides[i] = side_str[e];								// update game data
                 if( host )	network_manager.sendSpecial( "NOTIFY UPDATE" );
             }
-            if( setupgame_area.get_state( format("gamesetup.b_ai%d", i) ) ) {	// Change player level (for AI)
+            if (setupgame_area.get_state( format("gamesetup.b_ai%d", i) ) ) // Change player level (for AI)
+            {
                 uint16 e = 0;
                 for( uint16 f = 0 ; f<ai_level_str_n ; f++ )
                     if( setupgame_area.get_caption( format("gamesetup.ai%d", i) ) == ai_level_str[f].c_str() ) {	e = f;	break;	}
@@ -1790,20 +1349,29 @@ void setup_game(bool client, const char *host)
                 setupgame_area.set_caption( format("gamesetup.ai%d", i), game_data.player_control[i] & PLAYER_CONTROL_FLAG_AI ? ai_level_str[e] : String("") );			// Update gui
 
                 game_data.ai_level[i] = e;								// update game data
-                if( host )	network_manager.sendSpecial( "NOTIFY UPDATE" );
+                if (host)
+                    network_manager.sendSpecial("NOTIFY UPDATE");
             }
-            if( setupgame_area.get_state( format("gamesetup.b_color%d", i) ) ) {	// Change player color
-                if( client )	network_manager.sendSpecial(format("NOTIFY COLORCHANGE %d", i));
+            if(setupgame_area.get_state( format("gamesetup.b_color%d", i)))	// Change player color
+            {
+                if (client)
+                    network_manager.sendSpecial(format("NOTIFY COLORCHANGE %d", i));
                 sint16 e = player_color_map[i];
                 sint16 f = -1;
                 for( sint16 g = 0; g<10 ; g++ )						// Look for the next color
-                    if( (game_data.player_control[g] == PLAYER_CONTROL_NONE || game_data.player_control[g] == PLAYER_CONTROL_CLOSED) && player_color_map[g] > e && (f == -1 || player_color_map[g] < player_color_map[f]) )
+                {
+                    if( (game_data.player_control[g] == PLAYER_CONTROL_NONE || game_data.player_control[g] == PLAYER_CONTROL_CLOSED)
+                        && player_color_map[g] > e && (f == -1 || player_color_map[g] < player_color_map[f]) )
+                    {
                         f = g;
+                    }
+                }
                 if( f == -1 )
                     for( uint16 g = 0; g<10 ; g++ )
                         if( (game_data.player_control[g] == PLAYER_CONTROL_NONE || game_data.player_control[g] == PLAYER_CONTROL_CLOSED) && (f == -1 || player_color_map[g] < player_color_map[f]) )
                             f = g;
-                if( f != -1 ) {
+                if( f != -1 )
+                {
                     sint16 g = player_color_map[f];
                     player_color_map[i] = g;								// update game data
                     player_color_map[f] = e;
@@ -1815,16 +1383,19 @@ void setup_game(bool client, const char *host)
                     if( guiobj )
                         guiobj->Data = gfx->makeintcol(player_color[player_color_map[f]*3],player_color[player_color_map[f]*3+1],player_color[player_color_map[f]*3+2]);			// Update gui
                 }
-                if( host && !client )	network_manager.sendSpecial( "NOTIFY UPDATE" );
+                if(host && !client)
+                    network_manager.sendSpecial( "NOTIFY UPDATE" );
             }
-            if( setupgame_area.get_state( format("gamesetup.b_energy%d", i) ) ) {	// Change player energy stock
+            if( setupgame_area.get_state( format("gamesetup.b_energy%d", i) ) ) // Change player energy stock
+            {
                 game_data.energy[i] = (game_data.energy[i] + 500) % 10500;
                 if( game_data.energy[i] == 0 ) game_data.energy[i] = 500;
 
                 setupgame_area.set_caption( format("gamesetup.energy%d", i), format("%d",game_data.energy[i]) );			// Update gui
                 if( host )	network_manager.sendSpecial( "NOTIFY UPDATE" );
             }
-            if( setupgame_area.get_state( format("gamesetup.b_metal%d", i) ) ) {	// Change player metal stock
+            if( setupgame_area.get_state( format("gamesetup.b_metal%d", i) ) ) // Change player metal stock
+            {
                 game_data.metal[i] = (game_data.metal[i] + 500) % 10500;
                 if( game_data.metal[i] == 0 ) game_data.metal[i] = 500;
 
@@ -1834,13 +1405,16 @@ void setup_game(bool client, const char *host)
         }
 
         if( minimap_obj != NULL &&
-            ( ( setupgame_area.get_state( "gamesetup.minimap" ) || setupgame_area.get_state( "gamesetup.change_map" ) ) && !client )
-            || ( client && !set_map.empty() ) ) {		// Clic on the mini-map or received map set command
+            ( ( setupgame_area.get_state( "gamesetup.minimap" ) || setupgame_area.get_state("gamesetup.change_map")) && !client)
+            || ( client && !set_map.empty() ) )	// Clic on the mini-map or received map set command
+        {
             String map_filename;
             char *new_map;
-            if( !client ) {
-                map_filename = game_data.map_filename;
-                new_map = select_map( &map_filename );
+            if( !client )
+            {
+                String newMapName;
+                Menus::MapSelector::Execute(game_data.map_filename, newMapName);
+                new_map = strdup(newMapName.c_str());
                 for( int i = 0 ; i < 10 ; i++ )
                     player_timer[ i ] = msec_timer;
             }
@@ -1852,19 +1426,22 @@ void setup_game(bool client, const char *host)
             cursor_type=CURSOR_DEFAULT;
             gfx->set_2D_mode();
 
-            if(new_map) {
-                if( host && !client )	network_manager.sendSpecial( format( "SET MAP %s", ReplaceChar( new_map, ' ', 1 ).c_str() ) );
+            if(new_map)
+            {
+                if( host && !client)
+                    network_manager.sendSpecial(format("SET MAP %s", ReplaceChar( new_map, ' ', 1 ).c_str()));
 
                 String new_map_name = new_map;
 
                 gfx->destroy_texture( glimg );
 
-                if(game_data.map_filename)	free(game_data.map_filename);
+                if(game_data.map_filename)
+                    free(game_data.map_filename);
                 game_data.map_filename = new_map;
-                glimg = load_tnt_minimap_fast(game_data.map_filename,&dx,&dy);
+                glimg = load_tnt_minimap_fast(game_data.map_filename,dx,dy);
                 ldx = dx * ( mini_map_x2 - mini_map_x1 ) / 504.0f;
-                    ldy = dy * ( mini_map_y2 - mini_map_y1 ) / 504.0f;
-                    minimap_obj->x1 = mini_map_x-ldx;
+                ldy = dy * ( mini_map_y2 - mini_map_y1 ) / 504.0f;
+                minimap_obj->x1 = mini_map_x-ldx;
                 minimap_obj->y1 = mini_map_y-ldy;
                 minimap_obj->x2 = mini_map_x+ldx;
                 minimap_obj->y2 = mini_map_y+ldy;
@@ -1891,11 +1468,12 @@ void setup_game(bool client, const char *host)
 
                 new_map_name = new_map_name.substr( 0, new_map_name.size() - 3 ) + "ota";
 
-                if( client && !HPIManager->Exists( new_map_name.c_str() ) ) {
-                    if( !previous_ota_port.empty() )
-                        network_manager.stopFileTransfer( previous_ota_port );
+                if( client && !HPIManager->Exists( new_map_name.c_str()))
+                {
+                    if( !previous_ota_port.empty())
+                        network_manager.stopFileTransfer(previous_ota_port);
                     previous_ota_port = network_manager.getFile( 1, ReplaceChar( new_map_name, '\\', '/') );
-                    network_manager.sendSpecial( format( "REQUEST FILE %s %s", ReplaceChar(new_map_name, ' ', 1 ).c_str(), previous_ota_port.c_str() ) );
+                    network_manager.sendSpecial( format( "REQUEST FILE %s %s", ReplaceChar(new_map_name, ' ', 1 ).c_str(), previous_ota_port.c_str()));
                 }
             }
 
@@ -1913,7 +1491,8 @@ void setup_game(bool client, const char *host)
 
         // Affiche
         gfx->flip();
-    }while(!done);
+
+    } while(!done);
 
     if( setupgame_area.background == gfx->glfond )	setupgame_area.background = 0;
     setupgame_area.destroy();
@@ -1923,20 +1502,28 @@ void setup_game(bool client, const char *host)
     gfx->destroy_texture(glimg);
 
     reset_mouse();
-    while(key[KEY_ESC]) {	rest(1);	poll_keyboard();	}
+    while (key[KEY_ESC])
+    {
+        rest(1);
+        poll_keyboard();
+    }
 
     if( network_manager.isServer() )
         network_manager.registerToNetServer( host, 0 );				// Tell the world we're gone
 
-    if(start_game) {
-        if(game_data.map_filename && game_data.game_script) {
+    if(start_game)
+    {
+        if(game_data.map_filename && game_data.game_script)
+        {
             lp_CONFIG->last_script = game_data.game_script;		// Remember the last script we played
             lp_CONFIG->last_map = game_data.map_filename;		// Remember the last map we played
             lp_CONFIG->last_FOW = game_data.fog_of_war;
 
             game_data.nb_players = 0;
             for(uint16 i = 0 ; i<10 ; i++)		// Move players to the top of the vector, so it's easier to access data
-                if( game_data.player_control[i] != PLAYER_CONTROL_NONE && game_data.player_control[i] != PLAYER_CONTROL_CLOSED ) {
+            {
+                if( game_data.player_control[i] != PLAYER_CONTROL_NONE && game_data.player_control[i] != PLAYER_CONTROL_CLOSED )
+                {
                     game_data.player_control[game_data.nb_players] = game_data.player_control[i];
                     game_data.player_names[game_data.nb_players] = game_data.player_names[i];
                     game_data.player_sides[game_data.nb_players] = game_data.player_sides[i];
@@ -1948,6 +1535,7 @@ void setup_game(bool client, const char *host)
                     player_color_map[i] = e;
                     game_data.nb_players++;
                 }
+            }
 
             gfx->unset_2D_mode();
             GuardStart( play );
@@ -1962,12 +1550,21 @@ void setup_game(bool client, const char *host)
             gfx->ReInitTexSys();
         }
 
-        while(key[KEY_ESC]) {	rest(1);	poll_keyboard();	}
+        while (key[KEY_ESC])
+        {
+            rest(1);
+            poll_keyboard();
+        }
     }
-    else if( client )
-        network_manager.sendSpecial( "NOTIFY PLAYER_LEFT" );
+    else
+    {
+        if( client )
+            network_manager.sendSpecial( "NOTIFY PLAYER_LEFT" );
+    }
     network_manager.Disconnect();
 }
+
+
 
 /*-----------------------------------------------------------------------------\
   |                            void network_room(void)                           |
@@ -2220,27 +1817,28 @@ void campaign_main_menu(void)
 {
     cursor_type=CURSOR_DEFAULT;
 
-    float resize_w = SCREEN_W / 640.0f;
-    float resize_h = SCREEN_H / 480.0f;
-
     AREA campaign_area("campaign");
     campaign_area.load_tdf("gui/campaign.area");
-    if( !campaign_area.background )	campaign_area.background = gfx->glfond;
+    if (!campaign_area.background)
+        campaign_area.background = gfx->glfond;
 
-    std::list< String > campaign_list;
-    HPIManager->GetFilelist("camps\\*.tdf",&campaign_list);
+    std::list<String> campaign_list;
+    HPIManager->getFilelist("camps\\*.tdf", campaign_list);
     for(std::list< String >::iterator i = campaign_list.begin() ; i != campaign_list.end() ; )		// Removes sub directories entries
-        if( SearchString( i->substr( 6, i->size() - 6 ), "/", true ) != -1 || SearchString( i->substr( 6, i->size() - 6 ), "\\", true ) != -1 )
-            campaign_list.erase( i++ );
+    {
+        if (SearchString(i->substr(6, i->size() - 6), "/", true) != -1 || SearchString(i->substr(6, i->size() - 6), "\\", true ) != -1)
+            campaign_list.erase(i++);
         else
-            i++;
+            ++i;
+    }
 
-    if( campaign_area.get_object("campaign.campaign_list") && campaign_list.size() > 0 ) {
+    if (campaign_area.get_object("campaign.campaign_list") && campaign_list.size() > 0)
+    {
         GUIOBJ *guiobj = campaign_area.get_object("campaign.campaign_list");
         guiobj->Text.clear();
         guiobj->Text.resize( campaign_list.size() );
         int n = 0;
-        for(std::list< String >::iterator i = campaign_list.begin() ; i != campaign_list.end() ; i++, n++ )
+        for (std::list< String >::iterator i = campaign_list.begin() ; i != campaign_list.end(); ++i, ++n)
             guiobj->Text[n] = i->substr(6, i->size() - 10 );
     }
 
@@ -2251,9 +1849,7 @@ void campaign_main_menu(void)
         if( data )	free( data );
     }
 
-    cTAFileParser	*campaign_parser = NULL;
-
-    bool done=false;
+    cTAFileParser* campaign_parser = NULL;
 
     bool start_game = false;
 
@@ -2261,28 +1857,34 @@ void campaign_main_menu(void)
     int amy = -1;
     int amz = -1;
     int amb = -1;
-    int last_campaign_id = -1;
+    uint32 last_campaign_id = uint32(-1);
     String	campaign_name = "";
     int mission_id = -1;
     int nb_mission = 0;
+    bool done = false;
 
     do
     {
         bool key_is_pressed = false;
-        do {
+        do
+        {
             key_is_pressed = keypressed();
             campaign_area.check();
-            rest( 1 );
-        } while( amx == mouse_x && amy == mouse_y && amz == mouse_z && amb == mouse_b && mouse_b == 0 && !key[ KEY_ENTER ] && !key[ KEY_ESC ] && !done && !key_is_pressed && !campaign_area.scrolling );
+            rest(1);
+        } while( amx == mouse_x && amy == mouse_y && amz == mouse_z && amb == mouse_b
+                 && mouse_b == 0 && !key[ KEY_ENTER ] && !key[ KEY_ESC ]
+                 && !done && !key_is_pressed && !campaign_area.scrolling );
 
         amx = mouse_x;
         amy = mouse_y;
         amz = mouse_z;
         amb = mouse_b;
 
-        if( campaign_area.get_object("campaign.campaign_list") && campaign_list.size() > 0 ) {				// If we don't have campaign data, then load them
+        if (campaign_area.get_object("campaign.campaign_list") && campaign_list.size() > 0) // If we don't have campaign data, then load them
+        {
             GUIOBJ *guiobj = campaign_area.get_object("campaign.campaign_list");
-            if( guiobj->Pos >= 0 && guiobj->Pos < guiobj->Text.size() && last_campaign_id != guiobj->Pos ) {
+            if (guiobj->Pos >= 0 && guiobj->Pos < guiobj->Text.size() && last_campaign_id != guiobj->Pos )
+            {
                 if( !campaign_parser )	delete campaign_parser;
                 last_campaign_id = guiobj->Pos;
                 mission_id = -1;
@@ -2291,11 +1893,13 @@ void campaign_main_menu(void)
 
                 guiobj = campaign_area.get_object("campaign.mission_list");
                 nb_mission = 0;
-                if( guiobj ) {
+                if( guiobj )
+                {
                     guiobj->Text.clear();
                     int i = 0;
                     String current_name = "";
-                    while( !(current_name = campaign_parser->PullAsString( format( "MISSION%d.missionname", i ) ) ).empty() ) {
+                    while (!(current_name = campaign_parser->PullAsString(format( "MISSION%d.missionname", i))).empty())
+                    {
                         guiobj->Text.push_back( current_name );
                         nb_mission++;
                         i++;
@@ -2303,33 +1907,45 @@ void campaign_main_menu(void)
                 }
 
                 guiobj = campaign_area.get_object("campaign.logo");
-                if( guiobj ) {
+                if (guiobj)
+                {
                     guiobj->Data = 0;
-                    for( int i = 0 ; i < ta3d_sidedata.nb_side ; i++ )
-                        if( Lowercase( ta3d_sidedata.side_name[ i ] ) == Lowercase( campaign_parser->PullAsString( "HEADER.campaignside" ) ) ) {
+                    for( int i = 0 ; i < ta3dSideData.nb_side ; ++i)
+                    {
+                        if (Lowercase(ta3dSideData.side_name[i] ) == Lowercase( campaign_parser->PullAsString( "HEADER.campaignside")))
+                        {
                             if( side_logos.nb_anim > i )
                                 guiobj->Data = side_logos.anm[i].glbmp[0];
                             break;
                         }
+                    }
                 }
             }
         }
 
-        if( campaign_area.get_object("campaign.mission_list") ) {
+        if( campaign_area.get_object("campaign.mission_list") )
+        {
             GUIOBJ *guiobj = campaign_area.get_object("campaign.mission_list");
             if( guiobj->Pos >= 0 && guiobj->Pos < guiobj->Text.size() )
                 mission_id = guiobj->Pos;
         }
 
-        if( campaign_area.get_state( "campaign.b_ok" ) || key[KEY_ENTER] ) {
-            while( key[KEY_ENTER] )	{	rest( 20 );	poll_keyboard();	}
+        if ((campaign_area.get_state( "campaign.b_ok") || key[KEY_ENTER]) && campaign_list.size())
+        {
+            while( key[KEY_ENTER] )
+            {
+                rest(20);
+                poll_keyboard();
+            }
             clear_keybuf();
             done=true;		// If user click "OK" or hit enter then leave the window
             start_game = true;
         }
-        if( campaign_area.get_state( "campaign.b_cancel" ) ) done=true;		// En cas de click sur "retour", on quitte la fenêtre
+        if (campaign_area.get_state( "campaign.b_cancel")) // En cas de click sur "retour", on quitte la fenêtre
+            done = true;
 
-        if(key[KEY_ESC]) done=true;			// Quitte si on appuie sur echap
+        if(key[KEY_ESC]) // Quitte si on appuie sur echap
+            done = true;
 
         campaign_area.draw();
 
@@ -2339,29 +1955,40 @@ void campaign_main_menu(void)
 
         // Affiche
         gfx->flip();
-    }while(!done);
+    } while(!done);
 
-    if( campaign_area.get_object("campaign.logo") )	campaign_area.get_object("campaign.logo")->Data = 0;
+    if (campaign_area.get_object("campaign.logo"))
+        campaign_area.get_object("campaign.logo")->Data = 0;
 
-    if( campaign_area.background == gfx->glfond )	campaign_area.background = 0;
+    if (campaign_area.background == gfx->glfond)
+        campaign_area.background = 0;
     campaign_area.destroy();
 
-    if( campaign_parser )	delete	campaign_parser;
+    if (campaign_parser)
+        delete campaign_parser;
 
     reset_mouse();
-    while(key[KEY_ESC]) {	rest(1);	poll_keyboard();	}
+    while(key[KEY_ESC])
+    {
+        rest(1);
+        poll_keyboard();
+    }
 
-    if(start_game) {					// Open the briefing screen and start playing the campaign
-
+    if(start_game) // Open the briefing screen and start playing the campaign
+    {
         int exit_mode = 0;
         while( mission_id < nb_mission && (exit_mode = brief_screen( campaign_name, mission_id )) >= 0 )
             if( exit_mode == EXIT_VICTORY )	mission_id++;
 
-        while(key[KEY_ESC]) {	rest(1);	poll_keyboard();	}
+        while (key[KEY_ESC])
+        {
+            rest(1);
+            poll_keyboard();
+        }
     }
 }
 
-int brief_screen( String campaign_name, int mission_id )
+int brief_screen(String campaign_name, int mission_id)
 {
     cursor_type=CURSOR_DEFAULT;
 
@@ -2427,11 +2054,12 @@ int brief_screen( String campaign_name, int mission_id )
 
     int schema = 0;
 
-    if( brief_area.get_object( "brief.schema" ) ) {
+    if( brief_area.get_object( "brief.schema" ) )
+    {
         GUIOBJ *obj = brief_area.get_object( "brief.schema" );
         obj->Text.clear();
         obj->Text.resize( ota_parser.PullAsInt( "GlobalHeader.SCHEMACOUNT" ) + 1 );
-        for( int i = 0 ; i < obj->Text.size() - 1 ; i++ )
+        for(unsigned int i = 0 ; i < obj->Text.size() - 1 ; ++i)
             obj->Text[ i + 1 ] = TRANSLATE( ota_parser.PullAsString( format( "GlobalHeader.Schema %d.Type", i ) ) );
         if( obj->Text.size() > 1 )
             obj->Text[ 0 ] = obj->Text[ 1 ];
@@ -2457,7 +2085,8 @@ int brief_screen( String campaign_name, int mission_id )
         else if( Lowercase( String( planet_animation.anm[ i ].name ).substr( String( planet_animation.anm[ i ].name ).size() - 6, 6 ) ) == "rotate" )
             rotate_id = i;
 
-    float pan_x1, pan_x2;
+    float pan_x1 = 0.0f;
+    float pan_x2 = 0.0f;
 
     if( brief_area.get_object( "brief.panning0" ) ) {
         pan_x1 = brief_area.get_object( "brief.panning0" )->x1;
@@ -2548,9 +2177,9 @@ int brief_screen( String campaign_name, int mission_id )
     while(key[KEY_ESC]) {	rest(1);	poll_keyboard();	}
 
     if(start_game) {					// Open the briefing screen and start playing the campaign
-        GAME_DATA game_data;
+        GameData game_data;
 
-        generate_script_from_mission( "scripts/__campaign_script.lua", &ota_parser, schema );	// Generate the script which will be removed later
+        TA3D::generate_script_from_mission( "scripts/__campaign_script.lua", &ota_parser, schema );	// Generate the script which will be removed later
 
         game_data.game_script = strdup( "scripts/__campaign_script.lua" );
         game_data.map_filename = strdup( ( map_filename.substr( 0, map_filename.size() - 3 ) + "tnt" ).c_str() );		// Remember the last map we played
@@ -2616,7 +2245,7 @@ int brief_screen( String campaign_name, int mission_id )
 
 void wait_room(void *p_game_data)
 {
-    GAME_DATA *game_data = (GAME_DATA*) p_game_data;
+    GameData *game_data = (GameData*) p_game_data;
     if( !network_manager.isConnected() )	return;
 
     gfx->set_2D_mode();

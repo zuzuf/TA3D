@@ -26,6 +26,7 @@
 
 #include "stdafx.h"
 #include "TA3D_NameSpace.h"
+#include "misc/paths.h"
 
 #ifdef TA3D_PLATFORM_LINUX
 #   define TA3D_BACKTRACE_SUPPORT
@@ -63,7 +64,7 @@ void backtrace_handler (int signum)
 
     // Try to log it
 	std::ofstream m_File;
-	m_File.open((TA3D_OUTPUT_DIR + "backtrace.txt").c_str(), std::ios::out | std::ios::trunc);
+	m_File.open((TA3D::Paths::Logs + "backtrace.txt").c_str(), std::ios::out | std::ios::trunc);
 	if(m_File.is_open())
     {
 		m_File << "received signal " << strsignal( signum ) << "\n";
@@ -79,7 +80,7 @@ void backtrace_handler (int signum)
 			printf ("%s\n", strings[i]);
 
 		String szErrReport = "An error has occured.\nDebugging information have been logged to:\n"
-            + TA3D_OUTPUT_DIR
+            + TA3D::Paths::Logs
             + "backtrace.txt\nPlease report to our forums (http://ta3d.darkstars.co.uk/)\nand keep this file, it'll help us debugging.\n";
 
         # ifdef TA3D_PLATFORM_WINDOWS
@@ -144,6 +145,7 @@ int init_signals (void)
 			signal (signum[i], SIG_IGN);
 
     #endif // ifdef TA3D_PLATFORM_DARWIN
+    return 0; // TODO missing value ?
 }
 
 

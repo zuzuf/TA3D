@@ -15,40 +15,48 @@
     along with this program; if not, write to the Free Software
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA*/
 
-#pragma once
+#ifndef __TA3D_X_HASH_TABLE_H__
+# define __TA3D_X_HASH_TABLE_H__
 
-#include "hash_table.h"
+#include "misc/hash_table.h"
+
 
 namespace TA3D
 {
-	namespace UTILS
-	{
-		class cTAFileParser : protected TA3D::UTILS::cHashTable< String >
-		{
-		private:
-			std::string m_cKey;     // used when building keys.
-			std::list< std::string > key_level;	// used when building keys.
-			bool m_bKeysCaseSenstive;	// Is it case sensitive ?
-			int gadget_mode;
+namespace UTILS
+{
 
-			bool ProcessData( char **Data );
-			String GetLine( char **Data );
 
-		protected:
-			// A hash map of key/values
+    class cTAFileParser : protected TA3D::UTILS::cHashTable<String>
+    {
+    private:
+        std::string m_cKey;     // used when building keys.
+        std::list< std::string > key_level;	// used when building keys.
+        bool m_bKeysCaseSenstive;	// Is it case sensitive ?
+        int gadget_mode;
 
-		public:
-			void Load( const String &FileName, bool bClearTable=false, bool toUTF8 = false, bool g_mode = false ); 
-			cTAFileParser( const String &FileName, bool bKeysCaseSenstive = false, bool toUTF8 = false, bool g_mode = false );
-			cTAFileParser( uint32 TableSize = 4096 );
-			~cTAFileParser();
+        bool ProcessData( char **Data );
+        String GetLine( char **Data );
 
-			void LoadMemory( char *data, bool bClearTable=false, bool toUTF8 = false, bool g_mode = false );
+    protected:
+        // A hash map of key/values
 
-			sint32	PullAsInt( const std::string &KeyName , sint32 def = 0 );
-			real32	PullAsFloat( const std::string &KeyName , real32 def = 0.0f );
-			String	PullAsString( const std::string &KeyName , String def = "" );
-			bool	PullAsBool( const std::string &KeyName , bool def = false );
-		};
-	}
+    public:
+        void Load( const String &FileName, bool bClearTable=false, bool toUTF8 = false, bool g_mode = false ); 
+        cTAFileParser( const String &FileName, bool bKeysCaseSenstive = false, bool toUTF8 = false, bool g_mode = false );
+        cTAFileParser( uint32 TableSize = 4096 );
+        ~cTAFileParser();
+
+        void LoadMemory( char *data, bool bClearTable=false, bool toUTF8 = false, bool g_mode = false );
+
+        sint32	PullAsInt( const std::string &KeyName , sint32 def = 0 );
+        real32	PullAsFloat( const std::string &KeyName , real32 def = 0.0f );
+        String	PullAsString( const std::string &KeyName , String def = "" );
+        bool	PullAsBool( const std::string &KeyName , bool def = false );
+
+    }; // class cTAFileParser
+
+}
 } 
+
+#endif // __TA3D_X_HASH_TABLE_H__

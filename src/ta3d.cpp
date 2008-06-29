@@ -21,26 +21,36 @@
 #endif
 #include "stdafx.h"
 #include "TA3D_NameSpace.h"
-#include "matrix.h"
+#include "misc/matrix.h"
 
 #include "intro.h"			// Introduction
 #include "cTA3D_Engine.h"	// The Engine
 #include "ta3d.h"			// Some core include
 #include "menu.h"			// Game menus
 #include "restore.h"		// Save/Load mecanisms
-#include "TA3D_Network.h"	// Network functionnalities such as chat
-#include "fx.h"
+#include "network/TA3D_Network.h"	// Network functionnalities such as chat
+#include "gfx/fx.h"
+#include "misc/paths.h"
+#include "misc/camera.h"
+#include "misc/material.light.h"
+#include "ingame/gamedata.h"
+
 
 #ifndef SCROLL_SPEED
 #   define SCROLL_SPEED		400.0f
 #endif
 
-VECTOR cursor_on_map( CAMERA *cam,MAP *map, bool on_mini_map = false );
+
+
+VECTOR cursor_on_map( Camera *cam,MAP *map, bool on_mini_map = false );
+
+
+
 
 /*--------------------------------------------------------------------\
   |                              Game Engine                            |
   \--------------------------------------------------------------------*/
-int play(GAME_DATA *game_data)
+int play(GameData *game_data)
 {
 
     if( network_manager.isConnected() )
@@ -126,10 +136,10 @@ int play(GAME_DATA *game_data)
         String prefix = "";
         String intgaf = "";
 
-        for( int i = 0 ; i < ta3d_sidedata.nb_side ; i++ )
-            if( ta3d_sidedata.side_name[ i ] == game_data->player_sides[ players.local_human_id ] ) {
-                prefix = ta3d_sidedata.side_pref[ i ];
-                intgaf = ta3d_sidedata.side_int[ i ];
+        for( int i = 0 ; i < ta3dSideData.nb_side ; i++ )
+            if( ta3dSideData.side_name[ i ] == game_data->player_sides[ players.local_human_id ] ) {
+                prefix = ta3dSideData.side_pref[ i ];
+                intgaf = ta3dSideData.side_int[ i ];
                 break;
             }
 
@@ -166,8 +176,8 @@ int play(GAME_DATA *game_data)
 
     try
     {
-        game_area.load_window( ta3d_sidedata.guis_dir + ta3d_sidedata.side_pref[ players.side_view ] + "gen.gui" );			// Load the order interface
-        I_Msg( TA3D::TA3D_IM_GUI_MSG, (void*)(String( ta3d_sidedata.side_pref[ players.side_view ] ) + "gen.hide").c_str(), NULL, NULL );	// Hide it
+        game_area.load_window( ta3dSideData.guis_dir + ta3dSideData.side_pref[ players.side_view ] + "gen.gui" );			// Load the order interface
+        I_Msg( TA3D::TA3D_IM_GUI_MSG, (void*)(String( ta3dSideData.side_pref[ players.side_view ] ) + "gen.hide").c_str(), NULL, NULL );	// Hide it
     }
     catch(...)
     {
@@ -176,8 +186,8 @@ int play(GAME_DATA *game_data)
 
     try
     {
-        game_area.load_window( ta3d_sidedata.guis_dir + ta3d_sidedata.side_pref[ players.side_view ] + "dl.gui" );			// Load the default build interface
-        I_Msg( TA3D::TA3D_IM_GUI_MSG, (void*)(String( ta3d_sidedata.side_pref[ players.side_view ] ) + "dl.hide").c_str(), NULL, NULL );	// Hide it
+        game_area.load_window( ta3dSideData.guis_dir + ta3dSideData.side_pref[ players.side_view ] + "dl.gui" );			// Load the default build interface
+        I_Msg( TA3D::TA3D_IM_GUI_MSG, (void*)(String( ta3dSideData.side_pref[ players.side_view ] ) + "dl.hide").c_str(), NULL, NULL );	// Hide it
     }
     catch(...)
     {
@@ -188,12 +198,12 @@ int play(GAME_DATA *game_data)
     {
         if( !(i & 0xF) )
             loading( (550.0f + 50.0f * i / (unit_manager.nb_unit+1) )/7.0f,TRANSLATE("Loading GUI"));
-        if( Lowercase( unit_manager.unit_type[ i ].side ) == Lowercase( ta3d_sidedata.side_name[ players.side_view ] ) )
+        if( Lowercase( unit_manager.unit_type[ i ].side ) == Lowercase( ta3dSideData.side_name[ players.side_view ] ) )
         {
             int e = 1;
-            while( HPIManager->Exists( ta3d_sidedata.guis_dir + unit_manager.unit_type[ i ].Unitname + format( "%d.gui", e ) ) )
+            while( HPIManager->Exists( ta3dSideData.guis_dir + unit_manager.unit_type[ i ].Unitname + format( "%d.gui", e ) ) )
             {
-                game_area.load_window( ta3d_sidedata.guis_dir + unit_manager.unit_type[ i ].Unitname + format( "%d.gui", e ) );			// Load the build interface
+                game_area.load_window( ta3dSideData.guis_dir + unit_manager.unit_type[ i ].Unitname + format( "%d.gui", e ) );			// Load the build interface
                 I_Msg( TA3D::TA3D_IM_GUI_MSG, (void*)( unit_manager.unit_type[ i ].Unitname + format( "%d.hide", e) ).c_str(), NULL, NULL );	// Hide it
                 e++;
             }
@@ -275,7 +285,7 @@ int play(GAME_DATA *game_data)
     loading(100.0f,TRANSLATE("Load finished"));
 
     start_time = msec_timer-start_time;
-    printf("loading time: %f sec.\n",(float)start_time * 0.001f);
+    LOG_INFO("Loading time: " << (float)start_time * 0.001f << " sec.");
 
     float Conv=0.001f;
     float dt=0.0f;
@@ -292,7 +302,7 @@ int play(GAME_DATA *game_data)
     float r1,r2,r3;
     r1=r2=r3=0.0f;
     r1 = -lp_CONFIG->camera_def_angle - 0.00001f;
-    CAMERA cam;
+    Camera cam;
     VECTOR cam_target;
     int cam_target_mx = gfx->SCREEN_W_HALF;
     int cam_target_my = gfx->SCREEN_H_HALF;
@@ -301,19 +311,19 @@ int play(GAME_DATA *game_data)
     int cam_def_timer = msec_timer;		// Just to see if the cam has been long enough at the default angle
     int track_mode = -1;			// Tracking a unit ? negative value => no
     bool last_time_activated_track_mode = false;
-    game_cam=&cam;
+    Camera::inGame=&cam;
 
-    cam.RPos.x = cam.RPos.y = cam.RPos.z = 0.0f;
-    cam.RPos.z += 150.0f;
-    cam.RPos.y = lp_CONFIG->camera_def_h;
+    cam.rpos.x = cam.rpos.y = cam.rpos.z = 0.0f;
+    cam.rpos.z += 150.0f;
+    cam.rpos.y = lp_CONFIG->camera_def_h;
     cam.zfar=500.0f;
-    cam.set_width_factor( gfx->width, gfx->height );
+    cam.setWidthFactor(gfx->width, gfx->height);
 
     float FogD=0.3f;
     float FogNear=cam.zfar*0.5f;
     float FogColor[] = {0.8f,0.8f,0.8f,1.0f};
 
-    memcpy( FogColor, sky_data->FogColor, sizeof( float ) * 4 );
+    memcpy(FogColor, sky_data->FogColor, sizeof( float ) * 4);
 
     GLuint FogMode=GL_LINEAR;
     glFogi (GL_FOG_MODE, FogMode);
@@ -325,12 +335,12 @@ int play(GAME_DATA *game_data)
 
     glEnable(GL_FOG);
 
-    HWLIGHT	sun;
+    HWLight sun;
     sun.Att=0.0f;
     sun.Dir.x=-1.0f;
     sun.Dir.y=2.0f;
     sun.Dir.z=1.0f;
-    sun.Dir.Unit();
+    sun.Dir.unit();
     sun.LightAmbient[0]=0.25f;
     sun.LightAmbient[1]=0.25f;
     sun.LightAmbient[2]=0.25f;
@@ -362,7 +372,7 @@ int play(GAME_DATA *game_data)
     fire=particle_engine.addtex("gfx/fire.tga",NULL);
     build_part=particle_engine.addtex("gfx/part.tga",NULL);
 
-    fx_manager.load_data();
+    fx_manager.loadData();
 
     int mx,my,omb=mouse_b,omb2=mouse_b,omb3=mouse_b, amx=mouse_x, amy=mouse_y;
     int	sel_x[2],sel_y[2],selecting=false;
@@ -529,7 +539,7 @@ int play(GAME_DATA *game_data)
         bool IsOnMinimap = mouse_x < 128 && mouse_y < 128;		// Used to handle on mini map commands
         IsOnGUI = (mouse_x < 128 && ( mouse_y >= SCREEN_H - 64 || mouse_y < 128 ) ) || mouse_y < 32 || mouse_y >= SCREEN_H - 32;		// Priority given to game interface
         if( !IsOnGUI )
-            IsOnGUI = game_area.check();
+            IsOnGUI = (game_area.check() != 0);
 
         IsOnGUI |= mouse_x < 128;		// Priority given to game interface
 
@@ -583,13 +593,12 @@ int play(GAME_DATA *game_data)
         else if(units.nb_attacked/(units.nb_attacked+units.nb_built+1)<=0.25f)
             sound_manager->SetMusicMode( false );
 
-        sound_manager->SetListenerPos( &cam.RPos );
+        sound_manager->SetListenerPos( &cam.rpos );
         sound_manager->Update3DSound();
 
         /*-------------------------- end of sound management -----------------------*/
 
-        VECTOR old_cam_pos = cam.RPos;
-        float old_r1=r1,old_r2=r2,old_r3=r3;
+        VECTOR old_cam_pos = cam.rpos;
         float old_zscroll = camera_zscroll;
         if(!freecam)
         {
@@ -632,7 +641,7 @@ int play(GAME_DATA *game_data)
         else
         {
             int delta = IsOnGUI ? 0 : mouse_z-omz;
-            cam.RPos=cam.RPos-0.5f*delta*cam.Dir;
+            cam.rpos=cam.rpos-0.5f*delta*cam.dir;
             cam_has_target=false;
         }
         omz=mouse_z;
@@ -826,49 +835,49 @@ int play(GAME_DATA *game_data)
 
         if(mouse_x<128.0f && mouse_y<128.0f && mouse_x>=0.0f && mouse_y>=0.0f && mouse_b == 2 )
         {
-            cam.RPos.x=(mouse_x-64)*map->map_w/128.0f*252.0f/map->mini_w;
-            cam.RPos.z=(mouse_y-64)*map->map_h/128.0f*252.0f/map->mini_h;
+            cam.rpos.x=(mouse_x-64)*map->map_w/128.0f*252.0f/map->mini_w;
+            cam.rpos.z=(mouse_y-64)*map->map_h/128.0f*252.0f/map->mini_h;
             cam_has_target=false;
         }
         if(mouse_x<1)
         {
-            VECTOR move_dir = cam.Side;
+            VECTOR move_dir = cam.side;
             move_dir.y = 0.0f;
-            move_dir.Unit();
-            cam.RPos = cam.RPos - (SCROLL_SPEED*dt*cam_h / 151.0f)*move_dir;
+            move_dir.unit();
+            cam.rpos = cam.rpos - (SCROLL_SPEED*dt*cam_h / 151.0f)*move_dir;
             cam_has_target=false;
         }
         else if(mouse_x>=SCREEN_W-1)
         {
-            VECTOR move_dir = cam.Side;
+            VECTOR move_dir = cam.side;
             move_dir.y = 0.0f;
-            move_dir.Unit();
-            cam.RPos = cam.RPos + (SCROLL_SPEED*dt*cam_h / 151.0f)*move_dir;
+            move_dir.unit();
+            cam.rpos = cam.rpos + (SCROLL_SPEED*dt*cam_h / 151.0f)*move_dir;
             cam_has_target=false;
         }
         if(mouse_y<1)
         {
-            VECTOR move_dir = cam.Up;
+            VECTOR move_dir = cam.up;
             if(move_dir.x==0.0f && move_dir.z==0.0f) {
-                move_dir = cam.Dir;
+                move_dir = cam.dir;
                 move_dir.y=0.0f;
             }
             else
                 move_dir.y=0.0f;
-            move_dir.Unit();
-            cam.RPos = cam.RPos+ (SCROLL_SPEED*dt*cam_h / 151.0f) * move_dir;
+            move_dir.unit();
+            cam.rpos = cam.rpos+ (SCROLL_SPEED*dt*cam_h / 151.0f) * move_dir;
             cam_has_target=false;
         }
         else if(mouse_y>=SCREEN_H-1) {
-            VECTOR move_dir = cam.Up;
+            VECTOR move_dir = cam.up;
             if(move_dir.x==0.0f && move_dir.z==0.0f) {
-                move_dir = cam.Dir;
+                move_dir = cam.dir;
                 move_dir.y=0.0f;
             }
             else
                 move_dir.y=0.0f;
-            move_dir.Unit();
-            cam.RPos = cam.RPos - (SCROLL_SPEED*dt*cam_h / 151.0f)*move_dir;
+            move_dir.unit();
+            cam.rpos = cam.rpos - (SCROLL_SPEED*dt*cam_h / 151.0f)*move_dir;
             cam_has_target=false;
         }
 
@@ -888,8 +897,8 @@ int play(GAME_DATA *game_data)
             if(mouse_b==4) {
                 get_mouse_mickeys(&mx,&my);
                 if(omb==mouse_b) {
-                    cam.RPos.x+=mx * cam_h / 151.0f;
-                    cam.RPos.z+=my * cam_h / 151.0f;
+                    cam.rpos.x+=mx * cam_h / 151.0f;
+                    cam.rpos.z+=my * cam_h / 151.0f;
                     cam_has_target=false;
                 }
                 position_mouse(gfx->SCREEN_W_HALF,gfx->SCREEN_H_HALF);
@@ -903,56 +912,56 @@ int play(GAME_DATA *game_data)
 
         if(!freecam)	{
             if(key[KEY_UP]) {
-                cam.RPos.z-=SCROLL_SPEED*dt*cam_h / 151.0f;
+                cam.rpos.z-=SCROLL_SPEED*dt*cam_h / 151.0f;
                 cam_has_target=false;
             }
             if(key[KEY_DOWN]) {
-                cam.RPos.z+=SCROLL_SPEED*dt*cam_h / 151.0f;
+                cam.rpos.z+=SCROLL_SPEED*dt*cam_h / 151.0f;
                 cam_has_target=false;
             }
             if(key[KEY_RIGHT]) {
-                cam.RPos.x+=SCROLL_SPEED*dt*cam_h / 151.0f;
+                cam.rpos.x+=SCROLL_SPEED*dt*cam_h / 151.0f;
                 cam_has_target=false;
             }
             if(key[KEY_LEFT]) {
-                cam.RPos.x-=SCROLL_SPEED*dt*cam_h / 151.0f;
+                cam.rpos.x-=SCROLL_SPEED*dt*cam_h / 151.0f;
                 cam_has_target=false;
             }
 
-            float h=map->get_unit_h(cam.RPos.x,cam.RPos.z);
+            float h=map->get_unit_h(cam.rpos.x,cam.rpos.z);
             if(h<map->sealvl)
                 h=map->sealvl;
             for( int i = 0 ; i < 20 ; i++ )				// Increase precision
                 for( float T = 0.0f ; T < dt ; T += 0.1f )
-                    cam.RPos.y+=(h+cam_h-cam.RPos.y) * min( dt - T, 0.1f );
+                    cam.rpos.y+=(h+cam_h-cam.rpos.y) * min( dt - T, 0.1f );
         }
         else {
             if(key[KEY_UP])
-                cam.RPos=cam.RPos+100.0f*dt*cam_h / 151.0f*cam.Dir;
+                cam.rpos=cam.rpos+100.0f*dt*cam_h / 151.0f*cam.dir;
             if(key[KEY_DOWN])
-                cam.RPos=cam.RPos-100.0f*dt*cam_h / 151.0f*cam.Dir;
+                cam.rpos=cam.rpos-100.0f*dt*cam_h / 151.0f*cam.dir;
             if(key[KEY_RIGHT])
-                cam.RPos=cam.RPos+100.0f*dt*cam_h / 151.0f*cam.Side;
+                cam.rpos=cam.rpos+100.0f*dt*cam_h / 151.0f*cam.side;
             if(key[KEY_LEFT])
-                cam.RPos=cam.RPos-100.0f*dt*cam_h / 151.0f*cam.Side;
+                cam.rpos=cam.rpos-100.0f*dt*cam_h / 151.0f*cam.side;
         }
 
-        if(cam.RPos.x<-map->map_w_d) {
-            cam.RPos.x=-map->map_w_d;
+        if(cam.rpos.x<-map->map_w_d) {
+            cam.rpos.x=-map->map_w_d;
             cam_has_target=false;
         }
-        if(cam.RPos.x>map->map_w_d)	{
-            cam.RPos.x=map->map_w_d;
+        if(cam.rpos.x>map->map_w_d)	{
+            cam.rpos.x=map->map_w_d;
             cam_has_target=false;
         }
-        if(cam.RPos.z<-map->map_h_d+200.0f)	{
-            cam.RPos.z=-map->map_h_d+200.0f;
+        if(cam.rpos.z<-map->map_h_d+200.0f)	{
+            cam.rpos.z=-map->map_h_d+200.0f;
             cam_has_target=false;
         }
-        if(cam.RPos.z>map->map_h_d && !cam_has_target)
-            cam.RPos.z=map->map_h_d;
-        if(cam.RPos.z > map->map_h_d+200.0f)
-            cam.RPos.z = map->map_h_d+200.0f;
+        if(cam.rpos.z>map->map_h_d && !cam_has_target)
+            cam.rpos.z=map->map_h_d;
+        if(cam.rpos.z > map->map_h_d+200.0f)
+            cam.rpos.z = map->map_h_d+200.0f;
 
         MATRIX_4x4 Rotation;
         if( lp_CONFIG->camera_zoom == ZOOM_NORMAL )
@@ -960,24 +969,24 @@ int play(GAME_DATA *game_data)
         else
             Rotation = RotateX( -lp_CONFIG->camera_def_angle * DEG2RAD ) * RotateY( r2 * DEG2RAD ) * RotateZ( r3 * DEG2RAD );
 
-        cam.SetMatrix(Rotation);
-        cam.update_shake( dt );				// Update the shake vector
+        cam.setMatrix(Rotation);
+        cam.updateShake(dt);
 
         if(cam_has_target)
         {
             VECTOR cur_dir;
-            cur_dir = cam.Dir+cam.width_factor*2.0f*(cam_target_mx-gfx->SCREEN_W_HALF)*gfx->SCREEN_W_INV*cam.Side-1.5f*(cam_target_my-gfx->SCREEN_H_HALF)*gfx->SCREEN_H_INV*cam.Up;
-            cur_dir.Unit();		// Direction pointée par le curseur
-            VECTOR moving_target = cam_target - cam.RPos;
+            cur_dir = cam.dir+cam.widthFactor*2.0f*(cam_target_mx-gfx->SCREEN_W_HALF)*gfx->SCREEN_W_INV*cam.side-1.5f*(cam_target_my-gfx->SCREEN_H_HALF)*gfx->SCREEN_H_INV*cam.up;
+            cur_dir.unit();		// Direction pointée par le curseur
+            VECTOR moving_target = cam_target - cam.rpos;
             moving_target = moving_target - (moving_target % cur_dir) * cur_dir;
-            float d = moving_target.Sq();
+            float d = moving_target.sq();
             moving_target.y = 0.0f;
-            float D = moving_target.Sq();
+            float D = moving_target.sq();
             if(D == 0.0f)
                 cam_has_target = false;
             else
                 moving_target = d / D * moving_target;
-            cam.RPos = moving_target + cam.RPos;
+            cam.rpos = moving_target + cam.rpos;
         }
 
         if(!selected)
@@ -1084,7 +1093,7 @@ int play(GAME_DATA *game_data)
                         {
                             uint32 commandfire = current_order == SIGNAL_ORDER_DGUN ? MISSION_FLAG_COMMAND_FIRE : 0;
                             i = units.idx_list[e];
-                            units.unit[ i ].Lock();
+                            units.unit[i].lock();
                             if( (units.unit[i].flags & 1) && units.unit[i].owner_id==players.local_human_id && units.unit[i].sel && unit_manager.unit_type[units.unit[i].type_id].canattack
                                 && ( unit_manager.unit_type[units.unit[i].type_id].BMcode || !unit_manager.unit_type[units.unit[i].type_id].Builder ) ) {
                                 if( ( unit_manager.unit_type[ units.unit[i].type_id ].weapon[ 0 ] && unit_manager.unit_type[ units.unit[i].type_id ].weapon[ 0 ]->stockpile )
@@ -1096,17 +1105,17 @@ int play(GAME_DATA *game_data)
                                 else
                                     units.unit[i].set_mission(MISSION_ATTACK,&(units.unit[pointing].Pos),false,0,true,&(units.unit[pointing]),NULL,commandfire );
                             }
-                            units.unit[ i ].UnLock();
+                            units.unit[i].unlock();
                         }
                         if(!TA3D_SHIFT_PRESSED)	current_order=SIGNAL_ORDER_NONE;
                     }
                     else if( cursor_type == CURSOR_CAPTURE && can_be_captured ) {
                         for( uint16 e = 0 ; e < units.index_list_size ; e++ )
                         {
-                            units.EnterCS_from_outside();
+                            units.lock();
                             i = units.idx_list[e];
-                            units.LeaveCS_from_outside();
-                            units.unit[ i ].Lock();
+                            units.unlock();
+                            units.unit[i].lock();
                             if( (units.unit[i].flags & 1) && units.unit[i].owner_id == players.local_human_id && units.unit[i].sel && unit_manager.unit_type[units.unit[i].type_id].CanCapture )
                             {
                                 if( TA3D_SHIFT_PRESSED )
@@ -1114,17 +1123,17 @@ int play(GAME_DATA *game_data)
                                 else
                                     units.unit[i].set_mission( MISSION_CAPTURE, &(units.unit[pointing].Pos), false, 0, true, &(units.unit[pointing]), NULL );
                             }
-                            units.unit[ i ].UnLock();
+                            units.unit[i].unlock();
                         }
                         if(!TA3D_SHIFT_PRESSED)	current_order = SIGNAL_ORDER_NONE;
                     }
                     else if(cursor_type==CURSOR_REPAIR) {
                         for(uint16 e=0;e<units.index_list_size;e++)
                         {
-                            units.EnterCS_from_outside();
+                            units.lock();
                             i = units.idx_list[e];
-                            units.LeaveCS_from_outside();
-                            units.unit[i].Lock();
+                            units.unlock();
+                            units.unit[i].lock();
                             if( (units.unit[i].flags & 1) && units.unit[i].owner_id==players.local_human_id && units.unit[i].sel
                                 && unit_manager.unit_type[units.unit[i].type_id].Builder && unit_manager.unit_type[units.unit[i].type_id].BMcode) {
                                 if( !TA3D_SHIFT_PRESSED )
@@ -1134,17 +1143,17 @@ int play(GAME_DATA *game_data)
                                 else
                                     units.unit[i].set_mission(MISSION_REPAIR,&(units.unit[pointing].Pos),false,0,true,&(units.unit[pointing]));
                             }
-                            units.unit[i].UnLock();
+                            units.unit[i].unlock();
                         }
                         if(!TA3D_SHIFT_PRESSED)	current_order=SIGNAL_ORDER_NONE;
                     }
                     else if(cursor_type==CURSOR_RECLAIM) {
                         for(uint16 e=0;e<units.index_list_size;e++)
                         {
-                            units.EnterCS_from_outside();
+                            units.lock();
                             i = units.idx_list[e];
-                            units.LeaveCS_from_outside();
-                            units.unit[i].Lock();
+                            units.unlock();
+                            units.unit[i].lock();
                             if( (units.unit[i].flags & 1) && units.unit[i].owner_id==players.local_human_id && units.unit[i].sel
                                 && unit_manager.unit_type[units.unit[i].type_id].CanReclamate && unit_manager.unit_type[units.unit[i].type_id].BMcode ) {
                                 if(TA3D_SHIFT_PRESSED)
@@ -1152,7 +1161,7 @@ int play(GAME_DATA *game_data)
                                 else
                                     units.unit[i].set_mission(MISSION_RECLAIM,&(units.unit[pointing].Pos),false,0,true,&(units.unit[pointing]));
                             }
-                            units.unit[i].UnLock();
+                            units.unit[i].unlock();
                         }
                         if(!TA3D_SHIFT_PRESSED)	current_order=SIGNAL_ORDER_NONE;
                     }
@@ -1189,7 +1198,7 @@ int play(GAME_DATA *game_data)
                         {
                             uint32 commandfire = current_order == SIGNAL_ORDER_DGUN ? MISSION_FLAG_COMMAND_FIRE : 0;
                             i = units.idx_list[e];
-                            units.unit[ i ].Lock();
+                            units.unit[i].lock();
                             if( (units.unit[i].flags & 1) && units.unit[i].owner_id==players.local_human_id && units.unit[i].sel && unit_manager.unit_type[units.unit[i].type_id].canattack
                                 && ( unit_manager.unit_type[units.unit[i].type_id].BMcode || !unit_manager.unit_type[units.unit[i].type_id].Builder ) ) {
                                 if( ( unit_manager.unit_type[ units.unit[i].type_id ].weapon[ 0 ] && unit_manager.unit_type[ units.unit[i].type_id ].weapon[ 0 ]->stockpile )
@@ -1201,7 +1210,7 @@ int play(GAME_DATA *game_data)
                                 else
                                     units.unit[i].set_mission(MISSION_ATTACK,&(cursor_pos),false,0,true,NULL,NULL,commandfire );
                             }
-                            units.unit[ i ].UnLock();
+                            units.unit[i].unlock();
                         }
                         if(!TA3D_SHIFT_PRESSED)	current_order=SIGNAL_ORDER_NONE;
                     }
@@ -1215,10 +1224,10 @@ int play(GAME_DATA *game_data)
             if(idx>=0 && features.feature[ idx ].type >= 0 && feature_manager.feature[ features.feature[ idx ].type ].reclaimable )
                 for(uint16 e=0;e<units.index_list_size;e++)
                 {
-                    units.EnterCS_from_outside();
+                    units.lock();
                     i = units.idx_list[e];
-                    units.LeaveCS_from_outside();
-                    units.unit[i].Lock();
+                    units.unlock();
+                    units.unit[i].lock();
                     if( (units.unit[i].flags & 1) && units.unit[i].owner_id==players.local_human_id && units.unit[i].sel
                         && unit_manager.unit_type[units.unit[i].type_id].canresurrect && unit_manager.unit_type[units.unit[i].type_id].BMcode )
                     {
@@ -1227,7 +1236,7 @@ int play(GAME_DATA *game_data)
                         else
                             units.unit[i].set_mission(MISSION_REVIVE,&cur_pos,false,idx,true,NULL);
                     }
-                    units.unit[i].UnLock();
+                    units.unit[i].unlock();
                 }
             if(!TA3D_SHIFT_PRESSED)	current_order=SIGNAL_ORDER_NONE;
         }
@@ -1239,10 +1248,10 @@ int play(GAME_DATA *game_data)
             if( idx >= 0 && features.feature[ idx ].type >= 0 && feature_manager.feature[ features.feature[ idx ].type ].reclaimable )
                 for(uint16 e=0;e<units.index_list_size;e++)
                 {
-                    units.EnterCS_from_outside();
+                    units.lock();
                     i = units.idx_list[e];
-                    units.LeaveCS_from_outside();
-                    units.unit[i].Lock();
+                    units.unlock();
+                    units.unit[i].lock();
                     if( (units.unit[i].flags & 1) && units.unit[i].owner_id==players.local_human_id && units.unit[i].sel
                         && unit_manager.unit_type[units.unit[i].type_id].CanReclamate && unit_manager.unit_type[units.unit[i].type_id].BMcode ) {
                         if(TA3D_SHIFT_PRESSED)
@@ -1250,7 +1259,7 @@ int play(GAME_DATA *game_data)
                         else
                             units.unit[i].set_mission(MISSION_RECLAIM,&cur_pos,false,idx,true,NULL);
                     }
-                    units.unit[i].UnLock();
+                    units.unit[i].unlock();
                 }
             if(!TA3D_SHIFT_PRESSED)	current_order=SIGNAL_ORDER_NONE;
         }
@@ -1610,11 +1619,11 @@ int play(GAME_DATA *game_data)
 
         /*----------------------------------------------------------------------------*/
 
-        cam_h = cam.RPos.y - map->get_unit_h(cam.RPos.x,cam.RPos.z);
+        cam_h = cam.rpos.y - map->get_unit_h(cam.rpos.x,cam.rpos.z);
 
         cam.zfar = 600.0f + max( (cam_h-150.0f)*2.0f, 0.0f );
 
-        if(freecam && cam.RPos.y<map->sealvl) {
+        if(freecam && cam.rpos.y<map->sealvl) {
             FogD=0.03f;
             FogNear=0.0f;
             FogMode=GL_EXP;
@@ -1656,12 +1665,12 @@ int play(GAME_DATA *game_data)
 
             double eqn[4]= { 0.0f, 1.0f, 0.0f, -map->sealvl };
 
-            CAMERA refcam = cam;
+            Camera refcam = cam;
             refcam.zfar *= 2.0f;
             refcam.mirror = true;
-            refcam.mirror_pos = -2.0f*map->sealvl;
+            refcam.mirrorPos = -2.0f*map->sealvl;
 
-            refcam.SetView();
+            refcam.setView();
             glClipPlane(GL_CLIP_PLANE1, eqn);
             glEnable(GL_CLIP_PLANE1);
 
@@ -1669,7 +1678,7 @@ int play(GAME_DATA *game_data)
             sun.Enable();
 
             refcam.zfar*=100.0f;
-            refcam.SetView();
+            refcam.setView();
             glColor4f(1.0f,1.0f,1.0f,1.0f);
             glEnable(GL_TEXTURE_2D);
             glBindTexture(GL_TEXTURE_2D,sky);
@@ -1681,15 +1690,17 @@ int play(GAME_DATA *game_data)
             glFogf (GL_FOG_START, FogNear);
             glFogf (GL_FOG_END, refcam.zfar);
             glDepthMask(GL_FALSE);
-            if( spherical_sky ) {
+            if (spherical_sky)
+            {
                 glCullFace(GL_FRONT);
-                glTranslatef(cam.RPos.x,-map->sealvl,cam.RPos.z);
+                glTranslatef(cam.rpos.x,-map->sealvl,cam.rpos.z);
                 glRotatef( sky_angle, 0.0f, 1.0f, 0.0f );
-                float scale_factor = 15.0f * ( cam.RPos.y + cam.shake_vec.y + sky_obj.w ) / sky_obj.w;
+                float scale_factor = 15.0f * ( cam.rpos.y + cam.shakeVector.y + sky_obj.w ) / sky_obj.w;
                 glScalef( scale_factor, scale_factor, scale_factor );
                 sky_obj.draw();
             }
-            else {
+            else
+            {
                 glBegin(GL_QUADS);
                 glTexCoord2f(0.0f,map->map_h*0.002f);				glVertex3f(-2.0f*map->map_w,300.0f,2.0f*map->map_h);
                 glTexCoord2f(map->map_w*0.002f,map->map_h*0.002f);	glVertex3f(2.0f*map->map_w,300.0f,2.0f*map->map_h);
@@ -1709,9 +1720,10 @@ int play(GAME_DATA *game_data)
             glEnable(GL_FOG);
             glCullFace(GL_FRONT);
             refcam.zfar=(500.0f+(cam_h-150.0f)*2.0f)*2.0f;
-            refcam.SetView();
+            refcam.setView();
 
-            if(cam.RPos.y<=gfx->low_def_limit && lp_CONFIG->water_quality==4) {
+            if(cam.rpos.y<=gfx->low_def_limit && lp_CONFIG->water_quality==4)
+            {
 
                 if(lp_CONFIG->wireframe)
                     glPolygonMode (GL_FRONT_AND_BACK, GL_LINE);
@@ -1730,8 +1742,7 @@ int play(GAME_DATA *game_data)
 
                 particle_engine.draw(&refcam,map->map_w,map->map_h,map->bloc_w,map->bloc_h,map->view);	// Dessine les particules
 
-                fx_manager.draw(&refcam,map,map->sealvl);		// Effets spéciaux en surface / fx above water
-
+                fx_manager.draw(refcam, map, map->sealvl);		// Effets spéciaux en surface / fx above water
             }
 
             glDisable(GL_CLIP_PLANE1);
@@ -1762,12 +1773,12 @@ int play(GAME_DATA *game_data)
         glClearColor(FogColor[0],FogColor[1],FogColor[2],FogColor[3]);
         glClear(GL_DEPTH_BUFFER_BIT);		// Clear screen
 
-        cam.SetView();
+        cam.setView();
 
         sun.Set(cam);
         sun.Enable();
 
-        cam.SetView();
+        cam.setView();
 
         glDisable(GL_FOG);
         glColor3f( 0.0f, 0.0f, 0.0f );				// Black background
@@ -1783,24 +1794,27 @@ int play(GAME_DATA *game_data)
         glEnable(GL_FOG);
 
         cam.zfar*=100.0f;
-        cam.SetView();
+        cam.setView();
         glColor4f(1.0f,1.0f,1.0f,1.0f);
         glEnable(GL_TEXTURE_2D);
         glBindTexture(GL_TEXTURE_2D,sky);
         glDisable(GL_LIGHTING);
         glDepthMask(GL_FALSE);
-        if( spherical_sky ) {
-            glTranslatef( cam.RPos.x, cam.RPos.y+cam.shake_vec.y, cam.RPos.z );
+        if (spherical_sky)
+        {
+            glTranslatef( cam.rpos.x, cam.rpos.y+cam.shakeVector.y, cam.rpos.z );
             glRotatef( sky_angle, 0.0f, 1.0f, 0.0f );
             sky_obj.draw();
-            if( !sky_obj.full ) {
+            if( !sky_obj.full )
+            {
                 glScalef( 1.0f, -1.0f, 1.0f );
                 glCullFace( GL_FRONT );
                 sky_obj.draw();
                 glCullFace( GL_BACK );
             }
         }
-        else {
+        else
+        {
             glBegin(GL_QUADS);
             glTexCoord2f(0.0f,0.0f);							glVertex3f(-2.0f*map->map_w,300.0f,-2.0f*map->map_h);
             glTexCoord2f(map->map_w*0.002f,0.0f);				glVertex3f(2.0f*map->map_w,300.0f,-2.0f*map->map_h);
@@ -1813,7 +1827,7 @@ int play(GAME_DATA *game_data)
         glEnable(GL_LIGHTING);
         glEnable(GL_FOG);
         cam.zfar=500.0f+(cam_h-150.0f)*2.0f;
-        cam.SetView();
+        cam.setView();
 
         if(lp_CONFIG->wireframe)
             glPolygonMode (GL_FRONT_AND_BACK, GL_LINE);
@@ -1832,15 +1846,18 @@ int play(GAME_DATA *game_data)
         weapons.draw(&cam,map,true);			// Dessine les objets produits par les armes sous l'eau / Draw weapons which are under water
 
         if(map->water)
-            fx_manager.draw(&cam,map,map->sealvl,true);		// Effets spéciaux sous-marins / Draw fx which are under water
+            fx_manager.draw(cam, map, map->sealvl, true); // Effets spéciaux sous-marins / Draw fx which are under water
 
-        if(map->water) {
+        if(map->water)
+        {
             glEnableClientState(GL_TEXTURE_COORD_ARRAY);
             gfx->ReInitAllTex( true );
 
-            if(!g_useProgram || !g_useFBO || lp_CONFIG->water_quality<2) {
+            if(!g_useProgram || !g_useFBO || lp_CONFIG->water_quality<2)
+            {
                 gfx->set_alpha_blending();
-                if(lp_CONFIG->water_quality==1) {					// lp_CONFIG->water_quality=1
+                if(lp_CONFIG->water_quality==1) // lp_CONFIG->water_quality=1
+                {
                     glColor4f(1.0f,1.0f,1.0f,0.5f);
 
                     glActiveTextureARB(GL_TEXTURE0_ARB);
@@ -1849,7 +1866,8 @@ int play(GAME_DATA *game_data)
 
                     map->draw(&cam,1,true,map->sealvl,t,dt*lp_CONFIG->timefactor);
                 }
-                else {									// lp_CONFIG->water_quality=0
+                else 	// lp_CONFIG->water_quality=0
+                {
                     glColor4f(1.0f,1.0f,1.0f,0.5f);
                     glDisable(GL_LIGHTING);
 
@@ -1857,9 +1875,9 @@ int play(GAME_DATA *game_data)
                     glEnable(GL_TEXTURE_2D);
                     glBindTexture(GL_TEXTURE_2D,map->low_tex);
 
-                    cam.SetView();
-                    glTranslatef( 0.0f, map->sealvl, map->sea_dec );
-                    water_obj.draw(t,cam.RPos.x,cam.RPos.z,false);
+                    cam.setView();
+                    glTranslatef(0.0f, map->sealvl, map->sea_dec);
+                    water_obj.draw(t,cam.rpos.x,cam.rpos.z,false);
                     glColor4f(1.0f,1.0f,1.0f,0.75f);
 
                     glEnable(GL_LIGHTING);
@@ -1869,7 +1887,8 @@ int play(GAME_DATA *game_data)
                 }
                 gfx->unset_alpha_blending();
             }
-            else {
+            else
+            {
                 glColor4f(1.0f,1.0f,1.0f,1.0f);
                 glDisable(GL_LIGHTING);
 
@@ -1906,9 +1925,9 @@ int play(GAME_DATA *game_data)
                     water_pass1.setvar2f("factor",water_obj.w/map->map_w,water_obj.w/map->map_h);
                 }
 
-                cam.SetView();
+                cam.setView();
                 glTranslatef(0.0f,map->sealvl,0.0f);
-                water_obj.draw(t,cam.RPos.x,cam.RPos.z,true);
+                water_obj.draw(t,cam.rpos.x,cam.rpos.z,true);
 
                 if(lp_CONFIG->water_quality==2)
                     water_pass1_low.off();
@@ -1928,13 +1947,14 @@ int play(GAME_DATA *game_data)
 
                 water_pass2.on();
 
-                cam.SetView();
+                cam.setView();
                 glTranslatef(0.0f,map->sealvl,0.0f);
-                water_obj.draw(t,cam.RPos.x,cam.RPos.z,true);
+                water_obj.draw(t,cam.rpos.x,cam.rpos.z,true);
 
                 water_pass2.off();
 
-                if(lp_CONFIG->water_quality > 2) {
+                if(lp_CONFIG->water_quality > 2)
+                {
                     glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT,GL_COLOR_ATTACHMENT0_EXT,GL_TEXTURE_2D,water_color,0);					// Third pass of water rendering, store water color
 
                     glClear(GL_DEPTH_BUFFER_BIT);		// Efface la texture tampon
@@ -1943,9 +1963,9 @@ int play(GAME_DATA *game_data)
                     glEnable(GL_TEXTURE_2D);
                     glBindTexture(GL_TEXTURE_2D,map->low_tex);
 
-                    cam.SetView();
+                    cam.setView();
                     glTranslatef( 0.0f, map->sealvl, map->sea_dec );
-                    water_obj.draw(t,cam.RPos.x,cam.RPos.z,false);
+                    water_obj.draw(t,cam.rpos.x,cam.rpos.z,false);
                 }
 
                 glBindFramebufferEXT(GL_FRAMEBUFFER_EXT,0);
@@ -1970,9 +1990,9 @@ int play(GAME_DATA *game_data)
                 glDisable(GL_TEXTURE_2D);
                 glClientActiveTextureARB(GL_TEXTURE0_ARB);
 
-                cam.SetView();
+                cam.setView();
                 glTranslatef(0.0f,map->sealvl,0.0f);
-                water_obj.draw(t,cam.RPos.x,cam.RPos.z,true);
+                water_obj.draw(t,cam.rpos.x,cam.rpos.z,true);
 
                 glDisable(GL_STENCIL_TEST);
 
@@ -2025,22 +2045,22 @@ int play(GAME_DATA *game_data)
 
                 glColor4f(1.0f,1.0f,1.0f,1.0f);
                 glDisable(GL_DEPTH_TEST);
-                cam.SetView();
+                cam.setView();
                 glEnable(GL_STENCIL_TEST);
                 glStencilFunc(GL_NOTEQUAL,0, 0xffffffff);
                 glStencilOp(GL_KEEP,GL_KEEP,GL_KEEP);
-                VECTOR cam_pos = cam.RPos + cam.shake_vec;
+                VECTOR cam_pos = cam.rpos + cam.shakeVector;
                 glBegin(GL_QUADS);
-                VECTOR P = cam_pos + 1.1f*(cam.Dir+0.75f*cam.Up-cam.width_factor*cam.Side);
+                VECTOR P = cam_pos + 1.1f * (cam.dir + 0.75f * cam.up-cam.widthFactor * cam.side);
                 glTexCoord2f(0.0f,1.0f);	glVertex3f(P.x,P.y,P.z);
 
-                P = cam_pos + 1.1f*(cam.Dir+0.75f*cam.Up+cam.width_factor*cam.Side);
+                P = cam_pos + 1.1f*(cam.dir+0.75f*cam.up+cam.widthFactor*cam.side);
                 glTexCoord2f(1.0f,1.0f);	glVertex3f(P.x,P.y,P.z);
 
-                P = cam_pos + 1.1f*(cam.Dir-0.75f*cam.Up+cam.width_factor*cam.Side);
+                P = cam_pos + 1.1f*(cam.dir-0.75f*cam.up+cam.widthFactor*cam.side);
                 glTexCoord2f(1.0f,0.0f);	glVertex3f(P.x,P.y,P.z);
 
-                P = cam_pos + 1.1f*(cam.Dir-0.75f*cam.Up-cam.width_factor*cam.Side);
+                P = cam_pos + 1.1f*(cam.dir-0.75f*cam.up-cam.widthFactor*cam.side);
                 glTexCoord2f(0.0f,0.0f);	glVertex3f(P.x,P.y,P.z);
                 glEnd();
                 glDisable(GL_STENCIL_TEST);
@@ -2084,7 +2104,7 @@ int play(GAME_DATA *game_data)
 
                 can_be_there = can_be_built( target, map, build, players.local_human_id );
 
-                cam.SetView();
+                cam.setView();
                 glTranslatef(target.x,target.y,target.z);
                 glScalef(unit_manager.unit_type[build].Scale,unit_manager.unit_type[build].Scale,unit_manager.unit_type[build].Scale);
                 if(unit_manager.unit_type[build].model) {
@@ -2096,7 +2116,7 @@ int play(GAME_DATA *game_data)
                     unit_manager.unit_type[build].model->draw(0.0f,NULL,false,false,false,0,NULL,NULL,NULL,0.0f,NULL,false,players.local_human_id,false);
                     glColor4f(1.0f,1.0f,1.0f,1.0f);
                 }
-                cam.SetView();
+                cam.setView();
                 glTranslatef(target.x,target.y,target.z);
                 float DX = (unit_manager.unit_type[build].FootprintX<<2);
                 float DZ = (unit_manager.unit_type[build].FootprintZ<<2);
@@ -2149,75 +2169,90 @@ int play(GAME_DATA *game_data)
 
         weapons.draw(&cam,map,false);			// Dessine les objets produits par les armes n'ayant pas été dessinés / Draw weapons which have not been drawn
 
-        if(selected && TA3D_SHIFT_PRESSED) {
-            cam.SetView();
+        if(selected && TA3D_SHIFT_PRESSED)
+        {
+            cam.setView();
             bool builders = false;
-            for(uint16 e=0;e<units.index_list_size;e++) {
+            for (uint16 e = 0; e < units.index_list_size; ++e)
+            {
                 i = units.idx_list[e];
-                if( (units.unit[i].flags & 1) && units.unit[i].owner_id==players.local_human_id && units.unit[i].sel) {
+                if( (units.unit[i].flags & 1) && units.unit[i].owner_id==players.local_human_id && units.unit[i].sel)
+                {
                     builders |= unit_manager.unit_type[units.unit[i].type_id].Builder;
                     units.unit[i].show_orders();					// Dessine les ordres reçus par l'unité
                 }
             }
 
             if(builders)
-                for(uint16 e=0;e<units.index_list_size;e++) {
+            {
+                for(uint16 e=0;e<units.index_list_size;e++)
+                {
                     i = units.idx_list[e];
                     if( (units.unit[i].flags & 1) && units.unit[i].owner_id==players.local_human_id && !units.unit[i].sel
                         && unit_manager.unit_type[units.unit[i].type_id].Builder && unit_manager.unit_type[units.unit[i].type_id].BMcode)
+                    {
                         units.unit[i].show_orders(true);					// Dessine les ordres reçus par l'unité
+                    }
                 }
+            }
         }
 
-        if(lp_CONFIG->shadow && cam.RPos.y<=gfx->low_def_limit)
-            if(lp_CONFIG->shadow_quality<=1) {
-                if(rotate_light) {
+        if(lp_CONFIG->shadow && cam.rpos.y<=gfx->low_def_limit)
+            if(lp_CONFIG->shadow_quality<=1)
+            {
+                if(rotate_light)
+                {
                     sun.Dir.x=-1.0f;
                     sun.Dir.y=1.0f;
                     sun.Dir.z=1.0f;
-                    sun.Dir.Unit();
+                    sun.Dir.unit();
                     VECTOR Dir=-sun.Dir;
                     Dir.x=cos(light_angle);
                     Dir.z=sin(light_angle);
-                    Dir.Unit();
+                    Dir.unit();
                     sun.Dir=-Dir;
                     units.draw_shadow(&cam,Dir,map);
                 }
-                else {
+                else
+                {
                     sun.Dir.x=-1.0f;
                     sun.Dir.y=1.0f;
                     sun.Dir.z=1.0f;
-                    sun.Dir.Unit();
+                    sun.Dir.unit();
                     units.draw_shadow(&cam,-sun.Dir,map);
                 }
             }
-            else {
+            else
+            {
                 float alpha=1.0f-exp((1.0f/lp_CONFIG->shadow_quality)*log(0.5f));
                 VECTOR Dir;
-                if(rotate_light) {
+                if(rotate_light)
+                {
                     sun.Dir.x=-1.0f;
                     sun.Dir.y=1.0f;
                     sun.Dir.z=1.0f;
-                    sun.Dir.Unit();
+                    sun.Dir.unit();
                     Dir=-sun.Dir;
                     Dir.x=cos(light_angle);
                     Dir.z=sin(light_angle);
-                    Dir.Unit();
+                    Dir.unit();
                     sun.Dir=-Dir;
                 }
-                else {
+                else
+                {
                     sun.Dir.x=-1.0f;
                     sun.Dir.y=1.0f;
                     sun.Dir.z=1.0f;
-                    sun.Dir.Unit();
+                    sun.Dir.unit();
                     Dir=-sun.Dir;
                 }
-                for(int i=0;i<lp_CONFIG->shadow_quality;i++) {
+                for(int i=0;i<lp_CONFIG->shadow_quality;i++)
+                {
                     VECTOR RDir;
                     RDir=Dir;
                     RDir.x+=cos(i*PI*2.0f/lp_CONFIG->shadow_quality)*lp_CONFIG->shadow_r;
                     RDir.z+=sin(i*PI*2.0f/lp_CONFIG->shadow_quality)*lp_CONFIG->shadow_r;
-                    RDir.Unit();
+                    RDir.unit();
                     units.draw_shadow(&cam,RDir,map,alpha);
                 }
             }
@@ -2225,35 +2260,39 @@ int play(GAME_DATA *game_data)
         particle_engine.draw(&cam,map->map_w,map->map_h,map->bloc_w,map->bloc_h,map->view);	// Dessine les particules
 
         if(!map->water)
-            fx_manager.draw(&cam,map,map->sealvl,true);		// Effets spéciaux en surface
-        fx_manager.draw(&cam,map,map->sealvl);		// Effets spéciaux en surface
+            fx_manager.draw(cam, map, map->sealvl, true);		// Effets spéciaux en surface
+        fx_manager.draw(cam, map, map->sealvl);		// Effets spéciaux en surface
 
-        if(key[KEY_ESC] && !game_area.get_state( "esc_menu" ) ) {			// Enter pause mode if we have to show the menu
+        if(key[KEY_ESC] && !game_area.get_state( "esc_menu" ) ) // Enter pause mode if we have to show the menu
+        {
             lp_CONFIG->pause = true;
             I_Msg( TA3D::TA3D_IM_GUI_MSG, (char*)"esc_menu.b_pause.hide", NULL, NULL );
             I_Msg( TA3D::TA3D_IM_GUI_MSG, (char*)"esc_menu.b_resume.show", NULL, NULL );
             I_Msg( TA3D::TA3D_IM_GUI_MSG, (char*)"esc_menu.show", NULL, NULL );
         }
-        if(game_area.get_state("esc_menu.b_exit")) {
+        if(game_area.get_state("esc_menu.b_exit"))
+        {
             exit_mode = -1;
             done=true;
         }
 
-        if(game_area.get_state("esc_menu.b_save")) {				// Fill the file list
+        if(game_area.get_state("esc_menu.b_save")) 	// Fill the file list
+        {
             game_area.set_state("esc_menu.b_save", false);
 
             GUIOBJ *obj_file_list = game_area.get_object("save_menu.l_file");
 
-            if( obj_file_list ) {
-                List<String> file_list = GetFileList( TA3D_OUTPUT_DIR + "savegame/*.sav" );
+            if( obj_file_list )
+            {
+                List<String> file_list = GetFileList(TA3D::Paths::Savegames + "*.sav" );
 
                 file_list.sort();
 
                 obj_file_list->Text.clear();
                 obj_file_list->Text.reserve(file_list.size());
 
-                foreach( file_list, i )
-                    obj_file_list->Text.push_back( *i );
+                for (List<String>::const_iterator i = file_list.begin(); i != file_list.end(); ++i)
+                    obj_file_list->Text.push_back(*i);
             }
         }
         if(game_area.get_state("save_menu.l_file")) {				// Click on the list
@@ -2268,13 +2307,14 @@ int play(GAME_DATA *game_data)
                 filename = Lowercase( filename );
                 if( filename.substr( filename.length() - 4, 4 ) != ".sav" )
                     filename += ".sav";
-                filename = TA3D_OUTPUT_DIR + "savegame/" + filename;
+                filename = TA3D::Paths::Savegames + filename;
                 save_game( filename, game_data );									// Save the game
             }
             lp_CONFIG->pause = false;
         }
 
-        if(key[KEY_TILDE] && !game_area.get_state("chat")) {
+        if(key[KEY_TILDE] && !game_area.get_state("chat"))
+        {
             if(!tilde)
                 Console->ToggleShow();
             tilde=true;
@@ -2286,7 +2326,7 @@ int play(GAME_DATA *game_data)
 
         gfx->set_2D_mode();		// Affiche console, infos,...
 
-        old_cam_pos=cam.RPos;
+        old_cam_pos=cam.rpos;
         int signal = 0;
         if( !network_manager.isConnected() || network_manager.isServer() ) {
             signal = game_script.run(map,((float)(units.current_tick - script_timer)) / TICKS_PER_SEC,players.local_human_id);
@@ -2358,7 +2398,7 @@ int play(GAME_DATA *game_data)
 
         /*------------------- Draw GUI components -------------------------------------------------------*/
 
-        if( current_gui != String( ta3d_sidedata.side_pref[ players.side_view ] ) + "gen" )
+        if( current_gui != String( ta3dSideData.side_pref[ players.side_view ] ) + "gen" )
             unit_manager.unit_build_menu(n,omb2,dt, true );	// Draw GUI background
         else
             unit_manager.unit_build_menu(-1,omb2,dt, true);	// Draw GUI background
@@ -2367,8 +2407,8 @@ int play(GAME_DATA *game_data)
 
         /*------------------- End of GUI drawings -------------------------------------------------------*/
 
-        WND *current_wnd = game_area.get_wnd( current_gui );
-        if( current_gui != String( ta3d_sidedata.side_pref[ players.side_view ] ) + "gen" )
+        /*WND *current_wnd =*/ game_area.get_wnd( current_gui );
+        if( current_gui != String( ta3dSideData.side_pref[ players.side_view ] ) + "gen" )
             sel = unit_manager.unit_build_menu(n,omb2,dt );	// Menu correspondant à l'unité / Unit's menu
         else
             sel = unit_manager.unit_build_menu(-1,omb2,dt);	// Menu correspondant à l'unité / Unit's menu
@@ -2405,9 +2445,9 @@ int play(GAME_DATA *game_data)
             current_gui = String( unit_manager.unit_type[ n ].Unitname ) + "1";
             if( game_area.get_wnd( current_gui ) == NULL ) {
                 if( unit_manager.unit_type[ n ].nb_unit > 0 )				// The default build page
-                    current_gui = String( ta3d_sidedata.side_pref[ players.side_view ] ) + "dl";
+                    current_gui = String( ta3dSideData.side_pref[ players.side_view ] ) + "dl";
                 else
-                    current_gui = String( ta3d_sidedata.side_pref[ players.side_view ] ) + "gen";
+                    current_gui = String( ta3dSideData.side_pref[ players.side_view ] ) + "gen";
             }
             I_Msg( TA3D::TA3D_IM_GUI_MSG, (void*)( current_gui + ".show" ).c_str(), NULL, NULL );	// Show it
             refresh_gui = true;
@@ -2415,7 +2455,7 @@ int play(GAME_DATA *game_data)
         if( n < 0 && ( selected && !old_sel ) ) {
             I_Msg( TA3D::TA3D_IM_GUI_MSG, (void*)( current_gui + ".hide" ).c_str(), NULL, NULL );	// Hide it
             old_sel = true;
-            current_gui = String( ta3d_sidedata.side_pref[ players.side_view ] ) + "gen";
+            current_gui = String( ta3dSideData.side_pref[ players.side_view ] ) + "gen";
             I_Msg( TA3D::TA3D_IM_GUI_MSG, (void*)( current_gui + ".show" ).c_str(), NULL, NULL );	// Show it
             refresh_gui = true;
         }
@@ -2441,10 +2481,10 @@ int play(GAME_DATA *game_data)
             byte smorder = 0;
 
             for( uint16 e = 0 ; e < units.index_list_size ; e++ ) {
-                units.EnterCS_from_outside();
+                units.lock();
                 uint32 i = units.idx_list[e];
-                units.LeaveCS_from_outside();
-                units.unit[i].Lock();
+                units.unlock();
+                units.unit[i].lock();
                 if( (units.unit[i].flags & 1) && units.unit[i].owner_id == players.local_human_id && units.unit[i].sel) {
                     onoffable |= unit_manager.unit_type[ units.unit[i].type_id ].onoffable;
                     canstop |= unit_manager.unit_type[ units.unit[i].type_id ].canstop;
@@ -2465,26 +2505,26 @@ int play(GAME_DATA *game_data)
                     if( unit_manager.unit_type[ units.unit[i].type_id ].onoffable )
                         onoff_state |= units.unit[ i ].port[ ACTIVATION ] ? 2 : 1;
                 }
-                units.unit[i].UnLock();
+                units.unit[i].unlock();
             }
 
             if( onoff_state == 0 )	onoff_state = 3;
 
-            game_area.set_enable_flag( current_gui + "." + ta3d_sidedata.side_pref[ players.side_view ] + "STOP", canstop );
-            game_area.set_enable_flag( current_gui + "." + ta3d_sidedata.side_pref[ players.side_view ] + "MOVE", canmove );
-            game_area.set_enable_flag( current_gui + "." + ta3d_sidedata.side_pref[ players.side_view ] + "PATROL", canpatrol );
-            game_area.set_enable_flag( current_gui + "." + ta3d_sidedata.side_pref[ players.side_view ] + "DEFEND", canguard );
-            game_area.set_enable_flag( current_gui + "." + ta3d_sidedata.side_pref[ players.side_view ] + "ATTACK", canattack );
-            game_area.set_enable_flag( current_gui + "." + ta3d_sidedata.side_pref[ players.side_view ] + "RECLAIM", canreclam );
-            game_area.set_enable_flag( current_gui + "." + ta3d_sidedata.side_pref[ players.side_view ] + "LOAD", canload );
-            game_area.set_enable_flag( current_gui + "." + ta3d_sidedata.side_pref[ players.side_view ] + "UNLOAD", canload );
-            game_area.set_enable_flag( current_gui + "." + ta3d_sidedata.side_pref[ players.side_view ] + "REPAIR", builders );
-            game_area.set_enable_flag( current_gui + "." + ta3d_sidedata.side_pref[ players.side_view ] + "ONOFF", onoffable );
-            game_area.set_enable_flag( current_gui + "." + ta3d_sidedata.side_pref[ players.side_view ] + "MOVEORD", canmove );
-            game_area.set_enable_flag( current_gui + "." + ta3d_sidedata.side_pref[ players.side_view ] + "FIREORD", canattack );
-            game_area.set_enable_flag( current_gui + "." + ta3d_sidedata.side_pref[ players.side_view ] + "CAPTURE", cancapture );
-            game_area.set_enable_flag( current_gui + "." + ta3d_sidedata.side_pref[ players.side_view ] + "CLOAK", cancloak );
-            game_area.set_enable_flag( current_gui + "." + ta3d_sidedata.side_pref[ players.side_view ] + "BLAST", candgun );
+            game_area.set_enable_flag( current_gui + "." + ta3dSideData.side_pref[ players.side_view ] + "STOP", canstop );
+            game_area.set_enable_flag( current_gui + "." + ta3dSideData.side_pref[ players.side_view ] + "MOVE", canmove );
+            game_area.set_enable_flag( current_gui + "." + ta3dSideData.side_pref[ players.side_view ] + "PATROL", canpatrol );
+            game_area.set_enable_flag( current_gui + "." + ta3dSideData.side_pref[ players.side_view ] + "DEFEND", canguard );
+            game_area.set_enable_flag( current_gui + "." + ta3dSideData.side_pref[ players.side_view ] + "ATTACK", canattack );
+            game_area.set_enable_flag( current_gui + "." + ta3dSideData.side_pref[ players.side_view ] + "RECLAIM", canreclam );
+            game_area.set_enable_flag( current_gui + "." + ta3dSideData.side_pref[ players.side_view ] + "LOAD", canload );
+            game_area.set_enable_flag( current_gui + "." + ta3dSideData.side_pref[ players.side_view ] + "UNLOAD", canload );
+            game_area.set_enable_flag( current_gui + "." + ta3dSideData.side_pref[ players.side_view ] + "REPAIR", builders );
+            game_area.set_enable_flag( current_gui + "." + ta3dSideData.side_pref[ players.side_view ] + "ONOFF", onoffable );
+            game_area.set_enable_flag( current_gui + "." + ta3dSideData.side_pref[ players.side_view ] + "MOVEORD", canmove );
+            game_area.set_enable_flag( current_gui + "." + ta3dSideData.side_pref[ players.side_view ] + "FIREORD", canattack );
+            game_area.set_enable_flag( current_gui + "." + ta3dSideData.side_pref[ players.side_view ] + "CAPTURE", cancapture );
+            game_area.set_enable_flag( current_gui + "." + ta3dSideData.side_pref[ players.side_view ] + "CLOAK", cancloak );
+            game_area.set_enable_flag( current_gui + "." + ta3dSideData.side_pref[ players.side_view ] + "BLAST", candgun );
 
             game_area.set_enable_flag( current_gui + ".ARMSTOP", canstop );			// Alternate version to support mods
             game_area.set_enable_flag( current_gui + ".ARMMOVE", canmove );
@@ -2502,21 +2542,21 @@ int play(GAME_DATA *game_data)
             game_area.set_enable_flag( current_gui + ".ARMCLOAK", cancloak );
             game_area.set_enable_flag( current_gui + ".ARMBLAST", candgun );
 
-            GUIOBJ *onoff_gui = game_area.get_object( current_gui + "." + ta3d_sidedata.side_pref[ players.side_view ] + "ONOFF");
+            GUIOBJ *onoff_gui = game_area.get_object( current_gui + "." + ta3dSideData.side_pref[ players.side_view ] + "ONOFF");
             if( onoff_gui == NULL )
                 onoff_gui = game_area.get_object( current_gui + ".ARMONOFF");
 
             if( onoff_gui )
                 onoff_gui->current_state = onoff_state - 1;
 
-            GUIOBJ *sorder_gui = game_area.get_object( current_gui + "." + ta3d_sidedata.side_pref[ players.side_view ] + "FIREORD");
+            GUIOBJ *sorder_gui = game_area.get_object( current_gui + "." + ta3dSideData.side_pref[ players.side_view ] + "FIREORD");
             if( sorder_gui == NULL )
                 sorder_gui = game_area.get_object( current_gui + ".ARMFIREORD");
 
             if( sorder_gui )
                 sorder_gui->current_state = sforder;
 
-            sorder_gui = game_area.get_object( current_gui + "." + ta3d_sidedata.side_pref[ players.side_view ] + "MOVEORD");
+            sorder_gui = game_area.get_object( current_gui + "." + ta3dSideData.side_pref[ players.side_view ] + "MOVEORD");
             if( sorder_gui == NULL )
                 sorder_gui = game_area.get_object( current_gui + ".ARMMOVEORD");
 
@@ -2524,36 +2564,36 @@ int play(GAME_DATA *game_data)
                 sorder_gui->current_state = smorder;
 
             if( canload ) {
-                I_Msg( TA3D::TA3D_IM_GUI_MSG, (void*)( current_gui + "." + ta3d_sidedata.side_pref[ players.side_view ] + "LOAD.show" ).c_str(), NULL, NULL );	// Show it
-                I_Msg( TA3D::TA3D_IM_GUI_MSG, (void*)( current_gui + "." + ta3d_sidedata.side_pref[ players.side_view ] + "BLAST.hide" ).c_str(), NULL, NULL );	// Hide it
+                I_Msg( TA3D::TA3D_IM_GUI_MSG, (void*)( current_gui + "." + ta3dSideData.side_pref[ players.side_view ] + "LOAD.show" ).c_str(), NULL, NULL );	// Show it
+                I_Msg( TA3D::TA3D_IM_GUI_MSG, (void*)( current_gui + "." + ta3dSideData.side_pref[ players.side_view ] + "BLAST.hide" ).c_str(), NULL, NULL );	// Hide it
                 I_Msg( TA3D::TA3D_IM_GUI_MSG, (void*)( current_gui + ".ARMLOAD.show" ).c_str(), NULL, NULL );	// Show it
                 I_Msg( TA3D::TA3D_IM_GUI_MSG, (void*)( current_gui + ".ARMBLAST.hide" ).c_str(), NULL, NULL );	// Hide it
             }
             else {
-                I_Msg( TA3D::TA3D_IM_GUI_MSG, (void*)( current_gui + "." + ta3d_sidedata.side_pref[ players.side_view ] + "LOAD.hide" ).c_str(), NULL, NULL );	// Hide it
-                I_Msg( TA3D::TA3D_IM_GUI_MSG, (void*)( current_gui + "." + ta3d_sidedata.side_pref[ players.side_view ] + "BLAST.show" ).c_str(), NULL, NULL );	// Show it
+                I_Msg( TA3D::TA3D_IM_GUI_MSG, (void*)( current_gui + "." + ta3dSideData.side_pref[ players.side_view ] + "LOAD.hide" ).c_str(), NULL, NULL );	// Hide it
+                I_Msg( TA3D::TA3D_IM_GUI_MSG, (void*)( current_gui + "." + ta3dSideData.side_pref[ players.side_view ] + "BLAST.show" ).c_str(), NULL, NULL );	// Show it
                 I_Msg( TA3D::TA3D_IM_GUI_MSG, (void*)( current_gui + ".ARMLOAD.hide" ).c_str(), NULL, NULL );	// Hide it
                 I_Msg( TA3D::TA3D_IM_GUI_MSG, (void*)( current_gui + ".ARMBLAST.show" ).c_str(), NULL, NULL );	// Show it
             }
 
-            if( current_gui != String( ta3d_sidedata.side_pref[ players.side_view ] ) + "gen" ) {
-                String gen_gui = String( ta3d_sidedata.side_pref[ players.side_view ] ) + "gen";
+            if( current_gui != String( ta3dSideData.side_pref[ players.side_view ] ) + "gen" ) {
+                String gen_gui = String( ta3dSideData.side_pref[ players.side_view ] ) + "gen";
 
-                game_area.set_enable_flag( gen_gui + "." + ta3d_sidedata.side_pref[ players.side_view ] + "STOP", canstop );
-                game_area.set_enable_flag( gen_gui + "." + ta3d_sidedata.side_pref[ players.side_view ] + "MOVE", canmove );
-                game_area.set_enable_flag( gen_gui + "." + ta3d_sidedata.side_pref[ players.side_view ] + "PATROL", canpatrol );
-                game_area.set_enable_flag( gen_gui + "." + ta3d_sidedata.side_pref[ players.side_view ] + "DEFEND", canguard );
-                game_area.set_enable_flag( gen_gui + "." + ta3d_sidedata.side_pref[ players.side_view ] + "ATTACK", canattack );
-                game_area.set_enable_flag( gen_gui + "." + ta3d_sidedata.side_pref[ players.side_view ] + "RECLAIM", canreclam );
-                game_area.set_enable_flag( gen_gui + "." + ta3d_sidedata.side_pref[ players.side_view ] + "LOAD", canload );
-                game_area.set_enable_flag( gen_gui + "." + ta3d_sidedata.side_pref[ players.side_view ] + "UNLOAD", canload );
-                game_area.set_enable_flag( gen_gui + "." + ta3d_sidedata.side_pref[ players.side_view ] + "REPAIR", builders );
-                game_area.set_enable_flag( gen_gui + "." + ta3d_sidedata.side_pref[ players.side_view ] + "ONOFF", onoffable );
-                game_area.set_enable_flag( gen_gui + "." + ta3d_sidedata.side_pref[ players.side_view ] + "MOVEORD", canmove );
-                game_area.set_enable_flag( gen_gui + "." + ta3d_sidedata.side_pref[ players.side_view ] + "FIREORD", canattack );
-                game_area.set_enable_flag( gen_gui + "." + ta3d_sidedata.side_pref[ players.side_view ] + "CAPTURE", cancapture );
-                game_area.set_enable_flag( gen_gui + "." + ta3d_sidedata.side_pref[ players.side_view ] + "CLOAK", cancloak );
-                game_area.set_enable_flag( gen_gui + "." + ta3d_sidedata.side_pref[ players.side_view ] + "BLAST", candgun );
+                game_area.set_enable_flag( gen_gui + "." + ta3dSideData.side_pref[ players.side_view ] + "STOP", canstop );
+                game_area.set_enable_flag( gen_gui + "." + ta3dSideData.side_pref[ players.side_view ] + "MOVE", canmove );
+                game_area.set_enable_flag( gen_gui + "." + ta3dSideData.side_pref[ players.side_view ] + "PATROL", canpatrol );
+                game_area.set_enable_flag( gen_gui + "." + ta3dSideData.side_pref[ players.side_view ] + "DEFEND", canguard );
+                game_area.set_enable_flag( gen_gui + "." + ta3dSideData.side_pref[ players.side_view ] + "ATTACK", canattack );
+                game_area.set_enable_flag( gen_gui + "." + ta3dSideData.side_pref[ players.side_view ] + "RECLAIM", canreclam );
+                game_area.set_enable_flag( gen_gui + "." + ta3dSideData.side_pref[ players.side_view ] + "LOAD", canload );
+                game_area.set_enable_flag( gen_gui + "." + ta3dSideData.side_pref[ players.side_view ] + "UNLOAD", canload );
+                game_area.set_enable_flag( gen_gui + "." + ta3dSideData.side_pref[ players.side_view ] + "REPAIR", builders );
+                game_area.set_enable_flag( gen_gui + "." + ta3dSideData.side_pref[ players.side_view ] + "ONOFF", onoffable );
+                game_area.set_enable_flag( gen_gui + "." + ta3dSideData.side_pref[ players.side_view ] + "MOVEORD", canmove );
+                game_area.set_enable_flag( gen_gui + "." + ta3dSideData.side_pref[ players.side_view ] + "FIREORD", canattack );
+                game_area.set_enable_flag( gen_gui + "." + ta3dSideData.side_pref[ players.side_view ] + "CAPTURE", cancapture );
+                game_area.set_enable_flag( gen_gui + "." + ta3dSideData.side_pref[ players.side_view ] + "CLOAK", cancloak );
+                game_area.set_enable_flag( gen_gui + "." + ta3dSideData.side_pref[ players.side_view ] + "BLAST", candgun );
 
                 game_area.set_enable_flag( gen_gui + ".ARMSTOP", canstop );
                 game_area.set_enable_flag( gen_gui + ".ARMMOVE", canmove );
@@ -2571,21 +2611,21 @@ int play(GAME_DATA *game_data)
                 game_area.set_enable_flag( gen_gui + ".ARMCLOAK", cancloak );
                 game_area.set_enable_flag( gen_gui + ".ARMBLAST", candgun );
 
-                onoff_gui = game_area.get_object( gen_gui + "." + ta3d_sidedata.side_pref[ players.side_view ] + "ONOFF");
+                onoff_gui = game_area.get_object( gen_gui + "." + ta3dSideData.side_pref[ players.side_view ] + "ONOFF");
                 if( onoff_gui == NULL )
                     onoff_gui = game_area.get_object( gen_gui + ".ARMONOFF");
 
                 if( onoff_gui )
                     onoff_gui->current_state = onoff_state - 1;
 
-                sorder_gui = game_area.get_object( gen_gui + "." + ta3d_sidedata.side_pref[ players.side_view ] + "FIREORD");
+                sorder_gui = game_area.get_object( gen_gui + "." + ta3dSideData.side_pref[ players.side_view ] + "FIREORD");
                 if( sorder_gui == NULL )
                     sorder_gui = game_area.get_object( gen_gui + ".ARMFIREORD");
 
                 if( sorder_gui )
                     sorder_gui->current_state = sforder;
 
-                sorder_gui = game_area.get_object( gen_gui + "." + ta3d_sidedata.side_pref[ players.side_view ] + "MOVEORD");
+                sorder_gui = game_area.get_object( gen_gui + "." + ta3dSideData.side_pref[ players.side_view ] + "MOVEORD");
                 if( sorder_gui == NULL )
                     sorder_gui = game_area.get_object( gen_gui + ".ARMMOVEORD");
 
@@ -2593,14 +2633,14 @@ int play(GAME_DATA *game_data)
                     sorder_gui->current_state = smorder;
 
                 if( canload ) {
-                    I_Msg( TA3D::TA3D_IM_GUI_MSG, (void*)( gen_gui + "." + ta3d_sidedata.side_pref[ players.side_view ] + "LOAD.show" ).c_str(), NULL, NULL );	// Show it
-                    I_Msg( TA3D::TA3D_IM_GUI_MSG, (void*)( gen_gui + "." + ta3d_sidedata.side_pref[ players.side_view ] + "BLAST.hide" ).c_str(), NULL, NULL );	// Hide it
+                    I_Msg( TA3D::TA3D_IM_GUI_MSG, (void*)( gen_gui + "." + ta3dSideData.side_pref[ players.side_view ] + "LOAD.show" ).c_str(), NULL, NULL );	// Show it
+                    I_Msg( TA3D::TA3D_IM_GUI_MSG, (void*)( gen_gui + "." + ta3dSideData.side_pref[ players.side_view ] + "BLAST.hide" ).c_str(), NULL, NULL );	// Hide it
                     I_Msg( TA3D::TA3D_IM_GUI_MSG, (void*)( gen_gui + ".ARMLOAD.show" ).c_str(), NULL, NULL );	// Show it
                     I_Msg( TA3D::TA3D_IM_GUI_MSG, (void*)( gen_gui + ".ARMBLAST.hide" ).c_str(), NULL, NULL );	// Hide it
                 }
                 else {
-                    I_Msg( TA3D::TA3D_IM_GUI_MSG, (void*)( gen_gui + "." + ta3d_sidedata.side_pref[ players.side_view ] + "LOAD.hide" ).c_str(), NULL, NULL );	// Hide it
-                    I_Msg( TA3D::TA3D_IM_GUI_MSG, (void*)( gen_gui + "." + ta3d_sidedata.side_pref[ players.side_view ] + "BLAST.show" ).c_str(), NULL, NULL );	// Show it
+                    I_Msg( TA3D::TA3D_IM_GUI_MSG, (void*)( gen_gui + "." + ta3dSideData.side_pref[ players.side_view ] + "LOAD.hide" ).c_str(), NULL, NULL );	// Hide it
+                    I_Msg( TA3D::TA3D_IM_GUI_MSG, (void*)( gen_gui + "." + ta3dSideData.side_pref[ players.side_view ] + "BLAST.show" ).c_str(), NULL, NULL );	// Show it
                     I_Msg( TA3D::TA3D_IM_GUI_MSG, (void*)( gen_gui + ".ARMLOAD.hide" ).c_str(), NULL, NULL );	// Hide it
                     I_Msg( TA3D::TA3D_IM_GUI_MSG, (void*)( gen_gui + ".ARMBLAST.show" ).c_str(), NULL, NULL );	// Show it
                 }
@@ -2609,7 +2649,7 @@ int play(GAME_DATA *game_data)
             /*------------------- End of GUI update ---------------------------------------------------------*/
         }
 
-        if( current_gui != String( ta3d_sidedata.side_pref[ players.side_view ] ) + "gen" && current_gui != "" )		// Show information about units
+        if( current_gui != String( ta3dSideData.side_pref[ players.side_view ] ) + "gen" && current_gui != "" )		// Show information about units
             units.complete_menu(cur_sel_index, sel != -1 || units.last_on <= -2, false );
         else
             units.complete_menu(cur_sel_index, sel != -1 || units.last_on <= -2, true );
@@ -2620,57 +2660,57 @@ int play(GAME_DATA *game_data)
 
         /*------------------- GUI reacting code ---------------------------------------------------------*/
 
-        if( game_area.get_state( current_gui + "." + ta3d_sidedata.side_pref[ players.side_view ] + "ORDERS" )
+        if( game_area.get_state( current_gui + "." + ta3dSideData.side_pref[ players.side_view ] + "ORDERS" )
             || game_area.get_state( current_gui + ".ARMORDERS" ) ) {		// Go to the order menu
-            game_area.set_state( current_gui + "." + ta3d_sidedata.side_pref[ players.side_view ] + "ORDERS", false );
+            game_area.set_state( current_gui + "." + ta3dSideData.side_pref[ players.side_view ] + "ORDERS", false );
             game_area.set_state( current_gui + ".ARMORDERS", false );				// Because of mod support
             sound_manager->PlayTDFSound( "ORDERSBUTTON", "sound" , NULL );
             I_Msg( TA3D::TA3D_IM_GUI_MSG, (void*)(current_gui + ".hide").c_str(), NULL, NULL );	// Hide it
-            current_gui = String( ta3d_sidedata.side_pref[ players.side_view ] ) + "gen";
+            current_gui = String( ta3dSideData.side_pref[ players.side_view ] ) + "gen";
             I_Msg( TA3D::TA3D_IM_GUI_MSG, (void*)( current_gui + ".show" ).c_str(), NULL, NULL );	// Show it
         }
 
-        if( ( game_area.get_state( current_gui + "." + ta3d_sidedata.side_pref[ players.side_view ] + "BUILD" ) ||
+        if( ( game_area.get_state( current_gui + "." + ta3dSideData.side_pref[ players.side_view ] + "BUILD" ) ||
               game_area.get_state( current_gui + ".ARMBUILD" ) ) && old_gui_sel >= 0 )	{	// Back to the build menu
-            game_area.set_state( current_gui + "." + ta3d_sidedata.side_pref[ players.side_view ] + "BUILD", false );
+            game_area.set_state( current_gui + "." + ta3dSideData.side_pref[ players.side_view ] + "BUILD", false );
             game_area.set_state( current_gui + ".ARMBUILD", false );
             sound_manager->PlayTDFSound( "BUILDBUTTON", "sound" , NULL );
             I_Msg( TA3D::TA3D_IM_GUI_MSG, (void*)(current_gui + ".hide").c_str(), NULL, NULL );	// Hide it
             current_gui = String( unit_manager.unit_type[ old_gui_sel ].Unitname ) + "1";
             if( game_area.get_wnd( current_gui ) == NULL ) {
                 if( unit_manager.unit_type[ old_gui_sel ].nb_unit > 0 )				// The default build page
-                    current_gui = String( ta3d_sidedata.side_pref[ players.side_view ] ) + "dl";
+                    current_gui = String( ta3dSideData.side_pref[ players.side_view ] ) + "dl";
                 else
-                    current_gui = String( ta3d_sidedata.side_pref[ players.side_view ] ) + "gen";
+                    current_gui = String( ta3dSideData.side_pref[ players.side_view ] ) + "gen";
             }
             I_Msg( TA3D::TA3D_IM_GUI_MSG, (void*)( current_gui + ".show" ).c_str(), NULL, NULL );	// Show it
         }
 
-        if( game_area.get_state( current_gui + "." + ta3d_sidedata.side_pref[ players.side_view ] + "PREV" )
+        if( game_area.get_state( current_gui + "." + ta3dSideData.side_pref[ players.side_view ] + "PREV" )
             || game_area.get_state( current_gui + ".ARMPREV" ) ) {
             sound_manager->PlayTDFSound( "NEXTBUILDMENU", "sound" , NULL );
             if( unit_manager.unit_type[ old_gui_sel ].nb_pages > 0 )
                 unit_manager.unit_type[ old_gui_sel ].page = (unit_manager.unit_type[ old_gui_sel ].page + unit_manager.unit_type[ old_gui_sel ].nb_pages-1)%unit_manager.unit_type[old_gui_sel].nb_pages;
         }
-        if( game_area.get_state( current_gui + "." + ta3d_sidedata.side_pref[ players.side_view ] + "NEXT" )
+        if( game_area.get_state( current_gui + "." + ta3dSideData.side_pref[ players.side_view ] + "NEXT" )
             || game_area.get_state( current_gui + ".ARMNEXT" ) ) {
             sound_manager->PlayTDFSound( "NEXTBUILDMENU", "sound" , NULL );
             if( unit_manager.unit_type[ old_gui_sel ].nb_pages > 0 )
                 unit_manager.unit_type[ old_gui_sel ].page= (unit_manager.unit_type[ old_gui_sel ].page+1)%unit_manager.unit_type[ old_gui_sel ].nb_pages;
         }
 
-        if( game_area.get_state( current_gui + "." + ta3d_sidedata.side_pref[ players.side_view ] + "ONOFF" )
+        if( game_area.get_state( current_gui + "." + ta3dSideData.side_pref[ players.side_view ] + "ONOFF" )
             || game_area.get_state( current_gui + ".ARMONOFF" ) ) {		// Toggle the on/off value
             signal_order = SIGNAL_ORDER_ONOFF;
-            GUIOBJ *onoff_obj = game_area.get_object( current_gui + "." + ta3d_sidedata.side_pref[ players.side_view ] + "ONOFF" );
+            GUIOBJ *onoff_obj = game_area.get_object( current_gui + "." + ta3dSideData.side_pref[ players.side_view ] + "ONOFF" );
             if( onoff_obj == NULL )
                 onoff_obj = game_area.get_object( current_gui + ".ARMONOFF" );
             if( onoff_obj != NULL ) {
-                units.EnterCS_from_outside();
+                units.lock();
                 for( uint16 e = 0 ; e < units.index_list_size ; e++ ) {
                     uint16 i = units.idx_list[e];
-                    units.LeaveCS_from_outside();
-                    units.unit[i].Lock();
+                    units.unlock();
+                    units.unit[i].lock();
                     if( (units.unit[i].flags & 1) && units.unit[i].owner_id == players.local_human_id && units.unit[i].sel && unit_manager.unit_type[ units.unit[i].type_id ].onoffable ) {
                         if( onoff_obj->nb_stages > 1 ) {
                             onoff_obj->current_state &= 1;
@@ -2686,24 +2726,24 @@ int play(GAME_DATA *game_data)
                                 units.unit[i].activate();
                         }
                     }
-                    units.unit[i].UnLock();
-                    units.EnterCS_from_outside();
+                    units.unit[i].unlock();
+                    units.lock();
                 }
-                units.LeaveCS_from_outside();
+                units.unlock();
             }
         }
 
-        if( game_area.get_state( current_gui + "." + ta3d_sidedata.side_pref[ players.side_view ] + "CLOAK" )
+        if( game_area.get_state( current_gui + "." + ta3dSideData.side_pref[ players.side_view ] + "CLOAK" )
             || game_area.get_state( current_gui + ".ARMCLOAK" ) ) {		// Toggle the cloak value
-            GUIOBJ *cloak_obj = game_area.get_object( current_gui + "." + ta3d_sidedata.side_pref[ players.side_view ] + "CLOAK" );
+            GUIOBJ *cloak_obj = game_area.get_object( current_gui + "." + ta3dSideData.side_pref[ players.side_view ] + "CLOAK" );
             if( cloak_obj == NULL )
                 cloak_obj = game_area.get_object( current_gui + ".ARMCLOAK" );
             if( cloak_obj != NULL ) {
-                units.EnterCS_from_outside();
+                units.lock();
                 for( uint16 e = 0 ; e < units.index_list_size ; e++ ) {
                     uint16 i = units.idx_list[e];
-                    units.LeaveCS_from_outside();
-                    units.unit[i].Lock();
+                    units.unlock();
+                    units.unit[i].lock();
                     if( (units.unit[i].flags & 1) && units.unit[i].owner_id == players.local_human_id && units.unit[i].sel && unit_manager.unit_type[ units.unit[i].type_id ].CloakCost > 0 ) {
                         if( cloak_obj->nb_stages > 1 ) {
                             cloak_obj->current_state &= 1;
@@ -2712,26 +2752,26 @@ int play(GAME_DATA *game_data)
                         else
                             units.unit[i].cloaking ^= true;
                     }
-                    units.unit[i].UnLock();
-                    units.EnterCS_from_outside();
+                    units.unit[i].unlock();
+                    units.lock();
                 }
-                units.LeaveCS_from_outside();
+                units.unlock();
             }
         }
 
-        if( game_area.get_state( current_gui + "." + ta3d_sidedata.side_pref[ players.side_view ] + "FIREORD" )
+        if( game_area.get_state( current_gui + "." + ta3dSideData.side_pref[ players.side_view ] + "FIREORD" )
             || game_area.get_state( current_gui + ".ARMFIREORD" ) ) {		// Toggle the fireorder value
             sound_manager->PlayTDFSound( "SETFIREORDERS", "sound" , NULL );
-            GUIOBJ *sorder_obj = game_area.get_object( current_gui + "." + ta3d_sidedata.side_pref[ players.side_view ] + "FIREORD" );
+            GUIOBJ *sorder_obj = game_area.get_object( current_gui + "." + ta3dSideData.side_pref[ players.side_view ] + "FIREORD" );
             if( sorder_obj == NULL )
                 sorder_obj = game_area.get_object( current_gui + ".ARMFIREORD" );
             if( sorder_obj != NULL ) {
                 sorder_obj->current_state %= 3;
-                units.EnterCS_from_outside();
+                units.lock();
                 for( uint16 e = 0 ; e < units.index_list_size ; e++ ) {
                     uint16 i = units.idx_list[e];
-                    units.LeaveCS_from_outside();
-                    units.unit[i].Lock();
+                    units.unlock();
+                    units.unit[i].lock();
                     if( (units.unit[i].flags & 1) && units.unit[i].owner_id == players.local_human_id && units.unit[i].sel ) {
                         units.unit[i].port[ STANDINGFIREORDERS ] = sorder_obj->current_state;
                         if( SFORDER_FIRE_AT_WILL != units.unit[i].port[ STANDINGFIREORDERS ] ) {
@@ -2741,56 +2781,56 @@ int play(GAME_DATA *game_data)
                                 units.unit[i].next_mission();
                         }
                     }
-                    units.unit[i].UnLock();
-                    units.EnterCS_from_outside();
+                    units.unit[i].unlock();
+                    units.lock();
                 }
-                units.LeaveCS_from_outside();
+                units.unlock();
             }
         }
 
-        if( game_area.get_state( current_gui + "." + ta3d_sidedata.side_pref[ players.side_view ] + "MOVEORD" )
+        if( game_area.get_state( current_gui + "." + ta3dSideData.side_pref[ players.side_view ] + "MOVEORD" )
             || game_area.get_state( current_gui + ".ARMMOVEORD" ) ) {		// Toggle the moveorder value
             sound_manager->PlayTDFSound( "SETMOVEORDERS", "sound" , NULL );
-            GUIOBJ *sorder_obj = game_area.get_object( current_gui + "." + ta3d_sidedata.side_pref[ players.side_view ] + "MOVEORD" );
+            GUIOBJ *sorder_obj = game_area.get_object( current_gui + "." + ta3dSideData.side_pref[ players.side_view ] + "MOVEORD" );
             if( sorder_obj == NULL )
                 sorder_obj = game_area.get_object( current_gui + ".ARMMOVEORD" );
             if( sorder_obj != NULL ) {
                 sorder_obj->current_state %= 3;
-                units.EnterCS_from_outside();
+                units.lock();
                 for( uint16 e = 0 ; e < units.index_list_size ; e++ ) {
                     uint16 i = units.idx_list[e];
-                    units.LeaveCS_from_outside();
-                    units.unit[i].Lock();
+                    units.unlock();
+                    units.unit[i].lock();
                     if( (units.unit[i].flags & 1) && units.unit[i].owner_id == players.local_human_id && units.unit[i].sel )
                         units.unit[i].port[ STANDINGMOVEORDERS ] = sorder_obj->current_state;
-                    units.unit[i].UnLock();
-                    units.EnterCS_from_outside();
+                    units.unit[i].unlock();
+                    units.lock();
                 }
-                units.LeaveCS_from_outside();
+                units.unlock();
             }
         }
 
-        if( game_area.get_state( current_gui + "." + ta3d_sidedata.side_pref[ players.side_view ] + "MOVE" )
+        if( game_area.get_state( current_gui + "." + ta3dSideData.side_pref[ players.side_view ] + "MOVE" )
             || game_area.get_state( current_gui + ".ARMMOVE" ) )														signal_order = SIGNAL_ORDER_MOVE;
-        if( game_area.get_state( current_gui + "." + ta3d_sidedata.side_pref[ players.side_view ] + "PATROL" )
+        if( game_area.get_state( current_gui + "." + ta3dSideData.side_pref[ players.side_view ] + "PATROL" )
             || game_area.get_state( current_gui + ".ARMPATROL" ) )														signal_order = SIGNAL_ORDER_PATROL;
-        if( game_area.get_state( current_gui + "." + ta3d_sidedata.side_pref[ players.side_view ] + "STOP" )
+        if( game_area.get_state( current_gui + "." + ta3dSideData.side_pref[ players.side_view ] + "STOP" )
             || game_area.get_state( current_gui + ".ARMSTOP" ) )														signal_order = SIGNAL_ORDER_STOP;
-        if( game_area.get_state( current_gui + "." + ta3d_sidedata.side_pref[ players.side_view ] + "DEFEND" )
+        if( game_area.get_state( current_gui + "." + ta3dSideData.side_pref[ players.side_view ] + "DEFEND" )
             || game_area.get_state( current_gui + ".ARMDEFEND" ) )														signal_order = SIGNAL_ORDER_GUARD;
-        if( game_area.get_state( current_gui + "." + ta3d_sidedata.side_pref[ players.side_view ] + "ATTACK" )
+        if( game_area.get_state( current_gui + "." + ta3dSideData.side_pref[ players.side_view ] + "ATTACK" )
             || game_area.get_state( current_gui + ".ARMATTACK" ) )														signal_order = SIGNAL_ORDER_ATTACK;
-        if( game_area.get_state( current_gui + "." + ta3d_sidedata.side_pref[ players.side_view ] + "RECLAIM" )
+        if( game_area.get_state( current_gui + "." + ta3dSideData.side_pref[ players.side_view ] + "RECLAIM" )
             || game_area.get_state( current_gui + ".ARMRECLAIM" ) )														signal_order = SIGNAL_ORDER_RECLAM;
-        if( game_area.get_state( current_gui + "." + ta3d_sidedata.side_pref[ players.side_view ] + "LOAD" )
+        if( game_area.get_state( current_gui + "." + ta3dSideData.side_pref[ players.side_view ] + "LOAD" )
             || game_area.get_state( current_gui + ".ARMLOAD" ) )														signal_order = SIGNAL_ORDER_LOAD;
-        if( game_area.get_state( current_gui + "." + ta3d_sidedata.side_pref[ players.side_view ] + "UNLOAD" )
+        if( game_area.get_state( current_gui + "." + ta3dSideData.side_pref[ players.side_view ] + "UNLOAD" )
             || game_area.get_state( current_gui + ".ARMUNLOAD" ) )														signal_order = SIGNAL_ORDER_UNLOAD;
-        if( game_area.get_state( current_gui + "." + ta3d_sidedata.side_pref[ players.side_view ] + "REPAIR" )
+        if( game_area.get_state( current_gui + "." + ta3dSideData.side_pref[ players.side_view ] + "REPAIR" )
             || game_area.get_state( current_gui + ".ARMREPAIR" ) )														signal_order = SIGNAL_ORDER_REPAIR;
-        if( game_area.get_state( current_gui + "." + ta3d_sidedata.side_pref[ players.side_view ] + "CAPTURE" )
+        if( game_area.get_state( current_gui + "." + ta3dSideData.side_pref[ players.side_view ] + "CAPTURE" )
             || game_area.get_state( current_gui + ".ARMCAPTURE" ) )														signal_order = SIGNAL_ORDER_CAPTURE;
-        if( game_area.get_state( current_gui + "." + ta3d_sidedata.side_pref[ players.side_view ] + "BLAST" )
+        if( game_area.get_state( current_gui + "." + ta3dSideData.side_pref[ players.side_view ] + "BLAST" )
             || game_area.get_state( current_gui + ".ARMBLAST" ) )														signal_order = SIGNAL_ORDER_DGUN;
 
         /*------------------- End of GUI reacting code --------------------------------------------------*/
@@ -2812,17 +2852,17 @@ int play(GAME_DATA *game_data)
                 break;
             case SIGNAL_ORDER_STOP:
                 sound_manager->PlayTDFSound( "IMMEDIATEORDERS", "sound" , NULL );
-                units.EnterCS_from_outside();
+                units.lock();
                 for( uint16 e = 0 ; e < units.index_list_size ; e++ ) {
                     uint16 i = units.idx_list[e];
-                    units.LeaveCS_from_outside();
-                    units.unit[i].Lock();
+                    units.unlock();
+                    units.unit[i].lock();
                     if( (units.unit[i].flags & 1) && units.unit[i].owner_id == players.local_human_id && units.unit[i].sel && unit_manager.unit_type[ units.unit[i].type_id ].canstop )
                         units.unit[i].set_mission(MISSION_STOP);
-                    units.unit[i].UnLock();
-                    units.EnterCS_from_outside();
+                    units.unit[i].unlock();
+                    units.lock();
                 }
-                units.LeaveCS_from_outside();
+                units.unlock();
             case SIGNAL_ORDER_ONOFF:
                 current_order=SIGNAL_ORDER_NONE;
                 break;
@@ -2831,7 +2871,7 @@ int play(GAME_DATA *game_data)
             current_order=SIGNAL_ORDER_NONE;
 
         if(sel>=0 && mouse_b==2 && omb2!=2) {
-            units.unit[cur_sel_index].Lock();
+            units.unit[cur_sel_index].lock();
             MISSION *cur=units.unit[cur_sel_index].mission;
             MISSION **old=&(units.unit[cur_sel_index].mission);
             int nb=1;
@@ -2864,7 +2904,7 @@ int play(GAME_DATA *game_data)
                     units.kill(((UNIT*)(units.unit[cur_sel_index].mission->p))->idx,map,prev);
                 units.unit[cur_sel_index].next_mission();
             }
-            units.unit[cur_sel_index].UnLock();
+            units.unit[cur_sel_index].unlock();
         }
         if(sel>=0 && mouse_b==1 && omb2!=1) {
             build=sel;
@@ -2950,10 +2990,10 @@ int play(GAME_DATA *game_data)
             unit_manager.unit_type[cur_sel].model->print_struct(32.0f,128.0f,gfx->normal_font);
 
         if(internal_name && last_on >= 0 ) {
-            units.unit[ last_on ].Lock();
+            units.unit[ last_on ].lock();
             if( units.unit[ last_on ].type_id >= 0 && unit_manager.unit_type[ units.unit[ last_on ].type_id ].Unitname!=NULL)
                 gfx->print(gfx->normal_font,128.0f,32.0f,0.0f,0xFFFFFFFF,format("internal name %s",unit_manager.unit_type[ units.unit[ last_on ].type_id ].Unitname));
-            units.unit[ last_on ].UnLock();
+            units.unit[ last_on ].unlock();
         }
         else if(internal_name && cur_sel >= 0 && unit_manager.unit_type[cur_sel].Unitname!=NULL)
             gfx->print(gfx->normal_font,128.0f,32.0f,0.0f,0xFFFFFFFF,format("internal name %s",unit_manager.unit_type[cur_sel].Unitname));
@@ -2971,7 +3011,7 @@ int play(GAME_DATA *game_data)
                 "MISSION_PATROL","MISSION_GUARD","MISSION_RECLAIM","MISSION_LOAD","MISSION_UNLOAD","MISSION_STANDBY_MINE"};
             float y = 32.0f;
             for( i = 0; i < units.max_unit ; i++ ) {
-                units.unit[ i ].Lock();
+                units.unit[i].lock();
                 if( (units.unit[i].flags & 1) && last_on == i) {
                     if(units.unit[i].mission!=NULL && units.unit[i].mission->mission<=0x0E) {
                         gfx->print(gfx->normal_font,128.0f,y,0.0f,0xFFFFFFFF,format("MISSION: %s",unit_info[units.unit[i].mission->mission]));
@@ -2989,19 +3029,21 @@ int play(GAME_DATA *game_data)
                         gfx->print(gfx->normal_font,128.0f,y,0.0f,0xFFFFFFFF,format("MISSION: NONE"));
                     y += gfx->normal_font.height();
                 }
-                units.unit[ i ].UnLock();
+                units.unit[i].unlock();
             }
         }
 
         glDisable(GL_BLEND);
 
-        if( show_timefactor > 0.0f ) {
+        if( show_timefactor > 0.0f )
+        {
             String value = format("x %f", lp_CONFIG->timefactor);
-            if( value.find( "." ) != -1 )
+            if(value.find(".") != -1)
                 value.resize( value.find( "." ) + 2 );
             if( show_timefactor > 0.5f )
                 gfx->print( gfx->TA_font, gfx->width - (int)gfx->TA_font.length( value )>>1, SCREEN_H-80, 0.0f, 0xFFFFFFFF, value );
-            else {
+            else
+            {
                 uint32 c = (uint32)(511.0f * show_timefactor) * 0x01010101;
                 gfx->print( gfx->TA_font, gfx->width - (int)gfx->TA_font.length( value )>>1, SCREEN_H-80, 0.0f, c, value );
             }
@@ -3019,22 +3061,24 @@ int play(GAME_DATA *game_data)
         glEnable(GL_BLEND);
         glBlendFunc(GL_ONE,GL_ONE_MINUS_SRC_COLOR);
 
-        if(lp_CONFIG->showfps) {
+        if(lp_CONFIG->showfps)
+        {
             gfx->print(gfx->TA_font,0.0f,Y,0.0f,0xFFFFFFFF,format("fps: %d",fps));
             Y+=9.0f;
         }
 
         glDisable(GL_BLEND);
 
-        if( mouse_b!=4 || TA3D_CTRL_PRESSED )
+        if(mouse_b!=4 || TA3D_CTRL_PRESSED)
             draw_cursor();
 
-        if(shoot) {
+        if(shoot)
+        {
             BITMAP *shoot_bmp = create_bitmap_ex(32,SCREEN_W,SCREEN_H);
             blit(screen,shoot_bmp,0,0,0,0,SCREEN_W,SCREEN_H);
             char nom[100];
             nom[0]=0;
-            strcat(nom,"shoot000000");
+            strcat(nom,"ta3d-shoot000000");
             nom[strlen(nom)-6]+=(nb_shoot/100000)%10;
             nom[strlen(nom)-5]+=(nb_shoot/10000)%10;
             nom[strlen(nom)-4]+=(nb_shoot/1000)%10;
@@ -3043,16 +3087,17 @@ int play(GAME_DATA *game_data)
             nom[strlen(nom)-1]+=nb_shoot%10;
             nb_shoot = (nb_shoot+1)%1000000;
             strcat(nom,".jpg");
-            save_jpg_ex( (TA3D_OUTPUT_DIR + nom).c_str(),shoot_bmp,NULL,75,JPG_SAMPLING_411,NULL);
+            save_jpg_ex((TA3D::Paths::Screenshots + nom).c_str(), shoot_bmp, NULL, 75, JPG_SAMPLING_411, NULL);
             destroy_bitmap(shoot_bmp);
-            shoot=false;
+            shoot = false;
         }
 
         gfx->unset_2D_mode();
 
         gfx->flip();
 
-        if(cmd) {		// Analyse les commandes tapées dans la console
+        if(cmd) // Analyse les commandes tapées dans la console
+        {
             Vector<String> params;
             ReadVectorString(params,  cmd, " ");
             if( params.size() > 0 )
@@ -3063,7 +3108,7 @@ int play(GAME_DATA *game_data)
                     BITMAP *bmp=create_bitmap_ex(32,SCREEN_W,SCREEN_H);
                     clear(bmp);
                     glReadPixels(0,0,SCREEN_W,SCREEN_H,GL_DEPTH_COMPONENT,GL_INT,bmp->line[0]);
-                    save_bitmap( (TA3D_OUTPUT_DIR + "z.tga").c_str(),bmp,NULL);
+                    save_bitmap( (TA3D::Paths::Screenshots + "z.tga").c_str(),bmp,NULL);
                     destroy_bitmap(bmp);
                 }
                 else if( params.size() == 2 && params[0] == "video" && params[1] == "shoot" ) video_shoot ^= true;		// Capture video
@@ -3104,7 +3149,7 @@ int play(GAME_DATA *game_data)
                 else if( params.size() == 2 && params[0] == "show" && params[1] == "model" ) show_model^=true;
                 else if( params.size() == 2 && params[0] == "rotate" && params[1] == "light" ) rotate_light^=true;
                 else if( params[0] == "shake" )
-                    cam.set_shake( 1.0f, 32.0f );
+                    cam.setShake(1.0f, 32.0f);
                 else if( params[0] == "freecam" ) {
                     freecam^=true;
                     if(!freecam)	r2=0.0f;
@@ -3124,16 +3169,17 @@ int play(GAME_DATA *game_data)
                         if( params.size() >= 4 )
                             nb_to_spawn = atoi( params[3].c_str() );
                     }
-                    ThreadSynchroniser->EnterSync();		// Make sure we won't destroy something we mustn't
-                    units.EnterCS_from_outside();
-                    for(i=0;i<nb_to_spawn;i++) {
+                    ThreadSynchroniser->lock();		// Make sure we won't destroy something we mustn't
+                    units.lock();
+                    for(i=0;i<nb_to_spawn;i++)
+                    {
                         int id=0;
                         if( unit_type < 0 || unit_type >= unit_manager.nb_unit )
                             id = units.create( abs( TA3D_RAND() ) % unit_manager.nb_unit,player_id);
                         else
                             id = units.create(unit_type,player_id);
                         if( id == -1 )	break;		// Ho ho no more space to store that unit, limit reached
-                        units.unit[ id ].Lock();
+                        units.unit[ id ].lock();
                         int e=0;
 
                         do {
@@ -3162,17 +3208,17 @@ int play(GAME_DATA *game_data)
                             if(unit_manager.unit_type[units.unit[id].type_id].init_cloaked )				// Start cloaked
                                 units.unit[id].cloaking = true;
                         }
-                        units.unit[ id ].UnLock();
+                        units.unit[ id ].unlock();
                     }
-                    units.LeaveCS_from_outside();
-                    ThreadSynchroniser->LeaveSync();
+                    units.unlock();
+                    ThreadSynchroniser->unlock();
                 }
                 else if( params[0] == "timefactor" && params.size() == 2)
                     lp_CONFIG->timefactor = atof( params[1].c_str() );
                 else if( params[0] == "addhp" && params.size() == 2) {
                     if(selected) {					// Sur les unités sélectionnées
                         int value = atoi( params[1].c_str() );
-                        units.EnterCS_from_outside();
+                        units.lock();
                         for(uint16 e=0;e<units.index_list_size;e++) {
                             i = units.idx_list[e];
                             if( (units.unit[i].flags & 1) && units.unit[i].owner_id==players.local_human_id && units.unit[i].sel) {
@@ -3183,49 +3229,49 @@ int play(GAME_DATA *game_data)
                                     units.unit[i].hp=unit_manager.unit_type[units.unit[i].type_id].MaxDamage;
                             }
                         }
-                        units.LeaveCS_from_outside();
+                        units.unlock();
                     }
                 }
                 else if( params[0] == "deactivate" ) {
                     if(selected) {					// Sur les unités sélectionnées
-                        units.EnterCS_from_outside();
+                        units.lock();
                         for(uint16 e=0;e<units.index_list_size;e++) {
                             i = units.idx_list[e];
                             if( (units.unit[i].flags & 1) && units.unit[i].owner_id==players.local_human_id && units.unit[i].sel)
                                 units.unit[i].deactivate();
                         }
-                        units.LeaveCS_from_outside();
+                        units.unlock();
                     }
                 }
                 else if( params[0] == "activate" ) {
                     if(selected) {					// Sur les unités sélectionnées
-                        units.EnterCS_from_outside();
+                        units.lock();
                         for(uint16 e=0;e<units.index_list_size;e++) {
                             i = units.idx_list[e];
                             if( (units.unit[i].flags & 1) && units.unit[i].owner_id==players.local_human_id && units.unit[i].sel)
                                 units.unit[i].activate();
                         }
-                        units.LeaveCS_from_outside();
+                        units.unlock();
                     }
                 }
                 else if( params[0] == "reset_script" ) {							// Réinitialise les scripts
                     if(selected) {					// Sur les unités sélectionnées
-                        units.EnterCS_from_outside();
+                        units.lock();
                         for(uint16 e=0;e<units.index_list_size;e++) {
                             i = units.idx_list[e];
-                            units.LeaveCS_from_outside();
+                            units.unlock();
                             if( (units.unit[i].flags & 1) && units.unit[i].owner_id==players.local_human_id && units.unit[i].sel)
                                 units.unit[i].reset_script();
-                            units.EnterCS_from_outside();
+                            units.lock();
                         }
-                        units.LeaveCS_from_outside();
+                        units.unlock();
                     }
                 }
                 else if( params[0] == "unitinfo" ) {
                     if(selected && cur_sel!=-1) {					// Sur les unités sélectionnées
                         const char *unit_info[]={"ACTIVATION","STANDINGMOVEORDERS","STANDINGFIREORDERS","HEALTH","INBUILDSTANCE","BUSY","PIECE_XZ","PIECE_Y","UNIT_XZ","UNIT_Y","UNIT_HEIGHT","XZ_ATAN","XZ_HYPOT","ATAN",
                             "HYPOT","GROUND_HEIGHT","BUILD_PERCENT_LEFT","YARD_OPEN","BUGGER_OFF","ARMORED"};
-                        units.EnterCS_from_outside();
+                        units.lock();
                         for(uint16 e=0;e<units.index_list_size;e++) {
                             i = units.idx_list[e];
                             if( (units.unit[i].flags & 1) && units.unit[i].owner_id==players.local_human_id && units.unit[i].sel) {
@@ -3234,49 +3280,49 @@ int play(GAME_DATA *game_data)
                                     printf("%s=%d\n",unit_info[f-1],units.unit[i].port[f]);
                             }
                         }
-                        units.LeaveCS_from_outside();
+                        units.unlock();
                     }
                 }
                 else if( params[0] == "kill" ) {							// Détruit les unités sélectionnées
                     if(selected) {					// Sur les unités sélectionnées
-                        units.EnterCS_from_outside();
+                        units.lock();
                         for(uint16 e=0;e<units.index_list_size;e++) {
                             i = units.idx_list[e];
-                            units.LeaveCS_from_outside();
+                            units.unlock();
                             if( (units.unit[i].flags & 1) && units.unit[i].owner_id==players.local_human_id && units.unit[i].sel) {
                                 units.kill(i,map,e);
                                 e--;
                             }
-                            units.EnterCS_from_outside();
+                            units.lock();
                         }
-                        units.LeaveCS_from_outside();
+                        units.unlock();
                         selected=false;
                         cur_sel=-1;
                     }
                 }
                 else if( params[0] == "shootall" ) {							// Destroy enemy units
-                    units.EnterCS_from_outside();
+                    units.lock();
                     for(uint16 e=0;e<units.max_unit;e++) {
                         i = units.idx_list[e];
-                        units.LeaveCS_from_outside();
+                        units.unlock();
                         if( (units.unit[i].flags & 1) && units.unit[i].owner_id != players.local_human_id ) {
                             units.kill(i,map,e);
                             e--;
                         }
-                        units.EnterCS_from_outside();
+                        units.lock();
                     }
-                    units.LeaveCS_from_outside();
+                    units.unlock();
                 }
                 else if( params[0] == "script" && params.size() == 2) {							// Force l'éxecution d'un script
                     if(selected) {					// Sur les unités sélectionnées
                         int id = atoi( params[1].c_str() );
-                        units.EnterCS_from_outside();
+                        units.lock();
                         for(uint16 e=0;e<units.index_list_size;e++) {
                             i = units.idx_list[e];
                             if( (units.unit[i].flags & 1) && units.unit[i].owner_id==players.local_human_id && units.unit[i].sel)
                                 units.unit[i].launch_script(id);
                         }
-                        units.LeaveCS_from_outside();
+                        units.unlock();
                     }
                 }
                 else if( params[0] == "pause" )								// Toggle pause mode
@@ -3317,45 +3363,48 @@ int play(GAME_DATA *game_data)
 
         /*------------ Code de gestion du déroulement de la partie -----------------------------------*/
 
-        if( ( !network_manager.isConnected() || network_manager.isServer() ) && signal==-1) {			// Si le script est terminé, on reprend les règles standard
+        if( ( !network_manager.isConnected() || network_manager.isServer() ) && signal==-1)	// Si le script est terminé, on reprend les règles standard
+        {
             bool win=true;
             for(i=0;i<players.nb_player;i++)
-                if(!players.annihilated[i] && i!=players.local_human_id)	{
+            {
+                if(!players.annihilated[i] && i!=players.local_human_id)
+                {
                     win=false;
                     break;
                 }
-            if(win) {						// Victoire
+            }
+            if(win) // Victoire
+            {
                 done=true;
                 exit_mode=EXIT_VICTORY;
             }
-            if(players.annihilated[players.local_human_id]) {	// Défaite
+            if(players.annihilated[players.local_human_id])	// Défaite
+            {
                 done=true;
                 exit_mode=EXIT_DEFEAT;
             }
         }
 
-    }while(!done);
+    } while(!done);
 
     reset_mouse();
 
     delete sky_data;
 
     players.DestroyThread();				// Shut down the Players thread
-
     players.stop_threads();
-
     weapons.DestroyThread();				// Shut down the Weapon Engine
-
     units.DestroyThread();					// Shut down the Unit Engine
-
     particle_engine.DestroyThread();		// Shut down the Particle Engine
 
     water_obj.destroy();
     sky_obj.destroy();
 
-    game_cam = NULL;
+    Camera::inGame = NULL;
 
-    if(g_useProgram && g_useFBO && map->water) {
+    if(g_useProgram && g_useFBO && map->water)
+    {
         glDeleteFramebuffersEXT(1,&water_FBO);
         water_pass1.destroy();
         water_pass1_low.destroy();
@@ -3377,34 +3426,30 @@ int play(GAME_DATA *game_data)
     gfx->destroy_texture( arrow_texture );
     gfx->destroy_texture( circle_texture );
 
-    printf("nombre de models chargés: %d \n",model_manager.nb_models);
-    printf("nombre d'unités chargées: %d \n",unit_manager.nb_unit);
-    printf("nombre de textures chargées: %d \n",texture_manager.nbtex);
+    LOG_INFO("Total Models: " << model_manager.nb_models);
+    LOG_INFO("Total Units: " << unit_manager.nb_unit);
+    LOG_INFO("Total Textures: " << texture_manager.nbtex);
 
     switch(exit_mode)
     {
         case EXIT_NONE:
             break;
         case EXIT_VICTORY:
-            if( game_data->campaign && map->ota_data.glamour && HPIManager->Exists( "bitmaps\\glamour\\" + String( map->ota_data.glamour ) + ".pcx" ) ) {
+            if( game_data->campaign && map->ota_data.glamour && HPIManager->Exists( "bitmaps\\glamour\\" + String( map->ota_data.glamour ) + ".pcx"))
+            {
                 uint32 pcx_size = 0;
                 byte *data = HPIManager->PullFromHPI( "bitmaps\\glamour\\" + String( map->ota_data.glamour ) + ".pcx", &pcx_size );
-                if( data ) {
-                    FILE *dst = TA3D_OpenFile( TA3D_OUTPUT_DIR + "cache/glamour.pcx", "wb" );
+                if(data)
+                {
+                    FILE *dst = TA3D_OpenFile(TA3D::Paths::Caches + "glamour.pcx", "wb");
                     fwrite( data, pcx_size, 1, dst );
                     fclose( dst );
                     free(data);
-
-                    GLuint	glamour_tex = gfx->load_texture( TA3D_OUTPUT_DIR + "cache/glamour.pcx" );
-
+                    GLuint	glamour_tex = gfx->load_texture(TA3D::Paths::Caches + "glamour.pcx");
                     gfx->set_2D_mode();
-
                     gfx->drawtexture( glamour_tex, 0, 0, SCREEN_W, SCREEN_H );
-
                     gfx->destroy_texture( glamour_tex );
-
                     gfx->unset_2D_mode();
-
                     gfx->flip();
 
                     while( !keypressed() && mouse_b == 0 ) {	rest(1);	poll_keyboard(); 	poll_mouse();	}
@@ -3415,7 +3460,7 @@ int play(GAME_DATA *game_data)
             break;
         case EXIT_DEFEAT:
             break;
-    };
+    }
 
     Console->AddEntry("freeing memory used for the map");
     map->destroy();
@@ -3447,14 +3492,13 @@ int play(GAME_DATA *game_data)
     Console->AddEntry("freeing memory used for textures");
     texture_manager.destroy();
 
-    if( !game_data->campaign )
+    if(!game_data->campaign)
         stats_menu();
 
     Console->AddEntry("freeing memory used for players");
     players.destroy();
-
     delete HPIManager;
-    HPIManager=new cHPIHandler("");
+    HPIManager = new cHPIHandler("");
 
     return exit_mode;
 }
@@ -3463,14 +3507,14 @@ int anim_cursor(int type)
 {
     if(type==-1)
         return ((msec_timer-start)/100)%cursor.anm[cursor_type].nb_bmp;
-    else
-        return ((msec_timer-start)/100)%cursor.anm[type].nb_bmp;
+    return ((msec_timer-start)/100)%cursor.anm[type].nb_bmp;
 }
 
 void draw_cursor()
 {
     int curseur=anim_cursor();
-    if(curseur<0 || curseur>=cursor.anm[cursor_type].nb_bmp) {
+    if(curseur<0 || curseur>=cursor.anm[cursor_type].nb_bmp)
+    {
         curseur=0;
         start=msec_timer;
     }
@@ -3484,19 +3528,22 @@ void draw_cursor()
     gfx->unset_alpha_blending();
 }
 
-VECTOR cursor_on_map(CAMERA *cam,MAP *map, bool on_mini_map )
+
+
+VECTOR cursor_on_map(Camera* cam,MAP *map, bool on_mini_map )
 {
-    if( on_mini_map ) {			// If the cursor is on the mini_map;
+    if( on_mini_map )			// If the cursor is on the mini_map;
+    {
         VECTOR map_pos;
         map_pos.x = (mouse_x - 64) * 252.0f / 128.0f * map->map_w / map->mini_w;
         map_pos.z = (mouse_y - 64) * 252.0f / 128.0f * map->map_h / map->mini_h;
         map_pos.y = map->get_unit_h( map_pos.x, map_pos.z );
         return map_pos;
     }
-    else {
-        VECTOR cur_dir;
-        cur_dir=cam->Dir+cam->width_factor*2.0f*(mouse_x-gfx->SCREEN_W_HALF)*gfx->SCREEN_W_INV*cam->Side-1.5f*(mouse_y-gfx->SCREEN_H_HALF)*gfx->SCREEN_H_INV*cam->Up;
-        cur_dir.Unit();		// Direction pointée par le curseur
-        return map->hit(cam->Pos,cur_dir,true,2000000000.0f,true);
-    }
+    VECTOR cur_dir;
+    cur_dir = cam->dir + cam->widthFactor * 2.0f * (mouse_x - gfx->SCREEN_W_HALF) * gfx->SCREEN_W_INV * cam->side - 1.5f * (mouse_y - gfx->SCREEN_H_HALF) * gfx->SCREEN_H_INV * cam->up;
+    cur_dir.unit();		// Direction pointée par le curseur
+    return map->hit(cam->pos, cur_dir, true, 2000000000.0f, true);
 }
+
+

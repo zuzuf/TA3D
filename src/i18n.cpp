@@ -69,6 +69,6 @@ String I18N_TRANSLATER::translate( const String &str )		// Translate str if poss
 
 void I18N_TRANSLATER::translate( Vector< String > &vec )						// Translate vec if possible, otherwise leave it as is
 {
-	for( int i = 0 ; i < vec.size() ; i++ )
-		vec[ i ] = translate( vec[ i ] );
+    for (Vector<String>::iterator i = vec.begin(); i != vec.end(); ++i)
+		*i = translate(*i);
 }
