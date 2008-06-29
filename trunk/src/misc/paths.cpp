@@ -10,12 +10,14 @@
 #include <string>
 #include "../TA3D_NameSpace.h"
 #include "../logs/logs.h"
+#include <unistd.h>
 
 
 
 namespace TA3D
 {
 
+    String Paths::ApplicationRoot = "";
     String Paths::Caches = "";
     String Paths::Savegames = "";
     String Paths::Logs = "";
@@ -31,6 +33,15 @@ namespace TA3D
     #endif
     Paths::ResourcesFoldersList Paths::pResourcesFolders;
 
+    
+    
+    String Paths::CurrentDirectory()
+    {
+        char* c = getcwd(NULL, 0);
+        String ret(c);
+        free(c);
+        return String(ret);
+    }
 
     # ifdef TA3D_PLATFORM_WINDOWS
 
@@ -58,7 +69,10 @@ namespace TA3D
         Paths::Caches = root + "ta3d\\cache\\";
         Paths::Savegames = root + "ta3d\\savegames\\";
         Paths::Logs = root + "ta3d\\logs\\";
-        Paths::AddResourcesFolder("./");
+
+        Paths::AddResourcesFolder(Paths::ApplicationRoot + "resources\\");
+        Paths::AddResourcesFolder(root + "ta3d\\resources\\");
+
         Paths::Preferences = root + "ta3d\\settings\\";
         Paths::Screenshots = root + "ta3d\\screenshots\\";
     }
@@ -73,11 +87,13 @@ namespace TA3D
         Paths::Caches = home + "cache/";
         Paths::Savegames = home + "savegames/";
         Paths::Logs = home + "log/";
+
         Paths::AddResourcesFolder(home + "resources/");
         Paths::AddResourcesFolder("/usr/local/games/ta3d/");
         Paths::AddResourcesFolder("/usr/local/share/ta3d/");
         Paths::AddResourcesFolder("/opt/local/share/ta3d/");
-        Paths::AddResourcesFolder("./");
+        Paths::AddResourcesFolder(Paths::ApplicationRoot + "resources/");
+
         Paths::Preferences = home;
         Paths::Screenshots = home + "screenshots/";
     }
@@ -90,10 +106,17 @@ namespace TA3D
         Paths::Caches = home + "/Library/Caches/ta3d/";
         Paths::Savegames = home + "/Library/Preferences/ta3d/savegames/";
         Paths::Logs = home + "/Library/Logs/ta3d/";
-        Paths::AddResourcesFolder("../Resources/");
+        
+        Paths::MakeDir(home + "/Library/Application Support/ta3d/");
+        // Relative folder for the Application bundle
+        Paths::AddResourcesFolder(Paths::ApplicationRoot + "../Resources/");
         Paths::AddResourcesFolder(home + "/Library/Application Support/ta3d/");
+        // Unix compatibility
+        Paths::AddResourcesFolder(home + "/.ta3d/resources/");
+        // If using MacPorts
         Paths::AddResourcesFolder("/opt/local/share/ta3d/");
-        Paths::AddResourcesFolder("./");
+        Paths::AddResourcesFolder(Paths::ApplicationRoot + "resources/"); // TODO : Should be removed (need a fully working Application bundle)
+        
         Paths::Preferences = home + "/Library/Preferences/ta3d/";
         Paths::Screenshots = home + "/Downloads/";
     }
@@ -103,10 +126,46 @@ namespace TA3D
     # endif // ifdef TA3D_PLATFORM_WINDOWS
 
 
+    /*!
+     * \brief Initialize the Paths::ApplicationRoot variable
+     * \param argv0 Equivalent to argv[0] from the main
+     */
+    static void initApplicationRootPath(const char* argv0)
+    {
+        LOG_ASSERT(NULL != argv0);
+
+        Paths::ApplicationRoot = "";
+        String r(Paths::CurrentDirectory());
+        r += Paths::Separator;
+        r += argv0;
+        if (r.empty())
+            return;
+
+        Vector<String> parts;
+        ReadVectorString(parts, r, Paths::SeparatorAsString, false);
+        
+        unsigned int len = parts.size();
+        if (len > 1)
+        {
+            // TODO Manage `..` (may be boost is be more appropriated)
+            for (unsigned int i = 0; i < len - 1; ++i)
+            {
+                if (parts[i] != ".")
+                {
+                    Paths::ApplicationRoot += parts[i];
+                    Paths::ApplicationRoot += Paths::Separator;
+                }
+            }
+        }
+    }
 
     bool
-    Paths::Initialize()
+    Paths::Initialize(int argc, char* argv[])
     {
+        LOG_ASSERT(NULL != argv);
+
+        initApplicationRootPath(argv[0]);
+
         # ifdef TA3D_PLATFORM_WINDOWS
         initForWindows();
         # else
@@ -136,12 +195,12 @@ namespace TA3D
     {
         if (p.empty())
             return true;
-	#ifdef TA3D_PLATFORM_WINDOWS
-	// ugly workaround with stat under Windows
-	// FIXME: Find a better way to find driver letters
-	if (p.size() == 2 && ':' == p[1]) 
-	   return true;
-	#endif
+	    # ifdef TA3D_PLATFORM_WINDOWS
+	    // ugly workaround with stat under Windows
+	    // FIXME: Find a better way to find driver letters
+	    if (p.size() == 2 && ':' == p[1]) 
+	        return true;
+	    # endif
         struct stat s;
         return (stat(p.c_str(), &s) == 0);
     }
@@ -154,24 +213,23 @@ namespace TA3D
         // TODO Use the boost library, which has a better implementation that this one
         Vector<String> parts;
         ReadVectorString(parts, p, SeparatorAsString, false);
-        String pth = "";
+        String pth("");
         bool hasBeenCreated(false);
 
-        Vector<String>::const_iterator i = parts.begin();
-        for (; i != parts.end(); ++i)
+        for (Vector<String>::const_iterator i = parts.begin(); i != parts.end(); ++i)
         {
             pth += *i;
-	    #ifndef TA3D_PLATFORM_WINDOWS
+	        # ifndef TA3D_PLATFORM_WINDOWS
             pth += Separator;
-            #endif
+            # endif
             if (!Paths::Exists(pth))
             {
-		    LOG_DEBUG(pth << " does not exist !");
-		# ifdef TA3D_PLATFORM_WINDOWS
+		        LOG_DEBUG(pth << " does not exist !");
+		        # ifdef TA3D_PLATFORM_WINDOWS
                 if (mkdir(pth.c_str()))
-		# else
+		        # else
                 if (mkdir(pth.c_str(), 01755))
-		# endif
+		        # endif
                 {
                     // TODO Use the logging system instead
                     LOG_ERROR("Impossible to create the folder `" << pth << "`");
@@ -180,9 +238,9 @@ namespace TA3D
                 else
                     hasBeenCreated = true;
             }
-	    #ifdef TA3D_PLATFORM_WINDOWS
+	        # ifdef TA3D_PLATFORM_WINDOWS
             pth += Separator;
-	    #endif
+	        # endif
         }
         if (hasBeenCreated)
             LOG_INFO("Created folder: `" << p << "`");
@@ -204,14 +262,14 @@ namespace TA3D
 
     bool Paths::AddResourcesFolder(const String& folder)
     {
-        if (!folder.empty())
+        if (!folder.empty() && Exists(folder))
         {
             for (ResourcesFoldersList::const_iterator i = pResourcesFolders.begin(); i != pResourcesFolders.end(); ++i)
             {
                 if (folder == *i)
                     return false;
             }
-            LOG_DEBUG("Added resources folder: `" << folder << "`");
+            LOG_INFO("Folder: Resources: `" << folder << "`");
             pResourcesFolders.push_back(folder);
             return true;
         }
