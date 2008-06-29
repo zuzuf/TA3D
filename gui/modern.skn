@@ -13,17 +13,17 @@
 	button_scale=1.5;
 
 	title bar=gfx/mdrn_skin/title_bar.tga;
-	title_x1=12;
-	title_y1=12;
-	title_x2=162;
-	title_y2=19;
+	title_x1=17;
+	title_y1=3;
+	title_x2=131;
+	title_y2=18;
 	title_scale=1.5;
 
 	window borders=gfx/mdrn_skin/window_borders.tga;
-	border_x1=8;
-	border_y1=4;
-	border_x2=324;
-	border_y2=383;
+	border_x1=5;
+	border_y1=5;
+	border_x2=325;
+	border_y2=385;
 	border_scale=1.5;
 
 	progress bar0=gfx/mdrn_skin/progress_bar0.tga;
