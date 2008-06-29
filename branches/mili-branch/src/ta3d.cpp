@@ -599,7 +599,6 @@ int play(GameData *game_data)
         /*-------------------------- end of sound management -----------------------*/
 
         VECTOR old_cam_pos = cam.rpos;
-        float old_r1=r1,old_r2=r2,old_r3=r3;
         float old_zscroll = camera_zscroll;
         if(!freecam)
         {
@@ -2408,7 +2407,7 @@ int play(GameData *game_data)
 
         /*------------------- End of GUI drawings -------------------------------------------------------*/
 
-        WND *current_wnd = game_area.get_wnd( current_gui );
+        /*WND *current_wnd =*/ game_area.get_wnd( current_gui );
         if( current_gui != String( ta3dSideData.side_pref[ players.side_view ] ) + "gen" )
             sel = unit_manager.unit_build_menu(n,omb2,dt );	// Menu correspondant à l'unité / Unit's menu
         else
