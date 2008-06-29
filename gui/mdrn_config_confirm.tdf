@@ -12,7 +12,7 @@
 	number of objects=4;
 	hidden=true;
 	color=0xFFFFFFFF;
-	background=gfx/background.jpg;
+	background=gfx/mdrn_background.jpg;
 	repeat background=true;
 	background window=false;
 	fullscreen=true;			// Scale the window to fit the screen

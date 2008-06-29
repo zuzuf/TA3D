@@ -6,10 +6,10 @@
 
 	button0=gfx/mdrn_skin/button0.tga;
 	button1=gfx/mdrn_skin/button1.tga;
-	button_x1=17;
-	button_y1=4;
-	button_x2=90;
-	button_y2=15;
+	button_x1=3;
+	button_y1=3;
+	button_x2=144;
+	button_y2=33;
 	button_scale=1.5;
 
 	title bar=gfx/mdrn_skin/title_bar.tga;
