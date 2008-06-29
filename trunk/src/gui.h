@@ -25,13 +25,15 @@
 #ifndef MODULE_GUI
 #define MODULE_GUI
 
-#include "gfx.h"
-#include "hash_table.h"
-#include "cCriticalSection.h"
+#include "gfx/gfx.h"
+#include "misc/hash_table.h"
+#include "threads/thread.h"
+#include "TA3D_NameSpace.h"
+
 
 void glbutton(const String &caption,float x1,float y1,float x2,float y2,bool etat=false);
 
-const String msg_box(TA3D::INTERFACES::GFX_FONT fnt,const String &title,const String &msg,bool ask);
+const String msg_box(TA3D::Interfaces::GfxFont fnt,const String &title,const String &msg,bool ask);
 
 //-------------- These are the GUI functions needed by the editors ----------------------------
 
@@ -111,7 +113,7 @@ bool WndAsk( const String &Title, const String &Msg, int ASW_TYPE=ASW_OKCANCEL )
 void Popup( const String &Title, const String &Msg );
 const String GetVal( const String &Title );
 
-extern TA3D::INTERFACES::GFX_FONT gui_font;
+extern TA3D::Interfaces::GfxFont gui_font;
 extern float gui_font_h;
 
 extern bool	use_normal_alpha_function;
@@ -162,7 +164,7 @@ public:
 	bool				wait_a_turn;	// Used to deal with show/hide msg
 
 	byte				current_state;
-	Vector< TA3D::INTERFACES::GFX_TEXTURE >	gltex_states;
+	Vector< TA3D::Interfaces::GfxTexture >	gltex_states;
 	byte				nb_stages;
 	sint16				shortcut_key;
 
@@ -201,7 +203,7 @@ public:
 		help_msg.clear();
 		Name.clear();
 		Text.clear();
-		for( int i = 0 ; i < gltex_states.size() ; i++ )
+		for(unsigned int i = 0 ; i < gltex_states.size() ; ++i)
 			gltex_states[ i ].destroy();
 		gltex_states.clear();
 
@@ -235,7 +237,7 @@ public:
 	void create_ta_button(float X1,float Y1,const Vector< String > &Caption, const Vector< GLuint > &states, int nb_st);
 };
 
-class WND : protected cCriticalSection						// Class for the window object
+class WND : public ObjectSync // Class for the window object
 {
 public:
 	int			x,y;            // coordinates
@@ -291,7 +293,6 @@ public:
 		background = 0;
 		background_wnd = false;
 		size_factor = 1.0f;
-		CreateCS();
 	}
 
 	inline WND( const String &filename ) : obj_hashtable()			// Constructor
@@ -314,11 +315,14 @@ public:
 		draw_borders = true;
 		background = 0;
 		size_factor = 1.0f;
-		CreateCS();
 		load_tdf( filename );
 	}
 
-	inline ~WND()	{	obj_hashtable.EmptyHashTable();		destroy(); DeleteCS();	}
+	inline ~WND()
+    {
+        obj_hashtable.EmptyHashTable();
+        destroy();
+    }
 
 	void draw( String &help_msg, bool Focus=true,bool Deg=true, SKIN *skin=NULL );						// Draw the window
 	byte WinMov(int AMx,int AMy,int AMb,int Mx,int My,int Mb, SKIN *skin=NULL );						// Handle window's moves
@@ -332,11 +336,11 @@ public:
 	GUIOBJ	*get_object( const String &message );									// Return a pointer to the specified object
 
 	void load_tdf( const String &filename, SKIN *skin = NULL );						// Load a window from a *.TDF file describing the window
-	void load_gui( const String &filename, cHashTable< Vector< TA3D::INTERFACES::GFX_TEXTURE >* > &gui_hashtable );// Load a window from a TA *.GUI file describing the interface
+	void load_gui( const String &filename, cHashTable< Vector< TA3D::Interfaces::GfxTexture >* > &gui_hashtable );// Load a window from a TA *.GUI file describing the interface
 };
 
-class AREA:	protected cCriticalSection,						// This class is a window handler, so it will manage windows, and signals given to them
-			protected cInterface							// This is a global declaration since GUI is everywhere
+class AREA:	public ObjectSync, // This class is a window handler, so it will manage windows, and signals given to them
+			protected IInterface							// This is a global declaration since GUI is everywhere
 {
 private:
 	Vector< WND* >		vec_wnd;			// This vector stores all the windows the area object deals with
@@ -344,7 +348,7 @@ private:
 	String				name;				// How is that area called ?
 	int					amx, amy, amz, amb;	// Remember last cursor position
 	SKIN				*skin;				// The skin used by the area
-	cHashTable< Vector< TA3D::INTERFACES::GFX_TEXTURE >* >			gui_hashtable;		// hashtable used to speed up loading of *.gui files and save memory
+	cHashTable< Vector< TA3D::Interfaces::GfxTexture >* > gui_hashtable;		// hashtable used to speed up loading of *.gui files and save memory
 	cHashTable< int >	wnd_hashtable;		// hashtable used to speed up operations on WND objects
 	String				cached_key;
 	WND					*cached_wnd;

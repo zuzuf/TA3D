@@ -23,47 +23,57 @@
 |                                                                                    |
 \-----------------------------------------------------------------------------------*/
 
-#ifndef ENGINE_CLASS		// Inclus les classes du moteur si ce n'est pas déjà fait
-#include "EngineClass.h"
-#endif
+#ifndef __TA3D_UTILS_TNT_H__
+# define __TA3D_UTILS_TNT_H__
 
-#ifndef __TNT_CLASSES
-#define __TNT_CLASSES
+# include "EngineClass.h"
 
-struct TNTHEADER		// Structure de l'en-tête du fichier TNT
+
+
+namespace TA3D
 {
-	int		IDversion;
-	int		Width;
-	int		Height;
-	int		PTRmapdata;
-	int		PTRmapattr;
-	int		PTRtilegfx;
-	int		tiles;
-	int		tileanims;
-	int		PTRtileanim;
-	int		sealevel;
-	int		PTRminimap;
-	int		unknown1;
-	int		pad1,pad2,pad3,pad4;
-};
-
-#define TNTMINIMAP_WIDTH  252
-#define TNTMINIMAP_HEIGHT 252
-
-struct TNTMINIMAP
-{
-	int w;
-	int h;
-	byte map[TNTMINIMAP_HEIGHT][TNTMINIMAP_WIDTH];
-};
 
 
-MAP	*load_tnt_map(byte *data );		// Charge une map au format TA, extraite d'une archive HPI/UFO
+    struct TNTHEADER		// Structure de l'en-tête du fichier TNT
+    {
+        int		IDversion;
+        int		Width;
+        int		Height;
+        int		PTRmapdata;
+        int		PTRmapattr;
+        int		PTRtilegfx;
+        int		tiles;
+        int		tileanims;
+        int		PTRtileanim;
+        int		sealevel;
+        int		PTRminimap;
+        int		unknown1;
+        int		pad1,pad2,pad3,pad4;
+    };
+    
+    #define TNTMINIMAP_WIDTH  252
+    #define TNTMINIMAP_HEIGHT 252
 
-GLuint load_tnt_minimap(byte *data,int *sw,int *sh);		// Charge une minimap d'une carte, extraite d'une archive HPI/UFO
+    struct TNTMINIMAP
+    {
+	    int w;
+	    int h;
+	    byte map[TNTMINIMAP_HEIGHT][TNTMINIMAP_WIDTH];
+    };
 
-GLuint load_tnt_minimap_fast(char *filename,int *sw,int *sh);		// Charge une minimap d'une carte contenue dans une archive HPI/UFO
+                                        // Load a map in TNT format extracted from a HPI archive
+    MAP	*load_tnt_map(byte *data );		// Charge une map au format TA, extraite d'une archive HPI/UFO
 
-BITMAP *load_tnt_minimap_fast_bmp(char *filename);		// Charge une minimap d'une carte contenue dans une archive HPI/UFO
+                                                                // Load a minimap from a map file extracted from a HPI archive
+    GLuint load_tnt_minimap(byte *data,int& sw,int& sh);		// Charge une minimap d'une carte, extraite d'une archive HPI/UFO
 
-#endif
+                                                                                // Load a minimap from a map file extracted from a HPI archive
+    GLuint load_tnt_minimap_fast(const String& filename, int& sw, int& sh);		// Charge une minimap d'une carte contenue dans une archive HPI/UFO
+
+                                                                    // Load a minimap from a map file extracted from a HPI archive
+    BITMAP *load_tnt_minimap_fast_bmp(const String& filename);		// Charge une minimap d'une carte contenue dans une archive HPI/UFO
+
+
+} // namespace TA3D
+
+#endif // __TA3D_UTILS_TNT_H__

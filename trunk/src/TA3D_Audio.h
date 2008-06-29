@@ -19,10 +19,10 @@
 #ifndef __TA3D_AUDIO_H__
 # define __TA3D_AUDIO_H__
 
-# pragma once // TODO Must be removed
-
-# include "vector.h"
+# include "misc/vector.h"
 # include "cTAFileParser.h"
+# include "misc/interface.h"
+# include "threads/thread.h"
 
 # undef stricmp  // TODO Must be removed
 
@@ -40,7 +40,9 @@
 # ifdef TA3D_PLATFORM_WINDOWS
 #   include "tools/win32/fmod/fmod.hpp"
 #   include "tools/win32/fmod/fmod_errors.h"
-#   pragma comment(lib, "tools/win32/libs/fmodex_vc.lib")
+#   ifdef TA3D_PLATFORM_MSVC
+#      pragma comment(lib, "tools/win32/libs/fmodex_vc.lib")
+#   endif
 # endif
 
 
@@ -48,176 +50,174 @@
 
 namespace TA3D
 {
-	namespace INTERFACES
-	{
+namespace Interfaces
+{
 
 
-		class cAudio : protected TA3D::cCriticalSection,
-		            protected TA3D::cInterface,
-		            protected TA3D::UTILS::cTAFileParser
-		{
-		private:
-			typedef struct m_PlayListItem
-			{
-				String		m_Filename;
-				bool		m_BattleTune;
-				bool		m_Deactivated;		// Only to tell the file is theres
-				bool		m_checked;			// Used by the playlist generator
+    class cAudio : public ObjectSync, protected TA3D::IInterface, protected TA3D::UTILS::cTAFileParser
+    {
+    private:
+        typedef struct m_PlayListItem
+        {
+            String		m_Filename;
+            bool		m_BattleTune;
+            bool		m_Deactivated;		// Only to tell the file is theres
+            bool		m_checked;			// Used by the playlist generator
 
-				m_PlayListItem()
-				{
-					m_Filename = String( "" );
-					m_BattleTune = false;
-					m_Deactivated = false;
-					m_checked = false;
-				}
-			};
+            m_PlayListItem()
+            {
+                m_Filename = String( "" );
+                m_BattleTune = false;
+                m_Deactivated = false;
+                m_checked = false;
+            }
+        };
 
-		private:
-			typedef std::vector< m_PlayListItem * >		Playlist;
-			typedef Playlist::iterator					plItor;
+    private:
+        typedef std::vector< m_PlayListItem * >		Playlist;
+        typedef Playlist::iterator					plItor;
 
-		private:
-			bool		m_FMODRunning;      // Is fmod running
-			bool		m_InBattle;         // Are we in battle
-			sint32		m_BattleTunes;      // Number of battle tunes;
-			Playlist	m_Playlist;         // Vector of PlayList.
+    private:
+        bool		m_FMODRunning;      // Is fmod running
+        bool		m_InBattle;         // Are we in battle
+        sint32		m_BattleTunes;      // Number of battle tunes;
+        Playlist	m_Playlist;         // Vector of PlayList.
 
 #ifdef TA3D_PLATFORM_MINGW
-			FMOD_SYSTEM     *m_lpFMODSystem;
-			FMOD_SOUND      *m_lpFMODMusicsound;
-			FMOD_CHANNEL    *m_lpFMODMusicchannel;
+        FMOD_SYSTEM     *m_lpFMODSystem;
+        FMOD_SOUND      *m_lpFMODMusicsound;
+        FMOD_CHANNEL    *m_lpFMODMusicchannel;
 #else
-			FMOD::System     *m_lpFMODSystem;
-			FMOD::Sound      *m_lpFMODMusicsound;
-			FMOD::Channel    *m_lpFMODMusicchannel;
+        FMOD::System     *m_lpFMODSystem;
+        FMOD::Sound      *m_lpFMODMusicsound;
+        FMOD::Channel    *m_lpFMODMusicchannel;
 #endif
 
-			sint16			m_curPlayIndex;   // current play index.
-			uint32			m_min_ticks;
+        sint16			m_curPlayIndex;   // current play index.
+        uint32			m_min_ticks;
 
-		public:
+    public:
 
-			std::vector< std::string >	GetPlayListFiles();
-			void						SetPlayListFileMode( int idx, bool Battle, bool Deactivated );
+        std::vector< std::string >	GetPlayListFiles();
+        void						SetPlayListFileMode( int idx, bool Battle, bool Deactivated );
 
-			cAudio( const float DistanceFactor,
-			    const float DopplerFactor,
-			    const float RolloffFactor );
-			~cAudio();
+        cAudio( const float DistanceFactor,
+                const float DopplerFactor,
+                const float RolloffFactor );
+        ~cAudio();
 
-			// PlayList Members
-		public:
-			void	UpdatePlayListFiles( void );
-			void	SavePlayList( void );
-		private:
-			void ShutdownAudio( bool PurgeLoadedData );
-			bool StartUpAudio( void );
+        // PlayList Members
+    public:
+        void	UpdatePlayListFiles( void );
+        void	SavePlayList( void );
+    private:
+        void ShutdownAudio( bool PurgeLoadedData );
+        bool StartUpAudio( void );
 
-			void	LoadPlayList( void );
-			void	PurgePlayList( void );
+        void	LoadPlayList( void );
+        void	PurgePlayList( void );
 
-			const String SelectNextMusic( void );
-			void  PlayMusic( const String &FileName );
+        const String SelectNextMusic( void );
+        void  PlayMusic( const String &FileName );
 
-		public:
-			void PlayMusic( void );
-			void SetMusicMode( bool battleMode );
+    public:
+        void PlayMusic( void );
+        void SetMusicMode( bool battleMode );
 
-			void TogglePauseMusic( void );
-			void PauseMusic( void );
-			void StopMusic( void );
+        void TogglePauseMusic( void );
+        void PauseMusic( void );
+        void StopMusic( void );
 
-			// Sound Members
-		private:
-			typedef struct m_SoundListItem
-			{
-				bool			m_3DSound;
+        // Sound Members
+    private:
+        typedef struct m_SoundListItem
+        {
+            bool			m_3DSound;
 #ifdef TA3D_PLATFORM_MINGW
-				FMOD_SOUND		*m_SampleHandle;
+            FMOD_SOUND		*m_SampleHandle;
 #else
-				FMOD::Sound		*m_SampleHandle;
+            FMOD::Sound		*m_SampleHandle;
 #endif
-				uint32			last_time_played;
+            uint32			last_time_played;
 
-				m_SoundListItem()
-				{
-					last_time_played = 0;
-					m_3DSound = false;
-					m_SampleHandle = NULL;
-				}
-				~m_SoundListItem()
-				{
+            m_SoundListItem()
+            {
+                last_time_played = 0;
+                m_3DSound = false;
+                m_SampleHandle = NULL;
+            }
+            ~m_SoundListItem()
+            {
 #ifdef TA3D_PLATFORM_MINGW
-					if( m_SampleHandle )
-						FMOD_Sound_Release( m_SampleHandle );
+                if( m_SampleHandle )
+                    FMOD_Sound_Release( m_SampleHandle );
 #else
-					if( m_SampleHandle )
-						m_SampleHandle->release();
+                if( m_SampleHandle )
+                    m_SampleHandle->release();
 #endif
 
-					m_SampleHandle = NULL;
-				}
-			};
+                m_SampleHandle = NULL;
+            }
+        };
 
-			typedef struct m_WorkListItem
-			{
-				m_SoundListItem		*m_Sound;
-				VECTOR				*vec;
+        typedef struct m_WorkListItem
+        {
+            m_SoundListItem		*m_Sound;
+            VECTOR				*vec;
 
-				m_WorkListItem()
-				{
-					m_Sound = NULL;
-					vec = NULL;
-				}
-			};
+            m_WorkListItem()
+            {
+                m_Sound = NULL;
+                vec = NULL;
+            }
+        };
 
-		private:
-			TA3D::UTILS::clpHashTable< m_SoundListItem * >		*m_SoundList;
-			sint32												fCounter;
-			List< m_WorkListItem >								WorkList;			// List to store work to do when entering main thread
+    private:
+        TA3D::UTILS::clpHashTable< m_SoundListItem * >		*m_SoundList;
+        sint32												fCounter;
+        List< m_WorkListItem >								WorkList;			// List to store work to do when entering main thread
 
 #ifdef TA3D_PLATFORM_MINGW
-			FMOD_SOUND						*basic_sound;
-			FMOD_CHANNEL					*basic_channel;
+        FMOD_SOUND						*basic_sound;
+        FMOD_CHANNEL					*basic_channel;
 #else
-			FMOD::Sound						*basic_sound;
-			FMOD::Channel					*basic_channel;
+        FMOD::Sound						*basic_sound;
+        FMOD::Channel					*basic_channel;
 #endif
 
-		private:
-			uint32 InterfaceMsg( const lpcImsg msg );
+    private:
+        uint32 InterfaceMsg( const lpcImsg msg );
 
-		public:
-			void LoadTDFSounds( const String &FileName );
-			void PurgeSounds( void );
+    public:
+        void LoadTDFSounds( const String &FileName );
+        void PurgeSounds( void );
 
-			void LoadTDFSounds( const bool allSounds );
-			bool LoadSound( const String &Filename, const bool LoadAs3D,
-				const float MinDistance = 1.0f, const float MaxDistance = 100.0f  );
+        void LoadTDFSounds( const bool allSounds );
+        bool LoadSound( const String &Filename, const bool LoadAs3D,
+                        const float MinDistance = 1.0f, const float MaxDistance = 100.0f  );
 
-			// Play sound directly from our sound pool
-			void PlaySound( const String &Filename, const VECTOR3D *vec = NULL );
+        // Play sound directly from our sound pool
+        void PlaySound( const String &Filename, const VECTOR3D *vec = NULL );
 
-			// Play sound from TDF by looking up sound filename from internal hash
-			void PlayTDFSound( const String &Key, const VECTOR3D *vec = NULL );
-			void PlayTDFSoundNow( const String &Key, const VECTOR3D *vec = NULL );		// Wrapper to PlayTDFSound + Update3DSound
+        // Play sound from TDF by looking up sound filename from internal hash
+        void PlayTDFSound( const String &Key, const VECTOR3D *vec = NULL );
+        void PlayTDFSoundNow( const String &Key, const VECTOR3D *vec = NULL );		// Wrapper to PlayTDFSound + Update3DSound
 
-			// keys will be added together and then PlayTDF( key, vec ); called
-			// if either key is null or "" aborts.
-			void PlayTDFSound( const String &Key1,  const String Key2, const VECTOR3D *vec = NULL );
+        // keys will be added together and then PlayTDF( key, vec ); called
+        // if either key is null or "" aborts.
+        void PlayTDFSound( const String &Key1,  const String Key2, const VECTOR3D *vec = NULL );
 
-			void PlaySoundFileNow( const String &Filename );				// Loads and play a sound
+        void PlaySoundFileNow( const String &Filename );				// Loads and play a sound
 
-			void StopSoundFileNow();											// Stop playing
+        void StopSoundFileNow();											// Stop playing
 
-			void SetListenerPos( const VECTOR3D *vec );
+        void SetListenerPos( const VECTOR3D *vec );
 
-			void Update3DSound( void );
+        void Update3DSound( void );
 
-			bool IsFMODRunning();
-		}; // class cAudio
-	} // namespace AUDIO
+        bool IsFMODRunning();
+    }; // class cAudio
+} // namespace AUDIO
 } // namespace TA3D
 
 

@@ -27,7 +27,8 @@
 
 #define __CLASS_I18N__
 
-#include "hash_table.h"
+#include "misc/hash_table.h"
+
 
 class I18N_TRANSLATER : protected TA3D::UTILS::cTAFileParser
 {

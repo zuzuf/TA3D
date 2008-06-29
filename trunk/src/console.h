@@ -24,61 +24,65 @@
 | découlant d'un appel automatique par un timer.                        |
 \----------------------------------------------------------------------*/
 
-#ifndef __CLASSE_CONSOLE
-#define __CLASSE_CONSOLE
+#ifndef _TA3D_XX_CLASSE_CONSOLE_H__
+# define _TA3D_XX_CLASSE_CONSOLE_H__
 
-#pragma once
+# include "threads/thread.h"
+
 
 #define CONSOLE_MAX_LINE	100
 
 namespace TA3D
 {
-	namespace TA3D_DEBUG
-	{
-		class cConsole : protected cCriticalSection
-		{
-		private:
-			std::list<String>	m_LastEntries;
-			bool				m_Recording;
-			FILE				*m_log;
-			String				m_RecordFilename;
-			uint16				m_MaxDisplayItems;
-			real32				m_Visible;
-			bool				m_Show;
+namespace TA3D_DEBUG
+{
 
-			char				m_InputText[200];
-			uint16				m_CurrentLine;
-			uint32				m_CurrentTimer;
-			bool				m_std_output;
-			bool				m_log_close;
+    class cConsole : public ObjectSync
+    {
+    private:
+        std::list<String>	m_LastEntries;
+        bool				m_Recording;
+        FILE				*m_log;
+        String				m_RecordFilename;
+        uint16				m_MaxDisplayItems;
+        real32				m_Visible;
+        bool				m_Show;
+        char				m_InputText[200];
+        uint16				m_CurrentLine;
+        uint32				m_CurrentTimer;
+        bool				m_std_output;
+        bool				m_log_close;
 
-		private:
-			void DumpStartupInfo();
+    private:
+        void DumpStartupInfo();
 
-		public:
-			cConsole();
-			cConsole( const String &file );
-			cConsole( const FILE *file );
+    public:
+        cConsole();
+        cConsole( const String &file );
+        cConsole( const FILE *file );
 
-			~cConsole();
+        ~cConsole();
 
-			void ToggleShow();
+        void ToggleShow();
 
-			bool activated();
+        bool activated() const {return m_Show || m_Visible > 0.0f;}
 
-			void StopRecording( void );
-			void StartRecording( const char *file );
-			void StartRecording( const FILE *file );
+        void StopRecording( void );
+        void StartRecording( const char *file );
+        void StartRecording( const FILE *file );
 
-			void stdout_on()	{	m_std_output = true;	}
-			void stdout_off()	{	m_std_output = false;	}
+        void stdout_on()	{	m_std_output = true;	}
+        void stdout_off()	{	m_std_output = false;	}
 
-			void AddEntry(const char *txt, ...);
-			void AddEntry( String NewEntry );
+        void AddEntry(const char *txt, ...);
+        void AddEntry( String NewEntry );
 
-			char *draw( TA3D::INTERFACES::GFX_FONT fnt, float dt, float fsize=8, bool force_show=false );
-		}; //class cConsole
-	} // namespace TA3D_DEBUG
+        char *draw( TA3D::Interfaces::GfxFont fnt, float dt, float fsize=8, bool force_show=false );
+
+    }; //class cConsole
+
+
+} // namespace TA3D_DEBUG
 } // namespace TA3D
 
-#endif
+#endif // _TA3D_XX_CLASSE_CONSOLE_H__

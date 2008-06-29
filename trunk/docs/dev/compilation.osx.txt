@@ -45,4 +45,5 @@ $ cmake . && make
 if you want more verbosity, try :
 $ cmake . && VERBOSE=1 make
 
+Note: libfmodex.dylib is required
 

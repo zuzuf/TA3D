@@ -21,19 +21,19 @@
 #define TA3D_BASIC_ENGINE
 #include "ta3dbase.h"		// Moteur
 #include "TA3D_NameSpace.h"
-#include "cCriticalSection.h"
-#include "cThread.h"
-#include "cLogger.h"
+#include "threads/cThread.h"
+#include "logs/cLogger.h"
 #include "gui.h"			// Interface utilisateur
 #include "TA3D_hpi.h"		// Interface HPI requis pour 3do.h
-#include "particles.h"
+#include "gfx/particles/particles.h"
 #include "gaf.h"
 #include "3do.h"			// Gestion des modèles 3D
 #include "3ds.h"			// The 3DS model loader
-
 #include "taconfig.h"		// Configuration
-
 #include "3dmeditor.h"
+#include "misc/paths.h"
+
+
 
 int cur_part=0;
 bool ClickOnExit=false;
@@ -621,12 +621,12 @@ void obj_maj_normal(int idx)
 		VECTOR AB,AC,Normal;
 		AB = cur->points[cur->t_index[i+1]] - cur->points[cur->t_index[i]];
 		AC = cur->points[cur->t_index[i+2]] - cur->points[cur->t_index[i]];
-		Normal=AB*AC;	Normal.Unit();
+		Normal=AB*AC;	Normal.unit();
 		for(int e=0;e<3;e++)
 			cur->N[cur->t_index[i+e]]=cur->N[cur->t_index[i+e]]+Normal;
 		}
 	for(int i=0;i<cur->nb_vtx;i++)
-		cur->N[i].Unit();
+		cur->N[i].unit();
 }
 
 void obj_geo_optimize(int idx,bool notex)
@@ -724,7 +724,7 @@ int intersect(VECTOR O,VECTOR Dir,OBJECT *obj,VECTOR *PA,VECTOR *PB)	// Calcule 
 	float mdist=1000000.0f;			// Distance du point de départ du rayon à l'objet
 	int index=-1;					// -1 pour aucun triangle touché
 
-	Dir.Unit();		// S'assure que Dir est normalisé
+	Dir.unit();		// S'assure que Dir est normalisé
 	for(int i=0;i<obj->nb_t_index/3;i++) {			// Effectue l'opération pour chaque triangle
 		VECTOR A,B,C,P;
 		VECTOR AB,AC,N,AO;
@@ -736,7 +736,7 @@ int intersect(VECTOR O,VECTOR Dir,OBJECT *obj,VECTOR *PA,VECTOR *PB)	// Calcule 
 
 		AB=B-A;	AC=C-A;
 		N=AB*AC;								// Calcule un vecteur normal au triangle
-		N.Unit();			// Normalise ce vecteur
+		N.unit();			// Normalise ce vecteur
 
 		orient=Dir%N;
 
@@ -826,7 +826,7 @@ void init()
 
 	try
 	{
-	    InterfaceManager = new cInterfaceManager();
+	    InterfaceManager = new TA3D::IInterfaceManager();
 	}
 	catch( ... )
 	{
@@ -940,9 +940,9 @@ void init()
 
 	jpgalleg_init();
 
-	TA3D::VARS::gfx = new TA3D::INTERFACES::GFX;       // Creates the gfx object
+	TA3D::VARS::gfx = new TA3D::Interfaces::GFX;       // Creates the gfx object
 
-	TA3D::VARS::Console=new TA3D::TA3D_DEBUG::cConsole( TA3D_OUTPUT_DIR + "Console3DM.log" );   // Create console object, this will be dropped soon
+	TA3D::VARS::Console=new TA3D::TA3D_DEBUG::cConsole(TA3D::Paths::Logs + "Console3DM.log" );   // Create console object, this will be dropped soon
 	i18n.load_translations("3dmeditor.res");   // create translation object.
 	TA3D::VARS::HPIManager = new TA3D::UTILS::HPI::cHPIHandler( GetClientPath() ); // create hpi manager object.
 

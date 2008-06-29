@@ -31,13 +31,12 @@
 #include "stdafx.h"
 #include "TA3D_NameSpace.h"
 #include "console.h"
+#include "logs/logs.h"
 
 TA3D::TA3D_DEBUG::cConsole *TA3D::VARS::Console;
 
 cConsole::cConsole()			// Initialise la console
 {
-	CreateCS();
-
 	m_Recording=false;
 	m_log = NULL;
 	m_InputText[0] = 0;
@@ -55,8 +54,6 @@ cConsole::cConsole()			// Initialise la console
 
 cConsole::cConsole( const String &file )
 {
-	CreateCS();
-
 	m_Recording=false;
 	m_log = NULL;
 	m_InputText[0] = 0;
@@ -76,8 +73,6 @@ cConsole::cConsole( const String &file )
 
 cConsole::cConsole( const FILE *file )
 {
-	CreateCS();
-
 	m_Recording=false;
 	m_log = NULL;
 	m_InputText[0] = 0;
@@ -98,10 +93,7 @@ cConsole::cConsole( const FILE *file )
 cConsole::~cConsole()
 {
 	StopRecording();
-
 	m_LastEntries.clear();
-
-	DeleteCS();
 }
 
 void cConsole::DumpStartupInfo()
@@ -231,24 +223,22 @@ void cConsole::StopRecording( void )
 	if( !m_Recording )
 		return;
 
-	EnterCS();
+    pMutex.lock();
 
-	if( m_log != NULL && m_log_close )
+	if( m_log != NULL && m_log_close)
 		fclose( m_log );
 
 	m_log = NULL;
 	m_Recording = false;
 	m_log_close = false;
-
-	LeaveCS();
+    pMutex.unlock();
 }
 
 void cConsole::StartRecording( const char *file )
 {
 	StopRecording();
 
-	EnterCS();
-
+    pMutex.lock();
 	m_RecordFilename = file;
 
 	m_log = TA3D_OpenFile( m_RecordFilename, "wt" );
@@ -256,49 +246,53 @@ void cConsole::StartRecording( const char *file )
 	if( m_log )
 		m_Recording=true;
 	else {
-		LeaveCS();		throw( "Console:StartRecording Failed to open file to record." );
+		pMutex.unlock();
+        throw( "Console:StartRecording Failed to open file to record." );
 		}
 	m_log_close = true;
-
-	LeaveCS();
+    pMutex.unlock();
 }
 
 void cConsole::StartRecording( const FILE *file )
 {
 	StopRecording();
 
-	EnterCS();
-
+    pMutex.lock();
 	m_RecordFilename = "logger";
 
 	m_log = (FILE*)file;
 
 	if( m_log )
 		m_Recording=true;
-	else {
-		LeaveCS();		throw( "Console:StartRecording Failed to open file to record." );
-		}
+	else
+    {
+        pMutex.unlock();
+        throw( "Console:StartRecording Failed to open file to record." );
+	}
 	m_log_close = false;
-
-	LeaveCS();
+    pMutex.unlock();
 }
 
 void cConsole::AddEntry( String NewEntry )
 {
-	EnterCS();
+    LOG_INFO(NewEntry);
+    MutexLocker locker(pMutex);
 
-	if( msec_timer - m_CurrentTimer >= 10 ) {
+	if( msec_timer - m_CurrentTimer >= 10 )
+    {
 		m_CurrentTimer = msec_timer;
 		m_CurrentLine = 0;
-		}
+	}
 
-	if( m_Recording && m_CurrentLine >= CONSOLE_MAX_LINE ) {
-		LeaveCS();
+	if( m_Recording && m_CurrentLine >= CONSOLE_MAX_LINE ) 
 		return;
-		}
 	m_CurrentLine++;
 
-	for( int i = 0 ; i < NewEntry.size() ; i++ )	if( NewEntry[ i ] == '\t' )	NewEntry[ i ] = ' ';
+	for(unsigned int i = 0 ; i < NewEntry.size() ; ++i)
+    {
+        if (NewEntry[i] == '\t')
+            NewEntry[i] = ' ';
+    }
 
 	m_LastEntries.push_back( NewEntry );
 
@@ -314,24 +308,20 @@ void cConsole::AddEntry( String NewEntry )
 
 	if( m_std_output )
 		printf( "%s\n", NewEntry.c_str() );
-
-	LeaveCS();
 }
 
 void cConsole::AddEntry(const char *txt, ...)		// Ajoute une nouvelle entrée
 {
-	EnterCS();
-
-	if( msec_timer - m_CurrentTimer >= 10 ) {
+    MutexLocker locker(pMutex);
+	if( msec_timer - m_CurrentTimer >= 10 )
+    {
 		m_CurrentTimer = msec_timer;
 		m_CurrentLine = 0;
-		}
+	}
 
-	if( m_Recording && m_CurrentLine >= CONSOLE_MAX_LINE ) {
-		LeaveCS();
+	if( m_Recording && m_CurrentLine >= CONSOLE_MAX_LINE )
 		return;
-		}
-	m_CurrentLine++;
+	++m_CurrentLine;
 
 	int   result = -1, length = 256;
 	char *buffer = 0;
@@ -361,7 +351,11 @@ void cConsole::AddEntry(const char *txt, ...)		// Ajoute une nouvelle entrée
 		String NewEntry( buffer );
 		delete [] buffer;
 
-	for( int i = 0 ; i < NewEntry.size() ; i++ )	if( NewEntry[ i ] == '\t' )	NewEntry[ i ] = ' ';
+	for (unsigned int i = 0 ; i < NewEntry.size() ; ++i)
+    {
+        if (NewEntry[i] == '\t')
+            NewEntry[i] = ' ';
+    }
 
 	m_LastEntries.push_back( NewEntry );
 
@@ -376,24 +370,24 @@ void cConsole::AddEntry(const char *txt, ...)		// Ajoute une nouvelle entrée
 	}
 
 	if( m_std_output )
-		printf( "%s\n", NewEntry.c_str() );
-
-	LeaveCS();
+    {
+        LOG_INFO(NewEntry);
+		//printf( "%s\n", NewEntry.c_str() );
+    }
+    else
+        LOG_DEBUG(NewEntry);
 }
 
 void cConsole::ToggleShow()
 {
+    pMutex.lock();
 	m_Show ^= true;
+    pMutex.unlock();
 }
 
-bool cConsole::activated()
+char *cConsole::draw( TA3D::Interfaces::GfxFont fnt, float dt, float fsize, bool force_show )
 {
-	return m_Show || m_Visible > 0.0f;
-}
-
-char *cConsole::draw( TA3D::INTERFACES::GFX_FONT fnt, float dt, float fsize, bool force_show )
-{
-	EnterCS();
+    MutexLocker locker(pMutex);
 
 	float	m_vis = m_Visible;
 	bool	m_sho = m_Show;
@@ -413,10 +407,8 @@ char *cConsole::draw( TA3D::INTERFACES::GFX_FONT fnt, float dt, float fsize, boo
 	if( m_Visible<0.0f ) m_Visible=0.0f;
 	if( m_Visible>1.0f ) m_Visible=1.0f;
 
-	if(!m_Show && m_Visible == 0.0f ) {
-		LeaveCS();
+	if(!m_Show && m_Visible == 0.0f )
 		return NULL;
-		}
 
 	char keyb=0;
 
@@ -487,7 +479,6 @@ char *cConsole::draw( TA3D::INTERFACES::GFX_FONT fnt, float dt, float fsize, boo
 		m_Visible = m_vis;
 		}
 
-	LeaveCS();
-
 	return newline;
 }
+

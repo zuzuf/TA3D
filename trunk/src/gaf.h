@@ -29,6 +29,9 @@
 #define GAF_STANDARD	0x00010100
 #define GAF_TRUECOLOR	0x00010101
 
+#include "stdafx.h"
+
+
 struct GAFHEADER
 {
 	int		IDVersion;	/* Version stamp - always 0x00010100 */ // 0x00010101 is used for truecolor mode

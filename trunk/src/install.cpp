@@ -28,7 +28,7 @@ void install_TA_files( String def_path )
 
 	if( def_path != "" ) {						// Explicit path given
 		path_to_TA_cd = def_path;
-		for( int i = 0 ; i < path_to_TA_cd.size() ; i++ )			// Use UNIX like path
+		for(unsigned int i = 0 ; i < path_to_TA_cd.size() ; ++i)			// Use UNIX like path
 			if( path_to_TA_cd[ i ] == '\\' )
 				path_to_TA_cd[ i ] = '/';
 		if( path_to_TA_cd[ path_to_TA_cd.size() ] != '/' )			// Check it ends with a '\'
@@ -49,7 +49,7 @@ void install_TA_files( String def_path )
 
 		if( def_path != "" ) {						// Explicit path given
 			path_to_TA_cd = def_path;
-			for( int i = 0 ; i < path_to_TA_cd.size() ; i++ )			// Use UNIX like path
+			for(unsigned int i = 0 ; i < path_to_TA_cd.size() ; ++i)			// Use UNIX like path
 				if( path_to_TA_cd[ i ] == '\\' )
 					path_to_TA_cd[ i ] = '/';
 			if( path_to_TA_cd[ path_to_TA_cd.size() ] != '/' )			// Check it ends with a '\'
@@ -84,7 +84,7 @@ void install_TA_files( String def_path )
 
 			fwrite(data,buf_size,1,dst);
 
-			for( int pos = buf_size ; pos < file_size32 ; pos += buf_size ) {
+			for(uint32 pos = buf_size ; pos < file_size32 ; pos += buf_size ) {
 				int read_size = min( buf_size, (int)(file_size32 - pos) );
 				free(data);
 				data = HPIManager->PullFromHPI_zone( "install\\totala1.hpi", pos, read_size, &file_size32);			// Extract the totala1.hpi file from the TA CD
