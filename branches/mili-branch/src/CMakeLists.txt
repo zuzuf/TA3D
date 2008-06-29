@@ -115,15 +115,15 @@ ADD_DEPENDENCIES(hpi stdafx tajpeg misc)
 
 
 if( WIN32 OR CMAKE_CROSSCOMPILING )
-	SET( 3DMEDITOR 3dmeditor )
+	SET( 3DMEDITOR_BIN 3dmeditor )
 else( WIN32 OR CMAKE_CROSSCOMPILING )
-	SET( 3DMEDITOR 3dmeditor-bin )
+	SET( 3DMEDITOR_BIN 3dmeditor-bin )
 endif( WIN32 OR CMAKE_CROSSCOMPILING )
 
-add_executable(${3DMEDITOR} 3dmeditor.cpp ta3d.h 3dmeditor_sub.cpp 3dmeditor.h cTAFileParser.cpp cTAFileParser.h stdafx.h TA3D_NameSpace.cpp TA3D_NameSpace.h TA3D_Platform.h)
+ADD_EXECUTABLE(${3DMEDITOR_BIN} 3dmeditor.cpp ta3d.h 3dmeditor_sub.cpp 3dmeditor.h cTAFileParser.cpp cTAFileParser.h stdafx.h TA3D_NameSpace.cpp TA3D_NameSpace.h TA3D_Platform.h)
 
-ADD_DEPENDENCIES(${3DMEDITOR} stdafx logs console debuginfos threads 3dtoolbox misc i18n tajpeg gfx fileformats particles audio hpi taconfig gui ingame)
-target_link_libraries(${3DMEDITOR} stdafx logs console debuginfos threads 3dtoolbox misc i18n tajpeg gfx fileformats particles audio hpi taconfig gui ingame)
+ADD_DEPENDENCIES(${3DMEDITOR_BIN} stdafx logs console debuginfos threads 3dtoolbox misc i18n tajpeg gfx fileformats particles audio hpi taconfig gui ingame)
+target_link_libraries(${3DMEDITOR_BIN} stdafx logs console debuginfos threads 3dtoolbox misc i18n tajpeg gfx fileformats particles audio hpi taconfig gui ingame)
 IF(APPLE)
     SET(GUI_TYPE MACOSX_BUNDLE)
     SET(MACOSX_BUNDLE_BUNDLE_NAME "TA3D Editor")
@@ -135,17 +135,81 @@ ENDIF(APPLE)
 # --------------------------------------------------------------------
 # --- TA3D
 # --------------------------------------------------------------------
-
-add_executable(ta3d-bin ta3d.cpp ta3d.h main.cpp install.cpp cTA3D_Engine.cpp cTA3D_Engine.h cTAFileParser.cpp cTAFileParser.h restore.cpp restore.h menu.cpp menu.h EngineClass.cpp EngineClass.h UnitEngine.cpp UnitEngine.h fbi.cpp fbi.h intro.cpp intro.h tdf.cpp tdf.h tnt.cpp tnt.h icon.cpp stdafx.h TA3D_NameSpace.cpp TA3D_NameSpace.h TA3D_Platform.h)
-
-ADD_DEPENDENCIES(ta3d-bin stdafx logs console debuginfos threads i18n 3dtoolbox misc ingame menus tajpeg gfx fileformats particles weapons ai audio hpi gui taconfig network scripts)
-target_link_libraries(ta3d-bin stdafx logs console debuginfos threads i18n 3dtoolbox misc ingame menus tajpeg gfx fileformats particles weapons ai audio hpi gui taconfig network scripts)
 IF(APPLE)
-    SET(GUI_TYPE MACOSX_BUNDLE)
-    SET(MACOSX_BUNDLE_BUNDLE_NAME "TA3D")
-    SET(MACOSX_BUNDLE_SHORT_VERSION_STRING "ta3d")
+	SET(TA3D_BIN ta3d)
+ELSE(APPLE)
+	SET(TA3D_BIN ta3d-bin)
 ENDIF(APPLE)
 
+
+SET(SOURCES ta3d.cpp ta3d.h main.cpp install.cpp cTA3D_Engine.cpp cTA3D_Engine.h
+            cTAFileParser.cpp cTAFileParser.h
+            restore.cpp restore.h
+            menu.cpp menu.h
+            EngineClass.cpp EngineClass.h
+            UnitEngine.cpp UnitEngine.h
+            fbi.cpp fbi.h intro.cpp intro.h 
+            tdf.cpp tdf.h tnt.cpp tnt.h 
+            icon.cpp stdafx.h 
+            TA3D_NameSpace.cpp TA3D_NameSpace.h TA3D_Platform.h)
+ADD_EXECUTABLE(${TA3D_BIN} ${SOURCES})
+
+#IF(NOT APPLE)
+#    ADD_EXECUTABLE(${TA3D_BIN} ${SOURCES})
+#ELSE(NOT APPLE)
+#
+#    #
+#    # Specific commands for OS X
+#    #
+#
+#    # Icon
+#    ADD_CUSTOM_COMMAND(OUTPUT "${PROJECT_SOURCE_DIR}/ta3d.app/Contents/Resources/ta3d.icns"
+#        COMMAND  mkdir -p "${PROJECT_SOURCE_DIR}/ta3d.app/Contents/Resources" && cp -f
+#        ARGS "${PROJECT_SOURCE_DIR}/pictures/ta3d.icns" "${PROJECT_SOURCE_DIR}/ta3d.app/Contents/Resources/ta3d.icns"
+#        DEPENDS "${PROJECT_SOURCE_DIR}/pictures/ta3d.icns") 
+#    SET(SOURCES ${SOURCES} "${PROJECT_SOURCE_DIR}/ta3d.app/Contents/Resources/ta3d.icns")
+#
+#    # FMOD
+#    ADD_CUSTOM_COMMAND(OUTPUT "${PROJECT_SOURCE_DIR}/ta3d.app/Contents/Frameworks/libfmodex.dylib"
+#        COMMAND  mkdir -p "${PROJECT_SOURCE_DIR}/ta3d.app/Contents/Frameworks" && cp -f
+#        ARGS "${PROJECT_SOURCE_DIR}/src/tools/darwin/fmod/4.14.07/lib/libfmodex.dylib" "${PROJECT_SOURCE_DIR}/ta3d.app/Contents/Frameworks/libfmodex.dylib"
+#        DEPENDS "${PROJECT_SOURCE_DIR}/src/tools/darwin/fmod/4.14.07/lib/libfmodex.dylib") 
+#    SET(SOURCES ${SOURCES} "${PROJECT_SOURCE_DIR}/ta3d.app/Contents/Frameworks/libfmodex.dylib")
+#
+#    # LibZ
+#    ADD_CUSTOM_COMMAND(OUTPUT "${PROJECT_SOURCE_DIR}/ta3d.app/Contents/Frameworks/libz.1.dylib"
+#        COMMAND  mkdir -p "${PROJECT_SOURCE_DIR}/ta3d.app/Contents/Frameworks" && cp -fH
+#        ARGS "/opt/local/lib/libz.1.dylib" "${PROJECT_SOURCE_DIR}/ta3d.app/Contents/Frameworks/libz.1.dylib"
+#        DEPENDS "/opt/local/lib/libz.1.dylib") 
+#    SET(SOURCES ${SOURCES} "${PROJECT_SOURCE_DIR}/ta3d.app/Contents/Frameworks/libz.1.dylib")
+#
+#    # Allegro
+#    ADD_CUSTOM_COMMAND(OUTPUT "${PROJECT_SOURCE_DIR}/ta3d.app/Contents/Frameworks/liballeg-4.2.2.dylib"
+#        COMMAND  mkdir -p "${PROJECT_SOURCE_DIR}/ta3d.app/Contents/Frameworks" && cp -fH
+#        ARGS "/opt/local/lib/liballeg-4.2.2.dylib" "${PROJECT_SOURCE_DIR}/ta3d.app/Contents/Frameworks/liballeg-4.2.2.dylib"
+#        DEPENDS "/opt/local/lib/liballeg-4.2.2.dylib") 
+#    SET(SOURCES ${SOURCES} "${PROJECT_SOURCE_DIR}/ta3d.app/Contents/Frameworks/liballeg-4.2.2.dylib")
+#
+#
+#    # OS X
+#    ADD_EXECUTABLE(${TA3D_BIN} MACOSX_BUNDLE ${SOURCES})
+#    SET(GUI_TYPE MACOSX_BUNDLE)
+#    SET(MACOSX_BUNDLE_BUNDLE_NAME "TA3D")
+#    SET(MACOSX_BUNDLE_SHORT_VERSION_STRING "ta3d")
+#    SET(MACOSX_BUNDLE_ICON_FILE "ta3d.icns")
+#
+#    # Relink
+#    ADD_CUSTOM_COMMAND(TARGET ${TA3D_BIN} POST_BUILD
+#        COMMAND install_name_tool ARGS -change './libfmodex.dylib' @executable_path/../Frameworks/libfmodex.dylib ${PROJECT_SOURCE_DIR}/ta3d.app/Contents/MacOS/ta3d )
+#    ADD_CUSTOM_COMMAND(TARGET ${TA3D_BIN} POST_BUILD
+#        COMMAND install_name_tool ARGS -change '/opt/local/lib/libz.1.dylib' @executable_path/../Frameworks/libz.1.dylib ${PROJECT_SOURCE_DIR}/ta3d.app/Contents/MacOS/ta3d )
+#    ADD_CUSTOM_COMMAND(TARGET ${TA3D_BIN} POST_BUILD
+#        COMMAND install_name_tool ARGS -change '/opt/local/lib/liballeg-4.2.2.dylib' @executable_path/../Frameworks/liballeg-4.2.2.dylib ${PROJECT_SOURCE_DIR}/ta3d.app/Contents/MacOS/ta3d )
+#
+#ENDIF(NOT APPLE)
+
+ADD_DEPENDENCIES(${TA3D_BIN} stdafx logs console debuginfos threads i18n 3dtoolbox misc ingame menus tajpeg gfx fileformats particles weapons ai audio hpi gui taconfig network scripts)
+target_link_libraries(${TA3D_BIN} stdafx logs console debuginfos threads i18n 3dtoolbox misc ingame menus tajpeg gfx fileformats particles weapons ai audio hpi gui taconfig network scripts)
 
 
 
@@ -169,16 +233,16 @@ ENDIF(APPLE)
 ENDIF(WIN32) 
     
 IF( VAR_LIB_FMODEX )
-   target_link_libraries(ta3d-bin fmodex)
-   target_link_libraries(${3DMEDITOR} fmodex)
+   target_link_libraries(${TA3D_BIN} fmodex)
+   target_link_libraries(${3DMEDITOR_BIN} fmodex)
 elseif( VAR_LIB_FMODEX64 )
-   target_link_libraries(ta3d-bin fmodex64)
-   target_link_libraries(${3DMEDITOR} fmodex64)
+   target_link_libraries(${TA3D_BIN} fmodex64)
+   target_link_libraries(${3DMEDITOR_BIN} fmodex64)
 else( VAR_LIB_FMODEX )
    message( FATAL_ERROR "FMODex is required, please install FMODex" )
 endif( VAR_LIB_FMODEX )
 
 IF(WIN32)
-    target_link_libraries(${3DMEDITOR} agl lua gdi32 alleg opengl32 glu32)
-    target_link_libraries(ta3d-bin agl lua gdi32 alleg opengl32 glu32 NL)
+    target_link_libraries(${3DMEDITOR_BIN} agl lua gdi32 alleg opengl32 glu32)
+    target_link_libraries(${TA3D_BIN} agl lua gdi32 alleg opengl32 glu32 NL)
 ENDIF(WIN32)
