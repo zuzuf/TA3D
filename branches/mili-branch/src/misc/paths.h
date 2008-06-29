@@ -2,6 +2,7 @@
 # define _TA3D_TOOLS_PATHS_H__
 
 # include "../stdafx.h"
+# include <vector>
 
 
 
@@ -24,9 +25,6 @@ namespace TA3D
         static char Separator;
         static String SeparatorAsString;
 
-        //! Folder for resources
-        static String Resources;
-
         //! Folder for Caches
         static String Caches;
         
@@ -47,6 +45,24 @@ namespace TA3D
 
 
     public:
+        /*!
+        ** \brief Find a relative resource filename in the list of search paths for resources
+        **
+        ** \param relFilename The relative filename to find
+        ** \param[out] out The absolute filename that has been found
+        ** \return True if the resource has been found, false otherwise
+        */
+        static bool FindResources(const String& relFilename, String& out);
+
+        /*!
+        ** \brief Add a folder in the search paths for resources
+        **
+        ** \param folder The folder to add
+        ** \return True if the folder has been added, false otherwise
+        */
+        static bool AddResourcesFolder(const String& folder);
+
+
         /*!
         ** \brief Test if a file/folder exists
         ** \param p The folder/filename to test
@@ -70,6 +86,13 @@ namespace TA3D
         */
         static bool Initialize();
 
+    private:
+        //! Definition list of resources folders
+        typedef std::vector<String> ResourcesFoldersList;
+        
+    private:
+        //! List of resources folders
+        static ResourcesFoldersList pResourcesFolders;
 
     }; // class Paths
 

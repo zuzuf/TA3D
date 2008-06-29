@@ -19,7 +19,6 @@ namespace TA3D
     String Paths::Caches = "";
     String Paths::Savegames = "";
     String Paths::Logs = "";
-    String Paths::Resources = "";
     String Paths::Preferences = "";
     String Paths::ConfigFile = "";
     String Paths::Screenshots = "";
@@ -30,6 +29,7 @@ namespace TA3D
     char Paths::Separator = '/';
     String Paths::SeparatorAsString = "/";
     #endif
+    Paths::ResourcesFoldersList Paths::pResourcesFolders;
 
 
     # ifdef TA3D_PLATFORM_WINDOWS
@@ -40,30 +40,30 @@ namespace TA3D
      */
     static std::string localAppData()
     {
-	LPITEMIDLIST pidl;
-	HRESULT hr = SHGetSpecialFolderLocation(NULL, CSIDL_LOCAL_APPDATA, &pidl);
-	char szPath[_MAX_PATH];
-	BOOL f = SHGetPathFromIDList(pidl, szPath);
-	LPMALLOC pMalloc;
-	hr = SHGetMalloc(&pMalloc);
-	pMalloc->Free(pidl);
-	pMalloc->Release();
-	return szPath;
+        LPITEMIDLIST pidl;
+        HRESULT hr = SHGetSpecialFolderLocation(NULL, CSIDL_LOCAL_APPDATA, &pidl);
+        char szPath[_MAX_PATH];
+        BOOL f = SHGetPathFromIDList(pidl, szPath);
+        LPMALLOC pMalloc;
+        hr = SHGetMalloc(&pMalloc);
+        pMalloc->Free(pidl);
+        pMalloc->Release();
+        return szPath;
     }
 
     static void initForWindows()
     {
-	std::string root = localAppData();
-	root += Paths::Separator;
+	    String root = localAppData();
+	    root += Paths::Separator;
         Paths::Caches = root + "ta3d\\cache\\";
-        Paths::Savegames = root + "ta3d\\savegame\\";
+        Paths::Savegames = root + "ta3d\\savegames\\";
         Paths::Logs = root + "ta3d\\logs\\";
-        Paths::Resources = "";
+        Paths::AddResourcesFolder("./");
         Paths::Preferences = root + "ta3d\\settings\\";
         Paths::Screenshots = root + "ta3d\\screenshots\\";
     }
 
-    # endif
+    # else // ifdef TA3D_PLATFORM_WINDOWS
 
     # ifndef TA3D_PLATFORM_DARWIN
     static void initForDefaultUnixes()
@@ -71,9 +71,13 @@ namespace TA3D
         String home = getenv("HOME");
         home += "/.ta3d/";
         Paths::Caches = home + "cache/";
-        Paths::Savegames = home + "savegame/";
+        Paths::Savegames = home + "savegames/";
         Paths::Logs = home + "log/";
-        Paths::Resources = "";
+        Paths::AddResourcesFolder(home + "resources/");
+        Paths::AddResourcesFolder("/usr/local/games/ta3d/");
+        Paths::AddResourcesFolder("/usr/local/share/ta3d/");
+        Paths::AddResourcesFolder("/opt/local/share/ta3d/");
+        Paths::AddResourcesFolder("./");
         Paths::Preferences = home;
         Paths::Screenshots = home + "screenshots/";
     }
@@ -86,13 +90,17 @@ namespace TA3D
         Paths::Caches = home + "/Library/Caches/ta3d/";
         Paths::Savegames = home + "/Library/Preferences/ta3d/savegames/";
         Paths::Logs = home + "/Library/Logs/ta3d/";
-        Paths::Resources = "";
+        Paths::AddResourcesFolder("../Resources/");
+        Paths::AddResourcesFolder(home + "/Library/Application Support/ta3d/");
+        Paths::AddResourcesFolder("/opt/local/share/ta3d/");
+        Paths::AddResourcesFolder("./");
         Paths::Preferences = home + "/Library/Preferences/ta3d/";
         Paths::Screenshots = home + "/Downloads/";
     }
 
     # endif // ifndef TA3D_PLATFORM_DARWIN
 
+    # endif // ifdef TA3D_PLATFORM_WINDOWS
 
 
 
@@ -113,13 +121,10 @@ namespace TA3D
         LOG_INFO("Folder: Preferences: `" << Preferences << "`");
         LOG_INFO("Folder: Cache: `" << Caches << "`");
         LOG_INFO("Folder: Savegames: `" << Savegames << "`");
-        LOG_INFO("Folder: Resources: `" << Resources << "`");
         LOG_INFO("Folder: Screenshots: `" << Screenshots << "`");
         LOG_INFO("Folder: Logs: `" << Logs << "`");
         bool res = MakeDir(Caches) && MakeDir(Savegames)
-            && MakeDir(Logs) && MakeDir(Resources)
-            && MakeDir(Preferences)
-            && MakeDir(Screenshots);
+            && MakeDir(Logs) && MakeDir(Preferences) && MakeDir(Screenshots);
         if (!res)
             LOG_CRITICAL("Aborting now.");
         return res;
@@ -184,6 +189,34 @@ namespace TA3D
         return true;
     }
 
+
+    bool Paths::FindResources(const String& relFilename, String& out)
+    {
+        for (ResourcesFoldersList::const_iterator i = pResourcesFolders.begin(); i != pResourcesFolders.end(); ++i)
+        {
+            out = *i;
+            out += relFilename;
+            if (Exists(out))
+                return true;
+        }
+        return false;
+    }
+
+    bool Paths::AddResourcesFolder(const String& folder)
+    {
+        if (!folder.empty())
+        {
+            for (ResourcesFoldersList::const_iterator i = pResourcesFolders.begin(); i != pResourcesFolders.end(); ++i)
+            {
+                if (folder == *i)
+                    return false;
+            }
+            LOG_DEBUG("Added resources folder: `" << folder << "`");
+            pResourcesFolders.push_back(folder);
+            return true;
+        }
+        return false;
+    }
 
 
 } // namespace TA3D
