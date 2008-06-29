@@ -12,7 +12,7 @@ namespace TA3D
 
     /*! \class Paths
     **
-    ** \brief Tools to manage paths for TA3D
+    ** \brief Tools to handle paths for TA3D
     **
     ** This tool must be initialized using Initialize()
     **
@@ -24,6 +24,9 @@ namespace TA3D
         //! Folder separator according to the platform
         static char Separator;
         static String SeparatorAsString;
+
+        //! Absolute path where the application is located (extracted from argv)
+        static String ApplicationRoot;
 
         //! Folder for Caches
         static String Caches;
@@ -80,11 +83,16 @@ namespace TA3D
         static bool MakeDir(const String& p);
 
         /*!
+        ** \brief Retrieve the current directory
+        */
+        static String CurrentDirectory();
+
+        /*!
         ** \brief Load all informations about paths
         **
         ** return False if any error has occured
         */
-        static bool Initialize();
+        static bool Initialize(int argc, char* argv[]);
 
     private:
         //! Definition list of resources folders
