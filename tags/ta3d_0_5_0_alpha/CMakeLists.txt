@@ -1,0 +1,158 @@
+cmake_minimum_required(VERSION 2.4)
+
+IF( NOT CMAKE_MINOR_VERSION EQUAL 4 OR NOT CMAKE_MAJOR_VERSION EQUAL 2 )
+    cmake_policy(SET CMP0004 OLD)
+ENDIF( NOT CMAKE_MINOR_VERSION EQUAL 4 OR NOT CMAKE_MAJOR_VERSION EQUAL 2 )
+
+PROJECT(TA3D)
+
+# We want -O2 -g as default options, but we want to be able to override CXX_FLAGS from commandline
+string( LENGTH "${CMAKE_CXX_FLAGS}" VA )
+
+IF( ${VA} EQUAL 0 )
+	SET( CMAKE_CXX_FLAGS "-O2 -g" )
+ENDIF( ${VA} EQUAL 0 )
+
+message( STATUS "CXXFLAGS SET to ${CMAKE_CXX_FLAGS}" )
+
+#
+# Platform
+#
+IF(UNIX AND NOT CMAKE_CROSSCOMPILING)
+    IF(APPLE)
+        ADD_DEFINITIONS("-DTA3D_PLATFORM_DARWIN -DTA3D_PLATFORM_MAC")
+        SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fvisibility=hidden")
+    ELSE(APPLE)
+    	SET(LINUX 1)
+        ADD_DEFINITIONS("-DTA3D_PLATFORM_LINUX")
+    ENDIF(APPLE)
+    ADD_DEFINITIONS("-DTA3D_PLATFORM_UNIX -DTA3D_PLATFORM_GCC")
+ELSE(UNIX AND NOT CMAKE_CROSSCOMPILING)
+    IF(WIN32)
+        ADD_DEFINITIONS("-DTA3D_PLATFORM_WINDOWS -DTA3D_PLATFORM_WIN32")
+    ELSE(WIN32)
+        # Win64 ?
+    ENDIF(WIN32)
+ENDIF(UNIX AND NOT CMAKE_CROSSCOMPILING)
+
+# Moving from Autotools to CMake
+ADD_DEFINITIONS("-DTA3D_PLATFORM_USE_CMAKE")
+
+# New Path facility
+ADD_DEFINITIONS("-DTA3D_PLATFORM_USE_NEW_PATHS_TOOLS")
+
+
+Include( CheckIncludeFile )
+
+
+#
+# OpenGL
+#
+Include(FindOpenGL)
+IF( NOT OPENGL_FOUND )
+    message( FATAL_ERROR "OpenGL libraries not found !!" )
+ENDIF( NOT OPENGL_FOUND )
+IF( NOT WIN32 AND NOT CMAKE_CROSSCOMPILING )
+    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -I${OPENGL_INCLUDE_DIR}")
+ENDIF( NOT WIN32 AND NOT CMAKE_CROSSCOMPILING )
+
+#
+# Allegro
+#
+IF(UNIX)
+    FIND_PROGRAM(ALLEGRO_CONFIG_BIN NAME allegro-config PATHS /opt/local/bin /opt/sw/local/bin)
+    IF(${ALLEGRO_CONFIG_BIN} MATCHES "ALLEGRO_CONFIG_BIN-NOTFOUND")
+        MESSAGE(FATAL_ERROR "Allegro >= 4.2.2 is required")
+    ENDIF(${ALLEGRO_CONFIG_BIN} MATCHES "ALLEGRO_CONFIG_BIN-NOTFOUND")
+    SET(CMAKE_HAVE_ALLEGRO_H 1)
+	EXECUTE_PROCESS(COMMAND ${ALLEGRO_CONFIG_BIN} --cppflags release
+        OUTPUT_VARIABLE ALLEGRO_CONFIG_FLAGS OUTPUT_STRIP_TRAILING_WHITESPACE)
+    STRING(REPLACE '\n' "" ALLEGRO_CONFIG_BIN "${ALLEGRO_CONFIG_BIN}")
+    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${ALLEGRO_CONFIG_FLAGS}")
+ELSE(UNIX)
+    CHECK_INCLUDE_FILE( allegro.h CMAKE_HAVE_ALLEGRO_H)
+    IF(NOT CMAKE_HAVE_ALLEGRO_H AND NOT CMAKE_CROSSCOMPILING )
+	    MESSAGE( FATAL_ERROR "Allegro >= 4.2.2 is required" )
+    ENDIF(NOT CMAKE_HAVE_ALLEGRO_H AND NOT CMAKE_CROSSCOMPILING )
+ENDIF(UNIX)
+
+
+find_library(VAR_LIB_ALLEG_GL agl )
+IF( NOT VAR_LIB_ALLEG_GL )
+	message( FATAL_ERROR "AllegroGL >= 0.4.1 is required" )
+ENDIF( NOT VAR_LIB_ALLEG_GL )
+
+link_directories( ${TA3D_SOURCE_DIR}/src/lua/ ${TA3D_SOURCE_DIR}/src/hawknl/src/ )
+
+SET( LIBS "" )
+
+IF( WIN32 OR CMAKE_CROSSCOMPILING )
+	SET( ALLEGRO_CONFIG "-lalleg" )
+
+	IF( CMAKE_CROSSCOMPILING )
+		SET( target i586-mingw32msvc- )
+	ENDIF( CMAKE_CROSSCOMPILING )
+
+	IF( NOT BUILT_LUA )
+		EXECUTE_PROCESS( COMMAND make -C "src/lua/" clean )
+		EXECUTE_PROCESS( COMMAND make -C "src/lua/" mingw CC=${CMAKE_C_COMPILER} RANLIB=${target}ranlib )
+		SET( BUILT_LUA 1 CACHE BOOL "LUA has been built" )
+	ENDIF( NOT BUILT_LUA )
+
+	IF( NOT BUILT_NL )
+		EXECUTE_PROCESS( COMMAND make -C "src/hawknl/src/" -f makefile.mingw clean )
+		EXECUTE_PROCESS( COMMAND make -C "src/hawknl/src/" -f makefile.mingw CC=${CMAKE_C_COMPILER} )
+		SET( BUILT_NL 1 CACHE BOOL "HawkNL has been built" )
+	ENDIF( NOT BUILT_NL )
+	EXECUTE_PROCESS( COMMAND cp src/lua/lua51.dll ./ )
+	EXECUTE_PROCESS( COMMAND cp src/hawknl/src/NL.dll ./ )
+	SET( LIBS lua agl alleg user32 gdi32 opengl32 glu32 z.dll NL ${OPENGL_LIBRARIES} )
+ELSE( WIN32 OR CMAKE_CROSSCOMPILING )
+    IF(NOT APPLE)
+    	IF( NOT BUILT_LUA )
+	    	EXECUTE_PROCESS( COMMAND make -C "src/lua/" clean )
+	    	EXECUTE_PROCESS( COMMAND make -C "src/lua/" linux )
+	    	SET( BUILT_LUA 1 CACHE BOOL "LUA has been built" )
+	    ENDIF( NOT BUILT_LUA )
+    ENDIF(NOT APPLE)
+
+	IF( NOT BUILT_NL )
+        IF(LINUX)
+		    EXECUTE_PROCESS( COMMAND make -C "src/hawknl/src/" -f makefile.linux clean )
+		    EXECUTE_PROCESS( COMMAND make -C "src/hawknl/src/" -f makefile.linux )
+        ENDIF(LINUX)
+        IF(APPLE)
+		    EXECUTE_PROCESS( COMMAND make -C "src/hawknl/src/" -f makefile.osx clean )
+		    EXECUTE_PROCESS( COMMAND make -C "src/hawknl/src/" -f makefile.osx )
+        ENDIF(APPLE)
+		SET( BUILT_NL 1 CACHE BOOL "HawkNL has been built" )
+	ENDIF( NOT BUILT_NL )
+
+	EXECUTE_PROCESS( COMMAND allegro-config --libs release OUTPUT_VARIABLE ALLEGRO_CONFIG )
+	SET( LIBS agl lua z NL ${OPENGL_LIBRARIES} ${ALLEGRO_CONFIG} )
+
+    IF(NOT APPLE)
+	    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mmmx -rdynamic -ffast-math")
+    ENDIF(NOT APPLE)
+ENDIF( WIN32 OR CMAKE_CROSSCOMPILING )
+
+
+
+
+
+SET( CMAKE_RUNTIME_OUTPUT_DIRECTORY ${TA3D_SOURCE_DIR} )
+
+# for compatibility with old versions of cmake
+SET( EXECUTABLE_OUTPUT_PATH ${TA3D_SOURCE_DIR} )
+
+SET( PACKAGE_BUGREPORT "zuzuf86@gmail.com" )
+SET( PACKAGE_VERSION "0.5.0 WIP" )
+SET( PACKAGE_STRING "TA3D ${PACKAGE_VERSION}" )
+SET( TA3D_ENGINE_VERSION "${PACKAGE_STRING}" )
+
+
+
+CONFIGURE_FILE( ${TA3D_SOURCE_DIR}/config.h.cmake ${TA3D_SOURCE_DIR}/config.h )
+
+ADD_SUBDIRECTORY(src)
+

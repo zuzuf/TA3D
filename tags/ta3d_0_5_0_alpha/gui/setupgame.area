@@ -1,0 +1,9 @@
+[area]
+{
+	name=setup area;
+	skin=gui/default.skn;
+	windows=gui/gamesetup.tdf, gui/scripts.tdf;
+	background=gfx/gamesetup.jpg;
+	width=1280;
+	height=1024;
+}
