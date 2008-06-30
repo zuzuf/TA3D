@@ -12,6 +12,8 @@
 #include "../logs/logs.h"
 #include <unistd.h>
 #include <allegro.h>
+#include <fstream>
+#include <string>
 
 
 
@@ -126,6 +128,24 @@ namespace TA3D
 
     # endif // ifdef TA3D_PLATFORM_WINDOWS
 
+    String Paths::ExtractFilePath(const String& p)
+    {
+        String ret;
+        Vector<String> parts;
+        ReadVectorString(parts, p, Paths::SeparatorAsString, false);
+        
+        unsigned int len = parts.size();
+        // TODO Manage `..` (may be boost is be more appropriated)
+        for (unsigned int i = 0; i < len - 1; ++i)
+        {
+            if (parts[i] != ".")
+            {
+                ret += parts[i];
+                ret += Paths::Separator;
+            }
+        }
+        return ret;
+    }
 
     /*!
      * \brief Initialize the Paths::ApplicationRoot variable
@@ -141,23 +161,7 @@ namespace TA3D
         r += argv0;
         if (r.empty())
             return;
-
-        Vector<String> parts;
-        ReadVectorString(parts, r, Paths::SeparatorAsString, false);
-        
-        unsigned int len = parts.size();
-        if (len > 1)
-        {
-            // TODO Manage `..` (may be boost is be more appropriated)
-            for (unsigned int i = 0; i < len - 1; ++i)
-            {
-                if (parts[i] != ".")
-                {
-                    Paths::ApplicationRoot += parts[i];
-                    Paths::ApplicationRoot += Paths::Separator;
-                }
-            }
-        }
+        Paths::ApplicationRoot = Paths::ExtractFilePath(r);
     }
 
     bool
@@ -277,33 +281,32 @@ namespace TA3D
         return false;
     }
 
-    bool Paths::Glob(std::vector<String>& out, const String& pattern, const bool emptyListBefore)
+    template<class T>
+    bool TmplGlob(T& out, const String& pattern, const bool emptyListBefore)
     {
         if (emptyListBefore)
             out.clear();
         struct al_ffblk info;
         if (al_findfirst(pattern.c_str(), &info, FA_ALL) != 0)
             return false;
+        String root = Paths::ExtractFilePath(pattern);
         do
         {
-            out.push_back(info.name);
+            out.push_back(root + info.name);
         } while (al_findnext(&info) == 0);
         return !out.empty();
     }
 
     bool Paths::Glob(std::list<String>& out, const String& pattern, const bool emptyListBefore)
     {
-        if (emptyListBefore)
-            out.clear();
-        struct al_ffblk info;
-        if (al_findfirst(pattern.c_str(), &info, FA_ALL) != 0)
-            return false;
-        do
-        {
-            out.push_back(info.name);
-        } while (al_findnext(&info) == 0);
-        return true;
+        return TmplGlob< std::list<String> >(out, pattern, emptyListBefore);
     }
+
+    bool Paths::Glob(std::vector<String>& out, const String& pattern, const bool emptyListBefore)
+    {
+        return TmplGlob< std::vector<String> >(out, pattern, emptyListBefore);
+    }
+
 
      
     bool Paths::ResourcesGlob(std::vector<String>& out, const String& pattern, const bool emptyListBefore)
@@ -323,6 +326,50 @@ namespace TA3D
             Glob(out, *i + pattern, false);
         return !out.empty();
     }
+
+
+    template<class T>
+    bool TmplLoadFromFile(T& out, const String& filename, const uint32 sizeLimit, const bool emptyListBefore)
+    {
+        if (emptyListBefore)
+            out.clear();
+        std::ifstream file(filename.c_str());
+        if (!file)
+        {
+            LOG_WARNING("Impossible to open the file `" << filename << "`");
+            return false;
+        }
+        if (sizeLimit)
+        {
+            file.seekg(0, std::ios_base::beg);
+            std::ifstream::pos_type begin_pos = file.tellg();
+            file.seekg(0, std::ios_base::end);
+            if ((file.tellg() - begin_pos) > sizeLimit)
+            {
+                LOG_WARNING("Impossible to read the file `" << filename << "` (size > " << sizeLimit << ")");
+                return false;
+            }
+            file.seekg(0, std::ios_base::beg);
+        }
+        String line;
+        while (std::getline(file, line))
+            out.push_back(line);
+        return true;
+    }
+     
+    bool Paths::LoadFromFile(std::list<String>& out, const String& filename, const uint32 sizeLimit, const bool emptyListBefore)
+    {
+        return TmplLoadFromFile< std::list<String> >(out, filename, sizeLimit, emptyListBefore);
+    }
+     
+    bool Paths::LoadFromFile(std::vector<String>& out, const String& filename, const uint32 sizeLimit, const bool emptyListBefore)
+    {
+        return TmplLoadFromFile< std::vector<String> >(out, filename, sizeLimit, emptyListBefore);
+    }
+    
+
+
+
 
 
 } // namespace TA3D

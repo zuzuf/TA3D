@@ -99,6 +99,17 @@ namespace TA3D
         */
         static String CurrentDirectory();
 
+        /*!
+        ** \brief Extract the path part of a filename
+        **
+        ** \code
+        **      std::cout << Paths::ExtractFilePath("/tmp/foo.txt") std::endl; // write `/tmp/`
+        **      std::cout << Paths::ExtractFilePath("/tmp/") std::endl; // write `/tmp/`
+        **      std::cout << Paths::ExtractFilePath("/tmp") std::endl; // write `/`
+        ** \endcode
+        */
+        static String ExtractFilePath(const String& p);
+
         //}
 
 
@@ -136,6 +147,7 @@ namespace TA3D
         **
         ** \param[out] out The list of file that has been found
         ** \param pattern The pattern to use
+        ** \param emptyListBefore Empty the list before any operation
         ** \return True if the operation succeeded and the list is not empty,
         ** false othewise
         **
@@ -150,13 +162,24 @@ namespace TA3D
         **      std::cerr << "No 3D object found." << std::endl;
         ** }
         ** \endcode
-
         */
         static bool ResourcesGlob(std::vector<String>& out, const String& pattern, const bool emptyListBefore = true);
         static bool ResourcesGlob(std::list<String>& out, const String& pattern, const bool emptyListBefore = true);
 
         //} // Globbing
 
+
+        /*!
+        ** \brief Open and Read the content of a file and write it into a 1D array
+        **
+        ** \param[out] out The content of the file
+        ** \param filename Filename to open
+        ** \param sizeLimit Do not load files with a size > to this value. The value `0` disables this feature.
+        ** \param emptyListBefore Empty the list before any operation
+        ** \return True if the operation succeeded, False otherwise
+        */
+        static bool LoadFromFile(std::vector<String>& out, const String& filename, const uint32 sizeLimit = 0, const bool emptyListBefore = true);
+        static bool LoadFromFile(std::list<String>& out, const String& filename, const uint32 sizeLimit = 0, const bool emptyListBefore = true);
 
         /*!
         ** \brief Load all informations about paths
