@@ -258,8 +258,8 @@ namespace TA3D
                     break;
                 case EVENT_FEATURE_CREATION:
                     {
-                        uint32 sx = event_msg.opt3;		// Burn the object
-                        uint32 sy = event_msg.opt4;
+                        int sx = event_msg.opt3;		// Burn the object
+                        int sy = event_msg.opt4;
                         if( sx < the_map->bloc_w_db && sy < the_map->bloc_h_db )
                         {
                             int type = feature_manager.get_feature_index( (const char*)(event_msg.str) );
@@ -274,8 +274,8 @@ namespace TA3D
                     break;
                 case EVENT_FEATURE_FIRE:
                     {
-                        uint32 sx = event_msg.opt3;		// Burn the object
-                        uint32 sy = event_msg.opt4;
+                        int sx = event_msg.opt3;		// Burn the object
+                        int sy = event_msg.opt4;
                         if( sx < the_map->bloc_w_db && sy < the_map->bloc_h_db ) {
                             int idx = the_map->map_data[sy][sx].stuff;
                             if( !features.feature[idx].burning )
@@ -285,8 +285,8 @@ namespace TA3D
                     break;
                 case EVENT_FEATURE_DEATH:
                     {
-                        uint32 sx = event_msg.opt3;		// Remove the object
-                        uint32 sy = event_msg.opt4;
+                        int sx = event_msg.opt3;		// Remove the object
+                        int sy = event_msg.opt4;
                         if( sx < the_map->bloc_w_db && sy < the_map->bloc_h_db ) {
                             int idx = the_map->map_data[sy][sx].stuff;
                             if( idx >= 0 ) {

@@ -1061,18 +1061,21 @@ namespace TA3D
             if( params[1] == "name:" )
             {
                 cur_server.name = "";
-                for( int i = 2 ; i < params.size() ; i++ )	cur_server.name += i > 2 ? " " + params[i] : params[i];
+                for(unsigned int i = 2 ; i < params.size() ; ++i)
+                    cur_server.name += i > 2 ? " " + params[i] : params[i];
             }
             else if( params[1] == "IP:" )		cur_server.host = params.size() >= 3 ? params[2] : "";
             else if( params[1] == "slots:" )	cur_server.nb_open = params.size() >= 3 ? atoi( params[2].c_str() ) : 0;
             else if( params[1] == "mod:" ) {
                 server_mod = "";
-                for( int i = 2 ; i < params.size() ; i++ ) server_mod += i > 2 ? " " + params[i] : params[i];
+                for(unsigned int i = 2 ; i < params.size() ; ++i)
+                    server_mod += i > 2 ? " " + params[i] : params[i];
             }
             else if( params[1] == "version:" )
             {
                 server_version = "";
-                for( int i = 2 ; i < params.size() ; i++ ) server_version += i > 2 ? " " + params[i] : params[i];
+                for(unsigned int i = 2 ; i < params.size() ; ++i)
+                    server_version += i > 2 ? " " + params[i] : params[i];
             }
 
             old = cur;
