@@ -288,8 +288,6 @@ namespace TA3D
                           const bool emptyBefore = true);
 
 
-	void create_path(const String &path);
-
 	char *replace_chars(char *str);
 	void *GetMem( sint32 size, sint32 zero );
 
