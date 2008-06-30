@@ -32,6 +32,8 @@
 #include "TA3D_NameSpace.h"
 #include "console.h"
 #include "logs/logs.h"
+#include <list>
+
 
 TA3D::TA3D_DEBUG::cConsole *TA3D::VARS::Console;
 
@@ -434,7 +436,7 @@ char *cConsole::draw( TA3D::Interfaces::GfxFont fnt, float dt, float fsize, bool
 	glEnable(GL_TEXTURE_2D);
 	glTexEnvi(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_MODULATE);
 
-	List<String>::iterator i_entry;
+    std::list<String>::iterator i_entry;
 	int i = 0;
 	for( i_entry=m_LastEntries.begin();i_entry!=m_LastEntries.end();i_entry++ ) 
 	{

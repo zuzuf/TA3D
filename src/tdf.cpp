@@ -226,12 +226,12 @@ namespace TA3D
 
     void load_features(void (*progress)(float percent,const String &msg))				// Charge tout les éléments
     {
-        List<String> file_list;
+        std::list<String> file_list;
         HPIManager->getFilelist("features\\*.tdf", file_list);
 
         int n = 0;
 
-        for(List<String>::iterator cur_file=file_list.begin();cur_file!=file_list.end();cur_file++)
+        for(std::list<String>::iterator cur_file=file_list.begin();cur_file!=file_list.end();cur_file++)
         {
             if(progress!=NULL && !(n & 0xF))
                 progress((200.0f+n*50.0f/(file_list.size()+1))/7.0f,TRANSLATE("Loading graphical features"));
@@ -647,7 +647,7 @@ namespace TA3D
 
         byte CS_count = 0;
         bool erased = false;
-        for( List< uint32 >::iterator i = burning_features.begin() ; i != burning_features.end() ; ) {		// Makes fire spread 8)
+        for(std::list< uint32 >::iterator i = burning_features.begin() ; i != burning_features.end() ; ) {		// Makes fire spread 8)
             CS_count++;
             if( !CS_count )
             {
@@ -724,7 +724,7 @@ namespace TA3D
             if( !erased ) i++;			// We don't want to skip an element :) 
         }
 
-        for( List< uint32 >::iterator i = sinking_features.begin() ; i != sinking_features.end() ; )		// A boat is sinking
+        for(std::list< uint32 >::iterator i = sinking_features.begin() ; i != sinking_features.end() ; )		// A boat is sinking
             if( feature[*i].sinking ) {
                 if( feature[*i].angle_x > -45.0f && !feature[*i].dive ) {
                     feature[*i].angle_x -= dt * 15.0f;

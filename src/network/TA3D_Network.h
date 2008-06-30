@@ -22,6 +22,7 @@
 #include "../ta3dbase.h"
 #include "../threads/thread.h"
 #include "../ingame/gamedata.h"
+#include <list>
 
 
 namespace TA3D
@@ -41,7 +42,7 @@ namespace TA3D
             ~NetworkMessage() {text.clear();}
         };
 
-        List< NetworkMessage >		messages;
+        std::list<NetworkMessage>		messages;
         bool						enter;
         AREA						*area;
         GameData					*game_data;

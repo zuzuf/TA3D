@@ -133,7 +133,7 @@ void OBJECT::optimise_mesh()			// EXPERIMENTAL, function to merge all objects in
     int total_index = nb_t_index;			// Count the number of vertices and indexes to allocate the required space
     int total_vtx = nb_vtx;
 
-    List< OBJECT* >	obj_stack;
+    std::list< OBJECT* >	obj_stack;
     if( next )	obj_stack.push_front( next );
     if( child )	obj_stack.push_front( child );
 
@@ -153,7 +153,7 @@ void OBJECT::optimise_mesh()			// EXPERIMENTAL, function to merge all objects in
     GLushort *opt_idx = (GLushort*) malloc( sizeof( GLushort ) * total_index );
     total_vtx = 0;
     total_index = 0;
-    List< VECTOR >	pos_stack;
+    std::list< VECTOR >	pos_stack;
     VECTOR pos_offset;
 
     obj_stack.push_front( this );			// Fill the arrays
@@ -973,8 +973,10 @@ bool OBJECT::draw(float t,SCRIPT_DATA *data_s,bool sel_primitive,bool alset,bool
             if((surface.Flag&(SURFACE_ADVANCED | SURFACE_GOURAUD))==SURFACE_ADVANCED)
                 glShadeModel (GL_SMOOTH);
 
-                    if(activated_tex) {
-                        for(int j=0;j<surface.NbTex;j++) {
+                    if(activated_tex)
+                    {
+                        for(int j=0;j<surface.NbTex;j++)
+                        {
                             glClientActiveTextureARB(GL_TEXTURE0_ARB + j);
                                 glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 
@@ -995,7 +997,8 @@ bool OBJECT::draw(float t,SCRIPT_DATA *data_s,bool sel_primitive,bool alset,bool
             glEndList();
     }
 #ifdef DEBUG_MODE_3DO
-    if(nb_l_index>0 && nb_vtx>0) {
+    if(nb_l_index>0 && nb_vtx>0)
+    {
         glEnableClientState(GL_VERTEX_ARRAY);		// Les sommets
         glDisableClientState(GL_NORMAL_ARRAY);
         glDisableClientState(GL_TEXTURE_COORD_ARRAY);
@@ -1919,7 +1922,7 @@ hit_fast_is_exploding:
 
     int MODEL_MANAGER::load_all(void (*progress)(float percent,const String &msg))
     {
-        List<String> file_list;
+        std::list<String> file_list;
         sint32 new_nb_models = HPIManager->getFilelist( ta3dSideData.model_dir + "*.3dm", file_list);
 
         if(new_nb_models > 0)
@@ -1936,7 +1939,7 @@ hit_fast_is_exploding:
             model=n_model;
             name=n_name;
             int i = 0, n = 0;
-            for(List<String>::iterator e=file_list.begin();e!=file_list.end(); ++e)
+            for (std::list<String>::iterator e=file_list.begin();e!=file_list.end(); ++e)
             {
                 Console->AddEntry( "loading %s", e->c_str() );
                 if(progress!=NULL && !(i & 0xF))
@@ -1989,7 +1992,7 @@ hit_fast_is_exploding:
             model = n_model;
             name = n_name;
             int i = 0, n = 0;
-            for(List<String>::iterator e=file_list.begin();e!=file_list.end();e++)
+            for (std::list<String>::iterator e=file_list.begin();e!=file_list.end();e++)
             {
                 Console->AddEntry( "loading %s", e->c_str() );
                 if( progress != NULL && !(i & 0xF) )
@@ -2605,7 +2608,7 @@ hit_fast_is_exploding:
     DRAWING_TABLE::~DRAWING_TABLE()
     {
         for( uint16 i = 0 ; i < DRAWING_TABLE_SIZE ; i++ )
-            for( List< RENDER_QUEUE* >::iterator e = hash_table[ i ].begin() ; e != hash_table[ i ].end() ; e++ )
+            for(std::list< RENDER_QUEUE* >::iterator e = hash_table[ i ].begin() ; e != hash_table[ i ].end() ; e++ )
                 delete *e;
         hash_table.clear();
     }
@@ -2613,7 +2616,7 @@ hit_fast_is_exploding:
     void DRAWING_TABLE::queue_instance( uint32 &model_id, INSTANCE instance )
     {
         uint32	hash = model_id & DRAWING_TABLE_MASK;
-        for( List< RENDER_QUEUE* >::iterator i = hash_table[ hash ].begin() ; i != hash_table[ hash ].end() ; i++ )
+        for(std::list< RENDER_QUEUE* >::iterator i = hash_table[ hash ].begin() ; i != hash_table[ hash ].end() ; i++ )
             if( (*i)->model_id == model_id ) {		// We found an already existing render queue
                 (*i)->queue.push_back( instance );
                 return;
@@ -2626,7 +2629,7 @@ hit_fast_is_exploding:
     void DRAWING_TABLE::draw_all()
     {
         for( uint16 i = 0 ; i < DRAWING_TABLE_SIZE ; i++ )
-            for( List< RENDER_QUEUE* >::iterator e = hash_table[ i ].begin() ; e != hash_table[ i ].end() ; e++ )
+            for(std::list< RENDER_QUEUE* >::iterator e = hash_table[ i ].begin() ; e != hash_table[ i ].end() ; e++ )
                 (*e)->draw_queue();
     }
 
@@ -2647,7 +2650,8 @@ hit_fast_is_exploding:
             glEndList();
         }
 
-        for( List< INSTANCE >::iterator i = queue.begin() ; i != queue.end() ; i++ ) {
+        for(std::list< INSTANCE >::iterator i = queue.begin() ; i != queue.end() ; ++i)
+        {
             glPopMatrix();
             glPushMatrix();
             glTranslatef( i->pos.x, i->pos.y, i->pos.z );
@@ -2665,7 +2669,7 @@ hit_fast_is_exploding:
     QUAD_TABLE::~QUAD_TABLE()
     {
         for( uint16 i = 0 ; i < DRAWING_TABLE_SIZE ; i++ )
-            for( List< QUAD_QUEUE* >::iterator e = hash_table[ i ].begin() ; e != hash_table[ i ].end() ; e++ )
+            for(std::list< QUAD_QUEUE* >::iterator e = hash_table[ i ].begin() ; e != hash_table[ i ].end() ; ++e)
                 delete *e;
 
         hash_table.clear();
@@ -2674,7 +2678,7 @@ hit_fast_is_exploding:
     void QUAD_TABLE::queue_quad( GLuint &texture_id, QUAD quad )
     {
         uint32	hash = texture_id & DRAWING_TABLE_MASK;
-        for( List< QUAD_QUEUE* >::iterator i = hash_table[ hash ].begin() ; i != hash_table[ hash ].end() ; i++ )
+        for (std::list< QUAD_QUEUE* >::iterator i = hash_table[ hash ].begin() ; i != hash_table[ hash ].end() ; ++i)
             if( (*i)->texture_id == texture_id ) {		// We found an already existing render queue
                 (*i)->queue.push_back( quad );
                 return;
@@ -2688,7 +2692,7 @@ hit_fast_is_exploding:
     {
         uint32	max_size = 0;
         for( uint16 i = 0 ; i < DRAWING_TABLE_SIZE ; i++ )
-            for( List< QUAD_QUEUE* >::iterator e = hash_table[ i ].begin() ; e != hash_table[ i ].end() ; e++ )
+            for (std::list< QUAD_QUEUE* >::iterator e = hash_table[ i ].begin() ; e != hash_table[ i ].end() ; ++e)
                 max_size = max( max_size, (uint32)(*e)->queue.size() );
 
         VECTOR	*P = new VECTOR[ max_size << 2 ];
@@ -2720,7 +2724,7 @@ hit_fast_is_exploding:
         glTexCoordPointer(2, GL_FLOAT, 0, T);
 
         for( uint16 i = 0 ; i < DRAWING_TABLE_SIZE ; i++ )
-            for( List< QUAD_QUEUE* >::iterator e = hash_table[ i ].begin() ; e != hash_table[ i ].end() ; e++ )
+            for (std::list< QUAD_QUEUE* >::iterator e = hash_table[ i ].begin() ; e != hash_table[ i ].end() ; ++e)
                 (*e)->draw_queue( P, C, T );
 
         glDisableClientState(GL_COLOR_ARRAY);
@@ -2737,7 +2741,8 @@ hit_fast_is_exploding:
         glPushMatrix();
 
         int i = 0;
-        for( List< QUAD >::iterator e = queue.begin() ; e != queue.end() ; e++ ) {
+        for(std::list< QUAD >::iterator e = queue.begin() ; e != queue.end() ; ++e)
+        {
             P[i].x = e->pos.x - e->size_x;
             P[i].y = e->pos.y;
             P[i].z = e->pos.z - e->size_z;

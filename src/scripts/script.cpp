@@ -36,6 +36,7 @@
 #include "../UnitEngine.h"
 #include "script.h"
 #include "../misc/camera.h"
+#include <vector>
 
 
 
@@ -1506,7 +1507,7 @@ namespace TA3D
 
             m_File << unit_name << " = unit_id\n";		// Links the unit_id to the given unit_name so it can be used as an identifier
 
-            Vector<String> orders;
+            std::vector<String> orders;
             ReadVectorString(orders, ota_parser->PullAsString( unit_key + ".InitialMission" ), ",");
 
             bool selectable = false;
@@ -1514,7 +1515,7 @@ namespace TA3D
 
             for( int e = 0 ; e < orders.size() ; e++ )	// Converts InitialMission to a mission list
             {
-                Vector<String> params;
+                std::vector<String> params;
                 ReadVectorString(params, orders[ e ], " " );		// Read all the mission parameters
                 if( params.size() == 0 )	continue;
 
@@ -1636,7 +1637,7 @@ namespace TA3D
         m_File << "end\n";
 
         if( !ota_parser->PullAsString( "GlobalHeader.KillUnitType" ).empty() ) {
-            Vector<String> params;
+            std::vector<String> params;
             ReadVectorString(params, ota_parser->PullAsString( "GlobalHeader.KillUnitType" ), "," );
             if( params.size() >= 2 ) {
                 m_File << "\nKillUnitType_nb = ta3d_nb_unit_of_type( 1, \"" << params[ 0 ] << "\" )\n" ;
@@ -1645,7 +1646,7 @@ namespace TA3D
         }
 
         if( !ota_parser->PullAsString( "GlobalHeader.UnitTypeKilled" ).empty() ) {
-            Vector<String> params;
+            std::vector<String> params;
             ReadVectorString(params, ota_parser->PullAsString( "GlobalHeader.UnitTypeKilled" ), "," );
             if( params.size() >= 2 ) {
                 m_File << "\nUnitTypeKilled_nb = ta3d_nb_unit_of_type( 1, \"" << params[ 0 ] << "\" )\n" ;
@@ -1683,7 +1684,7 @@ namespace TA3D
         }
 
         if( !ota_parser->PullAsString( "GlobalHeader.UnitTypeKilled" ).empty() ) {
-            Vector<String> params;
+            std::vector<String> params;
             ReadVectorString(params, ota_parser->PullAsString( "GlobalHeader.UnitTypeKilled" ), "," );
             if( params.size() >= 2 )
             {
@@ -1754,7 +1755,7 @@ namespace TA3D
                 m_File << "	ZPass0 = 0.5 * ( " << ota_parser->PullAsString( "GlobalHeader.AnyUnitPassesZ" ) << " - ta3d_map_h() )\n";
             if( !ota_parser->PullAsString( "GlobalHeader.UnitTypePassesZ" ).empty() )
             {
-                Vector<String> params;
+                std::vector<String> params;
                 ReadVectorString(params, ota_parser->PullAsString( "GlobalHeader.UnitTypePassesZ" ), "," );
                 if( params.size() == 2 )
                     m_File << "	ZPass1 = 0.5 * ( " << params[ 1 ] << " - ta3d_map_h() )\n";
@@ -1763,7 +1764,7 @@ namespace TA3D
                 m_File << "	XPass0 = 0.5 * ( " << ota_parser->PullAsString( "GlobalHeader.AnyUnitPassesX" ) << " - ta3d_map_w() )\n";
             if( !ota_parser->PullAsString( "GlobalHeader.UnitTypePassesX" ).empty() )
             {
-                Vector<String> params;
+                std::vector<String> params;
                 ReadVectorString(params, ota_parser->PullAsString( "GlobalHeader.UnitTypePassesX" ), "," );
                 if( params.size() == 2 )
                     m_File << "	XPass1 = 0.5 * ( " << params[ 1 ] << " - ta3d_map_w() )\n";
@@ -1782,7 +1783,7 @@ namespace TA3D
             }
             if( !ota_parser->PullAsString( "GlobalHeader.UnitTypePassesZ" ).empty() )
             {
-                Vector<String> params;
+                std::vector<String> params;
                 ReadVectorString(params, ota_parser->PullAsString( "GlobalHeader.UnitTypePassesZ" ), "," );
                 if( params.size() == 2 )
                 {
@@ -1801,7 +1802,7 @@ namespace TA3D
             }
             if( !ota_parser->PullAsString( "GlobalHeader.UnitTypePassesX" ).empty() )
             {
-                Vector<String> params;
+                std::vector<String> params;
                 ReadVectorString(params, ota_parser->PullAsString( "GlobalHeader.UnitTypePassesX" ), "," );
                 if( params.size() == 2 )
                 {
@@ -1839,7 +1840,7 @@ namespace TA3D
 
         if( !ota_parser->PullAsString( "GlobalHeader.KillUnitType" ).empty() )
         {
-            Vector<String> params;
+            std::vector<String> params;
             ReadVectorString(params, ota_parser->PullAsString( "GlobalHeader.KillUnitType" ), "," );
             if( params.size() >= 2 )
             {
@@ -1887,7 +1888,7 @@ namespace TA3D
 
         if( !ota_parser->PullAsString( "GlobalHeader.MoveUnitToRadius" ).empty() )
         {
-            Vector<String> params;
+            std::vector<String> params;
             ReadVectorString(params, ota_parser->PullAsString( "GlobalHeader.MoveUnitToRadius" ) );
             m_File << "	for i = 0, ta3d_get_max_unit_number() do\n";
             if( Lowercase( params[0] ) == "anytype" )

@@ -31,6 +31,8 @@
 # include "ingame/weapons/weapons.h"
 # include "threads/cThread.h"
 # include "misc/camera.h"
+# include <list>
+# include <vector>
 
 #define UNPACKX(xz) ((sint16)((xz)>>16))
 #define UNPACKZ(xz) ((sint16)((xz)&0xFFFF))
@@ -248,7 +250,7 @@ namespace TA3D
     {
     public:
         SCRIPT					*script;		// Scripts concernant l'unité
-        Vector< int >			*s_var;			// Tableau de variables pour les scripts
+        std::vector< int >			*s_var;			// Tableau de variables pour les scripts
         MODEL					*model;			// Modèle représentant l'objet
         byte					owner_id;		// Numéro du propriétaire de l'unité
         short					type_id;		// Type d'unité
@@ -266,7 +268,7 @@ namespace TA3D
         MISSION					*mission;		// Orders given to the unit
         MISSION					*def_mission;	// Orders given to units built by this plant
         byte					nb_running;		// Nombre de scripts lancés en même temps
-        Vector< SCRIPT_ENV >	*script_env;	// Environnements des scripts
+        std::vector< SCRIPT_ENV >	*script_env;	// Environnements des scripts
         byte					flags;			// Pour indiquer entre autres au gestionnaire d'unités si l'unité existe
         // 0	-> nothing
         // 1	-> the unit exists
@@ -274,7 +276,7 @@ namespace TA3D
         // 64	-> landed (for planes)
         float					c_time;			// Compteur de temps entre 2 émissions de particules par une unité de construction
         bool					compute_coord;	// Indique s'il est nécessaire de recalculer les coordonnées du modèle 3d
-        Vector< short >			*script_val;	// Tableau de valeurs retournées par les scripts
+        std::vector< short >			*script_val;	// Tableau de valeurs retournées par les scripts
         uint16					idx;			// Indice dans le tableau d'unité
         uint32					ID;				// the number of the unit (in total creation order) so we can identify it even if we move it :)
         float					h;				// Altitude (par rapport au sol)
@@ -470,10 +472,10 @@ namespace TA3D
 
         inline void init_alloc_data()
         {
-            s_var = new Vector< int >;
+            s_var = new std::vector< int >;
             port = new sint16[21];				// Ports
-            script_env = new Vector< SCRIPT_ENV >;	// Environnements des scripts
-            script_val = new Vector< short >;	// Tableau de valeurs retournées par les scripts
+            script_env = new std::vector< SCRIPT_ENV >;	// Environnements des scripts
+            script_val = new std::vector< short >;	// Tableau de valeurs retournées par les scripts
             memory = new int[10];				// Pour se rappeler sur quelles armes on a déjà tiré
             script_idx = new char[NB_SCRIPT];	// Index of scripts to prevent multiple search
             attached_list = new short[20];
@@ -879,7 +881,7 @@ namespace TA3D
     public cThread
     {
     public:
-        typedef Vector< List< uint16 > >  RepairPodsList;
+        typedef std::vector< std::list< uint16 > >  RepairPodsList;
     public:
         /*----------------------- Variables générales ----------------------------------------------*/
         uint16	nb_unit;		// Nombre d'unités
@@ -924,7 +926,7 @@ namespace TA3D
         uint32	last_tick[5];
         sint32	last_on;				// Indicate the unit index which was under the cursor (mini map orders)
 
-        Vector< List< uint16 > >	requests;		// Store all the request for pathfinder calls
+        std::vector< std::list< uint16 > >	requests;		// Store all the request for pathfinder calls
 
     public:
 

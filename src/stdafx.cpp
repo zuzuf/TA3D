@@ -189,9 +189,9 @@ hash_string(const String& s)
 
 
 int
-find(const Vector<String>& v, const String& s)
+find(const std::vector<String>& v, const String& s)
 {
-    for (Vector<String>::size_type i = 0 ; i < v.size() ; ++i)
+    for (std::vector<String>::size_type i = 0 ; i < v.size() ; ++i)
     {
 	    if(s == v[i])
 		    return i;

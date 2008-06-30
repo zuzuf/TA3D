@@ -29,6 +29,7 @@
 #include "misc/hash_table.h"
 #include "threads/thread.h"
 #include "TA3D_NameSpace.h"
+#include <vector>
 
 
 void glbutton(const String &caption,float x1,float y1,float x2,float y2,bool etat=false);
@@ -93,8 +94,8 @@ class SKIN;			// Class SKIN to handle GUI skins for GUIOBJ objects and WND windo
 /*--------- Functions that can use the skin object -------------------------------------------------*/
 
 void button ( float x, float y, float x2, float y2, const String &Title, bool Etat, float s=1.0f , SKIN *skin=NULL );
-void FloatMenu( float x, float y, const Vector<String> &Entry, int Index, int StartEntry=0 , SKIN *skin=NULL, float size = 1.0f );
-void ListBox( float x1, float y1, float x2, float y2, const Vector<String> &Entry, int Index, int Scroll , SKIN *skin=NULL, float size = 1.0f, uint32 flags = 0 );
+void FloatMenu( float x, float y, const std::vector<String> &Entry, int Index, int StartEntry=0 , SKIN *skin=NULL, float size = 1.0f );
+void ListBox( float x1, float y1, float x2, float y2, const std::vector<String> &Entry, int Index, int Scroll , SKIN *skin=NULL, float size = 1.0f, uint32 flags = 0 );
 void OptionButton( float x, float y, const String &Title, bool Etat , SKIN *skin=NULL, float size = 1.0f );
 void OptionCase( float x, float y, const String &Title, bool Etat , SKIN *skin=NULL, float size = 1.0f );
 void TextBar( float x1, float y1, float x2, float y2, const String &Caption, bool Etat , SKIN *skin=NULL, float size = 1.0f );
@@ -142,7 +143,7 @@ public:
 	bool				Etat;			// State of the object
 	float				x1,y1;			// Position(within the window)
 	float				x2,y2;
-	Vector< String >	Text;			// Text displayed by the object
+	std::vector< String >	Text;			// Text displayed by the object
 	void				(*Func)(int);	// Pointer to linked function
 	uint32				Data;			// Additional data
 	uint32				Pos;			// Position in a list
@@ -153,10 +154,10 @@ public:
 	bool				activated;		// For buttons/menus/... indicates that it is pressed (while click isn't finished)
 	bool				destroy_img;	// For img control, tell to destroy the texture
 
-	Vector< String >	OnClick;		// Send that signal when clicked
-	Vector< String >	OnHover;		// Send that signal when mouse is over
-	Vector< String >	SendDataTo;		// Send Data to that object on the window
-	Vector< String >	SendPosTo;		// Send Pos to that object on the window
+	std::vector< String >	OnClick;		// Send that signal when clicked
+	std::vector< String >	OnHover;		// Send that signal when mouse is over
+	std::vector< String >	SendDataTo;		// Send Data to that object on the window
+	std::vector< String >	SendPosTo;		// Send Pos to that object on the window
 	String				Name;			// name of the object
 	String				help_msg;		// Help message displayed when the mouse cursor is over the object
 
@@ -164,7 +165,7 @@ public:
 	bool				wait_a_turn;	// Used to deal with show/hide msg
 
 	byte				current_state;
-	Vector< TA3D::Interfaces::GfxTexture >	gltex_states;
+	std::vector< TA3D::Interfaces::GfxTexture >	gltex_states;
 	byte				nb_stages;
 	sint16				shortcut_key;
 
@@ -226,15 +227,15 @@ public:
 	void create_optionc(float X1,float Y1,const String &Caption,bool ETAT,void (*F)(int), SKIN *skin = NULL, float size=1.0f );
 	void create_optionb(float X1,float Y1,const String &Caption,bool ETAT,void (*F)(int), SKIN *skin = NULL, float size=1.0f );
 	void create_textbar(float X1,float Y1,float X2,float Y2,const String &Caption,int MaxChar, void(*F)(int)=NULL, float size=1.0f);
-	void create_menu(float X1,float Y1,const Vector<String> &Entry,void (*F)(int), float size=1.0f);
-	void create_menu(float X1,float Y1,float X2,float Y2,const Vector<String> &Entry,void (*F)(int), float size=1.0f);
+	void create_menu(float X1,float Y1,const std::vector<String> &Entry,void (*F)(int), float size=1.0f);
+	void create_menu(float X1,float Y1,float X2,float Y2,const std::vector<String> &Entry,void (*F)(int), float size=1.0f);
 	void create_pbar(float X1,float Y1,float X2,float Y2,int PCent, float size=1.0f);
 	void create_text(float X1,float Y1,const String &Caption,int Col=Noir, float size = 1.0f);
 	void create_line(float X1,float Y1,float X2,float Y2,int Col=Noir);
 	void create_box(float X1,float Y1,float X2,float Y2,int Col=Noir);
 	void create_img(float X1,float Y1,float X2,float Y2,GLuint img);
-	void create_list(float X1,float Y1,float X2,float Y2,const Vector<String> &Entry, float size=1.0f);
-	void create_ta_button(float X1,float Y1,const Vector< String > &Caption, const Vector< GLuint > &states, int nb_st);
+	void create_list(float X1,float Y1,float X2,float Y2,const std::vector<String> &Entry, float size=1.0f);
+	void create_ta_button(float X1,float Y1,const std::vector< String > &Caption, const std::vector< GLuint > &states, int nb_st);
 };
 
 class WND : public ObjectSync // Class for the window object
@@ -336,19 +337,19 @@ public:
 	GUIOBJ	*get_object( const String &message );									// Return a pointer to the specified object
 
 	void load_tdf( const String &filename, SKIN *skin = NULL );						// Load a window from a *.TDF file describing the window
-	void load_gui( const String &filename, cHashTable< Vector< TA3D::Interfaces::GfxTexture >* > &gui_hashtable );// Load a window from a TA *.GUI file describing the interface
+	void load_gui( const String &filename, cHashTable< std::vector< TA3D::Interfaces::GfxTexture >* > &gui_hashtable );// Load a window from a TA *.GUI file describing the interface
 };
 
 class AREA:	public ObjectSync, // This class is a window handler, so it will manage windows, and signals given to them
 			protected IInterface							// This is a global declaration since GUI is everywhere
 {
 private:
-	Vector< WND* >		vec_wnd;			// This vector stores all the windows the area object deals with
-	Vector< uint16 >	vec_z_order;		// This vector stores data about the z order of windows
+	std::vector< WND* >		vec_wnd;			// This vector stores all the windows the area object deals with
+	std::vector< uint16 >	vec_z_order;		// This vector stores data about the z order of windows
 	String				name;				// How is that area called ?
 	int					amx, amy, amz, amb;	// Remember last cursor position
 	SKIN				*skin;				// The skin used by the area
-	cHashTable< Vector< TA3D::Interfaces::GfxTexture >* > gui_hashtable;		// hashtable used to speed up loading of *.gui files and save memory
+	cHashTable< std::vector< TA3D::Interfaces::GfxTexture >* > gui_hashtable;		// hashtable used to speed up loading of *.gui files and save memory
 	cHashTable< int >	wnd_hashtable;		// hashtable used to speed up operations on WND objects
 	String				cached_key;
 	WND					*cached_wnd;

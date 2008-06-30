@@ -3,6 +3,7 @@
 #include "../../UnitEngine.h"
 #include "../../gfx/fx.h"
 #include "../../misc/camera.h"
+#include <list>
 
 
 
@@ -205,14 +206,14 @@ namespace TA3D
 
                     bool land_test = true;
 
-                    List< uint32 > air_list;
+                    std::list< uint32 > air_list;
 
                     map->lock();
                     for( IDX_LIST_NODE *cur = map->map_data[py+y][px+x].air_idx.head ; cur != NULL ; cur = cur->next )
                         air_list.push_back( cur->idx );
                     map->unlock();
 
-                    List< uint32 >::iterator cur = air_list.begin();
+                    std::list< uint32 >::iterator cur = air_list.begin();
 
                     for( ; land_test || cur != air_list.end() ; )
                     {
@@ -360,7 +361,7 @@ namespace TA3D
             int px=((int)(OPos.x+map->map_w_d))>>3;
             int s=weapon_manager.weapon[weapon_id].areaofeffect+31>>5;
             int d=weapon_manager.weapon[weapon_id].areaofeffect*weapon_manager.weapon[weapon_id].areaofeffect+15>>4;
-            List< int > oidx;
+            std::list< int > oidx;
             for(int y=-s;y<=s;y++)
                 for(int x=-s;x<=s;x++)
                 {
@@ -369,14 +370,14 @@ namespace TA3D
 
                     bool land_test = true;
 
-                    List< uint32 > air_list;
+                    std::list< uint32 > air_list;
 
                     map->lock();
                     for( IDX_LIST_NODE *cur = map->map_data[py+y][px+x].air_idx.head ; cur != NULL ; cur = cur->next )
                         air_list.push_back( cur->idx );
                     map->unlock();
 
-                    List< uint32 >::iterator cur = air_list.begin();
+                    std::list< uint32 >::iterator cur = air_list.begin();
 
                     for( ; land_test || cur != air_list.end() ; )
                     {
@@ -405,7 +406,7 @@ namespace TA3D
                         bool already=(t_idx==shooter_idx || t_idx==hit_idx || t_idx >= units.max_unit);
                         if(!already)
                         {
-                            for (List<int>::const_iterator i = oidx.begin(); i != oidx.end(); ++i)
+                            for (std::list<int>::const_iterator i = oidx.begin(); i != oidx.end(); ++i)
                             {
                                 if( t_idx == *i )
                                 {

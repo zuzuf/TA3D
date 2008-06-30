@@ -37,7 +37,7 @@
 #include "logs/logs.h"
 #include "misc/settings.h"
 #include "ingame/sidedata.h"
-#include "ingame/menus/intro.h"
+//#include "ingame/menus/intro.h"
 #include "ingame/menus/mainmenu.h"
 
 
@@ -292,7 +292,8 @@ int main(int argc,char *argv[])
     if( !lp_CONFIG->quickstart && lp_CONFIG->file_param.empty())
     {
         GuardStart( intro );
-        Menus::Intro::Execute();
+        //Menus::Intro::Execute();
+        play_intro();
         GuardCatch();
         if( IsExceptionInProgress())
         {

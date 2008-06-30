@@ -1,6 +1,7 @@
 
 #include "weapons.def.h"
 #include "../../fbi.h"
+#include <vector>
 
 
 namespace TA3D
@@ -130,7 +131,7 @@ namespace TA3D
         int unit_type = unit_manager.get_unit_index(uname.c_str());
         if ( unit_type >= 0 && unit_manager.unit_type[ unit_type ].categories)
         {
-            Vector<String>::const_iterator i = (unit_manager.unit_type[ unit_type ].categories)->begin();
+            std::vector<String>::const_iterator i = (unit_manager.unit_type[ unit_type ].categories)->begin();
             for (; (unit_manager.unit_type[ unit_type ].categories)->end() != i; ++i)
             {
                 dmg = damage_hashtable->Find(*i);

@@ -131,7 +131,7 @@ namespace TA3D
     String Paths::ExtractFilePath(const String& p)
     {
         String ret;
-        Vector<String> parts;
+        std::vector<String> parts;
         ReadVectorString(parts, p, Paths::SeparatorAsString, false);
         
         unsigned int len = parts.size();
@@ -216,12 +216,12 @@ namespace TA3D
         if (p.empty())
             return true;
         // TODO Use the boost library, which has a better implementation that this one
-        Vector<String> parts;
+        std::vector<String> parts;
         ReadVectorString(parts, p, SeparatorAsString, false);
         String pth("");
         bool hasBeenCreated(false);
 
-        for (Vector<String>::const_iterator i = parts.begin(); i != parts.end(); ++i)
+        for (std::vector<String>::const_iterator i = parts.begin(); i != parts.end(); ++i)
         {
             pth += *i;
 	        # ifndef TA3D_PLATFORM_WINDOWS

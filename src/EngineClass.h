@@ -26,16 +26,14 @@
 # define __TA3D_ENGINE_CL_H__
 
 
-#include "tdf.h"				// Pour le gestionnaire de sprites
-#include "taconfig.h"
-#include "threads/thread.h"
-#include "gfx/particles/particles.h"
-
-#include "ai/ai.h"
-
-#include "network/TA3D_Network.h"
-
+# include "tdf.h"				// Pour le gestionnaire de sprites
+# include "taconfig.h"
+# include "threads/thread.h"
+# include "gfx/particles/particles.h"
+# include "ai/ai.h"
+# include "network/TA3D_Network.h"
 # include "misc/camera.h"
+# include <vector>
 
 #define PARTICLE_LIMIT		100000		// pas plus de 100000 particules
 #define HMAP_RESIZE			0.04f
@@ -1075,9 +1073,9 @@ namespace TA3D
         float			rotation_speed;		// For spherical sky
         float			rotation_offset;	// If you want the sun to match light dir ...
         String			texture_name;		// Name of the texture used as sky
-        Vector<String>	planet;				// Vector of planets that can use this sky
+        std::vector<String>	planet;				// Vector of planets that can use this sky
         float			FogColor[4];		// Color of the fog to use with this sky
-        Vector<String>	MapName;			// Name of maps linked with this sky
+        std::vector<String>	MapName;			// Name of maps linked with this sky
         bool			full_sphere;		// The texture is for the whole sphere
         bool			def;
 

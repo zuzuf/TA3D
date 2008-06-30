@@ -24,6 +24,10 @@
 #include "EngineClass.h"
 #include "UnitEngine.h"
 #include "restore.h"
+#include <list>
+#include <vector>
+
+
 
 #define SAVE( i )	fwrite( &(i), sizeof( i ), 1, file )
 #define LOAD( i )	fread( &(i), sizeof( i ), 1, file )
@@ -62,31 +66,31 @@ void save_game( const String filename, GameData *game_data )
     SAVE( game_data->nb_players );
 
     // Palyer names
-    for (Vector<String>::const_iterator i = game_data->player_names.begin(); i != game_data->player_names.end(); ++i)
+    for (std::vector<String>::const_iterator i = game_data->player_names.begin(); i != game_data->player_names.end(); ++i)
     {
         fputs(i->c_str(), file);
         fputc(0, file );
     }
     // Player sides
-    for (Vector<String>::const_iterator i = game_data->player_sides.begin(); i != game_data->player_sides.end(); ++i)
+    for (std::vector<String>::const_iterator i = game_data->player_sides.begin(); i != game_data->player_sides.end(); ++i)
     {
         fputs(i->c_str(), file);
         fputc( 0, file );
     }
     // Player control
-    for (Vector<byte>::const_iterator i = game_data->player_control.begin(); i != game_data->player_control.end(); ++i)
+    for (std::vector<byte>::const_iterator i = game_data->player_control.begin(); i != game_data->player_control.end(); ++i)
         fputc(*i, file);
     // Player network ID
-    for (Vector<int>::const_iterator i = game_data->player_network_id.begin(); i != game_data->player_network_id.end(); ++i)
+    for (std::vector<int>::const_iterator i = game_data->player_network_id.begin(); i != game_data->player_network_id.end(); ++i)
         SAVE(*i);
     // AI Levels
-    for (Vector<byte>::const_iterator i = game_data->ai_level.begin(); i != game_data->ai_level.end(); ++i)
+    for (std::vector<byte>::const_iterator i = game_data->ai_level.begin(); i != game_data->ai_level.end(); ++i)
         fputc(*i, file);
     // Energy
-    for (Vector<uint32>::const_iterator i = game_data->energy.begin(); i != game_data->energy.end(); ++i)
+    for (std::vector<uint32>::const_iterator i = game_data->energy.begin(); i != game_data->energy.end(); ++i)
         SAVE(*i);
     // Metal
-    for (Vector<uint32>::const_iterator i = game_data->metal.begin(); i != game_data->metal.end(); ++i)
+    for (std::vector<uint32>::const_iterator i = game_data->metal.begin(); i != game_data->metal.end(); ++i)
         SAVE(*i);
 
     // Color map
@@ -205,7 +209,7 @@ void save_game( const String filename, GameData *game_data )
     {
         int list_size = pad_list->size();
         SAVE(list_size);
-        for (List<uint16>::const_iterator i = pad_list->begin(); pad_list->end() != i; ++i)
+        for (std::list<uint16>::const_iterator i = pad_list->begin(); pad_list->end() != i; ++i)
             SAVE(*i);
     }
 
@@ -226,12 +230,12 @@ void save_game( const String filename, GameData *game_data )
 
         int g = units.unit[i].s_var->size();
         SAVE( g );
-        for (Vector<int>::const_iterator f = (units.unit[i].s_var)->begin(); (units.unit[i].s_var)->end() != f; ++f)
+        for (std::vector<int>::const_iterator f = (units.unit[i].s_var)->begin(); (units.unit[i].s_var)->end() != f; ++f)
             SAVE(*f);
 
         g = units.unit[i].script_val->size();
         SAVE( g );
-        for (Vector<short>::const_iterator f = (units.unit[i].script_val)->begin(); (units.unit[i].script_val)->end() != f; ++f)
+        for (std::vector<short>::const_iterator f = (units.unit[i].script_val)->begin(); (units.unit[i].script_val)->end() != f; ++f)
             SAVE(*f);
 
         SAVE( units.unit[i].owner_id );
@@ -455,25 +459,25 @@ void load_game_data( const String filename, GameData *game_data )
     LOAD( game_data->nb_players );
 
     // Palyer names
-    for (Vector<String>::iterator i = game_data->player_names.begin(); i != game_data->player_names.end(); ++i)
+    for (std::vector<String>::iterator i = game_data->player_names.begin(); i != game_data->player_names.end(); ++i)
         *i = readstring( tmp, 1024, file );
     // Player sides
-    for (Vector<String>::iterator i = game_data->player_sides.begin(); i != game_data->player_sides.end(); ++i)
+    for (std::vector<String>::iterator i = game_data->player_sides.begin(); i != game_data->player_sides.end(); ++i)
         *i = readstring( tmp, 1024, file );
     // Player control
-    for (Vector<byte>::iterator i = game_data->player_control.begin(); i != game_data->player_control.end(); ++i)
+    for (std::vector<byte>::iterator i = game_data->player_control.begin(); i != game_data->player_control.end(); ++i)
         *i = fgetc( file );
     // Player network ID
-    for (Vector<int>::iterator i = game_data->player_network_id.begin(); i != game_data->player_network_id.end(); ++i)
+    for (std::vector<int>::iterator i = game_data->player_network_id.begin(); i != game_data->player_network_id.end(); ++i)
         LOAD(*i);
     // AI Levels
-    for (Vector<byte>::iterator i = game_data->ai_level.begin(); i != game_data->ai_level.end(); ++i)
+    for (std::vector<byte>::iterator i = game_data->ai_level.begin(); i != game_data->ai_level.end(); ++i)
         *i = fgetc( file );
     // Energy
-    for (Vector<uint32>::iterator i = game_data->energy.begin(); i != game_data->energy.end(); ++i)
+    for (std::vector<uint32>::iterator i = game_data->energy.begin(); i != game_data->energy.end(); ++i)
         LOAD(*i);
     // Metal
-    for (Vector<uint32>::iterator i = game_data->metal.begin(); i != game_data->metal.end(); ++i)
+    for (std::vector<uint32>::iterator i = game_data->metal.begin(); i != game_data->metal.end(); ++i)
         LOAD(*i);
 
     for( int i = 0 ; i < 10 ; i++ )
@@ -513,25 +517,25 @@ void load_game( GameData *game_data )
 
 
     // Palyer names
-    for (Vector<String>::iterator i = game_data->player_names.begin(); i != game_data->player_names.end(); ++i)
+    for (std::vector<String>::iterator i = game_data->player_names.begin(); i != game_data->player_names.end(); ++i)
         *i = readstring( tmp, 1024, file );
     // Player sides
-    for (Vector<String>::iterator i = game_data->player_sides.begin(); i != game_data->player_sides.end(); ++i)
+    for (std::vector<String>::iterator i = game_data->player_sides.begin(); i != game_data->player_sides.end(); ++i)
         *i = readstring( tmp, 1024, file );
     // Player control
-    for (Vector<byte>::iterator i = game_data->player_control.begin(); i != game_data->player_control.end(); ++i)
+    for (std::vector<byte>::iterator i = game_data->player_control.begin(); i != game_data->player_control.end(); ++i)
         *i = fgetc( file );
     // Player network ID
-    for (Vector<int>::iterator i = game_data->player_network_id.begin(); i != game_data->player_network_id.end(); ++i)
+    for (std::vector<int>::iterator i = game_data->player_network_id.begin(); i != game_data->player_network_id.end(); ++i)
         LOAD(*i);
     // AI Levels
-    for (Vector<byte>::iterator i = game_data->ai_level.begin(); i != game_data->ai_level.end(); ++i)
+    for (std::vector<byte>::iterator i = game_data->ai_level.begin(); i != game_data->ai_level.end(); ++i)
         *i = fgetc( file );
     // Energy
-    for (Vector<uint32>::iterator i = game_data->energy.begin(); i != game_data->energy.end(); ++i)
+    for (std::vector<uint32>::iterator i = game_data->energy.begin(); i != game_data->energy.end(); ++i)
         LOAD(*i);
     // Metal
-    for (Vector<uint32>::iterator i = game_data->metal.begin(); i != game_data->metal.end(); ++i)
+    for (std::vector<uint32>::iterator i = game_data->metal.begin(); i != game_data->metal.end(); ++i)
         LOAD(*i);
 
 
@@ -709,7 +713,7 @@ void load_game( GameData *game_data )
         int list_size;
         LOAD( list_size );
         pad_list->resize( list_size );
-        for (List<uint16>::iterator i = pad_list->begin(); pad_list->end() != i; ++i)
+        for (std::list<uint16>::iterator i = pad_list->begin(); pad_list->end() != i; ++i)
             LOAD( *i );
     }
 
@@ -758,12 +762,12 @@ void load_game( GameData *game_data )
         int g;
         LOAD( g );
         units.unit[i].s_var->resize(g);
-        for (Vector<int>::iterator f = (units.unit[i].s_var)->begin(); (units.unit[i].s_var)->end() != f; ++f)
+        for (std::vector<int>::iterator f = (units.unit[i].s_var)->begin(); (units.unit[i].s_var)->end() != f; ++f)
             LOAD( *f );
 
         LOAD( g );
         units.unit[i].script_val->resize(g);
-        for (Vector<short>::iterator f = (units.unit[i].script_val)->begin(); (units.unit[i].script_val)->end() != f; ++f)
+        for (std::vector<short>::iterator f = (units.unit[i].script_val)->begin(); (units.unit[i].script_val)->end() != f; ++f)
             LOAD( *f );
 
         LOAD( units.unit[i].owner_id );

@@ -8,6 +8,9 @@
 # include "../../misc/camera.h"
 # include "particlessystem.h"
 # include "particle.h"
+# include <list>
+# include <vector>
+
 
 
 namespace TA3D
@@ -135,7 +138,7 @@ namespace TA3D
         BITMAP		*partbmp;		// Textures des particules
         bool		dsmoke;
         uint32		ntex;
-        Vector< GLuint >	gltex;
+        std::vector< GLuint >	gltex;
 
         uint32		index_list_size;	// Pre allocated list of used indexes
         uint32		*idx_list;
@@ -151,7 +154,7 @@ namespace TA3D
         bool	thread_ask_to_stop;
         VECTOR	*p_wind_dir;
         float	*p_g;
-        List<ParticlesSystem*> particle_systems;
+        std::list<ParticlesSystem*> particle_systems;
         int			Run();
         void		SignalExitThread();
 

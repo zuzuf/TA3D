@@ -28,6 +28,7 @@
 #define __CLASS_I18N__
 
 #include "misc/hash_table.h"
+#include <vector>
 
 
 class I18N_TRANSLATER : protected TA3D::UTILS::cTAFileParser
@@ -43,7 +44,7 @@ public:
 	void refresh_language();
 	void load_translations( const String &filename, bool adding = false, bool inASCII = false );					// Loads translations for current language
 	String translate( const String &str );								// Translate str if possible, otherwise return str
-	void translate( Vector< String > &vec );						// Translate vec if possible, otherwise leave it as is
+	void translate( std::vector< String > &vec );						// Translate vec if possible, otherwise leave it as is
 };
 
 #define TRANSLATE(str)	i18n.translate( str )

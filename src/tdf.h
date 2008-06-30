@@ -31,6 +31,7 @@
 #include "gfx/particles/particles.h"		// Pour l'accès au moteur à particules
 #include "3do.h"			// Pour pouvoir utiliser des modèles 3D
 #include "misc/camera.h"
+#include <list>
 
 
 namespace TA3D
@@ -289,8 +290,8 @@ namespace TA3D
         int				max_idx;
         int				*list;				// Liste d'objets à afficher
         int				list_size;
-        List< uint32 >	burning_features;	// because it's faster that way
-        List< uint32 >	sinking_features;	// because it's faster that way
+        std::list<uint32>	burning_features;	// because it's faster that way
+        std::list<uint32>	sinking_features;	// because it's faster that way
 
     protected:
         VECTOR	*p_wind_dir;

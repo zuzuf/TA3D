@@ -30,6 +30,7 @@
 #include "weapons.h"
 #include "../../gfx/fx.h"
 #include "../sidedata.h"
+#include <list>
 
 
 namespace TA3D
@@ -38,12 +39,12 @@ namespace TA3D
 
     void load_weapons(void (*progress)(float percent,const String &msg))				// Charge toutes les armes
     {
-        List<String> file_list;
+        std::list<String> file_list;
         HPIManager->getFilelist(ta3dSideData.weapon_dir + "*.tdf", file_list);
 
         int n = 0;
 
-        for (List<String>::const_iterator cur_file = file_list.begin(); cur_file != file_list.end(); ++cur_file)
+        for (std::list<String>::const_iterator cur_file = file_list.begin(); cur_file != file_list.end(); ++cur_file)
         {
             if(progress!=NULL && !(n & 0xF))
                 progress((250.0f+n*50.0f/(file_list.size()+1))/7.0f,TRANSLATE("Loading weapons"));

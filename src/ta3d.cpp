@@ -34,6 +34,8 @@
 #include "misc/camera.h"
 #include "misc/material.light.h"
 #include "ingame/gamedata.h"
+#include <list>
+#include <vector>
 
 
 #ifndef SCROLL_SPEED
@@ -2284,12 +2286,12 @@ int play(GameData *game_data)
 
             if( obj_file_list )
             {
-                List<String> file_list;
+                std::list<String> file_list;
                 Paths::Glob(file_list, TA3D::Paths::Savegames + "*.sav");
                 file_list.sort();
                 obj_file_list->Text.clear();
                 obj_file_list->Text.reserve(file_list.size());
-                for (List<String>::const_iterator i = file_list.begin(); i != file_list.end(); ++i)
+                for (std::list<String>::const_iterator i = file_list.begin(); i != file_list.end(); ++i)
                     obj_file_list->Text.push_back(*i);
             }
         }
@@ -3096,7 +3098,7 @@ int play(GameData *game_data)
 
         if(cmd) // Analyse les commandes tapées dans la console
         {
-            Vector<String> params;
+            std::vector<String> params;
             ReadVectorString(params,  cmd, " ");
             if( params.size() > 0 )
             {

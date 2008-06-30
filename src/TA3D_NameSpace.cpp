@@ -140,7 +140,7 @@ namespace TA3D
 	}
 
 
-    void ReadVectorString(Vector<String>& lst, String s, const String& seps, const bool emptyBefore)
+    void ReadVectorString(std::vector<String>& lst, String s, const String& seps, const bool emptyBefore)
 	{
         // TODO Should be replaced by
         // boost::algorithm::split(v, *this, boost::is_any_of(separators.c_str()));
