@@ -4611,10 +4611,10 @@ void UNIT::show_orders(bool only_build_commands, bool def_orders)				// Dessine 
         if(!only_build_commands)
         {
             int curseur=anim_cursor(CURSOR_CROSS_LINK);
-            // float dx=0.5f*cursor.anm[CURSOR_CROSS_LINK].ofs_x[curseur];
-            // float dz=0.5f*cursor.anm[CURSOR_CROSS_LINK].ofs_y[curseur];
-            // float sx=0.5f*(cursor.anm[CURSOR_CROSS_LINK].bmp[curseur]->w-1);
-            // float sy=0.5f*(cursor.anm[CURSOR_CROSS_LINK].bmp[curseur]->h-1);
+            float dx=0.5f*cursor.anm[CURSOR_CROSS_LINK].ofs_x[curseur];
+            float dz=0.5f*cursor.anm[CURSOR_CROSS_LINK].ofs_y[curseur];
+            float sx=0.5f*(cursor.anm[CURSOR_CROSS_LINK].bmp[curseur]->w-1);
+            float sy=0.5f*(cursor.anm[CURSOR_CROSS_LINK].bmp[curseur]->h-1);
             float x,y,z;
             float dist=((VECTOR)(cur->target-p_target)).norm();
             int rec=(int)(dist/30.0f);
@@ -4682,12 +4682,14 @@ void UNIT::show_orders(bool only_build_commands, bool def_orders)				// Dessine 
             case MISSION_BUILD:
                 if(cur->p!=NULL)
                     cur->target=((UNIT*)(cur->p))->Pos;
-                if(cur->data>=0 && cur->data<unit_manager.nb_unit && remaining_build_commands > 0 ) {
+                if(cur->data>=0 && cur->data<unit_manager.nb_unit && remaining_build_commands > 0 )
+                {
                     remaining_build_commands--;
                     float DX = (unit_manager.unit_type[cur->data].FootprintX<<2);
                     float DZ = (unit_manager.unit_type[cur->data].FootprintZ<<2);
                     float blue = 0.0f, green = 1.0f;
-                    if(only_build_commands) {
+                    if(only_build_commands)
+                    {
                         blue = 1.0f;
                         green = 0.0f;
                     }
@@ -4723,7 +4725,8 @@ void UNIT::show_orders(bool only_build_commands, bool def_orders)				// Dessine 
                     glEnable(GL_TEXTURE_2D);
                     glEnable(GL_CULL_FACE);
                     glPopMatrix();
-                    if(unit_manager.unit_type[cur->data].model!=NULL) {
+                    if(unit_manager.unit_type[cur->data].model!=NULL)
+                    {
                         glEnable(GL_LIGHTING);
                         glEnable(GL_CULL_FACE);
                         glEnable(GL_DEPTH_TEST);
