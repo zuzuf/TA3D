@@ -191,7 +191,7 @@ int main(int argc,char *argv[])
     LOG_INFO("*** Welcome to TA3D ***");
 
     // Load and prepare output directories
-    if (!TA3D::Paths::Initialize())
+    if (!TA3D::Paths::Initialize(argc, argv))
         return 1;
 
     // Initialize signals

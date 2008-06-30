@@ -123,14 +123,14 @@ void LoadConfigFile( void )
   |               Procédure principale,gère l'interface d'édition principale                           |
   \---------------------------------------------------------------------------------------------------*/
 
-int main()
+int main(int argc, char* argv[])
 {
     Logs::level = LOG_LEVEL_DEBUG;
     // Starting
     LOG_INFO("*** Welcome to TA3D ***");
 
     // Load and prepare output directories
-    if (!TA3D::Paths::Initialize())
+    if (!TA3D::Paths::Initialize(argc, argv))
         return 1;
 
 
