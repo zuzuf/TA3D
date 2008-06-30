@@ -1007,7 +1007,7 @@ namespace TA3D
             pMutex.unlock();
         }
 
-        inline INGAME_UNITS() : requests(), repair_pads()
+        inline INGAME_UNITS() : repair_pads(), requests()
         {
             InitThread();
             init();
