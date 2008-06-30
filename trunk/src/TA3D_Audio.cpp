@@ -31,7 +31,8 @@ TA3D::Interfaces::cAudio *TA3D::VARS::sound_manager;
 
 void cAudio::SetPlayListFileMode( int idx, bool Battle, bool Deactivated )
 {
-	if( idx < 0 || idx >= m_Playlist.size() )	return;
+	if( idx < 0 || idx >= (int)m_Playlist.size() )
+        return;
 
 	Battle &= !Deactivated;
 
@@ -48,13 +49,15 @@ std::vector< std::string >	cAudio::GetPlayListFiles()
 {
 	std::vector< String > file_list;
 	file_list.resize( m_Playlist.size() );
-	for( int i = 0 ; i < m_Playlist.size() ; i++ )
+	for(unsigned int i = 0 ; i < m_Playlist.size() ; ++i)
+    {
 		if( m_Playlist[ i ]->m_BattleTune )
 			file_list[ i ] = "[B] " + m_Playlist[ i ]->m_Filename;
 		else if( m_Playlist[ i ]->m_Deactivated )
 			file_list[ i ] = "[ ] " + m_Playlist[ i ]->m_Filename;
 		else
 			file_list[ i ] = "[*] " + m_Playlist[ i ]->m_Filename;
+    }
 	return file_list;
 }
 
@@ -101,16 +104,19 @@ void cAudio::UpdatePlayListFiles( void )
 		}
 
 	int e = 0;
-	for( int i = 0 ; i + e < m_Playlist.size() ; ) {			// Do some cleaning
-		if( m_Playlist[ i + e ]->m_checked ) {
-			m_Playlist[ i ] = m_Playlist[ i + e ];
-			i++;
-			}
-		else {
-			delete m_Playlist[ i + e ];
-			e++;
-			}
-		}
+	for(unsigned int i = 0 ; i + e < m_Playlist.size() ; ) // Do some cleaning
+    {
+        if (m_Playlist[i + e]->m_checked )
+        {
+            m_Playlist[i] = m_Playlist[i + e];
+            i++;
+        }
+        else
+        {
+            delete m_Playlist[ i + e ];
+            e++;
+        }
+    }
 
 	m_Playlist.resize( m_Playlist.size() - e );			// Remove missing files
 
