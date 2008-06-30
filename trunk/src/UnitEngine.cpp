@@ -2007,7 +2007,7 @@ const int UNIT::run_script(const float &dt,const int &id,MAP *map,int max_code)	
             case SCRIPT_ATTACH_UNIT:
                 {
                     DEBUG_PRINT_CODE("ATTACH_UNIT");
-                    int v3 = (*script_env)[id].pop();
+                    /*int v3 =*/ (*script_env)[id].pop();
                     int v2 = (*script_env)[id].pop();
                     int v1 = (*script_env)[id].pop();
                     if( v1 >= 0 && v1 < units.max_unit && units.unit[ v1 ].flags )
@@ -2411,7 +2411,7 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
         if( players.energy[ owner_id ] >= (energy_cons + conso_energy) * dt ) {
             energy_cons += conso_energy;
             int dx = unit_manager.unit_type[type_id].mincloakdistance >> 3;
-            byte mask = 1 << owner_id;
+            // byte mask = 1 << owner_id;
             bool found = false;
             for(int y = cur_py - dx ; y <= cur_py + dx && !found ; y++ )
                 if( y >= 0 && y < map->bloc_h_db - 1 )
@@ -3188,7 +3188,7 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
                     int enemy_idx=-1;
                     int sx=rand_from_table()&1;
                     int sy=rand_from_table()&1;
-                    byte mask=1<<owner_id;
+                    // byte mask=1<<owner_id;
                     for(int y=cur_py-dx+sy;y<=cur_py+dx;y+=2) {
                         if(y>=0 && y<map->bloc_h_db-1)
                             for(int x=cur_px-dx+sx;x<=cur_px+dx;x+=2)
@@ -4611,10 +4611,10 @@ void UNIT::show_orders(bool only_build_commands, bool def_orders)				// Dessine 
         if(!only_build_commands)
         {
             int curseur=anim_cursor(CURSOR_CROSS_LINK);
-            float dx=0.5f*cursor.anm[CURSOR_CROSS_LINK].ofs_x[curseur];
-            float dz=0.5f*cursor.anm[CURSOR_CROSS_LINK].ofs_y[curseur];
-            float sx=0.5f*(cursor.anm[CURSOR_CROSS_LINK].bmp[curseur]->w-1);
-            float sy=0.5f*(cursor.anm[CURSOR_CROSS_LINK].bmp[curseur]->h-1);
+            // float dx=0.5f*cursor.anm[CURSOR_CROSS_LINK].ofs_x[curseur];
+            // float dz=0.5f*cursor.anm[CURSOR_CROSS_LINK].ofs_y[curseur];
+            // float sx=0.5f*(cursor.anm[CURSOR_CROSS_LINK].bmp[curseur]->w-1);
+            // float sy=0.5f*(cursor.anm[CURSOR_CROSS_LINK].bmp[curseur]->h-1);
             float x,y,z;
             float dist=((VECTOR)(cur->target-p_target)).norm();
             int rec=(int)(dist/30.0f);
