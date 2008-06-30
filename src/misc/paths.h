@@ -3,6 +3,7 @@
 
 # include "../stdafx.h"
 # include <vector>
+# include <list>
 
 
 
@@ -48,8 +49,13 @@ namespace TA3D
 
 
     public:
+        //! \name Resources management
+        //{
+
         /*!
         ** \brief Find a relative resource filename in the list of search paths for resources
+        **
+        ** This method is not thread safe
         **
         ** \param relFilename The relative filename to find
         ** \param[out] out The absolute filename that has been found
@@ -60,11 +66,18 @@ namespace TA3D
         /*!
         ** \brief Add a folder in the search paths for resources
         **
+        ** This method is not thread safe
+        **
         ** \param folder The folder to add
         ** \return True if the folder has been added, false otherwise
         */
         static bool AddResourcesFolder(const String& folder);
 
+        //}
+
+
+        //! \name Files & Folders handling
+        //{
 
         /*!
         ** \brief Test if a file/folder exists
@@ -72,7 +85,6 @@ namespace TA3D
         ** \return True if it exists, false otherwise
         */
         static bool Exists(const String& p);
-
 
         /*!
         ** \brief Create Path Recursively
@@ -83,30 +95,68 @@ namespace TA3D
         static bool MakeDir(const String& p);
 
         /*!
-        ** \brief Returns the list of files according a given pattern
-        **
-        ** \param[out] out The list of file that has been found
-        ** \param pattern The pattern to use
-        ** \return True if the operation succeeded and the list is not empty,
-        ** false othewise
-        */
-        static bool Glob(std::vector<String>& out, const String& pattern);
-    
-        /*!
-        ** \brief Returns the list of files according a given pattern
-        **
-        ** \param[out] out The list of file that has been found
-        ** \param pattern The pattern to use
-        ** \return True if the operation succeeded and the list is not empty,
-        ** false othewise
-        */
-        static bool Glob(std::list<String>& out, const String& pattern);
-
-
-        /*!
         ** \brief Retrieve the current directory
         */
         static String CurrentDirectory();
+
+        //}
+
+
+
+        //! \name Globbing
+        //{
+
+        /*!
+        ** \brief Find pathnames matching a pattern
+        **
+        ** \param[out] out The list of file that has been found
+        ** \param pattern The pattern to use
+        ** \param emptyListBefore True to empty the list before performing the glob function
+        ** \return True if the operation succeeded and the list is not empty,
+        ** false othewise
+        **
+        ** \code
+        ** std::vector<String> list;
+        ** if (Paths::Glob(list, Paths::Savegames + "*.sav"))
+        ** {
+        **      for (std::vector<String>::const_iterator i = list.begin(); i != list.end(); ++i)
+        **          std::cout << "Savegame found: `" << *i << std::endl; 
+        ** }
+        ** else
+        ** {
+        **      std::cerr << "No savegame found." << std::endl;
+        ** }
+        ** \endcode
+        */
+        static bool Glob(std::vector<String>& out, const String& pattern, const bool emptyListBefore = true);
+        static bool Glob(std::list<String>& out, const String& pattern, const bool emptyListBefore = true);
+
+        /*!
+        ** \brief Find pathnames in the resources folders matching a pattern
+        **
+        ** \param[out] out The list of file that has been found
+        ** \param pattern The pattern to use
+        ** \return True if the operation succeeded and the list is not empty,
+        ** false othewise
+        **
+        ** std::vector<String> list;
+        ** if (Paths::ResourcesGlob(list, "objects/rocks*.3dm"))
+        ** {
+        **      for (std::vector<String>::const_iterator i = list.begin(); i != list.end(); ++i)
+        **          std::cout << "3D object found: `" << *i << std::endl; 
+        ** }
+        ** else
+        ** {
+        **      std::cerr << "No 3D object found." << std::endl;
+        ** }
+        ** \endcode
+
+        */
+        static bool ResourcesGlob(std::vector<String>& out, const String& pattern, const bool emptyListBefore = true);
+        static bool ResourcesGlob(std::list<String>& out, const String& pattern, const bool emptyListBefore = true);
+
+        //} // Globbing
+
 
         /*!
         ** \brief Load all informations about paths
@@ -114,6 +164,7 @@ namespace TA3D
         ** return False if any error has occured
         */
         static bool Initialize(int argc, char* argv[]);
+
 
     private:
         //! Definition list of resources folders

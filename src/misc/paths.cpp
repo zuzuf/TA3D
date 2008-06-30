@@ -277,9 +277,10 @@ namespace TA3D
         return false;
     }
 
-    bool Paths::Glob(std::vector<String>& out, const String& pattern)
+    bool Paths::Glob(std::vector<String>& out, const String& pattern, const bool emptyListBefore)
     {
-        out.clear();
+        if (emptyListBefore)
+            out.clear();
         struct al_ffblk info;
         if (al_findfirst(pattern.c_str(), &info, FA_ALL) != 0)
             return false;
@@ -290,9 +291,10 @@ namespace TA3D
         return !out.empty();
     }
 
-    bool Paths::Glob(std::list<String>& out, const String& pattern)
+    bool Paths::Glob(std::list<String>& out, const String& pattern, const bool emptyListBefore)
     {
-        out.clear();
+        if (emptyListBefore)
+            out.clear();
         struct al_ffblk info;
         if (al_findfirst(pattern.c_str(), &info, FA_ALL) != 0)
             return false;
@@ -303,6 +305,24 @@ namespace TA3D
         return true;
     }
 
+     
+    bool Paths::ResourcesGlob(std::vector<String>& out, const String& pattern, const bool emptyListBefore)
+    {
+        if (emptyListBefore)
+            out.clear();
+        for (ResourcesFoldersList::const_iterator i = pResourcesFolders.begin(); i != pResourcesFolders.end(); ++i)
+            Glob(out, *i + pattern, false);
+        return !out.empty();
+    }
+
+    bool Paths::ResourcesGlob(std::list<String>& out, const String& pattern, const bool emptyListBefore)
+    {
+        if (emptyListBefore)
+            out.clear();
+        for (ResourcesFoldersList::const_iterator i = pResourcesFolders.begin(); i != pResourcesFolders.end(); ++i)
+            Glob(out, *i + pattern, false);
+        return !out.empty();
+    }
 
 
 } // namespace TA3D
