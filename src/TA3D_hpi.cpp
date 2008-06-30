@@ -597,7 +597,7 @@ cHPIHandler::IsInDiskCache(const String& FileName, uint32 *p_FileSize)
 
     String cache_filename = TA3D::Paths::Caches + cacheable_filename + ".dat";
 
-    if( TA3D::FileExists(cache_filename)) // Check disk cache
+    if(TA3D::Paths::Exists(cache_filename)) // Check disk cache
     {
         FILE *cache_file = TA3D_OpenFile( cache_filename, "rb" );
         if( cache_file ) // Load file from disk cache (faster than decompressing it)

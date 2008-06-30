@@ -178,13 +178,6 @@ namespace TA3D
 	}
 
 
-	bool FileExists(const String& filename)
-	{
-		return exists( filename.c_str() );
-	}
-
-
-
 	void TA3D_clear_cache()							// Clear the cache if needed (useful when mod has changed)
 	{
 		bool rebuild_cache = false;

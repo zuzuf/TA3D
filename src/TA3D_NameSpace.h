@@ -293,13 +293,6 @@ namespace TA3D
 	char *replace_chars(char *str);
 	void *GetMem( sint32 size, sint32 zero );
 
-    /*!
-    ** \brief Test if a filename exists
-    ** \param filename Filename to test
-    ** \return True if the file exists, false otherwise
-    */
-	bool FileExists(const String& filename);
-
 
 	void TA3D_clear_cache();							// Clear the cache if needed (useful when mod has changed)
 

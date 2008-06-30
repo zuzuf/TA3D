@@ -31,6 +31,7 @@
 #include "ta3dbase.h"
 #include "intro.h"
 #include "console.h"
+#include "misc/paths.h"
 
 #define NB_TXT_LINES	15
 #define LAST_LINE		14
@@ -40,7 +41,7 @@ void play_intro(const char *txt_file)
 {
     GLuint glfond = 0;
 
-    if( !lp_CONFIG->skin_name.empty() && TA3D::FileExists( lp_CONFIG->skin_name ) )	// Loads a skin
+    if( !lp_CONFIG->skin_name.empty() && TA3D::Paths::Exists( lp_CONFIG->skin_name ) )	// Loads a skin
     {
         SKIN *skin = new SKIN;
         skin->load_tdf( lp_CONFIG->skin_name );
@@ -211,7 +212,7 @@ void loading(const float percent, const String& msg)
     if(init)
     {
         messages.clear();
-        if( !lp_CONFIG->skin_name.empty() && TA3D::FileExists( lp_CONFIG->skin_name ) ) // Loads a skin
+        if( !lp_CONFIG->skin_name.empty() && TA3D::Paths::Exists(lp_CONFIG->skin_name)) // Loads a skin
         {
             SKIN *skin = new SKIN;
             skin->load_tdf( lp_CONFIG->skin_name );
