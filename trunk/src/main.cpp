@@ -34,6 +34,7 @@
 #include "EngineClass.h"
 #include "backtrace.h"				// Some debugging tools
 #include "misc/paths.h"
+#include "misc/resources.h"
 #include "logs/logs.h"
 #include "misc/settings.h"
 #include "ingame/sidedata.h"
@@ -194,6 +195,7 @@ int main(int argc,char *argv[])
     // Load and prepare output directories
     if (!TA3D::Paths::Initialize(argc, argv))
         return 1;
+    TA3D::Resources::Initialize();
 
     // Initialize signals
     init_signals();

@@ -32,6 +32,7 @@
 #include "gaf.h"
 #include "3do.h"			// Gestion des modèles 3D
 #include "misc/paths.h"
+#include "misc/resources.h"
 #include "logs/logs.h"
 #include "gfx/glfunc.h"
 #include "3dmeditor.h"		// GUI functions for the editor
@@ -133,6 +134,7 @@ int main(int argc, char* argv[])
     // Load and prepare output directories
     if (!TA3D::Paths::Initialize(argc, argv))
         return 1;
+    TA3D::Resources::Initialize();
 
 
     try
