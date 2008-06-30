@@ -72,11 +72,11 @@ static bool hpiviewCmdShow(int argc, char** argv)
     if( argc >= 3 )
     {
         HPIManager = new cHPIHandler("");
-        List<String> file_list;
+        std::list<String> file_list;
         String ext = (argc > 2) ? argv[2] : "";
         HPIManager->getFilelist(ext, file_list);
         file_list.sort();
-        for(List<String>::iterator cur_file=file_list.begin();cur_file!=file_list.end(); ++cur_file)
+        for(std::list<String>::iterator cur_file=file_list.begin();cur_file!=file_list.end(); ++cur_file)
             std::cout << cur_file->c_str() << std::endl;
         delete HPIManager;
         return true;
@@ -175,11 +175,11 @@ static bool hpiviewCmdListMods(int argc, char** argv)
 
         if( m_File.is_open() )
         {
-            List<String> modlist;
+            std::list<String> modlist;
             if (Paths::Glob(modlist, "mods/*"))
             {
                 modlist.sort();
-                for (List<String>::const_iterator i = modlist.begin(); i != modlist.end(); ++i)
+                for (std::list<String>::const_iterator i = modlist.begin(); i != modlist.end(); ++i)
                 {
                     if ((*i)[0] != '.')
                         m_File << *i << "\n";
@@ -238,12 +238,12 @@ static bool hpiviewCmdPrint(int argc, char** argv)
     if(argc >= 3) 
     {
         HPIManager = new cHPIHandler("");
-        List<String> file_list;
+        std::list<String> file_list;
         String ext = argc > 2 ? argv[2] : "";
         HPIManager->getFilelist(ext, file_list);
         file_list.sort();
 
-        for(List<String>::iterator cur_file = file_list.begin(); cur_file != file_list.end(); ++cur_file)
+        for(std::list<String>::iterator cur_file = file_list.begin(); cur_file != file_list.end(); ++cur_file)
         {
             uint32 file_size32 = 0;
             byte* data = HPIManager->PullFromHPI( *cur_file, &file_size32 );

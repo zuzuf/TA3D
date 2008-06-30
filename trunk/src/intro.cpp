@@ -32,6 +32,7 @@
 #include "intro.h"
 #include "console.h"
 #include "misc/paths.h"
+#include <list>
 
 #define NB_TXT_LINES	15
 #define LAST_LINE		14
@@ -197,7 +198,7 @@ void play_intro(const char *txt_file)
 void loading(const float percent, const String& msg)
 {
     static int last_percent = 0;
-    static List<String>	messages;
+    static std::list<String>	messages;
     static GLuint Glfond = 0;
 
     if( network_manager.isConnected() && last_percent != (int)percent )
@@ -251,7 +252,7 @@ void loading(const float percent, const String& msg)
     }
 
     int e = 0;
-    for( List< String >::iterator i = messages.begin() ; i != messages.end() ; i++, e++ )
+    for( std::list< String >::iterator i = messages.begin() ; i != messages.end() ; i++, e++ )
         gfx->print( gfx->TA_font, 105.0f, 175.0f + h * e, 0.0f, 0xFFFFFFFF, *i );
 
     glDisable(GL_BLEND);

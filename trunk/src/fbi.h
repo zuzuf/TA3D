@@ -25,12 +25,14 @@
 \-----------------------------------------------------------------------------------*/
 
 #ifndef __CLASSE_UNIT
-#define __CLASSE_UNIT
+# define __CLASSE_UNIT
 
-#include "scripts/cob.h" // Pour la gestion des scripts
+# include "scripts/cob.h" // Pour la gestion des scripts
 
-#include "ingame/weapons/weapons.h"			// Pour la gestion des armes des unités
-#include "ingame/sidedata.h"
+# include "ingame/weapons/weapons.h"			// Pour la gestion des armes des unités
+# include "ingame/sidedata.h"
+# include <vector>
+# include <list>
 
 #define SFORDER_HOLD_FIRE		0x0
 #define SFORDER_RETURN_FIRE		0x1
@@ -131,7 +133,7 @@ public:
 	byte	FootprintX;
 	byte	FootprintZ;
 	cHashTable< int >	*Category;
-	Vector< String >	*categories;
+	std::vector< String >	*categories;
 	uint32	fastCategory;
 	short	MaxSlope;
 	byte	BMcode;
@@ -524,7 +526,7 @@ private:
 
 public:
 
-	List< DL_DATA* >		l_dl_data;		// To clean things at the end
+    std::list< DL_DATA* >		l_dl_data;		// To clean things at the end
 	cHashTable< DL_DATA* >	h_dl_data;		// To speed things up
 	
 	inline void init()
@@ -650,10 +652,10 @@ public:
     inline void gather_build_data()
     {
         uint32 file_size=0;
-        List<String> file_list;
+        std::list<String> file_list;
         HPIManager->getFilelist( ta3dSideData.download_dir + "*.tdf", file_list);
 
-        for(List<String>::iterator file=file_list.begin();file!=file_list.end();file++) // Cherche un fichier pouvant contenir des informations sur l'unité unit_name
+        for(std::list<String>::iterator file=file_list.begin();file!=file_list.end();file++) // Cherche un fichier pouvant contenir des informations sur l'unité unit_name
         {
             byte *data=HPIManager->PullFromHPI(*file,&file_size);		// Lit le fichier
 
@@ -684,10 +686,10 @@ public:
 
         gather_build_data();			// Read additionnal build data
 
-        List<String> file_list;
+        std::list<String> file_list;
         HPIManager->getFilelist( ta3dSideData.guis_dir + "*.gui", file_list);
 
-        for(List<String>::iterator file=file_list.begin();file!=file_list.end();file++) // Cherche un fichier pouvant contenir des informations sur l'unité unit_name
+        for(std::list<String>::iterator file=file_list.begin();file!=file_list.end();file++) // Cherche un fichier pouvant contenir des informations sur l'unité unit_name
         {
             char *f=NULL;
             for (int i=0;i<nb_unit; ++i)
@@ -711,11 +713,13 @@ public:
         char *uprname=strdup(unit_name);
         strupr(uprname);
 
-        List<String> file_list;
+        std::list<String> file_list;
         HPIManager->getFilelist( format( "scripts\\%s.cob", unit_name ), file_list);
 
-        for(List<String>::iterator file=file_list.begin();file!=file_list.end();file++) {		// Cherche un fichier pouvant contenir des informations sur l'unité unit_name
-            if(strstr(TA3D::Uppercase(*file).c_str(),uprname)) {			// A trouvé un fichier qui convient
+        for(std::list<String>::iterator file=file_list.begin();file!=file_list.end();file++) // Cherche un fichier pouvant contenir des informations sur l'unité unit_name
+        {
+            if(strstr(TA3D::Uppercase(*file).c_str(),uprname)) 	// A trouvé un fichier qui convient
+            {
                 byte *data=HPIManager->PullFromHPI(*file);		// Lit le fichier
 
                 unit_type[unit_index].script=(SCRIPT*) malloc(sizeof(SCRIPT));

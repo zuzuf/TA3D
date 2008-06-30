@@ -3597,7 +3597,7 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
                                 bool going_to_repair_pad = false;
                                 pMutex.unlock();
                                 units.lock();
-                                for (List<uint16>::iterator i = units.repair_pads[owner_id].begin(); i != units.repair_pads[owner_id].end(); ++i)
+                                for (std::list<uint16>::iterator i = units.repair_pads[owner_id].begin(); i != units.repair_pads[owner_id].end(); ++i)
                                 {
                                     units.unit[ *i ].lock();
                                     VECTOR Dir = units.unit[ *i ].Pos - Pos;
@@ -4599,7 +4599,7 @@ void UNIT::show_orders(bool only_build_commands, bool def_orders)				// Dessine 
     float rab=(msec_timer%1000)*0.001f;
     uint32	remaining_build_commands = !(unit_manager.unit_type[ type_id ].BMcode) ? 0 : 0xFFFFFFF;
 
-    List< VECTOR >	points;
+    std::list< VECTOR >	points;
 
     while(cur)
     {
@@ -4832,7 +4832,7 @@ void UNIT::show_orders(bool only_build_commands, bool def_orders)				// Dessine 
         float *T = new float[ points.size() << 3 ];
 
         int n = 0;
-        for (List<VECTOR>::const_iterator i = points.begin(); i != points.end(); ++i)
+        for (std::list<VECTOR>::const_iterator i = points.begin(); i != points.end(); ++i)
         {
             P[n] = *i;
             T[n<<1] = 0.0f;		T[(n<<1)+1] = 0.0f;
@@ -6216,7 +6216,7 @@ void INGAME_UNITS::kill(int index,MAP *map,int prev,bool sync)			// Détruit une
         int owner_id = unit[ index ].owner_id;
 
         pMutex.lock();
-        for (List<uint16>::iterator i = repair_pads[owner_id].begin(); i != repair_pads[owner_id].end(); ++i)
+        for (std::list<uint16>::iterator i = repair_pads[owner_id].begin(); i != repair_pads[owner_id].end(); ++i)
         {
             if (*i == index)
             {

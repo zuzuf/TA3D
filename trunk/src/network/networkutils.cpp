@@ -139,7 +139,7 @@ namespace TA3D
                 case 'F':						// File data
                     {
                         int port = sock->getFilePort();
-                        for( List< GetFileThread* >::iterator i = network->getfile_thread.begin() ; i != network->getfile_thread.end() ; i++ )
+                        for(std::list< GetFileThread* >::iterator i = network->getfile_thread.begin() ; i != network->getfile_thread.end() ; i++ )
                             if( (*i)->port == port ) {
                                 port = -1;
                                 while( !(*i)->ready && !(*i)->isDead() )	rest(1);
@@ -156,7 +156,7 @@ namespace TA3D
                 case 'R':						// File response (send back the amount of data that has been received)
                     {
                         int port = sock->getFilePort();
-                        for( List< SendFileThread* >::iterator i = network->sendfile_thread.begin() ; i != network->sendfile_thread.end() ; i++ )
+                        for(std::list< SendFileThread* >::iterator i = network->sendfile_thread.begin() ; i != network->sendfile_thread.end() ; i++ )
                             if( (*i)->port == port && (*i)->player_id == sockid ) {
                                 port = -1;
                                 sock->getFileData( (byte*)&((*i)->progress) );

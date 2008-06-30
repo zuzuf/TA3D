@@ -564,7 +564,7 @@ namespace TA3D
         float factor2=exp(-dt);
         float dt_reduced = dt * 0.0025f;
 
-        for( List< ParticlesSystem* >::iterator i = particle_systems.begin() ; i != particle_systems.end() ; )
+        for (std::list< ParticlesSystem* >::iterator i = particle_systems.begin() ; i != particle_systems.end() ; )
         {
             (*i)->move( dt, &wind_dir, G.y, factor, factor2 );
             if ((*i)->life >= 0.0f )
@@ -777,7 +777,7 @@ namespace TA3D
         glEnable (GL_POINT_SPRITE); 
 
         pMutex.lock();
-        for (List<ParticlesSystem*>::iterator i = particle_systems.begin() ; i != particle_systems.end() ; ++i)
+        for (std::list<ParticlesSystem*>::iterator i = particle_systems.begin() ; i != particle_systems.end() ; ++i)
             (*i)->draw();
         pMutex.unlock();
         glDisable (GL_POINT_SPRITE); 
@@ -847,7 +847,7 @@ namespace TA3D
             gfx->destroy_texture(gltex[i]);
         gltex.clear();
 
-        for (List<ParticlesSystem*>::iterator i = particle_systems.begin() ; i != particle_systems.end() ; ++i)
+        for (std::list<ParticlesSystem*>::iterator i = particle_systems.begin() ; i != particle_systems.end() ; ++i)
             (*i)->destroy();
 
         particle_systems.clear();

@@ -27,6 +27,7 @@
 # include "../threads/thread.h"
 # include "networkutils.h"
 # include "socketlist.h"
+# include <list>
 
 
 namespace TA3D
@@ -93,9 +94,9 @@ namespace TA3D
         TA3DSock *tohost_socket;//administrative channel
         AdminThread admin_thread;
 
-        List<GetFileThread*> getfile_thread;
-        List<SendFileThread*> sendfile_thread;
-        List<FileTransferProgress> transfer_progress;
+        std::list<GetFileThread*> getfile_thread;
+        std::list<SendFileThread*> sendfile_thread;
+        std::list<FileTransferProgress> transfer_progress;
 
         BroadcastSock broadcast_socket;	// Used to discover LAN servers
         BroadCastThread broadcast_thread;
@@ -157,7 +158,7 @@ namespace TA3D
 
         void InitBroadcast( const char* port);
 
-        int listNetGames( List< SERVER_DATA> &list);
+        int listNetGames(std::list<SERVER_DATA> &list);
         int registerToNetServer( const String &name, const int Slots );
         String HttpRequest( const String &servername, const String &request );
 

@@ -43,6 +43,8 @@
 #include "logs/logs.h"
 #include "ingame/gamedata.h"
 #include "ingame/menus/mapselector.h"
+#include <vector>
+#include <list>
 
 
 
@@ -85,7 +87,7 @@ void config_menu(void)
     config_area.load_tdf("gui/config.area");
     if( !config_area.background )	config_area.background = gfx->glfond;
 
-    Vector< String > fps_limits;
+    std::vector< String > fps_limits;
     if( config_area.get_object("*.fps_limit") )
     {
         fps_limits = config_area.get_object("*.fps_limit")->Text;
@@ -145,7 +147,7 @@ void config_menu(void)
 
     config_area.set_state("*.showfps", lp_CONFIG->showfps);
     config_area.set_caption("*.fps_limit", fps_limits[fps_limits.size()-1]);
-    for (Vector<String>::const_iterator i = fps_limits.begin(); i != fps_limits.end(); ++i)
+    for (std::vector<String>::const_iterator i = fps_limits.begin(); i != fps_limits.end(); ++i)
     {
         if( format( "%d", (int)lp_CONFIG->fps_limit ) == *i )
             config_area.set_caption("*.fps_limit", *i);
@@ -235,10 +237,10 @@ void config_menu(void)
         obj->Text.resize( 1 );
         obj->Text[ 0 ] = TRANSLATE( "default.skn" );
 
-        List<String> skin_list;
+        std::list<String> skin_list;
         HPIManager->getFilelist("gui\\*.skn", skin_list);
 
-        for( List< String >::iterator i = skin_list.begin() ; i != skin_list.end() ; i++ )
+        for( std::list< String >::iterator i = skin_list.begin() ; i != skin_list.end() ; i++ )
         {
             obj->Text.push_back( i->substr( 4, i->size() - 4 ) );
             if( "gui/" + Lowercase( i->substr( 4, i->size() - 4 ) ) == Lowercase( lp_CONFIG->skin_name ) )
@@ -652,7 +654,7 @@ void setup_game(bool client, const char *host)
     byte	player_control[4] = { PLAYER_CONTROL_LOCAL_HUMAN, PLAYER_CONTROL_LOCAL_AI, PLAYER_CONTROL_NONE, PLAYER_CONTROL_CLOSED };
     String	ai_level_str[4] = { TRANSLATE("easy"), TRANSLATE("medium"), TRANSLATE("hard"), TRANSLATE("bloody") };
     uint16	side_str_n = ta3dSideData.nb_side;
-    Vector<String>	side_str;
+    std::vector<String>	side_str;
 
     side_str.resize( ta3dSideData.nb_side );
     for( int i = 0 ; i < ta3dSideData.nb_side ; i++ )			// Get side data
@@ -663,7 +665,7 @@ void setup_game(bool client, const char *host)
     if( HPIManager->Exists( lp_CONFIG->last_map ) )
         game_data.map_filename = strdup( lp_CONFIG->last_map.c_str() );
     else {
-        List<String> map_list;
+        std::list<String> map_list;
         uint32 n = HPIManager->getFilelist("maps\\*.tnt", map_list);
 
         if( n == 0 ) {
@@ -680,7 +682,7 @@ void setup_game(bool client, const char *host)
     if( HPIManager->Exists( lp_CONFIG->last_script ) && Lowercase( lp_CONFIG->last_script.substr( lp_CONFIG->last_script.length() - 3 , 3 ) ) == "lua" )
         game_data.game_script = strdup( lp_CONFIG->last_script.c_str() );
     else {
-        List<String> script_list;
+        std::list<String> script_list;
         uint32 n = HPIManager->getFilelist("scripts\\*.lua", script_list);
 
         if( n == 0 ) {
@@ -936,7 +938,7 @@ void setup_game(bool client, const char *host)
         while( !special_msg.empty() ) // Special receiver (sync config data)
         {
             int from = received_special_msg.from;
-            Vector<String> params;
+            std::vector<String> params;
             ReadVectorString(params, received_special_msg.message, " ");
             if( params.size() == 1 )
             {
@@ -1189,7 +1191,7 @@ void setup_game(bool client, const char *host)
 
         while( !broadcast_msg.empty() )	// Broadcast message receiver
         {
-            Vector<String> params;
+            std::vector<String> params;
             ReadVectorString(params, broadcast_msg, " ");
             if( params.size() == 3 && params[0] == "PING" && params[1] == "SERVER" )
             {
@@ -1583,7 +1585,7 @@ void network_room(void)				// Let players create/join a game
     int server_list_timer = msec_timer - SERVER_LIST_REFRESH_DELAY;
     int internet_server_list_timer = msec_timer - INTERNET_AD_COUNTDOWN;
 
-    List< SERVER_DATA >	servers;					// the server list
+    std::list< SERVER_DATA >	servers;					// the server list
 
     AREA networkgame_area("network game area");
     networkgame_area.load_tdf("gui/networkgame.area");
@@ -1619,7 +1621,7 @@ void network_room(void)				// Let players create/join a game
         if( network_manager.BroadcastedMessages() ) {
             String msg = network_manager.getNextBroadcastedMessage();
             while( !msg.empty() ) {
-                Vector<String> params;
+                std::vector<String> params;
                 ReadVectorString(params, msg, " ");
                 if( params.size() == 6 && params[0] == "PONG" && params[1] == "SERVER" ) // It looks like "PONG SERVER <name> <mod> <version> <nb open player slots>
                 {
@@ -1633,7 +1635,7 @@ void network_room(void)				// Let players create/join a game
                     if( version == TA3D_ENGINE_VERSION && mod == TA3D_CURRENT_MOD && nb_open != 0 )
                     {
                         bool updated = false;
-                        for( List< SERVER_DATA >::iterator server_i = servers.begin() ; server_i != servers.end() ; server_i++ )		// Update the list
+                        for( std::list< SERVER_DATA >::iterator server_i = servers.begin() ; server_i != servers.end() ; server_i++ )		// Update the list
                         {
                             if( server_i->name == name )
                             {
@@ -1661,7 +1663,7 @@ void network_room(void)				// Let players create/join a game
                 msg = network_manager.getNextBroadcastedMessage();
             }
 
-            for( List< SERVER_DATA >::iterator server_i = servers.begin() ; server_i != servers.end() ; )		// Remove those who timeout
+            for( std::list< SERVER_DATA >::iterator server_i = servers.begin() ; server_i != servers.end() ; )		// Remove those who timeout
                 if( !server_i->internet && msec_timer - server_i->timer >= 30000 )
                     servers.erase( server_i++ );
                 else
@@ -1671,12 +1673,12 @@ void network_room(void)				// Let players create/join a game
             if( obj )
             {
                 obj->Text.resize( servers.size() );
-                List<String> server_names;
-                for( List< SERVER_DATA >::iterator server_i = servers.begin() ; server_i != servers.end() ; server_i++ )		// Remove those who timeout
+                std::list<String> server_names;
+                for( std::list< SERVER_DATA >::iterator server_i = servers.begin() ; server_i != servers.end() ; server_i++ )		// Remove those who timeout
                     server_names.push_back( server_i->name );
                 server_names.sort();
                 int i = 0;
-                for( List< String >::iterator server_i = server_names.begin() ; server_i != server_names.end() ; server_i++, i++ )		// Remove those who timeout
+                for( std::list< String >::iterator server_i = server_names.begin() ; server_i != server_names.end() ; server_i++, i++ )		// Remove those who timeout
                     obj->Text[i] = *server_i;
                 if( obj->Text.size() == 0 )
                     obj->Text.push_back(TRANSLATE("No server found"));
@@ -1697,12 +1699,12 @@ void network_room(void)				// Let players create/join a game
             GUIOBJ *obj = networkgame_area.get_object("networkgame.server_list");
             if( obj ) {
                 obj->Text.resize( servers.size() );
-                List<String> server_names;
-                for( List< SERVER_DATA >::iterator server_i = servers.begin() ; server_i != servers.end() ; server_i++ )		// Remove those who timeout
+                std::list<String> server_names;
+                for( std::list< SERVER_DATA >::iterator server_i = servers.begin() ; server_i != servers.end() ; server_i++ )		// Remove those who timeout
                     server_names.push_back( server_i->name );
                 server_names.sort();
                 int i = 0;
-                for( List< String >::iterator server_i = server_names.begin() ; server_i != server_names.end() ; server_i++, i++ )		// Remove those who timeout
+                for( std::list< String >::iterator server_i = server_names.begin() ; server_i != server_names.end() ; server_i++, i++ )		// Remove those who timeout
                     obj->Text[i] = *server_i;
                 if( obj->Text.size() == 0 )
                     obj->Text.push_back(TRANSLATE("No server found"));
@@ -1710,7 +1712,7 @@ void network_room(void)				// Let players create/join a game
         }
 
         if( msec_timer - server_list_timer >= SERVER_LIST_REFRESH_DELAY || refresh_all ) {		// Refresh server list
-            for( List< SERVER_DATA >::iterator server_i = servers.begin() ; server_i != servers.end() ; )		// Remove those who timeout
+            for( std::list< SERVER_DATA >::iterator server_i = servers.begin() ; server_i != servers.end() ; )		// Remove those who timeout
                 if( !server_i->internet && msec_timer - server_i->timer >= 30000 )
                     servers.erase( server_i++ );
                 else
@@ -1719,12 +1721,12 @@ void network_room(void)				// Let players create/join a game
             GUIOBJ *obj = networkgame_area.get_object("networkgame.server_list");
             if( obj ) {
                 obj->Text.resize( servers.size() );
-                List<String> server_names;
-                for( List< SERVER_DATA >::iterator server_i = servers.begin() ; server_i != servers.end() ; server_i++ )		// Remove those who timeout
+                std::list<String> server_names;
+                for( std::list< SERVER_DATA >::iterator server_i = servers.begin() ; server_i != servers.end() ; server_i++ )		// Remove those who timeout
                     server_names.push_back( server_i->name );
                 server_names.sort();
                 int i = 0;
-                for( List< String >::iterator server_i = server_names.begin() ; server_i != server_names.end() ; server_i++, i++ )		// Remove those who timeout
+                for( std::list< String >::iterator server_i = server_names.begin() ; server_i != server_names.end() ; server_i++, i++ )		// Remove those who timeout
                     obj->Text[i] = *server_i;
                 if( obj->Text.size() == 0 )
                     obj->Text.push_back(TRANSLATE("No server found"));
@@ -1755,7 +1757,7 @@ void network_room(void)				// Let players create/join a game
             while( key[KEY_ENTER] )	{	rest( 20 );	poll_keyboard();	}
             clear_keybuf();
             done=true;		// If user click "OK" or hit enter then leave the window
-            List< SERVER_DATA >::iterator i_server = servers.begin();
+            std::list< SERVER_DATA >::iterator i_server = servers.begin();
             while( i_server != servers.end() && i_server->name != sel_index )	i_server++;
 
             if( i_server != servers.end() )		// Server not found !!
@@ -1777,7 +1779,7 @@ void network_room(void)				// Let players create/join a game
 
             if( sel_index != o_sel ) {			// Update displayed server info
                 o_sel = sel_index;
-                List< SERVER_DATA >::iterator i_server = servers.begin();
+                std::list< SERVER_DATA >::iterator i_server = servers.begin();
                 while( i_server != servers.end() && i_server->name != sel_index )	i_server++;
 
                 if( i_server != servers.end() ) {
@@ -2332,7 +2334,8 @@ void wait_room(void *p_game_data)
                         network_manager.dropPlayer( game_data->player_network_id[i] );
         }
 
-        if( playerDropped ) {
+        if( playerDropped )
+        {
             for( int i = 0 ; i < game_data->nb_players ; i++ )
                 if( game_data->player_network_id[i] > 0 && !network_manager.pollPlayer(game_data->player_network_id[i]) ) {		// A player is disconnected
                     dead_player[i] = true;
@@ -2342,13 +2345,16 @@ void wait_room(void *p_game_data)
                 }
         }
 
-        while( !special_msg.empty() ) {													// Special receiver (sync config data)
+        while( !special_msg.empty() ) 	// Special receiver (sync config data)
+        {
             int from = received_special_msg.from;
             int player_id = game_data->net2id( from );
-            Vector<String> params;
+            std::vector<String> params;
             ReadVectorString(params, received_special_msg.message, " ");
-            if( params.size() == 1 ) {
-                if( params[0] == "PONG" ) {
+            if( params.size() == 1 )
+            {
+                if( params[0] == "PONG" )
+                {
                     if( player_id >= 0 )
                         player_timer[player_id] = msec_timer;
                 }

@@ -25,6 +25,8 @@
 # define TA3D_XX_AI_H__
 
 # include "../threads/thread.h"
+# include <list>
+
 
 namespace TA3D
 {
@@ -138,7 +140,7 @@ namespace TA3D
         float			w;						// Weight given to this unit
         float			o_w;					// Remember w for possible changes
         byte			type;					// Builder, factory, army, defense, ...
-        List<uint16>	built_by;				// Who can build it
+        std::list<uint16> built_by;				// Who can build it
         float			army;
         float			defense;
         float			metal_p;
@@ -201,10 +203,10 @@ namespace TA3D
         uint16			nb_enemy[ 10 ];				// Hom many units has each enemy ?
         float			order_weight[NB_ORDERS];	// weights of orders
         float			order_attack[ 10 ];			// weights of attack order per enemy player
-        List<uint16>	builder_list;
-        List<uint16>	factory_list;
-        List<uint16>	army_list;
-        Vector< List<WEIGHT_COEF> >	enemy_list;
+        std::list<uint16>	builder_list;
+        std::list<uint16>	factory_list;
+        std::list<uint16>	army_list;
+        std::vector< std::list<WEIGHT_COEF> > enemy_list;
 
     private:
         void (*fp_scan_unit)( AI_PLAYER* );

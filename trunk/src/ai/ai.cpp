@@ -383,7 +383,7 @@ namespace TA3D
                     ai->nb_units[ AI_UNIT_TYPE_ENEMY ]++;
                     ai->nb_enemy[ units.unit[ i ].owner_id ]++;
                     bool found = false;
-                    for( List<WEIGHT_COEF>::iterator e = ai->enemy_list[ units.unit[ i ].owner_id ].begin() ; e != ai->enemy_list[ units.unit[ i ].owner_id ].end() ; ++e)
+                    for(std::list<WEIGHT_COEF>::iterator e = ai->enemy_list[ units.unit[ i ].owner_id ].begin() ; e != ai->enemy_list[ units.unit[ i ].owner_id ].end() ; ++e)
                     {
                         if (e->idx == i )
                         {
@@ -499,7 +499,7 @@ namespace TA3D
 
         float sw[ 10000 ];			// Used to compute the units that are built
 
-        for (List<uint16>::iterator i = ai->army_list.begin() ; i != ai->army_list.end() ; ++i ) // Give instructions to idle army units
+        for (std::list<uint16>::iterator i = ai->army_list.begin() ; i != ai->army_list.end() ; ++i ) // Give instructions to idle army units
         {
             units.unit[ *i ].lock();
             if ((units.unit[ *i ].flags & 1) && units.unit[ *i ].do_nothing_ai() )
@@ -544,7 +544,7 @@ namespace TA3D
             units.unit[ *i ].unlock();
         }
 
-        for( List<uint16>::iterator i = ai->factory_list.begin() ; i != ai->factory_list.end() ; ++i )	// Give instructions to idle factories
+        for( std::list<uint16>::iterator i = ai->factory_list.begin() ; i != ai->factory_list.end() ; ++i )	// Give instructions to idle factories
         {
             units.unit[ *i ].lock();
             if ((units.unit[ *i ].flags & 1) && units.unit[ *i ].do_nothing_ai() && unit_manager.unit_type[ units.unit[ *i ].type_id ].nb_unit > 0 ) {
@@ -572,7 +572,7 @@ namespace TA3D
         }
 
         // Give instructions to idle builders
-        for( List<uint16>::iterator i = ai->builder_list.begin() ; i != ai->builder_list.end() ; ++i )
+        for( std::list<uint16>::iterator i = ai->builder_list.begin() ; i != ai->builder_list.end() ; ++i )
         {
             units.unit[ *i ].lock();
             if ((units.unit[ *i ].flags & 1) && units.unit[ *i ].do_nothing_ai() && unit_manager.unit_type[ units.unit[ *i ].type_id ].nb_unit > 0 )
@@ -682,7 +682,7 @@ namespace TA3D
                             ai->weights[i].built_by.push_back(e);
                     }
                 }
-                for( List<uint16>::iterator e = ai->weights[ i ].built_by.begin() ; e != ai->weights[ i ].built_by.end() ; e++ )
+                for( std::list<uint16>::iterator e = ai->weights[ i ].built_by.begin() ; e != ai->weights[ i ].built_by.end() ; e++ )
                 {
                     if (ai->weights[ *e ].type & AI_UNIT_TYPE_FACTORY )
                         factory_needed += ai->weights[ i ].w;

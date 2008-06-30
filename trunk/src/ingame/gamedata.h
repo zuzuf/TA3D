@@ -2,7 +2,7 @@
 # define __TA3D_INGAME_GAMEDATA_H__
 
 # include "../stdafx.h"
-
+# include <vector>
 
 # define FOW_DISABLED  0x0
 # define FOW_GREY      0x1
@@ -46,25 +46,25 @@ namespace TA3D
         int	 nb_players;
 
         //! Name of players
-        Vector<String> player_names;
+        std::vector<String> player_names;
         //! Side of players
-        Vector<String> player_sides;
+        std::vector<String> player_sides;
 
         //! Who control them
-        Vector<byte> player_control;
+        std::vector<byte> player_control;
         
         //! Network ID of players
-        Vector<int> player_network_id;
+        std::vector<int> player_network_id;
         //! What's their level (for AI)
-        Vector<byte> ai_level;
+        std::vector<byte> ai_level;
 
         //! How much energy do they have when game starts
-        Vector<uint32> energy; 
+        std::vector<uint32> energy; 
         //! Idem with metal
-        Vector<uint32> metal;
+        std::vector<uint32> metal;
 
         //! Who is ready ?
-        Vector<byte> ready;
+        std::vector<byte> ready;
         //! Which script to run
         char* game_script;
         //! flags to configure FOW

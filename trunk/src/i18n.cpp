@@ -67,8 +67,8 @@ String I18N_TRANSLATER::translate( const String &str )		// Translate str if poss
 	return PullAsString( Lowercase( str ) + language, str );
 }
 
-void I18N_TRANSLATER::translate( Vector< String > &vec )						// Translate vec if possible, otherwise leave it as is
+void I18N_TRANSLATER::translate( std::vector< String > &vec )						// Translate vec if possible, otherwise leave it as is
 {
-    for (Vector<String>::iterator i = vec.begin(); i != vec.end(); ++i)
+    for (std::vector<String>::iterator i = vec.begin(); i != vec.end(); ++i)
 		*i = translate(*i);
 }

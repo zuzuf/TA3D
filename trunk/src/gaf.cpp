@@ -32,10 +32,13 @@
 #include "TA3D_NameSpace.h"
 #include "ta3dbase.h"
 #include "gaf.h"
+#include <vector>
 
-Vector< GLuint > read_gaf_imgs( const String &filename, const String &imgname, int *w, int *h,bool truecol)		// Read a gaf image and put it in an OpenGL texture
+
+
+std::vector< GLuint > read_gaf_imgs( const String &filename, const String &imgname, int *w, int *h,bool truecol)		// Read a gaf image and put it in an OpenGL texture
 {
-	Vector< GLuint >	textures;
+	std::vector< GLuint >	textures;
 	textures.clear();
 
 	byte *data = HPIManager->PullFromHPI( filename );

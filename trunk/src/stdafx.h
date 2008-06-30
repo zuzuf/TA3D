@@ -33,14 +33,12 @@
 # include "../config.h"
 # include <cstdio>
 # include <cstdlib>
-# include <map>
-# include <list>
-# include <vector>
 # include <algorithm>
 # include <string>
 # include <sstream>
 # include <iostream>
 # include <fstream>
+# include <vector>
 
 
 
@@ -145,8 +143,6 @@
 //   string and wstring typedefs to make life easier.
 typedef std::string		String;
 typedef std::wstring	WString;
-#define List			std::list
-#define Vector			std::vector
 
 // Cire:
 //   Since byte seems to be common throughout the project we'll typedef here.
@@ -246,7 +242,7 @@ namespace TA3D
 	
     uint32 hash_string(const String& s);
 	
-    int find(const Vector<String>& v, const String& s);
+    int find(const std::vector<String>& v, const String& s);
     
     //} String manipulations
 

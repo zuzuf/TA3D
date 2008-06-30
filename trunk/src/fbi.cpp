@@ -36,6 +36,8 @@
 //#include "fbi.h"
 #include "EngineClass.h"
 #include "UnitEngine.h"
+#include <vector>
+#include <list>
 
 UNIT_MANAGER unit_manager;
 
@@ -381,9 +383,9 @@ int UNIT_TYPE::load(char *data,int size)
             if( Category )		delete Category;
             if( categories )	delete categories;
             Category = new cHashTable< int >(128);
-            categories = new Vector<String>;
+            categories = new std::vector<String>;
             ReadVectorString(*categories, f + 9, " " );
-            for(Vector<String>::const_iterator i = categories->begin(); i != categories->end(); ++i)
+            for(std::vector<String>::const_iterator i = categories->begin(); i != categories->end(); ++i)
                 Category->InsertOrUpdate(Lowercase(*i), 1);
             fastCategory = 0;
             if( checkCategory( "kamikaze" ) )	fastCategory |= CATEGORY_KAMIKAZE;
@@ -735,7 +737,7 @@ void UNIT_MANAGER::destroy()
     h_dl_data.EmptyHashTable();
     h_dl_data.InitTable( __DEFAULT_HASH_TABLE_SIZE );
 
-    for( List< DL_DATA* >::iterator i = l_dl_data.begin() ; i != l_dl_data.end() ; i++ )
+    for( std::list< DL_DATA* >::iterator i = l_dl_data.begin() ; i != l_dl_data.end() ; i++ )
         delete	*i;
 
     l_dl_data.clear();
@@ -773,9 +775,9 @@ void UNIT_MANAGER::load_panel_texture( const String &player_side, const String &
     int w,h;
     GLuint panel_tex = read_gaf_img( "anims\\" + player_side + "main.gaf", gaf_img, &w, &h, true );
     if( panel_tex == 0 ) {
-        List< String >	file_list;
+        std::list< String >	file_list;
         HPIManager->getFilelist( "anims\\*.gaf", file_list);
-        for( List< String >::iterator i = file_list.begin() ; i != file_list.end() && panel_tex == 0 ; i++ )
+        for( std::list< String >::iterator i = file_list.begin() ; i != file_list.end() && panel_tex == 0 ; i++ )
             panel_tex = read_gaf_img( *i, gaf_img, &w, &h, true );
     }
     panel.set( panel_tex );
@@ -914,12 +916,12 @@ int load_all_units(void (*progress)(float percent,const String &msg))
 {
     unit_manager.init();
     int nb_inconnu=0;
-    List<String> file_list;
+    std::list<String> file_list;
     HPIManager->getFilelist( ta3dSideData.unit_dir + "*" + ta3dSideData.unit_ext, file_list);
 
     int n = 0;
 
-    for(List<String>::iterator i=file_list.begin();i!=file_list.end();i++) {
+    for(std::list<String>::iterator i=file_list.begin();i!=file_list.end();i++) {
 
         if(progress!=NULL && !(n & 0xF))
             progress((300.0f+n*50.0f/(file_list.size()+1))/7.0f,TRANSLATE("Loading units"));

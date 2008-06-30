@@ -44,6 +44,7 @@
 # include "i18n.h"
 # include "network/network.h"
 # include "threads/thread.h"
+# include <vector>
 
 # define ZOOM_NORMAL       0x0
 # define ZOOM_FIXED_ANGLE  0x1
@@ -284,7 +285,7 @@ namespace TA3D
     ** \param emptyBefore rue to clear the vector before fulfill it
     ** \warning Do not take care of string representation (with `'` or `"`)
     */
-	void ReadVectorString(Vector<String>& lst, String s, const String& seps = ",",
+	void ReadVectorString(std::vector<String>& lst, String s, const String& seps = ",",
                           const bool emptyBefore = true);
 
 

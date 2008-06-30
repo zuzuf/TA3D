@@ -29,6 +29,8 @@
 # include "misc/hash_table.h"
 # include "ta3dbase.h"
 # include "gaf.h"
+# include <vector>
+# include <list>
 
 		//	Classe pour la gestion des textures du jeu
 class TEXTURE_MANAGER
@@ -115,9 +117,9 @@ public:
 			tex[i].bmp[0]=create_bitmap_ex(32,16,16);
 			clear_to_color(tex[i].bmp[0],makeacol(pal[i].r<<2,pal[i].g<<2,pal[i].b<<2, 0xFF ));
 			}
-		List<String> file_list;
+        std::list<String> file_list;
 		HPIManager->getFilelist("textures\\*.gaf", file_list);
-		for(List<String>::iterator cur_file=file_list.begin();cur_file!=file_list.end();cur_file++)
+		for(std::list<String>::iterator cur_file=file_list.begin();cur_file!=file_list.end();cur_file++)
         {
             byte *data=HPIManager->PullFromHPI(cur_file->c_str());
             load_gaf(data);
@@ -1098,7 +1100,7 @@ public:
 class RENDER_QUEUE
 {
 public:
-    List< INSTANCE >	queue;
+    std::list<INSTANCE>	queue;
     uint32				model_id;
 
     RENDER_QUEUE( uint32 m_id ) : queue()	{ model_id = m_id; }
@@ -1114,7 +1116,7 @@ public:
 class DRAWING_TABLE							// Kind of hash table used to speed up rendering of instances of a mesh
 {
 private:
-    Vector< List< RENDER_QUEUE* > >		hash_table;
+    std::vector< std::list< RENDER_QUEUE* > >		hash_table;
 
 public:
 
@@ -1139,7 +1141,7 @@ public:
 class QUAD_QUEUE
 {
 public:
-    List< QUAD >	queue;
+    std::list< QUAD >	queue;
     GLuint			texture_id;
 
     QUAD_QUEUE( GLuint t_id ) : queue()	{ texture_id = t_id; }
@@ -1152,7 +1154,7 @@ public:
 class QUAD_TABLE							// Kind of hash table used to speed up rendering of separated quads
 {
 private:
-    Vector< List< QUAD_QUEUE* > >		hash_table;
+    std::vector< std::list< QUAD_QUEUE* > >		hash_table;
 
 public:
 

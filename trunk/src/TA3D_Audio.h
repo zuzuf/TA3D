@@ -23,6 +23,8 @@
 # include "cTAFileParser.h"
 # include "misc/interface.h"
 # include "threads/thread.h"
+# include <list>
+# include <vector>
 
 # undef stricmp  // TODO Must be removed
 
@@ -175,7 +177,7 @@ namespace Interfaces
     private:
         TA3D::UTILS::clpHashTable< m_SoundListItem * >		*m_SoundList;
         sint32												fCounter;
-        List< m_WorkListItem >								WorkList;			// List to store work to do when entering main thread
+        std::list<m_WorkListItem> WorkList;			// List to store work to do when entering main thread
 
 #ifdef TA3D_PLATFORM_MINGW
         FMOD_SOUND						*basic_sound;

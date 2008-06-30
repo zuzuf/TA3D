@@ -37,6 +37,7 @@
 #include "UnitEngine.h"
 #include "gfx/fx.h"
 #include "misc/lzw.h"					// Support for LZW compression
+#include <list>
 
 byte player_color_map[10] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
 
@@ -1822,14 +1823,14 @@ namespace TA3D
 
     SKY_DATA* choose_a_sky( const String& mapname, const String& planet)
     {
-        List<SKY_DATA*> sky_list;
+        std::list<SKY_DATA*> sky_list;
         sky_list.clear();
 
-        List<String> file_list;
+        std::list<String> file_list;
         HPIManager->getFilelist( "sky\\*.tdf",  file_list);
         uint32	nb_sky = 0;
 
-        for (List<String>::const_iterator it = file_list.begin(); it != file_list.end(); ++it)
+        for (std::list<String>::const_iterator it = file_list.begin(); it != file_list.end(); ++it)
         {
             SKY_DATA *sky_data = new SKY_DATA;
             sky_data->load_tdf(*it);
@@ -1858,7 +1859,7 @@ namespace TA3D
         }
 
         if( nb_sky == 0 )			// Look for a default sky
-            for (List<String>::const_iterator it = file_list.begin(); it != file_list.end(); ++it)
+            for (std::list<String>::const_iterator it = file_list.begin(); it != file_list.end(); ++it)
             {
                 SKY_DATA *sky_data = new SKY_DATA;
                 sky_data->load_tdf(*it);
@@ -1878,7 +1879,7 @@ namespace TA3D
         if( nb_sky > 0 )
         {
             int select = TA3D_RAND() % nb_sky;
-            for (List<SKY_DATA*>::iterator it = sky_list.begin() ; it != sky_list.end(); ++it, --select)
+            for (std::list<SKY_DATA*>::iterator it = sky_list.begin() ; it != sky_list.end(); ++it, --select)
                 if( select == 0 )
                 {
                     selected_sky = *it;
@@ -1887,7 +1888,7 @@ namespace TA3D
                 }
         }
 
-        for (List<SKY_DATA*>::iterator it = sky_list.begin() ; it != sky_list.end(); ++it)
+        for (std::list<SKY_DATA*>::iterator it = sky_list.begin() ; it != sky_list.end(); ++it)
         {
             if( *it != NULL )
                 delete *it;

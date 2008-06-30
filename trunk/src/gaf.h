@@ -29,7 +29,8 @@
 #define GAF_STANDARD	0x00010100
 #define GAF_TRUECOLOR	0x00010101
 
-#include "stdafx.h"
+# include "stdafx.h"
+# include <vector>
 
 
 struct GAFHEADER
@@ -79,7 +80,7 @@ BITMAP *read_gaf_img(byte *buf,int entry_idx,int img_idx,short *ofs_x=NULL,short
 
 GLuint	read_gaf_img( const String &filename, const String &imgname, int *w=NULL, int *h=NULL,bool truecol=true);		// Read a gaf image and put it in an OpenGL texture
 
-Vector< GLuint >	read_gaf_imgs( const String &filename, const String &imgname, int *w=NULL, int *h=NULL,bool truecol=true);		// Read a gaf image and put it in an OpenGL texture
+std::vector< GLuint >	read_gaf_imgs( const String &filename, const String &imgname, int *w=NULL, int *h=NULL,bool truecol=true);		// Read a gaf image and put it in an OpenGL texture
 
 class ANIM			// Pour la lecture des fichiers GAF animés
 {

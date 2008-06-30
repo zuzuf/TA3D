@@ -23,6 +23,7 @@
 #include "../scripts/script.h"
 #include "../misc/camera.h"
 #include "../ingame/sidedata.h"
+#include <vector>
 
 
 #define CHAT_MESSAGE_TIMEOUT	10000
@@ -50,7 +51,7 @@ namespace TA3D
 
     TA3DNetwork::~TA3DNetwork()
     {
-        for (List<NetworkMessage>::iterator i = messages.begin(); i != messages.end(); ++i)
+        for (std::list<NetworkMessage>::iterator i = messages.begin(); i != messages.end(); ++i)
             i->text.clear();
         messages.clear();
     }
@@ -126,7 +127,7 @@ namespace TA3D
         }
 
         pMutex.lock();
-        for (List<NetworkMessage>::iterator i = messages.begin(); i != messages.end(); )
+        for (std::list<NetworkMessage>::iterator i = messages.begin(); i != messages.end(); )
         {
             if( msec_timer - i->timer >= CHAT_MESSAGE_TIMEOUT )
                 messages.erase(i++);
@@ -148,7 +149,7 @@ namespace TA3D
 
             int player_id = game_data->net2id( received_special_msg.from );
 
-            Vector<String> params;
+            std::vector<String> params;
             ReadVectorString(params, special_msg, " " );
             if( params.size() == 3 )
             {
@@ -534,7 +535,7 @@ namespace TA3D
         if( !messages.empty() )
         {
             float Y = SCREEN_H * 0.5f;
-            for (List<NetworkMessage>::const_iterator i = messages.begin(); i != messages.end(); ++i)
+            for (std::list<NetworkMessage>::const_iterator i = messages.begin(); i != messages.end(); ++i)
             {
                 int color = 0xFFFFFFFF;
                 if( (int)(msec_timer - i->timer) - CHAT_MESSAGE_TIMEOUT + 1000 >= 0 )

@@ -66,12 +66,12 @@ namespace TA3D
         broadcast_thread.join();
         udp_thread.join();
 
-        for( List< GetFileThread* >::iterator i = getfile_thread.begin() ; i != getfile_thread.end() ; i++ )
+        for(std::list< GetFileThread* >::iterator i = getfile_thread.begin() ; i != getfile_thread.end() ; ++i)
         {
             (*i)->join();
             delete *i;
         }
-        for( List< SendFileThread* >::iterator i = sendfile_thread.begin() ; i != sendfile_thread.end() ; i++ )
+        for(std::list< SendFileThread* >::iterator i = sendfile_thread.begin() ; i != sendfile_thread.end() ; ++i)
         {
             (*i)->join();
             delete *i;
@@ -221,11 +221,13 @@ namespace TA3D
 
         ftmutex.lock();
 
-        for( List< GetFileThread* >::iterator i = getfile_thread.begin() ; i != getfile_thread.end() ; i++ ) {
+        for (std::list< GetFileThread* >::iterator i = getfile_thread.begin() ; i != getfile_thread.end() ; ++i)
+        {
             (*i)->join();
             delete *i;
         }
-        for( List< SendFileThread* >::iterator i = sendfile_thread.begin() ; i != sendfile_thread.end() ; i++ ) {
+        for (std::list< SendFileThread* >::iterator i = sendfile_thread.begin() ; i != sendfile_thread.end() ; ++i)
+        {
             (*i)->join();
             delete *i;
         }
@@ -261,11 +263,13 @@ namespace TA3D
         ftmutex.lock();
 
         if( port.empty() ) {
-            for( List< GetFileThread* >::iterator i = getfile_thread.begin() ; i != getfile_thread.end() ; i++ ) {
+            for (std::list< GetFileThread* >::iterator i = getfile_thread.begin() ; i != getfile_thread.end() ; ++i)
+            {
                 (*i)->join();
                 delete *i;
             }
-            for( List< SendFileThread* >::iterator i = sendfile_thread.begin() ; i != sendfile_thread.end() ; i++ ) {
+            for (std::list< SendFileThread* >::iterator i = sendfile_thread.begin() ; i != sendfile_thread.end() ; ++i)
+            {
                 (*i)->join();
                 delete *i;
             }
@@ -275,7 +279,8 @@ namespace TA3D
         }
         else {
             int nb_port = atoi( port.c_str() );
-            for( List< GetFileThread* >::iterator i = getfile_thread.begin() ; i != getfile_thread.end() ; )
+            for (std::list< GetFileThread* >::iterator i = getfile_thread.begin() ; i != getfile_thread.end() ; )
+            {
                 if( (*i)->port == nb_port ) {
                     GetFileThread *p = *i;
                     getfile_thread.erase( i++ );
@@ -288,8 +293,10 @@ namespace TA3D
                     break;
                 }
                 else
-                    i++;
-            for( List< SendFileThread* >::iterator i = sendfile_thread.begin() ; i != sendfile_thread.end() ; )
+                    ++i;
+            }
+            for (std::list< SendFileThread* >::iterator i = sendfile_thread.begin() ; i != sendfile_thread.end() ; )
+            {
                 if( (*i)->port == nb_port && (to_id == -1 || to_id == (*i)->player_id ) ) {
                     SendFileThread *p = *i;
                     sendfile_thread.erase( i++ );
@@ -302,7 +309,8 @@ namespace TA3D
                     break;
                 }
                 else
-                    i++;
+                    ++i;
+            }
         }
 
         setFileDirty();
@@ -313,10 +321,10 @@ namespace TA3D
     bool Network::isTransferFinished( const String &port )
     {
         int nb_port = atoi( port.c_str() );
-        for( List< GetFileThread* >::iterator i = getfile_thread.begin() ; i != getfile_thread.end() ; i++ )
+        for (std::list< GetFileThread* >::iterator i = getfile_thread.begin() ; i != getfile_thread.end() ; i++ )
             if( (*i)->port == nb_port )
                 return false;
-        for( List< SendFileThread* >::iterator i = sendfile_thread.begin() ; i != sendfile_thread.end() ; i++ )
+        for (std::list< SendFileThread* >::iterator i = sendfile_thread.begin() ; i != sendfile_thread.end() ; i++ )
             if( (*i)->port == nb_port )
                 return false;
         return true;
@@ -404,9 +412,9 @@ namespace TA3D
     {
         if( !fileDirty )	return;
         ftmutex.lock();
-        for( List< GetFileThread* >::iterator i = getfile_thread.begin() ; i != getfile_thread.end() ; ) {
+        for (std::list< GetFileThread* >::iterator i = getfile_thread.begin() ; i != getfile_thread.end() ; ) {
             if( (*i)->isDead() ) {
-                for( List< FileTransferProgress >::iterator e = transfer_progress.begin() ; e != transfer_progress.end() ; )
+                for (std::list< FileTransferProgress >::iterator e = transfer_progress.begin() ; e != transfer_progress.end() ; )
                     if( e->size == 0 )
                         transfer_progress.erase( e++ );
                     else
@@ -419,11 +427,11 @@ namespace TA3D
             else
                 i++;
         }
-        for( List< SendFileThread* >::iterator i = sendfile_thread.begin() ; i != sendfile_thread.end() ; )
+        for (std::list< SendFileThread* >::iterator i = sendfile_thread.begin() ; i != sendfile_thread.end() ; )
         {
             if( (*i)->isDead() )
             {
-                for( List< FileTransferProgress >::iterator e = transfer_progress.begin() ; e != transfer_progress.end() ; )
+                for (std::list< FileTransferProgress >::iterator e = transfer_progress.begin() ; e != transfer_progress.end() ; )
                 {
                     if( e->size == 0 )
                         transfer_progress.erase( e++ );
@@ -469,7 +477,7 @@ namespace TA3D
                             rest(1);
                             if( getNextSpecial( &special_msg ) == 0 )
                             {
-                                Vector<String> params;
+                                std::vector<String> params;
                                 ReadVectorString(params, special_msg.message, " " );
                                 if( params.size() == 3 && params[0] == "RESPONSE" && params[1] == "PLAYER_ID" )
                                 {
@@ -755,7 +763,7 @@ namespace TA3D
         ftmutex.lock();
 
         int port = 7776;						// Take the next port not in use
-        for( List< GetFileThread* >::iterator i = getfile_thread.begin() ; i != getfile_thread.end() ; i++ )
+        for (std::list< GetFileThread* >::iterator i = getfile_thread.begin() ; i != getfile_thread.end() ; i++ )
             port = max( (*i)->port, port ) ;
         port++;
 
@@ -871,14 +879,16 @@ namespace TA3D
     float Network::getFileTransferProgress()
     {
         ftmutex.lock();
-        if( transfer_progress.empty() ) {
+        if( transfer_progress.empty() )
+        {
             ftmutex.unlock();
             return 100.0f;
         }
 
         int pos = 0;
         int size = 0;
-        for( List< FileTransferProgress >::iterator i = transfer_progress.begin() ; i != transfer_progress.end() ; i++ ) {
+        for (std::list< FileTransferProgress >::iterator i = transfer_progress.begin() ; i != transfer_progress.end() ; ++i)
+        {
             pos += i->pos;
             size += i->size;
         }
@@ -890,7 +900,7 @@ namespace TA3D
     void Network::updateFileTransferInformation( String id, int size, int pos )
     {
         ftmutex.lock();
-        for( List< FileTransferProgress >::iterator i = transfer_progress.begin() ; i != transfer_progress.end() ; i++ )
+        for (std::list< FileTransferProgress >::iterator i = transfer_progress.begin() ; i != transfer_progress.end() ; ++i)
         {
             if( i->id == id )
             {
@@ -912,100 +922,104 @@ namespace TA3D
     String Network::HttpRequest( const String &servername, const String &request )
     {
         NLsocket    sock;
-            NLaddress   addr;
-            NLbyte      buffer[4096];
-            String      f;
-            NLint       count;
-            NLint       crfound = 0;
-            NLint       lffound = 0;
-            
-            nlGetAddrFromName( servername.c_str(), &addr);
-            
-            /* use the standard HTTP port */
-            nlSetAddrPort(&addr, 80);
-            
-            /* open the socket and connect to the server */
-            sock = nlOpen(0, NL_RELIABLE);
-            if(sock == NL_INVALID) {
-                Console->AddEntry("Network::HttpRequest : error : could not open socket!");
-                return "";
-            }
+        NLaddress   addr;
+        NLbyte      buffer[4096];
+        String      f;
+        NLint       count;
+        NLint       crfound = 0;
+        NLint       lffound = 0;
+
+        nlGetAddrFromName( servername.c_str(), &addr);
+
+        /* use the standard HTTP port */
+        nlSetAddrPort(&addr, 80);
+
+        /* open the socket and connect to the server */
+        sock = nlOpen(0, NL_RELIABLE);
+        if(sock == NL_INVALID)
+        {
+            Console->AddEntry("Network::HttpRequest : error : could not open socket!");
+            return "";
+        }
         if(nlConnect(sock, &addr) == NL_FALSE)
         {
             nlClose( sock );
-                Console->AddEntry("Network::HttpRequest : error : could not connect to server!");
+            Console->AddEntry("Network::HttpRequest : error : could not connect to server!");
             return "";
         }
-        
-            f.clear();
-            
-            sprintf(buffer, "GET %s HTTP/1.0\r\nHost:%s\nAccept: */*\r\nUser-Agent: TA3D\r\n\r\n"
-                    , request.c_str(), servername.c_str() );
-            while(nlWrite(sock, (NLvoid *)buffer, (NLint)strlen(buffer)) < 0)
+
+        f.clear();
+
+        sprintf(buffer, "GET %s HTTP/1.0\r\nHost:%s\nAccept: */*\r\nUser-Agent: TA3D\r\n\r\n"
+                , request.c_str(), servername.c_str() );
+        while(nlWrite(sock, (NLvoid *)buffer, (NLint)strlen(buffer)) < 0)
+        {
+            if(nlGetError() == NL_CON_PENDING)
             {
-                if(nlGetError() == NL_CON_PENDING)
-                {
-                    nlThreadYield();
-                        continue;
-                }
-                Console->AddEntry("Network::HttpRequest : error : could not send request to server!");
-                nlClose( sock );
+                nlThreadYield();
+                continue;
+            }
+            Console->AddEntry("Network::HttpRequest : error : could not send request to server!");
+            nlClose( sock );
+            return "";
+        }
+
+        while(true)
+        {
+            count = nlRead(sock, (NLvoid *)buffer, (NLint)sizeof(buffer) - 1);
+            if(count < 0)
+            {
+                NLint err = nlGetError();
+
+                /* is the connection closed? */
+                if(err == NL_MESSAGE_END)
+                    break;
+                else {
+                    nlClose( sock );
                     return "";
-            }
-        
-            while(true) {
-                count = nlRead(sock, (NLvoid *)buffer, (NLint)sizeof(buffer) - 1);
-                    if(count < 0) {
-                        NLint err = nlGetError();
-                            
-                            /* is the connection closed? */
-                            if(err == NL_MESSAGE_END)
-                                break;
-                            else {
-                                nlClose( sock );
-                                    return "";
-                            }
-                    }
-                if(count > 0) {
-                    /* parse out the HTTP header */
-                        if(lffound < 2) {
-                            int i;
-                                
-                                for( i = 0 ; i < count ; i++ ) {
-                                    if(buffer[i] == 0x0D)
-                                        crfound++;
-                                    else {
-                                        if(buffer[i] == 0x0A)
-                                            lffound++;
-                                        else
-                                            /* reset the CR and LF counters back to 0 */
-                                                crfound = lffound = 0;
-                                    }
-                                    if(lffound == 2) {
-                                        /* i points to the second LF */
-                                            /* NUL terminate the string and put it in the buffer string */
-                                            buffer[count] = 0x0;
-                                        f += buffer+i+1;
-                                            break;
-                                    }
-                                }
-                        }
-                        else {
-                            buffer[ count ] = 0x0;
-                            f += buffer;
-                        }
                 }
             }
+            if(count > 0)
+            {
+                /* parse out the HTTP header */
+                if(lffound < 2) {
+                    int i;
+
+                    for( i = 0 ; i < count ; i++ ) {
+                        if(buffer[i] == 0x0D)
+                            crfound++;
+                        else {
+                            if(buffer[i] == 0x0A)
+                                lffound++;
+                            else
+                                /* reset the CR and LF counters back to 0 */
+                                crfound = lffound = 0;
+                        }
+                        if(lffound == 2) {
+                            /* i points to the second LF */
+                            /* NUL terminate the string and put it in the buffer string */
+                            buffer[count] = 0x0;
+                            f += buffer+i+1;
+                            break;
+                        }
+                    }
+                }
+                else {
+                    buffer[ count ] = 0x0;
+                    f += buffer;
+                }
+            }
+        }
         nlClose( sock );
-            return f;
+        return f;
     }
 
-    int Network::listNetGames(List< SERVER_DATA > &list)
+    int Network::listNetGames(std::list<SERVER_DATA>& list)
     {
         String gamelist = HttpRequest( lp_CONFIG->net_server, "/getserverlist.php" );
 
         // Remove internet servers to get a clean list
-        for (List<SERVER_DATA>::iterator i = list.begin(); i != list.end(); )
+        for (std::list<SERVER_DATA>::iterator i = list.begin(); i != list.end(); )
         {
             if (i->internet)
                 list.erase(i++);
@@ -1016,7 +1030,7 @@ namespace TA3D
         if( gamelist.empty() )
             return 0;
 
-        Vector<String> line;
+        std::vector<String> line;
         ReadVectorString(line, gamelist, "\n");
 
         int nb_servers = 0;
@@ -1025,9 +1039,9 @@ namespace TA3D
         cur_server.internet = true;
         String server_version = "";
         String server_mod = "";
-        for (Vector<String>::const_iterator entry = line.begin(); entry != line.end(); ++entry)
+        for (std::vector<String>::const_iterator entry = line.begin(); entry != line.end(); ++entry)
         {
-            Vector<String> params;
+            std::vector<String> params;
             ReadVectorString(params, *entry, " " );
             if( params.size() < 2 )	continue;
             if( params.size() == 2 && params[1] == "servers" )
@@ -1055,7 +1069,8 @@ namespace TA3D
                 server_mod = "";
                 for( int i = 2 ; i < params.size() ; i++ ) server_mod += i > 2 ? " " + params[i] : params[i];
             }
-            else if( params[1] == "version:" ) {
+            else if( params[1] == "version:" )
+            {
                 server_version = "";
                 for( int i = 2 ; i < params.size() ; i++ ) server_version += i > 2 ? " " + params[i] : params[i];
             }

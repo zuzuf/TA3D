@@ -46,7 +46,7 @@ void cAudio::SetPlayListFileMode( int idx, bool Battle, bool Deactivated )
 
 std::vector< std::string >	cAudio::GetPlayListFiles()
 {
-	Vector< String > file_list;
+	std::vector< String > file_list;
 	file_list.resize( m_Playlist.size() );
 	for( int i = 0 ; i < m_Playlist.size() ; i++ )
 		if( m_Playlist[ i ]->m_BattleTune )
@@ -650,7 +650,8 @@ void cAudio::Update3DSound( void )
 
 	FMOD_System_Update( m_lpFMODSystem );
 
-	for( List< m_WorkListItem >::iterator i = WorkList.begin() ; i != WorkList.end() ; i++ ) {
+	for (std::list< m_WorkListItem >::iterator i = WorkList.begin() ; i != WorkList.end(); ++i)
+    {
 		FMOD_CHANNEL *ch;
 		if( FMOD_System_PlaySound( m_lpFMODSystem, FMOD_CHANNEL_FREE,
 		    i->m_Sound->m_SampleHandle, true, &ch ) != FMOD_OK )
@@ -671,7 +672,8 @@ void cAudio::Update3DSound( void )
 
 	m_lpFMODSystem->update();
 
-	for( List< m_WorkListItem >::iterator i = WorkList.begin() ; i != WorkList.end() ; i++ ) {
+	for (std::list< m_WorkListItem >::iterator i = WorkList.begin() ; i != WorkList.end() ; ++i)
+    {
 		FMOD::Channel *ch;
 		if( m_lpFMODSystem->playSound( FMOD_CHANNEL_FREE,
 		    i->m_Sound->m_SampleHandle, true, &ch ) != FMOD_OK )
