@@ -54,7 +54,7 @@ namespace Menus
     void Abstract::doGuardFinalize()
     {
         GuardEnter(pTypeName + ".doFinalize()");
-        if (pArea->background == gfx->glfond)
+        if (pArea.get() && pArea->background == gfx->glfond)
             pArea->background = 0;
         doFinalize();
         reset_keyboard();
@@ -107,6 +107,18 @@ namespace Menus
         draw_cursor();
         gfx->flip();
     }
+
+
+    void Abstract::ResetTexture(GLuint& textVar, const GLuint newValue)
+    {
+        if (textVar)
+        {
+            // ensure the texture for the mini map is destroyed
+            gfx->destroy_texture(textVar);
+        }
+        textVar = newValue;
+    }
+
 
 
 } // namespace Menus
