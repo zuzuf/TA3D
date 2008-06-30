@@ -120,7 +120,7 @@ else( WIN32 OR CMAKE_CROSSCOMPILING )
 	SET( 3DMEDITOR_BIN 3dmeditor-bin )
 endif( WIN32 OR CMAKE_CROSSCOMPILING )
 
-ADD_EXECUTABLE(${3DMEDITOR_BIN} 3dmeditor.cpp ta3d.h 3dmeditor_sub.cpp 3dmeditor.h cTAFileParser.cpp cTAFileParser.h stdafx.h TA3D_NameSpace.cpp TA3D_NameSpace.h TA3D_Platform.h)
+ADD_EXECUTABLE(${3DMEDITOR_BIN} 3dmeditor.cpp ta3d.h 3dmeditor_sub.cpp 3dmeditor.h cTAFileParser.cpp cTAFileParser.h stdafx.h TA3D_NameSpace.cpp TA3D_NameSpace.h)
 
 ADD_DEPENDENCIES(${3DMEDITOR_BIN} stdafx logs console debuginfos threads 3dtoolbox misc i18n tajpeg gfx fileformats particles audio hpi taconfig gui ingame)
 target_link_libraries(${3DMEDITOR_BIN} stdafx logs console debuginfos threads 3dtoolbox misc i18n tajpeg gfx fileformats particles audio hpi taconfig gui ingame)
@@ -152,7 +152,7 @@ SET(SOURCES ta3d.cpp ta3d.h main.cpp install.cpp cTA3D_Engine.cpp cTA3D_Engine.h
             fbi.cpp fbi.h intro.cpp intro.h 
             tdf.cpp tdf.h tnt.cpp tnt.h 
             icon.cpp stdafx.h 
-            TA3D_NameSpace.cpp TA3D_NameSpace.h TA3D_Platform.h)
+            TA3D_NameSpace.cpp TA3D_NameSpace.h)
 ADD_EXECUTABLE(${TA3D_BIN} ${SOURCES})
 
 #IF(NOT APPLE)
