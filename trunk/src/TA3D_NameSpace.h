@@ -302,7 +302,6 @@ namespace TA3D
 
 
 	void TA3D_clear_cache();							// Clear the cache if needed (useful when mod has changed)
-	List< String > GetFileList( const String pattern );	// return the list of files corresponding to pattern
 
 } // namespace TA3D
 

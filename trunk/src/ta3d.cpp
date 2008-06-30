@@ -2284,13 +2284,11 @@ int play(GameData *game_data)
 
             if( obj_file_list )
             {
-                List<String> file_list = GetFileList(TA3D::Paths::Savegames + "*.sav" );
-
+                List<String> file_list;
+                Paths::Glob(file_list, TA3D::Paths::Savegames + "*.sav");
                 file_list.sort();
-
                 obj_file_list->Text.clear();
                 obj_file_list->Text.reserve(file_list.size());
-
                 for (List<String>::const_iterator i = file_list.begin(); i != file_list.end(); ++i)
                     obj_file_list->Text.push_back(*i);
             }

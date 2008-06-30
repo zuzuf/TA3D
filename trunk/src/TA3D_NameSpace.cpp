@@ -238,26 +238,6 @@ namespace TA3D
 	}
 
 
-    
-
-
-	List<String> GetFileList(const String pattern)	// return the list of files corresponding to pattern
-	{
-		List<String>	result;
-		struct al_ffblk info;
-
-		if (al_findfirst(pattern.c_str(), &info, FA_ALL) != 0)
-			return result;
-
-		do
-        {
-            result.push_back(info.name);
-		} while (al_findnext(&info) == 0);
-
-		al_findclose(&info);
-		return result;
-	}
-
 
 } // namespace TA3D
 

@@ -83,6 +83,27 @@ namespace TA3D
         static bool MakeDir(const String& p);
 
         /*!
+        ** \brief Returns the list of files according a given pattern
+        **
+        ** \param[out] out The list of file that has been found
+        ** \param pattern The pattern to use
+        ** \return True if the operation succeeded and the list is not empty,
+        ** false othewise
+        */
+        static bool Glob(std::vector<String>& out, const String& pattern);
+    
+        /*!
+        ** \brief Returns the list of files according a given pattern
+        **
+        ** \param[out] out The list of file that has been found
+        ** \param pattern The pattern to use
+        ** \return True if the operation succeeded and the list is not empty,
+        ** false othewise
+        */
+        static bool Glob(std::list<String>& out, const String& pattern);
+
+
+        /*!
         ** \brief Retrieve the current directory
         */
         static String CurrentDirectory();
