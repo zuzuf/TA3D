@@ -26,8 +26,6 @@
 # define __TA3D_INTO_H__
 
 
-void play_intro(const char *txt_file = "intro.txt");
-
 
 void loading(const float percent,const String &msg);
 

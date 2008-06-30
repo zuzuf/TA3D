@@ -104,12 +104,6 @@ namespace Menus
         */
         static bool MapIsForNetworkGame(const String& mapShortName); 
 
-        /*!
-        ** \brief Destroy a texture if needed and reassign it
-        ** \param textVar Reference to the texture to destroy (index)
-        ** \param newValue The newValue to assign. `0` means NULL
-        */
-        static void ResetTexture(GLuint& textVar, const GLuint newValue = 0);
 
     private:
         /*!

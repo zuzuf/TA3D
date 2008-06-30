@@ -71,17 +71,6 @@ namespace Menus
     }
     
 
-    void MapSelector::ResetTexture(GLuint& textVar, const GLuint newValue)
-    {
-        if (textVar)
-        {
-            // ensure the texture for the mini map is destroyed
-            gfx->destroy_texture(textVar);
-        }
-        textVar = newValue;
-    }
-
-
     bool MapSelector::doInitialize()
     {
         LOG_DEBUG(TA3D_LOG_SECTION_MENU_MAP_SELECTOR_PREFIX << "Entering...");
