@@ -19,26 +19,27 @@
 
 namespace TA3D
 {
+namespace Paths
+{
 
-    String Paths::ApplicationRoot = "";
-    String Paths::Caches = "";
-    String Paths::Savegames = "";
-    String Paths::Logs = "";
-    String Paths::Preferences = "";
-    String Paths::ConfigFile = "";
-    String Paths::Screenshots = "";
-    #ifdef TA3D_PLATFORM_WINDOWS
-    char Paths::Separator = '\\';
-    String Paths::SeparatorAsString = "\\";
-    #else
-    char Paths::Separator = '/';
-    String Paths::SeparatorAsString = "/";
-    #endif
-    Paths::ResourcesFoldersList Paths::pResourcesFolders;
-
+    String ApplicationRoot = "";
+    String Caches = "";
+    String Savegames = "";
+    String Logs = "";
+    String Preferences = "";
+    String ConfigFile = "";
+    String Screenshots = "";
+    # ifdef TA3D_PLATFORM_WINDOWS
+    char Separator = '\\';
+    String SeparatorAsString = "\\";
+    String LocalData = "";
+    # else
+    char Separator = '/';
+    String SeparatorAsString = "/";
+    # endif
     
     
-    String Paths::CurrentDirectory()
+    String CurrentDirectory()
     {
         char* c = getcwd(NULL, 0);
         String ret(c);
@@ -67,17 +68,14 @@ namespace TA3D
 
     static void initForWindows()
     {
-	    String root = localAppData();
-	    root += Paths::Separator;
-        Paths::Caches = root + "ta3d\\cache\\";
-        Paths::Savegames = root + "ta3d\\savegames\\";
-        Paths::Logs = root + "ta3d\\logs\\";
+        LocalData = localAppData();
+        LocalData += Separator;
+        Caches = LocalData + "ta3d\\cache\\";
+        Savegames = LocalData + "ta3d\\savegames\\";
+        Logs = LocalData + "ta3d\\logs\\";
 
-        Paths::AddResourcesFolder(Paths::ApplicationRoot + "resources\\");
-        Paths::AddResourcesFolder(root + "ta3d\\resources\\");
-
-        Paths::Preferences = root + "ta3d\\settings\\";
-        Paths::Screenshots = root + "ta3d\\screenshots\\";
+        Preferences = LocalData + "ta3d\\settings\\";
+        Screenshots = LocalData + "ta3d\\screenshots\\";
     }
 
     # else // ifdef TA3D_PLATFORM_WINDOWS
@@ -87,18 +85,12 @@ namespace TA3D
     {
         String home = getenv("HOME");
         home += "/.ta3d/";
-        Paths::Caches = home + "cache/";
-        Paths::Savegames = home + "savegames/";
-        Paths::Logs = home + "log/";
+        Caches = home + "cache/";
+        Savegames = home + "savegames/";
+        Logs = home + "log/";
 
-        Paths::AddResourcesFolder(home + "resources/");
-        Paths::AddResourcesFolder("/usr/local/games/ta3d/");
-        Paths::AddResourcesFolder("/usr/local/share/ta3d/");
-        Paths::AddResourcesFolder("/opt/local/share/ta3d/");
-        Paths::AddResourcesFolder(Paths::ApplicationRoot + "resources/");
-
-        Paths::Preferences = home;
-        Paths::Screenshots = home + "screenshots/";
+        Preferences = home;
+        Screenshots = home + "screenshots/";
     }
 
     # else // ifndef TA3D_PLATFORM_DARWIN
@@ -106,33 +98,23 @@ namespace TA3D
     static void initForDarwin()
     {
         String home = getenv("HOME");
-        Paths::Caches = home + "/Library/Caches/ta3d/";
-        Paths::Savegames = home + "/Library/Preferences/ta3d/savegames/";
-        Paths::Logs = home + "/Library/Logs/ta3d/";
+        Caches = home + "/Library/Caches/ta3d/";
+        Savegames = home + "/Library/Preferences/ta3d/savegames/";
+        Logs = home + "/Library/Logs/ta3d/";
         
-        Paths::MakeDir(home + "/Library/Application Support/ta3d/");
-        // Relative folder for the Application bundle
-        Paths::AddResourcesFolder(Paths::ApplicationRoot + "../Resources/");
-        Paths::AddResourcesFolder(home + "/Library/Application Support/ta3d/");
-        // Unix compatibility
-        Paths::AddResourcesFolder(home + "/.ta3d/resources/");
-        // If using MacPorts
-        Paths::AddResourcesFolder("/opt/local/share/ta3d/");
-        Paths::AddResourcesFolder(Paths::ApplicationRoot + "resources/"); // TODO : Should be removed (need a fully working Application bundle)
-        
-        Paths::Preferences = home + "/Library/Preferences/ta3d/";
-        Paths::Screenshots = home + "/Downloads/";
+        Preferences = home + "/Library/Preferences/ta3d/";
+        Screenshots = home + "/Downloads/";
     }
 
     # endif // ifndef TA3D_PLATFORM_DARWIN
 
     # endif // ifdef TA3D_PLATFORM_WINDOWS
 
-    String Paths::ExtractFilePath(const String& p)
+    String ExtractFilePath(const String& p)
     {
         String ret;
         std::vector<String> parts;
-        ReadVectorString(parts, p, Paths::SeparatorAsString, false);
+        ReadVectorString(parts, p, SeparatorAsString, false);
         
         unsigned int len = parts.size();
         // TODO Manage `..` (may be boost is be more appropriated)
@@ -141,31 +123,33 @@ namespace TA3D
             if (parts[i] != ".")
             {
                 ret += parts[i];
-                ret += Paths::Separator;
+                ret += Separator;
             }
         }
         return ret;
     }
 
     /*!
-     * \brief Initialize the Paths::ApplicationRoot variable
+     * \brief Initialize the ApplicationRoot variable
      * \param argv0 Equivalent to argv[0] from the main
      */
     static void initApplicationRootPath(const char* argv0)
     {
         LOG_ASSERT(NULL != argv0);
 
-        Paths::ApplicationRoot = "";
-        String r(Paths::CurrentDirectory());
-        r += Paths::Separator;
+        ApplicationRoot = "";
+        String r(CurrentDirectory());
+        r += Separator;
         r += argv0;
         if (r.empty())
             return;
-        Paths::ApplicationRoot = Paths::ExtractFilePath(r);
+        ApplicationRoot = ExtractFilePath(r);
     }
 
-    bool
-    Paths::Initialize(int argc, char* argv[])
+
+
+
+    bool Initialize(int argc, char* argv[])
     {
         LOG_ASSERT(NULL != argv);
 
@@ -195,8 +179,7 @@ namespace TA3D
     }
 
 
-    bool
-    Paths::Exists(const String& p)
+    bool Exists(const String& p)
     {
         if (p.empty())
             return true;
@@ -210,8 +193,7 @@ namespace TA3D
         return (stat(p.c_str(), &s) == 0);
     }
 
-    bool
-    Paths::MakeDir(const String& p)
+    bool MakeDir(const String& p)
     {
         if (p.empty())
             return true;
@@ -227,7 +209,7 @@ namespace TA3D
 	        # ifndef TA3D_PLATFORM_WINDOWS
             pth += Separator;
             # endif
-            if (!Paths::Exists(pth))
+            if (!Exists(pth))
             {
 		        LOG_DEBUG(pth << " does not exist !");
 		        # ifdef TA3D_PLATFORM_WINDOWS
@@ -252,35 +234,6 @@ namespace TA3D
         return true;
     }
 
-
-    bool Paths::FindResources(const String& relFilename, String& out)
-    {
-        for (ResourcesFoldersList::const_iterator i = pResourcesFolders.begin(); i != pResourcesFolders.end(); ++i)
-        {
-            out = *i;
-            out += relFilename;
-            if (Exists(out))
-                return true;
-        }
-        return false;
-    }
-
-    bool Paths::AddResourcesFolder(const String& folder)
-    {
-        if (!folder.empty() && Exists(folder))
-        {
-            for (ResourcesFoldersList::const_iterator i = pResourcesFolders.begin(); i != pResourcesFolders.end(); ++i)
-            {
-                if (folder == *i)
-                    return false;
-            }
-            LOG_INFO("Folder: Resources: `" << folder << "`");
-            pResourcesFolders.push_back(folder);
-            return true;
-        }
-        return false;
-    }
-
     template<class T>
     bool TmplGlob(T& out, const String& pattern, const bool emptyListBefore)
     {
@@ -289,7 +242,7 @@ namespace TA3D
         struct al_ffblk info;
         if (al_findfirst(pattern.c_str(), &info, FA_ALL) != 0)
             return false;
-        String root = Paths::ExtractFilePath(pattern);
+        String root = ExtractFilePath(pattern);
         do
         {
             out.push_back(root + info.name);
@@ -297,81 +250,19 @@ namespace TA3D
         return !out.empty();
     }
 
-    bool Paths::Glob(std::list<String>& out, const String& pattern, const bool emptyListBefore)
+    bool Glob(std::list<String>& out, const String& pattern, const bool emptyListBefore)
     {
         return TmplGlob< std::list<String> >(out, pattern, emptyListBefore);
     }
 
-    bool Paths::Glob(std::vector<String>& out, const String& pattern, const bool emptyListBefore)
+    bool Glob(std::vector<String>& out, const String& pattern, const bool emptyListBefore)
     {
         return TmplGlob< std::vector<String> >(out, pattern, emptyListBefore);
     }
 
 
-     
-    bool Paths::ResourcesGlob(std::vector<String>& out, const String& pattern, const bool emptyListBefore)
-    {
-        if (emptyListBefore)
-            out.clear();
-        for (ResourcesFoldersList::const_iterator i = pResourcesFolders.begin(); i != pResourcesFolders.end(); ++i)
-            Glob(out, *i + pattern, false);
-        return !out.empty();
-    }
-
-    bool Paths::ResourcesGlob(std::list<String>& out, const String& pattern, const bool emptyListBefore)
-    {
-        if (emptyListBefore)
-            out.clear();
-        for (ResourcesFoldersList::const_iterator i = pResourcesFolders.begin(); i != pResourcesFolders.end(); ++i)
-            Glob(out, *i + pattern, false);
-        return !out.empty();
-    }
-
-
-    template<class T>
-    bool TmplLoadFromFile(T& out, const String& filename, const uint32 sizeLimit, const bool emptyListBefore)
-    {
-        if (emptyListBefore)
-            out.clear();
-        std::ifstream file(filename.c_str());
-        if (!file)
-        {
-            LOG_WARNING("Impossible to open the file `" << filename << "`");
-            return false;
-        }
-        if (sizeLimit)
-        {
-            file.seekg(0, std::ios_base::beg);
-            std::ifstream::pos_type begin_pos = file.tellg();
-            file.seekg(0, std::ios_base::end);
-            if ((file.tellg() - begin_pos) > sizeLimit)
-            {
-                LOG_WARNING("Impossible to read the file `" << filename << "` (size > " << sizeLimit << ")");
-                return false;
-            }
-            file.seekg(0, std::ios_base::beg);
-        }
-        String line;
-        while (std::getline(file, line))
-            out.push_back(line);
-        return true;
-    }
-     
-    bool Paths::LoadFromFile(std::list<String>& out, const String& filename, const uint32 sizeLimit, const bool emptyListBefore)
-    {
-        return TmplLoadFromFile< std::list<String> >(out, filename, sizeLimit, emptyListBefore);
-    }
-     
-    bool Paths::LoadFromFile(std::vector<String>& out, const String& filename, const uint32 sizeLimit, const bool emptyListBefore)
-    {
-        return TmplLoadFromFile< std::vector<String> >(out, filename, sizeLimit, emptyListBefore);
-    }
     
 
-
-
-
-
+} // namespace Paths
 } // namespace TA3D
-
 
