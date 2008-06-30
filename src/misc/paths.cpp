@@ -300,7 +300,7 @@ namespace TA3D
         {
             out.push_back(info.name);
         } while (al_findnext(&info) == 0);
-        return !out.empty();
+        return true;
     }
 
 
