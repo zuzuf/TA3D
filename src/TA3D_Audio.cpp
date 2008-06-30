@@ -153,7 +153,8 @@ void cAudio::SavePlayList( void )
 	Console->AddEntry("loading playlist");
 
 	String line;
-	bool isBattle, isActivated;
+	bool isBattle = false;
+    bool isActivated = true;
 
 	m_BattleTunes = 0;
 
