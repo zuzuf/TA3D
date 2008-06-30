@@ -11,6 +11,7 @@
 #include "../TA3D_NameSpace.h"
 #include "../logs/logs.h"
 #include <unistd.h>
+#include <allegro.h>
 
 
 
@@ -275,6 +276,33 @@ namespace TA3D
         }
         return false;
     }
+
+    bool Paths::Glob(std::vector<String>& out, const String& pattern)
+    {
+        out.clear();
+        struct al_ffblk info;
+        if (al_findfirst(pattern.c_str(), &info, FA_ALL) != 0)
+            return false;
+        do
+        {
+            out.push_back(info.name);
+        } while (al_findnext(&info) == 0);
+        return !out.empty();
+    }
+
+    bool Paths::Glob(std::list<String>& out, const String& pattern)
+    {
+        out.clear();
+        struct al_ffblk info;
+        if (al_findfirst(pattern.c_str(), &info, FA_ALL) != 0)
+            return false;
+        do
+        {
+            out.push_back(info.name);
+        } while (al_findnext(&info) == 0);
+        return !out.empty();
+    }
+
 
 
 } // namespace TA3D

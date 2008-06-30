@@ -6,6 +6,7 @@
 #include "../../TA3D_Exception.h"
 #include "../../restore.h"
 #include "../../ta3dbase.h"
+#include "../../misc/paths.h"
 
 // TODO Must be removed
 #include "../../menu.h"
@@ -112,9 +113,9 @@ namespace Menus
         GUIOBJ* obj = pArea->get_object("load_menu.l_file");
         if (obj)
         {
-            std::list<String> fileList = GetFileList(TA3D::Paths::Savegames + "*.sav");
+            std::list<String> fileList;
+            Paths::Glob(fileList, TA3D::Paths::Savegames + "*.sav");
             fileList.sort();
-
             obj->Text.clear();
             obj->Text.reserve(fileList.size());
             for (std::list<String>::const_iterator i = fileList.begin(); i != fileList.end(); ++i)

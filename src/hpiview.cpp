@@ -27,6 +27,8 @@
 #include <iostream>
 #include "tnt.h"
 #include "logs/logs.h"
+#include "misc/paths.h"
+
 
 
 using namespace TA3D::UTILS::HPI;
@@ -173,12 +175,15 @@ static bool hpiviewCmdListMods(int argc, char** argv)
 
         if( m_File.is_open() )
         {
-            List< String > modlist = GetFileList( "mods/*" );
-            modlist.sort();
-            for (List<String>::const_iterator i = modlist.begin(); i != modlist.end(); ++i)
+            List<String> modlist;
+            if (Paths::Glob(modlist, "mods/*"))
             {
-                if ((*i)[0] != '.')
-                    m_File << *i << "\n";
+                modlist.sort();
+                for (List<String>::const_iterator i = modlist.begin(); i != modlist.end(); ++i)
+                {
+                    if ((*i)[0] != '.')
+                        m_File << *i << "\n";
+                }
             }
             m_File.close();
         }
