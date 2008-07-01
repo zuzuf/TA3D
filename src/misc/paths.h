@@ -78,16 +78,25 @@ namespace Paths
     /*!
     ** \brief Extract the path part of a filename
     **
+    ** The path part will be extracted according the system-dependant path-separator
+    **
     ** \code
     **      std::cout << Paths::ExtractFilePath("/tmp/foo.txt") std::endl; // write `/tmp/`
     **      std::cout << Paths::ExtractFilePath("/tmp/") std::endl; // write `/tmp/`
     **      std::cout << Paths::ExtractFilePath("/tmp") std::endl; // write `/`
     ** \endcode
+    **
+    ** \see Paths::Separator
     */
     String ExtractFilePath(const String& p);
 
     /*!
     ** \brief Extract the bare file file name
+    **
+    ** The file name will be extracted according the last occurence
+    ** of the system-dependant path-separator
+    **
+    ** \see Paths::Separator
     */
     String ExtractFileName(const String& p);
 
