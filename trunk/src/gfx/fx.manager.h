@@ -28,12 +28,12 @@ namespace TA3D
     {
     public:
         //! \name Constructor & destructor
-        //{
+        //@{
         //! Default constructor
         FXManager();
         //! Destructor
         ~FXManager();
-        //}
+        //@}
 
         /*!
         ** \brief

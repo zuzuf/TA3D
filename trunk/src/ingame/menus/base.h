@@ -26,12 +26,12 @@ namespace Menus
     {
     public:
         //! \name Constructor & Destructor
-        //{
+        //@{
         //! Default constructor
         Abstract();
         //! Destructor
         virtual ~Abstract() {}
-        //}
+        //@}
 
 
         /*!

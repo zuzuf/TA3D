@@ -126,7 +126,7 @@ namespace Exceptions
 
 
     //! \name Exception: Prototypes: internal use only.
-    //{
+    //@{
 
     /*!
     ** \brief
@@ -179,7 +179,7 @@ namespace Exceptions
     */
     void GuardDisplayAndLogError();
 
-    //}
+    //@}
 
 
 

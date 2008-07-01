@@ -205,7 +205,7 @@ namespace TA3D
 {
 
     //! \name String manipulations
-    //{
+    //@{
 
 
     /*!
@@ -244,7 +244,7 @@ namespace TA3D
 	
     int find(const std::vector<String>& v, const String& s);
     
-    //} String manipulations
+    //@} String manipulations
 
     #if defined TA3D_PLATFORM_WINDOWS && defined TA3D_PLATFORM_MSVC
 	void ExtractPathFile(const String& szFullFileName, String& szFile, String& szDir);

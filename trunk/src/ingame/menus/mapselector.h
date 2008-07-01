@@ -32,7 +32,7 @@ namespace Menus
 
     public:
         //! \name Constructor & Destructor
-        //{
+        //@{
         //! Default constructor
         MapSelector();
         /*!
@@ -42,7 +42,7 @@ namespace Menus
         MapSelector(const String& preSelectedMap);
         //! Destructor
         virtual ~MapSelector();
-        //}
+        //@}
 
 
         /*!
@@ -56,8 +56,6 @@ namespace Menus
         const String& selected() const { return pSelectedMap; }
 
 
-        //! \name Map by default
-        //{
         /*!
         ** \brief Get the map by default
         */
@@ -68,7 +66,6 @@ namespace Menus
         ** Nothing will be done until the next call to execute().
         */
         void mapByDefault(const String& m) { pDefaultSelectedMap = m; }
-        //}
 
     protected:
         virtual bool doInitialize();

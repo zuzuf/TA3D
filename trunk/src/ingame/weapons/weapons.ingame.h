@@ -21,12 +21,12 @@ namespace TA3D
     {
     public:
         //! \name Constructor & Destructor
-        //{
+        //@{
         //! Default constructor
         INGAME_WEAPONS();
         //! Destructor
         ~INGAME_WEAPONS();
-        //}
+        //@}
 
 
         /*!

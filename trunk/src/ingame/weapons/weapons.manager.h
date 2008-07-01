@@ -16,12 +16,12 @@ namespace TA3D
     {
     public:
         //! \name Constructor & Destructor
-        //{
+        //@{
         //! Default constructor
         WEAPON_MANAGER();
         //! Destructor
         ~WEAPON_MANAGER();
-        //}
+        //@}
 
         void init();
         void destroy();

@@ -71,7 +71,7 @@ namespace UTILS
         virtual void InitTable(uint32 TableSize);
 
         //! \name Constructors & Destructor
-        //{
+        //@{
         //! Default Constructor
         cHashTable();
         /*!
@@ -81,7 +81,7 @@ namespace UTILS
         cHashTable(uint32 TableSize);
         //! Destructor
         virtual ~cHashTable();
-        //}
+        //@}
 
         virtual void EmptyHashTable();
 

@@ -94,12 +94,12 @@ namespace TA3D
 	{
 	public:
         //! \name Constructor & destructor
-        //{
+        //@{
         //! Default constructor
         IInterfaceManager();
         //! Destructor
 		~IInterfaceManager();
-        //}
+        //@}
 
         /*!
         ** \brief Dispatch a message (from its ID) to all registered interfaces

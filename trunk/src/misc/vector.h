@@ -31,14 +31,14 @@ class VECTOR2D
 {
 public:
     //! \name Constructors
-    //{
+    //@{
     //! Default constructor
     VECTOR2D() :x(0.0f), y(0.0f) {}
     //! Constructor by copy
     VECTOR2D(const VECTOR2D& c) : x(c.x), y(c.y) {}
     //! Constructor with initial values
     VECTOR2D(const float ax, const float ay) : x(ax), y(ay) {}
-    //}
+    //@}
 
     float sq() const { return (x*x + y*y); }         // carré scalaire
 
@@ -54,7 +54,7 @@ public:
     bool isNull() const { return (x == 0.0f && y == 0.0f); }
 
     //! \name Operators
-    //{
+    //@{
 
     /*!
     ** \brief Operator += with another VECTOR2D
@@ -77,7 +77,7 @@ public:
     VECTOR2D& operator = (const VECTOR2D& rhs)
     { x = rhs.x; y = rhs.y; return *this; }
 
-    //}
+    //@}
 
 public:
     float x;
@@ -96,7 +96,7 @@ class VECTOR3D
 {
 public:
     //! \name Constructors
-    //{
+    //@{
     //! Default constructor
     VECTOR3D() :x(0.0f), y(0.0f), z(0.0f) {}
     //! Constructor by copy
@@ -104,7 +104,7 @@ public:
     //! Constructor with initial values
     VECTOR3D(const float ax, const float ay, const float az)
         :x(ax), y(ay), z(az) {}
-    //}
+    //@}
 
     // Fonction qui renvoie le carré scalaire du vecteur
     float sq() const { return (x*x + y*y + z*z); }
@@ -123,7 +123,7 @@ public:
     bool isNull() const { return (x == 0.0f && y == 0.0f && z == 0.0f); }
 
     //! \name Operators
-    //{
+    //@{
 
     VECTOR3D& operator += (const VECTOR3D& rhs)
     { x += rhs.x; y += rhs.y; z += rhs.z; return (*this); }
@@ -146,7 +146,7 @@ public:
     VECTOR3D& operator = (const VECTOR3D& rhs)
     { x = rhs.x; y = rhs.y; z = rhs.z; return *this; }
 
-    //}
+    //@}
 
 public:
     float x;
@@ -161,7 +161,7 @@ typedef VECTOR3D VECTOR;
 
 
 //! \name Operators for Vectors
-//{
+//@{
 
 inline const VECTOR2D operator + (const VECTOR2D& lhs, const VECTOR2D& rhs)
 { return VECTOR2D(lhs) += rhs; }
@@ -198,7 +198,7 @@ inline const float operator % (const VECTOR3D& lhs, const VECTOR3D& rhs)
 { return lhs.x*rhs.x + lhs.y*rhs.y + lhs.z*rhs.z; }
 
 
-//}
+//@}
 
 
 /*------------------------------------------------------------------------

@@ -46,7 +46,7 @@ public:
     void clear() { memset(E,0,64); }
 
     //! \name Operators
-    //{
+    //@{
 
     /*!
     **
@@ -63,7 +63,7 @@ public:
     */
     operator MATRIX_f() const;
 
-    //}
+    //@}
 
 public:
     float E[4][4]; // Matrice 4x4

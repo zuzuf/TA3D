@@ -21,7 +21,7 @@ namespace Menus
     {
     public:
         //! \name Constructors & Destructor
-        //{
+        //@{
         //! Default constructor
         Loading();
         /*!
@@ -31,7 +31,8 @@ namespace Menus
         Loading(const float maxTasks);
         //! Destructor
         ~Loading();
-        //}
+        //@}
+
 
         /*!
         ** \brief Set the count of tasks to complete
@@ -73,6 +74,9 @@ namespace Menus
         void progress(const String& info, const float progression = 1, const bool relative = true);
 
 
+        //! \name Allegro interaction
+        //@{
+
         /*!
         ** \brief Re Draw the entire screen
         **
@@ -85,6 +89,8 @@ namespace Menus
         ** done by the main thread.
         */
         void draw();
+
+        //@}
 
 
         /*!

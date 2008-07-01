@@ -23,12 +23,12 @@ namespace Menus
 
     public:
         //! \name Constructor & Destructor
-        //{
+        //@{
         //! Default constructor
         MainMenu();
         //! Destructor
         virtual ~MainMenu();
-        //}
+        //@}
 
     protected:
         virtual bool doInitialize();
