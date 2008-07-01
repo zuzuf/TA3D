@@ -3,6 +3,7 @@ SET(ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../../../bin/libs/${CM
 
 SET(SOURCES base.h base.cpp
             intro.h intro.cpp
+            loading.h loading.cpp
             solo.h solo.cpp
             mapselector.h mapselector.cpp
             mainmenu.h mainmenu.cpp)
