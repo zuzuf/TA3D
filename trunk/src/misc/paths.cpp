@@ -112,6 +112,7 @@ namespace Paths
 
     String ExtractFilePath(const String& p)
     {
+        // TODO The boost is more efficient
         String ret;
         std::vector<String> parts;
         ReadVectorString(parts, p, SeparatorAsString, false);
@@ -127,6 +128,15 @@ namespace Paths
             }
         }
         return ret;
+    }
+
+    String ExtractFileName(const String& p)
+    {
+        // TODO The boost is more efficient
+        String::size_type pos = p.find_last_of("\\/");
+        if (String::npos == pos)
+            return p;
+        return String(p, pos);
     }
 
     /*!

@@ -86,6 +86,11 @@ namespace Paths
     */
     String ExtractFilePath(const String& p);
 
+    /*!
+    ** \brief Extract the bare file file name
+    */
+    String ExtractFileName(const String& p);
+
     //}
 
 
