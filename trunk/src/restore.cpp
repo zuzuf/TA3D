@@ -726,7 +726,7 @@ void load_game( GameData *game_data )
     for( int i = 0 ; i < units.max_unit ; ++i)
         units.mini_idx[ i ] = i;
 
-    units.unit = (UNIT*) malloc(sizeof(UNIT)*units.max_unit);
+    units.unit =  new UNIT[units.max_unit];
     units.idx_list = new uint16[units.max_unit];
     units.free_idx = new uint16[units.max_unit];
 
