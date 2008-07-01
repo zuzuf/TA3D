@@ -119,7 +119,11 @@ namespace Menus
             obj->Text.clear();
             obj->Text.reserve(fileList.size());
             for (std::list<String>::const_iterator i = fileList.begin(); i != fileList.end(); ++i)
-                obj->Text.push_back(*i);
+            {
+            	// Remove the Savegames path, leaving just the bare file names
+                String filename = i->substr(TA3D::Paths::Savegames.length());
+                obj->Text.push_back(filename);
+            }
         }
         else
         {
