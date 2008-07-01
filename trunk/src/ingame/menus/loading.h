@@ -152,6 +152,9 @@ namespace Menus
         //! The height of the font
         float pCurrentFontHeight;
 
+        //! Start time
+        int pStartTime;
+
     }; // class Loading
 
 
