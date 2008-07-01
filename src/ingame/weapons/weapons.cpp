@@ -23,10 +23,6 @@
   |                                                                                    |
   \-----------------------------------------------------------------------------------*/
 
-#ifdef CWDEBUG
-#include <libcwd/sys.h>
-#include <libcwd/debug.h>
-#endif
 #include "weapons.h"
 #include "../../gfx/fx.h"
 #include "../sidedata.h"

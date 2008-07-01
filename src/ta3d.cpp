@@ -15,10 +15,6 @@
     along with this program; if not, write to the Free Software
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA*/
 
-#ifdef CWDEBUG
-#include <libcwd/sys.h>
-#include <libcwd/debug.h>
-#endif
 #include "stdafx.h"
 #include "TA3D_NameSpace.h"
 #include "misc/matrix.h"
@@ -66,11 +62,7 @@ int play(GameData *game_data)
 
     gfx->SCREEN_W_TO_640 = 1.0f;				// To have mouse sensibility undependent from the resolution
     gfx->SCREEN_H_TO_480 = 1.0f;
-#ifdef CWDEBUG
-    Debug( libcw_do.on() );
-    Debug( dc::malloc.on() );
-    Debug( dc::notice.on() );
-#endif
+
     expected_players=game_data->nb_players;
 
     int start_time=msec_timer;		// Pour la mesure du temps de chargement

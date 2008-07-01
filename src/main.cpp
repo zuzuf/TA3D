@@ -20,11 +20,6 @@
  ** Notes: The applications main entry point. 
  */
 
-#ifdef CWDEBUG
-#include <libcwd/sys.h>
-#include <libcwd/debug.h>
-#endif
-
 #include "stdafx.h"					// standard pch inheritance.
 #include "TA3D_NameSpace.h"			// our namespace, a MUST have.
 #include "intro.h"					// intro prototypes,   TODO: phase out.

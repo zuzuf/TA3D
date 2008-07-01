@@ -24,10 +24,6 @@
   | et de victoire.                                                       |
   \----------------------------------------------------------------------*/
 
-#ifdef CWDEBUG
-#include <libcwd/sys.h>
-#include <libcwd/debug.h>
-#endif
 #include "../stdafx.h"
 #include "../misc/matrix.h"
 #include "../TA3D_NameSpace.h"
