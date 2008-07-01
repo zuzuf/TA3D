@@ -98,7 +98,7 @@ namespace Interfaces
 
     public:
         //! \name Color management
-        //{
+        //@{
 
         void set_color(const float r, const float g, const float b) const
         { glColor3f(r,g,b); }
@@ -144,7 +144,7 @@ namespace Interfaces
         uint32 makeintcol(float r, float g, float b, float a) const
         { return (int)(255.0f * r) | ((int)(255.0f * g) << 8) | ((int)(255.0f * b) << 16) | ((int)(255.0f * a) << 24); }
 
-        //} // Color management
+        //@} // Color management
 
 
         void line(const float x1, const float y1, const float x2, const float y2);			// Basic drawing routines
@@ -169,11 +169,14 @@ namespace Interfaces
         void putpixel(const float x, const float y, const uint32 col);
         uint32 getpixel(const sint32 x, const sint32 y) const;
 
-        //! \name 3D Mode
-        //{
+        //! \name 2D/3D Mode
+        //@{
         static void set_2D_mode();
         static void unset_2D_mode();
-        //}
+        //@}
+
+        //! \name Text manipulation
+        //@{
 
         void print(const GfxFont &font, const float x, const float y, const float z, const String text );		// Font related routines
         void print(const GfxFont &font, const float x, const float y, const float z, const uint32 col, const String text );
@@ -211,6 +214,9 @@ namespace Interfaces
         void print_right(const GfxFont &font, const float x, const float y, const float z, const char *text, float s);
         void print_right(const GfxFont &font, const float x, const float y, const float z, const uint32 col, const char *text, float s);
 
+        //@} // Text manipilation
+
+
         GLuint	make_texture( BITMAP *bmp, byte filter_type = FILTER_TRILINEAR, bool clamp = true );
         GLuint	create_texture( int w, int h, byte filter_type = FILTER_TRILINEAR, bool clamp = true );
         void	blit_texture( BITMAP *src, GLuint &dst );
@@ -236,6 +242,9 @@ namespace Interfaces
         void ReInitAllTex( bool disable = false);
         void SetDefState();
         
+        /*!
+        ** \brief Flip the backbuffer to the Allegro screen and clear it
+        */
         void flip() const { allegro_gl_flip(); }
 
     }; // class GFX

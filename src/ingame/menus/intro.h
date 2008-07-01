@@ -27,12 +27,12 @@ namespace Menus
 
     public:
         //! \name Constructor & Destructor
-        //{
+        //@{
         //! Default constructor
         Intro();
         //! Destructor
         virtual ~Intro();
-        //}
+        //@}
 
         
         /*!

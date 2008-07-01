@@ -50,7 +50,7 @@ class SuperQueue
 {
 public:
     //! \name Constructors & Destructors
-    //{
+    //@{
     //! Default constructor
     SuperQueue();
     /*!
@@ -61,7 +61,7 @@ public:
     SuperQueue(int number,int itemsize);
     //! Destructor
     ~SuperQueue();
-    //}
+    //@}
 
     /*!
     ** \brief Enqueue

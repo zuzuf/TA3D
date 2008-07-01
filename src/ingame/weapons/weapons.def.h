@@ -26,12 +26,12 @@ namespace TA3D
     {
     public:
         //! \name Constructor & Destructor
-        //{
+        //@{
         //! Default constructor
         WEAPON_DEF();
         //! Destructor
         ~WEAPON_DEF();
-        //}
+        //@}
 
 
         /*!

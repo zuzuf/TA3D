@@ -27,8 +27,6 @@
 
 
 
-void loading(const float percent,const String &msg);
-
 
 
 #endif // __TA3D_INTO_H__

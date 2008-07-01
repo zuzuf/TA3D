@@ -22,12 +22,12 @@ namespace TA3D
     {
     public:
         //! \name Constructor & Destructor
-        //{
+        //@{
         //! Default constructor
         GameData();
         //! Destructor
         ~GameData();
-        //}
+        //@}
     
 
         /*!

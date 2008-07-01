@@ -47,13 +47,8 @@ namespace Paths
     # endif
 
 
-    //! \name Resources management
-    //{
-    //}
-
-
-    //! \name Files & Folders handling
-    //{
+    //! \name Folders handling
+    //@{
 
     /*!
     ** \brief Test if a file/folder exists
@@ -100,12 +95,12 @@ namespace Paths
     */
     String ExtractFileName(const String& p);
 
-    //}
+    //@}
 
 
 
     //! \name Globbing
-    //{
+    //@{
 
     /*!
     ** \brief Find pathnames matching a pattern
@@ -132,7 +127,7 @@ namespace Paths
     bool Glob(std::vector<String>& out, const String& pattern, const bool emptyListBefore = true);
     bool Glob(std::list<String>& out, const String& pattern, const bool emptyListBefore = true);
 
-    //} // Globbing
+    //@} // Globbing
 
 
 

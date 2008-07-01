@@ -24,12 +24,12 @@ namespace Menus
 
     public:
         //! \name Constructor & Destructor
-        //{
+        //@{
         //! Default constructor
         Solo();
         //! Destructor
         virtual ~Solo();
-        //}
+        //@}
 
     protected:
         virtual bool doInitialize();

@@ -25,12 +25,12 @@ namespace TA3D
     {
     public:
         //! \name Constructor & Destructor
-        //{
+        //@{
         //! Default constructor
         PARTICLE_ENGINE();
         //! Destructor
         ~PARTICLE_ENGINE();
-        //}
+        //@}
 
         /*!
         ** \brief
