@@ -118,7 +118,7 @@ namespace Paths
         ReadVectorString(parts, p, SeparatorAsString, false);
         
         unsigned int len = parts.size();
-        // TODO Manage `..` (may be boost is be more appropriated)
+        // TODO Manage `..` (may be the boost library should be more efficient)
         for (unsigned int i = 0; i < len - 1; ++i)
         {
             if (parts[i] != ".")
@@ -132,7 +132,7 @@ namespace Paths
 
     String ExtractFileName(const String& p)
     {
-        // TODO The boost is more efficient
+        // TODO The boost library should be more efficient
         String::size_type pos = p.find_last_of(Separator);
         if (String::npos == pos)
             return p;
