@@ -133,10 +133,10 @@ namespace Paths
     String ExtractFileName(const String& p)
     {
         // TODO The boost is more efficient
-        String::size_type pos = p.find_last_of("\\/");
+        String::size_type pos = p.find_last_of(Separator);
         if (String::npos == pos)
             return p;
-        return String(p, pos);
+        return String(p, pos+1);
     }
 
     /*!
