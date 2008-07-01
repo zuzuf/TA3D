@@ -4,6 +4,8 @@
 #include "../../misc/paths.h"
 #include "../../gui.h"
 
+# define TA3D_LOG_SECTION_MENU_MAIN_PREFIX  "[loading] "
+
 
 namespace TA3D
 {
@@ -16,6 +18,8 @@ namespace Menus
         pCaption("Loading..."),
         pBackgroundTexture(0), pPreviousFontSize(1.0f), pCurrentFontHeight(0.0f)
     {
+        LOG_DEBUG(TA3D_LOG_SECTION_MENU_MAIN_PREFIX << "Starting...");
+        pStartTime = msec_timer;
         doNoticeOtherPlayers();
         loadTheBackgroundTexture();
         initializeDrawing();
@@ -27,6 +31,8 @@ namespace Menus
         pCaption("Loading..."),
         pBackgroundTexture(0), pPreviousFontSize(1.0f), pCurrentFontHeight(0.0f)
     {
+        LOG_DEBUG(TA3D_LOG_SECTION_MENU_MAIN_PREFIX << "Starting...");
+        pStartTime = msec_timer;
         doNoticeOtherPlayers();
         loadTheBackgroundTexture();
         initializeDrawing();
@@ -36,6 +42,10 @@ namespace Menus
     {
         finalizeDrawing();
         gfx->destroy_texture(pBackgroundTexture);
+
+        // Loading time
+        LOG_DEBUG(TA3D_LOG_SECTION_MENU_MAIN_PREFIX << "Done.");
+        LOG_INFO("Time of loading :" << (msec_timer - pStartTime) * 0.001f << "s");
     }
 
     void Loading::initializeDrawing()
