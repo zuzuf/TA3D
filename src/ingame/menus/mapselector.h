@@ -75,7 +75,7 @@ namespace Menus
 
     private:
         /*!
-        ** \brief List of maps
+        ** \typedef List of maps
         ** \see SortListOfMaps()
         */
         typedef std::vector<String>  ListOfMaps;
