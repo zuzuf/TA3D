@@ -1,7 +1,3 @@
-#ifdef CWDEBUG
-#include <libcwd/sys.h>
-#include <libcwd/debug.h>
-#endif
 #include "stdafx.h"
 /* XPM */
 static const char *allegico_xpm[] = {

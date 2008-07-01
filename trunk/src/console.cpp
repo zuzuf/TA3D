@@ -24,10 +24,6 @@
 | découlant d'un appel automatique par un timer.                        |
 \----------------------------------------------------------------------*/
 
-#ifdef CWDEBUG
-#include <libcwd/sys.h>
-#include <libcwd/debug.h>
-#endif
 #include "stdafx.h"
 #include "TA3D_NameSpace.h"
 #include "console.h"
