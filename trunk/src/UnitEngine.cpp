@@ -36,6 +36,8 @@
 #include "misc/camera.h"
 #include <math.h>
 #include "ingame/sidedata.h"
+#include "languages/i18n.h"
+
 
 using namespace TA3D::Exceptions;
 
@@ -5626,7 +5628,7 @@ void INGAME_UNITS::complete_menu(int index,bool hide_info,bool hide_bpic)
                 if( unit[index].planned_weapons>0.0f && unit[index].owner_id == players.local_human_id )
                 {
                     glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
-                    gfx->print_center(gfx->normal_font, ta3dSideData.side_int_data[ players.side_view ].UnitName2.x1, ta3dSideData.side_int_data[ players.side_view ].UnitName2.y1,0.0f,0xFFFFFFFF,TRANSLATE("weapon"));
+                    gfx->print_center(gfx->normal_font, ta3dSideData.side_int_data[ players.side_view ].UnitName2.x1, ta3dSideData.side_int_data[ players.side_view ].UnitName2.y1,0.0f,0xFFFFFFFF,I18N::Translate("weapon"));
                 }
 
             glBlendFunc(GL_ONE,GL_ONE_MINUS_SRC_COLOR);

@@ -24,6 +24,7 @@
 #include "../misc/camera.h"
 #include "../ingame/sidedata.h"
 #include <vector>
+#include "../languages/i18n.h"
 
 
 #define CHAT_MESSAGE_TIMEOUT	10000
@@ -331,7 +332,7 @@ namespace TA3D
                         draw_obj.y[0] = event_msg.y;
                         draw_obj.x[1] = event_msg.z;
                         draw_obj.y[1] = event_msg.opt3 / 16384.0f;
-                        draw_obj.text = strdup( TRANSLATE( (char*)event_msg.str ).c_str() );		// We can't load it now because of thread safety
+                        draw_obj.text = strdup( I18N::Translate( (char*)event_msg.str ).c_str() );		// We can't load it now because of thread safety
                         draw_obj.tex = 0;
                         lua_program->draw_list.add( draw_obj );
                     }
@@ -345,7 +346,7 @@ namespace TA3D
                         draw_obj.b[0] = 1.0f;
                         draw_obj.x[0] = event_msg.x;
                         draw_obj.y[0] = event_msg.y;
-                        draw_obj.text = strdup( TRANSLATE( (char*)event_msg.str ).c_str() );
+                        draw_obj.text = strdup( I18N::Translate( (char*)event_msg.str ).c_str() );
                         lua_program->draw_list.add( draw_obj );
                     }
                     break;

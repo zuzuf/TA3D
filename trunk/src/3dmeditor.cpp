@@ -34,6 +34,7 @@
 #include "3dmeditor.h"		// GUI functions for the editor
 #include "misc/camera.h"
 #include <vector>
+#include "languages/i18n.h"
 
 
 
@@ -113,7 +114,7 @@ void LoadConfigFile( void )
     delete cfgFile; 
 
     LANG = lp_CONFIG->Lang;
-    i18n.refresh_language();   // refresh the language used by the i18n object
+    I18N::Instance()->currentLanguage(lp_CONFIG->Lang); // refresh the language used by the i18n object
 }
 
 /*---------------------------------------------------------------------------------------------------\
@@ -166,7 +167,7 @@ int main(int argc, char* argv[])
     pal=LoadPal("palettes\\palette.pal");			// Charge la palette graphique
     set_palette(pal);		// Active la palette chargée
 
-    Console->AddEntry(TRANSLATE("Initializing texture manager"));
+    Console->AddEntry(I18N::Translate("Initializing texture manager"));
     texture_manager.init();
     texture_manager.all_texture();
 
@@ -223,7 +224,7 @@ int main(int argc, char* argv[])
 
     MainWnd.x=0;				MainWnd.y=0;
     MainWnd.width=SCREEN_W;		MainWnd.height=28;
-    MainWnd.Title=TRANSLATE( "Barre de menus" ).c_str();
+    MainWnd.Title = I18N::Translate("Barre de menus").c_str();
     MainWnd.Lock=true;
     MainWnd.NbObj=2;
     MainWnd.Objets=new GUIOBJ[MainWnd.NbObj];
@@ -231,41 +232,42 @@ int main(int argc, char* argv[])
     // Menu fichier
     const char *mnu_fichier_list[] = {"Fichiers","Nouveau","Ouvrir","Sauver","Importer(*.ASC)","Importer(*.3DO)","Importer(*.3DS)","Quitter"};
     std::vector<String> mnu_fichier( mnu_fichier_list, &(mnu_fichier_list[8]));
-    TRANSLATE( mnu_fichier );
+    I18N::Translate(mnu_fichier);
     MainWnd.Objets[0].create_menu(3,12,83,24,mnu_fichier,mnu_file);
+
     // Menu surface
     const char *mnu_surface_list[] = {"Surface","Editer","Copier","Coller","Reinitialiser","Coller sur toutes"};
     std::vector<String> mnu_surface( mnu_surface_list, &(mnu_surface_list[6]));
-    TRANSLATE( mnu_surface );
+    I18N::Translate(mnu_surface);
     MainWnd.Objets[1].create_menu(86,12,166,24,mnu_surface,mnu_surf);
 
     WND	EditWnd;		// Fenêtre d'édition
-    EditWnd.Title=TRANSLATE( "Edition" ).c_str();
+    EditWnd.Title = I18N::Translate("Edition").c_str();
     EditWnd.width=200;							EditWnd.height=240;
     EditWnd.x=SCREEN_W-EditWnd.width;			EditWnd.y=SCREEN_H-EditWnd.height;
     EditWnd.Lock=false;							EditWnd.NbObj=12;
     EditWnd.Objets=new GUIOBJ[EditWnd.NbObj];
-    EditWnd.Objets[0].create_text(5,12,TRANSLATE( "Parties :" ),0xFFFFFF);
+    EditWnd.Objets[0].create_text(5,12, I18N::Translate("Parties :" ), 0xFFFFFF);
     std::vector<String> mnu_part;
     mnu_part.resize( nb_obj()+1 );
     for( i=0; i<nb_obj(); i++ )
-        mnu_part[i+1] = format( TRANSLATE( "Partie %d" ).c_str() , i);
+        mnu_part[i+1] = format( I18N::Translate("Partie %d").c_str() , i);
 
     mnu_part[0]=mnu_part[1];
     EditWnd.Objets[1].create_menu(5,20,196,32,mnu_part,mnu_selec);
 
     mnu_part.clear();
 
-    EditWnd.Objets[2].create_button(5,40,196,52,TRANSLATE("renommer").c_str(),button_rename);
-    EditWnd.Objets[3].create_button(5,60,196,72,TRANSLATE("passer en fils").c_str(),button_child);
-    EditWnd.Objets[4].create_button(5,80,196,92,TRANSLATE("effacer").c_str(),button_remove);
-    EditWnd.Objets[5].create_button(5,100,196,112,TRANSLATE("échelle").c_str(),button_scale);
-    EditWnd.Objets[6].create_button(5,120,196,132,TRANSLATE("mirroir/x").c_str(),button_mirror_x);
-    EditWnd.Objets[7].create_button(5,140,196,152,TRANSLATE("mirroir/y").c_str(),button_mirror_y);
-    EditWnd.Objets[8].create_button(5,160,196,172,TRANSLATE("mirroir/z").c_str(),button_mirror_z);
-    EditWnd.Objets[9].create_button(5,180,196,192,TRANSLATE("x<->y").c_str(),button_change_xy);
-    EditWnd.Objets[10].create_button(5,200,196,212,TRANSLATE("y<->z").c_str(),button_change_yz);
-    EditWnd.Objets[11].create_button(5,220,196,232,TRANSLATE("z<->x").c_str(),button_change_zx);
+    EditWnd.Objets[2].create_button(5,40,196,52, I18N::Translate("renommer").c_str(), button_rename);
+    EditWnd.Objets[3].create_button(5,60,196,72, I18N::Translate("passer en fils").c_str(), button_child);
+    EditWnd.Objets[4].create_button(5,80,196,92, I18N::Translate("effacer").c_str(),button_remove);
+    EditWnd.Objets[5].create_button(5,100,196,112, I18N::Translate("échelle").c_str(),button_scale);
+    EditWnd.Objets[6].create_button(5,120,196,132,I18N::Translate("mirroir/x").c_str(),button_mirror_x);
+    EditWnd.Objets[7].create_button(5,140,196,152,I18N::Translate("mirroir/y").c_str(),button_mirror_y);
+    EditWnd.Objets[8].create_button(5,160,196,172,I18N::Translate("mirroir/z").c_str(),button_mirror_z);
+    EditWnd.Objets[9].create_button(5,180,196,192,I18N::Translate("x<->y").c_str(),button_change_xy);
+    EditWnd.Objets[10].create_button(5,200,196,212,I18N::Translate("y<->z").c_str(),button_change_yz);
+    EditWnd.Objets[11].create_button(5,220,196,232,I18N::Translate("z<->x").c_str(),button_change_zx);
 
     int amx,amy,amz,amb;
     int IsOnGUI;
@@ -392,7 +394,7 @@ int main(int argc, char* argv[])
             gfx->ReInitAllTex( true );
             glEnable(GL_TEXTURE_2D);
             glClear(GL_DEPTH_BUFFER_BIT);
-            for( int i=0 ; i < cur_data.nb_piece ; i++ )
+            for(int i=0 ; i < cur_data.nb_piece ; ++i)
                 cur_data.flag[i] = ((i == EditWnd.Objets[1].Data) ? 0 : FLAG_HIDE) | FLAG_ANIMATE;
             glColor3f(1.0f,1.0f,1.0f);
             TheModel->draw(msec_timer * 0.001f,&cur_data,false,false,false,0,NULL,NULL,NULL,0.0f,NULL,false,0,false);
@@ -493,6 +495,8 @@ int main(int argc, char* argv[])
 
     delete TA3D::VARS::lp_CONFIG;
 
+    I18N::Destroy();
+
     allegro_exit();
 
     return 0;
@@ -518,7 +522,7 @@ void SurfEdit()
     if(nb_obj()==1 && TheModel->obj.name==NULL)	return;
 
     WND SEdit;				// Fenêtre d'édition des surfaces
-    SEdit.Title=TRANSLATE( "Editeur de surfaces" ).c_str();
+    SEdit.Title=I18N::Translate( "Editeur de surfaces" ).c_str();
     SEdit.x=0;					SEdit.y=0;
     SEdit.width=SCREEN_W;		SEdit.height=SCREEN_H;
     SEdit.Lock=true;
@@ -529,53 +533,53 @@ void SurfEdit()
     SEdit.Objets[0].create_button(SEdit.width/2-16,SEdit.height-20,SEdit.width/2+16,SEdit.height-4,"OK",NULL);
 
     // Texte indiquant les éléments modifiant la couleur materielle de la surface
-    SEdit.Objets[1].create_text(10,16,TRANSLATE( "Couleur de la matiere:" ).c_str(),Noir);
+    SEdit.Objets[1].create_text(10,16,I18N::Translate( "Couleur de la matiere:" ).c_str(),Noir);
     // Barre de texte pour modifier la couleur de matière rouge(avec texte indicateur)
-    SEdit.Objets[2].create_text(10,30,TRANSLATE("rouge->").c_str(),Rouge);
+    SEdit.Objets[2].create_text(10,30,I18N::Translate("rouge->").c_str(),Rouge);
     SEdit.Objets[3].create_textbar(66,28,106,44,format("%d",(int)(obj_table[cur_part]->surface.Color[0]*255.0f)),4,NULL);
     // Barre de texte pour modifier la couleur de matière vert(avec texte indicateur)
-    SEdit.Objets[4].create_text(10,50,TRANSLATE( "vert ->" ).c_str(),Vert);
+    SEdit.Objets[4].create_text(10,50,I18N::Translate( "vert ->" ).c_str(),Vert);
     SEdit.Objets[5].create_textbar(66,48,106,64,format("%d",(int)(obj_table[cur_part]->surface.Color[1]*255.0f)),4,NULL);
     // Barre de texte pour modifier la couleur de matière bleu(avec texte indicateur)
-    SEdit.Objets[6].create_text(10,70,TRANSLATE( "bleu ->" ).c_str(),Bleu);
+    SEdit.Objets[6].create_text(10,70,I18N::Translate( "bleu ->" ).c_str(),Bleu);
     SEdit.Objets[7].create_textbar(66,68,106,84,format("%d",(int)(obj_table[cur_part]->surface.Color[2]*255.0f)),4,NULL);
     // Barre de texte pour modifier le canal alpha de la couleur de matière(avec texte indicateur)
-    SEdit.Objets[8].create_text(10,90,TRANSLATE( "alpha->" ).c_str(),Blanc);
+    SEdit.Objets[8].create_text(10,90,I18N::Translate( "alpha->" ).c_str(),Blanc);
     SEdit.Objets[9].create_textbar(66,88,106,104,format("%d",(int)(obj_table[cur_part]->surface.Color[3]*255.0f)),4,NULL);
 
     // Case à cocher pour activer/désactiver l'effet de réflection
-    SEdit.Objets[10].create_optionc(200,12,TRANSLATE( "Effet de reflection" ).c_str(),obj_table[cur_part]->surface.Flag&SURFACE_REFLEC,NULL);
+    SEdit.Objets[10].create_optionc(200,12,I18N::Translate( "Effet de reflection" ).c_str(),obj_table[cur_part]->surface.Flag&SURFACE_REFLEC,NULL);
     // Barre de texte pour modifier la couleur de reflection rouge(avec texte indicateur)
-    SEdit.Objets[11].create_text(130,30,TRANSLATE( "rouge->" ).c_str(),Rouge);
+    SEdit.Objets[11].create_text(130,30,I18N::Translate( "rouge->" ).c_str(),Rouge);
     SEdit.Objets[12].create_textbar(186,28,226,44,format("%d",(int)(obj_table[cur_part]->surface.RColor[0]*255.0f)),4,NULL);
     // Barre de texte pour modifier la couleur de reflection vert(avec texte indicateur)
-    SEdit.Objets[13].create_text(130,50,TRANSLATE( "vert ->" ).c_str(),Vert);
+    SEdit.Objets[13].create_text(130,50,I18N::Translate( "vert ->" ).c_str(),Vert);
     SEdit.Objets[14].create_textbar(186,48,226,64,format("%d",(int)(obj_table[cur_part]->surface.RColor[1]*255.0f)),4,NULL);
     // Barre de texte pour modifier la couleur de reflection bleu(avec texte indicateur)
-    SEdit.Objets[15].create_text(130,70,TRANSLATE( "bleu ->" ).c_str(),Bleu);
+    SEdit.Objets[15].create_text(130,70,I18N::Translate( "bleu ->" ).c_str(),Bleu);
     SEdit.Objets[16].create_textbar(186,68,226,84,format("%d",(int)(obj_table[cur_part]->surface.RColor[2]*255.0f)),4,NULL);
     // Barre de texte pour modifier le canal alpha de la couleur de reflection(avec texte indicateur)
-    SEdit.Objets[17].create_text(130,90,TRANSLATE( "alpha->" ).c_str(),Blanc);
+    SEdit.Objets[17].create_text(130,90,I18N::Translate( "alpha->" ).c_str(),Blanc);
     SEdit.Objets[18].create_textbar(186,88,226,104,format("%d",(int)(obj_table[cur_part]->surface.RColor[3]*255.0f)),4,NULL);
 
     // Case à cocher pour activer/désactiver le mode d'éclairage GOURAUD
-    SEdit.Objets[19].create_optionc(10,120,TRANSLATE( "Rendu GOURAUD" ).c_str(),(obj_table[cur_part]->surface.Flag&SURFACE_GOURAUD)==SURFACE_GOURAUD,NULL);
+    SEdit.Objets[19].create_optionc(10,120,I18N::Translate( "Rendu GOURAUD" ).c_str(),(obj_table[cur_part]->surface.Flag&SURFACE_GOURAUD)==SURFACE_GOURAUD,NULL);
     // Case à cocher pour activer/désactiver l'éclairage
-    SEdit.Objets[20].create_optionc(10,140,TRANSLATE( "Calculs d'eclairage" ).c_str(),(obj_table[cur_part]->surface.Flag&SURFACE_LIGHTED)==SURFACE_LIGHTED,NULL);
+    SEdit.Objets[20].create_optionc(10,140,I18N::Translate( "Calculs d'eclairage" ).c_str(),(obj_table[cur_part]->surface.Flag&SURFACE_LIGHTED)==SURFACE_LIGHTED,NULL);
     // Case à cocher pour activer/désactiver le texturage
-    SEdit.Objets[21].create_optionc(10,160,TRANSLATE( "Texturage" ).c_str(),(obj_table[cur_part]->surface.Flag&SURFACE_TEXTURED)==SURFACE_TEXTURED,NULL);
+    SEdit.Objets[21].create_optionc(10,160,I18N::Translate( "Texturage" ).c_str(),(obj_table[cur_part]->surface.Flag&SURFACE_TEXTURED)==SURFACE_TEXTURED,NULL);
 
     // Texte d'aide sur le dessin 3D de textures, directement sur l'objet
-    SEdit.Objets[22].create_text(58,270,TRANSLATE( "Le bouton peinture de l'objet permet de creer une texture a appliquer a l'objet grace" ) );
-    SEdit.Objets[23].create_text(10,278,TRANSLATE( "a un outil integre de dessin directement sur l'objet en 3D, et le bouton plaquage de texture" ) );
-    SEdit.Objets[24].create_text(10,286,TRANSLATE( "permet egalement de modifier le plaquage de la texture sur l'objet." ) );
+    SEdit.Objets[22].create_text(58,270,I18N::Translate( "Le bouton peinture de l'objet permet de creer une texture a appliquer a l'objet grace" ) );
+    SEdit.Objets[23].create_text(10,278,I18N::Translate( "a un outil integre de dessin directement sur l'objet en 3D, et le bouton plaquage de texture" ) );
+    SEdit.Objets[24].create_text(10,286,I18N::Translate( "permet egalement de modifier le plaquage de la texture sur l'objet." ) );
 
     // Boutons "peinture" et "plaquage de texture"
-    SEdit.Objets[25].create_button(20,300,188,316,TRANSLATE( "peinture" ).c_str(),SurfPaint);
-    SEdit.Objets[26].create_button(20,320,188,336,TRANSLATE( "plaquage de texture" ).c_str(),TexturePosEdit);
+    SEdit.Objets[25].create_button(20,300,188,316,I18N::Translate( "peinture" ).c_str(),SurfPaint);
+    SEdit.Objets[26].create_button(20,320,188,336,I18N::Translate( "plaquage de texture" ).c_str(),TexturePosEdit);
 
     // Menu déroulant de sélection de partie de la meshe et texte indicateur
-    SEdit.Objets[27].create_text(58,340,TRANSLATE( "Partie en cours d'edition:" ).c_str() );
+    SEdit.Objets[27].create_text(58,340,I18N::Translate( "Partie en cours d'edition:" ).c_str() );
     std::vector<String> Part_names(1+nb_obj());
     for(int i=0;i<nb_obj();i++)
         Part_names[i+1] = obj_table[i]->name;
@@ -584,22 +588,22 @@ void SurfEdit()
     SEdit.Objets[28].create_menu(10,350,170,362,Part_names,S_MPart_Sel);
 
     // Case à cocher pour activer/désactiver la transparence
-    SEdit.Objets[29].create_optionc(186,120,TRANSLATE( "Transparence" ).c_str(),(obj_table[cur_part]->surface.Flag&SURFACE_BLENDED)==SURFACE_BLENDED,NULL);
+    SEdit.Objets[29].create_optionc(186,120,I18N::Translate( "Transparence" ).c_str(),(obj_table[cur_part]->surface.Flag&SURFACE_BLENDED)==SURFACE_BLENDED,NULL);
 
     // Case à cocher pour activer/désactiver la couleur du joueur
-    SEdit.Objets[30].create_optionc(186,140,TRANSLATE( "Couleur joueur" ).c_str(),(obj_table[cur_part]->surface.Flag&SURFACE_PLAYER_COLOR)==SURFACE_PLAYER_COLOR,NULL);
+    SEdit.Objets[30].create_optionc(186,140,I18N::Translate( "Couleur joueur" ).c_str(),(obj_table[cur_part]->surface.Flag&SURFACE_PLAYER_COLOR)==SURFACE_PLAYER_COLOR,NULL);
 
     // Case à cocher pour activer/désactiver les shaders GLSL
-    SEdit.Objets[31].create_optionc(186,160,TRANSLATE( "GLSL" ).c_str(),(obj_table[cur_part]->surface.Flag&SURFACE_GLSL)==SURFACE_GLSL,NULL);
+    SEdit.Objets[31].create_optionc(186,160,I18N::Translate( "GLSL" ).c_str(),(obj_table[cur_part]->surface.Flag&SURFACE_GLSL)==SURFACE_GLSL,NULL);
 
     // Partie concernant l'animation par défaut
-    SEdit.Objets[32].create_optionc(320,32,TRANSLATE( "rotation" ), obj_table[cur_part]->animation_data != NULL && (obj_table[cur_part]->animation_data->type & ROTATION), NULL );
-    SEdit.Objets[33].create_optionc(320,44,TRANSLATE( "périodique" ), obj_table[cur_part]->animation_data != NULL && (obj_table[cur_part]->animation_data->type & ROTATION_PERIODIC), NULL );
-    SEdit.Objets[34].create_optionc(320,56,TRANSLATE( "sinusoïdal" ), obj_table[cur_part]->animation_data != NULL && (obj_table[cur_part]->animation_data->type & ROTATION_COSINE), NULL );
+    SEdit.Objets[32].create_optionc(320,32,I18N::Translate( "rotation" ), obj_table[cur_part]->animation_data != NULL && (obj_table[cur_part]->animation_data->type & ROTATION), NULL );
+    SEdit.Objets[33].create_optionc(320,44,I18N::Translate( "périodique" ), obj_table[cur_part]->animation_data != NULL && (obj_table[cur_part]->animation_data->type & ROTATION_PERIODIC), NULL );
+    SEdit.Objets[34].create_optionc(320,56,I18N::Translate( "sinusoïdal" ), obj_table[cur_part]->animation_data != NULL && (obj_table[cur_part]->animation_data->type & ROTATION_COSINE), NULL );
 
-    SEdit.Objets[35].create_optionc(480,32,TRANSLATE( "translation" ), obj_table[cur_part]->animation_data != NULL && (obj_table[cur_part]->animation_data->type & TRANSLATION), NULL );
-    SEdit.Objets[36].create_optionc(480,44,TRANSLATE( "périodique" ), obj_table[cur_part]->animation_data != NULL && (obj_table[cur_part]->animation_data->type & TRANSLATION_PERIODIC), NULL );
-    SEdit.Objets[37].create_optionc(480,56,TRANSLATE( "sinusoïdal" ), obj_table[cur_part]->animation_data != NULL && (obj_table[cur_part]->animation_data->type & TRANSLATION_COSINE), NULL );
+    SEdit.Objets[35].create_optionc(480,32,I18N::Translate( "translation" ), obj_table[cur_part]->animation_data != NULL && (obj_table[cur_part]->animation_data->type & TRANSLATION), NULL );
+    SEdit.Objets[36].create_optionc(480,44,I18N::Translate( "périodique" ), obj_table[cur_part]->animation_data != NULL && (obj_table[cur_part]->animation_data->type & TRANSLATION_PERIODIC), NULL );
+    SEdit.Objets[37].create_optionc(480,56,I18N::Translate( "sinusoïdal" ), obj_table[cur_part]->animation_data != NULL && (obj_table[cur_part]->animation_data->type & TRANSLATION_COSINE), NULL );
 
     SEdit.Objets[38].create_text(320,70, "angle_0" );
     SEdit.Objets[39].create_textbar(320,80,384,96, obj_table[cur_part]->animation_data ? format( "%f", obj_table[cur_part]->animation_data->angle_0.x) : "0",8, NULL );
@@ -627,7 +631,7 @@ void SurfEdit()
     SEdit.Objets[56].create_text(360,160, "translate_w=" );
     SEdit.Objets[57].create_textbar(460,160,530,176, obj_table[cur_part]->animation_data ? format( "%f", obj_table[cur_part]->animation_data->translate_w) : "0",8, NULL );
 
-    SEdit.Objets[58].create_button(16,380,216,390, TRANSLATE("optimiser la géometrie"), NULL );
+    SEdit.Objets[58].create_button(16,380,216,390, I18N::Translate("optimiser la géometrie"), NULL );
 
     bool done=false;
 
@@ -886,7 +890,7 @@ void SurfEdit()
         gfx->unset_2D_mode();	// Quitte le mode de dessin d'allegro
 
         if(index!=-1 && amb!=mouse_b && mouse_b==1) {		// L'utilisateur veut choisir une texture
-            String filename = Dialog( TRANSLATE( "Charger une texture" ).c_str(),"*.*");
+            String filename = Dialog( I18N::Translate( "Charger une texture" ).c_str(),"*.*");
             BITMAP *bmp_tex = filename.length()>0 ? load_bitmap(filename.c_str(),NULL) : NULL;
             if(bmp_tex) {			// Si il s'agit d'ajouter/modifier une texture
                 if(bitmap_color_depth(bmp_tex)==24 || strstr(filename.c_str(),".jpg")!=NULL) {
@@ -946,7 +950,7 @@ void SurfPaint(int index)
     if(!(obj_table[cur_part]->surface.Flag&SURFACE_TEXTURED)) return;
 
     WND SPaint;				// Fenêtre d'édition des textures
-    SPaint.Title=TRANSLATE( "Peinture de l'objet" ).c_str();
+    SPaint.Title=I18N::Translate( "Peinture de l'objet" ).c_str();
     SPaint.x=0;					SPaint.y=0;
     SPaint.width=210;			SPaint.height=220;
     SPaint.Lock=false;
@@ -957,39 +961,39 @@ void SurfPaint(int index)
     SPaint.Objets[0].create_button(SPaint.width/2-16,SPaint.height-20,SPaint.width/2+16,SPaint.height-4,"Ok",NULL);
 
     // Bouton Créer une texture pour l'objet
-    SPaint.Objets[1].create_button(10,20,154,32,TRANSLATE( "Nouvelle texture" ).c_str(),NULL);
+    SPaint.Objets[1].create_button(10,20,154,32,I18N::Translate( "Nouvelle texture" ).c_str(),NULL);
 
     // Bouton Plaquage cylindrique
-    SPaint.Objets[2].create_button(10,40,186,52,TRANSLATE( "Plaquage cylindrique" ).c_str(),NULL);
+    SPaint.Objets[2].create_button(10,40,186,52,I18N::Translate( "Plaquage cylindrique" ).c_str(),NULL);
 
     // Bouton Plaqueur de texture
-    SPaint.Objets[3].create_button(10,60,178,72,TRANSLATE( "Plaqueur de texture" ).c_str(),NULL);
+    SPaint.Objets[3].create_button(10,60,178,72,I18N::Translate( "Plaqueur de texture" ).c_str(),NULL);
 
     // Boutons Fil de fer et mode normal
-    SPaint.Objets[4].create_button(10,80,106,92,TRANSLATE( "Fil de fer" ).c_str(),NULL);
-    SPaint.Objets[5].create_button(110,80,200,92,TRANSLATE( "Normal" ).c_str(),NULL);
+    SPaint.Objets[4].create_button(10,80,106,92,I18N::Translate( "Fil de fer" ).c_str(),NULL);
+    SPaint.Objets[5].create_button(110,80,200,92,I18N::Translate( "Normal" ).c_str(),NULL);
 
     // Boutons pour controler le mode d'édition
-    SPaint.Objets[6].create_button(10,100,98,112,TRANSLATE( "Selection" ).c_str(),NULL);
-    SPaint.Objets[7].create_button(100,100,180,112,TRANSLATE( "Peinture" ).c_str(),NULL);
+    SPaint.Objets[6].create_button(10,100,98,112,I18N::Translate( "Selection" ).c_str(),NULL);
+    SPaint.Objets[7].create_button(100,100,180,112,I18N::Translate( "Peinture" ).c_str(),NULL);
 
     // Bouton desassembler les faces
-    SPaint.Objets[8].create_button(10,120,122,132,TRANSLATE( "Desassembler" ).c_str(),NULL);
+    SPaint.Objets[8].create_button(10,120,122,132,I18N::Translate( "Desassembler" ).c_str(),NULL);
 
     // Bouton normaliser
-    SPaint.Objets[9].create_button(10,140,106,152,TRANSLATE( "Normaliser" ).c_str(),NULL);
+    SPaint.Objets[9].create_button(10,140,106,152,I18N::Translate( "Normaliser" ).c_str(),NULL);
 
     // Bouton optimiser
-    SPaint.Objets[10].create_button(10,160,98,172,TRANSLATE( "Optimiser" ).c_str(),NULL);
+    SPaint.Objets[10].create_button(10,160,98,172,I18N::Translate( "Optimiser" ).c_str(),NULL);
 
     // Bouton Plaquage cubique
-    SPaint.Objets[11].create_button(10,180,154,192,TRANSLATE( "Plaquage cubique" ).c_str(),NULL);
+    SPaint.Objets[11].create_button(10,180,154,192,I18N::Translate( "Plaquage cubique" ).c_str(),NULL);
 
     // Bouton résolution
-    SPaint.Objets[12].create_button(112,160,200,172,TRANSLATE( "résolution" ).c_str(),NULL);
+    SPaint.Objets[12].create_button(112,160,200,172,I18N::Translate( "résolution" ).c_str(),NULL);
 
     WND SCoor;				// Fenêtre d'édition du plaquage de la texture
-    SCoor.Title=TRANSLATE( "Peinture de l'objet" ).c_str();
+    SCoor.Title=I18N::Translate( "Peinture de l'objet" ).c_str();
     SCoor.width=310;				SCoor.height=340;
     SCoor.x=SCREEN_W-SCoor.width;	SCoor.y=SCREEN_H-SCoor.height;
     SCoor.Lock=false;
@@ -997,10 +1001,10 @@ void SurfPaint(int index)
     SCoor.Objets=new GUIOBJ[SCoor.NbObj];
 
     // Bouton fermer
-    SCoor.Objets[0].create_button(SCoor.width-64>>1,SCoor.height-18,SCoor.width+64>>1,SCoor.height-6,TRANSLATE( "Fermer" ).c_str(),NULL);
+    SCoor.Objets[0].create_button(SCoor.width-64>>1,SCoor.height-18,SCoor.width+64>>1,SCoor.height-6,I18N::Translate( "Fermer" ).c_str(),NULL);
 
     WND STool;				// Fenêtre des outils de dessin
-    STool.Title=TRANSLATE( "Outils" ).c_str();
+    STool.Title=I18N::Translate( "Outils" ).c_str();
     STool.width=124;				STool.height=150;
     STool.x=SCREEN_W-STool.width;	STool.y=0;
     STool.Lock=false;
@@ -1008,22 +1012,22 @@ void SurfPaint(int index)
     STool.Objets=new GUIOBJ[STool.NbObj];
 
     // Bouton point par point
-    STool.Objets[0].create_button(10,16,114,28,TRANSLATE( "Points" ).c_str(),NULL);
+    STool.Objets[0].create_button(10,16,114,28,I18N::Translate( "Points" ).c_str(),NULL);
 
     // Bouton lignes
-    STool.Objets[1].create_button(10,32,114,44,TRANSLATE( "Lignes" ).c_str(),NULL);
+    STool.Objets[1].create_button(10,32,114,44,I18N::Translate( "Lignes" ).c_str(),NULL);
 
     // Bouton remplissage
-    STool.Objets[2].create_button(10,48,114,60,TRANSLATE( "Remplissage" ).c_str(),NULL);
+    STool.Objets[2].create_button(10,48,114,60,I18N::Translate( "Remplissage" ).c_str(),NULL);
 
     // Bouton crayon
-    STool.Objets[3].create_button(10,64,114,76,TRANSLATE( "Crayon" ).c_str(),NULL);
+    STool.Objets[3].create_button(10,64,114,76,I18N::Translate( "Crayon" ).c_str(),NULL);
 
     // Bouton texture
-    STool.Objets[5].create_button(10,80,114,92,TRANSLATE( "Texture" ).c_str(),NULL);
+    STool.Objets[5].create_button(10,80,114,92,I18N::Translate( "Texture" ).c_str(),NULL);
 
     // Bouton annuler
-    STool.Objets[4].create_button(10,96,114,108,TRANSLATE( "Annuler" ).c_str(),NULL);
+    STool.Objets[4].create_button(10,96,114,108,I18N::Translate( "Annuler" ).c_str(),NULL);
 
     bool done=false;
 
@@ -1141,7 +1145,7 @@ void SurfPaint(int index)
                 tool_tex_size+=(mouse_z-amz)*0.05f;
                 if(tool_tex_size<0.01f)	tool_tex_size=0.01f;
                 if(key[KEY_SPACE] || tool_tex_gl==0) {
-                    String filename = Dialog( TRANSLATE( "Charger une texture" ).c_str(),"*.*");
+                    String filename = Dialog( I18N::Translate( "Charger une texture" ).c_str(),"*.*");
                     BITMAP *bmp_tex = filename.length()>0 ? load_bitmap(filename.c_str(),NULL) : NULL;
                     if(bmp_tex) {			// Si il s'agit d'ajouter/modifier une texture
                         if(bitmap_color_depth(bmp_tex)==24 || strstr(filename.c_str(),".jpg")!=NULL) {
@@ -1169,7 +1173,7 @@ void SurfPaint(int index)
 
         if(SPaint.Objets[12].Etat) 								// Change the texture size
 		{
-            String new_res = GetVal( TRANSLATE( "Nouvelle résolution de la texture" ).c_str() );
+            String new_res = GetVal( I18N::Translate( "Nouvelle résolution de la texture" ).c_str() );
             char *new_separator = strstr(new_res.c_str(),"x");
             if(new_separator) {
                 *new_separator=0;
@@ -1194,7 +1198,7 @@ void SurfPaint(int index)
                 destroy_bitmap(tmp);
             }
             else
-                Popup( TRANSLATE( "Erreur" ), TRANSLATE( "La résolution doit être de la forme: largeurxhauteur" ));
+                Popup( I18N::Translate( "Erreur" ), I18N::Translate( "La résolution doit être de la forme: largeurxhauteur" ));
         }
         if(SPaint.Objets[11].Etat) CubeTexturing(cur_part);
         if(SPaint.Objets[10].Etat) obj_geo_optimize(cur_part);
@@ -1603,31 +1607,31 @@ void SurfPaint(int index)
                                 case TOOL_POINT:
                                     glBlendFunc(GL_ONE,GL_ONE);
                                     glEnable(GL_BLEND);
-                                    gfx->print(gfx->normal_font,0.0f,SCREEN_H-8.0f,0.0f,0xFFFFFFFF,TRANSLATE( "Dessin point par point" ));
+                                    gfx->print(gfx->normal_font,0.0f,SCREEN_H-8.0f,0.0f,0xFFFFFFFF,I18N::Translate( "Dessin point par point" ));
                                     glDisable(GL_BLEND);
                                     break;
                                 case TOOL_LINE:
                                     glBlendFunc(GL_ONE,GL_ONE);
                                     glEnable(GL_BLEND);
-                                    gfx->print(gfx->normal_font,0.0f,SCREEN_H-8.0f,0.0f,0xFFFFFFFF,TRANSLATE( "Tracage de lignes" ));
+                                    gfx->print(gfx->normal_font,0.0f,SCREEN_H-8.0f,0.0f,0xFFFFFFFF,I18N::Translate( "Tracage de lignes" ));
                                     glDisable(GL_BLEND);
                                     break;
                                 case TOOL_FILL:
                                     glBlendFunc(GL_ONE,GL_ONE);
                                     glEnable(GL_BLEND);
-                                    gfx->print(gfx->normal_font,0.0f,SCREEN_H-8.0f,0.0f,0xFFFFFFFF,TRANSLATE( "Remplissage" ));
+                                    gfx->print(gfx->normal_font,0.0f,SCREEN_H-8.0f,0.0f,0xFFFFFFFF,I18N::Translate( "Remplissage" ));
                                     glDisable(GL_BLEND);
                                     break;
                                 case TOOL_PEN:
                                     glBlendFunc(GL_ONE,GL_ONE);
                                     glEnable(GL_BLEND);
-                                    gfx->print(gfx->normal_font,0.0f,SCREEN_H-8.0f,0.0f,0xFFFFFFFF, TRANSLATE( "Crayon" ));
+                                    gfx->print(gfx->normal_font,0.0f,SCREEN_H-8.0f,0.0f,0xFFFFFFFF, I18N::Translate( "Crayon" ));
                                     glDisable(GL_BLEND);
                                     break;
                                 case TOOL_TEX:
                                     glBlendFunc(GL_ONE,GL_ONE);
                                     glEnable(GL_BLEND);
-                                    gfx->print(gfx->normal_font,0.0f,SCREEN_H-8.0f,0.0f,0xFFFFFFFF,TRANSLATE( "Motif" ));
+                                    gfx->print(gfx->normal_font,0.0f,SCREEN_H-8.0f,0.0f,0xFFFFFFFF, I18N::Translate("Motif"));
                                     glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
                                     if(!IsOnGUI)
                                         gfx->drawtexture(tool_tex_gl,mouse_x-tool_tex_size*32.0f,mouse_y-tool_tex_size*32.0f,mouse_x+tool_tex_size*32.0f,mouse_y+tool_tex_size*32.0f);

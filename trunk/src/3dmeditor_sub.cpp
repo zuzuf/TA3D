@@ -32,6 +32,7 @@
 #include "taconfig.h"		// Configuration
 #include "3dmeditor.h"
 #include "misc/paths.h"
+#include "languages/i18n.h"
 
 
 
@@ -66,7 +67,7 @@ void mnu_file(int mnu_index)
         case 1:					// Ouvrir
             {
                 init_surf_buf();
-                String filename = Dialog(TRANSLATE( "Ouvrir un modèle" ),"*.3dm");
+                String filename = Dialog(I18N::Translate( "Ouvrir un modèle" ),"*.3dm");
                 if( filename.c_str() && file_exists(filename.c_str(),FA_RDONLY | FA_HIDDEN | FA_SYSTEM | FA_LABEL | FA_ARCH,NULL)) {
                     FILE *src = TA3D_OpenFile(filename.c_str(), "rb");
                     if(src) {
@@ -84,14 +85,14 @@ void mnu_file(int mnu_index)
             break;
         case 2:					// Sauver
             {
-                String filename=Dialog(TRANSLATE( "Sauvegarder un modèle" ),"*.3dm");
-                TheModel->save_3dm((char*)filename.c_str(), WndAsk( TRANSLATE("compression"), TRANSLATE("comprimer les textures?") ));
+                String filename=Dialog(I18N::Translate( "Sauvegarder un modèle" ),"*.3dm");
+                TheModel->save_3dm((char*)filename.c_str(), WndAsk( I18N::Translate("compression"), I18N::Translate("comprimer les textures?") ));
             }
             break;
         case 3:					// Importer (*.asc)
             {
                 init_surf_buf();
-                String filename=Dialog(TRANSLATE( "Importer un modèle au format ASC" ),"*.asc");
+                String filename=Dialog(I18N::Translate( "Importer un modèle au format ASC" ),"*.asc");
                 if(file_exists(filename.c_str(),FA_RDONLY | FA_HIDDEN | FA_SYSTEM | FA_LABEL | FA_ARCH,NULL)) {
                     TheModel->load_asc((char*)filename.c_str(),30.0f);
                     convert_to_3dm();
@@ -102,7 +103,7 @@ void mnu_file(int mnu_index)
         case 4:					// Importer (*.3do)
             {
                 init_surf_buf();
-                String filename=Dialog(TRANSLATE( "Importer un modèle au format 3DO" ),"*.3do");
+                String filename=Dialog(I18N::Translate( "Importer un modèle au format 3DO" ),"*.3do");
                 if(file_exists(filename.c_str(),FA_RDONLY | FA_HIDDEN | FA_SYSTEM | FA_LABEL | FA_ARCH,NULL)) {
                     byte *data = new byte[FILE_SIZE(filename.c_str())];
                     FILE *src = TA3D_OpenFile(filename.c_str(),"rb");
@@ -118,7 +119,7 @@ void mnu_file(int mnu_index)
         case 5:					// Importer (*.3ds)
             {
                 init_surf_buf();
-                String filename=Dialog(TRANSLATE( "Importer un modèle au format 3DS" ),"*.3ds");
+                String filename=Dialog(I18N::Translate( "Importer un modèle au format 3DS" ),"*.3ds");
                 if(file_exists(filename.c_str(),FA_RDONLY | FA_HIDDEN | FA_SYSTEM | FA_LABEL | FA_ARCH,NULL)) {
                     TheModel = load_3ds( filename );
                     cur_part=0;
@@ -240,7 +241,7 @@ void button_rename(int mnu_index)
 {
     if(cur_part<0 || cur_part>=nb_obj())	return;
     free(obj_table[cur_part]->name);
-    obj_table[cur_part]->name = strdup( GetVal( TRANSLATE( "Nouveau nom d'objet" ) ).c_str() );
+    obj_table[cur_part]->name = strdup( GetVal( I18N::Translate( "Nouveau nom d'objet" ) ).c_str() );
 }
 
 bool is_child(OBJECT *obj,int idx)
@@ -254,7 +255,7 @@ bool is_child(OBJECT *obj,int idx)
 void button_child(int mnu_index)
 {
     if(cur_part<0 || cur_part>=nb_obj())	return;
-    char *father_name = strdup( GetVal( TRANSLATE( "Nom du noeud père" ) ).c_str() );
+    char *father_name = strdup( GetVal( I18N::Translate( "Nom du noeud père" ) ).c_str() );
     int father_id=-1;
     if( obj_table[cur_part] == &(TheModel->obj) ) {
         OBJECT obj = TheModel->obj;
@@ -277,7 +278,7 @@ void button_child(int mnu_index)
     free(father_name);
 
     if(is_child(obj_table[cur_part],father_id)) {
-        Popup( TRANSLATE( "Action impossible" ), TRANSLATE( "Le noeud père est un fils du noeud séléctionné" ) );
+        Popup( I18N::Translate( "Action impossible" ), I18N::Translate( "Le noeud père est un fils du noeud séléctionné" ) );
         return;
     }
 
@@ -359,7 +360,7 @@ void button_remove(int mnu_index)
 void button_scale(int mnu_index)
 {
     if(cur_part<0 || cur_part>=nb_obj())	return;
-    float scale_factor = atof( GetVal( TRANSLATE( "Echelle" ) ).c_str() );
+    float scale_factor = atof( GetVal( I18N::Translate( "Echelle" ) ).c_str() );
     OBJECT *cur = obj_table[ cur_part ];
     std::list< OBJECT* >		stack;
     while( cur || stack.size() > 0 )
@@ -955,7 +956,7 @@ void init()
     TA3D::VARS::gfx = new TA3D::Interfaces::GFX;       // Creates the gfx object
 
     TA3D::VARS::Console=new TA3D::TA3D_DEBUG::cConsole(TA3D::Paths::Logs + "Console3DM.log" );   // Create console object, this will be dropped soon
-    i18n.load_translations("3dmeditor.res");   // create translation object.
+    I18N::LoadFromFile("3dmeditor.res");
     TA3D::VARS::HPIManager = new TA3D::UTILS::HPI::cHPIHandler( GetClientPath() ); // create hpi manager object.
 
     set_window_title("3DMEditor - TA3D Project");

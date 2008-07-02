@@ -8,4 +8,4 @@ SET(SOURCES weapons.h weapons.cpp
             weapons.single.h weapons.single.cpp)
 
 ADD_LIBRARY(weapons STATIC ${SOURCES})
-ADD_DEPENDENCIES(weapons stdafx misc 3dtoolbox threads gfx misc ingame)
+ADD_DEPENDENCIES(weapons stdafx i18n misc 3dtoolbox threads gfx misc ingame)

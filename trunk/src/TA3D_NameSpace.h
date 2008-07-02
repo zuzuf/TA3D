@@ -41,7 +41,6 @@
 # include "TA3D_hpi.h"
 # include "gfx/gfx.h"
 # include "console.h"
-# include "i18n.h"
 # include "network/network.h"
 # include "threads/thread.h"
 # include <vector>
@@ -205,8 +204,6 @@ namespace TA3D
 		TA3D_API_E uint8							particle_engine_thread_sync;
 		TA3D_API_E uint8							players_thread_sync;
 
-		TA3D_API_E I18N_TRANSLATER					i18n;
-		
 		TA3D_API_E ObjectSync						*ThreadSynchroniser;
 		TA3D_API_E String							TA3D_CURRENT_MOD;
 		TA3D_API_E int								ascii_to_scancode[ 256 ];

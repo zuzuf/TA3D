@@ -41,7 +41,7 @@
 #include "ingame/menus/mapselector.h"
 #include <vector>
 #include <list>
-
+#include "languages/i18n.h"
 
 
 namespace TA3D
@@ -92,7 +92,7 @@ void config_menu(void)
     else
         ReadVectorString( fps_limits, "50,60,70,80,90,100,no limit" );
     for( uint32 e = 0 ; e < fps_limits.size() ; e++ )
-        fps_limits[ e ] = TRANSLATE( fps_limits[ e ] );
+        fps_limits[ e ] = I18N::Translate( fps_limits[ e ] );
     int	nb_res = 0;
     int res_width[100];
     int res_height[100];
@@ -231,7 +231,7 @@ void config_menu(void)
         GUIOBJ *obj = config_area.get_object("*.skin");
 
         obj->Text.resize( 1 );
-        obj->Text[ 0 ] = TRANSLATE( "default.skn" );
+        obj->Text[ 0 ] = I18N::Translate( "default.skn" );
 
         std::list<String> skin_list;
         HPIManager->getFilelist("gui\\*.skn", skin_list);
@@ -521,8 +521,7 @@ void config_menu(void)
     config_area.destroy();
 
     LANG = lp_CONFIG->Lang;
-
-    i18n.refresh_language();   // refresh the language used by the i18n object
+    I18N::CurrentLanguage(lp_CONFIG->Lang);
 }
 
 void stats_menu(void)
@@ -646,9 +645,9 @@ void setup_game(bool client, const char *host)
 
     uint16	player_str_n = 4;
     uint16	ai_level_str_n = 4;
-    String	player_str[4] = { lp_CONFIG->player_name, TRANSLATE("computer"), TRANSLATE("open"), TRANSLATE("closed") };
+    String	player_str[4] = { lp_CONFIG->player_name, I18N::Translate("computer"), I18N::Translate("open"), I18N::Translate("closed") };
     byte	player_control[4] = { PLAYER_CONTROL_LOCAL_HUMAN, PLAYER_CONTROL_LOCAL_AI, PLAYER_CONTROL_NONE, PLAYER_CONTROL_CLOSED };
-    String	ai_level_str[4] = { TRANSLATE("easy"), TRANSLATE("medium"), TRANSLATE("hard"), TRANSLATE("bloody") };
+    String	ai_level_str[4] = { I18N::Translate("easy"), I18N::Translate("medium"), I18N::Translate("hard"), I18N::Translate("bloody") };
     uint16	side_str_n = ta3dSideData.nb_side;
     std::vector<String>	side_str;
 
@@ -666,7 +665,7 @@ void setup_game(bool client, const char *host)
 
         if( n == 0 ) {
             network_manager.Disconnect();
-            Popup(TRANSLATE("Error"),TRANSLATE("No maps found"));
+            Popup(I18N::Translate("Error"),I18N::Translate("No maps found"));
             Console->AddEntry("no maps found!!");
             reset_mouse();
             return;
@@ -683,7 +682,7 @@ void setup_game(bool client, const char *host)
 
         if( n == 0 ) {
             network_manager.Disconnect();
-            Popup(TRANSLATE("Error"),TRANSLATE("No scripts found"));
+            Popup(I18N::Translate("Error"),I18N::Translate("No scripts found"));
             Console->AddEntry("no scripts found!!");
             reset_mouse();
             return;
@@ -1677,7 +1676,7 @@ void network_room(void)				// Let players create/join a game
                 for( std::list< String >::iterator server_i = server_names.begin() ; server_i != server_names.end() ; server_i++, i++ )		// Remove those who timeout
                     obj->Text[i] = *server_i;
                 if( obj->Text.size() == 0 )
-                    obj->Text.push_back(TRANSLATE("No server found"));
+                    obj->Text.push_back(I18N::Translate("No server found"));
             }
         }
 
@@ -1703,7 +1702,7 @@ void network_room(void)				// Let players create/join a game
                 for( std::list< String >::iterator server_i = server_names.begin() ; server_i != server_names.end() ; server_i++, i++ )		// Remove those who timeout
                     obj->Text[i] = *server_i;
                 if( obj->Text.size() == 0 )
-                    obj->Text.push_back(TRANSLATE("No server found"));
+                    obj->Text.push_back(I18N::Translate("No server found"));
             }
         }
 
@@ -1725,7 +1724,7 @@ void network_room(void)				// Let players create/join a game
                 for( std::list< String >::iterator server_i = server_names.begin() ; server_i != server_names.end() ; server_i++, i++ )		// Remove those who timeout
                     obj->Text[i] = *server_i;
                 if( obj->Text.size() == 0 )
-                    obj->Text.push_back(TRANSLATE("No server found"));
+                    obj->Text.push_back(I18N::Translate("No server found"));
             }
 
             server_list_timer = msec_timer;
@@ -2058,7 +2057,7 @@ int brief_screen(String campaign_name, int mission_id)
         obj->Text.clear();
         obj->Text.resize( ota_parser.PullAsInt( "GlobalHeader.SCHEMACOUNT" ) + 1 );
         for(unsigned int i = 0 ; i < obj->Text.size() - 1 ; ++i)
-            obj->Text[ i + 1 ] = TRANSLATE( ota_parser.PullAsString( format( "GlobalHeader.Schema %d.Type", i ) ) );
+            obj->Text[ i + 1 ] = I18N::Translate( ota_parser.PullAsString( format( "GlobalHeader.Schema %d.Type", i ) ) );
         if( obj->Text.size() > 1 )
             obj->Text[ 0 ] = obj->Text[ 1 ];
     }

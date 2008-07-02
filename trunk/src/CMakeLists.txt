@@ -1,4 +1,5 @@
 ADD_SUBDIRECTORY(logs)
+ADD_SUBDIRECTORY(languages)
 ADD_SUBDIRECTORY(threads)
 ADD_SUBDIRECTORY(misc)
 ADD_SUBDIRECTORY(jpeg)
@@ -48,15 +49,6 @@ ADD_LIBRARY(console STATIC ${SOURCES})
 ADD_DEPENDENCIES(console stdafx misc logs threads)
 
 # --------------------------------------------------------------------
-# --- i18n
-# --------------------------------------------------------------------
-SET(LIBRARY_OUTPUT_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../bin/libs/${CMAKE_SYSTEM_NAME}")
-SET(ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../bin/libs/${CMAKE_SYSTEM_NAME}")
-SET(SOURCES i18n.cpp i18n.h)
-ADD_LIBRARY(i18n STATIC ${SOURCES})
-ADD_DEPENDENCIES(i18n stdafx misc)
-
-# --------------------------------------------------------------------
 # --- GUI
 # --------------------------------------------------------------------
 SET(LIBRARY_OUTPUT_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../bin/libs/${CMAKE_SYSTEM_NAME}")
@@ -83,7 +75,7 @@ SET(SOURCES gaf.cpp gaf.h
             3do.cpp 3do.h
             3ds.cpp 3ds.h)
 ADD_LIBRARY(fileformats STATIC ${SOURCES})
-ADD_DEPENDENCIES(fileformats stdafx particles taconfig ingame)
+ADD_DEPENDENCIES(fileformats stdafx particles i18n taconfig ingame)
 
 # --------------------------------------------------------------------
 # --- Audio
