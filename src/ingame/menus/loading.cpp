@@ -3,6 +3,7 @@
 #include "../../TA3D_NameSpace.h"
 #include "../../misc/paths.h"
 #include "../../gui.h"
+#include "../../languages/i18n.h"
 
 # define TA3D_LOG_SECTION_MENU_MAIN_PREFIX  "[loading] "
 
@@ -143,7 +144,7 @@ namespace Menus
         if (pCaption != info)
         {
             pCaption = info;
-            pMessages.push_front(info + " - " + TRANSLATE("done"));
+            pMessages.push_front(info + " - " + I18N::Translate("done"));
         }
         pMutex.unlock();
     }

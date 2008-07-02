@@ -29,6 +29,7 @@
 #include "console.h"
 #include "misc/paths.h"
 #include <list>
+#include "languages/i18n.h"
 
 
 void loading(const float percent, const String& msg)
@@ -83,7 +84,7 @@ void loading(const float percent, const String& msg)
 
     if( messages.empty() || Lowercase( messages.front() ) != Lowercase( msg ) ) {
         if( !messages.empty() )
-            messages.front() = messages.front() + " - " + TRANSLATE( "done" );
+            messages.front() = messages.front() + " - " + I18N::Translate( "done" );
         messages.push_front( msg );
     }
 

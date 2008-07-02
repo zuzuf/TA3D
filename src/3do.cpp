@@ -31,6 +31,7 @@
 #include "gfx/particles/particles.h"
 #include "taconfig.h"
 #include "ingame/sidedata.h"
+#include "languages/i18n.h"
 
 using namespace TA3D::Exceptions;
 
@@ -1939,7 +1940,7 @@ hit_fast_is_exploding:
             {
                 Console->AddEntry( "loading %s", e->c_str() );
                 if(progress!=NULL && !(i & 0xF))
-                    progress((100.0f+n*50.0f/(new_nb_models+1))/7.0f,TRANSLATE("Loading 3D Models"));
+                    progress((100.0f+n*50.0f/(new_nb_models+1))/7.0f,I18N::Translate("Loading 3D Models"));
                 n++;
                 model[i+nb_models].init();
                 name[i+nb_models] = strdup(e->c_str());
@@ -1992,7 +1993,7 @@ hit_fast_is_exploding:
             {
                 Console->AddEntry( "loading %s", e->c_str() );
                 if( progress != NULL && !(i & 0xF) )
-                    progress((100.0f+(50.0f+n*50.0f/(new_nb_models+1)))/7.0f,TRANSLATE("Loading 3D Models"));
+                    progress((100.0f+(50.0f+n*50.0f/(new_nb_models+1)))/7.0f,I18N::Translate("Loading 3D Models"));
                 n++;
                 model[i+nb_models].init();
                 name[i+nb_models] = strdup(e->c_str());

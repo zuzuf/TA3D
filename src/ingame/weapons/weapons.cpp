@@ -27,7 +27,7 @@
 #include "../../gfx/fx.h"
 #include "../sidedata.h"
 #include <list>
-
+#include "../../languages/i18n.h"
 
 namespace TA3D
 {
@@ -43,7 +43,7 @@ namespace TA3D
         for (std::list<String>::const_iterator cur_file = file_list.begin(); cur_file != file_list.end(); ++cur_file)
         {
             if(progress!=NULL && !(n & 0xF))
-                progress((250.0f+n*50.0f/(file_list.size()+1))/7.0f,TRANSLATE("Loading weapons"));
+                progress((250.0f+n*50.0f/(file_list.size()+1))/7.0f,I18N::Translate("Loading weapons"));
             ++n;
 
             uint32 file_size=0;

@@ -35,6 +35,7 @@
 #include "ai/ai.h"                  // AI Engine
 #include "gfx/fx.h"					// Special FX engine
 #include "misc/paths.h"
+#include "languages/i18n.h"
 
 using namespace TA3D::Exceptions;
 
@@ -109,20 +110,16 @@ namespace TA3D
 		TA3D::VARS::Console=new TA3D::TA3D_DEBUG::cConsole( m_lpcLogger->get_log_file() );
 
 		GuardInfo( "Creating translation manager." );
-		try {
-			i18n.load_translations("gamedata\\translate.tdf", false, true);   // Loads translation data (TA translations in ASCII -> UTF8)
-			}
-		catch( ... )	{}
-		try {
-			i18n.load_translations("ta3d.res", true);   // Loads translation data (TA3D translations in UTF8)
-			}
-		catch( ... )	{}
+
+        // Loads translation data (TA translations in ASCII -> UTF8)
+        I18N::Instance()->loadFromFile("gamedata\\translate.tdf", false, true);   
+        I18N::Instance()->loadFromFile("ta3d.res", true);   // Loads translation data (TA3D translations in UTF8)
 
 		if( !HPIManager->Exists( "gamedata\\sidedata.tdf" ) || !HPIManager->Exists( "gamedata\\allsound.tdf" ) || !HPIManager->Exists( "gamedata\\sound.tdf" ) )
         {
-            LOG_ERROR(TRANSLATE("RESOURCES ERROR"));
+            LOG_ERROR(I18N::Translate("RESOURCES ERROR"));
 			set_uformat(U_UTF8);   // fixed size, 8-bit ASCII characters
-			allegro_message( TRANSLATE("RESOURCES ERROR").c_str() );
+			allegro_message( I18N::Translate("RESOURCES ERROR").c_str() );
 			set_uformat(U_ASCII);   // fixed size, 8-bit ASCII characters
 			throw ("resources missing!!");
 		}
@@ -135,9 +132,9 @@ namespace TA3D
 
 		if( !sound_manager->IsFMODRunning() && !lp_CONFIG->quickstart )
         {
-            LOG_ERROR(TRANSLATE("FMOD WARNING"));
+            LOG_ERROR(I18N::Translate("FMOD WARNING"));
 			set_uformat(U_UTF8);   // fixed size, 8-bit ASCII characters
-			allegro_message( TRANSLATE("FMOD WARNING").c_str() );
+			allegro_message( I18N::Translate("FMOD WARNING").c_str() );
 			set_uformat(U_ASCII);   // fixed size, 8-bit ASCII characters
 		}
 

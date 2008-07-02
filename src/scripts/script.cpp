@@ -32,6 +32,7 @@
 #include "../UnitEngine.h"
 #include "script.h"
 #include "../misc/camera.h"
+#include "../languages/i18n.h"
 #include <vector>
 
 
@@ -58,7 +59,7 @@ namespace TA3D
                 draw_obj.b[0] = 1.0f;
                 draw_obj.x[0] = (float) lua_tonumber( L, -4 );
                 draw_obj.y[0] = (float) lua_tonumber( L, -3 );
-                draw_obj.text = strdup( TRANSLATE( str ).c_str() );
+                draw_obj.text = strdup( I18N::Translate( str ).c_str() );
                 lua_program->draw_list.add( draw_obj );
             }
 
@@ -279,7 +280,7 @@ namespace TA3D
             draw_obj.y[0] = (float) lua_tonumber( L, -4 );
             draw_obj.x[1] = (float) lua_tonumber( L, -3 );
             draw_obj.y[1] = (float) lua_tonumber( L, -2 );
-            draw_obj.tex = gfx->load_texture( TRANSLATE( lua_tostring( L, -6 ) ) );
+            draw_obj.tex = gfx->load_texture( I18N::Translate( lua_tostring( L, -6 ) ) );
             draw_obj.text = NULL;
             lua_program->draw_list.add( draw_obj );
         }

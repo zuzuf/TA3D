@@ -31,7 +31,6 @@ uint8					TA3D::VARS::unit_engine_thread_sync;
 uint8					TA3D::VARS::weapon_engine_thread_sync;
 uint8					TA3D::VARS::particle_engine_thread_sync;
 uint8					TA3D::VARS::players_thread_sync;
-I18N_TRANSLATER			TA3D::VARS::i18n;
 ObjectSync				*TA3D::VARS::ThreadSynchroniser=NULL;
 String					TA3D::VARS::TA3D_CURRENT_MOD="";		// This string stores the path to current mod
 int						TA3D::VARS::ascii_to_scancode[ 256 ];

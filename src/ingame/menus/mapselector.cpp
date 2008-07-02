@@ -4,6 +4,7 @@
 #include <algorithm>
 #include "../../tnt.h"
 #include "../../logs/logs.h"
+#include "../../languages/i18n.h"
 
 # define TA3D_LOG_SECTION_MENU_MAP_SELECTOR_PREFIX  "[Map Selector] "
 
@@ -297,7 +298,7 @@ namespace Menus
         if(mapOTA.numplayers)
         {
             title += "\n";
-            title += TRANSLATE("players: ");
+            title += I18N::Translate("players: ");
             title += mapOTA.numplayers;
             title += "\n";
         }
@@ -364,7 +365,7 @@ namespace Menus
         {
             case 0:
                 {
-                    Popup(TRANSLATE("Error"), TRANSLATE("No map found"));
+                    Popup(I18N::Translate("Error"), I18N::Translate("No map found"));
                     Console->AddEntry("No maps found!!");
                     LOG_ERROR(TA3D_LOG_SECTION_MENU_MAP_SELECTOR_PREFIX << "No maps have been found.");
                     return false;

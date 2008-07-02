@@ -30,6 +30,7 @@
 #include "misc/camera.h"
 #include "misc/material.light.h"
 #include "ingame/gamedata.h"
+#include "languages/i18n.h"
 #include <list>
 #include <vector>
 
@@ -68,14 +69,14 @@ int play(GameData *game_data)
     int start_time=msec_timer;		// Pour la mesure du temps de chargement
 
     Console->AddEntry("Loading textures");
-    loading(0.0f,TRANSLATE("Loading textures"));
+    loading(0.0f,I18N::Translate("Loading textures"));
 
     /*-----------------------charge les textures-------------------------*/
 
     texture_manager.all_texture();
 
     Console->AddEntry("Loading 3D Models");
-    loading(100.0f/7.0f,TRANSLATE("Loading 3D Models"));
+    loading(100.0f/7.0f,I18N::Translate("Loading 3D Models"));
     /*-----------------------charge les modèles 3D-----------------------*/
 
     model_manager.init();
@@ -83,7 +84,7 @@ int play(GameData *game_data)
     model_manager.optimise_all();
 
     Console->AddEntry("Loading graphical features");
-    loading(200.0f/7.0f,TRANSLATE("Loading graphical features"));
+    loading(200.0f/7.0f,I18N::Translate("Loading graphical features"));
     /*-----------------------charge les éléments graphiques--------------*/
 
     load_features(loading);
@@ -92,7 +93,7 @@ int play(GameData *game_data)
     model_manager.compute_ids();
 
     Console->AddEntry("Loading weapons");
-    loading(250.0f/7.0f,TRANSLATE("Loading weapons"));
+    loading(250.0f/7.0f,I18N::Translate("Loading weapons"));
     /*-----------------------charge les armes----------------------------*/
 
     load_weapons(loading);
@@ -100,19 +101,19 @@ int play(GameData *game_data)
     weapons.init();
 
     Console->AddEntry("Loading units");
-    loading(300.0f/7.0f,TRANSLATE("Loading units"));
+    loading(300.0f/7.0f,I18N::Translate("Loading units"));
     /*-----------------------charge les unités---------------------------*/
 
     load_all_units(loading);
 
     Console->AddEntry("Freeing unused memory");
-    loading(400.0f/7.0f,TRANSLATE("Free unused memory"));
+    loading(400.0f/7.0f,I18N::Translate("Free unused memory"));
     /*-----------------------libère la mémoire inutilisée----------------*/
 
     texture_manager.destroy();
 
     Console->AddEntry("Initialising engine");
-    loading(500.0f/7.0f,TRANSLATE("Initialising engine"));
+    loading(500.0f/7.0f,I18N::Translate("Initialising engine"));
     /*-----------------------initialise le moteur------------------------*/
 
     gfx->SetDefState();
@@ -161,7 +162,7 @@ int play(GameData *game_data)
     }
 
     Console->AddEntry("Loading GUI");
-    loading(550.0f/7.0f,TRANSLATE("Loading GUI"));
+    loading(550.0f/7.0f,I18N::Translate("Loading GUI"));
     //-------------------	Code related to the GUI		--------------------------
 
     AREA	game_area;			// Area object that will handle game GUI
@@ -191,7 +192,7 @@ int play(GameData *game_data)
     for( int i = 0 ; i < unit_manager.nb_unit ; i++ )  // Loads the GUI
     {
         if( !(i & 0xF) )
-            loading( (550.0f + 50.0f * i / (unit_manager.nb_unit+1) )/7.0f,TRANSLATE("Loading GUI"));
+            loading( (550.0f + 50.0f * i / (unit_manager.nb_unit+1) )/7.0f,I18N::Translate("Loading GUI"));
         if( Lowercase( unit_manager.unit_type[ i ].side ) == Lowercase( ta3dSideData.side_name[ players.side_view ] ) )
         {
             int e = 1;
@@ -209,7 +210,7 @@ int play(GameData *game_data)
     //----------------------------------------------------------------------------
 
     Console->AddEntry("Loading the map");
-    loading(600.0f/7.0f,TRANSLATE("Loading the map"));
+    loading(600.0f/7.0f,I18N::Translate("Loading the map"));
     /*-----------------------charge la carte-----------------------------*/
 
     Console->AddEntry("Extracting '%s'", game_data->map_filename);
@@ -276,7 +277,7 @@ int play(GameData *game_data)
     GLuint	circle_texture = gfx->load_texture("gfx/circle.tga");
     GLuint	water = 0;
 
-    loading(100.0f,TRANSLATE("Load finished"));
+    loading(100.0f,I18N::Translate("Load finished"));
 
     start_time = msec_timer-start_time;
     LOG_INFO("Loading time: " << (float)start_time * 0.001f << " sec.");
@@ -727,9 +728,9 @@ int play(GameData *game_data)
                 if( statuswnd )
                     statuswnd->y = (int)(SCREEN_H - (statuswnd->height + 32) * show_gamestatus);
                 uint32 game_time = units.current_tick / TICKS_PER_SEC;
-                game_area.set_caption( "gamestatus.time_label", TRANSLATE("game time") + format(" : %d:%d:%d", game_time / 3600, (game_time / 60) % 60, game_time % 60 ) );
-                game_area.set_caption( "gamestatus.units_label", TRANSLATE("units") + format(" : %d/%d", players.nb_unit[ players.local_human_id ], MAX_UNIT_PER_PLAYER ) );
-                game_area.set_caption( "gamestatus.speed_label", TRANSLATE("speed") + format(" : %d (%d)", (int)lp_CONFIG->timefactor,(int)units.apparent_timefactor ) );
+                game_area.set_caption( "gamestatus.time_label", I18N::Translate("game time") + format(" : %d:%d:%d", game_time / 3600, (game_time / 60) % 60, game_time % 60 ) );
+                game_area.set_caption( "gamestatus.units_label", I18N::Translate("units") + format(" : %d/%d", players.nb_unit[ players.local_human_id ], MAX_UNIT_PER_PLAYER ) );
+                game_area.set_caption( "gamestatus.speed_label", I18N::Translate("speed") + format(" : %d (%d)", (int)lp_CONFIG->timefactor,(int)units.apparent_timefactor ) );
 
                 statuswnd = game_area.get_wnd( "playerstats" );
                 if( statuswnd )

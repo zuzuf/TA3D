@@ -30,6 +30,9 @@
 #include "EngineClass.h"
 #include "UnitEngine.h"
 #include "network/TA3D_Network.h"
+#include "languages/i18n.h"
+
+
 
 namespace TA3D
 {
@@ -230,7 +233,7 @@ namespace TA3D
         for(std::list<String>::iterator cur_file=file_list.begin();cur_file!=file_list.end();cur_file++)
         {
             if(progress!=NULL && !(n & 0xF))
-                progress((200.0f+n*50.0f/(file_list.size()+1))/7.0f,TRANSLATE("Loading graphical features"));
+                progress((200.0f+n*50.0f/(file_list.size()+1))/7.0f,I18N::Translate("Loading graphical features"));
             n++;
 
             uint32 file_size=0;
@@ -757,9 +760,9 @@ namespace TA3D
         if(feature_manager.feature[ feature[ idx ].type ].description)
         {
             if( feature_manager.feature[ feature[ idx ].type ].reclaimable )
-                gfx->print(gfx->normal_font,ta3dSideData.side_int_data[ players.side_view ].Description.x1,ta3dSideData.side_int_data[ players.side_view ].Description.y1,0.0f,0xFFFFFFFF, format("%s M:%d E:%d",TRANSLATE( feature_manager.feature[ feature[ idx ].type ].description ).c_str(),feature_manager.feature[ feature[ idx ].type ].metal,feature_manager.feature[ feature[ idx ].type ].energy) );
+                gfx->print(gfx->normal_font,ta3dSideData.side_int_data[ players.side_view ].Description.x1,ta3dSideData.side_int_data[ players.side_view ].Description.y1,0.0f,0xFFFFFFFF, format("%s M:%d E:%d",I18N::Translate( feature_manager.feature[ feature[ idx ].type ].description ).c_str(),feature_manager.feature[ feature[ idx ].type ].metal,feature_manager.feature[ feature[ idx ].type ].energy) );
             else
-                gfx->print(gfx->normal_font,ta3dSideData.side_int_data[ players.side_view ].Description.x1,ta3dSideData.side_int_data[ players.side_view ].Description.y1,0.0f,0xFFFFFFFF, TRANSLATE( feature_manager.feature[ feature[ idx ].type ].description ) );
+                gfx->print(gfx->normal_font,ta3dSideData.side_int_data[ players.side_view ].Description.x1,ta3dSideData.side_int_data[ players.side_view ].Description.y1,0.0f,0xFFFFFFFF, I18N::Translate( feature_manager.feature[ feature[ idx ].type ].description ) );
         }
 
         glDisable(GL_BLEND);

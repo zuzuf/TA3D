@@ -35,6 +35,7 @@
 #include "ingame/sidedata.h"
 #include "ingame/menus/intro.h"
 #include "ingame/menus/mainmenu.h"
+#include "languages/i18n.h"
 
 
 
@@ -350,6 +351,8 @@ int main(int argc,char *argv[])
     GuardStart( main )
         delete TA3D::VARS::lp_CONFIG;
     GuardCatch();
+
+    I18N::Destroy();
 
     LOG_INFO("Exiting...");
     if( !quickrestart )

@@ -27,6 +27,7 @@
 #include "misc/matrix.h"
 #include "ta3dbase.h"
 #include "misc/paths.h"
+#include "languages/i18n.h"
 
 using namespace TA3D::Exceptions;
 
@@ -1381,8 +1382,7 @@ void WND::load_gui( const String &filename, cHashTable< std::vector< TA3D::Inter
 
         std::vector<String> Caption;
         ReadVectorString(Caption, wndFile->PullAsString( obj_key + "text" ));
-        for(std::vector<String>::iterator e = Caption.begin(); e != Caption.end(); ++e)
-            *e = TRANSLATE(*e);
+        I18N::Translate(Caption);
 
         if (TA_ID_BUTTON == obj_type)
         {
@@ -1507,7 +1507,7 @@ void WND::load_tdf( const String &filename, SKIN *skin )			// Load a window from
     if(	wnd_uformat == "ASCII_CP" )	u_format = U_ASCII_CP;
     if(	wnd_uformat == "UNICODE" )	u_format = U_UNICODE;
     if(	wnd_uformat == "UTF8" )		u_format = U_UTF8;
-    Title = TRANSLATE( wndFile->PullAsString( "window.title" ) );
+    Title = I18N::Translate(wndFile->PullAsString( "window.title" ));
     x = wndFile->PullAsInt( "window.x" );
     y = wndFile->PullAsInt( "window.y" );
     width = wndFile->PullAsInt( "window.width" );
@@ -1560,13 +1560,13 @@ void WND::load_tdf( const String &filename, SKIN *skin )			// Load a window from
 
         obj_hashtable.Insert( Lowercase( Objets[i].Name ), i + 1 );
 
-        Objets[i].help_msg = TRANSLATE( wndFile->PullAsString( obj_key + "help", "" ) );
+        Objets[i].help_msg = I18N::Translate(wndFile->PullAsString( obj_key + "help"));
 
         float X1 = wndFile->PullAsFloat( obj_key + "x1" )*x_factor;				// Reads data from TDF
         float Y1 = wndFile->PullAsFloat( obj_key + "y1" )*y_factor;
         float X2 = wndFile->PullAsFloat( obj_key + "x2" )*x_factor;
         float Y2 = wndFile->PullAsFloat( obj_key + "y2" )*y_factor;
-        String caption = TRANSLATE( wndFile->PullAsString( obj_key + "caption" ) );
+        String caption = I18N::Translate(wndFile->PullAsString( obj_key + "caption" ));
         float size = wndFile->PullAsFloat( obj_key + "size", 1.0f ) * min( x_factor, y_factor );
         int val = wndFile->PullAsInt( obj_key + "value" );
         uint32 obj_flags = 0;
@@ -1599,8 +1599,7 @@ void WND::load_tdf( const String &filename, SKIN *skin )			// Load a window from
 
         std::vector<String> Entry;
         ReadVectorString(Entry, wndFile->PullAsString(obj_key + "entry"));
-        for(std::vector<String>::iterator e = Entry.begin(); e != Entry.end(); ++e)
-            *e = TRANSLATE(*e);
+        I18N::Translate(Entry);
 
         if( obj_type == "BUTTON" )
             Objets[i].create_button( X1, Y1, X2, Y2, caption, NULL, size );
@@ -1637,7 +1636,7 @@ void WND::load_tdf( const String &filename, SKIN *skin )			// Load a window from
         else if( obj_type == "BOX" )
             Objets[i].create_box( X1, Y1, X2, Y2, val );
         else if( obj_type == "IMG" ) {
-            Objets[i].create_img( X1, Y1, X2, Y2, gfx->load_texture( TRANSLATE( wndFile->PullAsString( obj_key + "source" ) ) ) );
+            Objets[i].create_img(X1, Y1, X2, Y2, gfx->load_texture( I18N::Translate(wndFile->PullAsString( obj_key + "source" ))));
             Objets[i].destroy_img = Objets[i].Data != 0 ? true : false;
         }
         else if( obj_type == "LIST" )
@@ -2359,11 +2358,11 @@ detect:
 
         // Objets de la fenêtre
         // Barre nom du fichier
-        gfx->print(gui_font,WAsk.x+5,WAsk.y+19,0.0f,Noir, TRANSLATE( "Nom du fichier:" ) );
+        gfx->print(gui_font,WAsk.x+5,WAsk.y+19,0.0f,Noir, I18N::Translate("Nom du fichier:"));
         TextBar(WAsk.x+125,WAsk.y+16,WAsk.x+WAsk.width-5,WAsk.y+30,(char*)Name.c_str(),(retrace_count%60)>30);
 
         // Liste des dossiers
-        gfx->print(gui_font,WAsk.x+21,WAsk.y+40,0.0f,Noir, TRANSLATE( "Liste des dossiers:" ) );
+        gfx->print(gui_font,WAsk.x+21,WAsk.y+40,0.0f,Noir, I18N::Translate("Liste des dossiers:"));
         TextBar(WAsk.x+5,WAsk.y+50,WAsk.x+190,WAsk.y+WAsk.height-10,"",false);
         // Affiche le nom des dossiers
         if(NbDir>0) {
@@ -2398,12 +2397,14 @@ detect:
         }
 
         // Liste des fichiers
-        gfx->print(gui_font,WAsk.x+226,WAsk.y+40,0.0f,Noir, TRANSLATE( "Liste des fichiers:" ) );
+        gfx->print(gui_font,WAsk.x+226,WAsk.y+40,0.0f,Noir, I18N::Translate("Liste des fichiers:"));
         TextBar(WAsk.x+210,WAsk.y+50,WAsk.x+480,WAsk.y+WAsk.height-10,"",false);
         // Affiche le nom des fichiers
-        if(NbFiles>0) {
+        if(NbFiles>0)
+        {
             int f=0;
-            for(std::list<String>::iterator e=Files.begin();e!=Files.end();e++) {
+            for(std::list<String>::iterator e=Files.begin();e!=Files.end();e++)
+            {
                 i=f-DecF;
                 f++;
                 if(i>=41) break;

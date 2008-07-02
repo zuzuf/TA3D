@@ -34,6 +34,7 @@
 #include "UnitEngine.h"
 #include <vector>
 #include <list>
+#include "languages/i18n.h"
 
 UNIT_MANAGER unit_manager;
 
@@ -216,13 +217,13 @@ void UNIT_TYPE::show_info(float fade,GfxFont fnt)
     glColor4f(1.0f,1.0f,1.0f,fade);
     gfx->drawtexture(glpic,x+16,y+16,x+80,y+80);
     glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
-    gfx->print(fnt,x+96,y+16,0.0f,format("%s: %s",TRANSLATE("Name").c_str(),name));
-    gfx->print(fnt,x+96,y+28,0.0f,format("%s: %s",TRANSLATE("Internal name").c_str(),Unitname));
+    gfx->print(fnt,x+96,y+16,0.0f,format("%s: %s",I18N::Translate("Name").c_str(),name));
+    gfx->print(fnt,x+96,y+28,0.0f,format("%s: %s",I18N::Translate("Internal name").c_str(),Unitname));
     gfx->print(fnt,x+96,y+40,0.0f,format("%s",Description));
-    gfx->print(fnt,x+96,y+52,0.0f,format("%s: %d",TRANSLATE("HP").c_str(),MaxDamage));
-    gfx->print(fnt,x+96,y+64,0.0f,format("%s: E %d M %d",TRANSLATE("Cost").c_str(),BuildCostEnergy,BuildCostMetal));
-    gfx->print(fnt,x+16,y+100,0.0f,format("%s: %d",TRANSLATE("Build time").c_str(),BuildTime));
-    gfx->print(fnt,x+16,y+124,0.0f,format("%s:",TRANSLATE("weapons").c_str()));
+    gfx->print(fnt,x+96,y+52,0.0f,format("%s: %d",I18N::Translate("HP").c_str(),MaxDamage));
+    gfx->print(fnt,x+96,y+64,0.0f,format("%s: E %d M %d",I18N::Translate("Cost").c_str(),BuildCostEnergy,BuildCostMetal));
+    gfx->print(fnt,x+16,y+100,0.0f,format("%s: %d",I18N::Translate("Build time").c_str(),BuildTime));
+    gfx->print(fnt,x+16,y+124,0.0f,format("%s:",I18N::Translate("weapons").c_str()));
     int Y=y+136;
     if(weapon[0])	{	gfx->print(fnt,x+16,Y,0.0f,format("%s: %d",weapon[0]->name,weapon_damage[0]));	Y+=12;	}
     if(weapon[1])	{	gfx->print(fnt,x+16,Y,0.0f,format("%s: %d",weapon[1]->name,weapon_damage[1]));	Y+=12;	}
@@ -920,7 +921,7 @@ int load_all_units(void (*progress)(float percent,const String &msg))
     for(std::list<String>::iterator i=file_list.begin();i!=file_list.end();i++) {
 
         if(progress!=NULL && !(n & 0xF))
-            progress((300.0f+n*50.0f/(file_list.size()+1))/7.0f,TRANSLATE("Loading units"));
+            progress((300.0f+n*50.0f/(file_list.size()+1))/7.0f,I18N::Translate("Loading units"));
         n++;
 
         char *nom=strdup(strstr(i->c_str(),"\\")+1);			// Vérifie si l'unité n'est pas déjà chargée
