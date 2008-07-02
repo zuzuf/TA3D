@@ -12,7 +12,7 @@ namespace TA3D
 
 
 /*
-** \brief Tools to handle paths
+** \brief Path manipulation functions
 */
 namespace Paths
 {
