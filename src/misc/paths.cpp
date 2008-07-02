@@ -147,13 +147,17 @@ namespace Paths
     {
         LOG_ASSERT(NULL != argv0);
 
-        ApplicationRoot = "";
-        String r(CurrentDirectory());
-        r += Separator;
-        r += argv0;
-        if (r.empty())
-            return;
-        ApplicationRoot = ExtractFilePath(r);
+        if (IsAbsolute(argv0))
+            ApplicationRoot = ExtractFilePath(argv0);
+        else
+        {
+            ApplicationRoot = "";
+            String r(CurrentDirectory());
+            r += Separator;
+            r += argv0;
+            if (!r.empty())
+                ApplicationRoot = ExtractFilePath(r);
+        }
     }
 
 
@@ -164,6 +168,7 @@ namespace Paths
         LOG_ASSERT(NULL != argv);
 
         initApplicationRootPath(argv[0]);
+        LOG_INFO("Started from: `" << ApplicationRoot << "`");
 
         # ifdef TA3D_PLATFORM_WINDOWS
         initForWindows();
@@ -181,10 +186,12 @@ namespace Paths
         LOG_INFO("Folder: Savegames: `" << Savegames << "`");
         LOG_INFO("Folder: Screenshots: `" << Screenshots << "`");
         LOG_INFO("Folder: Logs: `" << Logs << "`");
+
         bool res = MakeDir(Caches) && MakeDir(Savegames)
             && MakeDir(Logs) && MakeDir(Preferences) && MakeDir(Screenshots);
         if (!res)
             LOG_CRITICAL("Aborting now.");
+
         return res;
     }
 
@@ -271,6 +278,14 @@ namespace Paths
     }
 
 
+    bool IsAbsolute(const String& p)
+    {
+        # ifdef TA3D_PLATFORM_WINDOWS
+        return (p.empty() || (p.size() > 2 && ':' == p[1] && '\\' == p[2]));
+        # else
+        return (p.empty() || '/' == p[0]);
+        # endif
+    }
     
 
 } // namespace Paths
