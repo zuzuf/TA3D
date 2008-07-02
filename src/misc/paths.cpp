@@ -30,12 +30,7 @@ namespace Paths
     String ConfigFile = "";
     String Screenshots = "";
     # ifdef TA3D_PLATFORM_WINDOWS
-    char Separator = '\\';
-    String SeparatorAsString = "\\";
     String LocalData = "";
-    # else
-    char Separator = '/';
-    String SeparatorAsString = "/";
     # endif
     
     

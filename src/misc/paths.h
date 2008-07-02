@@ -16,9 +16,9 @@ namespace TA3D
 */
 namespace Paths
 {
-    //! Folder separator according to the platform
-    extern char Separator;
-    extern String SeparatorAsString;
+   
+    //! \name Relevant paths used by TA3D
+    //@{
 
     //! Absolute path where the application is located (extracted from argv)
     extern String ApplicationRoot;
@@ -41,10 +41,35 @@ namespace Paths
     //! Folder for screenshots
     extern String Screenshots;
 
+    //@}
+
+
+    //! \name System-dependant variables
+    //@{
+
+    //! The path-separator character according to the platform
+    # ifdef TA3D_PLATFORM_WINDOWS
+    const char Separator = '\\';
+    # else
+    const char Separator = '/';
+    # endif
+
+    //! The path-separator character according to the platform (stored in a string instead of a char)
+    # ifdef TA3D_PLATFORM_WINDOWS
+    const String SeparatorAsString = "\\";
+    # else
+    const String SeparatorAsString = "/";
+    # endif
+
     # ifndef TA3D_PLATFORM_WINDOWS
     //! The folder for local data (Windows only)
     extern String LocalData;
     # endif
+
+    //@}
+
+
+
 
 
     //! \name Folders handling
@@ -96,7 +121,7 @@ namespace Paths
     String ExtractFileName(const String& p);
 
     /*!
-    ** \brief Get if a path is absolute or not
+    ** \brief Get if a path is absolute 
     **
     ** \param p The path or the filename to test
     ** \return True if the path is an absolute path or empty, false otherwise
