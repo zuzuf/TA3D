@@ -2284,7 +2284,7 @@ int play(GameData *game_data)
                 obj_file_list->Text.clear();
                 obj_file_list->Text.reserve(file_list.size());
                 for (std::list<String>::const_iterator i = file_list.begin(); i != file_list.end(); ++i)
-                    obj_file_list->Text.push_back(*i);
+                    obj_file_list->Text.push_back(Paths::ExtractFileName(*i));
             }
         }
         if(game_area.get_state("save_menu.l_file")) {				// Click on the list
