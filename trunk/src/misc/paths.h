@@ -95,6 +95,14 @@ namespace Paths
     */
     String ExtractFileName(const String& p);
 
+    /*!
+    ** \brief Get if a path is absolute or not
+    **
+    ** \param p The path or the filename to test
+    ** \return True if the path is an absolute path or empty, false otherwise
+    */
+    bool IsAbsolute(const String& p);
+
     //@}
 
 
