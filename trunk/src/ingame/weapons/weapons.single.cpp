@@ -473,7 +473,7 @@ namespace TA3D
                                                 g_ta3d_network->sendFeatureDeathEvent( -t_idx-2 );
                                             int sx=((int)(features.feature[-t_idx-2].Pos.x)+map->map_w_d-8)>>3;		// Efface l'objet
                                             int sy=((int)(features.feature[-t_idx-2].Pos.z)+map->map_h_d-8)>>3;
-                                            VECTOR feature_pos = features.feature[-hit_idx-2].Pos;
+                                            VECTOR feature_pos = features.feature[-t_idx-2].Pos;
                                             int feature_type = features.feature[-t_idx-2].type;
                                             if(feature_type!=-1 && feature_manager.feature[feature_type].blocking)
                                                 map->rect(sx-(feature_manager.feature[feature_type].footprintx>>1),sy-(feature_manager.feature[feature_type].footprintz>>1),feature_manager.feature[feature_type].footprintx,feature_manager.feature[feature_type].footprintz,-1);
