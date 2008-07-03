@@ -209,13 +209,13 @@ namespace HPI
 
         inline char tgetc()
         {
-            if( data == NULL || pos < 0 || pos >= length )	return 0;
+            if( data == NULL || pos >= length )	return 0;
             return ((char*)data)[ pos++ ];
         }
 
         inline int tread( void *buf, int size )
         {
-            if( data == NULL || pos < 0 || pos >= length )	return 0;
+            if( data == NULL || pos >= length )	return 0;
             if( pos + size > length )
                 size = length - pos;
             memcpy( buf, data+pos, size );

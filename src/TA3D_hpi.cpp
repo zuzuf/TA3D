@@ -955,7 +955,7 @@ TA3D_FILE::topen( const String &filename )
 char*
 TA3D_FILE::tgets( void *buf, int size )
 {
-    if( data == NULL || pos < 0 || pos >= length )
+    if( data == NULL || pos >= length )
         return NULL;
     for( char *out_buf = (char*)buf; size > 1 ; --size)
     {
