@@ -21,8 +21,8 @@ namespace Resources
 
     static void initForWindows()
     {
-        AddSearchPath(Paths::ApplicationRoot + "resources\\");
-        AddSearchPath(Paths::LocalData + "ta3d\\resources\\");
+        AddSearchPath(ApplicationRoot + "resources\\");
+        AddSearchPath(LocalData + "ta3d\\resources\\");
     }
 
     # else // ifdef TA3D_PLATFORM_WINDOWS
@@ -48,7 +48,7 @@ namespace Resources
         
         Paths::MakeDir(home + "/Library/Application Support/ta3d/");
         // Relative folder for the Application bundle
-        AddSearchPath(Paths::ApplicationRoot + "../Resources/");
+        AddSearchPath(ApplicationRoot + "../Resources/");
         AddSearchPath(home + "/Library/Application Support/ta3d/");
         // Unix compatibility
         AddSearchPath(home + "/.ta3d/resources/");
