@@ -61,7 +61,7 @@ namespace Paths
     const String SeparatorAsString = "/";
     # endif
 
-    # ifndef TA3D_PLATFORM_WINDOWS
+    # ifdef TA3D_PLATFORM_WINDOWS
     //! The folder for local data (Windows only)
     extern String LocalData;
     # endif
