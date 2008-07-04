@@ -98,7 +98,7 @@ namespace TA3D
                 if(weapon_manager.weapon[weapon_id].tracks && target>=0)
                 {
                     VECTOR target_V;
-                    if(weapon_manager.weapon[weapon_id].interceptor && target<=weapons.nb_weapon && weapons.weapon[target].weapon_id!=-1)
+                    if(weapon_manager.weapon[weapon_id].interceptor && target <= weapons.nb_weapon && weapons.weapon[target].weapon_id!=-1)
                     {
                         target_pos = weapons.weapon[target].Pos;
                         target_V = weapons.weapon[target].V;
@@ -182,7 +182,7 @@ namespace TA3D
         {
             hit=true;
             hit_vec=Pos;
-            if(target>=0 && target<=weapons.nb_weapon && weapons.weapon[target].weapon_id!=-1)
+            if(target >= 0 && target <= weapons.nb_weapon && weapons.weapon[target].weapon_id != -1)
             {
                 weapons.weapon[target].dying=true;
                 weapons.weapon[target].killtime=0.0f;
