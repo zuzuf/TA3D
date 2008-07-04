@@ -176,7 +176,7 @@ int play(GameData *game_data)
     }
     catch(...)
     {
-        Console->AddEntry("WARNING : *gen.gui file missing!!");
+        LOG_WARNING("`gen.gui` is missing or can not be loaded");
     }
 
     try
@@ -186,7 +186,7 @@ int play(GameData *game_data)
     }
     catch(...)
     {
-        Console->AddEntry("WARNING : *dl.gui file missing!!");
+        LOG_WARNING("`dl.gui` is missing or can not be loaded");
     }
 
     for( int i = 0 ; i < unit_manager.nb_unit ; i++ )  // Loads the GUI
