@@ -11,7 +11,7 @@ namespace TA3D
 {
 
 /*!
-** \brief Tools to handle Resources  for TA3D
+** \brief Thread-safe Tools to handle Resources for TA3D
 */
 namespace Resources
 {
@@ -20,7 +20,7 @@ namespace Resources
     /*!
     ** \brief Find a relative resource filename in the list of search paths for resources
     **
-    ** This method is not thread safe
+    ** This method is thread safe
     **
     ** \param relFilename The relative filename to find
     ** \param[out] out The absolute filename that has been found
@@ -32,7 +32,7 @@ namespace Resources
     /*!
     ** \brief Add a search path for resources
     **
-    ** This method is not thread safe
+    ** This method is thread safe
     **
     ** \param folder The folder to add
     ** \return True if the folder has been added, false otherwise

@@ -1,6 +1,7 @@
 #include "resources.h"
 #include "paths.h"
 #include "../logs/logs.h"
+#include "../threads/mutex.h"
 
 
 
@@ -8,6 +9,9 @@ namespace TA3D
 {
 namespace Resources
 {
+
+    //! Mutex for resources
+    static Mutex gResourcesMutex;
 
 
     //! Definition list of resources folders
@@ -78,6 +82,7 @@ namespace Resources
 
     bool Find(const String& relFilename, String& out)
     {
+        MutexLocker locker(gResourcesMutex);
         for (ResourcesFoldersList::const_iterator i = pResourcesFolders.begin(); i != pResourcesFolders.end(); ++i)
         {
             out = *i;
@@ -90,6 +95,7 @@ namespace Resources
 
     bool AddSearchPath(const String& folder)
     {
+        MutexLocker locker(gResourcesMutex);
         if (!folder.empty() && Paths::Exists(folder))
         {
             for (ResourcesFoldersList::const_iterator i = pResourcesFolders.begin(); i != pResourcesFolders.end(); ++i)
@@ -110,8 +116,10 @@ namespace Resources
     {
         if (emptyListBefore)
             out.clear();
+        gResourcesMutex.lock();
         for (ResourcesFoldersList::const_iterator i = pResourcesFolders.begin(); i != pResourcesFolders.end(); ++i)
             Paths::Glob(out, *i + pattern, false);
+        gResourcesMutex.unlock();
         return !out.empty();
     }
 
@@ -119,8 +127,10 @@ namespace Resources
     {
         if (emptyListBefore)
             out.clear();
+        gResourcesMutex.lock();
         for (ResourcesFoldersList::const_iterator i = pResourcesFolders.begin(); i != pResourcesFolders.end(); ++i)
             Paths::Glob(out, *i + pattern, false);
+        gResourcesMutex.unlock();
         return !out.empty();
     }
 
