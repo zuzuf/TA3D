@@ -131,7 +131,7 @@ namespace Paths
         String::size_type pos = p.find_last_of(Separator);
         if (String::npos == pos)
             return p;
-        return String(p, pos+1);
+        return p.substr(pos+1);
     }
 
     /*!
@@ -257,7 +257,7 @@ namespace Paths
         String root = ExtractFilePath(pattern);
         do
         {
-            out.push_back(root + info.name);
+            out.push_back(root + (const char*)info.name);
         } while (al_findnext(&info) == 0);
         return !out.empty();
     }

@@ -1,7 +1,8 @@
 SET(LIBRARY_OUTPUT_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../../bin/libs/${CMAKE_SYSTEM_NAME}")
 SET(ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../../bin/libs/${CMAKE_SYSTEM_NAME}")
 
-SET(SOURCES paths.h paths.cpp
+SET(SOURCES string.h string.cpp
+            paths.h paths.cpp
             files.h files.cpp
             resources.h resources.cpp
             settings.h settings.cpp
