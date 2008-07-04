@@ -42,14 +42,15 @@ namespace UTILS
         T			m_T_data;
 
     public:
-            cBucket( const String &k, const T &myData) :
-                m_szKey(k), m_T_data( myData ) {}
+        cBucket( const String &k, const T &myData) :
+            m_szKey(k), m_T_data( myData ) {}
 
-            const String &Key() const { return m_szKey; }
-        };
+        const String &Key() const { return m_szKey; }
+    };
+
 
     template <class T>
-        struct ModHashFind : public std::binary_function< cBucket< T >, const String, bool >
+    struct ModHashFind : public std::binary_function< cBucket<T>, const String, bool >
     {
         bool operator()( const cBucket< T > &d, const String &ref ) const
         {
@@ -58,17 +59,16 @@ namespace UTILS
     };
 
     template <class T>
-        class cHashTable : protected std::vector< std::list< TA3D::UTILS::cBucket<T> > >
+    class cHashTable : protected std::vector< std::list< TA3D::UTILS::cBucket<T> > >
     {
-    private:
-
-    protected:
-        uint32         m_u32TableSize;
-
-        uint32 GetHash( const String &key ) const;
+    public:
+        //! \typedef List of buckets
+        typedef typename std::list< TA3D::UTILS::cBucket<T> >   BucketsList;
+        //! \typedef Vector of list of buckets
+        typedef typename std::vector< BucketsList >  VectorOfBucketsList;
 
     public:
-        virtual void InitTable(uint32 TableSize);
+        virtual void InitTable(const uint32 TableSize);
 
         //! \name Constructors & Destructor
         //@{
@@ -78,7 +78,7 @@ namespace UTILS
         ** \brief Constructor
         ** \param TableSize Initial Size of the table
         */
-        cHashTable(uint32 TableSize);
+        cHashTable(const uint32 TableSize);
         //! Destructor
         virtual ~cHashTable();
         //@}
@@ -112,20 +112,7 @@ namespace UTILS
         ** \param v The new value of the key
         */
         virtual void InsertOrUpdate(const String &key, T v);
-            
-#ifndef TA3D_PLATFORM_WINDOWS
-    public:
-        String Lowercase( const String &sstring )
-        {
-            String Return;
 
-            Return.resize (sstring.length());
-            for( uint32 i = 0; i < sstring.length(); i++)
-                Return[i] = tolower (sstring[i]);
-
-            return (Return);
-        }
-#endif
     public:
         /*!
         ** \brief
@@ -138,102 +125,63 @@ namespace UTILS
         */
         virtual void Remove( const String &key );
 
+    protected:
+        uint32 pTableSize;
+        /*!
+        ** \brief Hash of a string
+        ** \param key 
+        ** \return The hash value of the string
+        */
+        uint32 generateHash(const String& key) const;
+
     }; // class cHashTable
 
+
+
+
     template <class T>
-        class clpHashTable : public cHashTable<T>
+    class clpHashTable : public cHashTable<T>
     {
-    private:
-        bool                           m_bFreeDataOnErase;
+    public:
+        //! \typedef List of buckets
+        typedef typename std::list< TA3D::UTILS::cBucket<T> >   BucketsList;
+        //! \typedef Vector of list of buckets
+        typedef typename std::vector< BucketsList >  VectorOfBucketsList;
 
     public:
-        void InitTable( uint32 TableSize, bool FreeDataOnErase )
-        {
-            m_bFreeDataOnErase = FreeDataOnErase;
-            if( cHashTable<T>::size() )
-                this->EmptyHashTable();
-
-            std::list< cBucket<T> > empty_list;
-            cHashTable<T>::resize( TableSize, empty_list );
-
-            cHashTable<T>::m_u32TableSize = TableSize;
-        }
 
         // Constructors.
-        clpHashTable()
-        {
-            InitTable( __DEFAULT_HASH_TABLE_SIZE, true );
-        }
+        clpHashTable();
 
-        clpHashTable( uint32 TableSize, bool FreeDataOnErase )
-        {
-            InitTable( TableSize, FreeDataOnErase );
-        }
+        clpHashTable(const uint32 TableSize, const bool FreeDataOnErase);
 
 
         // Destructor
-        virtual ~clpHashTable()
-        {
-            this->EmptyHashTable();
-        }
+        virtual ~clpHashTable();
 
-        void EmptyHashTable()
-        {
-            if(cHashTable<T>::m_u32TableSize == 0)	return;
-            if( !cHashTable<T>::size() )
-                return;
+        void InitTable(const uint32 tableSize, const bool freeDataOnErase);
 
-            for( typename cHashTable<T>::iterator iter = cHashTable<T>::begin() ; iter != cHashTable<T>::end() ; iter++ )   
-            {
-                if( m_bFreeDataOnErase )   
-                {
-                    for( typename std::list< cBucket<T> >::iterator cur = iter->begin() ; cur != iter->end() ; cur++ )
-                        delete( (*cur).m_T_data );
-                }
+        /*!
+        ** \brief
+        */
+        void EmptyHashTable();
 
-                iter->clear();
-            }
+        /*!
+        ** \brief
+        */
+        void InsertOrUpdate(const String &key, T v);
 
-            cHashTable<T>::clear();
-            cHashTable<T>::m_u32TableSize = 0;
-        }
+        /*!
+        ** \brief
+        */
+        void Remove(const String& key);
 
-        void InsertOrUpdate( const String &key, T v )
-        {
-            if(cHashTable<T>::m_u32TableSize == 0)	return;
-            uint32 hash = cHashTable<T>::GetHash( key );
 
-            typename std::list< cBucket<T> >::iterator cur = std::find_if( cHashTable<T>::at(hash).begin(),
-                                                                           cHashTable<T>::at(hash).end(), std::bind2nd( ModHashFind<T>(), key ) );
+    private:
+        //!
+        bool m_bFreeDataOnErase;
 
-            if( cur != cHashTable<T>::at(hash).end() )
-            {
-                if( m_bFreeDataOnErase )
-                    delete( (*cur).m_T_data );
 
-                (*cur).m_T_data = v;
-            }
-            else
-                cHashTable<T>::Insert( key, v );
-        }
-
-        void Remove( const String &key )
-        {
-            if(cHashTable<T>::m_u32TableSize == 0)	return;
-            uint32 hash = cHashTable<T>::GetHash( key );
-
-            for( typename std::list< cBucket<T> >::iterator cur= cHashTable<T>::at(hash).begin(); cur!= cHashTable<T>::at(hash).end(); cur++)
-            {
-                if( cur->Key() == key )   
-                {
-                    if( !m_bFreeDataOnErase )
-                        delete( (*cur).m_T_data  );
-
-                    cHashTable<T>::at( hash ).erase( cur );
-                    break;
-                }
-            }
-        }
     }; // class cHashTable
 
 

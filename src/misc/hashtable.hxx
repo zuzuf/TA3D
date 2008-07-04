@@ -13,36 +13,36 @@ namespace UTILS
 
     template<class T>
     uint32
-    cHashTable<T>::GetHash( const String &key ) const
+    cHashTable<T>::generateHash(const String& key) const
     {
-        uint32 HashValue = 0;
-        for(uint32 i = 0; i < (uint32)key.length();  ++i)
-            HashValue = key[i] + ( HashValue << 5 ) - HashValue;
-            return (HashValue % m_u32TableSize);
+        uint32 ret(0);
+        for (String::const_iterator i = key.begin(); i != key.end(); ++i)
+            ret = *i + (ret << 5 ) - ret;
+        return (ret % pTableSize);
     }
 
     template<class T>
     void
-    cHashTable<T>::InitTable( uint32 TableSize )
+    cHashTable<T>::InitTable(const uint32 TableSize)
     {
-        if (std::vector< std::list< TA3D::UTILS::cBucket<T> > >::size())
+        if (!VectorOfBucketsList::empty())
             this->EmptyHashTable();
-        std::list< cBucket<T> > empty_list;
+        std::list< cBucket<T> > empty_list; 
         resize(TableSize, empty_list);
-        m_u32TableSize = TableSize;
+        pTableSize = TableSize;
     }
 
     template<class T>
     void
     cHashTable<T>::EmptyHashTable()
     {
-        if (m_u32TableSize == 0 || !std::vector< std::list< TA3D::UTILS::cBucket<T> > >::size())
+        if (pTableSize == 0 || VectorOfBucketsList::empty())
             return;
-        typename std::vector< std::list< TA3D::UTILS::cBucket<T> > >::iterator iter;
-        for(iter = std::vector< std::list< TA3D::UTILS::cBucket<T> > >::begin() ; iter != std::vector< std::list< TA3D::UTILS::cBucket<T> > >::end() ; ++iter)   
+        typename VectorOfBucketsList::iterator iter;
+        for(iter = VectorOfBucketsList::begin() ; iter != VectorOfBucketsList::end() ; ++iter)   
             iter->clear();
-        std::vector< std::list< TA3D::UTILS::cBucket<T> > >::clear();
-        m_u32TableSize = 0; // Ugly bug without this
+        VectorOfBucketsList::clear();
+        pTableSize = 0;
     }
 
     template<class T>
@@ -54,7 +54,7 @@ namespace UTILS
     template<class T>
     cHashTable<T>::cHashTable(uint32 TableSize)
     {
-        InitTable( TableSize );
+        InitTable(TableSize);
     }
 
     template<class T>
@@ -68,31 +68,25 @@ namespace UTILS
     bool
     cHashTable<T>::Exists(const String& key)
     {
-        if (!m_u32TableSize)
+        if (!pTableSize)
             return false;
-        uint32 hash = GetHash(key);
-        typename std::list< cBucket<T> >::iterator cur =
-            std::find_if(std::vector< std::list< TA3D::UTILS::cBucket<T> > >::at(hash).begin(),
-                        std::vector< std::list< TA3D::UTILS::cBucket<T> > >::at(hash).end(),
-                        std::bind2nd(ModHashFind<T>(), key));
-        return ((cur == std::vector< std::list< TA3D::UTILS::cBucket<T> > >::at(hash).end())
-                ? false : true);
+        const uint32 hash = generateHash(key);
+        BucketsList& it = (*(static_cast<VectorOfBucketsList*>(this)))[hash];
+        typename BucketsList::iterator cur = std::find_if(it.begin(), it.end(), std::bind2nd(ModHashFind<T>(), key));
+        return (cur != it.end());
     }
 
 
     template<class T>
     T
-    cHashTable<T>::Find( const String &key )
+    cHashTable<T>::Find(const String &key)
     {
-        if (m_u32TableSize == 0)
+        if (pTableSize == 0)
             return (T) 0;
-        uint32 hash = GetHash( key );
-        typename std::list< cBucket<T> >::iterator cur =
-            std::find_if(std::vector< std::list< TA3D::UTILS::cBucket<T> > >::at(hash).begin(),
-                        std::vector< std::list< TA3D::UTILS::cBucket<T> > >::at(hash).end(),
-                        std::bind2nd( ModHashFind<T>(), key ) );
-        return ((cur == std::vector< std::list< TA3D::UTILS::cBucket<T> > >::at(hash).end()) 
-                ? (T) 0 : (*cur).m_T_data);
+        const uint32 hash = generateHash(key);
+        BucketsList& it = (*(static_cast<VectorOfBucketsList*>(this)))[hash];
+        typename BucketsList::iterator cur = std::find_if(it.begin(), it.end(), std::bind2nd(ModHashFind<T>(), key));
+        return ((cur == it.end()) ? (T) 0 : (*cur).m_T_data);
     }
 
 
@@ -100,12 +94,10 @@ namespace UTILS
     bool
     cHashTable<T>::Insert(const String& key, T v)
     {
-        if(m_u32TableSize == 0)
+        if(pTableSize == 0 || Exists(key))
             return false;
-        if (Exists(key))
-            return false;
-        cBucket<T> elt( key, v );
-        std::vector< std::list< TA3D::UTILS::cBucket<T> > >::at(GetHash(key)).push_back(elt);
+        cBucket<T> elt(key, v);
+        (*(static_cast<VectorOfBucketsList*>(this)))[generateHash(key)].push_back(elt);
         return true;
     }
 
@@ -114,14 +106,12 @@ namespace UTILS
     void
     cHashTable<T>::InsertOrUpdate(const String& key, T v)
     {
-        if (m_u32TableSize == 0)
+        if (!pTableSize)
             return;
-        uint32 hash = GetHash( key );
-        typename std::list< cBucket<T> >::iterator cur =
-            std::find_if( std::vector< std::list< TA3D::UTILS::cBucket<T> > >::at(hash).begin(),
-                        std::vector< std::list< TA3D::UTILS::cBucket<T> > >::at(hash).end(),
-                        std::bind2nd( ModHashFind<T>(), key));
-        if( cur != std::vector< std::list< TA3D::UTILS::cBucket<T> > >::at(hash).end() )
+        const uint32 hash = generateHash(key);
+        BucketsList& it = (*(static_cast<VectorOfBucketsList*>(this)))[hash];
+        typename BucketsList::iterator cur = std::find_if(it.begin(), it.end(), std::bind2nd(ModHashFind<T>(), key));
+        if( cur != it.end())
             (*cur).m_T_data = v;
         else
             Insert(key, v);
@@ -130,23 +120,22 @@ namespace UTILS
 
     template<class T>
     uint32
-    cHashTable<T>::WildCardSearch( const String &Search, std::list< String > *li)
+    cHashTable<T>::WildCardSearch(const String &Search, std::list< String > *li)
     {
         LOG_ASSERT(li != NULL);
 
-        if(m_u32TableSize == 0)
+        if(pTableSize == 0)
             return 0;
-        String first, last;
-        std::basic_string <char>::size_type iFind;
-        static const std::basic_string <char>::size_type NotFound = -1;
-        uint32 nb=0;
+        String::size_type iFind;
+        String first;
+        String last;
 
-        iFind = Search.find( "*" );
-
-        if (iFind != NotFound) 
+        iFind = Search.find("*");
+        if (iFind != String::npos) 
         {
-            first = Lowercase(Search.substr(0,(iFind)));
-            last = Lowercase(Search.substr( iFind+1));
+            first = Lowercase(Search.substr(0, iFind));
+            ++iFind;
+            last = Lowercase(Search.substr(iFind));
         }
         else
         {
@@ -154,52 +143,150 @@ namespace UTILS
             last = "";
         }
 
-        for (typename std::vector< std::list< TA3D::UTILS::cBucket<T> > >::iterator iter = std::vector< std::list< TA3D::UTILS::cBucket<T> > >::begin() ; iter != std::vector< std::list< TA3D::UTILS::cBucket<T> > >::end() ; iter++ )   
+        uint32 nb(0);
+        for (typename VectorOfBucketsList::iterator iter = VectorOfBucketsList::begin() ; iter != VectorOfBucketsList::end(); ++iter)   
         {
-            for( typename std::list< cBucket<T> >::iterator cur = iter->begin() ; cur != iter->end() ; ++cur)
+            for (typename BucketsList::iterator cur = iter->begin() ; cur != iter->end(); ++cur)
             {
                 String f = cur->Key();
-
                 if (f.length() < first.length() || f.length() < last.length())
                     continue;
 
                 if (f.substr(0,first.length()) == first)  
                 {
-                    if( f.substr( f.length() - last.length(), last.length() ) == last)
+                    if (f.substr(f.length() - last.length(), last.length()) == last)
                     {
                         li->push_back(f);
-                        nb++;
+                        ++nb;
                     }
                 }
             }
         }
-
         return nb;
     }
+
+
 
 
     template<class T>
     void
     cHashTable<T>::Remove(const String& key)
     {
-        if(m_u32TableSize == 0)
+        if (!pTableSize)
             return;
-        uint32 hash = GetHash(key);
+        const uint32 hash = generateHash(key);
 
-        typename std::list< cBucket<T> >::iterator cur;
-
-        for( cur=std::vector< std::list< TA3D::UTILS::cBucket<T> > >::at(hash).begin(); cur!=std::vector< std::list< TA3D::UTILS::cBucket<T> > >::at(hash).end(); cur++)
+        BucketsList& it = (*(static_cast<VectorOfBucketsList*>(this)))[hash];
+        for (typename BucketsList::iterator cur = it.begin(); cur != it.end(); ++cur)
         {
             if (cur->Key() == key)
             {
-                std::vector< std::list< TA3D::UTILS::cBucket<T> > >::at( hash ).erase( cur );
+                it.erase(cur);
                 return;
             }
         }
     }
 
+    template<class T>
+    void
+    clpHashTable<T>::InitTable(const uint32 tableSize, const bool freeDataOnErase )
+    {
+        m_bFreeDataOnErase = freeDataOnErase;
+        if (cHashTable<T>::size())
+            this->EmptyHashTable();
 
-}
-}
+        BucketsList empty_list;
+        cHashTable<T>::resize(tableSize, empty_list);
+        cHashTable<T>::pTableSize = tableSize;
+    }
+
+
+    template<class T>
+    void
+    clpHashTable<T>::Remove(const String& key)
+    {
+        if (!cHashTable<T>::pTableSize)
+            return;
+        const uint32 hash = cHashTable<T>::generateHash(key);
+
+        BucketsList& it = (*(static_cast<VectorOfBucketsList*>(this)))[hash];
+        for( typename BucketsList::iterator cur= it.begin(); cur!= it.end(); ++cur)
+        {
+            if (cur->Key() == key)   
+            {
+                if (!m_bFreeDataOnErase)
+                    delete ((*cur).m_T_data);
+                it.erase(cur);
+                return;
+            }
+        }
+    }
+
+    template<class T>
+    void
+    clpHashTable<T>::EmptyHashTable()
+    {
+        if (!cHashTable<T>::pTableSize || cHashTable<T>::empty())
+            return;
+        for (typename cHashTable<T>::iterator iter = cHashTable<T>::begin() ; iter != cHashTable<T>::end() ; ++iter)   
+        {
+            if( m_bFreeDataOnErase )   
+            {
+                for (typename BucketsList::iterator cur = iter->begin() ; cur != iter->end() ; ++cur)
+                    delete( (*cur).m_T_data );
+            }
+            iter->clear();
+        }
+        cHashTable<T>::clear();
+        cHashTable<T>::pTableSize = 0;
+    }
+
+
+    template<class T>
+    clpHashTable<T>::clpHashTable()
+    {
+        InitTable(__DEFAULT_HASH_TABLE_SIZE, true);
+    }
+
+
+    template<class T>
+    clpHashTable<T>::clpHashTable(const uint32 TableSize, const bool FreeDataOnErase)
+    {
+        InitTable(TableSize, FreeDataOnErase);
+    }
+
+
+
+    template<class T>
+    clpHashTable<T>::~clpHashTable()
+    {
+        this->EmptyHashTable();
+    }
+
+
+    template<class T>
+    void
+    clpHashTable<T>::InsertOrUpdate( const String &key, T v )
+    {
+        if (!cHashTable<T>::pTableSize)
+            return;
+        const uint32 hash = cHashTable<T>::generateHash(key);
+
+        BucketsList& it = cHashTable<T>::at(hash);
+        typename BucketsList::iterator cur = std::find_if(it.begin(), it.end(), std::bind2nd(ModHashFind<T>(), key));
+
+        if (cur != it.end())
+        {
+            if (m_bFreeDataOnErase)
+                delete( (*cur).m_T_data );
+            (*cur).m_T_data = v;
+        }
+        else
+            cHashTable<T>::Insert(key, v);
+    }
+
+
+} // namespace UTILS
+} // namespace TA3D
 
 #endif // __TA3D_XX_HASH_TABLE_HXX__
