@@ -185,7 +185,7 @@ namespace TA3D
         //! Append a string (TA3D::String)
         String& operator << (const String& v) {append(v);return *this;}
         //! Append a single char
-        String& operator << (const char v) {*this += v;return *this;}
+        String& operator << (const char v) {*(static_cast<std::string*>(this)) += v; return *this;}
         //! Append a wide string (wchar_t*)
         String& operator << (const wchar_t* v);
         //! Append an int (8 bits)
@@ -249,7 +249,7 @@ namespace TA3D
         //! Append a string (TA3D::String)
         String& operator += (const TA3D::String& v) {append(v); return *this; }
         //! Append a single char
-        String& operator += (const char v) {*this += v; return *this;}
+        String& operator += (const char v) {*(static_cast<std::string*>(this)) += (char)v; return *this; return *this;}
         //! Append a wide string (wchar_t*)
         String& operator += (const wchar_t* v) {*this << v; return *this;}
         //! Append an int (8 bits)
