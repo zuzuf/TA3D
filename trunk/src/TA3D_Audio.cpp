@@ -22,6 +22,7 @@
 
 using namespace TA3D::Interfaces;
 
+# define TA3D_LOG_SECTION_AUDIO_PREFIX "[Audio] "
 
 TA3D::Interfaces::cAudio *TA3D::VARS::sound_manager;
 
@@ -1012,8 +1013,9 @@ void cAudio::PlayTDFSound( const String &Key, const VECTOR3D *vec  )
 {
     if( Key == "" )	return;
     //	Console->AddEntry("trying to play '%s'", (char*)Key.c_str());
-    if( !Exists( Lowercase( Key ) ) ) {
-        Console->AddEntry("can't find key %s", Key.c_str() );		// output a report to the console but only once
+    if( !Exists( Lowercase( Key ) ) )
+    {
+        Console->AddEntryWarning("%sCan't find key %s", TA3D_LOG_SECTION_AUDIO_PREFIX, Key.c_str() );// output a report to the console but only once
         InsertOrUpdate( Lowercase( Key ), "" );
         return;
     }
