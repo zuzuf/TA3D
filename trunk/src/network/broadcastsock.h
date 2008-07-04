@@ -106,7 +106,7 @@ private:
 		int sendMessage( const char* msg );
 
 		//these are for incoming packets
-		std::string makeMessage();
+		String makeMessage();
 
 		String getAddress();
 

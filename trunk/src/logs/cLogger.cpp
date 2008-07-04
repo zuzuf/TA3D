@@ -61,7 +61,7 @@ namespace Interfaces
         pMutex.unlock();
     }
 
-    void cLogger::LogData(const std::string &txt)
+    void cLogger::LogData(const String &txt)
     {
         pMutex.lock();
         fputs( txt.c_str(), m_File );

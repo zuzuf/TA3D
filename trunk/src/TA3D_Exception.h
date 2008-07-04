@@ -146,7 +146,7 @@ namespace Exceptions
     /*!
     ** \brief
     */
-    void GuardLog(const std::string& szLog);
+    void GuardLog(const String& szLog);
 
     /*!
     ** \brief

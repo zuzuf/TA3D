@@ -346,7 +346,7 @@ void cHPIHandler::ProcessSubDir( HPIITEM *hi )
 
         if (Entry->Flag == 1)   
         {
-            std::string sDir = m_cDir; // save directory
+            String sDir = m_cDir; // save directory
             m_cDir += (char *)Name;    // add new path to directory.
             m_cDir += "\\";          // don't forget to end path with /
 
@@ -357,7 +357,7 @@ void cHPIHandler::ProcessSubDir( HPIITEM *hi )
 
             m_cDir = sDir; // restore dir with saved dir
         } else {
-            std::string f = Lowercase( m_cDir + (char *)Name );
+            String f = Lowercase( m_cDir + (char *)Name );
 
             li->Size = *FileLength;
 
@@ -368,11 +368,11 @@ void cHPIHandler::ProcessSubDir( HPIITEM *hi )
     }
 }
 
-void  cHPIHandler::ProcessRoot(HPIFILEDATA *hfd, const std::string &StartPath, sint32 offset )
+void  cHPIHandler::ProcessRoot(HPIFILEDATA *hfd, const String &StartPath, sint32 offset )
 {
     sint32 *Entries, *FileCount, *EntryOffset;
     schar *Name;
-    std::string MyPath;
+    String MyPath;
 
     Entries = (sint32 *)(hfd->Directory + offset);
     EntryOffset = Entries + 1;
@@ -407,7 +407,7 @@ void  cHPIHandler::ProcessRoot(HPIFILEDATA *hfd, const std::string &StartPath, s
     }
 }
 
-void cHPIHandler::AddArchive( const std::string &FileName, bool priority )
+void cHPIHandler::AddArchive( const String &FileName, bool priority )
 {
     HPIFILEDATA *hfd = (HPIFILEDATA *)GetMem(sizeof(HPIFILEDATA), 1);
 
@@ -457,7 +457,7 @@ void cHPIHandler::AddArchive( const std::string &FileName, bool priority )
     ProcessRoot(hfd, "", start);
 }
 
-void cHPIHandler::LocateAndReadFiles( const std::string &Path, const std::string &FileSearch, bool priority )
+void cHPIHandler::LocateAndReadFiles( const String &Path, const String &FileSearch, bool priority )
 {
     al_ffblk search;
 
@@ -472,7 +472,7 @@ void cHPIHandler::LocateAndReadFiles( const std::string &Path, const std::string
     }
 }
 
-void cHPIHandler::SearchDirForArchives( const std::string &Path )
+void cHPIHandler::SearchDirForArchives( const String &Path )
 {
     m_Path = Path;
     schar ext[4][6] = { "*.ufo", "*.hpi", "*.ccx", "*.gp3" };
@@ -635,7 +635,7 @@ TA3D::UTILS::HPI::cHPIHandler::CACHEFILEDATA *cHPIHandler::IsInCache( const Stri
     return NULL;
 }
 
-byte *cHPIHandler::PullFromHPI( const std::string &FileName , uint32 *file_length )
+byte *cHPIHandler::PullFromHPI( const String &FileName , uint32 *file_length )
 {
     String UNIX_filename = m_Path + FileName;
     for(uint16 i = 0 ; i < UNIX_filename.size() ; ++i)
@@ -746,7 +746,7 @@ byte *cHPIHandler::PullFromHPI( const std::string &FileName , uint32 *file_lengt
 
 
 byte*
-cHPIHandler::PullFromHPI_zone( const std::string &FileName , uint32 start , uint32 length , uint32 *file_length )
+cHPIHandler::PullFromHPI_zone( const String &FileName , uint32 start , uint32 length , uint32 *file_length )
 {
     String UNIX_filename = m_Path + TA3D_CURRENT_MOD + FileName;
     for( uint16 i = 0 ; i < UNIX_filename.size() ; ++i)
@@ -802,7 +802,7 @@ cHPIHandler::PullFromHPI_zone( const std::string &FileName , uint32 start , uint
 
 
 bool
-cHPIHandler::Exists( const std::string &FileName )
+cHPIHandler::Exists( const String &FileName )
 {
     String UNIX_filename = m_Path + TA3D_CURRENT_MOD + FileName;
     for( uint16 i = 0 ; i < UNIX_filename.size() ; ++i)

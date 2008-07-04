@@ -248,7 +248,7 @@ namespace TA3D
 			EmptyHashTable();
 		}
 
-		sint32 cTAFileParser::PullAsInt( const std::string &KeyName , sint32 def )
+		sint32 cTAFileParser::PullAsInt( const String &KeyName , sint32 def )
 		{
 			String key_to_find;
 			if( !m_bKeysCaseSenstive )
@@ -262,7 +262,7 @@ namespace TA3D
 			return ( (iterFind.length() == 0) ? def : ( iterFind.size() == 10 && ustrtol( iterFind.substr(0,4).c_str() , NULL, 0 ) > 127 ? ( 0xFF000000 | ustrtol( ("0x"+iterFind.substr(4,6)).c_str() , NULL, 0 ) ) : ustrtol( iterFind.c_str() , NULL, 0 ) ) );		// Uses ustrtol to deal with hexa numbers
 		}
 
-		real32 cTAFileParser::PullAsFloat( const std::string &KeyName , real32 def )
+		real32 cTAFileParser::PullAsFloat( const String &KeyName , real32 def )
 		{
 			String key_to_find;
 			if( !m_bKeysCaseSenstive )
@@ -276,7 +276,7 @@ namespace TA3D
 			return ( (iterFind.length() == 0) ? def : (float)atof( iterFind.c_str() ) );
 		}
 
-		String cTAFileParser::PullAsString( const std::string &KeyName , String def )
+		String cTAFileParser::PullAsString( const String &KeyName , String def )
 		{
 			String key_to_find;
 			if( !m_bKeysCaseSenstive )
@@ -290,7 +290,7 @@ namespace TA3D
 			return iterFind;
 		}
 
-		bool cTAFileParser::PullAsBool( const std::string &KeyName , bool def )
+		bool cTAFileParser::PullAsBool( const String &KeyName , bool def )
 		{
 			String key_to_find;
 			if( !m_bKeysCaseSenstive )
