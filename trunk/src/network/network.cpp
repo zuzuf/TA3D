@@ -38,13 +38,13 @@ namespace TA3D
 
     Network::Network() : 
         udp_socket(), udp_thread(),
-        transfer_progress(), getfile_thread(), sendfile_thread(),
-        broadcastq(), broadcastaddressq(),
-        specialq(64,sizeof(struct chat)) , 
-        chatq(64,sizeof(struct chat)) , 
-        orderq(32,sizeof(struct order)) , 
-        syncq(128,sizeof(struct sync)) , 
-        eventq(32,sizeof(struct event))
+        getfile_thread(), sendfile_thread(), transfer_progress(),
+        specialq(64,sizeof(struct chat)), 
+        chatq(64,sizeof(struct chat)), 
+        orderq(32,sizeof(struct order)), 
+        syncq(128,sizeof(struct sync)), 
+        eventq(32,sizeof(struct event)),
+        broadcastq(), broadcastaddressq()
     {
         myMode = 0;
         tohost_socket = NULL;
