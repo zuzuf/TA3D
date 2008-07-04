@@ -496,10 +496,11 @@ cHPIHandler::~cHPIHandler()
 
     if( m_file_cache )
     {
-        for(unsigned int i = 0 ; i < m_file_cache->size() ; ++i)
+        std::list<CACHEFILEDATA>::iterator i;
+        for(i = m_file_cache->begin() ; i != m_file_cache->end() ; ++i)
         {
-            free( (*m_file_cache)[ i ].name );
-            free( (*m_file_cache)[ i ].data );
+            free( i->name );
+            free( i->data );
         }
         delete m_file_cache;
     }
@@ -537,7 +538,7 @@ void cHPIHandler::ShowArchive()
 void cHPIHandler::PutInCache( const String &FileName, uint32 FileSize, byte *data )
 {
     if( m_file_cache == NULL )
-        m_file_cache = new std::vector< CACHEFILEDATA >;
+        m_file_cache = new std::list< CACHEFILEDATA >;
 
     String cacheable_filename = Lowercase( FileName );
 
@@ -558,24 +559,21 @@ void cHPIHandler::PutInCache( const String &FileName, uint32 FileSize, byte *dat
     if( FileSize >= 0x100000 )	// Don't store big files to prevent filling memory with cache data ;)
         return;
 
-    unsigned int idx = m_file_cache->size();
-
-    if( m_file_cache->size() >= 10 ) // Cycle the data within the vector
+    if( m_file_cache->size() >= 10 ) // Cycle the data within the list
     {
-        free( (*m_file_cache)[ 0 ].name );
-        free( (*m_file_cache)[ 0 ].data );
-        for( int i = 0 ; i < 9 ; i++ )
-            (*m_file_cache)[ i ] = (*m_file_cache)[ i + 1 ];
-        idx = m_file_cache->size() - 1;
+        free( m_file_cache->front().name );
+        free( m_file_cache->front().data );
+        m_file_cache->pop_front();
     }
 
-    if( m_file_cache->size() <= idx )
-        m_file_cache->resize( m_file_cache->size() + 1 );
+    CACHEFILEDATA newentry;
 
-    (*m_file_cache)[ idx ].name = strdup( Lowercase( FileName ).c_str() );			// Store a copy of the data
-    (*m_file_cache)[ idx ].length = FileSize;
-    (*m_file_cache)[ idx ].data = new byte[ FileSize ];
-    memcpy( (*m_file_cache)[ idx ].data, data, FileSize );
+    newentry.name = strdup( Lowercase( FileName ).c_str() );			// Store a copy of the data
+    newentry.length = FileSize;
+    newentry.data = new byte[ FileSize ];
+    memcpy( newentry.data, data, FileSize );
+
+    m_file_cache->push_back(newentry);
 }
 
 
@@ -622,20 +620,16 @@ TA3D::UTILS::HPI::cHPIHandler::CACHEFILEDATA *cHPIHandler::IsInCache( const Stri
         return NULL;
 
     String key = Lowercase( FileName );
-    for (unsigned int i = 0 ; i < m_file_cache->size() ; ++i) // Check RAM Cache
+    std::list<CACHEFILEDATA>::iterator i;
+    for (i = m_file_cache->begin() ; i != m_file_cache->end() ; ++i) // Check RAM Cache
     {
-        if( (*m_file_cache)[ i ].name == key )
+        if( i->name == key )
         {
-            if( i < m_file_cache->size() - 1 )
-            {
-                CACHEFILEDATA tmp = (*m_file_cache)[i]; // Keep the last file at the end of the vector
-                for (unsigned int e = i ; e < m_file_cache->size() - 1 ; ++e)
-                    (*m_file_cache)[ e ] = (*m_file_cache)[ e + 1 ];
-                i = m_file_cache->size() - 1;
-                (*m_file_cache)[ i ] = tmp;
-            }
+            // Move this file to the end of the list to keep it in the cache longer
+            m_file_cache->push_back(*i);
+            m_file_cache->erase(i);
 
-            return &((*m_file_cache)[ i ]);
+            return &m_file_cache->back();
         }
     }
     return NULL;

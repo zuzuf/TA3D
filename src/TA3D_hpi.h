@@ -143,7 +143,7 @@ namespace HPI
         cHPIHandler( const String &Path  )
         {
             m_Archive = new TA3D::UTILS::clpHashTable< HPIITEM *>( 16384, true );
-            m_file_cache = new std::vector< CACHEFILEDATA >;
+            m_file_cache = new std::list< CACHEFILEDATA >;
 
             SearchDirForArchives( Path );
         }
@@ -170,7 +170,7 @@ namespace HPI
 
         TA3D::UTILS::clpHashTable< HPIITEM * > *m_Archive;
 
-        std::vector< CACHEFILEDATA >	*m_file_cache;			// The cache is used to speed up things when a file is loaded multiple times
+        std::list< CACHEFILEDATA >	*m_file_cache;			// The cache is used to speed up things when a file is loaded multiple times
 
         // A list of HPIFILEDATA, needed only for cleanup.
         std::list< HPIFILEDATA * > m_HPIFiles;
