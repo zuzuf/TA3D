@@ -24,8 +24,12 @@
 #ifndef TA3D_XX_AI_H__
 # define TA3D_XX_AI_H__
 
+# include "../stdafx.h"
 # include "../threads/thread.h"
 # include <list>
+# include "../tdf.h"
+
+# define TA3D_AI_FILE_EXTENSION  ".ai"
 
 
 namespace TA3D
@@ -189,7 +193,7 @@ namespace TA3D
     public cThread
     {
     public:
-        char			*name;			// Attention faudrait pas qu'il se prenne pour quelqu'un!! -> indique aussi le fichier correspondant à l'IA (faut sauvegarder les cervelles)
+        String			name;			// Attention faudrait pas qu'il se prenne pour quelqu'un!! -> indique aussi le fichier correspondant à l'IA (faut sauvegarder les cervelles)
         BRAIN			decide;			// Neural network to take decision
         BRAIN			anticipate;		// Neural network to make it anticipate
         byte			player_id;		// Identifiant du joueur / all is in the name :)
@@ -241,11 +245,11 @@ namespace TA3D
 
         void monitor();
 
-        void change_name(char *new_name);		// Change AI's name (-> creates a new file)
+        void change_name(const String& newName);		// Change AI's name (-> creates a new file)
 
         void save();
 
-        void load(char *filename,int id=0);
+        void load(const String& filename, const int id = 0);
 
         void scan_unit();
 

@@ -21,16 +21,15 @@
   |                                                                              |
   \-----------------------------------------------------------------------------*/
 
-#include "../stdafx.h"
+#include "ai.h"
 #include "../misc/matrix.h"
 #include "../TA3D_NameSpace.h"
 #include "../ta3dbase.h"
 #include "../3do.h"             // To read 3D files
 #include "../scripts/cob.h"             // To read and execute scripts
-#include "../tdf.h"
 #include "../EngineClass.h"
 #include "../UnitEngine.h"
-#include "ai.h"
+#include "../misc/paths.h"
 
 
 namespace TA3D
@@ -402,7 +401,7 @@ namespace TA3D
 
     void f_refresh_unit_weights( AI_PLAYER *ai )				// Refresh unit weights according to the unit scan and the orders weights
     {
-        for( int i = 0 ; i < players.nb_player ; ++i )
+        for(unsigned int i = 0 ; i < players.nb_player ; ++i )
             ai->enemy_list[ i ].sort();
 
         ai->total_unit = 0;
@@ -502,12 +501,12 @@ namespace TA3D
             {
                 sint16 player_target = -1;
                 float best_weight = 15.0f;
-                for( int e = 0 ; e < players.nb_player ; e++ )				// Who can we attack ?
+                for(unsigned int e = 0 ; e < players.nb_player; ++e)				// Who can we attack ?
                 {
-                    if (ai->order_attack[ e ] > best_weight )
+                    if (ai->order_attack[e] > best_weight)
                     {
                         player_target = e;
-                        best_weight = ai->order_attack[ e ];
+                        best_weight = ai->order_attack[e];
                     }
                 }
 
@@ -791,7 +790,7 @@ namespace TA3D
         thread_running = false;
         thread_ask_to_stop = false;
 
-        name = strdup("default ai");
+        name = "default ai";
         decide.init();
         anticipate.init();
         player_id = 0;
@@ -827,9 +826,6 @@ namespace TA3D
         army_list.clear();
         enemy_list.clear();
 
-        if (name)
-            free(name);
-        name = NULL;
         decide.destroy();
         anticipate.destroy();
         player_id=0;
@@ -841,49 +837,48 @@ namespace TA3D
         }
     }
 
-    void AI_PLAYER::change_name(char *new_name)		// Change le nom de l'IA (conduit à la création d'un nouveau fichier)
+    void AI_PLAYER::change_name(const String& newName)		// Change le nom de l'IA (conduit à la création d'un nouveau fichier)
     {
         pMutex.lock();
-
-        if (name)
-            free(name);
-        name=strdup(new_name);
-
+        name = newName;
         pMutex.unlock();
     }
 
     void AI_PLAYER::save()
     {
-        String filename = format( "ai/%s.ai", name );
-        FILE *file = TA3D_OpenFile(filename,"wb");
+        String filename = "ai";
+        filename += Paths::Separator;
+        filename += name;
+        filename += TA3D_AI_FILE_EXTENSION;
+        FILE* file = TA3D_OpenFile(filename, "wb");
 
-        byte l=(byte)strlen(name);
-        fwrite(&l,1,1,file);		// Nom de l'IA
-        fwrite(name,l,1,file);
+        byte l = (byte)name.size();
+        fwrite(&l, 1, 1, file);		// Nom de l'IA
+        fwrite(name.c_str(), l, 1, file);
         decide.save(file);			// Réseau de décision
         anticipate.save(file);		// Réseau d'analyse
         fclose(file);
     }
 
 
-    void AI_PLAYER::load(char *filename,int id)
+    void AI_PLAYER::load(const String& filename, const int id)
     {
-        FILE *file = TA3D_OpenFile(filename,"rb");
+        FILE* file = TA3D_OpenFile(filename, "rb");
 
+        // Length of the name
         byte l;
         fread(&l,1,1,file);
-        if (name)
-            free(name);
-        name=(char*) malloc(l+1);
-        name[l]=0;
-        fread(name,l,1,file);
+
+        // Reading the name
+        char* n = new char[l+1];
+        n[l]=0;
+        fread(n, l, 1, file);
+        name = n;
+        delete[] n;
 
         decide.load(file);
-
         anticipate.load(file);
-
         fclose(file);
-
         player_id = id;
     }
 
