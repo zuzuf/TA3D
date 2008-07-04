@@ -6023,13 +6023,11 @@ int INGAME_UNITS::create(int type_id,int owner)
         }
         unit=n_unit;
     }
-    if(unit==NULL)
-        printf("error: memory alloc failed\n");
+    if(!unit)
+        LOG_CRITICAL("Memory alloc failed");
     if(free_index_size[owner]<=0) {
-        printf("unit limit reached!\n");
-
         pMutex.unlock();
-
+        LOG_WARNING("Unit limit reached !");
         return -1;
     }
     int unit_index = free_idx[owner*MAX_UNIT_PER_PLAYER+free_index_size[owner]-1];
@@ -6044,7 +6042,6 @@ int INGAME_UNITS::create(int type_id,int owner)
         repair_pads[ owner ].push_front( unit_index );
 
     players.nb_unit[owner]++;
-
     pMutex.unlock();
 
     return unit_index;

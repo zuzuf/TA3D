@@ -636,7 +636,7 @@ void UNIT_TYPE::load_dl()
     }
     catch(...)
     {
-        Console->AddEntry("WARNING : *dl.gui file missing!!");
+        LOG_WARNING("`dl.gui` file is missing");
         delete dl_data;
         dl_data = NULL;
     }
