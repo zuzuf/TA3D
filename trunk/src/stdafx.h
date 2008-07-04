@@ -33,10 +33,8 @@
 # include "../config.h"
 # include <cstdio>
 # include <cstdlib>
-# include <algorithm>
 # include <string>
 # include <sstream>
-# include <iostream>
 # include <fstream>
 # include <vector>
 
