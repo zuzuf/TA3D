@@ -43,8 +43,8 @@ namespace Interfaces
     void GFX::initAllegroGL()
     {
         install_allegro_gl();
-        allegro_gl_clear_settings();         // Initialise AllegroGL
         #ifndef TA3D_PLATFORM_DARWIN
+        allegro_gl_clear_settings();         // Initialise AllegroGL
         allegro_gl_set (AGL_STENCIL_DEPTH, 8 );
         allegro_gl_set (AGL_SAMPLE_BUFFERS, 0 );
         allegro_gl_set (AGL_SAMPLES, TA3D::VARS::lp_CONFIG->fsaa );
@@ -58,6 +58,7 @@ namespace Interfaces
                         | AGL_DOUBLEBUFFER | AGL_FULLSCREEN | AGL_SAMPLES
                         | AGL_SAMPLE_BUFFERS | AGL_STENCIL_DEPTH
                         | AGL_VIDEO_MEMORY_POLICY );
+        request_refresh_rate(85);
         #else
         allegro_gl_set(AGL_COLOR_DEPTH, TA3D::VARS::lp_CONFIG->color_depth);
         allegro_gl_set(AGL_DOUBLEBUFFER, TRUE);
@@ -68,14 +69,13 @@ namespace Interfaces
         allegro_gl_set (AGL_FULLSCREEN, TA3D::VARS::lp_CONFIG->fullscreen);
         allegro_gl_set(AGL_SAMPLES, TA3D::VARS::lp_CONFIG->fsaa);
         allegro_gl_set(AGL_SAMPLE_BUFFERS, TRUE);
-        allegro_gl_set(AGL_SUGGEST, AGL_WINDOWED | AGL_SAMPLES | AGL_SAMPLE_BUFFERS | AGL_COLOR_DEPTH);
+        allegro_gl_set(AGL_SUGGEST, AGL_WINDOWED | AGL_SAMPLES | AGL_SAMPLE_BUFFERS | AGL_COLOR_DEPTH | AGL_VIDEO_MEMORY_POLICY);
         allegro_gl_set(AGL_REQUIRE, AGL_RENDERMETHOD | AGL_DOUBLEBUFFER | AGL_Z_DEPTH);
         #endif
 
         allegro_gl_use_mipmapping(TRUE);
         allegro_gl_flip_texture(FALSE);
 
-        request_refresh_rate(85);
 
         if (TA3D::VARS::lp_CONFIG->fullscreen )
         {
