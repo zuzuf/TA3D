@@ -115,8 +115,8 @@ namespace TA3D
         SuperQueue syncq;
         SuperQueue eventq;
 
-        std::list< std::string > broadcastq;
-        std::list< std::string > broadcastaddressq;
+        std::list< String > broadcastq;
+        std::list< String > broadcastaddressq;
 
         Mutex slmutex;
         Mutex mqmutex;
@@ -162,12 +162,12 @@ namespace TA3D
         int registerToNetServer( const String &name, const int Slots );
         String HttpRequest( const String &servername, const String &request );
 
-        int sendSpecialUDP( std::string msg, int src_id = -1, int dst_id = -1);
+        int sendSpecialUDP( String msg, int src_id = -1, int dst_id = -1);
         int sendSpecialUDP(struct chat* chat, int src_id = -1, int dst_id = -1);
 
         int sendPing( int src_id = -1, int dst_id = -1 );
-        int sendAll( std::string msg );
-        int sendSpecial( std::string msg, int src_id = -1, int dst_id = -1);
+        int sendAll( String msg );
+        int sendSpecial( String msg, int src_id = -1, int dst_id = -1);
         int sendSpecial(struct chat* chat, int src_id = -1, int dst_id = -1, bool all = false);
         int sendChat(struct chat* chat, int src_id = -1);
         int sendOrder(struct order* order, int src_id = -1);
@@ -199,8 +199,8 @@ namespace TA3D
         float getFileTransferProgress();
 
         int broadcastMessage( const char *msg );
-        std::string getNextBroadcastedMessage();
-        std::string getLastMessageAddress();
+        String getNextBroadcastedMessage();
+        String getLastMessageAddress();
         bool BroadcastedMessages();
 
         int sendFileData( int player, uint16 port, byte *data, int size );

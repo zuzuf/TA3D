@@ -141,7 +141,7 @@ namespace Menus
 
     private:
         //! Cached value for the current class name
-        std::string pTypeName;
+        String pTypeName;
 
     }; // class Abstract
 

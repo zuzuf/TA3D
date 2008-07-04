@@ -522,7 +522,7 @@ namespace TA3D
         return -1;						// Not connected, it shouldn't be possible to get here if we're not connected ...
     }
 
-    int Network::sendAll( std::string msg )
+    int Network::sendAll( String msg )
     {
         struct chat chat;
         return sendSpecial( strtochat( &chat, msg ), -1, -1, true );
@@ -791,9 +791,9 @@ namespace TA3D
         return broadcast_socket.sendMessage( msg );
     }
 
-    std::string Network::getNextBroadcastedMessage()
+    String Network::getNextBroadcastedMessage()
     {
-        std::string msg;
+        String msg;
         mqmutex.lock();
         if( !broadcastq.empty() ) {
             msg = broadcastq.front();

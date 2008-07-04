@@ -61,7 +61,7 @@ namespace TA3D
         void	getBuffer(char* x, int size);
         float	getFloat();
 
-        void send( const std::string &address );
+        void send( const String &address );
         void recv();
 
         int max(int a, int b) {return (a>b ? a : b);}
@@ -79,9 +79,9 @@ namespace TA3D
         int isOpen();
 
         //these are for outgoing packets
-        int sendSpecial(struct chat* chat, const std::string &address);
-        int sendSync(struct sync* sync, const std::string &address);
-        int sendEvent(struct event* event, const std::string &address);
+        int sendSpecial(struct chat* chat, const String &address);
+        int sendSync(struct sync* sync, const String &address);
+        int sendEvent(struct event* event, const String &address);
         void cleanPacket();
 
         //these are for incoming packets

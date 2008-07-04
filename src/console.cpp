@@ -445,7 +445,7 @@ char *cConsole::draw( TA3D::Interfaces::GfxFont fnt, float dt, float fsize, bool
 
 	if(keyb==13)
 	{
-		std::string x = m_InputText;
+		String x = m_InputText;
 		AddEntry( x );
 
 		m_InputText[0] = 0;

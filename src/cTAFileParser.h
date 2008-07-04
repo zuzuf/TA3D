@@ -30,8 +30,8 @@ namespace UTILS
     class cTAFileParser : protected TA3D::UTILS::cHashTable<String>
     {
     private:
-        std::string m_cKey;     // used when building keys.
-        std::list< std::string > key_level;	// used when building keys.
+        String m_cKey;     // used when building keys.
+        std::list< String > key_level;	// used when building keys.
         bool m_bKeysCaseSenstive;	// Is it case sensitive ?
         int gadget_mode;
 
@@ -49,10 +49,10 @@ namespace UTILS
 
         void LoadMemory( char *data, bool bClearTable=false, bool toUTF8 = false, bool g_mode = false );
 
-        sint32	PullAsInt( const std::string &KeyName , sint32 def = 0 );
-        real32	PullAsFloat( const std::string &KeyName , real32 def = 0.0f );
-        String	PullAsString( const std::string &KeyName , String def = "" );
-        bool	PullAsBool( const std::string &KeyName , bool def = false );
+        sint32	PullAsInt( const String &KeyName , sint32 def = 0 );
+        real32	PullAsFloat( const String &KeyName , real32 def = 0.0f );
+        String	PullAsString( const String &KeyName , String def = "" );
+        bool	PullAsBool( const String &KeyName , bool def = false );
 
     }; // class cTAFileParser
 

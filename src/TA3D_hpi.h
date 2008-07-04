@@ -118,9 +118,9 @@ namespace HPI
 
         // Member Functions:
     private:
-        void AddArchive( const std::string &FileName, bool priority );
-        void LocateAndReadFiles( const std::string &Path, const std::string &FileSearch, bool priority );
-        void ProcessRoot( HPIFILEDATA *hfd, const std::string &StartPath, sint32 offset );
+        void AddArchive( const String &FileName, bool priority );
+        void LocateAndReadFiles( const String &Path, const String &FileSearch, bool priority );
+        void ProcessRoot( HPIFILEDATA *hfd, const String &StartPath, sint32 offset );
         void ProcessSubDir( HPIITEM *hi );
 
         sint32  ReadAndDecrypt( sint32 fpos, byte *buff, sint32 buffsize, HPIFILEDATA *HPIInfo );
@@ -133,7 +133,7 @@ namespace HPI
         byte *DecodeFileToMem_zone( HPIITEM *hi , uint32 start , uint32 length , uint32 *file_length=NULL );
 
     public:
-        void SearchDirForArchives( const std::string &Path );
+        void SearchDirForArchives( const String &Path );
 
         void PutInCache( const String &FileName, uint32 FileSize, byte *data );
         CACHEFILEDATA *IsInCache( const String &FileName );
@@ -158,15 +158,15 @@ namespace HPI
         void ShowArchive(); // for debug only we don't need it.
 #endif
 
-        byte *PullFromHPI( const std::string &FileName , uint32 *file_length=NULL);
-        byte *PullFromHPI_zone( const std::string &FileName , uint32 start , uint32 length , uint32 *file_length=NULL);
-        bool Exists( const std::string &FileName);
+        byte *PullFromHPI( const String &FileName , uint32 *file_length=NULL);
+        byte *PullFromHPI_zone( const String &FileName , uint32 start , uint32 length , uint32 *file_length=NULL);
+        bool Exists( const String &FileName);
 
         // Member Variables:
     private:
-        std::string m_cDir;     // used when building dir structurs.
+        String m_cDir;     // used when building dir structurs.
 
-        std::string m_Path;		// used when looking for files in the real file system
+        String m_Path;		// used when looking for files in the real file system
 
         TA3D::UTILS::clpHashTable< HPIITEM * > *m_Archive;
 

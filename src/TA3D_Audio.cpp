@@ -45,7 +45,7 @@ void cAudio::SetPlayListFileMode( int idx, bool Battle, bool Deactivated )
 	m_Playlist[ idx ]->m_Deactivated = Deactivated;
 }
 
-std::vector< std::string >	cAudio::GetPlayListFiles()
+std::vector< String >	cAudio::GetPlayListFiles()
 {
 	std::vector< String > file_list;
 	file_list.resize( m_Playlist.size() );

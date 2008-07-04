@@ -42,7 +42,7 @@ namespace TA3D
     }
 
 
-    void UDPSock::send(const std::string &address)
+    void UDPSock::send(const String &address)
     {
         udpmutex.lock();
 
@@ -205,7 +205,7 @@ namespace TA3D
     }
 
 
-    int UDPSock::sendSpecial(struct chat* chat, const std::string &address)
+    int UDPSock::sendSpecial(struct chat* chat, const String &address)
     {
         udpmutex.lock();
 
@@ -218,7 +218,7 @@ namespace TA3D
         return 0;
     }
 
-    int UDPSock::sendEvent(struct event* event, const std::string &address)
+    int UDPSock::sendEvent(struct event* event, const String &address)
     {
         udpmutex.lock();
         putByte('E');
@@ -297,7 +297,7 @@ namespace TA3D
         return 0;
     }
 
-    int UDPSock::sendSync(struct sync* sync, const std::string &address)
+    int UDPSock::sendSync(struct sync* sync, const String &address)
     {
         udpmutex.lock();
 

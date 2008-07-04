@@ -40,7 +40,7 @@ namespace Interfaces
         virtual ~cLogger();
 
         void LogData( const char *txt );
-        void LogData( const std::string &txt );
+        void LogData( const String &txt );
         FILE *get_log_file();
 
     private:

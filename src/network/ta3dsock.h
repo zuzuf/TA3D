@@ -148,7 +148,7 @@ namespace TA3D
 
     typedef chat special;
 
-    inline chat* strtochat( struct chat *chat_msg, std::string msg )
+    inline chat* strtochat( struct chat *chat_msg, String msg )
     {
         if( chat_msg == NULL )	return chat_msg;
         memset( chat_msg->message, 0, 253 );
@@ -156,10 +156,10 @@ namespace TA3D
         return chat_msg;
     }
 
-    inline std::string chattostr( struct chat *chat_msg )
+    inline String chattostr( struct chat *chat_msg )
     {
         if( chat_msg == NULL )	return "";
-        std::string msg( chat_msg->message, 253 );
+        String msg( chat_msg->message, 253 );
         msg = msg.c_str();								// Make sure it represents a null terminated string
         return msg;
     }

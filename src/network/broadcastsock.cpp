@@ -168,11 +168,11 @@ int BroadcastSock::sendMessage( const char* msg )
     return 0;
 }
 
-std::string BroadcastSock::makeMessage()
+String BroadcastSock::makeMessage()
 {
     if(uiremain != 0)
         return "";
-    std::string msg;
+    String msg;
     msg.reserve( uibp + 1 );
     for( int i = 0 ; i < uibp && udpinbuf[ i ] != 0 ; i++ )
         msg += udpinbuf[ i ];

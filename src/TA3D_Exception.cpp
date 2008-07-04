@@ -61,7 +61,7 @@ namespace Exceptions
 
 
 
-    const std::string GetGuardLog()
+    const String GetGuardLog()
     {
         return pGuardLog;
     }
@@ -73,9 +73,9 @@ namespace Exceptions
     }
 
 
-    const std::string GuardIndentPadding()
+    const String GuardIndentPadding()
     {
-        std::string x;
+        String x;
         for (uint16 i = 0; i < pIndentLevel; ++i)
             x += "   ";
         return x;
@@ -106,7 +106,7 @@ namespace Exceptions
         pGuardLog = "";
     }
 
-    void GuardLog(const std::string& szLog)
+    void GuardLog(const String& szLog)
     {
         pGuardLog += szLog;
     }
