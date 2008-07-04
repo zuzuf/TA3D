@@ -212,7 +212,6 @@ void cConsole::DumpStartupInfo()
 	if(cpu_capabilities&CPU_CMOV)		str += "-cmov";
 	
 	AddEntry( str );
-
 	stdout_off();
 }
 
@@ -303,9 +302,6 @@ void cConsole::AddEntry( String NewEntry )
 		fputs( "\n", m_log );
 		fflush( m_log ); 
 	}
-
-	if( m_std_output )
-		printf( "%s\n", NewEntry.c_str() );
 }
 
 void cConsole::AddEntry(const char *txt, ...)		// Ajoute une nouvelle entrée
