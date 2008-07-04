@@ -29,7 +29,7 @@ namespace TA3D
 
 sint32  cHPIHandler::ReadAndDecrypt( sint32 fpos, byte *buff, sint32 buffsize, HPIFILEDATA *HPIInfo)
 {
-    sint32 count, tkey, result;
+    sint32 count, result;
 
     fseek(HPIInfo->HPIFile, fpos, SEEK_SET);
 
@@ -39,8 +39,7 @@ sint32  cHPIHandler::ReadAndDecrypt( sint32 fpos, byte *buff, sint32 buffsize, H
     {
         for (count = 0; count < buffsize; count++)
         {
-            tkey = (fpos + count) ^ HPIInfo->Key;
-            buff[count] = tkey ^ ~buff[count];
+            buff[count] ^= (fpos + count) ^ HPIInfo->Key;
         }
     }
 
@@ -441,7 +440,7 @@ void cHPIHandler::AddArchive( const std::string &FileName, bool priority )
 
     fread(&hfd->H1, sizeof(HPIHEADER), 1, hfd->HPIFile);
     if (hfd->H1.Key)
-        hfd->Key = ~((hfd->H1.Key * 4)   | (hfd->H1.Key >> 6));
+        hfd->Key = (hfd->H1.Key * 4) | (hfd->H1.Key >> 6);
     else
         hfd->Key = 0;
 
