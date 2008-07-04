@@ -138,11 +138,8 @@
 #include <math.h>
 
 
-
-// Cire:
-//   string and wstring typedefs to make life easier.
-typedef std::string		String;
-typedef std::wstring	WString;
+//! \typedef The current string implementation
+typedef std::string	String;
 
 // Cire:
 //   Since byte seems to be common throughout the project we'll typedef here.
@@ -197,8 +194,6 @@ template<class T> inline T min(T a, T b)	{	return (a > b) ? b : a;	}
 	#define FILE_SIZE	file_size
 #endif
 
-# define foreach(a,b)  Error 
-# define foreach_(a,b)  Error 
 
 
 namespace TA3D
