@@ -68,8 +68,8 @@ namespace Interfaces
         allegro_gl_set (AGL_FULLSCREEN, TA3D::VARS::lp_CONFIG->fullscreen);
         allegro_gl_set(AGL_SAMPLES, TA3D::VARS::lp_CONFIG->fsaa);
         allegro_gl_set(AGL_SAMPLE_BUFFERS, TRUE);
-        allegro_gl_set(AGL_SUGGEST, AGL_WINDOWED | AGL_SAMPLES | AGL_SAMPLE_BUFFERS);
-        allegro_gl_set(AGL_REQUIRE, AGL_RENDERMETHOD | AGL_DOUBLEBUFFER | AGL_Z_DEPTH | AGL_COLOR_DEPTH);
+        allegro_gl_set(AGL_SUGGEST, AGL_WINDOWED | AGL_SAMPLES | AGL_SAMPLE_BUFFERS | AGL_COLOR_DEPTH);
+        allegro_gl_set(AGL_REQUIRE, AGL_RENDERMETHOD | AGL_DOUBLEBUFFER | AGL_Z_DEPTH);
         #endif
 
         allegro_gl_use_mipmapping(TRUE);
@@ -119,10 +119,7 @@ namespace Interfaces
             Console->AddEntry("renderer: %s", glGetString( GL_RENDERER ) );
             Console->AddEntry("version: %s", glGetString( GL_VERSION ) );
             if (ati_workaround)
-            {
-                Console->AddEntry("WARNING: ATI card detected! using workarounds for ATI cards");
-                LOG_WARNING("WARNING: ATI card detected! using workarounds for ATI cards");
-            }
+                Console->AddEntryWarning("ATI card detected ! Using workarounds for ATI cards");
             Console->stdout_off();
         }
     }
