@@ -100,7 +100,7 @@ namespace Interfaces
 
     public:
 
-        std::vector< String >	GetPlayListFiles();
+        bool GetPlayListFiles(std::vector<String>& out);
         void						SetPlayListFileMode( int idx, bool Battle, bool Deactivated );
 
         cAudio( const float DistanceFactor,

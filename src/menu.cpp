@@ -247,7 +247,7 @@ void config_menu(void)
     if( config_area.get_object("*.l_files") )
     {
         GUIOBJ *obj = config_area.get_object("*.l_files");
-        obj->Text = sound_manager->GetPlayListFiles();
+        sound_manager->GetPlayListFiles(obj->Text);
     }
 
     if( lp_CONFIG->quickstart )
