@@ -54,7 +54,7 @@ void Timer()
 {
     msec_timer++;				// msec count
 }
-END_OF_FUNCTION(Timer); /* I guess allegro needs this. */
+END_OF_FUNCTION(Timer) /* I guess allegro needs this. */
 
 /*
  ** Function: ReadFileParameter
@@ -362,6 +362,6 @@ int main(int argc,char *argv[])
     else
         exit(3);		// ask the monitoring script to restart the program with --quick-restart --restore parameters
 }
-END_OF_MAIN();
-/* Allegro needs END_OF_MAIN(); I guess. */ 
+END_OF_MAIN()
+/* Allegro needs END_OF_MAIN() I guess. */ 
 
