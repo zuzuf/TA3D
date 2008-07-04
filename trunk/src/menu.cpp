@@ -539,7 +539,7 @@ void stats_menu(void)
     statistics_area.load_tdf("gui/statistics.area");
     if( !statistics_area.background )	statistics_area.background = gfx->glfond;
 
-    for (unsigned int i = 0 ; i < players.nb_player ; ++i)
+    for (sint8 i = 0 ; i < players.nb_player ; ++i)
     {
         GUIOBJ *obj;
         uint32 color = gfx->makeintcol( player_color[ 3 * player_color_map[ i ] ], player_color[ 3 * player_color_map[ i ] + 1 ], player_color[ 3 * player_color_map[ i ] + 2 ] );

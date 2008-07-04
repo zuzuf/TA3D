@@ -3031,7 +3031,7 @@ int play(GameData *game_data)
         if( show_timefactor > 0.0f )
         {
             String value = format("x %f", lp_CONFIG->timefactor);
-            if(value.find(".") != -1)
+            if(value.find(".") != String::npos)
                 value.resize( value.find( "." ) + 2 );
             if( show_timefactor > 0.5f )
                 gfx->print( gfx->TA_font, gfx->width - (int)gfx->TA_font.length( value )>>1, SCREEN_H-80, 0.0f, 0xFFFFFFFF, value );

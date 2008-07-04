@@ -169,7 +169,7 @@ void save_game( const String filename, GameData *game_data )
     SAVE( weapons.max_weapon );
     SAVE( weapons.index_list_size );
 
-    for( int e = 0 ; e < weapons.index_list_size ; e++ )
+    for(unsigned int e = 0 ; e < weapons.index_list_size ; ++e)
     {
         int i = weapons.idx_list[e];
         SAVE( i );
@@ -661,10 +661,10 @@ void load_game( GameData *game_data )
     weapons.idx_list = new uint32[weapons.max_weapon];
     weapons.free_idx = new uint32[weapons.max_weapon];
     weapons.free_index_size = 0;
-    for( int e = 0 ; e < weapons.max_weapon ; e++ )
+    for(unsigned int e = 0 ; e < weapons.max_weapon ; ++e)
         weapons.weapon[e].weapon_id = -1;
 
-    for( int e = 0 ; e < weapons.index_list_size ; e++ )
+    for (unsigned int e = 0 ; e < weapons.index_list_size ; ++e)
     {
         int i;
         LOAD( i );
@@ -694,7 +694,7 @@ void load_game( GameData *game_data )
         LOAD( weapons.weapon[i].just_explode );
     }
 
-    for( int e = 0 ; e < weapons.max_weapon ; e++ )
+    for (unsigned int e = 0 ; e < weapons.max_weapon ; ++e)
         if( weapons.weapon[e].weapon_id == -1 )
             weapons.free_idx[ weapons.free_index_size++ ] = e;
 

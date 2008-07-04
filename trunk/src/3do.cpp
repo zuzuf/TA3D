@@ -674,8 +674,9 @@ void OBJECT::create_from_2d(BITMAP *bmp,float w,float h,float max_h)
             uint32 c=0;
             uint32 n=0;
             bool zero=false;
-            for(uint32 py=y*bmp->h>>3;py<(y+1)*bmp->h>>3;py++)
-                for(uint32 px=x*bmp->w>>3;px<(x+1)*bmp->w>>3;px++) {
+            for(int py=y*bmp->h>>3;py<(y+1)*bmp->h>>3;py++)
+                for(int px=x*bmp->w>>3;px<(x+1)*bmp->w>>3;px++)
+                {
                     uint32 pc=getpixel(bmp,px,py);
                     c+=getr(pc)+getg(pc)+getb(pc);
                     if(geta(pc)<128 || (pc&0xFFFFFF)==0xFF00FF)
@@ -1151,7 +1152,8 @@ draw_next:
             }
             if( !use_strips ) {
                 glBegin( GL_TRIANGLES );
-                for(uint32 i = 0 ; i < nb_t_index ; i++ ) {
+                for(int i = 0 ; i < nb_t_index ; ++i)
+                {
                     if( activated_tex )
                         glTexCoord2f( tcoord[ t_index[ i ] << 1 ], tcoord[ (t_index[ i ] << 1) + 1 ] );
                     glNormal3f( N[ t_index[ i ] ].x, N[ t_index[ i ] ].y, N[ t_index[ i ] ].z );
@@ -1162,7 +1164,8 @@ draw_next:
             else {
                 glDisable( GL_CULL_FACE );
                 glBegin( GL_TRIANGLE_STRIP );
-                for(uint32 i = 0 ; i < nb_t_index ; i++ ) {
+                for(int i = 0 ; i < nb_t_index ; ++i)
+                {
                     if( activated_tex )
                         glTexCoord2f( tcoord[ t_index[ i ] << 1 ], tcoord[ (t_index[ i ] << 1) + 1 ] );
                     glNormal3f( N[ t_index[ i ] ].x, N[ t_index[ i ] ].y, N[ t_index[ i ] ].z );
@@ -2697,7 +2700,8 @@ hit_fast_is_exploding:
         GLfloat	*T = new GLfloat[ max_size << 3 ];
 
         int e = 0;
-        for( int i = 0 ; i < max_size ; i++ ) {
+        for(unsigned int i = 0 ; i < max_size ; i++ )
+        {
             T[e<<1] = 0.0f;		T[(e<<1)+1] = 0.0f;
             e++;
 

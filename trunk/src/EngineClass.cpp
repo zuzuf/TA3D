@@ -231,19 +231,19 @@ namespace TA3D
             while(pos[0]==13 || pos[0]==10)	{	pos++;	n_pos++;	}
 
             if(strstr(ligne,"//") || strstr(ligne,"/*") || strstr(ligne,"{")) { }		// Saute les commentaires
-            else if(f=strstr(ligne,"missionname=")) {
+            else if((f=strstr(ligne,"missionname="))) {
                 if((strstr(ligne,";")))	*(strstr(ligne,";"))=0;
                 missionname=strdup(f+12);
             }
-            else if(f=strstr(ligne,"planet=")) {
+            else if((f=strstr(ligne,"planet="))) {
                 if((strstr(ligne,";")))	*(strstr(ligne,";"))=0;
                 planet=strdup(f+7);
             }
-            else if(f=strstr(ligne,"glamour=")) {
+            else if((f=strstr(ligne,"glamour="))) {
                 if((strstr(ligne,";")))	*(strstr(ligne,";"))=0;
                 glamour=strdup(f+8);
             }
-            else if(f=strstr(ligne,"missiondescription=")) {
+            else if((f=strstr(ligne,"missiondescription="))) {
                 if((strstr(ligne,";")))	*(strstr(ligne,";"))=0;
                 missiondescription=strdup(f+19);
                 char *prec=missiondescription;
@@ -260,98 +260,98 @@ namespace TA3D
                     cur++;
                 }
             }
-            else if(f=strstr(ligne,"tidalstrength=")) {
+            else if((f=strstr(ligne,"tidalstrength="))) {
                 if((strstr(ligne,";")))	*(strstr(ligne,";"))=0;
                 tidalstrength=atoi(f+14);
             }
-            else if(f=strstr(ligne,"solarstrength=")) {
+            else if((f=strstr(ligne,"solarstrength="))) {
                 if((strstr(ligne,";")))	*(strstr(ligne,";"))=0;
                 solarstrength=atoi(f+14);
             }
-            else if(f=strstr(ligne,"lavaworld=")) {
+            else if((f=strstr(ligne,"lavaworld="))) {
                 if((strstr(ligne,";")))	*(strstr(ligne,";"))=0;
                 lavaworld=(f[10]=='1');
             }
-            else if(f=strstr(ligne,"killmul=")) {
+            else if((f=strstr(ligne,"killmul="))) {
                 if((strstr(ligne,";")))	*(strstr(ligne,";"))=0;
                 killmul=atoi(f+8);
             }
-            else if(f=strstr(ligne,"minwindspeed=")) {
+            else if((f=strstr(ligne,"minwindspeed="))) {
                 if((strstr(ligne,";")))	*(strstr(ligne,";"))=0;
                 minwindspeed=atoi(f+13);
             }
-            else if(f=strstr(ligne,"maxwindspeed=")) {
+            else if((f=strstr(ligne,"maxwindspeed="))) {
                 if((strstr(ligne,";")))	*(strstr(ligne,";"))=0;
                 maxwindspeed=atoi(f+13);
             }
-            else if(f=strstr(ligne,"gravity=")) {
+            else if((f=strstr(ligne,"gravity="))) {
                 if((strstr(ligne,";")))	*(strstr(ligne,";"))=0;
                 gravity=atoi(f+8)*0.1f;
             }
-            else if(f=strstr(ligne,"numplayers=")) {
+            else if((f=strstr(ligne,"numplayers="))) {
                 if((strstr(ligne,";")))	*(strstr(ligne,";"))=0;
                 numplayers=strdup(f+11);
             }
-            else if(f=strstr(ligne,"size=")) {
+            else if((f=strstr(ligne,"size="))) {
                 if((strstr(ligne,";")))	*(strstr(ligne,";"))=0;
                 map_size=strdup(f+5);
             }
-            else if(f=strstr(ligne,"surfacemetal=")) {
+            else if((f=strstr(ligne,"surfacemetal="))) {
                 if((strstr(ligne,";")))	*(strstr(ligne,";"))=0;
                 SurfaceMetal=atoi(f+13);
             }
-            else if(f=strstr(ligne,"mohometal=")) {
+            else if((f=strstr(ligne,"mohometal="))) {
                 if((strstr(ligne,";")))	*(strstr(ligne,";"))=0;
                 MohoMetal=atoi(f+10);
             }
-            else if(f=strstr(ligne,"specialwhat=startpos")) {
+            else if((f=strstr(ligne,"specialwhat=startpos"))) {
                 if((strstr(ligne,";")))	*(strstr(ligne,";"))=0;
                 index=atoi(f+20)-1;
             }
-            else if(f=strstr(ligne,"xpos=")) {
+            else if((f=strstr(ligne,"xpos="))) {
                 if((strstr(ligne,";")))	*(strstr(ligne,";"))=0;
                 startX[index]=atoi(f+5);
             }
-            else if(f=strstr(ligne,"zpos=")) {
+            else if((f=strstr(ligne,"zpos="))) {
                 if((strstr(ligne,";")))	*(strstr(ligne,";"))=0;
                 startZ[index]=atoi(f+5);
             }
-            else if(f=strstr(ligne,"waterdoesdamage=")) {
+            else if((f=strstr(ligne,"waterdoesdamage="))) {
                 if((strstr(ligne,";")))	*(strstr(ligne,";"))=0;
                 waterdoesdamage=atoi(f+16)>0;
             }
-            else if(f=strstr(ligne,"waterdamage=")) {
+            else if((f=strstr(ligne,"waterdamage="))) {
                 if((strstr(ligne,";")))	*(strstr(ligne,";"))=0;
                 waterdamage=atoi(f+12);
             }
-            else if(f=strstr(ligne,"missionhint=")) {}
-            else if(f=strstr(ligne,"brief=")) {}
-            else if(f=strstr(ligne,"narration=")) {}
-            else if(f=strstr(ligne,"glamour=")) {}
-            else if(f=strstr(ligne,"lineofsight=")) {}
-            else if(f=strstr(ligne,"mapping=")) {}
-            else if(f=strstr(ligne,"timemul=")) {}
-            else if(f=strstr(ligne,"memory=")) {}
-            else if(f=strstr(ligne,"useonlyunits=")) {}
-            else if(f=strstr(ligne,"schemacount=")) {}
-            else if(f=strstr(ligne,"type=")) {
+            else if((f=strstr(ligne,"missionhint="))) {}
+            else if((f=strstr(ligne,"brief="))) {}
+            else if((f=strstr(ligne,"narration="))) {}
+            else if((f=strstr(ligne,"glamour="))) {}
+            else if((f=strstr(ligne,"lineofsight="))) {}
+            else if((f=strstr(ligne,"mapping="))) {}
+            else if((f=strstr(ligne,"timemul="))) {}
+            else if((f=strstr(ligne,"memory="))) {}
+            else if((f=strstr(ligne,"useonlyunits="))) {}
+            else if((f=strstr(ligne,"schemacount="))) {}
+            else if((f=strstr(ligne,"type="))) {
                 if( strstr( f+5, "network") )
                     network = true;
             }
-            else if(f=strstr(ligne,"aiprofile=")) {}
-            else if(f=strstr(ligne,"humanmetal=")) {}
-            else if(f=strstr(ligne,"computermetal=")) {}
-            else if(f=strstr(ligne,"humanenergy=")) {}
-            else if(f=strstr(ligne,"computerenergy=")) {}
-            else if(f=strstr(ligne,"meteorweapon=")) {}
-            else if(f=strstr(ligne,"meteorradius=")) {}
-            else if(f=strstr(ligne,"meteordensity=")) {}
-            else if(f=strstr(ligne,"meteorduration=")) {}
-            else if(f=strstr(ligne,"meteorinterval=")) {}
-            else if(f=strstr(ligne,"killenemycommander=")) {}
-            else if(f=strstr(ligne,"destroyallunits=")) {}
-            else if(f=strstr(ligne,"allunitskilled=")) {}
-            else if(f=strstr(ligne,"featurename=")) {}
+            else if((f=strstr(ligne,"aiprofile="))) {}
+            else if((f=strstr(ligne,"humanmetal="))) {}
+            else if((f=strstr(ligne,"computermetal="))) {}
+            else if((f=strstr(ligne,"humanenergy="))) {}
+            else if((f=strstr(ligne,"computerenergy="))) {}
+            else if((f=strstr(ligne,"meteorweapon="))) {}
+            else if((f=strstr(ligne,"meteorradius="))) {}
+            else if((f=strstr(ligne,"meteordensity="))) {}
+            else if((f=strstr(ligne,"meteorduration="))) {}
+            else if((f=strstr(ligne,"meteorinterval="))) {}
+            else if((f=strstr(ligne,"killenemycommander="))) {}
+            else if((f=strstr(ligne,"destroyallunits="))) {}
+            else if((f=strstr(ligne,"allunitskilled="))) {}
+            else if((f=strstr(ligne,"featurename="))) {}
 
         } while(nb<1000 && pos<limit);
         delete[] ligne;
@@ -1832,14 +1832,14 @@ namespace TA3D
             sky_data->load_tdf(*it);
 
             bool keep = false;
-            for (int i = 0 ; i < sky_data->MapName.size() ; ++i)
+            for (unsigned int i = 0 ; i < sky_data->MapName.size() ; ++i)
                 if( sky_data->MapName[i] == mapname)
                 {
                     keep = true;
                     break;
                 }
             if( !keep )
-                for( int i = 0 ; i < sky_data->planet.size() ; ++i)
+                for(unsigned int i = 0 ; i < sky_data->planet.size() ; ++i)
                     if (sky_data->planet[ i ] == planet)
                     {
                         keep = true;
