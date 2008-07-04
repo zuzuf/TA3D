@@ -130,7 +130,7 @@ namespace TA3D
 			String tFileName = GetClientPath() + FileName;
 
 			if( bClearTable ) {
-				uint32 old_tablesize = m_u32TableSize;
+				uint32 old_tablesize = pTableSize;
 				EmptyHashTable();
 				InitTable( old_tablesize );
 				}
@@ -188,7 +188,7 @@ namespace TA3D
 		void cTAFileParser::LoadMemory( char *data, bool bClearTable, bool toUTF8, bool g_mode )
 		{
 			if( bClearTable ) {
-				uint32 old_tablesize = m_u32TableSize;
+				uint32 old_tablesize = pTableSize;
 				EmptyHashTable();
 				InitTable( old_tablesize );
 			}
