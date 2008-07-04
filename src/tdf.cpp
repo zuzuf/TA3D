@@ -60,10 +60,12 @@ namespace TA3D
                 while(pos[0]!=0 && pos[0]!=13 && pos[0]!=10)	pos++;
                 while(pos[0]==13 || pos[0]==10)	pos++;
 
-                if( strstr( ligne, " " ) != NULL && strstr( ligne, "=" ) != NULL ) {			// remove useless spaces
+                if( strstr( ligne, " " ) != NULL && strstr( ligne, "=" ) != NULL ) // remove useless spaces
+                {
                     int e = 0;
                     bool offset = true;
-                    for( int i = 0 ; i <= strlen( ligne ) ; i++ ) {			// <= because of NULL termination!!
+                    for(int i = 0 ; i <= (int)strlen( ligne ) ; ++i)// <= because of NULL termination!!
+                    {
                         if( ligne[ i ] == '=' )	offset = false;
                         if( offset && ligne[ i ] == ' ' ) e++;
                         if( i >= e )
