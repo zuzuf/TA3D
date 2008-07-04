@@ -1125,7 +1125,7 @@ const int UNIT::run_script(const float &dt,const int &id,MAP *map,int max_code)	
 #endif
         return 2;
     }
-    if( id >= script_env->size() && !(*script_env)[id].running)
+    if( id >= (int)script_env->size() && !(*script_env)[id].running)
     {
 #ifdef	ADVANCED_DEBUG_MODE
         GuardLeave();
@@ -2553,7 +2553,8 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
                             if( target_unit != NULL )
                                 target_translation = ( target.norm() / unit_manager.unit_type[type_id].weapon[ i ]->weaponvelocity) * (target_unit->V - V);
 
-                            if(unit_manager.unit_type[type_id].weapon[ i ]->turret) {			// Si l'unité doit viser, on la fait viser / if it must aim, we make it aim
+                            if(unit_manager.unit_type[type_id].weapon[ i ]->turret) 	// Si l'unité doit viser, on la fait viser / if it must aim, we make it aim
+                            {
                                 if( script_val->size() <= query_id )
                                     script_val->resize( query_id + 1 );
                                 int start_piece = (*script_val)[query_id];
@@ -2563,8 +2564,10 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
 
                                 VECTOR target_pos_on_unit;						// Read the target piece on the target unit so we better know where to aim
                                 target_pos_on_unit.x = target_pos_on_unit.y = target_pos_on_unit.z = 0.0f;
-                                if( target_unit != NULL ) {
-                                    if( weapon[i].data == -1 ) {
+                                if( target_unit != NULL )
+                                {
+                                    if( weapon[i].data == -1 )
+                                    {
                                         int target_piece[1] = {0};
                                         target_unit->run_script_function( map, target_unit->get_script_index( SCRIPT_SweetSpot ), 1, target_piece );
                                         weapon[i].data = target_piece[0];
@@ -4287,13 +4290,16 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
                             }
                 }
             }
-            if(unit_manager.unit_type[type_id].antiweapons && unit_manager.unit_type[type_id].weapon[0]) {
+            if(unit_manager.unit_type[type_id].antiweapons && unit_manager.unit_type[type_id].weapon[0])
+            {
                 float coverage=unit_manager.unit_type[type_id].weapon[0]->coverage*unit_manager.unit_type[type_id].weapon[0]->coverage;
                 float range=unit_manager.unit_type[type_id].weapon[0]->range*unit_manager.unit_type[type_id].weapon[0]->range>>2;
                 int enemy_idx=-1;
                 byte e=0;
-                for(byte i=0;i+e<mem_size;i++) {
-                    if(memory[i+e]<0 || memory[i+e]>=weapons.nb_weapon || weapons.weapon[memory[i+e]].weapon_id==-1) {
+                for(byte i=0;i+e<mem_size;i++)
+                {
+                    if(memory[i+e]<0 || memory[i+e]>=weapons.nb_weapon || weapons.weapon[memory[i+e]].weapon_id==-1)
+                    {
                         e++;
                         i--;
                         continue;
@@ -4301,27 +4307,36 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
                     memory[i] = memory[i+e];
                 }
                 mem_size -= e;
-                for(uint32 f=0;f<weapons.index_list_size;f+=(rand_from_table()&7)+1) {
+                for(uint32 f=0;f<weapons.index_list_size;f+=(rand_from_table()&7)+1)
+                {
                     uint32 i = weapons.idx_list[f];
                     if(weapons.weapon[i].weapon_id!=-1 && units.unit[weapons.weapon[i].shooter_idx].owner_id!=owner_id
                        && weapon_manager.weapon[weapons.weapon[i].weapon_id].targetable)
+                    {
                         if(((VECTOR)(weapons.weapon[i].target_pos-Pos)).sq()<=coverage
-                           && ((VECTOR)(weapons.weapon[i].Pos-Pos)).sq()<=range) {
+                           && ((VECTOR)(weapons.weapon[i].Pos-Pos)).sq()<=range)
+                        {
                             int idx=-1;
                             for(e=0;e<mem_size;e++)
-                                if(memory[e]==i) {
+                            {
+                                if(memory[e] == i)
+                                {
                                     idx=i;
                                     break;
                                 }
-                            if(idx==-1) {
+                            }
+                            if(idx==-1)
+                            {
                                 enemy_idx=i;
-                                if(mem_size<10) {
+                                if(mem_size < 10)
+                                {
                                     memory[mem_size]=i;
                                     mem_size++;
                                 }
                                 break;
                             }
                         }
+                    }
                 }
                 if(enemy_idx>=0)			// If we found a target, then attack it, here  we use attack because we need the mission list to act properly
                     add_mission(MISSION_ATTACK | MISSION_FLAG_AUTO,&(weapons.weapon[enemy_idx].Pos),false,0,&(weapons.weapon[enemy_idx]),NULL,12);	// 12 = 4 | 8, targets a weapon and automatic fire
@@ -4329,7 +4344,8 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
         }
     }
 
-    if( unit_manager.unit_type[type_id].canfly ) {			// Set plane orientation
+    if( unit_manager.unit_type[type_id].canfly ) // Set plane orientation
+    {
         VECTOR J,K;
         K.x=K.z=0.0f;
         K.y=1.0f;
@@ -5857,8 +5873,8 @@ void INGAME_UNITS::move(float dt,MAP *map,int key_frame,bool wind_change)
     exp_dt_2=exp(-2.0f*dt);
     exp_dt_4=exp(-4.0f*dt);
     g_dt=dt*map->ota_data.gravity;
-    int *path_exec = new int[ players.nb_player ];
-    memset( path_exec, 0, sizeof( int ) * players.nb_player );
+    int *path_exec = new int[players.nb_player];
+    memset( path_exec, 0, sizeof( int ) * players.nb_player);
     pMutex.lock();
     for (uint16 e = 0 ; e < index_list_size ; ++e)
     {
@@ -6055,7 +6071,7 @@ void INGAME_UNITS::draw_mini(float map_w,float map_h,int mini_w,int mini_h,SECTO
 
     uint32 player_col_32[ 10 ];
     uint32 player_col_32_h[ 10 ];
-    for( int i = 0 ; i < players.nb_player ; ++i)
+    for (sint8 i = 0 ; i < players.nb_player ; ++i)
     {
         player_col_32[ i ] =  makeacol( (int)(player_color[ player_color_map[ i ] * 3 ] * 255.0f),
                                         (int)(player_color[ player_color_map[ i ] * 3 + 1 ] * 255.0f),
@@ -6534,18 +6550,19 @@ void INGAME_UNITS::remove_order(int player_id,VECTOR target)
             {
                 if( network_manager.isServer() )
                 {
-                    for( int i = 0 ; i < players.nb_player ; i++ )
+                    for (sint8 i = 0 ; i < players.nb_player ; ++i)
                         if( g_ta3d_network->isRemoteHuman( i ) )
                             min_tick = min( min_tick, client_tick[i] );
                 }
                 else
-                    for( int i = 0 ; i < players.nb_player ; i++ )
+                    for (sint8 i = 0 ; i < players.nb_player ; ++i)
                         if( g_ta3d_network->isRemoteHuman( i ) && client_tick[i] > 0 )
                             min_tick = min( min_tick, client_tick[i] );
             }
             min_tick /= 1000;
 
-            if( network_manager.isConnected() && min_tick > current_tick ) {
+            if( network_manager.isConnected() && min_tick > current_tick )
+            {
                 int delay = (min_tick - current_tick) * 250 / TICKS_PER_SEC;
                 tick += delay;
             }
@@ -6553,7 +6570,8 @@ void INGAME_UNITS::remove_order(int player_id,VECTOR target)
             while( msec_timer - tick_timer + 1 < tick )
                 rest( 1 );
 
-            while( msec_timer - tick_timer >= tick + 200 ) {		// Prevent the game to run too fast for too long, we don't have to speed up to compute what we hadn't time to
+            while( msec_timer - tick_timer >= tick + 200 ) // Prevent the game to run too fast for too long, we don't have to speed up to compute what we hadn't time to
+            {
                 counter += 1.0f;
                 tick = (int)( ( (counter + step ) * 1000 ) / TICKS_PER_SEC );		// For perfect sync with tick clock
             }
@@ -6564,40 +6582,57 @@ void INGAME_UNITS::remove_order(int player_id,VECTOR target)
 
             ThreadSynchroniser->unlock();
 
-            while( lp_CONFIG->pause && !thread_ask_to_stop ) {
+            while( lp_CONFIG->pause && !thread_ask_to_stop )
+            {
                 lp_CONFIG->paused = true;
                 rest( 10 );			// in pause mode wait for pause to be false again
             }
             lp_CONFIG->paused = false;
 
-            if( network_manager.isConnected() ) {
+            if (network_manager.isConnected())
+            {
                 net_timer = msec_timer - net_timer;
-                for( int i = 0 ; i < players.nb_player ; i++ )
+                for (sint8 i = 0 ; i < players.nb_player ; ++i)
+                {
                     if( g_ta3d_network->isRemoteHuman( i ) )
                         client_tick[ i ] += client_speed[ i ] * net_timer / (1000 * TICKS_PER_SEC);
+                }
 
                 net_timer = msec_timer;
 
                 network_manager.sendSpecial(format("TICK %d %d", current_tick + 1, (int)(1000.0f * apparent_timefactor) ));		// + 1 to prevent it from running too slow
                 if( current_tick > min_tick + TICKS_PER_SEC )
-                    while( current_tick > min_tick && !thread_ask_to_stop ) {
+                {
+                    while( current_tick > min_tick && !thread_ask_to_stop )
+                    {
                         players_thread_sync = 0;
                         rest(1);
 
                         min_tick = current_tick * 1000;
-                        if( network_manager.isServer() ) {
-                            for( int i = 0 ; i < players.nb_player ; i++ )
+                        if( network_manager.isServer() )
+                        {
+                            for(sint8 i = 0 ; i < players.nb_player ; ++i)
+                            {
                                 if( g_ta3d_network->isRemoteHuman( i ) )
                                     min_tick = min( min_tick, client_tick[i] );
+                            }
                         }
                         else
+                        {
                             for( int i = 0 ; i < players.nb_player ; i++ )
+                            {
                                 if( g_ta3d_network->isRemoteHuman( i ) && client_tick[i] > 0 )
                                     min_tick = min( min_tick, client_tick[i] );
+                            }
+                        }
                         min_tick /= 1000;
                     }
-                else if( current_tick > min_tick )
-                    tick += ( current_tick - min_tick ) * 250 / TICKS_PER_SEC;
+                }
+                else 
+                {
+                    if( current_tick > min_tick )
+                        tick += ( current_tick - min_tick ) * 250 / TICKS_PER_SEC;
+                }
             }
 
             unit_engine_thread_sync = 1;
