@@ -145,6 +145,7 @@ namespace Menus
         config_menu();
         lp_CONFIG->quickstart = false;
         glPopMatrix();
+        loadAreaFromTDF("main", "gui/main.area");
         resetScreen();
         return false;
     }
