@@ -884,7 +884,7 @@ namespace TA3D
     public cThread						// Classe pour gérer les joueurs et leurs statistiques de partie
     {
     public:
-        int8		nb_player;		// Nombre de joueurs (maximum 10 joueurs)
+        sint8		nb_player;		// Nombre de joueurs (maximum 10 joueurs)
         int			local_human_id;	// Quel est le joueur qui commande depuis cette machine??
         byte		control[10];	// Qui controle ce joueur??
         char		*nom[10];		// Noms des joueurs
