@@ -78,10 +78,10 @@ char *read_ASCIIZ( FILE *src)
 	char name[1000];
 	int i = 0;
 	int c = 0;
-	while( c = fgetc( src ) )
+	while ((c = fgetc(src)))
 		name[ i++ ] = c;
 	name[ i ] = 0;
-	return strdup( name );
+	return strdup(name);
 }
 
 void read_color_chunk( float color[], FILE *src )

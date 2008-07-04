@@ -401,8 +401,8 @@ namespace TA3D
 
     void f_refresh_unit_weights( AI_PLAYER *ai )				// Refresh unit weights according to the unit scan and the orders weights
     {
-        for(unsigned int i = 0 ; i < players.nb_player ; ++i )
-            ai->enemy_list[ i ].sort();
+        for(sint8 i = 0 ; i < players.nb_player ; ++i )
+            ai->enemy_list[i].sort();
 
         ai->total_unit = 0;
 
@@ -501,7 +501,7 @@ namespace TA3D
             {
                 sint16 player_target = -1;
                 float best_weight = 15.0f;
-                for(unsigned int e = 0 ; e < players.nb_player; ++e)				// Who can we attack ?
+                for(sint8 e = 0 ; e < players.nb_player; ++e)				// Who can we attack ?
                 {
                     if (ai->order_attack[e] > best_weight)
                     {

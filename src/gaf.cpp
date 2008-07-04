@@ -58,7 +58,8 @@ std::vector< GLuint > read_gaf_imgs( const String &filename, const String &imgna
 
 		textures.resize( nb_img );
 
-		for( int i = 0 ; i < textures.size() ; i++ ) {
+		for (unsigned int i = 0 ; i < textures.size() ; ++i)
+        {
 			uint32 fw, fh;
 			String cache_filename = filename + "-" + imgname + format("-%d.bin", i );
 			textures[ i ] = gfx->load_texture_from_cache( cache_filename, FILTER_TRILINEAR, &fw, &fh );
