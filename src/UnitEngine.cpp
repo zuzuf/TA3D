@@ -4646,8 +4646,10 @@ void UNIT::show_orders(bool only_build_commands, bool def_orders)				// Dessine 
                 case MISSION_RECLAIM:
                 case MISSION_REVIVE:
                 case MISSION_CAPTURE:
-                    if( (cur->p && ((UNIT*)(cur->p))->ID != cur->target_ID) || (cur->flags & MISSION_FLAG_TARGET_WEAPON) )
+                    if( (cur->p && ((UNIT*)(cur->p))->ID != cur->target_ID) || (cur->flags & MISSION_FLAG_TARGET_WEAPON) ) {
+                        cur = cur->next;
                         continue;	// Don't show this, it'll be removed
+                        }
                     n_target=cur->target;
                     n_target.y = max( units.map->get_unit_h( n_target.x, n_target.z ), units.map->sealvl );
                     if(rec>0)
