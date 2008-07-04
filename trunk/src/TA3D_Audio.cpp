@@ -590,16 +590,11 @@ if( m_lpFMODSystem->init( 32, FMOD_INIT_NORMAL | FMOD_INIT_3D_RIGHTHANDED, 0 ) !
 
 
 
-/* public */cAudio::cAudio( const float DistanceFactor,
-			const float DopplerFactor,
-			const float RolloffFactor ) :
-		m_FMODRunning( false ),
-		m_InBattle( false ),
-		m_lpFMODMusicsound( NULL ),
-		m_lpFMODMusicchannel( NULL ),
-		m_curPlayIndex( -1 ),
-		cTAFileParser(),
-		m_Playlist()
+cAudio::cAudio( const float DistanceFactor, const float DopplerFactor, const float RolloffFactor )
+    :cTAFileParser(),
+    m_FMODRunning( false ), m_InBattle(false), m_BattleTunes(0),
+	m_lpFMODMusicsound( NULL ), m_lpFMODMusicchannel( NULL ),
+	m_curPlayIndex(-1)
 {
 	m_min_ticks = 500;
 
