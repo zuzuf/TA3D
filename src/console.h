@@ -74,6 +74,8 @@ namespace TA3D_DEBUG
         void stdout_on()	{	m_std_output = true;	}
         void stdout_off()	{	m_std_output = false;	}
 
+        void AddEntryWarning(const char *txt, ...);
+        void AddEntryWarning( String NewEntry );
         void AddEntry(const char *txt, ...);
         void AddEntry( String NewEntry );
 

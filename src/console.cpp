@@ -270,6 +270,41 @@ void cConsole::StartRecording( const FILE *file )
     pMutex.unlock();
 }
 
+void cConsole::AddEntryWarning( String NewEntry )
+{
+    LOG_WARNING(NewEntry);
+    MutexLocker locker(pMutex);
+
+	if( msec_timer - m_CurrentTimer >= 10 )
+    {
+		m_CurrentTimer = msec_timer;
+		m_CurrentLine = 0;
+	}
+
+	if( m_Recording && m_CurrentLine >= CONSOLE_MAX_LINE ) 
+		return;
+	m_CurrentLine++;
+
+	for(unsigned int i = 0 ; i < NewEntry.size() ; ++i)
+    {
+        if (NewEntry[i] == '\t')
+            NewEntry[i] = ' ';
+    }
+
+	m_LastEntries.push_back("Warning: " + NewEntry);
+
+	if( m_LastEntries.size() >= m_MaxDisplayItems )
+		m_LastEntries.pop_front();
+
+	if( m_Recording ) 
+	{
+		fputs( NewEntry.c_str(), m_log );
+		fputs( "\n", m_log );
+		fflush( m_log ); 
+	}
+}
+
+
 void cConsole::AddEntry( String NewEntry )
 {
     LOG_INFO(NewEntry);
@@ -303,6 +338,69 @@ void cConsole::AddEntry( String NewEntry )
 		fflush( m_log ); 
 	}
 }
+
+void cConsole::AddEntryWarning(const char *txt, ...)		// Ajoute une nouvelle entrée
+{
+    MutexLocker locker(pMutex);
+	if( msec_timer - m_CurrentTimer >= 10 )
+    {
+		m_CurrentTimer = msec_timer;
+		m_CurrentLine = 0;
+	}
+
+	if( m_Recording && m_CurrentLine >= CONSOLE_MAX_LINE )
+		return;
+	++m_CurrentLine;
+
+	int   result = -1, length = 256;
+	char *buffer = 0;
+
+	while( result == -1 )
+	{
+		va_list args;
+		va_start(args, txt);
+
+		if( buffer )
+			delete [] buffer;
+
+		buffer = new char [length + 1];
+
+		memset(buffer, 0, length + 1);
+
+#if defined TA3D_PLATFORM_WINDOWS && defined TA3D_PLATFORM_MSVC
+			result = _vsnprintf_s( buffer, length, _TRUNCATE, txt, args );
+#else
+			result = vsnprintf(buffer, length, txt, args);
+#endif
+			length *= 2;
+
+			va_end(args);
+		}
+
+		String NewEntry( buffer );
+		delete [] buffer;
+
+	for (unsigned int i = 0 ; i < NewEntry.size() ; ++i)
+    {
+        if (NewEntry[i] == '\t')
+            NewEntry[i] = ' ';
+    }
+
+	m_LastEntries.push_back("Warning: " + NewEntry);
+
+	if( m_LastEntries.size() >= m_MaxDisplayItems )
+		m_LastEntries.pop_front();
+
+	if( m_Recording ) 
+	{
+		fputs( NewEntry.c_str(), m_log );
+		fputs( "\n", m_log );
+		fflush( m_log );
+	}
+
+    LOG_WARNING(NewEntry);
+}
+
 
 void cConsole::AddEntry(const char *txt, ...)		// Ajoute une nouvelle entrée
 {
