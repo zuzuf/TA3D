@@ -214,7 +214,6 @@ int main(int argc,char *argv[])
 
     GuardStart( main );
     TA3D::Settings::Load(); /* Load Config File */
-    I18N::Instance()->currentLanguage(lp_CONFIG->Lang);
     allegro_init();
     TA3D_clear_cache();
     allegro_exit();

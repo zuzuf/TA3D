@@ -5,6 +5,7 @@
 #include "../TA3D_NameSpace.h"
 #include "../TA3D_Exception.h"
 #include "../ta3dbase.h"
+#include "../languages/i18n.h"
 
 
 
@@ -210,6 +211,8 @@ namespace Settings
         delete cfgFile; 
 
         LANG = lp_CONFIG->Lang;
+        // Apply settings for the current language
+        I18N::Instance()->currentLanguage(lp_CONFIG->Lang);
         return true;
     }
 
