@@ -159,12 +159,12 @@ namespace TA3D
 
     void TA3DSock::getString(char* x)
     {
-        while( *x = *((char*)(tcpinbuf+tibrp)) )
+        while ((*x = *((char*)(tcpinbuf+tibrp))))
         {
-            tibrp++;
-            x++;
+            ++tibrp;
+            ++x;
         }
-        tibrp++;
+        ++tibrp;
     }
 
     void TA3DSock::getBuffer(char* x, int size)
@@ -432,7 +432,7 @@ namespace TA3D
                 putShort(event->opt2);
                 putLong(event->opt3);
                 putLong(event->opt4);
-                for( int i = 0 ; i < event->opt4 ; i++ )
+                for (unsigned int i = 0 ; i < event->opt4 ; ++i)
                     putLong(((sint32*)(event->str))[i]);
                 break;
             case EVENT_UNIT_DEATH:
@@ -670,7 +670,7 @@ namespace TA3D
                 event->opt2 = getShort();
                 event->opt3 = getLong();
                 event->opt4 = getLong();
-                for( int i = 0 ; i < event->opt4 ; i++ )
+                for (unsigned int i = 0 ; i < event->opt4 ; ++i)
                     ((sint32*)(event->str))[i] = getLong();
                 break;
             case EVENT_UNIT_DEATH:

@@ -56,8 +56,8 @@ namespace TA3D
         delete ((struct net_thread_params*)param);
         sock = network->players.getSock(sockid);
 
-        while(!pDead && sock->isOpen()){
-
+        while(!pDead && sock->isOpen())
+        {
             //sleep until data is coming
             sock->takeFive(1000);
             if(pDead) break;
@@ -68,7 +68,8 @@ namespace TA3D
             //see if there is a packet ready to process
             packtype = sock->getPacket();
 
-            switch(packtype){
+            switch(packtype)
+            {
                 case 'P':		// ping
                     if( sockid != -1 )
                         network->sendSpecial("PONG", -1, sockid);
@@ -77,7 +78,8 @@ namespace TA3D
                 case 'A'://special (resend to all!!)
                 case 'X'://special
                     network->xqmutex.lock();
-                    if( pDead || sock->makeSpecial(&chat) == -1 ){
+                    if( pDead || sock->makeSpecial(&chat) == -1 )
+                    {
                         network->xqmutex.unlock();
                         break;
                     }
@@ -181,13 +183,13 @@ namespace TA3D
         return;
     }
 
-    void UDPThread::proc(void* param){
+    void UDPThread::proc(void* param)
+    {
         Network* network;
         UDPSock *sock;
         int packtype;
 
         struct chat chat;
-        struct order order;
         struct sync sync;
         struct event event;
 
@@ -195,8 +197,8 @@ namespace TA3D
         sock = &(network->udp_socket);
         delete ((struct net_thread_params*)param);
 
-        while(!pDead && sock->isOpen()){
-
+        while(!pDead && sock->isOpen())
+        {
             //sleep until data is coming
             sock->takeFive(1000);
             if(pDead) break;
@@ -324,12 +326,12 @@ namespace TA3D
 #define FILE_TRANSFER_BUFFER_SIZE		2048
 
     //NEED TESTING
-    void SendFileThread::proc(void* param){
-        TA3DSock* destsock;
+    void SendFileThread::proc(void* param)
+    {
         Network* network;
         int sockid;
         TA3D_FILE* file;
-        int length,n,i;
+        int length,n;
         byte buffer[ FILE_TRANSFER_BUFFER_SIZE ];
         String filename;
 
@@ -340,7 +342,8 @@ namespace TA3D
 
         delete ((struct net_thread_params*)param);
 
-        if( file == NULL ) {
+        if (NULL == file)
+        {
             pDead = 1;
             network->setFileDirty();
             return;
@@ -399,8 +402,8 @@ namespace TA3D
 
     //NEEDS TESTING
     //doesnt support resume after broken transfer
-    void GetFileThread::proc(void* param){
-        TA3DSock* sourcesock;
+    void GetFileThread::proc(void* param)
+    {
         Network* network;
         int sockid;
         FILE* file;
@@ -419,7 +422,8 @@ namespace TA3D
 
         delete ((struct net_thread_params*)param);
 
-        if( file == NULL ) {
+        if( file == NULL )
+        {
             pDead = 1;
             network->setFileDirty();
             delete[] buffer;
@@ -434,7 +438,8 @@ namespace TA3D
         while( !pDead && ready && msec_timer - timer < 5000 ) rest( 0 );
         memcpy(&length,buffer,4);
 
-        if( ready ) {				// Time out
+        if( ready ) // Time out
+        {
             pDead = 1;
             fclose( file );
             delete_file( (filename + ".part").c_str() );
