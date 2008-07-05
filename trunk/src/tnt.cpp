@@ -625,6 +625,8 @@ namespace TA3D
     {
 	    BITMAP *bitmap = load_tnt_minimap_fast_raw_bmp(filename, sw, sh);
 
+        if( bitmap == NULL )    return 0;
+
 	    // Convert to a GL texture
 	    if(g_useTextureCompression)
 		    allegro_gl_set_texture_format(GL_COMPRESSED_RGB_ARB);
@@ -640,6 +642,8 @@ namespace TA3D
     {
 	    int sw, sh;
 	    BITMAP *fullsize = load_tnt_minimap_fast_raw_bmp(filename, sw, sh);
+
+        if( fullsize == NULL )    return 0;
 
 	    // Copy the full-sized bitmap down to an exact-sized version
 	    BITMAP *trimmed = create_bitmap(sw, sh);
