@@ -23,7 +23,7 @@
 		type=BUTTON;
 		caption=OK;
 		x1=1041;
-		y1=962;
+		y1=961;
 		x2=1193;
 		y2=999;
 		size=2;
@@ -34,7 +34,7 @@
 		type=BUTTON;
 		caption=cancel;
 		x1=838;
-		y1=962;
+		y1=961;
 		x2=990;
 		y2=999;
 		size=2;
