@@ -325,12 +325,11 @@ namespace TA3D
                         if( network_manager.isConnected() )
                             g_ta3d_network->sendFeatureDeathEvent( -hit_idx-2 );
 
-                        int sx=((int)(features.feature[-hit_idx-2].Pos.x)+map->map_w_d-8)>>3;		// Delete the feature
-                        int sy=((int)(features.feature[-hit_idx-2].Pos.z)+map->map_h_d-8)>>3;
+                        int sx = features.feature[-hit_idx-2].px;		// Delete the feature
+                        int sy = features.feature[-hit_idx-2].py;
                         VECTOR feature_pos = features.feature[-hit_idx-2].Pos;
                         int feature_type = features.feature[-hit_idx-2].type;
-                        if(feature_type!=-1 && feature_manager.feature[feature_type].blocking)
-                            map->rect(sx-(feature_manager.feature[feature_type].footprintx>>1),sy-(feature_manager.feature[feature_type].footprintz>>1),feature_manager.feature[feature_type].footprintx,feature_manager.feature[feature_type].footprintz,-1);
+                        features.removeFeatureFromMap( -hit_idx-2 );
                         features.delete_feature(-hit_idx-2);			// Supprime l'objet
 
                         // Replace the feature if needed
@@ -339,9 +338,8 @@ namespace TA3D
                             int type=feature_manager.get_feature_index( feature_manager.feature[ feature_type ].feature_dead );
                             if( type >= 0 )
                             {
-                                map->map_data[sy][sx].stuff=features.add_feature(feature_pos,type);
-                                if(type!=-1 && feature_manager.feature[type].blocking)
-                                    map->rect(sx-(feature_manager.feature[type].footprintx>>1),sy-(feature_manager.feature[type].footprintz>>1),feature_manager.feature[type].footprintx,feature_manager.feature[type].footprintz,-2-map->map_data[sy][sx].stuff);
+                                map->map_data[sy][sx].stuff = features.add_feature(feature_pos,type);
+                                features.drawFeatureOnMap( map->map_data[sy][sx].stuff );
                                 if( network_manager.isConnected() )
                                     g_ta3d_network->sendFeatureCreationEvent( map->map_data[sy][sx].stuff );
                             }
@@ -471,12 +469,11 @@ namespace TA3D
                                         {
                                             if( network_manager.isConnected() )
                                                 g_ta3d_network->sendFeatureDeathEvent( -t_idx-2 );
-                                            int sx=((int)(features.feature[-t_idx-2].Pos.x)+map->map_w_d-8)>>3;		// Efface l'objet
-                                            int sy=((int)(features.feature[-t_idx-2].Pos.z)+map->map_h_d-8)>>3;
+                                            int sx = features.feature[-t_idx-2].px;		// Remove the object
+                                            int sy = features.feature[-t_idx-2].py;
                                             VECTOR feature_pos = features.feature[-t_idx-2].Pos;
                                             int feature_type = features.feature[-t_idx-2].type;
-                                            if(feature_type!=-1 && feature_manager.feature[feature_type].blocking)
-                                                map->rect(sx-(feature_manager.feature[feature_type].footprintx>>1),sy-(feature_manager.feature[feature_type].footprintz>>1),feature_manager.feature[feature_type].footprintx,feature_manager.feature[feature_type].footprintz,-1);
+                                            features.removeFeatureFromMap( -t_idx-2 );
                                             features.delete_feature(-t_idx-2);			// Supprime l'objet
 
                                             // Replace the feature if needed
@@ -485,9 +482,8 @@ namespace TA3D
                                                 int type=feature_manager.get_feature_index( feature_manager.feature[ feature_type ].feature_dead );
                                                 if( type >= 0 )
                                                 {
-                                                    map->map_data[sy][sx].stuff=features.add_feature(feature_pos,type);
-                                                    if(type!=-1 && feature_manager.feature[type].blocking)
-                                                        map->rect(sx-(feature_manager.feature[type].footprintx>>1),sy-(feature_manager.feature[type].footprintz>>1),feature_manager.feature[type].footprintx,feature_manager.feature[type].footprintz,-2-map->map_data[sy][sx].stuff);
+                                                    map->map_data[sy][sx].stuff = features.add_feature(feature_pos,type);
+                                                    features.drawFeatureOnMap( map->map_data[sy][sx].stuff );
                                                     if( network_manager.isConnected() )
                                                         g_ta3d_network->sendFeatureCreationEvent( map->map_data[sy][sx].stuff );
                                                 }

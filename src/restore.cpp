@@ -635,12 +635,7 @@ void load_game( GameData *game_data )
             if( features.feature[i].sinking )	features.sinking_features.push_back( i );
 
             the_map->map_data[features.feature[i].py][features.feature[i].px].stuff = i;
-            if( the_map->map_data[features.feature[i].py][features.feature[i].px].stuff && feature_manager.feature[features.feature[i].type].blocking )
-                the_map->rect(	features.feature[i].px-(feature_manager.feature[features.feature[i].type].footprintx>>1),
-                                features.feature[i].py-(feature_manager.feature[features.feature[i].type].footprintz>>1),
-                                feature_manager.feature[features.feature[i].type].footprintx,
-                                feature_manager.feature[features.feature[i].type].footprintz,
-                                -2 - i);
+            features.drawFeatureOnMap( i );
         }
     }
 

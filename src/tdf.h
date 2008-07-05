@@ -343,76 +343,12 @@ namespace TA3D
         void burn_feature( int idx );
         void sink_feature( int idx );
 
-        inline int add_feature(VECTOR Pos,int type)
-        {
-            if(type<0 || type>=feature_manager.nb_features)	return -1;
-            MutexLocker locker(pMutex);
+        int add_feature(VECTOR Pos,int type);
+        
+        void drawFeatureOnMap(int idx);
+        void removeFeatureFromMap(int idx);
 
-            nb_features++;
-            int idx=-1;
-            if(nb_features>max_features) // Si besoin alloue plus de mémoire
-            {
-                max_features+=500;				// Alloue la mémoire par paquets de 500 éléments
-                FEATURE_DATA	*n_feature=(FEATURE_DATA*) malloc(sizeof(FEATURE_DATA)*max_features);
-                if(feature && nb_features>0)
-                    for(int i=0;i<nb_features-1;i++)
-                        n_feature[i]=feature[i];
-                for(int i=nb_features-1;i<max_features;i++) {
-                    n_feature[i].type = -1;
-                    n_feature[i].shadow_dlist = 0;
-                    n_feature[i].delete_shadow_dlist = false;
-                }
-                if(feature)	free(feature);
-                feature=n_feature;
-                if(list)	free(list);
-                list=(int*)	malloc(sizeof(int)*max_features);
-                list_size=0;
-                idx=nb_features-1;
-            }
-            else
-                for(int i=0;i<max_features;i++)
-                    if(feature[i].type<0) {
-                        idx=i;
-                        break;
-                    }
-            feature[idx].Pos = Pos;
-            feature[idx].type = type;
-            feature[idx].frame = 0;
-            feature[idx].draw = false;
-            feature[idx].hp = feature_manager.feature[type].damage;
-            feature[idx].grey = false;
-            feature[idx].dt = 0.0f;
-            feature[idx].angle = 0.0f;
-            feature[idx].burning = false;
-            feature[idx].last_spread = 0.0f;
-
-            feature[idx].sinking = false;
-            feature[idx].dive = false;
-            feature[idx].dive_speed = 0.0f;
-            feature[idx].angle_x = 0.0f;
-            feature[idx].shadow_dlist = 0;
-            compute_on_map_pos( idx );
-            return idx;
-        }
-
-        inline void delete_feature(int index)				// Attention bug potentiel: penser à décaler les indices dans l'objet MAP!!
-        {
-            if(nb_features<=0)
-                return;
-            MutexLocker locker(pMutex);
-
-            if( feature[index].type <= 0 )
-                return;
-
-            if( feature[ index ].shadow_dlist != 0 )
-                feature[ index ].delete_shadow_dlist = true;
-
-            if( feature[ index ].burning )		// Remove it form the burning features list
-                burning_features.remove( index );
-
-            nb_features--;
-            feature[index].type=-1;		// On efface l'objet
-        }
+        void delete_feature(int index);
 
         void move(float dt,MAP *map,bool clean=true);
 

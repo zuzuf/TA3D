@@ -596,8 +596,8 @@ namespace TA3D
 
     void FEATURES::compute_on_map_pos( int idx )
     {
-        feature[ idx ].px = (int)(feature[idx].Pos.x) + the_map->map_w_d - 8 >> 3;
-        feature[ idx ].py = (int)(feature[idx].Pos.z) + the_map->map_h_d - 8 >> 3;
+        feature[ idx ].px = (int)(feature[idx].Pos.x) + the_map->map_w_d + 4 >> 3;
+        feature[ idx ].py = (int)(feature[idx].Pos.z) + the_map->map_h_d + 4 >> 3;
     }
 
     void FEATURES::burn_feature( int idx )
@@ -770,6 +770,98 @@ namespace TA3D
         glDisable(GL_BLEND);
     }
 
+    void FEATURES::delete_feature(int index)
+    {
+        if(nb_features<=0)
+            return;
+        MutexLocker locker(pMutex);
+
+        if( feature[index].type <= 0 )
+            return;
+
+        if( feature[ index ].shadow_dlist != 0 )
+            feature[ index ].delete_shadow_dlist = true;
+
+        if( feature[ index ].burning )		// Remove it form the burning features list
+            burning_features.remove( index );
+
+        nb_features--;
+        feature[index].type=-1;		// On efface l'objet
+    }
+
+    int FEATURES::add_feature(VECTOR Pos,int type)
+    {
+        if(type<0 || type>=feature_manager.nb_features)	return -1;
+        MutexLocker locker(pMutex);
+
+        nb_features++;
+        int idx=-1;
+        if(nb_features>max_features) // Si besoin alloue plus de mémoire
+        {
+            max_features+=500;				// Alloue la mémoire par paquets de 500 éléments
+            FEATURE_DATA	*n_feature=(FEATURE_DATA*) malloc(sizeof(FEATURE_DATA)*max_features);
+            if(feature && nb_features>0)
+                for(int i=0;i<nb_features-1;i++)
+                    n_feature[i]=feature[i];
+            for(int i=nb_features-1;i<max_features;i++) {
+                n_feature[i].type = -1;
+                n_feature[i].shadow_dlist = 0;
+                n_feature[i].delete_shadow_dlist = false;
+            }
+            if(feature)	free(feature);
+            feature=n_feature;
+            if(list)	free(list);
+            list=(int*)	malloc(sizeof(int)*max_features);
+            list_size=0;
+            idx=nb_features-1;
+        }
+        else
+            for(int i=0;i<max_features;i++)
+                if(feature[i].type<0) {
+                    idx=i;
+                    break;
+                }
+        feature[idx].Pos = Pos;
+        feature[idx].type = type;
+        feature[idx].frame = 0;
+        feature[idx].draw = false;
+        feature[idx].hp = feature_manager.feature[type].damage;
+        feature[idx].grey = false;
+        feature[idx].dt = 0.0f;
+        feature[idx].angle = 0.0f;
+        feature[idx].burning = false;
+        feature[idx].last_spread = 0.0f;
+
+        feature[idx].sinking = false;
+        feature[idx].dive = false;
+        feature[idx].dive_speed = 0.0f;
+        feature[idx].angle_x = 0.0f;
+        feature[idx].shadow_dlist = 0;
+        compute_on_map_pos( idx );
+        return idx;
+    }
+
+    void FEATURES::drawFeatureOnMap(int idx)
+    {
+        compute_on_map_pos( idx );
+        if( feature[idx].type != -1 && feature_manager.feature[ feature[idx].type ].blocking )        // Check if it is a blocking feature
+        {
+            int X = feature_manager.feature[ feature[idx].type ].footprintx;
+            int Z = feature_manager.feature[ feature[idx].type ].footprintz;
+            the_map->rect( feature[idx].px - (X>>1), feature[idx].py - (Z>>1), X, Z, -2 - idx);
+        }
+    }
+    
+    void FEATURES::removeFeatureFromMap(int idx)
+    {
+        if( feature[idx].type != -1 && feature_manager.feature[ feature[idx].type ].blocking )        // Check if it is a blocking feature
+        {
+            int X = feature_manager.feature[ feature[idx].type ].footprintx;
+            int Z = feature_manager.feature[ feature[idx].type ].footprintz;
+            the_map->rect( feature[idx].px - (X>>1), feature[idx].py - (Z>>1), X, Z, -1);
+            the_map->map_data[ feature[idx].py ][ feature[idx].px ].stuff = -1;
+        }
+    }
 
 } // namespace TA3D
 

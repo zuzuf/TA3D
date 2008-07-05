@@ -455,15 +455,14 @@ namespace TA3D
                 map->map_data[y][x].stuff=-1;
                 if(type<=header.tileanims) {
                     VECTOR Pos;
-                    Pos.x=(x<<3)-map->map_w_d+8.0f;
-                    Pos.z=(y<<3)-map->map_h_d+8.0f;
+                    Pos.x = (x<<3) - map->map_w_d + 8.0f;
+                    Pos.z = (y<<3) - map->map_h_d + 8.0f;
                     if( !feature_manager.feature[TDF_index[type]].m3d )
                         Pos.y = map->get_max_rect_h( x, y, feature_manager.feature[TDF_index[type]].footprintx, feature_manager.feature[TDF_index[type]].footprintz );
                     else
                         Pos.y = map->get_unit_h( Pos.x, Pos.z );
-                    map->map_data[y][x].stuff=features.add_feature(Pos,TDF_index[type]);
-                    if(TDF_index[type]!=-1 && map->map_data[y][x].stuff && feature_manager.feature[TDF_index[type]].blocking)
-                        map->rect(x-(feature_manager.feature[TDF_index[type]].footprintx>>1),y-(feature_manager.feature[TDF_index[type]].footprintz>>1),feature_manager.feature[TDF_index[type]].footprintx,feature_manager.feature[TDF_index[type]].footprintz,-2-map->map_data[y][x].stuff);
+                    map->map_data[y][x].stuff = features.add_feature(Pos,TDF_index[type]);
+                    features.drawFeatureOnMap( map->map_data[y][x].stuff );
                 }
                 f_pos+=4;
             }
