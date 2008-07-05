@@ -206,7 +206,7 @@ namespace TA3D
         byte *data = HPIManager->PullFromHPI( filename, &ota_file_size );
         if( data ) {
             load( (char*)data, ota_file_size );
-            free( data );
+            delete[] data;
         }
     }
 

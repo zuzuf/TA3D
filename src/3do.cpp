@@ -1958,13 +1958,13 @@ hit_fast_is_exploding:
                             String real_name = (char*)(data+1);
                             real_name = TrimString( real_name );
 
-                            free( data );
+                            delete[] data;
                             data = HPIManager->PullFromHPI( real_name );
                         }
                         if( data )
                         {
                             model[i+nb_models].load_3dm(data);
-                            free(data);
+                            delete[] data;
 
                             model_hashtable.Insert( Lowercase( *e ), nb_models + i + 1 );
 
@@ -2009,7 +2009,7 @@ hit_fast_is_exploding:
                     {
                         if( data_size > 0 )						// If the file isn't empty
                             model[i+nb_models].load_3do(data,e->c_str());
-                        free(data);
+                        delete[] data;
 
                         model_hashtable.Insert( Lowercase( *e ), nb_models + i + 1 );
 

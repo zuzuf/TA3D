@@ -91,7 +91,7 @@ namespace Interfaces
                 }
             }
             gaf_font.destroy();					// Destroy the gaf data, we don't need this any more
-            free( data );
+            delete[] data;
             pAl = (FONT*) malloc( sizeof(FONT));
             pAl->data = fc;
             pAl->height = h;

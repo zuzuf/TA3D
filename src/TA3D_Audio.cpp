@@ -782,7 +782,7 @@ void cAudio::PlaySoundFileNow( const String &Filename )				// Loads and play a s
 		m_lpFMODSystem->playSound( FMOD_CHANNEL_FREE, basic_sound, 0, &basic_channel);
 #endif
 
-		free(data);
+		delete[] data;
 		}
 }
 
@@ -848,7 +848,7 @@ bool cAudio::LoadSound( const String &Filename, const bool LoadAs3D,
 		&exinfo,
 		&m_Sound->m_SampleHandle);
 
-	free( data ); // we no longer need this.
+	delete[] data; // we no longer need this.
 
 	if( FMODResult != FMOD_OK ) // ahh crap fmod couln't load it.
 	{
