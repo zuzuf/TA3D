@@ -535,6 +535,11 @@ int play(GameData *game_data)
         IsOnGUI = (mouse_x < 128 && ( mouse_y >= SCREEN_H - 64 || mouse_y < 128 ) ) || mouse_y < 32 || mouse_y >= SCREEN_H - 32;		// Priority given to game interface
         if( !IsOnGUI )
             IsOnGUI = (game_area.check() != 0);
+        else        // We need to do it there because AREA::check does it and we do it nowhere else
+        {
+            poll_mouse();
+            poll_keyboard();
+        }
 
         IsOnGUI |= mouse_x < 128;		// Priority given to game interface
 
@@ -672,8 +677,6 @@ int play(GameData *game_data)
             dt=(msec_timer-count)*Conv;
         }
         count=msec_timer;
-
-        poll_mouse();
 
         if( spherical_sky )
             sky_angle += sky_data->rotation_speed * dt * units.apparent_timefactor; 
