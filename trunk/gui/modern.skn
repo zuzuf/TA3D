@@ -15,7 +15,7 @@
 	title bar=gfx/mdrn_skin/title_bar.tga;
 	title_x1=17;
 	title_y1=3;
-	title_x2=131;
+	title_x2=331;
 	title_y2=18;
 	title_scale=1.5;
 

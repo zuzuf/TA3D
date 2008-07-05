@@ -22,10 +22,10 @@
 		name=b_ok;
 		type=BUTTON;
 		caption=OK;
-		x1=1039;
-		y1=960;
-		x2=1192;
-		y2=998;
+		x1=1041;
+		y1=962;
+		x2=1193;
+		y2=999;
 		size=2;
 	}
 	[object1]		// Cancel
@@ -34,9 +34,9 @@
 		type=BUTTON;
 		caption=cancel;
 		x1=838;
-		y1=960;
-		x2=989;
-		y2=998;
+		y1=962;
+		x2=990;
+		y2=999;
 		size=2;
 	}
 	[object2]		// mini-map
@@ -55,7 +55,7 @@
 		type=BUTTON;
 		caption=Change map;
 		x1=993;
-		y1=441;
+		y1=442;
 		x2=1145;
 		y2=481;
 		size=1.5;
@@ -1452,8 +1452,8 @@
 		name=FOW;
 		type=MENU;
 		x1=993;
-		y1=519;
-		x2=1145;
+		y1=520;
+		x2=1146;
 		y2=559;
 		entry=off,off,grey,black,on;
 		size=1.5;
