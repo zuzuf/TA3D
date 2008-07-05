@@ -1029,3 +1029,20 @@ TA3D::UTILS::HPI::ta3d_fsize(TA3D_FILE *file)
 }
 
 
+bool
+TA3D::UTILS::HPI::load_palette(RGB *pal, char *filename)
+{
+    byte *palette = HPIManager->PullFromHPI(filename);
+    if(palette == NULL) return false;
+
+    for(int i = 0; i<256; ++i)
+    {
+        pal[i].r=palette[i<<2]>>2;
+        pal[i].g=palette[(i<<2)+1]>>2;
+        pal[i].b=palette[(i<<2)+2]>>2;
+    }
+    delete[] palette;
+    return true;
+}
+
+

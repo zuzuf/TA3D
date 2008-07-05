@@ -171,21 +171,9 @@ namespace Interfaces
         TA3D::VARS::pal = new RGB[256];      // Allocate a new palette
 
         LOG_DEBUG("Loading TA's palette...");
-        byte *palette = HPIManager->PullFromHPI("palettes\\palette.pal");
-        if(palette)
-        {
-            LOG_DEBUG("Palette memory allocated.");
-            for(int i = 0; i<256; ++i)
-            {
-                pal[i].r=palette[i<<2]>>2;
-                pal[i].g=palette[(i<<2)+1]>>2;
-                pal[i].b=palette[(i<<2)+2]>>2;
-            }
-            delete[] palette;
-            set_palette(pal);      // Activate the palette
-        }
-        else
-            LOG_WARNING("Failed to allocate palette memory");
+        bool palette = TA3D::UTILS::HPI::load_palette(pal);
+        if (!palette)
+            LOG_WARNING("Failed to load the palette");
 
         TA_font.load_gaf_font( "anims\\hattfont12.gaf", 1.0f );
 

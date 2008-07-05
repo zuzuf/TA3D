@@ -95,19 +95,8 @@ static bool hpiviewCmdMiniMap(int argc, char** argv)
     {
         HPIManager = new cHPIHandler("");
         TA3D::VARS::pal = new RGB[256];
-
-        byte* palette = HPIManager->PullFromHPI( "palettes\\palette.pal" );
-        if(palette)
-        {
-            for(int i = 0; i < 256; ++i)
-            {
-                pal[i].r=palette[ i << 2] >> 2;
-                pal[i].g=palette[(i << 2)+1] >> 2;
-                pal[i].b=palette[(i << 2)+2] >> 2;
-            }
-            delete[] palette;
-            set_palette(pal);      // Activate the palette
-        }
+        TA3D::UTILS::HPI::load_palette(pal);
+        set_palette(pal);      // Activate the palette
 
         jpgalleg_init();
 
@@ -287,19 +276,8 @@ static bool hpiviewCmdExtractGAF(int argc, char** argv)
             set_color_depth( 32 );
             set_gfx_mode( GFX_AUTODETECT_WINDOWED, 320, 200, 0, 0 );
             TA3D::VARS::pal=new RGB[256];      // Allocate a new palette
-
-            byte *palette = HPIManager->PullFromHPI( "palettes\\palette.pal" );
-            if(palette)
-            {
-                for(int i=0;i<256;i++)
-                {
-                    pal[i].r=palette[i<<2]>>2;
-                    pal[i].g=palette[(i<<2)+1]>>2;
-                    pal[i].b=palette[(i<<2)+2]>>2;
-                }
-                delete[] palette;
-                set_palette(pal);      // Activate the palette
-            }
+            TA3D::UTILS::HPI::load_palette(pal);
+            set_palette(pal);      // Activate the palette
 
             ANIMS anims;
             anims.load_gaf( data );
