@@ -112,8 +112,8 @@ namespace TA3D
 		GuardInfo( "Creating translation manager." );
 
         // Loads translation data (TA translations in ASCII -> UTF8)
-        I18N::Instance()->loadFromFile("gamedata\\translate.tdf", false, true);   
-        I18N::Instance()->loadFromFile("ta3d.res", true);   // Loads translation data (TA3D translations in UTF8)
+        I18N::Instance()->loadFromFile("gamedata\\translate.tdf", true, true);   
+        I18N::Instance()->loadFromFile("ta3d.res", false);   // Loads translation data (TA3D translations in UTF8)
 
 		if( !HPIManager->Exists( "gamedata\\sidedata.tdf" ) || !HPIManager->Exists( "gamedata\\allsound.tdf" ) || !HPIManager->Exists( "gamedata\\sound.tdf" ) )
         {

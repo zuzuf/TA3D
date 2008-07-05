@@ -2,6 +2,7 @@
 #include "i18n.h"
 #include "../misc/resources.h"
 #include "../misc/paths.h"
+#include "../TA3D_NameSpace.h"
 
 #define TA3D_LOG_SECTION_I18N_PREFIX "[i18n] "
 
@@ -220,7 +221,7 @@ namespace TA3D
     
     bool I18N::loadFromFile(const String& filename, const bool emptyBefore, const bool inASCII)
     {
-        if (!Paths::Exists(filename))
+        if (!Paths::Exists(filename) && !TA3D::VARS::HPIManager->Exists(filename))
         {
             LOG_WARNING(TA3D_LOG_SECTION_I18N_PREFIX << "Impossible to load translations from `"
                         << filename << "` (file not found)");
