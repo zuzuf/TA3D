@@ -598,14 +598,24 @@ namespace TA3D
 
     GLuint load_tnt_minimap_fast(const String& filename, int& sw,int& sh)		// Charge une minimap d'une carte contenue dans une archive HPI/UFO
     {
-	    std::auto_ptr<TNTHEADER> header((TNTHEADER*)HPIManager->PullFromHPI_zone(filename.c_str(),0,sizeof(TNTHEADER),NULL));
-	    if(header.get()==NULL)	return 0;
+	    byte *headerBytes = HPIManager->PullFromHPI_zone(filename.c_str(),0,sizeof(TNTHEADER),NULL);
+	    if(headerBytes==NULL)
+	    {
+	    	return 0;
+	    }
+	    TNTHEADER *header = &((TNTHEADER_U*)headerBytes)->header;
 
-	    std::auto_ptr<byte> minimapdata(HPIManager->PullFromHPI_zone(filename.c_str(),header->PTRminimap,sizeof(TNTMINIMAP),NULL));
-	    if(minimapdata.get()==NULL)	return 0;
+	    byte *minimapdata = HPIManager->PullFromHPI_zone(filename.c_str(),header->PTRminimap,sizeof(TNTMINIMAP),NULL);
+	    if(minimapdata==NULL)
+	    {
+	    	delete[] headerBytes;
+	    	return 0;
+	    }
 
-	    TNTMINIMAP *minimap = (TNTMINIMAP*) &minimapdata.get()[header->PTRminimap];
+	    TNTMINIMAP *minimap = &((TNTMINIMAP_U*)(&minimapdata[header->PTRminimap]))->map;
 	    BITMAP		*bitmap = load_tnt_minimap_bmp(minimap, &sw, &sh);
+	    delete[] headerBytes;
+	    delete[] minimapdata;
 
 	    if(g_useTextureCompression)
 		    allegro_gl_set_texture_format(GL_COMPRESSED_RGB_ARB);
@@ -619,15 +629,25 @@ namespace TA3D
 
     BITMAP *load_tnt_minimap_fast_bmp(const String& filename)		// Load a minimap into a BITMAP* structure from a HPI/UFO archive
     {
-	    std::auto_ptr<TNTHEADER> header((TNTHEADER*)HPIManager->PullFromHPI_zone(filename.c_str(),0,sizeof(TNTHEADER),NULL));
-	    if(header.get()==NULL)	return 0;
+	    byte *headerBytes = HPIManager->PullFromHPI_zone(filename.c_str(),0,sizeof(TNTHEADER),NULL);
+	    if(headerBytes==NULL)
+	    {
+	    	return 0;
+	    }
+	    TNTHEADER *header = &((TNTHEADER_U*)headerBytes)->header;
 
-	    std::auto_ptr<byte> minimapdata(HPIManager->PullFromHPI_zone(filename.c_str(),header->PTRminimap,sizeof(TNTMINIMAP),NULL));
-	    if(minimapdata.get()==NULL)	return 0;
+	    byte *minimapdata = HPIManager->PullFromHPI_zone(filename.c_str(),header->PTRminimap,sizeof(TNTMINIMAP),NULL);
+	    if(minimapdata==NULL)
+	    {
+	    	delete[] headerBytes;
+	    	return 0;
+	    }
 
 	    int sw, sh;
-	    TNTMINIMAP *minimap = (TNTMINIMAP*) &minimapdata.get()[header->PTRminimap];
+	    TNTMINIMAP *minimap = &((TNTMINIMAP_U*)(&minimapdata[header->PTRminimap]))->map;
 	    BITMAP    *fullsize = load_tnt_minimap_bmp(minimap, &sw, &sh);
+	    delete[] headerBytes;
+	    delete[] minimapdata;
 
 	    // Copy the full-sized bitmap down to an exact-sized version
 	    BITMAP *trimmed = create_bitmap(sw, sh);
