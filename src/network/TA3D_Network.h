@@ -42,7 +42,7 @@ namespace TA3D
             ~NetworkMessage() {text.clear();}
         };
 
-        std::list<NetworkMessage>		messages;
+        std::list<NetworkMessage>   messages;
         bool						enter;
         AREA						*area;
         GameData					*game_data;
