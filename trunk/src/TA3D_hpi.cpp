@@ -188,21 +188,18 @@ byte *cHPIHandler::DecodeFileToMem(HPIITEM *hi, uint32 *file_length)
     if(file_length)
         *file_length=Length;
 
-    WriteBuff = (byte *)GetMem(Length+1, 0);
-    if (!WriteBuff)
-    {
-        // NO NEED to global deubber this, get meme shoulda done it for us.
-        return NULL;
-    }
+    WriteBuff = new byte[Length+1];
+    
     WriteBuff[Length] = 0;
 
     if (FileFlag) {
         DeCount = Length >> 16;
         if (Length & 0xFFFF)
             DeCount++;
-        DeLen = DeCount * sizeof(sint32);
 
-        DeSize = (sint32 *)GetMem(DeLen, 0);
+        DeSize = new sint32[DeCount];
+
+        DeLen = DeCount * sizeof(sint32);
 
         ReadAndDecrypt(Offset, (byte *) DeSize, DeLen, hi->hfd );
 
@@ -211,7 +208,7 @@ byte *cHPIHandler::DecodeFileToMem(HPIITEM *hi, uint32 *file_length)
         WritePtr = 0;
 
         for (x = 0; x < DeCount; x++) {
-            Chunk = (HPICHUNK *)GetMem(DeSize[x], 0);
+            Chunk = (HPICHUNK *) new byte[ DeSize[x] ];
             ReadAndDecrypt(Offset, (byte *) Chunk, DeSize[x], hi->hfd);
             Offset += DeSize[x];
 
@@ -220,9 +217,9 @@ byte *cHPIHandler::DecodeFileToMem(HPIITEM *hi, uint32 *file_length)
             WriteSize = Decompress(WriteBuff+WritePtr, DeBuff, Chunk);
             WritePtr += WriteSize;
 
-            free(Chunk);
+            delete[] Chunk;
         }
-        free(DeSize);
+        delete[] DeSize;
     }
     else {
         // file not compressed
@@ -237,7 +234,6 @@ byte *cHPIHandler::DecodeFileToMem_zone(HPIITEM *hi , uint32 start , uint32 leng
     sint32 DeCount,DeLen, x, WriteSize, WritePtr, Offset, Length, FileFlag, *DeSize;
     byte *DeBuff, *WriteBuff;
     HPIENTRY *Entry;
-    HPICHUNK *Chunk;
 
     if (!hi)
         return NULL;
@@ -251,21 +247,17 @@ byte *cHPIHandler::DecodeFileToMem_zone(HPIITEM *hi , uint32 start , uint32 leng
     if(file_length)
         *file_length=Length;
 
-    WriteBuff = (byte *)GetMem(Length+1, 0);
-    if (!WriteBuff)
-    {
-        // NO NEED to global deubber this, get meme shoulda done it for us.
-        return NULL;
-    }
+    WriteBuff = new byte[Length+1];
+    
     WriteBuff[Length] = 0;
 
     if (FileFlag) {
         DeCount = Length >> 16;
         if (Length & 0xFFFF)
             DeCount++;
-        DeLen = DeCount * sizeof(sint32);
 
-        DeSize = (sint32 *)GetMem(DeLen, 0);
+        DeSize = new sint32 [ DeCount ];
+        DeLen = DeCount * sizeof(sint32);
 
         ReadAndDecrypt(Offset, (byte *) DeSize, DeLen, hi->hfd );
 
@@ -274,10 +266,11 @@ byte *cHPIHandler::DecodeFileToMem_zone(HPIITEM *hi , uint32 start , uint32 leng
         WritePtr = 0;
 
         for (x = 0; x < DeCount; x++) {
-            Chunk = (HPICHUNK *)GetMem(DeSize[x], 0);
-            ReadAndDecrypt(Offset, (byte *) Chunk, DeSize[x], hi->hfd);
+            byte *ChunkBytes = new byte[ DeSize[x] ];
+            ReadAndDecrypt(Offset, ChunkBytes, DeSize[x], hi->hfd);
             Offset += DeSize[x];
 
+            HPICHUNK *Chunk = &((HPICHUNK_U*)ChunkBytes)->chunk; // strict-aliasing safe
             if((uint32)WritePtr>=start || WritePtr+Chunk->DecompressedSize>=(sint32)start) {
 
                 DeBuff = (byte *) (Chunk+1);
@@ -288,10 +281,10 @@ byte *cHPIHandler::DecodeFileToMem_zone(HPIITEM *hi , uint32 start , uint32 leng
             else
                 WritePtr += Chunk->DecompressedSize;
 
-            free(Chunk);
+            delete[] ChunkBytes;
             if(WritePtr>=(sint32)(start+length) )   break;
         }
-        free(DeSize);
+        delete[] DeSize;
     }
     else {
         // file not compressed
@@ -308,7 +301,7 @@ void cHPIHandler::CloseHPIFile(HPIFILEDATA *hfd)
 
     if (hfd->Directory)
     {
-        free(hfd->Directory);
+        delete[] hfd->Directory;
         hfd->Directory = NULL;
     }
 
@@ -323,7 +316,6 @@ void cHPIHandler::ProcessSubDir( HPIITEM *hi )
     sint32 *FileCount, *FileLength, *EntryOffset, *Entries, count;
     schar *Name;
     HPIENTRY *Base, *Entry;
-    HPIITEM *li;
 
     Base = hi->E1;
     if (Base)
@@ -339,7 +331,7 @@ void cHPIHandler::ProcessSubDir( HPIITEM *hi )
         FileCount = (sint32 *) (hi->hfd->Directory + Entry->CountOffset);
         FileLength = FileCount + 1;
 
-        li = new HPIITEM;//(HPIITEM *)GetMem(sizeof(HPIITEM), 1);
+        HPIITEM *li = new HPIITEM;
         li->hfd = hi->hfd;
         li->Name = Name;
         li->E1 = Entry;
@@ -353,7 +345,7 @@ void cHPIHandler::ProcessSubDir( HPIITEM *hi )
             ProcessSubDir( li );     // process new directory
 
             delete li;   // free the item.
-            li = NULL;   // really free the item.
+            li = NULL;
 
             m_cDir = sDir; // restore dir with saved dir
         } else {
@@ -390,7 +382,7 @@ void  cHPIHandler::ProcessRoot(HPIFILEDATA *hfd, const String &StartPath, sint32
             MyPath += (char *)Name;
             m_cDir = MyPath + "\\";
 
-            HPIITEM *hi = new HPIITEM;//(HPIITEM *)GetMem(sizeof(HPIITEM), 1);
+            HPIITEM *hi = new HPIITEM;
 
             hi->hfd = hfd;
             hi->IsDir = 1;
@@ -409,18 +401,13 @@ void  cHPIHandler::ProcessRoot(HPIFILEDATA *hfd, const String &StartPath, sint32
 
 void cHPIHandler::AddArchive( const String &FileName, bool priority )
 {
-    HPIFILEDATA *hfd = (HPIFILEDATA *)GetMem(sizeof(HPIFILEDATA), 1);
-
-    hfd->priority = priority;
-
-    if (!hfd)
-        return; // No Need to generate error here as getmem already did it.
+    HPIFILEDATA *hfd = new HPIFILEDATA(priority);
 
     hfd->HPIFile=TA3D_OpenFile( FileName.c_str(), "rb" );
     if( !hfd->HPIFile )
     {
         CloseHPIFile(hfd);
-        free(hfd);
+        delete hfd;
         //      GlobalDebugger-> Failed to open hpi file for reading.
         return;
     }
@@ -431,10 +418,7 @@ void cHPIHandler::AddArchive( const String &FileName, bool priority )
     if( hv.Version != HPI_V1 || hv.HPIMarker != HEX_HAPI )
     {
         CloseHPIFile(hfd);
-        free(hfd);
-
-        hfd = NULL;
-
+        delete hfd;
         return;
     }
 
@@ -447,7 +431,7 @@ void cHPIHandler::AddArchive( const String &FileName, bool priority )
     int start = hfd->H1.Start;
     int size = hfd->H1.DirectorySize;
 
-    hfd->Directory = (sint8 *)GetMem(size, 1);
+    hfd->Directory = new sint8 [size];
 
     ReadAndDecrypt(start, (byte *)hfd->Directory + start, size - start, hfd );
     m_cDir = "";
@@ -499,8 +483,7 @@ cHPIHandler::~cHPIHandler()
         std::list<CACHEFILEDATA>::iterator i;
         for(i = m_file_cache->begin() ; i != m_file_cache->end() ; ++i)
         {
-            free( i->name );
-            free( i->data );
+            delete i->data;
         }
         delete m_file_cache;
     }
@@ -521,7 +504,7 @@ cHPIHandler::~cHPIHandler()
         m_HPIFiles.pop_front();
 
         CloseHPIFile( hfd );
-        free( hfd );
+        delete hfd;
         hfd = NULL;
     } while(  m_HPIFiles.size() != 0 );
 }
@@ -561,14 +544,13 @@ void cHPIHandler::PutInCache( const String &FileName, uint32 FileSize, byte *dat
 
     if( m_file_cache->size() >= 10 ) // Cycle the data within the list
     {
-        free( m_file_cache->front().name );
-        free( m_file_cache->front().data );
+        delete m_file_cache->front().data;
         m_file_cache->pop_front();
     }
 
     CACHEFILEDATA newentry;
 
-    newentry.name = strdup( Lowercase( FileName ).c_str() );			// Store a copy of the data
+    newentry.name = Lowercase( FileName );			// Store a copy of the data
     newentry.length = FileSize;
     newentry.data = new byte[ FileSize ];
     memcpy( newentry.data, data, FileSize );
@@ -647,7 +629,7 @@ byte *cHPIHandler::PullFromHPI( const String &FileName , uint32 *file_length )
     CACHEFILEDATA *cache_result = IsInCache( UNIX_filename );		// Look for it in the cache
     if(cache_result)
     {
-        byte *data = (byte*) malloc( cache_result->length );
+        byte *data = new byte[ cache_result->length ];
         memcpy( data, cache_result->data, cache_result->length );
         if( file_length )
             *file_length = cache_result->length;
@@ -669,7 +651,7 @@ byte *cHPIHandler::PullFromHPI( const String &FileName , uint32 *file_length )
         if( src )
         {
             FileSize = FILE_SIZE( UNIX_filename.c_str() );
-            byte *data = (byte*) malloc( FileSize + 1 );
+            byte *data = new byte[ FileSize + 1 ];
             fread( data, FileSize, 1, src );
             data[ FileSize ] = 0;				// NULL terminated
             fclose( src );
@@ -712,7 +694,7 @@ byte *cHPIHandler::PullFromHPI( const String &FileName , uint32 *file_length )
         if( src )
         {
             FileSize = FILE_SIZE( UNIX_filename.c_str() );
-            byte *data = (byte*) malloc( FileSize + 1 );
+            byte *data = new byte[ FileSize + 1 ];
             fread( data, FileSize, 1, src );
             data[ FileSize ] = 0;				// NULL terminated
             fclose( src );
@@ -760,7 +742,7 @@ cHPIHandler::PullFromHPI_zone( const String &FileName , uint32 start , uint32 le
         FILE *src = TA3D_OpenFile( UNIX_filename.c_str(), "rb" );
         if( src )
         {
-            byte *data = (byte*) malloc( FILE_SIZE( UNIX_filename.c_str() ) + 1 );
+            byte *data = new byte [ FILE_SIZE( UNIX_filename.c_str() ) + 1 ];
             fread( data, FILE_SIZE( UNIX_filename.c_str() ), 1, src );
             data[ FILE_SIZE( UNIX_filename.c_str() ) ] = 0;				// NULL terminated
             fclose( src );
@@ -786,7 +768,7 @@ cHPIHandler::PullFromHPI_zone( const String &FileName , uint32 start , uint32 le
         FILE *src = TA3D_OpenFile( UNIX_filename.c_str(), "rb" );
         if( src )
         {
-            byte *data = (byte*) malloc( FILE_SIZE( UNIX_filename.c_str() ) + 1 );
+            byte *data = new byte[ FILE_SIZE( UNIX_filename.c_str() ) + 1 ];
             fread( data, FILE_SIZE( UNIX_filename.c_str() ), 1, src );
             data[ FILE_SIZE( UNIX_filename.c_str() ) ] = 0;				// NULL terminated
             fclose( src );

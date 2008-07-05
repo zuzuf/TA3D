@@ -67,7 +67,7 @@ namespace TA3D
                 anm_idx = putInCache(fullname, anm);
 
                 if(data != fx_data)
-                    free(data);
+                    delete[] data;
             }
         }
         else
@@ -245,7 +245,7 @@ namespace TA3D
         gfx->destroy_texture(wave_tex[2]);
 
         if(fx_data)
-            free(fx_data);
+            delete[] fx_data;
         if(fx)
         {
             for(int i=0;i<max_fx; ++i)

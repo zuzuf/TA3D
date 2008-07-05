@@ -823,7 +823,7 @@ RGB *LoadPal(const char *filename)
             pal[i].g=palette[(i<<2)+1]>>2;
             pal[i].b=palette[(i<<2)+2]>>2;
         }
-        free(palette);
+        delete[] palette;
     }
 
     return pal;

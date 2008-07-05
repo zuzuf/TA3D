@@ -200,7 +200,7 @@ namespace TA3D
                             feature[i].anim.load_gaf(gaf,get_gaf_entry_index(gaf,feature[i].seqname),true,feature[i].filename);
                         else
                             Console->AddEntry( "WARNING: %s has no picture to display!! Missing files?", feature[i].name );
-                        free(gaf);
+                        delete[] gaf;
                         if(index>=0 && feature[i].height<=10.0f && feature[i].height>1.0f && feature[i].anim.nb_bmp>0 && feature[i].blocking
                            && feature[i].anim.bmp[0]->w>=16 && feature[i].anim.bmp[0]->h>=16 && strcasecmp(feature[i].description,"Metal")!=0) {			// Tente une conversion en 3d
                             char tmp[200];
@@ -243,7 +243,7 @@ namespace TA3D
             if(data) {
                 Console->AddEntry( "loading %s", cur_file->c_str() );
                 feature_manager.load_tdf((char*)data,file_size);
-                free(data);
+                delete[] data;
             }
             else
                 Console->AddEntry( "WARNING: loading %s failed", cur_file->c_str() );

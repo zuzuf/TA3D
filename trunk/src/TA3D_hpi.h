@@ -70,6 +70,8 @@ namespace HPI
             sint32 DirectorySize; /* Directory size */
             sint32 Key;           /* Decode key */
             sint32 Start;         /* Directory offset */
+
+            HPIHEADER() : DirectorySize(0), Key(0), Start(0) {}
         };
 
         struct HPIENTRY
@@ -89,6 +91,11 @@ namespace HPI
             sint32 DecompressedSize; /* the length of the decompressed data */
             sint32 Checksum;         /* check sum */
         };
+        union HPICHUNK_U             /* for strict-aliasing safety */
+        {
+        	HPICHUNK chunk;
+        	byte bytes[sizeof(HPICHUNK)];
+        };
 
         struct HPIFILEDATA
         {
@@ -97,13 +104,15 @@ namespace HPI
             sint8      *Directory;
             FILE      *HPIFile;
             bool			priority;
+
+            HPIFILEDATA(bool priority = false) : Key(0), Directory(0), HPIFile(0), priority(priority) {}
         };
 
         struct CACHEFILEDATA
         {
             uint32		length;
             byte		*data;
-            char		*name;
+            String		name;
         };
 
         struct HPIITEM
@@ -195,7 +204,7 @@ namespace HPI
 
         inline void destroy()
         {
-            if( data )	free( data );
+            if( data )	delete[] data;
             pos = 0;
             length = 0;
         }

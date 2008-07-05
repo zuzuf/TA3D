@@ -39,7 +39,7 @@ namespace TA3D
                 nuclogo.load_gaf(data,get_gaf_entry_index(data,"nuclogo"));
                 nuclogo.convert();
                 nuclogo.clean();
-                free(data);
+                delete[] data;
             }
         }
         pMutex.unlock();

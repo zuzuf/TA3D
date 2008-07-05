@@ -259,7 +259,7 @@ namespace Menus
         if (byte* data = HPIManager->PullFromHPI(otaMap, &otaSize))
         {
             mapOTA.load((char*)data, otaSize);
-            free(data);
+            delete[] data;
         }
 
         // Update the mini map
@@ -323,7 +323,7 @@ namespace Menus
             MAP_OTA	map_data;	// Using MAP_OTA because it's faster than cTAFileParser that fills a hash_table object
             map_data.load((char*)data, ota_size);
             bool isNetworkGame = map_data.network;
-            free(data);
+            delete[] data;
             map_data.destroy();
             return isNetworkGame;
         }

@@ -86,7 +86,7 @@ void install_TA_files( String def_path )
 
 			for(uint32 pos = buf_size ; pos < file_size32 ; pos += buf_size ) {
 				int read_size = min( buf_size, (int)(file_size32 - pos) );
-				free(data);
+				delete[] data;
 				data = HPIManager->PullFromHPI_zone( "install\\totala1.hpi", pos, read_size, &file_size32);			// Extract the totala1.hpi file from the TA CD
 				fwrite(data+pos,read_size,1,dst);
 
@@ -101,7 +101,7 @@ void install_TA_files( String def_path )
 			}
 		else
 			success = false;
-		free(data);
+		delete[] data;
 		}
 	else
 		success = false;

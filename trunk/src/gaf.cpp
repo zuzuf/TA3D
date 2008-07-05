@@ -43,7 +43,7 @@ std::vector< GLuint > read_gaf_imgs( const String &filename, const String &imgna
         int idx = get_gaf_entry_index( data, (char*)imgname.c_str() );
         if( idx == -1 )
         {
-            free( data );
+            delete[] data;
             return textures;
         }
 
@@ -55,7 +55,7 @@ std::vector< GLuint > read_gaf_imgs( const String &filename, const String &imgna
 #ifdef GAF_DEBUG_MODE
             Console->AddEntry("WARNING: error while reading %s!", filename.c_str() );
 #endif
-            free(data);
+            delete[] data;
             return textures;
         }
 
@@ -76,7 +76,7 @@ std::vector< GLuint > read_gaf_imgs( const String &filename, const String &imgna
 #ifdef GAF_DEBUG_MODE
                     Console->AddEntry("WARNING: could not read %s image from %s!", imgname.c_str(), filename.c_str() );
 #endif
-                    free( data );
+                    delete[] data;
                     return textures;
                 }
 
@@ -108,7 +108,7 @@ std::vector< GLuint > read_gaf_imgs( const String &filename, const String &imgna
             }
         }
 
-        free( data );
+        delete[] data;
 
         return textures;
     }
@@ -138,7 +138,7 @@ GLuint	read_gaf_img( const String &filename, const String &imgname, int *w, int 
         {
             int idx = get_gaf_entry_index( data, (char*)imgname.c_str() );
             if( idx == -1 ) {
-                free( data );
+                delete[] data;
                 return 0;
             }
 
@@ -151,7 +151,7 @@ GLuint	read_gaf_img( const String &filename, const String &imgname, int *w, int 
 #ifdef GAF_DEBUG_MODE
                 Console->AddEntry("WARNING: could read %s image from %s!", imgname.c_str(), filename.c_str() );
 #endif
-                free( data );
+                delete[] data;
                 return 0;
             }
 
@@ -176,7 +176,7 @@ GLuint	read_gaf_img( const String &filename, const String &imgname, int *w, int 
             gfx->save_texture_to_cache( cache_filename, gl_img, img->w, img->h );
 
             destroy_bitmap( img );
-            free( data );
+            delete[] data;
 
             return gl_img;
         }

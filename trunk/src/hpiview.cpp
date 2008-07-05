@@ -105,7 +105,7 @@ static bool hpiviewCmdMiniMap(int argc, char** argv)
                 pal[i].g=palette[(i << 2)+1] >> 2;
                 pal[i].b=palette[(i << 2)+2] >> 2;
             }
-            free(palette);
+            delete[] palette;
             set_palette(pal);      // Activate the palette
         }
 
@@ -220,7 +220,7 @@ static bool hpiviewCmdExtract(int argc, char** argv)
             FILE *dst = TA3D_OpenFile(name,"wb");
             fwrite(data,file_size32,1,dst);
             fclose(dst);
-            free(data);
+            delete[] data;
         }
         delete HPIManager;
         return true;
@@ -250,7 +250,7 @@ static bool hpiviewCmdPrint(int argc, char** argv)
             if(data)
             {
                 std::cout << (const char*)data << std::endl;
-                free(data);
+                delete[] data;
             }
         }
         delete HPIManager;
@@ -297,7 +297,7 @@ static bool hpiviewCmdExtractGAF(int argc, char** argv)
                     pal[i].g=palette[(i<<2)+1]>>2;
                     pal[i].b=palette[(i<<2)+2]>>2;
                 }
-                free(palette);
+                delete[] palette;
                 set_palette(pal);      // Activate the palette
             }
 
@@ -332,7 +332,7 @@ static bool hpiviewCmdExtractGAF(int argc, char** argv)
             m_File.flush();
             m_File.close();
             anims.destroy();
-            free(data);
+            delete[] data;
             delete[] TA3D::VARS::pal;
         }
         delete HPIManager;

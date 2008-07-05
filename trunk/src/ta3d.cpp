@@ -218,7 +218,7 @@ int play(GameData *game_data)
 
     if(!map_file)	return -1;
     MAP *map=load_tnt_map(map_file);
-    free(map_file);
+    delete[] map_file;
 
     Console->AddEntry("Loading details texture");
     map->load_details_texture( "gfx/details.jpg" );			// Load the details texture
@@ -248,7 +248,7 @@ int play(GameData *game_data)
             destroy_bitmap( tmp );
         }
 
-        free(map_file);
+        delete[] map_file;
     }
 
     game_data->map_filename[ strlen( game_data->map_filename ) - 4 ] = 0;		// Remove the ".ota" extension
@@ -3437,7 +3437,7 @@ int play(GameData *game_data)
                     FILE *dst = TA3D_OpenFile(TA3D::Paths::Caches + "glamour.pcx", "wb");
                     fwrite( data, pcx_size, 1, dst );
                     fclose( dst );
-                    free(data);
+                    delete[] data;
                     GLuint	glamour_tex = gfx->load_texture(TA3D::Paths::Caches + "glamour.pcx");
                     gfx->set_2D_mode();
                     gfx->drawtexture( glamour_tex, 0, 0, SCREEN_W, SCREEN_H );
