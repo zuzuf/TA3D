@@ -1021,7 +1021,7 @@ WND::check(int AMx,int AMy,int AMz,int AMb,bool timetoscroll, SKIN *skin )
             Objets[i].activated = mouse_b==1 && Objets[i].MouseOn;
 
             bool clicked = false;
-            if( Objets[i].shortcut_key >= 0 && Objets[i].shortcut_key <= 255 && ( Console == NULL || !Console->activated() )
+            if( Objets[i].shortcut_key >= 0 && Objets[i].shortcut_key <= 255 && lp_CONFIG->enable_shortcuts && ( Console == NULL || !Console->activated() )
                 && ( key[ ascii_to_scancode[ Objets[i].shortcut_key ] ]
                      || ( Objets[i].shortcut_key >= 65 && Objets[i].shortcut_key <= 90 && key[ ascii_to_scancode[ Objets[i].shortcut_key + 32 ] ] )
                      || ( Objets[i].shortcut_key >= 97 && Objets[i].shortcut_key <= 122 && key[ ascii_to_scancode[ Objets[i].shortcut_key - 32 ] ] ) ) ) {
