@@ -596,7 +596,7 @@ namespace TA3D
 	    return texture;
     }
 
-    GLuint load_tnt_minimap_fast(const String& filename, int& sw,int& sh)		// Charge une minimap d'une carte contenue dans une archive HPI/UFO
+    static BITMAP *load_tnt_minimap_fast_raw_bmp(const String& filename, int& sw, int& sh)
     {
 	    byte *headerBytes = HPIManager->PullFromHPI_zone(filename.c_str(),0,sizeof(TNTHEADER),NULL);
 	    if(headerBytes==NULL)
@@ -614,9 +614,18 @@ namespace TA3D
 
 	    TNTMINIMAP *minimap = &((TNTMINIMAP_U*)(&minimapdata[header->PTRminimap]))->map;
 	    BITMAP		*bitmap = load_tnt_minimap_bmp(minimap, &sw, &sh);
+
 	    delete[] headerBytes;
 	    delete[] minimapdata;
 
+	    return bitmap;
+    }
+
+    GLuint load_tnt_minimap_fast(const String& filename, int& sw,int& sh)		// Charge une minimap d'une carte contenue dans une archive HPI/UFO
+    {
+	    BITMAP *bitmap = load_tnt_minimap_fast_raw_bmp(filename, sw, sh);
+
+	    // Convert to a GL texture
 	    if(g_useTextureCompression)
 		    allegro_gl_set_texture_format(GL_COMPRESSED_RGB_ARB);
 	    else
@@ -629,25 +638,8 @@ namespace TA3D
 
     BITMAP *load_tnt_minimap_fast_bmp(const String& filename)		// Load a minimap into a BITMAP* structure from a HPI/UFO archive
     {
-	    byte *headerBytes = HPIManager->PullFromHPI_zone(filename.c_str(),0,sizeof(TNTHEADER),NULL);
-	    if(headerBytes==NULL)
-	    {
-	    	return 0;
-	    }
-	    TNTHEADER *header = &((TNTHEADER_U*)headerBytes)->header;
-
-	    byte *minimapdata = HPIManager->PullFromHPI_zone(filename.c_str(),header->PTRminimap,sizeof(TNTMINIMAP),NULL);
-	    if(minimapdata==NULL)
-	    {
-	    	delete[] headerBytes;
-	    	return 0;
-	    }
-
 	    int sw, sh;
-	    TNTMINIMAP *minimap = &((TNTMINIMAP_U*)(&minimapdata[header->PTRminimap]))->map;
-	    BITMAP    *fullsize = load_tnt_minimap_bmp(minimap, &sw, &sh);
-	    delete[] headerBytes;
-	    delete[] minimapdata;
+	    BITMAP *fullsize = load_tnt_minimap_fast_raw_bmp(filename, sw, sh);
 
 	    // Copy the full-sized bitmap down to an exact-sized version
 	    BITMAP *trimmed = create_bitmap(sw, sh);
