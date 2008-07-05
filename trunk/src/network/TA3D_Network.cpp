@@ -28,7 +28,7 @@
 
 
 #define CHAT_MESSAGE_TIMEOUT	10000
-
+#define CHAT_MAX_MESSAGES       10
 
 namespace TA3D
 {
@@ -85,7 +85,7 @@ namespace TA3D
                         if( player_id >= 0 )
                         {
                             pMutex.lock();
-                            if( messages.size() > 10 )		// Prevent flooding the screen with chat messages
+                            if( messages.size() > CHAT_MAX_MESSAGES )		// Prevent flooding the screen with chat messages
                                 messages.pop_front();
                             msg = "<" + game_data->player_names[ player_id ] + "> " + msg;
                             messages.push_back( NetworkMessage( msg, msec_timer ) );
@@ -127,7 +127,7 @@ namespace TA3D
             if( player_id >= 0 )
             {
                 pMutex.lock();
-                if( messages.size() > 10 )		// Prevent flooding the screen with chat messages
+                if( messages.size() > CHAT_MAX_MESSAGES )		// Prevent flooding the screen with chat messages
                     messages.pop_front();
                 chat_msg = "<" + game_data->player_names[ player_id ] + "> " + chat_msg;
                 messages.push_back( NetworkMessage( chat_msg, msec_timer ) );
@@ -543,14 +543,15 @@ namespace TA3D
         pMutex.lock();
         if( !messages.empty() )
         {
-            float Y = SCREEN_H * 0.5f;
+            const float Y_ref = 32 + gfx->TA_font.height();
+            float Y = Y_ref;
             for (std::list<NetworkMessage>::const_iterator i = messages.begin(); i != messages.end(); ++i)
             {
                 int color = 0xFFFFFFFF;
                 if( (int)(msec_timer - i->timer) - CHAT_MESSAGE_TIMEOUT + 1000 >= 0 )
                 {
                     color = makeacol( 0xFF, 0xFF, 0xFF, 255 - min( 255, ((int)(msec_timer - i->timer) - CHAT_MESSAGE_TIMEOUT + 1000) * 255 / 1000 ) );
-                    Y -= min( 1.0f, ((int)(msec_timer - i->timer) - CHAT_MESSAGE_TIMEOUT + 1000) * 0.001f ) * (gfx->TA_font.height() + Y - SCREEN_H * 0.5f);
+                    Y -= min( 1.0f, ((int)(msec_timer - i->timer) - CHAT_MESSAGE_TIMEOUT + 1000) * 0.001f ) * (gfx->TA_font.height() + Y - Y_ref);
                 }
                 gfx->print( gfx->TA_font, 136, Y, 0.0f, color, i->text );
                 Y += gfx->TA_font.height();
