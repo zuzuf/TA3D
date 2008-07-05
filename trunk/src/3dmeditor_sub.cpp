@@ -807,28 +807,6 @@ int intersect(VECTOR O,VECTOR Dir,OBJECT *obj,VECTOR *PA,VECTOR *PB)	// Calcule 
     return index;			// Renvoie le triangle touché
 }
 
-/*---------------------------------------------------------------------------------\
-  |                                   RGB *LoadPal(..)                               |
-  |        Procédure qui charge la palette graphique d'un fichier pal                |
-  \---------------------------------------------------------------------------------*/
-RGB *LoadPal(const char *filename)
-{
-    RGB *pal=new RGB[256];		// Génère une nouvelle palette
-
-    byte *palette=HPIManager->PullFromHPI(filename);
-
-    if(palette) {
-        for(int i=0;i<256;i++) {
-            pal[i].r=palette[i<<2]>>2;
-            pal[i].g=palette[(i<<2)+1]>>2;
-            pal[i].b=palette[(i<<2)+2]>>2;
-        }
-        delete[] palette;
-    }
-
-    return pal;
-}
-
 void init()
 {
     InterfaceManager = NULL;

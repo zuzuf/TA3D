@@ -164,7 +164,8 @@ int main(int argc, char* argv[])
 
     HPIManager=new cHPIHandler("");
 
-    pal=LoadPal("palettes\\palette.pal");			// Charge la palette graphique
+    /*RGB * */pal = new RGB[256];
+    TA3D::UTILS::HPI::load_palette(pal); // Charge la palette graphique
     set_palette(pal);		// Active la palette chargée
 
     Console->AddEntry(I18N::Translate("Initializing texture manager"));
