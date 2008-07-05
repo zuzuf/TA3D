@@ -672,7 +672,7 @@ byte *cHPIHandler::PullFromHPI( const String &FileName , uint32 *file_length )
 
 
     HPIITEM *iterFind = m_Archive->Find( Lowercase( FileName ) );
-    if(iterFind && iterFind->hfd->priority) // Prioritary file!!
+    if(iterFind && iterFind->hfd->priority) // Priority file!!
     {
         byte *data = DecodeFileToMem( iterFind , &FileSize );
         PutInCache( UNIX_filename, FileSize, data );
@@ -753,7 +753,7 @@ cHPIHandler::PullFromHPI_zone( const String &FileName , uint32 start , uint32 le
     }
 
     HPIITEM* iterFind = m_Archive->Find( Lowercase( FileName ) );
-    if( iterFind != NULL && iterFind->hfd->priority )				// Prioritary file!!
+    if( iterFind != NULL && iterFind->hfd->priority )				// Priority file!!
         return DecodeFileToMem_zone( iterFind , start , length , file_length );
 
     UNIX_filename = m_Path + FileName;
