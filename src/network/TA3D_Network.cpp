@@ -60,7 +60,10 @@ namespace TA3D
     void TA3DNetwork::check()
     {
         if( !network_manager.isConnected() )
+        {
+            lp_CONFIG->enable_shortcuts = true;
             return;		// Only works in network mode
+        }
 
         if( key[KEY_ENTER] && !Console->activated() )
         {
@@ -102,7 +105,12 @@ namespace TA3D
         else
             enter = false;
         if( area->get_state("chat") )		// Chat is visible, so give it the focus so we can type the message
+        {
             area->msg("chat.focus");
+            lp_CONFIG->enable_shortcuts = false;
+        }
+        else
+            lp_CONFIG->enable_shortcuts = true;
 
         int n = 5;
         while(n--) // Chat receiver

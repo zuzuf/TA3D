@@ -115,9 +115,12 @@ namespace TA3D
 		bool	pause;						// Tell the engine it's in pause mode, so wait for this to be false again
 		bool	paused;						// The engine writes its current state here, used by save/load code
 		String	file_param;					// File parameter (command line parameter), used to give complex instructions
+		bool    enable_shortcuts;           // Tell the GUI module to react to shortcuts or not (deactivated when in chat mode)
 
 		TA3DCONFIG()
 		{
+		    enable_shortcuts = true;
+
 			net_server = TA3D_DEFAULT_SERVER_HOSTNAME;
 
 			file_param.clear();
