@@ -162,7 +162,7 @@ public:
 		if(dec_offset)
 			free(dec_offset);
 		if(Data)
-			free(Data);
+			delete[] Data;
 		if(piece_name) {
 			for(int i=0;i<nb_piece;i++)
 				free(piece_name[i]);

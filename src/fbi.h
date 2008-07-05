@@ -663,7 +663,7 @@ public:
             {
                 analyse2((char*)data,file_size);
 
-                free(data);
+                delete[] data;
             }
         }
     }
@@ -725,6 +725,8 @@ public:
                 unit_type[unit_index].script=(SCRIPT*) malloc(sizeof(SCRIPT));
                 unit_type[unit_index].script->init();
                 unit_type[unit_index].script->load_cob(data);
+
+                // Don't delete[] data here because the script keeps a reference to it.
 
                 break;
             }

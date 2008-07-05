@@ -51,7 +51,7 @@ namespace TA3D
             if(data)
             {
                 weapon_manager.load_tdf((char*)data,file_size);
-                free(data);
+                delete[] data;
             }
         }
 
@@ -61,6 +61,8 @@ namespace TA3D
             weapon_manager.cannonshell.load_gaf(fx_manager.fx_data,get_gaf_entry_index(fx_manager.fx_data,"cannonshell"));
             weapon_manager.cannonshell.convert(false,true);
             weapon_manager.cannonshell.clean();
+
+            // fx_data is delete[]ed later in FXManager::destroy()
         }
     }
 

@@ -1843,7 +1843,7 @@ void campaign_main_menu(void)
     {
         byte *data = HPIManager->PullFromHPI( "anims\\newgame.gaf" );
         side_logos.load_gaf( data, true, NULL );
-        if( data )	free( data );
+        if( data )	delete[] data;
     }
 
     cTAFileParser* campaign_parser = NULL;
@@ -2021,7 +2021,7 @@ int brief_screen(String campaign_name, int mission_id)
         if( data ) {
             String brief_info = (const char*)data;
             brief_area.set_caption( "brief.info", brief_info );
-            free(data);
+            delete[] data;
         }
     }
 
@@ -2045,7 +2045,7 @@ int brief_screen(String campaign_name, int mission_id)
         byte *data = HPIManager->PullFromHPI( planet_file );
         if( data ) {
             planet_animation.load_gaf( data, true, NULL );
-            free( data );
+            delete[] data;
         }
     }
 

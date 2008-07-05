@@ -123,7 +123,7 @@ public:
         {
             byte *data=HPIManager->PullFromHPI(cur_file->c_str());
             load_gaf(data);
-            free(data);
+            delete[] data;
         }
         return 0;
     }

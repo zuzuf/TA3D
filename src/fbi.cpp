@@ -158,7 +158,7 @@ void UNIT_MANAGER::analyse(String filename,int unit_index)
                         destroy_bitmap( img );
                     }
 
-                    free( gaf_file );
+                    delete[] gaf_file;
 
                     unit_type[unit_index].AddUnitBuild(idx, x, y, w, h, page, tex);
                 }
@@ -189,7 +189,7 @@ void UNIT_MANAGER::analyse(String filename,int unit_index)
                         destroy_bitmap( img );
                     }
 
-                    free( gaf_file );
+                    delete[] gaf_file;
                     unit_type[unit_index].AddUnitBuild(-1, x, y, w, h, page, tex);
                 }
                 else
@@ -958,12 +958,12 @@ int load_all_units(void (*progress)(float percent,const String &msg))
                         glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
                         glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
                     }
-                    free(dat);
+                    delete[] dat;
                 }
                 else
                     unit_manager.unit_type[unit_manager.nb_unit-1].unitpic=NULL;
             }
-            free(data);
+            delete[] data;
             Console->AddEntry("loading %s", nom);
         }
         free(nom);
