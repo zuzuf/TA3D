@@ -2125,25 +2125,20 @@ void UNIT::explode()
                 clear_from_map();
                 flags = 4;
                 pMutex.lock();
-                int x=((int)(Pos.x)+the_map->map_w_d-8)>>3;
-                int y=((int)(Pos.z)+the_map->map_h_d-8)>>3;
-                if(x>0 && y>0 && x<(the_map->bloc_w<<1) && y<(the_map->bloc_h<<1))
-                    if(the_map->map_data[y][x].stuff==-1)
+                if( cur_px > 0 && cur_py > 0 && cur_px < (the_map->bloc_w<<1) && cur_py < (the_map->bloc_h<<1) )
+                    if(the_map->map_data[ cur_py ][ cur_px ].stuff == -1)
                     {
                         int type=feature_manager.get_feature_index(unit_manager.unit_type[type_id].Corpse);
                         if( type >= 0 )
                         {
-                            Pos.x=(x<<3)-the_map->map_w_d+8.0f;
-                            Pos.z=(y<<3)-the_map->map_h_d+8.0f;
-                            the_map->map_data[y][x].stuff=features.add_feature(Pos,type);
-                            if( the_map->map_data[y][x].stuff >= 0 ) 	// Keep unit orientation
+                            the_map->map_data[ cur_py ][ cur_px ].stuff = features.add_feature(Pos,type);
+                            if( the_map->map_data[ cur_py ][ cur_px ].stuff >= 0 ) 	// Keep unit orientation
                             {
-                                features.feature[ the_map->map_data[y][x].stuff ].angle = Angle.y;
+                                features.feature[ the_map->map_data[ cur_py ][ cur_px ].stuff ].angle = Angle.y;
                                 if( sinking )
-                                    features.sink_feature( the_map->map_data[y][x].stuff );
+                                    features.sink_feature( the_map->map_data[ cur_py ][ cur_px ].stuff );
+                                features.drawFeatureOnMap( the_map->map_data[ cur_py ][ cur_px ].stuff );
                             }
-                            if(type!=-1 && the_map->map_data[y][x].stuff != -1 && feature_manager.feature[type].blocking)
-                                the_map->rect(x-(feature_manager.feature[type].footprintx>>1),y-(feature_manager.feature[type].footprintz>>1),feature_manager.feature[type].footprintx,feature_manager.feature[type].footprintz,-2-the_map->map_data[y][x].stuff);
                         }
                     }
             }
@@ -2155,22 +2150,17 @@ void UNIT::explode()
                 clear_from_map();
                 flags = 4;
                 pMutex.lock();
-                int x=(int)((Pos.x)+the_map->map_w_d-8)>>3;
-                int y=(int)((Pos.z)+the_map->map_h_d-8)>>3;
-                if(x>0 && y>0 && x<(the_map->bloc_w<<1) && y<(the_map->bloc_h<<1))
-                    if(the_map->map_data[y][x].stuff==-1) {
+                if( cur_px > 0 && cur_py > 0 && cur_px < (the_map->bloc_w<<1) && cur_py < (the_map->bloc_h<<1))
+                    if(the_map->map_data[ cur_py ][ cur_px ].stuff == -1) {
                         int type=feature_manager.get_feature_index( (String( unit_manager.unit_type[type_id].name) + "_heap").c_str() );
                         if( type >= 0 ) {
-                            Pos.x=(x<<3)-the_map->map_w_d+8.0f;
-                            Pos.z=(y<<3)-the_map->map_h_d+8.0f;
-                            the_map->map_data[y][x].stuff=features.add_feature(Pos,type);
-                            if( the_map->map_data[y][x].stuff >= 0 ) {			// Keep unit orientation
-                                features.feature[ the_map->map_data[y][x].stuff ].angle = Angle.y;
+                            the_map->map_data[ cur_py ][ cur_px ].stuff = features.add_feature(Pos,type);
+                            if( the_map->map_data[ cur_py ][ cur_px ].stuff >= 0 ) {			// Keep unit orientation
+                                features.feature[ the_map->map_data[ cur_py ][ cur_px ].stuff ].angle = Angle.y;
                                 if( sinking )
-                                    features.sink_feature( the_map->map_data[y][x].stuff );
+                                    features.sink_feature( the_map->map_data[ cur_py ][ cur_px ].stuff );
+                                features.drawFeatureOnMap( the_map->map_data[ cur_py ][ cur_px ].stuff );
                             }
-                            if(type!=-1 && the_map->map_data[y][x].stuff != -1 && feature_manager.feature[type].blocking)
-                                the_map->rect(x-(feature_manager.feature[type].footprintx>>1),y-(feature_manager.feature[type].footprintz>>1),feature_manager.feature[type].footprintx,feature_manager.feature[type].footprintz,-2-the_map->map_data[y][x].stuff);
                         }
                     }
             }
@@ -2244,23 +2234,20 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
     }
 
     if( build_percent_left == 0.0f && unit_manager.unit_type[type_id].isfeature) {		// Turn this unit into a feature
-        int x=(int)((Pos.x)+map->map_w_d-8)>>3;
-        int y=(int)((Pos.z)+map->map_h_d-8)>>3;
-        if( x > 0 && y > 0 && x < (map->bloc_w<<1) && y < (map->bloc_h<<1) )
-            if(map->map_data[y][x].stuff==-1) {
-                int type=feature_manager.get_feature_index(unit_manager.unit_type[type_id].Corpse);
+        if( cur_px > 0 && cur_py > 0 && cur_px < (map->bloc_w<<1) && cur_py < (map->bloc_h<<1) )
+            if(map->map_data[ cur_py ][ cur_px ].stuff == -1) {
+                int type = feature_manager.get_feature_index(unit_manager.unit_type[type_id].Corpse);
                 if( type >= 0 ) {
                     features.lock();
-                    map->map_data[y][x].stuff=features.add_feature(Pos,type);
-                    if(map->map_data[y][x].stuff == -1)
+                    map->map_data[ cur_py ][ cur_px ].stuff=features.add_feature(Pos,type);
+                    if(map->map_data[ cur_py ][ cur_px ].stuff == -1)
                         Console->AddEntry("ERROR: could not turn %s into a feature! cannot create feature!", unit_manager.unit_type[type_id].Unitname);
                     else
-                        features.feature[map->map_data[y][x].stuff].angle = Angle.y;
+                        features.feature[map->map_data[ cur_py ][ cur_px ].stuff].angle = Angle.y;
                     pMutex.unlock();
                     clear_from_map();
                     pMutex.lock();
-                    if(type!=-1 && feature_manager.feature[type].blocking)
-                        map->rect(x-(feature_manager.feature[type].footprintx>>1),y-(feature_manager.feature[type].footprintz>>1),feature_manager.feature[type].footprintx,feature_manager.feature[type].footprintz,-2-map->map_data[y][x].stuff);
+                    features.drawFeatureOnMap( map->map_data[ cur_py ][ cur_px ].stuff );
                     features.unlock();
                     flags = 4;
                 }
@@ -3471,10 +3458,7 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
                                 energy_prod+=recup*feature_manager.feature[features.feature[mission->data].type].energy/(dt*feature_manager.feature[features.feature[mission->data].type].damage);
                             }
                             if( features.feature[mission->data].hp <= 0.0f ) {		// Job done
-                                int x=((int)(features.feature[mission->data].Pos.x)-8+map->map_w_d)>>3;		// Remove the object
-                                int y=((int)(features.feature[mission->data].Pos.z)-8+map->map_h_d)>>3;
-                                map->rect(x-(feature_manager.feature[features.feature[mission->data].type].footprintx>>1),y-(feature_manager.feature[features.feature[mission->data].type].footprintz>>1),feature_manager.feature[features.feature[mission->data].type].footprintx,feature_manager.feature[features.feature[mission->data].type].footprintz,-1);
-                                map->map_data[y][x].stuff=-1;
+                                features.removeFeatureFromMap( mission->data );		// Remove the object from map
 
                                 if( mission->mission == MISSION_REVIVE
                                     && feature_manager.feature[features.feature[mission->data].type].name ) {			// Creates the corresponding unit
