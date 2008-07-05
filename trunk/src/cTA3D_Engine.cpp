@@ -175,7 +175,7 @@ namespace TA3D
 		if( CURSOR_REVIVE == -1 )									// If you don't have the required cursors, then resurrection won't work
 			CURSOR_REVIVE=cursor.find_entry("cursorreclamate");
 
-		free(data);
+		delete[] data;
 
 
 		GuardInfo( "Initalizing Critical section data." );

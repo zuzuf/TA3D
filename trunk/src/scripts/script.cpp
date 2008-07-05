@@ -1252,14 +1252,14 @@ namespace TA3D
                 uint32 filesize2 = 0;
                 byte *buffer2 = HPIManager->PullFromHPI( name, &filesize2 );
                 if( buffer2 ) {
-                    byte *buffer3 = (byte*) malloc( filesize + filesize2 );
+                    byte *buffer3 = new byte[ filesize + filesize2 ];
                     memset( buffer3, 0, filesize + filesize2 );
                     memcpy( buffer3, buffer, f - (char*)buffer );
                     memcpy( buffer3 + (f - (char*)buffer), buffer2, filesize2 );
                     memcpy( buffer3 + (f - (char*)buffer) + filesize2, f + i + 11, filesize - ( f + i + 11 - (char*)buffer ) );
                     filesize += filesize2 - i - 11;
-                    free( buffer );
-                    free( buffer2 );
+                    delete[] buffer;
+                    delete[] buffer2;
                     buffer = buffer3;
                 }
                 else
@@ -1271,7 +1271,7 @@ namespace TA3D
 
             if( L == NULL ) {
                 running = false;
-                free( buffer );
+                delete[] buffer;
                 buffer = NULL;
                 return;
             }
@@ -1293,7 +1293,7 @@ namespace TA3D
 
                 running = false;
                 lua_close( L );
-                free( buffer );
+                delete[] buffer;
                 L = NULL;
                 buffer = NULL;
             }

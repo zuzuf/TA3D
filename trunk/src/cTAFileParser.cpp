@@ -141,7 +141,7 @@ namespace TA3D
 				m_File.open( tFileName.c_str(), std::ios::in | std::ios::binary | std::ios::ate );
 				if( m_File.is_open() ) {
 					ota_size = m_File.tellg();
-					data = (byte*) malloc( ota_size+1 );
+					data = new byte[ ota_size+1 ];
 					data[ ota_size ] = 0;
 					m_File.seekg( 0, std::ios::beg );
 					m_File.read( (char *)data, ota_size );
@@ -153,11 +153,11 @@ namespace TA3D
 				throw ( String( "Unable to load file " ) + FileName );
 
 			if( data != NULL && toUTF8 ) {		// Convert from ASCII to UTF8, required because TA3D works with UTF8 and TA with ASCII
-				char *tmp = (char*) malloc( ota_size * 2 );
+				char *tmp = new char[ ota_size * 2 ];
 
 				do_uconvert( (const char*)data, U_ASCII, tmp, U_UTF8, ota_size * 2 );
 
-				free( data );
+				delete[] data;
 				data = (byte*)tmp;
 				}
 
@@ -182,7 +182,7 @@ namespace TA3D
 			// now process the remaining.
 			while( *tmp )
 				ProcessData( &tmp );
-			free(data);
+			delete[] data;
 		}
 
 		void cTAFileParser::LoadMemory( char *data, bool bClearTable, bool toUTF8, bool g_mode )

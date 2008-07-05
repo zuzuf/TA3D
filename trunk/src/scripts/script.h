@@ -144,7 +144,7 @@ namespace TA3D
             if( L )
                 lua_close( L );
             if( buffer )
-                free( buffer );
+                delete[] buffer;
             running = false;
 
             draw_list.destroy();
