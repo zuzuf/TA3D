@@ -4910,14 +4910,14 @@ bool INGAME_UNITS::select(Camera *cam,int sel_x[],int sel_y[])
         if ((unit[i].flags & 1) && unit[i].owner_id == players.local_human_id && unit[i].build_percent_left == 0.0f
             && unit[i].visible)	
         {
-            if(key[KEY_LSHIFT] && unit[i].sel)
+            if( TA3D_SHIFT_PRESSED && unit[i].sel)
             {
                 selected = true;
                 unit[i].unlock();
                 pMutex.lock();
                 continue;
             }
-            if(!key[KEY_LSHIFT])
+            if( !TA3D_SHIFT_PRESSED )
                 unit[i].sel = false;
 
             VECTOR Vec=unit[i].Pos-cam->pos;

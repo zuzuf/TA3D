@@ -39,7 +39,7 @@
 #   define SCROLL_SPEED		400.0f
 #endif
 
-
+#define PICK_TOLERANCE  5
 
 VECTOR cursor_on_map( Camera *cam,MAP *map, bool on_mini_map = false );
 
@@ -648,7 +648,8 @@ int play(GameData *game_data)
 
         cursor_type=CURSOR_DEFAULT;			// Revient au curseur par défaut
 
-        if( !IsOnGUI || IsOnMinimap)
+        bool rope_selection = selecting && ( abs( sel_x[0] - sel_x[1] ) >= PICK_TOLERANCE || abs( sel_y[0] - sel_y[1] ) >= PICK_TOLERANCE );
+        if( (!IsOnGUI || IsOnMinimap) && !rope_selection )
         {
             if(selected)
                 for(i=0;i<units.index_list_size;i++)
@@ -988,10 +989,12 @@ int play(GameData *game_data)
         }
 
         if(!selected)
-            current_order=SIGNAL_ORDER_NONE;
+            current_order = SIGNAL_ORDER_NONE;
 
-        if(current_order!=SIGNAL_ORDER_NONE)
+        if( current_order != SIGNAL_ORDER_NONE && abs( sel_x[0] - sel_x[1] ) < PICK_TOLERANCE && abs( sel_y[0] - sel_y[1] ) < PICK_TOLERANCE )
             selecting=false;
+            
+        rope_selection = selecting && ( abs( sel_x[0] - sel_x[1] ) >= PICK_TOLERANCE || abs( sel_y[0] - sel_y[1] ) >= PICK_TOLERANCE );
 
         if(selected && ( !IsOnGUI || IsOnMinimap ) )
         {
@@ -1050,10 +1053,13 @@ int play(GameData *game_data)
             else
                 pointing = units.pick_minimap();
 
-            if( pointing < -1 && canreclamate && feature_manager.feature[features.feature[ -pointing - 2 ].type].reclaimable && build == -1 )	cursor_type = CURSOR_RECLAIM;
-            if( pointing < -1 && canresurrect && feature_manager.feature[features.feature[ -pointing - 2 ].type].reclaimable && build == -1 && CURSOR_REVIVE != CURSOR_RECLAIM )	cursor_type = CURSOR_REVIVE;
+            if( !rope_selection )
+            {
+                if( pointing < -1 && canreclamate && feature_manager.feature[features.feature[ -pointing - 2 ].type].reclaimable && build == -1 )	cursor_type = CURSOR_RECLAIM;
+                if( pointing < -1 && canresurrect && feature_manager.feature[features.feature[ -pointing - 2 ].type].reclaimable && build == -1 && CURSOR_REVIVE != CURSOR_RECLAIM )	cursor_type = CURSOR_REVIVE;
+            }
 
-            if(pointing>=0) 	// S'il y a quelque chose sous le curseur
+            if(pointing>=0 && !rope_selection) 	// S'il y a quelque chose sous le curseur
             {
                 cursor_type=CURSOR_CROSS;
                 bool can_be_captured = false;
@@ -1173,7 +1179,7 @@ int play(GameData *game_data)
                     }
                 }
             }
-            else {
+            else if( !rope_selection ) {
                 switch(current_order)
                 {
                     case SIGNAL_ORDER_CAPTURE:	cursor_type=CURSOR_CAPTURE;	break;
@@ -1215,7 +1221,7 @@ int play(GameData *game_data)
             }
         }
 
-        if(cursor_type==CURSOR_REVIVE && CURSOR_REVIVE != CURSOR_RECLAIM && mouse_b!=1 && omb3 ==1 && ( !IsOnGUI || IsOnMinimap ) ) // The cursor orders to resurrect a wreckage
+        if(cursor_type==CURSOR_REVIVE && CURSOR_REVIVE != CURSOR_RECLAIM && !rope_selection && mouse_b != 1 && omb3 == 1 && ( !IsOnGUI || IsOnMinimap ) ) // The cursor orders to resurrect a wreckage
         {
             VECTOR cur_pos=cursor_on_map(&cam,map,IsOnMinimap);
             int idx = -units.last_on - 2;
@@ -1239,7 +1245,7 @@ int play(GameData *game_data)
             if(!TA3D_SHIFT_PRESSED)	current_order=SIGNAL_ORDER_NONE;
         }
 
-        if(cursor_type==CURSOR_RECLAIM && mouse_b!=1 && omb3 ==1 && ( !IsOnGUI || IsOnMinimap ) ) // The cursor orders to reclaim something
+        if(cursor_type==CURSOR_RECLAIM && !rope_selection && mouse_b != 1 && omb3 == 1 && ( !IsOnGUI || IsOnMinimap ) ) // The cursor orders to reclaim something
         {
             VECTOR cur_pos=cursor_on_map(&cam,map,IsOnMinimap);
             int idx = -units.last_on - 2;
@@ -1262,19 +1268,19 @@ int play(GameData *game_data)
             if(!TA3D_SHIFT_PRESSED)	current_order=SIGNAL_ORDER_NONE;
         }
 
-        if(cursor_type==CURSOR_UNLOAD && mouse_b!=1 && omb3 ==1 && ( !IsOnGUI || IsOnMinimap ) )	// The cursor orders to unload units
+        if(cursor_type==CURSOR_UNLOAD && !rope_selection && mouse_b != 1 && omb3 == 1 && ( !IsOnGUI || IsOnMinimap ) )	// The cursor orders to unload units
         {
             units.give_order_unload(players.local_human_id,cursor_on_map(&cam,map,IsOnMinimap),!TA3D_SHIFT_PRESSED);
             if(!TA3D_SHIFT_PRESSED)	current_order=SIGNAL_ORDER_NONE;
         }
 
-        if(cursor_type==CURSOR_MOVE && mouse_b!=1 && omb3 ==1 && ( !IsOnGUI || IsOnMinimap ) ) 	// The cursor orders to move
+        if(cursor_type==CURSOR_MOVE && !rope_selection && mouse_b != 1 && omb3 == 1 && ( !IsOnGUI || IsOnMinimap ) ) 	// The cursor orders to move
         {
             units.give_order_move(players.local_human_id,cursor_on_map(&cam,map,IsOnMinimap),!TA3D_SHIFT_PRESSED);
             if(!TA3D_SHIFT_PRESSED)	current_order=SIGNAL_ORDER_NONE;
         }
 
-        if(cursor_type==CURSOR_PATROL && mouse_b!=1 && omb3 ==1 && ( !IsOnGUI || IsOnMinimap ) ) {	// The cursor orders to patrol
+        if(cursor_type==CURSOR_PATROL && !rope_selection && mouse_b != 1 && omb3 == 1 && ( !IsOnGUI || IsOnMinimap ) ) {	// The cursor orders to patrol
             units.give_order_patrol(players.local_human_id,cursor_on_map(&cam,map,IsOnMinimap),!TA3D_SHIFT_PRESSED);
             if(!TA3D_SHIFT_PRESSED)	current_order=SIGNAL_ORDER_NONE;
         }
@@ -1300,8 +1306,8 @@ int play(GameData *game_data)
                 oy = (int)target.z;
 
                 target.y=max(map->get_max_rect_h((int)target.x,(int)target.z, unit_manager.unit_type[ build ].FootprintX, unit_manager.unit_type[ build ].FootprintZ ),map->sealvl);
-                target.x=target.x*8.0f-map->map_w_d;
-                target.z=target.z*8.0f-map->map_h_d;
+                target.x = target.x * 8.0f - map->map_w_d;
+                target.z = target.z * 8.0f - map->map_h_d;
 
                 can_be_there = can_be_built( target, map, build, players.local_human_id );
 
@@ -1345,7 +1351,7 @@ int play(GameData *game_data)
         //---------------------------------	Code de sélection d'unités
 
         if( !IsOnGUI ) {
-            if((mouse_b==2 && omb3!=2) || (mouse_b==1 && build == -1 && omb3==1 && selected && ( abs( amx - mouse_x ) >= 2 || abs( amy - mouse_y ) >= 2 ) ) ) {					// Deselect units
+            if( mouse_b==2 && omb3!=2 ) {					// Deselect units
                 if( mouse_b == 2 && current_order != SIGNAL_ORDER_NONE && current_order != SIGNAL_ORDER_MOVE )
                     current_order = SIGNAL_ORDER_NONE;
                 else {
@@ -1373,41 +1379,51 @@ int play(GameData *game_data)
             }
         }
 
-        if(build==-1 && (cursor_type==CURSOR_DEFAULT || cursor_type==CURSOR_CROSS) && (!IsOnGUI || (selecting && (mouse_y<32 || mouse_y>SCREEN_H-32) ) || IsOnMinimap ) ) {		// Si le curseur est dans la zone de jeu
+        if(build==-1 && (!IsOnGUI || (selecting && (mouse_y<32 || mouse_y>SCREEN_H-32) ) || IsOnMinimap ) ) {		// Si le curseur est dans la zone de jeu
             if( (mouse_b!=1 && selecting) || ( IsOnMinimap && mouse_b == 1 && omb3 != 1 ) ) {		// Récupère les unités présentes dans la sélection
-                if( (sel_x[0]==sel_x[1] && sel_y[0]==sel_y[1]) || IsOnMinimap ) {
-                    int pointing = IsOnMinimap ? units.pick_minimap() : units.pick(&cam);		// Sélectionne une unité sur clic
-                    if(!TA3D_SHIFT_PRESSED)
+                bool skip = false;
+                if( ( abs( sel_x[0] - sel_x[1] ) < PICK_TOLERANCE && abs( sel_y[0] - sel_y[1] ) < PICK_TOLERANCE ) || IsOnMinimap ) {
+                    if( cursor_type == CURSOR_DEFAULT || cursor_type == CURSOR_CROSS ) {
+                        int pointing = IsOnMinimap ? units.pick_minimap() : units.pick(&cam);		// Sélectionne une unité sur clic
+                        if(!TA3D_SHIFT_PRESSED)
+                            for(uint16 e=0;e<units.index_list_size;e++) {
+                                i = units.idx_list[e];
+                                if( (units.unit[i].flags & 1) && units.unit[i].owner_id==players.local_human_id)
+                                    units.unit[i].sel=false;
+                            }
+                        if(pointing>=0 && units.unit[pointing].port[BUILD_PERCENT_LEFT]==0.0f)		// On ne sélectionne pas les unités en construction
+                            units.unit[pointing].sel^=true;			// Sélectionne/Désélectionne si l'unité est déjà sélectionnée en appuyant sur SHIFT
+                        selected=false;
                         for(uint16 e=0;e<units.index_list_size;e++) {
                             i = units.idx_list[e];
                             if( (units.unit[i].flags & 1) && units.unit[i].owner_id==players.local_human_id)
-                                units.unit[i].sel=false;
+                                selected|=units.unit[i].sel;
                         }
-                    if(pointing>=0 && units.unit[pointing].port[BUILD_PERCENT_LEFT]==0.0f)		// On ne sélectionne pas les unités en construction
-                        units.unit[pointing].sel^=true;			// Sélectionne/Désélectionne si l'unité est déjà sélectionnée en appuyant sur SHIFT
-                    selected=false;
-                    for(uint16 e=0;e<units.index_list_size;e++) {
-                        i = units.idx_list[e];
-                        if( (units.unit[i].flags & 1) && units.unit[i].owner_id==players.local_human_id)
-                            selected|=units.unit[i].sel;
                     }
+                    else
+                        skip = true;
                 }
                 else
                     selected = units.select(&cam,sel_x,sel_y);		// Séléction au lasso
-                if( selected )			// In order to refresh GUI
-                    old_sel = false;
-                cur_sel=-1;
-                cur_sel_index=-1;
-                for(uint16 e=0;e<units.index_list_size && cur_sel!=-2;e++) {
-                    i = units.idx_list[e];
-                    if( (units.unit[i].flags & 1) && units.unit[i].owner_id==players.local_human_id && units.unit[i].sel)
-                        cur_sel= (cur_sel==-1) ? i : -2;
-                }
-                if(cur_sel>=0) {
-                    cur_sel_index=cur_sel;
-                    cur_sel=units.unit[cur_sel].type_id;
-                    // Let's do some noise
-                    units.unit[ cur_sel_index ].play_sound( "select1" );
+                if( !skip )
+                {
+                    if( selected )			// In order to refresh GUI
+                        old_sel = false;
+                    cur_sel=-1;
+                    cur_sel_index=-1;
+                    for(uint16 e=0;e<units.index_list_size && cur_sel!=-2;e++)
+                    {
+                        i = units.idx_list[e];
+                        if( (units.unit[i].flags & 1) && units.unit[i].owner_id==players.local_human_id && units.unit[i].sel)
+                            cur_sel= (cur_sel==-1) ? i : -2;
+                    }
+                    if(cur_sel>=0)
+                    {
+                        cur_sel_index=cur_sel;
+                        cur_sel=units.unit[cur_sel].type_id;
+                        // Let's do some noise
+                        units.unit[ cur_sel_index ].play_sound( "select1" );
+                    }
                 }
             }
             selecting=false;
