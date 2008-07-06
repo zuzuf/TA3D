@@ -1030,7 +1030,7 @@ TA3D::UTILS::HPI::ta3d_fsize(TA3D_FILE *file)
 
 
 bool
-TA3D::UTILS::HPI::load_palette(RGB *pal, char *filename)
+TA3D::UTILS::HPI::load_palette(RGB *pal, const char *filename)
 {
     byte *palette = HPIManager->PullFromHPI(filename);
     if(palette == NULL) return false;

@@ -59,7 +59,7 @@ namespace Interfaces
     class cAudio : public ObjectSync, protected TA3D::IInterface, protected TA3D::UTILS::cTAFileParser
     {
     private:
-        typedef struct m_PlayListItem
+        struct m_PlayListItem
         {
             String		m_Filename;
             bool		m_BattleTune;
@@ -132,7 +132,7 @@ namespace Interfaces
 
         // Sound Members
     private:
-        typedef struct m_SoundListItem
+        struct m_SoundListItem
         {
             bool			m_3DSound;
 #ifdef TA3D_PLATFORM_MINGW
@@ -162,7 +162,7 @@ namespace Interfaces
             }
         };
 
-        typedef struct m_WorkListItem
+        struct m_WorkListItem
         {
             m_SoundListItem		*m_Sound;
             VECTOR				*vec;
