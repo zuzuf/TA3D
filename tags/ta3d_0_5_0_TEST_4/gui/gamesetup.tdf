@@ -1,0 +1,1621 @@
+[window]
+{
+	title=Game Setup;
+	uformat=UTF8;
+	x=0;
+	y=0;
+	width=1280;
+	height=1024;
+	draw borders=false;
+	show title=false;
+	number of objects=154;
+	hidden=false;
+	lock=true;
+	color=0x00000000;			// Fully transparent so we can see the AREA background
+	background window=true;
+	fullscreen=true;			// Scale the window to fit the screen
+	screen width=1280;
+	screen height=1024;
+	[object0]		// OK
+	{
+		name=b_ok;
+		type=BUTTON;
+		caption=OK;
+		x1=1039;
+		y1=964;
+		x2=1185;
+		y2=997;
+		size=2;
+	}
+	[object1]		// Cancel
+	{
+		name=b_cancel;
+		type=BUTTON;
+		caption=cancel;
+		x1=839;
+		y1=964;
+		x2=983;
+		y2=997;
+		size=2;
+	}
+	[object2]		// mini-map
+	{
+		name=minimap;
+		type=IMG;
+		x1=996;
+		y1=165;
+		x2=1194;
+		y2=363;
+		help=click to change\nthe map;
+	}
+	[object3]		// change map
+	{
+		name=change_map;
+		type=BUTTON;
+		caption=Change map;
+		x1=993;
+		y1=445;
+		x2=1139;
+		y2=479;
+		size=1.5;
+		help=click to change\nthe map;
+	}
+	[object4]		// players
+	{
+		name=b_players;
+		type=TEXT;
+		caption=Players;
+		x1=110;
+		y1=170;
+		value=0xFFFFFFFF;
+		size=2;
+	}
+	[object5]		// side
+	{
+		name=b_side;
+		type=TEXT;
+		caption=Side;
+		x1=280;
+		y1=170;
+		value=0xFFFFFFFF;
+		size=2;
+	}
+	[object6]		// AI
+	{
+		name=b_ai;
+		type=TEXT;
+		caption=AI;
+		x1=380;
+		y1=170;
+		value=0xFFFFFFFF;
+		size=2;
+	}
+	[object7]		// Energy
+	{
+		name=b_energy;
+		type=TEXT;
+		caption=Energy;
+		x1=580;
+		y1=170;
+		value=0xFFFFFFFF;
+		size=2;
+	}
+	[object8]		// Metal
+	{
+		name=b_metal;
+		type=TEXT;
+		caption=Metal;
+		x1=720;
+		y1=170;
+		value=0xFFFFFFFF;
+		size=2;
+	}
+	[object9]		// line
+	{
+		type=LINE;
+		x1=260;
+		y1=170;
+		x2=260;
+		y2=686;
+		value=0xFF7F7F7F;
+	}
+	[object10]		// line
+	{
+		type=LINE;
+		x1=360;
+		y1=170;
+		x2=360;
+		y2=686;
+		value=0xFF7F7F7F;
+	}
+	[object11]		// line
+	{
+		type=LINE;
+		x1=520;
+		y1=170;
+		x2=520;
+		y2=686;
+		value=0xFF7F7F7F;
+	}
+	[object133]		// line
+	{
+		type=LINE;
+		x1=560;
+		y1=170;
+		x2=560;
+		y2=686;
+		value=0xFF7F7F7F;
+	}
+	[object12]		// line
+	{
+		type=LINE;
+		x1=700;
+		y1=170;
+		x2=700;
+		y2=686;
+		value=0xFF7F7F7F;
+	}
+	[object134]		// line
+	{
+		type=LINE;
+		x1=110;
+		y1=200;
+		x2=840;
+		y2=200;
+		value=0xFF7F7F7F;
+	}
+//-------------- players ------------
+	[object13]		// box0
+	{
+		name=b_name0;
+		type=BOX;
+		x1=110;
+		y1=200;
+		x2=260;
+		y2=240;
+		value=0x0;
+		highlight=true;
+	}
+	[object14]		// name0
+	{
+		name=name0;
+		type=TEXT;
+		x1=110;
+		y1=200;
+		size=2;
+		value=0xFFFFFFFF;
+		highlight=true;
+	}
+	[object15]		// box1
+	{
+		name=b_name1;
+		type=BOX;
+		x1=110;
+		y1=240;
+		x2=260;
+		y2=280;
+		value=0x0;
+		highlight=true;
+	}
+	[object16]		// name1
+	{
+		name=name1;
+		type=TEXT;
+		x1=110;
+		y1=240;
+		size=2;
+		value=0xFFFFFFFF;
+		highlight=true;
+	}
+	[object17]		// box2
+	{
+		name=b_name2;
+		type=BOX;
+		x1=110;
+		y1=280;
+		x2=260;
+		y2=320;
+		value=0x0;
+		highlight=true;
+	}
+	[object18]		// name2
+	{
+		name=name2;
+		type=TEXT;
+		x1=110;
+		y1=280;
+		size=2;
+		value=0xFFFFFFFF;
+		highlight=true;
+	}
+	[object19]		// box3
+	{
+		name=b_name3;
+		type=BOX;
+		x1=110;
+		y1=320;
+		x2=260;
+		y2=360;
+		value=0x0;
+		highlight=true;
+	}
+	[object20]		// name3
+	{
+		name=name3;
+		type=TEXT;
+		x1=110;
+		y1=320;
+		size=2;
+		value=0xFFFFFFFF;
+		highlight=true;
+	}
+	[object21]		// box4
+	{
+		name=b_name4;
+		type=BOX;
+		x1=110;
+		y1=360;
+		x2=260;
+		y2=400;
+		value=0x0;
+		highlight=true;
+	}
+	[object22]		// name4
+	{
+		name=name4;
+		type=TEXT;
+		x1=110;
+		y1=360;
+		size=2;
+		value=0xFFFFFFFF;
+		highlight=true;
+	}
+	[object23]		// box5
+	{
+		name=b_name5;
+		type=BOX;
+		x1=110;
+		y1=400;
+		x2=260;
+		y2=440;
+		value=0x0;
+		highlight=true;
+	}
+	[object24]		// name5
+	{
+		name=name5;
+		type=TEXT;
+		x1=110;
+		y1=400;
+		size=2;
+		value=0xFFFFFFFF;
+		highlight=true;
+	}
+	[object25]		// box6
+	{
+		name=b_name6;
+		type=BOX;
+		x1=110;
+		y1=440;
+		x2=260;
+		y2=480;
+		value=0x0;
+		highlight=true;
+	}
+	[object26]		// name6
+	{
+		name=name6;
+		type=TEXT;
+		x1=110;
+		y1=440;
+		size=2;
+		value=0xFFFFFFFF;
+		highlight=true;
+	}
+	[object27]		// box7
+	{
+		name=b_name7;
+		type=BOX;
+		x1=110;
+		y1=480;
+		x2=260;
+		y2=520;
+		value=0x0;
+		highlight=true;
+	}
+	[object28]		// name7
+	{
+		name=name7;
+		type=TEXT;
+		x1=110;
+		y1=480;
+		size=2;
+		value=0xFFFFFFFF;
+		highlight=true;
+	}
+	[object29]		// box8
+	{
+		name=b_name8;
+		type=BOX;
+		x1=110;
+		y1=520;
+		x2=260;
+		y2=560;
+		value=0x0;
+		highlight=true;
+	}
+	[object30]		// name8
+	{
+		name=name8;
+		type=TEXT;
+		x1=110;
+		y1=520;
+		size=2;
+		value=0xFFFFFFFF;
+		highlight=true;
+	}
+	[object31]		// box9
+	{
+		name=b_name9;
+		type=BOX;
+		x1=110;
+		y1=560;
+		x2=260;
+		y2=600;
+		value=0x0;
+		highlight=true;
+	}
+	[object32]		// name9
+	{
+		name=name9;
+		type=TEXT;
+		x1=110;
+		y1=560;
+		size=2;
+		value=0xFFFFFFFF;
+		highlight=true;
+	}
+//----------- sides ---------------
+	[object33]		// box0
+	{
+		name=b_side0;
+		type=BOX;
+		x1=260;
+		y1=200;
+		x2=360;
+		y2=240;
+		value=0x0;
+		highlight=true;
+	}
+	[object34]		// side0
+	{
+		name=side0;
+		type=TEXT;
+		x1=260;
+		y1=200;
+		size=2;
+		value=0xFFFFFFFF;
+		highlight=true;
+	}
+	[object35]		// box1
+	{
+		name=b_side1;
+		type=BOX;
+		x1=260;
+		y1=240;
+		x2=360;
+		y2=280;
+		value=0x0;
+		highlight=true;
+	}
+	[object36]		// side1
+	{
+		name=side1;
+		type=TEXT;
+		x1=260;
+		y1=240;
+		size=2;
+		value=0xFFFFFFFF;
+		highlight=true;
+	}
+	[object37]		// box2
+	{
+		name=b_side2;
+		type=BOX;
+		x1=260;
+		y1=280;
+		x2=360;
+		y2=320;
+		value=0x0;
+		highlight=true;
+	}
+	[object38]		// side2
+	{
+		name=side2;
+		type=TEXT;
+		x1=260;
+		y1=280;
+		size=2;
+		value=0xFFFFFFFF;
+		highlight=true;
+	}
+	[object39]		// box3
+	{
+		name=b_side3;
+		type=BOX;
+		x1=260;
+		y1=320;
+		x2=360;
+		y2=360;
+		value=0x0;
+		highlight=true;
+	}
+	[object40]		// side3
+	{
+		name=side3;
+		type=TEXT;
+		x1=260;
+		y1=320;
+		size=2;
+		value=0xFFFFFFFF;
+		highlight=true;
+	}
+	[object41]		// box4
+	{
+		name=b_side4;
+		type=BOX;
+		x1=260;
+		y1=360;
+		x2=360;
+		y2=400;
+		value=0x0;
+		highlight=true;
+	}
+	[object42]		// side4
+	{
+		name=side4;
+		type=TEXT;
+		x1=260;
+		y1=360;
+		size=2;
+		value=0xFFFFFFFF;
+		highlight=true;
+	}
+	[object43]		// box5
+	{
+		name=b_side5;
+		type=BOX;
+		x1=260;
+		y1=400;
+		x2=360;
+		y2=440;
+		value=0x0;
+		highlight=true;
+	}
+	[object44]		// side5
+	{
+		name=side5;
+		type=TEXT;
+		x1=260;
+		y1=400;
+		size=2;
+		value=0xFFFFFFFF;
+		highlight=true;
+	}
+	[object45]		// box6
+	{
+		name=b_side6;
+		type=BOX;
+		x1=260;
+		y1=440;
+		x2=360;
+		y2=480;
+		value=0x0;
+		highlight=true;
+	}
+	[object46]		// side6
+	{
+		name=side6;
+		type=TEXT;
+		x1=260;
+		y1=440;
+		size=2;
+		value=0xFFFFFFFF;
+		highlight=true;
+	}
+	[object47]		// box7
+	{
+		name=b_side7;
+		type=BOX;
+		x1=260;
+		y1=480;
+		x2=360;
+		y2=520;
+		value=0x0;
+		highlight=true;
+	}
+	[object48]		// side7
+	{
+		name=side7;
+		type=TEXT;
+		x1=260;
+		y1=480;
+		size=2;
+		value=0xFFFFFFFF;
+		highlight=true;
+	}
+	[object49]		// box8
+	{
+		name=b_side8;
+		type=BOX;
+		x1=260;
+		y1=520;
+		x2=360;
+		y2=560;
+		value=0x0;
+		highlight=true;
+	}
+	[object50]		// side8
+	{
+		name=side8;
+		type=TEXT;
+		x1=260;
+		y1=520;
+		size=2;
+		value=0xFFFFFFFF;
+		highlight=true;
+	}
+	[object51]		// box9
+	{
+		name=b_side9;
+		type=BOX;
+		x1=260;
+		y1=560;
+		x2=360;
+		y2=600;
+		value=0x0;
+		highlight=true;
+	}
+	[object52]		// side9
+	{
+		name=side9;
+		type=TEXT;
+		x1=260;
+		y1=560;
+		size=2;
+		value=0xFFFFFFFF;
+		highlight=true;
+	}
+//------------ AI --------------
+	[object53]		// box0
+	{
+		name=b_ai0;
+		type=BOX;
+		x1=360;
+		y1=200;
+		x2=520;
+		y2=240;
+		value=0x0;
+		highlight=true;
+	}
+	[object54]		// ai0
+	{
+		name=ai0;
+		type=TEXT;
+		x1=360;
+		y1=200;
+		size=2;
+		value=0xFFFFFFFF;
+	}
+	[object55]		// box1
+	{
+		name=b_ai1;
+		type=BOX;
+		x1=360;
+		y1=240;
+		x2=520;
+		y2=280;
+		value=0x0;
+		highlight=true;
+	}
+	[object56]		// ai1
+	{
+		name=ai1;
+		type=TEXT;
+		x1=360;
+		y1=240;
+		size=2;
+		value=0xFFFFFFFF;
+	}
+	[object57]		// box2
+	{
+		name=b_ai2;
+		type=BOX;
+		x1=360;
+		y1=280;
+		x2=520;
+		y2=320;
+		value=0x0;
+		highlight=true;
+	}
+	[object58]		// ai2
+	{
+		name=ai2;
+		type=TEXT;
+		x1=360;
+		y1=280;
+		size=2;
+		value=0xFFFFFFFF;
+	}
+	[object59]		// box3
+	{
+		name=b_ai3;
+		type=BOX;
+		x1=360;
+		y1=320;
+		x2=520;
+		y2=360;
+		value=0x0;
+		highlight=true;
+	}
+	[object60]		// ai3
+	{
+		name=ai3;
+		type=TEXT;
+		x1=360;
+		y1=320;
+		size=2;
+		value=0xFFFFFFFF;
+	}
+	[object61]		// box4
+	{
+		name=b_ai4;
+		type=BOX;
+		x1=360;
+		y1=360;
+		x2=520;
+		y2=400;
+		value=0x0;
+		highlight=true;
+	}
+	[object62]		// ai4
+	{
+		name=ai4;
+		type=TEXT;
+		x1=360;
+		y1=360;
+		size=2;
+		value=0xFFFFFFFF;
+	}
+	[object63]		// box5
+	{
+		name=b_ai5;
+		type=BOX;
+		x1=360;
+		y1=400;
+		x2=520;
+		y2=440;
+		value=0x0;
+		highlight=true;
+	}
+	[object64]		// ai5
+	{
+		name=ai5;
+		type=TEXT;
+		x1=360;
+		y1=400;
+		size=2;
+		value=0xFFFFFFFF;
+	}
+	[object65]		// box6
+	{
+		name=b_ai6;
+		type=BOX;
+		x1=360;
+		y1=440;
+		x2=520;
+		y2=480;
+		value=0x0;
+		highlight=true;
+	}
+	[object66]		// ai6
+	{
+		name=ai6;
+		type=TEXT;
+		x1=360;
+		y1=440;
+		size=2;
+		value=0xFFFFFFFF;
+	}
+	[object67]		// box7
+	{
+		name=b_ai7;
+		type=BOX;
+		x1=360;
+		y1=480;
+		x2=520;
+		y2=520;
+		value=0x0;
+		highlight=true;
+	}
+	[object68]		// ai7
+	{
+		name=ai7;
+		type=TEXT;
+		x1=360;
+		y1=480;
+		size=2;
+		value=0xFFFFFFFF;
+	}
+	[object69]		// box8
+	{
+		name=b_ai8;
+		type=BOX;
+		x1=360;
+		y1=520;
+		x2=520;
+		y2=560;
+		value=0x0;
+		highlight=true;
+	}
+	[object70]		// ai8
+	{
+		name=ai8;
+		type=TEXT;
+		x1=360;
+		y1=520;
+		size=2;
+		value=0xFFFFFFFF;
+	}
+	[object71]		// box9
+	{
+		name=b_ai9;
+		type=BOX;
+		x1=360;
+		y1=560;
+		x2=520;
+		y2=600;
+		value=0x0;
+		highlight=true;
+	}
+	[object72]		// ai9
+	{
+		name=ai9;
+		type=TEXT;
+		x1=360;
+		y1=560;
+		size=2;
+		value=0xFFFFFFFF;
+	}
+//-------------- player colors ------------------
+	[object73]		// box0
+	{
+		name=b_color0;
+		type=BOX;
+		x1=520;
+		y1=200;
+		x2=560;
+		y2=240;
+		value=0x0;
+		highlight=true;
+	}
+	[object74]		// color0
+	{
+		name=color0;
+		type=BOX;
+		x1=520;
+		y1=200;
+		x2=560;
+		y2=240;
+		value=0xFF7F7F7F;
+		fill=true;
+	}
+	[object75]		// box1
+	{
+		name=b_color1;
+		type=BOX;
+		x1=520;
+		y1=240;
+		x2=560;
+		y2=280;
+		value=0x0;
+		highlight=true;
+	}
+	[object76]		// color1
+	{
+		name=color1;
+		type=BOX;
+		x1=520;
+		y1=240;
+		x2=560;
+		y2=280;
+		value=0xFF7F7F7F;
+		fill=true;
+	}
+	[object77]		// box2
+	{
+		name=b_color2;
+		type=BOX;
+		x1=520;
+		y1=280;
+		x2=560;
+		y2=320;
+		value=0x0;
+		highlight=true;
+	}
+	[object78]		// color2
+	{
+		name=color2;
+		type=BOX;
+		x1=520;
+		y1=280;
+		x2=560;
+		y2=320;
+		value=0xFF7F7F7F;
+		fill=true;
+	}
+	[object79]		// box3
+	{
+		name=b_color3;
+		type=BOX;
+		x1=520;
+		y1=320;
+		x2=560;
+		y2=360;
+		value=0x0;
+		highlight=true;
+	}
+	[object80]		// color3
+	{
+		name=color3;
+		type=BOX;
+		x1=520;
+		y1=320;
+		x2=560;
+		y2=360;
+		value=0xFF7F7F7F;
+		fill=true;
+	}
+	[object81]		// box4
+	{
+		name=b_color4;
+		type=BOX;
+		x1=520;
+		y1=320;
+		x2=560;
+		y2=360;
+		value=0x0;
+		highlight=true;
+	}
+	[object82]		// color4
+	{
+		name=color4;
+		type=BOX;
+		x1=520;
+		y1=360;
+		x2=560;
+		y2=400;
+		value=0xFF7F7F7F;
+		fill=true;
+	}
+	[object83]		// box5
+	{
+		name=b_color5;
+		type=BOX;
+		x1=520;
+		y1=400;
+		x2=560;
+		y2=440;
+		value=0x0;
+		highlight=true;
+	}
+	[object84]		// color5
+	{
+		name=color5;
+		type=BOX;
+		x1=520;
+		y1=400;
+		x2=560;
+		y2=440;
+		value=0xFF7F7F7F;
+		fill=true;
+	}
+	[object85]		// box6
+	{
+		name=b_color6;
+		type=BOX;
+		x1=520;
+		y1=440;
+		x2=560;
+		y2=480;
+		value=0x0;
+		highlight=true;
+	}
+	[object86]		// color6
+	{
+		name=color6;
+		type=BOX;
+		x1=520;
+		y1=440;
+		x2=560;
+		y2=480;
+		value=0xFF7F7F7F;
+		fill=true;
+	}
+	[object87]		// box7
+	{
+		name=b_color7;
+		type=BOX;
+		x1=520;
+		y1=480;
+		x2=560;
+		y2=520;
+		value=0x0;
+		highlight=true;
+	}
+	[object88]		// color7
+	{
+		name=color7;
+		type=BOX;
+		x1=520;
+		y1=480;
+		x2=560;
+		y2=520;
+		value=0xFF7F7F7F;
+		fill=true;
+	}
+	[object89]		// box8
+	{
+		name=b_color8;
+		type=BOX;
+		x1=520;
+		y1=520;
+		x2=560;
+		y2=560;
+		value=0x0;
+		highlight=true;
+	}
+	[object90]		// color8
+	{
+		name=color8;
+		type=BOX;
+		x1=520;
+		y1=520;
+		x2=560;
+		y2=560;
+		value=0xFF7F7F7F;
+		fill=true;
+	}
+	[object91]		// box9
+	{
+		name=b_color9;
+		type=BOX;
+		x1=520;
+		y1=560;
+		x2=560;
+		y2=600;
+		value=0x0;
+		highlight=true;
+	}
+	[object92]		// color9
+	{
+		name=color9;
+		type=BOX;
+		x1=520;
+		y1=560;
+		x2=560;
+		y2=600;
+		value=0xFF7F7F7F;
+		fill=true;
+	}
+//-------------------- Energy ----------------------
+	[object93]		// box0
+	{
+		name=b_energy0;
+		type=BOX;
+		x1=560;
+		y1=200;
+		x2=700;
+		y2=240;
+		value=0x0;
+		highlight=true;
+	}
+	[object94]		// energy0
+	{
+		name=energy0;
+		type=TEXT;
+		x1=560;
+		y1=200;
+		size=2;
+		value=0xFFFFFFFF;
+	}
+	[object95]		// box1
+	{
+		name=b_energy1;
+		type=BOX;
+		x1=560;
+		y1=240;
+		x2=700;
+		y2=280;
+		value=0x0;
+		highlight=true;
+	}
+	[object96]		// energy1
+	{
+		name=energy1;
+		type=TEXT;
+		x1=560;
+		y1=240;
+		size=2;
+		value=0xFFFFFFFF;
+	}
+	[object97]		// box2
+	{
+		name=b_energy2;
+		type=BOX;
+		x1=560;
+		y1=280;
+		x2=700;
+		y2=320;
+		value=0x0;
+		highlight=true;
+	}
+	[object98]		// energy2
+	{
+		name=energy2;
+		type=TEXT;
+		x1=560;
+		y1=280;
+		size=2;
+		value=0xFFFFFFFF;
+	}
+	[object99]		// box3
+	{
+		name=b_energy3;
+		type=BOX;
+		x1=560;
+		y1=320;
+		x2=700;
+		y2=360;
+		value=0x0;
+		highlight=true;
+	}
+	[object100]		// energy3
+	{
+		name=energy3;
+		type=TEXT;
+		x1=560;
+		y1=320;
+		size=2;
+		value=0xFFFFFFFF;
+	}
+	[object101]		// box4
+	{
+		name=b_energy4;
+		type=BOX;
+		x1=560;
+		y1=360;
+		x2=700;
+		y2=400;
+		value=0x0;
+		highlight=true;
+	}
+	[object102]		// energy4
+	{
+		name=energy4;
+		type=TEXT;
+		x1=560;
+		y1=360;
+		size=2;
+		value=0xFFFFFFFF;
+	}
+	[object103]		// box5
+	{
+		name=b_energy5;
+		type=BOX;
+		x1=560;
+		y1=400;
+		x2=700;
+		y2=440;
+		value=0x0;
+		highlight=true;
+	}
+	[object104]		// energy5
+	{
+		name=energy5;
+		type=TEXT;
+		x1=560;
+		y1=400;
+		size=2;
+		value=0xFFFFFFFF;
+	}
+	[object105]		// box6
+	{
+		name=b_energy6;
+		type=BOX;
+		x1=560;
+		y1=440;
+		x2=700;
+		y2=480;
+		value=0x0;
+		highlight=true;
+	}
+	[object106]		// energy6
+	{
+		name=energy6;
+		type=TEXT;
+		x1=560;
+		y1=440;
+		size=2;
+		value=0xFFFFFFFF;
+	}
+	[object107]		// box7
+	{
+		name=b_energy7;
+		type=BOX;
+		x1=560;
+		y1=480;
+		x2=700;
+		y2=520;
+		value=0x0;
+		highlight=true;
+	}
+	[object108]		// energy7
+	{
+		name=energy7;
+		type=TEXT;
+		x1=560;
+		y1=480;
+		size=2;
+		value=0xFFFFFFFF;
+	}
+	[object109]		// box8
+	{
+		name=b_energy8;
+		type=BOX;
+		x1=560;
+		y1=520;
+		x2=700;
+		y2=560;
+		value=0x0;
+		highlight=true;
+	}
+	[object110]		// energy8
+	{
+		name=energy8;
+		type=TEXT;
+		x1=560;
+		y1=520;
+		size=2;
+		value=0xFFFFFFFF;
+	}
+	[object111]		// box9
+	{
+		name=b_energy9;
+		type=BOX;
+		x1=560;
+		y1=560;
+		x2=700;
+		y2=600;
+		value=0x0;
+		highlight=true;
+	}
+	[object112]		// energy9
+	{
+		name=energy9;
+		type=TEXT;
+		x1=560;
+		y1=560;
+		size=2;
+		value=0xFFFFFFFF;
+	}
+//---------------------- Metal ----------------------
+	[object113]		// box0
+	{
+		name=b_metal0;
+		type=BOX;
+		x1=700;
+		y1=200;
+		x2=800;
+		y2=240;
+		value=0x0;
+		highlight=true;
+	}
+	[object114]		// metal0
+	{
+		name=metal0;
+		type=TEXT;
+		x1=700;
+		y1=200;
+		size=2;
+		value=0xFFFFFFFF;
+	}
+	[object115]		// box1
+	{
+		name=b_metal1;
+		type=BOX;
+		x1=700;
+		y1=240;
+		x2=800;
+		y2=280;
+		value=0x0;
+		highlight=true;
+	}
+	[object116]		// metal1
+	{
+		name=metal1;
+		type=TEXT;
+		x1=700;
+		y1=240;
+		size=2;
+		value=0xFFFFFFFF;
+	}
+	[object117]		// box2
+	{
+		name=b_metal2;
+		type=BOX;
+		x1=700;
+		y1=280;
+		x2=800;
+		y2=320;
+		value=0x0;
+		highlight=true;
+	}
+	[object118]		// metal2
+	{
+		name=metal2;
+		type=TEXT;
+		x1=700;
+		y1=280;
+		size=2;
+		value=0xFFFFFFFF;
+	}
+	[object119]		// box3
+	{
+		name=b_metal3;
+		type=BOX;
+		x1=700;
+		y1=320;
+		x2=800;
+		y2=360;
+		value=0x0;
+		highlight=true;
+	}
+	[object120]		// metal3
+	{
+		name=metal3;
+		type=TEXT;
+		x1=700;
+		y1=320;
+		size=2;
+		value=0xFFFFFFFF;
+	}
+	[object121]		// box4
+	{
+		name=b_metal4;
+		type=BOX;
+		x1=700;
+		y1=360;
+		x2=800;
+		y2=400;
+		value=0x0;
+		highlight=true;
+	}
+	[object122]		// metal4
+	{
+		name=metal4;
+		type=TEXT;
+		x1=700;
+		y1=360;
+		size=2;
+		value=0xFFFFFFFF;
+	}
+	[object123]		// box5
+	{
+		name=b_metal5;
+		type=BOX;
+		x1=700;
+		y1=400;
+		x2=800;
+		y2=440;
+		value=0x0;
+		highlight=true;
+	}
+	[object124]		// metal5
+	{
+		name=metal5;
+		type=TEXT;
+		x1=700;
+		y1=400;
+		size=2;
+		value=0xFFFFFFFF;
+	}
+	[object125]		// box6
+	{
+		name=b_metal6;
+		type=BOX;
+		x1=700;
+		y1=440;
+		x2=800;
+		y2=480;
+		value=0x0;
+		highlight=true;
+	}
+	[object126]		// metal6
+	{
+		name=metal6;
+		type=TEXT;
+		x1=700;
+		y1=440;
+		size=2;
+		value=0xFFFFFFFF;
+	}
+	[object127]		// box7
+	{
+		name=b_metal7;
+		type=BOX;
+		x1=700;
+		y1=480;
+		x2=800;
+		y2=520;
+		value=0x0;
+		highlight=true;
+	}
+	[object128]		// metal7
+	{
+		name=metal7;
+		type=TEXT;
+		x1=700;
+		y1=480;
+		size=2;
+		value=0xFFFFFFFF;
+	}
+	[object129]		// box8
+	{
+		name=b_metal8;
+		type=BOX;
+		x1=700;
+		y1=520;
+		x2=800;
+		y2=560;
+		value=0x0;
+		highlight=true;
+	}
+	[object130]		// metal8
+	{
+		name=metal8;
+		type=TEXT;
+		x1=700;
+		y1=520;
+		size=2;
+		value=0xFFFFFFFF;
+	}
+	[object131]		// box9
+	{
+		name=b_metal9;
+		type=BOX;
+		x1=700;
+		y1=560;
+		x2=800;
+		y2=600;
+		value=0x0;
+		highlight=true;
+	}
+	[object132]		// metal9
+	{
+		name=metal9;
+		type=TEXT;
+		x1=700;
+		y1=560;
+		size=2;
+		value=0xFFFFFFFF;
+	}
+	[object135]		// Button change script
+	{
+		name=change_script;
+		type=BUTTON;
+		caption=change script;
+		x1=872;
+		y1=584;
+		x2=1205;
+		y2=640;
+		size=2;
+		on click=scripts.show;
+		help=click to change\nthe script;
+	}
+	[object136]		// Label to display current script
+	{
+		name=script_name;
+		type=TEXTBAR;
+		x1=865;
+		y1=577;
+		x2=1212;
+		y2=647;
+		value=0xFFFFFFFF;
+		cant be clicked=true;
+		cant get focus=true;
+		size=1.75;
+	}
+	[object137]		// The fog of war label
+	{
+		name=FOW_label;
+		type=TEXT;
+		x1=860;
+		y1=526;
+		value=0xFFFFFFFF;
+		size=2;
+		caption=FOW:;
+	}
+	[object138]		// The fog of war list
+	{
+		name=FOW;
+		type=MENU;
+		x1=993;
+		y1=522;
+		x2=1138;
+		y2=556;
+		entry=off,off,grey,black,on;
+		size=1.5;
+		help=click to set\nthe fog of war;
+	}
+	[object139]		// The map info text zone
+	{
+		name=map_info;
+		type=TEXT;
+		x1=984;
+		y1=694;
+		x2=1193;
+		y2=884;
+		value=0xFFFFFFFF;
+		size=1.5;
+		caption=;
+	}
+	[object140]		// chat message list
+	{
+		name=chat_list;
+		type=LIST;
+		x1=86;
+		y1=732;
+		x2=858;
+		y2=908;
+		entry=;
+		no border=true;		// Don't draw the border since it's drawn on the background
+		size=1.8;
+	}
+	[object141]		// text input for chat
+	{
+		name=t_chat;
+		type=TEXTBAR;
+		x1=86;
+		y1=920;
+		x2=780;
+		y2=980;
+		caption=;
+		value=200;
+		size=1.8;
+	}
+	[object142]		// Progress bar for file transfer
+	{
+		name=p_transfer;
+		type=PBAR;
+		x1=400;
+		y1=40;
+		x2=850;
+		y2=110;
+		value=0;
+		size=2.0;
+		hidden=true;
+	}
+	[object143]		// ready0
+	{
+		name=ready0;
+		type=OPTIONC;
+		x1=810;
+		y1=205;
+		x2=830;
+		y2=225;
+		value=0;
+	}
+	[object144]		// ready1
+	{
+		name=ready1;
+		type=OPTIONC;
+		x1=810;
+		y1=245;
+		x2=830;
+		y2=265;
+		value=0;
+	}
+	[object145]		// ready2
+	{
+		name=ready2;
+		type=OPTIONC;
+		x1=810;
+		y1=285;
+		x2=830;
+		y2=315;
+		value=0;
+	}
+	[object146]		// ready3
+	{
+		name=ready3;
+		type=OPTIONC;
+		x1=810;
+		y1=325;
+		x2=830;
+		y2=355;
+		value=0;
+	}
+	[object147]		// ready4
+	{
+		name=ready4;
+		type=OPTIONC;
+		x1=810;
+		y1=365;
+		x2=830;
+		y2=395;
+		value=0;
+	}
+	[object148]		// ready5
+	{
+		name=ready5;
+		type=OPTIONC;
+		x1=810;
+		y1=405;
+		x2=830;
+		y2=435;
+		value=0;
+	}
+	[object149]		// ready6
+	{
+		name=ready6;
+		type=OPTIONC;
+		x1=810;
+		y1=445;
+		x2=830;
+		y2=475;
+		value=0;
+	}
+	[object150]		// ready7
+	{
+		name=ready7;
+		type=OPTIONC;
+		x1=810;
+		y1=485;
+		x2=830;
+		y2=515;
+		value=0;
+	}
+	[object151]		// ready8
+	{
+		name=ready8;
+		type=OPTIONC;
+		x1=810;
+		y1=525;
+		x2=830;
+		y2=555;
+		value=0;
+	}
+	[object152]		// ready9
+	{
+		name=ready9;
+		type=OPTIONC;
+		x1=810;
+		y1=565;
+		x2=830;
+		y2=595;
+		value=0;
+	}
+	[object153]		// advertise ?
+	{
+		name=advertise;
+		type=OPTIONB;
+		x1=465;
+		y1=111;
+		caption=Advertise on Internet;
+		help=enable if you want to be\nvisible from Internet;
+		hidden=true;
+		size=2;
+		value=0;
+	}
+}
