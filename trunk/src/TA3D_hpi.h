@@ -251,7 +251,7 @@ namespace HPI
     bool		ta3d_feof( TA3D_FILE *file );
     int			ta3d_fsize( TA3D_FILE *file );
 
-    bool                load_palette(RGB *pal, char *filename = "palettes\\palette.pal");
+    bool        load_palette(RGB *pal, const char *filename = "palettes\\palette.pal");
         
 } // namespace HPI
 
