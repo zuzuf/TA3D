@@ -80,7 +80,7 @@ namespace TA3D
         Console->AddEntry("MAP: reading TDF table");
         int *TDF_index = new int[header.tileanims];
 
-        for(i=0;i<header.tileanims;i++) // Crée le tableau pour la correspondance des éléments
+        for (i = 0; i < header.tileanims; ++i) // Crée le tableau pour la correspondance des éléments
         {
             TDF_index[i]=feature_manager.get_feature_index((char*)(data+header.PTRtileanim+4+(i*132)));
             if(TDF_index[i]==-1)
@@ -99,21 +99,23 @@ namespace TA3D
         map->mini_w=w;
         map->mini_h=h;
         map->mini=create_bitmap_ex(8,252,252);
-        for(y=0;y<252;y++)
+        for(y = 0; y < 252; ++y)
         {
-            memcpy(map->mini->line[y],data+f_pos,252);
-            f_pos+=252;
+            memcpy(map->mini->line[y], data + f_pos, 252);
+            f_pos += 252;
         }
-        BITMAP *tmp=create_bitmap(map->mini->w,map->mini->h);
-        blit(map->mini,tmp,0,0,0,0,tmp->w,tmp->h);
+        BITMAP* tmp = create_bitmap(map->mini->w,map->mini->h);
+        blit(map->mini, tmp, 0, 0, 0, 0, tmp->w, tmp->h);
         destroy_bitmap(map->mini);
-        map->mini=tmp;
-        map->mini_w=251;
-        map->mini_h=251;
-        while( map->mini_w>0 && ( ( ((int*)(map->mini->line[0]))[map->mini_w] & 0xFCFCFCFC ) == makecol(120,148,252) || ((int*)(map->mini->line[0]))[map->mini_w] == 0 ) ) map->mini_w--;
-        while( map->mini_h>0 && ( ( ((int*)(map->mini->line[map->mini_h]))[0] & 0xFCFCFCFC ) == makecol(120,148,252) || ((int*)(map->mini->line[map->mini_h]))[0] == 0 ) ) map->mini_h--;
-        map->mini_w++;
-        map->mini_h++;
+        map->mini = tmp;
+        map->mini_w = 251;
+        map->mini_h = 251;
+        while (map->mini_w>0 && ( ( ((int*)(map->mini->line[0]))[map->mini_w] & 0xFCFCFCFC ) == makecol(120,148,252) || ((int*)(map->mini->line[0]))[map->mini_w] == 0 ) )
+            --(map->mini_w);
+        while (map->mini_h>0 && ( ( ((int*)(map->mini->line[map->mini_h]))[0] & 0xFCFCFCFC ) == makecol(120,148,252) || ((int*)(map->mini->line[map->mini_h]))[0] == 0 ) )
+            --(map->mini_h);
+        ++(map->mini_w);
+        ++(map->mini_h);
         if(g_useTextureCompression)
             allegro_gl_set_texture_format(GL_COMPRESSED_RGB_ARB);
         else
@@ -132,14 +134,16 @@ namespace TA3D
         event_timer = msec_timer;
         int n_bmp=(header.tiles+0x3F>>5);			// Nombre de textures 1024x32 nécessaires pour mémoriser tout les morceaux
         BITMAP **bmp_tex = new BITMAP*[n_bmp];
-        for(i=0;i<n_bmp;i++)
+        for(i = 0; i < n_bmp; ++i)
             bmp_tex[i]=create_bitmap_ex(8,1024,32);
 
         f_pos=header.PTRtilegfx;
-        for(i=0;i<header.tiles;i++) {		// Lit tout les morceaux
+        for(i = 0; i < header.tiles; ++i) // Lit tout les morceaux
+        {
             int tex_num=i>>5;	// Numéro de la texture associée
             int tx=(i&0x1F)<<5;			// Coordonnées sur la texture
-            for(y=0;y<32;y++) {			// Lit le morceau
+            for(y = 0; y < 32; ++y)	// Lit le morceau
+            {
                 memcpy(bmp_tex[tex_num]->line[y]+tx,data+f_pos,32);
                 f_pos+=32;
             }
@@ -158,7 +162,7 @@ namespace TA3D
         map->map2blocdb_h=((float)map->bloc_h_db)/map->map_h;
         map->bmap=(unsigned short**) malloc(sizeof(unsigned short*)*map->bloc_h);
         map->bmap[0]=(unsigned short*) malloc(sizeof(unsigned short)*map->bloc_w*map->bloc_h);
-        for(i=1;i<map->bloc_h;i++)
+        for(i = 1; i < map->bloc_h; ++i)
             map->bmap[i]=&(map->bmap[0][i*map->bloc_w]);
         map->view=(byte**) malloc(sizeof(byte*)*map->bloc_h);
         map->view[0]=(byte*) malloc(sizeof(byte)*map->bloc_w*map->bloc_h);
@@ -186,10 +190,11 @@ namespace TA3D
         map->ph_map_2=(byte**) malloc(sizeof(byte*)*(map->bloc_h<<1));
         map->ph_map_2[0]=(byte*) malloc(sizeof(byte)*(map->bloc_w*map->bloc_h<<2));
         Console->AddEntry("MAP: initialising map data");
-        for(i=1;i<(map->bloc_h<<2);i++)
+        for(i = 1; i < (map->bloc_h << 2); ++i)
             map->path[i]=&(map->path[0][i*map->bloc_w<<2]);
         memset(map->path[0],0,map->bloc_w*map->bloc_h<<4);
-        for(i=1;i<(map->bloc_h<<1);i++) {
+        for(i = 1; i < (map->bloc_h << 1); ++i)
+        {
             map->h_map[i]=&(map->h_map[0][i*map->bloc_w<<1]);
             map->ph_map[i]=&(map->ph_map[0][i*map->bloc_w<<1]);
             map->ph_map_2[i]=&(map->ph_map_2[0][i*map->bloc_w<<1]);
@@ -204,13 +209,15 @@ namespace TA3D
         map->ntex=n_bmp;
         map->tex=(GLuint*) malloc(sizeof(GLuint)*n_bmp);	// Tableau d'indices de texture OpenGl
 
-        for(i=0;i<map->nbbloc;i++) {			// Crée les blocs
+        for(i=0;i<map->nbbloc;i++) // Crée les blocs
+        {
             map->bloc[i].init();
             int tex_num=i>>5;	// Numéro de la texture associée
             int tx=(i&0x1F)<<5;			// Coordonnées sur la texture
             int r=0,g=0,b=0;
-            for(y=0;y<32;y++)
-                for(x=tx;x<tx+32;x++) {
+            for (y = 0; y < 32; ++y)
+                for (x = tx; x < tx + 32; ++x)
+                {
                     int c=bmp_tex[tex_num]->line[y][x];
                     r+=pal[c].r;
                     g+=pal[c].g;
@@ -232,7 +239,8 @@ namespace TA3D
             allegro_gl_set_texture_format(GL_COMPRESSED_RGB_ARB);
         else
             allegro_gl_set_texture_format(GL_RGB8);
-        for(i=0;i<n_bmp;i++) {			// Finis de charger les textures et détruit les objets BITMAP
+        for (i = 0; i < n_bmp; ++i) // Finis de charger les textures et détruit les objets BITMAP
+        {
             allegro_gl_flip();
             tmp=create_bitmap_ex(16,bmp_tex[i]->w,bmp_tex[i]->h);
             blit(bmp_tex[i],tmp,0,0,0,0,tmp->w,tmp->h);
@@ -249,7 +257,8 @@ namespace TA3D
             map->lvl[i]=NULL;
 
         Console->AddEntry("MAP: creating blocs texture coordinates");
-        for(i=0;i<map->nbbloc;i++) {		// Crée les blocs
+        for(i = 0; i < map->nbbloc; ++i) // Crée les blocs
+        {
             int t_n=i>>5;				// Numéro de texture
             float t_x=((float)(i&0x1F))/32.0f;	// Position sur la texture
 
@@ -311,8 +320,10 @@ namespace TA3D
         BITMAP *lava_map = create_bitmap_ex(16,min(map->bloc_w,1024),min(map->bloc_h,1024));
         clear_to_color(lava_map,0x0);
         f_pos=header.PTRmapdata;
-        for(y=0;y<map->bloc_h;y++)
-            for(x=0;x<map->bloc_w;x++) {
+        for (y = 0; y < map->bloc_h; ++y)
+        {
+            for (x = 0; x < map->bloc_w; ++x)
+            {
                 map->bmap[y][x] = *((short*)(data+f_pos));
 
                 if( map->bmap[y][x] >= map->nbbloc )		// To add some security
@@ -329,7 +340,8 @@ namespace TA3D
                     circlefill(lava_map,x*lava_map->w/map->bloc_w,y*lava_map->h/map->bloc_h,3,0xFFFFFFFF);
                 f_pos+=2;
             }
-        for(i=0;i<n_bmp;i++)				// Delete allegro bitmap textures
+        }
+        for (i = 0; i < n_bmp; ++i)				// Delete allegro bitmap textures
             destroy_bitmap(bmp_tex[i]);
         map->low_tex = gfx->make_texture(low_def);		// Build the low details texture map
         destroy_bitmap(low_def);
@@ -341,17 +353,22 @@ namespace TA3D
         // Charge d'autres données sur les blocs
         map->water=false;
         f_pos=header.PTRmapattr;
-        for(y=0;y<(map->bloc_h<<1);y++)
-            for(x=0;x<(map->bloc_w<<1);x++) {
+        for (y = 0; y< (map->bloc_h << 1); ++y)
+        {
+            for (x = 0; x < (map->bloc_w << 1);  ++x)
+            {
                 int c=*((byte*)(data+f_pos));
                 if(c<header.sealevel) map->water=true;
                 map->h_map[y][x]=map->ph_map[y][x]=c*H_DIV;
                 f_pos+=4;
             }
+        }
 
         Console->AddEntry("MAP: computing height data (step 2)");
         for(y=0;y<(map->bloc_h<<1);y++)				// Calcule les informations complémentaires sur la carte
-            for(x=0;x<(map->bloc_w<<1);x++) {
+        {
+            for (x = 0; x < (map->bloc_w << 1); ++x)
+            {
                 map->map_data[y][x].init();
                 map->map_data[y][x].underwater=(map->h_map[y][x]<map->sealvl);
                 map->map_data[y][x].lava = map->bmap[ y >> 1 ][ x >> 1 ] < map->nbbloc ? map->bloc[ map->bmap[ y >> 1 ][ x >> 1 ] ].lava : false;
@@ -374,13 +391,16 @@ namespace TA3D
                 if( !map->map_data[y][x].lava && (y>>1) - 1 >= 0 && map->bmap[ (y >> 1) - 1 ][ x >> 1 ] < map->nbbloc )
                     map->map_data[y][x].lava = map->bloc[ map->bmap[ (y >> 1) - 1 ][ x >> 1 ] ].lava;
             }
+        }
 
         printf("environnement créé en %f sec.\n",(msec_timer-event_timer) * 0.001f );
         event_timer = msec_timer;
 
         Console->AddEntry("MAP: computing height data (step 3)");
-        for(y=0;y<(map->bloc_h<<1);y++)
-            for(x=0;x<(map->bloc_w<<1);x++) {			// Projete la carte du relief
+        for (y = 0; y < (map->bloc_h << 1); ++y)
+        {
+            for(x = 0; x < (map->bloc_w << 1); ++x)	// Projete la carte du relief
+            {
                 int rec_y;
                 float h=map->ph_map[y][x];
                 rec_y=(int)(0.5f+y-tnt_transform*h/16.0f);
@@ -390,58 +410,77 @@ namespace TA3D
                 if(rec_y>=0)
                     map->ph_map[rec_y][x]=h;
             }
+        }
+
         Console->AddEntry("MAP: computing height data (step 4)");
         map->sea_dec=map->sealvl*tnt_transform*H_DIV;			// Calcule le décalage nécessaire pour restituer les océans
-        for(y=0;y<(map->bloc_h<<1);y++)
-            for(x=0;x<(map->bloc_w<<1);x++) {			// Lisse la carte du relief projeté
-                if(map->ph_map[y][x]==-1.0f && y==0) {
-                    int cy=0;
-                    while(map->ph_map[cy][x]==-1.0f) cy++;
+        for (y = 0; y < (map->bloc_h << 1); ++y)
+        {
+            for(x = 0; x < (map->bloc_w << 1); ++x) // Lisse la carte du relief projeté
+            {
+                if(map->ph_map[y][x] == -1.0f && y == 0)
+                {
+                    int cy = 0;
+                    while (map->ph_map[cy][x]==-1.0f)
+                        ++cy;
                     float h=map->ph_map[cy][x];
                     cy=0;
-                    while(map->ph_map[cy][x]==-1.0f) {
+                    while (map->ph_map[cy][x] == -1.0f)
+                    {
                         map->ph_map[cy][x]=h;
                         cy++;
                     }
                 }
-                else if(map->ph_map[y][x]==-1.0f) {
-                    float h1=map->ph_map[y-1][x];
-                    int cy=y;
-                    while(cy<(map->bloc_h<<1) && map->ph_map[cy][x]==-1.0f) cy++;
-                    if(cy>=(map->bloc_h<<1)) cy=(map->bloc_h<<1)-1;
-                    float h2=map->ph_map[cy][x];
-                    if(h2==-1.0f) h2=h1;
-                    for(int ry=y;ry<cy;ry++)
-                        map->ph_map[ry][x]=h1+(h2-h1)*(ry-y+1)/(cy-y+1);
+                else
+                {
+                    if(map->ph_map[y][x]==-1.0f)
+                    {
+                        float h1=map->ph_map[y-1][x];
+                        int cy=y;
+                        while (cy < (map->bloc_h << 1) && map->ph_map[cy][x] == -1.0f)
+                            ++cy;
+                        if(cy>=(map->bloc_h<<1)) cy=(map->bloc_h<<1)-1;
+                        float h2=map->ph_map[cy][x];
+                        if (h2 == -1.0f)
+                            h2=h1;
+                        for (int ry = y; ry < cy; ++ry)
+                            map->ph_map[ry][x] = h1+(h2-h1) * (ry-y+1) / (cy-y+1);
+                    }
                 }
             }
+        }
         Console->AddEntry("MAP: computing height data (step 5)");
         for(y=0;y<(map->bloc_h<<1);y++)
             for(x=0;x<(map->bloc_w<<1);x++)				// Compute the second map
                 map->ph_map_2[y][x]=(byte)(map->ph_map[y][x]*0.125f*tnt_transform_H_DIV+0.5f);
 
         Console->AddEntry("MAP: computing height data (step 6)");
-        for(y=0;y<(map->bloc_h<<1);y++)				// Compute slopes on the map using height map and projected datas
-            for(x=0;x<(map->bloc_w<<1);x++) {
+        for (y = 0;y < (map->bloc_h << 1); ++y)	 // Compute slopes on the map using height map and projected datas
+        {
+            for (x = 0; x < (map->bloc_w << 1); ++x)
+            {
                 float dh=0.0f;
-                if(y>0) {
+                if (y > 0)
+                {
                     float dz = fabs( map->get_zdec( x, y ) - map->get_zdec( x, y - 1 ) + 8.0f );
                     if( dz == 0.0f )	dz = 100000000.0f;
                     else				dz = 8.0f / dz;
                     dh = max(dh,(float)fabs(map->h_map[y][x]-map->h_map[y-1][x]) * dz);
                 }
-                if(y+1<(map->bloc_h<<1)) {
+                if (y + 1 < (map->bloc_h << 1))
+                {
                     float dz = fabs( map->get_zdec( x, y + 1 ) - map->get_zdec( x, y ) + 8.0f );
                     if( dz == 0.0f )	dz = 100000000.0f;
                     else				dz = 8.0f / dz;
                     dh = max(dh,(float)fabs(map->h_map[y][x]-map->h_map[y+1][x]) * dz);
                 }
-                if(x>0)
+                if (x > 0)
                     dh = max(dh,(float)fabs(map->h_map[y][x]-map->h_map[y][x-1]));
-                if(x+1<(map->bloc_w<<1))
+                if(x + 1 < (map->bloc_w << 1))
                     dh = max(dh,(float)fabs(map->h_map[y][x]-map->h_map[y][x+1]));
                 map->map_data[y][x].dh=dh;
             }
+        }
 
         printf("relief calculé en %f sec.\n",(msec_timer-event_timer) * 0.001f );
         event_timer = msec_timer;
@@ -449,11 +488,14 @@ namespace TA3D
         Console->AddEntry("MAP: reading map features data");
         // Ajoute divers éléments(végétation,...)
         f_pos=header.PTRmapattr+1;
-        for(y=0;y<(map->bloc_h<<1);y++)
-            for(x=0;x<(map->bloc_w<<1);x++) {
-                unsigned short type=*((unsigned short*)(data+f_pos));
-                map->map_data[y][x].stuff=-1;
-                if(type<=header.tileanims) {
+        for (y = 0; y < (map->bloc_h << 1); ++y)
+        {
+            for (x = 0; x < (map->bloc_w << 1); ++x)
+            {
+                unsigned short type = *((unsigned short*)(data + f_pos));
+                map->map_data[y][x].stuff = -1;
+                if(type <= header.tileanims)
+                {
                     VECTOR Pos;
                     Pos.x = (x<<3) - map->map_w_d + 8.0f;
                     Pos.z = (y<<3) - map->map_h_d + 8.0f;
@@ -466,6 +508,7 @@ namespace TA3D
                 }
                 f_pos+=4;
             }
+        }
         printf("décor ajouté en %f sec.\n",(msec_timer-event_timer) * 0.001f );
 
         /*--------------- code for low definition map (mega zoom) -------------------*/
@@ -481,48 +524,62 @@ namespace TA3D
         map->low_col=(uint8*) malloc(low_nb_vtx*4);
         map->low_tcoord=(float*) malloc(sizeof(float)*low_nb_vtx*2);
         map->low_index=(GLuint*) malloc(sizeof(GLuint)*map->low_nb_idx);
-        i=0;
-        for(y=0;y<=map->low_h;y++)				// Build the mesh
-            for(x=0;x<=map->low_w;x++) {
-                map->low_vtx[i].x=(x-0.5f*map->low_w)/map->low_w*map->map_w;
-                map->low_vtx[i].z=(y-0.5f*map->low_h)/map->low_h*map->map_h;
-                int X=x*((map->bloc_w<<1)-1)/map->low_w;
-                int Y=y*((map->bloc_h<<1)-1)/map->low_h;
-                map->low_vtx[i].y=map->get_nh(X,Y);
-                map->low_vtx[i].z+=map->get_zdec(X,Y);
-                tmp_vtx[i]=map->low_vtx_flat[i]=map->low_vtx[i];
-                map->low_vtx_flat[i].y=0.0f;
-                map->low_tcoord[i<<1]=((float)x)/map->low_w;
-                map->low_tcoord[(i<<1)+1]=((float)y)/map->low_h;
-                map->low_col[(i<<2)+3]=255;
-                i++;
+        i = 0;
+        for (y = 0; y <= map->low_h; ++y) // Build the mesh
+        {
+            for (x = 0; x <= map->low_w; ++x)
+            {
+                map->low_vtx[i].x = (x - 0.5f * map->low_w) / map->low_w * map->map_w;
+                map->low_vtx[i].z = (y - 0.5f * map->low_h) / map->low_h * map->map_h;
+                int X = x * ((map->bloc_w << 1) - 1) / map->low_w;
+                int Y = y * ((map->bloc_h << 1) - 1) / map->low_h;
+                map->low_vtx[i].y =  map->get_nh(X,Y);
+                map->low_vtx[i].z += map->get_zdec(X,Y);
+                tmp_vtx[i] = map->low_vtx_flat[i] = map->low_vtx[i];
+                map->low_vtx_flat[i].y = 0.0f;
+                map->low_tcoord[i<<1] = ((float)x) / map->low_w;
+                map->low_tcoord[(i<<1)+1] = ((float)y) / map->low_h;
+                map->low_col[(i<<2)+3] = 255;
+                ++i;
             }
-        if( map->water )
-            for( y = 1 ; y < map->low_h ; y++ )				// Make sure we'll see what is above water
-                for( x = 1 ; x < map->low_w ; x++ ) {
+        }
+        if (map->water)
+        {
+            for (y = 1 ; y < map->low_h ; ++y)	// Make sure we'll see what is above water
+            {
+                for( x = 1 ; x < map->low_w ; ++x)
+                {
                     i = x + y * (map->low_w + 1);
-                    if( tmp_vtx[ i ].y < map->sealvl
-                        && ( tmp_vtx[ i - 1 ].y > map->sealvl ||
-                             tmp_vtx[ i + 1 ].y > map->sealvl ||
-                             tmp_vtx[ i - map->low_w - 1 ].y > map->sealvl ||
-                             tmp_vtx[ i + map->low_w + 1 ].y > map->sealvl ) )
+                    if (tmp_vtx[ i ].y < map->sealvl
+                        && ( tmp_vtx[i - 1].y > map->sealvl ||
+                             tmp_vtx[i + 1].y > map->sealvl ||
+                             tmp_vtx[i - map->low_w - 1].y > map->sealvl ||
+                             tmp_vtx[i + map->low_w + 1].y > map->sealvl ) )
                         map->low_vtx[i].y = map->sealvl;
                 }
+            }
+        }
         free( tmp_vtx );
         Console->AddEntry("MAP: creating low definition geometry (step 2)");
         i=0;
-        for(y=0;y<map->low_h;y++)				// Build the mesh
-            for(x=0;x<map->low_w;x++) {
-                if((y&1)==0) {
-                    if(x==0) {
+        for (y = 0; y < map->low_h; ++y)	// Build the mesh
+        {
+            for(x = 0; x < map->low_w; ++x)
+            {
+                if ((y&1) == 0)
+                {
+                    if (x == 0)
+                    {
                         map->low_index[i++]=y*(map->low_w+1)+x;
                         map->low_index[i++]=(y+1)*(map->low_w+1)+x;
                     }
                     map->low_index[i++]=y*(map->low_w+1)+x+1;
                     map->low_index[i++]=(y+1)*(map->low_w+1)+x+1;
                 }
-                else {
-                    if(x==0) {
+                else
+                {
+                    if (x == 0)
+                    {
                         map->low_index[i++]=y*(map->low_w+1)+map->low_w-x;
                         map->low_index[i++]=(y+1)*(map->low_w+1)+map->low_w-x;
                     }
@@ -530,6 +587,7 @@ namespace TA3D
                     map->low_index[i++]=(y+1)*(map->low_w+1)+map->low_w-x-1;
                 }
             }
+        }
 
         /*---------------------------------------------------------------------------*/
 
@@ -545,9 +603,8 @@ namespace TA3D
     {
 	    // Copy the mini-map into an 8-bit BITMAP
 	    BITMAP *mini8bit=create_bitmap_ex(8,TNTMINIMAP_WIDTH,TNTMINIMAP_HEIGHT);
-	    for(int y=0;y<TNTMINIMAP_HEIGHT;y++) {
+	    for(int y = 0; y < TNTMINIMAP_HEIGHT; ++y) 
 		    memcpy(mini8bit->line[y],minimap->map[y],TNTMINIMAP_WIDTH);
-		    }
 	
 	    // Apply the palette -- increase the color depth
 	    BITMAP *mini=create_bitmap(mini8bit->w,mini8bit->h);
