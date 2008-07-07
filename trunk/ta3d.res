@@ -610,3 +610,20 @@
 {
 	FRENCH=Quitter la partie;
 }
+[UNITTYPE_NAME]
+{
+    ENGLISH=name;
+    FRENCH=frenchname;
+    GERMAN=germanname;
+    SPANISH=spanishname;
+    ITALIAN=italianname;
+    JAPANESE=japanesename;
+}
+[UNITTYPE_DESCRIPTION]
+{
+    ENGLISH=description;
+    FRENCH=frenchdescription;
+    SPANISH=spanishdescription;
+    ITALIAN=italiandescription;
+    JAPANESE=japanesedescription;
+}
