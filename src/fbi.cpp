@@ -243,27 +243,8 @@ int UNIT_TYPE::load(char *data,int size)
     char *limit=data+size;
     while(*pos!='{') pos++;
     pos=strstr(pos,"\n")+1;
-    const char *lang_name="name=";
-    const char *lang_desc="description=";
-    switch(LANG)
-    {
-        case TA3D_LANG_FRENCH:
-            lang_name="frenchname=";
-            lang_desc="frenchdescription=";
-            break;
-        case TA3D_LANG_GERMAN:
-            lang_name="germanname=";
-            lang_desc="germandescription=";
-            break;
-        case TA3D_LANG_SPANISH:
-            lang_name="spanishname=";
-            lang_desc="spanishdescription=";
-            break;
-        case TA3D_LANG_ITALIAN:
-            lang_name="italianname=";
-            lang_desc="italiandescription=";
-            break;
-    };
+    String lang_name = I18N::Translate("UNITTYPE_NAME", "name");
+    String lang_desc = I18N::Translate("UNITTYPE_DESCRIPTION", "description");
     do
     {
         nb++;
@@ -297,15 +278,15 @@ int UNIT_TYPE::load(char *data,int size)
             if(strstr(Designation_Name,";"))
                 *(strstr(Designation_Name,";"))=0;
         }
-        else if((f=strstr(ligne,lang_desc))!=NULL && (f==ligne || (f>ligne && *(f-1)<'a'))) {
+        else if((f=strstr(ligne,lang_desc.c_str()))!=NULL && (f==ligne || (f>ligne && *(f-1)<'a'))) {
             if(Description)	free(Description);
-            Description = strdup( f + strlen(lang_desc) );
+            Description = strdup( f + lang_desc.length() );
             if(strstr(Description,";"))
                 *(strstr(Description,";"))=0;
         }
-        else if((f=strstr(ligne,lang_name))!=NULL && (f==ligne || (f>ligne && *(f-1)<'a'))) {
+        else if((f=strstr(ligne,lang_name.c_str()))!=NULL && (f==ligne || (f>ligne && *(f-1)<'a'))) {
             if(name)	free(name);
-            name = strdup( f + strlen(lang_name) );
+            name = strdup( f + lang_name.length() );
             if(strstr(name,";"))
                 *(strstr(name,";"))=0;
         }
