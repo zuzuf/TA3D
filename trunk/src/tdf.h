@@ -202,24 +202,31 @@ namespace TA3D
 
         void clean()
         {
-            if(feature==NULL) return;
-            for(int i=0;i<nb_features;i++)
-                if( !feature[i].need_convert )
-                    feature[i].anim.clean();
+            if(feature)
+            {
+                for(int i = 0; i < nb_features; ++i)
+                {
+                    if (!feature[i].need_convert)
+                        feature[i].anim.clean();
+                }
+            }
         }
 
-        int add_feature(char *name)			// Ajoute un élément
+        int add_feature(const String& name)			// Ajoute un élément
         {
             nb_features++;
             FEATURE *n_feature=(FEATURE*) malloc(sizeof(FEATURE)*nb_features);
-            if(feature && nb_features>1)
-                for(int i=0;i<nb_features-1;i++)
+            if (feature && nb_features > 1)
+            {
+                for(int i = 0;i < nb_features-1; ++i)
                     n_feature[i]=feature[i];
-            if(feature)	free(feature);
-            feature=n_feature;
+            }
+            if (feature)
+                free(feature);
+            feature = n_feature;
             feature[nb_features-1].init();
-            feature[nb_features-1].name=strdup(name);
-            feature_hashtable.Insert( Lowercase( name ), nb_features );
+            feature[nb_features-1].name = strdup(name.c_str());
+            feature_hashtable.Insert(Lowercase(name), nb_features);
             return nb_features-1;
         }
 
