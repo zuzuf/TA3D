@@ -68,14 +68,14 @@ namespace TA3D
         header.pad3=((int*)data)[14];
         header.pad4=((int*)data)[15];
 
-#ifdef TNT_DEBUG_MODE
-        printf("IDversion=%d\n",header.IDversion);
-        printf("Width=%d\n",header.Width);
-        printf("Height=%d\n",header.Height);
-        printf("tiles=%d\n",header.tiles);
-        printf("tileanims=%d\n",header.tileanims);
-        printf("sealevel=%d\n",header.sealevel);
-#endif
+        # ifdef TNT_DEBUG_MODE
+        LOG_DEBUG("[tnt - load map] IDversion = " << header.IDversion);
+        LOG_DEBUG("[tnt - load map] Width = " << header.Width);
+        LOG_DEBUG("[tnt - load map] Height = ",header.Height);
+        LOG_DEBUG("[tnt - load map] tiles = ",header.tiles);
+        LOG_DEBUG("[tnt - load map] tileanims = " << header.tileanims);
+        LOG_DEBUG("[tnt - load map] sealevel = " << header.sealevel);
+        # endif
 
         Console->AddEntry("MAP: reading TDF table");
         int *TDF_index = new int[header.tileanims];
@@ -83,8 +83,8 @@ namespace TA3D
         for (i = 0; i < header.tileanims; ++i) // Crée le tableau pour la correspondance des éléments
         {
             TDF_index[i]=feature_manager.get_feature_index((char*)(data+header.PTRtileanim+4+(i*132)));
-            if(TDF_index[i]==-1)
-                printf("tdf non trouvé: %s\n",(char*)(data+header.PTRtileanim+4+(i*132)));
+            if(TDF_index[i] == -1)
+                LOG_ERROR("tdf not found: " << (char*)(data + header.PTRtileanim + 4 + (i * 132)));
         }
 
         map->sealvl=header.sealevel*H_DIV;
@@ -127,7 +127,7 @@ namespace TA3D
             glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
             allegro_gl_use_mipmapping(TRUE);
 
-        printf("minimap lue en %f sec.\n",(msec_timer-event_timer) * 0.001f);
+        LOG_INFO("minimap read in " << (msec_timer - event_timer) * 0.001f << "s.");
 
         // Lit les différents morceaux
         Console->AddEntry("MAP: reading blocs data");
@@ -230,7 +230,7 @@ namespace TA3D
             map->bloc[i].tex_x = tx>>5;
         }
 
-        printf("morceaux lus en %f sec.\n",(msec_timer-event_timer) * 0.001f );
+        LOG_INFO("Blocs readin " << (msec_timer-event_timer) * 0.001f << "s.");
         event_timer=msec_timer;
 
         Console->AddEntry("MAP: creating textures");
@@ -248,7 +248,7 @@ namespace TA3D
             destroy_bitmap(bmp_tex[i]);
             bmp_tex[i]=tmp;
         }
-        printf("textures des morceaux comprimées en %f sec.\n",(msec_timer-event_timer) * 0.001f );
+        LOG_INFO("Textures for blocks in " << (msec_timer - event_timer) * 0.001f << "s.");
 
         event_timer = msec_timer;
 
@@ -393,7 +393,7 @@ namespace TA3D
             }
         }
 
-        printf("environnement créé en %f sec.\n",(msec_timer-event_timer) * 0.001f );
+        LOG_INFO("Env created in " << (msec_timer-event_timer) * 0.001f << "s.");
         event_timer = msec_timer;
 
         Console->AddEntry("MAP: computing height data (step 3)");
@@ -482,7 +482,7 @@ namespace TA3D
             }
         }
 
-        printf("relief calculé en %f sec.\n",(msec_timer-event_timer) * 0.001f );
+        LOG_INFO("relief : " << (msec_timer - event_timer) * 0.001f << "s.");
         event_timer = msec_timer;
 
         Console->AddEntry("MAP: reading map features data");
@@ -509,7 +509,7 @@ namespace TA3D
                 f_pos+=4;
             }
         }
-        printf("décor ajouté en %f sec.\n",(msec_timer-event_timer) * 0.001f );
+        LOG_INFO("Decors : " << (msec_timer - event_timer) * 0.001f << "s.");
 
         /*--------------- code for low definition map (mega zoom) -------------------*/
 
