@@ -1095,7 +1095,9 @@ public:
     uint32	col;
     float	angle;
 
-    INSTANCE( const VECTOR &p, const uint32 &c, const float &ang ) {	pos=p;	col=c;	angle=ang;	}
+    INSTANCE(const VECTOR &p, const uint32 &c, const float &ang)
+        :pos(p), col(c), angle(ang)
+    {}
 };
 
 class RENDER_QUEUE
@@ -1104,9 +1106,9 @@ public:
     std::list<INSTANCE>	queue;
     uint32				model_id;
 
-    RENDER_QUEUE( uint32 m_id ) : queue()	{ model_id = m_id; }
+    RENDER_QUEUE(const uint32 m_id) :queue(), model_id(m_id) {}
 
-    ~RENDER_QUEUE()	{	queue.clear();	}
+    ~RENDER_QUEUE()	{}
 
     void draw_queue();
 };
@@ -1136,7 +1138,10 @@ public:
     float	size_x, size_z;
     uint32	col;
 
-    QUAD( const VECTOR &P, const float &S_x, const float &S_z, const uint32 &c )	{	pos = P;	size_x = S_x;	size_z = S_z;	col = c;	}
+    QUAD(const VECTOR &P, const float S_x, const float S_z, const uint32 c)
+        :pos(P), size_x(S_x), size_z(S_z), col(c)
+    {}
+
 };
 
 class QUAD_QUEUE
@@ -1145,9 +1150,9 @@ public:
     std::list< QUAD >	queue;
     GLuint			texture_id;
 
-    QUAD_QUEUE( GLuint t_id ) : queue()	{ texture_id = t_id; }
+    QUAD_QUEUE( GLuint t_id ) : queue(), texture_id(t_id) {}
 
-    ~QUAD_QUEUE()	{	queue.clear();	}
+    ~QUAD_QUEUE() {}
 
     void draw_queue( VECTOR *P, uint32 *C, GLfloat	*T );
 };
