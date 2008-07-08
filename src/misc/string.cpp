@@ -164,6 +164,7 @@ namespace TA3D
         String::size_type pos = s.find_first_not_of(TA3D_WSTR_SEPARATORS);
         if (pos == String::npos)
         {
+            // The string is empty
             key.clear();
             value.clear();
             return;
@@ -172,9 +173,14 @@ namespace TA3D
         String::size_type equal = s.find_first_of('=', pos);
         if (equal == String::npos)
         {
+            value.clear();
+            if (s[pos] == '[')
+            {
+                key = s.substr(pos, s.find_first_of(']', pos));
+                return;
+            }
             String::size_type end = s.find_last_not_of(TA3D_WSTR_SEPARATORS);
             key = s.substr(pos, end - pos + 1);
-            value.clear();
             return;
         }
         key = s.substr(pos, equal - 1);
