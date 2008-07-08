@@ -14,7 +14,9 @@ http://www.cmake.org
 --------
 
 Install MinGW, available on their web site :
-http://www.mingw.org/download.shtml
+http://www.mingw.org/wiki/Getting+Started
+or directly on SourceForge :
+http://sourceforge.net/project/showfiles.php?group_id=2435
 You can use the Automated MinGW Installer
 Needed options: MinGW base tools, G++ compiler, MinGW make
 
