@@ -1,6 +1,7 @@
 #ifndef __TA3D_GFX_PARTICLES_ENGINE_H__
 # define __TA3D_GFX_PARTICLES_ENGINE_H__
 
+# include "../../stdafx.h"
 # include "../../threads/cThread.h"
 # include "../../threads/thread.h"
 # include "../../misc/vector.h"
@@ -49,7 +50,7 @@ namespace TA3D
         ** \param file
         ** \param filealpha
         */
-        int addtex(const char *file,const char *filealpha);
+        int addtex(const String& file,const String& filealpha = "");
 
 
         /*!
