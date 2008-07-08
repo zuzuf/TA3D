@@ -960,7 +960,7 @@ void UNIT::draw(float t, Camera *cam,MAP *map,bool height_line)
 
 
 
-void UNIT::draw_shadow(Camera *cam,VECTOR Dir,MAP *map)
+void UNIT::draw_shadow(Camera *cam, const VECTOR& Dir,MAP *map)
 {
 #ifdef	ADVANCED_DEBUG_MODE
     GuardEnter( UNIT::draw_shadow );
@@ -1041,7 +1041,7 @@ void UNIT::draw_shadow(Camera *cam,VECTOR Dir,MAP *map)
 }
 
 
-void UNIT::draw_shadow_basic(Camera *cam,VECTOR Dir,MAP *map)
+void UNIT::draw_shadow_basic(Camera *cam, const VECTOR& Dir,MAP *map)
 {
 #ifdef	ADVANCED_DEBUG_MODE
     GuardEnter( UNIT::draw_shadow_basic );
@@ -6313,7 +6313,7 @@ void INGAME_UNITS::draw(Camera *cam,MAP *map,bool underwater,bool limit,bool cul
 
 
 
-void INGAME_UNITS::draw_shadow(Camera* cam, VECTOR Dir, MAP* map, float alpha)	// Dessine les ombres des unités visibles
+void INGAME_UNITS::draw_shadow(Camera* cam, const VECTOR& Dir, MAP* map, float alpha)	// Dessine les ombres des unités visibles
 {
     if(nb_unit<=0 || unit==NULL) // Pas d'unités à dessiner
         return;
@@ -6374,7 +6374,7 @@ void INGAME_UNITS::draw_shadow(Camera* cam, VECTOR Dir, MAP* map, float alpha)	/
     }
 
     gfx->lock();
-    features.draw_shadow(cam,Dir);
+    features.draw_shadow(*cam, Dir);
 
     glColorMask(0xFF,0xFF,0xFF,0xFF);
     glEnable(GL_STENCIL_TEST);
