@@ -159,5 +159,36 @@ namespace TA3D
     }
 
 
+    void String::ToKeyValue(const String& s, String& key, String& value)
+    {
+        String::size_type pos = s.find_first_not_of(TA3D_WSTR_SEPARATORS);
+        if (pos == String::npos)
+        {
+            key.clear();
+            value.clear();
+            return;
+        }
+        // =
+        String::size_type equal = s.find_first_of('=', pos);
+        if (equal == String::npos)
+        {
+            String::size_type end = s.find_last_not_of(TA3D_WSTR_SEPARATORS);
+            key = s.substr(pos, end - pos + 1);
+            value.clear();
+            return;
+        }
+        key = s.substr(pos, equal - 1);
+        // ;
+        String::size_type semicolon = s.find_last_not_of(';');
+        if (semicolon == String::npos)
+        {
+            value.clear();
+            return;
+        }
+        // Remove spaces
+        semicolon = s.find_last_not_of(TA3D_WSTR_SEPARATORS, semicolon - 1);
+        equal = s.find_first_not_of(TA3D_WSTR_SEPARATORS, equal);
+        value = s.substr(equal + 1, semicolon - equal + 1);
+    }
 
 }
