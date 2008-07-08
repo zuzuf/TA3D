@@ -1063,11 +1063,12 @@ public:
             model[ i ].obj.optimise_mesh();
     }
 
-    void create_from_2d(BITMAP *bmp,float w,float h,float max_h,char *filename)
+    void create_from_2d(BITMAP *bmp,float w,float h,float max_h,const String& filename)
     {
         MODEL *n_model=(MODEL*) malloc(sizeof(MODEL)*(nb_models+1));
         char **n_name=(char**) malloc(sizeof(char*)*(nb_models+1));
-        if(model) {
+        if(model)
+        {
             memcpy(n_model,model,sizeof(MODEL)*nb_models);
             free(model);
             memcpy(n_name,name,sizeof(char*)*nb_models);
@@ -1076,12 +1077,12 @@ public:
         model=n_model;
         name=n_name;
         model[nb_models].init();
-        name[nb_models]=strdup(filename);
+        name[nb_models] = strdup(filename.c_str());
 
-        model_hashtable.Insert( Lowercase( filename ), nb_models + 1 );
+        model_hashtable.Insert(Lowercase(filename), nb_models + 1);
 
         model[nb_models].create_from_2d(bmp,w,h,max_h);
-        nb_models++;
+        ++nb_models;
     }
 };
 
