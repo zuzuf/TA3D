@@ -148,13 +148,14 @@ void PutTex(GLuint Tex,float x1,float y1,float x2,float y2)
 	glEnd();
 }
 
-GLuint LoadTex(const char *file)
+/*
+GLuint LoadTex(const String& file)
 {
 	set_color_depth(32);
 	allegro_gl_use_alpha_channel(true);
-	BITMAP *bmp=load_bitmap(file,NULL);
+	BITMAP *bmp=load_bitmap(file.c_str(), NULL);
 	GLuint gl_bmp;
-	if(g_useTextureCompression)
+	if (g_useTextureCompression)
 		allegro_gl_set_texture_format(GL_COMPRESSED_RGBA_ARB);
 	else
 		allegro_gl_set_texture_format(GL_RGBA8);
@@ -167,18 +168,21 @@ GLuint LoadTex(const char *file)
 	destroy_bitmap(bmp);
 	return gl_bmp;
 }
+*/
 
-GLuint LoadMaskedTex(const char *file,const char *filealpha)
+GLuint LoadMaskedTex(const String& file,const String& filealpha)
 {
 	set_color_depth(32);
-	BITMAP *bmp=load_bitmap(file,NULL);
+	BITMAP *bmp = load_bitmap(file.c_str(), NULL);
 	BITMAP *alpha;
 	set_color_depth(8);
-	alpha=load_bitmap(filealpha,NULL);
+	alpha=load_bitmap(filealpha.c_str(), NULL);
 	set_color_depth(32);
-	for(int y=0;y<bmp->h;y++)
-		for(int x=0;x<bmp->w;x++)
-			bmp->line[y][(x<<2)+3]=alpha->line[y][x];
+	for (int y = 0; y < bmp->h; ++y)
+    {
+		for (int x = 0; x < bmp->w; ++x)
+			bmp->line[y][(x << 2) + 3] = alpha->line[y][x];
+    }
 	GLuint gl_bmp;
 	allegro_gl_use_alpha_channel(true);
 	if(g_useTextureCompression)
@@ -195,16 +199,18 @@ GLuint LoadMaskedTex(const char *file,const char *filealpha)
 	return gl_bmp;
 }
 
-BITMAP *LoadMaskedTexBmp(const char *file,const char *filealpha)
+BITMAP* LoadMaskedTexBmp(const String& file, const String& filealpha)
 {
 	set_color_depth(32);
-	BITMAP *bmp=load_bitmap(file,NULL);
+	BITMAP* bmp = load_bitmap(file.c_str(), NULL);
 	set_color_depth(8);
-	BITMAP *alpha=load_bitmap(filealpha,NULL);
+	BITMAP* alpha = load_bitmap(filealpha.c_str(), NULL);
 	set_color_depth(32);
-	for(int y=0;y<bmp->h;y++)
-		for(int x=0;x<bmp->w;x++)
-			bmp->line[y][(x<<2)+3]=alpha->line[y][x];
+	for (int y = 0; y < bmp->h; ++y)
+    {
+		for (int x = 0; x < bmp->w; ++x)
+			bmp->line[y][(x << 2) + 3] = alpha->line[y][x];
+    }
 	destroy_bitmap(alpha);
 	return bmp;
 }
