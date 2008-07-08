@@ -6,4 +6,4 @@ SET(SOURCES particles.h particle.h
             particlesengine.h particlesengine.cpp)
 
 ADD_LIBRARY(particles STATIC ${SOURCES})
-ADD_DEPENDENCIES(particles stdafx logs 3dtoolbox misc threads taconfig)
+ADD_DEPENDENCIES(particles stdafx logs 3dtoolbox misc threads)

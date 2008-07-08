@@ -29,7 +29,6 @@
 #include "gaf.h"
 #include "3do.h"			// Gestion des modèles 3D
 #include "3ds.h"			// The 3DS model loader
-#include "taconfig.h"		// Configuration
 #include "3dmeditor.h"
 #include "misc/paths.h"
 #include "languages/i18n.h"

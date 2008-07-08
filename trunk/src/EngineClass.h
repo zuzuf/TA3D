@@ -27,7 +27,6 @@
 
 
 # include "tdf.h"				// Pour le gestionnaire de sprites
-# include "taconfig.h"
 # include "threads/thread.h"
 # include "gfx/particles/particles.h"
 # include "ai/ai.h"

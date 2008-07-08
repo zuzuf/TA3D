@@ -29,7 +29,6 @@
 #include "ta3dbase.h"
 #include "3do.h"
 #include "gfx/particles/particles.h"
-#include "taconfig.h"
 #include "ingame/sidedata.h"
 #include "languages/i18n.h"
 

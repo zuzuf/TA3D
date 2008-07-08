@@ -58,15 +58,6 @@ ADD_LIBRARY(gui STATIC ${SOURCES})
 ADD_DEPENDENCIES(gui stdafx gfx threads misc)
 
 # --------------------------------------------------------------------
-# --- Config
-# --------------------------------------------------------------------
-SET(LIBRARY_OUTPUT_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../bin/libs/${CMAKE_SYSTEM_NAME}")
-SET(ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../bin/libs/${CMAKE_SYSTEM_NAME}")
-SET(SOURCES taconfig.cpp taconfig.h ta3dbase.h)
-ADD_LIBRARY(taconfig STATIC ${SOURCES})
-ADD_DEPENDENCIES(taconfig stdafx misc)
-
-# --------------------------------------------------------------------
 # --- File formats
 # --------------------------------------------------------------------
 SET(LIBRARY_OUTPUT_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../bin/libs/${CMAKE_SYSTEM_NAME}")
@@ -75,7 +66,7 @@ SET(SOURCES gaf.cpp gaf.h
             3do.cpp 3do.h
             3ds.cpp 3ds.h)
 ADD_LIBRARY(fileformats STATIC ${SOURCES})
-ADD_DEPENDENCIES(fileformats stdafx particles i18n taconfig ingame)
+ADD_DEPENDENCIES(fileformats stdafx particles i18n ingame)
 
 # --------------------------------------------------------------------
 # --- Audio
@@ -114,8 +105,8 @@ endif( WIN32 OR CMAKE_CROSSCOMPILING )
 
 ADD_EXECUTABLE(${3DMEDITOR_BIN} 3dmeditor.cpp ta3d.h 3dmeditor_sub.cpp 3dmeditor.h cTAFileParser.cpp cTAFileParser.h stdafx.h TA3D_NameSpace.cpp TA3D_NameSpace.h)
 
-ADD_DEPENDENCIES(${3DMEDITOR_BIN} stdafx logs console debuginfos threads 3dtoolbox misc i18n tajpeg gfx fileformats particles audio hpi taconfig gui ingame)
-target_link_libraries(${3DMEDITOR_BIN} stdafx logs console debuginfos threads 3dtoolbox misc i18n tajpeg gfx fileformats particles audio hpi taconfig gui ingame)
+ADD_DEPENDENCIES(${3DMEDITOR_BIN} stdafx logs console debuginfos threads 3dtoolbox misc i18n tajpeg gfx fileformats particles audio hpi gui ingame)
+target_link_libraries(${3DMEDITOR_BIN} stdafx logs console debuginfos threads 3dtoolbox misc i18n tajpeg gfx fileformats particles audio hpi gui ingame)
 IF(APPLE)
     SET(GUI_TYPE MACOSX_BUNDLE)
     SET(MACOSX_BUNDLE_BUNDLE_NAME "TA3D Editor")
@@ -201,8 +192,8 @@ ADD_EXECUTABLE(${TA3D_BIN} ${SOURCES})
 #
 #ENDIF(NOT APPLE)
 
-ADD_DEPENDENCIES(${TA3D_BIN} stdafx logs console debuginfos threads i18n 3dtoolbox misc ingame menus tajpeg gfx fileformats particles weapons ai audio hpi gui taconfig network scripts)
-target_link_libraries(${TA3D_BIN} stdafx logs console debuginfos threads i18n 3dtoolbox misc ingame menus tajpeg gfx fileformats particles weapons ai audio hpi gui taconfig network scripts)
+ADD_DEPENDENCIES(${TA3D_BIN} stdafx logs console debuginfos threads i18n 3dtoolbox misc ingame menus tajpeg gfx fileformats particles weapons ai audio hpi gui network scripts)
+target_link_libraries(${TA3D_BIN} stdafx logs console debuginfos threads i18n 3dtoolbox misc ingame menus tajpeg gfx fileformats particles weapons ai audio hpi gui network scripts)
 
 
 

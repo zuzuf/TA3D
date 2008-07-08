@@ -32,7 +32,6 @@
 #include "tnt.h"					// Inclus le chargeur de cartes
 #include "menu.h"
 #include "gui.h"
-#include "taconfig.h"
 #include "restore.h"
 #include "misc/settings.h"
 #include "misc/paths.h"
