@@ -1,6 +1,7 @@
 
 #include "files.h"
 #include "../logs/logs.h"
+#include <fstream>
 
 
 namespace TA3D

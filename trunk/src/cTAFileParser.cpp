@@ -19,6 +19,8 @@
 #include "TA3D_NameSpace.h"
 #include "cTAFileParser.h"
 #include "cError.h"
+#include <fstream>
+
 
 namespace TA3D
 {

@@ -34,6 +34,7 @@
 #include "../misc/camera.h"
 #include "../languages/i18n.h"
 #include <vector>
+#include <fstream>
 
 
 
