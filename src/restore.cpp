@@ -589,14 +589,13 @@ void load_game( GameData *game_data )
     LOAD( features.max_features );
 
     features.feature = (FEATURE_DATA*) malloc(sizeof(FEATURE_DATA)*features.max_features);
-    for(int i = features.nb_features-1 ; i < features.max_features ; i++)
+    for (int i = features.nb_features-1 ; i < features.max_features ; ++i)
     {
         features.feature[i].type = -1;
         features.feature[i].shadow_dlist = 0;
         features.feature[i].delete_shadow_dlist = false;
     }
-    features.list = (int*)	malloc(sizeof(int)*features.max_features);
-    features.list_size = 0;
+    features.resetListOfItemsToDisplay();
 
     for( int i = 0 ; i < features.max_features ; i++ )
     {
