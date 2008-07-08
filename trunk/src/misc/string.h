@@ -165,13 +165,15 @@ namespace TA3D
         //! Default constructor
         String() :std::string() {}
         //! Constructor by copy
-        String(const String& v) :std::string(v) {}
+        String(const String& v, size_type pos = 0, size_type n = npos) :std::string(v, pos, n) {}
         //! Constructor with a default value from a std::string
         String(const std::string& v) :std::string(v) {}
         //! Constructor with a default value from a wide string (wchar_t*)
         String(const wchar_t* v) :std::string() {*this << v;}
         //! Constructor with a default value from a string (char*)
         String(const char* v) :std::string(v) {}
+        //! Constructor with a default value from a string (char*) and a length
+        String(const char* v, String::size_type n) :std::string(v, n) {}
         //! Constructor with a default value from a single char
         String(const char v) :std::string() {*this += v;}
         //! Constructor with a default value from an int (8 bits)
@@ -236,32 +238,30 @@ namespace TA3D
         //@}
 
 
-        //! \name Cast operators
+        //! \name Convertions
         //@{
         //! Convert this string into an int (8 bits)
-        operator int8_t () {TA3D_WSTR_CAST_OP(int8_t);} 
+        int8_t toInt8() const {TA3D_WSTR_CAST_OP(int8_t);} 
         //! Convert this string into an int (16 bits)
-        operator int16_t () {TA3D_WSTR_CAST_OP(int16_t);} 
+        int16_t toInt16() const {TA3D_WSTR_CAST_OP(int16_t);} 
         //! Convert this string into an int (32 bits)
-        operator int32_t () {TA3D_WSTR_CAST_OP(int32_t);} 
+        int32_t toInt32() const {TA3D_WSTR_CAST_OP(int32_t);} 
         //! Convert this string into an int (64 bits)
-        operator int64_t () {TA3D_WSTR_CAST_OP(int64_t);} 
+        int64_t toInt64() const {TA3D_WSTR_CAST_OP(int64_t);} 
         //! Convert this string into an unsigned int (8 bits)
-        operator uint8_t () {TA3D_WSTR_CAST_OP(uint8_t);} 
+        uint8_t toUInt8() const {TA3D_WSTR_CAST_OP(uint8_t);} 
         //! Convert this string into an unsigned int (16 bits)
-        operator uint16_t () {TA3D_WSTR_CAST_OP(uint16_t);} 
+        uint16_t toUInt16() const {TA3D_WSTR_CAST_OP(uint16_t);} 
         //! Convert this string into an unsigned int (32 bits)
-        operator uint32_t () {TA3D_WSTR_CAST_OP(uint32_t);} 
+        uint32_t toUInt32() const {TA3D_WSTR_CAST_OP(uint32_t);} 
         //! Convert this string into an unsigned int (64 bits)
-        operator uint64_t () {TA3D_WSTR_CAST_OP(uint64_t);} 
+        uint64_t toUInt64() const {TA3D_WSTR_CAST_OP(uint64_t);} 
         //! Convert this string into a float
-        operator float () {TA3D_WSTR_CAST_OP(float);} 
+        float toFloat() const {TA3D_WSTR_CAST_OP(float);} 
         //! Convert this string into a double
-        operator double () {TA3D_WSTR_CAST_OP(double);} 
+        double toDouble() const {TA3D_WSTR_CAST_OP(double);} 
         //! Convert this string into a bool (true if the lower case value is equals to "true", "1" or "on")
-        operator bool (); 
-        //@}
-
+        bool toBool() const; 
 
         //! \name The operator `+=` (with the same abilities than the operator `<<`)
         //@{
@@ -339,12 +339,12 @@ namespace TA3D
         //@{
         /*!
         ** \brief Convert the case (lower case) of characters in the string using the UTF8 charset
-        ** \return Returns this
+        ** \return Returns *this
         */
         String& toLower();
         /*!
         ** \brief Convert the case (upper case) of characters in the string using the UTF8 charset
-        ** \return Returns this
+        ** \return Returns *this
         */
         String& toUpper();
         //@} Case convertion
@@ -353,7 +353,7 @@ namespace TA3D
         /*!
         ** \brief Remove trailing and leading spaces
         ** \param trimChars The chars to remove
-        ** \return Returns this
+        ** \return Returns *this
         */
         String& trim(const String& trimChars = TA3D_WSTR_SEPARATORS);
 
@@ -400,11 +400,11 @@ namespace TA3D
         ** \return True if the operation succeeded, False otherwise
         */
         template <class T>
-            bool fromString(T& t, const String& s, std::ios_base& (*f)(std::ios_base&))
-            {
-                std::istringstream iss(s);
-                return !(iss >> f >> t).fail();
-            }
+        bool fromString(T& t, const String& s, std::ios_base& (*f)(std::ios_base&)) const
+        {
+            std::istringstream iss(s);
+            return !(iss >> f >> t).fail();
+        }
 
     }; // class String
 

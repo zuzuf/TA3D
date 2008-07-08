@@ -63,9 +63,10 @@ namespace TA3D
         return *this;
     }
 
-    String::operator bool ()
+
+    bool String::toBool() const
     {
-        if (empty())
+        if (empty() || "0" == *this)
             return false;
         if ("1" == *this)
             return true;
