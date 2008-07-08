@@ -1747,7 +1747,7 @@ int play(GameData *game_data)
                 if(lp_CONFIG->wireframe)
                     glPolygonMode (GL_FRONT_AND_BACK, GL_FILL);
 
-                features.draw(&refcam);		// Dessine les éléments "2D" / "sprites"
+                features.draw(refcam);		// Dessine les éléments "2D" / "sprites"
 
                 units.draw(&refcam,map,false,true,false,lp_CONFIG->height_line);			// Dessine les unités / draw units
 
@@ -1851,7 +1851,7 @@ int play(GameData *game_data)
         if(lp_CONFIG->wireframe)
             glPolygonMode (GL_FRONT_AND_BACK, GL_FILL);
 
-        features.draw(&cam);		// Dessine les éléments "2D"
+        features.draw(cam);		// Dessine les éléments "2D"
 
         /*----------------------------------------------------------------------------------------------*/
 
