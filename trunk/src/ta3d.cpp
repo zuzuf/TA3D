@@ -364,8 +364,8 @@ int play(GameData *game_data)
 
     int	exit_mode=EXIT_NONE;
 
-    fire=particle_engine.addtex("gfx/fire.tga",NULL);
-    build_part=particle_engine.addtex("gfx/part.tga",NULL);
+    fire=particle_engine.addtex("gfx/fire.tga");
+    build_part=particle_engine.addtex("gfx/part.tga");
 
     fx_manager.loadData();
 

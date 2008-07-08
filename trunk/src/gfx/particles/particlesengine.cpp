@@ -1,5 +1,4 @@
 
-#include "../../stdafx.h"
 #include "particlesengine.h"
 #include "../../misc/matrix.h"
 #include "../../TA3D_NameSpace.h"
@@ -34,18 +33,18 @@ namespace TA3D
 
 
 
-    int PARTICLE_ENGINE::addtex(const char *file,const char *filealpha)
+    int PARTICLE_ENGINE::addtex(const String& file,const String& filealpha)
     {
         pMutex.lock();
 
         dsmoke=true;
-        if (partbmp==NULL)
-            partbmp=create_bitmap_ex(32,256,256);
-        BITMAP *bmp;
-        if (filealpha)
-            bmp=LoadMaskedTexBmp(file,filealpha);		// Avec canal alpha séparé
+        if (partbmp == NULL)
+            partbmp = create_bitmap_ex(32,256,256);
+        BITMAP* bmp;
+        if (!filealpha.empty())
+            bmp = LoadMaskedTexBmp(file, filealpha);		// Avec canal alpha séparé
         else
-            bmp=load_bitmap(file,NULL);					// Avec canal alpha intégré ou Sans canal alpha
+            bmp = load_bitmap(file.c_str(), NULL);					// Avec canal alpha intégré ou Sans canal alpha
 
         gltex.push_back(gfx->make_texture(bmp));
 
