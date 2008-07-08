@@ -1938,7 +1938,7 @@ hit_fast_is_exploding:
             model=n_model;
             name=n_name;
             int i = 0, n = 0;
-            for (std::list<String>::iterator e=file_list.begin();e!=file_list.end(); ++e)
+            for (std::list<String>::const_iterator e = file_list.begin(); e != file_list.end(); ++e)
             {
                 Console->AddEntry( "loading %s", e->c_str() );
                 if(progress!=NULL && !(i & 0xF))
@@ -1991,7 +1991,7 @@ hit_fast_is_exploding:
             model = n_model;
             name = n_name;
             int i = 0, n = 0;
-            for (std::list<String>::iterator e=file_list.begin();e!=file_list.end();e++)
+            for (std::list<String>::const_iterator e = file_list.begin();e != file_list.end(); ++e)
             {
                 Console->AddEntry( "loading %s", e->c_str() );
                 if( progress != NULL && !(i & 0xF) )
