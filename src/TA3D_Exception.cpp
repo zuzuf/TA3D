@@ -27,6 +27,7 @@
 #ifdef TA3D_PLATFORM_LINUX
 # include <errno.h>
 #endif
+#include <fstream>
 
 
 

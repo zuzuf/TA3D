@@ -18,6 +18,7 @@
 #include "stdafx.h"
 #include "TA3D_NameSpace.h"
 #include "cError.h"
+#include <fstream>
 
 #ifdef TA3D_PLATFORM_LINUX
 	#include <errno.h>

@@ -19,6 +19,7 @@
 #include "TA3D_NameSpace.h"		//"TA3D_Audio.h" is in our namespace.
 #include "ta3dbase.h"			// just to use the global camera object
 #include "ingame/sidedata.h"
+#include <fstream>
 
 using namespace TA3D::Interfaces;
 
