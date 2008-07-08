@@ -135,6 +135,29 @@ namespace TA3D
         static String Trim(const String& s, const String& trimChars = TA3D_WSTR_SEPARATORS) {return String(s).trim(trimChars);}
 
 
+        /*!
+        ** \brief Extract the key and its value from a string (mainly provided by TDF files)
+        **
+        ** \param s A line (ex: `   category=core vtol ctrl_v level1 weapon  notsub ;`)
+        ** \param[out] key The key that has been found
+        ** \param[out] value The associated value
+        **
+        ** \code
+        **    String k, v;
+        **
+        **    // -> k='category'
+        **    // -> v='core vtol ctrl_v level1 weapon  notsub'
+        **    String::ToKeyValue("  category=core vtol ctrl_v level1 weapon  notsub ;", k, v)
+        **
+        **    // -> k='foo'
+        **    // -> v='bar'
+        **    String::ToKeyValue("  foo  = bar ; ");
+        **
+        **    // -> k='}'  v=''
+        **    String::ToKeyValue("  } ", k, v);
+        ** \endcode
+        */
+        static void ToKeyValue(const String& s, String& key, String& value);
 
     public:
         //! \name Constructors and Destructor
@@ -357,6 +380,15 @@ namespace TA3D
 
         //@} Split
 
+        /*!
+        ** \brief Extract the key and its value from a string (mainly provided by TDF files)
+        **
+        ** \param[out] key The key that has been found
+        ** \param[out] value The associated value
+        **
+        ** \see String::ToKeyValue()
+        */
+        void toKeyValue(String& key, String& value) const { ToKeyValue(*this, key, value); }
 
     private:
 
