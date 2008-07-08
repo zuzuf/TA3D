@@ -1921,6 +1921,8 @@ hit_fast_is_exploding:
 
     int MODEL_MANAGER::load_all(void (*progress)(float percent,const String &msg))
     {
+        const String loading3DModelsText = I18N::Translate("Loading 3D Models");
+
         std::list<String> file_list;
         sint32 new_nb_models = HPIManager->getFilelist( ta3dSideData.model_dir + "*.3dm", file_list);
 
@@ -1940,17 +1942,17 @@ hit_fast_is_exploding:
             int i = 0, n = 0;
             for (std::list<String>::const_iterator e = file_list.begin(); e != file_list.end(); ++e)
             {
-                Console->AddEntry( "loading %s", e->c_str() );
-                if(progress!=NULL && !(i & 0xF))
-                    progress((100.0f+n*50.0f/(new_nb_models+1))/7.0f,I18N::Translate("Loading 3D Models"));
-                n++;
+                LOG_DEBUG("[3dm] Loading `" << *e << "`");
+                if (progress!=NULL && n % 25 == 0)
+                    progress((100.0f + n * 50.0f / (new_nb_models + 1)) / 7.0f, loading3DModelsText);
+                ++n;
                 model[i+nb_models].init();
                 name[i+nb_models] = strdup(e->c_str());
 
-                if(get_model( String( name[i+nb_models] ).substr( 0, e->size() - 4 ).c_str() )==NULL) 	// Vérifie si le modèle n'est pas déjà chargé
+                if (get_model(String( name[i+nb_models] ).substr(0, e->size() - 4).c_str())==NULL) 	// Vérifie si le modèle n'est pas déjà chargé
                 {
                     byte *data = HPIManager->PullFromHPI(*e);
-                    if( data )
+                    if (data)
                     {
                         if( data[0] == 0 )
                         {
@@ -1960,14 +1962,12 @@ hit_fast_is_exploding:
                             delete[] data;
                             data = HPIManager->PullFromHPI( real_name );
                         }
-                        if( data )
+                        if (data)
                         {
                             model[i+nb_models].load_3dm(data);
                             delete[] data;
-
                             model_hashtable.Insert( Lowercase( *e ), nb_models + i + 1 );
-
-                            i++;
+                            ++i;
                         }
                     }
                 }
@@ -1982,7 +1982,8 @@ hit_fast_is_exploding:
         {
             MODEL *n_model = (MODEL*) malloc(sizeof(MODEL)*(nb_models+new_nb_models));
             char **n_name = (char**) malloc(sizeof(char*)*(nb_models+new_nb_models));
-            if(model) {
+            if (model)
+            {
                 memcpy(n_model,model,sizeof(MODEL)*nb_models);
                 free(model);
                 memcpy(n_name,name,sizeof(char*)*nb_models);
@@ -1993,30 +1994,28 @@ hit_fast_is_exploding:
             int i = 0, n = 0;
             for (std::list<String>::const_iterator e = file_list.begin();e != file_list.end(); ++e)
             {
-                Console->AddEntry( "loading %s", e->c_str() );
-                if( progress != NULL && !(i & 0xF) )
-                    progress((100.0f+(50.0f+n*50.0f/(new_nb_models+1)))/7.0f,I18N::Translate("Loading 3D Models"));
-                n++;
+                LOG_DEBUG("[3do] Loading `" << *e << "`");
+                if (progress != NULL && n % 25 == 0)
+                    progress((100.0f + (50.0f + n * 50.0f / (new_nb_models + 1))) / 7.0f, loading3DModelsText);
+                ++n;
                 model[i+nb_models].init();
                 name[i+nb_models] = strdup(e->c_str());
 
-                if(get_model( String( name[i+nb_models] ).substr( 0, e->size() - 4 ).c_str() )==NULL) // Vérifie si le modèle n'est pas déjà chargé
+                if (get_model( String( name[i+nb_models] ).substr( 0, e->size() - 4 ).c_str() )==NULL) // Vérifie si le modèle n'est pas déjà chargé
                 {
-                    uint32	data_size = 0;
+                    uint32 data_size = 0;
                     byte *data = HPIManager->PullFromHPI(*e, &data_size);
-                    if( data )
+                    if (data)
                     {
                         if( data_size > 0 )						// If the file isn't empty
                             model[i+nb_models].load_3do(data,e->c_str());
                         delete[] data;
-
                         model_hashtable.Insert( Lowercase( *e ), nb_models + i + 1 );
-
-                        i++;
+                        ++i;
                     }
                 }
             }
-            nb_models+=i;
+            nb_models += i;
         }
 
         return 0;
