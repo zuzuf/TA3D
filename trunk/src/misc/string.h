@@ -134,6 +134,17 @@ namespace TA3D
         */
         static String Trim(const String& s, const String& trimChars = TA3D_WSTR_SEPARATORS) {return String(s).trim(trimChars);}
 
+        /*!
+        ** \brief Convert all antislashes into slashes
+        ** \param[in,out] s The string to convert
+        */
+        static void ConvertAntiSlashesIntoSlashes(String& s);
+
+        /*!
+        ** \brief Convert all slashes into antislashes
+        ** \param[in,out] s The string to convert
+        */ 
+        static void ConvertSlashesIntoAntiSlashes(String& s);
 
         /*!
         ** \brief Extract the key and its value from a string (mainly provided by TDF files)
@@ -389,6 +400,17 @@ namespace TA3D
         ** \see String::ToKeyValue()
         */
         void toKeyValue(String& key, String& value) const { ToKeyValue(*this, key, value); }
+
+        /*!
+        ** \brief Convert all antislashes into slashes
+        */
+        void convertAntiSlashesIntoSlashes() { ConvertAntiSlashesIntoSlashes(*this); }
+
+        /*!
+        ** \brief Convert all slashes into antislashes
+        */
+        void convertSlashesIntoAntiSlashes() { ConvertSlashesIntoAntiSlashes(*this); }
+
 
     private:
 
