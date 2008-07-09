@@ -40,7 +40,7 @@ namespace TA3D_DEBUG
     class cConsole : public ObjectSync
     {
     private:
-        std::list<String>	m_LastEntries;
+        String::List m_LastEntries;
         bool				m_Recording;
         FILE				*m_log;
         String				m_RecordFilename;

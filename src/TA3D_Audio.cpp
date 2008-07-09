@@ -47,11 +47,11 @@ void cAudio::SetPlayListFileMode( int idx, bool Battle, bool Deactivated )
 	m_Playlist[ idx ]->m_Deactivated = Deactivated;
 }
 
-bool cAudio::GetPlayListFiles(std::vector<String>& out)
+bool cAudio::GetPlayListFiles(String::Vector& out)
 {
 	out.resize(m_Playlist.size());
     int indx(0);
-    for (std::vector<String>::iterator i = out.begin(); i != out.end(); ++i, ++indx)
+    for (String::Vector::iterator i = out.begin(); i != out.end(); ++i, ++indx)
     {
 		if (m_Playlist[indx]->m_BattleTune)
 			*i = "[B] " + m_Playlist[indx]->m_Filename;

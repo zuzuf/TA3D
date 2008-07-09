@@ -145,10 +145,10 @@ namespace Paths
     ** false othewise
     **
     ** \code
-    ** std::vector<String> list;
+    ** String::Vector list;
     ** if (Paths::Glob(list, Paths::Savegames + "*.sav"))
     ** {
-    **      for (std::vector<String>::const_iterator i = list.begin(); i != list.end(); ++i)
+    **      for (String::Vector::const_iterator i = list.begin(); i != list.end(); ++i)
     **          std::cout << "Savegame found: `" << *i << std::endl; 
     ** }
     ** else
@@ -157,8 +157,8 @@ namespace Paths
     ** }
     ** \endcode
     */
-    bool Glob(std::vector<String>& out, const String& pattern, const bool emptyListBefore = true);
-    bool Glob(std::list<String>& out, const String& pattern, const bool emptyListBefore = true);
+    bool Glob(String::Vector& out, const String& pattern, const bool emptyListBefore = true);
+    bool Glob(String::List& out, const String& pattern, const bool emptyListBefore = true);
 
     //@} // Globbing
 

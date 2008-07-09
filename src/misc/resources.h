@@ -49,10 +49,10 @@ namespace Resources
     ** \return True if the operation succeeded and the list is not empty,
     ** false othewise
     **
-    ** std::vector<String> list;
+    ** String::Vector list;
     ** if (Paths::ResourcesGlob(list, "objects/rocks*.3dm"))
     ** {
-    **      for (std::vector<String>::const_iterator i = list.begin(); i != list.end(); ++i)
+    **      for (String::Vector::const_iterator i = list.begin(); i != list.end(); ++i)
     **          std::cout << "3D object found: `" << *i << std::endl; 
     ** }
     ** else
@@ -61,8 +61,8 @@ namespace Resources
     ** }
     ** \endcode
     */
-    bool Glob(std::vector<String>& out, const String& pattern, const bool emptyListBefore = true);
-    bool Glob(std::list<String>& out, const String& pattern, const bool emptyListBefore = true);
+    bool Glob(String::Vector& out, const String& pattern, const bool emptyListBefore = true);
+    bool Glob(String::List& out, const String& pattern, const bool emptyListBefore = true);
 
 
 

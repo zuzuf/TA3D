@@ -1072,9 +1072,9 @@ namespace TA3D
         float			rotation_speed;		// For spherical sky
         float			rotation_offset;	// If you want the sun to match light dir ...
         String			texture_name;		// Name of the texture used as sky
-        std::vector<String>	planet;				// Vector of planets that can use this sky
+        String::Vector	planet;				// Vector of planets that can use this sky
         float			FogColor[4];		// Color of the fog to use with this sky
-        std::vector<String>	MapName;			// Name of maps linked with this sky
+        String::Vector	MapName;			// Name of maps linked with this sky
         bool			full_sphere;		// The texture is for the whole sphere
         bool			def;
 

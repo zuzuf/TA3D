@@ -46,9 +46,9 @@ namespace TA3D
         int	 nb_players;
 
         //! Name of players
-        std::vector<String> player_names;
+        String::Vector player_names;
         //! Side of players
-        std::vector<String> player_sides;
+        String::Vector player_sides;
 
         //! Who control them
         std::vector<byte> player_control;

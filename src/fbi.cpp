@@ -361,9 +361,9 @@ int UNIT_TYPE::load(char *data,int size)
             if( Category )		delete Category;
             if( categories )	delete categories;
             Category = new cHashTable< int >(128);
-            categories = new std::vector<String>;
+            categories = new String::Vector;
             ReadVectorString(*categories, f + 9, " " );
-            for(std::vector<String>::const_iterator i = categories->begin(); i != categories->end(); ++i)
+            for(String::Vector::const_iterator i = categories->begin(); i != categories->end(); ++i)
                 Category->InsertOrUpdate(Lowercase(*i), 1);
             fastCategory = 0;
             if( checkCategory( "kamikaze" ) )	fastCategory |= CATEGORY_KAMIKAZE;
@@ -721,8 +721,9 @@ void UNIT_MANAGER::destroy()
 
     l_dl_data.clear();
 
-    if(nb_unit>0 && unit_type!=NULL) {
-        for(int i=0;i<nb_unit;i++)
+    if (nb_unit > 0 && unit_type != NULL)
+    {
+        for (int i = 0; i < nb_unit; ++i)
             unit_type[i].destroy();
         free(unit_type);
     }
@@ -753,11 +754,12 @@ void UNIT_MANAGER::load_panel_texture( const String &player_side, const String &
         allegro_gl_set_texture_format( GL_RGB8 );
     int w,h;
     GLuint panel_tex = read_gaf_img( "anims\\" + player_side + "main.gaf", gaf_img, &w, &h, true );
-    if( panel_tex == 0 ) {
-        std::list< String >	file_list;
+    if (panel_tex == 0)
+    {
+        String::List file_list;
         HPIManager->getFilelist( "anims\\*.gaf", file_list);
-        for( std::list< String >::iterator i = file_list.begin() ; i != file_list.end() && panel_tex == 0 ; i++ )
-            panel_tex = read_gaf_img( *i, gaf_img, &w, &h, true );
+        for (String::List::const_iterator i = file_list.begin(); i != file_list.end() && panel_tex == 0 ; ++i)
+            panel_tex = read_gaf_img(*i, gaf_img, &w, &h, true);
     }
     panel.set( panel_tex );
     panel.width = w;	panel.height = h;
@@ -904,31 +906,36 @@ int load_all_units(void (*progress)(float percent,const String &msg))
 {
     unit_manager.init();
     int nb_inconnu=0;
-    std::list<String> file_list;
+    String::List file_list;
     HPIManager->getFilelist( ta3dSideData.unit_dir + "*" + ta3dSideData.unit_ext, file_list);
 
     int n = 0;
 
-    for(std::list<String>::iterator i=file_list.begin();i!=file_list.end();i++) {
-
-        if(progress!=NULL && !(n & 0xF))
-            progress((300.0f+n*50.0f/(file_list.size()+1))/7.0f,I18N::Translate("Loading units"));
-        n++;
+    for (String::List::iterator i = file_list.begin(); i != file_list.end(); ++i)
+    {
+        if (progress != NULL && !(n & 0xF))
+            progress((300.0f+n*50.0f/(file_list.size()+1))/7.0f, I18N::Translate("Loading units"));
+        ++n;
 
         char *nom=strdup(strstr(i->c_str(),"\\")+1);			// Vérifie si l'unité n'est pas déjà chargée
         *(strstr(nom,"."))=0;
         strupr(nom);
 
-        if(unit_manager.get_unit_index(nom)==-1) {
+        if (unit_manager.get_unit_index(nom) == -1)
+        {
             uint32 file_size=0;
             byte *data=HPIManager->PullFromHPI(*i,&file_size);
             nb_inconnu+=unit_manager.load_unit(data,file_size);
-            if(unit_manager.unit_type[unit_manager.nb_unit-1].Unitname) {
-                String nom_pcx = String("unitpics\\")+String(unit_manager.unit_type[unit_manager.nb_unit-1].Unitname)+String(".pcx");
-                byte *dat=HPIManager->PullFromHPI(nom_pcx);
-                if(dat) {
+            if (unit_manager.unit_type[unit_manager.nb_unit-1].Unitname)
+            {
+                String nom_pcx;
+                nom_pcx << "unitpics\\" << unit_manager.unit_type[unit_manager.nb_unit-1].Unitname << ".pcx";
+                byte *dat = HPIManager->PullFromHPI(nom_pcx);
+                if (dat)
+                {
                     unit_manager.unit_type[unit_manager.nb_unit-1].unitpic=load_memory_pcx(dat,pal);
-                    if(unit_manager.unit_type[unit_manager.nb_unit-1].unitpic) {
+                    if (unit_manager.unit_type[unit_manager.nb_unit-1].unitpic)
+                    {
                         allegro_gl_use_alpha_channel(false);
                         if(g_useTextureCompression)
                             allegro_gl_set_texture_format(GL_COMPRESSED_RGB_ARB);
@@ -942,7 +949,7 @@ int load_all_units(void (*progress)(float percent,const String &msg))
                     delete[] dat;
                 }
                 else
-                    unit_manager.unit_type[unit_manager.nb_unit-1].unitpic=NULL;
+                    unit_manager.unit_type[unit_manager.nb_unit - 1].unitpic = NULL;
             }
             delete[] data;
             Console->AddEntry("loading %s", nom);

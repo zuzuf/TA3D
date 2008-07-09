@@ -285,7 +285,7 @@ namespace TA3D
     ** \param emptyBefore rue to clear the vector before fulfill it
     ** \warning Do not take care of string representation (with `'` or `"`)
     */
-	void ReadVectorString(std::vector<String>& lst, String s, const String& seps = ",",
+	void ReadVectorString(String::Vector& lst, String s, const String& seps = ",",
                           const bool emptyBefore = true);
 
 

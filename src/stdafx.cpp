@@ -189,12 +189,13 @@ hash_string(const String& s)
 
 
 int
-find(const std::vector<String>& v, const String& s)
+find(const String::Vector& v, const String& s)
 {
-    for (std::vector<String>::size_type i = 0 ; i < v.size() ; ++i)
+    int indx(0);
+    for (String::Vector::const_iterator i = v.begin(); i != v.end(); ++i, ++indx)
     {
-	    if(s == v[i])
-		    return i;
+	    if(s == *i)
+		    return indx;
     }
 	return -1;
 }

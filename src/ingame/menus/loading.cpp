@@ -204,7 +204,7 @@ namespace Menus
 
         // Draw all previous messages
         int indx(0);
-        for (MessagesList::const_iterator i = pMessages.begin() ; i != pMessages.end() ; ++i, ++indx)
+        for (String::List::const_iterator i = pMessages.begin() ; i != pMessages.end() ; ++i, ++indx)
         {
             gfx->print(gfx->TA_font, 105.0f, 175.0f + pCurrentFontHeight * indx, 0.0f, 0xFFFFFFFF, *i);
         }

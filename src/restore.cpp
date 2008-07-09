@@ -66,13 +66,13 @@ void save_game( const String filename, GameData *game_data )
     SAVE( game_data->nb_players );
 
     // Palyer names
-    for (std::vector<String>::const_iterator i = game_data->player_names.begin(); i != game_data->player_names.end(); ++i)
+    for (String::Vector::const_iterator i = game_data->player_names.begin(); i != game_data->player_names.end(); ++i)
     {
         fputs(i->c_str(), file);
         fputc(0, file );
     }
     // Player sides
-    for (std::vector<String>::const_iterator i = game_data->player_sides.begin(); i != game_data->player_sides.end(); ++i)
+    for (String::Vector::const_iterator i = game_data->player_sides.begin(); i != game_data->player_sides.end(); ++i)
     {
         fputs(i->c_str(), file);
         fputc( 0, file );
@@ -459,10 +459,10 @@ void load_game_data( const String filename, GameData *game_data )
     LOAD( game_data->nb_players );
 
     // Palyer names
-    for (std::vector<String>::iterator i = game_data->player_names.begin(); i != game_data->player_names.end(); ++i)
+    for (String::Vector::iterator i = game_data->player_names.begin(); i != game_data->player_names.end(); ++i)
         *i = readstring( tmp, 1024, file );
     // Player sides
-    for (std::vector<String>::iterator i = game_data->player_sides.begin(); i != game_data->player_sides.end(); ++i)
+    for (String::Vector::iterator i = game_data->player_sides.begin(); i != game_data->player_sides.end(); ++i)
         *i = readstring( tmp, 1024, file );
     // Player control
     for (std::vector<byte>::iterator i = game_data->player_control.begin(); i != game_data->player_control.end(); ++i)
@@ -517,10 +517,10 @@ void load_game( GameData *game_data )
 
 
     // Palyer names
-    for (std::vector<String>::iterator i = game_data->player_names.begin(); i != game_data->player_names.end(); ++i)
+    for (String::Vector::iterator i = game_data->player_names.begin(); i != game_data->player_names.end(); ++i)
         *i = readstring( tmp, 1024, file );
     // Player sides
-    for (std::vector<String>::iterator i = game_data->player_sides.begin(); i != game_data->player_sides.end(); ++i)
+    for (String::Vector::iterator i = game_data->player_sides.begin(); i != game_data->player_sides.end(); ++i)
         *i = readstring( tmp, 1024, file );
     // Player control
     for (std::vector<byte>::iterator i = game_data->player_control.begin(); i != game_data->player_control.end(); ++i)

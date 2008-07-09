@@ -127,10 +127,6 @@ namespace Menus
         void finalizeDrawing();
 
     private:
-        //! \brief All messages
-        typedef std::list<String> MessagesList;
-
-    private:
         //! Mutex
         Mutex pMutex;
 
@@ -149,7 +145,7 @@ namespace Menus
         //! The current caption
         String pCaption;
         //! All messages
-        MessagesList pMessages;
+        String::List pMessages;
 
         //! The background texture
         GLuint pBackgroundTexture;

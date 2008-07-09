@@ -81,7 +81,7 @@ namespace TA3D
         class Language
         {
         public:
-            typedef std::vector<String> Locales;
+            typedef String::Vector Locales;
         public:
             //! \name Constructor & Destructor
             //@{
@@ -201,13 +201,13 @@ namespace TA3D
         ** \brief Translate a list of keywords
         ** \param[in,out] The list of keywords that will be translated
         */
-        static void Translate(std::vector<String>& out) { I18N::Instance()->translate(out);}
+        static void Translate(String::Vector& out) { I18N::Instance()->translate(out);}
 
         /*!
         ** \brief Translate a list of keywords
         ** \param[in,out] The list of keywords that will be translated
         */
-        static void Translate(std::list<String>& out) { I18N::Instance()->translate(out);}
+        static void Translate(String::List& out) { I18N::Instance()->translate(out);}
 
 
 
@@ -312,13 +312,13 @@ namespace TA3D
         ** \brief Translate a list of keywords
         ** \param[in,out] The list of keywords that will be translated
         */
-        void translate(std::vector<String>& out);
+        void translate(String::Vector& out);
     
         /*!
         ** \brief Translate a list of keywords
         ** \param[in,out] The list of keywords that will be translated
         */
-        void translate(std::list<String>& out);
+        void translate(String::List& out);
 
 
         /*!

@@ -158,9 +158,9 @@ namespace TA3D
 
             int player_id = game_data->net2id( received_special_msg.from );
 
-            std::vector<String> params;
-            ReadVectorString(params, special_msg, " " );
-            if( params.size() == 3 )
+            String::Vector params;
+            ReadVectorString(params, special_msg, " ");
+            if (params.size() == 3)
             {
                 if( params[0] == "TICK" )
                 {

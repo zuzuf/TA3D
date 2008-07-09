@@ -120,7 +120,7 @@ namespace UTILS
 
     template<class T>
     uint32
-    cHashTable<T>::WildCardSearch(const String &Search, std::list< String > *li)
+    cHashTable<T>::WildCardSearch(const String& Search, String::List* li)
     {
         LOG_ASSERT(li != NULL);
 

@@ -1923,7 +1923,7 @@ hit_fast_is_exploding:
     {
         const String loading3DModelsText = I18N::Translate("Loading 3D Models");
 
-        std::list<String> file_list;
+        String::List file_list;
         sint32 new_nb_models = HPIManager->getFilelist( ta3dSideData.model_dir + "*.3dm", file_list);
 
         if(new_nb_models > 0)
@@ -1940,7 +1940,7 @@ hit_fast_is_exploding:
             model=n_model;
             name=n_name;
             int i = 0, n = 0;
-            for (std::list<String>::const_iterator e = file_list.begin(); e != file_list.end(); ++e)
+            for (String::List::const_iterator e = file_list.begin(); e != file_list.end(); ++e)
             {
                 LOG_DEBUG("[3dm] Loading `" << *e << "`");
                 if (progress!=NULL && n % 25 == 0)
@@ -1992,7 +1992,7 @@ hit_fast_is_exploding:
             model = n_model;
             name = n_name;
             int i = 0, n = 0;
-            for (std::list<String>::const_iterator e = file_list.begin();e != file_list.end(); ++e)
+            for (String::List::const_iterator e = file_list.begin();e != file_list.end(); ++e)
             {
                 LOG_DEBUG("[3do] Loading `" << *e << "`");
                 if (progress != NULL && n % 25 == 0)

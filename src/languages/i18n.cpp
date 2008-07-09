@@ -202,18 +202,18 @@ namespace TA3D
             : pTranslations.PullAsString(k, defaultValue);
     }
 
-    void I18N::translate(std::vector<String>& out)
+    void I18N::translate(String::Vector& out)
     {
         pMutex.lock();
-        for (std::vector<String>::iterator i = out.begin(); i != out.end(); ++i)
+        for (String::Vector::iterator i = out.begin(); i != out.end(); ++i)
             *i = translate(*i);
         pMutex.unlock();
     }
 
-    void I18N::translate(std::list<String>& out)
+    void I18N::translate(String::List& out)
     {
         pMutex.lock();
-        for (std::list<String>::iterator i = out.begin(); i != out.end(); ++i)
+        for (String::List::iterator i = out.begin(); i != out.end(); ++i)
             *i = translate(*i);
         pMutex.unlock();
     }
@@ -248,10 +248,10 @@ namespace TA3D
     bool I18N::loadFromResources()
     {
         bool res(false);
-        std::vector<String> list;
+        String::Vector list;
         if (Resources::Glob(list, "languages" + Paths::SeparatorAsString + "*.po"))
         {
-            for (std::vector<String>::const_iterator i = list.begin(); i != list.end(); ++i)
+            for (String::Vector::const_iterator i = list.begin(); i != list.end(); ++i)
             {
                 if (loadFromFile(*i, false))
                     res = true;

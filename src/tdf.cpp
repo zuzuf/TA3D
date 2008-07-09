@@ -418,11 +418,11 @@ namespace TA3D
 
     void load_features(void (*progress)(float percent, const String& msg)) // Charge tout les éléments
     {
-        std::list<String> files;
+        String::List files;
         HPIManager->getFilelist("features\\*.tdf", files);
         int n = 0;
 
-        for (std::list<String>::const_iterator curFile = files.begin(); curFile != files.end(); ++curFile)
+        for (String::List::const_iterator curFile = files.begin(); curFile != files.end(); ++curFile)
         {
             if (progress != NULL && !(n & 0xF))
             {

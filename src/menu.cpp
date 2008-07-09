@@ -142,7 +142,7 @@ void config_menu(void)
 
     config_area.set_state("*.showfps", lp_CONFIG->showfps);
     config_area.set_caption("*.fps_limit", fps_limits[fps_limits.size()-1]);
-    for (std::vector<String>::const_iterator i = fps_limits.begin(); i != fps_limits.end(); ++i)
+    for (String::Vector::const_iterator i = fps_limits.begin(); i != fps_limits.end(); ++i)
     {
         if( format( "%d", (int)lp_CONFIG->fps_limit ) == *i )
             config_area.set_caption("*.fps_limit", *i);
@@ -232,10 +232,10 @@ void config_menu(void)
         obj->Text.resize( 1 );
         obj->Text[ 0 ] = I18N::Translate( "default.skn" );
 
-        std::list<String> skin_list;
+        String::List skin_list;
         HPIManager->getFilelist("gui\\*.skn", skin_list);
 
-        for( std::list< String >::iterator i = skin_list.begin() ; i != skin_list.end() ; i++ )
+        for (String::List::iterator i = skin_list.begin(); i != skin_list.end(); ++i)
         {
             obj->Text.push_back( i->substr( 4, i->size() - 4 ) );
             if( "gui/" + Lowercase( i->substr( 4, i->size() - 4 ) ) == Lowercase( lp_CONFIG->skin_name ) )
@@ -648,7 +648,7 @@ void setup_game(bool client, const char *host)
     byte	player_control[4] = { PLAYER_CONTROL_LOCAL_HUMAN, PLAYER_CONTROL_LOCAL_AI, PLAYER_CONTROL_NONE, PLAYER_CONTROL_CLOSED };
     String	ai_level_str[4] = { I18N::Translate("easy"), I18N::Translate("medium"), I18N::Translate("hard"), I18N::Translate("bloody") };
     uint16	side_str_n = ta3dSideData.nb_side;
-    std::vector<String>	side_str;
+    String::Vector	side_str;
 
     side_str.resize( ta3dSideData.nb_side );
     for( int i = 0 ; i < ta3dSideData.nb_side ; i++ )			// Get side data
@@ -658,11 +658,13 @@ void setup_game(bool client, const char *host)
 
     if( HPIManager->Exists( lp_CONFIG->last_map ) )
         game_data.map_filename = strdup( lp_CONFIG->last_map.c_str() );
-    else {
-        std::list<String> map_list;
+    else
+    {
+        String::List map_list;
         uint32 n = HPIManager->getFilelist("maps\\*.tnt", map_list);
 
-        if( n == 0 ) {
+        if (n == 0)
+        {
             network_manager.Disconnect();
             Popup(I18N::Translate("Error"),I18N::Translate("No maps found"));
             Console->AddEntry("no maps found!!");
@@ -675,11 +677,13 @@ void setup_game(bool client, const char *host)
     game_data.nb_players = 2;
     if( HPIManager->Exists( lp_CONFIG->last_script ) && Lowercase( lp_CONFIG->last_script.substr( lp_CONFIG->last_script.length() - 3 , 3 ) ) == "lua" )
         game_data.game_script = strdup( lp_CONFIG->last_script.c_str() );
-    else {
-        std::list<String> script_list;
+    else
+    {
+        String::List script_list;
         uint32 n = HPIManager->getFilelist("scripts\\*.lua", script_list);
 
-        if( n == 0 ) {
+        if (n == 0)
+        {
             network_manager.Disconnect();
             Popup(I18N::Translate("Error"),I18N::Translate("No scripts found"));
             Console->AddEntry("no scripts found!!");
@@ -691,21 +695,24 @@ void setup_game(bool client, const char *host)
     }
     game_data.fog_of_war = lp_CONFIG->last_FOW;
 
-    for(uint16 i = 0 ; i < 10 ; i++) {
+    for (uint16 i = 0 ; i < 10 ; ++i)
+    {
         game_data.player_names[i] = player_str[2];
         game_data.player_sides[i] = side_str[0];
         game_data.player_control[i] = player_control[2];
         game_data.ai_level[i] = AI_TYPE_EASY;
     }
 
-    if( !client ) {
+    if (!client) 
+    {
         game_data.player_names[0] = player_str[0];
         game_data.player_sides[0] = side_str[0];
         game_data.player_control[0] = player_control[0];
         game_data.player_network_id[0] = my_player_id;
         game_data.ai_level[0] = AI_TYPE_EASY;
 
-        if( !host ) {
+        if (!host)
+        {
             game_data.player_names[1] = player_str[1];
             game_data.player_sides[1] = side_str[1];
             game_data.player_control[1] = player_control[1];
@@ -765,11 +772,12 @@ void setup_game(bool client, const char *host)
     }
 
     GUIOBJ *guiobj = setupgame_area.get_object( "scripts.script_list" );
-    if( guiobj ) {
-        std::list< String > script_list;
+    if (guiobj)
+    {
+        String::List script_list;
         HPIManager->getFilelist("scripts\\*.lua", script_list);
-        for(std::list< String >::iterator i_script = script_list.begin() ; i_script != script_list.end() ; i_script++ )
-            guiobj->Text.push_back( *i_script );
+        for (String::List::const_iterator i_script = script_list.begin(); i_script != script_list.end(); ++i_script)
+            guiobj->Text.push_back(*i_script);
     }
     setupgame_area.set_caption( "gamesetup.script_name", game_data.game_script );
     {
@@ -932,7 +940,7 @@ void setup_game(bool client, const char *host)
         while( !special_msg.empty() ) // Special receiver (sync config data)
         {
             int from = received_special_msg.from;
-            std::vector<String> params;
+            String::Vector params;
             ReadVectorString(params, received_special_msg.message, " ");
             if( params.size() == 1 )
             {
@@ -1185,7 +1193,7 @@ void setup_game(bool client, const char *host)
 
         while( !broadcast_msg.empty() )	// Broadcast message receiver
         {
-            std::vector<String> params;
+            String::Vector params;
             ReadVectorString(params, broadcast_msg, " ");
             if( params.size() == 3 && params[0] == "PING" && params[1] == "SERVER" )
             {
@@ -1615,7 +1623,7 @@ void network_room(void)				// Let players create/join a game
         if( network_manager.BroadcastedMessages() ) {
             String msg = network_manager.getNextBroadcastedMessage();
             while( !msg.empty() ) {
-                std::vector<String> params;
+                String::Vector params;
                 ReadVectorString(params, msg, " ");
                 if( params.size() == 6 && params[0] == "PONG" && params[1] == "SERVER" ) // It looks like "PONG SERVER <name> <mod> <version> <nb open player slots>
                 {
@@ -1664,15 +1672,16 @@ void network_room(void)				// Let players create/join a game
                     server_i++;
 
             GUIOBJ *obj = networkgame_area.get_object("networkgame.server_list");
-            if( obj )
+            if (obj)
             {
                 obj->Text.resize( servers.size() );
-                std::list<String> server_names;
+                String::List server_names;
                 for( std::list< SERVER_DATA >::iterator server_i = servers.begin() ; server_i != servers.end() ; server_i++ )		// Remove those who timeout
                     server_names.push_back( server_i->name );
                 server_names.sort();
                 int i = 0;
-                for( std::list< String >::iterator server_i = server_names.begin() ; server_i != server_names.end() ; server_i++, i++ )		// Remove those who timeout
+                // Remove those who timeout
+                for (String::List::const_iterator server_i = server_names.begin(); server_i != server_names.end(); ++server_i, ++i)	
                     obj->Text[i] = *server_i;
                 if( obj->Text.size() == 0 )
                     obj->Text.push_back(I18N::Translate("No server found"));
@@ -1691,16 +1700,17 @@ void network_room(void)				// Let players create/join a game
             network_manager.listNetGames( servers );
 
             GUIOBJ *obj = networkgame_area.get_object("networkgame.server_list");
-            if( obj ) {
+            if (obj)
+            {
                 obj->Text.resize( servers.size() );
-                std::list<String> server_names;
-                for( std::list< SERVER_DATA >::iterator server_i = servers.begin() ; server_i != servers.end() ; server_i++ )		// Remove those who timeout
+                String::List server_names;
+                for (std::list<SERVER_DATA>::iterator server_i = servers.begin(); server_i != servers.end(); ++server_i)		// Remove those who timeout
                     server_names.push_back( server_i->name );
                 server_names.sort();
                 int i = 0;
-                for( std::list< String >::iterator server_i = server_names.begin() ; server_i != server_names.end() ; server_i++, i++ )		// Remove those who timeout
+                for (String::List::iterator server_i = server_names.begin(); server_i != server_names.end() ; ++server_i, ++i) // Remove those who timeout
                     obj->Text[i] = *server_i;
-                if( obj->Text.size() == 0 )
+                if(obj->Text.size() == 0)
                     obj->Text.push_back(I18N::Translate("No server found"));
             }
         }
@@ -1715,14 +1725,14 @@ void network_room(void)				// Let players create/join a game
             GUIOBJ *obj = networkgame_area.get_object("networkgame.server_list");
             if( obj ) {
                 obj->Text.resize( servers.size() );
-                std::list<String> server_names;
-                for( std::list< SERVER_DATA >::iterator server_i = servers.begin() ; server_i != servers.end() ; server_i++ )		// Remove those who timeout
+                String::List server_names;
+                for (std::list< SERVER_DATA >::iterator server_i = servers.begin() ; server_i != servers.end() ; server_i++ )		// Remove those who timeout
                     server_names.push_back( server_i->name );
                 server_names.sort();
                 int i = 0;
-                for( std::list< String >::iterator server_i = server_names.begin() ; server_i != server_names.end() ; server_i++, i++ )		// Remove those who timeout
+                for (String::List::const_iterator server_i = server_names.begin(); server_i != server_names.end(); ++server_i, ++i) // Remove those who timeout
                     obj->Text[i] = *server_i;
-                if( obj->Text.size() == 0 )
+                if (obj->Text.size() == 0)
                     obj->Text.push_back(I18N::Translate("No server found"));
             }
 
@@ -1760,23 +1770,32 @@ void network_room(void)				// Let players create/join a game
                 join_host.clear();
         }
 
-        if( networkgame_area.get_state( "networkgame.b_cancel" ) || key[KEY_ESC] ) {
-            while( key[KEY_ESC] )	{	rest( 20 );	poll_keyboard();	}
+        if (networkgame_area.get_state( "networkgame.b_cancel" ) || key[KEY_ESC])
+        {
+            while (key[KEY_ESC])
+            {
+                rest(20);
+                poll_keyboard();
+            }
             clear_keybuf();
             done=true;		// If user click "Cancel" or hit ESC then leave the screen returning NULL
             sel_index = "";
         }
 
-        if( networkgame_area.get_object("networkgame.server_list") && !done ) {
+        if (networkgame_area.get_object("networkgame.server_list") && !done )
+        {
             GUIOBJ *obj = networkgame_area.get_object("networkgame.server_list");
             sel_index = obj->Pos >= 0 && obj->Pos < obj->Text.size() ? obj->Text[ obj->Pos ]: "";
 
-            if( sel_index != o_sel ) {			// Update displayed server info
+            if (sel_index != o_sel)	// Update displayed server info
+            {
                 o_sel = sel_index;
                 std::list< SERVER_DATA >::iterator i_server = servers.begin();
-                while( i_server != servers.end() && i_server->name != sel_index )	i_server++;
+                while( i_server != servers.end() && i_server->name != sel_index )
+                    ++i_server;
 
-                if( i_server != servers.end() ) {
+                if (i_server != servers.end())
+                {
                     networkgame_area.set_caption("networkgame.server_name", i_server->name );
                     networkgame_area.set_caption("networkgame.host", i_server->host );
                     networkgame_area.set_caption("networkgame.open_slots", format( "%d", i_server->nb_open ) );
@@ -1818,9 +1837,9 @@ void campaign_main_menu(void)
     if (!campaign_area.background)
         campaign_area.background = gfx->glfond;
 
-    std::list<String> campaign_list;
+    String::List campaign_list;
     HPIManager->getFilelist("camps\\*.tdf", campaign_list);
-    for(std::list< String >::iterator i = campaign_list.begin() ; i != campaign_list.end() ; )		// Removes sub directories entries
+    for (String::List::iterator i = campaign_list.begin(); i != campaign_list.end(); ) // Removes sub directories entries
     {
         if (SearchString(i->substr(6, i->size() - 6), "/", true) != -1 || SearchString(i->substr(6, i->size() - 6), "\\", true ) != -1)
             campaign_list.erase(i++);
@@ -1834,7 +1853,7 @@ void campaign_main_menu(void)
         guiobj->Text.clear();
         guiobj->Text.resize( campaign_list.size() );
         int n = 0;
-        for (std::list< String >::iterator i = campaign_list.begin() ; i != campaign_list.end(); ++i, ++n)
+        for (String::List::const_iterator i = campaign_list.begin(); i != campaign_list.end(); ++i, ++n)
             guiobj->Text[n] = i->substr(6, i->size() - 10 );
     }
 
@@ -2343,7 +2362,7 @@ void wait_room(void *p_game_data)
         {
             int from = received_special_msg.from;
             int player_id = game_data->net2id( from );
-            std::vector<String> params;
+            String::Vector params;
             ReadVectorString(params, received_special_msg.message, " ");
             if( params.size() == 1 )
             {

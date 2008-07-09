@@ -2298,12 +2298,12 @@ int play(GameData *game_data)
 
             if( obj_file_list )
             {
-                std::list<String> file_list;
+                String::List file_list;
                 Paths::Glob(file_list, TA3D::Paths::Savegames + "*.sav");
                 file_list.sort();
                 obj_file_list->Text.clear();
                 obj_file_list->Text.reserve(file_list.size());
-                for (std::list<String>::const_iterator i = file_list.begin(); i != file_list.end(); ++i)
+                for (String::List::const_iterator i = file_list.begin(); i != file_list.end(); ++i)
                     obj_file_list->Text.push_back(Paths::ExtractFileName(*i));
             }
         }
@@ -3110,7 +3110,7 @@ int play(GameData *game_data)
 
         if(cmd) // Analyse les commandes tapées dans la console
         {
-            std::vector<String> params;
+            String::Vector params;
             ReadVectorString(params,  cmd, " ");
             if( params.size() > 0 )
             {
