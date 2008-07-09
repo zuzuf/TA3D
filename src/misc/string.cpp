@@ -198,4 +198,24 @@ namespace TA3D
         value = s.substr(equal + 1, semicolon - equal + 1);
     }
 
+
+    void String::ConvertAntiSlashesIntoSlashes(String& s)
+    {
+        for (String::iterator i = s.begin(); i != s.end(); ++i)
+        {
+            if (*i == '\\')
+                *i = '/';
+        }
+    }
+
+    void String::ConvertSlashesIntoAntiSlashes(String& s)
+    {
+        for (String::iterator i = s.begin(); i != s.end(); ++i)
+        {
+            if (*i == '/')
+                *i = '\\';
+        }
+    }
+
+
 }
