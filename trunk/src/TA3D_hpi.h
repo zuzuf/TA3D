@@ -38,6 +38,13 @@
 # include "misc/hash_table.h"
 
 
+# define HEX_HAPI 0x49504148
+# define HPI_V1 0x00010000
+
+# ifndef MAX_PATH
+#   define MAX_PATH 260
+# endif
+ 
 
 
 namespace TA3D
@@ -47,201 +54,431 @@ namespace UTILS
 namespace HPI
 {
 
-#define HEX_HAPI 0x49504148
-#define HPI_V1 0x00010000
-
-#ifndef MAX_PATH
-#define MAX_PATH 260
-#endif
+    /*! \class cHPIHandler
+    **
+    ** \brief
+    */
     class cHPIHandler
     {
-        // Member Declarations:
-    private:
-        #pragma pack(1) // Byte alignment.
-
-        struct HPIVERSION
-        {
-            sint32 HPIMarker; /* Must be HEX_HAPI */
-            sint32 Version;   /* Must be HPI_V1 */
-        };
-
-        struct HPIHEADER
-        {
-            sint32 DirectorySize; /* Directory size */
-            sint32 Key;           /* Decode key */
-            sint32 Start;         /* Directory offset */
-
-            HPIHEADER() : DirectorySize(0), Key(0), Start(0) {}
-        };
-
-        struct HPIENTRY
-        {
-            sint32 NameOffset;
-            sint32 CountOffset;
-            sint8 Flag;
-        };
-
-        struct HPICHUNK
-        {
-            sint32 Marker;           /* always 0x48535153 (SQSH) */
-            sint8  Unknown1;         /* I have no idea what these mean */
-            sint8  CompMethod;       /* 1 = lz77, 2 = zlib */
-            sint8  Encrypt;          /* Is the chunk encrypted? */
-            sint32 CompressedSize;   /* the length of the compressed data */
-            sint32 DecompressedSize; /* the length of the decompressed data */
-            sint32 Checksum;         /* check sum */
-        };
-        union HPICHUNK_U             /* for strict-aliasing safety */
-        {
-        	HPICHUNK chunk;
-        	byte bytes[sizeof(HPICHUNK)];
-        };
-
-        struct HPIFILEDATA
-        {
-            HPIHEADER   H1;
-            sint8      Key;
-            sint8      *Directory;
-            FILE      *HPIFile;
-            bool			priority;
-
-            HPIFILEDATA(bool priority = false) : Key(0), Directory(0), HPIFile(0), priority(priority) {}
-        };
-
+    public:
+        /*! \class CACHEFILEDATA
+        **
+        ** \brief
+        */
         struct CACHEFILEDATA
         {
             uint32		length;
             byte		*data;
             String		name;
-        };
-
-        struct HPIITEM
-        {
-            HPIFILEDATA	*hfd;
-            HPIENTRY		*E1;
-            sint32		IsDir;
-            sint8			*Name;
-            sint32		Size;
-        };
-#pragma pack()
-
-        // Member Functions:
-    private:
-        void AddArchive( const String &FileName, bool priority );
-        void LocateAndReadFiles( const String &Path, const String &FileSearch, bool priority );
-        void ProcessRoot( HPIFILEDATA *hfd, const String &StartPath, sint32 offset );
-        void ProcessSubDir( HPIITEM *hi );
-
-        sint32  ReadAndDecrypt( sint32 fpos, byte *buff, sint32 buffsize, HPIFILEDATA *HPIInfo );
-        sint32 ZLibDecompress( byte *out, byte *in, HPICHUNK *Chunk );
-        sint32 LZ77Decompress( byte *out, byte *in, HPICHUNK *Chunk );
-        sint32 Decompress( byte *out, byte *in, HPICHUNK *Chunk );
-        void CloseHPIFile( HPIFILEDATA *hfd );
-        //   void cHPIHandler::CloseCurrentFile( void );
-        byte *DecodeFileToMem( HPIITEM *hi , uint32 *file_length=NULL );
-        byte *DecodeFileToMem_zone( HPIITEM *hi , uint32 start , uint32 length , uint32 *file_length=NULL );
+        }; // class CACHEFILEDATA
 
     public:
-        void SearchDirForArchives( const String &Path );
-
-        void PutInCache( const String &FileName, uint32 FileSize, byte *data );
-        CACHEFILEDATA *IsInCache( const String &FileName );
-        byte *IsInDiskCache( const String &FileName, uint32 *p_FileSize = NULL );
-
+        //! \name Constructor & Destructor
+        //@{
         // constructor:
-        cHPIHandler( const String &Path  )
-        {
-            m_Archive = new TA3D::UTILS::clpHashTable< HPIITEM *>( 16384, true );
-            m_file_cache = new std::list< CACHEFILEDATA >;
+        cHPIHandler(const String& path);
+        //! Destructor 
+        ~cHPIHandler();
+        //@}
 
-            SearchDirForArchives( Path );
-        }
+        /*!
+        ** \brief
+        ** \param path
+        */
+        void SearchDirForArchives(const String& path);
 
+        /*!
+        ** \brief
+        ** \param filename
+        ** \param filesize
+        ** /param data
+        */
+        void PutInCache(const String& filename, const uint32 filesize, const byte* data);
+
+        /*!
+        ** \brief
+        ** \param filename
+        */
+        CACHEFILEDATA* IsInCache(const String& filename);
+
+        /*!
+        ** \brief
+        ** \param filename
+        ** \param filesize
+        */
+        byte *IsInDiskCache(const String& filename, uint32* filesize = NULL);
+
+        /*!
+        ** \brief
+        ** \param s
+        ** \param[out] li
+        */
         uint32 getFilelist(const String& s, std::list<String>& li);
         uint32 getFilelist(const String& s, std::vector<String>& li);
+        
+        /*!
+        ** \brief
+        */
+        byte* PullFromHPI(const String& filename, uint32* file_length = NULL);
 
-        // DeConstructor
-        ~cHPIHandler();
+        /*!
+        ** \brief
+        ** \param filename
+        ** \param start
+        ** \param length
+        ** \return
+        */
+        byte* PullFromHPI_zone(const String& filename, const uint32 start, const uint32 length, uint32 *file_length = NULL);
 
-#if defined( DEBUG )
+        /*!
+        ** \brief
+        ** \param filename
+        ** \return
+        */
+        bool Exists(const String& filename);
+ 
+        # if defined(DEBUG)
+        /*!
+        ** \brief
+        */
         void ShowArchive(); // for debug only we don't need it.
-#endif
+        # endif
 
-        byte *PullFromHPI( const String &FileName , uint32 *file_length=NULL);
-        byte *PullFromHPI_zone( const String &FileName , uint32 start , uint32 length , uint32 *file_length=NULL);
-        bool Exists( const String &FileName);
 
-        // Member Variables:
     private:
-        String m_cDir;     // used when building dir structurs.
+        # pragma pack(1) // Byte alignment.
 
-        String m_Path;		// used when looking for files in the real file system
+        /*! \class HPIVERSION
+        **
+        ** \brief
+        */
+        struct HPIVERSION
+        {
+            //!
+            sint32 HPIMarker; /* Must be HEX_HAPI */
+            //!
+            sint32 Version;   /* Must be HPI_V1 */
+        };
 
+        /*! \class HPIHEADER
+        **
+        ** \brief
+        */
+        struct HPIHEADER
+        {
+            //!
+            HPIHEADER() :DirectorySize(0), Key(0), Start(0) {}
+
+            //!
+            sint32 DirectorySize; /* Directory size */
+            //!
+            sint32 Key;           /* Decode key */
+            //!
+            sint32 Start;         /* Directory offset */
+
+        }; // class HPIHEADER
+
+
+        /*! \class HPIENTRY
+        **
+        ** \brief
+        */
+        struct HPIENTRY
+        {
+            //!
+            sint32 NameOffset;
+            //!
+            sint32 CountOffset;
+            //!
+            sint8 Flag;
+
+        }; // class HPIENTRY
+
+
+        /*! \class HPICHUNK
+        **
+        ** \brief
+        */
+        struct HPICHUNK
+        {
+            //! always 0x48535153 (SQSH)
+            sint32 Marker;
+            //! I have no idea what these mean
+            sint8  Unknown1;
+            //! 1 = lz77, 2 = zlib
+            sint8  CompMethod;
+            //! Is the chunk encrypted ?
+            sint8  Encrypt;
+            //! The length of the compressed data
+            sint32 CompressedSize;
+            //! The length of the decompressed data
+            sint32 DecompressedSize;
+            //! Checksum
+            sint32 Checksum;
+
+        }; // class HPICHUNK
+
+
+        /*! 
+        ** \brief Used for strict-aliasing safety
+        */
+        union HPICHUNK_U
+        {
+            //!
+            HPICHUNK chunk;
+            //!
+            byte bytes[sizeof(HPICHUNK)];
+        };
+
+
+        /*! \class HPIFILEDATA
+        **
+        ** \brief
+        */
+        struct HPIFILEDATA
+        {
+            //! Constructor
+            HPIFILEDATA(bool priority = false) :Key(0), Directory(0), HPIFile(0), priority(priority) {}
+
+            //!
+            HPIHEADER H1;
+            //!
+            sint8 Key;
+            //!
+            sint8* Directory;
+            //!
+            FILE* HPIFile;
+            //!
+            bool priority;
+
+        }; // class HPIFILEDATA
+
+
+        /*! \class HPIITEM
+        **
+        ** \brief
+        */
+        struct HPIITEM
+        {
+            //!
+            HPIFILEDATA*  hfd;
+            //!
+            HPIENTRY*  E1;
+            //!
+            sint32  IsDir;
+            //!
+            sint8*  Name;
+            //!
+            sint32  Size;
+
+        }; // class HPIITEM
+
+        # pragma pack()
+
+    private:
+        /*!
+        ** \brief 
+        **
+        ** \param filename
+        ** \param priority
+        */
+        void AddArchive(const String& filename, const bool priority);
+
+        /*!
+        ** \brief
+        **
+        ** \param path
+        ** \param filesearch
+        ** \param priority
+        */
+        void LocateAndReadFiles(const String& path, const String &fileSearch, const bool priority);
+
+        /*!
+        ** \brief
+        **
+        ** \param hfd
+        ** \param startPath
+        ** \param offset
+        */
+        void ProcessRoot(HPIFILEDATA *hfd, const String& startPath, const sint32 offset);
+
+        /*!
+        ** \brief
+        */
+        void ProcessSubDir(HPIITEM* hi);
+
+        /*!
+        ** \brief
+        **
+        ** \param fpos
+        ** \param buff
+        ** \param buffsize
+        ** \param HPIInfo
+        ** \return
+        */
+        sint32 ReadAndDecrypt(const sint32 fpos, byte *buff, sint32 buffsize, HPIFILEDATA *HPIInfo);
+
+        /*!
+        ** \brief
+        **
+        ** \param[out] out
+        ** \param[in] in
+        ** \param Chunk
+        ** \return
+        */
+        sint32 ZLibDecompress(byte *out, byte *in, HPICHUNK *Chunk);
+
+        /*!
+        ** \brief
+        **
+        ** \param out
+        ** \param in
+        ** \param Chunk
+        ** \return
+        */
+        sint32 LZ77Decompress(byte *out, byte *in, HPICHUNK* Chunk);
+
+        /*!
+        ** \brief
+        **
+        ** \param out
+        ** \param in
+        ** \param Chunk
+        ** \return
+        */
+        sint32 Decompress(byte *out, byte *in, HPICHUNK *Chunk);
+
+        /*!
+        ** \brief
+        **
+        ** \param hfd
+        */
+        void CloseHPIFile(HPIFILEDATA* hfd);
+
+        /*!
+        ** \brief 
+        **
+        ** \param hi
+        ** \param fileLength
+        ** \return
+        */
+        byte* DecodeFileToMem(HPIITEM* hi, uint32* fileLength = NULL);
+
+        /*!
+        ** \brief
+        **
+        ** \param hi
+        ** \param start
+        ** \param length
+        ** \param fileLength
+        ** \return
+        */
+        byte* DecodeFileToMem_zone(HPIITEM* hi, const uint32 start, const uint32 length, uint32* fileLength = NULL);
+
+
+    private:
+        //! used when building dir structurs
+        String m_cDir;
+        //! used when looking for files in the real file system
+        String m_Path;
+        //!
         TA3D::UTILS::clpHashTable< HPIITEM * > *m_Archive;
 
-        std::list< CACHEFILEDATA >	*m_file_cache;			// The cache is used to speed up things when a file is loaded multiple times
-
-        // A list of HPIFILEDATA, needed only for cleanup.
+        //! The cache is used to speed up things when a file is loaded multiple times
+        std::list< CACHEFILEDATA >	*m_file_cache;
+        //! A list of HPIFILEDATA, needed only for cleanup.
         std::list< HPIFILEDATA * > m_HPIFiles;
+
     }; // class cHPIHandler;
 
-    class TA3D_FILE					// a class to manage files in HPI as easily as if they were normal files (for reading only)
+
+
+
+
+    /*! \class TA3D_FILE
+    **
+    ** \brief Manage files in HPI as easily as if they were normal files
+    ** (read-only)
+    */
+    class TA3D_FILE
     {
-    private:
-        byte	*data;
-        uint32	pos;
-        uint32	length;
     public:
+        //! \name Constructor & Destructor
+        //@{
+        //! Constructor
+        TA3D_FILE() :data(NULL), pos(0), length(0) {}
+        //! Destructor
+        ~TA3D_FILE() { destroy(); }
+        //@}
 
-        TA3D_FILE()
-            :data(NULL), pos(0), length(0)
-        {}
+        /*!
+        ** \brief
+        */
+        bool isopen() const { return data != NULL; }
 
-        inline bool isopen()
-        {
-            return data != NULL;
-        }
+        /*!
+        ** \brief
+        */
+        void destroy();
 
-        inline void destroy()
-        {
-            if( data )	delete[] data;
-            pos = 0;
-            length = 0;
-        }
+        /*!
+        ** \brief 
+        **
+        ** \param filename
+        */
+        void topen(const String& filename);
 
-        ~TA3D_FILE()
-        {
-            destroy();
-        }
+        /*!
+        ** \brief
+        */
+        char tgetc();
 
-        void topen( const String &filename );
+        /*!
+        ** \brief
+        **
+        ** \param buf
+        ** \param size
+        */
+        int tread(void *buf, int size);
 
-        inline char tgetc()
-        {
-            if( data == NULL || pos >= length )	return 0;
-            return ((char*)data)[ pos++ ];
-        }
+        /*!
+        ** \brief
+        **
+        ** \param buf
+        ** \param size
+        */
+        char* tgets(void *buf, int size);
 
-        inline int tread( void *buf, int size )
-        {
-            if( data == NULL || pos >= length )	return 0;
-            if( pos + size > length )
-                size = length - pos;
-            memcpy( buf, data+pos, size );
-            pos += size;
-            return size;
-        }
+        /*!
+        ** \brief
+        ** \param offset
+        */
+        void tseek(const int offset) { pos += offset; }
 
-        char *tgets( void *buf, int size );
+        /*!
+        ** \brief
+        ** \return
+        */
+        bool teof() const { return (pos >= length); }
 
-        inline void tseek( int &offset )	{	pos += offset;	}
+        /*!
+        ** \brief
+        ** \return
+        */
+        int tsize()	const { return (int)length; }
 
-        inline bool teof()	{	return pos >= length;	}
+    private:
+        //!
+        byte* data;
+        //!
+        uint32 pos;
+        //!
+        uint32 length;
 
-        inline int tsize()	{	return (int)length;	}
-    };
+    }; // class TA3D_FILE
+    
 
-    TA3D_FILE	*ta3d_fopen( String filename );
+    TA3D_FILE	*ta3d_fopen(const String& filename );
     void		ta3d_fclose( TA3D_FILE *file );
     char		ta3d_fgetc( TA3D_FILE *file );
     int			ta3d_fread( void *buf, int size, TA3D_FILE *file );
@@ -251,8 +488,8 @@ namespace HPI
     bool		ta3d_feof( TA3D_FILE *file );
     int			ta3d_fsize( TA3D_FILE *file );
 
-    bool        load_palette(RGB *pal, const char *filename = "palettes\\palette.pal");
-        
+    bool        load_palette(RGB *pal, const String& filename = "palettes\\palette.pal");
+
 } // namespace HPI
 
 
