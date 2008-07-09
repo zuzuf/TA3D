@@ -33,196 +33,204 @@
 # include <vector>
 
 
-struct GAFHEADER
+namespace TA3D
 {
-	int		IDVersion;	/* Version stamp - always 0x00010100 */ // 0x00010101 is used for truecolor mode
-	int		Entries;	/* Number of items contained in this file */
-	int		Unknown1;	/* Always 0 */
-};
 
-struct GAFENTRY
-{
-	short	Frames;		/* Number of frames in this entry */
-	short	Unknown1;	/* Unknown - always 1 */
-	int		Unknown2;	/* Unknown - always 0 */
-	char	Name[32];	/* Name of the entry */
-};
+    struct GAFHEADER
+    {
+        int		IDVersion;	/* Version stamp - always 0x00010100 */ // 0x00010101 is used for truecolor mode
+        int		Entries;	/* Number of items contained in this file */
+        int		Unknown1;	/* Always 0 */
+    };
 
-struct GAFFRAMEENTRY
-{
-	int		PtrFrameTable;	/* Pointer to frame data */
-	int		Unknown1;		/* Unknown - varies */
-};
+    struct GAFENTRY
+    {
+        short	Frames;		/* Number of frames in this entry */
+        short	Unknown1;	/* Unknown - always 1 */
+        int		Unknown2;	/* Unknown - always 0 */
+        char	Name[32];	/* Name of the entry */
+    };
 
-struct GAFFRAMEDATA
-{
-	short	Width;			/* Width of the frame */
-	short	Height;			/* Height of the frame */
-	short	XPos;			/* X offset */
-	short	YPos;			/* Y offset */
-	char	Transparency;	/* Transparency color for uncompressed images - always 9 */	// In truecolor mode : alpha channel present
-	char	Compressed;		/* Compression flag */	// Useless in truecolor mode
-	short	FramePointers;	/* Count of subframes */
-	int		Unknown2;		/* Unknown - always 0 */
-	int		PtrFrameData;	/* Pointer to pixels or subframes */
-	int		Unknown3;		/* Unknown - value varies */
-};
+    struct GAFFRAMEENTRY
+    {
+        int		PtrFrameTable;	/* Pointer to frame data */
+        int		Unknown1;		/* Unknown - varies */
+    };
 
-int get_gaf_nb_entry(byte *buf);
+    struct GAFFRAMEDATA
+    {
+        short	Width;			/* Width of the frame */
+        short	Height;			/* Height of the frame */
+        short	XPos;			/* X offset */
+        short	YPos;			/* Y offset */
+        char	Transparency;	/* Transparency color for uncompressed images - always 9 */	// In truecolor mode : alpha channel present
+        char	Compressed;		/* Compression flag */	// Useless in truecolor mode
+        short	FramePointers;	/* Count of subframes */
+        int		Unknown2;		/* Unknown - always 0 */
+        int		PtrFrameData;	/* Pointer to pixels or subframes */
+        int		Unknown3;		/* Unknown - value varies */
+    };
 
-char *get_gaf_entry_name(byte *buf,int entry_idx);
+    int get_gaf_nb_entry(byte *buf);
 
-int get_gaf_entry_index(byte *buf,const char *name);
+    char *get_gaf_entry_name(byte *buf,int entry_idx);
 
-int get_gaf_nb_img(byte *buf,int entry_idx);
+    int get_gaf_entry_index(byte *buf,const char *name);
 
-BITMAP *read_gaf_img(byte *buf,int entry_idx,int img_idx,short *ofs_x=NULL,short *ofs_y=NULL,bool truecol=true);			// Lit une image d'un fichier gaf en mémoire
+    int get_gaf_nb_img(byte *buf,int entry_idx);
 
-GLuint	read_gaf_img( const String &filename, const String &imgname, int *w=NULL, int *h=NULL,bool truecol=true);		// Read a gaf image and put it in an OpenGL texture
+    BITMAP *read_gaf_img(byte *buf,int entry_idx,int img_idx,short *ofs_x=NULL,short *ofs_y=NULL,bool truecol=true);			// Lit une image d'un fichier gaf en mémoire
 
-std::vector< GLuint >	read_gaf_imgs( const String &filename, const String &imgname, int *w=NULL, int *h=NULL,bool truecol=true);		// Read a gaf image and put it in an OpenGL texture
+    GLuint	read_gaf_img( const String &filename, const String &imgname, int *w=NULL, int *h=NULL,bool truecol=true);		// Read a gaf image and put it in an OpenGL texture
 
-class ANIM			// Pour la lecture des fichiers GAF animés
-{
-public:
-	int		nb_bmp;
-	BITMAP	**bmp;
-	short	*ofs_x;
-	short	*ofs_y;
-	short	*w,*h;
-	GLuint	*glbmp;
-	char	*name;
-	bool	dgl;
-	char	*filename;
+    std::vector< GLuint >	read_gaf_imgs( const String &filename, const String &imgname, int *w=NULL, int *h=NULL,bool truecol=true);		// Read a gaf image and put it in an OpenGL texture
 
-	inline void init()
-	{
-		nb_bmp=0;
-		bmp=NULL;
-		ofs_x=ofs_y=NULL;
-		glbmp=NULL;
-		w=h=NULL;
-		name=NULL;
-		dgl=false;
-		filename = NULL;
-	}
+    class ANIM			// Pour la lecture des fichiers GAF animés
+    {
+    public:
+        int		nb_bmp;
+        BITMAP	**bmp;
+        short	*ofs_x;
+        short	*ofs_y;
+        short	*w,*h;
+        GLuint	*glbmp;
+        char	*name;
+        bool	dgl;
+        char	*filename;
 
-	ANIM()
-	{
-		init();
-	}
+        inline void init()
+        {
+            nb_bmp=0;
+            bmp=NULL;
+            ofs_x=ofs_y=NULL;
+            glbmp=NULL;
+            w=h=NULL;
+            name=NULL;
+            dgl=false;
+            filename = NULL;
+        }
 
-	inline void destroy()
-	{
-		if( filename )	free( filename );
-		if(nb_bmp>0) {
-			for(int i=0;i<nb_bmp;i++) {
-				if(bmp[i])
-					destroy_bitmap(bmp[i]);
-				if(dgl)
-					glDeleteTextures(1,&(glbmp[i]));
-				}
-			if(w)
-				free(w);
-			if(h)
-				free(h);
-			if(name)
-				free(name);
-			if(ofs_x)
-				free(ofs_x);
-			if(ofs_y)
-				free(ofs_y);
-			free(bmp);
-			free(glbmp);
-			}
-		init();
-	}
+        ANIM()
+        {
+            init();
+        }
 
-	~ANIM()
-	{
-		destroy();
-	}
+        inline void destroy()
+        {
+            if( filename )	free( filename );
+            if(nb_bmp>0) {
+                for(int i=0;i<nb_bmp;i++) {
+                    if(bmp[i])
+                        destroy_bitmap(bmp[i]);
+                    if(dgl)
+                        glDeleteTextures(1,&(glbmp[i]));
+                }
+                if(w)
+                    free(w);
+                if(h)
+                    free(h);
+                if(name)
+                    free(name);
+                if(ofs_x)
+                    free(ofs_x);
+                if(ofs_y)
+                    free(ofs_y);
+                free(bmp);
+                free(glbmp);
+            }
+            init();
+        }
 
-	void load_gaf(byte *buf,int entry_idx=0,bool truecol=true,const char *fname=NULL);
+        ~ANIM()
+        {
+            destroy();
+        }
 
-	void convert(bool NO_FILTER=false,bool COMPRESSED=false);
+        void load_gaf(byte *buf,int entry_idx=0,bool truecol=true,const char *fname=NULL);
 
-	void clean()
-	{
-		for(int i=0;i<nb_bmp;i++) {		// Fait un peu le ménage
-			if(bmp[i])
-				destroy_bitmap(bmp[i]);
-			bmp[i]=NULL;
-			}
-		if(name) {
-			free(name);
-			name=NULL;
-			}
-	}
-};
+        void convert(bool NO_FILTER=false,bool COMPRESSED=false);
 
-class ANIMS			// Pour la lecture des fichiers GAF animés
-{
-public:
-	int		nb_anim;
-	ANIM	*anm;
+        void clean()
+        {
+            for(int i=0;i<nb_bmp;i++) {		// Fait un peu le ménage
+                if(bmp[i])
+                    destroy_bitmap(bmp[i]);
+                bmp[i]=NULL;
+            }
+            if(name) {
+                free(name);
+                name=NULL;
+            }
+        }
+    };
 
-	inline void init()
-	{
-		nb_anim=0;
-		anm=NULL;
-	}
+    class ANIMS			// Pour la lecture des fichiers GAF animés
+    {
+    public:
+        int		nb_anim;
+        ANIM	*anm;
 
-	ANIMS()
-	{
-		init();
-	}
+        inline void init()
+        {
+            nb_anim=0;
+            anm=NULL;
+        }
 
-	inline void destroy()
-	{
-		if(nb_anim>0)
-			delete[] anm;
-		init();
-	}
+        ANIMS()
+        {
+            init();
+        }
 
-	~ANIMS()
-	{
-		destroy();
-	}
+        inline void destroy()
+        {
+            if(nb_anim>0)
+                delete[] anm;
+            init();
+        }
 
-	void load_gaf( byte *buf, bool doConvert=false, const char *fname = NULL )
-	{
-		if( buf == NULL )	return;
+        ~ANIMS()
+        {
+            destroy();
+        }
 
-		nb_anim=get_gaf_nb_entry(buf);
+        void load_gaf( byte *buf, bool doConvert=false, const char *fname = NULL )
+        {
+            if( buf == NULL )	return;
 
-		anm = new ANIM[nb_anim];
+            nb_anim=get_gaf_nb_entry(buf);
 
-		for( int i = 0 ; i < nb_anim ; i++ )
-			anm[i].load_gaf(buf,i,true,fname);
+            anm = new ANIM[nb_anim];
 
-		if( doConvert )
-			convert();
-	}
+            for( int i = 0 ; i < nb_anim ; i++ )
+                anm[i].load_gaf(buf,i,true,fname);
 
-	void convert(bool no_filter=false,bool compressed=false)
-	{
-		for(int i=0;i<nb_anim;i++)
-			anm[i].convert(no_filter,compressed);
-	}
+            if( doConvert )
+                convert();
+        }
 
-	void clean()
-	{
-		for(int i=0;i<nb_anim;i++)
-			anm[i].clean();
-	}
+        void convert(bool no_filter=false,bool compressed=false)
+        {
+            for(int i=0;i<nb_anim;i++)
+                anm[i].convert(no_filter,compressed);
+        }
 
-	int find_entry(const char *name)
-	{
-		for(int i=0;i<nb_anim;i++)
-			if(anm[i].name!=NULL && strcasecmp(anm[i].name,name)==0)
-				return i;
-		return -1;
-	}
-};
+        void clean()
+        {
+            for(int i=0;i<nb_anim;i++)
+                anm[i].clean();
+        }
+
+        int find_entry(const char *name)
+        {
+            for(int i=0;i<nb_anim;i++)
+                if(anm[i].name!=NULL && strcasecmp(anm[i].name,name)==0)
+                    return i;
+            return -1;
+        }
+    };
+
+
+} // namespace TA3D
+
+
 #endif
