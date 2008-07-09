@@ -113,8 +113,8 @@ namespace HPI
         ** \param s
         ** \param[out] li
         */
-        uint32 getFilelist(const String& s, std::list<String>& li);
-        uint32 getFilelist(const String& s, std::vector<String>& li);
+        uint32 getFilelist(const String& s, String::List& li);
+        uint32 getFilelist(const String& s, String::Vector& li);
         
         /*!
         ** \brief

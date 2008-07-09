@@ -39,9 +39,7 @@ namespace HPI
         if (HPIInfo->Key)
         {
             for (count = 0; count < buffsize; ++count)
-            {
                 buff[count] ^= (fpos + count) ^ HPIInfo->Key;
-            }
         }
         return result;
     }
@@ -111,7 +109,7 @@ namespace HPI
                 out[outptr++] = in[inptr];
                 DBuff[work1] = in[inptr];
                 work1 = (work1 + 1) & 0xFFF;
-                inptr++;
+                ++inptr;
             }
             else
             { int
@@ -125,7 +123,7 @@ namespace HPI
                     count = (count & 0x0f) + 2;
                     if (count >= 0)
                     {
-                        for (x = 0; x < count; x++)
+                        for (x = 0; x < count; ++x)
                         {
                             out[outptr++] = DBuff[DPtr];
                             DBuff[work1] = DBuff[DPtr];
@@ -148,10 +146,9 @@ namespace HPI
 
     sint32 cHPIHandler::Decompress(byte *out, byte *in, HPICHUNK* Chunk)
     {
-        sint32 x, Checksum;
-
-        Checksum = 0;
-        for (x = 0; x < Chunk->CompressedSize; x++) {
+        sint32 Checksum(0);
+        for (sint32 x = 0; x < Chunk->CompressedSize; ++x)
+        {
             Checksum += (byte) in[x];
             if (Chunk->Encrypt)
                 in[x] = (in[x] - x) ^ x;
@@ -163,7 +160,8 @@ namespace HPI
             return 0;
         }
 
-        switch (Chunk->CompMethod) {
+        switch (Chunk->CompMethod)
+        {
             case 1 : return LZ77Decompress(out, in, Chunk);
             case 2 : return ZLibDecompress(out, in, Chunk);
             default : return 0;
@@ -193,7 +191,8 @@ namespace HPI
 
         WriteBuff[Length] = 0;
 
-        if (FileFlag) {
+        if (FileFlag)
+        {
             DeCount = Length >> 16;
             if (Length & 0xFFFF)
                 DeCount++;
@@ -208,7 +207,8 @@ namespace HPI
 
             WritePtr = 0;
 
-            for (x = 0; x < DeCount; x++) {
+            for (x = 0; x < DeCount; ++x)
+            {
                 Chunk = (HPICHUNK *) new byte[ DeSize[x] ];
                 ReadAndDecrypt(Offset, (byte *) Chunk, DeSize[x], hi->hfd);
                 Offset += DeSize[x];
@@ -222,7 +222,8 @@ namespace HPI
             }
             delete[] DeSize;
         }
-        else {
+        else
+        {
             // file not compressed
             ReadAndDecrypt(Offset, WriteBuff, Length, hi->hfd );
         }
@@ -252,7 +253,8 @@ namespace HPI
 
         WriteBuff[Length] = 0;
 
-        if (FileFlag) {
+        if (FileFlag)
+        {
             DeCount = Length >> 16;
             if (Length & 0xFFFF)
                 DeCount++;
@@ -261,12 +263,11 @@ namespace HPI
             DeLen = DeCount * sizeof(sint32);
 
             ReadAndDecrypt(Offset, (byte *) DeSize, DeLen, hi->hfd );
-
             Offset += DeLen;
-
             WritePtr = 0;
 
-            for (x = 0; x < DeCount; x++) {
+            for (x = 0; x < DeCount; ++x)
+            {
                 byte *ChunkBytes = new byte[ DeSize[x] ];
                 ReadAndDecrypt(Offset, ChunkBytes, DeSize[x], hi->hfd);
                 Offset += DeSize[x];
@@ -327,7 +328,8 @@ namespace HPI
         EntryOffset = Entries + 1;
         Entry = (HPIENTRY *) (hi->hfd->Directory + *EntryOffset);
 
-        for (count = 0; count < *Entries; count++) {
+        for (count = 0; count < *Entries; ++count)
+        {
             Name = hi->hfd->Directory + Entry->NameOffset;
             FileCount = (sint32 *) (hi->hfd->Directory + Entry->CountOffset);
             FileLength = FileCount + 1;
@@ -340,24 +342,22 @@ namespace HPI
             if (Entry->Flag == 1)   
             {
                 String sDir = m_cDir; // save directory
-                m_cDir += (char *)Name;    // add new path to directory.
-                m_cDir += "\\";          // don't forget to end path with /
+                m_cDir << (char *)Name << "\\"; 
 
-                ProcessSubDir( li );     // process new directory
+                ProcessSubDir(li);     // process new directory
 
                 delete li;   // free the item.
                 li = NULL;
 
                 m_cDir = sDir; // restore dir with saved dir
-            } else {
-                String f = Lowercase( m_cDir + (char *)Name );
-
-                li->Size = *FileLength;
-
-                m_Archive->InsertOrUpdate( f, li );
             }
-
-            Entry++;
+            else
+            {
+                String f(String::ToLower(m_cDir + (char *)Name));
+                li->Size = *FileLength;
+                m_Archive->InsertOrUpdate(f, li);
+            }
+            ++Entry;
         }
     }
 
@@ -531,15 +531,17 @@ namespace HPI
         if (!m_file_cache)
             m_file_cache = new std::list< CACHEFILEDATA >;
 
-        String cacheable_filename = Lowercase(filename);
+        String cacheable_filename(filename);
+        cacheable_filename.toLower();
         for (String::iterator i = cacheable_filename.begin(); i != cacheable_filename.end(); ++i)
         {
             if ('/' == *i)
                 *i = 'S';
         }
 
-        String cache_filename = TA3D::Paths::Caches + cacheable_filename + ".dat";		// Save file in disk cache
-        FILE *cache_file = TA3D_OpenFile(cache_filename, "wb");
+        String cache_filename;
+        cache_filename << TA3D::Paths::Caches << cacheable_filename << ".dat"; // Save file in disk cache
+        FILE* cache_file = TA3D_OpenFile(cache_filename, "wb");
         if (cache_file)
         {
             fwrite(data, filesize, 1, cache_file);
@@ -576,11 +578,12 @@ namespace HPI
         String cacheable_filename = Lowercase(filename);
         for (String::iterator i = cacheable_filename.begin() ; i != cacheable_filename.end(); ++i)
         {
-            if('/' == *i)
+            if ('/' == *i)
                 *i = 'S';
         }
 
-        String cache_filename = TA3D::Paths::Caches + cacheable_filename + ".dat";
+        String cache_filename;
+        cache_filename << TA3D::Paths::Caches << cacheable_filename << ".dat";
 
         if(TA3D::Paths::Exists(cache_filename)) // Check disk cache
         {
@@ -601,7 +604,7 @@ namespace HPI
         return NULL;
     }
 
-    cHPIHandler::CACHEFILEDATA* cHPIHandler::IsInCache( const String& filename)
+    cHPIHandler::CACHEFILEDATA* cHPIHandler::IsInCache(const String& filename)
     {
         if (!m_file_cache)
             return NULL;
@@ -623,18 +626,15 @@ namespace HPI
 
     byte *cHPIHandler::PullFromHPI(const String& filename, uint32* fileLength)
     {
-        String UNIX_filename = m_Path + filename;
-        for(uint16 i = 0 ; i < UNIX_filename.size() ; ++i)
-        {
-            if( UNIX_filename[i] == '\\' )
-                UNIX_filename[i] = '/';
-        }
+        String UNIX_filename;
+        UNIX_filename << m_Path << filename;
+        UNIX_filename.convertAntiSlashesIntoSlashes();
 
-        CACHEFILEDATA *cache_result = IsInCache( UNIX_filename );		// Look for it in the cache
-        if(cache_result)
+        CACHEFILEDATA *cache_result = IsInCache(UNIX_filename); // Look for it in the cache
+        if (cache_result)
         {
-            byte *data = new byte[ cache_result->length ];
-            memcpy( data, cache_result->data, cache_result->length );
+            byte* data = new byte[cache_result->length];
+            memcpy(data, cache_result->data, cache_result->length);
             if (fileLength)
                 *fileLength = cache_result->length;
             return data;
@@ -643,16 +643,12 @@ namespace HPI
         uint32	FileSize;
 
         UNIX_filename = m_Path + TA3D_CURRENT_MOD + filename;
-        for( uint16 i = 0 ; i < UNIX_filename.size() ; ++i)
-        {
-            if( UNIX_filename[i] == '\\' )
-                UNIX_filename[i] = '/';
-        }
+        UNIX_filename.convertAntiSlashesIntoSlashes();
 
-        if(exists( UNIX_filename.c_str() ) ) // Current mod has priority
+        if (exists(UNIX_filename.c_str())) // Current mod has priority
         {
-            FILE *src = TA3D_OpenFile( UNIX_filename.c_str(), "rb" );
-            if( src )
+            FILE* src = TA3D_OpenFile(UNIX_filename.c_str(), "rb");
+            if (src)
             {
                 FileSize = FILE_SIZE( UNIX_filename.c_str() );
                 byte *data = new byte[ FileSize + 1 ];
@@ -686,15 +682,11 @@ namespace HPI
         }
 
         UNIX_filename = m_Path + filename;
-        for( uint16 i = 0 ; i < UNIX_filename.size() ; ++i)
-        {
-            if( UNIX_filename[i] == '\\' )
-                UNIX_filename[i] = '/';
-        }
+        UNIX_filename.convertAntiSlashesIntoSlashes();
 
-        if( exists( UNIX_filename.c_str() ) )
+        if (exists(UNIX_filename.c_str()))
         {
-            FILE *src = TA3D_OpenFile( UNIX_filename.c_str(), "rb" );
+            FILE* src = TA3D_OpenFile(UNIX_filename.c_str(), "rb");
             if( src )
             {
                 FileSize = FILE_SIZE( UNIX_filename.c_str() );
@@ -735,12 +727,9 @@ namespace HPI
 
     byte* cHPIHandler::PullFromHPI_zone(const String &filename, const uint32 start, const uint32 length, uint32 *fileLength)
     {
-        String UNIX_filename = m_Path + TA3D_CURRENT_MOD + filename;
-        for (uint16 i = 0 ; i < UNIX_filename.size() ; ++i)
-        {
-            if( UNIX_filename[i] == '\\' )
-                UNIX_filename[i] = '/';
-        }
+        String UNIX_filename;
+        UNIX_filename << m_Path << TA3D_CURRENT_MOD << filename;
+        UNIX_filename.convertAntiSlashesIntoSlashes();
 
         if (exists(UNIX_filename.c_str())) // Current mod has priority
         {
@@ -752,21 +741,17 @@ namespace HPI
                 data[ FILE_SIZE( UNIX_filename.c_str() ) ] = 0;				// NULL terminated
                 fclose( src );
                 if (fileLength)
-                    *fileLength = FILE_SIZE( UNIX_filename.c_str() );
+                    *fileLength = FILE_SIZE(UNIX_filename.c_str());
                 return data;
             }
         }
 
         HPIITEM* iterFind = m_Archive->Find(Lowercase(filename));
-        if( iterFind != NULL && iterFind->hfd->priority )				// Priority file!!
-            return DecodeFileToMem_zone( iterFind , start , length , fileLength );
+        if (iterFind != NULL && iterFind->hfd->priority)				// Priority file!!
+            return DecodeFileToMem_zone(iterFind, start, length, fileLength);
 
         UNIX_filename = m_Path + filename;
-        for (uint16 i = 0 ; i < UNIX_filename.size() ; ++i)
-        {
-            if (UNIX_filename[i] == '\\')
-                UNIX_filename[i] = '/';
-        }
+        UNIX_filename.convertAntiSlashesIntoSlashes();
 
         if (exists(UNIX_filename.c_str()))
         {
@@ -774,7 +759,7 @@ namespace HPI
             if (src)
             {
                 byte* data = new byte[FILE_SIZE(UNIX_filename.c_str()) + 1];
-                fread(data, FILE_SIZE( UNIX_filename.c_str()), 1, src);
+                fread(data, FILE_SIZE(UNIX_filename.c_str()), 1, src);
                 data[FILE_SIZE(UNIX_filename.c_str())] = 0; // NULL terminated
                 fclose(src);
                 if (fileLength)
@@ -790,21 +775,15 @@ namespace HPI
 
     bool cHPIHandler::Exists(const String& filename)
     {
-        String UNIX_filename = m_Path + TA3D_CURRENT_MOD + filename;
-        for (String::iterator i = UNIX_filename.begin(); i != UNIX_filename.end(); ++i)
-        {
-            if ('\\' == *i)
-                *i = '/';
-        }
+        String UNIX_filename;
+        UNIX_filename << m_Path << TA3D_CURRENT_MOD << filename;
+        UNIX_filename.convertAntiSlashesIntoSlashes();
         if (exists(UNIX_filename.c_str()))
             return true;
 
         UNIX_filename = m_Path + filename;
-        for (String::iterator i = UNIX_filename.begin(); i != UNIX_filename.end(); ++i)
-        {
-            if ('\\' == *i)
-                *i = '/';
-        }
+        UNIX_filename.convertAntiSlashesIntoSlashes();
+
         if (exists(UNIX_filename.c_str()))
             return true;
 
@@ -814,32 +793,29 @@ namespace HPI
 
 
 
-    uint32 cHPIHandler::getFilelist(const String& s, std::vector<String>& li)
+    uint32 cHPIHandler::getFilelist(const String& s, String::Vector& li)
     {
-        std::list<String> l;
+        String::List l;
         uint32 r = getFilelist(s, l);
-        for (std::list<String>::const_iterator i = l.begin(); i != l.end(); ++i)
+        for (String::List::const_iterator i = l.begin(); i != l.end(); ++i)
             li.push_back(*i);
         return r;
     }
 
 
-    uint32 cHPIHandler::getFilelist(const String& s, std::list<String>& li)
+    uint32 cHPIHandler::getFilelist(const String& s, String::List& li)
     {
         uint32 list_size = m_Archive->WildCardSearch(s, &li);
         al_ffblk info;
 
-        String UNIX_search = m_Path + s;
-        for (uint16 i = 0 ; i < UNIX_search.size() ; ++i)
-        {
-            if( UNIX_search[i] == '\\' )
-                UNIX_search[i] = '/';
-        }
+        String UNIX_search;
+        UNIX_search << m_Path << s;
+        UNIX_search.convertAntiSlashesIntoSlashes();
 
         if (al_findfirst(UNIX_search.c_str(), &info, FA_RDONLY | FA_ARCH ) == 0)
         {
             int last = -1;
-            for( uint16 i = 0 ; i < UNIX_search.size() ; ++i)
+            for (uint16 i = 0 ; i < UNIX_search.size() ; ++i)
             {
                 if (UNIX_search[i] == '/')
                 {
@@ -853,7 +829,7 @@ namespace HPI
                 UNIX_search = "";
 
             do {
-                li.push_back( UNIX_search + info.name );
+                li.push_back(UNIX_search + info.name);
             } while (al_findnext(&info) == 0);
 
             al_findclose(&info);
@@ -865,17 +841,14 @@ namespace HPI
 
         if (TA3D_CURRENT_MOD != "")
         {
-            UNIX_search = m_Path + TA3D_CURRENT_MOD + s;
-            for( uint16 i = 0 ; i < UNIX_search.size() ; i++ )
-            {
-                if( UNIX_search[i] == '\\' )
-                    UNIX_search[i] = '/';
-            }
+            UNIX_search = m_Path;
+            UNIX_search << TA3D_CURRENT_MOD << s;
+            UNIX_search.convertAntiSlashesIntoSlashes();
 
             if (al_findfirst( UNIX_search.c_str(), &info, FA_RDONLY | FA_ARCH ) == 0)
             {
                 int last = -1;
-                for( uint16 i = 0 ; i < UNIX_search.size() ; ++i)
+                for (uint16 i = 0 ; i < UNIX_search.size() ; ++i)
                 {
                     if( UNIX_search[i] == '/' )
                     {
@@ -918,14 +891,9 @@ namespace HPI
         }
 
         String win_filename(filename);
+        win_filename.convertSlashesIntoAntiSlashes();
 
-        for (uint16 i = 0 ; i < win_filename.size() ; ++i)
-        {
-            if (win_filename[i] == '/')
-                win_filename[i] = '\\';
-        }
-
-        data = HPIManager->PullFromHPI( win_filename, &length );
+        data = HPIManager->PullFromHPI(win_filename, &length);
         pos = 0;
     }
 
