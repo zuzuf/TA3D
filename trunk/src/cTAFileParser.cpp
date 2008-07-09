@@ -31,7 +31,7 @@ namespace TA3D
 			for( char *result = *Data ; **Data ; (*Data)++ )
 				if( **Data == '\n' || **Data == ';' || **Data == '{' || **Data == '}' ) {
 					(*Data)++;
-					return String( result, *Data );
+					return std::string( result, *Data );
 					}
 			
 			return *Data;
