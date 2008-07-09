@@ -822,7 +822,7 @@ namespace Interfaces
             uint32 mod_hash;
             fread(&mod_hash, sizeof( mod_hash ), 1, cache_file);
 
-            if (mod_hash != hash_string( TA3D_CURRENT_MOD)) // Doesn't correspond to current mod
+            if (mod_hash != TA3D_CURRENT_MOD.hashValue()) // Doesn't correspond to current mod
             {
                 fclose(cache_file);
                 return 0;
@@ -921,7 +921,7 @@ namespace Interfaces
         if (cache_file == NULL )
             return;
 
-        uint32 mod_hash = hash_string( TA3D_CURRENT_MOD );			// Save a hash of current mod
+        uint32 mod_hash = TA3D_CURRENT_MOD.hashValue(); // Save a hash of current mod
 
         fwrite( &mod_hash, sizeof( mod_hash ), 1, cache_file );
 
