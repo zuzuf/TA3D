@@ -137,14 +137,16 @@ namespace TA3D
         /*!
         ** \brief Convert all antislashes into slashes
         ** \param[in,out] s The string to convert
+        ** \return A new string
         */
-        static void ConvertAntiSlashesIntoSlashes(String& s);
+        static String ConvertAntiSlashesIntoSlashes(String& s) { return String(s).convertAntiSlashesIntoSlashes(); }
 
         /*!
         ** \brief Convert all slashes into antislashes
         ** \param[in,out] s The string to convert
+        ** \return A new string
         */ 
-        static void ConvertSlashesIntoAntiSlashes(String& s);
+        static String ConvertSlashesIntoAntiSlashes(String& s) { return String(s).convertSlashesIntoAntiSlashes(); }
 
         /*!
         ** \brief Extract the key and its value from a string (mainly provided by TDF files)
@@ -391,6 +393,7 @@ namespace TA3D
 
         //@} Split
 
+
         /*!
         ** \brief Extract the key and its value from a string (mainly provided by TDF files)
         **
@@ -403,13 +406,15 @@ namespace TA3D
 
         /*!
         ** \brief Convert all antislashes into slashes
+        ** \return Returns *this
         */
-        void convertAntiSlashesIntoSlashes() { ConvertAntiSlashesIntoSlashes(*this); }
+        String& convertAntiSlashesIntoSlashes();
 
         /*!
         ** \brief Convert all slashes into antislashes
+        ** \return Returns *this
         */
-        void convertSlashesIntoAntiSlashes() { ConvertSlashesIntoAntiSlashes(*this); }
+        String& convertSlashesIntoAntiSlashes();
 
 
     private:
