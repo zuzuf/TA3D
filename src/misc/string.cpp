@@ -199,22 +199,24 @@ namespace TA3D
     }
 
 
-    void String::ConvertAntiSlashesIntoSlashes(String& s)
+    String& String::convertAntiSlashesIntoSlashes()
     {
-        for (String::iterator i = s.begin(); i != s.end(); ++i)
+        for (String::iterator i = this->begin(); i != this->end(); ++i)
         {
             if (*i == '\\')
                 *i = '/';
         }
+        return *this;
     }
 
-    void String::ConvertSlashesIntoAntiSlashes(String& s)
+    String& String::convertSlashesIntoAntiSlashes()
     {
-        for (String::iterator i = s.begin(); i != s.end(); ++i)
+        for (String::iterator i = this->begin(); i != this->end(); ++i)
         {
             if (*i == '/')
                 *i = '\\';
         }
+        return *this;
     }
 
 
