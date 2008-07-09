@@ -908,26 +908,23 @@ bool cAudio::LoadSound( const String &Filename, const bool LoadAs3D,
 void cAudio::LoadTDFSounds( const bool allSounds )
 {
     pMutex.lock();
-    String FileName;
+    String FileName(ta3dSideData.gamedata_dir);
 
-    if( allSounds )
-        FileName = ta3dSideData.gamedata_dir + "allsound.tdf";
+    if (allSounds)
+        FileName += "allsound.tdf";
     else
-        FileName = ta3dSideData.gamedata_dir + "sound.tdf";
+        FileName += "sound.tdf";
 
-    Console->AddEntry( "Reading %s", FileName.c_str() );
+    Console->AddEntry("Reading %s", FileName.c_str());
+    Load(FileName);
+    Console->AddEntry("Loading sounds from %s", FileName.c_str());
 
-    Load( FileName );
-
-    Console->AddEntry( "Loading sounds from %s", FileName.c_str() );
-
-    for( iterator iter = begin() ; iter != end() ; iter++ )   
+    for (iterator iter = begin(); iter != end() ; ++iter)   
     {
-        for( std::list< cBucket<String> >::iterator cur = iter->begin() ; cur != iter->end() ; cur++ )
+        for (std::list< cBucket<String> >::const_iterator cur = iter->begin() ; cur != iter->end() ; ++cur)
         {
-            String szWav = String( (*cur).m_T_data );
-
-            LoadSound( szWav, false );
+            String szWav = String((*cur).m_T_data);
+            LoadSound(szWav, false);
         }
     }
     pMutex.unlock();
