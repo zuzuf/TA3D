@@ -20,7 +20,7 @@
 
 
 
-/*! \class 
+/*! \class SQNode
 ** \brief
 */
 struct SQNode

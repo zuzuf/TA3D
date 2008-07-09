@@ -62,9 +62,9 @@ namespace UTILS
     class cHashTable : protected std::vector< std::list< TA3D::UTILS::cBucket<T> > >
     {
     public:
-        //! \typedef List of buckets
+        //! \brief List of buckets
         typedef typename std::list< TA3D::UTILS::cBucket<T> >   BucketsList;
-        //! \typedef Vector of list of buckets
+        //! \brief Vector of list of buckets
         typedef typename std::vector< BucketsList >  VectorOfBucketsList;
 
     public:
@@ -143,9 +143,9 @@ namespace UTILS
     class clpHashTable : public cHashTable<T>
     {
     public:
-        //! \typedef List of buckets
+        //! \brief List of buckets
         typedef typename std::list< TA3D::UTILS::cBucket<T> >   BucketsList;
-        //! \typedef Vector of list of buckets
+        //! \brief Vector of list of buckets
         typedef typename std::vector< BucketsList >  VectorOfBucketsList;
 
     public:

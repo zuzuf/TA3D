@@ -133,7 +133,7 @@
 #include <math.h>
 
 
-//! \typedef The current string implementation
+//! \brief The current string implementation
 typedef std::string	String;
 
 // Cire:

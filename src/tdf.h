@@ -386,7 +386,7 @@ namespace TA3D
         void resetListOfItemsToDisplay();
 
     public:
-        //! \typedef List of feature
+        //! \brief List of feature
         typedef std::list<uint32> FeaturesList;
 
     public:
