@@ -127,7 +127,7 @@ namespace Menus
         void finalizeDrawing();
 
     private:
-        //! \typedef All messages
+        //! \brief All messages
         typedef std::list<String> MessagesList;
 
     private:

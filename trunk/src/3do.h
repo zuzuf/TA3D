@@ -1022,29 +1022,30 @@ public:
         model_hashtable.EmptyHashTable();
     }
 
-    MODEL *get_model(const char *nom)
+    MODEL *get_model(const String& name)
     {
-        if(nom==NULL)
+        if (name.empty())
             return NULL;
 
-        int e = model_hashtable.Find( "objects3d\\" + Lowercase( nom ) + ".3do" ) - 1;
-        if( e >= 0 )
+        const String l = Lowercase(name);
+        int e = model_hashtable.Find("objects3d\\" + l + ".3do") - 1;
+        if (e >= 0)
             return &(model[e]);
 
-        e = model_hashtable.Find( "objects3d\\" + Lowercase( nom ) + ".3dm" ) - 1;
-        if( e >= 0 )
+        e = model_hashtable.Find("objects3d\\" + l + ".3dm") - 1;
+        if (e >= 0)
             return &(model[e]);
 
-        e = model_hashtable.Find( Lowercase( nom ) ) - 1;
-        if( e >= 0 )
+        e = model_hashtable.Find(l) - 1;
+        if (e >= 0)
             return &(model[e]);
 
-        e = model_hashtable.Find( Lowercase( nom ) + ".3do" ) - 1;
-        if( e >= 0 )
+        e = model_hashtable.Find(l + ".3do") - 1;
+        if (e >= 0)
             return &(model[e]);
 
-        e = model_hashtable.Find( Lowercase( nom ) + ".3dm" ) - 1;
-        if( e >= 0 )
+        e = model_hashtable.Find(l + ".3dm") - 1;
+        if (e >= 0)
             return &(model[e]);
         return NULL;
     }

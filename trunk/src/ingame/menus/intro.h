@@ -59,7 +59,7 @@ namespace Menus
         void scrollTheText();
 
     private:
-        //! \typedef List of string to describe the content
+        //! \brief List of string to describe the content
         typedef std::vector<String> IntroContent;
 
     private:
