@@ -59,12 +59,8 @@ namespace Menus
         void scrollTheText();
 
     private:
-        //! \brief List of string to describe the content
-        typedef std::vector<String> IntroContent;
-
-    private:
         //! The scrolling text
-        IntroContent pContent;
+        String::Vector pContent;
         //! Cached size of the content
         unsigned int pContentSize;
 
