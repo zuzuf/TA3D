@@ -95,14 +95,14 @@ namespace Menus
     void Intro::reloadContent()
     {
         pContent.clear();
-        std::vector<String> list;
+        String::Vector list;
         // A big space before
         for (int i = 1; i < TA3D_INTRO_MAX_LINES; ++i)
             pContent.push_back("");
         // Load all text files
         if (Resources::Glob(list, "intro" + Paths::SeparatorAsString + "*.txt"))
         {
-            for (std::vector<String>::const_iterator i = list.begin(); i != list.end(); ++i)
+            for (String::Vector::const_iterator i = list.begin(); i != list.end(); ++i)
                 Paths::Files::Load(pContent, *i, 5 * 1024 /* Max 5Ko */, false);
         }
         pContentSize = pContent.size();

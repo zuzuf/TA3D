@@ -113,12 +113,12 @@ namespace Menus
         GUIOBJ* obj = pArea->get_object("load_menu.l_file");
         if (obj)
         {
-            std::list<String> fileList;
+            String::List fileList;
             Paths::Glob(fileList, TA3D::Paths::Savegames + "*.sav");
             fileList.sort();
             obj->Text.clear();
             obj->Text.reserve(fileList.size());
-            for (std::list<String>::const_iterator i = fileList.begin(); i != fileList.end(); ++i)
+            for (String::List::const_iterator i = fileList.begin(); i != fileList.end(); ++i)
             {
             	// Remove the Savegames path, leaving just the bare file names
                 obj->Text.push_back(Paths::ExtractFileName(*i));
