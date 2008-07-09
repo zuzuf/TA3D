@@ -652,13 +652,12 @@ public:
     inline void gather_build_data()
     {
         uint32 file_size=0;
-        std::list<String> file_list;
+        String::List file_list;
         HPIManager->getFilelist( ta3dSideData.download_dir + "*.tdf", file_list);
 
-        for(std::list<String>::iterator file=file_list.begin();file!=file_list.end();file++) // Cherche un fichier pouvant contenir des informations sur l'unité unit_name
+        for (String::List::const_iterator file = file_list.begin(); file != file_list.end(); ++file) // Cherche un fichier pouvant contenir des informations sur l'unité unit_name
         {
-            byte *data=HPIManager->PullFromHPI(*file,&file_size);		// Lit le fichier
-
+            byte* data=HPIManager->PullFromHPI(*file, &file_size);		// Lit le fichier
             if(data)
             {
                 analyse2((char*)data,file_size);
@@ -686,18 +685,20 @@ public:
 
         gather_build_data();			// Read additionnal build data
 
-        std::list<String> file_list;
+        String::List file_list;
         HPIManager->getFilelist( ta3dSideData.guis_dir + "*.gui", file_list);
 
-        for(std::list<String>::iterator file=file_list.begin();file!=file_list.end();file++) // Cherche un fichier pouvant contenir des informations sur l'unité unit_name
+        for (String::List::iterator file = file_list.begin(); file != file_list.end(); ++file) // Cherche un fichier pouvant contenir des informations sur l'unité unit_name
         {
             char *f=NULL;
-            for (int i=0;i<nb_unit; ++i)
+            for (int i = 0; i < nb_unit; ++i)
             {
                 if ((f = strstr((char*)Uppercase(*file).c_str(), unit_type[i].Unitname)))
+                {
                     if(f[strlen(unit_type[i].Unitname)]=='.'
                        ||(f[strlen(unit_type[i].Unitname)]>='0' && f[strlen(unit_type[i].Unitname)]<='9'))
                         analyse(*file,i);
+                }
             }
         }
 
@@ -710,17 +711,17 @@ public:
         strupr(unit_name);
         int unit_index=get_unit_index(unit_name);
         if(unit_index==-1) return;		// Au cas où l'unité n'existerait pas
-        char *uprname=strdup(unit_name);
+        char *uprname = strdup(unit_name);
         strupr(uprname);
 
-        std::list<String> file_list;
+        String::List file_list;
         HPIManager->getFilelist( format( "scripts\\%s.cob", unit_name ), file_list);
 
-        for(std::list<String>::iterator file=file_list.begin();file!=file_list.end();file++) // Cherche un fichier pouvant contenir des informations sur l'unité unit_name
+        for (String::List::iterator file = file_list.begin();file != file_list.end(); ++file) // Cherche un fichier pouvant contenir des informations sur l'unité unit_name
         {
-            if(strstr(TA3D::Uppercase(*file).c_str(),uprname)) 	// A trouvé un fichier qui convient
+            if (strstr(TA3D::Uppercase(*file).c_str(),uprname)) 	// A trouvé un fichier qui convient
             {
-                byte *data=HPIManager->PullFromHPI(*file);		// Lit le fichier
+                byte* data=HPIManager->PullFromHPI(*file);		// Lit le fichier
 
                 unit_type[unit_index].script=(SCRIPT*) malloc(sizeof(SCRIPT));
                 unit_type[unit_index].script->init();

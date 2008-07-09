@@ -15,7 +15,7 @@ namespace Resources
 
 
     //! Definition list of resources folders
-    typedef std::vector<String> ResourcesFoldersList;
+    typedef String::Vector ResourcesFoldersList;
 
     //! List of resources folders
     static ResourcesFoldersList pResourcesFolders;
@@ -112,7 +112,7 @@ namespace Resources
 
 
  
-    bool Glob(std::vector<String>& out, const String& pattern, const bool emptyListBefore)
+    bool Glob(String::Vector& out, const String& pattern, const bool emptyListBefore)
     {
         if (emptyListBefore)
             out.clear();
@@ -123,7 +123,7 @@ namespace Resources
         return !out.empty();
     }
 
-    bool Glob(std::list<String>& out, const String& pattern, const bool emptyListBefore)
+    bool Glob(String::List& out, const String& pattern, const bool emptyListBefore)
     {
         if (emptyListBefore)
             out.clear();

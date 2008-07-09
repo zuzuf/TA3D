@@ -477,7 +477,7 @@ namespace TA3D
                             rest(1);
                             if( getNextSpecial( &special_msg ) == 0 )
                             {
-                                std::vector<String> params;
+                                String::Vector params;
                                 ReadVectorString(params, special_msg.message, " " );
                                 if( params.size() == 3 && params[0] == "RESPONSE" && params[1] == "PLAYER_ID" )
                                 {
@@ -1030,7 +1030,7 @@ namespace TA3D
         if( gamelist.empty() )
             return 0;
 
-        std::vector<String> line;
+        String::Vector line;
         ReadVectorString(line, gamelist, "\n");
 
         int nb_servers = 0;
@@ -1039,9 +1039,9 @@ namespace TA3D
         cur_server.internet = true;
         String server_version = "";
         String server_mod = "";
-        for (std::vector<String>::const_iterator entry = line.begin(); entry != line.end(); ++entry)
+        for (String::Vector::const_iterator entry = line.begin(); entry != line.end(); ++entry)
         {
-            std::vector<String> params;
+            String::Vector params;
             ReadVectorString(params, *entry, " " );
             if( params.size() < 2 )	continue;
             if( params.size() == 2 && params[1] == "servers" )

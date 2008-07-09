@@ -526,13 +526,12 @@ char *cConsole::draw( TA3D::Interfaces::GfxFont fnt, float dt, float fsize, bool
 	glEnable(GL_TEXTURE_2D);
 	glTexEnvi(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_MODULATE);
 
-    std::list<String>::iterator i_entry;
 	int i = 0;
-	for( i_entry=m_LastEntries.begin();i_entry!=m_LastEntries.end();i_entry++ ) 
+	for (String::List::const_iterator i_entry = m_LastEntries.begin(); i_entry != m_LastEntries.end(); ++i_entry) 
 	{
 		gfx->print(fnt,0.0f,maxh-fsize*(m_LastEntries.size()+1-i)-5.0f,0.0f,0xAFAFAFAF,
-			format(">%s", (char *)((*i_entry).c_str())) );
-		i++;
+			format(">%s", (char *)((*i_entry).c_str())));
+		++i;
 	}
 
 	gfx->print(fnt,0.0f,maxh-fsize-5.0f,0.0f,0xFFFFFFFF,format(">%s_",m_InputText));

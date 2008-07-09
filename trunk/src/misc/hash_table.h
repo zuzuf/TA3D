@@ -117,7 +117,7 @@ namespace UTILS
         /*!
         ** \brief
         */
-        uint32 WildCardSearch( const String &Search, std::list<String>* li);
+        uint32 WildCardSearch( const String &Search, String::List* li);
 
         /*!
         ** \brief Remove an existing entry

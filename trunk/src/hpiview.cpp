@@ -73,12 +73,12 @@ static bool hpiviewCmdShow(int argc, char** argv)
     if( argc >= 3 )
     {
         HPIManager = new cHPIHandler("");
-        std::list<String> file_list;
+        String::List file_list;
         String ext = (argc > 2) ? argv[2] : "";
         HPIManager->getFilelist(ext, file_list);
         file_list.sort();
-        for(std::list<String>::iterator cur_file=file_list.begin();cur_file!=file_list.end(); ++cur_file)
-            std::cout << cur_file->c_str() << std::endl;
+        for (String::List::const_iterator cur_file=file_list.begin();cur_file!=file_list.end(); ++cur_file)
+            std::cout << *cur_file << std::endl;
         delete HPIManager;
         return true;
     }
@@ -165,13 +165,13 @@ static bool hpiviewCmdListMods(int argc, char** argv)
 
         if( m_File.is_open() )
         {
-            std::list<String> modlist;
+            String::List modlist;
             if (Paths::Glob(modlist, "mods/*"))
             {
                 modlist.sort();
-                for (std::list<String>::const_iterator i = modlist.begin(); i != modlist.end(); ++i)
+                for (String::List::const_iterator i = modlist.begin(); i != modlist.end(); ++i)
                 {
-                    if ((*i)[0] != '.')
+                    if (!(i->empty()) && ((*i)[0] != '.'))
                         m_File << *i << "\n";
                 }
             }
@@ -228,12 +228,12 @@ static bool hpiviewCmdPrint(int argc, char** argv)
     if(argc >= 3) 
     {
         HPIManager = new cHPIHandler("");
-        std::list<String> file_list;
+        String::List file_list;
         String ext = argc > 2 ? argv[2] : "";
         HPIManager->getFilelist(ext, file_list);
         file_list.sort();
 
-        for(std::list<String>::iterator cur_file = file_list.begin(); cur_file != file_list.end(); ++cur_file)
+        for (String::List::iterator cur_file = file_list.begin(); cur_file != file_list.end(); ++cur_file)
         {
             uint32 file_size32 = 0;
             byte* data = HPIManager->PullFromHPI( *cur_file, &file_size32 );

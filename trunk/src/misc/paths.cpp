@@ -109,7 +109,7 @@ namespace Paths
     {
         // TODO The boost is more efficient
         String ret;
-        std::vector<String> parts;
+        String::Vector parts;
         ReadVectorString(parts, p, SeparatorAsString, false);
         
         unsigned int len = parts.size();
@@ -210,12 +210,12 @@ namespace Paths
         if (p.empty())
             return true;
         // TODO Use the boost library, which has a better implementation that this one
-        std::vector<String> parts;
+        String::Vector parts;
         ReadVectorString(parts, p, SeparatorAsString, false);
         String pth("");
         bool hasBeenCreated(false);
 
-        for (std::vector<String>::const_iterator i = parts.begin(); i != parts.end(); ++i)
+        for (String::Vector::const_iterator i = parts.begin(); i != parts.end(); ++i)
         {
             pth += *i;
 	        # ifndef TA3D_PLATFORM_WINDOWS
@@ -262,14 +262,14 @@ namespace Paths
         return !out.empty();
     }
 
-    bool Glob(std::list<String>& out, const String& pattern, const bool emptyListBefore)
+    bool Glob(String::List& out, const String& pattern, const bool emptyListBefore)
     {
-        return TmplGlob< std::list<String> >(out, pattern, emptyListBefore);
+        return TmplGlob< String::List >(out, pattern, emptyListBefore);
     }
 
-    bool Glob(std::vector<String>& out, const String& pattern, const bool emptyListBefore)
+    bool Glob(String::Vector& out, const String& pattern, const bool emptyListBefore)
     {
-        return TmplGlob< std::vector<String> >(out, pattern, emptyListBefore);
+        return TmplGlob< String::Vector >(out, pattern, emptyListBefore);
     }
 
 

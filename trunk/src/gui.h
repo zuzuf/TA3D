@@ -94,8 +94,8 @@ class SKIN;			// Class SKIN to handle GUI skins for GUIOBJ objects and WND windo
 /*--------- Functions that can use the skin object -------------------------------------------------*/
 
 void button ( float x, float y, float x2, float y2, const String &Title, bool Etat, float s=1.0f , SKIN *skin=NULL );
-void FloatMenu( float x, float y, const std::vector<String> &Entry, int Index, int StartEntry=0 , SKIN *skin=NULL, float size = 1.0f );
-void ListBox( float x1, float y1, float x2, float y2, const std::vector<String> &Entry, int Index, int Scroll , SKIN *skin=NULL, float size = 1.0f, uint32 flags = 0 );
+void FloatMenu( float x, float y, const String::Vector &Entry, int Index, int StartEntry=0 , SKIN *skin=NULL, float size = 1.0f );
+void ListBox( float x1, float y1, float x2, float y2, const String::Vector &Entry, int Index, int Scroll , SKIN *skin=NULL, float size = 1.0f, uint32 flags = 0 );
 void OptionButton( float x, float y, const String &Title, bool Etat , SKIN *skin=NULL, float size = 1.0f );
 void OptionCase( float x, float y, const String &Title, bool Etat , SKIN *skin=NULL, float size = 1.0f );
 void TextBar( float x1, float y1, float x2, float y2, const String &Caption, bool Etat , SKIN *skin=NULL, float size = 1.0f );
@@ -227,14 +227,14 @@ public:
 	void create_optionc(float X1,float Y1,const String &Caption,bool ETAT,void (*F)(int), SKIN *skin = NULL, float size=1.0f );
 	void create_optionb(float X1,float Y1,const String &Caption,bool ETAT,void (*F)(int), SKIN *skin = NULL, float size=1.0f );
 	void create_textbar(float X1,float Y1,float X2,float Y2,const String &Caption,int MaxChar, void(*F)(int)=NULL, float size=1.0f);
-	void create_menu(float X1,float Y1,const std::vector<String> &Entry,void (*F)(int), float size=1.0f);
-	void create_menu(float X1,float Y1,float X2,float Y2,const std::vector<String> &Entry,void (*F)(int), float size=1.0f);
+	void create_menu(float X1,float Y1,const String::Vector &Entry,void (*F)(int), float size=1.0f);
+	void create_menu(float X1,float Y1,float X2,float Y2,const String::Vector &Entry,void (*F)(int), float size=1.0f);
 	void create_pbar(float X1,float Y1,float X2,float Y2,int PCent, float size=1.0f);
 	void create_text(float X1,float Y1,const String &Caption,int Col=Noir, float size = 1.0f);
 	void create_line(float X1,float Y1,float X2,float Y2,int Col=Noir);
 	void create_box(float X1,float Y1,float X2,float Y2,int Col=Noir);
 	void create_img(float X1,float Y1,float X2,float Y2,GLuint img);
-	void create_list(float X1,float Y1,float X2,float Y2,const std::vector<String> &Entry, float size=1.0f);
+	void create_list(float X1,float Y1,float X2,float Y2,const String::Vector &Entry, float size=1.0f);
 	void create_ta_button(float X1,float Y1,const std::vector< String > &Caption, const std::vector< GLuint > &states, int nb_st);
 };
 

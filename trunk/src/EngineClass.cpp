@@ -1822,11 +1822,11 @@ namespace TA3D
         std::list<SKY_DATA*> sky_list;
         sky_list.clear();
 
-        std::list<String> file_list;
+        String::List file_list;
         HPIManager->getFilelist( "sky\\*.tdf",  file_list);
         uint32	nb_sky = 0;
 
-        for (std::list<String>::const_iterator it = file_list.begin(); it != file_list.end(); ++it)
+        for (String::List::const_iterator it = file_list.begin(); it != file_list.end(); ++it)
         {
             SKY_DATA *sky_data = new SKY_DATA;
             sky_data->load_tdf(*it);
@@ -1854,21 +1854,23 @@ namespace TA3D
                 delete sky_data;
         }
 
-        if( nb_sky == 0 )			// Look for a default sky
-            for (std::list<String>::const_iterator it = file_list.begin(); it != file_list.end(); ++it)
+        if( nb_sky == 0 )// Look for a default sky
+        {
+            for (String::List::const_iterator it = file_list.begin(); it != file_list.end(); ++it)
             {
                 SKY_DATA *sky_data = new SKY_DATA;
                 sky_data->load_tdf(*it);
 
                 bool keep = sky_data->def;
-                if( keep )
+                if (keep)
                 {
-                    sky_list.push_back( sky_data );
-                    nb_sky++;
+                    sky_list.push_back(sky_data);
+                    ++nb_sky;
                 }
                 else
                     delete sky_data;
             }
+        }
 
         SKY_DATA *selected_sky = NULL;
 

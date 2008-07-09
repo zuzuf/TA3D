@@ -41,14 +41,14 @@ namespace Files
         return true;
     }
      
-    bool Load(std::list<String>& out, const String& filename, const uint32 sizeLimit, const bool emptyListBefore)
+    bool Load(String::List& out, const String& filename, const uint32 sizeLimit, const bool emptyListBefore)
     {
-        return TmplLoadFromFile< std::list<String> >(out, filename, sizeLimit, emptyListBefore);
+        return TmplLoadFromFile< String::List >(out, filename, sizeLimit, emptyListBefore);
     }
      
-    bool Load(std::vector<String>& out, const String& filename, const uint32 sizeLimit, const bool emptyListBefore)
+    bool Load(String::Vector& out, const String& filename, const uint32 sizeLimit, const bool emptyListBefore)
     {
-        return TmplLoadFromFile< std::vector<String> >(out, filename, sizeLimit, emptyListBefore);
+        return TmplLoadFromFile< String::Vector >(out, filename, sizeLimit, emptyListBefore);
     }
     
 

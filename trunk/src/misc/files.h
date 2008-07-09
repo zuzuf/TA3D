@@ -2,9 +2,7 @@
 # define _TA3D_TOOLS_FILES_H__
 
 # include "../stdafx.h"
-# include <vector>
-# include <list>
-
+# include "string.h"
 
 
 namespace TA3D
@@ -29,8 +27,8 @@ namespace Files
     ** \param emptyListBefore Empty the list before any operation
     ** \return True if the operation succeeded, False otherwise
     */
-    bool Load(std::vector<String>& out, const String& filename, const uint32 sizeLimit = 0, const bool emptyListBefore = true);
-    bool Load(std::list<String>& out, const String& filename, const uint32 sizeLimit = 0, const bool emptyListBefore = true);
+    bool Load(String::Vector& out, const String& filename, const uint32 sizeLimit = 0, const bool emptyListBefore = true);
+    bool Load(String::List& out, const String& filename, const uint32 sizeLimit = 0, const bool emptyListBefore = true);
 
 
 

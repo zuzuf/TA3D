@@ -232,13 +232,13 @@ int main(int argc, char* argv[])
 
     // Menu fichier
     const char *mnu_fichier_list[] = {"Fichiers","Nouveau","Ouvrir","Sauver","Importer(*.ASC)","Importer(*.3DO)","Importer(*.3DS)","Quitter"};
-    std::vector<String> mnu_fichier( mnu_fichier_list, &(mnu_fichier_list[8]));
+    String::Vector mnu_fichier( mnu_fichier_list, &(mnu_fichier_list[8]));
     I18N::Translate(mnu_fichier);
     MainWnd.Objets[0].create_menu(3,12,83,24,mnu_fichier,mnu_file);
 
     // Menu surface
     const char *mnu_surface_list[] = {"Surface","Editer","Copier","Coller","Reinitialiser","Coller sur toutes"};
-    std::vector<String> mnu_surface( mnu_surface_list, &(mnu_surface_list[6]));
+    String::Vector mnu_surface( mnu_surface_list, &(mnu_surface_list[6]));
     I18N::Translate(mnu_surface);
     MainWnd.Objets[1].create_menu(86,12,166,24,mnu_surface,mnu_surf);
 
@@ -249,7 +249,7 @@ int main(int argc, char* argv[])
     EditWnd.Lock=false;							EditWnd.NbObj=12;
     EditWnd.Objets=new GUIOBJ[EditWnd.NbObj];
     EditWnd.Objets[0].create_text(5,12, I18N::Translate("Parties :" ), 0xFFFFFF);
-    std::vector<String> mnu_part;
+    String::Vector mnu_part;
     mnu_part.resize( nb_obj()+1 );
     for( i=0; i<nb_obj(); i++ )
         mnu_part[i+1] = format( I18N::Translate("Partie %d").c_str() , i);
@@ -581,7 +581,7 @@ void SurfEdit()
 
     // Menu déroulant de sélection de partie de la meshe et texte indicateur
     SEdit.Objets[27].create_text(58,340,I18N::Translate( "Partie en cours d'edition:" ).c_str() );
-    std::vector<String> Part_names(1+nb_obj());
+    String::Vector Part_names(1+nb_obj());
     for(int i=0;i<nb_obj();i++)
         Part_names[i+1] = obj_table[i]->name;
     Part_names[0] = Part_names[cur_part+1];

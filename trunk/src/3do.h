@@ -97,7 +97,8 @@ public:
 								// Crée des textures correspondant aux couleurs de la palette de TA
 		nbtex=256;
 		tex=(ANIM*)	malloc(sizeof(ANIM)*nbtex);
-		for(int i=0;i<256;i++) {
+		for (int i = 0; i < 256; ++i)
+        {
 			tex[i].init();
 			tex[i].nb_bmp=1;
 			tex[i].bmp=(BITMAP**) malloc(sizeof(BITMAP*));
@@ -116,12 +117,12 @@ public:
 			tex[i].h[0]=16;
 			tex[i].bmp[0]=create_bitmap_ex(32,16,16);
 			clear_to_color(tex[i].bmp[0],makeacol(pal[i].r<<2,pal[i].g<<2,pal[i].b<<2, 0xFF ));
-			}
-        std::list<String> file_list;
+		}
+        String::List file_list;
 		HPIManager->getFilelist("textures\\*.gaf", file_list);
-		for(std::list<String>::iterator cur_file=file_list.begin();cur_file!=file_list.end();cur_file++)
+		for (String::List::const_iterator cur_file = file_list.begin(); cur_file != file_list.end(); ++cur_file)
         {
-            byte *data=HPIManager->PullFromHPI(cur_file->c_str());
+            byte *data=HPIManager->PullFromHPI(*cur_file);
             load_gaf(data);
             delete[] data;
         }

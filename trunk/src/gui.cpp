@@ -290,7 +290,7 @@ void GUIOBJ::create_textbar(float X1,float Y1,float X2,float Y2,const String &Ca
     s=size;
 }
 // Crée un menu flottant
-void GUIOBJ::create_menu(float X1,float Y1,const std::vector<String> &Entry,void (*F)(int), float size)
+void GUIOBJ::create_menu(float X1,float Y1,const String::Vector &Entry,void (*F)(int), float size)
 {
     Type=OBJ_FMENU;
     x1=X1;							y1=Y1;
@@ -303,7 +303,7 @@ void GUIOBJ::create_menu(float X1,float Y1,const std::vector<String> &Entry,void
     s=size;
 }
 // Crée un menu déroulant
-void GUIOBJ::create_menu(float X1,float Y1,float X2,float Y2,const std::vector<String> &Entry,void (*F)(int), float size)
+void GUIOBJ::create_menu(float X1,float Y1,float X2,float Y2,const String::Vector &Entry,void (*F)(int), float size)
 {
     Type=OBJ_MENU;
     x1=X1;							y1=Y1;
@@ -384,7 +384,7 @@ void GUIOBJ::create_img(float X1,float Y1,float X2,float Y2,GLuint img)
     Flag = FLAG_CAN_BE_CLICKED;
 }
 
-void GUIOBJ::create_list(float X1,float Y1,float X2,float Y2,const std::vector<String> &Entry, float size)
+void GUIOBJ::create_list(float X1,float Y1,float X2,float Y2,const String::Vector &Entry, float size)
 {
     Type = OBJ_LIST;
     x1 = X1;						y1 = Y1;
@@ -1341,13 +1341,13 @@ void WND::load_gui( const String &filename, cHashTable< std::vector< TA3D::Inter
         background = read_gaf_img( "anims\\" + Name + ".gaf", panel, &w, &h, true );
         if (background == 0)
         {
-            std::list< String >	file_list;
+            String::List file_list;
             HPIManager->getFilelist( "anims\\*.gaf", file_list);
-            for( std::list< String >::iterator i = file_list.begin() ; i != file_list.end() && background == 0 ; i++ )
-                background = read_gaf_img( *i, panel, &w, &h, true );
+            for (String::List::const_iterator i = file_list.begin(); i != file_list.end() && background == 0 ; ++i)
+                background = read_gaf_img(*i, panel, &w, &h, true);
         }
-        if( background )
-            gfx->save_texture_to_cache( "anims\\" + Name + ".gaf", background, w, h );
+        if (background)
+            gfx->save_texture_to_cache("anims\\" + Name + ".gaf", background, w, h);
     }
 
     delete_gltex = background;
@@ -1380,7 +1380,7 @@ void WND::load_gui( const String &filename, cHashTable< std::vector< TA3D::Inter
         if(!wndFile->PullAsBool( obj_key + "common.active"))
             obj_flags |= FLAG_HIDDEN;
 
-        std::vector<String> Caption;
+        String::Vector Caption;
         ReadVectorString(Caption, wndFile->PullAsString( obj_key + "text" ));
         I18N::Translate(Caption);
 
@@ -1403,11 +1403,11 @@ void WND::load_gui( const String &filename, cHashTable< std::vector< TA3D::Inter
                 }
                 if(!gaf_imgs.size())
                 {
-                    std::list< String >	file_list;
+                    String::List file_list;
                     HPIManager->getFilelist( "anims\\*.gaf", file_list);
-                    for( std::list< String >::iterator e = file_list.begin() ; e != file_list.end() && gaf_imgs.size() == 0 ; ++e)
+                    for (String::List::const_iterator e = file_list.begin() ; e != file_list.end() && gaf_imgs.size() == 0 ; ++e)
                         gaf_imgs = read_gaf_imgs( *e, Objets[i].Name, t_w, t_h );
-                    if(gaf_imgs.size() > 0)
+                    if (gaf_imgs.size() > 0)
                         found_elsewhere = true;
                 }
             }
@@ -1597,7 +1597,7 @@ void WND::load_tdf( const String &filename, SKIN *skin )			// Load a window from
             X1 -= gui_font.length( caption ) * size * 0.5f;
         }
 
-        std::vector<String> Entry;
+        String::Vector Entry;
         ReadVectorString(Entry, wndFile->PullAsString(obj_key + "entry"));
         I18N::Translate(Entry);
 
@@ -1740,7 +1740,7 @@ void button (float x,float y,float x2,float y2,const String &Title,bool Etat,flo
   |        Draw a list box displaying the content of Entry                     |
   \---------------------------------------------------------------------------*/
 
-void ListBox(float x1,float y1, float x2, float y2,const std::vector<String> &Entry,int Index, int Scroll, SKIN *skin, float size, uint32 flags )
+void ListBox(float x1,float y1, float x2, float y2,const String::Vector &Entry,int Index, int Scroll, SKIN *skin, float size, uint32 flags )
 {
     float old_size = gui_font.get_size();
     gui_font.change_size( size );
@@ -1963,7 +1963,7 @@ void PopupMenu( float x1, float y1, const String &msg, SKIN *skin, float size )
   |        Dessine un menu flotant avec les paramètres de Entry[]              |
   \---------------------------------------------------------------------------*/
 
-void FloatMenu( float x, float y, const std::vector<String> &Entry, int Index, int StartEntry, SKIN *skin, float size )
+void FloatMenu( float x, float y, const String::Vector &Entry, int Index, int StartEntry, SKIN *skin, float size )
 {
     float old_size = gui_font.get_size();
     gui_font.change_size( size );
@@ -2274,8 +2274,8 @@ const String Dialog(const String &Title, String Filter)
     String CurDir = getcwd(NULL,1000);
     // Pour l'arborescence des fichiers
     al_ffblk f;
-    std::list<String> Files;
-    std::list<String> Dir;
+    String::List Files;
+    String::List Dir;
     int NbFiles=0,NbDir=0;
     int i,done,e;
 
@@ -2365,31 +2365,38 @@ detect:
         gfx->print(gui_font,WAsk.x+21,WAsk.y+40,0.0f,Noir, I18N::Translate("Liste des dossiers:"));
         TextBar(WAsk.x+5,WAsk.y+50,WAsk.x+190,WAsk.y+WAsk.height-10,"",false);
         // Affiche le nom des dossiers
-        if(NbDir>0) {
+        if (NbDir > 0)
+        {
             int f=0;
-            for(std::list<String>::iterator e=Dir.begin();e!=Dir.end();e++) {
-                i=f-DecD;
-                f++;
-                if(i>=41) break;
-                if(i>=0) {
-                    gfx->print(gui_font,WAsk.x+20,WAsk.y+56+8*i,0.0f,Noir,*e);
-                    gfx->line(WAsk.x+10,WAsk.y+53+8*i,WAsk.x+10,WAsk.y+60+i*8,Noir);
-                    gfx->line(WAsk.x+10,WAsk.y+60+8*i,WAsk.x+17,WAsk.y+60+i*8,Noir);
+            for (String::List::const_iterator e = Dir.begin(); e != Dir.end(); ++e)
+            {
+                i = f - DecD;
+                ++f;
+                if (i >= 41)
+                    break;
+                if (i >= 0)
+                {
+                    gfx->print(gui_font, WAsk.x + 20, WAsk.y + 56 + 8 * i, 0.0f, Noir, *e);
+                    gfx->line(WAsk.x + 10, WAsk.y + 53 + 8 * i, WAsk.x + 10, WAsk.y + 60 + i * 8, Noir);
+                    gfx->line(WAsk.x + 10, WAsk.y + 60 + 8 * i, WAsk.x + 17, WAsk.y + 60 + i * 8, Noir);
                 }
             }
         }
-        if(NbDir>0&&mouse_b==1&&mouse_x>=WAsk.x+7&&mouse_x<=WAsk.x+188
-           &&mouse_y>=WAsk.y+56&&mouse_y<=WAsk.y+WAsk.height-10) {
-            i=(mouse_y-WAsk.y-56)/8;
-            e=i+DecD;
-            std::list<String>::iterator curdir=Dir.begin();
-            for(int f=0;f<e;f++)	curdir++;
-            if(i<41&&e>=0&&e<NbDir) {
-                if(strcmp(curdir->c_str(),".")!=0 && strcmp(curdir->c_str(),"..")!=0)
-                    CurDir+=String("/")+*curdir;
+        if (NbDir > 0 && mouse_b == 1 && mouse_x >= WAsk.x + 7 && mouse_x <= WAsk.x + 188
+           && mouse_y >= WAsk.y + 56 && mouse_y <= WAsk.y + WAsk.height - 10)
+        {
+            i = (mouse_y - WAsk.y - 56) / 8;
+            e = i + DecD;
+            String::List::iterator curdir=Dir.begin();
+            for (int f = 0; f < e; ++f)
+                ++curdir;
+            if (i < 41 && e >= 0 && e < NbDir)
+            {
+                if (strcmp(curdir->c_str(), ".") != 0 && strcmp(curdir->c_str(), "..") != 0)
+                    CurDir << "/" << *curdir;
                 else
-                    CurDir=dirname(CurDir);
-                while(mouse_b!=0)
+                    CurDir = dirname(CurDir);
+                while (mouse_b != 0)
                     poll_mouse();
                 gfx->unset_2D_mode();
                 goto detect;
@@ -2400,15 +2407,17 @@ detect:
         gfx->print(gui_font,WAsk.x+226,WAsk.y+40,0.0f,Noir, I18N::Translate("Liste des fichiers:"));
         TextBar(WAsk.x+210,WAsk.y+50,WAsk.x+480,WAsk.y+WAsk.height-10,"",false);
         // Affiche le nom des fichiers
-        if(NbFiles>0)
+        if (NbFiles > 0)
         {
             int f=0;
-            for(std::list<String>::iterator e=Files.begin();e!=Files.end();e++)
+            for (String::List::const_iterator e = Files.begin(); e != Files.end(); ++e)
             {
-                i=f-DecF;
-                f++;
-                if(i>=41) break;
-                if(i>=0) {
+                i = f - DecF;
+                ++f;
+                if (i >= 41)
+                    break;
+                if (i >= 0)
+                {
                     gfx->print(gui_font,WAsk.x+225,WAsk.y+56+8*i,0.0f,Noir,*e);
                     gfx->line(WAsk.x+215,WAsk.y+53+8*i,WAsk.x+215,WAsk.y+60+i*8,Noir);
                     gfx->line(WAsk.x+215,WAsk.y+60+8*i,WAsk.x+222,WAsk.y+60+i*8,Noir);
@@ -2420,10 +2429,11 @@ detect:
         {
             i=(mouse_y-WAsk.y-56)/8;
             e=i+DecF;
-            std::list<String>::iterator curfile=Files.begin();
-            for(int f=0;f<e;f++)	curfile++;
-            if(mouse_b==1&&i<41&&e>=0&&e<NbFiles)
-                Name=*curfile;
+            String::List::iterator curfile=Files.begin();
+            for (int f = 0; f < e; ++f)
+                ++curfile;
+            if (mouse_b == 1 && i < 41 && e >= 0 && e < NbFiles)
+                Name = *curfile;
         }
 
         // Barres de défilement
@@ -3253,9 +3263,9 @@ void AREA::load_tdf( const String &filename )			// Loads a TDF file telling whic
         skin->load_tdf(skin_name, skin_scale);
     }
 
-    std::vector<String> windows_to_load;
+    String::Vector windows_to_load;
     ReadVectorString(windows_to_load, areaFile->PullAsString("area.windows"));
-    for(std::vector<String>::iterator i = windows_to_load.begin(); i != windows_to_load.end(); ++i)
+    for(String::Vector::iterator i = windows_to_load.begin(); i != windows_to_load.end(); ++i)
         load_window(*i);
 
     String background_name = areaFile->PullAsString( "area.background" );

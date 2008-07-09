@@ -35,7 +35,7 @@
 void loading(const float percent, const String& msg)
 {
     static int last_percent = 0;
-    static std::list<String>	messages;
+    static String::List messages;
     static GLuint Glfond = 0;
 
     if( network_manager.isConnected() && last_percent != (int)percent )
@@ -89,8 +89,8 @@ void loading(const float percent, const String& msg)
     }
 
     int e = 0;
-    for( std::list< String >::iterator i = messages.begin() ; i != messages.end() ; i++, e++ )
-        gfx->print( gfx->TA_font, 105.0f, 175.0f + h * e, 0.0f, 0xFFFFFFFF, *i );
+    for (String::List::const_iterator i = messages.begin(); i != messages.end(); ++i, ++e)
+        gfx->print(gfx->TA_font, 105.0f, 175.0f + h * e, 0.0f, 0xFFFFFFFF, *i);
 
     glDisable(GL_BLEND);
 

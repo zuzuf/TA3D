@@ -229,7 +229,7 @@ namespace TA3D
 	
     uint32 hash_string(const String& s);
 	
-    int find(const std::vector<String>& v, const String& s);
+    int find(const String::Vector& v, const String& s);
     
     //@} String manipulations
 
