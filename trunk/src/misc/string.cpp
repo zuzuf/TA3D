@@ -1,3 +1,4 @@
+#include "../stdafx.h"
 #include "string.h"
 
 #if TA3D_USE_BOOST == 1 
@@ -219,5 +220,12 @@ namespace TA3D
         return *this;
     }
 
+    uint32 String::hashValue() const
+    {
+        uint32 hash = 0;
+        for (String::const_iterator i = this->begin(); i != this->end(); ++i)
+            hash = (hash << 5) - hash + *i;
+        return hash;
+    }
 
 }

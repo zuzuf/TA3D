@@ -416,6 +416,7 @@ namespace TA3D
         */
         String& convertSlashesIntoAntiSlashes();
 
+        uint32 hashValue() const;
 
     private:
 

@@ -178,16 +178,6 @@ IsPowerOfTwo(int a)
 }
 
 
-uint32
-hash_string(const String& s)
-{
-	uint32 hash = 0;
-	for(String::size_type i = 0 ; i < s.length() ; ++i)
-		hash = (hash << 5) - hash + s[i];
-	return hash;
-}
-
-
 int
 find(const String::Vector& v, const String& s)
 {
