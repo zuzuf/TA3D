@@ -17,19 +17,6 @@ namespace Files
 {
 
     /*!
-    ** \brief Extract the extention of a file name
-    ** \param s Filename
-    ** \return The extenion of the filename (with the leading '.') in lowercase, empty if no extension is present
-    **
-    ** \code
-    **     std::cout << Paths::Files::ExtractFileExt("foo.exe") << std::endl; // '.exe'
-    **     std::cout << Paths::Files::ExtractFileExt("/usr/folder.foo/file") << std::endl; // ''
-    ** \endcode
-    */
-    String ExtractFileExt(const String& s);
-
-
-    /*!
     ** \brief Open and Read the content of a file and write it into a 1D array
     **
     ** \param[out] out The content of the file

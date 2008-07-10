@@ -105,34 +105,67 @@ namespace Paths
 
     # endif // ifdef TA3D_PLATFORM_WINDOWS
 
-    String ExtractFilePath(const String& p)
+    String ExtractFilePath(const String& p, const bool systemDependant)
     {
-        // TODO The boost is more efficient
-        String ret;
         String::Vector parts;
-        ReadVectorString(parts, p, SeparatorAsString, false);
+        if (systemDependant)
+            p.split(parts, SeparatorAsString, false);
+        else
+            p.split(parts, "\\/", false);
         
-        unsigned int len = parts.size();
-        // TODO Manage `..` (may be the boost library should be more efficient)
-        for (unsigned int i = 0; i < len - 1; ++i)
+        String ret;
+        String::Vector::size_type n = parts.size();
+        --n;
+        for (String::Vector::size_type i = 0; i != n; ++i)
         {
             if (parts[i] != ".")
-            {
-                ret += parts[i];
-                ret += Separator;
-            }
+                ret << parts[i] << Separator;
         }
         return ret;
     }
 
-    String ExtractFileName(const String& p)
+    String ExtractFileName(const String& p, const bool systemDependant)
     {
-        // TODO The boost library should be more efficient
-        String::size_type pos = p.find_last_of(Separator);
+        String::size_type pos;
+        if (systemDependant)
+            pos = p.find_last_of(Separator);
+        else
+            pos = p.find_last_of("\\/");
         if (String::npos == pos)
             return p;
         return p.substr(pos+1);
     }
+
+    String ExtractFileNameWithoutExtension(const String& p)
+    {
+        String::size_type pos = p.find_last_of(Separator);
+        String::size_type n = p.find_last_of('.');
+        if (String::npos == n && String::npos == pos)
+            return p;
+        if (n == pos)
+            return "";
+        if (n == String::npos && n > pos + 1)
+        {
+            if (String::npos == pos)
+                return p;
+            return p.substr(pos + 1);
+        }
+        if (pos == String::npos)
+            return p.substr(0, n);
+        return p.substr(pos + 1, n - pos - 1);
+    }
+
+
+
+    String ExtractFileExt(const String& s)
+    {
+        String::size_type n = s.find_last_of(".\\/");
+        if (n == String::npos || '.' != s[n])
+            return "";
+        return String(s, n).toLower();
+    }
+
+
 
     /*!
      * \brief Initialize the ApplicationRoot variable
@@ -147,9 +180,8 @@ namespace Paths
         else
         {
             ApplicationRoot = "";
-            String r(CurrentDirectory());
-            r += Separator;
-            r += argv0;
+            String r;
+            r << CurrentDirectory() << Separator << argv0;
             if (!r.empty())
                 ApplicationRoot = ExtractFilePath(r);
         }
@@ -194,7 +226,7 @@ namespace Paths
     bool Exists(const String& p)
     {
         if (p.empty())
-            return true;
+            return false;
 	    # ifdef TA3D_PLATFORM_WINDOWS
 	    // ugly workaround with stat under Windows
 	    // FIXME: Find a better way to find driver letters
@@ -211,8 +243,8 @@ namespace Paths
             return true;
         // TODO Use the boost library, which has a better implementation that this one
         String::Vector parts;
-        ReadVectorString(parts, p, SeparatorAsString, false);
-        String pth("");
+        p.split(parts, SeparatorAsString, false);
+        String pth;
         bool hasBeenCreated(false);
 
         for (String::Vector::const_iterator i = parts.begin(); i != parts.end(); ++i)

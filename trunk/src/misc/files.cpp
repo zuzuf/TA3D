@@ -53,15 +53,6 @@ namespace Files
     
 
 
-    String ExtractFileExt(const String& s)
-    {
-        String::size_type n = s.find_last_of(".\\/");
-        if (n == String::npos || '.' != s[n])
-            return "";
-        return String(s, n).toLower();
-    }
-
-
 } // namespace Files
 } // namespace Paths
 } // namespace TA3D

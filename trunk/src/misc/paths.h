@@ -100,6 +100,8 @@ namespace Paths
     **
     ** The path part will be extracted according the system-dependant path-separator
     **
+    ** \param systemDependant Consider only the system-dependant path-separator
+    **
     ** \code
     **      std::cout << Paths::ExtractFilePath("/tmp/foo.txt") std::endl; // write `/tmp/`
     **      std::cout << Paths::ExtractFilePath("/tmp/") std::endl; // write `/tmp/`
@@ -108,17 +110,42 @@ namespace Paths
     **
     ** \see Paths::Separator
     */
-    String ExtractFilePath(const String& p);
+    String ExtractFilePath(const String& p, const bool systemDependant = true);
 
     /*!
-    ** \brief Extract the bare file file name
+    ** \brief Extract the bare file name
+    **
+    ** The file name will be extracted according the last occurence
+    ** of the system-dependant path-separator (if systemDependant = true)
+    **
+    ** \param systemDependant Consider only the system-dependant path-separator
+    **
+    ** \see Paths::Separator
+    */
+    String ExtractFileName(const String& p, const bool systemDependant = true);
+
+    /*!
+    ** \brief Extract the bare file name without its extension
     **
     ** The file name will be extracted according the last occurence
     ** of the system-dependant path-separator
     **
     ** \see Paths::Separator
     */
-    String ExtractFileName(const String& p);
+    String ExtractFileNameWithoutExtension(const String& p);
+
+    /*!
+    ** \brief Extract the extention of a file name
+    ** \param s Filename
+    ** \return The extenion of the filename (with the leading '.') in lowercase, empty if no extension is present
+    **
+    ** \code
+    **     std::cout << Paths::Files::ExtractFileExt("foo.exe") << std::endl; // '.exe'
+    **     std::cout << Paths::Files::ExtractFileExt("/usr/folder.foo/file") << std::endl; // ''
+    ** \endcode
+    */
+    String ExtractFileExt(const String& s);
+
 
     /*!
     ** \brief Get if a path is absolute 
