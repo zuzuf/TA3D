@@ -33,6 +33,10 @@ using namespace TA3D::Exceptions;
 
 
 
+namespace TA3D
+{
+
+
 bool use_normal_alpha_function = false;
 float gui_font_h = 8.0f;
 
@@ -3449,3 +3453,6 @@ void SKIN::load_tdf( const String &filename, float skin_scale )			// Loads the s
 
     GuardLeave();
 }
+
+
+} // namespace TA3D
