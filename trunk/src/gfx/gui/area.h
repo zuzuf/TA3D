@@ -5,7 +5,7 @@
 # include "../../threads/thread.h"
 # include <vector>
 # include "../../misc/interface.h"
-# include "../../gui.h"
+# include "wnd.h"
 
 
 namespace TA3D
