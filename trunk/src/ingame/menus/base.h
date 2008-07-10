@@ -4,6 +4,7 @@
 # include "../../stdafx.h"
 # include <string>
 # include "../../gui.h"
+# include "../../gfx/gui/area.h"
 
 
 # define TA3D_MENUS_RECOMMENDED_TIME_MS_FOR_RESTING  8
