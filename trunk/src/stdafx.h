@@ -131,7 +131,6 @@
 #   include <GL/glu.h>
 # endif
 
-# include "jpeg/ta3d_jpg.h"
 # include <math.h>
 
 

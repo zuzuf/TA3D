@@ -31,6 +31,9 @@
 #include "gfx/particles/particles.h"
 #include "ingame/sidedata.h"
 #include "languages/i18n.h"
+#include "jpeg/ta3d_jpg.h"
+
+
 
 using namespace TA3D::Exceptions;
 

@@ -36,6 +36,8 @@
 #include "gfx/fx.h"					// Special FX engine
 #include "misc/paths.h"
 #include "languages/i18n.h"
+#include "jpeg/ta3d_jpg.h"
+
 
 using namespace TA3D::Exceptions;
 
