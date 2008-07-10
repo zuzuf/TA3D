@@ -23,6 +23,7 @@
 #include "../threads/thread.h"
 #include "../ingame/gamedata.h"
 #include <list>
+#include "../gfx/gui/area.h"
 
 
 namespace TA3D

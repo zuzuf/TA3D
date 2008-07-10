@@ -344,52 +344,6 @@ public:
 	void load_gui( const String &filename, cHashTable< std::vector< TA3D::Interfaces::GfxTexture >* > &gui_hashtable );// Load a window from a TA *.GUI file describing the interface
 };
 
-class AREA:	public ObjectSync, // This class is a window handler, so it will manage windows, and signals given to them
-			protected IInterface							// This is a global declaration since GUI is everywhere
-{
-private:
-	std::vector< WND* >		vec_wnd;			// This vector stores all the windows the area object deals with
-	std::vector< uint16 >	vec_z_order;		// This vector stores data about the z order of windows
-	String				name;				// How is that area called ?
-	int					amx, amy, amz, amb;	// Remember last cursor position
-	SKIN				*skin;				// The skin used by the area
-	cHashTable< std::vector< TA3D::Interfaces::GfxTexture >* > gui_hashtable;		// hashtable used to speed up loading of *.gui files and save memory
-	cHashTable< int >	wnd_hashtable;		// hashtable used to speed up operations on WND objects
-	String				cached_key;
-	WND					*cached_wnd;
-	uint32				scroll_timer;
-public:
-	bool				scrolling;
-	GLuint				background;			// Of course we need a background, not a single color :-)
-
-	private:
-		uint32		InterfaceMsg( const lpcImsg msg );	// Manage signals sent through the interface to GUI
-
-	public:
-
-		AREA( const String area_name = "unnamed_area" );	// Constructor that gives a name to the area
-		~AREA();											// Destructor
-
-		void destroy();										// A function that can reset the object
-
-		uint16 load_window( const String &filename );		// Loads a window from a TDF file
-		uint16 check();										// Check the user interface, manage events
-		void draw();										// Draw all the windows
-		void load_tdf( const String &filename );			// Loads a TDF file telling which windows to load and which skin to use
-
-		WND		*get_wnd( const String &message );			// Return the specified window
-		bool	get_state( const String &message );			// Return the state of specified object in the specified window
-		sint32	get_value( const String &message );			// Return the value of specified object in the specified window
-		String	get_caption( const String &message );		// Return the caption of specified object in the specified window
-		GUIOBJ	*get_object( const String &message, bool skip_hidden = false );		// Return a pointer to the specified object
-		void	set_state( const String &message, const bool &state );			// Set the state of specified object in the specified window
-		void	set_value( const String &message, const sint32 &value );		// Set the value of specified object in the specified window
-		void	set_data( const String &message, const sint32 &data );			// Set the data of specified object in the specified window
-		void	set_enable_flag( const String &message, const bool &enable );	// Set the enabled/disabled state of specified object in the specified window
-		void	set_caption( const String &message, const String &caption );	// Set the caption of specified object in the specified window
-		int		msg( String message );				// Send that message to the area
-};
-
 
 } // namespace TA3D
 
