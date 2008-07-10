@@ -30,6 +30,7 @@
 #include "misc/paths.h"
 #include <list>
 #include "languages/i18n.h"
+#include "gfx/gui/skin.h"
 
 
 void loading(const float percent, const String& msg)

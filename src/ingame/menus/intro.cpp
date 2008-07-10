@@ -3,6 +3,7 @@
 #include <vector>
 #include "../../misc/resources.h"
 #include "../../misc/files.h"
+#include "../../gfx/gui/skin.h"
 
 
 
