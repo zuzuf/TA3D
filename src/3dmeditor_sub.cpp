@@ -32,6 +32,7 @@
 #include "3dmeditor.h"
 #include "misc/paths.h"
 #include "languages/i18n.h"
+#include "jpeg/ta3d_jpg.h"
 
 
 

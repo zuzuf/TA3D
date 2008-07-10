@@ -29,6 +29,7 @@
 #include "ta3dbase.h"
 #include "gaf.h"
 #include <vector>
+#include "jpeg/ta3d_jpg.h"
 
 
 namespace TA3D

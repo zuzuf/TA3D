@@ -33,6 +33,7 @@
 #include "languages/i18n.h"
 #include <list>
 #include <vector>
+#include "jpeg/ta3d_jpg.h"
 
 
 #ifndef SCROLL_SPEED
