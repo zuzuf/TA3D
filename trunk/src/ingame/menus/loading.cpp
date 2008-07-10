@@ -4,6 +4,7 @@
 #include "../../misc/paths.h"
 #include "../../gui.h"
 #include "../../languages/i18n.h"
+#include "../../gfx/gui/skin.h"
 
 # define TA3D_LOG_SECTION_MENU_MAIN_PREFIX  "[loading] "
 

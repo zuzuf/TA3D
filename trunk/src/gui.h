@@ -431,44 +431,6 @@ public:
 	void draw( float X1, float Y1, float X2, float Y2, bool bkg = true );
 };
 
-class SKIN													// This class is designed to manage skins for GUI
-{															// Only one object of this class should be created
-public:
-	GLuint				wnd_background;							// default background for windows
-	SKIN_OBJECT			button_img[2];							// default background for buttons
-
-	SKIN_OBJECT			wnd_border;								// borders of the windows
-	SKIN_OBJECT			progress_bar[2];						// progress bar images, one for background, one for the bar itself
-	SKIN_OBJECT			wnd_title_bar;							// default title bar for windows
-	String				Name;									// The name of the skin ( will be used to change skin )
-	SKIN_OBJECT			text_background;						// Background for TEXTBAR, LISTBOX, ... everything that uses a background for text
-	SKIN_OBJECT			menu_background;						// The background image for floating menus
-	SKIN_OBJECT			selection_gfx;							// The selection image ( drawn when an element is selected )
-	SKIN_OBJECT			checkbox[2];							// Checkbox images
-	SKIN_OBJECT			option[2];								// Option button images
-	SKIN_OBJECT 		scroll[3];								// Scroll bar
-	String				prefix;									// prefix for various files
-	
-	int                 text_y_offset;                          // Add an offset in order to display text at the right place
-
-public:
-
-	void init();
-	void destroy();
-
-	SKIN()
-	{
-		init();
-	}
-
-	~SKIN()
-	{
-		destroy();
-	}
-
-	void load_tdf( const String &filename, float skin_scale = 1.0f );		// Loads the skin from a TDF file
-};
-
 
 } // namespace TA3D
 
