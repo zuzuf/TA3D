@@ -2,7 +2,7 @@
 # define __TA3D_GFX_GUI_SKIN_H__
 
 # include "../../stdafx.h"
-# include "../../gui.h"
+# include "skin.object.h"
 
 
 namespace TA3D
