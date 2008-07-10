@@ -2,6 +2,7 @@
 #include "skin.h"
 #include "../../misc/paths.h"
 #include "../../TA3D_Exception.h"
+#include "../../TA3D_NameSpace.h"
 
 
 using namespace TA3D::Exceptions;

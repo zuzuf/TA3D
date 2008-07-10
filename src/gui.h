@@ -390,47 +390,6 @@ public:
 		int		msg( String message );				// Send that message to the area
 };
 
-class SKIN_OBJECT
-{
-public:
-	GLuint		tex;
-	float		x1, y1;
-	float		x2, y2;
-	float		t_x1, t_y1;
-	float		t_x2, t_y2;
-	uint32		w, h;							// Texture size
-	float		sw,sh;
-
-	SKIN_OBJECT()	{	init();	}
-
-	inline void init()
-	{
-		tex = 0;
-		x1 = 0;
-		y1 = 0;
-		x2 = 0;
-		y2 = 0;
-		t_x1 = 0.0f;
-		t_y1 = 0.0f;
-		t_x2 = 0.0f;
-		t_y2 = 0.0f;
-		w = 0;
-		h = 0;
-		sw = 0.0f;
-		sh = 0.0f;
-	}
-
-	inline void destroy()
-	{
-		gfx->destroy_texture( tex );
-		init();
-	}
-
-	void load( const String filename, const String prefix, cTAFileParser *parser, float border_size = 1.0f );
-	
-	void draw( float X1, float Y1, float X2, float Y2, bool bkg = true );
-};
-
 
 } // namespace TA3D
 
