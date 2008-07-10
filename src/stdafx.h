@@ -54,7 +54,7 @@
 # endif
 
 
-# ifndef TA3D_PLATFORM_WINDOWS
+# ifndef TA3D_PLATFORM_MSVC
 #    include <stdint.h>
 # endif
 
