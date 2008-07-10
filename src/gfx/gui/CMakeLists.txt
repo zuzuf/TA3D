@@ -3,6 +3,7 @@ SET(ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../../bin/libs/${CMAKE
 
 SET(SOURCES skin.h skin.cpp
             skin.object.h skin.object.cpp
+            wnd.h wnd.cpp
             area.h area.cpp)
 
 ADD_LIBRARY(gui STATIC ${SOURCES})

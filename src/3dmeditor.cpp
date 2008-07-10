@@ -35,6 +35,7 @@
 #include "misc/camera.h"
 #include <vector>
 #include "languages/i18n.h"
+#include "gfx/gui/wnd.h"
 
 
 
