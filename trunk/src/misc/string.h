@@ -136,17 +136,17 @@ namespace TA3D
 
         /*!
         ** \brief Convert all antislashes into slashes
-        ** \param[in,out] s The string to convert
+        ** \param s The string to convert
         ** \return A new string
         */
-        static String ConvertAntiSlashesIntoSlashes(String& s) {return String(s).convertAntiSlashesIntoSlashes();}
+        static String ConvertAntiSlashesIntoSlashes(const String& s) {return String(s).convertAntiSlashesIntoSlashes();}
 
         /*!
         ** \brief Convert all slashes into antislashes
-        ** \param[in,out] s The string to convert
+        ** \param s The string to convert
         ** \return A new string
         */ 
-        static String ConvertSlashesIntoAntiSlashes(String& s) {return String(s).convertSlashesIntoAntiSlashes();}
+        static String ConvertSlashesIntoAntiSlashes(const String& s) {return String(s).convertSlashesIntoAntiSlashes();}
 
         /*!
         ** \brief Extract the key and its value from a string (mainly provided by TDF files)
