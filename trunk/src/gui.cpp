@@ -43,6 +43,9 @@ namespace TA3D
 bool use_normal_alpha_function = false;
 float gui_font_h = 8.0f;
 
+
+
+
 void glbutton(const String &caption,float x1,float y1,float x2,float y2,bool etat)
 {
     glDisable(GL_TEXTURE_2D);
@@ -198,287 +201,23 @@ const String msg_box(TA3D::Interfaces::GfxFont fnt,const String &title,const Str
 
 //-------------- These are the GUI functions needed by the editors ----------------------------
 
-TA3D::Interfaces::GfxFont gui_font;
 
-void GUIOBJ::create_ta_button( float X1, float Y1, const std::vector< String > &Caption, const std::vector< GLuint > &states, int nb_st)
-{
-    gltex_states.clear();
-    gltex_states.resize( states.size() );
-    for( int i = 0 ; i < states.size() ; i++ )			// Create the texture Vector
-        gltex_states[ i ].set( states[ i ] );
-
-    Type = OBJ_TA_BUTTON;
-    x1 = X1;								y1 = Y1;
-    if( gltex_states.size() > 0 ) {
-        x2 = X1 + gltex_states[0].width;		y2 = Y1 + gltex_states[0].height;	}
-    else {
-        x2 = X1;	y2 = Y1;	}
-
-    nb_stages = nb_st;
-    Etat = false;	Focus = false;
-    current_state = 0;
-    Text = Caption;
-    Func = NULL;
-    s = 1.0f;
-    Flag = FLAG_CAN_BE_CLICKED | FLAG_MULTI_STATE;
-}
-// Dessine un rectangle en pointillés
-void GUIOBJ::create_button( float X1,float Y1,float X2,float Y2,const String &Caption,void (*F)(int), float size)
-{
-    Type=OBJ_BUTTON;
-    x1=X1;		y1=Y1;
-    x2=X2;		y2=Y2;
-    Etat=false;	Focus=false;
-    Text.resize(1);
-    Text[0] = Caption;
-    Func=F;
-    s=size;
-    Flag = FLAG_CAN_BE_CLICKED;
-}
-// Crée une case à cocher
-void GUIOBJ::create_optionc(float X1,float Y1,const String &Caption,bool ETAT,void (*F)(int), SKIN *skin, float size)
-{
-    Type=OBJ_OPTIONC;
-    x1=X1;													y1=Y1;
-    x2=X1+(int)(gui_font.length( Caption )*size)+4;			y2=Y1;
-    if( skin && skin->checkbox[0].tex && skin->checkbox[1].tex ) {
-        x2 += max( skin->checkbox[0].sw, skin->checkbox[1].sw );
-        y2 += max( skin->checkbox[0].sh, skin->checkbox[1].sh );
-    }
-    else {
-        x2+=8;
-        y2+=12;
-    }
-    Etat=ETAT;	
-    Focus=false;
-    Text.resize(1);
-    Text[0] = Caption;
-    Func=F;
-    Flag = FLAG_SWITCH | FLAG_CAN_BE_CLICKED;
-    s=size;
-}
-// Crée un bouton d'option
-void GUIOBJ::create_optionb(float X1,float Y1,const String &Caption,bool ETAT,void (*F)(int), SKIN *skin, float size)
-{
-    Type=OBJ_OPTIONB;
-    x1=X1;												y1=Y1;
-    x2=X1+(int)(gui_font.length( Caption )*size)+4;		y2=Y1;
-    if( skin && skin->option[0].tex && skin->option[1].tex ) {
-        x2 += max( skin->option[0].sw, skin->option[1].sw );
-        y2 += max( skin->option[0].sh, skin->option[1].sh );
-    }
-    else {
-        x2+=8;
-        y2+=12;
-    }
-    Etat=ETAT;	
-    Focus=false;
-    Text.resize(1);
-    Text[0] = Caption;
-    Func=F;
-    Flag = FLAG_SWITCH | FLAG_CAN_BE_CLICKED;
-    s=size;
-}
-// Crée une barre d'entrée de texte
-void GUIOBJ::create_textbar(float X1,float Y1,float X2,float Y2,const String &Caption,int MaxChar, void(*F)(int), float size)
-{
-    Type=OBJ_TEXTBAR;
-    x1=X1;							y1=Y1;
-    x2=X2;							y2=Y2;
-    Etat=false;	
-    Focus=false;
-    Text.resize(1);
-    Text[0] = Caption;
-    if( Text[0].size() >= MaxChar && MaxChar > 1 )
-        Text[0].resize( MaxChar - 1 );
-    Flag = FLAG_CAN_BE_CLICKED | FLAG_CAN_GET_FOCUS;
-    Func=F;
-    Data=MaxChar;
-    s=size;
-}
-// Crée un menu flottant
-void GUIOBJ::create_menu(float X1,float Y1,const String::Vector &Entry,void (*F)(int), float size)
-{
-    Type=OBJ_FMENU;
-    x1=X1;							y1=Y1;
-    x2=X1+168;						y2=(int)(Y1+gui_font_h*size*Entry.size()+gui_font_h*size);
-    Etat=false;	
-    Focus=false;
-    Text=Entry;
-    Func=F;
-    Flag = FLAG_CAN_BE_CLICKED | FLAG_CAN_GET_FOCUS;
-    s=size;
-}
-// Crée un menu déroulant
-void GUIOBJ::create_menu(float X1,float Y1,float X2,float Y2,const String::Vector &Entry,void (*F)(int), float size)
-{
-    Type=OBJ_MENU;
-    x1=X1;							y1=Y1;
-    x2=X2;							y2=Y2;
-    Etat=false;	
-    Focus=false;
-    Text = Entry;
-    Pos=0;				// Position sur la liste
-    Func=F;
-    Flag = FLAG_CAN_BE_CLICKED | FLAG_CAN_GET_FOCUS;
-    s=size;
-}
-// Crée une barre de progression
-void GUIOBJ::create_pbar(float X1,float Y1,float X2,float Y2,int PCent, float size)
-{
-    Type=OBJ_PBAR;
-    x1=X1;							y1=Y1;
-    x2=X2;							y2=Y2;
-    Etat=false;	
-    Focus=false;
-    Text.clear();
-    Func=NULL;
-    Data=PCent;
-    Flag = 0;
-    s=size;
-}
-// Crée un objet text
-void GUIOBJ::create_text(float X1,float Y1,const String &Caption,int Col, float size)
-{
-    Type = OBJ_TEXT;
-    x1 = X1;								y1 = Y1;
-    x2 = (int)(X1+Caption.length()*8*size);	y2 = (int)(Y1+gui_font_h*size);
-    Etat = false;	
-    Focus = false;
-    Text.resize( 1 );
-    Text[0] = Caption;
-    Func = NULL;
-    Data = Col;
-    s = size;
-    Flag = 0;
-}
-
-void GUIOBJ::create_line(float X1,float Y1,float X2,float Y2,int Col)
-{
-    Type=OBJ_LINE;
-    x1=X1;							y1=Y1;
-    x2=X2;							y2=Y2;
-    Etat=false;	
-    Focus=false;
-    Text.clear();
-    Func=NULL;
-    Data=Col;
-}
-
-void GUIOBJ::create_box(float X1,float Y1,float X2,float Y2,int Col)
-{
-    Type=OBJ_BOX;
-    x1=X1;							y1=Y1;
-    x2=X2;							y2=Y2;
-    Etat=false;	
-    Focus=false;
-    Text.clear();
-    Func=NULL;
-    Data=Col;
-    Flag = FLAG_CAN_BE_CLICKED;
-}
-
-void GUIOBJ::create_img(float X1,float Y1,float X2,float Y2,GLuint img)
-{
-    Type=OBJ_IMG;
-    x1=X1;							y1=Y1;
-    x2=X2;							y2=Y2;
-    Etat=false;	
-    Focus=false;
-    Text.clear();
-    Func=NULL;
-    Data = (uint32) img;
-    Flag = FLAG_CAN_BE_CLICKED;
-}
-
-void GUIOBJ::create_list(float X1,float Y1,float X2,float Y2,const String::Vector &Entry, float size)
-{
-    Type = OBJ_LIST;
-    x1 = X1;						y1 = Y1;
-    x2 = X2;						y2 = Y2;
-    Etat = false;	
-    Focus = false;
-    Text = Entry;
-    Func = NULL;
-    Data = 0;
-    Pos = 0;
-    Flag = FLAG_CAN_BE_CLICKED | FLAG_CAN_GET_FOCUS;				// To detect when something has changed
-    s=size;
-}
-
-void GUIOBJ::set_caption( String caption )
-{
-    switch( Type )
-    {
-        case OBJ_OPTIONC:
-        case OBJ_OPTIONB:
-            x2 = x1+(int)gui_font.length( caption )+4;
-        case OBJ_TEXT:
-        case OBJ_MENU:
-        case OBJ_FMENU:
-        case OBJ_TEXTBAR:
-        case OBJ_BUTTON:
-            Text[0] = caption;
-    };
-    if( Type == OBJ_TEXTBAR && Text[0].size() >= Data )
-        Text[0].resize( Data - 1 );
-}
-
-uint32 GUIOBJ::msg( const String &message, WND *wnd )		// Reacts to a message transfered from the Interface
-{
-    uint32	result	= INTERFACE_RESULT_CONTINUE;
-    if( Lowercase( message ) == "hide" )					{	Flag |= FLAG_HIDDEN;			result = INTERFACE_RESULT_HANDLED;	}
-    else if( Lowercase( message ) == "show" )				{	Flag &= ~FLAG_HIDDEN;			result = INTERFACE_RESULT_HANDLED;	}
-    else if( Lowercase( message ) == "switch" )				{	Flag |= FLAG_SWITCH;			result = INTERFACE_RESULT_HANDLED;	}
-    else if( Lowercase( message ) == "unswitch" )			{	Flag &= ~FLAG_SWITCH;			result = INTERFACE_RESULT_HANDLED;	}
-    else if( Lowercase( message ) == "fill" )				{	Flag |= FLAG_FILL;				result = INTERFACE_RESULT_HANDLED;	}
-    else if( Lowercase( message ) == "unfill" )				{	Flag &= ~FLAG_FILL;				result = INTERFACE_RESULT_HANDLED;	}
-    else if( Lowercase( message ) == "enable" )				{	Flag &= ~FLAG_DISABLED;			result = INTERFACE_RESULT_HANDLED;	}
-    else if( Lowercase( message ) == "disable" )			{	Flag |= FLAG_DISABLED;			result = INTERFACE_RESULT_HANDLED;	}
-    else if( Lowercase( message ) == "highlight" )			{	Flag |= FLAG_HIGHLIGHT;			result = INTERFACE_RESULT_HANDLED;	}
-    else if( Lowercase( message ) == "unhighlight" )		{	Flag &= ~FLAG_HIGHLIGHT;		result = INTERFACE_RESULT_HANDLED;	}
-    else if( Lowercase( message ) == "can_get_focus" )		{	Flag |= FLAG_CAN_GET_FOCUS;		result = INTERFACE_RESULT_HANDLED;	}
-    else if( Lowercase( message ) == "cant_get_focus" )		{	Flag &= ~FLAG_CAN_GET_FOCUS;	result = INTERFACE_RESULT_HANDLED;	}
-    else if( Lowercase( message ) == "can_be_clicked" )		{	Flag |= FLAG_CAN_BE_CLICKED;	result = INTERFACE_RESULT_HANDLED;	}
-    else if( Lowercase( message ) == "cant_be_clicked" )		{	Flag &= ~FLAG_CAN_BE_CLICKED;	result = INTERFACE_RESULT_HANDLED;	}
-    else if( StartsWith( Lowercase( message ) ,"caption=" ) )	{			// Change the GUIOBJ's caption
-        if( Text.size() > 0 )
-            Text[0] = message.substr( 8, message.size() - 8 );
-        result = INTERFACE_RESULT_HANDLED;
-    }
-    else if( Lowercase( message ) == "focus" ) {
-        if( wnd ) {
-            for( int i = 0 ; i < wnd->NbObj ; i++ )
-                wnd->Objets[i].Focus = false;
-            Focus = true;
-        }
-        result = INTERFACE_RESULT_HANDLED;
-    }
-
-    wait_a_turn = true;
-    return result;
-}
-
-uint32	GUIOBJ::num_entries()
-{
-    return Text.size();
-}
 
 /*---------------------------------------------------------------------------\
   |        Draw a window with the parameters from wnd                          |
   \---------------------------------------------------------------------------*/
 
-void draw_Window(wnd Wnd)
+void draw_Window(wnd& Wnd)
 {
-    gfx->rectfill(Wnd.x,Wnd.y,Wnd.x+Wnd.width-1,Wnd.y+Wnd.height-1,GrisM);
-    gfx->rect(Wnd.x,Wnd.y,Wnd.x+Wnd.width-1,Wnd.y+Wnd.height-1,Noir);
-    gfx->rect(Wnd.x+1,Wnd.y+1,Wnd.x+Wnd.width-2,Wnd.y+Wnd.height-2,GrisF);
-    gfx->line(Wnd.x,Wnd.y,Wnd.x+Wnd.width-1,Wnd.y,Blanc);
-    gfx->line(Wnd.x,Wnd.y,Wnd.x,Wnd.y+Wnd.height-1,Blanc);
-    gfx->line(Wnd.x+1,Wnd.y+1,Wnd.x+Wnd.width-2,Wnd.y+1,GrisC);
-    gfx->line(Wnd.x+1,Wnd.y+1,Wnd.x+1,Wnd.y+Wnd.height-2,GrisC);
-    gfx->rectfill(Wnd.x+3,Wnd.y+3,Wnd.x+Wnd.width-4,Wnd.y+11,Bleu);
-    gfx->print(gui_font,Wnd.x+4,Wnd.y+4,0.0f,Blanc,Wnd.Title);
+    gfx->rectfill(Wnd.x, Wnd.y, Wnd.x + Wnd.width - 1, Wnd.y + Wnd.height - 1, GrisM);
+    gfx->rect(Wnd.x, Wnd.y, Wnd.x + Wnd.width - 1, Wnd.y + Wnd.height - 1, Noir);
+    gfx->rect(Wnd.x + 1, Wnd.y + 1, Wnd.x + Wnd.width - 2, Wnd.y + Wnd.height - 2, GrisF);
+    gfx->line(Wnd.x, Wnd.y, Wnd.x + Wnd.width - 1, Wnd.y, Blanc);
+    gfx->line(Wnd.x, Wnd.y, Wnd.x, Wnd.y + Wnd.height - 1, Blanc);
+    gfx->line(Wnd.x + 1, Wnd.y + 1, Wnd.x + Wnd.width - 2, Wnd.y + 1, GrisC);
+    gfx->line(Wnd.x + 1, Wnd.y + 1, Wnd.x + 1, Wnd.y + Wnd.height - 2, GrisC);
+    gfx->rectfill(Wnd.x + 3, Wnd.y + 3, Wnd.x + Wnd.width - 4, Wnd.y + 11, Bleu);
+    gfx->print(gui_font, Wnd.x + 4, Wnd.y + 4, 0.0f, Blanc, Wnd.Title);
 }
 
 /*---------------------------------------------------------------------------\
@@ -487,17 +226,22 @@ void draw_Window(wnd Wnd)
 
 unsigned char WinMov(int AMx,int AMy,int AMb,int Mx,int My,int Mb,wnd *Wnd)
 {
-    byte WinMouse=0;
-    if(AMb==1&&Mb==1)
-        if(AMx>=(*Wnd).x+3&&AMx<=(*Wnd).x+(*Wnd).width-4)
-            if(AMy>=(*Wnd).y+3&&AMy<=(*Wnd).y+11) {
-                (*Wnd).x+=Mx-AMx;
-                (*Wnd).y+=My-AMy;
+    if (AMb == 1 && Mb == 1)
+    {
+        if (AMx >= (*Wnd).x + 3 && AMx <= (*Wnd).x + (*Wnd).width - 4)
+        {
+            if (AMy >= (*Wnd).y + 3 && AMy <= (*Wnd).y + 11)
+            {
+                (*Wnd).x += Mx - AMx;
+                (*Wnd).y += My - AMy;
             }
-    if(Mx>=(*Wnd).x&&Mx<=(*Wnd).x+(*Wnd).width&&My>=(*Wnd).y&&My<=(*Wnd).y+(*Wnd).height)
-        WinMouse=1;
-    return WinMouse;
+        }
+    }
+    if (Mx >= (*Wnd).x && Mx <= (*Wnd).x + (*Wnd).width && My >= (*Wnd).y && My <= (*Wnd).y + (*Wnd).height)
+        return 1;
+    return 0;
 }
+
 
 /*---------------------------------------------------------------------------\
   |        Dessine un bouton en (x,y) avec le texte Title,enfoncé si Etat=1    |

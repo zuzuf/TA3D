@@ -39,96 +39,27 @@ public:
 	int		nbtex;			// Nombre de textures
 	ANIM	*tex;			// Textures
 
-	void init()
-	{
-		nbtex=0;
-		tex=NULL;
-	}
+	TEXTURE_MANAGER() :nbtex(0), tex(NULL) {}
+	~TEXTURE_MANAGER() {destroy();}
 
-	void destroy()
-	{
-		if(tex) {
-			for(int i=0;i<nbtex;i++)
-				tex[i].destroy();
-			free(tex);
-			}
-		init();
-	}
+    void init();
 
-	TEXTURE_MANAGER()
-	{
-		init();
-	}
+	void destroy();
 
-	~TEXTURE_MANAGER()
-	{
-		destroy();
-	}
 
-	int get_texture_index(char *texture_name)
-	{
-		if(nbtex==0) return -1;
-		for(int i=0;i<nbtex;i++)
-			if(strcasecmp(texture_name,tex[i].name)==0)
-				return i;
-		return -1;
-	}
+	int get_texture_index(const String& texture_name);
 
-	GLuint get_gl_texture(char *texture_name,int frame=0)
-	{
-		int index=get_texture_index(texture_name);
-		if(index==-1)
-			return 0;
-		return tex[index].glbmp[frame];
-	}
+	GLuint get_gl_texture(const String& texture_name, const int frame = 0);
 
-	BITMAP *get_bmp_texture(char *texture_name,int frame=0)
-	{
-		int index=get_texture_index(texture_name);
-		if(index==-1)
-			return NULL;
-		return tex[index].bmp[frame];
-	}
+	BITMAP *get_bmp_texture(const String& texture_name, const int frame = 0);
 
 	int load_gaf(byte *data);
 
-	int all_texture()
-	{
-								// Crée des textures correspondant aux couleurs de la palette de TA
-		nbtex=256;
-		tex=(ANIM*)	malloc(sizeof(ANIM)*nbtex);
-		for (int i = 0; i < 256; ++i)
-        {
-			tex[i].init();
-			tex[i].nb_bmp=1;
-			tex[i].bmp=(BITMAP**) malloc(sizeof(BITMAP*));
-			tex[i].glbmp=(GLuint*) malloc(sizeof(GLuint));
-			tex[i].ofs_x=(short*) malloc(sizeof(short));
-			tex[i].ofs_y=(short*) malloc(sizeof(short));
-			tex[i].w=(short*) malloc(sizeof(short));
-			tex[i].h=(short*) malloc(sizeof(short));
-			char tmp[10];
-			uszprintf(tmp,10,"_%d",i);
-			tex[i].name=strdup(tmp);
+	int all_texture();
 
-			tex[i].ofs_x[0]=0;
-			tex[i].ofs_y[0]=0;
-			tex[i].w[0]=16;
-			tex[i].h[0]=16;
-			tex[i].bmp[0]=create_bitmap_ex(32,16,16);
-			clear_to_color(tex[i].bmp[0],makeacol(pal[i].r<<2,pal[i].g<<2,pal[i].b<<2, 0xFF ));
-		}
-        String::List file_list;
-		HPIManager->getFilelist("textures\\*.gaf", file_list);
-		for (String::List::const_iterator cur_file = file_list.begin(); cur_file != file_list.end(); ++cur_file)
-        {
-            byte *data=HPIManager->PullFromHPI(*cur_file);
-            load_gaf(data);
-            delete[] data;
-        }
-        return 0;
-    }
-};
+}; // class TEXTURE_MANAGER
+
+
 
 extern TEXTURE_MANAGER	texture_manager;
 
@@ -187,10 +118,7 @@ public:
         is_moving = false;
     }
 
-    void reset_move()
-    {
-        move_speed = 0.0f;
-    }
+    void reset_move() {move_speed = 0.0f;}
 
     void reset_rot()
     {
@@ -216,82 +144,16 @@ public:
     MATRIX_4x4	*matrix;		// Store local matrixes
     bool		is_moving;
 
-    void init()
-    {
-        is_moving=false;
-        nb_piece=0;
-        axe[0]=axe[1]=axe[2]=NULL;
-        flag=NULL;
-        explosion_flag=NULL;
-        pos=NULL;
-        dir=NULL;
-        matrix=NULL;
-        explode=false;
-        explode_time=0.0f;
-    }
 
-    inline SCRIPT_DATA()
-    {
-        init();
-    }
+    SCRIPT_DATA() {init();}
 
-    void destroy()
-    {
-        for(int i=0;i<3;i++)
-            if(axe[i])
-                delete[] axe[i];
-        if(matrix)
-            delete[] matrix;
-        if(dir)
-            delete[] dir;
-        if(pos)
-            delete[] pos;
-        if(flag)
-            delete[] flag;
-        if(explosion_flag)
-            delete[] explosion_flag;
-        init();
-    }
+    void init();
 
-    inline ~SCRIPT_DATA()
-    {
-        destroy();
-    }
+    void destroy();
 
-    void load(int nb)
-    {
-        destroy();		// Au cas où
-        nb_piece=nb;
-        flag=new short[nb_piece];
-        explosion_flag=new short[nb_piece];
-        pos=new VECTOR[nb_piece];
-        dir=new VECTOR[nb_piece];
-        matrix=new MATRIX_4x4[nb_piece];
-        int i;
-        for(i=0;i<nb_piece;i++) {
-            flag[i] = 0;
-            explosion_flag[i] = 0;
-            pos[i].x = pos[i].y = pos[i].z = 0.0f;
-            dir[i] = pos[i];
-            matrix[i] = Scale( 1.0f );
-        }
-        for(i=0;i<3;i++) {
-            axe[i]=new AXE[nb_piece];
-            for(int e=0;e<nb_piece;e++) {
-                axe[i][e].move_speed=0.0f;
-                axe[i][e].move_distance=0.0f;
-                axe[i][e].pos=0.0f;
-                axe[i][e].rot_angle=0.0f;
-                axe[i][e].rot_speed=0.0f;
-                axe[i][e].rot_accel=0.0f;
-                axe[i][e].angle=0.0f;
-                axe[i][e].rot_limit=true;
-                axe[i][e].rot_speed_limit=false;
-                axe[i][e].rot_target_speed=0.0f;
-                axe[i][e].is_moving=false;
-            }
-        }
-    }
+    ~SCRIPT_DATA() {destroy();}
+
+    void load(const int nb);
 
     const void move(const float dt,const float g=9.81f);
 };
@@ -519,7 +381,7 @@ public:
 
     bool draw(float t,SCRIPT_DATA *data_s=NULL,bool sel_primitive=false,bool alset=false,bool notex=false,int side=0,bool chg_col=true,bool exploding_parts=false);
     bool draw_dl(SCRIPT_DATA *data_s=NULL,bool alset=false,int side=0,bool chg_col=true);
-    void draw_optimised( bool set = true );
+    void draw_optimised(const bool set = true);
 
     bool draw_shadow(VECTOR Dir,float t,SCRIPT_DATA *data_s=NULL,bool alset=false,bool exploding_parts=false);
 
