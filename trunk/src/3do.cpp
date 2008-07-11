@@ -696,7 +696,7 @@ void OBJECT::create_from_2d(BITMAP *bmp,float w,float h,float max_h)
     med=(med+(div>>1))/div;
     for(y=0;y<8;y++)						// Carte miniature en nuances de gris
         for(x=0;x<8;x++)
-            if(tmp[y][x]==-0xFFFFFF)
+            if(tmp[y][x]== uint32(-0xFFFFFF))
                 tmp[y][x]=med;
 
     points[0].y=0.0f;
