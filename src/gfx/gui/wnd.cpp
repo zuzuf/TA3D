@@ -672,7 +672,7 @@ namespace TA3D
                                                           - skin->scroll[0].y1 + skin->scroll[0].y2
                                                           - (skin->scroll[0].sw - skin->scroll[ 0 ].x1 + skin->scroll[ 0 ].x2) * 0.5f));
                             }
-                            if (Objets[i].Data > TotalScroll)
+                            if (Objets[i].Data > (unsigned int)TotalScroll)
                                 Objets[i].Data = TotalScroll;
                         }
                         else
@@ -744,7 +744,8 @@ namespace TA3D
                             {
 
                                 int TotalScroll = Objets[i].Text.size() - (int)((Objets[i].y2 - Objets[i].y1 - skin->text_background.y1 + skin->text_background.y2) / (gui_font.height() * Objets[i].s));
-                                if (TotalScroll < 0)	TotalScroll = 0;
+                                if (TotalScroll < 0)
+                                    TotalScroll = 0;
 
                                 if (mouse_y - y <= Objets[i].y1 + skin->text_background.y1 + skin->scroll[0].y1)// Scroll up
                                 {
@@ -763,11 +764,13 @@ namespace TA3D
                                     }
                                     else
                                     {							// Set scrolling position
-                                        Objets[i].Data = (int)(0.5f + TotalScroll * (mouse_y - y - Objets[i].y1 - skin->text_background.y1 - skin->scroll[0].y1 - (skin->scroll[0].sw - skin->scroll[ 0 ].x1 + skin->scroll[ 0 ].x2) * 0.5f)
-                                                               / (Objets[i].y2 - Objets[i].y1 - skin->text_background.y1 + skin->text_background.y2 - skin->scroll[0].y1 + skin->scroll[0].y2 - (skin->scroll[0].sw - skin->scroll[ 0 ].x1 + skin->scroll[ 0 ].x2) * 0.5f));
+                                        Objets[i].Data = (int)(0.5f + TotalScroll * (mouse_y - y - Objets[i].y1 - skin->text_background.y1 - skin->scroll[0].y1
+                                                                                     - (skin->scroll[0].sw - skin->scroll[ 0 ].x1 + skin->scroll[ 0 ].x2) * 0.5f)
+                                                               / (Objets[i].y2 - Objets[i].y1 - skin->text_background.y1 + skin->text_background.y2
+                                                                  - skin->scroll[0].y1 + skin->scroll[0].y2 - (skin->scroll[0].sw - skin->scroll[ 0 ].x1 + skin->scroll[ 0 ].x2) * 0.5f));
                                     }
                                 }
-                                if (Objets[i].Data > TotalScroll)
+                                if (Objets[i].Data > (unsigned int)TotalScroll)
                                     Objets[i].Data = TotalScroll;
                             }
                             else
@@ -819,11 +822,11 @@ namespace TA3D
                                 (*Objets[i].Func)(Objets[i].Etat);	// Lance la fonction associée
                             break;
                         case OBJ_FMENU:			// Menu Flottant
-                            if (mouse_y>=y+Objets[i].y1+(skin ? skin->menu_background.y1:0)+4 && mouse_y<=y+Objets[i].y2 + (skin ? skin->menu_background.y2 : 0)-4)
+                            if (mouse_y >= y + Objets[i].y1 + (skin ? skin->menu_background.y1 : 0) + 4 && mouse_y <= y + Objets[i].y2 + (skin ? skin->menu_background.y2 : 0) - 4)
                             {
-                                index=(int)((mouse_y-y-Objets[i].y1-4 - (skin ? skin->menu_background.y1 : 0))/(gui_font.height()*Objets[i].s));
-                                if (index>=Objets[i].Text.size())
-                                    index=Objets[i].Text.size() - 1;
+                                index = (int)((mouse_y - y - Objets[i].y1 - 4 - (skin ? skin->menu_background.y1 : 0))/(gui_font.height()*Objets[i].s));
+                                if (index >= (int)(Objets[i].Text.size()))
+                                    index = Objets[i].Text.size() - 1;
                                 if (Objets[i].Func!=NULL)
                                     (*Objets[i].Func)(index);		// Lance la fonction associée
                             }
@@ -833,7 +836,7 @@ namespace TA3D
                                 float m_width = 168.0f * Objets[i].s;
                                 if (skin)
                                 {
-                                    for (int e = 0 ; e < Objets[i].Text.size() - (1 + Objets[i].Pos) ; e++)
+                                    for (unsigned int e = 0 ; e < Objets[i].Text.size() - (1 + Objets[i].Pos) ; e++)
                                         m_width = max(m_width, gui_font.length(Objets[i].Text[ e ]) * Objets[i].s);
 
                                     m_width += skin->menu_background.x1 - skin->menu_background.x2;
@@ -845,7 +848,7 @@ namespace TA3D
                                     && Objets[i].Etat)
                                 {
                                     index = (int)((mouse_y - y - Objets[i].y2 - 5 - (skin ? skin->menu_background.y1 : 0))/(Objets[i].s * gui_font.height()) + Objets[i].Pos);
-                                    if (index >= Objets[i].Text.size() - 1)
+                                    if (index >= (int)(Objets[i].Text.size() - 1))
                                         index = Objets[i].Text.size()-2;
                                     if (Objets[i].Func != NULL)
                                         (*Objets[i].Func)(index);		// Lance la fonction associée
@@ -988,7 +991,7 @@ namespace TA3D
 
 
 
-    void WND::load_gui(const String& filename, cHashTable< std::vector< TA3D::Interfaces::GfxTexture >* > &gui_hashtable)
+    void WND::load_gui(const String& filename, TA3D::UTILS::cHashTable< std::vector< TA3D::Interfaces::GfxTexture >* > &gui_hashtable)
     {
         GuardEnter(WND::load_gui);
 
@@ -1133,7 +1136,7 @@ namespace TA3D
                 else
                 {
                     gaf_imgs.resize(result->size());
-                    for (int e = 0 ; e < result->size() ; ++e)
+                    for (unsigned int e = 0 ; e < result->size() ; ++e)
                     {
                         gaf_imgs[ e ] = (*result)[ e ].tex;
                         t_w[ e ] = (*result)[ e ].width;
@@ -1145,7 +1148,7 @@ namespace TA3D
                 Objets[i].create_ta_button(X1, Y1, Caption, gaf_imgs, nb_stages > 0 ? nb_stages : gaf_imgs.size() - 2);
                 if (result == NULL && found_elsewhere)
                     gui_hashtable.Insert(key, &Objets[i].gltex_states);
-                for (int e = 0; e < Objets[i].gltex_states.size(); ++e)
+                for (unsigned int e = 0; e < Objets[i].gltex_states.size(); ++e)
                 {
                     Objets[i].gltex_states[e].width = t_w[e];
                     Objets[i].gltex_states[e].height = t_h[e];

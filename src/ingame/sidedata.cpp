@@ -1,6 +1,7 @@
 
 #include "sidedata.h"
 #include "../cTAFileParser.h"
+#include "../gfx/gui/skin.h"
 
 
 

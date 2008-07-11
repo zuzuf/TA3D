@@ -5,13 +5,17 @@
 # include "../../misc/string.h"
 # include "../../threads/thread.h"
 # include "skin.h"
-# include "../../gui.h"
+# include "object.h"
+# include "../../misc/hash_table.h"
+# include "../../misc/interface.h"
+# include "../gfxtexture.h"
 
 
 
 namespace TA3D
 {
 
+    class GUIOBJ;
 
     /*! \class WND
     **
@@ -85,7 +89,7 @@ namespace TA3D
         ** \param filename
         ** \param gui_hashtable
         */
-        void load_gui(const String& filename, cHashTable< std::vector< TA3D::Interfaces::GfxTexture >* > & gui_hashtable);
+        void load_gui(const String& filename, TA3D::UTILS::cHashTable< std::vector< TA3D::Interfaces::GfxTexture >* > & gui_hashtable);
 
 
 
@@ -149,7 +153,7 @@ namespace TA3D
         //! Number of objects
         int  NbObj;
         //! hashtable used to speed up operations on GUIOBJ objects
-        cHashTable< int >  obj_hashtable;
+        TA3D::UTILS::cHashTable<int>  obj_hashtable;
 
         //! The texture background
         GLuint  background;

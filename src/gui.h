@@ -30,7 +30,8 @@
 #include "threads/thread.h"
 #include "TA3D_NameSpace.h"
 #include <vector>
-
+#include "gfx/gui/base.h"
+#include "gfx/gui/skin.h"
 
 
 namespace TA3D
@@ -44,48 +45,6 @@ const String msg_box(TA3D::Interfaces::GfxFont fnt,const String &title,const Str
 
 		// Pour les couleurs standards
 
-#define GrisM	makeacol(128,128,128,255)
-#define GrisF	makeacol(64,64,64,255)
-#define GrisC	makeacol(192,192,192,255)
-#define Noir	makeacol(0,0,0,255)
-#define Blanc	makeacol(255,255,255,255)
-#define Bleu	makeacol(0,0,255,255)
-#define Rouge	makeacol(255,0,0,255)
-#define Vert	makeacol(0,255,0,255)
-#define Jaune	makeacol(255,255,0,255)
-#define GrisCM	makeacol(170,170,170,255)
-#define RougeF	makeacol(128,0,0,255)
-
-		// Object types
-#define OBJ_BUTTON		0x0		// Button
-#define OBJ_FMENU		0x1		// Floating Menu
-#define OBJ_OPTIONB		0x2		// Option Button
-#define OBJ_PBAR		0x3		// Progress Bar
-#define OBJ_TEXTBAR		0x4		// Text Input
-#define OBJ_OPTIONC		0x5		// CheckBox
-#define OBJ_MENU		0x6		// Menu
-#define OBJ_TEXT		0x7		// Print text
-#define OBJ_LINE		0x8		// Draw a line
-#define OBJ_BOX			0x9		// Draw a box
-#define OBJ_IMG			0xA		// Draw a picture
-		// Work in progress for objects below
-#define OBJ_LIST		0xB		// Draw a list object
-#define OBJ_TA_BUTTON	0xC		// TA Button, used for TA interface
-#define OBJ_NONE		0xD		// Used for things that are not intended to be drawn
-
-#define TA_ID_0				0x0		// The ID 0 is always used in Cavedog GUI files to represent the first gadget that defines the interface
-#define TA_ID_BUTTON		0x1		// Makes the gadget a button
-#define TA_ID_LIST_BOX		0x2		// Creates a listbox
-#define TA_ID_TEXT_FIELD	0x3		// Creates a textfield, it's doesnt have any borders
-#define TA_ID_SCROLL_BAR	0x4		// Creates a Vertical/horizontal Scroll bar
-#define TA_ID_LABEL			0x5		// It makes the gadget a label
-#define TA_ID_BLANK_IMG		0x6		// This creates a blank surface that will receive a picture at run time
-#define TA_ID_FONT			0x7		// It is used to set the default font for labels
-#define TA_ID_IMG			0x12	// Used to display a picture box
-
-#define ASW_YESNO		0x0
-#define ASW_OKCANCEL	0x1
-
 struct wnd				// Pour la gestion directe de l'interface dans le programme
 {
    int		x,y;			// coordinates
@@ -93,7 +52,6 @@ struct wnd				// Pour la gestion directe de l'interface dans le programme
    String	Title;			// name
 };
 
-class SKIN;			// Class SKIN to handle GUI skins for GUIOBJ objects and WND windows
 
 /*--------- Functions that can use the skin object -------------------------------------------------*/
 
@@ -110,7 +68,7 @@ int draw_text_adjust( float x1, float y1, float x2, float y2, String msg, float 
 
 /*--------------------------------------------------------------------------------------------------*/
 
-void draw_Window( wnd Wnd );
+void draw_Window(wnd& Wnd );
 unsigned char WinMov( int AMx, int AMy, int AMb, int Mx, int My, int Mb, wnd *Wnd );
 String dirname( String fname );
 const String Dialog( const String &Title, String Filter = "*.*" );
@@ -118,129 +76,9 @@ bool WndAsk( const String &Title, const String &Msg, int ASW_TYPE=ASW_OKCANCEL )
 void Popup( const String &Title, const String &Msg );
 const String GetVal( const String &Title );
 
-extern TA3D::Interfaces::GfxFont gui_font;
 extern float gui_font_h;
 
 extern bool	use_normal_alpha_function;
-
-#define	FLAG_CAN_BE_CLICKED					0x0001			// If you can click it
-#define	FLAG_CAN_GET_FOCUS					0x0002			// If it can be selected
-#define	FLAG_HIGHLIGHT						0x0004			// If it's highlighted when selected
-#define	FLAG_FILL							0x0008			// If it must be filled (for type BOX)
-#define FLAG_SWITCH							0x0010			// If it behaves like a switch
-#define FLAG_HIDDEN							0x0020			// If it's not visible
-#define FLAG_MULTI_STATE					0x0040			// If it can have more than 2 states
-#define FLAG_BUILD_PIC						0x0080			// If it's a build pic, replace the picture with the current unit's one
-#define FLAG_DISABLED						0x0100
-#define FLAG_CENTERED						0x0200			// Centered
-#define FLAG_TEXT_ADJUST					0x0400			// Tell the text renderer to print '\n' correctly and to fit in the given space
-#define FLAG_NO_BORDER						0x0800			// Tell the object not to draw its borders so you can see the background instead
-#define FLAG_MISSION_MODE					0x1000			// Tell the object not to draw its borders so you can see the background instead
-
-class WND;
-
-class GUIOBJ					// Structure pour les objets contenus dans les fenêtres
-{
-public:
-	byte				Type;			// Type of objet
-	bool				Focus;			// Selected??
-	bool				Etat;			// State of the object
-	float				x1,y1;			// Position(within the window)
-	float				x2,y2;
-	std::vector< String >	Text;			// Text displayed by the object
-	void				(*Func)(int);	// Pointer to linked function
-	uint32				Data;			// Additional data
-	uint32				Pos;			// Position in a list
-	sint32				Value;			// Used by floatting menus
-	float				s;				// Size factor (for text)
-	uint32				Flag;			// Flags
-	bool				MouseOn;		// If the cursor is on it
-	bool				activated;		// For buttons/menus/... indicates that it is pressed (while click isn't finished)
-	bool				destroy_img;	// For img control, tell to destroy the texture
-
-	std::vector< String >	OnClick;		// Send that signal when clicked
-	std::vector< String >	OnHover;		// Send that signal when mouse is over
-	std::vector< String >	SendDataTo;		// Send Data to that object on the window
-	std::vector< String >	SendPosTo;		// Send Pos to that object on the window
-	String				Name;			// name of the object
-	String				help_msg;		// Help message displayed when the mouse cursor is over the object
-
-	float				u1,v1,u2,v2;
-	bool				wait_a_turn;	// Used to deal with show/hide msg
-
-	byte				current_state;
-	std::vector< TA3D::Interfaces::GfxTexture >	gltex_states;
-	byte				nb_stages;
-	sint16				shortcut_key;
-
-	GUIOBJ()			// Constructor of the object
-	{
-		Value = -1;
-		help_msg.clear();
-		shortcut_key = -1;
-		nb_stages = 0;
-		current_state = 0;
-		gltex_states.clear();
-		wait_a_turn = false;
-		OnClick.clear();
-		OnHover.clear();
-		SendDataTo.clear();
-		SendPosTo.clear();
-		Text.clear();
-		MouseOn=false;
-		Flag=0;
-		Focus=false;
-		Etat=false;
-		Func=NULL;
-		Data=0;
-		Pos=0;
-		s=1.0f;
-		u1=0.0f;
-		v1=0.0f;
-		u2=1.0f;
-		v2=1.0f;
-		activated = false;
-		destroy_img = false;
-	}
-
-	~GUIOBJ()
-	{
-		help_msg.clear();
-		Name.clear();
-		Text.clear();
-		for(unsigned int i = 0 ; i < gltex_states.size() ; ++i)
-			gltex_states[ i ].destroy();
-		gltex_states.clear();
-
-		if( destroy_img ) {
-			GLuint gl_data = (GLuint) Data;
-			gfx->destroy_texture( gl_data );
-			Data = 0;
-			destroy_img = false;
-			}
-	}
-
-	uint32	num_entries();
-
-	uint32	msg( const String &message, WND *wnd = NULL );			// Reacts to a message transfered from the Interface
-
-	void set_caption( String caption );
-
-				// Creates a GUI_OBJ
-	void create_button(float X1,float Y1,float X2,float Y2,const String &Caption,void (*F)(int), float size=1.0f);
-	void create_optionc(float X1,float Y1,const String &Caption,bool ETAT,void (*F)(int), SKIN *skin = NULL, float size=1.0f );
-	void create_optionb(float X1,float Y1,const String &Caption,bool ETAT,void (*F)(int), SKIN *skin = NULL, float size=1.0f );
-	void create_textbar(float X1,float Y1,float X2,float Y2,const String &Caption,int MaxChar, void(*F)(int)=NULL, float size=1.0f);
-	void create_menu(float X1,float Y1,const String::Vector &Entry,void (*F)(int), float size=1.0f);
-	void create_menu(float X1,float Y1,float X2,float Y2,const String::Vector &Entry,void (*F)(int), float size=1.0f);
-	void create_pbar(float X1,float Y1,float X2,float Y2,int PCent, float size=1.0f);
-	void create_text(float X1,float Y1,const String &Caption,int Col=Noir, float size = 1.0f);
-	void create_line(float X1,float Y1,float X2,float Y2,int Col=Noir);
-	void create_box(float X1,float Y1,float X2,float Y2,int Col=Noir);
-	void create_img(float X1,float Y1,float X2,float Y2,GLuint img);
-	void create_list(float X1,float Y1,float X2,float Y2,const String::Vector &Entry, float size=1.0f);
-	void create_ta_button(float X1,float Y1,const std::vector< String > &Caption, const std::vector< GLuint > &states, int nb_st);
-};
 
 
 } // namespace TA3D

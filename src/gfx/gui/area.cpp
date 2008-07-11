@@ -3,6 +3,10 @@
 #include "../../misc/paths.h"
 #include "skin.h"
 #include "../../TA3D_Exception.h"
+#include "../../console.h"
+#include "../../TA3D_NameSpace.h"
+#include "../../gui.h"
+
 
 using namespace TA3D::Exceptions;
 
