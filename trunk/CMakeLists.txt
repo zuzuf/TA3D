@@ -14,9 +14,9 @@ string( LENGTH "${CMAKE_CXX_FLAGS}" VA )
 
 IF( ${VA} EQUAL 0 )
     IF(WIN32)
-	    SET( CMAKE_CXX_FLAGS "-O2 -g " )
+	    SET( CMAKE_CXX_FLAGS "-O3 -g " )
     ELSE(WIN32)
-	    SET( CMAKE_CXX_FLAGS "-O2 -g -Wall " )
+	    SET( CMAKE_CXX_FLAGS "-O3 -g -Wall " )
     ENDIF(WIN32)
 ENDIF( ${VA} EQUAL 0 )
 
