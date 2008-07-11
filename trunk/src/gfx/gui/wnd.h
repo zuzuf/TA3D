@@ -212,7 +212,7 @@ namespace TA3D
         ** \brief Same as get_object
         ** \see get_object()
         */
-        GUIOBJ *WND::doGetObject(String message);
+        GUIOBJ* doGetObject(String message);
 
     private:
         //!
