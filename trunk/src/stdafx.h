@@ -98,8 +98,11 @@
 # ifdef TA3D_PLATFORM_DARWIN
 #   include <Headers/glu.h> // see `/System/Library/Frameworks/OpenGL.framework`
 # else
+#   define GL_GLEXT_PROTOTYPES
 #   include <GL/glu.h>
 #   include <GL/gl.h>
+#   include <GL/glx.h>
+#   include <GL/glext.h>
 # endif
 
 
