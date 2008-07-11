@@ -34,6 +34,23 @@ bool	g_useProgram = false;
 bool	g_useFBO = false;
 
 
+
+
+void SHADER::destroy()
+{
+    if (succes)
+    {
+        glDetachObjectARB(program,fragment);
+        glDetachObjectARB(program,vertex);
+        glDeleteObjectARB(program);
+        glDeleteObjectARB(fragment);
+        glDeleteObjectARB(vertex);
+    }
+    succes = false;
+}
+
+
+
 #if defined TA3D_PLATFORM_WINDOWS && defined TA3D_PLATFORM_MSVC
 static void installOpenGLExtensionsForWindows()
 {
@@ -308,4 +325,63 @@ SHADER::load(const char *fragment_file,const char *vertex_file)
 	}
 }
 
+void SHADER::on()
+{
+    if (succes)
+        glUseProgramObjectARB(program);
+}
+
+void SHADER::off()
+{
+    if (succes)
+        glUseProgramObjectARB(0);
+}
+
+void SHADER::setvar1f(const char *var_name,float v0)
+{
+    if (succes)
+        glUniform1fARB(glGetUniformLocationARB(program, var_name), v0);
+}
+
+void SHADER::setvar2f(const char *var_name,float v0,float v1)
+{
+    if (succes)
+        glUniform2fARB(glGetUniformLocationARB(program, var_name), v0, v1);
+}
+
+void SHADER::setvar3f(const char *var_name,float v0,float v1,float v2)
+{
+    if (succes)
+        glUniform3fARB(glGetUniformLocationARB(program, var_name), v0, v1, v2);
+}
+
+void SHADER::setvar4f(const char *var_name,float v0,float v1,float v2,float v3)
+{
+    if (succes)
+        glUniform4fARB(glGetUniformLocationARB(program, var_name), v0, v1, v2, v3);
+}
+
+void SHADER::setvar1i(const char *var_name,int v0)
+{
+    if (succes)
+        glUniform1iARB(glGetUniformLocationARB(program, var_name), v0);
+}
+
+void SHADER::setvar2i(const char *var_name,int v0,int v1)
+{
+    if (succes)
+        glUniform2iARB(glGetUniformLocationARB(program, var_name), v0, v1);
+}
+
+void SHADER::setvar3i(const char *var_name,int v0,int v1,int v2)
+{
+    if (succes)
+        glUniform3iARB(glGetUniformLocationARB(program, var_name), v0, v1, v2);
+}
+
+void SHADER::setvar4i(const char *var_name,int v0,int v1,int v2,int v3)
+{
+    if (succes)
+        glUniform4iARB(glGetUniformLocationARB(program, var_name), v0, v1, v2, v3);
+}
 

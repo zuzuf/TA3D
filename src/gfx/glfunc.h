@@ -54,86 +54,34 @@ public:
 	GLhandleARB		vertex;
 	bool			succes;
 
-	inline SHADER()
-	{
-		succes=false;
-	}
+	SHADER() :succes(false) {}
 
 	void load(const char *fragment_file,const char *vertex_file);
 
 	void load_memory(const char *fragment_data,int frag_len,const char *vertex_data,int vert_len);
 
-	inline void destroy()
-	{
-		if(succes) {
-			glDetachObjectARB(program,fragment);
-			glDetachObjectARB(program,vertex);
-			glDeleteObjectARB(program);
-			glDeleteObjectARB(fragment);
-			glDeleteObjectARB(vertex);
-			}
-		succes=false;
-	}
+	void destroy();
 
-	inline void on()
-	{
-		if(succes)
-			glUseProgramObjectARB(program);
-	}
+	void on();
 
-	inline void off()
-	{
-		if(succes)
-			glUseProgramObjectARB(0);
-	}
+	void off();
 
-	inline void setvar1f(const char *var_name,float v0)
-	{
-		if(succes)
-			glUniform1fARB(glGetUniformLocationARB(program, var_name), v0);
-	}
+	void setvar1f(const char *var_name,float v0);
 
-	inline void setvar2f(const char *var_name,float v0,float v1)
-	{
-		if(succes)
-			glUniform2fARB(glGetUniformLocationARB(program, var_name), v0, v1);
-	}
+	void setvar2f(const char *var_name,float v0,float v1);
 
-	inline void setvar3f(const char *var_name,float v0,float v1,float v2)
-	{
-		if(succes)
-			glUniform3fARB(glGetUniformLocationARB(program, var_name), v0, v1, v2);
-	}
+	void setvar3f(const char *var_name,float v0,float v1,float v2);
 
-	inline void setvar4f(const char *var_name,float v0,float v1,float v2,float v3)
-	{
-		if(succes)
-			glUniform4fARB(glGetUniformLocationARB(program, var_name), v0, v1, v2, v3);
-	}
+	void setvar4f(const char *var_name,float v0,float v1,float v2,float v3);
 
-	inline void setvar1i(const char *var_name,int v0)
-	{
-		if(succes)
-			glUniform1iARB(glGetUniformLocationARB(program, var_name), v0);
-	}
+	void setvar1i(const char *var_name,int v0);
 
-	inline void setvar2i(const char *var_name,int v0,int v1)
-	{
-		if(succes)
-			glUniform2iARB(glGetUniformLocationARB(program, var_name), v0, v1);
-	}
+	void setvar2i(const char *var_name,int v0,int v1);
 
-	inline void setvar3i(const char *var_name,int v0,int v1,int v2)
-	{
-		if(succes)
-			glUniform3iARB(glGetUniformLocationARB(program, var_name), v0, v1, v2);
-	}
+	void setvar3i(const char *var_name,int v0,int v1,int v2);
 
-	inline void setvar4i(const char *var_name,int v0,int v1,int v2,int v3)
-	{
-		if(succes)
-			glUniform4iARB(glGetUniformLocationARB(program, var_name), v0, v1, v2, v3);
-	}
-};
+	void setvar4i(const char *var_name,int v0,int v1,int v2,int v3);
+
+}; // class SHADER
 
 #endif // __TA3D_GFX_GL_FUNCTIONS_H__
