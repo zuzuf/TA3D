@@ -92,6 +92,20 @@
 
 
 
+/*
+** The OpenGL library
+*/
+# ifdef TA3D_PLATFORM_DARWIN
+#   include <Headers/glu.h> // see `/System/Library/Frameworks/OpenGL.framework`
+# else
+#   include <GL/glu.h>
+#   include <GL/gl.h>
+# endif
+
+
+/*
+** The Allegro library
+*/
 # if defined TA3D_PLATFORM_WINDOWS //&& defined TA3D_PLATFORM_MSVC
 #   ifdef TA3D_PLATFORM_MSVC
 #      pragma warning(disable : 4554) 
@@ -123,13 +137,6 @@
 
 
 # include "misc/string.h"
-
-// OpenGL
-# ifdef TA3D_PLATFORM_DARWIN
-#   include <Headers/glu.h> // see `/System/Library/Frameworks/OpenGL.framework`
-# else
-#   include <GL/glu.h>
-# endif
 
 # include <math.h>
 
