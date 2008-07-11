@@ -315,6 +315,179 @@ const void SCRIPT_DATA::move(const float dt, const float g)
 
 
 
+void OBJECT::destroy()
+{
+    if (animation_data)
+        delete animation_data;
+    surface.s_shader.destroy();
+    if (surface.frag_shader_src)  free(surface.frag_shader_src);
+    if (surface.vert_shader_src)  free(surface.vert_shader_src);
+    if (surface.NbTex > 0)
+    {
+        for (int i = 0; i < surface.NbTex; ++i)
+        {
+            if (surface.gltex[i])
+                glDeleteTextures(1, &(surface.gltex[i]));
+        }
+    }
+    if (line_on)
+        delete[] line_on;
+    if (t_line)			free(t_line);
+    if (line_v_idx[0])	free(line_v_idx[0]);
+    if (line_v_idx[1])	free(line_v_idx[1]);
+    if (shadow_index)	free(shadow_index);
+    if (tcoord)			free(tcoord);
+    if (dtex)
+    {
+        for(int i=0;i<dtex;i++)
+            glDeleteTextures(1,&(gltex[i]));
+    }
+    for(int i=0;i<10;i++)
+    {
+        if( gl_dlist[ i ] )
+            glDeleteLists(gl_dlist[i],1);
+    }
+    if (usetex)
+        free(usetex);
+    if (nb_index)
+        free(nb_index);
+    if (tex)				// Ne détruit pas les textures qui le seront par la suite(celles-ci ne sont chargées qu'une fois
+        free(tex);		// mais peuvent être utilisées par plusieurs objets
+    if (face_reverse)
+        delete[] face_reverse;
+    if (F_N)
+        delete[] F_N;
+    if (N)
+        free(N);
+    if (points)	
+        free(points);
+    if (p_index)
+        free(p_index);
+    if (l_index)
+        free(l_index);
+    if (t_index)
+        free(t_index);
+    if (name)
+        free(name);
+    if (optimised_I)
+        free(optimised_I);
+    if (optimised_T)
+        free(optimised_T);
+    if (optimised_P)
+        free(optimised_P);
+    if (optimised_N)
+        free(optimised_N);
+    if (vbo_id)	
+        glDeleteBuffersARB( 1, &vbo_id );
+    if (ebo_id)
+        glDeleteBuffersARB( 1, &ebo_id );
+    if (next)
+    {
+        next->destroy();
+        free(next);
+    }
+    if (child)
+    {
+        child->destroy();
+        free(child);
+    }
+    init();
+}
+
+
+void OBJECT::Identify(int nb_piece,char **piece_name)			// Identifie les pièces utilisées par le script
+{
+    script_index=-1;				// Pièce non utilisée
+    for (int i = 0; i < nb_piece; ++i)
+    {
+        if (strcasecmp(name,piece_name[i]) == 0) // Pièce identifiée
+        {
+            script_index = i;
+            break;
+        }
+    }
+    if (next)
+        next->Identify(nb_piece,piece_name);
+    if (child)
+        child->Identify(nb_piece,piece_name);
+}
+
+
+void OBJECT::compute_center(VECTOR *center,VECTOR dec, int *coef)		// Calcule les coordonnées du centre de l'objet, objets liés compris
+{
+    for (int i = 0; i < nb_vtx; ++i)
+    {
+        ++(*coef);
+        center->x += points[i].x + dec.x + pos_from_parent.x;
+        center->y += points[i].y + dec.y + pos_from_parent.y;
+        center->z += points[i].z + dec.z + pos_from_parent.z;
+    }
+    if (next)
+        next->compute_center(center, dec, coef);
+    if (child)
+        child->compute_center(center, dec + pos_from_parent, coef);
+}
+
+
+float OBJECT::compute_size_sq(VECTOR center)		// Carré de la taille(on fera une racine après)
+{
+    float size = 0.0f;
+    for (int i = 0; i < nb_vtx; ++i)
+    {
+        float dist = (points[i] - center).sq();
+        if(size < dist)
+            size = dist;
+    }
+    if (next)
+    {
+        float size_next=next->compute_size_sq(center);
+        if(size<size_next)
+            size=size_next;
+    }
+    if (child)
+    {
+        float size_child = child->compute_size_sq(center);
+        if(size < size_child)
+            size = size_child;
+    }
+    return size;
+}
+
+
+float OBJECT::compute_top(float top, VECTOR dec)
+{
+    for(int i = 0;i < nb_vtx; ++i)
+        top = max(top, points[i].y + dec.y + pos_from_parent.y);
+    if (next)
+        top = next->compute_top(top, dec);
+    if (child)
+        top = child->compute_top(top, dec + pos_from_parent );
+    return top;
+}
+
+
+float OBJECT::compute_bottom(float bottom, VECTOR dec)
+{
+    for (int i = 0; i < nb_vtx; ++i)
+        bottom = min( bottom, points[i].y + dec.y + pos_from_parent.y);
+    if (next)
+        bottom = next->compute_bottom(bottom, dec);
+    if (child)
+        bottom = child->compute_bottom(bottom, dec + pos_from_parent);
+    return bottom;
+}
+
+bool OBJECT::has_animation_data()
+{
+    if (animation_data)
+        return true;
+    if (next)
+        return next->has_animation_data();
+    if (child)
+        return child->has_animation_data();
+    return false;
+}
+
 
 void OBJECT::optimise_mesh()			// EXPERIMENTAL, function to merge all objects in one vertex array (assume the object is clean)
 {
