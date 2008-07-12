@@ -135,9 +135,6 @@
 # else
 #   define GL_GLEXT_PROTOTYPES
 #   include <GL/glu.h>
-//#   include <GL/gl.h>
-//#   include <GL/glx.h>
-//#   include <GL/glext.h>
 # endif
 
 
