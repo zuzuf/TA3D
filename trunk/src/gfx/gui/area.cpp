@@ -218,8 +218,8 @@ namespace TA3D
                 if (name_len > 0)
                 {
                     real_filename.clear();
-                    real_filename << real_filename.substr(0, real_filename.size() - name_len) << skin->prefix
-                        << get_filename(real_filename.c_str());
+                    real_filename << filename.substr(0, filename.size() - name_len) << skin->prefix
+                        << get_filename(filename.c_str());
                 }
                 else
                     real_filename += skin->prefix;

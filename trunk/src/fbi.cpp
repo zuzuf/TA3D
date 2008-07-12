@@ -280,13 +280,13 @@ int UNIT_TYPE::load(char *data,int size)
         }
         else if((f=strstr(ligne,lang_desc.c_str()))!=NULL && (f==ligne || (f>ligne && *(f-1)<'a'))) {
             if(Description)	free(Description);
-            Description = strdup( f + lang_desc.length() );
+            Description = strdup( f + lang_desc.length() + 1 );
             if(strstr(Description,";"))
                 *(strstr(Description,";"))=0;
         }
         else if((f=strstr(ligne,lang_name.c_str()))!=NULL && (f==ligne || (f>ligne && *(f-1)<'a'))) {
             if(name)	free(name);
-            name = strdup( f + lang_name.length() );
+            name = strdup( f + lang_name.length() + 1 );
             if(strstr(name,";"))
                 *(strstr(name,";"))=0;
         }
