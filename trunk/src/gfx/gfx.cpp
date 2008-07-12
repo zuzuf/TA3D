@@ -34,6 +34,8 @@
 #include "../misc/math.h"
 
 
+#define TA3D_OPENGL_PREFIX "[OpenGL] "
+#define YESNO(X)  (X ? "Yes" : "No")
 
 
 namespace TA3D
@@ -115,14 +117,28 @@ namespace Interfaces
         if (Console)
         {
             Console->stdout_on();
-            Console->AddEntry("OpenGL informations:");
-            Console->AddEntry("vendor: %s", glGetString( GL_VENDOR ) );
-            Console->AddEntry("renderer: %s", glGetString( GL_RENDERER ) );
-            Console->AddEntry("version: %s", glGetString( GL_VERSION ) );
+            Console->AddEntry("%sOpenGL informations:", TA3D_OPENGL_PREFIX);
+            Console->AddEntry("%sVendor: %s",   TA3D_OPENGL_PREFIX, glGetString(GL_VENDOR));
+            Console->AddEntry("%sRenderer: %s", TA3D_OPENGL_PREFIX, glGetString(GL_RENDERER));
+            Console->AddEntry("%sVersion: %s",  TA3D_OPENGL_PREFIX, glGetString(GL_VERSION));
             if (ati_workaround)
                 Console->AddEntryWarning("ATI card detected ! Using workarounds for ATI cards");
             Console->stdout_off();
         }
+        else
+        {
+            LOG_INFO(TA3D_OPENGL_PREFIX << "OpenGL informations:");
+            LOG_INFO(TA3D_OPENGL_PREFIX << "Vendor: " << glGetString(GL_VENDOR));
+            LOG_INFO(TA3D_OPENGL_PREFIX << "Renderer: " << glGetString(GL_RENDERER));
+            LOG_INFO(TA3D_OPENGL_PREFIX << "Vrsion: " << glGetString(GL_VERSION));
+            if (ati_workaround)
+                LOG_WARNING("ATI card detected ! Using workarounds for ATI cards");
+        }
+        LOG_INFO(TA3D_OPENGL_PREFIX << "Texture compression: " << YESNO(g_useTextureCompression));
+        LOG_INFO(TA3D_OPENGL_PREFIX << "Stencil Two Side: " << YESNO(g_useStencilTwoSide));
+        LOG_INFO(TA3D_OPENGL_PREFIX << "FBO: " << YESNO(g_useFBO));
+        LOG_INFO(TA3D_OPENGL_PREFIX << "Shaders: " << YESNO(g_useProgram));
+        LOG_INFO(TA3D_OPENGL_PREFIX << "Multi texturing: " << YESNO(MultiTexturing));
     }
 
 
