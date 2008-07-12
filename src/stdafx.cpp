@@ -138,19 +138,6 @@ IsPowerOfTwo(int a)
 }
 
 
-int
-find(const String::Vector& v, const String& s)
-{
-    int indx(0);
-    for (String::Vector::const_iterator i = v.begin(); i != v.end(); ++i, ++indx)
-    {
-	    if(s == *i)
-		    return indx;
-    }
-	return -1;
-}
-	
-	
 String
 get_path(const String& s)
 {

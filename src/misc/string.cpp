@@ -228,4 +228,29 @@ namespace TA3D
         return hash;
     }
 
+    int String::FindInList(const String::Vector& l, const char* s)
+    {
+        int indx(0);
+        for (String::Vector::const_iterator i = l.begin(); i != l.end(); ++i, ++indx)
+        {
+            if(s == *i)
+                return indx;
+        }
+        return -1;
+
+    }
+
+    int String::FindInList(const String::Vector& l, const String& s)
+    {
+        int indx(0);
+        for (String::Vector::const_iterator i = l.begin(); i != l.end(); ++i, ++indx)
+        {
+            if(s == *i)
+                return indx;
+        }
+        return -1;
+
+    }
+
+
 }

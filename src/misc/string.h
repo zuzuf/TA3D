@@ -172,6 +172,16 @@ namespace TA3D
         */
         static void ToKeyValue(const String& s, String& key, String& value);
 
+        /*!
+        ** \brief Find the index of a string in a vector
+        ** \param l The vector
+        ** \param s The string to look for
+        ** \return The index of the string found, -1 otherwise
+        */
+        static int FindInList(const String::Vector& l, const char* s);
+        static int FindInList(const String::Vector& l, const String& s);
+
+
     public:
         //! \name Constructors and Destructor
         //@{

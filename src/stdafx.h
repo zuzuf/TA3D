@@ -214,8 +214,6 @@ namespace TA3D
 	
     bool StartsWith(const String& a, const String& b);
 	
-    int find(const String::Vector& v, const String& s);
-    
     //@} String manipulations
 
     #if defined TA3D_PLATFORM_WINDOWS && defined TA3D_PLATFORM_MSVC
