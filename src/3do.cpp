@@ -2696,7 +2696,7 @@ int MODEL_MANAGER::load_all(void (*progress)(float percent,const String &msg))
                     {
                         model[i+nb_models].load_3dm(data);
                         delete[] data;
-                        model_hashtable.Insert( Lowercase( *e ), nb_models + i + 1 );
+                        model_hashtable.Insert(String::ToLower(*e), nb_models + i + 1);
                         ++i;
                     }
                 }
@@ -2740,7 +2740,7 @@ int MODEL_MANAGER::load_all(void (*progress)(float percent,const String &msg))
                     if (data_size > 0 )						// If the file isn't empty
                         model[i+nb_models].load_3do(data,e->c_str());
                     delete[] data;
-                    model_hashtable.Insert( Lowercase( *e ), nb_models + i + 1 );
+                    model_hashtable.Insert(String::ToLower(*e), nb_models + i + 1);
                     ++i;
                 }
             }

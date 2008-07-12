@@ -448,7 +448,7 @@ namespace HPI
         {
             do
             {
-                AddArchive(path + search.name, priority || Lowercase( search.name ) == "ta3d.hpi" );
+                AddArchive(path + search.name, priority || String::ToLower(search.name) == "ta3d.hpi" );
             } while( al_findnext( &search ) == 0 );
             al_findclose(&search);
         }
@@ -559,7 +559,7 @@ namespace HPI
 
         CACHEFILEDATA newentry;
 
-        newentry.name = Lowercase(filename);			// Store a copy of the data
+        newentry.name = String::ToLower(filename);			// Store a copy of the data
         newentry.length = filesize;
         newentry.data = new byte[filesize];
         memcpy(newentry.data, data, filesize);
@@ -575,7 +575,7 @@ namespace HPI
         if (SearchString(filename, ".lua", true) >= 0)
             return NULL;
 
-        String cacheable_filename = Lowercase(filename);
+        String cacheable_filename = String::ToLower(filename);
         for (String::iterator i = cacheable_filename.begin() ; i != cacheable_filename.end(); ++i)
         {
             if ('/' == *i)
@@ -609,7 +609,7 @@ namespace HPI
         if (!m_file_cache)
             return NULL;
 
-        String key = Lowercase(filename);
+        String key = String::ToLower(filename);
         std::list<CACHEFILEDATA>::iterator i;
         for (i = m_file_cache->begin() ; i != m_file_cache->end() ; ++i) // Check RAM Cache
         {
@@ -671,7 +671,7 @@ namespace HPI
         }
 
 
-        HPIITEM *iterFind = m_Archive->Find( Lowercase( filename ) );
+        HPIITEM *iterFind = m_Archive->Find(String::ToLower(filename));
         if(iterFind && iterFind->hfd->priority) // Priority file!!
         {
             byte *data = DecodeFileToMem( iterFind , &FileSize );
@@ -746,7 +746,7 @@ namespace HPI
             }
         }
 
-        HPIITEM* iterFind = m_Archive->Find(Lowercase(filename));
+        HPIITEM* iterFind = m_Archive->Find(String::ToLower(filename));
         if (iterFind != NULL && iterFind->hfd->priority)				// Priority file!!
             return DecodeFileToMem_zone(iterFind, start, length, fileLength);
 
@@ -787,7 +787,7 @@ namespace HPI
         if (exists(UNIX_filename.c_str()))
             return true;
 
-        HPIITEM* iterFind = m_Archive->Find(Lowercase(filename));
+        HPIITEM* iterFind = m_Archive->Find(String::ToLower(filename));
         return (iterFind != NULL);
     }
 

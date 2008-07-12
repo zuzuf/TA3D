@@ -194,7 +194,7 @@ int play(GameData *game_data)
     {
         if( !(i & 0xF) )
             loading( (550.0f + 50.0f * i / (unit_manager.nb_unit+1) )/7.0f,I18N::Translate("Loading GUI"));
-        if( Lowercase( unit_manager.unit_type[ i ].side ) == Lowercase( ta3dSideData.side_name[ players.side_view ] ) )
+        if (String::ToLower(unit_manager.unit_type[i].side) == String::ToLower(ta3dSideData.side_name[players.side_view]))
         {
             int e = 1;
             while( HPIManager->Exists( ta3dSideData.guis_dir + unit_manager.unit_type[ i ].Unitname + format( "%d.gui", e ) ) )
@@ -2316,8 +2316,9 @@ int play(GameData *game_data)
         if(game_area.get_state("save_menu.b_save")) {				// Save the game
             game_area.set_state("save_menu.b_save", false);
             String filename = game_area.get_caption("save_menu.t_name");
-            if( !filename.empty() ) {
-                filename = Lowercase( filename );
+            if (!filename.empty())
+            {
+                filename.toLower();
                 if( filename.substr( filename.length() - 4, 4 ) != ".sav" )
                     filename += ".sav";
                 filename = TA3D::Paths::Savegames + filename;

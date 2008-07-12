@@ -49,10 +49,25 @@ namespace UTILS
 
         void LoadMemory( char *data, bool bClearTable=false, bool toUTF8 = false, bool g_mode = false );
 
-        sint32	PullAsInt( const String &KeyName , sint32 def = 0 );
-        real32	PullAsFloat( const String &KeyName , real32 def = 0.0f );
-        String	PullAsString( const String &KeyName , String def = "" );
-        bool	PullAsBool( const String &KeyName , bool def = false );
+        /*!
+        ** \brief
+        */
+        sint32  PullAsInt(const String &key, const sint32 def = 0);
+
+        /*!
+        ** \brief
+        */
+        real32  PullAsFloat(const String &key, const real32 def = 0.0f);
+
+        /*!
+        ** \brief
+        */
+        String  PullAsString(const String &key, const String& def = "");
+
+        /*!
+        ** \brief
+        */
+        bool  PullAsBool(const String& key, const bool def = false);
 
     }; // class cTAFileParser
 

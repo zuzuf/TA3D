@@ -1517,7 +1517,7 @@ namespace TA3D
                 ReadVectorString(params, orders[ e ], " " );		// Read all the mission parameters
                 if( params.size() == 0 )	continue;
 
-                params[ 0 ] = Lowercase( params[ 0 ] );
+                params[ 0 ] = String::ToLower(params[0]);
 
                 if( params[ 0 ][ 0 ] == 'p' && params[ 0 ].size() > 1 ) // something like p3000 2000, convert it to p 3000 2000
                 {
@@ -1894,7 +1894,7 @@ namespace TA3D
             String::Vector params;
             ReadVectorString(params, ota_parser->PullAsString( "GlobalHeader.MoveUnitToRadius" ) );
             m_File << "	for i = 0, ta3d_get_max_unit_number() do\n";
-            if( Lowercase( params[0] ) == "anytype" )
+            if (String::ToLower(params[0]) == "anytype")
                 m_File << "		if ta3d_get_unit_owner( i ) == 0 then\n";
             else
                 m_File << "		if ta3d_get_unit_owner( i ) == 0 and ta3d_is_unit_of_type( i, \"" << params[0] << "\" ) then\n";

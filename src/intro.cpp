@@ -83,8 +83,9 @@ void loading(const float percent, const String& msg)
     glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
     glColor4f(1.0f,1.0f,1.0f,1.0f);
 
-    if( messages.empty() || Lowercase( messages.front() ) != Lowercase( msg ) ) {
-        if( !messages.empty() )
+    if (messages.empty() || String::ToLower(messages.front()) != String::ToLower(msg))
+    {
+        if (!messages.empty())
             messages.front() = messages.front() + " - " + I18N::Translate( "done" );
         messages.push_front( msg );
     }

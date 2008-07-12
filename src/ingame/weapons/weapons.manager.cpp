@@ -60,7 +60,7 @@ namespace TA3D
         weapon[nb_weapons-1].internal_name = strdup(name);
         weapon[nb_weapons-1].nb_id=nb_weapons-1;
 
-        weapon_hashtable.Insert(Lowercase(name), nb_weapons);
+        weapon_hashtable.Insert(String::ToLower(name), nb_weapons);
 
         return nb_weapons-1;
     }

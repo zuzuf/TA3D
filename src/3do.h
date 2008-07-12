@@ -771,7 +771,7 @@ public:
         if (name.empty())
             return NULL;
 
-        const String l = Lowercase(name);
+        const String l = String::ToLower(name);
         int e = model_hashtable.Find("objects3d\\" + l + ".3do") - 1;
         if (e >= 0)
             return &(model[e]);
@@ -824,7 +824,7 @@ public:
         model[nb_models].init();
         name[nb_models] = strdup(filename.c_str());
 
-        model_hashtable.Insert(Lowercase(filename), nb_models + 1);
+        model_hashtable.Insert(String::ToLower(filename), nb_models + 1);
 
         model[nb_models].create_from_2d(bmp,w,h,max_h);
         ++nb_models;

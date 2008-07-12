@@ -364,7 +364,7 @@ int UNIT_TYPE::load(char *data,int size)
             categories = new String::Vector;
             ReadVectorString(*categories, f + 9, " " );
             for(String::Vector::const_iterator i = categories->begin(); i != categories->end(); ++i)
-                Category->InsertOrUpdate(Lowercase(*i), 1);
+                Category->InsertOrUpdate(String::ToLower(*i), 1);
             fastCategory = 0;
             if( checkCategory( "kamikaze" ) )	fastCategory |= CATEGORY_KAMIKAZE;
             if( checkCategory( "notair" ) )		fastCategory |= CATEGORY_NOTAIR;
@@ -568,10 +568,12 @@ int UNIT_TYPE::load(char *data,int size)
 
 void UNIT_TYPE::load_dl()
 {
-    if( side == NULL )	return;
-    dl_data = unit_manager.h_dl_data.Find( Lowercase( side ) );
+    if (side == NULL)
+        return;
+    dl_data = unit_manager.h_dl_data.Find(String::ToLower(side));
 
-    if( dl_data )	return;			// Ok it's already loaded
+    if (dl_data)
+        return;			// Ok it's already loaded
 
     int side_id = -1;
     for( int i = 0 ; i < ta3dSideData.nb_side && side_id == -1 ; i++ )
@@ -613,7 +615,7 @@ void UNIT_TYPE::load_dl()
 
         unit_manager.l_dl_data.push_back( dl_data );		// Put it there so it'll be deleted when finished
 
-        unit_manager.h_dl_data.Insert( Lowercase( side ), dl_data );
+        unit_manager.h_dl_data.Insert(String::ToLower(side), dl_data);
     }
     catch(...)
     {

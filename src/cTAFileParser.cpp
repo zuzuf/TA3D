@@ -24,290 +24,284 @@
 
 namespace TA3D
 {
-	namespace UTILS
-	{
-		String cTAFileParser::GetLine( char **Data )
-		{
-			for( char *result = *Data ; **Data ; (*Data)++ )
-				if( **Data == '\n' || **Data == ';' || **Data == '{' || **Data == '}' ) {
-					(*Data)++;
-					return std::string( result, *Data );
-					}
-			
-			return *Data;
-		}
+namespace UTILS
+{
 
-		bool cTAFileParser::ProcessData(  char **Data )
-		{
-			if( **Data == 0 )
-				return true;
 
-			String Line = GetLine( Data );         // extract line
-			if( Line.size() == 0 )	return false;
+    String cTAFileParser::GetLine(char **Data)
+    {
+        for (char* result = *Data; **Data ; ++(*Data))
+        {
+            if (**Data == '\n' || **Data == ';' || **Data == '{' || **Data == '}' )
+            {
+                ++(*Data);
+                return std::string(result, *Data);
+            }
+        }
+        return *Data;
+    }
 
-			int i = (int)Line.find( "//" );        // search for start of comment.
-			if( i != -1 )        // if we find a comment, we will erase everything
-				Line.resize( i );// from the comment to the end of the line.
 
- 			Line = TrimString( Line, " \t\n\r{" ); // strip out crap from string.
-			i = (int)Line.length();
+    bool cTAFileParser::ProcessData(char **Data)
+    {
+        if (**Data == 0)
+            return true;
 
-			if( i > 3 ) // check for new key.
-			{
-				if( Line[0] == '[' && Line[ i-1 ] == ']' )
-				{
-					bool changed = false;
-					if( gadget_mode >= 0 && key_level.empty() ) {
-						m_cKey = format("gadget%d", gadget_mode );
-						gadget_mode++;
-						changed = true;
-						if( !m_bKeysCaseSenstive )
-							InsertOrUpdate( m_cKey, Lowercase( Line.substr( 1, i-2 ) ) );		// Link the key with its original name
-						else
-							InsertOrUpdate( m_cKey, Line.substr( 1, i-2 ) );		// Link the key with its original name
-						}
+        String Line = GetLine( Data );         // extract line
+        if( Line.size() == 0 )	return false;
 
-					key_level.push_front( m_cKey );
-					if( !changed )
-						m_cKey = ( ( m_cKey == "" ) ? Line.substr( 1, i-2 ) :
-						                        m_cKey + String( "." ) +
-						                        Line.substr( 1, i-2 ) );
+        int i = (int)Line.find( "//" );        // search for start of comment.
+        if( i != -1 )        // if we find a comment, we will erase everything
+            Line.resize( i );// from the comment to the end of the line.
 
-					m_cKey = ReplaceString( m_cKey, "\\n", "\n", false );
-					m_cKey = ReplaceString( m_cKey, "\\r", "\r", false );
+        Line = TrimString( Line, " \t\n\r{" ); // strip out crap from string.
+        i = (int)Line.length();
 
-					while( **Data )										// Better using the stack this way, otherwise it might crash with huge files
-						if( ProcessData( Data ) )	break;
-					return false;
-				}
-			}
-			else if( i > 0 && Line[ i - 1 ] == '}' )  // close the current active key.
-			{
-				if( key_level.empty() )
-					m_cKey = "";
-				else {
-					m_cKey = key_level.front();
-					key_level.pop_front();
-					}
+        if( i > 3 ) // check for new key.
+        {
+            if( Line[0] == '[' && Line[ i-1 ] == ']' )
+            {
+                bool changed = false;
+                if( gadget_mode >= 0 && key_level.empty() ) {
+                    m_cKey = format("gadget%d", gadget_mode );
+                    gadget_mode++;
+                    changed = true;
+                    if( !m_bKeysCaseSenstive )
+                        InsertOrUpdate( m_cKey, String::ToLower(Line.substr(1, i-2)));		// Link the key with its original name
+                    else
+                        InsertOrUpdate( m_cKey, Line.substr( 1, i-2 ) );		// Link the key with its original name
+                }
 
-				return true;
-			}
+                key_level.push_front( m_cKey );
+                if( !changed )
+                    m_cKey = ( ( m_cKey == "" ) ? Line.substr( 1, i-2 ) :
+                               m_cKey + String( "." ) +
+                               Line.substr( 1, i-2 ) );
 
-			// if we get here its possible its a name=value;
-			// so we will search for a = and a ; if we find them we have a valid name/value
-			int f1, f2;
-			f1 = (int)Line.find_first_of( "=" );
-			f2 = (int)Line.find_last_of( ";" );
+                m_cKey = ReplaceString( m_cKey, "\\n", "\n", false );
+                m_cKey = ReplaceString( m_cKey, "\\r", "\r", false );
 
-			if( f1 != -1 && f2 != -1 )
-			{
-				String n, v;
-				n = Line.substr( 0, f1 );
-				v = Line.substr( (f1+1), (f2-(f1+1)) );
+                while( **Data )										// Better using the stack this way, otherwise it might crash with huge files
+                    if( ProcessData( Data ) )	break;
+                return false;
+            }
+        }
+        else if( i > 0 && Line[ i - 1 ] == '}' )  // close the current active key.
+        {
+            if( key_level.empty() )
+                m_cKey = "";
+            else {
+                m_cKey = key_level.front();
+                key_level.pop_front();
+            }
 
-				if( n[ n.size() - 1 ] == ' ' )
-					n.erase( n.size() - 1, 1 );
-				if( v[ 0 ] == ' ' )
-					v.erase( 0, 1 );
+            return true;
+        }
 
-				v = ReplaceString( v, "\\n", "\n", false );
-				v = ReplaceString( v, "\\r", "\r", false );
+        // if we get here its possible its a name=value;
+        // so we will search for a = and a ; if we find them we have a valid name/value
+        int f1, f2;
+        f1 = (int)Line.find_first_of( "=" );
+        f2 = (int)Line.find_last_of( ";" );
 
-				n = m_cKey + String( "." ) + n;
+        if( f1 != -1 && f2 != -1 )
+        {
+            String n, v;
+            n = Line.substr( 0, f1 );
+            v = Line.substr( (f1+1), (f2-(f1+1)) );
 
-				if( !m_bKeysCaseSenstive )
-					InsertOrUpdate( Lowercase( n ), v );
-				else
-					InsertOrUpdate( n, v );
-			}
+            if( n[ n.size() - 1 ] == ' ' )
+                n.erase( n.size() - 1, 1 );
+            if( v[ 0 ] == ' ' )
+                v.erase( 0, 1 );
 
-			return false;
-		}
+            v = ReplaceString( v, "\\n", "\n", false );
+            v = ReplaceString( v, "\\r", "\r", false );
 
-		void cTAFileParser::Load( const String &FileName,  bool bClearTable, bool toUTF8, bool g_mode )
-		{
-			uint32 ota_size=0;
-			byte *data = NULL;
-			std::ifstream   m_File;
-			String tFileName = GetClientPath() + FileName;
+            n = m_cKey + String( "." ) + n;
 
-			if( bClearTable ) {
-				uint32 old_tablesize = pTableSize;
-				EmptyHashTable();
-				InitTable( old_tablesize );
-				}
+            if( !m_bKeysCaseSenstive )
+                InsertOrUpdate(String::ToLower(n), v);
+            else
+                InsertOrUpdate(n, v);
+        }
 
-			if( TA3D::VARS::HPIManager )
-				data = TA3D::VARS::HPIManager->PullFromHPI( FileName, &ota_size );
-			else {
-				m_File.open( tFileName.c_str(), std::ios::in | std::ios::binary | std::ios::ate );
-				if( m_File.is_open() ) {
-					ota_size = m_File.tellg();
-					data = new byte[ ota_size+1 ];
-					data[ ota_size ] = 0;
-					m_File.seekg( 0, std::ios::beg );
-					m_File.read( (char *)data, ota_size );
-					m_File.close();
-					}
-				}
+        return false;
+    }
 
-			if( !data )
-				throw ( String( "Unable to load file " ) + FileName );
+    void cTAFileParser::Load( const String &FileName,  bool bClearTable, bool toUTF8, bool g_mode )
+    {
+        uint32 ota_size=0;
+        byte *data = NULL;
+        std::ifstream   m_File;
+        String tFileName = GetClientPath() + FileName;
 
-			if( data != NULL && toUTF8 ) {		// Convert from ASCII to UTF8, required because TA3D works with UTF8 and TA with ASCII
-				char *tmp = new char[ ota_size * 2 ];
+        if( bClearTable ) {
+            uint32 old_tablesize = pTableSize;
+            EmptyHashTable();
+            InitTable( old_tablesize );
+        }
 
-				do_uconvert( (const char*)data, U_ASCII, tmp, U_UTF8, ota_size * 2 );
+        if( TA3D::VARS::HPIManager )
+            data = TA3D::VARS::HPIManager->PullFromHPI( FileName, &ota_size );
+        else {
+            m_File.open( tFileName.c_str(), std::ios::in | std::ios::binary | std::ios::ate );
+            if( m_File.is_open() ) {
+                ota_size = m_File.tellg();
+                data = new byte[ ota_size+1 ];
+                data[ ota_size ] = 0;
+                m_File.seekg( 0, std::ios::beg );
+                m_File.read( (char *)data, ota_size );
+                m_File.close();
+            }
+        }
 
-				delete[] data;
-				data = (byte*)tmp;
-				}
+        if( !data )
+            throw ( String( "Unable to load file " ) + FileName );
 
-			m_cKey = "";
-			key_level.clear();
+        if( data != NULL && toUTF8 ) {		// Convert from ASCII to UTF8, required because TA3D works with UTF8 and TA with ASCII
+            char *tmp = new char[ ota_size * 2 ];
 
-			// erase all line feeds. (linear algorithm)
-			char *tmp = (char*)data;
-			int e = 0, i = 0;
-			for( ; tmp[i] ; i++ ) {
-				if( tmp[ i ] != '\r' ) {
-					if( e )	tmp[ i - e ] = tmp[ i ];
-					}
-				else
-					e++;
-				}
-			if( e > 0 )
-				tmp[i] = 0;
+            do_uconvert( (const char*)data, U_ASCII, tmp, U_UTF8, ota_size * 2 );
 
-			gadget_mode = g_mode ? 0 : -1;
+            delete[] data;
+            data = (byte*)tmp;
+        }
 
-			// now process the remaining.
-			while( *tmp )
-				ProcessData( &tmp );
-			delete[] data;
-		}
+        m_cKey = "";
+        key_level.clear();
 
-		void cTAFileParser::LoadMemory( char *data, bool bClearTable, bool toUTF8, bool g_mode )
-		{
-			if( bClearTable ) {
-				uint32 old_tablesize = pTableSize;
-				EmptyHashTable();
-				InitTable( old_tablesize );
-			}
+        // erase all line feeds. (linear algorithm)
+        char *tmp = (char*)data;
+        int e = 0, i = 0;
+        for( ; tmp[i] ; i++ ) {
+            if( tmp[ i ] != '\r' ) {
+                if( e )	tmp[ i - e ] = tmp[ i ];
+            }
+            else
+                e++;
+        }
+        if( e > 0 )
+            tmp[i] = 0;
 
-			if( !data )
-				throw ( "no data provided!!" );
+        gadget_mode = g_mode ? 0 : -1;
 
-			if( toUTF8 ) {		// Convert from ASCII to UTF8, required because TA3D works with UTF8 and TA with ASCII
-				uint32 size = strlen( data );
-				char *tmp = (char*) malloc( size * 2 );
+        // now process the remaining.
+        while( *tmp )
+            ProcessData( &tmp );
+        delete[] data;
+    }
 
-				do_uconvert( (const char*)data, U_ASCII, tmp, U_UTF8, size * 2 );
+    void cTAFileParser::LoadMemory( char *data, bool bClearTable, bool toUTF8, bool g_mode )
+    {
+        if( bClearTable ) {
+            uint32 old_tablesize = pTableSize;
+            EmptyHashTable();
+            InitTable( old_tablesize );
+        }
 
-				data = (char*)tmp;
-			}
+        if( !data )
+            throw ( "no data provided!!" );
 
-			m_cKey = "";
-			key_level.clear();
+        if( toUTF8 ) {		// Convert from ASCII to UTF8, required because TA3D works with UTF8 and TA with ASCII
+            uint32 size = strlen( data );
+            char *tmp = (char*) malloc( size * 2 );
 
-			// erase all line feeds. (linear algorithm)
-			char *tmp = data;
-			int e = 0, i = 0;
-			for( ; tmp[i] ; i++ ) {
-				if( tmp[ i ] != '\r' ) {
-					if( e )	tmp[ i - e ] = tmp[ i ];
-				}
-				else
-					e++;
-			}
-			if( e > 0 )
-				tmp[i] = 0;
+            do_uconvert( (const char*)data, U_ASCII, tmp, U_UTF8, size * 2 );
 
-			gadget_mode = g_mode ? 0 : -1;
+            data = (char*)tmp;
+        }
 
-			// now process the remaining.
-			while( *tmp )
-				ProcessData( &tmp );
-			if( toUTF8 )
-				free(data);
-		}
+        m_cKey = "";
+        key_level.clear();
 
-		cTAFileParser::cTAFileParser( const String &FileName,  bool bKeysCaseSenstive, bool toUTF8, bool g_mode )
-		{
-			m_bKeysCaseSenstive = bKeysCaseSenstive;
-			InitTable( 4096 );
-			Load( FileName, true, toUTF8, g_mode );
-		}
+        // erase all line feeds. (linear algorithm)
+        char *tmp = data;
+        int e = 0, i = 0;
+        for( ; tmp[i] ; i++ ) {
+            if( tmp[ i ] != '\r' ) {
+                if( e )	tmp[ i - e ] = tmp[ i ];
+            }
+            else
+                e++;
+        }
+        if( e > 0 )
+            tmp[i] = 0;
 
-		cTAFileParser::cTAFileParser( uint32 TableSize )
-		{
-			m_bKeysCaseSenstive = false;
-			InitTable( TableSize );
-		}
+        gadget_mode = g_mode ? 0 : -1;
 
-		cTAFileParser::~cTAFileParser()
-		{
-			EmptyHashTable();
-		}
+        // now process the remaining.
+        while( *tmp )
+            ProcessData( &tmp );
+        if( toUTF8 )
+            free(data);
+    }
 
-		sint32 cTAFileParser::PullAsInt( const String &KeyName , sint32 def )
-		{
-			String key_to_find;
-			if( !m_bKeysCaseSenstive )
-				key_to_find = Lowercase( KeyName );
-			else
-				key_to_find = KeyName;
-			if( !Exists( key_to_find ) )	return def;
+    cTAFileParser::cTAFileParser( const String &FileName,  bool bKeysCaseSenstive, bool toUTF8, bool g_mode )
+        :m_bKeysCaseSenstive(bKeysCaseSenstive)
+    {
+        InitTable( 4096 );
+        Load(FileName, true, toUTF8, g_mode);
+    }
 
-			String iterFind = Find( key_to_find );
+    cTAFileParser::cTAFileParser( uint32 TableSize )
+    {
+        m_bKeysCaseSenstive = false;
+        InitTable( TableSize );
+    }
 
-			return ( (iterFind.length() == 0) ? def : ( iterFind.size() == 10 && ustrtol( iterFind.substr(0,4).c_str() , NULL, 0 ) > 127 ? ( 0xFF000000 | ustrtol( ("0x"+iterFind.substr(4,6)).c_str() , NULL, 0 ) ) : ustrtol( iterFind.c_str() , NULL, 0 ) ) );		// Uses ustrtol to deal with hexa numbers
-		}
+    cTAFileParser::~cTAFileParser()
+    {
+        EmptyHashTable();
+    }
 
-		real32 cTAFileParser::PullAsFloat( const String &KeyName , real32 def )
-		{
-			String key_to_find;
-			if( !m_bKeysCaseSenstive )
-				key_to_find = Lowercase( KeyName );
-			else
-				key_to_find = KeyName;
-			if( !Exists( key_to_find ) )	return def;
+    sint32 cTAFileParser::PullAsInt( const String &KeyName , sint32 def )
+    {
+        String key_to_find;
+        if( !m_bKeysCaseSenstive )
+            key_to_find = String::ToLower(KeyName);
+        else
+            key_to_find = KeyName;
+        if (!Exists(key_to_find))
+            return def;
 
-			String iterFind = Find( key_to_find );
+        String iterFind = Find( key_to_find );
 
-			return ( (iterFind.length() == 0) ? def : (float)atof( iterFind.c_str() ) );
-		}
+        return ( (iterFind.length() == 0) ? def : ( iterFind.size() == 10 && ustrtol( iterFind.substr(0,4).c_str() , NULL, 0 ) > 127 ? ( 0xFF000000 | ustrtol( ("0x"+iterFind.substr(4,6)).c_str() , NULL, 0 ) ) : ustrtol( iterFind.c_str() , NULL, 0 ) ) );		// Uses ustrtol to deal with hexa numbers
+    }
 
-		String cTAFileParser::PullAsString( const String &KeyName , String def )
-		{
-			String key_to_find;
-			if( !m_bKeysCaseSenstive )
-				key_to_find = Lowercase( KeyName );
-			else
-				key_to_find = KeyName;
-			if( !Exists( key_to_find ) )	return def;
+    real32 cTAFileParser::PullAsFloat( const String &key, const real32 def)
+    {
+        String key_to_find(key);
+        if (!m_bKeysCaseSenstive)
+            key_to_find.toLower();
+        if (!Exists(key_to_find))
+            return def;
+        return Find(key_to_find).toFloat(def);
+    }
 
-			String iterFind = Find( key_to_find );
 
-			return iterFind;
-		}
+    String cTAFileParser::PullAsString(const String &key, const String& def)
+    {
+        String key_to_find(key);
+        if (!m_bKeysCaseSenstive)
+            key_to_find.toLower();
+        if (!Exists(key_to_find))
+            return def;
+        return Find(key_to_find);
+    }
 
-		bool cTAFileParser::PullAsBool( const String &KeyName , bool def )
-		{
-			String key_to_find;
-			if( !m_bKeysCaseSenstive )
-				key_to_find = Lowercase( KeyName );
-			else
-				key_to_find = KeyName;
-			if( !Exists( key_to_find ) )
-				return def;
 
-			String iterFind = Lowercase( Find( key_to_find ) );
+    bool cTAFileParser::PullAsBool(const String& key, const bool def)
+    {
+        String key_to_find(key);
+        if (!m_bKeysCaseSenstive)
+            key_to_find.toLower();
+        if (!Exists(key_to_find))
+            return def;
+        return Find(key_to_find).toBool();
+    }
 
-			if( iterFind == "false" || iterFind == "0" || iterFind == "" )
-				return false;
 
-			return true;
-		}
-	}
+}
 } 
