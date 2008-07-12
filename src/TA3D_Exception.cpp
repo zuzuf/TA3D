@@ -20,9 +20,10 @@
 ** Notes:
 **   Cire: See notes in TA3D_Exception.h
 */
-#include "stdafx.h"
-#include "TA3D_NameSpace.h"
+
+
 #include "TA3D_Exception.h"
+#include "TA3D_NameSpace.h"
 #include "misc/paths.h"
 #ifdef TA3D_PLATFORM_LINUX
 # include <errno.h>
@@ -70,7 +71,9 @@ namespace Exceptions
 
     void GuardIncrementIndent()
     {
+        #ifdef TA3D_USE_INTERNAL_EXCEPTIONS
         ++pIndentLevel;
+        #endif
     }
 
 
@@ -84,32 +87,44 @@ namespace Exceptions
 
     String GuardGetSysError()
     {
+        #ifdef TA3D_USE_INTERNAL_EXCEPTIONS
+        
         cErrorType m_LastError = GETSYSERROR();
-        #ifdef TA3D_PLATFORM_WINDOWS
+        # ifdef TA3D_PLATFORM_WINDOWS
         char szError[512];
         if (!FormatMessageA(FORMAT_MESSAGE_FROM_SYSTEM, 0, m_LastError, 0, &szError[0], 511, NULL))
             return "Unable to extract error code from system.";
         return szError;
-        #else
+        # else
         return strerror(m_LastError);
-        #endif
+        # endif
+
+        #else
+        return "";
+        #endif // TA3D_USE_INTERNAL_EXCEPTIONS
     }
 
     void GuardDecrementIndent (void)
     {
+        #ifdef TA3D_USE_INTERNAL_EXCEPTIONS
         if (pIndentLevel != 0)
             --pIndentLevel;
+        #endif
     }
 
-    void GuardReset( void )
+    void GuardReset(void)
     {
+        #ifdef TA3D_USE_INTERNAL_EXCEPTIONS
         pIndentLevel = 0;
         pGuardLog = "";
+        #endif
     }
 
     void GuardLog(const String& szLog)
     {
+        #ifdef TA3D_USE_INTERNAL_EXCEPTIONS
         pGuardLog += szLog;
+        #endif
     }
 
 
@@ -126,6 +141,7 @@ namespace Exceptions
 
     void GuardDisplayAndLogError()
     {
+        #ifdef TA3D_USE_INTERNAL_EXCEPTIONS
         String szErrReport;
         std::ofstream   m_File;
         String FileName = TA3D::Paths::Logs + "error.log";
@@ -146,13 +162,16 @@ namespace Exceptions
                               ( (m_Logged) ? "It was trapped and logged to error.txt." : "It was trapped but NOT logged." ),
                               pGuardLog.c_str() );
 
-#ifdef TA3D_PLATFORM_WINDOWS
+        # ifdef TA3D_PLATFORM_WINDOWS
         ::MessageBoxA( NULL, szErrReport.c_str(), "TA3D Application Error", MB_OK  | MB_TOPMOST | MB_ICONERROR );
-#else
+        # else
         allegro_message( szErrReport.c_str() );
-#endif
+        # endif
+
+        #endif // TA3D_USE_INTERNAL_EXCEPTIONS
     }
 
 
 } // namespace Exceptions
 } // namespace TA3D 
+

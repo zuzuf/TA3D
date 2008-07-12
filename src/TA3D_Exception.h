@@ -35,13 +35,21 @@
 #ifndef __TA3D_EXCEPTIONS_H__
 # define __TA3D_EXCEPTIONS_H__
 
-# include <string>
+# define TA3D_USE_INTERNAL_EXCEPTIONS
+
+
+
+
 # include "stdafx.h"
+# include <string>
 
 namespace TA3D
 {
 namespace Exceptions
 {
+
+# ifdef TA3D_USE_INTERNAL_EXCEPTIONS
+
 
     /*!
     ** Use this to enter functions.  If you do use this you must use GuardLeave();
@@ -122,6 +130,19 @@ namespace Exceptions
         }
 
 
+# else // TA3D_USE_INTERNAL_EXCEPTIONS
+
+    # define GuardEnter(name) 
+
+    # define GuardLeave()
+
+    # define GuardInfo(szStr) 
+
+    # define GuardStart(name) 
+
+    # define GuardCatch()
+
+# endif // TA3D_USE_INTERNAL_EXCEPTIONS
 
 
 
@@ -185,6 +206,7 @@ namespace Exceptions
 
 } // namespace Exceptions
 } // namespace TA3D 
+
 
 
 #endif // __TA3D_EXCEPTIONS_H__
