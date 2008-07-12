@@ -14,11 +14,20 @@ namespace TA3D
 {
 
 
+    /*! \class Mutex
+    **
+    ** \brief  Mechanism to avoid the simultaneous use of a common resource
+    */
     class Mutex 
     {
     public:
+        //! \name Constructor & Destructor
+        //@{
+        //! Default constructor
         Mutex();
+        //! Destructor
         ~Mutex();
+        //@}
 
         /*!
         ** \brief Lock the mutex
@@ -30,7 +39,6 @@ namespace TA3D
             # else
 			pthread_mutex_lock(&pPthreadLock);
             # endif
-            pLocked = true;
 		}
 
         /*!
@@ -38,7 +46,6 @@ namespace TA3D
         */
 		void unlock()
 		{
-            pLocked = false;
             # ifdef TA3D_PLATFORM_WINDOWS
 			::LeaveCriticalSection(&pCritSection);
             # else
@@ -46,14 +53,8 @@ namespace TA3D
             # endif
 		}
 	
-        /*!
-        ** \brief Get if the mutex locked
-        ** \return True if the mutex is locked
-        */
-        bool isLocked() const {return pLocked;}
 
     private:
-        bool pLocked;
         # ifdef TA3D_PLATFORM_WINDOWS
 		CRITICAL_SECTION pCritSection;
         # else
