@@ -103,9 +103,9 @@ namespace Interfaces
     bool GFX::checkVideoCardWorkaround() const
     {
         // Check for ATI workarounds (if an ATI card is present)
-        bool workaround = strncasecmp(Uppercase((const char*)glGetString(GL_VENDOR)).c_str(), "ATI", 3) == 0;
+        bool workaround = strncasecmp(String::ToUpper((const char*)glGetString(GL_VENDOR)).c_str(), "ATI", 3) == 0;
         // Check for SIS workarounds (if an SIS card is present) (the same than ATI)
-        workaround |= strstr(Uppercase((const char*)glGetString(GL_VENDOR)).c_str(), "SIS") != NULL;
+        workaround |= strstr(String::ToUpper((const char*)glGetString(GL_VENDOR)).c_str(), "SIS") != NULL;
         return workaround;
     }
 

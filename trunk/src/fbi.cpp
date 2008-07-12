@@ -976,8 +976,8 @@ int load_all_units(void (*progress)(float percent,const String &msg))
     {
         if( unit_manager.unit_type[ i ].MovementClass != NULL )
         {
-            for( int e = 0 ; e < n ; e++ )
-                if( parser.PullAsString( format( "CLASS%d.name", e ) ) == Uppercase( unit_manager.unit_type[ i ].MovementClass ) )
+            for (int e = 0; e < n; ++e)
+                if (parser.PullAsString( format( "CLASS%d.name", e ) ) == String::ToUpper(unit_manager.unit_type[i].MovementClass))
                 {
                     unit_manager.unit_type[ i ].FootprintX = parser.PullAsInt( format( "CLASS%d.footprintx", e ), unit_manager.unit_type[ i ].FootprintX );
                     unit_manager.unit_type[ i ].FootprintZ = parser.PullAsInt( format( "CLASS%d.footprintz", e ), unit_manager.unit_type[ i ].FootprintZ );
