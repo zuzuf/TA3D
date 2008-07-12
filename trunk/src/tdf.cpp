@@ -1175,6 +1175,7 @@ namespace TA3D
     void FEATURES::drawFeatureOnMap(const int idx)
     {
         compute_on_map_pos(idx);
+        if (idx < 0 || idx >= max_features)    return;
         if (feature[idx].type != -1 && feature_manager.feature[feature[idx].type].blocking)        // Check if it is a blocking feature
         {
             int X = feature_manager.feature[ feature[idx].type ].footprintx;
@@ -1185,6 +1186,7 @@ namespace TA3D
     
     void FEATURES::removeFeatureFromMap(const int idx)
     {
+        if (idx < 0 || idx >= max_features)    return;
         if (feature[idx].type != -1 && feature_manager.feature[feature[idx].type].blocking)        // Check if it is a blocking feature
         {
             int X = feature_manager.feature[feature[idx].type].footprintx;
