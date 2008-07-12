@@ -214,7 +214,7 @@ void config_menu(void)
             {
                 if( String( search.name ) != ".." && String( search.name ) != "." ) {		// Have to exclude both .. & . because of windows finding . as something interesting
                     obj->Text.push_back( search.name );
-                    if( Lowercase( search.name ) == Lowercase( current_selection ) )
+                    if (String::ToLower(search.name) == String::ToLower(current_selection))
                         obj->Text[0] = search.name;
                 }
             } while( al_findnext( &search ) == 0 );
@@ -238,7 +238,7 @@ void config_menu(void)
         for (String::List::iterator i = skin_list.begin(); i != skin_list.end(); ++i)
         {
             obj->Text.push_back( i->substr( 4, i->size() - 4 ) );
-            if( "gui/" + Lowercase( i->substr( 4, i->size() - 4 ) ) == Lowercase( lp_CONFIG->skin_name ) )
+            if( "gui/" + String::ToLower(i->substr(4, i->size() - 4)) == String::ToLower(lp_CONFIG->skin_name))
                 obj->Text[0] = i->substr( 4, i->size() - 4 );
         }
     }
@@ -675,7 +675,7 @@ void setup_game(bool client, const char *host)
         map_list.clear();
     }
     game_data.nb_players = 2;
-    if( HPIManager->Exists( lp_CONFIG->last_script ) && Lowercase( lp_CONFIG->last_script.substr( lp_CONFIG->last_script.length() - 3 , 3 ) ) == "lua" )
+    if (HPIManager->Exists(lp_CONFIG->last_script) && String::ToLower(lp_CONFIG->last_script.substr(lp_CONFIG->last_script.length() - 3 , 3)) == "lua")
         game_data.game_script = strdup( lp_CONFIG->last_script.c_str() );
     else
     {
@@ -1927,7 +1927,7 @@ void campaign_main_menu(void)
                     guiobj->Data = 0;
                     for( int i = 0 ; i < ta3dSideData.nb_side ; ++i)
                     {
-                        if (Lowercase(ta3dSideData.side_name[i] ) == Lowercase( campaign_parser->PullAsString( "HEADER.campaignside")))
+                        if (String::ToLower(ta3dSideData.side_name[i] ) == String::ToLower(campaign_parser->PullAsString("HEADER.campaignside")))
                         {
                             if( side_logos.nb_anim > i )
                                 guiobj->Data = side_logos.anm[i].glbmp[0];
@@ -2045,7 +2045,7 @@ int brief_screen(String campaign_name, int mission_id)
 
     ANIMS planet_animation;
     {
-        String planet_file = Lowercase( ota_parser.PullAsString("GlobalHeader.planet") );
+        String planet_file = String::ToLower(ota_parser.PullAsString("GlobalHeader.planet"));
 
         if( planet_file == "green planet" )				planet_file = "anims\\greenbrief.gaf";
         else if( planet_file == "archipelago" )			planet_file = "anims\\archibrief.gaf";
@@ -2094,16 +2094,18 @@ int brief_screen(String campaign_name, int mission_id)
 
     int pan_id = 0;
     int rotate_id = 0;
-    for( int i = 0 ; i < planet_animation.nb_anim ; i++ )
-        if( Lowercase( String( planet_animation.anm[ i ].name ).substr( String( planet_animation.anm[ i ].name ).size() - 3, 3 ) ) == "pan" )
+    for (int i = 0; i < planet_animation.nb_anim; ++i)
+        if (String::ToLower(String(planet_animation.anm[i].name).substr(String(planet_animation.anm[i].name).size() - 3, 3)) == "pan")
             pan_id = i;
-        else if( Lowercase( String( planet_animation.anm[ i ].name ).substr( String( planet_animation.anm[ i ].name ).size() - 6, 6 ) ) == "rotate" )
-            rotate_id = i;
+        else
+            if (String::ToLower(String(planet_animation.anm[i].name).substr(String(planet_animation.anm[i].name).size() - 6, 6)) == "rotate")
+                rotate_id = i;
 
     float pan_x1 = 0.0f;
     float pan_x2 = 0.0f;
 
-    if( brief_area.get_object( "brief.panning0" ) ) {
+    if( brief_area.get_object( "brief.panning0" ) )
+    {
         pan_x1 = brief_area.get_object( "brief.panning0" )->x1;
         pan_x2 = brief_area.get_object( "brief.panning0" )->x2;
     }
@@ -2210,7 +2212,7 @@ int brief_screen(String campaign_name, int mission_id)
         game_data.energy[ 0 ] = ota_parser.PullAsInt( format( "GlobalHeader.Schema %d.humanenergy", schema ) );
         game_data.metal[ 0 ] = ota_parser.PullAsInt( format( "GlobalHeader.Schema %d.humanmetal", schema ) );
 
-        String schema_type = Lowercase( ota_parser.PullAsString( format( "GlobalHeader.Schema %d.Type", schema ) ) );
+        String schema_type = String::ToLower(ota_parser.PullAsString(format("GlobalHeader.Schema %d.Type", schema)));
         if( schema_type == "easy" )
             game_data.ai_level[ 0 ] = 0;
         else if( schema_type == "medium" )

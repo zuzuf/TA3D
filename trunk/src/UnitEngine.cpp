@@ -1167,7 +1167,7 @@ const int UNIT::run_script(const float &dt,const int &id,MAP *map,int max_code)	
 
 #if DEBUG_USE_PRINT_CODE == 1
     bool print_code = false;
-    //bool	print_code = Lowercase( unit_manager.unit_type[ type_id ].Unitname ) == "armtship" && ( Lowercase( script->name[script_id] ) == "transportpickup" || Lowercase( script->name[script_id] ) == "boomcalc" );
+    //bool	print_code = String::ToLower( unit_manager.unit_type[ type_id ].Unitname ) == "armtship" && (String::ToLower( script->name[script_id] ) == "transportpickup" || String::ToLower( script->name[script_id] ) == "boomcalc" );
 #endif
 
     do
@@ -6457,7 +6457,7 @@ void INGAME_UNITS::remove_order(int player_id,VECTOR target)
         if( msg->MsgID == TA3D_IM_GUI_MSG )	{			// for GUI messages, test if it's a message for us
             if( msg->lpParm1 == NULL )
                 return INTERFACE_RESULT_HANDLED;		// Oups badly written things
-            String message = Lowercase( (char*) msg->lpParm1 );				// Get the string associated with the signal
+            String message = String::ToLower((char*) msg->lpParm1);				// Get the string associated with the signal
 
             if( message == "pause game" ) {
                 lp_CONFIG->pause = true;

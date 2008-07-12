@@ -78,18 +78,23 @@ void cAudio::UpdatePlayListFiles( void )
 	if (al_findfirst( ( search + "*" ).c_str(), &info, FA_ALL) == 0) {			// Add missing files
 		do {
 
-			if( Lowercase( info.name ) == "playlist.txt" || info.name[0] == '.' )	continue;
+			if (String::ToLower(info.name) == "playlist.txt" || info.name[0] == '.')
+                continue;
 
 			String filename = search + info.name;
 
 			plItor i;
-			for( i = m_Playlist.begin() ; i != m_Playlist.end() ; i++ )
-				if( (*i)->m_Filename == filename ) {
+			for (i = m_Playlist.begin(); i != m_Playlist.end(); ++i)
+            {
+				if( (*i)->m_Filename == filename )
+                {
 					(*i)->m_checked = true;
 					break;
-					}
+				}
+            }
 
-			if( i == m_Playlist.end() ) {				// It's missing, add it
+			if( i == m_Playlist.end() ) // It's missing, add it
+            {
 				m_PlayListItem *m_Tune = new m_PlayListItem();
 
 				m_Tune->m_BattleTune = false;
@@ -730,7 +735,7 @@ uint32 cAudio::InterfaceMsg( const lpcImsg msg )
 	if( msg->MsgID == TA3D_IM_GUI_MSG )	{			// for GUI messages, test if it's a message for us
 		if( msg->lpParm1 == NULL )
 			return INTERFACE_RESULT_HANDLED;		// Oups badly written things
-		String message = Lowercase( (char*) msg->lpParm1 );				// Get the string associated with the signal
+		String message = String::ToLower((char*) msg->lpParm1);				// Get the string associated with the signal
 
 		if( message == "music play" ) {
 			PlayMusic();
@@ -804,7 +809,8 @@ void cAudio::StopSoundFileNow()				// Stop playing
 bool cAudio::LoadSound( const String &Filename, const bool LoadAs3D,
 						const float MinDistance, const float MaxDistance )
 {
-	String szWav = Lowercase( Filename ); // copy string to szWav so we can work with it.
+	String szWav(Filename);
+    szWav.toLower();
 
 	I_Msg( TA3D::TA3D_IM_DEBUG_MSG, (char*)format("loading sound file %s\n",(char *)szWav.c_str()).c_str(), NULL, NULL );
 
@@ -951,7 +957,7 @@ void cAudio::PlaySound( const String &Filename, const VECTOR3D *vec )
     if (!m_FMODRunning)
         return;
 
-    String szWav = Lowercase( Filename ); // copy string to szWav so we can work with it.
+    String szWav = String::ToLower(Filename); // copy string to szWav so we can work with it.
 
     // if it has a .wav extension then remove it.
     int i = (int)szWav.find( ".wav" );
@@ -990,7 +996,7 @@ void cAudio::PlaySound( const String &Filename, const VECTOR3D *vec )
 
 void cAudio::PlayTDFSoundNow( const String &Key, const VECTOR3D *vec )		// Wrapper to PlayTDFSound + Update3DSound
 {
-    String szWav = Lowercase( Find( Lowercase( Key ) ) ); // copy string to szWav so we can work with it.
+    String szWav = String::ToLower(Find(String::ToLower(Key))); // copy string to szWav so we can work with it.
 
     // if it has a .wav extension then remove it.
     int i = (int)szWav.find( ".wav" );
@@ -1010,31 +1016,33 @@ void cAudio::PlayTDFSoundNow( const String &Key, const VECTOR3D *vec )		// Wrapp
 // Play sound from TDF by looking up sound filename from internal hash
 void cAudio::PlayTDFSound( const String &Key, const VECTOR3D *vec  )
 {
-    if( Key == "" )	return;
+    if (Key.empty())
+        return;
     //	Console->AddEntry("trying to play '%s'", (char*)Key.c_str());
-    if( !Exists( Lowercase( Key ) ) )
+    String lwKey(Key);
+    lwKey.toLower();
+    if (!Exists(lwKey))
     {
         Console->AddEntryWarning("%sCan't find key %s", TA3D_LOG_SECTION_AUDIO_PREFIX, Key.c_str() );// output a report to the console but only once
-        InsertOrUpdate( Lowercase( Key ), "" );
+        InsertOrUpdate(lwKey, "");
         return;
     }
     //	Console->AddEntry("%s found", (char*)Key.c_str());
 
-    String szWav = Find( Lowercase( Key ) );
-    if( szWav != "" )
-        PlaySound( szWav, vec );
+    String szWav = Find(lwKey);
+    if (!szWav.empty())
+        PlaySound(szWav, vec);
 }
 
 // keys will be added together and then PlayTDF( key, vec ); if either key is
 // "" it aborts.
 void cAudio::PlayTDFSound( const String &Key1,  const String Key2, const VECTOR3D *vec )
 {
-    if( Key1 == "" || Key2 == "" )
+    if (Key1.empty() || Key2.empty())
         return;
-
-    String Key = Key1 + String( "." ) + Key2;
-
-    PlayTDFSound( Key, vec );
+    String Key;
+    Key << Key1 << "." << Key2;
+    PlayTDFSound(Key, vec);
 }
 
 bool cAudio::IsFMODRunning()

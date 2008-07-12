@@ -126,20 +126,18 @@ namespace UTILS
 
         if(pTableSize == 0)
             return 0;
-        String::size_type iFind;
         String first;
         String last;
-
-        iFind = Search.find("*");
+        String::size_type iFind = Search.find("*");
         if (iFind != String::npos) 
         {
-            first = Lowercase(Search.substr(0, iFind));
+            first = String::ToLower(Search.substr(0, iFind));
             ++iFind;
-            last = Lowercase(Search.substr(iFind));
+            last = String::ToLower(Search.substr(iFind));
         }
         else
         {
-            first = Lowercase(Search);
+            first = String::ToLower(Search);
             last = "";
         }
 

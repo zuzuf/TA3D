@@ -65,7 +65,7 @@ namespace TA3D
     void I18N::resetPrefix()
     {
         pLanguageSuffix = ".";
-        pLanguageSuffix += Lowercase(pCurrentLanguage->englishCaption());
+        pLanguageSuffix += String::ToLower(pCurrentLanguage->englishCaption());
     }
 
     I18N::Language* I18N::doAddNewLanguage(const String& englishID, const String& translatedName)
@@ -103,7 +103,8 @@ namespace TA3D
         LOG_ASSERT(NULL != pDefaultLanguage /* initializeAllLanguages() must be called before */ );
         if (locale.empty())
             return pDefaultLanguage;
-        String s = Lowercase(TrimString(locale));
+        String s = TrimString(locale);
+        s.toLower();
         const String::size_type n = String::npos;
 
         // French
@@ -195,7 +196,8 @@ namespace TA3D
         if (key.empty())
             return defaultValue;
         MutexLocker locker(pMutex);
-        String k = Lowercase(key);
+        String k(key);
+        k.toLower();
         k += pLanguageSuffix;
         return (defaultValue.empty())
             ? pTranslations.PullAsString(k, key)

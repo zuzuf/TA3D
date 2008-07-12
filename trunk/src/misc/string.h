@@ -271,6 +271,8 @@ namespace TA3D
         uint64_t toUInt64() const {TA3D_WSTR_CAST_OP(uint64_t);} 
         //! Convert this string into a float
         float toFloat() const {TA3D_WSTR_CAST_OP(float);} 
+        //! Convert this string into a float with a default value if empty
+        float toFloat(const float def) const {if (empty()) return def;TA3D_WSTR_CAST_OP(float);} 
         //! Convert this string into a double
         double toDouble() const {TA3D_WSTR_CAST_OP(double);} 
         //! Convert this string into a bool (true if the lower case value is equals to "true", "1" or "on")

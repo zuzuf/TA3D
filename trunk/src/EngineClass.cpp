@@ -1596,15 +1596,18 @@ namespace TA3D
         metal_s[nb_player] = M;
 
         side[nb_player++]=strdup(SIDE);
-        if(_control==PLAYER_CONTROL_LOCAL_HUMAN) {
+        if (_control == PLAYER_CONTROL_LOCAL_HUMAN)
+        {
             local_human_id = NB_PLAYERS;
-            for( int i = 0 ; i < ta3dSideData.nb_side ; i++ )
-                if( Lowercase( ta3dSideData.side_name[ i ] ) == Lowercase( SIDE ) ) {
+            for (int i = 0; i < ta3dSideData.nb_side ; ++i)
+                if (String::ToLower(ta3dSideData.side_name[i]) == String::ToLower(SIDE))
+                {
                     side_view = i;
                     break;
                 }
         }
-        if(_control==PLAYER_CONTROL_LOCAL_AI) {
+        if (_control==PLAYER_CONTROL_LOCAL_AI)
+        {
             char filename[100];
             filename[0]=0;
             strcat(filename,"ai/");

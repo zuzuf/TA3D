@@ -732,7 +732,7 @@ namespace Interfaces
             destroy_bitmap(bmp);
             bmp=tmp;
         }
-        bool with_alpha = Lowercase( get_extension( file.c_str() ) ) == "tga";
+        bool with_alpha = (String::ToLower(get_extension(file.c_str())) == "tga");
         if (with_alpha)
         {
             with_alpha = false;
@@ -770,7 +770,7 @@ namespace Interfaces
             destroy_bitmap(bmp);
             bmp=tmp;
         }
-        bool with_alpha = Lowercase( get_extension( file.c_str() ) ) == "tga";
+        bool with_alpha = (String::ToLower(get_extension(file.c_str())) == "tga");
         if (with_alpha)
         {
             with_alpha = false;

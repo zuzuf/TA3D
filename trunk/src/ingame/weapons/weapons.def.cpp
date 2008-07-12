@@ -125,7 +125,7 @@ namespace TA3D
 
     uint32 WEAPON_DEF::get_damage_for_unit(const String& uname) const
     {
-        uint32 dmg = damage_hashtable->Find(Lowercase(uname));
+        uint32 dmg = damage_hashtable->Find(String::ToLower(uname));
         if(dmg)
             return dmg;
         int unit_type = unit_manager.get_unit_index(uname.c_str());

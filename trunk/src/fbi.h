@@ -284,7 +284,7 @@ public:
 	inline bool checkCategory( const char *cat )
 	{
 		if( Category == NULL || cat == NULL )	return false;
-		return Category->Exists( Lowercase( cat ) );
+		return Category->Exists(String::ToLower(cat));
 	}
 
 	inline void init()
@@ -567,25 +567,22 @@ public:
 		unit_type[nb_unit].init();
 		int result =  unit_type[nb_unit].load((char*)data,size);
 		if( unit_type[ nb_unit ].Unitname )
-			unit_hashtable.Insert( Lowercase( unit_type[ nb_unit ].Unitname ), nb_unit + 1 );
+			unit_hashtable.Insert(String::ToLower(unit_type[nb_unit].Unitname ), nb_unit + 1 );
 		if( unit_type[ nb_unit ].name )
-			unit_hashtable.Insert( Lowercase( unit_type[ nb_unit ].name ), nb_unit + 1 );
+			unit_hashtable.Insert(String::ToLower(unit_type[nb_unit].name ), nb_unit + 1 );
 		if( unit_type[ nb_unit ].ObjectName )
-			unit_hashtable.Insert( Lowercase( unit_type[ nb_unit ].ObjectName ), nb_unit + 1 );
+			unit_hashtable.Insert(String::ToLower(unit_type[nb_unit].ObjectName ), nb_unit + 1 );
 		if( unit_type[ nb_unit ].Description )
-			unit_hashtable.Insert( Lowercase( unit_type[ nb_unit ].Description ), nb_unit + 1 );
+			unit_hashtable.Insert(String::ToLower(unit_type[nb_unit].Description ), nb_unit + 1 );
 		if( unit_type[ nb_unit ].Designation_Name )
-			unit_hashtable.Insert( Lowercase( unit_type[ nb_unit ].Designation_Name ), nb_unit + 1 );
+			unit_hashtable.Insert(String::ToLower(unit_type[nb_unit].Designation_Name ), nb_unit + 1 );
 		nb_unit++;
 		return result;
 	}
 
 	inline int get_unit_index(const char *unit_name)		// Cherche l'indice de l'unité unit_name dans la liste d'unités
 	{
-		if( unit_name )
-			return unit_hashtable.Find( Lowercase( unit_name ) ) - 1;
-		else
-			return -1;
+		return ((unit_name) ? unit_hashtable.Find(String::ToLower(unit_name)) - 1 : -1);
 	}
 
 private:
@@ -673,7 +670,7 @@ public:
         for (short i = 0 ; i < nb_unit ; ++i)
         {
             int n = 1;
-            String canbuild = sidedata_parser.PullAsString( Lowercase( format( "canbuild.%s.canbuild%d", unit_type[ i ].Unitname, n ) ) );
+            String canbuild = sidedata_parser.PullAsString(String::ToLower(format( "canbuild.%s.canbuild%d", unit_type[ i ].Unitname, n ) ) );
             while( canbuild != "" ) {
                 int idx = get_unit_index( (char*)canbuild.c_str() );
                 if(idx>=0 && idx<nb_unit && unit_type[idx].unitpic)

@@ -206,13 +206,6 @@ namespace TA3D
 
 
     /*!
-    ** \brief Copy then Convert the case (lower case) of characters in the string
-    ** \param s The string to convert
-    ** \return The new string
-    */
-	String Lowercase(const String& szString);
-	
-    /*!
     ** \brief Copy then Convert the case (upper case) of characters in the string
     ** \param s The string to convert
     ** \return The new string

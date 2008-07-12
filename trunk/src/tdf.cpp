@@ -148,7 +148,7 @@ namespace TA3D
     {
         if(name == NULL || nb_features <= 0)
             return -1;
-        return feature_hashtable.Find(Lowercase(name)) - 1;
+        return feature_hashtable.Find(String::ToLower(name)) - 1;
     }
 
 
@@ -177,7 +177,7 @@ namespace TA3D
         feature = n_feature;
         feature[nb_features-1].init();
         feature[nb_features-1].name = strdup(name.c_str());
-        feature_hashtable.Insert(Lowercase(name), nb_features);
+        feature_hashtable.Insert(String::ToLower(name), nb_features);
         return nb_features-1;
     }
 
@@ -270,12 +270,12 @@ namespace TA3D
                 else if(strstr(ligne,"filename=")) {
                     if(strstr(ligne,";"))	*(strstr(ligne,";"))=0;
                     feature[index].filename=strdup(strstr(ligne,"filename=")+9);
-                    feature_hashtable.Insert( Lowercase( feature[index].filename ), index + 1 );
+                    feature_hashtable.Insert(String::ToLower(feature[index].filename), index + 1 );
                 }
                 else if(strstr(ligne,"seqname=")) {
                     if(strstr(ligne,";"))	*(strstr(ligne,";"))=0;
                     feature[index].seqname=strdup(strstr(ligne,"seqname=")+8);
-                    feature_hashtable.Insert( Lowercase( feature[index].seqname ), index + 1 );
+                    feature_hashtable.Insert(String::ToLower(feature[index].seqname ), index + 1 );
                 }
                 else if(strstr(ligne,"animating="))
                     feature[index].animating=(*(strstr(ligne,"animating=")+10)=='1');
