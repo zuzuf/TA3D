@@ -176,7 +176,7 @@ void cAudio::SavePlayList( void )
 	{
 		std::getline( file, line, '\n' );
 
-		line = TrimString( line ); // strip off spaces, linefeeds, tabs, newlines
+		line = String::Trim(line); // strip off spaces, linefeeds, tabs, newlines
 
 		if( !line.length() ) continue;
 		if (line[0] == '#' || line[0] == ';' ) continue;

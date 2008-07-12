@@ -54,7 +54,7 @@ namespace UTILS
         if( i != -1 )        // if we find a comment, we will erase everything
             Line.resize( i );// from the comment to the end of the line.
 
-        Line = TrimString( Line, " \t\n\r{" ); // strip out crap from string.
+        Line = String::Trim(Line, " \t\n\r{"); // strip out crap from string.
         i = (int)Line.length();
 
         if( i > 3 ) // check for new key.

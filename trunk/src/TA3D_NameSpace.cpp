@@ -152,12 +152,12 @@ namespace TA3D
 			int i = s.find(seps);
 			if( i == -1 )
             {
-				lst.push_back(TrimString(s));
+				lst.push_back(String::Trim(s));
 				return;
 			}
 			else
             {
-				lst.push_back(TrimString( s.substr(0, i)));
+				lst.push_back(String::Trim(s.substr(0, i)));
 				s = s.substr(i + 1, s.size() - i - 1);
 			}
 		}

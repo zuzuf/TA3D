@@ -103,7 +103,7 @@ namespace TA3D
         LOG_ASSERT(NULL != pDefaultLanguage /* initializeAllLanguages() must be called before */ );
         if (locale.empty())
             return pDefaultLanguage;
-        String s = TrimString(locale);
+        String s = String::Trim(locale);
         s.toLower();
         const String::size_type n = String::npos;
 

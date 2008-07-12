@@ -2688,7 +2688,7 @@ int MODEL_MANAGER::load_all(void (*progress)(float percent,const String &msg))
                     if (data[0] == 0 )
                     {
                         String real_name = (char*)(data+1);
-                        real_name = TrimString( real_name );
+                        real_name.trim();
                         delete[] data;
                         data = HPIManager->PullFromHPI( real_name );
                     }

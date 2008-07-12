@@ -206,14 +206,6 @@ namespace TA3D
 
     String format(const char* fmt, ...);
 	
-    /*!
-    ** \brief Copy then Remove trailing and leading spaces
-    ** \param s The string to convert
-    ** \param trimChars The chars to remove
-    ** \return The new string
-    */
-    String TrimString(const String& s, String trimChars = String(" \t\n\r"));
-	
     sint32 SearchString(const String& s, const String& StringToSearch, const bool ignoreCase);
 	
     String ReplaceString(const String& s, const String& toSearch, const String& replaceWith, const bool ignoreCase);
