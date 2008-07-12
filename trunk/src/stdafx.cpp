@@ -125,18 +125,6 @@ StartsWith(const String& a, const String& b)
 	return ( (z.compare( 0, ai, y ) == 0 ) ? true : false );
 }
 
-bool
-IsPowerOfTwo(int a)
-{
-    int c = 0;
-	for (sint8 i = 0; i < 32 && c < 2 ; ++i)
-    {
-		if( ((a >> i) & 0x1) == 0x1 )
-			c++;
-    }
-	return c == 1;
-}
-
 
 String
 get_path(const String& s)

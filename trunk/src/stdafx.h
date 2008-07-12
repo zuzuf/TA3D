@@ -184,7 +184,6 @@ namespace TA3D
 
 	String GetClientPath(void);
 
-	bool IsPowerOfTwo(int a);
 
 
 } // namespace TA3D
