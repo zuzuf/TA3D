@@ -1,4 +1,6 @@
 #include "camera.h"
+#include "math.h"
+
 
 namespace TA3D
 {
@@ -69,7 +71,7 @@ namespace TA3D
             float dt_step = 0.03f;
             for (float c_dt = 0.0f ; c_dt < dt ; c_dt += dt_step)
             {
-                float rdt = min( dt_step, dt - c_dt );
+                float rdt = Math::Min(dt_step, dt - c_dt);
                 VECTOR rand_vec( ((TA3D_RAND() % 2001) - 1000) * 0.001f * shakeMagnitude,
                                  ((TA3D_RAND() % 2001) - 1000) * 0.001f * shakeMagnitude,
                                  ((TA3D_RAND() % 2001) - 1000) * 0.001f * shakeMagnitude );
@@ -88,7 +90,7 @@ namespace TA3D
             float dt_step = 0.03f;
             for( float c_dt = 0.0f ; c_dt < dt ; c_dt += dt_step )
             {
-                float rdt = min( dt_step, dt - c_dt );
+                float rdt = Math::Min(dt_step, dt - c_dt);
                 shakeVector += -rdt * 10.0f * shakeVector;
                 if( shakeVector.x < -20.0f )		shakeVector.x = -20.0f;
                 else if( shakeVector.x > 20.0f)	shakeVector.x = 20.0f;

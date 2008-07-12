@@ -30,6 +30,7 @@
 #include "../EngineClass.h"
 #include "../UnitEngine.h"
 #include "../misc/paths.h"
+#include "../misc/math.h"
 
 
 namespace TA3D
@@ -468,10 +469,12 @@ namespace TA3D
     {
         srand( msec_timer );
 
-        ai->order_weight[ ORDER_METAL_P ] = max( 0.0f, players.metal_u[ ai->player_id ] - players.metal_t[ ai->player_id ]) * 10.0f + max( 0.0f, players.metal[ ai->player_id ] - (players.metal_s[ ai->player_id ] >> 1) ) * 0.01f;
-        ai->order_weight[ ORDER_ENERGY_P ] = max( 0.0f, players.energy_u[ ai->player_id ] - players.energy_t[ ai->player_id ]) + max( 0.0f, players.energy[ ai->player_id ] - (players.energy_s[ ai->player_id ] >> 1) ) * 0.001f;
-        ai->order_weight[ ORDER_METAL_S ] = max( 0.0f, players.metal[ ai->player_id ] - (players.metal_s[ ai->player_id ] * 15 >> 4) ) * 0.001f;
-        ai->order_weight[ ORDER_ENERGY_S ] = max( 0.0f, players.energy[ ai->player_id ] - (players.energy_s[ ai->player_id ] * 15 >> 4) ) * 0.001f;
+        ai->order_weight[ ORDER_METAL_P ] = Math::Max(0.0f, players.metal_u[ ai->player_id ] - players.metal_t[ai->player_id]) * 10.0f
+            + Math::Max(0.0f, players.metal[ ai->player_id ] - (players.metal_s[ ai->player_id ] >> 1) ) * 0.01f;
+        ai->order_weight[ ORDER_ENERGY_P ] = Math::Max(0.0f, players.energy_u[ ai->player_id ] - players.energy_t[ai->player_id])
+            + Math::Max(0.0f, players.energy[ ai->player_id ] - (players.energy_s[ ai->player_id ] >> 1) ) * 0.001f;
+        ai->order_weight[ ORDER_METAL_S ] = Math::Max(0.0f, players.metal[ ai->player_id ] - (players.metal_s[ ai->player_id] * 15 >> 4) ) * 0.001f;
+        ai->order_weight[ ORDER_ENERGY_S ] = Math::Max(0.0f, players.energy[ ai->player_id ] - (players.energy_s[ ai->player_id ] * 15 >> 4) ) * 0.001f;
 
         ai->order_weight[ ORDER_ARMY ] = (ai->nb_units[ AI_UNIT_TYPE_ENEMY ] - ai->nb_units[ AI_UNIT_TYPE_ARMY ]) * 0.1f;
         ai->order_weight[ ORDER_DEFENSE ] = (ai->nb_units[ AI_UNIT_TYPE_ENEMY ] - ai->nb_units[ AI_UNIT_TYPE_DEFENSE ]) * 0.1f;
@@ -646,7 +649,7 @@ namespace TA3D
                 {
                     target.x = (px << 3) - map->map_w_d;
                     target.z = (py << 3) - map->map_h_d;
-                    target.y = max( map->get_max_rect_h((int)target.x,(int)target.z, unit_manager.unit_type[ selected_idx ].FootprintX, unit_manager.unit_type[ selected_idx ].FootprintZ ), map->sealvl);
+                    target.y = Math::Max( map->get_max_rect_h((int)target.x,(int)target.z, unit_manager.unit_type[ selected_idx ].FootprintX, unit_manager.unit_type[ selected_idx ].FootprintZ ), map->sealvl);
                     units.unit[ *i ].add_mission( MISSION_BUILD, &target, false, selected_idx );
 #ifdef AI_DEBUG
                     Console->AddEntry( "AI(%d,%d) -> builder %d building %d", ai->player_id, msec_timer, *i, selected_idx );
@@ -755,7 +758,7 @@ namespace TA3D
             }
             int time_to_wait = (int)( speed / ( ( units.nb_unit / 100 + 1 ) * time_factor ) );
             for (int i = 0 ; i < time_to_wait && !thread_ask_to_stop ; i += 100)		// Wait in order not to use all the CPU
-                rest( min( 100, time_to_wait - i ) );									// divide the wait call in order not to wait too much when game ends
+                rest(Math::Min(100, time_to_wait - i));									// divide the wait call in order not to wait too much when game ends
 
         }
         Console->AddEntry("AI thread stopped for player %d", player_id);

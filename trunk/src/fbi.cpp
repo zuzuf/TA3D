@@ -35,6 +35,7 @@
 #include <vector>
 #include <list>
 #include "languages/i18n.h"
+#include "misc/math.h"
 
 UNIT_MANAGER unit_manager;
 
@@ -629,20 +630,23 @@ inline bool overlaps( int x1, int y1, int w1, int h1, int x2, int y2, int w2, in
 {
     int w = w1 + w2;
     int h = h1 + h2;
-    int X1 = min( x1, x2 );
-    int Y1 = min( y1, y2 );
-    int X2 = max( x1 + w1, x2 + w2 );
-    int Y2 = max( y1 + h1, y2 + h2 );
-
+    int X1 = Math::Min(x1, x2);
+    int Y1 = Math::Min(y1, y2);
+    int X2 = Math::Max(x1 + w1, x2 + w2);
+    int Y2 = Math::Max(y1 + h1, y2 + h2);
     return X2 - X1 < w && Y2 - Y1 < h;
 }
 
 void UNIT_TYPE::FixBuild()
 {
-    if( dl_data && dl_data->dl_num > 0 )
-        for( int i = 0 ; i < nb_unit - 1 ; i++ )		// Ok it's O(N²) but we don't need something fast
-            for( int e = i + 1 ; e < nb_unit ; e++ )
-                if( (Pic_p[e] < Pic_p[i] && Pic_p[e] != -1) || Pic_p[i] == -1 ) {
+    if (dl_data && dl_data->dl_num > 0)
+    {
+        for (int i = 0 ; i < nb_unit - 1; ++i)		// Ok it's O(N²) but we don't need something fast
+        {
+            for (int e = i + 1; e < nb_unit; ++e)
+            {
+                if( (Pic_p[e] < Pic_p[i] && Pic_p[e] != -1) || Pic_p[i] == -1 )
+                {
                     SWAP( Pic_p[e], Pic_p[i] )
                         SWAP( Pic_x[e], Pic_x[i] )
                         SWAP( Pic_y[e], Pic_y[i] )
@@ -651,6 +655,9 @@ void UNIT_TYPE::FixBuild()
                         SWAP( PicList[e], PicList[i] )
                         SWAP( BuildList[e], BuildList[i] )
                 }
+            }
+        }
+    }
 
     int next_id = 0;
     bool filled = true;
@@ -705,8 +712,8 @@ void UNIT_TYPE::FixBuild()
                     SWAP( PicList[e], PicList[i] )
                     SWAP( BuildList[e], BuildList[i] )
             }
-    for( int i = 0 ; i < nb_unit ; i++ )
-        nb_pages = max( nb_pages, Pic_p[ i ] );
+    for (int i = 0; i < nb_unit; ++i)
+        nb_pages = Math::Max(nb_pages, Pic_p[i]);
     nb_pages++;
 }
 

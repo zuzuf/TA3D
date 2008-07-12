@@ -41,6 +41,7 @@
 #include <vector>
 #include <list>
 #include "languages/i18n.h"
+#include "misc/math.h"
 
 
 namespace TA3D
@@ -180,7 +181,7 @@ void config_menu(void)
             obj->Text.push_back( format( "%dx%dx%d", res_width[ i ], res_height[ i ], res_bpp[ i ] ) );
     }
     if( config_area.get_object("*.shadow_quality") )
-        config_area.set_caption( "*.shadow_quality", config_area.get_object("*.shadow_quality")->Text[1+min( (lp_CONFIG->shadow_quality-1)/3, 2 ) ] );
+        config_area.set_caption( "*.shadow_quality", config_area.get_object("*.shadow_quality")->Text[1+Math::Min((lp_CONFIG->shadow_quality-1) / 3, 2)]);
     config_area.set_caption("*.timefactor", format( "%d", (int)lp_CONFIG->timefactor ) );
     switch( lp_CONFIG->fsaa )
     {
@@ -2290,10 +2291,12 @@ void wait_room(void *p_game_data)
                 else if( params[0] == "START" )
                     done = true;
             }
-            else if( params.size() == 2 ) {
-                if( params[0] == "LOADING" ) {
-                    int percent = min( 100, max( 0, atoi( params[1].c_str() ) ) );
-                    wait_area.set_data( format( "wait.progress%d", player_id ), percent );
+            else if( params.size() == 2 )
+            {
+                if (params[0] == "LOADING")
+                {
+                    int percent = Math::Min(100, Math::Max(0, atoi(params[1].c_str())));
+                    wait_area.set_data( format( "wait.progress%d", player_id ), percent);
                 }
                 else if( params[0] == "USING" ) {									// We can only use units available on all clients, so check the list
                     network_manager.sendAll("NOT_READY");

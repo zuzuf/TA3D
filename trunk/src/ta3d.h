@@ -16,6 +16,7 @@
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA*/
 
 #include "ta3dbase.h"
+#include "misc/math.h"
 
 #ifndef TA3D_BASIC_ENGINE
 int expected_players;

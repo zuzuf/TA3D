@@ -33,6 +33,8 @@
 # include "network/TA3D_Network.h"
 # include "misc/camera.h"
 # include <vector>
+# include "misc/math.h"
+
 
 #define PARTICLE_LIMIT		100000		// pas plus de 100000 particules
 #define HMAP_RESIZE			0.04f
@@ -499,10 +501,12 @@ namespace TA3D
             if(x>=bloc_w_db-1) x=bloc_w_db-2;
             if(y>=bloc_h_db-1) y=bloc_h_db-2;
             float h = h_map[y][x];
-            if(x<bloc_w_db-2)	h = max(h, h_map[y][x+1]);
-            if(y<bloc_h_db-2) {
-                h = max(h, h_map[y+1][x]);
-                if(x<bloc_w_db-2)	h = max(h, h_map[y+1][x+1]);
+            if(x<bloc_w_db-2)	h = Math::Max(h, h_map[y][x+1]);
+            if(y<bloc_h_db-2)
+            {
+                h = Math::Max(h, h_map[y+1][x]);
+                if(x<bloc_w_db-2)
+                    h = Math::Max(h, h_map[y+1][x+1]);
             }
             return h;
         }

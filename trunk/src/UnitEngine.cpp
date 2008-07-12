@@ -37,6 +37,7 @@
 #include <math.h>
 #include "ingame/sidedata.h"
 #include "languages/i18n.h"
+#include "misc/math.h"
 
 
 using namespace TA3D::Exceptions;
@@ -638,7 +639,7 @@ void UNIT::draw(float t, Camera *cam,MAP *map,bool height_line)
     if (on_radar) // for mega zoom, draw only an icon
     {
         glDisable(GL_DEPTH_TEST);
-        glTranslatef( Pos.x, max(Pos.y,map->sealvl+5.0f), Pos.z );
+        glTranslatef( Pos.x, Math::Max(Pos.y,map->sealvl+5.0f), Pos.z);
         glEnable(GL_TEXTURE_2D);
         int unit_nature = ICON_UNKNOWN;
         float size = (D%cam->dir) * 12.0f / gfx->height;
@@ -1263,7 +1264,7 @@ const int UNIT::run_script(const float &dt,const int &id,MAP *map,int max_code)	
                     {
                         compute_model_coord();
                         particle_engine.make_fire( Pos + data.pos[obj],1,10,45.0f);
-                        int power = max(unit_manager.unit_type[type_id].FootprintX, unit_manager.unit_type[type_id].FootprintZ);
+                        int power = Math::Max(unit_manager.unit_type[type_id].FootprintX, unit_manager.unit_type[type_id].FootprintZ);
                         VECTOR P = Pos + data.pos[obj];
                         fx_manager.addExplosion( P, power * 3, power * 10.0f );
                     }
@@ -2106,7 +2107,7 @@ void UNIT::explode()
         network_manager.sendEvent( &explode_event );
     }
 
-    int power = max(unit_manager.unit_type[type_id].FootprintX, unit_manager.unit_type[type_id].FootprintZ);
+    int power = Math::Max(unit_manager.unit_type[type_id].FootprintX, unit_manager.unit_type[type_id].FootprintZ);
     fx_manager.addFlash( Pos, power * 32 );
     fx_manager.addExplosion( Pos, power * 3, power * 10 );
 
@@ -3323,7 +3324,7 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
                             }
                             if( !(mission->flags & MISSION_FLAG_TARGET_CHECKED) ) {
                                 mission->flags |= MISSION_FLAG_TARGET_CHECKED;
-                                mission->data = min( unit_manager.unit_type[target_unit->type_id].BuildCostMetal * 100, 10000 );
+                                mission->data = Math::Min(unit_manager.unit_type[target_unit->type_id].BuildCostMetal * 100, 10000);
                             }
                         }
                         VECTOR Dir=target_unit->Pos-Pos;
@@ -3757,12 +3758,13 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
                                 mission->move_data = maxdist*7/80;
                             }
                         }
-                        else if( mission->data == 0 ) {
+                        else if (mission->data == 0)
+                        {
                             mission->data = 2;
                             int param[] = { 0 };
                             for( int i = 0 ; i < 3 ; i++ )
                                 if( unit_manager.unit_type[type_id].weapon[ i ] )
-                                    param[ 0 ] = max( param[0], (int)( unit_manager.unit_type[type_id].weapon[ i ]->reloadtime * 1000.0f ) * max( 1, (int)unit_manager.unit_type[type_id].weapon[ i ]->burst ) );
+                                    param[ 0 ] = Math::Max(param[0], (int)( unit_manager.unit_type[type_id].weapon[i]->reloadtime * 1000.0f) * Math::Max(1, (int)unit_manager.unit_type[type_id].weapon[i]->burst));
                             launch_script(get_script_index(SCRIPT_SetMaxReloadTime),1,param);
                         }
 
@@ -4436,8 +4438,8 @@ script_exec:
             Pos.y=map->sealvl-unit_manager.unit_type[type_id].WaterLine*H_DIV;
             V.y=0.0f;
         }
-        else if( !unit_manager.unit_type[type_id].canfly && Pos.y > max( min_h, map->sealvl ) && unit_manager.unit_type[type_id].BMcode ) {	// Prevent non flying units from "jumping"
-            Pos.y = max( min_h, map->sealvl );
+        else if( !unit_manager.unit_type[type_id].canfly && Pos.y > Math::Max( min_h, map->sealvl ) && unit_manager.unit_type[type_id].BMcode ) {	// Prevent non flying units from "jumping"
+            Pos.y = Math::Max(min_h, map->sealvl);
             if(V.y<0.0f)
                 V.y=0.0f;
         }
@@ -4451,7 +4453,7 @@ script_exec:
                             || mission->mission == MISSION_ATTACK || mission->mission == MISSION_MOVE || mission->mission == MISSION_GET_REPAIRED || mission->mission == MISSION_PATROL
                             || mission->mission == MISSION_RECLAIM || nb_attached > 0 || Pos.x < -map->map_w_d || Pos.x > map->map_w_d || Pos.z < -map->map_h_d || Pos.z > map->map_h_d )) {
                 if( !(mission->mission == MISSION_GET_REPAIRED && (mission->flags & MISSION_FLAG_BEING_REPAIRED) ) ) {
-                    float ideal_h=max(min_h,map->sealvl)+unit_manager.unit_type[type_id].CruiseAlt*H_DIV;
+                    float ideal_h=Math::Max(min_h,map->sealvl)+unit_manager.unit_type[type_id].CruiseAlt*H_DIV;
                     V.y=(ideal_h-Pos.y)*2.0f;
                 }
                 flying = true;
@@ -4635,7 +4637,7 @@ void UNIT::show_orders(bool only_build_commands, bool def_orders)				// Dessine 
                         continue;	// Don't show this, it'll be removed
                         }
                     n_target=cur->target;
-                    n_target.y = max( units.map->get_unit_h( n_target.x, n_target.z ), units.map->sealvl );
+                    n_target.y = Math::Max(units.map->get_unit_h( n_target.x, n_target.z ), units.map->sealvl);
                     if(rec>0)
                     {
                         if( low_def )
@@ -4665,7 +4667,7 @@ void UNIT::show_orders(bool only_build_commands, bool def_orders)				// Dessine 
                             {
                                 x=p_target.x+(n_target.x-p_target.x)*(i+rab)/rec;
                                 z=p_target.z+(n_target.z-p_target.z)*(i+rab)/rec;
-                                y = max( units.map->get_unit_h( x, z ), units.map->sealvl );
+                                y = Math::Max(units.map->get_unit_h( x, z ), units.map->sealvl);
                                 y+=0.75f;
                                 x-=dx;
                                 z-=dz;
@@ -4893,10 +4895,10 @@ bool INGAME_UNITS::select(Camera *cam,int sel_x[],int sel_y[])
     VECTOR UPos,O;
     O.x=O.y=O.z=0.0f;
     int X1,Y1,X2,Y2;
-    X1=min(sel_x[0],sel_x[1]);
-    Y1=min(sel_y[0],sel_y[1]);
-    X2=max(sel_x[0],sel_x[1]);
-    Y2=max(sel_y[0],sel_y[1]);
+    X1 = Math::Min(sel_x[0],sel_x[1]);
+    Y1 = Math::Min(sel_y[0],sel_y[1]);
+    X2 = Math::Max(sel_x[0],sel_x[1]);
+    Y2 = Math::Max(sel_y[0],sel_y[1]);
 
     bool selected = false;
 
@@ -6535,12 +6537,12 @@ void INGAME_UNITS::remove_order(int player_id,VECTOR target)
                 {
                     for (sint8 i = 0 ; i < players.nb_player ; ++i)
                         if( g_ta3d_network->isRemoteHuman( i ) )
-                            min_tick = min( min_tick, client_tick[i] );
+                            min_tick = Math::Min(min_tick, client_tick[i]);
                 }
                 else
                     for (sint8 i = 0 ; i < players.nb_player ; ++i)
                         if( g_ta3d_network->isRemoteHuman( i ) && client_tick[i] > 0 )
-                            min_tick = min( min_tick, client_tick[i] );
+                            min_tick = Math::Min(min_tick, client_tick[i]);
             }
             min_tick /= 1000;
 
@@ -6594,18 +6596,18 @@ void INGAME_UNITS::remove_order(int player_id,VECTOR target)
                         min_tick = current_tick * 1000;
                         if( network_manager.isServer() )
                         {
-                            for(sint8 i = 0 ; i < players.nb_player ; ++i)
+                            for(sint8 i = 0; i < players.nb_player; ++i)
                             {
                                 if( g_ta3d_network->isRemoteHuman( i ) )
-                                    min_tick = min( min_tick, client_tick[i] );
+                                    min_tick = Math::Min(min_tick, client_tick[i]);
                             }
                         }
                         else
                         {
-                            for( int i = 0 ; i < players.nb_player ; i++ )
+                            for (int i = 0; i < players.nb_player; ++i)
                             {
                                 if( g_ta3d_network->isRemoteHuman( i ) && client_tick[i] > 0 )
-                                    min_tick = min( min_tick, client_tick[i] );
+                                    min_tick = Math::Min(min_tick, client_tick[i]);
                             }
                         }
                         min_tick /= 1000;

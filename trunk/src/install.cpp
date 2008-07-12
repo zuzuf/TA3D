@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "TA3D_NameSpace.h"			// our namespace, a MUST have.
 #include "ta3dbase.h"
+#include "misc/math.h"
 
 #define buf_size		1024*1024
 
@@ -80,12 +81,13 @@ void install_TA_files( String def_path )
 
 		FILE *dst = TA3D_OpenFile("totala1.hpi","wb");
 		
-		if( dst ) {
-
+		if (dst)
+        {
 			fwrite(data,buf_size,1,dst);
 
-			for(uint32 pos = buf_size ; pos < file_size32 ; pos += buf_size ) {
-				int read_size = min( buf_size, (int)(file_size32 - pos) );
+			for (uint32 pos = buf_size; pos < file_size32; pos += buf_size)
+            {
+				int read_size = Math::Min(buf_size, (int)(file_size32 - pos));
 				delete[] data;
 				data = HPIManager->PullFromHPI_zone( "install\\totala1.hpi", pos, read_size, &file_size32);			// Extract the totala1.hpi file from the TA CD
 				fwrite(data+pos,read_size,1,dst);
@@ -93,16 +95,15 @@ void install_TA_files( String def_path )
 				rectfill( screen, 100, 60, 540, 80, makecol( 255, 0, 0 ) );
 				rectfill( screen, 100, 60, 100 + 440 * (pos+read_size>>10) / (file_size32>>10), 80, makecol( 255, 255, 0 ) );
 				textprintf_centre_ex( screen, font, 320, 66, 0x0, -1, "%d%%", 100 * (pos+read_size>>10) / (file_size32>>10) );
-				}
-
-			fflush( dst );
-
-			fclose(dst);
 			}
+
+			fflush(dst);
+			fclose(dst);
+		}
 		else
 			success = false;
 		delete[] data;
-		}
+	}
 	else
 		success = false;
 
@@ -114,32 +115,32 @@ void install_TA_files( String def_path )
 		textprintf_centre_ex( screen, font, 320, 166, 0x0, -1, "0%%" );
 
 		FILE *src = TA3D_OpenFile( path_to_TA_cd + "totala2.hpi", "rb" );
-		if( src ) {
+		if (src)
+        {
 			FILE *dst = TA3D_OpenFile( "totala2.hpi", "wb" );
-			if( dst ) {
+			if (dst)
+            {
 				int limit = FILE_SIZE( ( path_to_TA_cd + "totala2.hpi" ).c_str() );
 				byte *buf = new byte[ buf_size ];			// a 1Mo buffer
 
-				for( int pos = 0 ; pos < limit ; pos+= buf_size ) {
-					int read_size = min( buf_size, limit-pos );
+				for (int pos = 0; pos < limit; pos += buf_size)
+                {
+					int read_size = Math::Min(buf_size, limit-pos);
 					fread( buf, read_size, 1, src );
 					fwrite( buf, read_size, 1, dst );
 
 					rectfill( screen, 100, 160, 540, 180, makecol( 255, 0, 0 ) );
 					rectfill( screen, 100, 160, 100 + 440 * (pos+read_size>>10) / (limit>>10), 180, makecol( 255, 255, 0 ) );
 					textprintf_centre_ex( screen, font, 320, 166, 0x0, -1, "%d%%", 100 * (pos+read_size>>10) / (limit>>10) );
-					}
-
-				delete buf;
-
-				fflush( dst );
-
-				fclose( dst );
 				}
+				delete buf;
+				fflush(dst);
+				fclose(dst);
+			}
 			else
 				success = false;
-			fclose( src );
-			}
+			fclose(src);
+		}
 		else
 			success = false;
 		}
@@ -172,8 +173,9 @@ void install_TA_files( String def_path )
 					int limit = FILE_SIZE( ( path_to_TA_cd + "totala4.hpi" ).c_str() );
 					byte *buf = new byte[ buf_size ];			// a 1Mo buffer
 
-					for( int pos = 0 ; pos < limit ; pos+= buf_size ) {
-						int read_size = min( buf_size, limit-pos );
+					for (int pos = 0; pos < limit; pos += buf_size)
+                    {
+						int read_size = Math::Min(buf_size, limit-pos);
 						fread( buf, read_size, 1, src );
 						fwrite( buf, read_size, 1, dst );
 
@@ -224,15 +226,16 @@ void install_TA_files( String def_path )
 							int limit = FILE_SIZE( ( path_to_TA_cd + file_to_copy[ i ] ).c_str() );
 							byte *buf = new byte[ buf_size ];			// a 1Mo buffer
 
-							for( int pos = 0 ; pos < limit ; pos+= buf_size ) {
-								int read_size = min( buf_size, limit-pos );
+							for( int pos = 0 ; pos < limit ; pos+= buf_size )
+                            {
+								int read_size = Math::Min( buf_size, limit-pos );
 								fread( buf, read_size, 1, src );
 								fwrite( buf, read_size, 1, dst );
 
 								rectfill( screen, 100, 60 + Y, 540, 80 + Y, makecol( 255, 0, 0 ) );
 								rectfill( screen, 100, 60 + Y, 100 + 440 * (pos+read_size>>10) / (limit>>10), 80 + Y, makecol( 255, 255, 0 ) );
 								textprintf_centre_ex( screen, font, 320, 66 + Y, 0x0, -1, "%d%%", 100 * (pos+read_size>>10) / (limit>>10) );
-								}
+							}
 
 							delete buf;
 
@@ -281,20 +284,19 @@ void install_TA_files( String def_path )
 							int limit = FILE_SIZE( ( path_to_TA_cd + file_to_copy[ i ] ).c_str() );
 							byte *buf = new byte[ buf_size ];			// a 1Mo buffer
 
-							for( int pos = 0 ; pos < limit ; pos+= buf_size ) {
-								int read_size = min( buf_size, limit-pos );
+							for (int pos = 0; pos < limit; pos += buf_size)
+                            {
+								int read_size = Math::Min( buf_size, limit-pos );
 								fread( buf, read_size, 1, src );
 								fwrite( buf, read_size, 1, dst );
 
 								rectfill( screen, 100, 60 + Y, 540, 80 + Y, makecol( 255, 0, 0 ) );
 								rectfill( screen, 100, 60 + Y, 100 + 440 * (pos+read_size>>10) / (limit>>10), 80 + Y, makecol( 255, 255, 0 ) );
 								textprintf_centre_ex( screen, font, 320, 66 + Y, 0x0, -1, "%d%%", 100 * (pos+read_size>>10) / (limit>>10) );
-								}
+							}
 
 							delete buf;
-
 							fflush( dst );
-
 							fclose( dst );
 							}
 						else

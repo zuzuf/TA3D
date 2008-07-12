@@ -25,6 +25,7 @@
 #include "../ingame/sidedata.h"
 #include <vector>
 #include "../languages/i18n.h"
+#include "../misc/math.h"
 
 
 #define CHAT_MESSAGE_TIMEOUT	10000
@@ -396,7 +397,8 @@ namespace TA3D
                     }
                     break;
                 case EVENT_UNIT_DAMAGE:
-                    if( event_msg.opt1 < units.max_unit && ( units.unit[ event_msg.opt1 ].flags & 1 ) ) {
+                    if (event_msg.opt1 < units.max_unit && (units.unit[event_msg.opt1].flags & 1))
+                    {
                         units.unit[ event_msg.opt1 ].lock();
 
                         if (units.unit[ event_msg.opt1 ].exploding)
@@ -410,7 +412,7 @@ namespace TA3D
 
                         units.unit[ event_msg.opt1 ].flags &= 0xEF;		// This unit must explode if it has been damaged by a weapon even if it is being reclaimed
                         if( units.unit[ event_msg.opt1 ].hp <= 0.0f )
-                            units.unit[ event_msg.opt1 ].severity = max( units.unit[ event_msg.opt1 ].severity, (int)damage );
+                            units.unit[ event_msg.opt1 ].severity = Math::Max(units.unit[event_msg.opt1].severity, (int)damage);
 
                         units.unit[ event_msg.opt1 ].unlock();
 
@@ -550,8 +552,8 @@ namespace TA3D
                 int color = 0xFFFFFFFF;
                 if( (int)(msec_timer - i->timer) - CHAT_MESSAGE_TIMEOUT + 1000 >= 0 )
                 {
-                    color = makeacol( 0xFF, 0xFF, 0xFF, 255 - min( 255, ((int)(msec_timer - i->timer) - CHAT_MESSAGE_TIMEOUT + 1000) * 255 / 1000 ) );
-                    Y -= min( 1.0f, ((int)(msec_timer - i->timer) - CHAT_MESSAGE_TIMEOUT + 1000) * 0.001f ) * (gfx->TA_font.height() + Y - Y_ref);
+                    color = makeacol( 0xFF, 0xFF, 0xFF, 255 - Math::Min(255, ((int)(msec_timer - i->timer) - CHAT_MESSAGE_TIMEOUT + 1000) * 255 / 1000));
+                    Y -= Math::Min(1.0f, ((int)(msec_timer - i->timer) - CHAT_MESSAGE_TIMEOUT + 1000) * 0.001f) * (gfx->TA_font.height() + Y - Y_ref);
                 }
                 gfx->print( gfx->TA_font, 136, Y, 0.0f, color, i->text );
                 Y += gfx->TA_font.height();

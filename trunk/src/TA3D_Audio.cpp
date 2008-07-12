@@ -20,6 +20,7 @@
 #include "ta3dbase.h"			// just to use the global camera object
 #include "ingame/sidedata.h"
 #include <fstream>
+#include "misc/math.h"
 
 using namespace TA3D::Interfaces;
 

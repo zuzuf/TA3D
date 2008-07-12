@@ -32,6 +32,7 @@
 #include "ingame/sidedata.h"
 #include "languages/i18n.h"
 #include "jpeg/ta3d_jpg.h"
+#include "misc/math.h"
 
 
 
@@ -457,7 +458,7 @@ float OBJECT::compute_size_sq(VECTOR center)		// Carré de la taille(on fera une
 float OBJECT::compute_top(float top, VECTOR dec)
 {
     for(int i = 0;i < nb_vtx; ++i)
-        top = max(top, points[i].y + dec.y + pos_from_parent.y);
+        top = Math::Max(top, points[i].y + dec.y + pos_from_parent.y);
     if (next)
         top = next->compute_top(top, dec);
     if (child)
@@ -469,7 +470,7 @@ float OBJECT::compute_top(float top, VECTOR dec)
 float OBJECT::compute_bottom(float bottom, VECTOR dec)
 {
     for (int i = 0; i < nb_vtx; ++i)
-        bottom = min( bottom, points[i].y + dec.y + pos_from_parent.y);
+        bottom = Math::Min(bottom, points[i].y + dec.y + pos_from_parent.y);
     if (next)
         bottom = next->compute_bottom(bottom, dec);
     if (child)
@@ -829,7 +830,7 @@ int OBJECT::load_obj(byte *data,int offset,int dec,const char *filename)
                     deborde = false;
                     if (px[i] + dx > mx || py[i] + dy > my)
                         deborde = true;
-                    deb = max(mx, px[i] + dx) * max(py[i] + dy, my) - mx * my;
+                    deb = Math::Max(mx, px[i] + dx) * Math::Max(py[i] + dy, my) - mx * my;
                     found_one = true;
                 }
                 if (found[0] && (!found_one || deborde))
@@ -839,7 +840,7 @@ int OBJECT::load_obj(byte *data,int offset,int dec,const char *filename)
                     deborde = false;
                     if (px[i] + dx > mx || py[i] + dy > my)
                         deborde = true;
-                    deb = max(mx, px[i] + dx) * max(py[i] + dy, my) - mx * my;
+                    deb = Math::Max(mx, px[i] + dx) * Math::Max(py[i] + dy, my) - mx * my;
                     found_one = true;
                 }
                 if (found[2] && deborde)
@@ -850,7 +851,7 @@ int OBJECT::load_obj(byte *data,int offset,int dec,const char *filename)
                     deborde = false;
                     if (px[i]+dx>mx || py[i] + dy > my)
                         deborde = true;
-                    int deb2 = max(mx, px[i] + dx) * max(py[i] + dy, my) - mx * my;
+                    int deb2 = Math::Max(mx, px[i] + dx) * Math::Max(py[i] + dy, my) - mx * my;
                     if (found_one && deb<deb2)
                     {
                         px[i] = ax;
@@ -2536,12 +2537,12 @@ bool OBJECT::hit_fast(VECTOR Pos,VECTOR Dir,SCRIPT_DATA *data_s,VECTOR *I)
             min_z = max_z = points[0].z;
             for (short i = 1; i < nb_vtx ; ++i)
             {
-                min_x = min( min_x, points[i].x);
-                max_x = max( max_x, points[i].x);
-                min_y = min( min_y, points[i].y);
-                max_y = max( max_y, points[i].y);
-                min_z = min( min_z, points[i].z);
-                max_z = max( max_z, points[i].z);
+                min_x = Math::Min(min_x, points[i].x);
+                max_x = Math::Max(max_x, points[i].x);
+                min_y = Math::Min(min_y, points[i].y);
+                max_y = Math::Max(max_y, points[i].y);
+                min_z = Math::Min(min_z, points[i].z);
+                max_z = Math::Max(max_z, points[i].z);
             }
         }
 
@@ -3488,8 +3489,8 @@ void QUAD_TABLE::draw_all()
     uint32	max_size = 0;
     for (uint16 i = 0; i < DRAWING_TABLE_SIZE ; ++i)
     {
-        for (std::list< QUAD_QUEUE* >::iterator e = hash_table[ i ].begin() ; e != hash_table[ i ].end(); ++e)
-            max_size = max( max_size, (uint32)(*e)->queue.size());
+        for (std::list< QUAD_QUEUE* >::iterator e = hash_table[i].begin(); e != hash_table[i].end(); ++e)
+            max_size = Math::Max( max_size, (uint32)(*e)->queue.size());
     }
 
     VECTOR	*P = new VECTOR[ max_size << 2 ];

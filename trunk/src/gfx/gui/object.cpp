@@ -3,6 +3,7 @@
 #include "../gfx.h"
 #include "../../TA3D_NameSpace.h"
 #include "../../gui.h"
+#include "../../misc/math.h"
 
 
 
@@ -157,8 +158,8 @@ namespace TA3D
 
         if (skin && skin->checkbox[0].tex && skin->checkbox[1].tex)
         {
-            x2 += max( skin->checkbox[0].sw, skin->checkbox[1].sw);
-            y2 += max( skin->checkbox[0].sh, skin->checkbox[1].sh);
+            x2 += Math::Max(skin->checkbox[0].sw, skin->checkbox[1].sw);
+            y2 += Math::Max(skin->checkbox[0].sh, skin->checkbox[1].sh);
         }
         else
         {
@@ -188,8 +189,8 @@ namespace TA3D
         
         if (skin && skin->option[0].tex && skin->option[1].tex)
         {
-            x2 += max( skin->option[0].sw, skin->option[1].sw);
-            y2 += max( skin->option[0].sh, skin->option[1].sh);
+            x2 += Math::Max(skin->option[0].sw, skin->option[1].sw);
+            y2 += Math::Max(skin->option[0].sh, skin->option[1].sh);
         }
         else
         {

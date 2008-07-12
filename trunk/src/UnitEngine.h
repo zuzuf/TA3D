@@ -1171,11 +1171,11 @@ namespace TA3D
         {
             if( unit_type_id < 0 )	return;
 
-            target.x=((int)(target.x)+map->map_w_d)>>3;
-            target.z=((int)(target.z)+map->map_h_d)>>3;
-            target.y=max(map->get_max_rect_h((int)target.x,(int)target.z, unit_manager.unit_type[ unit_type_id ].FootprintX, unit_manager.unit_type[ unit_type_id ].FootprintZ ),map->sealvl);
-            target.x=target.x*8.0f-map->map_w_d;
-            target.z=target.z*8.0f-map->map_h_d;
+            target.x = ((int)(target.x)+map->map_w_d)>>3;
+            target.z = ((int)(target.z)+map->map_h_d)>>3;
+            target.y = Math::Max(map->get_max_rect_h((int)target.x,(int)target.z, unit_manager.unit_type[ unit_type_id ].FootprintX, unit_manager.unit_type[ unit_type_id ].FootprintZ ),map->sealvl);
+            target.x = target.x*8.0f-map->map_w_d;
+            target.z = target.z*8.0f-map->map_h_d;
 
             pMutex.lock();
             for(uint16 e=0;e<index_list_size;e++)

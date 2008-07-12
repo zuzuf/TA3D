@@ -35,6 +35,7 @@
 #include "../languages/i18n.h"
 #include <vector>
 #include <fstream>
+#include "../misc/math.h"
 
 
 
@@ -376,12 +377,14 @@ namespace TA3D
     int function_has_unit( lua_State *L )		// ta3d_has_unit( player_id, unit_type_id )
     {
         int player_id = (int) lua_tonumber( L, -2 );
-        if( player_id >= 0 && player_id < NB_PLAYERS ) {
+        if (player_id >= 0 && player_id < NB_PLAYERS)
+        {
             int unit_type = lua_isstring( L, -1 ) ? unit_manager.get_unit_index( lua_tostring( L, -1 ) ) : (int) lua_tonumber( L, -1 ) ;
             bool has = false;
-            uint16 last_possible_idx = min( (int)units.max_unit, ( player_id + 1 ) * MAX_UNIT_PER_PLAYER);
-            for( uint16 i = player_id * MAX_UNIT_PER_PLAYER ; i < last_possible_idx ; i++ )
-                if( units.unit[i].flags && units.unit[i].owner_id == player_id && units.unit[i].type_id == unit_type ) {
+            uint16 last_possible_idx = Math::Min((int)units.max_unit, (player_id + 1) * MAX_UNIT_PER_PLAYER);
+            for( uint16 i = player_id * MAX_UNIT_PER_PLAYER; i < last_possible_idx; ++i)
+                if( units.unit[i].flags && units.unit[i].owner_id == player_id && units.unit[i].type_id == unit_type)
+                {
                     has=true;
                     break;
                 }
@@ -401,7 +404,7 @@ namespace TA3D
         if( player_id >= 0 && player_id < NB_PLAYERS ) {
             int unit_type = lua_isstring( L, -1 ) ? unit_manager.get_unit_index( lua_tostring( L, -1 ) ) : (int) lua_tonumber( L, -1 ) ;
             int nb = 0;
-            uint16 last_possible_idx = min( (int)units.max_unit, ( player_id + 1 ) * MAX_UNIT_PER_PLAYER);
+            uint16 last_possible_idx = Math::Min((int)units.max_unit, (player_id + 1) * MAX_UNIT_PER_PLAYER);
             for( uint16 i = player_id * MAX_UNIT_PER_PLAYER ; i < last_possible_idx ; i++ )
                 if( units.unit[i].flags && units.unit[i].owner_id == player_id && units.unit[i].type_id == unit_type )
                     nb++;
@@ -521,7 +524,10 @@ namespace TA3D
                 VECTOR target_pos = units.unit[ unit_id ].Pos;
                 target_pos.x=((int)(target_pos.x) + lua_map->map_w_d)>>3;
                 target_pos.z=((int)(target_pos.z) + lua_map->map_h_d)>>3;
-                target_pos.y = max( lua_map->get_max_rect_h((int)target_pos.x,(int)target_pos.z, unit_manager.unit_type[ units.unit[ unit_id ].type_id ].FootprintX, unit_manager.unit_type[ units.unit[ unit_id ].type_id ].FootprintZ ), lua_map->sealvl);
+                target_pos.y = Math::Max(lua_map->get_max_rect_h((int)target_pos.x,(int)target_pos.z, 
+                                                                 unit_manager.unit_type[units.unit[unit_id].type_id].FootprintX,
+                                                                 unit_manager.unit_type[units.unit[unit_id].type_id].FootprintZ),
+                                         lua_map->sealvl);
                 units.unit[ unit_id ].Pos.y = target_pos.y;
                 units.unit[ unit_id ].draw_on_map();
             }
@@ -542,12 +548,13 @@ namespace TA3D
 
         lua_pop( L, 4 );
 
-        if( unit_type_id >= 0 && unit_type_id < unit_manager.nb_unit && player_id >= 0 && player_id < NB_PLAYERS ) {
+        if (unit_type_id >= 0 && unit_type_id < unit_manager.nb_unit && player_id >= 0 && player_id < NB_PLAYERS)
+        {
             units.lock();
             VECTOR pos;
             pos.x = x;
             pos.z = z;
-            pos.y = max( lua_map->get_max_rect_h((int)x,(int)z, unit_manager.unit_type[ unit_type_id ].FootprintX, unit_manager.unit_type[ unit_type_id ].FootprintZ ), lua_map->sealvl);
+            pos.y = Math::Max( lua_map->get_max_rect_h((int)x,(int)z, unit_manager.unit_type[ unit_type_id ].FootprintX, unit_manager.unit_type[ unit_type_id ].FootprintZ ), lua_map->sealvl);
             UNIT *unit = (UNIT*)create_unit( unit_type_id, player_id, pos, the_map, true, true );		// Force synchronization
             int idx = unit ? unit->idx : -1;
             if( unit ) {
@@ -616,9 +623,9 @@ namespace TA3D
             VECTOR target;
             target.x=((int)(pos_x)+lua_map->map_w_d)>>3;
             target.z=((int)(pos_z)+lua_map->map_h_d)>>3;
-            target.y=max(lua_map->get_max_rect_h((int)target.x,(int)target.z, unit_manager.unit_type[ unit_type_id ].FootprintX, unit_manager.unit_type[ unit_type_id ].FootprintZ ),lua_map->sealvl);
-            target.x=target.x*8.0f-lua_map->map_w_d;
-            target.z=target.z*8.0f-lua_map->map_h_d;
+            target.y = Math::Max(lua_map->get_max_rect_h((int)target.x,(int)target.z, unit_manager.unit_type[ unit_type_id ].FootprintX, unit_manager.unit_type[ unit_type_id ].FootprintZ ),lua_map->sealvl);
+            target.x = target.x*8.0f-lua_map->map_w_d;
+            target.z = target.z*8.0f-lua_map->map_h_d;
 
             units.lock();
             if( units.unit[ unit_id ].flags )
@@ -636,7 +643,8 @@ namespace TA3D
         float pos_z = (float) lua_tonumber( L, -1 );
         lua_pop( L, 3 );
 
-        if( unit_id >= 0 && unit_id < units.max_unit ) {
+        if (unit_id >= 0 && unit_id < units.max_unit)
+        {
             VECTOR target;
             target.x = pos_x;
             target.y = lua_map->get_unit_h( pos_x, pos_z );
