@@ -138,12 +138,12 @@ GLhandleARB load_fragment_shader_memory(const char* data, int filesize)
 	if (compiled) 
 	{
         // compilation successful!
-		Console->AddEntry("pixel shader successfully loaded");
+		LOG_DEBUG("Pixel shader: successfully compiled");
 	}
 	else 
 	{
         // compilation error! Check compiler log! 
-		Console->AddEntry("pixel shader : compilation failed");
+		Console->AddEntryWarning("Pixel shader: the compilation has failed");
 		char log[10000];
 		GLsizei len=0;
 		glGetInfoLogARB(shader, 10000, &len, log);
@@ -165,12 +165,12 @@ GLhandleARB load_vertex_shader_memory(const char *data,int filesize)
 	if (compiled) 
 	{
         // compilation successful!
-		Console->AddEntry("vertex shader successfully loaded");
+		LOG_DEBUG("Vertex shader: successfully compiled");
 	}
 	else 
 	{
         // compilation error! Check compiler log! 
-		Console->AddEntry("vertex shader : compilation failed");
+		Console->AddEntryWarning("Vertex shader: the compilation has failed");
 		char log[10000];
 		GLsizei len=0;
 		glGetInfoLogARB(shader, 10000, &len, log);
@@ -186,7 +186,7 @@ GLhandleARB load_fragment_shader(const char *filename)
 	GLhandleARB	shader = glCreateShaderObjectARB(GL_FRAGMENT_SHADER_ARB);
 	if(!file)
     {
-		Console->AddEntry("error: file %s doesn't exist!", filename);
+		Console->AddEntryWarning("Error: file %s doesn't exist!", filename);
 		return shader;
 	}
 	int filesize=FILE_SIZE(filename);
@@ -205,12 +205,12 @@ GLhandleARB load_fragment_shader(const char *filename)
 	if (compiled) 
 	{
         // compilation successful!
-		Console->AddEntry("%s successfully loaded",filename);
+		LOG_DEBUG("Fragment shader:` " << filename << "` compiled");
 	}
 	else 
 	{
         // compilation error! Check compiler log! 
-		Console->AddEntry("%s : compilation failed",filename);
+		Console->AddEntryWarning("Fragment shader: `%s` failed to compile", filename);
 		char log[10000];
 		GLsizei len=0;
 		glGetInfoLogARB(shader, 10000, &len, log);
@@ -227,7 +227,7 @@ GLhandleARB load_vertex_shader(const char* filename)
 	GLhandleARB	shader = glCreateShaderObjectARB(GL_VERTEX_SHADER_ARB);
 	if(!file)
     {
-		Console->AddEntry("error: file %s doesn't exist!", filename);
+		Console->AddEntryWarning("Error: file %s doesn't exist!", filename);
 		return shader;
 	}
 	int filesize=FILE_SIZE(filename);
@@ -246,12 +246,12 @@ GLhandleARB load_vertex_shader(const char* filename)
 	if (compiled) 
 	{
         // compilation successful!
-		Console->AddEntry("%s successfully loaded",filename);
+		LOG_DEBUG("Vertex shader: `" << filename << "` compiled");
 	}
 	else 
 	{
         // compilation error! Check compiler log! 
-		Console->AddEntry("%s : compilation failed",filename);
+		Console->AddEntryWarning("Vertex sharder: `%s` failed to compile",filename);
 		char log[10000];
 		GLsizei len=0;
 		glGetInfoLogARB(shader, 10000, &len, log);
@@ -311,12 +311,12 @@ SHADER::load(const char *fragment_file,const char *vertex_file)
 	glGetObjectParameterivARB(program, GL_OBJECT_LINK_STATUS_ARB, &link);
 	if(link)
     {
-        LOG_DEBUG("Successfully loaded shader: `" << fragment_file << "`");
+        // LOG_DEBUG("Successfully loaded shader: `" << fragment_file << "`");
 		succes = true;
 	}
 	else
     {
-        LOG_WARNING("Failed to load shader: `" << fragment_file << "`");
+        // LOG_WARNING("Failed to load shader: `" << fragment_file << "`");
 		char log[10000];
 		GLsizei len=0;
 		glGetInfoLogARB(program, 10000, &len, log);
