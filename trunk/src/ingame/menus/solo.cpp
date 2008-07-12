@@ -1,7 +1,6 @@
 
 #include "solo.h"
 #include <list>
-#include "../../misc/paths.h"
 #include "../gamedata.h"
 #include "../../TA3D_Exception.h"
 #include "../../restore.h"
