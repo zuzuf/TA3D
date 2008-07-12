@@ -21,6 +21,7 @@
 # include <list>
 # include <vector>
 # include <string>
+#include <algorithm>
 # include "../stdafx.h"
 
 # define __DEFAULT_HASH_TABLE_SIZE   0x1000      // 4096
