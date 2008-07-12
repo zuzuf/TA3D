@@ -5,7 +5,6 @@ namespace TA3D
 
 
     Mutex::Mutex()
-        :pLocked(false)
     {
         #ifdef TA3D_PLATFORM_WINDOWS
 		::InitializeCriticalSection(&pCritSection);
