@@ -31,6 +31,7 @@
 #include "EngineClass.h"
 #include "tdf.h"
 #include "tnt.h"
+#include "misc/math.h"
 
 
 namespace TA3D
@@ -315,9 +316,9 @@ namespace TA3D
 
         Console->AddEntry("MAP: creating low definition texture and lava map");
 
-        BITMAP *low_def = create_bitmap_ex(16,min(max_tex_size,map->map_w),min(max_tex_size,map->map_h));
+        BITMAP *low_def = create_bitmap_ex(16, Math::Min(max_tex_size,map->map_w), Math::Min(max_tex_size,map->map_h));
         clear_to_color(low_def,0x0);
-        BITMAP *lava_map = create_bitmap_ex(16,min(map->bloc_w,1024),min(map->bloc_h,1024));
+        BITMAP *lava_map = create_bitmap_ex(16, Math::Min(map->bloc_w,1024), Math::Min(map->bloc_h,1024));
         clear_to_color(lava_map,0x0);
         f_pos=header.PTRmapdata;
         for (y = 0; y < map->bloc_h; ++y)
@@ -465,19 +466,19 @@ namespace TA3D
                     float dz = fabs( map->get_zdec( x, y ) - map->get_zdec( x, y - 1 ) + 8.0f );
                     if( dz == 0.0f )	dz = 100000000.0f;
                     else				dz = 8.0f / dz;
-                    dh = max(dh,(float)fabs(map->h_map[y][x]-map->h_map[y-1][x]) * dz);
+                    dh = Math::Max(dh,(float)fabs(map->h_map[y][x]-map->h_map[y-1][x]) * dz);
                 }
                 if (y + 1 < (map->bloc_h << 1))
                 {
                     float dz = fabs( map->get_zdec( x, y + 1 ) - map->get_zdec( x, y ) + 8.0f );
                     if( dz == 0.0f )	dz = 100000000.0f;
                     else				dz = 8.0f / dz;
-                    dh = max(dh,(float)fabs(map->h_map[y][x]-map->h_map[y+1][x]) * dz);
+                    dh = Math::Max(dh,(float)fabs(map->h_map[y][x]-map->h_map[y+1][x]) * dz);
                 }
                 if (x > 0)
-                    dh = max(dh,(float)fabs(map->h_map[y][x]-map->h_map[y][x-1]));
+                    dh = Math::Max(dh,(float)fabs(map->h_map[y][x]-map->h_map[y][x-1]));
                 if(x + 1 < (map->bloc_w << 1))
-                    dh = max(dh,(float)fabs(map->h_map[y][x]-map->h_map[y][x+1]));
+                    dh = Math::Max(dh,(float)fabs(map->h_map[y][x]-map->h_map[y][x+1]));
                 map->map_data[y][x].dh=dh;
             }
         }

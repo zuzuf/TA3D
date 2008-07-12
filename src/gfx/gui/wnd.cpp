@@ -2,6 +2,7 @@
 #include "../../languages/i18n.h"
 #include "../../ta3dbase.h"
 #include "../../TA3D_Exception.h"
+#include "../../misc/math.h"
 
 
 using namespace TA3D::Exceptions;
@@ -154,7 +155,7 @@ namespace TA3D
             }
             if (show_title && skin->wnd_title_bar.tex)
             {
-                title_h = (int)(max(2 + gui_font.height(), (float)skin->wnd_title_bar.y1) - skin->wnd_title_bar.y2);
+                title_h = (int)(Math::Max(2 + gui_font.height(), (float)skin->wnd_title_bar.y1) - skin->wnd_title_bar.y2);
                 skin->wnd_title_bar.draw(x+3, y+3, x+width-4, y + 3 + title_h * size_factor);
                 gfx->print(gui_font, x + 5 + skin->wnd_title_bar.x1,
                            y + 3 + (title_h - gui_font.height()) * 0.5f * size_factor,
@@ -439,7 +440,7 @@ namespace TA3D
             if (skin)
             {
                 for (unsigned int e = 0 ; e < Objets[i].Text.size() - (1 + Objets[i].Pos) ; ++e)
-                    m_width = max(m_width, gui_font.length(Objets[i].Text[ e ]) * Objets[i].s);
+                    m_width = Math::Max(m_width, gui_font.length(Objets[i].Text[ e ]) * Objets[i].s);
 
                 m_width += skin->menu_background.x1 - skin->menu_background.x2;
             }
@@ -527,7 +528,7 @@ namespace TA3D
                 if (skin)
                 {
                     for (unsigned int e = 0; e < Objets[i].Text.size() - (1 + Objets[i].Pos); ++e)
-                        m_width = max(m_width, gui_font.length(Objets[i].Text[ e ]) * Objets[i].s);
+                        m_width = Math::Max(m_width, gui_font.length(Objets[i].Text[ e ]) * Objets[i].s);
 
                     m_width += skin->menu_background.x1 - skin->menu_background.x2;
                 }
@@ -584,7 +585,7 @@ namespace TA3D
                         if (skin)
                         {
                             for (unsigned int e = 0; e < Objets[i].Text.size() - (1 + Objets[i].Pos); ++e)
-                                m_width = max(m_width, gui_font.length(Objets[i].Text[e]) * Objets[i].s);
+                                m_width = Math::Max(m_width, gui_font.length(Objets[i].Text[e]) * Objets[i].s);
 
                             m_width += skin->menu_background.x1 - skin->menu_background.x2;
                         }
@@ -837,7 +838,7 @@ namespace TA3D
                                 if (skin)
                                 {
                                     for (unsigned int e = 0 ; e < Objets[i].Text.size() - (1 + Objets[i].Pos) ; e++)
-                                        m_width = max(m_width, gui_font.length(Objets[i].Text[ e ]) * Objets[i].s);
+                                        m_width = Math::Max(m_width, gui_font.length(Objets[i].Text[ e ]) * Objets[i].s);
 
                                     m_width += skin->menu_background.x1 - skin->menu_background.x2;
                                 }
@@ -1089,7 +1090,7 @@ namespace TA3D
             int W  = (int)(wndFile->PullAsInt(obj_key + "common.width")  * x_factor - 1);
             int H  = (int)(wndFile->PullAsInt(obj_key + "common.height") * y_factor - 1);
 
-            //float size = min(x_factor, y_factor);
+            //float size = Math::Min(x_factor, y_factor);
             uint32 obj_flags = 0;
 
             if (X1 < 0)
@@ -1300,7 +1301,7 @@ namespace TA3D
                 float X2 = wndFile->PullAsFloat(obj_key + "x2") * x_factor;
                 float Y2 = wndFile->PullAsFloat(obj_key + "y2") * y_factor;
                 String caption = I18N::Translate(wndFile->PullAsString(obj_key + "caption"));
-                float size = wndFile->PullAsFloat(obj_key + "size", 1.0f) * min(x_factor, y_factor);
+                float size = wndFile->PullAsFloat(obj_key + "size", 1.0f) * Math::Min(x_factor, y_factor);
                 int val = wndFile->PullAsInt(obj_key + "value");
                 uint32 obj_flags = 0;
                 uint32 obj_negative_flags = 0;

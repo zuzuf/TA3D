@@ -19,6 +19,8 @@
 #include "../TA3D_NameSpace.h"
 #include "../TA3D_hpi.h"
 #include "TA3D_Network.h"
+#include "../misc/math.h"
+
 
 using namespace TA3D::UTILS::HPI;
 
@@ -700,7 +702,8 @@ namespace TA3D
         return -1;
     }
 
-    int Network::sendFile(int player, const String &filename, const String &port){
+    int Network::sendFile(int player, const String &filename, const String &port)
+    {
         ftmutex.lock();
         SendFileThread *thread = new SendFileThread();
         sendfile_thread.push_back( thread );
@@ -719,7 +722,8 @@ namespace TA3D
     }
 
 
-    int Network::getNextSpecial(struct chat* chat){
+    int Network::getNextSpecial(struct chat* chat)
+    {
         int v;
         xqmutex.lock();
         v = specialq.dequeue(chat);
@@ -727,7 +731,8 @@ namespace TA3D
         return v;
     }
 
-    int Network::getNextChat(struct chat* chat){
+    int Network::getNextChat(struct chat* chat)
+    {
         int v;
         cqmutex.lock();
         v = chatq.dequeue(chat);
@@ -735,7 +740,8 @@ namespace TA3D
         return v;
     }
 
-    int Network::getNextOrder(struct order* order){
+    int Network::getNextOrder(struct order* order)
+    {
         int v;
         oqmutex.lock();
         v = orderq.dequeue(order);
@@ -743,7 +749,8 @@ namespace TA3D
         return v;
     }
 
-    int Network::getNextSync(struct sync* sync){
+    int Network::getNextSync(struct sync* sync)
+    {
         int v;
         sqmutex.lock();
         v = syncq.dequeue(sync);
@@ -751,7 +758,8 @@ namespace TA3D
         return v;
     }
 
-    int Network::getNextEvent(struct event* event){
+    int Network::getNextEvent(struct event* event)
+    {
         int v;
         eqmutex.lock();
         v = eventq.dequeue(event);
@@ -759,13 +767,14 @@ namespace TA3D
         return v;
     }
 
-    String Network::getFile(int player, const String &filename){
+    String Network::getFile(int player, const String &filename)
+    {
         ftmutex.lock();
 
         int port = 7776;						// Take the next port not in use
         for (std::list< GetFileThread* >::iterator i = getfile_thread.begin() ; i != getfile_thread.end() ; i++ )
-            port = max( (*i)->port, port ) ;
-        port++;
+            port = Math::Max((*i)->port, port) ;
+        ++port;
 
         GetFileThread *thread = new GetFileThread();
         thread->port = port;

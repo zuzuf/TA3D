@@ -6,6 +6,7 @@
 #include "../../console.h"
 #include "../../TA3D_NameSpace.h"
 #include "../../gui.h"
+#include "../../misc/math.h"
 
 
 using namespace TA3D::Exceptions;
@@ -255,7 +256,7 @@ namespace TA3D
         {
             int area_width = areaFile->PullAsInt("area.width", SCREEN_W);
             int area_height = areaFile->PullAsInt("area.height", SCREEN_W);
-            float skin_scale = min((float)SCREEN_H / area_height, (float)SCREEN_W / area_width);
+            float skin_scale = Math::Min((float)SCREEN_H / area_height, (float)SCREEN_W / area_width);
             skin = new SKIN();
             skin->load_tdf(skin_name, skin_scale);
         }

@@ -4,6 +4,7 @@
 #include "../../gfx/fx.h"
 #include "../../misc/camera.h"
 #include <list>
+#include "../../misc/math.h"
 
 
 
@@ -286,7 +287,7 @@ namespace TA3D
                        && units.unit[hit_idx].owner_id!=units.unit[shooter_idx].owner_id)		// Non,non les unités que l'on se détruit ne comptent pas dans le nombre de tués mais dans les pertes
                         players.kills[units.unit[shooter_idx].owner_id]++;
                     if(units.unit[hit_idx].hp<=0.0f)
-                        units.unit[hit_idx].severity=max(units.unit[hit_idx].severity, (int)damage);
+                        units.unit[hit_idx].severity = Math::Max(units.unit[hit_idx].severity, (int)damage);
 
                     if( network_manager.isConnected() )			// Send damage event
                         g_ta3d_network->sendDamageEvent( hit_idx, damage );
@@ -429,7 +430,7 @@ namespace TA3D
                                        && units.unit[t_idx].owner_id!=units.unit[shooter_idx].owner_id)		// Non,non les unités que l'on se détruit ne comptent pas dans le nombre de tués mais dans les pertes
                                         players.kills[units.unit[shooter_idx].owner_id]++;
                                     if(units.unit[t_idx].hp<=0.0f)
-                                        units.unit[t_idx].severity = max(units.unit[t_idx].severity,(int)cur_damage);
+                                        units.unit[t_idx].severity = Math::Max(units.unit[t_idx].severity,(int)cur_damage);
 
                                     if( network_manager.isConnected() )			// Send damage event
                                         g_ta3d_network->sendDamageEvent( t_idx, cur_damage );
@@ -643,7 +644,7 @@ namespace TA3D
                     Up.unit();
                     if( damage < 0 )
                         damage = weapon_manager.weapon[weapon_id].damage;
-                    Up = min( damage / 60.0f + weapon_manager.weapon[weapon_id].firestarter / 200.0f + weapon_manager.weapon[weapon_id].areaofeffect / 40.0f, 1.0f ) * Up;		// Variable width!!
+                    Up = Math::Min(damage / 60.0f + weapon_manager.weapon[weapon_id].firestarter / 200.0f + weapon_manager.weapon[weapon_id].areaofeffect / 40.0f, 1.0f) * Up; // Variable width!!
                     glDisable(GL_CULL_FACE);
                     glEnable(GL_BLEND);
                     glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);

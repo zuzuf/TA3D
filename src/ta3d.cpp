@@ -35,6 +35,7 @@
 #include <vector>
 #include "jpeg/ta3d_jpg.h"
 #include "ingame/menus/statistics.h"
+#include "misc/math.h"
 
 
 #ifndef SCROLL_SPEED
@@ -622,13 +623,13 @@ int play(GameData *game_data)
             if( (msec_timer - cam_def_timer) * Conv < 0.5f )
                 camera_zscroll = old_zscroll;
 
-            float angle_factor = max( fabs(-lp_CONFIG->camera_def_angle+45.0f) / 20.0f, fabs(-lp_CONFIG->camera_def_angle+90.0f) / 25.0f );
+            float angle_factor = Math::Max(fabs(-lp_CONFIG->camera_def_angle+45.0f) / 20.0f, fabs(-lp_CONFIG->camera_def_angle+90.0f) / 25.0f);
 
             r1 = -lp_CONFIG->camera_def_angle + camera_zscroll * angle_factor;
             if( r1 > -45.0f ) 		r1 = -45.0f;
             else if( r1 < -90.0f )	r1 = -90.0f;
 
-            cam_h = lp_CONFIG->camera_def_h + (exp(-camera_zscroll * 0.15f) - 1.0f) / (exp(3.75f) - 1.0f) * max(map->map_w,map->map_h);
+            cam_h = lp_CONFIG->camera_def_h + (exp(-camera_zscroll * 0.15f) - 1.0f) / (exp(3.75f) - 1.0f) * Math::Max(map->map_w,map->map_h);
             if( delta > 0 && !IsOnGUI )
             {
                 if( !cam_has_target || abs( mouse_x - cam_target_mx ) > 2 || abs( mouse_y - cam_target_my ) > 2 )
@@ -934,7 +935,7 @@ int play(GameData *game_data)
                 h=map->sealvl;
             for( int i = 0 ; i < 20 ; i++ )				// Increase precision
                 for( float T = 0.0f ; T < dt ; T += 0.1f )
-                    cam.rpos.y+=(h+cam_h-cam.rpos.y) * min( dt - T, 0.1f );
+                    cam.rpos.y+=(h+cam_h-cam.rpos.y) * Math::Min(dt - T, 0.1f);
         }
         else {
             if(key[KEY_UP])
@@ -1293,21 +1294,22 @@ int play(GameData *game_data)
             sel_x[1] = ((int)(target.x)+map->map_w_d)>>3;
             sel_y[1] = ((int)(target.z)+map->map_h_d)>>3;
 
-            int d = max( abs( sel_x[1] - sel_x[0] ), abs( sel_y[1] - sel_y[0] ) );
+            int d = Math::Max( abs( sel_x[1] - sel_x[0] ), abs( sel_y[1] - sel_y[0] ) );
 
             int ox = sel_x[0] + 0xFFFF;
             int oy = sel_y[0] + 0xFFFF;
 
-            for( int c = 0 ; c <= d ; c++ ) {
-                target.x = sel_x[0] + (sel_x[1] - sel_x[0]) * c / max( d, 1 );
-                target.z = sel_y[0] + (sel_y[1] - sel_y[0]) * c / max( d, 1 );
+            for (int c = 0; c <= d; ++c)
+            {
+                target.x = sel_x[0] + (sel_x[1] - sel_x[0]) * c / Math::Max(d, 1);
+                target.z = sel_y[0] + (sel_y[1] - sel_y[0]) * c / Math::Max(d, 1);
 
                 if( abs( ox - (int)target.x ) < unit_manager.unit_type[ build ].FootprintX
                     && abs( oy - (int)target.z ) < unit_manager.unit_type[ build ].FootprintZ )	continue;
                 ox = (int)target.x;
                 oy = (int)target.z;
 
-                target.y=max(map->get_max_rect_h((int)target.x,(int)target.z, unit_manager.unit_type[ build ].FootprintX, unit_manager.unit_type[ build ].FootprintZ ),map->sealvl);
+                target.y = Math::Max(map->get_max_rect_h((int)target.x,(int)target.z, unit_manager.unit_type[ build ].FootprintX, unit_manager.unit_type[ build ].FootprintZ ),map->sealvl);
                 target.x = target.x * 8.0f - map->map_w_d;
                 target.z = target.z * 8.0f - map->map_h_d;
 
@@ -1337,13 +1339,14 @@ int play(GameData *game_data)
 
         if( build == -1 )	build_order_given = false;
 
-        if(cursor_type!=CURSOR_DEFAULT && mouse_b!=2 && omb3 ==2 && !IsOnGUI && TA3D_SHIFT_PRESSED ) {					// Remove commands from queue
+        if (cursor_type!=CURSOR_DEFAULT && mouse_b!=2 && omb3 ==2 && !IsOnGUI && TA3D_SHIFT_PRESSED) // Remove commands from queue
+        {
             VECTOR target = cursor_on_map(&cam,map);
-            target.x=((int)(target.x)+map->map_w_d)>>3;
-            target.z=((int)(target.z)+map->map_h_d)>>3;
-            target.x=target.x*8.0f-map->map_w_d;
-            target.z=target.z*8.0f-map->map_h_d;
-            target.y=max(map->get_unit_h(target.x,target.z),map->sealvl);
+            target.x = ((int)(target.x)+map->map_w_d) >> 3;
+            target.z = ((int)(target.z)+map->map_h_d) >> 3;
+            target.x = target.x*8.0f-map->map_w_d;
+            target.z = target.z*8.0f-map->map_h_d;
+            target.y = Math::Max(map->get_unit_h(target.x,target.z),map->sealvl);
             units.remove_order(players.local_human_id,target);
         }
 
@@ -1352,13 +1355,17 @@ int play(GameData *game_data)
 
         //---------------------------------	Code de sélection d'unités
 
-        if( !IsOnGUI ) {
-            if( mouse_b==2 && omb3!=2 ) {					// Deselect units
+        if( !IsOnGUI )
+        {
+            if( mouse_b==2 && omb3!=2 ) // Deselect units
+            {
                 if( mouse_b == 2 && current_order != SIGNAL_ORDER_NONE && current_order != SIGNAL_ORDER_MOVE )
                     current_order = SIGNAL_ORDER_NONE;
-                else {
+                else
+                {
                     selecting = false;
-                    if( mouse_b == 1 ) {
+                    if( mouse_b == 1 )
+                    {
                         selecting=true;
                         sel_x[0]=mouse_x;
                         sel_y[0]=mouse_y;
@@ -1637,9 +1644,10 @@ int play(GameData *game_data)
 
         cam_h = cam.rpos.y - map->get_unit_h(cam.rpos.x,cam.rpos.z);
 
-        cam.zfar = 600.0f + max( (cam_h-150.0f)*2.0f, 0.0f );
+        cam.zfar = 600.0f + Math::Max((cam_h-150.0f)*2.0f, 0.0f);
 
-        if(freecam && cam.rpos.y<map->sealvl) {
+        if (freecam && cam.rpos.y<map->sealvl)
+        {
             FogD=0.03f;
             FogNear=0.0f;
             FogMode=GL_EXP;
@@ -1649,7 +1657,8 @@ int play(GameData *game_data)
             FogColor[2]=0.3f;
             FogColor[3]=1.0f;
         }
-        else {
+        else
+        {
             FogD=0.3f;
             FogNear=cam.zfar*0.5f;
             FogMode=GL_LINEAR;
@@ -2100,30 +2109,32 @@ int play(GameData *game_data)
                 sel_y[0] = sel_y[1];
             }
 
-            int d = max( abs( sel_x[1] - sel_x[0] ), abs( sel_y[1] - sel_y[0] ) );
+            int d = Math::Max(abs(sel_x[1] - sel_x[0]), abs( sel_y[1] - sel_y[0]));
 
             int ox = sel_x[0] + 0xFFFF;
             int oy = sel_y[0] + 0xFFFF;
 
-            for( int c = 0 ; c <= d ; c++ ) {
-                target.x = sel_x[0] + (sel_x[1] - sel_x[0]) * c / max( d, 1 );
-                target.z = sel_y[0] + (sel_y[1] - sel_y[0]) * c / max( d, 1 );
+            for (int c = 0; c <= d; ++c)
+            {
+                target.x = sel_x[0] + (sel_x[1] - sel_x[0]) * c / Math::Max(d, 1);
+                target.z = sel_y[0] + (sel_y[1] - sel_y[0]) * c / Math::Max(d, 1);
 
                 if( abs( ox - (int)target.x ) < unit_manager.unit_type[ build ].FootprintX
                     && abs( oy - (int)target.z ) < unit_manager.unit_type[ build ].FootprintZ )	continue;
                 ox = (int)target.x;
                 oy = (int)target.z;
 
-                target.y=max(map->get_max_rect_h((int)target.x,(int)target.z, unit_manager.unit_type[ build ].FootprintX, unit_manager.unit_type[ build ].FootprintZ ),map->sealvl);
-                target.x=target.x*8.0f-map->map_w_d;
-                target.z=target.z*8.0f-map->map_h_d;
+                target.y = Math::Max(map->get_max_rect_h((int)target.x,(int)target.z, unit_manager.unit_type[ build ].FootprintX, unit_manager.unit_type[ build ].FootprintZ ),map->sealvl);
+                target.x = target.x * 8.0f - map->map_w_d;
+                target.z = target.z * 8.0f - map->map_h_d;
 
                 can_be_there = can_be_built( target, map, build, players.local_human_id );
 
                 cam.setView();
                 glTranslatef(target.x,target.y,target.z);
                 glScalef(unit_manager.unit_type[build].Scale,unit_manager.unit_type[build].Scale,unit_manager.unit_type[build].Scale);
-                if(unit_manager.unit_type[build].model) {
+                if(unit_manager.unit_type[build].model)
+                {
                     gfx->ReInitAllTex( true );
                     if(can_be_there)
                         glColor4f(1.0f,1.0f,1.0f,1.0f);
@@ -3210,13 +3221,14 @@ int play(GameData *game_data)
                             VECTOR target_pos = units.unit[id].Pos;
                             target_pos.x=((int)(target_pos.x)+map->map_w_d)>>3;
                             target_pos.z=((int)(target_pos.z)+map->map_h_d)>>3;
-                            target_pos.y=max(map->get_max_rect_h((int)target_pos.x,(int)target_pos.z, unit_manager.unit_type[ units.unit[id].type_id ].FootprintX, unit_manager.unit_type[ units.unit[id].type_id ].FootprintZ ),map->sealvl);
+                            target_pos.y=Math::Max(map->get_max_rect_h((int)target_pos.x,(int)target_pos.z, unit_manager.unit_type[ units.unit[id].type_id ].FootprintX, unit_manager.unit_type[ units.unit[id].type_id ].FootprintZ ),map->sealvl);
                             units.unit[id].Pos.y = target_pos.y;
                             units.unit[id].cur_px = (int)target_pos.x;
                             units.unit[id].cur_py = (int)target_pos.z;
                             units.unit[id].draw_on_map();
 
-                            if(unit_manager.unit_type[units.unit[id].type_id].ActivateWhenBuilt ) {		// Start activated
+                            if (unit_manager.unit_type[units.unit[id].type_id].ActivateWhenBuilt)// Start activated
+                            {
                                 units.unit[id].port[ ACTIVATION ] = 0;
                                 units.unit[id].activate();
                             }

@@ -45,14 +45,6 @@
 # endif
 
 
-// The rand() function on Windows platforms should be replaced by something
-// that fits a 32bits integer (it would be slower of course)
-# ifdef TA3D_PLATFORM_WINDOWS
-#   define TA3D_RAND()	(rand() | (rand() << 16))
-# else
-#   define TA3D_RAND()	rand()
-# endif
-
 
 # ifndef TA3D_PLATFORM_MSVC
 #    include <stdint.h>
@@ -140,7 +132,6 @@
 
 # include "misc/string.h"
 
-# include <math.h>
 
 
 // Cire:
@@ -154,39 +145,9 @@ typedef float  real32;
 typedef double real64;
 
 
-#ifdef max
-	#undef max
-#endif
-
-#ifdef min
-	#undef min
-#endif
-
-template<class T> inline T max(T a, T b)	{	return (a > b) ? a : b;	}
-template<class T> inline T min(T a, T b)	{	return (a > b) ? b : a;	}
-
-#define isNaN(x) isnan(x)
 
 #if defined TA3D_PLATFORM_WINDOWS && defined TA3D_PLATFORM_MSVC
-// Cire:
-//  The below functions don't exists within windows math routines.
 	#define strcasecmp(x,xx) _stricmp( x, xx )
-
-	static inline const real32 asinh( const real32 f )
-	{
-		return (real32)log( (real32)(f + sqrt( f * f + 1)) );
-	}
-
-	static inline const real32 acosh( const real32 f )
-	{
-		return (real32)log( (real32)( f + sqrt( f * f- 1)) );
-	}
-
-	static inline const real32 atanh( const real32 f)
-	{
-		return (real32)log( (real32)( (real32)(1.0f / f + 1.0f) /
-			(real32)(1.0f / f - 1.0f))  ) / 2.0f;
-	}
 #endif
 
 #if ((MAKE_VERSION(4, 2, 1) == MAKE_VERSION(ALLEGRO_VERSION, ALLEGRO_SUB_VERSION, ALLEGRO_WIP_VERSION)) && ALLEGRO_WIP_VERSION>0) \

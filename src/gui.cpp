@@ -31,6 +31,7 @@
 #include "gfx/gui/skin.h"
 #include "gfx/gui/skin.object.h"
 #include "gfx/gui/wnd.h"
+#include "misc/math.h"
 
 using namespace TA3D::Exceptions;
 
@@ -456,15 +457,17 @@ void PopupMenu( float x1, float y1, const String &msg, SKIN *skin, float size )
     for( int i = 0 ; i < msg.length() ; i++ )
         if( msg[i] == '\n' ) {
             Entry.push_back( msg.substr( last, i - last ) );
-            x2 = max( x2, x1 + gui_font.length( Entry.back() ) );
+            x2 = Math::Max(x2, x1 + gui_font.length(Entry.back()));
             last = i+1;
         }
-    if( last + 1 < msg.length() ) {
-        Entry.push_back( msg.substr( last, msg.length() - last ) );
-        x2 = max( x2, x1 + gui_font.length( Entry.back() ) );
+    if (last + 1 < msg.length())
+    {
+        Entry.push_back( msg.substr( last, msg.length() - last));
+        x2 = Math::Max(x2, x1 + gui_font.length(Entry.back()));
     }
 
-    if( skin && skin->menu_background.tex ) {
+    if( skin && skin->menu_background.tex )
+    {
         x2 += skin->menu_background.x1 - skin->menu_background.x2;
         float y2 = y1+skin->menu_background.y1-skin->menu_background.y2+gui_font.height()*Entry.size();
         if( x2 >= SCREEN_W ) {
@@ -520,20 +523,22 @@ void FloatMenu( float x, float y, const String::Vector &Entry, int Index, int St
     float old_size = gui_font.get_size();
     gui_font.change_size( size );
 
-    if( skin && skin->menu_background.tex ) {
+    if (skin && skin->menu_background.tex)
+    {
         gfx->set_alpha_blending();
         gfx->set_color( 1.0f, 1.0f, 1.0f, 1.0f );
 
         int i;
         float width = 168.0f * size;
-        for( i=0 ; i<Entry.size() - StartEntry ; i++ )
-            width = max( width, gui_font.length( Entry[ i ] ) );
+        for (i = 0; i < Entry.size() - StartEntry; ++i)
+            width = Math::Max(width, gui_font.length(Entry[i]));
 
         width += skin->menu_background.x1-skin->menu_background.x2;
 
         skin->menu_background.draw( x, y, x + width, y+skin->menu_background.y1-skin->menu_background.y2+gui_font.height()*(Entry.size() - StartEntry) );
 
-        for( i=0 ; i<Entry.size() - StartEntry ; i++ ) {
+        for (i = 0; i < Entry.size() - StartEntry; ++i)
+        {
             int e = i + StartEntry;
             if( e == Index ) {
                 if( skin->selection_gfx.tex )
@@ -546,7 +551,8 @@ void FloatMenu( float x, float y, const String::Vector &Entry, int Index, int St
 
         gfx->unset_alpha_blending();
     }
-    else {
+    else
+    {
         gfx->rectfill(x,y,x+168,y+8+gui_font.height()*(Entry.size() - StartEntry),GrisM);
         gfx->rect(x,y,x+168,y+8+gui_font.height()*(Entry.size() - StartEntry),Noir);
         gfx->rect(x+1,y+1,x+167,y+7+gui_font.height()*(Entry.size() - StartEntry),GrisF);

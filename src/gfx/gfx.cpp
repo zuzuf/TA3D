@@ -31,6 +31,7 @@
 #include "../logs/logs.h"
 #include <allegro/internal/aintern.h>
 #include <strings.h>
+#include "../misc/math.h"
 
 
 
@@ -627,7 +628,7 @@ namespace Interfaces
         if (bmp->w > max_tex_size || bmp->h > max_tex_size )
         {
             BITMAP *tmp = create_bitmap_ex(bitmap_color_depth( bmp ),
-                                           min( bmp->w, max_tex_size ), min( bmp->h, max_tex_size));
+                                           Math::Min(bmp->w, max_tex_size), Math::Min(bmp->h, max_tex_size));
             stretch_blit( bmp, tmp, 0, 0, bmp->w, bmp->h, 0, 0, tmp->w, tmp->h );
             GLuint tex = make_texture( tmp, filter_type, clamp );
             destroy_bitmap( tmp );
@@ -930,7 +931,7 @@ namespace Interfaces
 
         byte *img = new byte[ rw * rh * 5 ];
 
-        float lod_max_f = max( log( rw ), log( rh ) ) / log( 2.0f );
+        float lod_max_f = Math::Max(log(rw), log(rh)) / log(2.0f);
         int lod_max = ((int) lod_max_f);
         if (lod_max > lod_max_f )
             lod_max++;

@@ -34,6 +34,7 @@
 #include "gfx/fx.h"
 #include "misc/lzw.h"					// Support for LZW compression
 #include <list>
+#include "misc/math.h"
 
 byte player_color_map[10] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
 
@@ -1736,9 +1737,9 @@ namespace TA3D
                     sync.build_percent_left = (uint8)(units.unit[ i ].build_percent_left * 2.55f);
 
                     uint32 latest_sync = units.current_tick;
-                    for( int f = 0 ; f < NB_PLAYERS ; f++ )
-                        if( g_ta3d_network->isRemoteHuman( f ) )
-                            latest_sync = min( latest_sync, units.unit[ i ].last_synctick[f] );
+                    for( int f = 0 ; f < NB_PLAYERS ; ++f)
+                        if( g_ta3d_network->isRemoteHuman(f) )
+                            latest_sync = Math::Min(latest_sync, units.unit[ i ].last_synctick[f]);
 
                     if( latest_sync < units.unit[i].previous_sync.timestamp - 10
                         || units.unit[i].previous_sync.flags != sync.flags

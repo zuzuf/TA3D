@@ -148,21 +148,9 @@ namespace TA3D
 
     typedef chat special;
 
-    inline chat* strtochat( struct chat *chat_msg, String msg )
-    {
-        if( chat_msg == NULL )	return chat_msg;
-        memset( chat_msg->message, 0, 253 );
-        memcpy( chat_msg->message, msg.c_str(), min( 253, (int)msg.size() + 1 ) );
-        return chat_msg;
-    }
+    chat* strtochat(struct chat *chat_msg, String msg);
 
-    inline String chattostr( struct chat *chat_msg )
-    {
-        if( chat_msg == NULL )	return "";
-        String msg( chat_msg->message, 253 );
-        msg = msg.c_str();								// Make sure it represents a null terminated string
-        return msg;
-    }
+    String chattostr( struct chat *chat_msg );
 
     //TA3DSock- specialized low-level networking
     //used internally by Network to send the data

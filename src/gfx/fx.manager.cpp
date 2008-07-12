@@ -1,5 +1,6 @@
 
 #include "fx.manager.h"
+#include "../misc/math.h"
 
 
 namespace TA3D
@@ -357,7 +358,7 @@ namespace TA3D
             VECTOR vs(s * cos(a) * cos(b),
                       s * sin(b),
                       s * sin(a) * cos(b));
-            float l = min( 5.0f * vs.y / (the_map->ota_data.gravity + 0.1f), 10.0f);
+            float l = Math::Min(5.0f * vs.y / (the_map->ota_data.gravity + 0.1f), 10.0f);
 
             pParticles.push_back(new FXParticle(p, vs, l));
         }

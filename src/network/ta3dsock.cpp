@@ -17,10 +17,30 @@
 
 #include "../stdafx.h"
 #include "../TA3D_NameSpace.h"
+#include "../misc/math.h"
 
 
 namespace TA3D
 {
+
+
+    chat* strtochat(struct chat *chat_msg, String msg)
+    {
+        if (chat_msg == NULL)
+            return chat_msg;
+        memset( chat_msg->message, 0, 253 );
+        memcpy( chat_msg->message, msg.c_str(), Math::Min(253, (int)msg.size() + 1));
+        return chat_msg;
+    }
+
+    String chattostr(struct chat *chat_msg)
+    {
+        if (chat_msg == NULL)
+            return "";
+        String msg(chat_msg->message, 253);
+        msg = msg.c_str();								// Make sure it represents a null terminated string
+        return msg;
+    }
 
 
     int TA3DSock::Open(const char* hostname,const char* port)
@@ -113,7 +133,8 @@ namespace TA3D
         obp += 1;
     }
 
-    void TA3DSock::putString(const char* x){//null terminated
+    void TA3DSock::putString(const char* x)
+    {
         int n = strlen(x);
         if(n < TA3DSOCK_BUFFER_SIZE - obp - 1)
         {

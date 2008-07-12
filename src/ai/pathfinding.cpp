@@ -31,6 +31,7 @@
 //#include "fbi.h"					// For unit types / Pour la gestion des unités
 //#include "weapons.h"				// For weapons / Pour la gestion des armes
 #include "../EngineClass.h"			// The engine, also includes pathfinding.h / Inclus le moteur(dont le fichier pathfinding.h)
+#include "../misc/math.h"
 
 #define PATHFINDER_MAX_LENGTH			10000
 
@@ -286,7 +287,7 @@ namespace TA3D
         char order_dx[] = { -1, 0, 1, 1, 1, 0, -1, -1 };
         char order_dy[] = { -1, -1, -1, 0, 1, 1, 1, 0 };
 
-        int PATH_MAX_LENGTH = max( 256, min( (int)(sqrt( sq( end_x - start_x ) + sq( end_y - start_y ) ) * 5.0f), PATHFINDER_MAX_LENGTH ) );
+        int PATH_MAX_LENGTH = Math::Max(256, Math::Min((int)(sqrt(sq(end_x - start_x) + sq(end_y - start_y)) * 5.0f), PATHFINDER_MAX_LENGTH));
 
         m_dist *= m_dist;
         m_dist <<= 2;
