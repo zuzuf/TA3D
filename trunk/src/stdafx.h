@@ -92,21 +92,6 @@
 
 
 
-/*
-** The OpenGL library
-*/
-# ifdef TA3D_PLATFORM_DARWIN
-#   include <Headers/glu.h> // see `/System/Library/Frameworks/OpenGL.framework`
-#   include <Headers/gl.h>
-#   include <Headers/glext.h>
-# else
-#   define GL_GLEXT_PROTOTYPES
-#   include <GL/glu.h>
-#   include <GL/gl.h>
-#   include <GL/glx.h>
-#   include <GL/glext.h>
-# endif
-
 
 /*
 ** The Allegro library
@@ -139,6 +124,21 @@
     // now its this way.
 #   include <alleggl.h>
 #endif
+
+/*
+** The OpenGL library
+*/
+# ifdef TA3D_PLATFORM_DARWIN
+#   include <Headers/glu.h> // see `/System/Library/Frameworks/OpenGL.framework`
+#   include <Headers/gl.h>
+#   include <Headers/glext.h>
+# else
+#   define GL_GLEXT_PROTOTYPES
+#   include <GL/glu.h>
+//#   include <GL/gl.h>
+//#   include <GL/glx.h>
+//#   include <GL/glext.h>
+# endif
 
 
 # include "misc/string.h"
