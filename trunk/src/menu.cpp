@@ -962,7 +962,7 @@ void setup_game(bool client, const char *host)
                             for( int i = 0 ; i < 10 ; i++ ) {			// Send player information
                                 if( client && game_data.player_network_id[i] != my_player_id )	continue;		// We don't send updates about things we wan't update
                                 String msg;								// SYNTAX: PLAYER_INFO player_id network_id side_id ai_level metal energy player_name
-                                int side_id = find( side_str, game_data.player_sides[i] );
+                                int side_id = String::FindInList(side_str, game_data.player_sides[i]);
                                 msg = format( "PLAYER_INFO %d %d %d %d %d %d %s %d", 	i, game_data.player_network_id[i],
                                               side_id, (game_data.player_control[i] == PLAYER_CONTROL_NONE || game_data.player_control[i] == PLAYER_CONTROL_CLOSED) ? -1 : game_data.ai_level[i],
                                               game_data.metal[i], game_data.energy[i],
