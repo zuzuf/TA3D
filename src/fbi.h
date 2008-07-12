@@ -690,7 +690,7 @@ public:
             char *f=NULL;
             for (int i = 0; i < nb_unit; ++i)
             {
-                if ((f = strstr((char*)Uppercase(*file).c_str(), unit_type[i].Unitname)))
+                if ((f = strstr((char*)String::ToUpper(*file).c_str(), unit_type[i].Unitname)))
                 {
                     if(f[strlen(unit_type[i].Unitname)]=='.'
                        ||(f[strlen(unit_type[i].Unitname)]>='0' && f[strlen(unit_type[i].Unitname)]<='9'))
@@ -716,7 +716,7 @@ public:
 
         for (String::List::iterator file = file_list.begin();file != file_list.end(); ++file) // Cherche un fichier pouvant contenir des informations sur l'unité unit_name
         {
-            if (strstr(TA3D::Uppercase(*file).c_str(),uprname)) 	// A trouvé un fichier qui convient
+            if (strstr(String::ToUpper(*file).c_str(),uprname)) 	// A trouvé un fichier qui convient
             {
                 byte* data=HPIManager->PullFromHPI(*file);		// Lit le fichier
 

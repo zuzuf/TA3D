@@ -31,17 +31,6 @@ namespace TA3D
 
 
 String
-Uppercase(const String& s)
-{
-    static int (*pf)(int) = toupper;
-    String szResult;
-	szResult.resize( s.length() );
-    std::transform( s.begin(), s.end(), szResult.begin(), pf );
-    return String(szResult);
-}
-
-
-String
 format(const char* fmt, ...)
 {
     if( !fmt )
@@ -100,8 +89,8 @@ SearchString(const String& s, const String& stringToSearch, const bool ignoreCas
 
 	if(ignoreCase)
 	{
-		sz1 = Uppercase(s);
-		sz2 = Uppercase(stringToSearch);
+		sz1 = String::ToUpper(s);
+		sz2 = String::ToUpper(stringToSearch);
 	}
 	else
 	{

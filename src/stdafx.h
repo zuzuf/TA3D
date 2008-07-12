@@ -204,14 +204,6 @@ namespace TA3D
     //! \name String manipulations
     //@{
 
-
-    /*!
-    ** \brief Copy then Convert the case (upper case) of characters in the string
-    ** \param s The string to convert
-    ** \return The new string
-    */
-    String Uppercase(const String& szString);
-	
     String format(const char* fmt, ...);
 	
     /*!
