@@ -638,7 +638,7 @@ namespace Interfaces
         glPushAttrib( GL_ALL_ATTRIB_BITS );
 
         if (ati_workaround && filter_type != FILTER_NONE
-            && ( !IsPowerOfTwo( bmp->w ) || !IsPowerOfTwo( bmp->h ) ) )
+            && ( !Math::IsPowerOfTwo(bmp->w) || !Math::IsPowerOfTwo(bmp->h)))
             filter_type = FILTER_LINEAR;
 
         if (filter_type == FILTER_NONE || filter_type == FILTER_LINEAR )
