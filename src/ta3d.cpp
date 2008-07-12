@@ -34,6 +34,7 @@
 #include <list>
 #include <vector>
 #include "jpeg/ta3d_jpg.h"
+#include "ingame/menus/statistics.h"
 
 
 #ifndef SCROLL_SPEED
@@ -3476,38 +3477,38 @@ int play(GameData *game_data)
             break;
     }
 
-    Console->AddEntry("freeing memory used for the map");
+    LOG_DEBUG("Freeing memory used for the map");
     map->destroy();
     delete map;
-    Console->AddEntry("freeing memory used for 3d models");
+    LOG_DEBUG("Freeing memory used for 3d models");
     model_manager.destroy();
-    Console->AddEntry("freeing memory used for particle engine");
+    LOG_DEBUG("Freeing memory used for particle engine");
     particle_engine.destroy();
-    Console->AddEntry("freeing memory used for ingame units");
+    LOG_DEBUG("Freeing memory used for ingame units");
     units.destroy();
-    Console->AddEntry("freeing memory used for units");
+    LOG_DEBUG("Freeing memory used for units");
     unit_manager.destroy();
-    Console->AddEntry("freeing memory used for weapons");
+    LOG_DEBUG("Freeing memory used for weapons");
     weapons.destroy();
-    Console->AddEntry("freeing memory used for sound");
+    LOG_DEBUG("Freeing memory used for sound");
     sound_manager->StopMusic();
-    Console->AddEntry("freeing memory used for fx");
+    LOG_DEBUG("Freeing memory used for fx");
     fx_manager.destroy();
 
-    Console->AddEntry("freeing memory used for weapon manager");
+    LOG_DEBUG("Freeing memory used for weapon manager");
     weapon_manager.destroy();
 
-    Console->AddEntry("freeing memory used for features");
+    LOG_DEBUG("Freeing memory used for features");
     feature_manager.destroy();
 
-    Console->AddEntry("freeing memory used for ingame features");
+    LOG_DEBUG("Freeing memory used for ingame features");
     features.destroy();
 
-    Console->AddEntry("freeing memory used for textures");
+    LOG_DEBUG("Freeing memory used for textures");
     texture_manager.destroy();
 
     if(!game_data->campaign)
-        stats_menu();
+        Menus::Statistics::Execute();
 
     Console->AddEntry("freeing memory used for players");
     players.destroy();
