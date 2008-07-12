@@ -61,24 +61,6 @@ format(const char* fmt, ...)
 	return s;
 }
 
-String
-TrimString(const String& s, String trimChars)
-{
-    int nPos, rPos;
-	String Result = String(s);
-	// trim left
-	nPos = (int)Result.find_first_not_of(trimChars);
-	if (nPos > 0)
-	    Result.erase(0, nPos);
-	// trim right and return
-	nPos = (int)Result.find_last_not_of(trimChars);
-	rPos = (int)Result.find_last_of(trimChars);
-	if ( rPos > nPos && rPos > -1)
-	    Result.erase(nPos+1, rPos-nPos);
-	return Result;
-}
-
-
 sint32
 SearchString(const String& s, const String& stringToSearch, const bool ignoreCase)
 {

@@ -141,7 +141,7 @@ namespace TA3D
                                 if(( f = strstr(ligne, "=" ))) 	// Read specific damage data
                                 {
                                     String unit_name = String( ligne );
-                                    unit_name = TrimString( unit_name );
+                                    unit_name.trim();
                                     unit_name.resize( unit_name.find( "=" ) );
                                     int dmg = atoi( f + 1 );
                                     weapon[index].damage_hashtable->Insert( unit_name, dmg );
