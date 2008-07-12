@@ -66,7 +66,6 @@ namespace Menus
     {
         // Restore the previous font size
         gfx->TA_font.change_size(pPreviousFontSize);
-        gfx->unset_2D_mode();
         ResetTexture(pBackgroundTexture);
         LOG_DEBUG(TA3D_LOG_SECTION_MENU_INTRO_PREFIX << "Done.");
     }
@@ -98,7 +97,7 @@ namespace Menus
         pContent.clear();
         String::Vector list;
         // A big space before
-        for (int i = 1; i < TA3D_INTRO_MAX_LINES; ++i)
+        for (int i = 1; i < TA3D_INTRO_MAX_LINES - 1; ++i)
             pContent.push_back("");
         // Load all text files
         if (Resources::Glob(list, "intro" + Paths::SeparatorAsString + "*.txt"))
