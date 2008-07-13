@@ -52,10 +52,10 @@ void Timer()            // procédure Timer
 
 END_OF_FUNCTION(Timer)
 
-int expected_players=1;
-int LANG = TA3D_LANG_ENGLISH;
+    int expected_players=1;
+    int LANG = TA3D_LANG_ENGLISH;
 
-namespace TA3D
+    namespace TA3D
 {
     namespace VARS
     {
@@ -126,11 +126,8 @@ void LoadConfigFile( void )
 int main(int argc, char* argv[])
 {
     Logs::level = LOG_LEVEL_DEBUG;
-    // Starting
-    LOG_INFO("*** Welcome to TA3D ***");
-
     // Load and prepare output directories
-    if (!TA3D::Paths::Initialize(argc, argv))
+    if (!TA3D::Paths::Initialize(argc, argv, "3dmeditor"))
         return 1;
     TA3D::Resources::Initialize();
 
@@ -460,7 +457,7 @@ int main(int argc, char* argv[])
         gfx->set_2D_mode();		// Passe en mode dessin allegro
 
         String help_msg = "";
-            EditWnd.draw( help_msg );				// Dessine la fenêtre d'édition
+        EditWnd.draw( help_msg );				// Dessine la fenêtre d'édition
         MainWnd.draw( help_msg );				// Dessine la fenêtre de la barre de menus
 
         glEnable(GL_TEXTURE_2D);			// Affiche le nombre d'images par secondes
@@ -505,12 +502,12 @@ int main(int argc, char* argv[])
 }
 END_OF_MAIN()
 
-/*------------------------------------------------------------------------------------\
-  |                                  void SurfEdit()                                    |
-  |         Cette fonction affiche une fenêtre permettant à l'utilisateur d'éditer la   |
-  | surface de la partie sélectionnée ou de toute autre partie de la meshe.             |
-  |                                                                                     |
-  \------------------------------------------------------------------------------------*/
+    /*------------------------------------------------------------------------------------\
+      |                                  void SurfEdit()                                    |
+      |         Cette fonction affiche une fenêtre permettant à l'utilisateur d'éditer la   |
+      | surface de la partie sélectionnée ou de toute autre partie de la meshe.             |
+      |                                                                                     |
+      \------------------------------------------------------------------------------------*/
 
 void S_MPart_Sel(int mnu_index)
 {
@@ -704,12 +701,14 @@ void SurfEdit()
             obj_table[cur_part]->animation_data->translate_w = atof( SEdit.Objets[57].Text[0].c_str());
         }
 
-        if( SEdit.Objets[58].Etat && !(obj_table[cur_part]->surface.Flag&SURFACE_TEXTURED) ) {
+        if( SEdit.Objets[58].Etat && !(obj_table[cur_part]->surface.Flag&SURFACE_TEXTURED) )
+        {
             obj_geo_optimize( cur_part, true );
             obj_maj_normal( cur_part );
         }
 
-        if(SEdit.Objets[28].Text[0] != SEdit.Objets[28].Text[cur_part+1]) {		// Si l'utilisateur a sélectionné une partie
+        if (SEdit.Objets[28].Text[0] != SEdit.Objets[28].Text[cur_part+1]) // Si l'utilisateur a sélectionné une partie
+        {
             SEdit.Objets[19].Etat=obj_table[cur_part]->surface.Flag&SURFACE_GOURAUD;
             SEdit.Objets[20].Etat=obj_table[cur_part]->surface.Flag&SURFACE_LIGHTED;
             SEdit.Objets[21].Etat=obj_table[cur_part]->surface.Flag&SURFACE_TEXTURED;
@@ -727,7 +726,8 @@ void SurfEdit()
             SEdit.Objets[16].Text[0] = format("%d",(int)(obj_table[cur_part]->surface.RColor[2]*255.0f));
             SEdit.Objets[18].Text[0] = format("%d",(int)(obj_table[cur_part]->surface.RColor[3]*255.0f));
 
-            if( obj_table[cur_part]->animation_data ) {
+            if( obj_table[cur_part]->animation_data )
+            {
                 SEdit.Objets[39].set_caption( format( "%f", obj_table[cur_part]->animation_data->angle_0.x ) );
                 SEdit.Objets[40].set_caption( format( "%f", obj_table[cur_part]->animation_data->angle_0.y ) );
                 SEdit.Objets[41].set_caption( format( "%f", obj_table[cur_part]->animation_data->angle_0.z ) );
@@ -755,7 +755,8 @@ void SurfEdit()
                 SEdit.Objets[36].Etat = obj_table[cur_part]->animation_data->type & TRANSLATION_PERIODIC;
                 SEdit.Objets[37].Etat = obj_table[cur_part]->animation_data->type & TRANSLATION_COSINE;
             }
-            else {
+            else
+            {
                 SEdit.Objets[39].set_caption( "0" );
                 SEdit.Objets[40].set_caption( "0" );
                 SEdit.Objets[41].set_caption( "0" );
@@ -797,7 +798,8 @@ void SurfEdit()
         obj_table[cur_part]->surface.Color[2]=atoi(SEdit.Objets[7].Text[0].c_str())/255.0f;
         obj_table[cur_part]->surface.Color[3]=atoi(SEdit.Objets[9].Text[0].c_str())/255.0f;
         // Modifie la couleur de réflexion
-        if(SEdit.Objets[10].Etat) {
+        if(SEdit.Objets[10].Etat)
+        {
             obj_table[cur_part]->surface.Flag|=SURFACE_REFLEC;
             obj_table[cur_part]->surface.RColor[0]=atoi(SEdit.Objets[12].Text[0].c_str())/255.0f;
             obj_table[cur_part]->surface.RColor[1]=atoi(SEdit.Objets[14].Text[0].c_str())/255.0f;
@@ -847,13 +849,15 @@ void SurfEdit()
         gfx->set_2D_mode();		// Passe en mode dessin allegro
 
         String help_msg = "";
-            SEdit.draw( help_msg );				// Dessine la fenêtre d'édition
+        SEdit.draw( help_msg );				// Dessine la fenêtre d'édition
 
         // Dessine les textures utilisées par la surface
-        if(obj_table[cur_part]->surface.NbTex>0) {
+        if(obj_table[cur_part]->surface.NbTex>0)
+        {
             glEnable(GL_TEXTURE_2D);
             glColor3f(1.0f,1.0f,1.0f);
-            for(int i=0;i<obj_table[cur_part]->surface.NbTex;i++) {
+            for(int i=0;i<obj_table[cur_part]->surface.NbTex;i++) 
+            {
                 glBindTexture(GL_TEXTURE_2D,obj_table[cur_part]->surface.gltex[i]);
                 glBegin(GL_QUADS);
                 glTexCoord2f(0.0f,0.0f);	glVertex2f(200+64*i,200);
@@ -867,13 +871,17 @@ void SurfEdit()
         glDisable(GL_TEXTURE_2D);
         int index=-1;
         if(mouse_y>=200 && mouse_y<=263)
-            if(mouse_x>=200 && mouse_x<=711) {
+        {
+            if(mouse_x>=200 && mouse_x<=711)
+            {
                 index=(mouse_x-200)>>6;
                 if(index>=8) index=-1;
             }
+        }
 
         glBegin(GL_LINES);
-        for(int i=0;i<8;i++) {
+        for(int i=0;i<8;i++)
+        {
             if(i==index)
                 glColor3f(1.0f,0.0f,0.0f);
             else
@@ -891,11 +899,14 @@ void SurfEdit()
 
         gfx->unset_2D_mode();	// Quitte le mode de dessin d'allegro
 
-        if(index!=-1 && amb!=mouse_b && mouse_b==1) {		// L'utilisateur veut choisir une texture
+        if(index!=-1 && amb!=mouse_b && mouse_b==1) // L'utilisateur veut choisir une texture
+        {
             String filename = Dialog( I18N::Translate( "Charger une texture" ).c_str(),"*.*");
             BITMAP *bmp_tex = filename.length()>0 ? load_bitmap(filename.c_str(),NULL) : NULL;
-            if(bmp_tex) {			// Si il s'agit d'ajouter/modifier une texture
-                if(bitmap_color_depth(bmp_tex)==24 || strstr(filename.c_str(),".jpg")!=NULL) {
+            if(bmp_tex) // Si il s'agit d'ajouter/modifier une texture
+            {
+                if(bitmap_color_depth(bmp_tex)==24 || strstr(filename.c_str(),".jpg")!=NULL)
+                {
                     BITMAP *tmp = create_bitmap_ex(32,bmp_tex->w,bmp_tex->h);
                     for(int y=0;y<tmp->h;y++)
                         for(int x=0;x<tmp->w;x++)
@@ -903,7 +914,8 @@ void SurfEdit()
                     destroy_bitmap(bmp_tex);
                     bmp_tex=tmp;
                 }
-                if(index>=obj_table[cur_part]->surface.NbTex) {		// Ajoute la texture
+                if(index>=obj_table[cur_part]->surface.NbTex)// Ajoute la texture
+                {
                     index=obj_table[cur_part]->surface.NbTex;
                     allegro_gl_use_alpha_channel(true);
                     allegro_gl_set_texture_format(GL_RGBA8);
@@ -911,11 +923,12 @@ void SurfEdit()
                     allegro_gl_use_alpha_channel(false);
                     glBindTexture(GL_TEXTURE_2D,obj_table[cur_part]->surface.gltex[index]);
                     glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
-                        glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
+                    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
                     obj_table[cur_part]->surface.NbTex++;
                     destroy_bitmap(bmp_tex);
                 }
-                else {
+                else
+                {
                     glDeleteTextures(1,&obj_table[cur_part]->surface.gltex[index]);
                     allegro_gl_use_alpha_channel(true);
                     allegro_gl_set_texture_format(GL_RGBA8);
@@ -923,23 +936,27 @@ void SurfEdit()
                     allegro_gl_use_alpha_channel(false);
                     glBindTexture(GL_TEXTURE_2D,obj_table[cur_part]->surface.gltex[index]);
                     glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
-                        glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
+                    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
                     destroy_bitmap(bmp_tex);
                 }
             }
-            else if(index<obj_table[cur_part]->surface.NbTex && obj_table[cur_part]->surface.NbTex>0) {		// Sinon on enlève la texture
-                glDeleteTextures(1,&obj_table[cur_part]->surface.gltex[index]);
+            else
+            {
+                if(index<obj_table[cur_part]->surface.NbTex && obj_table[cur_part]->surface.NbTex>0) // Sinon on enlève la texture
+                {
+                    glDeleteTextures(1,&obj_table[cur_part]->surface.gltex[index]);
 
-                obj_table[cur_part]->surface.NbTex--;
-                if(index<obj_table[cur_part]->surface.NbTex)		// Décale les textures si nécessaire
-                    for(int i=index;i<obj_table[cur_part]->surface.NbTex;i++)
-                        obj_table[cur_part]->surface.gltex[i]=obj_table[cur_part]->surface.gltex[i+1];
+                    obj_table[cur_part]->surface.NbTex--;
+                    if(index<obj_table[cur_part]->surface.NbTex)		// Décale les textures si nécessaire
+                        for(int i=index;i<obj_table[cur_part]->surface.NbTex;i++)
+                            obj_table[cur_part]->surface.gltex[i]=obj_table[cur_part]->surface.gltex[i+1];
+                }
             }
         }		// Fin de l'algorithme de sélection de texture
 
         // Affiche
         gfx->flip();
-    }while(!done);
+    } while(!done);
 }					// Fin de l'éditeur de surfaces
 
 /*---------------------------------------------------------------------------------------------------\
@@ -949,7 +966,8 @@ void SurfEdit()
 void SurfPaint(int index)
 {
     // Vérifie s'il y a un pack de texture de sélectionné et si la surface est texturée
-    if(!(obj_table[cur_part]->surface.Flag&SURFACE_TEXTURED)) return;
+    if (!(obj_table[cur_part]->surface.Flag&SURFACE_TEXTURED))
+        return;
 
     WND SPaint;				// Fenêtre d'édition des textures
     SPaint.Title=I18N::Translate( "Peinture de l'objet" ).c_str();
@@ -1101,15 +1119,16 @@ void SurfPaint(int index)
         destroy_bitmap(tmp);
         glBindTexture(GL_TEXTURE_2D,brush_U);
         glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
-            glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
-            glBindTexture(GL_TEXTURE_2D,brush_V);
+        glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
+        glBindTexture(GL_TEXTURE_2D,brush_V);
         glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
-            glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
     }
 
     do
     {
-        if(amb!=1 && STool.Objets[4].Etat && NbH>0) {			// Clic sur annuler
+        if(amb!=1 && STool.Objets[4].Etat && NbH>0) // Clic sur annuler
+        {
             glDeleteTextures(1,&tex);
             tex=CancelH[9];
             for(int i=9;i>10-NbH;i--)
@@ -1146,11 +1165,14 @@ void SurfPaint(int index)
                 STool.Objets[5].Focus=true;
                 tool_tex_size+=(mouse_z-amz)*0.05f;
                 if(tool_tex_size<0.01f)	tool_tex_size=0.01f;
-                if(key[KEY_SPACE] || tool_tex_gl==0) {
+                if(key[KEY_SPACE] || tool_tex_gl==0)
+                {
                     String filename = Dialog( I18N::Translate( "Charger une texture" ).c_str(),"*.*");
                     BITMAP *bmp_tex = filename.length()>0 ? load_bitmap(filename.c_str(),NULL) : NULL;
-                    if(bmp_tex) {			// Si il s'agit d'ajouter/modifier une texture
-                        if(bitmap_color_depth(bmp_tex)==24 || strstr(filename.c_str(),".jpg")!=NULL) {
+                    if(bmp_tex) // Si il s'agit d'ajouter/modifier une texture
+                    {
+                        if (bitmap_color_depth(bmp_tex)==24 || strstr(filename.c_str(),".jpg")!=NULL)
+                        {
                             BITMAP *tmp = create_bitmap_ex(32,bmp_tex->w,bmp_tex->h);
                             for(int y=0;y<tmp->h;y++)
                                 for(int x=0;x<tmp->w;x++)
@@ -1166,18 +1188,19 @@ void SurfPaint(int index)
                         allegro_gl_use_alpha_channel(false);
                         glBindTexture(GL_TEXTURE_2D,tool_tex_gl);
                         glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
-                            glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
+                        glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
                         destroy_bitmap(bmp_tex);
                     }
                 }
                 break;
-        };
+        }
 
         if(SPaint.Objets[12].Etat) 								// Change the texture size
-		{
+        {
             String new_res = GetVal( I18N::Translate( "Nouvelle résolution de la texture" ).c_str() );
             char *new_separator = strstr(new_res.c_str(),"x");
-            if(new_separator) {
+            if(new_separator)
+            {
                 *new_separator=0;
                 int n_w = atoi(new_res.c_str());
                 *new_separator='x';
@@ -1195,7 +1218,7 @@ void SurfPaint(int index)
 
                 glBindTexture(GL_TEXTURE_2D,tex);
                 glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
-                    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
+                glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
 
                 destroy_bitmap(tmp);
             }
@@ -1226,7 +1249,8 @@ void SurfPaint(int index)
         glEnable (GL_COLOR_MATERIAL);
         glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);	// Really Nice Perspective Calculations
 
-        if(SPaint.Objets[2].Etat) {
+        if(SPaint.Objets[2].Etat)
+        {
             SPaint.Objets[2].Etat=false;
             CylinderTexturing(cur_part);
             do
@@ -1234,7 +1258,8 @@ void SurfPaint(int index)
             while(mouse_b!=0);
         }
 
-        if(SCoor.Objets[0].Etat && showcoorwindow) {	// Cache la fenêtre SCoor
+        if(SCoor.Objets[0].Etat && showcoorwindow) // Cache la fenêtre SCoor
+        {
             showcoorwindow=false;
             SCoor.Objets[0].Etat=false;
         }
@@ -1254,13 +1279,15 @@ void SurfPaint(int index)
         if(IsOnGUI && mouse_b!=0)
             Focus=0;
 
-        if(EditMode==EDIT_PAINT && !IsOnGUI) {
+        if(EditMode==EDIT_PAINT && !IsOnGUI)
+        {
             IsOnGUI=STool.check(amx,amy,amz,amb);
             if(IsOnGUI && mouse_b!=0)
                 Focus=2;
         }
 
-        if(showcoorwindow && !IsOnGUI) {
+        if(showcoorwindow && !IsOnGUI)
+        {
             IsOnGUI=SCoor.check(amx,amy,amz,amb);
             if(IsOnGUI && mouse_b!=0)
                 Focus=1;
@@ -1357,34 +1384,39 @@ void SurfPaint(int index)
                                     if(!already)		// L'ajoute si il n'y est pas déjà
                                         Sel[NbSel++]=index;
                                 }
-                                else if(key[KEY_CAPSLOCK]) 	// Retire le triangle de la sélection
+                                else
                                 {
-                                    int pos=-1;				// Cherche la position du triangle
-                                    if(NbSel>0)
-                                        for(int i=0;i<NbSel;i++)
-                                            if(Sel[i]==index)
-                                            {
-                                                pos=i;
-                                                break;
-                                            }
-                                    if(pos!=-1) 	// Si le triangle est présent
+                                    if(key[KEY_CAPSLOCK]) 	// Retire le triangle de la sélection
                                     {
-                                        if(pos+1<NbSel)		// Si ce n'est pas le dernier
-                                            for(int i=pos;i<NbSel-1;i++)	// Décale tout
-                                                Sel[i]=Sel[i+1];
-                                        NbSel--;		// Décrémente le nombre de triangles sélectionnés
+                                        int pos=-1;				// Cherche la position du triangle
+                                        if(NbSel>0)
+                                            for(int i=0;i<NbSel;i++)
+                                                if(Sel[i]==index)
+                                                {
+                                                    pos=i;
+                                                    break;
+                                                }
+                                        if(pos!=-1) 	// Si le triangle est présent
+                                        {
+                                            if(pos+1<NbSel)		// Si ce n'est pas le dernier
+                                                for(int i=pos;i<NbSel-1;i++)	// Décale tout
+                                                    Sel[i]=Sel[i+1];
+                                            NbSel--;		// Décrémente le nombre de triangles sélectionnés
+                                        }
                                     }
-                                }
-                                else {											// Ne sélectionne que ce triangle
-                                    NbSel=1;
-                                    Sel[0]=index;
+                                    else
+                                    {											// Ne sélectionne que ce triangle
+                                        NbSel=1;
+                                        Sel[0]=index;
+                                    }
                                 }
                             }			// Fin de if(mouse_b==1) {
                         }		// Fin de if(index>=0) {
                         }
                         break;
                             case EDIT_PAINT:			// Code pour le dessin
-                        if(mouse_b==1 && NbSel>0) {			// Si il y a une sélection
+                        if(mouse_b==1 && NbSel>0)	// Si il y a une sélection
+                        {
                             VECTOR A,B,O;
                             VECTOR Dir;
                             Cam.setView();
@@ -1426,7 +1458,8 @@ void SurfPaint(int index)
                                 u=B.x*obj_table[cur_part]->tcoord[(p1<<1)]+B.y*obj_table[cur_part]->tcoord[(p2<<1)]+B.z*obj_table[cur_part]->tcoord[(p3<<1)];
                                 v=B.x*obj_table[cur_part]->tcoord[(p1<<1)+1]+B.y*obj_table[cur_part]->tcoord[(p2<<1)+1]+B.z*obj_table[cur_part]->tcoord[(p3<<1)+1];
 
-                                if(u>=0.0f && v>=0.0f && u<1.0f && v<1.0f) {
+                                if(u>=0.0f && v>=0.0f && u<1.0f && v<1.0f)
+                                {
                                     GLint tex_w,tex_h;
                                     BITMAP *n_tex = read_tex(tex);
                                     tex_w=n_tex->w;
@@ -1524,7 +1557,7 @@ void SurfPaint(int index)
                                                 destroy_bitmap(brush);
                                             }
                                             break;
-                                    };
+                                    }
 
                                     glDeleteTextures(1,&tex);
                                     allegro_gl_use_alpha_channel(true);
@@ -1532,7 +1565,7 @@ void SurfPaint(int index)
                                     allegro_gl_use_alpha_channel(false);
                                     glBindTexture(GL_TEXTURE_2D,tex);
                                     glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
-                                        glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
+                                    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
                                     destroy_bitmap(n_tex);
 
                                     obj_table[cur_part]->surface.gltex[0]=tex;
@@ -1546,14 +1579,15 @@ void SurfPaint(int index)
                         else
                             startline=true;
                         break;
-                        };
+                        }
 
                         gfx->set_2D_mode();		// Passe en mode dessin allegro
 
                         String help_msg = "";
-                            SPaint.draw( help_msg, Focus==0);		// Dessine la fenêtre d'édition
+                        SPaint.draw( help_msg, Focus==0);		// Dessine la fenêtre d'édition
 
-                        if(EditMode==EDIT_PAINT) {
+                        if(EditMode==EDIT_PAINT)
+                        {
                             STool.draw( help_msg, Focus==2);		// Dessine la boîte à outils
 
                             float r=getr32(PColor)/255.0f,g=getg32(PColor)/255.0f,b=getb32(PColor)/255.0f,a=geta32(PColor)/255.0f;
@@ -1579,7 +1613,8 @@ void SurfPaint(int index)
                             glColor3f(r,g,0.0f);	glVertex2f(STool.x+10,STool.y+143);
 
                             if(IsOnGUI)			// Sélection de la couleur ?
-                                if(mouse_x>=STool.x+10 && mouse_x<=STool.x+80 && mouse_y>=STool.y+112 && mouse_y<=STool.y+143) {
+                                if(mouse_x>=STool.x+10 && mouse_x<=STool.x+80 && mouse_y>=STool.y+112 && mouse_y<=STool.y+143)
+                                {
                                     if(mouse_y>=STool.y+112 && mouse_y<=STool.y+119)
                                         a=(mouse_x-STool.x-10)/70.0f;
                                     if(mouse_y>=STool.y+120 && mouse_y<=STool.y+127)
@@ -1640,12 +1675,13 @@ void SurfPaint(int index)
                                     glDisable(GL_TEXTURE_2D);
                                     glDisable(GL_BLEND);
                                     break;
-                            };
+                            }
                         }		// Fin de if(EditMode==EDIT_PAINT) {
 
-                        if(showcoorwindow) {				// Dessine la fenêtre de plaquage de texture
+                        if(showcoorwindow)	// Dessine la fenêtre de plaquage de texture
+                        {
                             String help_msg = "";
-                                SCoor.draw( help_msg, screen, Focus==1 );
+                            SCoor.draw( help_msg, screen, Focus==1 );
                             gfx->unset_2D_mode();
                             gfx->set_2D_mode();
                             glEnable(GL_TEXTURE_2D);
@@ -1695,9 +1731,10 @@ void SurfPaint(int index)
 
                         // Affiche
                         gfx->flip();
-                    }while(!done);
+                    } while(!done);
 
-                        if(g_useProgram && g_useFBO) {
+                        if(g_useProgram && g_useFBO)
+                        {
                             glDeleteFramebuffersEXT(1,&brush_FBO);
                             glDeleteRenderbuffersEXT(1,&zbuf);
                             glDeleteTextures(1,&brush_U);
@@ -1712,7 +1749,8 @@ void SurfPaint(int index)
 
                         cur_data.destroy();
 
-                        for(int i=0;i<10;i++) {			// Libère la mémoire allouée pour les bitmaps de l'historique
+                        for(int i=0;i<10;i++) // Libère la mémoire allouée pour les bitmaps de l'historique
+                        {
                             if(CancelH[i])
                                 glDeleteTextures(1,&(CancelH[i]));
                         }

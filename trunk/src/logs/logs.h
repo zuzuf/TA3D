@@ -6,6 +6,7 @@
 # include <cstring>
 # include <time.h>
 # include <errno.h>
+# include <string>
 # include "../threads/mutex.h"
 
 
@@ -34,7 +35,7 @@
                                     Logs::logger() << "Constraint: " << #X << Logs::critical; \
                                     exit(120); \
                                 } \
-                            } while(0)
+                                } while(0)
 # else
 #   define LOG_ASSERT(X)
 # endif
@@ -217,6 +218,7 @@ namespace Logs
 	** 	 logger().callbackOutput(&my_callback); // Output via the callback AND std::cerr
 	** 	 logger().streamOutput(NULL); // Do not output on std::cerr anymore
 	** 	 logger().callbackOutput(NULL); // Do not output anything anymore.
+    ** 	 logger().writeToFile("output.log"); // Redirect the output to a file
 	**    
 	**   When writing your callback, please do not use the Logs::logger(), as it is locked,
 	**   and this will enter a deadlock, followed by the death of your
@@ -231,7 +233,7 @@ namespace Logs
 	private:
 
 		//! \brief Where do we output ? Anything which is an std::ostream. (cout, cerr, ostringstream...)
-		std::ostream *  pOut;
+		std::ostream*   pOut;
 		Callback        pCallback;
         TA3D::Mutex     pMutex;
 	public:
@@ -244,15 +246,19 @@ namespace Logs
 		**/
 		void callbackOutput(Callback callback);
 
+        /*!
+        ** \brief Redirect the output to a file
+        ** \param filename The filename
+        ** \return True if the operation succeeded, False otherwise
+        */
+        bool writeToFile(const std::string& filename);
 
-		/*!
-		** \brief Modify the output stream.
-		** \param stream The new output ostream. NULL means no stream output.
-		** 
-		** You can modify the output of the logger at any time.
-		**/
-		void streamOutput(std::ostream *stream);
-
+        /*!
+        ** \brief Close the file where the output was redirected
+        **
+        ** This method can be safely called at any time
+        */
+        void closeFile();
 
 		/*!
 		** \brief Locks the object.
@@ -266,9 +272,9 @@ namespace Logs
 
 
 		/*!
-		** \brief Constructor: you can pass a stream, and a callback, by default it is std::cout and NULL
+		** \brief Constructor: you can pass a stream, and a callback
 		**/
-		Log(std::ostream * outstream = &std::cerr, Callback = 0);
+		Log(std::ostream * outstream = NULL, Callback = 0);
 
 
 		/*!
@@ -280,7 +286,9 @@ namespace Logs
 		    *((std::ostringstream*)this) << val;
             return *this;
         }
-	};
+
+	}; // class Log
+
 
 	//! Used to make the line terminator Log::debug
 	extern LogDebugMsg debug;

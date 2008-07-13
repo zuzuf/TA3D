@@ -31,6 +31,9 @@ namespace Paths
 
     //! Folder for logs
     extern String Logs;
+    //! Current log file
+    //! \see Logs::writeToFile()
+    extern String LogFile;
 
     //! Folder for preferences
     extern String Preferences;
@@ -194,9 +197,12 @@ namespace Paths
     /*!
     ** \brief Load all informations about paths
     **
+    ** \param programName Arbitrary name for the program. It will be used
+    ** to create the log file.
+    **
     ** return False if any error has occured
     */
-    bool Initialize(int argc, char* argv[]);
+    bool Initialize(int argc, char* argv[], const String& programName);
 
 
 } // namespace Paths
