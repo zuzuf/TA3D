@@ -7,7 +7,7 @@
 #include "../languages/i18n.h"
 #include "resources.h"
 #include <stdlib.h>
-#include "../TA3D_Namespace.h"
+#include "../TA3D_NameSpace.h"
 
 
 
