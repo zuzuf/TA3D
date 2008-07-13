@@ -160,6 +160,11 @@ namespace TA3D
             return;
         }
         int img = (int)round((time * 15.0f));
+        if (img >= anims[anm]->nb_bmp )
+        {
+            playing = false;
+            return;
+        }
         float wsize = size * anims[anm]->w[img];
         float hsize = size * anims[anm]->h[img];
         glBindTexture(GL_TEXTURE_2D,anims[anm]->glbmp[img]);
