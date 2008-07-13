@@ -10,7 +10,8 @@ SET(SOURCES string.h string.cpp
             lzw.h lzw.cpp
             hash_table.h hashtable.hxx
             superqueue.h superqueue.cpp
-            osinfo.h osinfo.cpp)
+            osinfo.h osinfo.cpp
+            application.h application.cpp)
 
 ADD_LIBRARY(misc STATIC ${SOURCES})
 

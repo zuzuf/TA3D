@@ -36,8 +36,7 @@
 #include <vector>
 #include "languages/i18n.h"
 #include "gfx/gui/wnd.h"
-#include "misc/osinfo.h"
-
+#include "misc/application.h"
 
 
 #define precision	MSEC_TO_TIMER(1)
@@ -126,15 +125,8 @@ void LoadConfigFile( void )
 
 int main(int argc, char* argv[])
 {
-    Logs::level = LOG_LEVEL_DEBUG;
-    // Load and prepare output directories
-    if (!TA3D::Paths::Initialize(argc, argv, "3dmeditor"))
-        return 1;
-    TA3D::Resources::Initialize();
-    allegro_init();
-    TA3D::System::DisplayInformations();
-    TA3D::System::DisplayInformationsAboutAllegro();
-
+    // Initialize all modules used by ta3d
+    TA3D::Initialize(argc, argv, "3dmeditor");
 
     try
     {
@@ -495,12 +487,6 @@ int main(int argc, char* argv[])
     delete gfx;
 
     delete Console;
-
-    delete TA3D::VARS::lp_CONFIG;
-
-    I18N::Destroy();
-
-    allegro_exit();
 
     return 0;
 }
