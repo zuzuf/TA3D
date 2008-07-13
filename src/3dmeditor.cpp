@@ -36,6 +36,7 @@
 #include <vector>
 #include "languages/i18n.h"
 #include "gfx/gui/wnd.h"
+#include "misc/osinfo.h"
 
 
 
@@ -130,6 +131,9 @@ int main(int argc, char* argv[])
     if (!TA3D::Paths::Initialize(argc, argv, "3dmeditor"))
         return 1;
     TA3D::Resources::Initialize();
+    allegro_init();
+    TA3D::System::DisplayInformations();
+    TA3D::System::DisplayInformationsAboutAllegro();
 
 
     try

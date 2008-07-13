@@ -36,6 +36,7 @@
 #include "ingame/menus/intro.h"
 #include "ingame/menus/mainmenu.h"
 #include "languages/i18n.h"
+#include "misc/osinfo.h"
 
 
 
@@ -159,7 +160,6 @@ int ParseCommandLine(int argc, char *argv[])
         if( !strcmp( argv[ i ], "--quick-restart")) // Quick restart mecanism (bypass the intro screen)
         {
             lp_CONFIG->quickstart = true;
-            allegro_init();
             TA3D::Settings::Restore(TA3D::Paths::ConfigFile);		// In case it refuses to restart
             allegro_exit();
         }
@@ -189,6 +189,9 @@ int main(int argc, char *argv[])
     if (!TA3D::Paths::Initialize(argc, argv, "ta3d"))
         return 1;
     TA3D::Resources::Initialize();
+    allegro_init();
+    TA3D::System::DisplayInformations();
+    TA3D::System::DisplayInformationsAboutAllegro();
 
     // Initialize signals
     init_signals();
@@ -211,7 +214,6 @@ int main(int argc, char *argv[])
 
     GuardStart( main );
     TA3D::Settings::Load(); /* Load Config File */
-    allegro_init();
     TA3D_clear_cache();
     allegro_exit();
     GuardCatch();
