@@ -184,6 +184,8 @@ namespace UTILS
         if( e > 0 )
             tmp[i] = 0;
 
+        tmp = (char*)data;
+
         gadget_mode = g_mode ? 0 : -1;
 
         // now process the remaining.
@@ -238,13 +240,13 @@ namespace UTILS
     }
 
     cTAFileParser::cTAFileParser( const String &FileName,  bool bKeysCaseSenstive, bool toUTF8, bool g_mode )
-        :m_bKeysCaseSenstive(bKeysCaseSenstive)
+        :m_bKeysCaseSenstive(bKeysCaseSenstive), TA3D::UTILS::cHashTable<String>()
     {
         InitTable( 4096 );
-        Load(FileName, true, toUTF8, g_mode);
+        Load(FileName, false, toUTF8, g_mode);
     }
 
-    cTAFileParser::cTAFileParser( uint32 TableSize )
+    cTAFileParser::cTAFileParser( uint32 TableSize ) : TA3D::UTILS::cHashTable<String>()
     {
         m_bKeysCaseSenstive = false;
         InitTable( TableSize );
