@@ -3,6 +3,7 @@
 
 # include <iostream>
 # include <sstream>
+# include <cstring>
 # include <time.h>
 # include <errno.h>
 # include "../threads/mutex.h"
