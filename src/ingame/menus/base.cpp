@@ -102,8 +102,6 @@ namespace Menus
     void Abstract::redrawTheScreen()
     {
         pArea->draw();
-        glEnable(GL_TEXTURE_2D);
-        gfx->set_color(0xFFFFFFFF);
         draw_cursor();
         gfx->flip();
     }
