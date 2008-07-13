@@ -223,7 +223,7 @@ namespace TA3D
                         << get_filename(filename.c_str());
                 }
                 else
-                    real_filename += skin->prefix;
+                    real_filename << skin->prefix;
                 if (!HPIManager->Exists(real_filename))	// If it doesn't exist revert to the default name
                     real_filename = filename;
             }

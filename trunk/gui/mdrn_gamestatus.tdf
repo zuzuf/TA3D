@@ -13,7 +13,7 @@
 	number of objects=3;
 	hidden=true;
 	color=0xFFFFFFFF;
-	background=gfx/status_background.jpg;
+	background=gfx/mdrn_status_background.jpg;
 	repeat background=true;
 	[object0]
 	{
