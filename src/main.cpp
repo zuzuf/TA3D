@@ -36,7 +36,7 @@
 #include "ingame/menus/intro.h"
 #include "ingame/menus/mainmenu.h"
 #include "languages/i18n.h"
-#include "misc/osinfo.h"
+#include "misc/application.h"
 
 
 
@@ -184,14 +184,8 @@ int ParseCommandLine(int argc, char *argv[])
  */
 int main(int argc, char *argv[])
 {
-    Logs::level = LOG_LEVEL_DEBUG;
-    // Load and prepare output directories
-    if (!TA3D::Paths::Initialize(argc, argv, "ta3d"))
-        return 1;
-    TA3D::Resources::Initialize();
-    allegro_init();
-    TA3D::System::DisplayInformations();
-    TA3D::System::DisplayInformationsAboutAllegro();
+    // Initialize all modules used by ta3d
+    TA3D::Initialize(argc, argv, "ta3d");
 
     // Initialize signals
     init_signals();
@@ -221,15 +215,12 @@ int main(int argc, char *argv[])
     if( IsExceptionInProgress() )
     {
         GuardDisplayAndLogError();
-
-        delete TA3D::VARS::lp_CONFIG;
         exit(1);
     }
 
     GuardStart( main );
     if( ParseCommandLine(argc, argv)) 
     {
-        delete TA3D::VARS::lp_CONFIG;
         exit(1);
     }
     GuardCatch();
@@ -237,8 +228,6 @@ int main(int argc, char *argv[])
     if( IsExceptionInProgress() )
     {
         GuardDisplayAndLogError();
-
-        delete TA3D::VARS::lp_CONFIG;
         exit(1);
     }
 
@@ -254,7 +243,6 @@ int main(int argc, char *argv[])
     if( IsExceptionInProgress() )
     {
         GuardDisplayAndLogError();
-        delete TA3D::VARS::lp_CONFIG;
         exit(1);
     }
 
@@ -274,7 +262,6 @@ int main(int argc, char *argv[])
         //   the cleanup process.
         GuardStart( main );
         delete Engine;
-        delete TA3D::VARS::lp_CONFIG;
         GuardCatch();
         exit(1);
     }
@@ -299,7 +286,6 @@ int main(int argc, char *argv[])
             //   might take a few seconds to kill the thread.
             GuardStart( intro );
             delete Engine;
-            delete TA3D::VARS::lp_CONFIG;
             GuardCatch();
             exit(1);
         }
@@ -329,7 +315,6 @@ int main(int argc, char *argv[])
         GuardDisplayAndLogError();
         GuardStart( main );
         delete Engine;
-        delete TA3D::VARS::lp_CONFIG;
         GuardCatch();
 
         exit(1);
@@ -348,15 +333,11 @@ int main(int argc, char *argv[])
     bool restorestart = lp_CONFIG->restorestart;
 
     GuardStart( main )
-        delete TA3D::VARS::lp_CONFIG;
     GuardCatch();
 
-    I18N::Destroy();
-
-    LOG_INFO("Exiting...");
     if( !quickrestart )
         return 0; 		// thats it folks.
-    else if( !restorestart )
+    if (!restorestart)
         exit(2);		// ask the monitoring script to restart the program with --quick-restart parameter
     else
         exit(3);		// ask the monitoring script to restart the program with --quick-restart --restore parameters
