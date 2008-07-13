@@ -933,7 +933,7 @@ void init()
 
     TA3D::VARS::gfx = new TA3D::Interfaces::GFX;       // Creates the gfx object
 
-    TA3D::VARS::Console=new TA3D::TA3D_DEBUG::cConsole(TA3D::Paths::Logs + "Console3DM.log" );   // Create console object, this will be dropped soon
+    TA3D::VARS::Console = new TA3D::TA3D_DEBUG::cConsole();   // Create console object, this will be dropped soon
     I18N::LoadFromFile("3dmeditor.res");
     TA3D::VARS::HPIManager = new TA3D::UTILS::HPI::cHPIHandler( GetClientPath() ); // create hpi manager object.
 

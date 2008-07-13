@@ -109,7 +109,7 @@ namespace TA3D
 		TA3D::VARS::HPIManager = new TA3D::UTILS::HPI::cHPIHandler( GetClientPath() );
 
 		GuardInfo( "Creating console object." );
-		TA3D::VARS::Console=new TA3D::TA3D_DEBUG::cConsole( m_lpcLogger->get_log_file() );
+		TA3D::VARS::Console = new TA3D::TA3D_DEBUG::cConsole();
 
 		GuardInfo( "Creating translation manager." );
 

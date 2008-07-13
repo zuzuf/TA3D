@@ -36,7 +36,6 @@ TA3D::TA3D_DEBUG::cConsole *TA3D::VARS::Console;
 cConsole::cConsole()			// Initialise la console
 {
 	m_Recording=false;
-	m_log = NULL;
 	m_InputText[0] = 0;
 	m_Visible = 0.0f;
 	m_Show = false;
@@ -50,47 +49,9 @@ cConsole::cConsole()			// Initialise la console
 	DumpStartupInfo();
 }
 
-cConsole::cConsole( const String &file )
-{
-	m_Recording=false;
-	m_log = NULL;
-	m_InputText[0] = 0;
-	m_Visible = 0.0f;
-	m_Show = false;
-
-	m_MaxDisplayItems = 15;
-	m_CurrentLine = 0;
-	m_CurrentTimer = msec_timer;
-	m_std_output = false;
-	m_log_close = false;
-
-	StartRecording( file.c_str() );
-
-	DumpStartupInfo();
-}
-
-cConsole::cConsole( const FILE *file )
-{
-	m_Recording=false;
-	m_log = NULL;
-	m_InputText[0] = 0;
-	m_Visible = 0.0f;
-	m_Show = false;
-
-	m_MaxDisplayItems = 15;
-	m_CurrentLine = 0;
-	m_CurrentTimer = msec_timer;
-	m_std_output = false;
-	m_log_close = false;
-
-	StartRecording( file );
-
-	DumpStartupInfo();
-}
 
 cConsole::~cConsole()
 {
-	StopRecording();
 	m_LastEntries.clear();
 }
 
@@ -147,7 +108,13 @@ void cConsole::DumpStartupInfo()
 #ifdef OSTYPE_UNIX
 		case OSTYPE_UNIX:		AddEntry("OS : UNIX");			break;
 #endif
-	};
+#ifdef OSTYPE_MACOSX
+		case OSTYPE_MACOSX:		AddEntry("OS : MacOSX");			break;
+#endif
+	}
+    String version;
+    version << "Version: " << os_version << "." << os_revision;
+    AddEntry(version.c_str());
 
 	#define CPU_MODEL_ATHLON64_N	15
 
@@ -215,60 +182,6 @@ void cConsole::DumpStartupInfo()
 	stdout_off();
 }
 
-void cConsole::StopRecording( void )
-{
-	if( !m_Recording )
-		return;
-
-    pMutex.lock();
-
-	if( m_log != NULL && m_log_close)
-		fclose( m_log );
-
-	m_log = NULL;
-	m_Recording = false;
-	m_log_close = false;
-    pMutex.unlock();
-}
-
-void cConsole::StartRecording( const char *file )
-{
-	StopRecording();
-
-    pMutex.lock();
-	m_RecordFilename = file;
-
-	m_log = TA3D_OpenFile( m_RecordFilename, "wt" );
-
-	if( m_log )
-		m_Recording=true;
-	else {
-		pMutex.unlock();
-        throw( "Console:StartRecording Failed to open file to record." );
-		}
-	m_log_close = true;
-    pMutex.unlock();
-}
-
-void cConsole::StartRecording( const FILE *file )
-{
-	StopRecording();
-
-    pMutex.lock();
-	m_RecordFilename = "logger";
-
-	m_log = (FILE*)file;
-
-	if( m_log )
-		m_Recording=true;
-	else
-    {
-        pMutex.unlock();
-        throw( "Console:StartRecording Failed to open file to record." );
-	}
-	m_log_close = false;
-    pMutex.unlock();
-}
 
 void cConsole::AddEntryWarning( String NewEntry )
 {
@@ -295,13 +208,6 @@ void cConsole::AddEntryWarning( String NewEntry )
 
 	if( m_LastEntries.size() >= m_MaxDisplayItems )
 		m_LastEntries.pop_front();
-
-	if( m_Recording ) 
-	{
-		fputs( NewEntry.c_str(), m_log );
-		fputs( "\n", m_log );
-		fflush( m_log ); 
-	}
 }
 
 
@@ -330,13 +236,6 @@ void cConsole::AddEntry( String NewEntry )
 
 	if( m_LastEntries.size() >= m_MaxDisplayItems )
 		m_LastEntries.pop_front();
-
-	if( m_Recording ) 
-	{
-		fputs( NewEntry.c_str(), m_log );
-		fputs( "\n", m_log );
-		fflush( m_log ); 
-	}
 }
 
 void cConsole::AddEntryWarning(const char *txt, ...)		// Ajoute une nouvelle entrée
@@ -390,13 +289,6 @@ void cConsole::AddEntryWarning(const char *txt, ...)		// Ajoute une nouvelle ent
 
 	if( m_LastEntries.size() >= m_MaxDisplayItems )
 		m_LastEntries.pop_front();
-
-	if( m_Recording ) 
-	{
-		fputs( NewEntry.c_str(), m_log );
-		fputs( "\n", m_log );
-		fflush( m_log );
-	}
 
     LOG_WARNING(NewEntry);
 }
@@ -454,18 +346,8 @@ void cConsole::AddEntry(const char *txt, ...)		// Ajoute une nouvelle entrée
 	if( m_LastEntries.size() >= m_MaxDisplayItems )
 		m_LastEntries.pop_front();
 
-	if( m_Recording ) 
-	{
-		fputs( NewEntry.c_str(), m_log );
-		fputs( "\n", m_log );
-		fflush( m_log );
-	}
-
 	if( m_std_output )
-    {
         LOG_INFO(NewEntry);
-		//printf( "%s\n", NewEntry.c_str() );
-    }
     else
         LOG_DEBUG(NewEntry);
 }

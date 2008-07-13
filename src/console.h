@@ -42,7 +42,6 @@ namespace TA3D_DEBUG
     private:
         String::List m_LastEntries;
         bool				m_Recording;
-        FILE				*m_log;
         String				m_RecordFilename;
         uint16				m_MaxDisplayItems;
         real32				m_Visible;
@@ -58,8 +57,6 @@ namespace TA3D_DEBUG
 
     public:
         cConsole();
-        cConsole( const String &file );
-        cConsole( const FILE *file );
 
         ~cConsole();
 
@@ -67,12 +64,9 @@ namespace TA3D_DEBUG
 
         bool activated() const {return m_Show || m_Visible > 0.0f;}
 
-        void StopRecording( void );
-        void StartRecording( const char *file );
-        void StartRecording( const FILE *file );
 
-        void stdout_on()	{	m_std_output = true;	}
-        void stdout_off()	{	m_std_output = false;	}
+        void stdout_on() {m_std_output = true;}
+        void stdout_off() {m_std_output = false;}
 
         void AddEntryWarning(const char *txt, ...);
         void AddEntryWarning( String NewEntry );

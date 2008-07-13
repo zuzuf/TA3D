@@ -182,14 +182,11 @@ int ParseCommandLine(int argc, char *argv[])
  ** Function: main
  **    Notes: Whats this for anyhow? :)  Just kidding, this is where it all begin baby!
  */
-int main(int argc,char *argv[])
+int main(int argc, char *argv[])
 {
     Logs::level = LOG_LEVEL_DEBUG;
-    // Starting
-    LOG_INFO("*** Welcome to TA3D ***");
-
     // Load and prepare output directories
-    if (!TA3D::Paths::Initialize(argc, argv))
+    if (!TA3D::Paths::Initialize(argc, argv, "ta3d"))
         return 1;
     TA3D::Resources::Initialize();
 

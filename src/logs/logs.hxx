@@ -6,18 +6,21 @@
     template <> inline \
     Log& Log::operator << (LogMsgClass l) \
     { \
-      if (l.minimalLevel() <= level && pOut) \
+      if (l.minimalLevel() <= level) \
       { \
-        (*pOut)  << l.date() \
-          << (pOut == &std::cout || pOut == &std::cerr ? l.color() : "") \
+        if (pOut) \
+        { \
+            (*pOut) << l.date() << l.header() << str() << std::endl; \
+            pOut->flush(); \
+        } \
+        std::cout << l.date() \
+          << l.color() \
           << l.header() \
-          << (pOut == &std::cout || pOut == &std::cerr ? l.resetColor() : "") \
+          << l.resetColor() \
           << str() \
           << std::endl; \
-      } \
-      if (l.minimalLevel() <= level && pCallback) \
-      { \
-        pCallback(l.header().c_str(), str().c_str()); \
+        if (pCallback) \
+            pCallback(l.header().c_str(), str().c_str()); \
       } \
       \
       *((std::ostringstream*)this) << std::endl; \
@@ -26,6 +29,7 @@
       unlock(); \
       return (*this); \
     }
+
 
     XX_LIB_LOGS_IMPLEMENT_OPERATOR(LogDebugMsg)
     XX_LIB_LOGS_IMPLEMENT_OPERATOR(LogInfoMsg)

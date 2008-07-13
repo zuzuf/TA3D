@@ -26,6 +26,7 @@ namespace Paths
     String Caches = "";
     String Savegames = "";
     String Logs = "";
+    String LogFile = "";
     String Preferences = "";
     String ConfigFile = "";
     String Screenshots = "";
@@ -190,12 +191,12 @@ namespace Paths
 
 
 
-    bool Initialize(int argc, char* argv[])
+    bool Initialize(int argc, char* argv[], const String& programName)
     {
         LOG_ASSERT(NULL != argv);
+        LOG_ASSERT(!programName.empty());
 
         initApplicationRootPath(argv[0]);
-        LOG_INFO("Started from: `" << ApplicationRoot << "`");
 
         # ifdef TA3D_PLATFORM_WINDOWS
         initForWindows();
@@ -206,6 +207,11 @@ namespace Paths
         initForDarwin();
         #   endif
         # endif
+        
+        bool logFileOpened = Logs::logger().writeToFile(Paths::Logs + programName + ".log");
+
+        LOG_INFO("*** Welcome to TA3D ***");
+        LOG_INFO("Started from: `" << ApplicationRoot << "`");
         ConfigFile = Preferences;
         ConfigFile += "ta3d.cfg";
         LOG_INFO("Folder: Preferences: `" << Preferences << "`");
@@ -213,6 +219,10 @@ namespace Paths
         LOG_INFO("Folder: Savegames: `" << Savegames << "`");
         LOG_INFO("Folder: Screenshots: `" << Screenshots << "`");
         LOG_INFO("Folder: Logs: `" << Logs << "`");
+        if (!logFileOpened)
+            LOG_ERROR("[logs] Impossible to open `" << Paths::Logs << programName << ".log`");
+        else
+            LOG_INFO("Log: `" << Paths::LogFile);
 
         bool res = MakeDir(Caches) && MakeDir(Savegames)
             && MakeDir(Logs) && MakeDir(Preferences) && MakeDir(Screenshots);
