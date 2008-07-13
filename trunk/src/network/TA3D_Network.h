@@ -57,8 +57,8 @@ namespace TA3D
         TA3DNetwork( AREA *area, GameData *game_data );
         ~TA3DNetwork();
 
-        bool isTCPonly()        {   return TCPonly; }
-        bool switchToTCPonly()  {   TCPonly = true; }
+        bool isTCPonly()        {return TCPonly;}
+        bool switchToTCPonly()  {TCPonly = true; return true;}
 
         void set_signal( int s )	{	signal = s;	}
         int get_signal() const { return signal; }
