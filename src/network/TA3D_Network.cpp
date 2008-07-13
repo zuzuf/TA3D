@@ -49,6 +49,7 @@ namespace TA3D
         this->area = area;
         this->game_data = game_data;
         signal = 0;
+        TCPonly = false;
     }
 
     TA3DNetwork::~TA3DNetwork()
@@ -161,7 +162,12 @@ namespace TA3D
 
             String::Vector params;
             ReadVectorString(params, special_msg, " ");
-            if (params.size() == 3)
+            if (params.size() == 1)
+            {
+                if (params[0] == "TCPONLY")
+                    TCPonly = true;
+            }
+            else if (params.size() == 3)
             {
                 if( params[0] == "TICK" )
                 {
@@ -227,13 +233,16 @@ namespace TA3D
                 units.unit[sync_msg.unit].unlock();
                 units.unit[sync_msg.unit].draw_on_map();
 
-                struct event sync_event;
-                sync_event.type = EVENT_UNIT_SYNCED;
-                sync_event.opt1 = sync_msg.unit;
-                sync_event.opt2 = network_manager.getMyID();
-                sync_event.opt3 = sync_msg.timestamp;
+                if (!TCPonly)
+                {
+                    struct event sync_event;
+                    sync_event.type = EVENT_UNIT_SYNCED;
+                    sync_event.opt1 = sync_msg.unit;
+                    sync_event.opt2 = network_manager.getMyID();
+                    sync_event.opt3 = sync_msg.timestamp;
 
-                network_manager.sendEventUDP( &sync_event, network_manager.isServer() ? getNetworkID( sync_msg.unit ) : 0 );		// server side we can't just let 0
+                    network_manager.sendEventUDP( &sync_event, network_manager.isServer() ? getNetworkID( sync_msg.unit ) : 0 );		// server side we can't just let 0
+                }
             }
         }
 
