@@ -159,6 +159,14 @@ typedef double real64;
 
 
 
+/*!
+** \brief Delete a variable if != NULL then sets it to NULL
+*/
+# define FREEANDNIL(X) do { if (X) { delete X; X = NULL; } } while(0)
+
+
+
+
 namespace TA3D
 {
 
