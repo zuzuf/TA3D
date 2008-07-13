@@ -29,6 +29,7 @@
 #include "console.h"
 #include "logs/logs.h"
 #include <list>
+#include "misc/osinfo.h"
 
 
 TA3D::TA3D_DEBUG::cConsole *TA3D::VARS::Console;
@@ -45,141 +46,12 @@ cConsole::cConsole()			// Initialise la console
 	m_CurrentTimer = msec_timer;
 	m_std_output = false;
 	m_log_close = false;
-
-	DumpStartupInfo();
 }
 
 
 cConsole::~cConsole()
 {
 	m_LastEntries.clear();
-}
-
-void cConsole::DumpStartupInfo()
-{
-	stdout_on();
-
-	AddEntry( "Allegro: %s (%s)", ALLEGRO_VERSION_STR, ALLEGRO_DATE_STR );
-
-#ifdef AGL_VERSION						// Version d'allegroGL
-	AddEntry( "AllegroGL version: %s", AGL_VERSION_STR );
-#else
-	AddEntry( "AllegroGL version: unknown." );
-#endif
-
-	switch(os_type)
-	{
-#ifdef OSTYPE_WIN3
-		case OSTYPE_WIN3:		AddEntry("OS : Windows 3.1");	break;
-#endif
-#ifdef OSTYPE_WIN95
-		case OSTYPE_WIN95:		AddEntry("OS : Windows 95");	break;
-#endif
-#ifdef OSTYPE_WIN98
-		case OSTYPE_WIN98:		AddEntry("OS : Windows 98");	break;
-#endif
-#ifdef OSTYPE_WINME
-		case OSTYPE_WINME:		AddEntry("OS : Windows ME");	break;
-#endif
-#ifdef OSTYPE_WINNT
-		case OSTYPE_WINNT:		AddEntry("OS : Windows NT");	break;
-#endif
-#ifdef OSTYPE_WIN2000
-		case OSTYPE_WIN2000:	AddEntry("OS : Windows 2000");	break;
-#endif
-#ifdef OSTYPE_WINXP
-		case OSTYPE_WINXP:		AddEntry("OS : Windows XP");	break;
-#endif
-#ifdef OSTYPE_WIN2003
-		case OSTYPE_WIN2003:	AddEntry("OS : Windows 2003");	break;
-#endif
-#ifdef OSTYPE_WINVISTA
-		case OSTYPE_WINVISTA:	AddEntry("OS : Windows Vista");	break;
-#endif
-#ifdef OSTYPE_LINUX
-		case OSTYPE_LINUX:		AddEntry("OS : Linux :-)");		break;
-#endif
-#ifdef OSTYPE_FREEBSD
-		case OSTYPE_FREEBSD:	AddEntry("OS : FreeBSD");		break;
-#endif
-#ifdef OSTYPE_NETBSD
-		case OSTYPE_NETBSD:		AddEntry("OS : NetBSD");		break;
-#endif
-#ifdef OSTYPE_UNIX
-		case OSTYPE_UNIX:		AddEntry("OS : UNIX");			break;
-#endif
-#ifdef OSTYPE_MACOSX
-		case OSTYPE_MACOSX:		AddEntry("OS : MacOSX");			break;
-#endif
-	}
-    String version;
-    version << "Version: " << os_version << "." << os_revision;
-    AddEntry(version.c_str());
-
-	#define CPU_MODEL_ATHLON64_N	15
-
-	String str;
-	switch(cpu_family)
-	{
-	case CPU_FAMILY_I386:
-		str = "CPU: i386 ";
-		break;
-	case CPU_FAMILY_I486:
-		str = "CPU: i486 ";
-		break;
-	case CPU_FAMILY_I586:
-		str = "CPU: i586 ";
-		break;
-	case CPU_FAMILY_I686:
-		str = "CPU: i686 ";
-		break;
-	case CPU_FAMILY_ITANIUM:
-		str = "CPU: Itanium ";
-		break;
-	case CPU_FAMILY_POWERPC:
-		str = "CPU: PPC ";
-		break;
-	case CPU_FAMILY_EXTENDED:
-		switch(cpu_model)
-		{
-		case CPU_MODEL_PENTIUMIV:
-			str = "CPU: Pentium4 ";
-			break;
-		case CPU_MODEL_XEON:
-			str = "CPU: Xeon ";
-			break;
-		case CPU_MODEL_ATHLON64_N:
-		case CPU_MODEL_ATHLON64:
-			str = "CPU: Athlon64 ";
-			break;
-		case CPU_MODEL_OPTERON:
-			str = "CPU: Opteron ";
-			break;
-		default:
-			str = "CPU: ??? ";
-		};
-		break;
-	case CPU_FAMILY_UNKNOWN:
-		str = "CPU: ??? ";
-		break;
-	};
-	str += cpu_vendor;
-	str += " ";
-	if(cpu_capabilities&CPU_AMD64)		str += "amd64 ";
-	if(cpu_capabilities&CPU_IA64)		str += "i64 ";
-	if(cpu_capabilities&CPU_ID)			str += "-cpuid";
-	if(cpu_capabilities&CPU_FPU)		str += "-x87 FPU";
-	if(cpu_capabilities&CPU_MMX)		str += "-MMX";
-	if(cpu_capabilities&CPU_MMXPLUS)	str += "-MMX+";
-	if(cpu_capabilities&CPU_SSE)		str += "-SSE";
-	if(cpu_capabilities&CPU_SSE2)		str += "-SSE2";
-	if(cpu_capabilities&CPU_SSE3)		str += "-SSE3";
-	if(cpu_capabilities&CPU_3DNOW)		str += "-3DNow!";
-	if(cpu_capabilities&CPU_ENH3DNOW)	str += "-Enhanced 3DNow!";
-	if(cpu_capabilities&CPU_CMOV)		str += "-cmov";
-	
-	AddEntry( str );
-	stdout_off();
 }
 
 

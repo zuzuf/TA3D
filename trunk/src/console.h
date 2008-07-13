@@ -52,9 +52,6 @@ namespace TA3D_DEBUG
         bool				m_std_output;
         bool				m_log_close;
 
-    private:
-        void DumpStartupInfo();
-
     public:
         cConsole();
 
