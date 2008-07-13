@@ -3,6 +3,7 @@
 
 # include "../../stdafx.h"
 # include <string>
+# include <memory>
 # include "../../gui.h"
 # include "../../gfx/gui/area.h"
 
