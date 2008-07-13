@@ -1701,22 +1701,28 @@ namespace TA3D
             if( control[ i ] == PLAYER_CONTROL_LOCAL_AI && ai_command )
                 ai_command[ i ].monitor();
 
-        if( (units.current_tick % 3) == 0 && last_ticksynced != units.current_tick && network_manager.isConnected() ) {
+        if( (units.current_tick % 3) == 0 && last_ticksynced != units.current_tick && network_manager.isConnected() )
+        {
             last_ticksynced = units.current_tick;
+            
+            uint32  nbTCP(0), nbTotal(0);
 
             units.lock();
-            for( int e = 0 ; e < units.nb_unit ; e++ ) {
+            for( int e = 0 ; e < units.nb_unit ; e++ )
+            {
                 int i = units.idx_list[ e ];
                 if( i < 0 || i >= units.max_unit )	continue;		// Error !!
                 units.unlock();
 
                 units.unit[ i ].lock();
-                if( !(units.unit[ i ].flags & 1) )	{
+                if( !(units.unit[ i ].flags & 1) )
+                {
                     units.unit[ i ].unlock();
                     units.lock();
                     continue;
                 }
-                if( units.unit[ i ].local ) {
+                if( units.unit[ i ].local )
+                {
                     struct sync sync;
                     sync.timestamp = units.current_tick;
                     sync.unit = i;
@@ -1741,16 +1747,24 @@ namespace TA3D
                         if( g_ta3d_network->isRemoteHuman(f) )
                             latest_sync = Math::Min(latest_sync, units.unit[ i ].last_synctick[f]);
 
-                    if( latest_sync < units.unit[i].previous_sync.timestamp - 10
+                    nbTotal++;
+
+                    if( g_ta3d_network->isTCPonly()
+                        || latest_sync < units.unit[i].previous_sync.timestamp - 10
                         || units.unit[i].previous_sync.flags != sync.flags
                         || units.unit[i].previous_sync.hp != sync.hp
-                        || ( units.unit[i].previous_sync.build_percent_left != sync.build_percent_left && sync.build_percent_left == 0.0f ) ) {		// We have to sync now
+                        || ( units.unit[i].previous_sync.build_percent_left != sync.build_percent_left && sync.build_percent_left == 0.0f ) )
+                    {		// We have to sync now
                         network_manager.sendSyncTCP( &sync );
                         units.unit[i].previous_sync = sync;
+                        if( latest_sync < units.unit[i].previous_sync.timestamp - 10 )
+                            nbTCP++;
                         //					printf("sending TCP sync packet!\n");
                     }
-                    else {
-                        if( need_sync( sync, units.unit[i].previous_sync ) ) {			// Don't send what isn't needed
+                    else
+                    {
+                        if( need_sync( sync, units.unit[i].previous_sync ) )
+                        {			// Don't send what isn't needed
                             network_manager.sendSync( &sync );
                             units.unit[i].previous_sync = sync;
                         }
@@ -1761,6 +1775,13 @@ namespace TA3D
                 units.lock();
             }
             units.unlock();
+
+            if( !g_ta3d_network->isTCPonly() && nbTCP * 10 > nbTotal )
+            {
+                network_manager.sendAll("TCPONLY");             // Tell everyone UDP is not enough reliable and switch to TCP only mode
+                g_ta3d_network->switchToTCPonly();
+            }
+
         }
     }
 

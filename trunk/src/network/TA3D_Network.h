@@ -49,11 +49,16 @@ namespace TA3D
         GameData					*game_data;
 
         int							signal;
+        
+        bool                        TCPonly;        // Switch to TCP sync packets when UDP isn't reliable enough
 
     public:
 
         TA3DNetwork( AREA *area, GameData *game_data );
         ~TA3DNetwork();
+
+        bool isTCPonly()        {   return TCPonly; }
+        bool switchToTCPonly()  {   TCPonly = true; }
 
         void set_signal( int s )	{	signal = s;	}
         int get_signal() const { return signal; }
