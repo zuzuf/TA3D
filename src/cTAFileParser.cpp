@@ -31,15 +31,18 @@ namespace UTILS
 
     String cTAFileParser::GetLine(char **Data)
     {
-        for (char* result = *Data; **Data ; ++(*Data))
+        uint32 n(0);
+        char* result = *Data;
+        for (; **Data ; ++(*Data), ++n)
         {
             if (**Data == '\n' || **Data == ';' || **Data == '{' || **Data == '}')
             {
                 ++(*Data);
-                return std::string(result, *Data);
+                ++n;
+                return std::string(result, n);
             }
         }
-        return *Data;
+        return result;
     }
 
 
@@ -176,8 +179,8 @@ namespace UTILS
         if (data != NULL && toUTF8) 
         {
             // Convert from ASCII to UTF8, required because TA3D works with UTF8 and TA with ASCII
-            char *tmp = new char[ota_size * 2];
-            do_uconvert( (const char*)data, U_ASCII, tmp, U_UTF8, ota_size * 2);
+            char *tmp = new char[ota_size * 3];
+            do_uconvert( (const char*)data, U_ASCII, tmp, U_UTF8, ota_size * 3);
             delete[] data;
             data = (byte*)tmp;
         }
@@ -201,7 +204,6 @@ namespace UTILS
         if (e > 0)
             tmp[i] = 0;
 
-        tmp = (char*)data;
         gadget_mode = g_mode ? 0 : -1;
 
         // now process the remaining.

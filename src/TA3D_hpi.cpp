@@ -553,7 +553,7 @@ namespace HPI
 
         if (m_file_cache->size() >= 10) // Cycle the data within the list
         {
-            delete m_file_cache->front().data;
+            delete[] m_file_cache->front().data;
             m_file_cache->pop_front();
         }
 
@@ -633,7 +633,8 @@ namespace HPI
         CACHEFILEDATA *cache_result = IsInCache(UNIX_filename); // Look for it in the cache
         if (cache_result)
         {
-            byte* data = new byte[cache_result->length];
+            byte* data = new byte[cache_result->length + 1];
+            data[cache_result->length] = 0;                     // Null terminated buffer
             memcpy(data, cache_result->data, cache_result->length);
             if (fileLength)
                 *fileLength = cache_result->length;
