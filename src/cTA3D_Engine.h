@@ -20,14 +20,12 @@
 # define __TA3D_ENGINE_H__
 
 #include "threads/cThread.h"
-#include "logs/cLogger.h"
 
 namespace TA3D
 {
 	class cTA3D_Engine : public ObjectSync, public cThread
 	{
 	private:
-		TA3D::Interfaces::cLogger* m_lpcLogger;
 		bool m_AllegroRunning;
 		bool m_GFXModeActive;
 		bool m_SignaledToStop;

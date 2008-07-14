@@ -22,7 +22,6 @@
 #include "ta3dbase.h"		// Moteur
 #include "TA3D_NameSpace.h"
 #include "threads/cThread.h"
-#include "logs/cLogger.h"
 #include "gui.h"			// Interface utilisateur
 #include "TA3D_hpi.h"		// Interface HPI requis pour 3do.h
 #include "gfx/particles/particles.h"
