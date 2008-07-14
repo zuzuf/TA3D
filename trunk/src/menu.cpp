@@ -1821,7 +1821,7 @@ void campaign_main_menu(void)
                     guiobj->Text.clear();
                     int i = 0;
                     String current_name = "";
-                    while (!(current_name = campaign_parser->PullAsString(format( "MISSION%d.missionname", i))).empty())
+                    while (!(current_name = campaign_parser->pullAsString(format( "MISSION%d.missionname", i))).empty())
                     {
                         guiobj->Text.push_back( current_name );
                         nb_mission++;
@@ -1835,7 +1835,7 @@ void campaign_main_menu(void)
                     guiobj->Data = 0;
                     for( int i = 0 ; i < ta3dSideData.nb_side ; ++i)
                     {
-                        if (String::ToLower(ta3dSideData.side_name[i] ) == String::ToLower(campaign_parser->PullAsString("HEADER.campaignside")))
+                        if (String::ToLower(ta3dSideData.side_name[i] ) == String::ToLower(campaign_parser->pullAsString("HEADER.campaignside")))
                         {
                             if( side_logos.nb_anim > i )
                                 guiobj->Data = side_logos.anm[i].glbmp[0];
@@ -1921,10 +1921,10 @@ int brief_screen(String campaign_name, int mission_id)
 
     cTAFileParser	brief_parser( campaign_name );			// Loads the campaign file
 
-    String map_filename = "maps\\" + brief_parser.PullAsString( format( "MISSION%d.missionfile", mission_id ) );
+    String map_filename = "maps\\" + brief_parser.pullAsString( format( "MISSION%d.missionfile", mission_id ) );
     cTAFileParser	ota_parser( map_filename );
 
-    String narration_file = "camps\\briefs\\" + ota_parser.PullAsString( "GlobalHeader.narration" ) + ".wav";		// The narration file
+    String narration_file = "camps\\briefs\\" + ota_parser.pullAsString( "GlobalHeader.narration" ) + ".wav";		// The narration file
     String language_suffix = "";
     switch( LANG )
     {
@@ -1934,15 +1934,15 @@ int brief_screen(String campaign_name, int mission_id)
         case TA3D_LANG_SPANISH:	language_suffix = "-spanish";	break;
         case TA3D_LANG_ITALIAN:	language_suffix = "-italian";	break;
     };
-    String brief_file = "camps\\briefs" + language_suffix + "\\" + ota_parser.PullAsString( "GlobalHeader.brief" ) + ".txt";				// The brief file
+    String brief_file = "camps\\briefs" + language_suffix + "\\" + ota_parser.pullAsString( "GlobalHeader.brief" ) + ".txt";				// The brief file
 
     {
         if( !HPIManager->Exists( brief_file ) )			// try without the .txt
-            brief_file = "camps\\briefs" + language_suffix + "\\" + ota_parser.PullAsString( "GlobalHeader.brief" );
+            brief_file = "camps\\briefs" + language_suffix + "\\" + ota_parser.pullAsString( "GlobalHeader.brief" );
         if( !HPIManager->Exists( brief_file ) )			// try without the suffix if we cannot find it
-            brief_file = "camps\\briefs\\" + ota_parser.PullAsString( "GlobalHeader.brief" ) + ".txt";
+            brief_file = "camps\\briefs\\" + ota_parser.pullAsString( "GlobalHeader.brief" ) + ".txt";
         if( !HPIManager->Exists( brief_file ) )			// try without the suffix if we cannot find it
-            brief_file = "camps\\briefs\\" + ota_parser.PullAsString( "GlobalHeader.brief" );
+            brief_file = "camps\\briefs\\" + ota_parser.pullAsString( "GlobalHeader.brief" );
         byte *data = HPIManager->PullFromHPI( brief_file );
         if( data ) {
             String brief_info = (const char*)data;
@@ -1953,7 +1953,7 @@ int brief_screen(String campaign_name, int mission_id)
 
     ANIMS planet_animation;
     {
-        String planet_file = String::ToLower(ota_parser.PullAsString("GlobalHeader.planet"));
+        String planet_file = String::ToLower(ota_parser.pullAsString("GlobalHeader.planet"));
 
         if( planet_file == "green planet" )				planet_file = "anims\\greenbrief.gaf";
         else if( planet_file == "archipelago" )			planet_file = "anims\\archibrief.gaf";
@@ -1981,9 +1981,9 @@ int brief_screen(String campaign_name, int mission_id)
     {
         GUIOBJ *obj = brief_area.get_object( "brief.schema" );
         obj->Text.clear();
-        obj->Text.resize( ota_parser.PullAsInt( "GlobalHeader.SCHEMACOUNT" ) + 1 );
+        obj->Text.resize( ota_parser.pullAsInt( "GlobalHeader.SCHEMACOUNT" ) + 1 );
         for(unsigned int i = 0 ; i < obj->Text.size() - 1 ; ++i)
-            obj->Text[ i + 1 ] = I18N::Translate( ota_parser.PullAsString( format( "GlobalHeader.Schema %d.Type", i ) ) );
+            obj->Text[ i + 1 ] = I18N::Translate( ota_parser.pullAsString( format( "GlobalHeader.Schema %d.Type", i ) ) );
         if( obj->Text.size() > 1 )
             obj->Text[ 0 ] = obj->Text[ 1 ];
     }
@@ -2110,17 +2110,17 @@ int brief_screen(String campaign_name, int mission_id)
         game_data.map_filename = strdup( ( map_filename.substr( 0, map_filename.size() - 3 ) + "tnt" ).c_str() );		// Remember the last map we played
         game_data.fog_of_war = FOW_ALL;
 
-        game_data.nb_players = ota_parser.PullAsInt( "GlobalHeader.numplayers", 2 );
+        game_data.nb_players = ota_parser.pullAsInt( "GlobalHeader.numplayers", 2 );
         if( game_data.nb_players == 0 )				// Yes it can happen !!
             game_data.nb_players = 2;
 
         game_data.player_control[ 0 ] = PLAYER_CONTROL_LOCAL_HUMAN;
-        game_data.player_names[ 0 ] = brief_parser.PullAsString( "HEADER.campaignside" );
-        game_data.player_sides[ 0 ] = brief_parser.PullAsString( "HEADER.campaignside" );
-        game_data.energy[ 0 ] = ota_parser.PullAsInt( format( "GlobalHeader.Schema %d.humanenergy", schema ) );
-        game_data.metal[ 0 ] = ota_parser.PullAsInt( format( "GlobalHeader.Schema %d.humanmetal", schema ) );
+        game_data.player_names[ 0 ] = brief_parser.pullAsString( "HEADER.campaignside" );
+        game_data.player_sides[ 0 ] = brief_parser.pullAsString( "HEADER.campaignside" );
+        game_data.energy[ 0 ] = ota_parser.pullAsInt( format( "GlobalHeader.Schema %d.humanenergy", schema ) );
+        game_data.metal[ 0 ] = ota_parser.pullAsInt( format( "GlobalHeader.Schema %d.humanmetal", schema ) );
 
-        String schema_type = String::ToLower(ota_parser.PullAsString(format("GlobalHeader.Schema %d.Type", schema)));
+        String schema_type = String::ToLower(ota_parser.pullAsString(format("GlobalHeader.Schema %d.Type", schema)));
         if( schema_type == "easy" )
             game_data.ai_level[ 0 ] = 0;
         else if( schema_type == "medium" )
@@ -2132,17 +2132,17 @@ int brief_screen(String campaign_name, int mission_id)
 
         for( int i = 1 ; i < game_data.nb_players ; i++ ) {
             game_data.player_control[ i ] = PLAYER_CONTROL_LOCAL_AI;
-            game_data.player_names[ i ] = brief_parser.PullAsString( "HEADER.campaignside" );
-            game_data.player_sides[ i ] = brief_parser.PullAsString( "HEADER.campaignside" );			// Has no meaning here since we are in campaign mode units are spawned by a script
+            game_data.player_names[ i ] = brief_parser.pullAsString( "HEADER.campaignside" );
+            game_data.player_sides[ i ] = brief_parser.pullAsString( "HEADER.campaignside" );			// Has no meaning here since we are in campaign mode units are spawned by a script
             game_data.ai_level[ i ] = game_data.ai_level[ 0 ];
-            game_data.energy[ i ] = ota_parser.PullAsInt( format( "GlobalHeader.Schema %d.computerenergy", schema ) );
-            game_data.metal[ i ] = ota_parser.PullAsInt( format( "GlobalHeader.Schema %d.computermetal", schema ) );
+            game_data.energy[ i ] = ota_parser.pullAsInt( format( "GlobalHeader.Schema %d.computerenergy", schema ) );
+            game_data.metal[ i ] = ota_parser.pullAsInt( format( "GlobalHeader.Schema %d.computermetal", schema ) );
 
             player_color_map[ i ] = i;
         }
 
         game_data.campaign = true;
-        game_data.use_only = (char*)ota_parser.PullAsString( "GlobalHeader.useonlyunits" ).c_str();
+        game_data.use_only = (char*)ota_parser.pullAsString( "GlobalHeader.useonlyunits" ).c_str();
         if( strlen( game_data.use_only ) == 0 )
             game_data.use_only = NULL;
         else

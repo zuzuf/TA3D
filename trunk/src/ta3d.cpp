@@ -155,7 +155,7 @@ int play(GameData *game_data)
             unit_manager.unit_type[ i ].not_used = true;
         String unit_name = "";
         i = 0;
-        while( !(unit_name = useonly_parser.PullAsString( format( "gadget%d", i ) ) ).empty() )
+        while( !(unit_name = useonly_parser.pullAsString( format( "gadget%d", i ) ) ).empty() )
         {
             int idx = unit_manager.get_unit_index( unit_name.c_str() );
             if( idx >= 0 )

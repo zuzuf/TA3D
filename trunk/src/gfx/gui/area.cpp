@@ -247,26 +247,26 @@ namespace TA3D
         if (e != String::npos)
             name = name.substr(e + 1, name.size() - e - 1);
 
-        name = areaFile->PullAsString("area.name", name);					// The TDF may override the area name
+        name = areaFile->pullAsString("area.name", name);					// The TDF may override the area name
         skin_name = (lp_CONFIG != NULL && !lp_CONFIG->skin_name.empty())
             ? lp_CONFIG->skin_name
-            : areaFile->PullAsString("area.skin");
+            : areaFile->pullAsString("area.skin");
 
         if (TA3D::Paths::Exists(skin_name)) // Loads a skin
         {
-            int area_width = areaFile->PullAsInt("area.width", SCREEN_W);
-            int area_height = areaFile->PullAsInt("area.height", SCREEN_W);
+            int area_width = areaFile->pullAsInt("area.width", SCREEN_W);
+            int area_height = areaFile->pullAsInt("area.height", SCREEN_W);
             float skin_scale = Math::Min((float)SCREEN_H / area_height, (float)SCREEN_W / area_width);
             skin = new SKIN();
             skin->load_tdf(skin_name, skin_scale);
         }
 
         String::Vector windows_to_load;
-        ReadVectorString(windows_to_load, areaFile->PullAsString("area.windows"));
+        ReadVectorString(windows_to_load, areaFile->pullAsString("area.windows"));
         for(String::Vector::iterator i = windows_to_load.begin(); i != windows_to_load.end(); ++i)
             load_window(*i);
 
-        String background_name = areaFile->PullAsString("area.background");
+        String background_name = areaFile->pullAsString("area.background");
         if(skin && !skin->prefix.empty())
         {
             int name_len = strlen(get_filename(background_name.c_str()));
@@ -283,7 +283,7 @@ namespace TA3D
             if (skin && !skin->prefix.empty())
             {
                 // No prefixed version, retry with default background
-                background_name = areaFile->PullAsString("area.background"); 
+                background_name = areaFile->pullAsString("area.background"); 
                 // Loads a background image
                 if (TA3D::Paths::Exists(background_name)) 
                     background = gfx->load_texture( background_name );

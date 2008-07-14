@@ -90,27 +90,27 @@ void LoadConfigFile( void )
         return;
     }
 
-    TA3D::VARS::lp_CONFIG->fps_limit = cfgFile->PullAsFloat( "TA3D.FPS Limit" );
-    TA3D::VARS::lp_CONFIG->shadow_r  = cfgFile->PullAsFloat( "TA3D.Shadow R" );
-    TA3D::VARS::lp_CONFIG->timefactor = cfgFile->PullAsFloat( "TA3D.Time Factor" );
+    TA3D::VARS::lp_CONFIG->fps_limit = cfgFile->pullAsFloat( "TA3D.FPS Limit" );
+    TA3D::VARS::lp_CONFIG->shadow_r  = cfgFile->pullAsFloat( "TA3D.Shadow R" );
+    TA3D::VARS::lp_CONFIG->timefactor = cfgFile->pullAsFloat( "TA3D.Time Factor" );
 
-    TA3D::VARS::lp_CONFIG->shadow_quality = cfgFile->PullAsInt( "TA3D.Shadow Quality" );
-    TA3D::VARS::lp_CONFIG->priority_level = cfgFile->PullAsInt( "TA3D.Priority Level" );
-    TA3D::VARS::lp_CONFIG->fsaa = cfgFile->PullAsInt( "TA3D.FSAA" );
-    TA3D::VARS::lp_CONFIG->Lang = cfgFile->PullAsInt( "TA3D.Language" );
-    TA3D::VARS::lp_CONFIG->water_quality = cfgFile->PullAsInt( "TA3D.Water Quality" );
-    TA3D::VARS::lp_CONFIG->screen_width = cfgFile->PullAsInt( "TA3D.Screen Width" );
-    TA3D::VARS::lp_CONFIG->screen_height = cfgFile->PullAsInt( "TA3D.Screen Height" );
+    TA3D::VARS::lp_CONFIG->shadow_quality = cfgFile->pullAsInt( "TA3D.Shadow Quality" );
+    TA3D::VARS::lp_CONFIG->priority_level = cfgFile->pullAsInt( "TA3D.Priority Level" );
+    TA3D::VARS::lp_CONFIG->fsaa = cfgFile->pullAsInt( "TA3D.FSAA" );
+    TA3D::VARS::lp_CONFIG->Lang = cfgFile->pullAsInt( "TA3D.Language" );
+    TA3D::VARS::lp_CONFIG->water_quality = cfgFile->pullAsInt( "TA3D.Water Quality" );
+    TA3D::VARS::lp_CONFIG->screen_width = cfgFile->pullAsInt( "TA3D.Screen Width" );
+    TA3D::VARS::lp_CONFIG->screen_height = cfgFile->pullAsInt( "TA3D.Screen Height" );
 
-    TA3D::VARS::lp_CONFIG->showfps = cfgFile->PullAsBool( "TA3D.Show FPS" );
-    TA3D::VARS::lp_CONFIG->wireframe = cfgFile->PullAsBool( "TA3D.Show Wireframe" );
-    TA3D::VARS::lp_CONFIG->particle = cfgFile->PullAsBool( "TA3D.Show particles" );
-    TA3D::VARS::lp_CONFIG->waves = cfgFile->PullAsBool( "TA3D.Show Waves" );
-    TA3D::VARS::lp_CONFIG->shadow = cfgFile->PullAsBool( "TA3D.Show Shadows" );
-    TA3D::VARS::lp_CONFIG->height_line = cfgFile->PullAsBool( "TA3D.Show Height Lines" );
-    TA3D::VARS::lp_CONFIG->fullscreen = cfgFile->PullAsBool( "TA3D.Show FullScreen" );
-    TA3D::VARS::lp_CONFIG->detail_tex = cfgFile->PullAsBool( "TA3D.Detail Texture" );
-    TA3D::VARS::lp_CONFIG->draw_console_loading = cfgFile->PullAsBool( "TA3D.Draw Console Loading" );
+    TA3D::VARS::lp_CONFIG->showfps = cfgFile->pullAsBool( "TA3D.Show FPS" );
+    TA3D::VARS::lp_CONFIG->wireframe = cfgFile->pullAsBool( "TA3D.Show Wireframe" );
+    TA3D::VARS::lp_CONFIG->particle = cfgFile->pullAsBool( "TA3D.Show particles" );
+    TA3D::VARS::lp_CONFIG->waves = cfgFile->pullAsBool( "TA3D.Show Waves" );
+    TA3D::VARS::lp_CONFIG->shadow = cfgFile->pullAsBool( "TA3D.Show Shadows" );
+    TA3D::VARS::lp_CONFIG->height_line = cfgFile->pullAsBool( "TA3D.Show Height Lines" );
+    TA3D::VARS::lp_CONFIG->fullscreen = cfgFile->pullAsBool( "TA3D.Show FullScreen" );
+    TA3D::VARS::lp_CONFIG->detail_tex = cfgFile->pullAsBool( "TA3D.Detail Texture" );
+    TA3D::VARS::lp_CONFIG->draw_console_loading = cfgFile->pullAsBool( "TA3D.Draw Console Loading" );
 
     delete cfgFile; 
 

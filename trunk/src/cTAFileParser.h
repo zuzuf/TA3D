@@ -29,45 +29,72 @@ namespace UTILS
 
     class cTAFileParser : protected TA3D::UTILS::cHashTable<String>
     {
-    private:
-        String m_cKey;     // used when building keys.
-        std::list< String > key_level;	// used when building keys.
-        bool m_bKeysCaseSenstive;	// Is it case sensitive ?
-        int gadget_mode;
-
-        bool ProcessData( char **Data );
-        String GetLine( char **Data );
-
-    protected:
-        // A hash map of key/values
-
     public:
-        void Load( const String &FileName, bool bClearTable=false, bool toUTF8 = false, bool g_mode = false ); 
+        //! \name Constructors & Destructor
+        //@{
+        /*!
+        ** \brief Constructor
+        */
         cTAFileParser( const String &FileName, bool bKeysCaseSenstive = false, bool toUTF8 = false, bool g_mode = false );
+        /*!
+        ** \brief Constructor
+        */
         cTAFileParser( uint32 TableSize = 4096 );
+        //! Destructor
         ~cTAFileParser();
+        //@}
 
-        void LoadMemory( char *data, bool bClearTable=false, bool toUTF8 = false, bool g_mode = false );
+        void load(const String& FileName, bool bClearTable = false, bool toUTF8 = false, bool g_mode = false );
 
-        /*!
-        ** \brief
-        */
-        sint32  PullAsInt(const String &key, const sint32 def = 0);
+        void loadMemory( char *data, bool bClearTable=false, bool toUTF8 = false, bool g_mode = false );
 
         /*!
-        ** \brief
+        ** \brief Get the value for a given key
+        ** \param key The key
+        ** \param def The default value if the key could not be found
+        ** \return The value of the key that has been found, def otherwise
         */
-        real32  PullAsFloat(const String &key, const real32 def = 0.0f);
+        sint32  pullAsInt(const String& key, const sint32 def = 0);
 
         /*!
-        ** \brief
+        ** \brief Get the value for a given key
+        ** \param key The key
+        ** \param def The default value if the key could not be found
+        ** \return The value of the key that has been found, def otherwise
         */
-        String  PullAsString(const String &key, const String& def = "");
+        real32  pullAsFloat(const String& key, const real32 def = 0.0f);
 
         /*!
-        ** \brief
+        ** \brief Get the value for a given key
+        ** \param key The key
+        ** \param def The default value if the key could not be found
+        ** \return The value of the key that has been found, def otherwise
         */
-        bool  PullAsBool(const String& key, const bool def = false);
+        String  pullAsString(const String& key, const String& def = "");
+
+        /*!
+        ** \brief Get the value for a given key
+        ** \param key The key
+        ** \param def The default value if the key could not be found
+        ** \return The value of the key that has been found, def otherwise
+        */
+        bool  pullAsBool(const String& key, const bool def = false);
+
+
+    private:
+        bool ProcessData(char **Data);
+
+        String GetLine(char **Data);
+
+    private:
+        //! used when building keys
+        String m_cKey;
+        //! used when building keys
+        std::list< String > key_level;
+        //! Is it case sensitive ?
+        bool m_bKeysCaseSenstive;
+        //!
+        int gadget_mode;
 
     }; // class cTAFileParser
 

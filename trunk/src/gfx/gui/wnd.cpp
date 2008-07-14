@@ -1023,20 +1023,20 @@ namespace TA3D
         if (e != String::npos)
             Name = Name.substr(e + 1, Name.size() - e - 1);
 
-        hidden = !wndFile->PullAsBool("gadget0.common.active");
+        hidden = !wndFile->pullAsBool("gadget0.common.active");
 
         u_format = U_ASCII;
 
         Title.clear();
-        x = wndFile->PullAsInt("gadget0.common.xpos");
-        y = wndFile->PullAsInt("gadget0.common.ypos");
+        x = wndFile->pullAsInt("gadget0.common.xpos");
+        y = wndFile->pullAsInt("gadget0.common.ypos");
         if (x < 0)
             x += SCREEN_W;
         if (y < 0)
             y += SCREEN_H;
 
-        width  = wndFile->PullAsInt("gadget0.common.width");
-        height = wndFile->PullAsInt("gadget0.common.height");
+        width  = wndFile->pullAsInt("gadget0.common.width");
+        height = wndFile->pullAsInt("gadget0.common.height");
 
         if (x + width >= SCREEN_W)
             x = SCREEN_W - width;
@@ -1051,7 +1051,7 @@ namespace TA3D
         show_title = false;
         delete_gltex = false;
 
-        String panel = wndFile->PullAsString("gadget0.panel"); // Look for the panel texture
+        String panel = wndFile->pullAsString("gadget0.panel"); // Look for the panel texture
         int w;
         int h;
         background = gfx->load_texture_from_cache("anims\\" + Name + ".gaf", FILTER_TRILINEAR, (uint32*)&w, (uint32*)&h);
@@ -1072,7 +1072,7 @@ namespace TA3D
         delete_gltex = background;
         background_wnd = background;
         color = background ? makeacol(0xFF, 0xFF, 0xFF, 0xFF) : 0x0;
-        NbObj = wndFile->PullAsInt("gadget0.totalgadgets");
+        NbObj = wndFile->pullAsInt("gadget0.totalgadgets");
 
         Objets = new GUIOBJ[NbObj];
 
@@ -1080,15 +1080,15 @@ namespace TA3D
         {
             String obj_key;
             obj_key << "gadget" << i + 1 << ".";
-            int obj_type = wndFile->PullAsInt(obj_key + "common.id");
+            int obj_type = wndFile->pullAsInt(obj_key + "common.id");
 
-            Objets[i].Name = wndFile->PullAsString(obj_key + "common.name", format("gadget%d", i + 1));
+            Objets[i].Name = wndFile->pullAsString(obj_key + "common.name", format("gadget%d", i + 1));
             obj_hashtable.Insert(String::ToLower(Objets[i].Name), i + 1);
 
-            int X1 = (int)(wndFile->PullAsInt(obj_key + "common.xpos")   * x_factor); // Reads data from TDF
-            int Y1 = (int)(wndFile->PullAsInt(obj_key + "common.ypos")   * y_factor);
-            int W  = (int)(wndFile->PullAsInt(obj_key + "common.width")  * x_factor - 1);
-            int H  = (int)(wndFile->PullAsInt(obj_key + "common.height") * y_factor - 1);
+            int X1 = (int)(wndFile->pullAsInt(obj_key + "common.xpos")   * x_factor); // Reads data from TDF
+            int Y1 = (int)(wndFile->pullAsInt(obj_key + "common.ypos")   * y_factor);
+            int W  = (int)(wndFile->pullAsInt(obj_key + "common.width")  * x_factor - 1);
+            int H  = (int)(wndFile->pullAsInt(obj_key + "common.height") * y_factor - 1);
 
             //float size = Math::Min(x_factor, y_factor);
             uint32 obj_flags = 0;
@@ -1098,11 +1098,11 @@ namespace TA3D
             if (Y1 < 0)
                 Y1 += SCREEN_H;
 
-            if (!wndFile->PullAsBool(obj_key + "common.active"))
+            if (!wndFile->pullAsBool(obj_key + "common.active"))
                 obj_flags |= FLAG_HIDDEN;
 
             String::Vector Caption;
-            ReadVectorString(Caption, wndFile->PullAsString(obj_key + "text"));
+            ReadVectorString(Caption, wndFile->pullAsString(obj_key + "text"));
             I18N::Translate(Caption);
 
             if (TA_ID_BUTTON == obj_type)
@@ -1145,7 +1145,7 @@ namespace TA3D
                     }
                 }
 
-                int nb_stages = wndFile->PullAsInt(obj_key + "stages");
+                int nb_stages = wndFile->pullAsInt(obj_key + "stages");
                 Objets[i].create_ta_button(X1, Y1, Caption, gaf_imgs, nb_stages > 0 ? nb_stages : gaf_imgs.size() - 2);
                 if (result == NULL && found_elsewhere)
                     gui_hashtable.Insert(key, &Objets[i].gltex_states);
@@ -1156,18 +1156,18 @@ namespace TA3D
                     if (result)
                         Objets[i].gltex_states[e].destroy_tex = false;
                 }
-                Objets[i].current_state = wndFile->PullAsInt(obj_key + "status");
-                Objets[i].shortcut_key = wndFile->PullAsInt(obj_key + "quickkey", -1);
-                if (wndFile->PullAsBool(obj_key + "common.grayedout"))
+                Objets[i].current_state = wndFile->pullAsInt(obj_key + "status");
+                Objets[i].shortcut_key = wndFile->pullAsInt(obj_key + "quickkey", -1);
+                if (wndFile->pullAsBool(obj_key + "common.grayedout"))
                     Objets[i].Flag |= FLAG_DISABLED;
-                //			if (wndFile->PullAsInt(obj_key + "common.commonattribs") == 4) {
-                if (wndFile->PullAsInt(obj_key + "common.attribs") == 32)
+                //			if (wndFile->pullAsInt(obj_key + "common.commonattribs") == 4) {
+                if (wndFile->pullAsInt(obj_key + "common.attribs") == 32)
                     Objets[i].Flag |= FLAG_HIDDEN | FLAG_BUILD_PIC;
             }
                 else
                 {
                     if (obj_type == TA_ID_TEXT_FIELD)
-                        Objets[i].create_textbar(X1, Y1, X1 + W, Y1 + H, Caption.size() > 0 ? Caption[0] : "", wndFile->PullAsInt(obj_key + "maxchars"), NULL);
+                        Objets[i].create_textbar(X1, Y1, X1 + W, Y1 + H, Caption.size() > 0 ? Caption[0] : "", wndFile->pullAsInt(obj_key + "maxchars"), NULL);
                     else
                     {
                         if (obj_type == TA_ID_LABEL)
@@ -1176,7 +1176,7 @@ namespace TA3D
                         {
                             if (obj_type == TA_ID_BLANK_IMG || obj_type == TA_ID_IMG)
                             {
-                                Objets[i].create_img(X1, Y1, X1 + W, Y1 + H, gfx->load_texture(wndFile->PullAsString(obj_key + "source")));
+                                Objets[i].create_img(X1, Y1, X1 + W, Y1 + H, gfx->load_texture(wndFile->pullAsString(obj_key + "source")));
                                 Objets[i].destroy_img = Objets[i].Data != 0 ? true : false;
                             }
                             else
@@ -1229,28 +1229,28 @@ namespace TA3D
             if (e != String::npos)
                 Name = Name.substr(e + 1, Name.size() - e - 1);
 
-            Name = wndFile->PullAsString("window.name", Name);
-            hidden = wndFile->PullAsBool("window.hidden");
+            Name = wndFile->pullAsString("window.name", Name);
+            hidden = wndFile->pullAsBool("window.hidden");
 
-            String wnd_uformat = wndFile->PullAsString("window.uformat");
+            String wnd_uformat = wndFile->pullAsString("window.uformat");
             if (wnd_uformat == "ASCII")    u_format = U_ASCII;
             if (wnd_uformat == "ASCII_CP") u_format = U_ASCII_CP;
             if (wnd_uformat == "UNICODE")  u_format = U_UNICODE;
             if (wnd_uformat == "UTF8")     u_format = U_UTF8;
-            Title = I18N::Translate(wndFile->PullAsString("window.title"));
-            x = wndFile->PullAsInt("window.x");
-            y = wndFile->PullAsInt("window.y");
-            width = wndFile->PullAsInt("window.width");
-            height = wndFile->PullAsInt("window.height");
-            repeat_bkg = wndFile->PullAsBool("window.repeat background", false);
-            get_focus = wndFile->PullAsBool("window.get focus", false);
+            Title = I18N::Translate(wndFile->pullAsString("window.title"));
+            x = wndFile->pullAsInt("window.x");
+            y = wndFile->pullAsInt("window.y");
+            width = wndFile->pullAsInt("window.width");
+            height = wndFile->pullAsInt("window.height");
+            repeat_bkg = wndFile->pullAsBool("window.repeat background", false);
+            get_focus = wndFile->pullAsBool("window.get focus", false);
 
             float x_factor = 1.0f;
             float y_factor = 1.0f;
-            if (wndFile->PullAsBool("window.fullscreen"))
+            if (wndFile->pullAsBool("window.fullscreen"))
             {
-                int ref_width = wndFile->PullAsInt("window.screen width", width);
-                int ref_height = wndFile->PullAsInt("window.screen height", height);
+                int ref_width = wndFile->pullAsInt("window.screen width", width);
+                int ref_height = wndFile->pullAsInt("window.screen height", height);
                 if (ref_width > 0.0f)
                     x_factor = ((float)gfx->width) / ref_width;
                 if (ref_height > 0.0f)
@@ -1271,38 +1271,38 @@ namespace TA3D
                 height += SCREEN_H;
             size_factor = gfx->height / 600.0f;			// For title bar
 
-            background_wnd = wndFile->PullAsBool("window.background window");
-            Lock = wndFile->PullAsBool("window.lock");
-            draw_borders = wndFile->PullAsBool("window.draw borders");
-            show_title = wndFile->PullAsBool("window.show title");
+            background_wnd = wndFile->pullAsBool("window.background window");
+            Lock = wndFile->pullAsBool("window.lock");
+            draw_borders = wndFile->pullAsBool("window.draw borders");
+            show_title = wndFile->pullAsBool("window.show title");
             delete_gltex = false;
-            if (exists(wndFile->PullAsString("window.background").c_str()))
+            if (exists(wndFile->pullAsString("window.background").c_str()))
             {
-                background = gfx->load_texture(wndFile->PullAsString("window.background"), FILTER_LINEAR, &bkg_w, &bkg_h, false);
+                background = gfx->load_texture(wndFile->pullAsString("window.background"), FILTER_LINEAR, &bkg_w, &bkg_h, false);
                 delete_gltex = true;
             }
             else
                 background = 0;
-            color = wndFile->PullAsInt("window.color", delete_gltex ?  0xFFFFFFFF : makeacol(0x7F, 0x7F, 0x7F, 0xFF));
-            NbObj = wndFile->PullAsInt("window.number of objects");
+            color = wndFile->pullAsInt("window.color", delete_gltex ?  0xFFFFFFFF : makeacol(0x7F, 0x7F, 0x7F, 0xFF));
+            NbObj = wndFile->pullAsInt("window.number of objects");
 
             Objets = new GUIOBJ[NbObj];
 
             for (uint16 i = 0 ; i < NbObj ; ++i) // Loads each object
             {
                 String obj_key = format("window.object%d." , i);
-                String obj_type = wndFile->PullAsString(obj_key + "type");
-                Objets[i].Name = wndFile->PullAsString(obj_key + "name", format("object%d", i));
+                String obj_type = wndFile->pullAsString(obj_key + "type");
+                Objets[i].Name = wndFile->pullAsString(obj_key + "name", format("object%d", i));
                 obj_hashtable.Insert(String::ToLower(Objets[i].Name), i + 1);
-                Objets[i].help_msg = I18N::Translate(wndFile->PullAsString(obj_key + "help"));
+                Objets[i].help_msg = I18N::Translate(wndFile->pullAsString(obj_key + "help"));
 
-                float X1 = wndFile->PullAsFloat(obj_key + "x1") * x_factor;				// Reads data from TDF
-                float Y1 = wndFile->PullAsFloat(obj_key + "y1") * y_factor;
-                float X2 = wndFile->PullAsFloat(obj_key + "x2") * x_factor;
-                float Y2 = wndFile->PullAsFloat(obj_key + "y2") * y_factor;
-                String caption = I18N::Translate(wndFile->PullAsString(obj_key + "caption"));
-                float size = wndFile->PullAsFloat(obj_key + "size", 1.0f) * Math::Min(x_factor, y_factor);
-                int val = wndFile->PullAsInt(obj_key + "value");
+                float X1 = wndFile->pullAsFloat(obj_key + "x1") * x_factor;				// Reads data from TDF
+                float Y1 = wndFile->pullAsFloat(obj_key + "y1") * y_factor;
+                float X2 = wndFile->pullAsFloat(obj_key + "x2") * x_factor;
+                float Y2 = wndFile->pullAsFloat(obj_key + "y2") * y_factor;
+                String caption = I18N::Translate(wndFile->pullAsString(obj_key + "caption"));
+                float size = wndFile->pullAsFloat(obj_key + "size", 1.0f) * Math::Min(x_factor, y_factor);
+                int val = wndFile->pullAsInt(obj_key + "value");
                 uint32 obj_flags = 0;
                 uint32 obj_negative_flags = 0;
 
@@ -1315,31 +1315,31 @@ namespace TA3D
                 //		if (Y1<0)	Y1+=SCREEN_H;
                 //		if (Y2<0)	Y2+=SCREEN_H;
 
-                if (wndFile->PullAsBool(obj_key + "can be clicked"))
+                if (wndFile->pullAsBool(obj_key + "can be clicked"))
                     obj_flags |= FLAG_CAN_BE_CLICKED;
-                if (wndFile->PullAsBool(obj_key + "can get focus"))
+                if (wndFile->pullAsBool(obj_key + "can get focus"))
                     obj_flags |= FLAG_CAN_GET_FOCUS;
-                if (wndFile->PullAsBool(obj_key + "highlight"))
+                if (wndFile->pullAsBool(obj_key + "highlight"))
                     obj_flags |= FLAG_HIGHLIGHT;
-                if (wndFile->PullAsBool(obj_key + "fill"))
+                if (wndFile->pullAsBool(obj_key + "fill"))
                     obj_flags |= FLAG_FILL;
-                if (wndFile->PullAsBool(obj_key + "hidden"))
+                if (wndFile->pullAsBool(obj_key + "hidden"))
                     obj_flags |= FLAG_HIDDEN;
-                if (wndFile->PullAsBool(obj_key + "no border"))
+                if (wndFile->pullAsBool(obj_key + "no border"))
                     obj_flags |= FLAG_NO_BORDER;
-                if (wndFile->PullAsBool(obj_key + "cant be clicked"))
+                if (wndFile->pullAsBool(obj_key + "cant be clicked"))
                     obj_negative_flags |= FLAG_CAN_BE_CLICKED;
-                if (wndFile->PullAsBool(obj_key + "cant get focus"))
+                if (wndFile->pullAsBool(obj_key + "cant get focus"))
                     obj_negative_flags |= FLAG_CAN_GET_FOCUS;
 
-                if (wndFile->PullAsBool(obj_key + "centered"))
+                if (wndFile->pullAsBool(obj_key + "centered"))
                 {
                     obj_flags |= FLAG_CENTERED;
                     X1 -= gui_font.length(caption) * size * 0.5f;
                 }
 
                 String::Vector Entry;
-                ReadVectorString(Entry, wndFile->PullAsString(obj_key + "entry"));
+                ReadVectorString(Entry, wndFile->pullAsString(obj_key + "entry"));
                 I18N::Translate(Entry);
 
                 if (obj_type == "BUTTON")
@@ -1381,16 +1381,16 @@ namespace TA3D
                 else if (obj_type == "BOX")
                     Objets[i].create_box(X1, Y1, X2, Y2, val);
                 else if (obj_type == "IMG") {
-                    Objets[i].create_img(X1, Y1, X2, Y2, gfx->load_texture(I18N::Translate(wndFile->PullAsString(obj_key + "source"))));
+                    Objets[i].create_img(X1, Y1, X2, Y2, gfx->load_texture(I18N::Translate(wndFile->pullAsString(obj_key + "source"))));
                     Objets[i].destroy_img = Objets[i].Data != 0 ? true : false;
                 }
                 else if (obj_type == "LIST")
                     Objets[i].create_list(X1, Y1, X2, Y2, Entry, size);
 
-                ReadVectorString(Objets[i].OnClick, wndFile->PullAsString(obj_key + "on click"));
-                ReadVectorString(Objets[i].OnHover, wndFile->PullAsString(obj_key + "on hover"));
-                ReadVectorString(Objets[i].SendDataTo, String::ToLower(wndFile->PullAsString(obj_key + "send data to")));
-                ReadVectorString(Objets[i].SendPosTo, String::ToLower(wndFile->PullAsString(obj_key + "send pos to")));
+                ReadVectorString(Objets[i].OnClick, wndFile->pullAsString(obj_key + "on click"));
+                ReadVectorString(Objets[i].OnHover, wndFile->pullAsString(obj_key + "on hover"));
+                ReadVectorString(Objets[i].SendDataTo, String::ToLower(wndFile->pullAsString(obj_key + "send data to")));
+                ReadVectorString(Objets[i].SendPosTo, String::ToLower(wndFile->pullAsString(obj_key + "send pos to")));
 
                 Objets[i].Flag |= obj_flags;
                 Objets[i].Flag &= ~obj_negative_flags;

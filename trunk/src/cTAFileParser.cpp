@@ -129,7 +129,7 @@ namespace UTILS
         return false;
     }
 
-    void cTAFileParser::Load( const String &FileName,  bool bClearTable, bool toUTF8, bool g_mode )
+    void cTAFileParser::load( const String &FileName,  bool bClearTable, bool toUTF8, bool g_mode )
     {
         uint32 ota_size=0;
         byte *data = NULL;
@@ -194,18 +194,20 @@ namespace UTILS
         delete[] data;
     }
 
-    void cTAFileParser::LoadMemory( char *data, bool bClearTable, bool toUTF8, bool g_mode )
+    void cTAFileParser::loadMemory( char *data, bool bClearTable, bool toUTF8, bool g_mode )
     {
-        if( bClearTable ) {
+        if (bClearTable)
+        {
             uint32 old_tablesize = pTableSize;
             EmptyHashTable();
-            InitTable( old_tablesize );
+            InitTable(old_tablesize);
         }
 
-        if( !data )
-            throw ( "no data provided!!" );
+        if (!data)
+            throw ("no data provided!!");
 
-        if( toUTF8 ) {		// Convert from ASCII to UTF8, required because TA3D works with UTF8 and TA with ASCII
+        if (toUTF8) // Convert from ASCII to UTF8, required because TA3D works with UTF8 and TA with ASCII
+        {
             uint32 size = strlen( data );
             char *tmp = (char*) malloc( size * 2 );
 
@@ -220,36 +222,42 @@ namespace UTILS
         // erase all line feeds. (linear algorithm)
         char *tmp = data;
         int e = 0, i = 0;
-        for( ; tmp[i] ; i++ ) {
-            if( tmp[ i ] != '\r' ) {
-                if( e )	tmp[ i - e ] = tmp[ i ];
+        for ( ; tmp[i]; ++i)
+        {
+            if (tmp[i] != '\r')
+            {
+                if(e)
+                    tmp[i - e] = tmp[i];
             }
             else
-                e++;
+                ++e;
         }
-        if( e > 0 )
+        if (e > 0)
             tmp[i] = 0;
 
         gadget_mode = g_mode ? 0 : -1;
 
         // now process the remaining.
-        while( *tmp )
-            ProcessData( &tmp );
-        if( toUTF8 )
+        while (*tmp)
+            ProcessData(&tmp);
+        if (toUTF8)
             free(data);
     }
 
+
     cTAFileParser::cTAFileParser( const String &FileName,  bool bKeysCaseSenstive, bool toUTF8, bool g_mode )
-        :m_bKeysCaseSenstive(bKeysCaseSenstive), TA3D::UTILS::cHashTable<String>()
+        :TA3D::UTILS::cHashTable<String>(),
+        m_bKeysCaseSenstive(bKeysCaseSenstive)
     {
-        InitTable( 4096 );
-        Load(FileName, false, toUTF8, g_mode);
+        InitTable(4096);
+        load(FileName, false, toUTF8, g_mode);
     }
 
-    cTAFileParser::cTAFileParser( uint32 TableSize ) : TA3D::UTILS::cHashTable<String>()
+    cTAFileParser::cTAFileParser(uint32 TableSize)
+        :TA3D::UTILS::cHashTable<String>()
     {
         m_bKeysCaseSenstive = false;
-        InitTable( TableSize );
+        InitTable(TableSize);
     }
 
     cTAFileParser::~cTAFileParser()
@@ -257,13 +265,13 @@ namespace UTILS
         EmptyHashTable();
     }
 
-    sint32 cTAFileParser::PullAsInt( const String &KeyName , sint32 def )
+    sint32 cTAFileParser::pullAsInt(const String& key, const sint32 def)
     {
         String key_to_find;
         if( !m_bKeysCaseSenstive )
-            key_to_find = String::ToLower(KeyName);
+            key_to_find = String::ToLower(key);
         else
-            key_to_find = KeyName;
+            key_to_find = key;
         if (!Exists(key_to_find))
             return def;
 
@@ -272,7 +280,7 @@ namespace UTILS
         return ( (iterFind.length() == 0) ? def : ( iterFind.size() == 10 && ustrtol( iterFind.substr(0,4).c_str() , NULL, 0 ) > 127 ? ( 0xFF000000 | ustrtol( ("0x"+iterFind.substr(4,6)).c_str() , NULL, 0 ) ) : ustrtol( iterFind.c_str() , NULL, 0 ) ) );		// Uses ustrtol to deal with hexa numbers
     }
 
-    real32 cTAFileParser::PullAsFloat( const String &key, const real32 def)
+    real32 cTAFileParser::pullAsFloat(const String& key, const real32 def)
     {
         String key_to_find(key);
         if (!m_bKeysCaseSenstive)
@@ -283,7 +291,7 @@ namespace UTILS
     }
 
 
-    String cTAFileParser::PullAsString(const String &key, const String& def)
+    String cTAFileParser::pullAsString(const String& key, const String& def)
     {
         String key_to_find(key);
         if (!m_bKeysCaseSenstive)
@@ -294,7 +302,7 @@ namespace UTILS
     }
 
 
-    bool cTAFileParser::PullAsBool(const String& key, const bool def)
+    bool cTAFileParser::pullAsBool(const String& key, const bool def)
     {
         String key_to_find(key);
         if (!m_bKeysCaseSenstive)

@@ -166,48 +166,48 @@ namespace Settings
             return false;
         }
 
-        TA3D::VARS::lp_CONFIG->fps_limit = cfgFile->PullAsFloat( "TA3D.FPS Limit" );
-        TA3D::VARS::lp_CONFIG->shadow_r  = cfgFile->PullAsFloat( "TA3D.Shadow R" );
-        TA3D::VARS::lp_CONFIG->timefactor = cfgFile->PullAsFloat( "TA3D.Time Factor" );
+        TA3D::VARS::lp_CONFIG->fps_limit = cfgFile->pullAsFloat( "TA3D.FPS Limit" );
+        TA3D::VARS::lp_CONFIG->shadow_r  = cfgFile->pullAsFloat( "TA3D.Shadow R" );
+        TA3D::VARS::lp_CONFIG->timefactor = cfgFile->pullAsFloat( "TA3D.Time Factor" );
 
-        TA3D::VARS::lp_CONFIG->shadow_quality = cfgFile->PullAsInt( "TA3D.Shadow Quality" );
-        TA3D::VARS::lp_CONFIG->priority_level = cfgFile->PullAsInt( "TA3D.Priority Level" );
-        TA3D::VARS::lp_CONFIG->fsaa = cfgFile->PullAsInt( "TA3D.FSAA" );
-        TA3D::VARS::lp_CONFIG->Lang = cfgFile->PullAsInt( "TA3D.Language" );
-        TA3D::VARS::lp_CONFIG->water_quality = cfgFile->PullAsInt( "TA3D.Water Quality" );
-        TA3D::VARS::lp_CONFIG->screen_width = cfgFile->PullAsInt( "TA3D.Screen Width" );
-        TA3D::VARS::lp_CONFIG->screen_height = cfgFile->PullAsInt( "TA3D.Screen Height" );
-        TA3D::VARS::lp_CONFIG->color_depth = cfgFile->PullAsInt( "TA3D.Color Depth", 32 );
+        TA3D::VARS::lp_CONFIG->shadow_quality = cfgFile->pullAsInt( "TA3D.Shadow Quality" );
+        TA3D::VARS::lp_CONFIG->priority_level = cfgFile->pullAsInt( "TA3D.Priority Level" );
+        TA3D::VARS::lp_CONFIG->fsaa = cfgFile->pullAsInt( "TA3D.FSAA" );
+        TA3D::VARS::lp_CONFIG->Lang = cfgFile->pullAsInt( "TA3D.Language" );
+        TA3D::VARS::lp_CONFIG->water_quality = cfgFile->pullAsInt( "TA3D.Water Quality" );
+        TA3D::VARS::lp_CONFIG->screen_width = cfgFile->pullAsInt( "TA3D.Screen Width" );
+        TA3D::VARS::lp_CONFIG->screen_height = cfgFile->pullAsInt( "TA3D.Screen Height" );
+        TA3D::VARS::lp_CONFIG->color_depth = cfgFile->pullAsInt( "TA3D.Color Depth", 32 );
 
-        TA3D::VARS::lp_CONFIG->showfps = cfgFile->PullAsBool( "TA3D.Show FPS" );
-        TA3D::VARS::lp_CONFIG->wireframe = cfgFile->PullAsBool( "TA3D.Show Wireframe" );
-        TA3D::VARS::lp_CONFIG->particle = cfgFile->PullAsBool( "TA3D.Show particles" );
-        TA3D::VARS::lp_CONFIG->waves = cfgFile->PullAsBool( "TA3D.Show Waves" );
-        TA3D::VARS::lp_CONFIG->shadow = cfgFile->PullAsBool( "TA3D.Show Shadows" );
-        TA3D::VARS::lp_CONFIG->height_line = cfgFile->PullAsBool( "TA3D.Show Height Lines" );
-        TA3D::VARS::lp_CONFIG->fullscreen = cfgFile->PullAsBool( "TA3D.Show FullScreen", false );
-        TA3D::VARS::lp_CONFIG->detail_tex = cfgFile->PullAsBool( "TA3D.Detail Texture" );
-        TA3D::VARS::lp_CONFIG->draw_console_loading = cfgFile->PullAsBool( "TA3D.Draw Console Loading" );
+        TA3D::VARS::lp_CONFIG->showfps = cfgFile->pullAsBool( "TA3D.Show FPS" );
+        TA3D::VARS::lp_CONFIG->wireframe = cfgFile->pullAsBool( "TA3D.Show Wireframe" );
+        TA3D::VARS::lp_CONFIG->particle = cfgFile->pullAsBool( "TA3D.Show particles" );
+        TA3D::VARS::lp_CONFIG->waves = cfgFile->pullAsBool( "TA3D.Show Waves" );
+        TA3D::VARS::lp_CONFIG->shadow = cfgFile->pullAsBool( "TA3D.Show Shadows" );
+        TA3D::VARS::lp_CONFIG->height_line = cfgFile->pullAsBool( "TA3D.Show Height Lines" );
+        TA3D::VARS::lp_CONFIG->fullscreen = cfgFile->pullAsBool( "TA3D.Show FullScreen", false );
+        TA3D::VARS::lp_CONFIG->detail_tex = cfgFile->pullAsBool( "TA3D.Detail Texture" );
+        TA3D::VARS::lp_CONFIG->draw_console_loading = cfgFile->pullAsBool( "TA3D.Draw Console Loading" );
 
-        TA3D::VARS::lp_CONFIG->last_script = ReplaceChar( cfgFile->PullAsString( "TA3D.Last Script", "scripts\\default.c" ), '/', '\\' );
-        TA3D::VARS::lp_CONFIG->last_map = ReplaceChar( cfgFile->PullAsString( "TA3D.Last Map", "" ), '/', '\\' );
-        TA3D::VARS::lp_CONFIG->last_FOW = cfgFile->PullAsInt( "TA3D.Last FOW", 0 );
-        TA3D::VARS::lp_CONFIG->last_MOD = cfgFile->PullAsString( "TA3D.Last MOD", "" );
+        TA3D::VARS::lp_CONFIG->last_script = ReplaceChar( cfgFile->pullAsString( "TA3D.Last Script", "scripts\\default.c" ), '/', '\\' );
+        TA3D::VARS::lp_CONFIG->last_map = ReplaceChar( cfgFile->pullAsString( "TA3D.Last Map", "" ), '/', '\\' );
+        TA3D::VARS::lp_CONFIG->last_FOW = cfgFile->pullAsInt( "TA3D.Last FOW", 0 );
+        TA3D::VARS::lp_CONFIG->last_MOD = cfgFile->pullAsString( "TA3D.Last MOD", "" );
 
-        TA3D::VARS::lp_CONFIG->camera_zoom = cfgFile->PullAsInt( "TA3D.Camera Zoom Mode", ZOOM_NORMAL );
-        TA3D::VARS::lp_CONFIG->camera_def_angle = cfgFile->PullAsFloat( "TA3D.Camera Default Angle", 63.44f );
-        TA3D::VARS::lp_CONFIG->camera_def_h = cfgFile->PullAsFloat( "TA3D.Camera Default Height", 200.0f );
-        TA3D::VARS::lp_CONFIG->camera_zoom_speed = cfgFile->PullAsFloat( "TA3D.Camera Zoom Speed", 1.0f );
+        TA3D::VARS::lp_CONFIG->camera_zoom = cfgFile->pullAsInt( "TA3D.Camera Zoom Mode", ZOOM_NORMAL );
+        TA3D::VARS::lp_CONFIG->camera_def_angle = cfgFile->pullAsFloat( "TA3D.Camera Default Angle", 63.44f );
+        TA3D::VARS::lp_CONFIG->camera_def_h = cfgFile->pullAsFloat( "TA3D.Camera Default Height", 200.0f );
+        TA3D::VARS::lp_CONFIG->camera_zoom_speed = cfgFile->pullAsFloat( "TA3D.Camera Zoom Speed", 1.0f );
 
-        TA3D::VARS::lp_CONFIG->use_texture_cache = cfgFile->PullAsBool( "TA3D.Use Texture Cache", false );
+        TA3D::VARS::lp_CONFIG->use_texture_cache = cfgFile->pullAsBool( "TA3D.Use Texture Cache", false );
 
-        TA3D::VARS::lp_CONFIG->skin_name = cfgFile->PullAsString( "TA3D.Skin", "" );
+        TA3D::VARS::lp_CONFIG->skin_name = cfgFile->pullAsString( "TA3D.Skin", "" );
 
-        TA3D::VARS::lp_CONFIG->net_server = cfgFile->PullAsString( "TA3D.Net Server", "ta3d.darkstars.co.uk" );
+        TA3D::VARS::lp_CONFIG->net_server = cfgFile->pullAsString( "TA3D.Net Server", "ta3d.darkstars.co.uk" );
 
         TA3D::VARS::TA3D_CURRENT_MOD = TA3D::VARS::lp_CONFIG->last_MOD;
 
-        TA3D::VARS::lp_CONFIG->player_name = cfgFile->PullAsString( "TA3D.Player name", "player" );
+        TA3D::VARS::lp_CONFIG->player_name = cfgFile->pullAsString( "TA3D.Player name", "player" );
 
         delete cfgFile; 
 
