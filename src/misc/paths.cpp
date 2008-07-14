@@ -16,6 +16,8 @@
 #include <string>
 
 
+#define TA3D_LOGS_PATHS_PREFIX "[paths] "
+
 
 namespace TA3D
 {
@@ -211,18 +213,18 @@ namespace Paths
         bool logFileOpened = Logs::logger().writeToFile(Paths::Logs + programName + ".log");
 
         LOG_INFO("*** Welcome to TA3D ***");
-        LOG_INFO("Started from: `" << ApplicationRoot << "`");
+        LOG_INFO(TA3D_LOGS_PATHS_PREFIX << "Started from: `" << ApplicationRoot << "`");
         ConfigFile = Preferences;
         ConfigFile += "ta3d.cfg";
-        LOG_INFO("Folder: Preferences: `" << Preferences << "`");
-        LOG_INFO("Folder: Cache: `" << Caches << "`");
-        LOG_INFO("Folder: Savegames: `" << Savegames << "`");
-        LOG_INFO("Folder: Screenshots: `" << Screenshots << "`");
-        LOG_INFO("Folder: Logs: `" << Logs << "`");
+        LOG_INFO(TA3D_LOGS_PATHS_PREFIX << "Preferences: `" << Preferences << "`");
+        LOG_INFO(TA3D_LOGS_PATHS_PREFIX << "Cache: `" << Caches << "`");
+        LOG_INFO(TA3D_LOGS_PATHS_PREFIX << "Savegames: `" << Savegames << "`");
+        LOG_INFO(TA3D_LOGS_PATHS_PREFIX << "Screenshots: `" << Screenshots << "`");
+        LOG_INFO(TA3D_LOGS_PATHS_PREFIX << "Logs: `" << Logs << "`");
         if (!logFileOpened)
             LOG_ERROR("[logs] Impossible to open `" << Paths::Logs << programName << ".log`");
         else
-            LOG_INFO("Log: `" << Paths::LogFile);
+            LOG_INFO("Opened the log file: `" << Paths::LogFile);
 
         bool res = MakeDir(Caches) && MakeDir(Savegames)
             && MakeDir(Logs) && MakeDir(Preferences) && MakeDir(Screenshots);
@@ -265,7 +267,7 @@ namespace Paths
             # endif
             if (!Exists(pth))
             {
-		        LOG_DEBUG(pth << " does not exist !");
+		        LOG_DEBUG(TA3D_LOGS_PATHS_PREFIX << "`" << pth << "` does not exist !");
 		        # ifdef TA3D_PLATFORM_WINDOWS
                 if (mkdir(pth.c_str()))
 		        # else
@@ -273,7 +275,7 @@ namespace Paths
 		        # endif
                 {
                     // TODO Use the logging system instead
-                    LOG_ERROR("Impossible to create the folder `" << pth << "`");
+                    LOG_ERROR(TA3D_LOGS_PATHS_PREFIX << "Impossible to create the folder `" << pth << "`");
                     return false;
                 }
                 else
@@ -284,7 +286,7 @@ namespace Paths
 	        # endif
         }
         if (hasBeenCreated)
-            LOG_INFO("Created folder: `" << p << "`");
+            LOG_INFO(TA3D_LOGS_PATHS_PREFIX << "Created folder: `" << p << "`");
         return true;
     }
 
