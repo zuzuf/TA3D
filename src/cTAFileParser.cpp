@@ -228,14 +228,12 @@ namespace UTILS
         if (toUTF8) // Convert from ASCII to UTF8, required because TA3D works with UTF8 and TA with ASCII
         {
             uint32 size = strlen( data );
-            char *tmp = (char*) malloc( size * 2 );
-
-            do_uconvert( (const char*)data, U_ASCII, tmp, U_UTF8, size * 2 );
-
+            char *tmp = new char[size * 2];
+            do_uconvert( (const char*)data, U_ASCII, tmp, U_UTF8, size * 2);
             data = (char*)tmp;
         }
 
-        m_cKey = "";
+        m_cKey.clear();
         key_level.clear();
 
         // erase all line feeds. (linear algorithm)
@@ -260,7 +258,7 @@ namespace UTILS
         while (*tmp)
             ProcessData(&tmp);
         if (toUTF8)
-            free(data);
+            delete[] data;
     }
 
 
