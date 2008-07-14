@@ -59,7 +59,7 @@ namespace Logs
         }
         if (!filename.empty())
         {
-            std::fstream* o = new std::fstream(filename.c_str(), std::ios::out | std::ios::app);
+            std::fstream* o = new std::fstream(filename.c_str(), std::ios::out | std::ios::trunc /*| std::ios::app*/);
             if (!o->is_open())
                 delete o;
             else
