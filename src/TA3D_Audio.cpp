@@ -923,7 +923,7 @@ void cAudio::LoadTDFSounds( const bool allSounds )
         FileName += "sound.tdf";
 
     Console->AddEntry("Reading %s", FileName.c_str());
-    Load(FileName);
+    load(FileName);
     Console->AddEntry("Loading sounds from %s", FileName.c_str());
 
     for (iterator iter = begin(); iter != end() ; ++iter)   

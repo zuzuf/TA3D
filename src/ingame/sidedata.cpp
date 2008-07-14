@@ -64,13 +64,13 @@ namespace TA3D
         destroy();
 
         UTILS::cTAFileParser mod_parser( "ta3d.mod" );
-        unit_ext = mod_parser.PullAsString( "MOD.unit_ext", ".fbi" );
-        unit_dir = mod_parser.PullAsString( "MOD.unit_dir", "units\\" );
-        model_dir = mod_parser.PullAsString( "MOD.model_dir", "objects3d\\" );
-        download_dir = mod_parser.PullAsString( "MOD.download_dir", "download\\" );
-        weapon_dir = mod_parser.PullAsString( "MOD.weapon_dir", "weapons\\" );
-        guis_dir = mod_parser.PullAsString( "MOD.guis_dir", "guis\\" );
-        gamedata_dir = mod_parser.PullAsString( "MOD.gamedata_dir", "gamedata\\" );
+        unit_ext = mod_parser.pullAsString( "MOD.unit_ext", ".fbi" );
+        unit_dir = mod_parser.pullAsString( "MOD.unit_dir", "units\\" );
+        model_dir = mod_parser.pullAsString( "MOD.model_dir", "objects3d\\" );
+        download_dir = mod_parser.pullAsString( "MOD.download_dir", "download\\" );
+        weapon_dir = mod_parser.pullAsString( "MOD.weapon_dir", "weapons\\" );
+        guis_dir = mod_parser.pullAsString( "MOD.guis_dir", "guis\\" );
+        gamedata_dir = mod_parser.pullAsString( "MOD.gamedata_dir", "gamedata\\" );
         if( unit_dir[ unit_dir.length() - 1 ] != '\\' )			unit_dir += "\\";
         if( model_dir[ model_dir.length() - 1 ] != '\\' )		model_dir += "\\";
         if( download_dir[ download_dir.length() - 1 ] != '\\' )	download_dir += "\\";
@@ -82,16 +82,16 @@ namespace TA3D
 
         nb_side = 0;
 
-        while (sidedata_parser.PullAsString( format( "side%d.name", nb_side ), "" ) != "")
+        while (sidedata_parser.pullAsString( format( "side%d.name", nb_side ), "" ) != "")
         {
-            side_name[ nb_side ] = strdup( sidedata_parser.PullAsString( format( "side%d.name", nb_side ) ).c_str() );
-            side_pref[ nb_side ] = strdup( sidedata_parser.PullAsString( format( "side%d.nameprefix", nb_side ) ).c_str() );
-            side_com[ nb_side ] = strdup( sidedata_parser.PullAsString( format( "side%d.commander", nb_side ) ).c_str() );
-            side_int[ nb_side ] = strdup( sidedata_parser.PullAsString( format( "side%d.intgaf", nb_side ) ).c_str() );
+            side_name[ nb_side ] = strdup( sidedata_parser.pullAsString( format( "side%d.name", nb_side ) ).c_str() );
+            side_pref[ nb_side ] = strdup( sidedata_parser.pullAsString( format( "side%d.nameprefix", nb_side ) ).c_str() );
+            side_com[ nb_side ] = strdup( sidedata_parser.pullAsString( format( "side%d.commander", nb_side ) ).c_str() );
+            side_int[ nb_side ] = strdup( sidedata_parser.pullAsString( format( "side%d.intgaf", nb_side ) ).c_str() );
 
-            int pal_id = sidedata_parser.PullAsInt( format( "side%d.metalcolor", nb_side ) );
+            int pal_id = sidedata_parser.pullAsInt( format( "side%d.metalcolor", nb_side ) );
             side_int_data[ nb_side ].metal_color = makeacol( pal[ pal_id ].r << 2, pal[ pal_id ].g << 2, pal[ pal_id ].b << 2, 0xFF );
-            pal_id = sidedata_parser.PullAsInt( format( "side%d.energycolor", nb_side ) );
+            pal_id = sidedata_parser.pullAsInt( format( "side%d.energycolor", nb_side ) );
             side_int_data[ nb_side ].energy_color = makeacol( pal[ pal_id ].r << 2, pal[ pal_id ].g << 2, pal[ pal_id ].b << 2, 0xFF );
 
             side_int_data[ nb_side ].EnergyBar = read_gui_element( &sidedata_parser, format( "side%d.energybar", nb_side ) );
@@ -153,10 +153,10 @@ namespace TA3D
     IntrElementCoords read_gui_element(UTILS::cTAFileParser* parser, const String& element, bool bottom)
     {
         IntrElementCoords gui_element;
-        gui_element.x1 = parser->PullAsInt(element + ".x1");
-        gui_element.y1 = parser->PullAsInt(element + ".y1");
-        gui_element.x2 = parser->PullAsInt(element + ".x2");
-        gui_element.y2 = parser->PullAsInt(element + ".y2");
+        gui_element.x1 = parser->pullAsInt(element + ".x1");
+        gui_element.y1 = parser->pullAsInt(element + ".y1");
+        gui_element.x2 = parser->pullAsInt(element + ".x2");
+        gui_element.y2 = parser->pullAsInt(element + ".y2");
         if (bottom)
         {
             gui_element.y1 += SCREEN_H - 480;

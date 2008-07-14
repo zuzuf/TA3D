@@ -200,8 +200,8 @@ namespace TA3D
         k.toLower();
         k += pLanguageSuffix;
         return (defaultValue.empty())
-            ? pTranslations.PullAsString(k, key)
-            : pTranslations.PullAsString(k, defaultValue);
+            ? pTranslations.pullAsString(k, key)
+            : pTranslations.pullAsString(k, defaultValue);
     }
 
     void I18N::translate(String::Vector& out)
@@ -234,7 +234,7 @@ namespace TA3D
         // Load the file
         try
         {
-            pTranslations.Load(filename, emptyBefore, inASCII);
+            pTranslations.load(filename, emptyBefore, inASCII);
         }
         catch (...)
         {

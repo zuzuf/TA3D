@@ -333,7 +333,7 @@ static bool hpiviewCmdCreateGAF(int argc, char** argv)
     {
         jpgalleg_init();
         cTAFileParser parser( argv[2], false, false, false );
-        String filename = parser.PullAsString( "gadget0.filename" );
+        String filename = parser.pullAsString( "gadget0.filename" );
         FILE *gaf_file = TA3D_OpenFile( get_filename( filename.c_str() ), "wb" );
 
         if( gaf_file )
@@ -342,7 +342,7 @@ static bool hpiviewCmdCreateGAF(int argc, char** argv)
             set_gfx_mode( GFX_AUTODETECT_WINDOWED, 320, 200, 0, 0 );
             GAFHEADER	header;
             header.IDVersion = GAF_TRUECOLOR;
-            header.Entries = parser.PullAsInt( "gadget0.entries" );
+            header.Entries = parser.pullAsInt( "gadget0.entries" );
             header.Unknown1 = 0;
 
             fwrite( &header, 12, 1, gaf_file );
@@ -359,10 +359,10 @@ static bool hpiviewCmdCreateGAF(int argc, char** argv)
                 fwrite( &pos, 4, 1, gaf_file );
                 fseek( gaf_file, pos, SEEK_SET );
 
-                Entry.Frames = parser.PullAsInt( format( "gadget%d.frames", i + 1 ) );
+                Entry.Frames = parser.pullAsInt( format( "gadget%d.frames", i + 1 ) );
                 Entry.Unknown1 = 1;
                 Entry.Unknown2 = 0;
-                String Entry_name = parser.PullAsString( format( "gadget%d.name", i + 1 ) );
+                String Entry_name = parser.pullAsString( format( "gadget%d.name", i + 1 ) );
                 memset( Entry.Name, 0, 32 );
                 memcpy( Entry.Name, Entry_name.c_str(), Entry_name.size() + 1 );
 
@@ -383,13 +383,13 @@ static bool hpiviewCmdCreateGAF(int argc, char** argv)
                     fseek( gaf_file, pos, SEEK_SET );
 
                     GAFFRAMEDATA FrameData;
-                    FrameData.XPos = parser.PullAsInt( format( "gadget%d.frame%d.XPos", i + 1, e ) );
-                    FrameData.YPos = parser.PullAsInt( format( "gadget%d.frame%d.YPos", i + 1, e ) );
+                    FrameData.XPos = parser.pullAsInt( format( "gadget%d.frame%d.XPos", i + 1, e ) );
+                    FrameData.YPos = parser.pullAsInt( format( "gadget%d.frame%d.YPos", i + 1, e ) );
                     FrameData.FramePointers = 0;
                     FrameData.Unknown2 = 0;
                     FrameData.Compressed = 1;
 
-                    BITMAP *frame_img = load_bitmap( parser.PullAsString( format( "gadget%d.frame%d.filename", i + 1, e ) ).c_str(), NULL );
+                    BITMAP *frame_img = load_bitmap( parser.pullAsString( format( "gadget%d.frame%d.filename", i + 1, e ) ).c_str(), NULL );
                     if( frame_img )
                     {
                         FrameData.Width = frame_img->w;
@@ -411,7 +411,7 @@ static bool hpiviewCmdCreateGAF(int argc, char** argv)
                         {
                             img_size = buf_size;
                             if( save_memory_jpg_ex( buffer, &img_size, frame_img, NULL, 85, JPG_SAMPLING_444 | JPG_OPTIMIZE, NULL ) )		// RGB channels
-                                printf("error saving '%s'\n", parser.PullAsString( format( "gadget%d.frame%d.filename", i + 1, e ) ).c_str() );
+                                printf("error saving '%s'\n", parser.pullAsString( format( "gadget%d.frame%d.filename", i + 1, e ) ).c_str() );
                         }
 
                         fwrite( &img_size, sizeof( img_size ), 1, gaf_file );		// Save the result
@@ -434,7 +434,7 @@ static bool hpiviewCmdCreateGAF(int argc, char** argv)
                                 if(save_memory_jpg_ex( buffer, &img_size, frame_img, NULL, 100, JPG_GREYSCALE, NULL))
                                 {
                                     std::cerr << "Error saving alpha channel for '"
-                                        << parser.PullAsString(format("gadget%d.frame%d.filename", i + 1, e ) ).c_str() << "'" << std::endl;
+                                        << parser.pullAsString(format("gadget%d.frame%d.filename", i + 1, e ) ).c_str() << "'" << std::endl;
                                 }
                             }
 
@@ -448,7 +448,7 @@ static bool hpiviewCmdCreateGAF(int argc, char** argv)
                     else
                     {
                         std::cerr << "Error: In frame " << e << ", could not load "
-                            << parser.PullAsString(format( "gadget%d.frame%d.filename", i + 1, e ) ).c_str() << std::endl;
+                            << parser.pullAsString(format( "gadget%d.frame%d.filename", i + 1, e ) ).c_str() << std::endl;
                         i = header.Entries;
                         break;
                     }

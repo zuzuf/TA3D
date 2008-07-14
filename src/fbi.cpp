@@ -125,26 +125,26 @@ void UNIT_MANAGER::analyse(String filename,int unit_index)
 
     int page = atoi( number.c_str() ) - 1;		// Extract the page number
 
-    int NbObj = gui_parser.PullAsInt( "gadget0.totalgadgets" );
+    int NbObj = gui_parser.pullAsInt( "gadget0.totalgadgets" );
 
-    int x_offset = gui_parser.PullAsInt( "gadget0.common.xpos" );
-    int y_offset = gui_parser.PullAsInt( "gadget0.common.ypos" );
+    int x_offset = gui_parser.pullAsInt( "gadget0.common.xpos" );
+    int y_offset = gui_parser.pullAsInt( "gadget0.common.ypos" );
 
     for( int i = 1 ; i <= NbObj ; i++ )
     {
-        int attribs = gui_parser.PullAsInt( format( "gadget%d.common.commonattribs", i ) );
+        int attribs = gui_parser.pullAsInt( format( "gadget%d.common.commonattribs", i ) );
         if( attribs & 4 ) 	// Unit Build Pic
         {
-            int x = gui_parser.PullAsInt( format( "gadget%d.common.xpos", i ) ) + x_offset;
-            int y = gui_parser.PullAsInt( format( "gadget%d.common.ypos", i ) ) + y_offset;
-            int w = gui_parser.PullAsInt( format( "gadget%d.common.width", i ) );
-            int h = gui_parser.PullAsInt( format( "gadget%d.common.height", i ) );
-            String name = gui_parser.PullAsString( format( "gadget%d.common.name", i ) );
+            int x = gui_parser.pullAsInt( format( "gadget%d.common.xpos", i ) ) + x_offset;
+            int y = gui_parser.pullAsInt( format( "gadget%d.common.ypos", i ) ) + y_offset;
+            int w = gui_parser.pullAsInt( format( "gadget%d.common.width", i ) );
+            int h = gui_parser.pullAsInt( format( "gadget%d.common.height", i ) );
+            String name = gui_parser.pullAsString( format( "gadget%d.common.name", i ) );
             int idx = get_unit_index( name.c_str() );
 
             if( idx >= 0 )
             {
-                String name = gui_parser.PullAsString( format( "gadget%d.common.name", i ) );
+                String name = gui_parser.pullAsString( format( "gadget%d.common.name", i ) );
 
                 byte *gaf_file = HPIManager->PullFromHPI( format( "anims\\%s%d.gaf", unit_type[unit_index].Unitname, page + 1 ).c_str() );
                 if( gaf_file ) {
@@ -170,11 +170,11 @@ void UNIT_MANAGER::analyse(String filename,int unit_index)
         else
             if( attribs & 8 ) 	// Weapon Build Pic
             {
-                int x = gui_parser.PullAsInt( format( "gadget%d.common.xpos", i ) ) + x_offset;
-                int y = gui_parser.PullAsInt( format( "gadget%d.common.ypos", i ) ) + y_offset;
-                int w = gui_parser.PullAsInt( format( "gadget%d.common.width", i ) );
-                int h = gui_parser.PullAsInt( format( "gadget%d.common.height", i ) );
-                String name = gui_parser.PullAsString( format( "gadget%d.common.name", i ) );
+                int x = gui_parser.pullAsInt( format( "gadget%d.common.xpos", i ) ) + x_offset;
+                int y = gui_parser.pullAsInt( format( "gadget%d.common.ypos", i ) ) + y_offset;
+                int w = gui_parser.pullAsInt( format( "gadget%d.common.width", i ) );
+                int h = gui_parser.pullAsInt( format( "gadget%d.common.height", i ) );
+                String name = gui_parser.pullAsString( format( "gadget%d.common.name", i ) );
 
                 byte *gaf_file = HPIManager->PullFromHPI( format( "anims\\%s%d.gaf", unit_type[unit_index].Unitname, page + 1 ).c_str() );
                 if(gaf_file)
@@ -588,15 +588,15 @@ void UNIT_TYPE::load_dl()
     {
         cTAFileParser dl_parser( ta3dSideData.guis_dir + ta3dSideData.side_pref[ side_id ] + "dl.gui", false, false, true );
 
-        int NbObj = dl_parser.PullAsInt( "gadget0.totalgadgets" );
+        int NbObj = dl_parser.pullAsInt( "gadget0.totalgadgets" );
 
-        int x_offset = dl_parser.PullAsInt( "gadget0.common.xpos" );
-        int y_offset = dl_parser.PullAsInt( "gadget0.common.ypos" );
+        int x_offset = dl_parser.pullAsInt( "gadget0.common.xpos" );
+        int y_offset = dl_parser.pullAsInt( "gadget0.common.ypos" );
 
         dl_data->dl_num = 0;
 
         for( int i = 1 ; i <= NbObj ; i++ )
-            if( dl_parser.PullAsInt( format( "gadget%d.common.attribs", i ) ) == 32 )
+            if( dl_parser.pullAsInt( format( "gadget%d.common.attribs", i ) ) == 32 )
                 dl_data->dl_num++;
 
         dl_data->dl_x = (short*) malloc( sizeof(short) * dl_data->dl_num );
@@ -606,11 +606,11 @@ void UNIT_TYPE::load_dl()
 
         int e = 0;
         for( int i = 1 ; i <= NbObj ; i++ )
-            if( dl_parser.PullAsInt( format( "gadget%d.common.attribs", i ) ) == 32 ) {
-                dl_data->dl_x[e] = dl_parser.PullAsInt( format( "gadget%d.common.xpos", i ) ) + x_offset;
-                dl_data->dl_y[e] = dl_parser.PullAsInt( format( "gadget%d.common.ypos", i ) ) + y_offset;
-                dl_data->dl_w[e] = dl_parser.PullAsInt( format( "gadget%d.common.width", i ) );
-                dl_data->dl_h[e] = dl_parser.PullAsInt( format( "gadget%d.common.height", i ) );
+            if( dl_parser.pullAsInt( format( "gadget%d.common.attribs", i ) ) == 32 ) {
+                dl_data->dl_x[e] = dl_parser.pullAsInt( format( "gadget%d.common.xpos", i ) ) + x_offset;
+                dl_data->dl_y[e] = dl_parser.pullAsInt( format( "gadget%d.common.ypos", i ) ) + y_offset;
+                dl_data->dl_w[e] = dl_parser.pullAsInt( format( "gadget%d.common.width", i ) );
+                dl_data->dl_h[e] = dl_parser.pullAsInt( format( "gadget%d.common.height", i ) );
                 e++;
             }
 
@@ -748,7 +748,7 @@ void UNIT_MANAGER::load_panel_texture( const String &player_side, const String &
     String gaf_img;
     try {
         cTAFileParser parser( ta3dSideData.guis_dir + player_side + "MAIN.GUI" );
-        gaf_img = parser.PullAsString( "gadget0.panel" );
+        gaf_img = parser.pullAsString( "gadget0.panel" );
     }
     catch( ... )
     {
@@ -976,7 +976,7 @@ int load_all_units(void (*progress)(float percent,const String &msg))
     // Correct some data given in the FBI file using data from the moveinfo.tdf file
     cTAFileParser parser( ta3dSideData.gamedata_dir + "moveinfo.tdf" );
     n = 0;
-    while( parser.PullAsString( format( "CLASS%d.name", n ) ) != "" )
+    while( parser.pullAsString( format( "CLASS%d.name", n ) ) != "" )
         n++;
 
     for (int i=0;i<unit_manager.nb_unit; ++i)
@@ -984,13 +984,13 @@ int load_all_units(void (*progress)(float percent,const String &msg))
         if( unit_manager.unit_type[ i ].MovementClass != NULL )
         {
             for (int e = 0; e < n; ++e)
-                if (parser.PullAsString( format( "CLASS%d.name", e ) ) == String::ToUpper(unit_manager.unit_type[i].MovementClass))
+                if (parser.pullAsString( format( "CLASS%d.name", e ) ) == String::ToUpper(unit_manager.unit_type[i].MovementClass))
                 {
-                    unit_manager.unit_type[ i ].FootprintX = parser.PullAsInt( format( "CLASS%d.footprintx", e ), unit_manager.unit_type[ i ].FootprintX );
-                    unit_manager.unit_type[ i ].FootprintZ = parser.PullAsInt( format( "CLASS%d.footprintz", e ), unit_manager.unit_type[ i ].FootprintZ );
-                    unit_manager.unit_type[ i ].MinWaterDepth = parser.PullAsInt( format( "CLASS%d.minwaterdepth", e ), unit_manager.unit_type[ i ].MinWaterDepth );
-                    unit_manager.unit_type[ i ].MaxWaterDepth = parser.PullAsInt( format( "CLASS%d.maxwaterdepth", e ), unit_manager.unit_type[ i ].MaxWaterDepth );
-                    unit_manager.unit_type[ i ].MaxSlope = parser.PullAsInt( format( "CLASS%d.maxslope", e ), unit_manager.unit_type[ i ].MaxSlope );
+                    unit_manager.unit_type[ i ].FootprintX = parser.pullAsInt( format( "CLASS%d.footprintx", e ), unit_manager.unit_type[ i ].FootprintX );
+                    unit_manager.unit_type[ i ].FootprintZ = parser.pullAsInt( format( "CLASS%d.footprintz", e ), unit_manager.unit_type[ i ].FootprintZ );
+                    unit_manager.unit_type[ i ].MinWaterDepth = parser.pullAsInt( format( "CLASS%d.minwaterdepth", e ), unit_manager.unit_type[ i ].MinWaterDepth );
+                    unit_manager.unit_type[ i ].MaxWaterDepth = parser.pullAsInt( format( "CLASS%d.maxwaterdepth", e ), unit_manager.unit_type[ i ].MaxWaterDepth );
+                    unit_manager.unit_type[ i ].MaxSlope = parser.pullAsInt( format( "CLASS%d.maxslope", e ), unit_manager.unit_type[ i ].MaxSlope );
                     break;
                 }
         }

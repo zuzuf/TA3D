@@ -670,13 +670,13 @@ public:
         for (short i = 0 ; i < nb_unit ; ++i)
         {
             int n = 1;
-            String canbuild = sidedata_parser.PullAsString(String::ToLower(format( "canbuild.%s.canbuild%d", unit_type[ i ].Unitname, n ) ) );
+            String canbuild = sidedata_parser.pullAsString(String::ToLower(format( "canbuild.%s.canbuild%d", unit_type[ i ].Unitname, n ) ) );
             while( canbuild != "" ) {
                 int idx = get_unit_index( (char*)canbuild.c_str() );
                 if(idx>=0 && idx<nb_unit && unit_type[idx].unitpic)
                     unit_type[ i ].AddUnitBuild(idx, -1, -1, 64, 64, -1);
                 n++;
-                canbuild = sidedata_parser.PullAsString( format( "canbuild.%s.canbuild%d", unit_type[ i ].Unitname, n ) );
+                canbuild = sidedata_parser.pullAsString( format( "canbuild.%s.canbuild%d", unit_type[ i ].Unitname, n ) );
             }
         }
 

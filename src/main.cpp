@@ -74,10 +74,10 @@ void ReadFileParameter( void )
 
     String current_mod = TA3D::VARS::TA3D_CURRENT_MOD;
 
-    TA3D::VARS::TA3D_CURRENT_MOD = TA3D::VARS::lp_CONFIG->last_MOD = parser.PullAsString("TA3D.MOD", current_mod);
-    TA3D::VARS::lp_CONFIG->last_script = ReplaceChar( parser.PullAsString( "TA3D.Script", TA3D::VARS::lp_CONFIG->last_script ), '/', '\\' );
-    TA3D::VARS::lp_CONFIG->last_map = ReplaceChar( parser.PullAsString( "TA3D.Map", TA3D::VARS::lp_CONFIG->last_map ), '/', '\\' );
-    TA3D::VARS::lp_CONFIG->last_FOW = parser.PullAsInt( "TA3D.FOW", TA3D::VARS::lp_CONFIG->last_FOW );
+    TA3D::VARS::TA3D_CURRENT_MOD = TA3D::VARS::lp_CONFIG->last_MOD = parser.pullAsString("TA3D.MOD", current_mod);
+    TA3D::VARS::lp_CONFIG->last_script = ReplaceChar( parser.pullAsString( "TA3D.Script", TA3D::VARS::lp_CONFIG->last_script ), '/', '\\' );
+    TA3D::VARS::lp_CONFIG->last_map = ReplaceChar( parser.pullAsString( "TA3D.Map", TA3D::VARS::lp_CONFIG->last_map ), '/', '\\' );
+    TA3D::VARS::lp_CONFIG->last_FOW = parser.pullAsInt( "TA3D.FOW", TA3D::VARS::lp_CONFIG->last_FOW );
 
     if( current_mod != TA3D::VARS::TA3D_CURRENT_MOD ) // Refresh file structure
     {
@@ -95,16 +95,16 @@ void ReadFileParameter( void )
         sound_manager->LoadTDFSounds( false );
     }
 
-    if( parser.PullAsBool( "TA3D.Network game" ) )
+    if( parser.pullAsBool( "TA3D.Network game" ) )
     {
-        if( parser.PullAsBool( "TA3D.Server" ) ) {			// Server code
-            char *host_name = strdup( parser.PullAsString( "TA3D.Server name", TA3D::VARS::lp_CONFIG->player_name ).c_str() );
+        if( parser.pullAsBool( "TA3D.Server" ) ) {			// Server code
+            char *host_name = strdup( parser.pullAsString( "TA3D.Server name", TA3D::VARS::lp_CONFIG->player_name ).c_str() );
             setup_game( false, host_name );		// Start the game in networking mode as server
             free( host_name );
         }
         else // Client code
         {
-            char *host_name = strdup( parser.PullAsString( "TA3D.Server name", "" ).c_str() );
+            char *host_name = strdup( parser.pullAsString( "TA3D.Server name", "" ).c_str() );
             setup_game( true, host_name );		// Start the game in networking mode as server
             free( host_name );
         }

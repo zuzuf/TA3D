@@ -1828,18 +1828,18 @@ namespace TA3D
     {
         cTAFileParser parser(filename);
 
-        def = parser.PullAsBool( "sky.default", false );
-        spherical = parser.PullAsBool( "sky.spherical" );
-        full_sphere = parser.PullAsBool( "sky.full sphere" );
-        rotation_speed = parser.PullAsFloat( "sky.rotation speed" );
-        rotation_offset = parser.PullAsFloat( "sky.rotation offset" );
-        texture_name = parser.PullAsString( "sky.texture name" );
-        ReadVectorString(planet, parser.PullAsString( "sky.planet" ) );
-        FogColor[0] = parser.PullAsFloat( "sky.fog R" );
-        FogColor[1] = parser.PullAsFloat( "sky.fog G" );
-        FogColor[2] = parser.PullAsFloat( "sky.fog B" );
-        FogColor[3] = parser.PullAsFloat( "sky.fog A" );
-        ReadVectorString(MapName, parser.PullAsString( "sky.map" ) );
+        def = parser.pullAsBool( "sky.default", false );
+        spherical = parser.pullAsBool( "sky.spherical" );
+        full_sphere = parser.pullAsBool( "sky.full sphere" );
+        rotation_speed = parser.pullAsFloat( "sky.rotation speed" );
+        rotation_offset = parser.pullAsFloat( "sky.rotation offset" );
+        texture_name = parser.pullAsString( "sky.texture name" );
+        ReadVectorString(planet, parser.pullAsString( "sky.planet" ) );
+        FogColor[0] = parser.pullAsFloat( "sky.fog R" );
+        FogColor[1] = parser.pullAsFloat( "sky.fog G" );
+        FogColor[2] = parser.pullAsFloat( "sky.fog B" );
+        FogColor[3] = parser.pullAsFloat( "sky.fog A" );
+        ReadVectorString(MapName, parser.pullAsString( "sky.map" ) );
     }
 
     SKY_DATA* choose_a_sky( const String& mapname, const String& planet)

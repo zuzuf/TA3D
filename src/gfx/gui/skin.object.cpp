@@ -53,10 +53,10 @@ namespace TA3D
         {
             tex = gfx->load_texture(filename, FILTER_LINEAR, &w, &h);
 
-            x1 = parser->PullAsInt(prefix + "x1");
-            y1 = parser->PullAsInt(prefix + "y1");
-            x2 = parser->PullAsInt(prefix + "x2");
-            y2 = parser->PullAsInt(prefix + "y2");
+            x1 = parser->pullAsInt(prefix + "x1");
+            y1 = parser->pullAsInt(prefix + "y1");
+            x2 = parser->pullAsInt(prefix + "x2");
+            y2 = parser->pullAsInt(prefix + "y2");
 
             t_x1 = w ? ((float)x1) / w : 0.0f;
             t_x2 = w ? ((float)x2) / w : 0.0f;
@@ -66,7 +66,7 @@ namespace TA3D
             x2 -= w;
             y2 -= h;
 
-            borderSize *= parser->PullAsFloat(prefix + "scale", 1.0f);		// Allow scaling the widgets
+            borderSize *= parser->pullAsFloat(prefix + "scale", 1.0f);		// Allow scaling the widgets
 
             x1 *= borderSize;
             y1 *= borderSize;
