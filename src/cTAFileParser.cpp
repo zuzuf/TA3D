@@ -72,7 +72,7 @@ namespace UTILS
                 bool changed = false;
                 if (gadget_mode >= 0 && key_level.empty())
                 {
-                    m_cKey = format("gadget%d", gadget_mode );
+                    m_cKey = format("gadget%d", gadget_mode);
                     ++gadget_mode;
                     changed = true;
                     if (!m_bKeysCaseSenstive)
@@ -115,8 +115,8 @@ namespace UTILS
 
         // if we get here its possible its a name=value;
         // so we will search for a = and a ; if we find them we have a valid name/value
-        String::size_type f1 = Line.find_first_of("=");
-        String::size_type f2 = Line.find_last_of(";");
+        String::size_type f1 = Line.find_first_of('=');
+        String::size_type f2 = Line.find_last_of(';');
 
         if (f1 != String::npos && f2 != String::npos)
         {
