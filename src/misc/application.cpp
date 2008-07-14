@@ -21,7 +21,7 @@ namespace TA3D
 
         // allegro_exit(); // Should not be needed since allegro_init() installs it as an atexit() routine 
 
-        FREEANDNIL(TA3D::VARS::lp_CONFIG);
+        DELETEANDNIL(TA3D::VARS::lp_CONFIG);
 
         I18N::Destroy();
         LOG_INFO("Exit.");
