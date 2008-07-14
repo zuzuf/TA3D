@@ -20,6 +20,7 @@
 #include "cTAFileParser.h"
 #include "cError.h"
 #include <fstream>
+#include "misc/paths.h"
 
 
 namespace TA3D
@@ -46,9 +47,9 @@ namespace UTILS
     {
         if (**Data == 0)
             return true;
-
         String Line = GetLine(Data);         // extract line
-        if( Line.size() == 0 )	return false;
+        if (Line.empty())
+            return false;
 
         /*
         *** Experimental ***
@@ -133,12 +134,10 @@ namespace UTILS
 
             String t;
             t << m_cKey << '.' << n;
-
             if (!m_bKeysCaseSenstive)
                 t.toLower();
             InsertOrUpdate(t, v);
         }
-
         return false;
     }
 
@@ -159,10 +158,8 @@ namespace UTILS
             data = TA3D::VARS::HPIManager->PullFromHPI(filename, &ota_size);
         else
         {
-            String tfilename;
-            tfilename << GetClientPath() << filename;
             std::ifstream m_File;
-            m_File.open(tfilename.c_str(), std::ios::in | std::ios::binary | std::ios::ate);
+            m_File.open(filename.c_str(), std::ios::in | std::ios::binary | std::ios::ate);
             if (m_File.is_open())
             {
                 ota_size = m_File.tellg();
