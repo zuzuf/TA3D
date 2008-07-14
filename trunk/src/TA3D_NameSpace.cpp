@@ -17,7 +17,6 @@
 
 #include "stdafx.h"
 #include "TA3D_NameSpace.h"
-#include "logs/cLogger.h"
 #if defined TA3D_PLATFORM_LINUX || defined TA3D_PLATFORM_DARWIN
 #   include <sys/stat.h>
 #endif

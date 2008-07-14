@@ -19,7 +19,6 @@
 #include "TA3D_NameSpace.h"
 #include "threads/cThread.h"
 #include "threads/thread.h"
-#include "logs/cLogger.h"
 #include "cTA3D_Engine.h"
 #include "ta3dbase.h"
 
@@ -53,7 +52,6 @@ namespace TA3D
 		GuardInfo( "Zeroing Variables." );
 
 		InterfaceManager = NULL;
-		m_lpcLogger = NULL;
 		VARS::sound_manager = NULL;
 		VARS::HPIManager = NULL;
 		VARS::Console = NULL;
@@ -69,7 +67,6 @@ namespace TA3D
 		InterfaceManager = new IInterfaceManager();
 
 		GuardInfo( "Creating logging Interface, and attaching it to Interface Manager" );
-		m_lpcLogger = new TA3D::Interfaces::cLogger(TA3D::Paths::Logs + "ta3d.log", false );
 
 		GuardInfo( "Logging some stuff to ta3d.log" );
 
@@ -218,7 +215,6 @@ namespace TA3D
 
 		delete Console;
 
-		delete m_lpcLogger;
 		delete InterfaceManager;
 
 		if( m_AllegroRunning )

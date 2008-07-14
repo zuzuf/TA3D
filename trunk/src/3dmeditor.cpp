@@ -18,7 +18,6 @@
 #include "stdafx.h"
 #include "TA3D_NameSpace.h"
 #include "threads/cThread.h"
-#include "logs/cLogger.h"
 
 #define TA3D_BASIC_ENGINE
 #include "ta3d.h"			// Moteur
