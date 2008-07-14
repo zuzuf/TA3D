@@ -940,7 +940,6 @@ namespace TA3D
         // Makes fire spread 8)
         for (FeaturesList::iterator i = burning_features.begin() ; i != burning_features.end() ; )
         {
-            LOG_DEBUG(" >>>>>>> Piko : " << CS_count);
             ++CS_count;
             if (!CS_count)
             {
