@@ -32,7 +32,7 @@ namespace UTILS
     {
         for (char* result = *Data; **Data ; ++(*Data))
         {
-            if (**Data == '\n' || **Data == ';' || **Data == '{' || **Data == '}' )
+            if (**Data == '\n' || **Data == ';' || **Data == '{' || **Data == '}')
             {
                 ++(*Data);
                 return std::string(result, *Data);
@@ -47,150 +47,169 @@ namespace UTILS
         if (**Data == 0)
             return true;
 
-        String Line = GetLine( Data );         // extract line
+        String Line = GetLine(Data);         // extract line
         if( Line.size() == 0 )	return false;
 
-        int i = (int)Line.find( "//" );        // search for start of comment.
-        if( i != -1 )        // if we find a comment, we will erase everything
-            Line.resize( i );// from the comment to the end of the line.
+        /*
+        *** Experimental ***
+        String key;
+        String value;
+        Line.toKeyValue(key, value);
+        LOG_DEBUG(" >> `" << key << "`:`" << value << "`  > " << Line);
+        */
+
+        String::size_type i = Line.find("//"); // search for start of comment.
+        if (i != String::npos) // if we find a comment, we will erase everything
+            Line.resize(i); // from the comment to the end of the line.
 
         Line = String::Trim(Line, " \t\n\r{"); // strip out crap from string.
-        i = (int)Line.length();
+        i = Line.length();
 
-        if( i > 3 ) // check for new key.
+        if (i > 3) // check for new key.
         {
-            if( Line[0] == '[' && Line[ i-1 ] == ']' )
+            if( Line[0] == '[' && Line[i - 1] == ']')
             {
                 bool changed = false;
-                if( gadget_mode >= 0 && key_level.empty() ) {
+                if (gadget_mode >= 0 && key_level.empty())
+                {
                     m_cKey = format("gadget%d", gadget_mode );
-                    gadget_mode++;
+                    ++gadget_mode;
                     changed = true;
-                    if( !m_bKeysCaseSenstive )
-                        InsertOrUpdate( m_cKey, String::ToLower(Line.substr(1, i-2)));		// Link the key with its original name
+                    if (!m_bKeysCaseSenstive)
+                        InsertOrUpdate(m_cKey, String::ToLower(Line.substr(1, i-2)));		// Link the key with its original name
                     else
-                        InsertOrUpdate( m_cKey, Line.substr( 1, i-2 ) );		// Link the key with its original name
+                        InsertOrUpdate(m_cKey, Line.substr(1, i - 2));		// Link the key with its original name
                 }
 
-                key_level.push_front( m_cKey );
-                if( !changed )
-                    m_cKey = ( ( m_cKey == "" ) ? Line.substr( 1, i-2 ) :
-                               m_cKey + String( "." ) +
-                               Line.substr( 1, i-2 ) );
+                key_level.push_front(m_cKey);
+                if (!changed) 
+                {
+                    m_cKey = ( m_cKey.empty()
+                               ? Line.substr( 1, i-2 )
+                               : m_cKey + String(".") + Line.substr(1, i - 2));
+                }
 
-                m_cKey = ReplaceString( m_cKey, "\\n", "\n", false );
-                m_cKey = ReplaceString( m_cKey, "\\r", "\r", false );
+                m_cKey = ReplaceString( m_cKey, "\\n", "\n", false);
+                m_cKey = ReplaceString( m_cKey, "\\r", "\r", false);
 
-                while( **Data )										// Better using the stack this way, otherwise it might crash with huge files
-                    if( ProcessData( Data ) )	break;
+                while(**Data)										// Better using the stack this way, otherwise it might crash with huge files
+                {
+                    if (ProcessData(Data))
+                        break;
+                }
                 return false;
             }
         }
-        else if( i > 0 && Line[ i - 1 ] == '}' )  // close the current active key.
-        {
-            if( key_level.empty() )
-                m_cKey = "";
-            else {
-                m_cKey = key_level.front();
-                key_level.pop_front();
+        else
+            if (i > 0 && Line[ i - 1 ] == '}')  // close the current active key.
+            {
+                if (key_level.empty())
+                    m_cKey.clear();
+                else
+                {
+                    m_cKey = key_level.front();
+                    key_level.pop_front();
+                }
+                return true;
             }
-
-            return true;
-        }
 
         // if we get here its possible its a name=value;
         // so we will search for a = and a ; if we find them we have a valid name/value
-        int f1, f2;
-        f1 = (int)Line.find_first_of( "=" );
-        f2 = (int)Line.find_last_of( ";" );
+        String::size_type f1 = Line.find_first_of("=");
+        String::size_type f2 = Line.find_last_of(";");
 
-        if( f1 != -1 && f2 != -1 )
+        if (f1 != String::npos && f2 != String::npos)
         {
-            String n, v;
-            n = Line.substr( 0, f1 );
-            v = Line.substr( (f1+1), (f2-(f1+1)) );
+            String n = Line.substr(0, f1);
+            String v = Line.substr((f1 + 1), (f2 - (f1 + 1)));
 
-            if( n[ n.size() - 1 ] == ' ' )
-                n.erase( n.size() - 1, 1 );
-            if( v[ 0 ] == ' ' )
-                v.erase( 0, 1 );
+            if (!n.empty() && n[ n.size() - 1] == ' ')
+                n.erase(n.size() - 1, 1);
+            if (!v.empty() && v[0] == ' ')
+                v.erase(0, 1);
 
-            v = ReplaceString( v, "\\n", "\n", false );
-            v = ReplaceString( v, "\\r", "\r", false );
+            v = ReplaceString( v, "\\n", "\n", false);
+            v = ReplaceString( v, "\\r", "\r", false);
 
-            n = m_cKey + String( "." ) + n;
+            String t;
+            t << m_cKey << '.' << n;
 
-            if( !m_bKeysCaseSenstive )
-                InsertOrUpdate(String::ToLower(n), v);
-            else
-                InsertOrUpdate(n, v);
+            if (!m_bKeysCaseSenstive)
+                t.toLower();
+            InsertOrUpdate(t, v);
         }
 
         return false;
     }
 
-    void cTAFileParser::load( const String &FileName,  bool bClearTable, bool toUTF8, bool g_mode )
-    {
-        uint32 ota_size=0;
-        byte *data = NULL;
-        std::ifstream   m_File;
-        String tFileName = GetClientPath() + FileName;
 
-        if( bClearTable ) {
+
+    void cTAFileParser::load(const String& filename,  bool bClearTable, bool toUTF8, bool g_mode )
+    {
+        uint32 ota_size = 0;
+        byte* data = NULL;
+        if (bClearTable)
+        {
             uint32 old_tablesize = pTableSize;
             EmptyHashTable();
-            InitTable( old_tablesize );
+            InitTable(old_tablesize);
         }
 
-        if( TA3D::VARS::HPIManager )
-            data = TA3D::VARS::HPIManager->PullFromHPI( FileName, &ota_size );
-        else {
-            m_File.open( tFileName.c_str(), std::ios::in | std::ios::binary | std::ios::ate );
-            if( m_File.is_open() ) {
+        if (TA3D::VARS::HPIManager)
+            data = TA3D::VARS::HPIManager->PullFromHPI(filename, &ota_size);
+        else
+        {
+            String tfilename;
+            tfilename << GetClientPath() << filename;
+            std::ifstream m_File;
+            m_File.open(tfilename.c_str(), std::ios::in | std::ios::binary | std::ios::ate);
+            if (m_File.is_open())
+            {
                 ota_size = m_File.tellg();
-                data = new byte[ ota_size+1 ];
-                data[ ota_size ] = 0;
-                m_File.seekg( 0, std::ios::beg );
-                m_File.read( (char *)data, ota_size );
+                data = new byte[ota_size + 1];
+                data[ota_size] = 0;
+                m_File.seekg(0, std::ios::beg);
+                m_File.read((char *)data, ota_size);
                 m_File.close();
             }
         }
+        if (!data)
+            throw (String("Unable to load file ") + filename);
 
-        if( !data )
-            throw ( String( "Unable to load file " ) + FileName );
-
-        if( data != NULL && toUTF8 ) {		// Convert from ASCII to UTF8, required because TA3D works with UTF8 and TA with ASCII
-            char *tmp = new char[ ota_size * 2 ];
-
-            do_uconvert( (const char*)data, U_ASCII, tmp, U_UTF8, ota_size * 2 );
-
+        if (data != NULL && toUTF8) 
+        {
+            // Convert from ASCII to UTF8, required because TA3D works with UTF8 and TA with ASCII
+            char *tmp = new char[ota_size * 2];
+            do_uconvert( (const char*)data, U_ASCII, tmp, U_UTF8, ota_size * 2);
             delete[] data;
             data = (byte*)tmp;
         }
 
-        m_cKey = "";
+        m_cKey.clear();
         key_level.clear();
 
         // erase all line feeds. (linear algorithm)
         char *tmp = (char*)data;
         int e = 0, i = 0;
-        for( ; tmp[i] ; i++ ) {
-            if( tmp[ i ] != '\r' ) {
-                if( e )	tmp[ i - e ] = tmp[ i ];
+        for( ; tmp[i]; ++i)
+        {
+            if (tmp[i] != '\r')
+            {
+                if (e)
+                    tmp[i - e] = tmp[i];
             }
             else
-                e++;
+                ++e;
         }
-        if( e > 0 )
+        if (e > 0)
             tmp[i] = 0;
 
         tmp = (char*)data;
-
         gadget_mode = g_mode ? 0 : -1;
 
         // now process the remaining.
-        while( *tmp )
-            ProcessData( &tmp );
+        while (*tmp)
+            ProcessData(&tmp);
         delete[] data;
     }
 
@@ -245,12 +264,12 @@ namespace UTILS
     }
 
 
-    cTAFileParser::cTAFileParser( const String &FileName,  bool bKeysCaseSenstive, bool toUTF8, bool g_mode )
+    cTAFileParser::cTAFileParser( const String &filename,  bool bKeysCaseSenstive, bool toUTF8, bool g_mode )
         :TA3D::UTILS::cHashTable<String>(),
         m_bKeysCaseSenstive(bKeysCaseSenstive)
     {
         InitTable(4096);
-        load(FileName, false, toUTF8, g_mode);
+        load(filename, false, toUTF8, g_mode);
     }
 
     cTAFileParser::cTAFileParser(uint32 TableSize)

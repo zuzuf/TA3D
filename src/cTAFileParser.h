@@ -35,7 +35,7 @@ namespace UTILS
         /*!
         ** \brief Constructor
         */
-        cTAFileParser( const String &FileName, bool bKeysCaseSenstive = false, bool toUTF8 = false, bool g_mode = false );
+        cTAFileParser(const String& filename, bool bKeysCaseSenstive = false, bool toUTF8 = false, bool g_mode = false );
         /*!
         ** \brief Constructor
         */
@@ -44,7 +44,7 @@ namespace UTILS
         ~cTAFileParser();
         //@}
 
-        void load(const String& FileName, bool bClearTable = false, bool toUTF8 = false, bool g_mode = false );
+        void load(const String& filename, bool bClearTable = false, bool toUTF8 = false, bool g_mode = false );
 
         void loadMemory( char *data, bool bClearTable=false, bool toUTF8 = false, bool g_mode = false );
 
