@@ -18,7 +18,7 @@ namespace TA3D
         //! \name Constructor & Destructor
         //@{
         //! Default Constructor
-        SKIN() { init(); }
+        SKIN() : Name(), prefix() { init(); }
         //! Destructor
         ~SKIN(); 
         //@}
