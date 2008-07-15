@@ -14,21 +14,7 @@ namespace TA3D
 
     SKIN::~SKIN()
     {
-         for (sint8 i = 0; i < 2; ++i)
-        {
-            progress_bar[i].destroy();
-            button_img[i].destroy();
-            checkbox[i].destroy();
-            option[i].destroy();
-            scroll[i].destroy();
-        }
-        scroll[2].destroy();
-        text_background.destroy();
-        menu_background.destroy();
-        wnd_border.destroy();
-        wnd_title_bar.destroy();
-        selection_gfx.destroy();
-        gfx->destroy_texture(wnd_background);
+        destroy();
     }
 
 

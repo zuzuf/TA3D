@@ -11,7 +11,7 @@ namespace TA3D
     SKIN_OBJECT::SKIN_OBJECT()
         :tex(0), x1(0), y1(0), x2(0), y2(0),
         t_x1(0.0f), t_y1(0.0f), t_x2(0.0f), t_y2(0.0f),
-        w(0), h(h),
+        w(0), h(0),
         sw(0.0f), sh(0.0f)
     {}
 
