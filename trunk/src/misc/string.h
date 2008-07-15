@@ -182,6 +182,27 @@ namespace TA3D
         static int FindInList(const String::Vector& l, const String& s);
 
 
+        /*!
+        ** \brief Convert a string from ASCII to UTF8
+        ** \param s The string to convert
+        ** \return A new Null-terminated String (must be deleted with the keyword `delete[]`), even if s is NULL 
+        */
+        static char* ConvertToUTF8(const char* s);
+        /*!
+        ** \brief Convert a string from ASCII to UTF8
+        ** \param s The string to convert
+        ** \param len The length of the string
+        ** \return A new Null-terminated String (must be deleted with the keyword `delete[]`), even if s is NULL 
+        */
+        static char* ConvertToUTF8(const char* s, const uint32 len);
+        /*!
+        ** \brief Convert a string from ASCII to UTF8
+        ** \param s The string to convert
+        ** \return A new String
+        */
+        static String ConvertToUTF8(const String& s);
+
+
     public:
         //! \name Constructors and Destructor
         //@{
@@ -428,10 +449,19 @@ namespace TA3D
         */
         String& convertSlashesIntoAntiSlashes();
 
+        /*!
+        ** \brief Get the hash value of this string
+        */
         uint32 hashValue() const;
 
-    private:
+        /*!
+        ** \brief Convert the string from ASCII to UTF8
+        ** \return Always *this
+        */
+        String& convertToUTF8() {*this = ConvertToUTF8(*this); return *this;}
 
+
+    private:
         /*!
         ** \brief Convert a string into another type, given by the template parameter `T`
         ** \param[out] t The destination variable
