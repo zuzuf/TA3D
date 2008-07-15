@@ -1,5 +1,35 @@
 PROJECT(TA3D)
-MESSAGE(STATUS "TA3D Project")
+#
+# --- Settings ---
+#
+SET(TA3D_VERSION_HI      0)
+SET(TA3D_VERSION_LO      5.0)
+SET(TA3D_VERSION_TAG     "WIP")
+
+SET(TA3D_WEBSITE                "http://www.ta3d.org")
+SET(TA3D_WEBSITE_FORUM          "http://www.ta3d.org/forums/")
+SET(TA3D_MAIL_BUGREPORT         "zuzuf86@gmail.com")
+SET(TA3D_WEBSITE_NEW_BUGREPORT  "http://trac.ta3d.org/newticket")
+
+
+
+
+#
+# -----------------------------------------------------------------------------
+#
+
+SET(PACKAGE_BUGREPORT "${TA3D_MAIL_BUGREPORT}")
+SET(PACKAGE_VERSION "${TA3D_VERSION_HI}.${TA3D_VERSION_LO} ${TA3D_VERSION_TAG}")
+SET(PACKAGE_STRING "TA3D ${PACKAGE_VERSION}")
+SET(TA3D_ENGINE_VERSION "${PACKAGE_STRING}")
+
+# Getting the latest revision number
+EXECUTE_PROCESS(COMMAND "svnversion" "-n" "${PROJECT_SOURCE_DIR}" OUTPUT_VARIABLE SVN_REV)
+STRING(REGEX REPLACE "[0-9]+:" "" SVN_REV "${SVN_REV}")
+STRING(REPLACE "M" "" SVN_REV "${SVN_REV}")
+MESSAGE(STATUS "TA3D -  v${TA3D_VERSION_HI}.${TA3D_VERSION_LO} (Rev: ${SVN_REV})")
+
+
 cmake_minimum_required(VERSION 2.4)
 #SET(CMAKE_VERBOSE_MAKEFILE ON)
 # Policy
@@ -8,6 +38,8 @@ IF( NOT CMAKE_MINOR_VERSION EQUAL 4 OR NOT CMAKE_MAJOR_VERSION EQUAL 2 )
     cmake_policy(SET CMP0003 NEW)
 ENDIF( NOT CMAKE_MINOR_VERSION EQUAL 4 OR NOT CMAKE_MAJOR_VERSION EQUAL 2 )
 SET(LIBS "")
+
+
 
 
 # We want -O2 -g as default options, but we want to be able to override CXX_FLAGS from commandline
@@ -210,11 +242,6 @@ SET( CMAKE_RUNTIME_OUTPUT_DIRECTORY ${TA3D_SOURCE_DIR} )
 
 # for compatibility with old versions of cmake
 SET( EXECUTABLE_OUTPUT_PATH ${TA3D_SOURCE_DIR} )
-
-SET( PACKAGE_BUGREPORT "zuzuf86@gmail.com" )
-SET( PACKAGE_VERSION "0.5.0 WIP" )
-SET( PACKAGE_STRING "TA3D ${PACKAGE_VERSION}" )
-SET( TA3D_ENGINE_VERSION "${PACKAGE_STRING}" )
 
 
 
