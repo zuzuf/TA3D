@@ -213,6 +213,8 @@ namespace Paths
         bool logFileOpened = Logs::logger().writeToFile(Paths::Logs + programName + ".log");
 
         LOG_INFO("*** Welcome to TA3D ***");
+        LOG_INFO("Version: " << TA3D_VERSION_HI << "." << TA3D_VERSION_LO << "-" << TA3D_VERSION_TAG
+                 << " (r" << TA3D_CURRENT_REVISION << ")");
         LOG_INFO(TA3D_LOGS_PATHS_PREFIX << "Started from: `" << ApplicationRoot << "`");
         ConfigFile = Preferences;
         ConfigFile += "ta3d.cfg";
