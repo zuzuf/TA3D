@@ -1,5 +1,6 @@
 #include "../stdafx.h"
 #include "string.h"
+#include <allegro.h>
 
 #if TA3D_USE_BOOST == 1 
 #  include <boost/algorithm/string.hpp>
@@ -8,6 +9,8 @@
 #else
 #  include <algorithm>
 #endif
+#include "../logs/logs.h"
+
 
 
 namespace TA3D
@@ -76,6 +79,7 @@ namespace TA3D
         return ("true" == s || "on" == s);
     }
 
+
     String&
     String::trim(const String& trimChars)
     {
@@ -88,7 +92,7 @@ namespace TA3D
         if ((std::string::npos == startpos) || (std::string::npos == endpos))
            *this = ""; 
         else
-            *this = this->substr (startpos, endpos - startpos + 1);
+            *this = this->substr(startpos, endpos - startpos + 1);
         return *this;
     }
 
@@ -237,8 +241,8 @@ namespace TA3D
                 return indx;
         }
         return -1;
-
     }
+
 
     int String::FindInList(const String::Vector& l, const String& s)
     {
@@ -249,7 +253,52 @@ namespace TA3D
                 return indx;
         }
         return -1;
+    }
 
+
+    char* String::ConvertToUTF8(const char* s)
+    {
+        if (NULL != s && *s != '\0')
+            return ConvertToUTF8(s, strlen(s));
+        char* ret = new char[1];
+        LOG_ASSERT(NULL != ret);
+        *ret = '\0';
+        return ret;
+    }
+
+
+    char* String::ConvertToUTF8(const char* s, uint32 len)
+    {
+        if (NULL == s || '\0' == *s)
+        {
+            char* ret = new char[1];
+            LOG_ASSERT(NULL != ret);
+            *ret = '\0';
+            return ret;
+        }
+        // see http://linux.die.net/man/3/uconvert_size
+        const uint32 newSize = uconvert_size(s, U_ASCII, U_UTF8); // including the mandatory zero terminator of the string
+        char* ret = new char[newSize];
+        LOG_ASSERT(NULL != ret);
+        // see http://linux.die.net/man/3/do_uconvert
+        do_uconvert(s, U_ASCII, ret, U_UTF8, newSize);
+        ret[newSize] = '\0'; // A bit paranoid 
+        return ret;
+    }
+
+
+    String String::ConvertToUTF8(const String& s)
+    {
+        if (s.empty())
+            return String();
+        char* ret = ConvertToUTF8(s.c_str(), s.size());
+        if (ret)
+        {
+            String s(ret); // TODO Find a way to not use a temporary string
+            delete[] ret;
+            return s;
+        }
+        return String();
     }
 
 
