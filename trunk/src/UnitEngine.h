@@ -34,22 +34,38 @@
 # include <list>
 # include <vector>
 
-#define UNPACKX(xz) ((sint16)((xz)>>16))
-#define UNPACKZ(xz) ((sint16)((xz)&0xFFFF))
-#define PACKXZ(x,z) ((((int)(x))<<16) | (((int)(z))&0xFFFF))
+# define UNPACKX(xz) ((sint16)((xz)>>16))
+# define UNPACKZ(xz) ((sint16)((xz)&0xFFFF))
+# define PACKXZ(x,z) ((((int)(x))<<16) | (((int)(z))&0xFFFF))
 
 
-#define MISSION_FLAG_CAN_ATTACK		0x01
-#define MISSION_FLAG_SEARCH_PATH	0x02
-#define MISSION_FLAG_TARGET_WEAPON	0x04
-#define MISSION_FLAG_COMMAND_FIRE	0x08
-#define MISSION_FLAG_MOVE			0x10
-#define MISSION_FLAG_REFRESH_PATH	0x20
-#define MISSION_FLAG_DONT_STOP_MOVE	0x40
-#define MISSION_FLAG_COMMAND_FIRED	0x80
-#define MISSION_FLAG_TARGET_CHECKED	0x08			// For MISSION_CAPTURE to tell when data has been set to the time left before capture is finished
-#define MISSION_FLAG_PAD_CHECKED	0x08			// For MISSION_GET_REPAIRED to tell when data has been set to the landing pad
-#define MISSION_FLAG_BEING_REPAIRED	0x04			// For MISSION_GET_REPAIRED to tell the unit is being repaired
+# define MISSION_FLAG_CAN_ATTACK		0x01
+# define MISSION_FLAG_SEARCH_PATH	0x02
+# define MISSION_FLAG_TARGET_WEAPON	0x04
+# define MISSION_FLAG_COMMAND_FIRE	0x08
+# define MISSION_FLAG_MOVE			0x10
+# define MISSION_FLAG_REFRESH_PATH	0x20
+# define MISSION_FLAG_DONT_STOP_MOVE	0x40
+# define MISSION_FLAG_COMMAND_FIRED	0x80
+# define MISSION_FLAG_TARGET_CHECKED	0x08			// For MISSION_CAPTURE to tell when data has been set to the time left before capture is finished
+# define MISSION_FLAG_PAD_CHECKED	0x08			// For MISSION_GET_REPAIRED to tell when data has been set to the landing pad
+# define MISSION_FLAG_BEING_REPAIRED	0x04			// For MISSION_GET_REPAIRED to tell the unit is being repaired
+
+
+
+# define SIGNAL_ORDER_NONE		    0x0
+# define SIGNAL_ORDER_MOVE          0x1
+# define SIGNAL_ORDER_PATROL        0x2
+# define SIGNAL_ORDER_GUARD	        0x3
+# define SIGNAL_ORDER_ATTACK		0x4
+# define SIGNAL_ORDER_RECLAM		0x5
+# define SIGNAL_ORDER_STOP		    0x6
+# define SIGNAL_ORDER_ONOFF		    0x7
+# define SIGNAL_ORDER_LOAD		    0x8
+# define SIGNAL_ORDER_UNLOAD		0x9
+# define SIGNAL_ORDER_REPAIR		0xA
+# define SIGNAL_ORDER_CAPTURE	    0xB
+# define SIGNAL_ORDER_DGUN		    0xC
 
 
 
@@ -361,18 +377,17 @@ namespace TA3D
         bool			nanolathe_feature;
 
     public:
-
-        inline bool do_nothing()
+        bool do_nothing()
         {
             return (mission==NULL || ((mission->mission==MISSION_STOP || mission->mission==MISSION_STANDBY || mission->mission==MISSION_VTOL_STANDBY) && mission->next==NULL)) && !port[ INBUILDSTANCE ];
         }
 
-        inline bool do_nothing_ai()
+        bool do_nothing_ai()
         {
             return (mission==NULL || ((mission->mission==MISSION_STOP || mission->mission==MISSION_STANDBY || mission->mission==MISSION_VTOL_STANDBY || mission->mission==MISSION_MOVE) && mission->next==NULL)) && !port[ INBUILDSTANCE ];
         }
 
-        inline float damage_modifier()
+        float damage_modifier()
         {
             return port[ ARMORED ] ? unit_manager.unit_type[ type_id ].DamageModifier : 1.0f;
         }
@@ -380,302 +395,37 @@ namespace TA3D
         void draw_on_map();
         void clear_from_map();
 
-        void draw_on_FOW( bool jamming = false );
+        void draw_on_FOW(bool jamming = false);
 
-        bool is_on_radar( byte p_mask );
+        bool is_on_radar(byte p_mask);
 
-        inline void start_mission_script(int mission_type)
-        {
-            if(script==NULL)	return;
-            switch(mission_type)
-            {
-                case MISSION_ATTACK:
-                    //			activate();
-                    break;
-                case MISSION_PATROL:
-                case MISSION_MOVE:
-                    break;
-                case MISSION_BUILD_2:
-                    break;
-                case MISSION_RECLAIM:
-                    break;
-            };
-            if( mission_type != MISSION_STOP ) {
-                flags &= 191;
-                //			flags |= 1;
-            }
-        }
+        void start_mission_script(int mission_type);
 
         void next_mission();
 
-        inline void clear_mission()
-        {
-            if(mission==NULL)	return;
-
-            if( mission->mission == MISSION_GET_REPAIRED && mission->p ) {		// Don't forget to detach the planes from air repair pads!
-                UNIT *target_unit = (UNIT*)(mission->p);
-                target_unit->lock();
-                if( target_unit->flags & 1 ) {
-                    int piece_id = mission->data >= 0 ? mission->data : (-mission->data - 1);
-                    if( target_unit->pad1 == piece_id )			// tell others we've left
-                        target_unit->pad1 = 0xFFFF;
-                    else target_unit->pad2 = 0xFFFF;
-                }
-                target_unit->unlock();
-            }
-
-            MISSION *old=mission;
-            mission=mission->next;
-            if(old->path)				// Détruit le chemin si nécessaire
-                destroy_path(old->path);
-            free(old);
-        }
+        void clear_mission();
 
         void add_mission(int mission_type,VECTOR *target=NULL,bool step=false,int dat=0,void *pointer=NULL,PATH_NODE *path=NULL,byte m_flags=0,int move_data=0,int patrol_node=-1);
 
         void set_mission(int mission_type,VECTOR *target=NULL,bool step=false,int dat=0,bool stopit=true,void *pointer=NULL,PATH_NODE *path=NULL,byte m_flags=0,int move_data=0);
 
-        inline void compute_model_coord()
-        {
-            if(!compute_coord)	return;
-            if(model==NULL)	return;		// S'il n'y a pas de modèle associé, on quitte la fonction
-            pMutex.lock();
-            compute_coord=false;
-            MATRIX_4x4 M;
-            float scale=unit_manager.unit_type[type_id].Scale;
-            M=RotateZ(Angle.z*DEG2RAD)*RotateY(Angle.y*DEG2RAD)*RotateX(Angle.x*DEG2RAD)*Scale(scale);			// Matrice pour le calcul des positions des éléments du modèle de l'unité
-            model->compute_coord(&data,&M);
-            pMutex.unlock();
-        }
+        void compute_model_coord();
 
-        inline void raise_signal(uint32 signal)		// Tue les processus associés
-        {
-            SCRIPT_ENV_STACK *tmp;
-            for(int i=0;i<nb_running;i++) {
-                tmp = (*script_env)[i].env;
-                while(tmp) {
-                    if(tmp->signal_mask==signal) {
-                        tmp = (*script_env)[i].env;
-                        while(tmp!=NULL) {
-                            (*script_env)[i].env=tmp->next;
-                            delete tmp;
-                            tmp = (*script_env)[i].env;
-                        }
-                    }
-                    if(tmp)
-                        tmp=tmp->next;
-                }
-                if( (*script_env)[i].env==NULL)
-                    (*script_env)[i].running=false;
-            }
-        }
+        void raise_signal(uint32 signal);		// Tue les processus associés
 
-        inline void init_alloc_data()
-        {
-            s_var = new std::vector< int >;
-            port = new sint16[21];				// Ports
-            script_env = new std::vector< SCRIPT_ENV >;	// Environnements des scripts
-            script_val = new std::vector< short >;	// Tableau de valeurs retournées par les scripts
-            memory = new int[10];				// Pour se rappeler sur quelles armes on a déjà tiré
-            script_idx = new char[NB_SCRIPT];	// Index of scripts to prevent multiple search
-            attached_list = new short[20];
-            link_list = new short[20];
-            last_synctick = new uint32[10];
-        }
+        void init_alloc_data();
 
-        inline void toggle_self_destruct()
-        {
-            if( self_destruct < 0.0f )
-                self_destruct = unit_manager.unit_type[ type_id ].selfdestructcountdown;
-            else
-                self_destruct = -1.0f;
-        }
+        void toggle_self_destruct();
 
-        inline void lock_command()
-        {
-            pMutex.lock();
-            command_locked = true;
-            pMutex.unlock();
-        }
+        void lock_command();
 
-        inline void unlock_command()
-        {
-            pMutex.lock();
-            command_locked = false;
-            pMutex.unlock();
-        }
+        void unlock_command();
 
-        inline void init(int unit_type=-1,int owner=-1,bool full=false,bool basic=false)
-        {
-            pMutex.lock();
+        void init(int unit_type= - 1, int owner = -1, bool full = false, bool basic = false);
 
-            ID = 0;
+        void clear_def_mission();
 
-            yardmap_timer = 1;
-            death_timer = 0;
-
-            drawing = false;
-
-            local = true;		// Is local by default, set to remote by create_unit when needed
-
-            nanolathe_target = -1;		// Used for remote units only
-            nanolathe_reverse = false;
-            nanolathe_feature = false;
-
-            exploding = false;
-
-            command_locked = false;
-
-            pad1 = 0xFFFF; pad2 = 0xFFFF;
-            pad_timer = 0.0f;
-
-            requesting_pathfinder = false;
-
-            was_locked = 0.0f;
-
-            metal_extracted = 0.0f;
-
-            on_mini_radar = false;
-            move_target_computed.x = move_target_computed.y = move_target_computed.z = 0.0f;
-
-            self_destruct = -1;		// Don't auto destruct!!
-
-            drawn_open = drawn_flying = false;
-            drawn_x = drawn_y = 0;
-            drawn = true;
-
-            old_px = old_py = -10000;
-
-            flying = false;
-
-            cloaked = false;
-            cloaking = false;
-
-            hidden = false;
-            shadow_scale_dir = -1.0f;
-            last_path_refresh = 0.0f;
-            metal_prod = metal_cons = energy_prod = energy_cons = cur_metal_prod = cur_metal_cons = cur_energy_prod = cur_energy_cons = 0.0f;
-            last_time_sound = msec_timer;
-            ripple_timer = msec_timer;
-            was_moving = false;
-            cur_px=0;
-            cur_py=0;
-            sight = 0;
-            radar_range = 0;
-            sonar_range = 0;
-            radar_jam_range = 0;
-            sonar_jam_range = 0;
-            severity=0;
-            if(full)
-                init_alloc_data();
-            for(int i=0;i<NB_SCRIPT;i++)	script_idx[i]=-2;	// Not yet searched
-            just_created=true;
-            first_move=true;
-            attached=false;
-            nb_attached=0;
-            mem_size=0;
-            planned_weapons=0.0f;
-            attacked=false;
-            groupe=0;
-            weapon[0].init();
-            weapon[1].init();
-            weapon[2].init();
-            h=0.0f;
-            compute_coord=true;
-            c_time=0.0f;
-            flags=1;
-            sel=false;
-            script=NULL;
-            model=NULL;
-            owner_id=owner;
-            type_id=-1;
-            hp=0.0f;
-            V.x=V.y=V.z=0.0f;
-            Pos=V;
-            data.init();
-            Angle.x=Angle.y=Angle.z=0.0f;
-            V_Angle=Angle;
-            nb_running=0;
-            int i;
-            script_env->clear();
-            script_val->clear();
-            for(i=0;i<21;i++)
-                port[i]=0;
-            s_var->clear();
-            if(unit_type<0 || unit_type>=unit_manager.nb_unit)
-                unit_type=-1;
-            port[ACTIVATION]=0;
-            mission=NULL;
-            def_mission=NULL;
-            port[BUILD_PERCENT_LEFT]=0;
-            build_percent_left=0.0f;
-            memset( last_synctick, 0, 40 );
-            if(unit_type!=-1)
-            {
-                if( !basic )
-                {
-                    pMutex.unlock();
-                    set_mission(MISSION_STANDBY);
-                    pMutex.lock();
-                }
-                type_id=unit_type;
-                model=unit_manager.unit_type[type_id].model;
-                hp=unit_manager.unit_type[type_id].MaxDamage;
-                script=unit_manager.unit_type[type_id].script;
-                port[STANDINGMOVEORDERS]=unit_manager.unit_type[type_id].StandingMoveOrder;
-                port[STANDINGFIREORDERS]=unit_manager.unit_type[type_id].StandingFireOrder;
-                if( !basic )
-                {
-                    pMutex.unlock();
-                    set_mission(unit_manager.unit_type[type_id].DefaultMissionType);
-                    pMutex.lock();
-                }
-                if(script)
-                {
-                    data.load(script->nb_piece);
-                    launch_script(get_script_index(SCRIPT_create));
-                }
-            }
-            pMutex.unlock();
-        }
-
-        inline void clear_def_mission()
-        {
-            while( def_mission ) {
-                MISSION *old = def_mission;
-                def_mission = def_mission->next;
-                if(old->path)				// Détruit le chemin si nécessaire
-                    destroy_path(old->path);
-                free(old);
-            }
-        }
-
-        inline void destroy(bool full=false)
-        {
-            while( drawing )	rest(0);
-            pMutex.lock();
-            ID = 0;
-            for(int i=0;i<nb_running;i++)
-                (*script_env)[i].destroy();
-            while(mission) clear_mission();
-            clear_def_mission();
-            init();
-            flags=0;
-            groupe=0;
-            pMutex.unlock();
-            if(full)
-            {
-                delete	 s_var;			// Tableau de variables pour les scripts
-                delete[] port;			// Ports
-                delete	 script_env;	// Environnements des scripts
-                delete	 script_val;	// Tableau de valeurs retournées par les scripts
-                delete[] memory;	// Pour se rappeler sur quelles armes on a déjà tiré
-                delete[] script_idx;	// Index of scripts to prevent multiple search
-                delete[] attached_list;
-                delete[] link_list;
-                delete[] last_synctick;
-            }
-        }
+        void destroy(bool full = false);
 
         void draw(float t,Camera *cam,MAP *map, bool height_line=true);
 
@@ -683,128 +433,21 @@ namespace TA3D
 
         void draw_shadow_basic(Camera *cam, const VECTOR& Dir, MAP *map);
 
-        inline int get_script_index(int id)
-        {
-            if(script_idx[id]!=-2)	return script_idx[id];
-            const char *script_name[]= {	"QueryPrimary","AimPrimary","FirePrimary",
-                "QuerySecondary","AimSecondary","FireSecondary",
-                "QueryTertiary","AimTertiary","FireTertiary",
-                "TargetCleared","stopbuilding","stop",
-                "startbuilding","go","killed",
-                "StopMoving","Deactivate","Activate",
-                "create","MotionControl","startmoving",
-                "MoveRate1","MoveRate2","MoveRate3",
-                "RequestState","TransportPickup","TransportDrop",
-                "QueryTransport","BeginTransport","EndTransport",
-                "SetSpeed","SetDirection","SetMaxReloadTime",
-                "QueryBuildInfo","SweetSpot","RockUnit",
-                "QueryLandingPad"};
-            script_idx[id]=get_script_index(script_name[id]);
-            return script_idx[id];
-        }
+        int get_script_index(int id);
 
-        inline int get_script_index(const char *script_name)			// Cherche l'indice du script dont on fournit le nom
-        {
-            if(script)
-                for(int i=0;i<script->nb_script;i++)
-                    if(strcasecmp(script->name[i],script_name)==0)
-                        return i;
-            return -1;
-        }
+        int get_script_index(const char *script_name);	 // Cherche l'indice du script dont on fournit le nom
 
         int launch_script(int id,int nb_param=0,int *param=NULL,bool force=false);			// Start a script as a separate "thread" of the unit
 
-        inline bool is_running(int script_index)								// Is the script still running ?
-        {
-            if(script==NULL)	return false;
-            if(script_index<0 || script_index>=script->nb_script)	return false;
-            for(int i=0;i<nb_running;i++)
-                if((*script_env)[i].running && (*script_env)[i].env!=NULL) {
-                    SCRIPT_ENV_STACK *current=(*script_env)[i].env;
-                    while(current) {
-                        if((current->cur&0xFF)==script_index)
-                            return true;
-                        current=current->next;
-                    }
-                }
-            return false;
-        }
+        bool is_running(int script_index); // Is the script still running ?
 
-        inline void run_script_function( MAP *map, int id, int nb_param=0, int *param=NULL )	// Launch and run the script, returning it's values to param if not NULL
-        {
-            pMutex.lock();
-            int script_idx = launch_script( id, nb_param, param );
-            if( script_idx >= 0 ) {
-                float dt = 1.0f / TICKS_PER_SEC;
-                for(uint16 n = 0 ; n < 10000 && (*script_env)[ script_idx ].running && (*script_env)[ script_idx ].env != NULL ; n++ ) {
-                    if( nb_param > 0 && param != NULL )
-                        for( int i = 0 ; i < nb_param ; i++ )
-                            param[i] = (*script_env)[ script_idx ].env->var[ i ];
-                    if( run_script( dt, script_idx, map, 1 ) )	break;
-                }
-                int e=0;
-                for(int i=0;i+e<nb_running;) {				// Do some cleaning so we don't use all the env table with unused data
-                    if((*script_env)[i+e].running) {
-                        (*script_env)[i]=(*script_env)[i+e];
-                        i++;
-                    }
-                    else {
-                        (*script_env)[i+e].destroy();
-                        e++;
-                    }
-                }
-                nb_running-=e;
-            }
-            pMutex.unlock();
-        }
+        void run_script_function(MAP* map, int id, int nb_param = 0, int *param = NULL); // Launch and run the script, returning it's values to param if not NULL
 
-        inline void kill_script(int script_index)		// Fait un peu de ménage
-        {
-            if(script==NULL)	return;
-            if(script_index<0 || script_index>=script->nb_script)	return;
-            pMutex.lock();
-            for(int i=0;i<nb_running;i++)
-                if((*script_env)[i].running && (*script_env)[i].env!=NULL) {
-                    SCRIPT_ENV_STACK *current=(*script_env)[i].env;
-                    while(current) {
-                        if((current->cur&0xFF)==script_index) {		// Tue le script trouvé
-                            current=(*script_env)[i].env;
-                            (*script_env)[i].running=false;
-                            while(current) {
-                                (*script_env)[i].env=current->next;
-                                delete current;
-                                current=(*script_env)[i].env;
-                            }
-                            break;
-                        }
-                        current=current->next;
-                    }
-                }
-            int e=0;
-            for(int i=0;i+e<nb_running;) {				// Efface les scripts qui se sont arrêtés
-                if((*script_env)[i+e].running) {
-                    (*script_env)[i]=(*script_env)[i+e];
-                    i++;
-                }
-                else {
-                    (*script_env)[i+e].destroy();
-                    e++;
-                }
-            }
-            nb_running-=e;
-            pMutex.unlock();
-        }
+        void kill_script(int script_index);	// Fait un peu de ménage
 
-        inline void reset_script()
-        {
-            pMutex.lock();
-            for(int i=0;i<nb_running;i++)
-                (*script_env)[i].destroy();
-            nb_running=0;
-            pMutex.unlock();
-        }
+        void reset_script();
 
-        const void play_sound( const String &key );
+        const void play_sound(const String& key);
 
         const int run_script(const float &dt,const int &id,MAP *map, int max_code = MAX_CODE_PER_TICK);			// Interprète les scripts liés à l'unité
 
@@ -812,27 +455,9 @@ namespace TA3D
 
         void show_orders( bool only_build_commands=false, bool def_orders=false );				// Dessine les ordres reçus
 
-        inline void activate()
-        {
-            pMutex.lock();
-            if( port[ACTIVATION] == 0 ) {
-                play_sound( "activate" );
-                launch_script(get_script_index(SCRIPT_Activate));
-                port[ACTIVATION] = 1;
-            }
-            pMutex.unlock();
-        }
+        void activate();
 
-        inline void deactivate()
-        {
-            pMutex.lock();
-            if( port[ACTIVATION] != 0 ) {
-                play_sound( "deactivate" );
-                launch_script(get_script_index(SCRIPT_Deactivate));
-                port[ACTIVATION] = 0;
-            }
-            pMutex.unlock();
-        }
+        void deactivate();
 
         int shoot(int target,VECTOR startpos,VECTOR Dir,int w_id,const VECTOR &target_pos);
 
@@ -840,26 +465,11 @@ namespace TA3D
 
         bool hit_fast(VECTOR P,VECTOR Dir,VECTOR *hit_vec, float length = 100.0f);
 
-        inline void stop_moving()
-        {
-            if( mission->flags & MISSION_FLAG_MOVE ) {
-                mission->flags &= ~MISSION_FLAG_MOVE;
-                if( mission->path ) {
-                    destroy_path( mission->path );
-                    mission->path = NULL;
-                    V.x = V.y = V.z = 0.0f;
-                }
-                if( !( unit_manager.unit_type[ type_id ].canfly && nb_attached > 0 ) )		// Once charged with units the Atlas cannot land
-                    launch_script(get_script_index(SCRIPT_StopMoving));
-                else
-                    was_moving = false;
-                if( !(mission->flags & MISSION_FLAG_DONT_STOP_MOVE) )
-                    V.x = V.y = V.z = 0.0f;		// Stop unit's movement
-            }
-        }
+        void stop_moving();
 
         void explode();
-    };
+
+    }; // class UNIT
 
 #define	ICON_UNKNOWN		0x0
 #define	ICON_BUILDER		0x1
@@ -935,7 +545,7 @@ namespace TA3D
         uint32		*mini_col;			// Colors of units
 
     private:
-        uint32		InterfaceMsg( const lpcImsg msg );	// Manage signals sent through the interface to unit manager
+        uint32		InterfaceMsg(const lpcImsg msg);	// Manage signals sent through the interface to unit manager
 
     protected:
         int			Run();
@@ -943,110 +553,15 @@ namespace TA3D
 
     public:
 
-        inline void set_wind_change()
-        {
-            pMutex.lock();
-            wind_change = true;
-            pMutex.unlock();
-        }
+        void set_wind_change();
 
-        inline void init( bool register_interface = false )
-        {
-            pMutex.lock();
+        void init(bool register_interface = false);
 
-            next_unit_ID = 1;
-            mini_idx = NULL;
-            mini_pos = NULL;
-            mini_col = NULL;
-            requests.clear();
-            repair_pads.clear();
-            repair_pads.resize( 10 );
+        INGAME_UNITS();
 
-            last_on = -1;
-            current_tick = 0;
-            last_tick[0]=0;
-            last_tick[1]=0;
-            last_tick[2]=0;
-            last_tick[3]=0;
-            last_tick[4]=0;
-            apparent_timefactor = 1.0f;
-            thread_running = false;
-            thread_ask_to_stop = false;
+        void destroy(bool delete_interface = true);
 
-            if( register_interface ) {
-                InitInterface();		// Initialization of the interface
-
-                icons[ ICON_UNKNOWN ] = gfx->load_texture( "gfx/tactical icons/unknown.tga" );
-                icons[ ICON_BUILDER ] = gfx->load_texture( "gfx/tactical icons/builder.tga" );
-                icons[ ICON_TANK ] = gfx->load_texture( "gfx/tactical icons/tank.tga" );
-                icons[ ICON_LANDUNIT ] = gfx->load_texture( "gfx/tactical icons/landunit.tga" );
-                icons[ ICON_DEFENSE ] = gfx->load_texture( "gfx/tactical icons/defense.tga" );
-                icons[ ICON_ENERGY ] = gfx->load_texture( "gfx/tactical icons/energy.tga" );
-                icons[ ICON_METAL ] = gfx->load_texture( "gfx/tactical icons/metal.tga" );
-                icons[ ICON_WATERUNIT ] = gfx->load_texture( "gfx/tactical icons/waterunit.tga" );
-                icons[ ICON_COMMANDER ] = gfx->load_texture( "gfx/tactical icons/commander.tga" );
-                icons[ ICON_SUBUNIT ] = gfx->load_texture( "gfx/tactical icons/subunit.tga" );
-                icons[ ICON_AIRUNIT ] = gfx->load_texture( "gfx/tactical icons/airunit.tga" );
-                icons[ ICON_FACTORY ] = gfx->load_texture( "gfx/tactical icons/factory.tga" );
-                icons[ ICON_KAMIKAZE ] = gfx->load_texture( "gfx/tactical icons/kamikaze.tga" );
-            }
-
-            sound_min_ticks = 500;
-            index_list_size=0;
-            for(int i=0;i<10;i++)	free_index_size[i]=0;
-            idx_list=free_idx=NULL;
-            page=0;
-            nb_unit=0;
-            unit=NULL;
-            max_unit=0;
-            nb_attacked=0.0f;
-            nb_built=0.0f;
-            exp_dt_1=0.0f;
-            exp_dt_2=0.0f;
-            exp_dt_4=0.0f;
-            g_dt=0.0f;
-
-            pMutex.unlock();
-        }
-
-        inline INGAME_UNITS() : repair_pads(), requests()
-        {
-            InitThread();
-            init();
-        }
-
-        inline void destroy( bool delete_interface = true )
-        {
-            pMutex.lock();
-
-            if( delete_interface ) {
-                for( int i = 0 ; i < 13 ; i++ )
-                    gfx->destroy_texture( icons[ i ] );
-
-                DeleteInterface();			// Shut down the interface
-            }
-
-            if( mini_idx )			delete[] mini_idx;
-            if( mini_pos )			delete[] mini_pos;
-            if( mini_col )			delete[] mini_col;
-
-            if(idx_list)			delete[] idx_list;
-            if(free_idx)			delete[] free_idx;
-            if(max_unit>0 && unit)			// Destroy all units
-                for(int i=0;i<max_unit;i++)
-                    unit[i].destroy(true);
-            if(unit)
-                delete[] unit;
-//                free(unit);
-            pMutex.unlock();
-
-            init();
-        }
-
-        ~INGAME_UNITS()
-        {
-            destroy( false );
-        }
+        ~INGAME_UNITS() {destroy(false);}
 
         void kill(int index,MAP *map,int prev,bool sync = true);			// Détruit une unité
 
@@ -1066,149 +581,27 @@ namespace TA3D
 
         int pick_minimap();
 
-        inline void give_order_move(int player_id,VECTOR target,bool set=true,byte flags=0)
-        {
-            pMutex.lock();
+        void give_order_move(int player_id,VECTOR target,bool set=true,byte flags=0);
 
-            for(uint16 e=0;e<index_list_size;e++) {
-                uint16 i = idx_list[e];
-                if( (unit[i].flags & 1) && unit[i].owner_id==player_id && unit[i].sel && unit[i].build_percent_left == 0.0f && unit_manager.unit_type[unit[i].type_id].canmove) {
-                    if(set)
-                        unit[i].set_mission(MISSION_MOVE,&target,false,0,true,NULL,NULL,flags);
-                    else
-                        unit[i].add_mission(MISSION_MOVE,&target,false,0,NULL,NULL,flags);
-                    if( unit_manager.unit_type[unit[i].type_id].BMcode && set )
-                        unit[i].play_sound( "ok1" );
-                }
-            }
-            pMutex.unlock();
-        }
+        void give_order_patrol(int player_id,VECTOR target,bool set=true);
 
-        inline void give_order_patrol(int player_id,VECTOR target,bool set=true)
-        {
-            pMutex.lock();
-            for(uint16 e=0;e<index_list_size;e++) {
-                uint16 i = idx_list[e];
-                if( (unit[i].flags & 1) && unit[i].owner_id==player_id && unit[i].sel && unit[i].build_percent_left ==0.0f && unit_manager.unit_type[unit[i].type_id].canpatrol) {
-                    if(set)
-                        unit[i].set_mission(MISSION_PATROL,&target,false,0,true,NULL,NULL);
-                    else
-                        unit[i].add_mission(MISSION_PATROL,&target,false,0,NULL,NULL);
-                    if( unit_manager.unit_type[unit[i].type_id].BMcode && set )
-                        unit[i].play_sound( "ok1" );
-                }
-            }
-            pMutex.unlock();
-        }
+        void give_order_guard(int player_id,int target,bool set=true);
 
-        inline void give_order_guard(int player_id,int target,bool set=true)
-        {
-            pMutex.lock();
-            for(uint16 e=0;e<index_list_size;e++) {
-                uint16 i = idx_list[e];
-                if( (unit[i].flags & 1) && unit[i].owner_id==player_id && unit[i].sel && unit[i].build_percent_left ==0.0f && unit_manager.unit_type[unit[i].type_id].canguard) {
-                    if(set)
-                        unit[i].set_mission(MISSION_GUARD,&unit[target].Pos,false,0,true,&(unit[target]),NULL);
-                    else
-                        unit[i].add_mission(MISSION_GUARD,&unit[target].Pos,false,0,&(unit[target]),NULL);
-                    if( unit_manager.unit_type[unit[i].type_id].BMcode && set )
-                        unit[i].play_sound( "ok1" );
-                }
-            }
-            pMutex.unlock();
-        }
+        void give_order_unload(int player_id,VECTOR target,bool set=true);
 
-        inline void give_order_unload(int player_id,VECTOR target,bool set=true)
-        {
-            pMutex.lock();
-            for(uint16 e=0;e<index_list_size;e++) {
-                uint16 i = idx_list[e];
-                if( (unit[i].flags & 1) && unit[i].owner_id==player_id && unit[i].sel && unit[i].build_percent_left == 0.0f && unit_manager.unit_type[unit[i].type_id].canload
-                    && unit_manager.unit_type[unit[i].type_id].BMcode && unit[i].nb_attached > 0 ) {
-                    if(set)
-                        unit[i].set_mission(MISSION_UNLOAD,&target,false,0,true,NULL,NULL);
-                    else
-                        unit[i].add_mission(MISSION_UNLOAD,&target,false,0,NULL,NULL);
-                    if( set )
-                        unit[i].play_sound( "ok1" );
-                }
-            }
-            pMutex.unlock();
-        }
+        void give_order_load(int player_id,int target,bool set=true);
 
-        inline void give_order_load(int player_id,int target,bool set=true)
-        {
-            pMutex.lock();
-            if(unit[target].flags==0 || !unit_manager.unit_type[unit[target].type_id].canmove)	{	pMutex.unlock();	return;		}
-            switch(unit_manager.unit_type[unit[target].type_id].TEDclass)
-            {
-                case CLASS_UNDEF:
-                case CLASS_WATER:
-                case CLASS_SHIP:
-                case CLASS_PLANT:
-                case CLASS_SPECIAL:
-                case CLASS_FORT:
-                    pMutex.unlock();
-                    return;
-                    break;
-            };
-            for(uint16 e=0;e<index_list_size;e++) {
-                uint16 i = idx_list[e];
-                if( (unit[i].flags & 1) && unit[i].owner_id==player_id && unit[i].sel && unit[i].build_percent_left == 0.0f && unit_manager.unit_type[unit[i].type_id].canload
-                    && unit_manager.unit_type[unit[i].type_id].BMcode) {
-                    if(set)
-                        unit[i].set_mission(MISSION_LOAD,&unit[target].Pos,false,0,true,&(unit[target]),NULL);
-                    else
-                        unit[i].add_mission(MISSION_LOAD,&unit[target].Pos,false,0,&(unit[target]),NULL);
-                    if( set )
-                        unit[i].play_sound( "ok1" );
-                }
-            }
-            pMutex.unlock();
-        }
-
-        inline void give_order_build(int player_id,int unit_type_id,VECTOR target,bool set=true)
-        {
-            if( unit_type_id < 0 )	return;
-
-            target.x = ((int)(target.x)+map->map_w_d)>>3;
-            target.z = ((int)(target.z)+map->map_h_d)>>3;
-            target.y = Math::Max(map->get_max_rect_h((int)target.x,(int)target.z, unit_manager.unit_type[ unit_type_id ].FootprintX, unit_manager.unit_type[ unit_type_id ].FootprintZ ),map->sealvl);
-            target.x = target.x*8.0f-map->map_w_d;
-            target.z = target.z*8.0f-map->map_h_d;
-
-            pMutex.lock();
-            for(uint16 e=0;e<index_list_size;e++)
-            {
-                uint16 i = idx_list[e];
-                if( (unit[i].flags & 1) && unit[i].owner_id==player_id && unit[i].sel && unit[i].build_percent_left == 0.0f && unit_manager.unit_type[unit[i].type_id].Builder) {
-                    if(set)
-                        unit[i].set_mission(MISSION_BUILD,&target,false,unit_type_id);
-                    else
-                        unit[i].add_mission(MISSION_BUILD,&target,false,unit_type_id);
-                }
-            }
-            pMutex.unlock();
-        }
+        void give_order_build(int player_id,int unit_type_id,VECTOR target,bool set=true);
 
         void remove_order(int player_id,VECTOR target);
 
-#define SIGNAL_ORDER_NONE		0x0
-#define SIGNAL_ORDER_MOVE		0x1
-#define SIGNAL_ORDER_PATROL		0x2
-#define SIGNAL_ORDER_GUARD		0x3
-#define SIGNAL_ORDER_ATTACK		0x4
-#define SIGNAL_ORDER_RECLAM		0x5
-#define SIGNAL_ORDER_STOP		0x6
-#define SIGNAL_ORDER_ONOFF		0x7
-#define SIGNAL_ORDER_LOAD		0x8
-#define SIGNAL_ORDER_UNLOAD		0x9
-#define SIGNAL_ORDER_REPAIR		0xA
-#define SIGNAL_ORDER_CAPTURE	0xB
-#define SIGNAL_ORDER_DGUN		0xC
-
         void complete_menu(int index,bool hide_info = false, bool hide_bpic = false );
-    };
+
+    }; // class INGAME_UNITS
+
+
+
+
 
     extern INGAME_UNITS units;
 
