@@ -961,9 +961,11 @@ namespace TA3D
 
         sprintf(buffer, "GET %s HTTP/1.0\r\nHost:%s\nAccept: */*\r\nUser-Agent: TA3D\r\n\r\n"
                 , request.c_str(), servername.c_str() );
+
+        uint32 timer( msec_timer );
         while(nlWrite(sock, (NLvoid *)buffer, (NLint)strlen(buffer)) < 0)
         {
-            if(nlGetError() == NL_CON_PENDING)
+            if(nlGetError() == NL_CON_PENDING && msec_timer - timer < 5000)     // Connection pending ? before reaching timeout ?
             {
                 nlThreadYield();
                 continue;
