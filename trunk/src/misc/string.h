@@ -168,6 +168,9 @@ namespace TA3D
         **
         **    // -> k='}'  v=''
         **    String::ToKeyValue("  } ", k, v);
+        **
+        **    // -> k='['   v='Example of Section'
+        **    String::ToKeyValue(" [Example of Section] ", k, v);
         ** \endcode
         */
         static void ToKeyValue(const String& s, String& key, String& value);
