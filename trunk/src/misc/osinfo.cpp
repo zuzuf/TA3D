@@ -33,7 +33,7 @@ namespace System
             case OSTYPE_OS2:        return "OS/2 Warp 3"; break;
             case OSTYPE_DOSEMU:     return "Linux DOSEMU"; break;
             case OSTYPE_OPENDOS:    return "Caldera OpenDOS"; break;
-            case OSTYPE_FREEBSD:     return "BSD/FreeBSD"; break;
+            case OSTYPE_FREEBSD:    return "BSD/FreeBSD"; break;
             case OSTYPE_NETBSD:	    return "BSD/NetBSD"; break;
             case OSTYPE_UNIX:       return "Unix variant"; break;
             case OSTYPE_BEOS:       return "BeOS"; break;

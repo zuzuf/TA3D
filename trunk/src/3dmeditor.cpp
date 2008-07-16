@@ -153,14 +153,6 @@ int main(int argc, char* argv[])
 
     init_surf_buf();
 
-    installOpenGLExtensions();
-
-    HPIManager=new cHPIHandler("");
-
-    /*RGB * */pal = new RGB[256];
-    TA3D::UTILS::HPI::load_palette(pal); // Charge la palette graphique
-    set_palette(pal);		// Active la palette chargée
-
     Console->AddEntry(I18N::Translate("Initializing texture manager"));
     texture_manager.init();
     texture_manager.all_texture();

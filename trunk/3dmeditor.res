@@ -1,332 +1,332 @@
-[comprimer les textures?]
+[compress textures?]
 {
-	ENGLISH=compress textures?;
+	FRENCH=comprimer les textures?;
 }
 [Initializing texture manager]
 {
 	FRENCH=Initialise le gestionnaire de textures;
 }
-[Fichiers]
+[Files]
 {
-	ENGLISH=File;
+	FRENCH=Fichiers;
 }
-[Nouveau]
+[New]
 {
-	ENGLISH=New;
+	FRENCH=Nouveau;
 }
-[Ouvrir]
+[Open]
 {
-	ENGLISH=Open;
+	FRENCH=Ouvrir;
 }
-[Sauver]
+[Save]
 {
-	ENGLISH=Save;
+	FRENCH=Sauver;
 }
-[Importer(*.ASC)]
+[Import(*.ASC)]
 {
-	ENGLISH=Import(*.ASC);
+	FRENCH=Importer(*.ASC);
 }
-[Importer(*.3DO)]
+[Import(*.3DO)]
 {
-	ENGLISH=Import(*.3DO);
+	FRENCH=Importer(*.3DO);
 }
-[Importer(*.3DS)]
+[Import(*.3DS)]
 {
-	ENGLISH=Import(*.3DS);
+	FRENCH=Importer(*.3DS);
 }
-[Quitter]
+[Exit]
 {
-	ENGLISH=Exit;
+	FRENCH=Quitter;
 }
 [Surface]
 {
-	ENGLISH=Surface;
+	FRENCH=Surface;
 }
-[Editer]
+[Edit]
 {
-	ENGLISH=Edit;
+	FRENCH=Editer;
 }
-[Copier]
+[Copy]
 {
-	ENGLISH=Copy;
+	FRENCH=Copier;
 }
-[Coller]
+[Paste]
 {
-	ENGLISH=Paste;
+	FRENCH=Coller;
 }
-[Reinitialiser]
+[Reset]
 {
-	ENGLISH=Reset;
+	FRENCH=Reinitialiser;
 }
-[Coller sur toutes]
+[Paste on all]
 {
-	ENGLISH=Paste on all;
+	FRENCH=Coller sur toutes;
 }
-[Parties :]
+[Parts :]
 {
-	ENGLISH=Parts :;
+	FRENCH=Parties :;
 }
-[Partie %d]
+[Part %d]
 {
-	ENGLISH=Part %d;
+	FRENCH=Partie %d;
 }
-[renommer]
+[rename]
 {
-	ENGLISH=rename;
+	FRENCH=renommer;
 }
-[passer en fils]
+[make child of]
 {
-	ENGLISH=make child of;
+	FRENCH=passer en fils;
 }
-[effacer]
+[remove]
 {
-	ENGLISH=remove;
+	FRENCH=effacer;
 }
-[échelle]
+[scale]
 {
-	ENGLISH=scale;
+	FRENCH=échelle;
 }
-[mirroir/x]
+[mirror/x]
 {
-	ENGLISH=mirror/x;
+	FRENCH=mirroir/x;
 }
-[mirroir/y]
+[mirror/y]
 {
-	ENGLISH=mirror/y;
+	FRENCH=mirroir/y;
 }
-[mirroir/z]
+[mirror/z]
 {
-	ENGLISH=mirror/z;
+	FRENCH=mirroir/z;
 }
-[Editeur de surfaces]
+[Surface editor]
 {
-	ENGLISH=Surface editor;
+	FRENCH=Editeur de surfaces;
 }
-[Couleur de la matiere:]
+[Material color:]
 {
-	ENGLISH=Material color:;
+	FRENCH=Couleur de la matiere:;
 }
-[rouge->]
+[red  ->]
 {
-	ENGLISH=red  ->;
+	FRENCH=rouge->;
 }
-[vert ->]
+[green->]
 {
-	ENGLISH=green->;
+	FRENCH=vert ->;
 }
-[bleu ->]
+[blue ->]
 {
-	ENGLISH=blue ->;
+	FRENCH=bleu ->;
 }
-[Effet de reflection]
+[Mirror effect]
 {
-	ENGLISH=Mirror effect;
+	FRENCH=Effet de reflection;
 }
-[Rendu GOURAUD]
+[Smooth shaded]
 {
-	ENGLISH=Smooth shaded;
+	FRENCH=Rendu GOURAUD;
 }
-[Calculs d'eclairage]
+[Lighting]
 {
-	ENGLISH=Lighting;
+	FRENCH=Calculs d'eclairage;
 }
-[Texturage]
+[Texturing]
 {
-	ENGLISH=Texturing;
+	FRENCH=Texturage;
 }
-[peinture]
+[painting]
 {
-	ENGLISH=painting;
+    FRENCH=peinture;
 }
-[plaquage de texture]
+[texture mapping]
 {
-	ENGLISH=texture mapping;
+	FRENCH=plaquage de texture;
 }
-[Partie en cours d'edition:]
+[Parts being edited:]
 {
-	ENGLISH=Parts being edited:;
+	FRENCH=Partie en cours d'edition:;
 }
-[Couleur joueur]
+[Player color]
 {
-	ENGLISH=Player color;
+	FRENCH=Couleur joueur;
 }
-[Transparence]
+[Transparency]
 {
-	ENGLISH=Transparency;
+	FRENCH=Transparence;
 }
-[Charger une texture]
+[Load a texture]
 {
-	ENGLISH=Load a texture;
+	FRENCH=Charger une texture;
 }
-[Barre de menus]
+[Menu bar]
 {
-	ENGLISH=Menu bar;
+	FRENCH=Barre de menus;
 }
-[Edition]
+[Edit]
 {
-	ENGLISH=Edit;
+	FRENCH=Edition;
 }
-[Peinture de l'objet]
+[Object painting]
 {
-	ENGLISH=Object painting;
+	FRENCH=Peinture de l'objet;
 }
-[Nouvelle texture]
+[New texture]
 {
-	ENGLISH=New texture;
+	FRENCH=Nouvelle texture;
 }
-[Plaquage cylindrique]
+[Cylindrical texturing]
 {
-	ENGLISH=Cylindrical texturing;
+	FRENCH=Plaquage cylindrique;
 }
-[Plaqueur de texture]
+[Texture mapper]
 {
-	ENGLISH=Texture mapper;
+	FRENCH=Plaqueur de texture;
 }
-[Fil de fer]
+[Wireframe]
 {
-	ENGLISH=Wireframe;
+	FRENCH=Fil de fer;
 }
 [Selection]
 {
-	ENGLISH=Selection;
+	FRENCH=Selection;
 }
-[Peinture]
+[Painting]
 {
-	ENGLISH=Painting;
+	FRENCH=Peinture;
 }
-[Desassembler]
+[Disassemble]
 {
-	ENGLISH=Disassemble;
+	FRENCH=Desassembler;
 }
-[Normaliser]
+[Normalise]
 {
-	ENGLISH=Normalise;
+	FRENCH=Normaliser;
 }
-[Optimiser]
+[Optimise]
 {
-	ENGLISH=Optimise;
+	FRENCH=Optimiser;
 }
-[Plaquage cubique]
+[Cubic mapping]
 {
-	ENGLISH=Cubic mapping;
+	FRENCH=Plaquage cubique;
 }
-[résolution]
+[Resolution]
 {
-	ENGLISH=Resolution;
+	FRENCH=résolution;
 }
-[Fermer]
+[Close]
 {
-	ENGLISH=Close;
+	FRENCH=Fermer;
 }
-[Outils]
+[Tools]
 {
-	ENGLISH=Tools;
+	FRENCH=Outils;
 }
 [Points]
 {
-	ENGLISH=Points;
+	FRENCH=Points;
 }
-[Lignes]
+[Lines]
 {
-	ENGLISH=Lines;
+	FRENCH=Lignes;
 }
-[Remplissage]
+[Fill]
 {
-	ENGLISH=Fill;
+	FRENCH=Remplissage;
 }
-[Crayon]
+[Pencil]
 {
-	ENGLISH=Pencil;
+	FRENCH=Crayon;
 }
-[Annuler]
+[Cancel]
 {
-	ENGLISH=Cancel;
+	FRENCH=Annuler;
 }
-[Nouvelle résolution de la texture]
+[New texture resolution]
 {
-	ENGLISH=New texture resolution;
+	FRENCH=Nouvelle résolution de la texture;
 }
-[Erreur]
+[Error]
 {
-	ENGLISH=Error;
+	FRENCH=Erreur;
 }
-[La résolution doit être de la forme: largeurxhauteur]
+[The resolution must be widthxheight]
 {
-	ENGLISH=The resolution must be widthxheight;
+	FRENCH=La résolution doit être de la forme: largeurxhauteur;
 }
-[Dessin point par point]
+[Pixel drawing]
 {
-	ENGLISH=Pixel drawing;
+	FRENCH=Dessin point par point;
 }
-[Tracage de lignes]
+[Line drawing]
 {
-	ENGLISH=Line drawing;
+	FRENCH=Tracage de lignes;
 }
-[Motif]
+[Pattern]
 {
-	ENGLISH=Pattern;
+	FRENCH=Motif;
 }
-[Ouvrir un modèle]
+[Open a model]
 {
-	ENGLISH=Open a model;
+	FRENCH=Ouvrir un modèle;
 }
-[Sauvegarder un modèle]
+[Save a model]
 {
-	ENGLISH=Save a model;
+	FRENCH=Sauvegarder un modèle;
 }
-[Importer un modèle au format ASC]
+[Import an ASC model]
 {
-	ENGLISH=Import an ASC model;
+	FRENCH=Importer un modèle au format ASC;
 }
-[Importer un modèle au format 3DO]
+[Import a 3DO model]
 {
-	ENGLISH=Import a 3DO model;
+	FRENCH=Importer un modèle au format 3DO;
 }
-[Importer un modèle au format 3DS]
+[Import a 3DS model]
 {
-	ENGLISH=Import a 3DS model;
+	FRENCH=Importer un modèle au format 3DS;
 }
-[Nouveau nom d'objet]
+[New object name]
 {
-	ENGLISH=New object name;
+	FRENCH=Nouveau nom d'objet;
 }
-[Nom du noeud père]
+[Father name]
 {
-	ENGLISH=Father name;
+	FRENCH=Nom du noeud père;
 }
 [Action impossible]
 {
-	ENGLISH=Action impossible;
+	FRENCH=Action impossible;
 }
-[Le noeud père est un fils du noeud séléctionné]
+[The father node is a child of the selected node]
 {
-	ENGLISH=The father node is a child of the selected node;
+	FRENCH=Le noeud père est un fils du noeud séléctionné;
 }
-[Echelle]
+[Scale]
 {
-	ENGLISH=Scale;
+	FRENCH=Echelle;
 }
-[Nom du fichier:]
+[File name:]
 {
-	ENGLISH=File name:;
+	FRENCH=Nom du fichier:;
 }
-[Liste des dossiers:]
+[Directory list:]
 {
-	ENGLISH=Directory list:;
+	FRENCH=Liste des dossiers:;
 }
-[Liste des fichiers:]
+[File list:]
 {
-	ENGLISH=File list:;
+	FRENCH=Liste des fichiers:;
 }
-[Le bouton peinture de l'objet permet de creer une texture a appliquer a l'objet grace]
+[The "painting" button allow you to create a texture to map on the object with]
 {
-	ENGLISH=The "painting" button allow you to create a texture to map on the object with;
+	FRENCH=Le bouton peinture de l'objet permet de creer une texture a appliquer a l'objet grace;
 }
-[a un outil integre de dessin directement sur l'objet en 3D, et le bouton plaquage de texture]
+[an integrated drawing tool directly on the 3D object, and the "texture mapping" button]
 {
-	ENGLISH=an integrated drawing tool directly on the 3D object, and the "texture mapping" button;
+	FRENCH=a un outil integre de dessin directement sur l'objet en 3D, et le bouton plaquage de texture;
 }
-[permet egalement de modifier le plaquage de la texture sur l'objet.]
+[allow to change the UV mapping on the object.]
 {
-	ENGLISH=allow to change the UV mapping on the object.;
+	FRENCH=permet egalement de modifier le plaquage de la texture sur l'objet.;
 }
