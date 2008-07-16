@@ -165,62 +165,6 @@ namespace TA3D
     }
 
 
-    /*
-    static int stringCheckKV(const String& t, const String& expectedKey = "", const String& expectedValue = "")
-    {
-        String k;
-        String v;
-        TA3D::String::ToKeyValue(t, k, v);
-        if (k != expectedKey || v != expectedValue)
-        {
-            LOG_ERROR("* String Check failed !");
-            LOG_ERROR("     On `" << t << "`");
-            LOG_ERROR("     Expectd: key=`" << expectedKey << "`,  value=`" << expectedValue << "`");
-            LOG_ERROR("     Found: key=`" << k << "`,  value=`" << v << "`");
-            return 1;
-        }
-        return 0;
-    }
-
-
-    int String::AutoTest()
-    {
-        int ret = 0;
-        ret += stringCheckKV("a=b;", "a", "b");
-        ret += stringCheckKV(" a=b;", "a", "b");
-        ret += stringCheckKV("a= b;", "a", "b");
-        ret += stringCheckKV("a=b; ", "a", "b");
-        ret += stringCheckKV(" a = b ;", "a", "b");
-        ret += stringCheckKV(" !(*^&$% = b ;", "!(*^&$%", "b");
-        ret += stringCheckKV(" ab c = 1 2 3 4 5 ;", "ab c", "1 2 3 4 5");
-        ret += stringCheckKV(" foo=bar; // comments here; ", "foo", "bar");
-        ret += stringCheckKV(" foo=bar comments//here ", "foo", "bar comments");
-        ret += stringCheckKV(" foo=bar comments // here ", "foo", "bar comments");
-        ret += stringCheckKV(" foo=bar  /   this is not a comment    ", "foo", "bar  /   this is not a comment");
-        ret += stringCheckKV("foo=http://www.example.org;// comment", "foo", "http://www.example.org");
-        ret += stringCheckKV("[ini] ", "[", "ini");
-        ret += stringCheckKV("  [Example of Section] ", "[", "Example of Section");
-        ret += stringCheckKV("  [ foo section  ] ", "[", "foo section");
-        ret += stringCheckKV("  [ bad section ", "[", "bad section");
-        ret += stringCheckKV("  [ bad section // comments", "[", "bad section // comments");
-        ret += stringCheckKV("[ bad section // comments  ", "[", "bad section // comments");
-        ret += stringCheckKV("  [Example of Section] // Comments", "[", "Example of Section");
-        ret += stringCheckKV("  [Example of Section]//Comments", "[", "Example of Section");
-        ret += stringCheckKV("  // Here is a comment ");
-        ret += stringCheckKV("  nyo // Here is a comment ", "nyo");
-        ret += stringCheckKV("  // a = b; ");
-        ret += stringCheckKV("  / a = b; ", "/ a", "b");
-        ret += stringCheckKV("  piko//li = b; ", "piko", "");
-        ret += stringCheckKV("  piko/li = b; ", "piko/li", "b");
-        ret += stringCheckKV("  piko   //li = b; ", "piko", "");
-        ret += stringCheckKV("{ ", "{");
-        ret += stringCheckKV("  }", "}");
-        ret += stringCheckKV("   { // Start of a new block", "{");
-        ret += stringCheckKV(" } // end of block", "}");
-        return ret;
-    }
-    */
-
     void String::ToKeyValue(const String& s, String& key, String& value)
     {
         // The first usefull character
@@ -293,6 +237,8 @@ namespace TA3D
             String::size_type slashes = s.find("//", equal);
             slashes = s.find_last_not_of(TA3D_WSTR_SEPARATORS, slashes - 1);
             value = s.substr(equal, 1 + slashes - equal);
+            value.findAndReplace("\\r", "");
+            value.findAndReplace("\\n", "\n");
             return;
         }
         // Remove spaces before the semicolon and after the `=`
@@ -300,6 +246,8 @@ namespace TA3D
 
         // We can extract the value
         value = s.substr(equal, 1 + semicolon - equal);
+        value.findAndReplace("\\r", "");
+        value.findAndReplace("\\n", "\n");
     }
 
 
@@ -400,5 +348,98 @@ namespace TA3D
         return String();
     }
 
+
+    String& String::findAndReplace(const char toSearch, const char replaceWith)
+    {
+        for (String::iterator i = this->begin(); i != this->end(); ++i)
+        {
+            if (*i == toSearch)
+                *i = replaceWith;
+        }
+        return *this;
+    }
+
+    String& String::findAndReplace(const String& toSearch, const String& replaceWith)
+    {
+        String::size_type p = 0;
+        String::size_type siz = toSearch.size();
+        while ((p = this->find(toSearch, p)) != String::npos)
+            this->replace(p, siz, replaceWith);
+        return *this;
+    }
+
+    /*
+    template<typename T>
+    int stringConvert(const String& section, const T t, const T expected)
+    {
+        if (t != expected)
+        {
+            LOG_ERROR("* String convertion failed !");
+            LOG_ERROR("     From `String` to `" << section << "`");
+            LOG_ERROR("     Expected: `" << expected << "`, got `" << t << "`");
+            return 1;
+        }
+        return 0;
+    }
+
+    static int stringCheckKV(const String& t, const String& expectedKey = "", const String& expectedValue = "")
+    {
+        String k;
+        String v;
+        TA3D::String::ToKeyValue(t, k, v);
+        if (k != expectedKey || v != expectedValue)
+        {
+            LOG_ERROR("* String Check failed !");
+            LOG_ERROR("     On `" << t << "`");
+            LOG_ERROR("     Expectd: key=`" << expectedKey << "`,  value=`" << expectedValue << "`");
+            LOG_ERROR("     Found: key=`" << k << "`,  value=`" << v << "`");
+            return 1;
+        }
+        return 0;
+    }
+
+
+    int String::AutoTest()
+    {
+        int ret = 0;
+        ret += stringConvert("int32", String(10).toInt32(), 10);
+        ret += stringConvert("uint32", String(uint32(-1)).toUInt32(), uint32(-1));
+        ret += stringConvert("int64", String(sint64(33554432 * 30)).toInt64(), sint64(33554432 * 30));
+        ret += stringConvert("hexa", String("0xFF").toInt32(), (sint32)255);
+        ret += stringCheckKV("a=b;", "a", "b");
+        ret += stringCheckKV(" a=b;", "a", "b");
+        ret += stringCheckKV("a= b;", "a", "b");
+        ret += stringCheckKV("a=b; ", "a", "b");
+        ret += stringCheckKV(" a = b ;", "a", "b");
+        ret += stringCheckKV(" !(*^&$% = b ;", "!(*^&$%", "b");
+        ret += stringCheckKV(" ab c = 1 2 3 4 5 ;", "ab c", "1 2 3 4 5");
+        ret += stringCheckKV(" foo=bar; // comments here; ", "foo", "bar");
+        ret += stringCheckKV(" foo=bar comments//here ", "foo", "bar comments");
+        ret += stringCheckKV(" foo=bar comments // here ", "foo", "bar comments");
+        ret += stringCheckKV(" foo=bar  /   this is not a comment    ", "foo", "bar  /   this is not a comment");
+        ret += stringCheckKV("foo=http://www.example.org;// comment", "foo", "http://www.example.org");
+        ret += stringCheckKV("[ini] ", "[", "ini");
+        ret += stringCheckKV("  [Example of Section] ", "[", "Example of Section");
+        ret += stringCheckKV("  [ foo section  ] ", "[", "foo section");
+        ret += stringCheckKV("  [ bad section ", "[", "bad section");
+        ret += stringCheckKV("  [ bad section // comments", "[", "bad section // comments");
+        ret += stringCheckKV("[ bad section // comments  ", "[", "bad section // comments");
+        ret += stringCheckKV("  [Example of Section] // Comments", "[", "Example of Section");
+        ret += stringCheckKV("  [Example of Section]//Comments", "[", "Example of Section");
+        ret += stringCheckKV("  // Here is a comment ");
+        ret += stringCheckKV("  nyo // Here is a comment ", "nyo");
+        ret += stringCheckKV("  // a = b; ");
+        ret += stringCheckKV("  / a = b; ", "/ a", "b");
+        ret += stringCheckKV("  piko//li = b; ", "piko", "");
+        ret += stringCheckKV("  piko/li = b; ", "piko/li", "b");
+        ret += stringCheckKV("  piko   //li = b; ", "piko", "");
+        ret += stringCheckKV("{ ", "{");
+        ret += stringCheckKV("  }", "}");
+        ret += stringCheckKV("   { // Start of a new block", "{");
+        ret += stringCheckKV(" } // end of block", "}");
+        ret += stringCheckKV(" a = a full text with \\n cariage return", "a", "a full text with \n cariage return");
+        return ret;
+    }
+    */
 
 }

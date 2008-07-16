@@ -469,13 +469,14 @@ namespace TA3D
         */
         String& convertToUTF8() {*this = ConvertToUTF8(*this); return *this;}
 
-        // Do not remove this
-        // TODO A global autotest
         /*!
-        ** \brief Make an autotest on strings
-        ** \return The number of errors
+        ** \brief Replace a substr by another one
+        ** \param toSearch The string to look for
+        ** \param replaceWith The string replacement
+        ** \return Always *this
         */
-        //static int AutoTest();
+        String& findAndReplace(const String& toSearch, const String& replaceWith);
+        String& findAndReplace(const char toSearch, const char replaceWith);
 
     private:
         /*!
@@ -491,6 +492,15 @@ namespace TA3D
             std::istringstream iss(s);
             return !(iss >> f >> t).fail();
         }
+
+    public:
+        // Do not remove this
+        // TODO A global autotest
+        /*!
+        ** \brief Make an autotest on strings
+        ** \return The number of errors
+        */
+        // static int AutoTest();
 
     }; // class String
 
