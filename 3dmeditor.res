@@ -6,9 +6,9 @@
 {
 	FRENCH=Initialise le gestionnaire de textures;
 }
-[Files]
+[File]
 {
-	FRENCH=Fichiers;
+	FRENCH=Fichier;
 }
 [New]
 {
@@ -22,16 +22,19 @@
 {
 	FRENCH=Sauver;
 }
-[Import(*.ASC)]
+[IMPORT_ASC]
 {
+    ENGLISH=Import(*.ASC);
 	FRENCH=Importer(*.ASC);
 }
-[Import(*.3DO)]
+[IMPORT_3DO]
 {
+    ENGLISH=Import(*.3DO);
 	FRENCH=Importer(*.3DO);
 }
-[Import(*.3DS)]
+[IMPORT_3DS]
 {
+    ENGLISH=Import(*.3DS);
 	FRENCH=Importer(*.3DS);
 }
 [Exit]

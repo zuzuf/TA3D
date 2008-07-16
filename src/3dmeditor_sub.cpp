@@ -810,8 +810,6 @@ int intersect(VECTOR O,VECTOR Dir,OBJECT *obj,VECTOR *PA,VECTOR *PB)	// Calcule 
 void init()
 {
     InterfaceManager = NULL;
-//    VARS::sound_manager = NULL;
-//    VARS::HPIManager = NULL;
     VARS::Console = NULL;
     VARS::gfx = NULL;
 
@@ -858,9 +856,5 @@ void init()
 
     set_window_title("3DMEditor - TA3D Project");
 
-    installOpenGLExtensions();
-
-    /*RGB * */pal = new RGB[256];
-    TA3D::UTILS::HPI::load_palette(pal); // Charge la palette graphique
-    set_palette(pal);		// Active la palette chargée
+    gfx->Init();
 }

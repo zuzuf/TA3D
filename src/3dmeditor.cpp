@@ -34,7 +34,7 @@
 #include "misc/camera.h"
 #include <vector>
 #include "languages/i18n.h"
-#include "gfx/gui/wnd.h"
+#include "gfx/gui/area.h"
 #include "misc/application.h"
 
 
@@ -203,57 +203,60 @@ int main(int argc, char* argv[])
     float Conv = 0.001f;
 
     // Pour la gestion de l'interface
-    gfx->normal_font.copy(font);
-    gui_font = gfx->normal_font;
+//    gfx->normal_font.copy(font);
+//    gui_font = gfx->normal_font;
 
-    WND MainWnd;		// Fenêtre principale
+//    WND MainWnd;		// Fenêtre principale
 
-    MainWnd.x=0;				MainWnd.y=0;
-    MainWnd.width=SCREEN_W;		MainWnd.height=28;
-    MainWnd.Title = I18N::Translate("Barre de menus").c_str();
-    MainWnd.Lock=true;
-    MainWnd.NbObj=2;
-    MainWnd.Objets=new GUIOBJ[MainWnd.NbObj];
+//    MainWnd.x=0;				MainWnd.y=0;
+//    MainWnd.width=SCREEN_W;		MainWnd.height=28;
+//    MainWnd.Title = I18N::Translate("Barre de menus").c_str();
+//    MainWnd.Lock=true;
+//    MainWnd.NbObj=2;
+//    MainWnd.Objets=new GUIOBJ[MainWnd.NbObj];
 
-    // Menu fichier
-    const char *mnu_fichier_list[] = {"Fichiers","Nouveau","Ouvrir","Sauver","Importer(*.ASC)","Importer(*.3DO)","Importer(*.3DS)","Quitter"};
-    String::Vector mnu_fichier( mnu_fichier_list, &(mnu_fichier_list[8]));
-    I18N::Translate(mnu_fichier);
-    MainWnd.Objets[0].create_menu(3,12,83,24,mnu_fichier,mnu_file);
+//    // Menu fichier
+//    const char *mnu_fichier_list[] = {"Fichiers","Nouveau","Ouvrir","Sauver","Importer(*.ASC)","Importer(*.3DO)","Importer(*.3DS)","Quitter"};
+//    String::Vector mnu_fichier( mnu_fichier_list, &(mnu_fichier_list[8]));
+//    I18N::Translate(mnu_fichier);
+//    MainWnd.Objets[0].create_menu(3,12,83,24,mnu_fichier,mnu_file);
 
-    // Menu surface
-    const char *mnu_surface_list[] = {"Surface","Editer","Copier","Coller","Reinitialiser","Coller sur toutes"};
-    String::Vector mnu_surface( mnu_surface_list, &(mnu_surface_list[6]));
-    I18N::Translate(mnu_surface);
-    MainWnd.Objets[1].create_menu(86,12,166,24,mnu_surface,mnu_surf);
+//    // Menu surface
+//    const char *mnu_surface_list[] = {"Surface","Editer","Copier","Coller","Reinitialiser","Coller sur toutes"};
+//    String::Vector mnu_surface( mnu_surface_list, &(mnu_surface_list[6]));
+//    I18N::Translate(mnu_surface);
+//    MainWnd.Objets[1].create_menu(86,12,166,24,mnu_surface,mnu_surf);
 
-    WND	EditWnd;		// Fenêtre d'édition
-    EditWnd.Title = I18N::Translate("Edition").c_str();
-    EditWnd.width=200;							EditWnd.height=240;
-    EditWnd.x=SCREEN_W-EditWnd.width;			EditWnd.y=SCREEN_H-EditWnd.height;
-    EditWnd.Lock=false;							EditWnd.NbObj=12;
-    EditWnd.Objets=new GUIOBJ[EditWnd.NbObj];
-    EditWnd.Objets[0].create_text(5,12, I18N::Translate("Parties :" ), 0xFFFFFF);
-    String::Vector mnu_part;
-    mnu_part.resize( nb_obj()+1 );
-    for( i=0; i<nb_obj(); i++ )
-        mnu_part[i+1] = format( I18N::Translate("Partie %d").c_str() , i);
+//    WND	EditWnd;		// Fenêtre d'édition
+//    EditWnd.Title = I18N::Translate("Edition").c_str();
+//    EditWnd.width=200;							EditWnd.height=240;
+//    EditWnd.x=SCREEN_W-EditWnd.width;			EditWnd.y=SCREEN_H-EditWnd.height;
+//    EditWnd.Lock=false;							EditWnd.NbObj=12;
+//    EditWnd.Objets=new GUIOBJ[EditWnd.NbObj];
+//    EditWnd.Objets[0].create_text(5,12, I18N::Translate("Parties :" ), 0xFFFFFF);
+//    String::Vector mnu_part;
+//    mnu_part.resize( nb_obj()+1 );
+//    for( i=0; i<nb_obj(); i++ )
+//        mnu_part[i+1] = format( I18N::Translate("Partie %d").c_str() , i);
 
-    mnu_part[0]=mnu_part[1];
-    EditWnd.Objets[1].create_menu(5,20,196,32,mnu_part,mnu_selec);
+//    mnu_part[0]=mnu_part[1];
+//    EditWnd.Objets[1].create_menu(5,20,196,32,mnu_part,mnu_selec);
 
-    mnu_part.clear();
+//    mnu_part.clear();
 
-    EditWnd.Objets[2].create_button(5,40,196,52, I18N::Translate("renommer").c_str(), button_rename);
-    EditWnd.Objets[3].create_button(5,60,196,72, I18N::Translate("passer en fils").c_str(), button_child);
-    EditWnd.Objets[4].create_button(5,80,196,92, I18N::Translate("effacer").c_str(),button_remove);
-    EditWnd.Objets[5].create_button(5,100,196,112, I18N::Translate("échelle").c_str(),button_scale);
-    EditWnd.Objets[6].create_button(5,120,196,132,I18N::Translate("mirroir/x").c_str(),button_mirror_x);
-    EditWnd.Objets[7].create_button(5,140,196,152,I18N::Translate("mirroir/y").c_str(),button_mirror_y);
-    EditWnd.Objets[8].create_button(5,160,196,172,I18N::Translate("mirroir/z").c_str(),button_mirror_z);
-    EditWnd.Objets[9].create_button(5,180,196,192,I18N::Translate("x<->y").c_str(),button_change_xy);
-    EditWnd.Objets[10].create_button(5,200,196,212,I18N::Translate("y<->z").c_str(),button_change_yz);
-    EditWnd.Objets[11].create_button(5,220,196,232,I18N::Translate("z<->x").c_str(),button_change_zx);
+//    EditWnd.Objets[2].create_button(5,40,196,52, I18N::Translate("renommer").c_str(), button_rename);
+//    EditWnd.Objets[3].create_button(5,60,196,72, I18N::Translate("passer en fils").c_str(), button_child);
+//    EditWnd.Objets[4].create_button(5,80,196,92, I18N::Translate("effacer").c_str(),button_remove);
+//    EditWnd.Objets[5].create_button(5,100,196,112, I18N::Translate("échelle").c_str(),button_scale);
+//    EditWnd.Objets[6].create_button(5,120,196,132,I18N::Translate("mirroir/x").c_str(),button_mirror_x);
+//    EditWnd.Objets[7].create_button(5,140,196,152,I18N::Translate("mirroir/y").c_str(),button_mirror_y);
+//    EditWnd.Objets[8].create_button(5,160,196,172,I18N::Translate("mirroir/z").c_str(),button_mirror_z);
+//    EditWnd.Objets[9].create_button(5,180,196,192,I18N::Translate("x<->y").c_str(),button_change_xy);
+//    EditWnd.Objets[10].create_button(5,200,196,212,I18N::Translate("y<->z").c_str(),button_change_yz);
+//    EditWnd.Objets[11].create_button(5,220,196,232,I18N::Translate("z<->x").c_str(),button_change_zx);
+
+    AREA main_area;
+    main_area.load_tdf("gui/3dmeditor_main.area");
 
     int amx,amy,amz,amb;
     int IsOnGUI;
@@ -265,26 +268,33 @@ int main(int argc, char* argv[])
 
     do
     {
-        EditWnd.Objets[1].Text.resize( nb_obj() + 1 );
+        GUIOBJ *obj = main_area.get_object("edit.menu_selec");
+        if( obj )
+        {
+        obj->Text.resize( nb_obj() + 1 );
         for(int i=0;i<nb_obj();i++)
             if(obj_table[i]->name!=NULL) {
                 String h="";
                 for(int e=0;e<h_table[i];e++)	h+="-";
-                EditWnd.Objets[1].Text[i+1] = (h+obj_table[i]->name);
+                obj->Text[i+1] = (h+obj_table[i]->name);
             }
 
-        EditWnd.Objets[1].Text[0] = EditWnd.Objets[1].Text[cur_part+1];
-        amx=mouse_x;
-        amy=mouse_y;
-        amz=mouse_z;
-        amb=mouse_b;
+        obj->Text[0] = obj->Text[cur_part+1];
+        }
 
-        rest(1);
-        poll_mouse();		// obtient les coordonnées de la souris
+        bool key_is_pressed = false;
+        do
+        {
+            amx = mouse_x;
+            amy = mouse_y;
+            amz = mouse_z;
+            amb = mouse_b;
 
-        IsOnGUI=MainWnd.check(amx,amy,amz,amb);		// gestion de l'interface utilisateur graphique
-        if(!IsOnGUI)
-            IsOnGUI = EditWnd.check(amx,amy,amz,amb,counter==0);
+            key_is_pressed = keypressed();
+            IsOnGUI = main_area.check();
+            rest( 1 );
+            if (!IsOnGUI && mouse_b)    break;
+        } while( amx == mouse_x && amy == mouse_y && amz == mouse_z && amb == mouse_b && !key[ KEY_ENTER ] && !key[ KEY_ESC ] && !done && !key_is_pressed && !main_area.scrolling );
 
         if(!IsOnGUI) {				// Si la souris n'est pas sur un élément de l'interface utilisateur(si elle est sur la fenêtre 3D)
             if(mouse_b==1) {		// Appui sur le bouton gauche pour effecture une rotation
@@ -372,7 +382,7 @@ int main(int argc, char* argv[])
         }
 
         glDisable( GL_CULL_FACE );
-        if(IsOnGUI && EditWnd.Objets[1].Etat) {				// Affiche la partie prête à être sélectionnée
+        if(IsOnGUI && main_area.get_state("edit.menu_selec")) {				// Affiche la partie prête à être sélectionnée
             glColor3f(0.15f,0.15f,0.15f);
             for(int i=0;i<cur_data.nb_piece;i++)
                 cur_data.flag[i] = FLAG_ANIMATE;
@@ -381,7 +391,7 @@ int main(int argc, char* argv[])
             glEnable(GL_TEXTURE_2D);
             glClear(GL_DEPTH_BUFFER_BIT);
             for(int i=0 ; i < cur_data.nb_piece ; ++i)
-                cur_data.flag[i] = ((i == EditWnd.Objets[1].Data) ? 0 : FLAG_HIDE) | FLAG_ANIMATE;
+                cur_data.flag[i] = ((i == main_area.get_object("edit.menu_selec")->Data) ? 0 : FLAG_HIDE) | FLAG_ANIMATE;
             glColor3f(1.0f,1.0f,1.0f);
             TheModel->draw(msec_timer * 0.001f,&cur_data,false,false,false,0,NULL,NULL,NULL,0.0f,NULL,false,0,false);
             glColor3f(1.0f,1.0f,1.0f);
@@ -443,9 +453,11 @@ int main(int argc, char* argv[])
 
         gfx->set_2D_mode();		// Passe en mode dessin allegro
 
-        String help_msg = "";
-        EditWnd.draw( help_msg );				// Dessine la fenêtre d'édition
-        MainWnd.draw( help_msg );				// Dessine la fenêtre de la barre de menus
+        main_area.draw();
+
+//        String help_msg = "";
+//        EditWnd.draw( help_msg );				// Dessine la fenêtre d'édition
+//        MainWnd.draw( help_msg );				// Dessine la fenêtre de la barre de menus
 
         glEnable(GL_TEXTURE_2D);			// Affiche le nombre d'images par secondes
         glEnable(GL_BLEND);
