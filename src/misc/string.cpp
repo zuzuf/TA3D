@@ -189,7 +189,7 @@ namespace TA3D
             key = s.substr(pos, end - pos + 1);
             return;
         }
-        key = s.substr(pos, equal - 1);
+        key = s.substr(pos, equal - pos);
         // ;
         String::size_type semicolon = s.find_last_not_of(';');
         if (semicolon == String::npos)
