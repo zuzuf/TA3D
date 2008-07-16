@@ -73,6 +73,9 @@ namespace TA3D
         //! A String vector
         typedef std::vector<String> Vector;
 
+        //! Options for searching
+        enum SearchOption {soCaseSensitive, soIgnoreCase};
+
     public:
         /*!
         ** \brief Copy then Convert the case (lower case) of characters in the string using the UTF8 charset
@@ -473,10 +476,11 @@ namespace TA3D
         ** \brief Replace a substr by another one
         ** \param toSearch The string to look for
         ** \param replaceWith The string replacement
+        ** \param option Option when looking for the string `toSearch`
         ** \return Always *this
         */
-        String& findAndReplace(const String& toSearch, const String& replaceWith);
-        String& findAndReplace(const char toSearch, const char replaceWith);
+        String& findAndReplace(const String& toSearch, const String& replaceWith, const enum String::SearchOption option = soCaseSensitive);
+        String& findAndReplace(char toSearch, const char replaceWith, const enum String::SearchOption option = soCaseSensitive);
 
     private:
         /*!

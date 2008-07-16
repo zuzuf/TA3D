@@ -237,8 +237,8 @@ namespace TA3D
             String::size_type slashes = s.find("//", equal);
             slashes = s.find_last_not_of(TA3D_WSTR_SEPARATORS, slashes - 1);
             value = s.substr(equal, 1 + slashes - equal);
-            value.findAndReplace("\\r", "");
-            value.findAndReplace("\\n", "\n");
+            value.findAndReplace("\\r", "", soCaseSensitive);
+            value.findAndReplace("\\n", "\n", soCaseSensitive);
             return;
         }
         // Remove spaces before the semicolon and after the `=`
@@ -246,8 +246,8 @@ namespace TA3D
 
         // We can extract the value
         value = s.substr(equal, 1 + semicolon - equal);
-        value.findAndReplace("\\r", "");
-        value.findAndReplace("\\n", "\n");
+        value.findAndReplace("\\r", "", soCaseSensitive);
+        value.findAndReplace("\\n", "\n", soCaseSensitive);
     }
 
 
@@ -349,22 +349,43 @@ namespace TA3D
     }
 
 
-    String& String::findAndReplace(const char toSearch, const char replaceWith)
+    String& String::findAndReplace(char toSearch, const char replaceWith, const enum String::SearchOption option)
     {
-        for (String::iterator i = this->begin(); i != this->end(); ++i)
+        if (option == soIgnoreCase)
         {
-            if (*i == toSearch)
-                *i = replaceWith;
+            toSearch = tolower(toSearch);
+            for (String::iterator i = this->begin(); i != this->end(); ++i)
+            {
+                if (tolower(*i) == toSearch)
+                    *i = replaceWith;
+            }
+        }
+        else
+        {
+            for (String::iterator i = this->begin(); i != this->end(); ++i)
+            {
+                if (*i == toSearch)
+                    *i = replaceWith;
+            }
+
         }
         return *this;
     }
 
-    String& String::findAndReplace(const String& toSearch, const String& replaceWith)
+
+    String& String::findAndReplace(const String& toSearch, const String& replaceWith, const enum String::SearchOption option)
     {
-        String::size_type p = 0;
-        String::size_type siz = toSearch.size();
-        while ((p = this->find(toSearch, p)) != String::npos)
-            this->replace(p, siz, replaceWith);
+        if (soCaseSensitive == option)
+        {
+            String::size_type p = 0;
+            String::size_type siz = toSearch.size();
+            while ((p = this->find(toSearch, p)) != String::npos)
+                this->replace(p, siz, replaceWith);
+        }
+        else
+        {
+            *this = String::ToLower(*this).findAndReplace(String::ToLower(toSearch), replaceWith, soCaseSensitive);
+        }
         return *this;
     }
 
