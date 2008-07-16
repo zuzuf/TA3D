@@ -46,8 +46,6 @@ namespace UTILS
 
         void load(const String& filename, bool bClearTable = false, bool toUTF8 = false, bool g_mode = false );
 
-        void loadMemory( char *data, bool bClearTable=false, bool toUTF8 = false, bool g_mode = false );
-
         /*!
         ** \brief Get the value for a given key
         ** \param key The key
