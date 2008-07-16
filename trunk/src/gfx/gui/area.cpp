@@ -267,26 +267,29 @@ namespace TA3D
             load_window(*i);
 
         String background_name = areaFile->pullAsString("area.background");
-        if(skin && !skin->prefix.empty())
+        if( background_name.toLower() != "none" )           // If we have a background set then load it
         {
-            int name_len = strlen(get_filename(background_name.c_str()));
-            if (name_len > 0)
-                background_name = background_name.substr(0, background_name.size() - name_len) + skin->prefix + get_filename(background_name.c_str());
-            else
-                background_name += skin->prefix;
-        }
-
-        if (TA3D::Paths::Exists(background_name)) // Loads a background image
-            background = gfx->load_texture(background_name);
-        else
-        {
-            if (skin && !skin->prefix.empty())
+            if(skin && !skin->prefix.empty())
             {
-                // No prefixed version, retry with default background
-                background_name = areaFile->pullAsString("area.background"); 
-                // Loads a background image
-                if (TA3D::Paths::Exists(background_name)) 
-                    background = gfx->load_texture( background_name );
+                int name_len = strlen(get_filename(background_name.c_str()));
+                if (name_len > 0)
+                    background_name = background_name.substr(0, background_name.size() - name_len) + skin->prefix + get_filename(background_name.c_str());
+                else
+                    background_name += skin->prefix;
+            }
+
+            if (TA3D::Paths::Exists(background_name)) // Loads a background image
+                background = gfx->load_texture(background_name);
+            else
+            {
+                if (skin && !skin->prefix.empty())
+                {
+                    // No prefixed version, retry with default background
+                    background_name = areaFile->pullAsString("area.background"); 
+                    // Loads a background image
+                    if (TA3D::Paths::Exists(background_name)) 
+                        background = gfx->load_texture( background_name );
+                }
             }
         }
         delete areaFile; 
