@@ -171,6 +171,12 @@ namespace TA3D
         **
         **    // -> k='['   v='Example of Section'
         **    String::ToKeyValue(" [Example of Section] ", k, v);
+        **
+        **    // -> k='foo'  v='bar'
+        **    String::ToKeyValue(" foo=bar; // comment", k, v);
+        **
+        **    // -> k='foo'  v='bar'
+        **    String::ToKeyValue(" foo=bar; // comments here; ", k, v);
         ** \endcode
         */
         static void ToKeyValue(const String& s, String& key, String& value);
@@ -463,6 +469,13 @@ namespace TA3D
         */
         String& convertToUTF8() {*this = ConvertToUTF8(*this); return *this;}
 
+        // Do not remove this
+        // TODO A global autotest
+        /*!
+        ** \brief Make an autotest on strings
+        ** \return The number of errors
+        */
+        //static int AutoTest();
 
     private:
         /*!
