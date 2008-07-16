@@ -179,14 +179,15 @@ namespace TA3D
         String::size_type equal = s.find_first_of('=', pos);
         if (equal == String::npos)
         {
-            value.clear();
             if (s[pos] == '[')
             {
-                key = s.substr(pos, s.find_first_of(']', pos));
+                key = "[";
+                value = s.substr(pos + 1, s.find_first_of(']', pos) - pos - 1);
                 return;
             }
             String::size_type end = s.find_last_not_of(TA3D_WSTR_SEPARATORS);
             key = s.substr(pos, end - pos + 1);
+            value.clear();
             return;
         }
         key = s.substr(pos, equal - pos);
