@@ -30,6 +30,7 @@
 #include "3ds.h"			// The 3DS model loader
 #include "3dmeditor.h"
 #include "misc/paths.h"
+#include "misc/osinfo.h"
 #include "languages/i18n.h"
 #include "jpeg/ta3d_jpg.h"
 
@@ -809,8 +810,8 @@ int intersect(VECTOR O,VECTOR Dir,OBJECT *obj,VECTOR *PA,VECTOR *PB)	// Calcule 
 void init()
 {
     InterfaceManager = NULL;
-    VARS::sound_manager = NULL;
-    VARS::HPIManager = NULL;
+//    VARS::sound_manager = NULL;
+//    VARS::HPIManager = NULL;
     VARS::Console = NULL;
     VARS::gfx = NULL;
 
@@ -824,88 +825,7 @@ void init()
         return;
     }
 
-    String str = format( "3DMEditor %s initializing started:\n\n", TA3D_ENGINE_VERSION );
-    I_Msg( TA3D::TA3D_IM_DEBUG_MSG, (void *)str.c_str(), NULL, NULL );
-
-    str = format("build info : %s , %s",__DATE__,__TIME__);
-    I_Msg( TA3D::TA3D_IM_DEBUG_MSG, (void *)str.c_str(), NULL, NULL );
-
-    I_Msg( TA3D::TA3D_IM_DEBUG_MSG, (void*)"Interface manager: succeded\n", NULL, NULL );
-    I_Msg( TA3D::TA3D_IM_DEBUG_MSG, (void*)"Logging interface: succeded\n", NULL, NULL );
-
-
     set_uformat(U_ASCII);   // fixed size, 8-bit ASCII characters
-
-#ifdef AGL_VERSION
-    str = format( "\nInitializing Allegro (%s %s)(%s)\n",
-                  ALLEGRO_VERSION_STR, ALLEGRO_DATE_STR, AGL_VERSION_STR );
-#else
-    str = format( "\nInitializing Allegro(%s %s)(unknown)\n ",
-                  ALLEGRO_VERSION_STR, ALLEGRO_DATE_STR );
-#endif
-    I_Msg( TA3D::TA3D_IM_DEBUG_MSG, (void *)str.c_str(), NULL, NULL );
-
-    if( allegro_init() != 0 )
-    {
-        throw cError( "Init3DMEditor()", "allegro_init() yielded unexpected result.", true );
-        return;
-    }
-
-    switch(os_type)
-    {
-        case OSTYPE_WIN3:         I_Msg( TA3D::TA3D_IM_DEBUG_MSG, (void*)"OS : Windows 3.1\n", NULL, NULL);   break;
-        case OSTYPE_WIN95:      I_Msg( TA3D::TA3D_IM_DEBUG_MSG, (void*)"OS : Windows 95\n", NULL, NULL);      break;
-        case OSTYPE_WIN98:      I_Msg( TA3D::TA3D_IM_DEBUG_MSG, (void*)"OS : Windows 98\n", NULL, NULL);      break;
-        case OSTYPE_WINME:      I_Msg( TA3D::TA3D_IM_DEBUG_MSG, (void*)"OS : Windows ME\n", NULL, NULL);      break;
-        case OSTYPE_WINNT:      I_Msg( TA3D::TA3D_IM_DEBUG_MSG, (void*)"OS : Windows NT\n", NULL, NULL);      break;
-        case OSTYPE_WIN2000:      I_Msg( TA3D::TA3D_IM_DEBUG_MSG, (void*)"OS : Windows 2000\n", NULL, NULL);  break;
-        case OSTYPE_WINXP:      I_Msg( TA3D::TA3D_IM_DEBUG_MSG, (void*)"OS : Windows XP\n", NULL, NULL);      break;
-        case OSTYPE_LINUX:      I_Msg( TA3D::TA3D_IM_DEBUG_MSG, (void*)"OS : Linux\n", NULL, NULL);        break;
-        case OSTYPE_FREEBSD:      I_Msg( TA3D::TA3D_IM_DEBUG_MSG, (void*)"OS : FreeBSD\n", NULL, NULL);         break;
-        case OSTYPE_NETBSD:     I_Msg( TA3D::TA3D_IM_DEBUG_MSG, (void*)"OS : NetBSD\n", NULL, NULL);         break;
-        case OSTYPE_UNIX:      I_Msg( TA3D::TA3D_IM_DEBUG_MSG, (void*)"OS : UNIX\n", NULL, NULL);            break;
-        default:               I_Msg( TA3D::TA3D_IM_DEBUG_MSG, (void*)"OS : unknown\n", NULL, NULL);         break;
-    };
-
-#define CPU_MODEL_ATHLON64_N   15
-
-    switch(cpu_family)
-    {
-        case CPU_FAMILY_I386:      str = "CPU: i386 ";      break;
-        case CPU_FAMILY_I486:      str = "CPU: i486 ";      break;
-        case CPU_FAMILY_I586:      str = "CPU: i586 ";      break;
-        case CPU_FAMILY_I686:      str = "CPU: i686 ";      break;
-        case CPU_FAMILY_ITANIUM:   str = "CPU: Itanium ";   break;
-        case CPU_FAMILY_POWERPC:   str = "CPU: PPC ";         break;
-        case CPU_FAMILY_EXTENDED:
-                                   switch(cpu_model)
-                                   {
-                                       case CPU_MODEL_PENTIUMIV:   str = "CPU: Pentium4 ";     break;
-                                       case CPU_MODEL_XEON:      str = "CPU: Xeon ";            break;
-                                       case CPU_MODEL_ATHLON64_N:
-                                       case CPU_MODEL_ATHLON64:   str = "CPU: Athlon64 ";      break;
-                                       case CPU_MODEL_OPTERON:      str = "CPU: Opteron ";     break;
-                                       default:               str = "CPU: ??? ";
-                                   };
-                                   break;
-        case CPU_FAMILY_UNKNOWN:   str = "CPU: ??? ";                  break;
-    };
-
-    str += cpu_vendor;
-    if(cpu_capabilities&CPU_AMD64)      str += "amd64 ";
-    if(cpu_capabilities&CPU_IA64)      str += "i64 ";
-    if(cpu_capabilities&CPU_ID)         str += "-cpuid";
-    if(cpu_capabilities&CPU_FPU)      str += "-x87 FPU";
-    if(cpu_capabilities&CPU_MMX)      str += "-MMX";
-    if(cpu_capabilities&CPU_MMXPLUS)   str += "-MMX+";
-    if(cpu_capabilities&CPU_SSE)      str += "-SSE";
-    if(cpu_capabilities&CPU_SSE2)      str += "-SSE2";
-    if(cpu_capabilities&CPU_3DNOW)      str += "-3DNow!";
-    if(cpu_capabilities&CPU_ENH3DNOW)   str += "-Enhanced 3DNow!";
-    if(cpu_capabilities&CPU_CMOV)      str += "-cmov";
-    str += "\n";
-
-    I_Msg( TA3D::TA3D_IM_DEBUG_MSG, (void *)str.c_str(), NULL, NULL );
 
     I_Msg( TA3D::TA3D_IM_DEBUG_MSG, (void*)"Starting Allegro timer.\n", NULL, NULL );
     if( install_timer() != 0 )
@@ -937,4 +857,10 @@ void init()
     TA3D::VARS::HPIManager = new TA3D::UTILS::HPI::cHPIHandler( GetClientPath() ); // create hpi manager object.
 
     set_window_title("3DMEditor - TA3D Project");
+
+    installOpenGLExtensions();
+
+    /*RGB * */pal = new RGB[256];
+    TA3D::UTILS::HPI::load_palette(pal); // Charge la palette graphique
+    set_palette(pal);		// Active la palette chargée
 }
