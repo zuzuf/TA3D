@@ -165,8 +165,65 @@ namespace TA3D
     }
 
 
+    /*
+    static int stringCheckKV(const String& t, const String& expectedKey = "", const String& expectedValue = "")
+    {
+        String k;
+        String v;
+        TA3D::String::ToKeyValue(t, k, v);
+        if (k != expectedKey || v != expectedValue)
+        {
+            LOG_ERROR("* String Check failed !");
+            LOG_ERROR("     On `" << t << "`");
+            LOG_ERROR("     Expectd: key=`" << expectedKey << "`,  value=`" << expectedValue << "`");
+            LOG_ERROR("     Found: key=`" << k << "`,  value=`" << v << "`");
+            return 1;
+        }
+        return 0;
+    }
+
+
+    int String::AutoTest()
+    {
+        int ret = 0;
+        ret += stringCheckKV("a=b;", "a", "b");
+        ret += stringCheckKV(" a=b;", "a", "b");
+        ret += stringCheckKV("a= b;", "a", "b");
+        ret += stringCheckKV("a=b; ", "a", "b");
+        ret += stringCheckKV(" a = b ;", "a", "b");
+        ret += stringCheckKV(" !(*^&$% = b ;", "!(*^&$%", "b");
+        ret += stringCheckKV(" ab c = 1 2 3 4 5 ;", "ab c", "1 2 3 4 5");
+        ret += stringCheckKV(" foo=bar; // comments here; ", "foo", "bar");
+        ret += stringCheckKV(" foo=bar comments//here ", "foo", "bar comments");
+        ret += stringCheckKV(" foo=bar comments // here ", "foo", "bar comments");
+        ret += stringCheckKV(" foo=bar  /   this is not a comment    ", "foo", "bar  /   this is not a comment");
+        ret += stringCheckKV("foo=http://www.example.org;// comment", "foo", "http://www.example.org");
+        ret += stringCheckKV("[ini] ", "[", "ini");
+        ret += stringCheckKV("  [Example of Section] ", "[", "Example of Section");
+        ret += stringCheckKV("  [ foo section  ] ", "[", "foo section");
+        ret += stringCheckKV("  [ bad section ", "[", "bad section");
+        ret += stringCheckKV("  [ bad section // comments", "[", "bad section // comments");
+        ret += stringCheckKV("[ bad section // comments  ", "[", "bad section // comments");
+        ret += stringCheckKV("  [Example of Section] // Comments", "[", "Example of Section");
+        ret += stringCheckKV("  [Example of Section]//Comments", "[", "Example of Section");
+        ret += stringCheckKV("  // Here is a comment ");
+        ret += stringCheckKV("  nyo // Here is a comment ", "nyo");
+        ret += stringCheckKV("  // a = b; ");
+        ret += stringCheckKV("  / a = b; ", "/ a", "b");
+        ret += stringCheckKV("  piko//li = b; ", "piko", "");
+        ret += stringCheckKV("  piko/li = b; ", "piko/li", "b");
+        ret += stringCheckKV("  piko   //li = b; ", "piko", "");
+        ret += stringCheckKV("{ ", "{");
+        ret += stringCheckKV("  }", "}");
+        ret += stringCheckKV("   { // Start of a new block", "{");
+        ret += stringCheckKV(" } // end of block", "}");
+        return ret;
+    }
+    */
+
     void String::ToKeyValue(const String& s, String& key, String& value)
     {
+        // The first usefull character
         String::size_type pos = s.find_first_not_of(TA3D_WSTR_SEPARATORS);
         if (pos == String::npos)
         {
@@ -175,33 +232,74 @@ namespace TA3D
             value.clear();
             return;
         }
-        // =
+        // The first `=` character 
         String::size_type equal = s.find_first_of('=', pos);
         if (equal == String::npos)
         {
+            // If none is present, it may be a section statement
             if (s[pos] == '[')
             {
                 key = "[";
-                value = s.substr(pos + 1, s.find_first_of(']', pos) - pos - 1);
+                pos = s.find_first_not_of(TA3D_WSTR_SEPARATORS, pos + 1);
+                String::size_type end = s.find_first_of(']', pos);
+                end = s.find_last_not_of(TA3D_WSTR_SEPARATORS, end - 1);
+                value = s.substr(pos, end - pos + 1);
                 return;
             }
-            String::size_type end = s.find_last_not_of(TA3D_WSTR_SEPARATORS);
-            key = s.substr(pos, end - pos + 1);
+            // otherwise it is only a string
             value.clear();
+            // But it may be a comment
+            String::size_type slashes = s.find("//", pos);
+            if (pos == slashes)
+            {
+                key.clear();
+                return;
+            }
+            String::size_type end = s.find_last_not_of(TA3D_WSTR_SEPARATORS, slashes - 1);
+            key = s.substr(pos, end - pos + 1);
             return;
         }
-        key = s.substr(pos, equal - pos);
-        // ;
-        String::size_type semicolon = s.find_last_not_of(';');
-        if (semicolon == String::npos)
+
+        // We can extract our key
+        String::size_type end = s.find_last_not_of(TA3D_WSTR_SEPARATORS, equal - 1);
+        key = s.substr(pos, 1 + end - pos);
+        String::size_type slashes = key.rfind("//");
+        if (slashes != String::npos)
+        {
+            value.clear();
+            if (slashes == 0)
+                key.clear();
+            else
+            {
+                slashes = key.find_last_not_of(TA3D_WSTR_SEPARATORS, slashes - 1);
+                key = key.substr(0, slashes + 1);
+            }
+            return;
+        }
+
+        // Left-Trim for the value
+        equal = s.find_first_not_of(TA3D_WSTR_SEPARATORS, equal + 1);
+        if (String::npos == equal)
         {
             value.clear();
             return;
         }
-        // Remove spaces
+
+        // Looking for the first semicolon
+        String::size_type semicolon = s.find_first_of(';', equal);
+        if (semicolon == String::npos)
+        {
+            // if none is present, looks for a comment to strip it
+            String::size_type slashes = s.find("//", equal);
+            slashes = s.find_last_not_of(TA3D_WSTR_SEPARATORS, slashes - 1);
+            value = s.substr(equal, 1 + slashes - equal);
+            return;
+        }
+        // Remove spaces before the semicolon and after the `=`
         semicolon = s.find_last_not_of(TA3D_WSTR_SEPARATORS, semicolon - 1);
-        equal = s.find_first_not_of(TA3D_WSTR_SEPARATORS, equal);
-        value = s.substr(equal + 1, semicolon - equal + 1);
+
+        // We can extract the value
+        value = s.substr(equal, 1 + semicolon - equal);
     }
 
 
