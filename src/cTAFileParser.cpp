@@ -55,11 +55,12 @@ namespace UTILS
             return false;
 
         /*
-        *** Experimental ***
         String key;
         String value;
         Line.toKeyValue(key, value);
-        LOG_DEBUG(" >> `" << key << "`:`" << value << "`  > " << Line);
+        if (!m_bKeysCaseSenstive)
+            key.toLower();
+        LOG_DEBUG(" >> K=`" << key << "`, V=`" << value << "`  > " << Line);
         */
 
         String::size_type i = Line.find("//"); // search for start of comment.
@@ -210,54 +211,6 @@ namespace UTILS
         while (*tmp)
             ProcessData(&tmp);
         delete[] data;
-    }
-
-    void cTAFileParser::loadMemory( char *data, bool bClearTable, bool toUTF8, bool g_mode )
-    {
-        if (bClearTable)
-        {
-            uint32 old_tablesize = pTableSize;
-            EmptyHashTable();
-            InitTable(old_tablesize);
-        }
-
-        if (!data)
-            throw ("no data provided!!");
-
-        if (toUTF8) // Convert from ASCII to UTF8, required because TA3D works with UTF8 and TA with ASCII
-        {
-            uint32 size = strlen( data );
-            char *tmp = new char[size * 2];
-            do_uconvert( (const char*)data, U_ASCII, tmp, U_UTF8, size * 2);
-            data = (char*)tmp;
-        }
-
-        m_cKey.clear();
-        key_level.clear();
-
-        // erase all line feeds. (linear algorithm)
-        char *tmp = data;
-        int e = 0, i = 0;
-        for ( ; tmp[i]; ++i)
-        {
-            if (tmp[i] != '\r')
-            {
-                if(e)
-                    tmp[i - e] = tmp[i];
-            }
-            else
-                ++e;
-        }
-        if (e > 0)
-            tmp[i] = 0;
-
-        gadget_mode = g_mode ? 0 : -1;
-
-        // now process the remaining.
-        while (*tmp)
-            ProcessData(&tmp);
-        if (toUTF8)
-            delete[] data;
     }
 
 
