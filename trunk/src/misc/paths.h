@@ -126,6 +126,8 @@ namespace Paths
     ** \see Paths::Separator
     */
     String ExtractFileName(const String& p, const bool systemDependant = true);
+    void ExtractFileName(String::List& p, const bool systemDependant = true);
+    void ExtractFileName(String::Vector& p, const bool systemDependant = true);
 
     /*!
     ** \brief Extract the bare file name without its extension
@@ -189,6 +191,56 @@ namespace Paths
     */
     bool Glob(String::Vector& out, const String& pattern, const bool emptyListBefore = true);
     bool Glob(String::List& out, const String& pattern, const bool emptyListBefore = true);
+
+    /*!
+    ** \brief Find files matching a pattern
+    **
+    ** \param[out] out The list of file that has been found
+    ** \param pattern The pattern to use
+    ** \param emptyListBefore True to empty the list before performing the glob function
+    ** \return True if the operation succeeded and the list is not empty,
+    ** false othewise
+    **
+    ** \code
+    ** String::Vector list;
+    ** if (Paths::GlobFiles(list, Paths::Savegames + "*.sav"))
+    ** {
+    **      for (String::Vector::const_iterator i = list.begin(); i != list.end(); ++i)
+    **          std::cout << "Savegame found: `" << *i << std::endl; 
+    ** }
+    ** else
+    ** {
+    **      std::cerr << "No savegame found." << std::endl;
+    ** }
+    ** \endcode
+    */
+    bool GlobFiles(String::Vector& out, const String& pattern, const bool emptyListBefore = true);
+    bool GlobFiles(String::List& out, const String& pattern, const bool emptyListBefore = true);
+
+    /*!
+    ** \brief Find directories matching a pattern
+    **
+    ** \param[out] out The list of directory that has been found
+    ** \param pattern The pattern to use
+    ** \param emptyListBefore True to empty the list before performing the glob function
+    ** \return True if the operation succeeded and the list is not empty,
+    ** false othewise
+    **
+    ** \code
+    ** String::Vector list;
+    ** if (Paths::GlobDirs(list, Paths::LocalData))
+    ** {
+    **      for (String::Vector::const_iterator i = list.begin(); i != list.end(); ++i)
+    **          std::cout << "Sub directory found: `" << *i << std::endl; 
+    ** }
+    ** else
+    ** {
+    **      std::cerr << "No sub directory found." << std::endl;
+    ** }
+    ** \endcode
+    */
+    bool GlobDirs(String::Vector& out, const String& pattern, const bool emptyListBefore = true);
+    bool GlobDirs(String::List& out, const String& pattern, const bool emptyListBefore = true);
 
     //@} // Globbing
 

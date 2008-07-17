@@ -30,7 +30,7 @@
 #include "languages/i18n.h"
 #include "gfx/gui/skin.h"
 #include "gfx/gui/skin.object.h"
-#include "gfx/gui/wnd.h"
+#include "gfx/gui/area.h"
 #include "misc/math.h"
 
 using namespace TA3D::Exceptions;
@@ -250,23 +250,24 @@ unsigned char WinMov(int AMx,int AMy,int AMb,int Mx,int My,int Mb,wnd *Wnd)
 
 void button (float x,float y,float x2,float y2,const String &Title,bool Etat,float size, SKIN *skin )
 {
-    if( skin && skin->button_img[ Etat ].tex ) {					// If we have gfx to skin the button then do it
-        glPushAttrib( GL_ALL_ATTRIB_BITS );
-        gfx->set_color( 1.0f, 1.0f, 1.0f, 1.0f );
-        glEnable( GL_BLEND );									// Enable alpha blending
-        glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
+    if( skin && skin->button_img[ Etat ].tex )					// If we have gfx to skin the button then do it
+    {
+        gfx->set_alpha_blending();
+        gfx->set_color( 0xFFFFFFFF );
 
         skin->button_img[ Etat ].draw( x, y, x2, y2 );
+        gfx->unset_alpha_blending();
 
-        if( !Title.empty() ) {
-            if( Etat)
+        if (!Title.empty())
+        {
+            if (Etat)
                 gfx->print(gui_font,(int)((x+x2)*0.5f-(gui_font.length(Title)*0.5f*size)+1),(int)((y+y2-(int)(gui_font.height()*size))*0.5f+1),0.0f,use_normal_alpha_function ? Blanc : Noir,Title,size);
             else
                 gfx->print(gui_font,(int)((x+x2)*0.5f-(gui_font.length(Title)*0.5f*size)),(int)(y+y2-(int)(gui_font.height()*size))*0.5f,0.0f,use_normal_alpha_function ? Blanc : Noir,Title,size);
         }
-        glPopAttrib();
     }
-    else {
+    else
+    {
         gfx->rectfill(x,y,x2,y2,GrisM);
         gfx->rect(x,y,x2,y2,Noir);
         gfx->rect(x+1,y+1,x2-1,y2-1,GrisF);
@@ -298,19 +299,25 @@ void ListBox(float x1,float y1, float x2, float y2,const String::Vector &Entry,i
     float old_size = gui_font.get_size();
     gui_font.change_size( size );
 
-    if( skin && skin->text_background.tex ) {
-        gfx->set_alpha_blending();
+    if (skin && skin->text_background.tex)
+    {
         gfx->set_color( 0xFFFFFFFF );
 
         if( !(flags & FLAG_NO_BORDER) )
+        {
+            gfx->set_alpha_blending();
             skin->text_background.draw( x1, y1, x2, y2 );
+            gfx->unset_alpha_blending();
+        }
 
         int i;
-        for( i = 0 ; i < Entry.size() ; i++ ) {
+        for( i = 0 ; i < Entry.size() ; i++ )
+        {
             int e = i+Scroll;
-            if( e >= Entry.size() || gui_font.height() * (i+1) > y2-y1-skin->text_background.y1+skin->text_background.y2 ) break;		// If we are out break the loop
-            if( e == Index ) {
-                if( skin->selection_gfx.tex )
+            if (e >= Entry.size() || gui_font.height() * (i+1) > y2-y1-skin->text_background.y1+skin->text_background.y2) break;		// If we are out break the loop
+            if (e == Index)
+            {
+                if (skin->selection_gfx.tex)
                     skin->selection_gfx.draw( x1 + skin->text_background.x1, y1 + skin->text_background.y1 + gui_font.height()*i, x2 + skin->text_background.x2, y1 + skin->text_background.y1+gui_font.height()*(i+1) );
                 else
                     gfx->rectfill( x1 + skin->text_background.x1, y1 + skin->text_background.y1 + gui_font.height()*i, x2 + skin->text_background.x2, y1 + skin->text_background.y1+gui_font.height()*(i+1), Bleu );
@@ -322,16 +329,16 @@ void ListBox(float x1,float y1, float x2, float y2,const String::Vector &Entry,i
         }
 
         int TotalScroll = Entry.size() - (int)( (y2 - y1 - skin->text_background.y1 + skin->text_background.y2) / gui_font.height() );
-        if( TotalScroll < 0 )	TotalScroll = 0;
+        if (TotalScroll < 0)	TotalScroll = 0;
 
         ScrollBar(	x2 + skin->text_background.x2 - skin->scroll[ 0 ].sw, y1 + skin->text_background.y1,
                     x2 + skin->text_background.x2, y2 + skin->text_background.y2,
                     TotalScroll ? ((float)Scroll) / TotalScroll : 0.0f, true, skin, size );
-
-        gfx->unset_alpha_blending();
     }
-    else {
-        if( !(flags & FLAG_NO_BORDER) ) {
+    else
+    {
+        if (!(flags & FLAG_NO_BORDER))
+        {
             gfx->rectfill(x1,y1,x2,y2,Blanc);
             gfx->rect(x1,y1,x2,y2,GrisF);
             gfx->rect(x1+1,y1+1,x2-1,y2-1,Noir);
@@ -342,10 +349,11 @@ void ListBox(float x1,float y1, float x2, float y2,const String::Vector &Entry,i
         }
 
         int i;
-        for(i=0;i<Entry.size();i++) {
+        for(i=0;i<Entry.size();i++)
+        {
             int e = i+Scroll;
-            if( e >= Entry.size() || gui_font.height() * (i+1) > y2-y1-8 ) break;		// If we are out break the loop
-            if( e == Index )
+            if (e >= Entry.size() || gui_font.height() * (i+1) > y2-y1-8) break;		// If we are out break the loop
+            if (e == Index)
                 gfx->rectfill( x1+4, y1+4+gui_font.height()*i, x2-4, y1+4+gui_font.height()*(i+1), Bleu );
             gfx->print(gui_font,x1+4,y1+4+gui_font.height()*i,0.0f,use_normal_alpha_function ? Blanc : Noir,Entry[e]);
         }
@@ -364,15 +372,17 @@ int draw_text_adjust( float x1, float y1, float x2, float y2, String msg, float 
     std::vector< String > Entry;
     int last = 0;
     for( int i = 0 ; i < msg.length() ; i++ )
-        if( msg[i] == '\r' )	continue;
-        else if( msg[i] == '\n' || gui_font.length( current + ' ' + current_word + msg[i] ) * size >= x2 - x1 ) {
+        if (msg[i] == '\r')	continue;
+        else if (msg[i] == '\n' || gui_font.length( current + ' ' + current_word + msg[i] ) * size >= x2 - x1)
+        {
             bool line_too_long = true;
-            if( gui_font.length( current + ' ' + current_word + msg[i] ) * size < x2 - x1 ) {
+            if (gui_font.length( current + ' ' + current_word + msg[i] ) * size < x2 - x1)
+            {
                 current += ' ' + current_word;
                 current_word.clear();
                 line_too_long = false;
             }
-            else if( msg[i] != '\n' )
+            else if (msg[i] != '\n')
                 current_word += msg[i];
             Entry.push_back( current );
             last = i + 1;
@@ -382,8 +392,10 @@ int draw_text_adjust( float x1, float y1, float x2, float y2, String msg, float 
                 current_word.clear();
             }
         }
-        else {
-            if( msg[i] == ' ' ) {
+        else
+        {
+            if( msg[i] == ' ' )
+            {
                 if( !current.empty() )
                     current += ' ';
                 current += current_word;
@@ -398,10 +410,10 @@ int draw_text_adjust( float x1, float y1, float x2, float y2, String msg, float 
     if( last + 1 < msg.length() && !current.empty() )
         Entry.push_back( current );
 
-    gfx->set_alpha_blending();
-    gfx->set_color( 1.0f, 1.0f, 1.0f, 1.0f );
+    gfx->set_color( 0xFFFFFFFF );
 
-    if( mission_mode ) {
+    if (mission_mode)
+    {
         int	old_format = get_uformat();
         set_uformat( U_ASCII );
 
@@ -409,21 +421,26 @@ int draw_text_adjust( float x1, float y1, float x2, float y2, String msg, float 
         char tmp[2];
         tmp[1] = 0;
         for( int e = pos ; e < Entry.size() ; e++ )
-            if( y1 + gui_font.height() * size * (e + 1 - pos) <= y2 ) {
+            if (y1 + gui_font.height() * size * (e + 1 - pos) <= y2)
+            {
                 float x_offset = 0.0f;
                 for( int i = 0 ; i < Entry[e].size() ; i++ )
-                    if( Entry[e][i] == '&' ) {
+                    if (Entry[e][i] == '&')
+                    {
                         current_color = 0xFFFFFFFF;									// Default: white
-                        if( i + 1 < Entry[e].size() && Entry[e][i+1] == 'R' ) {
+                        if (i + 1 < Entry[e].size() && Entry[e][i+1] == 'R')
+                        {
                             current_color = 0xFF0000FF;								// Red
                             i++;
                         }
-                        else if( i + 1 < Entry[e].size() && Entry[e][i+1] == 'Y' ) {
+                        else if (i + 1 < Entry[e].size() && Entry[e][i+1] == 'Y')
+                        {
                             current_color = 0xFF00FFFF;								// Yellow
                             i++;
                         }
                     }
-                    else {
+                    else
+                    {
                         tmp[0] = Entry[e][i];
                         gfx->print( gui_font, x1 + x_offset, y1 + gui_font.height() * size * (e - pos), 0.0f, current_color, tmp, size );
                         x_offset += gui_font.length( tmp ) * size;
@@ -431,13 +448,12 @@ int draw_text_adjust( float x1, float y1, float x2, float y2, String msg, float 
             }
         set_uformat( old_format );
     }
-    else {
+    else
+    {
         for( int e = pos ; e < Entry.size() ; e++ )
             if( y1 + gui_font.height() * size * (e + 1 - pos) <= y2 )
                 gfx->print( gui_font, x1, y1 + gui_font.height() * size * (e - pos), 0.0f, use_normal_alpha_function ? Blanc : Noir, Entry[e], size );
     }
-
-    gfx->unset_alpha_blending();
 
     return Entry.size();
 }
@@ -455,7 +471,8 @@ void PopupMenu( float x1, float y1, const String &msg, SKIN *skin, float size )
     std::vector< String > Entry;
     int last = 0;
     for( int i = 0 ; i < msg.length() ; i++ )
-        if( msg[i] == '\n' ) {
+        if (msg[i] == '\n')
+        {
             Entry.push_back( msg.substr( last, i - last ) );
             x2 = Math::Max(x2, x1 + gui_font.length(Entry.back()));
             last = i+1;
@@ -466,32 +483,35 @@ void PopupMenu( float x1, float y1, const String &msg, SKIN *skin, float size )
         x2 = Math::Max(x2, x1 + gui_font.length(Entry.back()));
     }
 
-    if( skin && skin->menu_background.tex )
+    if (skin && skin->menu_background.tex)
     {
         x2 += skin->menu_background.x1 - skin->menu_background.x2;
         float y2 = y1+skin->menu_background.y1-skin->menu_background.y2+gui_font.height()*Entry.size();
-        if( x2 >= SCREEN_W ) {
+        if (x2 >= SCREEN_W)
+        {
             x1 += SCREEN_W - x2 - 1;
             x2 = SCREEN_W - 1;
         }
-        if( y2 >= SCREEN_H ) {
+        if (y2 >= SCREEN_H)
+        {
             y1 += SCREEN_H - y2 - 1;
             y2 = SCREEN_H - 1;
         }
         gfx->set_alpha_blending();
-        gfx->set_color( 1.0f, 1.0f, 1.0f, 1.0f );
+        gfx->set_color( 0xFFFFFFFF );
 
         skin->menu_background.draw( x1, y1, x2, y2 );
+        gfx->unset_alpha_blending();
 
         for( int e = 0 ; e < Entry.size() ; e++ )
             gfx->print(gui_font,x1+skin->menu_background.x1,y1+skin->menu_background.y1+gui_font.height()*e,0.0f,use_normal_alpha_function ? Blanc : Noir,Entry[e]);
-
-        gfx->unset_alpha_blending();
     }
-    else {
+    else
+    {
         x2 += 8;
         float y2 = y1+8+gui_font.height()*Entry.size();
-        if( x2 >= SCREEN_W || y2 >= SCREEN_H ) {
+        if (x2 >= SCREEN_W || y2 >= SCREEN_H)
+        {
             float x = x1, y = y1;
             x1 = x1 - (x2 - x1);
             y1 = y1 - (y2 - y1);
@@ -525,8 +545,7 @@ void FloatMenu( float x, float y, const String::Vector &Entry, int Index, int St
 
     if (skin && skin->menu_background.tex)
     {
-        gfx->set_alpha_blending();
-        gfx->set_color( 1.0f, 1.0f, 1.0f, 1.0f );
+        gfx->set_color( 0xFFFFFFFF );
 
         int i;
         float width = 168.0f * size;
@@ -535,12 +554,14 @@ void FloatMenu( float x, float y, const String::Vector &Entry, int Index, int St
 
         width += skin->menu_background.x1-skin->menu_background.x2;
 
+        gfx->set_alpha_blending();
         skin->menu_background.draw( x, y, x + width, y+skin->menu_background.y1-skin->menu_background.y2+gui_font.height()*(Entry.size() - StartEntry) );
 
         for (i = 0; i < Entry.size() - StartEntry; ++i)
         {
             int e = i + StartEntry;
-            if( e == Index ) {
+            if( e == Index )
+            {
                 if( skin->selection_gfx.tex )
                     skin->selection_gfx.draw( x+skin->menu_background.x1,y+skin->menu_background.y1+gui_font.height()*i,x + width + skin->menu_background.x2,y+skin->menu_background.y1+gui_font.height()*(i+1) );
                 else
@@ -548,7 +569,6 @@ void FloatMenu( float x, float y, const String::Vector &Entry, int Index, int St
             }
             gfx->print(gui_font,x+skin->menu_background.x1,y+skin->menu_background.y1+gui_font.height()*i,0.0f,use_normal_alpha_function ? Blanc : Noir,Entry[e]);
         }
-
         gfx->unset_alpha_blending();
     }
     else
@@ -562,7 +582,8 @@ void FloatMenu( float x, float y, const String::Vector &Entry, int Index, int St
         gfx->line(x+1,y+1,x+167,y+1,GrisC);
 
         int i;
-        for( i=0 ; i<Entry.size() - StartEntry ; i++ ) {
+        for( i=0 ; i<Entry.size() - StartEntry ; i++ )
+        {
             int e = i + StartEntry;
             if( e == Index )
                 gfx->rectfill( x+4,y+4+gui_font.height()*i,x+164,y+4+gui_font.height()*(i+1), Bleu );
@@ -582,17 +603,18 @@ void OptionButton(float x,float y,const String &Title,bool Etat, SKIN *skin, flo
     float old_size = gui_font.get_size();
     gui_font.change_size( size );
 
-    if( skin && skin->option[0].tex && skin->option[1].tex ) {
+    if (skin && skin->option[0].tex && skin->option[1].tex)
+    {
+        gfx->set_color( 0xFFFFFFFF );
         gfx->set_alpha_blending();
-        gfx->set_color( 1.0f, 1.0f, 1.0f, 1.0f );
 
         skin->option[ Etat ? 1 : 0 ].draw( x, y, x + skin->option[ Etat ? 1 : 0 ].sw, y + skin->option[ Etat ? 1 : 0 ].sh );
+        gfx->unset_alpha_blending();
 
         gfx->print(gui_font, x + skin->option[ Etat ? 1 : 0 ].sw + 4.0f * size, y + ( skin->option[ Etat ? 1 : 0 ].sh - gui_font.height() ) * 0.5f,0.0f,use_normal_alpha_function ? Blanc : Noir,Title);
-
-        gfx->unset_alpha_blending();
     }
-    else {
+    else
+    {
         int x1,y1;
 
         gfx->circlefill(x+6,y+6,6,Blanc);
@@ -606,7 +628,8 @@ void OptionButton(float x,float y,const String &Title,bool Etat, SKIN *skin, flo
                     if(gfx->getpixel(x1,y1)==GrisF&&x1-x+y1-y-6>6)
                         gfx->putpixel(x1,y1,GrisC);
 
-        if(Etat) {
+        if(Etat)
+        {
             gfx->putpixel(x+6,y+6,RougeF);
             gfx->circle(x+6,y+6,1,RougeF);
             gfx->circle(x+6,y+6,2,RougeF);
@@ -633,17 +656,18 @@ void OptionCase(float x,float y,const String &Title,bool Etat, SKIN *skin, float
     float old_size = gui_font.get_size();
     gui_font.change_size( size );
 
-    if( skin && skin->checkbox[0].tex && skin->checkbox[1].tex ) {
+    if (skin && skin->checkbox[0].tex && skin->checkbox[1].tex)
+    {
+        gfx->set_color( 0xFFFFFFFF );
         gfx->set_alpha_blending();
-        gfx->set_color( 1.0f, 1.0f, 1.0f, 1.0f );
 
         skin->checkbox[ Etat ? 1 : 0 ].draw( x, y, x + skin->checkbox[ Etat ? 1 : 0 ].sw, y + skin->checkbox[ Etat ? 1 : 0 ].sh );
+        gfx->unset_alpha_blending();
 
         gfx->print(gui_font, x + skin->checkbox[ Etat ? 1 : 0 ].sw + 4.0f * size, y + ( skin->checkbox[ Etat ? 1 : 0 ].sh - gui_font.height() ) * 0.5f,0.0f,use_normal_alpha_function ? Blanc : Noir,Title);
-
-        gfx->unset_alpha_blending();
     }
-    else {
+    else
+    {
         gfx->rectfill(x,y,x+12,y+12,Blanc);
         gfx->rect(x,y,x+12,y+12,GrisF);
         gfx->rect(x+1,y+1,x+11,y+11,Noir);
@@ -652,7 +676,8 @@ void OptionCase(float x,float y,const String &Title,bool Etat, SKIN *skin, float
         gfx->line(x+1,y+11,x+11,y+11,Blanc);
         gfx->line(x+11,y+1,x+11,y+11,Blanc);
 
-        if(Etat) {
+        if (Etat)
+        {
             gfx->line(x+3,y+6,x+5,y+9,GrisF);
             gfx->line(x+5,y+9,x+8,y+4,GrisF);
             gfx->line(x+3,y+5,x+5,y+8,GrisF);
@@ -674,26 +699,28 @@ void TextBar(float x1,float y1,float x2,float y2,const String &Caption,bool Etat
     float old_size = gui_font.get_size();
     gui_font.change_size( size );
 
-    if( skin && skin->text_background.tex ) {
-        gfx->set_alpha_blending();
+    if (skin && skin->text_background.tex)
+    {
         gfx->set_color( 0xFFFFFFFF );
+        gfx->set_alpha_blending();
 
         skin->text_background.draw( x1, y1, x2, y2 );
+        gfx->unset_alpha_blending();
 
         float maxlength = x2 - x1 + skin->text_background.x2 - skin->text_background.x1 - gui_font.length( "_" );
         int dec = 0;
         String strtoprint = Caption.substr( dec, Caption.length() - dec );
-        while( gui_font.length( Caption.substr( dec, Caption.length() - dec ) ) >= maxlength && dec < Caption.length() ) {
+        while (gui_font.length( Caption.substr( dec, Caption.length() - dec ) ) >= maxlength && dec < Caption.length())
+        {
             dec++;
             strtoprint = Caption.substr( dec, Caption.length() - dec );
         }
 
         gfx->print(gui_font,x1+skin->text_background.x1,y1+skin->text_background.y1+skin->text_y_offset,0.0f,use_normal_alpha_function ? Blanc : Noir,strtoprint);
-		if(Etat) gfx->print(gui_font,x1+skin->text_background.x1+gui_font.length( strtoprint ),y1+skin->text_background.y1+skin->text_y_offset,0.0f,use_normal_alpha_function ? Blanc : Noir,"_");
-
-        gfx->unset_alpha_blending();
+		if (Etat) gfx->print(gui_font,x1+skin->text_background.x1+gui_font.length( strtoprint ),y1+skin->text_background.y1+skin->text_y_offset,0.0f,use_normal_alpha_function ? Blanc : Noir,"_");
     }
-    else {
+    else
+    {
         gfx->rectfill(x1,y1,x2,y2,Blanc);
         gfx->rect(x1,y1,x2,y2,GrisF);
         gfx->rect(x1+1,y1+1,x2-1,y2-1,Noir);
@@ -705,7 +732,8 @@ void TextBar(float x1,float y1,float x2,float y2,const String &Caption,bool Etat
         float maxlength = x2 - x1 - 8 - gui_font.length( "_" );
         int dec = 0;
         String strtoprint = Caption.substr( dec, Caption.length() - dec );
-        while( gui_font.length( Caption.substr( dec, Caption.length() - dec ) ) >= maxlength && dec < Caption.length() ) {
+        while( gui_font.length( Caption.substr( dec, Caption.length() - dec ) ) >= maxlength && dec < Caption.length() )
+        {
             dec++;
             strtoprint = Caption.substr( dec, Caption.length() - dec );
         }
@@ -722,27 +750,29 @@ void TextBar(float x1,float y1,float x2,float y2,const String &Caption,bool Etat
   \---------------------------------------------------------------------------*/
 void ScrollBar( float x1, float y1, float x2, float y2, float Value, bool vertical, SKIN *skin, float size )
 {
-    if( skin ) {
-        gfx->set_alpha_blending();
+    if (skin)
+    {
         gfx->set_color( 0xFFFFFFFF );
+        gfx->set_alpha_blending();
 
         if( Value < 0.0f )	Value = 0.0f;
         else if( Value > 1.0f )	Value = 1.0f;
         skin->scroll[ vertical ? 0 : 1 ].draw( x1, y1, x2, y2 );
 
-        if( vertical ) {
+        if (vertical)
+        {
             float y = y1 + skin->scroll[ 0 ].y1;
             float dx = x2 - x1 - skin->scroll[ 0 ].x1 + skin->scroll[ 0 ].x2;
             y += (y2 - y1 - skin->scroll[ 0 ].y1 + skin->scroll[ 0 ].y2 - dx) * Value;
             skin->scroll[ 2 ].draw( x1 + skin->scroll[ 0 ].x1, y, x2 + skin->scroll[ 0 ].x2, y + dx );
         }
-        else {
+        else
+        {
             float x = x1 + skin->scroll[ 1 ].x1;
             float dy = y2 - y1 - skin->scroll[ 1 ].y1 + skin->scroll[ 1 ].y2;
             x += (x2 - x1 - skin->scroll[ 1 ].x1 + skin->scroll[ 1 ].x2 - dy) * Value;
             skin->scroll[ 2 ].draw( x, y1 + skin->scroll[ 1 ].y1, x + dy, y2 + skin->scroll[ 1 ].y2 );
         }
-
         gfx->unset_alpha_blending();
     }
 }
@@ -756,19 +786,20 @@ void ProgressBar(float x1,float y1,float x2,float y2,int Value, SKIN *skin, floa
     float old_size = gui_font.get_size();
     gui_font.change_size( size );
 
-    if( skin && skin->progress_bar[0].tex && skin->progress_bar[1].tex ) {			// If we have a skin loaded with gfx for the progress bar
-        gfx->set_alpha_blending();
+    if (skin && skin->progress_bar[0].tex && skin->progress_bar[1].tex)			// If we have a skin loaded with gfx for the progress bar
+    {
         gfx->set_color( 0xFFFFFFFF );
+        gfx->set_alpha_blending();
         skin->progress_bar[0].draw( x1, y1, x2, y2 );
         skin->progress_bar[1].draw( x1 + skin->progress_bar[0].x1, y1 + skin->progress_bar[0].y1, x1 + skin->progress_bar[0].x1 + (skin->progress_bar[0].x2 + x2 - x1 - skin->progress_bar[0].x1) * Value * 0.01f, y2 + skin->progress_bar[0].y2 );			// Draw the bar
+        gfx->unset_alpha_blending();
 
         String Buf = format("%d", Value) + "%%";
 
         gfx->print(gui_font,(x1+x2)*0.5f-gui_font.length( Buf ) * 0.5f,(y1+y2)*0.5f-gui_font.height()*0.5f,0.0f,use_normal_alpha_function ? Blanc : Noir,Buf);
-
-        gfx->unset_alpha_blending();
     }
-    else {
+    else
+    {
         gfx->rectfill(x1,y1,x2,y2,Blanc);
         gfx->rectfill(x1+2,y1,x1+1+(x2-x1-3)*Value/100,y2,Bleu);
         gfx->rect(x1,y1,x2,y2,GrisF);
@@ -809,6 +840,25 @@ String dirname(String fname)
 const String Dialog(const String &Title, String Filter)
 {
 
+    AREA *current_area = AREA::current();
+    
+    if (current_area)
+    {
+        current_area->set_title("open",Title);
+        String curDir = TA3D::Paths::CurrentDirectory();
+        String::List files, dirs;
+        TA3D::Paths::GlobFiles( files, curDir + "/*" );
+        TA3D::Paths::GlobDirs( dirs, curDir + "/*" );
+        TA3D::Paths::ExtractFileName( files );
+        TA3D::Paths::ExtractFileName( dirs );
+        files.sort();
+        dirs.sort();
+        current_area->set_entry("open.file_list", files);
+        current_area->set_entry("open.folder_list", dirs);
+        current_area->msg("open.show");
+    }
+
+return "";
     set_uformat(U_UTF8);
 
     wnd WAsk;               //Cree un objet fenetre

@@ -1,0 +1,111 @@
+[window]
+{
+    name=open;
+	title=Open file;
+	uformat=UTF8;
+	x=320;
+	y=240;
+	width=800;
+	height=600;
+	fullscreen=true;
+	screen width=1280;
+	screen height=1024;
+	draw borders=true;
+	show title=true;
+	lock=false;
+	number of objects=8;
+	hidden=true;
+	color=0xFFFFFFFF;
+	background=gfx/background.jpg;
+	repeat background=true;
+	[object0]
+	{
+		name=l_filename;
+		type=TEXT;
+		value=0xFFFFFFFF;
+		caption=File name:;
+		x1=10;
+		y1=55;
+		size=1.6;
+	}
+	[object1]
+	{
+		name=t_filename;
+		type=TEXTBAR;
+		caption=;
+		value=100;
+		x1=170;
+		y1=40;
+		x2=-10;
+		y2=100;
+		size=1.6;
+	}
+	[object2]
+	{
+	    name=l_dir_list;
+	    type=TEXT;
+	    caption=Folder list:;
+	    x1=165;
+	    y1=100;
+	    centered=true;
+	    value=0xFFFFFFFF;
+	    size=1.6;
+	}
+	[object3]
+	{
+	    name=folder_list;
+	    type=LIST;
+	    entry=.,..;
+	    x1=10;
+	    y1=125;
+	    x2=320;
+	    y2=-40;
+	    size=1.6;
+	}
+	[object4]
+	{
+	    name=l_file_list;
+	    type=TEXT;
+	    caption=File list:;
+	    x1=560;
+	    y1=100;
+	    centered=true;
+	    value=0xFFFFFFFF;
+	    size=1.6;
+	}
+	[object5]
+	{
+	    name=file_list;
+	    type=LIST;
+	    entry=;
+	    x1=330;
+	    y1=125;
+	    x2=-10;
+	    y2=-40;
+	    size=1.6;
+	}
+	[object6]
+	{
+	    name=b_ok;
+	    type=BUTTON;
+	    caption=OK;
+	    x1=196;
+	    y1=-35;
+	    x2=336;
+	    y2=-5;
+	    size=1.6;
+	    on click=open.hide;
+	}
+	[object7]
+	{
+	    name=b_cancel;
+	    type=BUTTON;
+	    caption=Cancel;
+	    x1=463;
+	    y1=-35;
+	    x2=603;
+	    y2=-5;
+	    size=1.6;
+	    on click=open.hide;
+	}
+}

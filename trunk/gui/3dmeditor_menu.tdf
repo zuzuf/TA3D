@@ -20,7 +20,7 @@
 	repeat background=true;
 	[object0]
 	{
-		name=menu_file;
+		name=file;
 		type=MENU;
 		value=0xFFFFFFFF;
 		entry=File,New,Open,Save,IMPORT_ASC,IMPORT_3DO,IMPORT_3DS,Exit;
@@ -32,7 +32,7 @@
 	}
 	[object1]
 	{
-		name=menu_surface;
+		name=surface;
 		type=MENU;
 		entry=Surface,Edit,Copy,Paste,Reset,Paste on all;
 		x1=170;

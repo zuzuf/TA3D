@@ -313,7 +313,7 @@
 {
 	FRENCH=Nom du fichier:;
 }
-[Directory list:]
+[Folder list:]
 {
 	FRENCH=Liste des dossiers:;
 }

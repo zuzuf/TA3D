@@ -139,6 +139,18 @@ namespace Paths
         return p.substr(pos+1);
     }
 
+    void ExtractFileName(String::List& p, const bool systemDependant)
+    {
+        for(String::List::iterator i = p.begin() ; i != p.end() ; i++)
+            *i = ExtractFileName( *i, systemDependant );
+    }
+
+    void ExtractFileName(String::Vector& p, const bool systemDependant)
+    {
+        for(String::Vector::iterator i = p.begin() ; i != p.end() ; i++)
+            *i = ExtractFileName( *i, systemDependant );
+    }
+
     String ExtractFileNameWithoutExtension(const String& p)
     {
         String::size_type pos = p.find_last_of(Separator);
@@ -293,17 +305,18 @@ namespace Paths
     }
 
     template<class T>
-    bool TmplGlob(T& out, const String& pattern, const bool emptyListBefore)
+    bool TmplGlob(T& out, const String& pattern, const bool emptyListBefore, const uint32 fileAttribs = FA_ALL, const uint32 required = 0)
     {
         if (emptyListBefore)
             out.clear();
         struct al_ffblk info;
-        if (al_findfirst(pattern.c_str(), &info, FA_ALL) != 0)
+        if (al_findfirst(pattern.c_str(), &info, fileAttribs) != 0)
             return false;
         String root = ExtractFilePath(pattern);
         do
         {
-            out.push_back(root + (const char*)info.name);
+            if((info.attrib&required) == required)
+                out.push_back(root + (const char*)info.name);
         } while (al_findnext(&info) == 0);
         return !out.empty();
     }
@@ -316,6 +329,26 @@ namespace Paths
     bool Glob(String::Vector& out, const String& pattern, const bool emptyListBefore)
     {
         return TmplGlob< String::Vector >(out, pattern, emptyListBefore);
+    }
+
+    bool GlobFiles(String::List& out, const String& pattern, const bool emptyListBefore)
+    {
+        return TmplGlob< String::List >(out, pattern, emptyListBefore, FA_RDONLY | FA_HIDDEN | FA_SYSTEM | FA_ARCH);
+    }
+
+    bool GlobFiles(String::Vector& out, const String& pattern, const bool emptyListBefore)
+    {
+        return TmplGlob< String::Vector >(out, pattern, emptyListBefore, FA_RDONLY | FA_HIDDEN | FA_SYSTEM | FA_ARCH);
+    }
+
+    bool GlobDirs(String::List& out, const String& pattern, const bool emptyListBefore)
+    {
+        return TmplGlob< String::List >(out, pattern, emptyListBefore, FA_DIREC, FA_DIREC);
+    }
+
+    bool GlobDirs(String::Vector& out, const String& pattern, const bool emptyListBefore)
+    {
+        return TmplGlob< String::Vector >(out, pattern, emptyListBefore, FA_DIREC, FA_DIREC);
     }
 
 
