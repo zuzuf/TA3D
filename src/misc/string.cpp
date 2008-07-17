@@ -349,7 +349,7 @@ namespace TA3D
     }
 
 
-    String& String::findAndReplace(char toSearch, const char replaceWith, const enum String::SearchOption option)
+    String& String::findAndReplace(char toSearch, const char replaceWith, const enum String::CharCase option)
     {
         if (option == soIgnoreCase)
         {
@@ -373,7 +373,7 @@ namespace TA3D
     }
 
 
-    String& String::findAndReplace(const String& toSearch, const String& replaceWith, const enum String::SearchOption option)
+    String& String::findAndReplace(const String& toSearch, const String& replaceWith, const enum String::CharCase option)
     {
         if (soCaseSensitive == option)
         {
