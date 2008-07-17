@@ -319,8 +319,13 @@ namespace TA3D
         return ret;
     }
 
+    char* String::ConvertToUTF8(const char* s, const uint32 len)
+    {
+        uint32 nws;
+        return ConvertToUTF8(s, len, nws);
+    }
 
-    char* String::ConvertToUTF8(const char* s, uint32 len)
+    char* String::ConvertToUTF8(const char* s, uint32 len, uint32& newSize)
     {
         if (NULL == s || '\0' == *s)
         {
@@ -330,7 +335,7 @@ namespace TA3D
             return ret;
         }
         // see http://linux.die.net/man/3/uconvert_size
-        const uint32 newSize = uconvert_size(s, U_ASCII, U_UTF8); // including the mandatory zero terminator of the string
+        newSize = uconvert_size(s, U_ASCII, U_UTF8); // including the mandatory zero terminator of the string
         char* ret = new char[newSize];
         LOG_ASSERT(NULL != ret);
         // see http://linux.die.net/man/3/do_uconvert
