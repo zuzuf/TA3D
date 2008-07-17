@@ -296,25 +296,37 @@ int main(int argc, char* argv[])
             if (!IsOnGUI && mouse_b)    break;
         } while( amx == mouse_x && amy == mouse_y && amz == mouse_z && amb == mouse_b && !key[ KEY_ENTER ] && !key[ KEY_ESC ] && !done && !key_is_pressed && !main_area.scrolling );
 
-        if(!IsOnGUI) {				// Si la souris n'est pas sur un élément de l'interface utilisateur(si elle est sur la fenêtre 3D)
-            if(mouse_b==1) {		// Appui sur le bouton gauche pour effecture une rotation
+        if (!IsOnGUI)                // Si la souris n'est pas sur un élément de l'interface utilisateur(si elle est sur la fenêtre 3D)
+        {
+            if (mouse_b==1)         // Appui sur le bouton gauche pour effecture une rotation
                 r2+=mouse_x-amx;
-            }
-            if(mouse_b==4)			// Appui sur le bouton du milieu pour regler le zoom
+            if (mouse_b==4)			// Appui sur le bouton du milieu pour regler le zoom
                 ScaleFactor+=((mouse_y-amy)+(mouse_x-amx)+(mouse_z-amz))*0.1f;
-            if(mouse_b==2 && cur_part>=0 && cur_part<nb_obj()) {			// Left-clic to move current object
+            if (mouse_b==2 && cur_part>=0 && cur_part<nb_obj())             // Left-clic to move current object
+            {
                 VECTOR DP( 0.1f*(mouse_x-amx)*cos(r2*DEG2RAD), -(mouse_y-amy)*0.1f, 0.1f*(mouse_x-amx)*sin(r2*DEG2RAD) );
                 obj_table[cur_part]->pos_from_parent = obj_table[cur_part]->pos_from_parent + DP;
                 for( int i = 0 ; i < obj_table[cur_part]->nb_vtx ; i++ )
                     obj_table[cur_part]->points[ i ] = obj_table[cur_part]->points[ i ] - DP;
-                if( obj_table[cur_part]->child ) {
+                if (obj_table[cur_part]->child)
+                {
                     OBJECT *cur = obj_table[cur_part]->child;
-                    while( cur ) {
+                    while (cur)
+                    {
                         cur->pos_from_parent = cur->pos_from_parent - DP;
                         cur = cur->next;
                     }
                 }
             }
+        }
+        else
+        {
+            if (main_area.get_value("menu.file") >= 0)
+                mnu_file( main_area.get_value("menu.file") );
+            if (main_area.get_value("menu.surface") >= 0)
+                mnu_surf( main_area.get_value("menu.surface") );
+            if (main_area.get_value("edit.menu_selec") >= 0)
+                mnu_selec( main_area.get_value("edit.menu_selec") );
         }
 
         counter++;
@@ -454,10 +466,6 @@ int main(int argc, char* argv[])
         gfx->set_2D_mode();		// Passe en mode dessin allegro
 
         main_area.draw();
-
-//        String help_msg = "";
-//        EditWnd.draw( help_msg );				// Dessine la fenêtre d'édition
-//        MainWnd.draw( help_msg );				// Dessine la fenêtre de la barre de menus
 
         glEnable(GL_TEXTURE_2D);			// Affiche le nombre d'images par secondes
         glEnable(GL_BLEND);

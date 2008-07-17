@@ -33,6 +33,11 @@ namespace TA3D
         void destroy();										// A function that can reset the object
 
         /*!
+        ** \brief Returns a pointer to current AREA object if one exists, otherwise returns NULL
+        */
+        static AREA *current();
+
+        /*!
         ** \brief Load a window from a TDF file
         **
         ** \param filename TDF File to load
@@ -144,6 +149,23 @@ namespace TA3D
         ** \param message
         ** \return
         */
+        void set_title(const String& message, const String& title);	// Set the title of specified window to title
+
+        /*!
+        ** \brief
+        **
+        ** \param message
+        ** \return
+        */
+        void set_entry(const String& message, const std::list<String>& entry);	    // Set the entry of specified object in the specified window to entry (converts List to Vector)
+        void set_entry(const String& message, const std::vector<String>& entry);	// Set the entry of specified object in the specified window to entry
+
+        /*!
+        ** \brief
+        **
+        ** \param message
+        ** \return
+        */
         int	msg(String message);				// Send that message to the area
 
 
@@ -180,6 +202,9 @@ namespace TA3D
         void doLoadTDF(const String& filename);
 
     private:
+        //!
+        static std::list<AREA*> area_stack;		// This list stores the stack of all AREA objects so you can grab the current one at any time
+
         //!
         std::vector<WND*>  vec_wnd;			// This vector stores all the windows the area object deals with
         //!

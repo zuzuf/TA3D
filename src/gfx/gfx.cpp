@@ -1056,7 +1056,7 @@ namespace Interfaces
 
     void GFX::unset_alpha_blending()
     {
-        if (alpha_blending_set )
+        if (alpha_blending_set)
             glPopAttrib();								// Pop OpenGL attribs to pop them later when we unset alpha blending
         else
             glDisable(GL_BLEND);

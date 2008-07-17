@@ -3,8 +3,8 @@
     name=edit;
 	title=Edit;
 	uformat=UTF8;
-	x=220;
-	y=140;
+	x=-450;
+	y=-380;
 	width=450;
 	height=380;
 	fullscreen=true;

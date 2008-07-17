@@ -23,7 +23,7 @@
 
 # define I_Msg( x, xx,xxx,xxxx ) InterfaceManager->DispatchMsg( x,xx,xxx,xxxx )
 # define I_sMsg( x ) InterfaceManager->DispatchMsg( x )
-
+# define GUI_Msg( x ) InterfaceManager->DispatchMsg( TA3D_IM_GUI_MSG, (x).c_str(), NULL, NULL )
 
 
 namespace TA3D

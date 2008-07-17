@@ -14,6 +14,7 @@ using namespace TA3D::Exceptions;
 
 namespace TA3D
 {
+    std::list<AREA*> AREA::area_stack;		// This list stores the stack of all AREA objects so you can grab the current one at any time
 
     WND	*AREA::doGetWnd(const String& message)
     {
@@ -105,6 +106,36 @@ namespace TA3D
         pMutex.unlock();
     }
 
+    void AREA::set_entry(const String& message, const std::list<String>& entry)	// Set the entry of specified object in the specified window to entry (converts List to Vector)
+    {
+        pMutex.lock();
+        GUIOBJ* guiobj = doGetObject(message);
+        if (guiobj)
+        {
+            guiobj->Text.clear();
+            for( std::list<String>::const_iterator i = entry.begin() ; i != entry.end() ; i++ )
+                guiobj->Text.push_back( *i );
+        }
+        pMutex.unlock();
+    }
+
+    void AREA::set_entry(const String& message, const std::vector<String>& entry)	// Set the entry of specified object in the specified window to entry
+    {
+        pMutex.lock();
+        GUIOBJ* guiobj = doGetObject(message);
+        if (guiobj)
+            guiobj->Text = entry;
+        pMutex.unlock();
+    }
+
+    void AREA::set_title(const String& message, const String& title)
+    {
+        pMutex.lock();
+        WND* wnd = doGetWnd(message);
+        if (wnd)
+            wnd->Title = title;
+        pMutex.unlock();
+    }
 
     uint16 AREA::check()
     {
@@ -238,6 +269,8 @@ namespace TA3D
             return;
         }
 
+        area_stack.push_front( this );     // Just in case we want to grab it from elsewhere
+
         name = filename;		// Grab the area's name
         String::size_type e = name.find(".");		// Extracts the file name
 
@@ -325,6 +358,7 @@ namespace TA3D
 
     void AREA::destroy()
     {
+        if (current() == this)  area_stack.pop_front();     // Just in case we want to destroy an empty object
         cached_key.clear();
         cached_wnd = NULL;
 
@@ -346,6 +380,13 @@ namespace TA3D
         if (skin) // Destroy the skin
             delete skin;
         skin = NULL;
+    }
+
+    AREA *AREA::current()
+    {
+        if (area_stack.empty())
+            return NULL;
+        return area_stack.front();
     }
 
 
