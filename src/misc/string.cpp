@@ -165,7 +165,7 @@ namespace TA3D
     }
 
 
-    void String::ToKeyValue(const String& s, String& key, String& value)
+    void String::ToKeyValue(const String& s, String& key, String& value, const enum String::CharCase chcase)
     {
         // The first usefull character
         String::size_type pos = s.find_first_not_of(TA3D_WSTR_SEPARATORS);
@@ -208,18 +208,24 @@ namespace TA3D
         String::size_type end = s.find_last_not_of(TA3D_WSTR_SEPARATORS, equal - 1);
         key = s.substr(pos, 1 + end - pos);
         String::size_type slashes = key.rfind("//");
+        // Remove any comments
         if (slashes != String::npos)
         {
             value.clear();
-            if (slashes == 0)
+            if (slashes == 0) // the key is a comment actually
                 key.clear();
             else
             {
+                // Get only the good part
                 slashes = key.find_last_not_of(TA3D_WSTR_SEPARATORS, slashes - 1);
                 key = key.substr(0, slashes + 1);
+                if (chcase == soIgnoreCase)
+                    key.toLower();
             }
             return;
         }
+        if (chcase == soIgnoreCase)
+            key.toLower();
 
         // Left-Trim for the value
         equal = s.find_first_not_of(TA3D_WSTR_SEPARATORS, equal + 1);

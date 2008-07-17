@@ -163,6 +163,7 @@ namespace TA3D
         ** \param s A line (ex: `   category=core vtol ctrl_v level1 weapon  notsub ;`)
         ** \param[out] key The key that has been found
         ** \param[out] value The associated value
+        ** \param chcase The key will be converted to lowercase if equals to `soIgnoreCase`
         **
         ** \code
         **    String k, v;
@@ -188,7 +189,7 @@ namespace TA3D
         **    String::ToKeyValue(" foo=bar; // comments here; ", k, v);
         ** \endcode
         */
-        static void ToKeyValue(const String& s, String& key, String& value);
+        static void ToKeyValue(const String& s, String& key, String& value, const enum CharCase chcase = soCaseSensitive);
 
         /*!
         ** \brief Find the index of a string in a vector
@@ -453,7 +454,8 @@ namespace TA3D
         **
         ** \see String::ToKeyValue()
         */
-        void toKeyValue(String& key, String& value) const { ToKeyValue(*this, key, value); }
+        void toKeyValue(String& key, String& value, const enum CharCase chcase = soCaseSensitive) const
+        {ToKeyValue(*this, key, value, chcase);}
 
         /*!
         ** \brief Convert all antislashes into slashes
