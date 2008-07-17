@@ -61,7 +61,10 @@ message(STATUS "Default C++ flags set to `${CMAKE_CXX_FLAGS}`")
 # DEBUG
 #
 ADD_DEFINITIONS("-DLOGS_USE_DEBUG")
-
+#
+# AutoTest
+#
+ADD_DEFINITIONS("-DTA3D_AUTOTEST")
 
 
 #
