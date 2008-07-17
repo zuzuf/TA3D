@@ -236,7 +236,13 @@ namespace TA3D
         }
 
         // Looking for the first semicolon
+        bool needReplaceSemicolons(false);
         String::size_type semicolon = s.find_first_of(';', equal);
+        while (semicolon != String::npos && s[semicolon - 1] == '\\')
+        {
+            semicolon = s.find_first_of(';', semicolon + 1);
+            needReplaceSemicolons = true;
+        }
         if (semicolon == String::npos)
         {
             // if none is present, looks for a comment to strip it
@@ -245,6 +251,8 @@ namespace TA3D
             value = s.substr(equal, 1 + slashes - equal);
             value.findAndReplace("\\r", "", soCaseSensitive);
             value.findAndReplace("\\n", "\n", soCaseSensitive);
+            if (needReplaceSemicolons)
+                value.findAndReplace("\\;", ";", soCaseSensitive);
             return;
         }
         // Remove spaces before the semicolon and after the `=`
@@ -254,6 +262,8 @@ namespace TA3D
         value = s.substr(equal, 1 + semicolon - equal);
         value.findAndReplace("\\r", "", soCaseSensitive);
         value.findAndReplace("\\n", "\n", soCaseSensitive);
+        if (needReplaceSemicolons)
+            value.findAndReplace("\\;", ";", soCaseSensitive);
     }
 
 
@@ -400,7 +410,12 @@ namespace TA3D
         return *this;
     }
 
-    /*
+
+
+
+
+# ifdef TA3D_AUTOTEST
+
     template<typename T>
     int stringConvert(const String& section, const T t, const T expected)
     {
@@ -470,8 +485,13 @@ namespace TA3D
         ret += stringCheckKV("   { // Start of a new block", "{");
         ret += stringCheckKV(" } // end of block", "}");
         ret += stringCheckKV(" a = a full text with \\n cariage return", "a", "a full text with \n cariage return");
+        ret += stringCheckKV(" a = semicolon\\;test", "a", "semicolon;test");
+        ret += stringCheckKV(" a = semicolon\\; test", "a", "semicolon; test");
+        ret += stringCheckKV(" a = semicolon \\;test", "a", "semicolon ;test");
+        ret += stringCheckKV(" a = semicolon \\;  test", "a", "semicolon ;  test");
         return ret;
     }
-    */
+
+# endif // ifdef TA3D_AUTOTEST
 
 }

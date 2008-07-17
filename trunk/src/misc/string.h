@@ -508,6 +508,7 @@ namespace TA3D
             return !(iss >> f >> t).fail();
         }
 
+    # ifdef TA3D_AUTOTEST
     public:
         // Do not remove this
         // TODO A global autotest
@@ -515,7 +516,8 @@ namespace TA3D
         ** \brief Make an autotest on strings
         ** \return The number of errors
         */
-        // static int AutoTest();
+        static int AutoTest();
+    # endif
 
     }; // class String
 
