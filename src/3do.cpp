@@ -2761,23 +2761,23 @@ hit_fast_is_exploding:
             return NULL;
 
         const String l = String::ToLower(name);
-        int e = model_hashtable.Find("objects3d\\" + l + ".3do") - 1;
+        int e = model_hashtable.find("objects3d\\" + l + ".3do") - 1;
         if (e >= 0)
             return &(model[e]);
 
-        e = model_hashtable.Find("objects3d\\" + l + ".3dm") - 1;
+        e = model_hashtable.find("objects3d\\" + l + ".3dm") - 1;
         if (e >= 0)
             return &(model[e]);
 
-        e = model_hashtable.Find(l) - 1;
+        e = model_hashtable.find(l) - 1;
         if (e >= 0)
             return &(model[e]);
 
-        e = model_hashtable.Find(l + ".3do") - 1;
+        e = model_hashtable.find(l + ".3do") - 1;
         if (e >= 0)
             return &(model[e]);
 
-        e = model_hashtable.Find(l + ".3dm") - 1;
+        e = model_hashtable.find(l + ".3dm") - 1;
         if (e >= 0)
             return &(model[e]);
         return NULL;
@@ -2787,7 +2787,7 @@ hit_fast_is_exploding:
     MODEL_MANAGER::~MODEL_MANAGER()
     {
         destroy();
-        model_hashtable.EmptyHashTable();
+        model_hashtable.emptyHashTable();
     }
 
 
@@ -2805,9 +2805,8 @@ hit_fast_is_exploding:
                 free(name[i]);
             free(name);
         }
-        model_hashtable.EmptyHashTable();
-        model_hashtable.InitTable( __DEFAULT_HASH_TABLE_SIZE );
-
+        model_hashtable.emptyHashTable();
+        model_hashtable.initTable(__DEFAULT_HASH_TABLE_SIZE);
         init();
     }
 
@@ -2842,7 +2841,7 @@ hit_fast_is_exploding:
         model[nb_models].init();
         name[nb_models] = strdup(filename.c_str());
 
-        model_hashtable.Insert(String::ToLower(filename), nb_models + 1);
+        model_hashtable.insert(String::ToLower(filename), nb_models + 1);
 
         model[nb_models].create_from_2d(bmp,w,h,max_h);
         ++nb_models;
@@ -2896,7 +2895,7 @@ hit_fast_is_exploding:
                         {
                             model[i+nb_models].load_3dm(data);
                             delete[] data;
-                            model_hashtable.Insert(String::ToLower(*e), nb_models + i + 1);
+                            model_hashtable.insert(String::ToLower(*e), nb_models + i + 1);
                             ++i;
                         }
                     }
@@ -2940,7 +2939,7 @@ hit_fast_is_exploding:
                         if (data_size > 0 )						// If the file isn't empty
                             model[i+nb_models].load_3do(data,e->c_str());
                         delete[] data;
-                        model_hashtable.Insert(String::ToLower(*e), nb_models + i + 1);
+                        model_hashtable.insert(String::ToLower(*e), nb_models + i + 1);
                         ++i;
                     }
                 }

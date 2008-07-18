@@ -23,10 +23,10 @@ namespace UTILS
 
     template<class T>
     void
-    cHashTable<T>::InitTable(const uint32 TableSize)
+    cHashTable<T>::initTable(const uint32 TableSize)
     {
         if (!VectorOfBucketsList::empty())
-            this->EmptyHashTable();
+            this->emptyHashTable();
         std::list< cBucket<T> > empty_list; 
         resize(TableSize, empty_list);
         pTableSize = TableSize;
@@ -34,7 +34,7 @@ namespace UTILS
 
     template<class T>
     void
-    cHashTable<T>::EmptyHashTable()
+    cHashTable<T>::emptyHashTable()
     {
         if (pTableSize == 0 || VectorOfBucketsList::empty())
             return;
@@ -48,25 +48,25 @@ namespace UTILS
     template<class T>
     cHashTable<T>::cHashTable()
     {
-        InitTable(__DEFAULT_HASH_TABLE_SIZE);
+        initTable(__DEFAULT_HASH_TABLE_SIZE);
     }
 
     template<class T>
     cHashTable<T>::cHashTable(uint32 TableSize)
     {
-        InitTable(TableSize);
+        initTable(TableSize);
     }
 
     template<class T>
     cHashTable<T>::~cHashTable()
     {
-        this->EmptyHashTable();
+        this->emptyHashTable();
     }
 
 
     template<class T>
     bool
-    cHashTable<T>::Exists(const String& key)
+    cHashTable<T>::exists(const String& key)
     {
         if (!pTableSize)
             return false;
@@ -79,7 +79,7 @@ namespace UTILS
 
     template<class T>
     T
-    cHashTable<T>::Find(const String &key)
+    cHashTable<T>::find(const String &key)
     {
         if (pTableSize == 0)
             return (T) 0;
@@ -92,9 +92,9 @@ namespace UTILS
 
     template<class T>
     bool
-    cHashTable<T>::Insert(const String& key, T v)
+    cHashTable<T>::insert(const String& key, T v)
     {
-        if(pTableSize == 0 || Exists(key))
+        if(pTableSize == 0 || exists(key))
             return false;
         cBucket<T> elt(key, v);
         (*(static_cast<VectorOfBucketsList*>(this)))[generateHash(key)].push_back(elt);
@@ -104,7 +104,7 @@ namespace UTILS
 
     template<class T>
     void
-    cHashTable<T>::InsertOrUpdate(const String& key, T v)
+    cHashTable<T>::insertOrUpdate(const String& key, T v)
     {
         if (!pTableSize)
             return;
@@ -114,13 +114,13 @@ namespace UTILS
         if( cur != it.end())
             (*cur).m_T_data = v;
         else
-            Insert(key, v);
+            insert(key, v);
     }
 
 
     template<class T>
     uint32
-    cHashTable<T>::WildCardSearch(const String& pattern, String::List& li)
+    cHashTable<T>::wildCardSearch(const String& pattern, String::List& li)
     {
         if (pTableSize == 0)
             return 0;
@@ -172,7 +172,7 @@ namespace UTILS
 
     template<class T>
     void
-    cHashTable<T>::Remove(const String& key)
+    cHashTable<T>::remove(const String& key)
     {
         if (!pTableSize)
             return;
@@ -191,11 +191,11 @@ namespace UTILS
 
     template<class T>
     void
-    clpHashTable<T>::InitTable(const uint32 tableSize, const bool freeDataOnErase )
+    clpHashTable<T>::initTable(const uint32 tableSize, const bool freeDataOnErase)
     {
         m_bFreeDataOnErase = freeDataOnErase;
         if (cHashTable<T>::size())
-            this->EmptyHashTable();
+            this->emptyHashTable();
 
         BucketsList empty_list;
         cHashTable<T>::resize(tableSize, empty_list);
@@ -205,7 +205,7 @@ namespace UTILS
 
     template<class T>
     void
-    clpHashTable<T>::Remove(const String& key)
+    clpHashTable<T>::remove(const String& key)
     {
         if (!cHashTable<T>::pTableSize)
             return;
@@ -226,15 +226,15 @@ namespace UTILS
 
     template<class T>
     void
-    clpHashTable<T>::EmptyHashTable()
+    clpHashTable<T>::emptyHashTable()
     {
         if (!cHashTable<T>::pTableSize || cHashTable<T>::empty())
             return;
         for (typename cHashTable<T>::iterator iter = cHashTable<T>::begin() ; iter != cHashTable<T>::end() ; ++iter)   
         {
-            if( m_bFreeDataOnErase )   
+            if (m_bFreeDataOnErase)   
             {
-                for (typename BucketsList::iterator cur = iter->begin() ; cur != iter->end() ; ++cur)
+                for (typename BucketsList::iterator cur = iter->begin(); cur != iter->end(); ++cur)
                     delete( (*cur).m_T_data );
             }
             iter->clear();
@@ -247,14 +247,14 @@ namespace UTILS
     template<class T>
     clpHashTable<T>::clpHashTable()
     {
-        InitTable(__DEFAULT_HASH_TABLE_SIZE, true);
+        initTable(__DEFAULT_HASH_TABLE_SIZE, true);
     }
 
 
     template<class T>
     clpHashTable<T>::clpHashTable(const uint32 TableSize, const bool FreeDataOnErase)
     {
-        InitTable(TableSize, FreeDataOnErase);
+        initTable(TableSize, FreeDataOnErase);
     }
 
 
@@ -262,13 +262,13 @@ namespace UTILS
     template<class T>
     clpHashTable<T>::~clpHashTable()
     {
-        this->EmptyHashTable();
+        this->emptyHashTable();
     }
 
 
     template<class T>
     void
-    clpHashTable<T>::InsertOrUpdate( const String &key, T v )
+    clpHashTable<T>::insertOrUpdate(const String& key, T v)
     {
         if (!cHashTable<T>::pTableSize)
             return;
@@ -284,7 +284,7 @@ namespace UTILS
             (*cur).m_T_data = v;
         }
         else
-            cHashTable<T>::Insert(key, v);
+            cHashTable<T>::insert(key, v);
     }
 
 

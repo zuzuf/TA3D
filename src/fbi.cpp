@@ -365,7 +365,7 @@ int UNIT_TYPE::load(char *data,int size)
             categories = new String::Vector;
             ReadVectorString(*categories, f + 9, " " );
             for(String::Vector::const_iterator i = categories->begin(); i != categories->end(); ++i)
-                Category->InsertOrUpdate(String::ToLower(*i), 1);
+                Category->insertOrUpdate(String::ToLower(*i), 1);
             fastCategory = 0;
             if( checkCategory( "kamikaze" ) )	fastCategory |= CATEGORY_KAMIKAZE;
             if( checkCategory( "notair" ) )		fastCategory |= CATEGORY_NOTAIR;
@@ -571,7 +571,7 @@ void UNIT_TYPE::load_dl()
 {
     if (side == NULL)
         return;
-    dl_data = unit_manager.h_dl_data.Find(String::ToLower(side));
+    dl_data = unit_manager.h_dl_data.find(String::ToLower(side));
 
     if (dl_data)
         return;			// Ok it's already loaded
@@ -616,7 +616,7 @@ void UNIT_TYPE::load_dl()
 
         unit_manager.l_dl_data.push_back( dl_data );		// Put it there so it'll be deleted when finished
 
-        unit_manager.h_dl_data.Insert(String::ToLower(side), dl_data);
+        unit_manager.h_dl_data.insert(String::ToLower(side), dl_data);
     }
     catch(...)
     {
@@ -719,11 +719,11 @@ void UNIT_TYPE::FixBuild()
 
 void UNIT_MANAGER::destroy()
 {
-    unit_hashtable.EmptyHashTable();
-    unit_hashtable.InitTable( __DEFAULT_HASH_TABLE_SIZE );
+    unit_hashtable.emptyHashTable();
+    unit_hashtable.initTable( __DEFAULT_HASH_TABLE_SIZE );
 
-    h_dl_data.EmptyHashTable();
-    h_dl_data.InitTable( __DEFAULT_HASH_TABLE_SIZE );
+    h_dl_data.emptyHashTable();
+    h_dl_data.initTable( __DEFAULT_HASH_TABLE_SIZE );
 
     for( std::list< DL_DATA* >::iterator i = l_dl_data.begin() ; i != l_dl_data.end() ; i++ )
         delete	*i;

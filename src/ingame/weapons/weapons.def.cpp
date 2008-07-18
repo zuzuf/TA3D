@@ -125,7 +125,7 @@ namespace TA3D
 
     uint32 WEAPON_DEF::get_damage_for_unit(const String& uname) const
     {
-        uint32 dmg = damage_hashtable->Find(String::ToLower(uname));
+        uint32 dmg = damage_hashtable->find(String::ToLower(uname));
         if(dmg)
             return dmg;
         int unit_type = unit_manager.get_unit_index(uname.c_str());
@@ -134,7 +134,7 @@ namespace TA3D
             String::Vector::const_iterator i = (unit_manager.unit_type[ unit_type ].categories)->begin();
             for (; (unit_manager.unit_type[ unit_type ].categories)->end() != i; ++i)
             {
-                dmg = damage_hashtable->Find(*i);
+                dmg = damage_hashtable->find(*i);
                 if (dmg)
                     return dmg;
             }

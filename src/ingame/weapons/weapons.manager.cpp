@@ -24,7 +24,7 @@ namespace TA3D
     WEAPON_MANAGER::~WEAPON_MANAGER()
     {
         destroy();
-        weapon_hashtable.EmptyHashTable();
+        weapon_hashtable.emptyHashTable();
     }
 
     void WEAPON_MANAGER::destroy()
@@ -37,8 +37,8 @@ namespace TA3D
         }
         if (weapon)
             free(weapon);
-        weapon_hashtable.EmptyHashTable();
-        weapon_hashtable.InitTable(__DEFAULT_HASH_TABLE_SIZE);
+        weapon_hashtable.emptyHashTable();
+        weapon_hashtable.initTable(__DEFAULT_HASH_TABLE_SIZE);
         init();
     }
 
@@ -60,7 +60,7 @@ namespace TA3D
         weapon[nb_weapons-1].internal_name = strdup(name);
         weapon[nb_weapons-1].nb_id=nb_weapons-1;
 
-        weapon_hashtable.Insert(String::ToLower(name), nb_weapons);
+        weapon_hashtable.insert(String::ToLower(name), nb_weapons);
 
         return nb_weapons-1;
     }
@@ -144,7 +144,7 @@ namespace TA3D
                                     unit_name.trim();
                                     unit_name.resize( unit_name.find( "=" ) );
                                     int dmg = atoi( f + 1 );
-                                    weapon[index].damage_hashtable->Insert( unit_name, dmg );
+                                    weapon[index].damage_hashtable->insert(unit_name, dmg);
                                 }
                         } while(strstr(ligne,"}")==NULL && nb<1000 && pos<limit);
                     }

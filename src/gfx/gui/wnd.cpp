@@ -66,7 +66,7 @@ namespace TA3D
 
     WND::~WND()
     {
-        obj_hashtable.EmptyHashTable();
+        obj_hashtable.emptyHashTable();
         destroy();
     }
 
@@ -979,14 +979,14 @@ namespace TA3D
 
     GUIOBJ *WND::doGetObject(String message)
     {
-        sint16 e = obj_hashtable.Find(message.toLower()) - 1;
+        sint16 e = obj_hashtable.find(message.toLower()) - 1;
         return (e >= 0) ? &(Objets[e]) : NULL;
     }
 
     GUIOBJ *WND::get_object(String message)
     {
         MutexLocker locker(pMutex);
-        sint16 e = obj_hashtable.Find(message.toLower()) - 1;
+        sint16 e = obj_hashtable.find(message.toLower()) - 1;
         return (e >= 0) ? &(Objets[e]) : NULL;
     }
 
@@ -1083,7 +1083,7 @@ namespace TA3D
             int obj_type = wndFile->pullAsInt(obj_key + "common.id");
 
             Objets[i].Name = wndFile->pullAsString(obj_key + "common.name", format("gadget%d", i + 1));
-            obj_hashtable.Insert(String::ToLower(Objets[i].Name), i + 1);
+            obj_hashtable.insert(String::ToLower(Objets[i].Name), i + 1);
 
             int X1 = (int)(wndFile->pullAsInt(obj_key + "common.xpos")   * x_factor); // Reads data from TDF
             int Y1 = (int)(wndFile->pullAsInt(obj_key + "common.ypos")   * y_factor);
@@ -1111,7 +1111,7 @@ namespace TA3D
                 int t_h[100];
                 String key(Objets[i].Name);
                 key.toLower();
-                std::vector<TA3D::Interfaces::GfxTexture>* result = gui_hashtable.Find(key);
+                std::vector<TA3D::Interfaces::GfxTexture>* result = gui_hashtable.find(key);
 
                 std::vector<GLuint> gaf_imgs;
                 bool found_elsewhere = false;
@@ -1148,7 +1148,7 @@ namespace TA3D
                 int nb_stages = wndFile->pullAsInt(obj_key + "stages");
                 Objets[i].create_ta_button(X1, Y1, Caption, gaf_imgs, nb_stages > 0 ? nb_stages : gaf_imgs.size() - 2);
                 if (result == NULL && found_elsewhere)
-                    gui_hashtable.Insert(key, &Objets[i].gltex_states);
+                    gui_hashtable.insert(key, &Objets[i].gltex_states);
                 for (unsigned int e = 0; e < Objets[i].gltex_states.size(); ++e)
                 {
                     Objets[i].gltex_states[e].width = t_w[e];
@@ -1293,7 +1293,7 @@ namespace TA3D
                 String obj_key = format("window.object%d." , i);
                 String obj_type = wndFile->pullAsString(obj_key + "type");
                 Objets[i].Name = wndFile->pullAsString(obj_key + "name", format("object%d", i));
-                obj_hashtable.Insert(String::ToLower(Objets[i].Name), i + 1);
+                obj_hashtable.insert(String::ToLower(Objets[i].Name), i + 1);
                 Objets[i].help_msg = I18N::Translate(wndFile->pullAsString(obj_key + "help"));
 
                 float X1 = wndFile->pullAsFloat(obj_key + "x1") * x_factor;				// Reads data from TDF

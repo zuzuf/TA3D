@@ -81,9 +81,9 @@ namespace UTILS
                     ++gadget_mode;
                     changed = true;
                     if (!m_bKeysCaseSenstive)
-                        InsertOrUpdate(m_cKey, String::ToLower(Line.substr(1, i-2)));		// Link the key with its original name
+                        TA3D::UTILS::cHashTable<String>::insertOrUpdate(m_cKey, String::ToLower(Line.substr(1, i-2)));		// Link the key with its original name
                     else
-                        InsertOrUpdate(m_cKey, Line.substr(1, i - 2));		// Link the key with its original name
+                        TA3D::UTILS::cHashTable<String>::insertOrUpdate(m_cKey, Line.substr(1, i - 2));		// Link the key with its original name
                 }
 
                 key_level.push_front(m_cKey);
@@ -140,7 +140,7 @@ namespace UTILS
             t << m_cKey << '.' << n;
             if (!m_bKeysCaseSenstive)
                 t.toLower();
-            InsertOrUpdate(t, v);
+            TA3D::UTILS::cHashTable<String>::insertOrUpdate(t, v);
         }
         return false;
     }
@@ -154,8 +154,8 @@ namespace UTILS
         if (bClearTable)
         {
             uint32 old_tablesize = pTableSize;
-            EmptyHashTable();
-            InitTable(old_tablesize);
+            emptyHashTable();
+            initTable(old_tablesize);
         }
 
         if (TA3D::VARS::HPIManager)
@@ -218,7 +218,7 @@ namespace UTILS
         :TA3D::UTILS::cHashTable<String>(),
         m_bKeysCaseSenstive(bKeysCaseSenstive)
     {
-        InitTable(4096);
+        initTable(4096);
         load(filename, false, toUTF8, g_mode);
     }
 
@@ -226,12 +226,12 @@ namespace UTILS
         :TA3D::UTILS::cHashTable<String>()
     {
         m_bKeysCaseSenstive = false;
-        InitTable(TableSize);
+        initTable(TableSize);
     }
 
     cTAFileParser::~cTAFileParser()
     {
-        EmptyHashTable();
+        emptyHashTable();
     }
 
     sint32 cTAFileParser::pullAsInt(const String& key, const sint32 def)
@@ -241,10 +241,10 @@ namespace UTILS
             key_to_find = String::ToLower(key);
         else
             key_to_find = key;
-        if (!Exists(key_to_find))
+        if (!TA3D::UTILS::cHashTable<String>::exists(key_to_find))
             return def;
 
-        String iterFind = Find( key_to_find );
+        String iterFind = TA3D::UTILS::cHashTable<String>::find(key_to_find);
 
         return ( (iterFind.length() == 0) ? def : ( iterFind.size() == 10 && ustrtol( iterFind.substr(0,4).c_str() , NULL, 0 ) > 127 ? ( 0xFF000000 | ustrtol( ("0x"+iterFind.substr(4,6)).c_str() , NULL, 0 ) ) : ustrtol( iterFind.c_str() , NULL, 0 ) ) );		// Uses ustrtol to deal with hexa numbers
     }
@@ -254,9 +254,9 @@ namespace UTILS
         String key_to_find(key);
         if (!m_bKeysCaseSenstive)
             key_to_find.toLower();
-        if (!Exists(key_to_find))
+        if (!TA3D::UTILS::cHashTable<String>::exists(key_to_find))
             return def;
-        return Find(key_to_find).toFloat(def);
+        return TA3D::UTILS::cHashTable<String>::find(key_to_find).toFloat(def);
     }
 
 
@@ -265,9 +265,9 @@ namespace UTILS
         String key_to_find(key);
         if (!m_bKeysCaseSenstive)
             key_to_find.toLower();
-        if (!Exists(key_to_find))
+        if (!TA3D::UTILS::cHashTable<String>::exists(key_to_find))
             return def;
-        return Find(key_to_find);
+        return TA3D::UTILS::cHashTable<String>::find(key_to_find);
     }
 
 
@@ -276,9 +276,9 @@ namespace UTILS
         String key_to_find(key);
         if (!m_bKeysCaseSenstive)
             key_to_find.toLower();
-        if (!Exists(key_to_find))
+        if (!TA3D::UTILS::cHashTable<String>::exists(key_to_find))
             return def;
-        return Find(key_to_find).toBool();
+        return TA3D::UTILS::cHashTable<String>::find(key_to_find).toBool();
     }
 
 
