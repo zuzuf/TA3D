@@ -18,6 +18,7 @@
 	color=0xFFFFFFFF;
 	background=gfx/background.jpg;
 	repeat background=true;
+	get focus=true;
 	[object0]
 	{
 		name=l_filename;

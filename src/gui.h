@@ -70,7 +70,6 @@ int draw_text_adjust( float x1, float y1, float x2, float y2, String msg, float 
 
 void draw_Window(wnd& Wnd );
 unsigned char WinMov( int AMx, int AMy, int AMb, int Mx, int My, int Mb, wnd *Wnd );
-String dirname( String fname );
 const String Dialog( const String &Title, String Filter = "*.*" );
 bool WndAsk( const String &Title, const String &Msg, int ASW_TYPE=ASW_OKCANCEL );
 void Popup( const String &Title, const String &Msg );
