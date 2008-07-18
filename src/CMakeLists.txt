@@ -215,12 +215,12 @@ target_link_libraries(${TA3D_BIN}
 #
 # AutoTest, if enabled
 #
-IF(${TA3D_AUTOTEST} EQUAL 1)
+IF(${TA3D_REGRESSION_TEST} EQUAL 1)
     # Strings
-    ADD_EXECUTABLE(autotest-string  autotest/string.cpp)
-    ADD_DEPENDENCIES(autotest-string stdafx logs threads misc)
-    target_link_libraries(autotest-string stdafx logs threads misc)
-ENDIF(${TA3D_AUTOTEST} EQUAL 1)
+    ADD_EXECUTABLE(regression-string  regression/string.cpp)
+    ADD_DEPENDENCIES(regression-string stdafx logs threads misc)
+    target_link_libraries(regression-string stdafx logs threads misc)
+ENDIF(${TA3D_REGRESSION_TEST} EQUAL 1)
 
 
 
