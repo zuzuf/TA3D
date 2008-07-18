@@ -22,7 +22,7 @@ namespace TA3D
         lmsg.toLower();
         if (lmsg == cached_key && cached_wnd)
             return cached_wnd;
-        sint16 e = wnd_hashtable.Find(lmsg) - 1;
+        sint16 e = wnd_hashtable.find(lmsg) - 1;
         if (e >= 0)
         {
             cached_key = lmsg;
@@ -197,7 +197,7 @@ namespace TA3D
         for (uint16 i = wnd_idx; i > 0; --i)		// The new window appear on top of the others
             vec_z_order[i] = vec_z_order[i - 1];
         vec_z_order[0] = wnd_idx;
-        wnd_hashtable.Insert(String::ToLower(vec_wnd[wnd_idx]->Name), wnd_idx + 1);	// + 1 because it returns 0 on Find failure
+        wnd_hashtable.insert(String::ToLower(vec_wnd[wnd_idx]->Name), wnd_idx + 1);	// + 1 because it returns 0 on Find failure
         return wnd_idx;
     }
 
@@ -362,11 +362,11 @@ namespace TA3D
         cached_key.clear();
         cached_wnd = NULL;
 
-        gui_hashtable.EmptyHashTable();
-        gui_hashtable.InitTable( __DEFAULT_HASH_TABLE_SIZE );
+        gui_hashtable.emptyHashTable();
+        gui_hashtable.initTable(__DEFAULT_HASH_TABLE_SIZE);
 
-        wnd_hashtable.EmptyHashTable();
-        wnd_hashtable.InitTable( __DEFAULT_HASH_TABLE_SIZE );
+        wnd_hashtable.emptyHashTable();
+        wnd_hashtable.initTable(__DEFAULT_HASH_TABLE_SIZE);
 
         name.clear();
 
@@ -396,8 +396,8 @@ namespace TA3D
 
         cached_key.clear();
         cached_wnd = NULL;
-        gui_hashtable.EmptyHashTable();
-        wnd_hashtable.EmptyHashTable();
+        gui_hashtable.emptyHashTable();
+        wnd_hashtable.emptyHashTable();
         name.clear();
 
         for (std::vector<WND*>::iterator i = vec_wnd.begin(); i != vec_wnd.end(); ++i)
@@ -448,8 +448,8 @@ namespace TA3D
                     delete *i;
                 vec_wnd.clear();
                 vec_z_order.clear();
-                wnd_hashtable.EmptyHashTable();
-                wnd_hashtable.InitTable( __DEFAULT_HASH_TABLE_SIZE );
+                wnd_hashtable.emptyHashTable();
+                wnd_hashtable.initTable(__DEFAULT_HASH_TABLE_SIZE);
             }
             else
                 if (message == "end_the_game")

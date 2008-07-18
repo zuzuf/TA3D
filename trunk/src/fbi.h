@@ -284,7 +284,7 @@ public:
 	inline bool checkCategory( const char *cat )
 	{
 		if( Category == NULL || cat == NULL )	return false;
-		return Category->Exists(String::ToLower(cat));
+		return Category->exists(String::ToLower(cat));
 	}
 
 	inline void init()
@@ -548,8 +548,8 @@ public:
 	~UNIT_MANAGER()
 	{
 		destroy();
-		unit_hashtable.EmptyHashTable();
-		h_dl_data.EmptyHashTable();
+		unit_hashtable.emptyHashTable();
+		h_dl_data.emptyHashTable();
 	}
 
 	void load_panel_texture( const String &player_side, const String &intgaf );
@@ -567,22 +567,22 @@ public:
 		unit_type[nb_unit].init();
 		int result =  unit_type[nb_unit].load((char*)data,size);
 		if( unit_type[ nb_unit ].Unitname )
-			unit_hashtable.Insert(String::ToLower(unit_type[nb_unit].Unitname ), nb_unit + 1 );
+			unit_hashtable.insert(String::ToLower(unit_type[nb_unit].Unitname ), nb_unit + 1 );
 		if( unit_type[ nb_unit ].name )
-			unit_hashtable.Insert(String::ToLower(unit_type[nb_unit].name ), nb_unit + 1 );
+			unit_hashtable.insert(String::ToLower(unit_type[nb_unit].name ), nb_unit + 1 );
 		if( unit_type[ nb_unit ].ObjectName )
-			unit_hashtable.Insert(String::ToLower(unit_type[nb_unit].ObjectName ), nb_unit + 1 );
+			unit_hashtable.insert(String::ToLower(unit_type[nb_unit].ObjectName ), nb_unit + 1 );
 		if( unit_type[ nb_unit ].Description )
-			unit_hashtable.Insert(String::ToLower(unit_type[nb_unit].Description ), nb_unit + 1 );
+			unit_hashtable.insert(String::ToLower(unit_type[nb_unit].Description ), nb_unit + 1 );
 		if( unit_type[ nb_unit ].Designation_Name )
-			unit_hashtable.Insert(String::ToLower(unit_type[nb_unit].Designation_Name ), nb_unit + 1 );
+			unit_hashtable.insert(String::ToLower(unit_type[nb_unit].Designation_Name ), nb_unit + 1 );
 		nb_unit++;
 		return result;
 	}
 
 	inline int get_unit_index(const char *unit_name)		// Cherche l'indice de l'unité unit_name dans la liste d'unités
 	{
-		return ((unit_name) ? unit_hashtable.Find(String::ToLower(unit_name)) - 1 : -1);
+		return ((unit_name) ? unit_hashtable.find(String::ToLower(unit_name)) - 1 : -1);
 	}
 
 private:

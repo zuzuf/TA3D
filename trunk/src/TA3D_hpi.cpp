@@ -355,7 +355,7 @@ namespace HPI
             {
                 String f(String::ToLower(m_cDir + (char *)Name));
                 li->Size = *FileLength;
-                m_Archive->InsertOrUpdate(f, li);
+                m_Archive->insertOrUpdate(f, li);
             }
             ++Entry;
         }
@@ -672,11 +672,11 @@ namespace HPI
         }
 
 
-        HPIITEM *iterFind = m_Archive->Find(String::ToLower(filename));
-        if(iterFind && iterFind->hfd->priority) // Priority file!!
+        HPIITEM *iterFind = m_Archive->find(String::ToLower(filename));
+        if (iterFind && iterFind->hfd->priority) // Priority file!!
         {
-            byte *data = DecodeFileToMem( iterFind , &FileSize );
-            PutInCache( UNIX_filename, FileSize, data );
+            byte *data = DecodeFileToMem(iterFind , &FileSize);
+            PutInCache(UNIX_filename, FileSize, data);
             if (fileLength)
                 *fileLength = FileSize;
             return data;
@@ -747,7 +747,7 @@ namespace HPI
             }
         }
 
-        HPIITEM* iterFind = m_Archive->Find(String::ToLower(filename));
+        HPIITEM* iterFind = m_Archive->find(String::ToLower(filename));
         if (iterFind != NULL && iterFind->hfd->priority)				// Priority file!!
             return DecodeFileToMem_zone(iterFind, start, length, fileLength);
 
@@ -788,7 +788,7 @@ namespace HPI
         if (exists(UNIX_filename.c_str()))
             return true;
 
-        HPIITEM* iterFind = m_Archive->Find(String::ToLower(filename));
+        HPIITEM* iterFind = m_Archive->find(String::ToLower(filename));
         return (iterFind != NULL);
     }
 
@@ -806,7 +806,7 @@ namespace HPI
 
     uint32 cHPIHandler::getFilelist(const String& s, String::List& li)
     {
-        uint32 list_size = m_Archive->WildCardSearch(s, li);
+        uint32 list_size = m_Archive->wildCardSearch(s, li);
         al_ffblk info;
 
         String UNIX_search;

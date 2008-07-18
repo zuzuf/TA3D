@@ -44,7 +44,7 @@ namespace TA3D
         */
         int get_weapon_index(const char *name)
         {
-            return (!name || nb_weapons <= 0 || '\0' == *name) ? -1 : (weapon_hashtable.Find(String::ToLower(name)) - 1);
+            return (!name || nb_weapons <= 0 || '\0' == *name) ? -1 : (weapon_hashtable.find(String::ToLower(name)) - 1);
         }
 
 

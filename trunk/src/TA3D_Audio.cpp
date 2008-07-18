@@ -816,15 +816,16 @@ bool cAudio::LoadSound( const String &Filename, const bool LoadAs3D,
 	I_Msg( TA3D::TA3D_IM_DEBUG_MSG, (char*)format("loading sound file %s\n",(char *)szWav.c_str()).c_str(), NULL, NULL );
 
 	// if it has a .wav extension then remove it.
-	int i = (int)szWav.find( "wav" );   
-	if( i != -1 )
-		szWav.resize( szWav.length() - 4 );
+	int i = (int)szWav.find("wav");   
+	if (i != -1)
+		szWav.resize(szWav.length() - 4);
 
 	// if its already loaded return true.
-	if( m_SoundList->Exists( szWav ) ) {
+	if (m_SoundList->exists(szWav))
+    {
 //		I_Msg( TA3D::TA3D_IM_DEBUG_MSG, (char*)format("sound file %s is already loaded\n",(char *)szWav.c_str()).c_str(), NULL, NULL );
 		return true;
-		}
+	}
 
 	uint32 Length;
 	byte *data;
@@ -907,7 +908,7 @@ bool cAudio::LoadSound( const String &Filename, const bool LoadAs3D,
 #endif
 
 	// add the sound to our soundlist hash table, and return true.
-	m_SoundList->InsertOrUpdate( szWav, m_Sound );
+	m_SoundList->insertOrUpdate( szWav, m_Sound );
 
 	return true;
 }
@@ -940,8 +941,8 @@ void cAudio::LoadTDFSounds( const bool allSounds )
 void cAudio::PurgeSounds( void )
 {
     pMutex.lock();
-    m_SoundList->EmptyHashTable();
-    EmptyHashTable();
+    m_SoundList->emptyHashTable();
+    emptyHashTable();
     WorkList.clear();
     pMutex.unlock();
 }
@@ -958,26 +959,29 @@ void cAudio::PlaySound( const String &Filename, const VECTOR3D *vec )
     if (!m_FMODRunning)
         return;
 
-    String szWav = String::ToLower(Filename); // copy string to szWav so we can work with it.
+    String szWav(Filename); // copy string to szWav so we can work with it.
+    szWav.toLower();
 
     // if it has a .wav extension then remove it.
-    int i = (int)szWav.find( ".wav" );
-    if( i != -1 )
-        szWav.resize( szWav.length() - 4 );
+    int i = (int)szWav.find(".wav");
+    if (i != -1)
+        szWav.resize( szWav.length() - 4);
 
-    m_SoundListItem *m_Sound = m_SoundList->Find( szWav );
+    m_SoundListItem *m_Sound = m_SoundList->find(szWav);
 
-    if( !m_Sound ) {
+    if (!m_Sound)
+    {
         Console->AddEntry("%s not found, aborting", (char*)Filename.c_str());
         return;
     }
 
-    if( msec_timer - m_Sound->last_time_played < m_min_ticks )
+    if (msec_timer - m_Sound->last_time_played < m_min_ticks)
         return;			// Make sure it doesn't play too often, so it doesn't play too loud!
 
     m_Sound->last_time_played = msec_timer;
 
-    if( !m_Sound->m_SampleHandle || (m_Sound->m_3DSound && !vec) ) {
+    if (!m_Sound->m_SampleHandle || (m_Sound->m_3DSound && !vec))
+    {
         if(!m_Sound->m_SampleHandle)
             Console->AddEntry("%s not played the good way", (char*)Filename.c_str());
         else
@@ -995,21 +999,21 @@ void cAudio::PlaySound( const String &Filename, const VECTOR3D *vec )
     WorkList.push_back( m_Work );
 }
 
-void cAudio::PlayTDFSoundNow( const String &Key, const VECTOR3D *vec )		// Wrapper to PlayTDFSound + Update3DSound
+void cAudio::PlayTDFSoundNow(const String& Key, const VECTOR3D *vec)		// Wrapper to PlayTDFSound + Update3DSound
 {
-    String szWav = String::ToLower(Find(String::ToLower(Key))); // copy string to szWav so we can work with it.
+    String szWav = String::ToLower(find(String::ToLower(Key))); // copy string to szWav so we can work with it.
 
     // if it has a .wav extension then remove it.
-    int i = (int)szWav.find( ".wav" );
-    if( i != -1 )
+    int i = (int)szWav.find(".wav");
+    if (i != -1)
         szWav.resize( szWav.length() - 4 );
 
-    m_SoundListItem *m_Sound = m_SoundList->Find( szWav );
+    m_SoundListItem *m_Sound = m_SoundList->find(szWav);
 
-    if( m_Sound ) {
+    if (m_Sound)
+    {
         m_Sound->last_time_played = msec_timer - 1000 - m_min_ticks;		// Make sure it'll be played
-
-        PlayTDFSound( Key, vec );
+        PlayTDFSound(Key, vec);
     }
     Update3DSound();
 }
@@ -1022,15 +1026,15 @@ void cAudio::PlayTDFSound( const String &Key, const VECTOR3D *vec  )
     //	Console->AddEntry("trying to play '%s'", (char*)Key.c_str());
     String lwKey(Key);
     lwKey.toLower();
-    if (!Exists(lwKey))
+    if (!exists(lwKey))
     {
         Console->AddEntryWarning("%sCan't find key %s", TA3D_LOG_SECTION_AUDIO_PREFIX, Key.c_str() );// output a report to the console but only once
-        InsertOrUpdate(lwKey, "");
+        insertOrUpdate(lwKey, "");
         return;
     }
     //	Console->AddEntry("%s found", (char*)Key.c_str());
 
-    String szWav = Find(lwKey);
+    String szWav = find(lwKey);
     if (!szWav.empty())
         PlaySound(szWav, vec);
 }
