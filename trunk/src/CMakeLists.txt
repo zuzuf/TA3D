@@ -102,10 +102,16 @@ else( WIN32 OR CMAKE_CROSSCOMPILING )
 	SET( 3DMEDITOR_BIN 3dmeditor-bin )
 endif( WIN32 OR CMAKE_CROSSCOMPILING )
 
-ADD_EXECUTABLE(${3DMEDITOR_BIN} 3dmeditor.cpp ta3d.h 3dmeditor_sub.cpp 3dmeditor.h cTAFileParser.cpp cTAFileParser.h stdafx.h TA3D_NameSpace.cpp TA3D_NameSpace.h)
-
-ADD_DEPENDENCIES(${3DMEDITOR_BIN} stdafx logs console debuginfos threads 3dtoolbox misc i18n tajpeg gfx fileformats particles audio hpi oldgui gui ingame)
-target_link_libraries(${3DMEDITOR_BIN} stdafx logs console debuginfos threads 3dtoolbox misc i18n tajpeg gfx fileformats particles audio hpi oldgui gui ingame)
+ADD_EXECUTABLE(${3DMEDITOR_BIN}
+        3dmeditor.cpp ta3d.h 3dmeditor_sub.cpp 3dmeditor.h
+        cTAFileParser.cpp cTAFileParser.h stdafx.h
+        TA3D_NameSpace.cpp TA3D_NameSpace.h)
+ADD_DEPENDENCIES(${3DMEDITOR_BIN}
+        stdafx logs console debuginfos threads 3dtoolbox misc i18n
+        tajpeg gfx fileformats particles audio hpi oldgui gui ingame)
+target_link_libraries(${3DMEDITOR_BIN}
+        stdafx logs console debuginfos threads 3dtoolbox misc i18n
+        tajpeg gfx fileformats particles audio hpi oldgui gui ingame)
 IF(APPLE)
     SET(GUI_TYPE MACOSX_BUNDLE)
     SET(MACOSX_BUNDLE_BUNDLE_NAME "TA3D Editor")
@@ -118,25 +124,27 @@ ENDIF(APPLE)
 # --- TA3D
 # --------------------------------------------------------------------
 IF(APPLE)
+    # Should be only `ta3d` inside the bundle
 	#SET(TA3D_BIN ta3d)
 	SET(TA3D_BIN ta3d-bin)
 ELSE(APPLE)
 	SET(TA3D_BIN ta3d-bin)
 ENDIF(APPLE)
-
-
-SET(SOURCES ta3d.cpp ta3d.h main.cpp install.cpp cTA3D_Engine.cpp cTA3D_Engine.h
-            cTAFileParser.cpp cTAFileParser.h
-            restore.cpp restore.h
-            menu.cpp menu.h
-            EngineClass.cpp EngineClass.h
-            UnitEngine.cpp UnitEngine.h
-            fbi.cpp fbi.h intro.cpp intro.h 
-            tdf.cpp tdf.h tnt.cpp tnt.h 
-            icon.cpp stdafx.h 
-            TA3D_NameSpace.cpp TA3D_NameSpace.h)
+SET(SOURCES
+        ta3d.cpp ta3d.h main.cpp install.cpp cTA3D_Engine.cpp cTA3D_Engine.h
+        cTAFileParser.cpp cTAFileParser.h restore.cpp restore.h menu.cpp menu.h
+        EngineClass.cpp EngineClass.h UnitEngine.cpp UnitEngine.h
+        fbi.cpp fbi.h intro.cpp intro.h  tdf.cpp tdf.h tnt.cpp tnt.h 
+        icon.cpp stdafx.h TA3D_NameSpace.cpp TA3D_NameSpace.h)
 ADD_EXECUTABLE(${TA3D_BIN} ${SOURCES})
 
+
+#
+# --- TA3D Program / OS XBundle ---
+#
+# !! Do not remove this. This would be usefull to make an OS X Application Bundle
+# 
+#
 #IF(NOT APPLE)
 #    ADD_EXECUTABLE(${TA3D_BIN} ${SOURCES})
 #ELSE(NOT APPLE)
@@ -191,30 +199,36 @@ ADD_EXECUTABLE(${TA3D_BIN} ${SOURCES})
 #
 #ENDIF(NOT APPLE)
 
-ADD_DEPENDENCIES(${TA3D_BIN} stdafx logs console debuginfos threads i18n 3dtoolbox misc ingame menus tajpeg gfx fileformats particles weapons ai audio hpi oldgui gui network scripts)
-target_link_libraries(${TA3D_BIN} stdafx logs console debuginfos threads i18n 3dtoolbox misc ingame menus tajpeg gfx fileformats particles weapons ai audio hpi oldgui gui network scripts)
+
+#
+# --- Internal libraries ---
+#
+ADD_DEPENDENCIES(${TA3D_BIN}
+        stdafx logs console debuginfos threads i18n 3dtoolbox misc ingame menus tajpeg gfx
+        fileformats particles weapons ai audio hpi oldgui gui network scripts)
+target_link_libraries(${TA3D_BIN}
+        stdafx logs console debuginfos threads i18n 3dtoolbox misc ingame menus tajpeg gfx
+        fileformats particles weapons ai audio hpi oldgui gui network scripts)
+
+
+
+#
+# AutoTest, if enabled
+#
+IF(${TA3D_AUTOTEST} EQUAL 1)
+    # Strings
+    ADD_EXECUTABLE(autotest-string  autotest/string.cpp)
+    ADD_DEPENDENCIES(autotest-string stdafx logs threads misc)
+    target_link_libraries(autotest-string stdafx logs threads misc)
+ENDIF(${TA3D_AUTOTEST} EQUAL 1)
+
+
 
 
 
 #
 # --- External libraries
-#
-
-IF(WIN32)
-    FIND_LIBRARY(VAR_LIB_FMODEX fmodex PATHS "${CMAKE_SOURCE_DIR}/src/tools/win32/libs" NO_SYSTEM_ENVIRONMENT_PATH)
-    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -I${CMAKE_SOURCE_DIR}/src/tools/win32/fmod")
-ELSE(WIN32) 
-IF(APPLE)
-    FIND_LIBRARY(VAR_LIB_FMODEX fmodex PATHS src/tools/darwin/fmod/4.14.07/lib/ NO_SYSTEM_ENVIRONMENT_PATH)
-    IF(NOT VAR_LIB_FMODEX)
-        MESSAGE(FATAL_ERROR "FMOD is required")
-    ENDIF(NOT VAR_LIB_FMODEX)
-ELSE(APPLE)
-    FIND_LIBRARY( VAR_LIB_FMODEX   fmodex)
-    FIND_LIBRARY( VAR_LIB_FMODEX64 fmodex64)
-ENDIF(APPLE)
-ENDIF(WIN32) 
-    
+#   
 IF( VAR_LIB_FMODEX )
    target_link_libraries(${TA3D_BIN} fmodex)
    target_link_libraries(${3DMEDITOR_BIN} fmodex)
