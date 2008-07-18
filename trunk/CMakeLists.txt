@@ -12,11 +12,9 @@ SET(TA3D_MAIL_BUGREPORT         "zuzuf86@gmail.com")
 SET(TA3D_WEBSITE_NEW_BUGREPORT  "http://trac.ta3d.org/newticket")
 
 #
-# Autotest
-# If equals to 1, enables the program `autotest` which is able to make
-# a self-test
+# Regression tests
 #
-SET(TA3D_AUTOTEST 0)
+SET(TA3D_REGRESSION_TEST 0)
 
 
 
@@ -72,10 +70,9 @@ ADD_DEFINITIONS("-DLOGS_USE_DEBUG")
 #
 # AutoTest
 #
-IF(${TA3D_AUTOTEST} EQUAL 1)
-    MESSAGE(STATUS "[DEBUG] The AutoTest tools will be compiled")
-    ADD_DEFINITIONS("-DTA3D_AUTOTEST")
-ENDIF(${TA3D_AUTOTEST} EQUAL 1)
+IF(${TA3D_REGRESSION_TEST} EQUAL 1)
+    MESSAGE(STATUS "[DEBUG] The regression tests will be compiled")
+ENDIF(${TA3D_REGRESSION_TEST} EQUAL 1)
 
 
 #
