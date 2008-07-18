@@ -27,10 +27,13 @@ namespace TA3D
         */
         AREA(const String& area_name = "unnamed_area");
         //! Destructor
-        ~AREA();											// Destructor
+        ~AREA();
         //@}
 
-        void destroy();										// A function that can reset the object
+        /*!
+        ** \brief Reset the object
+        */
+        void destroy();
 
         /*!
         ** \brief Returns a pointer to current AREA object if one exists, otherwise returns NULL
@@ -63,110 +66,110 @@ namespace TA3D
         void load_tdf(const String& filename);
 
         /*!
-        ** \brief
+        ** \brief Return the specified window
         **
         ** This method is thread-safe
         **
         ** \param message
         */
-        WND* get_wnd(const String& message);			// Return the specified window
+        WND* get_wnd(const String& message);
         
         /*!
-        ** \brief
+        ** \brief Return the state of specified object in the specified window
         **
         ** \param message
         ** \return
         */
-        bool get_state(const String& message);			// Return the state of specified object in the specified window
+        bool get_state(const String& message);
 
         /*!
-        ** \brief 
+        ** \brief Return the value of specified object in the specified window 
         **
         ** \param message
         ** \return
         */
-        sint32 get_value(const String& message);			// Return the value of specified object in the specified window
+        sint32 get_value(const String& message);
 
         /*!
-        ** \brief
+        ** \brief Return the caption of specified object in the specified window
         **
         ** \param message
         ** \return
         */
-        String get_caption(const String& message);		// Return the caption of specified object in the specified window
+        String get_caption(const String& message);
 
         /*!
-        ** \brief
+        ** \brief Return a pointer to the specified object
         **
         ** \param message
         ** \return
         */
-        GUIOBJ* get_object(const String& message, bool skip_hidden = false);		// Return a pointer to the specified object
+        GUIOBJ* get_object(const String& message, bool skip_hidden = false);
 
         /*!
-        ** \brief
+        ** \brief Set the state of specified object in the specified window
         **
         ** \param message
         ** \return
         */
-        void set_state(const String& message, const bool state);			// Set the state of specified object in the specified window
+        void set_state(const String& message, const bool state);
 
         /*!
-        ** \brief
+        ** \brief Set the value of specified object in the specified window
         **
         ** \param message
         ** \return
         */
-        void set_value(const String& message, const sint32 value);		// Set the value of specified object in the specified window
+        void set_value(const String& message, const sint32 value);
 
         /*!
-        ** \brief
+        ** \brief Set the data of specified object in the specified window
         **
         ** \param message
         ** \return
         */
-        void set_data(const String& message, const sint32 data);			// Set the data of specified object in the specified window
+        void set_data(const String& message, const sint32 data);
 
         /*!
-        ** \brief
+        ** \brief Set the enabled/disabled state of specified object in the specified window
         **
         ** \param message
         ** \return
         */
-        void set_enable_flag(const String& message, const bool enable);	// Set the enabled/disabled state of specified object in the specified window
+        void set_enable_flag(const String& message, const bool enable);
 
         /*!
-        ** \brief
+        ** \brief Set the caption of specified object in the specified window
         **
         ** \param message
         ** \return
         */
-        void set_caption(const String& message, const String& caption);	// Set the caption of specified object in the specified window
+        void set_caption(const String& message, const String& caption);
 
         /*!
-        ** \brief
+        ** \brief Set the title of specified window to title
         **
         ** \param message
         ** \return
         */
-        void set_title(const String& message, const String& title);	// Set the title of specified window to title
+        void set_title(const String& message, const String& title);
 
         /*!
-        ** \brief
+        ** \brief Set the entry of specified object in the specified window to entry
         **
         ** \param message
         ** \return
         */
-        void set_entry(const String& message, const std::list<String>& entry);	    // Set the entry of specified object in the specified window to entry (converts List to Vector)
-        void set_entry(const String& message, const std::vector<String>& entry);	// Set the entry of specified object in the specified window to entry
+        void set_entry(const String& message, const std::list<String>& entry);
+        void set_entry(const String& message, const std::vector<String>& entry);
 
         /*!
-        ** \brief
+        ** \brief Send that message to the area
         **
         ** \param message
         ** \return
         */
-        int	msg(String message);				// Send that message to the area
+        int	msg(String message);
 
 
     public:
@@ -177,12 +180,12 @@ namespace TA3D
 
     private:
         /*!
-        ** \brief
+        ** \brief Manage signals sent through the interface to GUI
         **
         ** \param msg
         ** \return
         */
-        virtual uint32 InterfaceMsg(const lpcImsg msg); // Manage signals sent through the interface to GUI
+        virtual uint32 InterfaceMsg(const lpcImsg msg);
 
         /*!
         ** \brief Same as get_object, but not thread-safe
@@ -202,13 +205,13 @@ namespace TA3D
         void doLoadTDF(const String& filename);
 
     private:
-        //!
-        static std::list<AREA*> area_stack;		// This list stores the stack of all AREA objects so you can grab the current one at any time
+        //! This list stores the stack of all AREA objects so you can grab the current one at any time
+        static std::list<AREA*> area_stack;
 
-        //!
-        std::vector<WND*>  vec_wnd;			// This vector stores all the windows the area object deals with
-        //!
-        std::vector<uint16> vec_z_order;		// This vector stores data about the z order of windows
+        //! This vector stores all the windows the area object deals with
+        std::vector<WND*>  vec_wnd;
+        //! This vector stores data about the z order of windows
+        std::vector<uint16> vec_z_order;
 
         //! Name of the ares
         String name;
