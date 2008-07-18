@@ -116,9 +116,12 @@ namespace UTILS
 
     public:
         /*!
-        ** \brief
+        ** \brief Search for all keys matching a pattern
+        **
+        ** \param pattern The pattern to search
+        ** \param[out] li The results
         */
-        uint32 WildCardSearch( const String &Search, String::List* li);
+        uint32 WildCardSearch(const String& pattern, String::List& li);
 
         /*!
         ** \brief Remove an existing entry
