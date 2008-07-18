@@ -59,15 +59,15 @@ void mnu_file(int mnu_index)
 {
     switch(mnu_index)
     {
-        case 0:					// Nouveau
+        case 0:					// Nouveau / New
             TheModel->destroy();
             cur_part=0;
             init_surf_buf();
             break;
-        case 1:					// Ouvrir
+        case 1:					// Ouvrir / Open
             {
                 init_surf_buf();
-                String filename = Dialog(I18N::Translate( "Ouvrir un modèle" ),"*.3dm");
+                String filename = Dialog(I18N::Translate( "Open a model" ),"*.3dm");
                 if( filename.c_str() && file_exists(filename.c_str(),FA_RDONLY | FA_HIDDEN | FA_SYSTEM | FA_LABEL | FA_ARCH,NULL)) {
                     FILE *src = TA3D_OpenFile(filename.c_str(), "rb");
                     if(src) {
@@ -83,28 +83,30 @@ void mnu_file(int mnu_index)
                 }
             }
             break;
-        case 2:					// Sauver
+        case 2:					// Sauver / Save
             {
-                String filename=Dialog(I18N::Translate( "Sauvegarder un modèle" ),"*.3dm");
-                TheModel->save_3dm((char*)filename.c_str(), WndAsk( I18N::Translate("compression"), I18N::Translate("comprimer les textures?") ));
+                String filename=Dialog(I18N::Translate( "Save a model" ),"*.3dm");
+                TheModel->save_3dm((char*)filename.c_str(), WndAsk( I18N::Translate("compression"), I18N::Translate("compress textures?") ));
             }
             break;
-        case 3:					// Importer (*.asc)
+        case 3:					// Importer / Import (*.asc)
             {
                 init_surf_buf();
-                String filename=Dialog(I18N::Translate( "Importer un modèle au format ASC" ),"*.asc");
-                if(file_exists(filename.c_str(),FA_RDONLY | FA_HIDDEN | FA_SYSTEM | FA_LABEL | FA_ARCH,NULL)) {
+                String filename=Dialog(I18N::Translate( "Import an ASC model" ),"*.asc");
+                if (file_exists(filename.c_str(),FA_RDONLY | FA_HIDDEN | FA_SYSTEM | FA_LABEL | FA_ARCH,NULL))
+                {
                     TheModel->load_asc((char*)filename.c_str(),30.0f);
                     convert_to_3dm();
                     cur_part=0;
                 }
             }
             break;
-        case 4:					// Importer (*.3do)
+        case 4:					// Importer / Import (*.3do)
             {
                 init_surf_buf();
-                String filename=Dialog(I18N::Translate( "Importer un modèle au format 3DO" ),"*.3do");
-                if(file_exists(filename.c_str(),FA_RDONLY | FA_HIDDEN | FA_SYSTEM | FA_LABEL | FA_ARCH,NULL)) {
+                String filename = Dialog(I18N::Translate( "Import a 3DO model" ),"*.3do");
+                if (file_exists(filename.c_str(),FA_RDONLY | FA_HIDDEN | FA_SYSTEM | FA_LABEL | FA_ARCH,NULL))
+                {
                     byte *data = new byte[FILE_SIZE(filename.c_str())];
                     FILE *src = TA3D_OpenFile(filename.c_str(),"rb");
                     fread(data,FILE_SIZE(filename.c_str()),1,src);
@@ -116,17 +118,18 @@ void mnu_file(int mnu_index)
                 }
             }
             break;
-        case 5:					// Importer (*.3ds)
+        case 5:					// Importer / Import (*.3ds)
             {
                 init_surf_buf();
-                String filename=Dialog(I18N::Translate( "Importer un modèle au format 3DS" ),"*.3ds");
-                if(file_exists(filename.c_str(),FA_RDONLY | FA_HIDDEN | FA_SYSTEM | FA_LABEL | FA_ARCH,NULL)) {
+                String filename = Dialog(I18N::Translate( "Import a 3DS model" ),"*.3ds");
+                if (file_exists(filename.c_str(),FA_RDONLY | FA_HIDDEN | FA_SYSTEM | FA_LABEL | FA_ARCH,NULL))
+                {
                     TheModel = load_3ds( filename );
                     cur_part=0;
                 }
             }
             break;
-        case 6:					// Quitter
+        case 6:					// Quitter / Exit
             ClickOnExit=true;
             break;
     };
@@ -136,20 +139,23 @@ void mnu_surf(int mnu_index)
 {
     switch(mnu_index)
     {
-        case 0:						// Editer
-            SurfEdit();		// Lance l'éditeur de surfaces
+        case 0:						// Editer / Edit
+            SurfEdit();		// Lance l'éditeur de surfaces / Start the surface tool editor
             init_surf_buf();
             break;
-        case 1:						// Copier
+        case 1:						// Copier / Copy
             if(cur_part>=0 && cur_part<nb_obj())
                 obj_surf = obj_table[cur_part]->surface;
             break;
-        case 2:						// Coller
-            if(cur_part>=0 && cur_part<nb_obj()) {
-                for(int i = 0; i<obj_table[cur_part]->surface.NbTex;i++) {			// Remove old textures
+        case 2:						// Coller / Paste
+            if (cur_part>=0 && cur_part<nb_obj())
+            {
+                for(int i = 0; i<obj_table[cur_part]->surface.NbTex;i++)
+                {			// Remove old textures
                     bool current_copy=false;
                     for(int e=0 ; e<obj_surf.NbTex; e++)
-                        if(obj_surf.gltex[e]==obj_table[cur_part]->surface.gltex[i]) {
+                        if (obj_surf.gltex[e]==obj_table[cur_part]->surface.gltex[i])
+                        {
                             current_copy=true;
                             break;
                         }
@@ -175,11 +181,14 @@ void mnu_surf(int mnu_index)
             break;
         case 4:						// Coller sur toutes
             if(nb_obj()>0)
-                for(int e=0;e<nb_obj();e++) {
-                    for(int i = 0; i<obj_table[e]->surface.NbTex;i++) {			// Remove old textures
+                for(int e=0;e<nb_obj();e++)
+                {
+                    for(int i = 0; i<obj_table[e]->surface.NbTex;i++)
+                    {			// Remove old textures
                         bool current_copy=false;
                         for(int f=0 ; f<obj_surf.NbTex; f++)
-                            if(obj_surf.gltex[f]==obj_table[cur_part]->surface.gltex[i]) {
+                            if(obj_surf.gltex[f]==obj_table[cur_part]->surface.gltex[i])
+                            {
                                 current_copy=true;
                                 break;
                             }
@@ -222,12 +231,14 @@ void convert_to_3dm()
 {
     int n=nb_obj();
     for(int i=0;i<n;i++)
-        if((obj_table[i]->surface.Flag&SURFACE_ADVANCED)!=SURFACE_ADVANCED) {
+        if((obj_table[i]->surface.Flag&SURFACE_ADVANCED)!=SURFACE_ADVANCED)
+        {
             obj_table[i]->surface.Flag|=SURFACE_ADVANCED;
             obj_table[i]->surface.Flag|=SURFACE_LIGHTED;
             for(int e=0;e<4;e++)
                 obj_table[i]->surface.Color[e]=obj_table[i]->surface.RColor[e]=1.0f;
-            if(obj_table[i]->dtex) {
+            if(obj_table[i]->dtex)
+            {
                 obj_table[i]->surface.Flag|=SURFACE_TEXTURED;
                 obj_table[i]->surface.NbTex=obj_table[i]->dtex;
                 for(int e=0;e<obj_table[i]->dtex;e++)
@@ -257,10 +268,12 @@ void button_child(int mnu_index)
     if(cur_part<0 || cur_part>=nb_obj())	return;
     char *father_name = strdup( GetVal( I18N::Translate( "Nom du noeud père" ) ).c_str() );
     int father_id=-1;
-    if( obj_table[cur_part] == &(TheModel->obj) ) {
+    if( obj_table[cur_part] == &(TheModel->obj) )
+    {
         OBJECT obj = TheModel->obj;
         for( int i = 0 ; i < nb_obj() ; i++ )
-            if( obj_table[i] == TheModel->obj.next ) {
+            if( obj_table[i] == TheModel->obj.next )
+            {
                 cur_part = i;
                 break;
             }
@@ -271,20 +284,23 @@ void button_child(int mnu_index)
         obj.init();
     }
     for(int i=0;i<nb_obj();i++)
-        if(strcmp(obj_table[i]->name,father_name)==0) {
+        if(strcmp(obj_table[i]->name,father_name)==0)
+        {
             father_id=i;
             break;
         }
     free(father_name);
 
-    if(is_child(obj_table[cur_part],father_id)) {
+    if(is_child(obj_table[cur_part],father_id))
+    {
         Popup( I18N::Translate( "Action impossible" ), I18N::Translate( "Le noeud père est un fils du noeud séléctionné" ) );
         return;
     }
 
     int n=nb_obj();
     for(int i=0;i<n;i++)					// Libère l'objet
-        if(obj_table[i]->child==obj_table[cur_part]) {
+        if(obj_table[i]->child==obj_table[cur_part])
+        {
             obj_table[i]->child=obj_table[cur_part]->next;
             obj_table[cur_part]->next=NULL;
             break;
@@ -296,16 +312,19 @@ void button_child(int mnu_index)
     OBJECT *father = NULL;
     OBJECT *cur = NULL;
     bool child=true;
-    if(father_id==-1) {
+    if(father_id==-1)
+    {
         father = &(TheModel->obj);
         cur = father->next;
         child = false;
     }
-    else {
+    else
+    {
         father = obj_table[father_id];
         cur = obj_table[father_id]->child;
     }
-    while(cur) {
+    while(cur)
+    {
         child=false;
         father=cur;
         cur=cur->next;
@@ -319,7 +338,8 @@ void button_child(int mnu_index)
 
     n = nb_obj();
     for(int i = 0; i<n;i++)
-        if(obj_table[i]==cur) {
+        if(obj_table[i]==cur)
+        {
             cur_part=i;
             break;
         }
@@ -328,7 +348,8 @@ void button_child(int mnu_index)
 void button_remove(int mnu_index)
 {
     if(cur_part<0 || cur_part>=nb_obj())	return;
-    if( nb_obj() == 1 ) {			// Remove everything if there is only one object
+    if( nb_obj() == 1 )
+    {			// Remove everything if there is only one object
         TheModel->destroy();
         cur_part=0;
         init_surf_buf();
@@ -337,7 +358,8 @@ void button_remove(int mnu_index)
 
     OBJECT *old = obj_table[cur_part];
     for(int i=0;i<nb_obj();i++)
-        if(obj_table[i]->child == old) {
+        if(obj_table[i]->child == old)
+        {
             obj_table[i]->child = old -> next;
             break;
         }
@@ -350,7 +372,8 @@ void button_remove(int mnu_index)
     old->destroy();
     if(old != &(TheModel->obj))		// Si c'est quelque chose qu'on a alloué on le libère
         free(old);
-    else {
+    else
+    {
         *old=*old2;
         free(old2);
     }
@@ -363,9 +386,10 @@ void button_scale(int mnu_index)
     float scale_factor = atof( GetVal( I18N::Translate( "Echelle" ) ).c_str() );
     OBJECT *cur = obj_table[ cur_part ];
     std::list< OBJECT* >		stack;
-    while( cur || stack.size() > 0 )
+    while (cur || stack.size() > 0)
     {
-        if( cur == NULL ) {
+        if (cur == NULL)
+        {
             cur = stack.front();
             stack.pop_front();
         }
@@ -392,16 +416,20 @@ void button_mirror_x(int mnu_index)
     if(cur_part<0 || cur_part>=nb_obj())	return;
     OBJECT *cur = obj_table[ cur_part ];
     std::list< OBJECT* >		stack;
-    while( cur || stack.size() > 0 ) {
-        if( cur == NULL ) {
+    while (cur || stack.size() > 0)
+    {
+        if (cur == NULL)
+        {
             cur = stack.front();
             stack.pop_front();
         }
-        for( int i = 0 ; i < cur->nb_vtx ; i++ ) {
+        for( int i = 0 ; i < cur->nb_vtx ; i++ )
+        {
             cur->points[i].x *= -1.0f;
             cur->N[i].x *= -1.0f;
         }
-        for( int i = 0 ; i < cur->nb_t_index ; i+= 3 ) {
+        for( int i = 0 ; i < cur->nb_t_index ; i+= 3 )
+        {
             GLushort tmp = cur->t_index[ i ];
             cur->t_index[ i ] = cur->t_index[ i + 1 ];
             cur->t_index[ i + 1 ] = tmp;
@@ -419,16 +447,20 @@ void button_mirror_y(int mnu_index)
     if(cur_part<0 || cur_part>=nb_obj())	return;
     OBJECT *cur = obj_table[ cur_part ];
     std::list< OBJECT* >		stack;
-    while( cur || stack.size() > 0 ) {
-        if( cur == NULL ) {
+    while (cur || stack.size() > 0)
+    {
+        if (cur == NULL)
+        {
             cur = stack.front();
             stack.pop_front();
         }
-        for( int i = 0 ; i < cur->nb_vtx ; i++ ) {
+        for( int i = 0 ; i < cur->nb_vtx ; i++ )
+        {
             cur->points[i].y *= -1.0f;
             cur->N[i].y *= -1.0f;
         }
-        for( int i = 0 ; i < cur->nb_t_index ; i+= 3 ) {
+        for( int i = 0 ; i < cur->nb_t_index ; i+= 3 )
+        {
             GLushort tmp = cur->t_index[ i ];
             cur->t_index[ i ] = cur->t_index[ i + 1 ];
             cur->t_index[ i + 1 ] = tmp;
@@ -446,16 +478,20 @@ void button_mirror_z(int mnu_index)
     if(cur_part<0 || cur_part>=nb_obj())	return;
     OBJECT *cur = obj_table[ cur_part ];
     std::list< OBJECT* >		stack;
-    while( cur || stack.size() > 0 ) {
-        if( cur == NULL ) {
+    while (cur || stack.size() > 0)
+    {
+        if (cur == NULL)
+        {
             cur = stack.front();
             stack.pop_front();
         }
-        for( int i = 0 ; i < cur->nb_vtx ; i++ ) {
+        for (int i = 0 ; i < cur->nb_vtx ; i++)
+        {
             cur->points[i].z *= -1.0f;
             cur->N[i].z *= -1.0f;
         }
-        for( int i = 0 ; i < cur->nb_t_index ; i+= 3 ) {
+        for (int i = 0 ; i < cur->nb_t_index ; i+= 3)
+        {
             GLushort tmp = cur->t_index[ i ];
             cur->t_index[ i ] = cur->t_index[ i + 1 ];
             cur->t_index[ i + 1 ] = tmp;
@@ -473,27 +509,32 @@ void button_change_xy(int mnu_index)
     if(cur_part<0 || cur_part>=nb_obj())	return;
     OBJECT *cur = obj_table[ cur_part ];
     std::list< OBJECT* >		stack;
-    while( cur || stack.size() > 0 ) {
-        if( cur == NULL ) {
+    while (cur || stack.size() > 0)
+    {
+        if (cur == NULL)
+        {
             cur = stack.front();
             stack.pop_front();
         }
-        for( int i = 0 ; i < cur->nb_vtx ; i++ ) {
+        for (int i = 0 ; i < cur->nb_vtx ; i++)
+        {
             float x = cur->points[i].x;
             cur->points[i].x = cur->points[i].y;
             cur->points[i].y = x;
         }
-        for( int i = 0 ; i < cur->nb_t_index ; i+= 3 ) {
+        for (int i = 0 ; i < cur->nb_t_index ; i+= 3)
+        {
             GLushort tmp = cur->t_index[ i ];
             cur->t_index[ i ] = cur->t_index[ i + 1 ];
             cur->t_index[ i + 1 ] = tmp;
         }
-        if( cur != obj_table[ cur_part ] ) {
+        if (cur != obj_table[ cur_part ])
+        {
             float x = cur->pos_from_parent.x;
             cur->pos_from_parent.x = cur->pos_from_parent.y;
             cur->pos_from_parent.y = x;
         }
-        if( cur != obj_table[ cur_part ] && cur->next )
+        if (cur != obj_table[ cur_part ] && cur->next)
             stack.push_front( cur->next );
         cur = cur->child;
     }
@@ -506,32 +547,32 @@ void button_change_yz(int mnu_index)
     if(cur_part<0 || cur_part>=nb_obj())	return;
     OBJECT *cur = obj_table[ cur_part ];
     std::list< OBJECT* >		stack;
-    while( cur || stack.size() > 0 )
+    while (cur || stack.size() > 0)
     {
-        if( cur == NULL )
+        if (cur == NULL)
         {
             cur = stack.front();
             stack.pop_front();
         }
-        for( int i = 0 ; i < cur->nb_vtx ; i++ )
+        for (int i = 0 ; i < cur->nb_vtx ; i++)
         {
             float y = cur->points[i].y;
             cur->points[i].y = cur->points[i].z;
             cur->points[i].z = y;
         }
-        for( int i = 0 ; i < cur->nb_t_index ; i+= 3 )
+        for (int i = 0 ; i < cur->nb_t_index ; i+= 3)
         {
             GLushort tmp = cur->t_index[ i ];
             cur->t_index[ i ] = cur->t_index[ i + 1 ];
             cur->t_index[ i + 1 ] = tmp;
         }
-        if( cur != obj_table[ cur_part ] )
+        if (cur != obj_table[ cur_part ])
         {
             float y = cur->pos_from_parent.y;
             cur->pos_from_parent.y = cur->pos_from_parent.z;
             cur->pos_from_parent.z = y;
         }
-        if( cur != obj_table[ cur_part ] && cur->next )
+        if (cur != obj_table[ cur_part ] && cur->next)
             stack.push_front( cur->next );
         cur = cur->child;
     }
@@ -544,7 +585,7 @@ void button_change_zx(int mnu_index)
     if(cur_part<0 || cur_part>=nb_obj())	return;
     OBJECT *cur = obj_table[ cur_part ];
     std::list< OBJECT* >		stack;
-    while( cur || stack.size() > 0 )
+    while (cur || stack.size() > 0)
     {
         if( cur == NULL )
         {
@@ -563,7 +604,8 @@ void button_change_zx(int mnu_index)
             cur->t_index[ i ] = cur->t_index[ i + 1 ];
             cur->t_index[ i + 1 ] = tmp;
         }
-        if( cur != obj_table[ cur_part ] ) {
+        if (cur != obj_table[ cur_part ])
+        {
             float x = cur->pos_from_parent.x;
             cur->pos_from_parent.x = cur->pos_from_parent.z;
             cur->pos_from_parent.z = x;

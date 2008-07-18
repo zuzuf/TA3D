@@ -817,21 +817,7 @@ void ProgressBar(float x1,float y1,float x2,float y2,int Value, SKIN *skin, floa
     gui_font.change_size( old_size );
 }
 
-// Renvoie le dossier contenant le fichier fname
-String dirname(String fname)
-{
-    int last=0;
-    for(int i=0;i<fname.length();i++) {
-        if(fname[i]=='\\')
-            fname[i]='/';
-        if(fname[i]=='/')
-            last=i;
-    }
-    fname.resize(last);
-    if(fname.length()==0)	fname="/";
-
-    return fname;
-}
+String curDir = "";
 
 /*---------------------------------------------------------------------------\
   |               Affiche une fenêtre de selection de fichier                  |
@@ -839,346 +825,113 @@ String dirname(String fname)
 
 const String Dialog(const String &Title, String Filter)
 {
-
     AREA *current_area = AREA::current();
+    String result = "";
     
     if (current_area)
     {
+        if (current_area->get_wnd( "open" ) == NULL)            // The window isn't loaded => load it now !
+            current_area->load_tdf( "gui/open_dialog.tdf" );
         current_area->set_title("open",Title);
-        String curDir = TA3D::Paths::CurrentDirectory();
+
+        if (curDir.empty())                         // If empty grab current directory
+            curDir = TA3D::Paths::CurrentDirectory() + TA3D::Paths::Separator;
+
         String::List files, dirs;
-        TA3D::Paths::GlobFiles( files, curDir + "/*" );
-        TA3D::Paths::GlobDirs( dirs, curDir + "/*" );
+
+        TA3D::Paths::GlobFiles( files, curDir + Filter );
+        TA3D::Paths::GlobDirs( dirs, curDir + "*" );
         TA3D::Paths::ExtractFileName( files );
         TA3D::Paths::ExtractFileName( dirs );
+
         files.sort();
         dirs.sort();
+
         current_area->set_entry("open.file_list", files);
         current_area->set_entry("open.folder_list", dirs);
         current_area->msg("open.show");
-    }
-
-return "";
-    set_uformat(U_UTF8);
-
-    wnd WAsk;               //Cree un objet fenetre
-
-    String Name = "";
-    byte key=0;
-    int AMouseX,AMouseY,AMouseB,AMouseZ;
-
-    WAsk.Title=Title;       //Defini les proprietes de la fenetre
-    WAsk.width=500;
-    WAsk.height=400;
-    WAsk.x=SCREEN_W-WAsk.width>>1;
-    WAsk.y=SCREEN_H-WAsk.height>>1;
-
-    GLuint Img = gfx->make_texture_from_screen();
-
-    //-----  Pour la gestion de l'aborescence des dossiers  ----------------------
-
-    int DecF=0,DecD=0;
-
-    String CurDir = getcwd(NULL,1000);
-    // Pour l'arborescence des fichiers
-    al_ffblk f;
-    String::List Files;
-    String::List Dir;
-    int NbFiles=0,NbDir=0;
-    int i,done,e;
-
-    // Détecte les fichiers/dossiers
-
-detect:
-
-    Files.clear();
-    Dir.clear();
-
-    done=al_findfirst((CurDir+"/*.*").c_str(),&f,FA_LABEL|FA_HIDDEN|FA_SYSTEM|FA_DIREC);
-    if(done==0) {
-        NbDir=0;
-        while(done==0) {
-            if((f.attrib&FA_DIREC)==FA_DIREC) {
-                NbDir++;
-                Dir.push_back(f.name);
-            }
-            done=al_findnext(&f);
-        }
-    }
-    else { NbDir=0; }
-
-    done=al_findfirst((CurDir+"/"+Filter).c_str(),&f,FA_LABEL|FA_HIDDEN|FA_SYSTEM|FA_ARCH);
-    if(done==0) {
-        NbFiles=0;
-        while(done==0) {
-            NbFiles++;
-            Files.push_back(f.name);
-            done=al_findnext(&f);
-        }
-    }
-    else { NbFiles=0; }
-
-    // Tri des fichiers par ordre alphabétique
-    Files.sort();
-
-    // Tri des dossiers par ordre alphabétique
-    Dir.sort();
-
-    done=0;
-
-    //----------------------------------------------------------------------------
-
-    DecD=DecF=0;
-
-    do
-    {
-
-        poll_keyboard();
-
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);		// Efface l'écran
-
-        gfx->set_2D_mode();	// On repasse dans le mode dessin 2D pour Allegro
-
-        gfx->drawtexture(Img, 0, SCREEN_H-1, SCREEN_W-1, 0);
-        glDisable(GL_TEXTURE_2D);
-
-        //-------  Gestion de la souris  ---------------------------------------------
-
-        AMouseX=mouse_x;
-        AMouseY=mouse_y;
-        AMouseZ=mouse_z;
-        AMouseB=mouse_b;
-        poll_mouse();
-
-        //-------  Fin du code de gestion de la souris  ------------------------------
-
-        key=0;
-        if(keypressed())
-            key=readkey();
-
-        if(key==8 && Name.length()>0) Name.resize(Name.length()-1);
-        if(key==8) key=0;
-        if(key!=0 && key!=27 && key!=13 && Name.length()*8<WAsk.width-154) Name+=key;
-        if(key==27||key==13) done=1;
-        if(Name.length()>(WAsk.width-24>>3)) Name.resize(Name.length()-1);
-
-        draw_Window(WAsk);        // Affiche la fenêtre
-
-        // Objets de la fenêtre
-        // Barre nom du fichier
-        gfx->print(gui_font,WAsk.x+5,WAsk.y+19,0.0f,Noir, I18N::Translate("Nom du fichier:"));
-        TextBar(WAsk.x+125,WAsk.y+16,WAsk.x+WAsk.width-5,WAsk.y+30,(char*)Name.c_str(),(retrace_count%60)>30);
-
-        // Liste des dossiers
-        gfx->print(gui_font,WAsk.x+21,WAsk.y+40,0.0f,Noir, I18N::Translate("Liste des dossiers:"));
-        TextBar(WAsk.x+5,WAsk.y+50,WAsk.x+190,WAsk.y+WAsk.height-10,"",false);
-        // Affiche le nom des dossiers
-        if (NbDir > 0)
+        
+        bool done = false;
+        int amx, amy, amz, amb;
+        int cur_folder_idx = -1;
+        
+        do
         {
-            int f=0;
-            for (String::List::const_iterator e = Dir.begin(); e != Dir.end(); ++e)
+            bool key_is_pressed = false;
+            do
             {
-                i = f - DecD;
-                ++f;
-                if (i >= 41)
-                    break;
-                if (i >= 0)
+                amx = mouse_x;
+                amy = mouse_y;
+                amz = mouse_z;
+                amb = mouse_b;
+
+                key_is_pressed = keypressed();
+                current_area->check();
+                rest( 8 );
+            } while( amx == mouse_x && amy == mouse_y && amz == mouse_z && amb == mouse_b && !key[ KEY_ENTER ] && !key[ KEY_ESC ] && !done && !key_is_pressed && !current_area->scrolling );
+            
+            if (key[KEY_ESC] || current_area->get_state("open.b_cancel"))   done = true;
+
+            if (current_area->get_state("open.b_ok"))
+            {
+                done = true;
+                result = curDir + TA3D::Paths::Separator + current_area->get_caption("open.t_filename");
+            }
+
+            if (current_area->get_state("open.file_list"))
+            {
+                GUIOBJ *obj = current_area->get_object("open.file_list");
+                if (obj && obj->Pos >= 0 && obj->Pos < obj->Text.size())
                 {
-                    gfx->print(gui_font, WAsk.x + 20, WAsk.y + 56 + 8 * i, 0.0f, Noir, *e);
-                    gfx->line(WAsk.x + 10, WAsk.y + 53 + 8 * i, WAsk.x + 10, WAsk.y + 60 + i * 8, Noir);
-                    gfx->line(WAsk.x + 10, WAsk.y + 60 + 8 * i, WAsk.x + 17, WAsk.y + 60 + i * 8, Noir);
+                    current_area->set_caption("open.t_filename", obj->Text[ obj->Pos ]);
                 }
             }
-        }
-        if (NbDir > 0 && mouse_b == 1 && mouse_x >= WAsk.x + 7 && mouse_x <= WAsk.x + 188
-           && mouse_y >= WAsk.y + 56 && mouse_y <= WAsk.y + WAsk.height - 10)
-        {
-            i = (mouse_y - WAsk.y - 56) / 8;
-            e = i + DecD;
-            String::List::iterator curdir=Dir.begin();
-            for (int f = 0; f < e; ++f)
-                ++curdir;
-            if (i < 41 && e >= 0 && e < NbDir)
-            {
-                if (strcmp(curdir->c_str(), ".") != 0 && strcmp(curdir->c_str(), "..") != 0)
-                    CurDir << "/" << *curdir;
-                else
-                    CurDir = dirname(CurDir);
-                while (mouse_b != 0)
-                    poll_mouse();
-                gfx->unset_2D_mode();
-                goto detect;
-            }
-        }
 
-        // Liste des fichiers
-        gfx->print(gui_font,WAsk.x+226,WAsk.y+40,0.0f,Noir, I18N::Translate("Liste des fichiers:"));
-        TextBar(WAsk.x+210,WAsk.y+50,WAsk.x+480,WAsk.y+WAsk.height-10,"",false);
-        // Affiche le nom des fichiers
-        if (NbFiles > 0)
-        {
-            int f=0;
-            for (String::List::const_iterator e = Files.begin(); e != Files.end(); ++e)
+            if (current_area->get_state("open.folder_list"))
             {
-                i = f - DecF;
-                ++f;
-                if (i >= 41)
-                    break;
-                if (i >= 0)
+                GUIOBJ *obj = current_area->get_object("open.folder_list");
+                if (obj && obj->Pos >= 0 && obj->Pos < obj->Text.size())
                 {
-                    gfx->print(gui_font,WAsk.x+225,WAsk.y+56+8*i,0.0f,Noir,*e);
-                    gfx->line(WAsk.x+215,WAsk.y+53+8*i,WAsk.x+215,WAsk.y+60+i*8,Noir);
-                    gfx->line(WAsk.x+215,WAsk.y+60+8*i,WAsk.x+222,WAsk.y+60+i*8,Noir);
+                    if (obj->Pos == cur_folder_idx)     // Change current dir
+                    {
+                        if (obj->Text[ obj->Pos ] == "..")
+                            curDir = TA3D::Paths::ExtractFilePath( curDir );
+                        else
+                            curDir << obj->Text[ obj->Pos ] << TA3D::Paths::Separator;
+                        TA3D::Paths::GlobFiles( files, curDir + Filter );
+                        TA3D::Paths::GlobDirs( dirs, curDir + "*" );
+                        TA3D::Paths::ExtractFileName( files );
+                        TA3D::Paths::ExtractFileName( dirs );
+
+                        files.sort();
+                        dirs.sort();
+
+                        current_area->set_entry("open.file_list", files);
+                        current_area->set_entry("open.folder_list", dirs);
+                        cur_folder_idx = -1;
+                    }
+                    else
+                        cur_folder_idx = obj->Pos;
                 }
             }
-        }
-        if(NbFiles>0&&mouse_x>=WAsk.x+212&&mouse_x<=WAsk.x+478
-           &&mouse_y>=WAsk.y+56&&mouse_y<=WAsk.y+WAsk.height-10)
-        {
-            i=(mouse_y-WAsk.y-56)/8;
-            e=i+DecF;
-            String::List::iterator curfile=Files.begin();
-            for (int f = 0; f < e; ++f)
-                ++curfile;
-            if (mouse_b == 1 && i < 41 && e >= 0 && e < NbFiles)
-                Name = *curfile;
-        }
+            
+            gfx->SetDefState();
+            // Clear screen
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        // Barres de défilement
-        if(mouse_x>=WAsk.x+210 && mouse_x<=WAsk.x+480 && mouse_y>=WAsk.y+50 && mouse_y<=WAsk.y+WAsk.height-10)
-        {
-            DecF+=AMouseZ-mouse_z;
-            if(DecF>NbFiles-40)	DecF=NbFiles-40;
-            if(DecF<0)	DecF=0;
-        }
-        if(mouse_x>=WAsk.x+5 && mouse_x<=WAsk.x+190 && mouse_y>=WAsk.y+50 && mouse_y<=WAsk.y+WAsk.height-10)
-        {
-            DecD+=AMouseZ-mouse_z;
-            if(DecD>NbDir-40)	DecD=NbDir-40;
-            if(DecD<0)	DecD=0;
-        }
-        // Fichiers
-        gfx->rectfill(WAsk.x+481,WAsk.y+50,WAsk.x+493,WAsk.y+WAsk.height-10,0xFF9F9F9F);
-        // Haut
-        if(mouse_b==1&&mouse_x>=WAsk.x+481&&mouse_x<=WAsk.x+493
-           &&mouse_y>=WAsk.y+50&&mouse_y<=WAsk.y+62)
-        {
-            DecF--;
-            if(DecF<0) DecF=0;
-            button(WAsk.x+481,WAsk.y+50,WAsk.x+493,WAsk.y+62,"",true);
-        }
-        else
-            button(WAsk.x+481,WAsk.y+50,WAsk.x+493,WAsk.y+62,"",false);
-        gfx->line(WAsk.x+484,WAsk.y+58,WAsk.x+487,WAsk.y+55,Noir);
-        gfx->line(WAsk.x+484,WAsk.y+57,WAsk.x+487,WAsk.y+54,Noir);
-        gfx->line(WAsk.x+490,WAsk.y+58,WAsk.x+487,WAsk.y+55,Noir);
-        gfx->line(WAsk.x+490,WAsk.y+57,WAsk.x+487,WAsk.y+54,Noir);
-        // Bas
-        if(mouse_b==1&&mouse_x>=WAsk.x+481&&mouse_x<=WAsk.x+493
-           &&mouse_y>=WAsk.y+WAsk.height-22&&mouse_y<=WAsk.y+WAsk.height-10) {
-            DecF++;
-            if(DecF>NbFiles-40) DecF=NbFiles-40;
-            if(DecF<0) DecF=0;
-            button(WAsk.x+481,WAsk.y+WAsk.height-22,WAsk.x+493,WAsk.y+WAsk.height-10,"",true);
-        }
-        else
-            button(WAsk.x+481,WAsk.y+WAsk.height-22,WAsk.x+493,WAsk.y+WAsk.height-10,"",false);
-        gfx->line(WAsk.x+484,WAsk.y+WAsk.height-18,WAsk.x+487,WAsk.y+WAsk.height-15,Noir);
-        gfx->line(WAsk.x+484,WAsk.y+WAsk.height-17,WAsk.x+487,WAsk.y+WAsk.height-14,Noir);
-        gfx->line(WAsk.x+490,WAsk.y+WAsk.height-18,WAsk.x+487,WAsk.y+WAsk.height-15,Noir);
-        gfx->line(WAsk.x+490,WAsk.y+WAsk.height-17,WAsk.x+487,WAsk.y+WAsk.height-14,Noir);
-        // Carré
-        if(NbFiles!=0&&NbFiles>40)
-            i=WAsk.y+63+DecF*(WAsk.height-97)/(NbFiles-39);
-        else
-            i=WAsk.y+63;
-        e=i+12;
-        button(WAsk.x+481,i,WAsk.x+493,e,"",false);
-        if(mouse_b==1&&AMouseB==1&&NbFiles>40
-           &&mouse_y!=AMouseY
-           &&AMouseX>=WAsk.x+481&&AMouseX<=WAsk.x+493
-           &&mouse_x>=WAsk.x+481&&mouse_x<=WAsk.x+493
-           &&mouse_y>=WAsk.y+63&&mouse_y<WAsk.y+WAsk.height-22) {
-            i=mouse_y-6;
-            DecF=(i-WAsk.y-63)*(NbFiles-40)/(WAsk.height-97);
-            if(DecF>NbFiles-40) DecF=NbFiles-40;
-            if(DecF<0) DecF=0;
-        }
-        // Dossiers
-        gfx->rectfill(WAsk.x+191,WAsk.y+50,WAsk.x+203,WAsk.y+WAsk.height-10,0xFF9F9F9F);
-        // Haut
-        if(mouse_b==1&&mouse_x>=WAsk.x+191&&mouse_x<=WAsk.x+203
-           &&mouse_y>=WAsk.y+50&&mouse_y<=WAsk.y+62) {
-            DecD--;
-            if(DecD<0) DecD=0;
-            button(WAsk.x+191,WAsk.y+50,WAsk.x+203,WAsk.y+62,"",true);
-        }
-        else
-            button(WAsk.x+191,WAsk.y+50,WAsk.x+203,WAsk.y+62,"",false);
-        gfx->line(WAsk.x+194,WAsk.y+58,WAsk.x+197,WAsk.y+55,Noir);
-        gfx->line(WAsk.x+194,WAsk.y+57,WAsk.x+197,WAsk.y+54,Noir);
-        gfx->line(WAsk.x+200,WAsk.y+58,WAsk.x+197,WAsk.y+55,Noir);
-        gfx->line(WAsk.x+200,WAsk.y+57,WAsk.x+197,WAsk.y+54,Noir);
-        // Bas
-        if(mouse_b==1&&mouse_x>=WAsk.x+191&&mouse_x<=WAsk.x+203
-           &&mouse_y>=WAsk.y+WAsk.height-22&&mouse_y<=WAsk.y+WAsk.height-10) {
-            DecD++;
-            if(DecD>NbDir-40) DecD=NbDir-40;
-            if(DecD<0) DecD=0;
-            button(WAsk.x+191,WAsk.y+WAsk.height-22,WAsk.x+203,WAsk.y+WAsk.height-10,"",true);
-        }
-        else
-            button(WAsk.x+191,WAsk.y+WAsk.height-22,WAsk.x+203,WAsk.y+WAsk.height-10,"",false);
-        gfx->line(WAsk.x+194,WAsk.y+WAsk.height-18,WAsk.x+197,WAsk.y+WAsk.height-15,Noir);
-        gfx->line(WAsk.x+194,WAsk.y+WAsk.height-17,WAsk.x+197,WAsk.y+WAsk.height-14,Noir);
-        gfx->line(WAsk.x+200,WAsk.y+WAsk.height-18,WAsk.x+197,WAsk.y+WAsk.height-15,Noir);
-        gfx->line(WAsk.x+200,WAsk.y+WAsk.height-17,WAsk.x+197,WAsk.y+WAsk.height-14,Noir);
-        // Carré
-        if(NbDir!=0&&NbDir>40)
-            i=WAsk.y+63+DecD*(WAsk.height-97)/(NbDir-39);
-        else
-            i=WAsk.y+63;
-        e=i+12;
-        button(WAsk.x+191,i,WAsk.x+203,e,"",false);
-        if(mouse_b==1&&AMouseB==1&&NbDir>40
-           &&mouse_y!=AMouseY
-           &&AMouseX>=WAsk.x+191&&AMouseX<=WAsk.x+203
-           &&mouse_x>=WAsk.x+191&&mouse_x<=WAsk.x+203
-           &&mouse_y>=WAsk.y+63&&mouse_y<WAsk.y+WAsk.height-22) {
-            i=mouse_y-6;
-            DecD=(i-WAsk.y-63)*(NbDir-40)/(WAsk.height-97);
-            if(DecD>NbDir-40) DecD=NbDir-40;
-            if(DecD<0) DecD=0;
-        }
+            gfx->set_2D_mode();		// Passe en mode dessin allegro
 
-        show_mouse(screen);
-        algl_draw_mouse();
-        show_mouse(NULL);
+            current_area->draw();
+            show_mouse(screen);
+            algl_draw_mouse();
 
-        gfx->unset_2D_mode();	// On repasse dans le mode précédent
-
-        gfx->flip();
-
-    }while(done==0);
-
-    if(key==27) Name = "";
-    if(key==13 && strrchr(Name.c_str(),'*')!=NULL) {
-        Filter = Name;
-        gfx->unset_2D_mode();
-        goto detect;
+            gfx->unset_2D_mode();	// Quitte le mode de dessin d'allegro
+            gfx->flip();
+            
+        }while(!done);
     }
 
-    gfx->destroy_texture(Img);
-
-    while(keypressed())	{
-        rest(1);
-        poll_keyboard();
-        readkey();
-    }
-
-    reset_keyboard();
-
-    return strdup((CurDir+"/"+Name).c_str());
+return result;
 }
 
 /*---------------------------------------------------------------------------\
