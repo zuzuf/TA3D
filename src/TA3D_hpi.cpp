@@ -806,7 +806,7 @@ namespace HPI
 
     uint32 cHPIHandler::getFilelist(const String& s, String::List& li)
     {
-        uint32 list_size = m_Archive->WildCardSearch(s, &li);
+        uint32 list_size = m_Archive->WildCardSearch(s, li);
         al_ffblk info;
 
         String UNIX_search;

@@ -120,41 +120,45 @@ namespace UTILS
 
     template<class T>
     uint32
-    cHashTable<T>::WildCardSearch(const String& Search, String::List* li)
+    cHashTable<T>::WildCardSearch(const String& pattern, String::List& li)
     {
-        LOG_ASSERT(li != NULL);
-
-        if(pTableSize == 0)
+        if (pTableSize == 0)
             return 0;
         String first;
         String last;
-        String::size_type iFind = Search.find("*");
+        String::size_type iFind = pattern.find('*');
         if (iFind != String::npos) 
         {
-            first = String::ToLower(Search.substr(0, iFind));
+            first = pattern.substr(0, iFind);
+            first.toLower();
             ++iFind;
-            last = String::ToLower(Search.substr(iFind));
+            last = pattern.substr(iFind);
+            last.toLower();
         }
         else
         {
-            first = String::ToLower(Search);
-            last = "";
+            first = pattern;
+            first.toLower();
+            last.clear();
         }
 
         uint32 nb(0);
-        for (typename VectorOfBucketsList::iterator iter = VectorOfBucketsList::begin() ; iter != VectorOfBucketsList::end(); ++iter)   
+        String::size_type firstLen = first.length();
+        String::size_type lastLen = last.length();
+        for (typename VectorOfBucketsList::iterator iter = VectorOfBucketsList::begin(); iter != VectorOfBucketsList::end(); ++iter)
         {
             for (typename BucketsList::iterator cur = iter->begin() ; cur != iter->end(); ++cur)
             {
                 String f = cur->Key();
-                if (f.length() < first.length() || f.length() < last.length())
+                String::size_type fLen = f.length();
+                if (fLen < firstLen || fLen < lastLen)
                     continue;
 
-                if (f.substr(0,first.length()) == first)  
+                if (f.substr(0, firstLen) == first)  
                 {
-                    if (f.substr(f.length() - last.length(), last.length()) == last)
+                    if (f.substr(fLen - lastLen, lastLen) == last)
                     {
-                        li->push_back(f);
+                        li.push_back(f);
                         ++nb;
                     }
                 }
