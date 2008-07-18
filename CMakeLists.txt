@@ -11,6 +11,12 @@ SET(TA3D_WEBSITE_FORUM          "http://www.ta3d.org/forums/")
 SET(TA3D_MAIL_BUGREPORT         "zuzuf86@gmail.com")
 SET(TA3D_WEBSITE_NEW_BUGREPORT  "http://trac.ta3d.org/newticket")
 
+#
+# Autotest
+# If equals to 1, enables the program `autotest` which is able to make
+# a self-test
+#
+SET(TA3D_AUTOTEST 0)
 
 
 
@@ -60,11 +66,16 @@ message(STATUS "Default C++ flags set to `${CMAKE_CXX_FLAGS}`")
 #
 # DEBUG
 #
+MESSAGE(STATUS "[DEBUG] The Debug mode has been enabled")
 ADD_DEFINITIONS("-DLOGS_USE_DEBUG")
+
 #
 # AutoTest
 #
-#ADD_DEFINITIONS("-DTA3D_AUTOTEST")
+IF(${TA3D_AUTOTEST} EQUAL 1)
+    MESSAGE(STATUS "[DEBUG] The AutoTest tools will be compiled")
+    ADD_DEFINITIONS("-DTA3D_AUTOTEST")
+ENDIF(${TA3D_AUTOTEST} EQUAL 1)
 
 
 #
@@ -157,6 +168,9 @@ ELSE(UNIX)
 ENDIF(UNIX)
 
 
+
+
+
 IF(NOT WIN32 AND NOT CMAKE_CROSSCOMPILING)
     find_library(VAR_LIB_ALLEG_GL agl )
     IF( NOT VAR_LIB_ALLEG_GL )
@@ -223,6 +237,9 @@ ENDIF( WIN32 OR CMAKE_CROSSCOMPILING )
 
 
 
+#
+# --- HawkNL ---
+#
 IF (NOT BUILT_NL )
    IF(LINUX)
        EXECUTE_PROCESS( COMMAND make -C "src/hawknl/src/" -f makefile.linux clean )
@@ -241,14 +258,38 @@ ENDIF(NOT BUILT_NL )
 
 
 
-SET( CMAKE_RUNTIME_OUTPUT_DIRECTORY ${TA3D_SOURCE_DIR} )
 
+
+#
+# --- FMod ---
+#
+IF(WIN32)
+    FIND_LIBRARY(VAR_LIB_FMODEX fmodex PATHS "${CMAKE_SOURCE_DIR}/src/tools/win32/libs" NO_SYSTEM_ENVIRONMENT_PATH)
+    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -I${CMAKE_SOURCE_DIR}/src/tools/win32/fmod")
+ELSE(WIN32) 
+    IF(APPLE)
+        FIND_LIBRARY(VAR_LIB_FMODEX fmodex PATHS src/tools/darwin/fmod/4.14.07/lib/ NO_SYSTEM_ENVIRONMENT_PATH)
+        IF(NOT VAR_LIB_FMODEX)
+            MESSAGE(FATAL_ERROR "FMOD is required")
+        ENDIF(NOT VAR_LIB_FMODEX)
+    ELSE(APPLE)
+        FIND_LIBRARY( VAR_LIB_FMODEX   fmodex)
+        FIND_LIBRARY( VAR_LIB_FMODEX64 fmodex64)
+    ENDIF(APPLE)
+ENDIF(WIN32) 
+ 
+
+
+
+
+SET(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${TA3D_SOURCE_DIR})
 # for compatibility with old versions of cmake
-SET( EXECUTABLE_OUTPUT_PATH ${TA3D_SOURCE_DIR} )
-
+SET(EXECUTABLE_OUTPUT_PATH ${TA3D_SOURCE_DIR})
 
 
 CONFIGURE_FILE( ${TA3D_SOURCE_DIR}/config.h.cmake ${TA3D_SOURCE_DIR}/config.h )
+
+
 
 ADD_SUBDIRECTORY(src)
 
