@@ -62,7 +62,7 @@ namespace Interfaces
 {
 
 
-    class cAudio : public ObjectSync, protected TA3D::IInterface, protected UTILS::cTAFileParser
+    class cAudio : public ObjectSync, protected TA3D::IInterface
     {
     public:
         cAudio(const float DistanceFactor, const float DopplerFactor, const float RolloffFactor);
@@ -94,7 +94,7 @@ namespace Interfaces
         void playSound(const String& Filename, const VECTOR3D* vec = NULL);
 
         // Play sound from TDF by looking up sound filename from internal hash
-        void playTDFSound(const String& Key, const VECTOR3D* vec = NULL);
+        void playTDFSound(String Key, const VECTOR3D* vec = NULL);
         void playTDFSoundNow(const String& Key, const VECTOR3D* vec = NULL); // Wrapper to playTDFSound + update3DSound
 
         // keys will be added together and then PlayTDF( key, vec ); called
@@ -171,6 +171,7 @@ namespace Interfaces
 
 
     private:
+        UTILS::cTAFileParser pTable;
         bool m_FMODRunning;      // Is fmod running
         bool m_InBattle;         // Are we in battle
         sint32  m_BattleTunes;      // Number of battle tunes;
