@@ -19,6 +19,7 @@
 # define __TA3D_X_HASH_TABLE_H__
 
 #include "misc/hash_table.h"
+#include <functional>
 
 
 namespace TA3D
@@ -39,11 +40,12 @@ namespace UTILS
         /*!
         ** \brief Constructor
         */
-        cTAFileParser( uint32 TableSize = 4096 );
+        cTAFileParser(const uint32 TableSize = 4096);
         //! Destructor
         ~cTAFileParser();
         //@}
 
+        void clear() {emptyHashTable();}
         void load(const String& filename, bool bClearTable = false, bool toUTF8 = false, bool g_mode = false );
 
         /*!
@@ -78,6 +80,15 @@ namespace UTILS
         */
         bool  pullAsBool(const String& key, const bool def = false);
 
+        void insertOrUpdate(const String& key, const String& value) {TA3D::UTILS::cHashTable<String>::insertOrUpdate(key, value);}
+        bool exists(const String& key) {return TA3D::UTILS::cHashTable<String>::exists(key);}
+
+        /*!
+        ** \brief Call the callback for each entry
+        ** \param c The callback
+        */
+        template<typename T>
+        void forEach(T callback);
 
     private:
         bool ProcessData(char **Data);
@@ -95,6 +106,22 @@ namespace UTILS
         int gadget_mode;
 
     }; // class cTAFileParser
+
+
+    template<typename T>
+    void cTAFileParser::forEach(T callback)
+    {
+        for (iterator iter = begin(); iter != end(); ++iter)   
+        {
+            for (std::list< cBucket<String> >::const_iterator cur = iter->begin() ; cur != iter->end() ; ++cur)
+            {
+                if (!callback(cur->m_szKey, cur->m_T_data))
+                    return;
+            }
+        }
+
+    }
+
 
 }
 } 

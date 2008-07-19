@@ -214,7 +214,7 @@ namespace UTILS
     }
 
 
-    cTAFileParser::cTAFileParser( const String &filename,  bool bKeysCaseSenstive, bool toUTF8, bool g_mode )
+    cTAFileParser::cTAFileParser(const String& filename, bool bKeysCaseSenstive, bool toUTF8, bool g_mode)
         :TA3D::UTILS::cHashTable<String>(),
         m_bKeysCaseSenstive(bKeysCaseSenstive)
     {

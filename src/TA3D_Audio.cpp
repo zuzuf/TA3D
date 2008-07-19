@@ -37,8 +37,7 @@ namespace Interfaces
 
 
     cAudio::cAudio( const float DistanceFactor, const float DopplerFactor, const float RolloffFactor )
-        :cTAFileParser(),
-        m_FMODRunning( false ), m_InBattle(false), m_BattleTunes(0),
+        :m_FMODRunning( false ), m_InBattle(false), m_BattleTunes(0),
         m_lpFMODMusicsound( NULL ), m_lpFMODMusicchannel( NULL ),
         m_curPlayIndex(-1)
     {
@@ -864,16 +863,15 @@ namespace Interfaces
             return true;
         }
 
-        uint32 Length;
-        byte *data;
-
         // pull the data from hpi.
-        data = HPIManager->PullFromHPI( String( "sounds\\" ) + szWav + String( ".wav" ), &Length );
-
+        String theSound;
+        uint32 Length;
+        theSound << "sounds\\" << szWav << ".wav";
+        byte* data = HPIManager->PullFromHPI(theSound, &Length);
         if (!data) // if no data, log a message and return false.
         {
             szWav = format("FMOD: LoadSound(%s), no such sound found in HPI.\n", szWav.c_str());
-            I_Msg( TA3D::TA3D_IM_DEBUG_MSG, (void *)szWav.c_str(), NULL, NULL );
+            I_Msg( TA3D::TA3D_IM_DEBUG_MSG, (void *)szWav.c_str(), NULL, NULL);
             return false;
         }
 
@@ -888,14 +886,13 @@ namespace Interfaces
 #ifdef TA3D_PLATFORM_MINGW
 
         // Now get fmod to load the sample
-        FMOD_RESULT FMODResult = FMOD_System_CreateSound( m_lpFMODSystem, (const char *)data,
+        FMOD_RESULT FMODResult = FMOD_System_CreateSound( m_lpFMODSystem, (const char*)data,
                                                           FMOD_HARDWARE | FMOD_OPENMEMORY | ( (LoadAs3D) ? FMOD_3D : FMOD_2D ),
                                                           &exinfo,
                                                           &m_Sound->m_SampleHandle);
+        delete[] data;
 
-        delete[] data; // we no longer need this.
-
-        if (FMODResult != FMOD_OK ) // ahh crap fmod couln't load it.
+        if (FMODResult != FMOD_OK) // ahh crap fmod couln't load it.
         {
             delete m_Sound;  // delete the sound.
             m_Sound = NULL;
@@ -926,14 +923,12 @@ namespace Interfaces
         {
             delete m_Sound;  // delete the sound.
             m_Sound = NULL;
-
             // log a message and return false;
             if (m_FMODRunning)
             {
                 szWav = format("FMOD: LoadSound(%s), Failed to construct sample.\n", szWav.c_str());
                 I_Msg(TA3D::TA3D_IM_DEBUG_MSG, (void *)szWav.c_str(), NULL, NULL);
             }
-
             return false;
         }
 
@@ -949,28 +944,32 @@ namespace Interfaces
     }
 
     
+    class LoadAllTDFSound
+    {
+    public:
+        LoadAllTDFSound(cAudio& a) : pAudio(a) {}
+        bool operator () (const String& key, const String& value)
+        {
+            pAudio.loadSound(value, false);
+            return true;
+        }
+
+    private:
+        cAudio& pAudio;
+    };
+
+
     void cAudio::loadTDFSounds(const bool allSounds)
     {
         pMutex.lock();
         String FileName(ta3dSideData.gamedata_dir);
-
-        if (allSounds)
-            FileName += "allsound.tdf";
-        else
-            FileName += "sound.tdf";
+        FileName += (allSounds) ? "allsound.tdf" : "sound.tdf";
 
         Console->AddEntry("Reading %s", FileName.c_str());
-        load(FileName);
+        pTable.load(FileName);
         Console->AddEntry("Loading sounds from %s", FileName.c_str());
 
-        for (iterator iter = begin(); iter != end() ; ++iter)   
-        {
-            for (std::list< cBucket<String> >::const_iterator cur = iter->begin() ; cur != iter->end() ; ++cur)
-            {
-                String szWav = String((*cur).m_T_data);
-                loadSound(szWav, false);
-            }
-        }
+        pTable.forEach(LoadAllTDFSound(*this));
         pMutex.unlock();
     }
 
@@ -979,7 +978,7 @@ namespace Interfaces
     {
         pMutex.lock();
         m_SoundList->emptyHashTable();
-        emptyHashTable();
+        pTable.clear();
         WorkList.clear();
         pMutex.unlock();
     }
@@ -987,30 +986,24 @@ namespace Interfaces
 
 
     // Play sound directly from our sound pool
-    void cAudio::playSound(const String &Filename, const VECTOR3D* vec)
+    void cAudio::playSound(const String& Filename, const VECTOR3D* vec)
     {
         MutexLocker locker(pMutex);
         if (vec && Camera::inGame && ((VECTOR)(*vec - Camera::inGame->rpos)).sq() > 360000.0f) // If the source is too far, does not even think about playing it!
             return;
-
-        //	Console->AddEntry("playing %s", (char*)Filename.c_str());
-
         if (!m_FMODRunning)
             return;
 
         String szWav(Filename); // copy string to szWav so we can work with it.
-        szWav.toLower();
-
         // if it has a .wav extension then remove it.
-        int i = (int)szWav.find(".wav");
-        if (i != -1)
-            szWav.resize( szWav.length() - 4);
+        String::size_type i = szWav.toLower().find(".wav");
+        if (i != String::npos)
+            szWav.resize(szWav.length() - 4);
 
         m_SoundListItem *m_Sound = m_SoundList->find(szWav);
-
         if (!m_Sound)
         {
-            Console->AddEntry("%s not found, aborting", (char*)Filename.c_str());
+            Console->AddEntry("%s not found, aborting", Filename.c_str());
             return;
         }
 
@@ -1021,7 +1014,7 @@ namespace Interfaces
 
         if (!m_Sound->m_SampleHandle || (m_Sound->m_3DSound && !vec))
         {
-            if(!m_Sound->m_SampleHandle)
+            if (!m_Sound->m_SampleHandle)
                 Console->AddEntry("%s not played the good way", (char*)Filename.c_str());
             else
                 Console->AddEntry("%s : m_Sound->m_SampleHandle is false", (char*)Filename.c_str());
@@ -1035,21 +1028,19 @@ namespace Interfaces
         m_Work.m_Sound = m_Sound;
         m_Work.vec = (VECTOR *)vec;
 
-        WorkList.push_back( m_Work );
+        WorkList.push_back(m_Work);
     }
 
 
 
     void cAudio::playTDFSoundNow(const String& Key, const VECTOR3D* vec)		// Wrapper to playTDFSound + update3DSound
     {
-        String szWav = String::ToLower(find(String::ToLower(Key))); // copy string to szWav so we can work with it.
+        String szWav = pTable.pullAsString(String::ToLower(Key)); // copy string to szWav so we can work with it.
+        String::size_type i = szWav.toLower().find(".wav");
+        if (i != String::npos)
+            szWav.resize(szWav.length() - 4);
 
-        // if it has a .wav extension then remove it.
-        int i = (int)szWav.find(".wav");
-        if (i != -1)
-            szWav.resize( szWav.length() - 4 );
-
-        m_SoundListItem *m_Sound = m_SoundList->find(szWav);
+        m_SoundListItem* m_Sound = m_SoundList->find(szWav);
 
         if (m_Sound)
         {
@@ -1062,20 +1053,18 @@ namespace Interfaces
 
 
     // Play sound from TDF by looking up sound filename from internal hash
-    void cAudio::playTDFSound(const String &Key, const VECTOR3D* vec)
+    void cAudio::playTDFSound(String key, const VECTOR3D* vec)
     {
-        if (Key.empty())
+        if (key.empty())
             return;
-        //	Console->AddEntry("trying to play '%s'", (char*)Key.c_str());
-        String lwKey(Key);
-        lwKey.toLower();
-        if (!exists(lwKey))
+        if (!pTable.exists(key.toLower()))
         {
-            Console->AddEntryWarning("%sCan't find key %s", TA3D_LOG_SECTION_AUDIO_PREFIX, Key.c_str() );// output a report to the console but only once
-            insertOrUpdate(lwKey, "");
+            // output a report to the console but only once
+            Console->AddEntryWarning("%sCan't find key %s", TA3D_LOG_SECTION_AUDIO_PREFIX, key.c_str());
+            pTable.insertOrUpdate(key, "");
             return;
         }
-        String szWav = find(lwKey);
+        String szWav = pTable.pullAsString(key);
         if (!szWav.empty())
             playSound(szWav, vec);
     }
