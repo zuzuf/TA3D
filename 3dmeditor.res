@@ -1,3 +1,11 @@
+[Current object :]
+{
+    FRENCH=Objet courant:;
+}
+[periodic]
+{
+    FRENCH=Périodique;
+}
 [compress textures?]
 {
 	FRENCH=comprimer les textures?;
@@ -321,15 +329,8 @@
 {
 	FRENCH=Liste des fichiers:;
 }
-[The "painting" button allow you to create a texture to map on the object with]
+[3DMEDITOR_SURFACE_TEXT_HELP]
 {
-	FRENCH=Le bouton peinture de l'objet permet de creer une texture a appliquer a l'objet grace;
-}
-[an integrated drawing tool directly on the 3D object, and the "texture mapping" button]
-{
-	FRENCH=a un outil integre de dessin directement sur l'objet en 3D, et le bouton plaquage de texture;
-}
-[allow to change the UV mapping on the object.]
-{
-	FRENCH=permet egalement de modifier le plaquage de la texture sur l'objet.;
+    ENGLISH=The "painting" button allow you to create a texture to map on the object with an integrated drawing tool directly on the 3D object, and the "texture mapping" button allow to change the UV mapping on the object.;
+	FRENCH=Le bouton peinture de l'objet permet de créer une texture à appliquer à l'objet grâce à un outil intégré de dessin directement sur l'objet en 3D, et le bouton plaquage de texture permet également de modifier le plaquage de la texture sur l'objet.;
 }

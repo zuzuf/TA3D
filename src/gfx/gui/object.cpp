@@ -240,6 +240,8 @@ namespace TA3D
         Etat = false;	
         Focus = false;
         Text = Entry;
+        if (Text.empty())
+            Text.push_back("");
         Func = F;
         Flag = FLAG_CAN_BE_CLICKED | FLAG_CAN_GET_FOCUS;
         s = size;
@@ -258,6 +260,8 @@ namespace TA3D
         Etat = false;	
         Focus = false;
         Text = Entry;
+        if (Text.empty())
+            Text.push_back("");
         Pos = 0; // Position sur la liste
         Func = F;
         Flag = FLAG_CAN_BE_CLICKED | FLAG_CAN_GET_FOCUS;
