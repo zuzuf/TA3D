@@ -653,12 +653,12 @@ namespace Interfaces
 
 
     // Begin sound managing routines.
-    void cAudio::setListenerPos(const VECTOR3D* vec)
+    void cAudio::setListenerPos(const VECTOR3D& vec)
     {
         if (!m_FMODRunning)
             return;
 
-        FMOD_VECTOR pos = { vec->x, vec->y, vec->z };
+        FMOD_VECTOR pos = { vec.x, vec.y, vec.z };
         FMOD_VECTOR vel = { 0,0,0 };
         FMOD_VECTOR forward        = { 0.0f, 0.0f, 1.0f };
         FMOD_VECTOR up             = { 0.0f, 1.0f, 0.0f };

@@ -105,7 +105,7 @@ namespace Interfaces
 
         void stopSoundFileNow(); // Stop playing
 
-        void setListenerPos(const VECTOR3D* vec);
+        void setListenerPos(const VECTOR3D& vec);
 
         void update3DSound();
 

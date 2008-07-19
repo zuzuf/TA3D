@@ -599,7 +599,7 @@ int play(GameData *game_data)
                 sound_manager->setMusicMode(false);
         }
 
-        sound_manager->setListenerPos(&cam.rpos);
+        sound_manager->setListenerPos(cam.rpos);
         sound_manager->update3DSound();
 
         /*-------------------------- end of sound management -----------------------*/
