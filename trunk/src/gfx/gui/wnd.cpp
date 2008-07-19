@@ -714,7 +714,7 @@ namespace TA3D
                         case OBJ_OPTIONB:
                         case OBJ_OPTIONC:
                             if (sound_manager)
-                                sound_manager->PlayTDFSoundNow("SPECIALORDERS.sound");
+                                sound_manager->playTDFSoundNow("SPECIALORDERS.sound");
                     }
                 }
                 Objets[i].activated = mouse_b==1 && Objets[i].MouseOn;
@@ -753,7 +753,7 @@ namespace TA3D
                                     if (Objets[i].Data > 0)
                                         Objets[i].Data--;
                                     if (sound_manager)
-                                        sound_manager->PlayTDFSoundNow("SPECIALORDERS.sound");
+                                        sound_manager->playTDFSoundNow("SPECIALORDERS.sound");
                                 }
                                 else
                                 {
@@ -761,7 +761,7 @@ namespace TA3D
                                     {
                                         Objets[i].Data++;
                                         if (sound_manager)
-                                            sound_manager->PlayTDFSoundNow("SPECIALORDERS.sound");
+                                            sound_manager->playTDFSoundNow("SPECIALORDERS.sound");
                                     }
                                     else
                                     {							// Set scrolling position

@@ -356,7 +356,8 @@ namespace TA3D
                     }
                     break;
                 case EVENT_PRINT:
-                    if( event_msg.opt1 == players.local_human_id || event_msg.opt1 == 0xFFFF ) {			// Do it only if the packet is for us
+                    if (event_msg.opt1 == players.local_human_id || event_msg.opt1 == 0xFFFF) // Do it only if the packet is for us
+                    {
                         DRAW_OBJECT draw_obj;
                         draw_obj.type = DRAW_TYPE_TEXT;
                         draw_obj.r[0] = 1.0f;
@@ -369,9 +370,8 @@ namespace TA3D
                     }
                     break;
                 case EVENT_PLAY:
-                    if( event_msg.opt1 == players.local_human_id || event_msg.opt1 == 0xFFFF ) {			// Do it only if the packet is for us
-                        sound_manager->PlaySound( (char*)event_msg.str, false );
-                    }
+                    if (event_msg.opt1 == players.local_human_id || event_msg.opt1 == 0xFFFF) // Do it only if the packet is for us
+                        sound_manager->playSound((char*)event_msg.str, false);
                     break;
                 case EVENT_CLF:
                     the_map->clear_FOW();

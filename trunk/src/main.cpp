@@ -82,22 +82,21 @@ void ReadFileParameter( void )
     if( current_mod != TA3D::VARS::TA3D_CURRENT_MOD ) // Refresh file structure
     {
         delete HPIManager;
-
         TA3D_clear_cache();		// Clear the cache
 
         HPIManager = new cHPIHandler("");
         ta3dSideData.loadData();				// Refresh side data so we load the correct values
-
         delete sound_manager;
         sound_manager = new TA3D::Interfaces::cAudio ( 1.0f, 0.0f, 0.0f );
-        sound_manager->StopMusic();
-        sound_manager->LoadTDFSounds( true );
-        sound_manager->LoadTDFSounds( false );
+        sound_manager->stopMusic();
+        sound_manager->loadTDFSounds(true);
+        sound_manager->loadTDFSounds(false);
     }
 
-    if( parser.pullAsBool( "TA3D.Network game" ) )
+    if (parser.pullAsBool("TA3D.Network game"))
     {
-        if( parser.pullAsBool( "TA3D.Server" ) ) {			// Server code
+        if (parser.pullAsBool("TA3D.Server"))// Server code
+        {
             char *host_name = strdup( parser.pullAsString( "TA3D.Server name", TA3D::VARS::lp_CONFIG->player_name ).c_str() );
             setup_game( false, host_name );		// Start the game in networking mode as server
             free( host_name );
@@ -115,17 +114,15 @@ void ReadFileParameter( void )
     if( current_mod != TA3D::VARS::TA3D_CURRENT_MOD ) // Refresh file structure
     {
         delete HPIManager;
-
         TA3D_clear_cache();		// Clear the cache
 
         HPIManager = new cHPIHandler("");
         ta3dSideData.loadData();				// Refresh side data so we load the correct values
-
         delete sound_manager;
-        sound_manager = new TA3D::Interfaces::cAudio ( 1.0f, 0.0f, 0.0f );
-        sound_manager->StopMusic();
-        sound_manager->LoadTDFSounds( true );
-        sound_manager->LoadTDFSounds( false );
+        sound_manager = new TA3D::Interfaces::cAudio (1.0f, 0.0f, 0.0f);
+        sound_manager->stopMusic();
+        sound_manager->loadTDFSounds(true);
+        sound_manager->loadTDFSounds(false);
     }
 }
 

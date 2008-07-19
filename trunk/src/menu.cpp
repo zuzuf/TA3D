@@ -247,7 +247,7 @@ void config_menu(void)
     if( config_area.get_object("*.l_files") )
     {
         GUIOBJ *obj = config_area.get_object("*.l_files");
-        sound_manager->GetPlayListFiles(obj->Text);
+        sound_manager->getPlayListFiles(obj->Text);
     }
 
     if( lp_CONFIG->quickstart )
@@ -322,7 +322,7 @@ void config_menu(void)
             GUIOBJ *obj = config_area.get_object("*.l_files");
             if( obj && obj->Pos >= 0 && obj->Text.size() > obj->Pos )
             {
-                sound_manager->SetPlayListFileMode( obj->Pos, false, false );
+                sound_manager->setPlayListFileMode( obj->Pos, false, false );
                 obj->Text[ obj->Pos ][ 1 ] = '*';
             }
         }
@@ -331,14 +331,15 @@ void config_menu(void)
             GUIOBJ *obj = config_area.get_object("*.l_files");
             if( obj && obj->Pos >= 0 && obj->Text.size() > obj->Pos )
             {
-                sound_manager->SetPlayListFileMode( obj->Pos, false, true );
+                sound_manager->setPlayListFileMode( obj->Pos, false, true );
                 obj->Text[ obj->Pos ][ 1 ] = ' ';
             }
         }
         if( config_area.get_state( "*.b_battle" ) ) {
             GUIOBJ *obj = config_area.get_object("*.l_files");
-            if( obj && obj->Pos >= 0 && obj->Text.size() > obj->Pos ) {
-                sound_manager->SetPlayListFileMode( obj->Pos, true, false );
+            if( obj && obj->Pos >= 0 && obj->Text.size() > obj->Pos )
+            {
+                sound_manager->setPlayListFileMode( obj->Pos, true, false );
                 obj->Text[ obj->Pos ][ 1 ] = 'B';
             }
         }
@@ -481,14 +482,19 @@ void config_menu(void)
     if( config_area.background == gfx->glfond )	config_area.background = 0;
 
     reset_mouse();
-    while(key[KEY_ESC]) {	rest(1);	poll_keyboard();	}
+    while (key[KEY_ESC])
+    {
+        rest(1);
+        poll_keyboard();
+    }
 
     bool ask_for_quickrestart = lp_CONFIG->quickrestart;
 
     if(!save)
         *lp_CONFIG = saved_config;
-    else {
-        sound_manager->SavePlayList();				// Save the playlist
+    else
+    {
+        sound_manager->savePlayList();				// Save the playlist
 
         if( lp_CONFIG->screen_width != saved_config.screen_width ||
             lp_CONFIG->screen_height != saved_config.screen_height ||
@@ -497,22 +503,21 @@ void config_menu(void)
             (lp_CONFIG->fullscreen != saved_config.fullscreen) )			// Need to restart
             lp_CONFIG->quickrestart = true;
 
-        lp_CONFIG->player_name = config_area.get_caption( "*.player_name" );
+        lp_CONFIG->player_name = config_area.get_caption("*.player_name");
 
-        if( lp_CONFIG->last_MOD != TA3D_CURRENT_MOD ) {			// Refresh the file structure
+        if (lp_CONFIG->last_MOD != TA3D_CURRENT_MOD) // Refresh the file structure
+        {
             TA3D_CURRENT_MOD = lp_CONFIG->last_MOD;
             delete HPIManager;
-
             TA3D_clear_cache();		// Clear the cache
 
             HPIManager = new cHPIHandler("");
             ta3dSideData.loadData();				// Refresh side data so we load the correct values
-
             delete sound_manager;
-            sound_manager = new TA3D::Interfaces::cAudio ( 1.0f, 0.0f, 0.0f );
-            sound_manager->StopMusic();
-            sound_manager->LoadTDFSounds( true );
-            sound_manager->LoadTDFSounds( false );
+            sound_manager = new TA3D::Interfaces::cAudio (1.0f, 0.0f, 0.0f);
+            sound_manager->stopMusic();
+            sound_manager->loadTDFSounds(true);
+            sound_manager->loadTDFSounds(false);
         }
     }
 
@@ -1977,18 +1982,18 @@ int brief_screen(String campaign_name, int mission_id)
 
     int schema = 0;
 
-    if( brief_area.get_object( "brief.schema" ) )
+    if (brief_area.get_object("brief.schema"))
     {
-        GUIOBJ *obj = brief_area.get_object( "brief.schema" );
+        GUIOBJ *obj = brief_area.get_object("brief.schema");
         obj->Text.clear();
-        obj->Text.resize( ota_parser.pullAsInt( "GlobalHeader.SCHEMACOUNT" ) + 1 );
-        for(unsigned int i = 0 ; i < obj->Text.size() - 1 ; ++i)
-            obj->Text[ i + 1 ] = I18N::Translate( ota_parser.pullAsString( format( "GlobalHeader.Schema %d.Type", i ) ) );
-        if( obj->Text.size() > 1 )
-            obj->Text[ 0 ] = obj->Text[ 1 ];
+        obj->Text.resize(ota_parser.pullAsInt("GlobalHeader.SCHEMACOUNT") + 1);
+        for (unsigned int i = 0 ; i < obj->Text.size() - 1; ++i)
+            obj->Text[i + 1] = I18N::Translate(ota_parser.pullAsString(format("GlobalHeader.Schema %d.Type", i)));
+        if (obj->Text.size() > 1)
+            obj->Text[0] = obj->Text[1];
     }
 
-    sound_manager->PlaySoundFileNow( narration_file );
+    sound_manager->playSoundFileNow(narration_file);
 
     bool done=false;
 
@@ -2096,12 +2101,17 @@ int brief_screen(String campaign_name, int mission_id)
     if( brief_area.background == gfx->glfond )	brief_area.background = 0;
     brief_area.destroy();
 
-    sound_manager->StopSoundFileNow();
+    sound_manager->stopSoundFileNow();
 
     reset_mouse();
-    while(key[KEY_ESC]) {	rest(1);	poll_keyboard();	}
+    while (key[KEY_ESC])
+    {
+        rest(1);
+        poll_keyboard();
+    }
 
-    if(start_game) {					// Open the briefing screen and start playing the campaign
+    if(start_game) 	// Open the briefing screen and start playing the campaign
+    {
         GameData game_data;
 
         TA3D::generate_script_from_mission( "scripts/__campaign_script.lua", &ota_parser, schema );	// Generate the script which will be removed later
