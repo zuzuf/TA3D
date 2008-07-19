@@ -288,6 +288,23 @@ namespace UTILS
     }
 
 
+    template<class T>
+    template<typename C>
+    void cHashTable<T>::forEach(C callback)
+    {
+        for (typename VectorOfBucketsList::iterator iter = VectorOfBucketsList::begin(); iter != VectorOfBucketsList::end(); ++iter)
+        {
+            for (typename BucketsList::iterator cur = iter->begin() ; cur != iter->end(); ++cur)
+            {
+                if (!callback(cur->m_szKey, cur->m_T_data))
+                    return;
+            }
+        }
+
+    }
+
+
+
 } // namespace UTILS
 } // namespace TA3D
 
