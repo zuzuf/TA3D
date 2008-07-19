@@ -1,0 +1,555 @@
+[window]
+{
+    name=surface;
+	title=Surface editor;
+	uformat=UTF8;
+	x=0;
+	y=0;
+	width=800;
+	height=600;
+	fullscreen=true;
+	screen width=800;
+	screen height=600;
+	draw borders=false;
+	show title=true;
+	lock=true;
+	number of objects=57;
+	hidden=false;
+	color=0xFFFFFFFF;
+	background=gfx/background.jpg;
+	repeat background=true;
+
+	[object0]
+	{
+		name=b_ok;
+		type=BUTTON;
+		caption=OK;
+		value=0xFFFFFFFF;
+		x1=362;
+		y1=-24;
+		x2=436;
+		y2=-4;
+		size=1;
+	}
+	[object1]
+	{
+	    name=l_color;
+	    type=TEXT;
+	    value=0xFFFFFFFF;
+	    x1=10;
+	    y1=25;
+	    caption=Material color:;
+	    size=1;
+	}
+	[object2]
+	{
+	    name=l_mred;
+	    type=TEXT;
+	    value=0xFFFFFFFF;
+	    x1=10;
+	    y1=60;
+	    caption=red  ->;
+	    size=1;
+	}
+	[object3]
+	{
+	    name=t_mred;
+	    type=TEXTBAR;
+	    value=4;
+	    x1=66; x2=126;
+	    y1=50; y2=85;
+	    size=1;
+	}
+	[object4]
+	{
+	    name=l_mgreen;
+	    type=TEXT;
+	    caption=green->;
+	    value=0xFFFFFFFF;
+	    x1=10;
+	    y1=95;
+	    size=1;
+	}
+	[object5]
+	{
+	    name=t_mgreen;
+	    type=TEXTBAR;
+	    value=4;
+	    x1=66; x2=126;
+	    y1=85; y2=120;
+	    size=1;
+	}
+	[object6]
+	{
+	    name=l_mblue;
+	    type=TEXT;
+	    caption=blue ->;
+	    value=0xFFFFFFFF;
+	    x1=10;
+	    y1=130;
+	    size=1;
+	}
+	[object7]
+	{
+	    name=t_mblue;
+	    type=TEXTBAR;
+	    value=4;
+	    x1=66; x2=126;
+	    y1=120; y2=155;
+	    size=1;
+	}
+	[object8]
+	{
+	    name=l_malpha;
+	    type=TEXT;
+	    caption=alpha->;
+	    value=0xFFFFFFFF;
+	    x1=10;
+	    y1=165;
+	    size=1;
+	}
+	[object9]
+	{
+	    name=t_malpha;
+	    type=TEXTBAR;
+	    value=4;
+	    x1=66; x2=126;
+	    y1=155; y2=190;
+	    size=1;
+	}
+	[object10]
+	{
+	    name=c_reflection;
+	    type=OPTIONB;
+	    caption=Reflection;
+	    value=0xFFFFFFFF;
+	    x1=200; y1=25;
+	    size=1;
+	}
+
+	[object11]
+	{
+	    name=l_rred;
+	    type=TEXT;
+	    value=0xFFFFFFFF;
+	    x1=170;
+	    y1=60;
+	    caption=red  ->;
+	    size=1;
+	}
+	[object12]
+	{
+	    name=t_rred;
+	    type=TEXTBAR;
+	    value=4;
+	    x1=226; x2=286;
+	    y1=50; y2=85;
+	    size=1;
+	}
+	[object13]
+	{
+	    name=l_rgreen;
+	    type=TEXT;
+	    caption=green->;
+	    value=0xFFFFFFFF;
+	    x1=170;
+	    y1=95;
+	    size=1;
+	}
+	[object14]
+	{
+	    name=t_rgreen;
+	    type=TEXTBAR;
+	    value=4;
+	    x1=226; x2=286;
+	    y1=85; y2=120;
+	    size=1;
+	}
+	[object15]
+	{
+	    name=l_rblue;
+	    type=TEXT;
+	    caption=blue ->;
+	    value=0xFFFFFFFF;
+	    x1=170;
+	    y1=130;
+	    size=1;
+	}
+	[object16]
+	{
+	    name=t_rblue;
+	    type=TEXTBAR;
+	    value=4;
+	    x1=226; x2=286;
+	    y1=120; y2=155;
+	    size=1;
+	}
+	[object17]
+	{
+	    name=l_ralpha;
+	    type=TEXT;
+	    caption=alpha->;
+	    value=0xFFFFFFFF;
+	    x1=170;
+	    y1=165;
+	    size=1;
+	}
+	[object18]
+	{
+	    name=t_ralpha;
+	    type=TEXTBAR;
+	    value=4;
+	    x1=226; x2=286;
+	    y1=155; y2=190;
+	    size=1;
+	}
+
+	[object19]
+	{
+	    name=c_gouraud;
+	    type=OPTIONB;
+	    value=0xFFFFFFFF;
+	    x1=10; y1=200;
+	    caption=Gouraud;
+	    size=1;
+	}
+	[object20]
+	{
+	    name=c_lighting;
+	    type=OPTIONB;
+	    value=0xFFFFFFFF;
+	    x1=10; y1=220;
+	    caption=Lighting;
+	    size=1;
+	}
+	[object21]
+	{
+	    name=c_texturing;
+	    type=OPTIONB;
+	    value=0xFFFFFFFF;
+	    x1=10; y1=240;
+	    caption=Texturing;
+	    size=1;
+	}
+
+	[object22]
+	{
+	    name=l_help;
+	    type=TEXT;
+	    value=0xFFFFFFFF;
+	    x1=240; y1=340;
+	    x2=780; y2=400;
+	    caption=3DMEDITOR_SURFACE_TEXT_HELP;
+	    size=1;
+	}
+
+	[object23]
+	{
+	    name=b_painting;
+	    type=BUTTON;
+	    x1=20;  y1=300;
+	    x2=200; y2=320;
+	    caption=Painting;
+	    size=1;
+	}
+	[object24]
+	{
+	    name=b_texture_mapping;
+	    type=BUTTON;
+	    x1=20;  y1=330;
+	    x2=200; y2=350;
+	    caption=Texture mapping;
+	    size=1;
+	}
+
+	[object25]
+	{
+	    name=l_part;
+	    type=TEXT;
+	    x1=110;  y1=390;
+	    caption=Current object :;
+	    value=0xFFFFFFFF;
+	    centered=true;
+	    size=1;
+	}
+	[object26]
+	{
+	    name=m_part;
+	    type=MENU;
+	    value=0xFFFFFFFF;
+	    x1=20;   y1=410;
+	    x2=200;  y2=430;
+	    size=1;
+	}
+
+	[object27]
+	{
+	    name=c_transparency;
+	    type=OPTIONB;
+	    x1=186;  y1=200;
+	    caption=Transparency;
+	    size=1;
+	}
+	[object28]
+	{
+	    name=c_player_color;
+	    type=OPTIONB;
+	    x1=186;  y1=220;
+	    caption=Player color;
+	    size=1;
+	}
+	[object29]
+	{
+	    name=c_glsl;
+	    type=OPTIONB;
+	    x1=186;  y1=240;
+	    caption=GLSL;
+	    size=1;
+	}
+
+	[object30]
+	{
+	    name=c_rotation;
+	    type=OPTIONB;
+	    x1=320;  y1=32;
+	    caption=rotation;
+	    size=1;
+	}
+	[object31]
+	{
+	    name=c_rperiodic;
+	    type=OPTIONB;
+	    x1=320;  y1=52;
+	    caption=periodic;
+	    size=1;
+	}
+	[object32]
+	{
+	    name=c_rsinus;
+	    type=OPTIONB;
+	    x1=320;  y1=72;
+	    caption=sinus;
+	    size=1;
+	}
+
+	[object33]
+	{
+	    name=c_translation;
+	    type=OPTIONB;
+	    x1=480;  y1=32;
+	    caption=translation;
+	    size=1;
+	}
+	[object34]
+	{
+	    name=c_tperiodic;
+	    type=OPTIONB;
+	    x1=480;  y1=52;
+	    caption=periodic;
+	    size=1;
+	}
+	[object35]
+	{
+	    name=c_tsinus;
+	    type=OPTIONB;
+	    x1=480;  y1=72;
+	    caption=sinus;
+	    size=1;
+	}
+
+	[object36]
+	{
+	    name=l_angle0;
+	    type=TEXT;
+	    x1=320;  y1=110;
+	    caption=angle_0;
+	    value=0xFFFFFFFF;
+	    size=1;
+	}
+	[object37]
+	{
+	    name=t_angle0_x;
+	    type=TEXTBAR;
+	    value=8;
+	    x1=320;  y1=130;
+	    x2=384;  y2=165;
+	    size=1;
+	}
+	[object38]
+	{
+	    name=t_angle0_y;
+	    type=TEXTBAR;
+	    value=8;
+	    x1=320;  y1=165;
+	    x2=384;  y2=200;
+	    size=1;
+	}
+	[object39]
+	{
+	    name=t_angle0_z;
+	    type=TEXTBAR;
+	    value=8;
+	    x1=320;  y1=200;
+	    x2=384;  y2=235;
+	    size=1;
+	}
+
+	[object40]
+	{
+	    name=l_angle1;
+	    type=TEXT;
+	    x1=390;  y1=110;
+	    caption=angle_1;
+	    value=0xFFFFFFFF;
+	    size=1;
+	}
+	[object41]
+	{
+	    name=t_angle1_x;
+	    type=TEXTBAR;
+	    value=8;
+	    x1=390;  y1=130;
+	    x2=454;  y2=165;
+	    size=1;
+	}
+	[object42]
+	{
+	    name=t_angle1_y;
+	    type=TEXTBAR;
+	    value=8;
+	    x1=390;  y1=165;
+	    x2=454;  y2=200;
+	    size=1;
+	}
+	[object43]
+	{
+	    name=t_angle1_z;
+	    type=TEXTBAR;
+	    value=8;
+	    x1=390;  y1=200;
+	    x2=454;  y2=235;
+	    size=1;
+	}
+
+	[object44]
+	{
+	    name=l_translate0;
+	    type=TEXT;
+	    x1=460;  y1=110;
+	    caption=translate_0;
+	    value=0xFFFFFFFF;
+	    size=1;
+	}
+	[object45]
+	{
+	    name=t_translate0_x;
+	    type=TEXTBAR;
+	    value=8;
+	    x1=460;  y1=130;
+	    x2=554;  y2=165;
+	    size=1;
+	}
+	[object46]
+	{
+	    name=t_translate0_y;
+	    type=TEXTBAR;
+	    value=8;
+	    x1=460;  y1=165;
+	    x2=554;  y2=200;
+	    size=1;
+	}
+	[object47]
+	{
+	    name=t_translate0_z;
+	    type=TEXTBAR;
+	    value=8;
+	    x1=460;  y1=200;
+	    x2=554;  y2=235;
+	    size=1;
+	}
+
+	[object48]
+	{
+	    name=l_translate1;
+	    type=TEXT;
+	    x1=560;  y1=110;
+	    caption=translate_1;
+	    value=0xFFFFFFFF;
+	    size=1;
+	}
+	[object49]
+	{
+	    name=t_translate1_x;
+	    type=TEXTBAR;
+	    value=8;
+	    x1=560;  y1=130;
+	    x2=654;  y2=165;
+	    size=1;
+	}
+	[object50]
+	{
+	    name=t_translate1_y;
+	    type=TEXTBAR;
+	    value=8;
+	    x1=560;  y1=165;
+	    x2=654;  y2=200;
+	    size=1;
+	}
+	[object51]
+	{
+	    name=t_translate1_z;
+	    type=TEXTBAR;
+	    value=8;
+	    x1=560;  y1=200;
+	    x2=654;  y2=235;
+	    size=1;
+	}
+
+	[object52]
+	{
+	    name=l_angle_w;
+	    type=TEXT;
+	    x1=320;  y1=250;
+	    caption=angle_w;
+	    value=0xFFFFFFFF;
+	    size=1;
+	}
+	[object53]
+	{
+	    name=t_angle_w;
+	    type=TEXTBAR;
+	    value=8;
+	    x1=420;  y1=240;
+	    x2=530;  y2=275;
+	    size=1;
+	}
+
+	[object54]
+	{
+	    name=l_translate_w;
+	    type=TEXT;
+	    x1=320;  y1=285;
+	    caption=translate_w;
+	    value=0xFFFFFFFF;
+	    size=1;
+	}
+	[object55]
+	{
+	    name=t_translate_w;
+	    type=TEXTBAR;
+	    value=8;
+	    x1=420;  y1=275;
+	    x2=530;  y2=310;
+	    size=1;
+	}
+
+	[object56]
+	{
+	    name=b_optimize_geometry;
+	    type=BUTTON;
+	    x1=20;  y1=360;
+	    x2=200; y2=380;
+	    caption=Optimize geometry;
+	    size=1;
+	}
+}
