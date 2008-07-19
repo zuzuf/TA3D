@@ -106,6 +106,15 @@ namespace TA3D
         pMutex.unlock();
     }
 
+    void AREA::set_action(const String& message, void (*Func)(int))
+    {
+        pMutex.lock();
+        GUIOBJ* guiobj = doGetObject(message);
+        if (guiobj)
+            guiobj->Func = Func;
+        pMutex.unlock();
+    }
+
     void AREA::set_entry(const String& message, const std::list<String>& entry)	// Set the entry of specified object in the specified window to entry (converts List to Vector)
     {
         pMutex.lock();

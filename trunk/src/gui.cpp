@@ -831,7 +831,7 @@ const String Dialog(const String &Title, String Filter)
     if (current_area)
     {
         if (current_area->get_wnd( "open" ) == NULL)            // The window isn't loaded => load it now !
-            current_area->load_tdf( "gui/open_dialog.tdf" );
+            current_area->load_window( "gui/open_dialog.tdf" );
         current_area->set_title("open",Title);
 
         if (curDir.empty())                         // If empty grab current directory
@@ -931,7 +931,7 @@ const String Dialog(const String &Title, String Filter)
         }while(!done);
     }
 
-return result;
+    return result;
 }
 
 /*---------------------------------------------------------------------------\
@@ -1070,68 +1070,61 @@ void Popup(const String &Title,const String &Msg)
 
 const String GetVal(const String &Title)
 {
-    String Answ = "";
-
-    WND Popup;
-
-    Popup.width=320;
-    Popup.height=60;
-    Popup.x=SCREEN_W-Popup.width>>1;	Popup.y=SCREEN_H-Popup.height>>1;
-    Popup.Lock=false;
-    Popup.Title=Title;
-    Popup.NbObj=2;
-    Popup.Objets = new GUIOBJ[Popup.NbObj];
-    // Création des objets de la fenêtre
-    // Message
-    Popup.Objets[0].create_textbar(10,20,310,34,Answ,100,NULL);
-    // Boutons OK
-    Popup.Objets[1].create_button(Popup.width/2-16,36,Popup.width/2+16,52,"OK",NULL);
-    Popup.Objets[0].Focus=true;
-
-    bool Popup_Done=false;
-
-    int AMx=mouse_x,AMy=mouse_y,AMz=mouse_z,AMb=mouse_b;
-
-    do
+    AREA *current_area = AREA::current();
+    String result = "";
+    
+    if (current_area)
     {
-        poll_mouse();
-    }while(mouse_b!=0);
+        if (current_area->get_wnd( "ask" ) == NULL)            // The window isn't loaded => load it now !
+            current_area->load_window( "gui/ask_dialog.tdf" );
+        current_area->set_title("ask",Title);
 
-    do
-    {
-        poll_keyboard();
+        current_area->msg("ask.show");
+        
+        bool done = false;
+        int amx, amy, amz, amb;
+        int cur_folder_idx = -1;
+        
+        do
+        {
+            bool key_is_pressed = false;
+            do
+            {
+                amx = mouse_x;
+                amy = mouse_y;
+                amz = mouse_z;
+                amb = mouse_b;
 
-        if(Popup.Objets[1].Etat || Popup.Objets[0].Etat) Popup_Done=true;
+                key_is_pressed = keypressed();
+                current_area->check();
+                rest( 8 );
+            } while( amx == mouse_x && amy == mouse_y && amz == mouse_z && amb == mouse_b && !key[ KEY_ENTER ] && !key[ KEY_ESC ] && !done && !key_is_pressed && !current_area->scrolling );
+            
+            if (key[KEY_ESC] || current_area->get_state("ask.b_cancel"))   done = true;
 
-        AMx=mouse_x;							// Mémorise l'ancien état de la souris
-        AMy=mouse_y;
-        AMz=mouse_z;
-        AMb=mouse_b;
+            if (current_area->get_state("ask.b_ok"))
+            {
+                done = true;
+                result = current_area->get_caption("ask.t_result");
+            }
 
-        poll_mouse();								// Obtient l'état de la souris
+            gfx->SetDefState();
+            // Clear screen
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);		// Efface l'écran
+            gfx->set_2D_mode();		// Passe en mode dessin allegro
 
-        gfx->set_2D_mode();	// On repasse dans le mode dessin 2D pour Allegro
+            current_area->draw();
+            show_mouse(screen);
+            algl_draw_mouse();
 
-        Popup.check(AMx,AMy,AMz,AMb);	// Gestion de l'interface utilisateur graphique
+            gfx->unset_2D_mode();	// Quitte le mode de dessin d'allegro
+            gfx->flip();
+            
+        }while(!done);
+    }
 
-        String help_msg = "";
-        Popup.draw( help_msg );		// Dessine la boîte de dialogue
-
-        algl_draw_mouse();			// Dessine le curseur
-
-        gfx->unset_2D_mode();	// On repasse dans le mode précédent
-
-        gfx->flip();
-
-    }while(!Popup_Done);
-
-    reset_keyboard();
-
-    Answ = Popup.Objets[ 0 ].Text[ 0 ];
-
-    return Answ;
+    return result;
 }
 
 } // namespace TA3D

@@ -203,6 +203,8 @@ void mnu_surf(int mnu_index)
     };
 }
 
+bool working = false;
+
 void mnu_selec(int mnu_index)
 {
     cur_part=mnu_index;
@@ -250,9 +252,12 @@ void convert_to_3dm()
 
 void button_rename(int mnu_index)
 {
+    if (working)    return;
     if(cur_part<0 || cur_part>=nb_obj())	return;
+    working = true;
     free(obj_table[cur_part]->name);
     obj_table[cur_part]->name = strdup( GetVal( I18N::Translate( "Nouveau nom d'objet" ) ).c_str() );
+    working = false;
 }
 
 bool is_child(OBJECT *obj,int idx)
@@ -265,7 +270,9 @@ bool is_child(OBJECT *obj,int idx)
 
 void button_child(int mnu_index)
 {
+    if (working)    return;
     if(cur_part<0 || cur_part>=nb_obj())	return;
+    working = true;
     char *father_name = strdup( GetVal( I18N::Translate( "Nom du noeud père" ) ).c_str() );
     int father_id=-1;
     if( obj_table[cur_part] == &(TheModel->obj) )
@@ -294,6 +301,7 @@ void button_child(int mnu_index)
     if(is_child(obj_table[cur_part],father_id))
     {
         Popup( I18N::Translate( "Action impossible" ), I18N::Translate( "Le noeud père est un fils du noeud séléctionné" ) );
+        working = false;
         return;
     }
 
@@ -343,10 +351,12 @@ void button_child(int mnu_index)
             cur_part=i;
             break;
         }
+    working = false;
 }
 
 void button_remove(int mnu_index)
 {
+    if (working)    return;
     if(cur_part<0 || cur_part>=nb_obj())	return;
     if( nb_obj() == 1 )
     {			// Remove everything if there is only one object
@@ -356,6 +366,8 @@ void button_remove(int mnu_index)
         return;
     }
 
+    working = true;
+    
     OBJECT *old = obj_table[cur_part];
     for(int i=0;i<nb_obj();i++)
         if(obj_table[i]->child == old)
@@ -378,11 +390,14 @@ void button_remove(int mnu_index)
         free(old2);
     }
     nb_obj();
+    working = false;
 }
 
 void button_scale(int mnu_index)
 {
+    if (working)    return;
     if(cur_part<0 || cur_part>=nb_obj())	return;
+    working = true;
     float scale_factor = atof( GetVal( I18N::Translate( "Echelle" ) ).c_str() );
     OBJECT *cur = obj_table[ cur_part ];
     std::list< OBJECT* >		stack;
@@ -409,11 +424,14 @@ void button_scale(int mnu_index)
             stack.push_front( cur->next );
         cur = cur->child;
     }
+    working = false;
 }
 
 void button_mirror_x(int mnu_index)
 {
+    if (working)    return;
     if(cur_part<0 || cur_part>=nb_obj())	return;
+    working = true;
     OBJECT *cur = obj_table[ cur_part ];
     std::list< OBJECT* >		stack;
     while (cur || stack.size() > 0)
@@ -440,11 +458,14 @@ void button_mirror_x(int mnu_index)
             stack.push_front( cur->next );
         cur = cur->child;
     }
+    working = false;
 }
 
 void button_mirror_y(int mnu_index)
 {
+    if (working)    return;
     if(cur_part<0 || cur_part>=nb_obj())	return;
+    working = true;
     OBJECT *cur = obj_table[ cur_part ];
     std::list< OBJECT* >		stack;
     while (cur || stack.size() > 0)
@@ -471,11 +492,14 @@ void button_mirror_y(int mnu_index)
             stack.push_front( cur->next );
         cur = cur->child;
     }
+    working = false;
 }
 
 void button_mirror_z(int mnu_index)
 {
+    if (working)    return;
     if(cur_part<0 || cur_part>=nb_obj())	return;
+    working = true;
     OBJECT *cur = obj_table[ cur_part ];
     std::list< OBJECT* >		stack;
     while (cur || stack.size() > 0)
@@ -502,11 +526,14 @@ void button_mirror_z(int mnu_index)
             stack.push_front( cur->next );
         cur = cur->child;
     }
+    working = false;
 }
 
 void button_change_xy(int mnu_index)
 {
+    if (working)    return;
     if(cur_part<0 || cur_part>=nb_obj())	return;
+    working = true;
     OBJECT *cur = obj_table[ cur_part ];
     std::list< OBJECT* >		stack;
     while (cur || stack.size() > 0)
@@ -540,11 +567,14 @@ void button_change_xy(int mnu_index)
     }
     for( int i = 0 ; i < nb_obj() ; i++ )		// MAJ normales
         obj_maj_normal( i );
+    working = false;
 }
 
 void button_change_yz(int mnu_index)
 {
+    if (working)    return;
     if(cur_part<0 || cur_part>=nb_obj())	return;
+    working = true;
     OBJECT *cur = obj_table[ cur_part ];
     std::list< OBJECT* >		stack;
     while (cur || stack.size() > 0)
@@ -578,11 +608,14 @@ void button_change_yz(int mnu_index)
     }
     for( int i = 0 ; i < nb_obj() ; i++ )		// MAJ normales
         obj_maj_normal( i );
+    working = false;
 }
 
 void button_change_zx(int mnu_index)
 {
+    if (working)    return;
     if(cur_part<0 || cur_part>=nb_obj())	return;
+    working = true;
     OBJECT *cur = obj_table[ cur_part ];
     std::list< OBJECT* >		stack;
     while (cur || stack.size() > 0)
@@ -616,6 +649,7 @@ void button_change_zx(int mnu_index)
     }
     for( int i = 0 ; i < nb_obj() ; i++ )		// MAJ normales
         obj_maj_normal( i );
+    working = false;
 }
 
 GLuint copy_tex(GLuint gltex)

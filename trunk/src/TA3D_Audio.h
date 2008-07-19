@@ -35,6 +35,7 @@
 # ifdef TA3D_PLATFORM_LINUX
 #   include "tools/linux/FMOD/inc/fmod.hpp"
 #   include "tools/linux/FMOD/inc/fmod_errors.h"
+#   undef stricmp
 #   include "tools/linux/FMOD/inc/wincompat.h"
 #   define TA3D_FMOD_INCLUDED
 # endif
