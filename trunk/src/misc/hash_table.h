@@ -128,6 +128,34 @@ namespace UTILS
         */
         virtual void remove(const String &key);
 
+        /*!
+        ** \brief Call a callback for each key
+        ** \param callback The callback
+        **
+        ** \code
+        ** class Predicate
+        ** {
+        ** public:
+        **     bool operator () (const String& key, const String& value)
+        **     {
+        **         std::cout << "Key: " << key << ", value: " << value << std::endl;
+        **         return true; // False to stop the process
+        **     }
+        ** };
+        **
+        ** int main(void)
+        ** {
+        **     TA3D::TDFParser p;
+        **     p.loadFromFile("gui/mdrn_save_menu.tdf");
+        **     p.forEach(Predicate());
+        **     return 0;
+        ** }
+        ** \endcode
+        */
+        template<typename C>
+        void forEach(C callback);
+
+
     protected:
         uint32 pTableSize;
         /*!
