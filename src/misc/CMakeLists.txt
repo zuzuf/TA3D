@@ -21,3 +21,6 @@ SET(SOURCES vector.cpp vector.h
             camera.h camera.cpp)
 
 ADD_LIBRARY(3dtoolbox STATIC ${SOURCES})
+
+
+ADD_LIBRARY(tdf STATIC tdf.h tdf.cpp)
