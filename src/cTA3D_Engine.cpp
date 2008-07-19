@@ -125,11 +125,11 @@ namespace TA3D
 
 		GuardInfo( "Creating Sound & Music Interface." );
 		sound_manager = new TA3D::Interfaces::cAudio ( 1.0f, 0.0f, 0.0f );
-		sound_manager->StopMusic();
-		sound_manager->LoadTDFSounds( true );
-		sound_manager->LoadTDFSounds( false );
+		sound_manager->stopMusic();
+		sound_manager->loadTDFSounds(true);
+		sound_manager->loadTDFSounds(false);
 
-		if( !sound_manager->IsFMODRunning() && !lp_CONFIG->quickstart )
+		if (!sound_manager->isRunning() && !lp_CONFIG->quickstart)
         {
             LOG_ERROR(I18N::Translate("FMOD WARNING"));
 			set_uformat(U_UTF8);   // fixed size, 8-bit ASCII characters
@@ -238,8 +238,9 @@ namespace TA3D
 		ta3dSideData.init();
 		ta3dSideData.loadData();
 
-		sound_manager->LoadTDFSounds( false );
+		sound_manager->loadTDFSounds(false);
 	}
+
 
 	int cTA3D_Engine::Run()
 	{

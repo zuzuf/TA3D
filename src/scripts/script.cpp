@@ -923,29 +923,29 @@ namespace TA3D
         return 0;
     }
 
-    int function_play_for( lua_State *L )		// ta3d_play_for( filename, player_id )
+    int function_play_for(lua_State *L)		// ta3d_play_for( filename, player_id )
     {
-        if( (int) lua_tonumber( L, -1 ) == players.local_human_id || (int) lua_tonumber( L, -1 ) == -1 )
-            sound_manager->PlaySound( (char*) lua_tostring( L, -2 ), false );
+        if ((int) lua_tonumber(L, -1) == players.local_human_id || (int) lua_tonumber( L, -1 ) == -1)
+            sound_manager->playSound( (char*) lua_tostring( L, -2 ), false);
 
-        if( network_manager.isServer() ) {
+        if (network_manager.isServer())
+        {
             struct event play_event;
             play_event.type = EVENT_PLAY;
-            play_event.opt1 = ((int) lua_tonumber( L, -1 )) == -1 ? 0xFFFF : (int) lua_tonumber( L, -1 );
-            memcpy( play_event.str, lua_tostring( L, -2 ), strlen( lua_tostring( L, -2 ) ) + 1 );
+            play_event.opt1 = ((int) lua_tonumber( L, -1 )) == -1 ? 0xFFFF : (int) lua_tonumber(L, -1);
+            memcpy( play_event.str, lua_tostring( L, -2 ), strlen( lua_tostring( L, -2 ) ) + 1);
 
-            network_manager.sendEvent( &play_event );
+            network_manager.sendEvent(&play_event);
         }
-
-        lua_pop( L, 2 );
-
+        lua_pop(L, 2);
         return 0;
     }
 
-    int function_play( lua_State *L )		// ta3d_play( filename )
+    
+    int function_play(lua_State *L)		// ta3d_play( filename )
     {
-        lua_pushnumber( L, -1.0f );
-        function_play_for( L );
+        lua_pushnumber(L, -1.0f);
+        function_play_for(L);
         return 0;
     }
 

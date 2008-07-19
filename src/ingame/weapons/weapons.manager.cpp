@@ -428,22 +428,22 @@ namespace TA3D
                     else if((f=strstr(ligne,"soundtrigger="))) {
                         if((strstr(ligne,";")))	*(strstr(ligne,";"))=0;
                         weapon[index].soundtrigger = strdup(f+13);
-                        sound_manager->LoadSound( weapon[index].soundtrigger , true );
+                        sound_manager->loadSound( weapon[index].soundtrigger , true );
                     }
                     else if((f=strstr(ligne,"soundhit="))) {
                         if((strstr(ligne,";")))	*(strstr(ligne,";"))=0;
                         weapon[index].soundhit = strdup(f+9);
-                        sound_manager->LoadSound( weapon[index].soundhit , true );
+                        sound_manager->loadSound( weapon[index].soundhit , true );
                     }
                     else if((f=strstr(ligne,"soundstart="))) {
                         if((strstr(ligne,";")))	*(strstr(ligne,";"))=0;
                         weapon[index].soundstart = strdup(f+11);
-                        sound_manager->LoadSound( weapon[index].soundstart , true );
+                        sound_manager->loadSound( weapon[index].soundstart , true );
                     }
                     else if((f=strstr(ligne,"soundwater="))) {
                         if((strstr(ligne,";")))	*(strstr(ligne,";"))=0;
                         weapon[index].soundwater = strdup(f+11);
-                        sound_manager->LoadSound( weapon[index].soundwater , true );
+                        sound_manager->loadSound(weapon[index].soundwater , true);
                     }
                     else {
                         if(strlen(ligne)>1 && strstr(ligne,"{")==NULL && strstr(ligne,"}")==NULL)

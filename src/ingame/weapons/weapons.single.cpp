@@ -541,10 +541,10 @@ namespace TA3D
             if (Pos.y == map->sealvl)
             {
                 if( weapon_manager.weapon[weapon_id].soundwater )
-                    sound_manager->PlaySound( weapon_manager.weapon[weapon_id].soundwater , &Pos);
+                    sound_manager->playSound( weapon_manager.weapon[weapon_id].soundwater , &Pos);
             }
             else
-                if( weapon_manager.weapon[weapon_id].soundhit )	sound_manager->PlaySound( weapon_manager.weapon[weapon_id].soundhit , &Pos );
+                if( weapon_manager.weapon[weapon_id].soundhit )	sound_manager->playSound( weapon_manager.weapon[weapon_id].soundhit , &Pos );
             if(hit && weapon_manager.weapon[weapon_id].explosiongaf!=NULL && weapon_manager.weapon[weapon_id].explosionart!=NULL && Pos.y!=map->sealvl)
             {
                 if( visible && weapon_manager.weapon[weapon_id].areaofeffect < 256 )		// Nuclear type explosion don't draw sprites :)

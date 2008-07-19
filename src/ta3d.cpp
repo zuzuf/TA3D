@@ -489,9 +489,9 @@ int play(GameData *game_data)
     }
     g_ta3d_network = &ta3d_network;
 
-    sound_manager->PlayMusic();
+    sound_manager->playMusic();
 
-    wait_room( game_data );
+    wait_room(game_data);
 
     /*----------------------------- script management --------------------------*/
 
@@ -591,13 +591,16 @@ int play(GameData *game_data)
 
         /*----------------------------- sound management ---------------------------*/
 
-        if(units.nb_attacked/(units.nb_attacked+units.nb_built+1)>=0.75f)
-            sound_manager->SetMusicMode( true );
-        else if(units.nb_attacked/(units.nb_attacked+units.nb_built+1)<=0.25f)
-            sound_manager->SetMusicMode( false );
+        if (units.nb_attacked/(units.nb_attacked + units.nb_built + 1) >= 0.75f)
+            sound_manager->setMusicMode(true);
+        else
+        {
+            if (units.nb_attacked/(units.nb_attacked + units.nb_built + 1) <= 0.25f)
+                sound_manager->setMusicMode(false);
+        }
 
-        sound_manager->SetListenerPos( &cam.rpos );
-        sound_manager->Update3DSound();
+        sound_manager->setListenerPos(&cam.rpos);
+        sound_manager->update3DSound();
 
         /*-------------------------- end of sound management -----------------------*/
 
@@ -1323,10 +1326,10 @@ int play(GameData *game_data)
             if( build_order_given ) {
                 if(!TA3D_SHIFT_PRESSED)
                     build=-1;
-                sound_manager->PlayTDFSound( "OKTOBUILD", "sound" , NULL );
+                sound_manager->playTDFSound( "OKTOBUILD", "sound" , NULL );
             }
             else
-                sound_manager->PlayTDFSound( "NOTOKTOBUILD", "sound" , NULL );
+                sound_manager->playTDFSound( "NOTOKTOBUILD", "sound" , NULL );
         }
         else if(build>=0 && cursor_type==CURSOR_DEFAULT && mouse_b == 1 && omb3 != 1 && !IsOnGUI ) {	// Giving the order to build a row
             VECTOR target = cursor_on_map(&cam,map);
@@ -2690,7 +2693,7 @@ int play(GameData *game_data)
             || game_area.get_state( current_gui + ".ARMORDERS" ) ) {		// Go to the order menu
             game_area.set_state( current_gui + "." + ta3dSideData.side_pref[ players.side_view ] + "ORDERS", false );
             game_area.set_state( current_gui + ".ARMORDERS", false );				// Because of mod support
-            sound_manager->PlayTDFSound( "ORDERSBUTTON", "sound" , NULL );
+            sound_manager->playTDFSound( "ORDERSBUTTON", "sound" , NULL );
             I_Msg( TA3D::TA3D_IM_GUI_MSG, (void*)(current_gui + ".hide").c_str(), NULL, NULL );	// Hide it
             current_gui = String( ta3dSideData.side_pref[ players.side_view ] ) + "gen";
             I_Msg( TA3D::TA3D_IM_GUI_MSG, (void*)( current_gui + ".show" ).c_str(), NULL, NULL );	// Show it
@@ -2700,7 +2703,7 @@ int play(GameData *game_data)
               game_area.get_state( current_gui + ".ARMBUILD" ) ) && old_gui_sel >= 0 )	{	// Back to the build menu
             game_area.set_state( current_gui + "." + ta3dSideData.side_pref[ players.side_view ] + "BUILD", false );
             game_area.set_state( current_gui + ".ARMBUILD", false );
-            sound_manager->PlayTDFSound( "BUILDBUTTON", "sound" , NULL );
+            sound_manager->playTDFSound( "BUILDBUTTON", "sound" , NULL );
             I_Msg( TA3D::TA3D_IM_GUI_MSG, (void*)(current_gui + ".hide").c_str(), NULL, NULL );	// Hide it
             current_gui = String( unit_manager.unit_type[ old_gui_sel ].Unitname ) + "1";
             if( game_area.get_wnd( current_gui ) == NULL ) {
@@ -2714,13 +2717,13 @@ int play(GameData *game_data)
 
         if( game_area.get_state( current_gui + "." + ta3dSideData.side_pref[ players.side_view ] + "PREV" )
             || game_area.get_state( current_gui + ".ARMPREV" ) ) {
-            sound_manager->PlayTDFSound( "NEXTBUILDMENU", "sound" , NULL );
+            sound_manager->playTDFSound( "NEXTBUILDMENU", "sound" , NULL );
             if( unit_manager.unit_type[ old_gui_sel ].nb_pages > 0 )
                 unit_manager.unit_type[ old_gui_sel ].page = (unit_manager.unit_type[ old_gui_sel ].page + unit_manager.unit_type[ old_gui_sel ].nb_pages-1)%unit_manager.unit_type[old_gui_sel].nb_pages;
         }
         if( game_area.get_state( current_gui + "." + ta3dSideData.side_pref[ players.side_view ] + "NEXT" )
             || game_area.get_state( current_gui + ".ARMNEXT" ) ) {
-            sound_manager->PlayTDFSound( "NEXTBUILDMENU", "sound" , NULL );
+            sound_manager->playTDFSound( "NEXTBUILDMENU", "sound" , NULL );
             if( unit_manager.unit_type[ old_gui_sel ].nb_pages > 0 )
                 unit_manager.unit_type[ old_gui_sel ].page= (unit_manager.unit_type[ old_gui_sel ].page+1)%unit_manager.unit_type[ old_gui_sel ].nb_pages;
         }
@@ -2787,7 +2790,7 @@ int play(GameData *game_data)
 
         if( game_area.get_state( current_gui + "." + ta3dSideData.side_pref[ players.side_view ] + "FIREORD" )
             || game_area.get_state( current_gui + ".ARMFIREORD" ) ) {		// Toggle the fireorder value
-            sound_manager->PlayTDFSound( "SETFIREORDERS", "sound" , NULL );
+            sound_manager->playTDFSound( "SETFIREORDERS", "sound" , NULL );
             GUIOBJ *sorder_obj = game_area.get_object( current_gui + "." + ta3dSideData.side_pref[ players.side_view ] + "FIREORD" );
             if( sorder_obj == NULL )
                 sorder_obj = game_area.get_object( current_gui + ".ARMFIREORD" );
@@ -2816,7 +2819,7 @@ int play(GameData *game_data)
 
         if( game_area.get_state( current_gui + "." + ta3dSideData.side_pref[ players.side_view ] + "MOVEORD" )
             || game_area.get_state( current_gui + ".ARMMOVEORD" ) ) {		// Toggle the moveorder value
-            sound_manager->PlayTDFSound( "SETMOVEORDERS", "sound" , NULL );
+            sound_manager->playTDFSound( "SETMOVEORDERS", "sound" , NULL );
             GUIOBJ *sorder_obj = game_area.get_object( current_gui + "." + ta3dSideData.side_pref[ players.side_view ] + "MOVEORD" );
             if( sorder_obj == NULL )
                 sorder_obj = game_area.get_object( current_gui + ".ARMMOVEORD" );
@@ -2873,11 +2876,11 @@ int play(GameData *game_data)
             case SIGNAL_ORDER_LOAD:
             case SIGNAL_ORDER_UNLOAD:
             case SIGNAL_ORDER_REPAIR:
-                sound_manager->PlayTDFSound( "IMMEDIATEORDERS", "sound" , NULL );
+                sound_manager->playTDFSound( "IMMEDIATEORDERS", "sound" , NULL );
                 current_order = signal_order;
                 break;
             case SIGNAL_ORDER_STOP:
-                sound_manager->PlayTDFSound( "IMMEDIATEORDERS", "sound" , NULL );
+                sound_manager->playTDFSound( "IMMEDIATEORDERS", "sound" , NULL );
                 units.lock();
                 for( uint16 e = 0 ; e < units.index_list_size ; e++ ) {
                     uint16 i = units.idx_list[e];
@@ -2932,9 +2935,10 @@ int play(GameData *game_data)
             }
             units.unit[cur_sel_index].unlock();
         }
-        if(sel>=0 && mouse_b==1 && omb2!=1) {
+        if (sel >= 0 && mouse_b == 1 && omb2 != 1)
+        {
             build=sel;
-            sound_manager->PlayTDFSound( "ADDBUILD", "sound" , NULL );
+            sound_manager->playTDFSound( "ADDBUILD", "sound" , NULL );
             if(!unit_manager.unit_type[cur_sel].BMcode) {			// S'il s'agit d'un bâtiment
                 if(TA3D_SHIFT_PRESSED)
                     for(i=0;i<5;i++)
@@ -3503,7 +3507,7 @@ int play(GameData *game_data)
     LOG_DEBUG("Freeing memory used for weapons");
     weapons.destroy();
     LOG_DEBUG("Freeing memory used for sound");
-    sound_manager->StopMusic();
+    sound_manager->stopMusic();
     LOG_DEBUG("Freeing memory used for fx");
     fx_manager.destroy();
 

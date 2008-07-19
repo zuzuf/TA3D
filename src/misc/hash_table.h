@@ -114,7 +114,6 @@ namespace UTILS
         */
         virtual void insertOrUpdate(const String &key, T v);
 
-    public:
         /*!
         ** \brief Search for all keys matching a pattern
         **
@@ -127,7 +126,7 @@ namespace UTILS
         ** \brief Remove an existing entry
         ** \param key the key to remove
         */
-        virtual void remove( const String &key );
+        virtual void remove(const String &key);
 
     protected:
         uint32 pTableSize;
