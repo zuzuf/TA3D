@@ -205,6 +205,16 @@ int main(int argc, char* argv[])
         // Load the interface from our area file:
     AREA main_area;
     main_area.load_tdf("gui/3dmeditor_main.area");
+    main_area.set_action("edit.b_rename", button_rename);
+    main_area.set_action("edit.b_child", button_child);
+    main_area.set_action("edit.b_remove", button_remove);
+    main_area.set_action("edit.b_scale", button_scale);
+    main_area.set_action("edit.b_mirror_x", button_mirror_x);
+    main_area.set_action("edit.b_mirror_y", button_mirror_y);
+    main_area.set_action("edit.b_mirror_z", button_mirror_z);
+    main_area.set_action("edit.b_change_xy", button_change_xy);
+    main_area.set_action("edit.b_change_yz", button_change_yz);
+    main_area.set_action("edit.b_change_zx", button_change_zx);
 
     int amx,amy,amz,amb;
     int IsOnGUI;

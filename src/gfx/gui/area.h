@@ -164,6 +164,14 @@ namespace TA3D
         void set_entry(const String& message, const std::vector<String>& entry);
 
         /*!
+        ** \brief Set the function pointer of an object, it will be called when the widget is clicked
+        **
+        ** \param message
+        ** \return
+        */
+        void set_action(const String& message, void (*Func)(int));
+
+        /*!
         ** \brief Send that message to the area
         **
         ** \param message
