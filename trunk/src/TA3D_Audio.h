@@ -58,15 +58,15 @@
 
 namespace TA3D
 {
-namespace Interfaces
+namespace Audio
 {
 
 
-    /*! \class cAudio
+    /*! \class Manager
     **
     ** \brief The Audio Engine
     */
-    class cAudio : protected TA3D::IInterface
+    class Manager : protected TA3D::IInterface
     {
     public:
         //! \name Constructor & Destructor
@@ -74,9 +74,9 @@ namespace Interfaces
         /*!
         ** \brief Constructor
         */
-        cAudio(const float DistanceFactor, const float DopplerFactor, const float RolloffFactor);
+        Manager(const float DistanceFactor, const float DopplerFactor, const float RolloffFactor);
         //! Destructor
-        ~cAudio();
+        ~Manager();
         //@}
 
         /*!
@@ -283,7 +283,7 @@ namespace Interfaces
         class LoadAllTDFSound
         {
         public:
-            LoadAllTDFSound(cAudio& a) : pAudio(a) {}
+            LoadAllTDFSound(Manager& a) : pAudio(a) {}
             bool operator () (const String& key, const String& value)
             {
                 pAudio.doLoadSound(value, false);
@@ -291,7 +291,7 @@ namespace Interfaces
             }
         private:
             //! Self reference
-            cAudio& pAudio;
+            Manager& pAudio;
         }; // class LoadAllTDFSound
 
 
@@ -377,7 +377,7 @@ namespace Interfaces
         //!
         FMODChannelType* pBasicChannel;
 
-    }; // class cAudio
+    }; // class Manager
 
 
 

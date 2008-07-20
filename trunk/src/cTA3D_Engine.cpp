@@ -124,7 +124,7 @@ namespace TA3D
 		}
 
 		GuardInfo( "Creating Sound & Music Interface." );
-		sound_manager = new TA3D::Interfaces::cAudio ( 1.0f, 0.0f, 0.0f );
+		sound_manager = new TA3D::Audio::Manager(1.0f, 0.0f, 0.0f);
 		sound_manager->stopMusic();
 		sound_manager->loadTDFSounds(true);
 		sound_manager->loadTDFSounds(false);
