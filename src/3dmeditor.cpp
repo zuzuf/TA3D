@@ -482,6 +482,9 @@ void SurfEdit()
     if(nb_obj()<=0) return;			// S'il n'y a rien à éditer, on quitte tout de suite la fonction, sinon ça plante
     if(nb_obj()==1 && TheModel->obj.name==NULL)	return;
 
+    SCRIPT_DATA cur_data;           // needed to render the preview
+    cur_data.load(nb_obj());
+
     AREA surface_area;
     surface_area.load_tdf("gui/3dmeditor_surface.area");
 
@@ -543,114 +546,11 @@ void SurfEdit()
     surface_area.set_caption("surface.t_angle_w", obj_table[cur_part]->animation_data ? format( "%f", obj_table[cur_part]->animation_data->angle_w) : "0" );
     surface_area.set_caption("surface.t_translate_w", obj_table[cur_part]->animation_data ? format( "%f", obj_table[cur_part]->animation_data->translate_w) : "0" );
 
-//    // Bouton OK
-//    SEdit.Objets[0].create_button(SEdit.width/2-16,SEdit.height-20,SEdit.width/2+16,SEdit.height-4,"OK",NULL);
-
-//    // Texte indiquant les éléments modifiant la couleur materielle de la surface
-//    SEdit.Objets[1].create_text(10,16,I18N::Translate( "Couleur de la matiere:" ).c_str(),Noir);
-//    // Barre de texte pour modifier la couleur de matière rouge(avec texte indicateur)
-//    SEdit.Objets[2].create_text(10,30,I18N::Translate("rouge->").c_str(),Rouge);
-//    SEdit.Objets[3].create_textbar(66,28,106,44,format("%d",(int)(obj_table[cur_part]->surface.Color[0]*255.0f)),4,NULL);
-//    // Barre de texte pour modifier la couleur de matière vert(avec texte indicateur)
-//    SEdit.Objets[4].create_text(10,50,I18N::Translate( "vert ->" ).c_str(),Vert);
-//    SEdit.Objets[5].create_textbar(66,48,106,64,format("%d",(int)(obj_table[cur_part]->surface.Color[1]*255.0f)),4,NULL);
-//    // Barre de texte pour modifier la couleur de matière bleu(avec texte indicateur)
-//    SEdit.Objets[6].create_text(10,70,I18N::Translate( "bleu ->" ).c_str(),Bleu);
-//    SEdit.Objets[7].create_textbar(66,68,106,84,format("%d",(int)(obj_table[cur_part]->surface.Color[2]*255.0f)),4,NULL);
-//    // Barre de texte pour modifier le canal alpha de la couleur de matière(avec texte indicateur)
-//    SEdit.Objets[8].create_text(10,90,I18N::Translate( "alpha->" ).c_str(),Blanc);
-//    SEdit.Objets[9].create_textbar(66,88,106,104,format("%d",(int)(obj_table[cur_part]->surface.Color[3]*255.0f)),4,NULL);
-
-//    // Case à cocher pour activer/désactiver l'effet de réflection
-//    SEdit.Objets[10].create_optionc(200,12,I18N::Translate( "Effet de reflection" ).c_str(),obj_table[cur_part]->surface.Flag&SURFACE_REFLEC,NULL);
-//    // Barre de texte pour modifier la couleur de reflection rouge(avec texte indicateur)
-//    SEdit.Objets[11].create_text(130,30,I18N::Translate( "rouge->" ).c_str(),Rouge);
-//    SEdit.Objets[12].create_textbar(186,28,226,44,format("%d",(int)(obj_table[cur_part]->surface.RColor[0]*255.0f)),4,NULL);
-//    // Barre de texte pour modifier la couleur de reflection vert(avec texte indicateur)
-//    SEdit.Objets[13].create_text(130,50,I18N::Translate( "vert ->" ).c_str(),Vert);
-//    SEdit.Objets[14].create_textbar(186,48,226,64,format("%d",(int)(obj_table[cur_part]->surface.RColor[1]*255.0f)),4,NULL);
-//    // Barre de texte pour modifier la couleur de reflection bleu(avec texte indicateur)
-//    SEdit.Objets[15].create_text(130,70,I18N::Translate( "bleu ->" ).c_str(),Bleu);
-//    SEdit.Objets[16].create_textbar(186,68,226,84,format("%d",(int)(obj_table[cur_part]->surface.RColor[2]*255.0f)),4,NULL);
-//    // Barre de texte pour modifier le canal alpha de la couleur de reflection(avec texte indicateur)
-//    SEdit.Objets[17].create_text(130,90,I18N::Translate( "alpha->" ).c_str(),Blanc);
-//    SEdit.Objets[18].create_textbar(186,88,226,104,format("%d",(int)(obj_table[cur_part]->surface.RColor[3]*255.0f)),4,NULL);
-
-//    // Case à cocher pour activer/désactiver le mode d'éclairage GOURAUD
-//    SEdit.Objets[19].create_optionc(10,120,I18N::Translate( "Rendu GOURAUD" ).c_str(),(obj_table[cur_part]->surface.Flag&SURFACE_GOURAUD)==SURFACE_GOURAUD,NULL);
-//    // Case à cocher pour activer/désactiver l'éclairage
-//    SEdit.Objets[20].create_optionc(10,140,I18N::Translate( "Calculs d'eclairage" ).c_str(),(obj_table[cur_part]->surface.Flag&SURFACE_LIGHTED)==SURFACE_LIGHTED,NULL);
-//    // Case à cocher pour activer/désactiver le texturage
-//    SEdit.Objets[21].create_optionc(10,160,I18N::Translate( "Texturage" ).c_str(),(obj_table[cur_part]->surface.Flag&SURFACE_TEXTURED)==SURFACE_TEXTURED,NULL);
-
-//    // Texte d'aide sur le dessin 3D de textures, directement sur l'objet
-//    SEdit.Objets[22].create_text(58,270,I18N::Translate( "Le bouton peinture de l'objet permet de creer une texture a appliquer a l'objet grace" ) );
-//    SEdit.Objets[23].create_text(10,278,I18N::Translate( "a un outil integre de dessin directement sur l'objet en 3D, et le bouton plaquage de texture" ) );
-//    SEdit.Objets[24].create_text(10,286,I18N::Translate( "permet egalement de modifier le plaquage de la texture sur l'objet." ) );
-
-//    // Boutons "peinture" et "plaquage de texture"
-//    SEdit.Objets[25].create_button(20,300,188,316,I18N::Translate( "peinture" ).c_str(),SurfPaint);
-//    SEdit.Objets[26].create_button(20,320,188,336,I18N::Translate( "plaquage de texture" ).c_str(),TexturePosEdit);
-
-//    // Menu déroulant de sélection de partie de la meshe et texte indicateur
-//    SEdit.Objets[27].create_text(58,340,I18N::Translate( "Partie en cours d'edition:" ).c_str() );
-//    String::Vector Part_names(1+nb_obj());
-//    for(int i=0;i<nb_obj();i++)
-//        Part_names[i+1] = obj_table[i]->name;
-//    Part_names[0] = Part_names[cur_part+1];
-
-//    SEdit.Objets[28].create_menu(10,350,170,362,Part_names,S_MPart_Sel);
-
-//    // Case à cocher pour activer/désactiver la transparence
-//    SEdit.Objets[29].create_optionc(186,120,I18N::Translate( "Transparence" ).c_str(),(obj_table[cur_part]->surface.Flag&SURFACE_BLENDED)==SURFACE_BLENDED,NULL);
-
-//    // Case à cocher pour activer/désactiver la couleur du joueur
-//    SEdit.Objets[30].create_optionc(186,140,I18N::Translate( "Couleur joueur" ).c_str(),(obj_table[cur_part]->surface.Flag&SURFACE_PLAYER_COLOR)==SURFACE_PLAYER_COLOR,NULL);
-
-//    // Case à cocher pour activer/désactiver les shaders GLSL
-//    SEdit.Objets[31].create_optionc(186,160,I18N::Translate( "GLSL" ).c_str(),(obj_table[cur_part]->surface.Flag&SURFACE_GLSL)==SURFACE_GLSL,NULL);
-
-//    // Partie concernant l'animation par défaut
-//    SEdit.Objets[32].create_optionc(320,32,I18N::Translate( "rotation" ), obj_table[cur_part]->animation_data != NULL && (obj_table[cur_part]->animation_data->type & ROTATION), NULL );
-//    SEdit.Objets[33].create_optionc(320,44,I18N::Translate( "périodique" ), obj_table[cur_part]->animation_data != NULL && (obj_table[cur_part]->animation_data->type & ROTATION_PERIODIC), NULL );
-//    SEdit.Objets[34].create_optionc(320,56,I18N::Translate( "sinusoïdal" ), obj_table[cur_part]->animation_data != NULL && (obj_table[cur_part]->animation_data->type & ROTATION_COSINE), NULL );
-
-//    SEdit.Objets[35].create_optionc(480,32,I18N::Translate( "translation" ), obj_table[cur_part]->animation_data != NULL && (obj_table[cur_part]->animation_data->type & TRANSLATION), NULL );
-//    SEdit.Objets[36].create_optionc(480,44,I18N::Translate( "périodique" ), obj_table[cur_part]->animation_data != NULL && (obj_table[cur_part]->animation_data->type & TRANSLATION_PERIODIC), NULL );
-//    SEdit.Objets[37].create_optionc(480,56,I18N::Translate( "sinusoïdal" ), obj_table[cur_part]->animation_data != NULL && (obj_table[cur_part]->animation_data->type & TRANSLATION_COSINE), NULL );
-
-//    SEdit.Objets[38].create_text(320,70, "angle_0" );
-//    SEdit.Objets[39].create_textbar(320,80,384,96, obj_table[cur_part]->animation_data ? format( "%f", obj_table[cur_part]->animation_data->angle_0.x) : "0",8, NULL );
-//    SEdit.Objets[40].create_textbar(320,100,384,116, obj_table[cur_part]->animation_data ? format( "%f", obj_table[cur_part]->animation_data->angle_0.y) : "0",8, NULL );
-//    SEdit.Objets[41].create_textbar(320,120,384,136, obj_table[cur_part]->animation_data ? format( "%f", obj_table[cur_part]->animation_data->angle_0.z) : "0",8, NULL );
-
-//    SEdit.Objets[42].create_text(390,70, "angle_1" );
-//    SEdit.Objets[43].create_textbar(390,80,454,96, obj_table[cur_part]->animation_data ? format( "%f", obj_table[cur_part]->animation_data->angle_1.x) : "0",8, NULL );
-//    SEdit.Objets[44].create_textbar(390,100,454,116, obj_table[cur_part]->animation_data ? format( "%f", obj_table[cur_part]->animation_data->angle_1.y) : "0",8, NULL );
-//    SEdit.Objets[45].create_textbar(390,120,454,136, obj_table[cur_part]->animation_data ? format( "%f", obj_table[cur_part]->animation_data->angle_1.z) : "0",8, NULL );
-
-//    SEdit.Objets[46].create_text(460,70, "translate_0" );
-//    SEdit.Objets[47].create_textbar(460,80,524,96, obj_table[cur_part]->animation_data ? format( "%f", obj_table[cur_part]->animation_data->translate_0.x) : "0",8, NULL );
-//    SEdit.Objets[48].create_textbar(460,100,524,116, obj_table[cur_part]->animation_data ? format( "%f", obj_table[cur_part]->animation_data->translate_0.y) : "0",8, NULL );
-//    SEdit.Objets[49].create_textbar(460,120,524,136, obj_table[cur_part]->animation_data ? format( "%f", obj_table[cur_part]->animation_data->translate_0.z) : "0",8, NULL );
-
-//    SEdit.Objets[50].create_text(560,70, "translate_1" );
-//    SEdit.Objets[51].create_textbar(560,80,624,96, obj_table[cur_part]->animation_data ? format( "%f", obj_table[cur_part]->animation_data->translate_1.x) : "0",8, NULL );
-//    SEdit.Objets[52].create_textbar(560,100,624,116, obj_table[cur_part]->animation_data ? format( "%f", obj_table[cur_part]->animation_data->translate_1.y) : "0",8, NULL );
-//    SEdit.Objets[53].create_textbar(560,120,624,136, obj_table[cur_part]->animation_data ? format( "%f", obj_table[cur_part]->animation_data->translate_1.z) : "0",8, NULL );
-
-//    SEdit.Objets[54].create_text(360,140, "angle_w=" );
-//    SEdit.Objets[55].create_textbar(430,140,500,156, obj_table[cur_part]->animation_data ? format( "%f", obj_table[cur_part]->animation_data->angle_w) : "0",8, NULL );
-
-//    SEdit.Objets[56].create_text(360,160, "translate_w=" );
-//    SEdit.Objets[57].create_textbar(460,160,530,176, obj_table[cur_part]->animation_data ? format( "%f", obj_table[cur_part]->animation_data->translate_w) : "0",8, NULL );
-
-//    SEdit.Objets[58].create_button(16,380,216,390, I18N::Translate("optimiser la géometrie"), NULL );
-
     bool done=false;
 
     int amx,amy,amb,amz;
     uint32 timer = msec_timer;
+    float scaleFactor = 1.0f;
 
     do
     {
@@ -665,7 +565,7 @@ void SurfEdit()
             key_is_pressed = keypressed();
             surface_area.check();
             rest( 8 );
-            if (msec_timer - timer >= 100)  break;
+            if (msec_timer - timer >= 50)  break;
         } while( amx == mouse_x && amy == mouse_y && amz == mouse_z && amb == mouse_b && !key[ KEY_ENTER ] && !key[ KEY_ESC ] && !done && !key_is_pressed && !surface_area.scrolling );
         timer = msec_timer;
 
@@ -870,6 +770,48 @@ void SurfEdit()
             reset_keyboard();
             done=true;			// Quitte si on appuie sur echap / Leave on ESC
         }
+
+        if (surface_area.get_object("surface.preview"))
+        {
+            GUIOBJ *preview = surface_area.get_object("surface.preview");
+            if ((GLuint)preview->Data == 0)
+            {
+                allegro_gl_set_texture_format(GL_RGB8);
+                preview->Data = (uint32) gfx->create_texture( preview->x2 - preview->x1, preview->y2 - preview->y1, FILTER_LINEAR );
+            }
+ 
+            gfx->renderToTexture( (GLuint)preview->Data, true );
+
+            gfx->SetDefState();
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);     // Clear the texture
+
+            Camera Cam;            
+
+            MATRIX_4x4 Rot;				// Oriente la caméra
+            Rot = Scale(1.0f);
+            Cam.setMatrix(Rot);
+
+            Cam.setView();			// Positionne la caméra
+
+            glRotatef(msec_timer*0.01f,0.0f,1.0f,0.0f);
+            glRotatef(msec_timer*0.01333f,1.0f,0.0f,0.0f);
+            glTranslatef( -obj_table[cur_part]->pos_from_parent.x, -obj_table[cur_part]->pos_from_parent.y, -obj_table[cur_part]->pos_from_parent.z );
+
+            scaleFactor *= exp( 0.05f * ( amz - mouse_z ) );
+
+            glScalef( scaleFactor, scaleFactor, scaleFactor );
+
+            gfx->set_color( 0xFFFFFFFF );
+
+            for(int i = 0; i < nb_obj(); ++i)
+                cur_data.flag[i]= i==cur_part ? 0 : FLAG_HIDE;
+            glDisable( GL_CULL_FACE );
+            obj_table[cur_part]->draw_dl(&cur_data);		// Dessine la partie en cours d'édition de la meshe
+            glEnable( GL_CULL_FACE );
+
+            gfx->renderToTexture( 0 );
+        }
+
         // Efface tout / Clear screen
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 

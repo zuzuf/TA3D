@@ -13,7 +13,7 @@
 	draw borders=false;
 	show title=true;
 	lock=true;
-	number of objects=65;
+	number of objects=66;
 	hidden=false;
 	color=0xFFFFFFFF;
 	background=gfx/background.jpg;
@@ -616,5 +616,12 @@
 	    x1=688; y1=420;
 	    x2=752; y2=484;
 	    highlight=true;
+	}
+	[object65]
+	{
+	    name=preview;
+	    type=IMG;
+	    x1=30;  y1=435;
+	    x2=190; y2=595;
 	}
 }

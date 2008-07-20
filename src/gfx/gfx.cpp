@@ -156,6 +156,8 @@ namespace Interfaces
         y = 0;
         low_def_limit = 600.0f;
 
+        textureFBO = 0;
+        textureDepth = 0;
         glfond = 0;
         normal_font.init();
         small_font.init();
@@ -170,6 +172,11 @@ namespace Interfaces
     GFX::~GFX()
     {
         DeleteInterface();
+
+        if (textureFBO)
+            glDeleteFramebuffersEXT(1,&textureFBO);
+        if (textureDepth)
+            glDeleteRenderbuffersEXT(1,&textureDepth);
 
         if (TA3D::VARS::pal )
             delete[]( TA3D::VARS::pal ); 
@@ -1166,6 +1173,40 @@ namespace Interfaces
     }
 
 
+    void GFX::renderToTexture( const GLuint tex, bool useDepth )
+    {
+        if (tex == 0)       // Release the texture
+        {
+            glBindFramebufferEXT(GL_FRAMEBUFFER_EXT,0);     // Bind the default FBO
+            glViewport(0, 0, SCREEN_W, SCREEN_H);           // Use default viewport
+        }
+        else
+        {
+            if (g_useFBO)               // If FBO extension is available then use it
+            {
+                if (textureFBO == 0)    // Generate a FBO if none has been created yet
+                {
+                    glGenFramebuffersEXT(1,&textureFBO);
+	                glGenRenderbuffersEXT(1,&textureDepth);
+	            }
+
+                glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, textureFBO);					                    // Bind the FBO
+                glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT,GL_COLOR_ATTACHMENT0_EXT,GL_TEXTURE_2D,tex,0); // Attach the texture
+                if (useDepth)
+                {
+            		glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT,GL_DEPTH_ATTACHMENT_EXT,GL_RENDERBUFFER_EXT,textureDepth);
+	                glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, textureDepth);
+	                glRenderbufferStorageEXT(GL_RENDERBUFFER_EXT,GL_DEPTH_COMPONENT24, texture_width(tex), texture_height(tex));       // Should be enough
+	            }
+            	else
+            	{
+	                glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, 0);
+            		glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT,GL_DEPTH_ATTACHMENT_EXT,GL_RENDERBUFFER_EXT,0);
+            	}
+                glViewport(0,0,texture_width(tex),texture_height(tex));                                     // Stretch viewport to texture size
+            }
+        }
+    }
 
 } // namespace Interfaces
 } // namespace TA3D
