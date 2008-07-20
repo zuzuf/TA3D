@@ -8,6 +8,7 @@ ADD_SUBDIRECTORY(network)
 ADD_SUBDIRECTORY(ai)
 ADD_SUBDIRECTORY(ingame)
 ADD_SUBDIRECTORY(scripts)
+ADD_SUBDIRECTORY(sounds)
 
 
 IF(APPLE)
@@ -67,15 +68,6 @@ SET(SOURCES gaf.cpp gaf.h
             3ds.cpp 3ds.h)
 ADD_LIBRARY(fileformats STATIC ${SOURCES})
 ADD_DEPENDENCIES(fileformats stdafx particles i18n ingame)
-
-# --------------------------------------------------------------------
-# --- Audio
-# --------------------------------------------------------------------
-SET(LIBRARY_OUTPUT_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../bin/libs/${CMAKE_SYSTEM_NAME}")
-SET(ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../bin/libs/${CMAKE_SYSTEM_NAME}")
-SET(SOURCES TA3D_Audio.cpp TA3D_Audio.h)
-ADD_LIBRARY(audio STATIC ${SOURCES})
-ADD_DEPENDENCIES(audio stdafx misc threads ingame)
 
 # --------------------------------------------------------------------
 # --- HPI

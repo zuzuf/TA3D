@@ -1,9 +1,12 @@
 #include "weapons.manager.h"
+#include "../../sounds/manager.h"
+
+
 
 namespace TA3D
 {
 
-    WEAPON_MANAGER		weapon_manager;
+    WEAPON_MANAGER weapon_manager;
 
     
     WEAPON_MANAGER::WEAPON_MANAGER()

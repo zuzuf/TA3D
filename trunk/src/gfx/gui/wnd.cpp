@@ -1,8 +1,8 @@
 #include "wnd.h"
 #include "../../languages/i18n.h"
 #include "../../ta3dbase.h"
-#include "../../TA3D_Exception.h"
 #include "../../misc/math.h"
+#include "../../sounds/manager.h"
 
 
 using namespace TA3D::Exceptions;

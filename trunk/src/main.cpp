@@ -37,6 +37,7 @@
 #include "ingame/menus/mainmenu.h"
 #include "languages/i18n.h"
 #include "misc/application.h"
+#include "sounds/manager.h"
 
 
 

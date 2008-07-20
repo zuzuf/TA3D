@@ -36,6 +36,7 @@
 #include "misc/paths.h"
 #include "languages/i18n.h"
 #include "jpeg/ta3d_jpg.h"
+#include "sounds/manager.h"
 
 
 using namespace TA3D::Exceptions;

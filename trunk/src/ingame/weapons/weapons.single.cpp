@@ -5,6 +5,7 @@
 #include "../../misc/camera.h"
 #include <list>
 #include "../../misc/math.h"
+#include "../../sounds/manager.h"
 
 
 

@@ -42,6 +42,8 @@
 #include <list>
 #include "languages/i18n.h"
 #include "misc/math.h"
+#include "sounds/manager.h"
+
 
 
 namespace TA3D
