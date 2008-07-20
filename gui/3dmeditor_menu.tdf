@@ -23,7 +23,7 @@
 		name=file;
 		type=MENU;
 		value=0xFFFFFFFF;
-		entry=File,New,Open,Save,IMPORT_ASC,IMPORT_3DO,IMPORT_3DS,Exit;
+		entry=File,New,Open,Save,IMPORT_ASC,IMPORT_3DO,IMPORT_3DS,IMPORT_OBJ,Exit;
 		x1=6;
 		y1=0;
 		x2=166;

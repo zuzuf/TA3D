@@ -45,6 +45,11 @@
     ENGLISH=Import(*.3DS);
 	FRENCH=Importer(*.3DS);
 }
+[IMPORT_OBJ]
+{
+    ENGLISH=Import(*.OBJ);
+	FRENCH=Importer(*.OBJ);
+}
 [Exit]
 {
 	FRENCH=Quitter;
@@ -296,6 +301,10 @@
 [Import a 3DS model]
 {
 	FRENCH=Importer un modèle au format 3DS;
+}
+[Import an OBJ model]
+{
+	FRENCH=Importer un modèle au format OBJ;
 }
 [New object name]
 {
