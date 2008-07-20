@@ -25,21 +25,35 @@
 #include "TA3D_NameSpace.h"
 #define TA3D_BASIC_ENGINE
 #include "ta3dbase.h"		// Moteur
+#include "misc/paths.h"
 #include "obj.h"
 #include "3dmeditor.h"
 
-    // fill the OBJECT with gathered data
-void finalize_object( OBJECT *cur, std::vector< int > &face, std::vector< VECTOR > &vertex, std::vector< VECTOR > &normal, std::vector< VECTOR2D > &tcoord )
+class Material
 {
-    cur->nb_vtx = face.size();
-    cur->nb_t_index = face.size();
+public:
+    String  name;
+    String  textureName;
+    
+    Material() : name(), textureName()  {}
+    Material(int a) : name(), textureName() {}
+};
+
+    // fill the OBJECT with gathered data
+void finalize_object( OBJECT *cur, std::vector< int > &face, std::vector< VECTOR > &vertex, std::vector< VECTOR > &normal, std::vector< VECTOR2D > &tcoord, Material *mtl = NULL )
+{
+    cur->nb_vtx = face.size() >> 1;
+    cur->nb_t_index = face.size() >> 1;
     cur->t_index = (GLushort*) malloc( sizeof( GLushort ) * cur->nb_t_index );
     cur->points = (VECTOR*) malloc( sizeof( VECTOR ) * cur->nb_vtx );
     cur->N = (VECTOR*) malloc( sizeof( VECTOR ) * cur->nb_vtx );
+    cur->tcoord = (float*) malloc( sizeof( float ) * 2 * cur->nb_vtx );
 
-    for (int i = 0 ; i < face.size() ; i++)
+    for (int i = 0 ; i < cur->nb_t_index ; i++)
     {
-        cur->points[ i ] = vertex[ face[ i ] ];
+        cur->points[ i ] = vertex[ face[ i * 2 ] ];
+        cur->tcoord[ i * 2 ] = tcoord[ face[ i * 2 + 1 ] ].x;
+        cur->tcoord[ i * 2 + 1 ] = 1.0f - tcoord[ face[ i * 2 + 1 ] ].y;
         cur->t_index[ i ] = i;
     }
 
@@ -58,7 +72,16 @@ void finalize_object( OBJECT *cur, std::vector< int > &face, std::vector< VECTOR
     for (int i = 0 ; i < cur->nb_vtx ; i++)
         cur->N[i].unit();
     
-    cur->surface.Flag = SURFACE_ADVANCED;
+    cur->surface.Flag = SURFACE_ADVANCED | SURFACE_LIGHTED | SURFACE_GOURAUD;
+    if (mtl)
+    {
+        cur->surface.gltex[0] = gfx->load_texture( mtl->textureName );
+        if (cur->surface.gltex[0])
+        {
+            cur->surface.NbTex = 1;
+            cur->surface.Flag |= SURFACE_TEXTURED;
+        }
+    }
 }
 
     // Load a 3D model in OBJ format
@@ -76,6 +99,8 @@ MODEL *load_obj( const String &filename, float scale )
         std::vector< VECTOR >   normal;
         std::vector< VECTOR2D > tcoord;
         std::vector< int >      face;
+        cHashTable< Material >  mtllib;
+        Material                currentMtl;
 	    
         while( fgets( buf, 1024, src_obj ) )        // Reads the while file
         {
@@ -83,25 +108,60 @@ MODEL *load_obj( const String &filename, float scale )
             ReadVectorString( args, buf, " " );
             if (args.size() > 0)
             {
-                if (args[0] == "o" && args.size() > 1)      // Creates a new object
+                if ( args[0] == "o" && args.size() > 1)      // Creates a new object
                 {
                     if (!firstObject)
                     {
-                        finalize_object( cur, face, vertex, normal, tcoord );
-                        cur->next = new OBJECT();
-                        cur = cur->next;
+                        finalize_object( cur, face, vertex, normal, tcoord, &currentMtl );
+                        face.clear();
+                        cur->child = new OBJECT();
+                        cur = cur->child;
                     }
                     firstObject = false;
                     cur->name = strdup( args[1].c_str() );
                     printf("[obj] new object '%s'\n", args[1].c_str());
                 }
-                else if(args[0] == "v" && args.size() > 3)  // Add a vertex to current object
+                else if (args[0] == "mtllib" && args.size() > 1)        // Read given material libraries
+                {
+                    for (int i = 1 ; i < args.size() ; i++)
+                    {
+                        FILE *src_mtl = fopen( (TA3D::Paths::ExtractFilePath(filename) + args[i]).c_str(), "rb" );
+                        if (src_mtl)
+                        {
+                            Material mtl;
+                            while( fgets( buf, 1024, src_mtl ) )
+                            {
+                                String::Vector args0;
+                                ReadVectorString( args0, buf, " " );
+                                if (args0.size() > 0)
+                                {
+                                    if (args0[0] == "newmtl")
+                                        mtl.name = args0[1];
+                                    else if (args0[0] == "map_Kd")
+                                    {
+                                        mtl.textureName = TA3D::Paths::ExtractFilePath(filename) + args0[1];
+                                        mtllib.insertOrUpdate( mtl.name, mtl );
+                                    }
+                                }
+                            }
+                            fclose( src_mtl );
+                        }
+                    }
+                }
+                else if (args[0] == "usemtl" && args.size() > 1)        // Change current material
+                {
+                    if (mtllib.exists( args[1] ))
+                        currentMtl = mtllib.find( args[1] );
+                    else
+                        currentMtl.textureName.clear();
+                }
+                else if (args[0] == "v" && args.size() > 3)  // Add a vertex to current object
                     vertex.push_back( VECTOR( args[1].toFloat(), args[2].toFloat(), args[3].toFloat() ) );
-                else if(args[0] == "vn" && args.size() > 3)  // Add a normal vector to current object
+                else if (args[0] == "vn" && args.size() > 3)  // Add a normal vector to current object
                     normal.push_back( VECTOR( args[1].toFloat(), args[2].toFloat(), args[3].toFloat() ) );
-                else if(args[0] == "vt" && args.size() > 2)  // Add a texture coordinate vector to current object
+                else if (args[0] == "vt" && args.size() > 2)  // Add a texture coordinate vector to current object
                     tcoord.push_back( VECTOR2D( args[1].toFloat(), args[2].toFloat() ) );
-                else if(args[0] == "f" && args.size() > 1)  // Add a face to current object
+                else if (args[0] == "f" && args.size() > 1)  // Add a face to current object
                 {
                     std::vector< int >  vertex_idx;
                     std::vector< int >  tcoord_idx;
@@ -124,13 +184,23 @@ MODEL *load_obj( const String &filename, float scale )
                             else
                                 normal_idx.push_back( data[2].toInt32() - 1 );
                         }
+                        else
+                        {
+                            tcoord_idx.push_back( -1 );
+                            normal_idx.push_back( -1 );
+                        }
                     }
                     
                     for (int i = 2 ; i < vertex_idx.size() ; i++)       // Make triangles (FAN method)
                     {
                         face.push_back( vertex_idx[0] );
+                        face.push_back( tcoord_idx[0] );
+
                         face.push_back( vertex_idx[i-1] );
+                        face.push_back( tcoord_idx[i-1] );
+
                         face.push_back( vertex_idx[i] );
+                        face.push_back( tcoord_idx[i] );
                     }
                 }
             }

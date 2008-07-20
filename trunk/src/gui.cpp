@@ -875,7 +875,7 @@ const String Dialog(const String &Title, String Filter)
             
             if (key[KEY_ESC] || current_area->get_state("open.b_cancel"))   done = true;
 
-            if (current_area->get_state("open.b_ok"))
+            if (key[KEY_ENTER] || current_area->get_state("open.b_ok"))
             {
                 done = true;
                 result = curDir + TA3D::Paths::Separator + current_area->get_caption("open.t_filename");
@@ -932,7 +932,11 @@ const String Dialog(const String &Title, String Filter)
             gfx->flip();
             
         }while(!done);
+        
+        current_area->msg("open.hide");
     }
+ 
+    reset_keyboard();
 
     return result;
 }
@@ -1083,6 +1087,7 @@ const String GetVal(const String &Title)
         current_area->set_title("ask",Title);
 
         current_area->msg("ask.show");
+        current_area->msg("ask.t_result.focus");
         
         bool done = false;
         int amx, amy, amz, amb;
@@ -1105,7 +1110,7 @@ const String GetVal(const String &Title)
             
             if (key[KEY_ESC] || current_area->get_state("ask.b_cancel"))   done = true;
 
-            if (current_area->get_state("ask.b_ok"))
+            if (key[KEY_ENTER] || current_area->get_state("ask.b_ok"))
             {
                 done = true;
                 result = current_area->get_caption("ask.t_result");
@@ -1125,7 +1130,10 @@ const String GetVal(const String &Title)
             gfx->flip();
             
         }while(!done);
+        current_area->msg("ask.hide");
     }
+    
+    reset_keyboard();
 
     return result;
 }
