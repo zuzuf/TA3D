@@ -401,6 +401,7 @@ namespace TA3D
 
     AREA::~AREA()
     {
+        if (current() == this)  area_stack.pop_front();     // Just in case we want to destroy an empty object
         DeleteInterface();			// Shut down the interface
 
         cached_key.clear();

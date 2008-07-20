@@ -138,6 +138,8 @@ void mnu_file(int mnu_index)
                 {
                     TheModel = load_obj( filename );
                     cur_part=0;
+                    for(int i = 0 ; i < nb_obj() ; i++)
+                        obj_geo_optimize( i );
                 }
             }
             break;

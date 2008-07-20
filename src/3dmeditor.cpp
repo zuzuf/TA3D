@@ -400,7 +400,9 @@ int main(int argc, char* argv[])
 
         glPushMatrix();
         glDisable(GL_TEXTURE_2D);
-        glColor4ub( 0xFF, 0x0, 0x0, 0xFF );
+        glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
+        glEnable( GL_BLEND );
+        glColor4ub( 0xFF, 0x0, 0x0, 0x7F );
         glTranslatef( P.x, P.y, P.z );
 
         glBegin( GL_TRIANGLES );
