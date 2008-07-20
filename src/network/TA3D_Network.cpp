@@ -26,6 +26,7 @@
 #include <vector>
 #include "../languages/i18n.h"
 #include "../misc/math.h"
+#include "../sounds/manager.h"
 
 
 #define CHAT_MESSAGE_TIMEOUT	10000

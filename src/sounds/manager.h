@@ -15,42 +15,41 @@
     along with this program; if not, write to the Free Software
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA*/
 
+#ifndef __TA3D_SOUNDS_MANAGER_H__
+# define __TA3D_SOUNDS_MANAGER_H__
 
-#ifndef __TA3D_AUDIO_H__
-# define __TA3D_AUDIO_H__
-
-# include "misc/vector.h"
-# include "cTAFileParser.h"
-# include "misc/interface.h"
-# include "threads/thread.h"
+# include "../misc/vector.h"
+# include "../cTAFileParser.h"
+# include "../misc/interface.h"
+# include "../threads/thread.h"
 # include <list>
 # include <vector>
 
 # ifdef TA3D_PLATFORM_DARWIN
-#   include "tools/darwin/fmod/4.14.07/include/fmod.hpp"
-#   include "tools/darwin/fmod/4.14.07/include/fmod_errors.h"
+#   include "../tools/darwin/fmod/4.14.07/include/fmod.hpp"
+#   include "../tools/darwin/fmod/4.14.07/include/fmod_errors.h"
 #   define TA3D_FMOD_INCLUDED
 # endif
 
 # ifdef TA3D_PLATFORM_LINUX
-#   include "tools/linux/FMOD/inc/fmod.hpp"
-#   include "tools/linux/FMOD/inc/fmod_errors.h"
+#   include "../tools/linux/FMOD/inc/fmod.hpp"
+#   include "../tools/linux/FMOD/inc/fmod_errors.h"
 #   undef stricmp
-#   include "tools/linux/FMOD/inc/wincompat.h"
+#   include "../tools/linux/FMOD/inc/wincompat.h"
 #   define TA3D_FMOD_INCLUDED
 # endif
 
 # ifdef TA3D_PLATFORM_WINDOWS
-#   include "tools/win32/fmod/fmod.hpp"
-#   include "tools/win32/fmod/fmod_errors.h"
+#   include "../tools/win32/fmod/fmod.hpp"
+#   include "../tools/win32/fmod/fmod_errors.h"
 #   ifdef TA3D_PLATFORM_MSVC
-#      pragma comment(lib, "tools/win32/libs/fmodex_vc.lib")
+#      pragma comment(lib, "../tools/win32/libs/fmodex_vc.lib")
 #   endif
 #   define TA3D_FMOD_INCLUDED
 # endif
 
 # ifndef TA3D_FMOD_INCLUDED
-#   error "The FMOD headers has not been included. This system is not recognized."
+#   error "The FMOD headers has not been included. This operating system is not recognized."
 # endif
 
 
@@ -383,6 +382,18 @@ namespace Audio
 
 
 } // namespace AUDIO
+
+namespace VARS
+{
+
+    # ifndef TA3D_NO_SOUND // Only for the hpiview program
+    //! The sound manager
+    extern TA3D::Audio::Manager* sound_manager;
+    # endif
+
+} // namespace VARS
+
+
 } // namespace TA3D
 
-#endif // __TA3D_AUDIO_H__
+#endif // __TA3D_SOUNDS_MANAGER_H__

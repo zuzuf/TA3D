@@ -36,6 +36,7 @@
 #include <vector>
 #include <fstream>
 #include "../misc/math.h"
+#include "../sounds/manager.h"
 
 
 

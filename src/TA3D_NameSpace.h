@@ -32,12 +32,8 @@
 # include "TA3D_Exception.h"
 # include "misc/interface.h"
 # include "cError.h"
-# ifndef TA3D_NO_SOUND // Only for the hpiview program
-#   include "TA3D_Audio.h"
-# else
-#   include "misc/vector.h"
-#   include "cTAFileParser.h"
-# endif
+# include "misc/vector.h"
+# include "cTAFileParser.h"
 # include "TA3D_hpi.h"
 # include "gfx/gfx.h"
 # include "console.h"
@@ -194,10 +190,6 @@ namespace TA3D
 		TA3D_API_E TA3D::IInterfaceManager			*InterfaceManager; 
 		TA3D_API_E TA3D::UTILS::HPI::cHPIHandler	*HPIManager;
 		TA3D_API_E TA3D::TA3D_DEBUG::cConsole		*Console;
-        # ifndef TA3D_NO_SOUND // Only for the hpiview program
-        //! The sound manager
-		TA3D_API_E TA3D::Audio::Manager* sound_manager;
-        # endif
 		TA3D_API_E TA3D::Interfaces::GFX			*gfx;
 
 		TA3D_API_E RGB								*pal;

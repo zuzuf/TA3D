@@ -15,18 +15,24 @@
     along with this program; if not, write to the Free Software
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA*/
 
-#include "stdafx.h"
-#include "TA3D_NameSpace.h"		//"TA3D_Audio.h" is in our namespace.
-#include "ta3dbase.h"			// just to use the global camera object
-#include "ingame/sidedata.h"
+#include "../stdafx.h"
+#include "../ta3dbase.h"			// just to use the global camera object
+#include "../ingame/sidedata.h"
 #include <fstream>
-#include "misc/math.h"
+#include "../misc/math.h"
+#include "manager.h"
 
 using namespace TA3D::Interfaces;
 
 # define TA3D_LOG_SECTION_AUDIO_PREFIX "[Audio] "
 
+
+
+
+
 TA3D::Audio::Manager* TA3D::VARS::sound_manager;
+
+
 
 
 namespace TA3D

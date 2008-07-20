@@ -36,6 +36,7 @@
 #include "jpeg/ta3d_jpg.h"
 #include "ingame/menus/statistics.h"
 #include "misc/math.h"
+#include "sounds/manager.h"
 
 
 #ifndef SCROLL_SPEED

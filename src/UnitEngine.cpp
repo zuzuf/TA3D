@@ -38,6 +38,7 @@
 #include "ingame/sidedata.h"
 #include "languages/i18n.h"
 #include "misc/math.h"
+#include "sounds/manager.h"
 
 
 using namespace TA3D::Exceptions;
