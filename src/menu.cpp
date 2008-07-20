@@ -494,7 +494,7 @@ void config_menu(void)
         *lp_CONFIG = saved_config;
     else
     {
-        sound_manager->savePlayList();				// Save the playlist
+        sound_manager->savePlaylist();				// Save the playlist
 
         if( lp_CONFIG->screen_width != saved_config.screen_width ||
             lp_CONFIG->screen_height != saved_config.screen_height ||

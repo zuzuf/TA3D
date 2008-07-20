@@ -62,147 +62,323 @@ namespace Interfaces
 {
 
 
-    class cAudio : public ObjectSync, protected TA3D::IInterface
+    /*! \class cAudio
+    **
+    ** \brief The Audio Engine
+    */
+    class cAudio : protected TA3D::IInterface
     {
     public:
+        //! \name Constructor & Destructor
+        //@{
+        /*!
+        ** \brief Constructor
+        */
         cAudio(const float DistanceFactor, const float DopplerFactor, const float RolloffFactor);
+        //! Destructor
         ~cAudio();
+        //@}
 
+        /*!
+        ** \brief Get a copy of the playlist
+        ** \param[out] The playlist
+        ** \return True if the playlist is not empty, false otherwise
+        */
         bool getPlayListFiles(String::Vector& out);
-        void setPlayListFileMode(const int idx, bool Battle, bool Deactivated);
 
+        /*!
+        ** \brief Set the properties of a single item in the playlist
+        **
+        ** \param idx The index in the playlist to modify
+        ** \param inBattle The item should be played during a battle
+        ** \param disabled The item is disabled
+        */
+        void setPlayListFileMode(const int idx, bool inBattle, bool disabled);
 
+        //! \name Load & Save
+        //@{
+
+        /*!
+        ** \brief Reload the playlist
+        */
         void updatePlayListFiles();
-        void savePlayList();
 
-        void playMusic();
-        void setMusicMode(const bool battleMode);
-
-        void togglePauseMusic();
-        void pauseMusic();
-        void stopMusic();
-
-
-        void loadTDFSounds(const String& FileName);
-        void purgeSounds();
+        /*!
+        ** \brief Save the playlist into a single file
+        */
+        void savePlaylist();
 
         void loadTDFSounds(const bool allSounds);
-        bool loadSound(const String& Filename, const bool LoadAs3D,
-                       const float MinDistance = 1.0f, const float MaxDistance = 100.0f);
 
-        // Play sound directly from our sound pool
-        void playSound(const String& Filename, const VECTOR3D* vec = NULL);
+        /*!
+        ** \brief Load a single sound file
+        */
+        bool loadSound(const String& filename, const bool LoadAs3D, const float MinDistance = 1.0f, const float MaxDistance = 100.0f);
+
+        //@}
+
+
+        /*!
+        ** \brief Switch the current mode for the music
+        ** \param battleMode 
+        */
+        void setMusicMode(const bool battleMode);
+
+        /*!
+        ** \brief Play/Pause the music (Toggle the state)
+        ** \see pauseMusic()
+        ** \see playMusic()
+        */
+        void togglePauseMusic();
+
+        /*!
+        ** \brief Enable the music and play the next track in the list
+        */
+        void playMusic();
+
+        /*!
+        ** \brief Pause the music
+        */
+        void pauseMusic();
+
+        /*!
+        ** \brief Stop the music
+        */
+        void stopMusic();
+
+        /*!
+        ** \brief Clear all playlists
+        */
+        void purgeSounds();
+
+        /*!
+        ** \brief Play sound directly from our sound pool
+        */
+        void playSound(const String& filename, const VECTOR3D* vec = NULL);
 
         // Play sound from TDF by looking up sound filename from internal hash
-        void playTDFSound(String Key, const VECTOR3D* vec = NULL);
-        void playTDFSoundNow(const String& Key, const VECTOR3D* vec = NULL); // Wrapper to playTDFSound + update3DSound
+        void playTDFSound(const String& key, const VECTOR3D* vec = NULL);
+
+        /*!
+        ** \brief Play a sound file from its key
+        **
+        ** It is a convenient method to deal with playTDFSound + update3DSound
+        */
+        void playTDFSoundNow(const String& Key, const VECTOR3D* vec = NULL);
 
         // keys will be added together and then PlayTDF( key, vec ); called
         // if either key is null or "" aborts.
         void playTDFSound(const String& keyA, const String& keyB, const VECTOR3D* vec = NULL);
 
-        void playSoundFileNow(const String& Filename); // Loads and play a sound
+        /*!
+        ** \brief Play a sound file right now
+        */
+        void playSoundFileNow(const String& filename); // Loads and play a sound
 
-        void stopSoundFileNow(); // Stop playing
+        /*!
+        ** \brief Stop playing
+        */
+        void stopSoundFileNow();
 
+        /*!
+        ** \brief Reset the position of the camera
+        */
         void setListenerPos(const VECTOR3D& vec);
 
+        /*!
+        ** \brief ReUpdate the list of 3D sounds
+        */
         void update3DSound();
 
-        bool isRunning() const {return m_FMODRunning;};
+        /*!
+        ** \brief Get if the system is running
+        */
+        bool isRunning() {MutexLocker locker(pMutex); return m_FMODRunning;};
 
 
     private:
-        struct m_PlayListItem
+        /*! \class PlaylistItem
+        **
+        ** \brief A single item in the playlist
+        */
+        struct PlaylistItem
         {
-            String		m_Filename;
-            bool		m_BattleTune;
-            bool		m_Deactivated;		// Only to tell the file is theres
-            bool		m_checked;			// Used by the playlist generator
+            //! Default constructor
+            PlaylistItem() :battleTune(false), disabled(false), checked(false) {}
+            //! Filename
+            String filename;
+            //!
+            bool battleTune;
+            //! Only to tell the file is theres
+            bool disabled;
+            //! Used by the playlist generator
+            bool checked;
 
-            m_PlayListItem()
-            {
-                m_Filename = String( "" );
-                m_BattleTune = false;
-                m_Deactivated = false;
-                m_checked = false;
-            }
-        };
+        }; // class PlaylistItem
 
-        typedef std::vector< m_PlayListItem * >	 Playlist;
-        typedef Playlist::iterator	 plItor;
+        //! Definition of a playlist
+        typedef std::vector<PlaylistItem*>  Playlist;
 
-    private:
-        struct m_SoundListItem
+        /*! \class SoundItemList
+        **
+        ** \brief A single sound file contained in the hash table (pTable)
+        */
+        struct SoundItemList
         {
-            m_SoundListItem() :m_3DSound(false), m_SampleHandle(NULL), last_time_played(0) {}
-            ~m_SoundListItem();
+            SoundItemList() :is3DSound(false), sampleHandle(NULL), lastTimePlayed(0) {}
+            SoundItemList(const bool a3DSound) :is3DSound(a3DSound), sampleHandle(NULL), lastTimePlayed(0) {}
+            ~SoundItemList();
 
-            bool			m_3DSound;
+            bool is3DSound;
             # ifdef TA3D_PLATFORM_MINGW
-            FMOD_SOUND		*m_SampleHandle;
+            FMOD_SOUND* sampleHandle;
             # else
-            FMOD::Sound		*m_SampleHandle;
+            FMOD::Sound* sampleHandle;
             # endif
-            uint32			last_time_played;
+            uint32 lastTimePlayed;
 
-        }; // class m_SoundListItem
+        }; // class SoundItemList
 
-        struct m_WorkListItem
+
+        /*!
+        ** \brief A single sound file which is currently playing
+        */
+        struct WorkListItem
         {
-            m_WorkListItem() :m_Sound(NULL), vec(NULL) {}
+            //! Default constructor
+            WorkListItem() :sound(NULL), vec(NULL) {}
+            //! Constructor by copy
+            WorkListItem(const WorkListItem& c) : sound(c.sound), vec(c.vec) {}
+            WorkListItem(SoundItemList* s, VECTOR* v) : sound(s), vec(v) {}
 
-            m_SoundListItem		*m_Sound;
-            VECTOR				*vec;
+            //! 
+            SoundItemList* sound;
+            //! Vector
+            VECTOR* vec;
 
-        }; // class m_WorkListItem
+        }; // class WorkListItem
+
+        //! The list of all currently played sounds
+        typedef std::list<WorkListItem>  WorkList;
+
+        # ifdef TA3D_PLATFORM_MINGW
+        //! The FMOD System
+        typedef FMOD_SYSTEM   FMODSystemType;
+        //! The FMOD Sound
+        typedef FMOD_SOUND    FMODSoundType;
+        //! The FMOD Channel
+        typedef FMOD_CHANNEL  FMODChannelType;
+        # else
+        //! The FMOD System
+        typedef FMOD::System  FMODSystemType;
+        //! The FMOD Sound
+        typedef FMOD::Sound   FMODSoundType;
+        //! The FMOD Channel
+        typedef FMOD::Channel FMODChannelType;
+        # endif
+
+        /*!
+        ** \brief Predicate to load all single files from a hash table
+        */
+        class LoadAllTDFSound
+        {
+        public:
+            LoadAllTDFSound(cAudio& a) : pAudio(a) {}
+            bool operator () (const String& key, const String& value)
+            {
+                pAudio.doLoadSound(value, false);
+                return true; // True to not stop the process
+            }
+        private:
+            //! Self reference
+            cAudio& pAudio;
+        }; // class LoadAllTDFSound
 
 
     private:
-        void shutdownAudio(bool PurgeLoadedData);
-        bool startUpAudio();
+        //! \name Non thread-safe methods
+        //@{
 
-        void loadPlayList();
-        void purgePlayList();
+        //! \see playMusic()
+        void doPlayMusic();
+        //! \see pauseMusic()
+        void doPauseMusic();
+        //! \see stopMusic()
+        void doStopMusic();
+        //! \see updatePlayListFiles()
+        void doUpdatePlayListFiles();
+        //! \see savePlaylist()
+        void doSavePlaylist();
+        //! \see loadSound()
+        bool doLoadSound(String filename, const bool LoadAs3D, const float MinDistance = 1.0f, const float MaxDistance = 100.0f);
+        //! \see playMusic()
+        void doPlayMusic(const String& filename);
+        //! \see playTDFSoundNow(const String&, const VECTOR3D*)
+        void doPlayTDFSound(String key, const VECTOR3D* vec);
+        //! \see playTDFSound(const String&, const String&, const VECTOR3D*)
+        void doPlayTDFSound(const String& keyA, const String& keyB, const VECTOR3D* vec);
+        //! \see update3DSound()
+        void doUpdate3DSound();
 
-        const String selectNextMusic();
-        void  playMusic(const String& FileName);
+        //! Initialize FMOD
+        bool doStartUpAudio();
+        //! Release FMOD
+        void doShutdownAudio(const bool purgeLoadedData);
+
+        //! Load the playlist from music/playlist.txt
+        void doLoadPlaylist();
+
+        //! \brief Clear the playlist
+        void doPurgePlaylist();
+
+        //! \brief Get the next music to play in the playlist
+        String doSelectNextMusic();
+
+        //@}
+
         virtual uint32 InterfaceMsg(const lpcImsg msg);
 
-
     private:
+        //! Mutex
+        Mutex pMutex;
+        //!
         UTILS::cTAFileParser pTable;
-        bool m_FMODRunning;      // Is fmod running
-        bool m_InBattle;         // Are we in battle
-        sint32  m_BattleTunes;      // Number of battle tunes;
-        Playlist  m_Playlist;         // Vector of PlayList.
 
-        # ifdef TA3D_PLATFORM_MINGW
-        FMOD_SYSTEM     *m_lpFMODSystem;
-        FMOD_SOUND      *m_lpFMODMusicsound;
-        FMOD_CHANNEL    *m_lpFMODMusicchannel;
-        # else
-        FMOD::System     *m_lpFMODSystem;
-        FMOD::Sound      *m_lpFMODMusicsound;
-        FMOD::Channel    *m_lpFMODMusicchannel;
-        # endif
+        //! Is fmod running ?
+        bool m_FMODRunning;
+        //! Are we in battle ?
+        bool m_InBattle;
+        //! Number of battle tunes
+        sint32  pBattleTunesCount;
+        //! The complete playlist
+        Playlist  pPlaylist;
 
-        sint16  m_curPlayIndex;   // current play index.
-        uint32  m_min_ticks;
+        //!
+        FMODSystemType* pFMODSystem;
+        //!
+        FMODSoundType* pFMODMusicSound;
+        //!
+        FMODChannelType* pFMODMusicchannel;
 
-        TA3D::UTILS::clpHashTable< m_SoundListItem * >* m_SoundList;
+        //! Current index to play (-1 means `none`)
+        sint16  pCurrentItemToPlay;
+        //!
+        uint32  pMinTicks;
+
+        //!
+        TA3D::UTILS::clpHashTable<SoundItemList*> pSoundList;
+        //!
+        WorkList pWorkList;	// List to store work to do when entering main thread
+        //!
         sint32 fCounter;
-        std::list<m_WorkListItem> WorkList;			// List to store work to do when entering main thread
 
-        # ifdef TA3D_PLATFORM_MINGW
-        FMOD_SOUND* basic_sound;
-        FMOD_CHANNEL* basic_channel;
-        # else
-        FMOD::Sound* basic_sound;
-        FMOD::Channel* basic_channel;
-        # endif
+        //!
+        FMODSoundType* pBasicSound;
+        //!
+        FMODChannelType* pBasicChannel;
 
     }; // class cAudio
+
 
 
 
