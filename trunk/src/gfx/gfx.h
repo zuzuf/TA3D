@@ -74,6 +74,8 @@ namespace Interfaces
         float		low_def_limit;
 
         GLuint		glfond;
+        GLuint      textureFBO;         // FBO used by renderToTexture functions
+        GLuint      textureDepth;
 
         bool		ati_workaround;		// Need to use workarounds for ATI cards ?
 
@@ -246,6 +248,11 @@ namespace Interfaces
         ** \brief Flip the backbuffer to the Allegro screen and clear it
         */
         void flip() const { allegro_gl_flip(); }
+
+        /*!
+        ** \brief set a texture as render target, goes back to normal when passing 0 (do not forget to detach the texture when you're done!)
+        */
+        void renderToTexture( const GLuint tex = 0, bool useDepth = false );
 
     }; // class GFX
 
