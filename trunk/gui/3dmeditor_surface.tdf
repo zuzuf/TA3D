@@ -13,7 +13,7 @@
 	draw borders=false;
 	show title=true;
 	lock=true;
-	number of objects=57;
+	number of objects=65;
 	hidden=false;
 	color=0xFFFFFFFF;
 	background=gfx/background.jpg;
@@ -551,5 +551,70 @@
 	    x2=200; y2=380;
 	    caption=Optimize geometry;
 	    size=1;
+	}
+	
+	[object57]
+	{
+	    name=tex0;
+	    type=IMG;
+	    x1=240; y1=420;
+	    x2=304; y2=484;
+	    highlight=true;
+	}
+	[object58]
+	{
+	    name=tex1;
+	    type=IMG;
+	    x1=304; y1=420;
+	    x2=368; y2=484;
+	    highlight=true;
+	}
+	[object59]
+	{
+	    name=tex2;
+	    type=IMG;
+	    x1=368; y1=420;
+	    x2=432; y2=484;
+	    highlight=true;
+	}
+	[object60]
+	{
+	    name=tex3;
+	    type=IMG;
+	    x1=432; y1=420;
+	    x2=496; y2=484;
+	    highlight=true;
+	}
+	[object61]
+	{
+	    name=tex4;
+	    type=IMG;
+	    x1=496; y1=420;
+	    x2=560; y2=484;
+	    highlight=true;
+	}
+	[object62]
+	{
+	    name=tex5;
+	    type=IMG;
+	    x1=560; y1=420;
+	    x2=624; y2=484;
+	    highlight=true;
+	}
+	[object63]
+	{
+	    name=tex6;
+	    type=IMG;
+	    x1=624; y1=420;
+	    x2=688; y2=484;
+	    highlight=true;
+	}
+	[object64]
+	{
+	    name=tex7;
+	    type=IMG;
+	    x1=688; y1=420;
+	    x2=752; y2=484;
+	    highlight=true;
 	}
 }

@@ -429,6 +429,10 @@ namespace TA3D
             GuardInfo( "AREA : bad format for interface message!\n" );
             return INTERFACE_RESULT_HANDLED;		// Oups badly written things
         }
+        
+        if (this != current())              // It's not for us
+            return INTERFACE_RESULT_CONTINUE;
+        
         return this->msg((char*) msg->lpParm1);
     }
 

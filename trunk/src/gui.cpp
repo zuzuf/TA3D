@@ -851,6 +851,9 @@ const String Dialog(const String &Title, String Filter)
         current_area->set_entry("open.folder_list", dirs);
         current_area->msg("open.show");
         
+        current_area->set_state("open.b_ok", false);        // We don't want to leave right now
+        current_area->set_state("open.b_cancel", false);
+        
         bool done = false;
         int amx, amy, amz, amb;
         int cur_folder_idx = -1;
