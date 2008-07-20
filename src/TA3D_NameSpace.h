@@ -195,7 +195,8 @@ namespace TA3D
 		TA3D_API_E TA3D::UTILS::HPI::cHPIHandler	*HPIManager;
 		TA3D_API_E TA3D::TA3D_DEBUG::cConsole		*Console;
         # ifndef TA3D_NO_SOUND // Only for the hpiview program
-		TA3D_API_E TA3D::Interfaces::cAudio			*sound_manager;
+        //! The sound manager
+		TA3D_API_E TA3D::Audio::Manager* sound_manager;
         # endif
 		TA3D_API_E TA3D::Interfaces::GFX			*gfx;
 

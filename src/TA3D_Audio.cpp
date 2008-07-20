@@ -26,17 +26,17 @@ using namespace TA3D::Interfaces;
 
 # define TA3D_LOG_SECTION_AUDIO_PREFIX "[Audio] "
 
-TA3D::Interfaces::cAudio *TA3D::VARS::sound_manager;
+TA3D::Audio::Manager* TA3D::VARS::sound_manager;
 
 
 namespace TA3D
 {
-namespace Interfaces
+namespace Audio
 {
 
 
 
-    cAudio::cAudio( const float DistanceFactor, const float DopplerFactor, const float RolloffFactor )
+    Manager::Manager( const float DistanceFactor, const float DopplerFactor, const float RolloffFactor )
         :m_FMODRunning( false ), m_InBattle(false), pBattleTunesCount(0),
         pFMODMusicSound( NULL ), pFMODMusicchannel( NULL ),
         pCurrentItemToPlay(-1)
@@ -61,7 +61,7 @@ namespace Interfaces
 
 
 
-    void cAudio::setPlayListFileMode(const int idx, bool inBattle, bool disabled)
+    void Manager::setPlayListFileMode(const int idx, bool inBattle, bool disabled)
     {
         if (idx < 0 || idx >= (int)pPlaylist.size())
             return;
@@ -79,7 +79,7 @@ namespace Interfaces
 
 
 
-    bool cAudio::getPlayListFiles(String::Vector& out)
+    bool Manager::getPlayListFiles(String::Vector& out)
     {
         out.resize(pPlaylist.size());
         int indx(0);
@@ -101,14 +101,14 @@ namespace Interfaces
 
 
 
-    void cAudio::updatePlayListFiles()
+    void Manager::updatePlayListFiles()
     {
         pMutex.lock();
         doUpdatePlayListFiles();
         pMutex.unlock();
     }
 
-    void cAudio::doUpdatePlayListFiles()
+    void Manager::doUpdatePlayListFiles()
     {
         MutexLocker locker(pMutex);
 
@@ -175,14 +175,14 @@ namespace Interfaces
     }
 
 
-    void cAudio::savePlaylist()
+    void Manager::savePlaylist()
     {
         pMutex.lock();
         doSavePlaylist();
         pMutex.unlock();
     }
 
-    void cAudio::doSavePlaylist()
+    void Manager::doSavePlaylist()
     {
         String targetPlaylist;
         targetPlaylist << GetClientPath() << "music/playlist.txt";
@@ -210,7 +210,7 @@ namespace Interfaces
 
 
 
-    void cAudio::doLoadPlaylist()
+    void Manager::doLoadPlaylist()
     {
         String filename;
         filename << GetClientPath() << "music/playlist.txt";
@@ -281,7 +281,7 @@ namespace Interfaces
 
 
 
-    void cAudio::doShutdownAudio(const bool purgeLoadedData)
+    void Manager::doShutdownAudio(const bool purgeLoadedData)
     {
         if (m_FMODRunning) // only execute stop if we are running.
             doStopMusic();
@@ -318,7 +318,7 @@ namespace Interfaces
 
 
 
-    bool cAudio::doStartUpAudio()
+    bool Manager::doStartUpAudio()
     {
         uint32 FMODVersion;
 
@@ -406,21 +406,21 @@ namespace Interfaces
 
 
 
-    cAudio::~cAudio()
+    Manager::~Manager()
     {
         doShutdownAudio(true);
     }
 
 
 
-    void cAudio::stopMusic()
+    void Manager::stopMusic()
     {
         pMutex.lock();
         doStopMusic();
         pMutex.unlock();
     }
 
-    void cAudio::doStopMusic()
+    void Manager::doStopMusic()
     {
         if (m_FMODRunning && pFMODMusicSound != NULL)
         {
@@ -439,7 +439,7 @@ namespace Interfaces
 
 
 
-    void cAudio::doPurgePlaylist()
+    void Manager::doPurgePlaylist()
     {
         pMutex.lock();
         doStopMusic();
@@ -460,7 +460,7 @@ namespace Interfaces
     
     
     
-    void cAudio::togglePauseMusic()
+    void Manager::togglePauseMusic()
     {
         pMutex.lock();
         if (m_FMODRunning && pFMODMusicchannel != NULL)
@@ -480,14 +480,14 @@ namespace Interfaces
 
 
 
-    void cAudio::pauseMusic()
+    void Manager::pauseMusic()
     {
         pMutex.lock();
         doPauseMusic();
         pMutex.unlock();
     }
 
-    void cAudio::doPauseMusic()
+    void Manager::doPauseMusic()
     {
         if (m_FMODRunning && pFMODMusicchannel != NULL)
         {
@@ -502,7 +502,7 @@ namespace Interfaces
 
 
 
-    String cAudio::doSelectNextMusic()
+    String Manager::doSelectNextMusic()
     {
         if (pPlaylist.empty())
             return "";
@@ -563,7 +563,7 @@ namespace Interfaces
 
 
 
-    void cAudio::setMusicMode(const bool battleMode)
+    void Manager::setMusicMode(const bool battleMode)
     {
         pMutex.lock();
         if (m_InBattle != battleMode)
@@ -577,7 +577,7 @@ namespace Interfaces
 
 
 
-    void cAudio::doPlayMusic(const String& filename)
+    void Manager::doPlayMusic(const String& filename)
     {
         doStopMusic();
 
@@ -634,14 +634,14 @@ namespace Interfaces
 
 
 
-    void cAudio::playMusic()
+    void Manager::playMusic()
     {
         pMutex.lock();
         doPlayMusic();
         pMutex.unlock();
     }
 
-    void cAudio::doPlayMusic()
+    void Manager::doPlayMusic()
     {
         if (!m_FMODRunning)
             return;
@@ -674,7 +674,7 @@ namespace Interfaces
 
 
     // Begin sound managing routines.
-    void cAudio::setListenerPos(const VECTOR3D& vec)
+    void Manager::setListenerPos(const VECTOR3D& vec)
     {
         pMutex.lock();
         if (m_FMODRunning)
@@ -693,14 +693,14 @@ namespace Interfaces
         pMutex.unlock();
     }
     
-    void cAudio::update3DSound()
+    void Manager::update3DSound()
     {
         pMutex.lock();
         doUpdate3DSound();
         pMutex.unlock();
     }
 
-    void cAudio::doUpdate3DSound()
+    void Manager::doUpdate3DSound()
     {
         if (!m_FMODRunning)
         {
@@ -776,7 +776,7 @@ namespace Interfaces
 
 
     
-    uint32 cAudio::InterfaceMsg(const lpcImsg msg)
+    uint32 Manager::InterfaceMsg(const lpcImsg msg)
     {
         if (msg->MsgID == TA3D_IM_GUI_MSG)	// for GUI messages, test if it's a message for us
         {
@@ -809,7 +809,7 @@ namespace Interfaces
 
 
 
-    void cAudio::playSoundFileNow(const String& filename)
+    void Manager::playSoundFileNow(const String& filename)
     {
         if (pBasicSound)
         {
@@ -845,7 +845,7 @@ namespace Interfaces
     }
 
 
-    void cAudio::stopSoundFileNow()
+    void Manager::stopSoundFileNow()
     {
         pMutex.lock();
         # ifdef TA3D_PLATFORM_MINGW
@@ -862,13 +862,13 @@ namespace Interfaces
     }
 
 
-    bool cAudio::loadSound(const String& filename, const bool LoadAs3D, const float MinDistance, const float MaxDistance)
+    bool Manager::loadSound(const String& filename, const bool LoadAs3D, const float MinDistance, const float MaxDistance)
     {
         MutexLocker locker(pMutex);
         return doLoadSound(filename, LoadAs3D, MinDistance, MaxDistance);
     }
 
-    bool cAudio::doLoadSound(String filename, const bool LoadAs3D, const float MinDistance, const float MaxDistance)
+    bool Manager::doLoadSound(String filename, const bool LoadAs3D, const float MinDistance, const float MaxDistance)
     {
         filename.toLower();
 
@@ -966,7 +966,7 @@ namespace Interfaces
     }
 
    
-    void cAudio::loadTDFSounds(const bool allSounds)
+    void Manager::loadTDFSounds(const bool allSounds)
     {
         pMutex.lock();
         // Which file to load ?
@@ -984,7 +984,7 @@ namespace Interfaces
     }
 
 
-    void cAudio::purgeSounds()
+    void Manager::purgeSounds()
     {
         pMutex.lock();
         pSoundList.emptyHashTable();
@@ -996,7 +996,7 @@ namespace Interfaces
 
 
     // Play sound directly from our sound pool
-    void cAudio::playSound(const String& filename, const VECTOR3D* vec)
+    void Manager::playSound(const String& filename, const VECTOR3D* vec)
     {
         MutexLocker locker(pMutex);
         if (vec && Camera::inGame && ((VECTOR)(*vec - Camera::inGame->rpos)).sq() > 360000.0f) // If the source is too far, does not even think about playing it!
@@ -1036,7 +1036,7 @@ namespace Interfaces
 
 
 
-    void cAudio::playTDFSoundNow(const String& Key, const VECTOR3D* vec)
+    void Manager::playTDFSoundNow(const String& Key, const VECTOR3D* vec)
     {
         pMutex.lock();
         String szWav = pTable.pullAsString(String::ToLower(Key)); // copy string to szWav so we can work with it.
@@ -1055,7 +1055,7 @@ namespace Interfaces
     }
 
 
-    void cAudio::playTDFSound(const String& key, const VECTOR3D* vec)
+    void Manager::playTDFSound(const String& key, const VECTOR3D* vec)
     {
         pMutex.lock();
         doPlayTDFSound(key, vec);
@@ -1063,7 +1063,7 @@ namespace Interfaces
     }
 
 
-    void cAudio::doPlayTDFSound(String key, const VECTOR3D* vec)
+    void Manager::doPlayTDFSound(String key, const VECTOR3D* vec)
     {
         if (!key.empty())
         {
@@ -1081,7 +1081,7 @@ namespace Interfaces
     }
 
 
-    void cAudio::doPlayTDFSound(const String& keyA, const String& keyB, const VECTOR3D* vec)
+    void Manager::doPlayTDFSound(const String& keyA, const String& keyB, const VECTOR3D* vec)
     {
         if (!keyA.empty() && !keyB.empty())
         {
@@ -1091,7 +1091,7 @@ namespace Interfaces
         }
     }
 
-    void cAudio::playTDFSound(const String& keyA, const String& keyB, const VECTOR3D* vec)
+    void Manager::playTDFSound(const String& keyA, const String& keyB, const VECTOR3D* vec)
     {
         if (!keyA.empty() && !keyB.empty())
         {
@@ -1102,7 +1102,7 @@ namespace Interfaces
     }
 
 
-    cAudio::SoundItemList::~SoundItemList()
+    Manager::SoundItemList::~SoundItemList()
     {
         # ifdef TA3D_PLATFORM_MINGW
         if (sampleHandle)
