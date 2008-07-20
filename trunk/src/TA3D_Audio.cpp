@@ -37,65 +37,63 @@ namespace Interfaces
 
 
     cAudio::cAudio( const float DistanceFactor, const float DopplerFactor, const float RolloffFactor )
-        :m_FMODRunning( false ), m_InBattle(false), m_BattleTunes(0),
-        m_lpFMODMusicsound( NULL ), m_lpFMODMusicchannel( NULL ),
-        m_curPlayIndex(-1)
+        :m_FMODRunning( false ), m_InBattle(false), pBattleTunesCount(0),
+        pFMODMusicSound( NULL ), pFMODMusicchannel( NULL ),
+        pCurrentItemToPlay(-1)
     {
-        m_min_ticks = 500;
+        pMinTicks = 500;
 
-        basic_sound = NULL;
-        basic_channel = NULL;
-        startUpAudio();
-        m_SoundList = new TA3D::UTILS::clpHashTable< m_SoundListItem * >;
+        pBasicSound = NULL;
+        pBasicChannel = NULL;
+        doStartUpAudio();
         InitInterface();
 
         if (!m_FMODRunning)
             return;
 
         # ifdef TA3D_PLATFORM_MINGW
-        FMOD_System_Set3DSettings(m_lpFMODSystem, DopplerFactor, DistanceFactor, RolloffFactor);
+        FMOD_System_Set3DSettings(pFMODSystem, DopplerFactor, DistanceFactor, RolloffFactor);
         # else
-        m_lpFMODSystem->set3DSettings(DopplerFactor, DistanceFactor, RolloffFactor);
+        pFMODSystem->set3DSettings(DopplerFactor, DistanceFactor, RolloffFactor);
         # endif
     }
 
 
 
 
-    void cAudio::setPlayListFileMode(const int idx, bool Battle, bool Deactivated)
+    void cAudio::setPlayListFileMode(const int idx, bool inBattle, bool disabled)
     {
-        if (idx < 0 || idx >= (int)m_Playlist.size())
+        if (idx < 0 || idx >= (int)pPlaylist.size())
             return;
 
-        Battle &= !Deactivated;
-
-        if (m_Playlist[idx]->m_BattleTune && !Battle)
-            --m_BattleTunes;
+        inBattle &= !disabled;
+        if (pPlaylist[idx]->battleTune && !inBattle)
+            --pBattleTunesCount;
         else
-            if (!m_Playlist[idx]->m_BattleTune && Battle)
-                ++m_BattleTunes;
+            if (!pPlaylist[idx]->battleTune && inBattle)
+                ++pBattleTunesCount;
 
-        m_Playlist[idx]->m_BattleTune = Battle;
-        m_Playlist[idx]->m_Deactivated = Deactivated;
+        pPlaylist[idx]->battleTune = inBattle;
+        pPlaylist[idx]->disabled = disabled;
     }
 
 
 
     bool cAudio::getPlayListFiles(String::Vector& out)
     {
-        out.resize(m_Playlist.size());
+        out.resize(pPlaylist.size());
         int indx(0);
         for (String::Vector::iterator i = out.begin(); i != out.end(); ++i, ++indx)
         {
             i->clear();
-            if (m_Playlist[indx]->m_BattleTune)
-                *i << "[B] " << m_Playlist[indx]->m_Filename;
+            if (pPlaylist[indx]->battleTune)
+                *i << "[B] " << pPlaylist[indx]->filename;
             else
             {
-                if (m_Playlist[indx]->m_Deactivated)
-                    *i << "[ ] " << m_Playlist[indx]->m_Filename;
+                if (pPlaylist[indx]->disabled)
+                    *i << "[ ] " << pPlaylist[indx]->filename;
                 else
-                    *i << "[*] " << m_Playlist[indx]->m_Filename;
+                    *i << "[*] " << pPlaylist[indx]->filename;
             }
         }
         return !out.empty();
@@ -103,16 +101,24 @@ namespace Interfaces
 
 
 
-
     void cAudio::updatePlayListFiles()
     {
+        pMutex.lock();
+        doUpdatePlayListFiles();
+        pMutex.unlock();
+    }
+
+    void cAudio::doUpdatePlayListFiles()
+    {
+        MutexLocker locker(pMutex);
+
         struct al_ffblk info;
         String search;
         search << GetClientPath() << "music/";
 
-        for (plItor i = m_Playlist.begin(); i != m_Playlist.end(); ++i)
-            (*i)->m_checked = false;
-        bool default_deactivation = !m_Playlist.empty();
+        for (Playlist::iterator i = pPlaylist.begin(); i != pPlaylist.end(); ++i)
+            (*i)->checked = false;
+        bool default_deactivation = !pPlaylist.empty();
 
         if (al_findfirst((search + "*").c_str(), &info, FA_ALL) == 0) // Add missing files
         {
@@ -124,25 +130,25 @@ namespace Interfaces
                 String filename;
                 filename << search << info.name;
 
-                plItor i;
-                for (i = m_Playlist.begin(); i != m_Playlist.end(); ++i)
+                Playlist::const_iterator i;
+                for (i = pPlaylist.begin(); i != pPlaylist.end(); ++i)
                 {
-                    if ((*i)->m_Filename == filename)
+                    if ((*i)->filename == filename)
                     {
-                        (*i)->m_checked = true;
+                        (*i)->checked = true;
                         break;
                     }
                 }
 
-                if (i == m_Playlist.end()) // It's missing, add it
+                if (i == pPlaylist.end()) // It's missing, add it
                 {
-                    m_PlayListItem *m_Tune = new m_PlayListItem();
-                    m_Tune->m_BattleTune = false;
-                    m_Tune->m_Deactivated = default_deactivation;
-                    m_Tune->m_checked = true;
-                    m_Tune->m_Filename = filename;
-                    Console->AddEntry("playlist adding : %s", (char*)filename.c_str());
-                    m_Playlist.push_back(m_Tune);
+                    PlaylistItem *m_Tune = new PlaylistItem();
+                    m_Tune->battleTune = false;
+                    m_Tune->disabled = default_deactivation;
+                    m_Tune->checked = true;
+                    m_Tune->filename = filename;
+                    LOG_DEBUG(TA3D_LOG_SECTION_AUDIO_PREFIX << "Added to the playlist: `" << filename << "`");
+                    pPlaylist.push_back(m_Tune);
                 }
 
             } while (!al_findnext(&info));
@@ -150,27 +156,33 @@ namespace Interfaces
         }
 
         int e = 0;
-        for (unsigned int i = 0 ; i + e < m_Playlist.size() ; ) // Do some cleaning
+        for (unsigned int i = 0 ; i + e < pPlaylist.size() ; ) // Do some cleaning
         {
-            if (m_Playlist[i + e]->m_checked)
+            if (pPlaylist[i + e]->checked)
             {
-                m_Playlist[i] = m_Playlist[i + e];
+                pPlaylist[i] = pPlaylist[i + e];
                 ++i;
             }
             else
             {
-                delete m_Playlist[i + e];
+                delete pPlaylist[i + e];
                 ++e;
             }
         }
 
-        m_Playlist.resize( m_Playlist.size() - e );	// Remove missing files
-        savePlayList();	// Save our work :)
+        pPlaylist.resize(pPlaylist.size() - e);	// Remove missing files
+        doSavePlaylist();
     }
 
 
+    void cAudio::savePlaylist()
+    {
+        pMutex.lock();
+        doSavePlaylist();
+        pMutex.unlock();
+    }
 
-    void cAudio::savePlayList()
+    void cAudio::doSavePlaylist()
     {
         String targetPlaylist;
         targetPlaylist << GetClientPath() << "music/playlist.txt";
@@ -179,16 +191,16 @@ namespace Interfaces
             return;
 
         play_list_file << "#this file has been generated by TA3D_Audio module\n";
-        for( plItor i = m_Playlist.begin(); i != m_Playlist.end(); ++i)
+        for (Playlist::const_iterator i = pPlaylist.begin(); i != pPlaylist.end(); ++i)
         {
-            if ((*i)->m_BattleTune)
-                play_list_file << "*" << (*i)->m_Filename << "\n";
+            if ((*i)->battleTune)
+                play_list_file << "*" << (*i)->filename << "\n";
             else 
             {
-                if ((*i)->m_Deactivated)
-                    play_list_file << "!" << (*i)->m_Filename << "\n";
+                if ((*i)->disabled)
+                    play_list_file << "!" << (*i)->filename << "\n";
                 else
-                    play_list_file << (*i)->m_Filename << "\n";
+                    play_list_file << (*i)->filename << "\n";
             }
         }
         play_list_file.flush();
@@ -198,33 +210,34 @@ namespace Interfaces
 
 
 
-    void cAudio::loadPlayList()
+    void cAudio::doLoadPlaylist()
     {
-        String FileName;
-        FileName << GetClientPath() << "music/playlist.txt";
-        std::ifstream file( FileName.c_str(), std::ios::in);
-
-        Console->AddEntry("opening playlist");
+        String filename;
+        filename << GetClientPath() << "music/playlist.txt";
+        std::ifstream file( filename.c_str(), std::ios::in);
 
         if (!file.is_open()) // try to create the list if it doesn't exist
         {
-            updatePlayListFiles();
-            file.open(FileName.c_str(), std::ios::in);
+            doUpdatePlayListFiles();
+            file.open(filename.c_str(), std::ios::in);
             if (!file.is_open())
+            {
+                LOG_WARNING(TA3D_LOG_SECTION_AUDIO_PREFIX << "Impossible to load the playlist");
                 return;
+            }
         }
 
-        Console->AddEntry("loading playlist");
+        Console->AddEntry("%sLoading the playlist...", TA3D_LOG_SECTION_AUDIO_PREFIX);
 
         String line;
-        bool isBattle = false;
-        bool isActivated = true;
+        bool isBattle(false);
+        bool isActivated(true);
 
-        m_BattleTunes = 0;
+        pBattleTunesCount = 0;
 
-        while( !file.eof() )
+        while (!file.eof())
         {
-            std::getline( file, line, '\n');
+            std::getline(file, line, '\n');
 
             line = String::Trim(line); // strip off spaces, linefeeds, tabs, newlines
 
@@ -235,67 +248,67 @@ namespace Interfaces
 
             isActivated = true;
 
-            if (line[0] == '*' )
+            if (line[0] == '*')
             {
-                isBattle=true;
-                line = line.erase( 0,1 );
-                m_BattleTunes++;
+                isBattle = true;
+                line = line.erase(0, 1);
+                ++pBattleTunesCount;
             }
             else
             {
-                if (line[0] == '!' )
+                if (line[0] == '!')
                     isActivated = false;
                 else
                     isBattle = false;
             }
 
-            m_PlayListItem *m_Tune = new m_PlayListItem();
-            m_Tune->m_BattleTune = isBattle;
-            m_Tune->m_Deactivated = !isActivated;
-            m_Tune->m_Filename = line;
+            PlaylistItem* m_Tune = new PlaylistItem();
+            m_Tune->battleTune = isBattle;
+            m_Tune->disabled = !isActivated;
+            m_Tune->filename = line;
 
-            Console->AddEntry("playlist adding : %s", (char*)line.c_str());
-            m_Playlist.push_back(m_Tune);
+            LOG_DEBUG(TA3D_LOG_SECTION_AUDIO_PREFIX << "Added to the playlist: `" << line << "`");
+            pPlaylist.push_back(m_Tune);
         }
 
         file.close();
-        updatePlayListFiles();
-        if (m_Playlist.size() > 0)
-            playMusic();
+        doUpdatePlayListFiles();
+        if (!pPlaylist.empty())
+            doPlayMusic();
     }
 
 
 
 
 
-    void cAudio::shutdownAudio(bool PurgeLoadedData)
+    void cAudio::doShutdownAudio(const bool purgeLoadedData)
     {
         if (m_FMODRunning) // only execute stop if we are running.
-            stopMusic();
+            doStopMusic();
 
-        if (PurgeLoadedData)
+        if (purgeLoadedData)
         {
             purgeSounds(); // purge sound list.
-            purgePlayList(); // purge play list
+            doPurgePlaylist(); // purge play list
         }
 
         if (m_FMODRunning)
         {
 #ifdef TA3D_PLATFORM_MINGW
-            if (basic_sound)
-                FMOD_Sound_Release(basic_sound);
+            if (pBasicSound)
+                FMOD_Sound_Release(pBasicSound);
 #else
-            if (basic_sound)
-                basic_sound->release();
+            if (pBasicSound)
+                pBasicSound->release();
 #endif
-            basic_sound = NULL;
-            basic_channel = NULL;
+            pBasicSound = NULL;
+            pBasicChannel = NULL;
 #ifdef TA3D_PLATFORM_MINGW
-            FMOD_System_Close(m_lpFMODSystem);
-            FMOD_System_Release(m_lpFMODSystem);
+            FMOD_System_Close(pFMODSystem);
+            FMOD_System_Release(pFMODSystem);
 #else
-            m_lpFMODSystem->close(); // Commented because crashes with some FMOD versions, and since we're going to end the program ...
-            m_lpFMODSystem->release();
+            pFMODSystem->close(); // Commented because crashes with some FMOD versions, and since we're going to end the program ...
+            pFMODSystem->release();
 #endif
             DeleteInterface();
             m_FMODRunning = false;
@@ -305,89 +318,87 @@ namespace Interfaces
 
 
 
-    bool cAudio::startUpAudio()
+    bool cAudio::doStartUpAudio()
     {
         uint32 FMODVersion;
 
-        m_lpFMODMusicsound = NULL;
-        m_lpFMODMusicchannel = NULL;
+        pFMODMusicSound = NULL;
+        pFMODMusicchannel = NULL;
         fCounter = 0;
 
         if (m_FMODRunning)
             return true;
 
 #ifdef TA3D_PLATFORM_MINGW
-        if (FMOD_System_Create(&m_lpFMODSystem) != FMOD_OK)
+        if (FMOD_System_Create(&pFMODSystem) != FMOD_OK)
         {
-            Console->AddEntry( "FMOD: failed to System_Create, sound disabled");
+            Console->AddEntryWarning("%s[FMOD] Failed to System_Create, sound disabled", TA3D_LOG_SECTION_AUDIO_PREFIX);
             return false;
         }
 
-        if (FMOD_System_GetVersion( m_lpFMODSystem, &FMODVersion ) != FMOD_OK)
+        if (FMOD_System_GetVersion(pFMODSystem, &FMODVersion) != FMOD_OK)
         {
-            Console->AddEntry( "FMOD: Invalid Version of FMOD, sound disabled" );
+            Console->AddEntryWarning("%s[FMOD] Invalid Version, sound disabled", TA3D_LOG_SECTION_AUDIO_PREFIX);
             return false;
         }
 
-        Console->stdout_on();
-        Console->AddEntry("FMOD version: %x.%x.%x", ((FMODVersion & 0xFFFF0000) >> 16), ((FMODVersion & 0xFF00) >> 8), FMODVersion & 0xFF );
-        Console->stdout_off();
+        LOG_INFO(TA3D_LOG_SECTION_AUDIO_PREFIX << "FMOD Version: " << ((FMODVersion & 0xFFFF0000) >> 16)
+                 << "." << ((FMODVersion & 0xFF00) >> 8) << "." << (FMODVersion & 0xFF));
 
-        if (FMOD_System_SetStreamBufferSize( m_lpFMODSystem, 32768, FMOD_TIMEUNIT_RAWBYTES ) != FMOD_OK)
+        if (FMOD_System_SetStreamBufferSize( pFMODSystem, 32768, FMOD_TIMEUNIT_RAWBYTES ) != FMOD_OK)
         {
-            Console->AddEntry( "FMOD: Failed to set Stream Buffer Size, sound disabled" );
+            Console->AddEntryWarning("%s[FMOD] Failed to set Stream Buffer Size, sound disabled", TA3D_LOG_SECTION_AUDIO_PREFIX);
             return false;
         }
 
 #ifndef TA3D_NO_SOUND
         // 32 channels, normal init, with 3d right handed.
-        if (FMOD_System_Init( m_lpFMODSystem, 32, FMOD_INIT_NORMAL | FMOD_INIT_3D_RIGHTHANDED, 0 ) != FMOD_OK)
+        if (FMOD_System_Init( pFMODSystem, 32, FMOD_INIT_NORMAL | FMOD_INIT_3D_RIGHTHANDED, 0 ) != FMOD_OK)
         {
-            Console->AddEntry("FMOD: Failed to init FMOD, sound disabled" );
+            Console->AddEntryWarning("%s[FMOD] Failed to init FMOD, sound disabled", TA3D_LOG_SECTION_AUDIO_PREFIX);
             return false;
         }
 
         m_FMODRunning = true;
-
-        loadPlayList();
+        doLoadPlaylist();
 #endif
 #else
-        if (FMOD::System_Create( &m_lpFMODSystem ) != FMOD_OK)
+        if (FMOD::System_Create(&pFMODSystem) != FMOD_OK)
         {
-            Console->AddEntry("FMOD: failed to System_Create, sound disabled");
+            Console->AddEntryWarning("%s[FMOD] Failed to System_Create, sound disabled", TA3D_LOG_SECTION_AUDIO_PREFIX);
             return false;
         }
-        if (m_lpFMODSystem->getVersion( &FMODVersion ) != FMOD_OK)
+        if (pFMODSystem->getVersion(&FMODVersion) != FMOD_OK)
         {
-            Console->AddEntry("FMOD: Invalid Version of FMOD, sound disabled");
+            Console->AddEntryWarning("%s[FMOD] Invalid Version of FMOD, sound disabled", TA3D_LOG_SECTION_AUDIO_PREFIX);
             return false;
         }
-        Console->stdout_on();
-        Console->AddEntry("FMOD version: %x.%x.%x", ((FMODVersion & 0xFFFF0000) >> 16), ((FMODVersion & 0xFF00) >> 8), FMODVersion & 0xFF);
-        Console->stdout_off();
 
-        if (m_lpFMODSystem->setStreamBufferSize( 32768, FMOD_TIMEUNIT_RAWBYTES ) != FMOD_OK)
+        LOG_INFO(TA3D_LOG_SECTION_AUDIO_PREFIX << "FMOD Version: " << ((FMODVersion & 0xFFFF0000) >> 16)
+                 << "." << ((FMODVersion & 0xFF00) >> 8) << "." << (FMODVersion & 0xFF));
+
+        if (pFMODSystem->setStreamBufferSize( 32768, FMOD_TIMEUNIT_RAWBYTES) != FMOD_OK)
         {
-            Console->AddEntry( "FMOD: Failed to set Stream Buffer Size, sound disabled" );
+            Console->AddEntryWarning("%s[FMOD] Failed to set Stream Buffer Size, sound disabled", TA3D_LOG_SECTION_AUDIO_PREFIX);
             return false;
         }
 
 #ifndef TA3D_NO_SOUND
 #ifdef TA3D_PLATFORM_LINUX
-        if (m_lpFMODSystem->setOutput(FMOD_OUTPUTTYPE_ALSA) != FMOD_OK)
+        if (pFMODSystem->setOutput(FMOD_OUTPUTTYPE_ALSA) != FMOD_OK)
         {
-            Console->AddEntry( "FMOD: Failed to init FMOD, sound disabled");
+            Console->AddEntryWarning("%s[FMOD] Failed to init FMOD, sound disabled", TA3D_LOG_SECTION_AUDIO_PREFIX);
             return false;
         }
 #endif
         // 32 channels, normal init, with 3d right handed.
-        if (m_lpFMODSystem->init(32, FMOD_INIT_NORMAL | FMOD_INIT_3D_RIGHTHANDED, 0) != FMOD_OK)
+        if (pFMODSystem->init(32, FMOD_INIT_NORMAL | FMOD_INIT_3D_RIGHTHANDED, 0) != FMOD_OK)
         {
-            Console->AddEntry("FMOD: Failed to init FMOD, sound disabled");
+            Console->AddEntryWarning("%s[FMOD] Failed to init FMOD, sound disabled", TA3D_LOG_SECTION_AUDIO_PREFIX);
             return false;
         }
         m_FMODRunning = true;
-        loadPlayList();
+        doLoadPlaylist();
 #endif
 #endif
         return true;
@@ -397,53 +408,52 @@ namespace Interfaces
 
     cAudio::~cAudio()
     {
-        shutdownAudio(true);
-        delete m_SoundList;
+        doShutdownAudio(true);
     }
 
 
 
     void cAudio::stopMusic()
     {
-        if (!m_FMODRunning)
-            return;
+        pMutex.lock();
+        doStopMusic();
+        pMutex.unlock();
+    }
 
-        if (m_lpFMODMusicsound != NULL)
+    void cAudio::doStopMusic()
+    {
+        if (m_FMODRunning && pFMODMusicSound != NULL)
         {
-            pMutex.lock();
-#ifdef TA3D_PLATFORM_MINGW
-            FMOD_Channel_Stop(m_lpFMODMusicchannel);
-            FMOD_Sound_Release(m_lpFMODMusicsound);
-#else
-            m_lpFMODMusicchannel->stop();
-            m_lpFMODMusicsound->release();
-#endif
-            m_lpFMODMusicsound = NULL;
-            m_lpFMODMusicchannel = NULL;
-            pMutex.unlock();
+            # ifdef TA3D_PLATFORM_MINGW
+            FMOD_Channel_Stop(pFMODMusicchannel);
+            FMOD_Sound_Release(pFMODMusicSound);
+            # else
+            pFMODMusicchannel->stop();
+            pFMODMusicSound->release();
+            # endif
+            pFMODMusicSound = NULL;
+            pFMODMusicchannel = NULL;
         }
     }
 
 
 
 
-    void cAudio::purgePlayList()
+    void cAudio::doPurgePlaylist()
     {
-        stopMusic();
-
-        m_curPlayIndex = -1;	// we don't change this in stop music in case
+        pMutex.lock();
+        doStopMusic();
+        pCurrentItemToPlay = -1;
+        // we don't change this in stop music in case
         // we want to do a play and contine through our list, so
         // we change it here to refelect no index.
 
-        if (m_Playlist.empty()) // nothing in our list.
-            return;
-
-        pMutex.lock();
-        // walk through vector and delete all the items.
-        for (plItor k_Pos = m_Playlist.begin(); k_Pos != m_Playlist.end(); ++k_Pos)
-            delete *k_Pos ;
-
-        m_Playlist.clear();   // now purge the vector.
+        if (!pPlaylist.empty())
+        {
+            for (Playlist::iterator k_Pos = pPlaylist.begin(); k_Pos != pPlaylist.end(); ++k_Pos)
+                delete *k_Pos ;
+            pPlaylist.clear();
+        }
         pMutex.unlock();
     }
 
@@ -452,96 +462,100 @@ namespace Interfaces
     
     void cAudio::togglePauseMusic()
     {
-        if (m_FMODRunning || m_lpFMODMusicchannel == NULL)
-            return;
-#ifdef TA3D_PLATFORM_MINGW
-        FMOD_BOOL paused;
-        FMOD_Channel_GetPaused(m_lpFMODMusicchannel, &paused);
-        FMOD_Channel_SetPaused(m_lpFMODMusicchannel, !paused);
-#else
-        bool paused;
-        m_lpFMODMusicchannel->getPaused(&paused);
-        m_lpFMODMusicchannel->setPaused(!paused);
-#endif
+        pMutex.lock();
+        if (m_FMODRunning && pFMODMusicchannel != NULL)
+        {
+            # ifdef TA3D_PLATFORM_MINGW
+            FMOD_BOOL paused;
+            FMOD_Channel_GetPaused(pFMODMusicchannel, &paused);
+            FMOD_Channel_SetPaused(pFMODMusicchannel, !paused);
+            # else
+            bool paused;
+            pFMODMusicchannel->getPaused(&paused);
+            pFMODMusicchannel->setPaused(!paused);
+            # endif
+        }
+        pMutex.unlock();
     }
 
 
 
     void cAudio::pauseMusic()
     {
-        if (m_FMODRunning)
-            return;
+        pMutex.lock();
+        doPauseMusic();
+        pMutex.unlock();
+    }
 
-        if (m_lpFMODMusicchannel == NULL)
-            return;
-
-#ifdef TA3D_PLATFORM_MINGW
-        FMOD_Channel_SetPaused(m_lpFMODMusicchannel, true);
-#else
-        m_lpFMODMusicchannel->setPaused(true);
-#endif
+    void cAudio::doPauseMusic()
+    {
+        if (m_FMODRunning && pFMODMusicchannel != NULL)
+        {
+            # ifdef TA3D_PLATFORM_MINGW
+            FMOD_Channel_SetPaused(pFMODMusicchannel, true);
+            # else
+            pFMODMusicchannel->setPaused(true);
+            # endif
+        }
     }
 
 
 
 
-    const String cAudio::selectNextMusic()
+    String cAudio::doSelectNextMusic()
     {
-        plItor cur;
+        if (pPlaylist.empty())
+            return "";
+
         sint16 cIndex = -1;
         sint16 mCount = 0;
         String szResult;
-
-        if (m_Playlist.empty())
-            return szResult;
-
-        if (m_InBattle && m_BattleTunes > 0)
+        if (m_InBattle && pBattleTunesCount > 0)
         {
             srand((unsigned)time(NULL));
-            cIndex =  (sint16)(TA3D_RAND() % m_BattleTunes ) + 1;
+            cIndex =  (sint16)(TA3D_RAND() % pBattleTunesCount) + 1;
             mCount = 1;
 
-            for( cur = m_Playlist.begin(); cur != m_Playlist.end(); ++cur)
+            for (Playlist::const_iterator cur = pPlaylist.begin(); cur != pPlaylist.end(); ++cur)
             {
-                if ((*cur)->m_BattleTune && mCount >= cIndex)		// If we get one that match our needs we take it
+                if ((*cur)->battleTune && mCount >= cIndex)		// If we get one that match our needs we take it
                 {
-                    szResult = (*cur)->m_Filename;
+                    szResult = (*cur)->filename;
                     break;
                 }
                 else
                 {
-                    if ((*cur)->m_BattleTune) // Take the last one that can be taken if we try to go too far
-                        szResult = (*cur)->m_Filename;
+                    if ((*cur)->battleTune) // Take the last one that can be taken if we try to go too far
+                        szResult = (*cur)->filename;
                 }
             }
             return szResult;
         }
 
         mCount = 0;
-        if (m_curPlayIndex > (sint32)m_Playlist.size())
-            m_curPlayIndex = -1;
+        if (pCurrentItemToPlay > (sint32)pPlaylist.size())
+            pCurrentItemToPlay = -1;
 
         bool found = false;
 
-        for (cur = m_Playlist.begin(); cur != m_Playlist.end(); ++cur)
+        for (Playlist::const_iterator cur = pPlaylist.begin(); cur != pPlaylist.end(); ++cur)
         {
             ++mCount;
-
-            if ((*cur)->m_BattleTune || (*cur)->m_Deactivated)
+            if ((*cur)->battleTune || (*cur)->disabled)
                 continue;
 
-            if (m_curPlayIndex <= mCount || m_curPlayIndex <= 0)
+            if (pCurrentItemToPlay <= mCount || pCurrentItemToPlay <= 0)
             {
-                szResult = (*cur)->m_Filename;
-                m_curPlayIndex = mCount + 1;
+                szResult = (*cur)->filename;
+                pCurrentItemToPlay = mCount + 1;
                 found = true;
                 break;
             }
         }
-        if (!found && m_curPlayIndex != -1)
+        if (!found && pCurrentItemToPlay != -1)
         {
-            m_curPlayIndex = -1;
-            return selectNextMusic();
+            pCurrentItemToPlay = -1;
+            return doSelectNextMusic();
         }
         return szResult;
     }
@@ -551,103 +565,110 @@ namespace Interfaces
 
     void cAudio::setMusicMode(const bool battleMode)
     {
+        pMutex.lock();
         if (m_InBattle != battleMode)
         {
             m_InBattle = battleMode;
-            playMusic();
+            doPlayMusic();
         }
+        pMutex.unlock();
     }
 
 
 
 
-    void cAudio::playMusic(const String& FileName)
+    void cAudio::doPlayMusic(const String& filename)
     {
-        stopMusic();
+        doStopMusic();
 
         if (!m_FMODRunning)
             return;
 
-        if (!file_exists( FileName.c_str() ,FA_RDONLY | FA_ARCH,NULL ) )
+        if (!file_exists( filename.c_str() ,FA_RDONLY | FA_ARCH,NULL ) )
         {
-            if (!FileName.empty() )
-                Console->AddEntry( "FMOD:Failed to find file: %s for play.", FileName.c_str() );
+            if (!filename.empty())
+                Console->AddEntryWarning("%s [FMOD] Failed to find file: %s for play.", TA3D_LOG_SECTION_AUDIO_PREFIX, filename.c_str());
             return;
         }
 
 #ifdef TA3D_PLATFORM_MINGW
 
-        if (FMOD_System_CreateStream( m_lpFMODSystem, FileName.c_str(),
+        if (FMOD_System_CreateStream( pFMODSystem, filename.c_str(),
                                       FMOD_HARDWARE | FMOD_LOOP_OFF | FMOD_2D | FMOD_IGNORETAGS, 0,
-                                      &m_lpFMODMusicsound ) != FMOD_OK )
+                                      &pFMODMusicSound ) != FMOD_OK )
         {
-            Console->AddEntry( "FMOD: Failed to create stream. (%s)", FileName.c_str() );
+            Console->AddEntryWarning("%s[FMOD] Failed to create stream. (%s)", TA3D_LOG_SECTION_AUDIO_PREFIX, filename.c_str() );
             return;
         }
 
-        if (FMOD_System_playSound( m_lpFMODSystem, FMOD_CHANNEL_FREE, m_lpFMODMusicsound,
-                                   false, &m_lpFMODMusicchannel) != FMOD_OK )
+        if (FMOD_System_playSound( pFMODSystem, FMOD_CHANNEL_FREE, pFMODMusicSound,
+                                   false, &pFMODMusicchannel) != FMOD_OK )
         {
-            Console->AddEntry( "FMOD: Failed to playSound/stream.");
+            Console->AddEntryWarning("%s[FMOD] Failed to playSound/stream.", TA3D_LOG_SECTION_AUDIO_PREFIX);
             return;
         }
 
-        Console->AddEntry( "FMOD: playing music file %s", FileName.c_str());
-        FMOD_Channel_SetVolume( m_lpFMODMusicchannel, 1.0f);
+        LOG_DEBUG(TA3D_LOG_SECTION_AUDIO_PREFIX << "[FMOD] Playing music file " << filename);
+        FMOD_Channel_SetVolume( pFMODMusicchannel, 1.0f);
 
 #else
 
-        if (m_lpFMODSystem->createStream( FileName.c_str(),
+        if (pFMODSystem->createStream( filename.c_str(),
                                           FMOD_HARDWARE | FMOD_LOOP_OFF | FMOD_2D | FMOD_IGNORETAGS, 0,
-                                          &m_lpFMODMusicsound ) != FMOD_OK )
+                                          &pFMODMusicSound ) != FMOD_OK )
         {
-            Console->AddEntry("FMOD: Failed to create stream. (%s)", FileName.c_str());
+            Console->AddEntryWarning("%s[FMOD] Failed to create stream. (%s)", TA3D_LOG_SECTION_AUDIO_PREFIX, filename.c_str());
             return;
         }
 
-        if (m_lpFMODSystem->playSound(FMOD_CHANNEL_FREE, m_lpFMODMusicsound, false, &m_lpFMODMusicchannel) != FMOD_OK)
+        if (pFMODSystem->playSound(FMOD_CHANNEL_FREE, pFMODMusicSound, false, &pFMODMusicchannel) != FMOD_OK)
         {
-            Console->AddEntry("FMOD: Failed to playSound/stream.");
+            Console->AddEntryWarning("%s[FMOD] Failed to playSound/stream.", TA3D_LOG_SECTION_AUDIO_PREFIX);
             return;
         }
 
-        Console->AddEntry("FMOD: playing music file %s", FileName.c_str());
-        m_lpFMODMusicchannel->setVolume(1.0f);
+        LOG_DEBUG(TA3D_LOG_SECTION_AUDIO_PREFIX << "[FMOD] Playing music file " << filename);
+        pFMODMusicchannel->setVolume(1.0f);
 #endif
     }
-
 
 
 
     void cAudio::playMusic()
     {
+        pMutex.lock();
+        doPlayMusic();
+        pMutex.unlock();
+    }
+
+    void cAudio::doPlayMusic()
+    {
         if (!m_FMODRunning)
             return;
 
-        if (m_lpFMODMusicchannel != NULL)
+        if (pFMODMusicchannel != NULL)
         {
-#ifdef TA3D_PLATFORM_MINGW
+            # ifdef TA3D_PLATFORM_MINGW
             FMOD_BOOL paused;
-            FMOD_Channel_GetPaused(m_lpFMODMusicchannel, &paused);
+            FMOD_Channel_GetPaused(pFMODMusicchannel, &paused);
 
-            if (paused == true)
+            if (paused)
             {
-                FMOD_Channel_SetPaused(m_lpFMODMusicchannel, false);
+                FMOD_Channel_SetPaused(pFMODMusicchannel, false);
                 return;
             }
-#else
+            # else
             bool paused;
 
-            m_lpFMODMusicchannel->getPaused(&paused);
-
-            if (paused == true)
+            pFMODMusicchannel->getPaused(&paused);
+            if (paused)
             {
-                m_lpFMODMusicchannel->setPaused(false);
+                pFMODMusicchannel->setPaused(false);
                 return;
             }
-#endif
+            # endif
         }
-        playMusic(selectNextMusic());
+        doPlayMusic(doSelectNextMusic());
     }
 
 
@@ -655,106 +676,101 @@ namespace Interfaces
     // Begin sound managing routines.
     void cAudio::setListenerPos(const VECTOR3D& vec)
     {
-        if (!m_FMODRunning)
-            return;
+        pMutex.lock();
+        if (m_FMODRunning)
+        {
+            FMOD_VECTOR pos     = { vec.x, vec.y, vec.z };
+            FMOD_VECTOR vel     = { 0, 0, 0 };
+            FMOD_VECTOR forward = { 0.0f, 0.0f, 1.0f };
+            FMOD_VECTOR up      = { 0.0f, 1.0f, 0.0f };
 
-        FMOD_VECTOR pos = { vec.x, vec.y, vec.z };
-        FMOD_VECTOR vel = { 0,0,0 };
-        FMOD_VECTOR forward        = { 0.0f, 0.0f, 1.0f };
-        FMOD_VECTOR up             = { 0.0f, 1.0f, 0.0f };
-
-#ifdef TA3D_PLATFORM_MINGW
-        FMOD_System_Set3DListenerAttributes( m_lpFMODSystem, 0, &pos, &vel, &forward, &up );
-#else
-        m_lpFMODSystem->set3DListenerAttributes( 0, &pos, &vel, &forward, &up );
-#endif
+            # ifdef TA3D_PLATFORM_MINGW
+            FMOD_System_Set3DListenerAttributes(pFMODSystem, 0, &pos, &vel, &forward, &up);
+            # else
+            pFMODSystem->set3DListenerAttributes(0, &pos, &vel, &forward, &up);
+            # endif
+        }
+        pMutex.unlock();
+    }
+    
+    void cAudio::update3DSound()
+    {
+        pMutex.lock();
+        doUpdate3DSound();
+        pMutex.unlock();
     }
 
-    void cAudio::update3DSound()
+    void cAudio::doUpdate3DSound()
     {
         if (!m_FMODRunning)
         {
-            pMutex.lock();
-            WorkList.clear();
-            pMutex.unlock();
+            pWorkList.clear();
             return;
         }
 
-        pMutex.lock();
+        # ifdef TA3D_PLATFORM_MINGW
 
-#ifdef TA3D_PLATFORM_MINGW
-
-        FMOD_System_Update(m_lpFMODSystem);
-
-        for (std::list< m_WorkListItem >::iterator i = WorkList.begin(); i != WorkList.end(); ++i)
+        FMOD_System_Update(pFMODSystem);
+        for (std::list<WorkListItem>::iterator i = pWorkList.begin(); i != pWorkList.end(); ++i)
         {
             FMOD_CHANNEL *ch;
-            if (FMOD_System_playSound(m_lpFMODSystem, FMOD_CHANNEL_FREE, i->m_Sound->m_SampleHandle, true, &ch) != FMOD_OK)
+            if (FMOD_System_playSound(pFMODSystem, FMOD_CHANNEL_FREE, i->sound->sampleHandle, true, &ch) != FMOD_OK)
             {
                 continue;
             }
-            if (i->m_Sound->m_3DSound)
+            if (i->sound->is3DSound)
             {
                 FMOD_VECTOR pos = { i->vec->x, i->vec->y, i->vec->z };
                 FMOD_VECTOR vel = { 0,0,0 };
-
                 FMOD_Channel_Set3DAttributes( ch, &pos, &vel );
             }
             FMOD_Channel_SetPaused(ch, false);
         }
 
-#else
+        # else // TA3D_PLATFORM_MINGW
 
-        m_lpFMODSystem->update();
+        pFMODSystem->update();
 
-        for (std::list< m_WorkListItem >::iterator i = WorkList.begin() ; i != WorkList.end() ; ++i)
+        for (std::list< WorkListItem >::iterator i = pWorkList.begin() ; i != pWorkList.end() ; ++i)
         {
             FMOD::Channel *ch;
-            if (m_lpFMODSystem->playSound( FMOD_CHANNEL_FREE,
-                                           i->m_Sound->m_SampleHandle, true, &ch ) != FMOD_OK )
+            if (pFMODSystem->playSound( FMOD_CHANNEL_FREE,
+                                           i->sound->sampleHandle, true, &ch ) != FMOD_OK )
                 continue;
 
-            if (i->m_Sound->m_3DSound )
+            if (i->sound->is3DSound)
             {
                 FMOD_VECTOR pos = { i->vec->x, i->vec->y, i->vec->z };
-                FMOD_VECTOR vel = { 0,0,0 };
-
-                ch->set3DAttributes( &pos, &vel );
+                FMOD_VECTOR vel = { 0, 0, 0 };
+                ch->set3DAttributes(&pos, &vel);
             }
 
             ch->setPaused(false);
         }
 
-#endif
+        # endif // TA3D_PLATFORM_MINGW
 
-        WorkList.clear();
-
-        pMutex.unlock();
-
+        pWorkList.clear();
         if ((fCounter++) < 100)
             return;
 
         fCounter = 0;
 
-        if (m_lpFMODMusicchannel == NULL)
+        if (pFMODMusicchannel == NULL)
         {
-            playMusic();
+            doPlayMusic();
             return;
         }
 
-        pMutex.lock();
-
-#ifdef TA3D_PLATFORM_MINGW
+        # ifdef TA3D_PLATFORM_MINGW
         FMOD_BOOL playing;
-        FMOD_Channel_IsPlaying(m_lpFMODMusicchannel, &playing);
-#else
+        FMOD_Channel_IsPlaying(pFMODMusicchannel, &playing);
+        # else // TA3D_PLATFORM_MINGW
         bool playing;
-        m_lpFMODMusicchannel->isPlaying(&playing);
-#endif
+        pFMODMusicchannel->isPlaying(&playing);
+        # endif // TA3D_PLATFORM_MINGW
         if (!playing)
-            playMusic();
-
-        pMutex.unlock();
+            doPlayMusic();
     }
 
 
@@ -773,17 +789,17 @@ namespace Interfaces
 
             if (message == "music play")
             {
-                playMusic();
+                doPlayMusic();
                 return INTERFACE_RESULT_HANDLED;
             }
             if (message == "music pause")
             {
-                pauseMusic();
+                doPauseMusic();
                 return INTERFACE_RESULT_HANDLED;
             }
             if (message == "music stop")
             {
-                stopMusic();
+                doStopMusic();
                 return INTERFACE_RESULT_HANDLED;
             }
         }
@@ -793,183 +809,177 @@ namespace Interfaces
 
 
 
-    void cAudio::playSoundFileNow(const String& Filename)
+    void cAudio::playSoundFileNow(const String& filename)
     {
-#ifdef TA3D_PLATFORM_MINGW
-        if (basic_sound)
-            FMOD_Sound_Release(basic_sound);
-#else
-        if (basic_sound)
-            basic_sound->release();
-#endif
-        basic_sound = NULL;
-        basic_channel = NULL;
+        if (pBasicSound)
+        {
+            # ifdef TA3D_PLATFORM_MINGW
+            FMOD_Sound_Release(pBasicSound);
+            # else // TA3D_PLATFORM_MINGW
+            pBasicSound->release();
+            # endif // TA3D_PLATFORM_MINGW
+        }
+        
+        pBasicSound = NULL;
+        pBasicChannel = NULL;
         uint32 sound_file_size = 0;
-        byte *data = HPIManager->PullFromHPI(Filename, &sound_file_size);
-
+        byte *data = HPIManager->PullFromHPI(filename, &sound_file_size);
         if (data)
         {
             FMOD_CREATESOUNDEXINFO exinfo;
-
             memset(&exinfo, 0, sizeof(FMOD_CREATESOUNDEXINFO));
             exinfo.cbsize = sizeof(FMOD_CREATESOUNDEXINFO);
             exinfo.length = sound_file_size;
 
 #ifdef TA3D_PLATFORM_MINGW
-            FMOD_System_CreateSound( m_lpFMODSystem, (const char *)data, FMOD_SOFTWARE | FMOD_OPENMEMORY, &exinfo, &basic_sound );
-            FMOD_Sound_SetMode( basic_sound, FMOD_LOOP_OFF );
-            FMOD_System_playSound( m_lpFMODSystem, FMOD_CHANNEL_FREE, basic_sound, 0, &basic_channel);
+            FMOD_System_CreateSound( pFMODSystem, (const char *)data, FMOD_SOFTWARE | FMOD_OPENMEMORY, &exinfo, &pBasicSound );
+            FMOD_Sound_SetMode( pBasicSound, FMOD_LOOP_OFF );
+            FMOD_System_playSound( pFMODSystem, FMOD_CHANNEL_FREE, pBasicSound, 0, &pBasicChannel);
 #else
-            m_lpFMODSystem->createSound( (const char *)data, FMOD_SOFTWARE | FMOD_OPENMEMORY, &exinfo, &basic_sound);
-            basic_sound->setMode(FMOD_LOOP_OFF);
-            m_lpFMODSystem->playSound( FMOD_CHANNEL_FREE, basic_sound, 0, &basic_channel);
+            pFMODSystem->createSound( (const char *)data, FMOD_SOFTWARE | FMOD_OPENMEMORY, &exinfo, &pBasicSound);
+            pBasicSound->setMode(FMOD_LOOP_OFF);
+            pFMODSystem->playSound( FMOD_CHANNEL_FREE, pBasicSound, 0, &pBasicChannel);
 #endif
             delete[] data;
         }
     }
 
-    void cAudio::stopSoundFileNow()				// Stop playing
+
+    void cAudio::stopSoundFileNow()
     {
+        pMutex.lock();
         # ifdef TA3D_PLATFORM_MINGW
-        if (basic_sound)
-            FMOD_Sound_Release(basic_sound);
+        if (pBasicSound)
+            FMOD_Sound_Release(pBasicSound);
         # else
-        if (basic_sound)
-            basic_sound->release();
+        if (pBasicSound)
+            pBasicSound->release();
         # endif
 
-        basic_sound = NULL;
-        basic_channel = NULL;
+        pBasicSound = NULL;
+        pBasicChannel = NULL;
+        pMutex.unlock();
     }
 
 
-
-    bool cAudio::loadSound(const String& Filename, const bool LoadAs3D, const float MinDistance, const float MaxDistance)
+    bool cAudio::loadSound(const String& filename, const bool LoadAs3D, const float MinDistance, const float MaxDistance)
     {
-        String szWav(Filename);
-        szWav.toLower();
+        MutexLocker locker(pMutex);
+        return doLoadSound(filename, LoadAs3D, MinDistance, MaxDistance);
+    }
 
-        I_Msg( TA3D::TA3D_IM_DEBUG_MSG, (char*)format("loading sound file %s\n",(char *)szWav.c_str()).c_str(), NULL, NULL );
+    bool cAudio::doLoadSound(String filename, const bool LoadAs3D, const float MinDistance, const float MaxDistance)
+    {
+        filename.toLower();
+
+        I_Msg( TA3D::TA3D_IM_DEBUG_MSG, (char*)format("loading sound file %s\n",(char *)filename.c_str()).c_str(), NULL, NULL );
 
         // if it has a .wav extension then remove it.
-        int i = (int)szWav.find("wav");   
-        if (i != -1)
-            szWav.resize(szWav.length() - 4);
+        String::size_type i = filename.find("wav");   
+        if (i != String::npos)
+            filename.resize(filename.length() - 4);
 
         // if its already loaded return true.
-        if (m_SoundList->exists(szWav))
+        if (pSoundList.exists(filename))
         {
-            //		I_Msg( TA3D::TA3D_IM_DEBUG_MSG, (char*)format("sound file %s is already loaded\n",(char *)szWav.c_str()).c_str(), NULL, NULL );
+            //I_Msg( TA3D::TA3D_IM_DEBUG_MSG, (char*)format("sound file %s is already loaded\n",(char *)filename.c_str()).c_str(), NULL, NULL );
             return true;
         }
 
         // pull the data from hpi.
         String theSound;
         uint32 Length;
-        theSound << "sounds\\" << szWav << ".wav";
+        theSound << "sounds\\" << filename << ".wav";
         byte* data = HPIManager->PullFromHPI(theSound, &Length);
         if (!data) // if no data, log a message and return false.
         {
-            szWav = format("FMOD: LoadSound(%s), no such sound found in HPI.\n", szWav.c_str());
-            I_Msg( TA3D::TA3D_IM_DEBUG_MSG, (void *)szWav.c_str(), NULL, NULL);
+            filename = format("FMOD: LoadSound(%s), no such sound found in HPI.\n", filename.c_str());
+            I_Msg( TA3D::TA3D_IM_DEBUG_MSG, (void *)filename.c_str(), NULL, NULL);
             return false;
         }
 
-        m_SoundListItem *m_Sound = new m_SoundListItem;
-        m_Sound->m_3DSound = LoadAs3D;
-
+        SoundItemList* it = new SoundItemList(LoadAs3D);
+        LOG_ASSERT(NULL != it);
         FMOD_CREATESOUNDEXINFO exinfo;
         memset(&exinfo, 0, sizeof(FMOD_CREATESOUNDEXINFO));
         exinfo.cbsize = sizeof(FMOD_CREATESOUNDEXINFO);
         exinfo.length = Length;
 
-#ifdef TA3D_PLATFORM_MINGW
+        # ifdef TA3D_PLATFORM_MINGW
 
         // Now get fmod to load the sample
-        FMOD_RESULT FMODResult = FMOD_System_CreateSound( m_lpFMODSystem, (const char*)data,
+        FMOD_RESULT FMODResult = FMOD_System_CreateSound( pFMODSystem, (const char*)data,
                                                           FMOD_HARDWARE | FMOD_OPENMEMORY | ( (LoadAs3D) ? FMOD_3D : FMOD_2D ),
                                                           &exinfo,
-                                                          &m_Sound->m_SampleHandle);
+                                                          &it->sampleHandle);
         delete[] data;
 
         if (FMODResult != FMOD_OK) // ahh crap fmod couln't load it.
         {
-            delete m_Sound;  // delete the sound.
-            m_Sound = NULL;
+            delete it;  // delete the sound.
+            it = NULL;
 
             // log a message and return false;
             if (m_FMODRunning)
             {
-                szWav = format("FMOD: LoadSound(%s), Failed to construct sample.\n", szWav.c_str());
-                I_Msg( TA3D::TA3D_IM_DEBUG_MSG, (void *)szWav.c_str(), NULL, NULL);
+                filename = format("FMOD: LoadSound(%s), Failed to construct sample.\n", filename.c_str());
+                I_Msg( TA3D::TA3D_IM_DEBUG_MSG, (void *)filename.c_str(), NULL, NULL);
             }
             return false;
         }
 
         // if its a 3d Sound we need to set min/max distance.
-        if (m_Sound->m_3DSound)
-            FMOD_Sound_Set3DMinMaxDistance(m_Sound->m_SampleHandle, MinDistance, MaxDistance);
+        if (it->is3DSound)
+            FMOD_Sound_Set3DMinMaxDistance(it->sampleHandle, MinDistance, MaxDistance);
 
-#else
+        # else // TA3D_PLATFORM_MINGW
 
         // Now get fmod to load the sample
-        FMOD_RESULT FMODResult = m_lpFMODSystem->createSound( (const char *)data,
+        FMOD_RESULT FMODResult = pFMODSystem->createSound( (const char *)data,
                                                               FMOD_HARDWARE | FMOD_OPENMEMORY | ( (LoadAs3D) ? FMOD_3D : FMOD_2D ),
                                                               &exinfo,
-                                                              &m_Sound->m_SampleHandle);
+                                                              &it->sampleHandle);
         free(data); // we no longer need this.
 
         if (FMODResult != FMOD_OK) // ahh crap fmod couln't load it.
         {
-            delete m_Sound;  // delete the sound.
-            m_Sound = NULL;
+            delete it;  // delete the sound.
+            it = NULL;
             // log a message and return false;
             if (m_FMODRunning)
             {
-                szWav = format("FMOD: LoadSound(%s), Failed to construct sample.\n", szWav.c_str());
-                I_Msg(TA3D::TA3D_IM_DEBUG_MSG, (void *)szWav.c_str(), NULL, NULL);
+                filename = format("FMOD: LoadSound(%s), Failed to construct sample.\n", filename.c_str());
+                I_Msg(TA3D::TA3D_IM_DEBUG_MSG, (void *)filename.c_str(), NULL, NULL);
             }
             return false;
         }
 
         // if its a 3d Sound we need to set min/max distance.
-        if (m_Sound->m_3DSound)
-            m_Sound->m_SampleHandle->set3DMinMaxDistance(MinDistance, MaxDistance);
+        if (it->is3DSound)
+            it->sampleHandle->set3DMinMaxDistance(MinDistance, MaxDistance);
 
-#endif
+        # endif // TA3D_PLATFORM_MINGW
 
         // add the sound to our soundlist hash table, and return true.
-        m_SoundList->insertOrUpdate(szWav, m_Sound);
+        pSoundList.insertOrUpdate(filename, it);
         return true;
     }
 
-    
-    class LoadAllTDFSound
-    {
-    public:
-        LoadAllTDFSound(cAudio& a) : pAudio(a) {}
-        bool operator () (const String& key, const String& value)
-        {
-            pAudio.loadSound(value, false);
-            return true;
-        }
-
-    private:
-        cAudio& pAudio;
-    };
-
-
+   
     void cAudio::loadTDFSounds(const bool allSounds)
     {
         pMutex.lock();
-        String FileName(ta3dSideData.gamedata_dir);
-        FileName += (allSounds) ? "allsound.tdf" : "sound.tdf";
+        // Which file to load ?
+        String filename(ta3dSideData.gamedata_dir);
+        filename += (allSounds) ? "allsound.tdf" : "sound.tdf";
 
-        Console->AddEntry("Reading %s", FileName.c_str());
-        pTable.load(FileName);
-        Console->AddEntry("Loading sounds from %s", FileName.c_str());
-
+        LOG_DEBUG(TA3D_LOG_SECTION_AUDIO_PREFIX << "Reading `" << filename << "`...");
+        // Load the TDF file
+        pTable.load(filename);
+        Console->AddEntry("%sLoading sounds from %s", TA3D_LOG_SECTION_AUDIO_PREFIX, filename.c_str());
+        // Load each sound file
         pTable.forEach(LoadAllTDFSound(*this));
+        LOG_DEBUG(TA3D_LOG_SECTION_AUDIO_PREFIX << "Reading: Done.");
         pMutex.unlock();
     }
 
@@ -977,16 +987,16 @@ namespace Interfaces
     void cAudio::purgeSounds()
     {
         pMutex.lock();
-        m_SoundList->emptyHashTable();
+        pSoundList.emptyHashTable();
         pTable.clear();
-        WorkList.clear();
+        pWorkList.clear();
         pMutex.unlock();
     }
 
 
 
     // Play sound directly from our sound pool
-    void cAudio::playSound(const String& Filename, const VECTOR3D* vec)
+    void cAudio::playSound(const String& filename, const VECTOR3D* vec)
     {
         MutexLocker locker(pMutex);
         if (vec && Camera::inGame && ((VECTOR)(*vec - Camera::inGame->rpos)).sq() > 360000.0f) // If the source is too far, does not even think about playing it!
@@ -994,85 +1004,93 @@ namespace Interfaces
         if (!m_FMODRunning)
             return;
 
-        String szWav(Filename); // copy string to szWav so we can work with it.
+        String szWav(filename); // copy string to szWav so we can work with it.
         // if it has a .wav extension then remove it.
         String::size_type i = szWav.toLower().find(".wav");
         if (i != String::npos)
             szWav.resize(szWav.length() - 4);
 
-        m_SoundListItem *m_Sound = m_SoundList->find(szWav);
-        if (!m_Sound)
+        SoundItemList* sound = pSoundList.find(szWav);
+        if (!sound)
         {
-            Console->AddEntry("%s not found, aborting", Filename.c_str());
+            Console->AddEntryWarning("%s`%s` not found, aborting", TA3D_LOG_SECTION_AUDIO_PREFIX, filename.c_str());
             return;
         }
 
-        if (msec_timer - m_Sound->last_time_played < m_min_ticks)
-            return;			// Make sure it doesn't play too often, so it doesn't play too loud!
+        if (msec_timer - sound->lastTimePlayed < pMinTicks)
+            return; // Make sure it doesn't play too often, so it doesn't play too loud!
 
-        m_Sound->last_time_played = msec_timer;
+        sound->lastTimePlayed = msec_timer;
 
-        if (!m_Sound->m_SampleHandle || (m_Sound->m_3DSound && !vec))
+        if (!sound->sampleHandle || (sound->is3DSound && !vec))
         {
-            if (!m_Sound->m_SampleHandle)
-                Console->AddEntry("%s not played the good way", (char*)Filename.c_str());
+            if (!sound->sampleHandle)
+                Console->AddEntryWarning("%s`%s` not played the good way", TA3D_LOG_SECTION_AUDIO_PREFIX, (char*)filename.c_str());
             else
-                Console->AddEntry("%s : m_Sound->m_SampleHandle is false", (char*)Filename.c_str());
+                Console->AddEntryWarning("%s`%s` : sound->sampleHandle is false", TA3D_LOG_SECTION_AUDIO_PREFIX, (char*)filename.c_str());
             return;
         }
 
-        //	Console->AddEntry("plays %s", (char*)Filename.c_str());
-
-        m_WorkListItem	m_Work;
-
-        m_Work.m_Sound = m_Sound;
-        m_Work.vec = (VECTOR *)vec;
-
-        WorkList.push_back(m_Work);
+        pWorkList.push_back(WorkListItem(sound, (VECTOR *)vec));
     }
 
 
 
-    void cAudio::playTDFSoundNow(const String& Key, const VECTOR3D* vec)		// Wrapper to playTDFSound + update3DSound
+    void cAudio::playTDFSoundNow(const String& Key, const VECTOR3D* vec)
     {
+        pMutex.lock();
         String szWav = pTable.pullAsString(String::ToLower(Key)); // copy string to szWav so we can work with it.
         String::size_type i = szWav.toLower().find(".wav");
         if (i != String::npos)
             szWav.resize(szWav.length() - 4);
 
-        m_SoundListItem* m_Sound = m_SoundList->find(szWav);
-
-        if (m_Sound)
+        SoundItemList* it = pSoundList.find(szWav);
+        if (it)
         {
-            m_Sound->last_time_played = msec_timer - 1000 - m_min_ticks;		// Make sure it'll be played
-            playTDFSound(Key, vec);
+            it->lastTimePlayed = msec_timer - 1000 - pMinTicks; // Make sure it'll be played
+            doPlayTDFSound(Key, vec);
         }
-        update3DSound();
+        doUpdate3DSound();
+        pMutex.unlock();
     }
 
 
-
-    // Play sound from TDF by looking up sound filename from internal hash
-    void cAudio::playTDFSound(String key, const VECTOR3D* vec)
+    void cAudio::playTDFSound(const String& key, const VECTOR3D* vec)
     {
-        if (key.empty())
-            return;
-        if (!pTable.exists(key.toLower()))
-        {
-            // output a report to the console but only once
-            Console->AddEntryWarning("%sCan't find key %s", TA3D_LOG_SECTION_AUDIO_PREFIX, key.c_str());
-            pTable.insertOrUpdate(key, "");
-            return;
-        }
-        String szWav = pTable.pullAsString(key);
-        if (!szWav.empty())
-            playSound(szWav, vec);
+        pMutex.lock();
+        doPlayTDFSound(key, vec);
+        pMutex.unlock();
     }
 
 
+    void cAudio::doPlayTDFSound(String key, const VECTOR3D* vec)
+    {
+        if (!key.empty())
+        {
+            if (!pTable.exists(key.toLower()))
+            {
+                // output a report to the console but only once
+                Console->AddEntryWarning("%sCan't find key %s", TA3D_LOG_SECTION_AUDIO_PREFIX, key.c_str());
+                pTable.insertOrUpdate(key, "");
+                return;
+            }
+            String wav = pTable.pullAsString(key);
+            if (!wav.empty())
+                playSound(wav, vec);
+        }
+    }
 
-    // keys will be added together and then PlayTDF( key, vec ); if either key is
-    // "" it aborts.
+
+    void cAudio::doPlayTDFSound(const String& keyA, const String& keyB, const VECTOR3D* vec)
+    {
+        if (!keyA.empty() && !keyB.empty())
+        {
+            String key;
+            key << keyA << "." << keyB;
+            doPlayTDFSound(key, vec);
+        }
+    }
+
     void cAudio::playTDFSound(const String& keyA, const String& keyB, const VECTOR3D* vec)
     {
         if (!keyA.empty() && !keyB.empty())
@@ -1084,16 +1102,15 @@ namespace Interfaces
     }
 
 
-    cAudio::m_SoundListItem::~m_SoundListItem()
+    cAudio::SoundItemList::~SoundItemList()
     {
         # ifdef TA3D_PLATFORM_MINGW
-        if (m_SampleHandle)
-            FMOD_Sound_Release(m_SampleHandle);
+        if (sampleHandle)
+            FMOD_Sound_Release(sampleHandle);
         # else
-        if (m_SampleHandle)
-            m_SampleHandle->release();
+        if (sampleHandle)
+            sampleHandle->release();
         # endif
-        m_SampleHandle = NULL;
     }
 
 } // namespace Interfaces
