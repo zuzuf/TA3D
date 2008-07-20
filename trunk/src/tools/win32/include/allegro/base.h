@@ -27,6 +27,7 @@
    #include <stddef.h>
    #include <stdlib.h>
    #include <time.h>
+   #include <string.h>
 #endif
 
 #if (defined DEBUGMODE) && (defined FORTIFY)
@@ -45,10 +46,10 @@
 
 #define ALLEGRO_VERSION          4
 #define ALLEGRO_SUB_VERSION      2
-#define ALLEGRO_WIP_VERSION      0
-#define ALLEGRO_VERSION_STR      "4.2.0"
-#define ALLEGRO_DATE_STR         "2005"
-#define ALLEGRO_DATE             20051105    /* yyyymmdd */
+#define ALLEGRO_WIP_VERSION      2
+#define ALLEGRO_VERSION_STR      "4.2.2"
+#define ALLEGRO_DATE_STR         "2007"
+#define ALLEGRO_DATE             20070722    /* yyyymmdd */
 
 /*******************************************/
 /************ Some global stuff ************/

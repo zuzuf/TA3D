@@ -8,11 +8,9 @@
  *                                           /\____/
  *                                           \_/__/
  *
- *      Configuration defines for use with Mingw32.
+ *      Configuration defines for use with Digital Mars C compiler.
  *
- *      By Michael Rickmann.
- *
- *      Native build version by Henrik Stokseth.
+ *      By Matthew Leverton.
  *
  *      See readme.txt for copyright information.
  */
@@ -21,28 +19,27 @@
 #ifndef SCAN_DEPEND
    #include <io.h>
    #include <fcntl.h>
-   #include <direct.h>
-   #include <malloc.h>
 #endif
+
+#include <stdint.h>
 
 
 /* a static auto config */
-/* older mingw's don't seem to have inttypes.h */
-/* #define ALLEGRO_HAVE_INTTYPES_H */
-#define ALLEGRO_HAVE_STDINT_H	1
+#define ALLEGRO_HAVE_INTTYPES_H
+#define ALLEGRO_HAVE_STDINT_H
 
+#define LONG_LONG long long
 
 /* describe this platform */
 #ifdef ALLEGRO_STATICLINK
-   #define ALLEGRO_PLATFORM_STR  "MinGW32.s"
+   #define ALLEGRO_PLATFORM_STR  "DMC.s"
 #else
-   #define ALLEGRO_PLATFORM_STR  "MinGW32"
+   #define ALLEGRO_PLATFORM_STR  "DMC"
 #endif
 
 #define ALLEGRO_WINDOWS
 #define ALLEGRO_I386
 #define ALLEGRO_LITTLE_ENDIAN
-#define ALLEGRO_USE_CONSTRUCTOR
 #define ALLEGRO_MULTITHREADED
 
 #ifdef ALLEGRO_USE_CONSOLE
@@ -51,7 +48,7 @@
 #endif
 
 
-/* describe how function prototypes look to MINGW32 */
+/* describe how function prototypes look to DMC */
 #if (defined ALLEGRO_STATICLINK) || (defined ALLEGRO_SRC)
    #define _AL_DLL
 #else
@@ -65,27 +62,27 @@
 #define AL_FUNCPTR(type, name, args)         extern _AL_DLL type (*name) args
 
 
-/* windows specific defines */
+/* Windows specific defines */
 
 #if (defined ALLEGRO_SRC)
-/* pathches to handle DX7 headers on a win9x system */
 
-/* should WINNT be defined on win9x systems? */
-#ifdef WINNT
-   #undef WINNT
+#if (!defined S_IRUSR) && (!defined SCAN_DEPEND)
+   #define S_IRUSR   S_IREAD
+   #define S_IWUSR   S_IWRITE
 #endif
 
-/* defined in windef.h */
-#ifndef HMONITOR_DECLARED
-   #define HMONITOR_DECLARED 1
-#endif
+typedef unsigned long   _fsize_t;
+
+struct _wfinddata_t {
+   unsigned attrib;
+   time_t   time_create;         /* -1 for FAT file systems */
+   time_t   time_access;         /* -1 for FAT file systems */
+   time_t   time_write;
+   _fsize_t size;
+   wchar_t  name[260];           /* may include spaces. */
+};
 
 #endif /* ALLEGRO_SRC */
-
-/* another instance of missing constants in the mingw32 headers */
-#ifndef ENUM_CURRENT_SETTINGS
-   #define ENUM_CURRENT_SETTINGS       ((DWORD)-1)
-#endif
 
 /* describe the asm syntax for this platform */
 #define ALLEGRO_ASM_PREFIX    "_"
@@ -93,4 +90,4 @@
 /* arrange for other headers to be included later on */
 #define ALLEGRO_EXTRA_HEADER     "allegro/platform/alwin.h"
 #define ALLEGRO_INTERNAL_HEADER  "allegro/platform/aintwin.h"
-#define ALLEGRO_ASMCAPA_HEADER   "obj/mingw32/asmcapa.h"
+#define ALLEGRO_ASMCAPA_HEADER   "obj/dmc/asmcapa.h"
