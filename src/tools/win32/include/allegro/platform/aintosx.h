@@ -65,7 +65,8 @@
 - (void)applicationDidFinishLaunching: (NSNotification *)aNotification;
 - (void)applicationDidChangeScreenParameters: (NSNotification *)aNotification;
 + (void)app_main: (id)arg;
-- (void)app_quit: (id)sender;
+- (NSApplicationTerminateReply) applicationShouldTerminate: (id)sender;
+- (void) quitAction: (id) sender;
 @end
 
 

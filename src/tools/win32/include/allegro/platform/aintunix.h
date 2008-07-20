@@ -22,7 +22,7 @@
 extern "C" {
 #endif
 
-#ifdef HAVE_LIBPTHREAD
+#ifdef ALLEGRO_HAVE_LIBPTHREAD
    /* Synchronization routines using POSIX threads */
    AL_FUNC(void *, _unix_create_mutex, (void));
    AL_FUNC(void, _unix_destroy_mutex, (void *handle));
@@ -75,10 +75,18 @@ extern "C" {
    AL_FUNC(void, _unix_register_midi_driver, (int id, MIDI_DRIVER *driver, int autodetect, int priority));
 
 
+   /* File system helpers */
+   AL_FUNC(void, _unix_guess_file_encoding, (void));
+
+
+   /* Get size of a memory page in bytes */
+   AL_FUNC(size_t, _unix_get_page_size, (void));
+
+
 #ifdef ALLEGRO_WITH_XWINDOWS
    AL_FUNCPTR(void, _xwin_keyboard_interrupt, (int pressed, int code));
    AL_FUNCPTR(void, _xwin_keyboard_focused, (int focused, int state));
-   AL_FUNCPTR(void, _xwin_mouse_interrupt, (int x, int y, int z, int buttons));
+   AL_FUNCPTR(void, _xwin_mouse_interrupt, (int x, int y, int z, int w, int buttons));
    AL_FUNCPTR(void, _xwin_timer_interrupt, (unsigned long interval));
 
    AL_ARRAY(_DRIVER_INFO, _xwin_gfx_driver_list);
