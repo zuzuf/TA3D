@@ -864,56 +864,23 @@ void SurfEdit()
 
         if(surface_area.get_state("surface.b_ok")) done=true;		// En cas de click sur "OK", on quitte la fenêtre
 
-        show_mouse(NULL);					// Cache la souris
-        if(key[KEY_ESC]) done=true;			// Quitte si on appuie sur echap
-        // Efface tout
+        show_mouse(NULL);					// Cache la souris / Hide cursor
+        if(key[KEY_ESC])
+        {
+            reset_keyboard();
+            done=true;			// Quitte si on appuie sur echap / Leave on ESC
+        }
+        // Efface tout / Clear screen
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         gfx->set_2D_mode();		// Passe en mode dessin allegro
         
+        // Update textures
+        if(obj_table[cur_part]->surface.NbTex>0)
+            for(int i=0;i<obj_table[cur_part]->surface.NbTex;i++)
+                surface_area.set_data( format("surface.tex%d", i), obj_table[cur_part]->surface.gltex[i]);
+
         surface_area.draw();
-
-//        // Dessine les textures utilisées par la surface
-//        if(obj_table[cur_part]->surface.NbTex>0)
-//        {
-//            glEnable(GL_TEXTURE_2D);
-//            glColor3f(1.0f,1.0f,1.0f);
-//            for(int i=0;i<obj_table[cur_part]->surface.NbTex;i++) 
-//            {
-//                glBindTexture(GL_TEXTURE_2D,obj_table[cur_part]->surface.gltex[i]);
-//                glBegin(GL_QUADS);
-//                glTexCoord2f(0.0f,0.0f);	glVertex2f(200+64*i,200);
-//                glTexCoord2f(1.0f,0.0f);	glVertex2f(263+64*i,200);
-//                glTexCoord2f(1.0f,1.0f);	glVertex2f(263+64*i,263);
-//                glTexCoord2f(0.0f,1.0f);	glVertex2f(200+64*i,263);
-//                glEnd();
-//            }
-//            glDisable(GL_TEXTURE_2D);
-//        }
-//        glDisable(GL_TEXTURE_2D);
-//        int index=-1;
-//        if(mouse_y>=200 && mouse_y<=263)
-//        {
-//            if(mouse_x>=200 && mouse_x<=711)
-//            {
-//                index=(mouse_x-200)>>6;
-//                if(index>=8) index=-1;
-//            }
-//        }
-
-//        glBegin(GL_LINES);
-//        for(int i=0;i<8;i++)
-//        {
-//            if(i==index)
-//                glColor3f(1.0f,0.0f,0.0f);
-//            else
-//                glColor3f(1.0f,1.0f,1.0f);
-//            glVertex2f(200+64*i,200);	glVertex2f(263+64*i,200);
-//            glVertex2f(263+64*i,200);	glVertex2f(263+64*i,263);
-//            glVertex2f(263+64*i,263);	glVertex2f(200+64*i,263);
-//            glVertex2f(200+64*i,263);	glVertex2f(200+64*i,200);
-//        }
-//        glEnd();
 
         glEnable(GL_TEXTURE_2D);			// Affiche le curseur
         show_mouse(screen);
@@ -921,64 +888,80 @@ void SurfEdit()
 
         gfx->unset_2D_mode();	// Quitte le mode de dessin d'allegro
 
-//        if(index!=-1 && amb!=mouse_b && mouse_b==1) // L'utilisateur veut choisir une texture
-//        {
-//            String filename = Dialog( I18N::Translate( "Charger une texture" ).c_str(),"*.*");
-//            BITMAP *bmp_tex = filename.length()>0 ? load_bitmap(filename.c_str(),NULL) : NULL;
-//            if(bmp_tex) // Si il s'agit d'ajouter/modifier une texture
-//            {
-//                if(bitmap_color_depth(bmp_tex)==24 || strstr(filename.c_str(),".jpg")!=NULL)
-//                {
-//                    BITMAP *tmp = create_bitmap_ex(32,bmp_tex->w,bmp_tex->h);
-//                    for(int y=0;y<tmp->h;y++)
-//                        for(int x=0;x<tmp->w;x++)
-//                            putpixel(tmp,x,y,getpixel(bmp_tex,x,y)|0xFF000000);
-//                    destroy_bitmap(bmp_tex);
-//                    bmp_tex=tmp;
-//                }
-//                if(index>=obj_table[cur_part]->surface.NbTex)// Ajoute la texture
-//                {
-//                    index=obj_table[cur_part]->surface.NbTex;
-//                    allegro_gl_use_alpha_channel(true);
-//                    allegro_gl_set_texture_format(GL_RGBA8);
-//                    obj_table[cur_part]->surface.gltex[index]=allegro_gl_make_texture(bmp_tex);
-//                    allegro_gl_use_alpha_channel(false);
-//                    glBindTexture(GL_TEXTURE_2D,obj_table[cur_part]->surface.gltex[index]);
-//                    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
-//                    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
-//                    obj_table[cur_part]->surface.NbTex++;
-//                    destroy_bitmap(bmp_tex);
-//                }
-//                else
-//                {
-//                    glDeleteTextures(1,&obj_table[cur_part]->surface.gltex[index]);
-//                    allegro_gl_use_alpha_channel(true);
-//                    allegro_gl_set_texture_format(GL_RGBA8);
-//                    obj_table[cur_part]->surface.gltex[index]=allegro_gl_make_texture(bmp_tex);
-//                    allegro_gl_use_alpha_channel(false);
-//                    glBindTexture(GL_TEXTURE_2D,obj_table[cur_part]->surface.gltex[index]);
-//                    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
-//                    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
-//                    destroy_bitmap(bmp_tex);
-//                }
-//            }
-//            else
-//            {
-//                if(index<obj_table[cur_part]->surface.NbTex && obj_table[cur_part]->surface.NbTex>0) // Sinon on enlève la texture
-//                {
-//                    glDeleteTextures(1,&obj_table[cur_part]->surface.gltex[index]);
+        int index = -1;
+        for (int i = 0 ; i < 8 ; i++)
+            if (surface_area.get_state( format("surface.tex%d",i)))
+            {
+                surface_area.set_state( format("surface.tex%d",i), false );
+                index = i;
+                break;
+            }
 
-//                    obj_table[cur_part]->surface.NbTex--;
-//                    if(index<obj_table[cur_part]->surface.NbTex)		// Décale les textures si nécessaire
-//                        for(int i=index;i<obj_table[cur_part]->surface.NbTex;i++)
-//                            obj_table[cur_part]->surface.gltex[i]=obj_table[cur_part]->surface.gltex[i+1];
-//                }
-//            }
-//        }		// Fin de l'algorithme de sélection de texture
+        if(index!=-1) // L'utilisateur veut choisir une texture / the user is selecting a texture
+        {
+            String filename = Dialog( I18N::Translate( "Load a texture" ).c_str(),"*.*");
+            BITMAP *bmp_tex = filename.length()>0 ? load_bitmap(filename.c_str(),NULL) : NULL;
+            if(bmp_tex) // Si il s'agit d'ajouter/modifier une texture / If we are adding/modifying a texture
+            {
+                if(bitmap_color_depth(bmp_tex)==24 || strstr(filename.c_str(),".jpg")!=NULL)
+                {
+                    BITMAP *tmp = create_bitmap_ex(32,bmp_tex->w,bmp_tex->h);
+                    for(int y=0;y<tmp->h;y++)
+                        for(int x=0;x<tmp->w;x++)
+                            putpixel(tmp,x,y,getpixel(bmp_tex,x,y)|0xFF000000);
+                    destroy_bitmap(bmp_tex);
+                    bmp_tex=tmp;
+                }
+                if(index>=obj_table[cur_part]->surface.NbTex)// Ajoute la texture / Add the texture
+                {
+                    index=obj_table[cur_part]->surface.NbTex;
+                    allegro_gl_use_alpha_channel(true);
+                    allegro_gl_set_texture_format(GL_RGBA8);
+                    obj_table[cur_part]->surface.gltex[index]=allegro_gl_make_texture(bmp_tex);
+                    allegro_gl_use_alpha_channel(false);
+                    glBindTexture(GL_TEXTURE_2D,obj_table[cur_part]->surface.gltex[index]);
+                    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
+                    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
+                    obj_table[cur_part]->surface.NbTex++;
+                    destroy_bitmap(bmp_tex);
+                }
+                else
+                {
+                    gfx->destroy_texture(obj_table[cur_part]->surface.gltex[index]);
+                    allegro_gl_use_alpha_channel(true);
+                    allegro_gl_set_texture_format(GL_RGBA8);
+                    obj_table[cur_part]->surface.gltex[index] = allegro_gl_make_texture(bmp_tex);
+                    allegro_gl_use_alpha_channel(false);
+                    glBindTexture(GL_TEXTURE_2D,obj_table[cur_part]->surface.gltex[index]);
+                    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
+                    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
+                    destroy_bitmap(bmp_tex);
+                }
+            }
+            else
+            {
+                if(index<obj_table[cur_part]->surface.NbTex && obj_table[cur_part]->surface.NbTex>0) // Sinon on enlève la texture / otherwise we remove the texture
+                {
+                    gfx->destroy_texture(obj_table[cur_part]->surface.gltex[index]);
+                    
+                    for(int i=0;i<8;i++)                            // Reset IDs of displayed textures
+                        surface_area.set_data( format("surface.tex%d", i), 0);
+
+                    obj_table[cur_part]->surface.NbTex--;
+                    if(index<obj_table[cur_part]->surface.NbTex)		// Décale les textures si nécessaire / Shift textures if needed
+                        for(int i=index;i<obj_table[cur_part]->surface.NbTex;i++)
+                            obj_table[cur_part]->surface.gltex[i]=obj_table[cur_part]->surface.gltex[i+1];
+                }
+            }
+        }		// Fin de l'algorithme de sélection de texture / End of texture selection code
 
         // Affiche
         gfx->flip();
     } while(!done);
+
+    // Clear texture values (we mustn't destroy those textures since they're part of the objects)
+    for(int i=0;i<8;i++)
+        surface_area.set_data( format("surface.tex%d", i), 0);
 }					// Fin de l'éditeur de surfaces
 
 /*---------------------------------------------------------------------------------------------------\
