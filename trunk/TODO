@@ -11,6 +11,8 @@ _add support for TTF fonts ( seems impossible due to memory restrictions )
 _improve A.I.
 _D3D support
 
+* 3DMEditor now supports OBJ 3D format
+* 3DMEditor's interface has been rewritten
 * rendering unit orders paths is faster (uses ARRAYs instead of immediate mode :s)
 * in tactical view path icons are replaced with half transparent white lines (faster and visible :) )
 * improved pathfinding and path following code performance

@@ -28,6 +28,7 @@
 #include "gaf.h"
 #include "3do.h"			// Gestion des modèles 3D
 #include "3ds.h"			// The 3DS model loader
+#include "obj.h"			// The OBJ model loader
 #include "3dmeditor.h"
 #include "misc/paths.h"
 #include "misc/osinfo.h"
@@ -129,7 +130,18 @@ void mnu_file(int mnu_index)
                 }
             }
             break;
-        case 6:					// Quitter / Exit
+        case 6:					// Importer / Import (*.obj)
+            {
+                init_surf_buf();
+                String filename = Dialog(I18N::Translate( "Import an OBJ model" ),"*.obj");
+                if (file_exists(filename.c_str(),FA_RDONLY | FA_HIDDEN | FA_SYSTEM | FA_LABEL | FA_ARCH,NULL))
+                {
+                    TheModel = load_obj( filename );
+                    cur_part=0;
+                }
+            }
+            break;
+        case 7:					// Quitter / Exit
             ClickOnExit=true;
             break;
     };
