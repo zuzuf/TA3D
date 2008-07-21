@@ -1672,7 +1672,7 @@ const int UNIT::run_script(const float &dt,const int &id,MAP *map,int max_code)	
         return 2;		// Erreur, ce n'est pas un script repertorié
     }
 
-    float divisor=i2pwr16;
+    float divisor(I2PWR16);
     float div=0.5f*divisor;
     bool done=false;
     int nb_code=0;

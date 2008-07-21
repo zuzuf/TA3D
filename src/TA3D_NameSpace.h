@@ -191,33 +191,6 @@ namespace TA3D
 
 		namespace CONSTANTS
 		{
-			// Common math related macros
-			// Pi, our favorite number
-#undef PI
-#define PI 3.141592653589793238462643383279502884197169399375105f
-#define DB_PI 6.28318530717958647693f
-
-			// Square root of 2
-#undef SQRT2
-#define SQRT2 1.414213562373095048801688724209698078569671875376948
-
-			// Square root of 2 over 2
-#undef SQRT2OVER2
-#define SQRT2OVER2 0.707106781186547524400844362104849039284835937688474
-
-			// Square root of 3
-#undef SQRT3
-#define SQRT3 1.732050807568877293527446341505872366942805253810381
-
-			// Square root of 3 over 2
-#undef SQRT3OVER2
-#define SQRT3OVER2 0.866025403784438646763723170752936183471402626905190
-
-			// The natural number "e"
-#undef NAT_E
-#define NAT_E 2.718281828459045235360287471352662497757247093699959
-
-
 			const uint32 uint32max =  0xffffffff;
 			const uint32 uint32min =           0;
 			const sint32 sint32max =  0x7fffffff;

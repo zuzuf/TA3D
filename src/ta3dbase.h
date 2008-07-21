@@ -106,18 +106,6 @@ extern int cursor_type;
 int anim_cursor(int type=-1);
 void draw_cursor();
 
-const float DEG2RAD=PI/180.0f;
-const float RAD2DEG=180.0f/PI;
-
-const float DEG2TA=65536.0f/360.0f;
-const float TA2DEG=360.0f/65536.0f;
-
-const float RAD2TA=RAD2DEG*DEG2TA;
-const float TA2RAD=TA2DEG*DEG2RAD;
-
-const float i2pwr16=1.0f/65536.0f;
-
-
 
 void reset_mouse();
 void reset_keyboard();
