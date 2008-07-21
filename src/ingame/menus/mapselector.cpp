@@ -366,7 +366,6 @@ namespace Menus
             case 0:
                 {
                     Popup(I18N::Translate("Error"), I18N::Translate("No map found"));
-                    Console->AddEntry("No maps found!!");
                     LOG_ERROR(TA3D_LOG_SECTION_MENU_MAP_SELECTOR_PREFIX << "No maps have been found.");
                     return false;
                 }

@@ -31,6 +31,10 @@
 #include "../UnitEngine.h"
 #include "../misc/paths.h"
 #include "../misc/math.h"
+#include "../logs/logs.h"
+
+
+#define TA3D_LOGS_AI_PREFIX  "[AI] "
 
 
 namespace TA3D
@@ -479,21 +483,21 @@ namespace TA3D
         ai->order_weight[ ORDER_ARMY ] = (ai->nb_units[ AI_UNIT_TYPE_ENEMY ] - ai->nb_units[ AI_UNIT_TYPE_ARMY ]) * 0.1f;
         ai->order_weight[ ORDER_DEFENSE ] = (ai->nb_units[ AI_UNIT_TYPE_ENEMY ] - ai->nb_units[ AI_UNIT_TYPE_DEFENSE ]) * 0.1f;
 
-        for( uint16 i = 0 ; i < 10 ; ++i )
+        for (uint16 i = 0; i < 10; ++i)
         {
-            ai->order_attack[ i ] = ai->nb_enemy[ i ] > 0 ? (ai->nb_units[ AI_UNIT_TYPE_ARMY ] - ai->nb_enemy[ i ]) * 0.1f : 0.0f;
-            if (ai->order_attack[ i ] < 0.0f )
-                ai->order_attack[ i ] = 0.0f;
-            ai->order_attack[ i ] = (1.0f - exp( -ai->order_attack[ i ] )) * 30.0f;
-#ifdef AI_DEBUG
-            printf("attack player %d = %f\n", i, ai->order_attack[ i ] );
-#endif
+            ai->order_attack[i] = ai->nb_enemy[i] > 0 ? (ai->nb_units[AI_UNIT_TYPE_ARMY] - ai->nb_enemy[i]) * 0.1f : 0.0f;
+            if (ai->order_attack[i] < 0.0f )
+                ai->order_attack[i] = 0.0f;
+            ai->order_attack[i] = (1.0f - exp( -ai->order_attack[i])) * 30.0f;
+            # ifdef AI_DEBUG
+            LOG_DEBUG(TA3D_LOGS_AI_PREFIX << "Attack player " << i << " = " << ai->order_attack[i]);
+            # endif
         }
 
 
-#ifdef AI_DEBUG
-        Console->AddEntry( "AI(%d,%d) -> thinking", ai->player_id, msec_timer );
-#endif
+        # ifdef AI_DEBUG
+        LOG_DEBUG(TA3D_LOGS_AI_PREFIX << "AI(" << ai->player_id << "," << msec_timer << ") thinking...");
+        # endif
 
         float sw[ 10000 ];			// Used to compute the units that are built
 
@@ -560,9 +564,10 @@ namespace TA3D
                         break;
                     }
                 }
-#ifdef AI_DEBUG
-                Console->AddEntry( "AI(%d,%d) -> factory %d building %d", ai->player_id, msec_timer, *i, selected_idx);
-#endif
+                # ifdef AI_DEBUG
+                LOG_DEBUG(TA3D_LOGS_AI_PREFIX << "AI(" << ai->player_id
+                          << "," << msec_timer << ") -> factory " << *i << "building " << selected_idx);
+                # endif
                 units.unit[ *i ].add_mission( MISSION_BUILD, &units.unit[ *i ].Pos, false, selected_idx );
                 ai->weights[ selected_idx ].w *= 0.8f;
             }
@@ -645,33 +650,35 @@ namespace TA3D
                 py = spy;
                 found |= best_metal > 0;
 
-                if (found )
+                if (found)
                 {
                     target.x = (px << 3) - map->map_w_d;
                     target.z = (py << 3) - map->map_h_d;
                     target.y = Math::Max( map->get_max_rect_h((int)target.x,(int)target.z, unit_manager.unit_type[ selected_idx ].FootprintX, unit_manager.unit_type[ selected_idx ].FootprintZ ), map->sealvl);
                     units.unit[ *i ].add_mission( MISSION_BUILD, &target, false, selected_idx );
-#ifdef AI_DEBUG
-                    Console->AddEntry( "AI(%d,%d) -> builder %d building %d", ai->player_id, msec_timer, *i, selected_idx );
-#endif
+                    # ifdef AI_DEBUG
+                    LOG_DEBUG(TA3D_LOGS_AI_PREFIX << "AI(" << ai->player_id << "," << msec_timer
+                              << ") -> builder " << *i << " building " << selected_idx);
+                    # endif
                     ai->weights[ selected_idx ].w *= 0.8f;
                 }
-#ifdef AI_DEBUG
+                # ifdef AI_DEBUG
                 else
-                    Console->AddEntry( "AI(%d,%d) -> builder %d building %d, error: no build place found", ai->player_id, msec_timer, *i, selected_idx );
-#endif
+                    LOG_WARNING(TA3D_LOGS_AI_PREFIX << "AI(" << ai->player_id << "," << msec_timer
+                              << ") -> builder " << *i << " building " << selected_idx << ": No build place found");
+                # endif
             }
             units.unit[ *i ].unlock();
         }
 
         float factory_needed = 0.0f;
         float builder_needed = 0.0f;
-        for( uint16 i = 0 ; i < unit_manager.nb_unit ; ++i)	// Build required units
-            if (ai->weights[ i ].w >= ai->weights[ i ].o_w)
+        for (uint16 i = 0 ; i < unit_manager.nb_unit; ++i)	// Build required units
+            if (ai->weights[i].w >= ai->weights[i].o_w)
             {
-                if (ai->weights[ i ].built_by.empty() )
+                if (ai->weights[i].built_by.empty() )
                 {
-                    for( uint16 e = 0 ; e < unit_manager.nb_unit ; ++e)
+                    for (uint16 e = 0 ; e < unit_manager.nb_unit; ++e)
                     {
                         bool can_build = false;
                         for( uint16 f = 0 ; f < unit_manager.unit_type[e].nb_unit && !can_build ; ++f)
@@ -739,7 +746,7 @@ namespace TA3D
             case AI_TYPE_HARD    :speed = 2000;  break;
             case AI_TYPE_BLOODY  :speed = 1000;  break;
         }
-        Console->AddEntry("AI thread started for player %d", player_id);
+        LOG_INFO(TA3D_LOGS_AI_PREFIX << "Started for player " << player_id);
         while (!thread_ask_to_stop)
         {
             scan_unit();						// Look at the units
@@ -751,17 +758,17 @@ namespace TA3D
             }
 
             float time_factor = units.apparent_timefactor;
-            while( (time_factor == 0.0f || lp_CONFIG->pause) && !thread_ask_to_stop )
+            while ((time_factor == 0.0f || lp_CONFIG->pause) && !thread_ask_to_stop)
             {
                 time_factor = units.apparent_timefactor;
-                rest( 10 );
+                rest(10);
             }
-            int time_to_wait = (int)( speed / ( ( units.nb_unit / 100 + 1 ) * time_factor ) );
-            for (int i = 0 ; i < time_to_wait && !thread_ask_to_stop ; i += 100)		// Wait in order not to use all the CPU
+            int time_to_wait = (int)(speed / ((units.nb_unit / 100 + 1) * time_factor));
+            for (int i = 0 ; i < time_to_wait && !thread_ask_to_stop; i += 100)		// Wait in order not to use all the CPU
                 rest(Math::Min(100, time_to_wait - i));									// divide the wait call in order not to wait too much when game ends
 
         }
-        Console->AddEntry("AI thread stopped for player %d", player_id);
+        LOG_INFO(TA3D_LOGS_AI_PREFIX << "Stopped for player " << player_id);
         thread_running = false;
         thread_ask_to_stop = false;
         return 0;
@@ -770,7 +777,7 @@ namespace TA3D
 
     void AI_PLAYER::SignalExitThread()
     {
-        Console->AddEntry("AI thread stopping for player %d", player_id);
+        LOG_INFO(TA3D_LOGS_AI_PREFIX << "Stopping for player " << player_id << "...");
         thread_ask_to_stop = true;
         while (thread_running)
             rest(1);
@@ -849,10 +856,8 @@ namespace TA3D
 
     void AI_PLAYER::save()
     {
-        String filename = "ai";
-        filename += Paths::Separator;
-        filename += name;
-        filename += TA3D_AI_FILE_EXTENSION;
+        String filename;
+        filename << "ai" << Paths::Separator << name << TA3D_AI_FILE_EXTENSION;
         FILE* file = TA3D_OpenFile(filename, "wb");
 
         byte l = (byte)name.size();

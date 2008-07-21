@@ -170,10 +170,11 @@ namespace TA3D
 
         inline int pop()
         {
-            if(stack==NULL) {			// Si la pile est vide, renvoie 0 et un message pour le débuggage
-#ifdef DEBUG_MODE
-                Console->AddEntry("COB VM: stack is empty!\n");
-#endif
+            if (stack==NULL)// Si la pile est vide, renvoie 0 et un message pour le débuggage
+            {
+                # ifdef DEBUG_MODE
+                LOG_WARNING("COB VM: stack is empty !");
+                # endif
                 return 0;
             }
             int v=stack->val;

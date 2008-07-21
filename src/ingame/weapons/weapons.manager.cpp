@@ -1,6 +1,6 @@
 #include "weapons.manager.h"
 #include "../../sounds/manager.h"
-
+#include "../../logs/logs.h"
 
 
 namespace TA3D
@@ -450,7 +450,7 @@ namespace TA3D
                     }
                     else {
                         if(strlen(ligne)>1 && strstr(ligne,"{")==NULL && strstr(ligne,"}")==NULL)
-                            Console->AddEntry("(arme) inconnu: %s",ligne);
+                            LOG_WARNING("Unknown weapon: " << ligne);
                     }
 
             } while(strstr(ligne,"}")==NULL && pos<limit);

@@ -18,6 +18,9 @@
 #include "../stdafx.h"
 #include "../TA3D_NameSpace.h"
 #include "../misc/math.h"
+#include "../logs/logs.h"
+
+#define TA3D_SOCKS_LOGS_PREFIX "[sock] "
 
 
 namespace TA3D
@@ -474,14 +477,15 @@ namespace TA3D
     }
 
 
-    int TA3DSock::makeSpecial(struct chat* chat){
-        if(tcpinbuf[0] != 'X' && tcpinbuf[0] != 'A'){
-            Console->AddEntry("makeSpecial error: the data doesn't start with a 'X' or a 'A'");
+    int TA3DSock::makeSpecial(struct chat* chat)
+    {
+        if(tcpinbuf[0] != 'X' && tcpinbuf[0] != 'A')
+        {
+            LOG_ERROR(TA3D_SOCKS_LOGS_PREFIX << "The data doesn't start with a 'X' or a 'A'");
             return -1;
         }
-        if(tiremain == -1){
+        if (tiremain == -1)
             return -1;
-        }
         tibrp = 1;
         chat->from = getShort();
         getBuffer(chat->message,253);
@@ -492,14 +496,15 @@ namespace TA3D
         return 0;
     }
 
-    int TA3DSock::makeChat(struct chat* chat){
-        if(tcpinbuf[0] != 'C'){
-            Console->AddEntry("makeChat error: the data doesn't start with a 'C'");
+    int TA3DSock::makeChat(struct chat* chat)
+    {
+        if (tcpinbuf[0] != 'C')
+        {
+            LOG_ERROR(TA3D_SOCKS_LOGS_PREFIX << "The data doesn't start with a 'C'");
             return -1;
         }
-        if(tiremain == -1){
+        if (tiremain == -1)
             return -1;
-        }
         tibrp = 1;
         chat->from = getShort();
         getBuffer(chat->message,253);
@@ -510,28 +515,30 @@ namespace TA3D
         return 0;
     }
 
-    int TA3DSock::makePing(){
-        if(tcpinbuf[0] != 'P'){
-            Console->AddEntry("makePing error: the data doesn't start with a 'P'");
+    int TA3DSock::makePing()
+    {
+        if (tcpinbuf[0] != 'P')
+        {
+            LOG_ERROR(TA3D_SOCKS_LOGS_PREFIX << "The data doesn't start with a 'P'");
             return -1;
         }
-        if(tiremain == -1){
+        if (tiremain == -1)
             return -1;
-        }
         tibp = 0;
         tiremain = -1;
 
         return 0;
     }
 
-    int TA3DSock::makeOrder(struct order* order){
-        if(tcpinbuf[0] != 'O'){
-            Console->AddEntry("makeOrder error: the data doesn't start with an 'O'");
+    int TA3DSock::makeOrder(struct order* order)
+    {
+        if (tcpinbuf[0] != 'O')
+        {
+            LOG_ERROR(TA3D_SOCKS_LOGS_PREFIX << "The data doesn't start with an 'O'. Impossible to give the order");
             return -1;
         }
-        if(tiremain == -1){
+        if (tiremain == -1)
             return -1;
-        }
         uint32_t temp;
 
         memcpy(&temp,tcpinbuf+1,4);
@@ -559,14 +566,15 @@ namespace TA3D
         return 0;
     }
 
-    int TA3DSock::makeSync(struct sync* sync){
-        if(tcpinbuf[0] != 'S'){
-            Console->AddEntry("makeSync error: the data doesn't start with an 'S'");
+    int TA3DSock::makeSync(struct sync* sync)
+    {
+        if (tcpinbuf[0] != 'S')
+        {
+            LOG_ERROR(TA3D_SOCKS_LOGS_PREFIX << "The data doesn't start with an 'S'. Impossible to synchronize");
             return -1;
         }
-        if(tiremain == -1){
+        if(tiremain == -1)
             return -1;
-        }
         tibrp = 1;
 
         sync->timestamp = getLong();
@@ -588,18 +596,19 @@ namespace TA3D
         return 0;
     }
 
-    int TA3DSock::makeEvent(struct event* event){
-        if(tcpinbuf[0] != 'E'){
-            Console->AddEntry("makeEvent error: the data doesn't start with an 'E'");
+    int TA3DSock::makeEvent(struct event* event)
+    {
+        if (tcpinbuf[0] != 'E')
+        {
+            LOG_ERROR(TA3D_SOCKS_LOGS_PREFIX << "The data doesn't start with an 'E'. Impossible to make the event");
             return -1;
         }
-        if(tiremain == -1){
+        if (tiremain == -1)
             return -1;
-        }
         tibrp = 1;
         event->type = getByte();
 
-        switch( event->type )
+        switch (event->type)
         {
             case EVENT_UNIT_NANOLATHE:
                 event->opt1 = getShort();
@@ -715,32 +724,33 @@ namespace TA3D
     {
         if( tcpinbuf[0] != 'F' && tcpinbuf[0] != 'R' )
         {
-            Console->AddEntry("getFilePort error: the data doesn't start with an 'F' or an 'R'");
+            LOG_ERROR(TA3D_SOCKS_LOGS_PREFIX << "The data doesn't start with an 'F' or an 'R'. Impossible to start the file transfer");
             return -1;
         }
-        if(tiremain == -1)
+        if (tiremain == -1)
             return -1;
         return *((uint16*)(tcpinbuf+1));
     }
 
     int TA3DSock::getFileData(byte *buffer)	// Fill the buffer with the data and returns the size of the paquet
     {
-        if( tcpinbuf[0] != 'F' && tcpinbuf[0] != 'R' )
+        if (tcpinbuf[0] != 'F' && tcpinbuf[0] != 'R')
         {
-            Console->AddEntry("getFilePort error: the data doesn't start with an 'F' or an 'R'");
+            LOG_ERROR(TA3D_SOCKS_LOGS_PREFIX << "The data doesn't start with an 'F' or an 'R'. Impossible to get data for the file transfer");
             return -1;
         }
-        if(tiremain == -1)
+        if (tiremain == -1)
             return -1;
         int size = tibp - 3;
         if( buffer )
             memcpy( buffer, tcpinbuf + 3, size );
-
         tibp = 0;
         tiremain = -1;
 
         return size;
     }
+
+
 
 } // namespace TA3D
 

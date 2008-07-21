@@ -31,6 +31,7 @@
 #include "UnitEngine.h"
 #include "network/TA3D_Network.h"
 #include "languages/i18n.h"
+#include "logs/logs.h"
 
 
 
@@ -343,7 +344,7 @@ namespace TA3D
                     feature[index].feature_reclamate=strdup(strstr(ligne,"featurereclamate=")+17);
                 }
                 else if(strstr(ligne,";"))
-                    Console->AddEntry("(tdf)unknown: %s",ligne);
+                    LOG_ERROR("[tdf] Unknown: `" << ligne << "`");
 
             } while(strstr(ligne,"}") == NULL && nb < 10000 && pos < limit);
 
@@ -381,7 +382,7 @@ namespace TA3D
                         if (index >= 0)
                             feature[i].anim.load_gaf(gaf, get_gaf_entry_index(gaf, feature[i].seqname), true, feature[i].filename);
                         else
-                            Console->AddEntry("WARNING: %s has no picture to display!! Missing files?", feature[i].name );
+                            LOG_WARNING("`" << feature[i].name << "` has no picture to display !");
                         delete[] gaf;
 
                         if (index>=0 && feature[i].height<=10.0f && feature[i].height>1.0f && feature[i].anim.nb_bmp>0 && feature[i].blocking
@@ -435,12 +436,12 @@ namespace TA3D
             byte* data = HPIManager->PullFromHPI(curFile->c_str(), &file_size);
             if (data)
             {
-                Console->AddEntry("loading %s", curFile->c_str());
+                LOG_DEBUG("Loading feature: `" << *curFile << "`...");
                 feature_manager.load_tdf((char*)data, file_size);
                 delete[] data;
             }
             else
-                Console->AddEntry("WARNING: loading %s failed", curFile->c_str());
+                LOG_WARNING("Loading `" << *curFile << "` failed");
         }
 
         for (int i = 0; i < feature_manager.nb_features; ++i)

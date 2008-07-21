@@ -36,7 +36,6 @@
 # include "cTAFileParser.h"
 # include "TA3D_hpi.h"
 # include "gfx/gfx.h"
-# include "console.h"
 # include "network/network.h"
 # include "threads/thread.h"
 # include <vector>
@@ -189,7 +188,6 @@ namespace TA3D
 	{
 		TA3D_API_E TA3D::IInterfaceManager			*InterfaceManager; 
 		TA3D_API_E TA3D::UTILS::HPI::cHPIHandler	*HPIManager;
-		TA3D_API_E TA3D::TA3D_DEBUG::cConsole		*Console;
 		TA3D_API_E TA3D::Interfaces::GFX			*gfx;
 
 		TA3D_API_E RGB								*pal;
@@ -359,7 +357,6 @@ extern volatile uint32	msec_timer;
 // TODO Must be removed
 using namespace TA3D;
 using namespace TA3D::VARS;
-using namespace TA3D::TA3D_DEBUG;
 
 
 #endif // __TA3D_NAMESPACE_H__

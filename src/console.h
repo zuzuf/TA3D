@@ -27,55 +27,78 @@
 #ifndef _TA3D_XX_CLASSE_CONSOLE_H__
 # define _TA3D_XX_CLASSE_CONSOLE_H__
 
-# include "threads/thread.h"
+# include "misc/string.h"
+# include "threads/mutex.h"
 
 
-#define CONSOLE_MAX_LINE	100
 
 namespace TA3D
 {
-namespace TA3D_DEBUG
-{
 
-    class cConsole : public ObjectSync
+
+    /*! \class Console
+    **
+    ** \brief The user console
+    */
+    class Console 
     {
-    private:
-        String::List m_LastEntries;
-        bool				m_Recording;
-        String				m_RecordFilename;
-        uint16				m_MaxDisplayItems;
-        real32				m_Visible;
-        bool				m_Show;
-        char				m_InputText[200];
-        uint16				m_CurrentLine;
-        uint32				m_CurrentTimer;
-        bool				m_std_output;
-        bool				m_log_close;
-
     public:
-        cConsole();
-
-        ~cConsole();
-
-        void ToggleShow();
-
-        bool activated() const {return m_Show || m_Visible > 0.0f;}
-
-
-        void stdout_on() {m_std_output = true;}
-        void stdout_off() {m_std_output = false;}
-
-        void AddEntryWarning(const char *txt, ...);
-        void AddEntryWarning( String NewEntry );
-        void AddEntry(const char *txt, ...);
-        void AddEntry( String NewEntry );
-
-        char *draw( TA3D::Interfaces::GfxFont fnt, float dt, float fsize=8, bool force_show=false );
-
-    }; //class cConsole
+        //! \name Constructor & Destructor
+        //@{
+        //! Default constructor
+        Console();
+        //! Destructor
+        ~Console();
+        //@}
 
 
-} // namespace TA3D_DEBUG
+        /*!
+        ** \brief Toggle the state of the visibility of the console
+        */
+        void toggleShow();
+
+        /*!
+        ** \brief Get if the console is activated
+        */
+        bool activated();
+
+        /*!
+        ** \brief Add an entry in the console
+        */
+        void addEntry(const String& newEntry);
+
+        /*!
+        ** \brief Draw the console
+        **
+        ** \param fnt Font
+        ** \param dt Delta
+        ** \param fsize Size of the font
+        ** \param forceShow Display the console even it should be displayed
+        */
+        char *draw(TA3D::Interfaces::GfxFont& fnt, const float dt, float fsize = 8, const bool forceShow = false);
+
+
+    private:
+        //! Mutex
+        Mutex pMutex;
+        //!
+        String::List pLastEntries;
+        //!
+        uint16 pMaxItemsToDisplay;
+        //!
+        real32 pVisible;
+        //! 
+        bool pShow;
+        //! 
+        char pInputText[200];
+        //! 
+        uint32 pCurrentTimer;
+
+    }; //class Console
+
+
+    extern Console console;
+
 } // namespace TA3D
 
 #endif // _TA3D_XX_CLASSE_CONSOLE_H__

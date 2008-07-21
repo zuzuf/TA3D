@@ -3,7 +3,7 @@
 #include "../../ta3dbase.h"
 #include "../../misc/math.h"
 #include "../../sounds/manager.h"
-
+#include "../../console.h"
 
 using namespace TA3D::Exceptions;
 
@@ -729,7 +729,7 @@ namespace TA3D
                 Objets[i].activated = mouse_b==1 && Objets[i].MouseOn;
 
                 bool clicked = false;
-                if (Objets[i].shortcut_key >= 0 && Objets[i].shortcut_key <= 255 && lp_CONFIG->enable_shortcuts && !TA3D_CTRL_PRESSED && !TA3D_SHIFT_PRESSED && (Console == NULL || !Console->activated())
+                if (Objets[i].shortcut_key >= 0 && Objets[i].shortcut_key <= 255 && lp_CONFIG->enable_shortcuts && !TA3D_CTRL_PRESSED && !TA3D_SHIFT_PRESSED && !console.activated()
                     && (key[ ascii_to_scancode[ Objets[i].shortcut_key ] ]
                         || (Objets[i].shortcut_key >= 65 && Objets[i].shortcut_key <= 90 && key[ ascii_to_scancode[ Objets[i].shortcut_key + 32 ] ])
                         || (Objets[i].shortcut_key >= 97 && Objets[i].shortcut_key <= 122 && key[ ascii_to_scancode[ Objets[i].shortcut_key - 32 ] ])))

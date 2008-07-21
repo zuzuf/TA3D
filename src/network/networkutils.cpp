@@ -3,6 +3,12 @@
 #include "networkutils.h"
 #include "ta3dsock.h"
 #include "TA3D_Network.h"
+#include "../logs/logs.h"
+
+
+#define TA3D_LOGS_BROADCAST_PREFIX "[broadcast] "
+#define TA3D_LOGS_FILETRANSFERT_PREFIX "[file-transfer] "
+
 
 namespace TA3D
 {
@@ -282,7 +288,8 @@ namespace TA3D
     }
 
 
-    void BroadCastThread::proc(void* param){
+    void BroadCastThread::proc(void* param)
+    {
         BroadcastSock* sock;
         Network* network;
 
@@ -295,8 +302,8 @@ namespace TA3D
 
         pDead = 0;
 
-        while(!pDead && sock->isOpen() ){
-
+        while(!pDead && sock->isOpen() )
+        {
             //sleep until data is coming
             sock->takeFive(1000);
             if(pDead) break;
@@ -305,9 +312,11 @@ namespace TA3D
             sock->pumpIn();
 
             msg = sock->makeMessage();
-            if( !msg.empty() ) {
+            if (!msg.empty())
+            {
                 network->mqmutex.lock();
-                if(pDead){
+                if (pDead)
+                {
                     network->mqmutex.unlock();
                     break;
                 }
@@ -318,8 +327,7 @@ namespace TA3D
         }
 
         pDead = 1;
-        Console->AddEntry("Broadcast thread closed!");
-
+        LOG_DEBUG(TA3D_LOGS_BROADCAST_PREFIX << "The thread has been closed");
         return;
     }
 
@@ -360,36 +368,40 @@ namespace TA3D
 
         network->sendFileData(sockid,port,(byte*)&length,4);
 
-        Console->AddEntry("starting file transfer...");
-        while(!pDead){
+        LOG_INFO(TA3D_LOGS_FILETRANSFERT_PREFIX << "Starting...");
+        while (!pDead)
+        {
             n = ta3d_fread(buffer,1,FILE_TRANSFER_BUFFER_SIZE,file);
-
             network->sendFileData(sockid,port,buffer,n);
-
-            if( n > 0 ) {
+            if (n > 0)
+            {
                 pos += n;
                 network->updateFileTransferInformation( filename + format("%d", sockid), real_length, pos );
 
                 int timer = msec_timer;
-                while( progress < pos - 10 * FILE_TRANSFER_BUFFER_SIZE && !pDead && msec_timer - timer < 5000 )	rest(0);
-                if( msec_timer - timer >= 5000 ) {
+                while( progress < pos - 10 * FILE_TRANSFER_BUFFER_SIZE && !pDead && msec_timer - timer < 5000 )
+                    rest(0);
+                if (msec_timer - timer >= 5000)
+                {
                     pDead = 1;
-                    network->updateFileTransferInformation( filename + format("%d", sockid), 0, 0 );
+                    network->updateFileTransferInformation(filename + format("%d", sockid), 0, 0);
                     network->setFileDirty();
-                    ta3d_fclose( file );
+                    ta3d_fclose(file);
                     return;
                 }
             }
 
-            if(ta3d_feof(file))		break;
+            if (ta3d_feof(file))
+                break;
 
             rest(1);
         }
 
         timer = msec_timer;
-        while( progress < pos - FILE_TRANSFER_BUFFER_SIZE && !pDead && msec_timer - timer < 5000 )	rest(1);		// Wait for client to say ok
+        while (progress < pos - FILE_TRANSFER_BUFFER_SIZE && !pDead && msec_timer - timer < 5000)
+            rest(1);		// Wait for client to say ok
 
-        Console->AddEntry("file transfer finished...");
+        LOG_INFO(TA3D_LOGS_FILETRANSFERT_PREFIX << "Done.");
 
         network->updateFileTransferInformation( filename + format("%d", sockid), 0, 0 );
         pDead = 1;
@@ -430,12 +442,13 @@ namespace TA3D
             return;
         }
 
-        Console->AddEntry("starting file transfer...");
+        LOG_INFO(TA3D_LOGS_FILETRANSFERT_PREFIX << "Starting...");
 
         int timer = msec_timer;
 
         ready = true;
-        while( !pDead && ready && msec_timer - timer < 5000 ) rest( 0 );
+        while (!pDead && ready && msec_timer - timer < 5000 )
+            rest(0);
         memcpy(&length,buffer,4);
 
         if( ready ) // Time out
@@ -451,13 +464,15 @@ namespace TA3D
 
         sofar = 0;
         if( pDead ) length = 1;			// In order to delete the file
-        while(!pDead){
+        while (!pDead)
+        {
             ready = true;
             timer = msec_timer;
             while( !pDead && ready && msec_timer - timer < 5000 ) rest( 0 );			// Get paquet data
             n = buffer_size;
 
-            if( ready ) {				// Time out
+            if (ready) // Time out
+            {
                 pDead = 1;
                 fclose( file );
                 delete_file( (filename + ".part").c_str() );
@@ -467,7 +482,8 @@ namespace TA3D
                 return;
             }
 
-            if( n > 0 ) {
+            if (n > 0)
+            {
                 sofar += n;
                 network->updateFileTransferInformation( filename + format("%d", sockid), length, sofar );
 
@@ -481,11 +497,11 @@ namespace TA3D
             rest(0);
         }
 
-        Console->AddEntry("file transfer finished...");
+        LOG_INFO(TA3D_LOGS_FILETRANSFERT_PREFIX << "Done.");
 
         network->updateFileTransferInformation( filename + format("%d", sockid), 0, 0 );
 
-        fclose( file );
+        fclose(file);
         if( pDead && sofar < length )				// Delete the file if transfer has been aborted
             delete_file( (filename + ".part").c_str() );
         else
@@ -516,15 +532,16 @@ namespace TA3D
                 //channel
             }
             else
-                if(network->myMode == 2)
+            {
+                if (network->myMode == 2)
                 {
                     //if you are a mere client then this thread responds to
                     //stuff on the administrative channel such as change of host
                     //and other things
                 }
+            }
             sleep(1);//testing
         }
-
         return;
     }
 

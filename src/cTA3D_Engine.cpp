@@ -55,7 +55,6 @@ namespace TA3D
 		InterfaceManager = NULL;
 		VARS::sound_manager = NULL;
 		VARS::HPIManager = NULL;
-		VARS::Console = NULL;
 		m_AllegroRunning = false;
 		VARS::gfx = NULL;
 		m_SignaledToStop = false;
@@ -105,9 +104,6 @@ namespace TA3D
 
 		GuardInfo( "Creating HPI Manager." );
 		TA3D::VARS::HPIManager = new TA3D::UTILS::HPI::cHPIHandler( GetClientPath() );
-
-		GuardInfo( "Creating console object." );
-		TA3D::VARS::Console = new TA3D::TA3D_DEBUG::cConsole();
 
 		GuardInfo( "Creating translation manager." );
 
@@ -214,11 +210,9 @@ namespace TA3D
 		delete gfx;
 		m_GFXModeActive = false;
 
-		delete Console;
-
 		delete InterfaceManager;
 
-		if( m_AllegroRunning )
+		if (m_AllegroRunning)
 		{
 			allegro_exit();
 			m_AllegroRunning = false;

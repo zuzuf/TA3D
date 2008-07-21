@@ -36,6 +36,7 @@
 #include <list>
 #include "languages/i18n.h"
 #include "misc/math.h"
+#include "logs/logs.h"
 
 UNIT_MANAGER unit_manager;
 
@@ -508,8 +509,8 @@ int UNIT_TYPE::load(char *data,int size)
             else if(strstr(f,"=guard_nomove;"))		DefaultMissionType=MISSION_GUARD_NOMOVE;
             else if(strstr(f,"=standby_mine;"))		DefaultMissionType=MISSION_STANDBY_MINE;
             else {
-                Console->AddEntry("->Unknown constant : %s\n",f);
-                nb_inconnu++;
+                LOG_ERROR("Unknown constant: `" << f << "`");
+                ++nb_inconnu;
             }
         }
         else if((f=strstr(ligne,"transmaxunits=")))		TransMaxUnits=TransportMaxUnits=atoi(f+14);
@@ -540,8 +541,8 @@ int UNIT_TYPE::load(char *data,int size)
         else if((f=strstr(ligne,"ai_limit="))) { }
         else if((f=strstr(ligne,"ai_weight="))) { }
         if(f==NULL && strstr(ligne,"}")==NULL && strlen( ligne ) > 0 ) {
-            Console->AddEntry("FBI unknown variable: %s",ligne);
-            nb_inconnu++;
+            LOG_ERROR("[FBI] Unknown variable: `" << ligne << "`");
+            ++nb_inconnu;
         }
         if(dup_ligne)
             free(dup_ligne);
@@ -558,11 +559,12 @@ int UNIT_TYPE::load(char *data,int size)
     if(Unitname) {
         model=model_manager.get_model(ObjectName);
         if(model==NULL)
-            Console->AddEntry("%s sans modèle 3D!",Unitname);
+            LOG_ERROR("`" << Unitname << "` without a 3D model");
     }
     else
-        Console->AddEntry("attention: unité sans nom!");
-    if (canfly==1) {TurnRate = TurnRate * 3; }				// A hack thanks to Doors
+        LOG_WARNING("The unit does not have a name");
+    if (canfly == 1)
+        TurnRate = TurnRate * 3; // A hack thanks to Doors
     load_dl();
     return nb_inconnu;
 }
@@ -752,7 +754,7 @@ void UNIT_MANAGER::load_panel_texture( const String &player_side, const String &
     }
     catch( ... )
     {
-        Console->AddEntry("ERROR: Unable to load %s", (ta3dSideData.guis_dir + player_side + "MAIN.GUI").c_str() );
+        LOG_ERROR("Unable to load `"<< (ta3dSideData.guis_dir + player_side + "MAIN.GUI") << "`");
         return;
     }
 
@@ -961,7 +963,7 @@ int load_all_units(void (*progress)(float percent,const String &msg))
                     unit_manager.unit_type[unit_manager.nb_unit - 1].unitpic = NULL;
             }
             delete[] data;
-            Console->AddEntry("loading %s", nom);
+            LOG_DEBUG("Loading `" << nom << "`...");
         }
         free(nom);
     }

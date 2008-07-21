@@ -153,7 +153,7 @@ int main(int argc, char* argv[])
 
     init_surf_buf();
 
-    Console->AddEntry(I18N::Translate("Initializing texture manager"));
+    LOG_INFO(I18N::Translate("Initializing texture manager"));
     texture_manager.init();
     texture_manager.all_texture();
 
@@ -459,8 +459,6 @@ int main(int argc, char* argv[])
     delete TheModel;
 
     delete gfx;
-
-    delete Console;
 
     return 0;
 }

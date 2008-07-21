@@ -64,12 +64,12 @@ END_OF_FUNCTION(Timer) /* I guess allegro needs this. */
  **             and run given commands. This is used to start a multiplayer game from
  **             an external Lobby client
  */
-void ReadFileParameter( void )
+void ReadFileParameter()
 {
     if(!TA3D::VARS::lp_CONFIG || TA3D::VARS::lp_CONFIG->file_param.empty())
         return;
 
-    Console->AddEntry("reading file parameter '%s'", TA3D::VARS::lp_CONFIG->file_param.c_str() );
+    LOG_DEBUG("Reading file parameter `" << TA3D::VARS::lp_CONFIG->file_param << "`...");
 
     cTAFileParser parser( TA3D::VARS::lp_CONFIG->file_param );
 

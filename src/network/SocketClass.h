@@ -20,13 +20,7 @@
 #ifndef __TA3D_SOCKET_CLASS__
 #define __TA3D_SOCKET_CLASS__
 
-# include <stdio.h>
-# include <stdlib.h>
-# ifndef TA3D_PLATFORM_MSVC
-#   include <unistd.h>
-# endif
-# include <string.h>
-
+# include "../stdafx.h"
 // Our low-level network layer, OS abstraction layer
 # include "../hawknl/include/nl.h" 
 
@@ -71,115 +65,120 @@
 
 
 
-
-/*! \class Socket
-**
-** \brief This particular socket class is a fairly basic layer
-** above bsd sockets api. TCP/UDP and ipv6 are supported.
-** There is no fancy support for sending packets, you may
-** only use this class to send your pre-prepared bytes.
-** That kind of stuff can go into a derived class.
-**
-**
-**
-** instruction manual
-** when opening a socket you must specify four things:
-**
-** hostname - a string containing either
-** a hostname: socket looks up connects to it OR
-** an ipv4/ipv6 address: socket connects to it OR 
-** NULL or nothing: socket will become a tcp server or udp receiver
-**
-** port - a string containing the port number to connect to or to listen on
-**
-** transport - a defined constant like
-** SOCK_STREAM - use tcp transport proto / stream socket
-** SOCK_DGRAM - use udp transport proto / datagram socket
-** default transport = SOCK_STREAM
-**
-** network - a defined constant like
-** AF_INET - use ipv4 connection or create a normal server socket
-** AF_INET6 - use ipv6 connection or create a server socket that accepts both connections
-** AF_UNSPEC - use this to let the socket decide which network proto to use (prefers ipv6)
-** other protocols may work but for the general internet we only need these.
-** default network = AF_UNSPEC
-**
-** examples
-** some common ways to do common things
-**
-** \code
-** //connect to a server somewhere on port 12345 (ipv4/ipv6)
-** Socket mysock("foo.example.net","12345",SOCK_STREAM,AF_UNSPEC); or just
-** Socket mysock("foo.example.net","12345");
-**
-** //connect to a server forcing a ipv4 connection
-** Socket mysock("foo.example.net","12345",SOCK_STREAM,AF_INET);
-**
-** //set up a listening server on port 12345 (accepts both ipv4/ipv6 connections)
-** Socket mysock(NULL,"12345");
-** Socket remote;
-** mysock.Accept(remote);
-**
-** //send UDP datagram to someone on port 12345 (auto determines ipv4/6)
-** Socket mysock("foo.example.net","12345",SOCK_DATAGRAM);
-** mysock.SendString("HELLO 12345");
-**
-** //receive UDP datagrams on port 12345
-** Socket mysock(NULL,"12345",SOCK_DATAGRAM);
-** \endcode
-**
-*/
-class Socket
+namespace TA3D
 {
-private:
-    ta3d_socket fd;
 
-    NLaddress	address;
-    char number[NI_MAXHOST]; 	//ip address
-    char service[NI_MAXSERV];  //service/port number
-    int stype;               	//what kind of socket
+    /*! \class Socket
+    **
+    ** \brief This particular socket class is a fairly basic layer
+    ** above bsd sockets api. TCP/UDP and ipv6 are supported.
+    ** There is no fancy support for sending packets, you may
+    ** only use this class to send your pre-prepared bytes.
+    ** That kind of stuff can go into a derived class.
+    **
+    **
+    **
+    ** instruction manual
+    ** when opening a socket you must specify four things:
+    **
+    ** hostname - a string containing either
+    ** a hostname: socket looks up connects to it OR
+    ** an ipv4/ipv6 address: socket connects to it OR 
+    ** NULL or nothing: socket will become a tcp server or udp receiver
+    **
+    ** port - a string containing the port number to connect to or to listen on
+    **
+    ** transport - a defined constant like
+    ** SOCK_STREAM - use tcp transport proto / stream socket
+    ** SOCK_DGRAM - use udp transport proto / datagram socket
+    ** default transport = SOCK_STREAM
+    **
+    ** network - a defined constant like
+    ** AF_INET - use ipv4 connection or create a normal server socket
+    ** AF_INET6 - use ipv6 connection or create a server socket that accepts both connections
+    ** AF_UNSPEC - use this to let the socket decide which network proto to use (prefers ipv6)
+    ** other protocols may work but for the general internet we only need these.
+    ** default network = AF_UNSPEC
+    **
+        ** examples
+        ** some common ways to do common things
+        **
+        ** \code
+        ** //connect to a server somewhere on port 12345 (ipv4/ipv6)
+        ** Socket mysock("foo.example.net","12345",SOCK_STREAM,AF_UNSPEC); or just
+        ** Socket mysock("foo.example.net","12345");
+    **
+        ** //connect to a server forcing a ipv4 connection
+        ** Socket mysock("foo.example.net","12345",SOCK_STREAM,AF_INET);
+    **
+        ** //set up a listening server on port 12345 (accepts both ipv4/ipv6 connections)
+        ** Socket mysock(NULL,"12345");
+    ** Socket remote;
+    ** mysock.Accept(remote);
+    **
+        ** //send UDP datagram to someone on port 12345 (auto determines ipv4/6)
+        ** Socket mysock("foo.example.net","12345",SOCK_DATAGRAM);
+    ** mysock.SendString("HELLO 12345");
+    **
+        ** //receive UDP datagrams on port 12345
+        ** Socket mysock(NULL,"12345",SOCK_DATAGRAM);
+    ** \endcode
+        **
+        */
+        class Socket
+        {
+        public:
+            Socket();
+            Socket(const char *hostname, const char *port);
+            Socket(const char *hostname, const char *port, int transport);
+            ~Socket();
 
-    int sockreports;
-    int sockerrors;
+            //utilities
+            int Accept(Socket& sock); 
+            int Accept(Socket& sock,int timeout);    	//wait for incoming connections
+            ta3d_socket getFD() const {return fd;}
+            const char* getNumber() const {return number;} //human readable ip address
+            const char* getService() const {return service;} //human readable port number
+            int getstype() const {return stype;}
 
-    void sockError(const char* message);
-    void sockReport(const char* message);
+            int isOpen() const { return (stype == STYPE_BROKEN) ? 0:1; } //broken or not
 
-    int platformSetNonBlock();
-    int platformGetError();
+            //open and close manually
+            int Open(const char *hostname, const char *port);
+            int Open(const char *hostname, const char *port, int transport);
+            int Close();
 
-    char *getError();
+            //communication
+            int Send(const void* data,int num);//send num bytes of data
+            int Recv(void* data,int num);//recv a packet or num bytes if thats smaller
 
-public:
-    Socket();
-    Socket(const char *hostname, const char *port);
-    Socket(const char *hostname, const char *port, int transport);
-    ~Socket();
+            int SendString(const char* data) {return Send(data,strlen(data)+1);} //if data is null terminated
 
-    //utilities
-    int Accept(Socket& sock); 
-    int Accept(Socket& sock,int timeout);    	//wait for incoming connections
-    ta3d_socket getFD() const {return fd;}
-    const char* getNumber() const {return number;} //human readable ip address
-    const char* getService() const {return service;} //human readable port number
-    int getstype() const {return stype;}
+            int takeFive(const int time);
 
-    int isOpen() const { return (stype == STYPE_BROKEN) ? 0:1; } //broken or not
+        private:
+            ta3d_socket fd;
 
-    //open and close manually
-    int Open(const char *hostname, const char *port);
-    int Open(const char *hostname, const char *port, int transport);
-    int Close();
+            NLaddress	address;
+            char number[NI_MAXHOST]; 	//ip address
+            char service[NI_MAXSERV];  //service/port number
+            int stype;               	//what kind of socket
 
-    //communication
-    int Send(const void* data,int num);//send num bytes of data
-    int Recv(void* data,int num);//recv a packet or num bytes if thats smaller
+            int sockreports;
+            int sockerrors;
 
-    int SendString(const char* data) {return Send(data,strlen(data)+1);} //if data is null terminated
+            void sockError(const String& message);
+            void sockReport(const String& message);
 
-    int takeFive(const int time);
+            int platformSetNonBlock();
+            int platformGetError();
 
-}; // class Socket
+            String getError();
 
+
+        }; // class Socket
+
+
+} // namespace TA3D
 
 #endif

@@ -32,6 +32,7 @@
 #include "tdf.h"
 #include "tnt.h"
 #include "misc/math.h"
+#include "logs/logs.h"
 
 
 namespace TA3D
@@ -50,7 +51,7 @@ namespace TA3D
 
         int i,x,y;
 
-        Console->AddEntry("MAP: reading header");
+        LOG_DEBUG("MAP: reading header");
 
         header.IDversion=((int*)data)[0];
         header.Width=((int*)data)[1];
@@ -78,7 +79,7 @@ namespace TA3D
         LOG_DEBUG("[tnt - load map] sealevel = " << header.sealevel);
         # endif
 
-        Console->AddEntry("MAP: reading TDF table");
+        LOG_DEBUG("MAP: reading TDF table");
         int *TDF_index = new int[header.tileanims];
 
         for (i = 0; i < header.tileanims; ++i) // Crée le tableau pour la correspondance des éléments
@@ -91,7 +92,7 @@ namespace TA3D
         map->sealvl=header.sealevel*H_DIV;
         int f_pos;
         // Lit la minimap
-        Console->AddEntry("MAP: reading mini map");
+        LOG_DEBUG("MAP: reading mini map");
         int event_timer = msec_timer;
         int w,h;
         f_pos=header.PTRminimap;
@@ -131,7 +132,7 @@ namespace TA3D
         LOG_INFO("minimap read in " << (msec_timer - event_timer) * 0.001f << "s.");
 
         // Lit les différents morceaux
-        Console->AddEntry("MAP: reading blocs data");
+        LOG_DEBUG("MAP: reading blocs data");
         event_timer = msec_timer;
         int n_bmp=(header.tiles+0x3F>>5);			// Nombre de textures 1024x32 nécessaires pour mémoriser tout les morceaux
         BITMAP **bmp_tex = new BITMAP*[n_bmp];
@@ -150,7 +151,7 @@ namespace TA3D
             }
         }
 
-        Console->AddEntry("MAP: allocating map memory");
+        LOG_DEBUG("MAP: allocating map memory");
         map->bloc_w=header.Width>>1;
         map->bloc_h=header.Height>>1;
         map->bloc_w_db=map->bloc_w<<1;
@@ -172,7 +173,7 @@ namespace TA3D
         map->map_data=(SECTOR**) malloc(sizeof(SECTOR*)*(map->bloc_h<<1));
         map->map_data[0]=(SECTOR*) malloc(sizeof(SECTOR)*(map->bloc_w*map->bloc_h<<2));
 
-        Console->AddEntry("MAP: creating FOW maps");
+        LOG_DEBUG("MAP: creating FOW maps");
         map->sight_map = create_bitmap_ex( 8, map->bloc_w, map->bloc_h );		// FOW maps
         map->view_map = create_bitmap_ex( 8, map->bloc_w, map->bloc_h );
         map->radar_map = create_bitmap_ex( 8, map->bloc_w, map->bloc_h );
@@ -182,7 +183,7 @@ namespace TA3D
         clear( map->radar_map );
         clear( map->sonar_map );
 
-        Console->AddEntry("MAP: allocating height maps");
+        LOG_DEBUG("MAP: allocating height maps");
 
         map->h_map=(float**) malloc(sizeof(float*)*(map->bloc_h<<1));
         map->h_map[0]=(float*) malloc(sizeof(float)*(map->bloc_w*map->bloc_h<<2));
@@ -190,7 +191,7 @@ namespace TA3D
         map->ph_map[0]=(float*) malloc(sizeof(float)*(map->bloc_w*map->bloc_h<<2));
         map->ph_map_2=(byte**) malloc(sizeof(byte*)*(map->bloc_h<<1));
         map->ph_map_2[0]=(byte*) malloc(sizeof(byte)*(map->bloc_w*map->bloc_h<<2));
-        Console->AddEntry("MAP: initialising map data");
+        LOG_DEBUG("MAP: initialising map data");
         for(i = 1; i < (map->bloc_h << 2); ++i)
             map->path[i]=&(map->path[0][i*map->bloc_w<<2]);
         memset(map->path[0],0,map->bloc_w*map->bloc_h<<4);
@@ -234,7 +235,7 @@ namespace TA3D
         LOG_INFO("Blocs readin " << (msec_timer-event_timer) * 0.001f << "s.");
         event_timer=msec_timer;
 
-        Console->AddEntry("MAP: creating textures");
+        LOG_DEBUG("MAP: creating textures");
 
         if(g_useTextureCompression)
             allegro_gl_set_texture_format(GL_COMPRESSED_RGB_ARB);
@@ -257,7 +258,7 @@ namespace TA3D
         for(i=0;i<map->bloc_w*map->bloc_h;i++)
             map->lvl[i]=NULL;
 
-        Console->AddEntry("MAP: creating blocs texture coordinates");
+        LOG_DEBUG("MAP: creating blocs texture coordinates");
         for(i = 0; i < map->nbbloc; ++i) // Crée les blocs
         {
             int t_n=i>>5;				// Numéro de texture
@@ -314,7 +315,7 @@ namespace TA3D
 
         /*--------------------------------------------------------------------*/
 
-        Console->AddEntry("MAP: creating low definition texture and lava map");
+        LOG_DEBUG("MAP: creating low definition texture and lava map");
 
         BITMAP *low_def = create_bitmap_ex(16, Math::Min(max_tex_size,map->map_w), Math::Min(max_tex_size,map->map_h));
         clear_to_color(low_def,0x0);
@@ -350,7 +351,7 @@ namespace TA3D
         map->lava_map = gfx->make_texture(lava_map,FILTER_LINEAR);		// Build the lava texture map
         destroy_bitmap(lava_map);
 
-        Console->AddEntry("MAP: computing height data (step 1)");
+        LOG_DEBUG("MAP: computing height data (step 1)");
         // Charge d'autres données sur les blocs
         map->water=false;
         f_pos=header.PTRmapattr;
@@ -365,7 +366,7 @@ namespace TA3D
             }
         }
 
-        Console->AddEntry("MAP: computing height data (step 2)");
+        LOG_DEBUG("MAP: computing height data (step 2)");
         for(y=0;y<(map->bloc_h<<1);y++)				// Calcule les informations complémentaires sur la carte
         {
             for (x = 0; x < (map->bloc_w << 1); ++x)
@@ -397,7 +398,7 @@ namespace TA3D
         LOG_INFO("Env created in " << (msec_timer-event_timer) * 0.001f << "s.");
         event_timer = msec_timer;
 
-        Console->AddEntry("MAP: computing height data (step 3)");
+        LOG_DEBUG("MAP: computing height data (step 3)");
         for (y = 0; y < (map->bloc_h << 1); ++y)
         {
             for(x = 0; x < (map->bloc_w << 1); ++x)	// Projete la carte du relief
@@ -413,7 +414,7 @@ namespace TA3D
             }
         }
 
-        Console->AddEntry("MAP: computing height data (step 4)");
+        LOG_DEBUG("MAP: computing height data (step 4)");
         map->sea_dec=map->sealvl*tnt_transform*H_DIV;			// Calcule le décalage nécessaire pour restituer les océans
         for (y = 0; y < (map->bloc_h << 1); ++y)
         {
@@ -450,12 +451,12 @@ namespace TA3D
                 }
             }
         }
-        Console->AddEntry("MAP: computing height data (step 5)");
+        LOG_DEBUG("MAP: computing height data (step 5)");
         for(y=0;y<(map->bloc_h<<1);y++)
             for(x=0;x<(map->bloc_w<<1);x++)				// Compute the second map
                 map->ph_map_2[y][x]=(byte)(map->ph_map[y][x]*0.125f*tnt_transform_H_DIV+0.5f);
 
-        Console->AddEntry("MAP: computing height data (step 6)");
+        LOG_DEBUG("MAP: computing height data (step 6)");
         for (y = 0;y < (map->bloc_h << 1); ++y)	 // Compute slopes on the map using height map and projected datas
         {
             for (x = 0; x < (map->bloc_w << 1); ++x)
@@ -486,7 +487,7 @@ namespace TA3D
         LOG_INFO("relief : " << (msec_timer - event_timer) * 0.001f << "s.");
         event_timer = msec_timer;
 
-        Console->AddEntry("MAP: reading map features data");
+        LOG_DEBUG("MAP: reading map features data");
         // Ajoute divers éléments(végétation,...)
         f_pos=header.PTRmapattr+1;
         for (y = 0; y < (map->bloc_h << 1); ++y)
@@ -514,7 +515,7 @@ namespace TA3D
 
         /*--------------- code for low definition map (mega zoom) -------------------*/
 
-        Console->AddEntry("MAP: creating low definition geometry (step 1)");
+        LOG_DEBUG("MAP: creating low definition geometry (step 1)");
         map->low_w=map->map_w+32>>6;
         map->low_h=map->map_h+32>>6;
         map->low_nb_idx = (2+map->low_w*2)*map->low_h;			// Draw this as GL_TRIANGLE_STRIP
@@ -561,7 +562,7 @@ namespace TA3D
             }
         }
         free( tmp_vtx );
-        Console->AddEntry("MAP: creating low definition geometry (step 2)");
+        LOG_DEBUG("MAP: creating low definition geometry (step 2)");
         i=0;
         for (y = 0; y < map->low_h; ++y)	// Build the mesh
         {
@@ -592,7 +593,7 @@ namespace TA3D
 
         /*---------------------------------------------------------------------------*/
 
-        Console->AddEntry("MAP: freeing temporary allocated memory");
+        LOG_DEBUG("MAP: freeing temporary allocated memory");
 
         delete[] TDF_index;
         delete[] bmp_tex;

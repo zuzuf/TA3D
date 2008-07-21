@@ -27,6 +27,7 @@
 #include "../languages/i18n.h"
 #include "../misc/math.h"
 #include "../sounds/manager.h"
+#include "../console.h"
 
 
 #define CHAT_MESSAGE_TIMEOUT	10000
@@ -68,7 +69,7 @@ namespace TA3D
             return;		// Only works in network mode
         }
 
-        if( key[KEY_ENTER] && !Console->activated() )
+        if( key[KEY_ENTER] && !console.activated())
         {
             if( !enter )
             {
@@ -536,10 +537,10 @@ namespace TA3D
                                 unit->unlock();
                             }
                             else
-                                Console->AddEntry("Error: cannot create unit of type %s", event_msg.str);
+                                LOG_ERROR("Cannot create unit of type `" << event_msg.str << "`");
                         }
                         else
-                            Console->AddEntry("Error: cannot create unit, %s not found", event_msg.str);
+                            LOG_ERROR("Cannot create unit, `" << event_msg.str << "` not found");
 
                         units.unlock();
                     }

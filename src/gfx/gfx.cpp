@@ -35,6 +35,7 @@
 
 
 #define TA3D_OPENGL_PREFIX "[OpenGL] "
+#define TA3D_GFX_PREFIX    "[gfx] "
 #define YESNO(X)  (X ? "Yes" : "No")
 
 
@@ -114,26 +115,12 @@ namespace Interfaces
 
     void GFX::displayInfosAboutOpenGL() const
     {
-        if (Console)
-        {
-            Console->stdout_on();
-            Console->AddEntry("%sOpenGL informations:", TA3D_OPENGL_PREFIX);
-            Console->AddEntry("%sVendor: %s",   TA3D_OPENGL_PREFIX, glGetString(GL_VENDOR));
-            Console->AddEntry("%sRenderer: %s", TA3D_OPENGL_PREFIX, glGetString(GL_RENDERER));
-            Console->AddEntry("%sVersion: %s",  TA3D_OPENGL_PREFIX, glGetString(GL_VERSION));
-            if (ati_workaround)
-                Console->AddEntryWarning("ATI card detected ! Using workarounds for ATI cards");
-            Console->stdout_off();
-        }
-        else
-        {
-            LOG_INFO(TA3D_OPENGL_PREFIX << "OpenGL informations:");
-            LOG_INFO(TA3D_OPENGL_PREFIX << "Vendor: " << glGetString(GL_VENDOR));
-            LOG_INFO(TA3D_OPENGL_PREFIX << "Renderer: " << glGetString(GL_RENDERER));
-            LOG_INFO(TA3D_OPENGL_PREFIX << "Vrsion: " << glGetString(GL_VERSION));
-            if (ati_workaround)
-                LOG_WARNING("ATI card detected ! Using workarounds for ATI cards");
-        }
+        LOG_INFO(TA3D_OPENGL_PREFIX << "OpenGL informations:");
+        LOG_INFO(TA3D_OPENGL_PREFIX << "Vendor: " << glGetString(GL_VENDOR));
+        LOG_INFO(TA3D_OPENGL_PREFIX << "Renderer: " << glGetString(GL_RENDERER));
+        LOG_INFO(TA3D_OPENGL_PREFIX << "Vrsion: " << glGetString(GL_VERSION));
+        if (ati_workaround)
+            LOG_WARNING("ATI card detected ! Using workarounds for ATI cards");
         LOG_INFO(TA3D_OPENGL_PREFIX << "Texture compression: " << YESNO(g_useTextureCompression));
         LOG_INFO(TA3D_OPENGL_PREFIX << "Stencil Two Side: " << YESNO(g_useStencilTwoSide));
         LOG_INFO(TA3D_OPENGL_PREFIX << "FBO: " << YESNO(g_useFBO));
@@ -199,40 +186,31 @@ namespace Interfaces
         if (!palette)
             LOG_WARNING("Failed to load the palette");
 
-        TA_font.load_gaf_font( "anims\\hattfont12.gaf", 1.0f );
+        TA_font.load_gaf_font("anims\\hattfont12.gaf", 1.0f);
 
-        if (Console)
-            Console->AddEntry( "Creating a normal font...");
-        normal_font.copy( font , 1.0f );
-        normal_font.set_clear( true );
-        if (Console)
-            Console->AddEntry( "Creating a small font...");
-        small_font.copy( font , 0.75f );
-        small_font.set_clear( true );
+        LOG_DEBUG(TA3D_GFX_PREFIX << "Creating a normal font...");
+        normal_font.copy(font , 1.0f);
+        normal_font.set_clear(true);
+        LOG_DEBUG(TA3D_GFX_PREFIX << "Creating a small font...");
+        small_font.copy(font , 0.75f);
+        small_font.set_clear(true);
 
-        if(Console)
-            Console->AddEntry( "Loading the GUI font..." );
+        LOG_DEBUG(TA3D_GFX_PREFIX << "Loading the GUI font...");
         ta3d_gui_font.load_gaf_font( "anims\\hattfont12.gaf" , 1.0f );
 
-        if(Console)
-            Console->AddEntry( "Activating the palette...");
+        LOG_DEBUG(TA3D_GFX_PREFIX << "Activating the palette...");
         if(palette)
             set_palette(pal);      // Activate the palette
 
-        if (Console)
-            Console->AddEntry( "Loading background...");
+        LOG_DEBUG(TA3D_GFX_PREFIX << "Loading background...");
         load_background();
 
         gui_font = ta3d_gui_font;
         gui_font_h = gui_font.height();
         use_normal_alpha_function = true;
         alpha_blending_set = false;
-        if(Console)
-        {
-            Console->stdout_on();
-            Console->AddEntry( "Graphics are initialized.");
-            Console->stdout_off();
-        }
+        
+        LOG_INFO(TA3D_GFX_PREFIX << "Graphics are initialized.");
     }
 
 

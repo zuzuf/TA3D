@@ -26,6 +26,10 @@
 #include "glfunc.h"
 #include "../logs/logs.h"
 
+
+#define TA3D_OPENGL_PREFIX "[OpenGL] "
+
+
 bool	MultiTexturing;
 bool	g_useTextureCompression = false;
 bool	g_useStencilTwoSide = false;
@@ -138,16 +142,16 @@ GLhandleARB load_fragment_shader_memory(const char* data, int filesize)
 	if (compiled) 
 	{
         // compilation successful!
-		LOG_DEBUG("Pixel shader: successfully compiled");
+		LOG_DEBUG(TA3D_OPENGL_PREFIX << "Pixel shader: successfully compiled");
 	}
 	else 
 	{
         // compilation error! Check compiler log! 
-		Console->AddEntryWarning("Pixel shader: the compilation has failed");
+		LOG_WARNING(TA3D_OPENGL_PREFIX << "Pixel shader: the compilation has failed");
 		char log[10000];
 		GLsizei len=0;
 		glGetInfoLogARB(shader, 10000, &len, log);
-		Console->AddEntry("%s",log);
+		LOG_DEBUG(TA3D_OPENGL_PREFIX << log);
 	}
 	return shader;
 }
@@ -170,11 +174,11 @@ GLhandleARB load_vertex_shader_memory(const char *data,int filesize)
 	else 
 	{
         // compilation error! Check compiler log! 
-		Console->AddEntryWarning("Vertex shader: the compilation has failed");
+		LOG_WARNING(TA3D_OPENGL_PREFIX << "Vertex shader: the compilation has failed");
 		char log[10000];
 		GLsizei len=0;
 		glGetInfoLogARB(shader, 10000, &len, log);
-		Console->AddEntry("%s",log);
+		LOG_DEBUG(TA3D_OPENGL_PREFIX << log);
 	}
 	return shader;
 }
@@ -182,11 +186,11 @@ GLhandleARB load_vertex_shader_memory(const char *data,int filesize)
 
 GLhandleARB load_fragment_shader(const char *filename)
 {
-	FILE *file=TA3D_OpenFile(filename,"rt");
+	FILE *file = TA3D_OpenFile(filename,"rt");
 	GLhandleARB	shader = glCreateShaderObjectARB(GL_FRAGMENT_SHADER_ARB);
-	if(!file)
+	if (!file)
     {
-		Console->AddEntryWarning("Error: file %s doesn't exist!", filename);
+		LOG_ERROR(TA3D_OPENGL_PREFIX << "`" << filename << "` could not be opened");
 		return shader;
 	}
 	int filesize=FILE_SIZE(filename);
@@ -210,11 +214,11 @@ GLhandleARB load_fragment_shader(const char *filename)
 	else 
 	{
         // compilation error! Check compiler log! 
-		Console->AddEntryWarning("Fragment shader: `%s` failed to compile", filename);
+		LOG_WARNING(TA3D_OPENGL_PREFIX << "Fragment shader: `" << filename << "` failed to compile");
 		char log[10000];
 		GLsizei len=0;
 		glGetInfoLogARB(shader, 10000, &len, log);
-		Console->AddEntry("%s",log);
+		LOG_DEBUG(TA3D_OPENGL_PREFIX << log);
 	}
 
 	free(buf);
@@ -225,12 +229,12 @@ GLhandleARB load_vertex_shader(const char* filename)
 {
 	FILE* file = TA3D_OpenFile(filename, "rt");
 	GLhandleARB	shader = glCreateShaderObjectARB(GL_VERTEX_SHADER_ARB);
-	if(!file)
+	if (!file)
     {
-		Console->AddEntryWarning("Error: file %s doesn't exist!", filename);
+		LOG_WARNING(TA3D_OPENGL_PREFIX << "`" << filename << "` could not be opened");
 		return shader;
 	}
-	int filesize=FILE_SIZE(filename);
+	int filesize = FILE_SIZE(filename);
 
 	char *buf=(char*) malloc(filesize+1);
 	fread(buf,filesize,1,file);
@@ -251,11 +255,11 @@ GLhandleARB load_vertex_shader(const char* filename)
 	else 
 	{
         // compilation error! Check compiler log! 
-		Console->AddEntryWarning("Vertex sharder: `%s` failed to compile",filename);
+	    LOG_WARNING(TA3D_OPENGL_PREFIX << "Vertex sharder: `" << filename << "` failed to compile");
 		char log[10000];
 		GLsizei len=0;
 		glGetInfoLogARB(shader, 10000, &len, log);
-		Console->AddEntry("%s",log);
+		LOG_DEBUG(TA3D_OPENGL_PREFIX << log);
 	}
 
 	free(buf);
@@ -270,27 +274,27 @@ SHADER::load_memory(const char *fragment_data,int frag_len,const char *vertex_da
 	if(!g_useProgram)
         return;
 
-	program=glCreateProgramObjectARB();
-	vertex=load_vertex_shader_memory(vertex_data,vert_len);
-	fragment=load_fragment_shader_memory(fragment_data,frag_len);
+	program = glCreateProgramObjectARB();
+	vertex = load_vertex_shader_memory(vertex_data,vert_len);
+	fragment = load_fragment_shader_memory(fragment_data,frag_len);
 	glAttachObjectARB(program,vertex);
 	glAttachObjectARB(program,fragment);
 	glLinkProgramARB(program);
-	GLint link=0;
+	GLint link = 0;
 	glGetObjectParameterivARB(program, GL_OBJECT_LINK_STATUS_ARB, &link);
-	if(link)
+	if (link)
     {
-		Console->AddEntry("succes");
-		succes=true;
+		LOG_DEBUG(TA3D_OPENGL_PREFIX << "Object Link (ARB): Succes.");
+		succes = true;
 	}
 	else
     {
-		Console->AddEntry("failure");
+		LOG_WARNING(TA3D_OPENGL_PREFIX << "Object Link (ARB): Failure");
 		char log[10000];
 		GLsizei len=0;
 		glGetInfoLogARB(program, 10000, &len, log);
-		Console->AddEntry("%s",log);
-		succes=false;
+		LOG_DEBUG(TA3D_OPENGL_PREFIX << log);
+		succes = false;
 	}
 }
 
@@ -318,10 +322,10 @@ SHADER::load(const char *fragment_file,const char *vertex_file)
     {
         // LOG_WARNING("Failed to load shader: `" << fragment_file << "`");
 		char log[10000];
-		GLsizei len=0;
+		GLsizei len = 0;
 		glGetInfoLogARB(program, 10000, &len, log);
-		Console->AddEntry("%s",log);
-		succes=false;
+		LOG_DEBUG(TA3D_OPENGL_PREFIX << log);
+		succes = false;
 	}
 }
 
@@ -337,7 +341,7 @@ void SHADER::off()
         glUseProgramObjectARB(0);
 }
 
-void SHADER::setvar1f(const char *var_name,float v0)
+void SHADER::setvar1f(const char *var_name, float v0)
 {
     if (succes)
         glUniform1fARB(glGetUniformLocationARB(program, var_name), v0);
