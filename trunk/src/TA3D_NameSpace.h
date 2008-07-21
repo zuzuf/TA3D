@@ -171,19 +171,6 @@ namespace TA3D
     // TODO Must be removed
 	#define   DEBUG_MODE
 
-	namespace UTILS
-	{
-		// Some useful math and template functions
-		TA3D_API_SI float  Deg2Rad (float Deg)  { return (Deg * 0.017453292f); }
-		TA3D_API_SI double Deg2Rad (double Deg) { return (Deg * 0.017453292);  }
-		TA3D_API_SI float  Rad2Deg (float Rad)  { return (Rad * 57.29578122f); }
-		TA3D_API_SI double Rad2Deg (double Rad) { return (Rad * 57.29578122);  }  
-
-		namespace HPI
-		{
-		}
-	}
-
 	namespace VARS
 	{
 		TA3D_API_E TA3D::IInterfaceManager			*InterfaceManager; 

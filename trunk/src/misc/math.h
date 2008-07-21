@@ -15,15 +15,21 @@ namespace Math
 {
 
 
-    template<class T> inline T Max(T a, T b)
+    template<typename T> inline T Max(const T a, const T b)
     { return (a > b) ? a : b; }
 
-    template<class T> inline T Min(T a, T b)
+    template<typename T> inline T Min(const T a, const T b)
     { return (a > b) ? b : a; }
 
 
 	inline bool IsPowerOfTwo(const int x)
     { return !(x & (x - 1)) && x; }
+
+    template<typename T> inline T Deg2Rad(const T deg)
+    { return (deg * 0.017453292f); }
+	
+    template<typename T> inline T Rad2Deg(const T rad)
+    { return (rad * 57.29578122f); }
 
 
 } // namespace Math
@@ -41,17 +47,17 @@ namespace Math
 */
 #if defined TA3D_PLATFORM_WINDOWS && defined TA3D_PLATFORM_MSVC
 
-	static inline const real32 asinh(const real32 f)
+	inline const real32 asinh(const real32 f)
 	{
 		return (real32)log((real32)(f + sqrt(f * f + 1)));
 	}
 
-	static inline const real32 acosh(const real32 f)
+	inline const real32 acosh(const real32 f)
 	{
 		return (real32)log((real32)( f + sqrt( f * f- 1)));
 	}
 
-	static inline const real32 atanh(const real32 f)
+	inline const real32 atanh(const real32 f)
 	{
 		return (real32)log((real32)((real32)(1.0f / f + 1.0f) / (real32)(1.0f / f - 1.0f))) / 2.0f;
 	}
