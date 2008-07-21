@@ -64,71 +64,30 @@ namespace TA3D
         IDX_LIST_NODE()	{	idx = 0;	next = NULL;	}
     };
 
+    /*!
+    ** \todo This class should be removed
+    */
     class IDX_LIST				// Container
     {
     public:
         IDX_LIST_NODE	*head;
 
-        void init()	{	head = NULL;	}
-        IDX_LIST()	{	init();	}
+        void init()	{ head = NULL; }
+        IDX_LIST()	{ init(); }
 
-        void destroy()
-        {
-            while( head ) {
-                IDX_LIST_NODE *next = head->next;
-                delete head;
-                head = next;
-            }
-        }
+        void destroy();
 
-        ~IDX_LIST()	{	destroy();	}
+        ~IDX_LIST()	{destroy();}
 
-        inline bool isEmpty()	{	return head == NULL;	}
+        bool isEmpty() const {return (!head);}
 
-        inline void push( sint16 idx )
-        {
-            if( head ) {
-                IDX_LIST_NODE *cur = head;
-                while( cur->next ) {
-                    if( cur->idx == idx )	return;		// Don't add it twice
-                    cur = cur->next;
-                }
-                cur->next = new IDX_LIST_NODE( idx );	// Add idx at the end
-            }
-            else
-                head = new IDX_LIST_NODE( idx );
-        }
+        void push(const sint16 idx);
 
-        inline void remove( sint16 idx )		// Assume there is only one occurence of idx in the list
-        {
-            IDX_LIST_NODE *cur = head;
-            IDX_LIST_NODE *prec = NULL;
-            while( cur ) {
-                if( cur->idx == idx ) {
-                    if( prec == NULL ) {
-                        prec = head;	head = head->next;
-                        delete prec;	return;
-                    }
-                    else {
-                        prec->next = cur->next;
-                        delete cur;	return;
-                    }
-                }
-                prec = cur;
-                cur = cur->next;
-            }
-        }
+        void remove(const sint16 idx);		// Assume there is only one occurence of idx in the list
 
-        inline bool isIn( sint16 idx )
-        {
-            IDX_LIST_NODE *cur = head;
-            while( cur ) {
-                if( cur->idx == idx )	return true;
-                cur = cur->next;
-            }
-            return false;
-        }
-    };
+        bool isIn(const sint16 idx);
+
+    }; // class IDX_LIST
 
 
 
@@ -145,16 +104,7 @@ namespace TA3D
         IDX_LIST	air_idx;			// This is the list that stores indexes of air units
         bool		flat;				// Used by the map renderer to simplify geometry
 
-        void init()
-        {
-            dh = 0.0f;
-            underwater = false;
-            stuff = -1;
-            unit_idx = -1;
-            lava = false;
-            air_idx.init();
-            flat = false;
-        }
+        void init();
     };
 
 
@@ -167,90 +117,50 @@ namespace TA3D
 namespace TA3D
 {
 
+
+
     class MAP_OTA
     {
     public:
-        char	*missionname;
-            char	*planet;
-            char	*missiondescription;
-        char	*glamour;
-            int		tidalstrength;
-            int		solarstrength;
-            bool	lavaworld;
-            short	killmul;
-            int		minwindspeed;
-            int		maxwindspeed;
-            float	gravity;
-            char	*numplayers;
-            char	*map_size;
-            int		SurfaceMetal;
-            int		MohoMetal;
-            int		startX[10];
-            int		startZ[10];
-            bool	waterdoesdamage;
-            int		waterdamage;
-        bool	network;
-        
-            void init()
-            {
-                network = false;
-                    planet=NULL;
-                glamour=NULL;
-                    missionname=NULL;
-                    missiondescription=NULL;
-                    numplayers=NULL;
-                    map_size=NULL;
-                    for(int i=0;i<10;i++)
-                        startX[i]=startZ[i]=0;
-                            tidalstrength=0;
-                            solarstrength=22;
-                            lavaworld=false;
-                            killmul=50;
-                            minwindspeed=0;
-                            maxwindspeed=0;
-                            gravity=9.8f;
-                            SurfaceMetal=0;
-                            MohoMetal=0;
-                            waterdamage=0;
-                waterdoesdamage=false;
-            }
+        MAP_OTA() {init();}
+        ~MAP_OTA() {destroy();}
 
-        void destroy()
-        {
-            if(glamour)				free(glamour);
-            if(planet)				free(planet);
-            if(missionname)			free(missionname);
-            if(missiondescription)	free(missiondescription);
-            if(numplayers)			free(numplayers);
-            if(map_size)			free(map_size);
-            init();
-        }
+        void init();
 
-        MAP_OTA()
-        {
-            init();
-        }
-
-        ~MAP_OTA()
-        {
-            destroy();
-        }
-
-    private:
-        inline char *get_line(char *data)
-        {
-            int pos=0;
-            while(data[pos]!=0 && data[pos]!=13 && data[pos]!=10)	pos++;
-            char *d=new char[pos+1];
-            memcpy(d,data,pos);
-            d[pos]=0;
-            return d;
-        }
-    public:
+        void destroy();
 
         void load(char *data,int ota_size);
         void load( String filename );
+
+    public:
+        char*missionname;
+        char*planet;
+        char*missiondescription;
+        char*glamour;
+        int tidalstrength;
+        int	solarstrength;
+        bool lavaworld;
+        short killmul;
+        int minwindspeed;
+        int	maxwindspeed;
+        float gravity;
+        char* numplayers;
+        char* map_size;
+        int SurfaceMetal;
+        int	 MohoMetal;
+        int  startX[10];
+        int  startZ[10];
+        bool waterdoesdamage;
+        int	 waterdamage;
+        bool network;
+
+    private:
+        //! \todo Must be removed
+        char *get_line(char *data);
+
     };
+
+
 
     class BLOC				// Blocs composant la carte
     {
@@ -363,417 +273,51 @@ namespace TA3D
 
         void load_details_texture( const String &filename );
 
-        void init()
-        {
-            /*------------- Experimental: code for new map format -----------------------*/
+        void init();
 
-            /*		macro_bloc = NULL;
-                    macro_w = 0;
-                    macro_h = 0;*/
-
-            /*---------------------------------------------------------------------------*/
-            view_map = NULL;
-            sight_map = NULL;
-            radar_map = NULL;
-            sonar_map = NULL;
-
-            detail_shader.load( "shaders/details.frag", "shaders/details.vert" );
-            details_tex = 0;
-            color_factor = 1.0f;
-
-            low_nb_idx=0;
-            low_vtx=NULL;
-            low_vtx_flat=NULL;
-            low_tcoord=NULL;
-            low_col=NULL;
-            low_index=NULL;
-            low_tex=0;
-
-            wind=0.0f;
-            wind_dir=0.0f;
-            wind_vec.x=wind_vec.y=wind_vec.z=0.0f;
-            ota_data.init();
-            lava_map=0;
-            path=NULL;
-            mini_w=mini_h=252;
-            ntex=0;
-            tex=NULL;
-            nbbloc=0;
-            bloc=NULL;
-            mini=NULL;
-            bmap=NULL;
-            h_map=NULL;
-            ph_map=NULL;
-            ph_map_2=NULL;
-            map_data=NULL;
-            sealvl=0.0f;
-            glmini=0;
-            lvl=NULL;
-            water=true;
-            tnt=false;			// Laisse la possibilité de créer un autre format de cartes
-            sea_dec=0.0f;
-            view=NULL;
-            ox1=ox2=oy1=oy2=0;
-            short buf_size=0;
-            for(short i=0;i<6500;i++) {
-                buf_i[i++]=0+buf_size;
-                buf_i[i++]=1+buf_size;
-                buf_i[i++]=3+buf_size;
-                buf_i[i++]=4+buf_size;
-                buf_i[i++]=6+buf_size;
-                buf_i[i++]=7+buf_size;
-                buf_i[i++]=7+buf_size;
-                buf_i[i++]=8+buf_size;
-                buf_i[i++]=4+buf_size;
-                buf_i[i++]=5+buf_size;
-                buf_i[i++]=1+buf_size;
-                buf_i[i++]=2+buf_size;
-                buf_i[i]=2+buf_size;
-                buf_size+=9;
-            }
-        }
-
-        MAP()
-        {
-            init();
-        }
+        MAP() {init();}
 
         void destroy();
 
         void clean_map();		// Used to remove all objects when loading a saved game
 
-        ~MAP()
-        {
-            destroy();
-        }
+        ~MAP() {destroy();}
 
         void update_player_visibility( int player_id, int px, int py, int r, int rd, int sn, int rd_j, int sn_j, bool jamming=false, bool black=false );	// r -> sight, rd -> radar range, sn -> sonar range, j for jamming ray
 
         void draw_mini(int x1=0,int y1=0,int w=252,int h=252, Camera *cam=NULL, byte player_mask=0xFF ); // Dessine la mini-carte
 
-        inline const float get_unit_h(float x,float y)
-        {
-            x=(x+map_w_d)*0.125f;		// Convertit les coordonnées
-            y=(y+map_h_d)*0.125f;
-            int lx = bloc_w_db-1;
-            int ly = bloc_h_db-1;
-            if(x<0.0f) x=0.0f;
-            else if(x>=lx) x=bloc_w_db-2;
-            if(y<0.0f) y=0.0f;
-            else if(y>=ly) y=bloc_h_db-2;
-            float h[4];
-            int X=(int)x,Y=(int)y;
-            float dx=x-X;
-            float dy=y-Y;
-            h[0]=h_map[Y][X];
-            if(X+1<lx)
-                h[1]=h_map[Y][X+1]-h[0];
-            else
-                h[1]=0.0f;
-            if(Y+1<ly) {
-                h[2]=h_map[Y+1][X];
-                if(X+1<lx)
-                    h[3]=h_map[Y+1][X+1]-h[2];
-                else
-                    h[3]=0.0f;
-            }
-            else {
-                h[2]=h[0];
-                h[3]=h[1];
-            }
-            h[0]=h[0]+h[1]*dx;
-            return h[0]+(h[2]+h[3]*dx-h[0])*dy;
-        }
+        float get_unit_h(float x,float y);
 
-        inline float get_h(int x,int y)
-        {
-            if(x<0) x=0;
-            if(y<0) y=0;
-            if(x>=bloc_w_db-1) x=bloc_w_db-2;
-            if(y>=bloc_h_db-1) y=bloc_h_db-2;
-            return h_map[y][x];
-        }
+        float get_h(int x,int y);
 
-        inline float get_max_h(int x,int y)
-        {
-            if(x<0) x=0;
-            if(y<0) y=0;
-            if(x>=bloc_w_db-1) x=bloc_w_db-2;
-            if(y>=bloc_h_db-1) y=bloc_h_db-2;
-            float h = h_map[y][x];
-            if(x<bloc_w_db-2)	h = Math::Max(h, h_map[y][x+1]);
-            if(y<bloc_h_db-2)
-            {
-                h = Math::Max(h, h_map[y+1][x]);
-                if(x<bloc_w_db-2)
-                    h = Math::Max(h, h_map[y+1][x+1]);
-            }
-            return h;
-        }
+        float get_max_h(int x,int y);
 
-        inline float get_max_rect_h(int x,int y, int w, int h)
-        {
-            int x1 = x - (w>>1);
-            int x2 = x1 + w;
-            int y1 = y - (h>>1);
-            int y2 = y1 + h;
-            if(x1<0) x1=0;
-            if(y1<0) y1=0;
-            if(x1>=bloc_w_db-1) x1=bloc_w_db-2;
-            if(y1>=bloc_h_db-1) y1=bloc_h_db-2;
-            if(x2<0) x2=0;
-            if(y2<0) y2=0;
-            if(x2>=bloc_w_db-1) x2=bloc_w_db-2;
-            if(y2>=bloc_h_db-1) y2=bloc_h_db-2;
-            float max_h = h_map[y1][x1];
-            for( int Y = y1 ; Y <= y2 ; Y++ )
-                for( int X = x1 ; X <= x2 ; X++ ) {
-                    float h = h_map[Y][X];
-                    if( h > max_h )	max_h = h;
-                }
-            return max_h;
-        }
+        float get_max_rect_h(int x,int y, int w, int h);
 
-        inline float get_zdec(int x,int y)
-        {
-            if(x<0) x=0;
-            if(y<0) y=0;
-            if(x>=bloc_w_db-1) x=bloc_w_db-2;
-            if(y>=bloc_h_db-1) y=bloc_h_db-2;
-            return ph_map[y][x]*tnt_transform_H_DIV;
-        }
+        float get_zdec(int x,int y);
 
 #define get_zdec_notest(x, y)	ph_map_2[y][x]
 
-        /*	inline byte get_zdec_notest(int x,int y)
-            {
-            return ph_map_2[y][x];
-            }*/
+        float get_nh(int x,int y);
 
-        inline float get_nh(int x,int y)
-        {
-            if(x<0) x=0;
-            if(y<0) y=0;
-            if(x>=bloc_w_db-1) x=bloc_w_db-2;
-            if(y>=bloc_h_db-1) y=bloc_h_db-2;
-            return ph_map[y][x];
-        }
+        void rect(int x1,int y1,int w,int h,short c,char *yardmap=NULL,bool open=false);
 
-        inline void rect(int x1,int y1,int w,int h,short c,char *yardmap=NULL,bool open=false)
-        {
-            if(yardmap==NULL) {
-                int y2=y1+h;
-                int x2=x1+w;
-                if(y1<0)	y1=0;
-                if(y2>bloc_h_db-1)	y2=bloc_h_db-1;
-                if(x1<0)	x1=0;
-                if(x2>bloc_w_db-1)	x2=bloc_w_db-1;
-                if(y2<=y1 || x2<=x1)	return;
-                pMutex.lock();
-                for(int y=y1;y<y2;y++)
-                    for(int x=x1;x<x2;x++)
-                        map_data[y][x].unit_idx=c;
-                pMutex.unlock();
-            }
-            else {
-                int i=0;
-                int y2=y1+h;
-                int x2=x1+w;
-                if(y1<0)	{	i-=y1*w;	y1=0;	}
-                if(y2>bloc_h_db-1)	y2=bloc_h_db-1;
-                if(x1<0)	x1=0;
-                if(x2>bloc_w_db-1)	x2=bloc_w_db-1;
-                int dw=w-(x2-x1);
-                if(y2<=y1 || x2<=x1)	return;
-                pMutex.lock();
-                for(int y=y1;y<y2;y++) {
-                    for(int x=x1;x<x2;x++) {
-                        if( !yardmap[i] ) {
-                            pMutex.unlock();
-                            return;
-                        }
-                        if(yardmap[i]=='G' || yardmap[i]=='o' || yardmap[i]=='w' || yardmap[i]=='f' || (yardmap[i]=='c' && !open) || (yardmap[i]=='C' && !open) || (yardmap[i]=='O' && open))
-                            map_data[y][x].unit_idx=c;
-                        i++;
-                    }
-                    i+=dw;
-                }
-                pMutex.unlock();
-            }
-        }
+        void air_rect( int x1, int y1, int w, int h, short c, bool remove = false);
 
-        inline void air_rect( int x1, int y1, int w, int h, short c, bool remove = false )
-        {
-            if( remove ) {
-                int y2=y1+h;
-                int x2=x1+w;
-                if(y1<0)	y1=0;
-                if(y2>bloc_h_db-1)	y2=bloc_h_db-1;
-                if(x1<0)	x1=0;
-                if(x2>bloc_w_db-1)	x2=bloc_w_db-1;
-                if(y2<=y1 || x2<=x1)	return;
-                pMutex.lock();
-                for(int y=y1;y<y2;y++)
-                    for(int x=x1;x<x2;x++)
-                        map_data[y][x].air_idx.remove(c);
-                pMutex.unlock();
-            }
-            else {
-                int y2=y1+h;
-                int x2=x1+w;
-                if(y1<0)	y1=0;
-                if(y2>bloc_h_db-1)	y2=bloc_h_db-1;
-                if(x1<0)	x1=0;
-                if(x2>bloc_w_db-1)	x2=bloc_w_db-1;
-                if(y2<=y1 || x2<=x1)	return;
-                pMutex.lock();
-                for(int y=y1;y<y2;y++)
-                    for(int x=x1;x<x2;x++)
-                        map_data[y][x].air_idx.push(c);
-                pMutex.unlock();
-            }
-        }
+        bool check_rect(int x1,int y1,int w,int h,short c);
 
-        inline bool check_rect(int x1,int y1,int w,int h,short c)
-        {
-            int y2=y1+h;
-            int x2=x1+w;
-            if(y1<0)	y1=0;
-            if(y2>bloc_h_db-1)	y2=bloc_h_db-1;
-            if(x1<0)	x1=0;
-            if(x2>bloc_w_db-1)	x2=bloc_w_db-1;
-            if(y2<=y1 || x2<=x1)	return false;
-            for(int y=y1;y<y2;y++)
-                for(int x=x1;x<x2;x++)
-                    if(map_data[y][x].unit_idx!=c && map_data[y][x].unit_idx!=-1)
-                        return false;
-            return true;
-        }
+        bool check_rect_discovered(int x1,int y1,int w,int h,short c); // Check if the area has been fully discovered
 
-        inline bool check_rect_discovered(int x1,int y1,int w,int h,short c)		// Check if the area has been fully discovered
-        {
-            int y2=y1+h+1>>1;
-            int x2=x1+w+1>>1;
-            x1>>=1;
-            y1>>=1;
-            if(y1<0)	y1=0;
-            if(y2>bloc_h-1)	y2=bloc_h-1;
-            if(x1<0)	x1=0;
-            if(x2>bloc_w-1)	x2=bloc_w-1;
-            if(y2<=y1 || x2<=x1)	return false;
-            for(int y=y1;y<y2;y++)
-                for(int x=x1;x<x2;x++)
-                    if( !(view_map->line[y][x] & c) )
-                        return false;
-            return true;
-        }
+        float check_rect_dh(int x1,int y1,int w,int h);
 
-        inline float check_rect_dh(int x1,int y1,int w,int h)
-        {
-            int y2=y1+h;
-            int x2=x1+w;
-            if(y1<0)	y1=0;
-            if(y2>bloc_h_db-1)	y2=bloc_h_db-1;
-            if(x1<0)	x1=0;
-            if(x2>bloc_w_db-1)	x2=bloc_w_db-1;
-            float max_dh=0.0f;
-            bool on_water=false;
-            if(y2<=y1 || x2<=x1)	return max_dh;
-            for(int y=y1;y<y2;y++)
-                for(int x=x1;x<x2;x++) {
-                    if(map_data[y][x].dh>max_dh)
-                        max_dh=map_data[y][x].dh;
-                    on_water|=map_data[y][x].underwater;
-                }
-            if(on_water)
-                max_dh=-max_dh;
-            return max_dh;
-        }
+        float check_max_depth(int x1,int y1,int w,int h);
 
-        inline float check_max_depth(int x1,int y1,int w,int h)
-        {
-            int y2=y1+h;
-            int x2=x1+w;
-            if(y1<0)	y1=0;
-            if(y2>bloc_h_db-1)	y2=bloc_h_db-1;
-            if(x1<0)	x1=0;
-            if(x2>bloc_w_db-1)	x2=bloc_w_db-1;
-            float depth = -sealvl;
-            if(y2<=y1 || x2<=x1)	return depth + sealvl;
-            for(int y=y1;y<y2;y++)
-                for(int x=x1;x<x2;x++) {
-                    float d = -h_map[y][x];
-                    if(d>depth)
-                        depth=d;
-                }
-            return depth + sealvl;
-        }
+        float check_min_depth(int x1,int y1,int w,int h);
+            
+        bool check_vents(int x1,int y1,int w,int h,char *yard_map);
 
-        inline float check_min_depth(int x1,int y1,int w,int h)
-        {
-            int y2=y1+h;
-            int x2=x1+w;
-            if(y1<0)	y1=0;
-            if(y2>bloc_h_db-1)	y2=bloc_h_db-1;
-            if(x1<0)	x1=0;
-            if(x2>bloc_w_db-1)	x2=bloc_w_db-1;
-            float depth=255.0f-sealvl;
-            if(y2<=y1 || x2<=x1)	return depth + sealvl;
-            for(int y=y1;y<y2;y++)
-                for(int x=x1;x<x2;x++) {
-                    float d = -h_map[y][x];
-                    if(d<depth)
-                        depth=d;
-                }
-            return depth+sealvl;
-        }
-
-        inline bool check_vents(int x1,int y1,int w,int h,char *yard_map)
-        {
-            if(yard_map==NULL)	return true;
-            int y2=y1+h;
-            int x2=x1+w;
-            if(y1<0)	y1=0;
-            if(y2>bloc_h_db-1)	y2=bloc_h_db-1;
-            if(x1<0)	x1=0;
-            if(x2>bloc_w_db-1)	x2=bloc_w_db-1;
-            int dw = w - (x2-x1);
-            int i = 0;
-            bool ok = true;
-            if(y2<=y1 || x2<=x1)	return false;
-            for(int y=y1;y<y2;y++) {
-                for(int x=x1;x<x2;x++) {
-                    if( !yard_map[i] )	return ok;
-                    if(yard_map[i]=='G') {
-                        ok = false;
-                        if(map_data[y][x].stuff>=0) {
-                            int feature_id = map_data[y][x].stuff;
-                            if(feature_manager.feature[features.feature[feature_id].type].geothermal)
-                                return true;
-                        }
-                    }
-                    i++;
-                }
-                i+=dw;
-            }
-            return ok;
-        }
-
-        inline bool check_lava(int x1,int y1,int w,int h)
-        {
-            int y2=y1+h;
-            int x2=x1+w;
-            if(y1<0)	y1=0;
-            if(y2>bloc_h-1)	y2=bloc_h-1;
-            if(x1<0)	x1=0;
-            if(x2>bloc_w-1)	x2=bloc_w-1;
-            if(y2<=y1 || x2<=x1)	return false;
-            for(int y=y1;y<y2;y++)
-                for(int x=x1;x<x2;x++)
-                    if(bloc[bmap[y][x]].lava)
-                        return true;
-            return false;
-        }
+        bool check_lava(int x1,int y1,int w,int h);
 
         int check_metal(int x1, int y1, int unit_idx );
 
@@ -783,6 +327,8 @@ namespace TA3D
     };
 
     extern MAP *the_map;
+
+
 
     class WATER
     {
@@ -938,133 +484,30 @@ namespace TA3D
         void		SignalExitThread();
     public:
 
-        inline void set_network( TA3DNetwork *net )	{	ta3d_network = net;	}
+        void set_network( TA3DNetwork *net ) { ta3d_network = net;}
 
-        inline void set_map( MAP *p_map )	{	map = p_map;	}
+        void set_map( MAP *p_map ) {map = p_map;}
 
         void player_control();
 
-        inline void stop_threads()
-        {
-            for( byte i = 0 ; i < nb_player ; i++ )
-                if( control[ i ] == PLAYER_CONTROL_LOCAL_AI && ai_command )
-                    ai_command[ i ].DestroyThread();
-        }
+        void stop_threads();
 
-        inline void clear()		// Remet à 0 la taille des stocks
-        {
-            for(byte i=0;i<nb_player;i++) {
-                c_energy[i] = energy[i];
-                c_metal[i] = metal[i];
-                c_energy_s[i]=c_metal_s[i]=0;			// Stocks
-                c_metal_t[i]=c_energy_t[i]=0.0f;		// Production
-                c_metal_u[i]=c_energy_u[i]=0.0f;		// Consommation
-                c_commander[i]=false;
-                c_annihilated[i]=true;
-                c_nb_unit[i]=0;
-            }
-        }
+        void clear(); // Remet à 0 la taille des stocks
 
-        inline void refresh()		// Copy the newly computed values over old ones
-        {
-            for(byte i=0;i<nb_player;i++) {
-                energy[i] = c_energy[i];
-                metal[i] = c_metal[i];
-                energy_s[i] = c_energy_s[i];
-                metal_s[i] = c_metal_s[i];				// Stocks
-                commander[i] = c_commander[i];
-                annihilated[i] = c_annihilated[i];
-                nb_unit[i] = c_nb_unit[i];
-                metal_t[i] = c_metal_t[i];
-                energy_t[i] = c_energy_t[i];
-                metal_u[i] = c_metal_u[i];
-                energy_u[i] = c_energy_u[i];
-            }
-        }
+        void refresh(); // Copy the newly computed values over old ones
 
         int add(char *NOM,char *SIDE,byte _control,int E=10000,int M=10000,byte AI_level=AI_TYPE_EASY);
 
         void show_resources();
 
-        inline void init(int E=10000,int M=10000)		// Initialise les données des joueurs
-        {
-            ta3d_network = NULL;
-            side_view = 0;
-            nb_player=0;
-            NB_PLAYERS=0;
-            local_human_id=-1;
-            clear();
-            refresh();
-            map = NULL;
-            for(int i=0;i<10;i++) {
-                com_metal[i] = M;
-                com_energy[i] = E;
-                control[i] = PLAYER_CONTROL_NONE;
-                if( ai_command ) {
-                    ai_command[i].init();
-                    ai_command[i].player_id = i;
-                }
-                nom[i] = NULL;
-                side[i] = NULL;
-                energy[i] = E;
-                metal[i] = M;
-                metal_u[i] = 0;
-                energy_u[i] = 0;
-                metal_t[i] = 0;
-                energy_t[i] = 0;
-                kills[i] = 0;
-                losses[i] = 0;
-                energy_s[i] = E;
-                metal_s[i] = M;
-                nb_unit[i] = 0;
-                energy_total[i] = 0.0f;
-                metal_total[i] = 0.0f;
+        void init(int E=10000,int M=10000);		// Initialise les données des joueurs
 
-                c_energy[i] = energy[i];
-                c_metal[i] = metal[i];
-                c_energy_s[i]=c_metal_s[i]=0;			// Stocks
-                c_metal_t[i]=c_energy_t[i]=0.0f;		// Production
-                c_metal_u[i]=c_energy_u[i]=0.0f;		// Consommation
-                c_commander[i]=false;
-                c_annihilated[i]=true;
-                c_nb_unit[i]=0;
-            }
-        }
+        PLAYERS();
 
-        inline PLAYERS()
-        {
-            map = NULL;
-            thread_is_running = false;
-            thread_ask_to_stop = false;
+        void destroy();
 
-            InitThread();
+        ~PLAYERS();
 
-            ai_command = new AI_PLAYER[ 10 ];
-            init();
-        }
-
-        inline void destroy()
-        {
-            for(byte i=0;i<10;i++) {
-                if(control[i]==PLAYER_CONTROL_LOCAL_AI && ai_command )		// Enregistre les données de l'IA
-                    ai_command[i].save();
-                if(nom[i])	free(nom[i]);
-                if(side[i])	free(side[i]);
-                if( ai_command )
-                    ai_command[i].destroy();
-            }
-            init();
-        }
-
-        inline ~PLAYERS()
-        {
-            destroy();
-            if( ai_command )
-                delete[] ai_command;
-            ai_command = NULL;
-
-            DestroyThread();
-        }
     };
 
     extern PLAYERS	players;		// Objet contenant les données sur les joueurs
@@ -1082,28 +525,9 @@ namespace TA3D
         bool			full_sphere;		// The texture is for the whole sphere
         bool			def;
 
-        SKY_DATA()
-        {
-            rotation_offset = 0.0f;
-            full_sphere = false;
-            spherical = false;
-            rotation_speed = 0.0f;
-            texture_name.clear();
-            planet.clear();
-            FogColor[0] = 0.8f;
-            FogColor[1] = 0.8f;
-            FogColor[2] = 0.8f;
-            FogColor[3] = 1.0f;
-            def = false;
-            MapName.clear();
-        }
+        SKY_DATA();
 
-        ~SKY_DATA()
-        {
-            texture_name.clear();
-            planet.clear();
-            MapName.clear();
-        }
+        ~SKY_DATA();
 
         void load_tdf( const String	&filename );
     };
