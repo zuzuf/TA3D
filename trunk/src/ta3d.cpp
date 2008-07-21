@@ -47,7 +47,7 @@
 
 #define PICK_TOLERANCE  5
 
-VECTOR3D cursor_on_map( Camera *cam,MAP *map, bool on_mini_map = false );
+Vector3D cursor_on_map( Camera *cam,MAP *map, bool on_mini_map = false );
 
 
 
@@ -306,7 +306,7 @@ int play(GameData *game_data)
     r1=r2=r3=0.0f;
     r1 = -lp_CONFIG->camera_def_angle - 0.00001f;
     Camera cam;
-    VECTOR3D cam_target;
+    Vector3D cam_target;
     int cam_target_mx = gfx->SCREEN_W_HALF;
     int cam_target_my = gfx->SCREEN_H_HALF;
     bool cam_has_target=false;
@@ -609,7 +609,7 @@ int play(GameData *game_data)
 
         /*-------------------------- end of sound management -----------------------*/
 
-        VECTOR3D old_cam_pos = cam.rpos;
+        Vector3D old_cam_pos = cam.rpos;
         float old_zscroll = camera_zscroll;
         if(!freecam)
         {
@@ -857,7 +857,7 @@ int play(GameData *game_data)
         }
         if(mouse_x<1)
         {
-            VECTOR3D move_dir = cam.side;
+            Vector3D move_dir = cam.side;
             move_dir.y = 0.0f;
             move_dir.unit();
             cam.rpos = cam.rpos - (SCROLL_SPEED*dt*cam_h / 151.0f)*move_dir;
@@ -866,7 +866,7 @@ int play(GameData *game_data)
         else
             if(mouse_x>=SCREEN_W-1)
             {
-                VECTOR3D move_dir = cam.side;
+                Vector3D move_dir = cam.side;
                 move_dir.y = 0.0f;
                 move_dir.unit();
                 cam.rpos = cam.rpos + (SCROLL_SPEED*dt*cam_h / 151.0f)*move_dir;
@@ -874,7 +874,7 @@ int play(GameData *game_data)
             }
         if(mouse_y<1)
         {
-            VECTOR3D move_dir = cam.up;
+            Vector3D move_dir = cam.up;
             if(move_dir.x==0.0f && move_dir.z==0.0f)
             {
                 move_dir = cam.dir;
@@ -889,7 +889,7 @@ int play(GameData *game_data)
         else
             if(mouse_y>=SCREEN_H-1)
             {
-                VECTOR3D move_dir = cam.up;
+                Vector3D move_dir = cam.up;
                 if(move_dir.x==0.0f && move_dir.z==0.0f)
                 {
                     move_dir = cam.dir;
@@ -996,10 +996,10 @@ int play(GameData *game_data)
 
         if(cam_has_target)
         {
-            VECTOR3D cur_dir;
+            Vector3D cur_dir;
             cur_dir = cam.dir+cam.widthFactor*2.0f*(cam_target_mx-gfx->SCREEN_W_HALF)*gfx->SCREEN_W_INV*cam.side-1.5f*(cam_target_my-gfx->SCREEN_H_HALF)*gfx->SCREEN_H_INV*cam.up;
             cur_dir.unit();		// Direction pointée par le curseur
-            VECTOR3D moving_target = cam_target - cam.rpos;
+            Vector3D moving_target = cam_target - cam.rpos;
             moving_target = moving_target - (moving_target % cur_dir) * cur_dir;
             float d = moving_target.sq();
             moving_target.y = 0.0f;
@@ -1042,7 +1042,7 @@ int play(GameData *game_data)
                 pointing = units.pick(&cam);		// Sur quoi le curseur est-il pointé??
                 if( pointing == -1 ) 				// Is the cursor on a rock, tree, ...?
                 {
-                    VECTOR3D cur_pos = cursor_on_map(&cam,map,IsOnMinimap);
+                    Vector3D cur_pos = cursor_on_map(&cam,map,IsOnMinimap);
                     int px=((int)(cur_pos.x+map->map_w_d))>>3;
                     int py=((int)(cur_pos.z+map->map_h_d))>>3;
                     if(px>=0 && px<map->bloc_w_db && py>=0 && py<map->bloc_h_db && (map->view_map->line[py>>1][px>>1] & (1<<players.local_human_id))  )
@@ -1220,7 +1220,7 @@ int play(GameData *game_data)
                 if(mouse_b!=1 && omb3==1)
                     if(cursor_type==CURSOR_ATTACK)
                     {
-                        VECTOR3D cursor_pos = cursor_on_map(&cam,map,IsOnMinimap);
+                        Vector3D cursor_pos = cursor_on_map(&cam,map,IsOnMinimap);
                         for(uint16 e=0;e<units.index_list_size;e++)
                         {
                             uint32 commandfire = current_order == SIGNAL_ORDER_DGUN ? MISSION_FLAG_COMMAND_FIRE : 0;
@@ -1246,7 +1246,7 @@ int play(GameData *game_data)
 
         if(cursor_type==CURSOR_REVIVE && CURSOR_REVIVE != CURSOR_RECLAIM && !rope_selection && mouse_b != 1 && omb3 == 1 && ( !IsOnGUI || IsOnMinimap ) ) // The cursor orders to resurrect a wreckage
         {
-            VECTOR3D cur_pos=cursor_on_map(&cam,map,IsOnMinimap);
+            Vector3D cur_pos=cursor_on_map(&cam,map,IsOnMinimap);
             int idx = -units.last_on - 2;
             if(idx>=0 && features.feature[ idx ].type >= 0 && feature_manager.feature[ features.feature[ idx ].type ].reclaimable )
                 for(uint16 e=0;e<units.index_list_size;e++)
@@ -1270,7 +1270,7 @@ int play(GameData *game_data)
 
         if(cursor_type==CURSOR_RECLAIM && !rope_selection && mouse_b != 1 && omb3 == 1 && ( !IsOnGUI || IsOnMinimap ) ) // The cursor orders to reclaim something
         {
-            VECTOR3D cur_pos=cursor_on_map(&cam,map,IsOnMinimap);
+            Vector3D cur_pos=cursor_on_map(&cam,map,IsOnMinimap);
             int idx = -units.last_on - 2;
             if( idx >= 0 && features.feature[ idx ].type >= 0 && feature_manager.feature[ features.feature[ idx ].type ].reclaimable )
                 for(uint16 e=0;e<units.index_list_size;e++)
@@ -1310,7 +1310,7 @@ int play(GameData *game_data)
 
         if(build>=0 && cursor_type==CURSOR_DEFAULT && mouse_b != 1 && omb3 == 1 && !IsOnGUI ) 	// The cursor orders to build something
         {
-            VECTOR3D target=cursor_on_map(&cam,map);
+            Vector3D target=cursor_on_map(&cam,map);
             sel_x[1] = ((int)(target.x)+map->map_w_d)>>3;
             sel_y[1] = ((int)(target.z)+map->map_h_d)>>3;
 
@@ -1349,7 +1349,7 @@ int play(GameData *game_data)
                 sound_manager->playTDFSound( "NOTOKTOBUILD", "sound" , NULL );
         }
         else if(build>=0 && cursor_type==CURSOR_DEFAULT && mouse_b == 1 && omb3 != 1 && !IsOnGUI ) {	// Giving the order to build a row
-            VECTOR3D target = cursor_on_map(&cam,map);
+            Vector3D target = cursor_on_map(&cam,map);
             sel_x[ 0 ] = ((int)(target.x)+map->map_w_d)>>3;
             sel_y[ 0 ] = ((int)(target.z)+map->map_h_d)>>3;
         }
@@ -1361,7 +1361,7 @@ int play(GameData *game_data)
 
         if (cursor_type!=CURSOR_DEFAULT && mouse_b!=2 && omb3 ==2 && !IsOnGUI && TA3D_SHIFT_PRESSED) // Remove commands from queue
         {
-            VECTOR3D target = cursor_on_map(&cam,map);
+            Vector3D target = cursor_on_map(&cam,map);
             target.x = ((int)(target.x)+map->map_w_d) >> 3;
             target.z = ((int)(target.z)+map->map_h_d) >> 3;
             target.x = target.x*8.0f-map->map_w_d;
@@ -1477,7 +1477,7 @@ int play(GameData *game_data)
         if( !IsOnGUI && ( cursor_type == CURSOR_DEFAULT || units.last_on == -1 ) )	{
             units.pick(&cam);		// Let's see what's under the cursor
             if( units.last_on == -1 ) {				// Is the cursor on a rock, tree, ...?
-                VECTOR3D cur_pos = cursor_on_map(&cam,map,IsOnMinimap);
+                Vector3D cur_pos = cursor_on_map(&cam,map,IsOnMinimap);
                 int px=((int)(cur_pos.x+map->map_w_d))>>3;
                 int py=((int)(cur_pos.z+map->map_h_d))>>3;
                 if(px>=0 && px<map->bloc_w_db && py>=0 && py<map->bloc_h_db && (map->view_map->line[py>>1][px>>1] & (1<<players.local_human_id)) ) {
@@ -2094,9 +2094,9 @@ int play(GameData *game_data)
                 glEnable(GL_STENCIL_TEST);
                 glStencilFunc(GL_NOTEQUAL,0, 0xffffffff);
                 glStencilOp(GL_KEEP,GL_KEEP,GL_KEEP);
-                VECTOR3D cam_pos = cam.rpos + cam.shakeVector;
+                Vector3D cam_pos = cam.rpos + cam.shakeVector;
                 glBegin(GL_QUADS);
-                VECTOR3D P = cam_pos + 1.1f * (cam.dir + 0.75f * cam.up-cam.widthFactor * cam.side);
+                Vector3D P = cam_pos + 1.1f * (cam.dir + 0.75f * cam.up-cam.widthFactor * cam.side);
                 glTexCoord2f(0.0f,1.0f);	glVertex3f(P.x,P.y,P.z);
 
                 P = cam_pos + 1.1f*(cam.dir+0.75f*cam.up+cam.widthFactor*cam.side);
@@ -2120,7 +2120,7 @@ int play(GameData *game_data)
         }
 
         if(build>=0 && !IsOnGUI ) {			// Display the building we want to build (with nice selection quads)
-            VECTOR3D target=cursor_on_map(&cam,map);
+            Vector3D target=cursor_on_map(&cam,map);
             sel_x[1] = ((int)(target.x)+map->map_w_d)>>3;
             sel_y[1] = ((int)(target.z)+map->map_h_d)>>3;
 
@@ -2253,7 +2253,7 @@ int play(GameData *game_data)
                     sun.Dir.y=1.0f;
                     sun.Dir.z=1.0f;
                     sun.Dir.unit();
-                    VECTOR3D Dir=-sun.Dir;
+                    Vector3D Dir=-sun.Dir;
                     Dir.x=cos(light_angle);
                     Dir.z=sin(light_angle);
                     Dir.unit();
@@ -2272,7 +2272,7 @@ int play(GameData *game_data)
             else
             {
                 float alpha=1.0f-exp((1.0f/lp_CONFIG->shadow_quality)*log(0.5f));
-                VECTOR3D Dir;
+                Vector3D Dir;
                 if(rotate_light)
                 {
                     sun.Dir.x=-1.0f;
@@ -2295,7 +2295,7 @@ int play(GameData *game_data)
                 }
                 for(int i=0;i<lp_CONFIG->shadow_quality;i++)
                 {
-                    VECTOR3D RDir;
+                    Vector3D RDir;
                     RDir=Dir;
                     RDir.x+=cos(i*PI*2.0f/lp_CONFIG->shadow_quality)*lp_CONFIG->shadow_r;
                     RDir.z+=sin(i*PI*2.0f/lp_CONFIG->shadow_quality)*lp_CONFIG->shadow_r;
@@ -3240,7 +3240,7 @@ int play(GameData *game_data)
                             units.kill(id,map,units.index_list_size-1);
                         }
                         else {								// Compute unit's Y coordinate
-                            VECTOR3D target_pos = units.unit[id].Pos;
+                            Vector3D target_pos = units.unit[id].Pos;
                             target_pos.x=((int)(target_pos.x)+map->map_w_d)>>3;
                             target_pos.z=((int)(target_pos.z)+map->map_h_d)>>3;
                             target_pos.y=Math::Max(map->get_max_rect_h((int)target_pos.x,(int)target_pos.z, unit_manager.unit_type[ units.unit[id].type_id ].FootprintX, unit_manager.unit_type[ units.unit[id].type_id ].FootprintZ ),map->sealvl);
@@ -3578,17 +3578,17 @@ void draw_cursor()
 
 
 
-VECTOR3D cursor_on_map(Camera* cam,MAP *map, bool on_mini_map )
+Vector3D cursor_on_map(Camera* cam,MAP *map, bool on_mini_map )
 {
     if( on_mini_map )			// If the cursor is on the mini_map;
     {
-        VECTOR3D map_pos;
+        Vector3D map_pos;
         map_pos.x = (mouse_x - 64) * 252.0f / 128.0f * map->map_w / map->mini_w;
         map_pos.z = (mouse_y - 64) * 252.0f / 128.0f * map->map_h / map->mini_h;
         map_pos.y = map->get_unit_h( map_pos.x, map_pos.z );
         return map_pos;
     }
-    VECTOR3D cur_dir;
+    Vector3D cur_dir;
     cur_dir = cam->dir + cam->widthFactor * 2.0f * (mouse_x - gfx->SCREEN_W_HALF) * gfx->SCREEN_W_INV * cam->side - 1.5f * (mouse_y - gfx->SCREEN_H_HALF) * gfx->SCREEN_H_INV * cam->up;
     cur_dir.unit();		// Direction pointée par le curseur
     return map->hit(cam->pos, cur_dir, true, 2000000000.0f, true);

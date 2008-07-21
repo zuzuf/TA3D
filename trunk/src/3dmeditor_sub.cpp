@@ -722,7 +722,7 @@ void obj_maj_normal(int idx)
         cur->N[i].x=cur->N[i].z=cur->N[i].y=0.0f;
     for (int i = 0; i < cur->nb_t_index; i += 3)
     {
-        VECTOR3D AB,AC,Normal;
+        Vector3D AB,AC,Normal;
         AB = cur->points[cur->t_index[i+1]] - cur->points[cur->t_index[i]];
         AC = cur->points[cur->t_index[i+2]] - cur->points[cur->t_index[i]];
         Normal=AB*AC;	Normal.unit();
@@ -755,8 +755,8 @@ void obj_geo_optimize(int idx,bool notex)
     cur->nb_vtx-=removed;
     if (notex)
     {
-        VECTOR3D *n_points = (VECTOR3D*) malloc(sizeof(VECTOR3D)*cur->nb_vtx);
-        VECTOR3D *n_N = (VECTOR3D*) malloc(sizeof(VECTOR3D)*cur->nb_vtx);
+        Vector3D *n_points = (Vector3D*) malloc(sizeof(Vector3D)*cur->nb_vtx);
+        Vector3D *n_N = (Vector3D*) malloc(sizeof(Vector3D)*cur->nb_vtx);
         int cur_pt=0;
         for (int i = 0; i < cur->nb_t_index; ++i)
         {
@@ -779,8 +779,8 @@ void obj_geo_optimize(int idx,bool notex)
     }
     else
     {
-        VECTOR3D *n_points = (VECTOR3D*) malloc(sizeof(VECTOR3D)*cur->nb_vtx);
-        VECTOR3D *n_N = (VECTOR3D*) malloc(sizeof(VECTOR3D)*cur->nb_vtx);
+        Vector3D *n_points = (Vector3D*) malloc(sizeof(Vector3D)*cur->nb_vtx);
+        Vector3D *n_N = (Vector3D*) malloc(sizeof(Vector3D)*cur->nb_vtx);
         float *n_tcoord = (float*) malloc(sizeof(float)*cur->nb_vtx<<1);
         int cur_pt=0;
         for (int i=0; i < cur->nb_t_index; ++i)
@@ -813,8 +813,8 @@ void obj_geo_split(int idx)
 {
     if(idx<0 || idx>=nb_obj())	return;
     OBJECT *cur = obj_table[idx];
-    VECTOR3D *n_points = (VECTOR3D*) malloc(sizeof(VECTOR3D)*cur->nb_t_index);
-    VECTOR3D *n_N = (VECTOR3D*) malloc(sizeof(VECTOR3D)*cur->nb_t_index);
+    Vector3D *n_points = (Vector3D*) malloc(sizeof(Vector3D)*cur->nb_t_index);
+    Vector3D *n_N = (Vector3D*) malloc(sizeof(Vector3D)*cur->nb_t_index);
     float *n_tcoord = (float*) malloc(sizeof(float)*cur->nb_t_index<<1);
     for (int i = 0; i < cur->nb_t_index; ++i)
     {
@@ -833,7 +833,7 @@ void obj_geo_split(int idx)
     cur->nb_vtx=cur->nb_t_index;
 }
 
-int intersect(VECTOR3D O,VECTOR3D Dir,OBJECT *obj,VECTOR3D *PA,VECTOR3D *PB)	// Calcule l'intersection d'un rayon avec une partie de la meshe
+int intersect(Vector3D O,Vector3D Dir,OBJECT *obj,Vector3D *PA,Vector3D *PB)	// Calcule l'intersection d'un rayon avec une partie de la meshe
 {
     float mdist=1000000.0f;			// Distance du point de départ du rayon à l'objet
     int index=-1;					// -1 pour aucun triangle touché
@@ -841,8 +841,8 @@ int intersect(VECTOR3D O,VECTOR3D Dir,OBJECT *obj,VECTOR3D *PA,VECTOR3D *PB)	// 
     Dir.unit();		// S'assure que Dir est normalisé
     for (int i = 0; i < obj->nb_t_index / 3; ++i) // Effectue l'opération pour chaque triangle
     {
-        VECTOR3D A,B,C,P;
-        VECTOR3D AB,AC,N,AO;
+        Vector3D A,B,C,P;
+        Vector3D AB,AC,N,AO;
         float dist,orient;
 
         A=obj->points[obj->t_index[i*3]];
@@ -870,7 +870,7 @@ int intersect(VECTOR3D O,VECTOR3D Dir,OBJECT *obj,VECTOR3D *PA,VECTOR3D *PB)	// 
 
         // Maintenant il faut vérifier que le point appartient bien au triangle
         float a,b,c;		// Coefficients pour que P soit le barycentre de A,B,C
-        VECTOR3D AP(P-A);
+        Vector3D AP(P-A);
         if(AC.y!=0.0f && AB.x*AC.y!=AB.y*AC.x) {
             b=(AP.x-AP.y*AC.x/AC.y)/(AB.x-AB.y*AC.x/AC.y);
             a=(AP.y-b*AB.y)/AC.y;

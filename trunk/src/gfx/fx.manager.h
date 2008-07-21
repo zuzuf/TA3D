@@ -76,14 +76,14 @@ namespace TA3D
         ** \param size
         ** \return
         */
-        int add(const String& filename, const String& entryName, const VECTOR3D& Pos, const float size);
+        int add(const String& filename, const String& entryName, const Vector3D& Pos, const float size);
 
         /*!
         ** \brief
         ** \param pos
         ** \param size
         */
-        int addFlash(const VECTOR3D& pos, const float size);
+        int addFlash(const Vector3D& pos, const float size);
 
         /*!
         ** \brief Add a wave
@@ -91,7 +91,7 @@ namespace TA3D
         ** \param size
         ** \return
         */
-        int addWave(const VECTOR3D& Pos,float size);
+        int addWave(const Vector3D& Pos,float size);
 
         /*!
         ** \brief Add a ripple
@@ -99,7 +99,7 @@ namespace TA3D
         ** \param size
         ** \return
         */
-        int addRipple(const VECTOR3D& Pos,float size);
+        int addRipple(const Vector3D& Pos,float size);
 
         /*!
         ** \brief Add a particle
@@ -107,7 +107,7 @@ namespace TA3D
         ** \param s
         ** \param l
         */
-        void addParticle(const VECTOR3D& p, const VECTOR3D& s, const float l);
+        void addParticle(const Vector3D& p, const Vector3D& s, const float l);
 
         /*!
         ** \brief Add an explosion effect
@@ -115,7 +115,7 @@ namespace TA3D
         ** \param n
         ** \param power
         */
-        void addExplosion(const VECTOR3D& p, const int n, const float power);
+        void addExplosion(const Vector3D& p, const int n, const float power);
 
 
     public:

@@ -412,8 +412,8 @@ void save_game( const String filename, GameData *game_data )
 
         fwrite( units.unit[i].data.flag, sizeof( short ), units.unit[i].data.nb_piece, file );
         fwrite( units.unit[i].data.explosion_flag, sizeof( short ), units.unit[i].data.nb_piece, file );
-        fwrite( units.unit[i].data.pos, sizeof( VECTOR3D), units.unit[i].data.nb_piece, file );
-        fwrite( units.unit[i].data.dir, sizeof( VECTOR3D), units.unit[i].data.nb_piece, file );
+        fwrite( units.unit[i].data.pos, sizeof( Vector3D), units.unit[i].data.nb_piece, file );
+        fwrite( units.unit[i].data.dir, sizeof( Vector3D), units.unit[i].data.nb_piece, file );
         fwrite( units.unit[i].data.matrix, sizeof( MATRIX_4x4 ), units.unit[i].data.nb_piece, file );
 
         fwrite( units.unit[i].data.axe[0], sizeof( AXE ), units.unit[i].data.nb_piece, file );
@@ -971,8 +971,8 @@ void load_game( GameData *game_data )
 
         fread( units.unit[i].data.flag, sizeof( short ), units.unit[i].data.nb_piece, file );
         fread( units.unit[i].data.explosion_flag, sizeof( short ), units.unit[i].data.nb_piece, file );
-        fread( units.unit[i].data.pos, sizeof( VECTOR3D), units.unit[i].data.nb_piece, file );
-        fread( units.unit[i].data.dir, sizeof( VECTOR3D), units.unit[i].data.nb_piece, file );
+        fread( units.unit[i].data.pos, sizeof( Vector3D), units.unit[i].data.nb_piece, file );
+        fread( units.unit[i].data.dir, sizeof( Vector3D), units.unit[i].data.nb_piece, file );
         fread( units.unit[i].data.matrix, sizeof( MATRIX_4x4 ), units.unit[i].data.nb_piece, file );
 
         fread( units.unit[i].data.axe[0], sizeof( AXE ), units.unit[i].data.nb_piece, file );

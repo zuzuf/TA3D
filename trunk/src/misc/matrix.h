@@ -181,18 +181,18 @@ inline MATRIX_f operator*(const MATRIX_f &A,const MATRIX_f &B)
 }
 
 // Multiplication(transformation d'un vecteur)
-inline VECTOR3D operator*(const VECTOR3D& A,const MATRIX_4x4 &B)
+inline Vector3D operator*(const Vector3D& A,const MATRIX_4x4 &B)
 {
-    VECTOR3D C;
+    Vector3D C;
     C.x=A.x*B.E[0][0]+A.y*B.E[0][1]+A.z*B.E[0][2];
     C.y=A.x*B.E[1][0]+A.y*B.E[1][1]+A.z*B.E[1][2];
     C.z=A.x*B.E[2][0]+A.y*B.E[2][1]+A.z*B.E[2][2];
     return C;
 }
 
-inline VECTOR3D operator*(const VECTOR3D& A,MATRIX B)
+inline Vector3D operator*(const Vector3D& A,MATRIX B)
 {
-    VECTOR3D C;
+    Vector3D C;
     fixed x,y,z;
     apply_matrix(&B,ftofix(A.x),ftofix(A.y),ftofix(A.z),&x,&y,&z);
     C.x=fixtof(x);
@@ -201,9 +201,9 @@ inline VECTOR3D operator*(const VECTOR3D& A,MATRIX B)
     return C;
 }
 
-inline VECTOR3D operator*(const VECTOR3D& A,const MATRIX_f &B)
+inline Vector3D operator*(const Vector3D& A,const MATRIX_f &B)
 {
-    VECTOR3D C;
+    Vector3D C;
     apply_matrix_f(&B,A.x,A.y,A.z,&C.x,&C.y,&C.z);
     return C;
 }
@@ -240,9 +240,9 @@ inline MATRIX_f operator*(const float &A,MATRIX_f B)
     return B;
 }
 
-inline VECTOR3D glNMult(const VECTOR3D &A,const MATRIX_4x4 &B)
+inline Vector3D glNMult(const Vector3D &A,const MATRIX_4x4 &B)
 {
-    VECTOR3D C;
+    Vector3D C;
     float w;
     C.x=A.x*B.E[0][0]+A.y*B.E[0][1]+A.z*B.E[0][2]+B.E[0][3];
     C.y=A.x*B.E[1][0]+A.y*B.E[1][1]+A.z*B.E[1][2]+B.E[1][3];
@@ -255,7 +255,7 @@ inline VECTOR3D glNMult(const VECTOR3D &A,const MATRIX_4x4 &B)
 }
 
 // Crée une matrice de translation
-inline MATRIX_4x4 Translate(const VECTOR3D &A)
+inline MATRIX_4x4 Translate(const Vector3D &A)
 {
     MATRIX_4x4 B;
     B.E[0][0]=1.0f;

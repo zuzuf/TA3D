@@ -37,9 +37,9 @@ namespace TA3D
 
     public:
         //! Position
-        VECTOR3D Pos;
+        Vector3D Pos;
         //! Dir
-        VECTOR3D Dir;	
+        Vector3D Dir;	
         GLfloat LightAmbient[4];
         GLfloat LightDiffuse[4];
         GLfloat LightSpecular[4];

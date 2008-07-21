@@ -198,8 +198,8 @@ namespace TA3D
         nb_piece = nb;
         flag = new short[nb_piece];
         explosion_flag = new short[nb_piece];
-        pos = new VECTOR3D[nb_piece];
-        dir = new VECTOR3D[nb_piece];
+        pos = new Vector3D[nb_piece];
+        dir = new Vector3D[nb_piece];
         matrix = new MATRIX_4x4[nb_piece];
         for (int i = 0; i < nb_piece; ++i)
         {
@@ -522,7 +522,7 @@ namespace TA3D
     }
 
 
-    void OBJECT::compute_center(VECTOR3D *center,VECTOR3D dec, int *coef)		// Calcule les coordonnées du centre de l'objet, objets liés compris
+    void OBJECT::compute_center(Vector3D *center,Vector3D dec, int *coef)		// Calcule les coordonnées du centre de l'objet, objets liés compris
     {
         for (int i = 0; i < nb_vtx; ++i)
         {
@@ -538,7 +538,7 @@ namespace TA3D
     }
 
 
-    float OBJECT::compute_size_sq(VECTOR3D center)		// Carré de la taille(on fera une racine après)
+    float OBJECT::compute_size_sq(Vector3D center)		// Carré de la taille(on fera une racine après)
     {
         float size = 0.0f;
         for (int i = 0; i < nb_vtx; ++i)
@@ -563,7 +563,7 @@ namespace TA3D
     }
 
 
-    float OBJECT::compute_top(float top, VECTOR3D dec)
+    float OBJECT::compute_top(float top, Vector3D dec)
     {
         for(int i = 0;i < nb_vtx; ++i)
             top = Math::Max(top, points[i].y + dec.y + pos_from_parent.y);
@@ -575,7 +575,7 @@ namespace TA3D
     }
 
 
-    float OBJECT::compute_bottom(float bottom, VECTOR3D dec)
+    float OBJECT::compute_bottom(float bottom, Vector3D dec)
     {
         for (int i = 0; i < nb_vtx; ++i)
             bottom = Math::Min(bottom, points[i].y + dec.y + pos_from_parent.y);
@@ -619,14 +619,14 @@ namespace TA3D
             if (cur->child )	obj_stack.push_front( cur->child );
         }
 
-        VECTOR3D	*opt_vtx = (VECTOR3D*) malloc( sizeof( VECTOR3D ) * total_vtx );
-        VECTOR3D	*opt_N = (VECTOR3D*) malloc( sizeof( VECTOR3D ) * total_vtx );
+        Vector3D	*opt_vtx = (Vector3D*) malloc( sizeof( Vector3D ) * total_vtx );
+        Vector3D	*opt_N = (Vector3D*) malloc( sizeof( Vector3D ) * total_vtx );
         float	*opt_T = (float*) malloc( sizeof( float ) * total_vtx << 1 );
         GLushort *opt_idx = (GLushort*) malloc( sizeof( GLushort ) * total_index );
         total_vtx = 0;
         total_index = 0;
-        std::list<VECTOR3D>	pos_stack;
-        VECTOR3D pos_offset;
+        std::list<Vector3D>	pos_stack;
+        Vector3D pos_offset;
 
         obj_stack.push_front( this );			// Fill the arrays
         pos_stack.push_front( pos_offset );
@@ -636,7 +636,7 @@ namespace TA3D
             OBJECT *cur = obj_stack.front();	obj_stack.pop_front();
 
             pos_offset = pos_stack.front();		pos_stack.pop_front();
-            VECTOR3D dec = pos_offset + cur->pos_from_parent;
+            Vector3D dec = pos_offset + cur->pos_from_parent;
 
             for ( int i = 0 ; i < cur->nb_t_index ; i++ )
                 opt_idx[ i + total_index ] = cur->t_index[ i ] + total_vtx;
@@ -662,11 +662,11 @@ namespace TA3D
         glGenBuffersARB( 1, &ebo_id );
 
         glBindBufferARB(GL_ARRAY_BUFFER_ARB, vbo_id);
-        glBufferDataARB(GL_ARRAY_BUFFER_ARB, total_vtx * ( sizeof( VECTOR3D ) + sizeof( VECTOR3D ) + sizeof( float ) * 2 ), NULL, GL_STATIC_DRAW_ARB);
-        glBufferSubDataARB(GL_ARRAY_BUFFER_ARB, 0, total_vtx * sizeof( VECTOR3D ), opt_vtx );
-        N_offset = total_vtx * sizeof( VECTOR3D );
-        glBufferSubDataARB(GL_ARRAY_BUFFER_ARB, N_offset, total_vtx * sizeof( VECTOR3D ), opt_N );
-        T_offset = N_offset + total_vtx * sizeof( VECTOR3D );
+        glBufferDataARB(GL_ARRAY_BUFFER_ARB, total_vtx * ( sizeof( Vector3D ) + sizeof( Vector3D ) + sizeof( float ) * 2 ), NULL, GL_STATIC_DRAW_ARB);
+        glBufferSubDataARB(GL_ARRAY_BUFFER_ARB, 0, total_vtx * sizeof( Vector3D ), opt_vtx );
+        N_offset = total_vtx * sizeof( Vector3D );
+        glBufferSubDataARB(GL_ARRAY_BUFFER_ARB, N_offset, total_vtx * sizeof( Vector3D ), opt_N );
+        T_offset = N_offset + total_vtx * sizeof( Vector3D );
         glBufferSubDataARB(GL_ARRAY_BUFFER_ARB, T_offset, total_vtx * sizeof( float ) * 2, opt_T );
 
         glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, ebo_id);
@@ -727,7 +727,7 @@ namespace TA3D
             next->init();
             next->load_obj(data,header.OffsetToSiblingObject,dec,filename);
         }
-        points=(VECTOR3D*) malloc(sizeof(VECTOR3D)*nb_vtx);		// Alloue la mémoire nécessaire pour stocker les points
+        points=(Vector3D*) malloc(sizeof(Vector3D)*nb_vtx);		// Alloue la mémoire nécessaire pour stocker les points
         int f_pos;
         float div=0.5f/65536.0f;
         pos_from_parent.x=header.XFromParent*div;
@@ -1034,7 +1034,7 @@ namespace TA3D
         if (selprim >= 0)
             nb_total_point += 4;
 
-        VECTOR3D *p=(VECTOR3D*) malloc(sizeof(VECTOR3D)*nb_total_point<<1);			// *2 pour le volume d'ombre
+        Vector3D *p=(Vector3D*) malloc(sizeof(Vector3D)*nb_total_point<<1);			// *2 pour le volume d'ombre
         int prim_dec = selprim >= 0 ? 4 : 0;
         for (i = 0; i < nb_total_point - nb_l_index - prim_dec; ++i)
         {
@@ -1136,14 +1136,14 @@ namespace TA3D
 
         if (nb_t_index > 0) // Calcule les normales pour l'éclairage
         {
-            N = (VECTOR3D*) malloc(sizeof(VECTOR3D) * nb_vtx << 1);
-            F_N = new VECTOR3D[nb_t_index / 3];
+            N = (Vector3D*) malloc(sizeof(Vector3D) * nb_vtx << 1);
+            F_N = new Vector3D[nb_t_index / 3];
             for (i = 0; i  < nb_vtx << 1; ++i)
                 N[i].x=N[i].z=N[i].y=0.0f;
             int e = 0;
             for (i = 0; i < nb_t_index; i += 3)
             {
-                VECTOR3D AB,AC,Normal;
+                Vector3D AB,AC,Normal;
                 AB = points[t_index[i+1]] - points[t_index[i]];
                 AC = points[t_index[i+2]] - points[t_index[i]];
                 Normal = AB * AC;
@@ -1184,7 +1184,7 @@ namespace TA3D
 
         nb_vtx = 64;
         nb_t_index=119;
-        points=(VECTOR3D*) malloc(sizeof(VECTOR3D)*nb_vtx);
+        points=(Vector3D*) malloc(sizeof(Vector3D)*nb_vtx);
         tcoord=(float*) malloc(sizeof(float)*nb_vtx<<1);
         t_index=(GLushort*) malloc(sizeof(GLushort)*nb_t_index);
         if (!points || !tcoord || !t_index)
@@ -1347,15 +1347,15 @@ namespace TA3D
 
         /*--------------------------------------------------------------------------------------*/
 
-        N = (VECTOR3D*) malloc(sizeof(VECTOR3D) * nb_vtx);
+        N = (Vector3D*) malloc(sizeof(Vector3D) * nb_vtx);
         F_N = NULL;
         for (i = 0; i < nb_vtx; ++i)
             N[i].x = N[i].z = N[i].y = 0.0f;
         for (i = 0; i < nb_t_index - 2; ++i)
         {
-            VECTOR3D AB = points[t_index[i + 1]] - points[t_index[i]];
-            VECTOR3D AC = points[t_index[i + 2]] - points[t_index[i]];
-            VECTOR3D Normal;
+            Vector3D AB = points[t_index[i + 1]] - points[t_index[i]];
+            Vector3D AC = points[t_index[i + 2]] - points[t_index[i]];
+            Vector3D Normal;
             Normal = AB * AC;
             Normal.unit();
             if (Normal.y < 0.0f)
@@ -1405,8 +1405,8 @@ namespace TA3D
         {
             if (animation_data != NULL && (data_s->flag[script_index] & FLAG_ANIMATE)) // Used only by the 3dmeditor
             {
-                VECTOR3D R;
-                VECTOR3D T;
+                Vector3D R;
+                Vector3D T;
                 animation_data->animate(t, R, T);
                 glTranslatef(T.x, T.y, T.z);
                 glRotatef(R.x, 1.0f, 0.0f, 0.0f);
@@ -1427,8 +1427,8 @@ namespace TA3D
         {
             if (animation_data)
             {
-                VECTOR3D R;
-                VECTOR3D T;
+                Vector3D R;
+                Vector3D T;
                 animation_data->animate(t, R, T);
                 glTranslatef(T.x, T.y, T.z);
                 glRotatef(R.x, 1.0f, 0.0f, 0.0f);
@@ -1902,7 +1902,7 @@ draw_next:
 
 
 
-    int OBJECT::random_pos(SCRIPT_DATA *data_s, int id, VECTOR3D* vec)
+    int OBJECT::random_pos(SCRIPT_DATA *data_s, int id, Vector3D* vec)
     {
         if (id == obj_id)
         {
@@ -1945,11 +1945,11 @@ draw_next:
 
 
 
-    void OBJECT::compute_coord(SCRIPT_DATA* data_s, VECTOR3D *pos, bool c_part, int p_tex, VECTOR3D *target,
-                               VECTOR3D* upos, MATRIX_4x4* M, float size, VECTOR3D* center, bool reverse,
+    void OBJECT::compute_coord(SCRIPT_DATA* data_s, Vector3D *pos, bool c_part, int p_tex, Vector3D *target,
+                               Vector3D* upos, MATRIX_4x4* M, float size, Vector3D* center, bool reverse,
                                OBJECT* src, SCRIPT_DATA* src_data)
     {
-        VECTOR3D opos = *pos;
+        Vector3D opos = *pos;
         MATRIX_4x4 OM;
         if (M)
             OM = *M;
@@ -1957,7 +1957,7 @@ draw_next:
         {
             if (M)
             {
-                VECTOR3D ipos;
+                Vector3D ipos;
                 ipos.x = data_s->axe[0][script_index].pos;
                 ipos.y = data_s->axe[1][script_index].pos;
                 ipos.z = data_s->axe[2][script_index].pos;
@@ -1982,13 +1982,13 @@ draw_next:
 
         if (c_part && emitter_point ) // Emit a  particle
         {
-            VECTOR3D Dir;
+            Vector3D Dir;
             float life = 1.0f;
             byte nb = (rand_from_table() % 60) + 1;
             ParticlesSystem* system = NULL;
             for (byte i = 0;i < nb; ++i)
             {
-                VECTOR3D t_mod;
+                Vector3D t_mod;
                 bool random_vector = true;
                 if (src != NULL)
                     for ( int base_n = rand_from_table(), n = 0 ; random_vector && n < src->nb_sub_obj ; n++ )
@@ -2034,11 +2034,11 @@ draw_next:
 
 
 
-    bool OBJECT::draw_shadow(VECTOR3D Dir,float t,SCRIPT_DATA *data_s,bool alset,bool exploding_parts)
+    bool OBJECT::draw_shadow(Vector3D Dir,float t,SCRIPT_DATA *data_s,bool alset,bool exploding_parts)
     {
         bool explodes = script_index>=0 && data_s && (data_s->flag[script_index] & FLAG_EXPLODE);
         bool hide=false;
-        VECTOR3D ODir=Dir;
+        Vector3D ODir=Dir;
         glPushMatrix();
         if (explodes && !exploding_parts)
             goto draw_shadow_next;
@@ -2060,7 +2060,7 @@ draw_next:
         {
             if (animation_data)
             {
-                VECTOR3D R,T;
+                Vector3D R,T;
                 animation_data->animate(t, R, T);
                 glTranslatef(T.x, T.y, T.z);
                 glRotatef(R.x, 1.0f, 0.0f, 0.0f);
@@ -2192,11 +2192,11 @@ draw_shadow_next:
 
 
 
-    bool OBJECT::draw_shadow_basic(VECTOR3D Dir,float t,SCRIPT_DATA *data_s,bool alset,bool exploding_parts)
+    bool OBJECT::draw_shadow_basic(Vector3D Dir,float t,SCRIPT_DATA *data_s,bool alset,bool exploding_parts)
     {
         bool explodes = script_index>=0 && data_s && (data_s->flag[script_index] & FLAG_EXPLODE);
         bool hide=false;
-        VECTOR3D ODir=Dir;
+        Vector3D ODir=Dir;
         glPushMatrix();
         if (explodes && !exploding_parts)
             goto draw_shadow_basic_next;
@@ -2217,7 +2217,7 @@ draw_shadow_next:
         else
             if (animation_data )
             {
-                VECTOR3D R,T;
+                Vector3D R,T;
                 animation_data->animate( t, R, T );
                 glTranslatef( T.x, T.y, T.z );
                 glRotatef( R.x, 1.0f, 0.0f, 0.0f );
@@ -2348,18 +2348,18 @@ draw_shadow_basic_next:
         return alset;
     }
 
-    bool OBJECT::hit(VECTOR3D Pos,VECTOR3D Dir,SCRIPT_DATA *data_s,VECTOR3D *I,MATRIX_4x4 M)
+    bool OBJECT::hit(Vector3D Pos,Vector3D Dir,SCRIPT_DATA *data_s,Vector3D *I,MATRIX_4x4 M)
     {
         MATRIX_4x4 OM = M;
         MATRIX_4x4 AM = Scale(1.0f);
         MATRIX_4x4 M_Dir = M;
         bool hide = false;
-        VECTOR3D ODir = Dir;
-        VECTOR3D OPos = Pos;
+        Vector3D ODir = Dir;
+        Vector3D OPos = Pos;
         bool is_hit = false;
 
-        VECTOR3D T = pos_from_parent;
-        VECTOR3D MP;
+        Vector3D T = pos_from_parent;
+        Vector3D MP;
         if (script_index >= 0 && data_s && (data_s->flag[script_index] & FLAG_EXPLODE))	 // We can't select that
             goto hit_is_exploding;
 
@@ -2389,9 +2389,9 @@ draw_shadow_basic_next:
 
         if (( nb_t_index>0 || selprim >= 0 ) && !hide)
         {
-            VECTOR3D A;
-            VECTOR3D B;
-            VECTOR3D C;
+            Vector3D A;
+            Vector3D B;
+            Vector3D C;
             Dir = Dir * M_Dir;
             Dir.unit();
             //-----------------Code de calcul d'intersection--------------------------
@@ -2400,15 +2400,15 @@ draw_shadow_basic_next:
                 A = points[t_index[i]];
                 B = points[t_index[i + 1]];
                 C = points[t_index[i + 2]];
-                VECTOR3D AB = B - A;
-                VECTOR3D AC = C - A;
-                VECTOR3D N  = AB * AC;
+                Vector3D AB = B - A;
+                Vector3D AC = C - A;
+                Vector3D N  = AB * AC;
                 if (N%Dir == 0.0f)
                     continue;
                 float dist = -((Pos - A) % N) / (N % Dir);
                 if (dist < 0.0f)
                     continue;
-                VECTOR3D P_p = Pos + dist * Dir;
+                Vector3D P_p = Pos + dist * Dir;
 
                 //					if (is_hit && (MP-Pos)%Dir<(P_p-Pos)%Dir)	continue;
                 if (is_hit && MP % Dir < P_p % Dir)
@@ -2417,7 +2417,7 @@ draw_shadow_basic_next:
                 float a;
                 float b;
                 float c;		// Coefficients pour que P soit le barycentre de A,B,C
-                VECTOR3D AP = P_p - A;
+                Vector3D AP = P_p - A;
                 float pre_cal = AB.x * AC.y - AB.y * AC.x;
                 if (AC.y != 0.0f && pre_cal != 0.0f)
                 {
@@ -2483,22 +2483,22 @@ draw_shadow_basic_next:
                     A = points[sel[i]];
                     B = points[sel[i+1]];
                     C = points[sel[3]];
-                    VECTOR3D AB = B - A;
-                    VECTOR3D AC = C - A;
-                    VECTOR3D N  = AB * AC;
+                    Vector3D AB = B - A;
+                    Vector3D AC = C - A;
+                    Vector3D N  = AB * AC;
                     if (N % Dir == 0.0f)
                         continue;
                     float dist = -((Pos - A) % N) / (N % Dir);
                     if (dist < 0.0f)
                         continue;
-                    VECTOR3D P_p=Pos+dist*Dir;
+                    Vector3D P_p=Pos+dist*Dir;
 
                     //						if (is_hit && (MP-Pos)%Dir<(P_p-Pos)%Dir)	continue;
                     if (is_hit && MP % Dir < P_p % Dir)
                         continue;
 
                     float a,b,c;		// Coefficients pour que P soit le barycentre de A,B,C
-                    VECTOR3D AP = P_p - A;
+                    Vector3D AP = P_p - A;
                     float pre_cal = AB.x * AC.y - AB.y * AC.x;
                     if (AC.y != 0.0f && pre_cal != 0.0f)
                     {
@@ -2561,7 +2561,7 @@ draw_shadow_basic_next:
 
         if (child)
         {
-            VECTOR3D MP2;
+            Vector3D MP2;
             bool nhit = child->hit(Pos, ODir, data_s, &MP2, M_Dir);
             if (nhit && !is_hit)
                 MP = MP2;
@@ -2580,7 +2580,7 @@ draw_shadow_basic_next:
 hit_is_exploding:
         if (next)
         {
-            VECTOR3D MP2;
+            Vector3D MP2;
             bool nhit = next->hit(OPos, ODir, data_s, &MP2, OM);
             Dir = ODir * OM;
             if (nhit && !is_hit)
@@ -2601,17 +2601,17 @@ hit_is_exploding:
 
 
     // hit_fast is a faster version of hit but less precise, designed for use in weapon code
-    bool OBJECT::hit_fast(VECTOR3D Pos,VECTOR3D Dir,SCRIPT_DATA *data_s,VECTOR3D *I)
+    bool OBJECT::hit_fast(Vector3D Pos,Vector3D Dir,SCRIPT_DATA *data_s,Vector3D *I)
     {
         bool hide = false;
-        VECTOR3D ODir = Dir;
-        VECTOR3D OPos = Pos;
+        Vector3D ODir = Dir;
+        Vector3D OPos = Pos;
         MATRIX_4x4 AM;
         bool is_hit = false;
 
 
-        VECTOR3D T = pos_from_parent;
-        VECTOR3D MP;
+        Vector3D T = pos_from_parent;
+        Vector3D MP;
         if (script_index >= 0 && data_s && (data_s->flag[script_index] & FLAG_EXPLODE))
             goto hit_fast_is_exploding;
         if (script_index >= 0 && data_s)
@@ -2705,7 +2705,7 @@ hit_is_exploding:
         }
         if (child && !is_hit)
         {
-            VECTOR3D MP2;
+            Vector3D MP2;
             bool nhit = child->hit_fast(Pos,Dir,data_s,&MP2);
             if (nhit)
             {
@@ -2720,7 +2720,7 @@ hit_is_exploding:
 hit_fast_is_exploding:
         if (next && !is_hit)
         {
-            VECTOR3D MP2;
+            Vector3D MP2;
             bool nhit = next->hit_fast( OPos, ODir, data_s, &MP2);
             if (nhit)
             {
@@ -2987,7 +2987,7 @@ hit_fast_is_exploding:
 
         animated = obj.has_animation_data();
 
-        VECTOR3D O;
+        Vector3D O;
         O.x=O.y=O.z=0.0f;
         int coef=0;
         center.x=center.y=center.z=0.0f;
@@ -3007,7 +3007,7 @@ hit_fast_is_exploding:
         {
             nb_obj = obj.set_obj_id( 0 );
 
-            VECTOR3D O;
+            Vector3D O;
             O.x=O.y=O.z=0.0f;
             int coef=0;
             center.x=center.y=center.z=0.0f;
@@ -3029,7 +3029,7 @@ hit_fast_is_exploding:
         nb_obj = obj.set_obj_id( 0 );
 
         from_2d = true;
-        VECTOR3D O;
+        Vector3D O;
         O.x=O.y=O.z=0.0f;
         int coef=0;
         center.x=center.y=center.z=0.0f;
@@ -3041,11 +3041,11 @@ hit_fast_is_exploding:
         compute_topbottom();
     }
 
-    void MODEL::draw(float t,SCRIPT_DATA *data_s,bool sel,bool notex,bool c_part,int p_tex,VECTOR3D *target,VECTOR3D *upos,MATRIX_4x4 *M,float Size,VECTOR3D* Center,bool reverse,int side,bool chg_col,OBJECT *src,SCRIPT_DATA *src_data)
+    void MODEL::draw(float t,SCRIPT_DATA *data_s,bool sel,bool notex,bool c_part,int p_tex,Vector3D *target,Vector3D *upos,MATRIX_4x4 *M,float Size,Vector3D* Center,bool reverse,int side,bool chg_col,OBJECT *src,SCRIPT_DATA *src_data)
     {
         if (notex)
             glDisable(GL_TEXTURE_2D);
-        VECTOR3D pos;
+        Vector3D pos;
         if (chg_col)
         {
             if (notex)
@@ -3086,7 +3086,7 @@ hit_fast_is_exploding:
     }
 
 
-    void MODEL::draw_shadow(VECTOR3D Dir,float t,SCRIPT_DATA *data_s)
+    void MODEL::draw_shadow(Vector3D Dir,float t,SCRIPT_DATA *data_s)
     {
         glDisable(GL_TEXTURE_2D);
         obj.draw_shadow(Dir,t,data_s,false);
@@ -3094,7 +3094,7 @@ hit_fast_is_exploding:
             obj.draw_shadow(Dir,t,data_s,false,true);
     }
 
-    void MODEL::draw_shadow_basic(VECTOR3D Dir,float t,SCRIPT_DATA *data_s)
+    void MODEL::draw_shadow_basic(Vector3D Dir,float t,SCRIPT_DATA *data_s)
     {
         glDisable(GL_TEXTURE_2D);
         obj.draw_shadow_basic(Dir,t,data_s,false);
@@ -3105,7 +3105,7 @@ hit_fast_is_exploding:
 
     void MODEL::compute_coord(SCRIPT_DATA *data_s,MATRIX_4x4 *M)
     {
-        VECTOR3D pos;
+        Vector3D pos;
         pos.x=pos.y=pos.z=0.0f;
         obj.compute_coord(data_s,&pos,false,0,NULL,NULL,M);
     }
@@ -3127,7 +3127,7 @@ hit_fast_is_exploding:
 
     void MODEL::compute_topbottom()
     {
-        VECTOR3D O;
+        Vector3D O;
         O.x = O.y = O.z = 0.0f;
         top = obj.compute_top( -99999.0f, O );
         bottom = obj.compute_bottom( 99999.0f, O );
@@ -3312,7 +3312,7 @@ hit_fast_is_exploding:
             cur->nb_prim = StructD[i + 1] - StructD[i];
             cur->nb_t_index = cur->nb_prim * 3;
             cur->nb_vtx = cur->nb_t_index;
-            cur->points = (VECTOR3D*) malloc(sizeof(VECTOR3D)*cur->nb_vtx);
+            cur->points = (Vector3D*) malloc(sizeof(Vector3D)*cur->nb_vtx);
             cur->t_index = (GLushort*) malloc(sizeof(GLushort)*cur->nb_t_index);
             cur->tcoord = (float*) malloc(sizeof(float)*cur->nb_vtx<<1);
 
@@ -3360,7 +3360,7 @@ hit_fast_is_exploding:
                 }
             }
             cur->nb_vtx -= removed;
-            VECTOR3D* n_points = (VECTOR3D*) malloc(sizeof(VECTOR3D) * cur->nb_vtx);
+            Vector3D* n_points = (Vector3D*) malloc(sizeof(Vector3D) * cur->nb_vtx);
             int cur_pt = 0;
             for (i = 0; i  <cur->nb_t_index; ++i)
             {
@@ -3387,16 +3387,16 @@ hit_fast_is_exploding:
                 cur->points[i].z *= size;
             }
 
-            cur->N = (VECTOR3D*) malloc(sizeof(VECTOR3D)*cur->nb_vtx);	// Calculate normals
-            cur->F_N = new VECTOR3D[cur->nb_t_index / 3];
+            cur->N = (Vector3D*) malloc(sizeof(Vector3D)*cur->nb_vtx);	// Calculate normals
+            cur->F_N = new Vector3D[cur->nb_t_index / 3];
             for (i = 0; i < cur->nb_vtx; ++i)
                 cur->N[i].x=cur->N[i].z=cur->N[i].y=0.0f;
             int e = 0;
             for (i = 0; i < cur->nb_t_index; i += 3)
             {
-                VECTOR3D AB;
-                VECTOR3D AC;
-                VECTOR3D Normal;
+                Vector3D AB;
+                Vector3D AC;
+                Vector3D Normal;
                 AB = cur->points[cur->t_index[i+1]] - cur->points[cur->t_index[i]];
                 AC = cur->points[cur->t_index[i+2]] - cur->points[cur->t_index[i]];
                 Normal = AB * AC;
@@ -3433,7 +3433,7 @@ hit_fast_is_exploding:
 
         fwrite(&nb_vtx,sizeof(nb_vtx),1,dst);
         if (points!=NULL)
-            fwrite(points,sizeof(VECTOR3D)*nb_vtx,1,dst);
+            fwrite(points,sizeof(Vector3D)*nb_vtx,1,dst);
 
         fwrite(sel,sizeof(GLushort)*4,1,dst);				// Selection primitive
 
@@ -3538,11 +3538,11 @@ hit_fast_is_exploding:
         {
             fputc(2, dst);
             fputc( animation_data->type, dst);
-            fwrite( &(animation_data->angle_0), sizeof(VECTOR3D), 1, dst);
-            fwrite( &(animation_data->angle_1), sizeof(VECTOR3D), 1, dst);
+            fwrite( &(animation_data->angle_0), sizeof(Vector3D), 1, dst);
+            fwrite( &(animation_data->angle_1), sizeof(Vector3D), 1, dst);
             fwrite( &(animation_data->angle_w), sizeof(float), 1, dst);
-            fwrite( &(animation_data->translate_0), sizeof(VECTOR3D), 1, dst);
-            fwrite( &(animation_data->translate_1), sizeof(VECTOR3D), 1, dst);
+            fwrite( &(animation_data->translate_0), sizeof(Vector3D), 1, dst);
+            fwrite( &(animation_data->translate_1), sizeof(Vector3D), 1, dst);
             fwrite( &(animation_data->translate_w), sizeof(float), 1, dst);
         }
 
@@ -3589,8 +3589,8 @@ hit_fast_is_exploding:
 
         data=read_from_mem(&nb_vtx,sizeof(nb_vtx),data);
         if (nb_vtx>0) {
-            points = (VECTOR3D*) malloc(sizeof(VECTOR3D)*nb_vtx<<1);
-            data=read_from_mem(points,sizeof(VECTOR3D)*nb_vtx,data);
+            points = (Vector3D*) malloc(sizeof(Vector3D)*nb_vtx<<1);
+            data=read_from_mem(points,sizeof(Vector3D)*nb_vtx,data);
         }
         else
             points=NULL;
@@ -3719,16 +3719,16 @@ hit_fast_is_exploding:
             surface.s_shader.load_memory(surface.frag_shader_src,surface.frag_shader_size,surface.vert_shader_src,surface.vert_shader_size);
         }
 
-        N = (VECTOR3D*) malloc(sizeof(VECTOR3D) * nb_vtx << 1); // Calculate normals
+        N = (Vector3D*) malloc(sizeof(Vector3D) * nb_vtx << 1); // Calculate normals
         if (nb_t_index>0 && t_index != NULL)
         {
-            F_N = new VECTOR3D[nb_t_index / 3];
+            F_N = new Vector3D[nb_t_index / 3];
             for (int i = 0; i < nb_vtx; ++i)
                 N[i].x=N[i].z=N[i].y=0.0f;
             int e = 0;
             for (int i=0;i<nb_t_index;i+=3)
             {
-                VECTOR3D AB,AC,Normal;
+                Vector3D AB,AC,Normal;
                 AB = points[t_index[i+1]] - points[t_index[i]];
                 AC = points[t_index[i+2]] - points[t_index[i]];
                 Normal = AB * AC;
@@ -3748,11 +3748,11 @@ hit_fast_is_exploding:
         {
             animation_data = new ANIMATION;
             data = read_from_mem( &(animation_data->type), 1, data );
-            data = read_from_mem( &(animation_data->angle_0), sizeof(VECTOR3D), data);
-            data = read_from_mem( &(animation_data->angle_1), sizeof(VECTOR3D), data);
+            data = read_from_mem( &(animation_data->angle_0), sizeof(Vector3D), data);
+            data = read_from_mem( &(animation_data->angle_1), sizeof(Vector3D), data);
             data = read_from_mem( &(animation_data->angle_w), sizeof(float), data );
-            data = read_from_mem( &(animation_data->translate_0), sizeof(VECTOR3D), data);
-            data = read_from_mem( &(animation_data->translate_1), sizeof(VECTOR3D), data);
+            data = read_from_mem( &(animation_data->translate_0), sizeof(Vector3D), data);
+            data = read_from_mem( &(animation_data->translate_1), sizeof(Vector3D), data);
             data = read_from_mem( &(animation_data->translate_w), sizeof(float), data);
 
             data=read_from_mem(&link,1,data);
@@ -3876,7 +3876,7 @@ hit_fast_is_exploding:
                 max_size = Math::Max( max_size, (uint32)(*e)->queue.size());
         }
 
-        VECTOR3D	*P = new VECTOR3D[ max_size << 2 ];
+        Vector3D	*P = new Vector3D[ max_size << 2 ];
         uint32	*C = new uint32[ max_size << 2 ];
         GLfloat	*T = new GLfloat[ max_size << 3 ];
 
@@ -3917,7 +3917,7 @@ hit_fast_is_exploding:
         delete[] T;
     }
 
-    void QUAD_QUEUE::draw_queue( VECTOR3D *P, uint32 *C, GLfloat	*T )
+    void QUAD_QUEUE::draw_queue( Vector3D *P, uint32 *C, GLfloat	*T )
     {
         if (queue.empty())
             return;

@@ -37,7 +37,7 @@ namespace TA3D
         /*!
         ** \brief
         */
-        void move(const float dt, VECTOR3D *p_wind_dir, const float g, const float factor, const float factor2);
+        void move(const float dt, Vector3D *p_wind_dir, const float g, const float factor, const float factor2);
 
         /*!
         ** \brief Draw
@@ -46,10 +46,10 @@ namespace TA3D
 
     public:
         uint32 nb_particles;
-        VECTOR3D *pos;
-        VECTOR3D *V;
-        VECTOR3D common_pos;
-        VECTOR3D common_V;
+        Vector3D *pos;
+        Vector3D *V;
+        Vector3D common_pos;
+        Vector3D common_V;
         float size;
         float dsize;
         float mass;

@@ -257,7 +257,7 @@ namespace TA3D
     public:
         byte		nbindex;	// Nombre d'indices	/ Number of indexes
         byte		nbpoint;	// Nombre de points / Number of points
-        VECTOR3D	*point;		// Points du bloc / Array of points
+        Vector3D	*point;		// Points du bloc / Array of points
         float		*texcoord;	// Coordonnées de texture / Texture coordinates
         GLuint		tex;		// Indice de texture OpenGl / OpenGL texture handle
         bool		lava;		// Indique si le bloc est de type lave / Is that a lava bloc ?
@@ -322,7 +322,7 @@ namespace TA3D
         int			mini_w;
         int			mini_h;
         float		sealvl;			// Niveau de la mer
-        VECTOR3D	**lvl;			// Bloc de flottants pour le relief de la carte
+        Vector3D	**lvl;			// Bloc de flottants pour le relief de la carte
         bool		water;			// Indique qu'il faut dessiner la mer
         bool		tnt;			// Indique si la carte est format tnt(format de total annihilation)
         float		sea_dec;		// Décalage de la mer
@@ -338,7 +338,7 @@ namespace TA3D
 
         float		wind;			// To handle wind
         float		wind_dir;
-        VECTOR3D	wind_vec;
+        Vector3D	wind_vec;
 
         /*------------- Experimental: code for new map format -----------------------*/
 
@@ -350,8 +350,8 @@ namespace TA3D
 
         int			low_nb_idx;
         int			low_w,low_h;
-        VECTOR3D	*low_vtx;
-        VECTOR3D	*low_vtx_flat;
+        Vector3D	*low_vtx;
+        Vector3D	*low_vtx_flat;
         float		*low_tcoord;
         uint8		*low_col;
         GLuint		*low_index;
@@ -779,7 +779,7 @@ namespace TA3D
 
         void draw(Camera* cam,byte player_mask,bool FLAT=false,float niv=0.0f,float t=0.0f,float dt=1.0f,bool depth_only=false,bool check_visibility=true,bool draw_uw=true);
 
-        VECTOR3D hit(VECTOR3D Pos,VECTOR3D Dir,bool water = true, float length = 200000.0f, bool allow_out = false);			// Calcule l'intersection d'un rayon avec la carte(le rayon partant du dessus de la carte)
+        Vector3D hit(Vector3D Pos,Vector3D Dir,bool water = true, float length = 200000.0f, bool allow_out = false);			// Calcule l'intersection d'un rayon avec la carte(le rayon partant du dessus de la carte)
     };
 
     extern MAP *the_map;
@@ -829,7 +829,7 @@ namespace TA3D
     public:
         uint16		nb_vtx;
         uint16		nb_idx;
-        VECTOR3D		*point;
+        Vector3D		*point;
         float		*texcoord;
         GLushort	*index;
         int			s;
