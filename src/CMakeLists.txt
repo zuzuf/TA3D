@@ -9,6 +9,9 @@ ADD_SUBDIRECTORY(ai)
 ADD_SUBDIRECTORY(ingame)
 ADD_SUBDIRECTORY(scripts)
 ADD_SUBDIRECTORY(sounds)
+IF(${TA3D_REGRESSION_TEST} EQUAL 1)
+   ADD_SUBDIRECTORY(regression)
+ENDIF(${TA3D_REGRESSION_TEST} EQUAL 1)
 
 
 IF(APPLE)
@@ -192,18 +195,6 @@ ADD_EXECUTABLE(${TA3D_BIN} ${SOURCES})
 target_link_libraries(${TA3D_BIN}
         stdafx logs console debuginfos threads i18n 3dtoolbox misc ingame menus tajpeg gfx
         fileformats particles weapons ai audio hpi oldgui gui network scripts)
-
-
-
-#
-# AutoTest, if enabled
-#
-IF(${TA3D_REGRESSION_TEST} EQUAL 1)
-    # Strings
-    ADD_EXECUTABLE(regression-string  regression/string.cpp)
-    target_link_libraries(regression-string stdafx logs threads misc)
-ENDIF(${TA3D_REGRESSION_TEST} EQUAL 1)
-
 
 
 

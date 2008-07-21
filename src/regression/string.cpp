@@ -6,6 +6,8 @@
 
 namespace TA3D
 {
+namespace
+{
 
     template<typename T>
     int stringConvert(const String& section, const T t, const T expected)
@@ -20,7 +22,7 @@ namespace TA3D
         return 0;
     }
 
-    static int stringCheckKV(const String& t, const String& expectedKey = "", const String& expectedValue = "")
+    int stringCheckKV(const String& t, const String& expectedKey = "", const String& expectedValue = "")
     {
         String k;
         String v;
@@ -39,6 +41,7 @@ namespace TA3D
 
     int autoTest()
     {
+        LOG_INFO("* SelfTest: Strings...");
         int ret = 0;
         ret += stringConvert("int32", String(10).toInt32(), 10);
         ret += stringConvert("uint32", String(uint32(-1)).toUInt32(), uint32(-1));
@@ -83,15 +86,14 @@ namespace TA3D
         return ret;
     }
 
+} // unnamed namespace
 } // namespace TA3D
-
 
 
 
 
 int main(void)
 {
-    LOG_INFO("* SelfTest: Strings...");
     return (TA3D::autoTest() ? 1 : 0);
 }
 END_OF_MAIN() /* Allegro stuff */

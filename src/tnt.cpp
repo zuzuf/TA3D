@@ -35,8 +35,82 @@
 #include "logs/logs.h"
 
 
+
+
 namespace TA3D
 {
+
+    namespace
+    {
+
+    BITMAP *load_tnt_minimap_bmp(TNTMINIMAP *minimap,int *sw,int *sh)
+    {
+	    // Copy the mini-map into an 8-bit BITMAP
+	    BITMAP *mini8bit=create_bitmap_ex(8,TNTMINIMAP_WIDTH,TNTMINIMAP_HEIGHT);
+	    for(int y = 0; y < TNTMINIMAP_HEIGHT; ++y) 
+		    memcpy(mini8bit->line[y],minimap->map[y],TNTMINIMAP_WIDTH);
+	
+	    // Apply the palette -- increase the color depth
+	    BITMAP *mini=create_bitmap(mini8bit->w,mini8bit->h);
+	    set_palette( pal );
+	    blit(mini8bit,mini,0,0,0,0,mini->w,mini->h);
+	    destroy_bitmap(mini8bit);
+
+	    // Examine the image for a blank-looking bottom or right edge
+	    int mini_w=TNTMINIMAP_WIDTH;
+	    int mini_h=TNTMINIMAP_HEIGHT;
+	    int blank_color = makecol(120,148,252); // approximately
+	    int mask = 0xFCFCFCFC; // XXX this assumes 24- or 32-bit pixels
+	    do {
+		    --mini_w;
+	    } while ( mini_w > 0 &&
+	              ( ( ((int*)(mini->line[0]))[mini_w] & mask ) == blank_color ||
+	                  ((int*)(mini->line[0]))[mini_w]          == 0 ) );
+	    do {
+		    --mini_h;
+	    } while( mini_h > 0 &&
+	             ( ( ((int*)(mini->line[mini_h]))[0] & mask ) == blank_color ||
+	                 ((int*)(mini->line[mini_h]))[0]          == 0 ) );
+	    mini_w++;
+	    mini_h++;
+
+	    if(sw) *sw=mini_w;
+	    if(sh) *sh=mini_h;
+
+	    return mini;
+    }
+
+    BITMAP *load_tnt_minimap_fast_raw_bmp(const String& filename, int& sw, int& sh)
+    {
+	    byte *headerBytes = HPIManager->PullFromHPI_zone(filename.c_str(),0,sizeof(TNTHEADER),NULL);
+	    if(headerBytes==NULL)
+	    {
+	    	return 0;
+	    }
+	    TNTHEADER *header = &((TNTHEADER_U*)headerBytes)->header;
+
+	    byte *minimapdata = HPIManager->PullFromHPI_zone(filename.c_str(),header->PTRminimap,sizeof(TNTMINIMAP),NULL);
+	    if(minimapdata==NULL)
+	    {
+	    	delete[] headerBytes;
+	    	return 0;
+	    }
+
+	    TNTMINIMAP *minimap = &((TNTMINIMAP_U*)(&minimapdata[header->PTRminimap]))->map;
+	    BITMAP		*bitmap = load_tnt_minimap_bmp(minimap, &sw, &sh);
+
+	    delete[] headerBytes;
+	    delete[] minimapdata;
+
+	    return bitmap;
+    }
+
+
+    } // unnamed namespace
+
+
+
+
 
 
     MAP	*load_tnt_map(byte *data )		// Charge une map au format TA, extraite d'une archive HPI/UFO
@@ -601,43 +675,6 @@ namespace TA3D
         return map;
     }
 
-    static BITMAP *load_tnt_minimap_bmp(TNTMINIMAP *minimap,int *sw,int *sh)
-    {
-	    // Copy the mini-map into an 8-bit BITMAP
-	    BITMAP *mini8bit=create_bitmap_ex(8,TNTMINIMAP_WIDTH,TNTMINIMAP_HEIGHT);
-	    for(int y = 0; y < TNTMINIMAP_HEIGHT; ++y) 
-		    memcpy(mini8bit->line[y],minimap->map[y],TNTMINIMAP_WIDTH);
-	
-	    // Apply the palette -- increase the color depth
-	    BITMAP *mini=create_bitmap(mini8bit->w,mini8bit->h);
-	    set_palette( pal );
-	    blit(mini8bit,mini,0,0,0,0,mini->w,mini->h);
-	    destroy_bitmap(mini8bit);
-
-	    // Examine the image for a blank-looking bottom or right edge
-	    int mini_w=TNTMINIMAP_WIDTH;
-	    int mini_h=TNTMINIMAP_HEIGHT;
-	    int blank_color = makecol(120,148,252); // approximately
-	    int mask = 0xFCFCFCFC; // XXX this assumes 24- or 32-bit pixels
-	    do {
-		    --mini_w;
-	    } while ( mini_w > 0 &&
-	              ( ( ((int*)(mini->line[0]))[mini_w] & mask ) == blank_color ||
-	                  ((int*)(mini->line[0]))[mini_w]          == 0 ) );
-	    do {
-		    --mini_h;
-	    } while( mini_h > 0 &&
-	             ( ( ((int*)(mini->line[mini_h]))[0] & mask ) == blank_color ||
-	                 ((int*)(mini->line[mini_h]))[0]          == 0 ) );
-	    mini_w++;
-	    mini_h++;
-
-	    if(sw) *sw=mini_w;
-	    if(sh) *sh=mini_h;
-
-	    return mini;
-    }
-
     GLuint load_tnt_minimap(byte *data,int& sw,int& sh)		// Charge une minimap d'une carte, extraite d'une archive HPI/UFO
     {
 	    TNTHEADER	*header = (TNTHEADER*)data;
@@ -652,31 +689,6 @@ namespace TA3D
 
 	    destroy_bitmap(bitmap);
 	    return texture;
-    }
-
-    static BITMAP *load_tnt_minimap_fast_raw_bmp(const String& filename, int& sw, int& sh)
-    {
-	    byte *headerBytes = HPIManager->PullFromHPI_zone(filename.c_str(),0,sizeof(TNTHEADER),NULL);
-	    if(headerBytes==NULL)
-	    {
-	    	return 0;
-	    }
-	    TNTHEADER *header = &((TNTHEADER_U*)headerBytes)->header;
-
-	    byte *minimapdata = HPIManager->PullFromHPI_zone(filename.c_str(),header->PTRminimap,sizeof(TNTMINIMAP),NULL);
-	    if(minimapdata==NULL)
-	    {
-	    	delete[] headerBytes;
-	    	return 0;
-	    }
-
-	    TNTMINIMAP *minimap = &((TNTMINIMAP_U*)(&minimapdata[header->PTRminimap]))->map;
-	    BITMAP		*bitmap = load_tnt_minimap_bmp(minimap, &sw, &sh);
-
-	    delete[] headerBytes;
-	    delete[] minimapdata;
-
-	    return bitmap;
     }
 
     GLuint load_tnt_minimap_fast(const String& filename, int& sw,int& sh)		// Charge une minimap d'une carte contenue dans une archive HPI/UFO

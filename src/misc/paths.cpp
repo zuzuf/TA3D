@@ -45,13 +45,17 @@ namespace Paths
         return String(ret);
     }
 
+
+    namespace
+    {
+
     # ifdef TA3D_PLATFORM_WINDOWS
 
     /*!
      * \brief Get the absolute path to the local application data folder
      * (from the Windows registry)
      */
-    static std::string localAppData()
+    std::string localAppData()
     {
         LPITEMIDLIST pidl;
         HRESULT hr = SHGetSpecialFolderLocation(NULL, CSIDL_LOCAL_APPDATA, &pidl);
@@ -64,7 +68,7 @@ namespace Paths
         return szPath;
     }
 
-    static void initForWindows()
+    void initForWindows()
     {
         LocalData = localAppData();
         LocalData += Separator;
@@ -79,7 +83,7 @@ namespace Paths
     # else // ifdef TA3D_PLATFORM_WINDOWS
 
     # ifndef TA3D_PLATFORM_DARWIN
-    static void initForDefaultUnixes()
+    void initForDefaultUnixes()
     {
         String home = getenv("HOME");
         home += "/.ta3d/";
@@ -93,7 +97,7 @@ namespace Paths
 
     # else // ifndef TA3D_PLATFORM_DARWIN
 
-    static void initForDarwin()
+    void initForDarwin()
     {
         String home = getenv("HOME");
         Caches = home + "/Library/Caches/ta3d/";
@@ -107,6 +111,31 @@ namespace Paths
     # endif // ifndef TA3D_PLATFORM_DARWIN
 
     # endif // ifdef TA3D_PLATFORM_WINDOWS
+
+    /*!
+     * \brief Initialize the ApplicationRoot variable
+     * \param argv0 Equivalent to argv[0] from the main
+     */
+    void initApplicationRootPath(const char* argv0)
+    {
+        LOG_ASSERT(NULL != argv0);
+
+        if (IsAbsolute(argv0))
+            ApplicationRoot = ExtractFilePath(argv0);
+        else
+        {
+            ApplicationRoot = "";
+            String r;
+            r << CurrentDirectory() << Separator << argv0;
+            if (!r.empty())
+                ApplicationRoot = ExtractFilePath(r);
+        }
+    }
+
+
+    } // namespace
+
+
 
     String ExtractFilePath(const String& p, const bool systemDependant)
     {
@@ -178,28 +207,6 @@ namespace Paths
         if (n == String::npos || '.' != s[n])
             return "";
         return String(s, n).toLower();
-    }
-
-
-
-    /*!
-     * \brief Initialize the ApplicationRoot variable
-     * \param argv0 Equivalent to argv[0] from the main
-     */
-    static void initApplicationRootPath(const char* argv0)
-    {
-        LOG_ASSERT(NULL != argv0);
-
-        if (IsAbsolute(argv0))
-            ApplicationRoot = ExtractFilePath(argv0);
-        else
-        {
-            ApplicationRoot = "";
-            String r;
-            r << CurrentDirectory() << Separator << argv0;
-            if (!r.empty())
-                ApplicationRoot = ExtractFilePath(r);
-        }
     }
 
 

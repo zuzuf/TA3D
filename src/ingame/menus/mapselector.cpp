@@ -15,12 +15,13 @@ namespace TA3D
 namespace Menus
 {
 
-    /*!
-     * \brief Predicate to sort a vector of string
-     */
-    static bool sortForListOfMaps(const String& u, const String& v)
+    namespace
     {
-           return u < v;
+        //! \brief Predicate to sort a vector of string
+        bool sortForListOfMaps(const String& u, const String& v)
+        {
+            return u < v;
+        }
     }
 
     void MapSelector::SortListOfMaps(ListOfMaps& out)
@@ -28,7 +29,6 @@ namespace Menus
         std::sort(out.begin(), out.end(), sortForListOfMaps);
     }
     
-
 
 
 
@@ -41,8 +41,6 @@ namespace Menus
         mapName = (r) ? mapName = m.selected() : "";
         return (r && (!mapName.empty()));
     }
-
-
 
 
 
