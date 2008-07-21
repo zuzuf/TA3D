@@ -10,4 +10,3 @@ SET(SOURCES base.h base.cpp
             mainmenu.h mainmenu.cpp)
 
 ADD_LIBRARY(menus STATIC ${SOURCES})
-ADD_DEPENDENCIES(menus stdafx i18n misc)

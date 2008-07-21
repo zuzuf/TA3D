@@ -9,4 +9,3 @@ SET(SOURCES base.h base.cpp
             area.h area.cpp)
 
 ADD_LIBRARY(gui STATIC ${SOURCES})
-ADD_DEPENDENCIES(gui stdafx logs misc threads)
