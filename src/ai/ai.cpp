@@ -594,7 +594,7 @@ namespace TA3D
                         break;
                     }
                 }
-                VECTOR3D target = units.unit[ *i ].Pos;
+                Vector3D target = units.unit[ *i ].Pos;
                 int px = (int)(target.x + map->map_w_d) >> 3;
                 int py = (int)(target.z + map->map_h_d) >> 3;
 

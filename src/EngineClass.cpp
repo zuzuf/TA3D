@@ -464,7 +464,7 @@ namespace TA3D
         if(!cam)
             return;
 
-        VECTOR3D A,B,C,D,P;
+        Vector3D A,B,C,D,P;
         A=cam->dir + cam->widthFactor*(-cam->side)-0.75f*cam->up;
         B=cam->dir + cam->widthFactor*(cam->side)-0.75f*cam->up;
         C=cam->dir + cam->widthFactor*(cam->side)+0.75f*cam->up;
@@ -734,7 +734,7 @@ namespace TA3D
             else
                 glDisableClientState(GL_TEXTURE_COORD_ARRAY);
         }
-        VECTOR3D A,B,C,D,P;
+        Vector3D A,B,C,D,P;
         A=cam->dir + cam->widthFactor * (-cam->side)-0.75f*cam->up;
         B=cam->dir + cam->widthFactor * (cam->side)-0.75f*cam->up;
         C=cam->dir + cam->widthFactor * (cam->side)+0.75f*cam->up;
@@ -818,7 +818,7 @@ namespace TA3D
         if(!FLAT)
             glColor4f(1.0f,1.0f,1.0f,1.0f);
 
-        VECTOR3D flat[9];
+        Vector3D flat[9];
         if(FLAT)
         {
             flat[0].x=0.0f;		flat[0].y=niv+cos(t)*0.5f;			flat[0].z=0.0f;
@@ -878,7 +878,7 @@ namespace TA3D
                 features.feature[features.list[i]].draw=true;
         }
         int lavaprob=(int)(1000*dt);
-        VECTOR3D	buf_p[4500];				// Tampon qui accumule les blocs pour les dessiner en chaîne
+        Vector3D	buf_p[4500];				// Tampon qui accumule les blocs pour les dessiner en chaîne
         float	buf_t[9000];
         uint8	buf_c[18000];
         short	buf_size=0;				// in blocs
@@ -944,8 +944,8 @@ namespace TA3D
             oy2=bloc_h-1;
         }
 
-        VECTOR3D T;
-        VECTOR3D	V;
+        Vector3D T;
+        Vector3D	V;
         if(cam->rpos.y<900.0f)
             for(y=y1;y<=y2;y++) // Balaye les blocs susceptibles d'être visibles pour dessiner ceux qui le sont
             {
@@ -1106,7 +1106,7 @@ namespace TA3D
 
                             if( (bloc[i].lava || (under_water && ota_data.lavaworld) ) && !lp_CONFIG->pause
                                 && (rand_from_table()%1000000)<=lavaprob) {		// Lava emiting code moved here because of lava effect using fragment program
-                                VECTOR3D POS( (x<<4) - dwm + 8.0f, sealvl - 5.0f, pre_y - dhm + 8.0f );
+                                Vector3D POS( (x<<4) - dwm + 8.0f, sealvl - 5.0f, pre_y - dhm + 8.0f );
                                 V.x = ((rand_from_table()%201)-100);
                                 V.y = ((rand_from_table()%51)+50);
                                 V.z = ((rand_from_table()%201)-100);
@@ -1118,11 +1118,11 @@ namespace TA3D
                                      (h_map[Y|1][X|1] >= sealvl || h_map[Y|1][X] >= sealvl || h_map[Y][X|1] >= sealvl || h_map[Y][X] >= sealvl) &&
                                      (rand_from_table()%4000)<=lavaprob &&
                                      (view_map->line[y][x]&player_mask) && lp_CONFIG->waves ) {
-                                VECTOR3D POS;
+                                Vector3D POS;
                                 POS.x=(x<<4)-dwm+8.0f;
                                 POS.z=pre_y-dhm+8.0f;
                                 POS.y=sealvl + 0.1f;
-                                VECTOR3D grad;
+                                Vector3D grad;
                                 grad.y = 0.0f;
                                 grad.x = 0.0f;
                                 grad.z = 0.0f;
@@ -1151,7 +1151,7 @@ namespace TA3D
                         }
                         bloc[i].point=lvl[pre_y2+x];
                         if(bloc[i].point==NULL) {
-                            lvl[pre_y2+x]=bloc[i].point=(VECTOR3D*) malloc(sizeof(VECTOR3D)*9);
+                            lvl[pre_y2+x]=bloc[i].point=(Vector3D*) malloc(sizeof(Vector3D)*9);
                             if(tnt) {
                                 bloc[i].point[0].x=T.x;			bloc[i].point[0].z=get_zdec(X,Y)+T.z;
                                 bloc[i].point[1].x=8.0f+T.x;	bloc[i].point[1].z=get_zdec(X|1,Y)+T.z;
@@ -1396,11 +1396,11 @@ namespace TA3D
         gfx->unlock();
     }
 
-    VECTOR3D MAP::hit(VECTOR3D Pos,VECTOR3D Dir,bool water, float length, bool allow_out)			// Calcule l'intersection d'un rayon avec la carte(le rayon partant du dessus de la carte)
+    Vector3D MAP::hit(Vector3D Pos,Vector3D Dir,bool water, float length, bool allow_out)			// Calcule l'intersection d'un rayon avec la carte(le rayon partant du dessus de la carte)
     {
         if(Dir.x==0.0f && Dir.z==0.0f) // Solution triviale
         {
-            VECTOR3D P=Pos;
+            Vector3D P=Pos;
             P.y=get_unit_h(P.x,P.z);
             return P;
         }
@@ -1533,7 +1533,7 @@ namespace TA3D
         nb_vtx=(s+1)*((s<<1)+1);
         nb_idx = s*(s*2+1)*2;				// We'll use GL_TRIANGLE_STRIP
 
-        point=(VECTOR3D*) malloc(sizeof(VECTOR3D)*nb_vtx);
+        point=(Vector3D*) malloc(sizeof(Vector3D)*nb_vtx);
         texcoord=(float*) malloc(sizeof(float)*nb_vtx*2);
         index=(GLushort*) malloc(sizeof(GLushort)*nb_idx);
 

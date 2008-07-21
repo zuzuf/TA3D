@@ -27,17 +27,17 @@
 /*!
 ** \brief 2-dimensional vector
 */
-class VECTOR2D
+class Vector2D
 {
 public:
     //! \name Constructors
     //@{
     //! Default constructor
-    VECTOR2D() :x(0.0f), y(0.0f) {}
+    Vector2D() :x(0.0f), y(0.0f) {}
     //! Constructor by copy
-    VECTOR2D(const VECTOR2D& c) : x(c.x), y(c.y) {}
+    Vector2D(const Vector2D& c) : x(c.x), y(c.y) {}
     //! Constructor with initial values
-    VECTOR2D(const float ax, const float ay) : x(ax), y(ay) {}
+    Vector2D(const float ax, const float ay) : x(ax), y(ay) {}
     //@}
 
     float sq() const { return (x*x + y*y); }         // carré scalaire
@@ -57,24 +57,24 @@ public:
     //@{
 
     /*!
-    ** \brief Operator += with another VECTOR2D
+    ** \brief Operator += with another Vector2D
     */
-    VECTOR2D& operator += (const VECTOR2D& rhs)
+    Vector2D& operator += (const Vector2D& rhs)
     { x += rhs.x; y += rhs.y; return (*this); }
 
-    VECTOR2D& operator -= (const VECTOR2D& rhs)
+    Vector2D& operator -= (const Vector2D& rhs)
     { x -= rhs.x; y -= rhs.y; return (*this); }
 
-    VECTOR2D& operator *= (const float v)
+    Vector2D& operator *= (const float v)
     { x *= v; y *= v; return (*this); }
 
-    bool operator == (const VECTOR2D& rhs) const
+    bool operator == (const Vector2D& rhs) const
     { return (x == rhs.x && y == rhs.y); }
 
-    bool operator != (const VECTOR2D& rhs) const
+    bool operator != (const Vector2D& rhs) const
     { return !(*this == rhs); } 
 
-    VECTOR2D& operator = (const VECTOR2D& rhs)
+    Vector2D& operator = (const Vector2D& rhs)
     { x = rhs.x; y = rhs.y; return *this; }
 
     //@}
@@ -83,7 +83,7 @@ public:
     float x;
     float y;
 
-}; // class VECTOR2D
+}; // class Vector2D
 
 
 
@@ -92,17 +92,17 @@ public:
 /*!
 ** \brief 3-dimensional vector
 */
-class VECTOR3D
+class Vector3D
 {
 public:
     //! \name Constructors
     //@{
     //! Default constructor
-    VECTOR3D() :x(0.0f), y(0.0f), z(0.0f) {}
+    Vector3D() :x(0.0f), y(0.0f), z(0.0f) {}
     //! Constructor by copy
-    VECTOR3D(const VECTOR3D& c) :x(c.x), y(c.y), z(c.z) {}
+    Vector3D(const Vector3D& c) :x(c.x), y(c.y), z(c.z) {}
     //! Constructor with initial values
-    VECTOR3D(const float ax, const float ay, const float az)
+    Vector3D(const float ax, const float ay, const float az)
         :x(ax), y(ay), z(az) {}
     //@}
 
@@ -125,25 +125,25 @@ public:
     //! \name Operators
     //@{
 
-    VECTOR3D& operator += (const VECTOR3D& rhs)
+    Vector3D& operator += (const Vector3D& rhs)
     { x += rhs.x; y += rhs.y; z += rhs.z; return (*this); }
 
-    VECTOR3D& operator -= (const VECTOR3D& rhs)
+    Vector3D& operator -= (const Vector3D& rhs)
     { x -= rhs.x; y -= rhs.y; z -= rhs.z; return (*this); }
 
-    VECTOR3D& operator *= (const float v)
+    Vector3D& operator *= (const float v)
     { x *= v; y *= v; z *= v; return (*this); }
 
-    VECTOR3D& operator *= (const VECTOR3D rhs)
+    Vector3D& operator *= (const Vector3D rhs)
     { cross_product_f(x, y, z,  rhs.x, rhs.y, rhs.z,  &x, &y, &z); return (*this); }
 
-    bool operator == (const VECTOR3D& rhs) const
+    bool operator == (const Vector3D& rhs) const
     { return (fabs(x-rhs.x) < 0.0001f && fabs(y-rhs.y) < 0.0001f && fabs(z-rhs.z) < 0.0001f); }
 
-    bool operator != (const VECTOR3D& rhs) const
+    bool operator != (const Vector3D& rhs) const
     { return !(*this == rhs); } 
 
-    VECTOR3D& operator = (const VECTOR3D& rhs)
+    Vector3D& operator = (const Vector3D& rhs)
     { x = rhs.x; y = rhs.y; z = rhs.z; return *this; }
 
     //@}
@@ -153,7 +153,7 @@ public:
     float y;
     float z;
 
-}; // class VECTOR3D
+}; // class Vector3D
 
 
 
@@ -161,38 +161,38 @@ public:
 //! \name Operators for Vectors
 //@{
 
-inline const VECTOR2D operator + (const VECTOR2D& lhs, const VECTOR2D& rhs)
-{ return VECTOR2D(lhs) += rhs; }
+inline const Vector2D operator + (const Vector2D& lhs, const Vector2D& rhs)
+{ return Vector2D(lhs) += rhs; }
 
-inline const VECTOR2D operator - (const VECTOR2D& lhs)
-{ VECTOR2D r(lhs); r.x = -r.x; r.y = -r.y; return r; }
+inline const Vector2D operator - (const Vector2D& lhs)
+{ Vector2D r(lhs); r.x = -r.x; r.y = -r.y; return r; }
 
-inline const VECTOR2D operator - (const VECTOR2D& lhs, const VECTOR2D& rhs)
-{ return VECTOR2D(lhs) -= rhs; }
+inline const Vector2D operator - (const Vector2D& lhs, const Vector2D& rhs)
+{ return Vector2D(lhs) -= rhs; }
 
-inline const VECTOR2D operator * (const float& v, const VECTOR2D& lhs)
-{ return VECTOR2D(lhs) *= v; }
+inline const Vector2D operator * (const float& v, const Vector2D& lhs)
+{ return Vector2D(lhs) *= v; }
 
-inline const float operator % (const VECTOR2D& lhs, const VECTOR2D& rhs)
+inline const float operator % (const Vector2D& lhs, const Vector2D& rhs)
 { return lhs.x*rhs.x + lhs.y*rhs.y; }
 
 
-inline const VECTOR3D operator + (const VECTOR3D& lhs, const VECTOR3D& rhs)
-{ return VECTOR3D(lhs) += rhs; }
+inline const Vector3D operator + (const Vector3D& lhs, const Vector3D& rhs)
+{ return Vector3D(lhs) += rhs; }
 
-inline const VECTOR3D operator - (const VECTOR3D& lhs)
-{ VECTOR3D r(lhs); r.x = -r.x; r.y = -r.y; r.z = -r.z; return r; }
+inline const Vector3D operator - (const Vector3D& lhs)
+{ Vector3D r(lhs); r.x = -r.x; r.y = -r.y; r.z = -r.z; return r; }
 
-inline const VECTOR3D operator - (const VECTOR3D& lhs, const VECTOR3D& rhs)
-{ return VECTOR3D(lhs) -= rhs; }
+inline const Vector3D operator - (const Vector3D& lhs, const Vector3D& rhs)
+{ return Vector3D(lhs) -= rhs; }
 
-inline const VECTOR3D operator * (const float& v, const VECTOR3D& lhs)
-{ return VECTOR3D(lhs) *= v; }
+inline const Vector3D operator * (const float& v, const Vector3D& lhs)
+{ return Vector3D(lhs) *= v; }
 
-inline const VECTOR3D operator * (const VECTOR3D& lhs, const VECTOR3D& rhs)
-{ return VECTOR3D(lhs) *= rhs; }
+inline const Vector3D operator * (const Vector3D& lhs, const Vector3D& rhs)
+{ return Vector3D(lhs) *= rhs; }
 
-inline const float operator % (const VECTOR3D& lhs, const VECTOR3D& rhs)
+inline const float operator % (const Vector3D& lhs, const Vector3D& rhs)
 { return lhs.x*rhs.x + lhs.y*rhs.y + lhs.z*rhs.z; }
 
 
@@ -203,7 +203,7 @@ inline const float operator % (const VECTOR3D& lhs, const VECTOR3D& rhs)
   |              Retourne l'angle en radians entre deux vecteurs
   \-------------------------------------*/
 
-inline double VAngle(const VECTOR3D& A, const VECTOR3D& B)
+inline double VAngle(const Vector3D& A, const Vector3D& B)
 {
     float a = sqrt(A.sq() * B.sq());
     return (a == 0.0f) ? 0.0f : acos((A % B) / a );

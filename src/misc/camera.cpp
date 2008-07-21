@@ -72,7 +72,7 @@ namespace TA3D
             for (float c_dt = 0.0f ; c_dt < dt ; c_dt += dt_step)
             {
                 float rdt = Math::Min(dt_step, dt - c_dt);
-                VECTOR3D rand_vec( ((TA3D_RAND() % 2001) - 1000) * 0.001f * shakeMagnitude,
+                Vector3D rand_vec( ((TA3D_RAND() % 2001) - 1000) * 0.001f * shakeMagnitude,
                                  ((TA3D_RAND() % 2001) - 1000) * 0.001f * shakeMagnitude,
                                  ((TA3D_RAND() % 2001) - 1000) * 0.001f * shakeMagnitude );
                 shakeVector += -rdt * 10.0f * shakeVector;
@@ -120,7 +120,7 @@ namespace TA3D
         glLoadIdentity();
 
         pos = rpos;
-        VECTOR3D FP(pos);
+        Vector3D FP(pos);
         FP += dir;
         FP += shakeVector;
         gluLookAt(pos.x + shakeVector.x, pos.y + shakeVector.y, pos.z + shakeVector.z,

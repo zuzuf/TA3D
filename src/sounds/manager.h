@@ -153,21 +153,21 @@ namespace Audio
         /*!
         ** \brief Play sound directly from our sound pool
         */
-        void playSound(const String& filename, const VECTOR3D* vec = NULL);
+        void playSound(const String& filename, const Vector3D* vec = NULL);
 
         // Play sound from TDF by looking up sound filename from internal hash
-        void playTDFSound(const String& key, const VECTOR3D* vec = NULL);
+        void playTDFSound(const String& key, const Vector3D* vec = NULL);
 
         /*!
         ** \brief Play a sound file from its key
         **
         ** It is a convenient method to deal with playTDFSound + update3DSound
         */
-        void playTDFSoundNow(const String& Key, const VECTOR3D* vec = NULL);
+        void playTDFSoundNow(const String& Key, const Vector3D* vec = NULL);
 
         // keys will be added together and then PlayTDF( key, vec ); called
         // if either key is null or "" aborts.
-        void playTDFSound(const String& keyA, const String& keyB, const VECTOR3D* vec = NULL);
+        void playTDFSound(const String& keyA, const String& keyB, const Vector3D* vec = NULL);
 
         /*!
         ** \brief Play a sound file right now
@@ -182,7 +182,7 @@ namespace Audio
         /*!
         ** \brief Reset the position of the camera
         */
-        void setListenerPos(const VECTOR3D& vec);
+        void setListenerPos(const Vector3D& vec);
 
         /*!
         ** \brief ReUpdate the list of 3D sounds
@@ -248,12 +248,12 @@ namespace Audio
             WorkListItem() :sound(NULL), vec(NULL) {}
             //! Constructor by copy
             WorkListItem(const WorkListItem& c) : sound(c.sound), vec(c.vec) {}
-            WorkListItem(SoundItemList* s, VECTOR3D* v) : sound(s), vec(v) {}
+            WorkListItem(SoundItemList* s, Vector3D* v) : sound(s), vec(v) {}
 
             //! 
             SoundItemList* sound;
             //! Vector
-            VECTOR3D* vec;
+            Vector3D* vec;
 
         }; // class WorkListItem
 
@@ -312,10 +312,10 @@ namespace Audio
         bool doLoadSound(String filename, const bool LoadAs3D, const float MinDistance = 1.0f, const float MaxDistance = 100.0f);
         //! \see playMusic()
         void doPlayMusic(const String& filename);
-        //! \see playTDFSoundNow(const String&, const VECTOR3D*)
-        void doPlayTDFSound(String key, const VECTOR3D* vec);
-        //! \see playTDFSound(const String&, const String&, const VECTOR3D*)
-        void doPlayTDFSound(const String& keyA, const String& keyB, const VECTOR3D* vec);
+        //! \see playTDFSoundNow(const String&, const Vector3D*)
+        void doPlayTDFSound(String key, const Vector3D* vec);
+        //! \see playTDFSound(const String&, const String&, const Vector3D*)
+        void doPlayTDFSound(const String& keyA, const String& keyB, const Vector3D* vec);
         //! \see update3DSound()
         void doUpdate3DSound();
 

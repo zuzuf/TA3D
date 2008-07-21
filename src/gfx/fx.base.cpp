@@ -65,7 +65,7 @@ namespace TA3D
     }
 
 
-    void FX::load(const int anim, const VECTOR3D& p, const float s)
+    void FX::load(const int anim, const Vector3D& p, const float s)
     {
         destroy();
         anm = anim;

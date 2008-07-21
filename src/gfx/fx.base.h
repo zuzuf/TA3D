@@ -30,7 +30,7 @@ namespace TA3D
         ** \param p
         ** \param s
         */
-        void load(const int anim, const VECTOR3D& p, const float s);
+        void load(const int anim, const Vector3D& p, const float s);
 
         /*!
         ** \brief 
@@ -57,7 +57,7 @@ namespace TA3D
         //! Get if the effect has been played
         bool playing;
         //! Position
-        VECTOR3D Pos;
+        Vector3D Pos;
         float size;		// Taille (proportion de l'image d'origine)
         int anm;		// Animation
 

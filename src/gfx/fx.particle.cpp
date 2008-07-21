@@ -9,7 +9,7 @@ namespace TA3D
 {
 
 
-    FXParticle::FXParticle(const VECTOR3D& P, const VECTOR3D& S, const float L)
+    FXParticle::FXParticle(const Vector3D& P, const Vector3D& S, const float L)
         :Pos(P), Speed(S), life(L), timer(0.0f)
     {}
 
@@ -29,7 +29,7 @@ namespace TA3D
             Pos.y = 2.0f * min_h - Pos.y;
             float dx = the_map->get_unit_h(Pos.x + 16.0f, Pos.z) - min_h;
             float dz = the_map->get_unit_h(Pos.x, Pos.z + 16.0f) - min_h;
-            VECTOR3D Normal(-dx, 16.0f, -dz);
+            Vector3D Normal(-dx, 16.0f, -dz);
             Normal.unit();
 
             if (Speed % Normal < 0.0f)

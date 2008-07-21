@@ -265,7 +265,7 @@ int main(int argc, char* argv[])
                 ScaleFactor+=((mouse_y-amy)+(mouse_x-amx)+(mouse_z-amz))*0.1f;
             if (mouse_b==2 && cur_part>=0 && cur_part<nb_obj())             // Left-clic to move current object
             {
-                VECTOR3D DP( 0.1f*(mouse_x-amx)*cos(r2*DEG2RAD), -(mouse_y-amy)*0.1f, 0.1f*(mouse_x-amx)*sin(r2*DEG2RAD) );
+                Vector3D DP( 0.1f*(mouse_x-amx)*cos(r2*DEG2RAD), -(mouse_y-amy)*0.1f, 0.1f*(mouse_x-amx)*sin(r2*DEG2RAD) );
                 obj_table[cur_part]->pos_from_parent = obj_table[cur_part]->pos_from_parent + DP;
                 for( int i = 0 ; i < obj_table[cur_part]->nb_vtx ; i++ )
                     obj_table[cur_part]->points[ i ] = obj_table[cur_part]->points[ i ] - DP;
@@ -396,7 +396,7 @@ int main(int argc, char* argv[])
         glDisable( GL_LIGHTING );
         MATRIX_4x4 M = Scale( 1.0f );
         TheModel->compute_coord( &cur_data, &M );
-        VECTOR3D P = cur_data.pos[ cur_part ];
+        Vector3D P = cur_data.pos[ cur_part ];
 
         glPushMatrix();
         glDisable(GL_TEXTURE_2D);
@@ -1295,8 +1295,8 @@ void SurfPaint(int index)
                 case EDIT_SELTRI:			// Code pour la sélection
                     startline=true;		// Pour l'outil de traçage de lignes
                     {
-                        VECTOR3D A,B,O;
-                        VECTOR3D Dir;
+                        Vector3D A,B,O;
+                        Vector3D Dir;
                         Cam.setView();
                         O = Cam.pos-obj_table[cur_part]->pos_from_parent;			// Origine du rayon=le point de vue de la caméra
                         Dir=Cam.dir+(mouse_x-(SCREEN_W>>1))/(SCREEN_W*0.5f)*Cam.side-0.75f*(mouse_y-(SCREEN_H>>1))/(SCREEN_H*0.5f)*Cam.up;
@@ -1364,8 +1364,8 @@ void SurfPaint(int index)
                             case EDIT_PAINT:			// Code pour le dessin
                         if(mouse_b==1 && NbSel>0)	// Si il y a une sélection
                         {
-                            VECTOR3D A,B,O;
-                            VECTOR3D Dir;
+                            Vector3D A,B,O;
+                            Vector3D Dir;
                             Cam.setView();
                             O=Cam.pos-obj_table[cur_part]->pos_from_parent;			// Origine du rayon=le point de vue de la caméra
                             Dir=Cam.dir+(mouse_x-(SCREEN_W>>1))/(SCREEN_W*0.5f)*Cam.side-0.75f*(mouse_y-(SCREEN_H>>1))/(SCREEN_H*0.5f)*Cam.up;
@@ -1723,7 +1723,7 @@ void SurfPaint(int index)
                         if(part<0 || part>=nb_obj())	return;		// Quitte si l'indice n'est pas valable
 
                         float COS45=0.5f*sqrt(2.0f);		// Valeur à partir de laquelle on utilise les bords droit et gauche de la texture
-                        VECTOR3D I,J,K;
+                        Vector3D I,J,K;
                         I=J=K=I-I;
                         I.x=1.0f;				// Vecteur de référence pour les calculs de repérage
                         J.y=1.0f;
@@ -1864,7 +1864,7 @@ void SurfPaint(int index)
                         if(part<0 || part>=nb_obj())	return;		// Quitte si l'indice n'est pas valable
 
                         float COS45=0.5f*sqrt(2.0f);		// Valeur à partir de laquelle on utilise les bords droit et gauche de la texture
-                        VECTOR3D I,J,K;
+                        Vector3D I,J,K;
                         I=J=K=I-I;
                         I.x=1.0f;				// Vecteur de référence pour les calculs de repérage
                         J.y=1.0f;
@@ -1885,7 +1885,7 @@ void SurfPaint(int index)
                             {
                                 if(obj_table[part]->points[i].x>xmax)	xmax=obj_table[part]->points[i].x;
                                 if(obj_table[part]->points[i].x<xmin)	xmin=obj_table[part]->points[i].x;
-                                VECTOR3D V;
+                                Vector3D V;
                                 V=obj_table[part]->points[i];
                                 V=V-(V%I)*I;
                                 float angle=VAngle(J,V);
@@ -1919,7 +1919,7 @@ void SurfPaint(int index)
                         for(i=0;i<obj_table[part]->nb_vtx;i++) {		// Analyse toutes les normales et les points
                             float COS=obj_table[part]->N[i]%I;
                             if(fabs(COS)<COS45) {			// Milieu
-                                VECTOR3D V = obj_table[part]->points[i];
+                                Vector3D V = obj_table[part]->points[i];
                                 V=V-(V%I)*I;
                                 float angle=VAngle(J,V);
                                 if(K%V<0.0f)

@@ -525,7 +525,7 @@ namespace TA3D
                 units.unit[ unit_id ].cur_px = PX;
                 units.unit[ unit_id ].cur_py = PY;
 
-                VECTOR3D target_pos = units.unit[ unit_id ].Pos;
+                Vector3D target_pos = units.unit[ unit_id ].Pos;
                 target_pos.x=((int)(target_pos.x) + lua_map->map_w_d)>>3;
                 target_pos.z=((int)(target_pos.z) + lua_map->map_h_d)>>3;
                 target_pos.y = Math::Max(lua_map->get_max_rect_h((int)target_pos.x,(int)target_pos.z, 
@@ -555,7 +555,7 @@ namespace TA3D
         if (unit_type_id >= 0 && unit_type_id < unit_manager.nb_unit && player_id >= 0 && player_id < NB_PLAYERS)
         {
             units.lock();
-            VECTOR3D pos;
+            Vector3D pos;
             pos.x = x;
             pos.z = z;
             pos.y = Math::Max( lua_map->get_max_rect_h((int)x,(int)z, unit_manager.unit_type[ unit_type_id ].FootprintX, unit_manager.unit_type[ unit_type_id ].FootprintZ ), lua_map->sealvl);
@@ -625,7 +625,7 @@ namespace TA3D
 
         if( unit_id >= 0 && unit_id < units.max_unit && unit_type_id >= 0 && unit_manager.unit_type[ unit_type_id ].Builder )
         {
-            VECTOR3D target;
+            Vector3D target;
             target.x=((int)(pos_x)+lua_map->map_w_d)>>3;
             target.z=((int)(pos_z)+lua_map->map_h_d)>>3;
             target.y = Math::Max(lua_map->get_max_rect_h((int)target.x,(int)target.z, unit_manager.unit_type[ unit_type_id ].FootprintX, unit_manager.unit_type[ unit_type_id ].FootprintZ ),lua_map->sealvl);
@@ -650,7 +650,7 @@ namespace TA3D
 
         if (unit_id >= 0 && unit_id < units.max_unit)
         {
-            VECTOR3D target;
+            Vector3D target;
             target.x = pos_x;
             target.y = lua_map->get_unit_h( pos_x, pos_z );
             target.z = pos_z;
@@ -671,7 +671,7 @@ namespace TA3D
         lua_pop( L, 2 );
 
         if( unit_id >= 0 && unit_id < units.max_unit && target_id >= 0 && target_id < units.max_unit ) {
-            VECTOR3D target = units.unit[ target_id ].Pos;
+            Vector3D target = units.unit[ target_id ].Pos;
 
             units.lock();
             if( units.unit[ unit_id ].flags )
@@ -691,7 +691,7 @@ namespace TA3D
 
         if( unit_id >= 0 && unit_id < units.max_unit )
         {
-            VECTOR3D target;
+            Vector3D target;
             target.x = pos_x;
             target.y = lua_map->get_unit_h( pos_x, pos_z );
             target.z = pos_z;
@@ -1135,7 +1135,7 @@ namespace TA3D
             if(x>0 && y>0 && x<(lua_map->bloc_w<<1) && y<(lua_map->bloc_h<<1))
                 if (lua_map->map_data[y][x].stuff==-1)
                 {
-                    VECTOR3D Pos;
+                    Vector3D Pos;
                     Pos.x = (x<<3)-lua_map->map_w_d+8.0f;
                     Pos.z = (y<<3)-lua_map->map_h_d+8.0f;
                     Pos.y = lua_map->get_unit_h( Pos.x, Pos.z );

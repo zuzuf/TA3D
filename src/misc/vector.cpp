@@ -3,7 +3,7 @@
 
 
 
-void VECTOR2D::unit()
+void Vector2D::unit()
 {
     if (!isNull()) // Si le vecteur n'est pas nul
     {
@@ -14,7 +14,7 @@ void VECTOR2D::unit()
 }
 
 
-void VECTOR3D::unit()
+void Vector3D::unit()
 {
     if(!isNull()) // Si le vecteur n'est pas nul
     {

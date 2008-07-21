@@ -72,7 +72,7 @@
 namespace TA3D
 {
 
-    void *create_unit(int type_id,int owner,VECTOR3D pos,MAP *map,bool sync=true,bool script=false);
+    void *create_unit(int type_id,int owner,Vector3D pos,MAP *map,bool sync=true,bool script=false);
 
 
 
@@ -83,7 +83,7 @@ namespace TA3D
     {
         uint8		mission;
         PATH_NODE	*path;		// Chemin emprunté par l'unité si besoin pour la mission
-        VECTOR3D		target;
+        Vector3D		target;
         MISSION 	*next;		// Mission suivante
         bool		step;		// Etape d'une mission
         float		time;		// Temps écoulé depuis la création de l'ordre
@@ -199,11 +199,11 @@ namespace TA3D
         uint16	stock;
         float	delay;
         float	time;
-        VECTOR3D	target_pos;
+        Vector3D	target_pos;
         void	*target;
         sint16	data;
         byte	flags;
-        VECTOR3D	aim_dir;		// Vecteur de visée
+        Vector3D	aim_dir;		// Vecteur de visée
 
         inline void init()
         {
@@ -272,12 +272,12 @@ namespace TA3D
         byte					owner_id;		// Numéro du propriétaire de l'unité
         short					type_id;		// Type d'unité
         float					hp;				// Points de vide restant à l'unité
-        VECTOR3D				Pos;			// Vecteur position
-        VECTOR3D				drawn_Pos;		// To prevent the shadow to be drawn where the unit will be on next frame
-        VECTOR3D				V;				// Vitesse de l'unité
-        VECTOR3D				Angle;			// Orientation dans l'espace
-        VECTOR3D				drawn_Angle;	// Idem drawn_Pos
-        VECTOR3D				V_Angle;		// Variation de l'orientation dans l'espace
+        Vector3D				Pos;			// Vecteur position
+        Vector3D				drawn_Pos;		// To prevent the shadow to be drawn where the unit will be on next frame
+        Vector3D				V;				// Vitesse de l'unité
+        Vector3D				Angle;			// Orientation dans l'espace
+        Vector3D				drawn_Angle;	// Idem drawn_Pos
+        Vector3D				V_Angle;		// Variation de l'orientation dans l'espace
         bool					sel;			// Unité sélectionnée?
         SCRIPT_DATA				data;			// Données pour l'animation de l'unité par le script
         bool					drawing;
@@ -350,7 +350,7 @@ namespace TA3D
         sint16			old_px;
         sint16			old_py;
 
-        VECTOR3D		move_target_computed;
+        Vector3D		move_target_computed;
         float			was_locked;
 
         float			self_destruct;		// Count down for self-destruction
@@ -406,9 +406,9 @@ namespace TA3D
 
         void clear_mission();
 
-        void add_mission(int mission_type,VECTOR3D *target=NULL,bool step=false,int dat=0,void *pointer=NULL,PATH_NODE *path=NULL,byte m_flags=0,int move_data=0,int patrol_node=-1);
+        void add_mission(int mission_type,Vector3D *target=NULL,bool step=false,int dat=0,void *pointer=NULL,PATH_NODE *path=NULL,byte m_flags=0,int move_data=0,int patrol_node=-1);
 
-        void set_mission(int mission_type,VECTOR3D *target=NULL,bool step=false,int dat=0,bool stopit=true,void *pointer=NULL,PATH_NODE *path=NULL,byte m_flags=0,int move_data=0);
+        void set_mission(int mission_type,Vector3D *target=NULL,bool step=false,int dat=0,bool stopit=true,void *pointer=NULL,PATH_NODE *path=NULL,byte m_flags=0,int move_data=0);
 
         void compute_model_coord();
 
@@ -430,9 +430,9 @@ namespace TA3D
 
         void draw(float t,Camera *cam,MAP *map, bool height_line=true);
 
-        void draw_shadow(Camera *cam, const VECTOR3D& Dir, MAP *map);
+        void draw_shadow(Camera *cam, const Vector3D& Dir, MAP *map);
 
-        void draw_shadow_basic(Camera *cam, const VECTOR3D& Dir, MAP *map);
+        void draw_shadow_basic(Camera *cam, const Vector3D& Dir, MAP *map);
 
         int get_script_index(int id);
 
@@ -460,11 +460,11 @@ namespace TA3D
 
         void deactivate();
 
-        int shoot(int target,VECTOR3D startpos,VECTOR3D Dir,int w_id,const VECTOR3D& target_pos);
+        int shoot(int target,Vector3D startpos,Vector3D Dir,int w_id,const Vector3D& target_pos);
 
-        bool hit(VECTOR3D P,VECTOR3D Dir,VECTOR3D *hit_vec, float length = 100.0f);
+        bool hit(Vector3D P,Vector3D Dir,Vector3D *hit_vec, float length = 100.0f);
 
-        bool hit_fast(VECTOR3D P,VECTOR3D Dir,VECTOR3D* hit_vec, float length = 100.0f);
+        bool hit_fast(Vector3D P,Vector3D Dir,Vector3D* hit_vec, float length = 100.0f);
 
         void stop_moving();
 
@@ -568,7 +568,7 @@ namespace TA3D
 
         void draw(Camera *cam,MAP *map,bool underwater=false,bool limit=false,bool cullface = true,bool height_line=true);					// Dessine les unités visibles
 
-        void draw_shadow(Camera *cam, const VECTOR3D& Dir,MAP *map,float alpha=0.5f);					// Dessine les ombres des unités visibles
+        void draw_shadow(Camera *cam, const Vector3D& Dir,MAP *map,float alpha=0.5f);					// Dessine les ombres des unités visibles
 
         void draw_mini(float map_w,float map_h,int mini_w,int mini_h,SECTOR **map_data);				// Repère les unités sur la mini-carte
 
@@ -582,19 +582,19 @@ namespace TA3D
 
         int pick_minimap();
 
-        void give_order_move(int player_id,VECTOR3D target,bool set=true,byte flags=0);
+        void give_order_move(int player_id,Vector3D target,bool set=true,byte flags=0);
 
-        void give_order_patrol(int player_id,VECTOR3D target,bool set=true);
+        void give_order_patrol(int player_id,Vector3D target,bool set=true);
 
         void give_order_guard(int player_id,int target,bool set=true);
 
-        void give_order_unload(int player_id,VECTOR3D target,bool set=true);
+        void give_order_unload(int player_id,Vector3D target,bool set=true);
 
         void give_order_load(int player_id,int target,bool set=true);
 
-        void give_order_build(int player_id,int unit_type_id, VECTOR3D target,bool set=true);
+        void give_order_build(int player_id,int unit_type_id, Vector3D target,bool set=true);
 
-        void remove_order(int player_id, VECTOR3D target);
+        void remove_order(int player_id, Vector3D target);
 
         void complete_menu(int index,bool hide_info = false, bool hide_bpic = false );
 
@@ -606,7 +606,7 @@ namespace TA3D
 
     extern INGAME_UNITS units;
 
-    bool can_be_built(const VECTOR3D& Pos, MAP *map, const int unit_type_id, const int player_id );
+    bool can_be_built(const Vector3D& Pos, MAP *map, const int unit_type_id, const int player_id );
 
     bool can_be_there( const int px, const int py, MAP *map, const int unit_type_id, const int player_id, const int unit_id = -1 );
 

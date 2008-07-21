@@ -43,14 +43,14 @@ public:
 };
 
     // fill the OBJECT with gathered data
-void finalize_object( OBJECT *cur, std::vector<int> &face, std::vector<VECTOR3D> &vertex,
-                      std::vector<VECTOR3D> &normal, std::vector<VECTOR2D> &tcoord, Material* mtl = NULL)
+void finalize_object( OBJECT *cur, std::vector<int> &face, std::vector<Vector3D> &vertex,
+                      std::vector<Vector3D> &normal, std::vector<Vector2D> &tcoord, Material* mtl = NULL)
 {
     cur->nb_vtx = face.size() >> 1;
     cur->nb_t_index = face.size() >> 1;
     cur->t_index = (GLushort*) malloc( sizeof( GLushort ) * cur->nb_t_index );
-    cur->points = (VECTOR3D*) malloc( sizeof( VECTOR3D) * cur->nb_vtx );
-    cur->N = (VECTOR3D*) malloc( sizeof( VECTOR3D) * cur->nb_vtx );
+    cur->points = (Vector3D*) malloc( sizeof( Vector3D) * cur->nb_vtx );
+    cur->N = (Vector3D*) malloc( sizeof( Vector3D) * cur->nb_vtx );
     cur->tcoord = (float*) malloc( sizeof( float ) * 2 * cur->nb_vtx );
 
     for (int i = 0 ; i < cur->nb_t_index ; i++)
@@ -65,9 +65,9 @@ void finalize_object( OBJECT *cur, std::vector<int> &face, std::vector<VECTOR3D>
         cur->N[i].x = cur->N[i].y = cur->N[i].z = 0.0f;
     for (int i = 0 ; i < cur->nb_vtx; i += 3)
     {
-        VECTOR3D AB = cur->points[i + 1] - cur->points[i];
-        VECTOR3D AC = cur->points[i + 2] - cur->points[i];
-        VECTOR3D N = AB * AC;
+        Vector3D AB = cur->points[i + 1] - cur->points[i];
+        Vector3D AC = cur->points[i + 2] - cur->points[i];
+        Vector3D N = AB * AC;
         N.unit();
         cur->N[i] = cur->N[i] + N;
         cur->N[i+1] = cur->N[i+1] + N;
@@ -99,9 +99,9 @@ MODEL *load_obj( const String &filename, float scale )
 	    
         OBJECT *cur = &(model_obj->obj);
         bool firstObject = true;
-        std::vector<VECTOR3D>  vertex;
-        std::vector<VECTOR3D>  normal;
-        std::vector<VECTOR2D>  tcoord;
+        std::vector<Vector3D>  vertex;
+        std::vector<Vector3D>  normal;
+        std::vector<Vector2D>  tcoord;
         std::vector<int>       face;
         cHashTable<Material>  mtllib;
         Material                currentMtl;
@@ -162,11 +162,11 @@ MODEL *load_obj( const String &filename, float scale )
                                 currentMtl.textureName.clear();
                         }
                         else if (args[0] == "v" && args.size() > 3)  // Add a vertex to current object
-                            vertex.push_back( VECTOR3D(args[1].toFloat(), args[2].toFloat(), args[3].toFloat()));
+                            vertex.push_back( Vector3D(args[1].toFloat(), args[2].toFloat(), args[3].toFloat()));
                         else if (args[0] == "vn" && args.size() > 3)  // Add a normal vector to current object
-                            normal.push_back( VECTOR3D(args[1].toFloat(), args[2].toFloat(), args[3].toFloat()));
+                            normal.push_back( Vector3D(args[1].toFloat(), args[2].toFloat(), args[3].toFloat()));
                         else if (args[0] == "vt" && args.size() > 2)  // Add a texture coordinate vector to current object
-                            tcoord.push_back( VECTOR2D( args[1].toFloat(), args[2].toFloat()));
+                            tcoord.push_back( Vector2D( args[1].toFloat(), args[2].toFloat()));
                         else if (args[0] == "f" && args.size() > 1)  // Add a face to current object
                         {
                             std::vector< int >  vertex_idx;
@@ -219,7 +219,7 @@ MODEL *load_obj( const String &filename, float scale )
 
         model_obj->nb_obj = model_obj->obj.set_obj_id(0);
 
-        VECTOR3D O;
+        Vector3D O;
         O.x=O.y=O.z=0.0f;
         int coef=0;
         model_obj->center.x = model_obj->center.y = model_obj->center.z = 0.0f;

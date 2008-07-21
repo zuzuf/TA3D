@@ -89,7 +89,7 @@ namespace TA3D
     }
 
 
-    PATH_NODE *direct_path(VECTOR3D End)		// Creates a direct path to the target / Chemin direct vers la cible
+    PATH_NODE *direct_path(Vector3D End)		// Creates a direct path to the target / Chemin direct vers la cible
     {
         return new PATH_NODE(0, 0, End);
     }
@@ -264,7 +264,7 @@ namespace TA3D
         }
     }
 
-    PATH_NODE *find_path( SECTOR **map_data, float **map, byte **zone, int map_w, int map_h, int bloc_w, int bloc_h, float dh_max, float low_level, float high_level, VECTOR3D Start, VECTOR3D End, int mw, int mh, int u_idx, int m_dist, float hover_h )
+    PATH_NODE *find_path( SECTOR **map_data, float **map, byte **zone, int map_w, int map_h, int bloc_w, int bloc_h, float dh_max, float low_level, float high_level, Vector3D Start, Vector3D End, int mw, int mh, int u_idx, int m_dist, float hover_h )
     {
         int start_x = (int)Start.x + (map_w >> 1) + 4 >> 3;
         int start_y = (int)Start.z + (map_h >> 1) + 4 >> 3;

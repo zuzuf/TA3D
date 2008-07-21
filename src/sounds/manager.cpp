@@ -681,7 +681,7 @@ namespace Audio
 
 
     // Begin sound managing routines.
-    void Manager::setListenerPos(const VECTOR3D& vec)
+    void Manager::setListenerPos(const Vector3D& vec)
     {
         pMutex.lock();
         if (m_FMODRunning)
@@ -1003,10 +1003,10 @@ namespace Audio
 
 
     // Play sound directly from our sound pool
-    void Manager::playSound(const String& filename, const VECTOR3D* vec)
+    void Manager::playSound(const String& filename, const Vector3D* vec)
     {
         MutexLocker locker(pMutex);
-        if (vec && Camera::inGame && ((VECTOR)(*vec - Camera::inGame->rpos)).sq() > 360000.0f) // If the source is too far, does not even think about playing it!
+        if (vec && Camera::inGame && ((Vector3D)(*vec - Camera::inGame->rpos)).sq() > 360000.0f) // If the source is too far, does not even think about playing it!
             return;
         if (!m_FMODRunning)
             return;
@@ -1038,12 +1038,12 @@ namespace Audio
             return;
         }
 
-        pWorkList.push_back(WorkListItem(sound, (VECTOR *)vec));
+        pWorkList.push_back(WorkListItem(sound, (Vector3D*)vec));
     }
 
 
 
-    void Manager::playTDFSoundNow(const String& Key, const VECTOR3D* vec)
+    void Manager::playTDFSoundNow(const String& Key, const Vector3D* vec)
     {
         pMutex.lock();
         String szWav = pTable.pullAsString(String::ToLower(Key)); // copy string to szWav so we can work with it.
@@ -1062,7 +1062,7 @@ namespace Audio
     }
 
 
-    void Manager::playTDFSound(const String& key, const VECTOR3D* vec)
+    void Manager::playTDFSound(const String& key, const Vector3D* vec)
     {
         pMutex.lock();
         doPlayTDFSound(key, vec);
@@ -1070,7 +1070,7 @@ namespace Audio
     }
 
 
-    void Manager::doPlayTDFSound(String key, const VECTOR3D* vec)
+    void Manager::doPlayTDFSound(String key, const Vector3D* vec)
     {
         if (!key.empty())
         {
@@ -1088,7 +1088,7 @@ namespace Audio
     }
 
 
-    void Manager::doPlayTDFSound(const String& keyA, const String& keyB, const VECTOR3D* vec)
+    void Manager::doPlayTDFSound(const String& keyA, const String& keyB, const Vector3D* vec)
     {
         if (!keyA.empty() && !keyB.empty())
         {
@@ -1098,7 +1098,7 @@ namespace Audio
         }
     }
 
-    void Manager::playTDFSound(const String& keyA, const String& keyB, const VECTOR3D* vec)
+    void Manager::playTDFSound(const String& keyA, const String& keyB, const Vector3D* vec)
     {
         if (!keyA.empty() && !keyB.empty())
         {
