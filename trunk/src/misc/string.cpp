@@ -17,14 +17,17 @@ namespace TA3D
 {
 
     #if TA3D_USE_BOOST != 1 
-    static int stdLowerCase (int c)
+    namespace
     {
-        return tolower(c);
-    }
-    
-    static int stdUpperCase (int c)
-    {
-        return toupper(c);
+        int stdLowerCase (int c)
+        {
+            return tolower(c);
+        }
+
+        int stdUpperCase (int c)
+        {
+            return toupper(c);
+        }
     }
     #endif
 

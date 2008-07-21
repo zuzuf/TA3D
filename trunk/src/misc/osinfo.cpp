@@ -16,7 +16,10 @@ namespace System
 {
 
     
-    static String AllegroOSTypeToStr(const int x)
+    namespace
+    {
+
+    String AllegroOSTypeToStr(const int x)
     {
         switch(x)
         {
@@ -46,7 +49,7 @@ namespace System
 
 
 
-    static String AllegroCPUName(int cpuFamily, int cpuModel)
+    String AllegroCPUName(int cpuFamily, int cpuModel)
     {
         switch(cpuFamily)
         {
@@ -73,7 +76,7 @@ namespace System
     }
 
 
-    static String AllegroCPUCapabilities(int c)
+    String AllegroCPUCapabilities(int c)
     {
         String r;
         if (c & CPU_AMD64)      r += "amd64";
@@ -91,6 +94,21 @@ namespace System
         return (r.empty() ? "None" : r);
     }
 
+    void displayScreenResolution()
+    {
+        int w, h, d;
+        if (DesktopResolution(w, h, d))
+            LOG_INFO(TA3D_LOGS_PREFIX_SYSTEM << "Desktop: " << w << "x" << h << " (" << d << "bits)");
+        else
+            LOG_ERROR(TA3D_LOGS_PREFIX_SYSTEM << "Error while retrieving information about the desktop resolution");
+    }
+
+
+    } // unnamed namespace
+
+
+
+
 
     bool DesktopResolution(int& width, int& height, int& colorDepth)
     {
@@ -107,17 +125,7 @@ namespace System
     }
 
 
-    static void displayScreenResolution()
-    {
-        int w, h, d;
-        if (DesktopResolution(w, h, d))
-            LOG_INFO(TA3D_LOGS_PREFIX_SYSTEM << "Desktop: " << w << "x" << h << " (" << d << "bits)");
-        else
-            LOG_ERROR(TA3D_LOGS_PREFIX_SYSTEM << "Error while retrieving information about the desktop resolution");
-    }
-
-
-
+    
     void DisplayInformations()
     {
          // Vendor

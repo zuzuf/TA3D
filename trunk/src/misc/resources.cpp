@@ -11,20 +11,23 @@ namespace TA3D
 namespace Resources
 {
 
-    //! Mutex for resources
-    static Mutex gResourcesMutex;
 
+    namespace 
+    {
 
     //! Definition list of resources folders
     typedef String::Vector ResourcesFoldersList;
 
+    //! Mutex for resources
+    Mutex gResourcesMutex;
+
     //! List of resources folders
-    static ResourcesFoldersList pResourcesFolders;
+    ResourcesFoldersList pResourcesFolders;
 
 
     # ifdef TA3D_PLATFORM_WINDOWS
 
-    static void initForWindows()
+    void initForWindows()
     {
         AddSearchPath(Paths::ApplicationRoot + "resources\\");
         AddSearchPath(Paths::LocalData + "ta3d\\resources\\");
@@ -33,7 +36,7 @@ namespace Resources
     # else // ifdef TA3D_PLATFORM_WINDOWS
 
     # ifndef TA3D_PLATFORM_DARWIN
-    static void initForDefaultUnixes()
+    void initForDefaultUnixes()
     {
         String home = getenv("HOME");
         home += "/.ta3d/";
@@ -47,7 +50,7 @@ namespace Resources
 
     # else // ifndef TA3D_PLATFORM_DARWIN
 
-    static void initForDarwin()
+    void initForDarwin()
     {
         String home = getenv("HOME");
         
@@ -66,6 +69,7 @@ namespace Resources
 
     # endif // ifdef TA3D_PLATFORM_WINDOWS
 
+    } // namespace
 
     void Initialize()
     {

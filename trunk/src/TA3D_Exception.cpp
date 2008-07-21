@@ -45,21 +45,17 @@ namespace Exceptions
     #   define GETSYSERROR() errno
     # endif
 
-    /*!
-     * \brief
-     */
-    static String pGuardLog = "";
+    namespace
+    {
 
-    /*!
-     *
-     */
-    static bool pExceptionStatus = false;
+        //!
+        String pGuardLog = "";
+        //!
+        bool pExceptionStatus = false;
+        //!
+        uint16 pIndentLevel = 0;
 
-    /*!
-     * \brief
-     */
-    static uint16 pIndentLevel = 0;
-
+    }
 
 
 

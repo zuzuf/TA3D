@@ -3,6 +3,22 @@
 #include "../../logs/logs.h"
 
 
+namespace
+{
+    char* get_line(const char *data)
+    {
+        int pos = 0;
+        while (data[pos]!=0 && data[pos]!=13 && data[pos]!=10)
+            ++pos;
+        char *d = new char[pos+1];
+        memcpy(d,data,pos);
+        d[pos] = 0;
+        return d;
+    }
+}
+
+
+
 namespace TA3D
 {
 
@@ -68,18 +84,7 @@ namespace TA3D
         return nb_weapons-1;
     }
 
-    static char* get_line(const char *data)
-    {
-        int pos = 0;
-        while (data[pos]!=0 && data[pos]!=13 && data[pos]!=10)
-            ++pos;
-        char *d = new char[pos+1];
-        memcpy(d,data,pos);
-        d[pos] = 0;
-        return d;
-    }
-
-
+    
     void WEAPON_MANAGER::load_tdf(char *data, const int size)
     {
         set_uformat(U_ASCII);
