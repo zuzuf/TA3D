@@ -14,4 +14,3 @@ SET(SOURCES gfx.h gfx.cpp
             gfxtexture.cpp gfxtexture.h)
 
 ADD_LIBRARY(gfx STATIC ${SOURCES})
-ADD_DEPENDENCIES(gfx logs 3dtoolbox misc threads)

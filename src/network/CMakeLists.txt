@@ -9,6 +9,3 @@ SET(SOURCES network.cpp network.h
             TA3D_Network.cpp TA3D_Network.h
             SocketClass.h SocketClass.cpp)
 ADD_LIBRARY(network STATIC ${SOURCES})
-
-ADD_DEPENDENCIES(network stdafx i18n 3dtoolbox misc hpi threads ingame)
-

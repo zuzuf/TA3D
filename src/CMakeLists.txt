@@ -46,7 +46,6 @@ SET(LIBRARY_OUTPUT_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../bin/libs/${CMAKE_SYSTEM_
 SET(ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../bin/libs/${CMAKE_SYSTEM_NAME}")
 SET(SOURCES console.cpp console.h)
 ADD_LIBRARY(console STATIC ${SOURCES})
-ADD_DEPENDENCIES(console stdafx misc logs threads)
 
 # --------------------------------------------------------------------
 # --- GUI
@@ -55,7 +54,6 @@ SET(LIBRARY_OUTPUT_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../bin/libs/${CMAKE_SYSTEM_
 SET(ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../bin/libs/${CMAKE_SYSTEM_NAME}")
 SET(SOURCES gui.cpp gui.h)
 ADD_LIBRARY(oldgui STATIC ${SOURCES})
-ADD_DEPENDENCIES(oldgui stdafx gfx threads misc)
 
 # --------------------------------------------------------------------
 # --- File formats
@@ -67,7 +65,6 @@ SET(SOURCES gaf.cpp gaf.h
             obj.cpp obj.h
             3ds.cpp 3ds.h)
 ADD_LIBRARY(fileformats STATIC ${SOURCES})
-ADD_DEPENDENCIES(fileformats stdafx particles i18n ingame)
 
 # --------------------------------------------------------------------
 # --- HPI
@@ -77,7 +74,6 @@ SET(ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../bin/libs/${CMAKE_SY
 SET(SOURCES TA3D_hpi.cpp TA3D_hpi.h
             hpiview.cpp)
 ADD_LIBRARY(hpi STATIC ${SOURCES})
-ADD_DEPENDENCIES(hpi stdafx tajpeg misc)
 
 
 
@@ -99,9 +95,6 @@ ADD_EXECUTABLE(${3DMEDITOR_BIN}
         3dmeditor.cpp ta3d.h 3dmeditor_sub.cpp 3dmeditor.h
         cTAFileParser.cpp cTAFileParser.h stdafx.h
         TA3D_NameSpace.cpp TA3D_NameSpace.h)
-ADD_DEPENDENCIES(${3DMEDITOR_BIN}
-        stdafx logs console debuginfos threads 3dtoolbox misc i18n
-        tajpeg gfx fileformats particles audio hpi oldgui gui ingame)
 target_link_libraries(${3DMEDITOR_BIN}
         stdafx logs console debuginfos threads 3dtoolbox misc i18n
         tajpeg gfx fileformats particles audio hpi oldgui gui ingame)
@@ -196,9 +189,6 @@ ADD_EXECUTABLE(${TA3D_BIN} ${SOURCES})
 #
 # --- Internal libraries ---
 #
-ADD_DEPENDENCIES(${TA3D_BIN}
-        stdafx logs console debuginfos threads i18n 3dtoolbox misc ingame menus tajpeg gfx
-        fileformats particles weapons ai audio hpi oldgui gui network scripts)
 target_link_libraries(${TA3D_BIN}
         stdafx logs console debuginfos threads i18n 3dtoolbox misc ingame menus tajpeg gfx
         fileformats particles weapons ai audio hpi oldgui gui network scripts)
@@ -211,7 +201,6 @@ target_link_libraries(${TA3D_BIN}
 IF(${TA3D_REGRESSION_TEST} EQUAL 1)
     # Strings
     ADD_EXECUTABLE(regression-string  regression/string.cpp)
-    ADD_DEPENDENCIES(regression-string stdafx logs threads misc)
     target_link_libraries(regression-string stdafx logs threads misc)
 ENDIF(${TA3D_REGRESSION_TEST} EQUAL 1)
 

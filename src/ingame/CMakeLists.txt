@@ -8,4 +8,3 @@ SET(SOURCES sidedata.h sidedata.cpp
             gamedata.h gamedata.cpp)
 
 ADD_LIBRARY(ingame STATIC ${SOURCES})
-ADD_DEPENDENCIES(ingame stdafx)

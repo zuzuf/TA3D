@@ -4,4 +4,3 @@ SET(ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../../bin/libs/${CMAKE
 SET(SOURCES manager.h manager.cpp)
 
 ADD_LIBRARY(audio STATIC ${SOURCES})
-ADD_DEPENDENCIES(audio stdafx misc threads ingame) 
