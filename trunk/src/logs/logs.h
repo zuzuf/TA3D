@@ -42,9 +42,11 @@
 
 
 
-
+namespace TA3D
+{
 namespace Logs
 {
+
 	/*!
 	** \brief Log line type interface
 	** 
@@ -60,60 +62,65 @@ namespace Logs
 		** \brief Implement this to produce a string to put
 		** between the date and the log string.
 		*/
-		virtual std::string	header() = 0;
+		virtual std::string	header() const = 0;
+
+        /*!
+        ** \brief Reimplement this to forward the message to the console
+        */
+        virtual void forwardToConsole(const std::string& msg) const = 0;
 
 		/*!
 		** \brief Implement this to set the minimal log level for the messages to appear.
 		** \return The minimum level. 0 means the log will always appear.
 		*/
-		virtual int minimalLevel() = 0;
-
+		virtual int minimalLevel() const = 0;
 
 		/*!
 		** \brief Reimplement this to color your log lines.
 		** This is filtered if output is not std::cout.
 		*/
-		virtual std::string color()
+		virtual std::string color() const
 		{
-            		#ifndef TA3D_PLATFORM_WINDOWS
+            # ifndef TA3D_PLATFORM_WINDOWS
 			return "[1m";
-			#else
+			# else
 			return "";
-			#endif
+			# endif
 		}
 
 		//! Reimplement this to reset the color to a default value.
-		virtual std::string resetColor()
+		virtual std::string resetColor() const
 		{
-            		#ifndef TA3D_PLATFORM_WINDOWS
+            # ifndef TA3D_PLATFORM_WINDOWS
 			return "[0m";
-			#else
+			# else
 			return "";
-			#endif
+			# endif
 		}
 
 		//! Used to produce the date string
-		virtual std::string date()
+		virtual std::string date() const
 		{
 			time_t rawtime;
 
-			time ( &rawtime );
+			time(&rawtime);
 
-            #ifdef TA3D_PLATFORM_WINDOWS
+            # ifdef TA3D_PLATFORM_WINDOWS
 			struct tm* timeinfo = localtime(&rawtime);
 			char* asc;
 			asc = asctime(timeinfo);
-            #else
+            # else
 			struct tm* timeinfo;
             timeinfo = localtime(&rawtime);
 			char asc[32];
 			asctime_r(timeinfo, asc);
-            #endif // WINDOWS
+            # endif // WINDOWS
 			asc[strlen(asc) - 1] = 0;
 			std::ostringstream s;
 			s << "[" << asc << "] ";
 			return std::string(s.str());
 		}
+
 	}; // class AbstractLogMsg
 
 
@@ -124,14 +131,15 @@ namespace Logs
 	class LogDebugMsg : public AbstractLogMsg
 	{
 	public:
-		virtual int minimalLevel() { return LOG_LEVEL_DEBUG; }
+		virtual int minimalLevel() const { return LOG_LEVEL_DEBUG; }
 		virtual ~LogDebugMsg() {}
-            	#ifndef TA3D_PLATFORM_WINDOWS
-		virtual std::string color() { return "[0m"; }
-		#else
-		virtual std::string color() { return ""; }
-		#endif
-		virtual std::string header() { return "[debug] "; }
+        # ifndef TA3D_PLATFORM_WINDOWS
+		virtual std::string color() const { return "[0m"; }
+		# else
+		virtual std::string color() const { return ""; }
+		# endif
+		virtual std::string header() const { return "[debug] "; }
+        virtual void forwardToConsole(const std::string& msg) const {}
 	};
 
 	/*!
@@ -140,14 +148,15 @@ namespace Logs
 	class LogInfoMsg : public AbstractLogMsg
 	{
 	public:
-		virtual int minimalLevel() { return LOG_LEVEL_INFO; }
+		virtual int minimalLevel() const { return LOG_LEVEL_INFO; }
 		virtual ~LogInfoMsg() {}
-            	#ifndef TA3D_PLATFORM_WINDOWS
-		virtual std::string color() { return "[1;32m"; }
-		#else
-		virtual std::string color() { return ""; }
-		#endif
-		virtual inline std::string header() { return "[infos] "; }
+        # ifndef TA3D_PLATFORM_WINDOWS
+		virtual std::string color() const { return "[1;32m"; }
+		# else
+		virtual std::string color() const { return ""; }
+		# endif
+		virtual inline std::string header() const { return "[infos] "; }
+        virtual void forwardToConsole(const std::string& msg) const;
 	};
 
 	/*!
@@ -156,14 +165,15 @@ namespace Logs
 	class LogWarningMsg : public AbstractLogMsg
 	{
 	public:
-		virtual int minimalLevel() { return LOG_LEVEL_WARNING; }
+		virtual int minimalLevel() const { return LOG_LEVEL_WARNING; }
 		virtual ~LogWarningMsg() {}
-            	#ifndef TA3D_PLATFORM_WINDOWS
-		virtual std::string color() { return "[1;33m"; }
-		#else
-		virtual std::string color() { return ""; }
-		#endif
-		virtual inline std::string header() { return "[warns] "; }
+        # ifndef TA3D_PLATFORM_WINDOWS
+		virtual std::string color() const { return "[1;33m"; }
+		# else
+		virtual std::string color() const { return ""; }
+		# endif
+		virtual inline std::string header() const { return "[warns] "; }
+        virtual void forwardToConsole(const std::string& msg) const;
 	};
 
 	/*!
@@ -172,14 +182,15 @@ namespace Logs
 	class LogErrorMsg : public AbstractLogMsg
 	{
 	public:
-		virtual int minimalLevel() { return LOG_LEVEL_ERROR; }
+		virtual int minimalLevel() const { return LOG_LEVEL_ERROR; }
 		virtual ~LogErrorMsg() {}
-            	#ifndef TA3D_PLATFORM_WINDOWS
-		virtual std::string color() { return "[1;31m"; }
-		#else
-		virtual std::string color() { return ""; }
-		#endif
-		virtual inline std::string header() { return "[error] "; }
+        # ifndef TA3D_PLATFORM_WINDOWS
+		virtual std::string color() const { return "[1;31m"; }
+		# else
+		virtual std::string color() const { return ""; }
+		# endif
+		virtual inline std::string header() const { return "[error] "; }
+        virtual void forwardToConsole(const std::string& msg) const;
 	};
 
     /*!
@@ -188,14 +199,15 @@ namespace Logs
 	class LogCriticalMsg : public AbstractLogMsg
 	{
 	public:
-		virtual int minimalLevel() { return LOG_LEVEL_CRITICAL; }
+		virtual int minimalLevel() const { return LOG_LEVEL_CRITICAL; }
 		virtual ~LogCriticalMsg() {}
-            	#ifndef TA3D_PLATFORM_WINDOWS
-		virtual std::string color() { return "[1;31m"; }
-		#else
-		virtual std::string color() { return ""; }
-		#endif
-		virtual inline std::string header() { return "[critical] "; }
+        # ifndef TA3D_PLATFORM_WINDOWS
+		virtual std::string color() const { return "[1;31m"; }
+		# else
+		virtual std::string color() const { return ""; }
+		# endif
+		virtual inline std::string header() const { return "[critical] "; }
+        virtual void forwardToConsole(const std::string& msg) const;
 	};
 
 
@@ -320,7 +332,7 @@ namespace Logs
 
 # include "logs.hxx"
 
-} // Logs
-
+} // namespace Logs
+} // namespace TA3D
 
 #endif // __XX_LIB_LOGS_H__

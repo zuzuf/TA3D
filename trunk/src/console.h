@@ -29,7 +29,7 @@
 
 # include "misc/string.h"
 # include "threads/mutex.h"
-
+# include "gfx/gfx.h"
 
 
 namespace TA3D

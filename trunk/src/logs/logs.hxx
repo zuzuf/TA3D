@@ -8,19 +8,16 @@
     { \
       if (l.minimalLevel() <= level) \
       { \
+        std::string msg(str()); \
         if (pOut) \
         { \
-            (*pOut) << l.date() << l.header() << str() << std::endl; \
+            (*pOut) << l.date() << l.header() << msg << std::endl; \
             pOut->flush(); \
         } \
-        std::cout << l.date() \
-          << l.color() \
-          << l.header() \
-          << l.resetColor() \
-          << str() \
-          << std::endl; \
+        std::cout << l.date() << l.color() << l.header() << l.resetColor() << msg << std::endl; \
+        l.forwardToConsole(msg); \
         if (pCallback) \
-            pCallback(l.header().c_str(), str().c_str()); \
+            pCallback(l.header().c_str(), msg.c_str()); \
       } \
       \
       *((std::ostringstream*)this) << std::endl; \
