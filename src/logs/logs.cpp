@@ -1,10 +1,14 @@
 #include "logs.h"
 #include <fstream>
 #include "../misc/paths.h"
+#include "../console.h"
 
 
+namespace TA3D
+{
 namespace Logs
 {
+
 
 	LogDebugMsg debug;
 
@@ -20,6 +24,9 @@ namespace Logs
 	Log doNotUseThisLoggerDirectly;
 
     int level = LOG_LEVEL_INFO;
+
+
+
 
 
 	Log::Log(std::ostream *outstream, Callback callback)
@@ -74,4 +81,27 @@ namespace Logs
     }
 
 
-} // Logs
+
+    void LogErrorMsg::forwardToConsole(const std::string& msg) const
+    {
+        console.addEntry("[error] " + msg);
+    }
+
+    void LogWarningMsg::forwardToConsole(const std::string& msg) const
+    {
+        console.addEntry("[!!] " + msg);
+    }
+
+    void LogCriticalMsg::forwardToConsole(const std::string& msg) const
+    {
+        console.addEntry("[critical] " + msg);
+    }
+
+    void LogInfoMsg::forwardToConsole(const std::string& msg) const
+    {
+        console.addEntry(msg);
+    }
+
+
+} // namespace Logs
+} // namespace TA3D
