@@ -33,7 +33,11 @@
 #include "languages/i18n.h"
 #include "jpeg/ta3d_jpg.h"
 #include "misc/math.h"
+#include "logs/logs.h"
 
+
+#define TA3D_3DM_LOGS_PREFIX "[3dm] "
+#define TA3D_MODEL_LOGS_PREFIX "[model] "
 
 
 using namespace TA3D::Exceptions;
@@ -3115,7 +3119,8 @@ hit_fast_is_exploding:
             fclose(dst);
         }
         else
-            Console->AddEntry("Error: save_3dm -> cannot open %s for writing", filename == NULL ? "NULL" : filename);
+            LOG_ERROR(TA3D_3DM_LOGS_PREFIX << "Impossible to save the 3DM file: `"
+                      << (filename == NULL ? "NULL" : filename) << "` can not be opened for writing");
     }
 
 
@@ -3181,7 +3186,7 @@ hit_fast_is_exploding:
 
         if ((fichier = TA3D_OpenFile(filename, "rt")) == NULL)
         {
-            Console->AddEntry("Impossible d'ouvrir le fichier %s en lecture",filename);
+            LOG_ERROR(TA3D_MODEL_LOGS_PREFIX << "Impossible to open `" << filename << "`");
             return;
         }
 

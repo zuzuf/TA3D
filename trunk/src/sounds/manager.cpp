@@ -21,10 +21,13 @@
 #include <fstream>
 #include "../misc/math.h"
 #include "manager.h"
+#include "../logs/logs.h"
 
 using namespace TA3D::Interfaces;
 
 # define TA3D_LOG_SECTION_AUDIO_PREFIX "[Audio] "
+# define TA3D_LOG_SECTION_FMOD_PREFIX "[Audio] [fmod] "
+
 
 
 
@@ -233,7 +236,7 @@ namespace Audio
             }
         }
 
-        Console->AddEntry("%sLoading the playlist...", TA3D_LOG_SECTION_AUDIO_PREFIX);
+        LOG_INFO(TA3D_LOG_SECTION_AUDIO_PREFIX << "Loading the playlist...");
 
         String line;
         bool isBattle(false);
@@ -338,13 +341,13 @@ namespace Audio
 #ifdef TA3D_PLATFORM_MINGW
         if (FMOD_System_Create(&pFMODSystem) != FMOD_OK)
         {
-            Console->AddEntryWarning("%s[FMOD] Failed to System_Create, sound disabled", TA3D_LOG_SECTION_AUDIO_PREFIX);
+            LOG_ERROR(TA3D_LOG_SECTION_FMOD_PREFIX << "Failed to System_Create, sound disabled");
             return false;
         }
 
         if (FMOD_System_GetVersion(pFMODSystem, &FMODVersion) != FMOD_OK)
         {
-            Console->AddEntryWarning("%s[FMOD] Invalid Version, sound disabled", TA3D_LOG_SECTION_AUDIO_PREFIX);
+            LOG_ERROR(TA3D_LOG_SECTION_FMOD_PREFIX << "Invalid Version, sound disabled");
             return false;
         }
 
@@ -353,7 +356,7 @@ namespace Audio
 
         if (FMOD_System_SetStreamBufferSize( pFMODSystem, 32768, FMOD_TIMEUNIT_RAWBYTES ) != FMOD_OK)
         {
-            Console->AddEntryWarning("%s[FMOD] Failed to set Stream Buffer Size, sound disabled", TA3D_LOG_SECTION_AUDIO_PREFIX);
+            LOG_ERROR(TA3D_LOG_SECTION_FMOD_PREFIX << "Failed to set Stream Buffer Size, sound disabled");
             return false;
         }
 
@@ -361,7 +364,7 @@ namespace Audio
         // 32 channels, normal init, with 3d right handed.
         if (FMOD_System_Init( pFMODSystem, 32, FMOD_INIT_NORMAL | FMOD_INIT_3D_RIGHTHANDED, 0 ) != FMOD_OK)
         {
-            Console->AddEntryWarning("%s[FMOD] Failed to init FMOD, sound disabled", TA3D_LOG_SECTION_AUDIO_PREFIX);
+            LOG_ERROR(TA3D_LOG_SECTION_FMOD_PREFIX << "Failed to init FMOD, sound disabled");
             return false;
         }
 
@@ -371,12 +374,12 @@ namespace Audio
 #else
         if (FMOD::System_Create(&pFMODSystem) != FMOD_OK)
         {
-            Console->AddEntryWarning("%s[FMOD] Failed to System_Create, sound disabled", TA3D_LOG_SECTION_AUDIO_PREFIX);
+            LOG_ERROR(TA3D_LOG_SECTION_FMOD_PREFIX << "Failed to System_Create, sound disabled");
             return false;
         }
         if (pFMODSystem->getVersion(&FMODVersion) != FMOD_OK)
         {
-            Console->AddEntryWarning("%s[FMOD] Invalid Version of FMOD, sound disabled", TA3D_LOG_SECTION_AUDIO_PREFIX);
+            LOG_ERROR(TA3D_LOG_SECTION_FMOD_PREFIX << "Invalid Version of FMOD, sound disabled");
             return false;
         }
 
@@ -385,7 +388,7 @@ namespace Audio
 
         if (pFMODSystem->setStreamBufferSize( 32768, FMOD_TIMEUNIT_RAWBYTES) != FMOD_OK)
         {
-            Console->AddEntryWarning("%s[FMOD] Failed to set Stream Buffer Size, sound disabled", TA3D_LOG_SECTION_AUDIO_PREFIX);
+            LOG_ERROR(TA3D_LOG_SECTION_FMOD_PREFIX << "Failed to set Stream Buffer Size, sound disabled");
             return false;
         }
 
@@ -393,14 +396,14 @@ namespace Audio
 #ifdef TA3D_PLATFORM_LINUX
         if (pFMODSystem->setOutput(FMOD_OUTPUTTYPE_ALSA) != FMOD_OK)
         {
-            Console->AddEntryWarning("%s[FMOD] Failed to init FMOD, sound disabled", TA3D_LOG_SECTION_AUDIO_PREFIX);
+            LOG_ERROR(TA3D_LOG_SECTION_FMOD_PREFIX << "Failed to init FMOD, sound disabled");
             return false;
         }
 #endif
         // 32 channels, normal init, with 3d right handed.
         if (pFMODSystem->init(32, FMOD_INIT_NORMAL | FMOD_INIT_3D_RIGHTHANDED, 0) != FMOD_OK)
         {
-            Console->AddEntryWarning("%s[FMOD] Failed to init FMOD, sound disabled", TA3D_LOG_SECTION_AUDIO_PREFIX);
+            LOG_ERROR(TA3D_LOG_SECTION_FMOD_PREFIX << "Failed to init FMOD, sound disabled");
             return false;
         }
         m_FMODRunning = true;
@@ -590,27 +593,26 @@ namespace Audio
         if (!m_FMODRunning)
             return;
 
-        if (!file_exists( filename.c_str() ,FA_RDONLY | FA_ARCH,NULL ) )
+        if (!file_exists( filename.c_str() ,FA_RDONLY | FA_ARCH, NULL))
         {
             if (!filename.empty())
-                Console->AddEntryWarning("%s [FMOD] Failed to find file: %s for play.", TA3D_LOG_SECTION_AUDIO_PREFIX, filename.c_str());
+                LOG_ERROR(TA3D_LOG_SECTION_AUDIO_PREFIX << "Failed to find file: `" << filename << "`");
             return;
         }
 
 #ifdef TA3D_PLATFORM_MINGW
 
-        if (FMOD_System_CreateStream( pFMODSystem, filename.c_str(),
-                                      FMOD_HARDWARE | FMOD_LOOP_OFF | FMOD_2D | FMOD_IGNORETAGS, 0,
-                                      &pFMODMusicSound ) != FMOD_OK )
+        if (FMOD_System_CreateStream(pFMODSystem, filename.c_str(), FMOD_HARDWARE | FMOD_LOOP_OFF | FMOD_2D | FMOD_IGNORETAGS, 0,
+                                     &pFMODMusicSound) != FMOD_OK)
         {
-            Console->AddEntryWarning("%s[FMOD] Failed to create stream. (%s)", TA3D_LOG_SECTION_AUDIO_PREFIX, filename.c_str() );
+            LOG_ERROR(TA3D_LOG_SECTION_FMOD_PREFIX << "Failed to create stream. (`" << filename << "`)");
             return;
         }
 
         if (FMOD_System_playSound( pFMODSystem, FMOD_CHANNEL_FREE, pFMODMusicSound,
                                    false, &pFMODMusicchannel) != FMOD_OK )
         {
-            Console->AddEntryWarning("%s[FMOD] Failed to playSound/stream.", TA3D_LOG_SECTION_AUDIO_PREFIX);
+            LOG_ERROR(TA3D_LOG_SECTION_FMOD_PREFIX << "Failed to playSound/stream.");
             return;
         }
 
@@ -619,21 +621,20 @@ namespace Audio
 
 #else
 
-        if (pFMODSystem->createStream( filename.c_str(),
-                                          FMOD_HARDWARE | FMOD_LOOP_OFF | FMOD_2D | FMOD_IGNORETAGS, 0,
-                                          &pFMODMusicSound ) != FMOD_OK )
+        if (pFMODSystem->createStream(filename.c_str(), FMOD_HARDWARE | FMOD_LOOP_OFF | FMOD_2D | FMOD_IGNORETAGS, 0,
+                                      &pFMODMusicSound ) != FMOD_OK )
         {
-            Console->AddEntryWarning("%s[FMOD] Failed to create stream. (%s)", TA3D_LOG_SECTION_AUDIO_PREFIX, filename.c_str());
+            LOG_ERROR(TA3D_LOG_SECTION_FMOD_PREFIX << "Failed to create stream. (`" << filename << "`)");
             return;
         }
 
         if (pFMODSystem->playSound(FMOD_CHANNEL_FREE, pFMODMusicSound, false, &pFMODMusicchannel) != FMOD_OK)
         {
-            Console->AddEntryWarning("%s[FMOD] Failed to playSound/stream.", TA3D_LOG_SECTION_AUDIO_PREFIX);
+            LOG_ERROR(TA3D_LOG_SECTION_FMOD_PREFIX << "Failed to playSound/stream.");
             return;
         }
 
-        LOG_DEBUG(TA3D_LOG_SECTION_AUDIO_PREFIX << "[FMOD] Playing music file " << filename);
+        LOG_DEBUG(TA3D_LOG_SECTION_FMOD_PREFIX << "Playing music file " << filename);
         pFMODMusicchannel->setVolume(1.0f);
 #endif
     }
@@ -982,7 +983,7 @@ namespace Audio
         LOG_DEBUG(TA3D_LOG_SECTION_AUDIO_PREFIX << "Reading `" << filename << "`...");
         // Load the TDF file
         pTable.load(filename);
-        Console->AddEntry("%sLoading sounds from %s", TA3D_LOG_SECTION_AUDIO_PREFIX, filename.c_str());
+        LOG_INFO(TA3D_LOG_SECTION_AUDIO_PREFIX << "Loading sounds from " << filename);
         // Load each sound file
         pTable.forEach(LoadAllTDFSound(*this));
         LOG_DEBUG(TA3D_LOG_SECTION_AUDIO_PREFIX << "Reading: Done.");
@@ -1019,7 +1020,7 @@ namespace Audio
         SoundItemList* sound = pSoundList.find(szWav);
         if (!sound)
         {
-            Console->AddEntryWarning("%s`%s` not found, aborting", TA3D_LOG_SECTION_AUDIO_PREFIX, filename.c_str());
+            LOG_ERROR(TA3D_LOG_SECTION_AUDIO_PREFIX << "`" << filename << "` not found, aborting");
             return;
         }
 
@@ -1031,9 +1032,9 @@ namespace Audio
         if (!sound->sampleHandle || (sound->is3DSound && !vec))
         {
             if (!sound->sampleHandle)
-                Console->AddEntryWarning("%s`%s` not played the good way", TA3D_LOG_SECTION_AUDIO_PREFIX, (char*)filename.c_str());
+                LOG_ERROR(TA3D_LOG_SECTION_AUDIO_PREFIX << "`" << filename << "` not played the good way");
             else
-                Console->AddEntryWarning("%s`%s` : sound->sampleHandle is false", TA3D_LOG_SECTION_AUDIO_PREFIX, (char*)filename.c_str());
+                LOG_ERROR(TA3D_LOG_SECTION_AUDIO_PREFIX << "`" << filename << "` sound->sampleHandle is false");
             return;
         }
 
@@ -1076,7 +1077,7 @@ namespace Audio
             if (!pTable.exists(key.toLower()))
             {
                 // output a report to the console but only once
-                Console->AddEntryWarning("%sCan't find key %s", TA3D_LOG_SECTION_AUDIO_PREFIX, key.c_str());
+                LOG_WARNING(TA3D_LOG_SECTION_AUDIO_PREFIX << "Can't find key `" << key << "`");
                 pTable.insertOrUpdate(key, "");
                 return;
             }

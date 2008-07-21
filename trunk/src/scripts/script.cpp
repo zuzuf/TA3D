@@ -36,9 +36,12 @@
 #include <vector>
 #include <fstream>
 #include "../misc/math.h"
+#include "../logs/logs.h"
 #include "../sounds/manager.h"
 
 
+#define TA3D_LOGS_SCRIPT_PREFIX  "[script] "
+#define TA3D_LOGS_LUA_PREFIX  "[script] [lua] "
 
 namespace TA3D
 {
@@ -91,9 +94,9 @@ namespace TA3D
     int function_logmsg( lua_State *L )		// ta3d_logmsg( str )
     {
         const char *str = lua_tostring( L, -1 );		// Read the result
-        if( str )
-            Console->AddEntry( str );
-        lua_pop( L, 1 );
+        if (str)
+            LOG_INFO(TA3D_LOGS_SCRIPT_PREFIX << str);
+        lua_pop(L, 1);
         return 0;
     }
 
@@ -1247,11 +1250,13 @@ namespace TA3D
         destroy();			// Au cas où
 
         uint32 filesize = 0;
-        buffer = HPIManager->PullFromHPI( filename , &filesize );
-        if( buffer ) {
+        buffer = HPIManager->PullFromHPI(filename , &filesize);
+        if (buffer)
+        {
             int n = 0;
             char *f = NULL;
-            while( ( f = strstr( (char*)buffer, "#include" ) ) != NULL && n < 20 ) {
+            while ((f = strstr( (char*)buffer, "#include" ) ) != NULL && n < 20)
+            {
                 char name[101];
                 name[0] = 0;
                 strcat( name, "scripts/" );
@@ -1295,11 +1300,10 @@ namespace TA3D
 
             register_functions( L );
 
-            if( luaL_dobuffer( L, buffer, filesize ) ) {	// Load the lua chunk
-                if( lua_tostring( L, -1 ) != "" ) {
-                    Console->AddEntry( "LUA ERROR: %s", lua_tostring( L, -1 ) );
-                    printf("LUA ERROR: %s\n", lua_tostring( L, -1 ) );
-                }
+            if (luaL_dobuffer( L, buffer, filesize))	// Load the lua chunk
+            {
+                if (lua_tostring( L, -1 ) != "")
+                    LOG_ERROR(TA3D_LOGS_LUA_PREFIX << lua_tostring( L, -1));
 
                 running = false;
                 lua_close( L );
@@ -1310,8 +1314,9 @@ namespace TA3D
             else
                 running = true;
         }
-        else {
-            Console->AddEntry("failed opening '%s'", filename );
+        else
+        {
+            LOG_ERROR(TA3D_LOGS_LUA_PREFIX << "Failed opening `" << filename << "`");
             running = false;
         }
     }
@@ -1349,22 +1354,20 @@ namespace TA3D
 
         lua_pushstring( L, "main" );
         lua_gettable( L, LUA_GLOBALSINDEX );
-        try {
-            if( lua_pcall( L, 0, 1, 0 ) ) {
-                if( lua_tostring( L, -1 ) != "" ) {
-                    Console->AddEntry( "LUA ERROR: %s", lua_tostring( L, -1 ) );
-                    printf("LUA ERROR: %s\n", lua_tostring( L, -1 ) );
-                }
+        try
+        {
+            if (lua_pcall( L, 0, 1, 0))
+            {
+                if(lua_tostring(L, -1) != "")
+                    LOG_ERROR(TA3D_LOGS_LUA_PREFIX << lua_tostring(L, -1));
                 running = false;
                 return -1;
             }
         }
         catch(...)
         {
-            if( lua_tostring( L, -1 ) != "" ) {
-                Console->AddEntry( "LUA ERROR: %s", lua_tostring( L, -1 ) );
-                printf("LUA ERROR: %s\n", lua_tostring( L, -1 ) );
-            }
+            if (lua_tostring( L, -1 ) != "")
+                LOG_ERROR(TA3D_LOGS_LUA_PREFIX << lua_tostring(L, -1));
             running = false;
             return -1;
         }
@@ -1478,25 +1481,24 @@ namespace TA3D
     // Create the script that will do what the mission description .ota file tells us to do
     void generate_script_from_mission( String Filename, cTAFileParser *ota_parser, int schema )
     {
-        std::ofstream   m_File;
+        std::ofstream m_File;
+        m_File.open(Filename.c_str(), std::ios::out | std::ios::trunc);
 
-        m_File.open( Filename.c_str(), std::ios::out | std::ios::trunc );
-
-        if( !m_File.is_open() )	{
-            Console->AddEntry("ERROR : could not open file '%s' (%s, %d)", Filename.c_str(), __FILE__, __LINE__ );
+        if (!m_File.is_open())
+        {
+            LOG_ERROR(TA3D_LOGS_SCRIPT_PREFIX << "Could not open file `" << Filename << "` (" << __FILE__ << ", " <<  __LINE__);
             return;
         }
 
         m_File << "#include \"signals.h\"\n";
-
         m_File << "\nta3d_clf()\nta3d_init_res()\n";
-
         m_File << "ta3d_set_cam_pos( 0, ta3d_start_x( 0 ), ta3d_start_z( 0 ) )\n";
 
         int i = 0;
-        String unit_name = "";
+        String unit_name;
 
-        while( !(unit_name = ota_parser->pullAsString( format( "GlobalHeader.Schema %d.units.unit%d.Unitname", schema, i ) ) ).empty() ) {
+        while( !(unit_name = ota_parser->pullAsString( format( "GlobalHeader.Schema %d.units.unit%d.Unitname", schema, i ) ) ).empty() )
+        {
             String unit_key = format( "GlobalHeader.Schema %d.units.unit%d", schema, i );
             int player_id = ota_parser->pullAsInt( unit_key + ".player" ) - 1;
             float x = ota_parser->pullAsFloat( unit_key + ".XPos" ) * 0.5f;
@@ -1532,7 +1534,8 @@ namespace TA3D
                 {
                     params.resize( params.size() + 1 );
                     for( int i = params.size() - 1 ; i > 0 ; i++ )
-                        if( i == 1 ) {
+                        if (i == 1)
+                        {
                             params[ 1 ] = params[ 0 ].substr( 1, params[ 0 ].size() - 1 );
                             params[ 0 ] = params[ 0 ][ 0 ];
                         }

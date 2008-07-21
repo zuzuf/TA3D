@@ -7,6 +7,7 @@
 #include "stdafx.h"
 #include "TA3D_NameSpace.h"
 #include "misc/paths.h"
+#include "logs/logs.h"
 
 
 #if defined TA3D_PLATFORM_WINDOWS
@@ -887,7 +888,7 @@ namespace HPI
 
         if (NULL == HPIManager)
         {
-            Console->AddEntry( "Warning: TA3D_FILE used without HPIManager set!! No file opened" );
+            LOG_WARNING("TA3D_FILE used without HPIManager set ! No file opened.");
             return;
         }
 

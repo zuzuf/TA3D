@@ -7,6 +7,7 @@
 #include "../../TA3D_NameSpace.h"
 #include "../../gui.h"
 #include "../../misc/math.h"
+#include "../../console.h"
 
 
 using namespace TA3D::Exceptions;
@@ -175,7 +176,7 @@ namespace TA3D
             }
         }
 
-        if (Console == NULL || !Console->activated())
+        if (!console.activated())
             clear_keybuf();
 
         scrolling = scroll;

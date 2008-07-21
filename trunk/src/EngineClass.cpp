@@ -35,6 +35,7 @@
 #include "misc/lzw.h"					// Support for LZW compression
 #include <list>
 #include "misc/math.h"
+#include "logs/logs.h"
 
 byte player_color_map[10] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
 
@@ -1587,7 +1588,7 @@ namespace TA3D
         energy_total[nb_player]=0.0f;
         metal_total[nb_player]=0.0f;
 
-        Console->AddEntry("adding player %s (%d) of %s with E=%d, M=%d", NOM, nb_player, SIDE, E, M );
+        LOG_INFO("Adding a new player: `" << NOM << "` (" << nb_player << ") of `" << SIDE << "` with E=" << E << ", M=" << M);
 
         com_metal[nb_player] = M;
         com_energy[nb_player] = E;

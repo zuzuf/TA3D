@@ -31,6 +31,7 @@
 #include <list>
 #include "languages/i18n.h"
 #include "gfx/gui/skin.h"
+#include "console.h"
 
 
 void loading(const float percent, const String& msg)
@@ -125,15 +126,17 @@ void loading(const float percent, const String& msg)
 
     if( lp_CONFIG->draw_console_loading ) // If set in config
     {
-        char *cmd = Console->draw( gfx->TA_font, 0.0f, gfx->TA_font.height(), true );			// Display something to show what's happening
-        if( cmd )	free( cmd );
+        char *cmd = console.draw(gfx->TA_font, 0.0f, gfx->TA_font.height(), true);			// Display something to show what's happening
+        if (cmd)
+            free(cmd);
     }
 
     gfx->flip();
 
     gfx->unset_2D_mode();
 
-    if(percent>=100.0f) {
+    if(percent>=100.0f)
+    {
         messages.clear();
         gfx->destroy_texture( Glfond );
     }

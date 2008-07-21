@@ -1490,8 +1490,8 @@ void UNIT::draw_shadow(Camera *cam, const VECTOR& Dir,MAP *map)
         return;
     }
 
-    if (model == NULL )
-        Console->AddEntry( "Warning : model is NULL!!" );
+    if (!model)
+        LOG_WARNING("Model is NULL ! (" << __FILE__ << ":" << __LINE__ << ")");
 
     if (cloaked && owner_id != players.local_human_id ) // Unit is cloaked
     {
@@ -2745,15 +2745,19 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
         return	-1;		// Should NEVER happen
     }
 
-    if (build_percent_left == 0.0f && unit_manager.unit_type[type_id].isfeature) {		// Turn this unit into a feature
+    if (build_percent_left == 0.0f && unit_manager.unit_type[type_id].isfeature) // Turn this unit into a feature
+    {
         if (cur_px > 0 && cur_py > 0 && cur_px < (map->bloc_w<<1) && cur_py < (map->bloc_h<<1) )
-            if (map->map_data[ cur_py ][ cur_px ].stuff == -1) {
+        {
+            if (map->map_data[ cur_py ][ cur_px ].stuff == -1)
+            {
                 int type = feature_manager.get_feature_index(unit_manager.unit_type[type_id].Corpse);
-                if (type >= 0 ) {
+                if (type >= 0)
+                {
                     features.lock();
                     map->map_data[ cur_py ][ cur_px ].stuff=features.add_feature(Pos,type);
                     if (map->map_data[ cur_py ][ cur_px ].stuff == -1)
-                        Console->AddEntry("ERROR: could not turn %s into a feature! cannot create feature!", unit_manager.unit_type[type_id].Unitname);
+                        LOG_ERROR("Could not turn `" << unit_manager.unit_type[type_id].Unitname << "` into a feature ! Cannot create the feature");
                     else
                         features.feature[map->map_data[ cur_py ][ cur_px ].stuff].angle = Angle.y;
                     pMutex.unlock();
@@ -2764,8 +2768,9 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
                     flags = 4;
                 }
                 else
-                    Console->AddEntry("ERROR: could not turn %s into a feature! feature not found!", unit_manager.unit_type[type_id].Unitname);
+                    LOG_ERROR("Could not turn `" << unit_manager.unit_type[type_id].Unitname << "` into a feature ! Feature not found");
             }
+        }
         pMutex.unlock();
 #ifdef	ADVANCED_DEBUG_MODE
         GuardLeave();
@@ -3333,7 +3338,8 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
                         path_exec[ owner_id ]++;
                         move_target_computed = mission->target;
                         last_path_refresh = 0.0f;
-                        if (unit_manager.unit_type[type_id].canfly) {
+                        if (unit_manager.unit_type[type_id].canfly)
+                        {
                             if (mission->move_data<=0)
                                 mission->path = direct_path(mission->target);
                             else {
@@ -3342,7 +3348,8 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
                                 mission->path = direct_path(mission->target-(mission->move_data<<3)*Dir);
                             }
                         }
-                        else {
+                        else
+                        {
                             float dh_max = unit_manager.unit_type[type_id].MaxSlope * H_DIV;
                             float h_min = unit_manager.unit_type[type_id].canhover ? -100.0f : map->sealvl - unit_manager.unit_type[type_id].MaxWaterDepth * H_DIV;
                             float h_max = map->sealvl - unit_manager.unit_type[type_id].MinWaterDepth * H_DIV;
@@ -3354,10 +3361,12 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
                                 mission->path = find_path(map->map_data,map->h_map,map->path,map->map_w,map->map_h,map->bloc_w<<1,map->bloc_h<<1,
                                                           dh_max, h_min, h_max, Pos, mission->target, unit_manager.unit_type[type_id].FootprintX, unit_manager.unit_type[type_id].FootprintZ, idx, mission->move_data, hover_h );
 
-                            if (mission->path == NULL ) {
+                            if (mission->path == NULL)
+                            {
                                 bool place_is_empty = map->check_rect( cur_px-(unit_manager.unit_type[type_id].FootprintX>>1), cur_py-(unit_manager.unit_type[type_id].FootprintZ>>1), unit_manager.unit_type[type_id].FootprintX, unit_manager.unit_type[type_id].FootprintZ, idx);
-                                if (!place_is_empty ) {
-                                    Console->AddEntry("Unit is blocked!! (3)");
+                                if (!place_is_empty)
+                                {
+                                    LOG_WARNING("An Unit is blocked !" << __FILE__ << ":" << __LINE__);
                                     mission->flags &= ~MISSION_FLAG_MOVE;
                                 }
                                 else
@@ -3514,10 +3523,12 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
                                 }
                             }
                             else
-                                Console->AddEntry("Unit is blocked!! (1)");
+                                LOG_WARNING("An Unit is blocked !" << __FILE__ << ":" << __LINE__);
                         }
-                        else if (!flying && local ) {
-                            if (Pos.x<-map->map_w_d || Pos.x>map->map_w_d || Pos.z<-map->map_h_d || Pos.z>map->map_h_d) {
+                        else if (!flying && local )
+                        {
+                            if (Pos.x<-map->map_w_d || Pos.x>map->map_w_d || Pos.z<-map->map_h_d || Pos.z>map->map_h_d)
+                            {
                                 VECTOR target = Pos;
                                 if (target.x < -map->map_w_d+256)
                                     target.x = -map->map_w_d+256;
@@ -3548,13 +3559,15 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
                                                                                           ( mission->mission != MISSION_MOVE && mission->mission != MISSION_ATTACK ) ) )
                         flags |= 64;
                 }
-                else {
+                else
+                {
                     bool place_is_empty = map->check_rect(n_px-(unit_manager.unit_type[type_id].FootprintX>>1),n_py-(unit_manager.unit_type[type_id].FootprintZ>>1),unit_manager.unit_type[type_id].FootprintX,unit_manager.unit_type[type_id].FootprintZ,idx);
-                    if (!place_is_empty ) {
+                    if (!place_is_empty )
+                    {
                         pMutex.unlock();
                         clear_from_map();
                         pMutex.lock();
-                        Console->AddEntry("Unit is blocked!! (2) -> probably spawned on something");
+                        LOG_WARNING("An Unit is blocked ! (probably spawned on something)" << __FILE__ << ":" << __LINE__);
                     }
                 }
             }
@@ -4532,22 +4545,22 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
                                     }
                                 }
                             }
-                            if (map->check_rect((((int)(mission->target.x)+map->map_w_d+4)>>3)-(unit_manager.unit_type[mission->data].FootprintX>>1),(((int)(mission->target.z)+map->map_h_d+4)>>3)-(unit_manager.unit_type[mission->data].FootprintZ>>1),unit_manager.unit_type[mission->data].FootprintX,unit_manager.unit_type[mission->data].FootprintZ,-1)) {				// Check it we have an empty place to build our unit
+                            if (map->check_rect((((int)(mission->target.x)+map->map_w_d+4)>>3)-(unit_manager.unit_type[mission->data].FootprintX>>1),(((int)(mission->target.z)+map->map_h_d+4)>>3)-(unit_manager.unit_type[mission->data].FootprintZ>>1),unit_manager.unit_type[mission->data].FootprintX,unit_manager.unit_type[mission->data].FootprintZ,-1)) // Check it we have an empty place to build our unit
+                            {
                                 pMutex.unlock();
                                 mission->p = create_unit(mission->data,owner_id,mission->target,map);
                                 pMutex.lock();
-                                if (mission->p) {
+                                if (mission->p)
+                                {
                                     mission->target_ID = ((UNIT*)mission->p)->ID;
-                                    ((UNIT*)(mission->p))->hp=0.000001f;
-                                    ((UNIT*)(mission->p))->built=true;
+                                    ((UNIT*)(mission->p))->hp = 0.000001f;
+                                    ((UNIT*)(mission->p))->built = true;
                                 }
                                 else
-                                    Console->AddEntry("%d can't create unit!! (%s, l.%d)", idx, __FILE__,__LINE__);
+                                    LOG_WARNING(idx << " can't create unit! (`" << __FILE__ << "`:" << __LINE__ << ")");
                             }
                             else if (unit_manager.unit_type[type_id].BMcode)
                                 next_mission();
-                            //								else
-                            //									Console->AddEntry("%d waiting for a place to build unit of type %d (%s, l.%d)", idx, mission->data, __FILE__,__LINE__);
                         }
                         else {
                             activate();
@@ -6107,8 +6120,7 @@ int UNIT::launch_script(int id,int nb_param,int *param,bool force)			// Start a 
     }
     if (nb_running >= 25)	// Too much scripts running
     {
-        Console->AddEntry("Warning: too much script running!!");
-        LOG_WARNING("Too much running scripts");
+        LOG_WARNING("Too much script running");
         return -3;
     }
 

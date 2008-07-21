@@ -80,7 +80,7 @@ void mnu_file(int mnu_index)
                         cur_part=0;
                     }
                     else
-                        Console->AddEntry("Error : cannot open %s for reading",filename.empty() ? "NULL" : filename.c_str());
+                        LOG_ERROR("Cannot open `" << filename << "` for reading");
                 }
             }
             break;
@@ -900,7 +900,6 @@ int intersect(VECTOR O,VECTOR Dir,OBJECT *obj,VECTOR *PA,VECTOR *PB)	// Calcule 
 void init()
 {
     InterfaceManager = NULL;
-    VARS::Console = NULL;
     VARS::gfx = NULL;
 
     try
@@ -940,7 +939,6 @@ void init()
 
     TA3D::VARS::gfx = new TA3D::Interfaces::GFX;       // Creates the gfx object
 
-    TA3D::VARS::Console = new TA3D::TA3D_DEBUG::cConsole();   // Create console object, this will be dropped soon
     I18N::LoadFromFile("3dmeditor.res");
     TA3D::VARS::HPIManager = new TA3D::UTILS::HPI::cHPIHandler( GetClientPath() ); // create hpi manager object.
 

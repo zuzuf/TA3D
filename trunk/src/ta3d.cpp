@@ -37,6 +37,8 @@
 #include "ingame/menus/statistics.h"
 #include "misc/math.h"
 #include "sounds/manager.h"
+#include "logs/logs.h"
+#include "console.h"
 
 
 #ifndef SCROLL_SPEED
@@ -59,9 +61,9 @@ int play(GameData *game_data)
     if( network_manager.isConnected() )
         network_manager.cleanQueues();
 
-    if(game_data==NULL)
+    if (game_data == NULL)
     {
-        Console->AddEntry("error: cannot start a game!! (game_data is NULL, no game information)");
+        LOG_ERROR("Cannot start a game !");
         return -1;
     }
 
@@ -72,14 +74,14 @@ int play(GameData *game_data)
 
     int start_time=msec_timer;		// Pour la mesure du temps de chargement
 
-    Console->AddEntry("Loading textures");
+    LOG_INFO("Loading textures...");
     loading(0.0f,I18N::Translate("Loading textures"));
 
     /*-----------------------charge les textures-------------------------*/
 
     texture_manager.all_texture();
 
-    Console->AddEntry("Loading 3D Models");
+    LOG_INFO("Loading 3D Models...");
     loading(100.0f/7.0f,I18N::Translate("Loading 3D Models"));
     /*-----------------------charge les modèles 3D-----------------------*/
 
@@ -87,7 +89,7 @@ int play(GameData *game_data)
     model_manager.load_all(loading);
     model_manager.optimise_all();
 
-    Console->AddEntry("Loading graphical features");
+    LOG_INFO("Loading graphical features...");
     loading(200.0f/7.0f,I18N::Translate("Loading graphical features"));
     /*-----------------------charge les éléments graphiques--------------*/
 
@@ -96,7 +98,7 @@ int play(GameData *game_data)
 
     model_manager.compute_ids();
 
-    Console->AddEntry("Loading weapons");
+    LOG_INFO("Loading weapons...");
     loading(250.0f/7.0f,I18N::Translate("Loading weapons"));
     /*-----------------------charge les armes----------------------------*/
 
@@ -104,19 +106,19 @@ int play(GameData *game_data)
 
     weapons.init();
 
-    Console->AddEntry("Loading units");
+    LOG_INFO("Loading units...");
     loading(300.0f/7.0f,I18N::Translate("Loading units"));
     /*-----------------------charge les unités---------------------------*/
 
     load_all_units(loading);
 
-    Console->AddEntry("Freeing unused memory");
+    LOG_DEBUG("Freeing unused memory");
     loading(400.0f/7.0f,I18N::Translate("Free unused memory"));
     /*-----------------------libère la mémoire inutilisée----------------*/
 
     texture_manager.destroy();
 
-    Console->AddEntry("Initialising engine");
+    LOG_INFO("Initializing the engine...");
     loading(500.0f/7.0f,I18N::Translate("Initialising engine"));
     /*-----------------------initialise le moteur------------------------*/
 
@@ -125,7 +127,7 @@ int play(GameData *game_data)
 
     set_palette(pal);
 
-    Console->AddEntry("Adding players");
+    LOG_DEBUG("Adding players...");
     players.init();													// Object containing data about players
     for(uint16 i = 0; i<game_data->nb_players; i++)
         players.add((char*)game_data->player_names[i].c_str(),(char*)game_data->player_sides[i].c_str(),game_data->player_control[i],game_data->energy[i],game_data->metal[i],game_data->ai_level[i]);		// add a player
@@ -135,8 +137,9 @@ int play(GameData *game_data)
         String prefix = "";
         String intgaf = "";
 
-        for( int i = 0 ; i < ta3dSideData.nb_side ; i++ )
-            if( ta3dSideData.side_name[ i ] == game_data->player_sides[ players.local_human_id ] ) {
+        for (int i = 0; i < ta3dSideData.nb_side; ++i)
+            if( ta3dSideData.side_name[ i ] == game_data->player_sides[ players.local_human_id ])
+            {
                 prefix = ta3dSideData.side_pref[ i ];
                 intgaf = ta3dSideData.side_int[ i ];
                 break;
@@ -165,7 +168,7 @@ int play(GameData *game_data)
         }
     }
 
-    Console->AddEntry("Loading GUI");
+    LOG_INFO("Loading the GUI...");
     loading(550.0f/7.0f,I18N::Translate("Loading GUI"));
     //-------------------	Code related to the GUI		--------------------------
 
@@ -213,33 +216,34 @@ int play(GameData *game_data)
 
     //----------------------------------------------------------------------------
 
-    Console->AddEntry("Loading the map");
+    LOG_INFO("Loading the map...");
     loading(600.0f/7.0f,I18N::Translate("Loading the map"));
     /*-----------------------charge la carte-----------------------------*/
 
-    Console->AddEntry("Extracting '%s'", game_data->map_filename);
+    LOG_DEBUG("Extracting `" << game_data->map_filename << "`...");
     byte *map_file=HPIManager->PullFromHPI(game_data->map_filename);
 
-    if(!map_file)	return -1;
+    if (!map_file)
+        return -1;
     MAP *map=load_tnt_map(map_file);
     delete[] map_file;
 
-    Console->AddEntry("Loading details texture");
+    LOG_INFO("Loading details texture...");
     map->load_details_texture( "gfx/details.jpg" );			// Load the details texture
 
-    Console->AddEntry("Initialising Fog Of War");
+    LOG_INFO("Initialising the Fog Of War...");
     map->clear_FOW( game_data->fog_of_war );
 
     units.map = map;			// Setup some useful information
 
     replace_extension(game_data->map_filename, game_data->map_filename, "ota", strlen(game_data->map_filename)+1);
 
-    Console->AddEntry("Extracting '%s'", game_data->map_filename);
+    LOG_DEBUG("Extracting `" << game_data->map_filename << "`...");
     uint32 ota_size=0;
     map_file=HPIManager->PullFromHPI(game_data->map_filename,&ota_size);
     if(map_file)
     {
-        Console->AddEntry("Loading map informations");
+        LOG_INFO("Loading map informations...");
         map->ota_data.load((char*)map_file,ota_size);
 
         if( map->ota_data.lavaworld ) // make sure we'll draw lava and not water
@@ -259,7 +263,7 @@ int play(GameData *game_data)
 
     SKY_DATA	*sky_data = choose_a_sky( game_data->map_filename, map->ota_data.planet );
 
-    if( sky_data == NULL )
+    if (sky_data == NULL)
     {
         sky_data = new SKY_DATA;
         sky_data->texture_name = "gfx/sky/sky.jpg";
@@ -706,7 +710,7 @@ int play(GameData *game_data)
 
         /*------------bloc regroupant ce qui est relatif aux commandes----------------*/
 
-        if( players.local_human_id >= 0 && !Console->activated() && !game_area.get_state("chat") )
+        if( players.local_human_id >= 0 && !console.activated() && !game_area.get_state("chat"))
         {
             if( key[ KEY_SPACE ] ) 				// Show gamestatus window
             {
@@ -773,7 +777,7 @@ int play(GameData *game_data)
         else
             ordered_destruct = false;
 
-        if( key[KEY_PLUS_PAD] && !Console->activated() )
+        if( key[KEY_PLUS_PAD] && !console.activated())
         {
             if( !speed_changed && lp_CONFIG->timefactor < 10.0f )
             {
@@ -782,17 +786,20 @@ int play(GameData *game_data)
             }
             speed_changed = true;
         }
-        else if( ( key[KEY_MINUS] || key[KEY_MINUS_PAD] ) && !Console->activated() )
-        {
-            if( !speed_changed && lp_CONFIG->timefactor > 1.0f )
-            {
-                lp_CONFIG->timefactor--;
-                show_timefactor = 1.0f;
-            }
-            speed_changed = true;
-        }
         else
-            speed_changed = false;
+        {
+            if((key[KEY_MINUS] || key[KEY_MINUS_PAD]) && !console.activated())
+            {
+                if (!speed_changed && lp_CONFIG->timefactor > 1.0f)
+                {
+                    lp_CONFIG->timefactor--;
+                    show_timefactor = 1.0f;
+                }
+                speed_changed = true;
+            }
+            else
+                speed_changed = false;
+        }
 
         if( track_mode >= 0 && track_mode <= units.max_unit)
         {
@@ -815,29 +822,32 @@ int play(GameData *game_data)
         if( track_mode >= 0 && ( cur_sel_index < 0 || cur_sel_index >= units.max_unit || track_mode != cur_sel_index ) )
             track_mode = -1;
 
-        if(key[KEY_T] && !Console->activated() && cur_sel_index>=0 && cur_sel_index<units.max_unit )
+        if(key[KEY_T] && !console.activated() && cur_sel_index>=0 && cur_sel_index<units.max_unit )
         {
             if( !last_time_activated_track_mode )
                 track_mode = track_mode == cur_sel_index ? -1 : cur_sel_index;
             last_time_activated_track_mode = true;
         }
-        else if( key[KEY_T] && !Console->activated() )
-        {
-            track_mode = -1;
-            cam_has_target = false;
-        }
         else
-            last_time_activated_track_mode = false;
+            if (key[KEY_T] && !console.activated())
+            {
+                track_mode = -1;
+                cam_has_target = false;
+            }
+            else
+                last_time_activated_track_mode = false;
 
         if( key[KEY_F1] && units.last_on >= 0 && units.unit[ units.last_on ].type_id >= 0 )
         {
             unit_info_id = units.unit[ units.last_on ].type_id;
             unit_info = 1.0f;
         }
-        else if(key[KEY_F1] && cur_sel >= 0) {
-            unit_info_id = cur_sel;
-            unit_info = 1.0f;
-        }
+        else
+            if(key[KEY_F1] && cur_sel >= 0)
+            {
+                unit_info_id = cur_sel;
+                unit_info = 1.0f;
+            }
 
         if(mouse_x<128.0f && mouse_y<128.0f && mouse_x>=0.0f && mouse_y>=0.0f && mouse_b == 2 )
         {
@@ -853,18 +863,20 @@ int play(GameData *game_data)
             cam.rpos = cam.rpos - (SCROLL_SPEED*dt*cam_h / 151.0f)*move_dir;
             cam_has_target=false;
         }
-        else if(mouse_x>=SCREEN_W-1)
-        {
-            VECTOR move_dir = cam.side;
-            move_dir.y = 0.0f;
-            move_dir.unit();
-            cam.rpos = cam.rpos + (SCROLL_SPEED*dt*cam_h / 151.0f)*move_dir;
-            cam_has_target=false;
-        }
+        else
+            if(mouse_x>=SCREEN_W-1)
+            {
+                VECTOR move_dir = cam.side;
+                move_dir.y = 0.0f;
+                move_dir.unit();
+                cam.rpos = cam.rpos + (SCROLL_SPEED*dt*cam_h / 151.0f)*move_dir;
+                cam_has_target=false;
+            }
         if(mouse_y<1)
         {
             VECTOR move_dir = cam.up;
-            if(move_dir.x==0.0f && move_dir.z==0.0f) {
+            if(move_dir.x==0.0f && move_dir.z==0.0f)
+            {
                 move_dir = cam.dir;
                 move_dir.y=0.0f;
             }
@@ -874,20 +886,24 @@ int play(GameData *game_data)
             cam.rpos = cam.rpos+ (SCROLL_SPEED*dt*cam_h / 151.0f) * move_dir;
             cam_has_target=false;
         }
-        else if(mouse_y>=SCREEN_H-1) {
-            VECTOR move_dir = cam.up;
-            if(move_dir.x==0.0f && move_dir.z==0.0f) {
-                move_dir = cam.dir;
-                move_dir.y=0.0f;
+        else
+            if(mouse_y>=SCREEN_H-1)
+            {
+                VECTOR move_dir = cam.up;
+                if(move_dir.x==0.0f && move_dir.z==0.0f)
+                {
+                    move_dir = cam.dir;
+                    move_dir.y=0.0f;
+                }
+                else
+                    move_dir.y=0.0f;
+                move_dir.unit();
+                cam.rpos = cam.rpos - (SCROLL_SPEED*dt*cam_h / 151.0f)*move_dir;
+                cam_has_target=false;
             }
-            else
-                move_dir.y=0.0f;
-            move_dir.unit();
-            cam.rpos = cam.rpos - (SCROLL_SPEED*dt*cam_h / 151.0f)*move_dir;
-            cam_has_target=false;
-        }
 
-        if(freecam) {
+        if(freecam)
+        {
             if(mouse_b==4) {
                 get_mouse_mickeys(&mx,&my);
                 if(omb==mouse_b) {
@@ -2346,7 +2362,7 @@ int play(GameData *game_data)
         if(key[KEY_TILDE] && !game_area.get_state("chat"))
         {
             if(!tilde)
-                Console->ToggleShow();
+                console.toggleShow();
             tilde=true;
         }
         else
@@ -3081,11 +3097,12 @@ int play(GameData *game_data)
             show_timefactor -= dt;
         }
 
-        ta3d_network.draw();				// Draw network related stuffs (ie: chat messages, ...)
+        ta3d_network.draw(); // Draw network related stuffs (ie: chat messages, ...)
 
-        char *cmd=NULL;
+        char *cmd = NULL;
+        // Draw the console
         if(!shoot || video_shoot)
-            cmd=Console->draw(gfx->TA_font,dt,gfx->TA_font.height());			// Affiche la console
+            cmd = console.draw(gfx->TA_font, dt, gfx->TA_font.height());
 
         float Y=0.0f;
 
@@ -3375,10 +3392,9 @@ int play(GameData *game_data)
                             }
                         }
                     }
-                    if( !success ) {
-                        Console->AddEntry("command error:");
-                        Console->AddEntry("correct syntax is: give metal/energy/both player_id amount");
-                    }
+                    if (!success)
+                        LOG_ERROR("Command error: The correct syntax is: give metal/energy/both player_id amount");
+                    
                 }
                 else if( params[0] == "metal" ) cheat_metal^=true;				// cheat codes
                 else if( params[0] == "energy" ) cheat_energy^=true;			// cheat codes
@@ -3527,7 +3543,7 @@ int play(GameData *game_data)
     if(!game_data->campaign)
         Menus::Statistics::Execute();
 
-    Console->AddEntry("freeing memory used for players");
+    LOG_DEBUG("Rreeing memory used for players...");
     players.destroy();
     delete HPIManager;
     HPIManager = new cHPIHandler("");

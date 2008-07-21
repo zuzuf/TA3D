@@ -582,7 +582,7 @@ void setup_game(bool client, const char *host)
         {
             network_manager.Disconnect();
             Popup(I18N::Translate("Error"),I18N::Translate("No maps found"));
-            Console->AddEntry("no maps found!!");
+            LOG_ERROR("No map has been found !");
             reset_mouse();
             return;
         }
@@ -601,7 +601,7 @@ void setup_game(bool client, const char *host)
         {
             network_manager.Disconnect();
             Popup(I18N::Translate("Error"),I18N::Translate("No scripts found"));
-            Console->AddEntry("no scripts found!!");
+            LOG_ERROR("No script has been found!!");
             reset_mouse();
             return;
         }
@@ -1059,7 +1059,7 @@ void setup_game(bool client, const char *host)
                                 network_manager.sendSpecial("NOTIFY UPDATE", from);
                         }
                         else
-                            Console->AddEntry("packet error : %s", received_special_msg.message);
+                            LOG_ERROR("Packet error : " << received_special_msg.message);
                     }
                 }
                 else if( params.size() == 11 ) {

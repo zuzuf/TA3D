@@ -17,6 +17,10 @@
 
 #include "../stdafx.h"
 #include "../TA3D_NameSpace.h"
+#include "../logs/logs.h"
+
+
+#define TA3D_LOGS_UDP_PREFIX "[udp] "
 
 
 namespace TA3D
@@ -57,7 +61,7 @@ namespace TA3D
             int v = udpsock.Send(outbuf + n,obp - n);
             if( v <= 0 )
             {
-                Console->AddEntry("ERROR : could not send data over UDP!");
+                LOG_ERROR(TA3D_LOGS_UDP_PREFIX << "Could not send data over UDP !");
                 break;
             }
             n += v;
@@ -324,13 +328,13 @@ namespace TA3D
 
     int UDPSock::makeSync(struct sync* sync)
     {
-        if(udpinbuf[0] != 'S'){
-            Console->AddEntry("makeSync error: the data doesn't start with an 'S'");
+        if (udpinbuf[0] != 'S')
+        {
+            LOG_ERROR(TA3D_LOGS_UDP_PREFIX << "The data doesn't start with an 'S'. Impossible to make the synchronization");
             return -1;
         }
-        if(uiremain == -1){
+        if (uiremain == -1)
             return -1;
-        }
 
         uibrp = 1;
 
@@ -352,14 +356,16 @@ namespace TA3D
         return 0;
     }
 
-    int UDPSock::makeEvent(struct event* event){
-        if(udpinbuf[0] != 'E'){
-            Console->AddEntry("makeEvent error: the data doesn't start with an 'E'");
+    int UDPSock::makeEvent(struct event* event)
+    {
+        if (udpinbuf[0] != 'E')
+        {
+            LOG_ERROR(TA3D_LOGS_UDP_PREFIX << "The data doesn't start with an 'E'. Impossible to make the event.");
             return -1;
         }
-        if(uiremain == -1){
+        if (uiremain == -1)
             return -1;
-        }
+
         uibrp = 1;
         event->type = getByte();
 
@@ -437,18 +443,20 @@ namespace TA3D
         return 0;
     }
 
-    int UDPSock::makeSpecial(struct chat* chat){
-        if(udpinbuf[0] != 'X'){
-            Console->AddEntry("makeSpecial error: the data doesn't start with a 'X'");
+
+    int UDPSock::makeSpecial(struct chat* chat)
+    {
+        if (udpinbuf[0] != 'X')
+        {
+            LOG_ERROR(TA3D_LOGS_UDP_PREFIX << "The data doesn't start with a 'X'. Impossible to make a special !");
             return -1;
         }
-        if(uiremain == -1){
+        if (uiremain == -1)
             return -1;
-        }
         uibrp = 1;
 
         chat->from = getShort();
-        getBuffer( chat->message, 253 );
+        getBuffer(chat->message, 253);
         (chat->message)[252] = '\0';
 
         uibp = 0;
@@ -456,6 +464,8 @@ namespace TA3D
 
         return 0;
     }
+
+
 
 } // namespace TA3D
 
