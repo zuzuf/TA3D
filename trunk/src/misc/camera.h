@@ -47,14 +47,14 @@ namespace TA3D
 
 
     public:
-        VECTOR up;					// Haut de la caméra
-        VECTOR side;				// Coté de la caméra(optimisation pour les particules)
+        VECTOR3D up;					// Haut de la caméra
+        VECTOR3D side;				// Coté de la caméra(optimisation pour les particules)
 
         //! Position
-        VECTOR pos;
-        VECTOR rpos;				// Position de la caméra
+        VECTOR3D pos;
+        VECTOR3D rpos;				// Position de la caméra
         //! Direction
-        VECTOR dir;				// Direction de la caméra
+        VECTOR3D dir;				// Direction de la caméra
         float zfar;				// Pour le volume visible
         float znear;
         float zfar2;				// Carré de la distance maximale
@@ -64,7 +64,7 @@ namespace TA3D
         float shakeMagnitude;
         float shakeDuration;
         float shakeTotalDuration;
-        VECTOR shakeVector;
+        VECTOR3D shakeVector;
 
         //! To support wide screen modes correctly
         float widthFactor;		

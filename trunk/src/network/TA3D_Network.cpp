@@ -284,8 +284,9 @@ namespace TA3D
                         if( sx < the_map->bloc_w_db && sy < the_map->bloc_h_db )
                         {
                             int type = feature_manager.get_feature_index( (const char*)(event_msg.str) );
-                            if( type >= 0 ) {
-                                VECTOR feature_pos( event_msg.x, event_msg.y, event_msg.z );
+                            if( type >= 0)
+                            {
+                                VECTOR3D feature_pos( event_msg.x, event_msg.y, event_msg.z );
                                 the_map->map_data[sy][sx].stuff = features.add_feature( feature_pos, type );
                                 if(feature_manager.feature[type].blocking)
                                     the_map->rect(sx-(feature_manager.feature[type].footprintx>>1),sy-(feature_manager.feature[type].footprintz>>1),feature_manager.feature[type].footprintx,feature_manager.feature[type].footprintz,-2-the_map->map_data[sy][sx].stuff);
@@ -432,12 +433,13 @@ namespace TA3D
                     break;
                 case EVENT_WEAPON_CREATION:
                     {
-                        VECTOR target_pos( event_msg.x, event_msg.y, event_msg.z );
-                        VECTOR Dir( event_msg.dx / 16384.0f, event_msg.dy / 16384.0f, event_msg.dz / 16384.0f );
-                        VECTOR startpos( event_msg.vx, event_msg.vy, event_msg.vz );
+                        VECTOR3D target_pos( event_msg.x, event_msg.y, event_msg.z );
+                        VECTOR3D Dir( event_msg.dx / 16384.0f, event_msg.dy / 16384.0f, event_msg.dz / 16384.0f );
+                        VECTOR3D startpos( event_msg.vx, event_msg.vy, event_msg.vz );
 
                         int w_type = weapon_manager.get_weapon_index( (char*)event_msg.str );
-                        if( w_type >= 0 ) {
+                        if (w_type >= 0)
+                        {
                             weapons.lock();
                             int w_idx = weapons.add_weapon(w_type,event_msg.opt1);
                             int player_id = event_msg.opt5;
@@ -445,7 +447,8 @@ namespace TA3D
                             if(weapon_manager.weapon[w_type].startsmoke)
                                 particle_engine.make_smoke(startpos,0,1,0.0f,-1.0f,0.0f, 0.3f);
 
-                            if( w_idx >= 0 ) {
+                            if (w_idx >= 0)
+                            {
                                 weapons.weapon[w_idx].local = false;
 
                                 weapons.weapon[w_idx].damage = event_msg.opt4;
@@ -514,22 +517,26 @@ namespace TA3D
                         units.lock();
 
                         int idx = unit_manager.get_unit_index( (char*)event_msg.str );
-                        if( idx >= 0 ) {
-                            VECTOR pos;
+                        if (idx >= 0)
+                        {
+                            VECTOR3D pos;
                             pos.x = event_msg.x;
                             pos.z = event_msg.z;
                             pos.y = the_map->get_unit_h( pos.x, pos.z );
                             UNIT *unit = (UNIT*)create_unit( idx, (event_msg.opt2 & 0xFF),pos,the_map,false);		// We don't want to send sync data for this ...
-                            if( unit ) {
+                            if (unit)
+                            {
                                 unit->lock();
                                 printf("(%d), created unit (%s) idx = %d\n", units.current_tick, event_msg.str, unit->idx );
 
-                                if( event_msg.opt2 & 0x1000 ) {								// Created by a script, so give it 100% HP
+                                if (event_msg.opt2 & 0x1000) // Created by a script, so give it 100% HP
+                                {
                                     unit->hp = unit_manager.unit_type[ idx ].MaxDamage;
                                     unit->built = false;
                                     unit->build_percent_left = 0.0f;
                                 }
-                                else {
+                                else
+                                {
                                     unit->hp = 0.001f;
                                     unit->built = true;
                                     unit->build_percent_left = 100.0f;

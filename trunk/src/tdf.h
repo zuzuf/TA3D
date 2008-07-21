@@ -233,7 +233,7 @@ namespace TA3D
     struct FEATURE_DATA
     {
         //! 
-        VECTOR Pos;		// Position spatiale de l'élément
+        VECTOR3D Pos;		// Position spatiale de l'élément
         //! 
         int	 type;		// Type d'élément
         //! 
@@ -310,7 +310,7 @@ namespace TA3D
         ** \brief Set the wind direction
         ** \todo p_wind_dir should not be a pointer
         */
-        void set_data(VECTOR& wind_dir) { p_wind_dir = &wind_dir; }
+        void set_data(VECTOR3D& wind_dir) { p_wind_dir = &wind_dir; }
 
         /*!
         ** \brief
@@ -332,7 +332,7 @@ namespace TA3D
         /*!
         ** \brief
         */
-        int add_feature(const VECTOR& Pos, const int type);
+        int add_feature(const VECTOR3D& Pos, const int type);
         
         /*!
         ** \brief
@@ -375,7 +375,7 @@ namespace TA3D
         ** \param cam
         ** \param dir
         */
-        void draw_shadow(Camera& cam, const VECTOR& Dir);
+        void draw_shadow(Camera& cam, const VECTOR3D& Dir);
 
         /*!
         ** \brief
@@ -414,7 +414,7 @@ namespace TA3D
 
     protected:
         //!
-        VECTOR* p_wind_dir;
+        VECTOR3D* p_wind_dir;
 
     }; // class FEATURES
 

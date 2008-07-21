@@ -145,8 +145,8 @@ namespace TA3D
         short		*explosion_flag;
         float		explode_time;
         bool		explode;
-        VECTOR		*pos;
-        VECTOR		*dir;			// Orientation des objets (quand il n'y a qu'une ligne)
+        VECTOR3D		*pos;
+        VECTOR3D		*dir;			// Orientation des objets (quand il n'y a qu'une ligne)
         MATRIX_4x4	*matrix;		// Store local matrixes
         bool		is_moving;
 
@@ -236,11 +236,11 @@ namespace TA3D
     {
     public:
         byte	type;
-        VECTOR	angle_0;
-        VECTOR	angle_1;
+        VECTOR3D	angle_0;
+        VECTOR3D	angle_1;
         float	angle_w;
-        VECTOR	translate_0;
-        VECTOR	translate_1;
+        VECTOR3D	translate_0;
+        VECTOR3D	translate_1;
         float	translate_w;
 
         ANIMATION()
@@ -248,7 +248,7 @@ namespace TA3D
             type = 0;
         }
 
-        void animate( float &t, VECTOR &R, VECTOR &T )
+        void animate( float &t, VECTOR3D &R, VECTOR3D& T)
         {
             if( type & ROTATION ) {
                 if( type & ROTATION_PERIODIC ) {
@@ -293,17 +293,17 @@ namespace TA3D
         char		*name;				// Nom de l'objet
         OBJECT		*next;				// Objet suivant
         OBJECT		*child;				// Objet fils
-        VECTOR		*points;			// Points composant l'objet
+        VECTOR3D		*points;			// Points composant l'objet
         short		nb_p_index;			// Nombre d'indices de points
         short		nb_l_index;			// Nombre d'indices de lignes
         short		nb_t_index;			// Nombre d'indices de triangles
-        VECTOR		pos_from_parent;	// Position par rapport à l'objet parent
+        VECTOR3D		pos_from_parent;	// Position par rapport à l'objet parent
         GLushort	*p_index;			// Tableau d'indices pour les points isolés
         GLushort	*l_index;			// Tableau d'indices pour les lignes
         GLushort	*t_index;			// Tableau d'indices pour les triangles
         short		*nb_index;			// Nombre d'indices par primitive
-        VECTOR		*N;					// Tableau de normales pour les sommet
-        VECTOR		*F_N;				// face normals
+        VECTOR3D		*N;					// Tableau de normales pour les sommet
+        VECTOR3D		*F_N;				// face normals
         int			*tex;				// Tableau de numéros de texture OpenGl
         byte		*usetex;			// Tableau indiquant si une texture doit être appliquée
         sint16		selprim;			// Polygone de selection
@@ -328,7 +328,7 @@ namespace TA3D
         byte	*line_on;
         byte	*face_reverse;
         bool	use_strips;				// Used by converted sprites to speed things up
-        VECTOR	last_dir;				// To speed up things when shadow has already been cast
+        VECTOR3D	last_dir;				// To speed up things when shadow has already been cast
         uint16	last_nb_idx;				// Remember how many things we have drawn last time
 
         float	min_x, max_x;		// Used by hit_fast
@@ -345,8 +345,8 @@ namespace TA3D
 
         bool		optimised;
         GLushort	*optimised_I;
-        VECTOR		*optimised_P;
-        VECTOR		*optimised_N;
+        VECTOR3D		*optimised_P;
+        VECTOR3D		*optimised_N;
         float		*optimised_T;
         uint16		optimised_nb_idx;
         uint16		optimised_nb_vtx;
@@ -374,21 +374,21 @@ namespace TA3D
 
         void create_from_2d(BITMAP *bmp,float w,float h,float max_h);
 
-        void compute_coord(SCRIPT_DATA *data_s=NULL,VECTOR *pos=NULL,bool c_part=false,int p_tex=0,VECTOR *target=NULL,VECTOR *upos=NULL,MATRIX_4x4 *M=NULL,float size=0.0f,VECTOR *center=NULL,bool reverse=false,OBJECT *src=NULL,SCRIPT_DATA *src_data=NULL);
+        void compute_coord(SCRIPT_DATA *data_s=NULL,VECTOR3D *pos=NULL,bool c_part=false,int p_tex=0,VECTOR3D *target=NULL,VECTOR3D *upos=NULL,MATRIX_4x4 *M=NULL,float size=0.0f,VECTOR3D *center=NULL,bool reverse=false,OBJECT *src=NULL,SCRIPT_DATA *src_data=NULL);
 
         bool draw(float t,SCRIPT_DATA *data_s=NULL,bool sel_primitive=false,bool alset=false,bool notex=false,int side=0,bool chg_col=true,bool exploding_parts=false);
         bool draw_dl(SCRIPT_DATA *data_s=NULL,bool alset=false,int side=0,bool chg_col=true);
         void draw_optimised(const bool set = true);
 
-        bool draw_shadow(VECTOR Dir,float t,SCRIPT_DATA *data_s=NULL,bool alset=false,bool exploding_parts=false);
+        bool draw_shadow(VECTOR3D  Dir,float t,SCRIPT_DATA *data_s=NULL,bool alset=false,bool exploding_parts=false);
 
-        bool draw_shadow_basic(VECTOR Dir,float t,SCRIPT_DATA *data_s=NULL,bool alset=false,bool exploding_parts=false);
+        bool draw_shadow_basic(VECTOR3D Dir,float t,SCRIPT_DATA *data_s=NULL,bool alset=false,bool exploding_parts=false);
 
-        bool hit(VECTOR Pos,VECTOR Dir,SCRIPT_DATA *data_s,VECTOR *I,MATRIX_4x4 M);
+        bool hit(VECTOR3D Pos,VECTOR3D Dir,SCRIPT_DATA *data_s,VECTOR3D *I,MATRIX_4x4 M);
 
-        bool hit_fast(VECTOR Pos,VECTOR Dir,SCRIPT_DATA *data_s,VECTOR *I);
+        bool hit_fast(VECTOR3D Pos,VECTOR3D Dir,SCRIPT_DATA *data_s,VECTOR3D *I);
 
-        int random_pos( SCRIPT_DATA *data_s, int id, VECTOR *vec );
+        int random_pos( SCRIPT_DATA *data_s, int id, VECTOR3D *vec );
 
         bool compute_emitter();
 
@@ -404,15 +404,15 @@ namespace TA3D
 
         void Identify(int nb_piece,char **piece_name);			// Identifie les pièces utilisées par le script
 
-        void compute_center(VECTOR *center,VECTOR dec, int *coef);		// Calcule les coordonnées du centre de l'objet, objets liés compris
+        void compute_center(VECTOR3D *center,VECTOR3D dec, int *coef);		// Calcule les coordonnées du centre de l'objet, objets liés compris
 
-        float compute_size_sq(VECTOR center);		// Carré de la taille(on fera une racine après)
+        float compute_size_sq(VECTOR3D center);		// Carré de la taille(on fera une racine après)
 
         float print_struct(float Y,float X,TA3D::Interfaces::GfxFont fnt);
 
-        float compute_top( float top, VECTOR dec );
+        float compute_top( float top, VECTOR3D dec );
 
-        float compute_bottom( float bottom, VECTOR dec );
+        float compute_bottom( float bottom, VECTOR3D dec );
 
         bool has_animation_data();
 
@@ -425,7 +425,7 @@ namespace TA3D
 
     public:
 
-        VECTOR	center;				// Centre de l'objet pour des calculs d'élimination d'objets
+        VECTOR3D	center;				// Centre de l'objet pour des calculs d'élimination d'objets
         float	size;				// Square of the size of the sphere which contains the model
         float	size2;				// Same as above but it is its square root
         float	top;				// Max y coordinate found in the model
@@ -460,8 +460,8 @@ namespace TA3D
         void create_from_2d(BITMAP* bmp, float w, float h, float max_h);
 
         void draw(float t, SCRIPT_DATA* data_s = NULL, bool sel = false, bool notex = false,
-                  bool c_part = false, int p_tex = 0, VECTOR *target = NULL, VECTOR* upos = NULL,
-                  MATRIX_4x4* M = NULL, float Size = 0.0f, VECTOR* Center = NULL, bool reverse = false,
+                  bool c_part = false, int p_tex = 0, VECTOR3D *target = NULL, VECTOR3D* upos = NULL,
+                  MATRIX_4x4* M = NULL, float Size = 0.0f, VECTOR3D* Center = NULL, bool reverse = false,
                   int side = 0, bool chg_col = true, OBJECT* src = NULL, SCRIPT_DATA* src_data = NULL);
 
 
@@ -469,16 +469,16 @@ namespace TA3D
 
         void compute_coord(SCRIPT_DATA *data_s=NULL,MATRIX_4x4 *M=NULL);
 
-        void draw_shadow(VECTOR Dir,float t,SCRIPT_DATA *data_s=NULL);
+        void draw_shadow(VECTOR3D Dir,float t,SCRIPT_DATA *data_s=NULL);
 
-        void draw_shadow_basic(VECTOR Dir,float t,SCRIPT_DATA *data_s=NULL);
+        void draw_shadow_basic(VECTOR3D Dir,float t,SCRIPT_DATA *data_s=NULL);
 
-        bool hit(VECTOR &Pos,VECTOR &Dir,SCRIPT_DATA *data_s,VECTOR *I,MATRIX_4x4 &M)
+        bool hit(VECTOR3D &Pos,VECTOR3D &Dir,SCRIPT_DATA *data_s,VECTOR3D *I,MATRIX_4x4 &M)
         {
             return obj.hit(Pos,Dir,data_s,I,M);
         }
 
-        bool hit_fast(VECTOR &Pos,VECTOR &Dir,SCRIPT_DATA *data_s,VECTOR *I,MATRIX_4x4 &M)
+        bool hit_fast(VECTOR3D &Pos,VECTOR3D &Dir,SCRIPT_DATA *data_s,VECTOR3D *I,MATRIX_4x4 &M)
         {
             return obj.hit_fast(Pos,Dir*M,data_s,I);
         }
@@ -542,11 +542,11 @@ namespace TA3D
     class INSTANCE
     {
     public:
-        VECTOR	pos;
+        VECTOR3D	pos;
         uint32	col;
         float	angle;
 
-        INSTANCE(const VECTOR &p, const uint32 &c, const float &ang)
+        INSTANCE(const VECTOR3D &p, const uint32 &c, const float &ang)
             :pos(p), col(c), angle(ang)
         {}
     };
@@ -585,11 +585,11 @@ namespace TA3D
     class QUAD
     {
     public:
-        VECTOR	pos;
+        VECTOR3D	pos;
         float	size_x, size_z;
         uint32	col;
 
-        QUAD(const VECTOR &P, const float S_x, const float S_z, const uint32 c)
+        QUAD(const VECTOR3D &P, const float S_x, const float S_z, const uint32 c)
             :pos(P), size_x(S_x), size_z(S_z), col(c)
         {}
 
@@ -605,7 +605,7 @@ namespace TA3D
 
         ~QUAD_QUEUE() {}
 
-        void draw_queue( VECTOR *P, uint32 *C, GLfloat	*T );
+        void draw_queue( VECTOR3D *P, uint32 *C, GLfloat	*T );
     };
 
     class QUAD_TABLE							// Kind of hash table used to speed up rendering of separated quads

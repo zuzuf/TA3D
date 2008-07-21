@@ -248,12 +248,12 @@ namespace Audio
             WorkListItem() :sound(NULL), vec(NULL) {}
             //! Constructor by copy
             WorkListItem(const WorkListItem& c) : sound(c.sound), vec(c.vec) {}
-            WorkListItem(SoundItemList* s, VECTOR* v) : sound(s), vec(v) {}
+            WorkListItem(SoundItemList* s, VECTOR3D* v) : sound(s), vec(v) {}
 
             //! 
             SoundItemList* sound;
             //! Vector
-            VECTOR* vec;
+            VECTOR3D* vec;
 
         }; // class WorkListItem
 

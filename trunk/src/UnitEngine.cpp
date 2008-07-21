@@ -592,7 +592,7 @@ bool UNIT::is_on_radar( byte p_mask )
     return false;
 }
 
-void UNIT::add_mission(int mission_type,VECTOR *target,bool step,int dat,void *pointer,PATH_NODE *path,byte m_flags,int move_data,int patrol_node)
+void UNIT::add_mission(int mission_type,VECTOR3D *target,bool step,int dat,void *pointer,PATH_NODE *path,byte m_flags,int move_data,int patrol_node)
 {
 #ifdef	ADVANCED_DEBUG_MODE
     GuardEnter( UNIT::add_mission );
@@ -802,7 +802,7 @@ void UNIT::add_mission(int mission_type,VECTOR *target,bool step,int dat,void *p
 #endif
 }
 
-void UNIT::set_mission(int mission_type,VECTOR *target,bool step,int dat,bool stopit,void *pointer,PATH_NODE *path,byte m_flags,int move_data)
+void UNIT::set_mission(int mission_type,VECTOR3D *target,bool step,int dat,bool stopit,void *pointer,PATH_NODE *path,byte m_flags,int move_data)
 {
 #ifdef	ADVANCED_DEBUG_MODE
     GuardEnter( UNIT::set_mission );
@@ -1115,7 +1115,7 @@ void UNIT::draw(float t, Camera *cam,MAP *map,bool height_line)
 
     on_radar &= map->view[py][px] > 1;
 
-    VECTOR D;
+    VECTOR3D D;
     D=Pos-cam->pos;		// Vecteur "viseur unité" partant de la caméra vers l'unité
 
     float dist=D.sq();
@@ -1245,14 +1245,14 @@ void UNIT::draw(float t, Camera *cam,MAP *map,bool height_line)
 
             M=RotateY(Angle.y*DEG2RAD)*RotateZ(Angle.z*DEG2RAD)*RotateX(Angle.x*DEG2RAD)*Scale(scale);			// Matrice pour le calcul des positions des éléments du modèle de l'unité
 
-            VECTOR *target=NULL,*center=NULL;
-            VECTOR upos;
+            VECTOR3D *target=NULL,*center=NULL;
+            VECTOR3D upos;
             bool c_part=false;
             bool reverse=false;
             float size=0.0f;
             OBJECT *src = NULL;
             SCRIPT_DATA *src_data = NULL;
-            VECTOR v_target;				// Needed in network mode
+            VECTOR3D v_target;				// Needed in network mode
             UNIT *unit_target = NULL;
             MODEL *the_model = model;
             drawing = true;
@@ -1472,7 +1472,7 @@ void UNIT::draw(float t, Camera *cam,MAP *map,bool height_line)
 
 
 
-void UNIT::draw_shadow(Camera *cam, const VECTOR& Dir,MAP *map)
+void UNIT::draw_shadow(Camera *cam, const VECTOR3D& Dir,MAP *map)
 {
 #ifdef	ADVANCED_DEBUG_MODE
     GuardEnter( UNIT::draw_shadow );
@@ -1501,7 +1501,7 @@ void UNIT::draw_shadow(Camera *cam, const VECTOR& Dir,MAP *map)
 
     if (!visible)
     {
-        VECTOR S_Pos = drawn_Pos-(h/Dir.y)*Dir;//map->hit(Pos,Dir);
+        VECTOR3D S_Pos = drawn_Pos-(h/Dir.y)*Dir;//map->hit(Pos,Dir);
         int px=((int)(S_Pos.x)+map->map_w_d)>>4;
         int py=((int)(S_Pos.z)+map->map_h_d)>>4;
         if (px<0 || py<0 || px>=map->bloc_w || py>=map->bloc_h)
@@ -1536,9 +1536,9 @@ void UNIT::draw_shadow(Camera *cam, const VECTOR& Dir,MAP *map)
 
     if (unit_manager.unit_type[ type_id ].canmove || shadow_scale_dir < 0.0f )
     {
-        VECTOR H = drawn_Pos;
+        VECTOR3D H = drawn_Pos;
         H.y += 2.0f * model->size2 + 1.0f;
-        VECTOR D = map->hit( H, Dir, true, 2000.0f);
+        VECTOR3D D = map->hit( H, Dir, true, 2000.0f);
         shadow_scale_dir = (D - H).norm();
     }
     model->draw_shadow(((shadow_scale_dir*Dir*RotateX(-drawn_Angle.x*DEG2RAD))*RotateZ(-drawn_Angle.z*DEG2RAD))*RotateY(-drawn_Angle.y*DEG2RAD),0.0f,&data);
@@ -1553,7 +1553,7 @@ void UNIT::draw_shadow(Camera *cam, const VECTOR& Dir,MAP *map)
 }
 
 
-void UNIT::draw_shadow_basic(Camera *cam, const VECTOR& Dir,MAP *map)
+void UNIT::draw_shadow_basic(Camera *cam, const VECTOR3D& Dir,MAP *map)
 {
 #ifdef	ADVANCED_DEBUG_MODE
     GuardEnter( UNIT::draw_shadow_basic );
@@ -1578,7 +1578,7 @@ void UNIT::draw_shadow_basic(Camera *cam, const VECTOR& Dir,MAP *map)
 
     if (!visible)
     {
-        VECTOR S_Pos = drawn_Pos-(h/Dir.y)*Dir;//map->hit(Pos,Dir);
+        VECTOR3D S_Pos = drawn_Pos-(h/Dir.y)*Dir;//map->hit(Pos,Dir);
         int px=((int)(S_Pos.x+map->map_w_d))>>4;
         int py=((int)(S_Pos.z+map->map_h_d))>>4;
         if (px<0 || py<0 || px>=map->bloc_w || py>=map->bloc_h)
@@ -1611,9 +1611,9 @@ void UNIT::draw_shadow_basic(Camera *cam, const VECTOR& Dir,MAP *map)
     glPolygonMode (GL_FRONT_AND_BACK, GL_FILL);
     if (unit_manager.unit_type[ type_id ].canmove || shadow_scale_dir < 0.0f )
     {
-        VECTOR H = drawn_Pos;
+        VECTOR3D H = drawn_Pos;
         H.y += 2.0f * model->size2 + 1.0f;
-        VECTOR D = map->hit( H, Dir, true, 2000.0f);
+        VECTOR3D D = map->hit( H, Dir, true, 2000.0f);
         shadow_scale_dir = (D - H).norm();
     }
     model->draw_shadow_basic(((shadow_scale_dir*Dir*RotateX(-drawn_Angle.x*DEG2RAD))*RotateZ(-drawn_Angle.z*DEG2RAD))*RotateY(-drawn_Angle.y*DEG2RAD),0.0f,&data);
@@ -1776,7 +1776,7 @@ const int UNIT::run_script(const float &dt,const int &id,MAP *map,int max_code)	
                         compute_model_coord();
                         particle_engine.make_fire( Pos + data.pos[obj],1,10,45.0f);
                         int power = Math::Max(unit_manager.unit_type[type_id].FootprintX, unit_manager.unit_type[type_id].FootprintZ);
-                        VECTOR P = Pos + data.pos[obj];
+                        VECTOR3D P = Pos + data.pos[obj];
                         fx_manager.addExplosion( P, power * 3, power * 10.0f );
                     }
                     data.flag[obj]|=FLAG_EXPLODE;
@@ -2069,7 +2069,7 @@ const int UNIT::run_script(const float &dt,const int &id,MAP *map,int max_code)	
                         compute_model_coord();
                         if (data.dir[from_piece].x!=0.0f || data.dir[from_piece].y!=0.0f || data.dir[from_piece].z!=0.0f)
                         {
-                            VECTOR dir=data.dir[from_piece];
+                            VECTOR3D dir=data.dir[from_piece];
                             switch(smoke_type)
                             {
                                 case 0:
@@ -2497,7 +2497,7 @@ const int UNIT::run_script(const float &dt,const int &id,MAP *map,int max_code)	
                                                     int cur_idx=map->map_data[y][x].unit_idx;
                                                     if (units.unit[cur_idx].owner_id==owner_id && units.unit[cur_idx].build_percent_left == 0.0f && (units.unit[cur_idx].mission==NULL || units.unit[cur_idx].mission->mission!=MISSION_MOVE)) {
                                                         units.unit[cur_idx].lock();
-                                                        VECTOR target = units.unit[cur_idx].Pos;
+                                                        VECTOR3D target = units.unit[cur_idx].Pos;
                                                         target.z+=100.0f;
                                                         units.unit[cur_idx].add_mission(MISSION_MOVE | MISSION_FLAG_AUTO,&target,true);
                                                         units.unit[cur_idx].unlock();
@@ -2726,11 +2726,11 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
     sint32	o_px = cur_px;
     sint32	o_py = cur_py;
     compute_coord = true;
-    VECTOR	old_V = V;			// Store the speed, so we can do some calculations
+    VECTOR3D	old_V = V;			// Store the speed, so we can do some calculations
     bool	b_TargetAngle = false;		// Do we aim, move, ... ?? Need to change unit angle
     float	f_TargetAngle = 0.0f;
 
-    VECTOR NPos = Pos;
+    VECTOR3D NPos = Pos;
     int n_px = cur_px;
     int n_py = cur_py;
     bool precomputed_position = false;
@@ -2878,7 +2878,7 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
     }
     else if (!jump_commands && do_nothing() && local)
         if (Pos.x<-map->map_w_d || Pos.x>map->map_w_d || Pos.z<-map->map_h_d || Pos.z>map->map_h_d) {
-            VECTOR target = Pos;
+            VECTOR3D target = Pos;
             if (target.x < -map->map_w_d+256)
                 target.x = -map->map_w_d+256;
             else if (target.x > map->map_w_d-256)
@@ -3029,12 +3029,13 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
                             UNIT *target_unit = (weapon[i].state & WEAPON_FLAG_WEAPON ) == WEAPON_FLAG_WEAPON ? NULL : (UNIT*) weapon[i].target;
                             WEAPON *target_weapon = (weapon[i].state & WEAPON_FLAG_WEAPON ) == WEAPON_FLAG_WEAPON ? (WEAPON*) weapon[i].target : NULL;
 
-                            VECTOR target = target_unit==NULL ? (target_weapon==NULL ? weapon[i].target_pos-Pos : target_weapon->Pos-Pos) : target_unit->Pos-Pos;
+                            VECTOR3D target = target_unit==NULL ? (target_weapon==NULL ? weapon[i].target_pos-Pos : target_weapon->Pos-Pos) : target_unit->Pos-Pos;
                             float dist = target.sq();
                             int maxdist = 0;
                             int mindist = 0;
 
-                            if (unit_manager.unit_type[type_id].attackrunlength>0) {
+                            if (unit_manager.unit_type[type_id].attackrunlength>0)
+                            {
                                 if (target % V < 0.0f ) {
                                     weapon[i].state = WEAPON_FLAG_IDLE;
                                     weapon[i].data = -1;
@@ -3047,13 +3048,14 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
                             else
                                 maxdist = unit_manager.unit_type[type_id].weapon[ i ]->range>>1;
 
-                            if (dist > maxdist * maxdist || dist < mindist * mindist )	{
+                            if (dist > maxdist * maxdist || dist < mindist * mindist )
+                            {
                                 weapon[i].state = WEAPON_FLAG_IDLE;
                                 weapon[i].data = -1;
                                 break;	// We're too far from the target
                             }
 
-                            VECTOR target_translation;
+                            VECTOR3D target_translation;
                             if (target_unit != NULL )
                                 target_translation = ( target.norm() / unit_manager.unit_type[type_id].weapon[ i ]->weaponvelocity) * (target_unit->V - V);
 
@@ -3066,7 +3068,7 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
                                     start_piece=0;
                                 compute_model_coord();
 
-                                VECTOR target_pos_on_unit;						// Read the target piece on the target unit so we better know where to aim
+                                VECTOR3D target_pos_on_unit;						// Read the target piece on the target unit so we better know where to aim
                                 target_pos_on_unit.x = target_pos_on_unit.y = target_pos_on_unit.z = 0.0f;
                                 if (target_unit != NULL )
                                 {
@@ -3085,7 +3087,7 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
                                     target = target + target_pos_on_unit;
                                 dist = target.norm();
                                 target=(1.0f/dist)*target;
-                                VECTOR I,J,IJ,RT;
+                                VECTOR3D I,J,IJ,RT;
                                 I.x=0.0f;	I.z=1.0f;	I.y=0.0f;
                                 J.x=1.0f;	J.z=0.0f;	J.y=0.0f;
                                 IJ.x=0.0f;	IJ.z=0.0f;	IJ.y=1.0f;
@@ -3098,8 +3100,9 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
                                 if (angle<-180.0f)	angle+=360.0f;
                                 else if (angle>180.0f)	angle-=360.0f;
                                 int aiming[]={ (int)(angle*DEG2TA), -4096 };
-                                if (unit_manager.unit_type[type_id].weapon[ i ]->ballistic) {		// Calculs de ballistique / ballistic calculations
-                                    VECTOR D=target_unit==NULL ? ( target_weapon == NULL ? Pos + data.pos[start_piece] - weapon[i].target_pos : (Pos+data.pos[start_piece]-target_weapon->Pos) ) : (Pos+data.pos[start_piece]-target_unit->Pos-target_pos_on_unit);
+                                if (unit_manager.unit_type[type_id].weapon[ i ]->ballistic) // Calculs de ballistique / ballistic calculations
+                                {
+                                    VECTOR3D D=target_unit==NULL ? ( target_weapon == NULL ? Pos + data.pos[start_piece] - weapon[i].target_pos : (Pos+data.pos[start_piece]-target_weapon->Pos) ) : (Pos+data.pos[start_piece]-target_unit->Pos-target_pos_on_unit);
                                     D.y=0.0f;
                                     float v;
                                     if (unit_manager.unit_type[type_id].weapon[ i ]->startvelocity==0.0f)
@@ -3115,8 +3118,9 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
                                     else
                                         aiming[1]=(int)(ballistic_angle(v,map->ota_data.gravity,D.norm(),(Pos+data.pos[start_piece]).y,target_unit->Pos.y+target_unit->model->center.y*0.5f)*DEG2TA);
                                 }
-                                else {
-                                    VECTOR K=target;
+                                else
+                                {
+                                    VECTOR3D K=target;
                                     K.y=0.0f;
                                     K.unit();
                                     angle=acos(K%target)*RAD2DEG;
@@ -3234,7 +3238,7 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
                         if (start_piece>=0 && start_piece<data.nb_piece)
                         {
                             compute_model_coord();
-                            VECTOR Dir = data.dir[start_piece];
+                            VECTOR3D Dir = data.dir[start_piece];
                             if (Dir.x==0.0f && Dir.y==0.0f && Dir.z==0.0f)
                             {
                                 if (unit_manager.unit_type[type_id].weapon[ i ]->vlaunch)
@@ -3311,15 +3315,17 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
                     launch_script(get_script_index(SCRIPT_MoveRate2));
                 was_moving = true;
             }
-            VECTOR J,I,K;
+            VECTOR3D J,I,K;
             K.x = 0.0f;
             K.y = 1.0f;
             K.z = 0.0f;
-            VECTOR Target = mission->target;
+            VECTOR3D Target = mission->target;
             if (mission->path && ( !(mission->flags & MISSION_FLAG_REFRESH_PATH) || last_path_refresh < 5.0f ) )
                 Target = mission->path->Pos;
-            else {														// Look for a path to the target
-                if (mission->path ) {		// If we want to refresh the path
+            else
+            {// Look for a path to the target
+                if (mission->path)// If we want to refresh the path
+                {
                     Target = mission->target;//mission->path->Pos;
                     destroy_path( mission->path );
                     mission->path = NULL;
@@ -3342,8 +3348,9 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
                         {
                             if (mission->move_data<=0)
                                 mission->path = direct_path(mission->target);
-                            else {
-                                VECTOR Dir = mission->target-Pos;
+                            else
+                            {
+                                VECTOR3D Dir = mission->target-Pos;
                                 Dir.unit();
                                 mission->path = direct_path(mission->target-(mission->move_data<<3)*Dir);
                             }
@@ -3529,7 +3536,7 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
                         {
                             if (Pos.x<-map->map_w_d || Pos.x>map->map_w_d || Pos.z<-map->map_h_d || Pos.z>map->map_h_d)
                             {
-                                VECTOR target = Pos;
+                                VECTOR3D target = Pos;
                                 if (target.x < -map->map_w_d+256)
                                     target.x = -map->map_w_d+256;
                                 else if (target.x > map->map_w_d-256)
@@ -3541,18 +3548,20 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
                                 next_mission();
                                 add_mission(MISSION_MOVE | MISSION_FLAG_AUTO,&target,true,0,NULL,NULL,0,1);		// Stay on map
                             }
-                            else if (!can_be_there( cur_px, cur_py, map, type_id, owner_id, idx )) {
-                                NPos = Pos;
-                                n_px = cur_px;
-                                n_py = cur_py;
-                                VECTOR target = Pos;
-                                target.x += (rand_from_table()&0x1F)-16;		// Look for a place to land
-                                target.z += (rand_from_table()&0x1F)-16;
-                                mission->flags |= MISSION_FLAG_MOVE;
-                                if (mission->path )
-                                    destroy_path(mission->path);
-                                mission->path = direct_path( target );
-                            }
+                            else
+                                if (!can_be_there( cur_px, cur_py, map, type_id, owner_id, idx ))
+                                {
+                                    NPos = Pos;
+                                    n_px = cur_px;
+                                    n_py = cur_py;
+                                    VECTOR3D target = Pos;
+                                    target.x += (rand_from_table()&0x1F)-16;		// Look for a place to land
+                                    target.z += (rand_from_table()&0x1F)-16;
+                                    mission->flags |= MISSION_FLAG_MOVE;
+                                    if (mission->path )
+                                        destroy_path(mission->path);
+                                    mission->path = direct_path( target );
+                                }
                         }
                     }
                     else if (!(flags & 64) && unit_manager.unit_type[type_id].canfly && ( mission == NULL ||
@@ -3634,7 +3643,7 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
                     int piece_id = mission->data >= 0 ? mission->data : (-mission->data - 1);
                     mission->target = target_unit->Pos + target_unit->data.pos[ piece_id ];
 
-                    VECTOR Dir = mission->target - Pos;
+                    VECTOR3D Dir = mission->target - Pos;
                     Dir.y = 0.0f;
                     float dist = Dir.sq();
                     int maxdist = 6;
@@ -3727,8 +3736,9 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
                 }
                 break;
             case MISSION_UNLOAD:
-                if (nb_attached > 0 ) {
-                    VECTOR Dir = mission->target-Pos;
+                if (nb_attached > 0 )
+                {
+                    VECTOR3D Dir = mission->target-Pos;
                     Dir.y=0.0f;
                     float dist = Dir.sq();
                     int maxdist=0;
@@ -3741,9 +3751,12 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
                         mission->flags |= MISSION_FLAG_MOVE;
                         mission->move_data = maxdist*8/80;
                     }
-                    else if (!(mission->flags & MISSION_FLAG_MOVE) ) {
-                        if (mission->last_d>=0.0f) {
-                            if (unit_manager.unit_type[type_id].TransMaxUnits==1) {		// Code for units like the arm atlas
+                    else if (!(mission->flags & MISSION_FLAG_MOVE) )
+                    {
+                        if (mission->last_d>=0.0f)
+                        {
+                            if (unit_manager.unit_type[type_id].TransMaxUnits==1)// Code for units like the arm atlas
+                            {
                                 if (attached_list[0] >= 0 && attached_list[0] < units.max_unit				// Check we can do that
                                     && units.unit[ attached_list[0] ].flags && can_be_built( Pos, map, units.unit[ attached_list[0] ].type_id, owner_id ) ) {
                                     launch_script(get_script_index(SCRIPT_EndTransport));
@@ -3791,7 +3804,7 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
                         next_mission();
                         break;
                     }
-                    VECTOR Dir=target_unit->Pos-Pos;
+                    VECTOR3D Dir=target_unit->Pos-Pos;
                     Dir.y=0.0f;
                     mission->target=target_unit->Pos;
                     float dist = Dir.sq();
@@ -3857,7 +3870,7 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
                                 mission->data = Math::Min(unit_manager.unit_type[target_unit->type_id].BuildCostMetal * 100, 10000);
                             }
                         }
-                        VECTOR Dir=target_unit->Pos-Pos;
+                        VECTOR3D Dir=target_unit->Pos-Pos;
                         Dir.y=0.0f;
                         mission->target=target_unit->Pos;
                         float dist=Dir.sq();
@@ -3949,7 +3962,7 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
                     }
                     bool feature_locked = true;
 
-                    VECTOR Dir=features.feature[mission->data].Pos-Pos;
+                    VECTOR3D Dir=features.feature[mission->data].Pos-Pos;
                     Dir.y=0.0f;
                     mission->target=features.feature[mission->data].Pos;
                     float dist=Dir.sq();
@@ -3998,7 +4011,7 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
                                     wreckage_name = wreckage_name.substr( 0, wreckage_name.length() - 5 );		// Remove the _dead/_heap suffix
 
                                     int wreckage_type_id = unit_manager.get_unit_index( wreckage_name.c_str() );
-                                    VECTOR obj_pos = features.feature[mission->data].Pos;
+                                    VECTOR3D obj_pos = features.feature[mission->data].Pos;
                                     float obj_angle = features.feature[mission->data].angle;
                                     features.unlock();
                                     feature_locked = false;
@@ -4073,7 +4086,7 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
                             break;
                         }
                     }
-                    if (((VECTOR)(Pos-((UNIT*)mission->p)->Pos)).sq()>=25600.0f) {			// On reste assez près
+                    if (((VECTOR3D)(Pos-((UNIT*)mission->p)->Pos)).sq()>=25600.0f) {			// On reste assez près
                         mission->flags |= MISSION_FLAG_MOVE;// | MISSION_FLAG_REFRESH_PATH;
                         mission->move_data = 10;
                         mission->target = ((UNIT*)mission->p)->Pos;
@@ -4116,7 +4129,7 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
                                 for (std::list<uint16>::iterator i = units.repair_pads[owner_id].begin(); i != units.repair_pads[owner_id].end(); ++i)
                                 {
                                     units.unit[ *i ].lock();
-                                    VECTOR Dir = units.unit[ *i ].Pos - Pos;
+                                    VECTOR3D Dir = units.unit[ *i ].Pos - Pos;
                                     Dir.y = 0.0f;
                                     if ((units.unit[ *i ].pad1 == 0xFFFF || units.unit[ *i ].pad2 == 0xFFFF) && units.unit[ *i ].build_percent_left == 0.0f
                                         && Dir.sq() <= SQUARE(unit_manager.unit_type[ type_id ].ManeuverLeashLength)) // He can repair us :)
@@ -4215,7 +4228,7 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
                             && !unit_manager.unit_type[type_id].kamikaze ) {		// Check if this units has weapons
                             next_mission();		break;	}
 
-                        VECTOR Dir = target_unit==NULL ? (target_weapon == NULL ? mission->target-Pos : target_weapon->Pos-Pos) : target_unit->Pos-Pos;
+                        VECTOR3D Dir = target_unit==NULL ? (target_weapon == NULL ? mission->target-Pos : target_weapon->Pos-Pos) : target_unit->Pos-Pos;
                         Dir.y = 0.0f;
                         if (target_weapon || target_unit )
                             mission->target = target_unit==NULL ? target_weapon->Pos : target_unit->Pos;
@@ -4343,8 +4356,9 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
                                 target_unit->hp=unit_manager.unit_type[target_unit->type_id].MaxDamage;
                             next_mission();
                         }
-                        else {
-                            VECTOR Dir=target_unit->Pos-Pos;
+                        else
+                        {
+                            VECTOR3D Dir=target_unit->Pos-Pos;
                             Dir.y=0.0f;
                             mission->target=target_unit->Pos;
                             float dist=Dir.sq();
@@ -4387,7 +4401,7 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
                         }
                     }
                     else if (target_unit!=NULL && target_unit->flags) {
-                        VECTOR Dir=target_unit->Pos-Pos;
+                        VECTOR3D Dir=target_unit->Pos-Pos;
                         Dir.y=0.0f;
                         mission->target=target_unit->Pos;
                         float dist=Dir.sq();
@@ -4428,13 +4442,14 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
                             if (unit_manager.unit_type[target_unit->type_id].init_cloaked )				// Start cloaked
                                 target_unit->cloaking = true;
                             if (!unit_manager.unit_type[type_id].BMcode) {		// Ordre de se déplacer
-                                VECTOR target=Pos;
+                                VECTOR3D target=Pos;
                                 target.z+=128.0f;
                                 target_unit->set_mission(MISSION_MOVE | MISSION_FLAG_AUTO,&target,false,5,true,NULL,NULL,0,5);		// Fait sortir l'unité du bâtiment
                                 MISSION *target_mission = target_unit->mission;
                                 while( target_mission->next != NULL )	target_mission = target_mission->next;
                                 MISSION *cur = def_mission;
-                                while( cur ) {							// Copy mission list
+                                while (cur)// Copy mission list
+                                {
                                     target_mission->next = (MISSION*) malloc(sizeof(MISSION));
                                     target_mission = target_mission->next;
                                     *target_mission = *cur;
@@ -4464,13 +4479,13 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
                                 int script_id_buildinfo = get_script_index(SCRIPT_QueryBuildInfo);
                                 if (script_id_buildinfo>=0) {
                                     compute_model_coord();
-                                    VECTOR old_pos = target_unit->Pos;
+                                    VECTOR3D old_pos = target_unit->Pos;
                                     if (script_val->size() <= script_id_buildinfo )
                                         script_val->resize( script_id_buildinfo + 1 );
                                     target_unit->Pos=Pos+data.pos[(*script_val)[script_id_buildinfo]];
                                     if (unit_manager.unit_type[ target_unit->type_id ].Floater || ( unit_manager.unit_type[ target_unit->type_id ].canhover && old_pos.y <= map->sealvl ) )
                                         target_unit->Pos.y = old_pos.y;
-                                    if (((VECTOR)(old_pos-target_unit->Pos)).sq() > 1000000.0f) {			// It must be continuous
+                                    if (((VECTOR3D)(old_pos-target_unit->Pos)).sq() > 1000000.0f) {			// It must be continuous
                                         target_unit->Pos.x = old_pos.x;
                                         target_unit->Pos.z = old_pos.z;
                                     }
@@ -4499,8 +4514,9 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
                 }
                 break;
             case MISSION_BUILD:
-                if (mission->p) {
-                    VECTOR Dir = mission->target - Pos;
+                if (mission->p)
+                {
+                    VECTOR3D Dir = mission->target - Pos;
                     Dir.y = 0.0f;
                     int angle = (int)( acos( Dir.z / Dir.norm() ) * RAD2DEG );
                     if (Dir.x < 0.0f )
@@ -4514,8 +4530,9 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
                     ((UNIT*)(mission->p))->built = true;
                     play_sound( "build" );
                 }
-                else {
-                    VECTOR Dir = mission->target - Pos;
+                else
+                {
+                    VECTOR3D Dir = mission->target - Pos;
                     Dir.y = 0.0f;
                     float dist = Dir.sq();
                     int maxdist = (int)(unit_manager.unit_type[type_id].BuildDistance
@@ -4661,10 +4678,10 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
                 if (unit_manager.unit_type[type_id].canfly && !unit_manager.unit_type[type_id].hoverattack ) {			// Un avion??
                     activate();
                     mission->flags &= ~MISSION_FLAG_MOVE;			// We're doing it here, so no need to do it twice
-                    VECTOR J,I,K;
+                    VECTOR3D J,I,K;
                     K.x=K.z=0.0f;
                     K.y=1.0f;
-                    VECTOR Target = mission->target;
+                    VECTOR3D Target = mission->target;
                     J = Target-Pos;
                     J.y = 0.0f;
                     float dist = J.norm();
@@ -4689,14 +4706,16 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
                         V=V+unit_manager.unit_type[type_id].Acceleration*dt*J;
                 }
                 break;
-        };
+        }
 
-        if (( (mission->flags & MISSION_FLAG_MOVE) || !local ) && !jump_commands ) {		// Set unit orientation if it's on the ground
+        if (( (mission->flags & MISSION_FLAG_MOVE) || !local ) && !jump_commands )// Set unit orientation if it's on the ground
+        {
             if (!unit_manager.unit_type[type_id].canfly && !unit_manager.unit_type[type_id].Upright
                && unit_manager.unit_type[type_id].TEDclass!=CLASS_SHIP
                && unit_manager.unit_type[type_id].TEDclass!=CLASS_WATER
-               && !( unit_manager.unit_type[type_id].canhover && Pos.y <= map->sealvl ) ) {
-                VECTOR I,J,K,A,B,C;
+               && !( unit_manager.unit_type[type_id].canhover && Pos.y <= map->sealvl ) )
+            {
+                VECTOR3D I,J,K,A,B,C;
                 MATRIX_4x4 M = RotateY((Angle.y+90.0f)*DEG2RAD);
                 I.x = 4.0f;
                 J.z = 4.0f;
@@ -4707,8 +4726,9 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
                 A.y = map->get_unit_h(A.x,A.z);	// Projete le triangle
                 B.y = map->get_unit_h(B.x,B.z);
                 C.y = map->get_unit_h(C.x,C.z);
-                VECTOR D=(B-A)*(B-C);
-                if (D.y>=0.0f) {					// On ne met pas une unité à l'envers!!
+                VECTOR3D D=(B-A)*(B-C);
+                if (D.y>=0.0f) // On ne met pas une unité à l'envers!!
+                {
                     D.unit();
                     float dist_sq = sqrt( D.y*D.y+D.z*D.z );
                     float angle_1= dist_sq != 0.0f ? acos( D.y / dist_sq )*RAD2DEG : 0.0f;
@@ -4829,8 +4849,8 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
                     if (weapons.weapon[i].weapon_id!=-1 && units.unit[weapons.weapon[i].shooter_idx].owner_id!=owner_id
                        && weapon_manager.weapon[weapons.weapon[i].weapon_id].targetable)
                     {
-                        if (((VECTOR)(weapons.weapon[i].target_pos-Pos)).sq()<=coverage
-                           && ((VECTOR)(weapons.weapon[i].Pos-Pos)).sq()<=range)
+                        if (((VECTOR3D)(weapons.weapon[i].target_pos-Pos)).sq()<=coverage
+                           && ((VECTOR3D)(weapons.weapon[i].Pos-Pos)).sq()<=range)
                         {
                             int idx=-1;
                             for(e=0;e<mem_size;e++)
@@ -4862,12 +4882,12 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
 
     if (unit_manager.unit_type[type_id].canfly ) // Set plane orientation
     {
-        VECTOR J,K;
+        VECTOR3D J,K;
         K.x=K.z=0.0f;
         K.y=1.0f;
         J = V * K;
 
-        VECTOR virtual_G;						// Compute the apparent gravity force ( seen from the plane )
+        VECTOR3D virtual_G;						// Compute the apparent gravity force ( seen from the plane )
         virtual_G.x = virtual_G.z = 0.0f;		// Standard gravity vector
         virtual_G.y = -4.0f * units.g_dt;
         float d = J.sq();
@@ -4921,7 +4941,7 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
         }
 
         Angle = Angle + dt * V_Angle;
-        VECTOR OPos = Pos;
+        VECTOR3D OPos = Pos;
         if (precomputed_position ) {
             if (unit_manager.unit_type[type_id].canmove && unit_manager.unit_type[type_id].BMcode && !flying )
                 V.y-=units.g_dt;			// L'unité subit la force de gravitation
@@ -4939,11 +4959,11 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
         }
         if (units.current_tick - ripple_timer >= 7 && Pos.y <= map->sealvl && Pos.y + model->top >= map->sealvl && (unit_manager.unit_type[type_id].fastCategory & CATEGORY_NOTSUB)
             && cur_px >= 0 && cur_py >= 0 && cur_px < map->bloc_w_db && cur_py < map->bloc_h_db && !map->map_data[ cur_py ][ cur_px ].lava && map->water ) {
-            VECTOR Diff = OPos - Pos;
+            VECTOR3D Diff = OPos - Pos;
             Diff.y = 0.0f;
             if (Diff.sq() > 0.1f && lp_CONFIG->waves ) {
                 ripple_timer = units.current_tick;
-                VECTOR ripple_pos = Pos;
+                VECTOR3D ripple_pos = Pos;
                 ripple_pos.y = map->sealvl + 1.0f;
                 fx_manager.addRipple( ripple_pos, ( (rand_from_table() % 201) - 100 ) * 0.0001f );
             }
@@ -4996,7 +5016,7 @@ script_exec:
                 }
                 else {				// There is someone there, find an other place to land
                     flying = true;
-                    VECTOR next_target = Pos;
+                    VECTOR3D next_target = Pos;
                     float find_angle = (rand_from_table() % 360) * DEG2RAD;
                     next_target.x += cos( find_angle ) * (32.0f + unit_manager.unit_type[type_id].FootprintX * 8.0f);
                     next_target.z += sin( find_angle ) * (32.0f + unit_manager.unit_type[type_id].FootprintZ * 8.0f);
@@ -5042,19 +5062,22 @@ script_exec:
     return 0;
 }
 
-bool UNIT::hit(VECTOR P,VECTOR Dir,VECTOR *hit_vec, float length)
+bool UNIT::hit(VECTOR3D P,VECTOR3D Dir,VECTOR3D* hit_vec, float length)
 {
     pMutex.lock();
-    if (!(flags&1))	{
+    if (!(flags&1))
+    {
         pMutex.unlock();
         return false;
     }
-    if (model) {
-        VECTOR c_dir=model->center+Pos-P;
-        if (c_dir.norm()-length <=model->size2 ) {
+    if (model)
+    {
+        VECTOR3D c_dir=model->center+Pos-P;
+        if (c_dir.norm()-length <=model->size2 )
+        {
             float scale=unit_manager.unit_type[type_id].Scale;
             MATRIX_4x4 M=RotateX(-Angle.x*DEG2RAD)*RotateZ(-Angle.z*DEG2RAD)*RotateY(-Angle.y*DEG2RAD)*Scale(1.0f/scale);
-            VECTOR RP=(P-Pos) * M;
+            VECTOR3D RP=(P-Pos) * M;
             bool is_hit=model->hit(RP,Dir,&data,hit_vec,M);
             if (is_hit) {
                 *hit_vec=(*hit_vec)*(RotateY(Angle.y*DEG2RAD)*RotateZ(Angle.z*DEG2RAD)*RotateX(Angle.x*DEG2RAD)*Scale(scale))+Pos;
@@ -5069,19 +5092,20 @@ bool UNIT::hit(VECTOR P,VECTOR Dir,VECTOR *hit_vec, float length)
     return false;
 }
 
-bool UNIT::hit_fast(VECTOR P,VECTOR Dir,VECTOR *hit_vec, float length)
+bool UNIT::hit_fast(VECTOR3D P,VECTOR3D Dir,VECTOR3D* hit_vec, float length)
 {
     pMutex.lock();
     if (!(flags&1))	{
         pMutex.unlock();
         return false;
     }
-    if (model) {
-        VECTOR c_dir = model->center+Pos-P;
+    if (model)
+    {
+        VECTOR3D c_dir = model->center+Pos-P;
         if (c_dir.sq() <= ( model->size2 + length ) * ( model->size2 + length ) ) {
             float scale=unit_manager.unit_type[type_id].Scale;
             MATRIX_4x4 M = RotateX(-Angle.x*DEG2RAD)*RotateZ(-Angle.z*DEG2RAD)*RotateY(-Angle.y*DEG2RAD)*Scale(1.0f/scale);
-            VECTOR RP = (P - Pos) * M;
+            VECTOR3D RP = (P - Pos) * M;
             bool is_hit = model->hit_fast(RP,Dir,&data,hit_vec,M);
             if (is_hit) {
                 *hit_vec=(*hit_vec)*(RotateY(Angle.y*DEG2RAD)*RotateZ(Angle.z*DEG2RAD)*RotateX(Angle.x*DEG2RAD)*Scale(scale))+Pos;
@@ -5124,12 +5148,12 @@ void UNIT::show_orders(bool only_build_commands, bool def_orders)				// Dessine 
         glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
         glColor4f(1.0f,1.0f,1.0f,1.0f);
     }
-    VECTOR p_target=Pos;
-    VECTOR n_target=Pos;
+    VECTOR3D p_target=Pos;
+    VECTOR3D n_target=Pos;
     float rab=(msec_timer%1000)*0.001f;
     uint32	remaining_build_commands = !(unit_manager.unit_type[ type_id ].BMcode) ? 0 : 0xFFFFFFF;
 
-    std::list< VECTOR >	points;
+    std::list<VECTOR3D>	points;
 
     while(cur)
     {
@@ -5146,7 +5170,7 @@ void UNIT::show_orders(bool only_build_commands, bool def_orders)				// Dessine 
             float sx=0.5f*(cursor.anm[CURSOR_CROSS_LINK].bmp[curseur]->w-1);
             float sy=0.5f*(cursor.anm[CURSOR_CROSS_LINK].bmp[curseur]->h-1);
             float x,y,z;
-            float dist=((VECTOR)(cur->target-p_target)).norm();
+            float dist=((VECTOR3D)(cur->target-p_target)).norm();
             int rec=(int)(dist/30.0f);
             switch(cur->mission)
             {
@@ -5175,14 +5199,14 @@ void UNIT::show_orders(bool only_build_commands, bool def_orders)				// Dessine 
                             glDisable(GL_DEPTH_TEST);
                             glColor4ub( 0xFF, 0xFF, 0xFF, 0x7F );
                             glBegin( GL_QUADS );
-                            VECTOR D = n_target - p_target;
+                            VECTOR3D D = n_target - p_target;
                             D.y = D.x;
                             D.x = D.z;
                             D.z = -D.y;
                             D.y = 0.0f;
                             D.unit();
                             D = 5.0f * D;
-                            VECTOR P;
+                            VECTOR3D P;
                             P = p_target - D;	glVertex3fv( (GLfloat*)&P );
                             P = p_target + D;	glVertex3fv( (GLfloat*)&P );
                             P = n_target + D;	glVertex3fv( (GLfloat*)&P );
@@ -5201,7 +5225,7 @@ void UNIT::show_orders(bool only_build_commands, bool def_orders)				// Dessine 
                                 y+=0.75f;
                                 x-=dx;
                                 z-=dz;
-                                points.push_back( VECTOR( x, y, z ) );
+                                points.push_back( VECTOR3D( x, y, z ) );
                             }
                         }
                     }
@@ -5360,11 +5384,11 @@ void UNIT::show_orders(bool only_build_commands, bool def_orders)				// Dessine 
         float sx=0.5f*(cursor.anm[CURSOR_CROSS_LINK].bmp[curseur]->w-1);
         float sy=0.5f*(cursor.anm[CURSOR_CROSS_LINK].bmp[curseur]->h-1);
 
-        VECTOR *P = new VECTOR[ points.size() << 2 ];
+        VECTOR3D *P = new VECTOR3D[ points.size() << 2 ];
         float *T = new float[ points.size() << 3 ];
 
         int n = 0;
-        for (std::list<VECTOR>::const_iterator i = points.begin(); i != points.end(); ++i)
+        for (std::list<VECTOR3D>::const_iterator i = points.begin(); i != points.end(); ++i)
         {
             P[n] = *i;
             T[n<<1] = 0.0f;		T[(n<<1)+1] = 0.0f;
@@ -5454,7 +5478,7 @@ void INGAME_UNITS::destroy(bool delete_interface)
 }
 
 
-void INGAME_UNITS::give_order_move(int player_id,VECTOR target,bool set,byte flags)
+void INGAME_UNITS::give_order_move(int player_id,VECTOR3D target,bool set,byte flags)
 {
     pMutex.lock();
 
@@ -5475,7 +5499,7 @@ void INGAME_UNITS::give_order_move(int player_id,VECTOR target,bool set,byte fla
 }
 
 
-void INGAME_UNITS::give_order_patrol(int player_id, VECTOR target, bool set)
+void INGAME_UNITS::give_order_patrol(int player_id, VECTOR3D target, bool set)
 {
     pMutex.lock();
     for (uint16 e = 0; e < index_list_size; ++e)
@@ -5515,7 +5539,7 @@ void INGAME_UNITS::give_order_guard(int player_id,int target,bool set)
 }
 
 
-void INGAME_UNITS::give_order_unload(int player_id,VECTOR target,bool set)
+void INGAME_UNITS::give_order_unload(int player_id,VECTOR3D target,bool set)
 {
     pMutex.lock();
     for (uint16 e = 0; e < index_list_size; ++e)
@@ -5576,7 +5600,7 @@ void INGAME_UNITS::give_order_load(int player_id,int target,bool set)
 
 
 
-void INGAME_UNITS::give_order_build(int player_id,int unit_type_id,VECTOR target,bool set)
+void INGAME_UNITS::give_order_build(int player_id,int unit_type_id,VECTOR3D target,bool set)
 {
     if (unit_type_id < 0)
         return;
@@ -5682,7 +5706,7 @@ bool INGAME_UNITS::select(Camera *cam,int sel_x[],int sel_y[])
 
     MATRIX_4x4 T(ModelView * Project); // Matrice de transformation
 
-    VECTOR UPos,O;
+    VECTOR3D UPos,O;
     O.x=O.y=O.z=0.0f;
     int X1,Y1,X2,Y2;
     X1 = Math::Min(sel_x[0],sel_x[1]);
@@ -5712,7 +5736,7 @@ bool INGAME_UNITS::select(Camera *cam,int sel_x[],int sel_y[])
             if (!TA3D_SHIFT_PRESSED )
                 unit[i].sel = false;
 
-            VECTOR Vec=unit[i].Pos-cam->pos;
+            VECTOR3D Vec=unit[i].Pos-cam->pos;
             float d=Vec.sq();
             if (d > 16384.0f && (Vec%cam->dir) <= 0.0f)
             {
@@ -5747,7 +5771,7 @@ int INGAME_UNITS::pick(Camera *cam,int sensibility)
     if (last_on != -1)
         return last_on;		
 
-    VECTOR Dir;
+    VECTOR3D Dir;
     Dir = cam->dir + cam->widthFactor * 2.0f * (mouse_x-gfx->SCREEN_W_HALF) * gfx->SCREEN_W_INV
         * cam->side-1.5f * (mouse_y-gfx->SCREEN_H_HALF)
         * gfx->SCREEN_H_INV * cam->up;
@@ -5770,7 +5794,7 @@ int INGAME_UNITS::pick(Camera *cam,int sensibility)
             continue;		// Si l'unité n'existe pas on la zappe
         }
         unit[i].flags &= 0xFD;	// Enlève l'indicateur de possibilité d'intersection
-        VECTOR center=unit[i].model->center+unit[i].Pos-cam->pos;
+        VECTOR3D center=unit[i].model->center+unit[i].Pos-cam->pos;
         float size=unit[i].model->size*unit_manager.unit_type[unit[i].type_id].Scale*unit_manager.unit_type[unit[i].type_id].Scale;
         center=Dir*center;
         float dist=center.sq();
@@ -5808,7 +5832,7 @@ int INGAME_UNITS::pick(Camera *cam,int sensibility)
         if ((unit[i].flags&0x2)==0x2) // Si l'unité existe et est sélectionnable
         {
             unit[i].flags&=0xFD;
-            VECTOR D;
+            VECTOR3D D;
             if (unit[i].hit( cam->pos, Dir, &D, 1000000.0f ) ) // Vecteur "viseur unité" partant de la caméra vers l'unité
             {
                 float dist = (D-cam->pos).sq();
@@ -5901,11 +5925,11 @@ int INGAME_UNITS::pick_minimap()
     return index;
 }
 
-int UNIT::shoot(int target,VECTOR startpos,VECTOR Dir,int w_id,const VECTOR &target_pos)
+int UNIT::shoot(int target,VECTOR3D startpos,VECTOR3D Dir,int w_id,const VECTOR3D &target_pos)
 {
     if (get_script_index( SCRIPT_RockUnit ) >= 0 ) // Don't do calculations that won't be used
     {
-        VECTOR D = Dir * RotateY( -Angle.y * DEG2RAD );
+        VECTOR3D D = Dir * RotateY( -Angle.y * DEG2RAD );
         int param[] = { (int)(-10.0f*DEG2TA*D.z), (int)(-10.0f*DEG2TA*D.x) };
         launch_script( get_script_index( SCRIPT_RockUnit ), 2, param );
     }
@@ -6151,7 +6175,7 @@ int UNIT::launch_script(int id,int nb_param,int *param,bool force)			// Start a 
     return nb_running++;
 }
 
-void *create_unit( int type_id, int owner, VECTOR pos, MAP *map, bool sync, bool script )
+void *create_unit( int type_id, int owner, VECTOR3D pos, MAP *map, bool sync, bool script )
 {
     int id = units.create(type_id,owner);
     if (id>=0)
@@ -6262,7 +6286,7 @@ bool can_be_there( const int px, const int py, MAP *map, const int unit_type_id,
     return true;
 }
 
-bool can_be_built(const VECTOR Pos,MAP *map,const int unit_type_id, const int player_id )
+bool can_be_built(const VECTOR3D& Pos, MAP *map,const int unit_type_id, const int player_id )
 {
     if (unit_type_id<0 || unit_type_id>=unit_manager.nb_unit || !map)
         return false;
@@ -7104,7 +7128,7 @@ void INGAME_UNITS::draw(Camera *cam,MAP *map,bool underwater,bool limit,bool cul
 
 
 
-void INGAME_UNITS::draw_shadow(Camera* cam, const VECTOR& Dir, MAP* map, float alpha)	// Dessine les ombres des unités visibles
+void INGAME_UNITS::draw_shadow(Camera* cam, const VECTOR3D& Dir, MAP* map, float alpha)	// Dessine les ombres des unités visibles
 {
     if (nb_unit<=0 || unit==NULL) // Pas d'unités à dessiner
         return;
@@ -7175,7 +7199,7 @@ void INGAME_UNITS::draw_shadow(Camera* cam, const VECTOR& Dir, MAP* map, float a
     glEnable(GL_BLEND);
     glColor4f(0.0f,0.0f,0.0f,alpha);
     glBegin(GL_QUADS);
-    VECTOR P = cam->rpos + cam->shakeVector + 1.1f*( cam->dir + 0.75f * cam->up - cam->widthFactor * cam->side );
+    VECTOR3D P = cam->rpos + cam->shakeVector + 1.1f*( cam->dir + 0.75f * cam->up - cam->widthFactor * cam->side );
     glVertex3fv( (const GLfloat*) &P );
     P = cam->rpos + cam->shakeVector + 1.1f * ( cam->dir + 0.75f * cam->up + cam->widthFactor * cam->side );
     glVertex3fv( (const GLfloat*) &P );
@@ -7192,7 +7216,7 @@ void INGAME_UNITS::draw_shadow(Camera* cam, const VECTOR& Dir, MAP* map, float a
     gfx->unlock();
 }
 
-void INGAME_UNITS::remove_order(int player_id,VECTOR target)
+void INGAME_UNITS::remove_order(int player_id,VECTOR3D target)
 {
     pMutex.lock();
     for(uint16 e=0;e<index_list_size;e++)

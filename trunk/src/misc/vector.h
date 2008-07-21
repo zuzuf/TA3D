@@ -16,8 +16,8 @@
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA*/
 
 
-#ifndef CLASS_VECTOR
-# define CLASS_VECTOR
+#ifndef __TA3D_XX_MISC_VECTOR_H__
+# define __TA3D_XX_MISC_VECTOR_H__
 
 # include <math.h>
 # include <allegro.h>
@@ -156,8 +156,6 @@ public:
 }; // class VECTOR3D
 
 
-typedef VECTOR3D VECTOR;
-
 
 
 //! \name Operators for Vectors
@@ -205,10 +203,11 @@ inline const float operator % (const VECTOR3D& lhs, const VECTOR3D& rhs)
   |              Retourne l'angle en radians entre deux vecteurs
   \-------------------------------------*/
 
-inline double VAngle(const VECTOR& A, const VECTOR& B)
+inline double VAngle(const VECTOR3D& A, const VECTOR3D& B)
 {
     float a = sqrt(A.sq() * B.sq());
     return (a == 0.0f) ? 0.0f : acos((A % B) / a );
 }
 
-#endif
+
+#endif // __TA3D_XX_MISC_VECTOR_H__

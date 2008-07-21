@@ -149,13 +149,15 @@ MODEL *load_3ds( const String &filename, float scale )
 {
 	FILE *src_3ds = fopen( filename.c_str(), "rb" );
 	MODEL *model_3ds = new MODEL;
-	if( src_3ds ) {
+	if (src_3ds)
+    {
 		TA3D_3DS_CHUNK_DATA	chunk;
 		OBJECT *cur_obj = NULL;
 		OBJECT *read_obj = NULL;
 		TA3D_3DS_MATERIAL	*material = NULL;
-		VECTOR local[4];
-		while( fread( &chunk.ID, sizeof( chunk.ID ), 1, src_3ds ) ) {
+		VECTOR3D local[4];
+		while( fread( &chunk.ID, sizeof( chunk.ID ), 1, src_3ds ) )
+        {
 			if( fread( &chunk.length, sizeof( chunk.length ), 1, src_3ds ) == 0 )	break;
 			switch( chunk.ID )
 			{
@@ -336,16 +338,18 @@ MODEL *load_3ds( const String &filename, float scale )
 							case TRI_VERTEXL:
 //								printf("----TRI_VERTEXL (%d,%d)\n", chunk.ID, chunk.length);
 								fread( &read_obj->nb_vtx, 2, 1, src_3ds );
-								read_obj->points = (VECTOR *) malloc( sizeof( VECTOR ) * read_obj->nb_vtx );
-								read_obj->N = (VECTOR *) malloc( sizeof( VECTOR ) * read_obj->nb_vtx );
-								if( read_obj->tcoord == NULL ) {
+								read_obj->points = (VECTOR3D *) malloc( sizeof( VECTOR3D ) * read_obj->nb_vtx );
+								read_obj->N = (VECTOR3D *) malloc( sizeof( VECTOR3D ) * read_obj->nb_vtx );
+								if( read_obj->tcoord == NULL )
+                                {
 									read_obj->tcoord = (float *) malloc( sizeof( float ) * read_obj->nb_vtx * 2 );
-									for( int i = 0 ; i < read_obj->nb_vtx ; i++ ) {
+									for( int i = 0 ; i < read_obj->nb_vtx ; i++ )
+                                    {
 										read_obj->tcoord[ i << 1 ] = 0.0f;
 										read_obj->tcoord[ (i << 1) + 1 ] = 0.0f;
-										}
 									}
-								fread( read_obj->points, sizeof( VECTOR ), read_obj->nb_vtx, src_3ds );
+								}
+								fread( read_obj->points, sizeof( VECTOR3D ), read_obj->nb_vtx, src_3ds );
 								for( int i = 0 ; i < read_obj->nb_vtx ; i++ ) {
 									read_obj->points[ i ] = read_obj->points[ i ].x * local[ 0 ] + read_obj->points[ i ].y * local[ 1 ] + read_obj->points[ i ].z * local[ 2 ] + local[ 3 ];
 									read_obj->points[ i ].x *= scale;
@@ -413,7 +417,7 @@ MODEL *load_3ds( const String &filename, float scale )
 								for( int i = 0 ; i < read_obj->nb_t_index ; i+=3 ) {
 									fread( &(read_obj->t_index[ i ]), 2, 3, src_3ds );
 									if( read_obj->points ) {
-										VECTOR AB,AC;
+										VECTOR3D AB,AC;
 										AB = read_obj->points[ read_obj->t_index[ i + 1 ] ] - read_obj->points[ read_obj->t_index[ i ] ];
 										AC = read_obj->points[ read_obj->t_index[ i + 2 ] ] - read_obj->points[ read_obj->t_index[ i ] ];
 										AB = AB * AC;
@@ -435,10 +439,10 @@ MODEL *load_3ds( const String &filename, float scale )
 								break;
 							case TRI_LOCAL:
 //								printf("----TRI_LOCAL (%d,%d)\n", chunk.ID, chunk.length);
-								fread( &(local[0]), sizeof( VECTOR ), 1, src_3ds );		// X
-								fread( &(local[1]), sizeof( VECTOR ), 1, src_3ds );		// Y
-								fread( &(local[2]), sizeof( VECTOR ), 1, src_3ds );		// Z
-								fread( &(local[3]), sizeof( VECTOR ), 1, src_3ds );		// local origin
+								fread( &(local[0]), sizeof( VECTOR3D ), 1, src_3ds );		// X
+								fread( &(local[1]), sizeof( VECTOR3D ), 1, src_3ds );		// Y
+								fread( &(local[2]), sizeof( VECTOR3D ), 1, src_3ds );		// Z
+								fread( &(local[3]), sizeof( VECTOR3D ), 1, src_3ds );		// local origin
 								break;
 							case TRI_VISIBLE:
 //								printf("----TRI_VISIBLE (%d,%d)\n", chunk.ID, chunk.length);
