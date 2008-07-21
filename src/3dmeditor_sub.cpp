@@ -720,8 +720,9 @@ void obj_maj_normal(int idx)
     OBJECT *cur = obj_table[idx];
     for(int i=0;i<cur->nb_vtx;i++)
         cur->N[i].x=cur->N[i].z=cur->N[i].y=0.0f;
-    for(int i=0;i<cur->nb_t_index;i+=3) {
-        VECTOR AB,AC,Normal;
+    for (int i = 0; i < cur->nb_t_index; i += 3)
+    {
+        VECTOR3D AB,AC,Normal;
         AB = cur->points[cur->t_index[i+1]] - cur->points[cur->t_index[i]];
         AC = cur->points[cur->t_index[i+2]] - cur->points[cur->t_index[i]];
         Normal=AB*AC;	Normal.unit();
@@ -739,19 +740,26 @@ void obj_geo_optimize(int idx,bool notex)
     OBJECT *cur = obj_table[idx];
     int removed=0;
     for(int i=0;i<cur->nb_t_index;i++)				// Remove duplicate points
+    {
         for(int e=0;e<i;e++)
+        {
             if(cur->points[cur->t_index[i]].x==cur->points[cur->t_index[e]].x && cur->points[cur->t_index[i]].y==cur->points[cur->t_index[e]].y && cur->points[cur->t_index[i]].z==cur->points[cur->t_index[e]].z
-               && cur->tcoord[cur->t_index[i]<<1]==cur->tcoord[cur->t_index[e]<<1] && cur->tcoord[(cur->t_index[i]<<1)+1]==cur->tcoord[(cur->t_index[e]<<1)+1]) {
+               && cur->tcoord[cur->t_index[i]<<1]==cur->tcoord[cur->t_index[e]<<1] && cur->tcoord[(cur->t_index[i]<<1)+1]==cur->tcoord[(cur->t_index[e]<<1)+1])
+            {
                 cur->t_index[i]=cur->t_index[e];
-                removed++;
+                ++removed;
                 break;
             }
+        }
+    }
     cur->nb_vtx-=removed;
-    if( notex ) {
-        VECTOR *n_points = (VECTOR*) malloc(sizeof(VECTOR)*cur->nb_vtx);
-        VECTOR *n_N = (VECTOR*) malloc(sizeof(VECTOR)*cur->nb_vtx);
+    if (notex)
+    {
+        VECTOR3D *n_points = (VECTOR3D*) malloc(sizeof(VECTOR3D)*cur->nb_vtx);
+        VECTOR3D *n_N = (VECTOR3D*) malloc(sizeof(VECTOR3D)*cur->nb_vtx);
         int cur_pt=0;
-        for(int i=0;i<cur->nb_t_index;i++) {
+        for (int i = 0; i < cur->nb_t_index; ++i)
+        {
             bool ok=false;
             for(int e=0;e<cur_pt;e++)
                 if(cur->points[cur->t_index[i]].x==n_points[e].x && cur->points[cur->t_index[i]].y==n_points[e].y && cur->points[cur->t_index[i]].z==n_points[e].z ) {
@@ -769,12 +777,14 @@ void obj_geo_optimize(int idx,bool notex)
         cur->points=n_points;
         cur->N=n_N;
     }
-    else {
-        VECTOR *n_points = (VECTOR*) malloc(sizeof(VECTOR)*cur->nb_vtx);
-        VECTOR *n_N = (VECTOR*) malloc(sizeof(VECTOR)*cur->nb_vtx);
+    else
+    {
+        VECTOR3D *n_points = (VECTOR3D*) malloc(sizeof(VECTOR3D)*cur->nb_vtx);
+        VECTOR3D *n_N = (VECTOR3D*) malloc(sizeof(VECTOR3D)*cur->nb_vtx);
         float *n_tcoord = (float*) malloc(sizeof(float)*cur->nb_vtx<<1);
         int cur_pt=0;
-        for(int i=0;i<cur->nb_t_index;i++) {
+        for (int i=0; i < cur->nb_t_index; ++i)
+        {
             bool ok=false;
             for(int e=0;e<cur_pt;e++)
                 if(cur->points[cur->t_index[i]].x==n_points[e].x && cur->points[cur->t_index[i]].y==n_points[e].y && cur->points[cur->t_index[i]].z==n_points[e].z
@@ -803,10 +813,11 @@ void obj_geo_split(int idx)
 {
     if(idx<0 || idx>=nb_obj())	return;
     OBJECT *cur = obj_table[idx];
-    VECTOR *n_points = (VECTOR*) malloc(sizeof(VECTOR)*cur->nb_t_index);
-    VECTOR *n_N = (VECTOR*) malloc(sizeof(VECTOR)*cur->nb_t_index);
+    VECTOR3D *n_points = (VECTOR3D*) malloc(sizeof(VECTOR3D)*cur->nb_t_index);
+    VECTOR3D *n_N = (VECTOR3D*) malloc(sizeof(VECTOR3D)*cur->nb_t_index);
     float *n_tcoord = (float*) malloc(sizeof(float)*cur->nb_t_index<<1);
-    for(int i=0;i<cur->nb_t_index;i++) {
+    for (int i = 0; i < cur->nb_t_index; ++i)
+    {
         n_points[i]=cur->points[cur->t_index[i]];
         n_N[i]=cur->N[cur->t_index[i]];
         n_tcoord[i<<1]=cur->tcoord[cur->t_index[i]<<1];
@@ -822,15 +833,16 @@ void obj_geo_split(int idx)
     cur->nb_vtx=cur->nb_t_index;
 }
 
-int intersect(VECTOR O,VECTOR Dir,OBJECT *obj,VECTOR *PA,VECTOR *PB)	// Calcule l'intersection d'un rayon avec une partie de la meshe
+int intersect(VECTOR3D O,VECTOR3D Dir,OBJECT *obj,VECTOR3D *PA,VECTOR3D *PB)	// Calcule l'intersection d'un rayon avec une partie de la meshe
 {
     float mdist=1000000.0f;			// Distance du point de départ du rayon à l'objet
     int index=-1;					// -1 pour aucun triangle touché
 
     Dir.unit();		// S'assure que Dir est normalisé
-    for(int i=0;i<obj->nb_t_index/3;i++) {			// Effectue l'opération pour chaque triangle
-        VECTOR A,B,C,P;
-        VECTOR AB,AC,N,AO;
+    for (int i = 0; i < obj->nb_t_index / 3; ++i) // Effectue l'opération pour chaque triangle
+    {
+        VECTOR3D A,B,C,P;
+        VECTOR3D AB,AC,N,AO;
         float dist,orient;
 
         A=obj->points[obj->t_index[i*3]];
@@ -858,7 +870,7 @@ int intersect(VECTOR O,VECTOR Dir,OBJECT *obj,VECTOR *PA,VECTOR *PB)	// Calcule 
 
         // Maintenant il faut vérifier que le point appartient bien au triangle
         float a,b,c;		// Coefficients pour que P soit le barycentre de A,B,C
-        VECTOR AP=P-A;
+        VECTOR3D AP(P-A);
         if(AC.y!=0.0f && AB.x*AC.y!=AB.y*AC.x) {
             b=(AP.x-AP.y*AC.x/AC.y)/(AB.x-AB.y*AC.x/AC.y);
             a=(AP.y-b*AB.y)/AC.y;

@@ -33,8 +33,8 @@ namespace TA3D
     void ParticlesSystem::create(const uint16 nb, GLuint gltex)
     {
         nb_particles = nb;
-        pos = new VECTOR[nb];
-        V = new VECTOR[nb];
+        pos = new VECTOR3D[nb];
+        V = new VECTOR3D[nb];
         common_V.x = common_V.y = common_V.z = 0.0f;
         common_pos = common_pos;
         tex = gltex;
@@ -42,7 +42,7 @@ namespace TA3D
     }
 
 
-    void ParticlesSystem::move(const float dt, VECTOR *p_wind_dir, const float g, const float factor, const float factor2)
+    void ParticlesSystem::move(const float dt, VECTOR3D *p_wind_dir, const float g, const float factor, const float factor2)
     {
         LOG_ASSERT(p_wind_dir);
         life -= dt;

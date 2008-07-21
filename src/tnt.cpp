@@ -328,7 +328,7 @@ namespace TA3D
 
         event_timer = msec_timer;
 
-        map->lvl=(VECTOR**) malloc(sizeof(VECTOR*)*map->bloc_w*map->bloc_h);
+        map->lvl=(VECTOR3D**) malloc(sizeof(VECTOR3D*)*map->bloc_w*map->bloc_h);
         for(i=0;i<map->bloc_w*map->bloc_h;i++)
             map->lvl[i]=NULL;
 
@@ -572,7 +572,7 @@ namespace TA3D
                 map->map_data[y][x].stuff = -1;
                 if(type <= header.tileanims)
                 {
-                    VECTOR Pos;
+                    VECTOR3D Pos;
                     Pos.x = (x<<3) - map->map_w_d + 8.0f;
                     Pos.z = (y<<3) - map->map_h_d + 8.0f;
                     if( !feature_manager.feature[TDF_index[type]].m3d )
@@ -594,9 +594,9 @@ namespace TA3D
         map->low_h=map->map_h+32>>6;
         map->low_nb_idx = (2+map->low_w*2)*map->low_h;			// Draw this as GL_TRIANGLE_STRIP
         int low_nb_vtx = (map->low_w+1)*(map->low_h+1);
-        map->low_vtx=(VECTOR*) malloc(sizeof(VECTOR)*low_nb_vtx);
-        VECTOR *tmp_vtx = (VECTOR*) malloc(sizeof(VECTOR)*low_nb_vtx);
-        map->low_vtx_flat=(VECTOR*) malloc(sizeof(VECTOR)*low_nb_vtx);
+        map->low_vtx=(VECTOR3D*) malloc(sizeof(VECTOR3D)*low_nb_vtx);
+        VECTOR3D *tmp_vtx = (VECTOR3D*) malloc(sizeof(VECTOR3D)*low_nb_vtx);
+        map->low_vtx_flat=(VECTOR3D*) malloc(sizeof(VECTOR3D)*low_nb_vtx);
         map->low_col=(uint8*) malloc(low_nb_vtx*4);
         map->low_tcoord=(float*) malloc(sizeof(float)*low_nb_vtx*2);
         map->low_index=(GLuint*) malloc(sizeof(GLuint)*map->low_nb_idx);

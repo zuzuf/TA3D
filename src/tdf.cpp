@@ -619,7 +619,7 @@ namespace TA3D
             if (cam.mirror && ((feature_manager.feature[feature[i].type].height>5.0f && feature_manager.feature[feature[i].type].m3d)			// Perform a small visibility check
                                 || (feature_manager.feature[feature[i].type].m3d && feature_manager.feature[feature[i].type].model!=NULL)) )
             {
-                VECTOR Pos(feature[i].Pos);
+                VECTOR3D Pos(feature[i].Pos);
                 if( feature_manager.feature[feature[i].type].m3d )
                     Pos.y += feature_manager.feature[feature[i].type].model->size2;
                 else
@@ -651,7 +651,7 @@ namespace TA3D
                     glBindTexture(GL_TEXTURE_2D,feature_manager.feature[feature[i].type].anim.glbmp[feature[i].frame]);
                 }
 
-                VECTOR Pos(feature[i].Pos);
+                VECTOR3D Pos(feature[i].Pos);
                 float h  = feature_manager.feature[feature[i].type].height * 0.5f;
                 float dw = 0.5f * feature_manager.feature[feature[i].type].anim.w[feature[i].frame];
 
@@ -757,7 +757,7 @@ namespace TA3D
 
 
 
-    void FEATURES::draw_shadow(Camera& cam, const VECTOR& Dir)
+    void FEATURES::draw_shadow(Camera& cam, const VECTOR3D& Dir)
     {
         if (nb_features <= 0)
             return;
@@ -801,7 +801,7 @@ namespace TA3D
                         glTranslatef(feature[i].Pos.x,feature[i].Pos.y,feature[i].Pos.z);
                         glRotatef( feature[i].angle, 0.0f, 1.0f, 0.0f );
                         glRotatef( feature[i].angle_x, 1.0f, 0.0f, 0.0f );
-                        VECTOR R_Dir = (sqrt(feature_manager.feature[feature[i].type].model->size)*2.0f+feature[i].Pos.y) * Dir * RotateY( -feature[i].angle * DEG2RAD ) * RotateX( -feature[i].angle_x * DEG2RAD );
+                        VECTOR3D R_Dir = (sqrt(feature_manager.feature[feature[i].type].model->size)*2.0f+feature[i].Pos.y) * Dir * RotateY( -feature[i].angle * DEG2RAD ) * RotateX( -feature[i].angle_x * DEG2RAD );
                         if(g_useStencilTwoSide)													// Si l'extension GL_EXT_stencil_two_side est disponible
                             feature_manager.feature[feature[i].type].model->draw_shadow( R_Dir,t,NULL);
                         else
@@ -848,7 +848,7 @@ namespace TA3D
             {
                 if (feature[i].burning && feature[i].dt > 0.3f)
                 {
-                    VECTOR t_mod;
+                    VECTOR3D t_mod;
                     bool random_vector = true;
                     if (feature_manager.feature[feature[i].type].m3d && feature_manager.feature[feature[i].type].model != NULL)
                     {
@@ -930,7 +930,7 @@ namespace TA3D
     {
         pMutex.lock();
 
-        VECTOR wind = 0.1f * *p_wind_dir;
+        VECTOR3D wind = 0.1f * *p_wind_dir;
 
         int wind_x = (int)(2.0f * wind.x + 0.5f);
         int wind_z = (int)(2.0f * wind.z + 0.5f);
@@ -1111,7 +1111,7 @@ namespace TA3D
         list_size = 0;
     }
 
-    int FEATURES::add_feature(const VECTOR& Pos, const int type)
+    int FEATURES::add_feature(const VECTOR3D& Pos, const int type)
     {
         if (type < 0 || type >= feature_manager.nb_features)
             return -1;

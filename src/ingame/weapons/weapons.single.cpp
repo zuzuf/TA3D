@@ -49,9 +49,8 @@ namespace TA3D
         smoke_time+=dt;
         f_time-=dt;
         a_time+=dt;
-        VECTOR A;
-        A.x=A.y=A.z=0.0f;
-        if(weapon_manager.weapon[weapon_id].twophase && phase==1)
+        VECTOR3D A;
+        if (weapon_manager.weapon[weapon_id].twophase && phase == 1)
         {
             if(!dying && a_time>=weapon_manager.weapon[weapon_id].weapontimer) 	// Entre dans la seconde phase
             {
@@ -77,8 +76,8 @@ namespace TA3D
                 particle_engine.make_smoke(Pos,0,1,0.0f,-1.0f, -2.0f, 0.3f);
         }
 
-        VECTOR hit_vec;
-        VECTOR OPos = Pos;
+        VECTOR3D hit_vec;
+        VECTOR3D OPos(Pos);
 
         float h=map->get_unit_h(Pos.x,Pos.z);
         if(dying)
@@ -99,7 +98,7 @@ namespace TA3D
                 float speed = V.norm();
                 if(weapon_manager.weapon[weapon_id].tracks && target>=0)
                 {
-                    VECTOR target_V;
+                    VECTOR3D target_V;
                     if(weapon_manager.weapon[weapon_id].interceptor && target <= weapons.nb_weapon && weapons.weapon[target].weapon_id!=-1)
                     {
                         target_pos = weapons.weapon[target].Pos;
@@ -120,9 +119,9 @@ namespace TA3D
                 }
                 if(target_pos.y<map->sealvl && !weapon_manager.weapon[weapon_id].waterweapon)
                     target_pos.y=map->sealvl;
-                VECTOR Dir=target_pos-Pos;
+                VECTOR3D Dir = target_pos - Pos;
                 Dir.unit();
-                VECTOR I,J,K;			// Crée un trièdre
+                VECTOR3D I,J,K;			// Crée un trièdre
                 I=V;
                 I.unit();
                 J=I*Dir;
@@ -147,7 +146,7 @@ namespace TA3D
             stime+=dt;
         }
 
-        float length = ((VECTOR)(OPos - Pos)).norm();
+        float length = ((VECTOR3D)(OPos - Pos)).norm();
         if(!dying)
         {
             hit_vec = map->hit(Pos,V,!weapon_manager.weapon[weapon_id].waterweapon,length);
@@ -165,7 +164,7 @@ namespace TA3D
         }
 
         if(!dying && weapon_manager.weapon[weapon_id].cruise && ((weapon_manager.weapon[weapon_id].twophase && phase==2) || phase==1))
-            if(((VECTOR)(target_pos-Pos)).norm()>2.0f*fabs(Pos.y-h) && V.y<0.0f)
+            if(((VECTOR3D)(target_pos-Pos)).norm()>2.0f*fabs(Pos.y-h) && V.y<0.0f)
                 V.y=0.0f;
 
         bool hit=false;
@@ -180,7 +179,7 @@ namespace TA3D
             just_explode = false;
         }
 
-        if(weapon_manager.weapon[weapon_id].interceptor && ((VECTOR)(Pos-target_pos)).sq()<1024.0f)
+        if(weapon_manager.weapon[weapon_id].interceptor && ((VECTOR3D)(Pos-target_pos)).sq()<1024.0f)
         {
             hit=true;
             hit_vec=Pos;
@@ -198,7 +197,7 @@ namespace TA3D
             int py=((int)(OPos.z)+map->map_h_d)>>3;
             int px=((int)(OPos.x)+map->map_w_d)>>3;
             int oidx=-1;
-            VECTOR Dir=V;
+            VECTOR3D Dir(V);
             Dir.unit();
             for(int y=-5;y<=5;y++)
                 for(int x=-5;x<=5;x++)
@@ -234,7 +233,7 @@ namespace TA3D
                             continue;
                         if( t_idx >= 0 && t_idx < units.max_unit && ( units.unit[t_idx].owner_id != owner || target == t_idx ) && (units.unit[ t_idx ].flags & 1) ) // No Friendly Fire
                         {
-                            VECTOR t_vec;
+                            VECTOR3D t_vec;
                             t_vec.x = t_vec.y=t_vec.z=0.0f;
                             u_hit = units.unit[t_idx].hit_fast(OPos,Dir,&t_vec, length);
                             if(u_hit)
@@ -293,7 +292,7 @@ namespace TA3D
                     if( network_manager.isConnected() )			// Send damage event
                         g_ta3d_network->sendDamageEvent( hit_idx, damage );
 
-                    VECTOR D = V * RotateY( -units.unit[hit_idx].Angle.y * DEG2RAD );
+                    VECTOR3D D = V * RotateY(-units.unit[hit_idx].Angle.y * DEG2RAD);
                     D.unit();
                     int param[] = { (int)(10.0f*DEG2TA*D.z), (int)(10.0f*DEG2TA*D.x) };
                     units.unit[hit_idx].launch_script(units.unit[hit_idx].get_script_index("hitbyweapon"),2,param,true);
@@ -329,7 +328,7 @@ namespace TA3D
 
                         int sx = features.feature[-hit_idx-2].px;		// Delete the feature
                         int sy = features.feature[-hit_idx-2].py;
-                        VECTOR feature_pos = features.feature[-hit_idx-2].Pos;
+                        VECTOR3D feature_pos = features.feature[-hit_idx-2].Pos;
                         int feature_type = features.feature[-hit_idx-2].type;
                         features.removeFeatureFromMap( -hit_idx-2 );
                         features.delete_feature(-hit_idx-2);			// Supprime l'objet
@@ -420,7 +419,7 @@ namespace TA3D
                             if(t_idx>=0)
                             {
                                 units.unit[t_idx].lock();
-                                if( (units.unit[t_idx].flags & 1) && units.unit[t_idx].local && ((VECTOR)(units.unit[t_idx].Pos-Pos)).sq()<=d) {
+                                if( (units.unit[t_idx].flags & 1) && units.unit[t_idx].local && ((VECTOR3D)(units.unit[t_idx].Pos-Pos)).sq()<=d) {
                                     oidx.push_back( t_idx );
                                     bool ok = units.unit[ t_idx ].hp > 0.0f;
                                     damage = weapon_manager.weapon[weapon_id].get_damage_for_unit( unit_manager.unit_type[ units.unit[ t_idx ].type_id ].Unitname );
@@ -436,7 +435,7 @@ namespace TA3D
                                     if( network_manager.isConnected() )			// Send damage event
                                         g_ta3d_network->sendDamageEvent( t_idx, cur_damage );
 
-                                    VECTOR D = (units.unit[t_idx].Pos - Pos) * RotateY( -units.unit[t_idx].Angle.y * DEG2RAD );
+                                    VECTOR3D D = (units.unit[t_idx].Pos - Pos) * RotateY( -units.unit[t_idx].Angle.y * DEG2RAD );
                                     D.unit();
                                     int param[] = { (int)(10.0f*DEG2TA*D.z), (int)(10.0f*DEG2TA*D.x) };
                                     units.unit[t_idx].launch_script(units.unit[t_idx].get_script_index("hitbyweapon"),2,param,true);
@@ -448,7 +447,7 @@ namespace TA3D
                             else
                             {
                                 features.lock();
-                                if(t_idx<-1 && !weapon_manager.weapon[weapon_id].unitsonly && ((VECTOR)(features.feature[-t_idx-2].Pos-Pos)).sq()<=d)
+                                if(t_idx<-1 && !weapon_manager.weapon[weapon_id].unitsonly && ((VECTOR3D)(features.feature[-t_idx-2].Pos-Pos)).sq()<=d)
                                 {
                                     // Start a fire ?
                                     if( feature_manager.feature[ features.feature[-t_idx-2].type ].flamable && !features.feature[-t_idx-2].burning && weapon_manager.weapon[weapon_id].firestarter && local )
@@ -473,7 +472,7 @@ namespace TA3D
                                                 g_ta3d_network->sendFeatureDeathEvent( -t_idx-2 );
                                             int sx = features.feature[-t_idx-2].px;		// Remove the object
                                             int sy = features.feature[-t_idx-2].py;
-                                            VECTOR feature_pos = features.feature[-t_idx-2].Pos;
+                                            VECTOR3D feature_pos = features.feature[-t_idx-2].Pos;
                                             int feature_type = features.feature[-t_idx-2].type;
                                             features.removeFeatureFromMap( -t_idx-2 );
                                             features.delete_feature(-t_idx-2);			// Supprime l'objet
@@ -556,7 +555,7 @@ namespace TA3D
                 {
                     int px=(int)(Pos.x+0.5f)+map->map_w_d>>4;
                     int py=(int)(Pos.z+0.5f)+map->map_h_d>>4;
-                    VECTOR P = Pos;
+                    VECTOR3D P = Pos;
                     P.y += 3.0f;
                     if(px>=0 && px<map->bloc_w && py>=0 && py<map->bloc_h)
                     {
@@ -625,7 +624,7 @@ namespace TA3D
         {
             case RENDER_TYPE_LASER:						// Dessine le laser
                 {
-                    VECTOR P=Pos;
+                    VECTOR3D P(Pos);
                     float length=weapon_manager.weapon[weapon_id].duration;
                     if(weapon_manager.weapon[weapon_id].duration>stime)
                         length=stime;
@@ -640,8 +639,8 @@ namespace TA3D
                     float r=(coef*getr(color0)+(1.0f-coef)*getr(color1))/255.0f;
                     float g=(coef*getg(color0)+(1.0f-coef)*getg(color1))/255.0f;
                     float b=(coef*getb(color0)+(1.0f-coef)*getb(color1))/255.0f;
-                    VECTOR D=Pos-cam->pos;
-                    VECTOR Up=D*V;
+                    VECTOR3D D(Pos - cam->pos);
+                    VECTOR3D Up(D * V);
                     Up.unit();
                     if( damage < 0 )
                         damage = weapon_manager.weapon[weapon_id].damage;
@@ -666,7 +665,7 @@ namespace TA3D
             case RENDER_TYPE_MISSILE:					// Dessine le missile
                 glTranslatef(Pos.x,Pos.y,Pos.z);
                 {
-                    VECTOR I, J, Dir;
+                    VECTOR3D I, J, Dir;
                     I.y = I.x = 0.0f;
                     I.z = 1.0f;
                     Dir = V;
@@ -695,11 +694,11 @@ namespace TA3D
                     gfx->set_alpha_blending();
                     glEnable(GL_TEXTURE_2D);
                     glBindTexture(GL_TEXTURE_2D,weapon_manager.cannonshell.glbmp[anim_sprite]);
-                    VECTOR A,B,C,D;
-                    A=Pos+((-0.5f*weapon_manager.cannonshell.h[anim_sprite]-weapon_manager.cannonshell.ofs_y[anim_sprite])*cam->up+(-0.5f*weapon_manager.cannonshell.w[anim_sprite]-weapon_manager.cannonshell.ofs_x[anim_sprite])*cam->side);
-                    B=Pos+((-0.5f*weapon_manager.cannonshell.h[anim_sprite]-weapon_manager.cannonshell.ofs_y[anim_sprite])*cam->up+(0.5f*weapon_manager.cannonshell.w[anim_sprite]-weapon_manager.cannonshell.ofs_x[anim_sprite])*cam->side);
-                    C=Pos+((0.5f*weapon_manager.cannonshell.h[anim_sprite]-weapon_manager.cannonshell.ofs_y[anim_sprite])*cam->up+(-0.5f*weapon_manager.cannonshell.w[anim_sprite]-weapon_manager.cannonshell.ofs_x[anim_sprite])*cam->side);
-                    D=Pos+((0.5f*weapon_manager.cannonshell.h[anim_sprite]-weapon_manager.cannonshell.ofs_y[anim_sprite])*cam->up+(0.5f*weapon_manager.cannonshell.w[anim_sprite]-weapon_manager.cannonshell.ofs_x[anim_sprite])*cam->side);
+                    VECTOR3D A,B,C,D;
+                    A = Pos + ((-0.5f*weapon_manager.cannonshell.h[anim_sprite]-weapon_manager.cannonshell.ofs_y[anim_sprite])*cam->up+(-0.5f*weapon_manager.cannonshell.w[anim_sprite]-weapon_manager.cannonshell.ofs_x[anim_sprite])*cam->side);
+                    B = Pos + ((-0.5f*weapon_manager.cannonshell.h[anim_sprite]-weapon_manager.cannonshell.ofs_y[anim_sprite])*cam->up+(0.5f*weapon_manager.cannonshell.w[anim_sprite]-weapon_manager.cannonshell.ofs_x[anim_sprite])*cam->side);
+                    C = Pos + ((0.5f*weapon_manager.cannonshell.h[anim_sprite]-weapon_manager.cannonshell.ofs_y[anim_sprite])*cam->up+(-0.5f*weapon_manager.cannonshell.w[anim_sprite]-weapon_manager.cannonshell.ofs_x[anim_sprite])*cam->side);
+                    D = Pos + ((0.5f*weapon_manager.cannonshell.h[anim_sprite]-weapon_manager.cannonshell.ofs_y[anim_sprite])*cam->up+(0.5f*weapon_manager.cannonshell.w[anim_sprite]-weapon_manager.cannonshell.ofs_x[anim_sprite])*cam->side);
                     glBegin(GL_QUADS);
                     glTexCoord2f(0.0f,0.0f);		glVertex3f(A.x,A.y,A.z);
                     glTexCoord2f(1.0f,0.0f);		glVertex3f(B.x,B.y,B.z);
@@ -722,7 +721,7 @@ namespace TA3D
             case RENDER_TYPE_BOMB:
                 glTranslatef(Pos.x,Pos.y,Pos.z);
                 {
-                    VECTOR I, J, Dir;
+                    VECTOR3D I, J, Dir;
                     I.y = I.x = 0.0f;
                     I.z = 1.0f;
                     Dir = V;
@@ -743,7 +742,7 @@ namespace TA3D
                 break;
             case RENDER_TYPE_LIGHTNING:
                 {
-                    VECTOR P=Pos;
+                    VECTOR3D P=Pos;
                     float length=weapon_manager.weapon[weapon_id].duration;
                     if(weapon_manager.weapon[weapon_id].duration>stime)
                         length=stime;
@@ -779,7 +778,7 @@ namespace TA3D
             case RENDER_TYPE_DGUN:			// Dessine le dgun
                 glTranslatef(Pos.x,Pos.y,Pos.z);
                 {
-                    VECTOR I, J, Dir;
+                    VECTOR3D I, J, Dir;
                     I.y = I.x = 0.0f;
                     I.z = 1.0f;
                     Dir = V;

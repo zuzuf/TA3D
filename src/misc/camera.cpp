@@ -72,7 +72,7 @@ namespace TA3D
             for (float c_dt = 0.0f ; c_dt < dt ; c_dt += dt_step)
             {
                 float rdt = Math::Min(dt_step, dt - c_dt);
-                VECTOR rand_vec( ((TA3D_RAND() % 2001) - 1000) * 0.001f * shakeMagnitude,
+                VECTOR3D rand_vec( ((TA3D_RAND() % 2001) - 1000) * 0.001f * shakeMagnitude,
                                  ((TA3D_RAND() % 2001) - 1000) * 0.001f * shakeMagnitude,
                                  ((TA3D_RAND() % 2001) - 1000) * 0.001f * shakeMagnitude );
                 shakeVector += -rdt * 10.0f * shakeVector;
@@ -92,12 +92,16 @@ namespace TA3D
             {
                 float rdt = Math::Min(dt_step, dt - c_dt);
                 shakeVector += -rdt * 10.0f * shakeVector;
-                if( shakeVector.x < -20.0f )		shakeVector.x = -20.0f;
-                else if( shakeVector.x > 20.0f)	shakeVector.x = 20.0f;
-                if( shakeVector.y < -20.0f )		shakeVector.y = -20.0f;
-                else if( shakeVector.y > 20.0f)	shakeVector.y = 20.0f;
-                if( shakeVector.z < -20.0f )		shakeVector.z = -20.0f;
-                else if( shakeVector.z > 20.0f)	shakeVector.z = 20.0f;
+
+                if( shakeVector.x < -20.0f )    shakeVector.x = -20.0f;
+                else
+                    if( shakeVector.x > 20.0f)	shakeVector.x = 20.0f;
+                if (shakeVector.y < -20.0f)     shakeVector.y = -20.0f;
+                else
+                    if( shakeVector.y > 20.0f)	shakeVector.y = 20.0f;
+                if (shakeVector.z < -20.0f)     shakeVector.z = -20.0f;
+                else
+                    if( shakeVector.z > 20.0f)	shakeVector.z = 20.0f;
             }
         }
     }
@@ -116,7 +120,7 @@ namespace TA3D
         glLoadIdentity();
 
         pos = rpos;
-        VECTOR FP(pos);
+        VECTOR3D FP(pos);
         FP += dir;
         FP += shakeVector;
         gluLookAt(pos.x + shakeVector.x, pos.y + shakeVector.y, pos.z + shakeVector.z,

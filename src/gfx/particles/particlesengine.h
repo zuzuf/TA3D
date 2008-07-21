@@ -59,7 +59,7 @@ namespace TA3D
         ** \param g
         ** \param wind_dir
         */
-        void set_data(float &g, VECTOR& wind_dir) { p_g = &g; p_wind_dir = &wind_dir; }
+        void set_data(float &g, VECTOR3D& wind_dir) { p_g = &g; p_wind_dir = &wind_dir; }
 
         /*!
         **
@@ -69,44 +69,44 @@ namespace TA3D
         /*!
         ** \brief
         */
-        void emit_part(VECTOR pos,VECTOR Dir,int tex,int nb,float speed,float life=10.0f,float psize=10.0f,bool white=false,float trans_factor=1.0f);
+        void emit_part(VECTOR3D pos,VECTOR3D Dir,int tex,int nb,float speed,float life=10.0f,float psize=10.0f,bool white=false,float trans_factor=1.0f);
 
         /*!
         ** \brief
         */
-        ParticlesSystem *emit_part_fast( ParticlesSystem *system, VECTOR pos, VECTOR Dir,
+        ParticlesSystem *emit_part_fast( ParticlesSystem *system, VECTOR3D pos, VECTOR3D Dir,
                                          int tex, int nb, float speed, float life=10.0f,
                                          float psize=10.0f, bool white=false, float trans_factor=1.0f );
 
         /*!
         ** \brief
         */
-        void emit_lava(VECTOR pos,VECTOR Dir,int tex,int nb,float speed,float life=10.0f);
+        void emit_lava(VECTOR3D pos,VECTOR3D Dir,int tex,int nb,float speed,float life=10.0f);
 
         /*!
         ** \brief
         */
-        void make_smoke(VECTOR pos,int tex,int nb,float speed,float mass=-1.0f, float ddsize=0.0f,float alpha=1.0f);
+        void make_smoke(VECTOR3D pos,int tex,int nb,float speed,float mass=-1.0f, float ddsize=0.0f,float alpha=1.0f);
 
         /*!
         ** \brief
         */
-        void make_dark_smoke(VECTOR pos,int tex,int nb,float speed,float mass=-1.0f, float ddsize=0.0f,float alpha=1.0f);
+        void make_dark_smoke(VECTOR3D pos,int tex,int nb,float speed,float mass=-1.0f, float ddsize=0.0f,float alpha=1.0f);
 
         /*!
         ** \brief
         */
-        void make_fire(VECTOR pos,int tex,int nb,float speed);
+        void make_fire(VECTOR3D pos,int tex,int nb,float speed);
 
         /*!
         ** \brief
         */
-        void make_shockwave(VECTOR pos,int tex,int nb,float speed);
+        void make_shockwave(VECTOR3D pos,int tex,int nb,float speed);
 
         /*!
         ** \brief
         */
-        void make_nuke(VECTOR pos,int tex,int nb,float speed);
+        void make_nuke(VECTOR3D pos,int tex,int nb,float speed);
 
         /*!
         ** \brief
@@ -115,7 +115,7 @@ namespace TA3D
         ** \param wind_dir
         ** \param g Constant of Gravity
         */
-        void move(float dt,VECTOR wind_dir,float g = 9.81f);
+        void move(float dt,VECTOR3D wind_dir,float g = 9.81f);
 
 
         /*!
@@ -146,14 +146,14 @@ namespace TA3D
         uint32		free_index_size;	// Pre allocated list of unused indexes
         uint32		*free_idx;
 
-        VECTOR		*point;			// Vertex array
+        VECTOR3D		*point;			// Vertex array
         GLfloat		*texcoord;		// Texture coordinates array
         GLubyte		*color;			// Color array
 
     protected:
         bool	thread_running;
         bool	thread_ask_to_stop;
-        VECTOR	*p_wind_dir;
+        VECTOR3D	*p_wind_dir;
         float	*p_g;
         std::list<ParticlesSystem*> particle_systems;
         int			Run();

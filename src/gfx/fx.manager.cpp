@@ -11,9 +11,9 @@ namespace TA3D
 
 
 
-    int FXManager::add(const String& filename, const String& entryName, const VECTOR& pos, const float size)
+    int FXManager::add(const String& filename, const String& entryName, const VECTOR3D& pos, const float size)
     {
-        if(Camera::inGame != NULL && ((VECTOR)(pos - Camera::inGame->pos)).sq() >= Camera::inGame->zfar2)
+        if(Camera::inGame != NULL && ((VECTOR3D)(pos - Camera::inGame->pos)).sq() >= Camera::inGame->zfar2)
             return -1;
 
         MutexLocker locker(pMutex);
@@ -100,9 +100,9 @@ namespace TA3D
     }
 
 
-    int FXManager::addFlash(const VECTOR& pos, const float size)
+    int FXManager::addFlash(const VECTOR3D& pos, const float size)
     {
-        if(Camera::inGame != NULL && ((VECTOR)(pos - Camera::inGame->pos)).sq() >= Camera::inGame->zfar2)
+        if(Camera::inGame != NULL && ((VECTOR3D)(pos - Camera::inGame->pos)).sq() >= Camera::inGame->zfar2)
             return -1;
 
         MutexLocker locker(pMutex);
@@ -133,9 +133,9 @@ namespace TA3D
 
 
 
-    int FXManager::addWave(const VECTOR& pos,float size)
+    int FXManager::addWave(const VECTOR3D& pos,float size)
     {
-        if (Camera::inGame != NULL && ((VECTOR)(pos-Camera::inGame->pos)).sq() >= Camera::inGame->zfar2)
+        if (Camera::inGame != NULL && ((VECTOR3D)(pos-Camera::inGame->pos)).sq() >= Camera::inGame->zfar2)
             return -1;
         
         MutexLocker locker(pMutex);
@@ -165,9 +165,9 @@ namespace TA3D
         return idx;
     }
 
-    int FXManager::addRipple(const VECTOR& pos,float size)
+    int FXManager::addRipple(const VECTOR3D& pos,float size)
     {
-        if (Camera::inGame != NULL && ((VECTOR)(pos - Camera::inGame->pos)).sq() >= Camera::inGame->zfar2)
+        if (Camera::inGame != NULL && ((VECTOR3D)(pos - Camera::inGame->pos)).sq() >= Camera::inGame->zfar2)
             return -1;
         
         MutexLocker locker(pMutex);
@@ -335,7 +335,7 @@ namespace TA3D
         pMutex.unlock();
     }
 
-    void FXManager::addParticle(const VECTOR &p, const VECTOR &s, const float l)
+    void FXManager::addParticle(const VECTOR3D& p, const VECTOR3D& s, const float l)
     {
         if (lp_CONFIG->explosion_particles)
         {
@@ -345,7 +345,7 @@ namespace TA3D
         }
     }
 
-    void FXManager::addExplosion(const VECTOR &p, const int n, const float power)
+    void FXManager::addExplosion(const VECTOR3D& p, const int n, const float power)
     {
         if (!lp_CONFIG->explosion_particles)
             return;
@@ -355,9 +355,9 @@ namespace TA3D
             float a = (rand_from_table() % 36000) * 0.01f * DEG2RAD;
             float b = (rand_from_table() % 18000) * 0.01f * DEG2RAD;
             float s = power * ((rand_from_table() % 9001) * 0.0001f + 0.1f);
-            VECTOR vs(s * cos(a) * cos(b),
-                      s * sin(b),
-                      s * sin(a) * cos(b));
+            VECTOR3D vs(s * cos(a) * cos(b), 
+                        s * sin(b),
+                        s * sin(a) * cos(b));
             float l = Math::Min(5.0f * vs.y / (the_map->ota_data.gravity + 0.1f), 10.0f);
 
             pParticles.push_back(new FXParticle(p, vs, l));

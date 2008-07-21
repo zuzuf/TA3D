@@ -90,7 +90,7 @@ namespace TA3D
         part=tmp;
 
         if (point == NULL)
-            point=(VECTOR*) malloc(sizeof(VECTOR)*4096);
+            point=(VECTOR3D*) malloc(sizeof(VECTOR3D)*4096);
         if (texcoord == NULL)
             texcoord=(GLfloat*) malloc(sizeof(GLfloat)*8192);
         if (color == NULL)
@@ -98,12 +98,12 @@ namespace TA3D
         pMutex.unlock();
     }
 
-    void PARTICLE_ENGINE::emit_part(VECTOR pos,VECTOR Dir,int tex,int nb,float speed,float life,float psize,bool white,float trans_factor)
+    void PARTICLE_ENGINE::emit_part(VECTOR3D pos,VECTOR3D Dir,int tex,int nb,float speed,float life,float psize,bool white,float trans_factor)
     {
         MutexLocker locker(pMutex);
         if (!lp_CONFIG->particle)	// If particles are OFF don't add particles
             return;
-        if (Camera::inGame != NULL && ((VECTOR)(Camera::inGame->pos - pos)).sq() >= Camera::inGame->zfar2)
+        if (Camera::inGame != NULL && ((VECTOR3D)(Camera::inGame->pos - pos)).sq() >= Camera::inGame->zfar2)
             return;
 
         while (nb_part + nb > size)	// Si besoin alloue de la mémoire
@@ -156,7 +156,7 @@ namespace TA3D
         }
     }
 
-    ParticlesSystem *PARTICLE_ENGINE::emit_part_fast( ParticlesSystem *system, VECTOR pos, VECTOR Dir, int tex, int nb, float speed, float life, float psize, bool white, float trans_factor )
+    ParticlesSystem *PARTICLE_ENGINE::emit_part_fast( ParticlesSystem *system, VECTOR3D pos, VECTOR3D Dir, int tex, int nb, float speed, float life, float psize, bool white, float trans_factor )
     {
         if (!lp_CONFIG->particle) // If particles are OFF don't add particles
             return NULL;
@@ -170,7 +170,7 @@ namespace TA3D
         }
         else
         {
-            if (Camera::inGame != NULL && ((VECTOR)(Camera::inGame->pos - pos)).sq()>=Camera::inGame->zfar2)
+            if (Camera::inGame != NULL && ((VECTOR3D)(Camera::inGame->pos - pos)).sq()>=Camera::inGame->zfar2)
                 return NULL;
 
             system = new ParticlesSystem;
@@ -204,8 +204,8 @@ namespace TA3D
             system->dsize = 0.0f;
             system->light_emitter = false;
 
-            system->common_pos = VECTOR();
-            system->common_V = VECTOR();
+            system->common_pos = VECTOR3D();
+            system->common_V = VECTOR3D();
 
             for( int i = 0 ; i < ( nb < 0 ? 1 : nb ) ; ++i)
             {
@@ -224,11 +224,11 @@ namespace TA3D
         return system;
     }
 
-    void PARTICLE_ENGINE::emit_lava(VECTOR pos,VECTOR Dir,int tex,int nb,float speed,float life)
+    void PARTICLE_ENGINE::emit_lava(VECTOR3D pos,VECTOR3D Dir,int tex,int nb,float speed,float life)
     {
         if (!lp_CONFIG->particle ) // If particles are OFF don't add particles
             return;
-        if (Camera::inGame!=NULL && ((VECTOR)(Camera::inGame->pos - pos)).sq()>=Camera::inGame->zfar2)
+        if (Camera::inGame!=NULL && ((VECTOR3D)(Camera::inGame->pos - pos)).sq()>=Camera::inGame->zfar2)
             return;
 
         pMutex.lock();
@@ -272,7 +272,7 @@ namespace TA3D
         pMutex.unlock();
     }
 
-    void PARTICLE_ENGINE::make_shockwave(VECTOR pos,int tex,int nb,float speed)
+    void PARTICLE_ENGINE::make_shockwave(VECTOR3D pos,int tex,int nb,float speed)
     {
         if (!lp_CONFIG->particle) // If particles are OFF don't add particles
             return;
@@ -336,7 +336,7 @@ namespace TA3D
         pMutex.unlock();
     }
 
-    void PARTICLE_ENGINE::make_nuke(VECTOR pos,int tex,int nb,float speed)
+    void PARTICLE_ENGINE::make_nuke(VECTOR3D pos,int tex,int nb,float speed)
     {
         if (!lp_CONFIG->particle) // If particles are OFF don't add particles
             return;
@@ -389,11 +389,11 @@ namespace TA3D
         pMutex.unlock();
     }
 
-    void PARTICLE_ENGINE::make_smoke(VECTOR pos,int tex,int nb,float speed,float mass,float ddsize,float alpha)
+    void PARTICLE_ENGINE::make_smoke(VECTOR3D pos,int tex,int nb,float speed,float mass,float ddsize,float alpha)
     {
         if (!lp_CONFIG->particle ) // If particles are OFF don't add particles
             return;
-        if (Camera::inGame!=NULL && ((VECTOR)(Camera::inGame->pos - pos)).sq()>=Camera::inGame->zfar2)
+        if (Camera::inGame!=NULL && ((VECTOR3D)(Camera::inGame->pos - pos)).sq()>=Camera::inGame->zfar2)
             return;
 
         pMutex.lock();
@@ -441,11 +441,11 @@ namespace TA3D
         pMutex.unlock();
     }
 
-    void PARTICLE_ENGINE::make_dark_smoke(VECTOR pos,int tex,int nb,float speed,float mass,float ddsize,float alpha)
+    void PARTICLE_ENGINE::make_dark_smoke(VECTOR3D pos,int tex,int nb,float speed,float mass,float ddsize,float alpha)
     {
         if (!lp_CONFIG->particle ) // If particles are OFF don't add particles
             return;
-        if (Camera::inGame != NULL && ((VECTOR)(Camera::inGame->pos - pos)).sq()>=Camera::inGame->zfar2)
+        if (Camera::inGame != NULL && ((VECTOR3D)(Camera::inGame->pos - pos)).sq()>=Camera::inGame->zfar2)
             return;
 
         pMutex.lock();
@@ -494,11 +494,11 @@ namespace TA3D
         pMutex.unlock();
     }
 
-    void PARTICLE_ENGINE::make_fire(VECTOR pos,int tex,int nb,float speed)
+    void PARTICLE_ENGINE::make_fire(VECTOR3D pos,int tex,int nb,float speed)
     {
         if (!lp_CONFIG->particle ) // If particles are OFF don't add particles
             return;
-        if (Camera::inGame != NULL && ((VECTOR)(Camera::inGame->pos - pos)).sq() >= Camera::inGame->zfar2)
+        if (Camera::inGame != NULL && ((VECTOR3D)(Camera::inGame->pos - pos)).sq() >= Camera::inGame->zfar2)
             return;
 
         pMutex.lock();
@@ -545,7 +545,7 @@ namespace TA3D
         pMutex.unlock();
     }
 
-    void PARTICLE_ENGINE::move(float dt,VECTOR wind_dir,float g)
+    void PARTICLE_ENGINE::move(float dt,VECTOR3D wind_dir,float g)
     {
         pMutex.lock();
         if (((part == NULL || nb_part == 0) && particle_systems.empty()) || dt == 0.0f)
@@ -555,7 +555,7 @@ namespace TA3D
             return;
         }
 
-        VECTOR G;
+        VECTOR3D G;
         G.x=G.y=G.z=0.0f;
         G.y=dt*g;
         wind_dir=dt*wind_dir;
@@ -593,7 +593,7 @@ namespace TA3D
                 nb_part--;
                 continue;
             }
-            VECTOR RAND;
+            VECTOR3D RAND;
             RAND.x=((rand_from_table()&0x1FFF)-0xFFF)*dt_reduced;
             RAND.y=((rand_from_table()&0x1FFF)-0xFFF)*dt_reduced;
             RAND.z=((rand_from_table()&0x1FFF)-0xFFF)*dt_reduced;
@@ -667,8 +667,8 @@ namespace TA3D
             uint32 i;
             sint32 j = -1;
 
-            VECTOR A;
-            VECTOR B;
+            VECTOR3D A;
+            VECTOR3D B;
             float oangle = 0.0f;
             int h_map_w=map_w>>1;
             int h_map_h=map_h>>1;

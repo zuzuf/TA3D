@@ -42,14 +42,14 @@ namespace TA3D
         //! Weapon unique id
         short weapon_id;
         //! Position
-        VECTOR Pos;
+        VECTOR3D Pos;
         //! Speed
-        VECTOR V;
+        VECTOR3D V;
         //! Acceleration
-        VECTOR Ac;
+        VECTOR3D Ac;
 
         //!
-        VECTOR target_pos;			// Position ciblée
+        VECTOR3D target_pos;			// Position ciblée
         //!
         short target;				// Unité ciblée (dans le tableau des unités)
         //!

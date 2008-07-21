@@ -70,7 +70,7 @@ void obj_geo_split(int idx);
 BITMAP *read_tex(GLuint gltex);
 BITMAP *read_tex_luminance(GLuint gltex);
 
-int intersect(VECTOR O,VECTOR Dir,OBJECT *obj,VECTOR *PA,VECTOR *PB);	// Calcule l'intersection d'un rayon avec une partie de la meshe
+int intersect(VECTOR3D O,VECTOR3D Dir,OBJECT *obj,VECTOR3D *PA,VECTOR3D *PB);	// Calcule l'intersection d'un rayon avec une partie de la meshe
 
 inline void init_surf_buf()
 {
