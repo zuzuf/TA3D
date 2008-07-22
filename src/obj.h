@@ -27,6 +27,12 @@
 #include "misc/matrix.h"
 #include "3do.h"
 
+
+namespace TA3D
+{
+
 MODEL *load_obj( const String &filename, float scale = 20.0f );
+
+} // namespace TA3D
 
 #endif
