@@ -688,6 +688,9 @@ namespace TA3D
     {
         destroy();					// Au cas où l'objet ne serait pas vierge
 
+        if (data == NULL)
+            return -1;
+
         tagObject header;				// Lit l'en-tête
         header.VersionSignature=*((int*)(data+offset));
         header.NumberOfVertexes=*((int*)(data+offset+4));
@@ -703,10 +706,42 @@ namespace TA3D
         header.OffsetToSiblingObject=*((int*)(data+offset+44));
         header.OffsetToChildObject=*((int*)(data+offset+48));
 
+        if (header.NumberOfVertexes + offset < 0)
+            return -1;
+        if (header.NumberOfPrimitives + offset < 0)
+            return -1;
+        if (header.OffsetToChildObject + offset < 0)
+            return -1;
+        if (header.OffsetToSiblingObject + offset < 0)
+            return -1;
+        if (header.OffsetToVertexArray + offset < 0)
+            return -1;
+        if (header.OffsetToPrimitiveArray + offset < 0)
+            return -1;
+        if (header.OffsetToObjectName + offset < 0 || header.OffsetToObjectName > 10240)
+            return -1;
+        int i;
+
+        try
+        {
+            name = (char*)(data+header.OffsetToObjectName);
+            i = 0;
+            while( name[i] && i < 128 ) i++;
+            if (name[i] == 0 && i >= 128)
+            {
+                name = NULL;
+                return -1;
+            }
+        }
+        catch( ... )
+        {
+            name = NULL;
+            return -1;
+        };
+
         nb_vtx = header.NumberOfVertexes;
         nb_prim = header.NumberOfPrimitives;
         name = strdup((char*)(data+header.OffsetToObjectName));
-        int i;
 #ifdef DEBUG_MODE
         /*		for (i=0;i<dec;i++)
                 printf("  ");
@@ -719,13 +754,21 @@ namespace TA3D
         {
             child=(OBJECT*) malloc(sizeof(OBJECT));
             child->init();
-            child->load_obj(data,header.OffsetToChildObject,dec+1,filename);
+            if (child->load_obj(data,header.OffsetToChildObject,dec+1,filename))
+            {
+                destroy();
+                return -1;
+            }
         }
         if (header.OffsetToSiblingObject) // Charge récursivement les différents objets du modèle
         {
             next=(OBJECT*) malloc(sizeof(OBJECT));
             next->init();
-            next->load_obj(data,header.OffsetToSiblingObject,dec,filename);
+            if (next->load_obj(data,header.OffsetToSiblingObject,dec,filename))
+            {
+                destroy();
+                return -1;
+            }
         }
         points=(Vector3D*) malloc(sizeof(Vector3D)*nb_vtx);		// Alloue la mémoire nécessaire pour stocker les points
         int f_pos;
@@ -3578,17 +3621,39 @@ hit_fast_is_exploding:
     {
         destroy();
 
+        if (data == NULL)
+            return NULL;
+
         uint8	len = data[0];	data++;
         name = (char*) malloc(len+1);
         data=read_from_mem(name,len,data);
         name[len]=0;
 
         data=read_from_mem(&pos_from_parent.x,sizeof(pos_from_parent.x),data);
+        if (isNaN(pos_from_parent.x))           // Some error checks
+        {
+            free( name );   name = NULL;    return NULL;
+        }
+
         data=read_from_mem(&pos_from_parent.y,sizeof(pos_from_parent.y),data);
+        if (isNaN(pos_from_parent.y))           // Some error checks
+        {
+            free( name );   name = NULL;    return NULL;
+        }
+
         data=read_from_mem(&pos_from_parent.z,sizeof(pos_from_parent.z),data);
+        if (isNaN(pos_from_parent.z))           // Some error checks
+        {
+            free( name );   name = NULL;    return NULL;
+        }
 
         data=read_from_mem(&nb_vtx,sizeof(nb_vtx),data);
-        if (nb_vtx>0) {
+        if (nb_vtx < 0)           // Some error checks
+        {
+            free( name );   name = NULL;    return NULL;
+        }
+        if (nb_vtx>0)
+        {
             points = (Vector3D*) malloc(sizeof(Vector3D)*nb_vtx<<1);
             data=read_from_mem(points,sizeof(Vector3D)*nb_vtx,data);
         }
@@ -3598,7 +3663,15 @@ hit_fast_is_exploding:
         data=read_from_mem(sel,sizeof(GLushort)*4,data);
 
         data=read_from_mem(&nb_p_index,sizeof(nb_p_index),data);	// Read point data
-        if (nb_p_index>0) {
+        if (nb_p_index < 0)
+        {
+            if (points) free( points );
+            free( name );
+            init();
+            return NULL;
+        }
+        if (nb_p_index>0)
+        {
             p_index = (GLushort*) malloc(sizeof(GLushort)*nb_p_index);
             data=read_from_mem(p_index,sizeof(GLushort)*nb_p_index,data);
         }
@@ -3606,7 +3679,16 @@ hit_fast_is_exploding:
             p_index=NULL;
 
         data=read_from_mem(&nb_l_index,sizeof(nb_l_index),data);	// Read line data
-        if (nb_l_index>0) {
+        if (nb_l_index < 0)
+        {
+            if (points) free( points );
+            if (p_index) free( p_index );
+            free( name );
+            init();
+            return NULL;
+        }
+        if (nb_l_index>0)
+        {
             l_index = (GLushort*) malloc(sizeof(GLushort)*nb_l_index);
             data=read_from_mem(l_index,sizeof(GLushort)*nb_l_index,data);
         }
@@ -3614,7 +3696,17 @@ hit_fast_is_exploding:
             l_index=NULL;
 
         data=read_from_mem(&nb_t_index,sizeof(nb_t_index),data);	// Read triangle data
-        if (nb_t_index>0) {
+        if (nb_t_index < 0)
+        {
+            if (points) free( points );
+            if (p_index) free( p_index );
+            if (l_index) free( l_index );
+            free( name );
+            init();
+            return NULL;
+        }
+        if (nb_t_index>0)
+        {
             t_index = (GLushort*) malloc(sizeof(GLushort)*nb_t_index);
             data=read_from_mem(t_index,sizeof(GLushort)*nb_t_index,data);
         }
@@ -3642,11 +3734,22 @@ hit_fast_is_exploding:
                 data = read_from_mem(&tex_h, sizeof(tex_h), data);
 
                 tex = create_bitmap_ex(32, tex_w, tex_h);
-                for (int y = 0; y < tex->h; ++y)
+                if (tex == NULL)
                 {
-                    for (int x = 0; x < tex->w; ++x)
-                        data = read_from_mem(&((int*)(tex->line[y]))[x], 4, data);
+                    destroy();
+                    return NULL;
                 }
+                try
+                {
+                    for (int y = 0; y < tex->h; ++y)
+                        for (int x = 0; x < tex->w; ++x)
+                            data = read_from_mem(&((int*)(tex->line[y]))[x], 4, data);
+                }
+                catch( ... )
+                {
+                    destroy();
+                    return NULL;
+                };
             }
             else
             {
@@ -3654,10 +3757,19 @@ hit_fast_is_exploding:
                 data=read_from_mem(&img_size,sizeof(img_size),data);	// Read RGB data first
                 byte *buffer = new byte[ img_size ];
 
-                data=read_from_mem( buffer, img_size, data );
+                try
+                {
+                    data=read_from_mem( buffer, img_size, data );
 
-                set_color_depth( 32 );
-                tex = load_memory_jpg( buffer, img_size, NULL );
+                    set_color_depth( 32 );
+                    tex = load_memory_jpg( buffer, img_size, NULL );
+                }
+                catch( ... )
+                {
+                    delete[] buffer;
+                    destroy();
+                    return NULL;
+                };
 
                 delete[] buffer;
 
@@ -3670,6 +3782,11 @@ hit_fast_is_exploding:
                     data = read_from_mem( buffer, img_size, data );
                     BITMAP* alpha = load_memory_jpg(buffer, img_size, NULL);
 
+                    if (alpha == NULL)
+                    {
+                        destroy();
+                        return NULL;
+                    }
                     for (int y = 0 ; y < tex->h; ++y)
                     {
                         for (int x = 0; x < tex->w ; ++x)
@@ -3684,6 +3801,11 @@ hit_fast_is_exploding:
                 }
                 else
                 {
+                    if (tex == NULL)
+                    {
+                        destroy();
+                        return NULL;
+                    }
                     for (int y = 0; y < tex->h ; ++y)
                     {
                         for (int x = 0 ; x < tex->w ; ++x)
@@ -3763,6 +3885,11 @@ hit_fast_is_exploding:
             child = (OBJECT*) malloc(sizeof(OBJECT));
             child->init();
             data=child->load_3dm(data);
+            if (data == NULL)
+            {
+                destroy();
+                return NULL;
+            }
         }
         else
             child=NULL;
@@ -3773,6 +3900,11 @@ hit_fast_is_exploding:
             next = (OBJECT*) malloc(sizeof(OBJECT));
             next->init();
             data=next->load_3dm(data);
+            if (data == NULL)
+            {
+                destroy();
+                return NULL;
+            }
         }
         else
             next=NULL;

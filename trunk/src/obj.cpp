@@ -111,8 +111,8 @@ namespace TA3D
             std::vector<Vector3D>  normal;
             std::vector<Vector2D>  tcoord;
             std::vector<int>       face;
-            cHashTable<Material>  mtllib;
-            Material                currentMtl;
+            cHashTable<Material>   mtllib;
+            Material               currentMtl;
 
             while (fgets( buf, 1024, src_obj)) // Reads the while file
             {
@@ -182,6 +182,7 @@ namespace TA3D
                                 std::vector< int >  normal_idx;
                                 for (String::Vector::const_iterator i = args.begin(); i != args.end(); ++i)
                                 {
+                                    if (i == args.begin())  continue;       // The first string is crap if we read it as vertex data !!
                                     String::Vector data;
                                     ReadVectorString(data, *i, "/" );
 
