@@ -135,6 +135,11 @@
 #define DISABLED      0x0010
 #define BOGUS         0x0011
 
+namespace TA3D
+{
+
 MODEL *load_3ds( const String &filename, float scale = 20.0f );
+
+}
 
 #endif
