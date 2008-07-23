@@ -1,12 +1,10 @@
 
 #include "statistics.h"
-#include "../../TA3D_Exception.h"
 #include "../../ta3dbase.h"
 #include "../../EngineClass.h"
 
 # define TA3D_LOG_SECTION_STATS_PREFIX "[Stats] "
 
-using namespace TA3D::Exceptions;
 
 
 namespace TA3D

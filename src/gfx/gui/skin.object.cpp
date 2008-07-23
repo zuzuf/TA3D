@@ -47,16 +47,16 @@ namespace TA3D
 
 
 
-    void SKIN_OBJECT::load(const String& filename, const String& prefix, UTILS::cTAFileParser* parser, float borderSize)
+    void SKIN_OBJECT::load(const String& filename, const String& prefix, UTILS::cTAFileParser& parser, float borderSize)
     {
         if (TA3D::Paths::Exists(filename))
         {
             tex = gfx->load_texture(filename, FILTER_LINEAR, &w, &h);
 
-            x1 = parser->pullAsInt(prefix + "x1");
-            y1 = parser->pullAsInt(prefix + "y1");
-            x2 = parser->pullAsInt(prefix + "x2");
-            y2 = parser->pullAsInt(prefix + "y2");
+            x1 = parser.pullAsInt(prefix + "x1");
+            y1 = parser.pullAsInt(prefix + "y1");
+            x2 = parser.pullAsInt(prefix + "x2");
+            y2 = parser.pullAsInt(prefix + "y2");
 
             t_x1 = w ? ((float)x1) / w : 0.0f;
             t_x2 = w ? ((float)x2) / w : 0.0f;
@@ -66,7 +66,7 @@ namespace TA3D
             x2 -= w;
             y2 -= h;
 
-            borderSize *= parser->pullAsFloat(prefix + "scale", 1.0f);		// Allow scaling the widgets
+            borderSize *= parser.pullAsFloat(prefix + "scale", 1.0f);		// Allow scaling the widgets
 
             x1 *= borderSize;
             y1 *= borderSize;

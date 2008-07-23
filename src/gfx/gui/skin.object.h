@@ -42,7 +42,7 @@ namespace TA3D
         ** \param parser
         ** \param borderSize
         */
-        void load(const String& filename, const String& prefix, UTILS::cTAFileParser* parser, float borderSize = 1.0f );
+        void load(const String& filename, const String& prefix, UTILS::cTAFileParser& parser, float borderSize = 1.0f );
 
         /*!
         ** \brief

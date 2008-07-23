@@ -29,7 +29,6 @@
 # define __TA3D_NAMESPACE_H__
 
 
-# include "TA3D_Exception.h"
 # include "misc/interface.h"
 # include "cError.h"
 # include "misc/vector.h"

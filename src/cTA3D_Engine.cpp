@@ -40,7 +40,6 @@
 #include "misc/math.h"
 
 
-using namespace TA3D::Exceptions;
 
 
 
@@ -50,9 +49,6 @@ namespace TA3D
 
 	cTA3D_Engine::cTA3D_Engine(void)
 	{
-		GuardEnter( cTA3D_Engine Constructor );
-		GuardInfo( "Zeroing Variables." );
-
 		InterfaceManager = NULL;
 		VARS::sound_manager = NULL;
 		VARS::HPIManager = NULL;
@@ -61,15 +57,9 @@ namespace TA3D
 		m_SignaledToStop = false;
 		m_GFXModeActive = false;
 
-		GuardInfo( "Initializing Thead data" );
 		InitThread();
 
-		GuardInfo( "Creating Interface Manager." );
 		InterfaceManager = new IInterfaceManager();
-
-		GuardInfo( "Creating logging Interface, and attaching it to Interface Manager" );
-
-		GuardInfo( "Logging some stuff to ta3d.log" );
 
 		String str = format( "%s initializing started:\n\n", TA3D_ENGINE_VERSION );
 		I_Msg( TA3D::TA3D_IM_DEBUG_MSG, (void *)str.c_str(), NULL, NULL );
@@ -77,38 +67,36 @@ namespace TA3D
 		str = format("build info : %s , %s\n\n",__DATE__,__TIME__);
 		I_Msg( TA3D::TA3D_IM_DEBUG_MSG, (void *)str.c_str(), NULL, NULL );
 
-		GuardInfo( "Setting uformat to U_ASCII." );
+		// Setting uformat to U_ASCII
 		set_uformat(U_ASCII);   // fixed size, 8-bit ASCII characters
 
-		GuardInfo( "Initalizing allegro." );
+		// Initalizing allegro
 		if( allegro_init() != 0 )
 			throw( "allegro_init() yielded unexpected result." );
 
 		// set allegro running status;
 		m_AllegroRunning = true;
 
-		GuardInfo( "Installing allegro timer." );
+		// Installing allegro timer
 		if( install_timer() != 0 )
 			throw( "install_timer() yielded unexpected result." );
 
-		GuardInfo( "Installing allegro mouse handler." );
+		// Installing allegro mouse handler
 		if( install_mouse() == -1 )
 			throw ( "install_mouse() yielded unexpected result." );
 
-		GuardInfo( "Installing allegro keyboard handler." );
+		// Installing allegro keyboard handler
 		if( install_keyboard() == -1 )
 			throw ( "install_mouse() yielded unexpected result." );
 
-		GuardInfo( "Initalizing allegro JPG support." );
+		// Initalizing allegro JPG support
 		if( jpgalleg_init() < 0 )
 			throw( "jpgalleg_init() yielded unexpected result." );
 
-		GuardInfo( "Creating HPI Manager." );
+		// Creating HPI Manager
 		TA3D::VARS::HPIManager = new TA3D::UTILS::HPI::cHPIHandler( GetClientPath() );
 
-		GuardInfo( "Creating translation manager." );
-
-        // Loads translation data (TA translations in ASCII -> UTF8)
+		// Creating translation manager
         I18N::Instance()->loadFromFile("gamedata\\translate.tdf", true, true);   
         I18N::Instance()->loadFromFile("ta3d.res", false);   // Loads translation data (TA3D translations in UTF8)
 
@@ -121,7 +109,7 @@ namespace TA3D
 			throw ("resources missing!!");
 		}
 
-		GuardInfo( "Creating Sound & Music Interface." );
+		// Creating Sound & Music Interface
 		sound_manager = new TA3D::Audio::Manager(1.0f, 0.0f, 0.0f);
 		sound_manager->stopMusic();
 		sound_manager->loadTDFSounds(true);
@@ -135,7 +123,8 @@ namespace TA3D
 			set_uformat(U_ASCII);   // fixed size, 8-bit ASCII characters
 		}
 
-		GuardInfo("Creating GFX Interface.");				// Don't try to start sound before gfx, if we have to display the warning message while in fullscreen
+		// Creating GFX Interface
+        // Don't try to start sound before gfx, if we have to display the warning message while in fullscreen
 		TA3D::VARS::gfx = new TA3D::GFX();		// TA3D's main window might lose focus and allegro's message not be shown ...
 		m_GFXModeActive = true;
 
@@ -143,7 +132,7 @@ namespace TA3D
 
 		set_window_title("Total Annihilation 3D");
 
-		GuardInfo( "Loading and creating cursors." );
+		// Loading and creating cursors
 		byte *data=HPIManager->PullFromHPI("anims\\cursors.gaf");	// Load cursors
 		cursor.init();
 		cursor.load_gaf(data ,true);
@@ -175,14 +164,10 @@ namespace TA3D
 		delete[] data;
 
 
-		GuardInfo( "Initalizing Critical section data." );
-
-		GuardInfo( "Initializing Thread Synchroniser object" );
-
 		ThreadSynchroniser = new ObjectSync;
 
-		GuardInfo( "Initializing the ascii to scancode table" );
 
+		// Initializing the ascii to scancode table
 		for( int i = 0 ; i < 256 ; i++ )
 			ascii_to_scancode[ i ] = 0;
 
@@ -192,14 +177,11 @@ namespace TA3D
 			if( ascii_code >= 0 && ascii_code < 256 )
 				ascii_to_scancode[ ascii_code ] = i;
 		}
-
-		GuardLeave();
 	}
 
 
 	cTA3D_Engine::~cTA3D_Engine(void)
 	{
-		GuardEnter( cTA3D_Engine deconstructor );
 		DestroyThread();
 		delete ThreadSynchroniser;
 		cursor.destroy();
@@ -218,8 +200,6 @@ namespace TA3D
 			allegro_exit();
 			m_AllegroRunning = false;
 		}
-
-		GuardLeave();
 	}
 
 	void cTA3D_Engine::Init()

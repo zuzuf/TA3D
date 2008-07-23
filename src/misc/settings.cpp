@@ -3,7 +3,6 @@
 #include "../logs/logs.h"
 #include "paths.h"
 #include "../TA3D_NameSpace.h"
-#include "../TA3D_Exception.h"
 #include "../ta3dbase.h"
 #include "../languages/i18n.h"
 #include <fstream>

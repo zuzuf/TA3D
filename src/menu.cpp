@@ -52,7 +52,6 @@ namespace TA3D
 }
 
 
-using namespace TA3D::Exceptions;
 
 
 
@@ -1457,14 +1456,7 @@ void setup_game(bool client, const char *host)
             }
 
             gfx->unset_2D_mode();
-            GuardStart( play );
             play(&game_data);
-            GuardCatch();
-            if( IsExceptionInProgress() ) // if guard threw an error this will be true.
-            {
-                GuardDisplayAndLogError();   // record and display the error.
-                exit(1);                      // we outa here.
-            }
             gfx->set_2D_mode();
             gfx->ReInitTexSys();
         }
@@ -2162,18 +2154,15 @@ int brief_screen(String campaign_name, int mission_id)
 
         gfx->unset_2D_mode();
         int exit_mode = 0;
-        GuardStart( play );
         exit_mode = play(&game_data);
-        GuardCatch();
-        if( IsExceptionInProgress() ) // if guard threw an error this will be true.
-        {
-            GuardDisplayAndLogError();   // record and display the error.
-            exit(1);                      // we outa here.
-        }
         gfx->set_2D_mode();
         gfx->ReInitTexSys();
 
-        while(key[KEY_ESC]) {	rest(1);	poll_keyboard();	}
+        while(key[KEY_ESC])
+        {
+            rest(1);
+            poll_keyboard();
+        }
 
         return exit_mode;
     }

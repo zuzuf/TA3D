@@ -1,11 +1,9 @@
 
 #include "skin.h"
 #include "../../misc/paths.h"
-#include "../../TA3D_Exception.h"
 #include "../../TA3D_NameSpace.h"
 
 
-using namespace TA3D::Exceptions;
 
 
 namespace TA3D
@@ -67,24 +65,9 @@ namespace TA3D
 
     void SKIN::load_tdf(const String& filename, const float scale)
     {
-        GuardEnter(SKIN::load_tdf);
-
         destroy();		// In case there is a skin loaded so we don't waste memory
 
-        cTAFileParser *skinFile;
-
-        try
-        {
-            // we need to try catch this cause the config file may not exists
-            // and if it don't exists it will throw an error on reading it, which
-            // will be caught in our main function and the application will exit.
-            skinFile = new TA3D::UTILS::cTAFileParser( filename );
-        }
-        catch (...)
-        {
-            GuardLeave();
-            return;
-        }
+        cTAFileParser skinFile(filename);
 
         // Grab the skin's name, so we can now if a skin is already in use
         String::size_type e = filename.find(".");
@@ -98,35 +81,32 @@ namespace TA3D
         if (e != String::npos)
             Name = Name.substr(e + 1, Name.size() - e - 1);
 
-        Name = skinFile->pullAsString("skin.name", Name); // The TDF may override the skin name
+        Name = skinFile.pullAsString("skin.name", Name); // The TDF may override the skin name
 
-        prefix = skinFile->pullAsString("skin.prefix", ""); // The prefix to use for 
-        text_y_offset = skinFile->pullAsInt("skin.text y offset", 0);
+        prefix = skinFile.pullAsString("skin.prefix", ""); // The prefix to use for 
+        text_y_offset = skinFile.pullAsInt("skin.text y offset", 0);
 
-        wnd_border.load(skinFile->pullAsString("skin.window borders"), "skin.border_", skinFile, scale);
-        button_img[0].load(skinFile->pullAsString("skin.button0"), "skin.button_", skinFile, scale);
-        button_img[1].load(skinFile->pullAsString("skin.button1"), "skin.button_", skinFile, scale);
-        text_background.load(skinFile->pullAsString("skin.text background"), "skin.text_", skinFile, scale);
-        menu_background.load(skinFile->pullAsString("skin.menu background"), "skin.menu_", skinFile, scale);
-        wnd_title_bar.load(skinFile->pullAsString("skin.title bar"), "skin.title_", skinFile, scale);
-        progress_bar[0].load(skinFile->pullAsString("skin.progress bar0"), "skin.bar0_", skinFile, scale);
-        progress_bar[1].load(skinFile->pullAsString("skin.progress bar1"), "skin.bar1_", skinFile, scale);
-        selection_gfx.load(skinFile->pullAsString("skin.selection"), "skin.selection_", skinFile, scale);
-        option[0].load(skinFile->pullAsString("skin.option0"), "skin.option_", skinFile, scale);
-        option[1].load(skinFile->pullAsString("skin.option1"), "skin.option_", skinFile, scale);
-        checkbox[0].load(skinFile->pullAsString("skin.checkbox0"), "skin.checkbox_", skinFile, scale);
-        checkbox[1].load(skinFile->pullAsString("skin.checkbox1"), "skin.checkbox_", skinFile, scale);
+        wnd_border.load(skinFile.pullAsString("skin.window borders"), "skin.border_", skinFile, scale);
+        button_img[0].load(skinFile.pullAsString("skin.button0"), "skin.button_", skinFile, scale);
+        button_img[1].load(skinFile.pullAsString("skin.button1"), "skin.button_", skinFile, scale);
+        text_background.load(skinFile.pullAsString("skin.text background"), "skin.text_", skinFile, scale);
+        menu_background.load(skinFile.pullAsString("skin.menu background"), "skin.menu_", skinFile, scale);
+        wnd_title_bar.load(skinFile.pullAsString("skin.title bar"), "skin.title_", skinFile, scale);
+        progress_bar[0].load(skinFile.pullAsString("skin.progress bar0"), "skin.bar0_", skinFile, scale);
+        progress_bar[1].load(skinFile.pullAsString("skin.progress bar1"), "skin.bar1_", skinFile, scale);
+        selection_gfx.load(skinFile.pullAsString("skin.selection"), "skin.selection_", skinFile, scale);
+        option[0].load(skinFile.pullAsString("skin.option0"), "skin.option_", skinFile, scale);
+        option[1].load(skinFile.pullAsString("skin.option1"), "skin.option_", skinFile, scale);
+        checkbox[0].load(skinFile.pullAsString("skin.checkbox0"), "skin.checkbox_", skinFile, scale);
+        checkbox[1].load(skinFile.pullAsString("skin.checkbox1"), "skin.checkbox_", skinFile, scale);
 
-        scroll[0].load(skinFile->pullAsString("skin.v_scroll"), "skin.v_scroll_", skinFile, scale);
-        scroll[1].load(skinFile->pullAsString("skin.h_scroll"), "skin.h_scroll_", skinFile, scale);
-        scroll[2].load(skinFile->pullAsString("skin.s_scroll"), "skin.s_scroll_", skinFile, scale);
+        scroll[0].load(skinFile.pullAsString("skin.v_scroll"), "skin.v_scroll_", skinFile, scale);
+        scroll[1].load(skinFile.pullAsString("skin.h_scroll"), "skin.h_scroll_", skinFile, scale);
+        scroll[2].load(skinFile.pullAsString("skin.s_scroll"), "skin.s_scroll_", skinFile, scale);
 
-        String tex_file_name (skinFile->pullAsString("skin.window background"));
+        String tex_file_name (skinFile.pullAsString("skin.window background"));
         if(TA3D::Paths::Exists(tex_file_name))
             wnd_background = gfx->load_texture( tex_file_name, FILTER_LINEAR );
-        delete skinFile; 
-
-        GuardLeave();
     }
 
 

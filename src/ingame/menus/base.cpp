@@ -1,11 +1,9 @@
 
 #include "base.h"
 #include <typeinfo>
-#include "../../TA3D_Exception.h"
 #include "../../ta3dbase.h"
 
 
-using namespace TA3D::Exceptions;
 
 namespace TA3D
 {
@@ -29,7 +27,6 @@ namespace Menus
         
     bool Abstract::doGuardInitialize()
     {
-        GuardEnter(pTypeName + ".doInitialize()");
         pMouseX = -1;
         pMouseY = -1;
         pMouseZ = -1;
@@ -39,28 +36,23 @@ namespace Menus
         reset_mouse();
         clear_keybuf();
         bool r = doInitialize();
-        GuardLeave();
         return r;
     }
 
     bool Abstract::doGuardExecute()
     {
-        GuardEnter(pTypeName + ".doExecute()");
         bool r = doExecute();
-        GuardLeave();
         return r;
     }
 
     void Abstract::doGuardFinalize()
     {
-        GuardEnter(pTypeName + ".doFinalize()");
         if (pArea.get() && pArea->background == gfx->glfond)
             pArea->background = 0;
         doFinalize();
         reset_keyboard();
         clear_keybuf();
         reset_mouse();
-        GuardLeave();
     }
 
     void Abstract::loadAreaFromTDF(const String& caption, const String& relFilename)
