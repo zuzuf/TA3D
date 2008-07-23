@@ -20,8 +20,7 @@
 #ifndef TA3D_BASIC_ENGINE
 int expected_players;
 
-int LANG=TA3D_LANG_ENGLISH;
-
+int LANG = 1; // Deprecated
 int CURSOR_MOVE;
 int CURSOR_GREEN;
 int CURSOR_CROSS;
