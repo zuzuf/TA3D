@@ -74,6 +74,14 @@ namespace TA3D
         */
         static void PutTextureInsideRect(const GLuint texture, const float x1, const float y1, const float x2, const float y2);
 
+        /*!
+        ** \brief Load a texture with a mask
+        **
+        ** \param file The texture file
+        ** \param filealpha The mask
+        ** \return A valid BITMAP
+        */
+        static BITMAP* GFX::LoadMaskedTextureToBmp(const String& file, const String& filealpha);
 
     public:
         int			width;				// Size of this window on the screen

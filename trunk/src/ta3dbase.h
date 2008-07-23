@@ -101,8 +101,6 @@ void reset_keyboard();
 
 
 BITMAP *load_memory_pcx(byte *data,RGB *cpal);
-GLuint LoadMaskedTex(const String& file,const String& filealpha);
-BITMAP *LoadMaskedTexBmp(const String& file,const String& filealpha);
 int play(GameData *game_data);
 
 

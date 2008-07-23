@@ -43,7 +43,7 @@ namespace TA3D
             partbmp = create_bitmap_ex(32,256,256);
         BITMAP* bmp;
         if (!filealpha.empty())
-            bmp = LoadMaskedTexBmp(file, filealpha);		// Avec canal alpha séparé
+            bmp = GFX::LoadMaskedTextureToBmp(file, filealpha);		// Avec canal alpha séparé
         else
             bmp = load_bitmap(file.c_str(), NULL);					// Avec canal alpha intégré ou Sans canal alpha
 
