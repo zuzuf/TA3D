@@ -7,6 +7,16 @@
 # include <vector>
 
 
+// ** Deprecated ** Those defines should be removed
+# define TA3D_LANG_ENGLISH		0x0
+# define TA3D_LANG_FRENCH		0x1
+# define TA3D_LANG_GERMAN		0x2
+# define TA3D_LANG_SPANISH		0x3
+# define TA3D_LANG_ITALIAN		0x4
+# define TA3D_LANG_JAPANESE		0x5
+
+
+
 namespace TA3D
 {
 
@@ -154,6 +164,7 @@ namespace TA3D
         ** \return True if language has been changed, false otherwise
         **
         ** \see I18N::currentLanguage(const int)
+        ** \deprecated The language should be referenced by its name, not an unknown index
         */
         static bool CurrentLanguage(const int i) { return I18N::Instance()->currentLanguage(i); }
 

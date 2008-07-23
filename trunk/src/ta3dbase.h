@@ -48,13 +48,6 @@ using namespace TA3D::VARS::CONSTANTS;
 
 #define TIME_UNIT				0.04f	// Pour la simulation physique
 
-#define TA3D_LANG_ENGLISH		0x0
-#define TA3D_LANG_FRENCH		0x1
-#define TA3D_LANG_GERMAN		0x2
-#define TA3D_LANG_SPANISH		0x3
-#define TA3D_LANG_ITALIAN		0x4
-#define TA3D_LANG_JAPANESE		0x5
-
 #define EXIT_NONE		0x0
 #define EXIT_VICTORY	0x1
 #define EXIT_DEFEAT		0x2
