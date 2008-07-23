@@ -24,7 +24,7 @@
 #ifndef __TA3D_GFX_GL_FUNCTIONS_H__
 # define __TA3D_GFX_GL_FUNCTIONS_H__
 
-#include "stdafx.h"
+#include "../stdafx.h"
 #include <stdio.h>
 
 extern bool	MultiTexturing;
@@ -43,43 +43,5 @@ GLhandleARB load_fragment_shader_memory(const char *data,int filesize);
 GLhandleARB load_vertex_shader_memory(const char *data,int filesize);
 GLhandleARB load_fragment_shader(const char *filename);
 GLhandleARB load_vertex_shader(const char *filename);
-
-class SHADER
-{
-public:
-	GLhandleARB		program;
-	GLhandleARB		fragment;
-	GLhandleARB		vertex;
-	bool			succes;
-
-	SHADER() :succes(false) {}
-
-	void load(const char *fragment_file,const char *vertex_file);
-
-	void load_memory(const char *fragment_data,int frag_len,const char *vertex_data,int vert_len);
-
-	void destroy();
-
-	void on();
-
-	void off();
-
-	void setvar1f(const char *var_name,float v0);
-
-	void setvar2f(const char *var_name,float v0,float v1);
-
-	void setvar3f(const char *var_name,float v0,float v1,float v2);
-
-	void setvar4f(const char *var_name,float v0,float v1,float v2,float v3);
-
-	void setvar1i(const char *var_name,int v0);
-
-	void setvar2i(const char *var_name,int v0,int v1);
-
-	void setvar3i(const char *var_name,int v0,int v1,int v2);
-
-	void setvar4i(const char *var_name,int v0,int v1,int v2,int v3);
-
-}; // class SHADER
 
 #endif // __TA3D_GFX_GL_FUNCTIONS_H__

@@ -34,6 +34,7 @@
 # include <list>
 # include "misc/matrix.h"
 # include "gfx/glfunc.h"
+# include "gfx/shader.h"
 
 
 namespace TA3D

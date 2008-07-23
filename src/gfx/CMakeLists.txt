@@ -11,6 +11,7 @@ SET(SOURCES gfx.h gfx.cpp
             fx.particle.h fx.particle.cpp
             fx.manager.h fx.manager.cpp
             fx.h 
+            shader.h shader.cpp
             gfxtexture.cpp gfxtexture.h)
 
 ADD_LIBRARY(gfx STATIC ${SOURCES})
