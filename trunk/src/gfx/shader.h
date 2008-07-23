@@ -1,5 +1,5 @@
-#ifndef __TA3D_GFX_SHADER_H__
-# define __TA3D_GFX_SHADER_H__
+#ifndef __TA3D_GFX_Shader_H__
+# define __TA3D_GFX_Shader_H__
 
 # include "../stdafx.h"
 
@@ -10,19 +10,19 @@ namespace TA3D
 // {
 
 
-    /*! \class SHADER
+    /*! \class Shader
     **
     ** \brief Shader
     */
-    class SHADER
+    class Shader
     {
     public:
         //! \name Constructor & Destructor
         //@{
         //! Default constructor
-        SHADER() :succes(false) {}
+        Shader() :succes(false) {}
         //! Destructor
-        ~SHADER() {destroy();}
+        ~Shader() {destroy();}
         //@}
         
         void destroy();
@@ -60,7 +60,7 @@ namespace TA3D
         GLhandleARB		vertex;
         bool			succes;
 
-    }; // class SHADER
+    }; // class Shader
 
 
 
@@ -68,4 +68,4 @@ namespace TA3D
     // } // namespace GFX
 } // namespace TA3D
 
-#endif // __TA3D_GFX_SHADER_H__
+#endif // __TA3D_GFX_Shader_H__

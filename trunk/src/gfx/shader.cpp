@@ -11,7 +11,7 @@ namespace TA3D
 
 
 
-    void SHADER::destroy()
+    void Shader::destroy()
     {
         if (succes)
         {
@@ -26,7 +26,7 @@ namespace TA3D
 
 
 
-    void SHADER::load_memory(const char *fragment_data,int frag_len,const char *vertex_data,int vert_len)
+    void Shader::load_memory(const char *fragment_data,int frag_len,const char *vertex_data,int vert_len)
     {
         if(!g_useProgram)
             return;
@@ -56,7 +56,7 @@ namespace TA3D
     }
 
 
-    void SHADER::load(const char *fragment_file,const char *vertex_file)
+    void Shader::load(const char *fragment_file,const char *vertex_file)
     {
         if (!g_useProgram)
             return;
@@ -85,61 +85,61 @@ namespace TA3D
         }
     }
 
-    void SHADER::on()
+    void Shader::on()
     {
         if (succes)
             glUseProgramObjectARB(program);
     }
 
-    void SHADER::off()
+    void Shader::off()
     {
         if (succes)
             glUseProgramObjectARB(0);
     }
 
-    void SHADER::setvar1f(const char *var_name, float v0)
+    void Shader::setvar1f(const char *var_name, float v0)
     {
         if (succes)
             glUniform1fARB(glGetUniformLocationARB(program, var_name), v0);
     }
 
-    void SHADER::setvar2f(const char *var_name,float v0,float v1)
+    void Shader::setvar2f(const char *var_name,float v0,float v1)
     {
         if (succes)
             glUniform2fARB(glGetUniformLocationARB(program, var_name), v0, v1);
     }
 
-    void SHADER::setvar3f(const char *var_name,float v0,float v1,float v2)
+    void Shader::setvar3f(const char *var_name,float v0,float v1,float v2)
     {
         if (succes)
             glUniform3fARB(glGetUniformLocationARB(program, var_name), v0, v1, v2);
     }
 
-    void SHADER::setvar4f(const char *var_name,float v0,float v1,float v2,float v3)
+    void Shader::setvar4f(const char *var_name,float v0,float v1,float v2,float v3)
     {
         if (succes)
             glUniform4fARB(glGetUniformLocationARB(program, var_name), v0, v1, v2, v3);
     }
 
-    void SHADER::setvar1i(const char *var_name,int v0)
+    void Shader::setvar1i(const char *var_name,int v0)
     {
         if (succes)
             glUniform1iARB(glGetUniformLocationARB(program, var_name), v0);
     }
 
-    void SHADER::setvar2i(const char *var_name,int v0,int v1)
+    void Shader::setvar2i(const char *var_name,int v0,int v1)
     {
         if (succes)
             glUniform2iARB(glGetUniformLocationARB(program, var_name), v0, v1);
     }
 
-    void SHADER::setvar3i(const char *var_name,int v0,int v1,int v2)
+    void Shader::setvar3i(const char *var_name,int v0,int v1,int v2)
     {
         if (succes)
             glUniform3iARB(glGetUniformLocationARB(program, var_name), v0, v1, v2);
     }
 
-    void SHADER::setvar4i(const char *var_name,int v0,int v1,int v2,int v3)
+    void Shader::setvar4i(const char *var_name,int v0,int v1,int v2,int v3)
     {
         if (succes)
             glUniform4iARB(glGetUniformLocationARB(program, var_name), v0, v1, v2, v3);
