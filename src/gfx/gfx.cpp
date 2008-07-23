@@ -1186,5 +1186,27 @@ namespace Interfaces
         }
     }
 
+
+    void GFX::PutTextureInsideRect(const GLuint texture, const float x1, const float y1, const float x2, const float y2)
+    {
+        glBindTexture(GL_TEXTURE_2D, texture);
+        glBegin(GL_QUADS);
+        // 
+        glTexCoord2f(0.0f, 0.0f);
+        glVertex2f(x1, y1);
+
+        glTexCoord2f(1.0f, 0.0f);
+        glVertex2f(x2, y1);
+
+        glTexCoord2f(1.0f, 1.0f);
+        glVertex2f(x2, y2);
+
+        glTexCoord2f(0.0f, 1.0f);
+        glVertex2f(x1, y2);
+        //
+        glEnd();
+    }
+
+
 } // namespace Interfaces
 } // namespace TA3D

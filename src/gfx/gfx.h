@@ -56,6 +56,28 @@ namespace Interfaces
         bool		alpha_blending_set;
 
     public:
+        //! \name 2D/3D Mode
+        //@{
+        //! Set the 2D Mode
+        static void set_2D_mode();
+        //! UnSet the 2D mode
+        static void unset_2D_mode();
+        //@}
+
+
+        /*!
+        ** \brief Draw a texture inside a quad surface
+        **
+        ** \param texture The texture to draw
+        ** \param x1 The top-left corned X-coordinate
+        ** \param y1 The top-left corned Y-coordinate
+        ** \param x2 The bottom-right corned X-coordinate
+        ** \param x2 The bottom-right corned Y-coordinate
+        */
+        static void PutTextureInsideRect(const GLuint texture, const float x1, const float y1, const float x2, const float y2);
+
+
+    public:
         int			width;				// Size of this window on the screen
         int			height;
         int			x,y;				// Position on the screen
@@ -170,12 +192,6 @@ namespace Interfaces
         void drawtexture(const GLuint &tex, const float x1, const float y1, const float x2, const float y2, const uint32 col);
         void putpixel(const float x, const float y, const uint32 col);
         uint32 getpixel(const sint32 x, const sint32 y) const;
-
-        //! \name 2D/3D Mode
-        //@{
-        static void set_2D_mode();
-        static void unset_2D_mode();
-        //@}
 
         //! \name Text manipulation
         //@{

@@ -1,6 +1,7 @@
 #include "weapons.ingame.h"
 #include "../../EngineClass.h"
 #include "../../misc/camera.h"
+#include "../../gfx/gfx.h"
 
 
 
@@ -210,7 +211,10 @@ namespace TA3D
                 glEnable(GL_BLEND);
                 glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
                 int idx=weapon[i].owner;
-                PutTex(nuclogo.glbmp[idx],weapon[i].Pos.x/map_w*rw+64.0f-nuclogo.ofs_x[idx],weapon[i].Pos.z/map_h*rh+64.0f-nuclogo.ofs_y[idx],weapon[i].Pos.x/map_w*rw+63.0f-nuclogo.ofs_x[idx]+nuclogo.w[idx],weapon[i].Pos.z/map_h*rh+63.0f-nuclogo.ofs_y[idx]+nuclogo.h[idx]);
+                Interfaces::GFX::PutTextureInsideRect(nuclogo.glbmp[idx], weapon[i].Pos.x / map_w * rw + 64.0f - nuclogo.ofs_x[idx],
+                                          weapon[i].Pos.z / map_h * rh + 64.0f - nuclogo.ofs_y[idx],
+                                          weapon[i].Pos.x / map_w * rw + 63.0f - nuclogo.ofs_x[idx] + nuclogo.w[idx],
+                                          weapon[i].Pos.z / map_h * rh + 63.0f - nuclogo.ofs_y[idx] + nuclogo.h[idx]);
                 glDisable(GL_BLEND);
                 glDisable(GL_TEXTURE_2D);
                 glBegin(GL_POINTS);
