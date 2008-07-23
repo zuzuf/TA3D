@@ -19,6 +19,7 @@
 #include "TA3D_NameSpace.h"
 #include "threads/cThread.h"
 #include "misc/math.h"
+#include "gfx/shader.h"
 
 #define TA3D_BASIC_ENGINE
 #include "ta3d.h"			// Moteur
@@ -1041,7 +1042,7 @@ void SurfPaint(int index)
             CancelH[i]=0;
     }
 
-    SHADER shader_paint_u,shader_paint_v;
+    Shader shader_paint_u,shader_paint_v;
     shader_paint_u.load("shaders/3dmpaint_u.frag","shaders/3dmpaint.vert");
     shader_paint_v.load("shaders/3dmpaint_v.frag","shaders/3dmpaint.vert");
 

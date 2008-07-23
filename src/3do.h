@@ -189,7 +189,7 @@ namespace TA3D
         char	*vert_shader_src;
         uint32	frag_shader_size;
         uint32	vert_shader_size;
-        SHADER	s_shader;
+        Shader	s_shader;
     };
 
     struct tagObject				// Structure pour l'en-tête du fichier

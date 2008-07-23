@@ -44,6 +44,7 @@
 #include "UnitEngine.h"
 #include "tnt.h"
 #include "scripts/script.h"
+#include "gfx/shader.h"
 
 
 #ifndef SCROLL_SPEED
@@ -430,7 +431,7 @@ int play(GameData *game_data)
     sky_obj.build(10,400,sky_data->full_sphere);
     float	sky_angle = sky_data->rotation_offset;
 
-    SHADER	water_shader, water_shader_reflec, water_pass1, water_pass1_low, water_pass2;
+    Shader	water_shader, water_shader_reflec, water_pass1, water_pass1_low, water_pass2;
     GLuint transtex,reflectex,first_pass,second_pass,water_color;
     GLuint water_FBO;
 
