@@ -52,7 +52,14 @@ int cursor_type=CURSOR_DEFAULT;
 #endif
 
 
+
+# include "gfx/glfunc.h" // Must be removed as well as the function below
+
 #ifndef TA3D_BASIC_ENGINE
+
+
+
+
 
 /*---------------------------------------------------------------------------------\
 |                              BITMAP *load_memory_pcx(...)                        |

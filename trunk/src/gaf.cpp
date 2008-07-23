@@ -30,6 +30,7 @@
 #include "gaf.h"
 #include <vector>
 #include "jpeg/ta3d_jpg.h"
+#include "gfx/glfunc.h"
 
 
 namespace TA3D

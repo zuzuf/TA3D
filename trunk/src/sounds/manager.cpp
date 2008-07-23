@@ -22,6 +22,8 @@
 #include "../misc/math.h"
 #include "manager.h"
 #include "../logs/logs.h"
+#include "../misc/camera.h"
+
 
 using namespace TA3D::Interfaces;
 

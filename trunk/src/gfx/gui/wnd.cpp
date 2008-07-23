@@ -4,6 +4,8 @@
 #include "../../misc/math.h"
 #include "../../sounds/manager.h"
 #include "../../console.h"
+#include "../../gfx/glfunc.h"
+
 
 using namespace TA3D::Exceptions;
 
