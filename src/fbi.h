@@ -350,7 +350,7 @@ public:
 	int load(char *data,int size=99999999);
 
     /*!
-    ** \brief Load data contained in download/*dl.tdf files to build extra build menus
+    ** \brief Load data contained in `download/ *dl.tdf` files to build extra build menus
     */
 	void load_dl();
 
