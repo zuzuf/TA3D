@@ -175,7 +175,10 @@ namespace UTILS
             }
         }
         if (!data)
-            throw (String("Unable to load file ") + filename);
+        {
+            LOG_CRITICAL("[tdf] No data to load `" << filename << "`");
+            return;
+        }
 
         if (data != NULL && toUTF8) 
         {
