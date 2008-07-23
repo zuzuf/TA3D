@@ -716,7 +716,7 @@ namespace TA3D
             return -1;
         if (header.OffsetToPrimitiveArray + offset < 0)
             return -1;
-        if (header.OffsetToObjectName + offset < 0 || header.OffsetToObjectName > 10240)
+        if (header.OffsetToObjectName + offset < 0 || header.OffsetToObjectName > 102400)
             return -1;
         int i;
 
@@ -725,7 +725,7 @@ namespace TA3D
             name = (char*)(data+header.OffsetToObjectName);
             i = 0;
             while( name[i] && i < 128 ) i++;
-            if (name[i] == 0 && i >= 128)
+            if (name[i] != 0 && i >= 128)
             {
                 name = NULL;
                 return -1;

@@ -269,10 +269,27 @@ public:
 
 	#define SWAP( a, b ) { sint32 tmp = a; a = b; b = tmp; }
 
+    /*!
+    ** \brief Add a unit to the list of units this unit can build
+    ** \param index The index of the buildable unit
+    ** \param px X coordinate in build menu
+    ** \param py Y coordinate in build menu
+    ** \param pw width
+    ** \param ph height
+    ** \param p menu ID
+    ** \param Pic OpenGL texture ID
+    */
 	void AddUnitBuild(int index, int px, int py, int pw, int ph, int p, GLuint Pic = 0 );
 
+    /*!
+    ** \brief Fix conflicts in build menus
+    */
 	void FixBuild();
 
+    /*!
+    ** \brief Can the current unit build unit 'index' ?
+    ** \param index The index of the buildable unit
+    */
 	inline bool canbuild(int index)
 	{
 		for(int i=0;i<nb_unit;i++)
@@ -281,235 +298,65 @@ public:
 		return false;
 	}
 
+    /*!
+    ** \brief Check if the unit belongs to the cat category
+    ** \param cat The category to check
+    */
 	inline bool checkCategory( const char *cat )
 	{
 		if( Category == NULL || cat == NULL )	return false;
 		return Category->exists(String::ToLower(cat));
 	}
 
-	inline void init()
-	{
-		not_used = false;
+    /*!
+    ** \brief Inits all the variables
+    */
+	void init();
 
-		commander = false;
 
-		selfdestructcountdown = 5;
-
-		last_click = -1;
-		click_time = 0.0f;
-
-		emitting_points_computed = false;
-		soundcategory = strdup("");
-
-		isfeature=false;
-		antiweapons=false;
-
-		weapon[0]=weapon[1]=weapon[2]=NULL;		// Pas d'armes
-
-		script=NULL;		// Aucun script
-
-		page=0;
-
-		nb_pages = 0;
-		nb_unit=0;
-		BuildList=NULL;
-		PicList=NULL;
-		Pic_x=NULL;				// Coordinates
-		Pic_y=NULL;
-		Pic_w=NULL;				// Coordinates
-		Pic_h=NULL;
-		Pic_p=NULL;				// Page where the pic has to be shown
-
-		dl_data = NULL;
-
-		init_cloaked = false;
-		mincloakdistance = 10;
-		DefaultMissionType=MISSION_STANDBY;
-		attackrunlength=0;
-		yardmap=NULL;
-		model=NULL;
-		unitpic=NULL;
-		hoverattack=false;
-		SortBias=0;
-		IsAirBase=false;
-		AltFromSeaLevel=0;
-		TransportSize=0;
-		TransportCapacity=0;
-		ManeuverLeashLength=640;
-		CruiseAlt=0;
-		TEDclass=CLASS_UNDEF;
-		WaterLine=0.0f;
-		StandingMoveOrder=1;
-		MobileStandOrders=1;
-		StandingFireOrder=1;
-		FireStandOrders=1;
-		ShootMe=false;
-		ThreeD=true;
-		Builder=false;
-		Unitname=NULL;
-		name=NULL;
-		version=0;
-		side=NULL;
-		ObjectName=NULL;
-		FootprintX=0;
-		FootprintZ=0;
-		Category = NULL;
-		categories = NULL;
-		fastCategory=0;
-		MaxSlope=255;
-		BMcode=0;
-		norestrict=false;
-		BuildAngle=10;
-		canresurrect=false;
-		Designation_Name=NULL;	// Nom visible de l'unité
-		Description=NULL;		// Description
-		BuildCostEnergy=0;		// Energie nécessaire pour la construire
-		BuildCostMetal=0;		// Metal nécessaire pour la construire
-		MaxDamage=10;			// Points de dégats maximum que l'unité peut encaisser
-		EnergyUse=0;			// Energie nécessaire pour faire quelque chose
-		BuildTime=0;			// Temps de construction
-		WorkerTime=1;			// Vitesse de construction
-		AutoFire=false;			// Tire automatique
-		SightDistance=50;		// Distance maximale de vue de l'unité
-		RadarDistance=0;		// Distance maximale de detection radar
-		RadarDistanceJam=0;		// For Radar jammers
-		EnergyStorage=0;		// Quantité d'énergie stockable par l'unité
-		MetalStorage=0;			// Quantité de metal stockable par l'unité
-		ExplodeAs=NULL;			// Type d'explosion lorsque l'unité est détruite
-		SelfDestructAs=NULL;	// Type d'explosion lors de l'autodestruction
-		Corpse=NULL;			// Restes de l'unité
-		UnitNumber=0;			// ID de l'unité
-		canmove=false;			// Indique si l'unité peut bouger
-		canpatrol=false;		// si elle peut patrouiller
-		canstop=false;			// si elle peut s'arrêter
-		canguard=false;			// si elle peut garder une autre unité
-		MaxVelocity=1;			// Vitesse maximale
-		BrakeRate=1;			// Vitesse de freinage
-		Acceleration=1;			// Accélération
-		TurnRate=1;				// Vitesse de tournage
-		SteeringMode=0;
-		canfly=false;			// si l'unité peut voler
-		Scale=1.0f;				// Echelle
-		BankScale=0;
-		BuildDistance=0.0f;		// Distance maximale de construction
-		CanReclamate=false;		// si elle peut récupérer
-		EnergyMake=0;			// Production d'énergie de l'unité
-		MetalMake=0.0f;			// Production de métal de l'unité
-		MovementClass=NULL;		// Type de mouvement
-		Upright=false;			// Si l'unité est debout
-		Weapon1=-1;				// Arme 1
-		w_badTargetCategory[0]=NULL;	// Type d'unité non ciblable par les armes
-		w_badTargetCategory[1]=NULL;	// Type d'unité non ciblable par les armes
-		w_badTargetCategory[2]=NULL;	// Type d'unité non ciblable par les armes
-		BadTargetCategory=NULL;	// Type d'unité non attacable
-		DamageModifier=1.0f;	// How much of the weapon damage it takes
-		canattack=false;			// Si l'unité peut attaquer
-		ActivateWhenBuilt=false;// L'unité s'active lorsqu'elle est achevée
-		onoffable=false;		// (Dés)activable
-		MaxWaterDepth=0;		// Profondeur maximale où l'unité peut aller
-		MinWaterDepth=-0xFFF;	// Profondeur minimale où l'unité peut aller
-		NoShadow=false;			// Si l'unité n'a pas d'ombre
-		TransMaxUnits=0;		// Maximum d'unités portables
-		canload=false;			// Si elle peut charger d'autres unités
-		Weapon2=-1;				// Arme 2
-		Floater=false;			// Si l'unité flotte
-		canhover=false;			// For hovercrafts
-		NoChaseCategory=NULL;		// Type d'unité non chassable
-		Weapon3=-1;				// Arme 3
-		SonarDistance=0;		// Portée du sonar
-		SonarDistanceJam=0;		// For Sonar jammers
-		candgun=false;			// si l'unité peut utiliser l'arme ravage
-		CloakCost = 0;			// Coût en energie pour rendre l'unité invisible
-		CloakCostMoving = 0;	// Idem mais quand l'unité bouge
-		HealTime=0;				// Temps nécessaire à l'unité pour se réparer
-		CanCapture=false;		// Si elle peut capturer d'autres unités
-		HideDamage=false;		// Cache la vie de l'unité aux autres joueurs
-		ImmuneToParalyzer=false;	// Immunisation
-		Stealth=false;
-		MakesMetal=0;			// production de métal de l'unité
-		ExtractsMetal=0.0f;		// métal extrait par l'unité
-		TidalGenerator=false;	// Si l'unité est une centrale marée-motrice
-		TransportMaxUnits=0;	// Maximum d'unités transportables
-		kamikaze=false;			// Unité kamikaze
-		kamikazedistance=0;
-		WindGenerator=0;		// Centrale de type Eolienne
-	}
-
+    /*!
+    ** \brief Constructor
+    */
 	UNIT_TYPE()
 	{
 		init();
 	}
 
-	inline void destroy()
-	{
-		if(MovementClass)			free(MovementClass);
-		if(soundcategory)			free(soundcategory);
-		if(ExplodeAs) free(ExplodeAs);
-		if(SelfDestructAs) free(SelfDestructAs);
-		if(script) {
-			script->destroy();
-			free(script);
-			}
+    /*!
+    ** \brief Free memory and destroy the data contained in the object
+    */
+	void destroy();
 
-		for( int i = 0 ; i < 3 ; i++ )
-			if( w_badTargetCategory[i] )	free( w_badTargetCategory[i] );
-		if( BadTargetCategory )			free( BadTargetCategory );
-		if( NoChaseCategory )			free( NoChaseCategory );
-
-		if(BuildList)		free(BuildList);
-		if(Pic_x)		free(Pic_x);
-		if(Pic_y)		free(Pic_y);
-		if(Pic_w)		free(Pic_w);
-		if(Pic_h)		free(Pic_h);
-		if(Pic_p)		free(Pic_p);
-
-		if(PicList) {
-			for( int i = 0 ; i < nb_unit ; i++ )
-				gfx->destroy_texture( PicList[i] );
-			free(PicList);
-			}
-
-		if(yardmap)	free(yardmap);
-		if(model)
-			model=NULL;
-		if(unitpic) {
-			destroy_bitmap(unitpic);
-			glDeleteTextures(1,&glpic);
-			}
-		if(Corpse)		free(Corpse);
-		if(Unitname)		free(Unitname);
-		if(name)		free(name);
-		if(side)	free(side);
-		if(ObjectName)	free(ObjectName);
-		if(Designation_Name)	free(Designation_Name);
-		if(Description)	free(Description);
-		if(Category)	delete Category;
-		if(categories)	delete categories;
-
-		init();
-	}
-
+    /*!
+    ** \brief Destructor
+    */
 	~UNIT_TYPE()
 	{
 		destroy();
 	}
 
 private:
-	inline char *get_line(char *data)
-	{
-		int pos=0;
-		while(data[pos]!=0 && data[pos]!=13 && data[pos]!=10)	pos++;
-		char *d=new char[pos+1];
-		memcpy(d,data,pos);
-		d[pos]=0;
-		return d;
-	}
+    /*!
+    ** \brief Get next line of text from file buffer data
+    */
+	char *get_line(char *data);
 public:
 
+    /*!
+    ** \brief Load units from file buffer data
+    ** \param data The file buffer
+    ** \param size File size
+    */
 	int load(char *data,int size=99999999);
 
+    /*!
+    ** \brief Load data contained in download/*dl.tdf files to build extra build menus
+    */
 	void load_dl();
 
+    /*!
+    ** \brief Everything is in the name ...
+    */
 	void show_info(float fade,GfxFont fnt);
 };
 
@@ -554,31 +401,7 @@ public:
 
 	void load_panel_texture( const String &player_side, const String &intgaf );
 
-	inline int load_unit(byte *data,int size=9999999)			// Ajoute une nouvelle unité
-	{
-		UNIT_TYPE	*n_type=(UNIT_TYPE*) malloc(sizeof(UNIT_TYPE)*(nb_unit+1));
-		int i;
-		if(unit_type!=NULL) {
-			for(i=0;i<nb_unit;i++)
-				n_type[i]=unit_type[i];
-			free(unit_type);
-			}
-		unit_type=n_type;
-		unit_type[nb_unit].init();
-		int result =  unit_type[nb_unit].load((char*)data,size);
-		if( unit_type[ nb_unit ].Unitname )
-			unit_hashtable.insert(String::ToLower(unit_type[nb_unit].Unitname ), nb_unit + 1 );
-		if( unit_type[ nb_unit ].name )
-			unit_hashtable.insert(String::ToLower(unit_type[nb_unit].name ), nb_unit + 1 );
-		if( unit_type[ nb_unit ].ObjectName )
-			unit_hashtable.insert(String::ToLower(unit_type[nb_unit].ObjectName ), nb_unit + 1 );
-		if( unit_type[ nb_unit ].Description )
-			unit_hashtable.insert(String::ToLower(unit_type[nb_unit].Description ), nb_unit + 1 );
-		if( unit_type[ nb_unit ].Designation_Name )
-			unit_hashtable.insert(String::ToLower(unit_type[nb_unit].Designation_Name ), nb_unit + 1 );
-		nb_unit++;
-		return result;
-	}
+	int load_unit(byte *data,int size=9999999);			// Ajoute une nouvelle unité
 
 	inline int get_unit_index(const char *unit_name)		// Cherche l'indice de l'unité unit_name dans la liste d'unités
 	{
@@ -599,148 +422,17 @@ public:
 
 	void analyse(String filename,int unit_index);
 
-	inline void analyse2(char *data,int size=9999999)
-	{
-		char *pos=data;
-		char *ligne=NULL;
-		char *limit=data+size;
-		int nb=0;
-		do {
-			char *unitmenu=NULL;
-			char *unitname=NULL;
+	void analyse2(char *data,int size=9999999);
 
-			do
-			{
-				nb++;
-				if(ligne)
-					delete[] ligne;
-				ligne=get_line(pos);
-				strlwr(ligne);
-				while(pos[0]!=0 && pos[0]!=13 && pos[0]!=10)	pos++;
-				while(pos[0]==13 || pos[0]==10)	pos++;
+    void gather_build_data();
 
-				if(strstr(ligne,"unitmenu=")) {		// Obtient le nom de l'unité dont le menu doit être completé
-					unitmenu=strstr(ligne,"unitmenu=")+9;
-					if(strstr(unitmenu,";"))
-						*(strstr(unitmenu,";"))=0;
-					strupr(unitmenu);
-					unitmenu=strdup(unitmenu);
-					}
-				if(strstr(ligne,"unitname=")) {		// Obtient le nom de l'unité à ajouter
-					unitname=strstr(ligne,"unitname=")+9;
-					if(strstr(unitname,";"))
-						*(strstr(unitname,";"))=0;
-					strupr(unitname);
-					unitname=strdup(unitname);
-					}
+    void gather_all_build_data();
 
-			}while(strstr(ligne,"}")==NULL && nb<2000 && data<limit);
-			delete[] ligne;
-			ligne=NULL;
-			if(unitmenu==NULL || unitname==NULL) break;
-			int unit_index=get_unit_index(unitmenu);
-			if(unit_index==-1) continue;		// Au cas où l'unité n'existerait pas
-			int idx=get_unit_index(unitname);
-			if(idx>=0 && idx<nb_unit && unit_type[idx].unitpic)
-				unit_type[unit_index].AddUnitBuild(idx, -1, -1, 64, 64, -1);
-			}while(pos[0]=='[' && nb<2000 && data<limit);
-	}
-
-    inline void gather_build_data()
-    {
-        uint32 file_size=0;
-        String::List file_list;
-        HPIManager->getFilelist( ta3dSideData.download_dir + "*.tdf", file_list);
-
-        for (String::List::const_iterator file = file_list.begin(); file != file_list.end(); ++file) // Cherche un fichier pouvant contenir des informations sur l'unité unit_name
-        {
-            byte* data=HPIManager->PullFromHPI(*file, &file_size);		// Lit le fichier
-            if(data)
-            {
-                analyse2((char*)data,file_size);
-
-                delete[] data;
-            }
-        }
-    }
-
-    inline void gather_all_build_data()
-    {
-        cTAFileParser sidedata_parser( ta3dSideData.gamedata_dir + "sidedata.tdf", false, true );
-        for (short i = 0 ; i < nb_unit ; ++i)
-        {
-            int n = 1;
-            String canbuild = sidedata_parser.pullAsString(String::ToLower(format( "canbuild.%s.canbuild%d", unit_type[ i ].Unitname, n ) ) );
-            while( canbuild != "" ) {
-                int idx = get_unit_index( (char*)canbuild.c_str() );
-                if(idx>=0 && idx<nb_unit && unit_type[idx].unitpic)
-                    unit_type[ i ].AddUnitBuild(idx, -1, -1, 64, 64, -1);
-                n++;
-                canbuild = sidedata_parser.pullAsString( format( "canbuild.%s.canbuild%d", unit_type[ i ].Unitname, n ) );
-            }
-        }
-
-        gather_build_data();			// Read additionnal build data
-
-        String::List file_list;
-        HPIManager->getFilelist( ta3dSideData.guis_dir + "*.gui", file_list);
-
-        for (String::List::iterator file = file_list.begin(); file != file_list.end(); ++file) // Cherche un fichier pouvant contenir des informations sur l'unité unit_name
-        {
-            char *f=NULL;
-            for (int i = 0; i < nb_unit; ++i)
-            {
-                if ((f = strstr((char*)String::ToUpper(*file).c_str(), unit_type[i].Unitname)))
-                {
-                    if(f[strlen(unit_type[i].Unitname)]=='.'
-                       ||(f[strlen(unit_type[i].Unitname)]>='0' && f[strlen(unit_type[i].Unitname)]<='9'))
-                        analyse(*file,i);
-                }
-            }
-        }
-
-        for (int i = 0 ; i < nb_unit ; ++i)
-            unit_type[i].FixBuild();
-    }
-
-    inline void load_script_file(char *unit_name)
-    {
-        strupr(unit_name);
-        int unit_index=get_unit_index(unit_name);
-        if(unit_index==-1) return;		// Au cas où l'unité n'existerait pas
-        char *uprname = strdup(unit_name);
-        strupr(uprname);
-
-        String::List file_list;
-        HPIManager->getFilelist( format( "scripts\\%s.cob", unit_name ), file_list);
-
-        for (String::List::iterator file = file_list.begin();file != file_list.end(); ++file) // Cherche un fichier pouvant contenir des informations sur l'unité unit_name
-        {
-            if (strstr(String::ToUpper(*file).c_str(),uprname)) 	// A trouvé un fichier qui convient
-            {
-                byte* data=HPIManager->PullFromHPI(*file);		// Lit le fichier
-
-                unit_type[unit_index].script=(SCRIPT*) malloc(sizeof(SCRIPT));
-                unit_type[unit_index].script->init();
-                unit_type[unit_index].script->load_cob(data);
-
-                // Don't delete[] data here because the script keeps a reference to it.
-
-                break;
-            }
-        }
-
-        free(uprname);
-    }
+    void load_script_file(char *unit_name);
 
     int unit_build_menu(int index,int omb,float &dt,bool GUI=false);				// Affiche et gère le menu des unités
 
-    inline void Identify()			// Identifie les pièces aux quelles les scripts font référence
-    {
-        for(int i=0;i<nb_unit;i++)
-            if(unit_type[i].script && unit_type[i].model)
-                unit_type[i].model->Identify(unit_type[i].script->nb_piece,unit_type[i].script->piece_name);
-    }
+    void Identify();			// Identifie les pièces aux quelles les scripts font référence
 };
 
 int load_all_units(void (*progress)(float percent,const String &msg)=NULL);
