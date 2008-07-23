@@ -6,7 +6,7 @@ namespace TA3D
 
 
 
-    TA3D::Interfaces::GfxFont gui_font;
+    TA3D::GfxFont gui_font;
 
 
 

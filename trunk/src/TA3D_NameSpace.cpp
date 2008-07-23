@@ -24,7 +24,7 @@
 
 // global variables:
 TA3D::TA3DCONFIG		*TA3D::VARS::lp_CONFIG = NULL;
-TA3D::Interfaces::GFX	*TA3D::VARS::gfx = NULL;						// The gfx object we will use to draw basic things and manage fonts, textures, ...
+TA3D::GFX*              TA3D::VARS::gfx = NULL;						// The gfx object we will use to draw basic things and manage fonts, textures, ...
 RGB						*TA3D::VARS::pal = NULL;
 uint8					TA3D::VARS::unit_engine_thread_sync;
 uint8					TA3D::VARS::weapon_engine_thread_sync;

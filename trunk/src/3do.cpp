@@ -2782,22 +2782,20 @@ hit_fast_is_exploding:
 
 
 
-    float OBJECT::print_struct(float Y,float X,TA3D::Interfaces::GfxFont fnt)
+    float OBJECT::print_struct(float Y, float X, TA3D::GfxFont& fnt)
     {
-        //	if (nb_vtx==0 || nb_prim==0 || nb_p_index>0 || nb_l_index>0)
         gfx->print(fnt, X, Y, 0.0f,      0xFFFFFF, format("%s [%d]", name,script_index));
         gfx->print(fnt, 320.0f, Y, 0.0f, 0xFFFFFF, format("(v:%d",   nb_vtx));
         gfx->print(fnt, 368.0f, Y, 0.0f, 0xFFFFFF, format(",p:%d",   nb_prim));
         gfx->print(fnt, 416.0f, Y, 0.0f, 0xFFFFFF, format(",t:%d",   nb_t_index));
         gfx->print(fnt, 464.0f, Y, 0.0f, 0xFFFFFF, format(",l:%d",   nb_l_index));
         gfx->print(fnt, 512.0f, Y, 0.0f, 0xFFFFFF, format(",p:%d)",  nb_p_index));
-        //		allegro_gl_printf(fnt,320.0f,Y,0.0f,0xFFFFFF,"(v:%d,p:%d,t:%d,l:%d,p:%d)",nb_vtx,nb_prim,nb_t_index,nb_l_index,nb_p_index);
-        Y += 8.0f;
+        float nwY = Y + 8.0f;
         if (child)
-            Y = child->print_struct(Y, X + 8.0f, fnt);
+            nwY = child->print_struct(nwY, X + 8.0f, fnt);
         if (next)
-            Y = next->print_struct(Y, X, fnt);
-        return Y;
+            nwY = next->print_struct(nwY, X, fnt);
+        return nwY;
     }
 
 

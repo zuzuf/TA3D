@@ -43,8 +43,6 @@ using namespace TA3D; // TODO Remove this
 
 namespace TA3D
 {
-namespace Interfaces
-{
 
     class GfxFont;
 
@@ -273,8 +271,7 @@ namespace Interfaces
     }; // class GFX
 
 
-}
-}
+} // namespace TA3D
 
 
 #endif // __TA3D_GFX_H__

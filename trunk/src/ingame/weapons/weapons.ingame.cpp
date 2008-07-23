@@ -211,7 +211,7 @@ namespace TA3D
                 glEnable(GL_BLEND);
                 glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
                 int idx=weapon[i].owner;
-                Interfaces::GFX::PutTextureInsideRect(nuclogo.glbmp[idx], weapon[i].Pos.x / map_w * rw + 64.0f - nuclogo.ofs_x[idx],
+                GFX::PutTextureInsideRect(nuclogo.glbmp[idx], weapon[i].Pos.x / map_w * rw + 64.0f - nuclogo.ofs_x[idx],
                                           weapon[i].Pos.z / map_h * rh + 64.0f - nuclogo.ofs_y[idx],
                                           weapon[i].Pos.x / map_w * rw + 63.0f - nuclogo.ofs_x[idx] + nuclogo.w[idx],
                                           weapon[i].Pos.z / map_h * rh + 63.0f - nuclogo.ofs_y[idx] + nuclogo.h[idx]);
