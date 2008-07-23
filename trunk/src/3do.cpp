@@ -1951,9 +1951,9 @@ draw_next:
         {
             if (nb_t_index > 2 && (data_s == NULL || script_index < 0 || !(data_s->flag[script_index] & FLAG_HIDE)) )
             {
-                int rnd_idx = (rand_from_table() % (nb_t_index / 3)) * 3;
-                float a = (rand_from_table() & 0xFF) / 255.0f;
-                float b = (1.0f - a) * (rand_from_table() & 0xFF) / 255.0f;
+                int rnd_idx = (Math::RandFromTable() % (nb_t_index / 3)) * 3;
+                float a = (Math::RandFromTable() & 0xFF) / 255.0f;
+                float b = (1.0f - a) * (Math::RandFromTable() & 0xFF) / 255.0f;
                 float c = 1.0f - a - b;
                 vec->x = a * points[ t_index[rnd_idx]].x + b * points[t_index[rnd_idx + 1]].x + c * points[t_index[rnd_idx + 2]].x;
                 vec->y = a * points[ t_index[rnd_idx]].y + b * points[t_index[rnd_idx + 1]].y + c * points[t_index[rnd_idx + 2]].y;
@@ -2027,22 +2027,22 @@ draw_next:
         {
             Vector3D Dir;
             float life = 1.0f;
-            byte nb = (rand_from_table() % 60) + 1;
+            byte nb = (Math::RandFromTable() % 60) + 1;
             ParticlesSystem* system = NULL;
             for (byte i = 0;i < nb; ++i)
             {
                 Vector3D t_mod;
                 bool random_vector = true;
                 if (src != NULL)
-                    for ( int base_n = rand_from_table(), n = 0 ; random_vector && n < src->nb_sub_obj ; n++ )
+                    for ( int base_n = Math::RandFromTable(), n = 0 ; random_vector && n < src->nb_sub_obj ; n++ )
                         random_vector = !src->random_pos( src_data, (base_n + n) % src->nb_sub_obj, &t_mod );
                 if (random_vector)
                 {
-                    t_mod.x=((rand_from_table()%2001)-1000)*0.001f;
-                    t_mod.y=((rand_from_table()%2001)-1000)*0.001f;
-                    t_mod.z=((rand_from_table()%2001)-1000)*0.001f;
+                    t_mod.x=((Math::RandFromTable()%2001)-1000)*0.001f;
+                    t_mod.y=((Math::RandFromTable()%2001)-1000)*0.001f;
+                    t_mod.z=((Math::RandFromTable()%2001)-1000)*0.001f;
                     t_mod.unit();
-                    t_mod=(rand_from_table()%1001)*0.001f*size*t_mod;
+                    t_mod = (Math::RandFromTable() % 1001) * 0.001f * size * t_mod;
                     if (center)
                         t_mod=t_mod+(*center);
                 }

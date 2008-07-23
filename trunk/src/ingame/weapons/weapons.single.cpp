@@ -311,7 +311,7 @@ namespace TA3D
                     // Start a fire ?
                     if (feature_manager.feature[ features.feature[-hit_idx-2].type ].flamable && !features.feature[-hit_idx-2].burning && weapon_manager.weapon[weapon_id].firestarter && local )
                     {
-                        int starter_score = rand_from_table() % 100;
+                        int starter_score = Math::RandFromTable() % 100;
                         if( starter_score < weapon_manager.weapon[weapon_id].firestarter )
                         {
                             features.burn_feature( -hit_idx-2 );
@@ -452,7 +452,7 @@ namespace TA3D
                                     // Start a fire ?
                                     if( feature_manager.feature[ features.feature[-t_idx-2].type ].flamable && !features.feature[-t_idx-2].burning && weapon_manager.weapon[weapon_id].firestarter && local )
                                     {
-                                        int starter_score = rand_from_table() % 100;
+                                        int starter_score = Math::RandFromTable() % 100;
                                         if( starter_score < weapon_manager.weapon[weapon_id].firestarter ) {
                                             features.burn_feature( -t_idx-2 );
                                             if( network_manager.isConnected() )
@@ -764,9 +764,9 @@ namespace TA3D
                         float x,y,z;
                         if(i>0 && i<9)
                         {
-                            x=((rand_from_table()%2001)-1000)*0.005f;
-                            y=((rand_from_table()%2001)-1000)*0.005f;
-                            z=((rand_from_table()%2001)-1000)*0.005f;
+                            x=((Math::RandFromTable()%2001)-1000)*0.005f;
+                            y=((Math::RandFromTable()%2001)-1000)*0.005f;
+                            z=((Math::RandFromTable()%2001)-1000)*0.005f;
                         }
                         else
                             x=y=z=0.0f;
@@ -810,8 +810,12 @@ namespace TA3D
                 glDisable(GL_TEXTURE_2D);
                 glBegin(GL_POINTS);
                 glColor3f(0.75f,0.75f,0.75f);
-                for(int i=0;i<10;i++)
-                    glVertex3f(Pos.x+(rand_from_table()%201)*0.01f-1.0f,Pos.y+(rand_from_table()%201)*0.01f-1.0f,Pos.z+(rand_from_table()%201)*0.01f-1.0f);
+                for (short int i = 0; i < 10; ++i)
+                {
+                    glVertex3f(Pos.x + (Math::RandFromTable() % 201) * 0.01f - 1.0f,
+                               Pos.y + (Math::RandFromTable() % 201) * 0.01f - 1.0f,
+                               Pos.z + (Math::RandFromTable() % 201) * 0.01f - 1.0f);
+                }
                 glEnd();
                 break;
         }

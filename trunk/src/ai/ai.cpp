@@ -617,10 +617,10 @@ namespace TA3D
                         int rand_t2[] = { 0, 1, 2, 3, 4, 5, 6, 7 };
                         for( int e = 0 ; e < 8 ; ++e)
                         {
-                            int t = rand_from_table() % (8 - e);
-                            rand_t[ e ] = rand_t2[ t ];
-                            for( int f = t ; f < 7 - e ; f++ )
-                                rand_t2[ f ] = rand_t2[ f + 1 ];
+                            int t = Math::RandFromTable() % (8 - e);
+                            rand_t[e] = rand_t2[t];
+                            for (int f = t; f < 7 - e; ++f)
+                                rand_t2[f] = rand_t2[f + 1];
                         }
 
                         for( int f = 0 ; f < 8 ; f++ )

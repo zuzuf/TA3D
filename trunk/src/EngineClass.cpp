@@ -1680,54 +1680,63 @@ namespace TA3D
                             bool under_water = (h_map[Y|1][X|1] < sealvl && h_map[Y][X|1] < sealvl && h_map[Y|1][X] < sealvl && h_map[Y][X] < sealvl);
 
                             if( (bloc[i].lava || (under_water && ota_data.lavaworld) ) && !lp_CONFIG->pause
-                                && (rand_from_table()%1000000)<=lavaprob) {		// Lava emiting code moved here because of lava effect using fragment program
+                                && (Math::RandFromTable()%1000000)<=lavaprob) {		// Lava emiting code moved here because of lava effect using fragment program
                                 Vector3D POS( (x<<4) - dwm + 8.0f, sealvl - 5.0f, pre_y - dhm + 8.0f );
-                                V.x = ((rand_from_table()%201)-100);
-                                V.y = ((rand_from_table()%51)+50);
-                                V.z = ((rand_from_table()%201)-100);
+                                V.x = ((Math::RandFromTable()%201)-100);
+                                V.y = ((Math::RandFromTable()%51)+50);
+                                V.z = ((Math::RandFromTable()%201)-100);
                                 V.unit();
-                                particle_engine.emit_lava(POS,V,1,10,(rand_from_table()%1000)*0.01f+30.0f);
+                                particle_engine.emit_lava(POS,V,1,10,(Math::RandFromTable()%1000)*0.01f+30.0f);
                             }
-                            else if( !map_data[ Y ][ X ].lava && water && !ota_data.lavaworld && !under_water && !lp_CONFIG->pause &&										// A wave
-                                     (h_map[Y|1][X|1] < sealvl || h_map[Y][X|1] < sealvl || h_map[Y|1][X] < sealvl || h_map[Y][X] < sealvl) &&
-                                     (h_map[Y|1][X|1] >= sealvl || h_map[Y|1][X] >= sealvl || h_map[Y][X|1] >= sealvl || h_map[Y][X] >= sealvl) &&
-                                     (rand_from_table()%4000)<=lavaprob &&
-                                     (view_map->line[y][x]&player_mask) && lp_CONFIG->waves ) {
-                                Vector3D POS;
-                                POS.x=(x<<4)-dwm+8.0f;
-                                POS.z=pre_y-dhm+8.0f;
-                                POS.y=sealvl + 0.1f;
-                                Vector3D grad;
-                                grad.y = 0.0f;
-                                grad.x = 0.0f;
-                                grad.z = 0.0f;
-                                if( h_map[Y][X] >= sealvl ) {
-                                    grad.x -= h_map[Y][X] - sealvl;
-                                    grad.z += h_map[Y][X] - sealvl;
+                            else 
+                                if( !map_data[ Y ][ X ].lava && water && !ota_data.lavaworld && !under_water && !lp_CONFIG->pause &&										// A wave
+                                    (h_map[Y|1][X|1] < sealvl || h_map[Y][X|1] < sealvl || h_map[Y|1][X] < sealvl || h_map[Y][X] < sealvl) &&
+                                    (h_map[Y|1][X|1] >= sealvl || h_map[Y|1][X] >= sealvl || h_map[Y][X|1] >= sealvl || h_map[Y][X] >= sealvl) &&
+                                    (Math::RandFromTable()%4000)<=lavaprob &&
+                                    (view_map->line[y][x]&player_mask) && lp_CONFIG->waves )
+                                {
+                                    Vector3D POS;
+                                    POS.x = (x << 4) - dwm + 8.0f;
+                                    POS.z = pre_y - dhm + 8.0f;
+                                    POS.y = sealvl + 0.1f;
+                                    Vector3D grad;
+                                    grad.y = 0.0f;
+                                    grad.x = 0.0f;
+                                    grad.z = 0.0f;
+                                    if (h_map[Y][X] >= sealvl)
+                                    {
+                                        grad.x -= h_map[Y][X] - sealvl;
+                                        grad.z += h_map[Y][X] - sealvl;
+                                    }
+                                    if (h_map[Y|1][X] >= sealvl)
+                                    {
+                                        grad.x -= h_map[Y|1][X] - sealvl;
+                                        grad.z -= h_map[Y|1][X] - sealvl;
+                                    }
+                                    if (h_map[Y][X|1] >= sealvl)
+                                    {
+                                        grad.x += h_map[Y][X|1] - sealvl;
+                                        grad.z += h_map[Y][X|1] - sealvl;
+                                    }
+                                    if (h_map[Y|1][X|1] >= sealvl)
+                                    {
+                                        grad.x += h_map[Y|1][X|1] - sealvl;
+                                        grad.z -= h_map[Y|1][X|1] - sealvl;
+                                    }
+                                    float grad_len = grad.sq();
+                                    if (grad_len > 0.0f)
+                                    {
+                                        grad = (1.0f / sqrt( grad_len )) * grad;
+                                        fx_manager.addWave(POS, RAD2DEG * ((grad.x >= 0.0f) ? -acos(grad.z) : acos(grad.z)));
+                                    }
                                 }
-                                if( h_map[Y|1][X] >= sealvl ) {
-                                    grad.x -= h_map[Y|1][X] - sealvl;
-                                    grad.z -= h_map[Y|1][X] - sealvl;
-                                }
-                                if( h_map[Y][X|1] >= sealvl ) {
-                                    grad.x += h_map[Y][X|1] - sealvl;
-                                    grad.z += h_map[Y][X|1] - sealvl;
-                                }
-                                if( h_map[Y|1][X|1] >= sealvl ) {
-                                    grad.x += h_map[Y|1][X|1] - sealvl;
-                                    grad.z -= h_map[Y|1][X|1] - sealvl;
-                                }
-                                float grad_len = grad.sq();
-                                if( grad_len > 0.0f ) {
-                                    grad = (1.0f / sqrt( grad_len )) * grad;
-                                    fx_manager.addWave( POS, RAD2DEG * ( (grad.x >= 0.0f) ? -acos( grad.z ) : acos( grad.z ) ) );
-                                }
-                            }
                         }
                         bloc[i].point=lvl[pre_y2+x];
-                        if(bloc[i].point==NULL) {
+                        if (bloc[i].point==NULL)
+                        {
                             lvl[pre_y2+x]=bloc[i].point=(Vector3D*) malloc(sizeof(Vector3D)*9);
-                            if(tnt) {
+                            if(tnt)
+                            {
                                 bloc[i].point[0].x=T.x;			bloc[i].point[0].z=get_zdec(X,Y)+T.z;
                                 bloc[i].point[1].x=8.0f+T.x;	bloc[i].point[1].z=get_zdec(X|1,Y)+T.z;
                                 bloc[i].point[2].x=16.0f+T.x;	bloc[i].point[2].z=get_zdec(X+2,Y)+T.z;
@@ -2281,7 +2290,7 @@ namespace TA3D
         if( (units.current_tick % 3) == 0 && last_ticksynced != units.current_tick && network_manager.isConnected() )
         {
             last_ticksynced = units.current_tick;
-            
+
             uint32  nbTCP(0), nbTotal(0);
 
             units.lock();

@@ -1725,7 +1725,7 @@ const int UNIT::run_script(const float &dt,const int &id,MAP *map,int max_code)	
                     DEBUG_PRINT_CODE("RANDOM_NUMBER");
                     int high=(*script_env)[id].pop();
                     int low=(*script_env)[id].pop();
-                    (*script_env)[id].push((rand_from_table()%(high-low+1))+low);
+                    (*script_env)[id].push((Math::RandFromTable()%(high-low+1))+low);
                     break;
                 }
             case SCRIPT_GREATER_EQUAL:
@@ -1773,12 +1773,12 @@ const int UNIT::run_script(const float &dt,const int &id,MAP *map,int max_code)	
                     }
                     data.flag[obj]|=FLAG_EXPLODE;
                     data.explosion_flag[obj]=explosion_type;
-                    data.axe[0][obj].move_speed=(25.0f+(rand_from_table()%2501)*0.01f)*(rand_from_table()&1 ? 1.0f : -1.0f);
-                    data.axe[0][obj].rot_speed=(rand_from_table()%7201)*0.1f-360.0f;
-                    data.axe[1][obj].move_speed=25.0f+(rand_from_table()%2501)*0.01f;
-                    data.axe[1][obj].rot_speed=(rand_from_table()%7201)*0.1f-360.0f;
-                    data.axe[2][obj].move_speed=(25.0f+(rand_from_table()%2501)*0.01f)*(rand_from_table()&1 ? 1.0f : -1.0f);
-                    data.axe[2][obj].rot_speed=(rand_from_table()%7201)*0.1f-360.0f;
+                    data.axe[0][obj].move_speed=(25.0f+(Math::RandFromTable()%2501)*0.01f)*(Math::RandFromTable()&1 ? 1.0f : -1.0f);
+                    data.axe[0][obj].rot_speed=(Math::RandFromTable()%7201)*0.1f-360.0f;
+                    data.axe[1][obj].move_speed=25.0f+(Math::RandFromTable()%2501)*0.01f;
+                    data.axe[1][obj].rot_speed=(Math::RandFromTable()%7201)*0.1f-360.0f;
+                    data.axe[2][obj].move_speed=(25.0f+(Math::RandFromTable()%2501)*0.01f)*(Math::RandFromTable()&1 ? 1.0f : -1.0f);
+                    data.axe[2][obj].rot_speed=(Math::RandFromTable()%7201)*0.1f-360.0f;
                     data.explode = true;
                     data.explode_time = 1.0f;
                     break;
@@ -3466,13 +3466,13 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
             NPos = Pos + dt*V;			// Check if the unit can go where V brings it
             if (was_locked ) {				// Random move to solve the unit lock problem
                 if (V.x > 0.0f )
-                    NPos.x += (rand_from_table() % 101) * 0.01f;
+                    NPos.x += (Math::RandFromTable() % 101) * 0.01f;
                 else
-                    NPos.x -= (rand_from_table() % 101) * 0.01f;
+                    NPos.x -= (Math::RandFromTable() % 101) * 0.01f;
                 if (V.z > 0.0f )
-                    NPos.z += (rand_from_table() % 101) * 0.01f;
+                    NPos.z += (Math::RandFromTable() % 101) * 0.01f;
                 else
-                    NPos.z -= (rand_from_table() % 101) * 0.01f;
+                    NPos.z -= (Math::RandFromTable() % 101) * 0.01f;
 
                 if (was_locked >= 5.0f ) {
                     was_locked = 5.0f;
@@ -3547,8 +3547,8 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
                                     n_px = cur_px;
                                     n_py = cur_py;
                                     Vector3D target = Pos;
-                                    target.x += (rand_from_table()&0x1F)-16;		// Look for a place to land
-                                    target.z += (rand_from_table()&0x1F)-16;
+                                    target.x += (Math::RandFromTable()&0x1F)-16;		// Look for a place to land
+                                    target.z += (Math::RandFromTable()&0x1F)-16;
                                     mission->flags |= MISSION_FLAG_MOVE;
                                     if (mission->path )
                                         destroy_path(mission->path);
@@ -3706,8 +3706,8 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
                 if (self_destruct < 0.0f ) {
                     int dx = (unit_manager.unit_type[type_id].SightDistance+(int)(h+0.5f)>>3) + 1;
                     int enemy_idx=-1;
-                    int sx=rand_from_table()&1;
-                    int sy=rand_from_table()&1;
+                    int sx=Math::RandFromTable()&1;
+                    int sy=Math::RandFromTable()&1;
                     // byte mask=1<<owner_id;
                     for(int y=cur_py-dx+sy;y<=cur_py+dx;y+=2) {
                         if (y>=0 && y<map->bloc_h_db-1)
@@ -4762,8 +4762,8 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
                 if (unit_manager.unit_type[type_id].kamikaze && (unit_manager.unit_type[type_id].kamikazedistance>>3) > dx )
                     dx=unit_manager.unit_type[type_id].kamikazedistance;
 
-                int sx=rand_from_table()&0xF;
-                int sy=rand_from_table()&0xF;
+                int sx=Math::RandFromTable()&0xF;
+                int sy=Math::RandFromTable()&0xF;
                 byte mask=1<<owner_id;
                 for(int y=cur_py-dx+sy;y<=cur_py+dx;y+=0x8) {
                     if (y>=0 && y<map->bloc_h_db-1)
@@ -4835,7 +4835,7 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
                     memory[i] = memory[i+e];
                 }
                 mem_size -= e;
-                for(uint32 f=0;f<weapons.index_list_size;f+=(rand_from_table()&7)+1)
+                for(uint32 f=0;f<weapons.index_list_size;f+=(Math::RandFromTable()&7)+1)
                 {
                     uint32 i = weapons.idx_list[f];
                     if (weapons.weapon[i].weapon_id!=-1 && units.unit[weapons.weapon[i].shooter_idx].owner_id!=owner_id
@@ -4957,7 +4957,7 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
                 ripple_timer = units.current_tick;
                 Vector3D ripple_pos = Pos;
                 ripple_pos.y = map->sealvl + 1.0f;
-                fx_manager.addRipple( ripple_pos, ( (rand_from_table() % 201) - 100 ) * 0.0001f );
+                fx_manager.addRipple( ripple_pos, ( (Math::RandFromTable() % 201) - 100 ) * 0.0001f );
             }
         }
     }
@@ -5009,7 +5009,7 @@ script_exec:
                 else {				// There is someone there, find an other place to land
                     flying = true;
                     Vector3D next_target = Pos;
-                    float find_angle = (rand_from_table() % 360) * DEG2RAD;
+                    float find_angle = (Math::RandFromTable() % 360) * DEG2RAD;
                     next_target.x += cos( find_angle ) * (32.0f + unit_manager.unit_type[type_id].FootprintX * 8.0f);
                     next_target.z += sin( find_angle ) * (32.0f + unit_manager.unit_type[type_id].FootprintZ * 8.0f);
                     add_mission( MISSION_MOVE | MISSION_FLAG_AUTO, &next_target, true );
@@ -5042,7 +5042,7 @@ script_exec:
         pMutex.unlock();
         draw_on_map();
         pMutex.lock();
-        yardmap_timer = TICKS_PER_SEC + (rand_from_table() & 15);
+        yardmap_timer = TICKS_PER_SEC + (Math::RandFromTable() & 15);
     }
 
     built=false;
@@ -6827,7 +6827,9 @@ int INGAME_UNITS::create(int type_id,int owner)
     free_index_size[owner]--;
     unit[unit_index].init(type_id,owner);
     unit[unit_index].ID = next_unit_ID++;		// So now we know who is this unit :)
-    unit[unit_index].Angle.y = ((rand_from_table()%20001)-10000) * 0.0001f * unit_manager.unit_type[ type_id ].BuildAngle * TA2DEG;	// Angle de 10° maximum
+
+    // Angle de 10° maximum
+    unit[unit_index].Angle.y = ((Math::RandFromTable() % 20001) - 10000) * 0.0001f * unit_manager.unit_type[type_id].BuildAngle * TA2DEG; 
 
     idx_list[index_list_size++] = unit_index;
 

@@ -53,34 +53,6 @@ int start=0;
 int cursor_type=CURSOR_DEFAULT;
 #endif
 
-/*---------------------------------------------------------------------------------\
-|                              void init_rand_table()                              |
-|        Build the random table used in critical code                              |
-\---------------------------------------------------------------------------------*/
-
-#define RAND_TABLE_SIZE		0x100000
-#define RAND_TABLE_MASK		0xFFFFF
-
-int table_pos = 0;
-uint32 rand_table[ RAND_TABLE_SIZE ];
-
-void init_rand_table()
-{
-	srand( (unsigned)time( NULL ) );
-	for( int i = 0 ; i < RAND_TABLE_SIZE ; i++ )
-		rand_table[i] = TA3D_RAND();				// Make it platform independent
-}
-
-/*---------------------------------------------------------------------------------\
-|                              int rand_from_table()                               |
-|        Get a "random" number from the table                                      |
-\---------------------------------------------------------------------------------*/
-
-const int rand_from_table()
-{
-	table_pos=(table_pos+1)&RAND_TABLE_MASK;
-	return rand_table[table_pos];
-}
 
 #ifndef TA3D_BASIC_ENGINE
 
@@ -104,12 +76,14 @@ BITMAP *load_memory_pcx(byte *data,RGB *cpal)
 	clear(pcx);
 
 	int pos=128;
-	for(int y=0;y<pcx->h;y++) {
-		int x=0;
+	for (int y = 0; y < pcx->h; ++y)
+    {
+		int x = 0;
 		do
 		{
 			int c=data[pos++];
-			if(c>191) {
+			if (c > 191)
+            {
 				int l=c-192;
 				c=data[pos++];
 				int col=makecol(cpal[c].r<<2,cpal[c].g<<2,cpal[c].b<<2);

@@ -575,12 +575,12 @@ int play(GameData *game_data)
         if(t-wind_t>=10.0f) 		// Make a change every 10 sec. (simulation time)
         {
             wind_t=t;
-            map->wind+=(rand_from_table()%2001)-1000;
+            map->wind+=(Math::RandFromTable()%2001)-1000;
             if(map->wind<map->ota_data.minwindspeed)
                 map->wind=map->ota_data.minwindspeed;
             else if(map->wind>map->ota_data.maxwindspeed)
                 map->wind=map->ota_data.maxwindspeed;
-            map->wind_dir+=(rand_from_table()%901)*0.1f-45.0f;
+            map->wind_dir += (Math::RandFromTable() % 901) * 0.1f - 45.0f;
             if(map->wind_dir<0.0f)	map->wind_dir+=360.0f;
             else if(map->wind_dir>=360.0f)	map->wind_dir-=360.0f;
             map->wind_vec.y=0.0f;

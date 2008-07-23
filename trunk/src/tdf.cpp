@@ -32,6 +32,7 @@
 #include "network/TA3D_Network.h"
 #include "languages/i18n.h"
 #include "logs/logs.h"
+#include "misc/math.h"
 
 
 
@@ -853,7 +854,7 @@ namespace TA3D
                     if (feature_manager.feature[feature[i].type].m3d && feature_manager.feature[feature[i].type].model != NULL)
                     {
                         OBJECT* obj = &(feature_manager.feature[feature[i].type].model->obj);
-                        for (int base_n = rand_from_table(), n = 0 ; random_vector && n < obj->nb_sub_obj ; ++n)
+                        for (int base_n = Math::RandFromTable(), n = 0 ; random_vector && n < obj->nb_sub_obj ; ++n)
                             random_vector = obj->random_pos(NULL, (base_n + n) % obj->nb_sub_obj, &t_mod);
                     }
                     else
@@ -898,7 +899,7 @@ namespace TA3D
             feature[idx].burning = true;
             feature[idx].burning_time = 0.0f;
             int time_zone = abs( feature_manager.feature[feature[idx].type].burnmax - feature_manager.feature[ feature[idx].type ].burnmin ) + 1;
-            feature[ idx ].time_to_burn = (rand_from_table() % time_zone ) + feature_manager.feature[ feature[idx].type ].burnmin;		// How long it burns
+            feature[ idx ].time_to_burn = (Math::RandFromTable() % time_zone ) + feature_manager.feature[ feature[idx].type ].burnmin;		// How long it burns
             burning_features.push_back(idx);		// It's burning 8)
 
             // Start doing damages to things around
@@ -1012,11 +1013,11 @@ namespace TA3D
                     if (feature[*i].burning_time >= feature_manager.feature[feature[*i].type].sparktime && feature[*i].last_spread >= 0.1f) // Can spread
                     {
                         feature[*i].last_spread = 0.0f;
-                        int spread_score = rand_from_table() % 100;
+                        int spread_score = Math::RandFromTable() % 100;
                         if (spread_score < feature_manager.feature[feature[*i].type].spreadchance)// It tries to spread :)
                         {
-                            int rnd_x = feature[*i].px + (rand_from_table() % 12) - 6 + wind_x;	// Random pos in neighborhood, but affected by wind :)
-                            int rnd_y = feature[*i].py + (rand_from_table() % 12) - 6 + wind_z;
+                            int rnd_x = feature[*i].px + (Math::RandFromTable() % 12) - 6 + wind_x;	// Random pos in neighborhood, but affected by wind :)
+                            int rnd_y = feature[*i].py + (Math::RandFromTable() % 12) - 6 + wind_z;
 
                             if (rnd_x >= 0 && rnd_y >= 0 && rnd_x < the_map->bloc_w_db && rnd_y < the_map->bloc_h_db ) 	// Check coordinates are valid
                             {
