@@ -28,7 +28,7 @@
 using namespace TA3D; // TODO Remove this
 
 # include "font.h"
-# include "gfxtexture.h"
+# include "texture.h"
 # include "../threads/thread.h"
 # include "../misc/interface.h"
 
