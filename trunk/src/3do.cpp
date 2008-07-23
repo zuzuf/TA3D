@@ -415,7 +415,7 @@ namespace TA3D
         surface.NbTex=0;
         for(byte i = 0; i < 8; ++i)
             surface.gltex[i]=0;
-        surface.s_shader.succes=false;
+        surface.s_shader.destroy();
         surface.frag_shader_src=NULL;
         surface.vert_shader_src=NULL;
         surface.frag_shader_size=0;

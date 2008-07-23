@@ -39,9 +39,4 @@ extern bool g_useFBO;
 */
 void installOpenGLExtensions();
 
-GLhandleARB load_fragment_shader_memory(const char *data,int filesize);
-GLhandleARB load_vertex_shader_memory(const char *data,int filesize);
-GLhandleARB load_fragment_shader(const char *filename);
-GLhandleARB load_vertex_shader(const char *filename);
-
 #endif // __TA3D_GFX_GL_FUNCTIONS_H__
