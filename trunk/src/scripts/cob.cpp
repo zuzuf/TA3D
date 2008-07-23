@@ -103,7 +103,7 @@ namespace TA3D
         int f_pos = header.OffsetToScriptNameOffsetArray;
         int i;
         for (i = 0; i < nb_script; ++i)
-            names[i] = (char*)(data + (*((int*)(data + f_pos + 4 * i))));
+            names[i] = String( (char*)(data + (*((int*)(data + f_pos + 4 * i)))) ).toUpper();
         f_pos=header.OffsetToPieceNameOffsetArray;
         for(i = 0; i < nb_piece; ++i)
             piece_name[i] = strdup((char*)(data+(*((int*)(data+f_pos+4*i)))));
@@ -153,10 +153,12 @@ namespace TA3D
 
     int SCRIPT::findFromName(const String& name)
     {
+        String nameUpper = name;
+        nameUpper.toUpper();
         int indx(0);
         for (String::Vector::const_iterator i = names.begin(); i != names.end(); ++i, ++indx)
         {
-            if (*i == name)
+            if (*i == nameUpper)
                 return indx;
         }
         return -1;
