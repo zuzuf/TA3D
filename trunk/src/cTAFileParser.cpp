@@ -159,9 +159,13 @@ namespace UTILS
         }
 
         if (TA3D::VARS::HPIManager)
+        {
+            LOG_DEBUG("[tdf] Loading `hpi://" << filename << "`");
             data = TA3D::VARS::HPIManager->PullFromHPI(filename, &ota_size);
+        }
         else
         {
+            LOG_DEBUG("[tdf] Loading `" << filename << "`");
             std::ifstream m_File;
             m_File.open(filename.c_str(), std::ios::in | std::ios::binary | std::ios::ate);
             if (m_File.is_open())
