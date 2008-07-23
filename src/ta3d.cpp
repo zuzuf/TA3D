@@ -3020,23 +3020,29 @@ int play(GameData *game_data)
 
         glBlendFunc(GL_ONE,GL_ONE_MINUS_SRC_COLOR);
         glEnable(GL_BLEND);
-        if(show_script)
-            if(cur_sel>=0 && unit_manager.unit_type[cur_sel].script) {
-                float Y=32.0f;
-                gfx->print(gfx->normal_font,128.0f,Y,0.0f,0xFFFFFFFF,format("%d scripts",unit_manager.unit_type[cur_sel].script->nb_script));	Y+=9.0f;
-                for(i=0;i<unit_manager.unit_type[cur_sel].script->nb_script;i++) {
+        if (show_script)
+        {
+            if (cur_sel>=0 && unit_manager.unit_type[cur_sel].script)
+            {
+                float Y(32.0f);
+                gfx->print(gfx->normal_font,128.0f,Y,0.0f,0xFFFFFFFF,format("%d scripts",unit_manager.unit_type[cur_sel].script->nb_script));
+                Y += 9.0f;
+                for (i = 0; i < unit_manager.unit_type[cur_sel].script->nb_script; ++i)
+                {
                     if(units.unit[cur_sel_index].is_running(i))
-                        gfx->print(gfx->normal_font,128.0f,Y,0.0f,0xFFFFFFFF,format("%d %s (on)",i,unit_manager.unit_type[cur_sel].script->name[i]));
+                        gfx->print(gfx->normal_font, 128.0f, Y, 0.0f, 0xFFFFFFFF, format("%d %s (on)", i, unit_manager.unit_type[cur_sel].script->names[i].c_str()));
                     else
-                        gfx->print(gfx->normal_font,128.0f,Y,0.0f,0xFFFFFFFF,format("%d %s (off)",i,unit_manager.unit_type[cur_sel].script->name[i]));
-                    Y+=9.0f;
+                        gfx->print(gfx->normal_font, 128.0f, Y, 0.0f, 0xFFFFFFFF, format("%d %s (off)", i, unit_manager.unit_type[cur_sel].script->names[i].c_str()));
+                    Y += 9.0f;
                 }
             }
+        }
 
         if(show_model && cur_sel>=0 && unit_manager.unit_type[cur_sel].model)
             unit_manager.unit_type[cur_sel].model->print_struct(32.0f,128.0f,gfx->normal_font);
 
-        if(internal_name && last_on >= 0 ) {
+        if (internal_name && last_on >= 0)
+        {
             units.unit[ last_on ].lock();
             if( units.unit[ last_on ].type_id >= 0 && unit_manager.unit_type[ units.unit[ last_on ].type_id ].Unitname!=NULL)
                 gfx->print(gfx->normal_font,128.0f,32.0f,0.0f,0xFFFFFFFF,format("internal name %s",unit_manager.unit_type[ units.unit[ last_on ].type_id ].Unitname));

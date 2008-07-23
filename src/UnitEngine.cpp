@@ -238,15 +238,7 @@ bool UNIT::is_running(int script_index)	// Is the script still running ?
 
 int UNIT::get_script_index(const char *script_name)			// Cherche l'indice du script dont on fournit le nom
 {
-    if (script)
-    {
-        for (int i = 0; i < script->nb_script; ++i)
-        {
-            if (strcasecmp(script->name[i],script_name) == 0)
-                return i;
-        }
-    }
-    return -1;
+    return (script) ? script->findFromName(script_name) : -1;
 }
 
 void UNIT::run_script_function(MAP *map, int id, int nb_param, int *param)	// Launch and run the script, returning it's values to param if not NULL
