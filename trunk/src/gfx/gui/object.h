@@ -4,7 +4,7 @@
 # include "base.h"
 # include <vector>
 # include "wnd.h"
-# include "../gfxtexture.h"
+# include "../texture.h"
 # include "wnd.h"
 
 

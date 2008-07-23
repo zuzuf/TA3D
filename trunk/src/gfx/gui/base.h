@@ -2,7 +2,7 @@
 # define __TA3D_GFX_GUI_BASE_H__
 
 # include "../../stdafx.h"
-# include "../gfxtexture.h"
+# include "../texture.h"
 
 
 //! \name Standard colors

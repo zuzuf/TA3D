@@ -8,7 +8,7 @@
 # include "object.h"
 # include "../../misc/hash_table.h"
 # include "../../misc/interface.h"
-# include "../gfxtexture.h"
+# include "../texture.h"
 
 
 
