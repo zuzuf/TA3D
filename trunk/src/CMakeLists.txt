@@ -38,8 +38,7 @@ ADD_LIBRARY(stdafx STATIC ${SOURCES})
 SET(LIBRARY_OUTPUT_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../bin/libs/${CMAKE_SYSTEM_NAME}")
 SET(ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../bin/libs/${CMAKE_SYSTEM_NAME}")
 SET(SOURCES backtrace.cpp backtrace.h
-            cError.cpp cError.h
-            TA3D_Exception.cpp TA3D_Exception.h)
+            cError.cpp cError.h)
 ADD_LIBRARY(debuginfos STATIC ${SOURCES})
 
 # --------------------------------------------------------------------

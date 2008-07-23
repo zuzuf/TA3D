@@ -47,7 +47,6 @@
 // timer variable, incremented by preccission, set by main.
 volatile uint32	msec_timer = 0;
 
-using namespace TA3D::Exceptions;
 
 
 
@@ -145,13 +144,8 @@ int hpiview(int argc,char *argv[]);
  */
 int ParseCommandLine(int argc, char *argv[])
 {
-    GuardEnter(ParseCommandLine);
-
-    if(hpiview(argc, argv))
-    {
-        GuardLeave();
+    if (hpiview(argc, argv))
         return 1;
-    }
 
     for( int i = 1 ; i < argc ; ++i)
     {
@@ -170,9 +164,6 @@ int ParseCommandLine(int argc, char *argv[])
             }
         }
     }
-
-    GuardLeave();
-
     return 0;
 }
 
@@ -188,44 +179,15 @@ int main(int argc, char *argv[])
     // Initialize signals
     init_signals();
 
-    if( IsExceptionInProgress() ) // if guard threw an error this will be true.
-    {
-        GuardDisplayAndLogError();   // record and display the error.
-        exit(1);                      // we outa here.
-    }
-
-    GuardStart( main ); // start guard.
-    GuardInfo( "Constructing config.\n" ); // what we are doing.
+    // Constructing config
     TA3D::VARS::lp_CONFIG = new TA3D::TA3DCONFIG;
-    GuardCatch();      // close guard
-    if( IsExceptionInProgress() ) // if guard threw an error this will be true.
-    {
-        GuardDisplayAndLogError();   // record and display the error.
-        exit(1);                      // we outa here.
-    }
 
-    GuardStart( main );
     TA3D::Settings::Load(); /* Load Config File */
     TA3D_clear_cache();
     allegro_exit();
-    GuardCatch();
 
-    if( IsExceptionInProgress() )
+    if (ParseCommandLine(argc, argv)) 
     {
-        GuardDisplayAndLogError();
-        exit(1);
-    }
-
-    GuardStart( main );
-    if( ParseCommandLine(argc, argv)) 
-    {
-        exit(1);
-    }
-    GuardCatch();
-
-    if( IsExceptionInProgress() )
-    {
-        GuardDisplayAndLogError();
         exit(1);
     }
 
@@ -235,14 +197,7 @@ int main(int argc, char *argv[])
      **   which in turn will create nearly everything it will need.
      */
     TA3D::cTA3D_Engine* Engine = NULL;
-    GuardStart( main );
     Engine = new TA3D::cTA3D_Engine;
-    GuardCatch();
-    if( IsExceptionInProgress() )
-    {
-        GuardDisplayAndLogError();
-        exit(1);
-    }
 
     /* we can use guard here cause the entine will start in a 'paused' state
      **     it will continue to init code and set itself as ready when all data it needs
@@ -250,19 +205,7 @@ int main(int argc, char *argv[])
      **     Once the engine is unpaused and in a go state we can no longer use GuardStart
      **     as the engine will use it, until the engine exits.
      */
-    GuardStart( main );
     Engine->Start();
-    GuardCatch();
-    if(IsExceptionInProgress())
-    {
-        GuardDisplayAndLogError();
-        // We need to guard deleting the engine in case something bad goes wrong during
-        //   the cleanup process.
-        GuardStart( main );
-        delete Engine;
-        GuardCatch();
-        exit(1);
-    }
 
     // ok, if we are here, our thread in engine class is running
     //   and doing some work loading up alot of crap so while its doing that
@@ -272,22 +215,7 @@ int main(int argc, char *argv[])
 
     // while our engine does some loading and intializing, lets show our intro.
     if( !lp_CONFIG->quickstart && lp_CONFIG->file_param.empty())
-    {
-        GuardStart( intro );
         Menus::Intro::Execute();
-        GuardCatch();
-        if( IsExceptionInProgress())
-        {
-            GuardDisplayAndLogError();
-            // We need to guard deleting the engine in case something bad goes wrong during
-            //   the cleanup process, note that this might not exit right away because it
-            //   might take a few seconds to kill the thread.
-            GuardStart( intro );
-            delete Engine;
-            GuardCatch();
-            exit(1);
-        }
-    }
 
     // The main menu call will eventually not be here, instead
     //   we will turn control over to our engine, but for now we'll call the
@@ -304,34 +232,12 @@ int main(int argc, char *argv[])
     // if we get here its time to exit, so delete the engine, the engine should clean itself
     //   up and we are outa here, but first lets save our config file, we
     //   need to try/catch this but no worries for now since its not doing anything.
-    GuardStart( main );
     TA3D::Settings::Save();
-    GuardCatch();
 
-    if(IsExceptionInProgress())
-    {
-        GuardDisplayAndLogError();
-        GuardStart( main );
-        delete Engine;
-        GuardCatch();
-
-        exit(1);
-    }
-
-    GuardStart(main)
-        delete Engine;
-    GuardCatch();
-
-    // if something bad happens log and show the error but don't exit
-    //    so that we can delete the config var next.
-    if( IsExceptionInProgress() )
-        GuardDisplayAndLogError();
+    delete Engine;
 
     bool quickrestart = lp_CONFIG->quickrestart;
     bool restorestart = lp_CONFIG->restorestart;
-
-    GuardStart( main )
-    GuardCatch();
 
     if( !quickrestart )
         return 0; 		// thats it folks.

@@ -232,14 +232,7 @@ namespace TA3D
 
         pMutex.lock();
         // Load the file
-        try
-        {
-            pTranslations.load(filename, emptyBefore, inASCII);
-        }
-        catch (...)
-        {
-            LOG_WARNING(TA3D_LOG_SECTION_I18N_PREFIX << "Exception caught for loadFromFile(`" << filename << "`)");
-        }
+        pTranslations.load(filename, emptyBefore, inASCII);
         pMutex.unlock();
 
         // Success

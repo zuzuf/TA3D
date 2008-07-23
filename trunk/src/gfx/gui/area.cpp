@@ -2,7 +2,6 @@
 #include "area.h"
 #include "../../misc/paths.h"
 #include "skin.h"
-#include "../../TA3D_Exception.h"
 #include "../../console.h"
 #include "../../TA3D_NameSpace.h"
 #include "../../gui.h"
@@ -10,7 +9,6 @@
 #include "../../console.h"
 
 
-using namespace TA3D::Exceptions;
 
 
 namespace TA3D
@@ -238,7 +236,6 @@ namespace TA3D
 
     void AREA::doLoadTDF(const String& filename)
     {
-        GuardEnter(AREA::load_tdf);
         destroy();		// In case there is an area loaded so we don't waste memory
         cTAFileParser* areaFile;
 
@@ -249,35 +246,25 @@ namespace TA3D
             skin->load_tdf(skin_name, 1.0f);
         }
 
-        try  // we need to try catch this cause the config file may not exists
-            // and if it don't exists it will throw an error on reading it, which
-            // will be caught in our main function and the application will exit.
+        String real_filename = filename;
+        if (skin != NULL && !skin->prefix.empty())
         {
-            String real_filename = filename;
-            if (skin != NULL && !skin->prefix.empty())
+            int name_len = strlen(get_filename(real_filename.c_str()));
+            if (name_len > 0)
             {
-                int name_len = strlen(get_filename(real_filename.c_str()));
-                if (name_len > 0)
-                {
-                    real_filename.clear();
-                    real_filename << filename.substr(0, filename.size() - name_len) << skin->prefix
-                        << get_filename(filename.c_str());
-                }
-                else
-                    real_filename << skin->prefix;
-                if (!HPIManager->Exists(real_filename))	// If it doesn't exist revert to the default name
-                    real_filename = filename;
+                real_filename.clear();
+                real_filename << filename.substr(0, filename.size() - name_len) << skin->prefix
+                    << get_filename(filename.c_str());
             }
-            if (skin)
-                delete skin;
-            skin = NULL;
-            areaFile = new TA3D::UTILS::cTAFileParser(real_filename);
+            else
+                real_filename << skin->prefix;
+            if (!HPIManager->Exists(real_filename))	// If it doesn't exist revert to the default name
+                real_filename = filename;
         }
-        catch( ... )
-        {
-            GuardLeave();
-            return;
-        }
+        if (skin)
+            delete skin;
+        skin = NULL;
+        areaFile = new TA3D::UTILS::cTAFileParser(real_filename);
 
         area_stack.push_front( this );     // Just in case we want to grab it from elsewhere
 
@@ -336,7 +323,6 @@ namespace TA3D
             }
         }
         delete areaFile; 
-        GuardLeave();
     }
 
 
@@ -428,13 +414,13 @@ namespace TA3D
 
         if (msg->lpParm1 == NULL)
         {
-            GuardInfo( "AREA : bad format for interface message!\n" );
+            LOG_ERROR("AREA : bad format for interface message!");
             return INTERFACE_RESULT_HANDLED;		// Oups badly written things
         }
-        
+
         if (this != current())              // It's not for us
             return INTERFACE_RESULT_CONTINUE;
-        
+
         return this->msg((char*) msg->lpParm1);
     }
 

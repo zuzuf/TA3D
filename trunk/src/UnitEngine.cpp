@@ -41,7 +41,6 @@
 #include "sounds/manager.h"
 
 
-using namespace TA3D::Exceptions;
 
 
 
@@ -586,18 +585,10 @@ bool UNIT::is_on_radar( byte p_mask )
 
 void UNIT::add_mission(int mission_type,Vector3D *target,bool step,int dat,void *pointer,PATH_NODE *path,byte m_flags,int move_data,int patrol_node)
 {
-#ifdef	ADVANCED_DEBUG_MODE
-    GuardEnter( UNIT::add_mission );
-#endif
     MutexLocker locker(pMutex);
 
     if (command_locked && !(mission_type & MISSION_FLAG_AUTO) )
-    {
-#ifdef	ADVANCED_DEBUG_MODE
-        GuardLeave( UNIT::add_mission );
-#endif
         return;
-    }
 
     mission_type &= ~MISSION_FLAG_AUTO;
 
@@ -789,25 +780,14 @@ void UNIT::add_mission(int mission_type,Vector3D *target,bool step,int dat,void 
                     def_mission = new_mission;
             }
     }
-#ifdef	ADVANCED_DEBUG_MODE
-    GuardLeave();
-#endif
 }
 
 void UNIT::set_mission(int mission_type,Vector3D *target,bool step,int dat,bool stopit,void *pointer,PATH_NODE *path,byte m_flags,int move_data)
 {
-#ifdef	ADVANCED_DEBUG_MODE
-    GuardEnter( UNIT::set_mission );
-#endif
     MutexLocker locker(pMutex);
 
     if (command_locked && !( mission_type & MISSION_FLAG_AUTO ) )
-    {
-#ifdef	ADVANCED_DEBUG_MODE
-        GuardLeave( UNIT::set_mission );
-#endif
         return;
-    }
     mission_type &= ~MISSION_FLAG_AUTO;
 
     uint32 target_ID = 0;
@@ -991,9 +971,6 @@ void UNIT::set_mission(int mission_type,Vector3D *target,bool step,int dat,bool 
             start_mission_script(mission->mission);
         c_time=0.0f;
     }
-#ifdef	ADVANCED_DEBUG_MODE
-    GuardLeave();
-#endif
 }
 
 
@@ -1060,9 +1037,6 @@ void UNIT::next_mission()
 
 void UNIT::draw(float t, Camera *cam,MAP *map,bool height_line)
 {
-#ifdef	ADVANCED_DEBUG_MODE
-    GuardEnter( UNIT::draw );
-#endif
     MutexLocker locker(pMutex);
 
     if (!(flags & 1))
@@ -1076,32 +1050,17 @@ void UNIT::draw(float t, Camera *cam,MAP *map,bool height_line)
     drawn_Angle = Angle;
 
     if (model==NULL || hidden )
-    {
-#ifdef	ADVANCED_DEBUG_MODE
-        GuardLeave();
-#endif
         return;		// S'il n'y a pas de modèle associé, on quitte la fonction
-    }
 
     int px=cur_px>>1;
     int py=cur_py>>1;
     if (px<0 || py<0 || px>=map->bloc_w || py>=map->bloc_h)
-    {
-#ifdef	ADVANCED_DEBUG_MODE
-        GuardLeave();
-#endif
         return;	// Unité hors de la carte
-    }
     byte player_mask = 1 << players.local_human_id;
 
     on_radar = on_mini_radar = is_on_radar( player_mask );
     if (map->view[py][px] == 0 || ( map->view[py][px] > 1 && !on_radar ) || ( !on_radar && !(map->sight_map->line[py][px] & player_mask) ) )
-    {
-#ifdef	ADVANCED_DEBUG_MODE
-        GuardLeave();
-#endif
         return;	// Unit is not visible
-    }
 
     bool radar_detected = on_radar;
 
@@ -1112,19 +1071,9 @@ void UNIT::draw(float t, Camera *cam,MAP *map,bool height_line)
 
     float dist=D.sq();
     if (dist>=16384.0f && (D%cam->dir)<=0.0f)
-    {
-#ifdef	ADVANCED_DEBUG_MODE
-        GuardLeave();
-#endif
         return;
-    }
     if ((D%cam->dir)>cam->zfar2)
-    {
-#ifdef	ADVANCED_DEBUG_MODE
-        GuardLeave();
-#endif
         return;		// Si l'objet est hors champ on ne le dessine pas
-    }
 
     if (!cloaked || owner_id == players.local_human_id ) // Don't show cloaked units
     {
@@ -1457,18 +1406,12 @@ void UNIT::draw(float t, Camera *cam,MAP *map,bool height_line)
         }
     drawing = false;
     glPopMatrix();
-#ifdef	ADVANCED_DEBUG_MODE
-    GuardLeave();
-#endif
 }
 
 
 
 void UNIT::draw_shadow(Camera *cam, const Vector3D& Dir,MAP *map)
 {
-#ifdef	ADVANCED_DEBUG_MODE
-    GuardEnter( UNIT::draw_shadow );
-#endif
     pMutex.lock();
     if (!(flags & 1))
     {
@@ -1498,17 +1441,11 @@ void UNIT::draw_shadow(Camera *cam, const Vector3D& Dir,MAP *map)
         int py=((int)(S_Pos.z)+map->map_h_d)>>4;
         if (px<0 || py<0 || px>=map->bloc_w || py>=map->bloc_h)
         {
-#ifdef	ADVANCED_DEBUG_MODE
-            GuardLeave();
-#endif
             pMutex.unlock();
             return;	// Shadow out of the map
         }
         if (map->view[py][px]!=1)
         {
-#ifdef	ADVANCED_DEBUG_MODE
-            GuardLeave();
-#endif
             pMutex.unlock();
             return;	// Unvisible shadow
         }
@@ -1538,18 +1475,11 @@ void UNIT::draw_shadow(Camera *cam, const Vector3D& Dir,MAP *map)
     glPopMatrix();
 
     drawing = false;
-
-#ifdef	ADVANCED_DEBUG_MODE
-    GuardLeave();
-#endif
 }
 
 
 void UNIT::draw_shadow_basic(Camera *cam, const Vector3D& Dir,MAP *map)
 {
-#ifdef	ADVANCED_DEBUG_MODE
-    GuardEnter( UNIT::draw_shadow_basic );
-#endif
     pMutex.lock();
     if (!(flags & 1))
     {
@@ -1575,17 +1505,11 @@ void UNIT::draw_shadow_basic(Camera *cam, const Vector3D& Dir,MAP *map)
         int py=((int)(S_Pos.z+map->map_h_d))>>4;
         if (px<0 || py<0 || px>=map->bloc_w || py>=map->bloc_h)
         {
-#ifdef	ADVANCED_DEBUG_MODE
-            GuardLeave();
-#endif
             pMutex.unlock();
             return;	// Shadow out of the map
         }
         if (map->view[py][px]!=1)
         {
-#ifdef	ADVANCED_DEBUG_MODE
-            GuardLeave();
-#endif
             pMutex.unlock();
             return;	// Unvisible shadow
         }
@@ -1611,45 +1535,23 @@ void UNIT::draw_shadow_basic(Camera *cam, const Vector3D& Dir,MAP *map)
     model->draw_shadow_basic(((shadow_scale_dir*Dir*RotateX(-drawn_Angle.x*DEG2RAD))*RotateZ(-drawn_Angle.z*DEG2RAD))*RotateY(-drawn_Angle.y*DEG2RAD),0.0f,&data);
 
     glPopMatrix();
-#ifdef	ADVANCED_DEBUG_MODE
-    GuardLeave();
-#endif
 }
 
 
 const int UNIT::run_script(const float &dt,const int &id,MAP *map,int max_code)			// Interprète les scripts liés à l'unité
 {
-#ifdef	ADVANCED_DEBUG_MODE
-    GuardEnter( run_script );
-#endif
     if (flags==0)
-    {
-#ifdef	ADVANCED_DEBUG_MODE
-        GuardLeave();
-#endif
         return 2;
-    }
     if (id >= (int)script_env->size() && !(*script_env)[id].running)
-    {
-#ifdef	ADVANCED_DEBUG_MODE
-        GuardLeave();
-#endif
         return 2;
-    }
     if ((*script_env)[id].wait>0.0f)
     {
         (*script_env)[id].wait-=dt;
-#ifdef	ADVANCED_DEBUG_MODE
-        GuardLeave();
-#endif
         return 1;
     }
     if (script==NULL || (*script_env)[id].env==NULL)
     {
         (*script_env)[id].running=false;
-#ifdef	ADVANCED_DEBUG_MODE
-        GuardLeave();
-#endif
         return 2;	// S'il n'y a pas de script associé on quitte la fonction
     }
     sint16 script_id=((*script_env)[id].env->cur&0xFF);			// Récupère l'identifiant du script en cours d'éxecution et la position d'éxecution
@@ -1658,9 +1560,6 @@ const int UNIT::run_script(const float &dt,const int &id,MAP *map,int max_code)	
     if (script_id<0 || script_id>=script->nb_script)
     {
         (*script_env)[id].running=false;
-#ifdef	ADVANCED_DEBUG_MODE
-        GuardLeave();
-#endif
         return 2;		// Erreur, ce n'est pas un script repertorié
     }
 
@@ -2021,9 +1920,6 @@ const int UNIT::run_script(const float &dt,const int &id,MAP *map,int max_code)	
                     DEBUG_PRINT_CODE("SIGNAL");
                     (*script_env)[id].env->cur=script_id+(pos<<8);			// Sauvegarde la position
                     raise_signal((*script_env)[id].pop());					// Tue tout les processus utilisant ce signal
-#ifdef	ADVANCED_DEBUG_MODE
-                    GuardLeave();
-#endif
                     return 0;
                 }
             case SCRIPT_DONT_CACHE:
@@ -2587,9 +2483,6 @@ const int UNIT::run_script(const float &dt,const int &id,MAP *map,int max_code)	
 
     if ((*script_env)[id].env)
         (*script_env)[id].env->cur=script_id+(pos<<8);
-#ifdef	ADVANCED_DEBUG_MODE
-    GuardLeave();
-#endif
     return 0;
 }
 
@@ -2691,16 +2584,10 @@ void UNIT::explode()
 
 inline float ballistic_angle(float v,float g,float d,float y_s,float y_e)			// Calculs de ballistique pour l'angle de tir
 {
-#ifdef	ADVANCED_DEBUG_MODE
-    GuardEnter( ballistic_angle );
-#endif
     float v2 = v*v;
     float gd = g*d;
     float v2gd = v2/gd;
     float a = v2gd*(4.0f*v2gd-8.0f*(y_e-y_s)/d)-4.0f;
-#ifdef	ADVANCED_DEBUG_MODE
-    GuardLeave();
-#endif
     if (a<0.0f)				// Pas de solution
         return 360.0f;
     return RAD2DEG*atan(v2gd-0.5f*sqrt(a));
@@ -2708,9 +2595,6 @@ inline float ballistic_angle(float v,float g,float d,float y_s,float y_e)			// C
 
 const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_frame )
 {
-#ifdef	ADVANCED_DEBUG_MODE
-    GuardEnter( UNIT::move );
-#endif
     pMutex.lock();
 
     bool was_open = port[YARD_OPEN] != 0;
@@ -2730,9 +2614,6 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
     if (type_id < 0 || type_id >= unit_manager.nb_unit || flags == 0 ) // A unit which cannot exist
     {
         pMutex.unlock();
-#ifdef	ADVANCED_DEBUG_MODE
-        GuardLeave();
-#endif
         LOG_ERROR("UNIT::move : A unit which ");
         return	-1;		// Should NEVER happen
     }
@@ -2764,9 +2645,6 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
             }
         }
         pMutex.unlock();
-#ifdef	ADVANCED_DEBUG_MODE
-        GuardLeave();
-#endif
         return -1;
     }
 
@@ -2787,22 +2665,22 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
         }
     }
 
-    if (hp<=0.0f && (local || exploding) ) {			// L'unité est détruite
+    if (hp<=0.0f && (local || exploding)) // L'unité est détruite
+    {
         if (mission
             && !unit_manager.unit_type[ type_id ].BMcode
             && ( mission->mission == MISSION_BUILD_2 || mission->mission == MISSION_BUILD )		// It was building something that we must destroy too
-            && mission->p != NULL ) {
+            && mission->p != NULL )
+        {
             ((UNIT*)(mission->p))->lock();
             ((UNIT*)(mission->p))->hp = 0.0f;
             ((UNIT*)(mission->p))->built = false;
             ((UNIT*)(mission->p))->unlock();
         }
         death_timer++;
-        if (death_timer == 255 ) {		// Ok we've been dead for a long time now ...
+        if (death_timer == 255 ) // Ok we've been dead for a long time now ...
+        {
             pMutex.unlock();
-#ifdef	ADVANCED_DEBUG_MODE
-            GuardLeave();
-#endif
             return -1;
         }
         switch(flags&0x17)
@@ -2814,22 +2692,18 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
                 else
                     flags = 1;
                 weapon[0].delay=1.0f;
-                if (flags == 1 ) {
+                if (flags == 1 )
+                {
                     pMutex.unlock();
-#ifdef	ADVANCED_DEBUG_MODE
-                    GuardLeave();
-#endif
                     return -1;
                 }
                 break;
             case 4:				// Vérifie si le script est terminé
-                if (weapon[0].delay<=0.0f || !data.explode ) {
+                if (weapon[0].delay<=0.0f || !data.explode )
+                {
                     flags = 1;
                     pMutex.unlock();
                     clear_from_map();
-#ifdef	ADVANCED_DEBUG_MODE
-                    GuardLeave();
-#endif
                     return -1;
                 }
                 weapon[0].delay-=dt;
@@ -2844,22 +2718,24 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
                 flags=1;
                 pMutex.unlock();
                 clear_from_map();
-#ifdef	ADVANCED_DEBUG_MODE
-                GuardLeave();
-#endif
                 return -1;
-        };
-        if (data.nb_piece>0 && build_percent_left == 0.0f) {
+        }
+        if (data.nb_piece>0 && build_percent_left == 0.0f)
+        {
             data.move(dt,map->ota_data.gravity);
-            if (c_time>=0.1f) {
+            if (c_time>=0.1f)
+            {
                 c_time=0.0f;
                 for(int i=0;i<data.nb_piece;i++)
-                    if (data.flag[i]&FLAG_EXPLODE && (data.explosion_flag[i]&EXPLODE_BITMAPONLY)!=EXPLODE_BITMAPONLY) {
-                        if (data.explosion_flag[i]&EXPLODE_FIRE) {
+                    if (data.flag[i]&FLAG_EXPLODE && (data.explosion_flag[i]&EXPLODE_BITMAPONLY)!=EXPLODE_BITMAPONLY)
+                    {
+                        if (data.explosion_flag[i]&EXPLODE_FIRE)
+                        {
                             compute_model_coord();
                             particle_engine.make_smoke(Pos+data.pos[i],fire,1,0.0f,0.0f);
                         }
-                        if (data.explosion_flag[i]&EXPLODE_SMOKE) {
+                        if (data.explosion_flag[i]&EXPLODE_SMOKE)
+                        {
                             compute_model_coord();
                             particle_engine.make_smoke(Pos+data.pos[i],0,1,0.0f,0.0f);
                         }
@@ -5037,7 +4913,8 @@ script_exec:
     }
     yardmap_timer--;
     if (hp > 0.0f && 
-        ((o_px != cur_px || o_py != cur_py || first_move || (was_flying ^ flying) || ((port[YARD_OPEN] != 0.0f) ^ was_open) || yardmap_timer == 0) && build_percent_left <= 0.0f || !drawn ) ) {
+        ((o_px != cur_px || o_py != cur_py || first_move || (was_flying ^ flying) || ((port[YARD_OPEN] != 0.0f) ^ was_open) || yardmap_timer == 0) && build_percent_left <= 0.0f || !drawn))
+    {
         first_move = build_percent_left > 0.0f;
         pMutex.unlock();
         draw_on_map();
@@ -5048,9 +4925,6 @@ script_exec:
     built=false;
     attacked=false;
     pMutex.unlock();
-#ifdef	ADVANCED_DEBUG_MODE
-    GuardLeave();
-#endif
     return 0;
 }
 

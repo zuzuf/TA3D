@@ -33,7 +33,6 @@
 #include "gfx/gui/area.h"
 #include "misc/math.h"
 
-using namespace TA3D::Exceptions;
 
 
 

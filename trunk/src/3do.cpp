@@ -40,8 +40,6 @@
 #define TA3D_MODEL_LOGS_PREFIX "[model] "
 
 
-using namespace TA3D::Exceptions;
-
 
 namespace TA3D
 {

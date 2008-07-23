@@ -2,7 +2,6 @@
 #include "solo.h"
 #include <list>
 #include "../gamedata.h"
-#include "../../TA3D_Exception.h"
 #include "../../restore.h"
 #include "../../ta3dbase.h"
 #include "../../misc/paths.h"
@@ -11,7 +10,6 @@
 #include "../../menu.h"
 
 
-using namespace TA3D::Exceptions;
 
 
 namespace TA3D
@@ -148,14 +146,7 @@ namespace Menus
                 if (!game_data.saved_file.empty())
                 {
                     gfx->unset_2D_mode();
-                    GuardStart(play);
                     play(&game_data);
-                    GuardCatch();
-                    if (IsExceptionInProgress()) // if guard threw an error this will be true.
-                    {
-                        GuardDisplayAndLogError();   // record and display the error.
-                        LOG_CRITICAL("Exception caught. Aborting now.");
-                    }
                     gfx->set_2D_mode();
                     gfx->ReInitTexSys();
                 }
