@@ -37,6 +37,7 @@
 #include "languages/i18n.h"
 #include "jpeg/ta3d_jpg.h"
 #include "sounds/manager.h"
+#include "misc/math.h"
 
 
 using namespace TA3D::Exceptions;
@@ -228,7 +229,7 @@ namespace TA3D
 		feature_manager.init();
 		weapon_manager.init();
 		fx_manager.init();
-		init_rand_table();
+        Math::InitializeRandomTable();
 
 		ta3dSideData.init();
 		ta3dSideData.loadData();

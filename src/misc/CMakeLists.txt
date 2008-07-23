@@ -24,3 +24,5 @@ ADD_LIBRARY(3dtoolbox STATIC ${SOURCES})
 
 
 ADD_LIBRARY(tdf STATIC tdf.h tdf.cpp)
+
+ADD_LIBRARY(ta3dmath STATIC math.h math.cpp)

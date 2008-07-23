@@ -110,8 +110,6 @@ void draw_cursor();
 void reset_mouse();
 void reset_keyboard();
 
-void init_rand_table();
-const int rand_from_table();
 
 BITMAP *load_memory_pcx(byte *data,RGB *cpal);
 void PutTex(GLuint Tex,float x1,float y1,float x2,float y2);

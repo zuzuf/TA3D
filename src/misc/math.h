@@ -1,7 +1,7 @@
 #ifndef __TA3D_XX__MATH_H__
 # define __TA3D_XX__MATH_H__
 
-
+# include "../stdafx.h"
 # include <math.h>
 
 
@@ -31,6 +31,23 @@ namespace Math
     template<typename T> inline T Rad2Deg(const T rad)
     { return (rad * 57.29578122f); }
 
+
+    //! \name Random table
+    //@{
+
+    /*!
+    ** \brief Initialize the random table
+    **
+    ** The random table may be used to speed up some part of the code
+    */
+    void InitializeRandomTable();
+
+    /*!
+    ** \brief Get a random number from the random table
+    */
+    uint32 RandFromTable();
+
+    //@}
 
 } // namespace Math
 } // namespace TA3D

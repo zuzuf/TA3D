@@ -160,7 +160,7 @@ namespace TA3D
                 break;
             }
         }
-        fx[idx].load(-2 - (rand_from_table() % 3), pos, size * 4.0f);
+        fx[idx].load(-2 - (Math::RandFromTable() % 3), pos, size * 4.0f);
 
         return idx;
     }
@@ -352,9 +352,9 @@ namespace TA3D
         pMutex.lock();
         for (int i = 0 ; i < n ; ++i) 
         {
-            float a = (rand_from_table() % 36000) * 0.01f * DEG2RAD;
-            float b = (rand_from_table() % 18000) * 0.01f * DEG2RAD;
-            float s = power * ((rand_from_table() % 9001) * 0.0001f + 0.1f);
+            float a = (Math::RandFromTable() % 36000) * 0.01f * DEG2RAD;
+            float b = (Math::RandFromTable() % 18000) * 0.01f * DEG2RAD;
+            float s = power * ((Math::RandFromTable() % 9001) * 0.0001f + 0.1f);
             Vector3D vs(s * cos(a) * cos(b), 
                         s * sin(b),
                         s * sin(a) * cos(b));
