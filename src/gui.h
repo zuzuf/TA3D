@@ -39,7 +39,7 @@ namespace TA3D
 
 void glbutton(const String &caption,float x1,float y1,float x2,float y2,bool etat=false);
 
-const String msg_box(TA3D::Interfaces::GfxFont fnt,const String &title,const String &msg,bool ask);
+const String msg_box(TA3D::GfxFont& fnt,const String &title,const String &msg,bool ask);
 
 //-------------- These are the GUI functions needed by the editors ----------------------------
 

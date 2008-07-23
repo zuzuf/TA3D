@@ -14,8 +14,6 @@
 
 namespace TA3D
 {
-namespace Interfaces
-{
 
 
 
@@ -138,7 +136,4 @@ namespace Interfaces
     }
 
 
-
-
-} // namespace Interfaces
 } // namespace TA3D

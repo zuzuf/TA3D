@@ -7,8 +7,6 @@
 
 namespace TA3D
 {
-namespace Interfaces
-{
 
     class GFX;
 
@@ -48,7 +46,6 @@ namespace Interfaces
 
 
 
-} // namespace Interfaces
 } // namespace TA3D
 
 #endif // __TA3D_GFX_FONT_H__

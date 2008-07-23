@@ -410,7 +410,7 @@ namespace TA3D
 
         float compute_size_sq(Vector3D center);		// Carré de la taille(on fera une racine après)
 
-        float print_struct(float Y,float X,TA3D::Interfaces::GfxFont fnt);
+        float print_struct(const float Y, const float X, TA3D::GfxFont& fnt);
 
         float compute_top( float top, Vector3D dec );
 
@@ -490,9 +490,9 @@ namespace TA3D
             obj.Identify(nb_piece,piece_name);
         }
 
-        void print_struct(float Y,float X,TA3D::Interfaces::GfxFont fnt)
+        void print_struct(const float Y, const float X, TA3D::GfxFont& fnt)
         {
-            obj.print_struct(Y,X,fnt);
+            obj.print_struct(Y, X, fnt);
         }
 
     }; // class MODEL

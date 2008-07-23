@@ -135,8 +135,8 @@ namespace TA3D
 			set_uformat(U_ASCII);   // fixed size, 8-bit ASCII characters
 		}
 
-		GuardInfo( "Creating GFX Interface." );				// Don't try to start sound before gfx, if we have to display the warning message while in fullscreen
-		TA3D::VARS::gfx = new TA3D::Interfaces::GFX;		// TA3D's main window might lose focus and allegro's message not be shown ...
+		GuardInfo("Creating GFX Interface.");				// Don't try to start sound before gfx, if we have to display the warning message while in fullscreen
+		TA3D::VARS::gfx = new TA3D::GFX();		// TA3D's main window might lose focus and allegro's message not be shown ...
 		m_GFXModeActive = true;
 
 		gfx->Init();

@@ -41,8 +41,7 @@
 
 namespace TA3D
 {
-namespace Interfaces
-{
+
 
     void GFX::initAllegroGL()
     {
@@ -1208,5 +1207,4 @@ namespace Interfaces
     }
 
 
-} // namespace Interfaces
 } // namespace TA3D

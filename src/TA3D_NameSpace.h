@@ -175,7 +175,7 @@ namespace TA3D
 	{
 		TA3D_API_E TA3D::IInterfaceManager			*InterfaceManager; 
 		TA3D_API_E TA3D::UTILS::HPI::cHPIHandler	*HPIManager;
-		TA3D_API_E TA3D::Interfaces::GFX			*gfx;
+		TA3D_API_E TA3D::GFX* gfx;
 
 		TA3D_API_E RGB								*pal;
 		TA3D_API_E TA3D::TA3DCONFIG					*lp_CONFIG;

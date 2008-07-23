@@ -144,7 +144,7 @@
 namespace TA3D
 {
 
-    extern TA3D::Interfaces::GfxFont gui_font;
+    extern TA3D::GfxFont gui_font;
 
 } // namespace TA3D
 
