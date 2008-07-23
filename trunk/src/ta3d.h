@@ -103,52 +103,6 @@ BITMAP *load_memory_pcx(byte *data,RGB *cpal)
 }
 #endif
 
-/*---------------------------------------------------------------------------------\
-|                                   void PutTex(...)                               |
-|        Procédure qui affiche la texture Tex dans le rectangle (x1,y1)-(x2,y2)    |
-\---------------------------------------------------------------------------------*/
-
-void PutTex(GLuint Tex,float x1,float y1,float x2,float y2)
-{
-	glBindTexture(GL_TEXTURE_2D,Tex);
-	glBegin(GL_QUADS);
-
-		glTexCoord2f(0.0f,0.0f);
-		glVertex2f(x1,y1);
-
-		glTexCoord2f(1.0f,0.0f);
-		glVertex2f(x2,y1);
-					
-		glTexCoord2f(1.0f,1.0f);
-		glVertex2f(x2,y2);
-			
-		glTexCoord2f(0.0f,1.0f);
-		glVertex2f(x1,y2);
-
-	glEnd();
-}
-
-/*
-GLuint LoadTex(const String& file)
-{
-	set_color_depth(32);
-	allegro_gl_use_alpha_channel(true);
-	BITMAP *bmp=load_bitmap(file.c_str(), NULL);
-	GLuint gl_bmp;
-	if (g_useTextureCompression)
-		allegro_gl_set_texture_format(GL_COMPRESSED_RGBA_ARB);
-	else
-		allegro_gl_set_texture_format(GL_RGBA8);
-	gl_bmp=allegro_gl_make_texture(bmp);
-	allegro_gl_use_alpha_channel(false);
-	glBindTexture(GL_TEXTURE_2D, gl_bmp);
-	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR_MIPMAP_LINEAR);
-	allegro_gl_set_texture_format(-1);
-	destroy_bitmap(bmp);
-	return gl_bmp;
-}
-*/
 
 GLuint LoadMaskedTex(const String& file,const String& filealpha)
 {
