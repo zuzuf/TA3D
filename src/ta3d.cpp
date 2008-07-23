@@ -39,6 +39,11 @@
 #include "sounds/manager.h"
 #include "logs/logs.h"
 #include "console.h"
+#include "ingame/weapons/weapons.h"
+#include "fbi.h"
+#include "UnitEngine.h"
+#include "tnt.h"
+#include "scripts/script.h"
 
 
 #ifndef SCROLL_SPEED

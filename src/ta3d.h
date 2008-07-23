@@ -190,18 +190,6 @@ BITMAP* LoadMaskedTexBmp(const String& file, const String& filealpha)
 	return bmp;
 }
 
-#ifndef TA3D_BASIC_ENGINE
-
-#include "3do.h"					// For 3DO/3DM management
-#include "scripts/cob.h"					// For unit scripts management
-#include "tdf.h"					// For 2D features
-#include "EngineClass.h"			// The Core Engine
-#include "UnitEngine.h"				// The Unit Engine
-#include "tnt.h"					// The TNT loaded
-#include "scripts/script.h"					// The game script manager
-#include "ai/ai.h"						// AI Engine
-
-#endif
 
 
 void reset_keyboard()
