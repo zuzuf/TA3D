@@ -81,7 +81,7 @@ namespace TA3D
         ** \param filealpha The mask
         ** \return A valid BITMAP
         */
-        static BITMAP* GFX::LoadMaskedTextureToBmp(const String& file, const String& filealpha);
+        static BITMAP* LoadMaskedTextureToBmp(const String& file, const String& filealpha);
 
     public:
         int			width;				// Size of this window on the screen
