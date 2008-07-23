@@ -32,6 +32,8 @@
 # include "gaf.h"
 # include <vector>
 # include <list>
+# include "misc/matrix.h"
+# include "gfx/glfunc.h"
 
 
 namespace TA3D
