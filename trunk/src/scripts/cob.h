@@ -125,13 +125,20 @@ namespace TA3D
         void init();
         void destroy();
 
+        /*!
+        ** \brief Get the index of a script according its name
+        ** \param name name of the script
+        ** \return Index of the script, -1 if not found
+        */
+        int findFromName(const String& name);
+
         void load_cob(byte *data);
 
     public:
         int     nb_script;      // Nombre de scripts
         byte    *Data;          // Données du fichier COB
         int     **script_code;  // Code des scripts
-        char    **name;         // Nom des scripts
+        String::Vector names;         // Nom des scripts
         int     nb_piece;       // Nombre de pièces
         char    **piece_name;   // Nom des pièces de l'objet 3d concerné
         int     *dec_offset;

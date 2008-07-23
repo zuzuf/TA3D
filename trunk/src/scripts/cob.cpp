@@ -97,13 +97,13 @@ namespace TA3D
 
         nb_script=header.NumberOfScripts;
         nb_piece=header.NumberOfPieces;
-        name=(char**) malloc(sizeof(char*)*nb_script);
+        names.resize(nb_script);
         piece_name=(char**) malloc(sizeof(char*)*nb_piece);
 
         int f_pos = header.OffsetToScriptNameOffsetArray;
         int i;
         for (i = 0; i < nb_script; ++i)
-            name[i]=strdup((char*)(data+(*((int*)(data+f_pos+4*i)))));
+            names[i] = (char*)(data + (*((int*)(data + f_pos + 4 * i))));
         f_pos=header.OffsetToPieceNameOffsetArray;
         for(i = 0; i < nb_piece; ++i)
             piece_name[i] = strdup((char*)(data+(*((int*)(data+f_pos+4*i)))));
@@ -123,12 +123,7 @@ namespace TA3D
 
     void SCRIPT::destroy()
     {
-        if (name)
-        {
-            for (int i = 0; i < nb_script; ++i)
-                free(name[i]);
-            free(name);
-        }
+        names.clear();
         if (script_code)
             free(script_code);
         if (dec_offset)
@@ -146,15 +141,25 @@ namespace TA3D
 
     void SCRIPT::init()
     {
+        names.clear();
         Data = NULL;
         nb_script = 0;
         nb_piece = 0;
         script_code = NULL;
-        name = NULL;
         piece_name = NULL;
         dec_offset = NULL;
     }
 
 
+    int SCRIPT::findFromName(const String& name)
+    {
+        int indx(0);
+        for (String::Vector::const_iterator i = names.begin(); i != names.end(); ++i, ++indx)
+        {
+            if (*i == name)
+                return indx;
+        }
+        return -1;
+    }
 
 } // namespace TA3D
