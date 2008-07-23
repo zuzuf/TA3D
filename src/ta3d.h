@@ -104,53 +104,6 @@ BITMAP *load_memory_pcx(byte *data,RGB *cpal)
 #endif
 
 
-GLuint LoadMaskedTex(const String& file,const String& filealpha)
-{
-	set_color_depth(32);
-	BITMAP *bmp = load_bitmap(file.c_str(), NULL);
-	BITMAP *alpha;
-	set_color_depth(8);
-	alpha=load_bitmap(filealpha.c_str(), NULL);
-	set_color_depth(32);
-	for (int y = 0; y < bmp->h; ++y)
-    {
-		for (int x = 0; x < bmp->w; ++x)
-			bmp->line[y][(x << 2) + 3] = alpha->line[y][x];
-    }
-	GLuint gl_bmp;
-	allegro_gl_use_alpha_channel(true);
-	if(g_useTextureCompression)
-		allegro_gl_set_texture_format(GL_COMPRESSED_RGBA_ARB);
-	else
-		allegro_gl_set_texture_format(GL_RGBA8);
-	gl_bmp=allegro_gl_make_texture(bmp);
-	allegro_gl_use_alpha_channel(false);
-	glBindTexture(GL_TEXTURE_2D, gl_bmp);
-	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR_MIPMAP_LINEAR);
-	destroy_bitmap(bmp);
-	destroy_bitmap(alpha);
-	return gl_bmp;
-}
-
-BITMAP* LoadMaskedTexBmp(const String& file, const String& filealpha)
-{
-	set_color_depth(32);
-	BITMAP* bmp = load_bitmap(file.c_str(), NULL);
-	set_color_depth(8);
-	BITMAP* alpha = load_bitmap(filealpha.c_str(), NULL);
-	set_color_depth(32);
-	for (int y = 0; y < bmp->h; ++y)
-    {
-		for (int x = 0; x < bmp->w; ++x)
-			bmp->line[y][(x << 2) + 3] = alpha->line[y][x];
-    }
-	destroy_bitmap(alpha);
-	return bmp;
-}
-
-
-
 void reset_keyboard()
 {
 	remove_keyboard();

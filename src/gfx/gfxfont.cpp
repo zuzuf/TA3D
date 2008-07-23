@@ -136,4 +136,30 @@ namespace TA3D
     }
 
 
+    BITMAP* GFX::LoadMaskedTextureToBmp(const String& file, const String& filealpha)
+    {
+        // Load the texture (32Bits)
+        set_color_depth(32);
+        BITMAP* bmp = load_bitmap(file.c_str(), NULL);
+        LOG_ASSERT(bmp != NULL);
+
+        // Load the mask
+        set_color_depth(8);
+        BITMAP* alpha = load_bitmap(filealpha.c_str(), NULL);
+        LOG_ASSERT(alpha != NULL);
+
+        // Apply the mask, pixel by pixel
+        set_color_depth(32);
+        for (int y = 0; y < bmp->h; ++y)
+        {
+            for (int x = 0; x < bmp->w; ++x)
+                bmp->line[y][(x << 2) + 3] = alpha->line[y][x];
+        }
+
+        destroy_bitmap(alpha);
+        return bmp;
+    }
+
+
+
 } // namespace TA3D
