@@ -38,11 +38,11 @@ namespace TA3D
             else 
             {
                 // compilation error! Check compiler log! 
-                LOG_WARNING(LOG_PREFIX_OPENGL << "Pixel shader: the compilation has failed");
+                LOG_ERROR(LOG_PREFIX_OPENGL << "Pixel shader: the compilation has failed");
                 char log[10000];
                 GLsizei len = 0;
                 glGetInfoLogARB(shader, 10000, &len, log);
-                LOG_DEBUG(LOG_PREFIX_OPENGL << log);
+                LOG_ERROR(LOG_PREFIX_OPENGL << log);
             }
             return shader;
         }
@@ -65,11 +65,11 @@ namespace TA3D
             else 
             {
                 // compilation error! Check compiler log! 
-                LOG_WARNING(LOG_PREFIX_OPENGL << "Vertex shader: the compilation has failed");
+                LOG_ERROR(LOG_PREFIX_OPENGL << "Vertex shader: the compilation has failed");
                 char log[10000];
                 GLsizei len=0;
                 glGetInfoLogARB(shader, 10000, &len, log);
-                LOG_DEBUG(LOG_PREFIX_OPENGL << log);
+                LOG_ERROR(LOG_PREFIX_OPENGL << log);
             }
             return shader;
         }
@@ -101,11 +101,11 @@ namespace TA3D
             else 
             {
                 // compilation error! Check compiler log! 
-                LOG_WARNING(LOG_PREFIX_OPENGL << "Fragment shader: `" << filename << "` failed to compile");
+                LOG_ERROR(LOG_PREFIX_OPENGL << "Fragment shader: `" << filename << "` failed to compile");
                 char log[10000];
                 GLsizei len = 0;
                 glGetInfoLogARB(shader, 10000, &len, log);
-                LOG_DEBUG(LOG_PREFIX_OPENGL << log);
+                LOG_ERROR(LOG_PREFIX_OPENGL << log);
             }
             delete[] buf;
             return shader;
@@ -140,11 +140,11 @@ namespace TA3D
             else 
             {
                 // compilation error! Check compiler log! 
-                LOG_WARNING(LOG_PREFIX_OPENGL << "Vertex sharder: `" << filename << "` failed to compile");
+                LOG_ERROR(LOG_PREFIX_OPENGL << "Vertex sharder: `" << filename << "` failed to compile");
                 char log[10000];
                 GLsizei len = 0;
                 glGetInfoLogARB(shader, 10000, &len, log);
-                LOG_DEBUG(LOG_PREFIX_OPENGL << log);
+                LOG_ERROR(LOG_PREFIX_OPENGL << log);
             }
             delete[] buf;
             return shader;
@@ -196,11 +196,11 @@ namespace TA3D
         }
         else
         {
-            LOG_WARNING(LOG_PREFIX_OPENGL << "Object Link (ARB): Failure");
+            LOG_ERROR(LOG_PREFIX_OPENGL << "Object Link (ARB): Failure");
             char log[10000];
             GLsizei len = 0;
             glGetInfoLogARB(pShaderProgram, 10000, &len, log);
-            LOG_DEBUG(LOG_PREFIX_OPENGL << log);
+            LOG_ERROR(LOG_PREFIX_OPENGL << log);
             pLoaded = false;
         }
     }
@@ -224,16 +224,16 @@ namespace TA3D
         glGetObjectParameterivARB(pShaderProgram, GL_OBJECT_LINK_STATUS_ARB, &link);
         if(link)
         {
-            // LOG_DEBUG("Successfully loaded shader: `" << fragment_file << "`");
+            // LOG_DEBUG("Successfully loaded shader: `" << fragmentFilename << "`");
             pLoaded = true;
         }
         else
         {
-            // LOG_WARNING("Failed to load shader: `" << fragment_file << "`");
+            LOG_ERROR("Failed to load shader: `" << fragmentFilename << "`");
             char log[10000];
             GLsizei len = 0;
             glGetInfoLogARB(pShaderProgram, 10000, &len, log);
-            LOG_DEBUG(LOG_PREFIX_OPENGL << log);
+            LOG_ERROR(LOG_PREFIX_OPENGL << log);
             pLoaded = false;
         }
     }
