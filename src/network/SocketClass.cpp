@@ -18,8 +18,6 @@
 #include "SocketClass.h"
 #include "../logs/logs.h"
 
-#define TA3D_LOGS_SOCKET_PREFIX "[network/socket] "
-
 
 
 namespace TA3D
@@ -49,7 +47,7 @@ namespace TA3D
         if (stype != STYPE_BROKEN)
         {
             if( nlClose(fd) == NL_FALSE )
-                LOG_ERROR(TA3D_LOGS_SOCKET_PREFIX << nlGetErrorStr(nlGetError()));
+                LOG_ERROR(LOG_PREFIX_NET_SOCKET << nlGetErrorStr(nlGetError()));
         }
     }
 
@@ -62,7 +60,7 @@ namespace TA3D
         sockreports = 1;
         sockerrors = 1;
         if (Open(hostname, port, transport) < 0)
-            LOG_ERROR(TA3D_LOGS_SOCKET_PREFIX << "Socket initialization for `" << hostname << "`:" << port << " failed !");
+            LOG_ERROR(LOG_PREFIX_NET_SOCKET << "Socket initialization for `" << hostname << "`:" << port << " failed !");
     }
 
     Socket::Socket(const char *hostname, const char *port)
@@ -73,7 +71,7 @@ namespace TA3D
         sockreports = 1;
         sockerrors = 1;
         if (Open(hostname, port, PROTOCOL_TCPIP) < 0)
-            LOG_ERROR(TA3D_LOGS_SOCKET_PREFIX << "Socket initialization for `" << hostname << "`:" << port << " failed !");
+            LOG_ERROR(LOG_PREFIX_NET_SOCKET << "Socket initialization for `" << hostname << "`:" << port << " failed !");
     }
 
     int Socket::Open(const char *hostname, const char *port)
@@ -294,7 +292,7 @@ namespace TA3D
                 case STYPE_BROADCAST:   type = "BROADCAST"; break;
                 default: type = "broken";
             }
-            LOG_ERROR(TA3D_LOGS_SOCKET_PREFIX << type << ", [" << number << "]:" << service << " ->" << message);
+            LOG_ERROR(LOG_PREFIX_NET_SOCKET << type << ", [" << number << "]:" << service << " ->" << message);
         }
     }
 
@@ -312,7 +310,7 @@ namespace TA3D
                 case STYPE_BROADCAST:   type = "BROADCAST"; break;
                 default: type = "broken";
             }
-            LOG_ERROR(TA3D_LOGS_SOCKET_PREFIX << type << ", [" << number << "]:" << service << " ->" << message);
+            LOG_ERROR(LOG_PREFIX_NET_SOCKET << type << ", [" << number << "]:" << service << " ->" << message);
         }
     }
 

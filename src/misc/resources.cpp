@@ -4,7 +4,6 @@
 #include "../threads/mutex.h"
 
 
-#define TA3D_LOGS_RESOURCES_PREFIX "[resources] "
 
 namespace TA3D
 {
@@ -108,7 +107,7 @@ namespace Resources
                 if (folder == *i)
                     return false;
             }
-            LOG_INFO(TA3D_LOGS_RESOURCES_PREFIX << "Added `" << folder << "`");
+            LOG_INFO(LOG_PREFIX_RESOURCES << "Added `" << folder << "`");
             pResourcesFolders.push_back(folder);
             return true;
         }

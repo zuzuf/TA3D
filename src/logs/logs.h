@@ -41,6 +41,46 @@
 # endif
 
 
+//! \name Prefix for log entries
+//@{
+
+# define LOG_PREFIX_3DM               "[3dm] "
+# define LOG_PREFIX_3DO               "[3do] "
+# define LOG_PREFIX_MODEL             "[model] "
+
+# define LOG_PREFIX_AI                "[AI] "
+
+# define LOG_PREFIX_OPENGL            "[OpenGL] "
+# define LOG_PREFIX_DIRECTX           "[DirectX] "
+# define LOG_PREFIX_GFX               "[gfx] "
+
+# define LOG_PREFIX_I18N              "[i18n] "
+# define LOG_PREFIX_SYSTEM            "[system] "
+# define LOG_PREFIX_PATHS             "[paths] "
+# define LOG_PREFIX_RESOURCES         "[resources] "
+# define LOG_PREFIX_TDF               "[tdf] "
+
+# define LOG_PREFIX_SCRIPT            "[script] "
+# define LOG_PREFIX_LUA               "[script::lua] "
+
+# define LOG_PREFIX_MENU_INTRO        "[menu::introduction] "
+# define LOG_PREFIX_MENU_SOLO         "[menu::solo] "
+# define LOG_PREFIX_MENU_LOADING      "[menu::loading] "
+# define LOG_PREFIX_MENU_MAIN         "[menu::main] "
+# define LOG_PREFIX_MENU_MAPSELECTOR  "[menu::mapselector] "
+# define LOG_PREFIX_MENU_STATS        "[menu::stats] "
+
+# define LOG_PREFIX_NET               "[network] "
+# define LOG_PREFIX_NET_BROADCAST     "[net::broadcast] "
+# define LOG_PREFIX_NET_FILE          "[net::file] "
+# define LOG_PREFIX_NET_SOCKET        "[net::socket] "
+# define LOG_PREFIX_NET_UDP           "[net::udp] "
+
+# define LOG_PREFIX_SOUND             "[audio] "
+# define LOG_PREFIX_FMOD              "[audio::fmod] "
+
+//@}
+
 
 namespace TA3D
 {

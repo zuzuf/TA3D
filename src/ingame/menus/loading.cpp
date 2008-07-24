@@ -6,7 +6,6 @@
 #include "../../languages/i18n.h"
 #include "../../gfx/gui/skin.h"
 
-# define TA3D_LOG_SECTION_MENU_MAIN_PREFIX  "[loading] "
 
 
 namespace TA3D
@@ -20,7 +19,7 @@ namespace Menus
         pCaption("Loading..."),
         pBackgroundTexture(0), pPreviousFontSize(1.0f), pCurrentFontHeight(0.0f)
     {
-        LOG_DEBUG(TA3D_LOG_SECTION_MENU_MAIN_PREFIX << "Starting...");
+        LOG_DEBUG(LOG_PREFIX_MENU_LOADING << "Starting...");
         pStartTime = msec_timer;
         doNoticeOtherPlayers();
         loadTheBackgroundTexture();
@@ -33,7 +32,7 @@ namespace Menus
         pCaption("Loading..."),
         pBackgroundTexture(0), pPreviousFontSize(1.0f), pCurrentFontHeight(0.0f)
     {
-        LOG_DEBUG(TA3D_LOG_SECTION_MENU_MAIN_PREFIX << "Starting...");
+        LOG_DEBUG(LOG_PREFIX_MENU_LOADING << "Starting...");
         pStartTime = msec_timer;
         doNoticeOtherPlayers();
         loadTheBackgroundTexture();
@@ -46,7 +45,7 @@ namespace Menus
         gfx->destroy_texture(pBackgroundTexture);
 
         // Loading time
-        LOG_DEBUG(TA3D_LOG_SECTION_MENU_MAIN_PREFIX << "Done.");
+        LOG_DEBUG(LOG_PREFIX_MENU_LOADING << "Done.");
         LOG_INFO("Time of loading :" << (msec_timer - pStartTime) * 0.001f << "s");
     }
 

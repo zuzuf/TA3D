@@ -40,8 +40,7 @@
 #include "../sounds/manager.h"
 
 
-#define TA3D_LOGS_SCRIPT_PREFIX  "[script] "
-#define TA3D_LOGS_LUA_PREFIX  "[script] [lua] "
+
 
 namespace TA3D
 {
@@ -95,7 +94,7 @@ namespace TA3D
     {
         const char *str = lua_tostring( L, -1 );		// Read the result
         if (str)
-            LOG_INFO(TA3D_LOGS_SCRIPT_PREFIX << str);
+            LOG_INFO(LOG_PREFIX_SCRIPT << str);
         lua_pop(L, 1);
         return 0;
     }
@@ -1306,7 +1305,7 @@ namespace TA3D
             if (luaL_dobuffer( L, buffer, filesize))	// Load the lua chunk
             {
                 if (lua_tostring( L, -1 ) != "")
-                    LOG_ERROR(TA3D_LOGS_LUA_PREFIX << lua_tostring( L, -1));
+                    LOG_ERROR(LOG_PREFIX_LUA << lua_tostring( L, -1));
 
                 running = false;
                 lua_close( L );
@@ -1319,7 +1318,7 @@ namespace TA3D
         }
         else
         {
-            LOG_ERROR(TA3D_LOGS_LUA_PREFIX << "Failed opening `" << filename << "`");
+            LOG_ERROR(LOG_PREFIX_LUA << "Failed opening `" << filename << "`");
             running = false;
         }
     }
@@ -1362,7 +1361,7 @@ namespace TA3D
             if (lua_pcall( L, 0, 1, 0))
             {
                 if(lua_tostring(L, -1) != "")
-                    LOG_ERROR(TA3D_LOGS_LUA_PREFIX << lua_tostring(L, -1));
+                    LOG_ERROR(LOG_PREFIX_LUA << lua_tostring(L, -1));
                 running = false;
                 return -1;
             }
@@ -1370,7 +1369,7 @@ namespace TA3D
         catch(...)
         {
             if (lua_tostring( L, -1 ) != "")
-                LOG_ERROR(TA3D_LOGS_LUA_PREFIX << lua_tostring(L, -1));
+                LOG_ERROR(LOG_PREFIX_LUA << lua_tostring(L, -1));
             running = false;
             return -1;
         }
@@ -1489,7 +1488,7 @@ namespace TA3D
 
         if (!m_File.is_open())
         {
-            LOG_ERROR(TA3D_LOGS_SCRIPT_PREFIX << "Could not open file `" << Filename << "` (" << __FILE__ << ", " <<  __LINE__);
+            LOG_ERROR(LOG_PREFIX_SCRIPT << "Could not open file `" << Filename << "` (" << __FILE__ << ", " <<  __LINE__);
             return;
         }
 

@@ -6,7 +6,6 @@
 #include "../../logs/logs.h"
 #include "../../languages/i18n.h"
 
-# define TA3D_LOG_SECTION_MENU_MAP_SELECTOR_PREFIX  "[Map Selector] "
 
 
 
@@ -72,7 +71,7 @@ namespace Menus
 
     bool MapSelector::doInitialize()
     {
-        LOG_DEBUG(TA3D_LOG_SECTION_MENU_MAP_SELECTOR_PREFIX << "Entering...");
+        LOG_DEBUG(LOG_PREFIX_MENU_MAPSELECTOR << "Entering...");
 
         loadAreaFromTDF("map setup", "gui/mapsetup.area");
         // Load all maps, if any
@@ -97,7 +96,7 @@ namespace Menus
         // The mini map object
         pMiniMapObj = pArea->get_object("mapsetup.minimap");
         if (!pMiniMapObj)
-            LOG_ERROR(TA3D_LOG_SECTION_MENU_MAP_SELECTOR_PREFIX << "Can not find the GUI object `mapsetup.minimap`");
+            LOG_ERROR(LOG_PREFIX_MENU_MAPSELECTOR << "Can not find the GUI object `mapsetup.minimap`");
         else
         {
             pMiniMapObj->Data = 0;
@@ -181,8 +180,8 @@ namespace Menus
     void MapSelector::doFinalize()
     {
         if (!pSelectedMap.empty())
-            LOG_INFO(TA3D_LOG_SECTION_MENU_MAP_SELECTOR_PREFIX << "The map `" << pSelectedMap << "` has been selected.");
-        LOG_DEBUG(TA3D_LOG_SECTION_MENU_MAP_SELECTOR_PREFIX << "Done.");
+            LOG_INFO(LOG_PREFIX_MENU_MAPSELECTOR << "The map `" << pSelectedMap << "` has been selected.");
+        LOG_DEBUG(LOG_PREFIX_MENU_MAPSELECTOR << "Done.");
     }
 
 
@@ -236,7 +235,7 @@ namespace Menus
         pLastMapIndex = mapIndex;
 
         // Logs
-        LOG_DEBUG(TA3D_LOG_SECTION_MENU_MAP_SELECTOR_PREFIX << "`" << pListOfMaps[mapIndex]
+        LOG_DEBUG(LOG_PREFIX_MENU_MAPSELECTOR << "`" << pListOfMaps[mapIndex]
                   << "` has been selected (indx: " << mapIndex << ")");
 
         // The new map name
@@ -346,7 +345,7 @@ namespace Menus
                 const String newMapName(it->substr(5, l - 9));
                 if (MapSelector::MapIsForNetworkGame(newMapName))
                 {
-                    LOG_DEBUG(TA3D_LOG_SECTION_MENU_MAP_SELECTOR_PREFIX << " Found `" << newMapName << "`");
+                    LOG_DEBUG(LOG_PREFIX_MENU_MAPSELECTOR << " Found `" << newMapName << "`");
                     out.push_back(newMapName);
                 }
             }
@@ -364,12 +363,12 @@ namespace Menus
             case 0:
                 {
                     Popup(I18N::Translate("Error"), I18N::Translate("No map found"));
-                    LOG_ERROR(TA3D_LOG_SECTION_MENU_MAP_SELECTOR_PREFIX << "No maps have been found.");
+                    LOG_ERROR(LOG_PREFIX_MENU_MAPSELECTOR << "No maps have been found.");
                     return false;
                 }
-            case 1: LOG_DEBUG(TA3D_LOG_SECTION_MENU_MAP_SELECTOR_PREFIX << pCachedSizeOfListOfMaps
+            case 1: LOG_DEBUG(LOG_PREFIX_MENU_MAPSELECTOR << pCachedSizeOfListOfMaps
                              << " map only has been found"); break;
-            default: LOG_DEBUG(TA3D_LOG_SECTION_MENU_MAP_SELECTOR_PREFIX << pCachedSizeOfListOfMaps
+            default: LOG_DEBUG(LOG_PREFIX_MENU_MAPSELECTOR << pCachedSizeOfListOfMaps
                               << " maps have been found");
         }
         return true;

@@ -15,8 +15,6 @@
 void ReadFileParameter();
 
 
-# define TA3D_LOG_SECTION_MENU_MAIN_PREFIX "[Main Menu] "
-
 
 namespace TA3D
 {
@@ -41,7 +39,7 @@ namespace Menus
 
     bool MainMenu::doInitialize()
     {
-        LOG_DEBUG(TA3D_LOG_SECTION_MENU_MAIN_PREFIX << "Entering...");
+        LOG_DEBUG(LOG_PREFIX_MENU_MAIN << "Entering...");
 
         gfx->SetDefState();
         gfx->set_2D_mode();
@@ -85,7 +83,7 @@ namespace Menus
     void MainMenu::doFinalize()
     {
         gfx->set_2D_mode();
-        LOG_DEBUG(TA3D_LOG_SECTION_MENU_MAIN_PREFIX << "Done.");
+        LOG_DEBUG(LOG_PREFIX_MENU_MAIN << "Done.");
     }
 
     void MainMenu::getInfosAboutTheCurrentMod()

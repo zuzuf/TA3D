@@ -3,7 +3,6 @@
 #include "../../ta3dbase.h"
 #include "../../EngineClass.h"
 
-# define TA3D_LOG_SECTION_STATS_PREFIX "[Stats] "
 
 
 
@@ -41,7 +40,7 @@ namespace Menus
 
     bool Statistics::doInitialize()
     {
-        LOG_DEBUG(TA3D_LOG_SECTION_STATS_PREFIX << "Entering...");
+        LOG_DEBUG(LOG_PREFIX_MENU_STATS << "Entering...");
         gfx->set_2D_mode();
         gfx->ReInitTexSys();
         loadAreaFromTDF("statistics", "gui/statistics.area");
@@ -67,7 +66,7 @@ namespace Menus
     void Statistics::doFinalize()
     {
         // Do nothing
-        LOG_DEBUG(TA3D_LOG_SECTION_STATS_PREFIX << "Done.");
+        LOG_DEBUG(LOG_PREFIX_MENU_STATS << "Done.");
     }
 
 

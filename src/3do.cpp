@@ -36,9 +36,6 @@
 #include "logs/logs.h"
 
 
-#define TA3D_3DM_LOGS_PREFIX "[3dm] "
-#define TA3D_MODEL_LOGS_PREFIX "[model] "
-
 
 
 namespace TA3D
@@ -3159,7 +3156,7 @@ hit_fast_is_exploding:
             fclose(dst);
         }
         else
-            LOG_ERROR(TA3D_3DM_LOGS_PREFIX << "Impossible to save the 3DM file: `"
+            LOG_ERROR(LOG_PREFIX_3DM << "Impossible to save the 3DM file: `"
                       << (filename == NULL ? "NULL" : filename) << "` can not be opened for writing");
     }
 
@@ -3226,7 +3223,7 @@ hit_fast_is_exploding:
 
         if ((fichier = TA3D_OpenFile(filename, "rt")) == NULL)
         {
-            LOG_ERROR(TA3D_MODEL_LOGS_PREFIX << "Impossible to open `" << filename << "`");
+            LOG_ERROR(LOG_PREFIX_MODEL << "Impossible to open `" << filename << "`");
             return;
         }
 

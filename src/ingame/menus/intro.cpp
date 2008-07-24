@@ -7,8 +7,6 @@
 
 
 
-# define TA3D_LOG_SECTION_MENU_INTRO_PREFIX "[Intro] "
-
 //!
 # define TA3D_INTRO_MAX_LINES 15
 
@@ -44,7 +42,7 @@ namespace Menus
     bool Intro::doInitialize()
     {
         LOG_ASSERT(NULL != gfx);
-        LOG_DEBUG(TA3D_LOG_SECTION_MENU_INTRO_PREFIX << "Entering...");
+        LOG_DEBUG(LOG_PREFIX_MENU_INTRO << "Entering...");
         reloadContent();
         loadBackgroundTexture();
 
@@ -67,7 +65,7 @@ namespace Menus
         // Restore the previous font size
         gfx->TA_font.change_size(pPreviousFontSize);
         ResetTexture(pBackgroundTexture);
-        LOG_DEBUG(TA3D_LOG_SECTION_MENU_INTRO_PREFIX << "Done.");
+        LOG_DEBUG(LOG_PREFIX_MENU_INTRO << "Done.");
     }
 
 

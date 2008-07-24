@@ -19,7 +19,6 @@
 #include "../TA3D_NameSpace.h"
 #include "../logs/logs.h"
 
-#define TA3D_LOGS_BROADCAST_PREFIX "[broadcast] "
 
 
 namespace TA3D
@@ -33,7 +32,7 @@ namespace TA3D
 
         if (!udpsocket.isOpen())
         {
-            LOG_ERROR(TA3D_LOGS_BROADCAST_PREFIX << "Couldn't open UDP socket for broadcasting");
+            LOG_ERROR(LOG_PREFIX_NET_BROADCAST << "Couldn't open UDP socket for broadcasting");
             //one of them didnt work... quit
             udpsocket.Close();
             return -1;
@@ -107,14 +106,14 @@ namespace TA3D
     void BroadcastSock::sendUDP()
     {
         if( !udpsocket.isOpen())
-            LOG_WARNING(TA3D_LOGS_BROADCAST_PREFIX << "The socket is closed !");
+            LOG_WARNING(LOG_PREFIX_NET_BROADCAST << "The socket is closed !");
         int n = 0;
         while (n != obp)
         {
             int v = udpsocket.Send(outbuf,obp);
             if (v <= 0)
             {
-                LOG_ERROR(TA3D_LOGS_BROADCAST_PREFIX << "Couldn't broadcast data");
+                LOG_ERROR(LOG_PREFIX_NET_BROADCAST << "Couldn't broadcast data");
                 break;
             }
             n += v;
