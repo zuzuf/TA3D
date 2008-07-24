@@ -1,3 +1,15 @@
+[Painter]
+{
+    FRENCH=Outil peinture;
+}
+[Cylindric mapping]
+{
+    FRENCH=Mappage cylindrique;
+}
+[Selecting]
+{
+    FRENCH=Selection;
+}
 [Current object :]
 {
     FRENCH=Objet courant:;
@@ -190,10 +202,6 @@
 {
 	FRENCH=Nouvelle texture;
 }
-[Cylindrical texturing]
-{
-	FRENCH=Plaquage cylindrique;
-}
 [Texture mapper]
 {
 	FRENCH=Plaqueur de texture;
@@ -212,13 +220,13 @@
 }
 [Disassemble]
 {
-	FRENCH=Desassembler;
+	FRENCH=Désassembler;
 }
-[Normalise]
+[Normalize]
 {
 	FRENCH=Normaliser;
 }
-[Optimise]
+[Optimize]
 {
 	FRENCH=Optimiser;
 }
@@ -228,7 +236,7 @@
 }
 [Resolution]
 {
-	FRENCH=résolution;
+	FRENCH=Résolution;
 }
 [Close]
 {
@@ -276,7 +284,7 @@
 }
 [Line drawing]
 {
-	FRENCH=Tracage de lignes;
+	FRENCH=Traçage de lignes;
 }
 [Pattern]
 {
