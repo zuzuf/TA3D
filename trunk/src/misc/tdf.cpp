@@ -4,7 +4,6 @@
 #include "../ta3dbase.h"
 
 
-# define TA3D_LOGS_TDF_PREFIX "[tdf] "
 
 
 namespace TA3D
@@ -98,11 +97,11 @@ namespace TA3D
             }
         }
         if (data == NULL)
-            LOG_ERROR(TA3D_LOGS_TDF_PREFIX << "Unable to open `" << filename << "`");
+            LOG_ERROR(LOG_PREFIX_TDF << "Unable to open `" << filename << "`");
         else
         {
             delete[] data;
-            LOG_WARNING(TA3D_LOGS_TDF_PREFIX << "The file `" << filename << "` is empty (file size=0).");
+            LOG_WARNING(LOG_PREFIX_TDF << "The file `" << filename << "` is empty (file size=0).");
         }
         return false;
     }
@@ -201,14 +200,14 @@ namespace TA3D
                                 --stack.level;
                             }
                             else
-                                LOG_ERROR(TA3D_LOGS_TDF_PREFIX << stack.caption << ":" << stack.line
+                                LOG_ERROR(LOG_PREFIX_TDF << stack.caption << ":" << stack.line
                                           << " : `}` found outside a section");
                             continue;
                         }
                         // Raise an error if there some text outside a block
                         if (stack.currentSection.empty())
                         {
-                            LOG_WARNING(TA3D_LOGS_TDF_PREFIX << stack.caption << ":" << stack.line
+                            LOG_WARNING(LOG_PREFIX_TDF << stack.caption << ":" << stack.line
                                         << " : The text is outside a section (ignored): " << stack.key);
                             continue;
                         }

@@ -27,8 +27,6 @@
 #include "../logs/logs.h"
 
 
-#define TA3D_OPENGL_PREFIX "[OpenGL] "
-
 
 bool	MultiTexturing;
 bool	g_useTextureCompression = false;

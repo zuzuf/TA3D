@@ -4,7 +4,6 @@
 #include "../misc/paths.h"
 #include "../TA3D_NameSpace.h"
 
-#define TA3D_LOG_SECTION_I18N_PREFIX "[i18n] "
 
 
 
@@ -46,7 +45,7 @@ namespace TA3D
 
     I18N::~I18N()
     {
-        LOG_DEBUG(TA3D_LOG_SECTION_I18N_PREFIX << "Release.");
+        LOG_DEBUG(LOG_PREFIX_I18N << "Release.");
         doClearLanguages();
     }
 
@@ -161,7 +160,7 @@ namespace TA3D
                 if (pCurrentLanguage->englishCaption() == lng->englishCaption())
                 {
                     resetPrefix();
-                    LOG_INFO(TA3D_LOG_SECTION_I18N_PREFIX << "Switching to `"
+                    LOG_INFO(LOG_PREFIX_I18N << "Switching to `"
                              << pCurrentLanguage->caption() << "`"
                              << " (" << pCurrentLanguage->englishCaption() << ")");
                     return true;
@@ -225,7 +224,7 @@ namespace TA3D
     {
         if (!Paths::Exists(filename) && !TA3D::VARS::HPIManager->Exists(filename))
         {
-            LOG_WARNING(TA3D_LOG_SECTION_I18N_PREFIX << "Impossible to load translations from `"
+            LOG_WARNING(LOG_PREFIX_I18N << "Impossible to load translations from `"
                         << filename << "` (file not found)");
             return false;
         }
@@ -236,7 +235,7 @@ namespace TA3D
         pMutex.unlock();
 
         // Success
-        LOG_DEBUG(TA3D_LOG_SECTION_I18N_PREFIX << "`" << filename << "` loaded.");
+        LOG_DEBUG(LOG_PREFIX_I18N << "`" << filename << "` loaded.");
         return true;
     }
 

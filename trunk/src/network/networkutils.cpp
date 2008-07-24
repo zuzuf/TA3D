@@ -6,8 +6,6 @@
 #include "../logs/logs.h"
 
 
-#define TA3D_LOGS_BROADCAST_PREFIX "[broadcast] "
-#define TA3D_LOGS_FILETRANSFERT_PREFIX "[file-transfer] "
 
 
 namespace TA3D
@@ -327,7 +325,7 @@ namespace TA3D
         }
 
         pDead = 1;
-        LOG_DEBUG(TA3D_LOGS_BROADCAST_PREFIX << "The thread has been closed");
+        LOG_DEBUG(LOG_PREFIX_NET_BROADCAST << "The thread has been closed");
         return;
     }
 
@@ -368,7 +366,7 @@ namespace TA3D
 
         network->sendFileData(sockid,port,(byte*)&length,4);
 
-        LOG_INFO(TA3D_LOGS_FILETRANSFERT_PREFIX << "Starting...");
+        LOG_INFO(LOG_PREFIX_NET_FILE << "Starting...");
         while (!pDead)
         {
             n = ta3d_fread(buffer,1,FILE_TRANSFER_BUFFER_SIZE,file);
@@ -401,7 +399,7 @@ namespace TA3D
         while (progress < pos - FILE_TRANSFER_BUFFER_SIZE && !pDead && msec_timer - timer < 5000)
             rest(1);		// Wait for client to say ok
 
-        LOG_INFO(TA3D_LOGS_FILETRANSFERT_PREFIX << "Done.");
+        LOG_INFO(LOG_PREFIX_NET_FILE << "Done.");
 
         network->updateFileTransferInformation( filename + format("%d", sockid), 0, 0 );
         pDead = 1;
@@ -442,7 +440,7 @@ namespace TA3D
             return;
         }
 
-        LOG_INFO(TA3D_LOGS_FILETRANSFERT_PREFIX << "Starting...");
+        LOG_INFO(LOG_PREFIX_NET_FILE << "Starting...");
 
         int timer = msec_timer;
 
@@ -497,7 +495,7 @@ namespace TA3D
             rest(0);
         }
 
-        LOG_INFO(TA3D_LOGS_FILETRANSFERT_PREFIX << "Done.");
+        LOG_INFO(LOG_PREFIX_NET_FILE << "Done.");
 
         network->updateFileTransferInformation( filename + format("%d", sockid), 0, 0 );
 

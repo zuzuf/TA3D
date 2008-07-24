@@ -345,7 +345,7 @@ namespace TA3D
                     feature[index].feature_reclamate=strdup(strstr(ligne,"featurereclamate=")+17);
                 }
                 else if(strstr(ligne,";"))
-                    LOG_ERROR("[tdf] Unknown: `" << ligne << "`");
+                    LOG_ERROR(LOG_PREFIX_TDF << "Unknown: `" << ligne << "`");
 
             } while(strstr(ligne,"}") == NULL && nb < 10000 && pos < limit);
 
@@ -383,7 +383,7 @@ namespace TA3D
                         if (index >= 0)
                             feature[i].anim.load_gaf(gaf, get_gaf_entry_index(gaf, feature[i].seqname), true, feature[i].filename);
                         else
-                            LOG_WARNING("`" << feature[i].name << "` has no picture to display !");
+                            LOG_WARNING(LOG_PREFIX_TDF << "`" << feature[i].name << "` has no picture to display !");
                         delete[] gaf;
 
                         if (index>=0 && feature[i].height<=10.0f && feature[i].height>1.0f && feature[i].anim.nb_bmp>0 && feature[i].blocking
@@ -437,12 +437,12 @@ namespace TA3D
             byte* data = HPIManager->PullFromHPI(curFile->c_str(), &file_size);
             if (data)
             {
-                LOG_DEBUG("Loading feature: `" << *curFile << "`...");
+                LOG_DEBUG(LOG_PREFIX_TDF << "Loading feature: `" << *curFile << "`...");
                 feature_manager.load_tdf((char*)data, file_size);
                 delete[] data;
             }
             else
-                LOG_WARNING("Loading `" << *curFile << "` failed");
+                LOG_WARNING(LOG_PREFIX_TDF << "Loading `" << *curFile << "` failed");
         }
 
         for (int i = 0; i < feature_manager.nb_features; ++i)

@@ -25,7 +25,6 @@
 
 using namespace TA3D::UTILS::HPI;
 
-#define TA3D_LOGS_NETWORK_PREFIX "[network] "
 
 
 namespace TA3D
@@ -99,7 +98,7 @@ namespace TA3D
         //spawn broadcast thread
         net_thread_params *params = new net_thread_params;
         params->network = this;
-        LOG_DEBUG(TA3D_LOGS_NETWORK_PREFIX << "Spawning a thread for broadcasting...");
+        LOG_DEBUG(LOG_PREFIX_NET << "Spawning a thread for broadcasting...");
         broadcast_thread.spawn(params);
     }
 
@@ -117,7 +116,7 @@ namespace TA3D
         }
         else
         {
-            LOG_WARNING(TA3D_LOGS_NETWORK_PREFIX << "You can't host a game because you are already connected.");
+            LOG_WARNING(LOG_PREFIX_NET << "You can't host a game because you are already connected.");
             return -1;
         }
 
@@ -131,7 +130,7 @@ namespace TA3D
         udp_socket.Open(NULL,port);
         if (!listen_socket.isOpen())
         {
-            LOG_WARNING(TA3D_LOGS_NETWORK_PREFIX << "Failed to host game on port " << port);
+            LOG_WARNING(LOG_PREFIX_NET << "Failed to host game on port " << port);
             myMode = 0;
             return -1;
         }
@@ -139,22 +138,22 @@ namespace TA3D
         //spawn listening thread
         net_thread_params *params = new net_thread_params;
         params->network = this;
-        LOG_DEBUG(TA3D_LOGS_NETWORK_PREFIX << "Spawning a thread for listening...");
+        LOG_DEBUG(LOG_PREFIX_NET << "Spawning a thread for listening...");
         listen_thread.spawn(params);
 
         //spawn udp thread
         params = new net_thread_params;
         params->network = this;
-        LOG_DEBUG(TA3D_LOGS_NETWORK_PREFIX << "Spawning a thread for UDP...");
+        LOG_DEBUG(LOG_PREFIX_NET << "Spawning a thread for UDP...");
         udp_thread.spawn(params);
 
         //spawn admin thread
         params = new net_thread_params;
         params->network = this;
-        LOG_DEBUG(TA3D_LOGS_NETWORK_PREFIX << "Spawning a thread for admin...");
+        LOG_DEBUG(LOG_PREFIX_NET << "Spawning a thread for admin...");
         admin_thread.spawn(params);
 
-        LOG_INFO(TA3D_LOGS_NETWORK_PREFIX << "Ready and working.");
+        LOG_INFO(LOG_PREFIX_NET << "Ready and working.");
 
         return 0;
     }
@@ -168,7 +167,7 @@ namespace TA3D
             myMode = 2;
         else
         {
-            LOG_ERROR(TA3D_LOGS_NETWORK_PREFIX << "You can't connect to a game, you are already hosting one!");
+            LOG_ERROR(LOG_PREFIX_NET << "You can't connect to a game, you are already hosting one!");
             return -1;
         }
 
@@ -180,7 +179,7 @@ namespace TA3D
         if (!tohost_socket->isOpen())
         {
             //error couldnt connect to game
-            LOG_ERROR(TA3D_LOGS_NETWORK_PREFIX << "Error when connecting to game at [" << target << "]:" << port);
+            LOG_ERROR(LOG_PREFIX_NET << "Error when connecting to game at [" << target << "]:" << port);
             delete tohost_socket;
             tohost_socket = NULL;
             myMode = 0;
@@ -190,18 +189,18 @@ namespace TA3D
         addPlayer( tohost_socket );
 
         //get game info or start admin thread here
-        LOG_DEBUG(TA3D_LOGS_NETWORK_PREFIX << "Spawning a thread for admin");
+        LOG_DEBUG(LOG_PREFIX_NET << "Spawning a thread for admin");
         net_thread_params *params = new net_thread_params;
         params->network = this;
         admin_thread.spawn(params);
 
         //get game info or start admin thread here
-        LOG_DEBUG(TA3D_LOGS_NETWORK_PREFIX << "Spawning a thread for UDP");
+        LOG_DEBUG(LOG_PREFIX_NET << "Spawning a thread for UDP");
         params = new net_thread_params;
         params->network = this;
         udp_thread.spawn(params);
 
-        LOG_INFO(TA3D_LOGS_NETWORK_PREFIX << "Successfully connected to game at [" << target << "]:" << port);
+        LOG_INFO(LOG_PREFIX_NET << "Successfully connected to game at [" << target << "]:" << port);
         getMyID();
         return 0;
     }
@@ -247,13 +246,13 @@ namespace TA3D
 
         cleanQueues();
 
-        LOG_DEBUG(TA3D_LOGS_NETWORK_PREFIX << "--- Statistics ---");
-        LOG_DEBUG(TA3D_LOGS_NETWORK_PREFIX << "Average received : " << nlGetInteger(NL_AVE_BYTES_RECEIVED) << " bytes/sec");
-        LOG_DEBUG(TA3D_LOGS_NETWORK_PREFIX << "Maximum received : " << nlGetInteger(NL_HIGH_BYTES_RECEIVED) << " bytes/sec");
-        LOG_DEBUG(TA3D_LOGS_NETWORK_PREFIX << "Total received   : " << nlGetInteger(NL_BYTES_RECEIVED) << " bytes");
-        LOG_DEBUG(TA3D_LOGS_NETWORK_PREFIX << "Average sent     : " << nlGetInteger(NL_AVE_BYTES_SENT) << " bytes/sec");
-        LOG_DEBUG(TA3D_LOGS_NETWORK_PREFIX << "Maximum sent     : " << nlGetInteger(NL_HIGH_BYTES_SENT) << " bytes/sec");
-        LOG_DEBUG(TA3D_LOGS_NETWORK_PREFIX << "Total sent       : " << nlGetInteger(NL_BYTES_SENT) << " bytes");
+        LOG_DEBUG(LOG_PREFIX_NET << "--- Statistics ---");
+        LOG_DEBUG(LOG_PREFIX_NET << "Average received : " << nlGetInteger(NL_AVE_BYTES_RECEIVED) << " bytes/sec");
+        LOG_DEBUG(LOG_PREFIX_NET << "Maximum received : " << nlGetInteger(NL_HIGH_BYTES_RECEIVED) << " bytes/sec");
+        LOG_DEBUG(LOG_PREFIX_NET << "Total received   : " << nlGetInteger(NL_BYTES_RECEIVED) << " bytes");
+        LOG_DEBUG(LOG_PREFIX_NET << "Average sent     : " << nlGetInteger(NL_AVE_BYTES_SENT) << " bytes/sec");
+        LOG_DEBUG(LOG_PREFIX_NET << "Maximum sent     : " << nlGetInteger(NL_HIGH_BYTES_SENT) << " bytes/sec");
+        LOG_DEBUG(LOG_PREFIX_NET << "Total sent       : " << nlGetInteger(NL_BYTES_SENT) << " bytes");
 
         nlClear(NL_ALL_STATS);
         myMode = 0;
@@ -348,14 +347,14 @@ namespace TA3D
 
         if (thread == NULL)
         {
-            LOG_WARNING(TA3D_LOGS_NETWORK_PREFIX << "Thread not found ??? (" << __FILE__ << ":" << __LINE__ << ")");
+            LOG_WARNING(LOG_PREFIX_NET << "Thread not found ??? (" << __FILE__ << ":" << __LINE__ << ")");
             return -1;
         }
 
         net_thread_params *params = new net_thread_params;
         params->network = this;
         params->sockid = n;
-        LOG_DEBUG(TA3D_LOGS_NETWORK_PREFIX << "Spawning socket thread");
+        LOG_DEBUG(LOG_PREFIX_NET << "Spawning socket thread");
         thread->spawn(params);
 
         //send a new player event
@@ -717,7 +716,7 @@ namespace TA3D
         params->network = this;
         params->sockid = player;
         params->filename = filename;
-        LOG_DEBUG(TA3D_LOGS_NETWORK_PREFIX << "Spawning a thread to send the file");
+        LOG_DEBUG(LOG_PREFIX_NET << "Spawning a thread to send the file");
         thread->spawn(params);
 
         ftmutex.unlock();
@@ -787,7 +786,7 @@ namespace TA3D
         params->network = this;
         params->sockid = player;
         params->filename = filename;
-        LOG_DEBUG(TA3D_LOGS_NETWORK_PREFIX << "Spawning a thread to get the file");
+        LOG_DEBUG(LOG_PREFIX_NET << "Spawning a thread to get the file");
         thread->spawn(params);
 
         ftmutex.unlock();
@@ -951,13 +950,13 @@ namespace TA3D
         sock = nlOpen(0, NL_RELIABLE);
         if(sock == NL_INVALID)
         {
-            LOG_ERROR(TA3D_LOGS_NETWORK_PREFIX << "HttpRequest: Could not open socket !");
+            LOG_ERROR(LOG_PREFIX_NET << "HttpRequest: Could not open socket !");
             return "";
         }
         if(nlConnect(sock, &addr) == NL_FALSE)
         {
             nlClose(sock);
-            LOG_ERROR(TA3D_LOGS_NETWORK_PREFIX << "HttpRequest: Could not connect to server !");
+            LOG_ERROR(LOG_PREFIX_NET << "HttpRequest: Could not connect to server !");
             return "";
         }
 
@@ -974,7 +973,7 @@ namespace TA3D
                 nlThreadYield();
                 continue;
             }
-            LOG_ERROR(TA3D_LOGS_NETWORK_PREFIX << "HttpRequest: Could not send request to server !");
+            LOG_ERROR(LOG_PREFIX_NET << "HttpRequest: Could not send request to server !");
             nlClose(sock);
             return "";
         }

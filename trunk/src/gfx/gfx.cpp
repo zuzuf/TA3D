@@ -34,8 +34,6 @@
 #include "../misc/math.h"
 
 
-#define TA3D_OPENGL_PREFIX "[OpenGL] "
-#define TA3D_GFX_PREFIX    "[gfx] "
 #define YESNO(X)  (X ? "Yes" : "No")
 
 
@@ -114,17 +112,17 @@ namespace TA3D
 
     void GFX::displayInfosAboutOpenGL() const
     {
-        LOG_INFO(TA3D_OPENGL_PREFIX << "OpenGL informations:");
-        LOG_INFO(TA3D_OPENGL_PREFIX << "Vendor: " << glGetString(GL_VENDOR));
-        LOG_INFO(TA3D_OPENGL_PREFIX << "Renderer: " << glGetString(GL_RENDERER));
-        LOG_INFO(TA3D_OPENGL_PREFIX << "Vrsion: " << glGetString(GL_VERSION));
+        LOG_INFO(LOG_PREFIX_OPENGL << "OpenGL informations:");
+        LOG_INFO(LOG_PREFIX_OPENGL << "Vendor: " << glGetString(GL_VENDOR));
+        LOG_INFO(LOG_PREFIX_OPENGL << "Renderer: " << glGetString(GL_RENDERER));
+        LOG_INFO(LOG_PREFIX_OPENGL << "Vrsion: " << glGetString(GL_VERSION));
         if (ati_workaround)
             LOG_WARNING("ATI card detected ! Using workarounds for ATI cards");
-        LOG_INFO(TA3D_OPENGL_PREFIX << "Texture compression: " << YESNO(g_useTextureCompression));
-        LOG_INFO(TA3D_OPENGL_PREFIX << "Stencil Two Side: " << YESNO(g_useStencilTwoSide));
-        LOG_INFO(TA3D_OPENGL_PREFIX << "FBO: " << YESNO(g_useFBO));
-        LOG_INFO(TA3D_OPENGL_PREFIX << "Shaders: " << YESNO(g_useProgram));
-        LOG_INFO(TA3D_OPENGL_PREFIX << "Multi texturing: " << YESNO(MultiTexturing));
+        LOG_INFO(LOG_PREFIX_OPENGL << "Texture compression: " << YESNO(g_useTextureCompression));
+        LOG_INFO(LOG_PREFIX_OPENGL << "Stencil Two Side: " << YESNO(g_useStencilTwoSide));
+        LOG_INFO(LOG_PREFIX_OPENGL << "FBO: " << YESNO(g_useFBO));
+        LOG_INFO(LOG_PREFIX_OPENGL << "Shaders: " << YESNO(g_useProgram));
+        LOG_INFO(LOG_PREFIX_OPENGL << "Multi texturing: " << YESNO(MultiTexturing));
     }
 
 
@@ -187,21 +185,21 @@ namespace TA3D
 
         TA_font.load_gaf_font("anims\\hattfont12.gaf", 1.0f);
 
-        LOG_DEBUG(TA3D_GFX_PREFIX << "Creating a normal font...");
+        LOG_DEBUG(LOG_PREFIX_GFX << "Creating a normal font...");
         normal_font.copy(font , 1.0f);
         normal_font.set_clear(true);
-        LOG_DEBUG(TA3D_GFX_PREFIX << "Creating a small font...");
+        LOG_DEBUG(LOG_PREFIX_GFX << "Creating a small font...");
         small_font.copy(font , 0.75f);
         small_font.set_clear(true);
 
-        LOG_DEBUG(TA3D_GFX_PREFIX << "Loading the GUI font...");
+        LOG_DEBUG(LOG_PREFIX_GFX << "Loading the GUI font...");
         ta3d_gui_font.load_gaf_font( "anims\\hattfont12.gaf" , 1.0f );
 
-        LOG_DEBUG(TA3D_GFX_PREFIX << "Activating the palette...");
+        LOG_DEBUG(LOG_PREFIX_GFX << "Activating the palette...");
         if(palette)
             set_palette(pal);      // Activate the palette
 
-        LOG_DEBUG(TA3D_GFX_PREFIX << "Loading background...");
+        LOG_DEBUG(LOG_PREFIX_GFX << "Loading background...");
         load_background();
 
         gui_font = ta3d_gui_font;
@@ -209,7 +207,7 @@ namespace TA3D
         use_normal_alpha_function = true;
         alpha_blending_set = false;
         
-        LOG_INFO(TA3D_GFX_PREFIX << "Graphics are initialized.");
+        LOG_INFO(LOG_PREFIX_GFX << "Graphics are initialized.");
     }
 
 

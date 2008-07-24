@@ -20,7 +20,6 @@
 #include "../logs/logs.h"
 
 
-#define TA3D_LOGS_UDP_PREFIX "[udp] "
 
 
 namespace TA3D
@@ -61,7 +60,7 @@ namespace TA3D
             int v = udpsock.Send(outbuf + n,obp - n);
             if( v <= 0 )
             {
-                LOG_ERROR(TA3D_LOGS_UDP_PREFIX << "Could not send data over UDP !");
+                LOG_ERROR(LOG_PREFIX_NET_UDP << "Could not send data over UDP !");
                 break;
             }
             n += v;
@@ -330,7 +329,7 @@ namespace TA3D
     {
         if (udpinbuf[0] != 'S')
         {
-            LOG_ERROR(TA3D_LOGS_UDP_PREFIX << "The data doesn't start with an 'S'. Impossible to make the synchronization");
+            LOG_ERROR(LOG_PREFIX_NET_UDP << "The data doesn't start with an 'S'. Impossible to make the synchronization");
             return -1;
         }
         if (uiremain == -1)
@@ -360,7 +359,7 @@ namespace TA3D
     {
         if (udpinbuf[0] != 'E')
         {
-            LOG_ERROR(TA3D_LOGS_UDP_PREFIX << "The data doesn't start with an 'E'. Impossible to make the event.");
+            LOG_ERROR(LOG_PREFIX_NET_UDP << "The data doesn't start with an 'E'. Impossible to make the event.");
             return -1;
         }
         if (uiremain == -1)
@@ -448,7 +447,7 @@ namespace TA3D
     {
         if (udpinbuf[0] != 'X')
         {
-            LOG_ERROR(TA3D_LOGS_UDP_PREFIX << "The data doesn't start with a 'X'. Impossible to make a special !");
+            LOG_ERROR(LOG_PREFIX_NET_UDP << "The data doesn't start with a 'X'. Impossible to make a special !");
             return -1;
         }
         if (uiremain == -1)

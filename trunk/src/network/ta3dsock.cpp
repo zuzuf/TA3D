@@ -20,7 +20,6 @@
 #include "../misc/math.h"
 #include "../logs/logs.h"
 
-#define TA3D_SOCKS_LOGS_PREFIX "[sock] "
 
 
 namespace TA3D
@@ -481,7 +480,7 @@ namespace TA3D
     {
         if(tcpinbuf[0] != 'X' && tcpinbuf[0] != 'A')
         {
-            LOG_ERROR(TA3D_SOCKS_LOGS_PREFIX << "The data doesn't start with a 'X' or a 'A'");
+            LOG_ERROR(LOG_PREFIX_NET_SOCKET << "The data doesn't start with a 'X' or a 'A'");
             return -1;
         }
         if (tiremain == -1)
@@ -500,7 +499,7 @@ namespace TA3D
     {
         if (tcpinbuf[0] != 'C')
         {
-            LOG_ERROR(TA3D_SOCKS_LOGS_PREFIX << "The data doesn't start with a 'C'");
+            LOG_ERROR(LOG_PREFIX_NET_SOCKET << "The data doesn't start with a 'C'");
             return -1;
         }
         if (tiremain == -1)
@@ -519,7 +518,7 @@ namespace TA3D
     {
         if (tcpinbuf[0] != 'P')
         {
-            LOG_ERROR(TA3D_SOCKS_LOGS_PREFIX << "The data doesn't start with a 'P'");
+            LOG_ERROR(LOG_PREFIX_NET_SOCKET << "The data doesn't start with a 'P'");
             return -1;
         }
         if (tiremain == -1)
@@ -534,7 +533,7 @@ namespace TA3D
     {
         if (tcpinbuf[0] != 'O')
         {
-            LOG_ERROR(TA3D_SOCKS_LOGS_PREFIX << "The data doesn't start with an 'O'. Impossible to give the order");
+            LOG_ERROR(LOG_PREFIX_NET_SOCKET << "The data doesn't start with an 'O'. Impossible to give the order");
             return -1;
         }
         if (tiremain == -1)
@@ -570,7 +569,7 @@ namespace TA3D
     {
         if (tcpinbuf[0] != 'S')
         {
-            LOG_ERROR(TA3D_SOCKS_LOGS_PREFIX << "The data doesn't start with an 'S'. Impossible to synchronize");
+            LOG_ERROR(LOG_PREFIX_NET_SOCKET << "The data doesn't start with an 'S'. Impossible to synchronize");
             return -1;
         }
         if(tiremain == -1)
@@ -600,7 +599,7 @@ namespace TA3D
     {
         if (tcpinbuf[0] != 'E')
         {
-            LOG_ERROR(TA3D_SOCKS_LOGS_PREFIX << "The data doesn't start with an 'E'. Impossible to make the event");
+            LOG_ERROR(LOG_PREFIX_NET_SOCKET << "The data doesn't start with an 'E'. Impossible to make the event");
             return -1;
         }
         if (tiremain == -1)
@@ -724,7 +723,7 @@ namespace TA3D
     {
         if( tcpinbuf[0] != 'F' && tcpinbuf[0] != 'R' )
         {
-            LOG_ERROR(TA3D_SOCKS_LOGS_PREFIX << "The data doesn't start with an 'F' or an 'R'. Impossible to start the file transfer");
+            LOG_ERROR(LOG_PREFIX_NET_SOCKET << "The data doesn't start with an 'F' or an 'R'. Impossible to start the file transfer");
             return -1;
         }
         if (tiremain == -1)
@@ -736,7 +735,7 @@ namespace TA3D
     {
         if (tcpinbuf[0] != 'F' && tcpinbuf[0] != 'R')
         {
-            LOG_ERROR(TA3D_SOCKS_LOGS_PREFIX << "The data doesn't start with an 'F' or an 'R'. Impossible to get data for the file transfer");
+            LOG_ERROR(LOG_PREFIX_NET_SOCKET << "The data doesn't start with an 'F' or an 'R'. Impossible to get data for the file transfer");
             return -1;
         }
         if (tiremain == -1)

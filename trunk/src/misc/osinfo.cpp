@@ -4,8 +4,6 @@
 #include "../logs/logs.h"
 
 
-# define TA3D_LOGS_PREFIX_SYSTEM "[system] "
-
 # define CPU_MODEL_ATHLON64_N 15
 
 
@@ -98,9 +96,9 @@ namespace System
     {
         int w, h, d;
         if (DesktopResolution(w, h, d))
-            LOG_INFO(TA3D_LOGS_PREFIX_SYSTEM << "Desktop: " << w << "x" << h << " (" << d << "bits)");
+            LOG_INFO(LOG_PREFIX_SYSTEM << "Desktop: " << w << "x" << h << " (" << d << "bits)");
         else
-            LOG_ERROR(TA3D_LOGS_PREFIX_SYSTEM << "Error while retrieving information about the desktop resolution");
+            LOG_ERROR(LOG_PREFIX_SYSTEM << "Error while retrieving information about the desktop resolution");
     }
 
 
@@ -130,11 +128,11 @@ namespace System
     {
          // Vendor
         String vendorName(cpu_vendor);
-        LOG_INFO(TA3D_LOGS_PREFIX_SYSTEM << "Vendor: " << (vendorName.empty() ? "Unknown" : vendorName)
+        LOG_INFO(LOG_PREFIX_SYSTEM << "Vendor: " << (vendorName.empty() ? "Unknown" : vendorName)
                  << " " << AllegroCPUName(cpu_family, cpu_model)
                  << " (" << AllegroCPUCapabilities(cpu_capabilities) << ")");
        // OS Name
-        LOG_INFO(TA3D_LOGS_PREFIX_SYSTEM << AllegroOSTypeToStr(os_type)
+        LOG_INFO(LOG_PREFIX_SYSTEM << AllegroOSTypeToStr(os_type)
                  << " (" << os_version << "." << os_revision << ")");
         displayScreenResolution();
     }
@@ -142,12 +140,12 @@ namespace System
 
     void DisplayInformationsAboutAllegro()
     {
-        LOG_INFO(TA3D_LOGS_PREFIX_SYSTEM << "Allegro version: " << ALLEGRO_VERSION_STR << " (" << ALLEGRO_DATE_STR << ")");
+        LOG_INFO(LOG_PREFIX_SYSTEM << "Allegro version: " << ALLEGRO_VERSION_STR << " (" << ALLEGRO_DATE_STR << ")");
 
         # ifdef AGL_VERSION // Version d'allegroGL
-        LOG_INFO(TA3D_LOGS_PREFIX_SYSTEM << "AllegroGL version: " << AGL_VERSION_STR);
+        LOG_INFO(LOG_PREFIX_SYSTEM << "AllegroGL version: " << AGL_VERSION_STR);
         # else
-        LOG_INFO(TA3D_LOGS_PREFIX_SYSTEM << "AllegroGL version: unknown");
+        LOG_INFO(LOG_PREFIX_SYSTEM << "AllegroGL version: unknown");
         # endif
     }
 
