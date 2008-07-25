@@ -99,7 +99,7 @@ ADD_EXECUTABLE(${3DMEDITOR_BIN}
         TA3D_NameSpace.cpp TA3D_NameSpace.h)
 target_link_libraries(${3DMEDITOR_BIN}
         stdafx logs console debuginfos threads 3dtoolbox misc i18n ta3dmath
-        tajpeg gfx fileformats particles audio hpi oldgui gui ingame)
+        tajpeg gfx fileformats particles audio hpi oldgui gui ingame tdf)
 IF(APPLE)
     SET(GUI_TYPE MACOSX_BUNDLE)
     SET(MACOSX_BUNDLE_BUNDLE_NAME "TA3D Editor")
@@ -193,7 +193,7 @@ ADD_EXECUTABLE(${TA3D_BIN} ${SOURCES})
 #
 target_link_libraries(${TA3D_BIN}
         stdafx logs console debuginfos threads i18n 3dtoolbox misc ingame menus tajpeg gfx
-        fileformats particles weapons ai audio hpi oldgui gui network scripts ta3dmath)
+        fileformats particles weapons ai audio hpi oldgui gui network scripts ta3dmath tdf)
 
 
 

@@ -978,11 +978,15 @@ namespace Audio
 
         LOG_DEBUG(LOG_PREFIX_SOUND << "Reading `" << filename << "`...");
         // Load the TDF file
-        pTable.load(filename);
-        LOG_INFO(LOG_PREFIX_SOUND << "Loading sounds from " << filename);
-        // Load each sound file
-        pTable.forEach(LoadAllTDFSound(*this));
-        LOG_DEBUG(LOG_PREFIX_SOUND << "Reading: Done.");
+        if (pTable.loadFromFile(filename))
+        {
+            LOG_INFO(LOG_PREFIX_SOUND << "Loading sounds from " << filename);
+            // Load each sound file
+            pTable.forEach(LoadAllTDFSound(*this));
+            LOG_DEBUG(LOG_PREFIX_SOUND << "Reading: Done.");
+        }
+        else
+            LOG_DEBUG(LOG_PREFIX_SOUND << "Reading: Aborted.");
         pMutex.unlock();
     }
 
