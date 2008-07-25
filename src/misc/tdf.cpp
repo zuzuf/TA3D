@@ -126,9 +126,14 @@ namespace TA3D
         {
             uint32 s;
             char* t = String::ConvertToUTF8(data, /*The current size*/size, /*The new size*/s);
-            size = s;
-            delete[] data;
-            data = t;
+            if (NULL != t)
+            {
+                size = s;
+                // delete[] data; The pointer will be freed by the caller
+                data = t;
+            }
+            else
+                LOG_WARNING(LOG_PREFIX_TDF << "The convertion using the UTF8 charset has failed.");
         }
         if (clearTable && !pTableIsEmpty)
             clear();
