@@ -885,7 +885,13 @@ const String Dialog(const String &Title, String Filter)
                 GUIOBJ *obj = current_area->get_object("open.file_list");
                 if (obj && obj->Pos >= 0 && obj->Pos < obj->Text.size())
                 {
-                    current_area->set_caption("open.t_filename", obj->Text[ obj->Pos ]);
+                    if (current_area->get_caption("open.t_filename") == obj->Text[ obj->Pos ])      // Double-click
+                    {
+                        done = true;
+                        result = curDir + TA3D::Paths::Separator + current_area->get_caption("open.t_filename");
+                    }
+                    else
+                        current_area->set_caption("open.t_filename", obj->Text[ obj->Pos ]);
                 }
             }
 
@@ -894,7 +900,7 @@ const String Dialog(const String &Title, String Filter)
                 GUIOBJ *obj = current_area->get_object("open.folder_list");
                 if (obj && obj->Pos >= 0 && obj->Pos < obj->Text.size())
                 {
-                    if (obj->Pos == cur_folder_idx)     // Change current dir
+                    if (obj->Pos == cur_folder_idx)     // Change current dir (double-click)
                     {
                         if (obj->Text[ obj->Pos ] == "..")
                             curDir = TA3D::Paths::ExtractFilePath( curDir );
@@ -1017,57 +1023,59 @@ bool WndAsk(const String &Title,const String &Msg,int ASW_TYPE)
 
 void Popup(const String &Title,const String &Msg)
 {
-    WND Popup;
+    AREA *current_area = AREA::current();
 
-    Popup.width=Msg.length()*8>300 ? Msg.length()*8+20: 320;
-    Popup.height=60;
-    Popup.x = SCREEN_W-Popup.width>>1;	Popup.y=SCREEN_H-Popup.height>>1;
-    Popup.Lock=false;
-    Popup.Title=Title;
-    Popup.NbObj=2;
-    Popup.Objets = new GUIOBJ[Popup.NbObj];
-    // Création des objets de la fenêtre
-    // Message
-    Popup.Objets[0].create_text(Popup.width-Msg.length()*8>>1,20,Msg);
-    // Boutons OK
-    Popup.Objets[1].create_button(Popup.width/2-16,36,Popup.width/2+16,52,"OK",NULL);
-
-    bool Popup_Done=false;
-
-    int AMx=mouse_x,AMy=mouse_y,AMz=mouse_z,AMb=mouse_b;
-
-    do
+    if (current_area)
     {
-        poll_keyboard();
+        if (current_area->get_wnd( "popup" ) == NULL)            // The window isn't loaded => load it now !
+            current_area->load_window( "gui/popup_dialog.tdf" );
+        current_area->set_title("popup",Title);
 
-        if(Popup.Objets[1].Etat) Popup_Done=true;
+        current_area->msg("popup.show");
+        current_area->set_caption("popup.msg", Msg);
 
-        AMx=mouse_x;							// Mémorise l'ancien état de la souris
-        AMy=mouse_y;
-        AMz=mouse_z;
-        AMb=mouse_b;
+        bool done = false;
+        int amx, amy, amz, amb;
+        int cur_folder_idx = -1;
+        
+        do
+        {
+            bool key_is_pressed = false;
+            do
+            {
+                amx = mouse_x;
+                amy = mouse_y;
+                amz = mouse_z;
+                amb = mouse_b;
 
-        poll_mouse();								// Obtient l'état de la souris
+                key_is_pressed = keypressed();
+                current_area->check();
+                rest( 8 );
+            } while( amx == mouse_x && amy == mouse_y && amz == mouse_z && amb == mouse_b && !key[ KEY_ENTER ] && !key[ KEY_ESC ] && !done && !key_is_pressed && !current_area->scrolling );
+            
+            if (key[KEY_ESC])   done = true;
 
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);		// Efface l'écran
+            if (key[KEY_ENTER] || current_area->get_state("popup.b_ok"))
+                done = true;
 
-        gfx->set_2D_mode();	// On repasse dans le mode dessin 2D pour Allegro
+            gfx->SetDefState();
+            // Clear screen
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        Popup.check(AMx,AMy,AMz,AMb);	// Gestion de l'interface utilisateur graphique
+            gfx->set_2D_mode();		// Passe en mode dessin allegro
 
-        String help_msg = "";
-        Popup.draw( help_msg );		// Dessine la boîte de dialogue
+            current_area->draw();
+            show_mouse(screen);
+            algl_draw_mouse();
 
-        show_mouse(screen);
-        algl_draw_mouse();			// Dessine le curseur
-        show_mouse(NULL);
+            gfx->unset_2D_mode();	// Quitte le mode de dessin d'allegro
+            gfx->flip();
+            
+        }while(!done);
+        current_area->msg("popup.hide");
 
-        gfx->unset_2D_mode();	// On repasse dans le mode précédent
-
-        gfx->flip();
-
-    }while(!Popup_Done);
-    reset_keyboard();
+        reset_keyboard();
+    }
 }
 
 /*---------------------------------------------------------------------------\
