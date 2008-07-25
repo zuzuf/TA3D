@@ -939,86 +939,6 @@ void SurfPaint(int index)
     AREA painter_area;
     painter_area.load_tdf("gui/3dmeditor_painting.area");
 
-//    WND SPaint;				// Fenêtre d'édition des textures
-//    SPaint.Title=I18N::Translate( "Peinture de l'objet" ).c_str();
-//    SPaint.x=0;					SPaint.y=0;
-//    SPaint.width=210;			SPaint.height=220;
-//    SPaint.Lock=false;
-//    SPaint.NbObj=13;
-//    SPaint.Objets=new GUIOBJ[SPaint.NbObj];
-
-//    // Bouton Ok
-//    SPaint.Objets[0].create_button(SPaint.width/2-16,SPaint.height-20,SPaint.width/2+16,SPaint.height-4,"Ok",NULL);
-
-//    // Bouton Créer une texture pour l'objet
-//    SPaint.Objets[1].create_button(10,20,154,32,I18N::Translate( "Nouvelle texture" ).c_str(),NULL);
-
-//    // Bouton Plaquage cylindrique
-//    SPaint.Objets[2].create_button(10,40,186,52,I18N::Translate( "Plaquage cylindrique" ).c_str(),NULL);
-
-//    // Bouton Plaqueur de texture
-//    SPaint.Objets[3].create_button(10,60,178,72,I18N::Translate( "Plaqueur de texture" ).c_str(),NULL);
-
-//    // Boutons Fil de fer et mode normal
-//    SPaint.Objets[4].create_button(10,80,106,92,I18N::Translate( "Fil de fer" ).c_str(),NULL);
-//    SPaint.Objets[5].create_button(110,80,200,92,I18N::Translate( "Normal" ).c_str(),NULL);
-
-//    // Boutons pour controler le mode d'édition
-//    SPaint.Objets[6].create_button(10,100,98,112,I18N::Translate( "Selection" ).c_str(),NULL);
-//    SPaint.Objets[7].create_button(100,100,180,112,I18N::Translate( "Peinture" ).c_str(),NULL);
-
-//    // Bouton desassembler les faces
-//    SPaint.Objets[8].create_button(10,120,122,132,I18N::Translate( "Desassembler" ).c_str(),NULL);
-
-//    // Bouton normaliser
-//    SPaint.Objets[9].create_button(10,140,106,152,I18N::Translate( "Normaliser" ).c_str(),NULL);
-
-//    // Bouton optimiser
-//    SPaint.Objets[10].create_button(10,160,98,172,I18N::Translate( "Optimiser" ).c_str(),NULL);
-
-//    // Bouton Plaquage cubique
-//    SPaint.Objets[11].create_button(10,180,154,192,I18N::Translate( "Plaquage cubique" ).c_str(),NULL);
-
-//    // Bouton résolution
-//    SPaint.Objets[12].create_button(112,160,200,172,I18N::Translate( "résolution" ).c_str(),NULL);
-
-//    WND SCoor;				// Fenêtre d'édition du plaquage de la texture
-//    SCoor.Title=I18N::Translate( "Peinture de l'objet" ).c_str();
-//    SCoor.width=310;				SCoor.height=340;
-//    SCoor.x=SCREEN_W-SCoor.width;	SCoor.y=SCREEN_H-SCoor.height;
-//    SCoor.Lock=false;
-//    SCoor.NbObj=1;
-//    SCoor.Objets=new GUIOBJ[SCoor.NbObj];
-
-//    // Bouton fermer
-//    SCoor.Objets[0].create_button(SCoor.width-64>>1,SCoor.height-18,SCoor.width+64>>1,SCoor.height-6,I18N::Translate( "Fermer" ).c_str(),NULL);
-
-//    WND STool;				// Fenêtre des outils de dessin
-//    STool.Title=I18N::Translate( "Outils" ).c_str();
-//    STool.width=124;				STool.height=150;
-//    STool.x=SCREEN_W-STool.width;	STool.y=0;
-//    STool.Lock=false;
-//    STool.NbObj=6;
-//    STool.Objets=new GUIOBJ[STool.NbObj];
-
-//    // Bouton point par point
-//    STool.Objets[0].create_button(10,16,114,28,I18N::Translate( "Points" ).c_str(),NULL);
-
-//    // Bouton lignes
-//    STool.Objets[1].create_button(10,32,114,44,I18N::Translate( "Lignes" ).c_str(),NULL);
-
-//    // Bouton remplissage
-//    STool.Objets[2].create_button(10,48,114,60,I18N::Translate( "Remplissage" ).c_str(),NULL);
-
-//    // Bouton crayon
-//    STool.Objets[3].create_button(10,64,114,76,I18N::Translate( "Crayon" ).c_str(),NULL);
-
-//    // Bouton texture
-//    STool.Objets[5].create_button(10,80,114,92,I18N::Translate( "Texture" ).c_str(),NULL);
-
-//    // Bouton annuler
-//    STool.Objets[4].create_button(10,96,114,108,I18N::Translate( "Annuler" ).c_str(),NULL);
-
     bool done=false;
 
     int amx = mouse_x, amy = mouse_y, amb = mouse_b, amz = mouse_z;
@@ -1610,82 +1530,97 @@ void SurfPaint(int index)
             }
         }		// Fin de if (EditMode==EDIT_PAINT) {
 
-//                        if (showcoorwindow)	// Dessine la fenêtre de plaquage de texture
-//                        {
-//                            String help_msg = "";
-//                            SCoor.draw( help_msg, screen, Focus==1 );
-//                            gfx->unset_2D_mode();
-//                            gfx->set_2D_mode();
-//                            glEnable(GL_TEXTURE_2D);
-//                            glBindTexture(GL_TEXTURE_2D,tex);
-//                            glBegin(GL_QUADS);
-//                            glTexCoord2f(0.0f,0.0f);	glVertex2f(SCoor.x+5,SCoor.y+20);
-//                            glTexCoord2f(1.0f,0.0f);	glVertex2f(SCoor.x+SCoor.width-5,SCoor.y+20);
-//                            glTexCoord2f(1.0f,1.0f);	glVertex2f(SCoor.x+SCoor.width-5,SCoor.y+SCoor.height-20);
-//                            glTexCoord2f(0.0f,1.0f);	glVertex2f(SCoor.x+5,SCoor.y+SCoor.height-20);
-//                            glEnd();
-//                            glDisable(GL_TEXTURE_2D);
+        if (painter_area.get_state("mapper") && painter_area.get_object("mapper.texture"))       // If the window is visible then update the texture
+        {
+            GUIOBJ *preview = painter_area.get_object("mapper.texture");
+            int w = preview->x2 - preview->x1;
+            int h = preview->y2 - preview->y1;
+            if ((GLuint)preview->Data == 0)
+            {
+                allegro_gl_set_texture_format(GL_RGB8);
+                preview->Data = (uint32) gfx->create_texture( w, h, FILTER_LINEAR );
+            }
+ 
+            gfx->renderToTexture( (GLuint)preview->Data, true );
 
-//                            glColor4f(1.0f,1.0f,1.0f,1.0f);
+            gfx->SetDefState();
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);     // Clear the texture
 
-//                            glPushMatrix();
-//                            glTranslatef(SCoor.x+5,SCoor.y+20,0.0f);
-//                            glScalef(300.0f,300.0f,0.0f);
+            gfx->unset_2D_mode();
+            gfx->set_2D_mode();
+            glEnable(GL_TEXTURE_2D);
+            glBindTexture(GL_TEXTURE_2D,tex);
+            glBegin(GL_QUADS);
+            glTexCoord2f(0.0f,0.0f);	glVertex2f(0.0f,0.0f);
+            glTexCoord2f(1.0f,0.0f);	glVertex2f(w-1.0f,0.0f);
+            glTexCoord2f(1.0f,1.0f);	glVertex2f(w-1.0f,h-1.0f);
+            glTexCoord2f(0.0f,1.0f);	glVertex2f(0.0f,h-1.0f);
+            glEnd();
+            glDisable(GL_TEXTURE_2D);
 
-//                            glEnableClientState(GL_VERTEX_ARRAY);					// Les coordonnées des points
-//                            glVertexPointer( 2, GL_FLOAT, 0, obj_table[cur_part]->tcoord);
+            gfx->set_color(0xFF,0xFF,0xFF,0xFF);
 
-//                            glPolygonMode (GL_FRONT_AND_BACK, GL_LINE);
+            glPushMatrix();
+            glScalef(w-1.0f,h-1.0f,0.0f);
 
-//                            glDrawElements(GL_TRIANGLES, obj_table[cur_part]->nb_t_index,GL_UNSIGNED_SHORT,obj_table[cur_part]->t_index);		// dessine les triangles sur la texture
+            glEnableClientState(GL_VERTEX_ARRAY);					// Les coordonnées des points
+            glVertexPointer( 2, GL_FLOAT, 0, obj_table[cur_part]->tcoord);
+
+            glPolygonMode (GL_FRONT_AND_BACK, GL_LINE);
+
+            glDrawElements(GL_TRIANGLES, obj_table[cur_part]->nb_t_index,GL_UNSIGNED_SHORT,obj_table[cur_part]->t_index);		// dessine les triangles sur la texture
 
 
-//                            glColor3f(0.0f,0.0f,1.0f);
-//                            glPointSize(3.0f);
+            gfx->set_color(0,0,0xFF);
+            glPointSize(3.0f);
 
-//                            glDrawElements(GL_POINTS, obj_table[cur_part]->nb_t_index,GL_UNSIGNED_SHORT,obj_table[cur_part]->t_index);		// dessine les triangles sur la texture
+            glDrawElements(GL_POINTS, obj_table[cur_part]->nb_t_index,GL_UNSIGNED_SHORT,obj_table[cur_part]->t_index);		// dessine les triangles sur la texture
 
-//                            glPointSize(1.0f);
+            glPointSize(1.0f);
 
-//                            glPopMatrix();
-//                            glPolygonMode (GL_FRONT_AND_BACK, GL_FILL);
-//                            glPolygonMode (GL_BACK, GL_POINTS);
-//                        }
+            glPopMatrix();
+            glPolygonMode (GL_FRONT_AND_BACK, GL_FILL);
+            glPolygonMode (GL_BACK, GL_POINTS);
 
-                        glEnable(GL_TEXTURE_2D);			// Affiche le curseur
-                        show_mouse(screen);
-                        algl_draw_mouse();
+            gfx->renderToTexture( 0 );      // Back to normal
+            gfx->unset_2D_mode();
+            gfx->set_2D_mode();
+        }
 
-                        gfx->unset_2D_mode();	// Quitte le mode de dessin d'allegro
+        glEnable(GL_TEXTURE_2D);			// Affiche le curseur
+        show_mouse(screen);
+        algl_draw_mouse();
 
-                        // Affiche
-                        gfx->flip();
-                    } while(!done);
+        gfx->unset_2D_mode();	// Quitte le mode de dessin d'allegro
 
-                    if (g_useProgram && g_useFBO)
-                    {
-                        glDeleteFramebuffersEXT(1,&brush_FBO);
-                        glDeleteRenderbuffersEXT(1,&zbuf);
-                        glDeleteTextures(1,&brush_U);
-                        glDeleteTextures(1,&brush_V);
-                    }
+        // Affiche
+        gfx->flip();
+    } while(!done);
 
-                    shader_paint_u.destroy();
-                    shader_paint_v.destroy();
+    if (g_useProgram && g_useFBO)
+    {
+        glDeleteFramebuffersEXT(1,&brush_FBO);
+        glDeleteRenderbuffersEXT(1,&zbuf);
+        glDeleteTextures(1,&brush_U);
+        glDeleteTextures(1,&brush_V);
+    }
 
-                    if (tool_tex_gl!=0)
-                        glDeleteTextures(1,&tool_tex_gl);
+    shader_paint_u.destroy();
+    shader_paint_v.destroy();
 
-                    cur_data.destroy();
+    if (tool_tex_gl!=0)
+        glDeleteTextures(1,&tool_tex_gl);
 
-                    for(int i=0;i<10;i++) // Libère la mémoire allouée pour les bitmaps de l'historique
-                    {
-                        if (CancelH[i])
-                            glDeleteTextures(1,&(CancelH[i]));
-                    }
+    cur_data.destroy();
 
-                    delete[] Sel;							// Libère la mémoire du tableau de sélection
-                }
+    for(int i=0;i<10;i++) // Libère la mémoire allouée pour les bitmaps de l'historique
+    {
+        if (CancelH[i])
+            glDeleteTextures(1,&(CancelH[i]));
+    }
+
+    delete[] Sel;							// Libère la mémoire du tableau de sélection
+}
 
 /*---------------------------------------------------------------------------------------------------\
     |                                      Editeur de plaquage de texture                                |

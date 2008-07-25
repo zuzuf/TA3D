@@ -63,6 +63,7 @@
 		x2=200;
 		y2=100;
 		size=1;
+		on click=mapper.show;
 	}
 	[object4]
 	{
