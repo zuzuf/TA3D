@@ -19,7 +19,7 @@
 # define __TA3D_SOUNDS_MANAGER_H__
 
 # include "../misc/vector.h"
-# include "../cTAFileParser.h"
+# include "../misc/tdf.h"
 # include "../misc/interface.h"
 # include "../threads/thread.h"
 # include <list>
@@ -341,7 +341,7 @@ namespace Audio
         //! Mutex
         Mutex pMutex;
         //!
-        UTILS::cTAFileParser pTable;
+        TDFParser pTable;
 
         //! Is fmod running ?
         bool m_FMODRunning;
