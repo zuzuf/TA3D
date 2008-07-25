@@ -33,16 +33,16 @@ namespace TA3D
             if (compiled) 
             {
                 // compilation successful!
-                LOG_DEBUG(LOG_PREFIX_OPENGL << "Pixel shader: successfully compiled");
+                LOG_DEBUG(LOG_PREFIX_SHADER << "Pixel shader: successfully compiled");
             }
             else 
             {
                 // compilation error! Check compiler log! 
-                LOG_ERROR(LOG_PREFIX_OPENGL << "Pixel shader: the compilation has failed");
+                LOG_ERROR(LOG_PREFIX_SHADER << "Pixel shader: the compilation has failed");
                 char log[10000];
                 GLsizei len = 0;
                 glGetInfoLogARB(shader, 10000, &len, log);
-                LOG_ERROR(LOG_PREFIX_OPENGL << log);
+                LOG_ERROR(LOG_PREFIX_SHADER << log);
             }
             return shader;
         }
@@ -60,16 +60,16 @@ namespace TA3D
             if (compiled) 
             {
                 // compilation successful!
-                LOG_DEBUG("Vertex shader: successfully compiled");
+                LOG_DEBUG(LOG_PREFIX_SHADER << "Vertex shader: successfully compiled");
             }
             else 
             {
                 // compilation error! Check compiler log! 
-                LOG_ERROR(LOG_PREFIX_OPENGL << "Vertex shader: the compilation has failed");
+                LOG_ERROR(LOG_PREFIX_SHADER << "Vertex shader: the compilation has failed");
                 char log[10000];
                 GLsizei len=0;
                 glGetInfoLogARB(shader, 10000, &len, log);
-                LOG_ERROR(LOG_PREFIX_OPENGL << log);
+                LOG_ERROR(LOG_PREFIX_SHADER << log);
             }
             return shader;
         }
@@ -82,7 +82,7 @@ namespace TA3D
             char* buf = Paths::Files::LoadContentInMemory(filename, filesize, TA3D_FILES_HARD_LIMIT_FOR_SIZE);
             if (!buf)
             {
-                LOG_ERROR(LOG_PREFIX_OPENGL << "`" << filename << "` could not be opened");
+                LOG_ERROR(LOG_PREFIX_SHADER << "`" << filename << "` could not be opened");
                 return shader;
             }
 
@@ -96,16 +96,16 @@ namespace TA3D
             if (compiled) 
             {
                 // compilation successful!
-                LOG_DEBUG("Fragment shader:` " << filename << "` compiled");
+                LOG_DEBUG(LOG_PREFIX_SHADER << "Fragment shader:` " << filename << "` compiled");
             }
             else 
             {
                 // compilation error! Check compiler log! 
-                LOG_ERROR(LOG_PREFIX_OPENGL << "Fragment shader: `" << filename << "` failed to compile");
+                LOG_ERROR(LOG_PREFIX_SHADER << "Fragment shader: `" << filename << "` failed to compile");
                 char log[10000];
                 GLsizei len = 0;
                 glGetInfoLogARB(shader, 10000, &len, log);
-                LOG_ERROR(LOG_PREFIX_OPENGL << log);
+                LOG_ERROR(LOG_PREFIX_SHADER << log);
             }
             delete[] buf;
             return shader;
@@ -121,7 +121,7 @@ namespace TA3D
             char* buf = Paths::Files::LoadContentInMemory(filename, filesize, TA3D_FILES_HARD_LIMIT_FOR_SIZE);
             if (!buf)
             {
-                LOG_ERROR(LOG_PREFIX_OPENGL << "`" << filename << "` could not be opened");
+                LOG_ERROR(LOG_PREFIX_SHADER << "`" << filename << "` could not be opened");
                 return shader;
             }
 
@@ -135,16 +135,16 @@ namespace TA3D
             if (compiled) 
             {
                 // compilation successful!
-                LOG_DEBUG("Vertex shader: `" << filename << "` compiled");
+                LOG_DEBUG(LOG_PREFIX_SHADER << "Vertex shader: `" << filename << "` compiled");
             }
             else 
             {
                 // compilation error! Check compiler log! 
-                LOG_ERROR(LOG_PREFIX_OPENGL << "Vertex sharder: `" << filename << "` failed to compile");
+                LOG_ERROR(LOG_PREFIX_SHADER << "Vertex sharder: `" << filename << "` failed to compile");
                 char log[10000];
                 GLsizei len = 0;
                 glGetInfoLogARB(shader, 10000, &len, log);
-                LOG_ERROR(LOG_PREFIX_OPENGL << log);
+                LOG_ERROR(LOG_PREFIX_SHADER << log);
             }
             delete[] buf;
             return shader;
@@ -191,16 +191,16 @@ namespace TA3D
         glGetObjectParameterivARB(pShaderProgram, GL_OBJECT_LINK_STATUS_ARB, &link);
         if (link)
         {
-            LOG_DEBUG(LOG_PREFIX_OPENGL << "Object Link (ARB): Succes.");
+            LOG_DEBUG(LOG_PREFIX_SHADER << "Object Link (ARB): Succes.");
             pLoaded = true;
         }
         else
         {
-            LOG_ERROR(LOG_PREFIX_OPENGL << "Object Link (ARB): Failure");
+            LOG_ERROR(LOG_PREFIX_SHADER << "Object Link (ARB): Failure");
             char log[10000];
             GLsizei len = 0;
             glGetInfoLogARB(pShaderProgram, 10000, &len, log);
-            LOG_ERROR(LOG_PREFIX_OPENGL << log);
+            LOG_ERROR(LOG_PREFIX_SHADER << log);
             pLoaded = false;
         }
     }
@@ -224,16 +224,16 @@ namespace TA3D
         glGetObjectParameterivARB(pShaderProgram, GL_OBJECT_LINK_STATUS_ARB, &link);
         if(link)
         {
-            // LOG_DEBUG("Successfully loaded shader: `" << fragmentFilename << "`");
+            // LOG_DEBUG(LOG_PREFIX_SHADER << "Successfully loaded shader: `" << fragmentFilename << "`");
             pLoaded = true;
         }
         else
         {
-            LOG_ERROR("Failed to load shader: `" << fragmentFilename << "`");
+            LOG_ERROR(LOG_PREFIX_SHADER << "Failed to load shader: `" << fragmentFilename << "`");
             char log[10000];
             GLsizei len = 0;
             glGetInfoLogARB(pShaderProgram, 10000, &len, log);
-            LOG_ERROR(LOG_PREFIX_OPENGL << log);
+            LOG_ERROR(LOG_PREFIX_SHADER << log);
             pLoaded = false;
         }
     }
@@ -302,5 +302,5 @@ namespace TA3D
 
 
 
-    // } // namespace GFX
+// } // namespace GFX
 } // namespace TA3D

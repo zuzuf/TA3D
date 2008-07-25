@@ -53,6 +53,7 @@
 # define LOG_PREFIX_OPENGL            "[OpenGL] "
 # define LOG_PREFIX_DIRECTX           "[DirectX] "
 # define LOG_PREFIX_GFX               "[gfx] "
+# define LOG_PREFIX_SHADER            "[shader] "
 
 # define LOG_PREFIX_I18N              "[i18n] "
 # define LOG_PREFIX_SYSTEM            "[system] "
