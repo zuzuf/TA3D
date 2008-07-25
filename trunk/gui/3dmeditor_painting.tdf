@@ -6,7 +6,7 @@
 	x=0;
 	y=0;
 	width=210;
-	height=255;
+	height=280;
 	draw borders=true;
 	show title=true;
 	lock=false;
@@ -42,7 +42,7 @@
 	}
 	[object2]
 	{
-		name=b_cylindric;
+		name=b_cylindric_mapping;
 		type=BUTTON;
 		caption=Cylindric mapping;
 		value=0xFFFFFFFF;
@@ -99,6 +99,7 @@
 		x2=105;
 		y2=150;
 		size=1;
+		on click=tools.hide;
 	}
 	[object7]
 	{
@@ -111,6 +112,7 @@
 		x2=200;
 		y2=150;
 		size=1;
+		on click=tools.show;
 	}
 	[object8]
 	{

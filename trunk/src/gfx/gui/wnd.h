@@ -176,6 +176,8 @@ namespace TA3D
         bool hidden;
         //! In order to do some cleaning
         bool was_hidden;
+        //! In order not to change focus too fast
+        bool tab_was_pressed;
         //! Background color of the window (can use alpha channel)
         uint32  color;
         //! Background window -> stay in background

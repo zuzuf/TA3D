@@ -234,7 +234,8 @@ int main(int argc, char* argv[])
         {
         obj->Text.resize( nb_obj() + 1 );
         for(int i=0;i<nb_obj();i++)
-            if (obj_table[i]->name!=NULL) {
+            if (obj_table[i]->name!=NULL)
+            {
                 String h="";
                 for(int e=0;e<h_table[i];e++)	h+="-";
                 obj->Text[i+1] = (h+obj_table[i]->name);
@@ -293,7 +294,8 @@ int main(int argc, char* argv[])
         }
 
         counter++;
-        if (msec_timer-FPS_Timer>=50) {			// Calcule du nombre d'images par secondes
+        if (msec_timer-FPS_Timer>=50)			// Calcule du nombre d'images par secondes
+        {
             FPS = (int)(counter/((msec_timer-FPS_Timer)*Conv));
             counter = 0;
             FPS_Timer = msec_timer;
@@ -324,6 +326,8 @@ int main(int argc, char* argv[])
         glRotatef(r3,0.0f,0.0f,1.0f);
 
         glDisable(GL_LIGHTING);					// Dessine le repère
+        glDisable(GL_BLEND);
+        glDisable(GL_TEXTURE_2D);
         glBegin(GL_LINES);
         glColor3f(1.0f,0.0f,0.0f);
         glVertex3f(0.0f,0.0f,0.0f);
@@ -351,13 +355,15 @@ int main(int argc, char* argv[])
         glEnd();
         glEnable(GL_LIGHTING);
 
-        if (cur_data.nb_piece!=nb_obj()) {
+        if (cur_data.nb_piece!=nb_obj())
+        {
             cur_data.destroy();
             cur_data.load(nb_obj());
         }
 
         glDisable( GL_CULL_FACE );
-        if (IsOnGUI && main_area.get_state("edit.menu_selec")) {				// Affiche la partie prête à être sélectionnée
+        if (IsOnGUI && main_area.get_state("edit.menu_selec"))				// Affiche la partie prête à être sélectionnée
+        {
             glColor3f(0.15f,0.15f,0.15f);
             for(int i=0;i<cur_data.nb_piece;i++)
                 cur_data.flag[i] = FLAG_ANIMATE;
@@ -373,7 +379,8 @@ int main(int argc, char* argv[])
             gfx->ReInitAllTex( true );
             glEnable(GL_TEXTURE_2D);
         }
-        else if (TheModel) {					// Affichage normal
+        else if (TheModel)					// Affichage normal
+        {
             glColor4f(1.0f,1.0f,1.0f,1.0f);
             for(int i=0;i<cur_data.nb_piece;i++)
                 cur_data.flag[i]= ((i != cur_part) ? 0 : FLAG_HIDE) | FLAG_ANIMATE;
@@ -412,7 +419,8 @@ int main(int argc, char* argv[])
         float s = 5.0f;
 
         for( int i = 0 ; i < 8 ; i++)
-{            glVertex3f( (i & 1) ? s : -s, 0.0f, 0.0f );
+        {
+            glVertex3f( (i & 1) ? s : -s, 0.0f, 0.0f );
             glVertex3f( 0.0f, (i & 2) ? s : -s, 0.0f );
             glVertex3f( 0.0f, 0.0f, (i & 4) ? s : -s );
         }
@@ -570,6 +578,9 @@ void SurfEdit()
             if (msec_timer - timer >= 50)  break;
         } while( amx == mouse_x && amy == mouse_y && amz == mouse_z && amb == mouse_b && !key[ KEY_ENTER ] && !key[ KEY_ESC ] && !done && !key_is_pressed && !surface_area.scrolling );
         timer = msec_timer;
+
+        if (surface_area.get_state("surface.b_painting"))
+            amz = mouse_z;
 
         if (surface_area.get_state("surface.c_rotation"))
         {
@@ -1097,120 +1108,133 @@ void SurfPaint(int index)
             amb = mouse_b;
 
             key_is_pressed = keypressed();
-            painter_area.check();
+            IsOnGUI = painter_area.check() != 0;
             rest( 8 );
             if (msec_timer - timer >= 50)  break;
         } while( amx == mouse_x && amy == mouse_y && amz == mouse_z && amb == mouse_b && !key[ KEY_ENTER ] && !key[ KEY_ESC ] && !done && !key_is_pressed && !painter_area.scrolling );
         timer = msec_timer;
 
-//        if (amb!=1 && STool.Objets[4].Etat && NbH>0) // Clic sur annuler
-//        {
-//            glDeleteTextures(1,&tex);
-//            tex=CancelH[9];
-//            for(int i=9;i>10-NbH;i--)
-//                CancelH[i]=CancelH[i-1];
-//            CancelH[10-NbH]=0;
-//            NbH--;
+        if (painter_area.get_state("tools.b_cancel")) // Clic sur annuler
+        {
+            glDeleteTextures(1,&tex);
+            tex=CancelH[9];
+            for(int i=9;i>10-NbH;i--)
+                CancelH[i]=CancelH[i-1];
+            CancelH[10-NbH]=0;
+            NbH--;
 
-//            obj_table[cur_part]->surface.gltex[0]=tex;			// Recopie le BITMAP sur la texture
-//        }
+            obj_table[cur_part]->surface.gltex[0]=tex;			// Recopie le BITMAP sur la texture
+        }
 
         if (NbH>10) NbH=10;			// Limite la profondeur de l'historique
 
-//        if (STool.Objets[0].Etat)	Tool=TOOL_POINT;
-//        if (STool.Objets[1].Etat)	Tool=TOOL_LINE;
-//        if (STool.Objets[2].Etat)	Tool=TOOL_FILL;
-//        if (STool.Objets[3].Etat)	Tool=TOOL_PEN;
-//        if (STool.Objets[5].Etat)	Tool=TOOL_TEX;
+        if (painter_area.get_state("tools.b_points"))   Tool=TOOL_POINT;
+        if (painter_area.get_state("tools.b_lines"))    Tool=TOOL_LINE;
+        if (painter_area.get_state("tools.b_fill"))     Tool=TOOL_FILL;
+        if (painter_area.get_state("tools.b_pencil"))   Tool=TOOL_PEN;
+        if (painter_area.get_state("tools.b_texture"))  Tool=TOOL_TEX;
 
-//        switch(Tool)			// Indique quel outil est sélectionné
-//        {
-//            case TOOL_POINT:
-//                STool.Objets[0].Focus=true;
-//                break;
-//            case TOOL_LINE:
-//                STool.Objets[1].Focus=true;
-//                break;
-//            case TOOL_FILL:
-//                STool.Objets[2].Focus=true;
-//                break;
-//            case TOOL_PEN:
-//                STool.Objets[3].Focus=true;
-//                break;
-//            case TOOL_TEX:
-//                STool.Objets[5].Focus=true;
-//                tool_tex_size+=(mouse_z-amz)*0.05f;
-//                if (tool_tex_size<0.01f)	tool_tex_size=0.01f;
-//                if (key[KEY_SPACE] || tool_tex_gl==0)
-//                {
-//                    String filename = Dialog( I18N::Translate( "Charger une texture" ).c_str(),"*.*");
-//                    BITMAP *bmp_tex = filename.length()>0 ? load_bitmap(filename.c_str(),NULL) : NULL;
-//                    if (bmp_tex) // Si il s'agit d'ajouter/modifier une texture
-//                    {
-//                        if (bitmap_color_depth(bmp_tex)==24 || strstr(filename.c_str(),".jpg")!=NULL)
-//                        {
-//                            BITMAP *tmp = create_bitmap_ex(32,bmp_tex->w,bmp_tex->h);
-//                            for(int y=0;y<tmp->h;y++)
-//                                for(int x=0;x<tmp->w;x++)
-//                                    putpixel(tmp,x,y,getpixel(bmp_tex,x,y)|0xFF000000);
-//                            destroy_bitmap(bmp_tex);
-//                            bmp_tex=tmp;
-//                        }
-//                        if (tool_tex_gl)
-//                            glDeleteTextures(1,&tool_tex_gl);
-//                        allegro_gl_use_alpha_channel(true);
-//                        allegro_gl_set_texture_format(GL_RGBA8);
-//                        tool_tex_gl=allegro_gl_make_texture(bmp_tex);
-//                        allegro_gl_use_alpha_channel(false);
-//                        glBindTexture(GL_TEXTURE_2D,tool_tex_gl);
-//                        glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
-//                        glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
-//                        destroy_bitmap(bmp_tex);
-//                    }
-//                }
-//                break;
-//        }
+        switch(Tool)			// Indique quel outil est sélectionné
+        {
+            case TOOL_TEX:
+                tool_tex_size+=(mouse_z-amz)*0.05f;
+                if (tool_tex_size<0.01f)	tool_tex_size=0.01f;
+                if (key[KEY_SPACE] || tool_tex_gl==0)
+                {
+                    String filename = Dialog( I18N::Translate( "Load a texture" ).c_str(),"*.*");
+                    BITMAP *bmp_tex = filename.length()>0 ? load_bitmap(filename.c_str(),NULL) : NULL;
+                    if (bmp_tex) // Si il s'agit d'ajouter/modifier une texture
+                    {
+                        if (bitmap_color_depth(bmp_tex)!=32 || strstr(filename.c_str(),".jpg")!=NULL)
+                        {
+                            BITMAP *tmp = create_bitmap_ex(32,bmp_tex->w,bmp_tex->h);
+                            for(int y=0;y<tmp->h;y++)
+                                for(int x=0;x<tmp->w;x++)
+                                {
+                                    int c = getpixel(bmp_tex,x,y);
+                                    int r = getr( c );
+                                    int g = getg( c );
+                                    int b = getb( c );
+                                    if (bitmap_color_depth(bmp_tex)==16)
+                                    {
+                                        r <<= 3;
+                                        g <<= 2;
+                                        b <<= 3;
+                                    }
+                                    else if (bitmap_color_depth(bmp_tex)==8)
+                                        r = g = b = r << 2;
+                                    putpixel(tmp,x,y,makeacol(r,g,b,0xFF));
+                                }
+                            destroy_bitmap(bmp_tex);
+                            bmp_tex=tmp;
+                        }
+                        bool need_alpha_fill = true;
+                        for(int y=0;y<bmp_tex->h;y++)
+                            for(int x=0;x<bmp_tex->w;x++)
+                                if (geta( getpixel(bmp_tex,x,y) ))
+                                {
+                                    need_alpha_fill = false;
+                                    break;
+                                }
+                        if (need_alpha_fill)
+                            for(int y=0;y<bmp_tex->h;y++)
+                                for(int x=0;x<bmp_tex->w;x++)
+                                    putpixel(bmp_tex,x,y,getpixel(bmp_tex,x,y)|0xFF000000);
+                        if (tool_tex_gl)
+                            glDeleteTextures(1,&tool_tex_gl);
+                        allegro_gl_use_alpha_channel(true);
+                        allegro_gl_set_texture_format(GL_RGBA8);
+                        tool_tex_gl=allegro_gl_make_texture(bmp_tex);
+                        allegro_gl_use_alpha_channel(false);
+                        glBindTexture(GL_TEXTURE_2D,tool_tex_gl);
+                        glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
+                        glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
+                        destroy_bitmap(bmp_tex);
+                    }
+                }
+                break;
+        }
 
-//        if (SPaint.Objets[12].Etat) 								// Change the texture size
-//        {
-//            String new_res = GetVal( I18N::Translate( "Nouvelle résolution de la texture" ).c_str() );
-//            char *new_separator = strstr(new_res.c_str(),"x");
-//            if (new_separator)
-//            {
-//                *new_separator=0;
-//                int n_w = atoi(new_res.c_str());
-//                *new_separator='x';
-//                new_separator++;
-//                int n_h = atoi(new_separator);
+        if (painter_area.get_state("paint.b_resolution")) 								// Change the texture size
+        {
+            String new_res = GetVal( I18N::Translate( "New texture resolution" ) );
+            char *new_separator = strstr(new_res.c_str(),"x");
+            if (new_separator)
+            {
+                *new_separator=0;
+                int n_w = atoi(new_res.c_str());
+                *new_separator='x';
+                new_separator++;
+                int n_h = atoi(new_separator);
 
-//                BITMAP *bmp_tex = read_tex(tex);
-//                glDeleteTextures(1,&tex);
-//                BITMAP *tmp = create_bitmap_ex(32,n_w,n_h);
-//                stretch_blit(bmp_tex,tmp,0,0,bmp_tex->w,bmp_tex->h,0,0,tmp->w,tmp->h);
-//                destroy_bitmap(bmp_tex);
-//                allegro_gl_use_alpha_channel(true);
-//                obj_table[cur_part]->surface.gltex[0] = tex = allegro_gl_make_texture(tmp);
-//                allegro_gl_use_alpha_channel(false);
+                BITMAP *bmp_tex = read_tex(tex);
+                glDeleteTextures(1,&tex);
+                BITMAP *tmp = create_bitmap_ex(32,n_w,n_h);
+                stretch_blit(bmp_tex,tmp,0,0,bmp_tex->w,bmp_tex->h,0,0,tmp->w,tmp->h);
+                destroy_bitmap(bmp_tex);
+                allegro_gl_use_alpha_channel(true);
+                obj_table[cur_part]->surface.gltex[0] = tex = allegro_gl_make_texture(tmp);
+                allegro_gl_use_alpha_channel(false);
 
-//                glBindTexture(GL_TEXTURE_2D,tex);
-//                glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
-//                glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
+                glBindTexture(GL_TEXTURE_2D,tex);
+                glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
+                glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
 
-//                destroy_bitmap(tmp);
-//            }
-//            else
-//                Popup( I18N::Translate( "Erreur" ), I18N::Translate( "La résolution doit être de la forme: largeurxhauteur" ));
-//        }
-//        if (SPaint.Objets[11].Etat) CubeTexturing(cur_part);
-//        if (SPaint.Objets[10].Etat) obj_geo_optimize(cur_part);
-//        if (SPaint.Objets[9].Etat) obj_maj_normal(cur_part);
-//        if (SPaint.Objets[8].Etat) obj_geo_split(cur_part);
+                destroy_bitmap(tmp);
+            }
+            else
+                Popup( I18N::Translate( "Error" ), I18N::Translate( "The resolution must be widthxheight" ));
+        }
+        if (painter_area.get_state("paint.b_cubic_mapping"))    CubeTexturing(cur_part);
+        if (painter_area.get_state("paint.b_optimize"))         obj_geo_optimize(cur_part);
+        if (painter_area.get_state("paint.b_normalize"))        obj_maj_normal(cur_part);
+        if (painter_area.get_state("paint.b_disassemble"))      obj_geo_split(cur_part);
 
-//        if (SPaint.Objets[4].Etat) RenderingMode=GL_LINE;			// Défini le mode de rendu
-//        if (SPaint.Objets[5].Etat) RenderingMode=GL_FILL;
+        if (painter_area.get_state("paint.b_wireframe"))    RenderingMode=GL_LINE;			// Défini le mode de rendu
+        if (painter_area.get_state("paint.b_normal"))       RenderingMode=GL_FILL;
 
-//        if (SPaint.Objets[6].Etat) EditMode=EDIT_SELTRI;				// Défini le mode d'édition
-//        if (SPaint.Objets[7].Etat) EditMode=EDIT_PAINT;
+        if (painter_area.get_state("paint.b_selecting"))    EditMode=EDIT_SELTRI;				// Défini le mode d'édition
+        if (painter_area.get_state("paint.b_painting"))     EditMode=EDIT_PAINT;
 
         glClearColor (0, 0, 0, 0);
         glShadeModel (GL_SMOOTH);
@@ -1225,23 +1249,14 @@ void SurfPaint(int index)
         glEnable (GL_COLOR_MATERIAL);
         glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);	// Really Nice Perspective Calculations
 
-//        if (SPaint.Objets[2].Etat)
-//        {
-//            SPaint.Objets[2].Etat=false;
-//            CylinderTexturing(cur_part);
-//            do
-//                poll_mouse();
-//            while(mouse_b!=0);
-//        }
+        if (painter_area.get_state("paint.b_cylindric_mapping"))
+            CylinderTexturing(cur_part);
 
-//        if (SCoor.Objets[0].Etat && showcoorwindow) // Cache la fenêtre SCoor
-//        {
-//            showcoorwindow=false;
-//            SCoor.Objets[0].Etat=false;
-//        }
+        if (painter_area.get_state("paint.b_painting"))
+            EditMode = EDIT_PAINT;
 
-//        if (SPaint.Objets[3].Etat)						// Ouvre la fenêtre SCoor
-//            showcoorwindow=true;
+        if (painter_area.get_state("paint.b_selecting"))
+            EditMode = EDIT_SELTRI;
 
         if (IsOnGUI && mouse_b!=0)
             Focus=0;
@@ -1250,7 +1265,15 @@ void SurfPaint(int index)
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);		// Efface la mémoire tampon
 
         show_mouse(NULL);					// Cache la souris
-        if (key[KEY_ESC]) done=true;			// Quitte si on appuie sur echap
+        if (key[KEY_ESC] || painter_area.get_state("paint.b_ok"))
+        {
+            done = true;
+            while( key[KEY_ESC] )
+            {
+                rest(8);
+                poll_keyboard();
+            }
+        }
 
         if (!IsOnGUI && mouse_b==2)			// Rotation de la caméra à la souris par clic droit
         {
@@ -1270,7 +1293,7 @@ void SurfPaint(int index)
 
         for(int i = 0; i < nb_obj(); ++i)
             cur_data.flag[i]= i==cur_part ? 0 : FLAG_HIDE;
-        obj_table[cur_part]->draw(0.0f, &cur_data);		// Dessine la partie en cours d'édition de la meshe
+        obj_table[cur_part]->draw_dl(&cur_data);		// Dessine la partie en cours d'édition de la meshe
         glDisable(GL_TEXTURE_2D);
 
         glPolygonMode (GL_FRONT_AND_BACK, GL_FILL);		// Restore les paramètres de remplissage
@@ -1296,342 +1319,296 @@ void SurfPaint(int index)
             glDisable(GL_BLEND);
         }
 
-//        if (!IsOnGUI)					// Code de l'édition
-//            switch(EditMode)
-//            {
-//                case EDIT_SELTRI:			// Code pour la sélection
-//                    startline=true;		// Pour l'outil de traçage de lignes
-//                    {
-//                        Vector3D A,B,O;
-//                        Vector3D Dir;
-//                        Cam.setView();
-//                        O = Cam.pos-obj_table[cur_part]->pos_from_parent;			// Origine du rayon=le point de vue de la caméra
-//                        Dir=Cam.dir+(mouse_x-(SCREEN_W>>1))/(SCREEN_W*0.5f)*Cam.side-0.75f*(mouse_y-(SCREEN_H>>1))/(SCREEN_H*0.5f)*Cam.up;
-//                        int index=intersect(O,Dir,obj_table[cur_part],&A,&B); 		// Obtient l'indice du triangle visé
+        if (!IsOnGUI)					// Code de l'édition
+            switch(EditMode)
+            {
+                case EDIT_SELTRI:			// Code pour la sélection
+                    startline=true;		// Pour l'outil de traçage de lignes
+                    {
+                        Vector3D A,B,O;
+                        Vector3D Dir;
+                        Cam.setView();
+                        O = Cam.pos-obj_table[cur_part]->pos_from_parent;			// Origine du rayon=le point de vue de la caméra
+                        Dir=Cam.dir+(mouse_x-(SCREEN_W>>1))/(SCREEN_W*0.5f)*Cam.side-0.75f*(mouse_y-(SCREEN_H>>1))/(SCREEN_H*0.5f)*Cam.up;
+                        int index=intersect(O,Dir,obj_table[cur_part],&A,&B); 		// Obtient l'indice du triangle visé
 
-//                        if (index>=0) // Si l'indice est valable
-//                        {
-//                            glColor4f(1.0f,1.0f,1.0f,0.25f);
-//                            glDisable(GL_TEXTURE_2D);
-//                            glDisable(GL_LIGHTING);
-//                            glEnable(GL_BLEND);
-//                            glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);		// Affiche le triangle visé
-//                            glBegin(GL_TRIANGLES);
-//                            glVertex3f(obj_table[cur_part]->points[obj_table[cur_part]->t_index[index*3]].x,obj_table[cur_part]->points[obj_table[cur_part]->t_index[index*3]].y,obj_table[cur_part]->points[obj_table[cur_part]->t_index[index*3]].z);
-//                            glVertex3f(obj_table[cur_part]->points[obj_table[cur_part]->t_index[index*3+1]].x,obj_table[cur_part]->points[obj_table[cur_part]->t_index[index*3+1]].y,obj_table[cur_part]->points[obj_table[cur_part]->t_index[index*3+1]].z);
-//                            glVertex3f(obj_table[cur_part]->points[obj_table[cur_part]->t_index[index*3+2]].x,obj_table[cur_part]->points[obj_table[cur_part]->t_index[index*3+2]].y,obj_table[cur_part]->points[obj_table[cur_part]->t_index[index*3+2]].z);
-//                            glEnd();
-//                            glDisable(GL_BLEND);
+                        if (index>=0) // Si l'indice est valable
+                        {
+                            glColor4f(1.0f,1.0f,1.0f,0.25f);
+                            glDisable(GL_TEXTURE_2D);
+                            glDisable(GL_LIGHTING);
+                            glEnable(GL_BLEND);
+                            glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);		// Affiche le triangle visé
+                            glBegin(GL_TRIANGLES);
+                            glVertex3f(obj_table[cur_part]->points[obj_table[cur_part]->t_index[index*3]].x,obj_table[cur_part]->points[obj_table[cur_part]->t_index[index*3]].y,obj_table[cur_part]->points[obj_table[cur_part]->t_index[index*3]].z);
+                            glVertex3f(obj_table[cur_part]->points[obj_table[cur_part]->t_index[index*3+1]].x,obj_table[cur_part]->points[obj_table[cur_part]->t_index[index*3+1]].y,obj_table[cur_part]->points[obj_table[cur_part]->t_index[index*3+1]].z);
+                            glVertex3f(obj_table[cur_part]->points[obj_table[cur_part]->t_index[index*3+2]].x,obj_table[cur_part]->points[obj_table[cur_part]->t_index[index*3+2]].y,obj_table[cur_part]->points[obj_table[cur_part]->t_index[index*3+2]].z);
+                            glEnd();
+                            glDisable(GL_BLEND);
 
-//                            if (mouse_b == 1) // Modifie la sélection
-//                            {
-//                                if (key[KEY_LSHIFT] || key[KEY_RSHIFT]) // Ajoute le triangle à la sélection
-//                                {
-//                                    bool already=false;		// Vérifie si le triangle n'est pas déjà présent
-//                                    if (NbSel>0)
-//                                        for(int i=0;i<NbSel;i++)
-//                                            if (Sel[i]==index)
-//                                            {
-//                                                already=true;
-//                                                break;
-//                                            }
-//                                    if (!already)		// L'ajoute si il n'y est pas déjà
-//                                        Sel[NbSel++]=index;
-//                                }
-//                                else
-//                                {
-//                                    if (key[KEY_CAPSLOCK]) 	// Retire le triangle de la sélection
-//                                    {
-//                                        int pos=-1;				// Cherche la position du triangle
-//                                        if (NbSel>0)
-//                                            for(int i=0;i<NbSel;i++)
-//                                                if (Sel[i]==index)
-//                                                {
-//                                                    pos=i;
-//                                                    break;
-//                                                }
-//                                        if (pos!=-1) 	// Si le triangle est présent
-//                                        {
-//                                            if (pos+1<NbSel)		// Si ce n'est pas le dernier
-//                                                for(int i=pos;i<NbSel-1;i++)	// Décale tout
-//                                                    Sel[i]=Sel[i+1];
-//                                            NbSel--;		// Décrémente le nombre de triangles sélectionnés
-//                                        }
-//                                    }
-//                                    else
-//                                    {											// Ne sélectionne que ce triangle
-//                                        NbSel=1;
-//                                        Sel[0]=index;
-//                                    }
-//                                }
-//                            }			// Fin de if (mouse_b==1) {
-//                        }		// Fin de if (index>=0) {
-//                        }
-//                        break;
-//                            case EDIT_PAINT:			// Code pour le dessin
-//                        if (mouse_b==1 && NbSel>0)	// Si il y a une sélection
-//                        {
-//                            Vector3D A,B,O;
-//                            Vector3D Dir;
-//                            Cam.setView();
-//                            O=Cam.pos-obj_table[cur_part]->pos_from_parent;			// Origine du rayon=le point de vue de la caméra
-//                            Dir=Cam.dir+(mouse_x-(SCREEN_W>>1))/(SCREEN_W*0.5f)*Cam.side-0.75f*(mouse_y-(SCREEN_H>>1))/(SCREEN_H*0.5f)*Cam.up;
-//                            int index=intersect(O,Dir,obj_table[cur_part],&A,&B); 		// Obtient l'indice du triangle visé
-//                            bool Selected=false;
-//                            if (index>=0)					// Vérifie si le triangle est sélectionné
-//                                for(int i=0;i<NbSel;i++)
-//                                    if (Sel[i]==index)
-//                                    {
-//                                        Selected=true;
-//                                        break;
-//                                    }
-//                            if (Selected) // Si le triangle est sélectionné
-//                            {
-//                                if (amb!=1)
-//                                {
-//                                    if (CancelH[0])
-//                                        glDeleteTextures(1,CancelH);
-//                                    for(int i=0;i<9;i++)		// Fait descendre l'historique
-//                                        CancelH[i]=CancelH[i+1];
-//                                    CancelH[9]=copy_tex(tex);
-//                                    NbH++;		// Sauvegarde la texture dans l'historique
-//                                }
+                            if (mouse_b == 1) // Modifie la sélection
+                            {
+                                if (key[KEY_LSHIFT] || key[KEY_RSHIFT]) // Ajoute le triangle à la sélection
+                                {
+                                    bool already=false;		// Vérifie si le triangle n'est pas déjà présent
+                                    if (NbSel>0)
+                                        for(int i=0;i<NbSel;i++)
+                                            if (Sel[i]==index)
+                                            {
+                                                already=true;
+                                                break;
+                                            }
+                                    if (!already)		// L'ajoute si il n'y est pas déjà
+                                        Sel[NbSel++]=index;
+                                }
+                                else
+                                {
+                                    if (key[KEY_CAPSLOCK]) 	// Retire le triangle de la sélection
+                                    {
+                                        int pos=-1;				// Cherche la position du triangle
+                                        if (NbSel>0)
+                                            for(int i=0;i<NbSel;i++)
+                                                if (Sel[i]==index)
+                                                {
+                                                    pos=i;
+                                                    break;
+                                                }
+                                        if (pos!=-1) 	// Si le triangle est présent
+                                        {
+                                            if (pos+1<NbSel)		// Si ce n'est pas le dernier
+                                                for(int i=pos;i<NbSel-1;i++)	// Décale tout
+                                                    Sel[i]=Sel[i+1];
+                                            NbSel--;		// Décrémente le nombre de triangles sélectionnés
+                                        }
+                                    }
+                                    else
+                                    {											// Ne sélectionne que ce triangle
+                                        NbSel=1;
+                                        Sel[0]=index;
+                                    }
+                                }
+                            }			// Fin de if (mouse_b==1) {
+                        }		// Fin de if (index>=0) {
+                    }
+                    break;
+                case EDIT_PAINT:			// Code pour le dessin
+                    if (mouse_b==1 && NbSel>0)	// Si il y a une sélection
+                    {
+                        Vector3D A,B,O;
+                        Vector3D Dir;
+                        Cam.setView();
+                        O=Cam.pos-obj_table[cur_part]->pos_from_parent;			// Origine du rayon=le point de vue de la caméra
+                        Dir=Cam.dir+(mouse_x-(SCREEN_W>>1))/(SCREEN_W*0.5f)*Cam.side-0.75f*(mouse_y-(SCREEN_H>>1))/(SCREEN_H*0.5f)*Cam.up;
+                        int index=intersect(O,Dir,obj_table[cur_part],&A,&B); 		// Obtient l'indice du triangle visé
+                        bool Selected=false;
+                        if (index>=0)					// Vérifie si le triangle est sélectionné
+                            for(int i=0;i<NbSel;i++)
+                                if (Sel[i]==index)
+                                {
+                                    Selected=true;
+                                    break;
+                                }
+                        if (Selected) // Si le triangle est sélectionné
+                        {
+                            if (amb!=1)
+                            {
+                                if (CancelH[0])
+                                    glDeleteTextures(1,CancelH);
+                                for(int i=0;i<9;i++)		// Fait descendre l'historique
+                                    CancelH[i]=CancelH[i+1];
+                                CancelH[9]=copy_tex(tex);
+                                NbH++;		// Sauvegarde la texture dans l'historique
+                            }
 
-//                                float l = B.x + B.y + B.z;
-//                                B.x /= l;
-//                                B.y /= l;
-//                                B.z /= l;
+                            float l = B.x + B.y + B.z;
+                            B.x /= l;
+                            B.y /= l;
+                            B.z /= l;
 
-//                                float u,v;
-//                                int p1,p2,p3;
-//                                p1=obj_table[cur_part]->t_index[index*3];			// Indices des sommets du triangle
-//                                p2=obj_table[cur_part]->t_index[index*3+1];
-//                                p3=obj_table[cur_part]->t_index[index*3+2];
+                            float u,v;
+                            int p1,p2,p3;
+                            p1=obj_table[cur_part]->t_index[index*3];			// Indices des sommets du triangle
+                            p2=obj_table[cur_part]->t_index[index*3+1];
+                            p3=obj_table[cur_part]->t_index[index*3+2];
 
-//                                // Calcule les coordonnées correspondantes sur la texture
-//                                u=B.x*obj_table[cur_part]->tcoord[(p1<<1)]+B.y*obj_table[cur_part]->tcoord[(p2<<1)]+B.z*obj_table[cur_part]->tcoord[(p3<<1)];
-//                                v=B.x*obj_table[cur_part]->tcoord[(p1<<1)+1]+B.y*obj_table[cur_part]->tcoord[(p2<<1)+1]+B.z*obj_table[cur_part]->tcoord[(p3<<1)+1];
+                            // Calcule les coordonnées correspondantes sur la texture
+                            u=B.x*obj_table[cur_part]->tcoord[(p1<<1)]+B.y*obj_table[cur_part]->tcoord[(p2<<1)]+B.z*obj_table[cur_part]->tcoord[(p3<<1)];
+                            v=B.x*obj_table[cur_part]->tcoord[(p1<<1)+1]+B.y*obj_table[cur_part]->tcoord[(p2<<1)+1]+B.z*obj_table[cur_part]->tcoord[(p3<<1)+1];
 
-//                                if (u>=0.0f && v>=0.0f && u<1.0f && v<1.0f)
-//                                {
-//                                    GLint tex_w,tex_h;
-//                                    BITMAP *n_tex = read_tex(tex);
-//                                    tex_w=n_tex->w;
-//                                    tex_h=n_tex->h;
-//                                    u=u*tex_w+0.5f;
-//                                    v=v*tex_h+0.5f;
-//                                    switch(Tool)
-//                                    {
-//                                        case TOOL_POINT:			// Dessine un point
-//                                            putpixel(n_tex,(int)u,(int)v,PColor);		// Pixel de couleur PColor
-//                                            break;
-//                                        case TOOL_LINE:				// Trace une ligne
-//                                            if (!startline)
-//                                                line(n_tex,au,av,(int)u,(int)v,PColor);		// Ligne de couleur PColor
-//                                            else
-//                                                putpixel(n_tex,(int)u,(int)v,PColor);		// Pixel de couleur PColor
-//                                            startline=false;
-//                                            au=(int)u;
-//                                            av=(int)v;
-//                                            break;
-//                                        case TOOL_FILL:				// Rempli la sélection
-//                                            {
-//                                                for(int i=0;i<NbSel;i++) {
-//                                                    int u1,v1,u2,v2,u3,v3;
-//                                                    u1=(int)(obj_table[cur_part]->tcoord[obj_table[cur_part]->t_index[Sel[i]*3]<<1]*n_tex->w+0.5f);
-//                                                    v1=(int)(obj_table[cur_part]->tcoord[(obj_table[cur_part]->t_index[Sel[i]*3]<<1)+1]*n_tex->h+0.5f);
-//                                                    u2=(int)(obj_table[cur_part]->tcoord[obj_table[cur_part]->t_index[Sel[i]*3+1]<<1]*n_tex->w+0.5f);
-//                                                    v2=(int)(obj_table[cur_part]->tcoord[(obj_table[cur_part]->t_index[Sel[i]*3+1]<<1)+1]*n_tex->h+0.5f);
-//                                                    u3=(int)(obj_table[cur_part]->tcoord[obj_table[cur_part]->t_index[Sel[i]*3+2]<<1]*n_tex->w+0.5f);
-//                                                    v3=(int)(obj_table[cur_part]->tcoord[(obj_table[cur_part]->t_index[Sel[i]*3+2]<<1)+1]*n_tex->h+0.5f);
-//                                                    triangle(n_tex,u1,v1,u2,v2,u3,v3,PColor);
-//                                                }
-//                                            }
-//                                            break;
-//                                        case TOOL_PEN:				// Dessine un cercle plein de rayon 2
-//                                            circlefill(n_tex,(int)u,(int)v,2,PColor);
-//                                            break;
-//                                        case TOOL_TEX:
-//                                            {
-//                                                glBindFramebufferEXT(GL_FRAMEBUFFER_EXT,brush_FBO);
+                            if (u>=0.0f && v>=0.0f && u<1.0f && v<1.0f)
+                            {
+                                GLint tex_w,tex_h;
+                                BITMAP *n_tex = read_tex(tex);
+                                tex_w=n_tex->w;
+                                tex_h=n_tex->h;
+                                u=u*tex_w+0.5f;
+                                v=v*tex_h+0.5f;
+                                switch(Tool)
+                                {
+                                    case TOOL_POINT:			// Dessine un point
+                                        putpixel(n_tex,(int)u,(int)v,PColor);		// Pixel de couleur PColor
+                                        break;
+                                    case TOOL_LINE:				// Trace une ligne
+                                        if (!startline)
+                                            line(n_tex,au,av,(int)u,(int)v,PColor);		// Ligne de couleur PColor
+                                        else
+                                            putpixel(n_tex,(int)u,(int)v,PColor);		// Pixel de couleur PColor
+                                        startline=false;
+                                        au=(int)u;
+                                        av=(int)v;
+                                        break;
+                                    case TOOL_FILL:				// Rempli la sélection
+                                        {
+                                            for(int i=0;i<NbSel;i++) {
+                                                int u1,v1,u2,v2,u3,v3;
+                                                u1=(int)(obj_table[cur_part]->tcoord[obj_table[cur_part]->t_index[Sel[i]*3]<<1]*n_tex->w+0.5f);
+                                                v1=(int)(obj_table[cur_part]->tcoord[(obj_table[cur_part]->t_index[Sel[i]*3]<<1)+1]*n_tex->h+0.5f);
+                                                u2=(int)(obj_table[cur_part]->tcoord[obj_table[cur_part]->t_index[Sel[i]*3+1]<<1]*n_tex->w+0.5f);
+                                                v2=(int)(obj_table[cur_part]->tcoord[(obj_table[cur_part]->t_index[Sel[i]*3+1]<<1)+1]*n_tex->h+0.5f);
+                                                u3=(int)(obj_table[cur_part]->tcoord[obj_table[cur_part]->t_index[Sel[i]*3+2]<<1]*n_tex->w+0.5f);
+                                                v3=(int)(obj_table[cur_part]->tcoord[(obj_table[cur_part]->t_index[Sel[i]*3+2]<<1)+1]*n_tex->h+0.5f);
+                                                triangle(n_tex,u1,v1,u2,v2,u3,v3,PColor);
+                                            }
+                                        }
+                                        break;
+                                    case TOOL_PEN:				// Dessine un cercle plein de rayon 2
+                                        circlefill(n_tex,(int)u,(int)v,2,PColor);
+                                        break;
+                                    case TOOL_TEX:
+                                        {
+                                            glBindFramebufferEXT(GL_FRAMEBUFFER_EXT,brush_FBO);
 
-//                                                glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT,GL_COLOR_ATTACHMENT0_EXT,GL_TEXTURE_2D,brush_U,0);
-//                                                glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT,GL_DEPTH_ATTACHMENT_EXT,GL_RENDERBUFFER_EXT,zbuf);
-//                                                glViewport(0, 0, SCREEN_W, SCREEN_H);
-//                                                glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);		// First pass for U coordinate
-//                                                Cam.setView();			// Positionne la caméra
-//                                                for(int i=0;i<nb_obj();i++)
-//                                                    cur_data.flag[i]= i==cur_part ? 0 : FLAG_HIDE;
-//                                                shader_paint_u.on();
-//                                                obj_table[cur_part]->draw(0.0f,&cur_data);		// Dessine la partie en cours d'édition de la meshe
-//                                                shader_paint_u.off();
+                                            glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT,GL_COLOR_ATTACHMENT0_EXT,GL_TEXTURE_2D,brush_U,0);
+                                            glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT,GL_DEPTH_ATTACHMENT_EXT,GL_RENDERBUFFER_EXT,zbuf);
+                                            glViewport(0, 0, SCREEN_W, SCREEN_H);
+                                            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);		// First pass for U coordinate
+                                            Cam.setView();			// Positionne la caméra
+                                            for(int i=0;i<nb_obj();i++)
+                                                cur_data.flag[i]= i==cur_part ? 0 : FLAG_HIDE;
+                                            shader_paint_u.on();
+                                            obj_table[cur_part]->draw(0.0f,&cur_data);		// Dessine la partie en cours d'édition de la meshe
+                                            shader_paint_u.off();
 
-//                                                glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT,GL_COLOR_ATTACHMENT0_EXT,GL_TEXTURE_2D,brush_V,0);
-//                                                glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT,GL_DEPTH_ATTACHMENT_EXT,GL_RENDERBUFFER_EXT,zbuf);
-//                                                glViewport(0, 0, SCREEN_W, SCREEN_H);
-//                                                glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);		// Second pass for V coordinate
-//                                                Cam.setView();			// Positionne la caméra
-//                                                shader_paint_v.on();
-//                                                obj_table[cur_part]->draw(0.0f,&cur_data);		// Dessine la partie en cours d'édition de la meshe
-//                                                shader_paint_v.off();
+                                            glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT,GL_COLOR_ATTACHMENT0_EXT,GL_TEXTURE_2D,brush_V,0);
+                                            glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT,GL_DEPTH_ATTACHMENT_EXT,GL_RENDERBUFFER_EXT,zbuf);
+                                            glViewport(0, 0, SCREEN_W, SCREEN_H);
+                                            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);		// Second pass for V coordinate
+                                            Cam.setView();			// Positionne la caméra
+                                            shader_paint_v.on();
+                                            obj_table[cur_part]->draw(0.0f,&cur_data);		// Dessine la partie en cours d'édition de la meshe
+                                            shader_paint_v.off();
 
-//                                                glBindFramebufferEXT(GL_FRAMEBUFFER_EXT,0);
+                                            glBindFramebufferEXT(GL_FRAMEBUFFER_EXT,0);
 
-//                                                BITMAP *tex_U = read_tex_luminance(brush_U);
-//                                                BITMAP *tex_V = read_tex_luminance(brush_V);
-//                                                BITMAP *brush = read_tex(tool_tex_gl);
-//                                                for(int y=0;y<brush->h;y++)
-//                                                {
-//                                                    int Y = SCREEN_H-1-(int)(mouse_y-32.0f*tool_tex_size+64.0f*tool_tex_size*y/brush->h);
-//                                                    if (Y>=0 && Y<SCREEN_H)
-//                                                        for(int x=0;x<brush->w;x++)
-//                                                        {
-//                                                            int X = (int)(mouse_x-32.0f*tool_tex_size+64.0f*tool_tex_size*x/brush->w);
-//                                                            if (X>=0 && X<SCREEN_W)
-//                                                            {
-//                                                                int u = (int)(((unsigned short*)(tex_U->line[Y]))[(X<<2)+1]/65536.0f*n_tex->w);
-//                                                                int v = (int)(((unsigned short*)(tex_V->line[Y]))[(X<<2)+1]/65536.0f*n_tex->h);
-//                                                                int c1 = getpixel(brush,x,y);
-//                                                                int c2 = getpixel(n_tex,u,v);
-//                                                                int cr1 = getr(c1);
-//                                                                int cg1 = getg(c1);
-//                                                                int cb1 = getb(c1);
-//                                                                int ca1 = geta(c1);
-//                                                                int cr2 = getr(c2);
-//                                                                int cg2 = getg(c2);
-//                                                                int cb2 = getb(c2);
-//                                                                int ca2 = geta(c2);
-//                                                                int col = makeacol32(cr1*ca1+(255-ca1)*cr2>>8,cg1*ca1+(255-ca1)*cg2>>8,cb1*ca1+(255-ca1)*cb2>>8,ca1*ca1+(255-ca1)*ca2>>8);
-//                                                                putpixel(n_tex,u,v,col);
-//                                                            }
-//                                                        }
-//                                                }
-//                                                destroy_bitmap(tex_U);
-//                                                destroy_bitmap(tex_V);
-//                                                destroy_bitmap(brush);
-//                                            }
-//                                            break;
-//                                    }
+                                            BITMAP *tex_U = read_tex_luminance(brush_U);
+                                            BITMAP *tex_V = read_tex_luminance(brush_V);
+                                            BITMAP *brush = read_tex(tool_tex_gl);
+                                            for(int y=0;y<brush->h;y++)
+                                            {
+                                                int Y = SCREEN_H-1-(int)(mouse_y-32.0f*tool_tex_size+64.0f*tool_tex_size*y/brush->h);
+                                                if (Y>=0 && Y<SCREEN_H)
+                                                    for(int x=0;x<brush->w;x++)
+                                                    {
+                                                        int X = (int)(mouse_x-32.0f*tool_tex_size+64.0f*tool_tex_size*x/brush->w);
+                                                        if (X>=0 && X<SCREEN_W)
+                                                        {
+                                                            int u = (int)(((unsigned short*)(tex_U->line[Y]))[(X<<2)+1]/65536.0f*n_tex->w);
+                                                            int v = (int)(((unsigned short*)(tex_V->line[Y]))[(X<<2)+1]/65536.0f*n_tex->h);
+                                                            int c1 = getpixel(brush,x,y);
+                                                            int c2 = getpixel(n_tex,u,v);
+                                                            int cr1 = getr(c1);
+                                                            int cg1 = getg(c1);
+                                                            int cb1 = getb(c1);
+                                                            int ca1 = geta(c1);
+                                                            int cr2 = getr(c2);
+                                                            int cg2 = getg(c2);
+                                                            int cb2 = getb(c2);
+                                                            int ca2 = geta(c2);
+                                                            int col = makeacol32(cr1*ca1+(255-ca1)*cr2>>8,cg1*ca1+(255-ca1)*cg2>>8,cb1*ca1+(255-ca1)*cb2>>8,ca1*ca1+(255-ca1)*ca2>>8);
+                                                            putpixel(n_tex,u,v,col);
+                                                        }
+                                                    }
+                                            }
+                                            destroy_bitmap(tex_U);
+                                            destroy_bitmap(tex_V);
+                                            destroy_bitmap(brush);
+                                        }
+                                        break;
+                                }
 
-//                                    glDeleteTextures(1,&tex);
-//                                    allegro_gl_use_alpha_channel(true);
-//                                    tex=allegro_gl_make_texture(n_tex);
-//                                    allegro_gl_use_alpha_channel(false);
-//                                    glBindTexture(GL_TEXTURE_2D,tex);
-//                                    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
-//                                    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
-//                                    destroy_bitmap(n_tex);
+                                glDeleteTextures(1,&tex);
+                                allegro_gl_use_alpha_channel(true);
+                                tex=allegro_gl_make_texture(n_tex);
+                                allegro_gl_use_alpha_channel(false);
+                                glBindTexture(GL_TEXTURE_2D,tex);
+                                glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
+                                glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
+                                destroy_bitmap(n_tex);
 
-//                                    obj_table[cur_part]->surface.gltex[0]=tex;
-//                                }
-//                                else
-//                                    startline=true;
-//                            }
-//                            else
-//                                startline=true;
-//                        }
-//                        else
-//                            startline=true;
-//                        break;
-//                        }
+                                obj_table[cur_part]->surface.gltex[0]=tex;
+                            }
+                            else
+                                startline=true;
+                        }
+                        else
+                            startline=true;
+                    }
+                    else
+                        startline=true;
+                    break;
+            }
 
-                        gfx->set_2D_mode();		// Passe en mode dessin allegro
+        gfx->set_2D_mode();		// Passe en mode dessin allegro
 
-                        painter_area.draw();
-//                        String help_msg = "";
-//                        SPaint.draw( help_msg, Focus==0);		// Dessine la fenêtre d'édition
+        painter_area.draw();
 
-//                        if (EditMode==EDIT_PAINT)
-//                        {
-//                            STool.draw( help_msg, Focus==2);		// Dessine la boîte à outils
+        if (EditMode==EDIT_PAINT)
+        {
+            int r = painter_area.get_caption("tools.red").toInt32();
+            int g = painter_area.get_caption("tools.green").toInt32();
+            int b = painter_area.get_caption("tools.blue").toInt32();
+            int a = painter_area.get_caption("tools.alpha").toInt32();
+            PColor = makeacol32(r,g,b,a);
+            painter_area.set_data("tools.color", makeacol(r,g,b,a));
 
-//                            float r=getr32(PColor)/255.0f,g=getg32(PColor)/255.0f,b=getb32(PColor)/255.0f,a=geta32(PColor)/255.0f;
-//                            glBegin(GL_QUADS);			// Dessine les barres de sélection de couleur
-//                            glColor3f(0.0f,0.0f,0.0f);	glVertex2f(STool.x+10,STool.y+112);		// Barre Grise
-//                            glColor3f(1.0f,1.0f,1.0f);	glVertex2f(STool.x+80,STool.y+112);
-//                            glColor3f(1.0f,1.0f,1.0f);	glVertex2f(STool.x+80,STool.y+119);
-//                            glColor3f(0.0f,0.0f,0.0f);	glVertex2f(STool.x+10,STool.y+119);
-
-//                            glColor3f(0.0f,g,b);	glVertex2f(STool.x+10,STool.y+120);		// Barre Rouge
-//                            glColor3f(1.0f,g,b);	glVertex2f(STool.x+80,STool.y+120);
-//                            glColor3f(1.0f,g,b);	glVertex2f(STool.x+80,STool.y+127);
-//                            glColor3f(0.0f,g,b);	glVertex2f(STool.x+10,STool.y+127);
-
-//                            glColor3f(r,0.0f,b);	glVertex2f(STool.x+10,STool.y+128);		// Barre Vert
-//                            glColor3f(r,1.0f,b);	glVertex2f(STool.x+80,STool.y+128);
-//                            glColor3f(r,1.0f,b);	glVertex2f(STool.x+80,STool.y+135);
-//                            glColor3f(r,0.0f,b);	glVertex2f(STool.x+10,STool.y+135);
-
-//                            glColor3f(r,g,0.0f);	glVertex2f(STool.x+10,STool.y+136);		// Barre Bleu
-//                            glColor3f(r,g,1.0f);	glVertex2f(STool.x+80,STool.y+136);
-//                            glColor3f(r,g,1.0f);	glVertex2f(STool.x+80,STool.y+143);
-//                            glColor3f(r,g,0.0f);	glVertex2f(STool.x+10,STool.y+143);
-
-//                            if (IsOnGUI)			// Sélection de la couleur ?
-//                                if (mouse_x>=STool.x+10 && mouse_x<=STool.x+80 && mouse_y>=STool.y+112 && mouse_y<=STool.y+143)
-//                                {
-//                                    if (mouse_y>=STool.y+112 && mouse_y<=STool.y+119)
-//                                        a=(mouse_x-STool.x-10)/70.0f;
-//                                    if (mouse_y>=STool.y+120 && mouse_y<=STool.y+127)
-//                                        r=(mouse_x-STool.x-10)/70.0f;
-//                                    if (mouse_y>=STool.y+128 && mouse_y<=STool.y+135)
-//                                        g=(mouse_x-STool.x-10)/70.0f;
-//                                    if (mouse_y>=STool.y+136 && mouse_y<=STool.y+143)
-//                                        b=(mouse_x-STool.x-10)/70.0f;
-//                                    if (mouse_b==1)
-//                                        PColor=makeacol32((int)(r*255.0f),(int)(g*255.0f),(int)(b*255.0f),(int)(a*255.0f));
-//                                }
-
-//                            glColor3f(r,g,b);
-//                            glVertex2f(STool.x+90.0f,STool.y+120.0f);
-//                            glVertex2f(STool.x+114.0f,STool.y+120.0f);
-//                            glVertex2f(STool.x+114.0f,STool.y+143.0f);
-//                            glVertex2f(STool.x+90.0f,STool.y+143.0f);
-//                            glColor3f(a,a,a);
-//                            glVertex2f(STool.x+90.0f,STool.y+112.0f);
-//                            glVertex2f(STool.x+114.0f,STool.y+112.0f);
-//                            glVertex2f(STool.x+114.0f,STool.y+119.0f);
-//                            glVertex2f(STool.x+90.0f,STool.y+119.0f);
-//                            glEnd();
-
-//                            switch(Tool)			// Indique quel outil est sélectionné
-//                            {
-//                                case TOOL_POINT:
-//                                    glBlendFunc(GL_ONE,GL_ONE);
-//                                    glEnable(GL_BLEND);
-//                                    gfx->print(gfx->normal_font,0.0f,SCREEN_H-8.0f,0.0f,0xFFFFFFFF,I18N::Translate( "Dessin point par point" ));
-//                                    glDisable(GL_BLEND);
-//                                    break;
-//                                case TOOL_LINE:
-//                                    glBlendFunc(GL_ONE,GL_ONE);
-//                                    glEnable(GL_BLEND);
-//                                    gfx->print(gfx->normal_font,0.0f,SCREEN_H-8.0f,0.0f,0xFFFFFFFF,I18N::Translate( "Tracage de lignes" ));
-//                                    glDisable(GL_BLEND);
-//                                    break;
-//                                case TOOL_FILL:
-//                                    glBlendFunc(GL_ONE,GL_ONE);
-//                                    glEnable(GL_BLEND);
-//                                    gfx->print(gfx->normal_font,0.0f,SCREEN_H-8.0f,0.0f,0xFFFFFFFF,I18N::Translate( "Remplissage" ));
-//                                    glDisable(GL_BLEND);
-//                                    break;
-//                                case TOOL_PEN:
-//                                    glBlendFunc(GL_ONE,GL_ONE);
-//                                    glEnable(GL_BLEND);
-//                                    gfx->print(gfx->normal_font,0.0f,SCREEN_H-8.0f,0.0f,0xFFFFFFFF, I18N::Translate( "Crayon" ));
-//                                    glDisable(GL_BLEND);
-//                                    break;
-//                                case TOOL_TEX:
-//                                    glBlendFunc(GL_ONE,GL_ONE);
-//                                    glEnable(GL_BLEND);
-//                                    gfx->print(gfx->normal_font,0.0f,SCREEN_H-8.0f,0.0f,0xFFFFFFFF, I18N::Translate("Motif"));
-//                                    glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
-//                                    if (!IsOnGUI)
-//                                        gfx->drawtexture(tool_tex_gl,mouse_x-tool_tex_size*32.0f,mouse_y-tool_tex_size*32.0f,mouse_x+tool_tex_size*32.0f,mouse_y+tool_tex_size*32.0f);
-//                                    glDisable(GL_TEXTURE_2D);
-//                                    glDisable(GL_BLEND);
-//                                    break;
-//                            }
-//                        }		// Fin de if (EditMode==EDIT_PAINT) {
+            switch(Tool)			// Indique quel outil est sélectionné
+            {
+                case TOOL_POINT:
+                    glBlendFunc(GL_ONE,GL_ONE);
+                    glEnable(GL_BLEND);
+                    gfx->print(gfx->normal_font,0.0f,SCREEN_H-8.0f,0.0f,0xFFFFFFFF,I18N::Translate( "Dessin point par point" ));
+                    glDisable(GL_BLEND);
+                    break;
+                case TOOL_LINE:
+                    glBlendFunc(GL_ONE,GL_ONE);
+                    glEnable(GL_BLEND);
+                    gfx->print(gfx->normal_font,0.0f,SCREEN_H-8.0f,0.0f,0xFFFFFFFF,I18N::Translate( "Tracage de lignes" ));
+                    glDisable(GL_BLEND);
+                    break;
+                case TOOL_FILL:
+                    glBlendFunc(GL_ONE,GL_ONE);
+                    glEnable(GL_BLEND);
+                    gfx->print(gfx->normal_font,0.0f,SCREEN_H-8.0f,0.0f,0xFFFFFFFF,I18N::Translate( "Remplissage" ));
+                    glDisable(GL_BLEND);
+                    break;
+                case TOOL_PEN:
+                    glBlendFunc(GL_ONE,GL_ONE);
+                    glEnable(GL_BLEND);
+                    gfx->print(gfx->normal_font,0.0f,SCREEN_H-8.0f,0.0f,0xFFFFFFFF, I18N::Translate( "Crayon" ));
+                    glDisable(GL_BLEND);
+                    break;
+                case TOOL_TEX:
+                    glBlendFunc(GL_ONE,GL_ONE);
+                    glEnable(GL_BLEND);
+                    gfx->print(gfx->normal_font,0.0f,SCREEN_H-8.0f,0.0f,0xFFFFFFFF, I18N::Translate("Motif"));
+                    glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+                    if (!IsOnGUI)
+                        gfx->drawtexture(tool_tex_gl,mouse_x-tool_tex_size*32.0f,mouse_y-tool_tex_size*32.0f,mouse_x+tool_tex_size*32.0f,mouse_y+tool_tex_size*32.0f);
+                    glDisable(GL_TEXTURE_2D);
+                    glDisable(GL_BLEND);
+                    break;
+            }
+        }		// Fin de if (EditMode==EDIT_PAINT) {
 
 //                        if (showcoorwindow)	// Dessine la fenêtre de plaquage de texture
 //                        {
@@ -1679,286 +1656,311 @@ void SurfPaint(int index)
                         show_mouse(screen);
                         algl_draw_mouse();
 
-//                        if (SPaint.Objets[0].Etat)
-//                            done=true;		// En cas de click sur "Annuler", on quitte la fenêtre
-
                         gfx->unset_2D_mode();	// Quitte le mode de dessin d'allegro
 
                         // Affiche
                         gfx->flip();
                     } while(!done);
 
-                        if (g_useProgram && g_useFBO)
-                        {
-                            glDeleteFramebuffersEXT(1,&brush_FBO);
-                            glDeleteRenderbuffersEXT(1,&zbuf);
-                            glDeleteTextures(1,&brush_U);
-                            glDeleteTextures(1,&brush_V);
-                        }
-
-                        shader_paint_u.destroy();
-                        shader_paint_v.destroy();
-
-                        if (tool_tex_gl!=0)
-                            glDeleteTextures(1,&tool_tex_gl);
-
-                        cur_data.destroy();
-
-                        for(int i=0;i<10;i++) // Libère la mémoire allouée pour les bitmaps de l'historique
-                        {
-                            if (CancelH[i])
-                                glDeleteTextures(1,&(CancelH[i]));
-                        }
-
-                        delete[] Sel;							// Libère la mémoire du tableau de sélection
-                    }
-
-                    /*---------------------------------------------------------------------------------------------------\
-                      |                                      Editeur de plaquage de texture                                |
-                      \---------------------------------------------------------------------------------------------------*/
-
-                    void TexturePosEdit(int index)
+                    if (g_useProgram && g_useFBO)
                     {
-                        CylinderTexturing(cur_part);
+                        glDeleteFramebuffersEXT(1,&brush_FBO);
+                        glDeleteRenderbuffersEXT(1,&zbuf);
+                        glDeleteTextures(1,&brush_U);
+                        glDeleteTextures(1,&brush_V);
                     }
 
-                    /*---------------------------------------------------------------------------------------------------\
-                      |                                     Plaquage cubique de la texture                                 |
-                      \---------------------------------------------------------------------------------------------------*/
+                    shader_paint_u.destroy();
+                    shader_paint_v.destroy();
 
-                    void CubeTexturing(int part)
+                    if (tool_tex_gl!=0)
+                        glDeleteTextures(1,&tool_tex_gl);
+
+                    cur_data.destroy();
+
+                    for(int i=0;i<10;i++) // Libère la mémoire allouée pour les bitmaps de l'historique
                     {
-                        if (part<0 || part>=nb_obj())	return;		// Quitte si l'indice n'est pas valable
-
-                        float COS45=0.5f*sqrt(2.0f);		// Valeur à partir de laquelle on utilise les bords droit et gauche de la texture
-                        Vector3D I,J,K;
-                        I=J=K=I-I;
-                        I.x=1.0f;				// Vecteur de référence pour les calculs de repérage
-                        J.y=1.0f;
-                        K.z=1.0f;
-
-                        float CAymin=1000000.0f,CAymax=-1000000.0f;
-                        float CAzmin=1000000.0f,CAzmax=-1000000.0f;
-                        float CBymin=1000000.0f,CBymax=-1000000.0f;
-                        float CBzmin=1000000.0f,CBzmax=-1000000.0f;
-                        float CCxmin=1000000.0f,CCxmax=-1000000.0f;
-                        float CCzmin=1000000.0f,CCzmax=-1000000.0f;
-                        float CDxmin=1000000.0f,CDxmax=-1000000.0f;
-                        float CDzmin=1000000.0f,CDzmax=-1000000.0f;
-                        float CEymin=1000000.0f,CEymax=-1000000.0f;
-                        float CExmin=1000000.0f,CExmax=-1000000.0f;
-                        float CFymin=1000000.0f,CFymax=-1000000.0f;
-                        float CFxmin=1000000.0f,CFxmax=-1000000.0f;
-
-                        int i;
-                        for(i=0;i<obj_table[part]->nb_vtx;i++) {		// Analyse tous les points pour connaître les bornes de l'objet
-                            float COS=obj_table[part]->N[i]%I;
-                            if (fabs(COS)<COS45) {			// Milieu
-                                COS=obj_table[part]->N[i]%J;
-                                if (fabs(COS)<COS45) {
-                                    COS=obj_table[part]->N[i]%K;
-                                    if (COS>0.0f) {			// Coté E(bas droit)
-                                        if (obj_table[part]->points[i].x>CExmax)	CExmax=obj_table[part]->points[i].x;
-                                        if (obj_table[part]->points[i].x<CExmin)	CExmin=obj_table[part]->points[i].x;
-                                        if (obj_table[part]->points[i].y>CEymax)	CEymax=obj_table[part]->points[i].y;
-                                        if (obj_table[part]->points[i].y<CEymin)	CEymin=obj_table[part]->points[i].y;
-                                    }
-                                    else {					// Coté F(bas gauche)
-                                        if (obj_table[part]->points[i].x>CFxmax)	CFxmax=obj_table[part]->points[i].x;
-                                        if (obj_table[part]->points[i].x<CFxmin)	CFxmin=obj_table[part]->points[i].x;
-                                        if (obj_table[part]->points[i].y>CFymax)	CFymax=obj_table[part]->points[i].y;
-                                        if (obj_table[part]->points[i].y<CFymin)	CFymin=obj_table[part]->points[i].y;
-                                    }
-                                }
-                                else if (COS>0.0f) {			// Coté C(milieu droit)
-                                    if (obj_table[part]->points[i].x>CCxmax)	CCxmax=obj_table[part]->points[i].x;
-                                    if (obj_table[part]->points[i].x<CCxmin)	CCxmin=obj_table[part]->points[i].x;
-                                    if (obj_table[part]->points[i].z>CCzmax)	CCzmax=obj_table[part]->points[i].z;
-                                    if (obj_table[part]->points[i].z<CCzmin)	CCzmin=obj_table[part]->points[i].z;
-                                }
-                                else {						// Coté D(milieu gauche)
-                                    if (obj_table[part]->points[i].x>CDxmax)	CDxmax=obj_table[part]->points[i].x;
-                                    if (obj_table[part]->points[i].x<CDxmin)	CDxmin=obj_table[part]->points[i].x;
-                                    if (obj_table[part]->points[i].z>CDzmax)	CDzmax=obj_table[part]->points[i].z;
-                                    if (obj_table[part]->points[i].z<CDzmin)	CDzmin=obj_table[part]->points[i].z;
-                                }
-                            }
-                            else if (COS>0.0f) {				// Coté A(haut droit)
-                                if (obj_table[part]->points[i].y>CAymax)	CAymax=obj_table[part]->points[i].y;
-                                if (obj_table[part]->points[i].y<CAymin)	CAymin=obj_table[part]->points[i].y;
-                                if (obj_table[part]->points[i].z>CAzmax)	CAzmax=obj_table[part]->points[i].z;
-                                if (obj_table[part]->points[i].z<CAzmin)	CAzmin=obj_table[part]->points[i].z;
-                            }
-                            else {							// Coté B(haut gauche)
-                                if (obj_table[part]->points[i].y>CBymax)	CBymax=obj_table[part]->points[i].y;
-                                if (obj_table[part]->points[i].y<CBymin)	CBymin=obj_table[part]->points[i].y;
-                                if (obj_table[part]->points[i].z>CBzmax)	CBzmax=obj_table[part]->points[i].z;
-                                if (obj_table[part]->points[i].z<CBzmin)	CBzmin=obj_table[part]->points[i].z;
-                            }
-                        }
-
-                        if (CAymin==CAymax) CAymin--;
-                        if (CAzmin==CAzmax) CAzmin--;
-                        if (CBymin==CBymax) CBymin--;
-                        if (CBzmin==CBzmax) CBzmin--;
-
-                        if (CCxmin==CCxmax) CCxmin--;
-                        if (CCzmin==CCzmax) CCzmin--;
-                        if (CDxmin==CDxmax) CDxmin--;
-                        if (CDzmin==CDzmax) CDzmin--;
-
-                        if (CExmin==CExmax) CExmin--;
-                        if (CEymin==CEymax) CEymin--;
-                        if (CFxmin==CFxmax) CFxmin--;
-                        if (CFymin==CFymax) CFymin--;
-
-                        for(i=0;i<obj_table[part]->nb_vtx;i++) {		// Analyse toutes les normales et les points
-                            float COS=obj_table[part]->N[i]%I;
-                            if (fabs(COS)<COS45) {			// Milieu
-                                COS=obj_table[part]->N[i]%J;
-                                if (fabs(COS)<COS45) {
-                                    COS=obj_table[part]->N[i]%K;
-                                    if (COS>0.0f) {			// Coté E(bas droit)
-                                        obj_table[part]->tcoord[i<<1]=0.5f+0.5f*(obj_table[part]->points[i].x-CExmin)/(CExmax-CExmin);
-                                        obj_table[part]->tcoord[(i<<1)+1]=0.667f+0.333f*(obj_table[part]->points[i].y-CEymin)/(CEymax-CEymin);
-                                    }
-                                    else {					// Coté F(bas gauche)
-                                        obj_table[part]->tcoord[i<<1]=0.5f*(obj_table[part]->points[i].x-CFxmin)/(CFxmax-CFxmin);
-                                        obj_table[part]->tcoord[(i<<1)+1]=0.667f+0.333f*(obj_table[part]->points[i].y-CFymin)/(CFymax-CFymin);
-                                    }
-                                }
-                                else if (COS>0.0f) {			// Coté C(milieu droit)
-                                    obj_table[part]->tcoord[i<<1]=0.5f+0.5f*(obj_table[part]->points[i].x-CCxmin)/(CCxmax-CCxmin);
-                                    obj_table[part]->tcoord[(i<<1)+1]=0.333f+0.333f*(obj_table[part]->points[i].z-CCzmin)/(CCzmax-CCzmin);
-                                }
-                                else {						// Coté D(milieu gauche)
-                                    obj_table[part]->tcoord[i<<1]=0.5f*(obj_table[part]->points[i].x-CDxmin)/(CDxmax-CDxmin);
-                                    obj_table[part]->tcoord[(i<<1)+1]=0.333f+0.333f*(obj_table[part]->points[i].z-CDzmin)/(CDzmax-CDzmin);
-                                }
-                            }
-                            else if (COS>0.0f) {				// Coté A(haut droit)
-                                obj_table[part]->tcoord[i<<1]=0.5f+0.5f*(obj_table[part]->points[i].y-CAymin)/(CAymax-CAymin);
-                                obj_table[part]->tcoord[(i<<1)+1]=0.333f*(obj_table[part]->points[i].z-CAzmin)/(CAzmax-CAzmin);
-                            }
-                            else {							// Coté B(haut gauche)
-                                obj_table[part]->tcoord[i<<1]=0.5f*(obj_table[part]->points[i].y-CBymin)/(CBymax-CBymin);
-                                obj_table[part]->tcoord[(i<<1)+1]=0.333f*(obj_table[part]->points[i].z-CBzmin)/(CBzmax-CBzmin);
-                            }
-                        }
-                        float txmin=1.0f;
-                        float txmax=0.0f;
-                        float tymin=1.0f;
-                        float tymax=0.0f;
-                        for(i=0;i<obj_table[part]->nb_vtx;i++) {		// Analyse toutes les normales et les points
-                            if (obj_table[part]->tcoord[i<<1]<txmin)	txmin=obj_table[part]->tcoord[i<<1];
-                            if (obj_table[part]->tcoord[i<<1]>txmax)	txmax=obj_table[part]->tcoord[i<<1];
-                            if (obj_table[part]->tcoord[(i<<1)+1]<tymin)	tymin=obj_table[part]->tcoord[(i<<1)+1];
-                            if (obj_table[part]->tcoord[(i<<1)+1]>tymax)	tymax=obj_table[part]->tcoord[(i<<1)+1];
-                        }
-                        if (txmin==txmax)	txmin--;
-                        if (tymin==tymax)	tymin--;
-                        for(i=0;i<obj_table[part]->nb_vtx;i++) {		// Analyse toutes les normales et les points
-                            obj_table[part]->tcoord[i<<1]=(obj_table[part]->tcoord[i<<1]-txmin)/(txmax-txmin);
-                            obj_table[part]->tcoord[(i<<1)+1]=(obj_table[part]->tcoord[(i<<1)+1]-tymin)/(tymax-tymin);
-                        }
+                        if (CancelH[i])
+                            glDeleteTextures(1,&(CancelH[i]));
                     }
 
-                    /*---------------------------------------------------------------------------------------------------\
-                      |                                   Plaquage cylindrique de la texture                               |
-                      \---------------------------------------------------------------------------------------------------*/
+                    delete[] Sel;							// Libère la mémoire du tableau de sélection
+                }
 
-                    void CylinderTexturing(int part)
-                    {
-                        if (part<0 || part>=nb_obj())	return;		// Quitte si l'indice n'est pas valable
+/*---------------------------------------------------------------------------------------------------\
+    |                                      Editeur de plaquage de texture                                |
+    \---------------------------------------------------------------------------------------------------*/
 
-                        float COS45=0.5f*sqrt(2.0f);		// Valeur à partir de laquelle on utilise les bords droit et gauche de la texture
-                        Vector3D I,J,K;
-                        I=J=K=I-I;
-                        I.x=1.0f;				// Vecteur de référence pour les calculs de repérage
-                        J.y=1.0f;
-                        K.z=1.0f;
+void TexturePosEdit(int index)
+{
+    CylinderTexturing(cur_part);
+}
 
-                        float xmin=1000000.0f,xmax=-1000000.0f;
-                        float CAymin=1000000.0f,CAymax=-1000000.0f;
-                        float CBymin=1000000.0f,CBymax=-1000000.0f;
-                        float CAzmin=1000000.0f,CAzmax=-1000000.0f;
-                        float CBzmin=1000000.0f,CBzmax=-1000000.0f;
-                        float ymin=1000000.0f,ymax=-1000000.0f;
+/*---------------------------------------------------------------------------------------------------\
+    |                                     Plaquage cubique de la texture                                 |
+    \---------------------------------------------------------------------------------------------------*/
 
-                        int i;
-                        for (i = 0; i < obj_table[part]->nb_vtx; ++i) // Analyse tous les points pour connaître les bornes de l'objet
-                        {
-                            float COS=obj_table[part]->N[i]%I;
-                            if (fabs(COS) < COS45) // Milieu
-                            {
-                                if (obj_table[part]->points[i].x>xmax)	xmax=obj_table[part]->points[i].x;
-                                if (obj_table[part]->points[i].x<xmin)	xmin=obj_table[part]->points[i].x;
-                                Vector3D V;
-                                V=obj_table[part]->points[i];
-                                V=V-(V%I)*I;
-                                float angle=VAngle(J,V);
-                                if (K%V<0.0f)
-                                    angle=2.0f*PI-angle;
-                                obj_table[part]->tcoord[(i<<1)+1]=angle*0.5f/PI;
-                                if (obj_table[part]->tcoord[(i<<1)+1]>ymax)	ymax=obj_table[part]->tcoord[(i<<1)+1];
-                                if (obj_table[part]->tcoord[(i<<1)+1]<ymin)	ymin=obj_table[part]->tcoord[(i<<1)+1];
-                            }
-                            else if (COS>0.0f) {				// Coté A(droit)
-                                if (obj_table[part]->points[i].y>CAymax)	CAymax=obj_table[part]->points[i].y;
-                                if (obj_table[part]->points[i].y<CAymin)	CAymin=obj_table[part]->points[i].y;
-                                if (obj_table[part]->points[i].z>CAzmax)	CAzmax=obj_table[part]->points[i].z;
-                                if (obj_table[part]->points[i].z<CAzmin)	CAzmin=obj_table[part]->points[i].z;
-                            }
-                            else {							// Coté B(gauche)
-                                if (obj_table[part]->points[i].y>CBymax)	CBymax=obj_table[part]->points[i].y;
-                                if (obj_table[part]->points[i].y<CBymin)	CBymin=obj_table[part]->points[i].y;
-                                if (obj_table[part]->points[i].z>CBzmax)	CBzmax=obj_table[part]->points[i].z;
-                                if (obj_table[part]->points[i].z<CBzmin)	CBzmin=obj_table[part]->points[i].z;
-                            }
-                        }
+void CubeTexturing(int part)
+{
+    if (part<0 || part>=nb_obj())	return;		// Quitte si l'indice n'est pas valable
 
-                        if (xmin==xmax) xmin--;
-                        if (CAymin==CAymax) CAymin--;
-                        if (CAzmin==CAzmax) CAzmin--;
-                        if (CBymin==CBymax) CBymin--;
-                        if (CBzmin==CBzmax) CBzmin--;
-                        if (ymin==ymax) ymin--;
+    float COS45=0.5f*sqrt(2.0f);		// Valeur à partir de laquelle on utilise les bords droit et gauche de la texture
+    Vector3D I,J,K;
+    I=J=K=I-I;
+    I.x=1.0f;				// Vecteur de référence pour les calculs de repérage
+    J.y=1.0f;
+    K.z=1.0f;
 
-                        for(i=0;i<obj_table[part]->nb_vtx;i++) {		// Analyse toutes les normales et les points
-                            float COS=obj_table[part]->N[i]%I;
-                            if (fabs(COS)<COS45) {			// Milieu
-                                Vector3D V = obj_table[part]->points[i];
-                                V=V-(V%I)*I;
-                                float angle=VAngle(J,V);
-                                if (K%V<0.0f)
-                                    angle=2.0f*PI-angle;
-                                obj_table[part]->tcoord[i<<1]=0.25f+0.5f*(obj_table[part]->points[i].x-xmin)/(xmax-xmin);
-                                obj_table[part]->tcoord[(i<<1)+1]=(angle*0.5f/PI-ymin)/(ymax-ymin);
-                            }
-                            else if (COS>0.0f) {				// Coté A(droit)
-                                obj_table[part]->tcoord[i<<1]=0.75f+0.25f*(obj_table[part]->points[i].y-CAymin)/(CAymax-CAymin);
-                                obj_table[part]->tcoord[(i<<1)+1]=(obj_table[part]->points[i].z-CAzmin)/(CAzmax-CAzmin);
-                            }
-                            else {							// Coté B(gauche)
-                                obj_table[part]->tcoord[i<<1]=0.25f*(obj_table[part]->points[i].y-CBymin)/(CBymax-CBymin);
-                                obj_table[part]->tcoord[(i<<1)+1]=(obj_table[part]->points[i].z-CBzmin)/(CBzmax-CBzmin);
-                            }
-                        }
+    float CAymin=1000000.0f,CAymax=-1000000.0f;
+    float CAzmin=1000000.0f,CAzmax=-1000000.0f;
+    float CBymin=1000000.0f,CBymax=-1000000.0f;
+    float CBzmin=1000000.0f,CBzmax=-1000000.0f;
+    float CCxmin=1000000.0f,CCxmax=-1000000.0f;
+    float CCzmin=1000000.0f,CCzmax=-1000000.0f;
+    float CDxmin=1000000.0f,CDxmax=-1000000.0f;
+    float CDzmin=1000000.0f,CDzmax=-1000000.0f;
+    float CEymin=1000000.0f,CEymax=-1000000.0f;
+    float CExmin=1000000.0f,CExmax=-1000000.0f;
+    float CFymin=1000000.0f,CFymax=-1000000.0f;
+    float CFxmin=1000000.0f,CFxmax=-1000000.0f;
 
-                        float txmin=1.0f;
-                        float txmax=0.0f;
-                        float tymin=1.0f;
-                        float tymax=0.0f;
-                        for(i=0;i<obj_table[part]->nb_vtx;i++) {		// Analyse toutes les normales et les points
-                            if (obj_table[part]->tcoord[i<<1]<txmin)	txmin=obj_table[part]->tcoord[i<<1];
-                            if (obj_table[part]->tcoord[i<<1]>txmax)	txmax=obj_table[part]->tcoord[i<<1];
-                            if (obj_table[part]->tcoord[(i<<1)+1]<tymin)	tymin=obj_table[part]->tcoord[(i<<1)+1];
-                            if (obj_table[part]->tcoord[(i<<1)+1]>tymax)	tymax=obj_table[part]->tcoord[(i<<1)+1];
-                        }
-                        if (txmin==txmax)	txmin--;
-                        if (tymin==tymax)	tymin--;
-                        for(i=0;i<obj_table[part]->nb_vtx;i++) {		// Analyse toutes les normales et les points
-                            obj_table[part]->tcoord[i<<1]=(obj_table[part]->tcoord[i<<1]-txmin)/(txmax-txmin);
-                            obj_table[part]->tcoord[(i<<1)+1]=(obj_table[part]->tcoord[(i<<1)+1]-tymin)/(tymax-tymin);
-                        }
-                    }
+    int i;
+    for (i=0;i<obj_table[part]->nb_vtx;i++)		// Analyse tous les points pour connaître les bornes de l'objet
+    {
+        float COS=obj_table[part]->N[i]%I;
+        if (fabs(COS)<COS45)			// Milieu
+        {
+            COS=obj_table[part]->N[i]%J;
+            if (fabs(COS)<COS45)
+            {
+                COS=obj_table[part]->N[i]%K;
+                if (COS>0.0f)			// Coté E(bas droit)
+                {
+                    if (obj_table[part]->points[i].x>CExmax)	CExmax=obj_table[part]->points[i].x;
+                    if (obj_table[part]->points[i].x<CExmin)	CExmin=obj_table[part]->points[i].x;
+                    if (obj_table[part]->points[i].y>CEymax)	CEymax=obj_table[part]->points[i].y;
+                    if (obj_table[part]->points[i].y<CEymin)	CEymin=obj_table[part]->points[i].y;
+                }
+                else					// Coté F(bas gauche)
+                {
+                    if (obj_table[part]->points[i].x>CFxmax)	CFxmax=obj_table[part]->points[i].x;
+                    if (obj_table[part]->points[i].x<CFxmin)	CFxmin=obj_table[part]->points[i].x;
+                    if (obj_table[part]->points[i].y>CFymax)	CFymax=obj_table[part]->points[i].y;
+                    if (obj_table[part]->points[i].y<CFymin)	CFymin=obj_table[part]->points[i].y;
+                }
+            }
+            else if (COS>0.0f)			// Coté C(milieu droit)
+            {
+                if (obj_table[part]->points[i].x>CCxmax)	CCxmax=obj_table[part]->points[i].x;
+                if (obj_table[part]->points[i].x<CCxmin)	CCxmin=obj_table[part]->points[i].x;
+                if (obj_table[part]->points[i].z>CCzmax)	CCzmax=obj_table[part]->points[i].z;
+                if (obj_table[part]->points[i].z<CCzmin)	CCzmin=obj_table[part]->points[i].z;
+            }
+            else						// Coté D(milieu gauche)
+            {
+                if (obj_table[part]->points[i].x>CDxmax)	CDxmax=obj_table[part]->points[i].x;
+                if (obj_table[part]->points[i].x<CDxmin)	CDxmin=obj_table[part]->points[i].x;
+                if (obj_table[part]->points[i].z>CDzmax)	CDzmax=obj_table[part]->points[i].z;
+                if (obj_table[part]->points[i].z<CDzmin)	CDzmin=obj_table[part]->points[i].z;
+            }
+        }
+        else if (COS>0.0f)				// Coté A(haut droit)
+        {
+            if (obj_table[part]->points[i].y>CAymax)	CAymax=obj_table[part]->points[i].y;
+            if (obj_table[part]->points[i].y<CAymin)	CAymin=obj_table[part]->points[i].y;
+            if (obj_table[part]->points[i].z>CAzmax)	CAzmax=obj_table[part]->points[i].z;
+            if (obj_table[part]->points[i].z<CAzmin)	CAzmin=obj_table[part]->points[i].z;
+        }
+        else							// Coté B(haut gauche)
+        {
+            if (obj_table[part]->points[i].y>CBymax)	CBymax=obj_table[part]->points[i].y;
+            if (obj_table[part]->points[i].y<CBymin)	CBymin=obj_table[part]->points[i].y;
+            if (obj_table[part]->points[i].z>CBzmax)	CBzmax=obj_table[part]->points[i].z;
+            if (obj_table[part]->points[i].z<CBzmin)	CBzmin=obj_table[part]->points[i].z;
+        }
+    }
+
+    if (CAymin==CAymax) CAymin--;
+    if (CAzmin==CAzmax) CAzmin--;
+    if (CBymin==CBymax) CBymin--;
+    if (CBzmin==CBzmax) CBzmin--;
+
+    if (CCxmin==CCxmax) CCxmin--;
+    if (CCzmin==CCzmax) CCzmin--;
+    if (CDxmin==CDxmax) CDxmin--;
+    if (CDzmin==CDzmax) CDzmin--;
+
+    if (CExmin==CExmax) CExmin--;
+    if (CEymin==CEymax) CEymin--;
+    if (CFxmin==CFxmax) CFxmin--;
+    if (CFymin==CFymax) CFymin--;
+
+    for(i=0;i<obj_table[part]->nb_vtx;i++)		// Analyse toutes les normales et les points
+    {
+        float COS=obj_table[part]->N[i]%I;
+        if (fabs(COS)<COS45)			// Milieu
+        {
+            COS=obj_table[part]->N[i]%J;
+            if (fabs(COS)<COS45)
+            {
+                COS=obj_table[part]->N[i]%K;
+                if (COS>0.0f)			// Coté E(bas droit)
+                {
+                    obj_table[part]->tcoord[i<<1]=0.5f+0.5f*(obj_table[part]->points[i].x-CExmin)/(CExmax-CExmin);
+                    obj_table[part]->tcoord[(i<<1)+1]=0.667f+0.333f*(obj_table[part]->points[i].y-CEymin)/(CEymax-CEymin);
+                }
+                else					// Coté F(bas gauche)
+                {
+                    obj_table[part]->tcoord[i<<1]=0.5f*(obj_table[part]->points[i].x-CFxmin)/(CFxmax-CFxmin);
+                    obj_table[part]->tcoord[(i<<1)+1]=0.667f+0.333f*(obj_table[part]->points[i].y-CFymin)/(CFymax-CFymin);
+                }
+            }
+            else if (COS>0.0f)			// Coté C(milieu droit)
+            {
+                obj_table[part]->tcoord[i<<1]=0.5f+0.5f*(obj_table[part]->points[i].x-CCxmin)/(CCxmax-CCxmin);
+                obj_table[part]->tcoord[(i<<1)+1]=0.333f+0.333f*(obj_table[part]->points[i].z-CCzmin)/(CCzmax-CCzmin);
+            }
+            else						// Coté D(milieu gauche)
+            {
+                obj_table[part]->tcoord[i<<1]=0.5f*(obj_table[part]->points[i].x-CDxmin)/(CDxmax-CDxmin);
+                obj_table[part]->tcoord[(i<<1)+1]=0.333f+0.333f*(obj_table[part]->points[i].z-CDzmin)/(CDzmax-CDzmin);
+            }
+        }
+        else if (COS>0.0f)				// Coté A(haut droit)
+        {
+            obj_table[part]->tcoord[i<<1]=0.5f+0.5f*(obj_table[part]->points[i].y-CAymin)/(CAymax-CAymin);
+            obj_table[part]->tcoord[(i<<1)+1]=0.333f*(obj_table[part]->points[i].z-CAzmin)/(CAzmax-CAzmin);
+        }
+        else							// Coté B(haut gauche)
+        {
+            obj_table[part]->tcoord[i<<1]=0.5f*(obj_table[part]->points[i].y-CBymin)/(CBymax-CBymin);
+            obj_table[part]->tcoord[(i<<1)+1]=0.333f*(obj_table[part]->points[i].z-CBzmin)/(CBzmax-CBzmin);
+        }
+    }
+    float txmin=1.0f;
+    float txmax=0.0f;
+    float tymin=1.0f;
+    float tymax=0.0f;
+    for (i=0;i<obj_table[part]->nb_vtx;i++)		// Analyse toutes les normales et les points
+    {
+        if (obj_table[part]->tcoord[i<<1]<txmin)	txmin=obj_table[part]->tcoord[i<<1];
+        if (obj_table[part]->tcoord[i<<1]>txmax)	txmax=obj_table[part]->tcoord[i<<1];
+        if (obj_table[part]->tcoord[(i<<1)+1]<tymin)	tymin=obj_table[part]->tcoord[(i<<1)+1];
+        if (obj_table[part]->tcoord[(i<<1)+1]>tymax)	tymax=obj_table[part]->tcoord[(i<<1)+1];
+    }
+    if (txmin==txmax)	txmin--;
+    if (tymin==tymax)	tymin--;
+    for(i=0;i<obj_table[part]->nb_vtx;i++)		// Analyse toutes les normales et les points
+    {
+        obj_table[part]->tcoord[i<<1]=(obj_table[part]->tcoord[i<<1]-txmin)/(txmax-txmin);
+        obj_table[part]->tcoord[(i<<1)+1]=(obj_table[part]->tcoord[(i<<1)+1]-tymin)/(tymax-tymin);
+    }
+}
+
+/*---------------------------------------------------------------------------------------------------\
+    |                                   Plaquage cylindrique de la texture                               |
+    \---------------------------------------------------------------------------------------------------*/
+
+void CylinderTexturing(int part)
+{
+    if (part<0 || part>=nb_obj())	return;		// Quitte si l'indice n'est pas valable
+
+    float COS45=0.5f*sqrt(2.0f);		// Valeur à partir de laquelle on utilise les bords droit et gauche de la texture
+    Vector3D I,J,K;
+    I=J=K=I-I;
+    I.x=1.0f;				// Vecteur de référence pour les calculs de repérage
+    J.y=1.0f;
+    K.z=1.0f;
+
+    float xmin=1000000.0f,xmax=-1000000.0f;
+    float CAymin=1000000.0f,CAymax=-1000000.0f;
+    float CBymin=1000000.0f,CBymax=-1000000.0f;
+    float CAzmin=1000000.0f,CAzmax=-1000000.0f;
+    float CBzmin=1000000.0f,CBzmax=-1000000.0f;
+    float ymin=1000000.0f,ymax=-1000000.0f;
+
+    int i;
+    for (i = 0; i < obj_table[part]->nb_vtx; ++i) // Analyse tous les points pour connaître les bornes de l'objet
+    {
+        float COS=obj_table[part]->N[i]%I;
+        if (fabs(COS) < COS45) // Milieu
+        {
+            if (obj_table[part]->points[i].x>xmax)	xmax=obj_table[part]->points[i].x;
+            if (obj_table[part]->points[i].x<xmin)	xmin=obj_table[part]->points[i].x;
+            Vector3D V;
+            V=obj_table[part]->points[i];
+            V=V-(V%I)*I;
+            float angle=VAngle(J,V);
+            if (K%V<0.0f)
+                angle=2.0f*PI-angle;
+            obj_table[part]->tcoord[(i<<1)+1]=angle*0.5f/PI;
+            if (obj_table[part]->tcoord[(i<<1)+1]>ymax)	ymax=obj_table[part]->tcoord[(i<<1)+1];
+            if (obj_table[part]->tcoord[(i<<1)+1]<ymin)	ymin=obj_table[part]->tcoord[(i<<1)+1];
+        }
+        else if (COS>0.0f)				// Coté A(droit)
+        {
+            if (obj_table[part]->points[i].y>CAymax)	CAymax=obj_table[part]->points[i].y;
+            if (obj_table[part]->points[i].y<CAymin)	CAymin=obj_table[part]->points[i].y;
+            if (obj_table[part]->points[i].z>CAzmax)	CAzmax=obj_table[part]->points[i].z;
+            if (obj_table[part]->points[i].z<CAzmin)	CAzmin=obj_table[part]->points[i].z;
+        }
+        else							// Coté B(gauche)
+        {
+            if (obj_table[part]->points[i].y>CBymax)	CBymax=obj_table[part]->points[i].y;
+            if (obj_table[part]->points[i].y<CBymin)	CBymin=obj_table[part]->points[i].y;
+            if (obj_table[part]->points[i].z>CBzmax)	CBzmax=obj_table[part]->points[i].z;
+            if (obj_table[part]->points[i].z<CBzmin)	CBzmin=obj_table[part]->points[i].z;
+        }
+    }
+
+    if (xmin==xmax) xmin--;
+    if (CAymin==CAymax) CAymin--;
+    if (CAzmin==CAzmax) CAzmin--;
+    if (CBymin==CBymax) CBymin--;
+    if (CBzmin==CBzmax) CBzmin--;
+    if (ymin==ymax) ymin--;
+
+    for (i=0;i<obj_table[part]->nb_vtx;i++)		// Analyse toutes les normales et les points
+    {
+        float COS=obj_table[part]->N[i]%I;
+        if (fabs(COS)<COS45)			// Milieu
+        {
+            Vector3D V = obj_table[part]->points[i];
+            V=V-(V%I)*I;
+            float angle=VAngle(J,V);
+            if (K%V<0.0f)
+                angle=2.0f*PI-angle;
+            obj_table[part]->tcoord[i<<1]=0.25f+0.5f*(obj_table[part]->points[i].x-xmin)/(xmax-xmin);
+            obj_table[part]->tcoord[(i<<1)+1]=(angle*0.5f/PI-ymin)/(ymax-ymin);
+        }
+        else if (COS>0.0f)				// Coté A(droit)
+        {
+            obj_table[part]->tcoord[i<<1]=0.75f+0.25f*(obj_table[part]->points[i].y-CAymin)/(CAymax-CAymin);
+            obj_table[part]->tcoord[(i<<1)+1]=(obj_table[part]->points[i].z-CAzmin)/(CAzmax-CAzmin);
+        }
+        else							// Coté B(gauche)
+        {
+            obj_table[part]->tcoord[i<<1]=0.25f*(obj_table[part]->points[i].y-CBymin)/(CBymax-CBymin);
+            obj_table[part]->tcoord[(i<<1)+1]=(obj_table[part]->points[i].z-CBzmin)/(CBzmax-CBzmin);
+        }
+    }
+
+    float txmin=1.0f;
+    float txmax=0.0f;
+    float tymin=1.0f;
+    float tymax=0.0f;
+    for(i=0;i<obj_table[part]->nb_vtx;i++)		// Analyse toutes les normales et les points
+    {
+        if (obj_table[part]->tcoord[i<<1]<txmin)	txmin=obj_table[part]->tcoord[i<<1];
+        if (obj_table[part]->tcoord[i<<1]>txmax)	txmax=obj_table[part]->tcoord[i<<1];
+        if (obj_table[part]->tcoord[(i<<1)+1]<tymin)	tymin=obj_table[part]->tcoord[(i<<1)+1];
+        if (obj_table[part]->tcoord[(i<<1)+1]>tymax)	tymax=obj_table[part]->tcoord[(i<<1)+1];
+    }
+    if (txmin==txmax)	txmin--;
+    if (tymin==tymax)	tymin--;
+    for(i=0;i<obj_table[part]->nb_vtx;i++)		// Analyse toutes les normales et les points
+    {
+        obj_table[part]->tcoord[i<<1]=(obj_table[part]->tcoord[i<<1]-txmin)/(txmax-txmin);
+        obj_table[part]->tcoord[(i<<1)+1]=(obj_table[part]->tcoord[(i<<1)+1]-tymin)/(tymax-tymin);
+    }
+}

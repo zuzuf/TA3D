@@ -37,6 +37,7 @@ namespace TA3D
         background = 0;
         background_wnd = false;
         size_factor = 1.0f;
+        tab_was_pressed = false;
     }
 
     WND::WND(const String& filename)
@@ -60,6 +61,7 @@ namespace TA3D
         draw_borders = true;
         background = 0;
         size_factor = 1.0f;
+        tab_was_pressed = false;
         load_tdf(filename);
     }
 
@@ -241,15 +243,19 @@ namespace TA3D
                         Objets[i].Text, Objets[i].Pos, Objets[i].Data, skin, Objets[i].s, Objets[i].Flag);
                 break;
             case OBJ_LINE:
+                gfx->disable_texturing();
                 gfx->line(x + Objets[i].x1, y + Objets[i].y1, x + Objets[i].x2, y + Objets[i].y2, Objets[i].Data);
+                gfx->enable_texturing();
                 break;
             case OBJ_BOX:
                 gfx->set_alpha_blending();
+                gfx->disable_texturing();
                 if (Objets[i].Flag & FLAG_FILL)
                     gfx->rectfill(x + Objets[i].x1, y + Objets[i].y1,
                                   x + Objets[i].x2, y + Objets[i].y2, Objets[i].Data);
                 else
                     gfx->rect(x + Objets[i].x1, y + Objets[i].y1, x + Objets[i].x2, y + Objets[i].y2, Objets[i].Data);
+                gfx->enable_texturing();
                 gfx->unset_alpha_blending();
                 break;
             case OBJ_IMG:
@@ -498,12 +504,29 @@ namespace TA3D
         int  on_menu = -1;
         bool close_all = false;
         bool already_clicked = false;
+        int hasFocus = -1;
 
         for (int i = 0; i < NbObj; ++i)
         {
             if (Objets[i].Type != OBJ_NONE)
                 doCheckWasOnFLoattingMenu(i, was_on_floating_menu, on_menu, skin);
+            if (Objets[i].Focus)
+                hasFocus = i;
         }
+        if (hasFocus >= 0 && key[KEY_TAB] && !tab_was_pressed)      // Select another widget with TAB key
+        {
+            for (e = 1; e < NbObj; ++e)
+            {
+                int i = (e + hasFocus) % NbObj;
+                if (Objets[i].Flag & FLAG_CAN_GET_FOCUS)
+                {
+                    Objets[hasFocus].Focus = false;
+                    Objets[i].Focus = true;
+                    break;
+                }
+            }
+        }
+        tab_was_pressed = key[KEY_TAB];
 
         for (int i = 0; i < NbObj; ++i)
         {
@@ -644,6 +667,7 @@ namespace TA3D
                                 if (Objets[i].Func!=NULL)
                                     (*Objets[i].Func)(Objets[i].Text[0].length());
                                 break;
+                            case 9:
                             case 27:
                             case 0:
                                 break;
