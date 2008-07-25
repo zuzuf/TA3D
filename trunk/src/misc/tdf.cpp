@@ -46,7 +46,7 @@ namespace TA3D
 
 
     TDFParser::TDFParser()
-        :pTableSize(4096), pTableIsEmpty(true), pIgnoreCase(false)
+        :pTableSize(4096), pTableIsEmpty(true), pIgnoreCase(true)
     {
         pTable.initTable(4096);
     }
@@ -81,7 +81,7 @@ namespace TA3D
             size = ms;
             if (NULL != data && size != 0)
             {
-                bool res = loadFromMemory("HPIManager://" + filename, data, size, clear, toUTF8, gadgetMode);
+                bool res = loadFromMemory("hpi://" + filename, data, size, clear, toUTF8, gadgetMode);
                 delete[] data;
                 return res;
             }
@@ -166,6 +166,8 @@ namespace TA3D
                         // A new section
                         if ("[" == stack.key)
                         {
+                            if (pIgnoreCase)
+                                stack.value.toLower();
                             stack.sections.push(stack.currentSection);
                             if (!stack.level)
                             {
