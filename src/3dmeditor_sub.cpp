@@ -85,6 +85,7 @@ void mnu_file(int mnu_index)
             }
             break;
         case 2:					// Sauver / Save
+            if (nb_obj() > 1 || TheModel->obj.name != NULL)
             {
                 String filename=Dialog(I18N::Translate( "Save a model" ),"*.3dm");
                 TheModel->save_3dm((char*)filename.c_str(), WndAsk( I18N::Translate("compression"), I18N::Translate("compress textures?") ));

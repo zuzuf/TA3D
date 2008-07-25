@@ -952,69 +952,81 @@ const String Dialog(const String &Title, String Filter)
 
 bool WndAsk(const String &Title,const String &Msg,int ASW_TYPE)
 {
-    WND Popup;
+    AREA *current_area = AREA::current();
 
-    Popup.width = Msg.length()*8>300 ? Msg.length()*8+20: 320;
-    Popup.height=60;
-    Popup.x = SCREEN_W-Popup.width>>1;	Popup.y=SCREEN_H-Popup.height>>1;
-    Popup.Lock=false;
-    Popup.Title=Title;
-    Popup.NbObj=3;
-    Popup.Objets = new GUIOBJ[Popup.NbObj];
-    // Création des objets de la fenêtre
-    // Message
-    Popup.Objets[0].create_text(Popup.width-Msg.length()*8>>1,20,Msg);
-    // Boutons OK/Oui et Annuler/Non
-    if(ASW_TYPE==ASW_OKCANCEL){
-        Popup.Objets[1].create_button(Popup.width/3-16,36,Popup.width/3+16,52,"OK",NULL);
-        Popup.Objets[2].create_button(Popup.width*2/3-36,36,Popup.width*2/3+36,52,"Annuler",NULL);
-    }
-    else {
-        Popup.Objets[1].create_button(Popup.width/3-20,36,Popup.width/3+20,52,"Oui",NULL);
-        Popup.Objets[2].create_button(Popup.width*2/3-20,36,Popup.width*2/3+20,52,"Non",NULL);
-    }
-
-    int Popup_Done=0;
-
-    int AMx=mouse_x,AMy=mouse_y,AMz=mouse_z,AMb=mouse_b;
-
-    do
+    if (current_area)
     {
-        poll_keyboard();
+        if (current_area->get_wnd( "yesno" ) == NULL)            // The window isn't loaded => load it now !
+            current_area->load_window( "gui/yesno_dialog.tdf" );
+        current_area->set_title("yesno",Title);
 
-        if(Popup.Objets[1].Etat) Popup_Done=1;
-        if(Popup.Objets[2].Etat) Popup_Done=2;
+        current_area->msg("yesno.show");
+        current_area->set_caption("yesno.msg", Msg);
 
-        AMx=mouse_x;							// Mémorise l'ancien état de la souris
-        AMy=mouse_y;
-        AMz=mouse_z;
-        AMb=mouse_b;
+        // Boutons OK/Oui et Annuler/Non
+        if (ASW_TYPE==ASW_OKCANCEL)
+        {
+            current_area->set_caption("yesno.b_ok",I18N::Translate("OK"));
+            current_area->set_caption("yesno.b_cancel",I18N::Translate("Cancel"));
+        }
+        else
+        {
+            current_area->set_caption("yesno.b_ok",I18N::Translate("Yes"));
+            current_area->set_caption("yesno.b_cancel",I18N::Translate("No"));
+        }
 
-        poll_mouse();								// Obtient l'état de la souris
+        bool done = false;
+        int amx, amy, amz, amb;
+        int cur_folder_idx = -1;
+        bool answer = false;
+        
+        do
+        {
+            bool key_is_pressed = false;
+            do
+            {
+                amx = mouse_x;
+                amy = mouse_y;
+                amz = mouse_z;
+                amb = mouse_b;
 
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);		// Efface l'écran
+                key_is_pressed = keypressed();
+                current_area->check();
+                rest( 8 );
+            } while( amx == mouse_x && amy == mouse_y && amz == mouse_z && amb == mouse_b && !key[ KEY_ENTER ] && !key[ KEY_ESC ] && !done && !key_is_pressed && !current_area->scrolling );
+            
+            if (key[KEY_ESC] || current_area->get_state("yesno.b_cancel"))
+            {
+                done = true;
+                answer = false;
+            }
 
-        gfx->set_2D_mode();	// On repasse dans le mode dessin 2D pour Allegro
+            if (key[KEY_ENTER] || current_area->get_state("yesno.b_ok"))
+            {
+                done = true;
+                answer = true;
+            }
 
-        Popup.check(AMx,AMy,AMz,AMb);	// Gestion de l'interface utilisateur graphique
+            gfx->SetDefState();
+            // Clear screen
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        String help_msg = "";
-        Popup.draw( help_msg );		// Dessine la boîte de dialogue
+            gfx->set_2D_mode();		// Passe en mode dessin allegro
 
-        glEnable( GL_TEXTURE_2D );
-        show_mouse( screen );
-        algl_draw_mouse();			// Dessine le curseur
+            current_area->draw();
+            show_mouse(screen);
+            algl_draw_mouse();
 
-        gfx->unset_2D_mode();	// On repasse dans le mode précédent
+            gfx->unset_2D_mode();	// Quitte le mode de dessin d'allegro
+            gfx->flip();
+            
+        }while(!done);
+        current_area->msg("yesno.hide");
 
-        gfx->flip();
-
-    }while(Popup_Done==0);
-
-    reset_mouse();
-    reset_keyboard();
-
-    return Popup_Done==1;
+        reset_keyboard();
+    }
+    
+    return false;
 }
 
 /*---------------------------------------------------------------------------\
