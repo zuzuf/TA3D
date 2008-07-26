@@ -1514,9 +1514,9 @@ namespace TA3D
 
                         if (surface.Flag&SURFACE_GLSL)			// Using vertex and fragment programs
                         {
+                            surface.s_shader.on();
                             for (int j = 0; j < surface.NbTex; ++j)
                                 surface.s_shader.setvar1i( format("tex%d",j).c_str(), j );
-                            surface.s_shader.on();
                         }
 
                         if (surface.Flag&SURFACE_GOURAUD)			// Type d'éclairage
@@ -1770,9 +1770,9 @@ draw_next:
 
                 if (surface.Flag&SURFACE_GLSL)			// Using vertex and fragment programs
                 {
+                    surface.s_shader.on();
                     for (int j = 0; j < surface.NbTex; ++j)
                         surface.s_shader.setvar1i( format("tex%d",j).c_str(), j );
-                    surface.s_shader.on();
                 }
 
                 if (surface.Flag&SURFACE_GOURAUD)			// Type d'éclairage
