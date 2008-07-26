@@ -296,8 +296,8 @@ namespace TA3D
             part[cur_part].px=-1;
             part[cur_part].Pos=pos;
             part[cur_part].V.y = 0.0f;
-            part[cur_part].V.x = ((Math::RandFromTable() % 2001) - 1000);
-            part[cur_part].V.z = ((Math::RandFromTable() % 2001) - 1000);
+            part[cur_part].V.x = (((sint32)(Math::RandFromTable() % 2001)) - 1000);
+            part[cur_part].V.z = (((sint32)(Math::RandFromTable() % 2001)) - 1000);
             part[cur_part].V.unit();
             part[cur_part].V=(pow((float)(Math::RandFromTable()%100),2.0f)*0.0050f*(((Math::RandFromTable()%2)==0) ? -1.0f : 1.0f)+50.0f)*pre*part[cur_part].V;
             if (tex==0)
@@ -360,8 +360,8 @@ namespace TA3D
             part[cur_part].px=-1;
             part[cur_part].Pos=pos;
             part[cur_part].V.y=(Math::RandFromTable()%9001)+1000;
-            part[cur_part].V.x=((Math::RandFromTable()%2001)-1000);
-            part[cur_part].V.z=((Math::RandFromTable()%2001)-1000);
+            part[cur_part].V.x=(((sint32)(Math::RandFromTable()%2001))-1000);
+            part[cur_part].V.z=(((sint32)(Math::RandFromTable()%2001))-1000);
             part[cur_part].V.unit();
             part[cur_part].V=(100.0f - pow((float)(Math::RandFromTable()%100),2.0f)*0.01f)*pre*part[cur_part].V;
             part[cur_part].life=3.0f + part[cur_part].V.sq() * 0.0001f;
@@ -413,8 +413,8 @@ namespace TA3D
             part[cur_part].px=-1;
             part[cur_part].Pos=pos;
             part[cur_part].V.y=((Math::RandFromTable()%1000)+1)*0.001f;
-            part[cur_part].V.x=((Math::RandFromTable()%2001)-1000)*0.001f;
-            part[cur_part].V.z=((Math::RandFromTable()%2001)-1000)*0.001f;
+            part[cur_part].V.x=(((sint32)(Math::RandFromTable()%2001))-1000)*0.001f;
+            part[cur_part].V.z=(((sint32)(Math::RandFromTable()%2001))-1000)*0.001f;
             part[cur_part].V.unit();
             part[cur_part].V=((Math::RandFromTable()%100)+1)*pre*part[cur_part].V;
             part[cur_part].life=3.0f;
@@ -466,8 +466,8 @@ namespace TA3D
             part[cur_part].px=-1;
             part[cur_part].Pos=pos;
             part[cur_part].V.y=((Math::RandFromTable()%1000)+1)*0.001f;
-            part[cur_part].V.x=((Math::RandFromTable()%2001)-1000)*0.001f;
-            part[cur_part].V.z=((Math::RandFromTable()%2001)-1000)*0.001f;
+            part[cur_part].V.x=(((sint32)(Math::RandFromTable()%2001))-1000)*0.001f;
+            part[cur_part].V.z=(((sint32)(Math::RandFromTable()%2001))-1000)*0.001f;
             part[cur_part].V.unit();
             part[cur_part].V=((Math::RandFromTable()%100)+1)*pre*part[cur_part].V;
             part[cur_part].life=3.0f;
@@ -517,8 +517,8 @@ namespace TA3D
             part[cur_part].px = -1;
             part[cur_part].Pos = pos;
             part[cur_part].V.y = ((Math::RandFromTable() % 1000) + 5000) * 0.001f;
-            part[cur_part].V.x = ((Math::RandFromTable() % 2001) - 1000) * 0.001f;
-            part[cur_part].V.z = ((Math::RandFromTable() % 2001) - 1000) * 0.001f;
+            part[cur_part].V.x = (((sint32)(Math::RandFromTable() % 2001)) - 1000) * 0.001f;
+            part[cur_part].V.z = (((sint32)(Math::RandFromTable() % 2001)) - 1000) * 0.001f;
             part[cur_part].V.unit();
             part[cur_part].V = ((Math::RandFromTable() % 50) + 51) * 0.01f * speed * part[cur_part].V;
             part[cur_part].life = 1.5f;
@@ -576,7 +576,7 @@ namespace TA3D
         }
 
         uint32 i;
-
+        
         for (unsigned int e=0; e < index_list_size; ++e)
         {
             if (!(e & 15) )
@@ -595,9 +595,9 @@ namespace TA3D
                 continue;
             }
             Vector3D RAND;
-            RAND.x = ((Math::RandFromTable() & 0x1FFF) - 0xFFF) * dt_reduced;
-            RAND.y = ((Math::RandFromTable() & 0x1FFF) - 0xFFF) * dt_reduced;
-            RAND.z = ((Math::RandFromTable() & 0x1FFF) - 0xFFF) * dt_reduced;
+            RAND.x = (((sint32)(Math::RandFromTable() & 0x1FFF)) - 0xFFF) * dt_reduced;
+            RAND.y = (((sint32)(Math::RandFromTable() & 0x1FFF)) - 0xFFF) * dt_reduced;
+            RAND.z = (((sint32)(Math::RandFromTable() & 0x1FFF)) - 0xFFF) * dt_reduced;
             if (part[i].use_wind)
                 part[i].V=part[i].V-part[i].mass*G+RAND+wind_dir;
             else

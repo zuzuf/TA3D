@@ -21,7 +21,7 @@
 #include "TA3D_Network.h"
 #include "../misc/math.h"
 #include "../logs/logs.h"
-
+#include <fstream>
 
 using namespace TA3D::UTILS::HPI;
 
@@ -931,7 +931,7 @@ namespace TA3D
         ftmutex.unlock();
     }
 
-    String Network::HttpRequest( const String &servername, const String &request )
+    String Network::httpRequest( const String &servername, const String &request )
     {
         NLsocket    sock;
         NLaddress   addr;
@@ -950,13 +950,13 @@ namespace TA3D
         sock = nlOpen(0, NL_RELIABLE);
         if(sock == NL_INVALID)
         {
-            LOG_ERROR(LOG_PREFIX_NET << "HttpRequest: Could not open socket !");
+            LOG_ERROR(LOG_PREFIX_NET << "httpRequest: Could not open socket !");
             return "";
         }
         if(nlConnect(sock, &addr) == NL_FALSE)
         {
             nlClose(sock);
-            LOG_ERROR(LOG_PREFIX_NET << "HttpRequest: Could not connect to server !");
+            LOG_ERROR(LOG_PREFIX_NET << "httpRequest: Could not connect to server !");
             return "";
         }
 
@@ -973,7 +973,7 @@ namespace TA3D
                 nlThreadYield();
                 continue;
             }
-            LOG_ERROR(LOG_PREFIX_NET << "HttpRequest: Could not send request to server !");
+            LOG_ERROR(LOG_PREFIX_NET << "httpRequest: Could not send request to server !");
             nlClose(sock);
             return "";
         }
@@ -1033,9 +1033,116 @@ namespace TA3D
         return f;
     }
 
+    bool Network::httpGetFile( const String &filename, const String &servername, const String &request )
+    {
+        NLsocket    sock;
+        NLaddress   addr;
+        NLbyte      buffer[4096];
+        std::fstream f(filename.c_str(), std::ios::out | std::ios::trunc | std::ios::binary);
+        NLint       count;
+        NLint       crfound = 0;
+        NLint       lffound = 0;
+
+        if (!f.is_open())
+        {
+            LOG_ERROR(LOG_PREFIX_NET << "httpGetFile: Could not open file " << filename << " for writing !");
+            return true;        // Error can't open file
+        }
+
+        nlGetAddrFromName( servername.c_str(), &addr);
+
+        /* use the standard HTTP port */
+        nlSetAddrPort(&addr, 80);
+
+        /* open the socket and connect to the server */
+        sock = nlOpen(0, NL_RELIABLE);
+        if(sock == NL_INVALID)
+        {
+            LOG_ERROR(LOG_PREFIX_NET << "httpGetFile: Could not open socket !");
+            f.close();
+            return true;
+        }
+        if(nlConnect(sock, &addr) == NL_FALSE)
+        {
+            nlClose(sock);
+            LOG_ERROR(LOG_PREFIX_NET << "httpGetFile: Could not connect to server !");
+            f.close();
+            return true;
+        }
+
+        sprintf(buffer, "GET %s HTTP/1.0\r\nHost:%s\nAccept: */*\r\nUser-Agent: TA3D\r\n\r\n"
+                , request.c_str(), servername.c_str() );
+
+        uint32 timer(msec_timer);
+        while(nlWrite(sock, (NLvoid *)buffer, (NLint)strlen(buffer)) < 0)
+        {
+            if(nlGetError() == NL_CON_PENDING && msec_timer - timer < 5000)     // Connection pending ? before reaching timeout ?
+            {
+                nlThreadYield();
+                continue;
+            }
+            LOG_ERROR(LOG_PREFIX_NET << "httpGetFile: Could not send request to server !");
+            nlClose(sock);
+            f.close();
+            return true;
+        }
+
+        while (true)
+        {
+            count = nlRead(sock, (NLvoid *)buffer, (NLint)sizeof(buffer) - 1);
+            if(count < 0)
+            {
+                NLint err = nlGetError();
+
+                /* is the connection closed? */
+                if(err == NL_MESSAGE_END)
+                    break;
+                else {
+                    nlClose( sock );
+                    f.close();
+                    return true;
+                }
+            }
+            if(count > 0)
+            {
+                /* parse out the HTTP header */
+                if(lffound < 2)
+                {
+                    int i;
+
+                    for (i = 0; i < count; ++i)
+                    {
+                        if(buffer[i] == 0x0D)
+                            ++crfound;
+                        else
+                        {
+                            if (buffer[i] == 0x0A)
+                                ++lffound;
+                            else
+                                /* reset the CR and LF counters back to 0 */
+                                crfound = lffound = 0;
+                        }
+                        if (lffound == 2)
+                        {
+                            /* i points to the second LF */
+                            /* output the buffer to the file */
+                            f.write( (char*)(buffer+i+1), count-i-1 );
+                            break;
+                        }
+                    }
+                }
+                else
+                    f.write( (char*)buffer, count );
+            }
+        }
+        nlClose(sock);
+        f.close();
+        return false;
+    }
+
     int Network::listNetGames(std::list<SERVER_DATA>& list)
     {
-        String gamelist = HttpRequest( lp_CONFIG->net_server, "/getserverlist.php" );
+        String gamelist = httpRequest( lp_CONFIG->net_server, "/getserverlist.php" );
 
         // Remove internet servers to get a clean list
         for (std::list<SERVER_DATA>::iterator i = list.begin(); i != list.end(); )
@@ -1111,7 +1218,7 @@ namespace TA3D
     int Network::registerToNetServer( const String &name, const int Slots )
     {
         String request = format("/register.php?name=%s&mod=%s&version=%s&slots=%d", ReplaceString( name, " ", "%20", false ).c_str(), ReplaceString( TA3D_CURRENT_MOD, " ", "%20", false ).c_str(), ReplaceString( TA3D_ENGINE_VERSION, " ", "%20", false ).c_str(), Slots );
-        String result = HttpRequest( lp_CONFIG->net_server, request );
+        String result = httpRequest( lp_CONFIG->net_server, request );
         return 0; // TODO Fixe me with the good value !
     }
 

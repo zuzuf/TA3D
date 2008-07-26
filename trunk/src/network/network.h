@@ -160,7 +160,8 @@ namespace TA3D
 
         int listNetGames(std::list<SERVER_DATA> &list);
         int registerToNetServer( const String &name, const int Slots );
-        String HttpRequest( const String &servername, const String &request );
+        String httpRequest( const String &servername, const String &request );
+        bool httpGetFile( const String &filename, const String &servername, const String &request );
 
         int sendSpecialUDP( String msg, int src_id = -1, int dst_id = -1);
         int sendSpecialUDP(struct chat* chat, int src_id = -1, int dst_id = -1);

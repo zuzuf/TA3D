@@ -291,72 +291,72 @@ namespace TA3D
     class OBJECT					// Classe pour la gestion des (sous-)objets des modèles 3do
     {
     public:
-        short		nb_vtx;				// Nombre de points
-        short		nb_prim;			// Nombre de primitives
-        char		*name;				// Nom de l'objet
-        OBJECT		*next;				// Objet suivant
-        OBJECT		*child;				// Objet fils
-        Vector3D		*points;			// Points composant l'objet
-        short		nb_p_index;			// Nombre d'indices de points
-        short		nb_l_index;			// Nombre d'indices de lignes
-        short		nb_t_index;			// Nombre d'indices de triangles
-        Vector3D		pos_from_parent;	// Position par rapport à l'objet parent
-        GLushort	*p_index;			// Tableau d'indices pour les points isolés
-        GLushort	*l_index;			// Tableau d'indices pour les lignes
-        GLushort	*t_index;			// Tableau d'indices pour les triangles
-        short		*nb_index;			// Nombre d'indices par primitive
-        Vector3D		*N;					// Tableau de normales pour les sommet
-        Vector3D		*F_N;				// face normals
-        int			*tex;				// Tableau de numéros de texture OpenGl
-        byte		*usetex;			// Tableau indiquant si une texture doit être appliquée
-        sint16		selprim;			// Polygone de selection
-        GLuint		gltex[10];			// Texture pour le dessin de l'objet
-        uint8		dtex;				// Indique si une texture objet doit être détruite avec l'objet
-        float		*tcoord;			// Tableau de coordonnées de texture
-        GLushort	sel[4];				// Primitive de sélection
-        sint16		script_index;		// Indice donné par le script associé à l'unité
-        bool		emitter;			// This object can or has sub-objects which can emit particles
-        bool		emitter_point;		// This object directly emits particles
-        GLuint		gl_dlist[10];		// Display lists to speed up the drawing process
+        short       nb_vtx;				// Nombre de points
+        short       nb_prim;			// Nombre de primitives
+        char        *name;				// Nom de l'objet
+        OBJECT      *next;				// Objet suivant
+        OBJECT      *child;				// Objet fils
+        Vector3D    *points;			// Points composant l'objet
+        short       nb_p_index;			// Nombre d'indices de points
+        short       nb_l_index;			// Nombre d'indices de lignes
+        short       nb_t_index;			// Nombre d'indices de triangles
+        Vector3D    pos_from_parent;	// Position par rapport à l'objet parent
+        GLushort    *p_index;			// Tableau d'indices pour les points isolés
+        GLushort    *l_index;			// Tableau d'indices pour les lignes
+        GLushort    *t_index;			// Tableau d'indices pour les triangles
+        short       *nb_index;			// Nombre d'indices par primitive
+        Vector3D    *N;					// Tableau de normales pour les sommet
+        Vector3D    *F_N;				// face normals
+        int	        *tex;				// Tableau de numéros de texture OpenGl
+        byte        *usetex;			// Tableau indiquant si une texture doit être appliquée
+        sint16      selprim;			// Polygone de selection
+        GLuint      gltex[10];			// Texture pour le dessin de l'objet
+        uint8       dtex;				// Indique si une texture objet doit être détruite avec l'objet
+        float       *tcoord;			// Tableau de coordonnées de texture
+        GLushort    sel[4];				// Primitive de sélection
+        sint16      script_index;		// Indice donné par le script associé à l'unité
+        bool        emitter;			// This object can or has sub-objects which can emit particles
+        bool        emitter_point;		// This object directly emits particles
+        GLuint      gl_dlist[10];		// Display lists to speed up the drawing process
 
-        OBJECT_SURFACE	surface;		// Tell how this object must be drawn
-        ANIMATION	*animation_data;
+        OBJECT_SURFACE  surface;		// Tell how this object must be drawn
+        ANIMATION   *animation_data;
 
     private:
 
-        GLushort	*shadow_index;		// Pour la géométrie du volume d'ombre
-        short	*t_line;				// Repère les arêtes
-        short	*line_v_idx[2];
-        short	nb_line;
-        byte	*line_on;
-        byte	*face_reverse;
-        bool	use_strips;				// Used by converted sprites to speed things up
-        Vector3D	last_dir;				// To speed up things when shadow has already been cast
-        uint16	last_nb_idx;				// Remember how many things we have drawn last time
+        GLushort    *shadow_index;		// Pour la géométrie du volume d'ombre
+        short   *t_line;				// Repère les arêtes
+        short   *line_v_idx[2];
+        short   nb_line;
+        byte    *line_on;
+        byte    *face_reverse;
+        bool    use_strips;				// Used by converted sprites to speed things up
+        Vector3D    last_dir;				// To speed up things when shadow has already been cast
+        uint16  last_nb_idx;				// Remember how many things we have drawn last time
 
-        float	min_x, max_x;		// Used by hit_fast
-        float	min_y, max_y;
-        float	min_z, max_z;
-        bool	compute_min_max;
+        float   min_x, max_x;		// Used by hit_fast
+        float   min_y, max_y;
+        float   min_z, max_z;
+        bool    compute_min_max;
 
-        uint16	obj_id;				// Used to generate a random position on the object
+        uint16  obj_id;				// Used to generate a random position on the object
     public:
-        uint16	nb_sub_obj;
+        uint16  nb_sub_obj;
     private:
 
         //-------------- EXPERIMENTAL CODE -----------------
 
-        bool		optimised;
-        GLushort	*optimised_I;
-        Vector3D		*optimised_P;
-        Vector3D		*optimised_N;
-        float		*optimised_T;
-        uint16		optimised_nb_idx;
-        uint16		optimised_nb_vtx;
-        GLuint		vbo_id;
-        GLuint		ebo_id;
-        GLuint		N_offset;
-        GLuint		T_offset;
+        bool        optimised;
+        GLushort    *optimised_I;
+        Vector3D    *optimised_P;
+        Vector3D    *optimised_N;
+        float       *optimised_T;
+        uint16      optimised_nb_idx;
+        uint16      optimised_nb_vtx;
+        GLuint      vbo_id;
+        GLuint      ebo_id;
+        GLuint      N_offset;
+        GLuint      T_offset;
 
         //---------- END OF EXPERIMENTAL CODE --------------
 

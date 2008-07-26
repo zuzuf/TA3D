@@ -424,8 +424,8 @@ namespace TA3D
         if (animation_data)
             delete animation_data;
         surface.s_shader.destroy();
-        if (surface.frag_shader_src)  free(surface.frag_shader_src);
-        if (surface.vert_shader_src)  free(surface.vert_shader_src);
+        if (surface.frag_shader_src)  delete[] surface.frag_shader_src;
+        if (surface.vert_shader_src)  delete[] surface.vert_shader_src;
         if (surface.NbTex > 0)
         {
             for (int i = 0; i < surface.NbTex; ++i)
@@ -436,11 +436,11 @@ namespace TA3D
         }
         if (line_on)
             delete[] line_on;
-        if (t_line)			free(t_line);
-        if (line_v_idx[0])	free(line_v_idx[0]);
-        if (line_v_idx[1])	free(line_v_idx[1]);
-        if (shadow_index)	free(shadow_index);
-        if (tcoord)			free(tcoord);
+        if (t_line)			delete[] t_line;
+        if (line_v_idx[0])	delete[] line_v_idx[0];
+        if (line_v_idx[1])	delete[] line_v_idx[1];
+        if (shadow_index)	delete[] shadow_index;
+        if (tcoord)			delete[] tcoord;
         if (dtex)
         {
             for(int i=0;i<dtex;i++)
@@ -452,49 +452,43 @@ namespace TA3D
                 glDeleteLists(gl_dlist[i],1);
         }
         if (usetex)
-            free(usetex);
+            delete[] usetex;
         if (nb_index)
-            free(nb_index);
+            delete[] nb_index;
         if (tex)				// Ne détruit pas les textures qui le seront par la suite(celles-ci ne sont chargées qu'une fois
-            free(tex);		// mais peuvent être utilisées par plusieurs objets
+            delete[] tex;		// mais peuvent être utilisées par plusieurs objets
         if (face_reverse)
             delete[] face_reverse;
         if (F_N)
             delete[] F_N;
         if (N)
-            free(N);
+            delete[] N;
         if (points)	
-            free(points);
+            delete[] points;
         if (p_index)
-            free(p_index);
+            delete[] p_index;
         if (l_index)
-            free(l_index);
+            delete[] l_index;
         if (t_index)
-            free(t_index);
+            delete[] t_index;
         if (name)
             free(name);
         if (optimised_I)
-            free(optimised_I);
+            delete[] optimised_I;
         if (optimised_T)
-            free(optimised_T);
+            delete[] optimised_T;
         if (optimised_P)
-            free(optimised_P);
+            delete[] optimised_P;
         if (optimised_N)
-            free(optimised_N);
+            delete[]optimised_N;
         if (vbo_id)	
             glDeleteBuffersARB( 1, &vbo_id );
         if (ebo_id)
             glDeleteBuffersARB( 1, &ebo_id );
         if (next)
-        {
-            next->destroy();
-            free(next);
-        }
+            delete next;
         if (child)
-        {
-            child->destroy();
-            free(child);
-        }
+            delete child;
         init();
     }
 
@@ -502,14 +496,15 @@ namespace TA3D
     void OBJECT::Identify(int nb_piece,char **piece_name)			// Identifie les pièces utilisées par le script
     {
         script_index=-1;				// Pièce non utilisée
-        for (int i = 0; i < nb_piece; ++i)
-        {
-            if (strcasecmp(name,piece_name[i]) == 0) // Pièce identifiée
+        if (name)
+            for (int i = 0; i < nb_piece; ++i)
             {
-                script_index = i;
-                break;
+                if (strcasecmp(name,piece_name[i]) == 0) // Pièce identifiée
+                {
+                    script_index = i;
+                    break;
+                }
             }
-        }
         if (next)
             next->Identify(nb_piece,piece_name);
         if (child)
@@ -614,10 +609,10 @@ namespace TA3D
             if (cur->child )	obj_stack.push_front( cur->child );
         }
 
-        Vector3D	*opt_vtx = (Vector3D*) malloc( sizeof( Vector3D ) * total_vtx );
-        Vector3D	*opt_N = (Vector3D*) malloc( sizeof( Vector3D ) * total_vtx );
-        float	*opt_T = (float*) malloc( sizeof( float ) * total_vtx << 1 );
-        GLushort *opt_idx = (GLushort*) malloc( sizeof( GLushort ) * total_index );
+        Vector3D	*opt_vtx = new Vector3D[total_vtx];
+        Vector3D	*opt_N = new Vector3D[total_vtx];
+        float	*opt_T = new float[total_vtx << 1];
+        GLushort *opt_idx = new GLushort[total_index];
         total_vtx = 0;
         total_index = 0;
         std::list<Vector3D>	pos_stack;
@@ -747,8 +742,7 @@ namespace TA3D
 #endif
         if (header.OffsetToChildObject) // Charge récursivement les différents objets du modèle
         {
-            child=(OBJECT*) malloc(sizeof(OBJECT));
-            child->init();
+            child = new OBJECT;
             if (child->load_obj(data,header.OffsetToChildObject,dec+1,filename))
             {
                 destroy();
@@ -757,15 +751,14 @@ namespace TA3D
         }
         if (header.OffsetToSiblingObject) // Charge récursivement les différents objets du modèle
         {
-            next=(OBJECT*) malloc(sizeof(OBJECT));
-            next->init();
+            next = new OBJECT;
             if (next->load_obj(data,header.OffsetToSiblingObject,dec,filename))
             {
                 destroy();
                 return -1;
             }
         }
-        points=(Vector3D*) malloc(sizeof(Vector3D)*nb_vtx);		// Alloue la mémoire nécessaire pour stocker les points
+        points = new Vector3D[nb_vtx];		// Alloue la mémoire nécessaire pour stocker les points
         int f_pos;
         float div=0.5f/65536.0f;
         pos_from_parent.x=header.XFromParent*div;
@@ -826,15 +819,15 @@ namespace TA3D
 #endif
 
         if (nb_p_index > 0)				// Alloue la mémoire nécessaire pour stocker les primitives
-            p_index=(GLushort*) malloc(sizeof(GLushort)*nb_p_index);
+            p_index = new GLushort[nb_p_index];
         if (nb_l_index > 0)
-            l_index=(GLushort*) malloc(sizeof(GLushort)*nb_l_index);
+            l_index = new GLushort[nb_l_index];
         if (nb_t_index > 0)
         {
-            tex = (int*) malloc(sizeof(int) * nb_t_index);
-            usetex = (byte*) malloc(sizeof(byte) * nb_t_index);
-            nb_index = (short*) malloc(sizeof(short) * nb_t_index);
-            t_index = (GLushort*) malloc(sizeof(GLushort) * n_index);
+            tex = new int[nb_t_index];
+            usetex = new byte[nb_t_index];
+            nb_index = new short[nb_t_index];
+            t_index = new GLushort[n_index];
         }
 
         f_pos = header.OffsetToPrimitiveArray;
@@ -1072,7 +1065,7 @@ namespace TA3D
         if (selprim >= 0)
             nb_total_point += 4;
 
-        Vector3D *p=(Vector3D*) malloc(sizeof(Vector3D)*nb_total_point<<1);			// *2 pour le volume d'ombre
+        Vector3D *p = new Vector3D[nb_total_point<<1];			// *2 pour le volume d'ombre
         int prim_dec = selprim >= 0 ? 4 : 0;
         for (i = 0; i < nb_total_point - nb_l_index - prim_dec; ++i)
         {
@@ -1101,15 +1094,15 @@ namespace TA3D
                 l_index[1]=tmp;
             }
         }
-        free(points);
+        delete[] points;
         points = p;
         nb_vtx = nb_total_point;
 
         int nb_triangle=0;
         for (i = 0; i < nb_t_index; ++i)
             nb_triangle += nb_index[i] - 2;
-        GLushort *index = (GLushort*) malloc(sizeof(GLushort) * nb_triangle * 3);
-        tcoord = (float*) malloc(sizeof(float) * nb_vtx << 1);
+        GLushort *index = new GLushort[nb_triangle * 3];
+        tcoord = new float[nb_vtx << 1];
         cur = 0;
         int curt = 0;
         pos_t = 0;
@@ -1166,15 +1159,15 @@ namespace TA3D
             index[cur + 2] = t;
         }
         nb_t_index = nb_triangle * 3;
-        free(t_index);
+        delete[] t_index;
         t_index = index;
-        free(usetex);
+        delete[] usetex;
         usetex = NULL;
         /*--------------------------------------------------------------------------------------*/
 
         if (nb_t_index > 0) // Calcule les normales pour l'éclairage
         {
-            N = (Vector3D*) malloc(sizeof(Vector3D) * nb_vtx << 1);
+            N = new Vector3D[nb_vtx << 1];
             F_N = new Vector3D[nb_t_index / 3];
             for (i = 0; i  < nb_vtx << 1; ++i)
                 N[i].x=N[i].z=N[i].y=0.0f;
@@ -1222,9 +1215,9 @@ namespace TA3D
 
         nb_vtx = 64;
         nb_t_index=119;
-        points=(Vector3D*) malloc(sizeof(Vector3D)*nb_vtx);
-        tcoord=(float*) malloc(sizeof(float)*nb_vtx<<1);
-        t_index=(GLushort*) malloc(sizeof(GLushort)*nb_t_index);
+        points = new Vector3D[nb_vtx];
+        tcoord = new float[nb_vtx<<1];
+        t_index = new GLushort[nb_t_index];
         if (!points || !tcoord || !t_index)
             LOG_CRITICAL("Not enough memory !");
 
@@ -1385,7 +1378,7 @@ namespace TA3D
 
         /*--------------------------------------------------------------------------------------*/
 
-        N = (Vector3D*) malloc(sizeof(Vector3D) * nb_vtx);
+        N = new Vector3D[nb_vtx];
         F_N = NULL;
         for (i = 0; i < nb_vtx; ++i)
             N[i].x = N[i].z = N[i].y = 0.0f;
@@ -2121,14 +2114,14 @@ draw_next:
             }
             /*-----------------Code de calcul du cone d'ombre-------------------------*/
             if (shadow_index == NULL)
-                shadow_index = (GLushort*) malloc(sizeof(GLushort) * nb_t_index * 12);
+                shadow_index = new GLushort[nb_t_index * 12];
             uint16 nb_idx = 0;
 
             if (t_line == NULL) // Repère les arêtes
             {
-                t_line = (short*) malloc(sizeof(short) * nb_t_index);
-                line_v_idx[0] = (short*) malloc(sizeof(short) * nb_t_index);
-                line_v_idx[1] = (short*) malloc(sizeof(short) * nb_t_index);
+                t_line = new short[nb_t_index];
+                line_v_idx[0] = new short[nb_t_index];
+                line_v_idx[1] = new short[nb_t_index];
                 face_reverse = new byte[ nb_t_index ];
                 nb_line=0;
                 for (short i = 0; i < nb_t_index; i += 3)
@@ -2277,14 +2270,14 @@ draw_shadow_next:
             }
             /*-----------------Code de calcul du cone d'ombre-------------------------*/
             if (shadow_index == NULL)
-                shadow_index = (GLushort*) malloc(sizeof(GLushort) * nb_t_index * 12);
+                shadow_index = new GLushort[nb_t_index * 12];
             uint16 nb_idx = 0;
 
             if (t_line == NULL) // Repère les arêtes
             {
-                t_line = (short*) malloc(sizeof(short) * nb_t_index);
-                line_v_idx[0] = (short*) malloc(sizeof(short) * nb_t_index);
-                line_v_idx[1] = (short*) malloc(sizeof(short) * nb_t_index);
+                t_line = new short[nb_t_index];
+                line_v_idx[0] = new short[nb_t_index];
+                line_v_idx[1] = new short[nb_t_index];
                 face_reverse = new byte[nb_t_index];
                 nb_line = 0;
                 for (short i = 0; i < nb_t_index; i += 3)
@@ -3177,23 +3170,23 @@ hit_fast_is_exploding:
         destroy();			// Puisqu'on charge
 
         float *coor[3];
-        coor[0]=(float *) malloc(100000*sizeof(float));
-        coor[1]=(float *) malloc(100000*sizeof(float));
-        coor[2]=(float *) malloc(100000*sizeof(float));
+        coor[0] = new float[100000];
+        coor[1] = new float[100000];
+        coor[2] = new float[100000];
         int *face[3];
-        face[0]=(int *) malloc(100000*sizeof(int));
-        face[1]=(int *) malloc(100000*sizeof(int));
-        face[2]=(int *) malloc(100000*sizeof(int));
+        face[0] = new int[100000];
+        face[1] = new int[100000];
+        face[2] = new int[100000];
 
         if (coor[0] == NULL || coor[1] == NULL || coor[2] == NULL
             || face[0] == NULL || face[1] == NULL || face[2] == NULL)
         {
-            if (coor[0] != NULL) free(coor[0]);
-            if (coor[1] != NULL) free(coor[1]);
-            if (coor[2] != NULL) free(coor[2]);
-            if (face[0] != NULL) free(face[0]);
-            if (face[1] != NULL) free(face[1]);
-            if (face[2] != NULL) free(face[2]);
+            if (coor[0] != NULL) delete[] coor[0];
+            if (coor[1] != NULL) delete[] coor[1];
+            if (coor[2] != NULL) delete[] coor[2];
+            if (face[0] != NULL) delete[] face[0];
+            if (face[1] != NULL) delete[] face[1];
+            if (face[2] != NULL) delete[] face[2];
             return;
         }
 
@@ -3340,17 +3333,16 @@ hit_fast_is_exploding:
         {
             if (i>0)
             {
-                cur->next = (OBJECT*) malloc(sizeof(OBJECT));
+                cur->next = new OBJECT;
                 cur = cur->next;
             }
-            cur->init();
-            cur->name=StructName[i];
+            cur->name = StructName[i];
             cur->nb_prim = StructD[i + 1] - StructD[i];
             cur->nb_t_index = cur->nb_prim * 3;
             cur->nb_vtx = cur->nb_t_index;
-            cur->points = (Vector3D*) malloc(sizeof(Vector3D)*cur->nb_vtx);
-            cur->t_index = (GLushort*) malloc(sizeof(GLushort)*cur->nb_t_index);
-            cur->tcoord = (float*) malloc(sizeof(float)*cur->nb_vtx<<1);
+            cur->points = new Vector3D[cur->nb_vtx];
+            cur->t_index = new GLushort[cur->nb_t_index];
+            cur->tcoord = new float[cur->nb_vtx<<1];
 
             cur->surface.Flag=SURFACE_ADVANCED|SURFACE_GOURAUD|SURFACE_LIGHTED;
             for (int k = 0; k < 4; ++k)
@@ -3396,7 +3388,7 @@ hit_fast_is_exploding:
                 }
             }
             cur->nb_vtx -= removed;
-            Vector3D* n_points = (Vector3D*) malloc(sizeof(Vector3D) * cur->nb_vtx);
+            Vector3D* n_points = new Vector3D[cur->nb_vtx];
             int cur_pt = 0;
             for (i = 0; i  <cur->nb_t_index; ++i)
             {
@@ -3414,8 +3406,8 @@ hit_fast_is_exploding:
                 n_points[cur_pt] = cur->points[cur->t_index[i]];
                 cur->t_index[i] = cur_pt++;
             }
-            free(cur->points);
-            cur->points=n_points;
+            delete[] cur->points;
+            cur->points = n_points;
             for (i = 0; i < cur->nb_vtx; ++i)// Remove duplicate points
             {
                 cur->points[i].x *= size;
@@ -3423,7 +3415,7 @@ hit_fast_is_exploding:
                 cur->points[i].z *= size;
             }
 
-            cur->N = (Vector3D*) malloc(sizeof(Vector3D)*cur->nb_vtx);	// Calculate normals
+            cur->N = new Vector3D[cur->nb_vtx];	// Calculate normals
             cur->F_N = new Vector3D[cur->nb_t_index / 3];
             for (i = 0; i < cur->nb_vtx; ++i)
                 cur->N[i].x=cur->N[i].z=cur->N[i].y=0.0f;
@@ -3446,12 +3438,12 @@ hit_fast_is_exploding:
             cur = cur->next;
         }
 
-        free(coor[0]);
-        free(coor[1]);
-        free(coor[2]);
-        free(face[0]);
-        free(face[1]);
-        free(face[2]);
+        delete[] coor[0];
+        delete[] coor[1];
+        delete[] coor[2];
+        delete[] face[0];
+        delete[] face[1];
+        delete[] face[2];
     }
 
 
@@ -3647,7 +3639,7 @@ hit_fast_is_exploding:
         }
         if (nb_vtx>0)
         {
-            points = (Vector3D*) malloc(sizeof(Vector3D)*nb_vtx<<1);
+            points = new Vector3D[nb_vtx<<1];
             data=read_from_mem(points,sizeof(Vector3D)*nb_vtx,data);
         }
         else
@@ -3658,14 +3650,14 @@ hit_fast_is_exploding:
         data=read_from_mem(&nb_p_index,sizeof(nb_p_index),data);	// Read point data
         if (nb_p_index < 0)
         {
-            if (points) free( points );
+            if (points) delete[] points;
             free( name );
             init();
             return NULL;
         }
         if (nb_p_index>0)
         {
-            p_index = (GLushort*) malloc(sizeof(GLushort)*nb_p_index);
+            p_index = new GLushort[nb_p_index];
             data=read_from_mem(p_index,sizeof(GLushort)*nb_p_index,data);
         }
         else
@@ -3674,15 +3666,15 @@ hit_fast_is_exploding:
         data=read_from_mem(&nb_l_index,sizeof(nb_l_index),data);	// Read line data
         if (nb_l_index < 0)
         {
-            if (points) free( points );
-            if (p_index) free( p_index );
+            if (points) delete[] points;
+            if (p_index) delete[] p_index;
             free( name );
             init();
             return NULL;
         }
         if (nb_l_index>0)
         {
-            l_index = (GLushort*) malloc(sizeof(GLushort)*nb_l_index);
+            l_index = new GLushort[nb_l_index];
             data=read_from_mem(l_index,sizeof(GLushort)*nb_l_index,data);
         }
         else
@@ -3691,22 +3683,22 @@ hit_fast_is_exploding:
         data=read_from_mem(&nb_t_index,sizeof(nb_t_index),data);	// Read triangle data
         if (nb_t_index < 0)
         {
-            if (points) free( points );
-            if (p_index) free( p_index );
-            if (l_index) free( l_index );
+            if (points) delete[] points;
+            if (p_index) delete[] p_index;
+            if (l_index) delete[] l_index;
             free( name );
             init();
             return NULL;
         }
         if (nb_t_index>0)
         {
-            t_index = (GLushort*) malloc(sizeof(GLushort)*nb_t_index);
+            t_index = new GLushort[nb_t_index];
             data=read_from_mem(t_index,sizeof(GLushort)*nb_t_index,data);
         }
         else
             t_index=NULL;
 
-        tcoord = (float*) malloc(sizeof(float)*nb_vtx<<1);
+        tcoord = new float[nb_vtx<<1];
         data=read_from_mem(tcoord,sizeof(float)*nb_vtx<<1,data);
 
         data=read_from_mem(surface.Color,sizeof(float)*4,data);	// Read surface data
@@ -3824,17 +3816,17 @@ hit_fast_is_exploding:
         if (surface.Flag & SURFACE_GLSL) // Fragment & Vertex shaders
         {
             data=read_from_mem(&surface.vert_shader_size,4,data);
-            surface.vert_shader_src = (char*) malloc(surface.vert_shader_size+1);
+            surface.vert_shader_src = new char[surface.vert_shader_size+1];
             surface.vert_shader_src[surface.vert_shader_size]=0;
             data=read_from_mem(surface.vert_shader_src,surface.vert_shader_size,data);
             data=read_from_mem(&surface.frag_shader_size,4,data);
-            surface.frag_shader_src = (char*) malloc(surface.frag_shader_size+1);
+            surface.frag_shader_src = new char[surface.frag_shader_size+1];
             surface.frag_shader_src[surface.frag_shader_size]=0;
             data=read_from_mem(surface.frag_shader_src,surface.frag_shader_size,data);
             surface.s_shader.load_memory(surface.frag_shader_src,surface.frag_shader_size,surface.vert_shader_src,surface.vert_shader_size);
         }
 
-        N = (Vector3D*) malloc(sizeof(Vector3D) * nb_vtx << 1); // Calculate normals
+        N = new Vector3D[nb_vtx << 1]; // Calculate normals
         if (nb_t_index>0 && t_index != NULL)
         {
             F_N = new Vector3D[nb_t_index / 3];
@@ -3875,8 +3867,7 @@ hit_fast_is_exploding:
 
         if (link)
         {
-            child = (OBJECT*) malloc(sizeof(OBJECT));
-            child->init();
+            child = new OBJECT;
             data=child->load_3dm(data);
             if (data == NULL)
             {
@@ -3890,8 +3881,7 @@ hit_fast_is_exploding:
         data=read_from_mem(&link,1,data);
         if (link)
         {
-            next = (OBJECT*) malloc(sizeof(OBJECT));
-            next->init();
+            next = new OBJECT;
             data=next->load_3dm(data);
             if (data == NULL)
             {
