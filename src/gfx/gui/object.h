@@ -95,6 +95,16 @@ namespace TA3D
                             const unsigned int MaxChar, void(*F)(int) = NULL, const float size = 1.0f);
 
         /*!
+        ** \brief Create a TEXTEDITOR widget, it's a large text editor
+        **
+        ** \param X1
+        ** \param Y1
+        ** \param X2
+        ** \param Y2
+        */
+        void create_texteditor(const float X1, const float Y1, const float X2, const float Y2, const String& Caption, const float size = 1.0f);
+
+        /*!
         ** \brief Create a floatting menu
         **
         ** \param X1

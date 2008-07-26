@@ -13,7 +13,7 @@
 	draw borders=false;
 	show title=true;
 	lock=true;
-	number of objects=66;
+	number of objects=67;
 	hidden=false;
 	color=0xFFFFFFFF;
 	background=gfx/background.jpg;
@@ -623,5 +623,14 @@
 	    type=IMG;
 	    x1=30;  y1=435;
 	    x2=190; y2=595;
+	}
+	[object66]
+	{
+	    name=b_glsl;
+	    type=BUTTON;
+	    caption=Edit GLSL code;
+	    x1=-150;  y1=30;
+	    x2=-10; y2=50;
+	    size=1;
 	}
 }

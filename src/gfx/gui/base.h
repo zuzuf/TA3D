@@ -68,6 +68,8 @@
 # define OBJ_TA_BUTTON      0xC
 //! Used for things that are not intended to be drawn
 # define OBJ_NONE           0xD
+//! Large text input
+# define OBJ_TEXTEDITOR     0xE
 
 //@} // Object types
 

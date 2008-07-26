@@ -411,10 +411,8 @@ namespace TA3D
         for(byte i = 0; i < 8; ++i)
             surface.gltex[i]=0;
         surface.s_shader.destroy();
-        surface.frag_shader_src=NULL;
-        surface.vert_shader_src=NULL;
-        surface.frag_shader_size=0;
-        surface.vert_shader_size=0;
+        surface.frag_shader_src.clear();
+        surface.vert_shader_src.clear();
     }
 
 
@@ -424,8 +422,8 @@ namespace TA3D
         if (animation_data)
             delete animation_data;
         surface.s_shader.destroy();
-        if (surface.frag_shader_src)  delete[] surface.frag_shader_src;
-        if (surface.vert_shader_src)  delete[] surface.vert_shader_src;
+        surface.frag_shader_src.clear();
+        surface.vert_shader_src.clear();
         if (surface.NbTex > 0)
         {
             for (int i = 0; i < surface.NbTex; ++i)
@@ -1514,6 +1512,13 @@ namespace TA3D
                                     glColor4f(surface.Color[0]*color_factor[0],surface.Color[1]*color_factor[1],surface.Color[2]*color_factor[2],surface.Color[3]*color_factor[3]);		// Couleur de matière
                             }
 
+                        if (surface.Flag&SURFACE_GLSL)			// Using vertex and fragment programs
+                        {
+                            for (int j = 0; j < surface.NbTex; ++j)
+                                surface.s_shader.setvar1i( format("tex%d",j).c_str(), j );
+                            surface.s_shader.on();
+                        }
+
                         if (surface.Flag&SURFACE_GOURAUD)			// Type d'éclairage
                             glShadeModel (GL_SMOOTH);
                         else
@@ -1643,6 +1648,8 @@ namespace TA3D
 
                     if ((surface.Flag&(SURFACE_ADVANCED | SURFACE_GOURAUD))==SURFACE_ADVANCED)
                         glShadeModel (GL_SMOOTH);
+                    if ((surface.Flag&SURFACE_GLSL) && (surface.Flag&SURFACE_ADVANCED))			// Using vertex and fragment programs
+                        surface.s_shader.off();
 
                     if (activated_tex)
                     {
@@ -1761,6 +1768,13 @@ draw_next:
                         glColor4f(surface.Color[0],surface.Color[1],surface.Color[2],surface.Color[3]);		// Couleur de matière
                 }
 
+                if (surface.Flag&SURFACE_GLSL)			// Using vertex and fragment programs
+                {
+                    for (int j = 0; j < surface.NbTex; ++j)
+                        surface.s_shader.setvar1i( format("tex%d",j).c_str(), j );
+                    surface.s_shader.on();
+                }
+
                 if (surface.Flag&SURFACE_GOURAUD)			// Type d'éclairage
                     glShadeModel (GL_SMOOTH);
                 else
@@ -1871,6 +1885,9 @@ draw_next:
                 glEnd();
                 glEnable(GL_CULL_FACE);
             }
+
+            if ((surface.Flag&SURFACE_GLSL) && (surface.Flag&SURFACE_ADVANCED))			// Using vertex and fragment programs
+                surface.s_shader.off();
 
             if ((surface.Flag&(SURFACE_ADVANCED | SURFACE_GOURAUD))==SURFACE_ADVANCED)
                 glShadeModel (GL_SMOOTH);
@@ -3556,10 +3573,13 @@ hit_fast_is_exploding:
 
         if (surface.Flag & SURFACE_GLSL)// Save the shader object
         {
-            fwrite(&surface.vert_shader_size,4,1,dst);
-            fwrite(surface.vert_shader_src,surface.vert_shader_size,1,dst);
-            fwrite(&surface.frag_shader_size,4,1,dst);
-            fwrite(surface.frag_shader_src,surface.frag_shader_size,1,dst);
+            uint32 shader_size = surface.vert_shader_src.size();
+            fwrite(&shader_size,4,1,dst);
+            fwrite(surface.vert_shader_src.c_str(),shader_size,1,dst);
+
+            shader_size = surface.frag_shader_src.size();
+            fwrite(&shader_size,4,1,dst);
+            fwrite(surface.frag_shader_src.c_str(),shader_size,1,dst);
         }
 
         if (animation_data) // Save animation data
@@ -3815,15 +3835,21 @@ hit_fast_is_exploding:
 
         if (surface.Flag & SURFACE_GLSL) // Fragment & Vertex shaders
         {
-            data=read_from_mem(&surface.vert_shader_size,4,data);
-            surface.vert_shader_src = new char[surface.vert_shader_size+1];
-            surface.vert_shader_src[surface.vert_shader_size]=0;
-            data=read_from_mem(surface.vert_shader_src,surface.vert_shader_size,data);
-            data=read_from_mem(&surface.frag_shader_size,4,data);
-            surface.frag_shader_src = new char[surface.frag_shader_size+1];
-            surface.frag_shader_src[surface.frag_shader_size]=0;
-            data=read_from_mem(surface.frag_shader_src,surface.frag_shader_size,data);
-            surface.s_shader.load_memory(surface.frag_shader_src,surface.frag_shader_size,surface.vert_shader_src,surface.vert_shader_size);
+            uint32 shader_size;
+            data = read_from_mem(&shader_size,4,data);
+            char *buf = new char[shader_size+1];
+            buf[shader_size]=0;
+            data=read_from_mem(buf,shader_size,data);
+            surface.vert_shader_src = buf;
+            delete[] buf;
+
+            data=read_from_mem(&shader_size,4,data);
+            buf = new char[shader_size+1];
+            buf[shader_size]=0;
+            data = read_from_mem(buf,shader_size,data);
+            surface.frag_shader_src = buf;
+            delete[] buf;
+            surface.s_shader.load_memory(surface.frag_shader_src.c_str(),surface.frag_shader_src.size(),surface.vert_shader_src.c_str(),surface.vert_shader_src.size());
         }
 
         N = new Vector3D[nb_vtx << 1]; // Calculate normals
