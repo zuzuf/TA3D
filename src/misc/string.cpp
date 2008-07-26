@@ -262,11 +262,16 @@ namespace TA3D
         semicolon = s.find_last_not_of(TA3D_WSTR_SEPARATORS, semicolon - 1);
 
         // We can extract the value
-        value = s.substr(equal, 1 + semicolon - equal);
-        value.findAndReplace("\\r", "", soCaseSensitive);
-        value.findAndReplace("\\n", "\n", soCaseSensitive);
-        if (needReplaceSemicolons)
-            value.findAndReplace("\\;", ";", soCaseSensitive);
+        if (semicolon >= equal)
+        {
+            value = s.substr(equal, 1 + semicolon - equal);
+            value.findAndReplace("\\r", "", soCaseSensitive);
+            value.findAndReplace("\\n", "\n", soCaseSensitive);
+            if (needReplaceSemicolons)
+                value.findAndReplace("\\;", ";", soCaseSensitive);
+        }
+        else 
+            value.clear();
     }
 
 
