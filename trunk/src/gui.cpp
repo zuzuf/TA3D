@@ -1099,6 +1099,8 @@ bool WndAsk(const String &Title,const String &Msg,int ASW_TYPE)
         current_area->msg("yesno.hide");
 
         reset_keyboard();
+        
+        return answer;
     }
     
     return false;
