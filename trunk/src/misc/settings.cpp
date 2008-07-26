@@ -6,6 +6,7 @@
 #include "../ta3dbase.h"
 #include "../languages/i18n.h"
 #include <fstream>
+#include "tdf.h"
 
 
 
@@ -21,7 +22,7 @@ namespace Settings
         LOG_INFO("Making a backup for `" << filename << "`...");
         if(TA3D::Paths::Exists(filename))
         {
-            FILE *src = TA3D_OpenFile(filename, "rb" );
+            FILE *src = TA3D_OpenFile(filename, "rb");
             if( src )
             {
                 FILE *dst = TA3D_OpenFile(filename + ".bak", "wb");
@@ -29,10 +30,10 @@ namespace Settings
                 {
                     uint32 src_size = FILE_SIZE(filename.c_str());
                     byte *buf = new byte[ src_size ];
-                    fread( buf, src_size, 1, src );
-                    fwrite( buf, src_size, 1, dst );
+                    fread( buf, src_size, 1, src);
+                    fwrite( buf, src_size, 1, dst);
                     delete[] buf;
-                    fclose( dst );
+                    fclose( dst);
                 }
                 else
                 {
@@ -55,14 +56,14 @@ namespace Settings
     bool Save()
     {
         lp_CONFIG->Lang = LANG;
-        if( !TA3D::VARS::lp_CONFIG )
+        if (!TA3D::VARS::lp_CONFIG)
             return false;
 
         // Make a copy that can be restored if TA3D does not start any more
         TA3D::Settings::Backup(TA3D::Paths::ConfigFile);
 
         std::ofstream m_File;
-        m_File.open(TA3D::Paths::ConfigFile.c_str(), std::ios::out | std::ios::trunc );
+        m_File.open(TA3D::Paths::ConfigFile.c_str(), std::ios::out | std::ios::trunc);
         if( !m_File.is_open() )
         {
             LOG_ERROR("Impossible to write settings: `" << TA3D::Paths::ConfigFile << "`");
@@ -117,20 +118,20 @@ namespace Settings
 
     bool Restore(const String& filename) 
     {
-        if( TA3D::Paths::Exists(filename + ".bak"))
+        if (TA3D::Paths::Exists(filename + ".bak"))
         {
             FILE *src = TA3D_OpenFile(filename + ".bak", "rb");
-            if( src )
+            if (src)
             {
                 FILE *dst = TA3D_OpenFile(filename, "wb");
-                if(dst)
+                if (dst)
                 {
                     uint32 src_size = FILE_SIZE( (filename + ".bak").c_str());
                     byte *buf = new byte[ src_size ];
-                    fread( buf, src_size, 1, src );
-                    fwrite( buf, src_size, 1, dst );
+                    fread( buf, src_size, 1, src);
+                    fwrite( buf, src_size, 1, dst);
                     delete[] buf;
-                    fclose( dst );
+                    fclose( dst);
                 }
                 else
                 {
@@ -152,63 +153,52 @@ namespace Settings
 
     bool Load()
     {
-        cTAFileParser *cfgFile;
-
-        try { // we need to try catch this cause the config file may not exists
-            // and if it don't exists it will throw an error on reading it, which
-            // will be caught in our main function and the application will exit.
-            cfgFile = new TA3D::UTILS::cTAFileParser(TA3D::Paths::ConfigFile);
-        }
-        catch( ... )
-        {
-            LOG_WARNING("Impossible to parse `" << TA3D::Paths::ConfigFile << "`");
+        TDFParser cfgFile;
+        if (!cfgFile.loadFromFile(TA3D::Paths::ConfigFile))
             return false;
-        }
 
-        TA3D::VARS::lp_CONFIG->fps_limit = cfgFile->pullAsFloat( "TA3D.FPS Limit" );
-        TA3D::VARS::lp_CONFIG->shadow_r  = cfgFile->pullAsFloat( "TA3D.Shadow R" );
-        TA3D::VARS::lp_CONFIG->timefactor = cfgFile->pullAsFloat( "TA3D.Time Factor" );
+        TA3D::VARS::lp_CONFIG->fps_limit = cfgFile.pullAsFloat("TA3D.FPS Limit");
+        TA3D::VARS::lp_CONFIG->shadow_r  = cfgFile.pullAsFloat("TA3D.Shadow R");
+        TA3D::VARS::lp_CONFIG->timefactor = cfgFile.pullAsFloat("TA3D.Time Factor");
 
-        TA3D::VARS::lp_CONFIG->shadow_quality = cfgFile->pullAsInt( "TA3D.Shadow Quality" );
-        TA3D::VARS::lp_CONFIG->priority_level = cfgFile->pullAsInt( "TA3D.Priority Level" );
-        TA3D::VARS::lp_CONFIG->fsaa = cfgFile->pullAsInt( "TA3D.FSAA" );
-        TA3D::VARS::lp_CONFIG->Lang = cfgFile->pullAsInt( "TA3D.Language" );
-        TA3D::VARS::lp_CONFIG->water_quality = cfgFile->pullAsInt( "TA3D.Water Quality" );
-        TA3D::VARS::lp_CONFIG->screen_width = cfgFile->pullAsInt( "TA3D.Screen Width" );
-        TA3D::VARS::lp_CONFIG->screen_height = cfgFile->pullAsInt( "TA3D.Screen Height" );
-        TA3D::VARS::lp_CONFIG->color_depth = cfgFile->pullAsInt( "TA3D.Color Depth", 32 );
+        TA3D::VARS::lp_CONFIG->shadow_quality = cfgFile.pullAsInt("TA3D.Shadow Quality");
+        TA3D::VARS::lp_CONFIG->priority_level = cfgFile.pullAsInt("TA3D.Priority Level");
+        TA3D::VARS::lp_CONFIG->fsaa = cfgFile.pullAsInt("TA3D.FSAA");
+        TA3D::VARS::lp_CONFIG->Lang = cfgFile.pullAsInt("TA3D.Language");
+        TA3D::VARS::lp_CONFIG->water_quality = cfgFile.pullAsInt("TA3D.Water Quality");
+        TA3D::VARS::lp_CONFIG->screen_width = cfgFile.pullAsInt("TA3D.Screen Width");
+        TA3D::VARS::lp_CONFIG->screen_height = cfgFile.pullAsInt("TA3D.Screen Height");
+        TA3D::VARS::lp_CONFIG->color_depth = cfgFile.pullAsInt("TA3D.Color Depth", 32);
 
-        TA3D::VARS::lp_CONFIG->showfps = cfgFile->pullAsBool( "TA3D.Show FPS" );
-        TA3D::VARS::lp_CONFIG->wireframe = cfgFile->pullAsBool( "TA3D.Show Wireframe" );
-        TA3D::VARS::lp_CONFIG->particle = cfgFile->pullAsBool( "TA3D.Show particles" );
-        TA3D::VARS::lp_CONFIG->waves = cfgFile->pullAsBool( "TA3D.Show Waves" );
-        TA3D::VARS::lp_CONFIG->shadow = cfgFile->pullAsBool( "TA3D.Show Shadows" );
-        TA3D::VARS::lp_CONFIG->height_line = cfgFile->pullAsBool( "TA3D.Show Height Lines" );
-        TA3D::VARS::lp_CONFIG->fullscreen = cfgFile->pullAsBool( "TA3D.Show FullScreen", false );
-        TA3D::VARS::lp_CONFIG->detail_tex = cfgFile->pullAsBool( "TA3D.Detail Texture" );
-        TA3D::VARS::lp_CONFIG->draw_console_loading = cfgFile->pullAsBool( "TA3D.Draw Console Loading" );
+        TA3D::VARS::lp_CONFIG->showfps = cfgFile.pullAsBool("TA3D.Show FPS");
+        TA3D::VARS::lp_CONFIG->wireframe = cfgFile.pullAsBool("TA3D.Show Wireframe");
+        TA3D::VARS::lp_CONFIG->particle = cfgFile.pullAsBool("TA3D.Show particles");
+        TA3D::VARS::lp_CONFIG->waves = cfgFile.pullAsBool("TA3D.Show Waves");
+        TA3D::VARS::lp_CONFIG->shadow = cfgFile.pullAsBool("TA3D.Show Shadows");
+        TA3D::VARS::lp_CONFIG->height_line = cfgFile.pullAsBool("TA3D.Show Height Lines");
+        TA3D::VARS::lp_CONFIG->fullscreen = cfgFile.pullAsBool("TA3D.Show FullScreen", false);
+        TA3D::VARS::lp_CONFIG->detail_tex = cfgFile.pullAsBool("TA3D.Detail Texture");
+        TA3D::VARS::lp_CONFIG->draw_console_loading = cfgFile.pullAsBool("TA3D.Draw Console Loading");
 
-        TA3D::VARS::lp_CONFIG->last_script = ReplaceChar( cfgFile->pullAsString( "TA3D.Last Script", "scripts\\default.c" ), '/', '\\' );
-        TA3D::VARS::lp_CONFIG->last_map = ReplaceChar( cfgFile->pullAsString( "TA3D.Last Map", "" ), '/', '\\' );
-        TA3D::VARS::lp_CONFIG->last_FOW = cfgFile->pullAsInt( "TA3D.Last FOW", 0 );
-        TA3D::VARS::lp_CONFIG->last_MOD = cfgFile->pullAsString( "TA3D.Last MOD", "" );
+        TA3D::VARS::lp_CONFIG->last_script = ReplaceChar(cfgFile.pullAsString("TA3D.Last Script", "scripts\\default.c" ), '/', '\\');
+        TA3D::VARS::lp_CONFIG->last_map = ReplaceChar(cfgFile.pullAsString("TA3D.Last Map", "" ), '/', '\\');
+        TA3D::VARS::lp_CONFIG->last_FOW = cfgFile.pullAsInt("TA3D.Last FOW", 0);
+        TA3D::VARS::lp_CONFIG->last_MOD = cfgFile.pullAsString("TA3D.Last MOD", "");
 
-        TA3D::VARS::lp_CONFIG->camera_zoom = cfgFile->pullAsInt( "TA3D.Camera Zoom Mode", ZOOM_NORMAL );
-        TA3D::VARS::lp_CONFIG->camera_def_angle = cfgFile->pullAsFloat( "TA3D.Camera Default Angle", 63.44f );
-        TA3D::VARS::lp_CONFIG->camera_def_h = cfgFile->pullAsFloat( "TA3D.Camera Default Height", 200.0f );
-        TA3D::VARS::lp_CONFIG->camera_zoom_speed = cfgFile->pullAsFloat( "TA3D.Camera Zoom Speed", 1.0f );
+        TA3D::VARS::lp_CONFIG->camera_zoom = cfgFile.pullAsInt("TA3D.Camera Zoom Mode", ZOOM_NORMAL);
+        TA3D::VARS::lp_CONFIG->camera_def_angle = cfgFile.pullAsFloat("TA3D.Camera Default Angle", 63.44f);
+        TA3D::VARS::lp_CONFIG->camera_def_h = cfgFile.pullAsFloat("TA3D.Camera Default Height", 200.0f);
+        TA3D::VARS::lp_CONFIG->camera_zoom_speed = cfgFile.pullAsFloat("TA3D.Camera Zoom Speed", 1.0f);
 
-        TA3D::VARS::lp_CONFIG->use_texture_cache = cfgFile->pullAsBool( "TA3D.Use Texture Cache", false );
+        TA3D::VARS::lp_CONFIG->use_texture_cache = cfgFile.pullAsBool("TA3D.Use Texture Cache", false);
 
-        TA3D::VARS::lp_CONFIG->skin_name = cfgFile->pullAsString( "TA3D.Skin", "" );
+        TA3D::VARS::lp_CONFIG->skin_name = cfgFile.pullAsString("TA3D.Skin", "");
 
-        TA3D::VARS::lp_CONFIG->net_server = cfgFile->pullAsString( "TA3D.Net Server", "ta3d.darkstars.co.uk" );
+        TA3D::VARS::lp_CONFIG->net_server = cfgFile.pullAsString("TA3D.Net Server", "ta3d.darkstars.co.uk");
 
         TA3D::VARS::TA3D_CURRENT_MOD = TA3D::VARS::lp_CONFIG->last_MOD;
 
-        TA3D::VARS::lp_CONFIG->player_name = cfgFile->pullAsString( "TA3D.Player name", "player" );
-
-        delete cfgFile; 
+        TA3D::VARS::lp_CONFIG->player_name = cfgFile.pullAsString("TA3D.Player name", "player");
 
         LANG = lp_CONFIG->Lang;
         // Apply settings for the current language

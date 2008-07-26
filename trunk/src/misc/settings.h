@@ -15,7 +15,7 @@ namespace Settings
     **
     ** This function will eventually load our config file if it exists.
     ** config files will be stored as 'tdf' format and thus loaded as text,
-    ** using the cTAFileParser class.
+    ** using the TDFParser class.
     **
     ** If something goes wrong you can safely throw a string for an error.
     ** The call to this function is tried, but it only catches exceptions
