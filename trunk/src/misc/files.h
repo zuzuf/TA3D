@@ -87,11 +87,20 @@ namespace Files
     */
     char* LoadContentInMemory(const String& filename, uint64& size, const uint64 hardlimit = TA3D_FILES_HARD_LIMIT_FOR_SIZE);
 
+    /*!
+    ** \brief Save the content of a string iinto a file
+    **
+    ** \param filename The filename to create/overwrite
+    ** \param content The new content of the file
+    ** \return True if the operation succeeded, false otherwise
+    */
+    bool SaveToFile(const String& filename, const String& content);
+    
     //@}
 
     
     /*!
-    ** \brief Copy a single
+    ** \brief Copy a single file
     **
     ** \param from The source file
     ** \param to The target file
