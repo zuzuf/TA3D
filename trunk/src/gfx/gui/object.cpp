@@ -206,7 +206,28 @@ namespace TA3D
         s = size;
     }
 
-
+    void GUIOBJ::create_texteditor(const float X1, const float Y1, const float X2, const float Y2, const String& Caption, const float size)
+    {
+        Type = OBJ_TEXTEDITOR;
+        x1 = X1;
+        y1 = Y1;
+        x2 = X2;
+        y2 = Y2;
+        Etat  = false;	
+        Focus = false;
+        Text.resize(1);
+        Text[0].clear();
+        for (int i = 0 ; i < Caption.size() ; i++)      // Split the entry in several lines
+            if (Caption[i] == '\n')
+                Text.push_back("");
+            else
+                Text.back() += Caption[i];
+        Flag = FLAG_CAN_BE_CLICKED | FLAG_CAN_GET_FOCUS;
+        Func = NULL;
+        Data = 0;
+        Pos = 0;
+        s = size;
+    }
 
     void GUIOBJ::create_textbar(const float X1, const float Y1, const float X2, const float Y2, const String& Caption,
                                 const unsigned int MaxChar, void(*F)(int), const float size)

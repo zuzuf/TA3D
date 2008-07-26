@@ -94,7 +94,18 @@ namespace TA3D
                 guiobj->x1 += length * 0.5f;
                 guiobj->x2 -= length * 0.5f;
             }
-            guiobj->Text[0] = caption;
+            if (guiobj->Type == OBJ_TEXTEDITOR)
+            {
+                guiobj->Text.resize(1);
+                guiobj->Text[0].clear();
+                for (int i = 0 ; i < caption.size() ; i++)      // Split the entry in several lines
+                    if (caption[i] == '\n')
+                        guiobj->Text.push_back("");
+                    else
+                        guiobj->Text.back() += caption[i];
+            }
+            else
+                guiobj->Text[0] = caption;
             if (guiobj->Flag & FLAG_CENTERED)
             {
                 float length = gui_font.length(guiobj->Text[0]) * guiobj->s;
@@ -543,7 +554,17 @@ namespace TA3D
                     if (the_obj)
                     {
                         if (the_obj->Text.size() > 0)
-                            return the_obj->Text[0];	// Return what we found
+                        {
+                            if (the_obj->Type == OBJ_TEXTEDITOR)
+                            {
+                                String result = the_obj->Text[0];
+                                for( int i = 1 ; i < the_obj->Text.size() ; i++ )
+                                    result << '\n' << the_obj->Text[i];
+                                return result;
+                            }
+                            else
+                                return the_obj->Text[0];	// Return what we found
+                        }
                         return "";
                     }
                 }

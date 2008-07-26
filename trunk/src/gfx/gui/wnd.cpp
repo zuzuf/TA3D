@@ -313,6 +313,13 @@ namespace TA3D
                 if (Objets[i].Focus && focus)
                     gfx->rectdot(Objets[i].x1 + x - 2, Objets[i].y1 + y - 2, Objets[i].x2 + x + 2, Objets[i].y2 + y + 2, GrisF);
                 break;
+            case OBJ_TEXTEDITOR:	// Large text edit
+                if (Objets[i].Text.empty())
+                    Objets[i].Text.push_back("");
+                TextEditor(x + Objets[i].x1, y + Objets[i].y1, x + Objets[i].x2, y + Objets[i].y2, Objets[i].Text, Objets[i].Data, Objets[i].Pos, Objets[i].Focus, skin, Objets[i].s);
+                if (Objets[i].Focus && focus)
+                    gfx->rectdot(Objets[i].x1 + x - 2, Objets[i].y1 + y - 2, Objets[i].x2 + x + 2, Objets[i].y2 + y + 2, GrisF);
+                break;
             case OBJ_TEXT:
                 if (Objets[i].Text.empty())
                     Objets[i].Text.push_back("");
@@ -510,7 +517,7 @@ namespace TA3D
         {
             if (Objets[i].Type != OBJ_NONE)
                 doCheckWasOnFLoattingMenu(i, was_on_floating_menu, on_menu, skin);
-            if (Objets[i].Focus)
+            if (Objets[i].Focus && Objets[i].Type != OBJ_TEXTEDITOR)
                 hasFocus = i;
         }
         if (hasFocus >= 0 && key[KEY_TAB] && !tab_was_pressed)      // Select another widget with TAB key
@@ -655,26 +662,151 @@ namespace TA3D
                     Objets[i].Etat=false;
                     if (Objets[i].Focus && keypressed())
                     {
-                        Key=readkey()&0xff;
-                        switch (Key)
+                        sint32 keyCode = readkey();
+                        Key = keyCode&0xff;
+                        int scancode = keyCode >> 8;
+
+                        switch(scancode)
                         {
-                            case 8:
-                                if (Objets[i].Text[0].length()>0)
-                                    Objets[i].Text[0].resize(Objets[i].Text[0].length() - 1);
-                                break;
-                            case 13:
-                                Objets[i].Etat=true;
-                                if (Objets[i].Func!=NULL)
-                                    (*Objets[i].Func)(Objets[i].Text[0].length());
-                                break;
-                            case 9:
-                            case 27:
-                            case 0:
-                                break;
-                            default:
-                                if (Objets[i].Text[0].length() + 1 < Objets[i].Data)
-                                    Objets[i].Text[0] += Key;
-                        }
+                        case KEY_ENTER:
+                            Objets[i].Etat=true;
+                            if (Objets[i].Func!=NULL)
+                                (*Objets[i].Func)(Objets[i].Text[0].length());
+                            break;
+                        case KEY_BACKSPACE:
+                            if (Objets[i].Text[0].length()>0)
+                                Objets[i].Text[0].resize(Objets[i].Text[0].length() - 1);
+                            break;
+                        case KEY_TAB:
+                        case KEY_ESC:
+                            break;
+                        default:
+                            switch (Key)
+                            {
+                                case 9:
+                                case 27:
+                                case 0:
+                                    break;
+                                default:
+                                    if (Objets[i].Text[0].length() + 1 < Objets[i].Data)
+                                        Objets[i].Text[0] << Key;
+                            };
+                        };
+                    }
+                    break;
+
+                case OBJ_TEXTEDITOR:				// Permet l'entrée de texte / Enable text input
+                    if (Objets[i].Text.empty()) Objets[i].Text.push_back("");
+                    if (Objets[i].Data < 0) Objets[i].Data = 0;
+                    else if(Objets[i].Data >= Objets[i].Text.size())    Objets[i].Data = Objets[i].Text.size() - 1;
+
+                    if (Objets[i].Pos < 0)  Objets[i].Pos = 0;
+                    else if(Objets[i].Pos > Objets[i].Text[Objets[i].Data].size())
+                        Objets[i].Pos = Objets[i].Text[Objets[i].Pos].size();
+                    Objets[i].Etat=false;
+                    if (Objets[i].Focus && keypressed())
+                    {
+                        sint32 keyCode = readkey();
+                        Key = keyCode & 0xff;
+                        int scancode = keyCode >> 8;
+                        switch (scancode)
+                        {
+                        case KEY_ESC:
+                            break;
+                        case KEY_TAB:
+                            Objets[i].Text[Objets[i].Data] += "    ";
+                            Objets[i].Pos+=4;
+                            break;
+                        case KEY_ENTER:
+                            Objets[i].Text.push_back("");
+                            if (Objets[i].Data + 1 < Objets[i].Text.size())
+                                for(int e = Objets[i].Text.size() - 1 ; e > Objets[i].Data + 1 ; e--)
+                                    Objets[i].Text[e] = Objets[i].Text[e-1];
+
+                            if (Objets[i].Text[ Objets[i].Data ].size() - Objets[i].Pos > 0)
+                                Objets[i].Text[ Objets[i].Data + 1 ] = Objets[i].Text[ Objets[i].Data ].substr( Objets[i].Pos, Objets[i].Text[ Objets[i].Data ].size() - Objets[i].Pos );
+                            else
+                                Objets[i].Text[ Objets[i].Data + 1 ].clear();
+                            Objets[i].Text[ Objets[i].Data ] = Objets[i].Text[ Objets[i].Data ].substr( 0, Objets[i].Pos );
+                            Objets[i].Pos = 0;
+                            Objets[i].Data++;
+                            break;
+                        case KEY_DEL:                                 // Remove next character
+                            if (Objets[i].Pos < Objets[i].Text[Objets[i].Data].size())
+                            {
+                                Objets[i].Text[Objets[i].Data] = Objets[i].Text[Objets[i].Data].substr(0,Objets[i].Pos)
+                                                                + Objets[i].Text[Objets[i].Data].substr(Objets[i].Pos+1, Objets[i].Text[Objets[i].Data].size() - Objets[i].Pos-1);
+                            }
+                            else if (Objets[i].Data + 1 < Objets[i].Text.size())
+                            {
+                                Objets[i].Text[Objets[i].Data] << Objets[i].Text[Objets[i].Data+1];
+                                for( int e = Objets[i].Data + 1 ; e < Objets[i].Text.size() - 1 ; e++ )
+                                    Objets[i].Text[e] = Objets[i].Text[e+1];
+                                Objets[i].Text.resize(Objets[i].Text.size()-1);
+                            }
+                            break;
+                        case KEY_BACKSPACE:                                 // Remove previous character
+                            if (Objets[i].Pos > 0)
+                            {
+                                Objets[i].Text[Objets[i].Data] = Objets[i].Text[Objets[i].Data].substr(0,Objets[i].Pos-1)
+                                                                + Objets[i].Text[Objets[i].Data].substr(Objets[i].Pos, Objets[i].Text[Objets[i].Data].size() - Objets[i].Pos);
+                                Objets[i].Pos--;
+                            }
+                            else if (Objets[i].Data > 0)
+                            {
+                                Objets[i].Data--;
+                                Objets[i].Pos = Objets[i].Text[Objets[i].Data].size();
+                                Objets[i].Text[Objets[i].Data] << Objets[i].Text[Objets[i].Data+1];
+                                for( int e = Objets[i].Data + 1 ; e < Objets[i].Text.size() - 1 ; e++ )
+                                    Objets[i].Text[e] = Objets[i].Text[e+1];
+                                Objets[i].Text.resize(Objets[i].Text.size()-1);
+                            }
+                            break;
+                        case KEY_LEFT:            // Left
+                            if (Objets[i].Pos > 0)
+                                Objets[i].Pos--;
+                            else if (Objets[i].Data > 0)
+                            {
+                                Objets[i].Data--;
+                                Objets[i].Pos = Objets[i].Text[Objets[i].Data].size();
+                            }
+                            break;
+                        case KEY_RIGHT:            // Right
+                            if (Objets[i].Pos < Objets[i].Text[Objets[i].Data].size())
+                                Objets[i].Pos++;
+                            else if (Objets[i].Data + 1 < Objets[i].Text.size())
+                            {
+                                Objets[i].Data++;
+                                Objets[i].Pos = 0;
+                            }
+                            break;
+                        case KEY_UP:            // Up
+                            if (Objets[i].Data > 0)
+                            {
+                                Objets[i].Data--;
+                                Objets[i].Pos = Math::Min( (uint32)Objets[i].Text[Objets[i].Data].size(), Objets[i].Pos );
+                            }
+                            break;
+                        case KEY_DOWN:            // Down
+                            if (Objets[i].Data + 1 < Objets[i].Text.size())
+                            {
+                                Objets[i].Data++;
+                                Objets[i].Pos = Math::Min( (uint32)Objets[i].Text[Objets[i].Data].size(), Objets[i].Pos );
+                            }
+                            break;
+                        default:
+                            switch (Key)
+                            {
+                                case 0:
+                                case 27:
+                                    break;
+                                default:
+                                    Objets[i].Text[Objets[i].Data] = Objets[i].Text[ Objets[i].Data ].substr( 0, Objets[i].Pos )
+                                                                    + String( Key )
+                                                                    + Objets[i].Text[ Objets[i].Data ].substr( Objets[i].Pos, Objets[i].Text[ Objets[i].Data ].size() - Objets[i].Pos );
+                                    Objets[i].Pos++;
+                            };
+                        };
                     }
                     break;
 
@@ -1004,7 +1136,17 @@ namespace TA3D
         if (obj)
         {
             if (!obj->Text.empty())
-                return  obj->Text[0];
+            {
+                if (obj->Type == OBJ_TEXTEDITOR)
+                {
+                    String result = obj->Text[0];
+                    for( int i = 1 ; i < obj->Text.size() ; i++ )
+                        result << '\n' << obj->Text[i];
+                    return result;
+                }
+                else
+                    return  obj->Text[0];
+            }
             return "";
         }
         return (message.empty()) ? Title : "";
@@ -1355,6 +1497,8 @@ namespace TA3D
                     Objets[i].create_optionb(X1, Y1, caption, val, NULL, skin, size);
                 else if (obj_type == "PBAR")
                     Objets[i].create_pbar(X1, Y1, X2, Y2, val, size);
+                else if (obj_type == "TEXTEDITOR")
+                    Objets[i].create_texteditor(X1, Y1, X2, Y2, caption, size);
                 else if (obj_type == "TEXTBAR")
                     Objets[i].create_textbar(X1, Y1, X2, Y2, caption, val, NULL, size);
                 else if (obj_type == "OPTIONC")

@@ -185,10 +185,8 @@ namespace TA3D
         uint32	Flag;
         sint8	NbTex;
         GLuint	gltex[8];
-        char	*frag_shader_src;
-        char	*vert_shader_src;
-        uint32	frag_shader_size;
-        uint32	vert_shader_size;
+        String	frag_shader_src;
+        String	vert_shader_src;
         Shader	s_shader;
     };
 

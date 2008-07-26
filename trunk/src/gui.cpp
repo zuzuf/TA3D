@@ -690,13 +690,86 @@ void OptionCase(float x,float y,const String &Title,bool Etat, SKIN *skin, float
 }
 
 /*---------------------------------------------------------------------------\
+  |        Draw a TEXTEDITOR widget (a large text input widget)                |
+  \---------------------------------------------------------------------------*/
+
+void TextEditor( float x1, float y1, float x2, float y2, const String::Vector &Entry, int row, int col, bool Etat, SKIN *skin, float size )
+{
+    int old_u_format = get_uformat();
+    set_uformat( U_ASCII );
+
+    float old_size = gui_font.get_size();
+    gui_font.change_size( size );
+    
+    bool blink = Etat && (msec_timer % 1000) >= 500;
+
+    if (skin && skin->text_background.tex)
+    {
+        gfx->set_color( 0xFFFFFFFF );
+        gfx->set_alpha_blending();
+
+        skin->text_background.draw( x1, y1, x2, y2 );
+        gfx->unset_alpha_blending();
+
+        float maxlength = x2 - x1 + skin->text_background.x2 - skin->text_background.x1 - gui_font.length( "_" );
+        float maxheight = y2 - y1 + skin->text_background.y2 - skin->text_background.y1 - skin->text_y_offset;
+        int H = Math::Max( row - (int)(0.5f * maxheight / gui_font.height()), 0 );
+        int y = 0;
+        while (gui_font.height() * (y+1) <= maxheight && y + H < Entry.size())
+        {
+            float xdec = -1.0f;
+            String strtoprint;
+            for (int x = 0; x < Entry[y+H].size() ; x++)
+            {
+                if (gui_font.length( strtoprint + Entry[y+H][x]) > maxlength)
+                {
+                    gfx->print( gui_font,x1+skin->text_background.x1,
+                                y1+skin->text_background.y1+skin->text_y_offset+gui_font.height() * y,
+                                0.0f,use_normal_alpha_function ? Blanc : Noir,strtoprint);
+		            if (xdec >= 0.0f)
+		                gfx->print( gui_font,x1+skin->text_background.x1+xdec,
+		                            y1+skin->text_background.y1+skin->text_y_offset+gui_font.height() * y,
+		                            0.0f,use_normal_alpha_function ? Blanc : Noir,"_");
+		            xdec = -1.0f;
+		            y++;
+		            H--;
+		            strtoprint.clear();
+		            if (gui_font.height() * (y+1) >= maxheight)    break;
+                }
+                if (row == y+H && x == col && blink)
+                    xdec = gui_font.length( strtoprint );
+                strtoprint += Entry[y+H][x];
+            }
+            gfx->print( gui_font,x1+skin->text_background.x1,
+                        y1+skin->text_background.y1+skin->text_y_offset+gui_font.height() * y,
+                        0.0f,use_normal_alpha_function ? Blanc : Noir,strtoprint);
+            if (y+H == row && col == Entry[row].size() && blink)
+                xdec = gui_font.length( strtoprint );
+		    if (xdec >= 0.0f)
+		        gfx->print( gui_font,x1+skin->text_background.x1+xdec,
+		                    y1+skin->text_background.y1+skin->text_y_offset+gui_font.height() * y,
+		                    0.0f,use_normal_alpha_function ? Blanc : Noir,"_");
+            y++;
+        }
+    }
+
+    gui_font.change_size( old_size );
+
+    set_uformat(old_u_format);
+}
+
+/*---------------------------------------------------------------------------\
   |        Dessine une barre d'entrée de texte utilisateur                     |
   \---------------------------------------------------------------------------*/
 
 void TextBar(float x1,float y1,float x2,float y2,const String &Caption,bool Etat, SKIN *skin, float size )
 {
+    int old_u_format = get_uformat();
+    set_uformat( U_ASCII );
+
     float old_size = gui_font.get_size();
     gui_font.change_size( size );
+    bool blink = Etat && (msec_timer % 1000) >= 500;
 
     if (skin && skin->text_background.tex)
     {
@@ -716,7 +789,7 @@ void TextBar(float x1,float y1,float x2,float y2,const String &Caption,bool Etat
         }
 
         gfx->print(gui_font,x1+skin->text_background.x1,y1+skin->text_background.y1+skin->text_y_offset,0.0f,use_normal_alpha_function ? Blanc : Noir,strtoprint);
-		if (Etat) gfx->print(gui_font,x1+skin->text_background.x1+gui_font.length( strtoprint ),y1+skin->text_background.y1+skin->text_y_offset,0.0f,use_normal_alpha_function ? Blanc : Noir,"_");
+		if (blink) gfx->print(gui_font,x1+skin->text_background.x1+gui_font.length( strtoprint ),y1+skin->text_background.y1+skin->text_y_offset,0.0f,use_normal_alpha_function ? Blanc : Noir,"_");
     }
     else
     {
@@ -738,10 +811,12 @@ void TextBar(float x1,float y1,float x2,float y2,const String &Caption,bool Etat
         }
 
         gfx->print(gui_font,x1+4,y1+4,0.0f,use_normal_alpha_function ? Blanc : Noir,Caption);
-        if(Etat) gfx->print(gui_font,x1+4+gui_font.length( Caption ),y1+4,0.0f,use_normal_alpha_function ? Blanc : Noir,"_");
+        if (blink) gfx->print(gui_font,x1+4+gui_font.length( Caption ),y1+4,0.0f,use_normal_alpha_function ? Blanc : Noir,"_");
     }
 
     gui_font.change_size( old_size );
+
+    set_uformat(old_u_format);
 }
 
 /*---------------------------------------------------------------------------\

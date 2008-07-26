@@ -60,8 +60,9 @@ void FloatMenu( float x, float y, const String::Vector &Entry, int Index, int St
 void ListBox( float x1, float y1, float x2, float y2, const String::Vector &Entry, int Index, int Scroll , SKIN *skin=NULL, float size = 1.0f, uint32 flags = 0 );
 void OptionButton( float x, float y, const String &Title, bool Etat , SKIN *skin=NULL, float size = 1.0f );
 void OptionCase( float x, float y, const String &Title, bool Etat , SKIN *skin=NULL, float size = 1.0f );
-void TextBar( float x1, float y1, float x2, float y2, const String &Caption, bool Etat , SKIN *skin=NULL, float size = 1.0f );
-void ProgressBar( float x1, float y1, float x2, float y2, int Value , SKIN *skin=NULL, float size = 1.0f );
+void TextBar( float x1, float y1, float x2, float y2, const String &Caption, bool Etat, SKIN *skin=NULL, float size = 1.0f );
+void TextEditor( float x1, float y1, float x2, float y2, const String::Vector &Entry, int row, int col, bool Etat, SKIN *skin=NULL, float size = 1.0f );
+void ProgressBar( float x1, float y1, float x2, float y2, int Value, SKIN *skin=NULL, float size = 1.0f );
 void PopupMenu( float x1, float y1, const String &msg, SKIN *skin=NULL, float size = 1.0f );
 void ScrollBar( float x1, float y1, float x2, float y2, float Value, bool vertical=true, SKIN *skin = NULL, float size = 1.0f );
 int draw_text_adjust( float x1, float y1, float x2, float y2, String msg, float size, int pos = 0, bool mission_mode = false );

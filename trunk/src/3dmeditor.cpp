@@ -582,6 +582,11 @@ void SurfEdit()
         if (surface_area.get_state("surface.b_painting"))
             amz = mouse_z;
 
+        if (surface_area.get_state("surface.b_glsl"))
+        {
+            glslEditor();
+        }
+
         if (surface_area.get_state("surface.c_rotation"))
         {
             if (obj_table[cur_part]->animation_data == NULL)	obj_table[cur_part]->animation_data = new ANIMATION;
@@ -1899,3 +1904,88 @@ void CylinderTexturing(int part)
         obj_table[part]->tcoord[(i<<1)+1]=(obj_table[part]->tcoord[(i<<1)+1]-tymin)/(tymax-tymin);
     }
 }
+
+    /*------------------------------------------------------------------------------------\
+      |                                 void glslEditor()                                   |
+      |         This function is the GLSL fragment and vertex program editor. It displays   |
+      | a fullscreen window with large text input widgets.                                  |
+      |                                                                                     |
+      \------------------------------------------------------------------------------------*/
+
+void glslEditor()                  // Fragment and vertex programs editor
+{
+    if (nb_obj()<=0) return;			// S'il n'y a rien à éditer, on quitte tout de suite la fonction, sinon ça plante
+    if (nb_obj()==1 && TheModel->obj.name==NULL)	return;
+
+    AREA glsl_area;
+    glsl_area.load_tdf("gui/3dmeditor_glsl.area");
+
+    if (!obj_table[cur_part]->surface.frag_shader_src.empty())
+        glsl_area.set_caption("glsl.fragment program", obj_table[cur_part]->surface.frag_shader_src);
+    else
+        glsl_area.set_caption("glsl.fragment program", "");
+
+    if (!obj_table[cur_part]->surface.vert_shader_src.empty())
+        glsl_area.set_caption("glsl.vertex program", obj_table[cur_part]->surface.vert_shader_src);
+    else
+        glsl_area.set_caption("glsl.vertex program", "");
+
+    bool done=false;
+
+    int amx,amy,amb,amz;
+    uint32 timer = msec_timer;
+
+    do
+    {
+        bool key_is_pressed = false;
+        do
+        {
+            amx = mouse_x;
+            amy = mouse_y;
+            amz = mouse_z;
+            amb = mouse_b;
+
+            key_is_pressed = keypressed();
+            glsl_area.check();
+            rest( 8 );
+            if (msec_timer - timer >= 50)  break;
+        } while( amx == mouse_x && amy == mouse_y && amz == mouse_z && amb == mouse_b && !key[ KEY_ENTER ] && !key[ KEY_ESC ] && !done && !key_is_pressed && !glsl_area.scrolling );
+        timer = msec_timer;
+
+        if (glsl_area.get_state("glsl.b_ok"))		// OK => save the buffers and leave the GLSL editor
+        {
+            obj_table[cur_part]->surface.frag_shader_src = glsl_area.get_caption("glsl.fragment program");
+            obj_table[cur_part]->surface.vert_shader_src = glsl_area.get_caption("glsl.vertex program");
+            obj_table[cur_part]->surface.s_shader.destroy();
+            obj_table[cur_part]->surface.s_shader.load_memory(  obj_table[cur_part]->surface.frag_shader_src.c_str(),       // Builds the shader
+                                                                obj_table[cur_part]->surface.frag_shader_src.size(),
+                                                                obj_table[cur_part]->surface.vert_shader_src.c_str(),
+                                                                obj_table[cur_part]->surface.vert_shader_src.size());
+            done=true;
+        }
+
+        show_mouse(NULL);					// Cache la souris / Hide cursor
+        if (key[KEY_ESC] || glsl_area.get_state("glsl.b_cancel"))
+        {
+            reset_keyboard();
+            done=true;			// Quitte si on appuie sur echap / Leave on ESC
+        }
+
+        // Efface tout / Clear screen
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+        gfx->set_2D_mode();		// Passe en mode dessin allegro
+        
+        glsl_area.draw();
+
+        glEnable(GL_TEXTURE_2D);			// Affiche le curseur
+        show_mouse(screen);
+        algl_draw_mouse();
+
+        gfx->unset_2D_mode();	// Quitte le mode de dessin d'allegro
+
+        // Affiche
+        gfx->flip();
+    } while(!done);
+}					// End of GLSL editor
+

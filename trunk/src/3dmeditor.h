@@ -44,6 +44,7 @@ void CubeTexturing(int part);		// Plaquage cubique de la texture
 void SurfEdit();					// Editeur de surfaces
 int  nb_obj();						// Compte le nombre d'objets dans le modèle
 void convert_to_3dm();				// Convertit le modèle chargé au format 3dm
+void glslEditor();                  // Fragment and vertex programs editor
 
 /*---------------------------------------------------------------------------------------------------\
 |               Fonctions associées aux menus déroulant de la barre de menus de l'interface          |
