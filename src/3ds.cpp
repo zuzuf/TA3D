@@ -302,8 +302,7 @@ namespace TA3D
                     case EDIT_OBJECT:
                         //						printf("--EDIT_OBJECT (%d,%d)\n", chunk.ID, chunk.length);
                         {
-                            OBJECT	*n_obj = (OBJECT*) malloc( sizeof( OBJECT ) );
-                            n_obj->init();
+                            OBJECT	*n_obj = new OBJECT;
                             n_obj->next = cur_obj;
                             cur_obj = n_obj;
                         }
@@ -329,7 +328,7 @@ namespace TA3D
                     case OBJ_TRIMESH:
                         //							printf("---OBJ_TRIMESH (%d,%d)\n", chunk.ID, chunk.length);
                         if( read_obj->nb_vtx > 0 ) {		// Add a sub object
-                            read_obj->child = (OBJECT*) malloc( sizeof( OBJECT ) );
+                            read_obj->child = new OBJECT;
                             read_obj = read_obj->child;
                             read_obj->init();
                             read_obj->name = strdup( cur_obj->name );
@@ -342,11 +341,11 @@ namespace TA3D
                     case TRI_VERTEXL:
                         //								printf("----TRI_VERTEXL (%d,%d)\n", chunk.ID, chunk.length);
                         fread( &read_obj->nb_vtx, 2, 1, src_3ds );
-                        read_obj->points = (Vector3D *) malloc( sizeof( Vector3D ) * read_obj->nb_vtx );
-                        read_obj->N = (Vector3D *) malloc( sizeof( Vector3D ) * read_obj->nb_vtx );
+                        read_obj->points = new Vector3D[read_obj->nb_vtx];
+                        read_obj->N = new Vector3D[read_obj->nb_vtx];
                         if( read_obj->tcoord == NULL )
                         {
-                            read_obj->tcoord = (float *) malloc( sizeof( float ) * read_obj->nb_vtx * 2 );
+                            read_obj->tcoord = new float[read_obj->nb_vtx * 2];
                             for( int i = 0 ; i < read_obj->nb_vtx ; i++ )
                             {
                                 read_obj->tcoord[ i << 1 ] = 0.0f;
@@ -407,7 +406,7 @@ namespace TA3D
                             uint16	nb_vtx;
                             fread( &nb_vtx, 2, 1, src_3ds );
                             if( read_obj->tcoord == NULL )
-                                read_obj->tcoord = (float*) malloc( sizeof( float ) * 2 * nb_vtx );
+                                read_obj->tcoord = new float[2 * nb_vtx];
                             fread( read_obj->tcoord, 2 * sizeof( float ), nb_vtx, src_3ds );
                             for( int i = 0 ; i < nb_vtx ; i++ )
                                 read_obj->tcoord[ i * 2 + 1 ] = 1.0f - read_obj->tcoord[ i * 2 + 1 ];
@@ -416,7 +415,7 @@ namespace TA3D
                     case TRI_FACEL1:
                         //								printf("----TRI_FACEL1 (%d,%d)\n", chunk.ID, chunk.length);
                         fread( &read_obj->nb_t_index, 2, 1, src_3ds );
-                        read_obj->t_index = (GLushort *) malloc( sizeof( GLushort ) * read_obj->nb_t_index * 3 );
+                        read_obj->t_index = new GLushort[read_obj->nb_t_index * 3];
                         read_obj->nb_t_index *= 3;
                         for( int i = 0 ; i < read_obj->nb_t_index ; i+=3 ) {
                             fread( &(read_obj->t_index[ i ]), 2, 3, src_3ds );
@@ -462,7 +461,8 @@ namespace TA3D
             if (cur_obj)
             {
                 model_3ds->obj = *cur_obj;
-                free( cur_obj );
+                cur_obj->init();
+                delete cur_obj;
             }
             fclose( src_3ds );
         }

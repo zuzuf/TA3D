@@ -56,10 +56,10 @@ namespace TA3D
     {
         cur->nb_vtx = face.size() >> 1;
         cur->nb_t_index = face.size() >> 1;
-        cur->t_index = (GLushort*) malloc( sizeof( GLushort ) * cur->nb_t_index );
-        cur->points = (Vector3D*) malloc( sizeof( Vector3D) * cur->nb_vtx );
-        cur->N = (Vector3D*) malloc( sizeof( Vector3D) * cur->nb_vtx );
-        cur->tcoord = (float*) malloc( sizeof( float ) * 2 * cur->nb_vtx );
+        cur->t_index = new GLushort[cur->nb_t_index];
+        cur->points = new Vector3D[cur->nb_vtx];
+        cur->N = new Vector3D[cur->nb_vtx];
+        cur->tcoord = new float[2 * cur->nb_vtx];
 
         for (int i = 0 ; i < cur->nb_t_index ; i++)
         {
