@@ -1330,11 +1330,26 @@ void setup_game(bool client, const char *host)
             char *new_map;
             if( !client )
             {
+                setupgame_area.set_caption("popup.msg",I18N::Translate("Loading maps, please wait ..."));       // Show a small popup displaying a wait message
+                setupgame_area.set_title("popup",I18N::Translate("Please wait ..."));
+                setupgame_area.msg("popup.show");
+                gfx->set_2D_mode();
+                setupgame_area.draw();
+
+                glEnable(GL_TEXTURE_2D);
+                gfx->set_color(0xFFFFFFFF);
+                draw_cursor();
+
+                // Affiche / Show the buffer
+                gfx->flip();
+                gfx->unset_2D_mode();
+
                 String newMapName;
                 Menus::MapSelector::Execute(game_data.map_filename, newMapName);
                 new_map = strdup(newMapName.c_str());
                 for( int i = 0 ; i < 10 ; i++ )
                     player_timer[ i ] = msec_timer;
+                setupgame_area.msg("popup.hide");
             }
             else
                 new_map = strdup( set_map.c_str() );

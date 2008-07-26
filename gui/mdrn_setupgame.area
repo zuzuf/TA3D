@@ -2,7 +2,7 @@
 {
 	name=setup area;
 	skin=gui/modern.skn;
-	windows=gui/mdrn_gamesetup.tdf, gui/mdrn_scripts.tdf;
+	windows=gui/mdrn_gamesetup.tdf, gui/mdrn_scripts.tdf,gui/mdrn_popup_dialog.tdf;
 	background=gfx/mdrn_gamesetup.jpg;
 	width=1280;
 	height=1024;

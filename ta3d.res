@@ -1,3 +1,11 @@
+[Loading maps, please wait ...]
+{
+    FRENCH=Chargement des cartes, veuillez patienter ...;
+}
+[Please wait ...]
+{
+    FRENCH=Veuillez patienter ...;
+}
 [enable if you want to be\nvisible from Internet]
 {
 	FRENCH=Activez ceci si vous voulez etre\nvisible depuis Internet;
