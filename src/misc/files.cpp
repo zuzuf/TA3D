@@ -107,6 +107,18 @@ namespace Files
     }
 
 
+    bool SaveToFile(const String& filename, const String& content)
+    {
+        std::ofstream dst(filename.c_str(), std::ios::out | std::ios::binary | std::ios::trunc);
+        if (dst.is_open())
+        {
+            dst << content;
+            return true;
+        }
+        return false;
+    }
+
+
     String ReplaceExtension(const String& filename, const String& newExt)
     {
         if (filename.empty())
