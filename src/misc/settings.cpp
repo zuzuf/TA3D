@@ -19,7 +19,7 @@ namespace Settings
 
     bool Backup(const String& filename)
     {
-        LOG_INFO("Making a backup for `" << filename << "`...");
+        LOG_INFO(LOG_PREFIX_SETTINGS << "Making a backup for `" << filename << "`...");
         if(TA3D::Paths::Exists(filename))
         {
             FILE *src = TA3D_OpenFile(filename, "rb");
@@ -38,17 +38,17 @@ namespace Settings
                 else
                 {
                     fclose(src);
-                    LOG_ERROR("Can not make the backup: Impossible to write `" << filename << ".bak`");
+                    LOG_ERROR(LOG_PREFIX_SETTINGS << " Can not make the backup: Impossible to write `" << filename << ".bak`");
                     return false;
                 }
                 fclose(src);
-                LOG_INFO("The backup is done.");
+                LOG_INFO(LOG_PREFIX_SETTINGS << "The backup is done.");
                 return true;
             }
-            LOG_WARNING("Can not make the backup: Impossible to open file");
+            LOG_WARNING(LOG_PREFIX_SETTINGS << "Can not make the backup: Impossible to open file");
             return false;
         }
-        LOG_WARNING("Can not make the backup: File not found");
+        LOG_WARNING(LOG_PREFIX_SETTINGS << "Can not make the backup: File not found");
         return false;
     }
 
@@ -66,11 +66,11 @@ namespace Settings
         m_File.open(TA3D::Paths::ConfigFile.c_str(), std::ios::out | std::ios::trunc);
         if( !m_File.is_open() )
         {
-            LOG_ERROR("Impossible to write settings: `" << TA3D::Paths::ConfigFile << "`");
+            LOG_ERROR(LOG_PREFIX_SETTINGS << "Impossible to write settings: `" << TA3D::Paths::ConfigFile << "`");
             return false;
         }
 
-        LOG_INFO("Saving settings in `" << TA3D::Paths::ConfigFile << "`...");
+        LOG_INFO(LOG_PREFIX_SETTINGS << "Saving settings in `" << TA3D::Paths::ConfigFile << "`...");
         m_File << "[TA3D]\n{\n";
         m_File << "               FPS Limit=" << TA3D::VARS::lp_CONFIG->fps_limit << ";\n";
         m_File << "                Shadow R=" << TA3D::VARS::lp_CONFIG->shadow_r << ";\n";
@@ -110,7 +110,7 @@ namespace Settings
 
         m_File.flush();
         m_File.close();
-        LOG_INFO("Settings has been saved.");
+        LOG_INFO(LOG_PREFIX_SETTINGS << "Settings has been saved.");
         return true;
     }
 
@@ -136,17 +136,17 @@ namespace Settings
                 else
                 {
                     fclose(src);
-                    LOG_WARNING("Can not restore the file: Can not write `" << filename << "`");
+                    LOG_WARNING(LOG_PREFIX_SETTINGS << "Can not restore the file: Can not write `" << filename << "`");
                     return false;
                 }
                 fclose(src);
-                LOG_INFO("The file `" << filename << ".bak` have been restored.");
+                LOG_INFO(LOG_PREFIX_SETTINGS << "The file `" << filename << ".bak` have been restored.");
                 return true;
             }
-            LOG_WARNING("Can not restore the file: Can not open `" << filename << ".bak`");
+            LOG_WARNING(LOG_PREFIX_SETTINGS << "Can not restore the file: Can not open `" << filename << ".bak`");
             return false;
         }
-        LOG_WARNING("Can not restore the file: File not found: `" << filename << "`");
+        LOG_WARNING(LOG_PREFIX_SETTINGS << "Can not restore the file: File not found: `" << filename << "`");
         return false;
     }
 
@@ -155,7 +155,10 @@ namespace Settings
     {
         TDFParser cfgFile;
         if (!cfgFile.loadFromFile(TA3D::Paths::ConfigFile))
+        {
+            LOG_ERROR(LOG_PREFIX_SETTINGS << "Impossible to load the settings from `" << TA3D::Paths::ConfigFile << "`");
             return false;
+        }
 
         TA3D::VARS::lp_CONFIG->fps_limit = cfgFile.pullAsFloat("TA3D.FPS Limit");
         TA3D::VARS::lp_CONFIG->shadow_r  = cfgFile.pullAsFloat("TA3D.Shadow R");
@@ -203,6 +206,8 @@ namespace Settings
         LANG = lp_CONFIG->Lang;
         // Apply settings for the current language
         I18N::Instance()->currentLanguage(lp_CONFIG->Lang);
+
+        LOG_INFO(LOG_PREFIX_SETTINGS << "Loaded from `" << TA3D::Paths::ConfigFile << "`");
         return true;
     }
 
