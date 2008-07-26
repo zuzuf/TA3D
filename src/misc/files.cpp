@@ -3,6 +3,7 @@
 #include "../logs/logs.h"
 #include <fstream>
 #include <sys/stat.h>
+#include "paths.h"
 
 
 namespace TA3D
@@ -103,6 +104,47 @@ namespace Files
             }
         }
         return NULL;
+    }
+
+
+    String ReplaceExtension(const String& filename, const String& newExt)
+    {
+        if (filename.empty())
+            return String();
+        String::size_type p = filename.find_last_of('.');
+        if (p == String::npos)
+            return filename + newExt;
+        String::size_type s = filename.find_last_of("\\/");
+        if (s != String::npos && p < s)
+            return filename + newExt;
+        return filename.substr(0, p) + newExt;
+    }
+
+
+
+    bool Copy(const String& from, const String& to, const bool overwrite)
+    {
+        if (!Paths::Exists(from))
+        {
+            LOG_ERROR("[copy] Impossible to find the source file `" << from << "`");
+            return false;
+        }
+        if (!overwrite && Paths::Exists(to))
+            return true;
+        std::ifstream src(from.c_str(), std::ios::in | std::ios::binary);
+        if (src.is_open())
+        {
+            std::ofstream dst(to.c_str(), std::ios::out | std::ios::binary | std::ios::trunc);
+            if (dst.is_open())
+            {
+                dst << src.rdbuf();
+                return true;
+            }
+            LOG_ERROR("[copy] Impossible to create the target file `" << to << "`");
+            return false;
+        }
+        LOG_ERROR("[copy] Impossible to open the source file `" << from << "`");
+        return false;
     }
 
 
