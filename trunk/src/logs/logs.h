@@ -61,6 +61,7 @@
 # define LOG_PREFIX_RESOURCES         "[resources] "
 # define LOG_PREFIX_TDF               "[tdf] "
 # define LOG_PREFIX_BATTLE            "[battle] "
+# define LOG_PREFIX_SETTINGS          "[settings] "
 
 # define LOG_PREFIX_SCRIPT            "[script] "
 # define LOG_PREFIX_LUA               "[script::lua] "
