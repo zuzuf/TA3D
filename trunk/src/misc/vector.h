@@ -43,6 +43,11 @@ public:
     float sq() const { return (x*x + y*y); }         // carré scalaire
 
     /*!
+    ** \brief Reset all coordinates to 0
+    */
+    void reset() { x = 0.0f; y = 0.0f; }
+
+    /*!
     ** \brief Vector norm
     ** \return The value of the vector norm
     */
@@ -105,6 +110,11 @@ public:
     Vector3D(const float ax, const float ay, const float az)
         :x(ax), y(ay), z(az) {}
     //@}
+
+    /*!
+    ** \brief Reset all coordinates to 0
+    */
+    void reset() { x = 0.0f; y = 0.0f; z = 0.0f; }
 
     // Fonction qui renvoie le carré scalaire du vecteur
     float sq() const { return (x*x + y*y + z*z); }
