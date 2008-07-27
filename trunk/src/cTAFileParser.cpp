@@ -180,7 +180,7 @@ namespace UTILS
         }
         if (!data)
         {
-            LOG_CRITICAL("[tdf] No data to load `" << filename << "`");
+            LOG_WARNING("[tdf] No data to load `" << filename << "`");
             return;
         }
 
