@@ -540,12 +540,12 @@ namespace TA3D
             }
             if (Pos.y == map->sealvl)
             {
-                if( weapon_manager.weapon[weapon_id].soundwater )
+                if( !weapon_manager.weapon[weapon_id].soundwater.empty() )
                     sound_manager->playSound( weapon_manager.weapon[weapon_id].soundwater , &Pos);
             }
             else
-                if( weapon_manager.weapon[weapon_id].soundhit )	sound_manager->playSound( weapon_manager.weapon[weapon_id].soundhit , &Pos );
-            if(hit && weapon_manager.weapon[weapon_id].explosiongaf!=NULL && weapon_manager.weapon[weapon_id].explosionart!=NULL && Pos.y!=map->sealvl)
+                if( !weapon_manager.weapon[weapon_id].soundhit.empty() )	sound_manager->playSound( weapon_manager.weapon[weapon_id].soundhit , &Pos );
+            if(hit && !weapon_manager.weapon[weapon_id].explosiongaf.empty() && !weapon_manager.weapon[weapon_id].explosionart.empty() && Pos.y!=map->sealvl)
             {
                 if( visible && weapon_manager.weapon[weapon_id].areaofeffect < 256 )		// Nuclear type explosion don't draw sprites :)
                     fx_manager.add(weapon_manager.weapon[weapon_id].explosiongaf, weapon_manager.weapon[weapon_id].explosionart, Pos, 1.0f);
@@ -559,18 +559,18 @@ namespace TA3D
                     P.y += 3.0f;
                     if(px>=0 && px<map->bloc_w && py>=0 && py<map->bloc_h)
                     {
-                        if(map->bloc[map->bmap[py][px]].lava && weapon_manager.weapon[weapon_id].lavaexplosiongaf!=NULL && weapon_manager.weapon[weapon_id].lavaexplosionart!=NULL)
+                        if(map->bloc[map->bmap[py][px]].lava && !weapon_manager.weapon[weapon_id].lavaexplosiongaf.empty() && !weapon_manager.weapon[weapon_id].lavaexplosionart.empty())
                         {
                             if(visible)
                                 fx_manager.add(weapon_manager.weapon[weapon_id].lavaexplosiongaf,weapon_manager.weapon[weapon_id].lavaexplosionart,Pos,1.0f);
                         }
                         else 
-                            if(!map->bloc[map->bmap[py][px]].lava && weapon_manager.weapon[weapon_id].waterexplosiongaf!=NULL && weapon_manager.weapon[weapon_id].waterexplosionart!=NULL)
+                            if(!map->bloc[map->bmap[py][px]].lava && !weapon_manager.weapon[weapon_id].waterexplosiongaf.empty() && !weapon_manager.weapon[weapon_id].waterexplosionart.empty())
                                 if(visible)
                                     fx_manager.add(weapon_manager.weapon[weapon_id].waterexplosiongaf,weapon_manager.weapon[weapon_id].waterexplosionart,Pos,1.0f);
                     }
                     else 
-                        if(weapon_manager.weapon[weapon_id].explosiongaf!=NULL && weapon_manager.weapon[weapon_id].explosionart!=NULL)
+                        if(!weapon_manager.weapon[weapon_id].explosiongaf.empty() && !weapon_manager.weapon[weapon_id].explosionart.empty())
                             if(visible)
                                 fx_manager.add(weapon_manager.weapon[weapon_id].explosiongaf,weapon_manager.weapon[weapon_id].explosionart,Pos,1.0f);
                 }

@@ -56,9 +56,9 @@ namespace TA3D
         //!
         short weapon_id;			// Numéro identifiant l'arme
         //!
-        char* internal_name;		// Nom interne de l'arme
+        String internal_name;		// Nom interne de l'arme
         //!
-        char* name;				// Nom de l'arme
+        String name;				// Nom de l'arme
 
         //!
         byte rendertype;
@@ -165,25 +165,25 @@ namespace TA3D
         float shakeduration;
 
         //! Sound to play when the weapon is firing
-        char* soundstart;
+        String soundstart;
         //! Sound to play when the weapon is exploding
-        char* soundhit;
+        String soundhit;
         //! Sound to play when the water is reached
-        char* soundwater;
+        String soundwater;
         //! Sound to play when the weapon is firing (in fast mode)
-        char* soundtrigger;
+        String soundtrigger;
         //!
-        char* explosiongaf;
+        String explosiongaf;
         //!
-        char* explosionart;
+        String explosionart;
         //!
-        char* waterexplosiongaf;
+        String waterexplosiongaf;
         //!
-        char* waterexplosionart;
+        String waterexplosionart;
         //!
-        char* lavaexplosiongaf;
+        String lavaexplosiongaf;
         //!
-        char* lavaexplosionart;
+        String lavaexplosionart;
 
         //!
         short nb_id;

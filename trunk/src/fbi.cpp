@@ -603,9 +603,9 @@ void UNIT_TYPE::show_info(float fade,GfxFont fnt)
     gfx->print(fnt,x+16,y+100,0.0f,format("%s: %d",I18N::Translate("Build time").c_str(),BuildTime));
     gfx->print(fnt,x+16,y+124,0.0f,format("%s:",I18N::Translate("weapons").c_str()));
     int Y=y+136;
-    if(weapon[0])	{	gfx->print(fnt,x+16,Y,0.0f,format("%s: %d",weapon[0]->name,weapon_damage[0]));	Y+=12;	}
-    if(weapon[1])	{	gfx->print(fnt,x+16,Y,0.0f,format("%s: %d",weapon[1]->name,weapon_damage[1]));	Y+=12;	}
-    if(weapon[2])	{	gfx->print(fnt,x+16,Y,0.0f,format("%s: %d",weapon[2]->name,weapon_damage[2]));	Y+=12;	}
+    if(weapon[0])	{	gfx->print(fnt,x+16,Y,0.0f,format("%s: %d",weapon[0]->name.c_str(),weapon_damage[0]));	Y+=12;	}
+    if(weapon[1])	{	gfx->print(fnt,x+16,Y,0.0f,format("%s: %d",weapon[1]->name.c_str(),weapon_damage[1]));	Y+=12;	}
+    if(weapon[2])	{	gfx->print(fnt,x+16,Y,0.0f,format("%s: %d",weapon[2]->name.c_str(),weapon_damage[2]));	Y+=12;	}
     glDisable(GL_BLEND);
 }
 

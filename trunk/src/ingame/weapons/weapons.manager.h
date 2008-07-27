@@ -31,7 +31,7 @@ namespace TA3D
         ** \param name
         ** \return
         */
-        int add_weapon(const char* name);
+        int add_weapon(const String &name);
 
         /*!
         ** \brief Load a TDF file
@@ -44,18 +44,18 @@ namespace TA3D
         */
         int get_weapon_index(const String &name)
         {
-            return (!name.empty() || nb_weapons <= 0 || '\0' == name[0]) ? -1 : (weapon_hashtable.find(String::ToLower(name)) - 1);
+            return (name.empty() || nb_weapons <= 0) ? -1 : (weapon_hashtable.find(String::ToLower(name)) - 1);
         }
 
 
     public:
         //! Count of registered weapons
-        int			nb_weapons;
-        WEAPON_DEF	*weapon;
+        int			            nb_weapons;
+        WEAPON_DEF              *weapon;
         //! Animation for firing
-        ANIM		cannonshell;
+        ANIM            		cannonshell;
         //! hashtable used to speed up operations on WEAPON_DEF objects
-        cHashTable< int >	weapon_hashtable;
+        cHashTable< int >	    weapon_hashtable;
 
     }; // class WEAPON_MANAGER
 

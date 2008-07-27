@@ -177,7 +177,7 @@ void save_game( const String filename, GameData *game_data )
         SAVE( weapons.weapon[i].weapon_id );
         if( weapons.weapon[i].weapon_id == -1 )	continue;
 
-        fputs( weapon_manager.weapon[weapons.weapon[i].weapon_id].internal_name, file );
+        fputs( weapon_manager.weapon[weapons.weapon[i].weapon_id].internal_name.c_str(), file );
         fputc( 0, file );
 
         SAVE( weapons.weapon[i].Pos );
