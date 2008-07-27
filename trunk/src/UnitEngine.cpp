@@ -5033,8 +5033,6 @@ void UNIT::show_orders(bool only_build_commands, bool def_orders)				// Dessine 
             int curseur=anim_cursor(CURSOR_CROSS_LINK);
             float dx=0.5f*cursor.anm[CURSOR_CROSS_LINK].ofs_x[curseur];
             float dz=0.5f*cursor.anm[CURSOR_CROSS_LINK].ofs_y[curseur];
-            float sx=0.5f*(cursor.anm[CURSOR_CROSS_LINK].bmp[curseur]->w-1);
-            float sy=0.5f*(cursor.anm[CURSOR_CROSS_LINK].bmp[curseur]->h-1);
             float x,y,z;
             float dist=((Vector3D)(cur->target-p_target)).norm();
             int rec=(int)(dist/30.0f);
@@ -5245,8 +5243,6 @@ void UNIT::show_orders(bool only_build_commands, bool def_orders)				// Dessine 
     if (!points.empty())
     {
         int curseur=anim_cursor(CURSOR_CROSS_LINK);
-        float dx=0.5f*cursor.anm[CURSOR_CROSS_LINK].ofs_x[curseur];
-        float dz=0.5f*cursor.anm[CURSOR_CROSS_LINK].ofs_y[curseur];
         float sx=0.5f*(cursor.anm[CURSOR_CROSS_LINK].bmp[curseur]->w-1);
         float sy=0.5f*(cursor.anm[CURSOR_CROSS_LINK].bmp[curseur]->h-1);
 
@@ -5881,8 +5877,6 @@ void UNIT::draw_on_map()
         {
             // Try to find a suitable place
 
-            int X = cur_px-(unit_manager.unit_type[type_id].FootprintX>>1);
-            int Y = cur_py-(unit_manager.unit_type[type_id].FootprintZ>>1);
             bool found = false;
             for( int r = 1 ; r < 20 && !found ; r++ ) // Circular check
             {
