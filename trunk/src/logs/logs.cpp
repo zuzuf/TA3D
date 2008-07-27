@@ -1,6 +1,6 @@
+#include "../misc/paths.h"
 #include "logs.h"
 #include <fstream>
-#include "../misc/paths.h"
 #include "../console.h"
 
 
