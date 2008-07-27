@@ -23,7 +23,7 @@
 # define TA3D_VERSION_TAG "@TA3D_VERSION_TAG@"
 
 //! The current revision
-# define TA3D_CURRENT_REVISION   @SVN_REV@
+# define TA3D_CURRENT_REVISION   "@SVN_REV@"
 
 //! The website
 # define TA3D_WEBSITE                "@TA3D_WEBSITE@"
