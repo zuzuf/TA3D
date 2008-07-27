@@ -62,11 +62,7 @@ namespace TA3D
         burnmax = 0;
         sparktime = 0;
         spreadchance = 0;
-        burnweapon = NULL;
 
-        feature_burnt = NULL;
-        feature_reclamate = NULL;
-        feature_dead=NULL;
         geothermal=false;
         blocking=false;
         reclaimable=false;
@@ -76,37 +72,43 @@ namespace TA3D
         m3d=false;
         model=NULL;
         vent=false;
-        name=NULL;
-        world=NULL;
-        description=NULL;
-        category=NULL;
         animating=false;
         footprintx=0;
         footprintz=0;
         height=0;
-        filename=NULL;
-        seqname=NULL;
         animtrans=false;
         shadtrans=false;
         hitdensity=0;
         metal=0;
         damage=100;
         indestructible=false;
+
+        burnweapon.clear();
+        feature_reclamate.clear();
+        feature_burnt.clear();
+        feature_dead.clear();
+        name.clear();
+        world.clear();
+        description.clear();
+        category.clear();
+        filename.clear();
+        seqname.clear();
+
         anim.init();
     }
 
     void FEATURE::destroy()
     {
-        if(burnweapon)			free(burnweapon);
-        if(feature_reclamate)	free(feature_reclamate);
-        if(feature_burnt)		free(feature_burnt);
-        if(feature_dead)		free(feature_dead);
-        if(name)				free(name);
-        if(world)				free(world);
-        if(description)			free(description);
-        if(category)			free(category);
-        if(filename)			free(filename);
-        if(seqname)				free(seqname);
+        burnweapon.clear();
+        feature_reclamate.clear();
+        feature_burnt.clear();
+        feature_dead.clear();
+        name.clear();
+        world.clear();
+        description.clear();
+        category.clear();
+        filename.clear();
+        seqname.clear();
         anim.destroy();
         init();
     }
@@ -146,9 +148,9 @@ namespace TA3D
     }
 
 
-    int FEATURE_MANAGER::get_feature_index(const char* name)
+    int FEATURE_MANAGER::get_feature_index(const String &name)
     {
-        if(name == NULL || nb_features <= 0)
+        if(name.empty() || nb_features <= 0)
             return -1;
         return feature_hashtable.find(String::ToLower(name)) - 1;
     }
@@ -168,17 +170,20 @@ namespace TA3D
     int FEATURE_MANAGER::add_feature(const String& name)			// Ajoute un élément
     {
         ++nb_features;
-        FEATURE* n_feature = (FEATURE*) malloc(sizeof(FEATURE) * nb_features);
+        FEATURE* n_feature = new FEATURE[nb_features];
         if (feature && nb_features > 1)
         {
             for(int i = 0;i < nb_features-1; ++i)
+            {
                 n_feature[i]=feature[i];
+                feature[i].init();
+            }
         }
         if (feature)
-            free(feature);
+            delete[] feature;
         feature = n_feature;
         feature[nb_features-1].init();
-        feature[nb_features-1].name = strdup(name.c_str());
+        feature[nb_features-1].name = name;
         feature_hashtable.insert(String::ToLower(name), nb_features);
         return nb_features-1;
     }
@@ -189,7 +194,7 @@ namespace TA3D
             for(int i = 0; i < nb_features; ++i)
                 feature[i].destroy();
         if (feature)
-            free(feature);
+            delete[] feature;
 
         feature_hashtable.emptyHashTable();
         feature_hashtable.initTable(__DEFAULT_HASH_TABLE_SIZE);
@@ -254,68 +259,68 @@ namespace TA3D
                 }
                 else if(strstr(ligne,"world=")) {
                     if(strstr(ligne,";"))	*(strstr(ligne,";"))=0;
-                    feature[index].world=strdup(strstr(ligne,"world=")+6);
+                    feature[index].world = String(strstr(ligne,"world=")+6);
                 }
                 else if(strstr(ligne,"description=")) {
                     if(strstr(ligne,";"))	*(strstr(ligne,";"))=0;
-                    feature[index].description=strdup(strstr(ligne,"description=")+12);
+                    feature[index].description = String(strstr(ligne,"description=")+12);
                 }
                 else if(strstr(ligne,"category=")) {
                     if(strstr(ligne,";"))	*(strstr(ligne,";"))=0;
-                    feature[index].category=strdup(strstr(ligne,"category=")+9);
+                    feature[index].category = String(strstr(ligne,"category=")+9);
                 }
                 else if(strstr(ligne,"object=")) {
                     if(strstr(ligne,";"))	*(strstr(ligne,";"))=0;
-                    feature[index].filename=strdup(strstr(ligne,"object=")+7);
+                    feature[index].filename = String(strstr(ligne,"object=")+7);
                     feature[index].m3d=true;
                 }
                 else if(strstr(ligne,"filename=")) {
                     if(strstr(ligne,";"))	*(strstr(ligne,";"))=0;
-                    feature[index].filename=strdup(strstr(ligne,"filename=")+9);
+                    feature[index].filename = String(strstr(ligne,"filename=")+9);
                     feature_hashtable.insert(String::ToLower(feature[index].filename), index + 1 );
                 }
                 else if(strstr(ligne,"seqname=")) {
                     if(strstr(ligne,";"))	*(strstr(ligne,";"))=0;
-                    feature[index].seqname=strdup(strstr(ligne,"seqname=")+8);
+                    feature[index].seqname = String(strstr(ligne,"seqname=")+8);
                     feature_hashtable.insert(String::ToLower(feature[index].seqname ), index + 1 );
                 }
                 else if(strstr(ligne,"animating="))
                     feature[index].animating=(*(strstr(ligne,"animating=")+10)=='1');
                 else if(strstr(ligne,"animtrans="))
-                    feature[index].animtrans=feature[index].animating=(*(strstr(ligne,"animtrans=")+10)=='1');
+                    feature[index].animtrans = feature[index].animating = (*(strstr(ligne,"animtrans=")+10)=='1');
                 else if(strstr(ligne,"shadtrans="))
-                    feature[index].shadtrans=(*(strstr(ligne,"shadtrans=")+10)=='1');
+                    feature[index].shadtrans = (*(strstr(ligne,"shadtrans=")+10)=='1');
                 else if(strstr(ligne,"indestructible="))
-                    feature[index].indestructible=(*(strstr(ligne,"indestructible=")+15)=='1');
+                    feature[index].indestructible = (*(strstr(ligne,"indestructible=")+15)=='1');
                 else if(strstr(ligne,"height="))
-                    feature[index].height=atoi(strstr(ligne,"height=")+7);
+                    feature[index].height = atoi(strstr(ligne,"height=")+7);
                 else if(strstr(ligne,"hitdensity="))
-                    feature[index].hitdensity=atoi(strstr(ligne,"hitdensity=")+11);
+                    feature[index].hitdensity = atoi(strstr(ligne,"hitdensity=")+11);
                 else if(strstr(ligne,"metal="))
-                    feature[index].metal=atoi(strstr(ligne,"metal=")+6);
+                    feature[index].metal = atoi(strstr(ligne,"metal=")+6);
                 else if(strstr(ligne,"energy="))
-                    feature[index].energy=atoi(strstr(ligne,"energy=")+7);
+                    feature[index].energy = atoi(strstr(ligne,"energy=")+7);
                 else if(strstr(ligne,"damage="))
-                    feature[index].damage=atoi(strstr(ligne,"damage=")+7);
+                    feature[index].damage = atoi(strstr(ligne,"damage=")+7);
                 else if(strstr(ligne,"footprintx="))
-                    feature[index].footprintx=atoi(strstr(ligne,"footprintx=")+11);
+                    feature[index].footprintx = atoi(strstr(ligne,"footprintx=")+11);
                 else if(strstr(ligne,"footprintz="))
-                    feature[index].footprintz=atoi(strstr(ligne,"footprintz=")+11);
+                    feature[index].footprintz = atoi(strstr(ligne,"footprintz=")+11);
                 else if(strstr(ligne,"autoreclaimable="))
-                    feature[index].autoreclaimable=(*(strstr(ligne,"autoreclaimable=")+16)=='1');
+                    feature[index].autoreclaimable = (*(strstr(ligne,"autoreclaimable=")+16)=='1');
                 else if(strstr(ligne,"reclaimable="))
-                    feature[index].reclaimable=(*(strstr(ligne,"reclaimable=")+12)=='1');
+                    feature[index].reclaimable = (*(strstr(ligne,"reclaimable=")+12)=='1');
                 else if(strstr(ligne,"blocking="))
-                    feature[index].blocking=(*(strstr(ligne,"blocking=")+9)=='1');
+                    feature[index].blocking = (*(strstr(ligne,"blocking=")+9)=='1');
                 else if(strstr(ligne,"flamable="))
-                    feature[index].flamable=(*(strstr(ligne,"flamable=")+9)=='1');
+                    feature[index].flamable = (*(strstr(ligne,"flamable=")+9)=='1');
                 else if(strstr(ligne,"geothermal="))
-                    feature[index].geothermal=(*(strstr(ligne,"geothermal=")+11)=='1');
+                    feature[index].geothermal = (*(strstr(ligne,"geothermal=")+11)=='1');
                 else if(strstr(ligne,"reproducearea="))	{}
                 else if(strstr(ligne,"reproduce="))	{}
                 else if(strstr(ligne,"featuredead=")) {
                     if(strstr(ligne,";"))	*(strstr(ligne,";"))=0;
-                    feature[index].feature_dead=strdup(strstr(ligne,"featuredead=")+12);
+                    feature[index].feature_dead = String(strstr(ligne,"featuredead=")+12);
                 }
                 else if(strstr(ligne,"seqnameshad=")) {}
                 else if(strstr(ligne,"seqnamedie=")) {}
@@ -323,26 +328,26 @@ namespace TA3D
                 else if(strstr(ligne,"permanent=")) {}
                 else if(strstr(ligne,"nodisplayinfo=")) {}
                 else if(strstr(ligne,"burnmin="))
-                    feature[index].burnmin=atoi(strstr(ligne,"burnmin=")+8);
+                    feature[index].burnmin = atoi(strstr(ligne,"burnmin=")+8);
                 else if(strstr(ligne,"burnmax="))
-                    feature[index].burnmax=atoi(strstr(ligne,"burnmax=")+8);
+                    feature[index].burnmax = atoi(strstr(ligne,"burnmax=")+8);
                 else if(strstr(ligne,"sparktime="))
-                    feature[index].sparktime=atoi(strstr(ligne,"sparktime=")+10);
+                    feature[index].sparktime = atoi(strstr(ligne,"sparktime=")+10);
                 else if(strstr(ligne,"spreadchance="))
-                    feature[index].spreadchance=atoi(strstr(ligne,"spreadchance=")+13);
+                    feature[index].spreadchance = atoi(strstr(ligne,"spreadchance=")+13);
                 else if(strstr(ligne,"burnweapon=")) {
                     if(strstr(ligne,";"))	*(strstr(ligne,";"))=0;
-                    feature[index].burnweapon=strdup(strstr(ligne,"burnweapon=")+11);
+                    feature[index].burnweapon = String(strstr(ligne,"burnweapon=")+11);
                 }
                 else if(strstr(ligne,"seqnameburn=")) {}
                 else if(strstr(ligne,"seqnameburnshad=")) {}
                 else if(strstr(ligne,"featureburnt=")) {
                     if(strstr(ligne,";"))	*(strstr(ligne,";"))=0;
-                    feature[index].feature_burnt=strdup(strstr(ligne,"featureburnt=")+13);
+                    feature[index].feature_burnt = String(strstr(ligne,"featureburnt=")+13);
                 }
                 else if(strstr(ligne,"featurereclamate=")) {
                     if(strstr(ligne,";"))	*(strstr(ligne,";"))=0;
-                    feature[index].feature_reclamate=strdup(strstr(ligne,"featurereclamate=")+17);
+                    feature[index].feature_reclamate = String(strstr(ligne,"featurereclamate=")+17);
                 }
                 else if(strstr(ligne,";"))
                     LOG_ERROR(LOG_PREFIX_TDF << "Unknown: `" << ligne << "`");
@@ -361,11 +366,11 @@ namespace TA3D
 
         for (int i = first; i < nb_features; ++i)// Charge les fichiers d'animation
         {
-            if (feature[i].category)
-                feature[i].vent = (strstr(feature[i].category, "vents") != NULL);
-            if (feature[i].filename && feature[i].seqname && !feature[i].m3d)
+            if (!feature[i].category.empty())
+                feature[i].vent = (strstr(feature[i].category.c_str(), "vents") != NULL);
+            if (!feature[i].filename.empty() && !feature[i].seqname.empty() && !feature[i].m3d)
             {
-                if (model_manager.get_model((char*)(String(feature[i].filename) + "-" + String(feature[i].seqname)).c_str()) != NULL) // Check if there is a 3do version of it
+                if (model_manager.get_model(feature[i].filename + "-" + feature[i].seqname) != NULL) // Check if there is a 3do version of it
                 {
                     feature[i].model=NULL;
                     feature[i].m3d=true;
@@ -387,7 +392,7 @@ namespace TA3D
                         delete[] gaf;
 
                         if (index>=0 && feature[i].height<=10.0f && feature[i].height>1.0f && feature[i].anim.nb_bmp>0 && feature[i].blocking
-                           && feature[i].anim.bmp[0]->w>=16 && feature[i].anim.bmp[0]->h>=16 && strcasecmp(feature[i].description,"Metal")!=0) // Tente une conversion en 3d
+                           && feature[i].anim.bmp[0]->w>=16 && feature[i].anim.bmp[0]->h>=16 && strcasecmp(feature[i].description.c_str(),"Metal")!=0) // Tente une conversion en 3d
                         {
                             String st(feature[i].filename);
                             st += "-";
@@ -410,7 +415,7 @@ namespace TA3D
             }
             else
             {
-                if (feature[i].filename && feature[i].m3d)
+                if (!feature[i].filename.empty() && feature[i].m3d)
                     feature[i].model = NULL;
             }
         }
@@ -448,19 +453,19 @@ namespace TA3D
         for (int i = 0; i < feature_manager.nb_features; ++i)
         {
             if (feature_manager.feature[i].m3d && feature_manager.feature[i].model == NULL
-                && feature_manager.feature[i].filename != NULL && feature_manager.feature[i].seqname != NULL)
+                && !feature_manager.feature[i].filename.empty() && !feature_manager.feature[i].seqname.empty())
             {
                 String tmp(feature_manager.feature[i].filename);
                 tmp += "-";
                 tmp += feature_manager.feature[i].seqname;
-                feature_manager.feature[i].model = model_manager.get_model((char*)tmp.c_str());
+                feature_manager.feature[i].model = model_manager.get_model(tmp);
                 if (feature_manager.feature[i].model == NULL)
-                    feature_manager.feature[i].model=model_manager.get_model((char*)(String("objects3d\\")+tmp).c_str());
+                    feature_manager.feature[i].model=model_manager.get_model(String("objects3d\\")+tmp);
             }
             else
             {
-                if (feature_manager.feature[i].m3d && feature_manager.feature[i].model == NULL && feature_manager.feature[i].filename != NULL)
-                    feature_manager.feature[i].model=model_manager.get_model(feature_manager.feature[i].filename);
+                if (feature_manager.feature[i].m3d && feature_manager.feature[i].model == NULL && !feature_manager.feature[i].filename.empty())
+                    feature_manager.feature[i].model = model_manager.get_model(feature_manager.feature[i].filename);
             }
         }
     }
@@ -505,7 +510,7 @@ namespace TA3D
                     feature[i].shadow_dlist = 0;
                 }
             }
-            free(feature);
+            delete[] feature;
         }
         if (list)
             delete[] list;
@@ -903,7 +908,7 @@ namespace TA3D
             burning_features.push_back(idx);		// It's burning 8)
 
             // Start doing damages to things around
-            if (feature_manager.feature[feature[idx].type].burnweapon)
+            if (!feature_manager.feature[feature[idx].type].burnweapon.empty())
             {
                 int w_idx = weapon_manager.get_weapon_index(feature_manager.feature[feature[idx].type].burnweapon);
                 feature[ idx ].BW_idx = w_idx;
@@ -966,7 +971,7 @@ namespace TA3D
                               feature_manager.feature[features.feature[*i].type].footprintz, -1);
 
                 // Replace the feature if needed (with the burnt feature)
-                if (feature_manager.feature[feature[*i].type].feature_burnt)
+                if (!feature_manager.feature[feature[*i].type].feature_burnt.empty())
                 {
                     int burnt_type = feature_manager.get_feature_index( feature_manager.feature[feature[*i].type].feature_burnt);
                     if (burnt_type >= 0)
@@ -1076,7 +1081,7 @@ namespace TA3D
         if (idx < 0 || idx >= max_features || feature[idx].type < 0)
             return; // Nothing to display
 
-        if (feature_manager.feature[feature[idx].type].description)
+        if (!feature_manager.feature[feature[idx].type].description.empty())
         {
             if (feature_manager.feature[feature[idx].type].reclaimable)
                 gfx->print(gfx->normal_font,ta3dSideData.side_int_data[ players.side_view ].Description.x1,ta3dSideData.side_int_data[ players.side_view ].Description.y1,0.0f,0xFFFFFFFF, format("%s M:%d E:%d",I18N::Translate( feature_manager.feature[ feature[ idx ].type ].description ).c_str(),feature_manager.feature[ feature[ idx ].type ].metal,feature_manager.feature[ feature[ idx ].type ].energy) );
@@ -1123,7 +1128,7 @@ namespace TA3D
         if (nb_features > max_features) // Si besoin alloue plus de mémoire
         {
             max_features += 500;				// Alloue la mémoire par paquets de 500 éléments
-            FEATURE_DATA* n_feature=(FEATURE_DATA*) malloc(sizeof(FEATURE_DATA)*max_features);
+            FEATURE_DATA* n_feature = new FEATURE_DATA[max_features];
             if (feature && nb_features > 0)
             {
                 for(int i = 0; i < nb_features - 1; ++i)
@@ -1136,7 +1141,7 @@ namespace TA3D
                 n_feature[i].delete_shadow_dlist = false;
             }
             if (feature)
-                free(feature);
+                delete[] feature;
             feature = n_feature;
             resetListOfItemsToDisplay();
             idx = nb_features - 1;

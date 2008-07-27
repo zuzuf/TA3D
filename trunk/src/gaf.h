@@ -75,7 +75,7 @@ namespace TA3D
 
     char *get_gaf_entry_name(byte *buf,int entry_idx);
 
-    int get_gaf_entry_index(byte *buf,const char *name);
+    int get_gaf_entry_index(byte *buf,const String &name);
 
     int get_gaf_nb_img(byte *buf,int entry_idx);
 
@@ -96,7 +96,7 @@ namespace TA3D
         GLuint	*glbmp;
         char	*name;
         bool	dgl;
-        char	*filename;
+        String	filename;
 
         inline void init()
         {
@@ -107,7 +107,7 @@ namespace TA3D
             w=h=NULL;
             name=NULL;
             dgl=false;
-            filename = NULL;
+            filename.clear();
         }
 
         ANIM()
@@ -117,7 +117,7 @@ namespace TA3D
 
         inline void destroy()
         {
-            if( filename )	free( filename );
+            filename.clear();
             if(nb_bmp>0) {
                 for(int i=0;i<nb_bmp;i++) {
                     if(bmp[i])
@@ -146,7 +146,7 @@ namespace TA3D
             destroy();
         }
 
-        void load_gaf(byte *buf,int entry_idx=0,bool truecol=true,const char *fname=NULL);
+        void load_gaf(byte *buf,int entry_idx=0,bool truecol=true,const String &fname = String(""));
 
         void convert(bool NO_FILTER=false,bool COMPRESSED=false);
 
@@ -193,11 +193,11 @@ namespace TA3D
             destroy();
         }
 
-        void load_gaf( byte *buf, bool doConvert=false, const char *fname = NULL )
+        void load_gaf( byte *buf, bool doConvert=false, const String &fname = String("") )
         {
             if( buf == NULL )	return;
 
-            nb_anim=get_gaf_nb_entry(buf);
+            nb_anim = get_gaf_nb_entry(buf);
 
             anm = new ANIM[nb_anim];
 

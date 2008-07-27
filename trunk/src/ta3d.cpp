@@ -27,6 +27,7 @@
 #include "network/TA3D_Network.h"	// Network functionnalities such as chat
 #include "gfx/fx.h"
 #include "misc/paths.h"
+#include "misc/files.h"
 #include "misc/camera.h"
 #include "misc/material.light.h"
 #include "ingame/gamedata.h"
@@ -157,7 +158,7 @@ int play(GameData *game_data)
 
     units.init( true );
 
-    if( game_data->use_only ) 			// We are told not to use all units !!
+    if( !game_data->use_only.empty() ) 			// We are told not to use all units !!
     {
         cTAFileParser useonly_parser( game_data->use_only, false, false, true );		// In gadgets mode so we can read the special key :)
         int i = 0;
@@ -242,7 +243,7 @@ int play(GameData *game_data)
 
     units.map = map;			// Setup some useful information
 
-    replace_extension(game_data->map_filename, game_data->map_filename, "ota", strlen(game_data->map_filename)+1);
+    game_data->map_filename = Paths::Files::ReplaceExtension( game_data->map_filename, ".ota" );
 
     LOG_DEBUG("Extracting `" << game_data->map_filename << "`...");
     uint32 ota_size=0;
@@ -265,7 +266,7 @@ int play(GameData *game_data)
         delete[] map_file;
     }
 
-    game_data->map_filename[ strlen( game_data->map_filename ) - 4 ] = 0;		// Remove the ".ota" extension
+    game_data->map_filename.resize( game_data->map_filename.size() - 3 );		// Remove the ".ota" extension
 
     SKY_DATA	*sky_data = choose_a_sky( game_data->map_filename, map->ota_data.planet );
 

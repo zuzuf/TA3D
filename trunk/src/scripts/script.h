@@ -158,7 +158,7 @@ namespace TA3D
             destroy();
         }
 
-        void load(char *filename, MAP *map);					// Load a lua script
+        void load(const String &filename, MAP *map);					// Load a lua script
 
         int run(MAP *map,float dt,int viewer_id);					// Execute le script
     };

@@ -42,9 +42,9 @@ namespace TA3D
         ** \brief
         ** \param name
         */
-        int get_weapon_index(const char *name)
+        int get_weapon_index(const String &name)
         {
-            return (!name || nb_weapons <= 0 || '\0' == *name) ? -1 : (weapon_hashtable.find(String::ToLower(name)) - 1);
+            return (!name.empty() || nb_weapons <= 0 || '\0' == name[0]) ? -1 : (weapon_hashtable.find(String::ToLower(name)) - 1);
         }
 
 

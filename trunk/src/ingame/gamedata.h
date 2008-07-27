@@ -40,7 +40,7 @@ namespace TA3D
 
     public:
         //! Which map to play
-        char* map_filename;	
+        String map_filename;	
 
         //! How many players
         int	 nb_players;
@@ -66,7 +66,7 @@ namespace TA3D
         //! Who is ready ?
         std::vector<byte> ready;
         //! Which script to run
-        char* game_script;
+        String game_script;
         //! flags to configure FOW
         uint8 fog_of_war;
 
@@ -74,7 +74,7 @@ namespace TA3D
         bool campaign;
 
         //! The use only file to read
-        char* use_only;
+        String use_only;
         //! If not empty it's the name of the file to load
         String saved_file;
 

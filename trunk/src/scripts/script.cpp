@@ -1247,7 +1247,7 @@ namespace TA3D
         init();
     }
 
-    void LUA_PROGRAM::load(char *filename, MAP *map)					// Load a lua script
+    void LUA_PROGRAM::load(const String &filename, MAP *map)					// Load a lua script
     {
         destroy();			// Au cas où
 

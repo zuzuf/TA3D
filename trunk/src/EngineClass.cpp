@@ -2167,7 +2167,7 @@ namespace TA3D
         energy_t[nb_player]=0;
         kills[nb_player]=0;
         losses[nb_player]=0;
-        nom[nb_player]=strdup(NOM);
+        nom[nb_player]=NOM;
         control[nb_player]=_control;
         nb_unit[nb_player]=0;
         energy_total[nb_player]=0.0f;
@@ -2182,7 +2182,7 @@ namespace TA3D
         energy_s[nb_player] = E;
         metal_s[nb_player] = M;
 
-        side[nb_player++]=strdup(SIDE);
+        side[nb_player++]=SIDE;
         if (_control == PLAYER_CONTROL_LOCAL_HUMAN)
         {
             local_human_id = NB_PLAYERS;

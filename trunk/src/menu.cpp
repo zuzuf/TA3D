@@ -35,6 +35,7 @@
 #include "restore.h"
 #include "misc/settings.h"
 #include "misc/paths.h"
+#include "misc/files.h"
 #include "logs/logs.h"
 #include "ingame/gamedata.h"
 #include "ingame/menus/mapselector.h"
@@ -571,7 +572,7 @@ void setup_game(bool client, const char *host)
     GameData game_data;
 
     if( HPIManager->Exists( lp_CONFIG->last_map ) )
-        game_data.map_filename = strdup( lp_CONFIG->last_map.c_str() );
+        game_data.map_filename = lp_CONFIG->last_map;
     else
     {
         String::List map_list;
@@ -585,12 +586,12 @@ void setup_game(bool client, const char *host)
             reset_mouse();
             return;
         }
-        game_data.map_filename = strdup( map_list.begin()->c_str() );
+        game_data.map_filename = *(map_list.begin());
         map_list.clear();
     }
     game_data.nb_players = 2;
     if (HPIManager->Exists(lp_CONFIG->last_script) && String::ToLower(lp_CONFIG->last_script.substr(lp_CONFIG->last_script.length() - 3 , 3)) == "lua")
-        game_data.game_script = strdup( lp_CONFIG->last_script.c_str() );
+        game_data.game_script = lp_CONFIG->last_script;
     else
     {
         String::List script_list;
@@ -604,7 +605,7 @@ void setup_game(bool client, const char *host)
             reset_mouse();
             return;
         }
-        game_data.game_script = strdup( script_list.begin()->c_str() );
+        game_data.game_script = *(script_list.begin());
         script_list.clear();
     }
     game_data.fog_of_war = lp_CONFIG->last_FOW;
@@ -638,7 +639,7 @@ void setup_game(bool client, const char *host)
     GLuint glimg = load_tnt_minimap_fast(game_data.map_filename,dx,dy);
     char tmp_char[1024];
     MAP_OTA	map_data;
-    map_data.load( replace_extension( (char*)tmp_char, game_data.map_filename, "ota", 1024 ) );
+    map_data.load( Paths::Files::ReplaceExtension( game_data.map_filename, ".ota" ) );
     float ldx = dx*70.0f/252.0f;
     float ldy = dy*70.0f/252.0f;
 
@@ -993,8 +994,7 @@ void setup_game(bool client, const char *host)
                             String script_name = ReplaceChar( params[2], 1, ' ' );
                             if( script_name != game_data.game_script ) {
                                 setupgame_area.set_caption( "gamesetup.script_name", script_name );
-                                free( game_data.game_script );
-                                game_data.game_script = strdup( script_name.c_str() );
+                                game_data.game_script = script_name;
 
                                 if( client && !HPIManager->Exists( script_name.c_str() ) ) {
                                     if( !previous_lua_port.empty() )
@@ -1168,8 +1168,7 @@ void setup_game(bool client, const char *host)
             guiobj = setupgame_area.get_object( "scripts.script_list" );
             if( guiobj && guiobj->Pos >= 0 && guiobj->Pos < guiobj->num_entries() ) {
                 setupgame_area.set_caption( "gamesetup.script_name", guiobj->Text[ guiobj->Pos ] );
-                free( game_data.game_script );
-                game_data.game_script = strdup( guiobj->Text[ guiobj->Pos ].c_str() );
+                game_data.game_script = guiobj->Text[ guiobj->Pos ];
                 if( host )	network_manager.sendSpecial( "SET SCRIPT " + ReplaceChar( guiobj->Text[ guiobj->Pos ], ' ', 1 ) );
             }
         }
@@ -1327,7 +1326,7 @@ void setup_game(bool client, const char *host)
             || ( client && !set_map.empty() ) )	// Clic on the mini-map or received map set command
         {
             String map_filename;
-            char *new_map;
+            String new_map;
             if( !client )
             {
                 setupgame_area.set_caption("popup.msg",I18N::Translate("Loading maps, please wait ..."));       // Show a small popup displaying a wait message
@@ -1346,20 +1345,20 @@ void setup_game(bool client, const char *host)
 
                 String newMapName;
                 Menus::MapSelector::Execute(game_data.map_filename, newMapName);
-                new_map = strdup(newMapName.c_str());
+                new_map = newMapName;
                 for( int i = 0 ; i < 10 ; i++ )
                     player_timer[ i ] = msec_timer;
                 setupgame_area.msg("popup.hide");
             }
             else
-                new_map = strdup( set_map.c_str() );
+                new_map = set_map;
 
             gfx->SCREEN_W_TO_640 = 1.0f;				// To have mouse sensibility undependent from the resolution
             gfx->SCREEN_H_TO_480 = 1.0f;
             cursor_type=CURSOR_DEFAULT;
             gfx->set_2D_mode();
 
-            if(new_map)
+            if(!new_map.empty())
             {
                 if( host && !client)
                     network_manager.sendSpecial(format("SET MAP %s", ReplaceChar( new_map, ' ', 1 ).c_str()));
@@ -1368,8 +1367,6 @@ void setup_game(bool client, const char *host)
 
                 gfx->destroy_texture( glimg );
 
-                if(game_data.map_filename)
-                    free(game_data.map_filename);
                 game_data.map_filename = new_map;
                 glimg = load_tnt_minimap_fast(game_data.map_filename,dx,dy);
                 ldx = dx * ( mini_map_x2 - mini_map_x1 ) / 504.0f;
@@ -1382,7 +1379,7 @@ void setup_game(bool client, const char *host)
                 minimap_obj->v2 = dy/252.0f;
 
                 map_data.destroy();
-                map_data.load( replace_extension( (char*)tmp_char, game_data.map_filename, "ota", 1024 ) );
+                map_data.load( Paths::Files::ReplaceExtension( game_data.map_filename, ".ota" ) );
                 String map_info = "";
                 if(map_data.missionname)
                     map_info += String( map_data.missionname ) + "\n";
@@ -1446,7 +1443,7 @@ void setup_game(bool client, const char *host)
 
     if(start_game)
     {
-        if(game_data.map_filename && game_data.game_script)
+        if(!game_data.map_filename.empty() && !game_data.game_script.empty())
         {
             lp_CONFIG->last_script = game_data.game_script;		// Remember the last script we played
             lp_CONFIG->last_map = game_data.map_filename;		// Remember the last map we played
@@ -2125,8 +2122,8 @@ int brief_screen(String campaign_name, int mission_id)
 
         TA3D::generate_script_from_mission( "scripts/__campaign_script.lua", &ota_parser, schema );	// Generate the script which will be removed later
 
-        game_data.game_script = strdup( "scripts/__campaign_script.lua" );
-        game_data.map_filename = strdup( ( map_filename.substr( 0, map_filename.size() - 3 ) + "tnt" ).c_str() );		// Remember the last map we played
+        game_data.game_script = "scripts/__campaign_script.lua";
+        game_data.map_filename = map_filename.substr( 0, map_filename.size() - 3 ) + "tnt";		// Remember the last map we played
         game_data.fog_of_war = FOW_ALL;
 
         game_data.nb_players = ota_parser.pullAsInt( "GlobalHeader.numplayers", 2 );
@@ -2161,11 +2158,9 @@ int brief_screen(String campaign_name, int mission_id)
         }
 
         game_data.campaign = true;
-        game_data.use_only = (char*)ota_parser.pullAsString( "GlobalHeader.useonlyunits" ).c_str();
-        if( strlen( game_data.use_only ) == 0 )
-            game_data.use_only = NULL;
-        else
-            game_data.use_only = strdup( ("camps\\useonly\\" + String( game_data.use_only )).c_str() );
+        game_data.use_only = ota_parser.pullAsString( "GlobalHeader.useonlyunits" );
+        if( !game_data.use_only.empty() )
+            game_data.use_only = "camps\\useonly\\" + game_data.use_only;
 
         gfx->unset_2D_mode();
         int exit_mode = 0;

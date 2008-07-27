@@ -514,7 +514,6 @@ namespace TA3D
         {
             nb_models=0;
             model=NULL;
-//            name=NULL;
             name.clear();
         }
 

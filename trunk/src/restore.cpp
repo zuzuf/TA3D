@@ -54,13 +54,13 @@ void save_game( const String filename, GameData *game_data )
 
     //----- Save game information --------------------------------------------------------------
 
-    fputs( game_data->map_filename, file );	fputc( 0, file );
-    fputs( game_data->game_script, file );	fputc( 0, file );
+    fputs( game_data->map_filename.c_str(), file );	fputc( 0, file );
+    fputs( game_data->game_script.c_str(), file );	fputc( 0, file );
 
     fputc( game_data->fog_of_war, file );			// flags to configure FOW
     fputc( game_data->campaign, file );				// Are we in campaign mode ?
-    if( game_data->use_only )			// The use only file to read
-        fputs( game_data->use_only, file );
+    if( !game_data->use_only.empty() )			// The use only file to read
+        fputs( game_data->use_only.c_str(), file );
     fputc( 0, file );
 
     SAVE( game_data->nb_players );
@@ -142,7 +142,7 @@ void save_game( const String filename, GameData *game_data )
         SAVE( features.feature[i].type );
         if( features.feature[i].type >= 0 )
         {
-            fputs( feature_manager.feature[features.feature[i].type].name, file );		// Store the name so it doesn't rely on the feature order
+            fputs( feature_manager.feature[features.feature[i].type].name.c_str(), file );		// Store the name so it doesn't rely on the feature order
             fputc( 0, file );
             SAVE( features.feature[i].Pos );
             SAVE( features.feature[i].frame );
@@ -445,16 +445,16 @@ void load_game_data( const String filename, GameData *game_data )
 
     readstring( tmp, 1024, file );
     strcat( tmp, ".tnt" );
-    game_data->map_filename = strdup( tmp );
-    game_data->game_script = strdup( readstring( tmp, 1024, file ) );
+    game_data->map_filename = tmp;
+    game_data->game_script = readstring( tmp, 1024, file );
 
     game_data->fog_of_war = fgetc( file );			// flags to configure FOW
     game_data->campaign = fgetc( file );			// Are we in campaign mode ?
     readstring( tmp, 1024, file );
     if( tmp[0] )
-        game_data->use_only = strdup( tmp );
+        game_data->use_only = tmp;
     else
-        game_data->use_only = NULL;
+        game_data->use_only = "";
 
     LOAD( game_data->nb_players );
 
