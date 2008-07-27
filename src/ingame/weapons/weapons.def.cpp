@@ -25,10 +25,10 @@ namespace TA3D
     {
         damage_hashtable = new cHashTable<int>(128);
 
-        soundstart = NULL;
-        soundhit = NULL;
-        soundwater = NULL;
-        soundtrigger = NULL;
+        soundstart.clear();
+        soundhit.clear();
+        soundwater.clear();
+        soundtrigger.clear();
 
         toairweapon = false;
         time_to_range=2.0f;
@@ -38,19 +38,19 @@ namespace TA3D
         metal=0;
         energy=0;
         waterweapon=false;
-        explosiongaf=NULL;
-        explosionart=NULL;
-        waterexplosiongaf=NULL;
-        waterexplosionart=NULL;
-        lavaexplosiongaf=NULL;
-        lavaexplosionart=NULL;
+        explosiongaf.clear();
+        explosionart.clear();
+        waterexplosiongaf.clear();
+        waterexplosionart.clear();
+        lavaexplosiongaf.clear();
+        lavaexplosionart.clear();
         dropped=false;
         nb_id=0;
         burst=1;
         noexplode=false;
         weapon_id=0;			// Numéro identifiant l'arme
-        internal_name=NULL;		// Nom interne de l'arme
-        name=NULL;				// Nom de l'arme
+        internal_name.clear();	// Nom interne de l'arme
+        name.clear();			// Nom de l'arme
         rendertype=RENDER_TYPE_NONE;
         ballistic=false;
         turret=false;
@@ -105,18 +105,12 @@ namespace TA3D
 
     void WEAPON_DEF::destroy()
     {
-        if(soundstart)
-            free(soundstart);
-        if(soundhit)
-            free(soundhit);
-        if(soundwater)
-            free(soundwater);
-        if(soundtrigger)
-            free(soundtrigger);
-        if(internal_name)
-            free(internal_name);
-        if(name)
-            free(name);
+        soundstart.clear();
+        soundhit.clear();
+        soundwater.clear();
+        soundtrigger.clear();
+        internal_name.clear();
+        name.clear();
         if (damage_hashtable)
             delete damage_hashtable;
         init(); // TODO Should be removed

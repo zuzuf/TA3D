@@ -49,13 +49,7 @@ namespace TA3D
     void WEAPON_MANAGER::destroy()
     {
         cannonshell.destroy();
-        if(nb_weapons>0 && weapon)
-        {
-            for(int i = 0;i < nb_weapons; ++i)
-                weapon[i].destroy();
-        }
-        if (weapon)
-            free(weapon);
+        if (weapon) delete[] weapon;
         weapon_hashtable.emptyHashTable();
         weapon_hashtable.initTable(__DEFAULT_HASH_TABLE_SIZE);
         init();
@@ -63,20 +57,19 @@ namespace TA3D
 
 
 
-    int WEAPON_MANAGER::add_weapon(const char* name)
+    int WEAPON_MANAGER::add_weapon(const String &name)
     {
         ++nb_weapons;
-        WEAPON_DEF* n_weapon = (WEAPON_DEF*)malloc(sizeof(WEAPON_DEF)*nb_weapons);
+        WEAPON_DEF* n_weapon = new WEAPON_DEF[nb_weapons];
         if(weapon && nb_weapons>1)
-        {
             for(int i=0;i<nb_weapons-1;i++)
-                n_weapon[i]=weapon[i];
-        }
-        if(weapon)
-            free(weapon);
-        weapon=n_weapon;
+            {
+                n_weapon[i] = weapon[i];
+                weapon[i].init();
+            }
+        weapon = n_weapon;
         weapon[nb_weapons-1].init();
-        weapon[nb_weapons-1].internal_name = strdup(name);
+        weapon[nb_weapons-1].internal_name = name;
         weapon[nb_weapons-1].nb_id=nb_weapons-1;
 
         weapon_hashtable.insert(String::ToLower(name), nb_weapons);
@@ -158,31 +151,31 @@ namespace TA3D
                     }
                     else if((f=strstr(ligne,"name="))) {
                         if((strstr(ligne,";")))	*(strstr(ligne,";"))=0;
-                        weapon[index].name=strdup(f+5);
+                        weapon[index].name = f+5;
                     }
                     else if((f=strstr(ligne,"id="))) {
                         if((strstr(ligne,";")))	*(strstr(ligne,";"))=0;
-                        weapon[index].weapon_id=atoi(f+3);
+                        weapon[index].weapon_id = atoi(f+3);
                     }
                     else if((f=strstr(ligne,"rendertype="))) {
                         if((strstr(ligne,";")))	*(strstr(ligne,";"))=0;
-                        weapon[index].rendertype=atoi(f+11);
+                        weapon[index].rendertype = atoi(f+11);
                     }
                     else if((f=strstr(ligne,"ballistic="))) {
                         if((strstr(ligne,";")))	*(strstr(ligne,";"))=0;
-                        weapon[index].ballistic=(f[10]=='1');
+                        weapon[index].ballistic = (f[10]=='1');
                     }
                     else if((f=strstr(ligne,"turret="))) {
                         if((strstr(ligne,";")))	*(strstr(ligne,";"))=0;
-                        weapon[index].turret=(f[7]=='1');
+                        weapon[index].turret = (f[7]=='1');
                     }
                     else if((f=strstr(ligne,"noautorange="))) {
                         if((strstr(ligne,";")))	*(strstr(ligne,";"))=0;
-                        weapon[index].noautorange=(f[12]=='1');
+                        weapon[index].noautorange = (f[12]=='1');
                     }
                     else if((f=strstr(ligne,"range="))) {
                         if((strstr(ligne,";")))	*(strstr(ligne,";"))=0;
-                        weapon[index].range=atoi(f+6);
+                        weapon[index].range = atoi(f+6);
                         weapon[index].time_to_range*=weapon[index].range;
                     }
                     else if((f=strstr(ligne,"reloadtime="))) {
@@ -191,68 +184,68 @@ namespace TA3D
                     }
                     else if((f=strstr(ligne,"weaponvelocity="))) {
                         if((strstr(ligne,";")))	*(strstr(ligne,";"))=0;
-                        weapon[index].weaponvelocity=atoi(f+15)*0.5f;
-                        weapon[index].time_to_range/=weapon[index].weaponvelocity;
+                        weapon[index].weaponvelocity = atoi(f+15)*0.5f;
+                        weapon[index].time_to_range /= weapon[index].weaponvelocity;
                     }
                     else if((f=strstr(ligne,"burst="))) {
                         if((strstr(ligne,";")))	*(strstr(ligne,";"))=0;
-                        weapon[index].burst=atoi(f+6);
+                        weapon[index].burst = atoi(f+6);
                     }
                     else if((f=strstr(ligne,"areaofeffect="))) {
                         if((strstr(ligne,";")))	*(strstr(ligne,";"))=0;
-                        weapon[index].areaofeffect=atoi(f+13);
+                        weapon[index].areaofeffect = atoi(f+13);
                     }
                     else if((f=strstr(ligne,"startsmoke="))) {
                         if((strstr(ligne,";")))	*(strstr(ligne,";"))=0;
-                        weapon[index].startsmoke=(f[11]=='1');
+                        weapon[index].startsmoke = (f[11]=='1');
                     }
                     else if((f=strstr(ligne,"endsmoke="))) {
                         if((strstr(ligne,";")))	*(strstr(ligne,";"))=0;
-                        weapon[index].endsmoke=(f[9]=='1');
+                        weapon[index].endsmoke = (f[9]=='1');
                     }
                     else if((f=strstr(ligne,"firestarter="))) {
                         if((strstr(ligne,";")))	*(strstr(ligne,";"))=0;
-                        weapon[index].firestarter=atoi(f+12);
+                        weapon[index].firestarter = atoi(f+12);
                     }
                     else if((f=strstr(ligne,"accuracy="))) {
                         if((strstr(ligne,";")))	*(strstr(ligne,";"))=0;
-                        weapon[index].accuracy=atoi(f+9);
+                        weapon[index].accuracy = atoi(f+9);
                     }
                     else if((f=strstr(ligne,"aimrate="))) {
                         if((strstr(ligne,";")))	*(strstr(ligne,";"))=0;
-                        weapon[index].aimrate=atoi(f+8);
+                        weapon[index].aimrate = atoi(f+8);
                     }
                     else if((f=strstr(ligne,"tolerance="))) {
                         if((strstr(ligne,";")))	*(strstr(ligne,";"))=0;
-                        weapon[index].tolerance=atoi(f+9);
+                        weapon[index].tolerance = atoi(f+9);
                     }
                     else if((f=strstr(ligne,"holdtime="))) {
                         if((strstr(ligne,";")))	*(strstr(ligne,";"))=0;
-                        weapon[index].holdtime=atoi(f+8);
+                        weapon[index].holdtime = atoi(f+8);
                     }
                     else if((f=strstr(ligne,"energypershot="))) {
                         if((strstr(ligne,";")))	*(strstr(ligne,";"))=0;
-                        weapon[index].energypershot=atoi(f+14);
+                        weapon[index].energypershot = atoi(f+14);
                     }
                     else if((f=strstr(ligne,"metalpershot="))) {
                         if((strstr(ligne,";")))	*(strstr(ligne,";"))=0;
-                        weapon[index].metalpershot=atoi(f+13);
+                        weapon[index].metalpershot = atoi(f+13);
                     }
                     else if((f=strstr(ligne,"minbarrelangle="))) {
                         if((strstr(ligne,";")))	*(strstr(ligne,";"))=0;
-                        weapon[index].minbarrelangle=atoi(f+15);
+                        weapon[index].minbarrelangle = atoi(f+15);
                     }
                     else if((f=strstr(ligne,"unitsonly="))) {
                         if((strstr(ligne,";")))	*(strstr(ligne,";"))=0;
-                        weapon[index].unitsonly=(f[10]=='1');
+                        weapon[index].unitsonly = (f[10]=='1');
                     }
                     else if((f=strstr(ligne,"edgeeffectiveness="))) {
                         if((strstr(ligne,";")))	*(strstr(ligne,";"))=0;
-                        weapon[index].edgeeffectiveness=atof(f+18);
+                        weapon[index].edgeeffectiveness = atof(f+18);
                     }
                     else if((f=strstr(ligne,"lineofsight="))) {
                         if((strstr(ligne,";")))	*(strstr(ligne,";"))=0;
-                        weapon[index].lineofsight=(f[12]=='1');
+                        weapon[index].lineofsight = (f[12]=='1');
                     }
                     else if((f=strstr(ligne,"color=")))
                     {
@@ -411,46 +404,46 @@ namespace TA3D
                     }
                     else if((f=strstr(ligne,"waterexplosiongaf="))) {
                         if((strstr(ligne,";")))	*(strstr(ligne,";"))=0;
-                        weapon[index].waterexplosiongaf=strdup(f+18);
+                        weapon[index].waterexplosiongaf = f+18;
                     }
                     else if((f=strstr(ligne,"waterexplosionart="))) {
                         if((strstr(ligne,";")))	*(strstr(ligne,";"))=0;
-                        weapon[index].waterexplosionart=strdup(f+18);
+                        weapon[index].waterexplosionart = f+18;
                     }
                     else if((f=strstr(ligne,"lavaexplosiongaf="))) {
                         if((strstr(ligne,";")))	*(strstr(ligne,";"))=0;
-                        weapon[index].lavaexplosiongaf=strdup(f+17);
+                        weapon[index].lavaexplosiongaf = f+17;
                     }
                     else if((f=strstr(ligne,"lavaexplosionart="))) {
                         if((strstr(ligne,";")))	*(strstr(ligne,";"))=0;
-                        weapon[index].lavaexplosionart=strdup(f+17);
+                        weapon[index].lavaexplosionart = f+17;
                     }
                     else if((f=strstr(ligne,"explosiongaf="))) {
                         if((strstr(ligne,";")))	*(strstr(ligne,";"))=0;
-                        weapon[index].explosiongaf=strdup(f+13);
+                        weapon[index].explosiongaf = f+13;
                     }
                     else if((f=strstr(ligne,"explosionart="))) {
                         if((strstr(ligne,";")))	*(strstr(ligne,";"))=0;
-                        weapon[index].explosionart=strdup(f+13);
+                        weapon[index].explosionart = f+13;
                     }
                     else if((f=strstr(ligne,"soundtrigger="))) {
                         if((strstr(ligne,";")))	*(strstr(ligne,";"))=0;
-                        weapon[index].soundtrigger = strdup(f+13);
+                        weapon[index].soundtrigger = f+13;
                         sound_manager->loadSound( weapon[index].soundtrigger , true );
                     }
                     else if((f=strstr(ligne,"soundhit="))) {
                         if((strstr(ligne,";")))	*(strstr(ligne,";"))=0;
-                        weapon[index].soundhit = strdup(f+9);
+                        weapon[index].soundhit = f+9;
                         sound_manager->loadSound( weapon[index].soundhit , true );
                     }
                     else if((f=strstr(ligne,"soundstart="))) {
                         if((strstr(ligne,";")))	*(strstr(ligne,";"))=0;
-                        weapon[index].soundstart = strdup(f+11);
+                        weapon[index].soundstart = f+11;
                         sound_manager->loadSound( weapon[index].soundstart , true );
                     }
                     else if((f=strstr(ligne,"soundwater="))) {
                         if((strstr(ligne,";")))	*(strstr(ligne,";"))=0;
-                        weapon[index].soundwater = strdup(f+11);
+                        weapon[index].soundwater = f+11;
                         sound_manager->loadSound(weapon[index].soundwater , true);
                     }
                     else {

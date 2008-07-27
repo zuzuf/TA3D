@@ -3099,7 +3099,7 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
                             players.c_energy[owner_id] -= unit_manager.unit_type[type_id].weapon[ i ]->energypershot;
                         }
                         run_script_function( map, get_script_index(Fire_script) );			// Run the script that tell us from where to shoot
-                        if (unit_manager.unit_type[type_id].weapon[ i ]->soundstart)	sound_manager->playSound(unit_manager.unit_type[type_id].weapon[i]->soundstart, &Pos);
+                        if (!unit_manager.unit_type[type_id].weapon[ i ]->soundstart.empty())	sound_manager->playSound(unit_manager.unit_type[type_id].weapon[i]->soundstart, &Pos);
                         if (script_val->size() <= query_id )
                             script_val->resize( query_id + 1 );
                         int start_piece = (*script_val)[query_id];
@@ -5822,7 +5822,7 @@ int UNIT::shoot(int target,Vector3D startpos,Vector3D Dir,int w_id,const Vector3
         event.dx = (sint16)(Dir.x * 16384.0f);
         event.dy = (sint16)(Dir.y * 16384.0f);
         event.dz = (sint16)(Dir.z * 16384.0f);
-        memcpy( event.str, unit_manager.unit_type[type_id].weapon[w_id]->internal_name, strlen(unit_manager.unit_type[type_id].weapon[w_id]->internal_name) + 1 );
+        memcpy( event.str, unit_manager.unit_type[type_id].weapon[w_id]->internal_name.c_str(), unit_manager.unit_type[type_id].weapon[w_id]->internal_name.size() + 1 );
 
         network_manager.sendEvent( &event );
     }
