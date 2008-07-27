@@ -197,8 +197,6 @@ int main(int argc, char* argv[])
     r1=r2=r3=0.0f;
     r1=30.0f;
 
-    int i;
-
     int counter=0;
     int FPS=0;
     int FPS_Timer = msec_timer;
@@ -955,8 +953,6 @@ void SurfPaint(int index)
     int IsOnGUI;		// Variable indiquant si le curseur est sur un élément de l'interface utilisateur
 
     float r1=0.0f,r2=0.0f;
-
-    bool showcoorwindow=false;
 
     int Focus=0;
 
