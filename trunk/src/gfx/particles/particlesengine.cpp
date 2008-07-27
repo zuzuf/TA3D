@@ -71,7 +71,7 @@ namespace TA3D
 
 #define MEMORY_STEP		10000
         size += MEMORY_STEP;
-        PARTICLE *tmp=(PARTICLE*) malloc(sizeof(PARTICLE)*size);
+        PARTICLE *tmp = new PARTICLE[size];
         if (nb_part>0 && part)
             memcpy(tmp,part,sizeof(PARTICLE)*nb_part);
         uint32	*n_idx = new uint32[size];
@@ -87,15 +87,15 @@ namespace TA3D
         for(uint32 i = size-MEMORY_STEP; i<size;i++)
             free_idx[free_index_size++] = i;
         if (part)
-            free(part);
+            delete[] part;
         part=tmp;
 
         if (point == NULL)
-            point=(Vector3D*) malloc(sizeof(Vector3D)*4096);
+            point = new Vector3D[4096];
         if (texcoord == NULL)
-            texcoord=(GLfloat*) malloc(sizeof(GLfloat)*8192);
+            texcoord = new GLfloat[8192];
         if (color == NULL)
-            color=(GLubyte*) malloc(sizeof(GLubyte)*16384);
+            color = new GLubyte[16384];
         pMutex.unlock();
     }
 
@@ -552,7 +552,6 @@ namespace TA3D
         if (((part == NULL || nb_part == 0) && particle_systems.empty()) || dt == 0.0f)
         {
             pMutex.unlock();
-            rest(1);
             return;
         }
 
@@ -865,18 +864,18 @@ namespace TA3D
         if (dsmoke)
             glDeleteTextures(1,&parttex);
         if (part)
-            free(part);
+            delete[] part;
         dsmoke = false;
         size = 0;
         nb_part = 0;
         part = NULL;
 
         if (point)
-            free(point);
+            delete[] point;
         if (texcoord)
-            free(texcoord);
+            delete[] texcoord;
         if (color)
-            free(color);
+            delete[] color;
         point = NULL;
         texcoord = NULL;
         color = NULL;

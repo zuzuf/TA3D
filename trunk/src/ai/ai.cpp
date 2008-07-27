@@ -283,7 +283,7 @@ namespace TA3D
             ai->weights = new AI_WEIGHT[ unit_manager.nb_unit ];
 
             for( uint16 i = 0 ; i < unit_manager.nb_unit ; ++i)
-                if (strcasecmp( unit_manager.unit_type[ i ].side, players.side[ ai->player_id ] ) == 0 )
+                if (strcasecmp( unit_manager.unit_type[ i ].side, players.side[ ai->player_id ].c_str() ) == 0 )
                 {
                     ai->weights[ i ].type = 0;
 

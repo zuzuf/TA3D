@@ -59,7 +59,7 @@ namespace TA3D
         index_list_size = 0;		idx_list = NULL;
         free_index_size = 0;		free_idx = NULL;
         if(max_weapon>0 && weapon)
-            free(weapon);
+            delete[] weapon;
         nuclogo.destroy();
         pMutex.unlock();
         init(false);
@@ -98,7 +98,7 @@ namespace TA3D
             return i;
         }
         max_weapon += 100; // Augmente la taille du tableau
-        WEAPON *new_weapon=(WEAPON*) malloc(sizeof(WEAPON)*max_weapon);
+        WEAPON *new_weapon = new WEAPON[max_weapon];
 
         uint32	*n_idx = new uint32[max_weapon];
         uint32	*n_new_idx = new uint32[max_weapon];
@@ -119,8 +119,8 @@ namespace TA3D
             for(uint32 i=0;i<nb_weapon;i++)
                 new_weapon[i]=weapon[i];
         if(weapon)
-            free(weapon);
-        weapon=new_weapon;
+            delete[] weapon;
+        weapon = new_weapon;
         uint32 index = free_idx[--free_index_size];
         idx_list[index_list_size++] = index;
         nb_weapon++;
@@ -138,7 +138,6 @@ namespace TA3D
         if (nb_weapon <= 0 || max_weapon <= 0)
         {
             pMutex.unlock();
-            rest(1);
             return;
         }
 
