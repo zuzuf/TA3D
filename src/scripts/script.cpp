@@ -834,7 +834,7 @@ namespace TA3D
         lua_pop( L, 1 );
 
         if( player_id >= 0 && player_id < NB_PLAYERS )
-            lua_pushstring( L, players.side[ player_id ] );
+            lua_pushstring( L, players.side[ player_id ].c_str() );
         else
             lua_pushstring( L, "" );
 
@@ -1081,7 +1081,7 @@ namespace TA3D
 
         if( player_id >= 0 && player_id < NB_PLAYERS )		// make sure we have a player
             for( int i = 0 ; i < ta3dSideData.nb_side ; i++ )
-                if( strcasecmp(ta3dSideData.side_name[ i ], players.side[ player_id ]) == 0  )
+                if( strcasecmp(ta3dSideData.side_name[ i ], players.side[ player_id ].c_str()) == 0  )
                 {
                     lua_pushstring( L, ta3dSideData.side_com[ i ] );
                     break;

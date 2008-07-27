@@ -1734,7 +1734,7 @@ namespace TA3D
                         bloc[i].point=lvl[pre_y2+x];
                         if (bloc[i].point==NULL)
                         {
-                            lvl[pre_y2+x]=bloc[i].point=(Vector3D*) malloc(sizeof(Vector3D)*9);
+                            lvl[pre_y2+x] = bloc[i].point = new Vector3D[9];
                             if(tnt)
                             {
                                 bloc[i].point[0].x=T.x;			bloc[i].point[0].z=get_zdec(X,Y)+T.z;
@@ -2117,9 +2117,9 @@ namespace TA3D
         nb_vtx=(s+1)*((s<<1)+1);
         nb_idx = s*(s*2+1)*2;				// We'll use GL_TRIANGLE_STRIP
 
-        point=(Vector3D*) malloc(sizeof(Vector3D)*nb_vtx);
-        texcoord=(float*) malloc(sizeof(float)*nb_vtx*2);
-        index=(GLushort*) malloc(sizeof(GLushort)*nb_idx);
+        point = new Vector3D[nb_vtx];
+        texcoord = new float[nb_vtx*2];
+        index = new GLushort[nb_idx];
 
         int i=0;
         for(int y=0;y<=s;y++)
@@ -2559,6 +2559,8 @@ namespace TA3D
         clear();
         refresh();
         map = NULL;
+        nom.resize(10);
+        side.resize(10);
         for (int i = 0; i < 10; ++i)
         {
             com_metal[i] = M;
@@ -2569,8 +2571,6 @@ namespace TA3D
                 ai_command[i].init();
                 ai_command[i].player_id = i;
             }
-            nom[i] = NULL;
-            side[i] = NULL;
             energy[i] = E;
             metal[i] = M;
             metal_u[i] = 0;
@@ -2615,17 +2615,19 @@ namespace TA3D
         {
             if(control[i]==PLAYER_CONTROL_LOCAL_AI && ai_command )		// Enregistre les données de l'IA
                 ai_command[i].save();
-            if(nom[i])	free(nom[i]);
-            if(side[i])	free(side[i]);
             if( ai_command )
                 ai_command[i].destroy();
         }
+        nom.clear();
+        side.clear();
         init();
     }
 
     PLAYERS::~PLAYERS()
     {
         destroy();
+        nom.clear();
+        side.clear();
         if (ai_command)
             delete[] ai_command;
         ai_command = NULL;

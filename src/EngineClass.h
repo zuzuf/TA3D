@@ -396,9 +396,9 @@ namespace TA3D
 
         void destroy()
         {
-            if(point)		free(point);
-            if(texcoord)	free(texcoord);
-            if(index)		free(index);
+            if(point)		delete[] point;
+            if(texcoord)	delete[] texcoord;
+            if(index)		delete[] index;
             init();
         }
 
@@ -433,55 +433,55 @@ namespace TA3D
     public cThread						// Classe pour gérer les joueurs et leurs statistiques de partie
     {
     public:
-        sint8		nb_player;		// Nombre de joueurs (maximum 10 joueurs)
-        int			local_human_id;	// Quel est le joueur qui commande depuis cette machine??
-        byte		control[10];	// Qui controle ce joueur??
-        char		*nom[10];		// Noms des joueurs
-        char		*side[10];		// Camp des joueurs
-        float		energy[10];		// Energie des joueurs
-        float		metal[10];		// Metal des joueurs
-        float		metal_u[10];	// Metal utilisé
-        float		energy_u[10];	// Energie utilisée
-        float		metal_t[10];	// Metal extrait
-        float		energy_t[10];	// Energie produite
-        uint32		kills[10];		// Victimes
-        uint32		losses[10];		// Pertes
-        uint32		energy_s[10];	// Capacités de stockage d'énergie
-        uint32		metal_s[10];	// Capacités de stockage de metal
-        uint32		com_metal[10];	// Stockage fournit par le commandeur
-        uint32		com_energy[10];
-        bool		commander[10];	// Indique s'il y a un commandeur
-        bool		annihilated[10];// Le joueur a perdu la partie??
-        AI_PLAYER	*ai_command;	// Controleurs d'intelligence artificielle
-        uint32		nb_unit[10];	// Nombre d'unités de chaque joueur
-        uint8		side_view;		// Side of which we draw the game interface
+        sint8		    nb_player;		// Nombre de joueurs (maximum 10 joueurs)
+        int			    local_human_id;	// Quel est le joueur qui commande depuis cette machine??
+        byte		    control[10];	// Qui controle ce joueur??
+        String::Vector	nom;    		// Noms des joueurs
+        String::Vector	side;   		// Camp des joueurs
+        float		    energy[10];		// Energie des joueurs
+        float		    metal[10];		// Metal des joueurs
+        float		    metal_u[10];	// Metal utilisé
+        float		    energy_u[10];	// Energie utilisée
+        float		    metal_t[10];	// Metal extrait
+        float		    energy_t[10];	// Energie produite
+        uint32		    kills[10];		// Victimes
+        uint32		    losses[10];		// Pertes
+        uint32		    energy_s[10];	// Capacités de stockage d'énergie
+        uint32		    metal_s[10];	// Capacités de stockage de metal
+        uint32		    com_metal[10];	// Stockage fournit par le commandeur
+        uint32		    com_energy[10];
+        bool		    commander[10];	// Indique s'il y a un commandeur
+        bool		    annihilated[10];// Le joueur a perdu la partie??
+        AI_PLAYER	    *ai_command;	// Controleurs d'intelligence artificielle
+        uint32		    nb_unit[10];	// Nombre d'unités de chaque joueur
+        uint8		    side_view;		// Side of which we draw the game interface
 
         //		Variables used to compute the data we need ( because of threading )
 
-        float		c_energy[10];		// Energie des joueurs
-        float		c_metal[10];		// Metal des joueurs
-        uint32		c_energy_s[10];		// Capacités de stockage d'énergie
-        uint32		c_metal_s[10];		// Capacités de stockage de metal
-        bool		c_commander[10];	// Indique s'il y a un commandeur
-        bool		c_annihilated[10];	// Le joueur a perdu la partie??
-        uint32		c_nb_unit[10];		// Nombre d'unités de chaque joueur
-        float		c_metal_u[10];		// Metal utilisé
-        float		c_energy_u[10];		// Energie utilisée
-        float		c_metal_t[10];		// Metal extrait
-        float		c_energy_t[10];		// Energie produite
+        float		    c_energy[10];		// Energie des joueurs
+        float		    c_metal[10];		// Metal des joueurs
+        uint32		    c_energy_s[10];		// Capacités de stockage d'énergie
+        uint32		    c_metal_s[10];		// Capacités de stockage de metal
+        bool		    c_commander[10];	// Indique s'il y a un commandeur
+        bool		    c_annihilated[10];	// Le joueur a perdu la partie??
+        uint32		    c_nb_unit[10];		// Nombre d'unités de chaque joueur
+        float		    c_metal_u[10];		// Metal utilisé
+        float		    c_energy_u[10];		// Energie utilisée
+        float		    c_metal_t[10];		// Metal extrait
+        float		    c_energy_t[10];		// Energie produite
 
         // For statistic purpose only
-        double		energy_total[10];
-        double		metal_total[10];
+        double		    energy_total[10];
+        double		    metal_total[10];
 
     protected:
-        uint32		last_ticksynced;
-        TA3DNetwork	*ta3d_network;
-        MAP			*map;
-        bool		thread_is_running;
-        bool		thread_ask_to_stop;
-        int			Run();
-        void		SignalExitThread();
+        uint32		    last_ticksynced;
+        TA3DNetwork	    *ta3d_network;
+        MAP			    *map;
+        bool		    thread_is_running;
+        bool		    thread_ask_to_stop;
+        int			    Run();
+        void		    SignalExitThread();
     public:
 
         void set_network( TA3DNetwork *net ) { ta3d_network = net;}
