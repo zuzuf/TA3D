@@ -37,22 +37,6 @@
 namespace TA3D
 {
 
-void glbutton(const String &caption,float x1,float y1,float x2,float y2,bool etat=false);
-
-const String msg_box(TA3D::GfxFont& fnt,const String &title,const String &msg,bool ask);
-
-//-------------- These are the GUI functions needed by the editors ----------------------------
-
-		// Pour les couleurs standards
-
-struct wnd				// Pour la gestion directe de l'interface dans le programme
-{
-   int		x,y;			// coordinates
-   int		width,height;	// size
-   String	Title;			// name
-};
-
-
 /*--------- Functions that can use the skin object -------------------------------------------------*/
 
 void button ( float x, float y, float x2, float y2, const String &Title, bool Etat, float s=1.0f , SKIN *skin=NULL );
@@ -69,8 +53,8 @@ int draw_text_adjust( float x1, float y1, float x2, float y2, String msg, float 
 
 /*--------------------------------------------------------------------------------------------------*/
 
-void draw_Window(wnd& Wnd );
-unsigned char WinMov( int AMx, int AMy, int AMb, int Mx, int My, int Mb, wnd *Wnd );
+//void draw_Window(wnd& Wnd );
+//unsigned char WinMov( int AMx, int AMy, int AMb, int Mx, int My, int Mb, wnd *Wnd );
 const String Dialog( const String &Title, String Filter = "*.*" );
 bool WndAsk( const String &Title, const String &Msg, int ASW_TYPE=ASW_OKCANCEL );
 void Popup( const String &Title, const String &Msg );
