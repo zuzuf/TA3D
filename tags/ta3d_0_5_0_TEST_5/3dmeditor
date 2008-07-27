@@ -1,0 +1,20 @@
+ #!/bin/sh
+export LD_LIBRARY_PATH=./
+NF=3dmeditor
+tgfile=`ls -l $0 | awk '{print $NF}'`
+exe=`dirname $tgfile`
+
+if [ $exe = "." ]
+then
+	exe=`pwd`
+fi
+
+yes=`echo $exe | head -c 2 | grep -c "/" `
+
+if [ "$yes" = "0" ]
+then
+	exe=`pwd`/${exe}
+fi
+
+cd ${exe}
+${exe}/3dmeditor-bin
