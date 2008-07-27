@@ -605,7 +605,7 @@ namespace Audio
             return;
         }
 
-        if (FMOD_System_playSound( pFMODSystem, FMOD_CHANNEL_FREE, pFMODMusicSound,
+        if (FMOD_System_PlaySound( pFMODSystem, FMOD_CHANNEL_FREE, pFMODMusicSound,
                                    false, &pFMODMusicchannel) != FMOD_OK )
         {
             LOG_ERROR(LOG_PREFIX_FMOD << "Failed to playSound/stream.");
@@ -717,7 +717,7 @@ namespace Audio
         for (std::list<WorkListItem>::iterator i = pWorkList.begin(); i != pWorkList.end(); ++i)
         {
             FMOD_CHANNEL *ch;
-            if (FMOD_System_playSound(pFMODSystem, FMOD_CHANNEL_FREE, i->sound->sampleHandle, true, &ch) != FMOD_OK)
+            if (FMOD_System_PlaySound(pFMODSystem, FMOD_CHANNEL_FREE, i->sound->sampleHandle, true, &ch) != FMOD_OK)
             {
                 continue;
             }
@@ -837,7 +837,7 @@ namespace Audio
 #ifdef TA3D_PLATFORM_MINGW
             FMOD_System_CreateSound( pFMODSystem, (const char *)data, FMOD_SOFTWARE | FMOD_OPENMEMORY, &exinfo, &pBasicSound );
             FMOD_Sound_SetMode( pBasicSound, FMOD_LOOP_OFF );
-            FMOD_System_playSound( pFMODSystem, FMOD_CHANNEL_FREE, pBasicSound, 0, &pBasicChannel);
+            FMOD_System_PlaySound( pFMODSystem, FMOD_CHANNEL_FREE, pBasicSound, 0, &pBasicChannel);
 #else
             pFMODSystem->createSound( (const char *)data, FMOD_SOFTWARE | FMOD_OPENMEMORY, &exinfo, &pBasicSound);
             pBasicSound->setMode(FMOD_LOOP_OFF);
