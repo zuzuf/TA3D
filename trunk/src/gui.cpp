@@ -1052,7 +1052,6 @@ bool WndAsk(const String &Title,const String &Msg,int ASW_TYPE)
 
         bool done = false;
         int amx, amy, amz, amb;
-        int cur_folder_idx = -1;
         bool answer = false;
         
         do
@@ -1125,7 +1124,6 @@ void Popup(const String &Title,const String &Msg)
 
         bool done = false;
         int amx, amy, amz, amb;
-        int cur_folder_idx = -1;
         
         do
         {
@@ -1187,7 +1185,6 @@ const String GetVal(const String &Title)
         
         bool done = false;
         int amx, amy, amz, amb;
-        int cur_folder_idx = -1;
         
         do
         {
