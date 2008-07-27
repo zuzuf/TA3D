@@ -398,11 +398,11 @@ void button_remove(int mnu_index)
     old->next=NULL;
     old->destroy();
     if(old != &(TheModel->obj))		// Si c'est quelque chose qu'on a alloué on le libère
-        free(old);
+        delete old;
     else
     {
         *old=*old2;
-        free(old2);
+        delete old2;
     }
     nb_obj();
     working = false;
@@ -756,8 +756,8 @@ void obj_geo_optimize(int idx,bool notex)
     cur->nb_vtx-=removed;
     if (notex)
     {
-        Vector3D *n_points = (Vector3D*) malloc(sizeof(Vector3D)*cur->nb_vtx);
-        Vector3D *n_N = (Vector3D*) malloc(sizeof(Vector3D)*cur->nb_vtx);
+        Vector3D *n_points = new Vector3D[cur->nb_vtx];
+        Vector3D *n_N = new Vector3D[cur->nb_vtx];
         int cur_pt=0;
         for (int i = 0; i < cur->nb_t_index; ++i)
         {
@@ -773,16 +773,16 @@ void obj_geo_optimize(int idx,bool notex)
             n_N[cur_pt]=cur->N[cur->t_index[i]];
             cur->t_index[i]=cur_pt++;
         }
-        free(cur->points);
-        free(cur->N);
+        delete[] cur->points;
+        delete[] cur->N;
         cur->points=n_points;
         cur->N=n_N;
     }
     else
     {
-        Vector3D *n_points = (Vector3D*) malloc(sizeof(Vector3D)*cur->nb_vtx);
-        Vector3D *n_N = (Vector3D*) malloc(sizeof(Vector3D)*cur->nb_vtx);
-        float *n_tcoord = (float*) malloc(sizeof(float)*cur->nb_vtx<<1);
+        Vector3D *n_points = new Vector3D[cur->nb_vtx];
+        Vector3D *n_N = new Vector3D[cur->nb_vtx];
+        float *n_tcoord = new float[cur->nb_vtx<<1];
         int cur_pt=0;
         for (int i=0; i < cur->nb_t_index; ++i)
         {
@@ -801,9 +801,9 @@ void obj_geo_optimize(int idx,bool notex)
             n_tcoord[(cur_pt<<1)+1]=cur->tcoord[(cur->t_index[i]<<1)+1];
             cur->t_index[i]=cur_pt++;
         }
-        free(cur->points);
-        free(cur->N);
-        free(cur->tcoord);
+        delete[] cur->points;
+        delete[] cur->N;
+        delete[] cur->tcoord;
         cur->points=n_points;
         cur->N=n_N;
         cur->tcoord=n_tcoord;
@@ -814,9 +814,9 @@ void obj_geo_split(int idx)
 {
     if(idx<0 || idx>=nb_obj())	return;
     OBJECT *cur = obj_table[idx];
-    Vector3D *n_points = (Vector3D*) malloc(sizeof(Vector3D)*cur->nb_t_index);
-    Vector3D *n_N = (Vector3D*) malloc(sizeof(Vector3D)*cur->nb_t_index);
-    float *n_tcoord = (float*) malloc(sizeof(float)*cur->nb_t_index<<1);
+    Vector3D *n_points = new Vector3D[cur->nb_t_index];
+    Vector3D *n_N = new Vector3D[cur->nb_t_index];
+    float *n_tcoord = new float[cur->nb_t_index<<1];
     for (int i = 0; i < cur->nb_t_index; ++i)
     {
         n_points[i]=cur->points[cur->t_index[i]];
@@ -825,9 +825,9 @@ void obj_geo_split(int idx)
         n_tcoord[(i<<1)+1]=cur->tcoord[(cur->t_index[i]<<1)+1];
         cur->t_index[i]=i;
     }
-    free(cur->points);
-    free(cur->N);
-    free(cur->tcoord);
+    delete[] cur->points;
+    delete[] cur->N;
+    delete[] cur->tcoord;
     cur->points=n_points;
     cur->N=n_N;
     cur->tcoord=n_tcoord;
