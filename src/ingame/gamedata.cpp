@@ -9,14 +9,14 @@ namespace TA3D
 
 
     GameData::GameData()
-        :map_filename(NULL), nb_players(0)
+        :map_filename(), nb_players(0)
     {
         saved_file.clear();
 
-        use_only = NULL;
+        use_only.clear();
         campaign = false;
         fog_of_war = FOW_DISABLED;
-        game_script=NULL;
+        game_script.clear();
 
         player_names.resize(10);
         player_sides.resize(10);
@@ -38,14 +38,9 @@ namespace TA3D
 
     GameData::~GameData()
     {
-        if (use_only)
-            free(use_only);
-        if (map_filename)
-            free(map_filename);
-        if (game_script)
-            free(game_script);
-        map_filename=NULL;
-        game_script=NULL;
+        use_only.clear();
+        map_filename.clear();
+        game_script.clear();
         nb_players=0;
         player_names.clear();
         player_sides.clear();

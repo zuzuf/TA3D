@@ -68,13 +68,13 @@ namespace TA3D
 
     public:
         //!
-        char	*name;		// Nom
+        String	name;		// Nom
         //!
-        char	*world;
+        String	world;
         //!
-        char	*description;
+        String	description;
         //!
-        char	*category;
+        String	category;
 
         //!
         bool	animating;
@@ -85,15 +85,15 @@ namespace TA3D
         //!
         int		height;
         //!
-        char	*filename;
+        String	filename;
         //!
-        char	*seqname;
+        String	seqname;
         //!
-        char	*feature_dead;
+        String	feature_dead;
         //!
-        char	*feature_burnt;
+        String	feature_burnt;
         //!
-        char	*feature_reclamate;
+        String	feature_reclamate;
         //!
         bool	animtrans;
         //!
@@ -140,7 +140,7 @@ namespace TA3D
         //!
         byte	spreadchance;
         //!
-        char	*burnweapon;
+        String	burnweapon;
         //!
         bool	need_convert;
         //@}
@@ -198,7 +198,7 @@ namespace TA3D
         ** \param name
         ** \return The index of the feature (-1 means `not found`)
         */
-        int get_feature_index(const char* name);
+        int get_feature_index(const String &name);
 
     public:
         //! Features' count

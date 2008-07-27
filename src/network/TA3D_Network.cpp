@@ -609,9 +609,9 @@ namespace TA3D
         event.x = features.feature[ idx ].Pos.x;
         event.y = features.feature[ idx ].Pos.y;
         event.z = features.feature[ idx ].Pos.z;
-        char *name = feature_manager.feature[ features.feature[ idx ].type ].name;
-        if( name ) {
-            memcpy( event.str, name, strlen( name ) + 1 ) ;
+        String name = feature_manager.feature[ features.feature[ idx ].type ].name;
+        if( !name.empty() ) {
+            memcpy( event.str, name.c_str(), name.size() + 1 ) ;
             network_manager.sendEvent( &event );
         }
     }

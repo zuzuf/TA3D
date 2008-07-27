@@ -59,7 +59,7 @@ namespace TA3D
         {
             for (int i=0; i < nbtex; ++i)
                 tex[i].destroy();
-            free(tex);
+            delete[] tex;
         }
         init();
     }
@@ -97,10 +97,9 @@ namespace TA3D
     {
         // Crée des textures correspondant aux couleurs de la palette de TA
         nbtex = 256;
-        tex = (ANIM*) malloc(sizeof(ANIM) * nbtex);
+        tex = new ANIM[nbtex];
         for (int i = 0; i < 256; ++i)
         {
-            tex[i].init();
             tex[i].nb_bmp = 1;
             tex[i].bmp = (BITMAP**) malloc(sizeof(BITMAP*));
             tex[i].glbmp = (GLuint*) malloc(sizeof(GLuint));
@@ -108,9 +107,7 @@ namespace TA3D
             tex[i].ofs_y = (short*) malloc(sizeof(short));
             tex[i].w = (short*) malloc(sizeof(short));
             tex[i].h = (short*) malloc(sizeof(short));
-            char tmp[10];
-            uszprintf(tmp,10,"_%d",i);
-            tex[i].name = strdup(tmp);
+            tex[i].name = strdup( TA3D::format("_%d", i).c_str() );
 
             tex[i].ofs_x[0] = 0;
             tex[i].ofs_y[0] = 0;
@@ -124,7 +121,7 @@ namespace TA3D
         HPIManager->getFilelist("textures\\*.gaf", file_list);
         for (String::List::const_iterator cur_file = file_list.begin(); cur_file != file_list.end(); ++cur_file)
         {
-            byte *data=HPIManager->PullFromHPI(*cur_file);
+            byte *data = HPIManager->PullFromHPI(*cur_file);
             load_gaf(data);
             delete[] data;
         }
@@ -137,13 +134,14 @@ namespace TA3D
         int nb_entry = get_gaf_nb_entry(data);
         int n_nbtex = nbtex + nb_entry;
         int i;
-        ANIM* n_tex = (ANIM*) malloc(sizeof(ANIM) * n_nbtex);
-        for (i = 0; i < n_nbtex; ++i)
-            n_tex[i].init();
+        ANIM* n_tex = new ANIM[n_nbtex];
         for (i = 0; i < nbtex; ++i)
+        {
             n_tex[i] = tex[i];
+            tex[i].init();
+        }
         if (tex)
-            free(tex);
+            delete[] tex;
         tex = n_tex;
         for (i = 0; i < nb_entry; ++i)
             tex[nbtex + i].load_gaf(data, i, false);

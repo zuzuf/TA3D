@@ -3873,7 +3873,7 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
                                 features.removeFeatureFromMap( mission->data );		// Remove the object from map
 
                                 if (mission->mission == MISSION_REVIVE
-                                    && feature_manager.feature[features.feature[mission->data].type].name ) {			// Creates the corresponding unit
+                                    && !feature_manager.feature[features.feature[mission->data].type].name.empty() ) {			// Creates the corresponding unit
                                     bool success = false;
                                     String wreckage_name = feature_manager.feature[features.feature[mission->data].type].name;
                                     wreckage_name = wreckage_name.substr( 0, wreckage_name.length() - 5 );		// Remove the _dead/_heap suffix

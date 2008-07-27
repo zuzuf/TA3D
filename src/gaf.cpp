@@ -244,14 +244,14 @@ namespace TA3D
         return strdup(entry.Name);
     }
 
-    int get_gaf_entry_index(byte *buf,const char *name)
+    int get_gaf_entry_index(byte *buf,const String &name)
     {
         int nb_entry=get_gaf_nb_entry(buf);
 
         for (int i = 0; i < nb_entry; ++i)
         {
             char *entry_name=get_gaf_entry_name(buf,i);
-            if(strcasecmp(entry_name,name)==0)
+            if(strcasecmp(entry_name,name.c_str())==0)
             {
                 free(entry_name);
                 return i;
@@ -602,12 +602,9 @@ namespace TA3D
         return frame_img;
     }
 
-    void ANIM::load_gaf(byte *buf,int entry_idx,bool truecol,const char *fname)
+    void ANIM::load_gaf(byte *buf,int entry_idx,bool truecol,const String &fname)
     {
-        if( fname )
-            filename = strdup( fname );
-        else
-            filename = strdup( "" );
+        filename = fname;
 
         nb_bmp=get_gaf_nb_img(buf,entry_idx);
 
