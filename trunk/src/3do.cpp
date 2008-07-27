@@ -2845,17 +2845,8 @@ hit_fast_is_exploding:
     void MODEL_MANAGER::destroy()
     {
         if (model)
-        {
-            for (int i = 0; i < nb_models; ++i)
-                model[i].destroy();
-            free(model);
-        }
-        if (name)
-        {
-            for (int i = 0; i < nb_models; ++i)
-                free(name[i]);
-            free(name);
-        }
+            delete[] model;
+        name.clear();
         model_hashtable.emptyHashTable();
         model_hashtable.initTable(__DEFAULT_HASH_TABLE_SIZE);
         init();
@@ -2878,19 +2869,18 @@ hit_fast_is_exploding:
 
     void MODEL_MANAGER::create_from_2d(BITMAP *bmp,float w,float h,float max_h,const String& filename)
     {
-        MODEL *n_model=(MODEL*) malloc(sizeof(MODEL)*(nb_models+1));
-        char **n_name=(char**) malloc(sizeof(char*)*(nb_models+1));
+        MODEL *n_model = new MODEL[nb_models+1];
+        name.push_back(filename);
         if(model)
         {
-            memcpy(n_model,model,sizeof(MODEL)*nb_models);
-            free(model);
-            memcpy(n_name,name,sizeof(char*)*nb_models);
-            free(name);
+            for (int i = 0 ; i < nb_models ; i++)
+            {
+                n_model[i] = model[i];
+                model[i].init();        // To prevent delete[] from freeing useful memory ;)
+            }
+            delete[] model;
         }
         model=n_model;
-        name=n_name;
-        model[nb_models].init();
-        name[nb_models] = strdup(filename.c_str());
 
         model_hashtable.insert(String::ToLower(filename), nb_models + 1);
 
@@ -2908,17 +2898,18 @@ hit_fast_is_exploding:
 
         if (new_nb_models > 0)
         {
-            MODEL *n_model = (MODEL*) malloc(sizeof(MODEL)*(nb_models + new_nb_models));
-            char **n_name = (char**) malloc(sizeof(char*)*(nb_models + new_nb_models));
+            MODEL *n_model = new MODEL[nb_models + new_nb_models];
             if (model)
             {
-                memcpy(n_model,model,sizeof(MODEL)*nb_models);
-                free(model);
-                memcpy(n_name,name,sizeof(char*)*nb_models);
-                free(name);
+                for (int i = 0 ; i < nb_models ; i++)
+                {
+                    n_model[i] = model[i];
+                    model[i].init();        // To prevent delete[] from freeing useful memory ;)
+                }
+                delete[] model;
             }
             model = n_model;
-            name  = n_name;
+            name.resize( nb_models + new_nb_models );
             int i = 0;
             int n = 0;
             for (String::List::const_iterator e = file_list.begin(); e != file_list.end(); ++e)
@@ -2927,10 +2918,9 @@ hit_fast_is_exploding:
                 if (progress!=NULL && n % 25 == 0)
                     progress((100.0f + n * 50.0f / (new_nb_models + 1)) / 7.0f, loading3DModelsText);
                 ++n;
-                model[i+nb_models].init();
-                name[i+nb_models] = strdup(e->c_str());
+                name[i+nb_models] = *e;
 
-                if (get_model(String( name[i+nb_models] ).substr(0, e->size() - 4).c_str())==NULL) 	// Vérifie si le modèle n'est pas déjà chargé
+                if (get_model( name[i+nb_models].substr(0, e->size() - 4).c_str())==NULL) 	// Vérifie si le modèle n'est pas déjà chargé
                 {
                     byte *data = HPIManager->PullFromHPI(*e);
                     if (data)
@@ -2960,17 +2950,18 @@ hit_fast_is_exploding:
 
         if (new_nb_models > 0)
         {
-            MODEL *n_model = (MODEL*) malloc(sizeof(MODEL)*(nb_models+new_nb_models));
-            char **n_name = (char**) malloc(sizeof(char*)*(nb_models+new_nb_models));
+            MODEL *n_model = new MODEL[nb_models+new_nb_models];
+            name.resize( nb_models + new_nb_models );
             if (model)
             {
-                memcpy(n_model,model,sizeof(MODEL)*nb_models);
-                free(model);
-                memcpy(n_name,name,sizeof(char*)*nb_models);
-                free(name);
+                for (int i = 0 ; i < nb_models ; i++)
+                {
+                    n_model[i] = model[i];
+                    model[i].init();        // To prevent delete[] from freeing useful memory ;)
+                }
+                delete[] model;
             }
             model = n_model;
-            name = n_name;
             int i = 0, n = 0;
             for (String::List::const_iterator e = file_list.begin();e != file_list.end(); ++e)
             {
@@ -2978,10 +2969,9 @@ hit_fast_is_exploding:
                 if (progress != NULL && n % 25 == 0)
                     progress((100.0f + (50.0f + n * 50.0f / (new_nb_models + 1))) / 7.0f, loading3DModelsText);
                 ++n;
-                model[i+nb_models].init();
-                name[i+nb_models] = strdup(e->c_str());
+                name[i+nb_models] = *e;
 
-                if (get_model(String(name[i+nb_models]).substr(0, e->size() - 4).c_str() ) == NULL) // Vérifie si le modèle n'est pas déjà chargé
+                if (get_model(name[i+nb_models].substr(0, e->size() - 4).c_str() ) == NULL) // Vérifie si le modèle n'est pas déjà chargé
                 {
                     uint32 data_size = 0;
                     byte *data = HPIManager->PullFromHPI(*e, &data_size);

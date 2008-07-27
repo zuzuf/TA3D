@@ -501,9 +501,9 @@ namespace TA3D
     class MODEL_MANAGER							// Classe pour la gestion des modèles 3D du jeu
     {
     public:
-        int			nb_models;		// Nombre de modèles
-        MODEL		*model;			// Tableau de modèles
-        char		**name;			// Tableau contenant les noms des modèles
+        int			    nb_models;		// Nombre de modèles
+        MODEL		    *model;			// Tableau de modèles
+        String::Vector	name;			// Tableau contenant les noms des modèles
 
     private:
         cHashTable< int >	model_hashtable;		// hashtable used to speed up operations on MODEL objects
@@ -514,7 +514,8 @@ namespace TA3D
         {
             nb_models=0;
             model=NULL;
-            name=NULL;
+//            name=NULL;
+            name.clear();
         }
 
         MODEL_MANAGER() : model_hashtable()
