@@ -1,0 +1,9 @@
+[area]
+{
+	name=glsl area;
+	skin=gui/default.skn;
+	windows=gui/3dmeditor_glsl.tdf;
+	background=none;
+	width=1280;
+	height=1024;
+}
