@@ -147,7 +147,7 @@ int ParseCommandLine(int argc, char *argv[])
     if (hpiview(argc, argv))
         return 1;
 
-    for( int i = 1 ; i < argc ; ++i)
+    for (int i = 1 ; i < argc ; ++i)
     {
         if( !strcmp( argv[ i ], "--quick-restart")) // Quick restart mecanism (bypass the intro screen)
         {
@@ -155,14 +155,17 @@ int ParseCommandLine(int argc, char *argv[])
             TA3D::Settings::Restore(TA3D::Paths::ConfigFile);		// In case it refuses to restart
             allegro_exit();
         }
-        else if( !strcmp( argv[ i ], "--restore" ) )			// Tell TA3D not to display the quickstart confirm dialog
+        else if (!strcmp( argv[ i ], "--restore" ))			// Tell TA3D not to display the quickstart confirm dialog
             lp_CONFIG->restorestart = true;
-        else if( !strcmp( argv[ i ], "--file-param" ) ) {		// Pass a file as parameter, used for complex things
-            if( i + 1 < argc ) {
+        else if (!strcmp( argv[ i ], "--file-param" )) 		// Pass a file as parameter, used for complex things
+        {
+            if (i + 1 < argc)
+            {
                 i++;
                 lp_CONFIG->file_param = argv[ i ];		// Copy the file name
             }
         }
+        
     }
     return 0;
 }

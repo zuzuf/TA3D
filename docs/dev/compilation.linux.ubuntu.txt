@@ -1,0 +1,46 @@
+
+Compilation under Ubuntu
+=========================
+
+
+1 - CMake
+---------
+
+You need CMake 2.6 in order to build TA3D. You can install it from the backports
+repository (only 2.4 is in main). Enable hardy-backports, then use your favorite
+package manager to install cmake 2.6
+
+2 - GCC and required libraries
+------------------------------
+
+You need GCC with C++ support (g++) to build TA3D, just install g++ like any other
+software using your package manager. Then you'll need to install the headers of
+zlib and allegro : zlib1g-dev, liballegro4.2-dev (will install Allegro 4.2 if not done)
+
+Now you're done with the packages. Let's install AllegroGL, you can download it from:
+www.allegro.cc
+
+extract AllegroGL's archive and run :
+# ./fix.sh unix
+# ./configure
+# make
+# sudo make install
+
+now AllegroGL should be installed.
+
+NB: TA3D requires Allegro >= 4.2.2, if you use an older version of
+Ubuntu you'll have to build it yourself.
+
+3 - TA3D
+--------
+
+Now you can build ta3d:
+> cmake ./
+> make
+
+PS: If you get an error message with something like ...<anonymous>...
+edit the /usr/local/include/allegrogl/GLext/gl_ext_api.h file, and
+find the line:
+AGL_API(void, EndTransformFeedbackNV,     (GLvoid))
+replace GLvoid with void
+now it should build :)
