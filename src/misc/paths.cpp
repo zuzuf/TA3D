@@ -100,7 +100,7 @@ namespace Paths
     {
         String home = getenv("HOME");
         Caches = home + "/Library/Caches/ta3d/";
-        Savegames = home + "/Library/Preferences/ta3d/savegames/";
+        Savegames = home + "/Library/Application Support/ta3d/savegames/";
         Logs = home + "/Library/Logs/ta3d/";
         
         Preferences = home + "/Library/Preferences/ta3d/";
