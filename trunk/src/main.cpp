@@ -165,6 +165,11 @@ int ParseCommandLine(int argc, char *argv[])
                 lp_CONFIG->file_param = argv[ i ];		// Copy the file name
             }
         }
+        else if (!strcmp( argv[ i ], "--test" ))            // Runs some tests (to help find and fix bugs)
+        {
+            GFX::runTests();
+            return 1;
+        }
         
     }
     return 0;

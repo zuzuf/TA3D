@@ -32,6 +32,7 @@
 #include <allegro/internal/aintern.h>
 #include <strings.h>
 #include "../misc/math.h"
+#include "../jpeg/ta3d_jpg.h"
 
 
 #define YESNO(X)  (X ? "Yes" : "No")
@@ -714,7 +715,7 @@ namespace TA3D
 
 
 
-    GLuint GFX::load_texture(String file, byte filter_type, uint32 *width, uint32 *height, bool clamp )
+    GLuint GFX::load_texture(String file, byte filter_type, uint32 *width, uint32 *height, bool clamp, GLuint texFormat )
     {
         if (!exists( file.c_str())) // The file doesn't exist
             return 0;
@@ -741,10 +742,15 @@ namespace TA3D
                     with_alpha |= bmp->line[y][(x<<2)+3] != 255;
             }
         }
-        if(g_useTextureCompression)
-            allegro_gl_set_texture_format( with_alpha ? GL_COMPRESSED_RGBA_ARB : GL_COMPRESSED_RGB_ARB );
+        if (texFormat == 0)
+        {
+            if (g_useTextureCompression)
+                allegro_gl_set_texture_format( with_alpha ? GL_COMPRESSED_RGBA_ARB : GL_COMPRESSED_RGB_ARB );
+            else
+                allegro_gl_set_texture_format( with_alpha ? GL_RGBA8 : GL_RGB8 );
+        }
         else
-            allegro_gl_set_texture_format( with_alpha ? GL_RGBA8 : GL_RGB8 );
+            allegro_gl_set_texture_format( texFormat );
         allegro_gl_use_alpha_channel( with_alpha );
         GLuint gl_tex = make_texture( bmp, filter_type, clamp );
         allegro_gl_use_alpha_channel(false);
@@ -1204,5 +1210,77 @@ namespace TA3D
         glEnd();
     }
 
+    void GFX::runTests()
+    {
+		InterfaceManager = new IInterfaceManager();
+
+		// Initalizing allegro
+		if( allegro_init() != 0 )
+			throw( "allegro_init() yielded unexpected result." );
+
+		// Installing allegro timer
+		if( install_timer() != 0 )
+			throw( "install_timer() yielded unexpected result." );
+
+		// Installing allegro mouse handler
+		if( install_mouse() == -1 )
+			throw ( "install_mouse() yielded unexpected result." );
+
+		// Installing allegro keyboard handler
+		if( install_keyboard() == -1 )
+			throw ( "install_mouse() yielded unexpected result." );
+
+		// Initalizing allegro JPG support
+		if( jpgalleg_init() < 0 )
+			throw( "jpgalleg_init() yielded unexpected result." );
+
+        GFX *test_gfx = new GFX();
+
+        test_gfx->normal_font.copy(font , 1.0f);
+        test_gfx->normal_font.set_clear(true);
+
+        test_gfx->set_2D_mode();
+        
+        int         filter[]        = { FILTER_NONE, FILTER_LINEAR, FILTER_BILINEAR, FILTER_TRILINEAR };
+        const char  *filterInfo[]   = { "FILTER_NONE", "FILTER_LINEAR", "FILTER_BILINEAR", "FILTER_TRILINEAR" };
+
+        for (int e = 0 ; e < 4 ; e++)
+        {
+            GLuint tex[11];
+
+            GLuint  texFormat[] =   { GL_COMPRESSED_RGBA_ARB, GL_COMPRESSED_RGB_ARB, GL_RGB8, GL_RGBA8, GL_RGB5, GL_RGB5_A1, GL_RGB4, GL_RGBA4, GL_COMPRESSED_RGBA_S3TC_DXT1_EXT, GL_COMPRESSED_RGBA_S3TC_DXT3_EXT, GL_COMPRESSED_RGBA_S3TC_DXT5_EXT };
+            const char  *info[] =   { "COMPRESSED_RGBA", "COMPRESSED_RGB", "RGB8", "RGBA8", "RGB5", "RGB5_A1", "RGB4", "RGBA4", "COMPRESSED_RGBA_S3TC_DXT1", "COMPRESSED_RGBA_S3TC_DXT3", "COMPRESSED_RGBA_S3TC_DXT5" };
+            
+            for (int i = 0 ; i < 11 ; i++)
+                tex[i] = test_gfx->load_texture("gfx/mdrn_background.jpg", filter[e], NULL, NULL, true, texFormat[i]);
+
+            while (!keypressed())
+            {
+                rest( 100 );
+                glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);		// Efface l'écran
+                for (int i = 0 ; i < 11 ; i++)
+                {
+                    float dx = (i >> 2) * SCREEN_W / 3.0f;
+                    float dy = (i & 3) * 0.25f * SCREEN_H;
+                    test_gfx->drawtexture( tex[i], dx, dy, dx + SCREEN_W / 3.0f, dy + 0.25f * SCREEN_H );
+                    glDisable( GL_TEXTURE_2D );
+                    test_gfx->rect( dx, dy, dx + SCREEN_W / 3.0f, dy + 0.25 * SCREEN_H, 0xFFFFFFFF );
+                    test_gfx->print( test_gfx->normal_font, dx + 10, dy + 10, 0.0f, 0xFFFFFFFF, info[i] );
+                    test_gfx->print( test_gfx->normal_font, dx + 10, dy + 20, 0.0f, 0xFFFFFFFF, filterInfo[e] );
+                }
+                
+                test_gfx->flip();
+            }
+
+            for (int i = 0 ; i < 11 ; i++)
+                test_gfx->destroy_texture( tex[i] );
+
+            while (keypressed())    readkey();
+        }
+        
+        delete test_gfx;
+        
+        delete InterfaceManager;
+    }
 
 } // namespace TA3D

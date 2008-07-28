@@ -87,10 +87,10 @@ namespace TA3D
         int			width;				// Size of this window on the screen
         int			height;
         int			x,y;				// Position on the screen
-        GfxFont	normal_font;		// Fonts
-        GfxFont	small_font;
-        GfxFont	TA_font;
-        GfxFont	ta3d_gui_font;
+        GfxFont     normal_font;		// Fonts
+        GfxFont     small_font;
+        GfxFont     TA_font;
+        GfxFont     ta3d_gui_font;
 
         sint32		SCREEN_W_HALF;
         sint32		SCREEN_H_HALF;
@@ -244,7 +244,7 @@ namespace TA3D
         GLuint	make_texture( BITMAP *bmp, byte filter_type = FILTER_TRILINEAR, bool clamp = true );
         GLuint	create_texture( int w, int h, byte filter_type = FILTER_TRILINEAR, bool clamp = true );
         void	blit_texture( BITMAP *src, GLuint &dst );
-        GLuint	load_texture( String file, byte filter_type = FILTER_TRILINEAR, uint32 *width = NULL, uint32 *height = NULL, bool clamp = true );
+        GLuint	load_texture( String file, byte filter_type = FILTER_TRILINEAR, uint32 *width = NULL, uint32 *height = NULL, bool clamp = true, GLuint texFormat = 0 );
         GLuint	load_texture_mask( String file, int level, byte filter_type = FILTER_TRILINEAR, uint32 *width = NULL, uint32 *height = NULL, bool clamp = true );
         GLuint	load_texture_from_cache( String file, byte filter_type = FILTER_TRILINEAR, uint32 *width = NULL, uint32 *height = NULL, bool clamp = true );
         GLuint	load_masked_texture( String file, String mask, byte filter_type = FILTER_TRILINEAR );
@@ -275,6 +275,11 @@ namespace TA3D
         ** \brief set a texture as render target, goes back to normal when passing 0 (do not forget to detach the texture when you're done!)
         */
         void renderToTexture( const GLuint tex = 0, bool useDepth = false );
+
+        /*!
+        ** \brief runs several tests on GFX hardware capabilities, should be used only when calling ta3d with --test
+        */
+        static void runTests();
 
     }; // class GFX
 
