@@ -8,7 +8,7 @@
 	height=720;
 	draw borders=false;
 	show title=false;
-	number of objects=31;
+	number of objects=33;
 	hidden=false;
 	lock=true;
 	color=0x00000000;			// Fully transparent so we can see the AREA background
@@ -336,6 +336,26 @@
 		caption=;
 		x1=690;
 		y1=540;
+		value=0;
+		size=1.6;
+	}
+	[object31]		// Option "low defintion map"
+	{
+		name=t_low_definition_map;
+		type=TEXT;
+		caption=Low definition map;
+		x1=0;
+		y1=575;
+		value=0xFFFFFFFF;
+		size=2;
+	}
+	[object32]		// Option "low definition map"
+	{
+		name=low_definition_map;
+		type=OPTIONC;
+		caption=;
+		x1=690;
+		y1=575;
 		value=0;
 		size=1.6;
 	}
