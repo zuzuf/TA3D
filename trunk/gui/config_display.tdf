@@ -8,7 +8,7 @@
 	height=720;
 	draw borders=false;
 	show title=false;
-	number of objects=29;
+	number of objects=31;
 	hidden=false;
 	lock=true;
 	color=0x00000000;			// Fully transparent so we can see the AREA background
@@ -316,6 +316,26 @@
 		caption=;
 		x1=690;
 		y1=505;
+		value=0;
+		size=1.6;
+	}
+	[object29]		// Option "render sky"
+	{
+		name=t_sky;
+		type=TEXT;
+		caption=Render sky;
+		x1=0;
+		y1=540;
+		value=0xFFFFFFFF;
+		size=2;
+	}
+	[object30]		// Option "render sky"
+	{
+		name=sky;
+		type=OPTIONC;
+		caption=;
+		x1=690;
+		y1=540;
 		value=0;
 		size=1.6;
 	}

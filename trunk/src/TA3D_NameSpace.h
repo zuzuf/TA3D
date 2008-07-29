@@ -101,6 +101,7 @@ namespace TA3D
 		bool	use_texture_cache;			// Use the texture cache ? (default : disabled because on some systems it doesn't work)
 
 		String	net_server;					// The server that monitor the game server list
+		bool    render_sky;                 // Render the sky ? (on low-end hardware without accelerated T&L it may help to deactivate this)
 
 		// Variables used to communicate with all the code
 		bool	quickrestart;				// Should be false, set to true when need to restart to enable options/parameters
@@ -113,6 +114,8 @@ namespace TA3D
 
 		TA3DCONFIG()
 		{
+		    render_sky = true;
+
 		    enable_shortcuts = true;
 
 			net_server = TA3D_DEFAULT_SERVER_HOSTNAME;
