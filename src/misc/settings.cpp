@@ -81,6 +81,7 @@ namespace Settings
             << "                     Skin = " << TA3D::VARS::lp_CONFIG->skin_name << ";\n"
             << "        Use Texture Cache = " << TA3D::VARS::lp_CONFIG->use_texture_cache << ";\n"
             << "               Net Server = " << TA3D::VARS::lp_CONFIG->net_server << "; // default: ta3d.darkstars.co.uk\n"
+            << "               Render Sky = " << TA3D::VARS::lp_CONFIG->render_sky << ";\n"
             << "}\n";
 
         if (Paths::Files::SaveToFile(TA3D::Paths::ConfigFile, s))
@@ -158,6 +159,8 @@ namespace Settings
         TA3D::VARS::TA3D_CURRENT_MOD = TA3D::VARS::lp_CONFIG->last_MOD;
 
         TA3D::VARS::lp_CONFIG->player_name = cfgFile.pullAsString("TA3D.Player name", "player");
+
+        TA3D::VARS::lp_CONFIG->render_sky = cfgFile.pullAsBool("TA3D.Render Sky", true);
 
         LANG = lp_CONFIG->Lang;
         // Apply settings for the current language

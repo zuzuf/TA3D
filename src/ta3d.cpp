@@ -1733,32 +1733,35 @@ int play(GameData *game_data)
             refcam.setView();
             glColor4f(1.0f,1.0f,1.0f,1.0f);
             glEnable(GL_TEXTURE_2D);
-            glBindTexture(GL_TEXTURE_2D,sky);
-            glDisable(GL_LIGHTING);
-            glFogi (GL_FOG_MODE, FogMode);
-            glFogfv (GL_FOG_COLOR, FogColor);
-            glFogf (GL_FOG_DENSITY, FogD);
-            glHint (GL_FOG_HINT, GL_NICEST);
-            glFogf (GL_FOG_START, FogNear);
-            glFogf (GL_FOG_END, refcam.zfar);
-            glDepthMask(GL_FALSE);
-            if (spherical_sky)
+            if (lp_CONFIG->render_sky)
             {
-                glCullFace(GL_FRONT);
-                glTranslatef(cam.rpos.x,-map->sealvl,cam.rpos.z);
-                glRotatef( sky_angle, 0.0f, 1.0f, 0.0f );
-                float scale_factor = 15.0f * ( cam.rpos.y + cam.shakeVector.y + sky_obj.w ) / sky_obj.w;
-                glScalef( scale_factor, scale_factor, scale_factor );
-                sky_obj.draw();
-            }
-            else
-            {
-                glBegin(GL_QUADS);
-                glTexCoord2f(0.0f,map->map_h*0.002f);				glVertex3f(-2.0f*map->map_w,300.0f,2.0f*map->map_h);
-                glTexCoord2f(map->map_w*0.002f,map->map_h*0.002f);	glVertex3f(2.0f*map->map_w,300.0f,2.0f*map->map_h);
-                glTexCoord2f(map->map_w*0.002f,0.0f);				glVertex3f(2.0f*map->map_w,300.0f,-2.0f*map->map_h);
-                glTexCoord2f(0.0f,0.0f);							glVertex3f(-2.0f*map->map_w,300.0f,-2.0f*map->map_h);
-                glEnd();
+                glBindTexture(GL_TEXTURE_2D,sky);
+                glDisable(GL_LIGHTING);
+                glFogi (GL_FOG_MODE, FogMode);
+                glFogfv (GL_FOG_COLOR, FogColor);
+                glFogf (GL_FOG_DENSITY, FogD);
+                glHint (GL_FOG_HINT, GL_NICEST);
+                glFogf (GL_FOG_START, FogNear);
+                glFogf (GL_FOG_END, refcam.zfar);
+                glDepthMask(GL_FALSE);
+                if (spherical_sky)
+                {
+                    glCullFace(GL_FRONT);
+                    glTranslatef(cam.rpos.x,-map->sealvl,cam.rpos.z);
+                    glRotatef( sky_angle, 0.0f, 1.0f, 0.0f );
+                    float scale_factor = 15.0f * ( cam.rpos.y + cam.shakeVector.y + sky_obj.w ) / sky_obj.w;
+                    glScalef( scale_factor, scale_factor, scale_factor );
+                    sky_obj.draw();
+                }
+                else
+                {
+                    glBegin(GL_QUADS);
+                    glTexCoord2f(0.0f,map->map_h*0.002f);				glVertex3f(-2.0f*map->map_w,300.0f,2.0f*map->map_h);
+                    glTexCoord2f(map->map_w*0.002f,map->map_h*0.002f);	glVertex3f(2.0f*map->map_w,300.0f,2.0f*map->map_h);
+                    glTexCoord2f(map->map_w*0.002f,0.0f);				glVertex3f(2.0f*map->map_w,300.0f,-2.0f*map->map_h);
+                    glTexCoord2f(0.0f,0.0f);							glVertex3f(-2.0f*map->map_w,300.0f,-2.0f*map->map_h);
+                    glEnd();
+                }
             }
             glDepthMask(GL_TRUE);
             glFogi (GL_FOG_MODE, FogMode);
@@ -1849,30 +1852,33 @@ int play(GameData *game_data)
         cam.setView();
         glColor4f(1.0f,1.0f,1.0f,1.0f);
         glEnable(GL_TEXTURE_2D);
-        glBindTexture(GL_TEXTURE_2D,sky);
-        glDisable(GL_LIGHTING);
-        glDepthMask(GL_FALSE);
-        if (spherical_sky)
+        if (lp_CONFIG->render_sky)
         {
-            glTranslatef( cam.rpos.x, cam.rpos.y+cam.shakeVector.y, cam.rpos.z );
-            glRotatef( sky_angle, 0.0f, 1.0f, 0.0f );
-            sky_obj.draw();
-            if( !sky_obj.full )
+            glBindTexture(GL_TEXTURE_2D,sky);
+            glDisable(GL_LIGHTING);
+            glDepthMask(GL_FALSE);
+            if (spherical_sky)
             {
-                glScalef( 1.0f, -1.0f, 1.0f );
-                glCullFace( GL_FRONT );
+                glTranslatef( cam.rpos.x, cam.rpos.y+cam.shakeVector.y, cam.rpos.z );
+                glRotatef( sky_angle, 0.0f, 1.0f, 0.0f );
                 sky_obj.draw();
-                glCullFace( GL_BACK );
+                if( !sky_obj.full )
+                {
+                    glScalef( 1.0f, -1.0f, 1.0f );
+                    glCullFace( GL_FRONT );
+                    sky_obj.draw();
+                    glCullFace( GL_BACK );
+                }
             }
-        }
-        else
-        {
-            glBegin(GL_QUADS);
-            glTexCoord2f(0.0f,0.0f);							glVertex3f(-2.0f*map->map_w,300.0f,-2.0f*map->map_h);
-            glTexCoord2f(map->map_w*0.002f,0.0f);				glVertex3f(2.0f*map->map_w,300.0f,-2.0f*map->map_h);
-            glTexCoord2f(map->map_w*0.002f,map->map_h*0.002f);	glVertex3f(2.0f*map->map_w,300.0f,2.0f*map->map_h);
-            glTexCoord2f(0.0f,map->map_h*0.002f);				glVertex3f(-2.0f*map->map_w,300.0f,2.0f*map->map_h);
-            glEnd();
+            else
+            {
+                glBegin(GL_QUADS);
+                glTexCoord2f(0.0f,0.0f);							glVertex3f(-2.0f*map->map_w,300.0f,-2.0f*map->map_h);
+                glTexCoord2f(map->map_w*0.002f,0.0f);				glVertex3f(2.0f*map->map_w,300.0f,-2.0f*map->map_h);
+                glTexCoord2f(map->map_w*0.002f,map->map_h*0.002f);	glVertex3f(2.0f*map->map_w,300.0f,2.0f*map->map_h);
+                glTexCoord2f(0.0f,map->map_h*0.002f);				glVertex3f(-2.0f*map->map_w,300.0f,2.0f*map->map_h);
+                glEnd();
+            }
         }
         glDepthMask(GL_TRUE);
         glEnable(GL_CULL_FACE);
