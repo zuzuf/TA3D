@@ -1,3 +1,7 @@
+[Render sky]
+{
+    FRENCH=dessiner le ciel;
+}
 [Loading maps, please wait ...]
 {
     FRENCH=Chargement des cartes, veuillez patienter ...;
