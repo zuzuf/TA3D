@@ -7,13 +7,10 @@
 # include <shlobj.h>
 #endif 
 #include <sys/stat.h>
-#include <string>
 #include "../TA3D_NameSpace.h"
 #include "../logs/logs.h"
 #include <unistd.h>
-#include <allegro.h>
 #include <fstream>
-#include <string>
 
 
 
