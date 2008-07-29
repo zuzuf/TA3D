@@ -1,3 +1,7 @@
+[Low definition map]
+{
+    FRENCH=carte basse définition;
+}
 [Render sky]
 {
     FRENCH=dessiner le ciel;

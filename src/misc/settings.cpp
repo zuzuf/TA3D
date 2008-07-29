@@ -82,6 +82,7 @@ namespace Settings
             << "        Use Texture Cache = " << TA3D::VARS::lp_CONFIG->use_texture_cache << ";\n"
             << "               Net Server = " << TA3D::VARS::lp_CONFIG->net_server << "; // default: ta3d.darkstars.co.uk\n"
             << "               Render Sky = " << TA3D::VARS::lp_CONFIG->render_sky << ";\n"
+            << "       Low Definition Map = " << TA3D::VARS::lp_CONFIG->low_definition_map << ";\n"
             << "}\n";
 
         if (Paths::Files::SaveToFile(TA3D::Paths::ConfigFile, s))
@@ -161,6 +162,8 @@ namespace Settings
         TA3D::VARS::lp_CONFIG->player_name = cfgFile.pullAsString("TA3D.Player name", "player");
 
         TA3D::VARS::lp_CONFIG->render_sky = cfgFile.pullAsBool("TA3D.Render Sky", true);
+        
+        TA3D::VARS::lp_CONFIG->low_definition_map = cfgFile.pullAsBool("TA3D.Low Definition Map", false);
 
         LANG = lp_CONFIG->Lang;
         // Apply settings for the current language

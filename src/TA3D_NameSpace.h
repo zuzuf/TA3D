@@ -102,6 +102,7 @@ namespace TA3D
 
 		String	net_server;					// The server that monitor the game server list
 		bool    render_sky;                 // Render the sky ? (on low-end hardware without accelerated T&L it may help to deactivate this)
+		bool    low_definition_map;         // Render map in low definition mode (1 quad instead of 4 for each map bloc)
 
 		// Variables used to communicate with all the code
 		bool	quickrestart;				// Should be false, set to true when need to restart to enable options/parameters
@@ -114,6 +115,8 @@ namespace TA3D
 
 		TA3DCONFIG()
 		{
+		    low_definition_map = false;
+
 		    render_sky = true;
 
 		    enable_shortcuts = true;

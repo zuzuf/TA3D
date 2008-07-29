@@ -150,6 +150,7 @@ void config_menu(void)
         if( format( "%d", (int)lp_CONFIG->fps_limit ) == *i )
             config_area.set_caption("*.fps_limit", *i);
     }
+    config_area.set_state("*.low_definition_map", lp_CONFIG->low_definition_map);
     config_area.set_state("*.sky", lp_CONFIG->render_sky);
     config_area.set_state("*.wireframe", lp_CONFIG->wireframe);
     config_area.set_state("*.particle", lp_CONFIG->particle);
@@ -373,6 +374,7 @@ void config_menu(void)
                 };
             }
         }
+        lp_CONFIG->low_definition_map = config_area.get_state("*.low_definition_map");
         lp_CONFIG->render_sky = config_area.get_state( "*.sky" );
         lp_CONFIG->wireframe = config_area.get_state( "*.wireframe" );
         lp_CONFIG->particle = config_area.get_state( "*.particle" );
