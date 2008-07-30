@@ -268,50 +268,6 @@ template<class T> static void Swap (T &a, T &b)
 }
 
 
-// bit field mask operation macros
-template<class T> static void SetMask (T &var, T &mask)
-{
-	var |= mask;
-	return;
-}
-
-
-template<class T> static void UnsetMask (T &var, T &mask)
-{
-	var |= ~mask;
-	return;
-}
-
-
-// ordinal bit manipulation macros  (least significant bit = bit "0")
-template<class T> static T Bit (T &bit)
-{
-	return (1 << bit);
-}
-
-template<class T> static void SetBit (T &var, T &bit)
-{
-	return (SetMask (var, Bit(bit)));
-}
-
-
-template<class T> static void UnsetBit (T &var, T &bit)
-{
-    return (UnsetMask (var, Bit(bit)));
-}
-
-
-// Returns -1/1/0 for sign of a variable
-template<class T> static T Sign (T x)
-{
-	if (x > 0)
-		return (1);
-	else
-	if ( x < 0)
-		return (-1);
-	//else
-	return (0);
-}
 
 #ifndef TA3D_MSEC_TIMER
 #define TA3D_MSEC_TIMER
