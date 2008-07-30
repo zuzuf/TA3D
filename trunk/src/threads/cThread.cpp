@@ -78,16 +78,16 @@ namespace TA3D {
       cThread* pThis = (cThread*)pV;
 
       if (pThis) {
-         try {
+//         try {
             result = pThis->Run();
-            }
+/*            }
          catch(...) {
             pThis->m_ErroredOnRun = true;
             //DestoryThread();
             // TODO: handle errors.
-            }
+            }*/
+         pThis->m_bStarted = false;
          }
-
 
 #ifndef TA3D_PLATFORM_WINDOWS
       return (void*) result;
