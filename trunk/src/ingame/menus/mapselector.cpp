@@ -286,25 +286,14 @@ namespace Menus
         String title;
 
         // Name of the mission
-        if(mapOTA.missionname)
-        {
-            title += mapOTA.missionname;
-            title += "\n";
-        }
+        if(!mapOTA.missionname.empty())
+            title << mapOTA.missionname << "\n";
         // Maximum allowed players for this map
-        if(mapOTA.numplayers)
-        {
-            title += "\n";
-            title += I18N::Translate("players: ");
-            title += mapOTA.numplayers;
-            title += "\n";
-        }
+        if(!mapOTA.numplayers.empty())
+            title << "\n" << I18N::Translate("players: ") << mapOTA.numplayers << "\n";
         // Description
-        if(mapOTA.missiondescription)
-        {
-            title += "\n";
-            title += mapOTA.missiondescription;
-        }
+        if(!mapOTA.missiondescription.empty())
+            title << "\n" << mapOTA.missiondescription;
 
         // Change the caption
         pArea->set_caption("mapsetup.map_info", title);

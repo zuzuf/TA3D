@@ -3502,10 +3502,10 @@ int play(GameData *game_data)
         case EXIT_NONE:
             break;
         case EXIT_VICTORY:
-            if( game_data->campaign && map->ota_data.glamour && HPIManager->Exists( "bitmaps\\glamour\\" + String( map->ota_data.glamour ) + ".pcx"))
+            if( game_data->campaign && !map->ota_data.glamour.empty() && HPIManager->Exists( "bitmaps\\glamour\\" + map->ota_data.glamour + ".pcx"))
             {
                 uint32 pcx_size = 0;
-                byte *data = HPIManager->PullFromHPI( "bitmaps\\glamour\\" + String( map->ota_data.glamour ) + ".pcx", &pcx_size );
+                byte *data = HPIManager->PullFromHPI( "bitmaps\\glamour\\" + map->ota_data.glamour + ".pcx", &pcx_size );
                 if(data)
                 {
                     FILE *dst = TA3D_OpenFile(TA3D::Paths::Caches + "glamour.pcx", "wb");

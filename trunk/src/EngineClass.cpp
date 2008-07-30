@@ -150,12 +150,12 @@ namespace TA3D
     void MAP_OTA::init()
     {
         network = false;
-        planet = NULL;
-        glamour = NULL;
-        missionname = NULL;
-        missiondescription = NULL;
-        numplayers = NULL;
-        map_size = NULL;
+        planet.clear();
+        glamour.clear();
+        missionname.clear();
+        missiondescription.clear();
+        numplayers.clear();
+        map_size.clear();
         for (short int i = 0; i < 10; ++i)
             startX[i] = startZ[i] = 0;
         tidalstrength = 0;
@@ -174,18 +174,12 @@ namespace TA3D
 
     void MAP_OTA::destroy()
     {
-        if (glamour)
-            free(glamour);
-        if (planet)
-            free(planet);
-        if (missionname)
-            free(missionname);
-        if (missiondescription)
-            free(missiondescription);
-        if (numplayers)
-            free(numplayers);
-        if (map_size)
-            free(map_size);
+        glamour.clear();
+        planet.clear();
+        missionname.clear();
+        missiondescription.clear();
+        numplayers.clear();
+        map_size.clear();
         init();
     }
 
@@ -672,59 +666,59 @@ namespace TA3D
         detail_shader.destroy();
         gfx->destroy_texture( details_tex );
 
-        if(low_vtx)			free(low_vtx);
-        if(low_vtx_flat)	free(low_vtx_flat);
-        if(low_tcoord)		free(low_tcoord);
-        if(low_col)			free(low_col);
-        if(low_index)		free(low_index);
+        if(low_vtx)			delete[] low_vtx;
+        if(low_vtx_flat)	delete[] low_vtx_flat;
+        if(low_tcoord)		delete[] low_tcoord;
+        if(low_col)			delete[] low_col;
+        if(low_index)		delete[] low_index;
         if(low_tex)			glDeleteTextures(1,&low_tex);
 
         ota_data.destroy();
         gfx->destroy_texture( lava_map );
         if(path && bloc_w && bloc_h) {
-            free(path[0]);
-            free(path);
+            delete[] path[0];
+            delete[] path;
         }
         if(view && bloc_w && bloc_h) {
-            free(view[0]);
-            free(view);
+            delete[] view[0];
+            delete[] view;
         }
         if(map_data && bloc_w && bloc_h) {
-            free(map_data[0]);
-            free(map_data);
+            delete[] map_data[0];
+            delete[] map_data;
         }
         if(ph_map && bloc_w && bloc_h) {
-            free(ph_map[0]);		// la carte est allouée d'un seul bloc
-            free(ph_map);
+            delete[] ph_map[0];		// la carte est allouée d'un seul bloc
+            delete[] ph_map;
         }
         if(ph_map_2 && bloc_w && bloc_h) {
-            free(ph_map_2[0]);		// la carte est allouée d'un seul bloc
-            free(ph_map_2);
+            delete[] ph_map_2[0];		// la carte est allouée d'un seul bloc
+            delete[] ph_map_2;
         }
         if(h_map && bloc_w && bloc_h) {
-            free(h_map[0]);		// la carte est allouée d'un seul bloc
-            free(h_map);
+            delete[] h_map[0];		// la carte est allouée d'un seul bloc
+            delete[] h_map;
         }
         if(bmap && bloc_w && bloc_h) {
-            free(bmap[0]);		// la carte est allouée d'un seul bloc
-            free(bmap);
+            delete[] bmap[0];		// la carte est allouée d'un seul bloc
+            delete[] bmap;
         }
         if(ntex>0) {
             for(int i=0;i<ntex;i++)
                 gfx->destroy_texture( tex[i] );
-            free(tex);
+            delete[] tex;
         }
         if(lvl) {
             for(int i=0;i<bloc_h*bloc_w;i++)
-                free(lvl[i]);
-            free(lvl);
+                delete[] lvl[i];
+            delete[] lvl;
         }
         if(bloc && nbbloc>0) {
             for(int i=0;i<nbbloc;i++) {
                 bloc[i].point=NULL;
                 bloc[i].destroy();
             }
-            free(bloc);
+            delete[] bloc;
         }
         if(mini) {
             gfx->destroy_texture( glmini );
@@ -810,96 +804,96 @@ namespace TA3D
             if(strstr(ligne,"//") || strstr(ligne,"/*") || strstr(ligne,"{")) { }		// Saute les commentaires
             else if((f=strstr(ligne,"missionname="))) {
                 if((strstr(ligne,";")))	*(strstr(ligne,";"))=0;
-                missionname=strdup(f+12);
+                missionname = f+12;
             }
             else if((f=strstr(ligne,"planet="))) {
                 if((strstr(ligne,";")))	*(strstr(ligne,";"))=0;
-                planet=strdup(f+7);
+                planet = f+7;
             }
             else if((f=strstr(ligne,"glamour="))) {
                 if((strstr(ligne,";")))	*(strstr(ligne,";"))=0;
-                glamour=strdup(f+8);
+                glamour = f+8;
             }
             else if((f=strstr(ligne,"missiondescription="))) {
                 if((strstr(ligne,";")))	*(strstr(ligne,";"))=0;
-                missiondescription=strdup(f+19);
-                char *prec=missiondescription;
-                char *cur=prec;
+                missiondescription = f+19;
+                int prec = 0;
+                int cur = 0;
                 int nb=0;
-                while(cur[0]) {
-                    if(cur[0]=='\t')	cur[0] = ' ';
-                    if(cur[0]==' ')		prec=cur;
+                while( cur < missiondescription.size() ) {
+                    if(missiondescription[cur]=='\t')	missiondescription[cur] = ' ';
+                    if(missiondescription[cur]==' ')	prec = cur;
                     nb++;
                     if(nb>34) {
-                        prec[0]='\n';
-                        nb=cur-prec;
+                        missiondescription[prec]='\n';
+                        nb = cur-prec;
                     }
                     cur++;
                 }
             }
             else if((f=strstr(ligne,"tidalstrength="))) {
                 if((strstr(ligne,";")))	*(strstr(ligne,";"))=0;
-                tidalstrength=atoi(f+14);
+                tidalstrength = atoi(f+14);
             }
             else if((f=strstr(ligne,"solarstrength="))) {
                 if((strstr(ligne,";")))	*(strstr(ligne,";"))=0;
-                solarstrength=atoi(f+14);
+                solarstrength = atoi(f+14);
             }
             else if((f=strstr(ligne,"lavaworld="))) {
                 if((strstr(ligne,";")))	*(strstr(ligne,";"))=0;
-                lavaworld=(f[10]=='1');
+                lavaworld = (f[10]=='1');
             }
             else if((f=strstr(ligne,"killmul="))) {
                 if((strstr(ligne,";")))	*(strstr(ligne,";"))=0;
-                killmul=atoi(f+8);
+                killmul = atoi(f+8);
             }
             else if((f=strstr(ligne,"minwindspeed="))) {
                 if((strstr(ligne,";")))	*(strstr(ligne,";"))=0;
-                minwindspeed=atoi(f+13);
+                minwindspeed = atoi(f+13);
             }
             else if((f=strstr(ligne,"maxwindspeed="))) {
                 if((strstr(ligne,";")))	*(strstr(ligne,";"))=0;
-                maxwindspeed=atoi(f+13);
+                maxwindspeed = atoi(f+13);
             }
             else if((f=strstr(ligne,"gravity="))) {
                 if((strstr(ligne,";")))	*(strstr(ligne,";"))=0;
-                gravity=atoi(f+8)*0.1f;
+                gravity = atoi(f+8)*0.1f;
             }
             else if((f=strstr(ligne,"numplayers="))) {
                 if((strstr(ligne,";")))	*(strstr(ligne,";"))=0;
-                numplayers=strdup(f+11);
+                numplayers = f+11;
             }
             else if((f=strstr(ligne,"size="))) {
                 if((strstr(ligne,";")))	*(strstr(ligne,";"))=0;
-                map_size=strdup(f+5);
+                map_size = f+5;
             }
             else if((f=strstr(ligne,"surfacemetal="))) {
                 if((strstr(ligne,";")))	*(strstr(ligne,";"))=0;
-                SurfaceMetal=atoi(f+13);
+                SurfaceMetal = atoi(f+13);
             }
             else if((f=strstr(ligne,"mohometal="))) {
                 if((strstr(ligne,";")))	*(strstr(ligne,";"))=0;
-                MohoMetal=atoi(f+10);
+                MohoMetal = atoi(f+10);
             }
             else if((f=strstr(ligne,"specialwhat=startpos"))) {
                 if((strstr(ligne,";")))	*(strstr(ligne,";"))=0;
-                index=atoi(f+20)-1;
+                index = atoi(f+20)-1;
             }
             else if((f=strstr(ligne,"xpos="))) {
                 if((strstr(ligne,";")))	*(strstr(ligne,";"))=0;
-                startX[index]=atoi(f+5);
+                startX[index] = atoi(f+5);
             }
             else if((f=strstr(ligne,"zpos="))) {
                 if((strstr(ligne,";")))	*(strstr(ligne,";"))=0;
-                startZ[index]=atoi(f+5);
+                startZ[index] = atoi(f+5);
             }
             else if((f=strstr(ligne,"waterdoesdamage="))) {
                 if((strstr(ligne,";")))	*(strstr(ligne,";"))=0;
-                waterdoesdamage=atoi(f+16)>0;
+                waterdoesdamage = atoi(f+16)>0;
             }
             else if((f=strstr(ligne,"waterdamage="))) {
                 if((strstr(ligne,";")))	*(strstr(ligne,";"))=0;
-                waterdamage=atoi(f+12);
+                waterdamage = atoi(f+12);
             }
             else if((f=strstr(ligne,"missionhint="))) {}
             else if((f=strstr(ligne,"brief="))) {}

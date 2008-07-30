@@ -1624,7 +1624,7 @@ const int UNIT::run_script(const float &dt,const int &id,MAP *map,int max_code)	
                     DEBUG_PRINT_CODE("RANDOM_NUMBER");
                     int high=(*script_env)[id].pop();
                     int low=(*script_env)[id].pop();
-                    (*script_env)[id].push((Math::RandFromTable()%(high-low+1))+low);
+                    (*script_env)[id].push(((sint32)(Math::RandFromTable()%(high-low+1)))+low);
                     break;
                 }
             case SCRIPT_GREATER_EQUAL:
@@ -3423,8 +3423,8 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
                                     n_px = cur_px;
                                     n_py = cur_py;
                                     Vector3D target = Pos;
-                                    target.x += (Math::RandFromTable()&0x1F)-16;		// Look for a place to land
-                                    target.z += (Math::RandFromTable()&0x1F)-16;
+                                    target.x += ((sint32)(Math::RandFromTable()&0x1F))-16;		// Look for a place to land
+                                    target.z += ((sint32)(Math::RandFromTable()&0x1F))-16;
                                     mission->flags |= MISSION_FLAG_MOVE;
                                     if (mission->path )
                                         destroy_path(mission->path);
@@ -4833,7 +4833,7 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
                 ripple_timer = units.current_tick;
                 Vector3D ripple_pos = Pos;
                 ripple_pos.y = map->sealvl + 1.0f;
-                fx_manager.addRipple( ripple_pos, ( (Math::RandFromTable() % 201) - 100 ) * 0.0001f );
+                fx_manager.addRipple( ripple_pos, ( ((sint32)(Math::RandFromTable() % 201)) - 100 ) * 0.0001f );
             }
         }
     }
@@ -6697,7 +6697,7 @@ int INGAME_UNITS::create(int type_id,int owner)
     unit[unit_index].ID = next_unit_ID++;		// So now we know who is this unit :)
 
     // Angle de 10° maximum
-    unit[unit_index].Angle.y = ((Math::RandFromTable() % 20001) - 10000) * 0.0001f * unit_manager.unit_type[type_id].BuildAngle * TA2DEG; 
+    unit[unit_index].Angle.y = (((sint32)(Math::RandFromTable() % 20001)) - 10000) * 0.0001f * unit_manager.unit_type[type_id].BuildAngle * TA2DEG; 
 
     idx_list[index_list_size++] = unit_index;
 

@@ -236,16 +236,16 @@ namespace TA3D
         map->map_w_d=map->bloc_w<<3;
         map->map2blocdb_w=((float)map->bloc_w_db)/map->map_w;
         map->map2blocdb_h=((float)map->bloc_h_db)/map->map_h;
-        map->bmap=(unsigned short**) malloc(sizeof(unsigned short*)*map->bloc_h);
-        map->bmap[0]=(unsigned short*) malloc(sizeof(unsigned short)*map->bloc_w*map->bloc_h);
+        map->bmap = new unsigned short*[map->bloc_h];
+        map->bmap[0] = new unsigned short[map->bloc_w*map->bloc_h];
         for(i = 1; i < map->bloc_h; ++i)
             map->bmap[i]=&(map->bmap[0][i*map->bloc_w]);
-        map->view=(byte**) malloc(sizeof(byte*)*map->bloc_h);
-        map->view[0]=(byte*) malloc(sizeof(byte)*map->bloc_w*map->bloc_h);
-        map->path=(byte**) malloc(sizeof(byte*)*map->bloc_h<<2);
-        map->path[0]=(byte*) malloc(sizeof(byte)*map->bloc_w*map->bloc_h<<4);
-        map->map_data=(SECTOR**) malloc(sizeof(SECTOR*)*(map->bloc_h<<1));
-        map->map_data[0]=(SECTOR*) malloc(sizeof(SECTOR)*(map->bloc_w*map->bloc_h<<2));
+        map->view = new byte*[map->bloc_h];
+        map->view[0] = new byte[map->bloc_w*map->bloc_h];
+        map->path = new byte*[map->bloc_h<<2];
+        map->path[0] = new byte[map->bloc_w*map->bloc_h<<4];
+        map->map_data = new SECTOR*[map->bloc_h<<1];
+        map->map_data[0] = new SECTOR[map->bloc_w*map->bloc_h<<2];
 
         LOG_DEBUG("MAP: creating FOW maps");
         map->sight_map = create_bitmap_ex( 8, map->bloc_w, map->bloc_h );		// FOW maps
@@ -259,12 +259,12 @@ namespace TA3D
 
         LOG_DEBUG("MAP: allocating height maps");
 
-        map->h_map=(float**) malloc(sizeof(float*)*(map->bloc_h<<1));
-        map->h_map[0]=(float*) malloc(sizeof(float)*(map->bloc_w*map->bloc_h<<2));
-        map->ph_map=(float**) malloc(sizeof(float*)*(map->bloc_h<<1));
-        map->ph_map[0]=(float*) malloc(sizeof(float)*(map->bloc_w*map->bloc_h<<2));
-        map->ph_map_2=(byte**) malloc(sizeof(byte*)*(map->bloc_h<<1));
-        map->ph_map_2[0]=(byte*) malloc(sizeof(byte)*(map->bloc_w*map->bloc_h<<2));
+        map->h_map = new float*[map->bloc_h<<1];
+        map->h_map[0] = new float[map->bloc_w*map->bloc_h<<2];
+        map->ph_map = new float*[map->bloc_h<<1];
+        map->ph_map[0] = new float[map->bloc_w*map->bloc_h<<2];
+        map->ph_map_2 = new byte*[map->bloc_h<<1];
+        map->ph_map_2[0] = new byte[map->bloc_w*map->bloc_h<<2];
         LOG_DEBUG("MAP: initialising map data");
         for(i = 1; i < (map->bloc_h << 2); ++i)
             map->path[i]=&(map->path[0][i*map->bloc_w<<2]);
@@ -281,9 +281,9 @@ namespace TA3D
 
         memset(map->view[0],0,map->bloc_w*map->bloc_h);
         map->nbbloc=header.tiles;		// Nombre de blocs nécessaires
-        map->bloc=(BLOC*) malloc(sizeof(BLOC)*map->nbbloc);	// Alloue la mémoire pour les blocs
+        map->bloc = new BLOC[map->nbbloc];	// Alloue la mémoire pour les blocs
         map->ntex=n_bmp;
-        map->tex=(GLuint*) malloc(sizeof(GLuint)*n_bmp);	// Tableau d'indices de texture OpenGl
+        map->tex = new GLuint[n_bmp];	// Tableau d'indices de texture OpenGl
 
         for(i=0;i<map->nbbloc;i++) // Crée les blocs
         {
@@ -328,7 +328,7 @@ namespace TA3D
 
         event_timer = msec_timer;
 
-        map->lvl=(Vector3D**) malloc(sizeof(Vector3D*)*map->bloc_w*map->bloc_h);
+        map->lvl = new Vector3D*[map->bloc_w*map->bloc_h];
         for(i=0;i<map->bloc_w*map->bloc_h;i++)
             map->lvl[i]=NULL;
 
@@ -338,10 +338,10 @@ namespace TA3D
             int t_n=i>>5;				// Numéro de texture
             float t_x=((float)(i&0x1F))/32.0f;	// Position sur la texture
 
-            map->bloc[i].tex=map->tex[t_n];
-            map->bloc[i].nbpoint=9;
-            map->bloc[i].nbindex=12;
-            map->bloc[i].texcoord=new float[map->bloc[i].nbpoint<<1];
+            map->bloc[i].tex = map->tex[t_n];
+            map->bloc[i].nbpoint = 9;
+            map->bloc[i].nbindex = 12;
+            map->bloc[i].texcoord = new float[map->bloc[i].nbpoint<<1];
 
             float c = 1.0f/32.0f-1.0f/1024.0f;
             t_x+=1.0f/2048.0f;
@@ -594,12 +594,12 @@ namespace TA3D
         map->low_h=map->map_h+32>>6;
         map->low_nb_idx = (2+map->low_w*2)*map->low_h;			// Draw this as GL_TRIANGLE_STRIP
         int low_nb_vtx = (map->low_w+1)*(map->low_h+1);
-        map->low_vtx=(Vector3D*) malloc(sizeof(Vector3D)*low_nb_vtx);
-        Vector3D *tmp_vtx = (Vector3D*) malloc(sizeof(Vector3D)*low_nb_vtx);
-        map->low_vtx_flat=(Vector3D*) malloc(sizeof(Vector3D)*low_nb_vtx);
-        map->low_col=(uint8*) malloc(low_nb_vtx*4);
-        map->low_tcoord=(float*) malloc(sizeof(float)*low_nb_vtx*2);
-        map->low_index=(GLuint*) malloc(sizeof(GLuint)*map->low_nb_idx);
+        map->low_vtx = new Vector3D[low_nb_vtx];
+        Vector3D *tmp_vtx = new Vector3D[low_nb_vtx];
+        map->low_vtx_flat = new Vector3D[low_nb_vtx];
+        map->low_col = new uint8[low_nb_vtx*4];
+        map->low_tcoord = new float[low_nb_vtx*2];
+        map->low_index = new GLuint[map->low_nb_idx];
         i = 0;
         for (y = 0; y <= map->low_h; ++y) // Build the mesh
         {
@@ -635,7 +635,7 @@ namespace TA3D
                 }
             }
         }
-        free( tmp_vtx );
+        delete[] tmp_vtx;
         LOG_DEBUG("MAP: creating low definition geometry (step 2)");
         i=0;
         for (y = 0; y < map->low_h; ++y)	// Build the mesh

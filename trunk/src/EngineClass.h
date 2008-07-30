@@ -133,26 +133,26 @@ namespace TA3D
         void load( String filename );
 
     public:
-        char*missionname;
-        char*planet;
-        char*missiondescription;
-        char*glamour;
-        int tidalstrength;
-        int	solarstrength;
-        bool lavaworld;
-        short killmul;
-        int minwindspeed;
-        int	maxwindspeed;
-        float gravity;
-        char* numplayers;
-        char* map_size;
-        int SurfaceMetal;
-        int	 MohoMetal;
-        int  startX[10];
-        int  startZ[10];
-        bool waterdoesdamage;
-        int	 waterdamage;
-        bool network;
+        String  missionname;
+        String  planet;
+        String  missiondescription;
+        String  glamour;
+        int     tidalstrength;
+        int     solarstrength;
+        bool    lavaworld;
+        short   killmul;
+        int     minwindspeed;
+        int     maxwindspeed;
+        float   gravity;
+        String  numplayers;
+        String  map_size;
+        int     SurfaceMetal;
+        int	    MohoMetal;
+        int     startX[10];
+        int     startZ[10];
+        bool    waterdoesdamage;
+        int	    waterdamage;
+        bool    network;
 
     private:
         //! \todo Must be removed
