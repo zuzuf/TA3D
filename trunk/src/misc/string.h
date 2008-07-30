@@ -224,6 +224,13 @@ namespace TA3D
         */
         static String ConvertToUTF8(const String& s);
 
+        /*!
+        ** \brief Formatted string 
+        ** \param format The format of the new string
+        ** \return A new string
+        */ 
+        static String Format(const String& format, ...);
+        static String Format(const char* format, ...);
 
     public:
         //! \name Constructors and Destructor
@@ -492,6 +499,23 @@ namespace TA3D
         */
         String& findAndReplace(const String& toSearch, const String& replaceWith, const enum String::CharCase option = soCaseSensitive);
         String& findAndReplace(char toSearch, const char replaceWith, const enum String::CharCase option = soCaseSensitive);
+
+        /*!
+        ** \brief Reset the current value with a formatted string 
+        ** \param format The format of the new string
+        ** \return Always *this
+        */
+        String& format(const String& format, ...);
+        String& format(const char* format, ...);
+
+        /*!
+        ** \brief Append a formatted string 
+        ** \param format The format of the new string
+        ** \return Always *this
+        */
+        String& appendFormat(const String& format, ...);
+        String& appendFormat(const char* format, ...);
+
 
     private:
         /*!

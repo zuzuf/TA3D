@@ -419,5 +419,99 @@ namespace TA3D
     }
 
 
+    String& String::format(const String& format, ...)
+    {
+        va_list parg;
+        va_start(parg, format);
+        this->clear();
+        char* b;
+        if (vasprintf(&b, format.c_str(), parg) != -1)
+        {
+            this->append(b);
+            free(b);
+        }
+        va_end(parg);
+        return *this;
+    }
+
+
+    String& String::format(const char* format, ...)
+    {
+        va_list parg;
+        va_start(parg, format);
+        this->clear();
+        char* b;
+        if (vasprintf(&b, format, parg) != -1)
+        {
+            this->append(b);
+            free(b);
+        }
+        va_end(parg);
+        return *this;
+    }
+
+
+    String& String::appendFormat(const String& format, ...)
+    {
+        va_list parg;
+        va_start(parg, format);
+        char* b;
+        if (vasprintf(&b, format.c_str(), parg) != -1)
+        {
+            this->append(b);
+            free(b);
+        }
+        va_end(parg);
+        return *this;
+    }
+
+
+    String& String::appendFormat(const char* format, ...)
+    {
+        va_list parg;
+        va_start(parg, format);
+        char* b;
+        if (vasprintf(&b, format, parg) != -1)
+        {
+            this->append(b);
+            free(b);
+        }
+        va_end(parg);
+        return *this;
+    }
+
+
+    String String::Format(const String& format, ...)
+    {
+        va_list parg;
+        va_start(parg, format);
+        char* b;
+        String s;
+        if (vasprintf(&b, format.c_str(), parg) != -1)
+        {
+            s.append(b);
+            free(b);
+        }
+        va_end(parg);
+        return s;
+    }
+
+    String String::Format(const char* format, ...)
+    {
+        va_list parg;
+        va_start(parg, format);
+        char* b;
+        String s;
+        if (vasprintf(&b, format, parg) != -1)
+        {
+            s.append(b);
+            free(b);
+        }
+        va_end(parg);
+        return s;
+    }
+
+
+
 
 }
