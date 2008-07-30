@@ -64,24 +64,6 @@ namespace TA3D
 		return str;
 	}
 
-	// Cire: Useful malloc operation.
-	void *GetMem( sint32 size, sint32 zero )
-	{
-		void *result;
-
-		if( zero )
-			result = calloc( size, 1 );
-		else
-			result = malloc( size );
-
-		/*
-		TODO: Global DEBUGGER NOTIFICATION HERE.
-		if( !result )
-		GlobalDebugger->Failed to alloc memory for hpi
-		*/
-		return result;
-	}
-
 
 	FILE *TA3D_OpenFile( const String &FileName, const String Mode )
 	{
