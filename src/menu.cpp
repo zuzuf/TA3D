@@ -707,12 +707,12 @@ void setup_game(bool client, const char *host)
 
     {
         String map_info = "";
-        if(map_data.missionname)
-            map_info += String( map_data.missionname ) + "\n";
-        if(map_data.numplayers)
-            map_info += String( map_data.numplayers ) + "\n";
-        if(map_data.missiondescription)
-            map_info += map_data.missiondescription;
+        if(!map_data.missionname.empty())
+            map_info << map_data.missionname << "\n";
+        if(!map_data.numplayers.empty())
+            map_info << map_data.numplayers << "\n";
+        if(!map_data.missiondescription.empty())
+            map_info << map_data.missiondescription;
         setupgame_area.set_caption("gamesetup.map_info", map_info );
     }
 
@@ -1385,12 +1385,12 @@ void setup_game(bool client, const char *host)
                 map_data.destroy();
                 map_data.load( Paths::Files::ReplaceExtension( game_data.map_filename, ".ota" ) );
                 String map_info = "";
-                if(map_data.missionname)
-                    map_info += String( map_data.missionname ) + "\n";
-                if(map_data.numplayers)
-                    map_info += String( map_data.numplayers ) + "\n";
-                if(map_data.missiondescription)
-                    map_info += map_data.missiondescription;
+                if(!map_data.missionname.empty())
+                    map_info << map_data.missionname << "\n";
+                if(!map_data.numplayers.empty())
+                    map_info << map_data.numplayers << "\n";
+                if(!map_data.missiondescription.empty())
+                    map_info << map_data.missiondescription;
                 setupgame_area.set_caption("gamesetup.map_info", map_info );
 
                 if( client && !HPIManager->Exists( new_map_name.c_str() ) ) {
