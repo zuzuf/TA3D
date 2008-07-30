@@ -40,48 +40,21 @@ namespace TA3D
 {
 
 
-      // TODO: Construct global config manager class.
-      // TODO: Construct global GFX object.
-	char *replace_chars(char *str)
+	FILE *TA3D_OpenFile(const String &FileName, const String Mode)
 	{
-		byte *cur_c = (byte*) str;
-		while(cur_c[0]!=0) {
-			switch(cur_c[0])
-			{
-			case 232:
-			case 233:
-				cur_c[0]='e';	break;
-			case 195:
-			case 224:
-				cur_c[0]='a';	break;
-			case 231:
-				cur_c[0]='c';	break;
-			case 244:
-				cur_c[0]='o';	break;
-			};
-			cur_c++;
-			}
-		return str;
-	}
-
-
-	FILE *TA3D_OpenFile( const String &FileName, const String Mode )
-	{
-		FILE *file;
 
         // TODO This should be removed
         TA3D::Paths::MakeDir(TA3D::Paths::ExtractFilePath(FileName));		// Create tree structure if it doesn't exist
 
         # if defined TA3D_PLATFORM_MSVC
+		FILE *file;
 		errno_t err;
-		if( ( err = fopen_s( &file, FileName.c_str(), Mode.c_str() )) == 0 )
+		if ((err = fopen_s( &file, FileName.c_str(), Mode.c_str())) == 0)
 			return file;
+        return NULL;
         # else
-		file=fopen( FileName.c_str(), Mode.c_str() );
-		if( file )
-			return file;
+		return fopen(FileName.c_str(), Mode.c_str());
         # endif
-		return NULL;
 	}
 
 	String RemoveComments(const String &s)

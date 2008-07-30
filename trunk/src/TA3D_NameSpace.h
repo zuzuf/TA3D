@@ -245,27 +245,13 @@ namespace TA3D
                           const bool emptyBefore = true);
 
 
-	char *replace_chars(char *str);
-
-
-	void TA3D_clear_cache();							// Clear the cache if needed (useful when mod has changed)
+    /*!
+    ** \brief Clear the cache if needed (useful when mod has changed)
+    */
+	void TA3D_clear_cache();
 
 } // namespace TA3D
 
-
-
-// TODO Must be removed
-using namespace TA3D;
-using namespace TA3D::UTILS;
-
-template<class T> static void Swap (T &a, T &b)
-{
-	T temp;
-	temp = a;
-	a = b;
-	b = temp;
-	return;
-}
 
 
 
@@ -275,8 +261,8 @@ extern volatile uint32	msec_timer;
 #endif
 
 // TODO Must be removed
-using namespace TA3D;
 using namespace TA3D::VARS;
+using namespace TA3D::UTILS;
 
 
 #endif // __TA3D_NAMESPACE_H__
