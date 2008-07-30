@@ -246,7 +246,6 @@ namespace TA3D
 
 
 	char *replace_chars(char *str);
-	void *GetMem( sint32 size, sint32 zero );
 
 
 	void TA3D_clear_cache();							// Clear the cache if needed (useful when mod has changed)
