@@ -63,6 +63,8 @@ namespace Menus
         String::Vector pContent;
         //! Cached size of the content
         unsigned int pContentSize;
+        
+        uint32 pScrollTimer;
 
         //! The texture of the background
         GLuint pBackgroundTexture;

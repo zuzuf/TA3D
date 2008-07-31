@@ -14,7 +14,7 @@
 
 #define LAST_LINE		14
 
-# define TA3D_INTRO_SPEED  0.06f
+# define TA3D_INTRO_SPEED  60.0f
 
 
 namespace TA3D
@@ -66,18 +66,21 @@ namespace Menus
         gfx->TA_font.change_size(pPreviousFontSize);
         ResetTexture(pBackgroundTexture);
         LOG_DEBUG(LOG_PREFIX_MENU_INTRO << "Done.");
+        pScrollTimer = msec_timer;
     }
 
 
     void Intro::waitForEvent()
     {
         // Do nothing
+        rest(1);
     }
 
 
     bool Intro::maySwitchToAnotherMenu()
     {
-        pDelta += TA3D_INTRO_SPEED;
+        pDelta += TA3D_INTRO_SPEED * (msec_timer - pScrollTimer) * 0.001f;
+        pScrollTimer = msec_timer;
         if (pDelta > pCurrentFontHeight)
         {
             pDelta = pCurrentFontHeight - pDelta;
