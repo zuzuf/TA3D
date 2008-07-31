@@ -28,12 +28,12 @@
 #include "gaf.h"
 #include "3do.h"			// Gestion des modèles 3D
 #include "3ds.h"			// The 3DS model loader
-#include "obj.h"			// The OBJ model loader
 #include "3dmeditor.h"
 #include "misc/paths.h"
 #include "misc/osinfo.h"
 #include "languages/i18n.h"
 #include "jpeg/ta3d_jpg.h"
+#include "converters/obj.h"
 
 
 
@@ -123,10 +123,10 @@ void mnu_file(int mnu_index)
         case 5:					// Importer / Import (*.3ds)
             {
                 init_surf_buf();
-                String filename = Dialog(I18N::Translate( "Import a 3DS model" ),"*.3ds");
+                String filename = Dialog(I18N::Translate( "Import a 3DS model" ), "*.3ds");
                 if (file_exists(filename.c_str(),FA_RDONLY | FA_HIDDEN | FA_SYSTEM | FA_LABEL | FA_ARCH,NULL))
                 {
-                    TheModel = load_3ds( filename );
+                    TheModel = load_3ds(filename);
                     cur_part=0;
                 }
             }
@@ -134,13 +134,13 @@ void mnu_file(int mnu_index)
         case 6:					// Importer / Import (*.obj)
             {
                 init_surf_buf();
-                String filename = Dialog(I18N::Translate( "Import an OBJ model" ),"*.obj");
-                if (file_exists(filename.c_str(),FA_RDONLY | FA_HIDDEN | FA_SYSTEM | FA_LABEL | FA_ARCH,NULL))
+                String filename = Dialog(I18N::Translate( "Import an OBJ model" ), "*.obj");
+                if (file_exists(filename.c_str(), FA_RDONLY | FA_HIDDEN | FA_SYSTEM | FA_LABEL | FA_ARCH, NULL))
                 {
-                    TheModel = load_obj( filename );
-                    cur_part=0;
-                    for(int i = 0 ; i < nb_obj() ; i++)
-                        obj_geo_optimize( i );
+                    TheModel = Converters::OBJ::ToModel(filename);
+                    cur_part = 0;
+                    for (int i = 0; i < nb_obj(); i++)
+                        obj_geo_optimize(i);
                 }
             }
             break;
