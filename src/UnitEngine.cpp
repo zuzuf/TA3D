@@ -1185,7 +1185,8 @@ void UNIT::draw(float t, Camera *cam,MAP *map,bool height_line)
             float scale=unit_manager.unit_type[type_id].Scale;
             glScalef(scale,scale,scale);
 
-            M=RotateY(Angle.y*DEG2RAD)*RotateZ(Angle.z*DEG2RAD)*RotateX(Angle.x*DEG2RAD)*Scale(scale);			// Matrice pour le calcul des positions des éléments du modèle de l'unité
+//            M=RotateY(Angle.y*DEG2RAD)*RotateZ(Angle.z*DEG2RAD)*RotateX(Angle.x*DEG2RAD)*Scale(scale);			// Matrice pour le calcul des positions des éléments du modèle de l'unité
+            M = RotateYZX(Angle.y*DEG2RAD, Angle.z*DEG2RAD, Angle.x*DEG2RAD)*Scale(scale);			// Matrice pour le calcul des positions des éléments du modèle de l'unité
 
             Vector3D *target=NULL,*center=NULL;
             Vector3D upos;
@@ -4950,7 +4951,8 @@ bool UNIT::hit(Vector3D P,Vector3D Dir,Vector3D* hit_vec, float length)
             Vector3D RP=(P-Pos) * M;
             bool is_hit=model->hit(RP,Dir,&data,hit_vec,M);
             if (is_hit) {
-                *hit_vec=(*hit_vec)*(RotateY(Angle.y*DEG2RAD)*RotateZ(Angle.z*DEG2RAD)*RotateX(Angle.x*DEG2RAD)*Scale(scale))+Pos;
+//                *hit_vec=(*hit_vec)*(RotateY(Angle.y*DEG2RAD)*RotateZ(Angle.z*DEG2RAD)*RotateX(Angle.x*DEG2RAD)*Scale(scale))+Pos;
+                *hit_vec = ((*hit_vec) * RotateYZX(Angle.y*DEG2RAD, Angle.z*DEG2RAD, Angle.x*DEG2RAD))*Scale(scale)+Pos;
                 *hit_vec=((*hit_vec-P)%Dir)*Dir+P;
             }
 
@@ -4979,7 +4981,8 @@ bool UNIT::hit_fast(Vector3D P,Vector3D Dir,Vector3D* hit_vec, float length)
             Vector3D RP = (P - Pos) * M;
             bool is_hit = model->hit_fast(RP,Dir,&data,hit_vec,M);
             if (is_hit) {
-                *hit_vec=(*hit_vec)*(RotateY(Angle.y*DEG2RAD)*RotateZ(Angle.z*DEG2RAD)*RotateX(Angle.x*DEG2RAD)*Scale(scale))+Pos;
+//                *hit_vec=(*hit_vec)*(RotateY(Angle.y*DEG2RAD)*RotateZ(Angle.z*DEG2RAD)*RotateX(Angle.x*DEG2RAD)*Scale(scale))+Pos;
+                *hit_vec = ((*hit_vec)*RotateYZX(Angle.y*DEG2RAD, Angle.z*DEG2RAD, Angle.x*DEG2RAD))*Scale(scale)+Pos;
                 *hit_vec=((*hit_vec-P)%Dir)*Dir+P;
             }
 
