@@ -2008,8 +2008,14 @@ draw_next:
                 ipos.y = data_s->axe[1][script_index].pos;
                 ipos.z = data_s->axe[2][script_index].pos;
                 *pos = *pos + (pos_from_parent + ipos) * (*M);
-                *M = RotateZ(data_s->axe[2][script_index].angle * DEG2RAD) * RotateY(data_s->axe[1][script_index].angle
-                                                                                     * DEG2RAD) * RotateX(data_s->axe[0][script_index].angle * DEG2RAD) * (*M);
+//                *M = RotateZ(data_s->axe[2][script_index].angle * DEG2RAD)
+//                    * RotateY(data_s->axe[1][script_index].angle * DEG2RAD)
+//                    * RotateX(data_s->axe[0][script_index].angle * DEG2RAD)
+//                    * (*M);
+                *M = RotateZYX( data_s->axe[2][script_index].angle * DEG2RAD,
+                                data_s->axe[1][script_index].angle * DEG2RAD,
+                                data_s->axe[0][script_index].angle * DEG2RAD)
+                    * (*M);
                 data_s->matrix[script_index] = *M;
                 if (nb_l_index==2) {
                     data_s->dir[script_index]=(points[l_index[1]] - points[l_index[0]])*(*M);
