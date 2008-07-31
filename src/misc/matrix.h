@@ -330,6 +330,33 @@ inline MATRIX_4x4 RotateZ(const float &Theta)
     return M;
 }
 
+// Returns RotateZ(Rz) * RotateZ(Ry) * RotateX(Rx) but faster ;)
+inline MATRIX_4x4 RotateZYX(const float &Rz, const float &Ry, const float &Rx)
+{
+    float cx = cos(Rx);
+    float sx = sin(Rx);
+    float cy = cos(Ry);
+    float sy = sin(Ry);
+    float cz = cos(Rz);
+    float sz = sin(Rz);
+    
+    float sxsy = sx * sy;
+    float czcx = cz * cx;
+    float szcx = sz * cx;
+    
+    MATRIX_4x4 M;
+    M.E[0][0] = cz * cy;
+    M.E[1][0] = szcx + cz * sxsy;
+    M.E[2][0] = sx * sz + czcx * sy;
+    M.E[0][1] = -sz * cy;
+    M.E[1][1] = czcx - sxsy * sz;
+    M.E[2][1] = sx * cz + szcx * sy;
+    M.E[0][2] = sy;
+    M.E[1][2] = -sx * cy;
+    M.E[2][2] = cx * cy;
+    M.E[3][3] = 1.0f;
+    return M;
+}
 
 
 // Transpose une matrice
