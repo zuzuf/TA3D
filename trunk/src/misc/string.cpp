@@ -423,13 +423,10 @@ namespace TA3D
     {
         va_list parg;
         va_start(parg, format);
+
         this->clear();
-        char* b;
-        if (vasprintf(&b, format.c_str(), parg) != -1)
-        {
-            this->append(b);
-            free(b);
-        }
+        vappendFormat(format.c_str(), parg);
+
         va_end(parg);
         return *this;
     }
@@ -439,13 +436,10 @@ namespace TA3D
     {
         va_list parg;
         va_start(parg, format);
+
         this->clear();
-        char* b;
-        if (vasprintf(&b, format, parg) != -1)
-        {
-            this->append(b);
-            free(b);
-        }
+        vappendFormat(format, parg);
+
         va_end(parg);
         return *this;
     }
@@ -455,12 +449,9 @@ namespace TA3D
     {
         va_list parg;
         va_start(parg, format);
-        char* b;
-        if (vasprintf(&b, format.c_str(), parg) != -1)
-        {
-            this->append(b);
-            free(b);
-        }
+
+        vappendFormat(format.c_str(), parg);
+
         va_end(parg);
         return *this;
     }
@@ -470,13 +461,43 @@ namespace TA3D
     {
         va_list parg;
         va_start(parg, format);
-        char* b;
-        if (vasprintf(&b, format, parg) != -1)
-        {
-            this->append(b);
-            free(b);
-        }
+
+        vappendFormat(format, parg);
+
         va_end(parg);
+        return *this;
+    }
+
+
+    String& String::vappendFormat(const char* format, va_list parg)
+    {
+        char* b;
+#if defined TA3D_PLATFORM_WINDOWS && defined TA3D_PLATFORM_MSVC
+        // Implement vasprintf() by hand with two calls to vsnprintf()
+        // Remove this when Microsoft adds support for vasprintf()
+        int sizeneeded = _vsnprintf(NULL, 0, format, parg) + 1;
+        if (sizeneeded < 0)
+        {
+            return *this;
+        }
+        b = (char*)malloc(sizeneeded);
+        if (b == NULL)
+        {
+            return *this;
+        }
+        if (_vsnprintf(b, sizeneeded, format, parg) < 0)
+        {
+            free(b);
+            return *this;
+        }
+#else
+        if (vasprintf(&b, format, parg) < 0)
+        {
+            return *this;
+        }
+#endif
+        this->append(b);
+        free(b);
         return *this;
     }
 
@@ -485,13 +506,10 @@ namespace TA3D
     {
         va_list parg;
         va_start(parg, format);
-        char* b;
+
         String s;
-        if (vasprintf(&b, format.c_str(), parg) != -1)
-        {
-            s.append(b);
-            free(b);
-        }
+        s.vappendFormat(format.c_str(), parg);
+
         va_end(parg);
         return s;
     }
@@ -500,13 +518,10 @@ namespace TA3D
     {
         va_list parg;
         va_start(parg, format);
-        char* b;
+
         String s;
-        if (vasprintf(&b, format, parg) != -1)
-        {
-            s.append(b);
-            free(b);
-        }
+        s.vappendFormat(format, parg);
+
         va_end(parg);
         return s;
     }

@@ -515,6 +515,7 @@ namespace TA3D
         */
         String& appendFormat(const String& format, ...);
         String& appendFormat(const char* format, ...);
+        String& vappendFormat(const char* format, va_list parg);
 
 
     private:
