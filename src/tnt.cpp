@@ -318,7 +318,7 @@ namespace TA3D
         for (i = 0; i < n_bmp; ++i) // Finis de charger les textures et détruit les objets BITMAP
         {
             allegro_gl_flip();
-            tmp=create_bitmap_ex(16,bmp_tex[i]->w,bmp_tex[i]->h);
+            tmp=create_bitmap_ex(32,bmp_tex[i]->w,bmp_tex[i]->h);
             blit(bmp_tex[i],tmp,0,0,0,0,tmp->w,tmp->h);
             map->tex[i] = gfx->make_texture( tmp );
             destroy_bitmap(bmp_tex[i]);
@@ -409,7 +409,12 @@ namespace TA3D
                 i=map->bmap[y][x];
                 int tex_num=i>>5;	// Numéro de la texture associée
                 int tx=(i&0x1F)<<5;			// Coordonnées sur la texture
-                stretch_blit(bmp_tex[tex_num],low_def,tx,0,32,32,x*low_def->w/map->bloc_w,y*low_def->h/map->bloc_h,(x+1)*low_def->w/map->bloc_w-x*low_def->w/map->bloc_w,(y+1)*low_def->h/map->bloc_h-y*low_def->h/map->bloc_h);
+
+                tmp = create_bitmap_ex(16,bmp_tex[tex_num]->w,bmp_tex[tex_num]->h);
+                blit(bmp_tex[tex_num],tmp,0,0,0,0,tmp->w,tmp->h);
+
+                stretch_blit(tmp,low_def,tx,0,32,32,x*low_def->w/map->bloc_w,y*low_def->h/map->bloc_h,(x+1)*low_def->w/map->bloc_w-x*low_def->w/map->bloc_w,(y+1)*low_def->h/map->bloc_h-y*low_def->h/map->bloc_h);
+                destroy_bitmap(tmp);
                 /*--------------------------------------------------------------------*/
 
                 if(map->bloc[map->bmap[y][x]].lava)
