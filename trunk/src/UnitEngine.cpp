@@ -132,7 +132,8 @@ void UNIT::compute_model_coord()
     float scale = unit_manager.unit_type[type_id].Scale;
 
     // Matrice pour le calcul des positions des éléments du modèle de l'unité
-    M = RotateZ(Angle.z*DEG2RAD)*RotateY(Angle.y * DEG2RAD) * RotateX(Angle.x * DEG2RAD) * Scale(scale);
+//    M = RotateZ(Angle.z*DEG2RAD) * RotateY(Angle.y * DEG2RAD) * RotateX(Angle.x * DEG2RAD) * Scale(scale);
+    M = RotateZYX( Angle.z * DEG2RAD, Angle.y * DEG2RAD, Angle.x * DEG2RAD) * Scale(scale);
     model->compute_coord(&data, &M);
     pMutex.unlock();
 }
