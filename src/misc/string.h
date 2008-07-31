@@ -242,9 +242,9 @@ namespace TA3D
         //! Constructor with a default value from a std::string
         String(const std::string& v) :std::string(v) {}
         //! Constructor with a default value from a wide string (wchar_t*)
-        String(const wchar_t* v) :std::string() {*this << v;}
+        String(const wchar_t* v) :std::string() {if (v) *this << v;}
         //! Constructor with a default value from a string (char*)
-        String(const char* v) :std::string(v) {}
+        String(const char* v) :std::string() { if (v) append(v); }
         //! Constructor with a default value from a string (char*) and a length
         String(const char* v, String::size_type n) :std::string(v, n) {}
         //! Constructor with a default value from a single char
