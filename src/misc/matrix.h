@@ -340,17 +340,18 @@ inline MATRIX_4x4 RotateZYX(const float &Rz, const float &Ry, const float &Rx)
     float cz = cos(Rz);
     float sz = sin(Rz);
     
-    float sxsy = sx * sy;
+    float sxcz = sx * cz;
+    float sxsz = sx * sz;
     float czcx = cz * cx;
     float szcx = sz * cx;
     
     MATRIX_4x4 M;
     M.E[0][0] = cz * cy;
-    M.E[1][0] = szcx + cz * sxsy;
-    M.E[2][0] = sx * sz - czcx * sy;
+    M.E[1][0] = szcx + sxcz * sy;
+    M.E[2][0] = sxsz - czcx * sy;
     M.E[0][1] = -sz * cy;
-    M.E[1][1] = czcx - sxsy * sz;
-    M.E[2][1] = sx * cz + szcx * sy;
+    M.E[1][1] = czcx - sy * sxsz;
+    M.E[2][1] = sxcz + szcx * sy;
     M.E[0][2] = sy;
     M.E[1][2] = -sx * cy;
     M.E[2][2] = cx * cy;
@@ -369,19 +370,52 @@ inline MATRIX_4x4 RotateXYZ(const float &Rx, const float &Ry, const float &Rz)
     float sz = sin(Rz);
     
     float szcx = sz * cx;
-    float sxsy = sx * sy;
+    float sxcz = sx * cz;
     float czcx = cz * cx;
+    float sxsz = sx * sz;
     
     MATRIX_4x4 M;
     M.E[0][0] = cz * cy;
     M.E[1][0] = cy * sz;
     M.E[2][0] = -sy;
-    M.E[0][1] = sxsy * cz - szcx;
-    M.E[1][1] = sxsy * sz + czcx;
+    M.E[0][1] = sy * sxcz - szcx;
+    M.E[1][1] = sy * sxsz + czcx;
     M.E[2][1] = sx * cy;
-    M.E[0][2] = czcx * sy + sx * sz;
-    M.E[1][2] = szcx * sy - sx * cz;
+    M.E[0][2] = czcx * sy + sxsz;
+    M.E[1][2] = szcx * sy - sxcz;
     M.E[2][2] = cx * cy;
+    M.E[3][3] = 1.0f;
+    return M;
+}
+
+// Returns RotateX(Rx) * RotateZ(Rz) * RotateY(Ry) but faster ;)
+inline MATRIX_4x4 RotateXZY(const float &Rx, const float &Rz, const float &Ry)
+{
+    float cx = cos(Rx);
+    float sx = sin(Rx);
+    float cy = cos(Ry);
+    float sy = sin(Ry);
+    float cz = cos(Rz);
+    float sz = sin(Rz);
+    
+    float sxcy = sx * cy;
+    float sxsy = sx * sy;
+    float sycx = sy * cx;
+    float cxcy = cx * cy;
+    
+    MATRIX_4x4 M;
+    M.E[0][0] = cz * cy;
+    M.E[1][0] = sz;
+    M.E[2][0] = -sy * cz;
+
+    M.E[0][1] = -sz * cxcy + sxsy;
+    M.E[1][1] = cz * cx;
+    M.E[2][1] = sz * sycx + sxcy;
+
+    M.E[0][2] = sz * sxcy + sycx;
+    M.E[1][2] = -cz * sx;
+    M.E[2][2] = -sz * sxsy + cxcy;
+
     M.E[3][3] = 1.0f;
     return M;
 }

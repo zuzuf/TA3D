@@ -1471,7 +1471,8 @@ void UNIT::draw_shadow(Camera *cam, const Vector3D& Dir,MAP *map)
         Vector3D D = map->hit( H, Dir, true, 2000.0f);
         shadow_scale_dir = (D - H).norm();
     }
-    model->draw_shadow(((shadow_scale_dir*Dir*RotateX(-drawn_Angle.x*DEG2RAD))*RotateZ(-drawn_Angle.z*DEG2RAD))*RotateY(-drawn_Angle.y*DEG2RAD),0.0f,&data);
+//    model->draw_shadow(((shadow_scale_dir*Dir*RotateX(-drawn_Angle.x*DEG2RAD))*RotateZ(-drawn_Angle.z*DEG2RAD))*RotateY(-drawn_Angle.y*DEG2RAD),0.0f,&data);
+    model->draw_shadow(shadow_scale_dir*Dir*RotateXZY(-drawn_Angle.x*DEG2RAD, -drawn_Angle.z*DEG2RAD, -drawn_Angle.y*DEG2RAD),0.0f,&data);
 
     glPopMatrix();
 
@@ -1533,7 +1534,8 @@ void UNIT::draw_shadow_basic(Camera *cam, const Vector3D& Dir,MAP *map)
         Vector3D D = map->hit( H, Dir, true, 2000.0f);
         shadow_scale_dir = (D - H).norm();
     }
-    model->draw_shadow_basic(((shadow_scale_dir*Dir*RotateX(-drawn_Angle.x*DEG2RAD))*RotateZ(-drawn_Angle.z*DEG2RAD))*RotateY(-drawn_Angle.y*DEG2RAD),0.0f,&data);
+//    model->draw_shadow_basic(((shadow_scale_dir*Dir*RotateX(-drawn_Angle.x*DEG2RAD))*RotateZ(-drawn_Angle.z*DEG2RAD))*RotateY(-drawn_Angle.y*DEG2RAD),0.0f,&data);
+    model->draw_shadow_basic(shadow_scale_dir*Dir*RotateXZY(-drawn_Angle.x*DEG2RAD, -drawn_Angle.z*DEG2RAD, -drawn_Angle.y*DEG2RAD),0.0f,&data);
 
     glPopMatrix();
 }
@@ -4943,7 +4945,8 @@ bool UNIT::hit(Vector3D P,Vector3D Dir,Vector3D* hit_vec, float length)
         if (c_dir.norm()-length <=model->size2 )
         {
             float scale=unit_manager.unit_type[type_id].Scale;
-            MATRIX_4x4 M=RotateX(-Angle.x*DEG2RAD)*RotateZ(-Angle.z*DEG2RAD)*RotateY(-Angle.y*DEG2RAD)*Scale(1.0f/scale);
+//            MATRIX_4x4 M=RotateX(-Angle.x*DEG2RAD)*RotateZ(-Angle.z*DEG2RAD)*RotateY(-Angle.y*DEG2RAD)*Scale(1.0f/scale);
+            MATRIX_4x4 M = RotateXZY(-Angle.x*DEG2RAD, -Angle.z*DEG2RAD, -Angle.y*DEG2RAD)*Scale(1.0f/scale);
             Vector3D RP=(P-Pos) * M;
             bool is_hit=model->hit(RP,Dir,&data,hit_vec,M);
             if (is_hit) {
@@ -4971,7 +4974,8 @@ bool UNIT::hit_fast(Vector3D P,Vector3D Dir,Vector3D* hit_vec, float length)
         Vector3D c_dir = model->center+Pos-P;
         if (c_dir.sq() <= ( model->size2 + length ) * ( model->size2 + length ) ) {
             float scale=unit_manager.unit_type[type_id].Scale;
-            MATRIX_4x4 M = RotateX(-Angle.x*DEG2RAD)*RotateZ(-Angle.z*DEG2RAD)*RotateY(-Angle.y*DEG2RAD)*Scale(1.0f/scale);
+//            MATRIX_4x4 M = RotateX(-Angle.x*DEG2RAD)*RotateZ(-Angle.z*DEG2RAD)*RotateY(-Angle.y*DEG2RAD)*Scale(1.0f/scale);
+            MATRIX_4x4 M = RotateXZY(-Angle.x*DEG2RAD, -Angle.z*DEG2RAD, -Angle.y*DEG2RAD)*Scale(1.0f/scale);
             Vector3D RP = (P - Pos) * M;
             bool is_hit = model->hit_fast(RP,Dir,&data,hit_vec,M);
             if (is_hit) {
