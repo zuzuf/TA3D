@@ -100,7 +100,6 @@ void reset_mouse();
 void reset_keyboard();
 
 
-BITMAP *load_memory_pcx(byte *data,RGB *cpal);
 int play(GameData *game_data);
 
 

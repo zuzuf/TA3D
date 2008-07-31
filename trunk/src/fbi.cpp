@@ -37,6 +37,8 @@
 #include "languages/i18n.h"
 #include "misc/math.h"
 #include "logs/logs.h"
+#include "converters/pcx.h"
+
 
 UNIT_MANAGER unit_manager;
 
@@ -1166,7 +1168,8 @@ int UNIT_MANAGER::unit_build_menu(int index,int omb,float &dt, bool GUI)				// A
 
     gfx->ReInitTexSys();
     glColor4f(1.0f,1.0f,1.0f,0.75f);
-    if( GUI ) {
+    if (GUI)
+    {
         if( panel.tex && nothing )
             gfx->drawtexture( panel.tex, 0.0f, 128.0f, 128.0f, 128.0f + panel.height );
 
@@ -1311,32 +1314,26 @@ int load_all_units(void (*progress)(float percent,const String &msg))
         if (unit_manager.get_unit_index(nom) == -1)
         {
             uint32 file_size=0;
-            byte *data=HPIManager->PullFromHPI(*i,&file_size);
-            nb_inconnu+=unit_manager.load_unit(data,file_size);
+            byte *data = HPIManager->PullFromHPI(*i, &file_size);
+            nb_inconnu += unit_manager.load_unit(data, file_size);
             if (unit_manager.unit_type[unit_manager.nb_unit-1].Unitname)
             {
                 String nom_pcx;
                 nom_pcx << "unitpics\\" << unit_manager.unit_type[unit_manager.nb_unit-1].Unitname << ".pcx";
-                byte *dat = HPIManager->PullFromHPI(nom_pcx);
-                if (dat)
+                unit_manager.unit_type[unit_manager.nb_unit-1].unitpic = Converters::PCX::FromHPIToBitmap(nom_pcx);
+
+                if (unit_manager.unit_type[unit_manager.nb_unit-1].unitpic)
                 {
-                    unit_manager.unit_type[unit_manager.nb_unit-1].unitpic=load_memory_pcx(dat,pal);
-                    if (unit_manager.unit_type[unit_manager.nb_unit-1].unitpic)
-                    {
-                        allegro_gl_use_alpha_channel(false);
-                        if(g_useTextureCompression)
-                            allegro_gl_set_texture_format(GL_COMPRESSED_RGB_ARB);
-                        else
-                            allegro_gl_set_texture_format(GL_RGB8);
-                        unit_manager.unit_type[unit_manager.nb_unit-1].glpic=allegro_gl_make_texture(unit_manager.unit_type[unit_manager.nb_unit-1].unitpic);
-                        glBindTexture(GL_TEXTURE_2D,unit_manager.unit_type[unit_manager.nb_unit-1].glpic);
-                        glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
-                        glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
-                    }
-                    delete[] dat;
+                    allegro_gl_use_alpha_channel(false);
+                    if(g_useTextureCompression)
+                        allegro_gl_set_texture_format(GL_COMPRESSED_RGB_ARB);
+                    else
+                        allegro_gl_set_texture_format(GL_RGB8);
+                    unit_manager.unit_type[unit_manager.nb_unit-1].glpic=allegro_gl_make_texture(unit_manager.unit_type[unit_manager.nb_unit-1].unitpic);
+                    glBindTexture(GL_TEXTURE_2D,unit_manager.unit_type[unit_manager.nb_unit-1].glpic);
+                    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
+                    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
                 }
-                else
-                    unit_manager.unit_type[unit_manager.nb_unit - 1].unitpic = NULL;
             }
             delete[] data;
             LOG_DEBUG("Loading `" << nom << "`...");
