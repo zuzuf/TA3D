@@ -482,7 +482,7 @@ namespace TA3D
                             if( getNextSpecial( &special_msg ) == 0 )
                             {
                                 String::Vector params;
-                                ReadVectorString(params, special_msg.message, " " );
+                                String(special_msg.message).split(params, " ");
                                 if( params.size() == 3 && params[0] == "RESPONSE" && params[1] == "PLAYER_ID" )
                                 {
                                     myID = atoi( params[2].c_str() );
@@ -507,9 +507,11 @@ namespace TA3D
         return sendSpecialUDP( strtochat( &chat, msg ), src_id, dst_id );
     }
 
-    int Network::sendSpecialUDP(struct chat* chat, int src_id, int dst_id){
+    int Network::sendSpecialUDP(struct chat* chat, int src_id, int dst_id)
+    {
         chat->from = myID;
-        if( myMode == 1 ) {				// Server mode
+        if( myMode == 1 )// Server mode
+        {
             if( chat == NULL )	return -1;
             int v = 0;
             for( int i = 1 ; i <= players.getMaxId() ; i++ )  {
@@ -1157,7 +1159,7 @@ namespace TA3D
             return 0;
 
         String::Vector line;
-        ReadVectorString(line, gamelist, "\n");
+        gamelist.split(line, "\n");
 
         int nb_servers = 0;
         int old = -1;
@@ -1168,9 +1170,10 @@ namespace TA3D
         for (String::Vector::const_iterator entry = line.begin(); entry != line.end(); ++entry)
         {
             String::Vector params;
-            ReadVectorString(params, *entry, " " );
-            if( params.size() < 2 )	continue;
-            if( params.size() == 2 && params[1] == "servers" )
+            entry->split(params, " ");
+            if (params.size() < 2)
+                continue;
+            if (params.size() == 2 && params[1] == "servers")
             {
                 nb_servers = atoi( params[0].c_str() );
                 continue;

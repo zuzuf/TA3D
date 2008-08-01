@@ -164,7 +164,7 @@ namespace TA3D
             int player_id = game_data->net2id( received_special_msg.from );
 
             String::Vector params;
-            ReadVectorString(params, special_msg, " ");
+            special_msg.split(params, " ");
             if (params.size() == 1)
             {
                 if (params[0] == "TCPONLY")

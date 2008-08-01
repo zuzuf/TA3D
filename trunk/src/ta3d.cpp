@@ -3424,7 +3424,7 @@ int play(GameData *game_data)
         if (cmd) // Analyse les commandes tapées dans la console
         {
             String::Vector params;
-            ReadVectorString(params,  cmd, " ");
+            String(cmd).split(params, " ");
             if (params.size() > 0)
             {
                 if (params[0] == "fps_on") lp_CONFIG->showfps=true;				// Affiche le nombre d'images/seconde

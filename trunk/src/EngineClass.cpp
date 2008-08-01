@@ -2202,12 +2202,12 @@ namespace TA3D
         rotation_speed = parser.pullAsFloat( "sky.rotation speed" );
         rotation_offset = parser.pullAsFloat( "sky.rotation offset" );
         texture_name = parser.pullAsString( "sky.texture name" );
-        ReadVectorString(planet, parser.pullAsString( "sky.planet" ) );
+        parser.pullAsString("sky.planet").split(planet, ",");
         FogColor[0] = parser.pullAsFloat( "sky.fog R" );
         FogColor[1] = parser.pullAsFloat( "sky.fog G" );
         FogColor[2] = parser.pullAsFloat( "sky.fog B" );
         FogColor[3] = parser.pullAsFloat( "sky.fog A" );
-        ReadVectorString(MapName, parser.pullAsString( "sky.map" ) );
+        parser.pullAsString("sky.map").split(MapName, ",");
     }
 
     SKY_DATA* choose_a_sky( const String& mapname, const String& planet)
