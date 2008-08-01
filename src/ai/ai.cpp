@@ -533,6 +533,7 @@ namespace TA3D
                             if (units.unit[ target_id ].cloaked && !units.unit[ target_id ].is_on_radar( 1 << ai->player_id ) ) // This one is cloaked, not on radar
                             {
                                 target_id = -1;
+                                ai->enemy_list[ player_target ].pop_front();		// Remove what we've just read
                                 continue;
                             }
                             ai->enemy_list[ player_target ].begin()->c++;
