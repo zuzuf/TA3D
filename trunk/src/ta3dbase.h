@@ -40,7 +40,6 @@ namespace TA3D
 }
 
 using namespace TA3D::VARS;
-using namespace TA3D::VARS::CONSTANTS;
 
 #define TIME_UNIT				0.04f	// Pour la simulation physique
 
