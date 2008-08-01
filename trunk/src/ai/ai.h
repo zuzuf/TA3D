@@ -65,10 +65,10 @@ namespace TA3D
             if(nb_neuron>0 && neuron) {
                 for(int i=0;i<nb_neuron;i++)
                     if(neuron[i].weight!=NULL)
-                        free(neuron[i].weight);
-                free(neuron);
+                        delete[] neuron[i].weight;
+                delete[] neuron;
             }
-            if(n_out)	free(n_out);
+            if(n_out)	delete[] n_out;
             init();
         }
 

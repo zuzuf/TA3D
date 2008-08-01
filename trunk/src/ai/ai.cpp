@@ -51,8 +51,8 @@ namespace TA3D
         nb_neuron=q+nb_in+nb_out;		// Number of layers * number of input NEURONs + number of output NEURONs
         n=nb_in;
         p=nb_out;
-        neuron=(NEURON*) malloc(sizeof(NEURON)*nb_neuron);
-        n_out=(float*) malloc(sizeof(float)*nb_out);
+        neuron = new NEURON[nb_neuron];
+        n_out = new float[nb_out];
         for(int i = 0; i < nb_neuron; ++i)
         {
             neuron[i].var=0.0f;
@@ -61,7 +61,7 @@ namespace TA3D
                 n_out[i]=0.0f;
             if (i>=n && i<nb_neuron-p)
             {
-                neuron[i].weight=(float*) malloc(sizeof(float)*n);
+                neuron[i].weight = new float[n];
                 for(int e=0;e<n;e++)
                     neuron[i].weight[e]=(TA3D_RAND()%2001)*0.001f-1.0f;
             }
@@ -69,7 +69,7 @@ namespace TA3D
             {
                 if (i>=n)
                 {
-                    neuron[i].weight=(float*) malloc(sizeof(float)*q);
+                    neuron[i].weight = new float[q];
                     for(int e=0;e<q;e++)
                         neuron[i].weight[e]=(TA3D_RAND()%2001)*0.001f-1.0f;
                 }
@@ -192,8 +192,8 @@ namespace TA3D
         fread(&q,sizeof(int),1,file);		// Size of middle layer
         nb_neuron=p+q+n;
 
-        neuron=(NEURON*) malloc(sizeof(NEURON)*nb_neuron);
-        n_out=(float*) malloc(sizeof(float)*p);
+        neuron = new NEURON[nb_neuron];
+        n_out = new float[p];
 
         for(int i=0;i<p; ++i)
             n_out[i]=0.0f;
@@ -205,12 +205,12 @@ namespace TA3D
         {
             if (i<n+q)
             {
-                neuron[i].weight=(float*) malloc(sizeof(float)*n);
+                neuron[i].weight = new float[n];
                 fread(neuron[i].weight,sizeof(float)*n,1,file);
             }
             else
             {
-                neuron[i].weight=(float*) malloc(sizeof(float)*q);
+                neuron[i].weight = new float[q];
                 fread(neuron[i].weight,sizeof(float)*q,1,file);
             }
         }
@@ -223,14 +223,14 @@ namespace TA3D
     {
         BRAIN *copy=dst;
         if (copy==NULL)
-            copy=(BRAIN*) malloc(sizeof(BRAIN));
+            copy = new BRAIN;
         copy->init();
         copy->nb_neuron=brain->nb_neuron;
         copy->n=brain->n;
         copy->p=brain->p;
         copy->q=brain->q;
-        copy->neuron=(NEURON*) malloc(sizeof(NEURON)*copy->nb_neuron);
-        copy->n_out=(float*) malloc(sizeof(float)*copy->p);
+        copy->neuron = new NEURON[copy->nb_neuron];
+        copy->n_out = new float[copy->p];
         for(int i=0;i<brain->nb_neuron; ++i)
         {
             if (i<brain->p)
@@ -241,7 +241,7 @@ namespace TA3D
             {
                 if (i>=copy->n && i<copy->nb_neuron-copy->p)
                 {
-                    copy->neuron[i].weight=(float*) malloc(sizeof(float)*brain->q);
+                    copy->neuron[i].weight = new float[brain->q];
                     for(int e=0;e<brain->q;e++)
                         copy->neuron[i].weight[e]=brain->neuron[i].weight[e];
                 }
@@ -249,7 +249,7 @@ namespace TA3D
                 {
                     if (i>=copy->n)
                     {
-                        copy->neuron[i].weight=(float*) malloc(sizeof(float)*brain->n);
+                        copy->neuron[i].weight = new float[brain->n];
                         for(int e=0;e<brain->n;e++)
                             copy->neuron[i].weight[e]=brain->neuron[i].weight[e];
                     }

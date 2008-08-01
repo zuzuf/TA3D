@@ -588,7 +588,7 @@ void load_game( GameData *game_data )
     LOAD( features.nb_features );
     LOAD( features.max_features );
 
-    features.feature = (FEATURE_DATA*) malloc(sizeof(FEATURE_DATA)*features.max_features);
+    features.feature = new FEATURE_DATA[features.max_features];
     for (int i = features.nb_features-1 ; i < features.max_features ; ++i)
     {
         features.feature[i].type = -1;
@@ -642,7 +642,7 @@ void load_game( GameData *game_data )
 
     weapons.lock();
 
-    if( weapons.weapon )	free( weapons.weapon );			// Tableau regroupant les armes
+    if( weapons.weapon )	delete[] weapons.weapon;			// Tableau regroupant les armes
     if( weapons.idx_list )	delete[] weapons.idx_list;
     if( weapons.free_idx )	delete[] weapons.free_idx;
 
@@ -650,7 +650,7 @@ void load_game( GameData *game_data )
     LOAD( weapons.max_weapon );
     LOAD( weapons.index_list_size );
 
-    weapons.weapon=(WEAPON*) malloc(sizeof(WEAPON)*weapons.max_weapon);
+    weapons.weapon = new WEAPON[weapons.max_weapon];
 
     weapons.idx_list = new uint32[weapons.max_weapon];
     weapons.free_idx = new uint32[weapons.max_weapon];
@@ -860,7 +860,7 @@ void load_game( GameData *game_data )
                 MISSION **cur = start;
                 do
                 {
-                    *cur = (MISSION*) malloc(sizeof(MISSION));
+                    *cur = new MISSION;
                     (*cur)->next = NULL;
                     LOAD( (*cur)->mission );
                     LOAD( (*cur)->target );
