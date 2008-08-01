@@ -233,19 +233,6 @@ namespace TA3D
 
 
     /*!
-    ** \brief Split a string based on a list of separators
-    **
-    ** \param[out] lst All found parts
-    ** \param s The string to split
-    ** \param seps Sequence of chars considered as a separator
-    ** \param emptyBefore rue to clear the vector before fulfill it
-    ** \warning Do not take care of string representation (with `'` or `"`)
-    */
-	void ReadVectorString(String::Vector& lst, String s, const String& seps = ",",
-                          const bool emptyBefore = true);
-
-
-    /*!
     ** \brief Clear the cache if needed (useful when mod has changed)
     */
 	void TA3D_clear_cache();

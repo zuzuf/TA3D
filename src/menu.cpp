@@ -93,9 +93,17 @@ void config_menu(void)
         fps_limits.erase( fps_limits.begin() );
     }
     else
-        ReadVectorString( fps_limits, "50,60,70,80,90,100,no limit" );
-    for( uint32 e = 0 ; e < fps_limits.size() ; e++ )
-        fps_limits[ e ] = I18N::Translate( fps_limits[ e ] );
+    {
+        fps_limits.push_back("50");
+        fps_limits.push_back("60");
+        fps_limits.push_back("70");
+        fps_limits.push_back("80");
+        fps_limits.push_back("90");
+        fps_limits.push_back("100");
+        fps_limits.push_back("no limit");
+    }
+    I18N::Translate(fps_limits);
+
     int	nb_res = 0;
     int res_width[100];
     int res_height[100];
@@ -862,8 +870,8 @@ void setup_game(bool client, const char *host)
         {
             int from = received_special_msg.from;
             String::Vector params;
-            ReadVectorString(params, received_special_msg.message, " ");
-            if( params.size() == 1 )
+            String(received_special_msg.message).split(params, " ");
+            if (params.size() == 1)
             {
                 if( params[0] == "PONG" )
                 {
@@ -1111,11 +1119,11 @@ void setup_game(bool client, const char *host)
 
         //-------------------------------------------------------------- Network Code : advert system --------------------------------------------------------------
 
-        while( !broadcast_msg.empty() )	// Broadcast message receiver
+        while (!broadcast_msg.empty())	// Broadcast message receiver
         {
             String::Vector params;
-            ReadVectorString(params, broadcast_msg, " ");
-            if( params.size() == 3 && params[0] == "PING" && params[1] == "SERVER" )
+            broadcast_msg.split(params, " ");
+            if (params.size() == 3 && params[0] == "PING" && params[1] == "SERVER")
             {
                 if( params[2] == "LIST" && host ) // Sending information about this server
                 {
@@ -1545,12 +1553,14 @@ void network_room(void)				// Let players create/join a game
         amz = mouse_z;
         amb = mouse_b;
 
-        if( network_manager.BroadcastedMessages() ) {
+        if (network_manager.BroadcastedMessages())
+        {
             String msg = network_manager.getNextBroadcastedMessage();
-            while( !msg.empty() ) {
+            while (!msg.empty())
+            {
                 String::Vector params;
-                ReadVectorString(params, msg, " ");
-                if( params.size() == 6 && params[0] == "PONG" && params[1] == "SERVER" ) // It looks like "PONG SERVER <name> <mod> <version> <nb open player slots>
+                msg.split(params, " ");
+                if (params.size() == 6 && params[0] == "PONG" && params[1] == "SERVER") // It looks like "PONG SERVER <name> <mod> <version> <nb open player slots>
                 {
                     String name = ReplaceChar( params[2], 1, ' ' );
                     String mod = ReplaceChar( params[3], 1, ' ' );
@@ -2285,13 +2295,13 @@ void wait_room(void *p_game_data)
                 }
         }
 
-        while( !special_msg.empty() ) 	// Special receiver (sync config data)
+        while (!special_msg.empty()) 	// Special receiver (sync config data)
         {
             int from = received_special_msg.from;
             int player_id = game_data->net2id( from );
             String::Vector params;
-            ReadVectorString(params, received_special_msg.message, " ");
-            if( params.size() == 1 )
+            String(received_special_msg.message).split(params, " ");
+            if (params.size() == 1)
             {
                 if( params[0] == "PONG" )
                 {

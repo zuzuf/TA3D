@@ -789,9 +789,9 @@ namespace TA3D
                 if( Category )		delete Category;
                 if( categories )	delete categories;
                 Category = new cHashTable< int >(128);
-                categories = new String::Vector;
-                ReadVectorString(*categories, f + 9, " " );
-                for(String::Vector::const_iterator i = categories->begin(); i != categories->end(); ++i)
+                categories = new String::Vector();
+                String(f+9).split(*categories, " ");
+                for (String::Vector::const_iterator i = categories->begin(); i != categories->end(); ++i)
                     Category->insertOrUpdate(String::ToLower(*i), 1);
                 fastCategory = 0;
                 if( checkCategory( "kamikaze" ) )	fastCategory |= CATEGORY_KAMIKAZE;

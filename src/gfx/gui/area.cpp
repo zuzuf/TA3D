@@ -303,12 +303,12 @@ namespace TA3D
         }
 
         String::Vector windows_to_load;
-        ReadVectorString(windows_to_load, areaFile->pullAsString("area.windows"));
-        for(String::Vector::iterator i = windows_to_load.begin(); i != windows_to_load.end(); ++i)
+        areaFile->pullAsString("area.windows").split(windows_to_load, ",");
+        for (String::Vector::const_iterator i = windows_to_load.begin(); i != windows_to_load.end(); ++i)
             load_window(*i);
 
         String background_name = areaFile->pullAsString("area.background");
-        if( background_name.toLower() != "none" )           // If we have a background set then load it
+        if (background_name.toLower() != "none")           // If we have a background set then load it
         {
             if(skin && !skin->prefix.empty())
             {

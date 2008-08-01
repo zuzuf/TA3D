@@ -93,30 +93,6 @@ namespace TA3D
 	}
 
 
-    void ReadVectorString(String::Vector& lst, String s, const String& seps, const bool emptyBefore)
-	{
-        // TODO Should be replaced by
-        // boost::algorithm::split(v, *this, boost::is_any_of(separators.c_str()));
-        // to make proper optimizations
-
-        if (emptyBefore)
-            lst.clear();
-		while(!s.empty())
-        {
-			int i = s.find(seps);
-			if( i == -1 )
-            {
-				lst.push_back(String::Trim(s));
-				return;
-			}
-			else
-            {
-				lst.push_back(String::Trim(s.substr(0, i)));
-				s = s.substr(i + 1, s.size() - i - 1);
-			}
-		}
-	}
-
 
 	void TA3D_clear_cache()							// Clear the cache if needed (useful when mod has changed)
 	{
