@@ -540,46 +540,46 @@ namespace TA3D
 
     extern MODEL_MANAGER	model_manager;
 
-    class INSTANCE
+    class Instance
     {
     public:
         Vector3D	pos;
         uint32	col;
         float	angle;
 
-        INSTANCE(const Vector3D &p, const uint32 &c, const float &ang)
+        Instance(const Vector3D &p, const uint32 &c, const float &ang)
             :pos(p), col(c), angle(ang)
         {}
     };
 
-    class RENDER_QUEUE
+    class RenderQueue
     {
     public:
-        std::list<INSTANCE>	queue;
+        std::list<Instance>	queue;
         uint32				model_id;
 
-        RENDER_QUEUE(const uint32 m_id) :queue(), model_id(m_id) {}
+        RenderQueue(const uint32 m_id) :queue(), model_id(m_id) {}
 
-        ~RENDER_QUEUE()	{}
+        ~RenderQueue()	{}
 
         void draw_queue();
     };
 
-#define DRAWING_TABLE_SIZE		0x100
-#define DRAWING_TABLE_MASK		0xFF
+#define DrawingTable_SIZE		0x100
+#define DrawingTable_MASK		0xFF
 
-    class DRAWING_TABLE							// Kind of hash table used to speed up rendering of instances of a mesh
+    class DrawingTable							// Kind of hash table used to speed up rendering of Instances of a mesh
     {
     private:
-        std::vector< std::list< RENDER_QUEUE* > >		hash_table;
+        std::vector< std::list< RenderQueue* > >		hash_table;
 
     public:
 
-        DRAWING_TABLE() : hash_table()	{	hash_table.resize( DRAWING_TABLE_SIZE );	}
+        DrawingTable() : hash_table()	{	hash_table.resize( DrawingTable_SIZE );	}
 
-        ~DRAWING_TABLE();
+        ~DrawingTable();
 
-        void queue_instance( uint32 &model_id, INSTANCE instance );
+        void queue_Instance( uint32 &model_id, Instance instance );
         void draw_all();
     };
 
@@ -616,7 +616,7 @@ namespace TA3D
 
     public:
 
-        QUAD_TABLE() : hash_table()	{	hash_table.resize( DRAWING_TABLE_SIZE );	}
+        QUAD_TABLE() : hash_table()	{	hash_table.resize( DrawingTable_SIZE );	}
 
         ~QUAD_TABLE();
 

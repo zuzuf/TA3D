@@ -3919,35 +3919,35 @@ hit_fast_is_exploding:
         return data;
     }
 
-    DRAWING_TABLE::~DRAWING_TABLE()
+    DrawingTable::~DrawingTable()
     {
-        for ( uint16 i = 0 ; i < DRAWING_TABLE_SIZE ; i++ )
-            for (std::list< RENDER_QUEUE* >::iterator e = hash_table[ i ].begin() ; e != hash_table[ i ].end() ; e++ )
+        for ( uint16 i = 0 ; i < DrawingTable_SIZE ; i++ )
+            for (std::list< RenderQueue* >::iterator e = hash_table[ i ].begin() ; e != hash_table[ i ].end() ; e++ )
                 delete *e;
         hash_table.clear();
     }
 
-    void DRAWING_TABLE::queue_instance( uint32 &model_id, INSTANCE instance )
+    void DrawingTable::queue_Instance( uint32 &model_id, Instance instance )
     {
-        uint32	hash = model_id & DRAWING_TABLE_MASK;
-        for (std::list< RENDER_QUEUE* >::iterator i = hash_table[ hash ].begin() ; i != hash_table[ hash ].end() ; i++ )
+        uint32	hash = model_id & DrawingTable_MASK;
+        for (std::list< RenderQueue* >::iterator i = hash_table[ hash ].begin() ; i != hash_table[ hash ].end() ; i++ )
             if ((*i)->model_id == model_id ) {		// We found an already existing render queue
                 (*i)->queue.push_back( instance );
                 return;
             }
-        RENDER_QUEUE *render_queue = new RENDER_QUEUE( model_id );
-        hash_table[ hash ].push_back( render_queue );
-        render_queue->queue.push_back( instance );
+        RenderQueue *renderQueue = new RenderQueue( model_id );
+        hash_table[ hash ].push_back( renderQueue );
+        renderQueue->queue.push_back( instance );
     }
 
-    void DRAWING_TABLE::draw_all()
+    void DrawingTable::draw_all()
     {
-        for ( uint16 i = 0 ; i < DRAWING_TABLE_SIZE ; i++ )
-            for (std::list< RENDER_QUEUE* >::iterator e = hash_table[ i ].begin() ; e != hash_table[ i ].end() ; e++ )
+        for ( uint16 i = 0 ; i < DrawingTable_SIZE ; i++ )
+            for (std::list< RenderQueue* >::iterator e = hash_table[ i ].begin() ; e != hash_table[ i ].end() ; e++ )
                 (*e)->draw_queue();
     }
 
-    void RENDER_QUEUE::draw_queue()
+    void RenderQueue::draw_queue()
     {
         if (queue.size() == 0 )	return;
         glPushMatrix();
@@ -3965,7 +3965,7 @@ hit_fast_is_exploding:
             glEndList();
         }
 
-        for (std::list< INSTANCE >::iterator i = queue.begin() ; i != queue.end() ; ++i)
+        for (std::list< Instance >::iterator i = queue.begin() ; i != queue.end() ; ++i)
         {
             glPopMatrix();
             glPushMatrix();
@@ -3983,7 +3983,7 @@ hit_fast_is_exploding:
 
     QUAD_TABLE::~QUAD_TABLE()
     {
-        for (uint16 i = 0; i < DRAWING_TABLE_SIZE; ++i)
+        for (uint16 i = 0; i < DrawingTable_SIZE; ++i)
         {
             for (std::list< QUAD_QUEUE* >::iterator e = hash_table[ i ].begin() ; e != hash_table[ i ].end() ; ++e)
                 delete *e;
@@ -3993,7 +3993,7 @@ hit_fast_is_exploding:
 
     void QUAD_TABLE::queue_quad(GLuint& texture_id, QUAD quad)
     {
-        uint32	hash = texture_id & DRAWING_TABLE_MASK;
+        uint32	hash = texture_id & DrawingTable_MASK;
         for (std::list< QUAD_QUEUE* >::iterator i = hash_table[ hash ].begin() ; i != hash_table[ hash ].end() ; ++i)
         {
             if ((*i)->texture_id == texture_id ) // We found an already existing render queue
@@ -4010,7 +4010,7 @@ hit_fast_is_exploding:
     void QUAD_TABLE::draw_all()
     {
         uint32	max_size = 0;
-        for (uint16 i = 0; i < DRAWING_TABLE_SIZE ; ++i)
+        for (uint16 i = 0; i < DrawingTable_SIZE ; ++i)
         {
             for (std::list< QUAD_QUEUE* >::iterator e = hash_table[i].begin(); e != hash_table[i].end(); ++e)
                 max_size = Math::Max( max_size, (uint32)(*e)->queue.size());
@@ -4044,7 +4044,7 @@ hit_fast_is_exploding:
         glVertexPointer( 3, GL_FLOAT, 0, P);
         glTexCoordPointer(2, GL_FLOAT, 0, T);
 
-        for (uint16 i = 0; i < DRAWING_TABLE_SIZE; ++i)
+        for (uint16 i = 0; i < DrawingTable_SIZE; ++i)
         {
             for (std::list< QUAD_QUEUE* >::iterator e = hash_table[i].begin(); e != hash_table[i].end(); ++e)
                 (*e)->draw_queue(P, C, T);

@@ -608,7 +608,7 @@ namespace TA3D
 
         glPolygonOffset(-1.0f,-1.0f);
 
-        DRAWING_TABLE drawing_table;
+        DrawingTable DrawingTable;
         QUAD_TABLE    quad_table;
 
         pMutex.lock();
@@ -705,8 +705,8 @@ namespace TA3D
                 {
                     if (!feature_manager.feature[feature[i].type].model->animated && !feature[i].sinking)
                     {
-                        drawing_table.queue_instance( feature_manager.feature[feature[i].type].model->id,
-                                                      INSTANCE(feature[i].Pos, feature[i].grey ? 0x7F7F7FFF : 0xFFFFFFFF,
+                        DrawingTable.queue_Instance( feature_manager.feature[feature[i].type].model->id,
+                                                      Instance(feature[i].Pos, feature[i].grey ? 0x7F7F7FFF : 0xFFFFFFFF,
                                                                feature[i].angle)  );
                     }
                     else
@@ -755,7 +755,7 @@ namespace TA3D
         glEnable(GL_LIGHTING);
         glEnable(GL_CULL_FACE);
 
-        drawing_table.draw_all();
+        DrawingTable.draw_all();
 
         glDisable(GL_ALPHA_TEST);
         glDepthFunc( GL_LESS );
