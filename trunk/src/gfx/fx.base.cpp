@@ -15,6 +15,11 @@ namespace TA3D
         :time(0.0f), playing(false), Pos(), size(1.0f), anm(0)
     {}
 
+    FX::~FX()
+    {
+        destroy();
+    }
+
     void FX::init()
     {
         time = 0.0f;

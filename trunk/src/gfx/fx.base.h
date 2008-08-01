@@ -18,6 +18,7 @@ namespace TA3D
     {
     public:
         FX();
+        ~FX();
 
         void init();
 

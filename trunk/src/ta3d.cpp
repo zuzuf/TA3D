@@ -268,7 +268,7 @@ int play(GameData *game_data)
         delete[] map_file;
     }
 
-    game_data->map_filename.resize( game_data->map_filename.size() - 3);		// Remove the ".ota" extension
+    game_data->map_filename.resize( game_data->map_filename.size() - 4 );		// Remove the ".ota" extension
 
     SKY_DATA	*sky_data = choose_a_sky( game_data->map_filename, map->ota_data.planet);
 

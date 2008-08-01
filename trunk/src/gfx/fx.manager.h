@@ -176,11 +176,11 @@ namespace TA3D
         // TODO Remove all those C style lists...
         int max_fx;
         int nb_fx;
-        FX* fx;
+        std::vector<FX> fx;
 
         int cache_size;			// Cache
         int max_cache_size;
-        char** cache_name;
+        String::Vector cache_name;
         ANIM** cache_anm;
         int* use;
         bool pCacheIsDirty;

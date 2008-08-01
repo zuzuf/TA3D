@@ -20,13 +20,8 @@ namespace TA3D
 
         if(nb_fx+1>max_fx)
         {
-            max_fx+=100;
-            FX* n_fx = (FX*) malloc(sizeof(FX)*max_fx);
-            memcpy(n_fx,fx,sizeof(FX)*(max_fx-100));
-            for (int i = max_fx - 100; i < max_fx; ++i)
-                n_fx[i].init();
-            free(fx);
-            fx = n_fx;
+            max_fx++;
+            fx.resize( max_fx );
         }
         ++nb_fx;
         int idx = -1;
@@ -108,13 +103,8 @@ namespace TA3D
         MutexLocker locker(pMutex);
         if(nb_fx + 1 > max_fx)
         {
-            max_fx+=100;
-            FX *n_fx=(FX*) malloc(sizeof(FX)*max_fx);
-            memcpy(n_fx,fx,sizeof(FX)*(max_fx-100));
-            for(int i=max_fx-100;i<max_fx;i++)
-                n_fx[i].init();
-            free(fx);
-            fx=n_fx;
+            max_fx++;
+            fx.resize( max_fx );
         }
         ++nb_fx;
         int idx=-1;
@@ -142,13 +132,8 @@ namespace TA3D
 
         if(nb_fx+1>max_fx)
         {
-            max_fx+=100;
-            FX *n_fx=(FX*) malloc(sizeof(FX)*max_fx);
-            memcpy(n_fx,fx,sizeof(FX)*(max_fx-100));
-            for(int i=max_fx-100;i<max_fx;i++)
-                n_fx[i].init();
-            free(fx);
-            fx=n_fx;
+            max_fx++;
+            fx.resize( max_fx );
         }
         ++nb_fx;
         int idx = -1;
@@ -174,13 +159,8 @@ namespace TA3D
 
         if(nb_fx + 1 > max_fx)
         {
-            max_fx += 100;
-            FX* n_fx = (FX*)malloc(sizeof(FX) * max_fx);
-            memcpy(n_fx, fx, sizeof(FX) * (max_fx - 100));
-            for (int i = max_fx - 100;i < max_fx; ++i)
-                n_fx[i].init();
-            free(fx);
-            fx=n_fx;
+            max_fx ++;
+            fx.resize( max_fx );
         }
         ++nb_fx;
         int idx = -1;
@@ -218,11 +198,11 @@ namespace TA3D
         fx_data = NULL;
         max_fx = 0;
         nb_fx = 0;
-        fx = NULL;
+        fx.clear();
 
         max_cache_size = 0;
         cache_size = 0;
-        cache_name = NULL;
+        cache_name.clear();
         cache_anm = NULL;
         use=NULL;
 
@@ -247,23 +227,10 @@ namespace TA3D
 
         if(fx_data)
             delete[] fx_data;
-        if(fx)
-        {
-            for(int i=0;i<max_fx; ++i)
-                fx[i].destroy();
-            free(fx);
-        }
+        fx.clear();
         if (cache_size>0)
         {
-            if (cache_name)
-            {
-                for (int i = 0; i < max_cache_size; ++i)
-                {
-                    if(cache_name[i])
-                        free(cache_name[i]);
-                }
-                free(cache_name);
-            }
+            cache_name.clear();
             if (cache_anm)
             {
                 for (int i = 0;i < max_cache_size; ++i)
@@ -274,7 +241,7 @@ namespace TA3D
                         delete cache_anm[i];
                     }
                 }
-                free(cache_anm);
+                delete[] cache_anm;
             }
         }
         init();
@@ -377,29 +344,25 @@ namespace TA3D
         if(cache_size + 1 > max_cache_size)
         {
             max_cache_size += 100;
-            char **n_name = (char**)malloc(sizeof(char*)*max_cache_size);
-            ANIM **n_anm = (ANIM**)malloc(sizeof(ANIM*)*max_cache_size);
-            int *n_use = (int*)malloc(sizeof(int)*max_cache_size);
+            cache_name.resize( max_cache_size );
+            ANIM **n_anm = new ANIM*[max_cache_size];
+            int *n_use = new int[max_cache_size];
             for (int i = max_cache_size - 100; i < max_cache_size; ++i)
             {
                 n_use[i] = 0;
-                n_name[i] = NULL;
                 n_anm[i] = NULL;
             }
             if (cache_size > 0)
             {
                 for(int i = 0; i < max_cache_size - 100; ++i)
                 {
-                    n_name[i] = cache_name[i];
                     n_anm[i] = cache_anm[i];
                     n_use[i] = use[i];
                 }
-                free(cache_name);
-                free(cache_anm);
-                free(use);
+                delete[] cache_anm;
+                delete[] use;
             }
             use=n_use;
-            cache_name=n_name;
             cache_anm=n_anm;
             idx=cache_size;
         }
@@ -414,7 +377,7 @@ namespace TA3D
         }
         use[idx] = 1;
         cache_anm[idx] = anm;
-        cache_name[idx] = strdup(filename.c_str());
+        cache_name[idx] = filename;
         ++cache_size;
 
         return idx;
@@ -427,7 +390,7 @@ namespace TA3D
             return -1;
         for(int i = 0; i < max_cache_size; ++i)
         {
-            if(cache_anm[i] != NULL && cache_name[i] != NULL)
+            if (cache_anm[i] != NULL && !cache_name[i].empty())
             {
                 if (filename == cache_name[i])
                     return i;
@@ -467,8 +430,7 @@ namespace TA3D
                 --nb_fx;
                 if (use[fx[i].anm] <= 0) // Animation used nowhere
                 {
-                    free(cache_name[fx[i].anm]);
-                    cache_name[fx[i].anm] = NULL;
+                    cache_name[fx[i].anm].clear();
                     cache_anm[fx[i].anm]->destroy();
                     delete cache_anm[fx[i].anm];
                     cache_anm[fx[i].anm] = NULL;
