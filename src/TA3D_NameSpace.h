@@ -194,32 +194,9 @@ namespace TA3D
 		TA3D_API_E String							TA3D_CURRENT_MOD;
 		TA3D_API_E int								ascii_to_scancode[ 256 ];
 
-		namespace CONSTANTS
-		{
-			const uint32 uint32max =  0xffffffff;
-			const uint32 uint32min =           0;
-			const sint32 sint32max =  0x7fffffff;
-			const sint32 sint32min = (-2147483647 - 1);
-
-			const uint16 uint16max =  0xffff;
-			const uint16 uint16min =       0;
-			const sint16 sint16max =  0x7fff;
-			const sint16 sint16min = -0x8000;
-
-			const uint8  uint8max  =  0xff;
-			const uint8  uint8min  =     0;
-			const sint8  sint8max  =  0x7f;
-			const sint8  sint8min  = -0x80;
-
-			const uchar  ucharmax  =  0xff;
-			const uchar  ucharmin  =     0;
-			const schar  scharmax  =  0x7f;
-			const schar  scharmin  = -0x80;
-
-			// Some constant data needed by the engine ( like number of ticks/sec. to simulate )
+		// Some constant data needed by the engine ( like number of ticks/sec. to simulate )
 #define TICKS_PER_SEC				30
 #define MAX_CODE_PER_TICK			100
-		}
 	}
 
 	FILE *TA3D_OpenFile( const String &FileName, const String Mode );
