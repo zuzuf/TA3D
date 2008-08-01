@@ -642,7 +642,6 @@ void setup_game(bool client, const char *host)
 
     int dx, dy;
     GLuint glimg = load_tnt_minimap_fast(game_data.map_filename,dx,dy);
-    char tmp_char[1024];
     MAP_OTA	map_data;
     map_data.load( Paths::Files::ReplaceExtension( game_data.map_filename, ".ota" ) );
     float ldx = dx*70.0f/252.0f;
@@ -650,8 +649,10 @@ void setup_game(bool client, const char *host)
 
     AREA setupgame_area("setup");
     setupgame_area.load_tdf("gui/setupgame.area");
-    if( !setupgame_area.background )	setupgame_area.background = gfx->glfond;
-    for(uint16 i = 0 ; i < 10 ; i++ ) {
+    if (!setupgame_area.background)
+        setupgame_area.background = gfx->glfond;
+    for (short int i = 0; i < 10; ++i)
+    {
         setupgame_area.set_caption( format("gamesetup.name%d", i), game_data.player_names[i] );
         setupgame_area.set_caption( format("gamesetup.side%d", i), game_data.player_sides[i] );
         setupgame_area.set_caption( format("gamesetup.ai%d", i), game_data.player_control[i] & PLAYER_CONTROL_FLAG_AI ? ai_level_str[game_data.ai_level[i]].c_str() : "" );
