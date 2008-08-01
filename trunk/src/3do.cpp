@@ -3036,7 +3036,6 @@ hit_fast_is_exploding:
         animated = obj.has_animation_data();
 
         Vector3D O;
-        O.x=O.y=O.z=0.0f;
         int coef=0;
         center.x=center.y=center.z=0.0f;
         obj.compute_center(&center,O,&coef);
@@ -3056,7 +3055,6 @@ hit_fast_is_exploding:
             nb_obj = obj.set_obj_id( 0 );
 
             Vector3D O;
-            O.x=O.y=O.z=0.0f;
             int coef=0;
             center.x=center.y=center.z=0.0f;
             obj.compute_center(&center,O,&coef);
@@ -3078,7 +3076,6 @@ hit_fast_is_exploding:
 
         from_2d = true;
         Vector3D O;
-        O.x=O.y=O.z=0.0f;
         int coef=0;
         center.x=center.y=center.z=0.0f;
         obj.compute_center(&center,O,&coef);
