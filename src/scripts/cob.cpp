@@ -98,7 +98,7 @@ namespace TA3D
         nb_script=header.NumberOfScripts;
         nb_piece=header.NumberOfPieces;
         names.resize(nb_script);
-        piece_name=(char**) malloc(sizeof(char*)*nb_piece);
+        piece_name.resize( nb_piece );
 
         int f_pos = header.OffsetToScriptNameOffsetArray;
         int i;
@@ -106,10 +106,10 @@ namespace TA3D
             names[i] = String( (char*)(data + (*((int*)(data + f_pos + 4 * i)))) ).toUpper();
         f_pos=header.OffsetToPieceNameOffsetArray;
         for(i = 0; i < nb_piece; ++i)
-            piece_name[i] = strdup((char*)(data+(*((int*)(data+f_pos+4*i)))));
+            piece_name[i] = (char*)(data+(*((int*)(data+f_pos+4*i))));
         Data=data;
-        script_code=(int**) malloc(sizeof(int*)*nb_script);
-        dec_offset=(int*) malloc(sizeof(int)*nb_script);
+        script_code = new int*[nb_script];
+        dec_offset = new int[nb_script];
         for (i = 0; i < nb_script; ++i)
         {
             dec_offset[i]  = (*((int*)(data + header.OffsetToScriptCodeIndexArray + 4 * i)));
@@ -125,17 +125,12 @@ namespace TA3D
     {
         names.clear();
         if (script_code)
-            free(script_code);
+            delete[] script_code;
         if (dec_offset)
-            free(dec_offset);
+            delete[] dec_offset;
         if (Data)
             delete[] Data;
-        if (piece_name)
-        {
-            for (int i = 0; i < nb_piece; ++i)
-                free(piece_name[i]);
-            free(piece_name);
-        }
+        piece_name.clear();
         init();
     }
 
@@ -146,7 +141,7 @@ namespace TA3D
         nb_script = 0;
         nb_piece = 0;
         script_code = NULL;
-        piece_name = NULL;
+        piece_name.clear();
         dec_offset = NULL;
     }
 
