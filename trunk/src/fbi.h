@@ -132,8 +132,8 @@ namespace TA3D
         char    *Unitname;
         byte    FootprintX;
         byte    FootprintZ;
-        cHashTable< int >   *Category;
-        std::vector< String >   *categories;
+        cHashTable<int>* Category;
+        String::Vector* categories;
         uint32  fastCategory;
         short   MaxSlope;
         byte    BMcode;
