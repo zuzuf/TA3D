@@ -16,16 +16,16 @@
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA*/
 
 #include "stdafx.h"
+#include <list>
+#include <vector>
 #include "TA3D_NameSpace.h"
 #include "misc/matrix.h"
-
 #include "cTA3D_Engine.h"		// The Engine
 #include "ta3dbase.h"			// Some core include
 #include "EngineClass.h"
 #include "UnitEngine.h"
 #include "restore.h"
-#include <list>
-#include <vector>
+#include "ingame/players.h"
 
 
 

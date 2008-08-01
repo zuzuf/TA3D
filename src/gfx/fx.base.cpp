@@ -2,6 +2,10 @@
 #include "fx.base.h"
 #include "fx.manager.h"
 #include "../logs/logs.h"
+#include "../ingame/players.h"
+
+
+
 
 namespace TA3D
 {

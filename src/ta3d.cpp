@@ -46,6 +46,8 @@
 #include "tnt.h"
 #include "scripts/script.h"
 #include "gfx/shader.h"
+#include "ingame/players.h"
+
 
 
 #ifndef SCROLL_SPEED

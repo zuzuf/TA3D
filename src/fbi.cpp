@@ -25,19 +25,19 @@
   \-----------------------------------------------------------------------------------*/
 
 #include "stdafx.h"
+#include <vector>
+#include <list>
 #include "misc/matrix.h"
 #include "TA3D_NameSpace.h"
 #include "ta3dbase.h"
 #include "3do.h"
-//#include "fbi.h"
 #include "EngineClass.h"
 #include "UnitEngine.h"
-#include <vector>
-#include <list>
 #include "languages/i18n.h"
 #include "misc/math.h"
 #include "logs/logs.h"
 #include "converters/pcx.h"
+#include "ingame/players.h"
 
 
 UNIT_MANAGER unit_manager;

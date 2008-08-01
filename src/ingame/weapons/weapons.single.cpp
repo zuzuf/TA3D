@@ -6,6 +6,7 @@
 #include <list>
 #include "../../misc/math.h"
 #include "../../sounds/manager.h"
+#include "../players.h"
 
 
 
