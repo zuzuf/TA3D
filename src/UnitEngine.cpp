@@ -578,9 +578,9 @@ bool UNIT::is_on_radar( byte p_mask )
 {
     int px = cur_px>>1;
     int py = cur_py>>1;
-    if (px >= 0 && py >= 0 && px < units.map->radar_map->w && py < units.map->radar_map->h )
-        return ( (units.map->radar_map->line[py][px] & p_mask) && !unit_manager.unit_type[ type_id ].Stealth && (unit_manager.unit_type[ type_id ].fastCategory & CATEGORY_NOTSUB) )
-            || ( (units.map->sonar_map->line[py][px] & p_mask) && !(unit_manager.unit_type[ type_id ].fastCategory & CATEGORY_NOTSUB) );
+    if (px >= 0 && py >= 0 && px < units.map->radar_map->w && py < units.map->radar_map->h && type_id != -1)
+        return ( (units.map->radar_map->line[py][px] & p_mask) && !unit_manager.unit_type[type_id].Stealth && (unit_manager.unit_type[type_id].fastCategory & CATEGORY_NOTSUB) )
+            || ( (units.map->sonar_map->line[py][px] & p_mask) && !(unit_manager.unit_type[type_id].fastCategory & CATEGORY_NOTSUB) );
     return false;
 }
 
@@ -616,9 +616,9 @@ void UNIT::add_mission(int mission_type,Vector3D *target,bool step,int dat,void 
     }
 
     bool def_mode = false;
-    if (!unit_manager.unit_type[type_id].BMcode )
+    if (type_id != -1 && !unit_manager.unit_type[type_id].BMcode)
     {
-        switch( mission_type )
+        switch (mission_type)
         {
             case MISSION_MOVE:
             case MISSION_PATROL:
@@ -634,12 +634,13 @@ void UNIT::add_mission(int mission_type,Vector3D *target,bool step,int dat,void 
     if (mission_type == MISSION_MOVE || mission_type == MISSION_PATROL )
         m_flags |= MISSION_FLAG_MOVE;
 
-    if (mission_type == MISSION_BUILD && unit_manager.unit_type[ type_id ].BMcode && unit_manager.unit_type[ type_id ].Builder && target != NULL )
+    if (type_id != -1 && mission_type == MISSION_BUILD && unit_manager.unit_type[type_id].BMcode && unit_manager.unit_type[type_id].Builder && target != NULL)
     {
         bool removed = false;
         MISSION *cur_mission = mission;
         MISSION *prec = cur_mission;
-        if (cur_mission )		cur_mission = cur_mission->next;		// Don't read the first one ( which is being executed )
+        if (cur_mission)
+            cur_mission = cur_mission->next;		// Don't read the first one ( which is being executed )
 
         while( cur_mission ) 	// Reads the mission list
         {
@@ -759,7 +760,7 @@ void UNIT::add_mission(int mission_type,Vector3D *target,bool step,int dat,void 
                       || cur->mission == MISSION_VTOL_STANDBY || cur->mission == MISSION_STOP )		// Don't stop if it's not necessary
                     && ( mission_type == MISSION_MOVE || mission_type == MISSION_PATROL ) )
                   || ( ( cur->mission == MISSION_BUILD || cur->mission == MISSION_BUILD_2 )
-                       && mission_type == MISSION_BUILD && !unit_manager.unit_type[type_id].BMcode ) )
+                       && mission_type == MISSION_BUILD && type_id != -1 && !unit_manager.unit_type[type_id].BMcode) )
                 && new_mission->next != NULL ) 	// Prevent factories from closing when already building a unit
             {
                 stop = new_mission->next;
@@ -818,7 +819,7 @@ void UNIT::set_mission(int mission_type,Vector3D *target,bool step,int dat,bool 
     }
 
     bool def_mode = false;
-    if (!unit_manager.unit_type[type_id].BMcode )
+    if (type_id != -1 && !unit_manager.unit_type[type_id].BMcode)
     {
         switch( mission_type )
         {
@@ -854,7 +855,7 @@ void UNIT::set_mission(int mission_type,Vector3D *target,bool step,int dat,bool 
         case MISSION_BUILD_2: {
                                   launch_script(get_script_index(SCRIPT_stopbuilding));
                                   deactivate();
-                                  if (!unit_manager.unit_type[type_id].BMcode ) // Delete the unit we were building
+                                  if (type_id != -1 && !unit_manager.unit_type[type_id].BMcode) // Delete the unit we were building
                                   {
                                       sint32 prev = -1;
                                       for(int i = units.nb_unit-1; i>=0 ; i--)
@@ -873,10 +874,12 @@ void UNIT::set_mission(int mission_type,Vector3D *target,bool step,int dat,bool 
                                   break;
                               }
         case MISSION_ATTACK: {
-                                 if (mission_type != MISSION_ATTACK && ( !unit_manager.unit_type[type_id].canfly
-                                                                         || ( unit_manager.unit_type[type_id].canfly && mission_type != MISSION_MOVE && mission_type != MISSION_PATROL ) ) )
+                                 if (mission_type != MISSION_ATTACK && type_id != -1 &&
+                                     (!unit_manager.unit_type[type_id].canfly
+                                      || (unit_manager.unit_type[type_id].canfly && mission_type != MISSION_MOVE && mission_type != MISSION_PATROL ) ) )
                                      deactivate();
-                                 else {
+                                 else
+                                 {
                                      stopit = false;
                                      already_running = true;
                                  }
@@ -885,7 +888,7 @@ void UNIT::set_mission(int mission_type,Vector3D *target,bool step,int dat,bool 
         case MISSION_MOVE:
         case MISSION_PATROL: {
                                  if (mission_type == MISSION_MOVE || mission_type == MISSION_PATROL
-                                     || ( unit_manager.unit_type[type_id].canfly && mission_type == MISSION_ATTACK ) )
+                                     || (type_id != -1 && unit_manager.unit_type[type_id].canfly && mission_type == MISSION_ATTACK ) )
                                  {
                                      stopit = false;
                                      already_running = true;
@@ -988,15 +991,17 @@ void UNIT::next_mission()
     if (mission == NULL)
     {
         command_locked = false;
-        set_mission( unit_manager.unit_type[type_id].DefaultMissionType, NULL, false, 0, false );
+        if (type_id != -1)
+            set_mission( unit_manager.unit_type[type_id].DefaultMissionType, NULL, false, 0, false);
         return;
     }
-    switch(mission->mission)		// Commandes de fin de mission
+    switch (mission->mission) // Commandes de fin de mission
     {
         case MISSION_REPAIR:
         case MISSION_RECLAIM:
         case MISSION_BUILD_2:
-            if (mission->next == NULL || unit_manager.unit_type[type_id].BMcode || mission->next->mission != MISSION_BUILD ) {
+            if (mission->next == NULL || (type_id != -1 && unit_manager.unit_type[type_id].BMcode) || mission->next->mission != MISSION_BUILD)
+            {
                 launch_script(get_script_index(SCRIPT_stopbuilding));
                 deactivate();
             }
@@ -1019,11 +1024,12 @@ void UNIT::next_mission()
     if (mission==NULL)
     {
         command_locked = false;
-        set_mission(unit_manager.unit_type[type_id].DefaultMissionType);
+        if (type_id != -1)
+            set_mission(unit_manager.unit_type[type_id].DefaultMissionType);
     }
 
     // Skip a stop order before a normal order if the unit can fly (prevent planes from looking for a place to land when they don't need to land !!)
-    if (unit_manager.unit_type[type_id].canfly && mission->mission == MISSION_STOP && mission->next != NULL && mission->next->mission != MISSION_STOP )
+    if (type_id != -1 && unit_manager.unit_type[type_id].canfly && mission->mission == MISSION_STOP && mission->next != NULL && mission->next->mission != MISSION_STOP)
     {
         old = mission;
         mission = mission->next;
@@ -1040,7 +1046,7 @@ void UNIT::draw(float t, Camera *cam,MAP *map,bool height_line)
 {
     MutexLocker locker(pMutex);
 
-    if (!(flags & 1))
+    if (!(flags & 1) || type_id == -1)
         return;
 
     visible = false;
@@ -1176,7 +1182,7 @@ void UNIT::draw(float t, Camera *cam,MAP *map,bool height_line)
         glEnable(GL_DEPTH_TEST);
     }
     else
-        if (visible )
+        if (visible)
         {
             glTranslatef( Pos.x, Pos.y, Pos.z );
             glRotatef(Angle.x,1.0f,0.0f,0.0f);
@@ -1465,7 +1471,7 @@ void UNIT::draw_shadow(Camera *cam, const Vector3D& Dir,MAP *map)
     glScalef(scale,scale,scale);
     glPolygonMode (GL_FRONT_AND_BACK, GL_FILL);
 
-    if (unit_manager.unit_type[ type_id ].canmove || shadow_scale_dir < 0.0f )
+    if ((type_id != -1 && unit_manager.unit_type[type_id].canmove) || shadow_scale_dir < 0.0f )
     {
         Vector3D H = drawn_Pos;
         H.y += 2.0f * model->size2 + 1.0f;
