@@ -33,6 +33,7 @@
 #include "languages/i18n.h"
 #include "logs/logs.h"
 #include "misc/math.h"
+#include "ingame/players.h"
 
 
 

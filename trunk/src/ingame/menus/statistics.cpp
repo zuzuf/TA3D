@@ -2,6 +2,7 @@
 #include "statistics.h"
 #include "../../ta3dbase.h"
 #include "../../EngineClass.h"
+#include "../players.h"
 
 
 

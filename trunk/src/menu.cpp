@@ -22,6 +22,8 @@
   \-----------------------------------------------------------------------------*/
 
 #include "stdafx.h"
+#include <vector>
+#include <list>
 #include "misc/matrix.h"
 #include "TA3D_NameSpace.h"
 #include "ta3dbase.h"
@@ -39,11 +41,10 @@
 #include "logs/logs.h"
 #include "ingame/gamedata.h"
 #include "ingame/menus/mapselector.h"
-#include <vector>
-#include <list>
 #include "languages/i18n.h"
 #include "misc/math.h"
 #include "sounds/manager.h"
+#include "ingame/players.h"
 
 
 

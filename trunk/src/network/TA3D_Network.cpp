@@ -28,6 +28,7 @@
 #include "../misc/math.h"
 #include "../sounds/manager.h"
 #include "../console.h"
+#include "../ingame/players.h"
 
 
 #define CHAT_MESSAGE_TIMEOUT	10000
