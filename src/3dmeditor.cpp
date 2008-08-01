@@ -38,6 +38,7 @@
 #include "languages/i18n.h"
 #include "gfx/gui/area.h"
 #include "misc/application.h"
+#include "misc/settings.h"
 
 
 #define precision	MSEC_TO_TIMER(1)
@@ -67,57 +68,6 @@ END_OF_FUNCTION(Timer)
     }
 }
 
-/*
- ** Function: LoadConfigFile
- **    Notes: This function will eventually load our config file if it exists.
- **             config files will be stored as 'tdf' format and thus loaded as text,
- **             using the cTAFileParser class.
- **           If something goes wrong you can safely throw a string for an error.
- **             The call to this function is tried, but it only catches exceptions
- **             and strings, ie throw( "LoadConfigFile: some error occured" );
- */
-void LoadConfigFile( void )
-{
-    cTAFileParser *cfgFile;
-
-    try { // we need to try catch this cause the config file may not exists
-        // and if it don't exists it will throw an error on reading it, which
-        // will be caught in our main function and the application will exit.
-        cfgFile = new TA3D::UTILS::cTAFileParser(TA3D::Paths::ConfigFile);
-    }
-    catch( ... )
-    {
-        printf("Opening config file %s failed\n", (TA3D::Paths::ConfigFile).c_str() );
-        return;
-    }
-
-    TA3D::VARS::lp_CONFIG->fps_limit = cfgFile->pullAsFloat( "TA3D.FPS Limit" );
-    TA3D::VARS::lp_CONFIG->shadow_r  = cfgFile->pullAsFloat( "TA3D.Shadow R" );
-    TA3D::VARS::lp_CONFIG->timefactor = cfgFile->pullAsFloat( "TA3D.Time Factor" );
-
-    TA3D::VARS::lp_CONFIG->shadow_quality = cfgFile->pullAsInt( "TA3D.Shadow Quality" );
-    TA3D::VARS::lp_CONFIG->priority_level = cfgFile->pullAsInt( "TA3D.Priority Level" );
-    TA3D::VARS::lp_CONFIG->fsaa = cfgFile->pullAsInt( "TA3D.FSAA" );
-    TA3D::VARS::lp_CONFIG->Lang = cfgFile->pullAsInt( "TA3D.Language" );
-    TA3D::VARS::lp_CONFIG->water_quality = cfgFile->pullAsInt( "TA3D.Water Quality" );
-    TA3D::VARS::lp_CONFIG->screen_width = cfgFile->pullAsInt( "TA3D.Screen Width" );
-    TA3D::VARS::lp_CONFIG->screen_height = cfgFile->pullAsInt( "TA3D.Screen Height" );
-
-    TA3D::VARS::lp_CONFIG->showfps = cfgFile->pullAsBool( "TA3D.Show FPS" );
-    TA3D::VARS::lp_CONFIG->wireframe = cfgFile->pullAsBool( "TA3D.Show Wireframe" );
-    TA3D::VARS::lp_CONFIG->particle = cfgFile->pullAsBool( "TA3D.Show particles" );
-    TA3D::VARS::lp_CONFIG->waves = cfgFile->pullAsBool( "TA3D.Show Waves" );
-    TA3D::VARS::lp_CONFIG->shadow = cfgFile->pullAsBool( "TA3D.Show Shadows" );
-    TA3D::VARS::lp_CONFIG->height_line = cfgFile->pullAsBool( "TA3D.Show Height Lines" );
-    TA3D::VARS::lp_CONFIG->fullscreen = cfgFile->pullAsBool( "TA3D.Show FullScreen" );
-    TA3D::VARS::lp_CONFIG->detail_tex = cfgFile->pullAsBool( "TA3D.Detail Texture" );
-    TA3D::VARS::lp_CONFIG->draw_console_loading = cfgFile->pullAsBool( "TA3D.Draw Console Loading" );
-
-    delete cfgFile; 
-
-    LANG = lp_CONFIG->Lang;
-    I18N::Instance()->currentLanguage(lp_CONFIG->Lang); // refresh the language used by the i18n object
-}
 
 /*---------------------------------------------------------------------------------------------------\
   |                                              void main()                                           |
@@ -149,7 +99,7 @@ int main(int argc, char* argv[])
 
     init();
 
-    LoadConfigFile();
+    TA3D::Settings::Load();
 
     install_int_ex( Timer, precision);
 
