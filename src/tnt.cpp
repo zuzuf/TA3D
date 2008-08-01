@@ -410,11 +410,15 @@ namespace TA3D
                 int tex_num=i>>5;	// Numéro de la texture associée
                 int tx=(i&0x1F)<<5;			// Coordonnées sur la texture
 
-                tmp = create_bitmap_ex(16,bmp_tex[tex_num]->w,bmp_tex[tex_num]->h);
-                blit(bmp_tex[tex_num],tmp,0,0,0,0,tmp->w,tmp->h);
+                if (bitmap_color_depth(bmp_tex[tex_num])!=16)
+                {
+                    tmp = create_bitmap_ex(16,bmp_tex[tex_num]->w,bmp_tex[tex_num]->h);
+                    blit(bmp_tex[tex_num],tmp,0,0,0,0,tmp->w,tmp->h);
+                    destroy_bitmap(bmp_tex[tex_num]);
+                    bmp_tex[tex_num] = tmp;
+                }
 
-                stretch_blit(tmp,low_def,tx,0,32,32,x*low_def->w/map->bloc_w,y*low_def->h/map->bloc_h,(x+1)*low_def->w/map->bloc_w-x*low_def->w/map->bloc_w,(y+1)*low_def->h/map->bloc_h-y*low_def->h/map->bloc_h);
-                destroy_bitmap(tmp);
+                stretch_blit(bmp_tex[tex_num],low_def,tx,0,32,32,x*low_def->w/map->bloc_w,y*low_def->h/map->bloc_h,(x+1)*low_def->w/map->bloc_w-x*low_def->w/map->bloc_w,(y+1)*low_def->h/map->bloc_h-y*low_def->h/map->bloc_h);
                 /*--------------------------------------------------------------------*/
 
                 if(map->bloc[map->bmap[y][x]].lava)
