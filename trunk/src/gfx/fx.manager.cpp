@@ -1,6 +1,7 @@
 
 #include "fx.manager.h"
 #include "../misc/math.h"
+#include "../3do.h"         // Because we need the RenderQueue object
 
 
 namespace TA3D
@@ -293,10 +294,12 @@ namespace TA3D
         glDisable(GL_BLEND);
         glDepthMask(GL_TRUE);
 
-        if(!UW && lp_CONFIG->explosion_particles)
+        if(!UW && lp_CONFIG->explosion_particles && FXManager::currentParticleModel != NULL)
         {
+            RenderQueue renderQueue(FXManager::currentParticleModel->id);
             for (ListOfParticles::iterator i = pParticles.begin(); i != pParticles.end(); ++i)
-                (*i)->draw();
+                (*i)->draw( renderQueue );
+            renderQueue.draw_queue();
         }
 
         pMutex.unlock();

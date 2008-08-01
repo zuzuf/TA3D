@@ -3,7 +3,7 @@
 #include "particles/particles.h"
 #include "../EngineClass.h"
 #include "fx.manager.h"
-
+#include "../3do.h"
 
 namespace TA3D
 {
@@ -47,16 +47,17 @@ namespace TA3D
 
 
 
-    void FXParticle::draw()
+    void FXParticle::draw(RenderQueue &renderQueue)
     {
-        if(FXManager::currentParticleModel)
-        {
-            glPushMatrix();
-            glTranslatef(Pos.x, Pos.y, Pos.z);
-            glScalef(0.2f, 0.2f, 0.2f);
-            FXManager::currentParticleModel->draw(life);
-            glPopMatrix();
-        }
+        renderQueue.queue.push_back( Instance( Pos, 0xFFFFFFFF, 0.0f ) );
+//        if(FXManager::currentParticleModel)
+//        {
+//            glPushMatrix();
+//            glTranslatef(Pos.x, Pos.y, Pos.z);
+//            glScalef(0.2f, 0.2f, 0.2f);
+//            FXManager::currentParticleModel->draw(life);
+//            glPopMatrix();
+//        }
     }
 
 

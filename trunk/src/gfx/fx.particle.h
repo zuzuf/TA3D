@@ -5,8 +5,10 @@
 # include "../misc/vector.h"
 
 
+
 namespace TA3D
 {
+    class RenderQueue;
 
 
     class FXParticle
@@ -14,7 +16,7 @@ namespace TA3D
     public:
         FXParticle(const Vector3D& P, const Vector3D& S, const float L);
         bool move(const float dt);
-        void draw();
+        void draw(RenderQueue &renderQueue);
 
     private:
         Vector3D Pos;
