@@ -140,7 +140,7 @@ namespace TA3D
         int     **script_code;  // Code des scripts
         String::Vector names;         // Nom des scripts
         int     nb_piece;       // Nombre de pièces
-        char    **piece_name;   // Nom des pièces de l'objet 3d concerné
+        String::Vector piece_name;   // Nom des pièces de l'objet 3d concerné
         int     *dec_offset;
 
     }; // class SCRIPT

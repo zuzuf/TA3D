@@ -489,13 +489,13 @@ namespace TA3D
     }
 
 
-    void OBJECT::Identify(int nb_piece,char **piece_name)			// Identifie les pièces utilisées par le script
+    void OBJECT::Identify(int nb_piece,const String::Vector &piece_name)			// Identifie les pièces utilisées par le script
     {
         script_index=-1;				// Pièce non utilisée
         if (name)
             for (int i = 0; i < nb_piece; ++i)
             {
-                if (strcasecmp(name,piece_name[i]) == 0) // Pièce identifiée
+                if (strcasecmp(name,piece_name[i].c_str()) == 0) // Pièce identifiée
                 {
                     script_index = i;
                     break;

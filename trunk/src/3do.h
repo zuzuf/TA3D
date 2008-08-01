@@ -403,7 +403,7 @@ namespace TA3D
 
         ~OBJECT() {destroy();}
 
-        void Identify(int nb_piece,char **piece_name);			// Identifie les pièces utilisées par le script
+        void Identify(int nb_piece,const String::Vector &piece_name);			// Identifie les pièces utilisées par le script
 
         void compute_center(Vector3D *center,Vector3D dec, int *coef);		// Calcule les coordonnées du centre de l'objet, objets liés compris
 
@@ -484,7 +484,7 @@ namespace TA3D
             return obj.hit_fast(Pos,Dir*M,data_s,I);
         }
 
-        void Identify(int nb_piece,char **piece_name)
+        void Identify(int nb_piece,const String::Vector &piece_name)
         {
             obj.Identify(nb_piece,piece_name);
         }
