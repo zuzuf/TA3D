@@ -2,7 +2,7 @@
 # define __TA3D_GFX_GUI_SKIN_OBJECT_H__
 
 # include "../../stdafx.h"
-# include "../../cTAFileParser.h"
+# include "../../misc/tdf.h"
 
 
 namespace TA3D
@@ -42,7 +42,7 @@ namespace TA3D
         ** \param parser
         ** \param borderSize
         */
-        void load(const String& filename, const String& prefix, UTILS::cTAFileParser& parser, float borderSize = 1.0f );
+        void load(const String& filename, const String& prefix, TDFParser& parser, float borderSize = 1.0f );
 
         /*!
         ** \brief

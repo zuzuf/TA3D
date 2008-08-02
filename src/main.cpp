@@ -70,7 +70,7 @@ void ReadFileParameter()
 
     LOG_DEBUG("Reading file parameter `" << TA3D::VARS::lp_CONFIG->file_param << "`...");
 
-    cTAFileParser parser( TA3D::VARS::lp_CONFIG->file_param );
+    TDFParser parser(TA3D::VARS::lp_CONFIG->file_param);
 
     String current_mod = TA3D::VARS::TA3D_CURRENT_MOD;
 
