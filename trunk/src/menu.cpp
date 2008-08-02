@@ -1033,7 +1033,7 @@ void setup_game(bool client, const char *host)
                             }
                             else if (params[1] == "COLORCHANGE")
                             {
-                                int i = atoi( params[2].c_str());
+                                int i = params[2].toInt32();
                                 if (!client) // From client to server only
                                 {
                                     sint16 e = player_color_map[i];
@@ -1071,7 +1071,7 @@ void setup_game(bool client, const char *host)
                         else if (params[0] == "SET" ) {
                             if (params[1] == "FOW")
                             {
-                                int value = atoi( params[2].c_str());
+                                int value = params[2].toInt32();
                                 GUIOBJ *obj = setupgame_area.get_object( "gamesetup.FOW");
                                 if (obj && value >= 0 && value < 4)
                                 {
@@ -1114,18 +1114,19 @@ void setup_game(bool client, const char *host)
                             }
                         }
                     }
-                    else if (params.size() == 9 ) {
+                    else if (params.size() == 9)
+                    {
                         if (params[0] == "PLAYER_INFO") // We've received player information, let's update :)
                         {
                             int i = params[1].toInt32();
                             int n_id = params[2].toInt32();
                             if (i >= 0 && i < 10 && (client || from == n_id)) // Server doesn't accept someone telling him what to do
                             {
-                                int side_id = atoi( params[3].c_str());
-                                int ai_level = atoi( params[4].c_str());
-                                int metal_q = atoi( params[5].c_str());
-                                int energy_q = atoi( params[6].c_str());
-                                bool ready = atoi( params[8].c_str());
+                                int side_id  = params[3].toInt32();
+                                int ai_level = params[4].toInt32();
+                                int metal_q  = params[5].toInt32();
+                                int energy_q = params[6].toInt32();
+                                bool ready   = params[8].toInt32();
                                 game_data.player_network_id[i] = n_id;
                                 game_data.player_sides[i] = side_str[ side_id ];
                                 game_data.ai_level[i] = ai_level >= 0 ? ai_level : 0;
@@ -1168,7 +1169,7 @@ void setup_game(bool client, const char *host)
                         {
                             for (short int i = 0; i < 10; ++i)
                             {
-                                player_color_map[i] = atoi( params[i+1].c_str());
+                                player_color_map[i] = params[i + 1].toInt32();
                                 GUIOBJ *guiobj =  setupgame_area.get_object( format("gamesetup.color%d", i));
                                 if (guiobj )
                                     guiobj->Data = gfx->makeintcol(player_color[player_color_map[i]*3],player_color[player_color_map[i]*3+1],player_color[player_color_map[i]*3+2]);            // Update gui
@@ -1699,9 +1700,9 @@ void network_room(void)             // Let players create/join a game
                         mod.clear();
                     String version = ReplaceChar( params[4], 1, ' ');
                     String host_address = network_manager.getLastMessageAddress();
-                    int nb_open = atoi( params[5].c_str());
+                    int nb_open = params[5].toInt32();
 
-                    if (version == TA3D_ENGINE_VERSION && mod == TA3D_CURRENT_MOD && nb_open != 0 )
+                    if (version == TA3D_ENGINE_VERSION && mod == TA3D_CURRENT_MOD && nb_open != 0)
                     {
                         bool updated = false;
                         for (std::list< SERVER_DATA >::iterator server_i = servers.begin() ; server_i != servers.end() ; server_i++ )       // Update the list
@@ -2542,7 +2543,7 @@ void wait_room(void *p_game_data)
                 {
                     if (params[0] == "LOADING")
                     {
-                        int percent = Math::Min(100, Math::Max(0, atoi(params[1].c_str())));
+                        int percent = Math::Min(100, Math::Max(0, params[1].toInt32()));
                         wait_area.set_data( format( "wait.progress%d", player_id ), percent);
                     }
                     else
