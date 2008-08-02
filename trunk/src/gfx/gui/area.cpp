@@ -7,6 +7,7 @@
 #include "../../gui.h"
 #include "../../misc/math.h"
 #include "../../console.h"
+#include "../../misc/tdf.h"
 
 
 
@@ -248,7 +249,6 @@ namespace TA3D
     void AREA::doLoadTDF(const String& filename)
     {
         destroy();		// In case there is an area loaded so we don't waste memory
-        cTAFileParser* areaFile;
 
         String skin_name = (lp_CONFIG != NULL && !lp_CONFIG->skin_name.empty()) ? lp_CONFIG->skin_name : "";
         if (!skin_name.empty() && TA3D::Paths::Exists(skin_name))
@@ -275,12 +275,12 @@ namespace TA3D
         if (skin)
             delete skin;
         skin = NULL;
-        areaFile = new TA3D::UTILS::cTAFileParser(real_filename);
+        TDFParser* areaFile = new TDFParser(real_filename);
 
         area_stack.push_front( this );     // Just in case we want to grab it from elsewhere
 
         name = filename;		// Grab the area's name
-        String::size_type e = name.find(".");		// Extracts the file name
+        String::size_type e = name.find('.');		// Extracts the file name
 
         if (e != String::npos)
             name = name.substr( 0, e );

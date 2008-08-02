@@ -5,6 +5,7 @@
 #include "../../sounds/manager.h"
 #include "../../console.h"
 #include "../../gfx/glfunc.h"
+#include "../../misc/tdf.h"
 
 
 
@@ -1175,7 +1176,7 @@ namespace TA3D
         else
             allegro_gl_set_texture_format(GL_RGB8);
 
-        cTAFileParser wndFile(filename, false, false, true);
+        TDFParser wndFile(filename, false, false, true);
 
         // Grab the window's name, so we can send signals to it (to hide/show for example)
         Name = filename;
@@ -1366,7 +1367,7 @@ namespace TA3D
 
         void WND::load_tdf(const String& filename, SKIN *skin)
         {
-            cTAFileParser wndFile(filename);
+            TDFParser wndFile(filename);
 
             Name = filename; // Grab the window's name, so we can send signals to it (to hide/show for example)
             String::size_type e = Name.find('.'); // Extracts the file name

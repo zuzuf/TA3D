@@ -67,10 +67,10 @@ namespace TA3D
     {
         destroy();		// In case there is a skin loaded so we don't waste memory
 
-        cTAFileParser skinFile(filename);
+        TDFParser skinFile(filename);
 
         // Grab the skin's name, so we can now if a skin is already in use
-        String::size_type e = filename.find(".");
+        String::size_type e = filename.find('.');
         if (e != String::npos)
             Name = filename.substr( 0, e );
         else

@@ -47,7 +47,7 @@ namespace TA3D
 
 
 
-    void SKIN_OBJECT::load(const String& filename, const String& prefix, UTILS::cTAFileParser& parser, float borderSize)
+    void SKIN_OBJECT::load(const String& filename, const String& prefix, TDFParser& parser, float borderSize)
     {
         if (TA3D::Paths::Exists(filename))
         {
