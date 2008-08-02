@@ -201,13 +201,6 @@ namespace TA3D
 
 	FILE *TA3D_OpenFile( const String &FileName, const String Mode );
 
-    /*!
-    ** \brief Remove final comments (ex: 'somecode(); // here are my comments') and trim the string
-    ** \param s The string to parse
-    ** \return The string without final comments
-    */
-	String RemoveComments(const String& s);
-
 
     /*!
     ** \brief Clear the cache if needed (useful when mod has changed)
