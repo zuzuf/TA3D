@@ -765,9 +765,9 @@ namespace TA3D
                         float x,y,z;
                         if(i>0 && i<9)
                         {
-                            x=((Math::RandFromTable()%2001)-1000)*0.005f;
-                            y=((Math::RandFromTable()%2001)-1000)*0.005f;
-                            z=((Math::RandFromTable()%2001)-1000)*0.005f;
+                            x=(((sint32)(Math::RandFromTable()%2001))-1000)*0.005f;
+                            y=(((sint32)(Math::RandFromTable()%2001))-1000)*0.005f;
+                            z=(((sint32)(Math::RandFromTable()%2001))-1000)*0.005f;
                         }
                         else
                             x=y=z=0.0f;

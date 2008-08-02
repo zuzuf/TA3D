@@ -2,6 +2,7 @@
 #include "fx.manager.h"
 #include "../misc/math.h"
 #include "../3do.h"         // Because we need the RenderQueue object
+#include "../ingame/players.h"
 
 
 namespace TA3D
@@ -319,6 +320,17 @@ namespace TA3D
     {
         if (!lp_CONFIG->explosion_particles)
             return;
+
+        if (the_map)            // Visibility test
+        {
+            int px=((int)(p.x+0.5f) + the_map->map_w_d)>>4;
+            int py=((int)(p.z+0.5f) + the_map->map_h_d)>>4;
+            if (px<0 || py<0 || px >= the_map->bloc_w || py >= the_map->bloc_h)	return;
+            byte player_mask = 1 << players.local_human_id;
+            if (the_map->view[py][px]!=1
+               || !(the_map->sight_map->line[py][px]&player_mask))	return;
+        }
+
         pMutex.lock();
         for (int i = 0 ; i < n ; ++i) 
         {

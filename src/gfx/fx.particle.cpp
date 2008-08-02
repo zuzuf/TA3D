@@ -4,6 +4,7 @@
 #include "../EngineClass.h"
 #include "fx.manager.h"
 #include "../3do.h"
+#include "../ingame/players.h"
 
 namespace TA3D
 {
@@ -49,15 +50,16 @@ namespace TA3D
 
     void FXParticle::draw(RenderQueue &renderQueue)
     {
+        if (the_map)            // Visibility test
+        {
+            int px=((int)(Pos.x+0.5f) + the_map->map_w_d)>>4;
+            int py=((int)(Pos.z+0.5f) + the_map->map_h_d)>>4;
+            if (px<0 || py<0 || px >= the_map->bloc_w || py >= the_map->bloc_h)	return;
+            byte player_mask = 1 << players.local_human_id;
+            if (the_map->view[py][px]!=1
+               || !(the_map->sight_map->line[py][px]&player_mask))	return;
+        }
         renderQueue.queue.push_back( Instance( Pos, 0xFFFFFFFF, 0.0f ) );
-//        if(FXManager::currentParticleModel)
-//        {
-//            glPushMatrix();
-//            glTranslatef(Pos.x, Pos.y, Pos.z);
-//            glScalef(0.2f, 0.2f, 0.2f);
-//            FXManager::currentParticleModel->draw(life);
-//            glPopMatrix();
-//        }
     }
 
 
