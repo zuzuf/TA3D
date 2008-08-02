@@ -25,26 +25,26 @@
 \----------------------------------------------------------------------*/
 
 #ifndef CLASSE_SCRIPT
+# define CLASSE_SCRIPT
 
-#define CLASSE_SCRIPT
+# include "../lua/lua.hpp"
+# include "../threads/thread.h"
+# include "../misc/tdf.h"
 
-#include "../lua/lua.hpp"
-#include "../threads/thread.h"
+# ifndef luaL_dobuffer
+#  define luaL_dobuffer(L, s, sz) \
+    (luaL_loadbuffer(L, (const char*)s, sz, "main" ) || lua_pcall(L, 0, LUA_MULTRET, 0))
+# endif
 
-#ifndef luaL_dobuffer
-#define luaL_dobuffer(L, s, sz) \
-	(luaL_loadbuffer(L, (const char*)s, sz, "main" ) || lua_pcall(L, 0, LUA_MULTRET, 0))
-#endif
-
-#define DRAW_TYPE_NONE		0x0
-#define DRAW_TYPE_POINT		0x1
-#define DRAW_TYPE_LINE		0x2
-#define DRAW_TYPE_CIRCLE	0x3
-#define DRAW_TYPE_TRIANGLE	0x4
-#define DRAW_TYPE_BOX		0x5
-#define DRAW_TYPE_FILLBOX	0x6
-#define DRAW_TYPE_TEXT		0x7
-#define DRAW_TYPE_BITMAP	0x8
+# define DRAW_TYPE_NONE     0x0
+# define DRAW_TYPE_POINT    0x1
+# define DRAW_TYPE_LINE     0x2
+# define DRAW_TYPE_CIRCLE   0x3
+# define DRAW_TYPE_TRIANGLE 0x4
+# define DRAW_TYPE_BOX      0x5
+# define DRAW_TYPE_FILLBOX  0x6
+# define DRAW_TYPE_TEXT     0x7
+# define DRAW_TYPE_BITMAP   0x8
 
 
 
@@ -52,21 +52,21 @@ namespace TA3D
 {
 
 
-    struct DRAW_OBJECT					// Pour mémoriser le traçage des primitives
+    struct DRAW_OBJECT                  // Pour mémoriser le traçage des primitives
     {
-        byte	type;
-        float	x[4];
-        float	y[4];
-        float	r[2],g[2],b[2];
-        char	*text;
-        GLuint	tex;
+        byte    type;
+        float   x[4];
+        float   y[4];
+        float   r[2],g[2],b[2];
+        char    *text;
+        GLuint  tex;
     };
 
     class DRAW_LIST
     {
     public:
-        DRAW_OBJECT		prim;
-        DRAW_LIST		*next;
+        DRAW_OBJECT     prim;
+        DRAW_LIST       *next;
 
         void init()
         {
@@ -77,7 +77,7 @@ namespace TA3D
 
         void destroy()
         {
-            if(prim.type==DRAW_TYPE_BITMAP)		glDeleteTextures(1,&prim.tex);
+            if(prim.type==DRAW_TYPE_BITMAP)     glDeleteTextures(1,&prim.tex);
             if(( prim.type==DRAW_TYPE_TEXT || prim.type==DRAW_TYPE_BITMAP ) && prim.text!=NULL)
                 free(prim.text);
             if(next) {
@@ -99,21 +99,21 @@ namespace TA3D
 
     class LUA_PROGRAM : public ObjectSync
     {
-        byte		*buffer;
-        lua_State	*L;				// Pointer to the lua data
+        byte        *buffer;
+        lua_State   *L;             // Pointer to the lua data
 
-        //	Pour l'éxecution du code
-        int			last;			// Dernière lecture du timer
-        int			amx,amy,amz;	// Coordonnées du curseur
-        int			amb;			// Boutons de la souris
-        float		asm_timer;		// Timer to match the game speed
-        bool		running;
+        //  Pour l'éxecution du code
+        int         last;           // Dernière lecture du timer
+        int         amx,amy,amz;    // Coordonnées du curseur
+        int         amb;            // Boutons de la souris
+        float       asm_timer;      // Timer to match the game speed
+        bool        running;
 
     public:
-        float		sleep_time;		// Temps d'attente
-        bool		sleeping;		// Indique si le programme marque une pause
-        bool		waiting;		// Indique si le programme attend une action utilisateur
-        DRAW_LIST	draw_list;		// Liste de commandes d'affichage
+        float       sleep_time;     // Temps d'attente
+        bool        sleeping;       // Indique si le programme marque une pause
+        bool        waiting;        // Indique si le programme attend une action utilisateur
+        DRAW_LIST   draw_list;      // Liste de commandes d'affichage
 
         inline void stop()
         {
@@ -158,14 +158,14 @@ namespace TA3D
             destroy();
         }
 
-        void load(const String &filename, MAP *map);					// Load a lua script
+        void load(const String &filename, MAP *map);                    // Load a lua script
 
-        int run(MAP *map,float dt,int viewer_id);					// Execute le script
+        int run(MAP *map,float dt,int viewer_id);                   // Execute le script
     };
 
-    extern LUA_PROGRAM	*lua_program;
+    extern LUA_PROGRAM  *lua_program;
 
-    void generate_script_from_mission( String Filename, cTAFileParser *ota_parser, int schema = 0 );
+    void generate_script_from_mission( String Filename, TDFParser& ota_parser, int schema = 0 );
 
 
 } // namespace TA3D
