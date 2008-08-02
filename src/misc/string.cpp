@@ -179,20 +179,20 @@ namespace TA3D
             value.clear();
             return;
         }
+        // Begining of a section
+        if (s[pos] == '[')
+        {
+            key = "[";
+            pos = s.find_first_not_of(TA3D_WSTR_SEPARATORS, pos + 1);
+            String::size_type end = s.find_first_of(']', pos);
+            end = s.find_last_not_of(TA3D_WSTR_SEPARATORS, end - 1);
+            value = s.substr(pos, end - pos + 1);
+            return;
+        }
         // The first `=` character 
         String::size_type equal = s.find_first_of('=', pos);
         if (equal == String::npos)
         {
-            // If none is present, it may be a section statement
-            if (s[pos] == '[')
-            {
-                key = "[";
-                pos = s.find_first_not_of(TA3D_WSTR_SEPARATORS, pos + 1);
-                String::size_type end = s.find_first_of(']', pos);
-                end = s.find_last_not_of(TA3D_WSTR_SEPARATORS, end - 1);
-                value = s.substr(pos, end - pos + 1);
-                return;
-            }
             // otherwise it is only a string
             value.clear();
             // But it may be a comment
