@@ -45,14 +45,7 @@
 #include "misc/math.h"
 #include "sounds/manager.h"
 #include "ingame/players.h"
-
-
-
-namespace TA3D
-{
-    void generate_script_from_mission( String Filename, cTAFileParser *ota_parser, int schema = 0 );	// To access the script generator in the 'script' module
-}
-
+#include "scripts/script.h"
 
 
 
@@ -1243,8 +1236,6 @@ void setup_game(bool client, const char *host)
                     }
                 }
 
-                LOG_ASSERT(i >= 0 && i < 10);
-                LOG_ASSERT(e >= 0 && e < 10);
                 game_data.player_names[i] = player_str[e];								// Update game data
                 game_data.player_control[i] = player_control[e];
                 if( player_control[e] == PLAYER_CONTROL_LOCAL_HUMAN )
@@ -1951,18 +1942,19 @@ int brief_screen(String campaign_name, int mission_id)
     cTAFileParser	brief_parser( campaign_name );			// Loads the campaign file
 
     String map_filename = "maps\\" + brief_parser.pullAsString( format( "MISSION%d.missionfile", mission_id ) );
-    cTAFileParser	ota_parser( map_filename );
+    TDFParser ota_parser(map_filename);
 
-    String narration_file = "camps\\briefs\\" + ota_parser.pullAsString( "GlobalHeader.narration" ) + ".wav";		// The narration file
-    String language_suffix = "";
-    switch( LANG )
+    String narration_file;
+    narration_file << "camps\\briefs\\" << ota_parser.pullAsString("GlobalHeader.narration" ) << ".wav"; // The narration file
+    String language_suffix;
+    switch(LANG)
     {
         case TA3D_LANG_ENGLISH:	language_suffix = "";			break;
         case TA3D_LANG_FRENCH:	language_suffix = "-french";	break;
         case TA3D_LANG_GERMAN:	language_suffix = "-german";	break;
         case TA3D_LANG_SPANISH:	language_suffix = "-spanish";	break;
         case TA3D_LANG_ITALIAN:	language_suffix = "-italian";	break;
-    };
+    }
     String brief_file = "camps\\briefs" + language_suffix + "\\" + ota_parser.pullAsString( "GlobalHeader.brief" ) + ".txt";				// The brief file
 
     {
@@ -1982,7 +1974,8 @@ int brief_screen(String campaign_name, int mission_id)
 
     ANIMS planet_animation;
     {
-        String planet_file = String::ToLower(ota_parser.pullAsString("GlobalHeader.planet"));
+        String planet_file = ota_parser.pullAsString("GlobalHeader.planet");
+        planet_file.toLower();
 
         if( planet_file == "green planet" )				planet_file = "anims\\greenbrief.gaf";
         else if( planet_file == "archipelago" )			planet_file = "anims\\archibrief.gaf";
@@ -2138,21 +2131,22 @@ int brief_screen(String campaign_name, int mission_id)
     {
         GameData game_data;
 
-        TA3D::generate_script_from_mission( "scripts/__campaign_script.lua", &ota_parser, schema );	// Generate the script which will be removed later
+        // Generate the script which will be removed later
+        TA3D::generate_script_from_mission("scripts/__campaign_script.lua", ota_parser, schema);
 
         game_data.game_script = "scripts/__campaign_script.lua";
         game_data.map_filename = map_filename.substr( 0, map_filename.size() - 3 ) + "tnt";		// Remember the last map we played
         game_data.fog_of_war = FOW_ALL;
 
-        game_data.nb_players = ota_parser.pullAsInt( "GlobalHeader.numplayers", 2 );
-        if( game_data.nb_players == 0 )				// Yes it can happen !!
+        game_data.nb_players = ota_parser.pullAsInt("GlobalHeader.numplayers", 2);
+        if (game_data.nb_players == 0) // Yes it can happen !!
             game_data.nb_players = 2;
 
-        game_data.player_control[ 0 ] = PLAYER_CONTROL_LOCAL_HUMAN;
-        game_data.player_names[ 0 ] = brief_parser.pullAsString( "HEADER.campaignside" );
-        game_data.player_sides[ 0 ] = brief_parser.pullAsString( "HEADER.campaignside" );
-        game_data.energy[ 0 ] = ota_parser.pullAsInt( format( "GlobalHeader.Schema %d.humanenergy", schema ) );
-        game_data.metal[ 0 ] = ota_parser.pullAsInt( format( "GlobalHeader.Schema %d.humanmetal", schema ) );
+        game_data.player_control[0] = PLAYER_CONTROL_LOCAL_HUMAN;
+        game_data.player_names[0] = brief_parser.pullAsString( "HEADER.campaignside" );
+        game_data.player_sides[0] = brief_parser.pullAsString( "HEADER.campaignside" );
+        game_data.energy[0] = ota_parser.pullAsInt( format( "GlobalHeader.Schema %d.humanenergy", schema ) );
+        game_data.metal[0] = ota_parser.pullAsInt( format( "GlobalHeader.Schema %d.humanmetal", schema ) );
 
         String schema_type = String::ToLower(ota_parser.pullAsString(format("GlobalHeader.Schema %d.Type", schema)));
         if( schema_type == "easy" )
@@ -2164,7 +2158,8 @@ int brief_screen(String campaign_name, int mission_id)
 
         player_color_map[ 0 ] = 0;
 
-        for( int i = 1 ; i < game_data.nb_players ; i++ ) {
+        for (short int i = 1; i < game_data.nb_players; ++i)
+        {
             game_data.player_control[ i ] = PLAYER_CONTROL_LOCAL_AI;
             game_data.player_names[ i ] = brief_parser.pullAsString( "HEADER.campaignside" );
             game_data.player_sides[ i ] = brief_parser.pullAsString( "HEADER.campaignside" );			// Has no meaning here since we are in campaign mode units are spawned by a script

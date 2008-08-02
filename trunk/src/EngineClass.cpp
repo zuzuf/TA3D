@@ -36,6 +36,9 @@
 #include <list>
 #include "misc/math.h"
 #include "logs/logs.h"
+#include "misc/tdf.h"
+
+
 
 byte player_color_map[10] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
 
@@ -2194,19 +2197,20 @@ namespace TA3D
     }
     void SKY_DATA::load_tdf(const String& filename)
     {
-        cTAFileParser parser(filename);
-
-        def = parser.pullAsBool( "sky.default", false );
-        spherical = parser.pullAsBool( "sky.spherical" );
-        full_sphere = parser.pullAsBool( "sky.full sphere" );
-        rotation_speed = parser.pullAsFloat( "sky.rotation speed" );
-        rotation_offset = parser.pullAsFloat( "sky.rotation offset" );
-        texture_name = parser.pullAsString( "sky.texture name" );
+        TDFParser parser;
+        if (!parser.loadFromFile(filename))
+            LOG_ERROR("Impossible to load the sky data from `" << filename << "`");
+        def = parser.pullAsBool("sky.default", false);
+        spherical = parser.pullAsBool("sky.spherical");
+        full_sphere = parser.pullAsBool("sky.full sphere");
+        rotation_speed = parser.pullAsFloat("sky.rotation speed");
+        rotation_offset = parser.pullAsFloat("sky.rotation offset");
+        texture_name = parser.pullAsString("sky.texture name");
         parser.pullAsString("sky.planet").split(planet, ",");
-        FogColor[0] = parser.pullAsFloat( "sky.fog R" );
-        FogColor[1] = parser.pullAsFloat( "sky.fog G" );
-        FogColor[2] = parser.pullAsFloat( "sky.fog B" );
-        FogColor[3] = parser.pullAsFloat( "sky.fog A" );
+        FogColor[0] = parser.pullAsFloat("sky.fog R");
+        FogColor[1] = parser.pullAsFloat("sky.fog G");
+        FogColor[2] = parser.pullAsFloat("sky.fog B");
+        FogColor[3] = parser.pullAsFloat("sky.fog A");
         parser.pullAsString("sky.map").split(MapName, ",");
     }
 
