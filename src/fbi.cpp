@@ -38,6 +38,7 @@
 #include "logs/logs.h"
 #include "converters/pcx.h"
 #include "ingame/players.h"
+#include "misc/tdf.h"
 
 #define SWAP(a, b) { sint32 tmp = a; a = b; b = tmp; }
 
@@ -133,21 +134,21 @@ namespace TA3D
 
     void UNIT_MANAGER::analyse(String filename,int unit_index)
     {
-        cTAFileParser gui_parser( filename, false, false, true );
+        TDFParser gui_parser(filename, false, false, true);
 
         String number = filename.substr(0, filename.size() - 4);
         int first = number.size() - 1;
         while (first >= 0 && number[first] >= '0' && number[first] <= '9')
             --first;
         ++first;
-        number = number.substr( first, number.size() - first );
+        number = number.substr(first, number.size() - first);
 
         int page = atoi( number.c_str() ) - 1;		// Extract the page number
 
-        int NbObj = gui_parser.pullAsInt( "gadget0.totalgadgets" );
+        int NbObj = gui_parser.pullAsInt("gadget0.totalgadgets");
 
-        int x_offset = gui_parser.pullAsInt( "gadget0.common.xpos" );
-        int y_offset = gui_parser.pullAsInt( "gadget0.common.ypos" );
+        int x_offset = gui_parser.pullAsInt("gadget0.common.xpos");
+        int y_offset = gui_parser.pullAsInt("gadget0.common.ypos");
 
         for (int i = 1; i <= NbObj; ++i)
         {
@@ -321,8 +322,8 @@ namespace TA3D
 
     void UNIT_MANAGER::gather_all_build_data()
     {
-        cTAFileParser sidedata_parser( ta3dSideData.gamedata_dir + "sidedata.tdf", false, true );
-        for (int i = 0 ; i < nb_unit ; ++i)
+        TDFParser sidedata_parser(ta3dSideData.gamedata_dir + "sidedata.tdf", false, true);
+        for (int i = 0 ; i < nb_unit; ++i)
         {
             int n = 1;
             String canbuild = sidedata_parser.pullAsString(String::ToLower(format( "canbuild.%s.canbuild%d", unit_type[ i ].Unitname, n ) ) );
@@ -343,7 +344,7 @@ namespace TA3D
 
         for (String::List::iterator file = file_list.begin(); file != file_list.end(); ++file) // Cherche un fichier pouvant contenir des informations sur l'unité unit_name
         {
-            char *f=NULL;
+            char *f = NULL;
             for (int i = 0; i < nb_unit; ++i)
             {
                 if ((f = strstr((char*)String::ToUpper(*file).c_str(), unit_type[i].Unitname)))
@@ -355,7 +356,7 @@ namespace TA3D
             }
         }
 
-        for (int i = 0 ; i < nb_unit ; ++i)
+        for (int i = 0 ; i < nb_unit; ++i)
             unit_type[i].FixBuild();
     }
 
@@ -1008,14 +1009,14 @@ namespace TA3D
         for( int i = 0 ; i < ta3dSideData.nb_side && side_id == -1 ; i++ )
             if( strcasecmp( ta3dSideData.side_name[ i ], side ) == 0 )
                 side_id = i;
-        if( side_id == -1 )		return;
+        if (side_id == -1)
+            return;
 
-        dl_data = new DL_DATA;
 
-        try
+        TDFParser dl_parser;
+        if (dl_parser.loadFromFile(ta3dSideData.guis_dir + ta3dSideData.side_pref[side_id] + "dl.gui", false, false, true))
         {
-            cTAFileParser dl_parser( ta3dSideData.guis_dir + ta3dSideData.side_pref[ side_id ] + "dl.gui", false, false, true );
-
+            dl_data = new DL_DATA;
             int NbObj = dl_parser.pullAsInt( "gadget0.totalgadgets" );
 
             int x_offset = dl_parser.pullAsInt( "gadget0.common.xpos" );
@@ -1023,9 +1024,11 @@ namespace TA3D
 
             dl_data->dl_num = 0;
 
-            for( int i = 1 ; i <= NbObj ; i++ )
-                if( dl_parser.pullAsInt( format( "gadget%d.common.attribs", i ) ) == 32 )
+            for (int i = 1; i <= NbObj; ++i)
+            {
+                if (dl_parser.pullAsInt(format("gadget%d.common.attribs", i)) == 32)
                     dl_data->dl_num++;
+            }
 
             dl_data->dl_x = (short*) malloc( sizeof(short) * dl_data->dl_num );
             dl_data->dl_y = (short*) malloc( sizeof(short) * dl_data->dl_num );
@@ -1033,23 +1036,24 @@ namespace TA3D
             dl_data->dl_h = (short*) malloc( sizeof(short) * dl_data->dl_num );
 
             int e = 0;
-            for( int i = 1 ; i <= NbObj ; i++ )
-                if( dl_parser.pullAsInt( format( "gadget%d.common.attribs", i ) ) == 32 ) {
-                    dl_data->dl_x[e] = dl_parser.pullAsInt( format( "gadget%d.common.xpos", i ) ) + x_offset;
-                    dl_data->dl_y[e] = dl_parser.pullAsInt( format( "gadget%d.common.ypos", i ) ) + y_offset;
-                    dl_data->dl_w[e] = dl_parser.pullAsInt( format( "gadget%d.common.width", i ) );
-                    dl_data->dl_h[e] = dl_parser.pullAsInt( format( "gadget%d.common.height", i ) );
-                    e++;
+            for (int i = 1; i <= NbObj; ++i)
+            {
+                if( dl_parser.pullAsInt( format( "gadget%d.common.attribs", i ) ) == 32 )
+                {
+                    dl_data->dl_x[e] = dl_parser.pullAsInt(format("gadget%d.common.xpos", i)) + x_offset;
+                    dl_data->dl_y[e] = dl_parser.pullAsInt(format("gadget%d.common.ypos", i)) + y_offset;
+                    dl_data->dl_w[e] = dl_parser.pullAsInt(format("gadget%d.common.width", i));
+                    dl_data->dl_h[e] = dl_parser.pullAsInt(format("gadget%d.common.height", i));
+                    ++e;
                 }
+            }
 
-            unit_manager.l_dl_data.push_back( dl_data );		// Put it there so it'll be deleted when finished
-
+            unit_manager.l_dl_data.push_back(dl_data); // Put it there so it'll be deleted when finished
             unit_manager.h_dl_data.insert(String::ToLower(side), dl_data);
         }
-        catch(...)
+        else
         {
             LOG_WARNING("`dl.gui` file is missing");
-            delete dl_data;
             dl_data = NULL;
         }
     }
@@ -1174,21 +1178,18 @@ namespace TA3D
     {
         panel.destroy();
         String gaf_img;
-        try {
-            cTAFileParser parser( ta3dSideData.guis_dir + player_side + "MAIN.GUI" );
-            gaf_img = parser.pullAsString( "gadget0.panel" );
-        }
-        catch( ... )
-        {
-            LOG_ERROR("Unable to load `"<< (ta3dSideData.guis_dir + player_side + "MAIN.GUI") << "`");
-            return;
-        }
 
-        set_color_depth( 32 );
-        if(g_useTextureCompression)
-            allegro_gl_set_texture_format( GL_COMPRESSED_RGB_ARB );
+        TDFParser parser;
+        if (parser.loadFromFile(ta3dSideData.guis_dir + player_side + "MAIN.GUI"))
+            gaf_img = parser.pullAsString( "gadget0.panel" );
         else
-            allegro_gl_set_texture_format( GL_RGB8 );
+            LOG_ERROR("Unable to load `"<< (ta3dSideData.guis_dir + player_side + "MAIN.GUI") << "`");
+
+        // set_color_depth(32);
+        if (g_useTextureCompression)
+            allegro_gl_set_texture_format(GL_COMPRESSED_RGB_ARB);
+        else
+            allegro_gl_set_texture_format(GL_RGB8);
         int w,h;
         GLuint panel_tex = read_gaf_img( "anims\\" + player_side + "main.gaf", gaf_img, &w, &h, true );
         if (panel_tex == 0)
@@ -1397,25 +1398,27 @@ namespace TA3D
         unit_manager.gather_all_build_data();
 
         // Correct some data given in the FBI file using data from the moveinfo.tdf file
-        cTAFileParser parser( ta3dSideData.gamedata_dir + "moveinfo.tdf" );
+        TDFParser parser(ta3dSideData.gamedata_dir + "moveinfo.tdf");
         n = 0;
-        while( parser.pullAsString( format( "CLASS%d.name", n ) ) != "" )
-            n++;
+        while (!parser.pullAsString(format("CLASS%d.name", n)).empty())
+            ++n;
 
-        for (int i=0;i<unit_manager.nb_unit; ++i)
+        for (int i = 0; i < unit_manager.nb_unit; ++i)
         {
-            if( unit_manager.unit_type[ i ].MovementClass != NULL )
+            if (unit_manager.unit_type[i].MovementClass != NULL)
             {
                 for (int e = 0; e < n; ++e)
-                    if (parser.pullAsString( format( "CLASS%d.name", e ) ) == String::ToUpper(unit_manager.unit_type[i].MovementClass))
+                {
+                    if (parser.pullAsString(format("CLASS%d.name", e)) == String::ToUpper(unit_manager.unit_type[i].MovementClass))
                     {
-                        unit_manager.unit_type[ i ].FootprintX = parser.pullAsInt( format( "CLASS%d.footprintx", e ), unit_manager.unit_type[ i ].FootprintX );
-                        unit_manager.unit_type[ i ].FootprintZ = parser.pullAsInt( format( "CLASS%d.footprintz", e ), unit_manager.unit_type[ i ].FootprintZ );
-                        unit_manager.unit_type[ i ].MinWaterDepth = parser.pullAsInt( format( "CLASS%d.minwaterdepth", e ), unit_manager.unit_type[ i ].MinWaterDepth );
-                        unit_manager.unit_type[ i ].MaxWaterDepth = parser.pullAsInt( format( "CLASS%d.maxwaterdepth", e ), unit_manager.unit_type[ i ].MaxWaterDepth );
-                        unit_manager.unit_type[ i ].MaxSlope = parser.pullAsInt( format( "CLASS%d.maxslope", e ), unit_manager.unit_type[ i ].MaxSlope );
+                        unit_manager.unit_type[i].FootprintX = parser.pullAsInt(format( "CLASS%d.footprintx", e), unit_manager.unit_type[i].FootprintX );
+                        unit_manager.unit_type[i].FootprintZ = parser.pullAsInt(format( "CLASS%d.footprintz", e), unit_manager.unit_type[i].FootprintZ );
+                        unit_manager.unit_type[i].MinWaterDepth = parser.pullAsInt(format( "CLASS%d.minwaterdepth", e), unit_manager.unit_type[i].MinWaterDepth );
+                        unit_manager.unit_type[i].MaxWaterDepth = parser.pullAsInt(format( "CLASS%d.maxwaterdepth", e), unit_manager.unit_type[i].MaxWaterDepth );
+                        unit_manager.unit_type[i].MaxSlope = parser.pullAsInt(format( "CLASS%d.maxslope", e), unit_manager.unit_type[i].MaxSlope );
                         break;
                     }
+                }
             }
         }
         return nb_inconnu;

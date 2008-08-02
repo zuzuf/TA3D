@@ -231,12 +231,15 @@ namespace TA3D
 
         pMutex.lock();
         // Load the file
-        pTranslations.load(filename, emptyBefore, inASCII);
+        bool res = pTranslations.loadFromFile(filename, emptyBefore, inASCII);
         pMutex.unlock();
 
         // Success
-        LOG_DEBUG(LOG_PREFIX_I18N << "`" << filename << "` loaded.");
-        return true;
+        if (res)
+            LOG_DEBUG(LOG_PREFIX_I18N << "`" << filename << "` loaded.");
+        else
+            LOG_ERROR(LOG_PREFIX_I18N << "Impossible to load `" << filename << "`");
+        return res;
     }
 
     bool I18N::loadFromResources()

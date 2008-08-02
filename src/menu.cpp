@@ -1243,6 +1243,8 @@ void setup_game(bool client, const char *host)
                     }
                 }
 
+                LOG_ASSERT(i >= 0 && i < 10);
+                LOG_ASSERT(e >= 0 && e < 10);
                 game_data.player_names[i] = player_str[e];								// Update game data
                 game_data.player_control[i] = player_control[e];
                 if( player_control[e] == PLAYER_CONTROL_LOCAL_HUMAN )
