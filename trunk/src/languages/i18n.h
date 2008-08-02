@@ -3,7 +3,7 @@
 
 # include "../stdafx.h"
 # include "../threads/mutex.h"
-# include "../cTAFileParser.h"
+# include "../misc/tdf.h"
 # include <vector>
 
 
@@ -401,7 +401,7 @@ namespace TA3D
         String pLanguageSuffix;
 
         //! All translations
-        UTILS::cTAFileParser pTranslations;
+        TDFParser pTranslations;
 
     }; // class I18N
 
