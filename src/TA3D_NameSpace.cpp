@@ -57,42 +57,6 @@ namespace TA3D
         # endif
 	}
 
-	String RemoveComments(const String &s)
-	{
-		String Result(s);
-        String::size_type i = Result.find("//");
-		if(i != String::npos) // If we have found comments, then remove them and clear the string (remove blanks)
-        {
-			Result.resize(i);		// Remove comments
-
-            // Find blanks at the end of the string
-			for( i = Result.length()-1 ; i>=0 ; --i)
-            {
-				if( Result[i] != 9 && Result[i] != 32 )
-                {
-                    ++i;
-                    break;
-                }
-            }
-			if(i < Result.length())
-                Result.resize(i);
-            // Find blanks at the beginning of the string
-			for( i = 0 ; i<Result.length() ; ++i)
-            {
-				if( Result[i] != 9 && Result[i] != 32 )
-                {
-                    --i;
-                    break;
-                }
-            }
-
-			if( i >= 0 )
-				Result.erase( 0, i );
-		}
-		return Result;
-	}
-
-
 
 	void TA3D_clear_cache()							// Clear the cache if needed (useful when mod has changed)
 	{
