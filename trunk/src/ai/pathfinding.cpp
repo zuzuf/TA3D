@@ -123,7 +123,7 @@ namespace TA3D
             }
             else
             {
-                e = e + s >> 1;
+                e = (e + s) >> 1;
                 if( s + 1 >= e )	break;			// We're done
             }
         }
@@ -266,10 +266,10 @@ namespace TA3D
 
     PATH_NODE *find_path( SECTOR **map_data, float **map, byte **zone, int map_w, int map_h, int bloc_w, int bloc_h, float dh_max, float low_level, float high_level, Vector3D Start, Vector3D End, int mw, int mh, int u_idx, int m_dist, float hover_h )
     {
-        int start_x = (int)Start.x + (map_w >> 1) + 4 >> 3;
-        int start_y = (int)Start.z + (map_h >> 1) + 4 >> 3;
-        int end_x = (int)End.x + (map_w >> 1) + 4 >> 3;
-        int end_y = (int)End.z + (map_h >> 1) + 4 >> 3;
+        int start_x = ((int)Start.x + (map_w >> 1) + 4) >> 3;
+        int start_y = ((int)Start.z + (map_h >> 1) + 4) >> 3;
+        int end_x = ((int)End.x + (map_w >> 1) + 4) >> 3;
+        int end_y = ((int)End.z + (map_h >> 1) + 4) >> 3;
 
         int START_X = start_x << 1;
         int START_Y = start_y << 1;

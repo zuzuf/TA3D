@@ -577,9 +577,9 @@ namespace TA3D
                                         int b2 = img->line[y][(x<<2)+2];
                                         int a2 = img->line[y][(x<<2)+3];
 
-                                        r = r * (255 - a2) + r2 * a2 >> 8;
-                                        g = g * (255 - g2) + g2 * a2 >> 8;
-                                        b = b * (255 - b2) + b2 * a2 >> 8;
+                                        r = (r * (255 - a2) + r2 * a2) >> 8;
+                                        g = (g * (255 - g2) + g2 * a2) >> 8;
+                                        b = (b * (255 - b2) + b2 * a2) >> 8;
 
                                         frame_img->line[Y][(X<<2)] = r;
                                         frame_img->line[Y][(X<<2)+1] = g;

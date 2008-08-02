@@ -1395,7 +1395,10 @@ void SurfPaint(int index)
                                                             int cg2 = getg(c2);
                                                             int cb2 = getb(c2);
                                                             int ca2 = geta(c2);
-                                                            int col = makeacol32(cr1*ca1+(255-ca1)*cr2>>8,cg1*ca1+(255-ca1)*cg2>>8,cb1*ca1+(255-ca1)*cb2>>8,ca1*ca1+(255-ca1)*ca2>>8);
+                                                            int col = makeacol32((cr1*ca1+(255-ca1)*cr2)>>8,
+                                                                                 (cg1*ca1+(255-ca1)*cg2)>>8,
+                                                                                 (cb1*ca1+(255-ca1)*cb2)>>8,
+                                                                                 (ca1*ca1+(255-ca1)*ca2)>>8);
                                                             putpixel(n_tex,u,v,col);
                                                         }
                                                     }

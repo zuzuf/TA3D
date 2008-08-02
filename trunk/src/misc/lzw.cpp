@@ -87,9 +87,9 @@ byte *LZW_compress( byte *data, int size )
 
     byte *cur = new byte[ size ];
     int	 cur_size = 0;
-    byte *buf = new byte[ size + 4 << 1 ];
+    byte *buf = new byte[ (size + 4) << 1 ];
 
-    memset( buf, 0, size + 4 << 1 );
+    memset( buf, 0, (size + 4) << 1 );
 
     BYTE_FLOW	flow( buf + 8 );			// Starts with 9 bits codes
 
@@ -146,7 +146,7 @@ byte *LZW_compress( byte *data, int size )
     // Emit LZW_CODE_EOF
     flow.put_code( LZW_CODE_EOF );
 
-    ((uint32*)buf)[0] = flow.pos + 7 >> 3;		// Store the compressed data length at the beginning of the buffer
+    ((uint32*)buf)[0] = (flow.pos + 7) >> 3;		// Store the compressed data length at the beginning of the buffer
     ((uint32*)buf)[1] = size;					// Store the decompressed data length
 
     for( int i = 0 ; i < dic_size ; i++ )

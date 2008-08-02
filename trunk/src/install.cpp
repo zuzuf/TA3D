@@ -107,8 +107,8 @@ void install_TA_files( String def_path )
 				fwrite(data+pos,read_size,1,dst);
 
 				rectfill( screen, 100, 60, 540, 80, makecol( 255, 0, 0 ) );
-				rectfill( screen, 100, 60, 100 + 440 * (pos+read_size>>10) / (file_size32>>10), 80, makecol( 255, 255, 0 ) );
-				textprintf_centre_ex( screen, font, 320, 66, 0x0, -1, "%d%%", 100 * (pos+read_size>>10) / (file_size32>>10) );
+				rectfill( screen, 100, 60, 100 + 440 * ((pos+read_size)>>10) / (file_size32>>10), 80, makecol( 255, 255, 0 ) );
+				textprintf_centre_ex( screen, font, 320, 66, 0x0, -1, "%d%%", 100 * ((pos+read_size)>>10) / (file_size32>>10) );
 			}
 
 			fflush(dst);
@@ -145,8 +145,8 @@ void install_TA_files( String def_path )
 					fwrite( buf, read_size, 1, dst );
 
 					rectfill( screen, 100, 160, 540, 180, makecol( 255, 0, 0 ) );
-					rectfill( screen, 100, 160, 100 + 440 * (pos+read_size>>10) / (limit>>10), 180, makecol( 255, 255, 0 ) );
-					textprintf_centre_ex( screen, font, 320, 166, 0x0, -1, "%d%%", 100 * (pos+read_size>>10) / (limit>>10) );
+					rectfill( screen, 100, 160, 100 + 440 * ((pos+read_size)>>10) / (limit>>10), 180, makecol( 255, 255, 0 ) );
+					textprintf_centre_ex( screen, font, 320, 166, 0x0, -1, "%d%%", 100 * ((pos+read_size)>>10) / (limit>>10) );
 				}
 				delete buf;
 				fflush(dst);
@@ -208,8 +208,8 @@ void install_TA_files( String def_path )
 						fwrite( buf, read_size, 1, dst );
 
 						rectfill( screen, 100, 60, 540, 80, makecol( 255, 0, 0 ) );
-						rectfill( screen, 100, 60, 100 + 440 * (pos+read_size>>10) / (limit>>10), 80, makecol( 255, 255, 0 ) );
-						textprintf_centre_ex( screen, font, 320, 66, 0x0, -1, "%d%%", 100 * (pos+read_size>>10) / (limit>>10) );
+						rectfill( screen, 100, 60, 100 + 440 * ((pos+read_size)>>10) / (limit>>10), 80, makecol( 255, 255, 0 ) );
+						textprintf_centre_ex( screen, font, 320, 66, 0x0, -1, "%d%%", 100 * ((pos+read_size)>>10) / (limit>>10) );
 					}
 
 					delete buf;
@@ -273,8 +273,8 @@ void install_TA_files( String def_path )
 								fwrite( buf, read_size, 1, dst );
 
 								rectfill( screen, 100, 60 + Y, 540, 80 + Y, makecol( 255, 0, 0 ) );
-								rectfill( screen, 100, 60 + Y, 100 + 440 * (pos+read_size>>10) / (limit>>10), 80 + Y, makecol( 255, 255, 0 ) );
-								textprintf_centre_ex( screen, font, 320, 66 + Y, 0x0, -1, "%d%%", 100 * (pos+read_size>>10) / (limit>>10) );
+								rectfill( screen, 100, 60 + Y, 100 + 440 * ((pos+read_size)>>10) / (limit>>10), 80 + Y, makecol( 255, 255, 0 ) );
+								textprintf_centre_ex( screen, font, 320, 66 + Y, 0x0, -1, "%d%%", 100 * ((pos+read_size)>>10) / (limit>>10) );
 							}
 
 							delete buf;
@@ -343,8 +343,8 @@ void install_TA_files( String def_path )
 								fwrite( buf, read_size, 1, dst );
 
 								rectfill( screen, 100, 60 + Y, 540, 80 + Y, makecol( 255, 0, 0 ) );
-								rectfill( screen, 100, 60 + Y, 100 + 440 * (pos+read_size>>10) / (limit>>10), 80 + Y, makecol( 255, 255, 0 ) );
-								textprintf_centre_ex( screen, font, 320, 66 + Y, 0x0, -1, "%d%%", 100 * (pos+read_size>>10) / (limit>>10) );
+								rectfill( screen, 100, 60 + Y, 100 + 440 * ((pos+read_size)>>10) / (limit>>10), 80 + Y, makecol( 255, 255, 0 ) );
+								textprintf_centre_ex( screen, font, 320, 66 + Y, 0x0, -1, "%d%%", 100 * ((pos+read_size)>>10) / (limit>>10) );
 							}
 
 							delete buf;

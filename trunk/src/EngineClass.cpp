@@ -483,8 +483,8 @@ namespace TA3D
 
     bool MAP::check_rect_discovered(int x1,int y1,int w,int h,short c)		// Check if the area has been fully discovered
     {
-        int y2=y1+h+1>>1;
-        int x2=x1+w+1>>1;
+        int y2=(y1+h+1)>>1;
+        int x2=(x1+w+1)>>1;
         x1>>=1;
         y1>>=1;
         if(y1<0)	y1=0;
@@ -936,8 +936,8 @@ namespace TA3D
 
         int rw=w*mini_w/252;
         int rh=h*mini_h/252;
-        x1+=w-rw>>1;
-        y1+=h-rh>>1;
+        x1+=(w-rw)>>1;
+        y1+=(h-rh)>>1;
         float lw=mini_w/252.0f;
         float lh=mini_h/252.0f;
         glEnable(GL_TEXTURE_2D);

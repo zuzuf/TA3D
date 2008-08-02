@@ -208,7 +208,7 @@ namespace TA3D
         // Lit les différents morceaux
         LOG_DEBUG("MAP: reading blocs data");
         event_timer = msec_timer;
-        int n_bmp=(header.tiles+0x3F>>5);			// Nombre de textures 1024x32 nécessaires pour mémoriser tout les morceaux
+        int n_bmp=(header.tiles+0x3F)>>5;			// Nombre de textures 1024x32 nécessaires pour mémoriser tout les morceaux
         BITMAP **bmp_tex = new BITMAP*[n_bmp];
         for(i = 0; i < n_bmp; ++i)
             bmp_tex[i]=create_bitmap_ex(8,1024,32);
@@ -599,8 +599,8 @@ namespace TA3D
         /*--------------- code for low definition map (mega zoom) -------------------*/
 
         LOG_DEBUG("MAP: creating low definition geometry (step 1)");
-        map->low_w=map->map_w+32>>6;
-        map->low_h=map->map_h+32>>6;
+        map->low_w=(map->map_w+32)>>6;
+        map->low_h=(map->map_h+32)>>6;
         map->low_nb_idx = (2+map->low_w*2)*map->low_h;			// Draw this as GL_TRIANGLE_STRIP
         int low_nb_vtx = (map->low_w+1)*(map->low_h+1);
         map->low_vtx = new Vector3D[low_nb_vtx];

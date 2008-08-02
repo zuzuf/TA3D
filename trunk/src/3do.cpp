@@ -630,8 +630,8 @@ namespace TA3D
 
             for ( int i = 0 ; i < cur->nb_vtx ; i++ ) {
                 if (cur->tcoord ) {
-                    opt_T[ (i + total_vtx << 1) ] = cur->tcoord[ (i << 1) ];
-                    opt_T[ (i + total_vtx << 1) + 1 ] = cur->tcoord[ (i << 1) + 1 ];
+                    opt_T[ ((i + total_vtx) << 1) ] = cur->tcoord[ (i << 1) ];
+                    opt_T[ ((i + total_vtx) << 1) + 1 ] = cur->tcoord[ (i << 1) + 1 ];
                 }
                 if (cur->points )
                     opt_vtx[ i + total_vtx ] = cur->points[ i ] + dec;
@@ -1232,7 +1232,7 @@ namespace TA3D
                 uint16	offset = seg+x;
                 points[offset].x=(x-3.5f)*ww;
                 points[offset].z=(y-3.5f)*hh;
-                tcoord[offset<<1]=x*0.1333333333333f;
+                tcoord[ offset<<1   ]=x*0.1333333333333f;
                 tcoord[(offset<<1)+1]=yy;
             }
         }
@@ -1241,25 +1241,25 @@ namespace TA3D
         {
             if (y & 1)
             {
-                t_index[offset++] = (y << 3);
+                t_index[offset++] = ( y      << 3);
                 t_index[offset++] = ((y + 1) << 3);
                 for (x = 0; x < 7; ++x)
                 {
-                    t_index[offset++]=(y<<3)+x+1;
-                    t_index[offset++]=(y+1<<3)+x+1;
+                    t_index[offset++]=( y   <<3)+x+1;
+                    t_index[offset++]=((y+1)<<3)+x+1;
                 }
-                t_index[offset++]=(y+1<<3)+7;
+                t_index[offset++]=((y+1)<<3)+7;
             }
             else
             {
-                t_index[offset++]=(y<<3)+7;
+                t_index[offset++]=( y   <<3)+7;
                 t_index[offset++]=((y+1)<<3)+7;
                 for (x = 0; x < 7; ++x)
                 {
-                    t_index[offset++] = (y << 3) + 6 - x;
-                    t_index[offset++] = (y + 1 << 3) + 6 - x;
+                    t_index[offset++] = ( y      << 3) + 6 - x;
+                    t_index[offset++] = ((y + 1) << 3) + 6 - x;
                 }
-                t_index[offset++] = (y + 1 << 3);
+                t_index[offset++] = ((y + 1) << 3);
             }
         }
 

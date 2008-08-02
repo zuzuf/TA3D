@@ -359,8 +359,8 @@ namespace TA3D
             int t_idx=-1;
             int py=((int)(OPos.z+map->map_h_d))>>3;
             int px=((int)(OPos.x+map->map_w_d))>>3;
-            int s=weapon_manager.weapon[weapon_id].areaofeffect+31>>5;
-            int d=weapon_manager.weapon[weapon_id].areaofeffect*weapon_manager.weapon[weapon_id].areaofeffect+15>>4;
+            int s=(weapon_manager.weapon[weapon_id].areaofeffect+31)>>5;
+            int d=(weapon_manager.weapon[weapon_id].areaofeffect*weapon_manager.weapon[weapon_id].areaofeffect+15)>>4;
             std::list< int > oidx;
             for(int y=-s;y<=s;y++)
                 for(int x=-s;x<=s;x++)
@@ -554,8 +554,8 @@ namespace TA3D
             else 
                 if(hit && Pos.y==map->sealvl)
                 {
-                    int px=(int)(Pos.x+0.5f)+map->map_w_d>>4;
-                    int py=(int)(Pos.z+0.5f)+map->map_h_d>>4;
+                    int px=((int)(Pos.x+0.5f)+map->map_w_d)>>4;
+                    int py=((int)(Pos.z+0.5f)+map->map_h_d)>>4;
                     Vector3D P = Pos;
                     P.y += 3.0f;
                     if(px>=0 && px<map->bloc_w && py>=0 && py<map->bloc_h)
@@ -611,8 +611,8 @@ namespace TA3D
         visible = false;
         if(map)
         {
-            int px=(int)(Pos.x+0.5f)+map->map_w_d>>4;
-            int py=(int)(Pos.z+0.5f)+map->map_h_d>>4;
+            int px=((int)(Pos.x+0.5f)+map->map_w_d)>>4;
+            int py=((int)(Pos.z+0.5f)+map->map_h_d)>>4;
             if(px<0 || py<0 || px>=map->bloc_w || py>=map->bloc_h)	return;
             byte player_mask = 1 << players.local_human_id;
             if(map->view[py][px]!=1
