@@ -647,8 +647,8 @@ void UNIT::add_mission(int mission_type,Vector3D *target,bool step,int dat,void 
             float x_space = fabs(cur_mission->target.x - target->x);
             float z_space = fabs(cur_mission->target.z - target->z);
             if (!cur_mission->step && cur_mission->mission == MISSION_BUILD && cur_mission->data >= 0 && cur_mission->data < unit_manager.nb_unit
-                && x_space < (unit_manager.unit_type[ dat ].FootprintX + unit_manager.unit_type[ cur_mission->data ].FootprintX << 2)
-                && z_space < (unit_manager.unit_type[ dat ].FootprintZ + unit_manager.unit_type[ cur_mission->data ].FootprintZ << 2) ) // Remove it
+                && x_space < ((unit_manager.unit_type[ dat ].FootprintX + unit_manager.unit_type[ cur_mission->data ].FootprintX) << 2)
+                && z_space < ((unit_manager.unit_type[ dat ].FootprintZ + unit_manager.unit_type[ cur_mission->data ].FootprintZ) << 2) ) // Remove it
             {
                 MISSION *tmp = cur_mission;
                 cur_mission = cur_mission->next;
@@ -2920,7 +2920,7 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
                                     break;	// We're not shooting at the target
                                 }
                                 float t = 2.0f/map->ota_data.gravity*fabs(target.y);
-                                mindist = (int)sqrt(t*V.sq())-(unit_manager.unit_type[type_id].attackrunlength+1>>1);
+                                mindist = (int)sqrt(t*V.sq())-((unit_manager.unit_type[type_id].attackrunlength+1)>>1);
                                 maxdist = mindist+(unit_manager.unit_type[type_id].attackrunlength);
                             }
                             else
@@ -3590,7 +3590,7 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
                 break;
             case MISSION_STANDBY_MINE:		// Don't even try to do something else, the unit must die !!
                 if (self_destruct < 0.0f ) {
-                    int dx = (unit_manager.unit_type[type_id].SightDistance+(int)(h+0.5f)>>3) + 1;
+                    int dx = ((unit_manager.unit_type[type_id].SightDistance+(int)(h+0.5f))>>3) + 1;
                     int enemy_idx=-1;
                     int sx=Math::RandFromTable()&1;
                     int sy=Math::RandFromTable()&1;
@@ -4127,7 +4127,7 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
                             if (unit_manager.unit_type[type_id].attackrunlength>0) {
                                 if (Dir % V < 0.0f )	allowed_to_fire = false;
                                 float t = 2.0f/map->ota_data.gravity*fabs(Pos.y-mission->target.y);
-                                cur_mindist = (int)sqrt(t*V.sq())-(unit_manager.unit_type[type_id].attackrunlength+1>>1);
+                                cur_mindist = (int)sqrt(t*V.sq())-((unit_manager.unit_type[type_id].attackrunlength+1)>>1);
                                 cur_maxdist = cur_mindist+(unit_manager.unit_type[type_id].attackrunlength);
                             }
                             else {
@@ -4241,7 +4241,7 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
                             mission->target=target_unit->Pos;
                             float dist=Dir.sq();
                             int maxdist=(int)(unit_manager.unit_type[type_id].BuildDistance
-                                              + ( unit_manager.unit_type[target_unit->type_id].FootprintX + unit_manager.unit_type[target_unit->type_id].FootprintZ << 1 ) );
+                                              + ( (unit_manager.unit_type[target_unit->type_id].FootprintX + unit_manager.unit_type[target_unit->type_id].FootprintZ) << 1 ) );
                             if (dist>maxdist*maxdist && unit_manager.unit_type[type_id].BMcode) {	// Si l'unité est trop loin du chantier
                                 mission->flags |= MISSION_FLAG_MOVE;
                                 mission->move_data = maxdist * 7 / 80;
@@ -4284,7 +4284,7 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
                         mission->target=target_unit->Pos;
                         float dist=Dir.sq();
                         int maxdist=(int)(unit_manager.unit_type[type_id].BuildDistance
-                                          + ( unit_manager.unit_type[target_unit->type_id].FootprintX + unit_manager.unit_type[target_unit->type_id].FootprintZ << 1 ));
+                                          + ( (unit_manager.unit_type[target_unit->type_id].FootprintX + unit_manager.unit_type[target_unit->type_id].FootprintZ) << 1 ));
                         if (dist>maxdist*maxdist && unit_manager.unit_type[type_id].BMcode) {	// Si l'unité est trop loin du chantier
                             c_time=0.0f;
                             mission->flags |= MISSION_FLAG_MOVE;
@@ -4414,7 +4414,7 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
                     Dir.y = 0.0f;
                     float dist = Dir.sq();
                     int maxdist = (int)(unit_manager.unit_type[type_id].BuildDistance
-                                        + ( unit_manager.unit_type[mission->data].FootprintX + unit_manager.unit_type[mission->data].FootprintZ << 1 ) );
+                                        + ( (unit_manager.unit_type[mission->data].FootprintX + unit_manager.unit_type[mission->data].FootprintZ) << 1 ) );
                     if (dist>maxdist*maxdist && unit_manager.unit_type[type_id].BMcode) {	// Si l'unité est trop loin du chantier
                         mission->flags |= MISSION_FLAG_MOVE;
                         mission->move_data = maxdist * 7 / 80;
@@ -4637,7 +4637,7 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
                     can_fire = unit_manager.unit_type[type_id].weapon[i]!=NULL && !unit_manager.unit_type[type_id].weapon[i]->commandfire && weapon[0].state == WEAPON_FLAG_IDLE;
 
             if (can_fire ) {
-                int dx=unit_manager.unit_type[type_id].SightDistance+(int)(h+0.5f)>>3;
+                int dx=(unit_manager.unit_type[type_id].SightDistance+(int)(h+0.5f))>>3;
                 int enemy_idx=-1;
                 if (unit_manager.unit_type[type_id].weapon[0]!=NULL && (unit_manager.unit_type[type_id].weapon[0]->range>>4)>dx)
                     dx=unit_manager.unit_type[type_id].weapon[0]->range>>4;
@@ -5982,7 +5982,7 @@ void UNIT::draw_on_FOW( bool jamming )
     }
     else
     {
-        sint16 cur_sight = (int)h + unit_manager.unit_type[ type_id ].SightDistance >> 3;
+        sint16 cur_sight = ((int)h + unit_manager.unit_type[ type_id ].SightDistance) >> 3;
         radar_range = system_activated ? (unit_manager.unit_type[ type_id ].RadarDistance >> 3) : 0;
         sonar_range = system_activated ? (unit_manager.unit_type[ type_id ].SonarDistance >> 3) : 0;
 
@@ -6098,7 +6098,7 @@ bool can_be_there_ai(const int px, const int py, MAP *map, const int unit_type_i
     int side = unit_manager.unit_type[unit_type_id].ExtractsMetal == 0.0f ? 12 : 0;
     if (x<0 || y<0 || x+w>=(map->bloc_w<<1) || y+h>=(map->bloc_h<<1))	return false;	// check if it is inside the map
 
-    if (!map->check_rect( px - (w + side>>1), py - (h + side>>1), w + side, h + side, unit_id))
+    if (!map->check_rect( px - ((w + side)>>1), py - ((h + side)>>1), w + side, h + side, unit_id))
         return false;		// There is already something
     float dh = fabs(map->check_rect_dh(x,y,w,h));
     float max_depth = map->check_max_depth(x,y,w,h);
@@ -6116,7 +6116,7 @@ bool can_be_there_ai(const int px, const int py, MAP *map, const int unit_type_i
     if (!map->check_vents(x,y,w,h,unit_manager.unit_type[unit_type_id].yardmap))
         return false;
 
-    if (map->check_lava(x+1>>1,y+1>>1,w+1>>1,h+1>>1))
+    if (map->check_lava((x+1)>>1,(y+1)>>1,(w+1)>>1,(h+1)>>1))
         return false;
 
     return true;
@@ -6154,7 +6154,7 @@ bool can_be_there( const int px, const int py, MAP *map, const int unit_type_id,
     if (!map->check_vents(x,y,w,h,unit_manager.unit_type[unit_type_id].yardmap))
         return false;
 
-    if (map->check_lava(x+1>>1,y+1>>1,w+1>>1,h+1>>1))
+    if (map->check_lava((x+1)>>1,(y+1)>>1,(w+1)>>1,(h+1)>>1))
         return false;
 
     return true;
@@ -6167,8 +6167,8 @@ bool can_be_built(const Vector3D& Pos, MAP *map,const int unit_type_id, const in
 
     int w = unit_manager.unit_type[unit_type_id].FootprintX;
     int h = unit_manager.unit_type[unit_type_id].FootprintZ;
-    int x = ((int)(Pos.x)+map->map_w_d+4>>3)-(w>>1);
-    int y = ((int)(Pos.z)+map->map_h_d+4>>3)-(h>>1);
+    int x = (((int)(Pos.x)+map->map_w_d+4)>>3)-(w>>1);
+    int y = (((int)(Pos.z)+map->map_h_d+4)>>3)-(h>>1);
     if (x<0 || y<0 || x+w>=(map->bloc_w<<1) || y+h>=(map->bloc_h<<1))
         return false;	// check if it is inside the map
 
@@ -6192,7 +6192,7 @@ bool can_be_built(const Vector3D& Pos, MAP *map,const int unit_type_id, const in
     if (!map->check_vents(x,y,w,h,unit_manager.unit_type[unit_type_id].yardmap))
         return false;
 
-    if (map->check_lava(x+1>>1,y+1>>1,w+1>>1,h+1>>1))
+    if (map->check_lava((x+1)>>1,(y+1)>>1,(w+1)>>1,(h+1)>>1))
         return false;
 
     return true;

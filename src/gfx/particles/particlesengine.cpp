@@ -744,12 +744,12 @@ namespace TA3D
 
                 if (j >= 1023 )
                 {
-                    glDrawArrays( GL_QUADS, 0, (j+1<<2) );					// Draw everything
+                    glDrawArrays( GL_QUADS, 0, (j+1)<<2 );					// Draw everything
                     j = -1;
                 }
             }
             if (j >= 0 )
-                glDrawArrays( GL_QUADS, 0, (j+1<<2) );					// Draw everything
+                glDrawArrays( GL_QUADS, 0, (j+1)<<2 );					// Draw everything
 
             glBlendFunc(GL_SRC_ALPHA,GL_ONE);
         }
