@@ -26,7 +26,7 @@ namespace TA3D
     void SideData::init()
     {
         nb_side=0;
-        for (int i = 0; i < 10; ++i)
+        for (short int i = 0; i < TA3D_PLAYERS_HARD_LIMIT; ++i)
             side_name[i] = side_pref[i] = side_com[i] = side_int[i] = NULL;
         unit_ext = ".fbi";
         unit_dir = "units\\";
@@ -39,7 +39,7 @@ namespace TA3D
 
     void SideData::destroy()
     {
-        for(int i = 0;i < 10; ++i)
+        for (short int i = 0; i < TA3D_PLAYERS_HARD_LIMIT; ++i)
         {
             if(side_name[i])	free(side_name[i]);
             if(side_pref[i])	free(side_pref[i]);

@@ -760,17 +760,17 @@ namespace TA3D
                     float b=(coef*(color0&0xFF)+coef*(color1&0xFF))/255.0f;
                     glColor4f(r,g,b,1.0f);
                     glBegin(GL_LINE_STRIP);
-                    for(int i=0;i<10;i++)
+                    for (short int i = 0; i < TA3D_PLAYERS_HARD_LIMIT; ++i)
                     {
                         float x,y,z;
-                        if(i>0 && i<9)
+                        if (i > 0 && i < 9)
                         {
-                            x=(((sint32)(Math::RandFromTable()%2001))-1000)*0.005f;
-                            y=(((sint32)(Math::RandFromTable()%2001))-1000)*0.005f;
-                            z=(((sint32)(Math::RandFromTable()%2001))-1000)*0.005f;
+                            x = (((sint32)(Math::RandFromTable() % 2001)) - 1000) * 0.005f;
+                            y = (((sint32)(Math::RandFromTable() % 2001)) - 1000) * 0.005f;
+                            z = (((sint32)(Math::RandFromTable() % 2001)) - 1000) * 0.005f;
                         }
                         else
-                            x=y=z=0.0f;
+                            x = y = z = 0.0f;
                         glVertex3f(Pos.x+(P.x-Pos.x)*i/9+x,Pos.y+(P.y-Pos.y)*i/9+y,Pos.z+(P.z-Pos.z)*i/9+z);
                     }
                     glEnd();
@@ -811,7 +811,7 @@ namespace TA3D
                 glDisable(GL_TEXTURE_2D);
                 glBegin(GL_POINTS);
                 glColor3f(0.75f,0.75f,0.75f);
-                for (short int i = 0; i < 10; ++i)
+                for (short int i = 0; i < TA3D_PLAYERS_HARD_LIMIT; ++i)
                 {
                     glVertex3f(Pos.x + (Math::RandFromTable() % 201) * 0.01f - 1.0f,
                                Pos.y + (Math::RandFromTable() % 201) * 0.01f - 1.0f,
