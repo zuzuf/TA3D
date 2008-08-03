@@ -2261,7 +2261,8 @@ int brief_screen(String campaign_name, int mission_id)
         if (brief_area.get_object( "brief.planet"))
         {
             GUIOBJ *guiobj = brief_area.get_object("brief.planet");
-            guiobj->Data = planet_animation.anm[rotate_id].glbmp[((int)planet_frame) % planet_animation.anm[rotate_id].nb_bmp];
+            if (guiobj)
+                guiobj->Data = planet_animation.anm[rotate_id].glbmp[((int)planet_frame) % planet_animation.anm[rotate_id].nb_bmp];
         }
 
         float pan_frame = planet_frame / (pan_x2 - pan_x1);
@@ -2269,17 +2270,23 @@ int brief_screen(String campaign_name, int mission_id)
         if (brief_area.get_object("brief.panning0"))
         {
             GUIOBJ *guiobj = brief_area.get_object("brief.panning0");
-            guiobj->Data = planet_animation.anm[pan_id].glbmp[ ((int)pan_frame) % planet_animation.anm[pan_id].nb_bmp ];
-            guiobj->x2 = pan_x2 + (pan_x1 - pan_x2) * (pan_frame - ((int)pan_frame));
-            guiobj->u1 = (pan_frame - ((int)pan_frame));
+            if (guiobj)
+            {
+                guiobj->Data = planet_animation.anm[pan_id].glbmp[ ((int)pan_frame) % planet_animation.anm[pan_id].nb_bmp ];
+                guiobj->x2 = pan_x2 + (pan_x1 - pan_x2) * (pan_frame - ((int)pan_frame));
+                guiobj->u1 = (pan_frame - ((int)pan_frame));
+            }
         }
 
         if (brief_area.get_object( "brief.panning1"))
         {
-            GUIOBJ *guiobj = brief_area.get_object( "brief.panning1");
-            guiobj->Data = planet_animation.anm[pan_id].glbmp[ ((int)pan_frame + 1) % planet_animation.anm[pan_id].nb_bmp ];
-            guiobj->x1 = pan_x2 + (pan_x1 - pan_x2) * (pan_frame - ((int)pan_frame));
-            guiobj->u2 = (pan_frame - ((int)pan_frame));
+            GUIOBJ *guiobj = brief_area.get_object("brief.panning1");
+            if (guiobj)
+            {
+                guiobj->Data = planet_animation.anm[pan_id].glbmp[ ((int)pan_frame + 1) % planet_animation.anm[pan_id].nb_bmp ];
+                guiobj->x1 = pan_x2 + (pan_x1 - pan_x2) * (pan_frame - ((int)pan_frame));
+                guiobj->u2 = (pan_frame - ((int)pan_frame));
+            }
         }
 
         if (brief_area.get_state( "brief.b_ok" ) || key[KEY_ENTER])
