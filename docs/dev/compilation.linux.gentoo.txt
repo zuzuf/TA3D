@@ -1,0 +1,38 @@
+
+Compilation under Gentoo
+========================
+
+
+1 - CMake
+---------
+
+You need CMake 2.6 in order to build TA3D. Just emerge it as any other software.
+
+2 - GCC and required libraries
+------------------------------
+
+You need GCC with C++ support (g++) to build TA3D, on Gentoo you should have it :D
+Then you'll need to install zlib, allegro ( >= 4.2.2 ) and AllegroGL (>= 0.4.3 recommended)
+
+3 - FMOD
+--------
+
+FMOD is a sound/music library, you can emerge it but won't probably be the last version, we recommend you
+install it manually. You'll find it here:
+www.fmod.org
+
+we recommend you use the latest stable version (>= 4.16.x at the time of writing those instructions)
+
+4 - TA3D
+--------
+
+Now you can build ta3d:
+> cmake ./
+> make
+
+PS: If you get an error message with something like ...<anonymous>...
+edit the /usr/local/include/allegrogl/GLext/gl_ext_api.h file, and
+find the line:
+AGL_API(void, EndTransformFeedbackNV,     (GLvoid))
+replace GLvoid with void
+now it should build :)

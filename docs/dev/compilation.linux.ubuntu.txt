@@ -31,7 +31,16 @@ now AllegroGL should be installed.
 NB: TA3D requires Allegro >= 4.2.2, if you use an older version of
 Ubuntu you'll have to build it yourself.
 
-3 - TA3D
+3 - FMOD
+--------
+
+FMOD is a sound/music library, there is no package for it so you'll have to download and install it
+manually. You'll find it here:
+www.fmod.org
+
+we recommend you use the latest stable version (>= 4.16.x at the time of writing those instructions)
+
+4 - TA3D
 --------
 
 Now you can build ta3d:
