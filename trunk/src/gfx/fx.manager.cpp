@@ -55,8 +55,7 @@ namespace TA3D
                 data = fx_data;
             if(data)
             {
-                ANIM *anm=new ANIM;
-                anm->init();
+                ANIM *anm = new ANIM();
                 anm->load_gaf(data,get_gaf_entry_index(data, entryName.c_str()));
                 // Next line has been removed in order to remain thread safe, conversion is done in main thread
                 //			anm->convert(false,true);
@@ -238,10 +237,7 @@ namespace TA3D
                 for (int i = 0;i < max_cache_size; ++i)
                 {
                     if (cache_anm[i])
-                    {
-                        cache_anm[i]->destroy();
                         delete cache_anm[i];
-                    }
                 }
                 delete[] cache_anm;
             }
@@ -446,7 +442,6 @@ namespace TA3D
                 if (use[fx[i].anm] <= 0) // Animation used nowhere
                 {
                     cache_name[fx[i].anm].clear();
-                    cache_anm[fx[i].anm]->destroy();
                     delete cache_anm[fx[i].anm];
                     cache_anm[fx[i].anm] = NULL;
                     --cache_size;

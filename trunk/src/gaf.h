@@ -85,7 +85,11 @@ namespace TA3D
 
     std::vector< GLuint >	read_gaf_imgs( const String &filename, const String &imgname, int *w=NULL, int *h=NULL,bool truecol=true);		// Read a gaf image and put it in an OpenGL texture
 
-    class ANIM			// Pour la lecture des fichiers GAF animés
+
+    /*!
+    ** \brief Read animated GAF files
+    */
+    class ANIM
     {
     public:
         int		nb_bmp;
@@ -94,75 +98,24 @@ namespace TA3D
         short	*ofs_y;
         short	*w,*h;
         GLuint	*glbmp;
-        char	*name;
+        String name;
         bool	dgl;
         String	filename;
 
-        inline void init()
-        {
-            nb_bmp=0;
-            bmp=NULL;
-            ofs_x=ofs_y=NULL;
-            glbmp=NULL;
-            w=h=NULL;
-            name=NULL;
-            dgl=false;
-            filename.clear();
-        }
 
-        ANIM()
-        {
-            init();
-        }
+        ANIM() {init();}
+        ~ANIM() {destroy();}
 
-        inline void destroy()
-        {
-            filename.clear();
-            if(nb_bmp>0) {
-                for(int i=0;i<nb_bmp;i++) {
-                    if(bmp[i])
-                        destroy_bitmap(bmp[i]);
-                    if(dgl)
-                        glDeleteTextures(1,&(glbmp[i]));
-                }
-                if(w)
-                    free(w);
-                if(h)
-                    free(h);
-                if(name)
-                    free(name);
-                if(ofs_x)
-                    free(ofs_x);
-                if(ofs_y)
-                    free(ofs_y);
-                free(bmp);
-                free(glbmp);
-            }
-            init();
-        }
+        void init();
+        void destroy();
 
-        ~ANIM()
-        {
-            destroy();
-        }
+        void load_gaf(byte *buf,int entry_idx = 0, bool truecol = true, const String& fname = "");
 
-        void load_gaf(byte *buf,int entry_idx=0,bool truecol=true,const String &fname = String(""));
+        void convert(bool NO_FILTER = false, bool COMPRESSED = false);
 
-        void convert(bool NO_FILTER=false,bool COMPRESSED=false);
+        void clean();
 
-        void clean()
-        {
-            for(int i=0;i<nb_bmp;i++) {		// Fait un peu le ménage
-                if(bmp[i])
-                    destroy_bitmap(bmp[i]);
-                bmp[i]=NULL;
-            }
-            if(name) {
-                free(name);
-                name=NULL;
-            }
-        }
-    };
+    }; // class ANIM
 
     class ANIMS			// Pour la lecture des fichiers GAF animés
     {
@@ -193,7 +146,7 @@ namespace TA3D
             destroy();
         }
 
-        void load_gaf( byte *buf, bool doConvert=false, const String &fname = String("") )
+        void load_gaf( byte *buf, bool doConvert=false, const String& fname = "")
         {
             if( buf == NULL )	return;
 
@@ -201,32 +154,34 @@ namespace TA3D
 
             anm = new ANIM[nb_anim];
 
-            for( int i = 0 ; i < nb_anim ; i++ )
-                anm[i].load_gaf(buf,i,true,fname);
-
-            if( doConvert )
+            for (int i = 0; i < nb_anim; ++i)
+                anm[i].load_gaf(buf, i, true, fname);
+            if (doConvert)
                 convert();
         }
 
-        void convert(bool no_filter=false,bool compressed=false)
+        void convert(const bool no_filter = false, const bool compressed = false)
         {
-            for(int i=0;i<nb_anim;i++)
-                anm[i].convert(no_filter,compressed);
+            for (int i = 0; i < nb_anim; ++i)
+                anm[i].convert(no_filter, compressed);
         }
 
         void clean()
         {
-            for(int i=0;i<nb_anim;i++)
+            for (int i = 0; i < nb_anim; ++i)
                 anm[i].clean();
         }
 
-        int find_entry(const char *name)
+        int find_entry(const String& name)
         {
-            for(int i=0;i<nb_anim;i++)
-                if(anm[i].name!=NULL && strcasecmp(anm[i].name,name)==0)
+            for (int i = 0; i < nb_anim; ++i)
+            {
+                if (anm[i].name == name)
                     return i;
+            }
             return -1;
         }
+
     };
 
 

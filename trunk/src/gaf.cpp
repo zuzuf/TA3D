@@ -638,20 +638,74 @@ namespace TA3D
         nb_bmp -= f;
     }
 
+    void ANIM::init()
+    {
+        nb_bmp=0;
+        bmp=NULL;
+        ofs_x=ofs_y=NULL;
+        glbmp=NULL;
+        w=h=NULL;
+        dgl=false;
+        filename.clear();
+        name.clear();
+    }
+
+
+    void ANIM::destroy()
+    {
+        filename.clear();
+        name.clear();
+        if (nb_bmp > 0)
+        {
+            for (int i = 0; i < nb_bmp; ++i)
+            {
+                if(bmp[i])
+                    destroy_bitmap(bmp[i]);
+                if(dgl)
+                    glDeleteTextures(1,&(glbmp[i]));
+            }
+        }
+        if(w)
+            free(w);
+        if(h)
+            free(h);
+        if(ofs_x)
+            free(ofs_x);
+        if(ofs_y)
+            free(ofs_y);
+        free(bmp);
+        free(glbmp);
+        init();
+    }
+
+    void ANIM::clean()
+    {
+        for (int i = 0; i < nb_bmp; ++i) // Fait un peu le ménage
+        {
+            if (bmp[i])
+                destroy_bitmap(bmp[i]);
+            bmp[i] = NULL;
+        }
+        name.clear();
+    }
+
+
     void ANIM::convert(bool NO_FILTER,bool COMPRESSED)
     {
-        if( dgl )	return;			// Already done!!
-        dgl=true;
-        for (int i=0;i<nb_bmp;i++)
+        if (dgl)
+            return;			// Already done!!
+        dgl = true;
+        for (int i = 0; i < nb_bmp; ++i)
         {
-            String cache_filename = filename + format("-%s-%d.bin", name ? name : "none", i );
+            String cache_filename;
+            cache_filename << filename << format("-%s-%d.bin", (name.empty() ? "none" : name.c_str()), i);
 
-            if( String( filename ) != "" )
-                glbmp[i] = gfx->load_texture_from_cache( cache_filename, NO_FILTER ? FILTER_NONE : FILTER_TRILINEAR );
+            if (!filename.empty())
+                glbmp[i] = gfx->load_texture_from_cache(cache_filename, NO_FILTER ? FILTER_NONE : FILTER_TRILINEAR );
             else
                 glbmp[i] = 0;
 
-            if( !glbmp[i] )
+            if (!glbmp[i])
             {
                 set_color_depth(32);
                 BITMAP *tmp=create_bitmap(bmp[i]->w,bmp[i]->h);
@@ -665,8 +719,8 @@ namespace TA3D
                 allegro_gl_use_alpha_channel(true);
                 glbmp[i]=gfx->make_texture(bmp[i], NO_FILTER ? FILTER_NONE : FILTER_TRILINEAR );
                 allegro_gl_use_alpha_channel(false);
-                if( filename != "" )
-                    gfx->save_texture_to_cache( cache_filename, glbmp[i], bmp[i]->w, bmp[i]->h );
+                if (!filename.empty())
+                    gfx->save_texture_to_cache(cache_filename, glbmp[i], bmp[i]->w, bmp[i]->h);
             }
         }
     }
