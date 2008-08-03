@@ -167,6 +167,13 @@ typedef double real64;
 
 
 
+/*!
+** \brief The hard limit for the number of players
+*/
+# define TA3D_PLAYERS_HARD_LIMIT   10
+
+
+
 namespace TA3D
 {
 

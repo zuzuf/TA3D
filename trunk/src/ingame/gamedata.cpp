@@ -18,15 +18,15 @@ namespace TA3D
         fog_of_war = FOW_DISABLED;
         game_script.clear();
 
-        player_names.resize(10);
-        player_sides.resize(10);
-        player_control.resize(10);
-        ai_level.resize(10);
-        energy.resize(10);
-        metal.resize(10);
-        ready.resize(10);
-        player_network_id.resize(10);
-        for( uint16 i = 0 ; i < 10 ; ++i)
+        player_names.resize(TA3D_PLAYERS_HARD_LIMIT);
+        player_sides.resize(TA3D_PLAYERS_HARD_LIMIT);
+        player_control.resize(TA3D_PLAYERS_HARD_LIMIT);
+        ai_level.resize(TA3D_PLAYERS_HARD_LIMIT);
+        energy.resize(TA3D_PLAYERS_HARD_LIMIT);
+        metal.resize(TA3D_PLAYERS_HARD_LIMIT);
+        ready.resize(TA3D_PLAYERS_HARD_LIMIT);
+        player_network_id.resize(TA3D_PLAYERS_HARD_LIMIT);
+        for (short int i = 0; i < TA3D_PLAYERS_HARD_LIMIT; ++i)
         {
             energy[i] = metal[i] = 10000;
             player_network_id[i] = -1;

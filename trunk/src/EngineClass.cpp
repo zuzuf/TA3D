@@ -40,10 +40,10 @@
 
 
 
-byte player_color_map[10] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
+byte player_color_map[TA3D_PLAYERS_HARD_LIMIT] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
 
 
-float	player_color[30]=
+float	player_color[TA3D_PLAYERS_HARD_LIMIT * 3]=
 {	0.11f,	0.28f,	0.91f,
     0.83f,	0.17f,	0.0f,
     1.0f,	1.0f,	1.0f,
@@ -156,7 +156,7 @@ namespace TA3D
         missiondescription.clear();
         numplayers.clear();
         map_size.clear();
-        for (short int i = 0; i < 10; ++i)
+        for (short int i = 0; i < TA3D_PLAYERS_HARD_LIMIT; ++i)
             startX[i] = startZ[i] = 0;
         tidalstrength = 0;
         solarstrength = 22;

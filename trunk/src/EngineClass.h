@@ -148,8 +148,8 @@ namespace TA3D
         String  map_size;
         int     SurfaceMetal;
         int	    MohoMetal;
-        int     startX[10];
-        int     startZ[10];
+        int     startX[TA3D_PLAYERS_HARD_LIMIT];
+        int     startZ[TA3D_PLAYERS_HARD_LIMIT];
         bool    waterdoesdamage;
         int	    waterdamage;
         bool    network;

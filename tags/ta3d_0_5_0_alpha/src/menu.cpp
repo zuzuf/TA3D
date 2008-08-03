@@ -569,6 +569,7 @@ void config_menu(void)
 
     GFX_MODE_LIST *mode_list = get_gfx_mode_list( GFX_OPENGL_FULLSCREEN );
 
+    if (mode_list)
     for( int i = 0 ; i < mode_list->num_modes ; ++i)
     {
         if( mode_list->mode[ i ].bpp == 32 )

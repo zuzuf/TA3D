@@ -33,9 +33,15 @@
 #define LOAD( i )	fread( &(i), sizeof( i ), 1, file )
 inline char *readstring( char *str, int limit, FILE *file )
 {
-    for( int f = 0 ; f < limit - 1 ; f++ )	{	str[f] = fgetc( file );	if( str[f] == 0 ) break;	}
+    for (int f = 0; f < limit - 1; ++f)
+    {
+        str[f] = fgetc(file);
+        if (str[f] == 0)
+            break;
+    }
     return str;
 }
+
 
 void save_game( const String filename, GameData *game_data )
 {
@@ -94,10 +100,10 @@ void save_game( const String filename, GameData *game_data )
         SAVE(*i);
 
     // Color map
-    for( int i = 0 ; i < 10 ; ++i)
-        SAVE( player_color_map[i] );
+    for (short int i = 0; i < TA3D_PLAYERS_HARD_LIMIT; ++i)
+        SAVE(player_color_map[i]);
 
-    for( int i = 0 ; i < 10 ; i++ )
+    for (short int i = 0; i < TA3D_PLAYERS_HARD_LIMIT; ++i)
     {
         SAVE( players.energy[i] );
         SAVE( players.metal[i] );
@@ -274,7 +280,8 @@ void save_game( const String filename, GameData *game_data )
         SAVE( units.unit[i].cur_metal_cons );
         SAVE( units.unit[i].cur_energy_prod );
         SAVE( units.unit[i].cur_energy_cons );
-        for( int f = 0 ; f < 3 ; f++ ) {
+        for (short int f = 0; f < 3; ++f)
+        {
             SAVE( units.unit[i].weapon[f].state );
             SAVE( units.unit[i].weapon[f].burst );
             SAVE( units.unit[i].weapon[f].stock );
@@ -322,8 +329,10 @@ void save_game( const String filename, GameData *game_data )
 
         SAVE( units.unit[i].command_locked );
 
-        for( MISSION *start = units.unit[i].mission ; true ; start = units.unit[i].def_mission ) {
-            for( MISSION *cur = start ; cur ; cur = cur->next ) {
+        for (MISSION *start = units.unit[i].mission; true; start = units.unit[i].def_mission)
+        {
+            for (MISSION *cur = start; cur; cur = cur->next)
+            {
                 fputc( 1, file );
                 SAVE( cur->mission );
                 SAVE( cur->target );
@@ -336,7 +345,8 @@ void save_game( const String filename, GameData *game_data )
                 SAVE( cur->move_data );
                 SAVE( cur->node );
 
-                for( PATH_NODE *path = cur->path ; path ; path = path->next ) {
+                for( PATH_NODE *path = cur->path; path ; path = path->next)
+                {
                     fputc( 1, file );
                     SAVE( path->x );
                     SAVE( path->y );
@@ -378,25 +388,28 @@ void save_game( const String filename, GameData *game_data )
                     case MISSION_WAIT:
                     case MISSION_WAIT_ATTACKED:
                         break;
-                };
+                }
 
             }
             fputc( 0, file );
             if( start == units.unit[i].def_mission )	break;
         }
 
-        for( int e = 0 ; e < units.unit[i].nb_running ; e++ ) {
+        for (int e = 0; e < units.unit[i].nb_running; ++e)
+        {
             SCRIPT_ENV *f = &((*units.unit[i].script_env)[e]);
             SAVE( f->wait );
             SAVE( f->running );
 
-            for( SCRIPT_STACK *stack = f->stack ; stack ; stack = stack->next ) {
+            for( SCRIPT_STACK *stack = f->stack ; stack ; stack = stack->next)
+            {
                 fputc( 1, file );
                 SAVE( stack->val );
             }
             fputc( 0, file );
 
-            for( SCRIPT_ENV_STACK *stack = f->env ; stack ; stack = stack->next ) {
+            for (SCRIPT_ENV_STACK *stack = f->env; stack; stack = stack->next)
+            {
                 fputc( 1, file );
                 SAVE( stack->cur );
                 SAVE( stack->signal_mask );
@@ -436,7 +449,8 @@ void load_game_data( const String filename, GameData *game_data )
     tmp[8] = 0;
 
     fread( tmp, 8, 1, file );
-    if( strcmp( tmp, "TA3D SAV" ) )	{			// Check format identifier
+    if (strcmp(tmp, "TA3D SAV"))// Check format identifier
+    {
         fclose( file );
         return;
     }
@@ -480,12 +494,12 @@ void load_game_data( const String filename, GameData *game_data )
     for (std::vector<uint32>::iterator i = game_data->metal.begin(); i != game_data->metal.end(); ++i)
         LOAD(*i);
 
-    for( int i = 0 ; i < 10 ; i++ )
+    for (short int i = 0; i < TA3D_PLAYERS_HARD_LIMIT; ++i)
         LOAD( player_color_map[i] );
 
     game_data->saved_file = filename;
 
-    fclose( file );
+    fclose(file);
 }
 
 void load_game( GameData *game_data )
@@ -539,10 +553,10 @@ void load_game( GameData *game_data )
         LOAD(*i);
 
 
-    for( int i = 0 ; i < 10 ; i++ )
+    for (short int i = 0; i < TA3D_PLAYERS_HARD_LIMIT; ++i)
         LOAD( player_color_map[i] );
 
-    for( int i = 0 ; i < 10 ; i++ )
+    for (short int i = 0; i < TA3D_PLAYERS_HARD_LIMIT; ++i)
     {
         LOAD( players.energy[i] );
         LOAD( players.metal[i] );
@@ -589,7 +603,7 @@ void load_game( GameData *game_data )
     LOAD( features.max_features );
 
     features.feature = new FEATURE_DATA[features.max_features];
-    for (int i = features.nb_features-1 ; i < features.max_features ; ++i)
+    for (int i = features.nb_features - 1; i < features.max_features; ++i)
     {
         features.feature[i].type = -1;
         features.feature[i].shadow_dlist = 0;
@@ -597,7 +611,7 @@ void load_game( GameData *game_data )
     }
     features.resetListOfItemsToDisplay();
 
-    for( int i = 0 ; i < features.max_features ; i++ )
+    for (int i = 0 ; i < features.max_features ; ++i)
     {
         LOAD( features.feature[i].type );
         if( features.feature[i].type >= 0 )
@@ -696,7 +710,7 @@ void load_game( GameData *game_data )
 
     //----- Load unit information --------------------------------------------------------------
 
-    units.destroy( false );
+    units.destroy(false);
 
     LOAD( units.nb_unit );
     LOAD( units.max_unit );
@@ -724,9 +738,9 @@ void load_game( GameData *game_data )
     units.idx_list = new uint16[units.max_unit];
     units.free_idx = new uint16[units.max_unit];
 
-    for(uint16 i = 0; i<10;i++)
+    for (short int i = 0; i < 10; ++i)
         units.free_index_size[i] = 0;
-    for(int i = 0 ; i < units.max_unit ; ++i)
+    for(int i = 0 ; i < units.max_unit; ++i)
     {
         units.unit[i].init(-1,-1,true);
         units.unit[i].flags = 0;
@@ -800,7 +814,7 @@ void load_game( GameData *game_data )
         LOAD( units.unit[i].cur_metal_cons );
         LOAD( units.unit[i].cur_energy_prod );
         LOAD( units.unit[i].cur_energy_cons );
-        for( int f = 0 ; f < 3 ; f++ )
+        for (short int f = 0; f < 3; ++f)
         {
             LOAD( units.unit[i].weapon[f].state );
             LOAD( units.unit[i].weapon[f].burst );

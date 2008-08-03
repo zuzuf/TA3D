@@ -172,11 +172,11 @@ void UNIT::init_alloc_data()
     port = new sint16[21];				// Ports
     script_env = new std::vector< SCRIPT_ENV >;	// Environnements des scripts
     script_val = new std::vector<short>;	// Tableau de valeurs retournées par les scripts
-    memory = new int[10];				// Pour se rappeler sur quelles armes on a déjà tiré
+    memory = new int[TA3D_PLAYERS_HARD_LIMIT];				// Pour se rappeler sur quelles armes on a déjà tiré
     script_idx = new char[NB_SCRIPT];	// Index of scripts to prevent multiple search
     attached_list = new short[20];
     link_list = new short[20];
-    last_synctick = new uint32[10];
+    last_synctick = new uint32[TA3D_PLAYERS_HARD_LIMIT];
 }
 
 
@@ -4731,7 +4731,7 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
                            && ((Vector3D)(weapons.weapon[i].Pos-Pos)).sq()<=range)
                         {
                             int idx=-1;
-                            for(e=0;e<mem_size;e++)
+                            for (e = 0; e < mem_size; ++e)
                             {
                                 if (memory[e] == i)
                                 {
@@ -4739,10 +4739,10 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
                                     break;
                                 }
                             }
-                            if (idx==-1)
+                            if (idx == -1)
                             {
                                 enemy_idx=i;
-                                if (mem_size < 10)
+                                if (mem_size < TA3D_PLAYERS_HARD_LIMIT)
                                 {
                                     memory[mem_size]=i;
                                     mem_size++;
@@ -5513,7 +5513,7 @@ void INGAME_UNITS::init(bool register_interface)
     mini_col = NULL;
     requests.clear();
     repair_pads.clear();
-    repair_pads.resize(10);
+    repair_pads.resize(TA3D_PLAYERS_HARD_LIMIT);
 
     last_on = -1;
     current_tick = 0;
@@ -5547,7 +5547,8 @@ void INGAME_UNITS::init(bool register_interface)
 
     sound_min_ticks = 500;
     index_list_size=0;
-    for(int i=0;i<10;i++)	free_index_size[i]=0;
+    for (short int i = 0; i < TA3D_PLAYERS_HARD_LIMIT; ++i)
+        free_index_size[i] = 0;
     idx_list=free_idx=NULL;
     page=0;
     nb_unit=0;
@@ -6450,17 +6451,17 @@ void INGAME_UNITS::move(float dt,MAP *map,int key_frame,bool wind_change)
 
     players.clear();		// Réinitialise le compteur de ressources
 
-    if (requests.empty() )
-        requests.resize( 10 );
+    if (requests.empty())
+        requests.resize(TA3D_PLAYERS_HARD_LIMIT);
 
-    int pathfinder_calls[ 10 ];
+    int pathfinder_calls[TA3D_PLAYERS_HARD_LIMIT];
 
-    for( int i = 0 ; i < 10 ; i++ )
-        pathfinder_calls[ i ] = requests[ i ].empty() ? -1 : requests[ i ].front();
+    for (short int i = 0; i < TA3D_PLAYERS_HARD_LIMIT; ++i)
+        pathfinder_calls[i] = requests[i].empty() ? -1 : requests[i].front();
 
     uint32 i;
     pMutex.lock();
-    for ( uint16 e = 0 ; e < index_list_size ; ++e) // Compte les stocks de ressources et les productions
+    for (uint16 e = 0; e < index_list_size; ++e) // Compte les stocks de ressources et les productions
     {
         i = idx_list[e];
         pMutex.unlock();
@@ -6636,10 +6637,10 @@ void INGAME_UNITS::move(float dt,MAP *map,int key_frame,bool wind_change)
                 players.c_energy[i]=players.c_energy_s[i];
     }
 
-    for( int i = 0 ; i < 10 ; ++i)
+    for (short int i = 0; i < TA3D_PLAYERS_HARD_LIMIT; ++i)
     {
-        if (!requests[ i ].empty() && pathfinder_calls[ i ] == requests[ i ].front())
-            requests[ i ].pop_front();
+        if (!requests[i].empty() && pathfinder_calls[i] == requests[i].front())
+            requests[i].pop_front();
     }
 
     players.refresh();
@@ -6684,9 +6685,10 @@ int INGAME_UNITS::create(int type_id,int owner)
         free_idx = n_new_idx;
         for(uint16 i = 0; i<max_unit;i++)
             free_idx[i] = i;
-        for(uint16 i = 0; i<10;i++)
+        for (short int i = 0; i < TA3D_PLAYERS_HARD_LIMIT; ++i)
             free_index_size[i] = MAX_UNIT_PER_PLAYER;
-        for(int i=0;i<max_unit;i++) {
+        for (int i = 0; i < max_unit; ++i)
+        {
             n_unit[i].init(-1,-1,i>=nb_unit-1);
             n_unit[i].flags=0;
             n_unit[i].idx=i;
@@ -6743,15 +6745,15 @@ void INGAME_UNITS::draw_mini(float map_w,float map_h,int mini_w,int mini_h,SECTO
     int b_h=(int)map_h>>3;
     int nb = 0;
 
-    uint32 player_col_32[ 10 ];
-    uint32 player_col_32_h[ 10 ];
-    for (sint8 i = 0 ; i < players.nb_player ; ++i)
+    uint32 player_col_32[TA3D_PLAYERS_HARD_LIMIT];
+    uint32 player_col_32_h[TA3D_PLAYERS_HARD_LIMIT];
+    for (short int i = 0; i < players.nb_player; ++i)
     {
-        player_col_32[ i ] =  makeacol( (int)(player_color[ player_color_map[ i ] * 3 ] * 255.0f),
+        player_col_32[i] =  makeacol( (int)(player_color[ player_color_map[ i ] * 3 ] * 255.0f),
                                         (int)(player_color[ player_color_map[ i ] * 3 + 1 ] * 255.0f),
                                         (int)(player_color[ player_color_map[ i ] * 3 + 2 ] * 255.0f),
                                         i );
-        player_col_32_h[ i ] =  makeacol( (int)(player_color[ player_color_map[ i ] * 3 ] * 127.5f),
+        player_col_32_h[i] =  makeacol( (int)(player_color[ player_color_map[ i ] * 3 ] * 127.5f),
                                           (int)(player_color[ player_color_map[ i ] * 3 + 1 ] * 127.5f),
                                           (int)(player_color[ player_color_map[ i ] * 3 + 2 ] * 127.5f),
                                           i );
@@ -7184,7 +7186,7 @@ void INGAME_UNITS::remove_order(int player_id,Vector3D target)
         float step = 1.0f;
         if (lp_CONFIG->timefactor > 0.0f )	step = 1.0f / lp_CONFIG->timefactor;
         current_tick = 0;
-        for( int i = 0 ; i < 10 ; i++ )
+        for (short int i = 0; i < TA3D_PLAYERS_HARD_LIMIT; ++i)
             client_tick[i] = client_speed[i] = 0;
         apparent_timefactor = lp_CONFIG->timefactor;
 
@@ -7263,7 +7265,7 @@ void INGAME_UNITS::remove_order(int player_id,Vector3D target)
             while( lp_CONFIG->pause && !thread_ask_to_stop )
             {
                 lp_CONFIG->paused = true;
-                rest( 10 );			// in pause mode wait for pause to be false again
+                rest(10); // in pause mode wait for pause to be false again
             }
             lp_CONFIG->paused = false;
 

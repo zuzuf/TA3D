@@ -648,7 +648,7 @@ void setup_game(bool client, const char *host)
     }
     game_data.fog_of_war = lp_CONFIG->last_FOW;
 
-    for (short int i = 0; i < 10; ++i)
+    for (short int i = 0; i < TA3D_PLAYERS_HARD_LIMIT; ++i)
     {
         game_data.player_names[i] = player_str[2];
         game_data.player_sides[i] = side_str[0];
@@ -684,7 +684,7 @@ void setup_game(bool client, const char *host)
     setupgame_area.load_tdf("gui/setupgame.area");
     if (!setupgame_area.background)
         setupgame_area.background = gfx->glfond;
-    for (short int i = 0; i < 10; ++i)
+    for (short int i = 0; i < TA3D_PLAYERS_HARD_LIMIT; ++i)
     {
         setupgame_area.set_caption( format("gamesetup.name%d", i), game_data.player_names[i]);
         setupgame_area.set_caption( format("gamesetup.side%d", i), game_data.player_sides[i]);
@@ -753,10 +753,10 @@ void setup_game(bool client, const char *host)
     }
 
     if (!host)
-        for (short int i = 0; i < 10; ++i)
+        for (short int i = 0; i < TA3D_PLAYERS_HARD_LIMIT; ++i)
             setupgame_area.msg(format("gamesetup.ready%d.hide",i));
-    uint32 player_timer[10];
-    for (short int i = 0; i < 10; ++i)
+    uint32 player_timer[TA3D_PLAYERS_HARD_LIMIT];
+    for (short int i = 0; i < TA3D_PLAYERS_HARD_LIMIT; ++i)
         player_timer[i] = msec_timer;
 
     bool done = false;
@@ -790,7 +790,7 @@ void setup_game(bool client, const char *host)
     do
     {
         if (host)
-            for (short int i = 0; i < 10; ++i)
+            for (short int i = 0; i < TA3D_PLAYERS_HARD_LIMIT; ++i)
             {
                 GUIOBJ *obj = setupgame_area.get_object(format("gamesetup.ready%d",i));
                 if (obj)
@@ -848,7 +848,7 @@ void setup_game(bool client, const char *host)
         {
             internet_ad_timer = msec_timer; // Resend every 150 sec
             uint16 nb_open = 0;
-            for (short int f = 0; f < 10; ++f)
+            for (short int f = 0; f < TA3D_PLAYERS_HARD_LIMIT; ++f)
                 if (setupgame_area.get_caption(format("gamesetup.name%d", f)) == player_str[2]) 
                     ++nb_open;
             network_manager.registerToNetServer( host, nb_open);
@@ -859,12 +859,14 @@ void setup_game(bool client, const char *host)
             network_manager.sendPing();
             ping_timer = msec_timer;
 
-            for (short int i = 0; i < 10; ++i) // ping time out
-                if (game_data.player_network_id[i] > 0 && msec_timer - player_timer[ i ] > 10000)
+            for (short int i = 0; i < TA3D_PLAYERS_HARD_LIMIT; ++i) // ping time out
+            {
+                if (game_data.player_network_id[i] > 0 && msec_timer - player_timer[i] > 10000)
                 {
                     network_manager.dropPlayer(game_data.player_network_id[i]);
                     playerDropped = true;
                 }
+            }
         }
 
         if (network_manager.getFileTransferProgress() != 100.0f)
@@ -887,7 +889,7 @@ void setup_game(bool client, const char *host)
 
         if (playerDropped)
         {
-            for (short int i = 0; i < 10; ++i)
+            for (short int i = 0; i < TA3D_PLAYERS_HARD_LIMIT; ++i)
             {
                 if (game_data.player_network_id[i] > 0 && !network_manager.pollPlayer( game_data.player_network_id[i]))
                 {
@@ -936,7 +938,7 @@ void setup_game(bool client, const char *host)
                         {
                             if (params[1] == "GameData") // Sending game information
                             {
-                                for (short int i = 0; i < 10; ++i) // Send player information
+                                for (short int i = 0; i < TA3D_PLAYERS_HARD_LIMIT; ++i) // Send player information
                                 {
                                     if (client && game_data.player_network_id[i] != my_player_id )  continue;       // We don't send updates about things we wan't update
                                     String msg;                             // SYNTAX: PLAYER_INFO player_id network_id side_id ai_level metal energy player_name
@@ -950,7 +952,7 @@ void setup_game(bool client, const char *host)
                                 if (!client)  // Send server to client specific information (player colors, map name, ...)
                                 {
                                     String msg("PLAYERCOLORMAP");
-                                    for (short int i = 0; i < 10; ++i)
+                                    for (short int i = 0; i < TA3D_PLAYERS_HARD_LIMIT; ++i)
                                         msg += format(" %d", player_color_map[i]);
                                     network_manager.sendSpecial( msg, -1, from);
 
@@ -972,7 +974,8 @@ void setup_game(bool client, const char *host)
                                 {
                                     network_manager.dropPlayer( from);
                                     network_manager.sendSpecial( "REQUEST GameData");           // We're told there are things to update, so ask for update
-                                    for (short int i = 0; i < 10; ++i)
+                                    for (short int i = 0; i < TA3D_PLAYERS_HARD_LIMIT; ++i)
+                                    {
                                         if (game_data.player_network_id[i] == from)
                                         {
                                             game_data.player_network_id[i] = -1;
@@ -986,6 +989,7 @@ void setup_game(bool client, const char *host)
                                                 guiobj->Flag |= FLAG_HIDDEN;
                                             break;
                                         }
+                                    }
                                 }
                                 else
                                 {
@@ -1007,12 +1011,14 @@ void setup_game(bool client, const char *host)
                             if (params[1] == "NEW_PLAYER") // Add new player
                             {
                                 int slot = -1;
-                                for (short int i = 0; i < 10; ++i)
+                                for (short int i = 0; i < TA3D_PLAYERS_HARD_LIMIT; ++i)
+                                {
                                     if (game_data.player_control[i] == PLAYER_CONTROL_NONE)
                                     {
                                         slot = i;
                                         break;
                                     }
+                                }
                                 if (slot >= 0)
                                 {
                                     player_timer[ slot ] = msec_timer;              // If we forget this, player will be droped immediately
@@ -1038,14 +1044,14 @@ void setup_game(bool client, const char *host)
                                 {
                                     sint16 e = player_color_map[i];
                                     sint16 f = -1;
-                                    for (short int g = 0; g < 10 ; ++g) // Look for the next color
+                                    for (short int g = 0; g < TA3D_PLAYERS_HARD_LIMIT; ++g) // Look for the next color
                                     {
                                         if ((game_data.player_control[g] == PLAYER_CONTROL_NONE || game_data.player_control[g] == PLAYER_CONTROL_CLOSED) && player_color_map[g] > e && (f == -1 || player_color_map[g] < player_color_map[f]) )
                                             f = g;
                                     }
                                     if (f == -1)
                                     {
-                                        for (short int g = 0; g < 10; ++g)
+                                        for (short int g = 0; g < TA3D_PLAYERS_HARD_LIMIT; ++g)
                                         {
                                             if ((game_data.player_control[g] == PLAYER_CONTROL_NONE || game_data.player_control[g] == PLAYER_CONTROL_CLOSED) && (f == -1 || player_color_map[g] < player_color_map[f]) )
                                                 f = g;
@@ -1120,7 +1126,7 @@ void setup_game(bool client, const char *host)
                         {
                             int i = params[1].toInt32();
                             int n_id = params[2].toInt32();
-                            if (i >= 0 && i < 10 && (client || from == n_id)) // Server doesn't accept someone telling him what to do
+                            if (i >= 0 && i < TA3D_PLAYERS_HARD_LIMIT && (client || from == n_id)) // Server doesn't accept someone telling him what to do
                             {
                                 int side_id  = params[3].toInt32();
                                 int ai_level = params[4].toInt32();
@@ -1134,9 +1140,9 @@ void setup_game(bool client, const char *host)
                                 game_data.energy[i] = energy_q;
                                 game_data.player_names[i] = ReplaceChar( params[7], 1, ' ');
                                 game_data.ready[i] = ready;
-                                if (n_id < 0 && ai_level >= 0 )
+                                if (n_id < 0 && ai_level >= 0)
                                     game_data.player_control[i] = PLAYER_CONTROL_REMOTE_AI;     // AIs are on the server, no need to replicate them
-                                else if (n_id < 0 && ai_level < 0 )
+                                else if (n_id < 0 && ai_level < 0)
                                     game_data.player_control[i] = PLAYER_CONTROL_NONE;
                                 else
                                     game_data.player_control[i] = (n_id == my_player_id) ? PLAYER_CONTROL_LOCAL_HUMAN : PLAYER_CONTROL_REMOTE_HUMAN;
@@ -1167,11 +1173,11 @@ void setup_game(bool client, const char *host)
                     else if (params.size() == 11 ) {
                         if (params[0] == "PLAYERCOLORMAP")
                         {
-                            for (short int i = 0; i < 10; ++i)
+                            for (short int i = 0; i < TA3D_PLAYERS_HARD_LIMIT; ++i)
                             {
                                 player_color_map[i] = params[i + 1].toInt32();
                                 GUIOBJ *guiobj =  setupgame_area.get_object( format("gamesetup.color%d", i));
-                                if (guiobj )
+                                if (guiobj)
                                     guiobj->Data = gfx->makeintcol(player_color[player_color_map[i]*3],player_color[player_color_map[i]*3+1],player_color[player_color_map[i]*3+2]);            // Update gui
                             }
                         }
@@ -1221,7 +1227,7 @@ void setup_game(bool client, const char *host)
                 if (params[2] == "LIST" && host ) // Sending information about this server
                 {
                     uint16 nb_open = 0;
-                    for (short int f = 0; f < 10; ++f)
+                    for (short int f = 0; f < TA3D_PLAYERS_HARD_LIMIT; ++f)
                     {
                         if (setupgame_area.get_caption(format("gamesetup.name%d", f)) == player_str[2]) 
                             ++nb_open;
@@ -1295,7 +1301,7 @@ void setup_game(bool client, const char *host)
         {
             bool ready = true;
             if (host )
-                for( int i = 0 ; i < 10 ; i++ )
+                for( int i = 0 ; i < TA3D_PLAYERS_HARD_LIMIT; i++ )
                     if (game_data.player_control[i] == PLAYER_CONTROL_LOCAL_HUMAN || game_data.player_control[i] == PLAYER_CONTROL_REMOTE_HUMAN )
                         ready &= game_data.ready[i];
 
@@ -1315,7 +1321,7 @@ void setup_game(bool client, const char *host)
         if (setupgame_area.get_state("gamesetup.b_cancel"))
             done=true;      // En cas de click sur "retour", on quitte la fenêtre
 
-        for (short int i = 0; i < 10; ++i)
+        for (short int i = 0; i < TA3D_PLAYERS_HARD_LIMIT; ++i)
         {
             if (setupgame_area.get_state( format("gamesetup.ready%d", i)) != game_data.ready[i])
             {
@@ -1349,7 +1355,7 @@ void setup_game(bool client, const char *host)
 
                 if (player_control[e] == PLAYER_CONTROL_LOCAL_HUMAN)// We can only have one local human player ( or it crashes )
                 {
-                    for (short int f = 0; f < 10; ++f)
+                    for (short int f = 0; f < TA3D_PLAYERS_HARD_LIMIT; ++f)
                     {
                         if (f!= i && game_data.player_control[f] == PLAYER_CONTROL_LOCAL_HUMAN) // If we already have a local human player pass this player type value
                         {
@@ -1413,7 +1419,7 @@ void setup_game(bool client, const char *host)
                     network_manager.sendSpecial(format("NOTIFY COLORCHANGE %d", i));
                 sint16 e = player_color_map[i];
                 sint16 f = -1;
-                for (short int g = 0; g < 10; ++g) // Look for the next color
+                for (short int g = 0; g < TA3D_PLAYERS_HARD_LIMIT; ++g) // Look for the next color
                 {
                     if ((game_data.player_control[g] == PLAYER_CONTROL_NONE || game_data.player_control[g] == PLAYER_CONTROL_CLOSED)
                         && player_color_map[g] > e && (f == -1 || player_color_map[g] < player_color_map[f]) )
@@ -1423,7 +1429,7 @@ void setup_game(bool client, const char *host)
                 }
                 if (f == -1 )
                 {
-                    for (short int g = 0; g < 10; ++g)
+                    for (short int g = 0; g < TA3D_PLAYERS_HARD_LIMIT; ++g)
                     {
                         if ((game_data.player_control[g] == PLAYER_CONTROL_NONE || game_data.player_control[g] == PLAYER_CONTROL_CLOSED) && (f == -1 || player_color_map[g] < player_color_map[f]))
                             f = g;
@@ -1488,7 +1494,7 @@ void setup_game(bool client, const char *host)
                 String newMapName;
                 Menus::MapSelector::Execute(game_data.map_filename, newMapName);
                 new_map = newMapName;
-                for (short int i = 0; i < 10; ++i)
+                for (short int i = 0; i < TA3D_PLAYERS_HARD_LIMIT; ++i)
                     player_timer[i] = msec_timer;
                 setupgame_area.msg("popup.hide");
             }
@@ -1594,7 +1600,7 @@ void setup_game(bool client, const char *host)
             lp_CONFIG->last_FOW = game_data.fog_of_war;
 
             game_data.nb_players = 0;
-            for (short int i = 0; i < 10 ; ++i) // Move players to the top of the vector, so it's easier to access data
+            for (short int i = 0; i < TA3D_PLAYERS_HARD_LIMIT; ++i) // Move players to the top of the vector, so it's easier to access data
             {
                 if (game_data.player_control[i] != PLAYER_CONTROL_NONE && game_data.player_control[i] != PLAYER_CONTROL_CLOSED )
                 {
@@ -2407,10 +2413,10 @@ void wait_room(void *p_game_data)
     if (!wait_area.background)
         wait_area.background = gfx->glfond;
 
-    bool dead_player[10];
-    uint32 player_timer[10];
+    bool dead_player[TA3D_PLAYERS_HARD_LIMIT];
+    uint32 player_timer[TA3D_PLAYERS_HARD_LIMIT];
 
-    for (short int i = game_data->nb_players; i < 10; ++i)
+    for (short int i = game_data->nb_players; i < TA3D_PLAYERS_HARD_LIMIT; ++i)
     {
         dead_player[i] = true;
         wait_area.msg(format("wait.name%d.hide",i));
