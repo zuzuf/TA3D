@@ -88,7 +88,6 @@ namespace TA3D
                     }
                 }
             }
-            gaf_font.destroy();					// Destroy the gaf data, we don't need this any more
             delete[] data;
             pAl = (FONT*) malloc( sizeof(FONT));
             pAl->data = fc;

@@ -302,7 +302,7 @@ namespace
                     m_File << "    name=" << anims.anm[i].name << ";\n";
                     for( int e = 0 ; e < anims.anm[i].nb_bmp ; e++ )
                     {
-                        String filename = format("%s%d.tga", anims.anm[i].name, e );
+                        String filename = format("%s%d.tga", anims.anm[i].name.c_str(), e);
                         m_File << "    [frame" << e << "]\n    {\n";
                         m_File << "        XPos=" << anims.anm[i].ofs_x[ e ] << ";\n";
                         m_File << "        YPos=" << anims.anm[i].ofs_y[ e ] << ";\n";

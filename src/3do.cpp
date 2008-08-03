@@ -56,11 +56,7 @@ namespace TA3D
     void TEXTURE_MANAGER::destroy()
     {
         if (tex)
-        {
-            for (int i=0; i < nbtex; ++i)
-                tex[i].destroy();
             delete[] tex;
-        }
         init();
     }
 
