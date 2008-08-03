@@ -70,8 +70,8 @@ extern int jpgalleg_init(void);
 
 extern BITMAP *load_jpg(AL_CONST char *filename, RGB *palette);
 extern BITMAP *load_jpg_ex(AL_CONST char *filename, RGB *palette, void (*callback)(int progress));
-extern BITMAP *load_memory_jpg(void *buffer, int size, RGB *palette);
-extern BITMAP *load_memory_jpg_ex(void *buffer, int size, RGB *palette, void (*callback)(int progress));
+extern BITMAP *load_memory_jpg(const void *buffer, int size, RGB *palette);
+extern BITMAP *load_memory_jpg_ex(const void *buffer, int size, RGB *palette, void (*callback)(int progress));
 
 extern int save_jpg(AL_CONST char *filename, BITMAP *image, AL_CONST RGB *palette);
 extern int save_jpg_ex(AL_CONST char *filename, BITMAP *image, AL_CONST RGB *palette, int quality, int flags, void (*callback)(int progress));
