@@ -170,7 +170,7 @@ load_jpg_ex(AL_CONST char *filename, RGB *palette, void (*callback)(int progress
  *  callback.
  */
 BITMAP *
-load_memory_jpg(void *buffer, int size, RGB *palette)
+load_memory_jpg(const void *buffer, int size, RGB *palette)
 {
 	return load_memory_jpg_ex(buffer, size, palette, NULL);
 }
@@ -180,7 +180,7 @@ load_memory_jpg(void *buffer, int size, RGB *palette)
  *  Loads a JPG image from a memory buffer into a BITMAP.
  */
 BITMAP *
-load_memory_jpg_ex(void *buffer, int size, RGB *palette, void (*callback)(int progress))
+load_memory_jpg_ex(const void *buffer, int size, RGB *palette, void (*callback)(int progress))
 {
 	BITMAP *bmp;
 	PALETTE pal;
