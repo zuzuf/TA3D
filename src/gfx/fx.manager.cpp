@@ -20,7 +20,7 @@ namespace TA3D
 
         MutexLocker locker(pMutex);
 
-        if(nb_fx+1>max_fx)
+        if (nb_fx + 1 > max_fx)
         {
             max_fx++;
             fx.resize( max_fx );
@@ -28,7 +28,7 @@ namespace TA3D
         ++nb_fx;
         int idx = -1;
 
-        for(int i = 0;i < max_fx; ++i)
+        for (int i = 0; i < max_fx; ++i)
         {
             if(!fx[i].playing)
             {
@@ -38,25 +38,23 @@ namespace TA3D
         }
         
         String tmp("anims\\");
-        tmp += filename;
-        tmp += ".gaf";
+        tmp << filename << ".gaf";
 
         String fullname(tmp);
-        fullname += "-";
-        fullname += entryName;
+        fullname << "-" << entryName;
 
         int anm_idx = findInCache((char*)fullname.c_str());
-        if(anm_idx == -1)
+        if (anm_idx == -1)
         {
             byte *data;
-            if(strcasecmp(filename.c_str(),"fx"))
+            if (strcasecmp(filename.c_str(),"fx"))
                 data = HPIManager->PullFromHPI(tmp);
             else
                 data = fx_data;
-            if(data)
+            if (data)
             {
                 ANIM *anm = new ANIM();
-                anm->load_gaf(data,get_gaf_entry_index(data, entryName.c_str()));
+                anm->load_gaf(data, Gaf::RawDataGetEntryIndex(data, entryName.c_str()));
                 // Next line has been removed in order to remain thread safe, conversion is done in main thread
                 //			anm->convert(false,true);
                 pCacheIsDirty = true;				// Set cache as dirty so we will do conversion at draw time

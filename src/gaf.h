@@ -36,54 +36,159 @@
 namespace TA3D
 {
 
-    struct GAFHEADER
+    class Gaf
     {
-        int		IDVersion;	/* Version stamp - always 0x00010100 */ // 0x00010101 is used for truecolor mode
-        int		Entries;	/* Number of items contained in this file */
-        int		Unknown1;	/* Always 0 */
-    };
+    public:
+        /*!
+        ** \brief Header of a Gaf file
+        */
+        struct Header 
+        {
+            //! \name Constructors
+            //@{
+            //! Default constructor
+            Header() :IDVersion(0), Entries(0), Unknown1(0) {}
+            /*!
+            ** \brief Constructor with RAW data (assuming data is the begining of the file)
+            */
+            Header(const byte* data)
+                :IDVersion(((sint32*)data)[0]), Entries(((sint32*)data)[1]), Unknown1(((sint32*)data)[2])
+            {}
+            /*!
+            ** \brief Constructor
+            */
+            Header(const sint32 v, const sint32 e, const sint32 u)
+                :IDVersion(v), Entries(e), Unknown1(u)
+            {}
+            //@}
 
-    struct GAFENTRY
-    {
-        short	Frames;		/* Number of frames in this entry */
-        short	Unknown1;	/* Unknown - always 1 */
-        int		Unknown2;	/* Unknown - always 0 */
-        char	Name[32];	/* Name of the entry */
-    };
+            //! Version stamp - always 0x00010100 */ // 0x00010101 is used for truecolor mode
+            sint32 IDVersion;
+            //! Number of items contained in this file
+            sint32 Entries;
+            //! Always equals to 0
+            sint32 Unknown1;
+        };
 
-    struct GAFFRAMEENTRY
-    {
-        int		PtrFrameTable;	/* Pointer to frame data */
-        int		Unknown1;		/* Unknown - varies */
-    };
 
-    struct GAFFRAMEDATA
-    {
-        short	Width;			/* Width of the frame */
-        short	Height;			/* Height of the frame */
-        short	XPos;			/* X offset */
-        short	YPos;			/* Y offset */
-        char	Transparency;	/* Transparency color for uncompressed images - always 9 */	// In truecolor mode : alpha channel present
-        char	Compressed;		/* Compression flag */	// Useless in truecolor mode
-        short	FramePointers;	/* Count of subframes */
-        int		Unknown2;		/* Unknown - always 0 */
-        int		PtrFrameData;	/* Pointer to pixels or subframes */
-        int		Unknown3;		/* Unknown - value varies */
-    };
+        /*!
+        ** \brief A single entry in a Gaf file
+        */
+        struct Entry
+        {
+            //! \name Constructors
+            //@{
+            //! Default constructor
+            Entry() :Frames(0), Unknown1(1), Unknown2(0) {}
+            //@}
 
-    int get_gaf_nb_entry(byte *buf);
+            //! Number of frames in this entry
+            sint16 Frames;
+            //! Unknown - always 1
+            sint16 Unknown1;
+            //! Unknown - always 0
+            sint32 Unknown2;
+            //! Name of the entry
+            String name;
+        };
 
-    char *get_gaf_entry_name(byte *buf,int entry_idx);
 
-    int get_gaf_entry_index(byte *buf,const String &name);
+        struct Frame
+        {
+            /*!
+            ** \brief A single frame entry
+            */
+            struct Entry 
+            {
+                //! Pointer to frame data
+                sint32 PtrFrameTable;
+                //! Unknown - varies
+                sint32 Unknown1;
+            };
 
-    int get_gaf_nb_img(byte *buf,int entry_idx);
 
-    BITMAP *read_gaf_img(byte *buf,int entry_idx,int img_idx,short *ofs_x=NULL,short *ofs_y=NULL,bool truecol=true);			// Lit une image d'un fichier gaf en mémoire
+            /*!
+            ** \brief Data for a single frame
+            */
+            struct Data
+            {
+                //! Constructors
+                //@{
+                //! Default constructor
+                Data();
+                //! Constructor from RAW data
+                Data(const byte* data, int pos);
+                //@}
 
-    GLuint	read_gaf_img( const String &filename, const String &imgname, int *w=NULL, int *h=NULL,bool truecol=true);		// Read a gaf image and put it in an OpenGL texture
+                //! Width of the frame
+                sint16 Width;
+                //! Height of the frame
+                sint16 Height;
+                //! X offset
+                sint16 XPos;
+                //! Y offset
+                sint16 YPos;
+                //! Transparency color for uncompressed images - always 9
+                //! In truecolor mode : alpha channel present
+                sint8 Transparency;
+                //! Compression flag - Useless in truecolor mode
+                sint8 Compressed;
+                //! Count of subframes
+                sint16 FramePointers;
+                //! Unknown - always 0
+                sint32  Unknown2;
+                //! Pointer to pixels or subframes
+                sint32  PtrFrameData;
+                //! Unknown - value varies
+                sint32  Unknown3;
 
-    std::vector< GLuint >	read_gaf_imgs( const String &filename, const String &imgname, int *w=NULL, int *h=NULL,bool truecol=true);		// Read a gaf image and put it in an OpenGL texture
+            }; // class Data
+
+        }; // class Frame
+
+
+    public:
+        /*!
+        ** \brief
+        */
+        static GLuint ToTexture(const String& filename, const String& imgname, int* w = NULL, int* h = NULL, const bool truecolor = true);
+
+        /*!
+        ** \brief Convert all Gaf images into OpenGL textures
+        **
+        ** \param[out] out The list of OpenGL textures
+        ** \param filename The Gaf filename
+        ** \param imgname
+        ** \param[out] w The width of the image
+        ** \param[out] h The height of the image
+        ** \param truecolor
+        */
+        static void ToTexturesList(std::vector<GLuint>& out, const String& filename, const String &imgname,
+                                   int* w = NULL, int* h = NULL, const bool truecolor = true);
+
+        /*!
+        ** \brief Load a GAF image into a Bitmap
+        */
+        static BITMAP* RawDataToBitmap(const byte* buf, const sint32 entry_idx, const sint32 img_idx, short* ofs_x = NULL, short* ofs_y = NULL, const bool truecolor = true);			// Lit une image d'un fichier gaf en mémoire
+
+        /*!
+        ** \brief Get the number of entries from raw data
+        ** \see Gaf::Header
+        */
+        static sint32 RawDataEntriesCount(const byte* buf) {return ((sint32*)buf)[1];}
+
+        static String RawDataGetEntryName(const byte* buf,int entry_idx);
+
+        static sint32 RawDataGetEntryIndex(const byte *buf, const String& name);
+
+        static sint32 RawDataImageCount(const byte *buf, const int entry_idx);
+
+
+
+    }; // class Gaf
+
+
+
 
 
     /*!
@@ -92,7 +197,7 @@ namespace TA3D
     class ANIM
     {
     public:
-        int		nb_bmp;
+        sint32 nb_bmp;
         BITMAP	**bmp;
         short	*ofs_x;
         short	*ofs_y;
@@ -109,7 +214,7 @@ namespace TA3D
         void init();
         void destroy();
 
-        void load_gaf(byte *buf,int entry_idx = 0, bool truecol = true, const String& fname = "");
+        void load_gaf(const byte *buf, const int entry_idx = 0, const bool truecolor = true, const String& fname = "");
 
         void convert(bool NO_FILTER = false, bool COMPRESSED = false);
 
@@ -146,14 +251,13 @@ namespace TA3D
             destroy();
         }
 
-        void load_gaf( byte *buf, bool doConvert=false, const String& fname = "")
+        void load_gaf(const byte* buf, const bool doConvert = false, const String& fname = "")
         {
-            if( buf == NULL )	return;
+            if (buf == NULL)
+                return;
 
-            nb_anim = get_gaf_nb_entry(buf);
-
+            nb_anim = Gaf::RawDataEntriesCount(buf);
             anm = new ANIM[nb_anim];
-
             for (int i = 0; i < nb_anim; ++i)
                 anm[i].load_gaf(buf, i, true, fname);
             if (doConvert)

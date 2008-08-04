@@ -27,17 +27,16 @@ namespace TA3D
         idx_list = NULL;
         free_index_size = 0;
         free_idx = NULL;
-
-        nb_weapon=0;
-        max_weapon=0;
-        weapon=NULL;
+        nb_weapon = 0;
+        max_weapon = 0;
+        weapon = NULL;
         nuclogo.init();
-        if(real)
+        if (real)
         {
             byte *data=HPIManager->PullFromHPI("anims\\fx.gaf");
-            if(data)
+            if (data)
             {
-                nuclogo.load_gaf(data,get_gaf_entry_index(data,"nuclogo"));
+                nuclogo.load_gaf(data, Gaf::RawDataGetEntryIndex(data, "nuclogo"));
                 nuclogo.convert();
                 nuclogo.clean();
                 delete[] data;
@@ -56,9 +55,11 @@ namespace TA3D
             delete[] idx_list;
         if(free_idx)
             delete[] free_idx;
-        index_list_size = 0;		idx_list = NULL;
-        free_index_size = 0;		free_idx = NULL;
-        if(max_weapon>0 && weapon)
+        index_list_size = 0;
+        idx_list = NULL;
+        free_index_size = 0;
+        free_idx = NULL;
+        if (weapon)
             delete[] weapon;
         nuclogo.destroy();
         pMutex.unlock();
@@ -80,16 +81,16 @@ namespace TA3D
 
     int INGAME_WEAPONS::add_weapon(int weapon_id,int shooter)
     {
-        if(weapon_id < 0)
+        if (weapon_id < 0)
             return -1;
 
         MutexLocker locker(pMutex);
 
-        if(nb_weapon<max_weapon)// S'il y a encore de la place
+        if (nb_weapon<max_weapon)// S'il y a encore de la place
         {
             uint32 i = free_idx[--free_index_size];
             idx_list[index_list_size++] = i;
-            nb_weapon++;
+            ++nb_weapon;
             weapon[i].init();
             weapon[i].weapon_id=weapon_id;
             weapon[i].shooter_idx=shooter;
@@ -102,28 +103,32 @@ namespace TA3D
 
         uint32	*n_idx = new uint32[max_weapon];
         uint32	*n_new_idx = new uint32[max_weapon];
-        if(index_list_size>0)
+        if (index_list_size>0)
             memcpy(n_idx,idx_list,index_list_size<<2);
-        if(free_index_size>0)
+        if (free_index_size>0)
             memcpy(n_new_idx,free_idx,free_index_size<<2);
-        if(idx_list)	delete[]	idx_list;
-        if(free_idx)	delete[]	free_idx;
+        if (idx_list)
+            delete[] idx_list;
+        if (free_idx)
+            delete[] free_idx;
         idx_list = n_idx;
         free_idx = n_new_idx;
-        for(uint32 i = max_weapon-100; i<max_weapon;i++)
+        for (uint32 i = max_weapon-100; i < max_weapon; ++i)
             free_idx[free_index_size++] = i;
 
-        for(uint32 i=0;i<max_weapon;i++)
+        for (uint32 i = 0; i < max_weapon; ++i)
             new_weapon[i].weapon_id=-1;
-        if(weapon && nb_weapon>0)
-            for(uint32 i=0;i<nb_weapon;i++)
-                new_weapon[i]=weapon[i];
-        if(weapon)
+        if (weapon && nb_weapon > 0)
+        {
+            for (uint32 i = 0; i < nb_weapon; ++i)
+                new_weapon[i] = weapon[i];
+        }
+        if (weapon)
             delete[] weapon;
         weapon = new_weapon;
         uint32 index = free_idx[--free_index_size];
         idx_list[index_list_size++] = index;
-        nb_weapon++;
+        ++nb_weapon;
         weapon[index].init();
         weapon[index].weapon_id=weapon_id;
         weapon[index].shooter_idx=shooter;
