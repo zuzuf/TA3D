@@ -1221,13 +1221,13 @@ namespace TA3D
         background = gfx->load_texture_from_cache("anims\\" + Name + ".gaf", FILTER_TRILINEAR, (uint32*)&w, (uint32*)&h);
         if (!background)
         {
-            background = read_gaf_img("anims\\" + Name + ".gaf", panel, &w, &h, true);
+            background = Gaf::ToTexture("anims\\" + Name + ".gaf", panel, &w, &h, true);
             if (background == 0)
             {
                 String::List file_list;
                 HPIManager->getFilelist("anims\\*.gaf", file_list);
                 for (String::List::const_iterator i = file_list.begin(); i != file_list.end() && background == 0 ; ++i)
-                    background = read_gaf_img(*i, panel, &w, &h, true);
+                    background = Gaf::ToTexture(*i, panel, &w, &h, true);
             }
             if (background)
                 gfx->save_texture_to_cache("anims\\" + Name + ".gaf", background, w, h);
@@ -1282,10 +1282,10 @@ namespace TA3D
 
                 if (!result)
                 {
-                    gaf_imgs = read_gaf_imgs("anims\\" + Name + ".gaf", Objets[i].Name, t_w, t_h);
+                    Gaf::ToTexturesList(gaf_imgs, "anims\\" + Name + ".gaf", Objets[i].Name, t_w, t_h);
                     if (!gaf_imgs.size())
                     {
-                        gaf_imgs = read_gaf_imgs("anims\\commongui.gaf", Objets[i].Name, t_w, t_h);
+                        Gaf::ToTexturesList(gaf_imgs, "anims\\commongui.gaf", Objets[i].Name, t_w, t_h);
                         found_elsewhere = true;
                     }
                     if (!gaf_imgs.size())
@@ -1293,7 +1293,7 @@ namespace TA3D
                         String::List file_list;
                         HPIManager->getFilelist("anims\\*.gaf", file_list);
                         for (String::List::const_iterator e = file_list.begin() ; e != file_list.end() && gaf_imgs.size() == 0 ; ++e)
-                            gaf_imgs = read_gaf_imgs(*e, Objets[i].Name, t_w, t_h);
+                            Gaf::ToTexturesList(gaf_imgs, *e, Objets[i].Name, t_w, t_h);
                         if (gaf_imgs.size() > 0)
                             found_elsewhere = true;
                     }

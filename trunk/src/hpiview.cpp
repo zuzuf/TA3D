@@ -345,41 +345,39 @@ namespace
             {
                 set_color_depth( 32 );
                 set_gfx_mode( GFX_AUTODETECT_WINDOWED, 320, 200, 0, 0 );
-                GAFHEADER	header;
+                Gaf::Header header;
                 header.IDVersion = GAF_TRUECOLOR;
-                header.Entries = parser.pullAsInt( "gadget0.entries" );
-                header.Unknown1 = 0;
+                header.Entries   = parser.pullAsInt( "gadget0.entries" );
+                header.Unknown1  = 0;
 
                 fwrite( &header, 12, 1, gaf_file );
 
-                for( int i = 0 ; i < header.Entries * 4 ; ++i)
+                for (int i = 0; i < header.Entries * 4; ++i)
                     putc( 0, gaf_file );
 
-                GAFENTRY Entry;
-
-                for( int i = 0 ; i < header.Entries ; ++i)
+                for (int i = 0; i < header.Entries; ++i)
                 {
                     int pos = ftell( gaf_file );
                     fseek( gaf_file, 12 + i * 4, SEEK_SET );
                     fwrite( &pos, 4, 1, gaf_file );
                     fseek( gaf_file, pos, SEEK_SET );
 
+                    Gaf::Entry Entry;
+
                     Entry.Frames = parser.pullAsInt( format( "gadget%d.frames", i + 1 ) );
                     Entry.Unknown1 = 1;
                     Entry.Unknown2 = 0;
-                    String Entry_name = parser.pullAsString( format( "gadget%d.name", i + 1 ) );
-                    memset( Entry.Name, 0, 32 );
-                    memcpy( Entry.Name, Entry_name.c_str(), Entry_name.size() + 1 );
+                    Entry.name = parser.pullAsString( format( "gadget%d.name", i + 1 ) );
 
                     fwrite( &Entry, 40, 1, gaf_file );
 
-                    GAFFRAMEENTRY	FrameEntry;
-                    int FrameEntryPos = ftell( gaf_file );
+                    Gaf::Frame::Entry FrameEntry;
+                    int FrameEntryPos = ftell(gaf_file);
                     FrameEntry.PtrFrameTable = 0;
-                    for( int e = 0 ; e < Entry.Frames ; e++ )
+                    for (int e = 0; e < Entry.Frames; ++e)
                         fwrite( &(FrameEntry), 8, 1, gaf_file );
 
-                    for( int e = 0 ; e < Entry.Frames ; e++ )
+                    for (int e = 0; e < Entry.Frames; ++e)
                     {
                         pos = ftell( gaf_file );
                         fseek( gaf_file, FrameEntryPos + e * 8, SEEK_SET );
@@ -387,7 +385,7 @@ namespace
                         fwrite( &(FrameEntry), 8, 1, gaf_file );
                         fseek( gaf_file, pos, SEEK_SET );
 
-                        GAFFRAMEDATA FrameData;
+                        Gaf::Frame::Data FrameData;
                         FrameData.XPos = parser.pullAsInt( format( "gadget%d.frame%d.XPos", i + 1, e ) );
                         FrameData.YPos = parser.pullAsInt( format( "gadget%d.frame%d.YPos", i + 1, e ) );
                         FrameData.FramePointers = 0;

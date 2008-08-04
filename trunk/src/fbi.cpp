@@ -162,16 +162,17 @@ namespace TA3D
                 String name = gui_parser.pullAsString( format( "gadget%d.common.name", i ) );
                 int idx = get_unit_index( name.c_str() );
 
-                if( idx >= 0 )
+                if (idx >= 0)
                 {
-                    String name = gui_parser.pullAsString( format( "gadget%d.common.name", i ) );
+                    String name(gui_parser.pullAsString(format("gadget%d.common.name", i)));
 
-                    byte *gaf_file = HPIManager->PullFromHPI( format( "anims\\%s%d.gaf", unit_type[unit_index].Unitname, page + 1 ).c_str() );
-                    if( gaf_file ) {
-                        BITMAP *img = read_gaf_img( gaf_file, get_gaf_entry_index( gaf_file, (char*)name.c_str() ), 0 );
+                    byte *gaf_file = HPIManager->PullFromHPI(format( "anims\\%s%d.gaf", unit_type[unit_index].Unitname, page + 1).c_str());
+                    if (gaf_file)
+                    {
+                        BITMAP *img = Gaf::RawDataToBitmap(gaf_file, Gaf::RawDataGetEntryIndex(gaf_file, name), 0);
 
                         GLuint tex = 0;
-                        if( img )
+                        if (img)
                         {
                             w = img->w;
                             h = img->h;
@@ -180,7 +181,6 @@ namespace TA3D
                         }
 
                         delete[] gaf_file;
-
                         unit_type[unit_index].AddUnitBuild(idx, x, y, w, h, page, tex);
                     }
                     else
@@ -188,7 +188,7 @@ namespace TA3D
                 }
             }
             else
-                if( attribs & 8 ) 	// Weapon Build Pic
+                if (attribs & 8) // Weapon Build Pic
                 {
                     int x = gui_parser.pullAsInt( format( "gadget%d.common.xpos", i ) ) + x_offset;
                     int y = gui_parser.pullAsInt( format( "gadget%d.common.ypos", i ) ) + y_offset;
@@ -199,15 +199,14 @@ namespace TA3D
                     byte* gaf_file = HPIManager->PullFromHPI( format( "anims\\%s%d.gaf", unit_type[unit_index].Unitname, page + 1 ).c_str() );
                     if (gaf_file)
                     {
-                        BITMAP *img = read_gaf_img( gaf_file, get_gaf_entry_index( gaf_file, (char*)name.c_str() ), 0 );
-
+                        BITMAP *img = Gaf::RawDataToBitmap(gaf_file, Gaf::RawDataGetEntryIndex(gaf_file, name), 0);
                         GLuint tex = 0;
-                        if( img )
+                        if (img)
                         {
                             w = img->w;
                             h = img->h;
-                            tex = gfx->make_texture( img );
-                            destroy_bitmap( img );
+                            tex = gfx->make_texture(img);
+                            destroy_bitmap(img);
                         }
 
                         delete[] gaf_file;
@@ -218,6 +217,8 @@ namespace TA3D
                 }
         }
     }
+
+
 
     void UNIT_MANAGER::analyse2(char *data,int size)
     {
@@ -1191,22 +1192,27 @@ namespace TA3D
         else
             allegro_gl_set_texture_format(GL_RGB8);
         int w,h;
-        GLuint panel_tex = read_gaf_img( "anims\\" + player_side + "main.gaf", gaf_img, &w, &h, true );
+        GLuint panel_tex = Gaf::ToTexture("anims\\" + player_side + "main.gaf", gaf_img, &w, &h, true);
         if (panel_tex == 0)
         {
             String::List file_list;
             HPIManager->getFilelist( "anims\\*.gaf", file_list);
-            for (String::List::const_iterator i = file_list.begin(); i != file_list.end() && panel_tex == 0 ; ++i)
-                panel_tex = read_gaf_img(*i, gaf_img, &w, &h, true);
+            for (String::List::const_iterator i = file_list.begin(); i != file_list.end() && panel_tex == 0; ++i)
+                panel_tex = Gaf::ToTexture(*i, gaf_img, &w, &h, true);
         }
-        panel.set( panel_tex );
-        panel.width = w;	panel.height = h;
+        panel.set(panel_tex);
+        panel.width = w;
+        panel.height = h;
 
-        paneltop.set( read_gaf_img( "anims\\" + intgaf + ".gaf", "PANELTOP", &w, &h ) );
-        paneltop.width = w;		paneltop.height = h;
-        panelbottom.set( read_gaf_img( "anims\\" + intgaf + ".gaf", "PANELBOT", &w, &h ) );
-        panelbottom.width = w;	panelbottom.height = h;
+        paneltop.set(Gaf::ToTexture("anims\\" + intgaf + ".gaf", "PANELTOP", &w, &h));
+        paneltop.width = w;	
+        paneltop.height = h;
+        panelbottom.set(Gaf::ToTexture("anims\\" + intgaf + ".gaf", "PANELBOT", &w, &h));
+        panelbottom.width = w;
+        panelbottom.height = h;
     }
+
+
 
     int UNIT_MANAGER::unit_build_menu(int index,int omb,float &dt, bool GUI)				// Affiche et gère le menu des unités
     {

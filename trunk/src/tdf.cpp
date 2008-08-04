@@ -385,9 +385,9 @@ namespace TA3D
                     byte *gaf = HPIManager->PullFromHPI(tmp);
                     if (gaf)
                     {
-                        int index = get_gaf_entry_index(gaf, feature[i].seqname);
+                        sint32 index = Gaf::RawDataGetEntryIndex(gaf, feature[i].seqname);
                         if (index >= 0)
-                            feature[i].anim.load_gaf(gaf, get_gaf_entry_index(gaf, feature[i].seqname), true, feature[i].filename);
+                            feature[i].anim.load_gaf(gaf, Gaf::RawDataGetEntryIndex(gaf, feature[i].seqname), true, feature[i].filename);
                         else
                             LOG_WARNING(LOG_PREFIX_TDF << "`" << feature[i].name << "` has no picture to display !");
                         delete[] gaf;

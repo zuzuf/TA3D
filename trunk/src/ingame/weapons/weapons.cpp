@@ -42,27 +42,26 @@ namespace TA3D
 
         for (String::List::const_iterator cur_file = file_list.begin(); cur_file != file_list.end(); ++cur_file)
         {
-            if(progress!=NULL && !(n & 0xF))
-                progress((250.0f+n*50.0f/(file_list.size()+1))/7.0f,I18N::Translate("Loading weapons"));
+            if (progress != NULL && !(n & 0xF))
+                progress((250.0f + n * 50.0f / (file_list.size() + 1)) / 7.0f, I18N::Translate("Loading weapons"));
             ++n;
 
-            uint32 file_size=0;
+            uint32 file_size(0);
             byte *data=HPIManager->PullFromHPI(cur_file->c_str(),&file_size);
-            if(data)
+            if (data)
             {
                 weapon_manager.load_tdf((char*)data,file_size);
                 delete[] data;
             }
         }
 
-        fx_manager.fx_data=HPIManager->PullFromHPI("anims\\fx.gaf");			// Load weapon animation data and stores it into a cache since it's often used
-        if(fx_manager.fx_data)
+        fx_manager.fx_data = HPIManager->PullFromHPI("anims\\fx.gaf");			// Load weapon animation data and stores it into a cache since it's often used
+        if (fx_manager.fx_data)
         {
-            weapon_manager.cannonshell.load_gaf(fx_manager.fx_data,get_gaf_entry_index(fx_manager.fx_data,"cannonshell"));
+            weapon_manager.cannonshell.load_gaf(fx_manager.fx_data, Gaf::RawDataGetEntryIndex(fx_manager.fx_data, "cannonshell"));
             weapon_manager.cannonshell.convert(false,true);
             weapon_manager.cannonshell.clean();
-
-            // fx_data is delete[]ed later in FXManager::destroy()
+            // fx_data is deleted later in FXManager::destroy()
         }
     }
 
