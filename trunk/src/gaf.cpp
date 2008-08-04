@@ -60,6 +60,7 @@ namespace TA3D
 
     Gaf::Frame::Data::Data(const byte* data, int pos)
     {
+        LOG_ASSERT(data != NULL);
         Width         = *((sint16*)(data + pos)); pos += 2;
         Height        = *((sint16*)(data + pos)); pos += 2;
         XPos          = *((sint16*)(data + pos)); pos += 2;
@@ -207,6 +208,7 @@ namespace TA3D
 
     String Gaf::RawDataGetEntryName(const byte *buf, int entry_idx)
     {
+        LOG_ASSERT(buf != NULL);
         if (entry_idx < 0)
             return "";
         Gaf::Header header(buf);
@@ -234,6 +236,7 @@ namespace TA3D
 
     sint32 Gaf::RawDataGetEntryIndex(const byte* buf, const String& name)
     {
+        LOG_ASSERT(buf != NULL);
         sint32 nb_entry = RawDataEntriesCount(buf);
         for (sint32 i = 0; i < nb_entry; ++i)
         {
@@ -247,6 +250,7 @@ namespace TA3D
 
     sint32 Gaf::RawDataImageCount(const byte* buf, const int entry_idx)
     {
+        LOG_ASSERT(buf != NULL);
         if (entry_idx < 0)
             return 0;
         Gaf::Header header(buf);
@@ -275,6 +279,7 @@ namespace TA3D
 
     BITMAP* Gaf::RawDataToBitmap(const byte* buf, const sint32 entry_idx, const sint32 img_idx, short* ofs_x, short* ofs_y, const bool truecolor)
     {
+        LOG_ASSERT(buf != NULL);
         if (entry_idx < 0)
             return NULL;
         Gaf::Header header(buf);
@@ -564,6 +569,7 @@ namespace TA3D
 
     void ANIM::load_gaf(const byte *buf, const int entry_idx, const bool truecolor, const String& fname)
     {
+        LOG_ASSERT(buf != NULL);
         if (entry_idx < 0 || !buf)
             return;
         filename = fname;
