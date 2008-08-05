@@ -16,26 +16,38 @@
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA*/
 
 /*-----------------------------------------------------------------------------------\
-|                                         gaf.h                                      |
-|  ce fichier contient les structures, classes et fonctions nécessaires à la lecture |
-| des fichiers gaf de total annihilation qui sont les fichiers contenant les images  |
-| et les animations du jeu.                                                          |
-|                                                                                    |
-\-----------------------------------------------------------------------------------*/
+  |                                         gaf.h                                      |
+  |  ce fichier contient les structures, classes et fonctions nécessaires à la lecture |
+  | des fichiers gaf de total annihilation qui sont les fichiers contenant les images  |
+  | et les animations du jeu.                                                          |
+  |                                                                                    |
+  \-----------------------------------------------------------------------------------*/
 
-#ifndef __GAF_CLASSES
-#define __GAF_CLASSES
-
-#define GAF_STANDARD	0x00010100
-#define GAF_TRUECOLOR	0x00010101
+#ifndef __TA3D_MISC_GAF_H__
+# define __TA3D_MISC_GAF_H__
 
 # include "stdafx.h"
 # include <vector>
 
 
+# define TA3D_GAF_STANDARD      0x00010100
+# define TA3D_GAF_TRUECOLOR     0x00010101
+
+
+
+
 namespace TA3D
 {
 
+    /*!
+    ** \brief Toolkit for the GAF file format
+    **
+    ** Usefull classes :
+    ** <ul>
+    **   <li> Gaf::Animation </li>
+    **   <li> Gaf::AnimationList </li>
+    ** </ul>
+    */
     class Gaf
     {
     public:
@@ -70,7 +82,6 @@ namespace TA3D
             sint32 Unknown1;
         };
 
-
         /*!
         ** \brief A single entry in a Gaf file
         */
@@ -91,7 +102,6 @@ namespace TA3D
             //! Name of the entry
             String name;
         };
-
 
         struct Frame
         {
@@ -147,6 +157,7 @@ namespace TA3D
         }; // class Frame
 
 
+
     public:
         /*!
         ** \brief
@@ -185,95 +196,95 @@ namespace TA3D
 
 
 
+    public:
+        /*!
+        ** \brief Read animated GAF files
+        */
+        class Animation
+        {
+        public:
+            //! \name Constructor & Destructor
+            //@{
+            //! Default constructor
+            Animation() {init();}
+            //! Destructor
+            ~Animation() {destroy();}
+            //@}
+
+            void init();
+            void destroy();
+
+            void loadGAFFromRawData(const byte *buf, const int entry_idx = 0, const bool truecolor = true, const String& fname = "");
+
+            void convert(bool NO_FILTER = false, bool COMPRESSED = false);
+
+            void clean();
+
+        public:
+            //!
+            sint32 nb_bmp;
+            //!
+            BITMAP** bmp;
+            //!
+            short* ofs_x;
+            //!
+            short* ofs_y;
+            //!
+            short* w;
+            //!
+            short* h;
+            //!
+            GLuint* glbmp;
+            //!
+            String name;
+            //!
+            bool dgl;
+            //!
+            String  filename;
+
+        }; // class Animation
+
+
+        class AnimationList
+        {
+        public:
+            //! \name Constructor & Destructor
+            //@{
+            //! Default constructor
+            AnimationList() :nb_anim(0), anm(NULL) {}
+            //! Destructor
+            ~AnimationList();
+            //@}
+
+            /*!
+            ** \todo Must be removed (bus error when the program exits)
+            */
+            void reset();
+
+            void loadGAFFromRawData(const byte* buf, const bool doConvert = false, const String& fname = "");
+
+            void convert(const bool no_filter = false, const bool compressed = false);
+
+            void clean();
+
+            sint32 findEntry(const String& name);
+
+        public:
+            //!
+            sint32  nb_anim;
+            //!
+            Gaf::Animation* anm;
+
+        }; // class AnimationList
+
+
+
+
     }; // class Gaf
 
-
-
-
-
-    /*!
-    ** \brief Read animated GAF files
-    */
-    class ANIM
-    {
-    public:
-        //! \name Constructor & Destructor
-        //@{
-        //! Default constructor
-        ANIM() {init();}
-        //! Destructor
-        ~ANIM() {destroy();}
-        //@}
-
-        void init();
-        void destroy();
-
-        void loadGAFFromRawData(const byte *buf, const int entry_idx = 0, const bool truecolor = true, const String& fname = "");
-
-        void convert(bool NO_FILTER = false, bool COMPRESSED = false);
-
-        void clean();
-
-    public:
-        //!
-        sint32 nb_bmp;
-        //!
-        BITMAP** bmp;
-        //!
-        short* ofs_x;
-        //!
-        short* ofs_y;
-        //!
-        short* w;
-        //!
-        short* h;
-        //!
-        GLuint* glbmp;
-        //!
-        String name;
-        //!
-        bool dgl;
-        //!
-        String  filename;
-
-    }; // class ANIM
-
-
-
-    class ANIMS			// Pour la lecture des fichiers GAF animés
-    {
-    public:
-        //! \name Constructor & Destructor
-        //@{
-        //! Default constructor
-        ANIMS() :nb_anim(0), anm(NULL) {}
-        //! Destructor
-        ~ANIMS();
-        //@}
-
-        /*!
-        ** \todo Must be removed (bus error at finalization)
-        */
-        void reset();
-
-        void loadGAFFromRawData(const byte* buf, const bool doConvert = false, const String& fname = "");
-
-        void convert(const bool no_filter = false, const bool compressed = false);
-
-        void clean();
-
-        sint32 findEntry(const String& name);
-
-    public:
-        //!
-        sint32  nb_anim;
-        //!
-        ANIM* anm;
-
-    }; // class ANIMS
 
 
 } // namespace TA3D
 
 
-#endif
+#endif // __TA3D_MISC_GAF_H__

@@ -327,7 +327,7 @@ namespace TA3D
 
         BITMAP *frame_img = NULL;
 
-        if (header.IDVersion == GAF_TRUECOLOR)
+        if (header.IDVersion == TA3D_GAF_TRUECOLOR)
         {
             f_pos = framedata.PtrFrameData;
             sint32 img_size = 0;
@@ -567,7 +567,7 @@ namespace TA3D
 
 
 
-    void ANIM::loadGAFFromRawData(const byte *buf, const int entry_idx, const bool truecolor, const String& fname)
+    void Gaf::Animation::loadGAFFromRawData(const byte *buf, const int entry_idx, const bool truecolor, const String& fname)
     {
         LOG_ASSERT(buf != NULL);
         if (entry_idx < 0 || !buf)
@@ -609,7 +609,7 @@ namespace TA3D
 
 
 
-    void ANIM::init()
+    void Gaf::Animation::init()
     {
         nb_bmp=0;
         bmp=NULL;
@@ -622,7 +622,7 @@ namespace TA3D
     }
 
 
-    void ANIM::destroy()
+    void Gaf::Animation::destroy()
     {
         filename.clear();
         name.clear();
@@ -636,20 +636,16 @@ namespace TA3D
                     glDeleteTextures(1,&(glbmp[i]));
             }
         }
-        if(w)
-            free(w);
-        if(h)
-            free(h);
-        if(ofs_x)
-            free(ofs_x);
-        if(ofs_y)
-            free(ofs_y);
+        if (w) free(w);
+        if (h) free(h);
+        if (ofs_x) free(ofs_x);
+        if (ofs_y) free(ofs_y);
         free(bmp);
         free(glbmp);
         init();
     }
 
-    void ANIM::clean()
+    void Gaf::Animation::clean()
     {
         for (int i = 0; i < nb_bmp; ++i) // Fait un peu le ménage
         {
@@ -661,7 +657,7 @@ namespace TA3D
     }
 
 
-    void ANIM::convert(bool NO_FILTER,bool COMPRESSED)
+    void Gaf::Animation::convert(bool NO_FILTER, bool COMPRESSED)
     {
         if (dgl)
             return;			// Already done!!
@@ -696,7 +692,7 @@ namespace TA3D
         }
     }
 
-    void ANIMS::reset()
+    void Gaf::AnimationList::reset()
     {
         if (anm && nb_anim > 0)
             delete[] anm;
@@ -704,19 +700,19 @@ namespace TA3D
         nb_anim = 0;
     }
 
-    ANIMS::~ANIMS()
+    Gaf::AnimationList::~AnimationList()
     {
         if (anm && nb_anim > 0)
             delete[] anm;
     }
 
 
-    void ANIMS::loadGAFFromRawData(const byte* buf, const bool doConvert, const String& fname)
+    void Gaf::AnimationList::loadGAFFromRawData(const byte* buf, const bool doConvert, const String& fname)
     {
         if (buf != NULL)
         {
             nb_anim = Gaf::RawDataEntriesCount(buf);
-            anm = new ANIM[nb_anim];
+            anm = new Gaf::Animation[nb_anim];
             for (int i = 0; i < nb_anim; ++i)
                 anm[i].loadGAFFromRawData(buf, i, true, fname);
             if (doConvert)
@@ -724,7 +720,7 @@ namespace TA3D
         }
     }
 
-    sint32 ANIMS::findEntry(const String& name)
+    sint32 Gaf::AnimationList::findEntry(const String& name)
     {
         for (int i = 0; i < nb_anim; ++i)
         {
@@ -735,14 +731,14 @@ namespace TA3D
     }
 
 
-    void ANIMS::clean()
+    void Gaf::AnimationList::clean()
     {
         for (int i = 0; i < nb_anim; ++i)
             anm[i].clean();
     }
     
 
-    void ANIMS::convert(const bool no_filter, const bool compressed)
+    void Gaf::AnimationList::convert(const bool no_filter, const bool compressed)
     {
         for (int i = 0; i < nb_anim; ++i)
             anm[i].convert(no_filter, compressed);

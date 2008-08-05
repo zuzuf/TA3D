@@ -45,8 +45,8 @@ namespace TA3D
     class TEXTURE_MANAGER
     {
     public:
-        int		nbtex;			// Nombre de textures
-        ANIM	*tex;			// Textures
+        int	 nbtex;			// Nombre de textures
+        Gaf::Animation* tex;			// Textures
 
         TEXTURE_MANAGER() :nbtex(0), tex(NULL) {}
         ~TEXTURE_MANAGER() {destroy();}

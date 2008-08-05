@@ -67,7 +67,7 @@ namespace TA3D
         /*!
         ** \brief
         */
-        void draw_mini(float map_w,float map_h,int mini_w,int mini_h);				// Repère les unités sur la mini-carte
+        void draw_mini(float map_w, float map_h, int mini_w, int mini_h); // Repère les unités sur la mini-carte
 
 
     public:
@@ -78,7 +78,7 @@ namespace TA3D
         //!
         WEAPON* weapon;			// Tableau regroupant les armes
         //!
-        ANIM nuclogo;			// Logos des armes atomiques sur la minicarte / Logo of nuclear weapons on minimap
+        Gaf::Animation nuclogo;			// Logos des armes atomiques sur la minicarte / Logo of nuclear weapons on minimap
 
         //!
         uint32 index_list_size;	// Pre allocated list of used indexes

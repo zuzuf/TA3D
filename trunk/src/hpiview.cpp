@@ -285,7 +285,7 @@ namespace
                 TA3D::UTILS::HPI::load_palette(pal);
                 set_palette(pal);      // Activate the palette
 
-                ANIMS anims;
+                Gaf::AnimationList anims;
                 anims.loadGAFFromRawData(data);
                 std::ofstream   m_File;
                 m_File.open( format("%s.txt", get_filename( argv[2] )).c_str(), std::ios::out | std::ios::trunc );
@@ -340,16 +340,16 @@ namespace
             String filename = parser.pullAsString( "gadget0.filename" );
             FILE *gaf_file = TA3D_OpenFile( get_filename( filename.c_str() ), "wb" );
 
-            if( gaf_file )
+            if (gaf_file)
             {
-                set_color_depth( 32 );
-                set_gfx_mode( GFX_AUTODETECT_WINDOWED, 320, 200, 0, 0 );
+                set_color_depth(32);
+                set_gfx_mode(GFX_AUTODETECT_WINDOWED, 320, 200, 0, 0);
                 Gaf::Header header;
-                header.IDVersion = GAF_TRUECOLOR;
-                header.Entries   = parser.pullAsInt( "gadget0.entries" );
+                header.IDVersion = TA3D_GAF_TRUECOLOR;
+                header.Entries   = parser.pullAsInt("gadget0.entries");
                 header.Unknown1  = 0;
 
-                fwrite( &header, 12, 1, gaf_file );
+                fwrite(&header, 12, 1, gaf_file);
 
                 for (int i = 0; i < header.Entries * 4; ++i)
                     putc( 0, gaf_file );

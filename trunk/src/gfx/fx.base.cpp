@@ -35,13 +35,13 @@ namespace TA3D
     }
 
 
-    bool FX::move(const float dt, ANIM **anims)
+    bool FX::move(const float dt, Gaf::Animation** anims)
     {
-        if(!playing)
+        if (!playing)
             return false;
-        if(anm == -1) // Flash effect
+        if (anm == -1) // Flash effect
         {
-            if( time > 1.0f )
+            if (time > 1.0f)
             {
                 playing = false;
                 return true;
@@ -161,7 +161,7 @@ namespace TA3D
         glPolygonOffset(0.0f, -1600.0f);
     }
 
-    void FX::doDrawAnimDefault(Camera& cam, ANIM** anims)
+    void FX::doDrawAnimDefault(Camera& cam, Gaf::Animation** anims)
     {
         if (!anims)
         {
@@ -222,7 +222,7 @@ namespace TA3D
     }
 
 
-    void FX::draw(Camera& cam, MAP *map, ANIM **anims)
+    void FX::draw(Camera& cam, MAP *map, Gaf::Animation** anims)
     {
         if(!playing || (map && !doCanDrawAnim(map)))
             return;

@@ -1957,13 +1957,11 @@ void campaign_main_menu(void)
             guiobj->Text[n] = i->substr(6, i->size() - 10);
     }
 
-    ANIMS side_logos;
-    {
-        byte *data = HPIManager->PullFromHPI( "anims\\newgame.gaf");
-        side_logos.loadGAFFromRawData(data, true);
-        if (data)
-            delete[] data;
-    }
+    Gaf::AnimationList side_logos;
+    byte *data = HPIManager->PullFromHPI( "anims\\newgame.gaf");
+    side_logos.loadGAFFromRawData(data, true);
+    if (data)
+        delete[] data;
 
     cTAFileParser* campaign_parser = NULL;
 
@@ -2154,30 +2152,28 @@ int brief_screen(String campaign_name, int mission_id)
         }
     }
 
-    ANIMS planet_animation;
+    Gaf::AnimationList planet_animation;
+    String planet_file = ota_parser.pullAsString("GlobalHeader.planet");
+    planet_file.toLower();
+
+    if (planet_file == "green planet" )             planet_file = "anims\\greenbrief.gaf";
+    else if (planet_file == "archipelago" )         planet_file = "anims\\archibrief.gaf";
+    else if (planet_file == "desert" )              planet_file = "anims\\desertbrief.gaf";
+    else if (planet_file == "lava" )                planet_file = "anims\\lavabrief.gaf";
+    else if (planet_file == "wet desert" )          planet_file = "anims\\wdesertbrief.gaf";
+    else if (planet_file == "metal" )               planet_file = "anims\\metalbrief.gaf";
+    else if (planet_file == "red planet" )          planet_file = "anims\\marsbrief.gaf";
+    else if (planet_file == "lunar" )               planet_file = "anims\\lunarbrief.gaf";
+    else if (planet_file == "lush" )                planet_file = "anims\\lushbrief.gaf";
+    else if (planet_file == "ice" )                 planet_file = "anims\\icebrief.gaf";
+    else if (planet_file == "slate" )               planet_file = "anims\\slatebrief.gaf";
+    else if (planet_file == "water world" )         planet_file = "anims\\waterbrief.gaf";
+
+    byte *data = HPIManager->PullFromHPI( planet_file);
+    if (data)
     {
-        String planet_file = ota_parser.pullAsString("GlobalHeader.planet");
-        planet_file.toLower();
-
-        if (planet_file == "green planet" )             planet_file = "anims\\greenbrief.gaf";
-        else if (planet_file == "archipelago" )         planet_file = "anims\\archibrief.gaf";
-        else if (planet_file == "desert" )              planet_file = "anims\\desertbrief.gaf";
-        else if (planet_file == "lava" )                planet_file = "anims\\lavabrief.gaf";
-        else if (planet_file == "wet desert" )          planet_file = "anims\\wdesertbrief.gaf";
-        else if (planet_file == "metal" )               planet_file = "anims\\metalbrief.gaf";
-        else if (planet_file == "red planet" )          planet_file = "anims\\marsbrief.gaf";
-        else if (planet_file == "lunar" )               planet_file = "anims\\lunarbrief.gaf";
-        else if (planet_file == "lush" )                planet_file = "anims\\lushbrief.gaf";
-        else if (planet_file == "ice" )                 planet_file = "anims\\icebrief.gaf";
-        else if (planet_file == "slate" )               planet_file = "anims\\slatebrief.gaf";
-        else if (planet_file == "water world" )         planet_file = "anims\\waterbrief.gaf";
-
-        byte *data = HPIManager->PullFromHPI( planet_file);
-        if (data)
-        {
-            planet_animation.loadGAFFromRawData(data, true);
-            delete[] data;
-        }
+        planet_animation.loadGAFFromRawData(data, true);
+        delete[] data;
     }
 
     int schema = 0;

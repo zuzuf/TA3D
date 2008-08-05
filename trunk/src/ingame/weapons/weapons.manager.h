@@ -50,12 +50,12 @@ namespace TA3D
 
     public:
         //! Count of registered weapons
-        int			            nb_weapons;
-        WEAPON_DEF              *weapon;
+        int	nb_weapons;
+        WEAPON_DEF* weapon;
         //! Animation for firing
-        ANIM            		cannonshell;
+        Gaf::Animation cannonshell;
         //! hashtable used to speed up operations on WEAPON_DEF objects
-        cHashTable< int >	    weapon_hashtable;
+        cHashTable<int>  weapon_hashtable;
 
     }; // class WEAPON_MANAGER
 
