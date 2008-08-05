@@ -7344,11 +7344,9 @@ void INGAME_UNITS::remove_order(int player_id,Vector3D target)
         }
 
         ThreadSynchroniser->unlock();
-
         thread_running = false;
         thread_ask_to_stop = false;
-
-        printf("unit engine: %f ticks/sec.\n", (float)(current_tick * 1000) / ( msec_timer - unit_timer ) );
+        LOG_INFO("Unit engine: " << (float)(current_tick * 1000) / (msec_timer - unit_timer) << " ticks/sec");
 
         return 0;
     }
