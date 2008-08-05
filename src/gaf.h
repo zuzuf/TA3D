@@ -263,7 +263,7 @@ namespace TA3D
 
             /*!
             ** \brief Clear all animation
-            ** \todo Must be removed (bus error when the program exits, see cTA3D_Engine::~cTA3D_Engine)
+            ** \todo Must be removed in cTA3D_Engine::~cTA3D_Engine: bus error when the program exits
             */
             void clear();
 
