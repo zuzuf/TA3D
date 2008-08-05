@@ -93,7 +93,7 @@ namespace TA3D
     {
         // Crée des textures correspondant aux couleurs de la palette de TA
         nbtex = 256;
-        tex = new ANIM[nbtex];
+        tex = new Gaf::Animation[nbtex];
         for (int i = 0; i < 256; ++i)
         {
             tex[i].nb_bmp = 1;
@@ -129,7 +129,7 @@ namespace TA3D
     {
         sint32 nb_entry = Gaf::RawDataEntriesCount(data);
         int n_nbtex = nbtex + nb_entry;
-        ANIM* n_tex = new ANIM[n_nbtex];
+        Gaf::Animation* n_tex = new Gaf::Animation[n_nbtex];
         for (int i = 0; i < nbtex; ++i)
         {
             n_tex[i] = tex[i];

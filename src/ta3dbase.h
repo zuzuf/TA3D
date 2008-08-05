@@ -84,7 +84,7 @@ extern volatile uint32	msec_timer;
 #endif
 
 extern int start;
-extern ANIMS cursor;
+extern Gaf::AnimationList cursor;
 
 extern int fire;
 extern int build_part;

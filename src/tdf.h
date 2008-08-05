@@ -109,7 +109,7 @@ namespace TA3D
         //!
         bool	indestructible;
         //!
-        ANIM	anim;
+        Gaf::Animation anim;
         //!
         bool	vent;
         //!

@@ -144,7 +144,7 @@ namespace TA3D
         ** \return
         ** \warning This method is not thread-safe
         */
-        int putInCache(const String& filename, ANIM *anm);
+        int putInCache(const String& filename, Gaf::Animation* anm);
 
         /*!
         ** \brief Delete all particles
@@ -181,7 +181,7 @@ namespace TA3D
         int cache_size;			// Cache
         int max_cache_size;
         String::Vector cache_name;
-        ANIM** cache_anm;
+        Gaf::Animation** cache_anm;
         int* use;
         bool pCacheIsDirty;
 

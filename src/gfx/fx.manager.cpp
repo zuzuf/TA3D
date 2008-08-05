@@ -53,7 +53,7 @@ namespace TA3D
                 data = fx_data;
             if (data)
             {
-                ANIM *anm = new ANIM();
+                Gaf::Animation* anm = new Gaf::Animation();
                 anm->loadGAFFromRawData(data, Gaf::RawDataGetEntryIndex(data, entryName));
                 // Next line has been removed in order to remain thread safe, conversion is done in main thread
                 //			anm->convert(false,true);
@@ -342,19 +342,19 @@ namespace TA3D
     }
 
 
-    int FXManager::putInCache(const String& filename, ANIM *anm)
+    int FXManager::putInCache(const String& filename, Gaf::Animation* anm)
     {
         // Already available in the cache ?
         const int is_in = findInCache(filename);
-        if(is_in >= 0)
+        if (is_in >= 0)
             return is_in;
 
         int idx = -1;
-        if(cache_size + 1 > max_cache_size)
+        if (cache_size + 1 > max_cache_size)
         {
             max_cache_size += 100;
-            cache_name.resize( max_cache_size );
-            ANIM **n_anm = new ANIM*[max_cache_size];
+            cache_name.resize(max_cache_size);
+            Gaf::Animation** n_anm = new Gaf::Animation*[max_cache_size];
             int *n_use = new int[max_cache_size];
             for (int i = max_cache_size - 100; i < max_cache_size; ++i)
             {

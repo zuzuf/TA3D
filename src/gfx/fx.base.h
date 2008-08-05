@@ -40,7 +40,7 @@ namespace TA3D
         ** \param anims
         ** \return
         */
-        bool move(const float dt, ANIM **anims);
+        bool move(const float dt, Gaf::Animation** anims);
 
         /*!
         ** \brief
@@ -49,7 +49,7 @@ namespace TA3D
         ** \param map
         ** \param anims
         */
-        void draw(Camera& cam, MAP *map, ANIM **anims);
+        void draw(Camera& cam, MAP *map, Gaf::Animation** anims);
 
 
     public:
@@ -86,7 +86,7 @@ namespace TA3D
         /*!
         ** \brief
         */
-        void doDrawAnimDefault(Camera& cam, ANIM** anims);
+        void doDrawAnimDefault(Camera& cam, Gaf::Animation** anims);
 
     }; // class FX
 

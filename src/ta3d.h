@@ -42,7 +42,7 @@ int CURSOR_CROSS_LINK;
 int CURSOR_CAPTURE;
 int CURSOR_REVIVE;
 
-ANIMS cursor;
+TA3D::Gaf::AnimationList cursor;
 
 int fire;
 int build_part;
