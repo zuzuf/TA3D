@@ -1240,7 +1240,7 @@ namespace TA3D
 
             if (panelbottom.tex)
             {
-                for(int k = 0 ; 128 + panelbottom.width * k < SCREEN_W ; ++k)
+                for (int k = 0; 128 + panelbottom.width * k < SCREEN_W; ++k)
                 {
                     gfx->drawtexture( panelbottom.tex, 128.0f + k * panelbottom.width,
                                       SCREEN_H - panelbottom.height, 128.0f + panelbottom.width * (k+1), SCREEN_H );

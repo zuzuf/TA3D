@@ -40,7 +40,7 @@ namespace TA3D
     {
 
         /*!
-         * \brief Set the name of a GAF entry
+         * \brief Get the name of a GAF entry
          */
         void convertGAFCharToString(const byte* data, String& out)
         {
@@ -212,18 +212,18 @@ namespace TA3D
         if (entry_idx < 0)
             return "";
         Gaf::Header header(buf);
-        if (entry_idx>=header.Entries)		// Si le fichier contient moins d'images que img_idx, il y a erreur
+        if (entry_idx >= header.Entries)
             return "";
 
         sint32 f_pos = 12;
         sint32 *pointers = new sint32[header.Entries];
 
-        for (sint32 i = 0; i < header.Entries; ++i) // Lit la liste de pointeurs vers les objets du fichier
+        for (sint32 i = 0; i < header.Entries; ++i)
             pointers[i] = ((sint32*)buf)[3 + i];
         f_pos += header.Entries * 4;
 
         Gaf::Entry entry;
-        entry.Frames   = ((sint16*)(buf + pointers[entry_idx]))[0];		// Lit l'en-tête de l'entrée
+        entry.Frames   = ((sint16*)(buf + pointers[entry_idx]))[0];
         entry.Unknown1 = ((sint16*)(buf + pointers[entry_idx]))[1];
         entry.Unknown2 = ((sint32*)(buf + pointers[entry_idx]))[1];
         convertGAFCharToString(buf + pointers[entry_idx] + 8, entry.name);
@@ -258,7 +258,7 @@ namespace TA3D
             return 0;
 
         sint32 f_pos = 12;
-        sint32 *pointers = new sint32[header.Entries];
+        sint32* pointers = new sint32[header.Entries];
 
         for (sint32 i = 0; i < header.Entries; ++i) // Lit la liste de pointeurs vers les objets du fichier
             pointers[i] = ((sint32*)buf)[3 + i];
@@ -314,10 +314,10 @@ namespace TA3D
         Gaf::Frame::Data framedata(buf, f_pos);
         uint32 *frames = (uint32*) (buf + framedata.PtrFrameData);
 
-        if(ofs_x)
-            *ofs_x=framedata.XPos;
-        if(ofs_y)
-            *ofs_y=framedata.YPos;
+        if (ofs_x)
+            *ofs_x = framedata.XPos;
+        if (ofs_y)
+            *ofs_y = framedata.YPos;
 
         sint32 nb_subframe = framedata.FramePointers;
         sint32 frame_x = framedata.XPos;
@@ -357,7 +357,7 @@ namespace TA3D
                     {
                         for (int x = 0; x < frame_img->w; ++x)
                         {
-                            int c = getpixel( frame_img, x, y );
+                            int c = getpixel(frame_img, x, y);
                             putpixel( frame_img, x, y, makeacol( getr(c), getg(c), getb(c), img_alpha->line[y][x<<2] ) );
                         }
                     }
@@ -373,17 +373,17 @@ namespace TA3D
                 {
                     f_pos = frames[subframe];
                     
-                    framedata.Width=*((sint16*)(buf+f_pos));		    f_pos+=2;
-                    framedata.Height=*((sint16*)(buf+f_pos));		    f_pos+=2;
-                    framedata.XPos=*((sint16*)(buf+f_pos));			    f_pos+=2;
-                    framedata.YPos=*((sint16*)(buf+f_pos));			    f_pos+=2;
+                    framedata.Width  = *((sint16*)(buf+f_pos));	f_pos += 2;
+                    framedata.Height = *((sint16*)(buf+f_pos));	f_pos += 2;
+                    framedata.XPos   = *((sint16*)(buf+f_pos));	f_pos += 2;
+                    framedata.YPos   = *((sint16*)(buf+f_pos));	f_pos += 2;
 
-                    framedata.Transparency=*((char*)(buf+f_pos));	    f_pos+=1;
-                    framedata.Compressed=*((char*)(buf+f_pos));		    f_pos+=1;
-                    framedata.FramePointers=*((sint16*)(buf+f_pos));	f_pos+=2;
-                    framedata.Unknown2=*((sint32*)(buf+f_pos));		    f_pos+=4;
-                    framedata.PtrFrameData=*((sint32*)(buf+f_pos));	    f_pos+=4;
-                    framedata.Unknown3=*((sint32*)(buf+f_pos));		    f_pos+=4;
+                    framedata.Transparency  = *((char*)(buf+f_pos));    f_pos += 1;
+                    framedata.Compressed    = *((char*)(buf+f_pos));	f_pos += 1;
+                    framedata.FramePointers = *((sint16*)(buf+f_pos));	f_pos += 2;
+                    framedata.Unknown2      = *((sint32*)(buf+f_pos));	f_pos += 4;
+                    framedata.PtrFrameData  = *((sint32*)(buf+f_pos));	f_pos += 4;
+                    framedata.Unknown3      = *((sint32*)(buf+f_pos));	f_pos += 4;
                 }
 
                 BITMAP *img = NULL;
@@ -400,7 +400,7 @@ namespace TA3D
                     else
                     {
                         img = create_bitmap_ex(32, framedata.Width, framedata.Height);
-                        clear_to_color(img,0);
+                        clear_to_color(img, 0);
                     }
 
                     sint16 length;
@@ -576,12 +576,12 @@ namespace TA3D
 
         nb_bmp = Gaf::RawDataImageCount(buf,entry_idx);
 
-        bmp   = (BITMAP**) malloc(sizeof(BITMAP*)*nb_bmp);
-        glbmp = (GLuint*) malloc(sizeof(GLuint)*nb_bmp);
-        ofs_x = (short*) malloc(sizeof(short)*nb_bmp);
-        ofs_y = (short*) malloc(sizeof(short)*nb_bmp);
-        w     = (short*) malloc(sizeof(short)*nb_bmp);
-        h     = (short*) malloc(sizeof(short)*nb_bmp);
+        bmp   = (BITMAP**) malloc(sizeof(BITMAP*) * nb_bmp);
+        glbmp = (GLuint*)  malloc(sizeof(GLuint)  * nb_bmp);
+        ofs_x = (short*)   malloc(sizeof(short)   * nb_bmp);
+        ofs_y = (short*)   malloc(sizeof(short)   * nb_bmp);
+        w     = (short*)   malloc(sizeof(short)   * nb_bmp);
+        h     = (short*)   malloc(sizeof(short)   * nb_bmp);
         name  = Gaf::RawDataGetEntryName(buf, entry_idx);
         dgl   = false;
 
@@ -591,8 +591,8 @@ namespace TA3D
         {
             if ((bmp[i-f] = Gaf::RawDataToBitmap(buf, entry_idx, i, &(ofs_x[i-f]), &(ofs_y[i-f]), truecolor)) != NULL)
             {
-                w[i-f]=bmp[i-f]->w;
-                h[i-f]=bmp[i-f]->h;
+                w[i-f] = bmp[i-f]->w;
+                h[i-f] = bmp[i-f]->h;
                 if (!truecolor)
                 {
                     BITMAP* tmp = create_bitmap(w[i-f], h[i-f]);
@@ -611,12 +611,12 @@ namespace TA3D
 
     void Gaf::Animation::init()
     {
-        nb_bmp=0;
-        bmp=NULL;
-        ofs_x=ofs_y=NULL;
-        glbmp=NULL;
-        w=h=NULL;
-        dgl=false;
+        nb_bmp = 0;
+        bmp = NULL;
+        ofs_x = ofs_y = NULL;
+        glbmp = NULL;
+        w = h = NULL;
+        dgl = false;
         filename.clear();
         name.clear();
     }
@@ -630,10 +630,10 @@ namespace TA3D
         {
             for (int i = 0; i < nb_bmp; ++i)
             {
-                if(bmp[i])
+                if (bmp[i])
                     destroy_bitmap(bmp[i]);
-                if(dgl)
-                    glDeleteTextures(1,&(glbmp[i]));
+                if (dgl)
+                    glDeleteTextures(1, &(glbmp[i]));
             }
         }
         if (w) free(w);
@@ -692,39 +692,41 @@ namespace TA3D
         }
     }
 
-    void Gaf::AnimationList::reset()
+    void Gaf::AnimationList::clear()
     {
-        if (anm && nb_anim > 0)
-            delete[] anm;
-        anm = NULL;
-        nb_anim = 0;
+        if (pList && pSize > 0)
+            delete[] pList;
+        pList = NULL;
+        pSize = 0;
     }
 
     Gaf::AnimationList::~AnimationList()
     {
-        if (anm && nb_anim > 0)
-            delete[] anm;
+        if (pList && pSize > 0)
+            delete[] pList;
     }
 
 
-    void Gaf::AnimationList::loadGAFFromRawData(const byte* buf, const bool doConvert, const String& fname)
+    sint32 Gaf::AnimationList::loadGAFFromRawData(const byte* buf, const bool doConvert, const String& fname)
     {
         if (buf != NULL)
         {
-            nb_anim = Gaf::RawDataEntriesCount(buf);
-            anm = new Gaf::Animation[nb_anim];
-            for (int i = 0; i < nb_anim; ++i)
-                anm[i].loadGAFFromRawData(buf, i, true, fname);
+            pSize = Gaf::RawDataEntriesCount(buf);
+            pList = new Gaf::Animation[pSize];
+            for (int i = 0; i < pSize; ++i)
+                pList[i].loadGAFFromRawData(buf, i, true, fname);
             if (doConvert)
                 convert();
+            return pSize;
         }
+        return 0;
     }
 
-    sint32 Gaf::AnimationList::findEntry(const String& name)
+    sint32 Gaf::AnimationList::findByName(const String& name) const
     {
-        for (int i = 0; i < nb_anim; ++i)
+        for (int i = 0; i < pSize; ++i)
         {
-            if (anm[i].name == name)
+            if (pList[i].name == name)
                 return i;
         }
         return -1;
@@ -733,17 +735,16 @@ namespace TA3D
 
     void Gaf::AnimationList::clean()
     {
-        for (int i = 0; i < nb_anim; ++i)
-            anm[i].clean();
+        for (int i = 0; i < pSize; ++i)
+            pList[i].clean();
     }
     
 
     void Gaf::AnimationList::convert(const bool no_filter, const bool compressed)
     {
-        for (int i = 0; i < nb_anim; ++i)
-            anm[i].convert(no_filter, compressed);
+        for (int i = 0; i < pSize; ++i)
+            pList[i].convert(no_filter, compressed);
     }
-
 
 
 } // namespace TA3D

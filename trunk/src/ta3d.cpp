@@ -3865,26 +3865,28 @@ int play(GameData *game_data)
 int anim_cursor(int type)
 {
     return (type == -1)
-        ? ((msec_timer-start) / 100) % cursor.anm[cursor_type].nb_bmp
-        : ((msec_timer-start) / 100) % cursor.anm[type].nb_bmp;
+        ? ((msec_timer-start) / 100) % cursor[cursor_type].nb_bmp
+        : ((msec_timer-start) / 100) % cursor[type].nb_bmp;
 }
 
 
 void draw_cursor()
 {
     int curseur=anim_cursor();
-    if (curseur<0 || curseur>=cursor.anm[cursor_type].nb_bmp)
+    if (curseur < 0 || curseur >= cursor[cursor_type].nb_bmp)
     {
-        curseur=0;
-        start=msec_timer;
+        curseur = 0;
+        start = msec_timer;
     }
-    float dx=cursor.anm[cursor_type].ofs_x[curseur];
-    float dy=cursor.anm[cursor_type].ofs_y[curseur];
-    float sx=cursor.anm[cursor_type].bmp[curseur]->w;
-    float sy=cursor.anm[cursor_type].bmp[curseur]->h;
+    float dx = cursor[cursor_type].ofs_x[curseur];
+    float dy = cursor[cursor_type].ofs_y[curseur];
+    float sx = cursor[cursor_type].bmp[curseur]->w;
+    float sy = cursor[cursor_type].bmp[curseur]->h;
     gfx->set_color(0xFFFFFFFF);
     gfx->set_alpha_blending();
-    gfx->drawtexture( cursor.anm[cursor_type].glbmp[curseur], mouse_x*gfx->SCREEN_W_TO_640-dx, mouse_y*gfx->SCREEN_H_TO_480-dy, mouse_x*gfx->SCREEN_W_TO_640-dx+sx, mouse_y*gfx->SCREEN_H_TO_480-dy+sy);
+    gfx->drawtexture(cursor[cursor_type].glbmp[curseur],
+                     mouse_x * gfx->SCREEN_W_TO_640 - dx, mouse_y * gfx->SCREEN_H_TO_480 - dy,
+                     mouse_x * gfx->SCREEN_W_TO_640 - dx + sx, mouse_y * gfx->SCREEN_H_TO_480 - dy + sy);
     gfx->unset_alpha_blending();
 }
 
