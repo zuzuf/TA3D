@@ -1471,7 +1471,7 @@ void UNIT::draw_shadow(Camera *cam, const Vector3D& Dir,MAP *map)
     glScalef(scale,scale,scale);
     glPolygonMode (GL_FRONT_AND_BACK, GL_FILL);
 
-    if ((type_id != -1 && unit_manager.unit_type[type_id].canmove) || shadow_scale_dir < 0.0f )
+    if ((type_id != -1 && unit_manager.unit_type[type_id].canmove) || shadow_scale_dir < 0.0f)
     {
         Vector3D H = drawn_Pos;
         H.y += 2.0f * model->size2 + 1.0f;
@@ -5045,12 +5045,12 @@ void UNIT::show_orders(bool only_build_commands, bool def_orders)				// Dessine 
         if (!only_build_commands)
         {
             int curseur=anim_cursor(CURSOR_CROSS_LINK);
-            float dx=0.5f*cursor.anm[CURSOR_CROSS_LINK].ofs_x[curseur];
-            float dz=0.5f*cursor.anm[CURSOR_CROSS_LINK].ofs_y[curseur];
+            float dx = 0.5f * cursor[CURSOR_CROSS_LINK].ofs_x[curseur];
+            float dz = 0.5f * cursor[CURSOR_CROSS_LINK].ofs_y[curseur];
             float x,y,z;
-            float dist=((Vector3D)(cur->target-p_target)).norm();
-            int rec=(int)(dist/30.0f);
-            switch(cur->mission)
+            float dist = ((Vector3D)(cur->target-p_target)).norm();
+            int rec = (int)(dist / 30.0f);
+            switch (cur->mission)
             {
                 case MISSION_LOAD:
                 case MISSION_UNLOAD:
@@ -5064,15 +5064,16 @@ void UNIT::show_orders(bool only_build_commands, bool def_orders)				// Dessine 
                 case MISSION_RECLAIM:
                 case MISSION_REVIVE:
                 case MISSION_CAPTURE:
-                    if ((cur->p && ((UNIT*)(cur->p))->ID != cur->target_ID) || (cur->flags & MISSION_FLAG_TARGET_WEAPON) ) {
+                    if ((cur->p && ((UNIT*)(cur->p))->ID != cur->target_ID) || (cur->flags & MISSION_FLAG_TARGET_WEAPON) )
+                    {
                         cur = cur->next;
                         continue;	// Don't show this, it'll be removed
-                        }
+                    }
                     n_target=cur->target;
                     n_target.y = Math::Max(units.map->get_unit_h( n_target.x, n_target.z ), units.map->sealvl);
-                    if (rec>0)
+                    if (rec > 0)
                     {
-                        if (low_def )
+                        if (low_def)
                         {
                             glDisable(GL_DEPTH_TEST);
                             glColor4ub( 0xFF, 0xFF, 0xFF, 0x7F );
@@ -5095,20 +5096,20 @@ void UNIT::show_orders(bool only_build_commands, bool def_orders)				// Dessine 
                         }
                         else
                         {
-                            for ( int i = 0; i < rec; ++i)
+                            for (int i = 0; i < rec; ++i)
                             {
-                                x=p_target.x+(n_target.x-p_target.x)*(i+rab)/rec;
-                                z=p_target.z+(n_target.z-p_target.z)*(i+rab)/rec;
+                                x = p_target.x+(n_target.x-p_target.x)*(i+rab)/rec;
+                                z = p_target.z+(n_target.z-p_target.z)*(i+rab)/rec;
                                 y = Math::Max(units.map->get_unit_h( x, z ), units.map->sealvl);
-                                y+=0.75f;
-                                x-=dx;
-                                z-=dz;
-                                points.push_back( Vector3D( x, y, z ) );
+                                y += 0.75f;
+                                x -= dx;
+                                z -= dz;
+                                points.push_back(Vector3D(x, y, z));
                             }
                         }
                     }
                     p_target = n_target;
-            };
+            }
         }
         glDisable(GL_DEPTH_TEST);
         switch(cur->mission)
@@ -5229,27 +5230,27 @@ void UNIT::show_orders(bool only_build_commands, bool def_orders)				// Dessine 
                         case MISSION_UNLOAD:	cursor_type = CURSOR_UNLOAD;	break;
                         case MISSION_REVIVE:	cursor_type = CURSOR_REVIVE;	break;
                         case MISSION_CAPTURE:	cursor_type = CURSOR_CAPTURE;	break;
-                    };
+                    }
                     int curseur=anim_cursor( cursor_type );
-                    float x=cur->target.x-0.5f*cursor.anm[ cursor_type ].ofs_x[curseur];
-                    float y=cur->target.y+1.0f;
-                    float z=cur->target.z-0.5f*cursor.anm[ cursor_type ].ofs_y[curseur];
-                    float sx=0.5f*(cursor.anm[ cursor_type ].bmp[curseur]->w-1);
-                    float sy=0.5f*(cursor.anm[ cursor_type ].bmp[curseur]->h-1);
-                    if (low_def )
-                        glEnable( GL_TEXTURE_2D );
-                    glBindTexture(GL_TEXTURE_2D,cursor.anm[ cursor_type ].glbmp[curseur]);
+                    float x=cur->target.x - 0.5f * cursor[cursor_type].ofs_x[curseur];
+                    float y=cur->target.y + 1.0f;
+                    float z=cur->target.z - 0.5f * cursor[cursor_type].ofs_y[curseur];
+                    float sx = 0.5f * (cursor[cursor_type].bmp[curseur]->w - 1);
+                    float sy = 0.5f * (cursor[cursor_type].bmp[curseur]->h - 1);
+                    if (low_def)
+                        glEnable(GL_TEXTURE_2D);
+                    glBindTexture(GL_TEXTURE_2D, cursor[cursor_type].glbmp[curseur]);
                     glBegin(GL_QUADS);
-                    glTexCoord2f(0.0f,0.0f);		glVertex3f(x,y,z);
-                    glTexCoord2f(1.0f,0.0f);		glVertex3f(x+sx,y,z);
-                    glTexCoord2f(1.0f,1.0f);		glVertex3f(x+sx,y,z+sy);
-                    glTexCoord2f(0.0f,1.0f);		glVertex3f(x,y,z+sy);
+                    glTexCoord2f(0.0f,0.0f);  glVertex3f(x,y,z);
+                    glTexCoord2f(1.0f,0.0f);  glVertex3f(x+sx,y,z);
+                    glTexCoord2f(1.0f,1.0f);  glVertex3f(x+sx,y,z+sy);
+                    glTexCoord2f(0.0f,1.0f);  glVertex3f(x,y,z+sy);
                     glEnd();
                     if (low_def)
-                        glDisable( GL_TEXTURE_2D );
+                        glDisable(GL_TEXTURE_2D);
                 }
                 break;
-        };
+        }
         glEnable(GL_DEPTH_TEST);
         cur = cur->next;
     }
@@ -5257,8 +5258,8 @@ void UNIT::show_orders(bool only_build_commands, bool def_orders)				// Dessine 
     if (!points.empty())
     {
         int curseur=anim_cursor(CURSOR_CROSS_LINK);
-        float sx=0.5f*(cursor.anm[CURSOR_CROSS_LINK].bmp[curseur]->w-1);
-        float sy=0.5f*(cursor.anm[CURSOR_CROSS_LINK].bmp[curseur]->h-1);
+        float sx = 0.5f * (cursor[CURSOR_CROSS_LINK].bmp[curseur]->w - 1);
+        float sy = 0.5f * (cursor[CURSOR_CROSS_LINK].bmp[curseur]->h - 1);
 
         Vector3D *P = new Vector3D[ points.size() << 2 ];
         float *T = new float[ points.size() << 3 ];
@@ -5291,9 +5292,9 @@ void UNIT::show_orders(bool only_build_commands, bool def_orders)				// Dessine 
         glVertexPointer( 3, GL_FLOAT, 0, P);
         glClientActiveTextureARB(GL_TEXTURE0_ARB );
         glTexCoordPointer(2, GL_FLOAT, 0, T);
-        glBindTexture(GL_TEXTURE_2D,cursor.anm[CURSOR_CROSS_LINK].glbmp[curseur]);
+        glBindTexture(GL_TEXTURE_2D, cursor[CURSOR_CROSS_LINK].glbmp[curseur]);
 
-        glDrawArrays( GL_QUADS, 0, n );
+        glDrawArrays(GL_QUADS, 0, n);
 
         delete[] P;
         delete[] T;

@@ -28,6 +28,7 @@
 
 # include "stdafx.h"
 # include <vector>
+# include "logs/logs.h"
 
 
 # define TA3D_GAF_STANDARD      0x00010100
@@ -245,35 +246,72 @@ namespace TA3D
         }; // class Animation
 
 
+        /*! \class AnimationList
+        **
+        ** \brief Container for all animations in a GAF file
+        */
         class AnimationList
         {
         public:
             //! \name Constructor & Destructor
             //@{
             //! Default constructor
-            AnimationList() :nb_anim(0), anm(NULL) {}
+            AnimationList() :pList(NULL), pSize(0) {}
             //! Destructor
             ~AnimationList();
             //@}
 
             /*!
-            ** \todo Must be removed (bus error when the program exits)
+            ** \brief Clear all animation
+            ** \todo Must be removed (bus error when the program exits, see cTA3D_Engine::~cTA3D_Engine)
             */
-            void reset();
+            void clear();
 
-            void loadGAFFromRawData(const byte* buf, const bool doConvert = false, const String& fname = "");
+            /*!
+            ** \brief Load all animation from a GAF file (Raw Data)
+            **
+            ** \param data The Raw data
+            ** \param doConvert
+            ** \param fname
+            ** \return The number of animation found
+            */
+            sint32 loadGAFFromRawData(const byte* buf, const bool doConvert = false, const String& fname = "");
 
+            /*!
+            ** \brief
+            */
             void convert(const bool no_filter = false, const bool compressed = false);
 
+            /*!
+            ** \deprecated Use clear instead
+            */
             void clean();
 
-            sint32 findEntry(const String& name);
+            /*!
+            ** \brief Find the first animation wit hthe given name
+            **
+            ** \param name The name of the animation to find
+            ** \return The index of the animation. -1 if not found
+            */
+            sint32 findByName(const String& name) const;
 
-        public:
-            //!
-            sint32  nb_anim;
-            //!
-            Gaf::Animation* anm;
+            /*!
+            ** \brief The number of Animation in the list
+            */
+            sint32 size() const {return pSize;}
+
+            /*!
+            ** \brief Get an animation given its index
+            */
+            Gaf::Animation& operator[] (const sint32 indx) const
+            { LOG_ASSERT(indx >=0 && indx < pSize); return pList[indx]; }
+
+
+        private:
+            //! All animation
+            Gaf::Animation* pList;
+            //! The number of animation
+            sint32 pSize;
 
         }; // class AnimationList
 

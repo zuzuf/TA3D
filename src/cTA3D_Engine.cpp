@@ -137,28 +137,28 @@ namespace TA3D
 		cursor.loadGAFFromRawData(data, true);
 		cursor.convert();
 
-		CURSOR_MOVE        = cursor.findEntry("cursormove"); // Match cursor variables with cursor anims
-		CURSOR_GREEN       = cursor.findEntry("cursorgrn");
-		CURSOR_CROSS       = cursor.findEntry("cursorselect");
-		CURSOR_RED         = cursor.findEntry("cursorred");
-		CURSOR_LOAD        = cursor.findEntry("cursorload");
-		CURSOR_UNLOAD      = cursor.findEntry("cursorunload");
-		CURSOR_GUARD       = cursor.findEntry("cursordefend");
-		CURSOR_PATROL      = cursor.findEntry("cursorpatrol");
-		CURSOR_REPAIR      = cursor.findEntry("cursorrepair");
-		CURSOR_ATTACK      = cursor.findEntry("cursorattack");
-		CURSOR_BLUE        = cursor.findEntry("cursornormal");
-		CURSOR_AIR_LOAD    = cursor.findEntry("cursorpickup");
-		CURSOR_BOMB_ATTACK = cursor.findEntry("cursorairstrike");
-		CURSOR_BALANCE     = cursor.findEntry("cursorunload");
-		CURSOR_RECLAIM     = cursor.findEntry("cursorreclamate");
-		CURSOR_WAIT        = cursor.findEntry("cursorhourglass");
-		CURSOR_CANT_ATTACK = cursor.findEntry("cursortoofar");
-		CURSOR_CROSS_LINK  = cursor.findEntry("pathicon");
-		CURSOR_CAPTURE     = cursor.findEntry("cursorcapture");
-		CURSOR_REVIVE      = cursor.findEntry("cursorrevive");
+		CURSOR_MOVE        = cursor.findByName("cursormove"); // Match cursor variables with cursor anims
+		CURSOR_GREEN       = cursor.findByName("cursorgrn");
+		CURSOR_CROSS       = cursor.findByName("cursorselect");
+		CURSOR_RED         = cursor.findByName("cursorred");
+		CURSOR_LOAD        = cursor.findByName("cursorload");
+		CURSOR_UNLOAD      = cursor.findByName("cursorunload");
+		CURSOR_GUARD       = cursor.findByName("cursordefend");
+		CURSOR_PATROL      = cursor.findByName("cursorpatrol");
+		CURSOR_REPAIR      = cursor.findByName("cursorrepair");
+		CURSOR_ATTACK      = cursor.findByName("cursorattack");
+		CURSOR_BLUE        = cursor.findByName("cursornormal");
+		CURSOR_AIR_LOAD    = cursor.findByName("cursorpickup");
+		CURSOR_BOMB_ATTACK = cursor.findByName("cursorairstrike");
+		CURSOR_BALANCE     = cursor.findByName("cursorunload");
+		CURSOR_RECLAIM     = cursor.findByName("cursorreclamate");
+		CURSOR_WAIT        = cursor.findByName("cursorhourglass");
+		CURSOR_CANT_ATTACK = cursor.findByName("cursortoofar");
+		CURSOR_CROSS_LINK  = cursor.findByName("pathicon");
+		CURSOR_CAPTURE     = cursor.findByName("cursorcapture");
+		CURSOR_REVIVE      = cursor.findByName("cursorrevive");
 		if (CURSOR_REVIVE == -1) // If you don't have the required cursors, then resurrection won't work
-			CURSOR_REVIVE = cursor.findEntry("cursorreclamate");
+			CURSOR_REVIVE = cursor.findByName("cursorreclamate");
 
 		delete[] data;
 		ThreadSynchroniser = new ObjectSync;
@@ -180,7 +180,7 @@ namespace TA3D
 	{
 		DestroyThread();
 		delete ThreadSynchroniser;
-        cursor.reset();
+        cursor.clear();
 		ta3dSideData.destroy();
 
 		delete HPIManager;

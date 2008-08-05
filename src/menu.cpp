@@ -2025,12 +2025,12 @@ void campaign_main_menu(void)
                 if (guiobj)
                 {
                     guiobj->Data = 0;
-                    for( int i = 0 ; i < ta3dSideData.nb_side ; ++i)
+                    for (int i = 0 ; i < ta3dSideData.nb_side ; ++i)
                     {
                         if (String::ToLower(ta3dSideData.side_name[i] ) == String::ToLower(campaign_parser->pullAsString("HEADER.campaignside")))
                         {
-                            if (side_logos.nb_anim > i )
-                                guiobj->Data = side_logos.anm[i].glbmp[0];
+                            if (side_logos.size() > i)
+                                guiobj->Data = side_logos[i].glbmp[0];
                             break;
                         }
                     }
@@ -2203,12 +2203,12 @@ int brief_screen(String campaign_name, int mission_id)
 
     int pan_id = 0;
     int rotate_id = 0;
-    for (int i = 0; i < planet_animation.nb_anim; ++i)
+    for (int i = 0; i < planet_animation.size(); ++i)
     {
-        if (String::ToLower(String(planet_animation.anm[i].name).substr(String(planet_animation.anm[i].name).size() - 3, 3)) == "pan")
+        if (String::ToLower(String(planet_animation[i].name).substr(String(planet_animation[i].name).size() - 3, 3)) == "pan")
             pan_id = i;
         else
-            if (String::ToLower(String(planet_animation.anm[i].name).substr(String(planet_animation.anm[i].name).size() - 6, 6)) == "rotate")
+            if (String::ToLower(String(planet_animation[i].name).substr(String(planet_animation[i].name).size() - 6, 6)) == "rotate")
                 rotate_id = i;
     }
 
@@ -2258,7 +2258,7 @@ int brief_screen(String campaign_name, int mission_id)
         {
             GUIOBJ *guiobj = brief_area.get_object("brief.planet");
             if (guiobj)
-                guiobj->Data = planet_animation.anm[rotate_id].glbmp[((int)planet_frame) % planet_animation.anm[rotate_id].nb_bmp];
+                guiobj->Data = planet_animation[rotate_id].glbmp[((int)planet_frame) % planet_animation[rotate_id].nb_bmp];
         }
 
         float pan_frame = planet_frame / (pan_x2 - pan_x1);
@@ -2268,7 +2268,7 @@ int brief_screen(String campaign_name, int mission_id)
             GUIOBJ *guiobj = brief_area.get_object("brief.panning0");
             if (guiobj)
             {
-                guiobj->Data = planet_animation.anm[pan_id].glbmp[ ((int)pan_frame) % planet_animation.anm[pan_id].nb_bmp ];
+                guiobj->Data = planet_animation[pan_id].glbmp[ ((int)pan_frame) % planet_animation[pan_id].nb_bmp ];
                 guiobj->x2 = pan_x2 + (pan_x1 - pan_x2) * (pan_frame - ((int)pan_frame));
                 guiobj->u1 = (pan_frame - ((int)pan_frame));
             }
@@ -2279,7 +2279,7 @@ int brief_screen(String campaign_name, int mission_id)
             GUIOBJ *guiobj = brief_area.get_object("brief.panning1");
             if (guiobj)
             {
-                guiobj->Data = planet_animation.anm[pan_id].glbmp[ ((int)pan_frame + 1) % planet_animation.anm[pan_id].nb_bmp ];
+                guiobj->Data = planet_animation[pan_id].glbmp[ ((int)pan_frame + 1) % planet_animation[pan_id].nb_bmp ];
                 guiobj->x1 = pan_x2 + (pan_x1 - pan_x2) * (pan_frame - ((int)pan_frame));
                 guiobj->u2 = (pan_frame - ((int)pan_frame));
             }

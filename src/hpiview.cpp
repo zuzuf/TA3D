@@ -292,23 +292,23 @@ namespace
 
                 m_File << "[gadget0]\n{\n";
                 m_File << "    filename=" << argv[2] << ";\n";
-                m_File << "    entries=" << anims.nb_anim << ";\n";
+                m_File << "    entries=" << anims.size() << ";\n";
                 m_File << "}\n";
 
-                for( int i = 0 ; i < anims.nb_anim ; ++i)
+                for (sint32 i = 0; i < anims.size(); ++i)
                 {
                     m_File << "[gadget" << (i + 1) << "]\n{\n";
-                    m_File << "    frames=" << anims.anm[i].nb_bmp << ";\n";
-                    m_File << "    name=" << anims.anm[i].name << ";\n";
-                    for( int e = 0 ; e < anims.anm[i].nb_bmp ; e++ )
+                    m_File << "    frames=" << anims[i].nb_bmp << ";\n";
+                    m_File << "    name=" << anims[i].name << ";\n";
+                    for (int e = 0; e < anims[i].nb_bmp; ++e)
                     {
-                        String filename = format("%s%d.tga", anims.anm[i].name.c_str(), e);
+                        String filename = format("%s%d.tga", anims[i].name.c_str(), e);
                         m_File << "    [frame" << e << "]\n    {\n";
-                        m_File << "        XPos=" << anims.anm[i].ofs_x[ e ] << ";\n";
-                        m_File << "        YPos=" << anims.anm[i].ofs_y[ e ] << ";\n";
+                        m_File << "        XPos=" << anims[i].ofs_x[ e ] << ";\n";
+                        m_File << "        YPos=" << anims[i].ofs_y[ e ] << ";\n";
                         m_File << "        filename=" << filename << ";\n";
                         m_File << "    }\n";
-                        save_bitmap( filename.c_str(), anims.anm[i].bmp[e], NULL );
+                        save_bitmap(filename.c_str(), anims[i].bmp[e], NULL);
                     }
                     m_File << "}\n";
                 }
