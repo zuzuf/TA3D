@@ -381,7 +381,7 @@ namespace TA3D
         bool draw_dl(SCRIPT_DATA *data_s=NULL,bool alset=false,int side=0,bool chg_col=true);
         void draw_optimised(const bool set = true);
 
-        bool draw_shadow(Vector3D  Dir,float t,SCRIPT_DATA *data_s=NULL,bool alset=false,bool exploding_parts=false);
+        bool draw_shadow(Vector3D Dir,float t,SCRIPT_DATA *data_s=NULL,bool alset=false,bool exploding_parts=false);
 
         bool draw_shadow_basic(Vector3D Dir,float t,SCRIPT_DATA *data_s=NULL,bool alset=false,bool exploding_parts=false);
 
@@ -422,10 +422,97 @@ namespace TA3D
     class MODEL						// Classe pour la gestion des modèles 3D
     {
     public:
-        OBJECT		obj;			// Objet principal du modèle 3D
+        MODEL() {init();}
+        ~MODEL() {destroy();}
+
+        void init();
+        void destroy();
+
+
+        /*!
+        ** \brief 
+        */
+        void load_asc(const String& filename, float size); // Charge un fichier au format *.ASC
+
+        /*!
+        ** \brief
+        */
+        void save_3dm(const String& filename, bool compressed); // Save the model to the 3DM format
+
+        /*!
+        ** \brief
+        */
+        void compute_topbottom();
+
+        /*!
+        ** \brief
+        */
+        void load_3dm(byte* data);	// Load a model in 3DM format
+
+        /*!
+        ** \brief
+        */
+        int load_3do(byte* data, const char *filename = NULL);
+
+        /*!
+        ** \brief
+        */
+        void create_from_2d(BITMAP* bmp, float w, float h, float max_h);
+
+        /*!
+        ** \brief
+        */
+        void draw(float t, SCRIPT_DATA* data_s = NULL, bool sel = false, bool notex = false,
+                  bool c_part = false, int p_tex = 0, Vector3D *target = NULL, Vector3D* upos = NULL,
+                  MATRIX_4x4* M = NULL, float Size = 0.0f, Vector3D* Center = NULL, bool reverse = false,
+                  int side = 0, bool chg_col = true, OBJECT* src = NULL, SCRIPT_DATA* src_data = NULL);
+
+        /*!
+        ** \brief
+        */
+        void draw_optimised(const bool set = true) {obj.draw_optimised(set);}
+
+        /*!
+        ** \brief
+        */
+        void compute_coord(SCRIPT_DATA* data_s = NULL, MATRIX_4x4* M = NULL);
+
+        /*!
+        ** \brief
+        */
+        void draw_shadow(const Vector3D& Dir, float t,SCRIPT_DATA* data_s = NULL);
+
+        /*!
+        ** \brief
+        */
+        void draw_shadow_basic(const Vector3D& Dir, float t, SCRIPT_DATA *data_s = NULL);
+
+        /*!
+        ** \brief
+        */
+        bool hit(Vector3D &Pos, Vector3D &Dir, SCRIPT_DATA* data_s, Vector3D* I, MATRIX_4x4& M)
+        { return obj.hit(Pos,Dir,data_s,I,M); }
+
+        /*!
+        ** \brief
+        */
+        bool hit_fast(Vector3D& Pos, Vector3D& Dir, SCRIPT_DATA* data_s, Vector3D* I, MATRIX_4x4& M)
+        { return obj.hit_fast(Pos,Dir*M,data_s,I); }
+
+        /*!
+        ** \brief
+        */
+        void Identify(const int nb_piece, const String::Vector& piece_name)
+        { obj.Identify(nb_piece,piece_name); }
+
+        /*!
+        ** \brief
+        */
+        void print_struct(const float Y, const float X, TA3D::GfxFont& fnt)
+        { obj.print_struct(Y, X, fnt); }
 
     public:
-
+        OBJECT		obj;			// Objet principal du modèle 3D
         Vector3D	center;				// Centre de l'objet pour des calculs d'élimination d'objets
         float	size;				// Square of the size of the sphere which contains the model
         float	size2;				// Same as above but it is its square root
@@ -438,107 +525,60 @@ namespace TA3D
         bool	from_2d;
         uint16	nb_obj;
 
-    public:
-        MODEL() {init();}
-        ~MODEL() {destroy();}
-
-        void init();
-
-
-        void destroy();
-
-
-        void load_asc(char *filename,float size); // Charge un fichier au format *.ASC
-
-        void save_3dm(char *filename,bool compressed); // Save the model to the 3DM format
-
-        void compute_topbottom();
-
-        void load_3dm(byte* data);	// Load a model in 3DM format
-
-        int load_3do(byte* data, const char *filename=NULL);
-
-        void create_from_2d(BITMAP* bmp, float w, float h, float max_h);
-
-        void draw(float t, SCRIPT_DATA* data_s = NULL, bool sel = false, bool notex = false,
-                  bool c_part = false, int p_tex = 0, Vector3D *target = NULL, Vector3D* upos = NULL,
-                  MATRIX_4x4* M = NULL, float Size = 0.0f, Vector3D* Center = NULL, bool reverse = false,
-                  int side = 0, bool chg_col = true, OBJECT* src = NULL, SCRIPT_DATA* src_data = NULL);
-
-
-        void draw_optimised(bool set = true) {obj.draw_optimised(set);}
-
-        void compute_coord(SCRIPT_DATA *data_s=NULL,MATRIX_4x4 *M=NULL);
-
-        void draw_shadow(Vector3D Dir,float t,SCRIPT_DATA *data_s=NULL);
-
-        void draw_shadow_basic(Vector3D Dir,float t,SCRIPT_DATA *data_s=NULL);
-
-        bool hit(Vector3D &Pos,Vector3D &Dir,SCRIPT_DATA *data_s,Vector3D *I,MATRIX_4x4 &M)
-        {
-            return obj.hit(Pos,Dir,data_s,I,M);
-        }
-
-        bool hit_fast(Vector3D &Pos,Vector3D &Dir,SCRIPT_DATA *data_s,Vector3D *I,MATRIX_4x4 &M)
-        {
-            return obj.hit_fast(Pos,Dir*M,data_s,I);
-        }
-
-        void Identify(int nb_piece,const String::Vector &piece_name)
-        {
-            obj.Identify(nb_piece,piece_name);
-        }
-
-        void print_struct(const float Y, const float X, TA3D::GfxFont& fnt)
-        {
-            obj.print_struct(Y, X, fnt);
-        }
-
     }; // class MODEL
 
 
 
-    class MODEL_MANAGER							// Classe pour la gestion des modèles 3D du jeu
+    class MODEL_MANAGER	// Classe pour la gestion des modèles 3D du jeu
     {
     public:
-        int			    nb_models;		// Nombre de modèles
-        MODEL		    *model;			// Tableau de modèles
-        String::Vector	name;			// Tableau contenant les noms des modèles
-
-    private:
-        cHashTable< int >	model_hashtable;		// hashtable used to speed up operations on MODEL objects
-
-    public:
-
-        void init()
-        {
-            nb_models=0;
-            model=NULL;
-            name.clear();
-        }
-
-        MODEL_MANAGER() : model_hashtable()
-        {
-            init();
-        }
-
-        void destroy();
-
+        //! \name Constructor & Destructor
+        //@{
+        //! Default Constructor
+        MODEL_MANAGER() :nb_models(0), model(NULL) {}
+        //! Destructor
         ~MODEL_MANAGER();
+        //@}
+
+        void init();
+        void destroy();
 
         MODEL *get_model(const String& name);
 
+        /*!
+        ** \brief
+        */
         int load_all(void (*progress)(float percent,const String &msg)=NULL);
 
+        /*!
+        ** \brief
+        */
         void compute_ids();
 
+        /*!
+        ** \brief
+        */
         void optimise_all();
 
-        void create_from_2d(BITMAP *bmp,float w,float h,float max_h,const String& filename);
+        /*!
+        ** \brief
+        */
+        void create_from_2d(BITMAP *bmp, float w, float h, float max_h, const String& filename);
             
-    };
+    public:
+        int	 nb_models;	 // Nombre de modèles
+        MODEL* model; // Tableau de modèles
+        String::Vector	name; // Tableau contenant les noms des modèles
+
+    private:
+        //! hashtable used to speed up operations on MODEL objects
+        cHashTable<int> model_hashtable;
+
+    }; // class MODEL_MANAGER
+
 
     extern MODEL_MANAGER	model_manager;
+
 
     class Instance
     {
@@ -559,8 +599,7 @@ namespace TA3D
         uint32				model_id;
 
         RenderQueue(const uint32 m_id) :queue(), model_id(m_id) {}
-
-        ~RenderQueue()	{}
+        ~RenderQueue() {}
 
         void draw_queue();
     };
@@ -574,14 +613,14 @@ namespace TA3D
         std::vector< std::list< RenderQueue* > >		hash_table;
 
     public:
-
-        DrawingTable() : hash_table()	{	hash_table.resize( DrawingTable_SIZE );	}
-
+        DrawingTable() : hash_table() {hash_table.resize(DrawingTable_SIZE);}
         ~DrawingTable();
 
-        void queue_Instance( uint32 &model_id, Instance instance );
+        void queue_Instance(uint32 &model_id, Instance instance);
         void draw_all();
+
     };
+
 
     class QUAD
     {
@@ -599,8 +638,8 @@ namespace TA3D
     class QUAD_QUEUE
     {
     public:
-        std::list< QUAD >	queue;
-        GLuint			texture_id;
+        std::list< QUAD >  queue;
+        GLuint texture_id;
 
         QUAD_QUEUE( GLuint t_id ) : queue(), texture_id(t_id) {}
 
@@ -609,15 +648,14 @@ namespace TA3D
         void draw_queue( Vector3D *P, uint32 *C, GLfloat	*T );
     };
 
+
     class QUAD_TABLE							// Kind of hash table used to speed up rendering of separated quads
     {
     private:
         std::vector< std::list< QUAD_QUEUE* > >		hash_table;
 
     public:
-
-        QUAD_TABLE() : hash_table()	{	hash_table.resize( DrawingTable_SIZE );	}
-
+        QUAD_TABLE() : hash_table() {hash_table.resize(DrawingTable_SIZE);}
         ~QUAD_TABLE();
 
         void queue_quad( GLuint &texture_id, QUAD quad );
