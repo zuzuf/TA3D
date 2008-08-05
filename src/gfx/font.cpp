@@ -52,26 +52,27 @@ namespace TA3D
     {
         LOG_DEBUG("Loading GAF font: `" << filename << "`...");
         size = s;
-        byte *data = HPIManager->PullFromHPI( filename );
+        byte *data = HPIManager->PullFromHPI(filename);
         if(data)
         {
             ANIM gaf_font;
-            gaf_font.load_gaf(data);
+            gaf_font.loadGAFFromRawData(data);
             int h = 0, mx = 0, my = 0;
-            for(int i = 0 ; i < gaf_font.nb_bmp ; ++i)
+            for (int i = 0; i < gaf_font.nb_bmp; ++i)
             {
-                if (abs( gaf_font.ofs_x[ i ] ) > 50 || abs( gaf_font.ofs_y[ i ] ) > 50 ) continue;
-                if (-gaf_font.ofs_x[ i ] < mx )	mx = -gaf_font.ofs_x[ i ];
-                if (-gaf_font.ofs_y[ i ] < my )	my = -gaf_font.ofs_y[ i ];
-                if (gaf_font.bmp[ i ]->h > h )	h = gaf_font.bmp[ i ]->h;
+                if (abs( gaf_font.ofs_x[i]) > 50 || abs( gaf_font.ofs_y[i]) > 50)
+                    continue;
+                if (-gaf_font.ofs_x[i] < mx)    mx = -gaf_font.ofs_x[i];
+                if (-gaf_font.ofs_y[i] < my)    my = -gaf_font.ofs_y[i];
+                if (gaf_font.bmp[i]->h > h)     h = gaf_font.bmp[i]->h;
             }
             my += 2;
             h -= 2;
 
-            FONT_COLOR_DATA	*fc = ( FONT_COLOR_DATA* ) malloc( sizeof(FONT_COLOR_DATA) );
+            FONT_COLOR_DATA	*fc = (FONT_COLOR_DATA*) malloc(sizeof(FONT_COLOR_DATA));
             fc->begin = 0;
             fc->end = gaf_font.nb_bmp;
-            fc->bitmaps = (BITMAP**) malloc( sizeof( BITMAP* ) * gaf_font.nb_bmp );
+            fc->bitmaps = (BITMAP**) malloc(sizeof(BITMAP*) * gaf_font.nb_bmp);
             fc->next = NULL;
             for (int i = 0 ; i < gaf_font.nb_bmp ; ++i)
             {

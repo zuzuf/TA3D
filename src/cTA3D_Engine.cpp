@@ -133,49 +133,45 @@ namespace TA3D
 		set_window_title("Total Annihilation 3D");
 
 		// Loading and creating cursors
-		byte *data=HPIManager->PullFromHPI("anims\\cursors.gaf");	// Load cursors
-		cursor.init();
-		cursor.load_gaf(data ,true);
+		byte *data = HPIManager->PullFromHPI("anims\\cursors.gaf");	// Load cursors
+		cursor.loadGAFFromRawData(data, true);
 		cursor.convert();
 
-		CURSOR_MOVE=cursor.find_entry("cursormove");		// Match cursor variables with cursor anims
-		CURSOR_GREEN=cursor.find_entry("cursorgrn");
-		CURSOR_CROSS=cursor.find_entry("cursorselect");
-		CURSOR_RED=cursor.find_entry("cursorred");
-		CURSOR_LOAD=cursor.find_entry("cursorload");
-		CURSOR_UNLOAD=cursor.find_entry("cursorunload");
-		CURSOR_GUARD=cursor.find_entry("cursordefend");
-		CURSOR_PATROL=cursor.find_entry("cursorpatrol");
-		CURSOR_REPAIR=cursor.find_entry("cursorrepair");
-		CURSOR_ATTACK=cursor.find_entry("cursorattack");
-		CURSOR_BLUE=cursor.find_entry("cursornormal");
-		CURSOR_AIR_LOAD=cursor.find_entry("cursorpickup");
-		CURSOR_BOMB_ATTACK=cursor.find_entry("cursorairstrike");
-		CURSOR_BALANCE=cursor.find_entry("cursorunload");
-		CURSOR_RECLAIM=cursor.find_entry("cursorreclamate");
-		CURSOR_WAIT=cursor.find_entry("cursorhourglass");
-		CURSOR_CANT_ATTACK=cursor.find_entry("cursortoofar");
-		CURSOR_CROSS_LINK=cursor.find_entry("pathicon");
-		CURSOR_CAPTURE=cursor.find_entry("cursorcapture");
-		CURSOR_REVIVE=cursor.find_entry("cursorrevive");
-		if( CURSOR_REVIVE == -1 )									// If you don't have the required cursors, then resurrection won't work
-			CURSOR_REVIVE=cursor.find_entry("cursorreclamate");
+		CURSOR_MOVE        = cursor.findEntry("cursormove"); // Match cursor variables with cursor anims
+		CURSOR_GREEN       = cursor.findEntry("cursorgrn");
+		CURSOR_CROSS       = cursor.findEntry("cursorselect");
+		CURSOR_RED         = cursor.findEntry("cursorred");
+		CURSOR_LOAD        = cursor.findEntry("cursorload");
+		CURSOR_UNLOAD      = cursor.findEntry("cursorunload");
+		CURSOR_GUARD       = cursor.findEntry("cursordefend");
+		CURSOR_PATROL      = cursor.findEntry("cursorpatrol");
+		CURSOR_REPAIR      = cursor.findEntry("cursorrepair");
+		CURSOR_ATTACK      = cursor.findEntry("cursorattack");
+		CURSOR_BLUE        = cursor.findEntry("cursornormal");
+		CURSOR_AIR_LOAD    = cursor.findEntry("cursorpickup");
+		CURSOR_BOMB_ATTACK = cursor.findEntry("cursorairstrike");
+		CURSOR_BALANCE     = cursor.findEntry("cursorunload");
+		CURSOR_RECLAIM     = cursor.findEntry("cursorreclamate");
+		CURSOR_WAIT        = cursor.findEntry("cursorhourglass");
+		CURSOR_CANT_ATTACK = cursor.findEntry("cursortoofar");
+		CURSOR_CROSS_LINK  = cursor.findEntry("pathicon");
+		CURSOR_CAPTURE     = cursor.findEntry("cursorcapture");
+		CURSOR_REVIVE      = cursor.findEntry("cursorrevive");
+		if (CURSOR_REVIVE == -1) // If you don't have the required cursors, then resurrection won't work
+			CURSOR_REVIVE = cursor.findEntry("cursorreclamate");
 
 		delete[] data;
-
-
 		ThreadSynchroniser = new ObjectSync;
 
-
 		// Initializing the ascii to scancode table
-		for( int i = 0 ; i < 256 ; i++ )
-			ascii_to_scancode[ i ] = 0;
+		for (int i = 0; i < 256; ++i)
+			ascii_to_scancode[i] = 0;
 
-		for( int i = 0 ; i < KEY_MAX ; ++i)
+		for (int i = 0; i < KEY_MAX; ++i)
         {
-			int ascii_code = scancode_to_ascii( i );
-			if( ascii_code >= 0 && ascii_code < 256 )
-				ascii_to_scancode[ ascii_code ] = i;
+			int ascii_code = scancode_to_ascii(i);
+			if (ascii_code >= 0 && ascii_code < 256)
+				ascii_to_scancode[ascii_code] = i;
 		}
 	}
 
@@ -184,7 +180,7 @@ namespace TA3D
 	{
 		DestroyThread();
 		delete ThreadSynchroniser;
-		cursor.destroy();
+        cursor.reset();
 		ta3dSideData.destroy();
 
 		delete HPIManager;

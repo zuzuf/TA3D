@@ -286,7 +286,7 @@ namespace
                 set_palette(pal);      // Activate the palette
 
                 ANIMS anims;
-                anims.load_gaf( data );
+                anims.loadGAFFromRawData(data);
                 std::ofstream   m_File;
                 m_File.open( format("%s.txt", get_filename( argv[2] )).c_str(), std::ios::out | std::ios::trunc );
 
@@ -315,7 +315,6 @@ namespace
 
                 m_File.flush();
                 m_File.close();
-                anims.destroy();
                 delete[] data;
                 delete[] TA3D::VARS::pal;
             }

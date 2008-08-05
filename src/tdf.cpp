@@ -380,14 +380,13 @@ namespace TA3D
                 else
                 {
                     String tmp("anims\\");
-                    tmp += feature[i].filename;
-                    tmp += ".gaf";
-                    byte *gaf = HPIManager->PullFromHPI(tmp);
+                    tmp << feature[i].filename << ".gaf";
+                    byte* gaf = HPIManager->PullFromHPI(tmp);
                     if (gaf)
                     {
                         sint32 index = Gaf::RawDataGetEntryIndex(gaf, feature[i].seqname);
                         if (index >= 0)
-                            feature[i].anim.load_gaf(gaf, Gaf::RawDataGetEntryIndex(gaf, feature[i].seqname), true, feature[i].filename);
+                            feature[i].anim.loadGAFFromRawData(gaf, Gaf::RawDataGetEntryIndex(gaf, feature[i].seqname), true, feature[i].filename);
                         else
                             LOG_WARNING(LOG_PREFIX_TDF << "`" << feature[i].name << "` has no picture to display !");
                         delete[] gaf;
@@ -396,16 +395,15 @@ namespace TA3D
                            && feature[i].anim.bmp[0]->w>=16 && feature[i].anim.bmp[0]->h>=16 && strcasecmp(feature[i].description.c_str(),"Metal")!=0) // Tente une conversion en 3d
                         {
                             String st(feature[i].filename);
-                            st += "-";
-                            st += feature[i].seqname;
+                            st << "-" << feature[i].seqname;
                             model_manager.create_from_2d(feature[i].anim.bmp[0],
                                                          feature[i].footprintx * 8,
                                                          feature[i].footprintz * 8,
                                                          feature[i].height * H_DIV,
                                                          st);
-                            feature[i].model=NULL;
-                            feature[i].m3d=true;
-                            feature[i].converted=true;
+                            feature[i].model = NULL;
+                            feature[i].m3d = true;
+                            feature[i].converted = true;
                             feature[i].anim.destroy();
                             index = -1;
                         }
