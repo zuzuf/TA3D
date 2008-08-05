@@ -1084,7 +1084,6 @@ namespace TA3D
         glClearColor (0, 0, 0, 0);
         glShadeModel (GL_SMOOTH);
         glPolygonMode (GL_FRONT_AND_BACK, GL_FILL);
-        glPolygonMode (GL_BACK, GL_POINTS);
         glDepthFunc( GL_LESS );
         glEnable (GL_DEPTH_TEST);
         glCullFace (GL_BACK);
