@@ -567,7 +567,7 @@ namespace TA3D
 
 
 
-    void ANIM::load_gaf(const byte *buf, const int entry_idx, const bool truecolor, const String& fname)
+    void ANIM::loadGAFFromRawData(const byte *buf, const int entry_idx, const bool truecolor, const String& fname)
     {
         LOG_ASSERT(buf != NULL);
         if (entry_idx < 0 || !buf)
@@ -679,22 +679,75 @@ namespace TA3D
             if (!glbmp[i])
             {
                 set_color_depth(32);
-                BITMAP *tmp=create_bitmap(bmp[i]->w,bmp[i]->h);
-                blit(bmp[i],tmp,0,0,0,0,tmp->w,tmp->h);
+                BITMAP *tmp = create_bitmap(bmp[i]->w,bmp[i]->h);
+                blit(bmp[i], tmp, 0,0,0,0, tmp->w,tmp->h);
                 destroy_bitmap(bmp[i]);
-                bmp[i]=tmp;
-                if(g_useTextureCompression && COMPRESSED)
+                bmp[i] = tmp;
+                if (g_useTextureCompression && COMPRESSED)
                     allegro_gl_set_texture_format(GL_COMPRESSED_RGBA_ARB);
                 else
                     allegro_gl_set_texture_format(GL_RGBA8);
                 allegro_gl_use_alpha_channel(true);
-                glbmp[i]=gfx->make_texture(bmp[i], NO_FILTER ? FILTER_NONE : FILTER_TRILINEAR );
+                glbmp[i] = gfx->make_texture(bmp[i], NO_FILTER ? FILTER_NONE : FILTER_TRILINEAR );
                 allegro_gl_use_alpha_channel(false);
                 if (!filename.empty())
                     gfx->save_texture_to_cache(cache_filename, glbmp[i], bmp[i]->w, bmp[i]->h);
             }
         }
     }
+
+    void ANIMS::reset()
+    {
+        if (anm && nb_anim > 0)
+            delete[] anm;
+        anm = NULL;
+        nb_anim = 0;
+    }
+
+    ANIMS::~ANIMS()
+    {
+        if (anm && nb_anim > 0)
+            delete[] anm;
+    }
+
+
+    void ANIMS::loadGAFFromRawData(const byte* buf, const bool doConvert, const String& fname)
+    {
+        if (buf != NULL)
+        {
+            nb_anim = Gaf::RawDataEntriesCount(buf);
+            anm = new ANIM[nb_anim];
+            for (int i = 0; i < nb_anim; ++i)
+                anm[i].loadGAFFromRawData(buf, i, true, fname);
+            if (doConvert)
+                convert();
+        }
+    }
+
+    sint32 ANIMS::findEntry(const String& name)
+    {
+        for (int i = 0; i < nb_anim; ++i)
+        {
+            if (anm[i].name == name)
+                return i;
+        }
+        return -1;
+    }
+
+
+    void ANIMS::clean()
+    {
+        for (int i = 0; i < nb_anim; ++i)
+            anm[i].clean();
+    }
+    
+
+    void ANIMS::convert(const bool no_filter, const bool compressed)
+    {
+        for (int i = 0; i < nb_anim; ++i)
+            anm[i].convert(no_filter, compressed);
+    }
+
 
 
 } // namespace TA3D

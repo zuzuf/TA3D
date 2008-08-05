@@ -30,9 +30,9 @@ namespace TA3D
 
         for (int i = 0; i < max_fx; ++i)
         {
-            if(!fx[i].playing)
+            if (!fx[i].playing)
             {
-                idx=i;
+                idx = i;
                 break;
             }
         }
@@ -54,7 +54,7 @@ namespace TA3D
             if (data)
             {
                 ANIM *anm = new ANIM();
-                anm->load_gaf(data, Gaf::RawDataGetEntryIndex(data, entryName.c_str()));
+                anm->loadGAFFromRawData(data, Gaf::RawDataGetEntryIndex(data, entryName));
                 // Next line has been removed in order to remain thread safe, conversion is done in main thread
                 //			anm->convert(false,true);
                 pCacheIsDirty = true;				// Set cache as dirty so we will do conversion at draw time

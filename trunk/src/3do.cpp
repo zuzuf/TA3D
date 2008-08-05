@@ -127,7 +127,7 @@ namespace TA3D
 
     int TEXTURE_MANAGER::load_gaf(byte* data)
     {
-        int nb_entry = Gaf::RawDataEntriesCount(data);
+        sint32 nb_entry = Gaf::RawDataEntriesCount(data);
         int n_nbtex = nbtex + nb_entry;
         ANIM* n_tex = new ANIM[n_nbtex];
         for (int i = 0; i < nbtex; ++i)
@@ -139,7 +139,7 @@ namespace TA3D
             delete[] tex;
         tex = n_tex;
         for (int i = 0; i < nb_entry; ++i)
-            tex[nbtex + i].load_gaf(data, i, false);
+            tex[nbtex + i].loadGAFFromRawData(data, i, false);
         nbtex += nb_entry;
         return 0;
     }

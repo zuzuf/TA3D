@@ -197,96 +197,80 @@ namespace TA3D
     class ANIM
     {
     public:
-        sint32 nb_bmp;
-        BITMAP	**bmp;
-        short	*ofs_x;
-        short	*ofs_y;
-        short	*w,*h;
-        GLuint	*glbmp;
-        String name;
-        bool	dgl;
-        String	filename;
-
-
+        //! \name Constructor & Destructor
+        //@{
+        //! Default constructor
         ANIM() {init();}
+        //! Destructor
         ~ANIM() {destroy();}
+        //@}
 
         void init();
         void destroy();
 
-        void load_gaf(const byte *buf, const int entry_idx = 0, const bool truecolor = true, const String& fname = "");
+        void loadGAFFromRawData(const byte *buf, const int entry_idx = 0, const bool truecolor = true, const String& fname = "");
 
         void convert(bool NO_FILTER = false, bool COMPRESSED = false);
 
         void clean();
 
+    public:
+        //!
+        sint32 nb_bmp;
+        //!
+        BITMAP** bmp;
+        //!
+        short* ofs_x;
+        //!
+        short* ofs_y;
+        //!
+        short* w;
+        //!
+        short* h;
+        //!
+        GLuint* glbmp;
+        //!
+        String name;
+        //!
+        bool dgl;
+        //!
+        String  filename;
+
     }; // class ANIM
+
+
 
     class ANIMS			// Pour la lecture des fichiers GAF animés
     {
     public:
-        int		nb_anim;
-        ANIM	*anm;
+        //! \name Constructor & Destructor
+        //@{
+        //! Default constructor
+        ANIMS() :nb_anim(0), anm(NULL) {}
+        //! Destructor
+        ~ANIMS();
+        //@}
 
-        inline void init()
-        {
-            nb_anim=0;
-            anm=NULL;
-        }
+        /*!
+        ** \todo Must be removed (bus error at finalization)
+        */
+        void reset();
 
-        ANIMS()
-        {
-            init();
-        }
+        void loadGAFFromRawData(const byte* buf, const bool doConvert = false, const String& fname = "");
 
-        inline void destroy()
-        {
-            if(nb_anim>0)
-                delete[] anm;
-            init();
-        }
+        void convert(const bool no_filter = false, const bool compressed = false);
 
-        ~ANIMS()
-        {
-            destroy();
-        }
+        void clean();
 
-        void load_gaf(const byte* buf, const bool doConvert = false, const String& fname = "")
-        {
-            if (buf == NULL)
-                return;
+        sint32 findEntry(const String& name);
 
-            nb_anim = Gaf::RawDataEntriesCount(buf);
-            anm = new ANIM[nb_anim];
-            for (int i = 0; i < nb_anim; ++i)
-                anm[i].load_gaf(buf, i, true, fname);
-            if (doConvert)
-                convert();
-        }
+    public:
+        //!
+        sint32  nb_anim;
+        //!
+        ANIM* anm;
 
-        void convert(const bool no_filter = false, const bool compressed = false)
-        {
-            for (int i = 0; i < nb_anim; ++i)
-                anm[i].convert(no_filter, compressed);
-        }
-
-        void clean()
-        {
-            for (int i = 0; i < nb_anim; ++i)
-                anm[i].clean();
-        }
-
-        int find_entry(const String& name)
-        {
-            for (int i = 0; i < nb_anim; ++i)
-            {
-                if (anm[i].name == name)
-                    return i;
-            }
-            return -1;
-        }
-
-    };
+    }; // class ANIMS
 
 
 } // namespace TA3D

@@ -58,7 +58,7 @@ namespace TA3D
         fx_manager.fx_data = HPIManager->PullFromHPI("anims\\fx.gaf");			// Load weapon animation data and stores it into a cache since it's often used
         if (fx_manager.fx_data)
         {
-            weapon_manager.cannonshell.load_gaf(fx_manager.fx_data, Gaf::RawDataGetEntryIndex(fx_manager.fx_data, "cannonshell"));
+            weapon_manager.cannonshell.loadGAFFromRawData(fx_manager.fx_data, Gaf::RawDataGetEntryIndex(fx_manager.fx_data, "cannonshell"));
             weapon_manager.cannonshell.convert(false,true);
             weapon_manager.cannonshell.clean();
             // fx_data is deleted later in FXManager::destroy()

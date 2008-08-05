@@ -33,10 +33,10 @@ namespace TA3D
         nuclogo.init();
         if (real)
         {
-            byte *data=HPIManager->PullFromHPI("anims\\fx.gaf");
+            byte *data = HPIManager->PullFromHPI("anims\\fx.gaf");
             if (data)
             {
-                nuclogo.load_gaf(data, Gaf::RawDataGetEntryIndex(data, "nuclogo"));
+                nuclogo.loadGAFFromRawData(data, Gaf::RawDataGetEntryIndex(data, "nuclogo"));
                 nuclogo.convert();
                 nuclogo.clean();
                 delete[] data;
@@ -51,9 +51,9 @@ namespace TA3D
         DestroyThread();
 
         pMutex.lock();
-        if(idx_list)
+        if (idx_list)
             delete[] idx_list;
-        if(free_idx)
+        if (free_idx)
             delete[] free_idx;
         index_list_size = 0;
         idx_list = NULL;

@@ -1960,7 +1960,7 @@ void campaign_main_menu(void)
     ANIMS side_logos;
     {
         byte *data = HPIManager->PullFromHPI( "anims\\newgame.gaf");
-        side_logos.load_gaf( data, true);
+        side_logos.loadGAFFromRawData(data, true);
         if (data)
             delete[] data;
     }
@@ -2175,7 +2175,7 @@ int brief_screen(String campaign_name, int mission_id)
         byte *data = HPIManager->PullFromHPI( planet_file);
         if (data)
         {
-            planet_animation.load_gaf( data, true);
+            planet_animation.loadGAFFromRawData(data, true);
             delete[] data;
         }
     }
