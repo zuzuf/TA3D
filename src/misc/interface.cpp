@@ -54,7 +54,6 @@ namespace TA3D
 
     void IInterfaceManager::AddInterface(IInterface* i)
     {
-        LOG_DEBUG(i);
         pMutex.lock();
         pInterfaces.push_back(i);
         i->m_InterfaceID = pNextInterfaceID;
