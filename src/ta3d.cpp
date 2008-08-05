@@ -3854,7 +3854,7 @@ int play(GameData *game_data)
     if (!game_data->campaign)
         Menus::Statistics::Execute();
 
-    LOG_DEBUG("Rreeing memory used for players...");
+    LOG_DEBUG("Freeing memory used for players...");
     players.destroy();
     delete HPIManager;
     HPIManager = new cHPIHandler("");
