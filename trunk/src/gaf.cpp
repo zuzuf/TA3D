@@ -583,7 +583,7 @@ namespace TA3D
         w     = (short*)   malloc(sizeof(short)   * nb_bmp);
         h     = (short*)   malloc(sizeof(short)   * nb_bmp);
         name  = Gaf::RawDataGetEntryName(buf, entry_idx);
-        dgl   = false;
+        pAnimationConverted = false;
 
         int i(0);
         int f(0);
@@ -616,7 +616,7 @@ namespace TA3D
         ofs_x = ofs_y = NULL;
         glbmp = NULL;
         w = h = NULL;
-        dgl = false;
+        pAnimationConverted = false;
         filename.clear();
         name.clear();
     }
@@ -632,7 +632,7 @@ namespace TA3D
             {
                 if (bmp[i])
                     destroy_bitmap(bmp[i]);
-                if (dgl)
+                if (pAnimationConverted)
                     glDeleteTextures(1, &(glbmp[i]));
             }
         }
@@ -659,9 +659,9 @@ namespace TA3D
 
     void Gaf::Animation::convert(bool NO_FILTER, bool COMPRESSED)
     {
-        if (dgl)
-            return;			// Already done!!
-        dgl = true;
+        if (pAnimationConverted)
+            return;
+        pAnimationConverted = true;
         for (int i = 0; i < nb_bmp; ++i)
         {
             String cache_filename;

@@ -239,9 +239,11 @@ namespace TA3D
             //!
             String name;
             //!
-            bool dgl;
-            //!
             String  filename;
+
+        private:
+            //! True when convert() has already been called
+            bool pAnimationConverted;
 
         }; // class Animation
 
