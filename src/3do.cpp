@@ -2081,7 +2081,7 @@ draw_next:
 
 
 
-    bool OBJECT::draw_shadow(Vector3D Dir,float t,SCRIPT_DATA *data_s,bool alset,bool exploding_parts)
+    bool OBJECT::draw_shadow(Vector3D Dir, float t, SCRIPT_DATA *data_s, bool alset, bool exploding_parts)
     {
         bool explodes = script_index>=0 && data_s && (data_s->flag[script_index] & FLAG_EXPLODE);
         bool hide=false;
@@ -2099,8 +2099,9 @@ draw_next:
                 glRotatef(data_s->axe[0][script_index].angle, 1.0f, 0.0f, 0.0f);
                 glRotatef(data_s->axe[1][script_index].angle, 0.0f, 1.0f, 0.0f);
                 glRotatef(data_s->axe[2][script_index].angle, 0.0f, 0.0f, 1.0f);
-//                Dir=((Dir*RotateX(-data_s->axe[0][script_index].angle*DEG2RAD))*RotateY(-data_s->axe[1][script_index].angle*DEG2RAD))*RotateZ(-data_s->axe[2][script_index].angle*DEG2RAD);
-                Dir = Dir*RotateXYZ(-data_s->axe[0][script_index].angle*DEG2RAD, -data_s->axe[1][script_index].angle*DEG2RAD, -data_s->axe[2][script_index].angle*DEG2RAD);
+                Dir = Dir * RotateXYZ(-data_s->axe[0][script_index].angle * DEG2RAD,
+                                      -data_s->axe[1][script_index].angle * DEG2RAD,
+                                      -data_s->axe[2][script_index].angle * DEG2RAD);
             }
             hide = data_s->flag[script_index] & FLAG_HIDE;
         }
@@ -2114,7 +2115,6 @@ draw_next:
                 glRotatef(R.x, 1.0f, 0.0f, 0.0f);
                 glRotatef(R.y, 0.0f, 1.0f, 0.0f);
                 glRotatef(R.z, 0.0f, 0.0f, 1.0f);
-//                Dir = ((Dir * RotateX(-R.x * DEG2RAD)) * RotateY(-R.y * DEG2RAD)) * RotateZ(-R.z * DEG2RAD);
                 Dir = Dir * RotateXYZ(-R.x * DEG2RAD, -R.y * DEG2RAD, -R.z * DEG2RAD);
             }
         }
@@ -2844,8 +2844,16 @@ hit_fast_is_exploding:
 
     MODEL_MANAGER::~MODEL_MANAGER()
     {
-        destroy();
+        if (model)
+            delete[] model;
         model_hashtable.emptyHashTable();
+    }
+
+    void MODEL_MANAGER::init()
+    {
+        nb_models = 0;
+        model = NULL;
+        name.clear();
     }
 
 
@@ -3126,7 +3134,7 @@ hit_fast_is_exploding:
     }
 
 
-    void MODEL::draw_shadow(Vector3D Dir,float t,SCRIPT_DATA *data_s)
+    void MODEL::draw_shadow(const Vector3D& Dir, float t, SCRIPT_DATA* data_s)
     {
         glDisable(GL_TEXTURE_2D);
         obj.draw_shadow(Dir,t,data_s,false);
@@ -3134,34 +3142,33 @@ hit_fast_is_exploding:
             obj.draw_shadow(Dir,t,data_s,false,true);
     }
 
-    void MODEL::draw_shadow_basic(Vector3D Dir,float t,SCRIPT_DATA *data_s)
+    void MODEL::draw_shadow_basic(const Vector3D& Dir, float t, SCRIPT_DATA *data_s)
     {
         glDisable(GL_TEXTURE_2D);
-        obj.draw_shadow_basic(Dir,t,data_s,false);
-        if( data_s && data_s->explode )
+        obj.draw_shadow_basic(Dir, t, data_s, false);
+        if (data_s && data_s->explode)
             obj.draw_shadow_basic(Dir,t,data_s,false,true);
     }
 
 
-    void MODEL::compute_coord(SCRIPT_DATA *data_s,MATRIX_4x4 *M)
+    void MODEL::compute_coord(SCRIPT_DATA* data_s, MATRIX_4x4* M)
     {
         Vector3D pos;
-        pos.x=pos.y=pos.z=0.0f;
-        obj.compute_coord(data_s,&pos,false,0,NULL,NULL,M);
+        obj.compute_coord(data_s, &pos, false, 0, NULL, NULL, M);
     }
 
 
-    void MODEL::save_3dm(char *filename,bool compressed)					// Save the model to the 3DM format
+    void MODEL::save_3dm(const String& filename, bool compressed) // Save the model to the 3DM format
     {
-        FILE *dst = TA3D_OpenFile(filename,"wb");
-        if(dst)
+        FILE *dst = TA3D_OpenFile(filename, "w");
+        if (dst)
         {
             obj.save_3dm(dst, compressed);
             fclose(dst);
         }
         else
-            LOG_ERROR(LOG_PREFIX_3DM << "Impossible to save the 3DM file: `"
-                      << (filename == NULL ? "NULL" : filename) << "` can not be opened for writing");
+            LOG_ERROR(LOG_PREFIX_3DM << "Impossible to save the 3DM file: `" << filename
+                      << "` can not be opened for writing");
     }
 
 
@@ -3169,13 +3176,13 @@ hit_fast_is_exploding:
     {
         Vector3D O;
         O.x = O.y = O.z = 0.0f;
-        top = obj.compute_top( -99999.0f, O );
-        bottom = obj.compute_bottom( 99999.0f, O );
+        top = obj.compute_top(-99999.0f, O);
+        bottom = obj.compute_bottom(99999.0f, O);
     }
 
 
 
-    void MODEL::load_asc(char *filename,float size)		// Charge un fichier au format *.ASC
+    void MODEL::load_asc(const String& filename,float size)		// Charge un fichier au format *.ASC
     {
 
         destroy();			// Puisqu'on charge
@@ -3203,13 +3210,13 @@ hit_fast_is_exploding:
 
         long nbp=0,nbf=0;
 
-        FILE  *fichier;
-        char  chaine[200];
-        char  *fin;
-        long  i,j;
-        char  temp[50];
+        FILE* fichier;
+        char chaine[200];
+        char* fin;
+        long i,j;
+        char temp[50];
         float x,y,z;
-        int   decalage=0;
+        int  decalage=0;
         int nbpt;
         int test;
         float dx,dy,dz;
@@ -3217,13 +3224,13 @@ hit_fast_is_exploding:
               xmax=-0xFFFFFF,ymax=-0xFFFFFF,zmax=-0xFFFFFF;
 
         int StructD[4096];     // Données pour la restitution de la structure
-        char *StructName[4096];
-        int NbStruct=0;
+        char* StructName[4096];
+        int NbStruct = 0;
 
-        nbpt=0;
-        test=0;
-        nbf=0;
-        nbp=0;
+        nbpt = 0;
+        test = 0;
+        nbf = 0;
+        nbp = 0;
 
         if ((fichier = TA3D_OpenFile(filename, "rt")) == NULL)
         {
@@ -3243,19 +3250,19 @@ hit_fast_is_exploding:
                     // Lecture des coordonnées d'un point
                     i=6;
 
-                    while(chaine[i]!='X') i++;
-                    i+=2;
-                    while(chaine[i]==' ') i++;
+                    while (chaine[i]!='X') i++;
+                    i += 2;
+                    while (chaine[i]==' ') i++;
                     sscanf(chaine+i,"%f",&x);
 
-                    while(chaine[i]!='Y') i++;
+                    while (chaine[i]!='Y') i++;
                     i+=2;
-                    while(chaine[i]==' ') i++;
+                    while (chaine[i]==' ') i++;
                     sscanf(chaine+i,"%f",&y);
 
-                    while(chaine[i]!='Z') i++;
+                    while (chaine[i]!='Z') i++;
                     i+=2;
-                    while(chaine[i]==' ') i++;
+                    while (chaine[i]==' ') i++;
                     sscanf(chaine+i,"%f",&z);
 
                     coor[0][nbp]=x;
@@ -3310,6 +3317,7 @@ hit_fast_is_exploding:
                     }
                 }
                 else
+                {
                     if (!strncmp(chaine, "NAMED OBJECT", 12))
                     {
                         StructName[NbStruct] = strdup(chaine + 13);
@@ -3323,8 +3331,9 @@ hit_fast_is_exploding:
                         decalage = nbp;
                         StructD[NbStruct++] = nbf;
                     }
+                }
             }
-        } while(fin!=NULL);
+        } while (fin != NULL);
 
         fclose(fichier);
 
@@ -3342,7 +3351,7 @@ hit_fast_is_exploding:
 
         for (i = 0; i < NbStruct; ++i) // Crée les différentes parties de la meshe
         {
-            if (i>0)
+            if (i > 0)
             {
                 cur->next = new OBJECT;
                 cur = cur->next;
@@ -3463,36 +3472,36 @@ hit_fast_is_exploding:
     void OBJECT::save_3dm(FILE *dst, bool compressed)
     {
         uint8 len = strlen(name);
-        fwrite(&len,sizeof(len),1,dst);		// Write the object name
-        fwrite(name,len,1,dst);
+        fwrite(&len, sizeof(len), 1, dst); // Write the object name
+        fwrite(name, len, 1, dst);
 
-        fwrite(&pos_from_parent.x,sizeof(pos_from_parent.x),1,dst);
-        fwrite(&pos_from_parent.y,sizeof(pos_from_parent.y),1,dst);
-        fwrite(&pos_from_parent.z,sizeof(pos_from_parent.z),1,dst);
+        fwrite(&pos_from_parent.x, sizeof(pos_from_parent.x), 1, dst);
+        fwrite(&pos_from_parent.y, sizeof(pos_from_parent.y), 1, dst);
+        fwrite(&pos_from_parent.z, sizeof(pos_from_parent.z), 1, dst);
 
-        fwrite(&nb_vtx,sizeof(nb_vtx),1,dst);
-        if (points!=NULL)
-            fwrite(points,sizeof(Vector3D)*nb_vtx,1,dst);
+        fwrite(&nb_vtx, sizeof(nb_vtx), 1, dst);
+        if (points != NULL)
+            fwrite(points, sizeof(Vector3D) * nb_vtx, 1, dst);
 
-        fwrite(sel,sizeof(GLushort)*4,1,dst);				// Selection primitive
+        fwrite(sel, sizeof(GLushort) * 4, 1, dst); // Selection primitive
 
-        fwrite(&nb_p_index,sizeof(nb_p_index),1,dst);		// Write point data
-        if (p_index!=NULL)
-            fwrite(p_index,sizeof(GLushort)*nb_p_index,1,dst);
+        fwrite(&nb_p_index, sizeof(nb_p_index), 1, dst); // Write point data
+        if (p_index != NULL)
+            fwrite(p_index, sizeof(GLushort) * nb_p_index, 1, dst);
 
-        fwrite(&nb_l_index,sizeof(nb_l_index),1,dst);		// Write line data
-        if (l_index!=NULL)
-            fwrite(l_index,sizeof(GLushort)*nb_l_index,1,dst);
+        fwrite(&nb_l_index, sizeof(nb_l_index), 1, dst); // Write line data
+        if (l_index != NULL)
+            fwrite(l_index, sizeof(GLushort) * nb_l_index, 1, dst);
 
-        fwrite(&nb_t_index,sizeof(nb_t_index),1,dst);		// Write triangle data
-        if (t_index!=NULL)
-            fwrite(t_index,sizeof(GLushort)*nb_t_index,1,dst);
+        fwrite(&nb_t_index, sizeof(nb_t_index), 1, dst); // Write triangle data
+        if (t_index != NULL)
+            fwrite(t_index, sizeof(GLushort) * nb_t_index, 1, dst);
 
-        fwrite(tcoord,sizeof(float)*nb_vtx<<1,1,dst);		// Write texture coordinates
+        fwrite(tcoord, sizeof(float) * nb_vtx << 1, 1, dst); // Write texture coordinates
 
-        fwrite(surface.Color,sizeof(float)*4,1,dst);		// Write surface data
-        fwrite(surface.RColor,sizeof(float)*4,1,dst);
-        fwrite(&surface.Flag,sizeof(surface.Flag),1,dst);
+        fwrite(surface.Color,  sizeof(float) * 4, 1, dst);		// Write surface data
+        fwrite(surface.RColor, sizeof(float) * 4, 1, dst);
+        fwrite(&surface.Flag,  sizeof(surface.Flag), 1, dst);
         int tmp=surface.NbTex;
         if (!(surface.Flag&SURFACE_TEXTURED))
             surface.NbTex=0;
@@ -3503,15 +3512,16 @@ hit_fast_is_exploding:
         fwrite(&surface.NbTex, sizeof(surface.NbTex), 1, dst);
         surface.NbTex = tmp;
         if (surface.Flag & SURFACE_TEXTURED)
+        {
             for (uint8 i = 0; i < surface.NbTex; ++i)
             {
                 BITMAP *tex;
                 GLint w,h;
                 glBindTexture(GL_TEXTURE_2D,surface.gltex[i]);
                 glGetTexLevelParameteriv(GL_TEXTURE_2D,0,GL_TEXTURE_WIDTH,&w);
-                glGetTexLevelParameteriv(GL_TEXTURE_2D,0,GL_TEXTURE_HEIGHT,&h);
-                tex=create_bitmap_ex(32,w,h);
-                glGetTexImage(GL_TEXTURE_2D,0,GL_RGBA,GL_UNSIGNED_BYTE,tex->line[0]);
+                glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_HEIGHT, &h);
+                tex = create_bitmap_ex(32,w,h);
+                glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA,GL_UNSIGNED_BYTE, tex->line[0]);
 
                 if (!compressed) // Store texture data without compression
                 {
@@ -3538,9 +3548,9 @@ hit_fast_is_exploding:
                     fwrite(buffer, img_size, 1, dst);
 
                     bool need_alpha = false;
-                    for (int y = 0 ; y < tex->h ; ++y)
+                    for (int y = 0 ; y < tex->h; ++y)
                     {
-                        for (int x = 0; x < tex->w ; ++x)
+                        for (int x = 0; x < tex->w; ++x)
                         {
                             int c = geta(getpixel(tex, x, y));
                             if (c != 255)
@@ -3554,8 +3564,7 @@ hit_fast_is_exploding:
                         putc(1, dst);		// Alpha channel has to be stored
                         img_size = buf_size;
                         save_memory_jpg_ex(buffer, &img_size, tex, NULL, 100, JPG_GREYSCALE | JPG_OPTIMIZE, NULL);
-
-                        fwrite(&img_size, sizeof(img_size), 1, dst);		// Save the result
+                        fwrite(&img_size, sizeof(img_size), 1, dst); // Save the result
                         fwrite(buffer, img_size, 1, dst);
                     }
                     else
@@ -3564,28 +3573,29 @@ hit_fast_is_exploding:
                 }
                 destroy_bitmap(tex);
             }
+        }
 
         if (surface.Flag & SURFACE_GLSL)// Save the shader object
         {
             uint32 shader_size = surface.vert_shader_src.size();
-            fwrite(&shader_size,4,1,dst);
-            fwrite(surface.vert_shader_src.c_str(),shader_size,1,dst);
+            fwrite(&shader_size, 4, 1, dst);
+            fwrite(surface.vert_shader_src.c_str(), shader_size, 1, dst);
 
             shader_size = surface.frag_shader_src.size();
-            fwrite(&shader_size,4,1,dst);
-            fwrite(surface.frag_shader_src.c_str(),shader_size,1,dst);
+            fwrite(&shader_size, 4, 1, dst);
+            fwrite(surface.frag_shader_src.c_str(), shader_size, 1, dst);
         }
 
         if (animation_data) // Save animation data
         {
             fputc(2, dst);
             fputc( animation_data->type, dst);
-            fwrite( &(animation_data->angle_0), sizeof(Vector3D), 1, dst);
-            fwrite( &(animation_data->angle_1), sizeof(Vector3D), 1, dst);
-            fwrite( &(animation_data->angle_w), sizeof(float), 1, dst);
-            fwrite( &(animation_data->translate_0), sizeof(Vector3D), 1, dst);
-            fwrite( &(animation_data->translate_1), sizeof(Vector3D), 1, dst);
-            fwrite( &(animation_data->translate_w), sizeof(float), 1, dst);
+            fwrite(&(animation_data->angle_0), sizeof(Vector3D), 1, dst);
+            fwrite(&(animation_data->angle_1), sizeof(Vector3D), 1, dst);
+            fwrite(&(animation_data->angle_w), sizeof(float), 1, dst);
+            fwrite(&(animation_data->translate_0), sizeof(Vector3D), 1, dst);
+            fwrite(&(animation_data->translate_1), sizeof(Vector3D), 1, dst);
+            fwrite(&(animation_data->translate_w), sizeof(float), 1, dst);
         }
 
         if (child)
@@ -3594,15 +3604,15 @@ hit_fast_is_exploding:
             child->save_3dm(dst, compressed);
         }
         else
-            fputc(0,dst);
+            fputc(0, dst);
 
         if (next)
         {
-            fputc(1,dst);
+            fputc(1, dst);
             next->save_3dm(dst, compressed);
         }
         else
-            fputc(0,dst);
+            fputc(0, dst);
     }
 
 
@@ -3623,49 +3633,59 @@ hit_fast_is_exploding:
         if (data == NULL)
             return NULL;
 
-        uint8	len = data[0];	data++;
-        name = (char*) malloc(len+1);
-        data=read_from_mem(name,len,data);
-        name[len]=0;
+        uint8 len = data[0];
+        ++data;
+        name = (char*) malloc(len + 1);
+        data = read_from_mem(name,len,data);
+        name[len] = 0;
 
-        data=read_from_mem(&pos_from_parent.x,sizeof(pos_from_parent.x),data);
+        data = read_from_mem(&pos_from_parent.x, sizeof(pos_from_parent.x), data);
         if (isNaN(pos_from_parent.x))           // Some error checks
         {
-            free( name );   name = NULL;    return NULL;
+            free(name);
+            name = NULL;
+            return NULL;
         }
 
-        data=read_from_mem(&pos_from_parent.y,sizeof(pos_from_parent.y),data);
+        data = read_from_mem(&pos_from_parent.y, sizeof(pos_from_parent.y), data);
         if (isNaN(pos_from_parent.y))           // Some error checks
         {
-            free( name );   name = NULL;    return NULL;
+            free(name);
+            name = NULL;
+            return NULL;
         }
 
         data=read_from_mem(&pos_from_parent.z,sizeof(pos_from_parent.z),data);
-        if (isNaN(pos_from_parent.z))           // Some error checks
+        if (isNaN(pos_from_parent.z))
         {
-            free( name );   name = NULL;    return NULL;
+            free(name); 
+            name = NULL;
+            return NULL;
         }
 
-        data=read_from_mem(&nb_vtx,sizeof(nb_vtx),data);
-        if (nb_vtx < 0)           // Some error checks
+        data = read_from_mem(&nb_vtx, sizeof(nb_vtx), data);
+        if (nb_vtx < 0)
         {
-            free( name );   name = NULL;    return NULL;
+            free(name);
+            name = NULL;
+            return NULL;
         }
-        if (nb_vtx>0)
+        if (nb_vtx > 0)
         {
             points = new Vector3D[nb_vtx<<1];
-            data=read_from_mem(points,sizeof(Vector3D)*nb_vtx,data);
+            data = read_from_mem(points,sizeof(Vector3D)*nb_vtx,data);
         }
         else
-            points=NULL;
+            points = NULL;
 
-        data=read_from_mem(sel,sizeof(GLushort)*4,data);
+        data = read_from_mem(sel, sizeof(GLushort) * 4, data);
 
-        data=read_from_mem(&nb_p_index,sizeof(nb_p_index),data);	// Read point data
+        data = read_from_mem(&nb_p_index, sizeof(nb_p_index), data); // Read point data
         if (nb_p_index < 0)
         {
-            if (points) delete[] points;
-            free( name );
+            if (points)
+                delete[] points;
+            free(name);
             init();
             return NULL;
         }
@@ -3682,11 +3702,11 @@ hit_fast_is_exploding:
         {
             if (points) delete[] points;
             if (p_index) delete[] p_index;
-            free( name );
+            free(name);
             init();
             return NULL;
         }
-        if (nb_l_index>0)
+        if (nb_l_index > 0)
         {
             l_index = new GLushort[nb_l_index];
             data=read_from_mem(l_index,sizeof(GLushort)*nb_l_index,data);
@@ -3694,7 +3714,7 @@ hit_fast_is_exploding:
         else
             l_index=NULL;
 
-        data=read_from_mem(&nb_t_index,sizeof(nb_t_index),data);	// Read triangle data
+        data = read_from_mem(&nb_t_index, sizeof(nb_t_index), data); // Read triangle data
         if (nb_t_index < 0)
         {
             if (points) delete[] points;
@@ -3704,7 +3724,7 @@ hit_fast_is_exploding:
             init();
             return NULL;
         }
-        if (nb_t_index>0)
+        if (nb_t_index > 0)
         {
             t_index = new GLushort[nb_t_index];
             data=read_from_mem(t_index,sizeof(GLushort)*nb_t_index,data);
@@ -3744,16 +3764,16 @@ hit_fast_is_exploding:
                         for (int x = 0; x < tex->w; ++x)
                             data = read_from_mem(&((int*)(tex->line[y]))[x], 4, data);
                 }
-                catch( ... )
+                catch(...)
                 {
                     destroy();
                     return NULL;
-                };
+                }
             }
             else
             {
                 int img_size = 0;
-                data=read_from_mem(&img_size,sizeof(img_size),data);	// Read RGB data first
+                data = read_from_mem(&img_size,sizeof(img_size),data);	// Read RGB data first
                 byte *buffer = new byte[ img_size ];
 
                 try
@@ -3768,7 +3788,7 @@ hit_fast_is_exploding:
                     delete[] buffer;
                     destroy();
                     return NULL;
-                };
+                }
 
                 delete[] buffer;
 
@@ -3837,7 +3857,7 @@ hit_fast_is_exploding:
             surface.vert_shader_src = buf;
             delete[] buf;
 
-            data=read_from_mem(&shader_size,4,data);
+            data = read_from_mem(&shader_size,4,data);
             buf = new char[shader_size+1];
             buf[shader_size]=0;
             data = read_from_mem(buf,shader_size,data);
@@ -3898,11 +3918,11 @@ hit_fast_is_exploding:
         else
             child=NULL;
 
-        data=read_from_mem(&link,1,data);
+        data = read_from_mem(&link,1,data);
         if (link)
         {
             next = new OBJECT;
-            data=next->load_3dm(data);
+            data = next->load_3dm(data);
             if (data == NULL)
             {
                 destroy();
@@ -3910,41 +3930,51 @@ hit_fast_is_exploding:
             }
         }
         else
-            next=NULL;
+            next = NULL;
         return data;
     }
 
+
     DrawingTable::~DrawingTable()
     {
-        for ( uint16 i = 0 ; i < DrawingTable_SIZE ; i++ )
-            for (std::list< RenderQueue* >::iterator e = hash_table[ i ].begin() ; e != hash_table[ i ].end() ; e++ )
+        for (uint16 i = 0; i < DrawingTable_SIZE; ++i)
+        {
+            for (std::list< RenderQueue* >::iterator e = hash_table[i].begin(); e != hash_table[i].end(); ++e)
                 delete *e;
+        }
         hash_table.clear();
     }
+
 
     void DrawingTable::queue_Instance( uint32 &model_id, Instance instance )
     {
         uint32	hash = model_id & DrawingTable_MASK;
-        for (std::list< RenderQueue* >::iterator i = hash_table[ hash ].begin() ; i != hash_table[ hash ].end() ; i++ )
-            if ((*i)->model_id == model_id ) {		// We found an already existing render queue
+        for (std::list< RenderQueue* >::iterator i = hash_table[ hash ].begin(); i != hash_table[hash].end(); ++i)
+        {
+            if ((*i)->model_id == model_id)// We found an already existing render queue
+            {
                 (*i)->queue.push_back( instance );
                 return;
             }
+        }
         RenderQueue *renderQueue = new RenderQueue( model_id );
         hash_table[ hash ].push_back( renderQueue );
         renderQueue->queue.push_back( instance );
     }
 
+
     void DrawingTable::draw_all()
     {
-        for ( uint16 i = 0 ; i < DrawingTable_SIZE ; i++ )
+        for (uint16 i = 0; i < DrawingTable_SIZE; ++i)
             for (std::list< RenderQueue* >::iterator e = hash_table[ i ].begin() ; e != hash_table[ i ].end() ; e++ )
                 (*e)->draw_queue();
     }
 
+
     void RenderQueue::draw_queue()
     {
-        if (queue.size() == 0 )	return;
+        if (queue.empty())
+            return;
         glPushMatrix();
 
         if (model_manager.model[ model_id ].from_2d )
@@ -3976,6 +4006,7 @@ hit_fast_is_exploding:
         glPopMatrix();
     }
 
+
     QUAD_TABLE::~QUAD_TABLE()
     {
         for (uint16 i = 0; i < DrawingTable_SIZE; ++i)
@@ -3985,6 +4016,7 @@ hit_fast_is_exploding:
         }
         hash_table.clear();
     }
+
 
     void QUAD_TABLE::queue_quad(GLuint& texture_id, QUAD quad)
     {
@@ -4001,6 +4033,7 @@ hit_fast_is_exploding:
         hash_table[ hash ].push_back(quad_queue);
         quad_queue->queue.push_back(quad);
     }
+
 
     void QUAD_TABLE::draw_all()
     {
@@ -4052,7 +4085,8 @@ hit_fast_is_exploding:
         delete[] T;
     }
 
-    void QUAD_QUEUE::draw_queue( Vector3D *P, uint32 *C, GLfloat	*T )
+
+    void QUAD_QUEUE::draw_queue(Vector3D *P, uint32 *C, GLfloat* T)
     {
         if (queue.empty())
             return;
