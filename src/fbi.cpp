@@ -1359,7 +1359,7 @@ namespace TA3D
         for (String::List::iterator i = file_list.begin(); i != file_list.end(); ++i)
         {
             if (progress != NULL && !(n & 0xF))
-                progress((300.0f+n*50.0f/(file_list.size()+1))/7.0f, I18N::Translate("Loading units"));
+                progress((300.0f + n * 50.0f / (file_list.size() + 1)) / 7.0f, I18N::Translate("Loading units"));
             ++n;
 
             char *nom=strdup(strstr(i->c_str(),"\\")+1);			// Vérifie si l'unité n'est pas déjà chargée
@@ -1368,6 +1368,7 @@ namespace TA3D
 
             if (unit_manager.get_unit_index(nom) == -1)
             {
+                LOG_DEBUG("Loading the unit `" << nom << "`...");
                 uint32 file_size=0;
                 byte *data = HPIManager->PullFromHPI(*i, &file_size);
                 nb_inconnu += unit_manager.load_unit(data, file_size);
@@ -1380,7 +1381,7 @@ namespace TA3D
                     if (unit_manager.unit_type[unit_manager.nb_unit-1].unitpic)
                     {
                         allegro_gl_use_alpha_channel(false);
-                        if(g_useTextureCompression)
+                        if (g_useTextureCompression)
                             allegro_gl_set_texture_format(GL_COMPRESSED_RGB_ARB);
                         else
                             allegro_gl_set_texture_format(GL_RGB8);
@@ -1391,7 +1392,6 @@ namespace TA3D
                     }
                 }
                 delete[] data;
-                LOG_DEBUG("Loading `" << nom << "`...");
             }
             free(nom);
         }
