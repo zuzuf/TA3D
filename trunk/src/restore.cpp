@@ -89,6 +89,9 @@ void save_game( const String filename, GameData *game_data )
     // Player network ID
     for (std::vector<int>::const_iterator i = game_data->player_network_id.begin(); i != game_data->player_network_id.end(); ++i)
         SAVE(*i);
+    // Teams
+    for (std::vector<uint16>::const_iterator i = game_data->team.begin(); i != game_data->team.end(); ++i)
+        SAVE(*i);
     // AI Levels
     for (std::vector<byte>::const_iterator i = game_data->ai_level.begin(); i != game_data->ai_level.end(); ++i)
         fputc(*i, file);
@@ -484,6 +487,9 @@ void load_game_data( const String filename, GameData *game_data )
     // Player network ID
     for (std::vector<int>::iterator i = game_data->player_network_id.begin(); i != game_data->player_network_id.end(); ++i)
         LOAD(*i);
+    // Teams
+    for (std::vector<uint16>::iterator i = game_data->team.begin(); i != game_data->team.end(); ++i)
+        LOAD(*i);
     // AI Levels
     for (std::vector<byte>::iterator i = game_data->ai_level.begin(); i != game_data->ai_level.end(); ++i)
         *i = fgetc( file );
@@ -541,6 +547,9 @@ void load_game( GameData *game_data )
         *i = fgetc( file );
     // Player network ID
     for (std::vector<int>::iterator i = game_data->player_network_id.begin(); i != game_data->player_network_id.end(); ++i)
+        LOAD(*i);
+    // Teams
+    for (std::vector<uint16>::iterator i = game_data->team.begin(); i != game_data->team.end(); ++i)
         LOAD(*i);
     // AI Levels
     for (std::vector<byte>::iterator i = game_data->ai_level.begin(); i != game_data->ai_level.end(); ++i)

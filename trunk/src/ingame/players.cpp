@@ -59,6 +59,7 @@ namespace TA3D
         metal[nb_player]        = M;
         energy_s[nb_player]     = E;
         metal_s[nb_player]      = M;
+        team[nb_player]         = 1 << nb_player;       // Try to be your own enemy :P
         side[nb_player++] = SIDE;
 
         if (_control == PLAYER_CONTROL_LOCAL_HUMAN)

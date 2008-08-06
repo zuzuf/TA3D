@@ -18,6 +18,7 @@ namespace TA3D
         fog_of_war = FOW_DISABLED;
         game_script.clear();
 
+        team.resize(TA3D_PLAYERS_HARD_LIMIT);
         player_names.resize(TA3D_PLAYERS_HARD_LIMIT);
         player_sides.resize(TA3D_PLAYERS_HARD_LIMIT);
         player_control.resize(TA3D_PLAYERS_HARD_LIMIT);
@@ -31,6 +32,7 @@ namespace TA3D
             energy[i] = metal[i] = 10000;
             player_network_id[i] = -1;
             ready[i] = false;
+            team[i] = 1 << i;
         }
     }
 
@@ -42,6 +44,7 @@ namespace TA3D
         map_filename.clear();
         game_script.clear();
         nb_players=0;
+        team.clear();
         player_names.clear();
         player_sides.clear();
         player_control.clear();
