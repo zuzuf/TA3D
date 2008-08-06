@@ -63,6 +63,8 @@ namespace TA3D
         //! Idem with metal
         std::vector<uint32> metal;
 
+        //! Teams
+        std::vector<uint16> team;
         //! Who is ready ?
         std::vector<byte> ready;
         //! Which script to run

@@ -131,6 +131,8 @@ namespace TA3D
         uint32		    nb_unit[TA3D_PLAYERS_HARD_LIMIT];	// Nombre d'unités de chaque joueur
         //! Side of which we draw the game interface
         uint8		    side_view;
+        //! Team array, we use uint16 with masking so a player could belong to several "teams" with some advanced team management (for later)
+        uint16          team[TA3D_PLAYERS_HARD_LIMIT];
 
         //		Variables used to compute the data we need ( because of threading )
 
