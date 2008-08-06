@@ -45,7 +45,7 @@
 	text_x2=151;
 	text_y2=42;
 	text_scale=1.3;
-	text y offset=-6;
+	text y offset=-4;
 
 	menu background=gfx/mdrn_skin/window_borders.tga;
 	menu_x1=8;

@@ -84,7 +84,7 @@ namespace TA3D
         Name = skinFile.pullAsString("skin.name", Name); // The TDF may override the skin name
 
         prefix = skinFile.pullAsString("skin.prefix", ""); // The prefix to use for 
-        text_y_offset = skinFile.pullAsInt("skin.text y offset", 0);
+        text_y_offset = skinFile.pullAsInt("skin.text y offset", 0) * scale;
 
         wnd_border.load(skinFile.pullAsString("skin.window borders"), "skin.border_", skinFile, scale);
         button_img[0].load(skinFile.pullAsString("skin.button0"), "skin.button_", skinFile, scale);
