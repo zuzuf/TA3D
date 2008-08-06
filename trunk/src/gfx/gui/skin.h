@@ -72,7 +72,7 @@ namespace TA3D
         String prefix;
 
         //! offset to display text at the right place
-        int text_y_offset;
+        float text_y_offset;
 
     }; // class SKIN
 
