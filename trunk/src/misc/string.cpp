@@ -472,10 +472,14 @@ namespace TA3D
     String& String::vappendFormat(const char* format, va_list parg)
     {
         char* b;
-#if defined TA3D_PLATFORM_WINDOWS && defined TA3D_PLATFORM_MSVC
+#if defined TA3D_PLATFORM_WINDOWS
         // Implement vasprintf() by hand with two calls to vsnprintf()
         // Remove this when Microsoft adds support for vasprintf()
+#if defined TA3D_PLATFORM_MSVC
         int sizeneeded = _vsnprintf(NULL, 0, format, parg) + 1;
+#else
+        int sizeneeded = vsnprintf(NULL, 0, format, parg) + 1;
+#endif
         if (sizeneeded < 0)
         {
             return *this;
@@ -485,7 +489,11 @@ namespace TA3D
         {
             return *this;
         }
+#if defined TA3D_PLATFORM_MSVC
         if (_vsnprintf(b, sizeneeded, format, parg) < 0)
+#else
+        if (vsnprintf(b, sizeneeded, format, parg) < 0)
+#endif
         {
             free(b);
             return *this;
