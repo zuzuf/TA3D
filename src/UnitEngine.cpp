@@ -978,6 +978,10 @@ void UNIT::set_mission(int mission_type,Vector3D *target,bool step,int dat,bool 
 }
 
 
+bool UNIT::isEnemy(int &t)
+{
+    return t >= 0 && t < units.max_unit && !(players.team[ units.unit[t].owner_id ] & players.team[ owner_id ]);
+}
 
 void UNIT::next_mission()
 {
@@ -2222,10 +2226,7 @@ const int UNIT::run_script(const float &dt,const int &id,MAP *map,int max_code)	
                                 (*script_env)[id].push(0);
                             break;
                         case UNIT_ALLIED:		// is unit given with parameter allied to the unit of the current COB script. 0=not allied, not zero allied
-                            if (v1 >= 0 && v1 < units.max_unit && (units.unit[ v1 ].flags & 1) )
-                                (*script_env)[id].push( units.unit[ v1 ].owner_id == owner_id );
-                            else
-                                (*script_env)[id].push(0);
+                            (*script_env)[id].push( !isEnemy( v1 ) );
                             break;
                         case UNIT_IS_ON_THIS_COMP:		// indicates if the 1st parameter(a unit ID) is local to this computer
                             if (v1 >= 0 && v1 < units.max_unit && (units.unit[ v1 ].flags & 1) )
@@ -4667,7 +4668,7 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
                                         cur_idx = cur->idx;
                                         cur = cur->next;
                                     }
-                                    if (cur_idx>=0 && cur_idx<units.max_unit && units.unit[cur_idx].flags && units.unit[cur_idx].owner_id != owner_id
+                                    if ( isEnemy( cur_idx ) && units.unit[cur_idx].flags && units.unit[cur_idx].owner_id != owner_id
                                        && unit_manager.unit_type[units.unit[cur_idx].type_id].ShootMe
                                        && ( units.unit[cur_idx].is_on_radar( mask ) ||
                                             ( (units.map->sight_map->line[y>>1][x>>1] & mask)
@@ -4724,7 +4725,8 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
                 for(uint32 f=0;f<weapons.index_list_size;f+=(Math::RandFromTable()&7)+1)
                 {
                     uint32 i = weapons.idx_list[f];
-                    if (weapons.weapon[i].weapon_id!=-1 && units.unit[weapons.weapon[i].shooter_idx].owner_id!=owner_id
+                                // Yes we don't defend against allies :D, can lead to funny situations :P
+                    if (weapons.weapon[i].weapon_id!=-1 && !(players.team[ units.unit[weapons.weapon[i].shooter_idx].owner_id ] & players.team[ owner_id ])
                        && weapon_manager.weapon[weapons.weapon[i].weapon_id].targetable)
                     {
                         if (((Vector3D)(weapons.weapon[i].target_pos-Pos)).sq()<=coverage

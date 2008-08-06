@@ -392,6 +392,8 @@ namespace TA3D
         {
             return port[ ARMORED ] ? unit_manager.unit_type[ type_id ].DamageModifier : 1.0f;
         }
+        
+        bool isEnemy(int &t);
 
         void draw_on_map();
         void clear_from_map();

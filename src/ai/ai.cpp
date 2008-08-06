@@ -383,6 +383,7 @@ namespace TA3D
                     ai->nb_units[ AI_UNIT_TYPE_ENEMY ]++;
                     ai->nb_enemy[ units.unit[ i ].owner_id ]++;
                     bool found = false;
+                    //TODO: use a hashtable to speed up things here
                     for(std::list<WEIGHT_COEF>::iterator e = ai->enemy_list[ units.unit[ i ].owner_id ].begin() ; e != ai->enemy_list[ units.unit[ i ].owner_id ].end() ; ++e)
                     {
                         if (e->idx == i )
@@ -510,7 +511,8 @@ namespace TA3D
                 float best_weight = 15.0f;
                 for(sint8 e = 0 ; e < players.nb_player; ++e)				// Who can we attack ?
                 {
-                    if (ai->order_attack[e] > best_weight)
+                    // Don't attack allies
+                    if (ai->order_attack[e] > best_weight && !(players.team[ ai->player_id ] & players.team[ player_target ]))
                     {
                         player_target = e;
                         best_weight = ai->order_attack[e];
