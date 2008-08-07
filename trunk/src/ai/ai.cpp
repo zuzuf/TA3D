@@ -791,7 +791,10 @@ namespace TA3D
     void AI_PLAYER::monitor()
     {
         if (!thread_running)
+        {
+            thread_running = true;
             Start();
+        }
     }
 
     void AI_PLAYER::init()
