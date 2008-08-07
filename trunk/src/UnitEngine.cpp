@@ -5807,6 +5807,8 @@ int INGAME_UNITS::pick_minimap()
 
 int UNIT::shoot(int target,Vector3D startpos,Vector3D Dir,int w_id,const Vector3D &target_pos)
 {
+    WEAPON_DEF *pW = unit_manager.unit_type[type_id].weapon[ w_id ];        // Critical information, we can't lose it so we save it before unlocking this unit
+    int owner = owner_id;
     if (get_script_index( SCRIPT_RockUnit ) >= 0 ) // Don't do calculations that won't be used
     {
         Vector3D D = Dir * RotateY( -Angle.y * DEG2RAD );
@@ -5814,13 +5816,14 @@ int UNIT::shoot(int target,Vector3D startpos,Vector3D Dir,int w_id,const Vector3
         launch_script( get_script_index( SCRIPT_RockUnit ), 2, param );
     }
 
-    if (unit_manager.unit_type[type_id].weapon[w_id]->startsmoke && visible)
+    if (pW->startsmoke && visible)
         particle_engine.make_smoke(startpos,0,1,0.0f,-1.0f,0.0f, 0.3f);
+        
     pMutex.unlock();
 
     weapons.lock();
 
-    int w_idx = weapons.add_weapon(unit_manager.unit_type[type_id].weapon[w_id]->nb_id,idx);
+    int w_idx = weapons.add_weapon(pW->nb_id,idx);
 
     if (network_manager.isConnected() && local) // Send synchronization packet
     {
@@ -5829,7 +5832,7 @@ int UNIT::shoot(int target,Vector3D startpos,Vector3D Dir,int w_id,const Vector3
         event.opt1 = idx;
         event.opt2 = target;
         event.opt3 = units.current_tick; // Will be used to extrapolate those data on client side
-        event.opt4 = unit_manager.unit_type[type_id].weapon[w_id]->damage;
+        event.opt4 = pW->damage;
         event.opt5 = owner_id;
         event.x = target_pos.x;
         event.y = target_pos.y;
@@ -5840,26 +5843,25 @@ int UNIT::shoot(int target,Vector3D startpos,Vector3D Dir,int w_id,const Vector3
         event.dx = (sint16)(Dir.x * 16384.0f);
         event.dy = (sint16)(Dir.y * 16384.0f);
         event.dz = (sint16)(Dir.z * 16384.0f);
-        memcpy( event.str, unit_manager.unit_type[type_id].weapon[w_id]->internal_name.c_str(), unit_manager.unit_type[type_id].weapon[w_id]->internal_name.size() + 1 );
+        memcpy( event.str, pW->internal_name.c_str(), pW->internal_name.size() + 1 );
 
         network_manager.sendEvent( &event );
     }
 
-    pMutex.lock();
-    weapons.weapon[w_idx].damage = unit_manager.unit_type[type_id].weapon[ w_id ]->damage;
+    weapons.weapon[w_idx].damage = pW->damage;
     weapons.weapon[w_idx].Pos = startpos;
     weapons.weapon[w_idx].local = local;
-    if (unit_manager.unit_type[type_id].weapon[w_id]->startvelocity==0.0f && !unit_manager.unit_type[type_id].weapon[w_id]->selfprop)
-        weapons.weapon[w_idx].V = unit_manager.unit_type[type_id].weapon[w_id]->weaponvelocity*Dir;
+    if (pW->startvelocity==0.0f && !pW->selfprop)
+        weapons.weapon[w_idx].V = pW->weaponvelocity*Dir;
     else
-        weapons.weapon[w_idx].V = unit_manager.unit_type[type_id].weapon[w_id]->startvelocity*Dir;
-    if (unit_manager.unit_type[type_id].weapon[w_id]->dropped || !(unit_manager.unit_type[type_id].weapon[w_id]->rendertype & RENDER_TYPE_LASER) )
-        weapons.weapon[w_idx].V=weapons.weapon[w_idx].V+V;
-    weapons.weapon[w_idx].owner=owner_id;
+        weapons.weapon[w_idx].V = pW->startvelocity*Dir;
+    if (pW->dropped || !(pW->rendertype & RENDER_TYPE_LASER) )
+        weapons.weapon[w_idx].V = weapons.weapon[w_idx].V+V;
+    weapons.weapon[w_idx].owner = owner;
     weapons.weapon[w_idx].target=target;
     if (target >= 0 )
     {
-        if (unit_manager.unit_type[type_id].weapon[w_id]->interceptor)
+        if (pW->interceptor)
             weapons.weapon[w_idx].target_pos = weapons.weapon[target].Pos;
         else
             weapons.weapon[w_idx].target_pos = target_pos;
@@ -5867,10 +5869,10 @@ int UNIT::shoot(int target,Vector3D startpos,Vector3D Dir,int w_id,const Vector3
     else
         weapons.weapon[w_idx].target_pos = target_pos;
 
-    weapons.weapon[w_idx].stime=0.0f;
-    weapons.weapon[w_idx].visible=visible;
+    weapons.weapon[w_idx].stime = 0.0f;
+    weapons.weapon[w_idx].visible = visible;        // Not critical so we don't duplicate this
     weapons.unlock();
-    pMutex.unlock();
+    pMutex.lock();
     return w_idx;
 }
 

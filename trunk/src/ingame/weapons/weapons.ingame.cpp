@@ -199,35 +199,49 @@ namespace TA3D
         if(nb_weapon<=0 || max_weapon<=0)
             return;
 
-        float rw = 128.0f * mini_w / 252;
-        float rh = 128.0f * mini_h / 252;
+        float rw = 128.0f * mini_w / (252.0f * map_w);
+        float rh = 128.0f * mini_h / (252.0f * map_h);
 
-        glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
-        glDisable(GL_TEXTURE_2D);
-        glBegin(GL_POINTS);
+        Vector2D *points = new Vector2D[ index_list_size ];
+        uint32 n(0);
+
+        glColor4ub(0xFF, 0xFF, 0xFF, 0xFF);
+        glEnable(GL_TEXTURE_2D);
         for (uint32 e = 0; e < index_list_size; ++e)
         {
             uint32 i = idx_list[e];
             if(weapon_manager.weapon[weapon[i].weapon_id].cruise || weapon_manager.weapon[weapon[i].weapon_id].interceptor)
             {
-                glEnd();
                 glEnable(GL_TEXTURE_2D);
                 glEnable(GL_BLEND);
                 glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
                 int idx=weapon[i].owner;
-                GFX::PutTextureInsideRect(nuclogo.glbmp[idx], weapon[i].Pos.x / map_w * rw + 64.0f - nuclogo.ofs_x[idx],
-                                          weapon[i].Pos.z / map_h * rh + 64.0f - nuclogo.ofs_y[idx],
-                                          weapon[i].Pos.x / map_w * rw + 63.0f - nuclogo.ofs_x[idx] + nuclogo.w[idx],
-                                          weapon[i].Pos.z / map_h * rh + 63.0f - nuclogo.ofs_y[idx] + nuclogo.h[idx]);
+                GFX::PutTextureInsideRect(nuclogo.glbmp[idx], weapon[i].Pos.x * rw + 64.0f - nuclogo.ofs_x[idx],
+                                          weapon[i].Pos.z * rh + 64.0f - nuclogo.ofs_y[idx],
+                                          weapon[i].Pos.x * rw + 63.0f - nuclogo.ofs_x[idx] + nuclogo.w[idx],
+                                          weapon[i].Pos.z * rh + 63.0f - nuclogo.ofs_y[idx] + nuclogo.h[idx]);
                 glDisable(GL_BLEND);
-                glDisable(GL_TEXTURE_2D);
-                glBegin(GL_POINTS);
             }
             else
-                glVertex2f(weapon[i].Pos.x/map_w*rw+64.0f,weapon[i].Pos.z/map_h*rh+64.0f);
+            {
+                points[n].x = weapon[i].Pos.x*rw+64.0f;
+                points[n].y = weapon[i].Pos.z*rh+64.0f;
+                ++n;
+            }
         }
-        glEnd();
+        glDisable(GL_TEXTURE_2D);
+        
+        glDisableClientState(GL_NORMAL_ARRAY);              // Render all points in one pass
+        glDisableClientState(GL_COLOR_ARRAY);
+        glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+        glEnableClientState(GL_VERTEX_ARRAY);
+        glVertexPointer( 2, GL_FLOAT, 0, points);
+
+        glDrawArrays( GL_POINTS, 0, n );
+
         glEnable(GL_TEXTURE_2D);
+        
+        delete[] points;
     }
 
     
