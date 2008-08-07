@@ -388,7 +388,7 @@ namespace TA3D
                         if (index >= 0)
                             feature[i].anim.loadGAFFromRawData(gaf, Gaf::RawDataGetEntryIndex(gaf, feature[i].seqname), true, feature[i].filename);
                         else
-                            LOG_WARNING(LOG_PREFIX_TDF << "`" << feature[i].name << "` has no picture to display !");
+                            LOG_WARNING(LOG_PREFIX_TDF << "`" << feature[i].name << "` has no picture to display (" << feature[i].filename << ".gaf, " << feature[i].seqname << ") !");
                         delete[] gaf;
 
                         if (index>=0 && feature[i].height<=10.0f && feature[i].height>1.0f && feature[i].anim.nb_bmp>0 && feature[i].blocking
