@@ -56,6 +56,7 @@ namespace Menus
 
         pDelta = 0.0f;
         pStartIndex = 0;
+        pScrollTimer = msec_timer;
 
         return true;
     }
