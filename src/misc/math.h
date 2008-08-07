@@ -47,6 +47,11 @@ namespace Math
     */
     uint32 RandFromTable();
 
+    /*!
+    ** \brief Get log2(n)
+    */
+    uint32 Log2(uint32 n);
+
     //@}
 
 } // namespace Math

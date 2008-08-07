@@ -8,7 +8,7 @@
 	height=1024;
 	draw borders=false;
 	show title=false;
-	number of objects=154;
+	number of objects=165;
 	hidden=false;
 	lock=true;
 	color=0x00000000;			// Fully transparent so we can see the AREA background
@@ -75,7 +75,7 @@
 		name=b_side;
 		type=TEXT;
 		caption=Side;
-		x1=280;
+		x1=260;
 		y1=170;
 		value=0xFFFFFFFF;
 		size=2;
@@ -382,7 +382,7 @@
 		type=BOX;
 		x1=260;
 		y1=200;
-		x2=360;
+		x2=323;
 		y2=240;
 		value=0x0;
 		highlight=true;
@@ -403,7 +403,7 @@
 		type=BOX;
 		x1=260;
 		y1=240;
-		x2=360;
+		x2=323;
 		y2=280;
 		value=0x0;
 		highlight=true;
@@ -424,7 +424,7 @@
 		type=BOX;
 		x1=260;
 		y1=280;
-		x2=360;
+		x2=323;
 		y2=320;
 		value=0x0;
 		highlight=true;
@@ -445,7 +445,7 @@
 		type=BOX;
 		x1=260;
 		y1=320;
-		x2=360;
+		x2=323;
 		y2=360;
 		value=0x0;
 		highlight=true;
@@ -466,7 +466,7 @@
 		type=BOX;
 		x1=260;
 		y1=360;
-		x2=360;
+		x2=323;
 		y2=400;
 		value=0x0;
 		highlight=true;
@@ -487,7 +487,7 @@
 		type=BOX;
 		x1=260;
 		y1=400;
-		x2=360;
+		x2=323;
 		y2=440;
 		value=0x0;
 		highlight=true;
@@ -508,7 +508,7 @@
 		type=BOX;
 		x1=260;
 		y1=440;
-		x2=360;
+		x2=323;
 		y2=480;
 		value=0x0;
 		highlight=true;
@@ -529,7 +529,7 @@
 		type=BOX;
 		x1=260;
 		y1=480;
-		x2=360;
+		x2=323;
 		y2=520;
 		value=0x0;
 		highlight=true;
@@ -550,7 +550,7 @@
 		type=BOX;
 		x1=260;
 		y1=520;
-		x2=360;
+		x2=323;
 		y2=560;
 		value=0x0;
 		highlight=true;
@@ -571,7 +571,7 @@
 		type=BOX;
 		x1=260;
 		y1=560;
-		x2=360;
+		x2=323;
 		y2=600;
 		value=0x0;
 		highlight=true;
@@ -1617,5 +1617,115 @@
 		hidden=true;
 		size=2;
 		value=0;
+	}
+	[object154]		// team line
+	{
+		name=l_team;
+		type=LINE;
+		x1=323;
+		y1=170;
+		x2=323;
+		y2=686;
+		value=0xFF7F7F7F;
+	}
+	[object155]		// team0
+	{
+		name=team0;
+		type=MULTISTATE;
+		x1=325;
+		y1=202;
+		caption=gfx/mdrn_teams/team0.tga,gfx/mdrn_teams/team1.tga,gfx/mdrn_teams/team2.tga,gfx/mdrn_teams/team3.tga,gfx/mdrn_teams/team4.tga,gfx/mdrn_teams/team5.tga,gfx/mdrn_teams/team6.tga,gfx/mdrn_teams/team7.tga,gfx/mdrn_teams/team8.tga,gfx/mdrn_teams/team9.tga;
+		help=chose your team;
+		size=1;
+	}
+	[object156]		// team1
+	{
+		name=team1;
+		type=MULTISTATE;
+		x1=325;
+		y1=242;
+		caption=gfx/mdrn_teams/team0.tga,gfx/mdrn_teams/team1.tga,gfx/mdrn_teams/team2.tga,gfx/mdrn_teams/team3.tga,gfx/mdrn_teams/team4.tga,gfx/mdrn_teams/team5.tga,gfx/mdrn_teams/team6.tga,gfx/mdrn_teams/team7.tga,gfx/mdrn_teams/team8.tga,gfx/mdrn_teams/team9.tga;
+		help=chose your team;
+		size=1;
+	}
+	[object157]		// team2
+	{
+		name=team2;
+		type=MULTISTATE;
+		x1=325;
+		y1=282;
+		caption=gfx/mdrn_teams/team0.tga,gfx/mdrn_teams/team1.tga,gfx/mdrn_teams/team2.tga,gfx/mdrn_teams/team3.tga,gfx/mdrn_teams/team4.tga,gfx/mdrn_teams/team5.tga,gfx/mdrn_teams/team6.tga,gfx/mdrn_teams/team7.tga,gfx/mdrn_teams/team8.tga,gfx/mdrn_teams/team9.tga;
+		help=chose your team;
+		size=1;
+	}
+	[object158]		// team3
+	{
+		name=team3;
+		type=MULTISTATE;
+		x1=325;
+		y1=322;
+		caption=gfx/mdrn_teams/team0.tga,gfx/mdrn_teams/team1.tga,gfx/mdrn_teams/team2.tga,gfx/mdrn_teams/team3.tga,gfx/mdrn_teams/team4.tga,gfx/mdrn_teams/team5.tga,gfx/mdrn_teams/team6.tga,gfx/mdrn_teams/team7.tga,gfx/mdrn_teams/team8.tga,gfx/mdrn_teams/team9.tga;
+		help=chose your team;
+		size=1;
+	}
+	[object159]		// team4
+	{
+		name=team4;
+		type=MULTISTATE;
+		x1=325;
+		y1=362;
+		caption=gfx/mdrn_teams/team0.tga,gfx/mdrn_teams/team1.tga,gfx/mdrn_teams/team2.tga,gfx/mdrn_teams/team3.tga,gfx/mdrn_teams/team4.tga,gfx/mdrn_teams/team5.tga,gfx/mdrn_teams/team6.tga,gfx/mdrn_teams/team7.tga,gfx/mdrn_teams/team8.tga,gfx/mdrn_teams/team9.tga;
+		help=chose your team;
+		size=1;
+	}
+	[object160]		// team5
+	{
+		name=team5;
+		type=MULTISTATE;
+		x1=325;
+		y1=402;
+		caption=gfx/mdrn_teams/team0.tga,gfx/mdrn_teams/team1.tga,gfx/mdrn_teams/team2.tga,gfx/mdrn_teams/team3.tga,gfx/mdrn_teams/team4.tga,gfx/mdrn_teams/team5.tga,gfx/mdrn_teams/team6.tga,gfx/mdrn_teams/team7.tga,gfx/mdrn_teams/team8.tga,gfx/mdrn_teams/team9.tga;
+		help=chose your team;
+		size=1;
+	}
+	[object161]		// team6
+	{
+		name=team6;
+		type=MULTISTATE;
+		x1=325;
+		y1=442;
+		caption=gfx/mdrn_teams/team0.tga,gfx/mdrn_teams/team1.tga,gfx/mdrn_teams/team2.tga,gfx/mdrn_teams/team3.tga,gfx/mdrn_teams/team4.tga,gfx/mdrn_teams/team5.tga,gfx/mdrn_teams/team6.tga,gfx/mdrn_teams/team7.tga,gfx/mdrn_teams/team8.tga,gfx/mdrn_teams/team9.tga;
+		help=chose your team;
+		size=1;
+	}
+	[object162]		// team7
+	{
+		name=team7;
+		type=MULTISTATE;
+		x1=325;
+		y1=482;
+		caption=gfx/mdrn_teams/team0.tga,gfx/mdrn_teams/team1.tga,gfx/mdrn_teams/team2.tga,gfx/mdrn_teams/team3.tga,gfx/mdrn_teams/team4.tga,gfx/mdrn_teams/team5.tga,gfx/mdrn_teams/team6.tga,gfx/mdrn_teams/team7.tga,gfx/mdrn_teams/team8.tga,gfx/mdrn_teams/team9.tga;
+		help=chose your team;
+		size=1;
+	}
+	[object163]		// team8
+	{
+		name=team8;
+		type=MULTISTATE;
+		x1=325;
+		y1=522;
+		caption=gfx/mdrn_teams/team0.tga,gfx/mdrn_teams/team1.tga,gfx/mdrn_teams/team2.tga,gfx/mdrn_teams/team3.tga,gfx/mdrn_teams/team4.tga,gfx/mdrn_teams/team5.tga,gfx/mdrn_teams/team6.tga,gfx/mdrn_teams/team7.tga,gfx/mdrn_teams/team8.tga,gfx/mdrn_teams/team9.tga;
+		help=chose your team;
+		size=1;
+	}
+	[object164]		// team9
+	{
+		name=team9;
+		type=MULTISTATE;
+		x1=325;
+		y1=562;
+		caption=gfx/mdrn_teams/team0.tga,gfx/mdrn_teams/team1.tga,gfx/mdrn_teams/team2.tga,gfx/mdrn_teams/team3.tga,gfx/mdrn_teams/team4.tga,gfx/mdrn_teams/team5.tga,gfx/mdrn_teams/team6.tga,gfx/mdrn_teams/team7.tga,gfx/mdrn_teams/team8.tga,gfx/mdrn_teams/team9.tga;
+		help=chose your team;
+		size=1;
 	}
 }

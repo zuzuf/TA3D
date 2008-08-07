@@ -139,7 +139,7 @@ int play(GameData *game_data)
     LOG_DEBUG("Adding players...");
     players.init();													// Object containing data about players
     for (uint16 i = 0; i<game_data->nb_players; i++)
-        players.add((char*)game_data->player_names[i].c_str(),(char*)game_data->player_sides[i].c_str(),game_data->player_control[i],game_data->energy[i],game_data->metal[i],game_data->ai_level[i]);		// add a player
+        players.add((char*)game_data->player_names[i].c_str(),(char*)game_data->player_sides[i].c_str(),game_data->player_control[i],game_data->energy[i],game_data->metal[i],game_data->ai_level[i],game_data->team[i]);		// add a player
 
     if (players.local_human_id >= 0)
     {
@@ -1130,7 +1130,7 @@ int play(GameData *game_data)
             {
                 cursor_type=CURSOR_CROSS;
                 bool can_be_captured = false;
-                if (units.unit[pointing].owner_id!=players.local_human_id)
+                if (!(players.team[units.unit[pointing].owner_id] & players.team[players.local_human_id]))      // Not allied == enemy
                 {
                     can_be_captured = true;
                     if (canattack)

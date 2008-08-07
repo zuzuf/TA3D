@@ -690,10 +690,14 @@ void setup_game(bool client, const char *host)
         setupgame_area.set_caption( format("gamesetup.side%d", i), game_data.player_sides[i]);
         setupgame_area.set_caption( format("gamesetup.ai%d", i), game_data.player_control[i] & PLAYER_CONTROL_FLAG_AI ? ai_level_str[game_data.ai_level[i]].c_str() : "");
         GUIOBJ *guiobj = setupgame_area.get_object( format("gamesetup.color%d", i));
-        if (guiobj ) {
+        if (guiobj)
+        {
             guiobj->Flag |= (game_data.player_control[i] == PLAYER_CONTROL_NONE ? FLAG_HIDDEN : 0);
             guiobj->Data = gfx->makeintcol(player_color[player_color_map[i]*3], player_color[player_color_map[i]*3+1], player_color[player_color_map[i]*3+2]);
         }
+        guiobj = setupgame_area.get_object( format("gamesetup.team%d", i));
+        if (guiobj)
+            guiobj->current_state = i;
         setupgame_area.set_caption( format("gamesetup.energy%d", i), format("%d",game_data.energy[i]));
         setupgame_area.set_caption( format("gamesetup.metal%d", i), format("%d",game_data.metal[i]));
     }
@@ -948,6 +952,14 @@ void setup_game(bool client, const char *host)
                                                   game_data.metal[i], game_data.energy[i],
                                                   ReplaceChar(game_data.player_names[i], ' ', 1).c_str(), game_data.ready[i]);
                                     network_manager.sendSpecial( msg, -1, from);
+
+                                    GUIOBJ *guiobj =  setupgame_area.get_object( format("gamesetup.team%d", i));
+                                    if (guiobj)
+                                    {
+                                        msg.clear();
+                                        msg << "CHANGE TEAM " << i << " " << guiobj->current_state;
+                                        network_manager.sendSpecial( msg, -1, from);
+                                    }
                                 }
                                 if (!client)  // Send server to client specific information (player colors, map name, ...)
                                 {
@@ -1117,6 +1129,23 @@ void setup_game(bool client, const char *host)
                                 String file_name = ReplaceChar( params[2], 1, ' ');
                                 network_manager.stopFileTransfer( params[3], from);
                                 network_manager.sendFile( from, file_name, params[3]);
+                            }
+                        }
+                        else if (params[0] == "CHANGE")
+                        {
+                            if (params[1] == "TEAM")
+                            {
+                                int i = params[2].toInt32();
+                                int n_team = params[2].toInt32();
+                                if (i >= 0 && i < TA3D_PLAYERS_HARD_LIMIT && (client || from == game_data.player_network_id[i])) // Server doesn't accept someone telling him what to do
+                                {
+                                    GUIOBJ *guiobj = setupgame_area.get_object( format( "gamesetup.team%d", i ) );
+                                    if (guiobj)
+                                    {
+                                        guiobj->current_state = n_team;
+                                        game_data.team[i] = 1 << n_team;
+                                    }
+                                }
                             }
                         }
                     }
@@ -1384,6 +1413,20 @@ void setup_game(bool client, const char *host)
                 }
                 if (host )  network_manager.sendSpecial( "NOTIFY UPDATE");
             }
+            if (setupgame_area.get_state( format("gamesetup.team%d", i)))           // Change team
+            {
+                guiobj = setupgame_area.get_object( format( "gamesetup.team%d", i ));
+                if (guiobj)
+                {
+                    if (game_data.player_control[i] == PLAYER_CONTROL_LOCAL_HUMAN)
+                    {
+                        network_manager.sendSpecial( "NOTIFY UPDATE");
+                        game_data.team[i] = 1 << guiobj->current_state;
+                    }
+                    else
+                        guiobj->current_state = Math::Log2(game_data.team[i]);
+                }
+            }
             if (setupgame_area.get_state( format("gamesetup.b_side%d", i))) // Change player side
             {
                 uint16 e = 0;
@@ -1604,6 +1647,7 @@ void setup_game(bool client, const char *host)
             {
                 if (game_data.player_control[i] != PLAYER_CONTROL_NONE && game_data.player_control[i] != PLAYER_CONTROL_CLOSED )
                 {
+                    game_data.team[game_data.nb_players] = game_data.team[i];
                     game_data.player_control[game_data.nb_players] = game_data.player_control[i];
                     game_data.player_names[game_data.nb_players] = game_data.player_names[i];
                     game_data.player_sides[game_data.nb_players] = game_data.player_sides[i];
