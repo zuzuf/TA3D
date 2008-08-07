@@ -50,6 +50,17 @@ namespace Math
         return gRandomTableData[gRandomTablePosition];
     }
 
+    uint32 Log2(uint32 n)
+    {
+        uint32 p(0);
+        n >>= 1;
+        while(n)
+        {
+            p++;
+            n >>= 1;
+        }
+        return p;
+    }
 
 
 } // namespace Math

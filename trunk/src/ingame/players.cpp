@@ -31,7 +31,7 @@ namespace TA3D
 
 
 
-    int PLAYERS::add(const String& name, char* SIDE, byte _control, int E, int M, byte AI_level)
+    int PLAYERS::add(const String& name, char* SIDE, byte _control, int E, int M, byte AI_level, uint16 teamMask)
     {
         if (nb_player >= TA3D_PLAYERS_HARD_LIMIT)
         {
@@ -59,7 +59,10 @@ namespace TA3D
         metal[nb_player]        = M;
         energy_s[nb_player]     = E;
         metal_s[nb_player]      = M;
-        team[nb_player]         = 1 << nb_player;       // Try to be your own enemy :P
+        if (teamMask == 0)
+            team[nb_player]     = 1 << nb_player;       // Try to be your own enemy :P
+        else
+            team[nb_player]     = teamMask;
         side[nb_player++] = SIDE;
 
         if (_control == PLAYER_CONTROL_LOCAL_HUMAN)
