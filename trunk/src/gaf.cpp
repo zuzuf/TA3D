@@ -238,9 +238,11 @@ namespace TA3D
     {
         LOG_ASSERT(buf != NULL);
         sint32 nb_entry = RawDataEntriesCount(buf);
+        String cmpString = name;
+        cmpString.toUpper();
         for (sint32 i = 0; i < nb_entry; ++i)
         {
-            if (Gaf::RawDataGetEntryName(buf, i) == name)
+            if (Gaf::RawDataGetEntryName(buf, i).toUpper() == cmpString)
                 return i;
         }
         return -1;
@@ -576,12 +578,12 @@ namespace TA3D
 
         nb_bmp = Gaf::RawDataImageCount(buf,entry_idx);
 
-        bmp   = (BITMAP**) malloc(sizeof(BITMAP*) * nb_bmp);
-        glbmp = (GLuint*)  malloc(sizeof(GLuint)  * nb_bmp);
-        ofs_x = (short*)   malloc(sizeof(short)   * nb_bmp);
-        ofs_y = (short*)   malloc(sizeof(short)   * nb_bmp);
-        w     = (short*)   malloc(sizeof(short)   * nb_bmp);
-        h     = (short*)   malloc(sizeof(short)   * nb_bmp);
+        bmp   = new BITMAP*[nb_bmp];
+        glbmp = new GLuint[nb_bmp];
+        ofs_x = new short[nb_bmp];
+        ofs_y = new short[nb_bmp];
+        w     = new short[nb_bmp];
+        h     = new short[nb_bmp];
         name  = Gaf::RawDataGetEntryName(buf, entry_idx);
         pAnimationConverted = false;
 
@@ -636,12 +638,12 @@ namespace TA3D
                     glDeleteTextures(1, &(glbmp[i]));
             }
         }
-        if (w) free(w);
-        if (h) free(h);
-        if (ofs_x) free(ofs_x);
-        if (ofs_y) free(ofs_y);
-        free(bmp);
-        free(glbmp);
+        if (w) delete[] w;
+        if (h) delete[] h;
+        if (ofs_x) delete[] ofs_x;
+        if (ofs_y) delete[] ofs_y;
+        delete[] bmp;
+        delete[] glbmp;
         init();
     }
 
