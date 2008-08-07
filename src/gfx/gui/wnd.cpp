@@ -1319,6 +1319,8 @@ namespace TA3D
                     Objets[i].gltex_states[e].height = t_h[e];
                     if (result)
                         Objets[i].gltex_states[e].destroy_tex = false;
+                    else
+                        Objets[i].gltex_states[e].destroy_tex = true;
                 }
                 Objets[i].current_state = wndFile.pullAsInt(obj_key + "status");
                 Objets[i].shortcut_key = wndFile.pullAsInt(obj_key + "quickkey", -1);
@@ -1449,7 +1451,8 @@ namespace TA3D
                 float X2 = wndFile.pullAsFloat(obj_key + "x2") * x_factor;
                 float Y2 = wndFile.pullAsFloat(obj_key + "y2") * y_factor;
                 String caption = I18N::Translate(wndFile.pullAsString(obj_key + "caption"));
-                float size = wndFile.pullAsFloat(obj_key + "size", 1.0f) * Math::Min(x_factor, y_factor);
+                float size_factor = wndFile.pullAsFloat(obj_key + "size", 1.0f);
+                float size = size_factor * Math::Min(x_factor, y_factor);
                 int val = wndFile.pullAsInt(obj_key + "value");
                 uint32 obj_flags = 0;
                 uint32 obj_negative_flags = 0;
@@ -1506,6 +1509,36 @@ namespace TA3D
                     Objets[i].create_optionc(X1, Y1, caption, val, NULL, skin, size);
                 else if (obj_type == "MENU")
                     Objets[i].create_menu(X1, Y1, X2, Y2, Entry, NULL, size);
+                else if (obj_type == "TABUTTON" || obj_type == "MULTISTATE")
+                {
+                    String::Vector imageNames;
+                    caption.split(imageNames, ",");
+                    std::vector<GLuint> gl_imgs;
+                    std::vector<uint32> t_w;
+                    std::vector<uint32> t_h;
+
+                    for (String::Vector::iterator e = imageNames.begin() ; e != imageNames.end() ; e++)
+                    {
+                        uint32 tw, th;
+                        GLuint texHandle = gfx->load_texture(*e, FILTER_LINEAR, &tw, &th);
+                        if (texHandle)
+                        {
+                            gl_imgs.push_back(texHandle);
+                            t_w.push_back(tw);
+                            t_h.push_back(th);
+                        }
+                    }
+                    
+                    Objets[i].create_ta_button(X1, Y1, Entry, gl_imgs, gl_imgs.size());
+                    for (unsigned int e = 0; e < Objets[i].gltex_states.size(); ++e)
+                    {
+                        Objets[i].x2 = X1 + t_w[e] * size_factor * x_factor;
+                        Objets[i].y2 = Y1 + t_h[e] * size_factor * y_factor;
+                        Objets[i].gltex_states[e].width = t_w[e];
+                        Objets[i].gltex_states[e].height = t_h[e];
+                        Objets[i].gltex_states[e].destroy_tex = true;       // Make sure it'll be destroyed
+                    }
+                }
                 else if (obj_type == "TEXT")
                 {
                     Objets[i].create_text(X1, Y1, caption, val, size);
