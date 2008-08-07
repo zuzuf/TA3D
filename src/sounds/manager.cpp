@@ -347,8 +347,10 @@ namespace Audio
             return false;
         }
 
-        LOG_INFO(LOG_PREFIX_SOUND << "FMOD Version: " << ((FMODVersion & 0xFFFF0000) >> 16)
-                 << "." << ((FMODVersion & 0xFF00) >> 8) << "." << (FMODVersion & 0xFF));
+        LOG_INFO(LOG_PREFIX_SOUND << "FMOD Version: "
+                << format("%x.%x.%x", ((FMODVersion & 0xFFFF0000) >> 16),
+                                      ((FMODVersion & 0xFF00) >> 8),
+                                      (FMODVersion & 0xFF)) );
 
         if (FMOD_System_SetStreamBufferSize( pFMODSystem, 32768, FMOD_TIMEUNIT_RAWBYTES ) != FMOD_OK)
         {
@@ -379,8 +381,10 @@ namespace Audio
             return false;
         }
 
-        LOG_INFO(LOG_PREFIX_SOUND << "FMOD Version: " << ((FMODVersion & 0xFFFF0000) >> 16)
-                 << "." << ((FMODVersion & 0xFF00) >> 8) << "." << (FMODVersion & 0xFF));
+        LOG_INFO(LOG_PREFIX_SOUND << "FMOD Version: "
+                << format("%x.%x.%x", ((FMODVersion & 0xFFFF0000) >> 16),
+                                      ((FMODVersion & 0xFF00) >> 8),
+                                      (FMODVersion & 0xFF)) );
 
         if (pFMODSystem->setStreamBufferSize( 32768, FMOD_TIMEUNIT_RAWBYTES) != FMOD_OK)
         {
