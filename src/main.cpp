@@ -168,6 +168,7 @@ int ParseCommandLine(int argc, char *argv[])
         else if (!strcmp( argv[ i ], "--test" ))            // Runs some tests (to help find and fix bugs)
         {
             GFX::runTests();
+            uint64 s(0);
             return 1;
         }
         
