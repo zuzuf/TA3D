@@ -1418,7 +1418,8 @@ void setup_game(bool client, const char *host)
                 guiobj = setupgame_area.get_object( format( "gamesetup.team%d", i ));
                 if (guiobj)
                 {
-                    if (game_data.player_control[i] == PLAYER_CONTROL_LOCAL_HUMAN)
+                    if (!(game_data.player_control[i] & PLAYER_CONTROL_FLAG_REMOTE)
+                    && ((game_data.player_control[i] != PLAYER_CONTROL_NONE && game_data.player_control[i] != PLAYER_CONTROL_CLOSED) || !client))
                     {
                         network_manager.sendSpecial( "NOTIFY UPDATE");
                         game_data.team[i] = 1 << guiobj->current_state;
