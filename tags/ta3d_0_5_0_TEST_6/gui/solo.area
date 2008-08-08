@@ -1,0 +1,9 @@
+[area]
+{
+	name=main area;
+	skin=gui/default.skn;
+	windows=gui/solo.tdf, gui/load_menu.tdf;
+	background=gfx/solo.jpg;
+	width=1280;
+	height=1024;
+}

@@ -1,0 +1,167 @@
+TA3D version 0.4.2
+
+this software is under GPL (see COPYING)
+
+changes from 0.4.1 to 0.4.2
+-----------------------------------------
+*the resource installer is more resistant to errors and now support all the TA CDs (CD1, CD2, BT, CC) so you can easily install campaign resources and all the addons 
+*support for campaign mode and missions
+*added campaign menu and mission briefing menu
+*added loading menu progress bar animation for TDF, FBI and WEAPONS modules
+*shields implemented
+*some speed optimisations in WEAPONS, TDF, FBI, 3DO modules (faster loading time :) )
+*some speed optimisations in GUI module
+*support for HitByWeapon BOS/COB function
+*added support for unit DamageModifier variable
+*improved performance on water maps with water quality set to "extreme" (don't draw invisible features anymore on the reflection map)
+*game can be paused and resumed
+*fire effect improved (fire particles are spawned from the 3D models when available :) )
+*build pics code rewritten to support big build pics
+*support for 32bits animated sprites (extended GAF format for TA3D ;) )
+*new console command to give resources to a given player (for AI debugging)
+*support for invisibility
+*new skin
+*scaling support for GUI widgets
+*new skin mechanism for menu backgrounds
+*3D tree size x 1.5
+*map selection menu rewritten using GUI module
+*atomic explosions have been improved
+*weapon smoke density decreased
+*you can build things in a row by holding down your mouse button
+*air repair pads works
+*units can be captured
+*units can be resurrected (for example by the CORNECRO)
+*pressing SPACE key shows game statistics
+*new music configuration system, it autogenerate and autoupdate the playlist at startup, so you just put your files in music and it works !!
+*new confirm dialog when changing screen resolution
+*new hot restart mechanism
+*TA3D_Audio now explicitly uses ALSA on Linux, so you can have sound and your favorite music player started
+*patrol orders has been greatly improved
+*TA3D now requires Allegro >= 4.2.2 (configure doesn't accept 4.2.0 any more since it has bugs that crash TA3D)
+*now you can run TA3D in 16bits or 32bits (you can select color depth in config menu)
+*new HPI cache system
+*new texture cache system to speed up loading process (the first time it's slower because it creates the cache)
+*reduced memory footprint of textures
+*improved ListBox widget in GUI module
+*end game statistics screen rewritten using GUI module
+*ai module cleaned
+*ia module renamed to ai
+*when you click to build something on the map, the according sound is played
+*support for floating help messages when cursor is over a widget
+*menus have been redesigned to be more like TA
+*GUI skin has been changed, it's more TA like now
+*new loading screen
+*fixed formula for extracted metal
+*fixed clicking "holding fire" not ordering firing units to stop firing
+*fixed minimap size detection failing
+*fixed the "set" command in BOS/COB VM (solar collectors now deactivate when hit by a weapon !!)
+*fixed config file format bug with "last map" and "last script" which was sometimes not saved correctly
+*fixed planes trying to land somewhere when they've something else to do
+*fixed audio module not reloaded when changing current mod in config screen
+*fixed factories unable to build anything when they've been ordered to stop
+*lots of thread safety bugs fixed
+*fixed weapon aiming bug
+*fixed buildangle variable in FBI code
+*fixed yard map bug that prevented CORVP from building units
+*fixed explosion drawing bug : sprites aren't drawn upside down any more
+*fixed MAP::hit sometimes not returning a solution when it should
+*fixed some parts of low definition map being hidden into water
+*fixed some lava bugs
+*fixed unit model exploding system
+*fixed weapon damage system
+*fixed a bug that prevented object position to be calculated properly on some 3DO models
+*fixed nanolathe particles going away
+*fixed some unit script limitations
+*fixed transporter script bug
+*fixed key shortcuts in GUI ('A' & 'a' are recognized as the same key now)
+*fixed weapon models rotation bug
+*fixed widgets zoom factor for text
+*pathfinding FIXED !!!
+*fixed armcom & armllt laser colors and adapted size
+*fixed reclaim sound not being played when it should
+*fixed commander radar being activated only when building
+*fixed shadows that appear where they shouldn't
+
+----------
+
+ce logiciel est distribué sous licence GPL (voir COPYING)
+
+changements apportés par la version 0.4.2
+-----------------------------------------
+*l'installateur de ressources est plus résistant aux erreurs et supporte tous les CD de TA (CD1, CD2, BT, CC) vous pouvez maintenant installer facilement les fichiers du mode campagne et tous les add-ons
+*support du mode campagne et des missions
+*ajout d'un menu campagne et d'un écran de briefing
+*amélioration de l'animation de la barre de progression au chargement des modules TDF, FBI et WEAPONS
+*implémentation des boucliers :)
+*quelques optimisations dans les modules WEAPONS, TDF, FBI et 3DO (ça charge plus vite)
+*quelques optimisations dans le module GUI
+*support de la fonction HitByWeapon dans les scripts BOS/COB
+*support de la variable DamageModifier
+*meilleurs performances sur les cartes avec de l'eau lorsque les reflets sont activés
+*le jeu peut être mis en pause et repris
+*les effets de feu dans les feux de forêts ont été améliorés
+*les menus de construction supportent les grandes miniatures et les menus étendus
+*support de sprites animés 32bits (format GAF étendu pour TA3D ;) )
+*de nouvelles commandes dans la console pour donner des ressources à un joueur (pour déboguer l'IA)
+*support de l'invisibilité
+*un nouveau skin disponible pour l'interface
+*support du changement d'échelle pour les éléments de l'interface graphique
+*nouveau mécanisme pour changer les fonds des menus avec les skins
+*hauteur des arbres 3D x 1.5
+*menu de sélection des cartes réécrit en utilisant le module GUI
+*les explosions atomiques ont été améliorées
+*densité de fumée des armes réduite
+*possibilité de construire facilement des rangées d'unités à la souris
+*les plateformes de réparation aériennes fonctionnent
+*les unités peuvent être capturées
+*les unités peuvent être ressuscitées (par le CORNECRO par exemple)
+*appuyer sur ESPACE affiche les statistiques en cour de partie
+*nouveau mécanisme de configuration de la musique, playlist autogénérée au démarrage, vous n'avez qu'à mettre vos fichiers dans 'music' et c'est tout !!
+*nouvelle fenêtre de confirmation lorsque l'on change la résolution
+*nouveau mécanisme de redémarrage rapide du jeu (pour changer la config vidéo)
+*TA3D_Audio utilise explicitement ALSA sous Linux, donc plus de problèmes d'accès concurrentiel à la carte son
+*les ordres de patrouille ont beaucoup été améliorés
+*TA3D nécessite maintenant Allegro >= 4.2.2 (configure n'accepte plus 4.2.0 puisque cette version a des bogues qui font planter TA3D)
+*choix entre résolution 16 ou 32 bits
+*nouveau cache ajouté au module HPI
+*nouveau cache de textures pour accélérer le chargement (la première fois c'est plus lent parce qu'il faut construire le cache)
+*réduction de l'empreinte mémoire des textures
+*amélioration des objets ListBox dans le module GUI
+*écran de statistiques de fin de partie réécrit avec le module GUI
+*module AI néttoyé
+*module IA renommé en AI
+*lors d'un click sur la carte pour ordonner une construction le son associé est joué
+*support de bulles d'aide lorsque le curseur est au dessus d'un élément de l'interface graphique
+*les menus ont été refaits pour ressembler plus à ceux de TA
+*le skin par défaut a été refait pour ressembler à TA
+*nouvel écran de chargement
+*correction de la formule d'extraction de métal
+*correction du comportement du bouton d'agressivité des unités (tir à volonté, ...)
+*correction du bogue de détection de la taille de la mini-carte
+*correction d'un bogue de la fonction "set" dans la machine virtuelle BOS/COB (les panneaux solaires se ferment lorsqu'ils sont touchés :) )
+*correction d'un bogue dans le format du fichier de configuration qui enregistrait mal la dernière carte jouée
+*correction du bogue des avions qui essayent d'atterrir quelque part losqu'ils ont mieux à faire
+*correction du bogue du module audio qui ne se rechargeait pas au changement de mod
+*correction du bogue des usines qui ne peuvent plus construire après avoir éxécuté l'ordre "STOP"
+*beaucoup de bogue d'accès concurrentiels corrigés
+*correction du bogue de visée des armes
+*correction du bogue de la variable buildangle dans le module FBI
+*correction d'un bogue dans la carte de présence qui empêchait CORVP de construire des unités
+*correction d'un bogue de rendu des explosions (elles sont à l'endroit maintenant :) )
+*correction de la fonction MAP::hit qui ne retournait pas toujours de solution quand il y en a une
+*la carte basse définition ne cache plus ses côtes sous l'eau
+*correction de quelques bogues de gestion de la lave
+*correction de bogues dans le système d'explosion des unités
+*correction du système de dégats des armes
+*correction d'un bogue de calcul de position sur les modèles 3DO
+*correction d'un bogue dans le nanospray
+*correction de certaines limitations de la machine virtuelle COB
+*correction d'un bogue dans le script des transporteurs
+*les racourcis sont reconnus en majuscules comme en minuscules
+*correction d'un bogue de rotation des modèles 3D des armes
+*correction du facteur de zoom pour le widget TEXT
+*pathfinding CORRIGÉ !!!
+*correction des couleurs de certaines armes et de leur taille
+*correction du bogue qui ne jouait pas le son de récupération des carcasses
+*correction du bogue qui désactivait le radar du commandeur
+*correction du bogue de rendu des ombres (elles sont dessinées au bon endroit :) )

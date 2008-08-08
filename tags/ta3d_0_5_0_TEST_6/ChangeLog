@@ -1,0 +1,1070 @@
+--------------------------------- English version ----------------------------------
+
+changes from 0.4.1 to 0.4.2
+-----------------------------------------
+*the resource installer is more resistant to errors and now support all the TA CDs (CD1, CD2, BT, CC) so you can easily install campaign resources and all the addons 
+*support for campaign mode and missions
+*added campaign menu and mission briefing menu
+*added loading menu progress bar animation for TDF, FBI and WEAPONS modules
+*shields implemented
+*some speed optimisations in WEAPONS, TDF, FBI, 3DO modules (faster loading time :) )
+*some speed optimisations in GUI module
+*support for HitByWeapon BOS/COB function
+*added support for unit DamageModifier variable
+*improved performance on water maps with water quality set to "extreme" (don't draw invisible features anymore on the reflection map)
+*game can be paused and resumed
+*fire effect improved (fire particles are spawned from the 3D models when available :) )
+*build pics code rewritten to support big build pics
+*support for 32bits animated sprites (extended GAF format for TA3D ;) )
+*new console command to give resources to a given player (for AI debugging)
+*support for invisibility
+*new skin
+*scaling support for GUI widgets
+*new skin mechanism for menu backgrounds
+*3D tree size x 1.5
+*map selection menu rewritten using GUI module
+*atomic explosions have been improved
+*weapon smoke density decreased
+*you can build things in a row by holding down your mouse button
+*air repair pads works
+*units can be captured
+*units can be resurrected (for example by the CORNECRO)
+*pressing SPACE key shows game statistics
+*new music configuration system, it autogenerate and autoupdate the playlist at startup, so you just put your files in music and it works !!
+*new confirm dialog when changing screen resolution
+*new hot restart mechanism
+*TA3D_Audio now explicitly uses ALSA on Linux, so you can have sound and your favorite music player started
+*patrol orders has been greatly improved
+*TA3D now requires Allegro >= 4.2.2 (configure doesn't accept 4.2.0 any more since it has bugs that crash TA3D)
+*now you can run TA3D in 16bits or 32bits (you can select color depth in config menu)
+*new HPI cache system
+*new texture cache system to speed up loading process (the first time it's slower because it creates the cache)
+*reduced memory footprint of textures
+*improved ListBox widget in GUI module
+*end game statistics screen rewritten using GUI module
+*ai module cleaned
+*ia module renamed to ai
+*when you click to build something on the map, the according sound is played
+*support for floating help messages when cursor is over a widget
+*menus have been redesigned to be more like TA
+*GUI skin has been changed, it's more TA like now
+*new loading screen
+*fixed formula for extracted metal
+*fixed clicking "holding fire" not ordering firing units to stop firing
+*fixed minimap size detection failing
+*fixed the "set" command in BOS/COB VM (solar collectors now deactivate when hit by a weapon !!)
+*fixed config file format bug with "last map" and "last script" which was sometimes not saved correctly
+*fixed planes trying to land somewhere when they've something else to do
+*fixed audio module not reloaded when changing current mod in config screen
+*fixed factories unable to build anything when they've been ordered to stop
+*lots of thread safety bugs fixed
+*fixed weapon aiming bug
+*fixed buildangle variable in FBI code
+*fixed yard map bug that prevented CORVP from building units
+*fixed explosion drawing bug : sprites aren't drawn upside down any more
+*fixed MAP::hit sometimes not returning a solution when it should
+*fixed some parts of low definition map being hidden into water
+*fixed some lava bugs
+*fixed unit model exploding system
+*fixed weapon damage system
+*fixed a bug that prevented object position to be calculated properly on some 3DO models
+*fixed nanolathe particles going away
+*fixed some unit script limitations
+*fixed transporter script bug
+*fixed key shortcuts in GUI ('A' & 'a' are recognized as the same key now)
+*fixed weapon models rotation bug
+*fixed widgets zoom factor for text
+*pathfinding FIXED !!!
+*fixed armcom & armllt laser colors and adapted size
+*fixed reclaim sound not being played when it should
+*fixed commander radar being activated only when building
+*fixed shadows that appear where they shouldn't
+
+changes from 0.4.0 to 0.4.1
+-----------------------------------------
+
+_new intro screen!
+_buttons on GUI have been improved, replaced with TA like buttons
+_both rigth and left control keys are read as control now
+_both right and left shift keys are read as shift now
+_new button in game setup menu : change map, it still works when you click on minimap
+_camera zooming behaviour is better and can be configured in the config menu ;)
+_unit rendering is done with display lists (so it's faster)
+_CAMERA class cleaned
+_build buttons are no more transparent since GUI isn't
+_waves are now an option
+_trees are not an option any more
+_in default.lua, when a player dies its units are killed
+_menus load less CPU than before
+_improved pathfinding (still not perfect but faster)
+_random number generator is now platform independent
+_the A.I. (wow!!!! It's there !!!)
+_write cleaner logs - removed useless logs from TA3D_Audio module
+_you can now set the player name
+_TA3D's script module rewritten using lua
+_implemented standing fire orders
+_pathfinder module cleaned
+_D-Gun works properly
+_build/orders menu sounds implemented
+_water color is now taken from the map water texture for water quality >= 3
+_HPI caching system (to speed up GUI loading)
+_TA's bad target behaviour implemented
+_ship'corpses sink
+_full support for TA interface
+_full mod support with a mod manager
+_added support for other races
+_full gaf support (subframes & transparency in uncompressed images )
+_added a high speed particle engine (with less particle features)
+_added support for original game interface :D
+_added a variable to have a collection of default skies that are used when none fits with the map
+_increased precision of nanolathe spray :)
+_new mod management system
+_ESC doesn't quit the game anymore, instead it displays a menu which let you return to the game or leave it
+_fixed : artifacts when zooming too fast due to fog being updated too slowly
+_fixed : weakness in weapon/unit damage detection system
+_critical bug fixed in win32 version : rand() function was returning a 16bits integer !!!
+_some basic checks added to make the code more resistant to errors
+_nuclear silo unable to fire fixed
+_code is more thread safe
+_compilation errors with Allegro 4.2.0 fixed
+_bombers not firing fixed
+_planes now look for a place to land instead of teleporting where they can land
+_fixed: stability bug in fast particle engine code
+_fixed: do not crash anymore when destroying the AI structures
+_fixed: transparency bug with building previews when water quality < 2
+_Construction k-bots don't fail reclaming anymore
+_Metal extractors now spin after being built
+_bug fix in unit path management code -> units should get locked any more
+_small floatting menu bug fixed in GUI drawing code
+_black polygon bug on some 3do models fixed
+_when build units with a CORE shipyard, units are no more built with an offset
+_fixed: toairweapon flag supported
+_fixed: TA3D's implementation of TA's category system now can handle an infinite number of categories (like in TA)
+_fixed: water weapons can't leave water any more, and non water weapons can't go in water anymore
+_fixed HPIManager table corruption bug
+_changed the static variable limit to something higher (twice as before) to support the Talon race
+_fixed wheels spinning in the wrong direction
+_fixed: texture coordinate bug ( textures not displayed properly on polygons with more than 4 edges )
+_fixed nanolathe emitting point not being detected properly on some units
+_fixed: factories are detected with the BMcode variable
+
+changes from 0.3.2 to 0.4.0
+-----------------------------------------
+
+_huge performance improvement in feature drawing code
+_trees can burn (you can have forest fires)
+_unit can attack a position on the ground without having a unit as target
+_added a popup message when resources files are missing and raise an exception to prevent the program from just crashing
+_removed empty hash table module since all the hash table code is in the header file hashtable.h
+_updated documentation
+_support for hovercrafts
+_better thread synchronisation system
+_new water renderer, 5 levels of details: 0 - very low, 1 - low, 2 - fast GLSL shader, 3 - better GLSL shader, 4 - same as 3 with everything reflected in water
+_using FMOD C++ interface for all platforms except mingw32 on windows which can only use the FMOD C interface
+_units cannot be spawned in places where they cannot be (neither by a script nor by the console)
+_units cannot go any more where another unit already is, if a unit try it will be replaced where we found a place
+_new 3D models for metal deposits
+_logging additionnal information (OpenGL version, renderer and vendor)
+_Console.log and Console2.txt log files merged into ta3d.log
+_when zooming out nothing special, but when zooming in, the cursor doesn't move from the position it points on map (like in supreme commander)
+_new tactical icon for kamikaze units
+_kamikaze attack support, kamikaze units work !!
+_mine missions implemented, so mines work
+_unit self-destruction mechanism implemented
+_when specified in *.fbi a unit can autoheal (cf commanders)
+_support for unit specific damage (for weapons)
+_added support for texture compression in 3DM models (you can choose between no compression and JPG format (support alpha using a greyscale jpg))
+_added support for wide screen modes
+_the loading process produces more logs
+_added support for default animation in 3DM models, a feature can be animated !!!
+_added support for symbolic 3DM files which tell the loaded to load an other 3DM file (one level only)
+_big explosions produce less particles, and a particle limit has been set to prevent slowing down too much
+_sonar and radar jammers work
+_fog of war code rewritten
+_sonars work
+_presence map system rewritten, now we have a presence map for land units and an air presence map that supports multiple units at the same (x,z) coords on the map
+_transporters work
+_improvements in cob engine
+_exploding units make less smoke
+_rewritten patrol code
+_factories can now receive an order list that will be given to built units
+_the build menus are now read from gamedata\sidedata.tdf, except for weapon build pics which are still taken from *.gui
+_collision detection between weapons and units is much simpler and faster
+_engine performance improved
+_compatibility with Allegro 4.2.2 and AllegroGL 0.4.2
+_improved i18n and cTAFileParser modules (they're faster and "." doesn't confuse them any more)
+_changed spherical skies rotation speeds to 0.8
+_unit moving code - including pathfinding code - rewritten
+_TA3D now remember last state of Fog Of War in game setup menu
+_now display info about everything that is under the cursor :), it's also easier to reclamate things
+_new pathfinding algorithm, much faster
+_improved the map selection screen
+_some tuning of UNIT::move function
+_moving code is isolated from mission code making unit moving function more modular
+_unit orientation code is no more replicated, code is shorter
+_weapons are more reactive
+_shake effect
+_units that have more than one weapon can fire them all at the same time
+_unit's weapon system rewritten, it's no more a part of the mission code
+_fixed : shift key behaves like in TA now when a building has been selected in the build menu
+_fixed under water units floating, every one is where it should be
+_fixed unit activation/deactivation bug
+_fixed some bugs in the sprite => 3D object converter, converted objects aren't as ugly as before
+_fixed map artefacts (map textures organisation changed)
+_fixed missing polygon-offset for flat map features
+_fixed scaling bug with map features
+_fixed 1280x1024 not being displayed in screen mode list
+_fixed ugly shadow casting bug that prevented us from using gouraud (smooth) shaded models
+_fixed : factories with last order canceled now work and don't stay open
+_fixed lasers not aiming properly
+_fixed a bug that could make TA3D load the wrong *.cob script file for a unit
+_fixed some bugs that prevented pewee's weapons to work properly
+_fixed bug when previous played map missing
+_fixed bullet transparency
+_fixed : commander can't build a row of buildings without having a pathfinding problem
+_fixed bug with fog of war/radar map
+_fixed bug with unit/feature presence map
+_fixed water effects on lava
+_fixed slope calculation for tnt maps at loading time, wasn't taking map precalculation into account
+_fixed build error with Allegro 4.2.0
+_bug fixed in VAngle function that computes angle between 2 VECTOR
+_fixed some random crashs
+_fixed console ability to emit more messages than it can store into the log file and freeze the game
+_fixed a drawing bug with building orders when holding SHIFT, GL_DEPTH_TEST was disabled!
+_fixed a security issue in COB script emulation code that could create more "threads" than expected and crash the game
+
+changes from 0.3.1 to 0.3.2
+-----------------------------------------
+
+_various real night skyes!!
+_new sky system that can draw a spherical or flat sky, make it rotate
+_fog of war is now an option in the game setup menu (off, grey, black or on)
+_Main menu has been recoded, animation has changed and it's now translated using the i18n module
+_TA Font is now loaded from TA's hpi files from a GAF animation, so we get the full ASCII-8 table !!
+_TA3D remembers the last played script/map and set it as default in the game setup menu
+_now radars are working!!
+_support for on mini-map commands
+_removed the F.F. (Friendly Fire)
+_TA3D_Audio uses C syntax for FMOD since C++ syntax doesn't build with mingw32
+_water quality level 0 fixed : a simple quad with the low details texture of the map is drawn at 50%
+_improved fragment shaders used for water rendering so that it's easier to see units under water
+_add corpses when units die
+_shortcuts to unit orders ( A = attack, R = repair, ... )
+_translation manager rewritten
+_arrows and a circle appear when moving the cam
+_compatibility with mingw32 is back
+_bug fix in unit orientation algorithm, was assuming sqrt( a*a + b*b ) != 0 if a or b != 0 which is false with -ffast-math
+_bug fix in sky reflection renderer
+_ugly bug with menus fixed in GUI module
+_bug fix in the unit picking algorithm, you can now select a unit which is on top of an other
+_build range is now set from the border of a unit and not from its center
+_fog is now drawn correctly when detail texture is activated, GLSL detail shader now implements FOG
+_scripts now use the i18n module (text is translated)
+_can't order any more to build in undiscovered places
+_build animation fixed
+_fix FMOD failing to start ending the program at start
+_the mission description is now displayed correctly in the map selection screen
+_launching the map selection menu doesn't freeze a few sec. it's much faster now
+
+changes from 0.3.0 to 0.3.1
+-----------------------------------------
+
+_fix : units were too slow (fixed but various unit behaviours still not implemented yet)
+_fix: when displaying order list only the first "link" was shown
+_game doesn't hangs/speeds up anymore after a few minutes playing (time varibales going mad)
+_can now build small units in a row, build orders are no more removed
+_sync the script engine with core threads
+_can't build shipyards anymore near the shores
+_no more ships trembling in their factory
+_resources data do not become any more like crap sometimes freezing everything building (non initialized variables for resource consumption)
+_fix a bug in map ray collision detector ( see ashap plateau )
+_planes take less time trying to find a place to land
+_the FBO zbuffer crash the program when used ( water quality = 3 ) with some gfx hardware (replaced with backbuffer drawing)
+_units are not drawn anymore with some parts of the map going through the models
+_sounds weren't always played ( FMOD can't ... )
+_selection bug is fixed
+_autoactivated units now works fine
+_use some display lists to speed static meshes drawing
+_tracking mode for the camera (can track a unit)
+_scroll speed increased ( x5 )
+_a new TA files installer ( useful for Linux users :-) )
+_support for real directory tree in HPI module
+_new flash effect under exploding units
+_configure now complains about missing libraries
+_improved camera movement ( ctrl + middle button = look at cursor point, middle button/roller = move the cam/zoom )
+_on mini-map fog of war
+_add support for an output directory ( ie $HOMEDIR/.ta3d )
+_fix the shadow not being cast on 3DM models
+_fix the particle engine's bug that makes things crash
+_fix : cTAFileParser was quadratic due to the code that remove '\r' and unstable due to huge use of recursive calls
+_collision bug fixed :-)
+_fix the freeze bug when starting the map selector
+_metal extractors should work now
+_new option : can draw the console over the loading screen to show it's actually doing something
+_new detail texture when looking close to the ground ( uses fragment programs -> need >= GeForce FX class to work )
+_time model is tick based ( needed for network play ) -> gives better performances
+_TA3D is now multi-threaded!! ( faster on multi-core CPUs )
+_skins for GUI
+_bug fixes in particle engine ( no more particle flickering )
+_new gfx module
+_improved gui module
+_hash_table module rewritten
+_new file parser module
+_new sound engine, sound and music modules replaced by TA3D_Audio module using fmod - alogg and allegromp3 are not longer needed
+_new thread module
+_new background for menus
+_right click on view mode icon when in normal mode reset angle to default
+_crash fixed when TA3D doesn't find any map
+
+changes from 0.2.3 to 0.3.0
+-----------------------------------------
+
+_new documentation
+_allegro's font has been replaced with TA's one
+_new color scheme for the console
+_faster particle engine
+_faster weapon engine
+_compatibility with visual c++ 2005 express
+_the low details texture for the map is computed with a depth of 16bits
+_setting a building position is done like in TA
+_a lots of optimizations
+_faster code for fog of war
+_new 3D trees that comes with new 3D Model format
+_new logo at startup
+_new 3D model format with the editor
+_the JPGalleg lib is now included in TA3D with some bug fixes on 64bits systems
+_build fixed with Allegro 4.2.1 and AllegroGL 0.4.0
+_default view angle set to 63.44° (TA's view angle)
+_a unit being built is linked to its factory (it can turn)
+_unit's parts can bounce around
+_hpi code rewritten
+
+changes from 0.2.2 to 0.2.3
+-----------------------------------------
+
+_mega zoom!!
+_a new night sky is drawn depending on planet type
+_new indicator for aircrafts to easily see where they are
+_improved support for weapons
+_bug fix in collision detection code between a ray and a 3do model
+_bug fix in the code computing the center of a 3do model => units don't shoot their enemy's feet any more
+_memory bug fixed (crash after game ends fixed)
+_global performance improvement
+_new screen when game ends with game stats
+_a very ugly bug fixed in fx drawing code
+_wind simulation
+_improved support of wind and tidal generators
+_performance improvement in reflection rendering code
+_support for OTA files with data showing in "maps" menu
+_a new ressource file containing translation for multiple languages
+_new table for random numbers (a few freeze disapeared)
+_bug fix in aiming code
+
+changes from 0.2.1 to 0.2.2
+-----------------------------------------
+
+_a few improvements in script code
+_you can't build what you want every where (ex : factory on water)
+_support for transport units
+_better features support (can be destroyed, ...)
+_improved fog of war
+_a few performance tweaks
+_text is easier to read
+_pathfinding improvements
+_AI disabled
+_fx now appear on top of units who produced them (explosion,...) so it's more reallistic
+_the engine is faster with lots of units
+_bug fix in fx managing code (memory leak)
+_bug fix in lava code
+_bug fix in sprite reflection
+_improved water quality with GLSL
+_many bug fixes
+
+changes from 0.2.0 to 0.2.1
+-----------------------------------------
+
+_weapons can target other weapons
+_atomic logo is drawn on minimap for atomic weapons
+_more work on weapons: two phases weapons work (like atomic weapons)
+_bug fix: TA3D doesn't crash anymore when music dir is empty
+_4 quality levels for water (basic, original water from map, shaded water, shaded water with reflection)
+_bug fix: the code which detects the viewable zone works properly and framerate is slightly higher
+_shadow algorithm improved to be faster on old computers
+_a GLSL shader to render water
+_freecam controls changed: use arrows to move instead of space
+_pictures are in the gfx subdirectory
+_units show their side colors
+_bug fix: shadows are cast properly
+_music background changes with game state (battle, ...)
+_new window icon
+_units can reclaim other units and corpses
+_you can cancel a unit in construction buildings
+_menus of construction buildings now show the list of units they have been told to build
+_improved unit scripts support: construction buildings now behave as expected
+_added INSTALL instructions for MacOS X and a few bug fixes in glfunc.h
+_new antialiashing option in config module
+_very fast minimap preview
+_bug fix: 3do loader now links textures correctly
+_bug fix in weapon explosion code
+
+changes from 0.1.2 to 0.2.0
+-----------------------------------------
+
+_CTRL+Z will select all the units of the type of those which are selected
+_added: a button to switch between free camera and normal mode
+_added: configuration module
+_improved building animation
+_bug fix: boat particles are sent in the right direction
+_music code rewritten in order to support mp3 and ogg
+_bug fix in shadow algorithm
+_bug fixes in unit animation (units aim faster)
+_units don't get lost any more out of the map
+_faster terrain rendering
+_you can make groups of units (CTRL + 0...9, and ALT + 0...9)
+_bomber now aim properly
+_shader support
+_new cache to prevent sounds and fx to slow the game down
+_bug fix in script emulation
+_new buttons in units menu
+_new script commands
+_a lot of bug fix
+_improved pathfinding
+_A.I. (with neural networks but not finished yet)
+_fog of war
+
+changes from 0.1.1 to 0.1.2
+-----------------------------------------
+
+_bug fix: files with archive attribute are detected under windows
+_bug fix: units in standby mode can accept new orders
+_builders now check if there is enough space to build!!
+_shadow bug fix under windows!!
+_bug fix with AllegroGL 0.4.0rc4 (fonts are now drawn correctly)
+_bug fix in shadow algorithm (if GL_EXT_stencil_two_side is not available it will draw shadows in 2 pass)
+_bug fix in particle engine (sometimes particles were not visible)
+_support for game scripting(scripts can control how the engine behave)
+_3d sound support(software)
+_weapons don't pass through units any more
+_cannons can aim and fire
+_units can be damaged (and be killed)
+_units are now rotated to fit terrain orientation
+_pathfinding is fully working (units do not cross each other any more)
+_new 2D->3D sprite converter (allow 3D rocks with original sprites)
+_increased stability
+_language support for unit's names and descriptions
+_transparency bug fixed in build menu
+
+changes from 0.1.0 to 0.1.1
+-----------------------------------------
+
+_special effects when weapons explodes
+_camera height increased by 50%
+_units can shoot
+_units scripts can make units aim and shoot!!
+_script system has been rewritten to allow units to fire
+_loading from hpi archives is faster
+_new sound system: a sound is played when a unit is selected/move/fire/...
+_playing mp3 is now done using streaming (no more slow down when loading mp3s)
+_3d model drawing code enhanced
+_bug fix: a bug which prevented loading some data from 3do files
+_free camera (just type freecam in console)
+_shadow volume algorithm is faster
+_you can choose shadow quality (high quality => game slower) 
+_a bug in script code fixed
+_a particle bug fixed
+
+changes from 0.0.10 to 0.1.0
+-----------------------------------------
+
+_added html doc
+_added advanced weapon management (not finished)
+_builders now emit particles when building
+_added a few changes to main menu
+_added windows port
+_added in game music
+_segfault fixed (thanks to Arthur Nascimento)
+
+changes from 0.0.9 to 0.0.10
+-----------------------------------------
+
+_added pathfinding algorithm
+_now every unit should be able to move (air crafts can fly,...)
+_added ressource management (metal and energy costs, ...)
+_added weapon loader
+_finding/loading a file from archives if faster
+_loading is faster
+_a few bugs about units moves fixed
+
+changes from 0.0.8 to 0.0.9
+-----------------------------------------
+
+_there is a new menu to select and preview maps
+_a new script allow unpacking jpgs from gz package into tga files
+_a few warnings fixed
+_partial windows port
+_bug in particle engine fixed
+_particle engine and sprite engine are faster
+_general engine performance have been improved on huge maps
+_new support for 3d features like corpses on maps
+_a few minor bugs fixed
+
+changes from 0.0.7 to 0.0.8
+-----------------------------------------
+
+_there are new info. about terrain, in order to allow path finding
+_lighting bug when activating selection algorithm fixed
+
+------------------------------------------ Version française ----------------------------------------------
+
+changements apportés par la version 0.4.2
+-----------------------------------------
+*l'installateur de ressources est plus résistant aux erreurs et supporte tous les CD de TA (CD1, CD2, BT, CC) vous pouvez maintenant installer facilement les fichiers du mode campagne et tous les add-ons
+*support du mode campagne et des missions
+*ajout d'un menu campagne et d'un écran de briefing
+*amélioration de l'animation de la barre de progression au chargement des modules TDF, FBI et WEAPONS
+*implémentation des boucliers :)
+*quelques optimisations dans les modules WEAPONS, TDF, FBI et 3DO (ça charge plus vite)
+*quelques optimisations dans le module GUI
+*support de la fonction HitByWeapon dans les scripts BOS/COB
+*support de la variable DamageModifier
+*meilleurs performances sur les cartes avec de l'eau lorsque les reflets sont activés
+*le jeu peut être mis en pause et repris
+*les effets de feu dans les feux de forêts ont été améliorés
+*les menus de construction supportent les grandes miniatures et les menus étendus
+*support de sprites animés 32bits (format GAF étendu pour TA3D ;) )
+*de nouvelles commandes dans la console pour donner des ressources à un joueur (pour déboguer l'IA)
+*support de l'invisibilité
+*un nouveau skin disponible pour l'interface
+*support du changement d'échelle pour les éléments de l'interface graphique
+*nouveau mécanisme pour changer les fonds des menus avec les skins
+*hauteur des arbres 3D x 1.5
+*menu de sélection des cartes réécrit en utilisant le module GUI
+*les explosions atomiques ont été améliorées
+*densité de fumée des armes réduite
+*possibilité de construire facilement des rangées d'unités à la souris
+*les plateformes de réparation aériennes fonctionnent
+*les unités peuvent être capturées
+*les unités peuvent être ressuscitées (par le CORNECRO par exemple)
+*appuyer sur ESPACE affiche les statistiques en cour de partie
+*nouveau mécanisme de configuration de la musique, playlist autogénérée au démarrage, vous n'avez qu'à mettre vos fichiers dans 'music' et c'est tout !!
+*nouvelle fenêtre de confirmation lorsque l'on change la résolution
+*nouveau mécanisme de redémarrage rapide du jeu (pour changer la config vidéo)
+*TA3D_Audio utilise explicitement ALSA sous Linux, donc plus de problèmes d'accès concurrentiel à la carte son
+*les ordres de patrouille ont beaucoup été améliorés
+*TA3D nécessite maintenant Allegro >= 4.2.2 (configure n'accepte plus 4.2.0 puisque cette version a des bogues qui font planter TA3D)
+*choix entre résolution 16 ou 32 bits
+*nouveau cache ajouté au module HPI
+*nouveau cache de textures pour accélérer le chargement (la première fois c'est plus lent parce qu'il faut construire le cache)
+*réduction de l'empreinte mémoire des textures
+*amélioration des objets ListBox dans le module GUI
+*écran de statistiques de fin de partie réécrit avec le module GUI
+*module AI néttoyé
+*module IA renommé en AI
+*lors d'un click sur la carte pour ordonner une construction le son associé est joué
+*support de bulles d'aide lorsque le curseur est au dessus d'un élément de l'interface graphique
+*les menus ont été refaits pour ressembler plus à ceux de TA
+*le skin par défaut a été refait pour ressembler à TA
+*nouvel écran de chargement
+*correction de la formule d'extraction de métal
+*correction du comportement du bouton d'agressivité des unités (tir à volonté, ...)
+*correction du bogue de détection de la taille de la mini-carte
+*correction d'un bogue de la fonction "set" dans la machine virtuelle BOS/COB (les panneaux solaires se ferment lorsqu'ils sont touchés :) )
+*correction d'un bogue dans le format du fichier de configuration qui enregistrait mal la dernière carte jouée
+*correction du bogue des avions qui essayent d'atterrir quelque part losqu'ils ont mieux à faire
+*correction du bogue du module audio qui ne se rechargeait pas au changement de mod
+*correction du bogue des usines qui ne peuvent plus construire après avoir éxécuté l'ordre "STOP"
+*beaucoup de bogue d'accès concurrentiels corrigés
+*correction du bogue de visée des armes
+*correction du bogue de la variable buildangle dans le module FBI
+*correction d'un bogue dans la carte de présence qui empêchait CORVP de construire des unités
+*correction d'un bogue de rendu des explosions (elles sont à l'endroit maintenant :) )
+*correction de la fonction MAP::hit qui ne retournait pas toujours de solution quand il y en a une
+*la carte basse définition ne cache plus ses côtes sous l'eau
+*correction de quelques bogues de gestion de la lave
+*correction de bogues dans le système d'explosion des unités
+*correction du système de dégats des armes
+*correction d'un bogue de calcul de position sur les modèles 3DO
+*correction d'un bogue dans le nanospray
+*correction de certaines limitations de la machine virtuelle COB
+*correction d'un bogue dans le script des transporteurs
+*les racourcis sont reconnus en majuscules comme en minuscules
+*correction d'un bogue de rotation des modèles 3D des armes
+*correction du facteur de zoom pour le widget TEXT
+*pathfinding CORRIGÉ !!!
+*correction des couleurs de certaines armes et de leur taille
+*correction du bogue qui ne jouait pas le son de récupération des carcasses
+*correction du bogue qui désactivait le radar du commandeur
+*correction du bogue de rendu des ombres (elles sont dessinées au bon endroit :) )
+
+changements apportés par la version 0.4.1
+-----------------------------------------
+
+_nouvel écran d'intro!
+_les boutons de l'interface ont été améliorés et remplacés par des boutons style TA
+_Ctrl droit et gauche sont reconnus comme Ctrl
+_Shift droit et gauche sont reconnus comme Shift
+_nouveau bouton pour changer de carte, cliquer sur la minicarte fonctionne toujours
+_le zoom de la caméra est meilleur et est configurable dans les options ;)
+_le rendu des unités est fait avec des display lists (donc c'est plus rapide)
+_la classe CAMERA a été nettoyée
+_les boutons des menus de construction ne sont plus transparents (l'interface ne l'est plus dans ces menus)
+_les vagues sont une option
+_les arbres et le décor ne sont plus une option
+_dans default.lua, lorsqu'un joueur est éliminé ses unités sont détruites
+_les menus chargent moins le processeur
+_le pathfinding a été amélioré (ok c'est toujours pas ça mais c'est plus rapide)
+_le générateur de nombres aléatoires est multiplateforme maintenant
+_l'IA (oua!!!! ça y est !!!)
+_les logs sont plus propres - plus de spam depuis le module TA3D_Audio
+_le nom du joueur est changeable
+_le module de script de TA3D a été réécrit en utilisant Lua
+_"standing fire orders" implémentés
+_module du pathfinder nettoyé
+_le D-Gun fonctionne correctement
+_les sons des menus d'ordre/constructions ont été implémentés
+_la couleur de l'eau est déterminée depuis la texture de la carte pour l'eau rendue avec water_quality >= 3
+_système de cache pour le module HPI (pour accélérer le chargement de l'interface)
+_support pour le comportement "bad target" de TA
+_les bâteaux coulent lorsqu'ils sont détruits!!
+_support complet de l'interface de TA
+_support complet des mods avec un gestionnaire de mods
+_support pour d'autres races (Talon, ...)
+_support complet pour le format gaf (subframes & transparence dans les images non comprimées )
+_ajout d'un moteur à particules à haute vitesse (mais avec moins de fonctionnalités)
+_support pour l'interface originale du jeu :D
+_ajout d'une variable pour avoir une liste de cieux par défaut utilisés lorsqu'aucun ne correspond à la carte
+_meilleur précision du flux de nanolathes :)
+_Echap ne quitte plus le jeu mais affiche un menu permettant de quitter le jeu ou d'y revenir
+_corrigé : artefacts lorsque le facteur de zoom change trop vite à cause du brouillard mis à jour trop lentement
+_corrigé : faiblesses dans le code de detection de collisions entre unités et armes
+_correction d'un bogue critique dans la version win32 : rand() retournait un entier 16bits !!!
+_quelques verifications simples ajoutées pour rendre le code plus résistant aux erreurs
+_corrigé : les silos nucléaires ne pouvaient pas s'ouvrir
+_le code est beaucoup plus protégé contre les accès concurrentiels
+_corrigé : erreurs de compilation avec Allegro 4.2.0
+_les bombardiers attaquent de nouveau
+_les avions cherchent un emplacement pour atterrir au lieu de se téléporter directement à une bonne place
+_corrigé: bogue de stabilité dans le moteur à particules
+_corrigé: ne plante plus lors de la destruction des structures de l'IA
+_corrigé: bogue de transparence avec les aperçus des constructions avec water_quality < 2
+_les k-bots de construction n'échouent plus lorsqu'ils récupèrent un objet
+_les extracteurs de métal se mettent à tourner correctement après construction
+_correction d'un bogue dans le code de gestion de chemin des unités
+_correction d'un bogue de menu flottant dans le code de dessin de l'interface graphique
+_correction du bogue du polygone noir sur certains modèles 3do
+_avec une usine navale CORE, les unités ne sont plus construites décalées
+_corrigé : le drapeau toairweapon est correctement supporté
+_corrigé : l'implémentation du système de catégorie de TA supporte maintenant une infinité de catégories (comme dans TA)
+_corrigé : les armes aquatiques ne quittent plus l'eau, les autres armes n'y entrent plus
+_corrigé : bogue de corruption de la table de l'objet HPIManager
+_limite du nombre de variables statiques augmentée (2x) pour supporter la race Talon
+_correction du sens de rotation des roues de certaines unités
+_corrigé : bogue de coordonnées de textures ( textures non affichées correctement sur les polygones avec plus de 4 cotés )
+_corrigé : émetteur de nanolathes non détecté correctement sur certaines unités
+_corrigé : les usines sont détectées avec la variable BMcode
+
+changements apportés par la version 0.4.0
+-----------------------------------------
+
+_performances globales du moteur améliorées
+_grosse amélioration des performances du code de dessin des éléments du décors
+_les arbres peuvent bruler (feux de forêts possibles)
+_les unités peuvent attaquer une position définie de la carte
+_affichage d'un message d'erreur lorsqu'il manque des ressources au lieu de planter le programme
+_plus de module hashtable, tout le code des tables de hachage étant dans hashtable.h
+_documentation mise à jour
+_support des hovercrafts
+_meilleur système de synchronisation des threads
+_nouveau moteur de rendu de l'eau, 5 niveaux de détails: 0 - très faible, 1 - faible, 2 - shader GLSL rapide, 3 - meilleur shader GLSL, 4 - idem 3 avec les reflets de tous les objets
+_utilisation de l'interface C++ de FMOD pour toutes les plateformes excepté mingw32 sur windows qui ne peut utiliser que l'interface C de FMOD
+_les unités ne peuvent pas apparaître dans des endroits interdits (ni via scripts ni via console)
+_les unités ne peuvent plus aller là où une autre unité est, si une unité essaye elle est replacé là où on peut la mettre
+_nouveaux modèles 3D pour les dépôts de métal
+_plus d'infos dans les logs (OpenGL: version, moteur de rendu et fabricant)
+_Console.log et Console2.txt fusionnés en ta3d.log
+_en zoomant, le cursor cible toujours le même point de la carte(comme dans supreme commander)
+_nouvelle icône tactique pour les unités kamikazes
+_support des unités kamikazes !!
+_support des mines
+_mécanisme d'auto-destruction des unités implémenté
+_si specifié dans les *.fbi une unité peut regagner ses points de vie avec le temps (cf commandeurs)
+_support des dégats d'armes spécifiques aux unités
+_support des textures comprimées dans le format 3DM (avec le choix donné à l'enregistrement)
+_support des écrans larges
+_le processus de chargement produit plus de données dans les logs
+_support d'animations par défaut des modèles 3DM, un élément de décor peut être animé !!!
+_système de pseudo lien symbolique avec les fichiers 3DM
+_les grosses explosions produisent moins de particules, et le nombre de particules est maintenant limité
+_les brouilleurs de sonars et de radars fonctionnent
+_code du brouillard de guerre ré-écrit
+_les sonars fonctionnent
+_système de repérage des unités sur la carte réécrit, les avions en vols ne gènent plus les unités au sol
+_les unités de transport fonctionnent
+_améliorations du moteur d'émulation des *.cob
+_les explosions produisent moins de fumée
+_code de patrouille réécrit
+_les usines peuvent recevoir des ordres à transmettre aux unités qu'elles construisent
+_les menus de construction sont lus depuis gamedata\sidedata.tdf, sauf pour les icônes des armes toujours prises des *.gui
+_le detecteur de collision entre armes et unités est bien plus simple et rapide
+_compatibilité avec Allegro 4.2.2 et AllegroGL 0.4.2
+_module i18n et cTAFileParser améliorés (plus rapides et "." ne les perturbe plus)
+_vitesse de rotation des cieux sphériques changée à 0.8
+_code de déplacement des unités - incluant le code de pathfinding - ré-écrit
+_TA3D mémorise le dernier état du Brouillard de guerre dans l'écran de configuration de partie
+_affiche les infos sur tout ce qui se trouve sous le curseur, il est plus facile de recycler des trucs maintenant
+_nouvel algorithme de pathfinding, plus rapide
+_amélioration du menu de sélection de cartes
+_quelques optimisations de la fonction UNIT::move
+_code de déplacement isolé du code de mission pour plus de modularité
+_code d'orientation des unités modularisé, le code est plus court
+_les armes sont plus réactives
+_effets de tremblement lors d'explosions
+_les armes des unités agissent de manière indépendantes
+_système de gestion des armes des unités réécrit, il ne fait plus partie du code de gestion des missions
+_corrigé : shift réagit comme dans TA maintenant lorsqu'un bâtiment a été sélectionné dans le menu de construction
+_corrigé: les unités soumarines ne flottent plus, tout le monde est à sa place
+_corrigé: bogue d'activation/désactivation des unités
+_corrections de bogues dans le convertisseur de sprite => objet 3D, les objets convertis ne sont plus si moches
+_correction de quelques artefacts sur les textures des cartes
+_corrigé: polygon-offset manquant pour les éléments plats du décors
+_corrigé: bogue d'échelle des éléments du décors
+_corrigé: 1280x1024 apparaît maintenant dans les résolutions possibles
+_corrigé: vilain bogue de projection des ombres qui empêchait l'utilisation de modèle lisses
+_corrigé : les usines dont le dernier ordre est annulé fonctionnent et ne restent pas ouvertes
+_corrigé: les lasers visent correctement maintenant
+_correction d'un bogue qui pouvait faire charger à TA3D le mauvais fichier *.cob pour une unité
+_correction de bogues qui empêchaient les armes de peewees de fonctionner normalement
+_corrigé: bogue lorsque la carte précédente n'était pas trouvée
+_correction du bogue de non transparence des obus
+_corrigé : le commandeur peut construire une rangée d'unité sans avoir de problème de pathfinding
+_corrigé : bogue de la carte de brouillard de guerre/radar
+_correction d'un bogue de la carte de présence des objets/unités
+_corrigé : plus d'effets d'eau sur la lave
+_corrigé : plus d'erreur de calculs des pentes sur les cartes *.tnt
+_correction d'un bogue de compilation avec Allegro 4.2.0
+_correction d'un bogue dans la fonction VAngle qui calcule l'angle entre 2 VECTOR
+_correction de quelques crashs aléatoires
+_corrigé : en cas de flood la console n'enregistre pas tous les messages pour ne pas figer
+_correction d'un bogue de dessin des ordres de constructio en appuyant sur SHIFT, GL_DEPTH_TEST était désactivé!
+_correction d'une faille de sécurité dans le code d'émulation des scripts COB qui permettait de lancer plus de "threads" qu'attendu et crashait le jeu
+
+changements apportés par la version 0.3.2
+-----------------------------------------
+
+_plusieurs nouvelles textures de ciel réalistes!!
+_nouveau système de dessin de ciel (en mode plat ou sphérique), le ciel peut tourner!
+_le brouillard de guerre est maintenant une option de l'écran de lancement de partie (off, gris, noir ou on)
+_le menu principal a été recodé et traduit avec le module i18n
+_les fontes de TA sont chargées directement depuis un fichier GAF de totala1.hpi, on a maintenant une table ASCII-8 complète !!
+_TA3D mémorise le dernier script/carte joué et le repropose la fois d'après
+_les radars fonctionnent!!
+_support pour les ordres sur la mini-carte
+_plus de tir fratricide
+_TA3D_Audio utilise l'interface en C de FMOD puisque celle en C++ ne compile pas avec mingw32
+_water quality niveau 0 corrigé : un simple quad avec la texture basse définition texture de la carte est dessinée en transparence
+_fragment shaders améliorés pour le rendu de l'eau, permet de mieux voir les unités qui sont sous l'eau
+_ajout de cadavres à la mort des unités
+_raccourcis clavier pour donner des ordres ( A = attaquer, R = réparer, ... )
+_gestionnaire de traduction réécrit
+_des flèches et un cercle apparaissent lorsqu'on déplace la caméra
+_retour de la compatibilité avec mingw32
+_correction de bogue dans l'algorithme d'orientation d'unité
+_correction: les reflets du ciel sont dessinés correctement
+_bogue très moche corrigé dans le module GUI
+_correction d'un bogue dans le code de sélection d'unité par simple clic
+_la distance de construction est calculée à partir du bord de l'unité
+_le brouillard est maintenant correctement dessiné avec la texture de détails
+_les scripts utilisent le module i18n (le texte est traduit)
+_on ne peut plus construire là où on n'a rien découvert
+_correction d'un bogue dans l'animation des constructions
+_FMOD ne bloque plus le démarrage de TA3D s'il n'y a pas de son possible
+_le descriptif de mission est affiché correctement
+_le menu de selection de carte ne fige plus au lancement
+
+changements apportés par la version 0.3.1
+-----------------------------------------
+
+_correction: les unités étaient lentes (corrigé mais les comportements d'unités ne sont pas encore bien gérés)
+_correction: l'affichage des ordres n'affichait d'un seul "lien" entre les ordres
+_le jeu ne fige plus après quelques minutes de jeu (varibales temporelles qui devenaient folles)
+_correction d'un bogue d'annulation d'ordre de construction lorsque 2 bâtiments à construires sont proches
+_synchronisation du moteur de scripts avec les threads principales
+_correction d'un bogue de détection de constructibilité
+_les navires ne tremblent plus à la construction
+_les stocks de ressources ne sont plus corrompus (variables non utilisées)
+_correction d'un bogue dans le détecteur de collision rayon/carte ( cf ashap plateau )
+_les avions prennent moins de temps pour trouver une place
+_le tampon de profondeur utilisé dans un FBO plante le jeu ( water_quality = 3 ) avec certains matériels graphiques (remplacé par un dessin dans le backbuffer)
+_le terrain n'est plus dessiné par dessus les bâtiments
+_les sons n'étaient pas toujours joués ( FMOD can't ... )
+_bogue de séléction corrigé
+_l'autoactivation d'une unité fonctionne correctement
+_utilisation de display lists pour accélérer le dessin d'objets statiques
+_mode suiveur pour la caméra (suivi d'unités)
+_vitesse de déplacement de l'écran augmentée ( x5 )
+_un nouvel installateur qui extrait les fichiers de TA depuis le CD ( utile pour les Linuxiens :-) )
+_support de l'arborescence de fichiers normale dans le module HPI
+_nouvel effet de flash sous les unités qui explosent
+_configure se plaint lorsqu'il manque des librairies
+_mouvement de caméra amélioré ( ctrl + bouton du milieu = centrage sur le curseur, bouton du milieu/roulette = déplace la caméra/zoom )
+_brouillard de guerre sur la mini-carte
+_support pour un dossier de sortie ( ie $HOMEDIR/.ta3d )
+_correction du bogue empêchant les ombres des modèles 3DM d'êtres dessinées
+_correction d'un crash du moteur à particules
+_fix : cTAFileParser était quadratique à cause du code qui enlève les '\r' et instable à cause du grand nombre d'appels récursifs
+_bogue du détecteur de collision corrigé :-)
+_correction du plantage lors de l'ouverture du selecteur de cartes
+_les extracteurs de métal devraient fonctionner maintenant
+_nouvelle option : la console peut être affichée par dessus l'écran de chargement
+_nouvelle texture de détails pour le sol ( utilise des fragment programs -> requière une carte graphique de classe GeForce FX pour tourner )
+_le modèle temporel est basé sur un découpage fixe du temps à simuler ( requis pour le jeu réseau ) -> améliore les performances
+_TA3D est maintenant orienté multi-threading!! ( plus rapides sur CPUs multi-coeurs )
+_skins pour l'interface graphique
+_correction d'un bogue du moteur à particules ( plus de clignotement de particules )
+_nouveau module gfx pour la gestion des graphismes
+_module gui amélioré
+_module hash_table réécrit
+_nouveau module de lecture de fichiers TDF
+_nouveau moteur audio, les modules sound et music ont été remplacés par le module TA3D_Audio qui utilise fmod - alogg et allegromp3 ne sont plus nécessaires
+_nouveau module pour la gestion des threads
+_nouveau fond pour les menus
+_en mode vue normale, un click droit sur l'icône de changement de mode de vue réinitialise l'angle de vue
+_correction du crash si TA3D ne trouve pas de cartes
+
+changements apportés par la version 0.3.0
+-----------------------------------------
+
+_nouvelle documentation
+_remplacement de la police d'Allegro par celle de TA
+_nouvelle couleur pour la console
+_moteur à particules (beaucoup) plus rapide
+_moteur de gestion des armes plus rapide (et pas qu'un peu)
+_compatibilité avec visual c++ 2005 express
+_la texture de la carte en version peu détaillée est calculée en 16bits pour éviter de surcharger la mémoire
+_placer un bâtiment se fait comme dans TA
+_beaucoup d'optimisations
+_code du brouillard de guerre réécrit pour plus de rapidité
+_nouveaux arbres en 3D dans le nouveau format de modèles 3D
+_nouveau logo au démarrage
+_nouveau format pour les modèles 3D avec éditeur fournis
+_la librairie JPGalleg est maintenant intégrée à TA3D avec quelques corrections de bogues pour systèmes 64bits
+_correction des bogues de compilation avec Allegro 4.2.1 et AllegroGL 0.4.0
+_l'angle de vue est maintenant réglé à 63.44° comme dans TA
+_lors de sa construction, une unité est liée à l'usine qui la fabrique (elle peut tourner, ...)
+_les unités peuvent voler en éclats
+_code de gestion d'archives réécrit
+
+changements apportés par la version 0.2.3
+-----------------------------------------
+
+_le méga zoom
+_ajout d'un ciel de nuit en fonction du type de carte
+_ajout d'un indicateur d'altitude pour les avions
+_meilleur support des armes
+_correction d'un bogue dans le code de détection de collisions entre un rayon et un modèle 3do
+_correction d'un bogue dans le code de calcul du centre d'un modèle 3d (cqs: les unités ne tirent plus dans les pieds)
+_bogue de mémoire corrigé (plus de crash après la fin de la partie)
+_amélioration des performances globales
+_écran de statistiques de fin de partie
+_correction d'un horrible bogue dans le code d'affichage des effets spéciaux
+_simulation physique du vent
+_support amélioré des éoliennes et centrales marémotrices
+_amélioration des performances du code de dessin des reflets
+_support des fichiers OTA avec affichages des données dans le menu "cartes"
+_un fichier contenant les traductions des textes affichés!
+_nouvelle table pour la génération rapide de nombres aléatoires (disparition de certaines latences)
+_correction d'un bogue dans le code de visé des armes de type canon
+
+changements apportés par la version 0.2.2
+-----------------------------------------
+
+_quelques améliorations dans le code d'émulation des scripts
+_on ne peut plus construire ce qu'on veut n'importe où (ex : une usine sur l'eau)
+_support des unités de transport
+_meilleur support des éléments du décors (on peut les détruire, ...)
+_amélioration du brouillard de guerre
+_quelques petites améliorations au niveau des performances globales
+_le texte est affiché plus lisiblement
+_amélioration du pathfinding
+_IA désactivée
+_les effets spéciaux sont dessinés au dessus des unités qui les ont produits (explosions,...) c'est plus réaliste
+_le moteur est plus rapide avec de nombreuses unités
+_correction d'une fuite de mémoire dans la gestion des effets spéciaux
+_correction d'un bogue dans le code d'éruptions de lave
+_correction du bogue de reflection des sprites
+_amélioration du rendu de l'eau avec GLSL
+_correction de plusieurs bogues
+
+changements apportés par la version 0.2.1
+-----------------------------------------
+
+_les armes peuvent prendre d'autres armes pour cible
+_affichage du logo des armes de type nucléaire
+_amélioration du code de gestion des armes: les armes en deux phases fonctionnent (comme l'arme atomique)
+_correction de bogue: TA3D ne plante plus si le dossier music est vide
+_4 niveaux de détails pour le rendu de l'eau (simple, eau d'origine de la carte, pixel shader, pixel shader avec reflections)
+_correction d'un bogue dans la fonction d'affichage du terrain bridant les performances
+_l'algorithme d'ombrage a été amélioré pour tourner plus vite sur les vieilles machines
+_un shader GLSL pour l'eau
+_changement dans les controles de la caméra libre: utiliser les flêches au lieu de la barre espace
+_les images sont maintenant dans le sous-dossier gfx
+_les unités affichent les couleurs de leur camp
+_correction de bogue: les ombres sont projetées correctement
+_la musique s'adapte à la partie (bataille, construction)
+_new window icon
+_les unités peuvent récupérer d'autres unités et des cadavres
+_on peut annuler la construction d'une unité dans un bâtiment de construction
+_les menus des bâtiments de construction affichent la liste des unité commandées
+_amélioration du support des scripts: les bâtiments de construction se comportent correctement
+_ajout d'instructions d'installation pour MacOS X et correction de quelques bogues de compilation dans glfunc.h
+_support de l'anticrénelage
+_chargement ultra rapide des aperçus des minicartes
+_correction d'un bogue de texturage des modèles 3do
+_correction du bogue d'animation: une arme qui explose au sol ne fait plus plouf
+
+changements apportés par la version 0.2.0
+-----------------------------------------
+
+_CTRL+Z selectionne toutes les unités du même type que celles sélectionnées
+_ajout d'un bouton pour (dés)activer le mode caméra libre 
+_ajout module de configuration
+_amélioration de l'animation de construction des unités
+_correction de bogue: les particules des bateaux vont dans la bonne direction
+_code de gestion de la musique réécrit pour gérer les formats MP3 et OGG
+_correction d'un bogue dans l'algorithme d'ombrage
+_correction de bogues dans le code d'animation des unités (elles visent plus vite)
+_les unités ne se perdent plus en dehors de la carte
+_dessin plus rapide du terrain
+_on peut faire des groupes d'unités (CTRL + 0...9, et ALT + 0...9)
+_les bombardiers visent correctement
+_support des shaders
+_nouveau cache pour éviter que les sons et les effets spéciaux ne ralentissent le jeu
+_correction d'un bogue dans l'émulation des scripts
+_de nouveaux bouttons dans le menu des unités
+_ajout d'instructions de scripts
+_beaucoup de correction de bogues
+_amélioration du pathfinding
+_I.A. (avec réseaux de neurones mais n'est pas encore achevée)
+_brouillard de guerre
+
+
+changements apportés par la version 0.1.2
+-----------------------------------------
+
+_correction de bogue: les fichiers avec l'attribut archive sont détéctés sous windows
+_correction de bogue: les unités en mode standby(MISSION_STANDBY) acceptent de nouveaux ordres
+_les unités de construction vérifient qu'elles ont assez de place pour construire!!
+_correction du bug qui empêchait d'avoir les ombres sous windows!!
+_correction de bogues avec AllegroGL 0.4.0rc4 (les textes sont dessinés correctement maintenant)
+_correction d'un bogue dans l'algorithme d'ombrage (si GL_EXT_stencil_two_side n'est pas disponible on dessine les ombres en 2 passes)
+_correction d'un bogue dans le moteur à particules(parfois les particules n'apparaissaient pas)
+_support des scripts de jeu(permet de controler le déroulement de la partie)
+_support du son 3d(logiciel)
+_les armes ne traversent plus les unités
+_les canons peuvent viser et tirer
+_les unités peuvent être endommagées (et tuées)
+_les unités s'orientent en fonction du terrain (des bosses,des pentes)
+_le pathfinding est completement opérationnel (les unités ne se traversent plus!)
+_nouveau convertisseur de sprites 2D->3D (permet d'afficher en 3D les roches avec les sprites d'origine)
+_meilleure stabilité
+_support des langues pour les noms et descriptions des unités
+_correction d'un bogue de transparence dans les menu de construction
+
+changements apportés par la version 0.1.1
+-----------------------------------------
+
+_effets speciaux lorsque les armes "explosent"(touchent quelque chose)
+_hauteur de la caméra augmentée de 50%
+_les unités peuvent tirer
+_les scripts des unités leur permettent de viser et de tirer!!
+_le système de scripts a été réécrit pour permettre aux unités de tirer
+_le chargement de fichiers depuis les archives hpi est plus rapide
+_un nouveau système de gestion des sons permet de charger/gérer les fichiers wav des archives hpi
+_les mp3 sont maintenant chargés au fur et à mesure qu'ils sont joués(streaming) pour éviter les saccades lors des chargements
+_amélioration du code d'affichage des modèles 3d
+_correction d'un bug empêchant le chargement de certaines données des fichiers 3do
+_mode camera libre (taper freecam dans la console)
+_l'algorithme d'affichage d'ombres est plus rapide
+_on peut choisir la qualité des ombres (plus la qualité est élevée moins le jeu est rapide)
+_correction d'un bug dans le code d'éxécution des scripts des unités
+_correction d'un bug dans le code d'émission des particules émises par les unités de construction
+
+changements apportés par la version 0.1.0
+-----------------------------------------
+
+_ajout d'une aide au format html
+_ajout d'un système avancé de gestion des armes(pas encore terminé)
+_les unités de construction émettent des particules lorsqu'elles construisent
+_quelques changements dans le menu principal
+_port windows fonctionnel
+_ajout du support de musique pendant le jeu
+_crash corrigé(grâce à Arthur Nascimento)
+
+changements apportés par la version 0.0.10
+-----------------------------------------
+
+_ajout d'un algorithme de pathfinding
+_toutes les unités devraient être capables de bouger (les avions peuvent voler, ...)
+_ajout de la gestion des ressources (coûts en metal et énergie, ...)
+_ajout d'un gestionnaire d'armes (maintenant TA3D charge les armes)
+_chercher/charger un fichier depuis une archive est plus rapide
+_les temps de chargements sont plus courts
+_quelques bogues corrigés pour les mouvements des unités
+
+changements apportés par la version 0.0.9
+-----------------------------------------
+
+_ajout d'un menu, avec la possibilité de choisir et de prévisualiser
+les cartes
+_un nouveau script permet de convetir les jpegs de l'archive en tga
+_port windows partiel (plante encore un peu)
+_correction d'un bogue du moteur à particules
+_le moteur à particules et le moteur de rendu de sprites sont plus performants
+_les performances générales du moteur on été améliorées sur les très grandes cartes
+_nouveau support pour les objets 3d du décor comme les restes d'unités sur les cartes
+_quelques bogues mineurs corrigés
+
+changements apportés par la version 0.0.8
+-----------------------------------------
+
+_ajout de données supplémentaires sur le terrain (pente, ...)
+_correction d'un bug d'éclairage des unités lors de l'activation du code de sélection d'unités
+
+changements apportés par la version 0.0.7
+-----------------------------------------
+
+_ajout d'un écran de chargement
+_ajout d'un effet de jet de lave sur les cartes contenant de la lave
+_ajout du support des ombres portées avec les volumes d'ombre et l'utilisation du stencil buffer
+_réduction considérable de la quantité de mémoire allouée par TA3D(compression des textures, élmination d'objets inutiles,...)
+_amélioration du support des éléments graphiques 2D sur les cartes(arbres,ventilations,roches,...)
+_les bouches de ventilation émettent de la fumée
+_amélioration du support des sprites 2D(particules, éléments graphiques) avec l'alpha blending
+_mise à l'échelle des modèles 3D
+_correction d'un bug dans l'algorithme de chargement de fichiers graphiques gaf partiellement transparents contenant du noir(indice de palette 0)
+_correction d'un bug dans l'algorithme de correction de l'effet de perspective d'origine des cartes
+_quelques corrections de bugs mineurs
+
+changements apportés par la version 0.0.6
+-----------------------------------------
+
+_repartition du code dans plusieurs modules
+_création d'un makefile pour la compilation
+_ajout d'une introduction
+_réduction de la quantité de mémoire allouée par TA3D
+_le programme change desormais le titre de la fenêtre
+_ajout d'un début de support pour les armes
+_ajout du support des éléments graphiques 2D sur les cartes(arbres,ventilations,roches,...)
+_correction d'un bug dans l'algorithme de correction de l'effet de perspective d'origine des cartes
+_quelques corrections de bugs mineurs
+
+changements apportés par la version 0.0.5
+-----------------------------------------
+
+_ajout d'un système de correction de l'effet de perspective précalculé sur les cartes du jeu
+_ajout d'un mécanisme de sélection par unité à l'aide du mode SELECTION d'OpenGl
+_ajout d'une étape dans l'évolution graphique des unités en construction
+_amélioration de la gestion des unités, celles-ci occupent désormais une place fixe en mémoire
+_correction du bug des unités qui ne sont plus soumises à la gravitation lors de leurs déplacements
+_suppression de certaines fonctions créées à des fins de tests et devenues inutiles
+_quelques corrections de bugs mineurs
