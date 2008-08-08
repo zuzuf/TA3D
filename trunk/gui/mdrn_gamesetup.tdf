@@ -1633,8 +1633,8 @@
 	{
 		name=team0;
 		type=MULTISTATE;
-		x1=325;
-		y1=202;
+		x1=324;
+		y1=201;
 		caption=gfx/mdrn_teams/team0.tga,gfx/mdrn_teams/team1.tga,gfx/mdrn_teams/team2.tga,gfx/mdrn_teams/team3.tga,gfx/mdrn_teams/team4.tga,gfx/mdrn_teams/team5.tga,gfx/mdrn_teams/team6.tga,gfx/mdrn_teams/team7.tga,gfx/mdrn_teams/team8.tga,gfx/mdrn_teams/team9.tga;
 		help=chose your team;
 		size=1;
@@ -1643,8 +1643,8 @@
 	{
 		name=team1;
 		type=MULTISTATE;
-		x1=325;
-		y1=242;
+		x1=324;
+		y1=241;
 		caption=gfx/mdrn_teams/team0.tga,gfx/mdrn_teams/team1.tga,gfx/mdrn_teams/team2.tga,gfx/mdrn_teams/team3.tga,gfx/mdrn_teams/team4.tga,gfx/mdrn_teams/team5.tga,gfx/mdrn_teams/team6.tga,gfx/mdrn_teams/team7.tga,gfx/mdrn_teams/team8.tga,gfx/mdrn_teams/team9.tga;
 		help=chose your team;
 		size=1;
@@ -1653,8 +1653,8 @@
 	{
 		name=team2;
 		type=MULTISTATE;
-		x1=325;
-		y1=282;
+		x1=324;
+		y1=281;
 		caption=gfx/mdrn_teams/team0.tga,gfx/mdrn_teams/team1.tga,gfx/mdrn_teams/team2.tga,gfx/mdrn_teams/team3.tga,gfx/mdrn_teams/team4.tga,gfx/mdrn_teams/team5.tga,gfx/mdrn_teams/team6.tga,gfx/mdrn_teams/team7.tga,gfx/mdrn_teams/team8.tga,gfx/mdrn_teams/team9.tga;
 		help=chose your team;
 		size=1;
@@ -1663,8 +1663,8 @@
 	{
 		name=team3;
 		type=MULTISTATE;
-		x1=325;
-		y1=322;
+		x1=324;
+		y1=321;
 		caption=gfx/mdrn_teams/team0.tga,gfx/mdrn_teams/team1.tga,gfx/mdrn_teams/team2.tga,gfx/mdrn_teams/team3.tga,gfx/mdrn_teams/team4.tga,gfx/mdrn_teams/team5.tga,gfx/mdrn_teams/team6.tga,gfx/mdrn_teams/team7.tga,gfx/mdrn_teams/team8.tga,gfx/mdrn_teams/team9.tga;
 		help=chose your team;
 		size=1;
@@ -1673,8 +1673,8 @@
 	{
 		name=team4;
 		type=MULTISTATE;
-		x1=325;
-		y1=362;
+		x1=324;
+		y1=361;
 		caption=gfx/mdrn_teams/team0.tga,gfx/mdrn_teams/team1.tga,gfx/mdrn_teams/team2.tga,gfx/mdrn_teams/team3.tga,gfx/mdrn_teams/team4.tga,gfx/mdrn_teams/team5.tga,gfx/mdrn_teams/team6.tga,gfx/mdrn_teams/team7.tga,gfx/mdrn_teams/team8.tga,gfx/mdrn_teams/team9.tga;
 		help=chose your team;
 		size=1;
@@ -1683,8 +1683,8 @@
 	{
 		name=team5;
 		type=MULTISTATE;
-		x1=325;
-		y1=402;
+		x1=324;
+		y1=401;
 		caption=gfx/mdrn_teams/team0.tga,gfx/mdrn_teams/team1.tga,gfx/mdrn_teams/team2.tga,gfx/mdrn_teams/team3.tga,gfx/mdrn_teams/team4.tga,gfx/mdrn_teams/team5.tga,gfx/mdrn_teams/team6.tga,gfx/mdrn_teams/team7.tga,gfx/mdrn_teams/team8.tga,gfx/mdrn_teams/team9.tga;
 		help=chose your team;
 		size=1;
@@ -1693,8 +1693,8 @@
 	{
 		name=team6;
 		type=MULTISTATE;
-		x1=325;
-		y1=442;
+		x1=324;
+		y1=441;
 		caption=gfx/mdrn_teams/team0.tga,gfx/mdrn_teams/team1.tga,gfx/mdrn_teams/team2.tga,gfx/mdrn_teams/team3.tga,gfx/mdrn_teams/team4.tga,gfx/mdrn_teams/team5.tga,gfx/mdrn_teams/team6.tga,gfx/mdrn_teams/team7.tga,gfx/mdrn_teams/team8.tga,gfx/mdrn_teams/team9.tga;
 		help=chose your team;
 		size=1;
@@ -1703,8 +1703,8 @@
 	{
 		name=team7;
 		type=MULTISTATE;
-		x1=325;
-		y1=482;
+		x1=324;
+		y1=481;
 		caption=gfx/mdrn_teams/team0.tga,gfx/mdrn_teams/team1.tga,gfx/mdrn_teams/team2.tga,gfx/mdrn_teams/team3.tga,gfx/mdrn_teams/team4.tga,gfx/mdrn_teams/team5.tga,gfx/mdrn_teams/team6.tga,gfx/mdrn_teams/team7.tga,gfx/mdrn_teams/team8.tga,gfx/mdrn_teams/team9.tga;
 		help=chose your team;
 		size=1;
@@ -1713,8 +1713,8 @@
 	{
 		name=team8;
 		type=MULTISTATE;
-		x1=325;
-		y1=522;
+		x1=324;
+		y1=521;
 		caption=gfx/mdrn_teams/team0.tga,gfx/mdrn_teams/team1.tga,gfx/mdrn_teams/team2.tga,gfx/mdrn_teams/team3.tga,gfx/mdrn_teams/team4.tga,gfx/mdrn_teams/team5.tga,gfx/mdrn_teams/team6.tga,gfx/mdrn_teams/team7.tga,gfx/mdrn_teams/team8.tga,gfx/mdrn_teams/team9.tga;
 		help=chose your team;
 		size=1;
@@ -1723,8 +1723,8 @@
 	{
 		name=team9;
 		type=MULTISTATE;
-		x1=325;
-		y1=562;
+		x1=324;
+		y1=561;
 		caption=gfx/mdrn_teams/team0.tga,gfx/mdrn_teams/team1.tga,gfx/mdrn_teams/team2.tga,gfx/mdrn_teams/team3.tga,gfx/mdrn_teams/team4.tga,gfx/mdrn_teams/team5.tga,gfx/mdrn_teams/team6.tga,gfx/mdrn_teams/team7.tga,gfx/mdrn_teams/team8.tga,gfx/mdrn_teams/team9.tga;
 		help=chose your team;
 		size=1;

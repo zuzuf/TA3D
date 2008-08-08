@@ -1534,8 +1534,8 @@ namespace TA3D
                     {
                         Objets[i].x2 = X1 + t_w[e] * size_factor * x_factor;
                         Objets[i].y2 = Y1 + t_h[e] * size_factor * y_factor;
-                        Objets[i].gltex_states[e].width = t_w[e];
-                        Objets[i].gltex_states[e].height = t_h[e];
+                        Objets[i].gltex_states[e].width = t_w[e] * size_factor * x_factor;
+                        Objets[i].gltex_states[e].height = t_h[e] * size_factor * x_factor;
                         Objets[i].gltex_states[e].destroy_tex = true;       // Make sure it'll be destroyed
                     }
                 }
