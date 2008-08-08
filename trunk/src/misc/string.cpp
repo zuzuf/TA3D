@@ -249,7 +249,7 @@ namespace TA3D
         if (semicolon == String::npos)
         {
             // if none is present, looks for a comment to strip it
-            String::size_type slashes = s.find("//", equal);
+            slashes = s.find("//", equal);
             slashes = s.find_last_not_of(TA3D_WSTR_SEPARATORS, slashes - 1);
             value = s.substr(equal, 1 + slashes - equal);
             value.findAndReplace("\\r", "", soCaseSensitive);
