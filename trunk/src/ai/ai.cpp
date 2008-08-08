@@ -557,22 +557,26 @@ namespace TA3D
                 short *BuildList = unit_manager.unit_type[ units.unit[ *i ].type_id ].BuildList;
                 for( int e = 0 ; e < list_size ; e++ )
                     sw[ e ] = (e > 0 ? sw[ e - 1 ] : 0.0f) + ai->weights[ BuildList[ e ] ].w;
-                int selected_idx = 0;
+                int selected_idx = -1;
                 float selection = (TA3D_RAND() % 1000000) * 0.000001f * sw[ list_size - 1 ];
-                for (int e = 0 ; e < list_size ; ++e)
-                {
-                    if (selection <= sw[ e ] )
+                if (sw[ list_size - 1 ] > 0.1f)
+                    for (int e = 0 ; e < list_size ; ++e)
                     {
-                        selected_idx = BuildList[e];
-                        break;
+                        if (selection <= sw[ e ] )
+                        {
+                            selected_idx = BuildList[e];
+                            break;
+                        }
                     }
-                }
                 # ifdef AI_DEBUG
                 LOG_DEBUG(LOG_PREFIX_AI << "AI(" << ai->player_id
                           << "," << msec_timer << ") -> factory " << *i << "building " << selected_idx);
                 # endif
-                units.unit[ *i ].add_mission( MISSION_BUILD, &units.unit[ *i ].Pos, false, selected_idx );
-                ai->weights[ selected_idx ].w *= 0.8f;
+                if (selected_idx >= 0)
+                {
+                    units.unit[ *i ].add_mission( MISSION_BUILD, &units.unit[ *i ].Pos, false, selected_idx );
+                    ai->weights[ selected_idx ].w *= 0.8f;
+                }
             }
             units.unit[ *i ].unlock();
         }
@@ -587,23 +591,24 @@ namespace TA3D
                 short *BuildList = unit_manager.unit_type[ units.unit[ *i ].type_id ].BuildList;
                 for( int e = 0 ; e < list_size ; e++ )
                     sw[ e ] = (e > 0 ? sw[ e - 1 ] : 0.0f) + ai->weights[ BuildList[ e ] ].w;
-                int selected_idx = 0;
+                int selected_idx = -1;
                 float selection = (TA3D_RAND() % 1000000) * 0.000001f * sw[ list_size - 1 ];
-                for( int e = 0 ; e < list_size ; e++ )
-                {
-                    if (selection <= sw[ e ] )
+                if (sw[ list_size - 1 ] > 0.1f)
+                    for( int e = 0 ; e < list_size ; e++ )
                     {
-                        selected_idx = BuildList[ e ];
-                        break;
+                        if (selection <= sw[ e ] )
+                        {
+                            selected_idx = BuildList[ e ];
+                            break;
+                        }
                     }
-                }
                 Vector3D target = units.unit[ *i ].Pos;
                 int px = (int)(target.x + map->map_w_d) >> 3;
                 int py = (int)(target.z + map->map_h_d) >> 3;
 
                 int spx = px;
                 int spy = py;
-                bool found = false;
+                bool found = selected_idx < 0;
                 int best_metal = 0;
                 for( int r = 5 ; r < 50 && !found ; r++ ) 	// Circular check
                 {
@@ -653,7 +658,7 @@ namespace TA3D
                 py = spy;
                 found |= best_metal > 0;
 
-                if (found)
+                if (found && selected_idx >= 0)
                 {
                     target.x = (px << 3) - map->map_w_d;
                     target.z = (py << 3) - map->map_h_d;
@@ -666,7 +671,7 @@ namespace TA3D
                     ai->weights[ selected_idx ].w *= 0.8f;
                 }
                 # ifdef AI_DEBUG
-                else
+                else if (selected_idx >= 0)
                     LOG_WARNING(LOG_PREFIX_AI << "AI(" << ai->player_id << "," << msec_timer
                               << ") -> builder " << *i << " building " << selected_idx << ": No build place found");
                 # endif
