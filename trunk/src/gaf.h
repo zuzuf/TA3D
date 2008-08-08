@@ -34,6 +34,10 @@
 # define TA3D_GAF_STANDARD      0x00010100
 # define TA3D_GAF_TRUECOLOR     0x00010101
 
+#if not defined FILTER_TRILINEAR
+# define FILTER_TRILINEAR   0x3
+#endif
+
 
 
 
@@ -163,7 +167,7 @@ namespace TA3D
         /*!
         ** \brief
         */
-        static GLuint ToTexture(const String& filename, const String& imgname, int* w = NULL, int* h = NULL, const bool truecolor = true);
+        static GLuint ToTexture(const String& filename, const String& imgname, int* w = NULL, int* h = NULL, const bool truecolor = true, const int filter = FILTER_TRILINEAR);
 
         /*!
         ** \brief Convert all Gaf images into OpenGL textures
@@ -176,7 +180,7 @@ namespace TA3D
         ** \param truecolor
         */
         static void ToTexturesList(std::vector<GLuint>& out, const String& filename, const String &imgname,
-                                   int* w = NULL, int* h = NULL, const bool truecolor = true);
+                                   int* w = NULL, int* h = NULL, const bool truecolor = true, const int filter = FILTER_TRILINEAR);
 
         /*!
         ** \brief Load a GAF image into a Bitmap

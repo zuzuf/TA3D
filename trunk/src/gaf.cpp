@@ -75,7 +75,7 @@ namespace TA3D
 
 
     void Gaf::ToTexturesList(std::vector<GLuint>& out, const String& filename, const String& imgname,
-                             int* w, int* h, const bool truecolor)
+                             int* w, int* h, const bool truecolor, const int filter)
     {
         out.clear();
 
@@ -106,7 +106,7 @@ namespace TA3D
                 uint32 fw, fh;
                 String cache_filename;
                 cache_filename << filename << "-" << imgname << format("-%d.bin", indx);
-                *i = gfx->load_texture_from_cache(cache_filename, FILTER_TRILINEAR, &fw, &fh);
+                *i = gfx->load_texture_from_cache(cache_filename, filter, &fw, &fh);
 
                 if (!(*i))
                 {
@@ -133,7 +133,7 @@ namespace TA3D
                         allegro_gl_set_texture_format(with_alpha ? GL_RGBA8 : GL_RGB8);
 
                     allegro_gl_use_alpha_channel(with_alpha);
-                    *i = gfx->make_texture(img);
+                    *i = gfx->make_texture(img,filter);
                     allegro_gl_use_alpha_channel(false);
                     gfx->save_texture_to_cache(cache_filename, *i, img->w, img->h);
                     destroy_bitmap(img);
@@ -150,13 +150,13 @@ namespace TA3D
 
 
 
-    GLuint Gaf::ToTexture(const String& filename, const String& imgname, int* w, int* h, const bool truecolor)
+    GLuint Gaf::ToTexture(const String& filename, const String& imgname, int* w, int* h, const bool truecolor, const int filter)
     {
         String cache_filename;
         cache_filename << filename << "-" << imgname << ".bin";
         uint32 fw;
         uint32 fh;
-        GLuint first_try = gfx->load_texture_from_cache(cache_filename, FILTER_TRILINEAR, &fw, &fh);
+        GLuint first_try = gfx->load_texture_from_cache(cache_filename, filter, &fw, &fh);
 
         if (first_try)
         {
@@ -190,7 +190,7 @@ namespace TA3D
                         allegro_gl_set_texture_format(with_alpha ? GL_RGBA8 : GL_RGB8);
 
                     allegro_gl_use_alpha_channel(with_alpha);
-                    GLuint gl_img = gfx->make_texture(img);
+                    GLuint gl_img = gfx->make_texture(img,filter);
                     allegro_gl_use_alpha_channel(false);
                     gfx->save_texture_to_cache(cache_filename, gl_img, img->w, img->h);
 
