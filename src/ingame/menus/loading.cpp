@@ -167,7 +167,7 @@ namespace Menus
     int Loading::maxTasks()
     {
         MutexLocker locker(pMutex);
-        return pMaxTasksCompleted;
+        return (int)pMaxTasksCompleted;
     }
 
     void Loading::maxTasks(const float v)
