@@ -1293,7 +1293,7 @@ namespace TA3D
                         String::List file_list;
                         HPIManager->getFilelist("anims\\*.gaf", file_list);
                         for (String::List::const_iterator e = file_list.begin() ; e != file_list.end() && gaf_imgs.size() == 0 ; ++e)
-                            Gaf::ToTexturesList(gaf_imgs, *e, Objets[i].Name, t_w, t_h);
+                            Gaf::ToTexturesList(gaf_imgs, *e, Objets[i].Name, t_w, t_h, true, FILTER_LINEAR);
                         if (gaf_imgs.size() > 0)
                             found_elsewhere = true;
                     }
