@@ -750,7 +750,7 @@ void SurfEdit()
             if ((GLuint)preview->Data == 0)
             {
                 allegro_gl_set_texture_format(GL_RGB8);
-                preview->Data = (uint32) gfx->create_texture( preview->x2 - preview->x1, preview->y2 - preview->y1, FILTER_LINEAR );
+                preview->Data = (uint32) gfx->create_texture( (int)(preview->x2 - preview->x1), (int)(preview->y2 - preview->y1), FILTER_LINEAR );
             }
  
             gfx->renderToTexture( (GLuint)preview->Data, true );
@@ -1487,8 +1487,8 @@ void SurfPaint(int index)
         if (painter_area.get_state("mapper") && painter_area.get_object("mapper.texture"))       // If the window is visible then update the texture
         {
             GUIOBJ *preview = painter_area.get_object("mapper.texture");
-            int w = preview->x2 - preview->x1;
-            int h = preview->y2 - preview->y1;
+            int w = (int)(preview->x2 - preview->x1);
+            int h = (int)(preview->y2 - preview->y1);
             if ((GLuint)preview->Data == 0)
             {
                 allegro_gl_set_texture_format(GL_RGB8);
