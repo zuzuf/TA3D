@@ -957,7 +957,7 @@ void setup_game(bool client, const char *host)
                                     if (guiobj)
                                     {
                                         msg.clear();
-                                        msg << "CHANGE TEAM " << i << " " << guiobj->current_state;
+                                        msg << "CHANGE TEAM " << i << " " << (int)(guiobj->current_state);
                                         network_manager.sendSpecial( msg, -1, from);
                                     }
                                 }
@@ -1362,6 +1362,18 @@ void setup_game(bool client, const char *host)
                 else
                     setupgame_area.set_state( format("gamesetup.ready%d", i ), game_data.ready[i]);
             }
+            guiobj = setupgame_area.get_object( format( "gamesetup.team%d", i ));
+            if (guiobj != NULL && (1 << guiobj->current_state) != game_data.team[i])           // Change team
+            {
+                if ( ((!client && !(game_data.player_control[i] & PLAYER_CONTROL_FLAG_REMOTE)) || (client && game_data.player_control[i] == PLAYER_CONTROL_LOCAL_HUMAN))
+                && game_data.player_control[i] != PLAYER_CONTROL_NONE && game_data.player_control[i] != PLAYER_CONTROL_CLOSED)
+                {
+                    network_manager.sendSpecial( "NOTIFY UPDATE");
+                    game_data.team[i] = 1 << guiobj->current_state;
+                }
+                else
+                    guiobj->current_state = Math::Log2(game_data.team[i]);
+            }
             if (client && game_data.player_network_id[i] != my_player_id )
                 continue;                           // You cannot change other player's settings
             if (setupgame_area.get_state(format("gamesetup.b_name%d", i) ) && !client ) // Change player type
@@ -1412,21 +1424,6 @@ void setup_game(bool client, const char *host)
                         guiobj->Flag &= ~FLAG_HIDDEN;
                 }
                 if (host )  network_manager.sendSpecial( "NOTIFY UPDATE");
-            }
-            if (setupgame_area.get_state( format("gamesetup.team%d", i)))           // Change team
-            {
-                guiobj = setupgame_area.get_object( format( "gamesetup.team%d", i ));
-                if (guiobj)
-                {
-                    if ( ((!client && !(game_data.player_control[i] & PLAYER_CONTROL_FLAG_REMOTE)) || (client && game_data.player_control[i] == PLAYER_CONTROL_LOCAL_HUMAN))
-                    && (game_data.player_control[i] != PLAYER_CONTROL_NONE && game_data.player_control[i] != PLAYER_CONTROL_CLOSED))
-                    {
-                        network_manager.sendSpecial( "NOTIFY UPDATE");
-                        game_data.team[i] = 1 << guiobj->current_state;
-                    }
-                    else
-                        guiobj->current_state = Math::Log2(game_data.team[i]);
-                }
             }
             if (setupgame_area.get_state( format("gamesetup.b_side%d", i))) // Change player side
             {
