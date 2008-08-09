@@ -231,7 +231,6 @@ namespace TA3D
         short   WindGenerator;      // Centrale de type Eolienne
         char    *yardmap;           // To tell where the unit is on the map
         WEAPON_DEF  *weapon[3];     // Weapons
-        uint32  weapon_damage[3];   // Damage made by weapons fired from this unit
         int     attackrunlength;    // Distance à laquelle l'unité commence une attaque (bombardiers)
         bool    antiweapons;
         bool    emitting_points_computed;   // Just to test if we need to get emitting point from script
