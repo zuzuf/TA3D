@@ -2491,8 +2491,8 @@ void wait_room(void *p_game_data)
     {                                   // We can only use units available on all clients
         for (int i = 0; i < unit_manager.nb_unit; ++i)
         {
-            if (!unit_manager.unit_type[i].not_used)
-                network_manager.sendAll(format("USING %s", unit_manager.unit_type[i].Unitname));
+            if (!unit_manager.unit_type[i]->not_used)
+                network_manager.sendAll(format("USING %s", unit_manager.unit_type[i]->Unitname));
         }
         network_manager.sendAll("END USING");
     }
@@ -2615,7 +2615,7 @@ void wait_room(void *p_game_data)
                                 {
                                     int idx = unit_manager.get_unit_index(params[1].c_str());
                                     if (idx >= 0)
-                                        unit_manager.unit_type[idx].not_used = true;
+                                        unit_manager.unit_type[idx]->not_used = true;
                                 }
                         }
                     }

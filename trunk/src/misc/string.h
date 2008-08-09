@@ -229,8 +229,8 @@ namespace TA3D
         ** \param format The format of the new string
         ** \return A new string
         */ 
-        static String Format(const String& format, ...);
-        static String Format(const char* format, ...);
+        static String Format(const String& f, ...);
+        static String Format(const char* f, ...);
 
     public:
         //! \name Constructors and Destructor
@@ -502,20 +502,20 @@ namespace TA3D
 
         /*!
         ** \brief Reset the current value with a formatted string 
-        ** \param format The format of the new string
+        ** \param f The format of the new string
         ** \return Always *this
         */
-        String& format(const String& format, ...);
-        String& format(const char* format, ...);
+        String& format(const String& f, ...);
+        String& format(const char* f, ...);
 
         /*!
         ** \brief Append a formatted string 
-        ** \param format The format of the new string
+        ** \param f The format of the new string
         ** \return Always *this
         */
-        String& appendFormat(const String& format, ...);
-        String& appendFormat(const char* format, ...);
-        String& vappendFormat(const char* format, va_list parg);
+        String& appendFormat(const String& f, ...);
+        String& appendFormat(const char* f, ...);
+        String& vappendFormat(const char* f, va_list parg);
 
 
     private:

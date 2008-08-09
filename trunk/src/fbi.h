@@ -352,8 +352,10 @@ namespace TA3D
     class UNIT_MANAGER          // Classe pour charger toutes les données relatives aux unités
     {
     public:
+        typedef std::vector<UNIT_TYPE*>  UnitList;
+    public:
         int         nb_unit;        // Nombre d'unités
-        UNIT_TYPE   *unit_type;     // Données sur l'unité
+        UnitList  unit_type;     // Données sur l'unité
 
     private:
         Interfaces::GfxTexture  panel;          // The texture used by the panel
@@ -368,7 +370,6 @@ namespace TA3D
         inline void init()
         {
             nb_unit=0;
-            unit_type=NULL;
             panel.init();
             paneltop.init();
             panelbottom.init();

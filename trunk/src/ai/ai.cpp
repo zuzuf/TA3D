@@ -284,55 +284,55 @@ namespace TA3D
             ai->weights = new AI_WEIGHT[ unit_manager.nb_unit ];
 
             for( uint16 i = 0 ; i < unit_manager.nb_unit ; ++i)
-                if (strcasecmp( unit_manager.unit_type[ i ].side, players.side[ ai->player_id ].c_str() ) == 0 )
+                if (strcasecmp( unit_manager.unit_type[i]->side, players.side[ ai->player_id ].c_str() ) == 0 )
                 {
                     ai->weights[ i ].type = 0;
 
-                    if (unit_manager.unit_type[ i ].canattack && unit_manager.unit_type[ i ].BMcode && !unit_manager.unit_type[ i ].commander )
+                    if (unit_manager.unit_type[i]->canattack && unit_manager.unit_type[i]->BMcode && !unit_manager.unit_type[i]->commander )
                     {
-                        if (unit_manager.unit_type[ i ].canmove )
+                        if (unit_manager.unit_type[i]->canmove )
                             ai->weights[ i ].type |= AI_FLAG_ARMY;
                         else
                             ai->weights[ i ].type |= AI_FLAG_DEFENSE;
                     }
 
-                    if (unit_manager.unit_type[ i ].Builder )
+                    if (unit_manager.unit_type[i]->Builder )
                     {
-                        if (unit_manager.unit_type[ i ].BMcode )
+                        if (unit_manager.unit_type[i]->BMcode )
                             ai->weights[ i ].type |= AI_FLAG_BUILDER;
                         else
                             ai->weights[ i ].type |= AI_FLAG_FACTORY;
                     }
 
-                    if (unit_manager.unit_type[ i ].MetalMake > 0.0f
-                        || unit_manager.unit_type[ i ].MakesMetal > 0.0f || unit_manager.unit_type[ i ].ExtractsMetal > 0.0f )
+                    if (unit_manager.unit_type[i]->MetalMake > 0.0f
+                        || unit_manager.unit_type[i]->MakesMetal > 0.0f || unit_manager.unit_type[i]->ExtractsMetal > 0.0f )
                     {
                         ai->weights[ i ].type |= AI_FLAG_METAL_P;
-                        ai->weights[ i ].metal_s = unit_manager.unit_type[ i ].MetalStorage * 0.001f;
-                        ai->weights[ i ].metal_p = (unit_manager.unit_type[ i ].MetalMake + unit_manager.unit_type[ i ].MakesMetal) * 10.0f
-                            + 5000.0f * unit_manager.unit_type[ i ].ExtractsMetal - unit_manager.unit_type[ i ].EnergyUse;
+                        ai->weights[ i ].metal_s = unit_manager.unit_type[i]->MetalStorage * 0.001f;
+                        ai->weights[ i ].metal_p = (unit_manager.unit_type[i]->MetalMake + unit_manager.unit_type[i]->MakesMetal) * 10.0f
+                            + 5000.0f * unit_manager.unit_type[i]->ExtractsMetal - unit_manager.unit_type[i]->EnergyUse;
                     }
-                    if (unit_manager.unit_type[ i ].MetalStorage )
+                    if (unit_manager.unit_type[i]->MetalStorage )
                     {
                         ai->weights[ i ].type |= AI_FLAG_METAL_S;
-                        ai->weights[ i ].metal_s = unit_manager.unit_type[ i ].MetalStorage * 0.001f;
-                        ai->weights[ i ].metal_p = (unit_manager.unit_type[ i ].MetalMake + unit_manager.unit_type[ i ].MakesMetal) * 10.0f
-                            + 5000.0f * unit_manager.unit_type[ i ].ExtractsMetal - unit_manager.unit_type[ i ].EnergyUse;
+                        ai->weights[ i ].metal_s = unit_manager.unit_type[i]->MetalStorage * 0.001f;
+                        ai->weights[ i ].metal_p = (unit_manager.unit_type[i]->MetalMake + unit_manager.unit_type[i]->MakesMetal) * 10.0f
+                            + 5000.0f * unit_manager.unit_type[i]->ExtractsMetal - unit_manager.unit_type[i]->EnergyUse;
                     }
-                    if (unit_manager.unit_type[ i ].EnergyMake || unit_manager.unit_type[ i ].EnergyUse < 0.0f
-                        || unit_manager.unit_type[ i ].TidalGenerator || unit_manager.unit_type[ i ].WindGenerator )
+                    if (unit_manager.unit_type[i]->EnergyMake || unit_manager.unit_type[i]->EnergyUse < 0.0f
+                        || unit_manager.unit_type[i]->TidalGenerator || unit_manager.unit_type[i]->WindGenerator )
                     {
                         ai->weights[ i ].type |= AI_FLAG_ENERGY_P;
-                        ai->weights[ i ].energy_s = unit_manager.unit_type[ i ].EnergyStorage * 0.0001f;
-                        ai->weights[ i ].energy_p = (unit_manager.unit_type[ i ].EnergyMake + unit_manager.unit_type[ i ].TidalGenerator
-                                                     + unit_manager.unit_type[ i ].WindGenerator - unit_manager.unit_type[ i ].EnergyUse) * 0.01f;
+                        ai->weights[ i ].energy_s = unit_manager.unit_type[i]->EnergyStorage * 0.0001f;
+                        ai->weights[ i ].energy_p = (unit_manager.unit_type[i]->EnergyMake + unit_manager.unit_type[i]->TidalGenerator
+                                                     + unit_manager.unit_type[i]->WindGenerator - unit_manager.unit_type[i]->EnergyUse) * 0.01f;
                     }
-                    if (unit_manager.unit_type[ i ].EnergyStorage )
+                    if (unit_manager.unit_type[i]->EnergyStorage )
                     {
                         ai->weights[ i ].type |= AI_FLAG_ENERGY_S;
-                        ai->weights[ i ].energy_s = unit_manager.unit_type[ i ].EnergyStorage * 0.0001f;
-                        ai->weights[ i ].energy_p = (unit_manager.unit_type[ i ].EnergyMake + unit_manager.unit_type[ i ].TidalGenerator
-                                                     + unit_manager.unit_type[ i ].WindGenerator - unit_manager.unit_type[ i ].EnergyUse) * 0.01f;
+                        ai->weights[ i ].energy_s = unit_manager.unit_type[i]->EnergyStorage * 0.0001f;
+                        ai->weights[ i ].energy_p = (unit_manager.unit_type[i]->EnergyMake + unit_manager.unit_type[i]->TidalGenerator
+                                                     + unit_manager.unit_type[i]->WindGenerator - unit_manager.unit_type[i]->EnergyUse) * 0.01f;
                     }
                 }
                 else
@@ -419,7 +419,7 @@ namespace TA3D
 
         for( uint16 i = 0 ; i < unit_manager.nb_unit ; ++i )
         {
-            if (ai->weights[ i ].type && !unit_manager.unit_type[ i ].not_used )
+            if (ai->weights[ i ].type && !unit_manager.unit_type[i]->not_used )
             {
                 if (ai->weights[ i ].type & AI_FLAG_ARMY )
                 {
@@ -552,9 +552,9 @@ namespace TA3D
         for( std::list<uint16>::iterator i = ai->factory_list.begin() ; i != ai->factory_list.end() ; ++i )	// Give instructions to idle factories
         {
             units.unit[ *i ].lock();
-            if ((units.unit[ *i ].flags & 1) && units.unit[ *i ].do_nothing_ai() && unit_manager.unit_type[ units.unit[ *i ].type_id ].nb_unit > 0 ) {
-                short list_size = unit_manager.unit_type[ units.unit[ *i ].type_id ].nb_unit;
-                short *BuildList = unit_manager.unit_type[ units.unit[ *i ].type_id ].BuildList;
+            if ((units.unit[ *i ].flags & 1) && units.unit[ *i ].do_nothing_ai() && unit_manager.unit_type[units.unit[*i].type_id]->nb_unit > 0 ) {
+                short list_size = unit_manager.unit_type[units.unit[*i].type_id]->nb_unit;
+                short *BuildList = unit_manager.unit_type[units.unit[*i].type_id]->BuildList;
                 for( int e = 0 ; e < list_size ; e++ )
                     sw[ e ] = (e > 0 ? sw[ e - 1 ] : 0.0f) + ai->weights[ BuildList[ e ] ].w;
                 int selected_idx = -1;
@@ -585,12 +585,12 @@ namespace TA3D
         for( std::list<uint16>::iterator i = ai->builder_list.begin() ; i != ai->builder_list.end() ; ++i )
         {
             units.unit[ *i ].lock();
-            if ((units.unit[ *i ].flags & 1) && units.unit[ *i ].do_nothing_ai() && unit_manager.unit_type[ units.unit[ *i ].type_id ].nb_unit > 0 )
+            if ((units.unit[ *i ].flags & 1) && units.unit[ *i ].do_nothing_ai() && unit_manager.unit_type[units.unit[*i].type_id]->nb_unit > 0)
             {
-                short list_size = unit_manager.unit_type[ units.unit[ *i ].type_id ].nb_unit;
-                short *BuildList = unit_manager.unit_type[ units.unit[ *i ].type_id ].BuildList;
-                for( int e = 0 ; e < list_size ; e++ )
-                    sw[ e ] = (e > 0 ? sw[ e - 1 ] : 0.0f) + ai->weights[ BuildList[ e ] ].w;
+                short list_size = unit_manager.unit_type[units.unit[*i].type_id]->nb_unit;
+                short *BuildList = unit_manager.unit_type[units.unit[*i].type_id]->BuildList;
+                for (int e = 0; e < list_size; ++e)
+                    sw[e] = (e > 0 ? sw[e - 1] : 0.0f) + ai->weights[ BuildList[ e ] ].w;
                 int selected_idx = -1;
                 float selection = (TA3D_RAND() % 1000000) * 0.000001f * sw[ list_size - 1 ];
                 if (sw[ list_size - 1 ] > 0.1f)
@@ -637,8 +637,8 @@ namespace TA3D
                             if (can_be_there_ai( px + cx[e], py + cy[e], map, selected_idx, ai->player_id ) )
                             {
                                 int metal_found = map->check_metal( px + cx[e], py + cy[e], selected_idx );
-                                if (( unit_manager.unit_type[ selected_idx ].ExtractsMetal > 0.0f && metal_found > best_metal)
-                                    || unit_manager.unit_type[ selected_idx ].ExtractsMetal == 0.0f )
+                                if (( unit_manager.unit_type[selected_idx]->ExtractsMetal > 0.0f && metal_found > best_metal)
+                                    || unit_manager.unit_type[selected_idx]->ExtractsMetal == 0.0f )
                                 {
                                     spx = px + cx[e];
                                     spy = py + cy[e];
@@ -662,7 +662,7 @@ namespace TA3D
                 {
                     target.x = (px << 3) - map->map_w_d;
                     target.z = (py << 3) - map->map_h_d;
-                    target.y = Math::Max( map->get_max_rect_h((int)target.x,(int)target.z, unit_manager.unit_type[ selected_idx ].FootprintX, unit_manager.unit_type[ selected_idx ].FootprintZ ), map->sealvl);
+                    target.y = Math::Max( map->get_max_rect_h((int)target.x,(int)target.z, unit_manager.unit_type[selected_idx]->FootprintX, unit_manager.unit_type[selected_idx]->FootprintZ ), map->sealvl);
                     units.unit[ *i ].add_mission( MISSION_BUILD, &target, false, selected_idx );
                     # ifdef AI_DEBUG
                     LOG_DEBUG(LOG_PREFIX_AI << "AI(" << ai->player_id << "," << msec_timer
@@ -689,8 +689,8 @@ namespace TA3D
                     for (uint16 e = 0 ; e < unit_manager.nb_unit; ++e)
                     {
                         bool can_build = false;
-                        for( uint16 f = 0 ; f < unit_manager.unit_type[e].nb_unit && !can_build ; ++f)
-                            can_build = unit_manager.unit_type[e].BuildList[f] == i;
+                        for (uint16 f = 0; f < unit_manager.unit_type[e]->nb_unit && !can_build ; ++f)
+                            can_build = unit_manager.unit_type[e]->BuildList[f] == i;
                         if (can_build )
                             ai->weights[i].built_by.push_back(e);
                     }

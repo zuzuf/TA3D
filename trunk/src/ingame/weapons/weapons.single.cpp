@@ -100,26 +100,29 @@ namespace TA3D
                 if(weapon_manager.weapon[weapon_id].tracks && target>=0)
                 {
                     Vector3D target_V;
-                    if(weapon_manager.weapon[weapon_id].interceptor && target <= weapons.nb_weapon && weapons.weapon[target].weapon_id!=-1)
+                    if (weapon_manager.weapon[weapon_id].interceptor && target <= weapons.nb_weapon && weapons.weapon[target].weapon_id!=-1)
                     {
                         target_pos = weapons.weapon[target].Pos;
                         target_V = weapons.weapon[target].V;
                     }
-                    else if(!weapon_manager.weapon[weapon_id].interceptor && target<units.max_unit && (units.unit[target].flags & 1) ) {		// Met à jour les coordonnées de la cible
-                        target_pos = units.unit[target].Pos;
-                        target_V = units.unit[target].V;
-                    }
-                    else
-                        target = -1;
+                    else 
+                        if (!weapon_manager.weapon[weapon_id].interceptor && target < units.max_unit && (units.unit[target].flags & 1)) // Met à jour les coordonnées de la cible
+                        {
+                            target_pos = units.unit[target].Pos;
+                            target_V = units.unit[target].V;
+                        }
+                        else
+                            target = -1;
                     float speed = V.sq();
                     float target_speed = target_V.sq();
-                    if( speed > 0.0f && target_speed > 0.0f ) {					// Make it aim better
+                    if (speed > 0.0f && target_speed > 0.0f) // Make it aim better
+                    {
                         float time_to_hit = (target_pos - Pos).sq() / speed;
                         target_pos = target_pos + sqrt( time_to_hit / target_speed ) * target_V;
                     }
                 }
-                if(target_pos.y<map->sealvl && !weapon_manager.weapon[weapon_id].waterweapon)
-                    target_pos.y=map->sealvl;
+                if (target_pos.y<map->sealvl && !weapon_manager.weapon[weapon_id].waterweapon)
+                    target_pos.y = map->sealvl;
                 Vector3D Dir = target_pos - Pos;
                 Dir.unit();
                 Vector3D I,J,K;			// Crée un trièdre
@@ -281,7 +284,7 @@ namespace TA3D
                 if( (units.unit[hit_idx].flags & 1) && units.unit[hit_idx].local )
                 {
                     bool ok = units.unit[hit_idx].hp>0.0f;		// Juste pour identifier l'assassin...
-                    damage = weapon_manager.weapon[weapon_id].get_damage_for_unit( unit_manager.unit_type[ units.unit[hit_idx].type_id ].Unitname ) * units.unit[ hit_idx ].damage_modifier();
+                    damage = weapon_manager.weapon[weapon_id].get_damage_for_unit(unit_manager.unit_type[units.unit[hit_idx].type_id]->Unitname) * units.unit[hit_idx].damage_modifier();
                     units.unit[hit_idx].hp -= damage;		// L'unité touchée encaisse les dégats
                     units.unit[hit_idx].flags&=0xEF;		// This unit must explode if it has been damaged by a weapon even if it is being reclaimed
                     if(ok && shooter_idx >= 0 && shooter_idx < units.max_unit && units.unit[hit_idx].hp<=0.0f && units.unit[shooter_idx].owner_id < players.nb_player
@@ -415,26 +418,27 @@ namespace TA3D
                                 }
                             }
                         }
-                        if(!already)
+                        if (!already)
                         {
-                            if(t_idx>=0)
+                            if (t_idx >= 0)
                             {
                                 units.unit[t_idx].lock();
-                                if( (units.unit[t_idx].flags & 1) && units.unit[t_idx].local && ((Vector3D)(units.unit[t_idx].Pos-Pos)).sq()<=d) {
+                                if ((units.unit[t_idx].flags & 1) && units.unit[t_idx].local && ((Vector3D)(units.unit[t_idx].Pos - Pos)).sq() <= d)
+                                {
                                     oidx.push_back( t_idx );
                                     bool ok = units.unit[ t_idx ].hp > 0.0f;
-                                    damage = weapon_manager.weapon[weapon_id].get_damage_for_unit( unit_manager.unit_type[ units.unit[ t_idx ].type_id ].Unitname );
+                                    damage = weapon_manager.weapon[weapon_id].get_damage_for_unit( unit_manager.unit_type[ units.unit[ t_idx ].type_id ]->Unitname);
                                     float cur_damage = damage * weapon_manager.weapon[weapon_id].edgeeffectiveness * units.unit[ t_idx ].damage_modifier();
                                     units.unit[t_idx].hp -= cur_damage;		// L'unité touchée encaisse les dégats
                                     units.unit[t_idx].flags&=0xEF;		// This unit must explode if it has been damaged by a weapon even if it is being reclaimed
-                                    if(ok && shooter_idx >= 0 && shooter_idx < units.max_unit && units.unit[t_idx].hp<=0.0f && units.unit[shooter_idx].owner_id < players.nb_player
+                                    if (ok && shooter_idx >= 0 && shooter_idx < units.max_unit && units.unit[t_idx].hp<=0.0f && units.unit[shooter_idx].owner_id < players.nb_player
                                        && units.unit[t_idx].owner_id!=units.unit[shooter_idx].owner_id)		// Non,non les unités que l'on se détruit ne comptent pas dans le nombre de tués mais dans les pertes
                                         players.kills[units.unit[shooter_idx].owner_id]++;
-                                    if(units.unit[t_idx].hp<=0.0f)
+                                    if (units.unit[t_idx].hp<=0.0f)
                                         units.unit[t_idx].severity = Math::Max(units.unit[t_idx].severity,(int)cur_damage);
 
-                                    if( network_manager.isConnected() )			// Send damage event
-                                        g_ta3d_network->sendDamageEvent( t_idx, cur_damage );
+                                    if (network_manager.isConnected())			// Send damage event
+                                        g_ta3d_network->sendDamageEvent(t_idx, cur_damage);
 
                                     Vector3D D = (units.unit[t_idx].Pos - Pos) * RotateY( -units.unit[t_idx].Angle.y * DEG2RAD );
                                     D.unit();

@@ -234,7 +234,7 @@ void save_game( const String filename, GameData *game_data )
 
         SAVE( units.unit[i].ID );		// Store its ID so we don't lose its "name"
 
-        fputs( unit_manager.unit_type[units.unit[i].type_id].Unitname, file );		// Store the name so it doesn't rely on the feature order
+        fputs( unit_manager.unit_type[units.unit[i].type_id]->Unitname, file );		// Store the name so it doesn't rely on the feature order
         fputc( 0, file );
 
         int g = units.unit[i].s_var->size();

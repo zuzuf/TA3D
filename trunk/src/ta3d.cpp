@@ -143,8 +143,8 @@ int play(GameData *game_data)
 
     if (players.local_human_id >= 0)
     {
-        String prefix = "";
-        String intgaf = "";
+        String prefix;
+        String intgaf;
 
         for (int i = 0; i < ta3dSideData.nb_side; ++i)
             if (ta3dSideData.side_name[ i ] == game_data->player_sides[ players.local_human_id ])
@@ -154,7 +154,7 @@ int play(GameData *game_data)
                 break;
             }
 
-        if (prefix != "" && intgaf != "")
+        if (!prefix.empty() && !intgaf.empty())
             unit_manager.load_panel_texture( prefix, intgaf);
     }
 
@@ -165,14 +165,14 @@ int play(GameData *game_data)
         cTAFileParser useonly_parser( game_data->use_only, false, false, true);		// In gadgets mode so we can read the special key :)
         int i = 0;
         for (; i < unit_manager.nb_unit ; i++)
-            unit_manager.unit_type[ i ].not_used = true;
-        String unit_name = "";
+            unit_manager.unit_type[i]->not_used = true;
+        String unit_name;
         i = 0;
         while( !(unit_name = useonly_parser.pullAsString( format( "gadget%d", i))).empty())
         {
             int idx = unit_manager.get_unit_index( unit_name.c_str());
             if (idx >= 0)
-                unit_manager.unit_type[ idx ].not_used = false;
+                unit_manager.unit_type[idx]->not_used = false;
             ++i;
         }
     }
@@ -209,13 +209,13 @@ int play(GameData *game_data)
     {
         if (!(i & 0xF))
             loading( (550.0f + 50.0f * i / (unit_manager.nb_unit+1))/7.0f,I18N::Translate("Loading GUI"));
-        if (String::ToLower(unit_manager.unit_type[i].side) == String::ToLower(ta3dSideData.side_name[players.side_view]))
+        if (String::ToLower(unit_manager.unit_type[i]->side) == String::ToLower(ta3dSideData.side_name[players.side_view]))
         {
             int e = 1;
-            while( HPIManager->Exists( ta3dSideData.guis_dir + unit_manager.unit_type[ i ].Unitname + format( "%d.gui", e)))
+            while( HPIManager->Exists( ta3dSideData.guis_dir + unit_manager.unit_type[i]->Unitname + format( "%d.gui", e)))
             {
-                game_area.load_window( ta3dSideData.guis_dir + unit_manager.unit_type[ i ].Unitname + format( "%d.gui", e));			// Load the build interface
-                I_Msg( TA3D::TA3D_IM_GUI_MSG, (void*)( unit_manager.unit_type[ i ].Unitname + format( "%d.hide", e)).c_str(), NULL, NULL);	// Hide it
+                game_area.load_window( ta3dSideData.guis_dir + unit_manager.unit_type[i]->Unitname + format( "%d.gui", e));			// Load the build interface
+                I_Msg( TA3D::TA3D_IM_GUI_MSG, (void*)( unit_manager.unit_type[i]->Unitname + format( "%d.hide", e)).c_str(), NULL, NULL);	// Hide it
                 e++;
             }
         }
@@ -677,7 +677,7 @@ int play(GameData *game_data)
                 for (i = 0; i < units.index_list_size; ++i)
                 {
                     uint32 e = units.idx_list[i];
-                    if ((units.unit[e].flags & 1) && units.unit[e].owner_id==players.local_human_id && units.unit[e].sel && unit_manager.unit_type[units.unit[e].type_id].canmove)
+                    if ((units.unit[e].flags & 1) && units.unit[e].owner_id==players.local_human_id && units.unit[e].sel && unit_manager.unit_type[units.unit[e].type_id]->canmove)
                     {
                         cursor_type=CURSOR_MOVE;
                         break;
@@ -1064,10 +1064,10 @@ int play(GameData *game_data)
                 i = units.idx_list[e];
                 if ((units.unit[i].flags & 1) && units.unit[i].owner_id==players.local_human_id && units.unit[i].sel)
                 {
-                    builders|=unit_manager.unit_type[units.unit[i].type_id].Builder;
-                    canattack|=unit_manager.unit_type[units.unit[i].type_id].canattack;
-                    canreclamate|=unit_manager.unit_type[units.unit[i].type_id].CanReclamate;
-                    canresurrect|=unit_manager.unit_type[units.unit[i].type_id].canresurrect;
+                    builders|=unit_manager.unit_type[units.unit[i].type_id]->Builder;
+                    canattack|=unit_manager.unit_type[units.unit[i].type_id]->canattack;
+                    canreclamate|=unit_manager.unit_type[units.unit[i].type_id]->CanReclamate;
+                    canresurrect|=unit_manager.unit_type[units.unit[i].type_id]->canresurrect;
                 }
             }
             int pointing = 0;
@@ -1170,12 +1170,12 @@ int play(GameData *game_data)
                             uint32 commandfire = current_order == SIGNAL_ORDER_DGUN ? MISSION_FLAG_COMMAND_FIRE : 0;
                             i = units.idx_list[e];
                             units.unit[i].lock();
-                            if ((units.unit[i].flags & 1) && units.unit[i].owner_id==players.local_human_id && units.unit[i].sel && unit_manager.unit_type[units.unit[i].type_id].canattack
-                                && ( unit_manager.unit_type[units.unit[i].type_id].BMcode || !unit_manager.unit_type[units.unit[i].type_id].Builder))
+                            if ((units.unit[i].flags & 1) && units.unit[i].owner_id==players.local_human_id && units.unit[i].sel && unit_manager.unit_type[units.unit[i].type_id]->canattack
+                                && ( unit_manager.unit_type[units.unit[i].type_id]->BMcode || !unit_manager.unit_type[units.unit[i].type_id]->Builder))
                             {
-                                if (( unit_manager.unit_type[ units.unit[i].type_id ].weapon[ 0 ] && unit_manager.unit_type[ units.unit[i].type_id ].weapon[ 0 ]->stockpile)
-                                    || ( unit_manager.unit_type[ units.unit[i].type_id ].weapon[ 1 ] && unit_manager.unit_type[ units.unit[i].type_id ].weapon[ 1 ]->stockpile)
-                                    || ( unit_manager.unit_type[ units.unit[i].type_id ].weapon[ 2 ] && unit_manager.unit_type[ units.unit[i].type_id ].weapon[ 2 ]->stockpile))
+                                if (( unit_manager.unit_type[units.unit[i].type_id]->weapon[ 0 ] && unit_manager.unit_type[units.unit[i].type_id]->weapon[ 0 ]->stockpile)
+                                    || ( unit_manager.unit_type[units.unit[i].type_id]->weapon[ 1 ] && unit_manager.unit_type[units.unit[i].type_id]->weapon[ 1 ]->stockpile)
+                                    || ( unit_manager.unit_type[units.unit[i].type_id]->weapon[ 2 ] && unit_manager.unit_type[units.unit[i].type_id]->weapon[ 2 ]->stockpile))
                                     commandfire = MISSION_FLAG_COMMAND_FIRE;
                                 if (TA3D_SHIFT_PRESSED)
                                     units.unit[i].add_mission(MISSION_ATTACK,&(units.unit[pointing].Pos),false,0,&(units.unit[pointing]),NULL,commandfire);
@@ -1193,7 +1193,7 @@ int play(GameData *game_data)
                             i = units.idx_list[e];
                             units.unlock();
                             units.unit[i].lock();
-                            if ((units.unit[i].flags & 1) && units.unit[i].owner_id == players.local_human_id && units.unit[i].sel && unit_manager.unit_type[units.unit[i].type_id].CanCapture)
+                            if ((units.unit[i].flags & 1) && units.unit[i].owner_id == players.local_human_id && units.unit[i].sel && unit_manager.unit_type[units.unit[i].type_id]->CanCapture)
                             {
                                 if (TA3D_SHIFT_PRESSED)
                                     units.unit[i].add_mission( MISSION_CAPTURE, &(units.unit[pointing].Pos), false, 0, &(units.unit[pointing]), NULL);
@@ -1213,7 +1213,7 @@ int play(GameData *game_data)
                             units.unlock();
                             units.unit[i].lock();
                             if ((units.unit[i].flags & 1) && units.unit[i].owner_id==players.local_human_id && units.unit[i].sel
-                                && unit_manager.unit_type[units.unit[i].type_id].Builder && unit_manager.unit_type[units.unit[i].type_id].BMcode)
+                                && unit_manager.unit_type[units.unit[i].type_id]->Builder && unit_manager.unit_type[units.unit[i].type_id]->BMcode)
                             {
                                 if (!TA3D_SHIFT_PRESSED)
                                     units.unit[ i ].play_sound("repair");
@@ -1235,7 +1235,7 @@ int play(GameData *game_data)
                             units.unlock();
                             units.unit[i].lock();
                             if ((units.unit[i].flags & 1) && units.unit[i].owner_id==players.local_human_id && units.unit[i].sel
-                                && unit_manager.unit_type[units.unit[i].type_id].CanReclamate && unit_manager.unit_type[units.unit[i].type_id].BMcode)
+                                && unit_manager.unit_type[units.unit[i].type_id]->CanReclamate && unit_manager.unit_type[units.unit[i].type_id]->BMcode)
                             {
                                 if (TA3D_SHIFT_PRESSED)
                                     units.unit[i].add_mission(MISSION_RECLAIM,&(units.unit[pointing].Pos),false,0,&(units.unit[pointing]));
@@ -1286,12 +1286,12 @@ int play(GameData *game_data)
                                 uint32 commandfire = current_order == SIGNAL_ORDER_DGUN ? MISSION_FLAG_COMMAND_FIRE : 0;
                                 i = units.idx_list[e];
                                 units.unit[i].lock();
-                                if ((units.unit[i].flags & 1) && units.unit[i].owner_id==players.local_human_id && units.unit[i].sel && unit_manager.unit_type[units.unit[i].type_id].canattack
-                                    && ( unit_manager.unit_type[units.unit[i].type_id].BMcode || !unit_manager.unit_type[units.unit[i].type_id].Builder))
+                                if ((units.unit[i].flags & 1) && units.unit[i].owner_id==players.local_human_id && units.unit[i].sel && unit_manager.unit_type[units.unit[i].type_id]->canattack
+                                    && ( unit_manager.unit_type[units.unit[i].type_id]->BMcode || !unit_manager.unit_type[units.unit[i].type_id]->Builder))
                                 {
-                                    if (( unit_manager.unit_type[ units.unit[i].type_id ].weapon[ 0 ] && unit_manager.unit_type[ units.unit[i].type_id ].weapon[ 0 ]->stockpile)
-                                        || ( unit_manager.unit_type[ units.unit[i].type_id ].weapon[ 1 ] && unit_manager.unit_type[ units.unit[i].type_id ].weapon[ 1 ]->stockpile)
-                                        || ( unit_manager.unit_type[ units.unit[i].type_id ].weapon[ 2 ] && unit_manager.unit_type[ units.unit[i].type_id ].weapon[ 2 ]->stockpile))
+                                    if (( unit_manager.unit_type[units.unit[i].type_id]->weapon[ 0 ] && unit_manager.unit_type[units.unit[i].type_id]->weapon[ 0 ]->stockpile)
+                                        || ( unit_manager.unit_type[units.unit[i].type_id]->weapon[ 1 ] && unit_manager.unit_type[units.unit[i].type_id]->weapon[ 1 ]->stockpile)
+                                        || ( unit_manager.unit_type[units.unit[i].type_id]->weapon[ 2 ] && unit_manager.unit_type[units.unit[i].type_id]->weapon[ 2 ]->stockpile))
                                         commandfire = MISSION_FLAG_COMMAND_FIRE;
                                     if (TA3D_SHIFT_PRESSED)
                                         units.unit[i].add_mission(MISSION_ATTACK,&(cursor_pos),false,0,NULL,NULL,commandfire);
@@ -1321,7 +1321,7 @@ int play(GameData *game_data)
                     units.unlock();
                     units.unit[i].lock();
                     if ((units.unit[i].flags & 1) && units.unit[i].owner_id==players.local_human_id && units.unit[i].sel
-                        && unit_manager.unit_type[units.unit[i].type_id].canresurrect && unit_manager.unit_type[units.unit[i].type_id].BMcode)
+                        && unit_manager.unit_type[units.unit[i].type_id]->canresurrect && unit_manager.unit_type[units.unit[i].type_id]->BMcode)
                     {
                         if (TA3D_SHIFT_PRESSED)
                             units.unit[i].add_mission(MISSION_REVIVE,&cur_pos,false,idx,NULL);
@@ -1349,7 +1349,7 @@ int play(GameData *game_data)
                     units.unlock();
                     units.unit[i].lock();
                     if ((units.unit[i].flags & 1) && units.unit[i].owner_id==players.local_human_id && units.unit[i].sel
-                        && unit_manager.unit_type[units.unit[i].type_id].CanReclamate && unit_manager.unit_type[units.unit[i].type_id].BMcode)
+                        && unit_manager.unit_type[units.unit[i].type_id]->CanReclamate && unit_manager.unit_type[units.unit[i].type_id]->BMcode)
                     {
                         if (TA3D_SHIFT_PRESSED)
                             units.unit[i].add_mission(MISSION_RECLAIM,&cur_pos,false,idx,NULL);
@@ -1402,12 +1402,12 @@ int play(GameData *game_data)
                 target.x = sel_x[0] + (sel_x[1] - sel_x[0]) * c / Math::Max(d, 1);
                 target.z = sel_y[0] + (sel_y[1] - sel_y[0]) * c / Math::Max(d, 1);
 
-                if (abs( ox - (int)target.x) < unit_manager.unit_type[ build ].FootprintX
-                    && abs( oy - (int)target.z) < unit_manager.unit_type[ build ].FootprintZ)	continue;
+                if (abs( ox - (int)target.x) < unit_manager.unit_type[build]->FootprintX
+                    && abs( oy - (int)target.z) < unit_manager.unit_type[build]->FootprintZ)	continue;
                 ox = (int)target.x;
                 oy = (int)target.z;
 
-                target.y = Math::Max(map->get_max_rect_h((int)target.x,(int)target.z, unit_manager.unit_type[ build ].FootprintX, unit_manager.unit_type[ build ].FootprintZ),map->sealvl);
+                target.y = Math::Max(map->get_max_rect_h((int)target.x,(int)target.z, unit_manager.unit_type[build]->FootprintX, unit_manager.unit_type[build]->FootprintZ),map->sealvl);
                 target.x = target.x * 8.0f - map->map_w_d;
                 target.z = target.z * 8.0f - map->map_h_d;
 
@@ -1638,7 +1638,7 @@ int play(GameData *game_data)
             {
                 i = units.idx_list[e];
                 if ((units.unit[i].flags & 1) && units.unit[i].owner_id == players.local_human_id && units.unit[i].build_percent_left == 0.0f) {
-                    if (unit_manager.unit_type[units.unit[i].type_id].checkCategory( check_cat.c_str()))
+                    if (unit_manager.unit_type[units.unit[i].type_id]->checkCategory( check_cat.c_str()))
                         units.unit[i].sel=true;
                     else if (!TA3D_SHIFT_PRESSED)
                         units.unit[i].sel=false;
@@ -2312,12 +2312,13 @@ int play(GameData *game_data)
                 target.x = sel_x[0] + (sel_x[1] - sel_x[0]) * c / Math::Max(d, 1);
                 target.z = sel_y[0] + (sel_y[1] - sel_y[0]) * c / Math::Max(d, 1);
 
-                if (abs( ox - (int)target.x) < unit_manager.unit_type[ build ].FootprintX
-                    && abs( oy - (int)target.z) < unit_manager.unit_type[ build ].FootprintZ)	continue;
+                if (abs( ox - (int)target.x) < unit_manager.unit_type[build]->FootprintX
+                    && abs( oy - (int)target.z) < unit_manager.unit_type[build]->FootprintZ)
+                    continue;
                 ox = (int)target.x;
                 oy = (int)target.z;
 
-                target.y = Math::Max(map->get_max_rect_h((int)target.x,(int)target.z, unit_manager.unit_type[ build ].FootprintX, unit_manager.unit_type[ build ].FootprintZ),map->sealvl);
+                target.y = Math::Max(map->get_max_rect_h((int)target.x,(int)target.z, unit_manager.unit_type[build]->FootprintX, unit_manager.unit_type[build]->FootprintZ),map->sealvl);
                 target.x = target.x * 8.0f - map->map_w_d;
                 target.z = target.z * 8.0f - map->map_h_d;
 
@@ -2325,21 +2326,21 @@ int play(GameData *game_data)
 
                 cam.setView();
                 glTranslatef(target.x,target.y,target.z);
-                glScalef(unit_manager.unit_type[build].Scale,unit_manager.unit_type[build].Scale,unit_manager.unit_type[build].Scale);
-                if (unit_manager.unit_type[build].model)
+                glScalef(unit_manager.unit_type[build]->Scale,unit_manager.unit_type[build]->Scale,unit_manager.unit_type[build]->Scale);
+                if (unit_manager.unit_type[build]->model)
                 {
                     gfx->ReInitAllTex( true);
                     if (can_be_there)
                         glColor4f(1.0f,1.0f,1.0f,1.0f);
                     else
                         glColor4f(1.0f,0.0f,0.0f,0.0f);
-                    unit_manager.unit_type[build].model->draw(0.0f,NULL,false,false,false,0,NULL,NULL,NULL,0.0f,NULL,false,players.local_human_id,false);
+                    unit_manager.unit_type[build]->model->draw(0.0f,NULL,false,false,false,0,NULL,NULL,NULL,0.0f,NULL,false,players.local_human_id,false);
                     glColor4f(1.0f,1.0f,1.0f,1.0f);
                 }
                 cam.setView();
                 glTranslatef(target.x,target.y,target.z);
-                float DX = (unit_manager.unit_type[build].FootprintX<<2);
-                float DZ = (unit_manager.unit_type[build].FootprintZ<<2);
+                float DX = (unit_manager.unit_type[build]->FootprintX<<2);
+                float DZ = (unit_manager.unit_type[build]->FootprintZ<<2);
                 float red=1.0f, green=0.0f;
                 if (can_be_there)
                 {
@@ -2403,7 +2404,7 @@ int play(GameData *game_data)
                 i = units.idx_list[e];
                 if ((units.unit[i].flags & 1) && units.unit[i].owner_id==players.local_human_id && units.unit[i].sel)
                 {
-                    builders |= unit_manager.unit_type[units.unit[i].type_id].Builder;
+                    builders |= unit_manager.unit_type[units.unit[i].type_id]->Builder;
                     units.unit[i].show_orders();					// Dessine les ordres reçus par l'unité
                 }
             }
@@ -2414,7 +2415,7 @@ int play(GameData *game_data)
                 {
                     i = units.idx_list[e];
                     if ((units.unit[i].flags & 1) && units.unit[i].owner_id==players.local_human_id && !units.unit[i].sel
-                        && unit_manager.unit_type[units.unit[i].type_id].Builder && unit_manager.unit_type[units.unit[i].type_id].BMcode)
+                        && unit_manager.unit_type[units.unit[i].type_id]->Builder && unit_manager.unit_type[units.unit[i].type_id]->BMcode)
                     {
                         units.unit[i].show_orders(true);					// Dessine les ordres reçus par l'unité
                     }
@@ -2683,13 +2684,15 @@ int play(GameData *game_data)
         if (n >= 0 && n != old_gui_sel)
         {
             I_Msg( TA3D::TA3D_IM_GUI_MSG, (void*)( current_gui + ".hide").c_str(), NULL, NULL);	// Hide it
-            current_gui = String( unit_manager.unit_type[ n ].Unitname) + "1";
+            current_gui.clear();
+            current_gui << unit_manager.unit_type[n]->Unitname << "1";
             if (game_area.get_wnd(current_gui) == NULL)
             {
-                if (unit_manager.unit_type[ n ].nb_unit > 0)				// The default build page
-                    current_gui = String( ta3dSideData.side_pref[players.side_view]) + "dl";
+                current_gui.clear();
+                if (unit_manager.unit_type[ n ]->nb_unit > 0)				// The default build page
+                    current_gui << ta3dSideData.side_pref[players.side_view] << "dl";
                 else
-                    current_gui = String( ta3dSideData.side_pref[players.side_view]) + "gen";
+                    current_gui << ta3dSideData.side_pref[players.side_view] << "gen";
             }
             I_Msg( TA3D::TA3D_IM_GUI_MSG, (void*)( current_gui + ".show").c_str(), NULL, NULL);	// Show it
             refresh_gui = true;
@@ -2732,24 +2735,24 @@ int play(GameData *game_data)
                 units.unit[i].lock();
                 if ((units.unit[i].flags & 1) && units.unit[i].owner_id == players.local_human_id && units.unit[i].sel)
                 {
-                    onoffable |= unit_manager.unit_type[ units.unit[i].type_id ].onoffable;
-                    canstop |= unit_manager.unit_type[ units.unit[i].type_id ].canstop;
-                    canmove |= unit_manager.unit_type[ units.unit[i].type_id ].canmove;
-                    canpatrol |= unit_manager.unit_type[ units.unit[i].type_id ].canpatrol;
-                    canguard |= unit_manager.unit_type[ units.unit[i].type_id ].canguard;
-                    canattack |= unit_manager.unit_type[ units.unit[i].type_id ].canattack;
-                    canreclam |= unit_manager.unit_type[ units.unit[i].type_id ].CanReclamate;
-                    builders |= unit_manager.unit_type[ units.unit[i].type_id ].Builder;
-                    canload |= unit_manager.unit_type[ units.unit[i].type_id ].canload;
-                    cancapture |= unit_manager.unit_type[ units.unit[i].type_id ].CanCapture;
-                    cancloak |= unit_manager.unit_type[ units.unit[i].type_id ].CloakCost > 0;
-                    candgun |= unit_manager.unit_type[ units.unit[i].type_id ].candgun;
+                    onoffable |= unit_manager.unit_type[units.unit[i].type_id]->onoffable;
+                    canstop |= unit_manager.unit_type[units.unit[i].type_id]->canstop;
+                    canmove |= unit_manager.unit_type[units.unit[i].type_id]->canmove;
+                    canpatrol |= unit_manager.unit_type[units.unit[i].type_id]->canpatrol;
+                    canguard |= unit_manager.unit_type[units.unit[i].type_id]->canguard;
+                    canattack |= unit_manager.unit_type[units.unit[i].type_id]->canattack;
+                    canreclam |= unit_manager.unit_type[units.unit[i].type_id]->CanReclamate;
+                    builders |= unit_manager.unit_type[units.unit[i].type_id]->Builder;
+                    canload |= unit_manager.unit_type[units.unit[i].type_id]->canload;
+                    cancapture |= unit_manager.unit_type[units.unit[i].type_id]->CanCapture;
+                    cancloak |= unit_manager.unit_type[units.unit[i].type_id]->CloakCost > 0;
+                    candgun |= unit_manager.unit_type[units.unit[i].type_id]->candgun;
 
-                    if (unit_manager.unit_type[ units.unit[i].type_id ].canattack)
+                    if (unit_manager.unit_type[units.unit[i].type_id]->canattack)
                         sforder |= units.unit[i].port[ STANDINGFIREORDERS ];
-                    if (unit_manager.unit_type[ units.unit[i].type_id ].canmove)
+                    if (unit_manager.unit_type[units.unit[i].type_id]->canmove)
                         smorder |= units.unit[i].port[ STANDINGMOVEORDERS ];
-                    if (unit_manager.unit_type[ units.unit[i].type_id ].onoffable)
+                    if (unit_manager.unit_type[units.unit[i].type_id]->onoffable)
                         onoff_state |= units.unit[ i ].port[ ACTIVATION ] ? 2 : 1;
                 }
                 units.unit[i].unlock();
@@ -2933,11 +2936,11 @@ int play(GameData *game_data)
             sound_manager->playTDFSound( "BUILDBUTTON", "sound" , NULL);
             I_Msg( TA3D::TA3D_IM_GUI_MSG, (void*)(current_gui + ".hide").c_str(), NULL, NULL);	// Hide it
             current_gui.clear();
-            current_gui << unit_manager.unit_type[old_gui_sel].Unitname << "1";
+            current_gui << unit_manager.unit_type[old_gui_sel]->Unitname << "1";
             if (game_area.get_wnd(current_gui) == NULL)
             {
                 current_gui.clear();
-                if (unit_manager.unit_type[old_gui_sel].nb_unit > 0) // The default build page
+                if (unit_manager.unit_type[old_gui_sel]->nb_unit > 0) // The default build page
                     current_gui << ta3dSideData.side_pref[players.side_view] << "dl";
                 else
                     current_gui << ta3dSideData.side_pref[players.side_view] << "gen";
@@ -2949,15 +2952,15 @@ int play(GameData *game_data)
             || game_area.get_state( current_gui + ".ARMPREV"))
         {
             sound_manager->playTDFSound( "NEXTBUILDMENU", "sound" , NULL);
-            if (unit_manager.unit_type[ old_gui_sel ].nb_pages > 0)
-                unit_manager.unit_type[ old_gui_sel ].page = (unit_manager.unit_type[ old_gui_sel ].page + unit_manager.unit_type[ old_gui_sel ].nb_pages-1)%unit_manager.unit_type[old_gui_sel].nb_pages;
+            if (unit_manager.unit_type[old_gui_sel]->nb_pages > 0)
+                unit_manager.unit_type[old_gui_sel]->page = (unit_manager.unit_type[old_gui_sel]->page + unit_manager.unit_type[old_gui_sel]->nb_pages-1)%unit_manager.unit_type[old_gui_sel]->nb_pages;
         }
         if (game_area.get_state( current_gui + "." + ta3dSideData.side_pref[players.side_view] + "NEXT")
             || game_area.get_state( current_gui + ".ARMNEXT"))
         {
             sound_manager->playTDFSound( "NEXTBUILDMENU", "sound" , NULL);
-            if (unit_manager.unit_type[ old_gui_sel ].nb_pages > 0)
-                unit_manager.unit_type[ old_gui_sel ].page= (unit_manager.unit_type[ old_gui_sel ].page+1)%unit_manager.unit_type[ old_gui_sel ].nb_pages;
+            if (unit_manager.unit_type[old_gui_sel]->nb_pages > 0)
+                unit_manager.unit_type[old_gui_sel]->page = (unit_manager.unit_type[old_gui_sel]->page+1)%unit_manager.unit_type[old_gui_sel]->nb_pages;
         }
 
         if (game_area.get_state( current_gui + "." + ta3dSideData.side_pref[players.side_view] + "ONOFF")
@@ -2975,7 +2978,7 @@ int play(GameData *game_data)
                     uint16 i = units.idx_list[e];
                     units.unlock();
                     units.unit[i].lock();
-                    if ((units.unit[i].flags & 1) && units.unit[i].owner_id == players.local_human_id && units.unit[i].sel && unit_manager.unit_type[ units.unit[i].type_id ].onoffable)
+                    if ((units.unit[i].flags & 1) && units.unit[i].owner_id == players.local_human_id && units.unit[i].sel && unit_manager.unit_type[units.unit[i].type_id]->onoffable)
                     {
                         if (onoff_obj->nb_stages > 1)
                         {
@@ -3014,7 +3017,7 @@ int play(GameData *game_data)
                     uint16 i = units.idx_list[e];
                     units.unlock();
                     units.unit[i].lock();
-                    if ((units.unit[i].flags & 1) && units.unit[i].owner_id == players.local_human_id && units.unit[i].sel && unit_manager.unit_type[ units.unit[i].type_id ].CloakCost > 0)
+                    if ((units.unit[i].flags & 1) && units.unit[i].owner_id == players.local_human_id && units.unit[i].sel && unit_manager.unit_type[units.unit[i].type_id]->CloakCost > 0)
                     {
                         if (cloak_obj->nb_stages > 1)
                         {
@@ -3138,7 +3141,7 @@ int play(GameData *game_data)
                     uint16 i = units.idx_list[e];
                     units.unlock();
                     units.unit[i].lock();
-                    if ((units.unit[i].flags & 1) && units.unit[i].owner_id == players.local_human_id && units.unit[i].sel && unit_manager.unit_type[ units.unit[i].type_id ].canstop)
+                    if ((units.unit[i].flags & 1) && units.unit[i].owner_id == players.local_human_id && units.unit[i].sel && unit_manager.unit_type[units.unit[i].type_id]->canstop)
                         units.unit[i].set_mission(MISSION_STOP);
                     units.unit[i].unlock();
                     units.lock();
@@ -3203,7 +3206,7 @@ int play(GameData *game_data)
         {
             build = sel;
             sound_manager->playTDFSound( "ADDBUILD", "sound" , NULL);
-            if (!unit_manager.unit_type[cur_sel].BMcode) // S'il s'agit d'un bâtiment
+            if (!unit_manager.unit_type[cur_sel]->BMcode) // S'il s'agit d'un bâtiment
             {
                 if (TA3D_SHIFT_PRESSED)
                     for (short int i = 0; i < 5; ++i)
@@ -3283,36 +3286,36 @@ int play(GameData *game_data)
         glEnable(GL_BLEND);
         if (show_script)
         {
-            if (cur_sel>=0 && unit_manager.unit_type[cur_sel].script)
+            if (cur_sel>=0 && unit_manager.unit_type[cur_sel]->script)
             {
                 float Y(32.0f);
-                gfx->print(gfx->normal_font,128.0f,Y,0.0f,0xFFFFFFFF,format("%d scripts",unit_manager.unit_type[cur_sel].script->nb_script));
+                gfx->print(gfx->normal_font,128.0f,Y,0.0f,0xFFFFFFFF,format("%d scripts",unit_manager.unit_type[cur_sel]->script->nb_script));
                 Y += 9.0f;
-                for (i = 0; i < unit_manager.unit_type[cur_sel].script->nb_script; ++i)
+                for (i = 0; i < unit_manager.unit_type[cur_sel]->script->nb_script; ++i)
                 {
                     if (units.unit[cur_sel_index].is_running(i))
-                        gfx->print(gfx->normal_font, 128.0f, Y, 0.0f, 0xFFFFFFFF, format("%d %s (on)", i, unit_manager.unit_type[cur_sel].script->names[i].c_str()));
+                        gfx->print(gfx->normal_font, 128.0f, Y, 0.0f, 0xFFFFFFFF, format("%d %s (on)", i, unit_manager.unit_type[cur_sel]->script->names[i].c_str()));
                     else
-                        gfx->print(gfx->normal_font, 128.0f, Y, 0.0f, 0xFFFFFFFF, format("%d %s (off)", i, unit_manager.unit_type[cur_sel].script->names[i].c_str()));
+                        gfx->print(gfx->normal_font, 128.0f, Y, 0.0f, 0xFFFFFFFF, format("%d %s (off)", i, unit_manager.unit_type[cur_sel]->script->names[i].c_str()));
                     Y += 9.0f;
                 }
             }
         }
 
-        if (show_model && cur_sel>=0 && unit_manager.unit_type[cur_sel].model)
-            unit_manager.unit_type[cur_sel].model->print_struct(32.0f,128.0f,gfx->normal_font);
+        if (show_model && cur_sel>=0 && unit_manager.unit_type[cur_sel]->model)
+            unit_manager.unit_type[cur_sel]->model->print_struct(32.0f,128.0f,gfx->normal_font);
 
         if (internal_name && last_on >= 0)
         {
             units.unit[ last_on ].lock();
-            if (units.unit[ last_on ].type_id >= 0 && unit_manager.unit_type[ units.unit[ last_on ].type_id ].Unitname!=NULL)
-                gfx->print(gfx->normal_font,128.0f,32.0f,0.0f,0xFFFFFFFF,format("internal name %s",unit_manager.unit_type[ units.unit[ last_on ].type_id ].Unitname));
+            if (units.unit[ last_on ].type_id >= 0 && unit_manager.unit_type[ units.unit[ last_on ].type_id ]->Unitname!=NULL)
+                gfx->print(gfx->normal_font,128.0f,32.0f,0.0f,0xFFFFFFFF,format("internal name %s",unit_manager.unit_type[ units.unit[ last_on ].type_id ]->Unitname));
             units.unit[ last_on ].unlock();
         }
         else
         {
-            if (internal_name && cur_sel >= 0 && unit_manager.unit_type[cur_sel].Unitname!=NULL)
-                gfx->print(gfx->normal_font,128.0f,32.0f,0.0f,0xFFFFFFFF,format("internal name %s",unit_manager.unit_type[cur_sel].Unitname));
+            if (internal_name && cur_sel >= 0 && unit_manager.unit_type[cur_sel]->Unitname != NULL)
+                gfx->print(gfx->normal_font,128.0f,32.0f,0.0f,0xFFFFFFFF,format("internal name %s",unit_manager.unit_type[cur_sel]->Unitname));
         }
 
         if (internal_idx && last_on >= 0)
@@ -3324,7 +3327,7 @@ int play(GameData *game_data)
         }
 
         if (unit_info>0.0f && unit_info_id>=0)
-            unit_manager.unit_type[unit_info_id].show_info(unit_info,gfx->TA_font);
+            unit_manager.unit_type[unit_info_id]->show_info(unit_info,gfx->TA_font);
 
         if (last_on != -1 && show_mission_info) // Sur les unités sélectionnées
         {
@@ -3529,21 +3532,25 @@ int play(GameData *game_data)
                         }
                         else
                         {								// Compute unit's Y coordinate
-                            Vector3D target_pos = units.unit[id].Pos;
-                            target_pos.x=((int)(target_pos.x)+map->map_w_d)>>3;
-                            target_pos.z=((int)(target_pos.z)+map->map_h_d)>>3;
-                            target_pos.y=Math::Max(map->get_max_rect_h((int)target_pos.x,(int)target_pos.z, unit_manager.unit_type[ units.unit[id].type_id ].FootprintX, unit_manager.unit_type[ units.unit[id].type_id ].FootprintZ),map->sealvl);
-                            units.unit[id].Pos.y = target_pos.y;
+                            Vector3D target_pos(units.unit[id].Pos);
+                            target_pos.x = ((int)(target_pos.x) + map->map_w_d) >> 3;
+                            target_pos.z = ((int)(target_pos.z) + map->map_h_d) >> 3;
+                            target_pos.y = Math::Max(map->get_max_rect_h((int)target_pos.x,(int)target_pos.z,
+                                                                       unit_manager.unit_type[ units.unit[id].type_id ]->FootprintX,
+                                                                       unit_manager.unit_type[ units.unit[id].type_id ]->FootprintZ),
+                                                     map->sealvl);
+                            
+                            units.unit[id].Pos.y  = target_pos.y;
                             units.unit[id].cur_px = (int)target_pos.x;
                             units.unit[id].cur_py = (int)target_pos.z;
                             units.unit[id].draw_on_map();
 
-                            if (unit_manager.unit_type[units.unit[id].type_id].ActivateWhenBuilt)// Start activated
+                            if (unit_manager.unit_type[units.unit[id].type_id]->ActivateWhenBuilt)// Start activated
                             {
                                 units.unit[id].port[ ACTIVATION ] = 0;
                                 units.unit[id].activate();
                             }
-                            if (unit_manager.unit_type[units.unit[id].type_id].init_cloaked)				// Start cloaked
+                            if (unit_manager.unit_type[units.unit[id].type_id]->init_cloaked)				// Start cloaked
                                 units.unit[id].cloaking = true;
                         }
                         units.unit[ id ].unlock();
@@ -3567,8 +3574,8 @@ int play(GameData *game_data)
                                 if (units.unit[i].hp < 0)
                                     units.unit[i].hp = 0;
                                 else
-                                    if (units.unit[i].hp > unit_manager.unit_type[units.unit[i].type_id].MaxDamage)
-                                        units.unit[i].hp = unit_manager.unit_type[units.unit[i].type_id].MaxDamage;
+                                    if (units.unit[i].hp > unit_manager.unit_type[units.unit[i].type_id]->MaxDamage)
+                                        units.unit[i].hp = unit_manager.unit_type[units.unit[i].type_id]->MaxDamage;
                             }
                         }
                         units.unlock();
