@@ -532,7 +532,7 @@ namespace TA3D
 
                                 if (event_msg.opt2 & 0x1000) // Created by a script, so give it 100% HP
                                 {
-                                    unit->hp = unit_manager.unit_type[ idx ].MaxDamage;
+                                    unit->hp = unit_manager.unit_type[idx]->MaxDamage;
                                     unit->built = false;
                                     unit->build_percent_left = 0.0f;
                                 }

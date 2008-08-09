@@ -166,7 +166,7 @@ namespace TA3D
                 {
                     String name(gui_parser.pullAsString(format("gadget%d.common.name", i)));
 
-                    byte *gaf_file = HPIManager->PullFromHPI(format( "anims\\%s%d.gaf", unit_type[unit_index].Unitname, page + 1).c_str());
+                    byte *gaf_file = HPIManager->PullFromHPI(format( "anims\\%s%d.gaf", unit_type[unit_index]->Unitname, page + 1).c_str());
                     if (gaf_file)
                     {
                         BITMAP *img = Gaf::RawDataToBitmap(gaf_file, Gaf::RawDataGetEntryIndex(gaf_file, name), 0);
@@ -181,10 +181,10 @@ namespace TA3D
                         }
 
                         delete[] gaf_file;
-                        unit_type[unit_index].AddUnitBuild(idx, x, y, w, h, page, tex);
+                        unit_type[unit_index]->AddUnitBuild(idx, x, y, w, h, page, tex);
                     }
                     else
-                        unit_type[unit_index].AddUnitBuild(idx, x, y, w, h, page);
+                        unit_type[unit_index]->AddUnitBuild(idx, x, y, w, h, page);
                 }
             }
             else
@@ -196,7 +196,7 @@ namespace TA3D
                     int h = gui_parser.pullAsInt( format( "gadget%d.common.height", i ) );
                     String name = gui_parser.pullAsString( format( "gadget%d.common.name", i));
 
-                    byte* gaf_file = HPIManager->PullFromHPI( format( "anims\\%s%d.gaf", unit_type[unit_index].Unitname, page + 1 ).c_str() );
+                    byte* gaf_file = HPIManager->PullFromHPI( format( "anims\\%s%d.gaf", unit_type[unit_index]->Unitname, page + 1 ).c_str() );
                     if (gaf_file)
                     {
                         BITMAP *img = Gaf::RawDataToBitmap(gaf_file, Gaf::RawDataGetEntryIndex(gaf_file, name), 0);
@@ -210,10 +210,10 @@ namespace TA3D
                         }
 
                         delete[] gaf_file;
-                        unit_type[unit_index].AddUnitBuild(-1, x, y, w, h, page, tex);
+                        unit_type[unit_index]->AddUnitBuild(-1, x, y, w, h, page, tex);
                     }
                     else
-                        unit_type[unit_index].AddUnitBuild(-1, x, y, w, h, page);
+                        unit_type[unit_index]->AddUnitBuild(-1, x, y, w, h, page);
                 }
         }
     }
@@ -267,8 +267,8 @@ namespace TA3D
             int unit_index=get_unit_index(unitmenu);
             if (unit_index==-1) continue;		// Au cas où l'unité n'existerait pas
             int idx=get_unit_index(unitname);
-            if (idx>=0 && idx<nb_unit && unit_type[idx].unitpic)
-                unit_type[unit_index].AddUnitBuild(idx, -1, -1, 64, 64, -1);
+            if (idx>=0 && idx<nb_unit && unit_type[idx]->unitpic)
+                unit_type[unit_index]->AddUnitBuild(idx, -1, -1, 64, 64, -1);
         } while (pos[0]=='[' && nb<2000 && data<limit);
     }
 
@@ -276,27 +276,18 @@ namespace TA3D
 
     int UNIT_MANAGER::load_unit(byte *data,int size)			// Ajoute une nouvelle unité
     {
-        UNIT_TYPE* n_type = (UNIT_TYPE*) malloc(sizeof(UNIT_TYPE)*(nb_unit+1));
-        int i;
-        if (unit_type != NULL)
-        {
-            for(i=0;i<nb_unit;i++)
-                n_type[i]=unit_type[i];
-            free(unit_type);
-        }
-        unit_type=n_type;
-        unit_type[nb_unit].init();
-        int result =  unit_type[nb_unit].load((char*)data,size);
-        if (unit_type[ nb_unit ].Unitname)
-            unit_hashtable.insert(String::ToLower(unit_type[nb_unit].Unitname ), nb_unit + 1 );
-        if (unit_type[ nb_unit ].name)
-            unit_hashtable.insert(String::ToLower(unit_type[nb_unit].name ), nb_unit + 1 );
-        if (unit_type[ nb_unit ].ObjectName)
-            unit_hashtable.insert(String::ToLower(unit_type[nb_unit].ObjectName ), nb_unit + 1 );
-        if (unit_type[ nb_unit ].Description)
-            unit_hashtable.insert(String::ToLower(unit_type[nb_unit].Description ), nb_unit + 1 );
-        if (unit_type[ nb_unit ].Designation_Name)
-            unit_hashtable.insert(String::ToLower(unit_type[nb_unit].Designation_Name ), nb_unit + 1 );
+        unit_type.push_back(new UNIT_TYPE());
+        int result =  unit_type[nb_unit]->load((char*)data,size);
+        if (unit_type[nb_unit]->Unitname)
+            unit_hashtable.insert(String::ToLower(unit_type[nb_unit]->Unitname ), nb_unit + 1);
+        if (unit_type[nb_unit]->name)
+            unit_hashtable.insert(String::ToLower(unit_type[nb_unit]->name ), nb_unit + 1);
+        if (unit_type[nb_unit]->ObjectName)
+            unit_hashtable.insert(String::ToLower(unit_type[nb_unit]->ObjectName ), nb_unit + 1);
+        if (unit_type[nb_unit]->Description)
+            unit_hashtable.insert(String::ToLower(unit_type[nb_unit]->Description ), nb_unit + 1);
+        if (unit_type[nb_unit]->Designation_Name)
+            unit_hashtable.insert(String::ToLower(unit_type[nb_unit]->Designation_Name ), nb_unit + 1);
         nb_unit++;
         return result;
     }
@@ -327,14 +318,14 @@ namespace TA3D
         for (int i = 0 ; i < nb_unit; ++i)
         {
             int n = 1;
-            String canbuild = sidedata_parser.pullAsString(String::ToLower(format( "canbuild.%s.canbuild%d", unit_type[ i ].Unitname, n ) ) );
+            String canbuild = sidedata_parser.pullAsString(String::ToLower(format( "canbuild.%s.canbuild%d", unit_type[i]->Unitname, n ) ) );
             while (!canbuild.empty())
             {
                 int idx = get_unit_index( (char*)canbuild.c_str() );
-                if (idx >= 0 && idx < nb_unit && unit_type[idx].unitpic)
-                    unit_type[i].AddUnitBuild(idx, -1, -1, 64, 64, -1);
+                if (idx >= 0 && idx < nb_unit && unit_type[idx]->unitpic)
+                    unit_type[i]->AddUnitBuild(idx, -1, -1, 64, 64, -1);
                 ++n;
-                canbuild = sidedata_parser.pullAsString( format( "canbuild.%s.canbuild%d", unit_type[ i ].Unitname, n ) );
+                canbuild = sidedata_parser.pullAsString( format( "canbuild.%s.canbuild%d", unit_type[i]->Unitname, n ) );
             }
         }
 
@@ -348,17 +339,17 @@ namespace TA3D
             char *f = NULL;
             for (int i = 0; i < nb_unit; ++i)
             {
-                if ((f = strstr((char*)String::ToUpper(*file).c_str(), unit_type[i].Unitname)))
+                if ((f = strstr((char*)String::ToUpper(*file).c_str(), unit_type[i]->Unitname)))
                 {
-                    if(f[strlen(unit_type[i].Unitname)]=='.'
-                       ||(f[strlen(unit_type[i].Unitname)]>='0' && f[strlen(unit_type[i].Unitname)]<='9'))
+                    if(f[strlen(unit_type[i]->Unitname)]=='.'
+                       ||(f[strlen(unit_type[i]->Unitname)]>='0' && f[strlen(unit_type[i]->Unitname)]<='9'))
                         analyse(*file,i);
                 }
             }
         }
 
         for (int i = 0 ; i < nb_unit; ++i)
-            unit_type[i].FixBuild();
+            unit_type[i]->FixBuild();
     }
 
 
@@ -380,8 +371,8 @@ namespace TA3D
             if (strstr(String::ToUpper(*file).c_str(),uprname)) 	// A trouvé un fichier qui convient
             {
                 byte* data=HPIManager->PullFromHPI(*file);		// Lit le fichier
-                unit_type[unit_index].script = new SCRIPT;
-                unit_type[unit_index].script->load_cob(data);
+                unit_type[unit_index]->script = new SCRIPT;
+                unit_type[unit_index]->script->load_cob(data);
                 // Don't delete[] data here because the script keeps a reference to it.
                 break;
             }
@@ -394,8 +385,8 @@ namespace TA3D
     {
         for (int i = 0; i < nb_unit; ++i)
         {
-            if (unit_type[i].script && unit_type[i].model)
-                unit_type[i].model->Identify(unit_type[i].script->nb_piece,unit_type[i].script->piece_name);
+            if (unit_type[i]->script && unit_type[i]->model)
+                unit_type[i]->model->Identify(unit_type[i]->script->nb_piece,unit_type[i]->script->piece_name);
         }
     }
 
@@ -1163,12 +1154,9 @@ namespace TA3D
 
         l_dl_data.clear();
 
-        if (nb_unit > 0 && unit_type != NULL)
-        {
-            for (int i = 0; i < nb_unit; ++i)
-                unit_type[i].destroy();
-            free(unit_type);
-        }
+        for (UnitList::iterator i = unit_type.begin(); i != unit_type.end(); ++i)
+            delete *i;
+        unit_type.clear();
         panel.destroy();
         paneltop.destroy();
         panelbottom.destroy();
@@ -1268,57 +1256,61 @@ namespace TA3D
 
         if(index<0 || index>=nb_unit) return -1;		// L'indice est incorrect
 
-        int page=unit_type[index].page;
+        int page=unit_type[index]->page;
 
         int sel=-1;
 
         glDisable(GL_BLEND);
-        for( int i = 0 ; i < unit_type[index].nb_unit ; i++ ) {		// Affiche les différentes images d'unités constructibles
-            if( unit_type[index].Pic_p[i] != page )	continue;
-            int px = unit_type[index].Pic_x[ i ];
-            int py = unit_type[index].Pic_y[ i ];
-            int pw = unit_type[index].Pic_w[ i ];
-            int ph = unit_type[index].Pic_h[ i ];
-            bool unused = unit_type[index].BuildList[i] >= 0 && unit_type[unit_type[index].BuildList[i]].not_used;
+        for( int i = 0 ; i < unit_type[index]->nb_unit ; ++i) // Affiche les différentes images d'unités constructibles
+        {
+            if( unit_type[index]->Pic_p[i] != page)
+                continue;
+            int px = unit_type[index]->Pic_x[ i ];
+            int py = unit_type[index]->Pic_y[ i ];
+            int pw = unit_type[index]->Pic_w[ i ];
+            int ph = unit_type[index]->Pic_h[ i ];
+            bool unused = unit_type[index]->BuildList[i] >= 0 && unit_type[unit_type[index]->BuildList[i]]->not_used;
             if( unused )
                 glColor4f(0.3f,0.3f,0.3f,1.0f);			// Make it darker
             else
                 glColor4f(1.0f,1.0f,1.0f,1.0f);
 
-            if(unit_type[index].PicList[i])							// If a texture is given use it
-                gfx->drawtexture(unit_type[index].PicList[i],px,py,px+pw,py+ph);
+            if(unit_type[index]->PicList[i])							// If a texture is given use it
+                gfx->drawtexture(unit_type[index]->PicList[i],px,py,px+pw,py+ph);
             else
-                gfx->drawtexture(unit_type[unit_type[index].BuildList[i]].glpic,px,py,px+pw,py+ph);
+                gfx->drawtexture(unit_type[unit_type[index]->BuildList[i]]->glpic,px,py,px+pw,py+ph);
 
-            if(mouse_x>=px && mouse_x<px+pw && mouse_y>=py && mouse_y<py+ph && !unused) {
+            if(mouse_x>=px && mouse_x<px+pw && mouse_y>=py && mouse_y<py+ph && !unused)
+            {
                 glEnable(GL_BLEND);
                 glBlendFunc(GL_SRC_ALPHA,GL_ONE);
                 glColor4f(1.0f,1.0f,1.0f,0.75f);
-                if(unit_type[index].PicList[i])							// If a texture is given use it
-                    gfx->drawtexture(unit_type[index].PicList[i],px,py,px+pw,py+ph);
+                if(unit_type[index]->PicList[i])							// If a texture is given use it
+                    gfx->drawtexture(unit_type[index]->PicList[i],px,py,px+pw,py+ph);
                 else
-                    gfx->drawtexture(unit_type[unit_type[index].BuildList[i]].glpic,px,py,px+pw,py+ph);
+                    gfx->drawtexture(unit_type[unit_type[index]->BuildList[i]]->glpic,px,py,px+pw,py+ph);
                 glDisable(GL_BLEND);
-                sel = unit_type[index].BuildList[i];
+                sel = unit_type[index]->BuildList[i];
                 if(sel == -1)
                     sel = -2;
             }
 
-            if( ( unit_type[index].BuildList[i] == unit_type[index].last_click
-                  || ( unit_type[index].last_click == -2 && unit_type[index].BuildList[i] == -1 ) )
-                && unit_type[index].click_time > 0.0f ) {
+            if( ( unit_type[index]->BuildList[i] == unit_type[index]->last_click
+                  || ( unit_type[index]->last_click == -2 && unit_type[index]->BuildList[i] == -1 ) )
+                && unit_type[index]->click_time > 0.0f )
+            {
                 glEnable(GL_BLEND);
                 glDisable(GL_TEXTURE_2D);
                 glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
-                glColor4f(1.0f,1.0f,1.0f,unit_type[index].click_time);
+                glColor4f(1.0f,1.0f,1.0f,unit_type[index]->click_time);
                 int mx = px;
                 int my = py;
                 gfx->rectfill( mx,my,mx+pw,my+ph );
                 glColor4f(1.0f,1.0f,0.0f,0.75f);
-                gfx->line( mx, my+ph*unit_type[index].click_time, mx+pw, my+ph*unit_type[index].click_time );
-                gfx->line( mx, my+ph*(1.0f-unit_type[index].click_time), mx+pw, my+ph*(1.0f-unit_type[index].click_time) );
-                gfx->line( mx+pw*unit_type[index].click_time, my, mx+pw*unit_type[index].click_time, my+ph );
-                gfx->line( mx+pw*(1.0f-unit_type[index].click_time), my, mx+pw*(1.0f-unit_type[index].click_time), my+ph );
+                gfx->line( mx, my+ph*unit_type[index]->click_time, mx+pw, my+ph*unit_type[index]->click_time );
+                gfx->line( mx, my+ph*(1.0f-unit_type[index]->click_time), mx+pw, my+ph*(1.0f-unit_type[index]->click_time) );
+                gfx->line( mx+pw*unit_type[index]->click_time, my, mx+pw*unit_type[index]->click_time, my+ph );
+                gfx->line( mx+pw*(1.0f-unit_type[index]->click_time), my, mx+pw*(1.0f-unit_type[index]->click_time), my+ph );
                 glColor4f(1.0f,1.0f,1.0f,0.75f);
                 glEnable(GL_TEXTURE_2D);
                 glDisable(GL_BLEND);
@@ -1326,22 +1318,22 @@ namespace TA3D
         }
         glColor4f(1.0f,1.0f,1.0f,1.0f);
 
-        if( unit_type[index].last_click != -1 )
-            unit_type[index].click_time -= dt;
+        if( unit_type[index]->last_click != -1 )
+            unit_type[index]->click_time -= dt;
 
         if(sel>-1) {
             set_uformat(U_ASCII);
-            gfx->print(gfx->normal_font,ta3dSideData.side_int_data[ players.side_view ].Name.x1,ta3dSideData.side_int_data[ players.side_view ].Name.y1,0.0f,0xFFFFFFFF, format("%s M:%d E:%d HP:%d",unit_type[sel].name,unit_type[sel].BuildCostMetal,unit_type[sel].BuildCostEnergy,unit_type[sel].MaxDamage) );
+            gfx->print(gfx->normal_font,ta3dSideData.side_int_data[ players.side_view ].Name.x1,ta3dSideData.side_int_data[ players.side_view ].Name.y1,0.0f,0xFFFFFFFF, format("%s M:%d E:%d HP:%d",unit_type[sel]->name,unit_type[sel]->BuildCostMetal,unit_type[sel]->BuildCostEnergy,unit_type[sel]->MaxDamage) );
 
-            if(unit_type[sel].Description)
-                gfx->print(gfx->normal_font,ta3dSideData.side_int_data[ players.side_view ].Description.x1,ta3dSideData.side_int_data[ players.side_view ].Description.y1,0.0f,0xFFFFFFFF,format("%s",unit_type[sel].Description) );
+            if(unit_type[sel]->Description)
+                gfx->print(gfx->normal_font,ta3dSideData.side_int_data[ players.side_view ].Description.x1,ta3dSideData.side_int_data[ players.side_view ].Description.y1,0.0f,0xFFFFFFFF,format("%s",unit_type[sel]->Description) );
             glDisable(GL_BLEND);
             set_uformat(U_UTF8);
         }
 
         if( sel != -1 && mouse_b == 1 && omb != 1 ) {		// Click !!
-            unit_type[index].last_click = sel;
-            unit_type[index].click_time = 0.5f;		// One sec animation;
+            unit_type[index]->last_click = sel;
+            unit_type[index]->click_time = 0.5f;		// One sec animation;
         }
 
         return sel;
@@ -1372,21 +1364,21 @@ namespace TA3D
                 uint32 file_size=0;
                 byte *data = HPIManager->PullFromHPI(*i, &file_size);
                 nb_inconnu += unit_manager.load_unit(data, file_size);
-                if (unit_manager.unit_type[unit_manager.nb_unit-1].Unitname)
+                if (unit_manager.unit_type[unit_manager.nb_unit - 1]->Unitname)
                 {
                     String nom_pcx;
-                    nom_pcx << "unitpics\\" << unit_manager.unit_type[unit_manager.nb_unit-1].Unitname << ".pcx";
-                    unit_manager.unit_type[unit_manager.nb_unit-1].unitpic = Converters::PCX::FromHPIToBitmap(nom_pcx);
+                    nom_pcx << "unitpics\\" << unit_manager.unit_type[unit_manager.nb_unit - 1]->Unitname << ".pcx";
+                    unit_manager.unit_type[unit_manager.nb_unit - 1]->unitpic = Converters::PCX::FromHPIToBitmap(nom_pcx);
 
-                    if (unit_manager.unit_type[unit_manager.nb_unit-1].unitpic)
+                    if (unit_manager.unit_type[unit_manager.nb_unit - 1]->unitpic)
                     {
                         allegro_gl_use_alpha_channel(false);
                         if (g_useTextureCompression)
                             allegro_gl_set_texture_format(GL_COMPRESSED_RGB_ARB);
                         else
                             allegro_gl_set_texture_format(GL_RGB8);
-                        unit_manager.unit_type[unit_manager.nb_unit-1].glpic=allegro_gl_make_texture(unit_manager.unit_type[unit_manager.nb_unit-1].unitpic);
-                        glBindTexture(GL_TEXTURE_2D,unit_manager.unit_type[unit_manager.nb_unit-1].glpic);
+                        unit_manager.unit_type[unit_manager.nb_unit - 1]->glpic=allegro_gl_make_texture(unit_manager.unit_type[unit_manager.nb_unit - 1]->unitpic);
+                        glBindTexture(GL_TEXTURE_2D,unit_manager.unit_type[unit_manager.nb_unit - 1]->glpic);
                         glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
                         glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
                     }
@@ -1397,7 +1389,7 @@ namespace TA3D
         }
 
         for (int i = 0;i < unit_manager.nb_unit; ++i)
-            unit_manager.load_script_file(unit_manager.unit_type[i].Unitname);
+            unit_manager.load_script_file(unit_manager.unit_type[i]->Unitname);
 
         unit_manager.Identify();
 
@@ -1411,17 +1403,17 @@ namespace TA3D
 
         for (int i = 0; i < unit_manager.nb_unit; ++i)
         {
-            if (unit_manager.unit_type[i].MovementClass != NULL)
+            if (unit_manager.unit_type[i]->MovementClass != NULL)
             {
                 for (int e = 0; e < n; ++e)
                 {
-                    if (parser.pullAsString(format("CLASS%d.name", e)) == String::ToUpper(unit_manager.unit_type[i].MovementClass))
+                    if (parser.pullAsString(format("CLASS%d.name", e)) == String::ToUpper(unit_manager.unit_type[i]->MovementClass))
                     {
-                        unit_manager.unit_type[i].FootprintX = parser.pullAsInt(format( "CLASS%d.footprintx", e), unit_manager.unit_type[i].FootprintX );
-                        unit_manager.unit_type[i].FootprintZ = parser.pullAsInt(format( "CLASS%d.footprintz", e), unit_manager.unit_type[i].FootprintZ );
-                        unit_manager.unit_type[i].MinWaterDepth = parser.pullAsInt(format( "CLASS%d.minwaterdepth", e), unit_manager.unit_type[i].MinWaterDepth );
-                        unit_manager.unit_type[i].MaxWaterDepth = parser.pullAsInt(format( "CLASS%d.maxwaterdepth", e), unit_manager.unit_type[i].MaxWaterDepth );
-                        unit_manager.unit_type[i].MaxSlope = parser.pullAsInt(format( "CLASS%d.maxslope", e), unit_manager.unit_type[i].MaxSlope );
+                        unit_manager.unit_type[i]->FootprintX = parser.pullAsInt(format( "CLASS%d.footprintx", e), unit_manager.unit_type[i]->FootprintX );
+                        unit_manager.unit_type[i]->FootprintZ = parser.pullAsInt(format( "CLASS%d.footprintz", e), unit_manager.unit_type[i]->FootprintZ );
+                        unit_manager.unit_type[i]->MinWaterDepth = parser.pullAsInt(format( "CLASS%d.minwaterdepth", e), unit_manager.unit_type[i]->MinWaterDepth );
+                        unit_manager.unit_type[i]->MaxWaterDepth = parser.pullAsInt(format( "CLASS%d.maxwaterdepth", e), unit_manager.unit_type[i]->MaxWaterDepth );
+                        unit_manager.unit_type[i]->MaxSlope = parser.pullAsInt(format( "CLASS%d.maxslope", e), unit_manager.unit_type[i]->MaxSlope );
                         break;
                     }
                 }

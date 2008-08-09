@@ -2082,18 +2082,26 @@ namespace TA3D
     {
         if( unit_idx < 0 || unit_idx >= unit_manager.nb_unit )	return 0;
 
-        int w = unit_manager.unit_type[ unit_idx ].FootprintX;
-        int h = unit_manager.unit_type[ unit_idx ].FootprintZ;
+        int w = unit_manager.unit_type[ unit_idx ]->FootprintX;
+        int h = unit_manager.unit_type[ unit_idx ]->FootprintZ;
         int metal_base = 0;
         int end_y = y1 + ( h >> 1 );
         int end_x = x1 + ( w >> 1 );
         int start_x = x1 - ( w >> 1 );
         for( int ry = y1 - ( h >> 1 ) ; ry <= end_y ; ry++ )
+        {
             if( ry >= 0 && ry < bloc_h_db )
+            {
                 for( int rx = start_x ; rx <= end_x ; rx++ )
+                {
                     if( rx >= 0 && rx < bloc_w_db )
+                    {
                         if( map_data[ry][rx].stuff >=0 )
                             metal_base += feature_manager.feature[ features.feature[ map_data[ry][rx].stuff ].type ].metal;
+                    }
+                }
+            }
+        }
         if( metal_base == 0 )
             metal_base = ota_data.SurfaceMetal;
         return metal_base;

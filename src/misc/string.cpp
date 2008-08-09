@@ -419,66 +419,66 @@ namespace TA3D
     }
 
 
-    String& String::format(const String& format, ...)
+    String& String::format(const String& f, ...)
     {
         va_list parg;
-        va_start(parg, format);
+        va_start(parg, f);
 
         this->clear();
-        vappendFormat(format.c_str(), parg);
+        vappendFormat(f.c_str(), parg);
 
         va_end(parg);
         return *this;
     }
 
 
-    String& String::format(const char* format, ...)
+    String& String::format(const char* f, ...)
     {
         va_list parg;
-        va_start(parg, format);
+        va_start(parg, f);
 
         this->clear();
-        vappendFormat(format, parg);
+        vappendFormat(f, parg);
 
         va_end(parg);
         return *this;
     }
 
 
-    String& String::appendFormat(const String& format, ...)
+    String& String::appendFormat(const String& f, ...)
     {
         va_list parg;
-        va_start(parg, format);
+        va_start(parg, f);
 
-        vappendFormat(format.c_str(), parg);
+        vappendFormat(f.c_str(), parg);
 
         va_end(parg);
         return *this;
     }
 
 
-    String& String::appendFormat(const char* format, ...)
+    String& String::appendFormat(const char* f, ...)
     {
         va_list parg;
-        va_start(parg, format);
+        va_start(parg, f);
 
-        vappendFormat(format, parg);
+        vappendFormat(f, parg);
 
         va_end(parg);
         return *this;
     }
 
 
-    String& String::vappendFormat(const char* format, va_list parg)
+    String& String::vappendFormat(const char* f, va_list parg)
     {
         char* b;
 #if defined TA3D_PLATFORM_WINDOWS
         // Implement vasprintf() by hand with two calls to vsnprintf()
         // Remove this when Microsoft adds support for vasprintf()
 #if defined TA3D_PLATFORM_MSVC
-        int sizeneeded = _vsnprintf(NULL, 0, format, parg) + 1;
+        int sizeneeded = _vsnprintf(NULL, 0, f, parg) + 1;
 #else
-        int sizeneeded = vsnprintf(NULL, 0, format, parg) + 1;
+        int sizeneeded = vsnprintf(NULL, 0, f, parg) + 1;
 #endif
         if (sizeneeded < 0)
         {
@@ -490,16 +490,16 @@ namespace TA3D
             return *this;
         }
 #if defined TA3D_PLATFORM_MSVC
-        if (_vsnprintf(b, sizeneeded, format, parg) < 0)
+        if (_vsnprintf(b, sizeneeded, f, parg) < 0)
 #else
-        if (vsnprintf(b, sizeneeded, format, parg) < 0)
+        if (vsnprintf(b, sizeneeded, f, parg) < 0)
 #endif
         {
             free(b);
             return *this;
         }
 #else
-        if (vasprintf(&b, format, parg) < 0)
+        if (vasprintf(&b, f, parg) < 0)
         {
             return *this;
         }
@@ -510,25 +510,25 @@ namespace TA3D
     }
 
 
-    String String::Format(const String& format, ...)
+    String String::Format(const String& f, ...)
     {
         va_list parg;
-        va_start(parg, format);
+        va_start(parg, f);
 
         String s;
-        s.vappendFormat(format.c_str(), parg);
+        s.vappendFormat(f.c_str(), parg);
 
         va_end(parg);
         return s;
     }
 
-    String String::Format(const char* format, ...)
+    String String::Format(const char* f, ...)
     {
         va_list parg;
-        va_start(parg, format);
+        va_start(parg, f);
 
         String s;
-        s.vappendFormat(format, parg);
+        s.vappendFormat(f, parg);
 
         va_end(parg);
         return s;

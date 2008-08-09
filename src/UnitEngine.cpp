@@ -129,7 +129,7 @@ void UNIT::compute_model_coord()
     pMutex.lock();
     compute_coord = false;
     MATRIX_4x4 M;
-    float scale = unit_manager.unit_type[type_id].Scale;
+    float scale = unit_manager.unit_type[type_id]->Scale;
 
     // Matrice pour le calcul des positions des éléments du modèle de l'unité
 //    M = RotateZ(Angle.z*DEG2RAD) * RotateY(Angle.y * DEG2RAD) * RotateX(Angle.x * DEG2RAD) * Scale(scale);
@@ -183,7 +183,7 @@ void UNIT::init_alloc_data()
 void UNIT::toggle_self_destruct()
 {
     if (self_destruct < 0.0f)
-        self_destruct = unit_manager.unit_type[type_id].selfdestructcountdown;
+        self_destruct = unit_manager.unit_type[type_id]->selfdestructcountdown;
     else
         self_destruct = -1.0f;
 }
@@ -295,7 +295,7 @@ void UNIT::stop_moving()
             mission->path = NULL;
             V.x = V.y = V.z = 0.0f;
         }
-        if (!(unit_manager.unit_type[type_id].canfly && nb_attached > 0)) // Once charged with units the Atlas cannot land
+        if (!(unit_manager.unit_type[type_id]->canfly && nb_attached > 0)) // Once charged with units the Atlas cannot land
             launch_script(get_script_index(SCRIPT_StopMoving));
         else
             was_moving = false;
@@ -509,15 +509,15 @@ void UNIT::init(int unit_type, int owner, bool full, bool basic)
             pMutex.lock();
         }
         type_id = unit_type;
-        model = unit_manager.unit_type[type_id].model;
-        hp = unit_manager.unit_type[type_id].MaxDamage;
-        script = unit_manager.unit_type[type_id].script;
-        port[STANDINGMOVEORDERS] = unit_manager.unit_type[type_id].StandingMoveOrder;
-        port[STANDINGFIREORDERS] = unit_manager.unit_type[type_id].StandingFireOrder;
+        model = unit_manager.unit_type[type_id]->model;
+        hp = unit_manager.unit_type[type_id]->MaxDamage;
+        script = unit_manager.unit_type[type_id]->script;
+        port[STANDINGMOVEORDERS] = unit_manager.unit_type[type_id]->StandingMoveOrder;
+        port[STANDINGFIREORDERS] = unit_manager.unit_type[type_id]->StandingFireOrder;
         if (!basic)
         {
             pMutex.unlock();
-            set_mission(unit_manager.unit_type[type_id].DefaultMissionType);
+            set_mission(unit_manager.unit_type[type_id]->DefaultMissionType);
             pMutex.lock();
         }
         if (script)
@@ -579,8 +579,8 @@ bool UNIT::is_on_radar( byte p_mask )
     int px = cur_px>>1;
     int py = cur_py>>1;
     if (px >= 0 && py >= 0 && px < units.map->radar_map->w && py < units.map->radar_map->h && type_id != -1)
-        return ( (units.map->radar_map->line[py][px] & p_mask) && !unit_manager.unit_type[type_id].Stealth && (unit_manager.unit_type[type_id].fastCategory & CATEGORY_NOTSUB) )
-            || ( (units.map->sonar_map->line[py][px] & p_mask) && !(unit_manager.unit_type[type_id].fastCategory & CATEGORY_NOTSUB) );
+        return ( (units.map->radar_map->line[py][px] & p_mask) && !unit_manager.unit_type[type_id]->Stealth && (unit_manager.unit_type[type_id]->fastCategory & CATEGORY_NOTSUB) )
+            || ( (units.map->sonar_map->line[py][px] & p_mask) && !(unit_manager.unit_type[type_id]->fastCategory & CATEGORY_NOTSUB) );
     return false;
 }
 
@@ -616,7 +616,7 @@ void UNIT::add_mission(int mission_type,Vector3D *target,bool step,int dat,void 
     }
 
     bool def_mode = false;
-    if (type_id != -1 && !unit_manager.unit_type[type_id].BMcode)
+    if (type_id != -1 && !unit_manager.unit_type[type_id]->BMcode)
     {
         switch (mission_type)
         {
@@ -634,7 +634,7 @@ void UNIT::add_mission(int mission_type,Vector3D *target,bool step,int dat,void 
     if (mission_type == MISSION_MOVE || mission_type == MISSION_PATROL )
         m_flags |= MISSION_FLAG_MOVE;
 
-    if (type_id != -1 && mission_type == MISSION_BUILD && unit_manager.unit_type[type_id].BMcode && unit_manager.unit_type[type_id].Builder && target != NULL)
+    if (type_id != -1 && mission_type == MISSION_BUILD && unit_manager.unit_type[type_id]->BMcode && unit_manager.unit_type[type_id]->Builder && target != NULL)
     {
         bool removed = false;
         MISSION *cur_mission = mission;
@@ -647,8 +647,8 @@ void UNIT::add_mission(int mission_type,Vector3D *target,bool step,int dat,void 
             float x_space = fabs(cur_mission->target.x - target->x);
             float z_space = fabs(cur_mission->target.z - target->z);
             if (!cur_mission->step && cur_mission->mission == MISSION_BUILD && cur_mission->data >= 0 && cur_mission->data < unit_manager.nb_unit
-                && x_space < ((unit_manager.unit_type[ dat ].FootprintX + unit_manager.unit_type[ cur_mission->data ].FootprintX) << 2)
-                && z_space < ((unit_manager.unit_type[ dat ].FootprintZ + unit_manager.unit_type[ cur_mission->data ].FootprintZ) << 2) ) // Remove it
+                && x_space < ((unit_manager.unit_type[ dat ]->FootprintX + unit_manager.unit_type[ cur_mission->data ]->FootprintX) << 2)
+                && z_space < ((unit_manager.unit_type[ dat ]->FootprintZ + unit_manager.unit_type[ cur_mission->data ]->FootprintZ) << 2) ) // Remove it
             {
                 MISSION *tmp = cur_mission;
                 cur_mission = cur_mission->next;
@@ -760,7 +760,7 @@ void UNIT::add_mission(int mission_type,Vector3D *target,bool step,int dat,void 
                       || cur->mission == MISSION_VTOL_STANDBY || cur->mission == MISSION_STOP )		// Don't stop if it's not necessary
                     && ( mission_type == MISSION_MOVE || mission_type == MISSION_PATROL ) )
                   || ( ( cur->mission == MISSION_BUILD || cur->mission == MISSION_BUILD_2 )
-                       && mission_type == MISSION_BUILD && type_id != -1 && !unit_manager.unit_type[type_id].BMcode) )
+                       && mission_type == MISSION_BUILD && type_id != -1 && !unit_manager.unit_type[type_id]->BMcode) )
                 && new_mission->next != NULL ) 	// Prevent factories from closing when already building a unit
             {
                 stop = new_mission->next;
@@ -819,7 +819,7 @@ void UNIT::set_mission(int mission_type,Vector3D *target,bool step,int dat,bool 
     }
 
     bool def_mode = false;
-    if (type_id != -1 && !unit_manager.unit_type[type_id].BMcode)
+    if (type_id != -1 && !unit_manager.unit_type[type_id]->BMcode)
     {
         switch( mission_type )
         {
@@ -855,7 +855,7 @@ void UNIT::set_mission(int mission_type,Vector3D *target,bool step,int dat,bool 
         case MISSION_BUILD_2: {
                                   launch_script(get_script_index(SCRIPT_stopbuilding));
                                   deactivate();
-                                  if (type_id != -1 && !unit_manager.unit_type[type_id].BMcode) // Delete the unit we were building
+                                  if (type_id != -1 && !unit_manager.unit_type[type_id]->BMcode) // Delete the unit we were building
                                   {
                                       sint32 prev = -1;
                                       for(int i = units.nb_unit-1; i>=0 ; i--)
@@ -875,8 +875,8 @@ void UNIT::set_mission(int mission_type,Vector3D *target,bool step,int dat,bool 
                               }
         case MISSION_ATTACK: {
                                  if (mission_type != MISSION_ATTACK && type_id != -1 &&
-                                     (!unit_manager.unit_type[type_id].canfly
-                                      || (unit_manager.unit_type[type_id].canfly && mission_type != MISSION_MOVE && mission_type != MISSION_PATROL ) ) )
+                                     (!unit_manager.unit_type[type_id]->canfly
+                                      || (unit_manager.unit_type[type_id]->canfly && mission_type != MISSION_MOVE && mission_type != MISSION_PATROL ) ) )
                                      deactivate();
                                  else
                                  {
@@ -888,7 +888,7 @@ void UNIT::set_mission(int mission_type,Vector3D *target,bool step,int dat,bool 
         case MISSION_MOVE:
         case MISSION_PATROL: {
                                  if (mission_type == MISSION_MOVE || mission_type == MISSION_PATROL
-                                     || (type_id != -1 && unit_manager.unit_type[type_id].canfly && mission_type == MISSION_ATTACK ) )
+                                     || (type_id != -1 && unit_manager.unit_type[type_id]->canfly && mission_type == MISSION_ATTACK ) )
                                  {
                                      stopit = false;
                                      already_running = true;
@@ -996,7 +996,7 @@ void UNIT::next_mission()
     {
         command_locked = false;
         if (type_id != -1)
-            set_mission( unit_manager.unit_type[type_id].DefaultMissionType, NULL, false, 0, false);
+            set_mission( unit_manager.unit_type[type_id]->DefaultMissionType, NULL, false, 0, false);
         return;
     }
     switch (mission->mission) // Commandes de fin de mission
@@ -1004,7 +1004,7 @@ void UNIT::next_mission()
         case MISSION_REPAIR:
         case MISSION_RECLAIM:
         case MISSION_BUILD_2:
-            if (mission->next == NULL || (type_id != -1 && unit_manager.unit_type[type_id].BMcode) || mission->next->mission != MISSION_BUILD)
+            if (mission->next == NULL || (type_id != -1 && unit_manager.unit_type[type_id]->BMcode) || mission->next->mission != MISSION_BUILD)
             {
                 launch_script(get_script_index(SCRIPT_stopbuilding));
                 deactivate();
@@ -1029,11 +1029,11 @@ void UNIT::next_mission()
     {
         command_locked = false;
         if (type_id != -1)
-            set_mission(unit_manager.unit_type[type_id].DefaultMissionType);
+            set_mission(unit_manager.unit_type[type_id]->DefaultMissionType);
     }
 
     // Skip a stop order before a normal order if the unit can fly (prevent planes from looking for a place to land when they don't need to land !!)
-    if (type_id != -1 && unit_manager.unit_type[type_id].canfly && mission->mission == MISSION_STOP && mission->next != NULL && mission->next->mission != MISSION_STOP)
+    if (type_id != -1 && unit_manager.unit_type[type_id]->canfly && mission->mission == MISSION_STOP && mission->next != NULL && mission->next->mission != MISSION_STOP)
     {
         old = mission;
         mission = mission->next;
@@ -1107,31 +1107,31 @@ void UNIT::draw(float t, Camera *cam,MAP *map,bool height_line)
         int unit_nature = ICON_UNKNOWN;
         float size = (D%cam->dir) * 12.0f / gfx->height;
 
-        if (unit_manager.unit_type[ type_id ].fastCategory & CATEGORY_KAMIKAZE )
+        if (unit_manager.unit_type[type_id]->fastCategory & CATEGORY_KAMIKAZE )
             unit_nature = ICON_KAMIKAZE;
-        else if (( unit_manager.unit_type[ type_id ].TEDclass & CLASS_COMMANDER ) == CLASS_COMMANDER )
+        else if (( unit_manager.unit_type[type_id]->TEDclass & CLASS_COMMANDER ) == CLASS_COMMANDER )
             unit_nature = ICON_COMMANDER;
-        else if (( unit_manager.unit_type[ type_id ].TEDclass & CLASS_ENERGY ) == CLASS_ENERGY )
+        else if (( unit_manager.unit_type[type_id]->TEDclass & CLASS_ENERGY ) == CLASS_ENERGY )
             unit_nature = ICON_ENERGY;
-        else if (( unit_manager.unit_type[ type_id ].TEDclass & CLASS_METAL ) == CLASS_METAL )
+        else if (( unit_manager.unit_type[type_id]->TEDclass & CLASS_METAL ) == CLASS_METAL )
             unit_nature = ICON_METAL;
-        else if (( unit_manager.unit_type[ type_id ].TEDclass & CLASS_TANK ) == CLASS_TANK )
+        else if (( unit_manager.unit_type[type_id]->TEDclass & CLASS_TANK ) == CLASS_TANK )
             unit_nature = ICON_TANK;
-        else if (unit_manager.unit_type[ type_id ].Builder ) {
-            if (!unit_manager.unit_type[ type_id ].BMcode )
+        else if (unit_manager.unit_type[type_id]->Builder ) {
+            if (!unit_manager.unit_type[type_id]->BMcode )
                 unit_nature = ICON_FACTORY;
             else
                 unit_nature = ICON_BUILDER;
         }
-        else if (( unit_manager.unit_type[ type_id ].TEDclass & CLASS_SHIP ) == CLASS_SHIP )
+        else if (( unit_manager.unit_type[type_id]->TEDclass & CLASS_SHIP ) == CLASS_SHIP )
             unit_nature = ICON_WATERUNIT;
-        else if (( unit_manager.unit_type[ type_id ].TEDclass & CLASS_FORT ) == CLASS_FORT )
+        else if (( unit_manager.unit_type[type_id]->TEDclass & CLASS_FORT ) == CLASS_FORT )
             unit_nature = ICON_DEFENSE;
-        else if (( unit_manager.unit_type[ type_id ].fastCategory & CATEGORY_NOTAIR ) && ( unit_manager.unit_type[ type_id ].fastCategory & CATEGORY_NOTSUB ) )
+        else if (( unit_manager.unit_type[type_id]->fastCategory & CATEGORY_NOTAIR ) && ( unit_manager.unit_type[type_id]->fastCategory & CATEGORY_NOTSUB ) )
             unit_nature = ICON_LANDUNIT;
-        else if (!( unit_manager.unit_type[ type_id ].fastCategory & CATEGORY_NOTAIR ) )
+        else if (!( unit_manager.unit_type[type_id]->fastCategory & CATEGORY_NOTAIR ) )
             unit_nature = ICON_AIRUNIT;
-        else if (!( unit_manager.unit_type[ type_id ].fastCategory & CATEGORY_NOTSUB ) )
+        else if (!( unit_manager.unit_type[type_id]->fastCategory & CATEGORY_NOTSUB ) )
             unit_nature = ICON_SUBUNIT;
 
         glBindTexture( GL_TEXTURE_2D, units.icons[ unit_nature ] );
@@ -1192,7 +1192,7 @@ void UNIT::draw(float t, Camera *cam,MAP *map,bool height_line)
             glRotatef(Angle.x,1.0f,0.0f,0.0f);
             glRotatef(Angle.z,0.0f,0.0f,1.0f);
             glRotatef(Angle.y,0.0f,1.0f,0.0f);
-            float scale=unit_manager.unit_type[type_id].Scale;
+            float scale=unit_manager.unit_type[type_id]->Scale;
             glScalef(scale,scale,scale);
 
 //            M=RotateY(Angle.y*DEG2RAD)*RotateZ(Angle.z*DEG2RAD)*RotateX(Angle.x*DEG2RAD)*Scale(scale);			// Matrice pour le calcul des positions des éléments du modèle de l'unité
@@ -1323,9 +1323,9 @@ void UNIT::draw(float t, Camera *cam,MAP *map,bool height_line)
             }
             if (c_part)	// Get the nanolathing points
             {
-                if (!unit_manager.unit_type[ type_id ].emitting_points_computed ) // Compute model emitting points if not already done
+                if (!unit_manager.unit_type[type_id]->emitting_points_computed ) // Compute model emitting points if not already done
                 {
-                    unit_manager.unit_type[ type_id ].emitting_points_computed = true;
+                    unit_manager.unit_type[type_id]->emitting_points_computed = true;
                     int param[] = { -1 };
                     int querynanopiece_idx = get_script_index( "QueryNanoPiece" );
                     run_script_function( NULL, querynanopiece_idx, 1, param );
@@ -1347,7 +1347,7 @@ void UNIT::draw(float t, Camera *cam,MAP *map,bool height_line)
                 the_model->draw(t,&data,owner_id==players.local_human_id && sel,false,c_part,build_part,target,&upos,&M,size,center,reverse,owner_id,!cloaked,src,src_data);
                 if (cloaked || ( cloaking && owner_id != players.local_human_id ) )
                     gfx->set_color( 0xFFFFFFFF );
-                if (height_line && h>1.0f && unit_manager.unit_type[type_id].canfly) // For flying units, draw a line that shows how high is the unit
+                if (height_line && h>1.0f && unit_manager.unit_type[type_id]->canfly) // For flying units, draw a line that shows how high is the unit
                 {
                     glPopMatrix();
                     glPushMatrix();
@@ -1471,11 +1471,11 @@ void UNIT::draw_shadow(Camera *cam, const Vector3D& Dir,MAP *map)
     glRotatef(drawn_Angle.x,1.0f,0.0f,0.0f);
     glRotatef(drawn_Angle.z,0.0f,0.0f,1.0f);
     glRotatef(drawn_Angle.y,0.0f,1.0f,0.0f);
-    float scale = unit_manager.unit_type[type_id].Scale;
+    float scale = unit_manager.unit_type[type_id]->Scale;
     glScalef(scale,scale,scale);
     glPolygonMode (GL_FRONT_AND_BACK, GL_FILL);
 
-    if ((type_id != -1 && unit_manager.unit_type[type_id].canmove) || shadow_scale_dir < 0.0f)
+    if ((type_id != -1 && unit_manager.unit_type[type_id]->canmove) || shadow_scale_dir < 0.0f)
     {
         Vector3D H = drawn_Pos;
         H.y += 2.0f * model->size2 + 1.0f;
@@ -1535,10 +1535,10 @@ void UNIT::draw_shadow_basic(Camera *cam, const Vector3D& Dir,MAP *map)
     glRotatef(drawn_Angle.x,1.0f,0.0f,0.0f);
     glRotatef(drawn_Angle.z,0.0f,0.0f,1.0f);
     glRotatef(drawn_Angle.y,0.0f,1.0f,0.0f);
-    float scale = unit_manager.unit_type[type_id].Scale;
+    float scale = unit_manager.unit_type[type_id]->Scale;
     glScalef(scale,scale,scale);
     glPolygonMode (GL_FRONT_AND_BACK, GL_FILL);
-    if (unit_manager.unit_type[ type_id ].canmove || shadow_scale_dir < 0.0f )
+    if (unit_manager.unit_type[type_id]->canmove || shadow_scale_dir < 0.0f )
     {
         Vector3D H = drawn_Pos;
         H.y += 2.0f * model->size2 + 1.0f;
@@ -1584,7 +1584,7 @@ const int UNIT::run_script(const float &dt,const int &id,MAP *map,int max_code)	
 
 #if DEBUG_USE_PRINT_CODE == 1
     bool print_code = false;
-    //bool	print_code = String::ToLower( unit_manager.unit_type[ type_id ].Unitname ) == "armtship" && (String::ToLower( script->name[script_id] ) == "transportpickup" || String::ToLower( script->name[script_id] ) == "boomcalc" );
+    //bool	print_code = String::ToLower( unit_manager.unit_type[type_id]->Unitname ) == "armtship" && (String::ToLower( script->name[script_id] ) == "transportpickup" || String::ToLower( script->name[script_id] ) == "boomcalc" );
 #endif
 
     do
@@ -1680,7 +1680,7 @@ const int UNIT::run_script(const float &dt,const int &id,MAP *map,int max_code)	
                     {
                         compute_model_coord();
                         particle_engine.make_fire( Pos + data.pos[obj],1,10,45.0f);
-                        int power = Math::Max(unit_manager.unit_type[type_id].FootprintX, unit_manager.unit_type[type_id].FootprintZ);
+                        int power = Math::Max(unit_manager.unit_type[type_id]->FootprintX, unit_manager.unit_type[type_id]->FootprintZ);
                         Vector3D P = Pos + data.pos[obj];
                         fx_manager.addExplosion( P, power * 3, power * 10.0f );
                     }
@@ -1787,7 +1787,7 @@ const int UNIT::run_script(const float &dt,const int &id,MAP *map,int max_code)	
                             }
                             break;
                         case BUGGER_OFF:
-                            value = map->check_rect((((int)(Pos.x+map->map_w_d))>>3)-(unit_manager.unit_type[type_id].FootprintX>>1),(((int)(Pos.z+map->map_h_d))>>3)-(unit_manager.unit_type[type_id].FootprintZ>>1),unit_manager.unit_type[type_id].FootprintX,unit_manager.unit_type[type_id].FootprintZ,idx) ? 0 : 1;
+                            value = map->check_rect((((int)(Pos.x+map->map_w_d))>>3)-(unit_manager.unit_type[type_id]->FootprintX>>1),(((int)(Pos.z+map->map_h_d))>>3)-(unit_manager.unit_type[type_id]->FootprintZ>>1),unit_manager.unit_type[type_id]->FootprintX,unit_manager.unit_type[type_id]->FootprintZ,idx) ? 0 : 1;
                             break;
                         case BUILD_PERCENT_LEFT:
                             port[ BUILD_PERCENT_LEFT ] = (int)build_percent_left + ( (build_percent_left>(int)build_percent_left) ? 1 : 0 );
@@ -2374,7 +2374,7 @@ const int UNIT::run_script(const float &dt,const int &id,MAP *map,int max_code)	
                             break;
                         case YARD_OPEN:
                             port[v2] = v1;
-                            if (!map->check_rect((((int)(Pos.x+map->map_w_d))>>3)-(unit_manager.unit_type[type_id].FootprintX>>1),(((int)(Pos.z+map->map_h_d))>>3)-(unit_manager.unit_type[type_id].FootprintZ>>1),unit_manager.unit_type[type_id].FootprintX,unit_manager.unit_type[type_id].FootprintZ,idx))
+                            if (!map->check_rect((((int)(Pos.x+map->map_w_d))>>3)-(unit_manager.unit_type[type_id]->FootprintX>>1),(((int)(Pos.z+map->map_h_d))>>3)-(unit_manager.unit_type[type_id]->FootprintZ>>1),unit_manager.unit_type[type_id]->FootprintX,unit_manager.unit_type[type_id]->FootprintZ,idx))
                                 port[v2] ^= 1;
                             break;
                         case BUGGER_OFF:
@@ -2383,11 +2383,11 @@ const int UNIT::run_script(const float &dt,const int &id,MAP *map,int max_code)	
                             {
                                 int px=((int)(Pos.x)+map->map_w_d)>>3;
                                 int py=((int)(Pos.z)+map->map_h_d)>>3;
-                                for(int y=py-(unit_manager.unit_type[type_id].FootprintZ>>1);y<=py+(unit_manager.unit_type[type_id].FootprintZ>>1);y++)
+                                for(int y=py-(unit_manager.unit_type[type_id]->FootprintZ>>1);y<=py+(unit_manager.unit_type[type_id]->FootprintZ>>1);y++)
                                 {
                                     if (y>=0 && y<(map->bloc_h<<1)-1)
                                     {
-                                        for(int x=px-(unit_manager.unit_type[type_id].FootprintX>>1);x<=px+(unit_manager.unit_type[type_id].FootprintX>>1);x++)
+                                        for(int x=px-(unit_manager.unit_type[type_id]->FootprintX>>1);x<=px+(unit_manager.unit_type[type_id]->FootprintX>>1);x++)
                                         {
                                             if (x>=0 && x<(map->bloc_w<<1)-1)
                                             {
@@ -2514,11 +2514,11 @@ void UNIT::explode()
         network_manager.sendEvent( &explode_event );
     }
 
-    int power = Math::Max(unit_manager.unit_type[type_id].FootprintX, unit_manager.unit_type[type_id].FootprintZ);
+    int power = Math::Max(unit_manager.unit_type[type_id]->FootprintX, unit_manager.unit_type[type_id]->FootprintZ);
     fx_manager.addFlash( Pos, power * 32 );
     fx_manager.addExplosion( Pos, power * 3, power * 10 );
 
-    int param[]={ severity * 100 / unit_manager.unit_type[type_id].MaxDamage, 0 };
+    int param[]={ severity * 100 / unit_manager.unit_type[type_id]->MaxDamage, 0 };
     run_script_function(the_map,get_script_index(SCRIPT_killed),2,param);
     if (attached )
         param[1] = 3;			// When we were flying we just disappear
@@ -2536,7 +2536,7 @@ void UNIT::explode()
                 if (cur_px > 0 && cur_py > 0 && cur_px < (the_map->bloc_w<<1) && cur_py < (the_map->bloc_h<<1) )
                     if (the_map->map_data[ cur_py ][ cur_px ].stuff == -1)
                     {
-                        int type=feature_manager.get_feature_index(unit_manager.unit_type[type_id].Corpse);
+                        int type=feature_manager.get_feature_index(unit_manager.unit_type[type_id]->Corpse);
                         if (type >= 0 )
                         {
                             the_map->map_data[ cur_py ][ cur_px ].stuff = features.add_feature(Pos,type);
@@ -2560,7 +2560,7 @@ void UNIT::explode()
                 pMutex.lock();
                 if (cur_px > 0 && cur_py > 0 && cur_px < (the_map->bloc_w<<1) && cur_py < (the_map->bloc_h<<1))
                     if (the_map->map_data[ cur_py ][ cur_px ].stuff == -1) {
-                        int type=feature_manager.get_feature_index( (String( unit_manager.unit_type[type_id].name) + "_heap").c_str() );
+                        int type=feature_manager.get_feature_index( (String( unit_manager.unit_type[type_id]->name) + "_heap").c_str() );
                         if (type >= 0 ) {
                             the_map->map_data[ cur_py ][ cur_px ].stuff = features.add_feature(Pos,type);
                             if (the_map->map_data[ cur_py ][ cur_px ].stuff >= 0 ) {			// Keep unit orientation
@@ -2580,7 +2580,7 @@ void UNIT::explode()
             pMutex.lock();
     };
     pMutex.unlock();
-    int w_id = weapons.add_weapon(weapon_manager.get_weapon_index( self_destruct == 0.0f ? unit_manager.unit_type[type_id].SelfDestructAs : unit_manager.unit_type[type_id].ExplodeAs ),idx);
+    int w_id = weapons.add_weapon(weapon_manager.get_weapon_index( self_destruct == 0.0f ? unit_manager.unit_type[type_id]->SelfDestructAs : unit_manager.unit_type[type_id]->ExplodeAs ),idx);
     pMutex.lock();
     if (w_id>=0) {
         weapons.weapon[w_id].Pos = Pos;
@@ -2629,19 +2629,19 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
         return	-1;		// Should NEVER happen
     }
 
-    if (build_percent_left == 0.0f && unit_manager.unit_type[type_id].isfeature) // Turn this unit into a feature
+    if (build_percent_left == 0.0f && unit_manager.unit_type[type_id]->isfeature) // Turn this unit into a feature
     {
         if (cur_px > 0 && cur_py > 0 && cur_px < (map->bloc_w<<1) && cur_py < (map->bloc_h<<1) )
         {
             if (map->map_data[ cur_py ][ cur_px ].stuff == -1)
             {
-                int type = feature_manager.get_feature_index(unit_manager.unit_type[type_id].Corpse);
+                int type = feature_manager.get_feature_index(unit_manager.unit_type[type_id]->Corpse);
                 if (type >= 0)
                 {
                     features.lock();
                     map->map_data[ cur_py ][ cur_px ].stuff=features.add_feature(Pos,type);
                     if (map->map_data[ cur_py ][ cur_px ].stuff == -1)
-                        LOG_ERROR("Could not turn `" << unit_manager.unit_type[type_id].Unitname << "` into a feature ! Cannot create the feature");
+                        LOG_ERROR("Could not turn `" << unit_manager.unit_type[type_id]->Unitname << "` into a feature ! Cannot create the feature");
                     else
                         features.feature[map->map_data[ cur_py ][ cur_px ].stuff].angle = Angle.y;
                     pMutex.unlock();
@@ -2652,7 +2652,7 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
                     flags = 4;
                 }
                 else
-                    LOG_ERROR("Could not turn `" << unit_manager.unit_type[type_id].Unitname << "` into a feature ! Feature not found");
+                    LOG_ERROR("Could not turn `" << unit_manager.unit_type[type_id]->Unitname << "` into a feature ! Feature not found");
             }
         }
         pMutex.unlock();
@@ -2672,14 +2672,14 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
         if (self_destruct <= 0.0f ) {
             self_destruct = 0.0f;
             hp = 0.0f;
-            severity = unit_manager.unit_type[type_id].MaxDamage;
+            severity = unit_manager.unit_type[type_id]->MaxDamage;
         }
     }
 
     if (hp<=0.0f && (local || exploding)) // L'unité est détruite
     {
         if (mission
-            && !unit_manager.unit_type[ type_id ].BMcode
+            && !unit_manager.unit_type[type_id]->BMcode
             && ( mission->mission == MISSION_BUILD_2 || mission->mission == MISSION_BUILD )		// It was building something that we must destroy too
             && mission->p != NULL )
         {
@@ -2773,25 +2773,25 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
 
     if (build_percent_left > 0.0f)	{		// Unit isn't finished
         if (!built && local) {
-            hp -= dt * 1000.0f / ( 6 * unit_manager.unit_type[type_id].BuildTime ) * unit_manager.unit_type[type_id].MaxDamage;
-            build_percent_left += dt * 100000.0f / ( 6 * unit_manager.unit_type[type_id].BuildTime );
+            hp -= dt * 1000.0f / ( 6 * unit_manager.unit_type[type_id]->BuildTime ) * unit_manager.unit_type[type_id]->MaxDamage;
+            build_percent_left += dt * 100000.0f / ( 6 * unit_manager.unit_type[type_id]->BuildTime );
         }
         goto script_exec;
     }
-    else if (hp < unit_manager.unit_type[ type_id ].MaxDamage && unit_manager.unit_type[ type_id ].HealTime > 0 ) {
-        hp += unit_manager.unit_type[ type_id ].MaxDamage * dt / unit_manager.unit_type[ type_id ].HealTime;
-        if (hp > unit_manager.unit_type[ type_id ].MaxDamage )
-            hp = unit_manager.unit_type[ type_id ].MaxDamage;
+    else if (hp < unit_manager.unit_type[type_id]->MaxDamage && unit_manager.unit_type[type_id]->HealTime > 0 ) {
+        hp += unit_manager.unit_type[type_id]->MaxDamage * dt / unit_manager.unit_type[type_id]->HealTime;
+        if (hp > unit_manager.unit_type[type_id]->MaxDamage )
+            hp = unit_manager.unit_type[type_id]->MaxDamage;
     }
 
     if (data.nb_piece>0)
         data.move(dt,units.g_dt);
 
     if (cloaking ) {
-        int conso_energy = (mission == NULL || !(mission->flags & MISSION_FLAG_MOVE) ) ? unit_manager.unit_type[ type_id ].CloakCost : unit_manager.unit_type[ type_id ].CloakCostMoving;
+        int conso_energy = (mission == NULL || !(mission->flags & MISSION_FLAG_MOVE) ) ? unit_manager.unit_type[type_id]->CloakCost : unit_manager.unit_type[type_id]->CloakCostMoving;
         if (players.energy[ owner_id ] >= (energy_cons + conso_energy) * dt ) {
             energy_cons += conso_energy;
-            int dx = unit_manager.unit_type[type_id].mincloakdistance >> 3;
+            int dx = unit_manager.unit_type[type_id]->mincloakdistance >> 3;
             // byte mask = 1 << owner_id;
             bool found = false;
             for(int y = cur_py - dx ; y <= cur_py + dx && !found ; y++ )
@@ -2801,7 +2801,7 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
                             int cur_idx = map->map_data[y][x].unit_idx;
 
                             if (cur_idx>=0 && cur_idx < units.max_unit && (units.unit[cur_idx].flags & 1) && units.unit[cur_idx].owner_id != owner_id
-                               && SQUARE(unit_manager.unit_type[type_id].mincloakdistance) < (Pos - units.unit[ cur_idx ].Pos).sq() )
+                               && SQUARE(unit_manager.unit_type[type_id]->mincloakdistance) < (Pos - units.unit[ cur_idx ].Pos).sq() )
                             {
                                 found = true;
                                 break;
@@ -2818,7 +2818,7 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
     if (attached)
         goto script_exec;
 
-    if (unit_manager.unit_type[type_id].canload && nb_attached>0) {
+    if (unit_manager.unit_type[type_id]->canload && nb_attached>0) {
         int e = 0;
         compute_model_coord();
         for(int i=0;i+e<nb_attached;i++) {
@@ -2841,13 +2841,13 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
     if (planned_weapons>0.0f) {			// Construit des armes / build weapons
         float old=planned_weapons-(int)planned_weapons;
         int idx=-1;
-        if (unit_manager.unit_type[type_id].weapon[0] && unit_manager.unit_type[type_id].weapon[0]->stockpile)	idx=0;
-        else if (unit_manager.unit_type[type_id].weapon[1] && unit_manager.unit_type[type_id].weapon[1]->stockpile)	idx=0;
-        else if (unit_manager.unit_type[type_id].weapon[2] && unit_manager.unit_type[type_id].weapon[2]->stockpile)	idx=0;
-        if (idx!=-1 && unit_manager.unit_type[type_id].weapon[idx]->reloadtime!=0.0f)	{
-            float dn=dt/unit_manager.unit_type[type_id].weapon[idx]->reloadtime;
-            float conso_metal=((float)unit_manager.unit_type[type_id].weapon[idx]->metalpershot)/unit_manager.unit_type[type_id].weapon[idx]->reloadtime;
-            float conso_energy=((float)unit_manager.unit_type[type_id].weapon[idx]->energypershot)/unit_manager.unit_type[type_id].weapon[idx]->reloadtime;
+        if (unit_manager.unit_type[type_id]->weapon[0] && unit_manager.unit_type[type_id]->weapon[0]->stockpile)	idx=0;
+        else if (unit_manager.unit_type[type_id]->weapon[1] && unit_manager.unit_type[type_id]->weapon[1]->stockpile)	idx=0;
+        else if (unit_manager.unit_type[type_id]->weapon[2] && unit_manager.unit_type[type_id]->weapon[2]->stockpile)	idx=0;
+        if (idx!=-1 && unit_manager.unit_type[type_id]->weapon[idx]->reloadtime!=0.0f)	{
+            float dn=dt/unit_manager.unit_type[type_id]->weapon[idx]->reloadtime;
+            float conso_metal=((float)unit_manager.unit_type[type_id]->weapon[idx]->metalpershot)/unit_manager.unit_type[type_id]->weapon[idx]->reloadtime;
+            float conso_energy=((float)unit_manager.unit_type[type_id]->weapon[idx]->energypershot)/unit_manager.unit_type[type_id]->weapon[idx]->reloadtime;
             if (players.metal[owner_id]>=conso_metal*dt && players.energy[owner_id]>=conso_energy*dt) {
                 metal_cons+=conso_metal;
                 energy_cons+=conso_energy;
@@ -2866,7 +2866,7 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
 
     //------------------------------ Beginning of weapon related code ---------------------------------------
     for( byte i = 0 ; i < 3 ; i++ ) {
-        if (unit_manager.unit_type[type_id].weapon[ i ] == NULL )	continue;		// Skip that weapon if not present on the unit
+        if (unit_manager.unit_type[type_id]->weapon[ i ] == NULL )	continue;		// Skip that weapon if not present on the unit
         weapon[i].delay += dt;
         weapon[i].time += dt;
         switch( (weapon[i].state & 3) )
@@ -2885,7 +2885,7 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
                         break;
                     }
 
-                    if (!(weapon[i].state & WEAPON_FLAG_COMMAND_FIRE) && unit_manager.unit_type[type_id].weapon[ i ]->commandfire ) {	// Not allowed to fire
+                    if (!(weapon[i].state & WEAPON_FLAG_COMMAND_FIRE) && unit_manager.unit_type[type_id]->weapon[ i ]->commandfire ) {	// Not allowed to fire
                         weapon[i].data = -1;
                         weapon[i].state = WEAPON_FLAG_IDLE;
                         break;
@@ -2901,7 +2901,7 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
                             query_id = get_script_index(SCRIPT_QueryTertiary);		break;
                     };
                     if (!is_running(get_script_index(SCRIPT_RequestState))) {
-                        if (weapon[i].delay >= unit_manager.unit_type[type_id].weapon[ i ]->reloadtime || unit_manager.unit_type[type_id].weapon[ i ]->stockpile) {
+                        if (weapon[i].delay >= unit_manager.unit_type[type_id]->weapon[ i ]->reloadtime || unit_manager.unit_type[type_id]->weapon[ i ]->stockpile) {
 
                             run_script_function( map, query_id );			// Run the script that tell us from where to shoot
 
@@ -2913,7 +2913,7 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
                             int maxdist = 0;
                             int mindist = 0;
 
-                            if (unit_manager.unit_type[type_id].attackrunlength>0)
+                            if (unit_manager.unit_type[type_id]->attackrunlength>0)
                             {
                                 if (target % V < 0.0f ) {
                                     weapon[i].state = WEAPON_FLAG_IDLE;
@@ -2921,11 +2921,11 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
                                     break;	// We're not shooting at the target
                                 }
                                 float t = 2.0f/map->ota_data.gravity*fabs(target.y);
-                                mindist = (int)sqrt(t*V.sq())-((unit_manager.unit_type[type_id].attackrunlength+1)>>1);
-                                maxdist = mindist+(unit_manager.unit_type[type_id].attackrunlength);
+                                mindist = (int)sqrt(t*V.sq())-((unit_manager.unit_type[type_id]->attackrunlength+1)>>1);
+                                maxdist = mindist+(unit_manager.unit_type[type_id]->attackrunlength);
                             }
                             else
-                                maxdist = unit_manager.unit_type[type_id].weapon[ i ]->range>>1;
+                                maxdist = unit_manager.unit_type[type_id]->weapon[ i ]->range>>1;
 
                             if (dist > maxdist * maxdist || dist < mindist * mindist )
                             {
@@ -2936,9 +2936,9 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
 
                             Vector3D target_translation;
                             if (target_unit != NULL )
-                                target_translation = ( target.norm() / unit_manager.unit_type[type_id].weapon[ i ]->weaponvelocity) * (target_unit->V - V);
+                                target_translation = ( target.norm() / unit_manager.unit_type[type_id]->weapon[ i ]->weaponvelocity) * (target_unit->V - V);
 
-                            if (unit_manager.unit_type[type_id].weapon[ i ]->turret) 	// Si l'unité doit viser, on la fait viser / if it must aim, we make it aim
+                            if (unit_manager.unit_type[type_id]->weapon[ i ]->turret) 	// Si l'unité doit viser, on la fait viser / if it must aim, we make it aim
                             {
                                 if (script_val->size() <= query_id )
                                     script_val->resize( query_id + 1 );
@@ -2979,15 +2979,15 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
                                 if (angle<-180.0f)	angle+=360.0f;
                                 else if (angle>180.0f)	angle-=360.0f;
                                 int aiming[]={ (int)(angle*DEG2TA), -4096 };
-                                if (unit_manager.unit_type[type_id].weapon[ i ]->ballistic) // Calculs de ballistique / ballistic calculations
+                                if (unit_manager.unit_type[type_id]->weapon[ i ]->ballistic) // Calculs de ballistique / ballistic calculations
                                 {
                                     Vector3D D=target_unit==NULL ? ( target_weapon == NULL ? Pos + data.pos[start_piece] - weapon[i].target_pos : (Pos+data.pos[start_piece]-target_weapon->Pos) ) : (Pos+data.pos[start_piece]-target_unit->Pos-target_pos_on_unit);
                                     D.y=0.0f;
                                     float v;
-                                    if (unit_manager.unit_type[type_id].weapon[ i ]->startvelocity==0.0f)
-                                        v=unit_manager.unit_type[type_id].weapon[ i ]->weaponvelocity;
+                                    if (unit_manager.unit_type[type_id]->weapon[ i ]->startvelocity==0.0f)
+                                        v=unit_manager.unit_type[type_id]->weapon[ i ]->weaponvelocity;
                                     else
-                                        v=unit_manager.unit_type[type_id].weapon[ i ]->startvelocity;
+                                        v=unit_manager.unit_type[type_id]->weapon[ i ]->startvelocity;
                                     if (target_unit==NULL) {
                                         if (target_weapon==NULL )
                                             aiming[1]=(int)(ballistic_angle(v,map->ota_data.gravity,D.norm(),(Pos+data.pos[start_piece]).y,weapon[i].target_pos.y)*DEG2TA);
@@ -3015,7 +3015,7 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
                                     }
                                     aiming[1]=(int)(angle*DEG2TA);
                                 }
-                                if (unit_manager.unit_type[type_id].weapon[ i ]->lineofsight) {
+                                if (unit_manager.unit_type[type_id]->weapon[ i ]->lineofsight) {
                                     if (target_unit==NULL) {
                                         if (target_weapon == NULL )
                                             weapon[i].aim_dir=weapon[i].target_pos-(Pos+data.pos[start_piece]);
@@ -3064,7 +3064,7 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
             case WEAPON_FLAG_SHOOT:											// Tire sur une unité / fire!
                 if (weapon[i].target == NULL || (( weapon[i].state & WEAPON_FLAG_WEAPON ) == WEAPON_FLAG_WEAPON && ((WEAPON*)(weapon[i].target))->weapon_id!=-1)
                     || (( weapon[i].state & WEAPON_FLAG_WEAPON ) != WEAPON_FLAG_WEAPON && (((UNIT*)(weapon[i].target))->flags&1))) {
-                    if (weapon[i].burst > 0 && weapon[i].delay < unit_manager.unit_type[type_id].weapon[ i ]->burstrate )
+                    if (weapon[i].burst > 0 && weapon[i].delay < unit_manager.unit_type[type_id]->weapon[ i ]->burstrate )
                         break;
                     int query_id=-1;
                     int Aim_script = -1;
@@ -3089,28 +3089,28 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
                     };
                     if (!is_running(get_script_index(Aim_script)))
                     {
-                        if ((players.metal[owner_id]<unit_manager.unit_type[type_id].weapon[ i ]->metalpershot
-                            || players.energy[owner_id]<unit_manager.unit_type[type_id].weapon[ i ]->energypershot)
-                           && !unit_manager.unit_type[type_id].weapon[ i ]->stockpile) {
+                        if ((players.metal[owner_id]<unit_manager.unit_type[type_id]->weapon[ i ]->metalpershot
+                            || players.energy[owner_id]<unit_manager.unit_type[type_id]->weapon[ i ]->energypershot)
+                           && !unit_manager.unit_type[type_id]->weapon[ i ]->stockpile) {
                             weapon[i].state = WEAPON_FLAG_AIM;		// Pas assez d'énergie pour tirer / not enough energy to fire
                             weapon[i].data = -1;
                             break;
                         }
-                        if (unit_manager.unit_type[type_id].weapon[ i ]->stockpile && weapon[i].stock<=0)
+                        if (unit_manager.unit_type[type_id]->weapon[ i ]->stockpile && weapon[i].stock<=0)
                         {
                             weapon[i].state = WEAPON_FLAG_AIM;		// Plus rien pour tirer / nothing to fire
                             weapon[i].data = -1;
                             break;
                         }
-                        else if (unit_manager.unit_type[type_id].weapon[ i ]->stockpile )
+                        else if (unit_manager.unit_type[type_id]->weapon[ i ]->stockpile )
                             weapon[i].stock--;
                         else
                         {													// We use energy and metal only for weapons with no prebuilt ammo
-                            players.c_metal[owner_id] -= unit_manager.unit_type[type_id].weapon[ i ]->metalpershot;
-                            players.c_energy[owner_id] -= unit_manager.unit_type[type_id].weapon[ i ]->energypershot;
+                            players.c_metal[owner_id] -= unit_manager.unit_type[type_id]->weapon[ i ]->metalpershot;
+                            players.c_energy[owner_id] -= unit_manager.unit_type[type_id]->weapon[ i ]->energypershot;
                         }
                         run_script_function( map, get_script_index(Fire_script) );			// Run the script that tell us from where to shoot
-                        if (!unit_manager.unit_type[type_id].weapon[ i ]->soundstart.empty())	sound_manager->playSound(unit_manager.unit_type[type_id].weapon[i]->soundstart, &Pos);
+                        if (!unit_manager.unit_type[type_id]->weapon[ i ]->soundstart.empty())	sound_manager->playSound(unit_manager.unit_type[type_id]->weapon[i]->soundstart, &Pos);
                         if (script_val->size() <= query_id )
                             script_val->resize( query_id + 1 );
                         int start_piece = (*script_val)[query_id];
@@ -3120,7 +3120,7 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
                             Vector3D Dir = data.dir[start_piece];
                             if (Dir.x==0.0f && Dir.y==0.0f && Dir.z==0.0f)
                             {
-                                if (unit_manager.unit_type[type_id].weapon[ i ]->vlaunch)
+                                if (unit_manager.unit_type[type_id]->weapon[ i ]->vlaunch)
                                 {
                                     Dir.x=0.0f;
                                     Dir.y=1.0f;
@@ -3138,11 +3138,11 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
                                     shoot(((UNIT*)(weapon[i].target))->idx,Pos+data.pos[start_piece],Dir,i, weapon[i].target_pos);
                             }
                             weapon[i].burst++;
-                            if (weapon[i].burst>=unit_manager.unit_type[type_id].weapon[i]->burst)
+                            if (weapon[i].burst>=unit_manager.unit_type[type_id]->weapon[i]->burst)
                                 weapon[i].burst=0;
                             weapon[i].delay=0.0f;
                         }
-                        if (weapon[i].burst == 0 && unit_manager.unit_type[type_id].weapon[ i ]->commandfire && !unit_manager.unit_type[type_id].weapon[ i ]->dropped ) {		// Shoot only once
+                        if (weapon[i].burst == 0 && unit_manager.unit_type[type_id]->weapon[ i ]->commandfire && !unit_manager.unit_type[type_id]->weapon[ i ]->dropped ) {		// Shoot only once
                             weapon[i].state = WEAPON_FLAG_IDLE;
                             weapon[i].data = -1;
                             if (mission != NULL )
@@ -3182,9 +3182,9 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
 
         //----------------------------------- Beginning of moving code ------------------------------------
 
-        if ((mission->flags & MISSION_FLAG_MOVE) && unit_manager.unit_type[type_id].canmove && unit_manager.unit_type[type_id].BMcode ) {
+        if ((mission->flags & MISSION_FLAG_MOVE) && unit_manager.unit_type[type_id]->canmove && unit_manager.unit_type[type_id]->BMcode ) {
             if (!was_moving ) {
-                if (unit_manager.unit_type[type_id].canfly)
+                if (unit_manager.unit_type[type_id]->canfly)
                     activate();
                 launch_script(get_script_index(SCRIPT_MotionControl));
                 launch_script(get_script_index(SCRIPT_startmoving));
@@ -3223,7 +3223,7 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
                         path_exec[ owner_id ]++;
                         move_target_computed = mission->target;
                         last_path_refresh = 0.0f;
-                        if (unit_manager.unit_type[type_id].canfly)
+                        if (unit_manager.unit_type[type_id]->canfly)
                         {
                             if (mission->move_data<=0)
                                 mission->path = direct_path(mission->target);
@@ -3236,20 +3236,20 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
                         }
                         else
                         {
-                            float dh_max = unit_manager.unit_type[type_id].MaxSlope * H_DIV;
-                            float h_min = unit_manager.unit_type[type_id].canhover ? -100.0f : map->sealvl - unit_manager.unit_type[type_id].MaxWaterDepth * H_DIV;
-                            float h_max = map->sealvl - unit_manager.unit_type[type_id].MinWaterDepth * H_DIV;
-                            float hover_h = unit_manager.unit_type[type_id].canhover ? map->sealvl : -100.0f;
+                            float dh_max = unit_manager.unit_type[type_id]->MaxSlope * H_DIV;
+                            float h_min = unit_manager.unit_type[type_id]->canhover ? -100.0f : map->sealvl - unit_manager.unit_type[type_id]->MaxWaterDepth * H_DIV;
+                            float h_max = map->sealvl - unit_manager.unit_type[type_id]->MinWaterDepth * H_DIV;
+                            float hover_h = unit_manager.unit_type[type_id]->canhover ? map->sealvl : -100.0f;
                             if (mission->move_data <= 0)
                                 mission->path = find_path(map->map_data,map->h_map,map->path,map->map_w,map->map_h,map->bloc_w<<1,map->bloc_h<<1,
-                                                          dh_max, h_min, h_max, Pos, mission->target, unit_manager.unit_type[type_id].FootprintX, unit_manager.unit_type[type_id].FootprintZ, idx, 0, hover_h );
+                                                          dh_max, h_min, h_max, Pos, mission->target, unit_manager.unit_type[type_id]->FootprintX, unit_manager.unit_type[type_id]->FootprintZ, idx, 0, hover_h );
                             else
                                 mission->path = find_path(map->map_data,map->h_map,map->path,map->map_w,map->map_h,map->bloc_w<<1,map->bloc_h<<1,
-                                                          dh_max, h_min, h_max, Pos, mission->target, unit_manager.unit_type[type_id].FootprintX, unit_manager.unit_type[type_id].FootprintZ, idx, mission->move_data, hover_h );
+                                                          dh_max, h_min, h_max, Pos, mission->target, unit_manager.unit_type[type_id]->FootprintX, unit_manager.unit_type[type_id]->FootprintZ, idx, mission->move_data, hover_h );
 
                             if (mission->path == NULL)
                             {
-                                bool place_is_empty = map->check_rect( cur_px-(unit_manager.unit_type[type_id].FootprintX>>1), cur_py-(unit_manager.unit_type[type_id].FootprintZ>>1), unit_manager.unit_type[type_id].FootprintX, unit_manager.unit_type[type_id].FootprintZ, idx);
+                                bool place_is_empty = map->check_rect( cur_px-(unit_manager.unit_type[type_id]->FootprintX>>1), cur_py-(unit_manager.unit_type[type_id]->FootprintZ>>1), unit_manager.unit_type[type_id]->FootprintX, unit_manager.unit_type[type_id]->FootprintZ, idx);
                                 if (!place_is_empty)
                                 {
                                     LOG_WARNING("An Unit is blocked !" << __FILE__ << ":" << __LINE__);
@@ -3279,11 +3279,11 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
                 float dist = J.norm();
                 if ((dist > mission->last_d && dist < 15.0f) || mission->path == NULL) {
                     if (mission->path) {
-                        float dh_max = unit_manager.unit_type[type_id].MaxSlope * H_DIV;
-                        float h_min = unit_manager.unit_type[type_id].canhover ? -100.0f : map->sealvl - unit_manager.unit_type[type_id].MaxWaterDepth * H_DIV;
-                        float h_max = map->sealvl - unit_manager.unit_type[type_id].MinWaterDepth * H_DIV;
-                        float hover_h = unit_manager.unit_type[type_id].canhover ? map->sealvl : -100.0f;
-                        mission->path = next_node(mission->path, map->map_data, map->h_map, map->bloc_w_db, map->bloc_h_db, dh_max, h_min, h_max, unit_manager.unit_type[type_id].FootprintX, unit_manager.unit_type[type_id].FootprintZ, idx, hover_h );
+                        float dh_max = unit_manager.unit_type[type_id]->MaxSlope * H_DIV;
+                        float h_min = unit_manager.unit_type[type_id]->canhover ? -100.0f : map->sealvl - unit_manager.unit_type[type_id]->MaxWaterDepth * H_DIV;
+                        float h_max = map->sealvl - unit_manager.unit_type[type_id]->MinWaterDepth * H_DIV;
+                        float hover_h = unit_manager.unit_type[type_id]->canhover ? map->sealvl : -100.0f;
+                        mission->path = next_node(mission->path, map->map_data, map->h_map, map->bloc_w_db, map->bloc_h_db, dh_max, h_min, h_max, unit_manager.unit_type[type_id]->FootprintX, unit_manager.unit_type[type_id]->FootprintZ, idx, hover_h );
                     }
                     mission->last_d = 9999999.0f;
                     if (mission->path == NULL) {		// End of path reached
@@ -3296,7 +3296,7 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
                         }
                         else										// We are not where we are supposed to be !!
                             mission->flags |= MISSION_FLAG_REFRESH_PATH;
-                        if (!( unit_manager.unit_type[ type_id ].canfly && nb_attached > 0 ) ) {		// Once charged with units the Atlas cannot land
+                        if (!( unit_manager.unit_type[type_id]->canfly && nb_attached > 0 ) ) {		// Once charged with units the Atlas cannot land
                             launch_script(get_script_index(SCRIPT_StopMoving));
                             was_moving = false;
                         }
@@ -3326,26 +3326,26 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
                     V = (V%K)*K + (V%J)*J;
                     if (!(dist < 15.0f && fabs( Angle.y - f_TargetAngle ) >= 1.0f)) {
                         if (fabs( Angle.y - f_TargetAngle ) >= 45.0f ) {
-                            if (J % V > 0.0f && V.norm() > unit_manager.unit_type[type_id].BrakeRate * dt )
-                                V = V - ((( fabs( Angle.y - f_TargetAngle ) - 35.0f ) / 135.0f + 1.0f) * 0.5f * unit_manager.unit_type[type_id].BrakeRate * dt) * J;
+                            if (J % V > 0.0f && V.norm() > unit_manager.unit_type[type_id]->BrakeRate * dt )
+                                V = V - ((( fabs( Angle.y - f_TargetAngle ) - 35.0f ) / 135.0f + 1.0f) * 0.5f * unit_manager.unit_type[type_id]->BrakeRate * dt) * J;
                         }
                         else {
                             float speed = V.norm();
-                            float time_to_stop = speed / unit_manager.unit_type[type_id].BrakeRate;
-                            float min_dist = time_to_stop * (speed-unit_manager.unit_type[type_id].BrakeRate*0.5f*time_to_stop);
+                            float time_to_stop = speed / unit_manager.unit_type[type_id]->BrakeRate;
+                            float min_dist = time_to_stop * (speed-unit_manager.unit_type[type_id]->BrakeRate*0.5f*time_to_stop);
                             if (min_dist>=dist && !(mission->flags & MISSION_FLAG_DONT_STOP_MOVE)
                                && ( mission->next == NULL || ( mission->next->mission != MISSION_MOVE && mission->next->mission != MISSION_PATROL ) ) )	// Brake if needed
-                                V = V-unit_manager.unit_type[type_id].BrakeRate*dt*J;
-                            else if (speed < unit_manager.unit_type[type_id].MaxVelocity )
-                                V = V + unit_manager.unit_type[type_id].Acceleration*dt*J;
+                                V = V-unit_manager.unit_type[type_id]->BrakeRate*dt*J;
+                            else if (speed < unit_manager.unit_type[type_id]->MaxVelocity )
+                                V = V + unit_manager.unit_type[type_id]->Acceleration*dt*J;
                             else
-                                V = unit_manager.unit_type[type_id].MaxVelocity / speed * V;
+                                V = unit_manager.unit_type[type_id]->MaxVelocity / speed * V;
                         }
                     }
                     else {
                         float speed = V.norm();
-                        if (speed > unit_manager.unit_type[type_id].MaxVelocity )
-                            V = unit_manager.unit_type[type_id].MaxVelocity / speed * V;
+                        if (speed > unit_manager.unit_type[type_id]->MaxVelocity )
+                            V = unit_manager.unit_type[type_id]->MaxVelocity / speed * V;
                     }
                 }
             }
@@ -3375,7 +3375,7 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
                 if (n_px != cur_px || n_py != cur_py ) {			// has something changed ??
                     bool place_is_empty = can_be_there( n_px, n_py, map, type_id, owner_id, idx );
                     if (!(flags & 64) && !place_is_empty) {
-                        if (!unit_manager.unit_type[type_id].canfly) {
+                        if (!unit_manager.unit_type[type_id]->canfly) {
                             locked = true;
                             // Check some basic solutions first
                             if (cur_px != n_px
@@ -3443,13 +3443,13 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
                                 }
                         }
                     }
-                    else if (!(flags & 64) && unit_manager.unit_type[type_id].canfly && ( mission == NULL ||
+                    else if (!(flags & 64) && unit_manager.unit_type[type_id]->canfly && ( mission == NULL ||
                                                                                           ( mission->mission != MISSION_MOVE && mission->mission != MISSION_ATTACK ) ) )
                         flags |= 64;
                 }
                 else
                 {
-                    bool place_is_empty = map->check_rect(n_px-(unit_manager.unit_type[type_id].FootprintX>>1),n_py-(unit_manager.unit_type[type_id].FootprintZ>>1),unit_manager.unit_type[type_id].FootprintX,unit_manager.unit_type[type_id].FootprintZ,idx);
+                    bool place_is_empty = map->check_rect(n_px-(unit_manager.unit_type[type_id]->FootprintX>>1),n_py-(unit_manager.unit_type[type_id]->FootprintZ>>1),unit_manager.unit_type[type_id]->FootprintX,unit_manager.unit_type[type_id]->FootprintZ,idx);
                     if (!place_is_empty )
                     {
                         pMutex.unlock();
@@ -3480,9 +3480,9 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
                 else if (Pos.z > map->map_h_d )
                     V.z -= dt * ( Pos.z - map->map_h_d ) * 0.1f;
                 float speed = V.norm();
-                if (speed > unit_manager.unit_type[ type_id ].MaxVelocity && speed > 0.0f ) {
-                    V = unit_manager.unit_type[ type_id ].MaxVelocity / speed * V;
-                    speed = unit_manager.unit_type[ type_id ].MaxVelocity;
+                if (speed > unit_manager.unit_type[type_id]->MaxVelocity && speed > 0.0f ) {
+                    V = unit_manager.unit_type[type_id]->MaxVelocity / speed * V;
+                    speed = unit_manager.unit_type[type_id]->MaxVelocity;
                 }
                 if (speed > 0.0f ) {
                     Angle.y = acos( V.z / speed ) * RAD2DEG;
@@ -3526,7 +3526,7 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
                     Dir.y = 0.0f;
                     float dist = Dir.sq();
                     int maxdist = 6;
-                    if (dist > maxdist * maxdist && unit_manager.unit_type[type_id].BMcode ) {	// Si l'unité est trop loin du chantier
+                    if (dist > maxdist * maxdist && unit_manager.unit_type[type_id]->BMcode ) {	// Si l'unité est trop loin du chantier
                         mission->flags &= ~MISSION_FLAG_BEING_REPAIRED;
                         c_time = 0.0f;
                         mission->flags |= MISSION_FLAG_MOVE;
@@ -3563,14 +3563,17 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
                             Pos = mission->target;
                             V.x = V.y = V.z = 0.0f;
 
-                            if (target_unit->port[ ACTIVATION ] ) {
-                                float conso_energy=((float)(unit_manager.unit_type[ target_unit->type_id ].WorkerTime * unit_manager.unit_type[ type_id ].BuildCostEnergy)) / unit_manager.unit_type[ type_id ].BuildTime;
-                                if (players.energy[owner_id] >= conso_energy * dt ) {
+                            if (target_unit->port[ ACTIVATION ])
+                            {
+                                float conso_energy=((float)(unit_manager.unit_type[target_unit->type_id]->WorkerTime * unit_manager.unit_type[type_id]->BuildCostEnergy)) / unit_manager.unit_type[type_id]->BuildTime;
+                                if (players.energy[owner_id] >= conso_energy * dt)
+                                {
                                     energy_cons += conso_energy;
-                                    hp += dt * unit_manager.unit_type[ target_unit->type_id ].WorkerTime * unit_manager.unit_type[ type_id ].MaxDamage / unit_manager.unit_type[ type_id ].BuildTime;
+                                    hp += dt * unit_manager.unit_type[target_unit->type_id]->WorkerTime * unit_manager.unit_type[type_id]->MaxDamage / unit_manager.unit_type[type_id]->BuildTime;
                                 }
-                                if (hp >= unit_manager.unit_type[ type_id ].MaxDamage ) {		// Unit has been repaired
-                                    hp = unit_manager.unit_type[ type_id ].MaxDamage;
+                                if (hp >= unit_manager.unit_type[type_id]->MaxDamage) // Unit has been repaired
+                                {
+                                    hp = unit_manager.unit_type[type_id]->MaxDamage;
                                     target_unit->lock();
                                     if (target_unit->pad1 == piece_id )			// tell others we've left
                                         target_unit->pad1 = 0xFFFF;
@@ -3591,7 +3594,7 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
                 break;
             case MISSION_STANDBY_MINE:		// Don't even try to do something else, the unit must die !!
                 if (self_destruct < 0.0f ) {
-                    int dx = ((unit_manager.unit_type[type_id].SightDistance+(int)(h+0.5f))>>3) + 1;
+                    int dx = ((unit_manager.unit_type[type_id]->SightDistance+(int)(h+0.5f))>>3) + 1;
                     int enemy_idx=-1;
                     int sx=Math::RandFromTable()&1;
                     int sy=Math::RandFromTable()&1;
@@ -3602,7 +3605,7 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
                                 if (x>=0 && x<map->bloc_w_db-1 ) {
                                     int cur_idx = map->map_data[y][x].unit_idx;
                                     if (cur_idx>=0 && cur_idx<units.max_unit && (units.unit[cur_idx].flags & 1) && units.unit[cur_idx].owner_id != owner_id
-                                       && unit_manager.unit_type[units.unit[cur_idx].type_id].ShootMe ) {		// This unit is on the sight_map since dx = sightdistance !!
+                                       && unit_manager.unit_type[units.unit[cur_idx].type_id]->ShootMe ) {		// This unit is on the sight_map since dx = sightdistance !!
                                         enemy_idx = cur_idx;
                                         break;
                                     }
@@ -3621,11 +3624,11 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
                     Dir.y=0.0f;
                     float dist = Dir.sq();
                     int maxdist=0;
-                    if (unit_manager.unit_type[type_id].TransMaxUnits==1)		// Code for units like the arm atlas
+                    if (unit_manager.unit_type[type_id]->TransMaxUnits==1)		// Code for units like the arm atlas
                         maxdist=3;
                     else
-                        maxdist=unit_manager.unit_type[type_id].SightDistance;
-                    if (dist>maxdist*maxdist && unit_manager.unit_type[type_id].BMcode ) {	// Si l'unité est trop loin du chantier
+                        maxdist=unit_manager.unit_type[type_id]->SightDistance;
+                    if (dist>maxdist*maxdist && unit_manager.unit_type[type_id]->BMcode ) {	// Si l'unité est trop loin du chantier
                         c_time = 0.0f;
                         mission->flags |= MISSION_FLAG_MOVE;
                         mission->move_data = maxdist*8/80;
@@ -3634,7 +3637,7 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
                     {
                         if (mission->last_d>=0.0f)
                         {
-                            if (unit_manager.unit_type[type_id].TransMaxUnits==1)// Code for units like the arm atlas
+                            if (unit_manager.unit_type[type_id]->TransMaxUnits==1)// Code for units like the arm atlas
                             {
                                 if (attached_list[0] >= 0 && attached_list[0] < units.max_unit				// Check we can do that
                                     && units.unit[ attached_list[0] ].flags && can_be_built( Pos, map, units.unit[ attached_list[0] ].type_id, owner_id ) ) {
@@ -3688,18 +3691,18 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
                     mission->target=target_unit->Pos;
                     float dist = Dir.sq();
                     int maxdist=0;
-                    if (unit_manager.unit_type[type_id].TransMaxUnits==1)		// Code for units like the arm atlas
+                    if (unit_manager.unit_type[type_id]->TransMaxUnits==1)		// Code for units like the arm atlas
                         maxdist=3;
                     else
-                        maxdist=unit_manager.unit_type[type_id].SightDistance;
-                    if (dist>maxdist*maxdist && unit_manager.unit_type[type_id].BMcode) {	// Si l'unité est trop loin du chantier
+                        maxdist=unit_manager.unit_type[type_id]->SightDistance;
+                    if (dist>maxdist*maxdist && unit_manager.unit_type[type_id]->BMcode) {	// Si l'unité est trop loin du chantier
                         c_time = 0.0f;
                         mission->flags |= MISSION_FLAG_MOVE;
                         mission->move_data = maxdist*8/80;
                     }
                     else if (!(mission->flags & MISSION_FLAG_MOVE) ) {
                         if (mission->last_d>=0.0f) {
-                            if (unit_manager.unit_type[type_id].TransMaxUnits==1) {		// Code for units like the arm atlas
+                            if (unit_manager.unit_type[type_id]->TransMaxUnits==1) {		// Code for units like the arm atlas
                                 if (nb_attached==0) {
                                     //										int param[] = { (int)((Pos.y - target_unit->Pos.y - target_unit->model->top)*2.0f) << 16 };
                                     int param[] = { (int)((Pos.y - target_unit->Pos.y)*2.0f) << 16 };
@@ -3714,7 +3717,7 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
                                 next_mission();
                             }
                             else {
-                                if (nb_attached>=unit_manager.unit_type[type_id].TransportCapacity) {
+                                if (nb_attached>=unit_manager.unit_type[type_id]->TransportCapacity) {
                                     next_mission();
                                     break;
                                 }
@@ -3739,22 +3742,22 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
                     UNIT *target_unit=(UNIT*) mission->p;
                     if ((target_unit->flags & 1) && target_unit->ID == mission->target_ID ) {
                         if (mission->mission == MISSION_CAPTURE ) {
-                            if (unit_manager.unit_type[ target_unit->type_id ].commander || target_unit->owner_id == owner_id ) {
+                            if (unit_manager.unit_type[target_unit->type_id]->commander || target_unit->owner_id == owner_id ) {
                                 play_sound( "cant1" );
                                 next_mission();
                                 break;
                             }
                             if (!(mission->flags & MISSION_FLAG_TARGET_CHECKED) ) {
                                 mission->flags |= MISSION_FLAG_TARGET_CHECKED;
-                                mission->data = Math::Min(unit_manager.unit_type[target_unit->type_id].BuildCostMetal * 100, 10000);
+                                mission->data = Math::Min(unit_manager.unit_type[target_unit->type_id]->BuildCostMetal * 100, 10000);
                             }
                         }
                         Vector3D Dir=target_unit->Pos-Pos;
                         Dir.y=0.0f;
                         mission->target=target_unit->Pos;
                         float dist=Dir.sq();
-                        int maxdist = mission->mission == MISSION_CAPTURE ? (int)(unit_manager.unit_type[type_id].SightDistance) : (int)(unit_manager.unit_type[type_id].BuildDistance);
-                        if (dist>maxdist*maxdist && unit_manager.unit_type[type_id].BMcode) {	// Si l'unité est trop loin du chantier
+                        int maxdist = mission->mission == MISSION_CAPTURE ? (int)(unit_manager.unit_type[type_id]->SightDistance) : (int)(unit_manager.unit_type[type_id]->BuildDistance);
+                        if (dist>maxdist*maxdist && unit_manager.unit_type[type_id]->BMcode) {	// Si l'unité est trop loin du chantier
                             c_time=0.0f;
                             mission->flags |= MISSION_FLAG_MOVE;// | MISSION_FLAG_REFRESH_PATH;
                             mission->move_data = maxdist*7/80;
@@ -3774,7 +3777,7 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
                                 mission->last_d=-1.0f;
                             }
 
-                            if (unit_manager.unit_type[type_id].BMcode && port[ INBUILDSTANCE ] != 0.0f ) {
+                            if (unit_manager.unit_type[type_id]->BMcode && port[ INBUILDSTANCE ] != 0.0f ) {
                                 if (local && network_manager.isConnected() && nanolathe_target < 0 ) {		// Synchronize nanolathe emission
                                     nanolathe_target = target_unit->idx;
                                     g_ta3d_network->sendUnitNanolatheEvent( idx, target_unit->idx, false, mission->mission == MISSION_RECLAIM );
@@ -3782,7 +3785,7 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
 
                                 play_sound( "working" );
                                 // Récupère l'unité
-                                float recup = dt * 4.5f * unit_manager.unit_type[target_unit->type_id].MaxDamage / unit_manager.unit_type[type_id].WorkerTime;
+                                float recup = dt * 4.5f * unit_manager.unit_type[target_unit->type_id]->MaxDamage / unit_manager.unit_type[type_id]->WorkerTime;
                                 if (mission->mission == MISSION_CAPTURE ) {
                                     mission->data -= (int)(dt * 1000.0f + 0.5f);
                                     if (mission->data <= 0 ) {			// Unit has been captured
@@ -3818,7 +3821,7 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
                                     if (recup > target_unit->hp )	recup = target_unit->hp;
                                     target_unit->hp -= recup;
                                     if (dt > 0.0f )
-                                        metal_prod += recup * unit_manager.unit_type[target_unit->type_id].BuildCostMetal / (dt * unit_manager.unit_type[target_unit->type_id].MaxDamage);
+                                        metal_prod += recup * unit_manager.unit_type[target_unit->type_id]->BuildCostMetal / (dt * unit_manager.unit_type[target_unit->type_id]->MaxDamage);
                                     if (target_unit->hp <= 0.0f ) {		// Work done
                                         launch_script(get_script_index(SCRIPT_stopbuilding));
                                         launch_script(get_script_index(SCRIPT_stop));
@@ -3845,8 +3848,8 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
                     Dir.y=0.0f;
                     mission->target=features.feature[mission->data].Pos;
                     float dist=Dir.sq();
-                    int maxdist = mission->mission == MISSION_REVIVE ? (int)(unit_manager.unit_type[type_id].SightDistance) : (int)(unit_manager.unit_type[type_id].BuildDistance);
-                    if (dist>maxdist*maxdist && unit_manager.unit_type[type_id].BMcode) {	// If the unit is too far from its target
+                    int maxdist = mission->mission == MISSION_REVIVE ? (int)(unit_manager.unit_type[type_id]->SightDistance) : (int)(unit_manager.unit_type[type_id]->BuildDistance);
+                    if (dist>maxdist*maxdist && unit_manager.unit_type[type_id]->BMcode) {	// If the unit is too far from its target
                         c_time = 0.0f;
                         mission->flags |= MISSION_FLAG_MOVE;// | MISSION_FLAG_REFRESH_PATH;
                         mission->move_data = maxdist*7/80;
@@ -3865,7 +3868,7 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
                             launch_script(get_script_index(SCRIPT_go));
                             mission->last_d=-1.0f;
                         }
-                        if (unit_manager.unit_type[type_id].BMcode && port[ INBUILDSTANCE ] != 0 ) {
+                        if (unit_manager.unit_type[type_id]->BMcode && port[ INBUILDSTANCE ] != 0 ) {
                             if (local && network_manager.isConnected() && nanolathe_target < 0 ) {		// Synchronize nanolathe emission
                                 nanolathe_target = mission->data;
                                 g_ta3d_network->sendUnitNanolatheEvent( idx, mission->data, true, true );
@@ -3873,7 +3876,7 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
 
                             play_sound( "working" );
                             // Reclaim the object
-                            float recup=dt*unit_manager.unit_type[type_id].WorkerTime;
+                            float recup=dt*unit_manager.unit_type[type_id]->WorkerTime;
                             if (recup>features.feature[mission->data].hp)	recup=features.feature[mission->data].hp;
                             features.feature[mission->data].hp-=recup;
                             if (dt > 0.0f && mission->mission == MISSION_RECLAIM ) {
@@ -3949,23 +3952,30 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
             case MISSION_GUARD:
                 if (jump_commands)	break;
                 if (mission->p!=NULL && (((UNIT*)mission->p)->flags & 1) && ((UNIT*)mission->p)->owner_id==owner_id && ((UNIT*)mission->p)->ID == mission->target_ID) {		// On ne défend pas n'importe quoi
-                    if (unit_manager.unit_type[type_id].Builder) {
-                        if (((UNIT*)mission->p)->build_percent_left > 0.0f || ((UNIT*)mission->p)->hp<unit_manager.unit_type[((UNIT*)mission->p)->type_id].MaxDamage) {		// Répare l'unité
+                    if (unit_manager.unit_type[type_id]->Builder)
+                    {
+                        if (((UNIT*)mission->p)->build_percent_left > 0.0f || ((UNIT*)mission->p)->hp<unit_manager.unit_type[((UNIT*)mission->p)->type_id]->MaxDamage) // Répare l'unité
+                        {
                             add_mission(MISSION_REPAIR | MISSION_FLAG_AUTO,&((UNIT*)mission->p)->Pos,true,0,((UNIT*)mission->p),NULL);
                             break;
                         }
-                        else if (((UNIT*)mission->p)->mission!=NULL && (((UNIT*)mission->p)->mission->mission==MISSION_BUILD_2 || ((UNIT*)mission->p)->mission->mission==MISSION_REPAIR)) {		// L'aide à construire
-                            add_mission(MISSION_REPAIR | MISSION_FLAG_AUTO,&((UNIT*)mission->p)->mission->target,true,0,((UNIT*)mission->p)->mission->p,NULL);
-                            break;
-                        }
+                        else
+                            if (((UNIT*)mission->p)->mission!=NULL && (((UNIT*)mission->p)->mission->mission==MISSION_BUILD_2 || ((UNIT*)mission->p)->mission->mission==MISSION_REPAIR)) // L'aide à construire
+                            {
+                                add_mission(MISSION_REPAIR | MISSION_FLAG_AUTO,&((UNIT*)mission->p)->mission->target,true,0,((UNIT*)mission->p)->mission->p,NULL);
+                                break;
+                            }
                     }
-                    if (unit_manager.unit_type[type_id].canattack) {
-                        if (((UNIT*)mission->p)->mission!=NULL && ((UNIT*)mission->p)->mission->mission==MISSION_ATTACK) {		// L'aide à attaquer
+                    if (unit_manager.unit_type[type_id]->canattack)
+                    {
+                        if (((UNIT*)mission->p)->mission!=NULL && ((UNIT*)mission->p)->mission->mission==MISSION_ATTACK) // L'aide à attaquer
+                        {
                             add_mission(MISSION_ATTACK | MISSION_FLAG_AUTO,&((UNIT*)mission->p)->mission->target,true,0,((UNIT*)mission->p)->mission->p,NULL);
                             break;
                         }
                     }
-                    if (((Vector3D)(Pos-((UNIT*)mission->p)->Pos)).sq()>=25600.0f) {			// On reste assez près
+                    if (((Vector3D)(Pos-((UNIT*)mission->p)->Pos)).sq()>=25600.0f) // On reste assez près
+                    {
                         mission->flags |= MISSION_FLAG_MOVE;// | MISSION_FLAG_REFRESH_PATH;
                         mission->move_data = 10;
                         mission->target = ((UNIT*)mission->p)->Pos;
@@ -3984,16 +3994,16 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
                         add_mission(MISSION_PATROL | MISSION_FLAG_AUTO,&Pos,false,0,NULL,NULL,MISSION_FLAG_CAN_ATTACK,0,0);	// Retour à la case départ après l'éxécution de tous les ordres / back to beginning
 
                     mission->flags |= MISSION_FLAG_CAN_ATTACK;
-                    if (unit_manager.unit_type[ type_id ].canfly ) // Don't stop moving and check if it can be repaired
+                    if (unit_manager.unit_type[type_id]->canfly ) // Don't stop moving and check if it can be repaired
                     {
                         mission->flags |= MISSION_FLAG_DONT_STOP_MOVE;
 
-                        if (hp < unit_manager.unit_type[ type_id ].MaxDamage && !attacked && pad_timer >= 5.0f ) // Check if a repair pad is free
+                        if (hp < unit_manager.unit_type[type_id]->MaxDamage && !attacked && pad_timer >= 5.0f ) // Check if a repair pad is free
                         {
                             bool attacking = false;
-                            for( int i = 0 ; i < 3 ; i++ )
+                            for (int i = 0 ; i < 3; ++i)
                             {
-                                if (weapon[ i ].state != WEAPON_FLAG_IDLE )
+                                if (weapon[i].state != WEAPON_FLAG_IDLE )
                                 {
                                     attacking = true;
                                     break;
@@ -4011,7 +4021,7 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
                                     Vector3D Dir = units.unit[ *i ].Pos - Pos;
                                     Dir.y = 0.0f;
                                     if ((units.unit[ *i ].pad1 == 0xFFFF || units.unit[ *i ].pad2 == 0xFFFF) && units.unit[ *i ].build_percent_left == 0.0f
-                                        && Dir.sq() <= SQUARE(unit_manager.unit_type[ type_id ].ManeuverLeashLength)) // He can repair us :)
+                                        && Dir.sq() <= SQUARE(unit_manager.unit_type[type_id]->ManeuverLeashLength)) // He can repair us :)
                                         {
                                             int target_idx = *i;
                                             units.unit[ target_idx ].unlock();
@@ -4035,7 +4045,7 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
 
                     if ((mission->flags & MISSION_FLAG_MOVE) == 0 ) // Monitor the moving process
                     {
-                        if (!unit_manager.unit_type[ type_id ].canfly || ( mission->next == NULL || ( mission->next != NULL && mission->mission != MISSION_PATROL ) ) )
+                        if (!unit_manager.unit_type[type_id]->canfly || ( mission->next == NULL || ( mission->next != NULL && mission->mission != MISSION_PATROL ) ) )
                         {
                             V.x = V.y = V.z = 0.0f;			// Stop the unit
                             if (precomputed_position )
@@ -4099,12 +4109,12 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
                         }
 
                         if (jump_commands && mission->data != 0
-                            && unit_manager.unit_type[type_id].attackrunlength == 0 )	break;					// Just do basic checks every tick, and advanced ones when needed
+                            && unit_manager.unit_type[type_id]->attackrunlength == 0 )	break;					// Just do basic checks every tick, and advanced ones when needed
 
-                        if (unit_manager.unit_type[type_id].weapon[0] == NULL
-                            && unit_manager.unit_type[type_id].weapon[1] == NULL
-                            && unit_manager.unit_type[type_id].weapon[2] == NULL
-                            && !unit_manager.unit_type[type_id].kamikaze ) {		// Check if this units has weapons
+                        if (unit_manager.unit_type[type_id]->weapon[0] == NULL
+                            && unit_manager.unit_type[type_id]->weapon[1] == NULL
+                            && unit_manager.unit_type[type_id]->weapon[2] == NULL
+                            && !unit_manager.unit_type[type_id]->kamikaze ) {		// Check if this units has weapons
                             next_mission();		break;	}
 
                         Vector3D Dir = target_unit==NULL ? (target_weapon == NULL ? mission->target-Pos : target_weapon->Pos-Pos) : target_unit->Pos-Pos;
@@ -4115,66 +4125,66 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
                         int maxdist = 0;
                         int mindist = 0xFFFFF;
 
-                        if (target_unit != NULL && unit_manager.unit_type[ target_unit->type_id ].checkCategory( unit_manager.unit_type[ type_id ].BadTargetCategory ) ) {
+                        if (target_unit != NULL && unit_manager.unit_type[target_unit->type_id]->checkCategory( unit_manager.unit_type[type_id]->BadTargetCategory ) ) {
                             next_mission();
                             break;
                         }
 
                         for( byte i = 0 ; i < 3 ; i++ ) {
-                            if (unit_manager.unit_type[type_id].weapon[ i ]==NULL || unit_manager.unit_type[ type_id ].weapon[ i ]->interceptor)	continue;
+                            if (unit_manager.unit_type[type_id]->weapon[ i ]==NULL || unit_manager.unit_type[type_id]->weapon[ i ]->interceptor)	continue;
                             int cur_mindist;
                             int cur_maxdist;
                             bool allowed_to_fire = true;
-                            if (unit_manager.unit_type[type_id].attackrunlength>0) {
+                            if (unit_manager.unit_type[type_id]->attackrunlength>0) {
                                 if (Dir % V < 0.0f )	allowed_to_fire = false;
                                 float t = 2.0f/map->ota_data.gravity*fabs(Pos.y-mission->target.y);
-                                cur_mindist = (int)sqrt(t*V.sq())-((unit_manager.unit_type[type_id].attackrunlength+1)>>1);
-                                cur_maxdist = cur_mindist+(unit_manager.unit_type[type_id].attackrunlength);
+                                cur_mindist = (int)sqrt(t*V.sq())-((unit_manager.unit_type[type_id]->attackrunlength+1)>>1);
+                                cur_maxdist = cur_mindist+(unit_manager.unit_type[type_id]->attackrunlength);
                             }
                             else {
-                                cur_maxdist = unit_manager.unit_type[type_id].weapon[ i ]->range>>1;
+                                cur_maxdist = unit_manager.unit_type[type_id]->weapon[ i ]->range>>1;
                                 cur_mindist = 0;
                             }
                             if (maxdist < cur_maxdist )	maxdist = cur_maxdist;
                             if (mindist > cur_mindist )	mindist = cur_mindist;
-                            if (allowed_to_fire && dist >= cur_mindist * cur_mindist && dist <= cur_maxdist * cur_maxdist && !unit_manager.unit_type[ type_id ].weapon[ i ]->interceptor ) {
+                            if (allowed_to_fire && dist >= cur_mindist * cur_mindist && dist <= cur_maxdist * cur_maxdist && !unit_manager.unit_type[type_id]->weapon[ i ]->interceptor ) {
                                 if (( (weapon[i].state & 3) == WEAPON_FLAG_IDLE || ( (weapon[i].state & 3) != WEAPON_FLAG_IDLE && weapon[i].target != mission->p ) )
-                                    && ( target_unit == NULL || ( (!unit_manager.unit_type[type_id].weapon[ i ]->toairweapon
-                                                                   || ( unit_manager.unit_type[type_id].weapon[ i ]->toairweapon && target_unit->flying ) )
-                                                                  && !unit_manager.unit_type[ target_unit->type_id ].checkCategory( unit_manager.unit_type[type_id].w_badTargetCategory[i] ) ) )
-                                    && ( ((mission->flags & MISSION_FLAG_COMMAND_FIRE) && (unit_manager.unit_type[type_id].weapon[ i ]->commandfire || !unit_manager.unit_type[type_id].candgun) )
-                                         || (!(mission->flags & MISSION_FLAG_COMMAND_FIRE) && !unit_manager.unit_type[type_id].weapon[ i ]->commandfire)
-                                         || unit_manager.unit_type[type_id].weapon[ i ]->dropped ) ) {
+                                    && ( target_unit == NULL || ( (!unit_manager.unit_type[type_id]->weapon[ i ]->toairweapon
+                                                                   || ( unit_manager.unit_type[type_id]->weapon[ i ]->toairweapon && target_unit->flying ) )
+                                                                  && !unit_manager.unit_type[target_unit->type_id]->checkCategory( unit_manager.unit_type[type_id]->w_badTargetCategory[i] ) ) )
+                                    && ( ((mission->flags & MISSION_FLAG_COMMAND_FIRE) && (unit_manager.unit_type[type_id]->weapon[ i ]->commandfire || !unit_manager.unit_type[type_id]->candgun) )
+                                         || (!(mission->flags & MISSION_FLAG_COMMAND_FIRE) && !unit_manager.unit_type[type_id]->weapon[ i ]->commandfire)
+                                         || unit_manager.unit_type[type_id]->weapon[ i ]->dropped ) ) {
                                     weapon[i].state = WEAPON_FLAG_AIM;
                                     weapon[i].target = mission->p;
                                     weapon[i].target_pos = mission->target;
                                     weapon[i].data = -1;
                                     if (mission->flags & MISSION_FLAG_TARGET_WEAPON )
                                         weapon[i].state |= WEAPON_FLAG_WEAPON;
-                                    if (unit_manager.unit_type[type_id].weapon[ i ]->commandfire )
+                                    if (unit_manager.unit_type[type_id]->weapon[ i ]->commandfire )
                                         weapon[i].state |= WEAPON_FLAG_COMMAND_FIRE;
                                 }
                             }
                         }
 
-                        if (unit_manager.unit_type[type_id].kamikaze && unit_manager.unit_type[type_id].kamikazedistance > maxdist )
-                            maxdist = unit_manager.unit_type[type_id].kamikazedistance;
+                        if (unit_manager.unit_type[type_id]->kamikaze && unit_manager.unit_type[type_id]->kamikazedistance > maxdist )
+                            maxdist = unit_manager.unit_type[type_id]->kamikazedistance;
 
                         if (mindist > maxdist )	mindist = maxdist;
 
                         mission->flags |= MISSION_FLAG_CAN_ATTACK;
 
-                        if (unit_manager.unit_type[type_id].kamikaze				// Kamikaze attack !!
-                            && dist <= unit_manager.unit_type[type_id].kamikazedistance * unit_manager.unit_type[type_id].kamikazedistance
+                        if (unit_manager.unit_type[type_id]->kamikaze				// Kamikaze attack !!
+                            && dist <= unit_manager.unit_type[type_id]->kamikazedistance * unit_manager.unit_type[type_id]->kamikazedistance
                             && self_destruct < 0.0f )
                             self_destruct = 0.01f;
 
                         if (dist>maxdist*maxdist || dist<mindist*mindist) {	// Si l'unité est trop loin de sa cible / if unit isn't where it should be
-                            if (!unit_manager.unit_type[type_id].canmove) {		// Bah là si on peut pas bouger faut changer de cible!! / need to change target
+                            if (!unit_manager.unit_type[type_id]->canmove) {		// Bah là si on peut pas bouger faut changer de cible!! / need to change target
                                 next_mission();
                                 break;
                             }
-                            else if (!unit_manager.unit_type[type_id].canfly || unit_manager.unit_type[type_id].hoverattack ) {
+                            else if (!unit_manager.unit_type[type_id]->canfly || unit_manager.unit_type[type_id]->hoverattack ) {
                                 c_time=0.0f;
                                 mission->flags |= MISSION_FLAG_MOVE;
                                 mission->move_data = maxdist*7/80;
@@ -4185,8 +4195,8 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
                             mission->data = 2;
                             int param[] = { 0 };
                             for( int i = 0 ; i < 3 ; i++ )
-                                if (unit_manager.unit_type[type_id].weapon[ i ] )
-                                    param[ 0 ] = Math::Max(param[0], (int)( unit_manager.unit_type[type_id].weapon[i]->reloadtime * 1000.0f) * Math::Max(1, (int)unit_manager.unit_type[type_id].weapon[i]->burst));
+                                if (unit_manager.unit_type[type_id]->weapon[ i ] )
+                                    param[ 0 ] = Math::Max(param[0], (int)( unit_manager.unit_type[type_id]->weapon[i]->reloadtime * 1000.0f) * Math::Max(1, (int)unit_manager.unit_type[type_id]->weapon[i]->burst));
                             launch_script(get_script_index(SCRIPT_SetMaxReloadTime),1,param);
                         }
 
@@ -4230,9 +4240,9 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
                 {
                     UNIT *target_unit=(UNIT*) mission->p;
                     if (target_unit!=NULL && (target_unit->flags & 1) && target_unit->build_percent_left == 0.0f && target_unit->ID == mission->target_ID) {
-                        if (target_unit->hp>=unit_manager.unit_type[target_unit->type_id].MaxDamage || !unit_manager.unit_type[type_id].BMcode) {
-                            if (unit_manager.unit_type[type_id].BMcode)
-                                target_unit->hp=unit_manager.unit_type[target_unit->type_id].MaxDamage;
+                        if (target_unit->hp>=unit_manager.unit_type[target_unit->type_id]->MaxDamage || !unit_manager.unit_type[type_id]->BMcode) {
+                            if (unit_manager.unit_type[type_id]->BMcode)
+                                target_unit->hp=unit_manager.unit_type[target_unit->type_id]->MaxDamage;
                             next_mission();
                         }
                         else
@@ -4241,9 +4251,9 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
                             Dir.y=0.0f;
                             mission->target=target_unit->Pos;
                             float dist=Dir.sq();
-                            int maxdist=(int)(unit_manager.unit_type[type_id].BuildDistance
-                                              + ( (unit_manager.unit_type[target_unit->type_id].FootprintX + unit_manager.unit_type[target_unit->type_id].FootprintZ) << 1 ) );
-                            if (dist>maxdist*maxdist && unit_manager.unit_type[type_id].BMcode) {	// Si l'unité est trop loin du chantier
+                            int maxdist=(int)(unit_manager.unit_type[type_id]->BuildDistance
+                                              + ( (unit_manager.unit_type[target_unit->type_id]->FootprintX + unit_manager.unit_type[target_unit->type_id]->FootprintZ) << 1 ) );
+                            if (dist>maxdist*maxdist && unit_manager.unit_type[type_id]->BMcode) {	// Si l'unité est trop loin du chantier
                                 mission->flags |= MISSION_FLAG_MOVE;
                                 mission->move_data = maxdist * 7 / 80;
                                 mission->data = 0;
@@ -4269,10 +4279,10 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
                                         g_ta3d_network->sendUnitNanolatheEvent( idx, target_unit->idx, false, false );
                                     }
 
-                                    float conso_energy=((float)(unit_manager.unit_type[type_id].WorkerTime*unit_manager.unit_type[target_unit->type_id].BuildCostEnergy))/unit_manager.unit_type[target_unit->type_id].BuildTime;
+                                    float conso_energy=((float)(unit_manager.unit_type[type_id]->WorkerTime*unit_manager.unit_type[target_unit->type_id]->BuildCostEnergy))/unit_manager.unit_type[target_unit->type_id]->BuildTime;
                                     if (players.energy[owner_id] >= (energy_cons + conso_energy) * dt ) {
                                         energy_cons += conso_energy;
-                                        target_unit->hp += dt*unit_manager.unit_type[type_id].WorkerTime*unit_manager.unit_type[target_unit->type_id].MaxDamage/unit_manager.unit_type[target_unit->type_id].BuildTime;
+                                        target_unit->hp += dt*unit_manager.unit_type[type_id]->WorkerTime*unit_manager.unit_type[target_unit->type_id]->MaxDamage/unit_manager.unit_type[target_unit->type_id]->BuildTime;
                                     }
                                     target_unit->built=true;
                                 }
@@ -4284,15 +4294,15 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
                         Dir.y=0.0f;
                         mission->target=target_unit->Pos;
                         float dist=Dir.sq();
-                        int maxdist=(int)(unit_manager.unit_type[type_id].BuildDistance
-                                          + ( (unit_manager.unit_type[target_unit->type_id].FootprintX + unit_manager.unit_type[target_unit->type_id].FootprintZ) << 1 ));
-                        if (dist>maxdist*maxdist && unit_manager.unit_type[type_id].BMcode) {	// Si l'unité est trop loin du chantier
+                        int maxdist=(int)(unit_manager.unit_type[type_id]->BuildDistance
+                                          + ( (unit_manager.unit_type[target_unit->type_id]->FootprintX + unit_manager.unit_type[target_unit->type_id]->FootprintZ) << 1 ));
+                        if (dist>maxdist*maxdist && unit_manager.unit_type[type_id]->BMcode) {	// Si l'unité est trop loin du chantier
                             c_time=0.0f;
                             mission->flags |= MISSION_FLAG_MOVE;
                             mission->move_data = maxdist*7/80;
                         }
                         else if (!(mission->flags & MISSION_FLAG_MOVE) ) {
-                            if (unit_manager.unit_type[type_id].BMcode ) {
+                            if (unit_manager.unit_type[type_id]->BMcode ) {
                                 int angle = (int)( acos( Dir.z / Dir.norm() ) * RAD2DEG );
                                 if (Dir.x < 0.0f )
                                     angle = -angle;
@@ -4314,13 +4324,13 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
                         target_unit->lock();
                         if (target_unit->build_percent_left <= 0.0f) {
                             target_unit->build_percent_left = 0.0f;
-                            if (unit_manager.unit_type[target_unit->type_id].ActivateWhenBuilt ) {		// Start activated
+                            if (unit_manager.unit_type[target_unit->type_id]->ActivateWhenBuilt ) {		// Start activated
                                 target_unit->port[ ACTIVATION ] = 0;
                                 target_unit->activate();
                             }
-                            if (unit_manager.unit_type[target_unit->type_id].init_cloaked )				// Start cloaked
+                            if (unit_manager.unit_type[target_unit->type_id]->init_cloaked )				// Start cloaked
                                 target_unit->cloaking = true;
-                            if (!unit_manager.unit_type[type_id].BMcode) {		// Ordre de se déplacer
+                            if (!unit_manager.unit_type[type_id]->BMcode) {		// Ordre de se déplacer
                                 Vector3D target=Pos;
                                 target.z+=128.0f;
                                 target_unit->set_mission(MISSION_MOVE | MISSION_FLAG_AUTO,&target,false,5,true,NULL,NULL,0,5);		// Fait sortir l'unité du bâtiment
@@ -4346,29 +4356,33 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
                                 g_ta3d_network->sendUnitNanolatheEvent( idx, target_unit->idx, false, false );
                             }
 
-                            float conso_metal=((float)(unit_manager.unit_type[type_id].WorkerTime*unit_manager.unit_type[target_unit->type_id].BuildCostMetal))/unit_manager.unit_type[target_unit->type_id].BuildTime;
-                            float conso_energy=((float)(unit_manager.unit_type[type_id].WorkerTime*unit_manager.unit_type[target_unit->type_id].BuildCostEnergy))/unit_manager.unit_type[target_unit->type_id].BuildTime;
+                            float conso_metal=((float)(unit_manager.unit_type[type_id]->WorkerTime*unit_manager.unit_type[target_unit->type_id]->BuildCostMetal))/unit_manager.unit_type[target_unit->type_id]->BuildTime;
+                            float conso_energy=((float)(unit_manager.unit_type[type_id]->WorkerTime*unit_manager.unit_type[target_unit->type_id]->BuildCostEnergy))/unit_manager.unit_type[target_unit->type_id]->BuildTime;
                             if (players.metal[owner_id]>= (metal_cons + conso_metal)*dt && players.energy[owner_id]>= (energy_cons+conso_energy)*dt) {
                                 metal_cons+=conso_metal;
                                 energy_cons+=conso_energy;
-                                target_unit->build_percent_left-=dt*unit_manager.unit_type[type_id].WorkerTime*100.0f/unit_manager.unit_type[target_unit->type_id].BuildTime;
-                                target_unit->hp+=dt*unit_manager.unit_type[type_id].WorkerTime*unit_manager.unit_type[target_unit->type_id].MaxDamage/unit_manager.unit_type[target_unit->type_id].BuildTime;
+                                target_unit->build_percent_left-=dt*unit_manager.unit_type[type_id]->WorkerTime*100.0f/unit_manager.unit_type[target_unit->type_id]->BuildTime;
+                                target_unit->hp+=dt*unit_manager.unit_type[type_id]->WorkerTime*unit_manager.unit_type[target_unit->type_id]->MaxDamage/unit_manager.unit_type[target_unit->type_id]->BuildTime;
                             }
-                            if (!unit_manager.unit_type[type_id].BMcode) {
+                            if (!unit_manager.unit_type[type_id]->BMcode)
+                            {
                                 int script_id_buildinfo = get_script_index(SCRIPT_QueryBuildInfo);
-                                if (script_id_buildinfo>=0) {
+                                if (script_id_buildinfo>=0)
+                                {
                                     compute_model_coord();
                                     Vector3D old_pos = target_unit->Pos;
                                     if (script_val->size() <= script_id_buildinfo )
                                         script_val->resize( script_id_buildinfo + 1 );
                                     target_unit->Pos=Pos+data.pos[(*script_val)[script_id_buildinfo]];
-                                    if (unit_manager.unit_type[ target_unit->type_id ].Floater || ( unit_manager.unit_type[ target_unit->type_id ].canhover && old_pos.y <= map->sealvl ) )
+                                    if (unit_manager.unit_type[target_unit->type_id]->Floater || ( unit_manager.unit_type[target_unit->type_id]->canhover && old_pos.y <= map->sealvl ) )
                                         target_unit->Pos.y = old_pos.y;
-                                    if (((Vector3D)(old_pos-target_unit->Pos)).sq() > 1000000.0f) {			// It must be continuous
+                                    if (((Vector3D)(old_pos-target_unit->Pos)).sq() > 1000000.0f) // It must be continuous
+                                    {
                                         target_unit->Pos.x = old_pos.x;
                                         target_unit->Pos.z = old_pos.z;
                                     }
-                                    else {
+                                    else
+                                    {
                                         target_unit->cur_px = ((int)(target_unit->Pos.x)+map->map_w_d+4)>>3;
                                         target_unit->cur_py = ((int)(target_unit->Pos.z)+map->map_h_d+4)>>3;
                                     }
@@ -4414,23 +4428,23 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
                     Vector3D Dir = mission->target - Pos;
                     Dir.y = 0.0f;
                     float dist = Dir.sq();
-                    int maxdist = (int)(unit_manager.unit_type[type_id].BuildDistance
-                                        + ( (unit_manager.unit_type[mission->data].FootprintX + unit_manager.unit_type[mission->data].FootprintZ) << 1 ) );
-                    if (dist>maxdist*maxdist && unit_manager.unit_type[type_id].BMcode) {	// Si l'unité est trop loin du chantier
+                    int maxdist = (int)(unit_manager.unit_type[type_id]->BuildDistance
+                                        + ( (unit_manager.unit_type[mission->data]->FootprintX + unit_manager.unit_type[mission->data]->FootprintZ) << 1 ) );
+                    if (dist>maxdist*maxdist && unit_manager.unit_type[type_id]->BMcode) {	// Si l'unité est trop loin du chantier
                         mission->flags |= MISSION_FLAG_MOVE;
                         mission->move_data = maxdist * 7 / 80;
                     }
                     else {
                         if (mission->flags & MISSION_FLAG_MOVE )			// Stop moving if needed
                             stop_moving();
-                        if (unit_manager.unit_type[type_id].BMcode || (!unit_manager.unit_type[type_id].BMcode && port[ INBUILDSTANCE ] && port[YARD_OPEN] && !port[BUGGER_OFF])) {
+                        if (unit_manager.unit_type[type_id]->BMcode || (!unit_manager.unit_type[type_id]->BMcode && port[ INBUILDSTANCE ] && port[YARD_OPEN] && !port[BUGGER_OFF])) {
                             /*								pMutex.unlock();
                                                             draw_on_map();
                                                             pMutex.lock();*/
                             V.x = 0.0f;
                             V.y = 0.0f;
                             V.z = 0.0f;
-                            if (!unit_manager.unit_type[type_id].BMcode ) {
+                            if (!unit_manager.unit_type[type_id]->BMcode ) {
                                 int script_id_buildinfo = get_script_index(SCRIPT_QueryBuildInfo);
                                 if (script_id_buildinfo >= 0 ) {
                                     int param[] = { -1 };
@@ -4441,7 +4455,7 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
                                     }
                                 }
                             }
-                            if (map->check_rect((((int)(mission->target.x)+map->map_w_d+4)>>3)-(unit_manager.unit_type[mission->data].FootprintX>>1),(((int)(mission->target.z)+map->map_h_d+4)>>3)-(unit_manager.unit_type[mission->data].FootprintZ>>1),unit_manager.unit_type[mission->data].FootprintX,unit_manager.unit_type[mission->data].FootprintZ,-1)) // Check it we have an empty place to build our unit
+                            if (map->check_rect((((int)(mission->target.x)+map->map_w_d+4)>>3)-(unit_manager.unit_type[mission->data]->FootprintX>>1),(((int)(mission->target.z)+map->map_h_d+4)>>3)-(unit_manager.unit_type[mission->data]->FootprintZ>>1),unit_manager.unit_type[mission->data]->FootprintX,unit_manager.unit_type[mission->data]->FootprintZ,-1)) // Check it we have an empty place to build our unit
                             {
                                 pMutex.unlock();
                                 mission->p = create_unit(mission->data,owner_id,mission->target,map);
@@ -4455,7 +4469,7 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
                                 else
                                     LOG_WARNING(idx << " can't create unit! (`" << __FILE__ << "`:" << __LINE__ << ")");
                             }
-                            else if (unit_manager.unit_type[type_id].BMcode)
+                            else if (unit_manager.unit_type[type_id]->BMcode)
                                 next_mission();
                         }
                         else {
@@ -4467,7 +4481,7 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
                 break;
         };
 
-        switch(unit_manager.unit_type[type_id].TEDclass)			// Commandes particulières
+        switch(unit_manager.unit_type[type_id]->TEDclass)			// Commandes particulières
         {
             case CLASS_PLANT:
                 switch(mission->mission)
@@ -4490,7 +4504,7 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
             case CLASS_SHIP:
                 {
                     if (!(mission->flags & MISSION_FLAG_MOVE) && !(mission->flags & MISSION_FLAG_DONT_STOP_MOVE)
-                        && ((mission->mission!=MISSION_ATTACK && unit_manager.unit_type[type_id].canfly) || !unit_manager.unit_type[type_id].canfly)) {
+                        && ((mission->mission!=MISSION_ATTACK && unit_manager.unit_type[type_id]->canfly) || !unit_manager.unit_type[type_id]->canfly)) {
                         if (!flying )
                             V.x = V.z = 0.0f;
                         if (precomputed_position ) {
@@ -4507,7 +4521,7 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
                         case MISSION_BUILD:
                         case MISSION_BUILD_2:
                         case MISSION_GET_REPAIRED:
-                            if (unit_manager.unit_type[type_id].canfly)
+                            if (unit_manager.unit_type[type_id]->canfly)
                                 activate();
                             break;
                         case MISSION_STANDBY:
@@ -4536,7 +4550,7 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
                             }
                             break;
                         default:
-                            if (unit_manager.unit_type[type_id].canfly)
+                            if (unit_manager.unit_type[type_id]->canfly)
                                 deactivate();
                     };
                 }
@@ -4548,13 +4562,13 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
             case CLASS_FORT:
                 break;
             default:
-                LOG_WARNING("Unknown type :" << unit_manager.unit_type[type_id].TEDclass);
+                LOG_WARNING("Unknown type :" << unit_manager.unit_type[type_id]->TEDclass);
         };
 
         switch(mission->mission)		// Pour le code post déplacement
         {
             case MISSION_ATTACK:
-                if (unit_manager.unit_type[type_id].canfly && !unit_manager.unit_type[type_id].hoverattack ) {			// Un avion??
+                if (unit_manager.unit_type[type_id]->canfly && !unit_manager.unit_type[type_id]->hoverattack ) {			// Un avion??
                     activate();
                     mission->flags &= ~MISSION_FLAG_MOVE;			// We're doing it here, so no need to do it twice
                     Vector3D J,I,K;
@@ -4567,7 +4581,7 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
                     mission->last_d = dist;
                     if (dist > 0.0f)
                         J = 1.0f / dist * J;
-                    if (dist > unit_manager.unit_type[type_id].ManeuverLeashLength ) {
+                    if (dist > unit_manager.unit_type[type_id]->ManeuverLeashLength ) {
                         b_TargetAngle = true;
                         f_TargetAngle = acos(J.z) * RAD2DEG;
                         if (J.x < 0.0f) f_TargetAngle = -f_TargetAngle;
@@ -4581,27 +4595,27 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
                     I.y = 0.0f;
                     V = (V%K)*K+(V%J)*J+units.exp_dt_4*(V%I)*I;
                     float speed = V.sq();
-                    if (speed < unit_manager.unit_type[type_id].MaxVelocity * unit_manager.unit_type[type_id].MaxVelocity )
-                        V=V+unit_manager.unit_type[type_id].Acceleration*dt*J;
+                    if (speed < unit_manager.unit_type[type_id]->MaxVelocity * unit_manager.unit_type[type_id]->MaxVelocity )
+                        V=V+unit_manager.unit_type[type_id]->Acceleration*dt*J;
                 }
                 break;
         }
 
         if (( (mission->flags & MISSION_FLAG_MOVE) || !local ) && !jump_commands )// Set unit orientation if it's on the ground
         {
-            if (!unit_manager.unit_type[type_id].canfly && !unit_manager.unit_type[type_id].Upright
-               && unit_manager.unit_type[type_id].TEDclass!=CLASS_SHIP
-               && unit_manager.unit_type[type_id].TEDclass!=CLASS_WATER
-               && !( unit_manager.unit_type[type_id].canhover && Pos.y <= map->sealvl ) )
+            if (!unit_manager.unit_type[type_id]->canfly && !unit_manager.unit_type[type_id]->Upright
+               && unit_manager.unit_type[type_id]->TEDclass!=CLASS_SHIP
+               && unit_manager.unit_type[type_id]->TEDclass!=CLASS_WATER
+               && !( unit_manager.unit_type[type_id]->canhover && Pos.y <= map->sealvl ) )
             {
                 Vector3D I,J,K,A,B,C;
                 MATRIX_4x4 M = RotateY((Angle.y+90.0f)*DEG2RAD);
                 I.x = 4.0f;
                 J.z = 4.0f;
                 K.y = 1.0f;
-                A = Pos - unit_manager.unit_type[type_id].FootprintZ*I*M;
-                B = Pos + (unit_manager.unit_type[type_id].FootprintX*I-unit_manager.unit_type[type_id].FootprintZ*J)*M;
-                C = Pos + (unit_manager.unit_type[type_id].FootprintX*I+unit_manager.unit_type[type_id].FootprintZ*J)*M;
+                A = Pos - unit_manager.unit_type[type_id]->FootprintZ*I*M;
+                B = Pos + (unit_manager.unit_type[type_id]->FootprintX*I-unit_manager.unit_type[type_id]->FootprintZ*J)*M;
+                C = Pos + (unit_manager.unit_type[type_id]->FootprintX*I+unit_manager.unit_type[type_id]->FootprintZ*J)*M;
                 A.y = map->get_unit_h(A.x,A.z);	// Projete le triangle
                 B.y = map->get_unit_h(B.x,B.z);
                 C.y = map->get_unit_h(C.x,C.z);
@@ -4621,7 +4635,7 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
                     }
                 }
             }
-            else if (!unit_manager.unit_type[type_id].canfly )
+            else if (!unit_manager.unit_type[type_id]->canfly )
                 Angle.x = Angle.z = 0.0f;
         }
 
@@ -4631,23 +4645,23 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
             && !jump_commands && local ) {
             // Si l'unité peut attaquer d'elle même les unités enemies proches, elle le fait / Attack nearby enemies
 
-            bool can_fire = unit_manager.unit_type[type_id].AutoFire && unit_manager.unit_type[type_id].canattack;
+            bool can_fire = unit_manager.unit_type[type_id]->AutoFire && unit_manager.unit_type[type_id]->canattack;
 
             if (!can_fire )
                 for( int i = 0 ; i < 3 && !can_fire ; i++ )
-                    can_fire = unit_manager.unit_type[type_id].weapon[i]!=NULL && !unit_manager.unit_type[type_id].weapon[i]->commandfire && weapon[0].state == WEAPON_FLAG_IDLE;
+                    can_fire = unit_manager.unit_type[type_id]->weapon[i]!=NULL && !unit_manager.unit_type[type_id]->weapon[i]->commandfire && weapon[0].state == WEAPON_FLAG_IDLE;
 
             if (can_fire ) {
-                int dx=(unit_manager.unit_type[type_id].SightDistance+(int)(h+0.5f))>>3;
+                int dx=(unit_manager.unit_type[type_id]->SightDistance+(int)(h+0.5f))>>3;
                 int enemy_idx=-1;
-                if (unit_manager.unit_type[type_id].weapon[0]!=NULL && (unit_manager.unit_type[type_id].weapon[0]->range>>4)>dx)
-                    dx=unit_manager.unit_type[type_id].weapon[0]->range>>4;
-                if (unit_manager.unit_type[type_id].weapon[1]!=NULL && (unit_manager.unit_type[type_id].weapon[1]->range>>4)>dx)
-                    dx=unit_manager.unit_type[type_id].weapon[1]->range>>4;
-                if (unit_manager.unit_type[type_id].weapon[2]!=NULL && (unit_manager.unit_type[type_id].weapon[2]->range>>4)>dx)
-                    dx=unit_manager.unit_type[type_id].weapon[2]->range>>4;
-                if (unit_manager.unit_type[type_id].kamikaze && (unit_manager.unit_type[type_id].kamikazedistance>>3) > dx )
-                    dx=unit_manager.unit_type[type_id].kamikazedistance;
+                if (unit_manager.unit_type[type_id]->weapon[0]!=NULL && (unit_manager.unit_type[type_id]->weapon[0]->range>>4)>dx)
+                    dx=unit_manager.unit_type[type_id]->weapon[0]->range>>4;
+                if (unit_manager.unit_type[type_id]->weapon[1]!=NULL && (unit_manager.unit_type[type_id]->weapon[1]->range>>4)>dx)
+                    dx=unit_manager.unit_type[type_id]->weapon[1]->range>>4;
+                if (unit_manager.unit_type[type_id]->weapon[2]!=NULL && (unit_manager.unit_type[type_id]->weapon[2]->range>>4)>dx)
+                    dx=unit_manager.unit_type[type_id]->weapon[2]->range>>4;
+                if (unit_manager.unit_type[type_id]->kamikaze && (unit_manager.unit_type[type_id]->kamikazedistance>>3) > dx )
+                    dx=unit_manager.unit_type[type_id]->kamikazedistance;
 
                 int sx=Math::RandFromTable()&0xF;
                 int sy=Math::RandFromTable()&0xF;
@@ -4660,7 +4674,8 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
                                 IDX_LIST_NODE *cur = map->map_data[y][x].air_idx.head;
                                 for( ; land_test || cur != NULL ; ) {
                                     int cur_idx;
-                                    if (land_test ) {
+                                    if (land_test )
+                                    {
                                         cur_idx = map->map_data[y][x].unit_idx;
                                         land_test = false;
                                     }
@@ -4669,15 +4684,17 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
                                         cur = cur->next;
                                     }
                                     if ( isEnemy( cur_idx ) && units.unit[cur_idx].flags && units.unit[cur_idx].owner_id != owner_id
-                                       && unit_manager.unit_type[units.unit[cur_idx].type_id].ShootMe
+                                       && unit_manager.unit_type[units.unit[cur_idx].type_id]->ShootMe
                                        && ( units.unit[cur_idx].is_on_radar( mask ) ||
                                             ( (units.map->sight_map->line[y>>1][x>>1] & mask)
                                               && !units.unit[cur_idx].cloaked ) )
-                                       && !unit_manager.unit_type[ units.unit[cur_idx].type_id ].checkCategory( unit_manager.unit_type[type_id].BadTargetCategory ) ) {
+                                       && !unit_manager.unit_type[ units.unit[cur_idx].type_id ]->checkCategory( unit_manager.unit_type[type_id]->BadTargetCategory ) )
+                                    {
                                         if (!returning_fire
                                             || ( units.unit[cur_idx].weapon[0].state != WEAPON_FLAG_IDLE && units.unit[cur_idx].weapon[0].target == this )
                                             || ( units.unit[cur_idx].weapon[1].state != WEAPON_FLAG_IDLE && units.unit[cur_idx].weapon[1].target == this )
-                                            || ( units.unit[cur_idx].weapon[2].state != WEAPON_FLAG_IDLE && units.unit[cur_idx].weapon[2].target == this ) ) {
+                                            || ( units.unit[cur_idx].weapon[2].state != WEAPON_FLAG_IDLE && units.unit[cur_idx].weapon[2].target == this ) )
+                                        {
                                             enemy_idx = cur_idx;
                                             x = cur_px + dx;
                                             y = cur_py + dx;
@@ -4693,22 +4710,23 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
                         set_mission(MISSION_ATTACK | MISSION_FLAG_AUTO,&(units.unit[enemy_idx].Pos),false,0,true,&(units.unit[enemy_idx]),NULL);
                     else
                         for( int i = 0 ; i < 3 ; i++ )
-                            if (weapon[i].state == WEAPON_FLAG_IDLE && unit_manager.unit_type[type_id].weapon[ i ] != NULL
-                                && !unit_manager.unit_type[type_id].weapon[ i ]->commandfire
-                                && !unit_manager.unit_type[type_id].weapon[ i ]->interceptor
-                                && (!unit_manager.unit_type[type_id].weapon[ i ]->toairweapon
-                                    || ( unit_manager.unit_type[type_id].weapon[ i ]->toairweapon && units.unit[enemy_idx].flying )
-                                    && !unit_manager.unit_type[ units.unit[enemy_idx].type_id ].checkCategory( unit_manager.unit_type[type_id].w_badTargetCategory[i] ) ) ) {
+                            if (weapon[i].state == WEAPON_FLAG_IDLE && unit_manager.unit_type[type_id]->weapon[ i ] != NULL
+                                && !unit_manager.unit_type[type_id]->weapon[ i ]->commandfire
+                                && !unit_manager.unit_type[type_id]->weapon[ i ]->interceptor
+                                && (!unit_manager.unit_type[type_id]->weapon[ i ]->toairweapon
+                                    || ( unit_manager.unit_type[type_id]->weapon[ i ]->toairweapon && units.unit[enemy_idx].flying )
+                                    && !unit_manager.unit_type[ units.unit[enemy_idx].type_id ]->checkCategory( unit_manager.unit_type[type_id]->w_badTargetCategory[i] ) ) )
+                            {
                                 weapon[i].state = WEAPON_FLAG_AIM;
                                 weapon[i].target = &(units.unit[enemy_idx]);
                                 weapon[i].data = -1;
                             }
                 }
             }
-            if (unit_manager.unit_type[type_id].antiweapons && unit_manager.unit_type[type_id].weapon[0])
+            if (unit_manager.unit_type[type_id]->antiweapons && unit_manager.unit_type[type_id]->weapon[0])
             {
-                float coverage=unit_manager.unit_type[type_id].weapon[0]->coverage*unit_manager.unit_type[type_id].weapon[0]->coverage;
-                float range=unit_manager.unit_type[type_id].weapon[0]->range*unit_manager.unit_type[type_id].weapon[0]->range>>2;
+                float coverage=unit_manager.unit_type[type_id]->weapon[0]->coverage*unit_manager.unit_type[type_id]->weapon[0]->coverage;
+                float range=unit_manager.unit_type[type_id]->weapon[0]->range*unit_manager.unit_type[type_id]->weapon[0]->range>>2;
                 int enemy_idx=-1;
                 byte e=0;
                 for(byte i=0;i+e<mem_size;i++)
@@ -4760,7 +4778,7 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
         }
     }
 
-    if (unit_manager.unit_type[type_id].canfly ) // Set plane orientation
+    if (unit_manager.unit_type[type_id]->canfly ) // Set plane orientation
     {
         Vector3D J,K;
         K.x=K.z=0.0f;
@@ -4799,7 +4817,7 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
 
         // Change the unit's angle the way we need it to be changed
 
-        if (b_TargetAngle && !isNaN(f_TargetAngle) && unit_manager.unit_type[type_id].BMcode ) {	// Don't remove the class check otherwise factories can spin
+        if (b_TargetAngle && !isNaN(f_TargetAngle) && unit_manager.unit_type[type_id]->BMcode ) {	// Don't remove the class check otherwise factories can spin
             while( !isNaN(f_TargetAngle) && fabs( f_TargetAngle - Angle.y ) > 180.0f ) {
                 if (f_TargetAngle < Angle.y )
                     Angle.y -= 360.0f;
@@ -4807,7 +4825,7 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
                     Angle.y += 360.0f;
             }
             if (!isNaN(f_TargetAngle) && fabs( f_TargetAngle - Angle.y ) >= 1.0f ) {
-                float aspeed = unit_manager.unit_type[type_id].TurnRate;
+                float aspeed = unit_manager.unit_type[type_id]->TurnRate;
                 if (f_TargetAngle < Angle.y )
                     aspeed =- aspeed;
                 float a = f_TargetAngle - Angle.y;
@@ -4823,7 +4841,7 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
         Angle = Angle + dt * V_Angle;
         Vector3D OPos = Pos;
         if (precomputed_position ) {
-            if (unit_manager.unit_type[type_id].canmove && unit_manager.unit_type[type_id].BMcode && !flying )
+            if (unit_manager.unit_type[type_id]->canmove && unit_manager.unit_type[type_id]->BMcode && !flying )
                 V.y-=units.g_dt;			// L'unité subit la force de gravitation
             Pos = NPos;
             Pos.y = OPos.y + V.y * dt;
@@ -4831,13 +4849,13 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
             cur_py = n_py;
         }
         else {
-            if (unit_manager.unit_type[type_id].canmove && unit_manager.unit_type[type_id].BMcode )
+            if (unit_manager.unit_type[type_id]->canmove && unit_manager.unit_type[type_id]->BMcode )
                 V.y-=units.g_dt;			// L'unité subit la force de gravitation
             Pos = Pos+dt*V;			// Déplace l'unité
             cur_px = ((int)(Pos.x)+map->map_w_d+4)>>3;
             cur_py = ((int)(Pos.z)+map->map_h_d+4)>>3;
         }
-        if (units.current_tick - ripple_timer >= 7 && Pos.y <= map->sealvl && Pos.y + model->top >= map->sealvl && (unit_manager.unit_type[type_id].fastCategory & CATEGORY_NOTSUB)
+        if (units.current_tick - ripple_timer >= 7 && Pos.y <= map->sealvl && Pos.y + model->top >= map->sealvl && (unit_manager.unit_type[type_id]->fastCategory & CATEGORY_NOTSUB)
             && cur_px >= 0 && cur_py >= 0 && cur_px < map->bloc_w_db && cur_py < map->bloc_h_db && !map->map_data[ cur_py ][ cur_px ].lava && map->water ) {
             Vector3D Diff = OPos - Pos;
             Diff.y = 0.0f;
@@ -4850,25 +4868,25 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
         }
     }
 script_exec:
-    if (map && !attached && ( (!jump_commands && unit_manager.unit_type[type_id].canmove) || first_move ) ) {
+    if (map && !attached && ( (!jump_commands && unit_manager.unit_type[type_id]->canmove) || first_move ) ) {
         float min_h = map->get_unit_h(Pos.x,Pos.z);
         h = Pos.y - min_h;
-        if (!unit_manager.unit_type[type_id].Floater && !unit_manager.unit_type[type_id].canfly && !unit_manager.unit_type[type_id].canhover && h > 0.0f && unit_manager.unit_type[type_id].WaterLine == 0.0f )
+        if (!unit_manager.unit_type[type_id]->Floater && !unit_manager.unit_type[type_id]->canfly && !unit_manager.unit_type[type_id]->canhover && h > 0.0f && unit_manager.unit_type[type_id]->WaterLine == 0.0f )
             Pos.y = min_h;
-        else if (unit_manager.unit_type[type_id].canhover && Pos.y < map->sealvl ) {
+        else if (unit_manager.unit_type[type_id]->canhover && Pos.y < map->sealvl ) {
             Pos.y = map->sealvl;
             if (V.y<0.0f)
                 V.y=0.0f;
         }
-        else if (unit_manager.unit_type[type_id].Floater ) {
-            Pos.y = map->sealvl+unit_manager.unit_type[type_id].AltFromSeaLevel*H_DIV;
+        else if (unit_manager.unit_type[type_id]->Floater ) {
+            Pos.y = map->sealvl+unit_manager.unit_type[type_id]->AltFromSeaLevel*H_DIV;
             V.y=0.0f;
         }
-        else if (unit_manager.unit_type[type_id].WaterLine ) {
-            Pos.y=map->sealvl-unit_manager.unit_type[type_id].WaterLine*H_DIV;
+        else if (unit_manager.unit_type[type_id]->WaterLine ) {
+            Pos.y=map->sealvl-unit_manager.unit_type[type_id]->WaterLine*H_DIV;
             V.y=0.0f;
         }
-        else if (!unit_manager.unit_type[type_id].canfly && Pos.y > Math::Max( min_h, map->sealvl ) && unit_manager.unit_type[type_id].BMcode ) {	// Prevent non flying units from "jumping"
+        else if (!unit_manager.unit_type[type_id]->canfly && Pos.y > Math::Max( min_h, map->sealvl ) && unit_manager.unit_type[type_id]->BMcode ) {	// Prevent non flying units from "jumping"
             Pos.y = Math::Max(min_h, map->sealvl);
             if (V.y<0.0f)
                 V.y=0.0f;
@@ -4878,12 +4896,12 @@ script_exec:
             if (V.y<0.0f)
                 V.y=0.0f;
         }
-        if (unit_manager.unit_type[type_id].canfly && build_percent_left==0.0f && local) {
+        if (unit_manager.unit_type[type_id]->canfly && build_percent_left==0.0f && local) {
             if (mission && ( (mission->flags & MISSION_FLAG_MOVE) || mission->mission == MISSION_BUILD || mission->mission == MISSION_BUILD_2 || mission->mission == MISSION_REPAIR
                             || mission->mission == MISSION_ATTACK || mission->mission == MISSION_MOVE || mission->mission == MISSION_GET_REPAIRED || mission->mission == MISSION_PATROL
                             || mission->mission == MISSION_RECLAIM || nb_attached > 0 || Pos.x < -map->map_w_d || Pos.x > map->map_w_d || Pos.z < -map->map_h_d || Pos.z > map->map_h_d )) {
                 if (!(mission->mission == MISSION_GET_REPAIRED && (mission->flags & MISSION_FLAG_BEING_REPAIRED) ) ) {
-                    float ideal_h=Math::Max(min_h,map->sealvl)+unit_manager.unit_type[type_id].CruiseAlt*H_DIV;
+                    float ideal_h=Math::Max(min_h,map->sealvl)+unit_manager.unit_type[type_id]->CruiseAlt*H_DIV;
                     V.y=(ideal_h-Pos.y)*2.0f;
                 }
                 flying = true;
@@ -4898,15 +4916,15 @@ script_exec:
                     flying = true;
                     Vector3D next_target = Pos;
                     float find_angle = (Math::RandFromTable() % 360) * DEG2RAD;
-                    next_target.x += cos( find_angle ) * (32.0f + unit_manager.unit_type[type_id].FootprintX * 8.0f);
-                    next_target.z += sin( find_angle ) * (32.0f + unit_manager.unit_type[type_id].FootprintZ * 8.0f);
+                    next_target.x += cos( find_angle ) * (32.0f + unit_manager.unit_type[type_id]->FootprintX * 8.0f);
+                    next_target.z += sin( find_angle ) * (32.0f + unit_manager.unit_type[type_id]->FootprintZ * 8.0f);
                     add_mission( MISSION_MOVE | MISSION_FLAG_AUTO, &next_target, true );
                 }
             }
         }
         port[GROUND_HEIGHT] = (int)(Pos.y-min_h+0.5f);
     }
-    port[HEALTH] = (int)hp*100 / unit_manager.unit_type[type_id].MaxDamage;
+    port[HEALTH] = (int)hp*100 / unit_manager.unit_type[type_id]->MaxDamage;
     if (nb_running>0) {
         for(int i=0;i<nb_running;i++)
             run_script(dt,i,map);
@@ -4953,7 +4971,7 @@ bool UNIT::hit(Vector3D P,Vector3D Dir,Vector3D* hit_vec, float length)
         Vector3D c_dir=model->center+Pos-P;
         if (c_dir.norm()-length <=model->size2 )
         {
-            float scale=unit_manager.unit_type[type_id].Scale;
+            float scale=unit_manager.unit_type[type_id]->Scale;
 //            MATRIX_4x4 M=RotateX(-Angle.x*DEG2RAD)*RotateZ(-Angle.z*DEG2RAD)*RotateY(-Angle.y*DEG2RAD)*Scale(1.0f/scale);
             MATRIX_4x4 M = RotateXZY(-Angle.x*DEG2RAD, -Angle.z*DEG2RAD, -Angle.y*DEG2RAD)*Scale(1.0f/scale);
             Vector3D RP=(P-Pos) * M;
@@ -4983,7 +5001,7 @@ bool UNIT::hit_fast(Vector3D P,Vector3D Dir,Vector3D* hit_vec, float length)
     {
         Vector3D c_dir = model->center+Pos-P;
         if (c_dir.sq() <= ( model->size2 + length ) * ( model->size2 + length ) ) {
-            float scale=unit_manager.unit_type[type_id].Scale;
+            float scale=unit_manager.unit_type[type_id]->Scale;
 //            MATRIX_4x4 M = RotateX(-Angle.x*DEG2RAD)*RotateZ(-Angle.z*DEG2RAD)*RotateY(-Angle.y*DEG2RAD)*Scale(1.0f/scale);
             MATRIX_4x4 M = RotateXZY(-Angle.x*DEG2RAD, -Angle.z*DEG2RAD, -Angle.y*DEG2RAD)*Scale(1.0f/scale);
             Vector3D RP = (P - Pos) * M;
@@ -5033,7 +5051,7 @@ void UNIT::show_orders(bool only_build_commands, bool def_orders)				// Dessine 
     Vector3D p_target=Pos;
     Vector3D n_target=Pos;
     float rab=(msec_timer%1000)*0.001f;
-    uint32	remaining_build_commands = !(unit_manager.unit_type[ type_id ].BMcode) ? 0 : 0xFFFFFFF;
+    uint32	remaining_build_commands = !(unit_manager.unit_type[type_id]->BMcode) ? 0 : 0xFFFFFFF;
 
     std::list<Vector3D>	points;
 
@@ -5122,8 +5140,8 @@ void UNIT::show_orders(bool only_build_commands, bool def_orders)				// Dessine 
                 if (cur->data>=0 && cur->data<unit_manager.nb_unit && remaining_build_commands > 0 )
                 {
                     remaining_build_commands--;
-                    float DX = (unit_manager.unit_type[cur->data].FootprintX<<2);
-                    float DZ = (unit_manager.unit_type[cur->data].FootprintZ<<2);
+                    float DX = (unit_manager.unit_type[cur->data]->FootprintX<<2);
+                    float DZ = (unit_manager.unit_type[cur->data]->FootprintZ<<2);
                     float blue = 0.0f, green = 1.0f;
                     if (only_build_commands)
                     {
@@ -5162,7 +5180,7 @@ void UNIT::show_orders(bool only_build_commands, bool def_orders)				// Dessine 
                     glEnable(GL_TEXTURE_2D);
                     glEnable(GL_CULL_FACE);
                     glPopMatrix();
-                    if (unit_manager.unit_type[cur->data].model!=NULL)
+                    if (unit_manager.unit_type[cur->data]->model!=NULL)
                     {
                         glEnable(GL_LIGHTING);
                         glEnable(GL_CULL_FACE);
@@ -5170,7 +5188,7 @@ void UNIT::show_orders(bool only_build_commands, bool def_orders)				// Dessine 
                         glPushMatrix();
                         glTranslatef(cur->target.x,cur->target.y,cur->target.z);
                         glColor4f(0.0f,green,blue,0.5f);
-                        unit_manager.unit_type[cur->data].model->obj.draw(0.0f,NULL,false,false,false);
+                        unit_manager.unit_type[cur->data]->model->obj.draw(0.0f,NULL,false,false,false);
                         glPopMatrix();
                         glEnable(GL_BLEND);
                         glEnable(GL_TEXTURE_2D);
@@ -5364,13 +5382,13 @@ void INGAME_UNITS::give_order_move(int player_id,Vector3D target,bool set,byte f
     for (uint16 e = 0; e < index_list_size; ++e)
     {
         uint16 i = idx_list[e];
-        if ((unit[i].flags & 1) && unit[i].owner_id==player_id && unit[i].sel && unit[i].build_percent_left == 0.0f && unit_manager.unit_type[unit[i].type_id].canmove)
+        if ((unit[i].flags & 1) && unit[i].owner_id==player_id && unit[i].sel && unit[i].build_percent_left == 0.0f && unit_manager.unit_type[unit[i].type_id]->canmove)
         {
             if (set)
                 unit[i].set_mission(MISSION_MOVE,&target,false,0,true,NULL,NULL,flags);
             else
                 unit[i].add_mission(MISSION_MOVE,&target,false,0,NULL,NULL,flags);
-            if (unit_manager.unit_type[unit[i].type_id].BMcode && set )
+            if (unit_manager.unit_type[unit[i].type_id]->BMcode && set )
                 unit[i].play_sound( "ok1" );
         }
     }
@@ -5384,13 +5402,13 @@ void INGAME_UNITS::give_order_patrol(int player_id, Vector3D target, bool set)
     for (uint16 e = 0; e < index_list_size; ++e)
     {
         uint16 i = idx_list[e];
-        if ((unit[i].flags & 1) && unit[i].owner_id==player_id && unit[i].sel && unit[i].build_percent_left ==0.0f && unit_manager.unit_type[unit[i].type_id].canpatrol)
+        if ((unit[i].flags & 1) && unit[i].owner_id==player_id && unit[i].sel && unit[i].build_percent_left ==0.0f && unit_manager.unit_type[unit[i].type_id]->canpatrol)
         {
             if (set)
                 unit[i].set_mission(MISSION_PATROL,&target,false,0,true,NULL,NULL);
             else
                 unit[i].add_mission(MISSION_PATROL,&target,false,0,NULL,NULL);
-            if (unit_manager.unit_type[unit[i].type_id].BMcode && set )
+            if (unit_manager.unit_type[unit[i].type_id]->BMcode && set )
                 unit[i].play_sound("ok1");
         }
     }
@@ -5404,13 +5422,13 @@ void INGAME_UNITS::give_order_guard(int player_id,int target,bool set)
     for (uint16 e = 0; e < index_list_size; ++e)
     {
         uint16 i = idx_list[e];
-        if ((unit[i].flags & 1) && unit[i].owner_id==player_id && unit[i].sel && unit[i].build_percent_left ==0.0f && unit_manager.unit_type[unit[i].type_id].canguard)
+        if ((unit[i].flags & 1) && unit[i].owner_id==player_id && unit[i].sel && unit[i].build_percent_left ==0.0f && unit_manager.unit_type[unit[i].type_id]->canguard)
         {
             if (set)
                 unit[i].set_mission(MISSION_GUARD,&unit[target].Pos,false,0,true,&(unit[target]),NULL);
             else
                 unit[i].add_mission(MISSION_GUARD,&unit[target].Pos,false,0,&(unit[target]),NULL);
-            if (unit_manager.unit_type[unit[i].type_id].BMcode && set )
+            if (unit_manager.unit_type[unit[i].type_id]->BMcode && set )
                 unit[i].play_sound( "ok1" );
         }
     }
@@ -5424,8 +5442,8 @@ void INGAME_UNITS::give_order_unload(int player_id,Vector3D target,bool set)
     for (uint16 e = 0; e < index_list_size; ++e)
     {
         uint16 i = idx_list[e];
-        if ((unit[i].flags & 1) && unit[i].owner_id==player_id && unit[i].sel && unit[i].build_percent_left == 0.0f && unit_manager.unit_type[unit[i].type_id].canload
-            && unit_manager.unit_type[unit[i].type_id].BMcode && unit[i].nb_attached > 0 )
+        if ((unit[i].flags & 1) && unit[i].owner_id==player_id && unit[i].sel && unit[i].build_percent_left == 0.0f && unit_manager.unit_type[unit[i].type_id]->canload
+            && unit_manager.unit_type[unit[i].type_id]->BMcode && unit[i].nb_attached > 0 )
         {
             if (set)
                 unit[i].set_mission(MISSION_UNLOAD,&target,false,0,true,NULL,NULL);
@@ -5443,12 +5461,12 @@ void INGAME_UNITS::give_order_unload(int player_id,Vector3D target,bool set)
 void INGAME_UNITS::give_order_load(int player_id,int target,bool set)
 {
     pMutex.lock();
-    if (unit[target].flags == 0 || !unit_manager.unit_type[unit[target].type_id].canmove)
+    if (unit[target].flags == 0 || !unit_manager.unit_type[unit[target].type_id]->canmove)
     {
         pMutex.unlock();
         return;	
     }
-    switch(unit_manager.unit_type[unit[target].type_id].TEDclass)
+    switch(unit_manager.unit_type[unit[target].type_id]->TEDclass)
     {
         case CLASS_UNDEF:
         case CLASS_WATER:
@@ -5463,8 +5481,8 @@ void INGAME_UNITS::give_order_load(int player_id,int target,bool set)
     for (uint16 e = 0; e < index_list_size; ++e)
     {
         uint16 i = idx_list[e];
-        if ((unit[i].flags & 1) && unit[i].owner_id==player_id && unit[i].sel && unit[i].build_percent_left == 0.0f && unit_manager.unit_type[unit[i].type_id].canload
-            && unit_manager.unit_type[unit[i].type_id].BMcode)
+        if ((unit[i].flags & 1) && unit[i].owner_id==player_id && unit[i].sel && unit[i].build_percent_left == 0.0f && unit_manager.unit_type[unit[i].type_id]->canload
+            && unit_manager.unit_type[unit[i].type_id]->BMcode)
         {
             if (set)
                 unit[i].set_mission(MISSION_LOAD,&unit[target].Pos,false,0,true,&(unit[target]),NULL);
@@ -5486,7 +5504,7 @@ void INGAME_UNITS::give_order_build(int player_id,int unit_type_id,Vector3D targ
 
     target.x = ((int)(target.x)+map->map_w_d)>>3;
     target.z = ((int)(target.z)+map->map_h_d)>>3;
-    target.y = Math::Max(map->get_max_rect_h((int)target.x,(int)target.z, unit_manager.unit_type[ unit_type_id ].FootprintX, unit_manager.unit_type[ unit_type_id ].FootprintZ ),map->sealvl);
+    target.y = Math::Max(map->get_max_rect_h((int)target.x,(int)target.z, unit_manager.unit_type[ unit_type_id ]->FootprintX, unit_manager.unit_type[ unit_type_id ]->FootprintZ ),map->sealvl);
     target.x = target.x*8.0f-map->map_w_d;
     target.z = target.z*8.0f-map->map_h_d;
 
@@ -5494,7 +5512,7 @@ void INGAME_UNITS::give_order_build(int player_id,int unit_type_id,Vector3D targ
     for( uint16 e = 0; e < index_list_size; ++e)
     {
         uint16 i = idx_list[e];
-        if ((unit[i].flags & 1) && unit[i].owner_id==player_id && unit[i].sel && unit[i].build_percent_left == 0.0f && unit_manager.unit_type[unit[i].type_id].Builder)
+        if ((unit[i].flags & 1) && unit[i].owner_id==player_id && unit[i].sel && unit[i].build_percent_left == 0.0f && unit_manager.unit_type[unit[i].type_id]->Builder)
         {
             if (set)
                 unit[i].set_mission(MISSION_BUILD,&target,false,unit_type_id);
@@ -5675,7 +5693,7 @@ int INGAME_UNITS::pick(Camera *cam,int sensibility)
         }
         unit[i].flags &= 0xFD;	// Enlève l'indicateur de possibilité d'intersection
         Vector3D center=unit[i].model->center+unit[i].Pos-cam->pos;
-        float size=unit[i].model->size*unit_manager.unit_type[unit[i].type_id].Scale*unit_manager.unit_type[unit[i].type_id].Scale;
+        float size=unit[i].model->size*unit_manager.unit_type[unit[i].type_id]->Scale*unit_manager.unit_type[unit[i].type_id]->Scale;
         center=Dir*center;
         float dist=center.sq();
         if (dist<size)
@@ -5807,7 +5825,7 @@ int INGAME_UNITS::pick_minimap()
 
 int UNIT::shoot(int target,Vector3D startpos,Vector3D Dir,int w_id,const Vector3D &target_pos)
 {
-    WEAPON_DEF *pW = unit_manager.unit_type[type_id].weapon[ w_id ];        // Critical information, we can't lose it so we save it before unlocking this unit
+    WEAPON_DEF *pW = unit_manager.unit_type[type_id]->weapon[ w_id ];        // Critical information, we can't lose it so we save it before unlocking this unit
     int owner = owner_id;
     if (get_script_index( SCRIPT_RockUnit ) >= 0 ) // Don't do calculations that won't be used
     {
@@ -5887,12 +5905,12 @@ void UNIT::draw_on_map()
 
     drawn_flying = flying;
     if (flying )
-        units.map->air_rect( cur_px-(unit_manager.unit_type[type_id].FootprintX>>1), cur_py-(unit_manager.unit_type[type_id].FootprintZ>>1), unit_manager.unit_type[type_id].FootprintX, unit_manager.unit_type[type_id].FootprintZ, idx );
+        units.map->air_rect( cur_px-(unit_manager.unit_type[type_id]->FootprintX>>1), cur_py-(unit_manager.unit_type[type_id]->FootprintZ>>1), unit_manager.unit_type[type_id]->FootprintX, unit_manager.unit_type[type_id]->FootprintZ, idx );
     else
     {
         // First check we're on a "legal" place if it can move
         pMutex.lock();
-        if (unit_manager.unit_type[ type_id ].canmove && unit_manager.unit_type[ type_id ].BMcode
+        if (unit_manager.unit_type[type_id]->canmove && unit_manager.unit_type[type_id]->BMcode
             && !can_be_there( cur_px, cur_py, units.map, type_id, owner_id ) )
         {
             // Try to find a suitable place
@@ -5947,7 +5965,7 @@ void UNIT::draw_on_map()
         }
         pMutex.unlock();
 
-        units.map->rect( cur_px-(unit_manager.unit_type[type_id].FootprintX>>1), cur_py-(unit_manager.unit_type[type_id].FootprintZ>>1), unit_manager.unit_type[type_id].FootprintX, unit_manager.unit_type[type_id].FootprintZ, idx, unit_manager.unit_type[type_id].yardmap, port[YARD_OPEN]!=0.0f );
+        units.map->rect( cur_px-(unit_manager.unit_type[type_id]->FootprintX>>1), cur_py-(unit_manager.unit_type[type_id]->FootprintZ>>1), unit_manager.unit_type[type_id]->FootprintX, unit_manager.unit_type[type_id]->FootprintZ, idx, unit_manager.unit_type[type_id]->yardmap, port[YARD_OPEN]!=0.0f );
         drawn_open = port[YARD_OPEN]!=0.0f;
     }
     drawn_x = cur_px;
@@ -5967,9 +5985,9 @@ void UNIT::clear_from_map()
 
     drawn = false;
     if (drawn_flying )
-        units.map->air_rect( drawn_x-(unit_manager.unit_type[type].FootprintX>>1), drawn_y-(unit_manager.unit_type[type].FootprintZ>>1), unit_manager.unit_type[type].FootprintX, unit_manager.unit_type[type].FootprintZ, idx, true );
+        units.map->air_rect( drawn_x-(unit_manager.unit_type[type]->FootprintX>>1), drawn_y-(unit_manager.unit_type[type]->FootprintZ>>1), unit_manager.unit_type[type]->FootprintX, unit_manager.unit_type[type]->FootprintZ, idx, true );
     else
-        units.map->rect( drawn_x-(unit_manager.unit_type[type].FootprintX>>1), drawn_y-(unit_manager.unit_type[type].FootprintZ>>1), unit_manager.unit_type[type].FootprintX, unit_manager.unit_type[type].FootprintZ, -1, unit_manager.unit_type[type].yardmap, drawn_open );
+        units.map->rect( drawn_x-(unit_manager.unit_type[type]->FootprintX>>1), drawn_y-(unit_manager.unit_type[type]->FootprintZ>>1), unit_manager.unit_type[type]->FootprintX, unit_manager.unit_type[type]->FootprintZ, -1, unit_manager.unit_type[type]->yardmap, drawn_open );
 }
 
 void UNIT::draw_on_FOW( bool jamming )
@@ -5977,20 +5995,20 @@ void UNIT::draw_on_FOW( bool jamming )
     if (hidden || build_percent_left != 0.0f )
         return;
 
-    bool system_activated = (port[ACTIVATION] && unit_manager.unit_type[ type_id ].onoffable) || !unit_manager.unit_type[ type_id ].onoffable;
+    bool system_activated = (port[ACTIVATION] && unit_manager.unit_type[type_id]->onoffable) || !unit_manager.unit_type[type_id]->onoffable;
 
     if (jamming )
     {
-        radar_jam_range = system_activated ? (unit_manager.unit_type[ type_id ].RadarDistanceJam >> 3) : 0;
-        sonar_jam_range = system_activated ? (unit_manager.unit_type[ type_id ].SonarDistanceJam >> 3) : 0;
+        radar_jam_range = system_activated ? (unit_manager.unit_type[type_id]->RadarDistanceJam >> 3) : 0;
+        sonar_jam_range = system_activated ? (unit_manager.unit_type[type_id]->SonarDistanceJam >> 3) : 0;
 
         units.map->update_player_visibility( owner_id, cur_px, cur_py, 0, 0, 0, radar_jam_range, sonar_jam_range, true );
     }
     else
     {
-        sint16 cur_sight = ((int)h + unit_manager.unit_type[ type_id ].SightDistance) >> 3;
-        radar_range = system_activated ? (unit_manager.unit_type[ type_id ].RadarDistance >> 3) : 0;
-        sonar_range = system_activated ? (unit_manager.unit_type[ type_id ].SonarDistance >> 3) : 0;
+        sint16 cur_sight = ((int)h + unit_manager.unit_type[type_id]->SightDistance) >> 3;
+        radar_range = system_activated ? (unit_manager.unit_type[type_id]->RadarDistance >> 3) : 0;
+        sonar_range = system_activated ? (unit_manager.unit_type[type_id]->SonarDistance >> 3) : 0;
 
         units.map->update_player_visibility( owner_id, cur_px, cur_py, cur_sight, radar_range, sonar_range, 0, 0, false, old_px != cur_px || old_py != cur_py || cur_sight != sight );
 
@@ -6006,7 +6024,7 @@ const void UNIT::play_sound( const String &key )
     if (owner_id == players.local_human_id && msec_timer - last_time_sound >= units.sound_min_ticks )
     {
         last_time_sound = msec_timer;
-        sound_manager->playTDFSound(unit_manager.unit_type[type_id].soundcategory, key , &Pos);
+        sound_manager->playTDFSound(unit_manager.unit_type[type_id]->soundcategory, key , &Pos);
     }
     pMutex.unlock();
 }
@@ -6065,14 +6083,15 @@ void *create_unit( int type_id, int owner, Vector3D pos, MAP *map, bool sync, bo
         if (network_manager.isConnected() )
         {
             units.unit[id].local = g_ta3d_network->isLocal( owner );
-            if (sync ) {		// Send event packet if needed
+            if (sync) // Send event packet if needed
+            {
                 struct event event;
                 event.type = EVENT_UNIT_CREATION;
                 event.opt1 = id;
                 event.opt2 = script ? (owner | 0x1000) : owner;
                 event.x = pos.x;
                 event.z = pos.z;
-                memcpy( event.str, unit_manager.unit_type[ type_id ].Unitname, strlen( unit_manager.unit_type[ type_id ].Unitname ) + 1 );
+                memcpy( event.str, unit_manager.unit_type[type_id]->Unitname, strlen( unit_manager.unit_type[type_id]->Unitname ) + 1 );
                 network_manager.sendEvent( &event );
             }
         }
@@ -6097,11 +6116,11 @@ bool can_be_there_ai(const int px, const int py, MAP *map, const int unit_type_i
     if (unit_type_id<0 || unit_type_id>=unit_manager.nb_unit || !map)
         return false;
 
-    int w = unit_manager.unit_type[unit_type_id].FootprintX;
-    int h = unit_manager.unit_type[unit_type_id].FootprintZ;
+    int w = unit_manager.unit_type[unit_type_id]->FootprintX;
+    int h = unit_manager.unit_type[unit_type_id]->FootprintZ;
     int x = px-(w>>1);
     int y = py-(h>>1);
-    int side = unit_manager.unit_type[unit_type_id].ExtractsMetal == 0.0f ? 12 : 0;
+    int side = unit_manager.unit_type[unit_type_id]->ExtractsMetal == 0.0f ? 12 : 0;
     if (x<0 || y<0 || x+w>=(map->bloc_w<<1) || y+h>=(map->bloc_h<<1))	return false;	// check if it is inside the map
 
     if (!map->check_rect( px - ((w + side)>>1), py - ((h + side)>>1), w + side, h + side, unit_id))
@@ -6110,16 +6129,16 @@ bool can_be_there_ai(const int px, const int py, MAP *map, const int unit_type_i
     float max_depth = map->check_max_depth(x,y,w,h);
     float min_depth = map->check_min_depth(x,y,w,h);
 
-    if (dh>unit_manager.unit_type[unit_type_id].MaxSlope*H_DIV
-       && !( unit_manager.unit_type[unit_type_id].canhover && min_depth <= map->sealvl ) )
+    if (dh>unit_manager.unit_type[unit_type_id]->MaxSlope*H_DIV
+       && !( unit_manager.unit_type[unit_type_id]->canhover && min_depth <= map->sealvl ) )
         return false;	// Check the slope, check if hovering too
 
     // Check if unit can be there
-    if (min_depth<unit_manager.unit_type[unit_type_id].MinWaterDepth*H_DIV
-       || (!unit_manager.unit_type[unit_type_id].canhover && max_depth>unit_manager.unit_type[unit_type_id].MaxWaterDepth*H_DIV))
+    if (min_depth<unit_manager.unit_type[unit_type_id]->MinWaterDepth*H_DIV
+       || (!unit_manager.unit_type[unit_type_id]->canhover && max_depth>unit_manager.unit_type[unit_type_id]->MaxWaterDepth*H_DIV))
         return false;
 
-    if (!map->check_vents(x,y,w,h,unit_manager.unit_type[unit_type_id].yardmap))
+    if (!map->check_vents(x,y,w,h,unit_manager.unit_type[unit_type_id]->yardmap))
         return false;
 
     if (map->check_lava((x+1)>>1,(y+1)>>1,(w+1)>>1,(h+1)>>1))
@@ -6134,8 +6153,8 @@ bool can_be_there( const int px, const int py, MAP *map, const int unit_type_id,
     if (unit_type_id<0 || unit_type_id>=unit_manager.nb_unit || !map)
         return false;
 
-    int w = unit_manager.unit_type[unit_type_id].FootprintX;
-    int h = unit_manager.unit_type[unit_type_id].FootprintZ;
+    int w = unit_manager.unit_type[unit_type_id]->FootprintX;
+    int h = unit_manager.unit_type[unit_type_id]->FootprintZ;
     int x = px-(w>>1);
     int y = py-(h>>1);
     if (x<0 || y<0 || x+w>=(map->bloc_w<<1) || y+h>=(map->bloc_h<<1))
@@ -6148,16 +6167,16 @@ bool can_be_there( const int px, const int py, MAP *map, const int unit_type_id,
     float max_depth = map->check_max_depth(x,y,w,h);
     float min_depth = map->check_min_depth(x,y,w,h);
 
-    if (dh>unit_manager.unit_type[unit_type_id].MaxSlope*H_DIV
-       && !( unit_manager.unit_type[unit_type_id].canhover && min_depth <= map->sealvl ) )
+    if (dh>unit_manager.unit_type[unit_type_id]->MaxSlope*H_DIV
+       && !( unit_manager.unit_type[unit_type_id]->canhover && min_depth <= map->sealvl ) )
         return false;	// Check the slope, check if hovering too
 
     // Check if unit can be there
-    if (min_depth<unit_manager.unit_type[unit_type_id].MinWaterDepth*H_DIV
-       || (!unit_manager.unit_type[unit_type_id].canhover && max_depth>unit_manager.unit_type[unit_type_id].MaxWaterDepth*H_DIV))
+    if (min_depth<unit_manager.unit_type[unit_type_id]->MinWaterDepth*H_DIV
+       || (!unit_manager.unit_type[unit_type_id]->canhover && max_depth>unit_manager.unit_type[unit_type_id]->MaxWaterDepth*H_DIV))
         return false;
 
-    if (!map->check_vents(x,y,w,h,unit_manager.unit_type[unit_type_id].yardmap))
+    if (!map->check_vents(x,y,w,h,unit_manager.unit_type[unit_type_id]->yardmap))
         return false;
 
     if (map->check_lava((x+1)>>1,(y+1)>>1,(w+1)>>1,(h+1)>>1))
@@ -6171,8 +6190,8 @@ bool can_be_built(const Vector3D& Pos, MAP *map,const int unit_type_id, const in
     if (unit_type_id<0 || unit_type_id>=unit_manager.nb_unit || !map)
         return false;
 
-    int w = unit_manager.unit_type[unit_type_id].FootprintX;
-    int h = unit_manager.unit_type[unit_type_id].FootprintZ;
+    int w = unit_manager.unit_type[unit_type_id]->FootprintX;
+    int h = unit_manager.unit_type[unit_type_id]->FootprintZ;
     int x = (((int)(Pos.x)+map->map_w_d+4)>>3)-(w>>1);
     int y = (((int)(Pos.z)+map->map_h_d+4)>>3)-(h>>1);
     if (x<0 || y<0 || x+w>=(map->bloc_w<<1) || y+h>=(map->bloc_h<<1))
@@ -6187,15 +6206,15 @@ bool can_be_built(const Vector3D& Pos, MAP *map,const int unit_type_id, const in
     if (!map->check_rect_discovered( x, y, w, h, 1<<player_id ) )
         return false;
 
-    if (dh>unit_manager.unit_type[unit_type_id].MaxSlope*H_DIV)
+    if (dh>unit_manager.unit_type[unit_type_id]->MaxSlope*H_DIV)
         return false;	// Check the slope
 
     // Check if unit can be there
-    if (min_depth<unit_manager.unit_type[unit_type_id].MinWaterDepth*H_DIV || max_depth>unit_manager.unit_type[unit_type_id].MaxWaterDepth*H_DIV)
+    if (min_depth<unit_manager.unit_type[unit_type_id]->MinWaterDepth*H_DIV || max_depth>unit_manager.unit_type[unit_type_id]->MaxWaterDepth*H_DIV)
         return false;
-    //	if (depth>0 && (unit_manager.unit_type[unit_type_id].Category&NOTSUB))	return false;
+    //	if (depth>0 && (unit_manager.unit_type[unit_type_id]->Category&NOTSUB))	return false;
 
-    if (!map->check_vents(x,y,w,h,unit_manager.unit_type[unit_type_id].yardmap))
+    if (!map->check_vents(x,y,w,h,unit_manager.unit_type[unit_type_id]->yardmap))
         return false;
 
     if (map->check_lava((x+1)>>1,(y+1)>>1,(w+1)>>1,(h+1)>>1))
@@ -6232,35 +6251,35 @@ void INGAME_UNITS::complete_menu(int index,bool hide_info,bool hide_bpic)
     if (!pointed_only && !hide_bpic )
     {
         int stock=0;
-        if (unit_manager.unit_type[unit[index].type_id].weapon[0] && unit_manager.unit_type[unit[index].type_id].weapon[0]->stockpile)
+        if (unit_manager.unit_type[unit[index].type_id]->weapon[0] && unit_manager.unit_type[unit[index].type_id]->weapon[0]->stockpile)
             stock=unit[index].weapon[0].stock;
         else
-            if (unit_manager.unit_type[unit[index].type_id].weapon[1] && unit_manager.unit_type[unit[index].type_id].weapon[1]->stockpile)
+            if (unit_manager.unit_type[unit[index].type_id]->weapon[1] && unit_manager.unit_type[unit[index].type_id]->weapon[1]->stockpile)
                 stock=unit[index].weapon[1].stock;
             else
-                if (unit_manager.unit_type[unit[index].type_id].weapon[2] && unit_manager.unit_type[unit[index].type_id].weapon[2]->stockpile)
+                if (unit_manager.unit_type[unit[index].type_id]->weapon[2] && unit_manager.unit_type[unit[index].type_id]->weapon[2]->stockpile)
                     stock=unit[index].weapon[2].stock;
 
-        if ((unit_manager.unit_type[unit[index].type_id].Builder && !unit_manager.unit_type[unit[index].type_id].BMcode)
+        if ((unit_manager.unit_type[unit[index].type_id]->Builder && !unit_manager.unit_type[unit[index].type_id]->BMcode)
            || unit[index].planned_weapons>0.0f || stock>0) // Affiche la liste de construction
         {
-            int page=unit_manager.unit_type[unit[index].type_id].page;
+            int page=unit_manager.unit_type[unit[index].type_id]->page;
 
             glBlendFunc(GL_ONE,GL_ONE_MINUS_SRC_COLOR);
-            for( int i = 0 ; i < unit_manager.unit_type[unit[index].type_id].nb_unit ; i++ ) // Affiche les différentes images d'unités constructibles
+            for( int i = 0 ; i < unit_manager.unit_type[unit[index].type_id]->nb_unit ; i++ ) // Affiche les différentes images d'unités constructibles
             {
-                if (unit_manager.unit_type[unit[index].type_id].Pic_p[i] != page )
+                if (unit_manager.unit_type[unit[index].type_id]->Pic_p[i] != page )
                     continue;
-                int px = unit_manager.unit_type[unit[index].type_id].Pic_x[ i ];
-                int py = unit_manager.unit_type[unit[index].type_id].Pic_y[ i ];
-                int pw = unit_manager.unit_type[unit[index].type_id].Pic_w[ i ];
-                int ph = unit_manager.unit_type[unit[index].type_id].Pic_h[ i ];
+                int px = unit_manager.unit_type[unit[index].type_id]->Pic_x[ i ];
+                int py = unit_manager.unit_type[unit[index].type_id]->Pic_y[ i ];
+                int pw = unit_manager.unit_type[unit[index].type_id]->Pic_w[ i ];
+                int ph = unit_manager.unit_type[unit[index].type_id]->Pic_h[ i ];
 
                 int nb=0;
                 MISSION *m=unit[index].mission;
                 while(m)
                 {
-                    if ((m->mission==MISSION_BUILD || m->mission==MISSION_BUILD_2) && m->data==unit_manager.unit_type[unit[index].type_id].BuildList[i])
+                    if ((m->mission==MISSION_BUILD || m->mission==MISSION_BUILD_2) && m->data==unit_manager.unit_type[unit[index].type_id]->BuildList[i])
                         nb++;
                     m=m->next;
                 }
@@ -6273,7 +6292,7 @@ void INGAME_UNITS::complete_menu(int index,bool hide_info,bool hide_bpic)
                 }
                 else
                 {
-                    if (unit_manager.unit_type[unit[index].type_id].BuildList[i] == -1) // Il s'agit d'une arme / It's a weapon
+                    if (unit_manager.unit_type[unit[index].type_id]->BuildList[i] == -1) // Il s'agit d'une arme / It's a weapon
                     {
                         char buf[10];
                         if ((int)unit[index].planned_weapons==unit[index].planned_weapons)
@@ -6308,7 +6327,7 @@ void INGAME_UNITS::complete_menu(int index,bool hide_info,bool hide_bpic)
         if (unit[index].type_id >= 0 && (unit[index].flags & 1) )
         {
             glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
-            gfx->print_center(gfx->normal_font, ta3dSideData.side_int_data[ players.side_view ].UnitName.x1, ta3dSideData.side_int_data[ players.side_view ].UnitName.y1,0.0f,0xFFFFFFFF,unit_manager.unit_type[unit[index].type_id].name);
+            gfx->print_center(gfx->normal_font, ta3dSideData.side_int_data[ players.side_view ].UnitName.x1, ta3dSideData.side_int_data[ players.side_view ].UnitName.y1,0.0f,0xFFFFFFFF,unit_manager.unit_type[unit[index].type_id]->name);
             if (target && unit[index].mission && (unit[index].mission->flags & MISSION_FLAG_TARGET_WEAPON) != MISSION_FLAG_TARGET_WEAPON)
             {
                 unit[index].unlock();
@@ -6316,7 +6335,7 @@ void INGAME_UNITS::complete_menu(int index,bool hide_info,bool hide_bpic)
                 if ((target->flags & 1) && target->type_id >= 0 )
                 {
                     glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
-                    gfx->print_center(gfx->normal_font, ta3dSideData.side_int_data[ players.side_view ].UnitName2.x1, ta3dSideData.side_int_data[ players.side_view ].UnitName2.y1,0.0f,0xFFFFFFFF,unit_manager.unit_type[target->type_id].name);
+                    gfx->print_center(gfx->normal_font, ta3dSideData.side_int_data[ players.side_view ].UnitName2.x1, ta3dSideData.side_int_data[ players.side_view ].UnitName2.y1,0.0f,0xFFFFFFFF,unit_manager.unit_type[target->type_id]->name);
                 }
                 target->unlock();
                 unit[index].lock();
@@ -6356,7 +6375,7 @@ void INGAME_UNITS::complete_menu(int index,bool hide_info,bool hide_bpic)
             glBegin(GL_QUADS);
             glColor4f(1.0f,0.0f,0.0f,1.0f);
 
-            if (unit[index].owner_id == players.local_human_id || !unit_manager.unit_type[unit[index].type_id].HideDamage )
+            if (unit[index].owner_id == players.local_human_id || !unit_manager.unit_type[unit[index].type_id]->HideDamage )
             {
                 glVertex2i( ta3dSideData.side_int_data[ players.side_view ].DamageBar.x1, ta3dSideData.side_int_data[ players.side_view ].DamageBar.y1 );
                 glVertex2i( ta3dSideData.side_int_data[ players.side_view ].DamageBar.x2, ta3dSideData.side_int_data[ players.side_view ].DamageBar.y1 );
@@ -6370,7 +6389,7 @@ void INGAME_UNITS::complete_menu(int index,bool hide_info,bool hide_bpic)
                 {
                     unit[index].unlock();
                     target->lock();
-                    if ((target->flags & 1) && target->type_id >= 0 && !unit_manager.unit_type[target->type_id].HideDamage )	// Si l'unité a une cible
+                    if ((target->flags & 1) && target->type_id >= 0 && !unit_manager.unit_type[target->type_id]->HideDamage )	// Si l'unité a une cible
                     {
                         glVertex2i( ta3dSideData.side_int_data[ players.side_view ].DamageBar2.x1, ta3dSideData.side_int_data[ players.side_view ].DamageBar2.y1 );
                         glVertex2i( ta3dSideData.side_int_data[ players.side_view ].DamageBar2.x2, ta3dSideData.side_int_data[ players.side_view ].DamageBar2.y1 );
@@ -6392,11 +6411,11 @@ void INGAME_UNITS::complete_menu(int index,bool hide_info,bool hide_bpic)
 
             glColor3f(0.0f,1.0f,0.0f);
 
-            if (unit[index].hp>0 && ( unit[index].owner_id == players.local_human_id || !unit_manager.unit_type[unit[index].type_id].HideDamage ) )
+            if (unit[index].hp>0 && ( unit[index].owner_id == players.local_human_id || !unit_manager.unit_type[unit[index].type_id]->HideDamage ) )
             {
                 glVertex2f( ta3dSideData.side_int_data[ players.side_view ].DamageBar.x1, ta3dSideData.side_int_data[ players.side_view ].DamageBar.y1 );
-                glVertex2f( ta3dSideData.side_int_data[ players.side_view ].DamageBar.x1 + unit[index].hp / unit_manager.unit_type[unit[index].type_id].MaxDamage * (ta3dSideData.side_int_data[ players.side_view ].DamageBar.x2-ta3dSideData.side_int_data[ players.side_view ].DamageBar.x1), ta3dSideData.side_int_data[ players.side_view ].DamageBar.y1 );
-                glVertex2f( ta3dSideData.side_int_data[ players.side_view ].DamageBar.x1 + unit[index].hp / unit_manager.unit_type[unit[index].type_id].MaxDamage * (ta3dSideData.side_int_data[ players.side_view ].DamageBar.x2-ta3dSideData.side_int_data[ players.side_view ].DamageBar.x1), ta3dSideData.side_int_data[ players.side_view ].DamageBar.y2 );
+                glVertex2f( ta3dSideData.side_int_data[ players.side_view ].DamageBar.x1 + unit[index].hp / unit_manager.unit_type[unit[index].type_id]->MaxDamage * (ta3dSideData.side_int_data[ players.side_view ].DamageBar.x2-ta3dSideData.side_int_data[ players.side_view ].DamageBar.x1), ta3dSideData.side_int_data[ players.side_view ].DamageBar.y1 );
+                glVertex2f( ta3dSideData.side_int_data[ players.side_view ].DamageBar.x1 + unit[index].hp / unit_manager.unit_type[unit[index].type_id]->MaxDamage * (ta3dSideData.side_int_data[ players.side_view ].DamageBar.x2-ta3dSideData.side_int_data[ players.side_view ].DamageBar.x1), ta3dSideData.side_int_data[ players.side_view ].DamageBar.y2 );
                 glVertex2f( ta3dSideData.side_int_data[ players.side_view ].DamageBar.x1, ta3dSideData.side_int_data[ players.side_view ].DamageBar.y2 );
             }
 
@@ -6406,11 +6425,11 @@ void INGAME_UNITS::complete_menu(int index,bool hide_info,bool hide_bpic)
                 {
                     unit[index].unlock();
                     target->lock();
-                    if ((target->flags & 1) && target->type_id >= 0 && !unit_manager.unit_type[target->type_id].HideDamage && target->hp>0)
+                    if ((target->flags & 1) && target->type_id >= 0 && !unit_manager.unit_type[target->type_id]->HideDamage && target->hp>0)
                     {
                         glVertex2f( ta3dSideData.side_int_data[ players.side_view ].DamageBar2.x1, ta3dSideData.side_int_data[ players.side_view ].DamageBar2.y1 );
-                        glVertex2f( ta3dSideData.side_int_data[ players.side_view ].DamageBar2.x1 + target->hp / unit_manager.unit_type[target->type_id].MaxDamage * (ta3dSideData.side_int_data[ players.side_view ].DamageBar2.x2-ta3dSideData.side_int_data[ players.side_view ].DamageBar2.x1), ta3dSideData.side_int_data[ players.side_view ].DamageBar2.y1 );
-                        glVertex2f( ta3dSideData.side_int_data[ players.side_view ].DamageBar2.x1 + target->hp / unit_manager.unit_type[target->type_id].MaxDamage * (ta3dSideData.side_int_data[ players.side_view ].DamageBar2.x2-ta3dSideData.side_int_data[ players.side_view ].DamageBar2.x1), ta3dSideData.side_int_data[ players.side_view ].DamageBar2.y2 );
+                        glVertex2f( ta3dSideData.side_int_data[ players.side_view ].DamageBar2.x1 + target->hp / unit_manager.unit_type[target->type_id]->MaxDamage * (ta3dSideData.side_int_data[ players.side_view ].DamageBar2.x2-ta3dSideData.side_int_data[ players.side_view ].DamageBar2.x1), ta3dSideData.side_int_data[ players.side_view ].DamageBar2.y1 );
+                        glVertex2f( ta3dSideData.side_int_data[ players.side_view ].DamageBar2.x1 + target->hp / unit_manager.unit_type[target->type_id]->MaxDamage * (ta3dSideData.side_int_data[ players.side_view ].DamageBar2.x2-ta3dSideData.side_int_data[ players.side_view ].DamageBar2.x1), ta3dSideData.side_int_data[ players.side_view ].DamageBar2.y2 );
                         glVertex2f( ta3dSideData.side_int_data[ players.side_view ].DamageBar2.x1, ta3dSideData.side_int_data[ players.side_view ].DamageBar2.y2 );
                     }
                     target->unlock();
@@ -6473,15 +6492,15 @@ void INGAME_UNITS::move(float dt,MAP *map,int key_frame,bool wind_change)
 
         unit[i].lock();
 
-        if (unit[i].just_created && unit_manager.unit_type[unit[i].type_id].ExtractsMetal ) // Compute amount of metal extracted by sec
+        if (unit[i].just_created && unit_manager.unit_type[unit[i].type_id]->ExtractsMetal ) // Compute amount of metal extracted by sec
         {
             int metal_base = 0;
             int px=unit[i].cur_px;
             int py=unit[i].cur_py;
-            int start_x = px - (unit_manager.unit_type[unit[i].type_id].FootprintX >> 1 );
-            int start_y = py - (unit_manager.unit_type[unit[i].type_id].FootprintZ >> 1 );
-            int end_y = start_y + unit_manager.unit_type[unit[i].type_id].FootprintZ;
-            int end_x = start_x + unit_manager.unit_type[unit[i].type_id].FootprintX;
+            int start_x = px - (unit_manager.unit_type[unit[i].type_id]->FootprintX >> 1 );
+            int start_y = py - (unit_manager.unit_type[unit[i].type_id]->FootprintZ >> 1 );
+            int end_y = start_y + unit_manager.unit_type[unit[i].type_id]->FootprintZ;
+            int end_x = start_x + unit_manager.unit_type[unit[i].type_id]->FootprintX;
             for( int ry = start_y ; ry <= end_y ; ++ry)
             {
                 if (ry >= 0 && ry < map->bloc_h_db )
@@ -6492,7 +6511,7 @@ void INGAME_UNITS::move(float dt,MAP *map,int key_frame,bool wind_change)
                         {
                             if (map->map_data[ry][rx].stuff>=0)
                             {
-                                metal_base = feature_manager.feature[features.feature[map->map_data[ry][rx].stuff].type].metal * unit_manager.unit_type[unit[i].type_id].FootprintZ * unit_manager.unit_type[unit[i].type_id].FootprintX;
+                                metal_base = feature_manager.feature[features.feature[map->map_data[ry][rx].stuff].type].metal * unit_manager.unit_type[unit[i].type_id]->FootprintZ * unit_manager.unit_type[unit[i].type_id]->FootprintX;
                                 ry = end_y;
                                 break;
                             }
@@ -6502,7 +6521,7 @@ void INGAME_UNITS::move(float dt,MAP *map,int key_frame,bool wind_change)
                     }
                 }
             }
-            unit[i].metal_extracted = metal_base * unit_manager.unit_type[unit[i].type_id].ExtractsMetal;
+            unit[i].metal_extracted = metal_base * unit_manager.unit_type[unit[i].type_id]->ExtractsMetal;
 
             int param[] = { metal_base<<2 };
             unit[i].run_script_function( map, unit[i].get_script_index(SCRIPT_SetSpeed),1,param);
@@ -6515,19 +6534,19 @@ void INGAME_UNITS::move(float dt,MAP *map,int key_frame,bool wind_change)
             unit[i].metal_cons=0.0f;
             unit[i].energy_prod=0.0f;
             unit[i].energy_cons=0.0f;
-            players.c_metal_s[unit[i].owner_id]+=unit_manager.unit_type[unit[i].type_id].MetalStorage;
-            players.c_energy_s[unit[i].owner_id]+=unit_manager.unit_type[unit[i].type_id].EnergyStorage;
-            players.c_commander[unit[i].owner_id]|=(unit_manager.unit_type[unit[i].type_id].TEDclass==CLASS_COMMANDER);
-            unit[i].energy_prod+=unit_manager.unit_type[unit[i].type_id].EnergyMake;
-            if ((unit[i].port[ACTIVATION] || !unit_manager.unit_type[unit[i].type_id].onoffable)
-               && unit_manager.unit_type[unit[i].type_id].EnergyUse<=players.energy[unit[i].owner_id])
+            players.c_metal_s[unit[i].owner_id]+=unit_manager.unit_type[unit[i].type_id]->MetalStorage;
+            players.c_energy_s[unit[i].owner_id]+=unit_manager.unit_type[unit[i].type_id]->EnergyStorage;
+            players.c_commander[unit[i].owner_id]|=(unit_manager.unit_type[unit[i].type_id]->TEDclass==CLASS_COMMANDER);
+            unit[i].energy_prod+=unit_manager.unit_type[unit[i].type_id]->EnergyMake;
+            if ((unit[i].port[ACTIVATION] || !unit_manager.unit_type[unit[i].type_id]->onoffable)
+               && unit_manager.unit_type[unit[i].type_id]->EnergyUse<=players.energy[unit[i].owner_id])
             {
-                unit[i].metal_prod+=unit_manager.unit_type[unit[i].type_id].MakesMetal+unit_manager.unit_type[unit[i].type_id].MetalMake;
-                if (unit_manager.unit_type[unit[i].type_id].ExtractsMetal)	// Extracteur de métal
+                unit[i].metal_prod+=unit_manager.unit_type[unit[i].type_id]->MakesMetal+unit_manager.unit_type[unit[i].type_id]->MetalMake;
+                if (unit_manager.unit_type[unit[i].type_id]->ExtractsMetal)	// Extracteur de métal
                     unit[i].metal_prod += unit[i].metal_extracted;
-                if (unit_manager.unit_type[unit[i].type_id].WindGenerator) // Wind Generator
+                if (unit_manager.unit_type[unit[i].type_id]->WindGenerator) // Wind Generator
                 {
-                    unit[i].energy_prod+=map->wind*unit_manager.unit_type[unit[i].type_id].WindGenerator*0.0002f;
+                    unit[i].energy_prod+=map->wind*unit_manager.unit_type[unit[i].type_id]->WindGenerator*0.0002f;
                     if (wind_change)
                     {
                         int param[] = { (int)(map->wind*50.0f) };
@@ -6537,12 +6556,12 @@ void INGAME_UNITS::move(float dt,MAP *map,int key_frame,bool wind_change)
                         unit[i].launch_script(unit[i].get_script_index(SCRIPT_go));
                     }
                 }
-                if (unit_manager.unit_type[unit[i].type_id].TidalGenerator)	// Tidal Generator
+                if (unit_manager.unit_type[unit[i].type_id]->TidalGenerator)	// Tidal Generator
                     unit[i].energy_prod+=map->ota_data.tidalstrength;
-                if (unit_manager.unit_type[unit[i].type_id].EnergyUse<0)
-                    unit[i].energy_prod-=unit_manager.unit_type[unit[i].type_id].EnergyUse;
+                if (unit_manager.unit_type[unit[i].type_id]->EnergyUse<0)
+                    unit[i].energy_prod-=unit_manager.unit_type[unit[i].type_id]->EnergyUse;
                 else
-                    unit[i].energy_cons=unit_manager.unit_type[unit[i].type_id].EnergyUse;
+                    unit[i].energy_cons=unit_manager.unit_type[unit[i].type_id]->EnergyUse;
             }
         }
         unit[i].unlock();
@@ -6718,12 +6737,12 @@ int INGAME_UNITS::create(int type_id,int owner)
     unit[unit_index].ID = next_unit_ID++;		// So now we know who is this unit :)
 
     // Angle de 10° maximum
-    unit[unit_index].Angle.y = (((sint32)(Math::RandFromTable() % 20001)) - 10000) * 0.0001f * unit_manager.unit_type[type_id].BuildAngle * TA2DEG; 
+    unit[unit_index].Angle.y = (((sint32)(Math::RandFromTable() % 20001)) - 10000) * 0.0001f * unit_manager.unit_type[type_id]->BuildAngle * TA2DEG; 
 
     idx_list[index_list_size++] = unit_index;
 
-    if (unit_manager.unit_type[ type_id ].IsAirBase )			// Say we're here !
-        repair_pads[ owner ].push_front( unit_index );
+    if (unit_manager.unit_type[type_id]->IsAirBase)			// Say we're here !
+        repair_pads[ owner ].push_front(unit_index);
 
     players.nb_unit[owner]++;
     pMutex.unlock();
@@ -6906,7 +6925,7 @@ void INGAME_UNITS::kill(int index,MAP *map,int prev,bool sync)			// Détruit une
         network_manager.sendEvent( &event );
     }
 
-    if (unit[ index ].type_id >= 0 && unit_manager.unit_type[ unit[ index ].type_id ].IsAirBase ) // Remove it from repair_pads list
+    if (unit[ index ].type_id >= 0 && unit_manager.unit_type[ unit[ index ].type_id ]->IsAirBase ) // Remove it from repair_pads list
     {
         int owner_id = unit[ index ].owner_id;
 
@@ -6925,7 +6944,7 @@ void INGAME_UNITS::kill(int index,MAP *map,int prev,bool sync)			// Détruit une
     if (unit[index].flags & 1 )
     {
         if (unit[ index ].mission
-            && !unit_manager.unit_type[ unit[ index ].type_id ].BMcode
+            && !unit_manager.unit_type[ unit[ index ].type_id ]->BMcode
             && ( unit[ index ].mission->mission == MISSION_BUILD_2 || unit[ index ].mission->mission == MISSION_BUILD )		// It was building something that we must destroy too
             && unit[ index ].mission->p != NULL )
         {
@@ -6942,13 +6961,15 @@ void INGAME_UNITS::kill(int index,MAP *map,int prev,bool sync)			// Détruit une
     unit[index].clear_from_map();
     unit[index].lock();
 
-    if (unit[index].type_id >= 0 && unit_manager.unit_type[unit[index].type_id].canload && unit[index].nb_attached>0)
+    if (unit[index].type_id >= 0 && unit_manager.unit_type[unit[index].type_id]->canload && unit[index].nb_attached>0)
+    {
         for(int i = 0 ; i < unit[index].nb_attached ; ++i)
         {
             unit[unit[index].attached_list[i]].lock();
             unit[unit[index].attached_list[i]].hp = 0.0f;
             unit[unit[index].attached_list[i]].unlock();
         }
+    }
     unit[index].unlock();
     unit[index].destroy();		// Détruit l'unité
 
@@ -7107,13 +7128,15 @@ void INGAME_UNITS::remove_order(int player_id,Vector3D target)
         uint16 i = idx_list[e];
         pMutex.unlock();
         unit[i].lock();
-        if ((unit[i].flags & 1) && !unit[i].command_locked && unit[i].owner_id==player_id && unit[i].sel && unit[i].build_percent_left==0.0f ) {	// && unit_manager.unit_type[unit[i].type_id].Builder) {
-            MISSION *mission = unit_manager.unit_type[unit[i].type_id].BMcode ? unit[i].mission : unit[i].def_mission;
+        if ((unit[i].flags & 1) && !unit[i].command_locked && unit[i].owner_id==player_id && unit[i].sel && unit[i].build_percent_left==0.0f) // && unit_manager.unit_type[unit[i].type_id]->Builder) {
+        {
+            MISSION *mission = unit_manager.unit_type[unit[i].type_id]->BMcode ? unit[i].mission : unit[i].def_mission;
             MISSION *prec = mission;
-            if (mission != NULL && unit_manager.unit_type[unit[i].type_id].BMcode )		mission = mission->next;		// Don't read the first one ( which is being executed )
+            if (mission != NULL && unit_manager.unit_type[unit[i].type_id]->BMcode)
+                mission = mission->next;		// Don't read the first one ( which is being executed )
 
             MISSION fake;
-            if (!unit_manager.unit_type[unit[i].type_id].BMcode ) // It's a hack to make sure it will work with first given order
+            if (!unit_manager.unit_type[unit[i].type_id]->BMcode ) // It's a hack to make sure it will work with first given order
             {
                 fake.next = mission;
                 prec = &fake;
@@ -7252,8 +7275,8 @@ void INGAME_UNITS::remove_order(int player_id,Vector3D target)
                 tick += delay;
             }
 
-            while( msec_timer - tick_timer + 1 < tick )
-                rest( 1 );
+            while (msec_timer - tick_timer + 1 < tick)
+                rest(1);
 
             while( msec_timer - tick_timer >= tick + 200 ) // Prevent the game to run too fast for too long, we don't have to speed up to compute what we hadn't time to
             {

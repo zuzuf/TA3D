@@ -441,13 +441,16 @@ namespace TA3D
     {
         int player_id = (int) lua_tonumber( L, -1 );
         lua_pop( L, 1 );
-        if( player_id >= 0 && player_id < NB_PLAYERS ) {
+        if (player_id >= 0 && player_id < NB_PLAYERS )
+        {
             bool result = false;
-            for( uint16 e = 0 ; e < units.index_list_size && !result ; e++ ) {
+            for( uint16 e = 0 ; e < units.index_list_size && !result ; e++ )
+            {
                 uint16 i = units.idx_list[ e ];
-                if( (units.unit[ i ].flags & 1) && units.unit[ i ].owner_id == player_id ) {
+                if( (units.unit[ i ].flags & 1) && units.unit[ i ].owner_id == player_id )
+                {
                     int type = units.unit[ i ].type_id;
-                    if( type >= 0 && type < unit_manager.nb_unit && unit_manager.unit_type[ type ].canmove && unit_manager.unit_type[ type ].BMcode )
+                    if (type >= 0 && type < unit_manager.nb_unit && unit_manager.unit_type[type]->canmove && unit_manager.unit_type[type]->BMcode)
                         result = true;
                 }
             }
@@ -529,8 +532,8 @@ namespace TA3D
                 target_pos.x=((int)(target_pos.x) + lua_map->map_w_d)>>3;
                 target_pos.z=((int)(target_pos.z) + lua_map->map_h_d)>>3;
                 target_pos.y = Math::Max(lua_map->get_max_rect_h((int)target_pos.x,(int)target_pos.z, 
-                                                                 unit_manager.unit_type[units.unit[unit_id].type_id].FootprintX,
-                                                                 unit_manager.unit_type[units.unit[unit_id].type_id].FootprintZ),
+                                                                 unit_manager.unit_type[units.unit[unit_id].type_id]->FootprintX,
+                                                                 unit_manager.unit_type[units.unit[unit_id].type_id]->FootprintZ),
                                          lua_map->sealvl);
                 units.unit[ unit_id ].Pos.y = target_pos.y;
                 units.unit[ unit_id ].draw_on_map();
@@ -558,15 +561,17 @@ namespace TA3D
             Vector3D pos;
             pos.x = x;
             pos.z = z;
-            pos.y = Math::Max( lua_map->get_max_rect_h((int)x,(int)z, unit_manager.unit_type[ unit_type_id ].FootprintX, unit_manager.unit_type[ unit_type_id ].FootprintZ ), lua_map->sealvl);
-            UNIT *unit = (UNIT*)create_unit( unit_type_id, player_id, pos, the_map, true, true );		// Force synchronization
+            pos.y = Math::Max( lua_map->get_max_rect_h((int)x,(int)z, unit_manager.unit_type[ unit_type_id ]->FootprintX, unit_manager.unit_type[unit_type_id]->FootprintZ ), lua_map->sealvl);
+            UNIT *unit = (UNIT*)create_unit( unit_type_id, player_id, pos, the_map, true, true);		// Force synchronization
             int idx = unit ? unit->idx : -1;
-            if( unit ) {
+            if (unit)
+            {
                 unit->lock();
-                unit->hp = unit_manager.unit_type[ unit_type_id ].MaxDamage;
+                unit->hp = unit_manager.unit_type[unit_type_id]->MaxDamage;
                 unit->build_percent_left = 0.0f;
-                if( unit_manager.unit_type[ unit_type_id ].ActivateWhenBuilt ) {		// Start activated
-                    unit->port[ ACTIVATION ] = 0;
+                if (unit_manager.unit_type[ unit_type_id ]->ActivateWhenBuilt) // Start activated
+                {
+                    unit->port[ACTIVATION] = 0;
                     unit->activate();
                 }
                 unit->unlock();
@@ -605,10 +610,11 @@ namespace TA3D
         int unit_id = (int) lua_tonumber( L, -2 );
         lua_pop( L, 2 );
 
-        if( unit_id >= 0 && unit_id < units.max_unit ) {
+        if (unit_id >= 0 && unit_id < units.max_unit)
+        {
             units.lock();
-            if( units.unit[ unit_id ].flags )
-                units.unit[ unit_id ].hp = health * unit_manager.unit_type[ units.unit[ unit_id ].type_id ].MaxDamage;
+            if (units.unit[ unit_id ].flags)
+                units.unit[ unit_id ].hp = health * unit_manager.unit_type[ units.unit[ unit_id ].type_id ]->MaxDamage;
             units.unlock();
         }
 
@@ -623,12 +629,12 @@ namespace TA3D
         int unit_type_id = lua_isstring( L, -1 ) ? unit_manager.get_unit_index( lua_tostring( L, -1 ) ) : (int) lua_tonumber( L, -1 ) ;
         lua_pop( L, 4 );
 
-        if( unit_id >= 0 && unit_id < units.max_unit && unit_type_id >= 0 && unit_manager.unit_type[ unit_type_id ].Builder )
+        if( unit_id >= 0 && unit_id < units.max_unit && unit_type_id >= 0 && unit_manager.unit_type[unit_type_id]->Builder)
         {
             Vector3D target;
-            target.x=((int)(pos_x)+lua_map->map_w_d)>>3;
-            target.z=((int)(pos_z)+lua_map->map_h_d)>>3;
-            target.y = Math::Max(lua_map->get_max_rect_h((int)target.x,(int)target.z, unit_manager.unit_type[ unit_type_id ].FootprintX, unit_manager.unit_type[ unit_type_id ].FootprintZ ),lua_map->sealvl);
+            target.x = ((int)(pos_x) + lua_map->map_w_d) >> 3;
+            target.z = ((int)(pos_z) + lua_map->map_h_d) >> 3;
+            target.y = Math::Max(lua_map->get_max_rect_h((int)target.x, (int)target.z, unit_manager.unit_type[unit_type_id]->FootprintX, unit_manager.unit_type[unit_type_id]->FootprintZ), lua_map->sealvl);
             target.x = target.x*8.0f-lua_map->map_w_d;
             target.z = target.z*8.0f-lua_map->map_h_d;
 
@@ -670,8 +676,9 @@ namespace TA3D
         int target_id = (int) lua_tonumber( L, -1 );
         lua_pop( L, 2 );
 
-        if( unit_id >= 0 && unit_id < units.max_unit && target_id >= 0 && target_id < units.max_unit ) {
-            Vector3D target = units.unit[ target_id ].Pos;
+        if( unit_id >= 0 && unit_id < units.max_unit && target_id >= 0 && target_id < units.max_unit)
+        {
+            Vector3D target(units.unit[ target_id ].Pos);
 
             units.lock();
             if( units.unit[ unit_id ].flags )
@@ -802,7 +809,7 @@ namespace TA3D
         if( unit_id >= 0 && unit_id < units.max_unit ) {
             units.lock();
             if( units.unit[ unit_id ].flags )
-                lua_pushnumber( L, units.unit[ unit_id ].hp * 100.0f / unit_manager.unit_type[ units.unit[ unit_id ].type_id ].MaxDamage );
+                lua_pushnumber( L, units.unit[ unit_id ].hp * 100.0f / unit_manager.unit_type[ units.unit[ unit_id ].type_id ]->MaxDamage );
             else
                 lua_pushnumber( L, 0 );
             units.unlock();
