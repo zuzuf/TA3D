@@ -19,7 +19,7 @@ function main()
 
 			win = true
 			for i = 0, ta3d_nb_players() - 1 do
-				if i ~= current_player then
+				if not ta3d_allied( i, current_player ) then
 					if not ta3d_annihilated( i ) then
 						win = false
 					end

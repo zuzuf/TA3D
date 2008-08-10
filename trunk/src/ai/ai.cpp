@@ -512,7 +512,7 @@ namespace TA3D
                 for(sint8 e = 0 ; e < players.nb_player; ++e)				// Who can we attack ?
                 {
                     // Don't attack allies
-                    if (ai->order_attack[e] > best_weight && !(players.team[ ai->player_id ] & players.team[ player_target ]))
+                    if (ai->order_attack[e] > best_weight && !(players.team[ ai->player_id ] & players.team[ e ]))
                     {
                         player_target = e;
                         best_weight = ai->order_attack[e];

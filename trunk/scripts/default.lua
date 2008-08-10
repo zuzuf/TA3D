@@ -19,7 +19,7 @@ function main()
 
 			win = true
 			for i = 0, ta3d_nb_players() - 1 do
-				if i ~= current_player then
+				if not ta3d_allied( i, current_player ) then
 					if ta3d_has_unit( i, ta3d_commander( i ) ) then
 						win = false
 					elseif not killed[ i ] then								-- when a player dies, kill all its units

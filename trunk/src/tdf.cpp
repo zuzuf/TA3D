@@ -57,6 +57,7 @@ namespace TA3D
 
     void FEATURE::init()
     {
+        not_loaded=true;
         need_convert=true;
         flamable=false;
         burnmin = 0;
@@ -117,6 +118,23 @@ namespace TA3D
 
     void FEATURE::convert()
     {
+        if (not_loaded)
+        {
+            not_loaded = false;
+            String tmp("anims\\");
+            tmp << filename << ".gaf";
+            byte* gaf = HPIManager->PullFromHPI(tmp);
+            if (gaf)
+            {
+                sint32 index = Gaf::RawDataGetEntryIndex(gaf, seqname);
+                if (index >= 0)
+                    anim.loadGAFFromRawData(gaf, Gaf::RawDataGetEntryIndex(gaf, seqname), true, filename);
+                else
+                    LOG_WARNING(LOG_PREFIX_TDF << "`" << name << "` has no picture to display (" << filename << ".gaf, " << seqname << ") !");
+                delete[] gaf;
+                need_convert = true;
+            }
+        }
         if (need_convert)
         {
             need_convert = false;
@@ -376,39 +394,46 @@ namespace TA3D
                     feature[i].model=NULL;
                     feature[i].m3d=true;
                     feature[i].converted=false;
+                    feature[i].not_loaded=false;
                 }
                 else
                 {
-                    String tmp("anims\\");
-                    tmp << feature[i].filename << ".gaf";
-                    byte* gaf = HPIManager->PullFromHPI(tmp);
-                    if (gaf)
+                    feature[i].not_loaded=true;
+                    if (feature[i].height<=10.0f && feature[i].height>1.0f && feature[i].blocking
+                        && strcasecmp(feature[i].description.c_str(),"Metal")!=0) // Tente une conversion en 3d
                     {
-                        sint32 index = Gaf::RawDataGetEntryIndex(gaf, feature[i].seqname);
-                        if (index >= 0)
-                            feature[i].anim.loadGAFFromRawData(gaf, Gaf::RawDataGetEntryIndex(gaf, feature[i].seqname), true, feature[i].filename);
-                        else
-                            LOG_WARNING(LOG_PREFIX_TDF << "`" << feature[i].name << "` has no picture to display (" << feature[i].filename << ".gaf, " << feature[i].seqname << ") !");
-                        delete[] gaf;
-
-                        if (index>=0 && feature[i].height<=10.0f && feature[i].height>1.0f && feature[i].anim.nb_bmp>0 && feature[i].blocking
-                           && feature[i].anim.bmp[0]->w>=16 && feature[i].anim.bmp[0]->h>=16 && strcasecmp(feature[i].description.c_str(),"Metal")!=0) // Tente une conversion en 3d
+                        String tmp("anims\\");
+                        tmp << feature[i].filename << ".gaf";
+                        byte* gaf = HPIManager->PullFromHPI(tmp);
+                        if (gaf)
                         {
-                            String st(feature[i].filename);
-                            st << "-" << feature[i].seqname;
-                            model_manager.create_from_2d(feature[i].anim.bmp[0],
-                                                         feature[i].footprintx * 8,
-                                                         feature[i].footprintz * 8,
-                                                         feature[i].height * H_DIV,
-                                                         st);
-                            feature[i].model = NULL;
-                            feature[i].m3d = true;
-                            feature[i].converted = true;
-                            feature[i].anim.destroy();
-                            index = -1;
+                            sint32 index = Gaf::RawDataGetEntryIndex(gaf, feature[i].seqname);
+                            if (index >= 0)
+                                feature[i].anim.loadGAFFromRawData(gaf, Gaf::RawDataGetEntryIndex(gaf, feature[i].seqname), true, feature[i].filename);
+                            else
+                                LOG_WARNING(LOG_PREFIX_TDF << "`" << feature[i].name << "` has no picture to display (" << feature[i].filename << ".gaf, " << feature[i].seqname << ") !");
+                            feature[i].not_loaded = false;
+                            delete[] gaf;
+
+                            if (index>=0 && feature[i].anim.nb_bmp>0
+                               && feature[i].anim.bmp[0]->w>=16 && feature[i].anim.bmp[0]->h>=16) // Tente une conversion en 3d
+                            {
+                                String st(feature[i].filename);
+                                st << "-" << feature[i].seqname;
+                                model_manager.create_from_2d(feature[i].anim.bmp[0],
+                                                             feature[i].footprintx * 8,
+                                                             feature[i].footprintz * 8,
+                                                             feature[i].height * H_DIV,
+                                                             st);
+                                feature[i].model = NULL;
+                                feature[i].m3d = true;
+                                feature[i].converted = true;
+                                feature[i].anim.destroy();
+                                index = -1;
+                            }
+                            if (index < 0)
+                                feature[i].need_convert = false;
                         }
-                        if (index < 0)
-                            feature[i].need_convert = false;
                     }
                 }
             }
@@ -641,6 +666,9 @@ namespace TA3D
                 if (Pos.y > units.map->sealvl)	// If it's not visible don't draw it
                     continue;
             }
+
+            if (feature_manager.feature[feature[i].type].not_loaded)
+                feature_manager.feature[feature[i].type].convert();		// Load data and convert texture
 
             if (!feature_manager.feature[feature[i].type].m3d
                 && feature_manager.feature[feature[i].type].anim.nb_bmp > 0)
