@@ -143,6 +143,8 @@ namespace TA3D
         String	burnweapon;
         //!
         bool	need_convert;
+        //!
+        bool	not_loaded;
         //@}
 
     }; // class FEATURE

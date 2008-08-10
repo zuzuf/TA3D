@@ -849,6 +849,20 @@ namespace TA3D
         return 1;
     }
 
+    int function_allied( lua_State *L )		// ta3d_allied( id0, id1 )
+    {
+        int player_id0 = (int) lua_tonumber( L, -2 );
+        int player_id1 = (int) lua_tonumber( L, -1 );
+        lua_pop( L, 2 );
+
+        if( player_id0 >= 0 && player_id0 < NB_PLAYERS && player_id1 >= 0 && player_id1 < NB_PLAYERS )
+            lua_pushboolean( L, players.team[ player_id0 ] & players.team[ player_id1 ] );
+        else
+            lua_pushboolean( L, false );
+
+        return 1;
+    }
+
     int function_unit_x( lua_State *L )		// ta3d_unit_x( unit_id )
     {
         int unit_id = (int) lua_tonumber( L, -1 );
@@ -1247,6 +1261,7 @@ namespace TA3D
         lua_register( L, "ta3d_create_feature", function_create_feature );
         lua_register( L, "ta3d_has_mobile_units", function_has_mobile_units );
         lua_register( L, "ta3d_send_signal", function_send_signal );
+        lua_register( L, "ta3d_allied", function_allied );
     }
 
     LUA_PROGRAM::LUA_PROGRAM()

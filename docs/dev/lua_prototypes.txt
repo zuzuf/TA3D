@@ -5,6 +5,7 @@ ta3d_add_move_mission( unit_id, pos_x, pos_z )
 ta3d_add_patrol_mission( unit_id, pos_x, pos_z )
 ta3d_add_wait_attacked_mission( unit_id, target_id )
 ta3d_add_wait_mission( unit_id, time )
+ta3d_allied( player_id0, player_id1 )
 ta3d_annihilated( player_id )
 ta3d_attack( attacker_id, target_id )							// Like ta3d_add_attack_mission excepts it orders the unit to do it NOW !!
 ta3d_box( x1,y1,x2,y2,r,g,b )
