@@ -1174,13 +1174,12 @@ void UNIT::draw(float t, Camera *cam,MAP *map,bool height_line)
         if (owner_id==players.local_human_id && sel)
         {
             glDisable( GL_TEXTURE_2D );
-            glColor3f(1.0f,1.0f,0.0f);
-            glBegin(GL_LINE_STRIP);
+            glColor3ub(0xFF,0xFF,0);
+            glBegin(GL_LINE_LOOP);
             glVertex3f( -size, 0.0f, -size);
             glVertex3f(  size, 0.0f, -size);
             glVertex3f(  size, 0.0f,  size);
             glVertex3f( -size, 0.0f,  size);
-            glVertex3f( -size, 0.0f, -size);
             glEnd();
         }
         glEnable(GL_DEPTH_TEST);
@@ -6996,7 +6995,7 @@ void INGAME_UNITS::draw(Camera *cam,MAP *map,bool underwater,bool limit,bool cul
     if (cam->rpos.y > gfx->low_def_limit )
         glDisable(GL_DEPTH_TEST);
     glDisable(GL_BLEND);
-    glColor4f(1.0f,1.0f,1.0f,1.0f);
+    glColor4ub(0xFF,0xFF,0xFF,0xFF);
     float sea_lvl = limit ? map->sealvl-5.0f : map->sealvl;
     float virtual_t = (float)current_tick / TICKS_PER_SEC;
     cam->setView();
@@ -7113,7 +7112,7 @@ void INGAME_UNITS::draw_shadow(Camera* cam, const Vector3D& Dir, MAP* map, float
     glDepthMask(GL_TRUE);
     glDisable(GL_STENCIL_TEST);
     glDisable(GL_BLEND);
-    glColor4f(1.0f,1.0f,1.0f,1.0f);
+    glColor4ub(0xFF,0xFF,0xFF,0xFF);
 
     gfx->unlock();
 }

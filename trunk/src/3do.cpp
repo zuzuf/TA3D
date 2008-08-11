@@ -1688,23 +1688,19 @@ namespace TA3D
             glDisableClientState(GL_NORMAL_ARRAY);
             glDisable(GL_LIGHTING);
             glDisable(GL_TEXTURE_2D);
-            glDisable(GL_CULL_FACE);
             if (!set)
                 glVertexPointer( 3, GL_FLOAT, 0, points);
-            glPolygonMode (GL_FRONT_AND_BACK, GL_LINE);
-            glColor3f(0.0f,1.0f,0.0f);
+            glColor3ub(0,0xFF,0);
             glTranslatef( 0.0f, 2.0f, 0.0f );
-            glDrawElements(GL_QUADS, 4,GL_UNSIGNED_SHORT,sel);		// dessine la primitive de sélection
+            glDrawElements(GL_LINE_LOOP, 4,GL_UNSIGNED_SHORT,sel);		// dessine la primitive de sélection
             glTranslatef( 0.0f, -2.0f, 0.0f );
             if (notex)
             {
-                float var=fabs(1.0f-(msec_timer%1000)*0.002f);
-                glColor3f(0.0f,var,0.0f);
+                int var = abs(0xFF - (msec_timer%1000)*0x200/1000);
+                glColor3ub(0,var,0);
             }
             else
-                glColor3f(1.0f,1.0f,1.0f);
-            glPolygonMode (GL_FRONT_AND_BACK, GL_FILL);
-            glEnable(GL_CULL_FACE);
+                glColor3ub(0xFF,0xFF,0xFF);
             alset=false;
         }
         if (!chg_col)
