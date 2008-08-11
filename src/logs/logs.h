@@ -66,6 +66,8 @@
 # define LOG_PREFIX_SCRIPT            "[script] "
 # define LOG_PREFIX_LUA               "[script::lua] "
 
+# define LOG_PREFIX_BATTLE            "[battle] "
+
 # define LOG_PREFIX_MENU_INTRO        "[menu::introduction] "
 # define LOG_PREFIX_MENU_SOLO         "[menu::solo] "
 # define LOG_PREFIX_MENU_LOADING      "[menu::loading] "

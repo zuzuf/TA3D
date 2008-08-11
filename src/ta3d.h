@@ -55,27 +55,4 @@ int cursor_type=CURSOR_DEFAULT;
 
 # include "gfx/glfunc.h" // Must be removed as well as the function below
 
-#ifndef TA3D_BASIC_ENGINE
 
-
-
-
-
-#endif
-
-
-void reset_keyboard()
-{
-	remove_keyboard();
-	install_keyboard();
-}
-void reset_mouse()
-{
-	int amx = mouse_x;
-	int amy = mouse_y;
-
-	remove_mouse();
-	install_mouse();
-
-	position_mouse(amx, amy);
-}

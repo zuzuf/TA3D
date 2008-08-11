@@ -5,6 +5,7 @@
 #include "../../restore.h"
 #include "../../ta3dbase.h"
 #include "../../misc/paths.h"
+#include "../battle.h"
 
 // TODO Must be removed
 #include "../../menu.h"
@@ -146,7 +147,7 @@ namespace Menus
                 if (!game_data.saved_file.empty())
                 {
                     gfx->unset_2D_mode();
-                    play(&game_data);
+                    Battle::Execute(&game_data);
                     gfx->set_2D_mode();
                     gfx->ReInitTexSys();
                 }

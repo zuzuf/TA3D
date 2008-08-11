@@ -1282,4 +1282,22 @@ namespace TA3D
         delete InterfaceManager;
     }
 
+
+
+    void reset_keyboard()
+    {
+        remove_keyboard();
+        install_keyboard();
+    }
+    void reset_mouse()
+    {
+        int amx = mouse_x;
+        int amy = mouse_y;
+
+        remove_mouse();
+        install_mouse();
+
+        position_mouse(amx, amy);
+    }
+
 } // namespace TA3D

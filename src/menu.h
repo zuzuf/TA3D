@@ -24,6 +24,9 @@
 #ifndef MODULE_MENU
 #define MODULE_MENU
 
+# include "ingame/battle.h"
+
+
 
 void config_menu(void);
 
@@ -35,6 +38,6 @@ void wait_room(void *p_game_data);			// Wait until everyone has loaded the game
 
 void campaign_main_menu(void);		// The campaign main menu, select the campaign you want to play
 
-int brief_screen( String campaign_name, int mission_id );			// The brief screen where you are told about your mission objectives
+Battle::Result brief_screen(String campaign_name, int mission_id);			// The brief screen where you are told about your mission objectives
 
 #endif
