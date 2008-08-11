@@ -1808,7 +1808,7 @@ namespace TA3D
                     // Dessine les éléments "2D" / "sprites"
                     features.draw(refcam);		
                     // Dessine les unités / draw units
-                    units.draw(&refcam, map.get(), false, true, false, lp_CONFIG->height_line);			
+                    units.draw(refcam, map.get(), false, true, false, lp_CONFIG->height_line);			
 
                     glDisable(GL_CULL_FACE);
                     // Dessine les objets produits par les armes / draw weapons
@@ -1919,7 +1919,7 @@ namespace TA3D
             /*----------------------------------------------------------------------------------------------*/
 
             // Dessine les unités sous l'eau / Draw units which are under water
-            units.draw(&cam, map.get(), true, false, true, lp_CONFIG->height_line);			
+            units.draw(cam, map.get(), true, false, true, lp_CONFIG->height_line);			
 
             // Dessine les objets produits par les armes sous l'eau / Draw weapons which are under water
             weapons.draw(&cam, map.get(), true);
@@ -2261,7 +2261,7 @@ namespace TA3D
 
 
             // Dessine les unités non encore dessinées / Draw units which have not been drawn
-            units.draw(&cam, map.get(), false, false, true, lp_CONFIG->height_line);
+            units.draw(cam, map.get(), false, false, true, lp_CONFIG->height_line);
 
             // Dessine les objets produits par les armes n'ayant pas été dessinés / Draw weapons which have not been drawn
             weapons.draw(&cam, map.get(), false);
@@ -2311,7 +2311,7 @@ namespace TA3D
                         Dir.z = sin(light_angle);
                         Dir.unit();
                         sun.Dir = -Dir;
-                        units.draw_shadow(&cam, Dir, map.get());
+                        units.draw_shadow(cam, Dir, map.get());
                     }
                     else
                     {
@@ -2319,7 +2319,7 @@ namespace TA3D
                         sun.Dir.y = 1.0f;
                         sun.Dir.z = 1.0f;
                         sun.Dir.unit();
-                        units.draw_shadow(&cam, -sun.Dir, map.get());
+                        units.draw_shadow(cam, -sun.Dir, map.get());
                     }
                 }
                 else
@@ -2352,7 +2352,7 @@ namespace TA3D
                         RDir.x += cos(i * PI * 2.0f / lp_CONFIG->shadow_quality) * lp_CONFIG->shadow_r;
                         RDir.z += sin(i * PI * 2.0f / lp_CONFIG->shadow_quality) * lp_CONFIG->shadow_r;
                         RDir.unit();
-                        units.draw_shadow(&cam, RDir, map.get(), alpha);
+                        units.draw_shadow(cam, RDir, map.get(), alpha);
                     }
                 }
             }

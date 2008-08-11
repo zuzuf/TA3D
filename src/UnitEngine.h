@@ -312,11 +312,11 @@ namespace TA3D
 
         void destroy(bool full = false);
 
-        void draw(float t,Camera *cam,MAP *map, bool height_line=true);
+        void draw(float t, Camera& cam, MAP *map, bool height_line = true);
 
-        void draw_shadow(Camera *cam, const Vector3D& Dir, MAP *map);
+        void draw_shadow(const Vector3D& Dir, MAP *map);
 
-        void draw_shadow_basic(Camera *cam, const Vector3D& Dir, MAP *map);
+        void draw_shadow_basic(const Vector3D& Dir, MAP *map);
 
         int get_script_index(int id);
 
@@ -574,13 +574,13 @@ namespace TA3D
 
         void kill(int index,MAP *map,int prev,bool sync = true);			// Détruit une unité
 
-        void draw(Camera *cam,MAP *map,bool underwater=false,bool limit=false,bool cullface = true,bool height_line=true);					// Dessine les unités visibles
+        void draw(Camera& cam, MAP *map, bool underwater = false, bool limit = false, bool cullface = true, bool height_line = true); // Dessine les unités visibles
 
-        void draw_shadow(Camera *cam, const Vector3D& Dir,MAP *map,float alpha=0.5f);					// Dessine les ombres des unités visibles
+        void draw_shadow(Camera& cam, const Vector3D& Dir, MAP* map, float alpha = 0.5f); // Dessine les ombres des unités visibles
 
-        void draw_mini(float map_w,float map_h,int mini_w,int mini_h,SECTOR **map_data);				// Repère les unités sur la mini-carte
+        void draw_mini(float map_w, float map_h, int mini_w, int mini_h, SECTOR** map_data); // Repère les unités sur la mini-carte
 
-        void move(float dt,MAP *map=NULL,int key_frame=0,bool wind_change=false);
+        void move(float dt, MAP* map = NULL, int key_frame = 0, bool wind_change = false);
 
         int create(int type_id,int owner);
 
@@ -597,21 +597,21 @@ namespace TA3D
 
         int pick_minimap();
 
-        void give_order_move(int player_id,Vector3D target,bool set=true,byte flags=0);
+        void give_order_move(int player_id, const Vector3D& target, bool set = true, byte flags = 0);
 
-        void give_order_patrol(int player_id,Vector3D target,bool set=true);
+        void give_order_patrol(int player_id, const Vector3D& target, bool set = true);
 
-        void give_order_guard(int player_id,int target,bool set=true);
+        void give_order_guard(int player_id, int target, bool set = true);
 
-        void give_order_unload(int player_id,Vector3D target,bool set=true);
+        void give_order_unload(int player_id, const Vector3D& target,bool set = true);
 
-        void give_order_load(int player_id,int target,bool set=true);
+        void give_order_load(int player_id,int target,bool set = true);
 
-        void give_order_build(int player_id,int unit_type_id, Vector3D target,bool set=true);
+        void give_order_build(int player_id, int unit_type_id, const Vector3D& target, bool set = true);
 
-        void remove_order(int player_id, Vector3D target);
+        void remove_order(int player_id, const Vector3D& target);
 
-        void complete_menu(int index,bool hide_info = false, bool hide_bpic = false );
+        void complete_menu(int index, bool hide_info = false, bool hide_bpic = false);
 
     }; // class INGAME_UNITS
 
