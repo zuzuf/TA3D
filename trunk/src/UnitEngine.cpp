@@ -117,7 +117,7 @@ void UNIT::clear_mission()
     mission = mission->next;
     if (old->path)				// Détruit le chemin si nécessaire
         destroy_path(old->path);
-    free(old);
+    delete old;
 }
 
 
@@ -538,7 +538,7 @@ void UNIT::clear_def_mission()
         def_mission = def_mission->next;
         if (old->path)				// Détruit le chemin si nécessaire
             destroy_path(old->path);
-        free(old);
+        delete old;
     }
 }
 
@@ -655,7 +655,7 @@ void UNIT::add_mission(int mission_type,Vector3D *target,bool step,int dat,void 
                 prec->next = cur_mission;
                 if (tmp->path)				// Destroy the path if needed
                     destroy_path(tmp->path);
-                free( tmp );
+                delete tmp;
                 removed = true;
             }
             else
@@ -668,7 +668,7 @@ void UNIT::add_mission(int mission_type,Vector3D *target,bool step,int dat,void 
             return;
     }
 
-    MISSION *new_mission = (MISSION*) malloc(sizeof(MISSION));
+    MISSION *new_mission = new MISSION;
     new_mission->next = NULL;
     new_mission->mission = mission_type;
     new_mission->target_ID = target_ID;
@@ -717,7 +717,7 @@ void UNIT::add_mission(int mission_type,Vector3D *target,bool step,int dat,void 
     if (target)
         new_mission->target = *target;
 
-    MISSION *stop = !inserted ? (MISSION*) malloc(sizeof(MISSION)) : NULL;
+    MISSION *stop = !inserted ? new MISSION : NULL;
     if (stop)
     {
         stop->mission = MISSION_STOP;
@@ -764,7 +764,7 @@ void UNIT::add_mission(int mission_type,Vector3D *target,bool step,int dat,void 
                 && new_mission->next != NULL ) 	// Prevent factories from closing when already building a unit
             {
                 stop = new_mission->next;
-                free( new_mission );
+                delete new_mission;
                 new_mission = stop;
                 new_mission->next = NULL;
             }
@@ -906,7 +906,7 @@ void UNIT::set_mission(int mission_type,Vector3D *target,bool step,int dat,bool 
 
     if (def_mode )
     {
-        def_mission = (MISSION*) malloc(sizeof(MISSION));
+        def_mission = new MISSION;
         def_mission->next = NULL;
         def_mission->mission = mission_type;
         def_mission->target_ID = target_ID;
@@ -924,7 +924,7 @@ void UNIT::set_mission(int mission_type,Vector3D *target,bool step,int dat,bool 
 
         if (stopit)
         {
-            MISSION *stop = (MISSION*) malloc(sizeof(MISSION));
+            MISSION *stop = new MISSION;
             stop->next = def_mission;
             stop->mission = MISSION_STOP;
             stop->step = true;
@@ -940,7 +940,7 @@ void UNIT::set_mission(int mission_type,Vector3D *target,bool step,int dat,bool 
     }
     else
     {
-        mission = (MISSION*) malloc(sizeof(MISSION));
+        mission = new MISSION;
         mission->next = NULL;
         mission->mission = mission_type;
         mission->target_ID = target_ID;
@@ -958,7 +958,7 @@ void UNIT::set_mission(int mission_type,Vector3D *target,bool step,int dat,bool 
 
         if (stopit)
         {
-            MISSION *stop = (MISSION*) malloc(sizeof(MISSION));
+            MISSION *stop = new MISSION;
             stop->next = mission;
             stop->mission = MISSION_STOP;
             stop->step = true;
@@ -1024,7 +1024,7 @@ void UNIT::next_mission()
     mission=mission->next;
     if (old->path)				// Détruit le chemin si nécessaire
         destroy_path(old->path);
-    free(old);
+    delete old;
     if (mission==NULL)
     {
         command_locked = false;
@@ -1039,7 +1039,7 @@ void UNIT::next_mission()
         mission = mission->next;
         if (old->path)				// Détruit le chemin si nécessaire
             destroy_path(old->path);
-        free(old);
+        delete old;
     }
     start_mission_script(mission->mission);
     c_time=0.0f;
@@ -4057,7 +4057,7 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
 
                         MISSION *cur = mission;					// Make a copy of current list to make it loop 8)
                         while( cur->next )	cur = cur->next;
-                        cur->next = (MISSION*) malloc(sizeof( MISSION ));
+                        cur->next = new MISSION;
                         *(cur->next) = *mission;
                         cur->next->path = NULL;
                         cur->next->next = NULL;
@@ -4068,7 +4068,7 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
                         {
                             cur = cur_start;
                             while( cur->next )	cur = cur->next;
-                            cur->next = (MISSION*) malloc(sizeof( MISSION ));
+                            cur->next = new MISSION;
                             *(cur->next) = *cur_start;
                             cur->next->path = NULL;
                             cur->next->next = NULL;
@@ -4338,7 +4338,7 @@ const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_fra
                                 MISSION *cur = def_mission;
                                 while (cur)// Copy mission list
                                 {
-                                    target_mission->next = (MISSION*) malloc(sizeof(MISSION));
+                                    target_mission->next = new MISSION;
                                     target_mission = target_mission->next;
                                     *target_mission = *cur;
                                     target_mission->next = NULL;
@@ -5368,7 +5368,6 @@ void INGAME_UNITS::destroy(bool delete_interface)
             unit[i].destroy(true);
     if (unit)
         delete[] unit;
-    //                free(unit);
     pMutex.unlock();
     init();
 }
@@ -7155,7 +7154,7 @@ void INGAME_UNITS::remove_order(int player_id,Vector3D target)
                         prec->next = mission;
                         if (tmp->path)				// Destroy the path if needed
                             destroy_path(tmp->path);
-                        free( tmp );
+                        delete tmp;
                     }
                     else {
                         prec = mission;
