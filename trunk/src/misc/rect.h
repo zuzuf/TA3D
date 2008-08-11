@@ -16,6 +16,8 @@ namespace TA3D
         //@{
         //! Default constructor
         Rect() : x1(0), y1(0), x2(0), y2(0) {}
+        //! Constructor
+        Rect(const T ax1, const T ay1, const T ax2, const T ay2) : x1(ax1), y1(ay1), x2(ax2), y2(ay2) {}
         //! Copy constructor
         Rect(const Rect<T>& c) : x1(c.x1), y1(c.y1), x2(c.x2), y2(c.y2) {}
         //@}
