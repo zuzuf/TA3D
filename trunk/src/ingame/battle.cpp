@@ -215,7 +215,6 @@ namespace TA3D
         fx_manager.loadData();
 
         int mx,my,omb=mouse_b,omb2=mouse_b,omb3=mouse_b, amx=mouse_x, amy=mouse_y;
-        int	sel_x[2],sel_y[2],selecting=false;
         int cur_sel = -1;
         int old_gui_sel = -1;
         bool old_sel = false;
@@ -523,7 +522,7 @@ namespace TA3D
 
             cursor_type = CURSOR_DEFAULT; // Revient au curseur par défaut
 
-            bool rope_selection = selecting && ( abs( sel_x[0] - sel_x[1]) >= PICK_TOLERANCE || abs( sel_y[0] - sel_y[1]) >= PICK_TOLERANCE);
+            bool rope_selection = pMouseSelecting && ( abs( pMouseRectSelection.x1 - pMouseRectSelection.x2) >= PICK_TOLERANCE || abs( pMouseRectSelection.y1 - pMouseRectSelection.y2) >= PICK_TOLERANCE);
             if ((!IsOnGUI || IsOnMinimap) && !rope_selection)
             {
                 if (selected)
@@ -909,10 +908,10 @@ namespace TA3D
             if (!selected)
                 current_order = SIGNAL_ORDER_NONE;
 
-            if (current_order != SIGNAL_ORDER_NONE && abs( sel_x[0] - sel_x[1]) < PICK_TOLERANCE && abs( sel_y[0] - sel_y[1]) < PICK_TOLERANCE)
-                selecting=false;
+            if (current_order != SIGNAL_ORDER_NONE && abs( pMouseRectSelection.x1 - pMouseRectSelection.x2) < PICK_TOLERANCE && abs( pMouseRectSelection.y1 - pMouseRectSelection.y2) < PICK_TOLERANCE)
+                pMouseSelecting=false;
 
-            rope_selection = selecting && ( abs( sel_x[0] - sel_x[1]) >= PICK_TOLERANCE || abs( sel_y[0] - sel_y[1]) >= PICK_TOLERANCE);
+            rope_selection = pMouseSelecting && ( abs( pMouseRectSelection.x1 - pMouseRectSelection.x2) >= PICK_TOLERANCE || abs( pMouseRectSelection.y1 - pMouseRectSelection.y2) >= PICK_TOLERANCE);
 
             if (selected && (!IsOnGUI || IsOnMinimap))
             {
@@ -1250,18 +1249,18 @@ namespace TA3D
             if (build >= 0 && cursor_type == CURSOR_DEFAULT && mouse_b != 1 && omb3 == 1 && !IsOnGUI)
             {
                 Vector3D target(cursor_on_map(cam, *map));
-                sel_x[1] = ((int)(target.x) + map->map_w_d) >> 3;
-                sel_y[1] = ((int)(target.z) + map->map_h_d) >> 3;
+                pMouseRectSelection.x2 = ((int)(target.x) + map->map_w_d) >> 3;
+                pMouseRectSelection.y2 = ((int)(target.z) + map->map_h_d) >> 3;
 
-                int d = Math::Max(abs( sel_x[1] - sel_x[0]), abs( sel_y[1] - sel_y[0]));
+                int d = Math::Max(abs( pMouseRectSelection.x2 - pMouseRectSelection.x1), abs( pMouseRectSelection.y2 - pMouseRectSelection.y1));
 
-                int ox = sel_x[0] + 0xFFFF;
-                int oy = sel_y[0] + 0xFFFF;
+                int ox = pMouseRectSelection.x1 + 0xFFFF;
+                int oy = pMouseRectSelection.y1 + 0xFFFF;
 
                 for (int c = 0; c <= d; ++c)
                 {
-                    target.x = sel_x[0] + (sel_x[1] - sel_x[0]) * c / Math::Max(d, 1);
-                    target.z = sel_y[0] + (sel_y[1] - sel_y[0]) * c / Math::Max(d, 1);
+                    target.x = pMouseRectSelection.x1 + (pMouseRectSelection.x2 - pMouseRectSelection.x1) * c / Math::Max(d, 1);
+                    target.z = pMouseRectSelection.y1 + (pMouseRectSelection.y2 - pMouseRectSelection.y1) * c / Math::Max(d, 1);
 
                     if (abs( ox - (int)target.x) < unit_manager.unit_type[build]->FootprintX
                         && abs( oy - (int)target.z) < unit_manager.unit_type[build]->FootprintZ)	continue;
@@ -1294,8 +1293,8 @@ namespace TA3D
                 if (build>=0 && cursor_type==CURSOR_DEFAULT && mouse_b == 1 && omb3 != 1 && !IsOnGUI)// Giving the order to build a row
                 {
                     Vector3D target(cursor_on_map(cam, *map));
-                    sel_x[0] = ((int)(target.x) + map->map_w_d) >> 3;
-                    sel_y[0] = ((int)(target.z) + map->map_h_d) >> 3;
+                    pMouseRectSelection.x1 = ((int)(target.x) + map->map_w_d) >> 3;
+                    pMouseRectSelection.y1 = ((int)(target.z) + map->map_h_d) >> 3;
                 }
             }
 
@@ -1329,12 +1328,12 @@ namespace TA3D
                         current_order = SIGNAL_ORDER_NONE;
                     else
                     {
-                        selecting = false;
+                        pMouseSelecting = false;
                         if (mouse_b == 1)
                         {
-                            selecting=true;
-                            sel_x[0]=mouse_x;
-                            sel_y[0]=mouse_y;
+                            pMouseSelecting=true;
+                            pMouseRectSelection.x1=mouse_x;
+                            pMouseRectSelection.y1=mouse_y;
                         }
                         if (build >= 0)
                         {
@@ -1357,12 +1356,12 @@ namespace TA3D
                 }
             }
 
-            if (build == -1 && (!IsOnGUI || (selecting && (mouse_y<32 || mouse_y>SCREEN_H-32)) || IsOnMinimap)) // Si le curseur est dans la zone de jeu
+            if (build == -1 && (!IsOnGUI || (pMouseSelecting && (mouse_y<32 || mouse_y>SCREEN_H-32)) || IsOnMinimap)) // Si le curseur est dans la zone de jeu
             {
-                if ((mouse_b!=1 && selecting) || ( IsOnMinimap && mouse_b == 1 && omb3 != 1))// Récupère les unités présentes dans la sélection
+                if ((mouse_b!=1 && pMouseSelecting) || ( IsOnMinimap && mouse_b == 1 && omb3 != 1))// Récupère les unités présentes dans la sélection
                 {
                     bool skip = false;
-                    if ((abs( sel_x[0] - sel_x[1]) < PICK_TOLERANCE && abs(sel_y[0] - sel_y[1]) < PICK_TOLERANCE) || IsOnMinimap)
+                    if ((abs( pMouseRectSelection.x1 - pMouseRectSelection.x2) < PICK_TOLERANCE && abs(pMouseRectSelection.y1 - pMouseRectSelection.y2) < PICK_TOLERANCE) || IsOnMinimap)
                     {
                         if (cursor_type == CURSOR_DEFAULT || cursor_type == CURSOR_CROSS)
                         {
@@ -1390,7 +1389,7 @@ namespace TA3D
                             skip = true;
                     }
                     else
-                        selected = units.select(&cam,sel_x,sel_y);		// Séléction au lasso
+                        selected = units.selectUnits(cam, pMouseRectSelection);		// Séléction au lasso
 
                     if (!skip)
                     {
@@ -1413,21 +1412,21 @@ namespace TA3D
                         }
                     }
                 }
-                selecting = false;
+                pMouseSelecting = false;
                 if (mouse_b==1 && !IsOnMinimap)
                 {
                     if (omb3 != 1)
                     {
-                        sel_x[0] = mouse_x;
-                        sel_y[0] = mouse_y;
+                        pMouseRectSelection.x1 = mouse_x;
+                        pMouseRectSelection.y1 = mouse_y;
                     }
-                    sel_x[1] = mouse_x;
-                    sel_y[1] = mouse_y;
-                    selecting = true;
+                    pMouseRectSelection.x2 = mouse_x;
+                    pMouseRectSelection.y2 = mouse_y;
+                    pMouseSelecting = true;
                 }
             }
             else
-                selecting = false;
+                pMouseSelecting = false;
 
 
             omb3 = mouse_b;
@@ -2166,24 +2165,24 @@ namespace TA3D
             if (build >= 0 && !IsOnGUI)	// Display the building we want to build (with nice selection quads)
             {
                 Vector3D target(cursor_on_map(cam, *map));
-                sel_x[1] = ((int)(target.x) + map->map_w_d) >> 3;
-                sel_y[1] = ((int)(target.z) + map->map_h_d) >> 3;
+                pMouseRectSelection.x2 = ((int)(target.x) + map->map_w_d) >> 3;
+                pMouseRectSelection.y2 = ((int)(target.z) + map->map_h_d) >> 3;
 
                 if (mouse_b != 1 && omb3 != 1)
                 {
-                    sel_x[0] = sel_x[1];
-                    sel_y[0] = sel_y[1];
+                    pMouseRectSelection.x1 = pMouseRectSelection.x2;
+                    pMouseRectSelection.y1 = pMouseRectSelection.y2;
                 }
 
-                int d = Math::Max(abs(sel_x[1] - sel_x[0]), abs( sel_y[1] - sel_y[0]));
+                int d = Math::Max(abs(pMouseRectSelection.x2 - pMouseRectSelection.x1), abs( pMouseRectSelection.y2 - pMouseRectSelection.y1));
 
-                int ox = sel_x[0] + 0xFFFF;
-                int oy = sel_y[0] + 0xFFFF;
+                int ox = pMouseRectSelection.x1 + 0xFFFF;
+                int oy = pMouseRectSelection.y1 + 0xFFFF;
 
                 for (int c = 0; c <= d; ++c)
                 {
-                    target.x = sel_x[0] + (sel_x[1] - sel_x[0]) * c / Math::Max(d, 1);
-                    target.z = sel_y[0] + (sel_y[1] - sel_y[0]) * c / Math::Max(d, 1);
+                    target.x = pMouseRectSelection.x1 + (pMouseRectSelection.x2 - pMouseRectSelection.x1) * c / Math::Max(d, 1);
+                    target.z = pMouseRectSelection.y1 + (pMouseRectSelection.y2 - pMouseRectSelection.y1) * c / Math::Max(d, 1);
 
                     if (abs( ox - (int)target.x) < unit_manager.unit_type[build]->FootprintX
                         && abs( oy - (int)target.z) < unit_manager.unit_type[build]->FootprintZ)
@@ -2424,8 +2423,8 @@ namespace TA3D
                 tilde = false;
 
             gfx->ReInitAllTex(true);
-
             gfx->set_2D_mode();		// Affiche console, infos,...
+            draw2DObjects();
 
             old_cam_pos=cam.rpos;
             int signal = 0;
@@ -2477,15 +2476,6 @@ namespace TA3D
                     break;
             }
 
-            if (selecting) // Affiche le rectangle de selection
-            {
-                glDisable(GL_TEXTURE_2D);
-                glColor4f(0.0f,0.0f,0.0f,1.0f);
-                gfx->rect(sel_x[0]+1,sel_y[0]+1,sel_x[1]+1,sel_y[1]+1);
-                glColor4f(1.0f,1.0f,1.0f,1.0f);
-                gfx->rect(sel_x[0],sel_y[0],sel_x[1],sel_y[1]);
-            }
-
             if (cur_sel_index >= 0 && cur_sel_index < units.max_unit && !(units.unit[cur_sel_index].flags & 1))
             {
                 cur_sel = -1;
@@ -2496,16 +2486,16 @@ namespace TA3D
             int n = cur_sel;
             if (n == -1)
                 n = -2;
-            if (n>=0 && units.unit[cur_sel_index].port[BUILD_PERCENT_LEFT]>0.0f)		// Unité non terminée
+            if (n >= 0 && units.unit[cur_sel_index].port[BUILD_PERCENT_LEFT] > 0.0f) // Unité non terminée
                 n = -1;
             int sel = -1;
 
             /*------------------- Draw GUI components -------------------------------------------------------*/
 
             if (pCurrentGUI != String( ta3dSideData.side_pref[players.side_view]) + "gen")
-                unit_manager.unit_build_menu(n,omb2,dt, true);	// Draw GUI background
+                unit_manager.unit_build_menu(n, omb2, dt, true);	// Draw GUI background
             else
-                unit_manager.unit_build_menu(-1,omb2,dt, true);	// Draw GUI background
+                unit_manager.unit_build_menu(-1, omb2, dt, true);	// Draw GUI background
 
             pArea.draw();
 
@@ -2589,18 +2579,18 @@ namespace TA3D
             {
                 /*------------------- GUI update ----------------------------------------------------------------*/
 
-                bool onoffable=false;
-                bool canstop=false;
-                bool canpatrol=false;
-                bool canmove=false;
-                bool canguard=false;
-                bool canattack=false;
-                bool canreclam=false;
-                bool builders=false;			// For repair purposes only
-                bool canload=false;
-                bool cancapture=false;
-                bool cancloak=false;
-                bool candgun=false;
+                bool onoffable = false;
+                bool canstop = false;
+                bool canpatrol = false;
+                bool canmove = false;
+                bool canguard = false;
+                bool canattack = false;
+                bool canreclam = false;
+                bool builders = false; // For repair purposes only
+                bool canload = false;
+                bool cancapture = false;
+                bool cancloak  =false;
+                bool candgun = false;
                 int onoff_state = 0;
                 byte sforder = 0;
                 byte smorder = 0;
@@ -2613,18 +2603,18 @@ namespace TA3D
                     units.unit[i].lock();
                     if ((units.unit[i].flags & 1) && units.unit[i].owner_id == players.local_human_id && units.unit[i].sel)
                     {
-                        onoffable |= unit_manager.unit_type[units.unit[i].type_id]->onoffable;
-                        canstop |= unit_manager.unit_type[units.unit[i].type_id]->canstop;
-                        canmove |= unit_manager.unit_type[units.unit[i].type_id]->canmove;
-                        canpatrol |= unit_manager.unit_type[units.unit[i].type_id]->canpatrol;
-                        canguard |= unit_manager.unit_type[units.unit[i].type_id]->canguard;
-                        canattack |= unit_manager.unit_type[units.unit[i].type_id]->canattack;
-                        canreclam |= unit_manager.unit_type[units.unit[i].type_id]->CanReclamate;
-                        builders |= unit_manager.unit_type[units.unit[i].type_id]->Builder;
-                        canload |= unit_manager.unit_type[units.unit[i].type_id]->canload;
+                        onoffable  |= unit_manager.unit_type[units.unit[i].type_id]->onoffable;
+                        canstop    |= unit_manager.unit_type[units.unit[i].type_id]->canstop;
+                        canmove    |= unit_manager.unit_type[units.unit[i].type_id]->canmove;
+                        canpatrol  |= unit_manager.unit_type[units.unit[i].type_id]->canpatrol;
+                        canguard   |= unit_manager.unit_type[units.unit[i].type_id]->canguard;
+                        canattack  |= unit_manager.unit_type[units.unit[i].type_id]->canattack;
+                        canreclam  |= unit_manager.unit_type[units.unit[i].type_id]->CanReclamate;
+                        builders   |= unit_manager.unit_type[units.unit[i].type_id]->Builder;
+                        canload    |= unit_manager.unit_type[units.unit[i].type_id]->canload;
                         cancapture |= unit_manager.unit_type[units.unit[i].type_id]->CanCapture;
-                        cancloak |= unit_manager.unit_type[units.unit[i].type_id]->CloakCost > 0;
-                        candgun |= unit_manager.unit_type[units.unit[i].type_id]->candgun;
+                        cancloak   |= unit_manager.unit_type[units.unit[i].type_id]->CloakCost > 0;
+                        candgun    |= unit_manager.unit_type[units.unit[i].type_id]->candgun;
 
                         if (unit_manager.unit_type[units.unit[i].type_id]->canattack)
                             sforder |= units.unit[i].port[ STANDINGFIREORDERS ];
@@ -2673,14 +2663,14 @@ namespace TA3D
 
                 GUIOBJ *onoff_gui = pArea.get_object( pCurrentGUICache[cgcDot] + ta3dSideData.side_pref[players.side_view] + "ONOFF");
                 if (onoff_gui == NULL)
-                    onoff_gui = pArea.get_object( pCurrentGUI + ".ARMONOFF");
+                    onoff_gui = pArea.get_object(pCurrentGUI + ".ARMONOFF");
 
                 if (onoff_gui)
                     onoff_gui->current_state = onoff_state - 1;
 
                 GUIOBJ *sorder_gui = pArea.get_object( pCurrentGUICache[cgcDot] + ta3dSideData.side_pref[players.side_view] + "FIREORD");
                 if (sorder_gui == NULL)
-                    sorder_gui = pArea.get_object( pCurrentGUI + ".ARMFIREORD");
+                    sorder_gui = pArea.get_object(pCurrentGUI + ".ARMFIREORD");
 
                 if (sorder_gui)
                     sorder_gui->current_state = sforder;
@@ -2707,77 +2697,79 @@ namespace TA3D
                     I_Msg(TA3D::TA3D_IM_GUI_MSG, (void*)(pCurrentGUI + ".ARMBLAST.show").c_str(), NULL, NULL);	// Show it
                 }
 
-                if (pCurrentGUI != String(ta3dSideData.side_pref[ players.side_view]) + "gen")
+                if (pCurrentGUI != String(ta3dSideData.side_pref[players.side_view]) + "gen")
                 {
-                    String gen_gui;
-                    gen_gui << ta3dSideData.side_pref[players.side_view] << "gen";
+                    String genGUI;
+                    genGUI << ta3dSideData.side_pref[players.side_view] << "gen";
+                    String genGUIwDot(genGUI);
+                    genGUIwDot += ".";
 
-                    pArea.set_enable_flag( gen_gui + "." + ta3dSideData.side_pref[players.side_view] + "STOP", canstop);
-                    pArea.set_enable_flag( gen_gui + "." + ta3dSideData.side_pref[players.side_view] + "MOVE", canmove);
-                    pArea.set_enable_flag( gen_gui + "." + ta3dSideData.side_pref[players.side_view] + "PATROL", canpatrol);
-                    pArea.set_enable_flag( gen_gui + "." + ta3dSideData.side_pref[players.side_view] + "DEFEND", canguard);
-                    pArea.set_enable_flag( gen_gui + "." + ta3dSideData.side_pref[players.side_view] + "ATTACK", canattack);
-                    pArea.set_enable_flag( gen_gui + "." + ta3dSideData.side_pref[players.side_view] + "RECLAIM", canreclam);
-                    pArea.set_enable_flag( gen_gui + "." + ta3dSideData.side_pref[players.side_view] + "LOAD", canload);
-                    pArea.set_enable_flag( gen_gui + "." + ta3dSideData.side_pref[players.side_view] + "UNLOAD", canload);
-                    pArea.set_enable_flag( gen_gui + "." + ta3dSideData.side_pref[players.side_view] + "REPAIR", builders);
-                    pArea.set_enable_flag( gen_gui + "." + ta3dSideData.side_pref[players.side_view] + "ONOFF", onoffable);
-                    pArea.set_enable_flag( gen_gui + "." + ta3dSideData.side_pref[players.side_view] + "MOVEORD", canmove);
-                    pArea.set_enable_flag( gen_gui + "." + ta3dSideData.side_pref[players.side_view] + "FIREORD", canattack);
-                    pArea.set_enable_flag( gen_gui + "." + ta3dSideData.side_pref[players.side_view] + "CAPTURE", cancapture);
-                    pArea.set_enable_flag( gen_gui + "." + ta3dSideData.side_pref[players.side_view] + "CLOAK", cancloak);
-                    pArea.set_enable_flag( gen_gui + "." + ta3dSideData.side_pref[players.side_view] + "BLAST", candgun);
+                    pArea.set_enable_flag( genGUIwDot + ta3dSideData.side_pref[players.side_view] + "STOP", canstop);
+                    pArea.set_enable_flag( genGUIwDot + ta3dSideData.side_pref[players.side_view] + "MOVE", canmove);
+                    pArea.set_enable_flag( genGUIwDot + ta3dSideData.side_pref[players.side_view] + "PATROL", canpatrol);
+                    pArea.set_enable_flag( genGUIwDot + ta3dSideData.side_pref[players.side_view] + "DEFEND", canguard);
+                    pArea.set_enable_flag( genGUIwDot + ta3dSideData.side_pref[players.side_view] + "ATTACK", canattack);
+                    pArea.set_enable_flag( genGUIwDot + ta3dSideData.side_pref[players.side_view] + "RECLAIM", canreclam);
+                    pArea.set_enable_flag( genGUIwDot + ta3dSideData.side_pref[players.side_view] + "LOAD", canload);
+                    pArea.set_enable_flag( genGUIwDot + ta3dSideData.side_pref[players.side_view] + "UNLOAD", canload);
+                    pArea.set_enable_flag( genGUIwDot + ta3dSideData.side_pref[players.side_view] + "REPAIR", builders);
+                    pArea.set_enable_flag( genGUIwDot + ta3dSideData.side_pref[players.side_view] + "ONOFF", onoffable);
+                    pArea.set_enable_flag( genGUIwDot + ta3dSideData.side_pref[players.side_view] + "MOVEORD", canmove);
+                    pArea.set_enable_flag( genGUIwDot + ta3dSideData.side_pref[players.side_view] + "FIREORD", canattack);
+                    pArea.set_enable_flag( genGUIwDot + ta3dSideData.side_pref[players.side_view] + "CAPTURE", cancapture);
+                    pArea.set_enable_flag( genGUIwDot + ta3dSideData.side_pref[players.side_view] + "CLOAK", cancloak);
+                    pArea.set_enable_flag( genGUIwDot + ta3dSideData.side_pref[players.side_view] + "BLAST", candgun);
 
-                    pArea.set_enable_flag( gen_gui + ".ARMSTOP", canstop);
-                    pArea.set_enable_flag( gen_gui + ".ARMMOVE", canmove);
-                    pArea.set_enable_flag( gen_gui + ".ARMPATROL", canpatrol);
-                    pArea.set_enable_flag( gen_gui + ".ARMDEFEND", canguard);
-                    pArea.set_enable_flag( gen_gui + ".ARMATTACK", canattack);
-                    pArea.set_enable_flag( gen_gui + ".ARMRECLAIM", canreclam);
-                    pArea.set_enable_flag( gen_gui + ".ARMLOAD", canload);
-                    pArea.set_enable_flag( gen_gui + ".ARMUNLOAD", canload);
-                    pArea.set_enable_flag( gen_gui + ".ARMREPAIR", builders);
-                    pArea.set_enable_flag( gen_gui + ".ARMONOFF", onoffable);
-                    pArea.set_enable_flag( gen_gui + ".ARMMOVEORD", canmove);
-                    pArea.set_enable_flag( gen_gui + ".ARMFIREORD", canattack);
-                    pArea.set_enable_flag( gen_gui + ".ARMCAPTURE", cancapture);
-                    pArea.set_enable_flag( gen_gui + ".ARMCLOAK", cancloak);
-                    pArea.set_enable_flag( gen_gui + ".ARMBLAST", candgun);
+                    pArea.set_enable_flag( genGUI + ".ARMSTOP", canstop);
+                    pArea.set_enable_flag( genGUI + ".ARMMOVE", canmove);
+                    pArea.set_enable_flag( genGUI + ".ARMPATROL", canpatrol);
+                    pArea.set_enable_flag( genGUI + ".ARMDEFEND", canguard);
+                    pArea.set_enable_flag( genGUI + ".ARMATTACK", canattack);
+                    pArea.set_enable_flag( genGUI + ".ARMRECLAIM", canreclam);
+                    pArea.set_enable_flag( genGUI + ".ARMLOAD", canload);
+                    pArea.set_enable_flag( genGUI + ".ARMUNLOAD", canload);
+                    pArea.set_enable_flag( genGUI + ".ARMREPAIR", builders);
+                    pArea.set_enable_flag( genGUI + ".ARMONOFF", onoffable);
+                    pArea.set_enable_flag( genGUI + ".ARMMOVEORD", canmove);
+                    pArea.set_enable_flag( genGUI + ".ARMFIREORD", canattack);
+                    pArea.set_enable_flag( genGUI + ".ARMCAPTURE", cancapture);
+                    pArea.set_enable_flag( genGUI + ".ARMCLOAK", cancloak);
+                    pArea.set_enable_flag( genGUI + ".ARMBLAST", candgun);
 
-                    onoff_gui = pArea.get_object( gen_gui + "." + ta3dSideData.side_pref[players.side_view] + "ONOFF");
+                    onoff_gui = pArea.get_object(genGUIwDot + ta3dSideData.side_pref[players.side_view] + "ONOFF");
                     if (onoff_gui == NULL)
-                        onoff_gui = pArea.get_object( gen_gui + ".ARMONOFF");
+                        onoff_gui = pArea.get_object(genGUI + ".ARMONOFF");
 
                     if (onoff_gui)
                         onoff_gui->current_state = onoff_state - 1;
 
-                    sorder_gui = pArea.get_object( gen_gui + "." + ta3dSideData.side_pref[players.side_view] + "FIREORD");
+                    sorder_gui = pArea.get_object( genGUIwDot + ta3dSideData.side_pref[players.side_view] + "FIREORD");
                     if (sorder_gui == NULL)
-                        sorder_gui = pArea.get_object( gen_gui + ".ARMFIREORD");
+                        sorder_gui = pArea.get_object( genGUI + ".ARMFIREORD");
 
                     if (sorder_gui)
                         sorder_gui->current_state = sforder;
 
-                    sorder_gui = pArea.get_object( gen_gui + "." + ta3dSideData.side_pref[players.side_view] + "MOVEORD");
+                    sorder_gui = pArea.get_object( genGUIwDot + ta3dSideData.side_pref[players.side_view] + "MOVEORD");
                     if (sorder_gui == NULL)
-                        sorder_gui = pArea.get_object( gen_gui + ".ARMMOVEORD");
+                        sorder_gui = pArea.get_object( genGUI + ".ARMMOVEORD");
 
                     if (sorder_gui)
                         sorder_gui->current_state = smorder;
 
                     if (canload)
                     {
-                        I_Msg( TA3D::TA3D_IM_GUI_MSG, (void*)( gen_gui + "." + ta3dSideData.side_pref[players.side_view] + "LOAD.show").c_str(), NULL, NULL);	// Show it
-                        I_Msg( TA3D::TA3D_IM_GUI_MSG, (void*)( gen_gui + "." + ta3dSideData.side_pref[players.side_view] + "BLAST.hide").c_str(), NULL, NULL);	// Hide it
-                        I_Msg( TA3D::TA3D_IM_GUI_MSG, (void*)( gen_gui + ".ARMLOAD.show").c_str(), NULL, NULL);	// Show it
-                        I_Msg( TA3D::TA3D_IM_GUI_MSG, (void*)( gen_gui + ".ARMBLAST.hide").c_str(), NULL, NULL);	// Hide it
+                        I_Msg( TA3D::TA3D_IM_GUI_MSG, (void*)( genGUIwDot + ta3dSideData.side_pref[players.side_view] + "LOAD.show").c_str(), NULL, NULL);	// Show it
+                        I_Msg( TA3D::TA3D_IM_GUI_MSG, (void*)( genGUIwDot + ta3dSideData.side_pref[players.side_view] + "BLAST.hide").c_str(), NULL, NULL);	// Hide it
+                        I_Msg( TA3D::TA3D_IM_GUI_MSG, (void*)( genGUI + ".ARMLOAD.show").c_str(), NULL, NULL);	// Show it
+                        I_Msg( TA3D::TA3D_IM_GUI_MSG, (void*)( genGUI + ".ARMBLAST.hide").c_str(), NULL, NULL);	// Hide it
                     }
                     else
                     {
-                        I_Msg( TA3D::TA3D_IM_GUI_MSG, (void*)( gen_gui + "." + ta3dSideData.side_pref[players.side_view] + "LOAD.hide").c_str(), NULL, NULL);	// Hide it
-                        I_Msg( TA3D::TA3D_IM_GUI_MSG, (void*)( gen_gui + "." + ta3dSideData.side_pref[players.side_view] + "BLAST.show").c_str(), NULL, NULL);	// Show it
-                        I_Msg( TA3D::TA3D_IM_GUI_MSG, (void*)( gen_gui + ".ARMLOAD.hide").c_str(), NULL, NULL);	// Hide it
-                        I_Msg( TA3D::TA3D_IM_GUI_MSG, (void*)( gen_gui + ".ARMBLAST.show").c_str(), NULL, NULL);	// Show it
+                        I_Msg( TA3D::TA3D_IM_GUI_MSG, (void*)( genGUIwDot + ta3dSideData.side_pref[players.side_view] + "LOAD.hide").c_str(), NULL, NULL);	// Hide it
+                        I_Msg( TA3D::TA3D_IM_GUI_MSG, (void*)( genGUIwDot + ta3dSideData.side_pref[players.side_view] + "BLAST.show").c_str(), NULL, NULL);	// Show it
+                        I_Msg( TA3D::TA3D_IM_GUI_MSG, (void*)( genGUI + ".ARMLOAD.hide").c_str(), NULL, NULL);	// Hide it
+                        I_Msg( TA3D::TA3D_IM_GUI_MSG, (void*)( genGUI + ".ARMBLAST.show").c_str(), NULL, NULL);	// Show it
                     }
                 }
 
@@ -3722,5 +3714,23 @@ namespace TA3D
     }
 
 
+
+    void Battle::draw2DObjects()
+    {
+        if (pMouseSelecting)
+            draw2DMouseUserSelection();
+    }
+
+    void Battle::draw2DMouseUserSelection()
+    {
+        glDisable(GL_TEXTURE_2D);
+        glColor4f(0.0f,0.0f,0.0f,1.0f);
+        gfx->rect(pMouseRectSelection.x1 + 1, pMouseRectSelection.y1 + 1, pMouseRectSelection.x2 + 1, pMouseRectSelection.y2 + 1);
+        glColor4f(1.0f,1.0f,1.0f,1.0f);
+        gfx->rect(pMouseRectSelection.x1, pMouseRectSelection.y1, pMouseRectSelection.x2, pMouseRectSelection.y2);
+    }
+
+
 } // namespace TA3D
+
 
