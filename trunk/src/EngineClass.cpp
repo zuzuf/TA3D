@@ -1075,17 +1075,16 @@ namespace TA3D
         }
 
         glDisable(GL_TEXTURE_2D);
-        glColor3f(0.9f,0.9f,0.4f);
-        glBegin(GL_LINE_STRIP);
+        glColor3ub(0xE5,0xE5,0x66);
+        glBegin(GL_LINE_LOOP);
         for(i=0;i<4;i++)
         {
             glVertex2f(cx[i]+x1,cy[i]+y1);
             for(int e=0;e<nmax;e++)
                 glVertex2f(x1+cx[i*nmax+e+4],y1+cy[i*nmax+e+4]);
         }
-        glVertex2f(cx[0]+x1,cy[0]+y1);
         glEnd();
-        glColor3f(1.0f,1.0f,1.0f);
+        glColor3ub(0xFF,0xFF,0xFF);
         glEnable(GL_TEXTURE_2D);
     }
 

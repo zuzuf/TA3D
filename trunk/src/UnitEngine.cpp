@@ -1151,7 +1151,7 @@ void UNIT::draw(float t, Camera *cam,MAP *map,bool height_line)
         }
         else
         {								// If it's black, then invert colors
-            glColor3f(1.0f,1.0f,1.0f);
+            glColor3ub(0xFF,0xFF,0xFF);
             glDisable(GL_TEXTURE_2D);
             glBegin(GL_QUADS);
             glTexCoord2f(0.0f, 0.0f);		glVertex3f( -size, 0.0f, -size);
@@ -1352,7 +1352,7 @@ void UNIT::draw(float t, Camera *cam,MAP *map,bool height_line)
                     glPushMatrix();
                     glDisable(GL_TEXTURE_2D);
                     glDisable(GL_LIGHTING);
-                    glColor3f(1.0f,1.0f,0.0f);
+                    glColor3ub(0xFF,0xFF,0);
                     glBegin(GL_LINES);
                     for (float y=Pos.y;y>Pos.y-h;y-=10.0f)
                     {
@@ -5036,7 +5036,7 @@ void UNIT::show_orders(bool only_build_commands, bool def_orders)				// Dessine 
         glDisable(GL_LIGHTING);
         glDisable(GL_CULL_FACE);
         glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
-        glColor4f(1.0f,1.0f,1.0f,1.0f);
+        glColor4ub(0xFF,0xFF,0xFF,0xFF);
     }
     else
     {
@@ -5045,7 +5045,7 @@ void UNIT::show_orders(bool only_build_commands, bool def_orders)				// Dessine 
         glDisable(GL_LIGHTING);
         glDisable(GL_CULL_FACE);
         glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
-        glColor4f(1.0f,1.0f,1.0f,1.0f);
+        glColor4ub(0xFF,0xFF,0xFF,0xFF);
     }
     Vector3D p_target=Pos;
     Vector3D n_target=Pos;
@@ -5357,7 +5357,6 @@ void INGAME_UNITS::destroy(bool delete_interface)
         DeleteInterface();			// Shut down the interface
     }
 
-    if ( mini_idx )			delete[] mini_idx;
     if ( mini_pos )			delete[] mini_pos;
     if ( mini_col )			delete[] mini_col;
 
@@ -5527,7 +5526,6 @@ void INGAME_UNITS::init(bool register_interface)
     pMutex.lock();
 
     next_unit_ID = 1;
-    mini_idx = NULL;
     mini_pos = NULL;
     mini_col = NULL;
     requests.clear();
@@ -6679,18 +6677,13 @@ int INGAME_UNITS::create(int type_id,int owner)
     nb_unit++;
     if (nb_unit>max_unit && max_unit == 0)
     {
-        if (mini_idx )		delete[]	mini_idx;
         if (mini_col )		delete[]	mini_col;
         if (mini_pos )		delete[]	mini_pos;
 
         max_unit=MAX_UNIT_PER_PLAYER*NB_PLAYERS;
 
-        mini_idx = new GLushort[ max_unit ];
         mini_col = new uint32[ max_unit ];
         mini_pos = new float[ max_unit * 2 ];
-
-        for( int i = 0 ; i < max_unit ; i++ )
-            mini_idx[ i ] = i;
 
         UNIT *n_unit = new UNIT[max_unit];
         uint16	*n_idx = new uint16[max_unit];
@@ -6821,25 +6814,25 @@ void INGAME_UNITS::draw_mini(float map_w,float map_h,int mini_w,int mini_h,SECTO
     glPushMatrix();
     glTranslatef( 63.0f, 64.0f, 0.0f );
     glScalef( rw, rh, 0.0f );
-    glDrawElements(GL_POINTS, nb, GL_UNSIGNED_SHORT, mini_idx);		// draw the points
+    glDrawArrays(GL_POINTS, 0, nb);		// draw the points
 
     glPopMatrix();
     glPushMatrix();
     glTranslatef( 65.0f, 64.0f, 0.0f );
     glScalef( rw, rh, 0.0f );
-    glDrawElements(GL_POINTS, nb, GL_UNSIGNED_SHORT, mini_idx);		// draw the points
+    glDrawArrays(GL_POINTS, 0, nb);		// draw the points
 
     glPopMatrix();
     glPushMatrix();
     glTranslatef( 64.0f, 65.0f, 0.0f );
     glScalef( rw, rh, 0.0f );
-    glDrawElements(GL_POINTS, nb, GL_UNSIGNED_SHORT, mini_idx);		// draw the points
+    glDrawArrays(GL_POINTS, 0, nb);		// draw the points
 
     glPopMatrix();
     glPushMatrix();
     glTranslatef( 64.0f, 63.0f, 0.0f );
     glScalef( rw, rh, 0.0f );
-    glDrawElements(GL_POINTS, nb, GL_UNSIGNED_SHORT, mini_idx);		// draw the points
+    glDrawArrays(GL_POINTS, 0, nb);		// draw the points
 
     glPopMatrix();
     glPushMatrix();
@@ -6847,7 +6840,7 @@ void INGAME_UNITS::draw_mini(float map_w,float map_h,int mini_w,int mini_h,SECTO
     glScalef( rw, rh, 0.0f );
     for( int i = 0 ; i < nb ; i++ )
         mini_col[ i ] = player_col_32[ geta( mini_col[ i ] ) ];
-    glDrawElements(GL_POINTS, nb, GL_UNSIGNED_SHORT, mini_idx);		// draw the points
+    glDrawArrays(GL_POINTS, 0, nb);		// draw the points
     glPopMatrix();
 
     int cur_id = -1;
@@ -6886,7 +6879,7 @@ void INGAME_UNITS::draw_mini(float map_w,float map_h,int mini_w,int mini_h,SECTO
                 glPointSize(3.0f);
                 glBegin( GL_POINTS );
             }
-            glColor3f(1.0f,1.0f,1.0f);
+            glColor3ub(0xFF,0xFF,0xFF);
             glVertex2f(pos_x-1.0f,pos_y);
             glVertex2f(pos_x+1.0f,pos_y);
             glVertex2f(pos_x,pos_y-1.0f);
