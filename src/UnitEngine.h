@@ -543,7 +543,6 @@ namespace TA3D
 
     public:
 
-        GLushort	*mini_idx;			// Array to draw the units on mini map
         float		*mini_pos;			// Position on mini map
         uint32		*mini_col;			// Colors of units
 

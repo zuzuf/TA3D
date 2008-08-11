@@ -736,12 +736,8 @@ void load_game( GameData *game_data )
 
     units.lock();
 
-    units.mini_idx = new GLushort[ units.max_unit ];
     units.mini_col = new uint32[ units.max_unit ];
     units.mini_pos = new float[ units.max_unit * 2 ];
-
-    for( int i = 0 ; i < units.max_unit ; ++i)
-        units.mini_idx[ i ] = i;
 
     units.unit =  new UNIT[units.max_unit];
     units.idx_list = new uint16[units.max_unit];
