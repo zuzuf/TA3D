@@ -284,6 +284,12 @@ namespace TA3D
     }; // class GFX
 
 
+
+
+    // Those function should be removed
+    void reset_keyboard();
+    void reset_mouse();
+
 } // namespace TA3D
 
 

@@ -46,6 +46,7 @@
 #include "sounds/manager.h"
 #include "ingame/players.h"
 #include "scripts/script.h"
+#include "ingame/battle.h"
 
 
 
@@ -1659,10 +1660,7 @@ void setup_game(bool client, const char *host)
                 }
             }
 
-            gfx->unset_2D_mode();
-            play(&game_data);
-            gfx->set_2D_mode();
-            gfx->ReInitTexSys();
+            Battle::Execute(&game_data);
         }
 
         while (key[KEY_ESC])
@@ -2150,7 +2148,7 @@ void campaign_main_menu(void)
 
 
 
-int brief_screen(String campaign_name, int mission_id)
+Battle::Result brief_screen(String campaign_name, int mission_id)
 {
     cursor_type=CURSOR_DEFAULT;
 
@@ -2424,11 +2422,7 @@ int brief_screen(String campaign_name, int mission_id)
         if (!game_data.use_only.empty())
             game_data.use_only = "camps\\useonly\\" + game_data.use_only;
 
-        gfx->unset_2D_mode();
-        int exit_mode = 0;
-        exit_mode = play(&game_data);
-        gfx->set_2D_mode();
-        gfx->ReInitTexSys();
+        Battle::Result exit_mode = Battle::Execute(&game_data);
 
         while (key[KEY_ESC])
         {
@@ -2438,7 +2432,7 @@ int brief_screen(String campaign_name, int mission_id)
 
         return exit_mode;
     }
-    return -1;
+    return Battle::brUnknown;
 }
 
 void wait_room(void *p_game_data)

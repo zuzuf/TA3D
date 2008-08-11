@@ -91,16 +91,9 @@ extern int build_part;
 
 extern int cursor_type;
 
-int anim_cursor(int type=-1);
 void draw_cursor();
 
 
-void reset_mouse();
-void reset_keyboard();
-
-
-int play(GameData *game_data);
-
-
+int anim_cursor(const int type = -1);
 
 #endif

@@ -120,7 +120,7 @@ ELSE(APPLE)
 	SET(TA3D_BIN ta3d-bin)
 ENDIF(APPLE)
 SET(SOURCES
-        ta3d.cpp ta3d.h main.cpp install.cpp cTA3D_Engine.cpp cTA3D_Engine.h
+        ta3d.h main.cpp install.cpp cTA3D_Engine.cpp cTA3D_Engine.h
         cTAFileParser.cpp cTAFileParser.h restore.cpp restore.h menu.cpp menu.h
         EngineClass.cpp EngineClass.h UnitEngine.cpp UnitEngine.h
         fbi.cpp fbi.h intro.cpp intro.h  tdf.cpp tdf.h tnt.cpp tnt.h 
