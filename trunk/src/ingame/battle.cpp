@@ -3265,10 +3265,6 @@ namespace TA3D
             if (!shoot || video_shoot)
                 cmd = console.draw(gfx->TA_font, dt, gfx->TA_font.height());
 
-
-            glEnable(GL_BLEND);
-            glBlendFunc(GL_ONE,GL_ONE_MINUS_SRC_COLOR);
-
             // Informations about FPS
             if (lp_CONFIG->showfps)
             {
@@ -3282,10 +3278,12 @@ namespace TA3D
                     fps.toStr.clear();
                     fps.toStr << "fps: " << fps.average;
                 }
+                glEnable(GL_BLEND);
+                glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_COLOR);
                 gfx->print(gfx->TA_font, 0.0f, 0.0f, 0.0f, 0xFFFFFFFF, fps.toStr);
+                glDisable(GL_BLEND);
             }
 
-            glDisable(GL_BLEND);
 
             if (mouse_b!=4 || TA3D_CTRL_PRESSED)
                 draw_cursor();
