@@ -1060,7 +1060,7 @@ namespace TA3D
     }
 
 
-    void UNIT::draw(float t, Camera *cam,MAP *map,bool height_line)
+    void UNIT::draw(float t, Camera& cam, MAP* map, bool height_line)
     {
         MutexLocker locker(pMutex);
 
@@ -1074,12 +1074,12 @@ namespace TA3D
         drawn_Pos = Pos;
         drawn_Angle = Angle;
 
-        if (model==NULL || hidden )
+        if (!model || hidden)
             return;		// S'il n'y a pas de modèle associé, on quitte la fonction
 
-        int px=cur_px>>1;
-        int py=cur_py>>1;
-        if (px<0 || py<0 || px>=map->bloc_w || py>=map->bloc_h)
+        int px = cur_px >> 1;
+        int py = cur_py >> 1;
+        if (px < 0 || py < 0 || px >= map->bloc_w || py >= map->bloc_h)
             return;	// Unité hors de la carte
         byte player_mask = 1 << players.local_human_id;
 
@@ -1091,19 +1091,18 @@ namespace TA3D
 
         on_radar &= map->view[py][px] > 1;
 
-        Vector3D D;
-        D=Pos-cam->pos;		// Vecteur "viseur unité" partant de la caméra vers l'unité
+        Vector3D D (Pos - cam.pos); // Vecteur "viseur unité" partant de la caméra vers l'unité
 
         float dist=D.sq();
-        if (dist>=16384.0f && (D%cam->dir)<=0.0f)
+        if (dist >= 16384.0f && (D % cam.dir) <= 0.0f)
             return;
-        if ((D%cam->dir)>cam->zfar2)
+        if ((D % cam.dir) > cam.zfar2)
             return;		// Si l'objet est hors champ on ne le dessine pas
 
-        if (!cloaked || owner_id == players.local_human_id ) // Don't show cloaked units
+        if (!cloaked || owner_id == players.local_human_id) // Don't show cloaked units
         {
-            visible=true;
-            on_radar |= cam->rpos.y>gfx->low_def_limit;
+            visible = true;
+            on_radar |= cam.rpos.y > gfx->low_def_limit;
         }
         else
         {
@@ -1119,7 +1118,7 @@ namespace TA3D
             glTranslatef( Pos.x, Math::Max(Pos.y,map->sealvl+5.0f), Pos.z);
             glEnable(GL_TEXTURE_2D);
             int unit_nature = ICON_UNKNOWN;
-            float size = (D%cam->dir) * 12.0f / gfx->height;
+            float size = (D % cam.dir) * 12.0f / gfx->height;
 
             if (unit_manager.unit_type[type_id]->fastCategory & CATEGORY_KAMIKAZE )
                 unit_nature = ICON_KAMIKAZE;
@@ -1174,7 +1173,7 @@ namespace TA3D
                 glTexCoord2f(0.0f, 1.0f);		glVertex3f( -size, 0.0f,  size);
                 glEnd();
                 glEnable(GL_TEXTURE_2D);
-                glBlendFunc( GL_ZERO, GL_ONE_MINUS_SRC_COLOR ); 
+                glBlendFunc( GL_ZERO, GL_ONE_MINUS_SRC_COLOR);
                 glEnable(GL_BLEND);
                 glBegin(GL_QUADS);
                 glTexCoord2f(0.0f, 0.0f);		glVertex3f( -size, 0.0f, -size);
@@ -1185,7 +1184,7 @@ namespace TA3D
                 glDisable(GL_BLEND);
             }
             glEnable( GL_CULL_FACE );
-            if (owner_id==players.local_human_id && sel)
+            if (owner_id == players.local_human_id && sel)
             {
                 glDisable( GL_TEXTURE_2D );
                 glColor3ub(0xFF,0xFF,0);
@@ -1435,7 +1434,7 @@ namespace TA3D
 
 
 
-    void UNIT::draw_shadow(Camera *cam, const Vector3D& Dir,MAP *map)
+    void UNIT::draw_shadow(const Vector3D& Dir, MAP* map)
     {
         pMutex.lock();
         if (!(flags & 1))
@@ -1496,7 +1495,7 @@ namespace TA3D
             shadow_scale_dir = (D - H).norm();
         }
         //    model->draw_shadow(((shadow_scale_dir*Dir*RotateX(-drawn_Angle.x*DEG2RAD))*RotateZ(-drawn_Angle.z*DEG2RAD))*RotateY(-drawn_Angle.y*DEG2RAD),0.0f,&data);
-        model->draw_shadow(shadow_scale_dir*Dir*RotateXZY(-drawn_Angle.x*DEG2RAD, -drawn_Angle.z*DEG2RAD, -drawn_Angle.y*DEG2RAD),0.0f,&data);
+        model->draw_shadow(shadow_scale_dir*Dir*RotateXZY(-drawn_Angle.x*DEG2RAD, -drawn_Angle.z*DEG2RAD, -drawn_Angle.y*DEG2RAD),0.0f, &data);
 
         glPopMatrix();
 
@@ -1504,7 +1503,7 @@ namespace TA3D
     }
 
 
-    void UNIT::draw_shadow_basic(Camera *cam, const Vector3D& Dir,MAP *map)
+    void UNIT::draw_shadow_basic(const Vector3D& Dir,MAP *map)
     {
         pMutex.lock();
         if (!(flags & 1))
@@ -1526,10 +1525,10 @@ namespace TA3D
 
         if (!visible)
         {
-            Vector3D S_Pos = drawn_Pos-(h/Dir.y)*Dir;//map->hit(Pos,Dir);
-            int px=((int)(S_Pos.x+map->map_w_d))>>4;
-            int py=((int)(S_Pos.z+map->map_h_d))>>4;
-            if (px<0 || py<0 || px>=map->bloc_w || py>=map->bloc_h)
+            Vector3D S_Pos (drawn_Pos - (h / Dir.y) * Dir);//map->hit(Pos,Dir);
+            int px = ((int)(S_Pos.x + map->map_w_d)) >> 4;
+            int py = ((int)(S_Pos.z + map->map_h_d)) >> 4;
+            if (px < 0 || py < 0 || px >= map->bloc_w || py >= map->bloc_h)
             {
                 pMutex.unlock();
                 return;	// Shadow out of the map
@@ -2591,22 +2590,25 @@ namespace TA3D
                 pMutex.unlock();
                 clear_from_map();
                 pMutex.lock();
-        };
+        }
         pMutex.unlock();
         int w_id = weapons.add_weapon(weapon_manager.get_weapon_index( self_destruct == 0.0f ? unit_manager.unit_type[type_id]->SelfDestructAs : unit_manager.unit_type[type_id]->ExplodeAs ),idx);
         pMutex.lock();
-        if (w_id>=0) {
+        if (w_id >= 0)
+        {
             weapons.weapon[w_id].Pos = Pos;
             weapons.weapon[w_id].target_pos = Pos;
             weapons.weapon[w_id].target = -1;
             weapons.weapon[w_id].just_explode = true;
         }
-        for(int i=0;i<data.nb_piece;i++)
+        for (int i = 0; i < data.nb_piece; ++i)
+        {
             if (!(data.flag[i]&FLAG_EXPLODE))// || (data.flag[i]&FLAG_EXPLODE && (data.explosion_flag[i]&EXPLODE_BITMAPONLY)))
                 data.flag[i]|=FLAG_HIDE;
+        }
     }
 
-    inline float ballistic_angle(float v,float g,float d,float y_s,float y_e)			// Calculs de ballistique pour l'angle de tir
+    float ballistic_angle(float v, float g, float d, float y_s, float y_e) // Calculs de ballistique pour l'angle de tir
     {
         float v2 = v*v;
         float gd = g*d;
@@ -2617,7 +2619,7 @@ namespace TA3D
         return RAD2DEG*atan(v2gd-0.5f*sqrt(a));
     }
 
-    const int UNIT::move( const float dt,MAP *map, int *path_exec, const int key_frame )
+    const int UNIT::move(const float dt, MAP* map, int* path_exec, const int key_frame)
     {
         pMutex.lock();
 
@@ -2677,12 +2679,14 @@ namespace TA3D
 
         bool jump_commands = (((idx+key_frame)&0xF) == 0);		// Saute certaines commandes / Jump some commands so it runs faster with lots of units
 
-        if (build_percent_left == 0.0f && self_destruct >= 0.0f ) {		// Self-destruction code
+        if (build_percent_left == 0.0f && self_destruct >= 0.0f) // Self-destruction code
+        {
             int old = (int)self_destruct;
             self_destruct -= dt;
-            if (old != (int)self_destruct )		// Play a sound :-)
-                play_sound( format( "count%d", old ) );
-            if (self_destruct <= 0.0f ) {
+            if (old != (int)self_destruct) // Play a sound :-)
+                play_sound( format( "count%d", old));
+            if (self_destruct <= 0.0f)
+            {
                 self_destruct = 0.0f;
                 hp = 0.0f;
                 severity = unit_manager.unit_type[type_id]->MaxDamage;
@@ -2784,23 +2788,30 @@ namespace TA3D
 
         flags &= 0xEF;		// To fix a bug
 
-        if (build_percent_left > 0.0f)	{		// Unit isn't finished
-            if (!built && local) {
+        if (build_percent_left > 0.0f) // Unit isn't finished
+        {
+            if (!built && local)
+            {
                 hp -= dt * 1000.0f / ( 6 * unit_manager.unit_type[type_id]->BuildTime ) * unit_manager.unit_type[type_id]->MaxDamage;
                 build_percent_left += dt * 100000.0f / ( 6 * unit_manager.unit_type[type_id]->BuildTime );
             }
             goto script_exec;
         }
-        else if (hp < unit_manager.unit_type[type_id]->MaxDamage && unit_manager.unit_type[type_id]->HealTime > 0 ) {
-            hp += unit_manager.unit_type[type_id]->MaxDamage * dt / unit_manager.unit_type[type_id]->HealTime;
-            if (hp > unit_manager.unit_type[type_id]->MaxDamage )
-                hp = unit_manager.unit_type[type_id]->MaxDamage;
+        else
+        {
+            if (hp < unit_manager.unit_type[type_id]->MaxDamage && unit_manager.unit_type[type_id]->HealTime > 0)
+            {
+                hp += unit_manager.unit_type[type_id]->MaxDamage * dt / unit_manager.unit_type[type_id]->HealTime;
+                if (hp > unit_manager.unit_type[type_id]->MaxDamage )
+                    hp = unit_manager.unit_type[type_id]->MaxDamage;
+            }
         }
 
         if (data.nb_piece>0)
             data.move(dt,units.g_dt);
 
-        if (cloaking ) {
+        if (cloaking)
+        {
             int conso_energy = (mission == NULL || !(mission->flags & MISSION_FLAG_MOVE) ) ? unit_manager.unit_type[type_id]->CloakCost : unit_manager.unit_type[type_id]->CloakCostMoving;
             if (players.energy[ owner_id ] >= (energy_cons + conso_energy) * dt ) {
                 energy_cons += conso_energy;
@@ -2831,19 +2842,23 @@ namespace TA3D
         if (attached)
             goto script_exec;
 
-        if (unit_manager.unit_type[type_id]->canload && nb_attached>0) {
+        if (unit_manager.unit_type[type_id]->canload && nb_attached > 0)
+        {
             int e = 0;
             compute_model_coord();
-            for(int i=0;i+e<nb_attached;i++) {
-                if (units.unit[attached_list[i]].flags) {
+            for (int i = 0; i + e < nb_attached; ++i)
+            {
+                if (units.unit[attached_list[i]].flags)
+                {
                     units.unit[attached_list[i]].Pos = Pos+data.pos[link_list[i]];
                     units.unit[attached_list[i]].cur_px = ((int)(units.unit[attached_list[i]].Pos.x)+map->map_w_d)>>3;
                     units.unit[attached_list[i]].cur_py = ((int)(units.unit[attached_list[i]].Pos.z)+map->map_h_d)>>3;
                     units.unit[attached_list[i]].Angle = Angle;
                 }
-                else {
-                    e++;
-                    i--;
+                else
+                {
+                    ++e;
+                    --i;
                     continue;
                 }
                 attached_list[i]=attached_list[i+e];
@@ -2851,17 +2866,20 @@ namespace TA3D
             nb_attached-=e;
         }
 
-        if (planned_weapons>0.0f) {			// Construit des armes / build weapons
+        if (planned_weapons > 0.0f)	// Construit des armes / build weapons
+        {
             float old=planned_weapons-(int)planned_weapons;
             int idx=-1;
             if (unit_manager.unit_type[type_id]->weapon[0] && unit_manager.unit_type[type_id]->weapon[0]->stockpile)	idx=0;
             else if (unit_manager.unit_type[type_id]->weapon[1] && unit_manager.unit_type[type_id]->weapon[1]->stockpile)	idx=0;
             else if (unit_manager.unit_type[type_id]->weapon[2] && unit_manager.unit_type[type_id]->weapon[2]->stockpile)	idx=0;
-            if (idx!=-1 && unit_manager.unit_type[type_id]->weapon[idx]->reloadtime!=0.0f)	{
+            if (idx!=-1 && unit_manager.unit_type[type_id]->weapon[idx]->reloadtime!=0.0f)
+            {
                 float dn=dt/unit_manager.unit_type[type_id]->weapon[idx]->reloadtime;
                 float conso_metal=((float)unit_manager.unit_type[type_id]->weapon[idx]->metalpershot)/unit_manager.unit_type[type_id]->weapon[idx]->reloadtime;
                 float conso_energy=((float)unit_manager.unit_type[type_id]->weapon[idx]->energypershot)/unit_manager.unit_type[type_id]->weapon[idx]->reloadtime;
-                if (players.metal[owner_id]>=conso_metal*dt && players.energy[owner_id]>=conso_energy*dt) {
+                if (players.metal[owner_id]>=conso_metal*dt && players.energy[owner_id]>=conso_energy*dt)
+                {
                     metal_cons+=conso_metal;
                     energy_cons+=conso_energy;
                     planned_weapons-=dn;
@@ -2874,15 +2892,18 @@ namespace TA3D
             }
         }
 
-        V_Angle.x=V_Angle.y=V_Angle.z=0.0f;
-        c_time+=dt;
+        V_Angle.reset();
+        c_time += dt;
 
         //------------------------------ Beginning of weapon related code ---------------------------------------
-        for( byte i = 0 ; i < 3 ; i++ ) {
-            if (unit_manager.unit_type[type_id]->weapon[ i ] == NULL )	continue;		// Skip that weapon if not present on the unit
+        for (byte i = 0; i < 3; ++i)
+        {
+            if (unit_manager.unit_type[type_id]->weapon[i] == NULL)
+                continue;		// Skip that weapon if not present on the unit
             weapon[i].delay += dt;
             weapon[i].time += dt;
-            switch( (weapon[i].state & 3) )
+
+            switch ((weapon[i].state & 3))
             {
                 case WEAPON_FLAG_IDLE:										// Doing nothing, waiting for orders
                     if (jump_commands)	break;
@@ -2890,21 +2911,24 @@ namespace TA3D
                     break;
                 case WEAPON_FLAG_AIM:											// Vise une unité / aiming code
                     if (weapon[i].target == NULL || ((weapon[i].state&WEAPON_FLAG_WEAPON)==WEAPON_FLAG_WEAPON && ((WEAPON*)(weapon[i].target))->weapon_id!=-1)
-                        || ((weapon[i].state&WEAPON_FLAG_WEAPON)!=WEAPON_FLAG_WEAPON && (((UNIT*)(weapon[i].target))->flags&1))) {
+                        || ((weapon[i].state&WEAPON_FLAG_WEAPON)!=WEAPON_FLAG_WEAPON && (((UNIT*)(weapon[i].target))->flags&1)))
+                    {
                         if ((weapon[i].state&WEAPON_FLAG_WEAPON)!=WEAPON_FLAG_WEAPON && weapon[i].target != NULL && ((UNIT*)(weapon[i].target))->cloaked
-                            && ((UNIT*)(weapon[i].target))->owner_id != owner_id && !((UNIT*)(weapon[i].target))->is_on_radar( 1 << owner_id ) )	{
+                            && ((UNIT*)(weapon[i].target))->owner_id != owner_id && !((UNIT*)(weapon[i].target))->is_on_radar( 1 << owner_id))
+                        {
                             weapon[i].data = -1;
                             weapon[i].state = WEAPON_FLAG_IDLE;
                             break;
                         }
 
-                        if (!(weapon[i].state & WEAPON_FLAG_COMMAND_FIRE) && unit_manager.unit_type[type_id]->weapon[ i ]->commandfire ) {	// Not allowed to fire
+                        if (!(weapon[i].state & WEAPON_FLAG_COMMAND_FIRE) && unit_manager.unit_type[type_id]->weapon[i]->commandfire) // Not allowed to fire
+                        {
                             weapon[i].data = -1;
                             weapon[i].state = WEAPON_FLAG_IDLE;
                             break;
                         }
                         int query_id=-1;
-                        switch( i )
+                        switch(i)
                         {
                             case 0:
                                 query_id = get_script_index(SCRIPT_QueryPrimary);		break;
@@ -2912,11 +2936,13 @@ namespace TA3D
                                 query_id = get_script_index(SCRIPT_QuerySecondary);		break;
                             case 2:
                                 query_id = get_script_index(SCRIPT_QueryTertiary);		break;
-                        };
-                        if (!is_running(get_script_index(SCRIPT_RequestState))) {
-                            if (weapon[i].delay >= unit_manager.unit_type[type_id]->weapon[ i ]->reloadtime || unit_manager.unit_type[type_id]->weapon[ i ]->stockpile) {
+                        }
 
-                                run_script_function( map, query_id );			// Run the script that tell us from where to shoot
+                        if (!is_running(get_script_index(SCRIPT_RequestState)))
+                        {
+                            if (weapon[i].delay >= unit_manager.unit_type[type_id]->weapon[ i ]->reloadtime || unit_manager.unit_type[type_id]->weapon[ i ]->stockpile)
+                            {
+                                run_script_function(map, query_id);			// Run the script that tell us from where to shoot
 
                                 UNIT *target_unit = (weapon[i].state & WEAPON_FLAG_WEAPON ) == WEAPON_FLAG_WEAPON ? NULL : (UNIT*) weapon[i].target;
                                 WEAPON *target_weapon = (weapon[i].state & WEAPON_FLAG_WEAPON ) == WEAPON_FLAG_WEAPON ? (WEAPON*) weapon[i].target : NULL;
@@ -3015,21 +3041,24 @@ namespace TA3D
                                         Vector3D K=target;
                                         K.y=0.0f;
                                         K.unit();
-                                        angle=acos(K%target)*RAD2DEG;
+                                        angle = acos(K%target)*RAD2DEG;
                                         if (target.y<0.0f)
                                             angle=-angle;
-                                        angle-=Angle.x;
+                                        angle -= Angle.x;
                                         if (angle>180.0f)	angle-=360.0f;
                                         if (angle<-180.0f)	angle+=360.0f;
-                                        if (fabs(angle)>180.0f) {
+                                        if (fabs(angle)>180.0f)
+                                        {
                                             weapon[i].state = WEAPON_FLAG_IDLE;
                                             weapon[i].data = -1;
                                             break;
                                         }
                                         aiming[1]=(int)(angle*DEG2TA);
                                     }
-                                    if (unit_manager.unit_type[type_id]->weapon[ i ]->lineofsight) {
-                                        if (target_unit==NULL) {
+                                    if (unit_manager.unit_type[type_id]->weapon[i]->lineofsight)
+                                    {
+                                        if (!target_unit)
+                                        {
                                             if (target_weapon == NULL )
                                                 weapon[i].aim_dir=weapon[i].target_pos-(Pos+data.pos[start_piece]);
                                             else
@@ -3042,7 +3071,7 @@ namespace TA3D
                                     }
                                     else
                                         weapon[i].aim_dir=cos(aiming[1]*TA2RAD)*(cos(aiming[0]*TA2RAD+Angle.y*DEG2RAD)*I+sin(aiming[0]*TA2RAD+Angle.y*DEG2RAD)*J)+sin(aiming[1]*TA2RAD)*IJ;
-                                    switch( i )
+                                    switch(i)
                                     {
                                         case 0:
                                             launch_script(get_script_index(SCRIPT_AimPrimary),2,aiming);	break;
@@ -3050,10 +3079,10 @@ namespace TA3D
                                             launch_script(get_script_index(SCRIPT_AimSecondary),2,aiming);	break;
                                         case 2:
                                             launch_script(get_script_index(SCRIPT_AimTertiary),2,aiming);	break;
-                                    };
+                                    }
                                 }
                                 else
-                                    switch( i )
+                                    switch(i)
                                     {
                                         case 0:
                                             launch_script(get_script_index(SCRIPT_AimPrimary));	break;
@@ -3061,14 +3090,15 @@ namespace TA3D
                                             launch_script(get_script_index(SCRIPT_AimSecondary));	break;
                                         case 2:
                                             launch_script(get_script_index(SCRIPT_AimTertiary));	break;
-                                    };
+                                    }
                                 weapon[i].time = 0.0f;
                                 weapon[i].state = WEAPON_FLAG_SHOOT;									// (puis) on lui demande de tirer / tell it to fire
                                 weapon[i].burst=0;
                             }
                         }
                     }
-                    else {
+                    else
+                    {
                         launch_script(get_script_index(SCRIPT_TargetCleared));
                         weapon[i].state = WEAPON_FLAG_IDLE;
                         weapon[i].data = -1;
@@ -3082,7 +3112,7 @@ namespace TA3D
                         int query_id=-1;
                         int Aim_script = -1;
                         int Fire_script = -1;
-                        switch( i )
+                        switch(i)
                         {
                             case 0:
                                 query_id=get_script_index(SCRIPT_QueryPrimary);
@@ -3099,7 +3129,7 @@ namespace TA3D
                                 Aim_script=SCRIPT_AimTertiary;
                                 Fire_script=SCRIPT_FireTertiary;
                                 break;
-                        };
+                        }
                         if (!is_running(get_script_index(Aim_script)))
                         {
                             if ((players.metal[owner_id]<unit_manager.unit_type[type_id]->weapon[ i ]->metalpershot
@@ -3176,27 +3206,32 @@ namespace TA3D
                             }
                         }
                     }
-                    else {
+                    else
+                    {
                         launch_script(get_script_index(SCRIPT_TargetCleared) );
                         weapon[i].state = WEAPON_FLAG_IDLE;
                         weapon[i].data = -1;
                     }
                     break;
-            };
+            }
         }
 
         //---------------------------- Beginning of mission execution code --------------------------------------
 
-        if (mission == NULL )	was_moving = false;
+        if (mission == NULL)
+            was_moving = false;
 
-        if (mission) {
+        if (mission)
+        {
             mission->time+=dt;
             last_path_refresh += dt;
 
             //----------------------------------- Beginning of moving code ------------------------------------
 
-            if ((mission->flags & MISSION_FLAG_MOVE) && unit_manager.unit_type[type_id]->canmove && unit_manager.unit_type[type_id]->BMcode ) {
-                if (!was_moving ) {
+            if ((mission->flags & MISSION_FLAG_MOVE) && unit_manager.unit_type[type_id]->canmove && unit_manager.unit_type[type_id]->BMcode)
+            {
+                if (!was_moving)
+                {
                     if (unit_manager.unit_type[type_id]->canfly)
                         activate();
                     launch_script(get_script_index(SCRIPT_MotionControl));
@@ -3211,7 +3246,7 @@ namespace TA3D
                 K.x = 0.0f;
                 K.y = 1.0f;
                 K.z = 0.0f;
-                Vector3D Target = mission->target;
+                Vector3D Target(mission->target);
                 if (mission->path && ( !(mission->flags & MISSION_FLAG_REFRESH_PATH) || last_path_refresh < 5.0f ) )
                     Target = mission->path->Pos;
                 else
@@ -3224,12 +3259,15 @@ namespace TA3D
                     }
                     mission->flags &= ~MISSION_FLAG_REFRESH_PATH;
                     float dist = (Target-Pos).sq();
-                    if (( mission->move_data <= 0 && dist > 100.0f ) || ( ( mission->move_data * mission->move_data << 6 ) < dist ) ) {
-                        if (!requesting_pathfinder && last_path_refresh >= 5.0f ) {
+                    if (( mission->move_data <= 0 && dist > 100.0f ) || ( ( mission->move_data * mission->move_data << 6 ) < dist))
+                    {
+                        if (!requesting_pathfinder && last_path_refresh >= 5.0f)
+                        {
                             requesting_pathfinder = true;
                             units.requests[ owner_id ].push_back( idx );
                         }
-                        if (path_exec[ owner_id ] < MAX_PATH_EXEC && last_path_refresh >= 5.0f && !units.requests[ owner_id ].empty() && idx == units.requests[ owner_id ].front() ) {
+                        if (path_exec[ owner_id ] < MAX_PATH_EXEC && last_path_refresh >= 5.0f && !units.requests[ owner_id ].empty() && idx == units.requests[ owner_id ].front())
+                        {
                             units.requests[ owner_id ].pop_front();
                             requesting_pathfinder = false;
 
@@ -3274,24 +3312,28 @@ namespace TA3D
                                     was_moving = false;
                                 }
 
-                                if (mission->path == NULL )					// Can't find a path to get where it has been ordered to go
-                                    play_sound( "cant1" );
+                                if (mission->path == NULL)					// Can't find a path to get where it has been ordered to go
+                                    play_sound("cant1");
                             }
-                            if (mission->path )			// Update required data
+                            if (mission->path)// Update required data
                                 Target = mission->path->Pos;
                         }
                     }
                     else
                         stop_moving();
                 }
-                if (mission->path ) {				// If we have a path, follow it
+                
+                if (mission->path) // If we have a path, follow it
+                {
                     if ((mission->target - move_target_computed).sq() >= 10000.0f )			// Follow the target above all...
                         mission->flags |= MISSION_FLAG_REFRESH_PATH;
                     J = Target - Pos;
                     J.y = 0.0f;
                     float dist = J.norm();
-                    if ((dist > mission->last_d && dist < 15.0f) || mission->path == NULL) {
-                        if (mission->path) {
+                    if ((dist > mission->last_d && dist < 15.0f) || mission->path == NULL)
+                    {
+                        if (mission->path)
+                        {
                             float dh_max = unit_manager.unit_type[type_id]->MaxSlope * H_DIV;
                             float h_min = unit_manager.unit_type[type_id]->canhover ? -100.0f : map->sealvl - unit_manager.unit_type[type_id]->MaxWaterDepth * H_DIV;
                             float h_max = map->sealvl - unit_manager.unit_type[type_id]->MinWaterDepth * H_DIV;
@@ -3299,10 +3341,12 @@ namespace TA3D
                             mission->path = next_node(mission->path, map->map_data, map->h_map, map->bloc_w_db, map->bloc_h_db, dh_max, h_min, h_max, unit_manager.unit_type[type_id]->FootprintX, unit_manager.unit_type[type_id]->FootprintZ, idx, hover_h );
                         }
                         mission->last_d = 9999999.0f;
-                        if (mission->path == NULL) {		// End of path reached
+                        if (mission->path == NULL) // End of path reached
+                        {
                             J = move_target_computed - Pos;
                             J.y = 0.0f;
-                            if (J.sq() <= 256.0f || flying ) {
+                            if (J.sq() <= 256.0f || flying)
+                            {
                                 if (!(mission->flags & MISSION_FLAG_DONT_STOP_MOVE) && (mission == NULL || mission->mission != MISSION_PATROL ) )
                                     play_sound( "arrived1" );
                                 mission->flags &= ~MISSION_FLAG_MOVE;
@@ -3319,8 +3363,9 @@ namespace TA3D
                     }
                     else
                         mission->last_d = dist;
-                    if (mission->flags & MISSION_FLAG_MOVE ) {			// Are we still moving ??
-                        if (dist > 0.0f )
+                    if (mission->flags & MISSION_FLAG_MOVE)	// Are we still moving ??
+                    {
+                        if (dist > 0.0f)
                             J = 1.0f / dist * J;
 
                         b_TargetAngle = true;
@@ -3337,12 +3382,15 @@ namespace TA3D
                         I.x = J.z;
                         I.y = 0.0f;
                         V = (V%K)*K + (V%J)*J;
-                        if (!(dist < 15.0f && fabs( Angle.y - f_TargetAngle ) >= 1.0f)) {
-                            if (fabs( Angle.y - f_TargetAngle ) >= 45.0f ) {
+                        if (!(dist < 15.0f && fabs( Angle.y - f_TargetAngle ) >= 1.0f))
+                        {
+                            if (fabs( Angle.y - f_TargetAngle ) >= 45.0f )
+                            {
                                 if (J % V > 0.0f && V.norm() > unit_manager.unit_type[type_id]->BrakeRate * dt )
                                     V = V - ((( fabs( Angle.y - f_TargetAngle ) - 35.0f ) / 135.0f + 1.0f) * 0.5f * unit_manager.unit_type[type_id]->BrakeRate * dt) * J;
                             }
-                            else {
+                            else
+                            {
                                 float speed = V.norm();
                                 float time_to_stop = speed / unit_manager.unit_type[type_id]->BrakeRate;
                                 float min_dist = time_to_stop * (speed-unit_manager.unit_type[type_id]->BrakeRate*0.5f*time_to_stop);
@@ -3355,7 +3403,8 @@ namespace TA3D
                                     V = unit_manager.unit_type[type_id]->MaxVelocity / speed * V;
                             }
                         }
-                        else {
+                        else
+                        {
                             float speed = V.norm();
                             if (speed > unit_manager.unit_type[type_id]->MaxVelocity )
                                 V = unit_manager.unit_type[type_id]->MaxVelocity / speed * V;
@@ -3364,17 +3413,19 @@ namespace TA3D
                 }
 
                 NPos = Pos + dt*V;			// Check if the unit can go where V brings it
-                if (was_locked ) {				// Random move to solve the unit lock problem
-                    if (V.x > 0.0f )
+                if (was_locked ) // Random move to solve the unit lock problem
+                {
+                    if (V.x > 0.0f)
                         NPos.x += (Math::RandFromTable() % 101) * 0.01f;
                     else
                         NPos.x -= (Math::RandFromTable() % 101) * 0.01f;
-                    if (V.z > 0.0f )
+                    if (V.z > 0.0f)
                         NPos.z += (Math::RandFromTable() % 101) * 0.01f;
                     else
                         NPos.z -= (Math::RandFromTable() % 101) * 0.01f;
 
-                    if (was_locked >= 5.0f ) {
+                    if (was_locked >= 5.0f)
+                    {
                         was_locked = 5.0f;
                         mission->flags |= MISSION_FLAG_REFRESH_PATH;			// Refresh path because this shouldn't happen unless
                         // obstacles have moved
@@ -3384,15 +3435,20 @@ namespace TA3D
                 n_py = ((int)(NPos.z)+map->map_h_d+4)>>3;
                 precomputed_position = true;
                 bool locked = false;
-                if (!flying ) {
-                    if (n_px != cur_px || n_py != cur_py ) {			// has something changed ??
+                if (!flying )
+                {
+                    if (n_px != cur_px || n_py != cur_py) // has something changed ??
+                    {
                         bool place_is_empty = can_be_there( n_px, n_py, map, type_id, owner_id, idx );
-                        if (!(flags & 64) && !place_is_empty) {
-                            if (!unit_manager.unit_type[type_id]->canfly) {
+                        if (!(flags & 64) && !place_is_empty)
+                        {
+                            if (!unit_manager.unit_type[type_id]->canfly)
+                            {
                                 locked = true;
                                 // Check some basic solutions first
                                 if (cur_px != n_px
-                                    && can_be_there( cur_px, n_py, map, type_id, owner_id, idx )) {
+                                    && can_be_there( cur_px, n_py, map, type_id, owner_id, idx ))
+                                {
                                     V.z = V.z != 0.0f ? (V.z < 0.0f ? -sqrt( SQUARE(V.z) + SQUARE(V.x) ) : sqrt( SQUARE(V.z) + SQUARE(V.x) ) ) : 0.0f;
                                     V.x = 0.0f;
                                     NPos.x = Pos.x;
@@ -3415,8 +3471,9 @@ namespace TA3D
                                     n_px = cur_px;
                                     n_py = cur_py;
                                     mission->flags |= MISSION_FLAG_MOVE;
-                                    if (fabs( Angle.y - f_TargetAngle ) <= 0.1f || !b_TargetAngle ) {		// Don't prevent unit from rotating!!
-                                        if (mission->path )
+                                    if (fabs( Angle.y - f_TargetAngle ) <= 0.1f || !b_TargetAngle) // Don't prevent unit from rotating!!
+                                    {
+                                        if (mission->path)
                                             destroy_path(mission->path);
                                         mission->path = NULL;
                                     }
@@ -3463,7 +3520,7 @@ namespace TA3D
                     else
                     {
                         bool place_is_empty = map->check_rect(n_px-(unit_manager.unit_type[type_id]->FootprintX>>1),n_py-(unit_manager.unit_type[type_id]->FootprintZ>>1),unit_manager.unit_type[type_id]->FootprintX,unit_manager.unit_type[type_id]->FootprintZ,idx);
-                        if (!place_is_empty )
+                        if (!place_is_empty)
                         {
                             pMutex.unlock();
                             clear_from_map();
@@ -3472,17 +3529,19 @@ namespace TA3D
                         }
                     }
                 }
-                if (locked )
+                if (locked)
                     was_locked += dt;
                 else
                     was_locked = 0.0f;
             }
-            else {
+            else
+            {
                 was_moving = false;
                 requesting_pathfinder = false;
             }
 
-            if (flying && local ) {						// Force planes to stay on map
+            if (flying && local) // Force planes to stay on map
+            {
                 if (Pos.x<-map->map_w_d || Pos.x>map->map_w_d || Pos.z<-map->map_h_d || Pos.z>map->map_h_d) {
                     if (Pos.x < -map->map_w_d )
                         V.x += dt * ( -map->map_w_d - Pos.x ) * 0.1f;
@@ -3497,9 +3556,10 @@ namespace TA3D
                         V = unit_manager.unit_type[type_id]->MaxVelocity / speed * V;
                         speed = unit_manager.unit_type[type_id]->MaxVelocity;
                     }
-                    if (speed > 0.0f ) {
+                    if (speed > 0.0f)
+                    {
                         Angle.y = acos( V.z / speed ) * RAD2DEG;
-                        if (V.x < 0.0f )
+                        if (V.x < 0.0f)
                             Angle.y = -Angle.y;
                     }
                 }
@@ -5390,7 +5450,7 @@ script_exec:
     }
 
 
-    void INGAME_UNITS::give_order_move(int player_id,Vector3D target,bool set,byte flags)
+    void INGAME_UNITS::give_order_move(int player_id, const Vector3D& target,bool set,byte flags)
     {
         pMutex.lock();
 
@@ -5400,18 +5460,18 @@ script_exec:
             if ((unit[i].flags & 1) && unit[i].owner_id==player_id && unit[i].sel && unit[i].build_percent_left == 0.0f && unit_manager.unit_type[unit[i].type_id]->canmove)
             {
                 if (set)
-                    unit[i].set_mission(MISSION_MOVE,&target,false,0,true,NULL,NULL,flags);
+                    unit[i].set_mission(MISSION_MOVE, &target, false, 0, true, NULL, NULL, flags);
                 else
-                    unit[i].add_mission(MISSION_MOVE,&target,false,0,NULL,NULL,flags);
-                if (unit_manager.unit_type[unit[i].type_id]->BMcode && set )
-                    unit[i].play_sound( "ok1" );
+                    unit[i].add_mission(MISSION_MOVE, &target, false, 0, NULL, NULL, flags);
+                if (unit_manager.unit_type[unit[i].type_id]->BMcode && set)
+                    unit[i].play_sound("ok1");
             }
         }
         pMutex.unlock();
     }
 
 
-    void INGAME_UNITS::give_order_patrol(int player_id, Vector3D target, bool set)
+    void INGAME_UNITS::give_order_patrol(int player_id, const Vector3D& target, bool set)
     {
         pMutex.lock();
         for (uint16 e = 0; e < index_list_size; ++e)
@@ -5420,10 +5480,10 @@ script_exec:
             if ((unit[i].flags & 1) && unit[i].owner_id==player_id && unit[i].sel && unit[i].build_percent_left ==0.0f && unit_manager.unit_type[unit[i].type_id]->canpatrol)
             {
                 if (set)
-                    unit[i].set_mission(MISSION_PATROL,&target,false,0,true,NULL,NULL);
+                    unit[i].set_mission(MISSION_PATROL, &target, false, 0, true, NULL, NULL);
                 else
-                    unit[i].add_mission(MISSION_PATROL,&target,false,0,NULL,NULL);
-                if (unit_manager.unit_type[unit[i].type_id]->BMcode && set )
+                    unit[i].add_mission(MISSION_PATROL, &target, false, 0, NULL, NULL);
+                if (unit_manager.unit_type[unit[i].type_id]->BMcode && set)
                     unit[i].play_sound("ok1");
             }
         }
@@ -5451,7 +5511,7 @@ script_exec:
     }
 
 
-    void INGAME_UNITS::give_order_unload(int player_id,Vector3D target,bool set)
+    void INGAME_UNITS::give_order_unload(int player_id, const Vector3D& target, bool set)
     {
         pMutex.lock();
         for (uint16 e = 0; e < index_list_size; ++e)
@@ -5461,11 +5521,12 @@ script_exec:
                 && unit_manager.unit_type[unit[i].type_id]->BMcode && unit[i].nb_attached > 0 )
             {
                 if (set)
-                    unit[i].set_mission(MISSION_UNLOAD,&target,false,0,true,NULL,NULL);
+                {
+                    unit[i].set_mission(MISSION_UNLOAD, &target, false, 0, true, NULL, NULL);
+                    unit[i].play_sound("ok1");
+                }
                 else
-                    unit[i].add_mission(MISSION_UNLOAD,&target,false,0,NULL,NULL);
-                if (set )
-                    unit[i].play_sound( "ok1" );
+                    unit[i].add_mission(MISSION_UNLOAD, &target, false, 0, NULL, NULL);
             }
         }
         pMutex.unlock();
@@ -5473,7 +5534,7 @@ script_exec:
 
 
 
-    void INGAME_UNITS::give_order_load(int player_id,int target,bool set)
+    void INGAME_UNITS::give_order_load(int player_id, int target, bool set)
     {
         pMutex.lock();
         if (unit[target].flags == 0 || !unit_manager.unit_type[unit[target].type_id]->canmove)
@@ -5500,11 +5561,12 @@ script_exec:
                 && unit_manager.unit_type[unit[i].type_id]->BMcode)
             {
                 if (set)
-                    unit[i].set_mission(MISSION_LOAD,&unit[target].Pos,false,0,true,&(unit[target]),NULL);
-                else
-                    unit[i].add_mission(MISSION_LOAD,&unit[target].Pos,false,0,&(unit[target]),NULL);
-                if (set)
+                {
+                    unit[i].set_mission(MISSION_LOAD, &unit[target].Pos, false, 0, true, &(unit[target]), NULL);
                     unit[i].play_sound("ok1");
+                }
+                else
+                    unit[i].add_mission(MISSION_LOAD, &unit[target].Pos, false, 0, &(unit[target]), NULL);
             }
         }
         pMutex.unlock();
@@ -5512,16 +5574,18 @@ script_exec:
 
 
 
-    void INGAME_UNITS::give_order_build(int player_id,int unit_type_id,Vector3D target,bool set)
+    void INGAME_UNITS::give_order_build(int player_id, int unit_type_id, const Vector3D& target, bool set)
     {
         if (unit_type_id < 0)
             return;
 
-        target.x = ((int)(target.x)+map->map_w_d)>>3;
-        target.z = ((int)(target.z)+map->map_h_d)>>3;
-        target.y = Math::Max(map->get_max_rect_h((int)target.x,(int)target.z, unit_manager.unit_type[ unit_type_id ]->FootprintX, unit_manager.unit_type[ unit_type_id ]->FootprintZ ),map->sealvl);
-        target.x = target.x*8.0f-map->map_w_d;
-        target.z = target.z*8.0f-map->map_h_d;
+        Vector3D t(target);
+        t.x = ((int)(t.x) + map->map_w_d) >> 3;
+        t.z = ((int)(t.z) + map->map_h_d) >> 3;
+        t.y = Math::Max(map->get_max_rect_h((int)t.x, (int)t.z, unit_manager.unit_type[unit_type_id]->FootprintX,
+                                            unit_manager.unit_type[unit_type_id]->FootprintZ),map->sealvl);
+        t.x = t.x * 8.0f - map->map_w_d;
+        t.z = t.z * 8.0f - map->map_h_d;
 
         pMutex.lock();
         for( uint16 e = 0; e < index_list_size; ++e)
@@ -5530,9 +5594,9 @@ script_exec:
             if ((unit[i].flags & 1) && unit[i].owner_id==player_id && unit[i].sel && unit[i].build_percent_left == 0.0f && unit_manager.unit_type[unit[i].type_id]->Builder)
             {
                 if (set)
-                    unit[i].set_mission(MISSION_BUILD,&target,false,unit_type_id);
+                    unit[i].set_mission(MISSION_BUILD, &t, false, unit_type_id);
                 else
-                    unit[i].add_mission(MISSION_BUILD,&target,false,unit_type_id);
+                    unit[i].add_mission(MISSION_BUILD, &t, false, unit_type_id);
             }
         }
         pMutex.unlock();
@@ -6992,26 +7056,27 @@ script_exec:
 
 
 
-    void INGAME_UNITS::draw(Camera *cam,MAP *map,bool underwater,bool limit,bool cullface,bool height_line)					// Dessine les unités visibles
+    void INGAME_UNITS::draw(Camera& cam, MAP* map, bool underwater, bool limit, bool cullface, bool height_line)					// Dessine les unités visibles
     {
-        if (nb_unit<=0 || unit==NULL)	return;		// Pas d'unités à dessiner
+        if (nb_unit <= 0 || !unit)
+            return;		// Pas d'unités à dessiner
 
         glEnable(GL_LIGHTING);
-        if (cullface )
+        if (cullface)
             glEnable(GL_CULL_FACE);
         else
             glDisable(GL_CULL_FACE);
 
-        if (cam->rpos.y > gfx->low_def_limit )
+        if (cam.rpos.y > gfx->low_def_limit )
             glDisable(GL_DEPTH_TEST);
         glDisable(GL_BLEND);
         glColor4ub(0xFF,0xFF,0xFF,0xFF);
         float sea_lvl = limit ? map->sealvl-5.0f : map->sealvl;
         float virtual_t = (float)current_tick / TICKS_PER_SEC;
-        cam->setView();
+        cam.setView();
         pMutex.lock();
 
-        for(uint16 e = 0; e < index_list_size; ++e)
+        for (uint16 e = 0; e < index_list_size; ++e)
         {
             uint16 i = idx_list[e];
             pMutex.unlock();
@@ -7020,7 +7085,7 @@ script_exec:
             if ((unit[i].flags & 1) && ((unit[i].Pos.y + unit[i].model->bottom <= map->sealvl && underwater) || (unit[i].Pos.y + unit[i].model->top >= sea_lvl && !underwater))) // Si il y a une unité
             {
                 unit[i].unlock();
-                unit[i].draw(virtual_t,cam,map,height_line);
+                unit[i].draw(virtual_t, cam, map, height_line);
             }
             else
                 unit[i].unlock();
@@ -7030,37 +7095,38 @@ script_exec:
 
         glDisable(GL_ALPHA_TEST);
 
-        if (cam->rpos.y > gfx->low_def_limit )
+        if (cam.rpos.y > gfx->low_def_limit)
             glEnable(GL_DEPTH_TEST);
 
-        if (!cullface )
+        if (!cullface)
             glEnable(GL_CULL_FACE);
     }
 
 
 
-    void INGAME_UNITS::draw_shadow(Camera* cam, const Vector3D& Dir, MAP* map, float alpha)	// Dessine les ombres des unités visibles
+    void INGAME_UNITS::draw_shadow(Camera& cam, const Vector3D& Dir, MAP* map, float alpha)	// Dessine les ombres des unités visibles
     {
         if (nb_unit<=0 || unit==NULL) // Pas d'unités à dessiner
             return;
 
-        cam->setView();
+        cam.setView();
 
-        if (g_useStencilTwoSide) {					// Si l'extension GL_EXT_stencil_two_side est disponible
+        if (g_useStencilTwoSide) // Si l'extension GL_EXT_stencil_two_side est disponible
+        {
             glEnable(GL_STENCIL_TEST);
             glEnable(GL_STENCIL_TEST_TWO_SIDE_EXT);
             glDisable(GL_CULL_FACE);
             glClear(GL_STENCIL_BUFFER_BIT);
             glDepthMask(GL_FALSE);
-            glColorMask(0,0,0,0);
-            glStencilFunc(GL_ALWAYS,128, 0xffffffff);
+            glColorMask(0, 0, 0,  0);
+            glStencilFunc(GL_ALWAYS, 128, 0xffffffff);
 
             glActiveStencilFaceEXT(GL_FRONT);
             glStencilOp(GL_KEEP, GL_KEEP, GL_INCR_WRAP_EXT);
             glActiveStencilFaceEXT(GL_BACK);
             glStencilOp(GL_KEEP, GL_KEEP, GL_DECR_WRAP_EXT);
 
-            for(uint16 e=0;e<index_list_size;e++)
+            for (uint16 e = 0; e < index_list_size; ++e)
             {
                 pMutex.lock();
                 uint16 i = idx_list[e];
@@ -7070,13 +7136,14 @@ script_exec:
 
                 unit[i].lock();
                 if (unit[i].flags & 1)				// Si il y a une unité
-                    unit[i].draw_shadow(cam,Dir,map);
+                    unit[i].draw_shadow(Dir, map);
                 unit[i].unlock();
 
                 gfx->unlock();
             }
         }
-        else {										// Si elle ne l'est pas
+        else // Si elle ne l'est pas
+        {
             glDepthMask(GL_FALSE);
             glColorMask(0,0,0,0);
 
@@ -7085,22 +7152,23 @@ script_exec:
             glStencilFunc(GL_ALWAYS,128, 0xffffffff);
             glEnable(GL_CULL_FACE);
 
-            for(uint16 e=0;e<index_list_size;e++) {
+            for (uint16 e = 0; e < index_list_size; ++e)
+            {
                 pMutex.lock();
                 uint16 i = idx_list[e];
                 pMutex.unlock();
 
                 gfx->lock();
                 unit[i].lock();
-                if (unit[i].flags & 1)					// Si il y a une unité
-                    unit[i].draw_shadow_basic(cam,Dir,map);
+                if (unit[i].flags & 1) // Si il y a une unité
+                    unit[i].draw_shadow_basic(Dir, map);
                 unit[i].unlock();
                 gfx->unlock();
             }
         }
 
         gfx->lock();
-        features.draw_shadow(*cam, Dir);
+        features.draw_shadow(cam, Dir);
 
         glColorMask(0xFF,0xFF,0xFF,0xFF);
         glEnable(GL_STENCIL_TEST);
@@ -7110,14 +7178,14 @@ script_exec:
         glEnable(GL_BLEND);
         glColor4f(0.0f,0.0f,0.0f,alpha);
         glBegin(GL_QUADS);
-        Vector3D P = cam->rpos + cam->shakeVector + 1.1f*( cam->dir + 0.75f * cam->up - cam->widthFactor * cam->side );
-        glVertex3fv( (const GLfloat*) &P );
-        P = cam->rpos + cam->shakeVector + 1.1f * ( cam->dir + 0.75f * cam->up + cam->widthFactor * cam->side );
-        glVertex3fv( (const GLfloat*) &P );
-        P = cam->rpos + cam->shakeVector + 1.1f * ( cam->dir - 0.75f * cam->up + cam->widthFactor * cam->side );
-        glVertex3fv( (const GLfloat*) &P );
-        P = cam->rpos + cam->shakeVector + 1.1f * ( cam->dir - 0.75f * cam->up - cam->widthFactor * cam->side );
-        glVertex3fv( (const GLfloat*) &P );
+        Vector3D P = cam.rpos + cam.shakeVector + 1.1f * (cam.dir + 0.75f * cam.up - cam.widthFactor * cam.side);
+        glVertex3fv((const GLfloat*) &P);
+        P = cam.rpos + cam.shakeVector + 1.1f * ( cam.dir + 0.75f * cam.up + cam.widthFactor * cam.side);
+        glVertex3fv((const GLfloat*) &P);
+        P = cam.rpos + cam.shakeVector + 1.1f * (cam.dir - 0.75f * cam.up + cam.widthFactor * cam.side);
+        glVertex3fv((const GLfloat*) &P);
+        P = cam.rpos + cam.shakeVector + 1.1f * (cam.dir - 0.75f * cam.up - cam.widthFactor * cam.side);
+        glVertex3fv((const GLfloat*) &P);
         glEnd();
         glDepthMask(GL_TRUE);
         glDisable(GL_STENCIL_TEST);
@@ -7127,10 +7195,10 @@ script_exec:
         gfx->unlock();
     }
 
-    void INGAME_UNITS::remove_order(int player_id,Vector3D target)
+    void INGAME_UNITS::remove_order(int player_id, const Vector3D& target)
     {
         pMutex.lock();
-        for(uint16 e=0;e<index_list_size;e++)
+        for (uint16 e = 0; e < index_list_size; ++e)
         {
             uint16 i = idx_list[e];
             pMutex.unlock();
@@ -7158,7 +7226,7 @@ script_exec:
                     }
                     else
                     {
-                        if (!mission->step && (mission->target - target).sq() < 256.0f ) // Remove it
+                        if (!mission->step && (mission->target - target).sq() < 256.0f) // Remove it
                         {
                             MISSION *tmp = mission;
                             mission = mission->next;
@@ -7180,28 +7248,32 @@ script_exec:
         pMutex.unlock();
         }
 
+
+
         uint32 INGAME_UNITS::InterfaceMsg(const lpcImsg msg)
         {
             if (msg->MsgID == TA3D_IM_GUI_MSG )	// for GUI messages, test if it's a message for us
             {
-                if (msg->lpParm1 == NULL )
+                if (msg->lpParm1 == NULL)
                     return INTERFACE_RESULT_HANDLED;		// Oups badly written things
-                String message = String::ToLower((char*) msg->lpParm1);				// Get the string associated with the signal
-
-                if (message == "pause game" )
+                String message((const char*) msg->lpParm1);				// Get the string associated with the signal
+                if (!message.toLower().empty())
                 {
-                    lp_CONFIG->pause = true;
-                    return INTERFACE_RESULT_HANDLED;
-                }
-                if (message == "resume game")
-                {
-                    lp_CONFIG->pause = false;
-                    return INTERFACE_RESULT_HANDLED;
-                }
-                if (message == "toggle pause")
-                {
-                    lp_CONFIG->pause ^= true;
-                    return INTERFACE_RESULT_HANDLED;
+                    if (message == "pause game")
+                    {
+                        lp_CONFIG->pause = true;
+                        return INTERFACE_RESULT_HANDLED;
+                    }
+                    if (message == "resume game")
+                    {
+                        lp_CONFIG->pause = false;
+                        return INTERFACE_RESULT_HANDLED;
+                    }
+                    if (message == "toggle pause")
+                    {
+                        lp_CONFIG->pause ^= true;
+                        return INTERFACE_RESULT_HANDLED;
+                    }
                 }
             }
             return INTERFACE_RESULT_CONTINUE;						// Temporary, for now it does nothing
