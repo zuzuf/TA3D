@@ -268,6 +268,105 @@ namespace TA3D
     class UNIT	: public ObjectSync	// Classe pour la gestion des unités	/ Class to store units's data
     {
     public:
+        float damage_modifier() const
+        {return port[ARMORED] ? unit_manager.unit_type[type_id]->DamageModifier : 1.0f;}
+        
+        bool isEnemy(const int t);
+
+        void draw_on_map();
+        void clear_from_map();
+
+        void draw_on_FOW(bool jamming = false);
+
+        bool is_on_radar(byte p_mask);
+
+        void start_mission_script(int mission_type);
+
+        void next_mission();
+
+        void clear_mission();
+
+        void add_mission(int mission_type, const Vector3D* target = NULL, bool step = false, int dat = 0,
+                         void* pointer = NULL, PATH_NODE* path = NULL, byte m_flags = 0,
+                         int move_data = 0, int patrol_node = -1);
+
+        void set_mission(int mission_type, const Vector3D* target = NULL, bool step = false, int dat = 0,
+                         bool stopit = true, void* pointer = NULL, PATH_NODE* path = NULL, byte m_flags = 0,
+                         int move_data = 0);
+
+        void compute_model_coord();
+
+        void raise_signal(uint32 signal);		// Tue les processus associés
+
+        void init_alloc_data();
+
+        void toggle_self_destruct();
+
+        void lock_command();
+
+        void unlock_command();
+
+        void init(int unit_type= - 1, int owner = -1, bool full = false, bool basic = false);
+
+        void clear_def_mission();
+
+        void destroy(bool full = false);
+
+        void draw(float t,Camera *cam,MAP *map, bool height_line=true);
+
+        void draw_shadow(Camera *cam, const Vector3D& Dir, MAP *map);
+
+        void draw_shadow_basic(Camera *cam, const Vector3D& Dir, MAP *map);
+
+        int get_script_index(int id);
+
+        int get_script_index(const char *script_name);	 // Cherche l'indice du script dont on fournit le nom
+
+        int launch_script(int id,int nb_param=0,int *param=NULL,bool force=false);			// Start a script as a separate "thread" of the unit
+
+        bool is_running(int script_index); // Is the script still running ?
+
+        void run_script_function(MAP* map, int id, int nb_param = 0, int *param = NULL); // Launch and run the script, returning it's values to param if not NULL
+
+        void kill_script(int script_index);	// Fait un peu de ménage
+
+        void reset_script();
+
+        const void play_sound(const String& key);
+
+        const int run_script(const float &dt,const int &id,MAP *map, int max_code = MAX_CODE_PER_TICK);			// Interprète les scripts liés à l'unité
+
+        const int move( const float dt,MAP *map, int *path_exec, const int key_frame = 0 );
+
+        void show_orders( bool only_build_commands=false, bool def_orders=false );				// Dessine les ordres reçus
+
+        void activate();
+
+        void deactivate();
+
+        int shoot(int target,Vector3D startpos,Vector3D Dir,int w_id,const Vector3D& target_pos);
+
+        bool hit(Vector3D P,Vector3D Dir,Vector3D *hit_vec, float length = 100.0f);
+
+        bool hit_fast(Vector3D P,Vector3D Dir,Vector3D* hit_vec, float length = 100.0f);
+
+        void stop_moving();
+
+        void explode();
+
+        bool do_nothing()
+        {
+            return (!mission || ((mission->mission == MISSION_STOP || mission->mission == MISSION_STANDBY || mission->mission == MISSION_VTOL_STANDBY) && mission->next == NULL)) && !port[INBUILDSTANCE];
+        }
+
+        bool do_nothing_ai()
+        {
+            return (!mission || ((mission->mission == MISSION_STOP || mission->mission == MISSION_STANDBY || mission->mission == MISSION_VTOL_STANDBY || mission->mission == MISSION_MOVE) && !mission->next)) && !port[INBUILDSTANCE];
+        }
+
+
+
+    public:
         SCRIPT					*script;		// Scripts concernant l'unité
         std::vector<int>		*s_var;			// Tableau de variables pour les scripts
         MODEL					*model;			// Modèle représentant l'objet
@@ -379,98 +478,6 @@ namespace TA3D
         bool			nanolathe_reverse;
         bool			nanolathe_feature;
 
-    public:
-        bool do_nothing()
-        {
-            return (mission==NULL || ((mission->mission==MISSION_STOP || mission->mission==MISSION_STANDBY || mission->mission==MISSION_VTOL_STANDBY) && mission->next==NULL)) && !port[ INBUILDSTANCE ];
-        }
-
-        bool do_nothing_ai()
-        {
-            return (mission==NULL || ((mission->mission==MISSION_STOP || mission->mission==MISSION_STANDBY || mission->mission==MISSION_VTOL_STANDBY || mission->mission==MISSION_MOVE) && mission->next==NULL)) && !port[ INBUILDSTANCE ];
-        }
-
-        float damage_modifier() const
-        {return port[ARMORED] ? unit_manager.unit_type[type_id]->DamageModifier : 1.0f;}
-        
-        bool isEnemy(int &t);
-
-        void draw_on_map();
-        void clear_from_map();
-
-        void draw_on_FOW(bool jamming = false);
-
-        bool is_on_radar(byte p_mask);
-
-        void start_mission_script(int mission_type);
-
-        void next_mission();
-
-        void clear_mission();
-
-        void add_mission(int mission_type,Vector3D *target=NULL,bool step=false,int dat=0,void *pointer=NULL,PATH_NODE *path=NULL,byte m_flags=0,int move_data=0,int patrol_node=-1);
-
-        void set_mission(int mission_type,Vector3D *target=NULL,bool step=false,int dat=0,bool stopit=true,void *pointer=NULL,PATH_NODE *path=NULL,byte m_flags=0,int move_data=0);
-
-        void compute_model_coord();
-
-        void raise_signal(uint32 signal);		// Tue les processus associés
-
-        void init_alloc_data();
-
-        void toggle_self_destruct();
-
-        void lock_command();
-
-        void unlock_command();
-
-        void init(int unit_type= - 1, int owner = -1, bool full = false, bool basic = false);
-
-        void clear_def_mission();
-
-        void destroy(bool full = false);
-
-        void draw(float t,Camera *cam,MAP *map, bool height_line=true);
-
-        void draw_shadow(Camera *cam, const Vector3D& Dir, MAP *map);
-
-        void draw_shadow_basic(Camera *cam, const Vector3D& Dir, MAP *map);
-
-        int get_script_index(int id);
-
-        int get_script_index(const char *script_name);	 // Cherche l'indice du script dont on fournit le nom
-
-        int launch_script(int id,int nb_param=0,int *param=NULL,bool force=false);			// Start a script as a separate "thread" of the unit
-
-        bool is_running(int script_index); // Is the script still running ?
-
-        void run_script_function(MAP* map, int id, int nb_param = 0, int *param = NULL); // Launch and run the script, returning it's values to param if not NULL
-
-        void kill_script(int script_index);	// Fait un peu de ménage
-
-        void reset_script();
-
-        const void play_sound(const String& key);
-
-        const int run_script(const float &dt,const int &id,MAP *map, int max_code = MAX_CODE_PER_TICK);			// Interprète les scripts liés à l'unité
-
-        const int move( const float dt,MAP *map, int *path_exec, const int key_frame = 0 );
-
-        void show_orders( bool only_build_commands=false, bool def_orders=false );				// Dessine les ordres reçus
-
-        void activate();
-
-        void deactivate();
-
-        int shoot(int target,Vector3D startpos,Vector3D Dir,int w_id,const Vector3D& target_pos);
-
-        bool hit(Vector3D P,Vector3D Dir,Vector3D *hit_vec, float length = 100.0f);
-
-        bool hit_fast(Vector3D P,Vector3D Dir,Vector3D* hit_vec, float length = 100.0f);
-
-        void stop_moving();
-
-        void explode();
 
     }; // class UNIT
 
@@ -586,7 +593,7 @@ namespace TA3D
         */
         bool selectUnits(Camera& cam, const Rect<int>& pos);
 
-        int pick(Camera* cam,int sensibility=1);
+        int pick(Camera& cam,int sensibility=1);
 
         int pick_minimap();
 
