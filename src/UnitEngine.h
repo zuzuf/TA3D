@@ -85,7 +85,7 @@ namespace TA3D
     {
         uint8		mission;
         PATH_NODE	*path;		// Chemin emprunté par l'unité si besoin pour la mission
-        Vector3D		target;
+        Vector3D	target;
         MISSION 	*next;		// Mission suivante
         bool		step;		// Etape d'une mission
         float		time;		// Temps écoulé depuis la création de l'ordre
