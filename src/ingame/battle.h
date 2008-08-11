@@ -7,6 +7,7 @@
 # include "../gfx/gui/area.h"
 # include "../tdf.h"
 # include "../EngineClass.h"
+# include "../misc/rect.h"
 
 
 
@@ -87,6 +88,12 @@ namespace TA3D
         bool initTheMap();
         //@}
 
+        //! \name 2D Objects && User interaction
+        //@{
+        void draw2DObjects();
+        void draw2DMouseUserSelection();
+        //@}
+
     private:
         //! Results
         Result pResult;
@@ -122,6 +129,10 @@ namespace TA3D
         //! The sky - TODO The auto_ptr is deprecated
         std::auto_ptr<SKY_DATA> pSkyData;
         bool pSkyIsSpherical;
+
+        bool pMouseSelecting;
+        //! The bounding box of the current mouse selection (if pMouseSelecting == true)
+        Rect<int> pMouseRectSelection;
 
     }; // class Battle
 

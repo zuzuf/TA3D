@@ -143,10 +143,15 @@ namespace TA3D
         pCurrentGUI.clear();
         updateCurrentGUICacheNames();
 
+        // FPS
         fps.countSinceLastTime = 0;
         fps.average = 0;
         fps.lastTime = msec_timer;
         fps.toStr.clear();
+
+        // Misc
+        pMouseRectSelection.reset();
+        pMouseSelecting = false;
 
         return true;
     }

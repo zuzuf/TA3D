@@ -33,6 +33,8 @@
 # include "misc/camera.h"
 # include <list>
 # include <vector>
+# include "misc/rect.h"
+
 
 # define UNPACKX(xz) ((sint16)((xz)>>16))
 # define UNPACKZ(xz) ((sint16)((xz)&0xFFFF))
@@ -576,7 +578,14 @@ namespace TA3D
 
         int create(int type_id,int owner);
 
-        bool select(Camera *cam,int sel_x[],int sel_y[]);
+        /*!
+        ** \brief Select all units from a user selection
+        **
+        ** \param cam The camera
+        ** \param pos The user selection, from the mouse coordinates
+        ** /return True if at least one unit has been selected
+        */
+        bool selectUnits(Camera& cam, const Rect<int>& pos);
 
         int pick(Camera* cam,int sensibility=1);
 
