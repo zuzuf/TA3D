@@ -943,14 +943,7 @@ namespace TA3D
         y1+=(h-rh)>>1;
         float lw=mini_w/252.0f;
         float lh=mini_h/252.0f;
-        glEnable(GL_TEXTURE_2D);
-        glBindTexture(GL_TEXTURE_2D,glmini);
-        glBegin(GL_QUADS);
-        glTexCoord2f(0.0f,0.0f);	glVertex2f(x1,y1);
-        glTexCoord2f(lw,0.0f);		glVertex2f(x1+rw,y1);
-        glTexCoord2f(lw,lh);		glVertex2f(x1+rw,y1+rh);
-        glTexCoord2f(0.0f,lh);		glVertex2f(x1,y1+rh);
-        glEnd();
+        gfx->drawtexture(glmini,x1,y1,x1+rw,y1+rh,0.0f,0.0f,lw,lh);
 
         if( fog_of_war != FOW_DISABLED )
         {
@@ -985,7 +978,7 @@ namespace TA3D
                                 glVertex2i( x1+old_x, y1+y );
                                 glVertex2i( x1+x, y1+y );
                             }
-                            glColor3f( 0.0f, 0.0f, 0.0f );
+                            glColor3ub( 0, 0, 0 );
                             old_col = 0;
                             old_x = x;
                         }
@@ -1000,7 +993,7 @@ namespace TA3D
                                     glVertex2i( x1+old_x, y1+y );
                                     glVertex2i( x1+x, y1+y );
                                 }
-                                glColor3f( 0.5f, 0.5f, 0.5f );
+                                glColor3ub( 0x7F, 0x7F, 0x7F );
                                 old_x = x;
                                 old_col = 1;
                             }
@@ -1881,7 +1874,7 @@ namespace TA3D
 #ifndef DEBUG_UNIT_POS
                     if( FLAT || map_data[Y][X].flat || lp_CONFIG->low_definition_map )
                     {
-                        if( was_flat && bloc[i].tex_x == bloc[ bmap[y][x-1] ].tex_x + 1 && is_clean && was_clean )
+                        if( was_flat && bloc[i].tex_x == bloc[ bmap[y][x-1] ].tex_x + 1 && is_clean && was_clean && (FLAT || map_data[Y][X].flat) )
                         {
                             buf_i[ index_size-4 ] = 2+buf_pos;
                             buf_i[ index_size-2 ] = 8+buf_pos;
