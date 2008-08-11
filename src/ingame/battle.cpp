@@ -933,7 +933,7 @@ namespace TA3D
                 int pointing = 0;
                 if (!IsOnGUI)
                 {
-                    pointing = units.pick(&cam);		// Sur quoi le curseur est-il pointé??
+                    pointing = units.pick(cam);		// Sur quoi le curseur est-il pointé??
                     if (pointing == -1) 				// Is the cursor on a rock, tree, ...?
                     {
                         Vector3D cur_pos(cursor_on_map(cam, *map, IsOnMinimap));
@@ -1365,7 +1365,7 @@ namespace TA3D
                     {
                         if (cursor_type == CURSOR_DEFAULT || cursor_type == CURSOR_CROSS)
                         {
-                            int pointing = IsOnMinimap ? units.pick_minimap() : units.pick(&cam);		// Sélectionne une unité sur clic
+                            int pointing = IsOnMinimap ? units.pick_minimap() : units.pick(cam); // Select an unit from a single click
                             if (!TA3D_SHIFT_PRESSED)
                             {
                                 for (uint16 e = 0; e < units.index_list_size; ++e)
@@ -1438,7 +1438,7 @@ namespace TA3D
 
             if (!IsOnGUI && ( cursor_type == CURSOR_DEFAULT || units.last_on == -1))
             {
-                units.pick(&cam);		// Let's see what's under the cursor
+                units.pick(cam);		// Let's see what's under the cursor
 
                 if (units.last_on == -1) // Is the cursor on a rock, tree, ...?
                 {
