@@ -105,6 +105,17 @@ namespace TA3D
         String pCurrentGUICache[cgcEnd];
 
     private:
+        struct FPSInfos
+        {
+            int countSinceLastTime;
+            int average;
+            int lastTime;
+            String toStr;
+        };
+        //! Informations about FPS
+        FPSInfos fps;
+
+    private:
         AREA pArea;
         //! The map of the game - TODO The auto_ptr is deprecated
         std::auto_ptr<MAP> map;

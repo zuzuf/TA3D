@@ -53,7 +53,7 @@ volatile uint32	msec_timer = 0;
 // intrupt timer, driven by allgegro.
 void Timer()
 {
-    msec_timer++;				// msec count
+    ++msec_timer;				// msec count
 }
 END_OF_FUNCTION(Timer) /* I guess allegro needs this. */
 

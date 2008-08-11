@@ -136,9 +136,6 @@ namespace TA3D
         float dt=0.0f;
         float t=0.0f;
         int count=msec_timer;
-        int nbfps=0;
-        int fpscount=msec_timer;
-        int fps=0;
         int i;
 
         bool	reflection_drawn_last_time = false;
@@ -370,7 +367,7 @@ namespace TA3D
 
         // Start the weapon engine
         weapons.set_data(map.get());
-        features.set_data( map->wind_vec);		// NB: the feature engine runs in the weapon thread to avoid having too much thread to synchronise
+        features.set_data(map->wind_vec);		// NB: the feature engine runs in the weapon thread to avoid having too much thread to synchronise
         weapons.Start();
 
         /*---------------------------- players management --------------------------*/
@@ -380,7 +377,8 @@ namespace TA3D
 
         LOG_INFO(LOG_PREFIX_BATTLE << "*** The game has started - Good luck Commander ! ***");
 
-        /*------------------------- end of players management ----------------------*/
+        // Reinit the counter for FPS
+        fps.lastTime = msec_timer;
 
         do
         {
@@ -567,14 +565,6 @@ namespace TA3D
                 light_angle+=dt*units.apparent_timefactor;
 
                 t += dt * units.apparent_timefactor;
-            }
-
-            ++nbfps;
-            if (nbfps >= 10 && (msec_timer - fpscount) * Conv >= 0.05f)
-            {
-                fps = (int)(nbfps / ((msec_timer - fpscount) * Conv));
-                fpscount = msec_timer;
-                nbfps = 0;
             }
 
             /*------------bloc regroupant ce qui est relatif aux commandes----------------*/
@@ -3275,15 +3265,24 @@ namespace TA3D
             if (!shoot || video_shoot)
                 cmd = console.draw(gfx->TA_font, dt, gfx->TA_font.height());
 
-            float Y=0.0f;
 
             glEnable(GL_BLEND);
             glBlendFunc(GL_ONE,GL_ONE_MINUS_SRC_COLOR);
 
+            // Informations about FPS
             if (lp_CONFIG->showfps)
             {
-                gfx->print(gfx->TA_font,0.0f,Y,0.0f,0xFFFFFFFF,format("fps: %d",fps));
-                Y+=9.0f;
+                ++fps.countSinceLastTime;
+                if (msec_timer - fps.lastTime >= 1000 /* 1s */)
+                {
+                    //fps = (int)(fps.countSinceLastTime / ((msec_timer - fps.lastTime) * Conv));
+                    fps.average = lrint(fps.countSinceLastTime / ((msec_timer - fps.lastTime) * Conv));
+                    fps.countSinceLastTime = 0;
+                    fps.lastTime = msec_timer;
+                    fps.toStr.clear();
+                    fps.toStr << "fps: " << fps.average;
+                }
+                gfx->print(gfx->TA_font, 0.0f, 0.0f, 0.0f, 0xFFFFFFFF, fps.toStr);
             }
 
             glDisable(GL_BLEND);
