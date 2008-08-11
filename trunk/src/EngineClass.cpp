@@ -1527,7 +1527,7 @@ namespace TA3D
             }
             glEnableClientState(GL_COLOR_ARRAY);
             glColorPointer(4,GL_UNSIGNED_BYTE,0,low_col);
-            if(FLAT)
+            if (FLAT)
             {
                 glTranslatef(0.0f,niv,0.0f);
                 glVertexPointer( 3, GL_FLOAT, 0, low_vtx_flat);
@@ -1539,18 +1539,19 @@ namespace TA3D
             glDrawElements(GL_TRIANGLE_STRIP, low_nb_idx,GL_UNSIGNED_INT,low_index);		// draw this map
         }
 
-        if(cam->rpos.y>=900.0f)
+        if (cam->rpos.y >= 900.0f)
         {
-            memset(view[0],1,bloc_w*bloc_h);
-            ox1=0;
-            ox2=bloc_w-1;
-            oy1=0;
-            oy2=bloc_h-1;
+            memset(view[0], 1, bloc_w * bloc_h);
+            ox1 = 0;
+            ox2 = bloc_w - 1;
+            oy1 = 0;
+            oy2 = bloc_h - 1;
         }
 
         Vector3D T;
         Vector3D V;
         if (cam->rpos.y < 900.0f)
+        {
             for (y = y1; y <= y2; ++y) // Balaye les blocs susceptibles d'être visibles pour dessiner ceux qui le sont
             {
                 int pre_y = y<< 4;
@@ -2047,6 +2048,7 @@ namespace TA3D
                     buf_size=0;
                 }
             }
+        }
         glDisableClientState(GL_COLOR_ARRAY);		// Couleurs(pour le brouillard de guerre)
 
         detail_shader.off();
@@ -2063,81 +2065,93 @@ namespace TA3D
 
 
 
-    Vector3D MAP::hit(Vector3D Pos,Vector3D Dir,bool water, float length, bool allow_out)			// Calcule l'intersection d'un rayon avec la carte(le rayon partant du dessus de la carte)
+    Vector3D MAP::hit(Vector3D Pos, Vector3D Dir, bool water, float length, bool allow_out)			// Calcule l'intersection d'un rayon avec la carte(le rayon partant du dessus de la carte)
     {
-        if(Dir.x==0.0f && Dir.z==0.0f) // Solution triviale
+        if (Dir.x == 0.0f && Dir.z == 0.0f) // Solution triviale
         {
-            Vector3D P=Pos;
-            P.y=get_unit_h(P.x,P.z);
+            Vector3D P(Pos);
+            P.y = get_unit_h(P.x, P.z);
             return P;
         }
-        if(get_unit_h(Pos.x,Pos.z) > Pos.y)		// Cas non traité
+
+        if (get_unit_h(Pos.x,Pos.z) > Pos.y)		// Cas non traité
             return Pos;
-        float step=1.0f;
-        if(Dir.x!=0.0f && Dir.z!=0.0f) {
-            if(fabs(Dir.x)<fabs(Dir.z))
-                step=1.0f/fabs(Dir.x);
+        
+        float step = 1.0f;
+        if (Dir.x != 0.0f && Dir.z != 0.0f)
+        {
+            if (fabs(Dir.x) < fabs(Dir.z))
+                step = 1.0f / fabs(Dir.x);
             else
-                step=1.0f/fabs(Dir.z);
+                step = 1.0f / fabs(Dir.z);
         }
-        int nb=0;
+        int nb = 0;
         int nb_limit = (int)(Pos.y) + 1000;
-        float dwm=map_w_d;
-        float dhm=map_h_d;
-        Dir=(1.0f*step)*Dir;
+        float dwm = map_w_d;
+        float dhm = map_h_d;
+        Dir = (1.0f * step) * Dir;
         float len_step = Dir.norm();
-        while(((sealvl<Pos.y && water) || !water) && get_max_h((int)(Pos.x+map_w_d)>>3,(int)(Pos.z+map_h_d)>>3)<Pos.y) {
+        while (((sealvl<Pos.y && water) || !water) && get_max_h((int)(Pos.x+map_w_d)>>3,(int)(Pos.z+map_h_d)>>3)<Pos.y)
+        {
             if(nb >= nb_limit || length<0.0f)
                 return Pos;
-            length-=len_step;
+            length -= len_step;
             nb++;
-            Pos=Pos+Dir;
-            if( (fabs(Pos.x)>dwm || fabs(Pos.z)>dhm) && !allow_out )		// Pas de résultat
+            Pos += Dir;
+            if ((fabs(Pos.x) > dwm || fabs(Pos.z) > dhm) && !allow_out) // Pas de résultat
                 return Pos;
         }
-        length+=len_step;
-        Pos=Pos-Dir;
-        while(((sealvl<Pos.y && water) || !water) && get_unit_h(Pos.x,Pos.z)<Pos.y) {
-            if(nb >= nb_limit || length<0.0f)
+        length += len_step;
+        Pos -= Dir;
+        
+        while(((sealvl<Pos.y && water) || !water) && get_unit_h(Pos.x, Pos.z) < Pos.y)
+        {
+            if (nb >= nb_limit || length < 0.0f)
                 return Pos;
-            length-=len_step;
-            nb++;
-            Pos=Pos+Dir;
-            if( (fabs(Pos.x)>dwm || fabs(Pos.z)>dhm) && !allow_out )		// Pas de résultat
+            length -= len_step;
+            ++nb;
+            Pos += Dir;
+            if ((fabs(Pos.x) > dwm || fabs(Pos.z)>dhm) && !allow_out) // Pas de résultat
                 return Pos;
         }
-        for(byte i=0;i<7;i++) {
-            length+=len_step;
-            Pos=Pos-Dir;		// On recommence la dernière opération mais avec plus de précision
-            Dir=0.5f*Dir;
+
+        for (byte i = 0; i < 7; ++i)
+        {
+            length += len_step;
+            Pos -= Dir; 	// On recommence la dernière opération mais avec plus de précision
+            Dir = 0.5f * Dir;
             len_step *= 0.5f;
-            nb=0;
-            while(((sealvl<Pos.y && water) || !water) && get_unit_h(Pos.x,Pos.z)<Pos.y) {
-                if(nb>=2 || length<0.0f)
+            nb = 0;
+            while (((sealvl < Pos.y && water) || !water) && get_unit_h(Pos.x, Pos.z) < Pos.y)
+            {
+                if (nb >= 2 || length < 0.0f)
                     return Pos;
-                length-=len_step;
-                nb++;
-                Pos=Pos+Dir;
+                length -= len_step;
+                ++nb;
+                Pos += Dir;
             }
         }
         return Pos;		// Meilleure solution approximative trouvée
     }
 
+
+
     int MAP::check_metal(int x1, int y1, int unit_idx )
     {
-        if( unit_idx < 0 || unit_idx >= unit_manager.nb_unit )	return 0;
+        if (unit_idx < 0 || unit_idx >= unit_manager.nb_unit)
+            return 0;
 
         int w = unit_manager.unit_type[ unit_idx ]->FootprintX;
         int h = unit_manager.unit_type[ unit_idx ]->FootprintZ;
         int metal_base = 0;
-        int end_y = y1 + ( h >> 1 );
-        int end_x = x1 + ( w >> 1 );
-        int start_x = x1 - ( w >> 1 );
-        for( int ry = y1 - ( h >> 1 ) ; ry <= end_y ; ry++ )
+        int end_y = y1 + (h >> 1);
+        int end_x = x1 + (w >> 1);
+        int start_x = x1 - (w >> 1);
+        for (int ry = y1 - (h >> 1 ); ry <= end_y; ++ry)
         {
-            if( ry >= 0 && ry < bloc_h_db )
+            if (ry >= 0 && ry < bloc_h_db)
             {
-                for( int rx = start_x ; rx <= end_x ; rx++ )
+                for( int rx = start_x; rx <= end_x; ++rx)
                 {
                     if( rx >= 0 && rx < bloc_w_db )
                     {
@@ -2147,16 +2161,19 @@ namespace TA3D
                 }
             }
         }
-        if( metal_base == 0 )
+        if (metal_base == 0)
             metal_base = ota_data.SurfaceMetal;
         return metal_base;
     }
 
-    void WATER::draw(float t,float X,float Y,bool shaded)
+
+
+    void WATER::draw(float t, float X, float Y, bool shaded)
     {
         glActiveTextureARB(GL_TEXTURE0_ARB);
         glTranslatef(cos(t),0.0f,sin(t));
-        if(shaded) {
+        if (shaded)
+        {
             glBegin(GL_QUADS);
             glTexCoord2f(-map_w/w+0.5f,-map_h/w+0.5f);		glVertex3f(-map_w,0.0f,-map_h);
             glTexCoord2f(map_w/w+0.5f,-map_h/w+0.5f);		glVertex3f(map_w,0.0f,-map_h);
@@ -2196,6 +2213,8 @@ namespace TA3D
         glEnd();
     }
 
+
+
     void SKY::build(int d,float size, bool full_sphere)
     {
         destroy();
@@ -2205,49 +2224,59 @@ namespace TA3D
         s = full_sphere ? (d << 1) : d;
         w = size;
 
-        nb_vtx=(s+1)*((s<<1)+1);
-        nb_idx = s*(s*2+1)*2;				// We'll use GL_TRIANGLE_STRIP
+        nb_vtx = (s + 1) * ((s << 1) + 1);
+        nb_idx = s * (s * 2 + 1) * 2; // We'll use GL_TRIANGLE_STRIP
 
         point = new Vector3D[nb_vtx];
         texcoord = new float[nb_vtx*2];
         index = new GLushort[nb_idx];
 
         int i=0;
-        for(int y=0;y<=s;y++)
-            for(int x=0;x<=s*2;x++) {
-                if( full_sphere ) {
-                    point[i].x=size*cos(x/(2.0f*s)*PI*2.0f)*cos((float)y/s*PI - PI*0.5f);
-                    point[i].y=size*sin((float)y/s*PI - PI*0.5f);
-                    point[i].z=-size*sin(x/(2.0f*s)*PI*2.0f)*cos((float)y/s*PI - PI*0.5f);
+        for (int y = 0; y <= s; ++y)
+        {
+            for (int x = 0; x <= s * 2; ++x)
+            {
+                if (full_sphere)
+                {
+                    point[i].x = size * cos(x / (2.0f * s) * PI * 2.0f) * cos((float)y / s * PI - PI * 0.5f);
+                    point[i].y = size * sin((float)y / s * PI - PI * 0.5f);
+                    point[i].z = -size * sin(x / (2.0f * s) * PI * 2.0f) * cos((float)y / s * PI - PI * 0.5f);
                 }
-                else {
-                    point[i].x=size*cos(x/(2.0f*s)*PI*2.0f)*cos(0.5f*y/s*PI);
-                    point[i].y=size*sin(0.5f*y/s*PI);
-                    point[i].z=-size*sin(x/(2.0f*s)*PI*2.0f)*cos(0.5f*y/s*PI);
+                else
+                {
+                    point[i].x = size * cos(x / (2.0f * s) * PI * 2.0f) * cos(0.5f * y / s * PI);
+                    point[i].y = size * sin(0.5f * y / s * PI);
+                    point[i].z = -size * sin(x / (2.0f * s) * PI * 2.0f) * cos(0.5f * y / s * PI);
                 }
-                texcoord[i<<1]=(float)x/(s*2);
-                texcoord[(i<<1)+1]=1.0f-(float)y/s;
-                i++;
+                texcoord[i << 1] = (float)x / (s * 2);
+                texcoord[(i << 1) + 1] = 1.0f - (float)y / s;
+                ++i;
             }
-        i=0;
-        for(int y=0;y<s;y++)				// We'll use GL_TRIANGLE_STRIP
-            for(int x=0;x<=s*2;x++) {
-                index[i++]=y*(s*2+1)+x;
-                index[i++]=(y+1)*(s*2+1)+x;
+        }
+        i = 0;
+        for (int y = 0; y < s; ++y)	// We'll use GL_TRIANGLE_STRIP
+        {
+            for (int x = 0; x <= s * 2; ++x)
+            {
+                index[i++] = y * (s * 2 + 1) + x;
+                index[i++] = (y + 1)*(s * 2 + 1) + x;
             }
+        }
     }
+
 
     void SKY::draw()
     {
         glDisableClientState(GL_COLOR_ARRAY);
         glEnableClientState(GL_VERTEX_ARRAY);		// Les sommets
-        glVertexPointer( 3, GL_FLOAT, 0, point);
+        glVertexPointer(3, GL_FLOAT, 0, point);
         glClientActiveTextureARB(GL_TEXTURE0_ARB);
         glEnableClientState(GL_TEXTURE_COORD_ARRAY);
         glTexCoordPointer(2, GL_FLOAT, 0, texcoord);
-
         glDrawElements(GL_TRIANGLE_STRIP, nb_idx,GL_UNSIGNED_SHORT,index);		// dessine le tout
     }
+
+
     void SKY_DATA::load_tdf(const String& filename)
     {
         TDFParser parser;
@@ -2267,13 +2296,14 @@ namespace TA3D
         parser.pullAsString("sky.map").split(MapName, ",");
     }
 
-    SKY_DATA* choose_a_sky( const String& mapname, const String& planet)
+    
+    SKY_DATA* choose_a_sky(const String& mapname, const String& planet)
     {
         std::list<SKY_DATA*> sky_list;
         sky_list.clear();
 
         String::List file_list;
-        HPIManager->getFilelist( "sky\\*.tdf",  file_list);
+        HPIManager->getFilelist("sky\\*.tdf", file_list);
         uint32	nb_sky = 0;
 
         for (String::List::const_iterator it = file_list.begin(); it != file_list.end(); ++it)
@@ -2282,23 +2312,29 @@ namespace TA3D
             sky_data->load_tdf(*it);
 
             bool keep = false;
-            for (unsigned int i = 0 ; i < sky_data->MapName.size() ; ++i)
-                if( sky_data->MapName[i] == mapname)
+            for (String::Vector::const_iterator i = sky_data->MapName.begin(); i != sky_data->MapName.end(); ++i)
+            {
+                if (*i == mapname)
                 {
                     keep = true;
                     break;
                 }
-            if( !keep )
-                for(unsigned int i = 0 ; i < sky_data->planet.size() ; ++i)
-                    if (sky_data->planet[ i ] == planet)
+            }
+            if (!keep)
+            {
+                for (String::Vector::const_iterator i = sky_data->planet.begin(); i != sky_data->planet.end(); ++i)
+                {
+                    if (*i == planet)
                     {
                         keep = true;
                         break;
                     }
-            if( keep )
+                }
+            }
+            if (keep)
             {
-                sky_list.push_back( sky_data );
-                nb_sky++;
+                sky_list.push_back(sky_data);
+                ++nb_sky;
             }
             else
                 delete sky_data;
@@ -2324,7 +2360,7 @@ namespace TA3D
 
         SKY_DATA *selected_sky = NULL;
 
-        if( nb_sky > 0 )
+        if (nb_sky > 0)
         {
             int select = TA3D_RAND() % nb_sky;
             for (std::list<SKY_DATA*>::iterator it = sky_list.begin() ; it != sky_list.end(); ++it, --select)
