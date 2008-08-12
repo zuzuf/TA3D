@@ -1630,7 +1630,7 @@ void setup_game(bool client, const char *host)
         poll_keyboard();
     }
 
-    if (network_manager.isServer() )
+    if (network_manager.isServer() && advertise )
         network_manager.registerToNetServer( host, 0);              // Tell the world we're gone
 
     if (start_game)
