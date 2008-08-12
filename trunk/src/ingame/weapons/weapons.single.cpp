@@ -641,9 +641,9 @@ namespace TA3D
                     int color0 = weapon_manager.weapon[weapon_id].color[0];
                     int color1 = weapon_manager.weapon[weapon_id].color[1];
                     float coef = (cos(stime*5.0f)+1.0f)*0.5f;
-                    float r=(coef*getr(color0)+(1.0f-coef)*getr(color1))/255.0f;
-                    float g=(coef*getg(color0)+(1.0f-coef)*getg(color1))/255.0f;
-                    float b=(coef*getb(color0)+(1.0f-coef)*getb(color1))/255.0f;
+                    int r = (int)(coef*getr(color0)+(1.0f-coef)*getr(color1));
+                    int g = (int)(coef*getg(color0)+(1.0f-coef)*getg(color1));
+                    int b = (int)(coef*getb(color0)+(1.0f-coef)*getb(color1));
                     Vector3D D(Pos - cam->pos);
                     Vector3D Up(D * V);
                     Up.unit();
@@ -654,13 +654,13 @@ namespace TA3D
                     glEnable(GL_BLEND);
                     glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
                     glBegin(GL_QUADS);
-                    glColor4f(r,g,b,0.0f);
+                    glColor4ub(r,g,b,0);
                     glVertex3f(Pos.x+Up.x,Pos.y+Up.y,Pos.z+Up.z);			glVertex3f(P.x+Up.x,P.y+Up.y,P.z+Up.z);
-                    glColor4f(r,g,b,1.0f);
+                    glColor4ub(r,g,b,0xFF);
                     glVertex3f(P.x,P.y,P.z);								glVertex3f(Pos.x,Pos.y,Pos.z);
 
                     glVertex3f(Pos.x,Pos.y,Pos.z);							glVertex3f(P.x,P.y,P.z);				
-                    glColor4f(r,g,b,0.0f);
+                    glColor4ub(r,g,b,0);
                     glVertex3f(P.x-Up.x,P.y-Up.y,P.z-Up.z);					glVertex3f(Pos.x-Up.x,Pos.y-Up.y,Pos.z-Up.z);
                     glEnd();
                     glDisable(GL_BLEND);
@@ -692,7 +692,7 @@ namespace TA3D
             case RENDER_TYPE_BITMAP:
                 glDisable(GL_LIGHTING);
                 glDisable(GL_TEXTURE_2D);
-                glColor4f(1.0f,1.0f,1.0f,1.0f);
+                glColor4ub(0xFF,0xFF,0xFF,0xFF);
                 if(weapon_manager.cannonshell.nb_bmp>0)
                 {
                     anim_sprite=((int)(stime*15.0f))%weapon_manager.cannonshell.nb_bmp;
@@ -759,10 +759,10 @@ namespace TA3D
                     int color0=weapon_manager.weapon[weapon_id].color[0];
                     int color1=weapon_manager.weapon[weapon_id].color[1];
                     float coef=(cos(stime)+1.0f)*0.5f;
-                    float r=(coef*((color0>>16)&0xFF)+coef*((color1>>16)&0xFF))/255.0f;
-                    float g=(coef*((color0>>8)&0xFF)+coef*((color1>>8)&0xFF))/255.0f;
-                    float b=(coef*(color0&0xFF)+coef*(color1&0xFF))/255.0f;
-                    glColor4f(r,g,b,1.0f);
+                    int r = (int)(coef*((color0>>16)&0xFF)+coef*((color1>>16)&0xFF));
+                    int g = (int)(coef*((color0>>8)&0xFF)+coef*((color1>>8)&0xFF));
+                    int b = (int)(coef*(color0&0xFF)+coef*(color1&0xFF));
+                    glColor4ub(r,g,b,0xFF);
                     glBegin(GL_LINE_STRIP);
                     for (short int i = 0; i < TA3D_PLAYERS_HARD_LIMIT; ++i)
                     {
@@ -806,7 +806,7 @@ namespace TA3D
                 glDisable(GL_LIGHTING);
                 glDisable(GL_TEXTURE_2D);
                 glBegin(GL_POINTS);
-                glColor3f(0.75f,0.75f,0.75f);
+                glColor3ub(0xBF,0xBF,0xBF);
                 glVertex3f(Pos.x,Pos.y,Pos.z);
                 glEnd();
                 break;
@@ -814,8 +814,8 @@ namespace TA3D
                 glDisable(GL_LIGHTING);
                 glDisable(GL_TEXTURE_2D);
                 glBegin(GL_POINTS);
-                glColor3f(0.75f,0.75f,0.75f);
-                for (short int i = 0; i < TA3D_PLAYERS_HARD_LIMIT; ++i)
+                glColor3ub(0xBF,0xBF,0xBF);
+                for (short int i = 0; i < 10; ++i)
                 {
                     glVertex3f(Pos.x + (Math::RandFromTable() % 201) * 0.01f - 1.0f,
                                Pos.y + (Math::RandFromTable() % 201) * 0.01f - 1.0f,
