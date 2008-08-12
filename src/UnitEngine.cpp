@@ -6442,14 +6442,14 @@ script_exec:
                     gfx->print_center(gfx->small_font, ta3dSideData.side_int_data[ players.side_view ].UnitEnergyUse.x1, ta3dSideData.side_int_data[ players.side_view ].UnitEnergyUse.y1,0.0f,buf);
                 }
 
-                glColor4f(1.0f,1.0f,1.0f,1.0f);
+                glColor4ub(0xFF,0xFF,0xFF,0xFF);
 
                 glDisable(GL_TEXTURE_2D);
 
                 glDisable(GL_BLEND);
 
                 glBegin(GL_QUADS);
-                glColor4f(1.0f,0.0f,0.0f,1.0f);
+                glColor4ub(0xFF,0,0,0xFF);
 
                 if (unit[index].owner_id == players.local_human_id || !unit_manager.unit_type[unit[index].type_id]->HideDamage )
                 {
@@ -6485,7 +6485,7 @@ script_exec:
                         }
                 }
 
-                glColor3f(0.0f,1.0f,0.0f);
+                glColor3ub(0,0xFF,0);
 
                 if (unit[index].hp>0 && ( unit[index].owner_id == players.local_human_id || !unit_manager.unit_type[unit[index].type_id]->HideDamage ) )
                 {
@@ -6535,7 +6535,7 @@ script_exec:
             glDisable( GL_BLEND );
             glDisable( GL_TEXTURE_2D );
         }
-        glColor4f(1.0f,1.0f,1.0f,1.0f);
+        glColor4ub(0xFF,0xFF,0xFF,0xFF);
         set_uformat(U_UTF8);
 
         pMutex.unlock();

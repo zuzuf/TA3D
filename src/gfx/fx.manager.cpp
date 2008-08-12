@@ -257,7 +257,7 @@ namespace TA3D
             pCacheIsDirty = false;
         }
 
-        glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+        glColor4ub(0xFF, 0xFF, 0xFF, 0xFF);
 
         glEnable(GL_TEXTURE_2D);
         glDisable(GL_LIGHTING);
