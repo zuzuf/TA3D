@@ -311,7 +311,7 @@ namespace TA3D
 
             allegro_gl_set_texture_format(GL_RGB8);
 
-            water = gfx->make_texture( tmp, FILTER_TRILINEAR, false);
+            water = gfx->make_texture( tmp, FILTER_LINEAR, false);
 
             destroy_bitmap(tmp);
 
@@ -1747,7 +1747,7 @@ namespace TA3D
 
                 refcam.zfar*=100.0f;
                 refcam.setView();
-                glColor4f(1.0f,1.0f,1.0f,1.0f);
+                glColor4ub(0xFF,0xFF,0xFF,0xFF);
                 glEnable(GL_TEXTURE_2D);
                 if (lp_CONFIG->render_sky)
                 {
@@ -1823,7 +1823,7 @@ namespace TA3D
 
                 gfx->ReInitAllTex(true);
 
-                glColor4f(1.0f,1.0f,1.0f,1.0f);
+                glColor4ub(0xFF,0xFF,0xFF,0xFF);
                 glDisable(GL_BLEND);
 
                 glBindTexture(GL_TEXTURE_2D,reflectex);								// Store what's on screen for reflection effect
@@ -1855,7 +1855,7 @@ namespace TA3D
             cam.setView();
 
             glDisable(GL_FOG);
-            glColor3f( 0.0f, 0.0f, 0.0f);				// Black background
+            glColor3ub( 0, 0, 0);				// Black background
             glDisable( GL_TEXTURE_2D);
             glDepthMask(GL_FALSE);
             glBegin( GL_QUADS);
@@ -1869,7 +1869,7 @@ namespace TA3D
 
             cam.zfar *= 100.0f;
             cam.setView();
-            glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+            glColor4ub(0xFF, 0xFF, 0xFF, 0xFF);
             glEnable(GL_TEXTURE_2D);
             if (lp_CONFIG->render_sky)
             {
@@ -1919,7 +1919,8 @@ namespace TA3D
             /*----------------------------------------------------------------------------------------------*/
 
             // Dessine les unités sous l'eau / Draw units which are under water
-            units.draw(cam, map.get(), true, false, true, lp_CONFIG->height_line);			
+            if (cam.rpos.y <= gfx->low_def_limit)
+                units.draw(cam, map.get(), true, false, true, lp_CONFIG->height_line);
 
             // Dessine les objets produits par les armes sous l'eau / Draw weapons which are under water
             weapons.draw(&cam, map.get(), true);
