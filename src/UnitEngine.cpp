@@ -7067,14 +7067,15 @@ script_exec:
         else
             glDisable(GL_CULL_FACE);
 
-        if (cam.rpos.y > gfx->low_def_limit )
-            glDisable(GL_DEPTH_TEST);
         glDisable(GL_BLEND);
         glColor4ub(0xFF,0xFF,0xFF,0xFF);
         float sea_lvl = limit ? map->sealvl-5.0f : map->sealvl;
         float virtual_t = (float)current_tick / TICKS_PER_SEC;
         cam.setView();
         pMutex.lock();
+        bool low_def = cam.rpos.y > gfx->low_def_limit;
+        if (low_def)
+            glDisable(GL_DEPTH_TEST);
 
         for (uint16 e = 0; e < index_list_size; ++e)
         {
@@ -7082,7 +7083,9 @@ script_exec:
             pMutex.unlock();
 
             unit[i].lock();
-            if ((unit[i].flags & 1) && ((unit[i].Pos.y + unit[i].model->bottom <= map->sealvl && underwater) || (unit[i].Pos.y + unit[i].model->top >= sea_lvl && !underwater))) // Si il y a une unité
+            if ((unit[i].flags & 1)
+            && (low_def || (unit[i].Pos.y + unit[i].model->bottom <= map->sealvl && underwater)
+            || (unit[i].Pos.y + unit[i].model->top >= sea_lvl && !underwater))) // Si il y a une unité / If there is a unit
             {
                 unit[i].unlock();
                 unit[i].draw(virtual_t, cam, map, height_line);
@@ -7095,7 +7098,7 @@ script_exec:
 
         glDisable(GL_ALPHA_TEST);
 
-        if (cam.rpos.y > gfx->low_def_limit)
+        if (low_def)
             glEnable(GL_DEPTH_TEST);
 
         if (!cullface)
