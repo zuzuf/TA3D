@@ -2008,12 +2008,15 @@ draw_next:
                                 data_s->axe[0][script_index].angle * DEG2RAD)
                     * (*M);
                 data_s->matrix[script_index] = *M;
-                if (nb_l_index==2) {
+                if (nb_l_index==2)
+                {
                     data_s->dir[script_index]=(points[l_index[1]] - points[l_index[0]])*(*M);
                     data_s->dir[script_index].unit();
-                    ipos.x=points[l_index[0]].x;
-                    ipos.y=points[l_index[0]].y;
-                    ipos.z=points[l_index[0]].z;
+                }
+                else
+                {
+                    data_s->dir[script_index] = pos_from_parent * OM;
+                    data_s->dir[script_index].unit();
                 }
                 data_s->pos[script_index]=*pos;
             }
