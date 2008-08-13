@@ -6200,7 +6200,7 @@ script_exec:
         int x = px-(w>>1);
         int y = py-(h>>1);
         int side = unit_manager.unit_type[unit_type_id]->ExtractsMetal == 0.0f ? 12 : 0;
-        if (x<0 || y<0 || x+w>=(map->bloc_w<<1) || y+h>=(map->bloc_h<<1))	return false;	// check if it is inside the map
+        if (x < 0 || y < ((int)map->get_zdec(x,0)+7>>3) || x+w>=(map->bloc_w<<1) || y+h>=(map->bloc_h<<1))	return false;	// check if it is inside the map
 
         if (!map->check_rect( px - ((w + side)>>1), py - ((h + side)>>1), w + side, h + side, unit_id))
             return false;		// There is already something
@@ -6236,7 +6236,7 @@ script_exec:
         int h = unit_manager.unit_type[unit_type_id]->FootprintZ;
         int x = px-(w>>1);
         int y = py-(h>>1);
-        if (x<0 || y<0 || x+w>=(map->bloc_w<<1) || y+h>=(map->bloc_h<<1))
+        if (x < 0 || y < ((int)map->get_zdec(x,0)+7>>3) || x+w>=(map->bloc_w<<1) || y+h>=(map->bloc_h<<1))
             return false;	// check if it is inside the map
 
         if (!map->check_rect(x,y,w,h,unit_id))
@@ -6273,7 +6273,7 @@ script_exec:
         int h = unit_manager.unit_type[unit_type_id]->FootprintZ;
         int x = (((int)(Pos.x)+map->map_w_d+4)>>3)-(w>>1);
         int y = (((int)(Pos.z)+map->map_h_d+4)>>3)-(h>>1);
-        if (x<0 || y<0 || x+w>=(map->bloc_w<<1) || y+h>=(map->bloc_h<<1))
+        if (x < 0 || y < ((int)map->get_zdec(x,0)+7>>3) || x+w>=(map->bloc_w<<1) || y+h>=(map->bloc_h<<1))
             return false;	// check if it is inside the map
 
         if (!map->check_rect(x,y,w,h,-1))
