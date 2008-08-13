@@ -2038,9 +2038,9 @@ draw_next:
                         random_vector = !src->random_pos( src_data, (base_n + n) % src->nb_sub_obj, &t_mod );
                 if (random_vector)
                 {
-                    t_mod.x=((Math::RandFromTable()%2001)-1000)*0.001f;
-                    t_mod.y=((Math::RandFromTable()%2001)-1000)*0.001f;
-                    t_mod.z=((Math::RandFromTable()%2001)-1000)*0.001f;
+                    t_mod.x=(((int)(Math::RandFromTable()%2001))-1000)*0.001f;
+                    t_mod.y=(((int)(Math::RandFromTable()%2001))-1000)*0.001f;
+                    t_mod.z=(((int)(Math::RandFromTable()%2001))-1000)*0.001f;
                     t_mod.unit();
                     t_mod = (Math::RandFromTable() % 1001) * 0.001f * size * t_mod;
                     if (center)
