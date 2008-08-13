@@ -169,6 +169,18 @@ namespace TA3D
             {
                 if (params[0] == "TCPONLY")
                     TCPonly = true;
+                else if (params[0] == "GONE")       // Someone tell us he's gone !! Remove it from remote players otherwise game
+                {                                   // will freeze
+                    if (network_manager.isServer())     // Hum currently we only handle the case where a client leaves ... server must stay!!
+                    {
+                        network_manager.dropPlayer(received_special_msg.from);      // Remove it from socket list
+                        if (game_data)
+                        {
+                            game_data->player_control[ player_id ] = PLAYER_CONTROL_NONE;       // Remove control data
+                            players.control[ player_id ] = PLAYER_CONTROL_NONE;
+                        }
+                    }
+                }
             }
             else if (params.size() == 3)
             {

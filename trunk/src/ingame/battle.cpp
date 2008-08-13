@@ -3636,6 +3636,9 @@ namespace TA3D
 
         } while (!done);
 
+        if (network_manager.isConnected())          // Tell others we're gone
+            network_manager.sendSpecial("GONE");
+
         reset_mouse();
 
         players.DestroyThread();				// Shut down the Players thread
