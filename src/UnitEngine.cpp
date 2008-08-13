@@ -3164,9 +3164,6 @@ namespace TA3D
                             {
                                 compute_model_coord();
                                 Vector3D Dir = data.dir[start_piece];
-                                LOG_DEBUG("startpiece = " << start_piece);
-                                LOG_DEBUG("start dir = " << Dir.x << "," << Dir.y << "," << Dir.z);
-                                LOG_DEBUG("start pos = " << data.pos[start_piece].x << "," << data.pos[start_piece].y << "," << data.pos[start_piece].z);
                                 if (Dir.x==0.0f && Dir.y==0.0f && Dir.z==0.0f)
                                 {
                                     if (unit_manager.unit_type[type_id]->weapon[ i ]->vlaunch)
