@@ -3164,6 +3164,9 @@ namespace TA3D
                             {
                                 compute_model_coord();
                                 Vector3D Dir = data.dir[start_piece];
+                                LOG_DEBUG("startpiece = " << start_piece);
+                                LOG_DEBUG("start dir = " << Dir.x << "," << Dir.y << "," << Dir.z);
+                                LOG_DEBUG("start pos = " << data.pos[start_piece].x << "," << data.pos[start_piece].y << "," << data.pos[start_piece].z);
                                 if (Dir.x==0.0f && Dir.y==0.0f && Dir.z==0.0f)
                                 {
                                     if (unit_manager.unit_type[type_id]->weapon[ i ]->vlaunch)
@@ -4650,7 +4653,9 @@ namespace TA3D
             switch(mission->mission)		// Pour le code post déplacement
             {
                 case MISSION_ATTACK:
-                    if (unit_manager.unit_type[type_id]->canfly && !unit_manager.unit_type[type_id]->hoverattack ) {			// Un avion??
+//                    if (unit_manager.unit_type[type_id]->canfly && !unit_manager.unit_type[type_id]->hoverattack ) {			// Un avion??
+                    if (unit_manager.unit_type[type_id]->canfly)			// Un avion??
+                    {
                         activate();
                         mission->flags &= ~MISSION_FLAG_MOVE;			// We're doing it here, so no need to do it twice
                         Vector3D J,I,K;
@@ -5952,7 +5957,7 @@ script_exec:
             weapons.weapon[w_idx].V = pW->weaponvelocity*Dir;
         else
             weapons.weapon[w_idx].V = pW->startvelocity*Dir;
-        if (pW->dropped || !(pW->rendertype & RENDER_TYPE_LASER) )
+//        if (pW->dropped || !pW->lineofsight)
             weapons.weapon[w_idx].V = weapons.weapon[w_idx].V+V;
         weapons.weapon[w_idx].owner = owner;
         weapons.weapon[w_idx].target=target;
