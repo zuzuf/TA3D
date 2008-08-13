@@ -2792,8 +2792,11 @@ namespace TA3D
         {
             if (!built && local)
             {
-                hp -= dt * 1000.0f / ( 6 * unit_manager.unit_type[type_id]->BuildTime ) * unit_manager.unit_type[type_id]->MaxDamage;
-                build_percent_left += dt * 100000.0f / ( 6 * unit_manager.unit_type[type_id]->BuildTime );
+                float frac = 1000.0f / ( 6 * unit_manager.unit_type[type_id]->BuildTime );
+                metal_prod = frac * unit_manager.unit_type[type_id]->BuildCostMetal;
+                frac *= dt;
+                hp -= frac * unit_manager.unit_type[type_id]->MaxDamage;
+                build_percent_left += frac * 100.0f;
             }
             goto script_exec;
         }
