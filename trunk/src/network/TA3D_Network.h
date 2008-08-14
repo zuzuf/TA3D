@@ -69,6 +69,7 @@ namespace TA3D
         bool isLocal( int player_id );
         bool isRemoteHuman( int player_id );
         void sendDamageEvent( int idx, float damage );
+        void sendParalyzeEvent( int idx, float damage );
         void sendFeatureCreationEvent( int idx );
         void sendFeatureDeathEvent( int idx );
         void sendFeatureFireEvent( int idx );

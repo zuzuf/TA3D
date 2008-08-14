@@ -126,6 +126,7 @@ namespace TA3D
 #define EVENT_FEATURE_FIRE			0x10
 #define EVENT_SCRIPT_SIGNAL			0x11		// Send a signal to player
 #define EVENT_UNIT_NANOLATHE		0x12		// Tell when a unit is nanolathing something
+#define EVENT_UNIT_PARALYZE			0x13        // A unit gets paralyzed
 
     struct event{
         byte	type;		//uint8 what type of event

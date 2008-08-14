@@ -436,6 +436,7 @@ namespace TA3D
         bool					flying;
         bool					cloaked;			// Is the unit cloaked
         bool					cloaking;			// Cloaking the unit if enough energy
+        float                   paralyzed;
 
         // Following variables are used to control the drawing of the unit on the presence maps
         bool			drawn_open;			// Used to store the last state the unit was drawn on the presence map (opened or closed)

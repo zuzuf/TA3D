@@ -436,6 +436,25 @@ namespace TA3D
                         units.unit[ event_msg.opt1 ].unlock();
                     }
                     break;
+                case EVENT_UNIT_PARALYZE:
+                    if (event_msg.opt1 < units.max_unit && (units.unit[event_msg.opt1].flags & 1))
+                    {
+                        units.unit[ event_msg.opt1 ].lock();
+
+                        if (units.unit[ event_msg.opt1 ].exploding)
+                        {
+                            units.unit[ event_msg.opt1 ].unlock();
+                            break;
+                        }
+                        float damage = event_msg.opt2 / 3600.0f;
+
+                        units.unit[ event_msg.opt1 ].paralyzed = damage;
+
+                        units.unit[ event_msg.opt1 ].unlock();
+
+                        printf("(%d), received order to paralyze %d\n", units.current_tick, event_msg.opt1 );
+                    }
+                    break;
                 case EVENT_UNIT_DAMAGE:
                     if (event_msg.opt1 < units.max_unit && (units.unit[event_msg.opt1].flags & 1))
                     {
@@ -624,6 +643,15 @@ namespace TA3D
         event.type = EVENT_UNIT_DAMAGE;
         event.opt1 = idx;
         event.opt2 = (int)(damage * 16.0f);
+        network_manager.sendEvent( &event );
+    }
+
+    void TA3DNetwork::sendParalyzeEvent( int idx, float damage )
+    {
+        struct event event;
+        event.type = EVENT_UNIT_PARALYZE;
+        event.opt1 = idx;
+        event.opt2 = (int)(damage * 60.0f);
         network_manager.sendEvent( &event );
     }
 

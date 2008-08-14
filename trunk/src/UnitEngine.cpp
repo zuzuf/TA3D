@@ -406,6 +406,7 @@ namespace TA3D
         pMutex.lock();
 
         ID = 0;
+        paralyzed = 0.0f;
 
         yardmap_timer = 1;
         death_timer = 0;
@@ -2841,7 +2842,10 @@ namespace TA3D
         else
             cloaked = false;
 
-        if (attached)
+        if (paralyzed > 0.0f)       // This unit is paralyzed
+            paralyzed -= dt;
+
+        if (attached || paralyzed > 0.0f)
             goto script_exec;
 
         if (unit_manager.unit_type[type_id]->canload && nb_attached > 0)
