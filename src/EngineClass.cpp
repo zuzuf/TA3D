@@ -417,7 +417,7 @@ namespace TA3D
             {
                 for (int x = x1; x < x2; ++x)
                 {
-                    if (yardmap.size() >= i)
+                    if (yardmap.size() <= i)
                     {
                         pMutex.unlock();
                         return;
@@ -588,7 +588,7 @@ namespace TA3D
         {
             for (int x = x1; x < x2; ++x)
             {
-                if (yard_map.size() >= i)	return ok;
+                if (yard_map.size() <= i)	return ok;
                 if (yard_map[i]=='G')
                 {
                     ok = false;
