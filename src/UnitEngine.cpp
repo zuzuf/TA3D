@@ -1694,7 +1694,7 @@ namespace TA3D
                             particle_engine.make_fire( Pos + data.pos[obj],1,10,45.0f);
                             int power = Math::Max(unit_manager.unit_type[type_id]->FootprintX, unit_manager.unit_type[type_id]->FootprintZ);
                             Vector3D P = Pos + data.pos[obj];
-                            fx_manager.addExplosion( P, power * 3, power * 10.0f );
+                            fx_manager.addExplosion( P, V, power * 3, power * 10.0f );
                         }
                         data.flag[obj]|=FLAG_EXPLODE;
                         data.explosion_flag[obj]=explosion_type;
@@ -2528,7 +2528,7 @@ namespace TA3D
 
         int power = Math::Max(unit_manager.unit_type[type_id]->FootprintX, unit_manager.unit_type[type_id]->FootprintZ);
         fx_manager.addFlash( Pos, power * 32 );
-        fx_manager.addExplosion( Pos, power * 3, power * 10 );
+        fx_manager.addExplosion( Pos, V, power * 3, power * 10 );
 
         int param[]={ severity * 100 / unit_manager.unit_type[type_id]->MaxDamage, 0 };
         run_script_function(the_map,get_script_index(SCRIPT_killed),2,param);

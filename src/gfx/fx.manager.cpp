@@ -341,6 +341,36 @@ namespace TA3D
         pMutex.unlock();
     }
 
+    void FXManager::addExplosion(const Vector3D& p, const Vector3D& s, const int n, const float power)
+    {
+        if (!lp_CONFIG->explosion_particles)
+            return;
+
+        if (the_map)            // Visibility test
+        {
+            int px=((int)(p.x+0.5f) + the_map->map_w_d)>>4;
+            int py=((int)(p.z+0.5f) + the_map->map_h_d)>>4;
+            if (px<0 || py<0 || px >= the_map->bloc_w || py >= the_map->bloc_h)	return;
+            byte player_mask = 1 << players.local_human_id;
+            if (the_map->view[py][px]!=1
+               || !(the_map->sight_map->line[py][px]&player_mask))	return;
+        }
+
+        pMutex.lock();
+        for (int i = 0 ; i < n ; ++i) 
+        {
+            float a = (Math::RandFromTable() % 36000) * 0.01f * DEG2RAD;
+            float b = (Math::RandFromTable() % 18000) * 0.01f * DEG2RAD;
+            float speed = power * ((Math::RandFromTable() % 9001) * 0.0001f + 0.1f);
+            Vector3D vs(speed * cos(a) * cos(b), 
+                        speed * sin(b),
+                        speed * sin(a) * cos(b));
+            float l = Math::Min(5.0f * vs.y / (the_map->ota_data.gravity + 0.1f), 10.0f);
+
+            pParticles.push_back(new FXParticle(p, s + vs, l));
+        }
+        pMutex.unlock();
+    }
 
     int FXManager::putInCache(const String& filename, Gaf::Animation* anm)
     {
