@@ -2597,7 +2597,7 @@ void wait_room(void *p_game_data)
                         {                                   // We can only use units available on all clients, so check the list
                             network_manager.sendAll("NOT_READY");
 
-                            if (unit_manager.get_unit_index( params[1].c_str() ) == -1 )            // Tell it's missing
+                            if (unit_manager.get_unit_index(params[1]) == -1 )            // Tell it's missing
                                 network_manager.sendAll( "MISSING " + params[1]);
                         }
                         else
@@ -2607,7 +2607,7 @@ void wait_room(void *p_game_data)
                             else
                                 if (params[0] == "MISSING")
                                 {
-                                    int idx = unit_manager.get_unit_index(params[1].c_str());
+                                    int idx = unit_manager.get_unit_index(params[1]);
                                     if (idx >= 0)
                                         unit_manager.unit_type[idx]->not_used = true;
                                 }

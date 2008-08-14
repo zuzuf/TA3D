@@ -393,9 +393,9 @@ namespace TA3D
 
         int load_unit(byte *data,int size=9999999);         // Ajoute une nouvelle unité
 
-        inline int get_unit_index(const char *unit_name)        // Cherche l'indice de l'unité unit_name dans la liste d'unités
+        inline int get_unit_index(const String &unit_name)        // Cherche l'indice de l'unité unit_name dans la liste d'unités
         {
-            return ((unit_name) ? unit_hashtable.find(String::ToLower(unit_name)) - 1 : -1);
+            return unit_hashtable.find(String::ToLower(unit_name)) - 1;
         }
 
     private:
