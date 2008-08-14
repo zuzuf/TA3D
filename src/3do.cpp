@@ -2015,8 +2015,7 @@ draw_next:
                 }
                 else
                 {
-                    data_s->dir[script_index] = pos_from_parent * OM;
-                    data_s->dir[script_index].unit();
+                    data_s->dir[script_index].x = data_s->dir[script_index].y = data_s->dir[script_index].z = 0.0f;
                 }
                 data_s->pos[script_index]=*pos;
             }

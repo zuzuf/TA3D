@@ -1033,10 +1033,12 @@ namespace TA3D
                                 if ((units.unit[i].flags & 1) && units.unit[i].owner_id==players.local_human_id && units.unit[i].sel && unit_manager.unit_type[units.unit[i].type_id]->canattack
                                     && ( unit_manager.unit_type[units.unit[i].type_id]->BMcode || !unit_manager.unit_type[units.unit[i].type_id]->Builder))
                                 {
-                                    if (( unit_manager.unit_type[units.unit[i].type_id]->weapon[ 0 ] && unit_manager.unit_type[units.unit[i].type_id]->weapon[ 0 ]->stockpile)
-                                        || ( unit_manager.unit_type[units.unit[i].type_id]->weapon[ 1 ] && unit_manager.unit_type[units.unit[i].type_id]->weapon[ 1 ]->stockpile)
-                                        || ( unit_manager.unit_type[units.unit[i].type_id]->weapon[ 2 ] && unit_manager.unit_type[units.unit[i].type_id]->weapon[ 2 ]->stockpile))
-                                        commandfire = MISSION_FLAG_COMMAND_FIRE;
+                                    for( int f = 0 ; f < unit_manager.unit_type[units.unit[i].type_id]->weapon.size() ; f++ )
+                                        if (unit_manager.unit_type[units.unit[i].type_id]->weapon[ f ] && unit_manager.unit_type[units.unit[i].type_id]->weapon[ f ]->stockpile)
+                                        {
+                                            commandfire = MISSION_FLAG_COMMAND_FIRE;
+                                            break;
+                                        }
                                     if (TA3D_SHIFT_PRESSED)
                                         units.unit[i].add_mission(MISSION_ATTACK,&(units.unit[pointing].Pos),false,0,&(units.unit[pointing]),NULL,commandfire);
                                     else
@@ -1149,10 +1151,12 @@ namespace TA3D
                                     if ((units.unit[i].flags & 1) && units.unit[i].owner_id==players.local_human_id && units.unit[i].sel && unit_manager.unit_type[units.unit[i].type_id]->canattack
                                         && ( unit_manager.unit_type[units.unit[i].type_id]->BMcode || !unit_manager.unit_type[units.unit[i].type_id]->Builder))
                                     {
-                                        if (( unit_manager.unit_type[units.unit[i].type_id]->weapon[ 0 ] && unit_manager.unit_type[units.unit[i].type_id]->weapon[ 0 ]->stockpile)
-                                            || ( unit_manager.unit_type[units.unit[i].type_id]->weapon[ 1 ] && unit_manager.unit_type[units.unit[i].type_id]->weapon[ 1 ]->stockpile)
-                                            || ( unit_manager.unit_type[units.unit[i].type_id]->weapon[ 2 ] && unit_manager.unit_type[units.unit[i].type_id]->weapon[ 2 ]->stockpile))
-                                            commandfire = MISSION_FLAG_COMMAND_FIRE;
+                                        for( int f = 0 ; f < unit_manager.unit_type[units.unit[i].type_id]->weapon.size() ; f++ )
+                                            if (unit_manager.unit_type[units.unit[i].type_id]->weapon[ f ] && unit_manager.unit_type[units.unit[i].type_id]->weapon[ f ]->stockpile)
+                                            {
+                                                commandfire = MISSION_FLAG_COMMAND_FIRE;
+                                                break;
+                                            }
                                         if (TA3D_SHIFT_PRESSED)
                                             units.unit[i].add_mission(MISSION_ATTACK,&(cursor_pos),false,0,NULL,NULL,commandfire);
                                         else
@@ -2929,7 +2933,7 @@ namespace TA3D
                             units.unit[i].port[STANDINGFIREORDERS] = sorder_obj->current_state;
                             if (SFORDER_FIRE_AT_WILL != units.unit[i].port[STANDINGFIREORDERS])
                             {
-                                for (short int f = 0; f < 3; ++f)
+                                for (short int f = 0; f < units.unit[i].weapon.size(); ++f)
                                     units.unit[i].weapon[f].state = WEAPON_FLAG_IDLE;
                                 if (units.unit[i].mission && units.unit[i].mission->mission == MISSION_ATTACK && !( units.unit[i].mission->flags & MISSION_FLAG_COMMAND_FIRE))
                                     units.unit[i].next_mission();
@@ -3182,14 +3186,14 @@ namespace TA3D
             if (internal_name && last_on >= 0)
             {
                 units.unit[ last_on ].lock();
-                if (units.unit[ last_on ].type_id >= 0 && unit_manager.unit_type[ units.unit[ last_on ].type_id ]->Unitname!=NULL)
-                    gfx->print(gfx->normal_font,128.0f,32.0f,0.0f,0xFFFFFFFF,format("internal name %s",unit_manager.unit_type[ units.unit[ last_on ].type_id ]->Unitname));
+                if (units.unit[ last_on ].type_id >= 0 && !unit_manager.unit_type[ units.unit[ last_on ].type_id ]->Unitname.empty())
+                    gfx->print(gfx->normal_font,128.0f,32.0f,0.0f,0xFFFFFFFF,"internal name " + unit_manager.unit_type[ units.unit[ last_on ].type_id ]->Unitname);
                 units.unit[ last_on ].unlock();
             }
             else
             {
-                if (internal_name && cur_sel >= 0 && unit_manager.unit_type[cur_sel]->Unitname != NULL)
-                    gfx->print(gfx->normal_font,128.0f,32.0f,0.0f,0xFFFFFFFF,format("internal name %s",unit_manager.unit_type[cur_sel]->Unitname));
+                if (internal_name && cur_sel >= 0 && !unit_manager.unit_type[cur_sel]->Unitname.empty())
+                    gfx->print(gfx->normal_font,128.0f,32.0f,0.0f,0xFFFFFFFF,"internal name " + unit_manager.unit_type[cur_sel]->Unitname);
             }
 
             if (internal_idx && last_on >= 0)

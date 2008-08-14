@@ -380,9 +380,9 @@ namespace TA3D
     }
 
 
-    void MAP::rect(int x1,int y1,int w,int h,short c,char *yardmap,bool open)
+    void MAP::rect(int x1,int y1,int w,int h,short c,const String &yardmap,bool open)
     {
-        if (yardmap == NULL)
+        if (yardmap.empty())
         {
             int y2=y1+h;
             int x2=x1+w;
@@ -417,7 +417,7 @@ namespace TA3D
             {
                 for (int x = x1; x < x2; ++x)
                 {
-                    if (!yardmap[i])
+                    if (yardmap.size() >= i)
                     {
                         pMutex.unlock();
                         return;
@@ -559,7 +559,8 @@ namespace TA3D
         float depth=255.0f-sealvl;
         if(y2<=y1 || x2<=x1)	return depth + sealvl;
         for(int y=y1;y<y2;y++)
-            for(int x=x1;x<x2;x++) {
+            for(int x=x1;x<x2;x++)
+            {
                 float d = -h_map[y][x];
                 if(d<depth)
                     depth=d;
@@ -568,9 +569,9 @@ namespace TA3D
     }
 
 
-    bool MAP::check_vents(int x1,int y1,int w,int h,char *yard_map)
+    bool MAP::check_vents(int x1,int y1,int w,int h,const String &yard_map)
     {
-        if (yard_map == NULL)
+        if (yard_map.empty())
             return true;
         int y2=y1+h;
         int x2=x1+w;
@@ -587,8 +588,9 @@ namespace TA3D
         {
             for (int x = x1; x < x2; ++x)
             {
-                if( !yard_map[i] )	return ok;
-                if(yard_map[i]=='G') {
+                if (yard_map.size() >= i)	return ok;
+                if (yard_map[i]=='G')
+                {
                     ok = false;
                     if (map_data[y][x].stuff >= 0)
                     {

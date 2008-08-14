@@ -122,11 +122,11 @@ namespace TA3D
         uint32 dmg = damage_hashtable->find(String::ToLower(uname));
         if(dmg)
             return dmg;
-        int unit_type = unit_manager.get_unit_index(uname.c_str());
-        if (unit_type >= 0 && unit_manager.unit_type[unit_type]->categories)
+        int unit_type = unit_manager.get_unit_index(uname);
+        if (unit_type >= 0 && !unit_manager.unit_type[unit_type]->categories.empty())
         {
-            String::Vector::const_iterator i = (unit_manager.unit_type[unit_type]->categories)->begin();
-            for (; (unit_manager.unit_type[unit_type]->categories)->end() != i; ++i)
+            String::Vector::const_iterator i = (unit_manager.unit_type[unit_type]->categories).begin();
+            for (; (unit_manager.unit_type[unit_type]->categories).end() != i; ++i)
             {
                 dmg = damage_hashtable->find(*i);
                 if (dmg)

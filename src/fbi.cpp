@@ -90,13 +90,13 @@ namespace TA3D
         ++nb_unit;
         if (BuildList == NULL)
             nb_unit = 1;
-        short *Blist=(short*) malloc(sizeof(short)*nb_unit);
-        short *Px=(short*) malloc(sizeof(short)*nb_unit);
-        short *Py=(short*) malloc(sizeof(short)*nb_unit);
-        short *Pw=(short*) malloc(sizeof(short)*nb_unit);
-        short *Ph=(short*) malloc(sizeof(short)*nb_unit);
-        short *Pp=(short*) malloc(sizeof(short)*nb_unit);
-        GLuint *Plist=(GLuint*) malloc(sizeof(GLuint)*nb_unit);
+        short *Blist = new short[nb_unit];
+        short *Px = new short[nb_unit];
+        short *Py = new short[nb_unit];
+        short *Pw = new short[nb_unit];
+        short *Ph = new short[nb_unit];
+        short *Pp = new short[nb_unit];
+        GLuint *Plist = new GLuint[nb_unit];
         if (BuildList && nb_unit > 1)
         {
             for (int i = 0; i < nb_unit - 1; ++i)
@@ -117,11 +117,11 @@ namespace TA3D
         Pw[nb_unit-1]=pw;
         Ph[nb_unit-1]=ph;
         Pp[nb_unit-1]=p;
-        if(BuildList)	free(BuildList);
-        if(PicList)		free(PicList);
-        if(Pic_x)		free(Pic_x);
-        if(Pic_y)		free(Pic_y);
-        if(Pic_p)		free(Pic_p);
+        if(BuildList)	delete[] BuildList;
+        if(PicList)		delete[] PicList;
+        if(Pic_x)		delete[] Pic_x;
+        if(Pic_y)		delete[] Pic_y;
+        if(Pic_p)		delete[] Pic_p;
         BuildList=Blist;
         PicList=Plist;
         Pic_x = Px;
@@ -160,13 +160,13 @@ namespace TA3D
                 int w = gui_parser.pullAsInt( format( "gadget%d.common.width", i ) );
                 int h = gui_parser.pullAsInt( format( "gadget%d.common.height", i ) );
                 String name = gui_parser.pullAsString( format( "gadget%d.common.name", i ) );
-                int idx = get_unit_index( name.c_str() );
+                int idx = get_unit_index( name );
 
                 if (idx >= 0)
                 {
                     String name(gui_parser.pullAsString(format("gadget%d.common.name", i)));
 
-                    byte *gaf_file = HPIManager->PullFromHPI(format( "anims\\%s%d.gaf", unit_type[unit_index]->Unitname, page + 1).c_str());
+                    byte *gaf_file = HPIManager->PullFromHPI(format( "anims\\%s%d.gaf", unit_type[unit_index]->Unitname.c_str(), page + 1).c_str());
                     if (gaf_file)
                     {
                         BITMAP *img = Gaf::RawDataToBitmap(gaf_file, Gaf::RawDataGetEntryIndex(gaf_file, name), 0);
@@ -186,6 +186,8 @@ namespace TA3D
                     else
                         unit_type[unit_index]->AddUnitBuild(idx, x, y, w, h, page);
                 }
+                else
+                    LOG_DEBUG("unit not found : " << name);
             }
             else
                 if (attribs & 8) // Weapon Build Pic
@@ -196,7 +198,7 @@ namespace TA3D
                     int h = gui_parser.pullAsInt( format( "gadget%d.common.height", i ) );
                     String name = gui_parser.pullAsString( format( "gadget%d.common.name", i));
 
-                    byte* gaf_file = HPIManager->PullFromHPI( format( "anims\\%s%d.gaf", unit_type[unit_index]->Unitname, page + 1 ).c_str() );
+                    byte* gaf_file = HPIManager->PullFromHPI( format( "anims\\%s%d.gaf", unit_type[unit_index]->Unitname.c_str(), page + 1 ).c_str() );
                     if (gaf_file)
                     {
                         BITMAP *img = Gaf::RawDataToBitmap(gaf_file, Gaf::RawDataGetEntryIndex(gaf_file, name), 0);
@@ -228,8 +230,8 @@ namespace TA3D
         int nb=0;
         do
         {
-            char *unitmenu=NULL;
-            char *unitname=NULL;
+            String unitmenu;
+            String unitname;
 
             do
             {
@@ -245,30 +247,30 @@ namespace TA3D
 
                 if (strstr(ligne,"unitmenu="))          // Obtient le nom de l'unité dont le menu doit être completé
                 {
-                    unitmenu=strstr(ligne,"unitmenu=")+9;
-                    if (strstr(unitmenu,";"))
-                        *(strstr(unitmenu,";"))=0;
-                    strupr(unitmenu);
-                    unitmenu=strdup(unitmenu);
+                    unitmenu = strstr(ligne,"unitmenu=")+9;
+                    unitmenu = String::Trim(unitmenu, ";").toUpper();
                 }
                 if (strstr(ligne,"unitname="))          // Obtient le nom de l'unité à ajouter
                 {
                     unitname=strstr(ligne,"unitname=")+9;
-                    if(strstr(unitname,";"))
-                        *(strstr(unitname,";"))=0;
-                    strupr(unitname);
-                    unitname=strdup(unitname);
+                    unitname = String::Trim(unitname, ";").toUpper();
                 }
 
             } while (strstr(ligne,"}")==NULL && nb<2000 && data<limit);
             delete[] ligne;
             ligne=NULL;
-            if (unitmenu==NULL || unitname==NULL) break;
-            int unit_index=get_unit_index(unitmenu);
-            if (unit_index==-1) continue;		// Au cas où l'unité n'existerait pas
-            int idx=get_unit_index(unitname);
+            if (unitmenu.empty() || unitname.empty()) break;
+            int unit_index = get_unit_index(unitmenu);
+            if (unit_index==-1)
+            {
+                LOG_DEBUG("unit '" << unitmenu << "' not found");
+                continue;		// Au cas où l'unité n'existerait pas
+            }
+            int idx = get_unit_index(unitname);
             if (idx>=0 && idx<nb_unit && unit_type[idx]->unitpic)
                 unit_type[unit_index]->AddUnitBuild(idx, -1, -1, 64, 64, -1);
+            else
+                LOG_DEBUG("unit '" << unitname << "' not found, cannot add it to " << unitmenu << " build menu");
         } while (pos[0]=='[' && nb<2000 && data<limit);
     }
 
@@ -278,15 +280,15 @@ namespace TA3D
     {
         unit_type.push_back(new UNIT_TYPE());
         int result =  unit_type[nb_unit]->load((char*)data,size);
-        if (unit_type[nb_unit]->Unitname)
+        if (!unit_type[nb_unit]->Unitname.empty())
             unit_hashtable.insert(String::ToLower(unit_type[nb_unit]->Unitname ), nb_unit + 1);
-        if (unit_type[nb_unit]->name)
+        if (!unit_type[nb_unit]->name.empty())
             unit_hashtable.insert(String::ToLower(unit_type[nb_unit]->name ), nb_unit + 1);
-        if (unit_type[nb_unit]->ObjectName)
+        if (!unit_type[nb_unit]->ObjectName.empty())
             unit_hashtable.insert(String::ToLower(unit_type[nb_unit]->ObjectName ), nb_unit + 1);
-        if (unit_type[nb_unit]->Description)
+        if (!unit_type[nb_unit]->Description.empty())
             unit_hashtable.insert(String::ToLower(unit_type[nb_unit]->Description ), nb_unit + 1);
-        if (unit_type[nb_unit]->Designation_Name)
+        if (!unit_type[nb_unit]->Designation_Name.empty())
             unit_hashtable.insert(String::ToLower(unit_type[nb_unit]->Designation_Name ), nb_unit + 1);
         nb_unit++;
         return result;
@@ -318,14 +320,17 @@ namespace TA3D
         for (int i = 0 ; i < nb_unit; ++i)
         {
             int n = 1;
-            String canbuild = sidedata_parser.pullAsString(String::ToLower(format( "canbuild.%s.canbuild%d", unit_type[i]->Unitname, n ) ) );
+            String canbuild = sidedata_parser.pullAsString(String::ToLower(format( "canbuild.%s.canbuild%d", unit_type[i]->Unitname.c_str(), n ) ) );
+            LOG_DEBUG("canbuild = '" << canbuild << "'");
             while (!canbuild.empty())
             {
-                int idx = get_unit_index( (char*)canbuild.c_str() );
+                int idx = get_unit_index( canbuild );
                 if (idx >= 0 && idx < nb_unit && unit_type[idx]->unitpic)
                     unit_type[i]->AddUnitBuild(idx, -1, -1, 64, 64, -1);
+                else
+                    LOG_DEBUG("unit '" << canbuild << "' not found");
                 ++n;
-                canbuild = sidedata_parser.pullAsString( format( "canbuild.%s.canbuild%d", unit_type[i]->Unitname, n ) );
+                canbuild = sidedata_parser.pullAsString( format( "canbuild.%s.canbuild%d", unit_type[i]->Unitname.c_str(), n ) );
             }
         }
 
@@ -339,10 +344,10 @@ namespace TA3D
             char *f = NULL;
             for (int i = 0; i < nb_unit; ++i)
             {
-                if ((f = strstr((char*)String::ToUpper(*file).c_str(), unit_type[i]->Unitname)))
+                if ((f = strstr(String::ToUpper(*file).c_str(), String::ToUpper( unit_type[i]->Unitname ).c_str())))
                 {
-                    if(f[strlen(unit_type[i]->Unitname)]=='.'
-                       ||(f[strlen(unit_type[i]->Unitname)]>='0' && f[strlen(unit_type[i]->Unitname)]<='9'))
+                    if(f[unit_type[i]->Unitname.size()]=='.'
+                       ||(f[unit_type[i]->Unitname.size()]>='0' && f[unit_type[i]->Unitname.size()]<='9'))
                         analyse(*file,i);
                 }
             }
@@ -353,31 +358,27 @@ namespace TA3D
     }
 
 
-    void UNIT_MANAGER::load_script_file(char *unit_name)
+    void UNIT_MANAGER::load_script_file(const String &unit_name)
     {
-        strupr(unit_name);
-        int unit_index=get_unit_index(unit_name);
+        String uprname = String(unit_name).toUpper();
+        int unit_index = get_unit_index(uprname);
         if (unit_index == -1) 
             return;
 
-        char *uprname = strdup(unit_name);
-        strupr(uprname);
-
         String::List file_list;
-        HPIManager->getFilelist( format( "scripts\\%s.cob", unit_name ), file_list);
+        HPIManager->getFilelist( "scripts\\" + uprname + ".cob", file_list);
 
         for (String::List::iterator file = file_list.begin();file != file_list.end(); ++file) // Cherche un fichier pouvant contenir des informations sur l'unité unit_name
         {
-            if (strstr(String::ToUpper(*file).c_str(),uprname)) 	// A trouvé un fichier qui convient
+            if (strstr(String::ToUpper(*file).c_str(),uprname.c_str())) 	// A trouvé un fichier qui convient
             {
-                byte* data=HPIManager->PullFromHPI(*file);		// Lit le fichier
+                byte* data = HPIManager->PullFromHPI(*file);		// Lit le fichier
                 unit_type[unit_index]->script = new SCRIPT;
                 unit_type[unit_index]->script->load_cob(data);
                 // Don't delete[] data here because the script keeps a reference to it.
                 break;
             }
         }
-        free(uprname);
     }
 
 
@@ -402,49 +403,38 @@ namespace TA3D
 
     void UNIT_TYPE::destroy()
     {
-        if(MovementClass)
-            free(MovementClass);
-        if(soundcategory)
-            free(soundcategory);
-        if(ExplodeAs)
-            free(ExplodeAs);
-        if(SelfDestructAs)
-            free(SelfDestructAs);
+        MovementClass.clear();
+        soundcategory.clear();
+        ExplodeAs.clear();
+        SelfDestructAs.clear();
         if(script)
             delete script;
 
-        for (short int i = 0; i < 3; ++i)
-        {
-            if (w_badTargetCategory[i])
-                free(w_badTargetCategory[i]);
-        }
-        if( BadTargetCategory)
-            free(BadTargetCategory);
-        if( NoChaseCategory)
-            free(NoChaseCategory);
+        w_badTargetCategory.clear();
+        BadTargetCategory.clear();
+        NoChaseCategory.clear();
 
         if(BuildList)
-            free(BuildList);
+            delete[] BuildList;
         if(Pic_x)
-            free(Pic_x);
+            delete[] Pic_x;
         if(Pic_y)
-            free(Pic_y);
+            delete[] Pic_y;
         if(Pic_w)
-            free(Pic_w);
+            delete[] Pic_w;
         if(Pic_h)
-            free(Pic_h);
+            delete[] Pic_h;
         if(Pic_p)
-            free(Pic_p);
+            delete[] Pic_p;
 
         if (PicList)
         {
             for (int i = 0; i < nb_unit; ++i)
                 gfx->destroy_texture(PicList[i]);
-            free(PicList);
+            delete[] PicList;
         }
 
-        if(yardmap)
-            free(yardmap);
+        yardmap.clear();
         if(model)
             model = NULL;
         if(unitpic)
@@ -452,22 +442,15 @@ namespace TA3D
             destroy_bitmap(unitpic);
             glDeleteTextures(1,&glpic);
         }
-        if(Corpse)
-            free(Corpse);
-        if(Unitname)
-            free(Unitname);
-        if(name)
-            free(name);
-        if(side)
-            free(side);
-        if(ObjectName)
-            free(ObjectName);
-        if(Designation_Name)
-            free(Designation_Name);
-        if(Description)
-            free(Description);
-        DELETEANDNIL(Category);
-        DELETEANDNIL(categories);
+        Corpse.clear();
+        Unitname.clear();
+        name.clear();
+        side.clear();
+        ObjectName.clear();
+        Designation_Name.clear();
+        Description.clear();
+        Category.emptyHashTable();
+        categories.clear();
 
         init();
     }
@@ -482,12 +465,12 @@ namespace TA3D
         click_time = 0.0f;
 
         emitting_points_computed = false;
-        soundcategory = strdup("");
+        soundcategory.clear();
 
         isfeature=false;
         antiweapons=false;
 
-        weapon[0]=weapon[1]=weapon[2]=NULL;		// Pas d'armes
+        weapon.clear();         // No weapons
 
         script=NULL;		// Aucun script
 
@@ -509,7 +492,7 @@ namespace TA3D
         mincloakdistance = 10;
         DefaultMissionType=MISSION_STANDBY;
         attackrunlength=0;
-        yardmap=NULL;
+        yardmap.clear();
         model=NULL;
         unitpic=NULL;
         hoverattack=false;
@@ -529,23 +512,23 @@ namespace TA3D
         ShootMe=false;
         ThreeD=true;
         Builder=false;
-        Unitname=NULL;
-        name=NULL;
+        Unitname.clear();
+        name.clear();
         version=0;
-        side=NULL;
-        ObjectName=NULL;
+        side.clear();
+        ObjectName.clear();
         FootprintX=0;
         FootprintZ=0;
-        Category = NULL;
-        categories = NULL;
+        Category.emptyHashTable();
+        categories.clear();
         fastCategory=0;
         MaxSlope=255;
         BMcode=0;
         norestrict=false;
         BuildAngle=10;
         canresurrect=false;
-        Designation_Name=NULL;	// Nom visible de l'unité
-        Description=NULL;		// Description
+        Designation_Name.clear();	// Nom visible de l'unité
+        Description.clear();		// Description
         BuildCostEnergy=0;		// Energie nécessaire pour la construire
         BuildCostMetal=0;		// Metal nécessaire pour la construire
         MaxDamage=10;			// Points de dégats maximum que l'unité peut encaisser
@@ -558,9 +541,9 @@ namespace TA3D
         RadarDistanceJam=0;		// For Radar jammers
         EnergyStorage=0;		// Quantité d'énergie stockable par l'unité
         MetalStorage=0;			// Quantité de metal stockable par l'unité
-        ExplodeAs=NULL;			// Type d'explosion lorsque l'unité est détruite
-        SelfDestructAs=NULL;	// Type d'explosion lors de l'autodestruction
-        Corpse=NULL;			// Restes de l'unité
+        ExplodeAs.clear();			// Type d'explosion lorsque l'unité est détruite
+        SelfDestructAs.clear();	// Type d'explosion lors de l'autodestruction
+        Corpse.clear();			// Restes de l'unité
         UnitNumber=0;			// ID de l'unité
         canmove=false;			// Indique si l'unité peut bouger
         canpatrol=false;		// si elle peut patrouiller
@@ -578,13 +561,10 @@ namespace TA3D
         CanReclamate=false;		// si elle peut récupérer
         EnergyMake=0;			// Production d'énergie de l'unité
         MetalMake=0.0f;			// Production de métal de l'unité
-        MovementClass=NULL;		// Type de mouvement
+        MovementClass.clear();		// Type de mouvement
         Upright=false;			// Si l'unité est debout
-        Weapon1=-1;				// Arme 1
-        w_badTargetCategory[0]=NULL;	// Type d'unité non ciblable par les armes
-        w_badTargetCategory[1]=NULL;	// Type d'unité non ciblable par les armes
-        w_badTargetCategory[2]=NULL;	// Type d'unité non ciblable par les armes
-        BadTargetCategory=NULL;	// Type d'unité non attacable
+        w_badTargetCategory.clear();	// Type d'unité non ciblable par les armes
+        BadTargetCategory.clear();	// Type d'unité non attacable
         DamageModifier=1.0f;	// How much of the weapon damage it takes
         canattack=false;			// Si l'unité peut attaquer
         ActivateWhenBuilt=false;// L'unité s'active lorsqu'elle est achevée
@@ -594,11 +574,10 @@ namespace TA3D
         NoShadow=false;			// Si l'unité n'a pas d'ombre
         TransMaxUnits=0;		// Maximum d'unités portables
         canload=false;			// Si elle peut charger d'autres unités
-        Weapon2=-1;				// Arme 2
+        WeaponID.clear();		// Arme 2
         Floater=false;			// Si l'unité flotte
         canhover=false;			// For hovercrafts
-        NoChaseCategory=NULL;		// Type d'unité non chassable
-        Weapon3=-1;				// Arme 3
+        NoChaseCategory.clear();		// Type d'unité non chassable
         SonarDistance=0;		// Portée du sonar
         SonarDistanceJam=0;		// For Sonar jammers
         candgun=false;			// si l'unité peut utiliser l'arme ravage
@@ -638,17 +617,20 @@ namespace TA3D
         glColor4f(1.0f,1.0f,1.0f,fade);
         gfx->drawtexture(glpic,x+16,y+16,x+80,y+80);
         glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
-        gfx->print(fnt,x+96,y+16,0.0f,format("%s: %s",I18N::Translate("Name").c_str(),name));
-        gfx->print(fnt,x+96,y+28,0.0f,format("%s: %s",I18N::Translate("Internal name").c_str(),Unitname));
-        gfx->print(fnt,x+96,y+40,0.0f,format("%s",Description));
-        gfx->print(fnt,x+96,y+52,0.0f,format("%s: %d",I18N::Translate("HP").c_str(),MaxDamage));
-        gfx->print(fnt,x+96,y+64,0.0f,format("%s: E %d M %d",I18N::Translate("Cost").c_str(),BuildCostEnergy,BuildCostMetal));
-        gfx->print(fnt,x+16,y+100,0.0f,format("%s: %d",I18N::Translate("Build time").c_str(),BuildTime));
-        gfx->print(fnt,x+16,y+124,0.0f,format("%s:",I18N::Translate("weapons").c_str()));
+        gfx->print(fnt,x+96,y+16,0.0f,I18N::Translate("Name") + ": " + name);
+        gfx->print(fnt,x+96,y+28,0.0f,I18N::Translate("Internal name") + ": " + Unitname);
+        gfx->print(fnt,x+96,y+40,0.0f,Description);
+        gfx->print(fnt,x+96,y+52,0.0f,I18N::Translate("HP") + ": " + String(MaxDamage));
+        gfx->print(fnt,x+96,y+64,0.0f,I18N::Translate("Cost") + ": E " + String(BuildCostEnergy) + " M " + String(BuildCostMetal));
+        gfx->print(fnt,x+16,y+100,0.0f,I18N::Translate("Build time") + ": " + String(BuildTime));
+        gfx->print(fnt,x+16,y+124,0.0f,I18N::Translate("weapons") + ":");
         int Y=y+136;
-        if(weapon[0])	{	gfx->print(fnt,x+16,Y,0.0f,format("%s: %d",weapon[0]->name.c_str(),weapon[0]->damage));	Y+=12;	}
-        if(weapon[1])	{	gfx->print(fnt,x+16,Y,0.0f,format("%s: %d",weapon[1]->name.c_str(),weapon[1]->damage));	Y+=12;	}
-        if(weapon[2])	{	gfx->print(fnt,x+16,Y,0.0f,format("%s: %d",weapon[2]->name.c_str(),weapon[2]->damage));	Y+=12;	}
+        for( std::vector<WEAPON_DEF*>::iterator i = weapon.begin() ; i != weapon.end() ; i++ )
+            if(*i)
+            {
+            	gfx->print(fnt,x+16,Y,0.0f,(*i)->name + ": " + String( (*i)->damage));
+            	Y+=12;
+            }
         glDisable(GL_BLEND);
     }
 
@@ -672,54 +654,44 @@ namespace TA3D
             if(ligne)
                 delete[] ligne;
             ligne=get_line(pos);
-            char *dup_ligne=strdup(ligne);
+            char *dup_ligne = strdup(ligne);
             strlwr(ligne);
             while(pos[0]!=0 && pos[0]!=13 && pos[0]!=10)	pos++;
             while(pos[0]==13 || pos[0]==10)	pos++;
 
             f=NULL;
             if((f=strstr(ligne,"unitname="))) {
-                Unitname=strdup(f+9);
-                if(strstr(Unitname,";"))
-                    *(strstr(Unitname,";"))=0;
+                Unitname = f+9;
+                Unitname = String::Trim( Unitname, ";" );
             }
             else if((f=strstr(ligne,"version=")))	version=f[8]-'0';
             else if((f=strstr(ligne,"side="))) {
-                side=strdup(f+5);
-                if(strstr(side,";"))
-                    *(strstr(side,";"))=0;
+                side = f+5;
+                side = String::Trim( side, ";" );
             }
             else if((f=strstr(ligne,"objectname="))) {
-                ObjectName=strdup(f+11);
-                if(strstr(ObjectName,";"))
-                    *(strstr(ObjectName,";"))=0;
+                ObjectName = f+11;
+                ObjectName = String::Trim( ObjectName, ";" );
             }
             else if((f=strstr(ligne,"designation="))) {
-                Designation_Name=strdup(f+12);
-                if(strstr(Designation_Name,";"))
-                    *(strstr(Designation_Name,";"))=0;
+                Designation_Name = f+12;
+                Designation_Name = String::Trim( Designation_Name, ";" );
             }
             else if((f=strstr(ligne,lang_desc.c_str()))!=NULL && (f==ligne || (f>ligne && *(f-1)<'a'))) {
-                if(Description)	free(Description);
-                Description = strdup( f + lang_desc.length() + 1 );
-                if(strstr(Description,";"))
-                    *(strstr(Description,";"))=0;
+                Description = f + lang_desc.length() + 1;
+                Description = String::Trim( Description, ";" );
             }
             else if((f=strstr(ligne,lang_name.c_str()))!=NULL && (f==ligne || (f>ligne && *(f-1)<'a'))) {
-                if(name)	free(name);
-                name = strdup( f + lang_name.length() + 1 );
-                if(strstr(name,";"))
-                    *(strstr(name,";"))=0;
+                name = f + lang_name.length() + 1;
+                name = String::Trim( name, ";" );
             }
-            else if((f=strstr(ligne,"description="))!=NULL && (f==ligne || (f>ligne && *(f-1)<'a')) && Description==NULL) {
-                Description = strdup( f + 12 );
-                if(strstr(Description,";"))
-                    *(strstr(Description,";"))=0;
+            else if((f=strstr(ligne,"description="))!=NULL && (f==ligne || (f>ligne && *(f-1)<'a')) && Description.empty()) {
+                Description = f + 12;
+                Description = String::Trim( Description, ";" );
             }
-            else if((f=strstr(ligne,"name="))!=NULL && (f==ligne || (f>ligne && *(f-1)<'a')) && name==NULL) {
-                name = strdup( f + 5 );
-                if(strstr(name,";"))
-                    *(strstr(name,";"))=0;
+            else if((f=strstr(ligne,"name="))!=NULL && (f==ligne || (f>ligne && *(f-1)<'a')) && name.empty()) {
+                name = f + 5;
+                name = String::Trim( name, ";" );
             }
             else if((f=strstr(ligne,"description="))) {		// Pour éviter de surcharger les logs
             }
@@ -746,46 +718,44 @@ namespace TA3D
             else if((f=strstr(ligne,"radardistance=")))		RadarDistance=atoi(f+14)>>1;
             else if((f=strstr(ligne,"radardistancejam=")))	RadarDistanceJam=atoi(f+17)>>1;
             else if((f=strstr(ligne,"soundcategory="))) {
-                if(strstr(f,";"))
-                    *(strstr(f,";"))=0;
-                soundcategory = strdup(f + 14);
+                soundcategory = f + 14;
+                soundcategory = String::Trim( soundcategory, ";" );
             }
             else if((f=strstr(ligne,"wthi_badtargetcategory="))) {
-                if( w_badTargetCategory[2] )	free( w_badTargetCategory[2] );		// To prevent memory leaks
                 while( f[23] == ' ' )	f++;
-                w_badTargetCategory[2] = strdup( f + 23 );
+                if (w_badTargetCategory.size() < 3)
+                    w_badTargetCategory.resize(3);
+                w_badTargetCategory[2] = f + 23;
             }
             else if((f=strstr(ligne,"wsec_badtargetcategory="))) {
-                if( w_badTargetCategory[1] )	free( w_badTargetCategory[1] );		// To prevent memory leaks
                 while( f[23] == ' ' )	f++;
-                w_badTargetCategory[1] = strdup( f + 23 );
+                if (w_badTargetCategory.size() < 2)
+                    w_badTargetCategory.resize(2);
+                w_badTargetCategory[1] = f + 23;
             }
             else if((f=strstr(ligne,"wpri_badtargetcategory="))) {
-                if( w_badTargetCategory[0] )	free( w_badTargetCategory[0] );		// To prevent memory leaks
                 while( f[23] == ' ' )	f++;
-                w_badTargetCategory[0] = strdup( f + 23 );
+                if (w_badTargetCategory.size() < 1)
+                    w_badTargetCategory.resize(1);
+                w_badTargetCategory[0] = f + 23;
             }
             else if((f=strstr(ligne,"nochasecategory="))) {
-                if( NoChaseCategory )	free( NoChaseCategory );		// To prevent memory leaks
                 while( f[17] == ' ' )	f++;
-                NoChaseCategory = strdup( f + 17 );
+                NoChaseCategory = f + 17;
             }
             else if((f=strstr(ligne,"badtargetcategory="))) {
-                if( BadTargetCategory )	free( BadTargetCategory );		// To prevent memory leaks
                 while( f[18] == ' ' )	f++;
-                BadTargetCategory = strdup( f + 18 );
+                BadTargetCategory = f + 18;
             }
             else if((f=strstr(ligne,"category="))) {
                 while( f[9] == ' ' )	f++;
                 if(strstr(f,";"))
                     *(strstr(f,";"))=0;
-                if( Category )		delete Category;
-                if( categories )	delete categories;
-                Category = new cHashTable< int >(128);
-                categories = new String::Vector();
-                String(f+9).split(*categories, " ");
-                for (String::Vector::const_iterator i = categories->begin(); i != categories->end(); ++i)
-                    Category->insertOrUpdate(String::ToLower(*i), 1);
+                Category.initTable(16);
+                categories.clear();
+                String(f+9).split(categories, " ");
+                for (String::Vector::const_iterator i = categories.begin(); i != categories.end(); ++i)
+                    Category.insertOrUpdate(String::ToLower(*i), 1);
                 fastCategory = 0;
                 if( checkCategory( "kamikaze" ) )	fastCategory |= CATEGORY_KAMIKAZE;
                 if( checkCategory( "notair" ) )		fastCategory |= CATEGORY_NOTAIR;
@@ -868,11 +838,7 @@ namespace TA3D
             //			else if(f=strstr(ligne,"scale="))				Scale=atof(f+6);
             else if((f=strstr(ligne,"scale=")))				Scale=1.0f;
             else if((f=strstr(ligne,"corpse="))) {
-                char *nom=strdup(f+7);
-                if(strstr(nom,";"))
-                    *(strstr(nom,";"))=0;
-                Corpse=strdup(nom);
-                free(nom);
+                Corpse = String::Trim(f+7, ";");
             }
             else if((f=strstr(ligne,"windgenerator=")))
                 WindGenerator=atoi(f+14);
@@ -880,25 +846,19 @@ namespace TA3D
             else if((f=strstr(ligne,"kamikaze=")))			kamikaze=(f[9]=='1');
             else if((f=strstr(ligne,"kamikazedistance=")))	kamikazedistance=atoi(f+17)>>1;
             else if((f=strstr(ligne,"weapon1="))) {
-                char *weaponname=strdup(f+8);
-                if(strstr(weaponname,";"))
-                    *(strstr(weaponname,";"))=0;
-                Weapon1=weapon_manager.get_weapon_index(weaponname);
-                free(weaponname);
+                if (WeaponID.size() < 1)
+                    WeaponID.resize(1,-1);
+                WeaponID[0] = weapon_manager.get_weapon_index( String::Trim(f+8,";") );
             }
             else if((f=strstr(ligne,"weapon2="))) {
-                char *weaponname=strdup(f+8);
-                if(strstr(weaponname,";"))
-                    *(strstr(weaponname,";"))=0;
-                Weapon2=weapon_manager.get_weapon_index(weaponname);
-                free(weaponname);
+                if (WeaponID.size() < 2)
+                    WeaponID.resize(2,-1);
+                WeaponID[1] = weapon_manager.get_weapon_index( String::Trim(f+8,";") );
             }
             else if((f=strstr(ligne,"weapon3="))) {
-                char *weaponname=strdup(f+8);
-                if(strstr(weaponname,";"))
-                    *(strstr(weaponname,";"))=0;
-                Weapon3=weapon_manager.get_weapon_index(weaponname);
-                free(weaponname);
+                if (WeaponID.size() < 3)
+                    WeaponID.resize(3,-1);
+                WeaponID[2] = weapon_manager.get_weapon_index( String::Trim(f+8,";") );
             }
             else if((f=strstr(ligne,"yardmap=")))	{
                 f=strstr(dup_ligne,"=");
@@ -908,18 +868,14 @@ namespace TA3D
                     char *fm=strstr(f," ");
                     memmove(fm,fm+1,strlen(fm+1)+1);
                 }
-                yardmap=strdup(f+1);
+                yardmap = f+1;
             }
             else if((f=strstr(ligne,"cruisealt=")))			CruiseAlt=atoi(f+10);
             else if((f=strstr(ligne,"explodeas="))) {
-                ExplodeAs=strdup(f+10);
-                if(strstr(ExplodeAs,";"))
-                    *(strstr(ExplodeAs,";"))=0;
+                ExplodeAs = String::Trim(f+10,";");
             }
             else if((f=strstr(ligne,"selfdestructas="))) {
-                SelfDestructAs=strdup(f+15);
-                if(strstr(SelfDestructAs,";"))
-                    *(strstr(SelfDestructAs,";"))=0;
+                SelfDestructAs = String::Trim(f+15,";");
             }
             else if((f=strstr(ligne,"maneuverleashlength=")))	ManeuverLeashLength=atoi(f+20);
             else if((f=strstr(ligne,"defaultmissiontype="))) {
@@ -938,9 +894,7 @@ namespace TA3D
             else if((f=strstr(ligne,"transportsize=")))		TransportSize=atoi(f+14);
             else if((f=strstr(ligne,"altfromsealevel=")))		AltFromSeaLevel=atoi(f+16);
             else if((f=strstr(ligne,"movementclass="))) {
-                MovementClass = strdup(f+14);
-                if( strstr( MovementClass, ";") )
-                    *strstr( MovementClass, ";") = 0;
+                MovementClass = String::Trim(f+14,";");
             }
             else if((f=strstr(ligne,"isairbase=")))			IsAirBase=(f[10]=='1');
             else if((f=strstr(ligne,"commander=")))			commander=(f[10]=='1');
@@ -969,14 +923,14 @@ namespace TA3D
         delete[] ligne;
         if( canresurrect && BuildDistance == 0.0f )
             BuildDistance = SightDistance;
-        if(Weapon1>-1)
-            weapon[0]=&(weapon_manager.weapon[Weapon1]);
-        if(Weapon2>-1)
-            weapon[1]=&(weapon_manager.weapon[Weapon2]);
-        if(Weapon3>-1)
-            weapon[2]=&(weapon_manager.weapon[Weapon3]);
-        if(Unitname) {
-            model=model_manager.get_model(ObjectName);
+        weapon.resize( WeaponID.size() );
+        w_badTargetCategory.resize( WeaponID.size() );
+        for (int i = 0 ; i < WeaponID.size() ; i++)
+            if(WeaponID[i]>-1)
+                weapon[i] = &(weapon_manager.weapon[WeaponID[i]]);
+        if (!Unitname.empty())
+        {
+            model = model_manager.get_model(ObjectName);
             if(model==NULL)
                 LOG_ERROR("`" << Unitname << "` without a 3D model");
         }
@@ -990,7 +944,7 @@ namespace TA3D
 
     void UNIT_TYPE::load_dl()
     {
-        if (side == NULL)
+        if (side.empty())
             return;
         dl_data = unit_manager.h_dl_data.find(String::ToLower(side));
 
@@ -999,7 +953,7 @@ namespace TA3D
 
         int side_id = -1;
         for( int i = 0 ; i < ta3dSideData.nb_side && side_id == -1 ; i++ )
-            if( strcasecmp( ta3dSideData.side_name[ i ], side ) == 0 )
+            if( strcasecmp( ta3dSideData.side_name[ i ], side.c_str() ) == 0 )
                 side_id = i;
         if (side_id == -1)
             return;
@@ -1022,10 +976,10 @@ namespace TA3D
                     dl_data->dl_num++;
             }
 
-            dl_data->dl_x = (short*) malloc( sizeof(short) * dl_data->dl_num );
-            dl_data->dl_y = (short*) malloc( sizeof(short) * dl_data->dl_num );
-            dl_data->dl_w = (short*) malloc( sizeof(short) * dl_data->dl_num );
-            dl_data->dl_h = (short*) malloc( sizeof(short) * dl_data->dl_num );
+            dl_data->dl_x = new short[dl_data->dl_num];
+            dl_data->dl_y = new short[dl_data->dl_num];
+            dl_data->dl_w = new short[dl_data->dl_num];
+            dl_data->dl_h = new short[dl_data->dl_num];
 
             int e = 0;
             for (int i = 1; i <= NbObj; ++i)
@@ -1323,10 +1277,11 @@ namespace TA3D
 
         if(sel>-1) {
             set_uformat(U_ASCII);
-            gfx->print(gfx->normal_font,ta3dSideData.side_int_data[ players.side_view ].Name.x1,ta3dSideData.side_int_data[ players.side_view ].Name.y1,0.0f,0xFFFFFFFF, format("%s M:%d E:%d HP:%d",unit_type[sel]->name,unit_type[sel]->BuildCostMetal,unit_type[sel]->BuildCostEnergy,unit_type[sel]->MaxDamage) );
+            gfx->print(gfx->normal_font,ta3dSideData.side_int_data[ players.side_view ].Name.x1,ta3dSideData.side_int_data[ players.side_view ].Name.y1,0.0f,0xFFFFFFFF,
+                unit_type[sel]->name + " M:" + String(unit_type[sel]->BuildCostMetal)+" E:"+String(unit_type[sel]->BuildCostEnergy)+" HP:"+String(unit_type[sel]->MaxDamage) );
 
-            if(unit_type[sel]->Description)
-                gfx->print(gfx->normal_font,ta3dSideData.side_int_data[ players.side_view ].Description.x1,ta3dSideData.side_int_data[ players.side_view ].Description.y1,0.0f,0xFFFFFFFF,format("%s",unit_type[sel]->Description) );
+            if(!unit_type[sel]->Description.empty())
+                gfx->print(gfx->normal_font,ta3dSideData.side_int_data[ players.side_view ].Description.x1,ta3dSideData.side_int_data[ players.side_view ].Description.y1,0.0f,0xFFFFFFFF,unit_type[sel]->Description );
             glDisable(GL_BLEND);
             set_uformat(U_UTF8);
         }
@@ -1364,7 +1319,7 @@ namespace TA3D
                 uint32 file_size=0;
                 byte *data = HPIManager->PullFromHPI(*i, &file_size);
                 nb_inconnu += unit_manager.load_unit(data, file_size);
-                if (unit_manager.unit_type[unit_manager.nb_unit - 1]->Unitname)
+                if (!unit_manager.unit_type[unit_manager.nb_unit - 1]->Unitname.empty())
                 {
                     String nom_pcx;
                     nom_pcx << "unitpics\\" << unit_manager.unit_type[unit_manager.nb_unit - 1]->Unitname << ".pcx";
@@ -1403,7 +1358,7 @@ namespace TA3D
 
         for (int i = 0; i < unit_manager.nb_unit; ++i)
         {
-            if (unit_manager.unit_type[i]->MovementClass != NULL)
+            if (!unit_manager.unit_type[i]->MovementClass.empty())
             {
                 for (int e = 0; e < n; ++e)
                 {
