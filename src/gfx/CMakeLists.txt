@@ -9,6 +9,7 @@ SET(SOURCES gfx.h gfx.cpp
             glfunc.h glfunc.cpp
             fx.base.h fx.base.cpp
             fx.particle.h fx.particle.cpp
+            fx.electric.h fx.electric.cpp
             fx.manager.h fx.manager.cpp
             fx.h 
             shader.h shader.cpp
