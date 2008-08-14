@@ -285,16 +285,25 @@ namespace TA3D
                 {
                     bool ok = units.unit[hit_idx].hp>0.0f;		// Juste pour identifier l'assassin...
                     damage = weapon_manager.weapon[weapon_id].get_damage_for_unit(unit_manager.unit_type[units.unit[hit_idx].type_id]->Unitname) * units.unit[hit_idx].damage_modifier();
-                    units.unit[hit_idx].hp -= damage;		// L'unité touchée encaisse les dégats
-                    units.unit[hit_idx].flags&=0xEF;		// This unit must explode if it has been damaged by a weapon even if it is being reclaimed
-                    if(ok && shooter_idx >= 0 && shooter_idx < units.max_unit && units.unit[hit_idx].hp<=0.0f && units.unit[shooter_idx].owner_id < players.nb_player
-                       && units.unit[hit_idx].owner_id!=units.unit[shooter_idx].owner_id)		// Non,non les unités que l'on se détruit ne comptent pas dans le nombre de tués mais dans les pertes
-                        players.kills[units.unit[shooter_idx].owner_id]++;
-                    if(units.unit[hit_idx].hp<=0.0f)
-                        units.unit[hit_idx].severity = Math::Max(units.unit[hit_idx].severity, (int)damage);
+                    if (weapon_manager.weapon[weapon_id].paralyzer)
+                    {
+                        units.unit[hit_idx].paralyzed = damage / 60.0f;		// Get paralyzed (900 dmg <-> 15sec according to WEAPONS.TDF)
+                        if( network_manager.isConnected() )			// Send damage event
+                            g_ta3d_network->sendParalyzeEvent( hit_idx, damage );
+                    }
+                    else
+                    {
+                        units.unit[hit_idx].hp -= damage;		// L'unité touchée encaisse les dégats
+                        units.unit[hit_idx].flags&=0xEF;		// This unit must explode if it has been damaged by a weapon even if it is being reclaimed
+                        if(ok && shooter_idx >= 0 && shooter_idx < units.max_unit && units.unit[hit_idx].hp<=0.0f && units.unit[shooter_idx].owner_id < players.nb_player
+                           && units.unit[hit_idx].owner_id!=units.unit[shooter_idx].owner_id)		// Non,non les unités que l'on se détruit ne comptent pas dans le nombre de tués mais dans les pertes
+                            players.kills[units.unit[shooter_idx].owner_id]++;
+                        if(units.unit[hit_idx].hp<=0.0f)
+                            units.unit[hit_idx].severity = Math::Max(units.unit[hit_idx].severity, (int)damage);
 
-                    if( network_manager.isConnected() )			// Send damage event
-                        g_ta3d_network->sendDamageEvent( hit_idx, damage );
+                        if( network_manager.isConnected() )			// Send damage event
+                            g_ta3d_network->sendDamageEvent( hit_idx, damage );
+                    }
 
                     Vector3D D = V * RotateY(-units.unit[hit_idx].Angle.y * DEG2RAD);
                     D.unit();
@@ -305,7 +314,7 @@ namespace TA3D
                 }
                 units.unit[hit_idx].unlock();
             }
-            else
+            else if (!weapon_manager.weapon[weapon_id].paralyzer)       // We can't paralyze features :P
             {
                 features.lock();
                 if(hit_idx<=-2 && features.feature[-hit_idx-2].type>=0)	// Only local weapons here, otherwise weapons would destroy features multiple times
@@ -429,16 +438,25 @@ namespace TA3D
                                     bool ok = units.unit[ t_idx ].hp > 0.0f;
                                     damage = weapon_manager.weapon[weapon_id].get_damage_for_unit( unit_manager.unit_type[ units.unit[ t_idx ].type_id ]->Unitname);
                                     float cur_damage = damage * weapon_manager.weapon[weapon_id].edgeeffectiveness * units.unit[ t_idx ].damage_modifier();
-                                    units.unit[t_idx].hp -= cur_damage;		// L'unité touchée encaisse les dégats
-                                    units.unit[t_idx].flags&=0xEF;		// This unit must explode if it has been damaged by a weapon even if it is being reclaimed
-                                    if (ok && shooter_idx >= 0 && shooter_idx < units.max_unit && units.unit[t_idx].hp<=0.0f && units.unit[shooter_idx].owner_id < players.nb_player
-                                       && units.unit[t_idx].owner_id!=units.unit[shooter_idx].owner_id)		// Non,non les unités que l'on se détruit ne comptent pas dans le nombre de tués mais dans les pertes
-                                        players.kills[units.unit[shooter_idx].owner_id]++;
-                                    if (units.unit[t_idx].hp<=0.0f)
-                                        units.unit[t_idx].severity = Math::Max(units.unit[t_idx].severity,(int)cur_damage);
+                                    if (weapon_manager.weapon[weapon_id].paralyzer)
+                                    {
+                                        units.unit[t_idx].paralyzed = cur_damage / 60.0f;		// Get paralyzed (900 <-> 15sec)
+                                        if (network_manager.isConnected())			// Send damage event
+                                            g_ta3d_network->sendParalyzeEvent(t_idx, cur_damage);
+                                    }
+                                    else
+                                    {
+                                        units.unit[t_idx].hp -= cur_damage;		// L'unité touchée encaisse les dégats
+                                        units.unit[t_idx].flags&=0xEF;		// This unit must explode if it has been damaged by a weapon even if it is being reclaimed
+                                        if (ok && shooter_idx >= 0 && shooter_idx < units.max_unit && units.unit[t_idx].hp<=0.0f && units.unit[shooter_idx].owner_id < players.nb_player
+                                           && units.unit[t_idx].owner_id!=units.unit[shooter_idx].owner_id)		// Non,non les unités que l'on se détruit ne comptent pas dans le nombre de tués mais dans les pertes
+                                            players.kills[units.unit[shooter_idx].owner_id]++;
+                                        if (units.unit[t_idx].hp<=0.0f)
+                                            units.unit[t_idx].severity = Math::Max(units.unit[t_idx].severity,(int)cur_damage);
 
-                                    if (network_manager.isConnected())			// Send damage event
-                                        g_ta3d_network->sendDamageEvent(t_idx, cur_damage);
+                                        if (network_manager.isConnected())			// Send damage event
+                                            g_ta3d_network->sendDamageEvent(t_idx, cur_damage);
+                                    }
 
                                     Vector3D D = (units.unit[t_idx].Pos - Pos) * RotateY( -units.unit[t_idx].Angle.y * DEG2RAD );
                                     D.unit();

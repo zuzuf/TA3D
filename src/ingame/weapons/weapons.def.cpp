@@ -100,6 +100,7 @@ namespace TA3D
         twophase=false;
         shakemagnitude=0;
         shakeduration=0.1f;
+        paralyzer=false;
     }
 
 

@@ -118,6 +118,8 @@ namespace TA3D
         bool beamweapon;
         //!
         bool burnblow;
+        //!
+        bool paralyzer;
         //! (for Missiles)
         float startvelocity;
         //! (for Missiles)

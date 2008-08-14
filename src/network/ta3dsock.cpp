@@ -429,6 +429,7 @@ namespace TA3D
                 putShort(event->opt2);
                 putLong(event->opt3);
                 break;
+            case EVENT_UNIT_PARALYZE:
             case EVENT_UNIT_DAMAGE:
                 putShort(event->opt1);
                 putShort(event->opt2);
@@ -673,6 +674,7 @@ namespace TA3D
                 event->opt2 = getShort();
                 event->opt3 = getLong();
                 break;
+            case EVENT_UNIT_PARALYZE:
             case EVENT_UNIT_DAMAGE:
                 event->opt1 = getShort();
                 event->opt2 = getShort();

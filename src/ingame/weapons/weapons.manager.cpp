@@ -342,6 +342,10 @@ namespace TA3D
                         if((strstr(ligne,";")))	*(strstr(ligne,";"))=0;
                         weapon[index].vlaunch=(f[8]=='1');
                     }
+                    else if((f=strstr(ligne,"paralyzer="))) {
+                        if((strstr(ligne,";")))	*(strstr(ligne,";"))=0;
+                        weapon[index].paralyzer=(f[10]=='1');
+                    }
                     else if((f=strstr(ligne,"stockpile="))) {
                         if((strstr(ligne,";")))	*(strstr(ligne,";"))=0;
                         weapon[index].stockpile=(f[10]=='1');

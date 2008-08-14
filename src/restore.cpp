@@ -255,6 +255,7 @@ void save_game( const String filename, GameData *game_data )
         SAVE( units.unit[i].V_Angle );
         SAVE( units.unit[i].sel );
         SAVE( units.unit[i].death_delay );
+        SAVE( units.unit[i].paralyzed );
 
         fwrite( units.unit[i].port, sizeof( sint16 ), 21, file );
 
@@ -792,6 +793,7 @@ void load_game( GameData *game_data )
         LOAD( units.unit[i].V_Angle );
         LOAD( units.unit[i].sel );
         LOAD( units.unit[i].death_delay );
+        LOAD( units.unit[i].paralyzed );
 
         fread( units.unit[i].port, sizeof( sint16 ), 21, file );
 
