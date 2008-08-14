@@ -117,6 +117,15 @@ namespace TA3D
         */
         void addExplosion(const Vector3D& p, const int n, const float power);
 
+        /*!
+        ** \brief Add an explosion effect (with initial speed)
+        ** \param p
+        ** \param s
+        ** \param n
+        ** \param power
+        */
+        void addExplosion(const Vector3D& p, const Vector3D& s, const int n, const float power);
+
 
     public:
         //! 
