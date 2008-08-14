@@ -97,15 +97,13 @@ void ReadFileParameter()
     {
         if (parser.pullAsBool("TA3D.Server"))// Server code
         {
-            char *host_name = strdup( parser.pullAsString( "TA3D.Server name", TA3D::VARS::lp_CONFIG->player_name ).c_str() );
-            setup_game( false, host_name );		// Start the game in networking mode as server
-            free( host_name );
+            String host_name = parser.pullAsString( "TA3D.Server name", TA3D::VARS::lp_CONFIG->player_name );
+            setup_game( false, host_name.c_str() );		// Start the game in networking mode as server
         }
         else // Client code
         {
-            char *host_name = strdup( parser.pullAsString( "TA3D.Server name", "" ).c_str() );
-            setup_game( true, host_name );		// Start the game in networking mode as server
-            free( host_name );
+            String host_name = parser.pullAsString( "TA3D.Server name", "" );
+            setup_game( true, host_name.c_str() );		// Start the game in networking mode as server
         }
     }
 
