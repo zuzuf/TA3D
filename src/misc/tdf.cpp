@@ -147,8 +147,12 @@ namespace TA3D
         bool stringStarted(false);
         for (; pos < size; ++pos)
         {
-            if (data[pos] == '\n' || data[pos] == '\r' || data[pos] == '\0' || pos + 1 == size)
+            if (data[pos] == '\n' || data[pos] == '\r' || data[pos] == '\0' || data[pos] == '{' || data[pos] == '}' || data[pos] == ';' || pos + 1 == size)
             {
+                if (data[pos] == '{' || data[pos] == '}')       // Because this is the beginning and the end
+                    stringStarted = true;
+                if (data[pos] == '{' || data[pos] == '}' || data[pos] == ';')   // Sometimes you can have this syntax : { variable0=value0; variable1=value1; ... }
+                    ++pos;
                 if (data[pos] == '\n')
                     ++stack.line;
                 if (stringStarted)

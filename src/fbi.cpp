@@ -321,7 +321,6 @@ namespace TA3D
         {
             int n = 1;
             String canbuild = sidedata_parser.pullAsString(String::ToLower(format( "canbuild.%s.canbuild%d", unit_type[i]->Unitname.c_str(), n ) ) );
-            LOG_DEBUG("canbuild = '" << canbuild << "'");
             while (!canbuild.empty())
             {
                 int idx = get_unit_index( canbuild );
