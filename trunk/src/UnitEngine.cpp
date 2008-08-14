@@ -474,9 +474,7 @@ namespace TA3D
         planned_weapons=0.0f;
         attacked=false;
         groupe=0;
-        weapon[0].init();
-        weapon[1].init();
-        weapon[2].init();
+        weapon.clear();
         h=0.0f;
         compute_coord=true;
         c_time=0.0f;
@@ -517,6 +515,7 @@ namespace TA3D
             }
             type_id = unit_type;
             model = unit_manager.unit_type[type_id]->model;
+            weapon.resize(unit_manager.unit_type[type_id]->weapon.size());
             hp = unit_manager.unit_type[type_id]->MaxDamage;
             script = unit_manager.unit_type[type_id]->script;
             port[STANDINGMOVEORDERS] = unit_manager.unit_type[type_id]->StandingMoveOrder;
@@ -2719,7 +2718,7 @@ namespace TA3D
                         explode();
                     else
                         flags = 1;
-                    weapon[0].delay=1.0f;
+                    death_delay=1.0f;
                     if (flags == 1 )
                     {
                         pMutex.unlock();
@@ -2727,14 +2726,14 @@ namespace TA3D
                     }
                     break;
                 case 4:				// Vérifie si le script est terminé
-                    if (weapon[0].delay<=0.0f || !data.explode )
+                    if (death_delay<=0.0f || !data.explode )
                     {
                         flags = 1;
                         pMutex.unlock();
                         clear_from_map();
                         return -1;
                     }
-                    weapon[0].delay-=dt;
+                    death_delay -= dt;
                     for(int i=0;i<data.nb_piece;i++)
                         if (!(data.flag[i]&FLAG_EXPLODE))// || (data.flag[i]&FLAG_EXPLODE && (data.explosion_flag[i]&EXPLODE_BITMAPONLY)))
                             data.flag[i]|=FLAG_HIDE;
@@ -2873,9 +2872,12 @@ namespace TA3D
         {
             float old=planned_weapons-(int)planned_weapons;
             int idx=-1;
-            if (unit_manager.unit_type[type_id]->weapon[0] && unit_manager.unit_type[type_id]->weapon[0]->stockpile)	idx=0;
-            else if (unit_manager.unit_type[type_id]->weapon[1] && unit_manager.unit_type[type_id]->weapon[1]->stockpile)	idx=0;
-            else if (unit_manager.unit_type[type_id]->weapon[2] && unit_manager.unit_type[type_id]->weapon[2]->stockpile)	idx=0;
+            for( int i = 0 ; i < unit_manager.unit_type[type_id]->weapon.size() ; i++ )
+                if (unit_manager.unit_type[type_id]->weapon[i] && unit_manager.unit_type[type_id]->weapon[i]->stockpile)
+                {
+                    idx=i;
+                    break;
+                }
             if (idx!=-1 && unit_manager.unit_type[type_id]->weapon[idx]->reloadtime!=0.0f)
             {
                 float dn=dt/unit_manager.unit_type[type_id]->weapon[idx]->reloadtime;
@@ -2899,7 +2901,7 @@ namespace TA3D
         c_time += dt;
 
         //------------------------------ Beginning of weapon related code ---------------------------------------
-        for (byte i = 0; i < 3; ++i)
+        for (int i = 0; i < weapon.size(); ++i)
         {
             if (unit_manager.unit_type[type_id]->weapon[i] == NULL)
                 continue;		// Skip that weapon if not present on the unit
@@ -4178,7 +4180,7 @@ namespace TA3D
                             if (target_unit ) {				// Check if we can target the unit
                                 byte mask = 1 << owner_id;
                                 if (target_unit->cloaked && !target_unit->is_on_radar( mask ) ) {
-                                    for( byte i = 0 ; i < 3 ; i++ )
+                                    for( int i = 0 ; i < weapon.size() ; i++ )
                                         if (weapon[ i ].target == mission->p )		// Stop shooting
                                             weapon[ i ].state = WEAPON_FLAG_IDLE;
                                     next_mission();
@@ -4189,9 +4191,7 @@ namespace TA3D
                             if (jump_commands && mission->data != 0
                                 && unit_manager.unit_type[type_id]->attackrunlength == 0 )	break;					// Just do basic checks every tick, and advanced ones when needed
 
-                            if (unit_manager.unit_type[type_id]->weapon[0] == NULL
-                                && unit_manager.unit_type[type_id]->weapon[1] == NULL
-                                && unit_manager.unit_type[type_id]->weapon[2] == NULL
+                            if (weapon.size() == 0
                                 && !unit_manager.unit_type[type_id]->kamikaze ) {		// Check if this units has weapons
                                 next_mission();		break;	}
 
@@ -4208,7 +4208,7 @@ namespace TA3D
                                 break;
                             }
 
-                            for( byte i = 0 ; i < 3 ; i++ ) {
+                            for( int i = 0 ; i < weapon.size() ; i++ ) {
                                 if (unit_manager.unit_type[type_id]->weapon[ i ]==NULL || unit_manager.unit_type[type_id]->weapon[ i ]->interceptor)	continue;
                                 int cur_mindist;
                                 int cur_maxdist;
@@ -4225,7 +4225,8 @@ namespace TA3D
                                 }
                                 if (maxdist < cur_maxdist )	maxdist = cur_maxdist;
                                 if (mindist > cur_mindist )	mindist = cur_mindist;
-                                if (allowed_to_fire && dist >= cur_mindist * cur_mindist && dist <= cur_maxdist * cur_maxdist && !unit_manager.unit_type[type_id]->weapon[ i ]->interceptor ) {
+                                if (allowed_to_fire && dist >= cur_mindist * cur_mindist && dist <= cur_maxdist * cur_maxdist && !unit_manager.unit_type[type_id]->weapon[ i ]->interceptor )
+                                {
                                     if (( (weapon[i].state & 3) == WEAPON_FLAG_IDLE || ( (weapon[i].state & 3) != WEAPON_FLAG_IDLE && weapon[i].target != mission->p ) )
                                         && ( target_unit == NULL || ( (!unit_manager.unit_type[type_id]->weapon[ i ]->toairweapon
                                                                        || ( unit_manager.unit_type[type_id]->weapon[ i ]->toairweapon && target_unit->flying ) )
@@ -4272,7 +4273,7 @@ namespace TA3D
                             {
                                 mission->data = 2;
                                 int param[] = { 0 };
-                                for( int i = 0 ; i < 3 ; i++ )
+                                for( int i = 0 ; i < weapon.size() ; i++ )
                                     if (unit_manager.unit_type[type_id]->weapon[ i ] )
                                         param[ 0 ] = Math::Max(param[0], (int)( unit_manager.unit_type[type_id]->weapon[i]->reloadtime * 1000.0f) * Math::Max(1, (int)unit_manager.unit_type[type_id]->weapon[i]->burst));
                                 launch_script(get_script_index(SCRIPT_SetMaxReloadTime),1,param);
@@ -4304,9 +4305,14 @@ namespace TA3D
                         if (mission->data==0) {
                             launch_script(get_script_index(SCRIPT_StopMoving));		// Arrête tout / stop everything
                             launch_script(get_script_index(SCRIPT_stopbuilding));
-                            if (weapon[0].state || weapon[1].state || weapon[2].state )
-                                launch_script(get_script_index(SCRIPT_TargetCleared));
-                            for( int i = 0 ; i < 3 ; i++ ) {			// Stop weapons
+                            for( int i = 0 ; i < weapon.size() ; i++ )
+                                if (weapon[i].state)
+                                {
+                                    launch_script(get_script_index(SCRIPT_TargetCleared));
+                                    break;
+                                }
+                            for( int i = 0 ; i < weapon.size() ; i++ )			// Stop weapons
+                            {
                                 weapon[i].state = WEAPON_FLAG_IDLE;
                                 weapon[i].data = -1;
                             }
@@ -4732,18 +4738,15 @@ namespace TA3D
                 bool can_fire = unit_manager.unit_type[type_id]->AutoFire && unit_manager.unit_type[type_id]->canattack;
 
                 if (!can_fire )
-                    for( int i = 0 ; i < 3 && !can_fire ; i++ )
-                        can_fire = unit_manager.unit_type[type_id]->weapon[i]!=NULL && !unit_manager.unit_type[type_id]->weapon[i]->commandfire && weapon[0].state == WEAPON_FLAG_IDLE;
+                    for( int i = 0 ; i < weapon.size() && !can_fire ; i++ )
+                        can_fire = unit_manager.unit_type[type_id]->weapon[i] != NULL && !unit_manager.unit_type[type_id]->weapon[i]->commandfire && weapon[i].state == WEAPON_FLAG_IDLE;
 
-                if (can_fire ) {
+                if (can_fire) {
                     int dx=(unit_manager.unit_type[type_id]->SightDistance+(int)(h+0.5f))>>3;
                     int enemy_idx=-1;
-                    if (unit_manager.unit_type[type_id]->weapon[0]!=NULL && (unit_manager.unit_type[type_id]->weapon[0]->range>>4)>dx)
-                        dx=unit_manager.unit_type[type_id]->weapon[0]->range>>4;
-                    if (unit_manager.unit_type[type_id]->weapon[1]!=NULL && (unit_manager.unit_type[type_id]->weapon[1]->range>>4)>dx)
-                        dx=unit_manager.unit_type[type_id]->weapon[1]->range>>4;
-                    if (unit_manager.unit_type[type_id]->weapon[2]!=NULL && (unit_manager.unit_type[type_id]->weapon[2]->range>>4)>dx)
-                        dx=unit_manager.unit_type[type_id]->weapon[2]->range>>4;
+                    for( int i = 0 ; i < weapon.size() ; i++ )
+                        if (unit_manager.unit_type[type_id]->weapon[i] != NULL && (unit_manager.unit_type[type_id]->weapon[i]->range>>4)>dx)
+                            dx=unit_manager.unit_type[type_id]->weapon[i]->range>>4;
                     if (unit_manager.unit_type[type_id]->kamikaze && (unit_manager.unit_type[type_id]->kamikazedistance>>3) > dx )
                         dx=unit_manager.unit_type[type_id]->kamikazedistance;
 
@@ -4767,17 +4770,28 @@ namespace TA3D
                                             cur_idx = cur->idx;
                                             cur = cur->next;
                                         }
-                                        if ( isEnemy( cur_idx ) && units.unit[cur_idx].flags && units.unit[cur_idx].owner_id != owner_id
+                                        if ( isEnemy( cur_idx ) && units.unit[cur_idx].flags
                                              && unit_manager.unit_type[units.unit[cur_idx].type_id]->ShootMe
                                              && ( units.unit[cur_idx].is_on_radar( mask ) ||
                                                   ( (units.map->sight_map->line[y>>1][x>>1] & mask)
                                                     && !units.unit[cur_idx].cloaked ) )
                                              && !unit_manager.unit_type[ units.unit[cur_idx].type_id ]->checkCategory( unit_manager.unit_type[type_id]->BadTargetCategory ) )
                                         {
-                                            if (!returning_fire
-                                                || ( units.unit[cur_idx].weapon[0].state != WEAPON_FLAG_IDLE && units.unit[cur_idx].weapon[0].target == this )
-                                                || ( units.unit[cur_idx].weapon[1].state != WEAPON_FLAG_IDLE && units.unit[cur_idx].weapon[1].target == this )
-                                                || ( units.unit[cur_idx].weapon[2].state != WEAPON_FLAG_IDLE && units.unit[cur_idx].weapon[2].target == this ) )
+                                            if (returning_fire)
+                                            {
+                                                bool breakBool = false;
+                                                for(int i = 0 ; i < units.unit[cur_idx].weapon.size() ; i++)
+                                                    if( units.unit[cur_idx].weapon[i].state != WEAPON_FLAG_IDLE && units.unit[cur_idx].weapon[i].target == this )
+                                                    {
+                                                        enemy_idx = cur_idx;
+                                                        x = cur_px + dx;
+                                                        y = cur_py + dx;
+                                                        breakBool = true;
+                                                        break;
+                                                    }
+                                                if (breakBool)  break;
+                                            }
+                                            else
                                             {
                                                 enemy_idx = cur_idx;
                                                 x = cur_px + dx;
@@ -4793,7 +4807,7 @@ namespace TA3D
                         if (do_nothing() )
                             set_mission(MISSION_ATTACK | MISSION_FLAG_AUTO,&(units.unit[enemy_idx].Pos),false,0,true,&(units.unit[enemy_idx]),NULL);
                         else
-                            for( int i = 0 ; i < 3 ; i++ )
+                            for( int i = 0 ; i < weapon.size() ; i++ )
                                 if (weapon[i].state == WEAPON_FLAG_IDLE && unit_manager.unit_type[type_id]->weapon[ i ] != NULL
                                     && !unit_manager.unit_type[type_id]->weapon[ i ]->commandfire
                                     && !unit_manager.unit_type[type_id]->weapon[ i ]->interceptor
@@ -4807,7 +4821,7 @@ namespace TA3D
                                 }
                     }
                 }
-                if (unit_manager.unit_type[type_id]->antiweapons && unit_manager.unit_type[type_id]->weapon[0])
+                if (weapon.size() > 0 && unit_manager.unit_type[type_id]->antiweapons && unit_manager.unit_type[type_id]->weapon[0])
                 {
                     float coverage=unit_manager.unit_type[type_id]->weapon[0]->coverage*unit_manager.unit_type[type_id]->weapon[0]->coverage;
                     float range=unit_manager.unit_type[type_id]->weapon[0]->range*unit_manager.unit_type[type_id]->weapon[0]->range>>2;
@@ -6172,7 +6186,7 @@ script_exec:
                     event.opt2 = script ? (owner | 0x1000) : owner;
                     event.x = pos.x;
                     event.z = pos.z;
-                    memcpy( event.str, unit_manager.unit_type[type_id]->Unitname, strlen( unit_manager.unit_type[type_id]->Unitname ) + 1 );
+                    memcpy( event.str, unit_manager.unit_type[type_id]->Unitname.c_str(), unit_manager.unit_type[type_id]->Unitname.size() + 1 );
                     network_manager.sendEvent( &event );
                 }
             }
@@ -6332,14 +6346,12 @@ script_exec:
         if (!pointed_only && !hide_bpic )
         {
             int stock=0;
-            if (unit_manager.unit_type[unit[index].type_id]->weapon[0] && unit_manager.unit_type[unit[index].type_id]->weapon[0]->stockpile)
-                stock=unit[index].weapon[0].stock;
-            else
-                if (unit_manager.unit_type[unit[index].type_id]->weapon[1] && unit_manager.unit_type[unit[index].type_id]->weapon[1]->stockpile)
-                    stock=unit[index].weapon[1].stock;
-                else
-                    if (unit_manager.unit_type[unit[index].type_id]->weapon[2] && unit_manager.unit_type[unit[index].type_id]->weapon[2]->stockpile)
-                        stock=unit[index].weapon[2].stock;
+            for(int i = 0 ; i < unit_manager.unit_type[unit[index].type_id]->weapon.size() ; i++)
+                if (unit_manager.unit_type[unit[index].type_id]->weapon[i] && unit_manager.unit_type[unit[index].type_id]->weapon[i]->stockpile)
+                {
+                    stock = unit[index].weapon[i].stock;
+                    break;
+                }
 
             if ((unit_manager.unit_type[unit[index].type_id]->Builder && !unit_manager.unit_type[unit[index].type_id]->BMcode)
                 || unit[index].planned_weapons>0.0f || stock>0) // Affiche la liste de construction

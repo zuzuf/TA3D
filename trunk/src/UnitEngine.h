@@ -427,7 +427,8 @@ namespace TA3D
         float					cur_energy_prod;
         float					cur_energy_cons;
         uint32					ripple_timer;
-        WEAPON_DATA				weapon[3];
+        std::vector<WEAPON_DATA>    weapon;
+        float                   death_delay;
         bool					was_moving;
         float					last_path_refresh;
         float					shadow_scale_dir;

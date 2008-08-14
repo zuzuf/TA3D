@@ -301,7 +301,7 @@ namespace TA3D
 
         float get_nh(int x,int y);
 
-        void rect(int x1,int y1,int w,int h,short c,char *yardmap=NULL,bool open=false);
+        void rect(int x1,int y1,int w,int h,short c,const String &yardmap = String(),bool open=false);
 
         void air_rect( int x1, int y1, int w, int h, short c, bool remove = false);
 
@@ -315,7 +315,7 @@ namespace TA3D
 
         float check_min_depth(int x1,int y1,int w,int h);
             
-        bool check_vents(int x1,int y1,int w,int h,char *yard_map);
+        bool check_vents(int x1,int y1,int w,int h,const String &yard_map);
 
         bool check_lava(int x1,int y1,int w,int h);
 

@@ -2486,7 +2486,7 @@ void wait_room(void *p_game_data)
         for (int i = 0; i < unit_manager.nb_unit; ++i)
         {
             if (!unit_manager.unit_type[i]->not_used)
-                network_manager.sendAll(format("USING %s", unit_manager.unit_type[i]->Unitname));
+                network_manager.sendAll("USING " + unit_manager.unit_type[i]->Unitname);
         }
         network_manager.sendAll("END USING");
     }

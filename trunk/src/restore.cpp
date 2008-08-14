@@ -234,7 +234,7 @@ void save_game( const String filename, GameData *game_data )
 
         SAVE( units.unit[i].ID );		// Store its ID so we don't lose its "name"
 
-        fputs( unit_manager.unit_type[units.unit[i].type_id]->Unitname, file );		// Store the name so it doesn't rely on the feature order
+        fputs( unit_manager.unit_type[units.unit[i].type_id]->Unitname.c_str(), file );		// Store the name so it doesn't rely on the feature order
         fputc( 0, file );
 
         int g = units.unit[i].s_var->size();
@@ -254,6 +254,7 @@ void save_game( const String filename, GameData *game_data )
         SAVE( units.unit[i].Angle );
         SAVE( units.unit[i].V_Angle );
         SAVE( units.unit[i].sel );
+        SAVE( units.unit[i].death_delay );
 
         fwrite( units.unit[i].port, sizeof( sint16 ), 21, file );
 
@@ -283,7 +284,7 @@ void save_game( const String filename, GameData *game_data )
         SAVE( units.unit[i].cur_metal_cons );
         SAVE( units.unit[i].cur_energy_prod );
         SAVE( units.unit[i].cur_energy_cons );
-        for (short int f = 0; f < 3; ++f)
+        for (short int f = 0; f < units.unit[i].weapon.size(); ++f)
         {
             SAVE( units.unit[i].weapon[f].state );
             SAVE( units.unit[i].weapon[f].burst );
@@ -790,6 +791,7 @@ void load_game( GameData *game_data )
         LOAD( units.unit[i].Angle );
         LOAD( units.unit[i].V_Angle );
         LOAD( units.unit[i].sel );
+        LOAD( units.unit[i].death_delay );
 
         fread( units.unit[i].port, sizeof( sint16 ), 21, file );
 
@@ -819,7 +821,7 @@ void load_game( GameData *game_data )
         LOAD( units.unit[i].cur_metal_cons );
         LOAD( units.unit[i].cur_energy_prod );
         LOAD( units.unit[i].cur_energy_cons );
-        for (short int f = 0; f < 3; ++f)
+        for (short int f = 0; f < units.unit[i].weapon.size(); ++f)
         {
             LOAD( units.unit[i].weapon[f].state );
             LOAD( units.unit[i].weapon[f].burst );

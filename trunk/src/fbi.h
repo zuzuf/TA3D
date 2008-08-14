@@ -129,11 +129,11 @@ namespace TA3D
         short   AltFromSeaLevel;
         bool    Builder;
         bool    ThreeD;
-        char    *Unitname;
+        String  Unitname;
         byte    FootprintX;
         byte    FootprintZ;
-        cHashTable<int>* Category;
-        String::Vector* categories;
+        cHashTable<int> Category;
+        String::Vector categories;
         uint32  fastCategory;
         short   MaxSlope;
         byte    BMcode;
@@ -155,12 +155,12 @@ namespace TA3D
         bool    hoverattack;
         bool    canresurrect;       // Can this unit resurrect wreckages
         bool    commander;          // Is that a commander unit ?
-        char    *name;              // Nom de l'unité
+        String  name;              // Nom de l'unité
         byte    version;            // Version
-        char    *side;              // Camp de l'unité
-        char    *ObjectName;        // Nom du modèle 3D
-        char    *Designation_Name;  // Nom visible de l'unité
-        char    *Description;       // Description
+        String  side;              // Camp de l'unité
+        String  ObjectName;        // Nom du modèle 3D
+        String  Designation_Name;  // Nom visible de l'unité
+        String  Description;       // Description
         int     BuildCostEnergy;    // Energie nécessaire pour la construire
         int     BuildCostMetal;     // Metal nécessaire pour la construire
         int     MaxDamage;          // Points de dégats maximum que l'unité peut encaisser
@@ -173,9 +173,9 @@ namespace TA3D
         int     RadarDistanceJam;   // For Radar Jammers
         int     EnergyStorage;      // Quantité d'énergie stockable par l'unité
         int     MetalStorage;       // Quantité de metal stockable par l'unité
-        char    *ExplodeAs;         // Type d'explosion lorsque l'unité est détruite
-        char    *SelfDestructAs;    // Type d'explosion lors de l'autodestruction
-        char    *Corpse;            // Restes de l'unité
+        String  ExplodeAs;         // Type d'explosion lorsque l'unité est détruite
+        String  SelfDestructAs;    // Type d'explosion lors de l'autodestruction
+        String  Corpse;            // Restes de l'unité
         short   UnitNumber;         // ID de l'unité
         bool    canmove;            // Indique si l'unité peut bouger
         bool    canpatrol;          // si elle peut patrouiller
@@ -193,10 +193,10 @@ namespace TA3D
         bool    CanReclamate;       // si elle peut récupérer
         short   EnergyMake;         // Production d'énergie de l'unité
         float   MetalMake;          // Production de métal de l'unité
-        char    *MovementClass;     // Type de mouvement
+        String  MovementClass;     // Type de mouvement
         bool    Upright;            // Si l'unité est debout
-        int     Weapon1;            // Arme 1
-        char    *BadTargetCategory;     // Type d'unité non attaquable
+        std::vector<int>     WeaponID;            // Weapon IDs
+        String  BadTargetCategory;     // Type d'unité non attaquable
         float   DamageModifier;
         bool    canattack;          // Si l'unité peut attaquer
         bool    ActivateWhenBuilt;  // L'unité s'active lorsqu'elle est achevée
@@ -206,12 +206,10 @@ namespace TA3D
         bool    NoShadow;           // Si l'unité n'a pas d'ombre
         byte    TransMaxUnits;      // Maximum d'unités portables
         bool    canload;            // Si elle peut charger d'autres unités
-        int     Weapon2;            // Arme 2
-        char    *w_badTargetCategory[3];    // Unités non ciblable par les armes
+        String::Vector  w_badTargetCategory;    // Unités non ciblable par les armes
         bool    Floater;            // Si l'unité flotte
         bool    canhover;           // For hovercrafts
-        char    *NoChaseCategory;   // Type d'unité non chassable
-        int     Weapon3;            // Arme 3
+        String  NoChaseCategory;   // Type d'unité non chassable
         int     SonarDistance;      // Portée du sonar
         int     SonarDistanceJam;   // For Sonar Jammers
         bool    candgun;            // si l'unité peut utiliser l'arme ravage
@@ -229,8 +227,8 @@ namespace TA3D
         bool    kamikaze;           // Unité kamikaze
         uint16  kamikazedistance;   // Maximal distance from its target before self-destructing
         short   WindGenerator;      // Centrale de type Eolienne
-        char    *yardmap;           // To tell where the unit is on the map
-        WEAPON_DEF  *weapon[3];     // Weapons
+        String  yardmap;           // To tell where the unit is on the map
+        std::vector<WEAPON_DEF*>  weapon;     // Weapons
         int     attackrunlength;    // Distance à laquelle l'unité commence une attaque (bombardiers)
         bool    antiweapons;
         bool    emitting_points_computed;   // Just to test if we need to get emitting point from script
@@ -240,7 +238,7 @@ namespace TA3D
 
         /*-----------------------------------------------------------------------*/
 
-        char    *soundcategory;     // Category of sounds to play for that unit
+        String  soundcategory;     // Category of sounds to play for that unit
 
         /*-----------------------------------------------------------------------*/
 
@@ -295,7 +293,7 @@ namespace TA3D
         ** \param cat The category to check
         */
         bool checkCategory(String cat)
-        { return Category != NULL && !cat.empty() && Category->exists(cat.toLower()); }
+        { return !cat.empty() && Category.exists(cat.toLower()); }
 
         /*!
         ** \brief Inits all the variables
@@ -306,7 +304,7 @@ namespace TA3D
         /*!
         ** \brief Constructor
         */
-        UNIT_TYPE()
+        UNIT_TYPE() : Category( 128 )
         {
             init();
         }
@@ -365,7 +363,7 @@ namespace TA3D
     public:
 
         std::list< DL_DATA* >       l_dl_data;      // To clean things at the end
-        cHashTable< DL_DATA* >  h_dl_data;      // To speed things up
+        cHashTable< DL_DATA* >      h_dl_data;      // To speed things up
 
         inline void init()
         {
@@ -418,7 +416,7 @@ namespace TA3D
 
         void gather_all_build_data();
 
-        void load_script_file(char *unit_name);
+        void load_script_file(const String &unit_name);
 
         int unit_build_menu(int index,int omb,float &dt,bool GUI=false);                // Affiche et gère le menu des unités
 
