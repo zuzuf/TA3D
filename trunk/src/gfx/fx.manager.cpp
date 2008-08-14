@@ -181,6 +181,7 @@ namespace TA3D
 
     void FXManager::doClearAllParticles()
     {
+        pElectrics.clear();
         if (!pParticles.empty())
         {
             for (ListOfParticles::iterator i = pParticles.begin(); i != pParticles.end(); ++i)
@@ -297,6 +298,11 @@ namespace TA3D
             renderQueue.draw_queue();
         }
 
+        glDisable(GL_TEXTURE_2D);
+        if (!UW)
+            for (ListOfElectrics::iterator i = pElectrics.begin(); i != pElectrics.end(); ++i)
+                (*i)->draw();
+
         pMutex.unlock();
     }
 
@@ -369,6 +375,13 @@ namespace TA3D
 
             pParticles.push_back(new FXParticle(p, s + vs, l));
         }
+        pMutex.unlock();
+    }
+
+    void FXManager::addElectric(const Vector3D& p)
+    {
+        pMutex.lock();
+            pElectrics.push_back(new FXElectric(p));
         pMutex.unlock();
     }
 
@@ -447,6 +460,16 @@ namespace TA3D
             {
                 delete (*i);
                 pParticles.erase(i++);
+            }
+            else
+                ++i;
+        }
+        for (ListOfElectrics::iterator i = pElectrics.begin(); i != pElectrics.end(); )
+        {
+            if ((*i)->move(dt))
+            {
+                delete (*i);
+                pElectrics.erase(i++);
             }
             else
                 ++i;

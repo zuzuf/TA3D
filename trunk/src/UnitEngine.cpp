@@ -2843,7 +2843,19 @@ namespace TA3D
             cloaked = false;
 
         if (paralyzed > 0.0f)       // This unit is paralyzed
+        {
             paralyzed -= dt;
+            if (unit_manager.unit_type[type_id]->model)
+            {
+                Vector3D randVec;
+                bool random_vector=false;
+                int n = 0;
+                for ( int base_n = Math::RandFromTable() ; !random_vector && n < unit_manager.unit_type[type_id]->model->obj.nb_sub_obj ; n++ )
+                    random_vector = unit_manager.unit_type[type_id]->model->obj.random_pos( &data, (base_n + n) % unit_manager.unit_type[type_id]->model->obj.nb_sub_obj, &randVec );
+                if (random_vector)
+                    fx_manager.addElectric( Pos + randVec );
+            }
+        }
 
         if (attached || paralyzed > 0.0f)
             goto script_exec;

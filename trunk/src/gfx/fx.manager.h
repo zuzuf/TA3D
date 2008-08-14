@@ -8,6 +8,7 @@
 # include "../EngineClass.h"
 # include "fx.base.h"
 # include "fx.particle.h"
+# include "fx.electric.h"
 # include <list>
 # include "../misc/camera.h"
 
@@ -126,6 +127,11 @@ namespace TA3D
         */
         void addExplosion(const Vector3D& p, const Vector3D& s, const int n, const float power);
 
+        /*!
+        ** \brief Add an electrical effect
+        ** \param p
+        */
+        void addElectric(const Vector3D& p);
 
     public:
         //! 
@@ -180,6 +186,7 @@ namespace TA3D
 
     private:
         typedef std::list<FXParticle*>  ListOfParticles;
+        typedef std::list<FXElectric*>  ListOfElectrics;
 
     private:
         // TODO Remove all those C style lists...
@@ -196,6 +203,7 @@ namespace TA3D
 
         //! List of particles bouncing around
         ListOfParticles pParticles;
+        ListOfElectrics pElectrics;
 
     public:
         //! 
