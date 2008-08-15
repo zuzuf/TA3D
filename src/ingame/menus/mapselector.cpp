@@ -228,7 +228,7 @@ namespace Menus
     bool MapSelector::doGoSelectSingleMap(const int mapIndex)
     {
         // Bounds checking
-        if (pLastMapIndex == mapIndex || mapIndex < 0 || mapIndex > pCachedSizeOfListOfMaps)
+        if (pLastMapIndex == mapIndex || mapIndex < 0 || mapIndex >= pCachedSizeOfListOfMaps)
             return false;
 
         // Cached value
