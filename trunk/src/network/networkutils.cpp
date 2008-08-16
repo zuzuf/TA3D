@@ -409,6 +409,10 @@ namespace TA3D
     }
 
 
+    GetFileThread::GetFileThread() : Thread()
+    {
+        ready = false;
+    }
 
     //NEEDS TESTING
     //doesnt support resume after broken transfer
@@ -419,8 +423,8 @@ namespace TA3D
         FILE* file;
         String filename;
         int length,n,sofar;
-        buffer = new byte[ FILE_TRANSFER_BUFFER_SIZE ];
 
+        buffer = new byte[ FILE_TRANSFER_BUFFER_SIZE ];
         network = ((struct net_thread_params*)param)->network;
 
         //supposed sender
