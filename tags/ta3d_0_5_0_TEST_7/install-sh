@@ -1,0 +1,14 @@
+#!/bin/sh
+
+if [ "$1" != "ta3d" ] && [ "$1" != "" ];
+then
+	exit 0
+fi
+
+echo .
+echo Total Annihilation files installer
+echo .
+echo Installateur de ressources Total Annihilation pour TA3D
+echo .
+
+./ta3d --install

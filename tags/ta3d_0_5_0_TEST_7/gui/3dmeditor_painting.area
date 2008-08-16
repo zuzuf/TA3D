@@ -1,0 +1,9 @@
+[area]
+{
+	name=paint area;
+	skin=gui/default.skn;
+	windows=gui/3dmeditor_painting.tdf,gui/3dmeditor_tools.tdf,gui/3dmeditor_mapper.tdf;
+	background=none;
+	width=1280;
+	height=1024;
+}

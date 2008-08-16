@@ -1,0 +1,45 @@
+[window]
+{
+    name=popup;
+	title=Message;
+	uformat=UTF8;
+	x=200;
+	y=248;
+	width=400;
+	height=105;
+	fullscreen=true;
+	screen width=800;
+	screen height=600;
+	draw borders=true;
+	show title=true;
+	lock=false;
+	number of objects=2;
+	hidden=true;
+	color=0xFFFFFFFF;
+	background=gfx/mdrn_background.jpg;
+	repeat background=true;
+	get focus=true;
+	[object0]
+	{
+		name=msg;
+		type=TEXT;
+		caption=message;
+		x1=10;
+		y1=30;
+		x2=-10;
+		y2=70;
+		size=1;
+	}
+	[object1]
+	{
+	    name=b_ok;
+	    type=BUTTON;
+	    caption=OK;
+	    x1=150;
+	    y1=-25;
+	    x2=250;
+	    y2=-5;
+	    size=1;
+	    on click=ask.hide;
+	}
+}
