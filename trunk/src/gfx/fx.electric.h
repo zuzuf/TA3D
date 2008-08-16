@@ -19,7 +19,8 @@ namespace TA3D
         Vector3D Pos;
         float life;
         
-        Vector3D Dir[5];
+        Vector3D U;
+        Vector3D V;
 
     }; // class FXElectric
 

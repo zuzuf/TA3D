@@ -10,15 +10,18 @@ namespace TA3D
 
 
     FXElectric::FXElectric(const Vector3D& P)
-        :Pos(P), life(3.0f)
+        : Pos(P), life(1.0f)
     {
-        for( int i = 0 ; i < 5 ; i++ )
-        {
-            Dir[i].x = (Math::RandFromTable() % 2001) * 0.001f - 1.0f;
-            Dir[i].y = (Math::RandFromTable() % 2001) * 0.001f - 1.0f;
-            Dir[i].z = (Math::RandFromTable() % 2001) * 0.001f - 1.0f;
-            Dir[i].unit();
-        }
+        U.x = (Math::RandFromTable() % 201) * 0.01f - 1.0f;
+        U.y = (Math::RandFromTable() % 201) * 0.01f - 1.0f;
+        U.z = (Math::RandFromTable() % 201) * 0.01f - 1.0f;
+        
+        V.x = 1.0f; V.y = 0.0f; V.z = 0.0f;
+        V = V * U;
+        V.unit();
+        
+        U = V * U;
+        U.unit();
     }
 
 
@@ -34,13 +37,18 @@ namespace TA3D
 
     void FXElectric::draw()
     {
-        glColor4ub(0x7F,0x7F,0xFF,0xFF);
-        glBegin( GL_LINES );
-        for( int i = 0 ; i < 5 ; i++ )
+        glBegin( GL_LINE_STRIP );
+        float start = 2.0f * life * PI;
+        float end = start + 1.0f;
+        float step = 0.1f;
+        for( float i = start ; i <= end ; i += step )
         {
-            Vector3D P = Pos + (3.0f * (3.0f - life)) * Dir[i];
-            glVertex3fv( (GLfloat*)&P );
-            P = P + Dir[i];
+            glColor4ub(0x70+(Math::RandFromTable() & 0x1F),0x70+(Math::RandFromTable() & 0x1F),0xFF-((int)Math::RandFromTable() & 0xF),0xFF);
+
+            Vector3D P = Pos + (cos(i) * 2.0f) * V + (sin(i) * 2.0f) * U;
+            P.x += (Math::RandFromTable() % 61) * 0.01f - 0.3f;
+            P.y += (Math::RandFromTable() % 61) * 0.01f - 0.3f;
+            P.z += (Math::RandFromTable() % 61) * 0.01f - 0.3f;
             glVertex3fv( (GLfloat*)&P );
         }
         glEnd();
