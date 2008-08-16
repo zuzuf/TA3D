@@ -45,6 +45,8 @@ namespace TA3D
     {
         virtual void proc(void* param);
     public :
+        GetFileThread();
+
         int		port;
         byte	*buffer;
         int		buffer_size;
