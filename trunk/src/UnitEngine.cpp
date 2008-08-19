@@ -243,7 +243,7 @@ namespace TA3D
     }
 
 
-    int UNIT::get_script_index(const char *script_name)			// Cherche l'indice du script dont on fournit le nom
+    int UNIT::get_script_index(const String &script_name)			// Cherche l'indice du script dont on fournit le nom
     {
         return (script) ? script->findFromName(script_name) : -1;
     }
@@ -2957,6 +2957,8 @@ namespace TA3D
                                 query_id = get_script_index(SCRIPT_QuerySecondary);		break;
                             case 2:
                                 query_id = get_script_index(SCRIPT_QueryTertiary);		break;
+                            default:
+                                query_id = get_script_index(format("Query%d",i));
                         }
 
                         if (!is_running(get_script_index(SCRIPT_RequestState)))
@@ -3100,6 +3102,8 @@ namespace TA3D
                                             launch_script(get_script_index(SCRIPT_AimSecondary),2,aiming);	break;
                                         case 2:
                                             launch_script(get_script_index(SCRIPT_AimTertiary),2,aiming);	break;
+                                        default:
+                                            launch_script(get_script_index(format("Aim%d",i)),2,aiming);	break;
                                     }
                                 }
                                 else
@@ -3111,6 +3115,8 @@ namespace TA3D
                                             launch_script(get_script_index(SCRIPT_AimSecondary));	break;
                                         case 2:
                                             launch_script(get_script_index(SCRIPT_AimTertiary));	break;
+                                        default:
+                                            launch_script(get_script_index(format("Aim%d",i)));	break;
                                     }
                                 weapon[i].time = 0.0f;
                                 weapon[i].state = WEAPON_FLAG_SHOOT;									// (puis) on lui demande de tirer / tell it to fire
@@ -3136,22 +3142,26 @@ namespace TA3D
                         switch(i)
                         {
                             case 0:
-                                query_id=get_script_index(SCRIPT_QueryPrimary);
-                                Aim_script=SCRIPT_AimPrimary;
-                                Fire_script=SCRIPT_FirePrimary;
+                                query_id = get_script_index(SCRIPT_QueryPrimary);
+                                Aim_script = get_script_index(SCRIPT_AimPrimary);
+                                Fire_script = get_script_index(SCRIPT_FirePrimary);
                                 break;
                             case 1:
-                                query_id=get_script_index(SCRIPT_QuerySecondary);
-                                Aim_script=SCRIPT_AimSecondary;
-                                Fire_script=SCRIPT_FireSecondary;
+                                query_id = get_script_index(SCRIPT_QuerySecondary);
+                                Aim_script = get_script_index(SCRIPT_AimSecondary);
+                                Fire_script = get_script_index(SCRIPT_FireSecondary);
                                 break;
                             case 2:
-                                query_id=get_script_index(SCRIPT_QueryTertiary);
-                                Aim_script=SCRIPT_AimTertiary;
-                                Fire_script=SCRIPT_FireTertiary;
+                                query_id = get_script_index(SCRIPT_QueryTertiary);
+                                Aim_script = get_script_index(SCRIPT_AimTertiary);
+                                Fire_script = get_script_index(SCRIPT_FireTertiary);
                                 break;
+                            default:
+                                query_id = get_script_index(format("Query%d",i));
+                                Aim_script = get_script_index(format("Aim%d",i));
+                                Fire_script = get_script_index(format("Fire%d",i));
                         }
-                        if (!is_running(get_script_index(Aim_script)))
+                        if (!is_running(Aim_script))
                         {
                             if ((players.metal[owner_id]<unit_manager.unit_type[type_id]->weapon[ i ]->metalpershot
                                  || players.energy[owner_id]<unit_manager.unit_type[type_id]->weapon[ i ]->energypershot)
@@ -3173,7 +3183,7 @@ namespace TA3D
                                 players.c_metal[owner_id] -= unit_manager.unit_type[type_id]->weapon[ i ]->metalpershot;
                                 players.c_energy[owner_id] -= unit_manager.unit_type[type_id]->weapon[ i ]->energypershot;
                             }
-                            run_script_function( map, get_script_index(Fire_script) );			// Run the script that tell us from where to shoot
+                            run_script_function( map, Fire_script );			// Run the script that tell us from where to shoot
                             if (!unit_manager.unit_type[type_id]->weapon[ i ]->soundstart.empty())	sound_manager->playSound(unit_manager.unit_type[type_id]->weapon[i]->soundstart, &Pos);
                             if (script_val->size() <= query_id )
                                 script_val->resize( query_id + 1 );
