@@ -1034,6 +1034,7 @@ namespace TA3D
             mission->data=0;
             return;
         }
+        bool old_step = mission->step;
         MISSION *old=mission;
         mission=mission->next;
         if (old->path)				// Détruit le chemin si nécessaire
@@ -1055,6 +1056,11 @@ namespace TA3D
                 destroy_path(old->path);
             delete old;
         }
+
+        if (old_step && mission && mission->next
+            && (mission->mission == MISSION_STOP || mission->mission == MISSION_VTOL_STANDBY || mission->mission == MISSION_STANDBY))
+            next_mission();
+
         start_mission_script(mission->mission);
         c_time=0.0f;
     }
@@ -4188,11 +4194,17 @@ namespace TA3D
                     break;
                 case MISSION_STANDBY:
                 case MISSION_VTOL_STANDBY:
+                    if (idx==1997)
+                    LOG_DEBUG("[MISSION_STANDBY] (" << idx << ") " << mission->data);
                     if (jump_commands)	break;
                     if (mission->data>5)
                     {
                         if (mission->next)		// If there is a mission after this one
+                        {
                             next_mission();
+                            if (mission && (mission->mission == MISSION_STANDBY || mission->mission == MISSION_VTOL_STANDBY))
+                                mission->data = 0;
+                        }
                     }
                     else
                         mission->data++;
@@ -4305,7 +4317,7 @@ namespace TA3D
                                 launch_script(get_script_index(SCRIPT_SetMaxReloadTime),1,param);
                             }
 
-                            if (mission->flags & MISSION_FLAG_COMMAND_FIRED )
+                            if (mission->flags & MISSION_FLAG_COMMAND_FIRED)
                                 next_mission();
                         }
                         else
@@ -4315,20 +4327,32 @@ namespace TA3D
                 case MISSION_GUARD_NOMOVE:
                     mission->flags |= MISSION_FLAG_CAN_ATTACK;
                     mission->flags &= ~MISSION_FLAG_MOVE;
-                    if (mission->next )
+                    if (mission->next)
                         next_mission();
                     break;
                 case MISSION_STOP:											// Arrête tout ce qui était en cours / stop everything running
+                    if (idx==1997)
+                    LOG_DEBUG("[MISSION_STOP] (" << idx << ") " << mission->data);
+                    while (mission->next
+                        && (mission->next->mission == MISSION_STOP
+                            || mission->next->mission == MISSION_STANDBY
+                            || mission->next->mission == MISSION_VTOL_STANDBY))     // Don't make a big stop stack :P
+                        next_mission();
+                    mission->mission = MISSION_STOP;
                     if (jump_commands && mission->data != 0 )	break;
-                    if (mission->data>5) {
-                        if (mission->next) {
+                    if (mission->data>5)
+                    {
+                        if (mission->next)
+                        {
                             next_mission();
                             if (mission!=NULL && mission->mission==MISSION_STOP)		// Mode attente / wait mode
-                                mission->data=6;
+                                mission->data=1;
                         }
                     }
-                    else {
-                        if (mission->data==0) {
+                    else
+                    {
+                        if (mission->data==0)
+                        {
                             launch_script(get_script_index(SCRIPT_StopMoving));		// Arrête tout / stop everything
                             launch_script(get_script_index(SCRIPT_stopbuilding));
                             for( int i = 0 ; i < weapon.size() ; i++ )
@@ -4444,19 +4468,27 @@ namespace TA3D
                                 {
                                     Vector3D target=Pos;
                                     target.z+=128.0f;
-                                    target_unit->set_mission(MISSION_MOVE | MISSION_FLAG_AUTO,&target,false,5,true,NULL,NULL,0,5);		// Fait sortir l'unité du bâtiment
-                                    MISSION *target_mission = target_unit->mission;
-                                    while (target_mission->next != NULL)
-                                        target_mission = target_mission->next;
-                                    MISSION *cur = def_mission;
-                                    while (cur)// Copy mission list
+                                    if (def_mission == NULL)
+                                        target_unit->set_mission(MISSION_MOVE | MISSION_FLAG_AUTO,&target,false,5,true,NULL,NULL,0,5);		// Fait sortir l'unité du bâtiment
+                                    else
                                     {
-                                        target_mission->next = new MISSION();
-                                        target_mission = target_mission->next;
-                                        *target_mission = *cur;
+                                        target_unit->mission = new MISSION();
+                                        MISSION *target_mission = target_unit->mission;
+                                        *target_mission = *def_mission;
                                         target_mission->next = NULL;
                                         target_mission->path = NULL;
-                                        cur = cur->next;
+                                        while (target_mission->next != NULL)
+                                            target_mission = target_mission->next;
+                                        MISSION *cur = def_mission->next;
+                                        while (cur)// Copy mission list
+                                        {
+                                            target_mission->next = new MISSION();
+                                            target_mission = target_mission->next;
+                                            *target_mission = *cur;
+                                            target_mission->next = NULL;
+                                            target_mission->path = NULL;
+                                            cur = cur->next;
+                                        }
                                     }
                                 }
                                 mission->p=NULL;
@@ -4964,7 +4996,8 @@ namespace TA3D
 
             Angle = Angle + dt * V_Angle;
             Vector3D OPos = Pos;
-            if (precomputed_position ) {
+            if (precomputed_position )
+            {
                 if (unit_manager.unit_type[type_id]->canmove && unit_manager.unit_type[type_id]->BMcode && !flying )
                     V.y-=units.g_dt;			// L'unité subit la force de gravitation
                 Pos = NPos;
@@ -4972,7 +5005,8 @@ namespace TA3D
                 cur_px = n_px;
                 cur_py = n_py;
             }
-            else {
+            else
+            {
                 if (unit_manager.unit_type[type_id]->canmove && unit_manager.unit_type[type_id]->BMcode )
                     V.y-=units.g_dt;			// L'unité subit la force de gravitation
                 Pos = Pos+dt*V;			// Déplace l'unité
@@ -4980,10 +5014,12 @@ namespace TA3D
                 cur_py = ((int)(Pos.z)+map->map_h_d+4)>>3;
             }
             if (units.current_tick - ripple_timer >= 7 && Pos.y <= map->sealvl && Pos.y + model->top >= map->sealvl && (unit_manager.unit_type[type_id]->fastCategory & CATEGORY_NOTSUB)
-                && cur_px >= 0 && cur_py >= 0 && cur_px < map->bloc_w_db && cur_py < map->bloc_h_db && !map->map_data[ cur_py ][ cur_px ].lava && map->water ) {
+                && cur_px >= 0 && cur_py >= 0 && cur_px < map->bloc_w_db && cur_py < map->bloc_h_db && !map->map_data[ cur_py ][ cur_px ].lava && map->water )
+                {
                 Vector3D Diff = OPos - Pos;
                 Diff.y = 0.0f;
-                if (Diff.sq() > 0.1f && lp_CONFIG->waves ) {
+                if (Diff.sq() > 0.1f && lp_CONFIG->waves)
+                {
                     ripple_timer = units.current_tick;
                     Vector3D ripple_pos = Pos;
                     ripple_pos.y = map->sealvl + 1.0f;
@@ -4992,25 +5028,30 @@ namespace TA3D
             }
         }
 script_exec:
-        if (map && !attached && ( (!jump_commands && unit_manager.unit_type[type_id]->canmove) || first_move ) ) {
+        if (map && !attached && ( (!jump_commands && unit_manager.unit_type[type_id]->canmove) || first_move ))
+        {
             float min_h = map->get_unit_h(Pos.x,Pos.z);
             h = Pos.y - min_h;
             if (!unit_manager.unit_type[type_id]->Floater && !unit_manager.unit_type[type_id]->canfly && !unit_manager.unit_type[type_id]->canhover && h > 0.0f && unit_manager.unit_type[type_id]->WaterLine == 0.0f )
                 Pos.y = min_h;
-            else if (unit_manager.unit_type[type_id]->canhover && Pos.y < map->sealvl ) {
+            else if (unit_manager.unit_type[type_id]->canhover && Pos.y < map->sealvl)
+            {
                 Pos.y = map->sealvl;
                 if (V.y<0.0f)
                     V.y=0.0f;
             }
-            else if (unit_manager.unit_type[type_id]->Floater ) {
+            else if (unit_manager.unit_type[type_id]->Floater)
+            {
                 Pos.y = map->sealvl+unit_manager.unit_type[type_id]->AltFromSeaLevel*H_DIV;
                 V.y=0.0f;
             }
-            else if (unit_manager.unit_type[type_id]->WaterLine ) {
+            else if (unit_manager.unit_type[type_id]->WaterLine)
+            {
                 Pos.y=map->sealvl-unit_manager.unit_type[type_id]->WaterLine*H_DIV;
                 V.y=0.0f;
             }
-            else if (!unit_manager.unit_type[type_id]->canfly && Pos.y > Math::Max( min_h, map->sealvl ) && unit_manager.unit_type[type_id]->BMcode ) {	// Prevent non flying units from "jumping"
+            else if (!unit_manager.unit_type[type_id]->canfly && Pos.y > Math::Max( min_h, map->sealvl ) && unit_manager.unit_type[type_id]->BMcode)	// Prevent non flying units from "jumping"
+            {
                 Pos.y = Math::Max(min_h, map->sealvl);
                 if (V.y<0.0f)
                     V.y=0.0f;
@@ -5020,45 +5061,59 @@ script_exec:
                 if (V.y<0.0f)
                     V.y=0.0f;
             }
-            if (unit_manager.unit_type[type_id]->canfly && build_percent_left==0.0f && local) {
+            if (unit_manager.unit_type[type_id]->canfly && build_percent_left==0.0f && local)
+            {
                 if (mission && ( (mission->flags & MISSION_FLAG_MOVE) || mission->mission == MISSION_BUILD || mission->mission == MISSION_BUILD_2 || mission->mission == MISSION_REPAIR
                                  || mission->mission == MISSION_ATTACK || mission->mission == MISSION_MOVE || mission->mission == MISSION_GET_REPAIRED || mission->mission == MISSION_PATROL
                                  || mission->mission == MISSION_RECLAIM || nb_attached > 0 || Pos.x < -map->map_w_d || Pos.x > map->map_w_d || Pos.z < -map->map_h_d || Pos.z > map->map_h_d )) {
-                    if (!(mission->mission == MISSION_GET_REPAIRED && (mission->flags & MISSION_FLAG_BEING_REPAIRED) ) ) {
+                    if (!(mission->mission == MISSION_GET_REPAIRED && (mission->flags & MISSION_FLAG_BEING_REPAIRED) ) )
+                    {
                         float ideal_h=Math::Max(min_h,map->sealvl)+unit_manager.unit_type[type_id]->CruiseAlt*H_DIV;
                         V.y=(ideal_h-Pos.y)*2.0f;
                     }
                     flying = true;
                 }
-                else {
-                    if (can_be_there( cur_px, cur_py, units.map, type_id, owner_id, idx ) ) {		// Check it can be there
+                else
+                {
+                    if (can_be_there( cur_px, cur_py, units.map, type_id, owner_id, idx ))		// Check it can be there
+                    {
                         float ideal_h = min_h;
                         V.y=(ideal_h-Pos.y)*1.5f;
                         flying = false;
                     }
-                    else {				// There is someone there, find an other place to land
+                    else				// There is someone there, find an other place to land
+                    {
                         flying = true;
-                        Vector3D next_target = Pos;
-                        float find_angle = (Math::RandFromTable() % 360) * DEG2RAD;
-                        next_target.x += cos( find_angle ) * (32.0f + unit_manager.unit_type[type_id]->FootprintX * 8.0f);
-                        next_target.z += sin( find_angle ) * (32.0f + unit_manager.unit_type[type_id]->FootprintZ * 8.0f);
-                        add_mission( MISSION_MOVE | MISSION_FLAG_AUTO, &next_target, true );
+                        if (mission == NULL
+                        || (mission->mission != MISSION_STOP && mission->mission != MISSION_VTOL_STANDBY && mission->mission != MISSION_STANDBY)
+                        || mission->data > 5)   // Wait for MISSION_STOP to check if we have some work to do
+                        {                                                                               // This prevents planes from keeping looking for a place to land
+                            Vector3D next_target = Pos;                                                 // instead of going back to work :/
+                            float find_angle = (Math::RandFromTable() % 360) * DEG2RAD;
+                            next_target.x += cos( find_angle ) * (32.0f + unit_manager.unit_type[type_id]->FootprintX * 8.0f);
+                            next_target.z += sin( find_angle ) * (32.0f + unit_manager.unit_type[type_id]->FootprintZ * 8.0f);
+                            add_mission( MISSION_MOVE | MISSION_FLAG_AUTO, &next_target, true );
+                        }
                     }
                 }
             }
             port[GROUND_HEIGHT] = (int)(Pos.y-min_h+0.5f);
         }
         port[HEALTH] = (int)hp*100 / unit_manager.unit_type[type_id]->MaxDamage;
-        if (nb_running>0) {
+        if (nb_running>0)
+        {
             for(int i=0;i<nb_running;i++)
                 run_script(dt,i,map);
             int e=0;
-            for(int i=0;i+e<nb_running;) {				// Efface les scripts qui se sont arrêtés
-                if ((*script_env)[i+e].running) {
+            for(int i=0;i+e<nb_running;)				// Efface les scripts qui se sont arrêtés
+            {
+                if ((*script_env)[i+e].running)
+                {
                     (*script_env)[i] = (*script_env)[i+e];
                     i++;
                 }
-                else {
+                else
+                {
                     (*script_env)[i+e].destroy();
                     e++;
                 }
