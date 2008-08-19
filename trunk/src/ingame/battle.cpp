@@ -1271,7 +1271,9 @@ namespace TA3D
                     ox = (int)target.x;
                     oy = (int)target.z;
 
-                    target.y = Math::Max(map->get_max_rect_h((int)target.x,(int)target.z, unit_manager.unit_type[build]->FootprintX, unit_manager.unit_type[build]->FootprintZ),map->sealvl);
+                    target.y = map->get_max_rect_h((int)target.x,(int)target.z, unit_manager.unit_type[build]->FootprintX, unit_manager.unit_type[build]->FootprintZ);
+                    if (unit_manager.unit_type[build]->floatting())
+                        target.y = Math::Max(target.y,map->sealvl+(unit_manager.unit_type[build]->AltFromSeaLevel-unit_manager.unit_type[build]->WaterLine)*H_DIV);
                     target.x = target.x * 8.0f - map->map_w_d;
                     target.z = target.z * 8.0f - map->map_h_d;
 
@@ -2195,7 +2197,9 @@ namespace TA3D
                     ox = (int)target.x;
                     oy = (int)target.z;
 
-                    target.y = Math::Max(map->get_max_rect_h((int)target.x,(int)target.z, unit_manager.unit_type[build]->FootprintX, unit_manager.unit_type[build]->FootprintZ),map->sealvl);
+                    target.y = map->get_max_rect_h((int)target.x,(int)target.z, unit_manager.unit_type[build]->FootprintX, unit_manager.unit_type[build]->FootprintZ);
+                    if (unit_manager.unit_type[build]->floatting())
+                        target.y = Math::Max(target.y,map->sealvl+(unit_manager.unit_type[build]->AltFromSeaLevel-unit_manager.unit_type[build]->WaterLine)*H_DIV);
                     target.x = target.x * 8.0f - map->map_w_d;
                     target.z = target.z * 8.0f - map->map_h_d;
 
@@ -2204,20 +2208,41 @@ namespace TA3D
                     cam.setView();
                     glTranslatef(target.x,target.y,target.z);
                     glScalef(unit_manager.unit_type[build]->Scale,unit_manager.unit_type[build]->Scale,unit_manager.unit_type[build]->Scale);
+                    float DX = (unit_manager.unit_type[build]->FootprintX<<2);
+                    float DZ = (unit_manager.unit_type[build]->FootprintZ<<2);
                     if (unit_manager.unit_type[build]->model)
                     {
                         gfx->ReInitAllTex( true);
                         if (can_be_there)
-                            glColor4f(1.0f,1.0f,1.0f,1.0f);
+                            glColor4ub(0xFF,0xFF,0xFF,0xFF);
                         else
-                            glColor4f(1.0f,0.0f,0.0f,0.0f);
+                            glColor4ub(0xFF,0,0,0xFF);
+                        glDepthFunc( GL_GREATER );
                         unit_manager.unit_type[build]->model->draw(0.0f,NULL,false,false,false,0,NULL,NULL,NULL,0.0f,NULL,false,players.local_human_id,false);
-                        glColor4f(1.0f,1.0f,1.0f,1.0f);
+                        glDepthFunc( GL_LESS );
+                        unit_manager.unit_type[build]->model->draw(0.0f,NULL,false,false,false,0,NULL,NULL,NULL,0.0f,NULL,false,players.local_human_id,false);
+
+                        glColor4ub(0x7F,0x7F,0xFF,0x7F);                        // Draw a "water quad" to draw a water effect on sub water parts of the model
+                        float dec = 1.0f;
+                        if (cam.rpos.y - map->sealvl > 1.0f)
+                            dec += log( cam.rpos.y - map->sealvl );
+                        glTranslatef( 0.0f, map->sealvl - dec - target.y, 0.0f);
+                        glDisable(GL_CULL_FACE);
+                        glDisable(GL_TEXTURE_2D);
+                        glDisable(GL_LIGHTING);
+                        glEnable(GL_BLEND);
+                        glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+                        glScalef(10.0f,1.0f,10.0f);         // Draw it larger than the unit itself so we can view it at an angle without seeing the border
+                        glBegin(GL_QUADS);
+                            glVertex3f( -DX, 0.0f, -DZ );
+                            glVertex3f( DX, 0.0f, -DZ );
+                            glVertex3f( DX, 0.0f, DZ );
+                            glVertex3f( -DX, 0.0f, DZ );
+                        glEnd();
+                        glColor4ub(0xFF,0xFF,0xFF,0xFF);
                     }
                     cam.setView();
-                    glTranslatef(target.x,target.y,target.z);
-                    float DX = (unit_manager.unit_type[build]->FootprintX<<2);
-                    float DZ = (unit_manager.unit_type[build]->FootprintZ<<2);
+                    glTranslatef(target.x,Math::Max( target.y, map->sealvl ),target.z);
                     float red=1.0f, green=0.0f;
                     if (can_be_there)
                     {

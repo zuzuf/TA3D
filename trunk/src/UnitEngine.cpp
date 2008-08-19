@@ -5263,7 +5263,7 @@ script_exec:
                             green = 0.0f;
                         }
                         glPushMatrix();
-                        glTranslatef(cur->target.x,cur->target.y,cur->target.z);
+                        glTranslatef(cur->target.x,Math::Max( cur->target.y, units.map->sealvl ),cur->target.z);
                         glDisable(GL_CULL_FACE);
                         glDisable(GL_TEXTURE_2D);
                         glEnable(GL_BLEND);
@@ -5289,6 +5289,7 @@ script_exec:
                         glColor4f(0.0f,green,blue,0.0f);
                         glVertex3f(DX+2.0f,5.0f,DZ+2.0f);
                         glVertex3f(DX+2.0f,5.0f,-DZ-2.0f);
+
                         glEnd();
                         glDisable(GL_BLEND);
                         glEnable(GL_TEXTURE_2D);
@@ -5302,6 +5303,9 @@ script_exec:
                             glPushMatrix();
                             glTranslatef(cur->target.x,cur->target.y,cur->target.z);
                             glColor4f(0.0f,green,blue,0.5f);
+                            glDepthFunc( GL_GREATER );
+                            unit_manager.unit_type[cur->data]->model->obj.draw(0.0f,NULL,false,false,false);
+                            glDepthFunc( GL_LESS );
                             unit_manager.unit_type[cur->data]->model->obj.draw(0.0f,NULL,false,false,false);
                             glPopMatrix();
                             glEnable(GL_BLEND);
@@ -5312,7 +5316,7 @@ script_exec:
                             glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
                         }
                         glPushMatrix();
-                        glTranslatef(cur->target.x,cur->target.y,cur->target.z);
+                        glTranslatef(cur->target.x,Math::Max( cur->target.y, units.map->sealvl ),cur->target.z);
                         glDisable(GL_CULL_FACE);
                         glDisable(GL_TEXTURE_2D);
                         glEnable(GL_BLEND);
@@ -5617,8 +5621,10 @@ script_exec:
         Vector3D t(target);
         t.x = ((int)(t.x) + map->map_w_d) >> 3;
         t.z = ((int)(t.z) + map->map_h_d) >> 3;
-        t.y = Math::Max(map->get_max_rect_h((int)t.x, (int)t.z, unit_manager.unit_type[unit_type_id]->FootprintX,
-                                            unit_manager.unit_type[unit_type_id]->FootprintZ),map->sealvl);
+        t.y = map->get_max_rect_h((int)t.x, (int)t.z, unit_manager.unit_type[unit_type_id]->FootprintX,
+                                            unit_manager.unit_type[unit_type_id]->FootprintZ);
+        if (unit_manager.unit_type[unit_type_id]->floatting())
+            t.y = Math::Max(t.y,map->sealvl+(unit_manager.unit_type[unit_type_id]->AltFromSeaLevel-unit_manager.unit_type[unit_type_id]->WaterLine)*H_DIV);
         t.x = t.x * 8.0f - map->map_w_d;
         t.z = t.z * 8.0f - map->map_h_d;
 
