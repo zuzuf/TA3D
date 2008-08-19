@@ -320,7 +320,7 @@ namespace TA3D
 
         int get_script_index(int id);
 
-        int get_script_index(const char *script_name);	 // Cherche l'indice du script dont on fournit le nom
+        int get_script_index(const String &script_name);	 // Cherche l'indice du script dont on fournit le nom
 
         int launch_script(int id,int nb_param=0,int *param=NULL,bool force=false);			// Start a script as a separate "thread" of the unit
 
