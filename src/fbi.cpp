@@ -400,6 +400,11 @@ namespace TA3D
         return d;
     }
 
+    bool UNIT_TYPE::floatting()
+    {
+        return Floater || canhover || WaterLine != 0.0f;
+    }
+
     void UNIT_TYPE::destroy()
     {
         MovementClass.clear();

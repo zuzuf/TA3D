@@ -345,6 +345,11 @@ namespace TA3D
         ** \brief Everything is in the name ...
         */
         void show_info(float fade,GfxFont fnt);
+        
+        /*!
+        ** \brief Returns true if the units float on water
+        */
+        bool floatting();
     };
 
     class UNIT_MANAGER          // Classe pour charger toutes les données relatives aux unités
