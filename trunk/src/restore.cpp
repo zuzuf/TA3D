@@ -767,12 +767,15 @@ void load_game( GameData *game_data )
             continue;
         units.idx_list[units.index_list_size++] = i;
 
-        LOAD( units.unit[i].ID );
+        uint32 ID;
+        LOAD( ID );
 
         readstring( tmp, 1024, file );
         units.unit[i].type_id = unit_manager.get_unit_index( tmp );
 
         units.unit[i].init( units.unit[i].type_id, player_id, false, true );
+
+        units.unit[i].ID = ID;
 
         int g;
         LOAD( g );
