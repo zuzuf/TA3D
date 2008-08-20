@@ -109,7 +109,7 @@ Caption "TA3D ${VERSION} Setup"
 !define MUI_FINISHPAGE_LINK "Visit the TA3D site for the latest news, FAQs and support"
 !define MUI_FINISHPAGE_LINK_LOCATION "${PRODUCT_WEB_SITE}"
 
-!define MUI_FINISHPAGE_RUN "$INSTDIR\${TA3D_BIN}"
+!define MUI_FINISHPAGE_RUN "$INSTDIR\ta3d.bat"
 !define MUI_FINISHPAGE_NOREBOOTSUPPORT
 
 !define MUI_FINISHPAGE_SHOWREADME
@@ -160,8 +160,6 @@ ${MementoSection} "TA3D Core Files [mingw] (required)" SecCore
   File ..\..\${TA3D_BIN}
   File ..\..\ta3d.bat
   File ..\..\install.bat
-  File ..\..\ta3d.res
-  File ..\..\3dmeditor.res
   File ..\..\AUTHORS
   File ..\..\COPYING
   File ..\..\src\tools\win32\mingw32\libs\fmodex.dll
@@ -179,6 +177,9 @@ ${MementoSection} "Resources (required)" SecResources
   SetOverwrite on
   SectionIn 1 2 3 4 RO
   
+  SetOutPath "$INSTDIR\Resources\"
+  File ..\..\resources\ta3d.res
+  File ..\..\resources\3dmeditor.res
   SetOutPath "$INSTDIR\Resources\Languages"
   SetOutPath "$INSTDIR\Resources\Intro"
   File /r ..\..\resources\intro\*.txt
@@ -332,7 +333,8 @@ ${MementoSection} "Menu Shortcuts" SecMenuShortcuts
   
   CreateDirectory "$SMPROGRAMS\TA3D"
   CreateDirectory "$SMPROGRAMS\TA3D\Documentation"
-  CreateShortCut "$SMPROGRAMS\TA3D\TA3D.lnk" "$INSTDIR\${TA3D_BIN}"
+  SetOutPath "$INSTDIR\"
+  CreateShortCut "$SMPROGRAMS\TA3D\TA3D.lnk" "$INSTDIR\ta3d.bat"
   CreateShortCut "$SMPROGRAMS\TA3D\3DMEditor.lnk" "$INSTDIR\3dmeditor.exe"
   CreateShortCut "$SMPROGRAMS\TA3D\Documentation\User Guide.lnk" "$INSTDIR\readme.html"
   CreateShortCut "$SMPROGRAMS\TA3D\Documentation\User Guide (Francais).lnk" "$INSTDIR\readme-fr.html"
