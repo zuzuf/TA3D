@@ -2,7 +2,7 @@
 ;--------------------------------
 
 !ifndef VERSION
-  !define VERSION '0.5.1'
+  !define VERSION '0.5.1-alpha'
 !endif
 
 !define PRODUCT_NAME "TA3D" 
@@ -146,7 +146,7 @@ FunctionEnd
 ;Installer Sections
 
 
-${MementoSection} "TA3D Core Files (required)" SecCore
+${MementoSection} "TA3D Core Files [mingw] (required)" SecCore
 
   SetDetailsPrint textonly
   DetailPrint "Installing TA3D Core Files..."
@@ -159,9 +159,14 @@ ${MementoSection} "TA3D Core Files (required)" SecCore
   File ..\..\3dmeditor.exe
   File ..\..\${TA3D_BIN}
   File ..\..\ta3d.bat
+  File ..\..\install.bat
+  File ..\..\ta3d.res
+  File ..\..\3dmeditor.res
   File ..\..\AUTHORS
-  File ..\..\src\tools\win32\fmodex.dll
-  File ..\..\src\tools\win32\alleg42.dll
+  File ..\..\COPYING
+  File ..\..\src\tools\win32\mingw32\libs\fmodex.dll
+  File ..\..\src\tools\win32\mingw32\libs\alleg42.dll
+  File ..\..\src\tools\win32\mingw32\libs\nl.dll
 
 ${MementoSectionEnd}
 
@@ -173,35 +178,70 @@ ${MementoSection} "Resources (required)" SecResources
 
   SetOverwrite on
   SectionIn 1 2 3 4 RO
-  SetOutPath $INSTDIR\Resources\Gfx
-  File /r ..\..\gfx\*
+  
+  SetOutPath "$INSTDIR\Resources\Languages"
+  SetOutPath "$INSTDIR\Resources\Intro"
+  File /r ..\..\resources\intro\*.txt
+  
+  SetOutPath "$INSTDIR\Gfx\"
+  File /r ..\..\gfx\*.tga
+  File /r ..\..\gfx\*.jpg
+  SetOutPath "$INSTDIR\Gfx\default_skin\"
+  File /r ..\..\gfx\default_skin\*.tga
+  SetOutPath "$INSTDIR\Gfx\mdrn_skin\"
+  File /r ..\..\gfx\mdrn_skin\*.tga
+  SetOutPath "$INSTDIR\Gfx\mdrn_teams\"
+  File /r ..\..\gfx\mdrn_teams\*.tga
+  SetOutPath "$INSTDIR\Gfx\Sky\"
+  File /r ..\..\gfx\sky\*.jpg
+  SetOutPath "$INSTDIR\Gfx\Tactical Icons\"
+  File /r "..\..\gfx\tactical icons\*.tga"
+  SetOutPath "$INSTDIR\Gfx\Teams\"
+  File /r ..\..\gfx\teams\*.tga
 
-  SetOutPath $INSTDIR\Resources\Ai
-  File /r ..\..\ai\*
 
-  SetOutPath $INSTDIR\Resources\Gui
-  File /r ..\..\gui\*
+  SetOutPath "$INSTDIR\Ai\"
+  File /r ..\..\ai\*.ai
 
-  SetOutPath $INSTDIR\Resources\Music
-  File /r ..\..\music\*
+  SetOutPath "$INSTDIR\Gui"
+  File /r ..\..\gui\*.tdf
+  File /r ..\..\gui\*.area
+  File /r ..\..\gui\*.skn
 
-  SetOutPath $INSTDIR\Resources\Cache
-  File /r ..\..\cache\*
+  SetOutPath "$INSTDIR\Music\"
+  #File /r ..\..\music\*
 
-  SetOutPath $INSTDIR\Resources\Scripts
-  File /r ..\..\scripts\*
+  SetOutPath "$INSTDIR\Cache\"
+  #File /r ..\..\cache\*
 
-  SetOutPath $INSTDIR\Resources\Shaders
-  File /r ..\..\shaders\*
+  SetOutPath "$INSTDIR\Scripts\"
+  File /r ..\..\scripts\*.lua
+  File /r ..\..\scripts\*.h
 
-  SetOutPath $INSTDIR\Resources\Sky
-  File /r ..\..\sky\*
+  SetOutPath "$INSTDIR\Shaders\"
+  File /r ..\..\shaders\*.vert
+  File /r ..\..\shaders\*.frag
 
-  SetOutPath $INSTDIR\Resources\Pictures
-  File /r ..\..\pictures\*
+  SetOutPath "$INSTDIR\Sky\"
+  File /r ..\..\sky\*.tdf
 
-  SetOutPath $INSTDIR\Resources\Objects3D
-  File /r ..\..\objects3d\*
+  SetOutPath "$INSTDIR\Pictures\"
+  File /r ..\..\pictures\*.png
+  File /r ..\..\pictures\*.tga
+  File /r ..\..\pictures\*.ico
+  File /r ..\..\pictures\*.xcf
+  File /r ..\..\pictures\*.gif
+  File /r ..\..\pictures\*.jpg
+  SetOutPath "$INSTDIR\Pictures\Modern Skin\"
+  File /r "..\..\pictures\modern skin\*.png"
+  SetOutPath "$INSTDIR\Pictures\New GUI\"
+  File /r "..\..\pictures\new GUI\*.xcf"
+  File /r "..\..\pictures\new GUI\*.jpg"
+  File /r "..\..\pictures\new GUI\*.tga"
+
+  SetOutPath "$INSTDIR\Objects3D\"
+  File /r ..\..\objects3d\*.3dm
+  File /r ..\..\objects3d\*.3do
 
 ${MementoSectionEnd}
 
@@ -214,8 +254,11 @@ ${MementoSection} "Documentation" SecDocs
   SectionIn 1 2 
 
   SetOverwrite on
-  SetOutPath $INSTDIR\Docs
-  File /r ..\..\docs\user\*
+  SetOutPath "$INSTDIR\Docs"
+  File /r ..\..\docs\user\*.html
+  File /r ..\..\docs\user\*.jpg
+  SetOutPath "$INSTDIR\Docs\res"
+  File /r ..\..\docs\user\res\*.jpg
 
 ${MementoSectionEnd}
 
@@ -228,8 +271,43 @@ ${MementoSection} "Default Mod" SecDefaultMod
   SectionIn 1 
 
   SetOverwrite on
-  SetOutPath $INSTDIR\Resources\Mods\TA3D
-  File /r ..\..\mods\ta3d\*
+  SetOutPath "$INSTDIR\Mods\TA3D\"
+  File /r ..\..\mods\ta3d\*.sh
+  File /r ..\..\mods\ta3d\*.txt
+  File /r ..\..\mods\ta3d\TODO
+  SetOutPath "$INSTDIR\Mods\TA3D\Anims\"
+  SetOutPath "$INSTDIR\Mods\TA3D\Download\"
+  SetOutPath "$INSTDIR\Mods\TA3D\Features\"
+  SetOutPath "$INSTDIR\Mods\TA3D\Features\acid\"
+  SetOutPath "$INSTDIR\Mods\TA3D\Features\all\"
+  SetOutPath "$INSTDIR\Mods\TA3D\Features\archi\"
+  SetOutPath "$INSTDIR\Mods\TA3D\Features\corpses\"
+  SetOutPath "$INSTDIR\Mods\TA3D\Features\crystal\"
+  SetOutPath "$INSTDIR\Mods\TA3D\Features\desert\"
+  SetOutPath "$INSTDIR\Mods\TA3D\Features\green\"
+  SetOutPath "$INSTDIR\Mods\TA3D\Features\ice\"
+  SetOutPath "$INSTDIR\Mods\TA3D\Features\lava\"
+  SetOutPath "$INSTDIR\Mods\TA3D\Features\lush\"
+  SetOutPath "$INSTDIR\Mods\TA3D\Features\mars\"
+  SetOutPath "$INSTDIR\Mods\TA3D\Features\metal\"
+  SetOutPath "$INSTDIR\Mods\TA3D\Features\moon\"
+  SetOutPath "$INSTDIR\Mods\TA3D\Features\slate\"
+  SetOutPath "$INSTDIR\Mods\TA3D\Features\urban\"
+  SetOutPath "$INSTDIR\Mods\TA3D\Features\water\"
+  SetOutPath "$INSTDIR\Mods\TA3D\Features\wetdesert\"
+  SetOutPath "$INSTDIR\Mods\TA3D\Features\worlds\"
+  
+  SetOutPath "$INSTDIR\Mods\TA3D\GameData\"
+  SetOutPath "$INSTDIR\Mods\TA3D\Guis\"
+  SetOutPath "$INSTDIR\Mods\TA3D\Objects3D\"
+  File /r ..\..\mods\ta3d\objects3d\*.3dm
+  File /r ..\..\mods\ta3d\objects3d\*.3do
+  SetOutPath "$INSTDIR\Mods\TA3D\Scripts\"
+  SetOutPath "$INSTDIR\Mods\TA3D\Sounds\"
+  SetOutPath "$INSTDIR\Mods\TA3D\Textures\"
+  SetOutPath "$INSTDIR\Mods\TA3D\UnitPics\"
+  SetOutPath "$INSTDIR\Mods\TA3D\Units\"
+  SetOutPath "$INSTDIR\Mods\TA3D\Weapons\"
 
 ${MementoSectionEnd}
 
@@ -240,7 +318,7 @@ ${MementoSection} "Desktop Shortcut" SecDekstopShortcuts
   DetailPrint "Installing Desktop shortcut..."
   SetDetailsPrint listonly
   
-CreateShortCut "$DESKTOP\TA3D.lnk" "$INSTDIR\${TA3D_BIN}"
+CreateShortCut "$DESKTOP\TA3D.lnk" "$INSTDIR\ta3d.bat"
 
 ${MementoSectionEnd}
 
@@ -257,7 +335,7 @@ ${MementoSection} "Menu Shortcuts" SecMenuShortcuts
   CreateShortCut "$SMPROGRAMS\TA3D\TA3D.lnk" "$INSTDIR\${TA3D_BIN}"
   CreateShortCut "$SMPROGRAMS\TA3D\3DMEditor.lnk" "$INSTDIR\3dmeditor.exe"
   CreateShortCut "$SMPROGRAMS\TA3D\Documentation\User Guide.lnk" "$INSTDIR\readme.html"
-  CreateShortCut "$SMPROGRAMS\TA3D\Documentation\User Guide (Français).lnk" "$INSTDIR\readme-fr.html"
+  CreateShortCut "$SMPROGRAMS\TA3D\Documentation\User Guide (Francais).lnk" "$INSTDIR\readme-fr.html"
 
 ${MementoSectionEnd}
 
