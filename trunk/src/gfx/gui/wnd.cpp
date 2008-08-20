@@ -1171,7 +1171,7 @@ namespace TA3D
 
     void WND::load_gui(const String& filename, TA3D::UTILS::cHashTable< std::vector< TA3D::Interfaces::GfxTexture >* > &gui_hashtable)
     {
-        if (g_useTextureCompression)
+        if (g_useTextureCompression && lp_CONFIG->use_texture_compression)
             allegro_gl_set_texture_format(GL_COMPRESSED_RGB_ARB);
         else
             allegro_gl_set_texture_format(GL_RGB8);

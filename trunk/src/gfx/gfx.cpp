@@ -95,7 +95,7 @@ namespace TA3D
         // Install OpenGL extensions
         installOpenGLExtensions();
 
-        if(g_useTextureCompression) // Try to enabled the Texture compression
+        if(g_useTextureCompression && lp_CONFIG->use_texture_compression) // Try to enabled the Texture compression
             allegro_gl_set_texture_format(GL_COMPRESSED_RGB_ARB);
         else
             allegro_gl_set_texture_format(GL_RGB8); 
@@ -744,7 +744,7 @@ namespace TA3D
         }
         if (texFormat == 0)
         {
-            if (g_useTextureCompression)
+            if (g_useTextureCompression && lp_CONFIG->use_texture_compression)
                 allegro_gl_set_texture_format( with_alpha ? GL_COMPRESSED_RGBA_ARB : GL_COMPRESSED_RGB_ARB );
             else
                 allegro_gl_set_texture_format( with_alpha ? GL_RGBA8 : GL_RGB8 );
@@ -802,7 +802,7 @@ namespace TA3D
                 }
             }
         }
-        if(g_useTextureCompression)
+        if(g_useTextureCompression && lp_CONFIG->use_texture_compression)
             allegro_gl_set_texture_format( with_alpha ? GL_COMPRESSED_RGBA_ARB : GL_COMPRESSED_RGB_ARB );
         else
             allegro_gl_set_texture_format( with_alpha ? GL_RGBA8 : GL_RGB8 );
@@ -817,7 +817,7 @@ namespace TA3D
 
     GLuint GFX::load_texture_from_cache( String file, byte filter_type, uint32 *width, uint32 *height, bool clamp )
     {
-        if(ati_workaround || !lp_CONFIG->use_texture_cache)
+        if(ati_workaround || !lp_CONFIG->use_texture_cache || !lp_CONFIG->use_texture_compression)
             return 0;
 
         file = TA3D::Paths::Caches + file;
@@ -908,7 +908,7 @@ namespace TA3D
 
     void GFX::save_texture_to_cache( String file, GLuint tex, uint32 width, uint32 height )
     {
-        if(ati_workaround || !lp_CONFIG->use_texture_cache)
+        if(ati_workaround || !lp_CONFIG->use_texture_cache || !lp_CONFIG->use_texture_compression)
             return;
 
         file = TA3D::Paths::Caches + file;
@@ -986,7 +986,7 @@ namespace TA3D
                 bmp->line[y][(x<<2)+3]=alpha->line[y][x];
         }
         allegro_gl_use_alpha_channel(true);
-        if(g_useTextureCompression)
+        if(g_useTextureCompression && lp_CONFIG->use_texture_compression)
             allegro_gl_set_texture_format(GL_COMPRESSED_RGBA_ARB);
         else
             allegro_gl_set_texture_format(GL_RGBA8);

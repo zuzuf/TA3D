@@ -1001,7 +1001,7 @@ namespace TA3D
         BITMAP* bmp = create_bitmap_ex(32, mx, my);
         if (bmp != NULL && mx != 0 && my != 0)
         {
-            if (g_useTextureCompression)
+            if (g_useTextureCompression && lp_CONFIG->use_texture_compression)
                 allegro_gl_set_texture_format(GL_COMPRESSED_RGB_ARB);
             else
                 allegro_gl_set_texture_format(GL_RGB8);
@@ -1357,7 +1357,7 @@ namespace TA3D
                 points[i].y = points[i].y > 0.0f ? points[i].y * max_h / maxh : 0.0f;
         }
 
-        if (g_useTextureCompression)
+        if (g_useTextureCompression && lp_CONFIG->use_texture_compression)
             allegro_gl_set_texture_format(GL_COMPRESSED_RGBA_ARB);
         else
             allegro_gl_set_texture_format(GL_RGB5_A1);

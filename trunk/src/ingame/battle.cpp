@@ -317,7 +317,7 @@ namespace TA3D
 
             glBindFramebufferEXT(GL_FRAMEBUFFER_EXT,0);
 
-            if (g_useTextureCompression)			// Active la compression de texture
+            if (g_useTextureCompression && lp_CONFIG->use_texture_compression)			// Active la compression de texture
                 allegro_gl_set_texture_format(GL_COMPRESSED_RGB_ARB);
             else
                 allegro_gl_set_texture_format(GL_RGB8);

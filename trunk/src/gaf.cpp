@@ -127,7 +127,7 @@ namespace TA3D
                         for (int x = 0; x < img->w && !with_alpha; ++x)
                             with_alpha |= img->line[y][(x << 2) + 3] != 255;
                     }
-                    if (g_useTextureCompression)
+                    if (g_useTextureCompression && lp_CONFIG->use_texture_compression)
                         allegro_gl_set_texture_format(with_alpha ? GL_COMPRESSED_RGBA_ARB : GL_COMPRESSED_RGB_ARB);
                     else
                         allegro_gl_set_texture_format(with_alpha ? GL_RGBA8 : GL_RGB8);
@@ -184,7 +184,7 @@ namespace TA3D
                         for (int x = 0; x < img->w && !with_alpha; ++x)
                             with_alpha |= img->line[y][(x << 2) + 3] != 255;
                     }
-                    if (g_useTextureCompression)
+                    if (g_useTextureCompression && lp_CONFIG->use_texture_compression)
                         allegro_gl_set_texture_format(with_alpha ? GL_COMPRESSED_RGBA_ARB : GL_COMPRESSED_RGB_ARB);
                     else
                         allegro_gl_set_texture_format(with_alpha ? GL_RGBA8 : GL_RGB8);
@@ -681,7 +681,7 @@ namespace TA3D
                 blit(bmp[i], tmp, 0,0,0,0, tmp->w,tmp->h);
                 destroy_bitmap(bmp[i]);
                 bmp[i] = tmp;
-                if (g_useTextureCompression && COMPRESSED)
+                if (g_useTextureCompression && COMPRESSED && lp_CONFIG->use_texture_compression)
                     allegro_gl_set_texture_format(GL_COMPRESSED_RGBA_ARB);
                 else
                     allegro_gl_set_texture_format(GL_RGBA8);

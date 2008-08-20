@@ -192,7 +192,7 @@ namespace TA3D
             --(map->mini_h);
         ++(map->mini_w);
         ++(map->mini_h);
-        if(g_useTextureCompression)
+        if(g_useTextureCompression && lp_CONFIG->use_texture_compression)
             allegro_gl_set_texture_format(GL_COMPRESSED_RGB_ARB);
         else
             allegro_gl_set_texture_format(GL_RGB8);
@@ -311,7 +311,7 @@ namespace TA3D
 
         LOG_DEBUG("MAP: creating textures");
 
-        if(g_useTextureCompression)
+        if(g_useTextureCompression && lp_CONFIG->use_texture_compression)
             allegro_gl_set_texture_format(GL_COMPRESSED_RGB_ARB);
         else
             allegro_gl_set_texture_format(GL_RGB8);
@@ -690,7 +690,7 @@ namespace TA3D
 	    TNTMINIMAP *minimap = (TNTMINIMAP*) &data[header->PTRminimap];
 	    BITMAP		*bitmap = load_tnt_minimap_bmp(minimap, &sw, &sh);
 
-	    if(g_useTextureCompression)
+	    if(g_useTextureCompression && lp_CONFIG->use_texture_compression)
 		    allegro_gl_set_texture_format(GL_COMPRESSED_RGB_ARB);
 	    else
 		    allegro_gl_set_texture_format(GL_RGB8);
@@ -707,7 +707,7 @@ namespace TA3D
         if( bitmap == NULL )    return 0;
 
 	    // Convert to a GL texture
-	    if(g_useTextureCompression)
+	    if(g_useTextureCompression && lp_CONFIG->use_texture_compression)
 		    allegro_gl_set_texture_format(GL_COMPRESSED_RGB_ARB);
 	    else
 		    allegro_gl_set_texture_format(GL_RGB8);
