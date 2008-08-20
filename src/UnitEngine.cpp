@@ -4194,8 +4194,6 @@ namespace TA3D
                     break;
                 case MISSION_STANDBY:
                 case MISSION_VTOL_STANDBY:
-                    if (idx==1997)
-                    LOG_DEBUG("[MISSION_STANDBY] (" << idx << ") " << mission->data);
                     if (jump_commands)	break;
                     if (mission->data>5)
                     {
@@ -4331,8 +4329,6 @@ namespace TA3D
                         next_mission();
                     break;
                 case MISSION_STOP:											// Arrête tout ce qui était en cours / stop everything running
-                    if (idx==1997)
-                    LOG_DEBUG("[MISSION_STOP] (" << idx << ") " << mission->data);
                     while (mission->next
                         && (mission->next->mission == MISSION_STOP
                             || mission->next->mission == MISSION_STANDBY
