@@ -1133,7 +1133,7 @@ namespace TA3D
             LOG_ERROR("Unable to load `"<< (ta3dSideData.guis_dir + player_side + "MAIN.GUI") << "`");
 
         // set_color_depth(32);
-        if (g_useTextureCompression)
+        if (g_useTextureCompression && lp_CONFIG->use_texture_compression)
             allegro_gl_set_texture_format(GL_COMPRESSED_RGB_ARB);
         else
             allegro_gl_set_texture_format(GL_RGB8);
@@ -1332,7 +1332,7 @@ namespace TA3D
                     if (unit_manager.unit_type[unit_manager.nb_unit - 1]->unitpic)
                     {
                         allegro_gl_use_alpha_channel(false);
-                        if (g_useTextureCompression)
+                        if (g_useTextureCompression && lp_CONFIG->use_texture_compression)
                             allegro_gl_set_texture_format(GL_COMPRESSED_RGB_ARB);
                         else
                             allegro_gl_set_texture_format(GL_RGB8);

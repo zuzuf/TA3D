@@ -1,3 +1,7 @@
+[Use texture compression]
+{
+    FRENCH=comprimer les textures;
+}
 [Low definition map]
 {
     FRENCH=carte basse définition;

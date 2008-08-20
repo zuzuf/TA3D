@@ -378,7 +378,7 @@ namespace TA3D
 
         } while (pos[0]=='[' && nb<10000 && pos<limit);
 
-        if (g_useTextureCompression)
+        if (g_useTextureCompression && lp_CONFIG->use_texture_compression)
             allegro_gl_set_texture_format(GL_COMPRESSED_RGBA_ARB);
         else
             allegro_gl_set_texture_format(GL_RGBA8);

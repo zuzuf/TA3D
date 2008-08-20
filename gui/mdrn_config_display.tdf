@@ -8,7 +8,7 @@
 	height=720;
 	draw borders=false;
 	show title=false;
-	number of objects=33;
+	number of objects=35;
 	hidden=false;
 	lock=true;
 	color=0x00000000;			// Fully transparent so we can see the AREA background
@@ -357,6 +357,26 @@
 		x1=690;
 		y1=575;
 		value=0;
+		size=1.6;
+	}
+	[object33]		// Option "use texture compression"
+	{
+		name=t_use_texture_compression;
+		type=TEXT;
+		caption=Use texture compression;
+		x1=0;
+		y1=610;
+		value=0xFFFFFFFF;
+		size=2;
+	}
+	[object34]		// Option "use texture compression"
+	{
+		name=use_texture_compression;
+		type=OPTIONC;
+		caption=;
+		x1=690;
+		y1=610;
+		value=1;
 		size=1.6;
 	}
 }

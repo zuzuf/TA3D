@@ -99,6 +99,7 @@ namespace TA3D
 		String	skin_name;					// The skin used ( empty means default )
 		
 		bool	use_texture_cache;			// Use the texture cache ? (default : disabled because on some systems it doesn't work)
+		bool	use_texture_compression;	// Use texture compression capabilities of GFX hardware ? (default : enabled because it greatly reduces video memory requirements)
 
 		String	net_server;					// The server that monitor the game server list
 		bool    render_sky;                 // Render the sky ? (on low-end hardware without accelerated T&L it may help to deactivate this)
@@ -115,6 +116,8 @@ namespace TA3D
 
 		TA3DCONFIG()
 		{
+		    use_texture_compression = true;
+
 		    low_definition_map = false;
 
 		    render_sky = true;

@@ -153,6 +153,7 @@ void config_menu(void)
         if (format( "%d", (int)lp_CONFIG->fps_limit ) == *i )
             config_area.set_caption("*.fps_limit", *i);
     }
+    config_area.set_state("*.use_texture_compression", lp_CONFIG->use_texture_compression);
     config_area.set_state("*.low_definition_map", lp_CONFIG->low_definition_map);
     config_area.set_state("*.sky", lp_CONFIG->render_sky);
     config_area.set_state("*.wireframe", lp_CONFIG->wireframe);
@@ -187,7 +188,7 @@ void config_menu(void)
         for( int i = 0 ; i < nb_res ; i++ )
             obj->Text.push_back( format( "%dx%dx%d", res_width[ i ], res_height[ i ], res_bpp[ i ] ));
     }
-    if (config_area.get_object("*.shadow_quality") )
+    if (config_area.get_object("*.shadow_quality"))
         config_area.set_caption( "*.shadow_quality", config_area.get_object("*.shadow_quality")->Text[1+Math::Min((lp_CONFIG->shadow_quality-1) / 3, 2)]);
     config_area.set_caption("*.timefactor", format( "%d", (int)lp_CONFIG->timefactor ));
     switch( lp_CONFIG->fsaa )
@@ -381,6 +382,7 @@ void config_menu(void)
             }
         }
 
+        lp_CONFIG->use_texture_compression = config_area.get_state("*.use_texture_compression");
         lp_CONFIG->low_definition_map = config_area.get_state("*.low_definition_map");
         lp_CONFIG->render_sky = config_area.get_state( "*.sky");
         lp_CONFIG->wireframe = config_area.get_state( "*.wireframe");
