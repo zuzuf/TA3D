@@ -4,8 +4,8 @@
 
 # I don't know any simple way to get the install dir, so let the user tell it
 
-#CC = i586-mingw32msvc-gcc
-#AR = i586-mingw32msvc-ar crus # create, replace, update, symbols
+CC = mingw32-gcc
+AR = mingw32-ar crus # create, replace, update, symbols
 
 INCLUDE = -I../include
 OUTPUT = NL.dll
@@ -35,15 +35,15 @@ all: $(OBJECTS)
 	$(AR) $(STATIC) $(OBJECTS)	
 	
 install:	
-	cp $(STATIC) $(LIBDIR)		
-	cp ../include/nl.h $(INCDIR)/nl.h	
+	copy $(STATIC) $(LIBDIR)		
+	copy ../include/nl.h $(INCDIR)/nl.h	
 	
 uninstall:	
-	rm -f $(LIBDIR)/$(STATIC)
-	rm -f $(INCDIR)/nl.h	
+	del /f $(LIBDIR)/$(STATIC)
+	del /f $(INCDIR)/nl.h	
 	
 clean:
-	rm -f $(OBJECTS) $(STATIC)	
+	del /f $(OBJECTS) $(STATIC)	
 	
 else
 
@@ -52,17 +52,17 @@ all: $(OBJECTS)
 	$(CC) -o $(OUTPUT) $(OBJECTS) $(LIBFLAGS) $(CFLAGS) -Wl,--out-implib=$(IMPORT)
 		
 install:
-	cp $(OUTPUT) $(SYSDIR)
-	cp $(IMPORT) $(LIBDIR)		
-	cp ../include/nl.h $(INCDIR)/nl.h		
+	copy $(OUTPUT) $(SYSDIR)
+	copy $(IMPORT) $(LIBDIR)		
+	copy ../include/nl.h $(INCDIR)/nl.h		
 	
 uninstall:
-	rm -f $(SYSDIR)/$(OUTPUT)	
-	rm -f $(LIBDIR)/$(IMPORT)
-	rm -f $(INCDIR)/nl.h	
+	del /f $(SYSDIR)/$(OUTPUT)	
+	del /f $(LIBDIR)/$(IMPORT)
+	del /f $(INCDIR)/nl.h	
 	
 clean:
-	rm -f $(OBJECTS) $(OUTPUT) $(IMPORT)	
+	del /f $(OBJECTS) $(OUTPUT) $(IMPORT)	
 		
 endif
 	

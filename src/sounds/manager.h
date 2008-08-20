@@ -40,10 +40,10 @@
 # endif
 
 # ifdef TA3D_PLATFORM_WINDOWS
-#   include "../tools/win32/fmod/fmod.hpp"
-#   include "../tools/win32/fmod/fmod_errors.h"
+#   include <fmod/fmod.hpp>
+#   include <fmod/fmod_errors.h>
 #   ifdef TA3D_PLATFORM_MSVC
-#      pragma comment(lib, "../tools/win32/libs/fmodex_vc.lib")
+#      pragma comment(lib, "../tools/win32/mingw32/libs/fmodex_vc.lib")
 #   endif
 #   define TA3D_FMOD_INCLUDED
 # endif

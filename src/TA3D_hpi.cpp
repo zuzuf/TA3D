@@ -9,13 +9,11 @@
 #include "misc/paths.h"
 #include "logs/logs.h"
 
-
-#if defined TA3D_PLATFORM_WINDOWS
-#include "tools/win32/include/zlib.h"
-#pragma comment(lib, "tools/win32/libs/zlib.lib")
-#else
 #include <zlib.h>
+#if defined TA3D_PLATFORM_WINDOWS
+#pragma comment(lib, "tools/win32/mingw32/libs/zlib.lib")
 #endif
+
 
 
 namespace TA3D
