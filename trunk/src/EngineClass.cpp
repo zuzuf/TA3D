@@ -1538,7 +1538,7 @@ namespace TA3D
                 glVertexPointer( 3, GL_FLOAT, 0, low_vtx);
             glTexCoordPointer(2, GL_FLOAT, 0, low_tcoord);
             glBindTexture(GL_TEXTURE_2D,low_tex);
-            glDrawElements(GL_TRIANGLE_STRIP, low_nb_idx,GL_UNSIGNED_INT,low_index);		// draw this map
+            glDrawRangeElements(GL_TRIANGLE_STRIP, 0, low_w*low_h-1, low_nb_idx,GL_UNSIGNED_INT,low_index);		// draw this map
         }
 
         if (cam->rpos.y >= 900.0f)
@@ -1840,7 +1840,7 @@ namespace TA3D
                     if (bloc[i].tex != old_tex || buf_size>=500 || ox + 1 < x)
                     {
                         if (buf_size > 0)
-                            glDrawElements(GL_TRIANGLE_STRIP, index_size,GL_UNSIGNED_SHORT,buf_i);		// dessine le tout
+                            glDrawRangeElements(GL_TRIANGLE_STRIP, 0, buf_size*9, index_size,GL_UNSIGNED_SHORT,buf_i);		// dessine le tout
                         buf_size = 0;
                         index_size = 0;
                         was_flat = false;
@@ -2044,7 +2044,7 @@ namespace TA3D
                 }
                 if (buf_size > 0)
                 {
-                    glDrawElements(GL_TRIANGLE_STRIP, index_size,GL_UNSIGNED_SHORT,buf_i);		// dessine le tout
+                    glDrawRangeElements(GL_TRIANGLE_STRIP, 0, buf_size*9, index_size,GL_UNSIGNED_SHORT,buf_i);		// dessine le tout
                     was_flat = false;
                     index_size=0;
                     buf_size=0;
@@ -2275,7 +2275,7 @@ namespace TA3D
         glClientActiveTextureARB(GL_TEXTURE0_ARB);
         glEnableClientState(GL_TEXTURE_COORD_ARRAY);
         glTexCoordPointer(2, GL_FLOAT, 0, texcoord);
-        glDrawElements(GL_TRIANGLE_STRIP, nb_idx,GL_UNSIGNED_SHORT,index);		// dessine le tout
+        glDrawRangeElements(GL_TRIANGLE_STRIP, 0, nb_vtx-1, nb_idx,GL_UNSIGNED_SHORT,index);		// dessine le tout
     }
 
 
