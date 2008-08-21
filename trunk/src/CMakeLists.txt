@@ -217,3 +217,7 @@ IF(WIN32)
     target_link_libraries(${3DMEDITOR_BIN} agl lua gdi32 alleg opengl32 glu32)
     target_link_libraries(${TA3D_BIN} agl lua gdi32 alleg opengl32 glu32 NL)
 ENDIF(WIN32)
+
+install(TARGETS ${TA3D_BIN} RUNTIME DESTINATION ${TA3D_BINARIES_INSTALL_PATH})
+install(TARGETS ${3DMEDITOR_BIN} RUNTIME DESTINATION ${TA3D_BINARIES_INSTALL_PATH})
+
