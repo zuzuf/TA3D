@@ -77,7 +77,7 @@ namespace
     {
         if( argc >= 3 )
         {
-            HPIManager = new cHPIHandler("");
+            HPIManager = new cHPIHandler();
             String::List file_list;
             String ext = (argc > 2) ? argv[2] : "";
             HPIManager->getFilelist(ext, file_list);
@@ -99,7 +99,7 @@ namespace
     {
         if(argc >= 4)
         {
-            HPIManager = new cHPIHandler("");
+            HPIManager = new cHPIHandler();
             TA3D::VARS::pal = new RGB[256];
             TA3D::UTILS::HPI::load_palette(pal);
             set_palette(pal);      // Activate the palette
@@ -127,7 +127,7 @@ namespace
     {
         if(argc >= 4)
         {
-            HPIManager = new cHPIHandler("");
+            HPIManager = new cHPIHandler();
             MAP_OTA map_data;
             map_data.load( argv[2] );
             std::ofstream   m_File;
@@ -164,7 +164,7 @@ namespace
     {
         if(argc >= 3)
         {
-            HPIManager = new cHPIHandler("");
+            HPIManager = new cHPIHandler();
             std::ofstream m_File;
             m_File.open( argv[2], std::ios::out | std::ios::trunc );
 
@@ -198,7 +198,7 @@ namespace
     {
         if(argc >= 3)
         {
-            HPIManager = new cHPIHandler("");
+            HPIManager = new cHPIHandler();
             uint32 file_size32 = 0;
             byte *data = HPIManager->PullFromHPI(argv[2], &file_size32);
 
@@ -232,7 +232,7 @@ namespace
     {
         if(argc >= 3) 
         {
-            HPIManager = new cHPIHandler("");
+            HPIManager = new cHPIHandler();
             String::List file_list;
             String ext = argc > 2 ? argv[2] : "";
             HPIManager->getFilelist(ext, file_list);
@@ -273,7 +273,7 @@ namespace
     {
         if(argc >= 3)
         {
-            HPIManager=new cHPIHandler("");
+            HPIManager=new cHPIHandler();
             uint32 file_size32 = 0;
             byte *data = HPIManager->PullFromHPI(argv[2],&file_size32);
 

@@ -76,7 +76,9 @@ namespace HPI
         //! \name Constructor & Destructor
         //@{
         // constructor:
-        cHPIHandler(const String& path);
+        cHPIHandler();
+        cHPIHandler(const String &path);
+
         //! Destructor 
         ~cHPIHandler();
         //@}
@@ -380,7 +382,7 @@ namespace HPI
         //! used when building dir structurs
         String m_cDir;
         //! used when looking for files in the real file system
-        String m_Path;
+        String::Vector m_Path;
         //!
         TA3D::UTILS::clpHashTable< HPIITEM * > *m_Archive;
 

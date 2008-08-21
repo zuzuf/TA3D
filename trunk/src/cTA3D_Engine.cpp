@@ -94,7 +94,7 @@ namespace TA3D
 			throw( "jpgalleg_init() yielded unexpected result." );
 
 		// Creating HPI Manager
-		TA3D::VARS::HPIManager = new TA3D::UTILS::HPI::cHPIHandler( GetClientPath() );
+		TA3D::VARS::HPIManager = new TA3D::UTILS::HPI::cHPIHandler();
 
 		// Creating translation manager
         I18N::Instance()->loadFromFile("gamedata\\translate.tdf", true, true);   

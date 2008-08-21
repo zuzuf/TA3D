@@ -29,7 +29,12 @@ namespace Resources
     void initForWindows()
     {
         AddSearchPath(Paths::ApplicationRoot + "resources\\");
+#ifdef TA3D_OVERRIDE_PATHS
+        AddSearchPath(TA3D_RESOURCES_PATH + "resources\\");
+        AddSearchPath(TA3D_RESOURCES_PATH);
+#else
         AddSearchPath(Paths::LocalData + "ta3d\\resources\\");
+#endif
     }
 
     # else // ifdef TA3D_PLATFORM_WINDOWS
@@ -41,10 +46,17 @@ namespace Resources
         home += "/.ta3d/";
 
         AddSearchPath(home + "resources/");
+#ifdef TA3D_OVERRIDE_PATHS
+        AddSearchPath(TA3D_RESOURCES_PATH);
+        AddSearchPath( String(TA3D_RESOURCES_PATH) + "resources/" );
+        AddSearchPath(Paths::ApplicationRoot + "resources/");
+#else
         AddSearchPath("/usr/local/games/ta3d/");
         AddSearchPath("/usr/local/share/ta3d/");
         AddSearchPath("/opt/local/share/ta3d/");
+        AddSearchPath(Paths::ApplicationRoot);
         AddSearchPath(Paths::ApplicationRoot + "resources/");
+#endif
     }
 
     # else // ifndef TA3D_PLATFORM_DARWIN
@@ -114,6 +126,12 @@ namespace Resources
         return false;
     }
 
+
+    String::Vector GetPaths()
+    {
+        MutexLocker locker(gResourcesMutex);
+        return pResourcesFolders;
+    }
 
  
     bool Glob(String::Vector& out, const String& pattern, const bool emptyListBefore)

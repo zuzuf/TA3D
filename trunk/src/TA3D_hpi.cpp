@@ -8,6 +8,7 @@
 #include "TA3D_NameSpace.h"
 #include "misc/paths.h"
 #include "logs/logs.h"
+#include "misc/resources.h"
 
 #include <zlib.h>
 #if defined TA3D_PLATFORM_WINDOWS
@@ -456,7 +457,6 @@ namespace HPI
 
     void cHPIHandler::SearchDirForArchives(const String& path)
     {
-        m_Path = path;
         schar ext[4][6] = { "*.ufo", "*.hpi", "*.ccx", "*.gp3" };
 
         for (short i = 0; i < 4; ++i)
@@ -471,10 +471,27 @@ namespace HPI
 
 
     // constructor:
-    cHPIHandler::cHPIHandler(const String& path)
+    cHPIHandler::cHPIHandler()
     {
         m_Archive = new TA3D::UTILS::clpHashTable<HPIITEM*>(16384, true);
         m_file_cache = new std::list<CACHEFILEDATA>;
+
+        m_Path = TA3D::Resources::GetPaths();
+        if (!m_Path.empty())
+        {
+            for (String::Vector::iterator i = m_Path.begin(); i != m_Path.end(); ++i)
+                SearchDirForArchives(*i);
+        }
+        else
+            SearchDirForArchives("");
+    }
+
+    // constructor used by the installer
+    cHPIHandler::cHPIHandler(const String &path)
+    {
+        m_Archive = new TA3D::UTILS::clpHashTable<HPIITEM*>(16384, true);
+        m_file_cache = new std::list<CACHEFILEDATA>;
+
         SearchDirForArchives(path);
     }
 
@@ -626,48 +643,52 @@ namespace HPI
     byte *cHPIHandler::PullFromHPI(const String& filename, uint32* fileLength)
     {
         String UNIX_filename;
-        UNIX_filename << m_Path << filename;
-        UNIX_filename.convertAntiSlashesIntoSlashes();
-
-        CACHEFILEDATA *cache_result = IsInCache(UNIX_filename); // Look for it in the cache
-        if (cache_result)
-        {
-            byte* data = new byte[cache_result->length + 1];
-            data[cache_result->length] = 0;                     // Null terminated buffer
-            memcpy(data, cache_result->data, cache_result->length);
-            if (fileLength)
-                *fileLength = cache_result->length;
-            return data;
-        }
-
         uint32	FileSize;
-
-        UNIX_filename = m_Path + TA3D_CURRENT_MOD + filename;
-        UNIX_filename.convertAntiSlashesIntoSlashes();
-
-        if (exists(UNIX_filename.c_str())) // Current mod has priority
+        
+        for( String::Vector::const_iterator cur_Path = m_Path.begin() ; m_Path.end() != cur_Path ; ++cur_Path)
         {
-            FILE* src = TA3D_OpenFile(UNIX_filename.c_str(), "rb");
-            if (src)
+            UNIX_filename.clear();
+            UNIX_filename << *cur_Path << filename;
+            UNIX_filename.convertAntiSlashesIntoSlashes();
+
+            CACHEFILEDATA *cache_result = IsInCache(UNIX_filename); // Look for it in the cache
+            if (cache_result)
             {
-                FileSize = FILE_SIZE( UNIX_filename.c_str() );
-                byte *data = new byte[ FileSize + 1 ];
-                fread( data, FileSize, 1, src );
-                data[ FileSize ] = 0;				// NULL terminated
-                fclose( src );
+                byte* data = new byte[cache_result->length + 1];
+                data[cache_result->length] = 0;                     // Null terminated buffer
+                memcpy(data, cache_result->data, cache_result->length);
                 if (fileLength)
-                    *fileLength = FileSize;
-                PutInCache( UNIX_filename, FileSize, data );
+                    *fileLength = cache_result->length;
                 return data;
             }
-        }
 
-        byte* data = IsInDiskCache( UNIX_filename, &FileSize );
-        if( data )
-        {
-            if (fileLength)
-                *fileLength = FileSize;
-            return data;
+            UNIX_filename = *cur_Path + TA3D_CURRENT_MOD + filename;
+            UNIX_filename.convertAntiSlashesIntoSlashes();
+
+            if (exists(UNIX_filename.c_str())) // Current mod has priority
+            {
+                FILE* src = TA3D_OpenFile(UNIX_filename.c_str(), "rb");
+                if (src)
+                {
+                    FileSize = FILE_SIZE( UNIX_filename.c_str() );
+                    byte *data = new byte[ FileSize + 1 ];
+                    fread( data, FileSize, 1, src );
+                    data[ FileSize ] = 0;				// NULL terminated
+                    fclose( src );
+                    if (fileLength)
+                        *fileLength = FileSize;
+                    PutInCache( UNIX_filename, FileSize, data );
+                    return data;
+                }
+            }
+
+            byte* data = IsInDiskCache( UNIX_filename, &FileSize );
+            if( data )
+            {
+                if (fileLength)
+                    *fileLength = FileSize;
+                return data;
+            }
         }
 
 
@@ -681,33 +702,36 @@ namespace HPI
             return data;
         }
 
-        UNIX_filename = m_Path + filename;
-        UNIX_filename.convertAntiSlashesIntoSlashes();
-
-        if (exists(UNIX_filename.c_str()))
+        for( String::Vector::const_iterator cur_Path = m_Path.begin() ; m_Path.end() != cur_Path ; ++cur_Path)
         {
-            FILE* src = TA3D_OpenFile(UNIX_filename.c_str(), "rb");
-            if( src )
+            UNIX_filename = *cur_Path + filename;
+            UNIX_filename.convertAntiSlashesIntoSlashes();
+
+            if (exists(UNIX_filename.c_str()))
             {
-                FileSize = FILE_SIZE( UNIX_filename.c_str() );
-                byte *data = new byte[ FileSize + 1 ];
-                fread( data, FileSize, 1, src );
-                data[FileSize] = 0;				// NULL terminated
-                fclose(src);
-                if (fileLength)
-                    *fileLength = FileSize;
-                PutInCache( UNIX_filename, FileSize, data );
-                return data;
+                FILE* src = TA3D_OpenFile(UNIX_filename.c_str(), "rb");
+                if( src )
+                {
+                    FileSize = FILE_SIZE( UNIX_filename.c_str() );
+                    byte *data = new byte[ FileSize + 1 ];
+                    fread( data, FileSize, 1, src );
+                    data[FileSize] = 0;				// NULL terminated
+                    fclose(src);
+                    if (fileLength)
+                        *fileLength = FileSize;
+                    PutInCache( UNIX_filename, FileSize, data );
+                    return data;
+                }
             }
-        }
 
-        {
-            byte* data = IsInDiskCache(UNIX_filename, &FileSize);
-            if (data)
             {
-                if (fileLength)
-                    *fileLength = FileSize;
-                return data;
+                byte* data = IsInDiskCache(UNIX_filename, &FileSize);
+                if (data)
+                {
+                    if (fileLength)
+                        *fileLength = FileSize;
+                    return data;
+                }
             }
         }
 
@@ -728,21 +752,25 @@ namespace HPI
     byte* cHPIHandler::PullFromHPI_zone(const String &filename, const uint32 start, const uint32 length, uint32 *fileLength)
     {
         String UNIX_filename;
-        UNIX_filename << m_Path << TA3D_CURRENT_MOD << filename;
-        UNIX_filename.convertAntiSlashesIntoSlashes();
-
-        if (exists(UNIX_filename.c_str())) // Current mod has priority
+        for( String::Vector::const_iterator cur_Path = m_Path.begin() ; m_Path.end() != cur_Path ; ++cur_Path)
         {
-            FILE* src = TA3D_OpenFile(UNIX_filename.c_str(), "rb");
-            if (src)
+            UNIX_filename.clear();
+            UNIX_filename << *cur_Path << TA3D_CURRENT_MOD << filename;
+            UNIX_filename.convertAntiSlashesIntoSlashes();
+
+            if (exists(UNIX_filename.c_str())) // Current mod has priority
             {
-                byte* data = new byte [FILE_SIZE(UNIX_filename.c_str()) + 1];
-                fread( data, FILE_SIZE( UNIX_filename.c_str() ), 1, src );
-                data[ FILE_SIZE( UNIX_filename.c_str() ) ] = 0;				// NULL terminated
-                fclose( src );
-                if (fileLength)
-                    *fileLength = FILE_SIZE(UNIX_filename.c_str());
-                return data;
+                FILE* src = TA3D_OpenFile(UNIX_filename.c_str(), "rb");
+                if (src)
+                {
+                    byte* data = new byte [FILE_SIZE(UNIX_filename.c_str()) + 1];
+                    fread( data, FILE_SIZE( UNIX_filename.c_str() ), 1, src );
+                    data[ FILE_SIZE( UNIX_filename.c_str() ) ] = 0;				// NULL terminated
+                    fclose( src );
+                    if (fileLength)
+                        *fileLength = FILE_SIZE(UNIX_filename.c_str());
+                    return data;
+                }
             }
         }
 
@@ -750,21 +778,24 @@ namespace HPI
         if (iterFind != NULL && iterFind->hfd->priority)				// Priority file!!
             return DecodeFileToMem_zone(iterFind, start, length, fileLength);
 
-        UNIX_filename = m_Path + filename;
-        UNIX_filename.convertAntiSlashesIntoSlashes();
-
-        if (exists(UNIX_filename.c_str()))
+        for( String::Vector::const_iterator cur_Path = m_Path.begin() ; m_Path.end() != cur_Path ; ++cur_Path)
         {
-            FILE *src = TA3D_OpenFile(UNIX_filename.c_str(), "rb");
-            if (src)
+            UNIX_filename = *cur_Path + filename;
+            UNIX_filename.convertAntiSlashesIntoSlashes();
+
+            if (exists(UNIX_filename.c_str()))
             {
-                byte* data = new byte[FILE_SIZE(UNIX_filename.c_str()) + 1];
-                fread(data, FILE_SIZE(UNIX_filename.c_str()), 1, src);
-                data[FILE_SIZE(UNIX_filename.c_str())] = 0; // NULL terminated
-                fclose(src);
-                if (fileLength)
-                    *fileLength = FILE_SIZE( UNIX_filename.c_str() );
-                return data;
+                FILE *src = TA3D_OpenFile(UNIX_filename.c_str(), "rb");
+                if (src)
+                {
+                    byte* data = new byte[FILE_SIZE(UNIX_filename.c_str()) + 1];
+                    fread(data, FILE_SIZE(UNIX_filename.c_str()), 1, src);
+                    data[FILE_SIZE(UNIX_filename.c_str())] = 0; // NULL terminated
+                    fclose(src);
+                    if (fileLength)
+                        *fileLength = FILE_SIZE( UNIX_filename.c_str() );
+                    return data;
+                }
             }
         }
 
@@ -776,16 +807,20 @@ namespace HPI
     bool cHPIHandler::Exists(const String& filename)
     {
         String UNIX_filename;
-        UNIX_filename << m_Path << TA3D_CURRENT_MOD << filename;
-        UNIX_filename.convertAntiSlashesIntoSlashes();
-        if (exists(UNIX_filename.c_str()))
-            return true;
+        for( String::Vector::const_iterator cur_Path = m_Path.begin() ; m_Path.end() != cur_Path ; ++cur_Path)
+        {
+            UNIX_filename.clear();
+            UNIX_filename << *cur_Path << TA3D_CURRENT_MOD << filename;
+            UNIX_filename.convertAntiSlashesIntoSlashes();
+            if (exists(UNIX_filename.c_str()))
+                return true;
 
-        UNIX_filename = m_Path + filename;
-        UNIX_filename.convertAntiSlashesIntoSlashes();
+            UNIX_filename = *cur_Path + filename;
+            UNIX_filename.convertAntiSlashesIntoSlashes();
 
-        if (exists(UNIX_filename.c_str()))
-            return true;
+            if (exists(UNIX_filename.c_str()))
+                return true;
+        }
 
         HPIITEM* iterFind = m_Archive->find(String::ToLower(filename));
         return (iterFind != NULL);
@@ -809,48 +844,18 @@ namespace HPI
         al_ffblk info;
 
         String UNIX_search;
-        UNIX_search << m_Path << s;
-        UNIX_search.convertAntiSlashesIntoSlashes();
-
-        if (al_findfirst(UNIX_search.c_str(), &info, FA_RDONLY | FA_ARCH ) == 0)
+        for( String::Vector::const_iterator cur_Path = m_Path.begin() ; m_Path.end() != cur_Path ; ++cur_Path)
         {
-            int last = -1;
-            for (uint16 i = 0 ; i < UNIX_search.size() ; ++i)
-            {
-                if (UNIX_search[i] == '/')
-                {
-                    UNIX_search[i] = '\\';
-                    last = i;
-                }
-            }
-            if (last >= 0)
-                UNIX_search.resize(last + 1);
-            else
-                UNIX_search = "";
-
-            do {
-                li.push_back(UNIX_search + info.name);
-            } while (al_findnext(&info) == 0);
-
-            al_findclose(&info);
-
-            li.sort();
-            li.unique();
-            list_size = li.size();
-        }
-
-        if (TA3D_CURRENT_MOD != "")
-        {
-            UNIX_search = m_Path;
-            UNIX_search << TA3D_CURRENT_MOD << s;
+            UNIX_search.clear();
+            UNIX_search << *cur_Path << s;
             UNIX_search.convertAntiSlashesIntoSlashes();
 
-            if (al_findfirst( UNIX_search.c_str(), &info, FA_RDONLY | FA_ARCH ) == 0)
+            if (al_findfirst(UNIX_search.c_str(), &info, FA_RDONLY | FA_ARCH ) == 0)
             {
                 int last = -1;
                 for (uint16 i = 0 ; i < UNIX_search.size() ; ++i)
                 {
-                    if( UNIX_search[i] == '/' )
+                    if (UNIX_search[i] == '/')
                     {
                         UNIX_search[i] = '\\';
                         last = i;
@@ -861,9 +866,8 @@ namespace HPI
                 else
                     UNIX_search = "";
 
-                do
-                {
-                    li.push_back (UNIX_search + info.name);
+                do {
+                    li.push_back(UNIX_search + info.name);
                 } while (al_findnext(&info) == 0);
 
                 al_findclose(&info);
@@ -871,6 +875,41 @@ namespace HPI
                 li.sort();
                 li.unique();
                 list_size = li.size();
+            }
+
+            if (TA3D_CURRENT_MOD != "")
+            {
+                UNIX_search = *cur_Path;
+                UNIX_search << TA3D_CURRENT_MOD << s;
+                UNIX_search.convertAntiSlashesIntoSlashes();
+
+                if (al_findfirst( UNIX_search.c_str(), &info, FA_RDONLY | FA_ARCH ) == 0)
+                {
+                    int last = -1;
+                    for (uint16 i = 0 ; i < UNIX_search.size() ; ++i)
+                    {
+                        if( UNIX_search[i] == '/' )
+                        {
+                            UNIX_search[i] = '\\';
+                            last = i;
+                        }
+                    }
+                    if (last >= 0)
+                        UNIX_search.resize(last + 1);
+                    else
+                        UNIX_search = "";
+
+                    do
+                    {
+                        li.push_back (UNIX_search + info.name);
+                    } while (al_findnext(&info) == 0);
+
+                    al_findclose(&info);
+
+                    li.sort();
+                    li.unique();
+                    list_size = li.size();
+                }
             }
         }
 

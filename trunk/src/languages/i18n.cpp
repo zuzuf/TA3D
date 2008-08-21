@@ -223,7 +223,7 @@ namespace TA3D
     bool I18N::loadFromFile(const String& filename, const bool emptyBefore, const bool inASCII)
     {
         String res;
-        if (!Resources::Find(filename, res) && !TA3D::VARS::HPIManager->Exists(filename))
+        if (!TA3D::VARS::HPIManager->Exists(filename))
         {
             LOG_WARNING(LOG_PREFIX_I18N << "Impossible to load translations from `"
                         << filename << "` (file not found)");
@@ -232,7 +232,7 @@ namespace TA3D
 
         pMutex.lock();
         // Load the file
-        bool r = pTranslations.loadFromFile(res, emptyBefore, inASCII);
+        bool r = pTranslations.loadFromFile(filename, emptyBefore, inASCII);
         pMutex.unlock();
 
         // Success
