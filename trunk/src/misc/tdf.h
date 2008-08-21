@@ -37,7 +37,7 @@ namespace TA3D
         ** \see loadFromFile()
         */
         explicit TDFParser(const String& filename, const bool caSensitive = false, const bool toUTF8 = false,
-                  const bool gadgetMode = false);
+                  const bool gadgetMode = false, const bool realFS = false);
 
         //! Destructor
         ~TDFParser();
@@ -62,7 +62,7 @@ namespace TA3D
         ** \param gadgetMode Mystic mode
         ** \return True if the operation succeeded, False otherwise
         */
-        bool loadFromFile(const String& filename, const bool clear = false, const bool toUTF8 = false, const bool gadgetMode = false);
+        bool loadFromFile(const String& filename, const bool clear = false, const bool toUTF8 = false, const bool gadgetMode = false, const bool realFS = false);
 
         /*!
         ** \brief Load data from a buffer

@@ -113,7 +113,7 @@ namespace Settings
     bool Load()
     {
         TDFParser cfgFile;
-        if (!cfgFile.loadFromFile(TA3D::Paths::ConfigFile))
+        if (!cfgFile.loadFromFile(TA3D::Paths::ConfigFile,false,false,false,true))      // Load this from real file system since it has nothing to do with game content
         {
             LOG_ERROR(LOG_PREFIX_SETTINGS << "Impossible to load the settings from `" << TA3D::Paths::ConfigFile << "`");
             return false;

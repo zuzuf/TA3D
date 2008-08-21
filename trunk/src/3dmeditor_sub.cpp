@@ -36,7 +36,6 @@
 #include "converters/obj.h"
 
 
-
 int cur_part=0;
 bool ClickOnExit=false;
 
@@ -949,10 +948,11 @@ void init()
 
     jpgalleg_init();
 
+    TA3D::VARS::HPIManager = new TA3D::UTILS::HPI::cHPIHandler(); // create hpi manager object.
+
     TA3D::VARS::gfx = new TA3D::GFX();       // Creates the gfx object
 
     I18N::LoadFromFile("3dmeditor.res");
-    TA3D::VARS::HPIManager = new TA3D::UTILS::HPI::cHPIHandler(); // create hpi manager object.
 
     set_window_title("3DMEditor - TA3D Project");
 
