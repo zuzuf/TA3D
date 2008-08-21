@@ -51,11 +51,11 @@ namespace TA3D
         pTable.initTable(4096);
     }
 
-    TDFParser::TDFParser(const String& filename, const bool caSensitive, const bool toUTF8, const bool gadgetMode)
+    TDFParser::TDFParser(const String& filename, const bool caSensitive, const bool toUTF8, const bool gadgetMode, const bool realFS)
         :pTableSize(4096), pTableIsEmpty(true), pIgnoreCase(!caSensitive)
     {
         pTable.initTable(4096);
-        loadFromFile(filename, true, toUTF8, gadgetMode);
+        loadFromFile(filename, true, toUTF8, gadgetMode, realFS);
     }
 
     TDFParser::~TDFParser()
@@ -70,11 +70,11 @@ namespace TA3D
     }
 
 
-    bool TDFParser::loadFromFile(const String& filename, const bool clear, const bool toUTF8, const bool gadgetMode)
+    bool TDFParser::loadFromFile(const String& filename, const bool clear, const bool toUTF8, const bool gadgetMode, const bool realFS)
     {
         uint64 size;
         char* data;
-        if (TA3D::VARS::HPIManager)
+        if (TA3D::VARS::HPIManager && !realFS)
         {
             uint32 ms;
             data = (char*)TA3D::VARS::HPIManager->PullFromHPI(filename, &ms);
