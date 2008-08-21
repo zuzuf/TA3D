@@ -391,7 +391,7 @@ namespace
                         FrameData.Unknown2 = 0;
                         FrameData.Compressed = 1;
 
-                        BITMAP *frame_img = load_bitmap( parser.pullAsString( format( "gadget%d.frame%d.filename", i + 1, e ) ).c_str(), NULL );
+                        BITMAP *frame_img = gfx->load_image( parser.pullAsString( format( "gadget%d.frame%d.filename", i + 1, e ) ) );
                         if( frame_img )
                         {
                             FrameData.Width = frame_img->w;

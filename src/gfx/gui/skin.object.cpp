@@ -49,7 +49,7 @@ namespace TA3D
 
     void SKIN_OBJECT::load(const String& filename, const String& prefix, TDFParser& parser, float borderSize)
     {
-        if (TA3D::Paths::Exists(filename))
+        if (HPIManager && HPIManager->Exists(filename))
         {
             tex = gfx->load_texture(filename, FILTER_LINEAR, &w, &h);
 

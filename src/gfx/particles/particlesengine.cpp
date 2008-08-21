@@ -45,7 +45,7 @@ namespace TA3D
         if (!filealpha.empty())
             bmp = GFX::LoadMaskedTextureToBmp(file, filealpha);		// Avec canal alpha séparé
         else
-            bmp = load_bitmap(file.c_str(), NULL);					// Avec canal alpha intégré ou Sans canal alpha
+            bmp = gfx->load_image(file);					// Avec canal alpha intégré ou Sans canal alpha
 
         gltex.push_back(gfx->make_texture(bmp));
 
@@ -814,7 +814,7 @@ namespace TA3D
         if (load)
         {
             partbmp = create_bitmap_ex(32,256,256);
-            BITMAP* bmp = load_bitmap("gfx/smoke.tga",NULL);
+            BITMAP* bmp = gfx->load_image("gfx/smoke.tga");
             // LoadMaskedTexBmp("gfx/smoke.tga","gfx/smokea.tga");
             gltex.push_back(gfx->make_texture(bmp));
             stretch_blit(bmp, partbmp, 0, 0, bmp->w, bmp->h, 0, 0, 64, 64);

@@ -140,12 +140,12 @@ namespace TA3D
     {
         // Load the texture (32Bits)
         set_color_depth(32);
-        BITMAP* bmp = load_bitmap(file.c_str(), NULL);
+        BITMAP* bmp = gfx->load_image(file);
         LOG_ASSERT(bmp != NULL);
 
         // Load the mask
         set_color_depth(8);
-        BITMAP* alpha = load_bitmap(filealpha.c_str(), NULL);
+        BITMAP* alpha = gfx->load_image(filealpha);
         LOG_ASSERT(alpha != NULL);
 
         // Apply the mask, pixel by pixel

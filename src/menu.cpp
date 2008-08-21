@@ -248,9 +248,10 @@ void config_menu(void)
 
         for (String::List::iterator i = skin_list.begin(); i != skin_list.end(); ++i)
         {
-            obj->Text.push_back( i->substr( 4, i->size() - 4 ));
-            if ("gui/" + String::ToLower(i->substr(4, i->size() - 4)) == String::ToLower(lp_CONFIG->skin_name))
-                obj->Text[0] = i->substr( 4, i->size() - 4);
+            String skin_name = Paths::ExtractFileName( *i, false );
+            obj->Text.push_back( skin_name );
+            if ("gui/" + String::ToLower(skin_name) == String::ToLower(lp_CONFIG->skin_name))
+                obj->Text[0] = skin_name;
         }
     }
 

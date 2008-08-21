@@ -52,7 +52,7 @@ void loading(const float percent, const String& msg)
     if(init)
     {
         messages.clear();
-        if( !lp_CONFIG->skin_name.empty() && TA3D::Paths::Exists(lp_CONFIG->skin_name)) // Loads a skin
+        if( !lp_CONFIG->skin_name.empty() && HPIManager->Exists(lp_CONFIG->skin_name)) // Loads a skin
         {
             SKIN *skin = new SKIN;
             skin->load_tdf( lp_CONFIG->skin_name );
