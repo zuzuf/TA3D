@@ -291,10 +291,10 @@ namespace TA3D
     public:
         short       nb_vtx;				// Nombre de points
         short       nb_prim;			// Nombre de primitives
-        char        *name;				// Nom de l'objet
-        OBJECT      *next;				// Objet suivant
-        OBJECT      *child;				// Objet fils
-        Vector3D    *points;			// Points composant l'objet
+        String      name;				// Nom de l'objet / Object name
+        OBJECT      *next;				// Objet suivant / Next object
+        OBJECT      *child;				// Objet fils / Child object
+        Vector3D    *points;			// Points composant l'objet / Vertices
         short       nb_p_index;			// Nombre d'indices de points
         short       nb_l_index;			// Nombre d'indices de lignes
         short       nb_t_index;			// Nombre d'indices de triangles
