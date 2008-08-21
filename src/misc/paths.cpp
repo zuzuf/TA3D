@@ -28,6 +28,7 @@ namespace Paths
     String Preferences = "";
     String ConfigFile = "";
     String Screenshots = "";
+    String Resources = "";
     # ifdef TA3D_PLATFORM_WINDOWS
     String LocalData = "";
     # endif
@@ -53,6 +54,9 @@ namespace Paths
      */
     std::string localAppData()
     {
+#ifdef TA3D_OVERRIDE_PATHS
+        return TA3D_RESOURCES_PATH;
+#else
         LPITEMIDLIST pidl;
         HRESULT hr = SHGetSpecialFolderLocation(NULL, CSIDL_LOCAL_APPDATA, &pidl);
         char szPath[_MAX_PATH];
@@ -62,12 +66,14 @@ namespace Paths
         pMalloc->Free(pidl);
         pMalloc->Release();
         return szPath;
+#endif
     }
 
     void initForWindows()
     {
         LocalData = localAppData();
         LocalData += Separator;
+        Resources = LocalData + "ta3d\\resources\\";
         Caches = LocalData + "ta3d\\cache\\";
         Savegames = LocalData + "ta3d\\savegames\\";
         Logs = LocalData + "ta3d\\logs\\";
@@ -83,6 +89,7 @@ namespace Paths
     {
         String home = getenv("HOME");
         home += "/.ta3d/";
+        Resources = home + "resources/";
         Caches = home + "cache/";
         Savegames = home + "savegames/";
         Logs = home + "log/";
@@ -98,6 +105,7 @@ namespace Paths
         String home = getenv("HOME");
         Caches = home + "/Library/Caches/ta3d/";
         Savegames = home + "/Library/Application Support/ta3d/savegames/";
+        Resources = home + "/Library/Application Support/ta3d/resources/";
         Logs = home + "/Library/Logs/ta3d/";
         
         Preferences = home + "/Library/Preferences/ta3d/";
@@ -243,8 +251,8 @@ namespace Paths
         else
             LOG_INFO("Opened the log file: `" << Paths::LogFile);
 
-        bool res = MakeDir(Caches) && MakeDir(Savegames)
-            && MakeDir(Logs) && MakeDir(Preferences) && MakeDir(Screenshots);
+        bool res = MakeDir(Caches) && MakeDir(Savegames) && MakeDir(Logs)
+            && MakeDir(Preferences) && MakeDir(Screenshots) && MakeDir(Resources);
         if (!res)
             LOG_CRITICAL("Aborting now.");
 

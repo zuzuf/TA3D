@@ -65,6 +65,14 @@ namespace Resources
     bool Glob(String::List& out, const String& pattern, const bool emptyListBefore = true);
 
 
+    /*!
+    ** \brief Return all resource paths
+    **
+    ** This method is thread safe
+    **
+    */
+    String::Vector GetPaths();
+
 
     /*!
     ** \brief Initialize default search paths

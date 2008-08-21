@@ -33,4 +33,8 @@
 # define TA3D_WEBSITE_NEW_BUGREPORT  "@TA3D_WEBSITE_NEW_BUGREPORT@"
 
 
+//! Paths related stuffs in order to have better OS integration
+# define TA3D_RESOURCES_PATH     "@TA3D_RESOURCES_PATH@"
+#cmakedefine TA3D_OVERRIDE_PATHS
+
 #endif // __CONFIG_H__

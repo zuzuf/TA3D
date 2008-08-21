@@ -84,7 +84,7 @@ void ReadFileParameter()
         delete HPIManager;
         TA3D_clear_cache();		// Clear the cache
 
-        HPIManager = new cHPIHandler("");
+        HPIManager = new cHPIHandler();
         ta3dSideData.loadData();				// Refresh side data so we load the correct values
         delete sound_manager;
         sound_manager = new TA3D::Audio::Manager(1.0f, 0.0f, 0.0f);
@@ -114,7 +114,7 @@ void ReadFileParameter()
         delete HPIManager;
         TA3D_clear_cache();		// Clear the cache
 
-        HPIManager = new cHPIHandler("");
+        HPIManager = new cHPIHandler();
         ta3dSideData.loadData();				// Refresh side data so we load the correct values
         delete sound_manager;
         sound_manager = new TA3D::Audio::Manager(1.0f, 0.0f, 0.0f);
