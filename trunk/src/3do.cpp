@@ -379,7 +379,7 @@ namespace TA3D
         pos_from_parent.x=pos_from_parent.y=pos_from_parent.z=0.0f;
         nb_vtx=0;
         nb_prim=0;
-        name=NULL;
+        name.clear();
         next=child=NULL;
         points=NULL;
         p_index=NULL;
@@ -462,8 +462,7 @@ namespace TA3D
             delete[] l_index;
         if (t_index)
             delete[] t_index;
-        if (name)
-            free(name);
+        name.clear();
         if (optimised_I)
             delete[] optimised_I;
         if (optimised_T)
@@ -487,10 +486,10 @@ namespace TA3D
     void OBJECT::Identify(int nb_piece,const String::Vector &piece_name)			// Identifie les pièces utilisées par le script
     {
         script_index=-1;				// Pièce non utilisée
-        if (name)
+        if (!name.empty())
             for (int i = 0; i < nb_piece; ++i)
             {
-                if (strcasecmp(name,piece_name[i].c_str()) == 0) // Pièce identifiée
+                if (strcasecmp(name.c_str(),piece_name[i].c_str()) == 0) // Pièce identifiée
                 {
                     script_index = i;
                     break;
@@ -705,24 +704,24 @@ namespace TA3D
 
         try
         {
-            name = (char*)(data+header.OffsetToObjectName);
+            char *pName = (char*)(data+header.OffsetToObjectName);
             i = 0;
-            while( name[i] && i < 128 ) i++;
-            if (name[i] != 0 && i >= 128)
+            while( pName[i] && i < 128 ) i++;
+            if (pName[i] != 0 && i >= 128)
             {
-                name = NULL;
+                pName = NULL;
                 return -1;
             }
         }
         catch( ... )
         {
-            name = NULL;
+            name.clear();
             return -1;
         };
 
         nb_vtx = header.NumberOfVertexes;
         nb_prim = header.NumberOfPrimitives;
-        name = strdup((char*)(data+header.OffsetToObjectName));
+        name = (char*)(data+header.OffsetToObjectName);
 #ifdef DEBUG_MODE
         /*		for (i=0;i<dec;i++)
                 printf("  ");
@@ -1028,7 +1027,7 @@ namespace TA3D
                     }
                 }
                 dtex = e + 1;
-                String cache_filename = filename ? String( filename ) + format("-%s-%d.bin", name ? name : "none", player_color_map[e] ) : String( "" );
+                String cache_filename = filename ? String( filename ) + format("-%s-%d.bin", !name.empty() ? name.c_str() : "none", player_color_map[e] ) : String( "" );
                 gltex[e] = gfx->load_texture_from_cache( cache_filename );
                 if (!gltex[e])
                 {
@@ -2794,7 +2793,7 @@ hit_fast_is_exploding:
 
     float OBJECT::print_struct(float Y, float X, TA3D::GfxFont& fnt)
     {
-        gfx->print(fnt, X, Y, 0.0f,      0xFFFFFF, format("%s [%d]", name,script_index));
+        gfx->print(fnt, X, Y, 0.0f,      0xFFFFFF, format("%s [%d]", name.c_str(),script_index));
         gfx->print(fnt, 320.0f, Y, 0.0f, 0xFFFFFF, format("(v:%d",   nb_vtx));
         gfx->print(fnt, 368.0f, Y, 0.0f, 0xFFFFFF, format(",p:%d",   nb_prim));
         gfx->print(fnt, 416.0f, Y, 0.0f, 0xFFFFFF, format(",t:%d",   nb_t_index));
@@ -3222,7 +3221,7 @@ hit_fast_is_exploding:
               xmax=-0xFFFFFF,ymax=-0xFFFFFF,zmax=-0xFFFFFF;
 
         int StructD[4096];     // Données pour la restitution de la structure
-        char* StructName[4096];
+        String StructName[4096];
         int NbStruct = 0;
 
         nbpt = 0;
@@ -3318,14 +3317,14 @@ hit_fast_is_exploding:
                 {
                     if (!strncmp(chaine, "NAMED OBJECT", 12))
                     {
-                        StructName[NbStruct] = strdup(chaine + 13);
-                        char *_p = StructName[NbStruct];
+                        char *_p = (chaine + 13);
                         while (_p[0])
                         {
                             if (_p[0] == 10 || _p[0] == 13)
                                 _p[0] = 0;
                             ++_p;
                         }
+                        StructName[NbStruct] = String::Trim( (chaine + 13), " \"" );
                         decalage = nbp;
                         StructD[NbStruct++] = nbf;
                     }
@@ -3469,9 +3468,9 @@ hit_fast_is_exploding:
 
     void OBJECT::save_3dm(FILE *dst, bool compressed)
     {
-        uint8 len = strlen(name);
+        uint8 len = name.size();
         fwrite(&len, sizeof(len), 1, dst); // Write the object name
-        fwrite(name, len, 1, dst);
+        fwrite(name.c_str(), len, 1, dst);
 
         fwrite(&pos_from_parent.x, sizeof(pos_from_parent.x), 1, dst);
         fwrite(&pos_from_parent.y, sizeof(pos_from_parent.y), 1, dst);
@@ -3633,39 +3632,35 @@ hit_fast_is_exploding:
 
         uint8 len = data[0];
         ++data;
-        name = (char*) malloc(len + 1);
-        data = read_from_mem(name,len,data);
-        name[len] = 0;
+        char tmp[256];
+        data = read_from_mem(tmp,len,data);
+        name = String(tmp,len);
 
         data = read_from_mem(&pos_from_parent.x, sizeof(pos_from_parent.x), data);
         if (isNaN(pos_from_parent.x))           // Some error checks
         {
-            free(name);
-            name = NULL;
+            name.clear();
             return NULL;
         }
 
         data = read_from_mem(&pos_from_parent.y, sizeof(pos_from_parent.y), data);
         if (isNaN(pos_from_parent.y))           // Some error checks
         {
-            free(name);
-            name = NULL;
+            name.clear();
             return NULL;
         }
 
         data=read_from_mem(&pos_from_parent.z,sizeof(pos_from_parent.z),data);
         if (isNaN(pos_from_parent.z))
         {
-            free(name); 
-            name = NULL;
+            name.clear();
             return NULL;
         }
 
         data = read_from_mem(&nb_vtx, sizeof(nb_vtx), data);
         if (nb_vtx < 0)
         {
-            free(name);
-            name = NULL;
+            name.clear();
             return NULL;
         }
         if (nb_vtx > 0)
@@ -3683,7 +3678,7 @@ hit_fast_is_exploding:
         {
             if (points)
                 delete[] points;
-            free(name);
+            name.clear();
             init();
             return NULL;
         }
@@ -3700,7 +3695,7 @@ hit_fast_is_exploding:
         {
             if (points) delete[] points;
             if (p_index) delete[] p_index;
-            free(name);
+            name.clear();
             init();
             return NULL;
         }
@@ -3718,7 +3713,7 @@ hit_fast_is_exploding:
             if (points) delete[] points;
             if (p_index) delete[] p_index;
             if (l_index) delete[] l_index;
-            free( name );
+            name.clear();
             init();
             return NULL;
         }

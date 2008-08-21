@@ -85,7 +85,7 @@ void mnu_file(int mnu_index)
             }
             break;
         case 2:					// Sauver / Save
-            if (nb_obj() > 1 || TheModel->obj.name != NULL)
+            if (nb_obj() > 1 || !TheModel->obj.name.empty())
             {
                 String filename=Dialog(I18N::Translate( "Save a model" ),"*.3dm");
                 TheModel->save_3dm((char*)filename.c_str(), WndAsk( I18N::Translate("compression"), I18N::Translate("compress textures?") ));
@@ -270,8 +270,7 @@ void button_rename(int mnu_index)
     if (working)    return;
     if(cur_part<0 || cur_part>=nb_obj())	return;
     working = true;
-    free(obj_table[cur_part]->name);
-    obj_table[cur_part]->name = strdup( GetVal( I18N::Translate( "Nouveau nom d'objet" ) ).c_str() );
+    obj_table[cur_part]->name = GetVal( I18N::Translate( "Nouveau nom d'objet" ) );
     working = false;
 }
 
@@ -288,13 +287,13 @@ void button_child(int mnu_index)
     if (working)    return;
     if(cur_part<0 || cur_part>=nb_obj())	return;
     working = true;
-    char *father_name = strdup( GetVal( I18N::Translate( "Nom du noeud père" ) ).c_str() );
+    String father_name = GetVal( I18N::Translate( "Nom du noeud père" ) );
     int father_id=-1;
-    if( obj_table[cur_part] == &(TheModel->obj) )
+    if (obj_table[cur_part] == &(TheModel->obj))
     {
         OBJECT obj = TheModel->obj;
         for( int i = 0 ; i < nb_obj() ; i++ )
-            if( obj_table[i] == TheModel->obj.next )
+            if (obj_table[i] == TheModel->obj.next)
             {
                 cur_part = i;
                 break;
@@ -306,12 +305,12 @@ void button_child(int mnu_index)
         obj.init();
     }
     for(int i=0;i<nb_obj();i++)
-        if(strcmp(obj_table[i]->name,father_name)==0)
+        if(obj_table[i]->name == father_name)
         {
             father_id=i;
             break;
         }
-    free(father_name);
+    father_name.clear();
 
     if(is_child(obj_table[cur_part],father_id))
     {

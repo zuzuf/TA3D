@@ -182,7 +182,7 @@ int main(int argc, char* argv[])
         {
         obj->Text.resize( nb_obj() + 1 );
         for(int i=0;i<nb_obj();i++)
-            if (obj_table[i]->name!=NULL)
+            if (!obj_table[i]->name.empty())
             {
                 String h="";
                 for(int e=0;e<h_table[i];e++)	h+="-";
@@ -438,7 +438,7 @@ void S_MPart_Sel(int mnu_index)
 void SurfEdit()
 {
     if (nb_obj()<=0) return;			// S'il n'y a rien à éditer, on quitte tout de suite la fonction, sinon ça plante
-    if (nb_obj()==1 && TheModel->obj.name==NULL)	return;
+    if (nb_obj()==1 && TheModel->obj.name.empty())	return;
 
     SCRIPT_DATA cur_data;           // needed to render the preview
     cur_data.load(nb_obj());
@@ -1864,7 +1864,7 @@ void CylinderTexturing(int part)
 void glslEditor()                  // Fragment and vertex programs editor
 {
     if (nb_obj()<=0) return;			// S'il n'y a rien à éditer, on quitte tout de suite la fonction, sinon ça plante
-    if (nb_obj()==1 && TheModel->obj.name==NULL)	return;
+    if (nb_obj()==1 && TheModel->obj.name.empty())	return;
 
     AREA glsl_area;
     glsl_area.load_tdf("gui/3dmeditor_glsl.area");

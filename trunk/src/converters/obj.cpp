@@ -100,17 +100,19 @@ namespace Converters
                 String(buf).split(args, " ");
                 if (!args.empty())
                 {
-                    if ( args[0] == "o" && args.size() > 1)      // Creates a new object
+                    if ( (args[0] == "o" || args[0] == "g") && args.size() > 1)      // Creates a new object
                     {
-                        if (!firstObject)
+                        if (!face.empty())
                         {
+                            if (firstObject && cur->name.empty())
+                                cur->name = "default";
                             finalize_object( cur, face, vertex, normal, tcoord, &currentMtl );
                             face.clear();
                             cur->child = new OBJECT();
                             cur = cur->child;
                         }
                         firstObject = false;
-                        cur->name = strdup(args[1].c_str());
+                        cur->name = args[1];
                         printf("[obj] new object '%s'\n", args[1].c_str());
                     }
                     else 
@@ -173,23 +175,26 @@ namespace Converters
                                     String::Vector data;
                                     i->split(data, "/");
 
-                                    vertex_idx.push_back( data[0].toInt32() - 1);
-                                    if (data.size() == 3)
+                                    if (data.size() > 0 )
                                     {
-                                        if (data[1].empty())
-                                            tcoord_idx.push_back(-1);
-                                        else
-                                            tcoord_idx.push_back(data[1].toInt32() - 1);
+                                        vertex_idx.push_back( data[0].toInt32() - 1);
+                                        if (data.size() == 3)
+                                        {
+                                            if (data[1].empty())
+                                                tcoord_idx.push_back(-1);
+                                            else
+                                                tcoord_idx.push_back(data[1].toInt32() - 1);
 
-                                        if (data[2].empty())
-                                            normal_idx.push_back(-1);
+                                            if (data[2].empty())
+                                                normal_idx.push_back(-1);
+                                            else
+                                                normal_idx.push_back(data[2].toInt32() - 1);
+                                        }
                                         else
-                                            normal_idx.push_back(data[2].toInt32() - 1);
-                                    }
-                                    else
-                                    {
-                                        tcoord_idx.push_back(-1);
-                                        normal_idx.push_back(-1);
+                                        {
+                                            tcoord_idx.push_back(-1);
+                                            normal_idx.push_back(-1);
+                                        }
                                     }
                                 }
 

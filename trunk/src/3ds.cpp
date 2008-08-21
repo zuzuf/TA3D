@@ -41,7 +41,7 @@ namespace TA3D
     class TA3D_3DS_MATERIAL
     {
     public:
-        char	*NAME;
+        String	NAME;
         float	AMBIENT[4];
         float	DIFFUSE[4];
         float	SPECULAR[4];
@@ -51,33 +51,33 @@ namespace TA3D
         float	TRANSPARENCY;
         bool	TWO_SIDE;
         float	TEXMAP;
-        char	*MAPNAME;
+        String	MAPNAME;
         TA3D_3DS_MATERIAL	*next;
 
         TA3D_3DS_MATERIAL()
         {
             next = NULL;
-            NAME = NULL;
-            MAPNAME = NULL;
+            NAME.clear();
+            MAPNAME.clear();
         }
 
         ~TA3D_3DS_MATERIAL()
         {
             delete next;
-            if( NAME )		free( NAME );
-            if( MAPNAME )	free( MAPNAME );
+            NAME.clear();
+            MAPNAME.clear();
         }
 
-        TA3D_3DS_MATERIAL	*find( char *name )
+        TA3D_3DS_MATERIAL	*find( const String &name )
         {
-            if( NAME != NULL && strcasecmp( NAME, name ) == 0 )	return this;
+            if( !NAME.empty() && strcasecmp( NAME.c_str(), name.c_str() ) == 0 )	return this;
             if( next != NULL )
                 return next->find( name );
             return NULL;
         }
     };
 
-    char *read_ASCIIZ( FILE *src)
+    String read_ASCIIZ( FILE *src)
     {
         char name[1000];
         int i = 0;
@@ -85,7 +85,7 @@ namespace TA3D
         while ((c = fgetc(src)))
             name[ i++ ] = c;
         name[ i ] = 0;
-        return strdup(name);
+        return String(name);
     }
 
     void read_color_chunk( float color[], FILE *src )
@@ -134,7 +134,7 @@ namespace TA3D
         return 0.0f;
     }
 
-    char *read_MAT_MAPNAME_chunk( FILE *src )
+    String read_MAT_MAPNAME_chunk( FILE *src )
     {
         TA3D_3DS_CHUNK_DATA chunk;
         fread( &chunk.ID, 2, 1, src );
@@ -182,12 +182,10 @@ namespace TA3D
                     case MAT_NAME:
                         //							printf("---MAT_NAME (%d,%d)\n", chunk.ID, chunk.length);
                         {
-                            char *name = read_ASCIIZ( src_3ds );
+                            String name = read_ASCIIZ( src_3ds );
                             //								printf( "name = %s\n", name );
                             if( material )
                                 material->NAME = name;
-                            else
-                                free( name );
                         }
                         break;
                     case MAT_AMBIENT:
@@ -259,10 +257,10 @@ namespace TA3D
                                 material->TEXMAP = read_percent_chunk( src_3ds );
                                 material->MAPNAME = read_MAT_MAPNAME_chunk( src_3ds );
                             }
-                            char *full_name = (char*)malloc( 2048 );
-                            replace_filename( full_name, filename.c_str(), material->MAPNAME, 2048 );
-                            free( material->MAPNAME );
+                            char *full_name = new char[2048];
+                            replace_filename( full_name, filename.c_str(), material->MAPNAME.c_str(), 2048 );
                             material->MAPNAME = full_name;
+                            delete[] full_name;
                         }
                         else
                             fseek( src_3ds, chunk.length - 6, SEEK_CUR );
@@ -331,7 +329,7 @@ namespace TA3D
                             read_obj->child = new OBJECT;
                             read_obj = read_obj->child;
                             read_obj->init();
-                            read_obj->name = strdup( cur_obj->name );
+                            read_obj->name = cur_obj->name;
                         }
                         local[0].x = 1.0f;		local[0].y = 0.0f;		local[0].z = 0.0f;
                         local[1].x = 0.0f;		local[1].y = 1.0f;		local[1].z = 0.0f;
@@ -368,21 +366,24 @@ namespace TA3D
                     case TRI_MATERIAL:
                         //								printf("----TRI_MATERIAL (%d,%d)\n", chunk.ID, chunk.length);
                         {
-                            char *material_name = read_ASCIIZ( src_3ds );
+                            String material_name = read_ASCIIZ( src_3ds );
                             //									printf("material name = %s\n", material_name );
 
                             TA3D_3DS_MATERIAL	*cur_mat = (material != NULL) ? material->find( material_name ) : NULL ;
 
-                            if( cur_mat ) {
+                            if (cur_mat)
+                            {
                                 //										printf("material found\n");
                                 read_obj->surface.Flag |= SURFACE_ADVANCED | SURFACE_LIGHTED;
-                                if( cur_mat->MAPNAME ) {
+                                if (!cur_mat->MAPNAME.empty())
+                                {
                                     //											printf("loading texture %s\n", cur_mat->MAPNAME );
                                     read_obj->surface.Flag |= SURFACE_TEXTURED;
                                     read_obj->surface.NbTex = 1;
                                     read_obj->surface.gltex[ 0 ] = gfx->load_texture( cur_mat->MAPNAME );
                                 }
-                                if( cur_mat->TRANSPARENCY > 0.0f ) {
+                                if (cur_mat->TRANSPARENCY > 0.0f)
+                                {
                                     read_obj->surface.Flag |= SURFACE_BLENDED;
                                     read_obj->surface.Color[ 3 ] = cur_mat->TRANSPARENCY;
                                 }
@@ -396,8 +397,6 @@ namespace TA3D
                                 uint16 cur_face;
                                 fread( &cur_face, 2, 1, src_3ds );
                             }
-
-                            free( material_name );
                         }
                         break;
                     case TRI_MAPPING:
