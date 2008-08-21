@@ -1426,7 +1426,7 @@ namespace TA3D
             draw_borders = wndFile.pullAsBool("window.draw borders");
             show_title = wndFile.pullAsBool("window.show title");
             delete_gltex = false;
-            if (exists(wndFile.pullAsString("window.background").c_str()))
+            if (HPIManager->Exists(wndFile.pullAsString("window.background")))
             {
                 background = gfx->load_texture(wndFile.pullAsString("window.background"), FILTER_LINEAR, &bkg_w, &bkg_h, false);
                 delete_gltex = true;

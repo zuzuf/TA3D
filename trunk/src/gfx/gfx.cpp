@@ -713,15 +713,43 @@ namespace TA3D
         glTexSubImage2D( GL_TEXTURE_2D, 0, 0, 0, src->w, src->h, GL_RGBA, GL_UNSIGNED_BYTE, src->line[0] );
     }
 
+    // FIXME: ugly thing, we shouldn't need an extra temporary file, image should be loaded directly from memory
+    BITMAP *GFX::load_image(const String filename)
+    {
+        if (HPIManager)
+        {
+            uint32 image_file_size;
+            byte *data = HPIManager->PullFromHPI( filename, &image_file_size );
+            if (data)
+            {
+                String tmp_file = Paths::Caches + "tmp" + String(filename).toLower().findAndReplace("\\","S").findAndReplace("/","S");
+                FILE *tmp = fopen( tmp_file.c_str(), "wb" );
+                if (tmp)
+                {
+                    fwrite( data, image_file_size, 1, tmp );
+                    fclose( tmp );
+                    delete[] data;
+                    BITMAP *bmp = load_bitmap( tmp_file.c_str(), NULL );
+                    return bmp;
+                }
+                else
+                    LOG_DEBUG("loading " << filename << " failed");
+                delete[] data;
+                return NULL;
+            }
+            return NULL;
+        }
+        return load_bitmap(filename.c_str(), NULL);
+    }
 
 
     GLuint GFX::load_texture(String file, byte filter_type, uint32 *width, uint32 *height, bool clamp, GLuint texFormat )
     {
-        if (!exists( file.c_str())) // The file doesn't exist
+        if (!exists( file.c_str()) && (HPIManager == NULL || !HPIManager->Exists(file))) // The file doesn't exist
             return 0;
 
         set_color_depth(32);
-        BITMAP *bmp = load_bitmap( file.c_str(), NULL);
+        BITMAP *bmp = load_image( file );
         if (bmp == NULL )	return 0;					// Operation failed
         if (width )		*width = bmp->w;
         if (height )	*height = bmp->h;
@@ -760,11 +788,11 @@ namespace TA3D
 
     GLuint	GFX::load_texture_mask( String file, int level, byte filter_type, uint32 *width, uint32 *height, bool clamp )
     {
-        if(!exists( file.c_str()))	// The file doesn't exist
+        if (!exists( file.c_str()) && (HPIManager == NULL || !HPIManager->Exists(file))) // The file doesn't exist
             return 0;
 
         set_color_depth(32);
-        BITMAP *bmp = load_bitmap( file.c_str(), NULL);
+        BITMAP *bmp = load_image(file);
         if (bmp == NULL )	return 0;					// Operation failed
         if (width )		*width = bmp->w;
         if (height )	*height = bmp->h;
@@ -965,15 +993,16 @@ namespace TA3D
 
     GLuint GFX::load_masked_texture(String file, String mask, byte filter_type )
     {
-        if (!exists(file.c_str()) || !exists(mask.c_str()))
+        if ( (!exists( file.c_str()) && (HPIManager == NULL || !HPIManager->Exists(file)))
+             || (!exists( mask.c_str()) && (HPIManager == NULL || !HPIManager->Exists(mask))))
             return 0;		// The file doesn't exist
 
         set_color_depth(32);
-        BITMAP* bmp = load_bitmap(file.c_str(), NULL);
+        BITMAP* bmp = load_image(file);
         if (bmp == NULL )	return 0;					// Operation failed
         BITMAP *alpha;
         set_color_depth(8);
-        alpha=load_bitmap( mask.c_str(), NULL );
+        alpha=load_image( mask );
         if(! alpha)
         {
             destroy_bitmap( alpha );

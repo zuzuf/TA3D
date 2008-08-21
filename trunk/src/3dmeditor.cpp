@@ -815,7 +815,7 @@ void SurfEdit()
         if (index!=-1) // L'utilisateur veut choisir une texture / the user is selecting a texture
         {
             String filename = Dialog( I18N::Translate( "Load a texture" ).c_str(),"*.*");
-            BITMAP *bmp_tex = filename.length()>0 ? load_bitmap(filename.c_str(),NULL) : NULL;
+            BITMAP *bmp_tex = filename.length()>0 ? gfx->load_image(filename) : NULL;
             if (bmp_tex) // Si il s'agit d'ajouter/modifier une texture / If we are adding/modifying a texture
             {
                 if (bitmap_color_depth(bmp_tex)==24 || strstr(filename.c_str(),".jpg")!=NULL)
@@ -1013,7 +1013,7 @@ void SurfPaint(int index)
                 if (key[KEY_SPACE] || tool_tex_gl==0)
                 {
                     String filename = Dialog( I18N::Translate( "Load a texture" ).c_str(),"*.*");
-                    BITMAP *bmp_tex = filename.length()>0 ? load_bitmap(filename.c_str(),NULL) : NULL;
+                    BITMAP *bmp_tex = filename.length()>0 ? gfx->load_image(filename) : NULL;
                     if (bmp_tex) // Si il s'agit d'ajouter/modifier une texture
                     {
                         if (bitmap_color_depth(bmp_tex)!=32 || strstr(filename.c_str(),".jpg")!=NULL)

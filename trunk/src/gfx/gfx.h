@@ -257,6 +257,7 @@ namespace TA3D
 
         GLuint make_texture_from_screen(byte filter_type = FILTER_NONE);
 
+        BITMAP *load_image(const String filename);
 
         void set_alpha_blending();
         void unset_alpha_blending();

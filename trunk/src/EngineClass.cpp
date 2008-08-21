@@ -755,7 +755,7 @@ namespace TA3D
     void MAP::load_details_texture( const String &filename )
     {
         set_color_depth( 32 );
-        BITMAP *tex = load_bitmap( filename.c_str(), NULL );
+        BITMAP *tex = gfx->load_image(filename);
         if( tex ) {
             uint32 average = 0;
             for( int y = 0 ; y < tex->h ; y++ )

@@ -251,7 +251,7 @@ namespace TA3D
         destroy();		// In case there is an area loaded so we don't waste memory
 
         String skin_name = (lp_CONFIG != NULL && !lp_CONFIG->skin_name.empty()) ? lp_CONFIG->skin_name : "";
-        if (!skin_name.empty() && TA3D::Paths::Exists(skin_name))
+        if (!skin_name.empty() && HPIManager->Exists(skin_name))
         {
             skin = new SKIN();
             skin->load_tdf(skin_name, 1.0f);
@@ -293,7 +293,7 @@ namespace TA3D
             ? lp_CONFIG->skin_name
             : areaFile->pullAsString("area.skin");
 
-        if (TA3D::Paths::Exists(skin_name)) // Loads a skin
+        if (HPIManager->Exists(skin_name)) // Loads a skin
         {
             int area_width = areaFile->pullAsInt("area.width", SCREEN_W);
             int area_height = areaFile->pullAsInt("area.height", SCREEN_W);
@@ -319,7 +319,7 @@ namespace TA3D
                     background_name += skin->prefix;
             }
 
-            if (TA3D::Paths::Exists(background_name)) // Loads a background image
+            if (HPIManager->Exists(background_name)) // Loads a background image
                 background = gfx->load_texture(background_name);
             else
             {
@@ -328,7 +328,7 @@ namespace TA3D
                     // No prefixed version, retry with default background
                     background_name = areaFile->pullAsString("area.background"); 
                     // Loads a background image
-                    if (TA3D::Paths::Exists(background_name)) 
+                    if (HPIManager->Exists(background_name)) 
                         background = gfx->load_texture( background_name );
                 }
             }

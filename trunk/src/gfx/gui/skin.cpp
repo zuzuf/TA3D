@@ -67,6 +67,7 @@ namespace TA3D
     {
         destroy();		// In case there is a skin loaded so we don't waste memory
 
+        LOG_DEBUG("loading " << filename);
         TDFParser skinFile(filename);
 
         // Grab the skin's name, so we can now if a skin is already in use
@@ -105,7 +106,7 @@ namespace TA3D
         scroll[2].load(skinFile.pullAsString("skin.s_scroll"), "skin.s_scroll_", skinFile, scale);
 
         String tex_file_name (skinFile.pullAsString("skin.window background"));
-        if(TA3D::Paths::Exists(tex_file_name))
+        if(HPIManager->Exists(tex_file_name))
             wnd_background = gfx->load_texture( tex_file_name, FILTER_LINEAR );
     }
 

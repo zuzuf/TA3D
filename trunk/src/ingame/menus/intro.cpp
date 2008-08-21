@@ -119,7 +119,7 @@ namespace Menus
     {
         LOG_ASSERT(NULL != gfx);
 
-        if (!lp_CONFIG->skin_name.empty() && TA3D::Paths::Exists(lp_CONFIG->skin_name))
+        if (!lp_CONFIG->skin_name.empty() && HPIManager->Exists(lp_CONFIG->skin_name))
         {
             SKIN skin;
             skin.load_tdf(lp_CONFIG->skin_name);
