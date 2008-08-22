@@ -37,9 +37,13 @@
 
 
 
-
 namespace TA3D
 {
+    namespace INSTANCING
+    {
+        bool water = false;
+        float sealvl = 0.0f;
+    };
 
 
     TEXTURE_MANAGER	texture_manager;
@@ -3997,6 +4001,17 @@ hit_fast_is_exploding:
             glRotatef( i->angle, 0.0f, 1.0f, 0.0f );
             glColor4ubv( (GLubyte*) &i->col );
             glCallList( model_manager.model[ model_id ].dlist );
+            if (lp_CONFIG->underwater_bright && INSTANCING::water && i->pos.y < INSTANCING::sealvl)
+            {
+                glEnable( GL_BLEND );
+                glBlendFunc( GL_ONE, GL_ONE );
+                glDepthFunc( GL_EQUAL );
+                glColor4ub( 0x7F, 0x7F, 0x7F, 0x7F );
+                model_manager.model[ model_id ].draw(0.0f,NULL,false,true,false,0,NULL,NULL,NULL,0.0f,NULL,false,0,false);
+                glColor4ub( 0xFF, 0xFF, 0xFF, 0xFF );
+                glDepthFunc( GL_LESS );
+                glDisable( GL_BLEND );
+            }
         }
 
         if (model_manager.model[ model_id ].from_2d )
@@ -4120,6 +4135,51 @@ hit_fast_is_exploding:
         }
         glBindTexture( GL_TEXTURE_2D, texture_id );
         glDrawArrays(GL_QUADS, 0, queue.size()<<2);		// draw those quads
+        
+        if (lp_CONFIG->underwater_bright && INSTANCING::water)
+        {
+            i = 0;
+            for (std::list<QUAD>::iterator e = queue.begin(); e != queue.end(); ++e)
+            {
+                if (e->pos.y >= INSTANCING::sealvl) continue;
+                P[i].x = e->pos.x - e->size_x;
+                P[i].y = e->pos.y;
+                P[i].z = e->pos.z - e->size_z;
+                C[i] = 0x7F7F7F7F;
+                ++i;
+
+                P[i].x = e->pos.x + e->size_x;
+                P[i].y = e->pos.y;
+                P[i].z = e->pos.z - e->size_z;
+                C[i] = 0x7F7F7F7F;
+                ++i;
+
+                P[i].x = e->pos.x + e->size_x;
+                P[i].y = e->pos.y;
+                P[i].z = e->pos.z + e->size_z;
+                C[i] = 0x7F7F7F7F;
+                ++i;
+
+                P[i].x = e->pos.x - e->size_x;
+                P[i].y = e->pos.y;
+                P[i].z = e->pos.z + e->size_z;
+                C[i] = 0x7F7F7F7F;
+                ++i;
+            }
+
+            if (i > 0)
+            {
+                glEnable( GL_BLEND );
+                glDisable( GL_TEXTURE_2D );
+                glBlendFunc( GL_ONE, GL_ONE );
+                glDepthFunc( GL_EQUAL );
+                glDrawArrays(GL_QUADS, 0, queue.size()<<2);		// draw those quads
+                glDepthFunc( GL_LESS );
+                glEnable( GL_TEXTURE_2D );
+                glDisable( GL_BLEND );
+            }
+        }
+            
         glPopMatrix();
     }
 

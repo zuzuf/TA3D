@@ -119,6 +119,10 @@ namespace TA3D
         if (map->ota_data.maxwindspeed != map->ota_data.minwindspeed)
             map->wind = (TA3D_RAND() % (map->ota_data.maxwindspeed - map->ota_data.minwindspeed)) + map->ota_data.minwindspeed;
 
+        // A few things required by (pseudo-)instancing code to render highlighted objects
+        INSTANCING::water = map->water;
+        INSTANCING::sealvl = map->sealvl;
+
         uint32	script_timer = 0;
 
         GLuint	sky;

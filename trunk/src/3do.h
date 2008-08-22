@@ -39,7 +39,11 @@
 
 namespace TA3D
 {
-
+    namespace INSTANCING
+    {
+        extern bool water;
+        extern float sealvl;
+    };
 
     //	Classe pour la gestion des textures du jeu
     class TEXTURE_MANAGER
