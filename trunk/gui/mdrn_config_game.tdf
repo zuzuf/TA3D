@@ -1,6 +1,6 @@
 [window]
 {
-	title=Display;
+	title=Game;
 	uformat=UTF8;
 	x=450;
 	y=166;
@@ -8,7 +8,7 @@
 	height=720;
 	draw borders=false;
 	show title=false;
-	number of objects=23;
+	number of objects=25;
 	hidden=true;
 	lock=true;
 	color=0x00000000;			// Fully transparent so we can see the AREA background
@@ -262,6 +262,25 @@
 		y1=430;
 		x2=730;
 		y2=460;
+		value=0;
+		size=1.5;
+	}
+	[object23]		// Option "underwater_bright"
+	{
+		name=t_underwater_bright;
+		type=TEXT;
+		caption=Highlight underwater objects;
+		x1=0;
+		y1=465;
+		value=0xFFFFFFFF;
+		size=2;
+	}
+	[object24]		// Option "underwater_bright"
+	{
+		name=underwater_bright;
+		type=OPTIONC;
+		x1=690;
+		y1=465;
 		value=0;
 		size=1.5;
 	}
