@@ -2,6 +2,7 @@
 #include "TA3D_NameSpace.h"			// our namespace, a MUST have.
 #include "ta3dbase.h"
 #include "misc/math.h"
+#include "misc/paths.h"
 
 #define buf_size		1024*1024
 
@@ -93,7 +94,7 @@ void install_TA_files( String def_path )
 
 		textprintf_centre_ex( screen, font, 320, 40, 0x0, -1, "Extracting totala1.hpi ( step 1/2 )" );
 
-		FILE *dst = TA3D_OpenFile("totala1.hpi","wb");
+		FILE *dst = TA3D_OpenFile(Paths::Resources + "totala1.hpi","wb");
 		
 		if (dst)
         {
@@ -132,7 +133,7 @@ void install_TA_files( String def_path )
 		FILE *src = TA3D_OpenFile( path_to_TA_cd + "totala2.hpi", "rb" );
 		if (src)
         {
-			FILE *dst = TA3D_OpenFile( "totala2.hpi", "wb" );
+			FILE *dst = TA3D_OpenFile( Paths::Resources + "totala2.hpi", "wb" );
 			if (dst)
             {
 				int limit = FILE_SIZE( ( path_to_TA_cd + "totala2.hpi" ).c_str() );
@@ -195,7 +196,7 @@ void install_TA_files( String def_path )
 			FILE *src = TA3D_OpenFile( path_to_TA_cd + "totala4.hpi", "rb" );
 			if( src )
 			{
-				FILE *dst = TA3D_OpenFile( "totala4.hpi", "wb" );
+				FILE *dst = TA3D_OpenFile( Paths::Resources + "totala4.hpi", "wb" );
 				if( dst )
 				{
 					int limit = FILE_SIZE( ( path_to_TA_cd + "totala4.hpi" ).c_str() );
@@ -260,7 +261,7 @@ void install_TA_files( String def_path )
 					FILE *src = TA3D_OpenFile( path_to_TA_cd + file_to_copy[ i ], "rb" );
 					if (src)
 					{
-						FILE *dst = TA3D_OpenFile( file_destination[ i ], "wb" );
+						FILE *dst = TA3D_OpenFile( Paths::Resources + file_destination[ i ], "wb" );
 						if (dst)
 						{
 							int limit = FILE_SIZE( ( path_to_TA_cd + file_to_copy[ i ] ).c_str() );
@@ -330,7 +331,7 @@ void install_TA_files( String def_path )
 					FILE *src = TA3D_OpenFile( path_to_TA_cd + file_to_copy[ i ], "rb" );
 					if (src)
 					{
-						FILE *dst = TA3D_OpenFile( file_destination[ i ], "wb" );
+						FILE *dst = TA3D_OpenFile( Paths::Resources + file_destination[ i ], "wb" );
 						if (dst)
 						{
 							int limit = FILE_SIZE( ( path_to_TA_cd + file_to_copy[ i ] ).c_str() );
