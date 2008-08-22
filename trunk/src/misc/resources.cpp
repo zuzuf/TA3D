@@ -33,6 +33,7 @@ namespace Resources
         AddSearchPath(TA3D_RESOURCES_PATH + "resources\\");
         AddSearchPath(TA3D_RESOURCES_PATH);
 #else
+        AddSearchPath(Paths::ApplicationRoot);
         AddSearchPath(Paths::LocalData + "ta3d\\resources\\");
 #endif
     }
