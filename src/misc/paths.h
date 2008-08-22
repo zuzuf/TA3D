@@ -44,6 +44,9 @@ namespace Paths
     //! Folder for screenshots
     extern String Screenshots;
 
+    //! Folder for game resources
+    extern String Resources;
+
     //@}
 
 

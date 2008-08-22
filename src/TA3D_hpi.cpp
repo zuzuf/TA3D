@@ -866,8 +866,9 @@ namespace HPI
                 else
                     UNIX_search = "";
 
-                do {
-                    li.push_back(UNIX_search + info.name);
+                do
+                {
+                    li.push_back(UNIX_search.substr( cur_Path->size(), UNIX_search.size() - cur_Path->size() ) + info.name);
                 } while (al_findnext(&info) == 0);
 
                 al_findclose(&info);
@@ -901,7 +902,7 @@ namespace HPI
 
                     do
                     {
-                        li.push_back (UNIX_search + info.name);
+                        li.push_back (UNIX_search.substr( cur_Path->size() + TA3D_CURRENT_MOD.size(), UNIX_search.size() - cur_Path->size() - TA3D_CURRENT_MOD.size() ) + info.name);
                     } while (al_findnext(&info) == 0);
 
                     al_findclose(&info);
