@@ -54,9 +54,6 @@ namespace Paths
      */
     std::string localAppData()
     {
-#ifdef TA3D_OVERRIDE_PATHS
-        return TA3D_RESOURCES_PATH;
-#else
         LPITEMIDLIST pidl;
         HRESULT hr = SHGetSpecialFolderLocation(NULL, CSIDL_LOCAL_APPDATA, &pidl);
         char szPath[_MAX_PATH];
@@ -66,13 +63,21 @@ namespace Paths
         pMalloc->Free(pidl);
         pMalloc->Release();
         return szPath;
-#endif
     }
 
     void initForWindows()
     {
         LocalData = localAppData();
         LocalData += Separator;
+#ifdef TA3D_OVERRIDE_PATHS
+        Resources = ApplicationRoot + "resources\\";
+        Caches = ApplicationRoot + "cache\\";
+        Savegames = ApplicationRoot + "savegames\\";
+        Logs = ApplicationRoot + "logs\\";
+
+        Preferences = ApplicationRoot + "settings\\";
+        Screenshots = ApplicationRoot + "screenshots\\";
+#else
         Resources = LocalData + "ta3d\\resources\\";
         Caches = LocalData + "ta3d\\cache\\";
         Savegames = LocalData + "ta3d\\savegames\\";
@@ -80,6 +85,7 @@ namespace Paths
 
         Preferences = LocalData + "ta3d\\settings\\";
         Screenshots = LocalData + "ta3d\\screenshots\\";
+#endif
     }
 
     # else // ifdef TA3D_PLATFORM_WINDOWS
