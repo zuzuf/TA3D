@@ -2135,7 +2135,7 @@ void campaign_main_menu(void)
     if (start_game) // Open the briefing screen and start playing the campaign
     {
         int exit_mode = 0;
-        while( mission_id < nb_mission && (exit_mode = brief_screen( campaign_name, mission_id )) >= 0 )
+        while( mission_id < nb_mission && (exit_mode = brief_screen( campaign_name, mission_id )) != Battle::brUnknown )
             if (exit_mode == EXIT_VICTORY ) mission_id++;
 
         while (key[KEY_ESC])
@@ -2377,7 +2377,8 @@ Battle::Result brief_screen(String campaign_name, int mission_id)
         GameData game_data;
 
         // Generate the script which will be removed later
-        TA3D::generate_script_from_mission("scripts/__campaign_script.lua", ota_parser, schema);
+        TA3D::Paths::MakeDir(TA3D::Paths::Resources + "scripts");
+        TA3D::generate_script_from_mission(TA3D::Paths::Resources + "scripts/__campaign_script.lua", ota_parser, schema);
 
         game_data.game_script = "scripts/__campaign_script.lua";
         game_data.map_filename = map_filename.substr( 0, map_filename.size() - 3 ) + "tnt";     // Remember the last map we played
