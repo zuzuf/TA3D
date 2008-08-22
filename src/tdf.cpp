@@ -751,6 +751,19 @@ namespace TA3D
                         glRotatef( feature[i].angle_x, 1.0f, 0.0f, 0.0f );
                         feature_manager.feature[feature[i].type].model->draw(t,NULL,false,false,false,0,NULL,NULL,NULL,0.0f,NULL,false,0,!feature[i].grey);
 
+                        if (lp_CONFIG->underwater_bright && the_map->water && feature[i].Pos.y < the_map->sealvl)
+                        {
+                            glEnable( GL_BLEND );
+                            glBlendFunc( GL_ONE, GL_ONE );
+                            glDepthFunc( GL_EQUAL );
+                            glColor4ub( 0x7F, 0x7F, 0x7F, 0x7F );
+                            feature_manager.feature[feature[i].type].model->draw(t,NULL,false,true,false,0,NULL,NULL,NULL,0.0f,NULL,false,0,false);
+                            glColor4ub( 0xFF, 0xFF, 0xFF, 0xFF );
+                            glDepthFunc( GL_LESS );
+                            glDisable( GL_BLEND );
+                        }
+
+
                         gfx->ReInitAllTex( true );
 
                         glPopMatrix();
