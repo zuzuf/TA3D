@@ -1,3 +1,11 @@
+[Highlight underwater objects]
+{
+    FRENCH=Faire ressortir les objets sous-marins;
+}
+[Current skin]
+{
+    FRENCH=skin actuel;
+}
 [Use texture compression]
 {
     FRENCH=comprimer les textures;

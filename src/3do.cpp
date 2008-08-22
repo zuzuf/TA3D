@@ -1521,17 +1521,20 @@ namespace TA3D
                         else
                             glDisable(GL_LIGHTING);
 
-                        if (surface.Flag&SURFACE_BLENDED || (!chg_col && color_factor[3] != 1.0f)) // La transparence
+                        if (chg_col || !notex)
                         {
-                            glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
-                            glEnable(GL_BLEND);
-                            glAlphaFunc( GL_GREATER, 0.1 );
-                            glEnable( GL_ALPHA_TEST );
-                        }
-                        else
-                        {
-                            glDisable(GL_ALPHA_TEST);
-                            glDisable(GL_BLEND);
+                            if (surface.Flag&SURFACE_BLENDED || (!chg_col && color_factor[3] != 1.0f)) // La transparence
+                            {
+                                glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+                                glEnable(GL_BLEND);
+                                glAlphaFunc( GL_GREATER, 0.1 );
+                                glEnable( GL_ALPHA_TEST );
+                            }
+                            else
+                            {
+                                glDisable(GL_ALPHA_TEST);
+                                glDisable(GL_BLEND);
+                            }
                         }
 
                         if (surface.Flag&SURFACE_TEXTURED && !notex) // Les textures et effets de texture
@@ -1604,13 +1607,16 @@ namespace TA3D
                                 glEnable(GL_TEXTURE_2D);
                             alset=true;
                         }
-                        if (!chg_col && color_factor[3] != 1.0f) // La transparence
+                        if (chg_col || !notex)
                         {
-                            glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
-                            glEnable(GL_BLEND);
+                            if (!chg_col && color_factor[3] != 1.0f) // La transparence
+                            {
+                                glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+                                glEnable(GL_BLEND);
+                            }
+                            else
+                                glDisable(GL_BLEND);
                         }
-                        else
-                            glDisable(GL_BLEND);
                         set = true;
                         if (!dtex)
                         {

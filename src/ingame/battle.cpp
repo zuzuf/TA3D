@@ -2393,7 +2393,6 @@ namespace TA3D
                 fx_manager.draw(cam, map.get(), map->sealvl, true);		// Effets spéciaux en surface
             fx_manager.draw(cam, map.get(), map->sealvl);		// Effets spéciaux en surface
 
-
             if (key[KEY_ESC] && !pArea.get_state("esc_menu")) // Enter pause mode if we have to show the menu
             {
                 lp_CONFIG->pause = true;
@@ -3077,7 +3076,7 @@ namespace TA3D
                         if (cur->mission==MISSION_BUILD)
                             --nb;
                         *old = cur->next;
-                        free(cur);
+                        delete cur;
                         cur = *old;
                         if (nb == 0)
                             break;

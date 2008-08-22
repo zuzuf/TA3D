@@ -1428,6 +1428,26 @@ namespace TA3D
                         }
                     }
                 }
+                
+                if (lp_CONFIG->underwater_bright && map->water && Pos.y < map->sealvl)
+                {
+                    double eqn[4]= { 0.0f, -1.0f, 0.0f, map->sealvl - Pos.y };
+
+                    glClipPlane(GL_CLIP_PLANE0, eqn);
+                    glEnable(GL_CLIP_PLANE0);
+
+                    glEnable( GL_BLEND );
+                    glBlendFunc( GL_ONE, GL_ONE );
+                    glDepthFunc( GL_EQUAL );
+                    glColor4ub( 0x7F, 0x7F, 0x7F, 0x7F );
+                    the_model->draw(t,&data,false,true,false,0,NULL,NULL,NULL,0.0f,NULL,false,owner_id,false);
+                    glColor4ub( 0xFF, 0xFF, 0xFF, 0xFF );
+                    glDepthFunc( GL_LESS );
+                    glDisable( GL_BLEND );
+
+                    glDisable(GL_CLIP_PLANE0);
+                }
+
                 if (unit_target)
                 {
                     unit_target->unlock();
