@@ -1538,7 +1538,7 @@ namespace TA3D
                 glVertexPointer( 3, GL_FLOAT, 0, low_vtx);
             glTexCoordPointer(2, GL_FLOAT, 0, low_tcoord);
             glBindTexture(GL_TEXTURE_2D,low_tex);
-            glDrawRangeElements(GL_TRIANGLE_STRIP, 0, low_w*low_h-1, low_nb_idx,GL_UNSIGNED_INT,low_index);		// draw this map
+            glDrawRangeElements(GL_TRIANGLE_STRIP, 0, (low_w+1)*(low_h+1)-1, low_nb_idx,GL_UNSIGNED_INT,low_index);		// draw this map
         }
 
         if (cam->rpos.y >= 900.0f)
