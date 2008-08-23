@@ -1424,305 +1424,305 @@ namespace TA3D
         bool set=false;
         float color_factor[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
         glPushMatrix();
-        if (explodes && !exploding_parts)
-            goto draw_next;
-
-        glTranslatef(pos_from_parent.x,pos_from_parent.y,pos_from_parent.z);
-        if (script_index>=0 && data_s)
+        if (!(explodes && !exploding_parts))
         {
-            if (animation_data != NULL && (data_s->flag[script_index] & FLAG_ANIMATE)) // Used only by the 3dmeditor
+
+            glTranslatef(pos_from_parent.x,pos_from_parent.y,pos_from_parent.z);
+            if (script_index>=0 && data_s)
             {
-                Vector3D R;
-                Vector3D T;
-                animation_data->animate(t, R, T);
-                glTranslatef(T.x, T.y, T.z);
-                glRotatef(R.x, 1.0f, 0.0f, 0.0f);
-                glRotatef(R.y, 0.0f, 1.0f, 0.0f);
-                glRotatef(R.z, 0.0f, 0.0f, 1.0f);
+                if (animation_data != NULL && (data_s->flag[script_index] & FLAG_ANIMATE)) // Used only by the 3dmeditor
+                {
+                    Vector3D R;
+                    Vector3D T;
+                    animation_data->animate(t, R, T);
+                    glTranslatef(T.x, T.y, T.z);
+                    glRotatef(R.x, 1.0f, 0.0f, 0.0f);
+                    glRotatef(R.y, 0.0f, 1.0f, 0.0f);
+                    glRotatef(R.z, 0.0f, 0.0f, 1.0f);
+                }
+                else
+                    if (!explodes ^ exploding_parts)
+                    {
+                        glTranslatef(data_s->axe[0][script_index].pos, data_s->axe[1][script_index].pos, data_s->axe[2][script_index].pos);
+                        glRotatef(data_s->axe[0][script_index].angle, 1.0f, 0.0f, 0.0f);
+                        glRotatef(data_s->axe[1][script_index].angle, 0.0f, 1.0f, 0.0f);
+                        glRotatef(data_s->axe[2][script_index].angle, 0.0f, 0.0f, 1.0f);
+                    }
+                hide = data_s->flag[script_index]&FLAG_HIDE;
             }
             else
-                if (!explodes ^ exploding_parts)
-                {
-                    glTranslatef(data_s->axe[0][script_index].pos, data_s->axe[1][script_index].pos, data_s->axe[2][script_index].pos);
-                    glRotatef(data_s->axe[0][script_index].angle, 1.0f, 0.0f, 0.0f);
-                    glRotatef(data_s->axe[1][script_index].angle, 0.0f, 1.0f, 0.0f);
-                    glRotatef(data_s->axe[2][script_index].angle, 0.0f, 0.0f, 1.0f);
-                }
-            hide = data_s->flag[script_index]&FLAG_HIDE;
-        }
-        else
-        {
-            if (animation_data)
             {
-                Vector3D R;
-                Vector3D T;
-                animation_data->animate(t, R, T);
-                glTranslatef(T.x, T.y, T.z);
-                glRotatef(R.x, 1.0f, 0.0f, 0.0f);
-                glRotatef(R.y, 0.0f, 1.0f, 0.0f);
-                glRotatef(R.z, 0.0f, 0.0f, 1.0f);
+                if (animation_data)
+                {
+                    Vector3D R;
+                    Vector3D T;
+                    animation_data->animate(t, R, T);
+                    glTranslatef(T.x, T.y, T.z);
+                    glRotatef(R.x, 1.0f, 0.0f, 0.0f);
+                    glRotatef(R.y, 0.0f, 1.0f, 0.0f);
+                    glRotatef(R.z, 0.0f, 0.0f, 1.0f);
+                }
             }
-        }
 
-        hide |= explodes ^ exploding_parts;
-        if (!chg_col)
-            glGetFloatv(GL_CURRENT_COLOR, color_factor);
-        if (gl_dlist[ side ] && !hide && chg_col && !notex)
-        {
-            glCallList( gl_dlist[ side ] );
-            alset = false;
-            set = false;
-        }
-        else
-            if (!hide)
+            hide |= explodes ^ exploding_parts;
+            if (!chg_col)
+                glGetFloatv(GL_CURRENT_COLOR, color_factor);
+            if (gl_dlist[ side ] && !hide && chg_col && !notex)
             {
-                bool creating_list = false;
-                if (chg_col && !notex && gl_dlist[side] == 0)
+                glCallList( gl_dlist[ side ] );
+                alset = false;
+                set = false;
+            }
+            else
+                if (!hide)
                 {
-                    gl_dlist[side] = glGenLists(1);
-                    glNewList(gl_dlist[side], GL_COMPILE_AND_EXECUTE);
-                    alset = false;
-                    set = false;
-                    creating_list = true;
-                }
-                if (nb_t_index > 0 && nb_vtx > 0 && t_index != NULL)
-                {
-                    bool activated_tex=false;
-                    if (surface.Flag&SURFACE_ADVANCED)
+                    bool creating_list = false;
+                    if (chg_col && !notex && gl_dlist[side] == 0)
                     {
-                        glEnableClientState(GL_VERTEX_ARRAY);		// Les sommets
-                        glEnableClientState(GL_NORMAL_ARRAY);
-                        alset=false;
-                        set=false;
-                        if (chg_col || notex)
-                        {
-                            if (surface.Flag&SURFACE_PLAYER_COLOR)
-                                glColor4f(player_color[side*3],player_color[side*3+1],player_color[side*3+2],surface.Color[3]);		// Couleur de matière
-                            else
-                                glColor4fv(surface.Color);		// Couleur de matière
-                        }
-                        else
-                            if (!chg_col && !notex)
-                            {
-                                if (surface.Flag&SURFACE_PLAYER_COLOR)
-                                    glColor4f(player_color[player_color_map[side]*3]*color_factor[0],player_color[player_color_map[side]*3+1]*color_factor[1],player_color[player_color_map[side]*3+2]*color_factor[2],surface.Color[3]*color_factor[3]);		// Couleur de matière
-                                else
-                                    glColor4f(surface.Color[0]*color_factor[0],surface.Color[1]*color_factor[1],surface.Color[2]*color_factor[2],surface.Color[3]*color_factor[3]);		// Couleur de matière
-                            }
-
-                        if (surface.Flag&SURFACE_GLSL)			// Using vertex and fragment programs
-                        {
-                            surface.s_shader.on();
-                            for (int j = 0; j < surface.NbTex; ++j)
-                                surface.s_shader.setvar1i( format("tex%d",j).c_str(), j );
-                        }
-
-                        if (surface.Flag&SURFACE_GOURAUD)			// Type d'éclairage
-                            glShadeModel (GL_SMOOTH);
-                        else
-                            glShadeModel (GL_FLAT);
-
-                        if (surface.Flag&SURFACE_LIGHTED)			// Eclairage
-                            glEnable(GL_LIGHTING);
-                        else
-                            glDisable(GL_LIGHTING);
-
-                        if (chg_col || !notex)
-                        {
-                            if (surface.Flag&SURFACE_BLENDED || (!chg_col && color_factor[3] != 1.0f)) // La transparence
-                            {
-                                glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
-                                glEnable(GL_BLEND);
-                                glAlphaFunc( GL_GREATER, 0.1 );
-                                glEnable( GL_ALPHA_TEST );
-                            }
-                            else
-                            {
-                                glDisable(GL_ALPHA_TEST);
-                                glDisable(GL_BLEND);
-                            }
-                        }
-
-                        if (surface.Flag&SURFACE_TEXTURED && !notex) // Les textures et effets de texture
-                        {
-                            activated_tex = true;
-                            for (int j = 0; j < surface.NbTex; ++j)
-                            {
-                                glActiveTextureARB(GL_TEXTURE0_ARB + j);
-                                glEnable(GL_TEXTURE_2D);
-                                glBindTexture(GL_TEXTURE_2D,surface.gltex[j]);
-                                if (j==surface.NbTex-1 && surface.Flag&SURFACE_REFLEC)
-                                {
-                                    glTexGeni(GL_S, GL_TEXTURE_GEN_MODE, GL_SPHERE_MAP);
-                                    glTexGeni(GL_T, GL_TEXTURE_GEN_MODE, GL_SPHERE_MAP);
-                                    glEnable(GL_TEXTURE_GEN_S);
-                                    glEnable(GL_TEXTURE_GEN_T);
-                                    glTexEnvi(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_COMBINE_EXT);
-                                    glTexEnvi(GL_TEXTURE_ENV,GL_COMBINE_RGB_EXT,GL_INTERPOLATE);
-
-                                    glTexEnvi(GL_TEXTURE_ENV,GL_SOURCE0_RGB_EXT,GL_TEXTURE);
-                                    glTexEnvi(GL_TEXTURE_ENV,GL_OPERAND0_RGB_EXT,GL_SRC_COLOR);
-                                    glTexEnvi(GL_TEXTURE_ENV,GL_SOURCE1_RGB_EXT,GL_PREVIOUS_EXT);
-                                    glTexEnvi(GL_TEXTURE_ENV,GL_OPERAND1_RGB_EXT,GL_SRC_COLOR);
-                                    glTexEnvi(GL_TEXTURE_ENV,GL_SOURCE2_RGB_EXT,GL_CONSTANT_EXT);
-                                    glTexEnvi(GL_TEXTURE_ENV,GL_OPERAND2_RGB_EXT,GL_SRC_COLOR);
-                                    glTexEnvfv(GL_TEXTURE_ENV,GL_TEXTURE_ENV_COLOR,surface.RColor);
-                                }
-                                else
-                                {
-                                    glTexEnvi(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_MODULATE);
-                                    glDisable(GL_TEXTURE_GEN_S);
-                                    glDisable(GL_TEXTURE_GEN_T);
-                                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-                                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-                                }
-                            }
-                            glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-                            for (int j = 0; j < surface.NbTex; ++j)
-                            {
-                                glClientActiveTextureARB(GL_TEXTURE0_ARB + j);
-                                glTexCoordPointer(2, GL_FLOAT, 0, tcoord);
-                            }
-                        }
-                        else
-                        {
-                            for (int j = 7; j >= 0; --j)
-                            {
-                                glActiveTextureARB(GL_TEXTURE0_ARB + j);
-                                glDisable(GL_TEXTURE_2D);
-                                glClientActiveTextureARB(GL_TEXTURE0_ARB + j);
-                                glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-                            }
-                            glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-                        }
+                        gl_dlist[side] = glGenLists(1);
+                        glNewList(gl_dlist[side], GL_COMPILE_AND_EXECUTE);
+                        alset = false;
+                        set = false;
+                        creating_list = true;
                     }
-                    else
+                    if (nb_t_index > 0 && nb_vtx > 0 && t_index != NULL)
                     {
-                        if (!alset)
+                        bool activated_tex=false;
+                        if (surface.Flag&SURFACE_ADVANCED)
                         {
                             glEnableClientState(GL_VERTEX_ARRAY);		// Les sommets
                             glEnableClientState(GL_NORMAL_ARRAY);
-                            if (notex)
-                                glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-                            else
-                                glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-                            glEnable(GL_LIGHTING);
-                            if (notex)
-                                glDisable(GL_TEXTURE_2D);
-                            else
-                                glEnable(GL_TEXTURE_2D);
-                            alset=true;
-                        }
-                        if (chg_col || !notex)
-                        {
-                            if (!chg_col && color_factor[3] != 1.0f) // La transparence
+                            alset=false;
+                            set=false;
+                            if (chg_col || notex)
                             {
-                                glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
-                                glEnable(GL_BLEND);
+                                if (surface.Flag&SURFACE_PLAYER_COLOR)
+                                    glColor4f(player_color[side*3],player_color[side*3+1],player_color[side*3+2],surface.Color[3]);		// Couleur de matière
+                                else
+                                    glColor4fv(surface.Color);		// Couleur de matière
                             }
                             else
-                                glDisable(GL_BLEND);
-                        }
-                        set = true;
-                        if (!dtex)
-                        {
-                            alset=false;
-                            glDisable(GL_TEXTURE_2D);
-                            glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-                        }
-                        if (!notex && dtex)
-                        {
-                            if (side<dtex && side>=0)
-                                glBindTexture(GL_TEXTURE_2D,gltex[side]);
+                                if (!chg_col && !notex)
+                                {
+                                    if (surface.Flag&SURFACE_PLAYER_COLOR)
+                                        glColor4f(player_color[player_color_map[side]*3]*color_factor[0],player_color[player_color_map[side]*3+1]*color_factor[1],player_color[player_color_map[side]*3+2]*color_factor[2],surface.Color[3]*color_factor[3]);		// Couleur de matière
+                                    else
+                                        glColor4f(surface.Color[0]*color_factor[0],surface.Color[1]*color_factor[1],surface.Color[2]*color_factor[2],surface.Color[3]*color_factor[3]);		// Couleur de matière
+                                }
+
+                            if (surface.Flag&SURFACE_GLSL)			// Using vertex and fragment programs
+                            {
+                                surface.s_shader.on();
+                                for (int j = 0; j < surface.NbTex; ++j)
+                                    surface.s_shader.setvar1i( format("tex%d",j).c_str(), j );
+                            }
+
+                            if (surface.Flag&SURFACE_GOURAUD)			// Type d'éclairage
+                                glShadeModel (GL_SMOOTH);
                             else
-                                glBindTexture(GL_TEXTURE_2D,gltex[0]);
-                            glTexCoordPointer(2, GL_FLOAT, 0, tcoord);
+                                glShadeModel (GL_FLAT);
+
+                            if (surface.Flag&SURFACE_LIGHTED)			// Eclairage
+                                glEnable(GL_LIGHTING);
+                            else
+                                glDisable(GL_LIGHTING);
+
+                            if (chg_col || !notex)
+                            {
+                                if (surface.Flag&SURFACE_BLENDED || (!chg_col && color_factor[3] != 1.0f)) // La transparence
+                                {
+                                    glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+                                    glEnable(GL_BLEND);
+                                    glAlphaFunc( GL_GREATER, 0.1 );
+                                    glEnable( GL_ALPHA_TEST );
+                                }
+                                else
+                                {
+                                    glDisable(GL_ALPHA_TEST);
+                                    glDisable(GL_BLEND);
+                                }
+                            }
+
+                            if (surface.Flag&SURFACE_TEXTURED && !notex) // Les textures et effets de texture
+                            {
+                                activated_tex = true;
+                                for (int j = 0; j < surface.NbTex; ++j)
+                                {
+                                    glActiveTextureARB(GL_TEXTURE0_ARB + j);
+                                    glEnable(GL_TEXTURE_2D);
+                                    glBindTexture(GL_TEXTURE_2D,surface.gltex[j]);
+                                    if (j==surface.NbTex-1 && surface.Flag&SURFACE_REFLEC)
+                                    {
+                                        glTexGeni(GL_S, GL_TEXTURE_GEN_MODE, GL_SPHERE_MAP);
+                                        glTexGeni(GL_T, GL_TEXTURE_GEN_MODE, GL_SPHERE_MAP);
+                                        glEnable(GL_TEXTURE_GEN_S);
+                                        glEnable(GL_TEXTURE_GEN_T);
+                                        glTexEnvi(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_COMBINE_EXT);
+                                        glTexEnvi(GL_TEXTURE_ENV,GL_COMBINE_RGB_EXT,GL_INTERPOLATE);
+
+                                        glTexEnvi(GL_TEXTURE_ENV,GL_SOURCE0_RGB_EXT,GL_TEXTURE);
+                                        glTexEnvi(GL_TEXTURE_ENV,GL_OPERAND0_RGB_EXT,GL_SRC_COLOR);
+                                        glTexEnvi(GL_TEXTURE_ENV,GL_SOURCE1_RGB_EXT,GL_PREVIOUS_EXT);
+                                        glTexEnvi(GL_TEXTURE_ENV,GL_OPERAND1_RGB_EXT,GL_SRC_COLOR);
+                                        glTexEnvi(GL_TEXTURE_ENV,GL_SOURCE2_RGB_EXT,GL_CONSTANT_EXT);
+                                        glTexEnvi(GL_TEXTURE_ENV,GL_OPERAND2_RGB_EXT,GL_SRC_COLOR);
+                                        glTexEnvfv(GL_TEXTURE_ENV,GL_TEXTURE_ENV_COLOR,surface.RColor);
+                                    }
+                                    else
+                                    {
+                                        glTexEnvi(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_MODULATE);
+                                        glDisable(GL_TEXTURE_GEN_S);
+                                        glDisable(GL_TEXTURE_GEN_T);
+                                        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+                                        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+                                    }
+                                }
+                                glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+                                for (int j = 0; j < surface.NbTex; ++j)
+                                {
+                                    glClientActiveTextureARB(GL_TEXTURE0_ARB + j);
+                                    glTexCoordPointer(2, GL_FLOAT, 0, tcoord);
+                                }
+                            }
+                            else
+                            {
+                                for (int j = 7; j >= 0; --j)
+                                {
+                                    glActiveTextureARB(GL_TEXTURE0_ARB + j);
+                                    glDisable(GL_TEXTURE_2D);
+                                    glClientActiveTextureARB(GL_TEXTURE0_ARB + j);
+                                    glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+                                }
+                                glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+                            }
                         }
-                    }
-                    glVertexPointer(3, GL_FLOAT, 0, points);
-                    glNormalPointer(GL_FLOAT, 0, N);
-                    if (!use_strips)
-                        glDrawRangeElements(GL_TRIANGLES, 0, nb_vtx-1, nb_t_index,GL_UNSIGNED_SHORT,t_index);				// draw everything
-                    else
-                    {
-                        glDisable( GL_CULL_FACE );
-                        glDrawRangeElements(GL_TRIANGLE_STRIP, 0, nb_vtx-1, nb_t_index,GL_UNSIGNED_SHORT,t_index);		// draw everything
-                        glEnable( GL_CULL_FACE );
-                    }
-
-                    if ((surface.Flag&(SURFACE_ADVANCED | SURFACE_GOURAUD))==SURFACE_ADVANCED)
-                        glShadeModel (GL_SMOOTH);
-                    if ((surface.Flag&SURFACE_GLSL) && (surface.Flag&SURFACE_ADVANCED))			// Using vertex and fragment programs
-                        surface.s_shader.off();
-
-                    if (activated_tex)
-                    {
-                        for (int j = 0; j < surface.NbTex; ++j)
+                        else
                         {
-                            glClientActiveTextureARB(GL_TEXTURE0_ARB + j);
-                            glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-
-                            glActiveTextureARB(GL_TEXTURE0_ARB + j);
-                            glDisable(GL_TEXTURE_2D);
-                            glTexEnvi(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_MODULATE);
-                            glDisable(GL_TEXTURE_GEN_S);
-                            glDisable(GL_TEXTURE_GEN_T);
-                            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-                            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+                            if (!alset)
+                            {
+                                glEnableClientState(GL_VERTEX_ARRAY);		// Les sommets
+                                glEnableClientState(GL_NORMAL_ARRAY);
+                                if (notex)
+                                    glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+                                else
+                                    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+                                glEnable(GL_LIGHTING);
+                                if (notex)
+                                    glDisable(GL_TEXTURE_2D);
+                                else
+                                    glEnable(GL_TEXTURE_2D);
+                                alset=true;
+                            }
+                            if (chg_col || !notex)
+                            {
+                                if (!chg_col && color_factor[3] != 1.0f) // La transparence
+                                {
+                                    glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+                                    glEnable(GL_BLEND);
+                                }
+                                else
+                                    glDisable(GL_BLEND);
+                            }
+                            set = true;
+                            if (!dtex)
+                            {
+                                alset=false;
+                                glDisable(GL_TEXTURE_2D);
+                                glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+                            }
+                            if (!notex && dtex)
+                            {
+                                if (side<dtex && side>=0)
+                                    glBindTexture(GL_TEXTURE_2D,gltex[side]);
+                                else
+                                    glBindTexture(GL_TEXTURE_2D,gltex[0]);
+                                glTexCoordPointer(2, GL_FLOAT, 0, tcoord);
+                            }
                         }
-                        glClientActiveTextureARB(GL_TEXTURE0_ARB);
-                        glActiveTextureARB(GL_TEXTURE0_ARB);
-                        glEnable(GL_TEXTURE_2D);
+                        glVertexPointer(3, GL_FLOAT, 0, points);
+                        glNormalPointer(GL_FLOAT, 0, N);
+                        if (!use_strips)
+                            glDrawRangeElements(GL_TRIANGLES, 0, nb_vtx-1, nb_t_index,GL_UNSIGNED_SHORT,t_index);				// draw everything
+                        else
+                        {
+                            glDisable( GL_CULL_FACE );
+                            glDrawRangeElements(GL_TRIANGLE_STRIP, 0, nb_vtx-1, nb_t_index,GL_UNSIGNED_SHORT,t_index);		// draw everything
+                            glEnable( GL_CULL_FACE );
+                        }
+
+                        if ((surface.Flag&(SURFACE_ADVANCED | SURFACE_GOURAUD))==SURFACE_ADVANCED)
+                            glShadeModel (GL_SMOOTH);
+                        if ((surface.Flag&SURFACE_GLSL) && (surface.Flag&SURFACE_ADVANCED))			// Using vertex and fragment programs
+                            surface.s_shader.off();
+
+                        if (activated_tex)
+                        {
+                            for (int j = 0; j < surface.NbTex; ++j)
+                            {
+                                glClientActiveTextureARB(GL_TEXTURE0_ARB + j);
+                                glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+
+                                glActiveTextureARB(GL_TEXTURE0_ARB + j);
+                                glDisable(GL_TEXTURE_2D);
+                                glTexEnvi(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_MODULATE);
+                                glDisable(GL_TEXTURE_GEN_S);
+                                glDisable(GL_TEXTURE_GEN_T);
+                                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+                                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+                            }
+                            glClientActiveTextureARB(GL_TEXTURE0_ARB);
+                            glActiveTextureARB(GL_TEXTURE0_ARB);
+                            glEnable(GL_TEXTURE_2D);
+                        }
                     }
+                    if (creating_list)
+                        glEndList();
                 }
-                if (creating_list)
-                    glEndList();
-            }
 #ifdef DEBUG_MODE_3DO
-        if (nb_l_index > 0 && nb_vtx > 0)
-        {
-            glEnableClientState(GL_VERTEX_ARRAY);		// Les sommets
-            glDisableClientState(GL_NORMAL_ARRAY);
-            glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-            glDisable(GL_LIGHTING);
-            glDisable(GL_TEXTURE_2D);
-            alset=false;
-            if (!set)
-                glVertexPointer( 3, GL_FLOAT, 0, points);
-            set=true;
-            glDrawElements(GL_LINES, nb_l_index,GL_UNSIGNED_SHORT,l_index);		// dessine le tout
-        }
-#endif
-        if (sel_primitive && selprim >= 0 && nb_vtx > 0) // && (data_s==NULL || (data_s!=NULL && !data_s->explode))) {
-        {
-            glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-            glDisableClientState(GL_NORMAL_ARRAY);
-            glDisable(GL_LIGHTING);
-            glDisable(GL_TEXTURE_2D);
-            if (!set)
-                glVertexPointer( 3, GL_FLOAT, 0, points);
-            glColor3ub(0,0xFF,0);
-            glTranslatef( 0.0f, 2.0f, 0.0f );
-            glDrawElements(GL_LINE_LOOP, 4,GL_UNSIGNED_SHORT,sel);		// dessine la primitive de sélection
-            glTranslatef( 0.0f, -2.0f, 0.0f );
-            if (notex)
+            if (nb_l_index > 0 && nb_vtx > 0)
             {
-                int var = abs(0xFF - (msec_timer%1000)*0x200/1000);
-                glColor3ub(0,var,0);
+                glEnableClientState(GL_VERTEX_ARRAY);		// Les sommets
+                glDisableClientState(GL_NORMAL_ARRAY);
+                glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+                glDisable(GL_LIGHTING);
+                glDisable(GL_TEXTURE_2D);
+                alset=false;
+                if (!set)
+                    glVertexPointer( 3, GL_FLOAT, 0, points);
+                set=true;
+                glDrawElements(GL_LINES, nb_l_index,GL_UNSIGNED_SHORT,l_index);		// dessine le tout
             }
-            else
-                glColor3ub(0xFF,0xFF,0xFF);
-            alset=false;
+#endif
+            if (sel_primitive && selprim >= 0 && nb_vtx > 0) // && (data_s==NULL || (data_s!=NULL && !data_s->explode))) {
+            {
+                glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+                glDisableClientState(GL_NORMAL_ARRAY);
+                glDisable(GL_LIGHTING);
+                glDisable(GL_TEXTURE_2D);
+                if (!set)
+                    glVertexPointer( 3, GL_FLOAT, 0, points);
+                glColor3ub(0,0xFF,0);
+                glTranslatef( 0.0f, 2.0f, 0.0f );
+                glDrawElements(GL_LINE_LOOP, 4,GL_UNSIGNED_SHORT,sel);		// dessine la primitive de sélection
+                glTranslatef( 0.0f, -2.0f, 0.0f );
+                if (notex)
+                {
+                    int var = abs(0xFF - (msec_timer%1000)*0x200/1000);
+                    glColor3ub(0,var,0);
+                }
+                else
+                    glColor3ub(0xFF,0xFF,0xFF);
+                alset=false;
+            }
+            if (!chg_col)
+                glColor4fv(color_factor);
+            if (child && !(explodes && !exploding_parts))
+            {
+                glPushMatrix();
+                alset=child->draw(t,data_s,sel_primitive,alset,notex,side,chg_col, exploding_parts && !explodes );
+                glPopMatrix();
+            }
         }
-        if (!chg_col)
-            glColor4fv(color_factor);
-        if (child && !(explodes && !exploding_parts))
-        {
-            glPushMatrix();
-            alset=child->draw(t,data_s,sel_primitive,alset,notex,side,chg_col, exploding_parts && !explodes );
-            glPopMatrix();
-        }
-draw_next:
         if (next)
         {
             glPopMatrix();
@@ -2096,145 +2096,145 @@ draw_next:
         bool hide=false;
         Vector3D ODir=Dir;
         glPushMatrix();
-        if (explodes && !exploding_parts)
-            goto draw_shadow_next;
-        glTranslatef(pos_from_parent.x,pos_from_parent.y,pos_from_parent.z);
+        if (!(explodes && !exploding_parts))
+        {
+            glTranslatef(pos_from_parent.x,pos_from_parent.y,pos_from_parent.z);
 
-        if (script_index>=0 && data_s)
-        {
-            if (!explodes ^ exploding_parts)
+            if (script_index>=0 && data_s)
             {
-                glTranslatef(data_s->axe[0][script_index].pos, data_s->axe[1][script_index].pos, data_s->axe[2][script_index].pos);
-                glRotatef(data_s->axe[0][script_index].angle, 1.0f, 0.0f, 0.0f);
-                glRotatef(data_s->axe[1][script_index].angle, 0.0f, 1.0f, 0.0f);
-                glRotatef(data_s->axe[2][script_index].angle, 0.0f, 0.0f, 1.0f);
-                Dir = Dir * RotateXYZ(-data_s->axe[0][script_index].angle * DEG2RAD,
-                                      -data_s->axe[1][script_index].angle * DEG2RAD,
-                                      -data_s->axe[2][script_index].angle * DEG2RAD);
-            }
-            hide = data_s->flag[script_index] & FLAG_HIDE;
-        }
-        else 
-        {
-            if (animation_data)
-            {
-                Vector3D R,T;
-                animation_data->animate(t, R, T);
-                glTranslatef(T.x, T.y, T.z);
-                glRotatef(R.x, 1.0f, 0.0f, 0.0f);
-                glRotatef(R.y, 0.0f, 1.0f, 0.0f);
-                glRotatef(R.z, 0.0f, 0.0f, 1.0f);
-                Dir = Dir * RotateXYZ(-R.x * DEG2RAD, -R.y * DEG2RAD, -R.z * DEG2RAD);
-            }
-        }
-        hide |= explodes ^ exploding_parts;
-        if (nb_t_index > 0 && !hide)
-        {
-            if (!alset)
-            {
-                glDisable(GL_LIGHTING);
-                glDisable(GL_TEXTURE_2D);
-                glEnableClientState(GL_VERTEX_ARRAY);		// Les sommets
-                glDisableClientState(GL_NORMAL_ARRAY);
-                glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-                alset=true;
-            }
-            /*-----------------Code de calcul du cone d'ombre-------------------------*/
-            if (shadow_index == NULL)
-                shadow_index = new GLushort[nb_t_index * 12];
-            uint16 nb_idx = 0;
-
-            if (t_line == NULL) // Repère les arêtes
-            {
-                t_line = new short[nb_t_index];
-                line_v_idx[0] = new short[nb_t_index];
-                line_v_idx[1] = new short[nb_t_index];
-                face_reverse = new byte[ nb_t_index ];
-                nb_line=0;
-                for (short i = 0; i < nb_t_index; i += 3)
+                if (!explodes ^ exploding_parts)
                 {
-                    for (byte a = 0; a < 3; ++a)
+                    glTranslatef(data_s->axe[0][script_index].pos, data_s->axe[1][script_index].pos, data_s->axe[2][script_index].pos);
+                    glRotatef(data_s->axe[0][script_index].angle, 1.0f, 0.0f, 0.0f);
+                    glRotatef(data_s->axe[1][script_index].angle, 0.0f, 1.0f, 0.0f);
+                    glRotatef(data_s->axe[2][script_index].angle, 0.0f, 0.0f, 1.0f);
+                    Dir = Dir * RotateXYZ(-data_s->axe[0][script_index].angle * DEG2RAD,
+                                          -data_s->axe[1][script_index].angle * DEG2RAD,
+                                          -data_s->axe[2][script_index].angle * DEG2RAD);
+                }
+                hide = data_s->flag[script_index] & FLAG_HIDE;
+            }
+            else 
+            {
+                if (animation_data)
+                {
+                    Vector3D R,T;
+                    animation_data->animate(t, R, T);
+                    glTranslatef(T.x, T.y, T.z);
+                    glRotatef(R.x, 1.0f, 0.0f, 0.0f);
+                    glRotatef(R.y, 0.0f, 1.0f, 0.0f);
+                    glRotatef(R.z, 0.0f, 0.0f, 1.0f);
+                    Dir = Dir * RotateXYZ(-R.x * DEG2RAD, -R.y * DEG2RAD, -R.z * DEG2RAD);
+                }
+            }
+            hide |= explodes ^ exploding_parts;
+            if (nb_t_index > 0 && !hide)
+            {
+                if (!alset)
+                {
+                    glDisable(GL_LIGHTING);
+                    glDisable(GL_TEXTURE_2D);
+                    glEnableClientState(GL_VERTEX_ARRAY);		// Les sommets
+                    glDisableClientState(GL_NORMAL_ARRAY);
+                    glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+                    alset=true;
+                }
+                /*-----------------Code de calcul du cone d'ombre-------------------------*/
+                if (shadow_index == NULL)
+                    shadow_index = new GLushort[nb_t_index * 12];
+                uint16 nb_idx = 0;
+
+                if (t_line == NULL) // Repère les arêtes
+                {
+                    t_line = new short[nb_t_index];
+                    line_v_idx[0] = new short[nb_t_index];
+                    line_v_idx[1] = new short[nb_t_index];
+                    face_reverse = new byte[ nb_t_index ];
+                    nb_line=0;
+                    for (short i = 0; i < nb_t_index; i += 3)
                     {
-                        short idx = -1;
-                        face_reverse[i + a] = 0;
-                        for (short e = 0; e < nb_line; ++e)
+                        for (byte a = 0; a < 3; ++a)
                         {
-                            if (line_v_idx[0][e] == t_index[i + a] && line_v_idx[1][e] == t_index[i + ((a + 1) % 3)])
+                            short idx = -1;
+                            face_reverse[i + a] = 0;
+                            for (short e = 0; e < nb_line; ++e)
                             {
-                                idx = e;
-                                break;
+                                if (line_v_idx[0][e] == t_index[i + a] && line_v_idx[1][e] == t_index[i + ((a + 1) % 3)])
+                                {
+                                    idx = e;
+                                    break;
+                                }
+                                else if (line_v_idx[0][e]==t_index[i+((a+1)%3)] && line_v_idx[1][e]==t_index[i+a]) {
+                                    idx=e;
+                                    face_reverse[ i + a ] = 2;
+                                    break;
+                                }
                             }
-                            else if (line_v_idx[0][e]==t_index[i+((a+1)%3)] && line_v_idx[1][e]==t_index[i+a]) {
-                                idx=e;
-                                face_reverse[ i + a ] = 2;
-                                break;
+                            if (idx == -1)
+                            {
+                                line_v_idx[0][nb_line] = t_index[i + a];
+                                line_v_idx[1][nb_line] = t_index[i + ((a + 1) % 3)];
+                                idx = nb_line;
+                                ++nb_line;
                             }
+                            t_line[i + a] = idx;
                         }
-                        if (idx == -1)
+                    }
+                    line_on = new byte[nb_line];
+                }
+
+                if (Dir.x != last_dir.x || Dir.y != last_dir.y || Dir.z != last_dir.z ) // Don't need to compute things twice
+                {
+                    memset((byte*)line_on, 0, nb_line);
+                    uint16 e = 0;
+                    for (uint16 i = 0; i < nb_t_index; i += 3)
+                    {
+                        if ((F_N[e++] % Dir ) >= 0.0f)
+                            continue;	// Use face normal
+                        line_on[t_line[i]]   = ((line_on[t_line[i]]   ^ 1) & 1) | face_reverse[i];
+                        line_on[t_line[i+1]] = ((line_on[t_line[i+1]] ^ 1) & 1) | face_reverse[i+1];
+                        line_on[t_line[i+2]] = ((line_on[t_line[i+2]] ^ 1) & 1) | face_reverse[i+2];
+                    }
+                    for (short i = 0; i < nb_line; ++i)
+                    {
+                        if (!(line_on[i] & 1))
+                            continue;
+                        points[line_v_idx[0][i]+nb_vtx]=points[line_v_idx[0][i]]+Dir;		// Projection
+                        points[line_v_idx[1][i]+nb_vtx]=points[line_v_idx[1][i]]+Dir;
+
+                        if (line_on[i] & 2)
                         {
-                            line_v_idx[0][nb_line] = t_index[i + a];
-                            line_v_idx[1][nb_line] = t_index[i + ((a + 1) % 3)];
-                            idx = nb_line;
-                            ++nb_line;
+                            shadow_index[nb_idx++] = line_v_idx[1][i];
+                            shadow_index[nb_idx++] = line_v_idx[0][i];
+                            shadow_index[nb_idx++] = line_v_idx[0][i]+nb_vtx;
+                            shadow_index[nb_idx++] = line_v_idx[1][i]+nb_vtx;
                         }
-                        t_line[i + a] = idx;
+                        else
+                        {
+                            shadow_index[nb_idx++] = line_v_idx[0][i];
+                            shadow_index[nb_idx++] = line_v_idx[1][i];
+                            shadow_index[nb_idx++] = line_v_idx[1][i] + nb_vtx;
+                            shadow_index[nb_idx++] = line_v_idx[0][i] + nb_vtx;
+                        }
                     }
+                    last_nb_idx = nb_idx;
+                    last_dir = Dir;
                 }
-                line_on = new byte[nb_line];
-            }
-
-            if (Dir.x != last_dir.x || Dir.y != last_dir.y || Dir.z != last_dir.z ) // Don't need to compute things twice
-            {
-                memset((byte*)line_on, 0, nb_line);
-                uint16 e = 0;
-                for (uint16 i = 0; i < nb_t_index; i += 3)
+                else
+                    nb_idx = last_nb_idx;
+                if (nb_idx)
                 {
-                    if ((F_N[e++] % Dir ) >= 0.0f)
-                        continue;	// Use face normal
-                    line_on[t_line[i]]   = ((line_on[t_line[i]]   ^ 1) & 1) | face_reverse[i];
-                    line_on[t_line[i+1]] = ((line_on[t_line[i+1]] ^ 1) & 1) | face_reverse[i+1];
-                    line_on[t_line[i+2]] = ((line_on[t_line[i+2]] ^ 1) & 1) | face_reverse[i+2];
+                    glVertexPointer(3, GL_FLOAT, 0, points);
+                    glDrawRangeElements(GL_QUADS, 0, (nb_vtx<<1)-1, nb_idx,GL_UNSIGNED_SHORT,shadow_index);		// dessine le tout
                 }
-                for (short i = 0; i < nb_line; ++i)
-                {
-                    if (!(line_on[i] & 1))
-                        continue;
-                    points[line_v_idx[0][i]+nb_vtx]=points[line_v_idx[0][i]]+Dir;		// Projection
-                    points[line_v_idx[1][i]+nb_vtx]=points[line_v_idx[1][i]]+Dir;
-
-                    if (line_on[i] & 2)
-                    {
-                        shadow_index[nb_idx++] = line_v_idx[1][i];
-                        shadow_index[nb_idx++] = line_v_idx[0][i];
-                        shadow_index[nb_idx++] = line_v_idx[0][i]+nb_vtx;
-                        shadow_index[nb_idx++] = line_v_idx[1][i]+nb_vtx;
-                    }
-                    else
-                    {
-                        shadow_index[nb_idx++] = line_v_idx[0][i];
-                        shadow_index[nb_idx++] = line_v_idx[1][i];
-                        shadow_index[nb_idx++] = line_v_idx[1][i] + nb_vtx;
-                        shadow_index[nb_idx++] = line_v_idx[0][i] + nb_vtx;
-                    }
-                }
-                last_nb_idx = nb_idx;
-                last_dir = Dir;
             }
-            else
-                nb_idx = last_nb_idx;
-            if (nb_idx)
+            if (child && !(explodes && !exploding_parts))
             {
-                glVertexPointer(3, GL_FLOAT, 0, points);
-                glDrawRangeElements(GL_QUADS, 0, (nb_vtx<<1)-1, nb_idx,GL_UNSIGNED_SHORT,shadow_index);		// dessine le tout
+                glPushMatrix();
+                alset=child->draw_shadow(Dir,t,data_s,alset,exploding_parts & !explodes);
+                glPopMatrix();
             }
         }
-        if (child && !(explodes && !exploding_parts))
-        {
-            glPushMatrix();
-            alset=child->draw_shadow(Dir,t,data_s,alset,exploding_parts & !explodes);
-            glPopMatrix();
-        }
-draw_shadow_next:
         if (next)
         {
             glPopMatrix();
@@ -2256,146 +2256,146 @@ draw_shadow_next:
         bool hide=false;
         Vector3D ODir=Dir;
         glPushMatrix();
-        if (explodes && !exploding_parts)
-            goto draw_shadow_basic_next;
-
-        glTranslatef(pos_from_parent.x, pos_from_parent.y, pos_from_parent.z);
-        if (script_index >= 0 && data_s)
+        if (!(explodes && !exploding_parts))
         {
-            if (!explodes ^ exploding_parts)
-            {
-                glTranslatef(data_s->axe[0][script_index].pos, data_s->axe[1][script_index].pos, data_s->axe[2][script_index].pos);
-                glRotatef(data_s->axe[0][script_index].angle, 1.0f, 0.0f, 0.0f);
-                glRotatef(data_s->axe[1][script_index].angle, 0.0f, 1.0f, 0.0f);
-                glRotatef(data_s->axe[2][script_index].angle, 0.0f, 0.0f, 1.0f);
-            }
-//            Dir=((Dir*RotateX(-data_s->axe[0][script_index].angle*DEG2RAD))*RotateY(-data_s->axe[1][script_index].angle*DEG2RAD))*RotateZ(-data_s->axe[2][script_index].angle*DEG2RAD);
-            Dir = Dir*RotateXYZ(-data_s->axe[0][script_index].angle*DEG2RAD, -data_s->axe[1][script_index].angle*DEG2RAD, -data_s->axe[2][script_index].angle*DEG2RAD);
-            hide=data_s->flag[script_index]&FLAG_HIDE;
-        }
-        else
-            if (animation_data )
-            {
-                Vector3D R,T;
-                animation_data->animate( t, R, T );
-                glTranslatef( T.x, T.y, T.z );
-                glRotatef( R.x, 1.0f, 0.0f, 0.0f );
-                glRotatef( R.y, 0.0f, 1.0f, 0.0f );
-                glRotatef( R.z, 0.0f, 0.0f, 1.0f );
-//                Dir=((Dir*RotateX(-R.x*DEG2RAD))*RotateY(-R.y*DEG2RAD))*RotateZ(-R.z*DEG2RAD);
-                Dir = Dir*RotateXYZ(-R.x*DEG2RAD, -R.y*DEG2RAD, -R.z*DEG2RAD);
-            }
-        hide |= explodes ^ exploding_parts;
-        if (nb_t_index>0 && !hide)
-        {
-            if (!alset)
-            {
-                glDisable(GL_LIGHTING);
-                glDisable(GL_TEXTURE_2D);
-                glEnableClientState(GL_VERTEX_ARRAY);		// Les sommets
-                glDisableClientState(GL_NORMAL_ARRAY);
-                glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-                alset=true;
-            }
-            /*-----------------Code de calcul du cone d'ombre-------------------------*/
-            if (shadow_index == NULL)
-                shadow_index = new GLushort[nb_t_index * 12];
-            uint16 nb_idx = 0;
 
-            if (t_line == NULL) // Repère les arêtes
+            glTranslatef(pos_from_parent.x, pos_from_parent.y, pos_from_parent.z);
+            if (script_index >= 0 && data_s)
             {
-                t_line = new short[nb_t_index];
-                line_v_idx[0] = new short[nb_t_index];
-                line_v_idx[1] = new short[nb_t_index];
-                face_reverse = new byte[nb_t_index];
-                nb_line = 0;
-                for (short i = 0; i < nb_t_index; i += 3)
-                    for (byte a = 0; a < 3; ++a)
-                    {
-                        short idx=-1;
-                        face_reverse[ i + a ] = 0;
-                        for (short e = 0;e < nb_line; ++e)
-                            if (line_v_idx[0][e] == t_index[i+a] && line_v_idx[1][e] == t_index[i + ((a + 1) % 3)])
-                            {
-                                idx=e;
-                                break;
-                            }
-                            else
-                                if (line_v_idx[0][e] == t_index[i + ((a + 1) % 3)] && line_v_idx[1][e] == t_index[i+a])
-                                {
-                                    idx=e;
-                                    face_reverse[ i + a ] = 2;
-                                    break;
-                                }
-                        if (idx == -1)
-                        {
-                            line_v_idx[0][nb_line]=t_index[i+a];
-                            line_v_idx[1][nb_line]=t_index[i+((a+1)%3)];
-                            idx = nb_line;
-                            ++nb_line;
-                        }
-                        t_line[i+a]=idx;
-                    }
-                line_on = new byte[nb_line];
-            }
-
-            if (Dir.x != last_dir.x || Dir.y != last_dir.y || Dir.z != last_dir.z ) // Don't need to compute things twice
-            {
-                memset((byte*)line_on,0,nb_line);
-
-                uint16 e = 0;
-                for (uint16 i = 0; i < nb_t_index; i += 3)
+                if (!explodes ^ exploding_parts)
                 {
-                    if ((F_N[e++] % Dir ) >= 0.0f)
-                        continue;	// Use face normal
-                    line_on[t_line[i]] = ((line_on[t_line[i]] ^ 1) & 1) | face_reverse[i];
-                    line_on[t_line[i+1]] = ((line_on[t_line[i+1]] ^ 1) & 1) | face_reverse[i+1];
-                    line_on[t_line[i+2]] = ((line_on[t_line[i+2]] ^ 1) & 1) | face_reverse[i+2];
+                    glTranslatef(data_s->axe[0][script_index].pos, data_s->axe[1][script_index].pos, data_s->axe[2][script_index].pos);
+                    glRotatef(data_s->axe[0][script_index].angle, 1.0f, 0.0f, 0.0f);
+                    glRotatef(data_s->axe[1][script_index].angle, 0.0f, 1.0f, 0.0f);
+                    glRotatef(data_s->axe[2][script_index].angle, 0.0f, 0.0f, 1.0f);
                 }
-                for (short i = 0; i < nb_line; ++i)
-                {
-                    if (!(line_on[i]&1))
-                        continue;
-                    points[line_v_idx[0][i] + nb_vtx] = points[line_v_idx[0][i]] + Dir; // Projection calculations
-                    points[line_v_idx[1][i] + nb_vtx] = points[line_v_idx[1][i]] + Dir;
-
-                    if (line_on[i] & 2)
-                    {
-                        shadow_index[nb_idx++] = line_v_idx[1][i];
-                        shadow_index[nb_idx++] = line_v_idx[0][i];
-                        shadow_index[nb_idx++] = line_v_idx[0][i] + nb_vtx;
-                        shadow_index[nb_idx++] = line_v_idx[1][i] + nb_vtx;
-                    }
-                    else
-                    {
-                        shadow_index[nb_idx++] = line_v_idx[0][i];
-                        shadow_index[nb_idx++] = line_v_idx[1][i];
-                        shadow_index[nb_idx++] = line_v_idx[1][i] + nb_vtx;
-                        shadow_index[nb_idx++] = line_v_idx[0][i] + nb_vtx;
-                    }
-                }
-                last_nb_idx = nb_idx;
-                last_dir = Dir;
+    //            Dir=((Dir*RotateX(-data_s->axe[0][script_index].angle*DEG2RAD))*RotateY(-data_s->axe[1][script_index].angle*DEG2RAD))*RotateZ(-data_s->axe[2][script_index].angle*DEG2RAD);
+                Dir = Dir*RotateXYZ(-data_s->axe[0][script_index].angle*DEG2RAD, -data_s->axe[1][script_index].angle*DEG2RAD, -data_s->axe[2][script_index].angle*DEG2RAD);
+                hide=data_s->flag[script_index]&FLAG_HIDE;
             }
             else
-                nb_idx = last_nb_idx;
-            glVertexPointer( 3, GL_FLOAT, 0, points);
-            glFrontFace(GL_CW);						// 1ère passe
-            glStencilOp(GL_KEEP,GL_KEEP,GL_INCR);
-            glDrawRangeElements(GL_QUADS, 0, (nb_vtx<<1)-1, nb_idx,GL_UNSIGNED_SHORT,shadow_index);		// dessine le tout
+                if (animation_data )
+                {
+                    Vector3D R,T;
+                    animation_data->animate( t, R, T );
+                    glTranslatef( T.x, T.y, T.z );
+                    glRotatef( R.x, 1.0f, 0.0f, 0.0f );
+                    glRotatef( R.y, 0.0f, 1.0f, 0.0f );
+                    glRotatef( R.z, 0.0f, 0.0f, 1.0f );
+    //                Dir=((Dir*RotateX(-R.x*DEG2RAD))*RotateY(-R.y*DEG2RAD))*RotateZ(-R.z*DEG2RAD);
+                    Dir = Dir*RotateXYZ(-R.x*DEG2RAD, -R.y*DEG2RAD, -R.z*DEG2RAD);
+                }
+            hide |= explodes ^ exploding_parts;
+            if (nb_t_index>0 && !hide)
+            {
+                if (!alset)
+                {
+                    glDisable(GL_LIGHTING);
+                    glDisable(GL_TEXTURE_2D);
+                    glEnableClientState(GL_VERTEX_ARRAY);		// Les sommets
+                    glDisableClientState(GL_NORMAL_ARRAY);
+                    glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+                    alset=true;
+                }
+                /*-----------------Code de calcul du cone d'ombre-------------------------*/
+                if (shadow_index == NULL)
+                    shadow_index = new GLushort[nb_t_index * 12];
+                uint16 nb_idx = 0;
 
-            glFrontFace(GL_CCW);  						// 2nd passe
-            glStencilOp(GL_KEEP,GL_KEEP,GL_DECR);
-            glDrawRangeElements(GL_QUADS, 0, (nb_vtx<<1)-1, nb_idx,GL_UNSIGNED_SHORT,shadow_index);		// dessine le tout
-        }
+                if (t_line == NULL) // Repère les arêtes
+                {
+                    t_line = new short[nb_t_index];
+                    line_v_idx[0] = new short[nb_t_index];
+                    line_v_idx[1] = new short[nb_t_index];
+                    face_reverse = new byte[nb_t_index];
+                    nb_line = 0;
+                    for (short i = 0; i < nb_t_index; i += 3)
+                        for (byte a = 0; a < 3; ++a)
+                        {
+                            short idx=-1;
+                            face_reverse[ i + a ] = 0;
+                            for (short e = 0;e < nb_line; ++e)
+                                if (line_v_idx[0][e] == t_index[i+a] && line_v_idx[1][e] == t_index[i + ((a + 1) % 3)])
+                                {
+                                    idx=e;
+                                    break;
+                                }
+                                else
+                                    if (line_v_idx[0][e] == t_index[i + ((a + 1) % 3)] && line_v_idx[1][e] == t_index[i+a])
+                                    {
+                                        idx=e;
+                                        face_reverse[ i + a ] = 2;
+                                        break;
+                                    }
+                            if (idx == -1)
+                            {
+                                line_v_idx[0][nb_line]=t_index[i+a];
+                                line_v_idx[1][nb_line]=t_index[i+((a+1)%3)];
+                                idx = nb_line;
+                                ++nb_line;
+                            }
+                            t_line[i+a]=idx;
+                        }
+                    line_on = new byte[nb_line];
+                }
 
-        if (child && !(explodes && !exploding_parts))
-        {
-            glPushMatrix();
-            alset=child->draw_shadow_basic(Dir,t,data_s,alset, exploding_parts & !explodes);
-            glPopMatrix();
+                if (Dir.x != last_dir.x || Dir.y != last_dir.y || Dir.z != last_dir.z ) // Don't need to compute things twice
+                {
+                    memset((byte*)line_on,0,nb_line);
+
+                    uint16 e = 0;
+                    for (uint16 i = 0; i < nb_t_index; i += 3)
+                    {
+                        if ((F_N[e++] % Dir ) >= 0.0f)
+                            continue;	// Use face normal
+                        line_on[t_line[i]] = ((line_on[t_line[i]] ^ 1) & 1) | face_reverse[i];
+                        line_on[t_line[i+1]] = ((line_on[t_line[i+1]] ^ 1) & 1) | face_reverse[i+1];
+                        line_on[t_line[i+2]] = ((line_on[t_line[i+2]] ^ 1) & 1) | face_reverse[i+2];
+                    }
+                    for (short i = 0; i < nb_line; ++i)
+                    {
+                        if (!(line_on[i]&1))
+                            continue;
+                        points[line_v_idx[0][i] + nb_vtx] = points[line_v_idx[0][i]] + Dir; // Projection calculations
+                        points[line_v_idx[1][i] + nb_vtx] = points[line_v_idx[1][i]] + Dir;
+
+                        if (line_on[i] & 2)
+                        {
+                            shadow_index[nb_idx++] = line_v_idx[1][i];
+                            shadow_index[nb_idx++] = line_v_idx[0][i];
+                            shadow_index[nb_idx++] = line_v_idx[0][i] + nb_vtx;
+                            shadow_index[nb_idx++] = line_v_idx[1][i] + nb_vtx;
+                        }
+                        else
+                        {
+                            shadow_index[nb_idx++] = line_v_idx[0][i];
+                            shadow_index[nb_idx++] = line_v_idx[1][i];
+                            shadow_index[nb_idx++] = line_v_idx[1][i] + nb_vtx;
+                            shadow_index[nb_idx++] = line_v_idx[0][i] + nb_vtx;
+                        }
+                    }
+                    last_nb_idx = nb_idx;
+                    last_dir = Dir;
+                }
+                else
+                    nb_idx = last_nb_idx;
+                glVertexPointer( 3, GL_FLOAT, 0, points);
+                glFrontFace(GL_CW);						// 1ère passe
+                glStencilOp(GL_KEEP,GL_KEEP,GL_INCR);
+                glDrawRangeElements(GL_QUADS, 0, (nb_vtx<<1)-1, nb_idx,GL_UNSIGNED_SHORT,shadow_index);		// dessine le tout
+
+                glFrontFace(GL_CCW);  						// 2nd passe
+                glStencilOp(GL_KEEP,GL_KEEP,GL_DECR);
+                glDrawRangeElements(GL_QUADS, 0, (nb_vtx<<1)-1, nb_idx,GL_UNSIGNED_SHORT,shadow_index);		// dessine le tout
+            }
+
+            if (child && !(explodes && !exploding_parts))
+            {
+                glPushMatrix();
+                alset=child->draw_shadow_basic(Dir,t,data_s,alset, exploding_parts & !explodes);
+                glPopMatrix();
+            }
         }
-draw_shadow_basic_next:
         if (next)
         {
             glPopMatrix();
@@ -2420,146 +2420,64 @@ draw_shadow_basic_next:
 
         Vector3D T = pos_from_parent;
         Vector3D MP;
-        if (script_index >= 0 && data_s && (data_s->flag[script_index] & FLAG_EXPLODE))	 // We can't select that
-            goto hit_is_exploding;
-
-        if (script_index>=0 && data_s)
+        if (!(script_index >= 0 && data_s && (data_s->flag[script_index] & FLAG_EXPLODE)))	 // We can't select that
         {
-            T.x += data_s->axe[0][script_index].pos;
-            T.y += data_s->axe[1][script_index].pos;
-            T.z += data_s->axe[2][script_index].pos;
-//            MATRIX_4x4 l_M = Scale( 1.0f );
-//            if (data_s->axe[0][script_index].angle != 0.0f)
-//                l_M = l_M * RotateX(-data_s->axe[0][script_index].angle*DEG2RAD);
-//            if (data_s->axe[1][script_index].angle != 0.0f)
-//                l_M = l_M * RotateY(-data_s->axe[1][script_index].angle*DEG2RAD);
-//            if (data_s->axe[2][script_index].angle != 0.0f)
-//                l_M = l_M * RotateZ(-data_s->axe[2][script_index].angle*DEG2RAD);
-            MATRIX_4x4 l_M = RotateXYZ(-data_s->axe[0][script_index].angle*DEG2RAD, -data_s->axe[1][script_index].angle*DEG2RAD, -data_s->axe[2][script_index].angle*DEG2RAD);
-            M_Dir = M * l_M;
-            M = l_M;
-
-            //			M_Dir=M*RotateX(-data_s->axe[0][script_index].angle*DEG2RAD)*RotateY(-data_s->axe[1][script_index].angle*DEG2RAD)*RotateZ(-data_s->axe[2][script_index].angle*DEG2RAD);
-            //			M=RotateX(-data_s->axe[0][script_index].angle*DEG2RAD)*RotateY(-data_s->axe[1][script_index].angle*DEG2RAD)*RotateZ(-data_s->axe[2][script_index].angle*DEG2RAD);
-            AM = RotateZYX(data_s->axe[2][script_index].angle*DEG2RAD, data_s->axe[1][script_index].angle*DEG2RAD, data_s->axe[0][script_index].angle*DEG2RAD);
-//            AM=RotateZ(data_s->axe[2][script_index].angle*DEG2RAD)*RotateY(data_s->axe[1][script_index].angle*DEG2RAD)*RotateX(data_s->axe[0][script_index].angle*DEG2RAD);
-            hide=data_s->flag[script_index]&FLAG_HIDE;
-        }
-        else
-            M = Scale(1.0f);
-        Pos = (Pos - T) * M;
-
-        if (( nb_t_index>0 || selprim >= 0 ) && !hide)
-        {
-            Vector3D A;
-            Vector3D B;
-            Vector3D C;
-            Dir = Dir * M_Dir;
-            Dir.unit();
-            //-----------------Code de calcul d'intersection--------------------------
-            for (short i = 0; i < nb_t_index; i += 3)
+            if (script_index>=0 && data_s)
             {
-                A = points[t_index[i]];
-                B = points[t_index[i + 1]];
-                C = points[t_index[i + 2]];
-                Vector3D AB = B - A;
-                Vector3D AC = C - A;
-                Vector3D N  = AB * AC;
-                if (N%Dir == 0.0f)
-                    continue;
-                float dist = -((Pos - A) % N) / (N % Dir);
-                if (dist < 0.0f)
-                    continue;
-                Vector3D P_p = Pos + dist * Dir;
+                T.x += data_s->axe[0][script_index].pos;
+                T.y += data_s->axe[1][script_index].pos;
+                T.z += data_s->axe[2][script_index].pos;
+    //            MATRIX_4x4 l_M = Scale( 1.0f );
+    //            if (data_s->axe[0][script_index].angle != 0.0f)
+    //                l_M = l_M * RotateX(-data_s->axe[0][script_index].angle*DEG2RAD);
+    //            if (data_s->axe[1][script_index].angle != 0.0f)
+    //                l_M = l_M * RotateY(-data_s->axe[1][script_index].angle*DEG2RAD);
+    //            if (data_s->axe[2][script_index].angle != 0.0f)
+    //                l_M = l_M * RotateZ(-data_s->axe[2][script_index].angle*DEG2RAD);
+                MATRIX_4x4 l_M = RotateXYZ(-data_s->axe[0][script_index].angle*DEG2RAD, -data_s->axe[1][script_index].angle*DEG2RAD, -data_s->axe[2][script_index].angle*DEG2RAD);
+                M_Dir = M * l_M;
+                M = l_M;
 
-                //					if (is_hit && (MP-Pos)%Dir<(P_p-Pos)%Dir)	continue;
-                if (is_hit && MP % Dir < P_p % Dir)
-                    continue;
-
-                float a;
-                float b;
-                float c;		// Coefficients pour que P soit le barycentre de A,B,C
-                Vector3D AP = P_p - A;
-                float pre_cal = AB.x * AC.y - AB.y * AC.x;
-                if (AC.y != 0.0f && pre_cal != 0.0f)
-                {
-                    b = (AP.x * AC.y - AP.y * AC.x) / pre_cal;
-                    a = (AP.y - b * AB.y) / AC.y;
-                }
-                else
-                {
-                    if (AB.x != 0.0f && pre_cal != 0.0f)
-                    {
-                        a = (AP.y * AB.x - AP.x * AB.y) / pre_cal;
-                        b = (AP.x - a * AC.x) / AB.x;
-                    }
-                    else
-                    {
-                        pre_cal = AB.x * AC.z - AB.z * AC.x;
-                        if (AC.z != 0.0f && pre_cal != 0.0f)
-                        {
-                            b=(AP.x*AC.z-AP.z*AC.x)/pre_cal;
-                            a=(AP.z-b*AB.z)/AC.z;
-                        }
-                        else
-                        {
-                            pre_cal=-pre_cal;
-                            if (AB.z!=0.0f && pre_cal!=0.0f)
-                            {
-                                a =(AP.x*AB.z-AP.z*AB.x)/pre_cal;
-                                b=(AP.z-a*AC.z)/AB.z;
-                            }
-                            else
-                            {
-                                pre_cal = AB.y*AC.x-AB.x*AC.y;
-                                if (AC.x!=0.0f && pre_cal!=0.0f)
-                                {
-                                    b=(AP.y*AC.x-AP.x*AC.y)/pre_cal;
-                                    a=(AP.x-b*AB.x)/AC.x;
-                                }
-                                else
-                                {
-                                    if (AB.y!=0.0f && pre_cal!=0.0f)
-                                    {
-                                        a=(AP.x*AB.y-AP.y*AB.x)/pre_cal;
-                                        b=(AP.y-a*AC.y)/AB.y;
-                                    }
-                                    else
-                                        continue;		// Saute le point s'il n'est pas positionnable
-                                }
-                            }
-                        }
-                    }
-                }
-                c = 1.0f - a - b;
-                if (a < 0.0f || b < 0.0f || c < 0.0f)
-                    continue; // Le point n'appartient pas au triangle
-                MP = P_p;
-                is_hit = true;
+                //			M_Dir=M*RotateX(-data_s->axe[0][script_index].angle*DEG2RAD)*RotateY(-data_s->axe[1][script_index].angle*DEG2RAD)*RotateZ(-data_s->axe[2][script_index].angle*DEG2RAD);
+                //			M=RotateX(-data_s->axe[0][script_index].angle*DEG2RAD)*RotateY(-data_s->axe[1][script_index].angle*DEG2RAD)*RotateZ(-data_s->axe[2][script_index].angle*DEG2RAD);
+                AM = RotateZYX(data_s->axe[2][script_index].angle*DEG2RAD, data_s->axe[1][script_index].angle*DEG2RAD, data_s->axe[0][script_index].angle*DEG2RAD);
+    //            AM=RotateZ(data_s->axe[2][script_index].angle*DEG2RAD)*RotateY(data_s->axe[1][script_index].angle*DEG2RAD)*RotateX(data_s->axe[0][script_index].angle*DEG2RAD);
+                hide=data_s->flag[script_index]&FLAG_HIDE;
             }
+            else
+                M = Scale(1.0f);
+            Pos = (Pos - T) * M;
 
-            if (selprim >= 0)
+            if (( nb_t_index>0 || selprim >= 0 ) && !hide)
             {
-                for (int i = 0 ; i < 2 ; ++i) // Selection primitive ( used to allow selecting naval factories easily )
+                Vector3D A;
+                Vector3D B;
+                Vector3D C;
+                Dir = Dir * M_Dir;
+                Dir.unit();
+                //-----------------Code de calcul d'intersection--------------------------
+                for (short i = 0; i < nb_t_index; i += 3)
                 {
-                    A = points[sel[i]];
-                    B = points[sel[i+1]];
-                    C = points[sel[3]];
+                    A = points[t_index[i]];
+                    B = points[t_index[i + 1]];
+                    C = points[t_index[i + 2]];
                     Vector3D AB = B - A;
                     Vector3D AC = C - A;
                     Vector3D N  = AB * AC;
-                    if (N % Dir == 0.0f)
+                    if (N%Dir == 0.0f)
                         continue;
                     float dist = -((Pos - A) % N) / (N % Dir);
                     if (dist < 0.0f)
                         continue;
-                    Vector3D P_p=Pos+dist*Dir;
+                    Vector3D P_p = Pos + dist * Dir;
 
-                    //						if (is_hit && (MP-Pos)%Dir<(P_p-Pos)%Dir)	continue;
+                    //					if (is_hit && (MP-Pos)%Dir<(P_p-Pos)%Dir)	continue;
                     if (is_hit && MP % Dir < P_p % Dir)
                         continue;
 
-                    float a,b,c;		// Coefficients pour que P soit le barycentre de A,B,C
+                    float a;
+                    float b;
+                    float c;		// Coefficients pour que P soit le barycentre de A,B,C
                     Vector3D AP = P_p - A;
                     float pre_cal = AB.x * AC.y - AB.y * AC.x;
                     if (AC.y != 0.0f && pre_cal != 0.0f)
@@ -2579,16 +2497,16 @@ draw_shadow_basic_next:
                             pre_cal = AB.x * AC.z - AB.z * AC.x;
                             if (AC.z != 0.0f && pre_cal != 0.0f)
                             {
-                                b = (AP.x * AC.z - AP.z * AC.x) / pre_cal;
-                                a = (AP.z - b * AB.z) / AC.z;
+                                b=(AP.x*AC.z-AP.z*AC.x)/pre_cal;
+                                a=(AP.z-b*AB.z)/AC.z;
                             }
                             else
                             {
-                                pre_cal = -pre_cal;
-                                if (AB.z != 0.0f && pre_cal != 0.0f)
+                                pre_cal=-pre_cal;
+                                if (AB.z!=0.0f && pre_cal!=0.0f)
                                 {
-                                    a = (AP.x * AB.z - AP.z * AB.x) / pre_cal;
-                                    b = (AP.z - a * AC.z) / AB.z;
+                                    a =(AP.x*AB.z-AP.z*AB.x)/pre_cal;
+                                    b=(AP.z-a*AC.z)/AB.z;
                                 }
                                 else
                                 {
@@ -2600,10 +2518,10 @@ draw_shadow_basic_next:
                                     }
                                     else
                                     {
-                                        if (AB.y != 0.0f && pre_cal != 0.0f)
+                                        if (AB.y!=0.0f && pre_cal!=0.0f)
                                         {
-                                            a = (AP.x * AB.y - AP.y * AB.x) / pre_cal;
-                                            b = (AP.y - a * AC.y) / AB.y;
+                                            a=(AP.x*AB.y-AP.y*AB.x)/pre_cal;
+                                            b=(AP.y-a*AC.y)/AB.y;
                                         }
                                         else
                                             continue;		// Saute le point s'il n'est pas positionnable
@@ -2613,33 +2531,114 @@ draw_shadow_basic_next:
                         }
                     }
                     c = 1.0f - a - b;
-                    if (a<0.0f || b<0.0f || c<0.0f)
-                        continue;		// Le point n'appartient pas au triangle
+                    if (a < 0.0f || b < 0.0f || c < 0.0f)
+                        continue; // Le point n'appartient pas au triangle
                     MP = P_p;
                     is_hit = true;
                 }
-            }
-        }
 
-        if (child)
-        {
-            Vector3D MP2;
-            bool nhit = child->hit(Pos, ODir, data_s, &MP2, M_Dir);
-            if (nhit && !is_hit)
-                MP = MP2;
-            else
-            {
-                if (nhit && is_hit)
+                if (selprim >= 0)
                 {
-                    if (MP2 % Dir < MP % Dir)
-                        MP = MP2;
+                    for (int i = 0 ; i < 2 ; ++i) // Selection primitive ( used to allow selecting naval factories easily )
+                    {
+                        A = points[sel[i]];
+                        B = points[sel[i+1]];
+                        C = points[sel[3]];
+                        Vector3D AB = B - A;
+                        Vector3D AC = C - A;
+                        Vector3D N  = AB * AC;
+                        if (N % Dir == 0.0f)
+                            continue;
+                        float dist = -((Pos - A) % N) / (N % Dir);
+                        if (dist < 0.0f)
+                            continue;
+                        Vector3D P_p=Pos+dist*Dir;
+
+                        //						if (is_hit && (MP-Pos)%Dir<(P_p-Pos)%Dir)	continue;
+                        if (is_hit && MP % Dir < P_p % Dir)
+                            continue;
+
+                        float a,b,c;		// Coefficients pour que P soit le barycentre de A,B,C
+                        Vector3D AP = P_p - A;
+                        float pre_cal = AB.x * AC.y - AB.y * AC.x;
+                        if (AC.y != 0.0f && pre_cal != 0.0f)
+                        {
+                            b = (AP.x * AC.y - AP.y * AC.x) / pre_cal;
+                            a = (AP.y - b * AB.y) / AC.y;
+                        }
+                        else
+                        {
+                            if (AB.x != 0.0f && pre_cal != 0.0f)
+                            {
+                                a = (AP.y * AB.x - AP.x * AB.y) / pre_cal;
+                                b = (AP.x - a * AC.x) / AB.x;
+                            }
+                            else
+                            {
+                                pre_cal = AB.x * AC.z - AB.z * AC.x;
+                                if (AC.z != 0.0f && pre_cal != 0.0f)
+                                {
+                                    b = (AP.x * AC.z - AP.z * AC.x) / pre_cal;
+                                    a = (AP.z - b * AB.z) / AC.z;
+                                }
+                                else
+                                {
+                                    pre_cal = -pre_cal;
+                                    if (AB.z != 0.0f && pre_cal != 0.0f)
+                                    {
+                                        a = (AP.x * AB.z - AP.z * AB.x) / pre_cal;
+                                        b = (AP.z - a * AC.z) / AB.z;
+                                    }
+                                    else
+                                    {
+                                        pre_cal = AB.y*AC.x-AB.x*AC.y;
+                                        if (AC.x!=0.0f && pre_cal!=0.0f)
+                                        {
+                                            b=(AP.y*AC.x-AP.x*AC.y)/pre_cal;
+                                            a=(AP.x-b*AB.x)/AC.x;
+                                        }
+                                        else
+                                        {
+                                            if (AB.y != 0.0f && pre_cal != 0.0f)
+                                            {
+                                                a = (AP.x * AB.y - AP.y * AB.x) / pre_cal;
+                                                b = (AP.y - a * AC.y) / AB.y;
+                                            }
+                                            else
+                                                continue;		// Saute le point s'il n'est pas positionnable
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        c = 1.0f - a - b;
+                        if (a<0.0f || b<0.0f || c<0.0f)
+                            continue;		// Le point n'appartient pas au triangle
+                        MP = P_p;
+                        is_hit = true;
+                    }
                 }
             }
-            is_hit |= nhit;
+
+            if (child)
+            {
+                Vector3D MP2;
+                bool nhit = child->hit(Pos, ODir, data_s, &MP2, M_Dir);
+                if (nhit && !is_hit)
+                    MP = MP2;
+                else
+                {
+                    if (nhit && is_hit)
+                    {
+                        if (MP2 % Dir < MP % Dir)
+                            MP = MP2;
+                    }
+                }
+                is_hit |= nhit;
+            }
+            if (is_hit)
+                MP = (MP * AM) + T;
         }
-        if (is_hit)
-            MP = (MP * AM) + T;
-hit_is_exploding:
         if (next)
         {
             Vector3D MP2;
@@ -2674,114 +2673,113 @@ hit_is_exploding:
 
         Vector3D T = pos_from_parent;
         Vector3D MP;
-        if (script_index >= 0 && data_s && (data_s->flag[script_index] & FLAG_EXPLODE))
-            goto hit_fast_is_exploding;
-        if (script_index >= 0 && data_s)
+        if (!(script_index >= 0 && data_s && (data_s->flag[script_index] & FLAG_EXPLODE)))
         {
-            T.x += data_s->axe[0][script_index].pos;
-            T.y += data_s->axe[1][script_index].pos;
-            T.z += data_s->axe[2][script_index].pos;
-//            MATRIX_4x4 l_M = Scale( 1.0f );
-//            if (data_s->axe[0][script_index].angle != 0.0f)
-//                l_M = l_M * RotateX(-data_s->axe[0][script_index].angle * DEG2RAD);
-//            if (data_s->axe[1][script_index].angle != 0.0f)
-//                l_M = l_M * RotateY(-data_s->axe[1][script_index].angle * DEG2RAD);
-//            if (data_s->axe[2][script_index].angle != 0.0f)
-//                l_M = l_M * RotateZ(-data_s->axe[2][script_index].angle * DEG2RAD);
-            MATRIX_4x4 l_M = RotateXYZ(-data_s->axe[0][script_index].angle * DEG2RAD, -data_s->axe[1][script_index].angle * DEG2RAD, -data_s->axe[2][script_index].angle * DEG2RAD);
-            Dir = Dir * l_M;
-            Pos = (Pos - T) * l_M;
-            //			Dir = ((Dir * RotateX(-data_s->axe[0][script_index].angle*DEG2RAD)) * RotateY(-data_s->axe[1][script_index].angle*DEG2RAD)) * RotateZ(-data_s->axe[2][script_index].angle*DEG2RAD);
-            //			Pos = (((Pos - T) * RotateX(-data_s->axe[0][script_index].angle*DEG2RAD)) * RotateY(-data_s->axe[1][script_index].angle*DEG2RAD)) * RotateZ(-data_s->axe[2][script_index].angle*DEG2RAD);
-            AM = RotateZYX(data_s->axe[2][script_index].angle * DEG2RAD, data_s->axe[1][script_index].angle * DEG2RAD, data_s->axe[0][script_index].angle * DEG2RAD);
-//            AM = RotateZ(data_s->axe[2][script_index].angle * DEG2RAD)
-//                * RotateY(data_s->axe[1][script_index].angle * DEG2RAD) * RotateX(data_s->axe[0][script_index].angle * DEG2RAD);
-            hide = data_s->flag[script_index]&FLAG_HIDE;
-        }
-        else
-            AM = Scale(1.0f);
-        if (nb_t_index > 0 && nb_vtx > 0 && !hide)
-        {
-            if (compute_min_max ) // Required pre-calculations
+            if (script_index >= 0 && data_s)
             {
-                compute_min_max = false;
-                min_x = max_x = points[0].x;
-                min_y = max_y = points[0].y;
-                min_z = max_z = points[0].z;
-                for (short i = 1; i < nb_vtx ; ++i)
-                {
-                    min_x = Math::Min(min_x, points[i].x);
-                    max_x = Math::Max(max_x, points[i].x);
-                    min_y = Math::Min(min_y, points[i].y);
-                    max_y = Math::Max(max_y, points[i].y);
-                    min_z = Math::Min(min_z, points[i].z);
-                    max_z = Math::Max(max_z, points[i].z);
-                }
-            }
-
-            // Collision detector using boxes
-            if (Pos.x >= min_x && Pos.x <= max_x
-                && Pos.y >= min_y && Pos.y <= max_y
-                && Pos.z >= min_z && Pos.z <= max_z ) // The ray starts from inside
-            {
-                MP = Pos;
-                is_hit = true;
+                T.x += data_s->axe[0][script_index].pos;
+                T.y += data_s->axe[1][script_index].pos;
+                T.z += data_s->axe[2][script_index].pos;
+    //            MATRIX_4x4 l_M = Scale( 1.0f );
+    //            if (data_s->axe[0][script_index].angle != 0.0f)
+    //                l_M = l_M * RotateX(-data_s->axe[0][script_index].angle * DEG2RAD);
+    //            if (data_s->axe[1][script_index].angle != 0.0f)
+    //                l_M = l_M * RotateY(-data_s->axe[1][script_index].angle * DEG2RAD);
+    //            if (data_s->axe[2][script_index].angle != 0.0f)
+    //                l_M = l_M * RotateZ(-data_s->axe[2][script_index].angle * DEG2RAD);
+                MATRIX_4x4 l_M = RotateXYZ(-data_s->axe[0][script_index].angle * DEG2RAD, -data_s->axe[1][script_index].angle * DEG2RAD, -data_s->axe[2][script_index].angle * DEG2RAD);
+                Dir = Dir * l_M;
+                Pos = (Pos - T) * l_M;
+                //			Dir = ((Dir * RotateX(-data_s->axe[0][script_index].angle*DEG2RAD)) * RotateY(-data_s->axe[1][script_index].angle*DEG2RAD)) * RotateZ(-data_s->axe[2][script_index].angle*DEG2RAD);
+                //			Pos = (((Pos - T) * RotateX(-data_s->axe[0][script_index].angle*DEG2RAD)) * RotateY(-data_s->axe[1][script_index].angle*DEG2RAD)) * RotateZ(-data_s->axe[2][script_index].angle*DEG2RAD);
+                AM = RotateZYX(data_s->axe[2][script_index].angle * DEG2RAD, data_s->axe[1][script_index].angle * DEG2RAD, data_s->axe[0][script_index].angle * DEG2RAD);
+    //            AM = RotateZ(data_s->axe[2][script_index].angle * DEG2RAD)
+    //                * RotateY(data_s->axe[1][script_index].angle * DEG2RAD) * RotateX(data_s->axe[0][script_index].angle * DEG2RAD);
+                hide = data_s->flag[script_index]&FLAG_HIDE;
             }
             else
+                AM = Scale(1.0f);
+            if (nb_t_index > 0 && nb_vtx > 0 && !hide)
             {
-                if (Dir.x != 0.0f ) // 2 x planes
+                if (compute_min_max ) // Required pre-calculations
                 {
-                    MP = Pos + ( (min_x - Pos.x) / Dir.x) * Dir;
-                    if (MP.y >= min_y && MP.y <= max_y && MP.z >= min_z && MP.z <= max_z )
-                        is_hit = true;
-                    else
+                    compute_min_max = false;
+                    min_x = max_x = points[0].x;
+                    min_y = max_y = points[0].y;
+                    min_z = max_z = points[0].z;
+                    for (short i = 1; i < nb_vtx ; ++i)
                     {
-                        MP = Pos + ( (max_x - Pos.x) / Dir.x) * Dir;
+                        min_x = Math::Min(min_x, points[i].x);
+                        max_x = Math::Max(max_x, points[i].x);
+                        min_y = Math::Min(min_y, points[i].y);
+                        max_y = Math::Max(max_y, points[i].y);
+                        min_z = Math::Min(min_z, points[i].z);
+                        max_z = Math::Max(max_z, points[i].z);
+                    }
+                }
+
+                // Collision detector using boxes
+                if (Pos.x >= min_x && Pos.x <= max_x
+                    && Pos.y >= min_y && Pos.y <= max_y
+                    && Pos.z >= min_z && Pos.z <= max_z ) // The ray starts from inside
+                {
+                    MP = Pos;
+                    is_hit = true;
+                }
+                else
+                {
+                    if (Dir.x != 0.0f ) // 2 x planes
+                    {
+                        MP = Pos + ( (min_x - Pos.x) / Dir.x) * Dir;
                         if (MP.y >= min_y && MP.y <= max_y && MP.z >= min_z && MP.z <= max_z )
                             is_hit = true;
+                        else
+                        {
+                            MP = Pos + ( (max_x - Pos.x) / Dir.x) * Dir;
+                            if (MP.y >= min_y && MP.y <= max_y && MP.z >= min_z && MP.z <= max_z )
+                                is_hit = true;
+                        }
                     }
-                }
-                if (!is_hit && Dir.y != 0.0f )// 2 y planes
-                {
-                    MP = Pos + ( (min_y - Pos.y) / Dir.y) * Dir;
-                    if (MP.x >= min_x && MP.x <= max_x && MP.z >= min_z && MP.z <= max_z )
-                        is_hit = true;
-                    else
+                    if (!is_hit && Dir.y != 0.0f )// 2 y planes
                     {
-                        MP = Pos + ( (max_y - Pos.y) / Dir.y) * Dir;
+                        MP = Pos + ( (min_y - Pos.y) / Dir.y) * Dir;
                         if (MP.x >= min_x && MP.x <= max_x && MP.z >= min_z && MP.z <= max_z )
                             is_hit = true;
+                        else
+                        {
+                            MP = Pos + ( (max_y - Pos.y) / Dir.y) * Dir;
+                            if (MP.x >= min_x && MP.x <= max_x && MP.z >= min_z && MP.z <= max_z )
+                                is_hit = true;
+                        }
                     }
-                }
-                if (!is_hit && Dir.z != 0.0f )// 2 z planes
-                {
-                    MP = Pos + ( (min_z - Pos.z) / Dir.z) * Dir;
-                    if (MP.y >= min_y && MP.y <= max_y && MP.x >= min_x && MP.x <= max_x )
-                        is_hit = true;
-                    else
+                    if (!is_hit && Dir.z != 0.0f )// 2 z planes
                     {
-                        MP = Pos + ( (max_z - Pos.z) / Dir.z) * Dir;
+                        MP = Pos + ( (min_z - Pos.z) / Dir.z) * Dir;
                         if (MP.y >= min_y && MP.y <= max_y && MP.x >= min_x && MP.x <= max_x )
                             is_hit = true;
+                        else
+                        {
+                            MP = Pos + ( (max_z - Pos.z) / Dir.z) * Dir;
+                            if (MP.y >= min_y && MP.y <= max_y && MP.x >= min_x && MP.x <= max_x )
+                                is_hit = true;
+                        }
                     }
                 }
             }
-        }
-        if (child && !is_hit)
-        {
-            Vector3D MP2;
-            bool nhit = child->hit_fast(Pos,Dir,data_s,&MP2);
-            if (nhit)
+            if (child && !is_hit)
             {
-                if (!is_hit || MP2%Dir<MP%Dir)
-                    MP = MP2;
-                is_hit = true;
+                Vector3D MP2;
+                bool nhit = child->hit_fast(Pos,Dir,data_s,&MP2);
+                if (nhit)
+                {
+                    if (!is_hit || MP2%Dir<MP%Dir)
+                        MP = MP2;
+                    is_hit = true;
+                }
             }
+            if (is_hit)
+                MP = (MP * AM) + T;
         }
-        if (is_hit)
-            MP = (MP * AM) + T;
-
-hit_fast_is_exploding:
         if (next && !is_hit)
         {
             Vector3D MP2;
