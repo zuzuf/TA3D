@@ -1642,11 +1642,11 @@ namespace TA3D
                     glVertexPointer(3, GL_FLOAT, 0, points);
                     glNormalPointer(GL_FLOAT, 0, N);
                     if (!use_strips)
-                        glDrawElements(GL_TRIANGLES, nb_t_index,GL_UNSIGNED_SHORT,t_index);				// draw everything
+                        glDrawRangeElements(GL_TRIANGLES, 0, nb_vtx-1, nb_t_index,GL_UNSIGNED_SHORT,t_index);				// draw everything
                     else
                     {
                         glDisable( GL_CULL_FACE );
-                        glDrawElements(GL_TRIANGLE_STRIP, nb_t_index,GL_UNSIGNED_SHORT,t_index);		// draw everything
+                        glDrawRangeElements(GL_TRIANGLE_STRIP, 0, nb_vtx-1, nb_t_index,GL_UNSIGNED_SHORT,t_index);		// draw everything
                         glEnable( GL_CULL_FACE );
                     }
 
@@ -2225,7 +2225,7 @@ draw_next:
             if (nb_idx)
             {
                 glVertexPointer(3, GL_FLOAT, 0, points);
-                glDrawElements(GL_QUADS, nb_idx,GL_UNSIGNED_SHORT,shadow_index);		// dessine le tout
+                glDrawRangeElements(GL_QUADS, 0, (nb_vtx<<1)-1, nb_idx,GL_UNSIGNED_SHORT,shadow_index);		// dessine le tout
             }
         }
         if (child && !(explodes && !exploding_parts))
@@ -2382,11 +2382,11 @@ draw_shadow_next:
             glVertexPointer( 3, GL_FLOAT, 0, points);
             glFrontFace(GL_CW);						// 1ère passe
             glStencilOp(GL_KEEP,GL_KEEP,GL_INCR);
-            glDrawElements(GL_QUADS, nb_idx,GL_UNSIGNED_SHORT,shadow_index);		// dessine le tout
+            glDrawRangeElements(GL_QUADS, 0, (nb_vtx<<1)-1, nb_idx,GL_UNSIGNED_SHORT,shadow_index);		// dessine le tout
 
             glFrontFace(GL_CCW);  						// 2nd passe
             glStencilOp(GL_KEEP,GL_KEEP,GL_DECR);
-            glDrawElements(GL_QUADS, nb_idx,GL_UNSIGNED_SHORT,shadow_index);		// dessine le tout
+            glDrawRangeElements(GL_QUADS, 0, (nb_vtx<<1)-1, nb_idx,GL_UNSIGNED_SHORT,shadow_index);		// dessine le tout
         }
 
         if (child && !(explodes && !exploding_parts))
