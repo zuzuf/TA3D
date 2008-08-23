@@ -24,6 +24,7 @@ namespace TA3D
     void WEAPON_DEF::init()
     {
         damage_hashtable.emptyHashTable();
+        damage_hashtable.initTable(128);
 
         soundstart.clear();
         soundhit.clear();
