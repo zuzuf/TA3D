@@ -1207,6 +1207,13 @@ namespace TA3D
             if (visible)
             {
                 glTranslatef( Pos.x, Pos.y, Pos.z );
+
+                if (lp_CONFIG->underwater_bright && map->water && Pos.y < map->sealvl)
+                {
+                    double eqn[4]= { 0.0f, -1.0f, 0.0f, map->sealvl - Pos.y };
+                    glClipPlane(GL_CLIP_PLANE2, eqn);
+                }
+
                 glRotatef(Angle.x,1.0f,0.0f,0.0f);
                 glRotatef(Angle.z,0.0f,0.0f,1.0f);
                 glRotatef(Angle.y,0.0f,1.0f,0.0f);
@@ -1431,10 +1438,7 @@ namespace TA3D
                 
                 if (lp_CONFIG->underwater_bright && map->water && Pos.y < map->sealvl)
                 {
-                    double eqn[4]= { 0.0f, -1.0f, 0.0f, map->sealvl - Pos.y };
-
-                    glClipPlane(GL_CLIP_PLANE0, eqn);
-                    glEnable(GL_CLIP_PLANE0);
+                    glEnable(GL_CLIP_PLANE2);
 
                     glEnable( GL_BLEND );
                     glBlendFunc( GL_ONE, GL_ONE );
@@ -1445,7 +1449,7 @@ namespace TA3D
                     glDepthFunc( GL_LESS );
                     glDisable( GL_BLEND );
 
-                    glDisable(GL_CLIP_PLANE0);
+                    glDisable(GL_CLIP_PLANE2);
                 }
 
                 if (unit_target)
