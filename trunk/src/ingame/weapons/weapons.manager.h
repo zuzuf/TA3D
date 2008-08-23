@@ -51,7 +51,7 @@ namespace TA3D
     public:
         //! Count of registered weapons
         int	nb_weapons;
-        WEAPON_DEF* weapon;
+        std::vector< WEAPON_DEF > weapon;
         //! Animation for firing
         Gaf::Animation cannonshell;
         //! hashtable used to speed up operations on WEAPON_DEF objects

@@ -26,7 +26,7 @@ namespace TA3D
 
     
     WEAPON_MANAGER::WEAPON_MANAGER()
-        :nb_weapons(0), weapon(NULL)
+        :nb_weapons(0), weapon()
     {
         cannonshell.init();
     }
@@ -35,7 +35,7 @@ namespace TA3D
     void WEAPON_MANAGER::init()
     {
         nb_weapons = 0;
-        weapon = NULL;
+        weapon.clear();
         cannonshell.init();
     }
 
@@ -49,7 +49,7 @@ namespace TA3D
     void WEAPON_MANAGER::destroy()
     {
         cannonshell.destroy();
-        if (weapon) delete[] weapon;
+        weapon.clear();
         weapon_hashtable.emptyHashTable();
         weapon_hashtable.initTable(__DEFAULT_HASH_TABLE_SIZE);
         init();
@@ -60,17 +60,10 @@ namespace TA3D
     int WEAPON_MANAGER::add_weapon(const String &name)
     {
         ++nb_weapons;
-        WEAPON_DEF* n_weapon = new WEAPON_DEF[nb_weapons];
-        if(weapon && nb_weapons>1)
-            for(int i=0;i<nb_weapons-1;i++)
-            {
-                n_weapon[i] = weapon[i];
-                weapon[i].init();
-            }
-        weapon = n_weapon;
+        weapon.resize( nb_weapons );
         weapon[nb_weapons-1].init();
         weapon[nb_weapons-1].internal_name = name;
-        weapon[nb_weapons-1].nb_id=nb_weapons-1;
+        weapon[nb_weapons-1].nb_id = nb_weapons-1;
 
         weapon_hashtable.insert(String::ToLower(name), nb_weapons);
 
@@ -145,7 +138,7 @@ namespace TA3D
                                     unit_name.trim();
                                     unit_name.resize( unit_name.find( "=" ) );
                                     int dmg = atoi( f + 1 );
-                                    weapon[index].damage_hashtable->insert(unit_name, dmg);
+                                    weapon[index].damage_hashtable.insert(unit_name, dmg);
                                 }
                         } while(strstr(ligne,"}")==NULL && nb<1000 && pos<limit);
                     }

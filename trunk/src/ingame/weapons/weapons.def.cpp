@@ -9,7 +9,7 @@ namespace TA3D
 
 
     WEAPON_DEF::WEAPON_DEF()
-        :damage_hashtable(NULL)
+        : damage_hashtable(128)
     {
         init();
     }
@@ -18,12 +18,12 @@ namespace TA3D
     WEAPON_DEF::~WEAPON_DEF()
     {
         destroy();
-        delete damage_hashtable; // TODO Should be removed
+        damage_hashtable.emptyHashTable();
     }
 
     void WEAPON_DEF::init()
     {
-        damage_hashtable = new cHashTable<int>(128);
+        damage_hashtable.emptyHashTable();
 
         soundstart.clear();
         soundhit.clear();
@@ -112,15 +112,13 @@ namespace TA3D
         soundtrigger.clear();
         internal_name.clear();
         name.clear();
-        if (damage_hashtable)
-            delete damage_hashtable;
         init(); // TODO Should be removed
     }
 
 
-    uint32 WEAPON_DEF::get_damage_for_unit(const String& uname) const
+    uint32 WEAPON_DEF::get_damage_for_unit(const String& uname)
     {
-        uint32 dmg = damage_hashtable->find(String::ToLower(uname));
+        uint32 dmg = damage_hashtable.find(String::ToLower(uname));
         if(dmg)
             return dmg;
         int unit_type = unit_manager.get_unit_index(uname);
@@ -129,7 +127,7 @@ namespace TA3D
             String::Vector::const_iterator i = (unit_manager.unit_type[unit_type]->categories).begin();
             for (; (unit_manager.unit_type[unit_type]->categories).end() != i; ++i)
             {
-                dmg = damage_hashtable->find(*i);
+                dmg = damage_hashtable.find(*i);
                 if (dmg)
                     return dmg;
             }
