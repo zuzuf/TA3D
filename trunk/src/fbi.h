@@ -334,7 +334,7 @@ namespace TA3D
         ** \param data The file buffer
         ** \param size File size
         */
-        int load(char *data,int size=99999999);
+        int load(const String &filename);
 
         /*!
         ** \brief Load data contained in `download/ *dl.tdf` files to build extra build menus
@@ -394,7 +394,7 @@ namespace TA3D
 
         void load_panel_texture( const String &player_side, const String &intgaf );
 
-        int load_unit(byte *data,int size=9999999);         // Ajoute une nouvelle unité
+        int load_unit(const String &filename);         // Ajoute une nouvelle unité
 
         inline int get_unit_index(const String &unit_name)        // Cherche l'indice de l'unité unit_name dans la liste d'unités
         {
