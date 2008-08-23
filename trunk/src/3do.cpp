@@ -53,6 +53,8 @@ namespace TA3D
 
     void TEXTURE_MANAGER::init()
     {
+        tex_hashtable.emptyHashTable();
+        tex_hashtable.initTable(__DEFAULT_HASH_TABLE_SIZE);
         nbtex = 0;
         tex = NULL;
     }
@@ -70,12 +72,7 @@ namespace TA3D
     {
         if (nbtex == 0)
             return -1;
-        for (int i = 0; i < nbtex; ++i)
-        {
-            if (texture_name == tex[i].name)
-                return i;
-        }
-        return -1;
+        return tex_hashtable.find( texture_name );
     }
 
 
@@ -115,6 +112,8 @@ namespace TA3D
             tex[i].h[0] = 16;
             tex[i].bmp[0] = create_bitmap_ex(32,16,16);
             clear_to_color(tex[i].bmp[0], makeacol(pal[i].r << 2, pal[i].g << 2, pal[i].b << 2, 0xFF));
+            
+            tex_hashtable.insert(tex[i].name,i);
         }
 
         String::List file_list;
@@ -143,7 +142,10 @@ namespace TA3D
             delete[] tex;
         tex = n_tex;
         for (int i = 0; i < nb_entry; ++i)
+        {
             tex[nbtex + i].loadGAFFromRawData(data, i, false);
+            tex_hashtable.insert(tex[nbtex + i].name, nbtex + i);
+        }
         nbtex += nb_entry;
         return 0;
     }
@@ -2858,6 +2860,7 @@ hit_fast_is_exploding:
 
     void MODEL_MANAGER::init()
     {
+        max_models = 0;
         nb_models = 0;
         model = NULL;
         name.clear();
@@ -2891,23 +2894,28 @@ hit_fast_is_exploding:
 
     void MODEL_MANAGER::create_from_2d(BITMAP *bmp,float w,float h,float max_h,const String& filename)
     {
-        MODEL *n_model = new MODEL[nb_models+1];
-        name.push_back(filename);
-        if(model)
+        nb_models++;
+        if (nb_models > max_models)
         {
-            for (int i = 0 ; i < nb_models ; i++)
+            if (max_models == 0)    max_models = 10;
+            max_models *= 2;
+            MODEL *n_model = new MODEL[max_models];
+            if(model)
             {
-                n_model[i] = model[i];
-                model[i].init();        // To prevent delete[] from freeing useful memory ;)
+                for (int i = 0 ; i < nb_models - 1 ; i++)
+                {
+                    n_model[i] = model[i];
+                    model[i].init();        // To prevent delete[] from freeing useful memory ;)
+                }
+                delete[] model;
             }
-            delete[] model;
+            model = n_model;
         }
-        model=n_model;
 
-        model_hashtable.insert(String::ToLower(filename), nb_models + 1);
+        name.push_back(filename);
+        model_hashtable.insert(String::ToLower(filename), nb_models);
 
-        model[nb_models].create_from_2d(bmp,w,h,max_h);
-        ++nb_models;
+        model[nb_models-1].create_from_2d(bmp,w,h,max_h);
     }
 
 
@@ -3009,6 +3017,7 @@ hit_fast_is_exploding:
             }
             nb_models += i;
         }
+        max_models = nb_models;
         return 0;
     }
 

@@ -51,8 +51,9 @@ namespace TA3D
     public:
         int	 nbtex;			// Nombre de textures
         Gaf::Animation* tex;			// Textures
+        cHashTable<int> tex_hashtable;  // To speed up texture search
 
-        TEXTURE_MANAGER() :nbtex(0), tex(NULL) {}
+        TEXTURE_MANAGER() :nbtex(0), tex(NULL), tex_hashtable(__DEFAULT_HASH_TABLE_SIZE) {}
         ~TEXTURE_MANAGER() {destroy();}
 
         void init();
@@ -570,6 +571,7 @@ namespace TA3D
         void create_from_2d(BITMAP *bmp, float w, float h, float max_h, const String& filename);
             
     public:
+        int  max_models;    // Size of model array
         int	 nb_models;	 // Nombre de modèles
         MODEL* model; // Tableau de modèles
         String::Vector	name; // Tableau contenant les noms des modèles
