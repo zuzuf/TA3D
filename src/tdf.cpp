@@ -162,6 +162,7 @@ namespace TA3D
 
     void FEATURE_MANAGER::init()
     {
+        max_features = 0;
         nb_features = 0;
         feature = NULL;
     }
@@ -189,18 +190,23 @@ namespace TA3D
     int FEATURE_MANAGER::add_feature(const String& name)			// Ajoute un élément
     {
         ++nb_features;
-        FEATURE* n_feature = new FEATURE[nb_features];
-        if (feature && nb_features > 1)
+        if (nb_features > max_features)
         {
-            for(int i = 0;i < nb_features-1; ++i)
+            if (max_features == 0)  max_features = 10;
+            max_features *= 2;
+            FEATURE* n_feature = new FEATURE[max_features];
+            if (feature && nb_features > 1)
             {
-                n_feature[i]=feature[i];
-                feature[i].init();
+                for(int i = 0;i < nb_features-1; ++i)
+                {
+                    n_feature[i] = feature[i];
+                    feature[i].init();
+                }
             }
+            if (feature)
+                delete[] feature;
+            feature = n_feature;
         }
-        if (feature)
-            delete[] feature;
-        feature = n_feature;
         feature[nb_features-1].init();
         feature[nb_features-1].name = name;
         feature_hashtable.insert(String::ToLower(name), nb_features);
@@ -1167,7 +1173,8 @@ namespace TA3D
         int idx = -1;
         if (nb_features > max_features) // Si besoin alloue plus de mémoire
         {
-            max_features += 500;				// Alloue la mémoire par paquets de 500 éléments
+            if (max_features == 0)  max_features = 250;
+            max_features *= 2;				// Double memory pool size
             FEATURE_DATA* n_feature = new FEATURE_DATA[max_features];
             if (feature && nb_features > 0)
             {
