@@ -50,7 +50,7 @@ namespace TA3D
         ** \param uname Name of the unit
         ** \return
         */
-        uint32	get_damage_for_unit(const String &uname) const;
+        uint32	get_damage_for_unit(const String &uname);
 
     public:
         //!
@@ -204,7 +204,7 @@ namespace TA3D
         //! Can only attack flying units
         bool toairweapon;
         //! hashtable used to get specific damages quickly
-        cHashTable<int>* damage_hashtable;
+        cHashTable<int> damage_hashtable;
 
     }; // class WEAPON_DEF
 
