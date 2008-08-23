@@ -330,10 +330,9 @@ namespace TA3D
         }
 
         int count = 0;
-retry:
-        int v = nlWrite( fd, data, num );
+        int v = NL_INVALID;
 
-        if(v == NL_INVALID )
+        while( (v = nlWrite( fd, data, num )) == NL_INVALID )
         {
             sockError("Send: " +  getError());
             if (nlGetError() == NL_CON_PENDING) // Don't close connection, it's not even opened yet !!
@@ -342,7 +341,7 @@ retry:
                 if( count < 1000 )
                 {
                     rest(1);
-                    goto retry;
+                    continue;
                 }
             }
             Close();
