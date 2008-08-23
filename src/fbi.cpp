@@ -145,10 +145,10 @@ namespace TA3D
 
         int page = atoi( number.c_str() ) - 1;		// Extract the page number
 
-        int NbObj = gui_parser.pullAsInt("gadget0.totalgadgets");
+        int NbObj = gui_parser.pullAsInt("unitinfo.gadget0.totalgadgets");
 
-        int x_offset = gui_parser.pullAsInt("gadget0.common.xpos");
-        int y_offset = gui_parser.pullAsInt("gadget0.common.ypos");
+        int x_offset = gui_parser.pullAsInt("unitinfo.gadget0.common.xpos");
+        int y_offset = gui_parser.pullAsInt("unitinfo.gadget0.common.ypos");
 
         for (int i = 1; i <= NbObj; ++i)
         {
@@ -166,7 +166,7 @@ namespace TA3D
                 {
                     String name(gui_parser.pullAsString(format("gadget%d.common.name", i)));
 
-                    byte *gaf_file = HPIManager->PullFromHPI(format( "anims\\%s%d.gaf", unit_type[unit_index]->Unitname.c_str(), page + 1).c_str());
+                    byte *gaf_file = HPIManager->PullFromHPI(format( "anims\\%s%d.gaf", unit_type[unit_index]->Unitname.c_str(), page + 1));
                     if (gaf_file)
                     {
                         BITMAP *img = Gaf::RawDataToBitmap(gaf_file, Gaf::RawDataGetEntryIndex(gaf_file, name), 0);
@@ -276,10 +276,10 @@ namespace TA3D
 
 
 
-    int UNIT_MANAGER::load_unit(byte *data,int size)			// Ajoute une nouvelle unité
+    int UNIT_MANAGER::load_unit(const String &filename)			// Ajoute une nouvelle unité
     {
         unit_type.push_back(new UNIT_TYPE());
-        int result =  unit_type[nb_unit]->load((char*)data,size);
+        int result =  unit_type[nb_unit]->load(filename);
         if (!unit_type[nb_unit]->Unitname.empty())
             unit_hashtable.insert(String::ToLower(unit_type[nb_unit]->Unitname ), nb_unit + 1);
         if (!unit_type[nb_unit]->name.empty())
@@ -638,293 +638,216 @@ namespace TA3D
         glDisable(GL_BLEND);
     }
 
-    int UNIT_TYPE::load(char *data,int size)
+    int UNIT_TYPE::load(const String &filename)
     {
         set_uformat(U_ASCII);
         destroy();
-        char *pos=data;
-        char *f;
-        char *ligne=NULL;
-        int nb=0;
         int nb_inconnu=0;
-        char *limit=data+size;
-        while(*pos!='{') pos++;
-        pos=strstr(pos,"\n")+1;
         String lang_name = I18N::Translate("UNITTYPE_NAME", "name");
         String lang_desc = I18N::Translate("UNITTYPE_DESCRIPTION", "description");
-        do
+
+        TDFParser unitParser( filename );
+
+        Unitname = unitParser.pullAsString("unitinfo.unitname");
+        version = unitParser.pullAsInt("unitinfo.version");
+        side = unitParser.pullAsString("unitinfo.side");
+        ObjectName = unitParser.pullAsString("unitinfo.objectname");
+        Designation_Name = unitParser.pullAsString("unitinfo.designation");
+        Description = unitParser.pullAsString( lang_desc, unitParser.pullAsString("unitinfo.description") );
+        name = unitParser.pullAsString( lang_name, unitParser.pullAsString("unitinfo.name") );
+
+        FootprintX = unitParser.pullAsInt("unitinfo.footprintx");
+        FootprintZ = unitParser.pullAsInt("unitinfo.footprintz");
+        BuildCostEnergy = unitParser.pullAsInt("unitinfo.buildcostenergy");
+        BuildCostMetal = unitParser.pullAsInt("unitinfo.buildcostmetal");
+        MaxDamage = unitParser.pullAsInt("unitinfo.maxdamage");
+        MaxWaterDepth = unitParser.pullAsInt("unitinfo.MaxWaterDepth");
+        MinWaterDepth = unitParser.pullAsInt("unitinfo.minwaterdepth", -0xFFF);
+        if (MaxWaterDepth == 0) MaxWaterDepth = 255;
+        EnergyUse = unitParser.pullAsInt("unitinfo.energyuse");
+        BuildTime = unitParser.pullAsInt("unitinfo.buildtime");
+        WorkerTime = unitParser.pullAsInt("unitinfo.workertime",1);
+        Builder = unitParser.pullAsBool("unitinfo.builder");
+        ThreeD = unitParser.pullAsBool("unitinfo.threed",true);
+        SightDistance = unitParser.pullAsInt("unitinfo.sightdistance",50);
+        RadarDistance = unitParser.pullAsInt("unitinfo.radardistance");
+        RadarDistanceJam = unitParser.pullAsInt("unitinfo.radardistancejam");
+        soundcategory = unitParser.pullAsString("unitinfo.soundcategory");
+        if (!unitParser.pullAsString("unitinfo.wthi_badtargetcategory").empty())
         {
-            nb++;
-            if(ligne)
-                delete[] ligne;
-            ligne=get_line(pos);
-            char *dup_ligne = strdup(ligne);
-            strlwr(ligne);
-            while(pos[0]!=0 && pos[0]!=13 && pos[0]!=10)	pos++;
-            while(pos[0]==13 || pos[0]==10)	pos++;
+            if (w_badTargetCategory.size() < 3)
+                w_badTargetCategory.resize(3);
+            w_badTargetCategory[2] = unitParser.pullAsString("unitinfo.wthi_badtargetcategory");
+        }
+        if (!unitParser.pullAsString("unitinfo.wsec_badtargetcategory").empty())
+        {
+            if (w_badTargetCategory.size() < 2)
+                w_badTargetCategory.resize(2);
+            w_badTargetCategory[1] = unitParser.pullAsString("unitinfo.wsec_badtargetcategory");
+        }
+        if (!unitParser.pullAsString("unitinfo.wpri_badtargetcategory").empty())
+        {
+            if (w_badTargetCategory.size() < 1)
+                w_badTargetCategory.resize(1);
+            w_badTargetCategory[0] = unitParser.pullAsString("unitinfo.wpri_badtargetcategory");
+        }
+        for (int i = 4 ; !unitParser.pullAsString( format("unitinfo.w%d_badtargetcategory",i) ).empty() ; ++i)
+        {
+            if (w_badTargetCategory.size() < i)
+                w_badTargetCategory.resize(i);
+            w_badTargetCategory[i-1] = unitParser.pullAsString(format("unitinfo.w%d_badtargetcategory",i));
+        }
+        NoChaseCategory = unitParser.pullAsString("unitinfo.nochasecategory");
+        BadTargetCategory = unitParser.pullAsString("unitinfo.badtargetcategory");
 
-            f=NULL;
-            if((f=strstr(ligne,"unitname="))) {
-                Unitname = f+9;
-                Unitname = String::Trim( Unitname, ";" );
-            }
-            else if((f=strstr(ligne,"version=")))	version=f[8]-'0';
-            else if((f=strstr(ligne,"side="))) {
-                side = f+5;
-                side = String::Trim( side, ";" );
-            }
-            else if((f=strstr(ligne,"objectname="))) {
-                ObjectName = f+11;
-                ObjectName = String::Trim( ObjectName, ";" );
-            }
-            else if((f=strstr(ligne,"designation="))) {
-                Designation_Name = f+12;
-                Designation_Name = String::Trim( Designation_Name, ";" );
-            }
-            else if((f=strstr(ligne,lang_desc.c_str()))!=NULL && (f==ligne || (f>ligne && *(f-1)<'a'))) {
-                Description = f + lang_desc.length() + 1;
-                Description = String::Trim( Description, ";" );
-            }
-            else if((f=strstr(ligne,lang_name.c_str()))!=NULL && (f==ligne || (f>ligne && *(f-1)<'a'))) {
-                name = f + lang_name.length() + 1;
-                name = String::Trim( name, ";" );
-            }
-            else if((f=strstr(ligne,"description="))!=NULL && (f==ligne || (f>ligne && *(f-1)<'a')) && Description.empty()) {
-                Description = f + 12;
-                Description = String::Trim( Description, ";" );
-            }
-            else if((f=strstr(ligne,"name="))!=NULL && (f==ligne || (f>ligne && *(f-1)<'a')) && name.empty()) {
-                name = f + 5;
-                name = String::Trim( name, ";" );
-            }
-            else if((f=strstr(ligne,"description="))) {		// Pour éviter de surcharger les logs
-            }
-            else if((f=strstr(ligne,"name="))) {
-            }
-            else if((f=strstr(ligne,"footprintx=")))			FootprintX=atoi(f+11);
-            else if((f=strstr(ligne,"footprintz=")))			FootprintZ=atoi(f+11);
-            else if((f=strstr(ligne,"buildcostenergy=")))		BuildCostEnergy=atoi(f+16);
-            else if((f=strstr(ligne,"buildcostmetal=")))		BuildCostMetal=atoi(f+15);
-            else if((f=strstr(ligne,"maxdamage=")))			MaxDamage=atoi(f+10);
-            else if((f=strstr(ligne,"maxwaterdepth=")))		MaxWaterDepth=atoi(f+14);
-            else if((f=strstr(ligne,"minwaterdepth=")))	{
-                MinWaterDepth=atoi(f+14);
-                if(MaxWaterDepth==0)
-                    MaxWaterDepth=255;
-            }
-            else if((f=strstr(ligne,"energyuse=")))			EnergyUse=atoi(f+10);
-            else if((f=strstr(ligne,"buildtime=")))
-                BuildTime=atoi(f+10);
-            else if((f=strstr(ligne,"workertime=")))			WorkerTime=atoi(f+11);
-            else if((f=strstr(ligne,"builder=")))				Builder=(f[8]=='1');
-            else if((f=strstr(ligne,"threed=")))				ThreeD=(f[7]=='1');
-            else if((f=strstr(ligne,"sightdistance=")))		SightDistance=atoi(f+14)>>1;
-            else if((f=strstr(ligne,"radardistance=")))		RadarDistance=atoi(f+14)>>1;
-            else if((f=strstr(ligne,"radardistancejam=")))	RadarDistanceJam=atoi(f+17)>>1;
-            else if((f=strstr(ligne,"soundcategory="))) {
-                soundcategory = f + 14;
-                soundcategory = String::Trim( soundcategory, ";" );
-            }
-            else if((f=strstr(ligne,"wthi_badtargetcategory="))) {
-                while( f[23] == ' ' )	f++;
-                if (w_badTargetCategory.size() < 3)
-                    w_badTargetCategory.resize(3);
-                w_badTargetCategory[2] = f + 23;
-            }
-            else if((f=strstr(ligne,"wsec_badtargetcategory="))) {
-                while( f[23] == ' ' )	f++;
-                if (w_badTargetCategory.size() < 2)
-                    w_badTargetCategory.resize(2);
-                w_badTargetCategory[1] = f + 23;
-            }
-            else if((f=strstr(ligne,"wpri_badtargetcategory="))) {
-                while( f[23] == ' ' )	f++;
-                if (w_badTargetCategory.size() < 1)
-                    w_badTargetCategory.resize(1);
-                w_badTargetCategory[0] = f + 23;
-            }
-            else if((f=strstr(ligne,"nochasecategory="))) {
-                while( f[17] == ' ' )	f++;
-                NoChaseCategory = f + 17;
-            }
-            else if((f=strstr(ligne,"badtargetcategory="))) {
-                while( f[18] == ' ' )	f++;
-                BadTargetCategory = f + 18;
-            }
-            else if((f=strstr(ligne,"category="))) {
-                while( f[9] == ' ' )	f++;
-                if(strstr(f,";"))
-                    *(strstr(f,";"))=0;
-                Category.initTable(16);
-                categories.clear();
-                String(f+9).split(categories, " ");
-                for (String::Vector::const_iterator i = categories.begin(); i != categories.end(); ++i)
-                    Category.insertOrUpdate(String::ToLower(*i), 1);
-                fastCategory = 0;
-                if( checkCategory( "kamikaze" ) )	fastCategory |= CATEGORY_KAMIKAZE;
-                if( checkCategory( "notair" ) )		fastCategory |= CATEGORY_NOTAIR;
-                if( checkCategory( "notsub" ) )		fastCategory |= CATEGORY_NOTSUB;
-                if( checkCategory( "jam" ) )		fastCategory |= CATEGORY_JAM;
-                if( checkCategory( "commander" ) )	fastCategory |= CATEGORY_COMMANDER;
-                if( checkCategory( "weapon" ) )		fastCategory |= CATEGORY_WEAPON;
-                if( checkCategory( "level3" ) )		fastCategory |= CATEGORY_LEVEL3;
-            }
-            else if((f=strstr(ligne,"unitnumber=")))			UnitNumber=atoi(f+14);
-            else if((f=strstr(ligne,"canmove=")))				canmove=(f[8]=='1');
-            else if((f=strstr(ligne,"canpatrol=")))			canpatrol=(f[10]=='1');
-            else if((f=strstr(ligne,"canstop=")))				canstop=(f[8]=='1');
-            else if((f=strstr(ligne,"canguard=")))			canguard=(f[9]=='1');
-            else if((f=strstr(ligne,"maxvelocity=")))			MaxVelocity = atof(f+12)*16.0f;
-            else if((f=strstr(ligne,"brakerate=")))			BrakeRate=atof(f+10)*160.0f;
-            else if((f=strstr(ligne,"acceleration=")))		Acceleration=atof(f+13)*160.0f;
-            else if((f=strstr(ligne,"turnrate=")))			TurnRate = atof(f+9) * TA2DEG * 20.0f;
-            else if((f=strstr(ligne,"candgun=")))				candgun=(f[8]=='1');
-            else if((f=strstr(ligne,"canattack=")))			canattack=(f[10]=='1');
-            else if((f=strstr(ligne,"canreclamate=")))		CanReclamate=(f[13]=='1');
-            else if((f=strstr(ligne,"energymake=")))			EnergyMake=atoi(f+11);
-            else if((f=strstr(ligne,"metalmake=")))			MetalMake=atof(f+10);
-            else if((f=strstr(ligne,"cancapture=")))			CanCapture=(f[11]=='1');
-            else if((f=strstr(ligne,"hidedamage=")))			HideDamage=(f[11]=='1');
-            else if((f=strstr(ligne,"healtime=")))			HealTime=atoi(f+9)*30;		// To have it in seconds
-            else if((f=strstr(ligne,"cloakcost=")))			CloakCost=atoi(f+10);
-            else if((f=strstr(ligne,"cloakcostmoving=")))		CloakCostMoving=atoi(f+16);
-            else if((f=strstr(ligne,"init_cloaked=")))		init_cloaked=f[13]=='1';
-            else if((f=strstr(ligne,"mincloakdistance=")))	mincloakdistance=atoi(f+17)>>1;
-            else if((f=strstr(ligne,"builddistance=")))		BuildDistance=atoi(f+14);
-            else if((f=strstr(ligne,"activatewhenbuilt=")))	ActivateWhenBuilt=(f[18]=='1');
-            else if((f=strstr(ligne,"immunetoparalyzer=")))	ImmuneToParalyzer=(f[18]=='1');
-            else if((f=strstr(ligne,"sonardistance=")))		SonarDistance=atoi(f+14)>>1;
-            else if((f=strstr(ligne,"sonardistancejam=")))	SonarDistanceJam=atoi(f+17)>>1;
-            else if((f=strstr(ligne,"copyright="))) {}
-            else if((f=strstr(ligne,"maxslope=")))			MaxSlope=atoi(f+9);
-            else if((f=strstr(ligne,"steeringmode=")))		SteeringMode=atoi(f+13);
+        String category = String::ToLower( unitParser.pullAsString("unitinfo.category") );
+        Category.initTable(16);
+        categories.clear();
+        category.split(categories, " ");
+        for (String::Vector::const_iterator i = categories.begin(); i != categories.end(); ++i)
+            Category.insertOrUpdate(String::ToLower(*i), 1);
+        fastCategory = 0;
+        if( checkCategory( "kamikaze" ) )	fastCategory |= CATEGORY_KAMIKAZE;
+        if( checkCategory( "notair" ) )		fastCategory |= CATEGORY_NOTAIR;
+        if( checkCategory( "notsub" ) )		fastCategory |= CATEGORY_NOTSUB;
+        if( checkCategory( "jam" ) )		fastCategory |= CATEGORY_JAM;
+        if( checkCategory( "commander" ) )	fastCategory |= CATEGORY_COMMANDER;
+        if( checkCategory( "weapon" ) )		fastCategory |= CATEGORY_WEAPON;
+        if( checkCategory( "level3" ) )		fastCategory |= CATEGORY_LEVEL3;
 
-            else if((f=strstr(ligne,"bmcode=")))				BMcode=atoi(f+7);
-            else if((f=strstr(ligne,"zbuffer="))) {}
-            else if((f=strstr(ligne,"shootme=")))				ShootMe=(f[8]=='1');
-            else if((f=strstr(ligne,"upright=")))				Upright=(f[8]=='1');
-            else if((f=strstr(ligne,"norestrict=")))			norestrict=(f[11]=='1');
-            else if((f=strstr(ligne,"noautofire=")))			AutoFire=(f[11]!='1');
-            else if((f=strstr(ligne,"energystorage=")))		EnergyStorage=atoi(f+14);
-            else if((f=strstr(ligne,"metalstorage=")))		MetalStorage=atoi(f+13);
-            else if((f=strstr(ligne,"standingmoveorder=")))	StandingMoveOrder=atoi(f+18);
-            else if((f=strstr(ligne,"mobilestandorders=")))	MobileStandOrders=atoi(f+18);
-            else if((f=strstr(ligne,"standingfireorder=")))	StandingFireOrder=atoi(f+18);
-            else if((f=strstr(ligne,"firestandorders=")))		FireStandOrders=atoi(f+16);
-            else if((f=strstr(ligne,"waterline=")))			WaterLine=atof(f+10);
-            else if((f=strstr(ligne,"tedclass="))) {
-                if(strstr(f,"water"))			TEDclass=CLASS_WATER;
-                else if((strstr(f,"ship")))		TEDclass=CLASS_SHIP;
-                else if((strstr(f,"energy")))		TEDclass=CLASS_ENERGY;
-                else if((strstr(f,"vtol")))		TEDclass=CLASS_VTOL;
-                else if((strstr(f,"kbot")))		TEDclass=CLASS_KBOT;
-                else if((strstr(f,"plant")))		TEDclass=CLASS_PLANT;
-                else if((strstr(f,"tank")))		TEDclass=CLASS_TANK;
-                else if((strstr(f,"special")))	TEDclass=CLASS_SPECIAL;
-                else if((strstr(f,"fort")))		TEDclass=CLASS_FORT;
-                else if((strstr(f,"metal")))		TEDclass=CLASS_METAL;
-                else if((strstr(f,"cnstr")))		TEDclass=CLASS_CNSTR;
-                else if((strstr(f,"commander")))	TEDclass=CLASS_COMMANDER;
-                else {
-                    printf("->tedclass id inconnu : %s\n",f);
-                    nb_inconnu++;
-                }
-            }
-            else if((f=strstr(ligne,"noshadow=")))			NoShadow=(f[9]=='1');
-            else if((f=strstr(ligne,"antiweapons=")))			antiweapons=(f[12]=='1');
-            else if((f=strstr(ligne,"buildangle=")))			BuildAngle=atoi(f+11);
-            else if((f=strstr(ligne,"canfly=")))				canfly=(f[7]=='1');
-            else if((f=strstr(ligne,"canload=")))				canload=(f[8]=='1');
-            else if((f=strstr(ligne,"floater=")))				Floater=(f[8]=='1');
-            else if((f=strstr(ligne,"canhover=")))			canhover=(f[9]=='1');
-            else if((f=strstr(ligne,"bankscale=")))			BankScale=atoi(f+10);
-            else if((f=strstr(ligne,"tidalgenerator=")))		TidalGenerator=(f[15]=='1');
-            //			else if(f=strstr(ligne,"scale="))				Scale=atof(f+6);
-            else if((f=strstr(ligne,"scale=")))				Scale=1.0f;
-            else if((f=strstr(ligne,"corpse="))) {
-                Corpse = String::Trim(f+7, ";");
-            }
-            else if((f=strstr(ligne,"windgenerator=")))
-                WindGenerator=atoi(f+14);
-            else if((f=strstr(ligne,"onoffable=")))			onoffable=(f[10]=='1');
-            else if((f=strstr(ligne,"kamikaze=")))			kamikaze=(f[9]=='1');
-            else if((f=strstr(ligne,"kamikazedistance=")))	kamikazedistance=atoi(f+17)>>1;
-            else if((f=strstr(ligne,"weapon1="))) {
-                if (WeaponID.size() < 1)
-                    WeaponID.resize(1,-1);
-                WeaponID[0] = weapon_manager.get_weapon_index( String::Trim(f+8,";") );
-            }
-            else if((f=strstr(ligne,"weapon2="))) {
-                if (WeaponID.size() < 2)
-                    WeaponID.resize(2,-1);
-                WeaponID[1] = weapon_manager.get_weapon_index( String::Trim(f+8,";") );
-            }
-            else if((f=strstr(ligne,"weapon3="))) {
-                if (WeaponID.size() < 3)
-                    WeaponID.resize(3,-1);
-                WeaponID[2] = weapon_manager.get_weapon_index( String::Trim(f+8,";") );
-            }
-            else if((f=strstr(ligne,"yardmap=")))	{
-                f=strstr(dup_ligne,"=");
-                if(strstr(f+1,";"))
-                    *(strstr(f+1,";"))=0;
-                while(strstr(f," ")) {
-                    char *fm=strstr(f," ");
-                    memmove(fm,fm+1,strlen(fm+1)+1);
-                }
-                yardmap = f+1;
-            }
-            else if((f=strstr(ligne,"cruisealt=")))			CruiseAlt=atoi(f+10);
-            else if((f=strstr(ligne,"explodeas="))) {
-                ExplodeAs = String::Trim(f+10,";");
-            }
-            else if((f=strstr(ligne,"selfdestructas="))) {
-                SelfDestructAs = String::Trim(f+15,";");
-            }
-            else if((f=strstr(ligne,"maneuverleashlength=")))	ManeuverLeashLength=atoi(f+20);
-            else if((f=strstr(ligne,"defaultmissiontype="))) {
-                if(strstr(f,"=standby;"))				DefaultMissionType=MISSION_STANDBY;
-                else if(strstr(f,"=vtol_standby;"))		DefaultMissionType=MISSION_VTOL_STANDBY;
-                else if(strstr(f,"=guard_nomove;"))		DefaultMissionType=MISSION_GUARD_NOMOVE;
-                else if(strstr(f,"=standby_mine;"))		DefaultMissionType=MISSION_STANDBY_MINE;
-                else {
-                    LOG_ERROR("Unknown constant: `" << f << "`");
-                    ++nb_inconnu;
-                }
-            }
-            else if((f=strstr(ligne,"transmaxunits=")))		TransMaxUnits=TransportMaxUnits=atoi(f+14);
-            else if((f=strstr(ligne,"transportmaxunits=")))	TransMaxUnits=TransportMaxUnits=atoi(f+18);
-            else if((f=strstr(ligne,"transportcapacity=")))	TransportCapacity=atoi(f+18);
-            else if((f=strstr(ligne,"transportsize=")))		TransportSize=atoi(f+14);
-            else if((f=strstr(ligne,"altfromsealevel=")))		AltFromSeaLevel=atoi(f+16);
-            else if((f=strstr(ligne,"movementclass="))) {
-                MovementClass = String::Trim(f+14,";");
-            }
-            else if((f=strstr(ligne,"isairbase=")))			IsAirBase=(f[10]=='1');
-            else if((f=strstr(ligne,"commander=")))			commander=(f[10]=='1');
-            else if((f=strstr(ligne,"damagemodifier=")))		DamageModifier=atof(f+15);
-            else if((f=strstr(ligne,"makesmetal=")))			MakesMetal=atof(f+11);
-            else if((f=strstr(ligne,"sortbias=")))			SortBias=atoi(f+9);
-            else if((f=strstr(ligne,"extractsmetal=")))		ExtractsMetal=atof(f+14);
-            else if((f=strstr(ligne,"hoverattack=")))			hoverattack=(f[12]=='1');
-            else if((f=strstr(ligne,"isfeature=")))			isfeature=(f[10]=='1');
-            else if((f=strstr(ligne,"stealth=")))				Stealth=atoi(f+8);
-            else if((f=strstr(ligne,"attackrunlength=")))		attackrunlength = atoi(f+16);
-            else if((f=strstr(ligne,"selfdestructcountdown=")))	selfdestructcountdown=atoi(f+22);
-            else if((f=strstr(ligne,"canresurrect=")))		canresurrect = (f[13] == '1');
-            else if((f=strstr(ligne,"resurrect=")))			canresurrect = (f[10] == '1');
-            else if((f=strstr(ligne,"downloadable="))) { }
-            else if((f=strstr(ligne,"ovradjust="))) { }
-            else if((f=strstr(ligne,"ai_limit="))) { }
-            else if((f=strstr(ligne,"ai_weight="))) { }
-            if(f==NULL && strstr(ligne,"}")==NULL && strlen( ligne ) > 0 ) {
-                LOG_ERROR("[FBI] Unknown variable: `" << ligne << "`");
-                ++nb_inconnu;
-            }
-            if(dup_ligne)
-                free(dup_ligne);
-        }while(strstr(ligne,"}")==NULL && nb<1000 && pos<limit);
-        delete[] ligne;
+        UnitNumber = unitParser.pullAsInt("unitinfo.unitnumber");
+        canmove = unitParser.pullAsBool("unitinfo.canmove");
+        canpatrol = unitParser.pullAsBool("unitinfo.canpatrol");
+        canstop = unitParser.pullAsBool("unitinfo.canstop");
+        canguard = unitParser.pullAsBool("unitinfo.canguard");
+        MaxVelocity = unitParser.pullAsFloat("unitinfo.maxvelocity", 1.0f / 16.0f) * 16.0f;
+        BrakeRate = unitParser.pullAsFloat("unitinfo.brakerate", 1.0f / 160.0f) * 160.0f;
+        Acceleration = unitParser.pullAsFloat("unitinfo.acceleration", 1.0f / 160.0f) * 160.0f;
+        TurnRate = unitParser.pullAsFloat("unitinfo.turnrate", 1.0f / (TA2DEG * 20.0f)) * TA2DEG * 20.0f;
+        candgun = unitParser.pullAsBool("unitinfo.candgun");
+        canattack = unitParser.pullAsBool("unitinfo.canattack");
+        CanReclamate = unitParser.pullAsBool("unitinfo.canreclamate");
+        EnergyMake = unitParser.pullAsInt("unitinfo.energymake");
+        MetalMake = unitParser.pullAsInt("unitinfo.metalmake");
+        CanCapture = unitParser.pullAsBool("unitinfo.cancapture");
+        HideDamage = unitParser.pullAsBool("unitinfo.hidedamage");
+        HealTime = unitParser.pullAsInt("unitinfo.healtime") * 30;
+        CloakCost = unitParser.pullAsInt("unitinfo.cloakcost");
+        CloakCostMoving = unitParser.pullAsInt("unitinfo.cloakcostmoving");
+        init_cloaked = unitParser.pullAsBool("unitinfo.init_cloaked");
+        mincloakdistance = unitParser.pullAsInt("unitinfo.mincloakdistance",20)>>1;
+        BuildDistance = unitParser.pullAsInt("unitinfo.builddistance");
+        ActivateWhenBuilt = unitParser.pullAsBool("unitinfo.activatewhenbuilt");
+        ImmuneToParalyzer = unitParser.pullAsBool("unitinfo.immunetoparalyzer");
+        SonarDistance = unitParser.pullAsInt("unitinfo.sonardistance")>>1;
+        SonarDistanceJam = unitParser.pullAsInt("unitinfo.sonardistancejam")>>1;
+        // copyright = ... not needed here :P
+        MaxSlope = unitParser.pullAsInt("unitinfo.maxslope", 255);
+        SteeringMode = unitParser.pullAsInt("unitinfo.steeringmode");
+        BMcode = unitParser.pullAsInt("unitinfo.bmcode");
+        ShootMe = unitParser.pullAsBool("unitinfo.shootme");
+        Upright = unitParser.pullAsBool("unitinfo.upright");
+        norestrict = unitParser.pullAsBool("unitinfo.norestrict");
+        AutoFire = !unitParser.pullAsBool("unitinfo.noautofire", true);
+        EnergyStorage = unitParser.pullAsInt("unitinfo.energystorage");
+        MetalStorage = unitParser.pullAsInt("unitinfo.metalstorage");
+        StandingMoveOrder = unitParser.pullAsInt("unitinfo.standingmoveorder",1);
+        MobileStandOrders = unitParser.pullAsInt("unitinfo.mobilestandorders",1);
+        StandingFireOrder = unitParser.pullAsInt("unitinfo.standingfireorder",1);
+        FireStandOrders = unitParser.pullAsInt("unitinfo.firestandorders",1);
+        WaterLine = unitParser.pullAsFloat("unitinfo.waterline");
+
+        String TEDclassString = String::ToLower( unitParser.pullAsString("unitinfo.tedclass") );
+        if (TEDclassString.find("water") != String::npos)           TEDclass = CLASS_WATER;
+        else if (TEDclassString.find("ship") != String::npos)       TEDclass = CLASS_SHIP;
+        else if (TEDclassString.find("energy") != String::npos)     TEDclass = CLASS_ENERGY;
+        else if (TEDclassString.find("vtol") != String::npos)       TEDclass = CLASS_VTOL;
+        else if (TEDclassString.find("kbot") != String::npos)       TEDclass = CLASS_KBOT;
+        else if (TEDclassString.find("plant") != String::npos)      TEDclass = CLASS_PLANT;
+        else if (TEDclassString.find("tank") != String::npos)       TEDclass = CLASS_TANK;
+        else if (TEDclassString.find("special") != String::npos)    TEDclass = CLASS_SPECIAL;
+        else if (TEDclassString.find("fort") != String::npos)       TEDclass = CLASS_FORT;
+        else if (TEDclassString.find("metal") != String::npos)      TEDclass = CLASS_METAL;
+        else if (TEDclassString.find("cnstr") != String::npos)      TEDclass = CLASS_CNSTR;
+        else if (TEDclassString.find("commander") != String::npos)  TEDclass = CLASS_COMMANDER;
+        else if (!TEDclassString.empty())
+        {
+            LOG_DEBUG("unknown tedclass ID : " << TEDclassString);
+            nb_inconnu++;
+        }
+
+        NoShadow = unitParser.pullAsBool("unitinfo.noshadow");
+        antiweapons = unitParser.pullAsBool("unitinfo.antiweapons");
+        BuildAngle = unitParser.pullAsInt("unitinfo.buildangle",10);
+        canfly = unitParser.pullAsBool("unitinfo.canfly");
+        canload = unitParser.pullAsBool("unitinfo.canload");
+        Floater = unitParser.pullAsBool("unitinfo.floater");
+        canhover = unitParser.pullAsBool("unitinfo.canhover");
+        BankScale = unitParser.pullAsInt("unitinfo.bankscale");
+        TidalGenerator = unitParser.pullAsBool("unitinfo.tidalgenerator");
+        Scale = 1.0f;//unitParser.pullAsFloat("unitinfo.scale",1.0f);
+        Corpse = unitParser.pullAsString("unitinfo.corpse");
+        WindGenerator = unitParser.pullAsInt("unitinfo.windgenerator");
+        onoffable = unitParser.pullAsBool("unitinfo.onoffable");
+        kamikaze = unitParser.pullAsBool("unitinfo.kamikaze");
+        kamikazedistance = unitParser.pullAsInt("unitinfo.kamikazedistance")>>1;
+
+        int i = 1;
+        while (i <= 3 || !unitParser.pullAsString( format("unitinfo.weapon%d",i) ).empty())
+        {
+            if (WeaponID.size() < i)
+                WeaponID.resize(i,-1);
+            WeaponID[i-1] = weapon_manager.get_weapon_index( unitParser.pullAsString( format("unitinfo.weapon%d",i) ) );
+            ++i;
+        }
+        yardmap = unitParser.pullAsString("unitinfo.yardmap");
+        if (!yardmap.empty())
+        {
+            i = 0;
+            for (int e = 0 ; e < yardmap.size() ; e++)
+                if (yardmap[e] == ' ')
+                    i++;
+                else
+                    yardmap[e-i] = yardmap[e];
+            yardmap.resize( yardmap.size() - i );
+        }
+
+        CruiseAlt = unitParser.pullAsInt("unitinfo.cruisealt");
+        ExplodeAs = unitParser.pullAsString("unitinfo.explodeas");
+        SelfDestructAs = unitParser.pullAsString("unitinfo.selfdestructas");
+        ManeuverLeashLength = unitParser.pullAsInt("unitinfo.maneuverleashlength",640);
+        
+        String DefaultMissionTypeString = String::ToLower( unitParser.pullAsString("unitinfo.defaultmissiontype") );
+        if(DefaultMissionTypeString == "standby")				DefaultMissionType=MISSION_STANDBY;
+        else if(DefaultMissionTypeString == "vtol_standby")		DefaultMissionType=MISSION_VTOL_STANDBY;
+        else if(DefaultMissionTypeString == "guard_nomove")		DefaultMissionType=MISSION_GUARD_NOMOVE;
+        else if(DefaultMissionTypeString == "standby_mine")		DefaultMissionType=MISSION_STANDBY_MINE;
+        else if(!DefaultMissionTypeString.empty())
+        {
+            LOG_ERROR("Unknown constant: `" << DefaultMissionTypeString << "`");
+            ++nb_inconnu;
+        }
+
+        TransMaxUnits = TransportMaxUnits = unitParser.pullAsInt("unitinfo.transmaxunits");
+        TransMaxUnits = TransportMaxUnits = unitParser.pullAsInt("unitinfo.transportmaxunits",TransMaxUnits);
+        TransportCapacity = unitParser.pullAsInt("unitinfo.transportcapacity");
+        TransportSize = unitParser.pullAsInt("unitinfo.transportsize");
+        AltFromSeaLevel = unitParser.pullAsInt("unitinfo.AltFromSeaLevel");
+        MovementClass = unitParser.pullAsString("unitinfo.movementclass");
+
+        IsAirBase = unitParser.pullAsBool("unitinfo.isairbase");
+        commander = unitParser.pullAsBool("unitinfo.commander");
+        DamageModifier = unitParser.pullAsFloat("unitinfo.damagemodifier",1.0f);
+        MakesMetal = unitParser.pullAsFloat("unitinfo.makesmetal");
+        SortBias = unitParser.pullAsInt("unitinfo.sortbias");
+        ExtractsMetal = unitParser.pullAsFloat("unitinfo.extractsmetal");
+        hoverattack = unitParser.pullAsBool("unitinfo.hoverattack");
+        isfeature = unitParser.pullAsBool("unitinfo.isfeature");
+        Stealth = unitParser.pullAsInt("unitinfo.stealth");
+        attackrunlength = unitParser.pullAsInt("unitinfo.attackrunlength");
+        selfdestructcountdown = unitParser.pullAsInt("unitinfo.selfdestructcountdown",5);
+        canresurrect = unitParser.pullAsBool("unitinfo.canresurrect") || unitParser.pullAsBool("unitinfo.resurrect");
+
         if( canresurrect && BuildDistance == 0.0f )
             BuildDistance = SightDistance;
         weapon.resize( WeaponID.size() );
@@ -944,6 +867,310 @@ namespace TA3D
             TurnRate = TurnRate * 3; // A hack thanks to Doors
         load_dl();
         return nb_inconnu;
+//        set_uformat(U_ASCII);
+//        destroy();
+//        char *pos=data;
+//        char *f;
+//        char *ligne=NULL;
+//        int nb=0;
+//        int nb_inconnu=0;
+//        char *limit=data+size;
+//        while(*pos!='{') pos++;
+//        pos=strstr(pos,"\n")+1;
+//        String lang_name = I18N::Translate("UNITTYPE_NAME", "name");
+//        String lang_desc = I18N::Translate("UNITTYPE_DESCRIPTION", "description");
+//        do
+//        {
+//            nb++;
+//            if(ligne)
+//                delete[] ligne;
+//            ligne=get_line(pos);
+//            char *dup_ligne = strdup(ligne);
+//            strlwr(ligne);
+//            while(pos[0]!=0 && pos[0]!=13 && pos[0]!=10)	pos++;
+//            while(pos[0]==13 || pos[0]==10)	pos++;
+
+//            f=NULL;
+//            if((f=strstr(ligne,"unitname="))) {
+//                Unitname = f+9;
+//                Unitname = String::Trim( Unitname, ";" );
+//            }
+//            else if((f=strstr(ligne,"version=")))	version=f[8]-'0';
+//            else if((f=strstr(ligne,"side="))) {
+//                side = f+5;
+//                side = String::Trim( side, ";" );
+//            }
+//            else if((f=strstr(ligne,"objectname="))) {
+//                ObjectName = f+11;
+//                ObjectName = String::Trim( ObjectName, ";" );
+//            }
+//            else if((f=strstr(ligne,"designation="))) {
+//                Designation_Name = f+12;
+//                Designation_Name = String::Trim( Designation_Name, ";" );
+//            }
+//            else if((f=strstr(ligne,lang_desc.c_str()))!=NULL && (f==ligne || (f>ligne && *(f-1)<'a'))) {
+//                Description = f + lang_desc.length() + 1;
+//                Description = String::Trim( Description, ";" );
+//            }
+//            else if((f=strstr(ligne,lang_name.c_str()))!=NULL && (f==ligne || (f>ligne && *(f-1)<'a'))) {
+//                name = f + lang_name.length() + 1;
+//                name = String::Trim( name, ";" );
+//            }
+//            else if((f=strstr(ligne,"description="))!=NULL && (f==ligne || (f>ligne && *(f-1)<'a')) && Description.empty()) {
+//                Description = f + 12;
+//                Description = String::Trim( Description, ";" );
+//            }
+//            else if((f=strstr(ligne,"name="))!=NULL && (f==ligne || (f>ligne && *(f-1)<'a')) && name.empty()) {
+//                name = f + 5;
+//                name = String::Trim( name, ";" );
+//            }
+//            else if((f=strstr(ligne,"description="))) {		// Pour éviter de surcharger les logs
+//            }
+//            else if((f=strstr(ligne,"name="))) {
+//            }
+//            else if((f=strstr(ligne,"footprintx=")))			FootprintX=atoi(f+11);
+//            else if((f=strstr(ligne,"footprintz=")))			FootprintZ=atoi(f+11);
+//            else if((f=strstr(ligne,"buildcostenergy=")))		BuildCostEnergy=atoi(f+16);
+//            else if((f=strstr(ligne,"buildcostmetal=")))		BuildCostMetal=atoi(f+15);
+//            else if((f=strstr(ligne,"maxdamage=")))			MaxDamage=atoi(f+10);
+//            else if((f=strstr(ligne,"maxwaterdepth=")))		MaxWaterDepth=atoi(f+14);
+//            else if((f=strstr(ligne,"minwaterdepth=")))	{
+//                MinWaterDepth=atoi(f+14);
+//                if(MaxWaterDepth==0)
+//                    MaxWaterDepth=255;
+//            }
+//            else if((f=strstr(ligne,"energyuse=")))			EnergyUse=atoi(f+10);
+//            else if((f=strstr(ligne,"buildtime=")))
+//                BuildTime=atoi(f+10);
+//            else if((f=strstr(ligne,"workertime=")))			WorkerTime=atoi(f+11);
+//            else if((f=strstr(ligne,"builder=")))				Builder=(f[8]=='1');
+//            else if((f=strstr(ligne,"threed=")))				ThreeD=(f[7]=='1');
+//            else if((f=strstr(ligne,"sightdistance=")))		SightDistance=atoi(f+14)>>1;
+//            else if((f=strstr(ligne,"radardistance=")))		RadarDistance=atoi(f+14)>>1;
+//            else if((f=strstr(ligne,"radardistancejam=")))	RadarDistanceJam=atoi(f+17)>>1;
+//            else if((f=strstr(ligne,"soundcategory="))) {
+//                soundcategory = f + 14;
+//                soundcategory = String::Trim( soundcategory, ";" );
+//            }
+//            else if((f=strstr(ligne,"wthi_badtargetcategory="))) {
+//                while( f[23] == ' ' )	f++;
+//                if (w_badTargetCategory.size() < 3)
+//                    w_badTargetCategory.resize(3);
+//                w_badTargetCategory[2] = f + 23;
+//            }
+//            else if((f=strstr(ligne,"wsec_badtargetcategory="))) {
+//                while( f[23] == ' ' )	f++;
+//                if (w_badTargetCategory.size() < 2)
+//                    w_badTargetCategory.resize(2);
+//                w_badTargetCategory[1] = f + 23;
+//            }
+//            else if((f=strstr(ligne,"wpri_badtargetcategory="))) {
+//                while( f[23] == ' ' )	f++;
+//                if (w_badTargetCategory.size() < 1)
+//                    w_badTargetCategory.resize(1);
+//                w_badTargetCategory[0] = f + 23;
+//            }
+//            else if((f=strstr(ligne,"nochasecategory="))) {
+//                while( f[17] == ' ' )	f++;
+//                NoChaseCategory = f + 17;
+//            }
+//            else if((f=strstr(ligne,"badtargetcategory="))) {
+//                while( f[18] == ' ' )	f++;
+//                BadTargetCategory = f + 18;
+//            }
+//            else if((f=strstr(ligne,"category="))) {
+//                while( f[9] == ' ' )	f++;
+//                if(strstr(f,";"))
+//                    *(strstr(f,";"))=0;
+//                Category.initTable(16);
+//                categories.clear();
+//                String(f+9).split(categories, " ");
+//                for (String::Vector::const_iterator i = categories.begin(); i != categories.end(); ++i)
+//                    Category.insertOrUpdate(String::ToLower(*i), 1);
+//                fastCategory = 0;
+//                if( checkCategory( "kamikaze" ) )	fastCategory |= CATEGORY_KAMIKAZE;
+//                if( checkCategory( "notair" ) )		fastCategory |= CATEGORY_NOTAIR;
+//                if( checkCategory( "notsub" ) )		fastCategory |= CATEGORY_NOTSUB;
+//                if( checkCategory( "jam" ) )		fastCategory |= CATEGORY_JAM;
+//                if( checkCategory( "commander" ) )	fastCategory |= CATEGORY_COMMANDER;
+//                if( checkCategory( "weapon" ) )		fastCategory |= CATEGORY_WEAPON;
+//                if( checkCategory( "level3" ) )		fastCategory |= CATEGORY_LEVEL3;
+//            }
+//            else if((f=strstr(ligne,"unitnumber=")))			UnitNumber=atoi(f+14);
+//            else if((f=strstr(ligne,"canmove=")))				canmove=(f[8]=='1');
+//            else if((f=strstr(ligne,"canpatrol=")))			canpatrol=(f[10]=='1');
+//            else if((f=strstr(ligne,"canstop=")))				canstop=(f[8]=='1');
+//            else if((f=strstr(ligne,"canguard=")))			canguard=(f[9]=='1');
+//            else if((f=strstr(ligne,"maxvelocity=")))			MaxVelocity = atof(f+12)*16.0f;
+//            else if((f=strstr(ligne,"brakerate=")))			BrakeRate=atof(f+10)*160.0f;
+//            else if((f=strstr(ligne,"acceleration=")))		Acceleration=atof(f+13)*160.0f;
+//            else if((f=strstr(ligne,"turnrate=")))			TurnRate = atof(f+9) * TA2DEG * 20.0f;
+//            else if((f=strstr(ligne,"candgun=")))				candgun=(f[8]=='1');
+//            else if((f=strstr(ligne,"canattack=")))			canattack=(f[10]=='1');
+//            else if((f=strstr(ligne,"canreclamate=")))		CanReclamate=(f[13]=='1');
+//            else if((f=strstr(ligne,"energymake=")))			EnergyMake=atoi(f+11);
+//            else if((f=strstr(ligne,"metalmake=")))			MetalMake=atof(f+10);
+//            else if((f=strstr(ligne,"cancapture=")))			CanCapture=(f[11]=='1');
+//            else if((f=strstr(ligne,"hidedamage=")))			HideDamage=(f[11]=='1');
+//            else if((f=strstr(ligne,"healtime=")))			HealTime=atoi(f+9)*30;		// To have it in seconds
+//            else if((f=strstr(ligne,"cloakcost=")))			CloakCost=atoi(f+10);
+//            else if((f=strstr(ligne,"cloakcostmoving=")))		CloakCostMoving=atoi(f+16);
+//            else if((f=strstr(ligne,"init_cloaked=")))		init_cloaked=f[13]=='1';
+//            else if((f=strstr(ligne,"mincloakdistance=")))	mincloakdistance=atoi(f+17)>>1;
+//            else if((f=strstr(ligne,"builddistance=")))		BuildDistance=atoi(f+14);
+//            else if((f=strstr(ligne,"activatewhenbuilt=")))	ActivateWhenBuilt=(f[18]=='1');
+//            else if((f=strstr(ligne,"immunetoparalyzer=")))	ImmuneToParalyzer=(f[18]=='1');
+//            else if((f=strstr(ligne,"sonardistance=")))		SonarDistance=atoi(f+14)>>1;
+//            else if((f=strstr(ligne,"sonardistancejam=")))	SonarDistanceJam=atoi(f+17)>>1;
+//            else if((f=strstr(ligne,"copyright="))) {}
+//            else if((f=strstr(ligne,"maxslope=")))			MaxSlope=atoi(f+9);
+//            else if((f=strstr(ligne,"steeringmode=")))		SteeringMode=atoi(f+13);
+
+//            else if((f=strstr(ligne,"bmcode=")))				BMcode=atoi(f+7);
+//            else if((f=strstr(ligne,"zbuffer="))) {}
+//            else if((f=strstr(ligne,"shootme=")))				ShootMe=(f[8]=='1');
+//            else if((f=strstr(ligne,"upright=")))				Upright=(f[8]=='1');
+//            else if((f=strstr(ligne,"norestrict=")))			norestrict=(f[11]=='1');
+//            else if((f=strstr(ligne,"noautofire=")))			AutoFire=(f[11]!='1');
+//            else if((f=strstr(ligne,"energystorage=")))		EnergyStorage=atoi(f+14);
+//            else if((f=strstr(ligne,"metalstorage=")))		MetalStorage=atoi(f+13);
+//            else if((f=strstr(ligne,"standingmoveorder=")))	StandingMoveOrder=atoi(f+18);
+//            else if((f=strstr(ligne,"mobilestandorders=")))	MobileStandOrders=atoi(f+18);
+//            else if((f=strstr(ligne,"standingfireorder=")))	StandingFireOrder=atoi(f+18);
+//            else if((f=strstr(ligne,"firestandorders=")))		FireStandOrders=atoi(f+16);
+//            else if((f=strstr(ligne,"waterline=")))			WaterLine=atof(f+10);
+//            else if((f=strstr(ligne,"tedclass="))) {
+//                if(strstr(f,"water"))			TEDclass=CLASS_WATER;
+//                else if((strstr(f,"ship")))		TEDclass=CLASS_SHIP;
+//                else if((strstr(f,"energy")))		TEDclass=CLASS_ENERGY;
+//                else if((strstr(f,"vtol")))		TEDclass=CLASS_VTOL;
+//                else if((strstr(f,"kbot")))		TEDclass=CLASS_KBOT;
+//                else if((strstr(f,"plant")))		TEDclass=CLASS_PLANT;
+//                else if((strstr(f,"tank")))		TEDclass=CLASS_TANK;
+//                else if((strstr(f,"special")))	TEDclass=CLASS_SPECIAL;
+//                else if((strstr(f,"fort")))		TEDclass=CLASS_FORT;
+//                else if((strstr(f,"metal")))		TEDclass=CLASS_METAL;
+//                else if((strstr(f,"cnstr")))		TEDclass=CLASS_CNSTR;
+//                else if((strstr(f,"commander")))	TEDclass=CLASS_COMMANDER;
+//                else {
+//                    printf("->tedclass id inconnu : %s\n",f);
+//                    nb_inconnu++;
+//                }
+//            }
+//            else if((f=strstr(ligne,"noshadow=")))			NoShadow=(f[9]=='1');
+//            else if((f=strstr(ligne,"antiweapons=")))			antiweapons=(f[12]=='1');
+//            else if((f=strstr(ligne,"buildangle=")))			BuildAngle=atoi(f+11);
+//            else if((f=strstr(ligne,"canfly=")))				canfly=(f[7]=='1');
+//            else if((f=strstr(ligne,"canload=")))				canload=(f[8]=='1');
+//            else if((f=strstr(ligne,"floater=")))				Floater=(f[8]=='1');
+//            else if((f=strstr(ligne,"canhover=")))			canhover=(f[9]=='1');
+//            else if((f=strstr(ligne,"bankscale=")))			BankScale=atoi(f+10);
+//            else if((f=strstr(ligne,"tidalgenerator=")))		TidalGenerator=(f[15]=='1');
+//            //			else if(f=strstr(ligne,"scale="))				Scale=atof(f+6);
+//            else if((f=strstr(ligne,"scale=")))				Scale=1.0f;
+//            else if((f=strstr(ligne,"corpse="))) {
+//                Corpse = String::Trim(f+7, ";");
+//            }
+//            else if((f=strstr(ligne,"windgenerator=")))
+//                WindGenerator=atoi(f+14);
+//            else if((f=strstr(ligne,"onoffable=")))			onoffable=(f[10]=='1');
+//            else if((f=strstr(ligne,"kamikaze=")))			kamikaze=(f[9]=='1');
+//            else if((f=strstr(ligne,"kamikazedistance=")))	kamikazedistance=atoi(f+17)>>1;
+//            else if((f=strstr(ligne,"weapon1="))) {
+//                if (WeaponID.size() < 1)
+//                    WeaponID.resize(1,-1);
+//                WeaponID[0] = weapon_manager.get_weapon_index( String::Trim(f+8,";") );
+//            }
+//            else if((f=strstr(ligne,"weapon2="))) {
+//                if (WeaponID.size() < 2)
+//                    WeaponID.resize(2,-1);
+//                WeaponID[1] = weapon_manager.get_weapon_index( String::Trim(f+8,";") );
+//            }
+//            else if((f=strstr(ligne,"weapon3="))) {
+//                if (WeaponID.size() < 3)
+//                    WeaponID.resize(3,-1);
+//                WeaponID[2] = weapon_manager.get_weapon_index( String::Trim(f+8,";") );
+//            }
+//            else if((f=strstr(ligne,"yardmap=")))	{
+//                f=strstr(dup_ligne,"=");
+//                if(strstr(f+1,";"))
+//                    *(strstr(f+1,";"))=0;
+//                while(strstr(f," ")) {
+//                    char *fm=strstr(f," ");
+//                    memmove(fm,fm+1,strlen(fm+1)+1);
+//                }
+//                yardmap = f+1;
+//            }
+//            else if((f=strstr(ligne,"cruisealt=")))			CruiseAlt=atoi(f+10);
+//            else if((f=strstr(ligne,"explodeas="))) {
+//                ExplodeAs = String::Trim(f+10,";");
+//            }
+//            else if((f=strstr(ligne,"selfdestructas="))) {
+//                SelfDestructAs = String::Trim(f+15,";");
+//            }
+//            else if((f=strstr(ligne,"maneuverleashlength=")))	ManeuverLeashLength=atoi(f+20);
+//            else if((f=strstr(ligne,"defaultmissiontype="))) {
+//                if(strstr(f,"=standby;"))				DefaultMissionType=MISSION_STANDBY;
+//                else if(strstr(f,"=vtol_standby;"))		DefaultMissionType=MISSION_VTOL_STANDBY;
+//                else if(strstr(f,"=guard_nomove;"))		DefaultMissionType=MISSION_GUARD_NOMOVE;
+//                else if(strstr(f,"=standby_mine;"))		DefaultMissionType=MISSION_STANDBY_MINE;
+//                else {
+//                    LOG_ERROR("Unknown constant: `" << f << "`");
+//                    ++nb_inconnu;
+//                }
+//            }
+//            else if((f=strstr(ligne,"transmaxunits=")))		TransMaxUnits=TransportMaxUnits=atoi(f+14);
+//            else if((f=strstr(ligne,"transportmaxunits=")))	TransMaxUnits=TransportMaxUnits=atoi(f+18);
+//            else if((f=strstr(ligne,"transportcapacity=")))	TransportCapacity=atoi(f+18);
+//            else if((f=strstr(ligne,"transportsize=")))		TransportSize=atoi(f+14);
+//            else if((f=strstr(ligne,"altfromsealevel=")))		AltFromSeaLevel=atoi(f+16);
+//            else if((f=strstr(ligne,"movementclass="))) {
+//                MovementClass = String::Trim(f+14,";");
+//            }
+//            else if((f=strstr(ligne,"isairbase=")))			IsAirBase=(f[10]=='1');
+//            else if((f=strstr(ligne,"commander=")))			commander=(f[10]=='1');
+//            else if((f=strstr(ligne,"damagemodifier=")))		DamageModifier=atof(f+15);
+//            else if((f=strstr(ligne,"makesmetal=")))			MakesMetal=atof(f+11);
+//            else if((f=strstr(ligne,"sortbias=")))			SortBias=atoi(f+9);
+//            else if((f=strstr(ligne,"extractsmetal=")))		ExtractsMetal=atof(f+14);
+//            else if((f=strstr(ligne,"hoverattack=")))			hoverattack=(f[12]=='1');
+//            else if((f=strstr(ligne,"isfeature=")))			isfeature=(f[10]=='1');
+//            else if((f=strstr(ligne,"stealth=")))				Stealth=atoi(f+8);
+//            else if((f=strstr(ligne,"attackrunlength=")))		attackrunlength = atoi(f+16);
+//            else if((f=strstr(ligne,"selfdestructcountdown=")))	selfdestructcountdown=atoi(f+22);
+//            else if((f=strstr(ligne,"canresurrect=")))		canresurrect = (f[13] == '1');
+//            else if((f=strstr(ligne,"resurrect=")))			canresurrect = (f[10] == '1');
+//            else if((f=strstr(ligne,"downloadable="))) { }
+//            else if((f=strstr(ligne,"ovradjust="))) { }
+//            else if((f=strstr(ligne,"ai_limit="))) { }
+//            else if((f=strstr(ligne,"ai_weight="))) { }
+//            if(f==NULL && strstr(ligne,"}")==NULL && strlen( ligne ) > 0 ) {
+//                LOG_ERROR("[FBI] Unknown variable: `" << ligne << "`");
+//                ++nb_inconnu;
+//            }
+//            if(dup_ligne)
+//                free(dup_ligne);
+//        }while(strstr(ligne,"}")==NULL && nb<1000 && pos<limit);
+//        delete[] ligne;
+//        if( canresurrect && BuildDistance == 0.0f )
+//            BuildDistance = SightDistance;
+//        weapon.resize( WeaponID.size() );
+//        w_badTargetCategory.resize( WeaponID.size() );
+//        for (int i = 0 ; i < WeaponID.size() ; i++)
+//            if(WeaponID[i]>-1)
+//                weapon[i] = &(weapon_manager.weapon[WeaponID[i]]);
+//        if (!Unitname.empty())
+//        {
+//            model = model_manager.get_model(ObjectName);
+//            if(model==NULL)
+//                LOG_ERROR("`" << Unitname << "` without a 3D model");
+//        }
+//        else
+//            LOG_WARNING("The unit does not have a name");
+//        if (canfly == 1)
+//            TurnRate = TurnRate * 3; // A hack thanks to Doors
+//        load_dl();
+//        return nb_inconnu;
     }
 
     void UNIT_TYPE::load_dl()
@@ -1320,9 +1547,7 @@ namespace TA3D
             if (unit_manager.get_unit_index(nom) == -1)
             {
                 LOG_DEBUG("Loading the unit `" << nom << "`...");
-                uint32 file_size=0;
-                byte *data = HPIManager->PullFromHPI(*i, &file_size);
-                nb_inconnu += unit_manager.load_unit(data, file_size);
+                nb_inconnu += unit_manager.load_unit(*i);
                 if (!unit_manager.unit_type[unit_manager.nb_unit - 1]->Unitname.empty())
                 {
                     String nom_pcx;
@@ -1342,7 +1567,6 @@ namespace TA3D
                         glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
                     }
                 }
-                delete[] data;
             }
             free(nom);
         }
