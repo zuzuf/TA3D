@@ -101,13 +101,13 @@ namespace TA3D
         for (int i = 0; i < 256; ++i)
         {
             tex[i].nb_bmp = 1;
-            tex[i].bmp = (BITMAP**) malloc(sizeof(BITMAP*));
-            tex[i].glbmp = (GLuint*) malloc(sizeof(GLuint));
-            tex[i].ofs_x = (short*) malloc(sizeof(short));
-            tex[i].ofs_y = (short*) malloc(sizeof(short));
-            tex[i].w = (short*) malloc(sizeof(short));
-            tex[i].h = (short*) malloc(sizeof(short));
-            tex[i].name = strdup( TA3D::format("_%d", i).c_str() );
+            tex[i].bmp = new BITMAP*[1];
+            tex[i].glbmp = new GLuint[1];
+            tex[i].ofs_x = new short[1];
+            tex[i].ofs_y = new short[1];
+            tex[i].w = new short[1];
+            tex[i].h = new short[1];
+            tex[i].name = TA3D::format("_%d", i);
 
             tex[i].ofs_x[0] = 0;
             tex[i].ofs_y[0] = 0;
