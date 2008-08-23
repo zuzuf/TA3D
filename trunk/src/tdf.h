@@ -205,6 +205,8 @@ namespace TA3D
     public:
         //! Features' count
         int nb_features;
+        //! Available space in Features' array
+        int max_features;
         //! All features
         FEATURE	*feature;
 
