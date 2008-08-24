@@ -1280,10 +1280,12 @@ namespace TA3D
         bool first_time = true;
         nb_pages = -1;
         for( int i = 0 ; i < nb_unit ; i++ )		// We can't trust Pic_p data, because sometimes we get >= 10000 !! so only order is important
-            if( Pic_p[ i ] != -1 ) {
-                if( last == Pic_p[ i ] && !first_time )
+            if (Pic_p[ i ] != -1)
+            {
+                if (last == Pic_p[ i ] && !first_time)
                     Pic_p[ i ] = nb_pages;
-                else {
+                else
+                {
                     last = Pic_p[ i ];
                     Pic_p[ i ] = ++nb_pages;
                 }
@@ -1294,7 +1296,8 @@ namespace TA3D
 
         if( dl_data && dl_data->dl_num > 0 )
             for( int i = 0 ; i < nb_unit ; i++ )
-                if( Pic_p[ i ] == -1 ) {
+                if (Pic_p[ i ] == -1)
+                {
                     Pic_p[ i ] = nb_pages;
                     Pic_x[ i ] = dl_data->dl_x[ next_id ];
                     Pic_y[ i ] = dl_data->dl_y[ next_id ];
@@ -1302,22 +1305,26 @@ namespace TA3D
                     Pic_h[ i ] = dl_data->dl_h[ next_id ];
                     next_id = (next_id + 1) % dl_data->dl_num;
                     filled = true;
-                    if( next_id == 0 ) {
+                    if (next_id == 0)
+                    {
                         nb_pages++;
                         filled = false;
                     }
                 }
         if( !filled )	nb_pages--;
-        for( int i = nb_unit - 1 ; i > 0 ; i-- ) {
+        for( int i = nb_unit - 1 ; i > 0 ; i-- )
+        {
             for( int e = i - 1 ; e >= 0 ; e-- )
-                if( Pic_p[ e ] == Pic_p[ i ] && overlaps( Pic_x[ e ], Pic_y[ e ], Pic_w[ e ], Pic_h[ e ], Pic_x[ i ], Pic_y[ i ], Pic_w[ i ], Pic_h[ i ] ) ) {
+                if (e != i && Pic_p[ e ] == Pic_p[ i ] && overlaps( Pic_x[ e ], Pic_y[ e ], Pic_w[ e ], Pic_h[ e ], Pic_x[ i ], Pic_y[ i ], Pic_w[ i ], Pic_h[ i ] ))
+                {
                     Pic_p[ i ]++;
-                    e = i;
+                    e = nb_unit - 1;
                 }
         }
         for( int i = 0 ; i < nb_unit - 1 ; i++ )  		// Ok it's O(N²) but we don't need something fast
             for( int e = i + 1 ; e < nb_unit ; e++ )
-                if( Pic_p[e] < Pic_p[i] ) {
+                if (Pic_p[e] < Pic_p[i])
+                {
                     SWAP( Pic_p[e], Pic_p[i] )
                         SWAP( Pic_x[e], Pic_x[i] )
                         SWAP( Pic_y[e], Pic_y[i] )
