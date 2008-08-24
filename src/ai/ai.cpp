@@ -497,7 +497,7 @@ namespace TA3D
 
 
         # ifdef AI_DEBUG
-        LOG_DEBUG(LOG_PREFIX_AI << "AI(" << ai->player_id << "," << msec_timer << ") thinking...");
+        LOG_DEBUG(LOG_PREFIX_AI << "AI(" << (int)ai->player_id << "," << msec_timer << ") thinking...");
         # endif
 
         float sw[ 10000 ];			// Used to compute the units that are built
@@ -569,7 +569,7 @@ namespace TA3D
                         }
                     }
                 # ifdef AI_DEBUG
-                LOG_DEBUG(LOG_PREFIX_AI << "AI(" << ai->player_id
+                LOG_DEBUG(LOG_PREFIX_AI << "AI(" << (int)ai->player_id
                           << "," << msec_timer << ") -> factory " << *i << "building " << selected_idx);
                 # endif
                 if (selected_idx >= 0)
@@ -665,14 +665,14 @@ namespace TA3D
                     target.y = Math::Max( map->get_max_rect_h((int)target.x,(int)target.z, unit_manager.unit_type[selected_idx]->FootprintX, unit_manager.unit_type[selected_idx]->FootprintZ ), map->sealvl);
                     units.unit[ *i ].add_mission( MISSION_BUILD, &target, false, selected_idx );
                     # ifdef AI_DEBUG
-                    LOG_DEBUG(LOG_PREFIX_AI << "AI(" << ai->player_id << "," << msec_timer
+                    LOG_DEBUG(LOG_PREFIX_AI << "AI(" << (int)ai->player_id << "," << msec_timer
                               << ") -> builder " << *i << " building " << selected_idx);
                     # endif
                     ai->weights[ selected_idx ].w *= 0.8f;
                 }
                 # ifdef AI_DEBUG
                 else if (selected_idx >= 0)
-                    LOG_WARNING(LOG_PREFIX_AI << "AI(" << ai->player_id << "," << msec_timer
+                    LOG_WARNING(LOG_PREFIX_AI << "AI(" << (int)ai->player_id << "," << msec_timer
                               << ") -> builder " << *i << " building " << selected_idx << ": No build place found");
                 # endif
             }
@@ -754,7 +754,7 @@ namespace TA3D
             case AI_TYPE_HARD    :speed = 2000;  break;
             case AI_TYPE_BLOODY  :speed = 1000;  break;
         }
-        LOG_INFO(LOG_PREFIX_AI << "Started for player " << player_id);
+        LOG_INFO(LOG_PREFIX_AI << "Started for player " << (int)player_id);
         while (!thread_ask_to_stop)
         {
             scan_unit();						// Look at the units
@@ -776,7 +776,7 @@ namespace TA3D
                 rest(Math::Min(100, time_to_wait - i));									// divide the wait call in order not to wait too much when game ends
 
         }
-        LOG_INFO(LOG_PREFIX_AI << "Stopped for player " << player_id);
+        LOG_INFO(LOG_PREFIX_AI << "Stopped for player " << (int)player_id);
         thread_running = false;
         thread_ask_to_stop = false;
         return 0;
@@ -785,7 +785,7 @@ namespace TA3D
 
     void AI_PLAYER::SignalExitThread()
     {
-        LOG_INFO(LOG_PREFIX_AI << "Stopping for player " << player_id << "...");
+        LOG_INFO(LOG_PREFIX_AI << "Stopping for player " << (int)player_id << "...");
         thread_ask_to_stop = true;
         while (thread_running)
             rest(1);

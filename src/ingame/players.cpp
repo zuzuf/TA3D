@@ -39,7 +39,7 @@ namespace TA3D
             return -1;		// Trop de joueurs déjà
         }
 
-        LOG_INFO("Adding a new player: `" << name << "` (" << nb_player << ") of `" << SIDE
+        LOG_INFO("Adding a new player: `" << name << "` (" << (int)nb_player << ") of `" << SIDE
                  << "` with E=" << E << ", M=" << M);
 
         metal_u[nb_player]      = 0;
