@@ -3032,6 +3032,7 @@ namespace TA3D
                 case SIGNAL_ORDER_REPAIR:
                     sound_manager->playTDFSound( "IMMEDIATEORDERS", "sound" , NULL);
                     current_order = signal_order;
+                    build = -1;
                     break;
                 case SIGNAL_ORDER_STOP:
                     sound_manager->playTDFSound( "IMMEDIATEORDERS", "sound" , NULL);
