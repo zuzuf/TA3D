@@ -668,7 +668,7 @@ namespace TA3D
         MaxDamage = unitParser.pullAsInt("unitinfo.maxdamage");
         MaxWaterDepth = unitParser.pullAsInt("unitinfo.MaxWaterDepth");
         MinWaterDepth = unitParser.pullAsInt("unitinfo.minwaterdepth", -0xFFF);
-        if (MaxWaterDepth == 0) MaxWaterDepth = 255;
+        if (MinWaterDepth != -0xFFF && MaxWaterDepth == 0) MaxWaterDepth = 255;
         EnergyUse = unitParser.pullAsInt("unitinfo.energyuse");
         BuildTime = unitParser.pullAsInt("unitinfo.buildtime");
         WorkerTime = unitParser.pullAsInt("unitinfo.workertime",1);
