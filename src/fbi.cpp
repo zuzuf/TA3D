@@ -145,10 +145,10 @@ namespace TA3D
 
         int page = atoi( number.c_str() ) - 1;		// Extract the page number
 
-        int NbObj = gui_parser.pullAsInt("unitinfo.gadget0.totalgadgets");
+        int NbObj = gui_parser.pullAsInt("gadget0.totalgadgets");
 
-        int x_offset = gui_parser.pullAsInt("unitinfo.gadget0.common.xpos");
-        int y_offset = gui_parser.pullAsInt("unitinfo.gadget0.common.ypos");
+        int x_offset = gui_parser.pullAsInt("gadget0.common.xpos");
+        int y_offset = gui_parser.pullAsInt("gadget0.common.ypos");
 
         for (int i = 1; i <= NbObj; ++i)
         {
@@ -252,7 +252,7 @@ namespace TA3D
                 }
                 if (strstr(ligne,"unitname="))          // Obtient le nom de l'unité à ajouter
                 {
-                    unitname=strstr(ligne,"unitname=")+9;
+                    unitname = strstr(ligne,"unitname=")+9;
                     unitname = String::Trim(unitname, ";").toUpper();
                 }
 
@@ -320,15 +320,18 @@ namespace TA3D
         for (int i = 0 ; i < nb_unit; ++i)
         {
             int n = 1;
+            while(!sidedata_parser.pullAsString(String::ToLower(format( "canbuild.%s.canbuild%d", unit_type[i]->Unitname.c_str(), n ) ) ).empty())  n++;
+
+            n--;
             String canbuild = sidedata_parser.pullAsString(String::ToLower(format( "canbuild.%s.canbuild%d", unit_type[i]->Unitname.c_str(), n ) ) );
-            while (!canbuild.empty())
+            while (n>0)
             {
                 int idx = get_unit_index( canbuild );
                 if (idx >= 0 && idx < nb_unit && unit_type[idx]->unitpic)
                     unit_type[i]->AddUnitBuild(idx, -1, -1, 64, 64, -1);
                 else
                     LOG_DEBUG("unit '" << canbuild << "' not found");
-                ++n;
+                --n;
                 canbuild = sidedata_parser.pullAsString( format( "canbuild.%s.canbuild%d", unit_type[i]->Unitname.c_str(), n ) );
             }
         }
