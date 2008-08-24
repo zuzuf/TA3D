@@ -1591,6 +1591,8 @@ namespace TA3D
         model->draw_shadow_basic(shadow_scale_dir*Dir*RotateXZY(-drawn_Angle.x*DEG2RAD, -drawn_Angle.z*DEG2RAD, -drawn_Angle.y*DEG2RAD),0.0f,&data);
 
         glPopMatrix();
+        
+        drawing = false;
     }
 
 
