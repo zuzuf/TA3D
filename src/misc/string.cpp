@@ -358,7 +358,7 @@ namespace TA3D
         LOG_ASSERT(NULL != ret);
         // see http://linux.die.net/man/3/do_uconvert
         do_uconvert(s, U_ASCII, ret, U_UTF8, newSize);
-        ret[newSize] = '\0'; // A bit paranoid 
+        ret[newSize - 1] = '\0'; // A bit paranoid 
         return ret;
     }
 
