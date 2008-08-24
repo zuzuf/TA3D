@@ -484,7 +484,7 @@ namespace TA3D
         {
             return *this;
         }
-        b = (char*)malloc(sizeneeded);
+        b = new char[sizeneeded];
         if (b == NULL)
         {
             return *this;
@@ -495,7 +495,7 @@ namespace TA3D
         if (vsnprintf(b, sizeneeded, f, parg) < 0)
 #endif
         {
-            free(b);
+            delete[] b;
             return *this;
         }
 #else
@@ -505,7 +505,7 @@ namespace TA3D
         }
 #endif
         this->append(b);
-        free(b);
+        delete[] b;
         return *this;
     }
 

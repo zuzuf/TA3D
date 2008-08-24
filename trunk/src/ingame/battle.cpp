@@ -3285,7 +3285,7 @@ namespace TA3D
 
             ta3d_network.draw(); // Draw network related stuffs (ie: chat messages, ...)
 
-            char *cmd = NULL;
+            String cmd;
             // Draw the console
             if (!shoot || video_shoot)
                 cmd = console.draw(gfx->TA_font, dt, gfx->TA_font.height());
@@ -3337,10 +3337,10 @@ namespace TA3D
 
             gfx->flip();
 
-            if (cmd) // Analyse les commandes tapées dans la console
+            if (!cmd.empty()) // Analyse les commandes tapées dans la console
             {
                 String::Vector params;
-                String(cmd).split(params, " ");
+                cmd.split(params, " ");
                 if (params.size() > 0)
                 {
                     if (params[0] == "fps_on") lp_CONFIG->showfps=true;				// Affiche le nombre d'images/seconde
@@ -3632,7 +3632,6 @@ namespace TA3D
                     else if (params[0] == "energy") cheat_energy^=true;			// cheat codes
                 }
                 params.clear();
-                free(cmd);
             }
             if (cheat_metal)
                 players.metal[players.local_human_id] = players.c_metal[players.local_human_id]=players.metal_s[players.local_human_id];					// cheat codes

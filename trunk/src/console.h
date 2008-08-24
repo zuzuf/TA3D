@@ -75,7 +75,7 @@ namespace TA3D
         ** \param fsize Size of the font
         ** \param forceShow Display the console even it should be displayed
         */
-        char *draw(TA3D::GfxFont& fnt, const float dt, float fsize = 8, const bool forceShow = false);
+        String draw(TA3D::GfxFont& fnt, const float dt, float fsize = 8, const bool forceShow = false);
 
 
     private:

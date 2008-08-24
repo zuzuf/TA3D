@@ -114,13 +114,13 @@ namespace TA3D
         //!
         int nb_side;
         //! The name
-        char* side_name[TA3D_PLAYERS_HARD_LIMIT];
+        String side_name[TA3D_PLAYERS_HARD_LIMIT];
         //! The prefix
-        char* side_pref[TA3D_PLAYERS_HARD_LIMIT];
+        String side_pref[TA3D_PLAYERS_HARD_LIMIT];
         //! The commande
-        char* side_com[TA3D_PLAYERS_HARD_LIMIT];
+        String side_com[TA3D_PLAYERS_HARD_LIMIT];
         //! The GAF interface
-        char* side_int[TA3D_PLAYERS_HARD_LIMIT];
+        String side_int[TA3D_PLAYERS_HARD_LIMIT];
         //! The interface data (position of the gui elements)
         InterfaceData side_int_data[TA3D_PLAYERS_HARD_LIMIT];
         //!

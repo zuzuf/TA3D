@@ -126,9 +126,7 @@ void loading(const float percent, const String& msg)
 
     if( lp_CONFIG->draw_console_loading ) // If set in config
     {
-        char *cmd = console.draw(gfx->TA_font, 0.0f, gfx->TA_font.height(), true);			// Display something to show what's happening
-        if (cmd)
-            free(cmd);
+        String cmd = console.draw(gfx->TA_font, 0.0f, gfx->TA_font.height(), true);			// Display something to show what's happening
     }
 
     gfx->flip();

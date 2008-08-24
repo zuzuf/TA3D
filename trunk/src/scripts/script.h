@@ -58,7 +58,7 @@ namespace TA3D
         float   x[4];
         float   y[4];
         float   r[2],g[2],b[2];
-        char    *text;
+        String  text;
         GLuint  tex;
     };
 
@@ -71,15 +71,14 @@ namespace TA3D
         void init()
         {
             prim.type=DRAW_TYPE_NONE;
-            prim.text=NULL;
+            prim.text.clear();
             next=NULL;
         }
 
         void destroy()
         {
             if(prim.type==DRAW_TYPE_BITMAP)     glDeleteTextures(1,&prim.tex);
-            if(( prim.type==DRAW_TYPE_TEXT || prim.type==DRAW_TYPE_BITMAP ) && prim.text!=NULL)
-                free(prim.text);
+            prim.text.clear();
             if(next) {
                 next->destroy();
                 delete next;

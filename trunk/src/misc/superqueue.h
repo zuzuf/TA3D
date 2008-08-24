@@ -26,7 +26,7 @@
 struct SQNode
 {
     //! 
-	void* item;
+	char* item;
     //!
 	int size;
     //!
