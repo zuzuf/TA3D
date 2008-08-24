@@ -1318,7 +1318,7 @@ namespace TA3D
                 if (e != i && Pic_p[ e ] == Pic_p[ i ] && overlaps( Pic_x[ e ], Pic_y[ e ], Pic_w[ e ], Pic_h[ e ], Pic_x[ i ], Pic_y[ i ], Pic_w[ i ], Pic_h[ i ] ))
                 {
                     Pic_p[ i ]++;
-                    e = nb_unit - 1;
+                    e = nb_unit;
                 }
         }
         for( int i = 0 ; i < nb_unit - 1 ; i++ )  		// Ok it's O(N²) but we don't need something fast
