@@ -72,7 +72,7 @@ namespace TA3D
     {
         if (nbtex == 0)
             return -1;
-        return tex_hashtable.find( texture_name );
+        return tex_hashtable.find( texture_name ) - 1;
     }
 
 
@@ -113,7 +113,7 @@ namespace TA3D
             tex[i].bmp[0] = create_bitmap_ex(32,16,16);
             clear_to_color(tex[i].bmp[0], makeacol(pal[i].r << 2, pal[i].g << 2, pal[i].b << 2, 0xFF));
             
-            tex_hashtable.insert(tex[i].name,i);
+            tex_hashtable.insert(tex[i].name,i + 1);
         }
 
         String::List file_list;
@@ -144,7 +144,7 @@ namespace TA3D
         for (int i = 0; i < nb_entry; ++i)
         {
             tex[nbtex + i].loadGAFFromRawData(data, i, false);
-            tex_hashtable.insert(tex[nbtex + i].name, nbtex + i);
+            tex_hashtable.insert(tex[nbtex + i].name, nbtex + i + 1);
         }
         nbtex += nb_entry;
         return 0;
