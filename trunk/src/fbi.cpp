@@ -343,7 +343,9 @@ namespace TA3D
             char *f = NULL;
             for (int i = 0; i < nb_unit; ++i)
             {
-                if ((f = strstr(String::ToUpper(*file).c_str(), String::ToUpper( unit_type[i]->Unitname ).c_str())))
+                String fileUp = String::ToUpper(*file);
+                String unitnameUp = String::ToUpper(unit_type[i]->Unitname);
+                if ((f = strstr(fileUp.c_str(), unitnameUp.c_str())))
                 {
                     if(f[unit_type[i]->Unitname.size()]=='.'
                        ||(f[unit_type[i]->Unitname.size()]>='0' && f[unit_type[i]->Unitname.size()]<='9'))
