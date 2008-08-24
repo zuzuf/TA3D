@@ -65,7 +65,7 @@ namespace TA3D
                 draw_obj.b[0] = 1.0f;
                 draw_obj.x[0] = (float) lua_tonumber( L, -4 );
                 draw_obj.y[0] = (float) lua_tonumber( L, -3 );
-                draw_obj.text = strdup( I18N::Translate( str ).c_str() );
+                draw_obj.text = I18N::Translate( str );
                 lua_program->draw_list.add( draw_obj );
             }
 
@@ -1103,9 +1103,9 @@ namespace TA3D
 
         if( player_id >= 0 && player_id < NB_PLAYERS )		// make sure we have a player
             for( int i = 0 ; i < ta3dSideData.nb_side ; i++ )
-                if( strcasecmp(ta3dSideData.side_name[ i ], players.side[ player_id ].c_str()) == 0  )
+                if( ta3dSideData.side_name[ i ] == players.side[ player_id ] )
                 {
-                    lua_pushstring( L, ta3dSideData.side_com[ i ] );
+                    lua_pushstring( L, ta3dSideData.side_com[ i ].c_str() );
                     break;
                 }
                 else
@@ -1487,9 +1487,9 @@ namespace TA3D
                 glDisable(GL_BLEND);
                 break;
             case DRAW_TYPE_BITMAP:
-                if( prim.tex == 0 && prim.text != NULL ) {
+                if( prim.tex == 0 && !prim.text.empty() ) {
                     prim.tex = gfx->load_texture( prim.text );
-                    free( prim.text );
+                    prim.text.clear();
                     prim.text = NULL;
                 }
                 glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);

@@ -71,7 +71,7 @@ namespace TA3D
 
 
 
-    char *Console::draw(TA3D::GfxFont& fnt, const float dt, float fsize, const bool forceShow)
+    String Console::draw(TA3D::GfxFont& fnt, const float dt, float fsize, const bool forceShow)
     {
         MutexLocker locker(pMutex);
 
@@ -118,7 +118,7 @@ namespace TA3D
         ++fsize;
         float maxh = fsize * pLastEntries.size() * pVisible + 5.0f;
 
-        char* newline = NULL;
+        String newline;
 
         glEnable(GL_BLEND);		// Dessine le cadre de la console
         glDisable(GL_TEXTURE_2D);
@@ -151,7 +151,7 @@ namespace TA3D
             String x = pInputText;
             addEntry(x);
             pInputText[0] = 0;
-            newline = strdup((char *)x.c_str());
+            newline = x;
         }
 
         if (keyb == 8 && strlen(pInputText) > 0)

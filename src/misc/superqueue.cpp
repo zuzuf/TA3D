@@ -30,7 +30,7 @@ SuperQueue::SuperQueue()
     qfront(0), qback(0), full(0), empty(1),
     freespace(32/*=qsize*/)
 {
-	queue = (char*)malloc(sizeof(char) * qsize);
+	queue = new char[qsize];
 }
 
 SuperQueue::SuperQueue(int number,int itemsize)
@@ -38,7 +38,7 @@ SuperQueue::SuperQueue(int number,int itemsize)
     qfront(0), qback(0), full(0), empty(1)
 {
 	freespace = qsize;
-	queue = (char*)malloc(sizeof(char)*qsize);
+	queue = new char[qsize];
 }
 
 SuperQueue::~SuperQueue()
@@ -49,11 +49,11 @@ SuperQueue::~SuperQueue()
 	while (node1)
     {
 		node2 = node1->next;
-		free(node1->item);
-		free(node1);
+		delete[] node1->item;
+		delete node1;
 		node1 = node2;
 	}
-	free(queue);
+	delete[] queue;
 }
 
 
@@ -65,9 +65,9 @@ int SuperQueue::enqueue(void* item)
         {
             //expand
             struct SQNode* node;
-            node = (struct SQNode*)malloc(sizeof(struct SQNode));
+            node = new (struct SQNode);
             node->next = NULL;
-            node->item = (void*)malloc(size);
+            node->item = new char[size];
             memcpy(node->item,item,size);
             extra = node;
             ep = node;
@@ -97,9 +97,9 @@ int SuperQueue::enqueue(void* item)
     {
         //full, use linked list
         struct SQNode* node;
-        node = (struct SQNode*)malloc(sizeof(struct SQNode));
+        node = new (struct SQNode);
         node->next = NULL;
-        node->item = (void*)malloc(size);
+        node->item = new char[size];
         memcpy(node->item,item,size);
         if(ep)
             ep->next = node;
@@ -158,9 +158,9 @@ int SuperQueue::dequeue(void* item)
         }
         qback=(qback+size) % qsize;
         struct SQNode* node;
-        free(extra->item);
+        delete[] extra->item;
         node = extra->next;
-        free(extra);
+        delete[] extra;
         extra = node;
         if (extra == NULL)
             full = 0;

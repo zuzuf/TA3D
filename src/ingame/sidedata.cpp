@@ -27,7 +27,12 @@ namespace TA3D
     {
         nb_side=0;
         for (short int i = 0; i < TA3D_PLAYERS_HARD_LIMIT; ++i)
-            side_name[i] = side_pref[i] = side_com[i] = side_int[i] = NULL;
+        {
+            side_name[i].clear();
+            side_pref[i].clear();
+            side_com[i].clear();
+            side_int[i].clear();
+        }
         unit_ext = ".fbi";
         unit_dir = "units\\";
         model_dir = "objects3d\\";
@@ -41,10 +46,10 @@ namespace TA3D
     {
         for (short int i = 0; i < TA3D_PLAYERS_HARD_LIMIT; ++i)
         {
-            if(side_name[i])	free(side_name[i]);
-            if(side_pref[i])	free(side_pref[i]);
-            if(side_com[i])		free(side_com[i]);
-            if(side_int[i])		free(side_int[i]);
+            side_name[i].clear();
+            side_pref[i].clear();
+            side_com[i].clear();
+            side_int[i].clear();
         }
         unit_ext.clear();
         unit_dir.clear();
@@ -84,10 +89,10 @@ namespace TA3D
 
         while (sidedata_parser.pullAsString( format( "side%d.name", nb_side ), "" ) != "")
         {
-            side_name[ nb_side ] = strdup( sidedata_parser.pullAsString( format( "side%d.name", nb_side ) ).c_str() );
-            side_pref[ nb_side ] = strdup( sidedata_parser.pullAsString( format( "side%d.nameprefix", nb_side ) ).c_str() );
-            side_com[ nb_side ] = strdup( sidedata_parser.pullAsString( format( "side%d.commander", nb_side ) ).c_str() );
-            side_int[ nb_side ] = strdup( sidedata_parser.pullAsString( format( "side%d.intgaf", nb_side ) ).c_str() );
+            side_name[ nb_side ] = sidedata_parser.pullAsString( format( "side%d.name", nb_side ) );
+            side_pref[ nb_side ] = sidedata_parser.pullAsString( format( "side%d.nameprefix", nb_side ) );
+            side_com[ nb_side ] = sidedata_parser.pullAsString( format( "side%d.commander", nb_side ) );
+            side_int[ nb_side ] = sidedata_parser.pullAsString( format( "side%d.intgaf", nb_side ) );
 
             int pal_id = sidedata_parser.pullAsInt( format( "side%d.metalcolor", nb_side ) );
             side_int_data[ nb_side ].metal_color = makeacol( pal[ pal_id ].r << 2, pal[ pal_id ].g << 2, pal[ pal_id ].b << 2, 0xFF );

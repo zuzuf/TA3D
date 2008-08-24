@@ -1189,7 +1189,7 @@ namespace TA3D
 
         int side_id = -1;
         for( int i = 0 ; i < ta3dSideData.nb_side && side_id == -1 ; i++ )
-            if( strcasecmp( ta3dSideData.side_name[ i ], side.c_str() ) == 0 )
+            if( ta3dSideData.side_name[ i ] == side )
                 side_id = i;
         if (side_id == -1)
             return;
