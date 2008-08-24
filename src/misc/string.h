@@ -40,7 +40,7 @@ namespace TA3D
 {
 
     /*! \class String
-    ** \brief A String implementation for `Worlds`
+    ** \brief A String implementation for `TA3D`
     **
     ** \code
     **      TA3D::String a("abcd");
