@@ -946,7 +946,7 @@ namespace Audio
                                                               FMOD_HARDWARE | FMOD_OPENMEMORY | ( (LoadAs3D) ? FMOD_3D : FMOD_2D ),
                                                               &exinfo,
                                                               &it->sampleHandle);
-        free(data); // we no longer need this.
+        delete[] data; // we no longer need this.
 
         if (FMODResult != FMOD_OK) // ahh crap fmod couln't load it.
         {
