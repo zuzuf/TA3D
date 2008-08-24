@@ -2773,6 +2773,7 @@ namespace TA3D
                     break;
                 case 0x14:				// Unit has been captured, this is a FAKE unit, just here to be removed
                     flags=4;
+                    pMutex.unlock();
                     return -1;
                 default:		// It doesn't explode (it has been reclaimed for example)
                     flags=1;
