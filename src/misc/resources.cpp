@@ -75,6 +75,7 @@ namespace Resources
         // If using MacPorts
         AddSearchPath("/opt/local/share/ta3d/");
         AddSearchPath(Paths::ApplicationRoot + "resources/"); // TODO : Should be removed (need a fully working Application bundle)
+        AddSearchPath(Paths::ApplicationRoot);
     }
 
     # endif // ifndef TA3D_PLATFORM_DARWIN
