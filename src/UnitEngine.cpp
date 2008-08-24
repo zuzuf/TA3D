@@ -2849,19 +2849,22 @@ namespace TA3D
         if (cloaking)
         {
             int conso_energy = (mission == NULL || !(mission->flags & MISSION_FLAG_MOVE) ) ? unit_manager.unit_type[type_id]->CloakCost : unit_manager.unit_type[type_id]->CloakCostMoving;
-            if (players.energy[ owner_id ] >= (energy_cons + conso_energy) * dt ) {
+            if (players.energy[ owner_id ] >= (energy_cons + conso_energy) * dt)
+            {
                 energy_cons += conso_energy;
                 int dx = unit_manager.unit_type[type_id]->mincloakdistance >> 3;
+                int distance = SQUARE(unit_manager.unit_type[type_id]->mincloakdistance);
                 // byte mask = 1 << owner_id;
                 bool found = false;
-                for(int y = cur_py - dx ; y <= cur_py + dx && !found ; y++ )
-                    if (y >= 0 && y < map->bloc_h_db - 1 )
-                        for(int x = cur_px - dx ; x <= cur_px + dx ; x++ )
-                            if (x >= 0 && x < map->bloc_w_db - 1 ) {
+                for(int y = cur_py - dx ; y <= cur_py + dx && !found ; y++)
+                    if (y >= 0 && y < map->bloc_h_db - 1)
+                        for(int x = cur_px - dx ; x <= cur_px + dx ; x++)
+                            if (x >= 0 && x < map->bloc_w_db - 1)
+                            {
                                 int cur_idx = map->map_data[y][x].unit_idx;
 
                                 if (cur_idx>=0 && cur_idx < units.max_unit && (units.unit[cur_idx].flags & 1) && units.unit[cur_idx].owner_id != owner_id
-                                    && SQUARE(unit_manager.unit_type[type_id]->mincloakdistance) < (Pos - units.unit[ cur_idx ].Pos).sq() )
+                                    && distance >= (Pos - units.unit[ cur_idx ].Pos).sq())
                                 {
                                     found = true;
                                     break;

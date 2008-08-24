@@ -105,7 +105,7 @@ namespace TA3D
                         pVisible = 0.0f;
                 }
                 if (pVisible == 0.0f)
-                    return NULL;
+                    return "";
             }
         }
 
