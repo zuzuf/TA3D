@@ -1332,26 +1332,20 @@ namespace TA3D
 
             if (!IsOnGUI)
             {
-                if (mouse_b == 2 && omb3 != 2) // Deselect units
+                if (mouse_b == 2 && omb3 != 2) // Right mouse button cancels/deselects
                 {
-                    if (mouse_b == 2 && current_order != SIGNAL_ORDER_NONE && current_order != SIGNAL_ORDER_MOVE)
+                    if (current_order != SIGNAL_ORDER_NONE && current_order != SIGNAL_ORDER_MOVE)
                         current_order = SIGNAL_ORDER_NONE;
                     else
                     {
                         pMouseSelecting = false;
-                        if (mouse_b == 1)
-                        {
-                            pMouseSelecting=true;
-                            pMouseRectSelection.x1=mouse_x;
-                            pMouseRectSelection.y1=mouse_y;
-                        }
                         if (build >= 0)
                         {
-                            if ((!TA3D_SHIFT_PRESSED && !(mouse_b==2 && omb3!=2)) || (mouse_b==2 && omb3!=2))
-                                build = -1; // leave build mode
+                            build = -1; // leave build mode
                         }
                         else
                         {
+                            // Deselect units
                             selected = false;
                             cur_sel = -1;
                             cur_sel_index = -1;
