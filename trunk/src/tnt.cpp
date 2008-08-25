@@ -306,7 +306,7 @@ namespace TA3D
             map->bloc[i].tex_x = tx>>5;
         }
 
-        LOG_INFO("Blocs readin " << (msec_timer-event_timer) * 0.001f << "s.");
+        LOG_INFO("Blocs read in " << (msec_timer-event_timer) * 0.001f << "s.");
         event_timer=msec_timer;
 
         LOG_DEBUG("MAP: creating textures");
