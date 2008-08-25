@@ -2211,6 +2211,7 @@ namespace TA3D
                     float DZ = (unit_manager.unit_type[build]->FootprintZ<<2);
                     if (unit_manager.unit_type[build]->model)
                     {
+                        glEnable(GL_CULL_FACE);
                         gfx->ReInitAllTex( true);
                         if (can_be_there)
                             glColor4ub(0xFF,0xFF,0xFF,0xFF);
