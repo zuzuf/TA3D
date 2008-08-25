@@ -1176,7 +1176,19 @@ namespace TA3D
                 }
             }
 
-            if (cursor_type==CURSOR_REVIVE && CURSOR_REVIVE != CURSOR_RECLAIM && !rope_selection && mouse_b != 1 && omb3 == 1 && ( !IsOnGUI || IsOnMinimap)) // The cursor orders to resurrect a wreckage
+            bool order_removed = false;
+            if (cursor_type!=CURSOR_DEFAULT && mouse_b!=1 && omb3 ==1 && !IsOnGUI && TA3D_SHIFT_PRESSED) // Remove commands from queue
+            {
+                Vector3D target(cursor_on_map(cam, *map));
+                target.x = ((int)(target.x) + map->map_w_d) >> 3;
+                target.z = ((int)(target.z) + map->map_h_d) >> 3;
+                target.x = target.x * 8.0f - map->map_w_d;
+                target.z = target.z * 8.0f - map->map_h_d;
+                target.y = Math::Max(map->get_unit_h(target.x, target.z), map->sealvl);
+                order_removed = units.remove_order(players.local_human_id, target);
+            }
+
+            if (cursor_type==CURSOR_REVIVE && CURSOR_REVIVE != CURSOR_RECLAIM && !rope_selection && mouse_b != 1 && omb3 == 1 && ( !IsOnGUI || IsOnMinimap) && !order_removed) // The cursor orders to resurrect a wreckage
             {
                 Vector3D cur_pos(cursor_on_map(cam, *map, IsOnMinimap));
                 int idx = -units.last_on - 2;
@@ -1204,7 +1216,7 @@ namespace TA3D
             }
 
             // The cursor orders to reclaim something
-            if (cursor_type == CURSOR_RECLAIM && !rope_selection && mouse_b != 1 && omb3 == 1 && (!IsOnGUI || IsOnMinimap)) 
+            if (cursor_type == CURSOR_RECLAIM && !rope_selection && mouse_b != 1 && omb3 == 1 && (!IsOnGUI || IsOnMinimap) && !order_removed) 
             {
                 Vector3D cur_pos(cursor_on_map(cam, *map, IsOnMinimap));
                 int idx = -units.last_on - 2;
@@ -1231,14 +1243,14 @@ namespace TA3D
                     current_order=SIGNAL_ORDER_NONE;
             }
 
-            if (cursor_type==CURSOR_UNLOAD && !rope_selection && mouse_b != 1 && omb3 == 1 && ( !IsOnGUI || IsOnMinimap))	// The cursor orders to unload units
+            if (cursor_type==CURSOR_UNLOAD && !rope_selection && mouse_b != 1 && omb3 == 1 && ( !IsOnGUI || IsOnMinimap) && !order_removed)	// The cursor orders to unload units
             {
                 units.give_order_unload(players.local_human_id, cursor_on_map(cam, *map, IsOnMinimap), !TA3D_SHIFT_PRESSED);
                 if (!TA3D_SHIFT_PRESSED)
                     current_order=SIGNAL_ORDER_NONE;
             }
 
-            if (cursor_type==CURSOR_MOVE && !rope_selection && mouse_b != 1 && omb3 == 1 && ( !IsOnGUI || IsOnMinimap)) 	// The cursor orders to move
+            if (cursor_type==CURSOR_MOVE && !rope_selection && mouse_b != 1 && omb3 == 1 && ( !IsOnGUI || IsOnMinimap) && !order_removed) 	// The cursor orders to move
             {
                 units.give_order_move(players.local_human_id, cursor_on_map(cam, *map, IsOnMinimap), !TA3D_SHIFT_PRESSED);
                 if (!TA3D_SHIFT_PRESSED)
@@ -1246,7 +1258,7 @@ namespace TA3D
             }
 
             // The cursor orders to patrol
-            if (cursor_type == CURSOR_PATROL && !rope_selection && mouse_b != 1 && omb3 == 1 && ( !IsOnGUI || IsOnMinimap))
+            if (cursor_type == CURSOR_PATROL && !rope_selection && mouse_b != 1 && omb3 == 1 && ( !IsOnGUI || IsOnMinimap) && !order_removed)
             {
                 units.give_order_patrol(players.local_human_id, cursor_on_map(cam, *map, IsOnMinimap), !TA3D_SHIFT_PRESSED);
                 if (!TA3D_SHIFT_PRESSED)
@@ -1313,17 +1325,6 @@ namespace TA3D
 
             if (build == -1)
                 build_order_given = false;
-
-            if (cursor_type!=CURSOR_DEFAULT && mouse_b!=2 && omb3 ==2 && !IsOnGUI && TA3D_SHIFT_PRESSED) // Remove commands from queue
-            {
-                Vector3D target(cursor_on_map(cam, *map));
-                target.x = ((int)(target.x) + map->map_w_d) >> 3;
-                target.z = ((int)(target.z) + map->map_h_d) >> 3;
-                target.x = target.x * 8.0f - map->map_w_d;
-                target.z = target.z * 8.0f - map->map_h_d;
-                target.y = Math::Max(map->get_unit_h(target.x, target.z), map->sealvl);
-                units.remove_order(players.local_human_id, target);
-            }
 
             if (mouse_b != 1 && omb3 == 1 && !TA3D_SHIFT_PRESSED && (!IsOnGUI || IsOnMinimap))
                 current_order = SIGNAL_ORDER_NONE;
