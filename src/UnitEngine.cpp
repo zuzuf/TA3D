@@ -4740,7 +4740,7 @@ namespace TA3D
             switch(mission->mission)		// Pour le code post déplacement
             {
                 case MISSION_ATTACK:
-//                    if (unit_manager.unit_type[type_id]->canfly && !unit_manager.unit_type[type_id]->hoverattack ) {			// Un avion??
+//                    if (unit_manager.unit_type[type_id]->canfly && !unit_manager.unit_type[type_id]->hoverattack ) 			// Un avion??
                     if (unit_manager.unit_type[type_id]->canfly)			// Un avion??
                     {
                         activate();
@@ -7306,7 +7306,7 @@ script_exec:
             uint16 i = idx_list[e];
             pMutex.unlock();
             unit[i].lock();
-            if ((unit[i].flags & 1) && !unit[i].command_locked && unit[i].owner_id==player_id && unit[i].sel && unit[i].build_percent_left==0.0f) // && unit_manager.unit_type[unit[i].type_id]->Builder) {
+            if ((unit[i].flags & 1) && !unit[i].command_locked && unit[i].owner_id==player_id && unit[i].sel && unit[i].build_percent_left==0.0f) // && unit_manager.unit_type[unit[i].type_id]->Builder)
             {
                 MISSION *mission = unit_manager.unit_type[unit[i].type_id]->BMcode ? unit[i].mission : unit[i].def_mission;
                 MISSION *prec = mission;
@@ -7348,225 +7348,225 @@ script_exec:
             unit[i].unlock();
             pMutex.lock();
         }
-        pMutex.unlock();
-        }
+    pMutex.unlock();
+    }
 
 
 
-        uint32 INGAME_UNITS::InterfaceMsg(const lpcImsg msg)
+    uint32 INGAME_UNITS::InterfaceMsg(const lpcImsg msg)
+    {
+        if (msg->MsgID == TA3D_IM_GUI_MSG )	// for GUI messages, test if it's a message for us
         {
-            if (msg->MsgID == TA3D_IM_GUI_MSG )	// for GUI messages, test if it's a message for us
+            if (msg->lpParm1 == NULL)
+                return INTERFACE_RESULT_HANDLED;		// Oups badly written things
+            String message((const char*) msg->lpParm1);				// Get the string associated with the signal
+            if (!message.toLower().empty())
             {
-                if (msg->lpParm1 == NULL)
-                    return INTERFACE_RESULT_HANDLED;		// Oups badly written things
-                String message((const char*) msg->lpParm1);				// Get the string associated with the signal
-                if (!message.toLower().empty())
+                if (message == "pause game")
                 {
-                    if (message == "pause game")
-                    {
-                        lp_CONFIG->pause = true;
-                        return INTERFACE_RESULT_HANDLED;
-                    }
-                    if (message == "resume game")
-                    {
-                        lp_CONFIG->pause = false;
-                        return INTERFACE_RESULT_HANDLED;
-                    }
-                    if (message == "toggle pause")
-                    {
-                        lp_CONFIG->pause ^= true;
-                        return INTERFACE_RESULT_HANDLED;
-                    }
+                    lp_CONFIG->pause = true;
+                    return INTERFACE_RESULT_HANDLED;
+                }
+                if (message == "resume game")
+                {
+                    lp_CONFIG->pause = false;
+                    return INTERFACE_RESULT_HANDLED;
+                }
+                if (message == "toggle pause")
+                {
+                    lp_CONFIG->pause ^= true;
+                    return INTERFACE_RESULT_HANDLED;
                 }
             }
-            return INTERFACE_RESULT_CONTINUE;						// Temporary, for now it does nothing
         }
+        return INTERFACE_RESULT_CONTINUE;						// Temporary, for now it does nothing
+    }
 
 
-        int INGAME_UNITS::Run()
+    int INGAME_UNITS::Run()
+    {
+        thread_running = true;
+        float dt = 1.0f / TICKS_PER_SEC;
+        uint32 unit_timer = msec_timer;
+        uint32 tick_timer;
+        float counter = 0.0f;
+        int tick = 1000 / TICKS_PER_SEC;
+        tick_timer = msec_timer;
+        uint32 net_timer = msec_timer;
+        float step = 1.0f;
+        if (lp_CONFIG->timefactor > 0.0f )	step = 1.0f / lp_CONFIG->timefactor;
+        current_tick = 0;
+        for (short int i = 0; i < TA3D_PLAYERS_HARD_LIMIT; ++i)
+            client_tick[i] = client_speed[i] = 0;
+        apparent_timefactor = lp_CONFIG->timefactor;
+
+        unit_engine_thread_sync = 0;
+
+        ThreadSynchroniser->lock();
+
+        while( !thread_ask_to_stop )
         {
-            thread_running = true;
-            float dt = 1.0f / TICKS_PER_SEC;
-            uint32 unit_timer = msec_timer;
-            uint32 tick_timer;
-            float counter = 0.0f;
-            int tick = 1000 / TICKS_PER_SEC;
-            tick_timer = msec_timer;
-            uint32 net_timer = msec_timer;
-            float step = 1.0f;
-            if (lp_CONFIG->timefactor > 0.0f )	step = 1.0f / lp_CONFIG->timefactor;
-            current_tick = 0;
-            for (short int i = 0; i < TA3D_PLAYERS_HARD_LIMIT; ++i)
-                client_tick[i] = client_speed[i] = 0;
-            apparent_timefactor = lp_CONFIG->timefactor;
+            counter += step;
 
-            unit_engine_thread_sync = 0;
+            move( dt, map, current_tick, wind_change );					// Animate units
+
+            pMutex.lock();
+
+            if (map->fog_of_war )
+            {
+                gfx->lock();
+
+                if (!(current_tick & 0xF) ) {
+                    if (map->fog_of_war & FOW_GREY )
+                        memset( map->sight_map->line[0], 0, map->sight_map->w * map->sight_map->h );		// Clear FOW map
+                    memset( map->radar_map->line[0], 0, map->radar_map->w * map->radar_map->h );		// Clear radar map
+                    memset( map->sonar_map->line[0], 0, map->sonar_map->w * map->sonar_map->h );		// Clear sonar map
+
+                    for( int i = 0; i < index_list_size ; i++ )			// update fog of war, radar and sonar data
+                        unit[ idx_list[ i ] ].draw_on_FOW();
+
+                    for( int i = 0; i < index_list_size ; i++ )			// update radar and sonar jamming data
+                        unit[ idx_list[ i ] ].draw_on_FOW( true );
+                }
+
+                gfx->unlock();
+            }
+
+            wind_change = false;
+            pMutex.unlock();
+
+            uint32 min_tick = 1000 * current_tick + 30000;
+            if (network_manager.isConnected() )
+            {
+                if (network_manager.isServer() )
+                {
+                    for (sint8 i = 0 ; i < players.nb_player ; ++i)
+                        if (g_ta3d_network->isRemoteHuman( i ) )
+                            min_tick = Math::Min(min_tick, client_tick[i]);
+                }
+                else
+                    for (sint8 i = 0 ; i < players.nb_player ; ++i)
+                        if (g_ta3d_network->isRemoteHuman( i ) && client_tick[i] > 0 )
+                            min_tick = Math::Min(min_tick, client_tick[i]);
+            }
+            min_tick /= 1000;
+
+            if (network_manager.isConnected() && min_tick > current_tick )
+            {
+                int delay = (min_tick - current_tick) * 250 / TICKS_PER_SEC;
+                tick += delay;
+            }
+
+            while (msec_timer - tick_timer + 1 < tick)
+                rest(1);
+
+            while( msec_timer - tick_timer >= tick + 200 ) // Prevent the game to run too fast for too long, we don't have to speed up to compute what we hadn't time to
+            {
+                counter += 1.0f;
+                tick = (int)( ( (counter + step ) * 1000 ) / TICKS_PER_SEC );		// For perfect sync with tick clock
+            }
+
+            tick = (int)( ( (counter + step ) * 1000 ) / TICKS_PER_SEC );		// For perfect sync with tick clock
+            if (lp_CONFIG->timefactor > 0.0f )	step = 1.0f / lp_CONFIG->timefactor;
+            else	step = 1.0f;
+
+            ThreadSynchroniser->unlock();
+
+            while( lp_CONFIG->pause && !thread_ask_to_stop )
+            {
+                lp_CONFIG->paused = true;
+                rest(10); // in pause mode wait for pause to be false again
+            }
+            lp_CONFIG->paused = false;
+
+            if (network_manager.isConnected())
+            {
+                net_timer = msec_timer - net_timer;
+                for (sint8 i = 0 ; i < players.nb_player ; ++i)
+                {
+                    if (g_ta3d_network->isRemoteHuman( i ) )
+                        client_tick[ i ] += client_speed[ i ] * net_timer / (1000 * TICKS_PER_SEC);
+                }
+
+                net_timer = msec_timer;
+
+                network_manager.sendSpecial(format("TICK %d %d", current_tick + 1, (int)(1000.0f * apparent_timefactor) ));		// + 1 to prevent it from running too slow
+                if (current_tick > min_tick + TICKS_PER_SEC )
+                {
+                    while( current_tick > min_tick && !thread_ask_to_stop )
+                    {
+                        players_thread_sync = 0;
+                        rest(1);
+
+                        min_tick = current_tick * 1000;
+                        if (network_manager.isServer() )
+                        {
+                            for(sint8 i = 0; i < players.nb_player; ++i)
+                            {
+                                if (g_ta3d_network->isRemoteHuman( i ) )
+                                    min_tick = Math::Min(min_tick, client_tick[i]);
+                            }
+                        }
+                        else
+                        {
+                            for (int i = 0; i < players.nb_player; ++i)
+                            {
+                                if (g_ta3d_network->isRemoteHuman( i ) && client_tick[i] > 0 )
+                                    min_tick = Math::Min(min_tick, client_tick[i]);
+                            }
+                        }
+                        min_tick /= 1000;
+                    }
+                }
+                else 
+                {
+                    if (current_tick > min_tick )
+                        tick += ( current_tick - min_tick ) * 250 / TICKS_PER_SEC;
+                }
+            }
+
+            unit_engine_thread_sync = 1;
+            while( unit_engine_thread_sync && !thread_ask_to_stop )
+            {
+                if (unit_engine_thread_sync && weapon_engine_thread_sync && particle_engine_thread_sync && players_thread_sync ) // Sync engine threads
+                {
+                    unit_engine_thread_sync = 0;
+                    weapon_engine_thread_sync = 0;
+                    particle_engine_thread_sync = 0;
+                    players_thread_sync = 0;
+
+                    current_tick++;		// To have a common time value
+                    break;
+                }
+                rest( 1 );			// Wait until other thread sync with this one
+            }
 
             ThreadSynchroniser->lock();
 
-            while( !thread_ask_to_stop )
-            {
-                counter += step;
+            last_tick[ 0 ] = last_tick[ 1 ];
+            last_tick[ 1 ] = last_tick[ 2 ];
+            last_tick[ 2 ] = last_tick[ 3 ];
+            last_tick[ 3 ] = last_tick[ 4 ];
+            last_tick[ 4 ] = msec_timer;
 
-                move( dt, map, current_tick, wind_change );					// Animate units
-
-                pMutex.lock();
-
-                if (map->fog_of_war )
-                {
-                    gfx->lock();
-
-                    if (!(current_tick & 0xF) ) {
-                        if (map->fog_of_war & FOW_GREY )
-                            memset( map->sight_map->line[0], 0, map->sight_map->w * map->sight_map->h );		// Clear FOW map
-                        memset( map->radar_map->line[0], 0, map->radar_map->w * map->radar_map->h );		// Clear radar map
-                        memset( map->sonar_map->line[0], 0, map->sonar_map->w * map->sonar_map->h );		// Clear sonar map
-
-                        for( int i = 0; i < index_list_size ; i++ )			// update fog of war, radar and sonar data
-                            unit[ idx_list[ i ] ].draw_on_FOW();
-
-                        for( int i = 0; i < index_list_size ; i++ )			// update radar and sonar jamming data
-                            unit[ idx_list[ i ] ].draw_on_FOW( true );
-                    }
-
-                    gfx->unlock();
-                }
-
-                wind_change = false;
-                pMutex.unlock();
-
-                uint32 min_tick = 1000 * current_tick + 30000;
-                if (network_manager.isConnected() )
-                {
-                    if (network_manager.isServer() )
-                    {
-                        for (sint8 i = 0 ; i < players.nb_player ; ++i)
-                            if (g_ta3d_network->isRemoteHuman( i ) )
-                                min_tick = Math::Min(min_tick, client_tick[i]);
-                    }
-                    else
-                        for (sint8 i = 0 ; i < players.nb_player ; ++i)
-                            if (g_ta3d_network->isRemoteHuman( i ) && client_tick[i] > 0 )
-                                min_tick = Math::Min(min_tick, client_tick[i]);
-                }
-                min_tick /= 1000;
-
-                if (network_manager.isConnected() && min_tick > current_tick )
-                {
-                    int delay = (min_tick - current_tick) * 250 / TICKS_PER_SEC;
-                    tick += delay;
-                }
-
-                while (msec_timer - tick_timer + 1 < tick)
-                    rest(1);
-
-                while( msec_timer - tick_timer >= tick + 200 ) // Prevent the game to run too fast for too long, we don't have to speed up to compute what we hadn't time to
-                {
-                    counter += 1.0f;
-                    tick = (int)( ( (counter + step ) * 1000 ) / TICKS_PER_SEC );		// For perfect sync with tick clock
-                }
-
-                tick = (int)( ( (counter + step ) * 1000 ) / TICKS_PER_SEC );		// For perfect sync with tick clock
-                if (lp_CONFIG->timefactor > 0.0f )	step = 1.0f / lp_CONFIG->timefactor;
-                else	step = 1.0f;
-
-                ThreadSynchroniser->unlock();
-
-                while( lp_CONFIG->pause && !thread_ask_to_stop )
-                {
-                    lp_CONFIG->paused = true;
-                    rest(10); // in pause mode wait for pause to be false again
-                }
-                lp_CONFIG->paused = false;
-
-                if (network_manager.isConnected())
-                {
-                    net_timer = msec_timer - net_timer;
-                    for (sint8 i = 0 ; i < players.nb_player ; ++i)
-                    {
-                        if (g_ta3d_network->isRemoteHuman( i ) )
-                            client_tick[ i ] += client_speed[ i ] * net_timer / (1000 * TICKS_PER_SEC);
-                    }
-
-                    net_timer = msec_timer;
-
-                    network_manager.sendSpecial(format("TICK %d %d", current_tick + 1, (int)(1000.0f * apparent_timefactor) ));		// + 1 to prevent it from running too slow
-                    if (current_tick > min_tick + TICKS_PER_SEC )
-                    {
-                        while( current_tick > min_tick && !thread_ask_to_stop )
-                        {
-                            players_thread_sync = 0;
-                            rest(1);
-
-                            min_tick = current_tick * 1000;
-                            if (network_manager.isServer() )
-                            {
-                                for(sint8 i = 0; i < players.nb_player; ++i)
-                                {
-                                    if (g_ta3d_network->isRemoteHuman( i ) )
-                                        min_tick = Math::Min(min_tick, client_tick[i]);
-                                }
-                            }
-                            else
-                            {
-                                for (int i = 0; i < players.nb_player; ++i)
-                                {
-                                    if (g_ta3d_network->isRemoteHuman( i ) && client_tick[i] > 0 )
-                                        min_tick = Math::Min(min_tick, client_tick[i]);
-                                }
-                            }
-                            min_tick /= 1000;
-                        }
-                    }
-                    else 
-                    {
-                        if (current_tick > min_tick )
-                            tick += ( current_tick - min_tick ) * 250 / TICKS_PER_SEC;
-                    }
-                }
-
-                unit_engine_thread_sync = 1;
-                while( unit_engine_thread_sync && !thread_ask_to_stop )
-                {
-                    if (unit_engine_thread_sync && weapon_engine_thread_sync && particle_engine_thread_sync && players_thread_sync ) // Sync engine threads
-                    {
-                        unit_engine_thread_sync = 0;
-                        weapon_engine_thread_sync = 0;
-                        particle_engine_thread_sync = 0;
-                        players_thread_sync = 0;
-
-                        current_tick++;		// To have a common time value
-                        break;
-                    }
-                    rest( 1 );			// Wait until other thread sync with this one
-                }
-
-                ThreadSynchroniser->lock();
-
-                last_tick[ 0 ] = last_tick[ 1 ];
-                last_tick[ 1 ] = last_tick[ 2 ];
-                last_tick[ 2 ] = last_tick[ 3 ];
-                last_tick[ 3 ] = last_tick[ 4 ];
-                last_tick[ 4 ] = msec_timer;
-
-                if (last_tick[ 0 ] != 0 && last_tick[4] != last_tick[0] )
-                    apparent_timefactor = 4000.0f / ( (last_tick[ 4 ] - last_tick[ 0 ]) * TICKS_PER_SEC );
-            }
-
-            ThreadSynchroniser->unlock();
-            thread_running = false;
-            thread_ask_to_stop = false;
-            LOG_INFO("Unit engine: " << (float)(current_tick * 1000) / (msec_timer - unit_timer) << " ticks/sec");
-
-            return 0;
+            if (last_tick[ 0 ] != 0 && last_tick[4] != last_tick[0] )
+                apparent_timefactor = 4000.0f / ( (last_tick[ 4 ] - last_tick[ 0 ]) * TICKS_PER_SEC );
         }
 
-        void INGAME_UNITS::SignalExitThread()
-        {
-            if (thread_running)
-                thread_ask_to_stop = true;
-        }
+        ThreadSynchroniser->unlock();
+        thread_running = false;
+        thread_ask_to_stop = false;
+        LOG_INFO("Unit engine: " << (float)(current_tick * 1000) / (msec_timer - unit_timer) << " ticks/sec");
+
+        return 0;
+    }
+
+    void INGAME_UNITS::SignalExitThread()
+    {
+        if (thread_running)
+            thread_ask_to_stop = true;
+    }
 
 
-    } // namespace TA3D
+} // namespace TA3D
 
