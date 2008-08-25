@@ -611,7 +611,7 @@ namespace TA3D
 
         void give_order_build(int player_id, int unit_type_id, const Vector3D& target, bool set = true);
 
-        void remove_order(int player_id, const Vector3D& target);
+        bool remove_order(int player_id, const Vector3D& target);
 
         void complete_menu(int index, bool hide_info = false, bool hide_bpic = false);
 

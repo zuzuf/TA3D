@@ -7298,8 +7298,9 @@ script_exec:
         gfx->unlock();
     }
 
-    void INGAME_UNITS::remove_order(int player_id, const Vector3D& target)
+    bool INGAME_UNITS::remove_order(int player_id, const Vector3D& target)
     {
+        bool removed_something = false;
         pMutex.lock();
         for (uint16 e = 0; e < index_list_size; ++e)
         {
@@ -7337,6 +7338,7 @@ script_exec:
                             if (tmp->path)				// Destroy the path if needed
                                 destroy_path(tmp->path);
                             delete tmp;
+                            removed_something = true;
                         }
                         else {
                             prec = mission;
@@ -7348,7 +7350,9 @@ script_exec:
             unit[i].unlock();
             pMutex.lock();
         }
-    pMutex.unlock();
+        pMutex.unlock();
+
+        return removed_something;
     }
 
 
