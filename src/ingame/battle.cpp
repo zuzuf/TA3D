@@ -1393,7 +1393,7 @@ namespace TA3D
                             skip = true;
                     }
                     else
-                        selected = units.selectUnits(cam, pMouseRectSelection);		// Séléction au lasso
+                        selected = units.selectUnits(RectTest(cam, pMouseRectSelection));		// Séléction au lasso
 
                     if (!skip)
                     {

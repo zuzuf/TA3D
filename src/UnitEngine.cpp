@@ -5796,31 +5796,9 @@ script_exec:
     }
 
 
-    bool INGAME_UNITS::selectUnits(Camera& cam, const Rect<int>& pos)
+    bool INGAME_UNITS::selectUnits(const RectTest &reigon)
     {
         pMutex.lock();
-
-        cam.setView();
-        MATRIX_4x4 modelView;
-        MATRIX_4x4 project;
-
-        int	viewportCoords[4] = {0, 0, 0, 0};
-        glGetIntegerv(GL_VIEWPORT, viewportCoords);
-        glGetFloatv(GL_MODELVIEW_MATRIX,  (float*)modelView.E);
-        glGetFloatv(GL_PROJECTION_MATRIX, (float*)project.E);
-
-        modelView = Transpose(modelView);
-        project = Transpose(project);
-
-        float VW =  (viewportCoords[2] - viewportCoords[0]) * 0.5f;
-        float VH = -(viewportCoords[3] - viewportCoords[1]) * 0.5f;
-
-        MATRIX_4x4 T(modelView * project); // Matrice de transformation
-
-        int X1 = Math::Min(pos.x1, pos.x2);
-        int Y1 = Math::Min(pos.y1, pos.y2);
-        int X2 = Math::Max(pos.x1, pos.x2);
-        int Y2 = Math::Max(pos.y1, pos.y2);
 
         bool selected = false;
 
@@ -5843,18 +5821,10 @@ script_exec:
                     if (!TA3D_SHIFT_PRESSED)
                         unit[i].sel = false;
 
-                    Vector3D Vec(unit[i].Pos - cam.pos);
-                    float d = Vec.sq();
-                    if (!(d > 16384.0f && (Vec % cam.dir) <= 0.0f))
+                    if (reigon.contains(unit[i].Pos))
                     {
-                        Vector3D UPos (glNMult(unit[i].Pos, T)); // The unit position
-                        UPos.x = UPos.x * VW + VW;
-                        UPos.y = UPos.y * VH - VH;
-                        if (X1 <= UPos.x && X2 >= UPos.x && Y1 <= UPos.y && Y2 >= UPos.y)
-                        {
-                            unit[i].sel = true;
-                            selected = true;
-                        }
+                        unit[i].sel = true;
+                        selected = true;
                     }
                 }
             }
