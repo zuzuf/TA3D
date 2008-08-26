@@ -1,8 +1,10 @@
+#include "../stdafx.h"
+#include "../TA3D_NameSpace.h"
 #include "shader.h"
 #include "glfunc.h"
 #include "../logs/logs.h"
 #include "../misc/files.h"
-
+#include "../TA3D_hpi.h"
 
 
 
@@ -79,7 +81,15 @@ namespace TA3D
         {
             GLhandleARB	shader = glCreateShaderObjectARB(GL_FRAGMENT_SHADER_ARB);
             uint64 filesize;
-            char* buf = Paths::Files::LoadContentInMemory(filename, filesize, TA3D_FILES_HARD_LIMIT_FOR_SIZE);
+            char* buf = NULL;
+            if (HPIManager)
+            {
+                uint32 fs(0);
+                buf = (char*)HPIManager->PullFromHPI(filename, &fs);
+                filesize = fs;
+            }
+            else
+                buf = Paths::Files::LoadContentInMemory(filename, filesize, TA3D_FILES_HARD_LIMIT_FOR_SIZE);
             if (!buf)
             {
                 LOG_ERROR(LOG_PREFIX_SHADER << "`" << filename << "` could not be opened");
@@ -118,7 +128,15 @@ namespace TA3D
             GLhandleARB	shader = glCreateShaderObjectARB(GL_VERTEX_SHADER_ARB);
 
             uint64 filesize;
-            char* buf = Paths::Files::LoadContentInMemory(filename, filesize, TA3D_FILES_HARD_LIMIT_FOR_SIZE);
+            char* buf = NULL;
+            if (HPIManager)
+            {
+                uint32 fs(0);
+                buf = (char*)HPIManager->PullFromHPI(filename, &fs);
+                filesize = fs;
+            }
+            else
+                buf = Paths::Files::LoadContentInMemory(filename, filesize, TA3D_FILES_HARD_LIMIT_FOR_SIZE);
             if (!buf)
             {
                 LOG_ERROR(LOG_PREFIX_SHADER << "`" << filename << "` could not be opened");
