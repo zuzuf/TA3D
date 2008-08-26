@@ -176,20 +176,20 @@ namespace TA3D
         }
     }
 
-    int BRAIN::load(FILE *file)		// Load the neural network
+    int BRAIN::load(TA3D_FILE *file)		// Load the neural network
     {
         char tmp[6];
 
-        fread(tmp,5,1,file); // File format ID
+        ta3d_fread(tmp,5,file); // File format ID
         tmp[5]=0;
         if (strcmp(tmp,"BRAIN") != 0)	// Check if it is what is expected
             return 1;
 
         destroy();		// clean the object
 
-        fread(&n,sizeof(int),1,file);		// Inputs
-        fread(&p,sizeof(int),1,file);		// Outputs
-        fread(&q,sizeof(int),1,file);		// Size of middle layer
+        ta3d_fread(&n,sizeof(int),file);		// Inputs
+        ta3d_fread(&p,sizeof(int),file);		// Outputs
+        ta3d_fread(&q,sizeof(int),file);		// Size of middle layer
         nb_neuron=p+q+n;
 
         neuron = new NEURON[nb_neuron];
@@ -206,12 +206,12 @@ namespace TA3D
             if (i<n+q)
             {
                 neuron[i].weight = new float[n];
-                fread(neuron[i].weight,sizeof(float)*n,1,file);
+                ta3d_fread(neuron[i].weight,sizeof(float)*n,file);
             }
             else
             {
                 neuron[i].weight = new float[q];
-                fread(neuron[i].weight,sizeof(float)*q,1,file);
+                ta3d_fread(neuron[i].weight,sizeof(float)*q,file);
             }
         }
         return 0;
@@ -868,7 +868,8 @@ namespace TA3D
     void AI_PLAYER::save()
     {
         String filename;
-        filename << "ai" << Paths::Separator << name << TA3D_AI_FILE_EXTENSION;
+        Paths::MakeDir( Paths::Resources + "ai" );
+        filename << Paths::Resources << "ai" << Paths::Separator << name << TA3D_AI_FILE_EXTENSION;
         FILE* file = TA3D_OpenFile(filename, "wb");
 
         byte l = (byte)name.size();
@@ -882,22 +883,22 @@ namespace TA3D
 
     void AI_PLAYER::load(const String& filename, const int id)
     {
-        FILE* file = TA3D_OpenFile(filename, "rb");
+        TA3D_FILE* file = ta3d_fopen(filename);
 
         // Length of the name
         byte l;
-        fread(&l,1,1,file);
+        ta3d_fread(&l,1,file);
 
         // Reading the name
         char* n = new char[l+1];
         n[l]=0;
-        fread(n, l, 1, file);
+        ta3d_fread(n, l, file);
         name = n;
         delete[] n;
 
         decide.load(file);
         anticipate.load(file);
-        fclose(file);
+        ta3d_fclose(file);
         player_id = id;
     }
 

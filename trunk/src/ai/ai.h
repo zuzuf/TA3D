@@ -94,7 +94,7 @@ namespace TA3D
 
         void save(FILE *file);		// Save the network
 
-        int load(FILE *file);		// Load the network
+        int load(TA3D_FILE *file);		// Load the network
     };
 
     BRAIN *copy_brain(BRAIN *brain,BRAIN *dst=NULL);		// Make a copy
