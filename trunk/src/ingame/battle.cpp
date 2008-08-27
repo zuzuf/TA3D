@@ -1370,7 +1370,7 @@ namespace TA3D
                     {
                         if (cursor_type == CURSOR_DEFAULT || cursor_type == CURSOR_CROSS)
                         {
-                            int pointing = IsOnMinimap ? units.pick_minimap() : units.pick(cam); // Select an unit from a single click
+                            int pointing = IsOnMinimap ? units.pick_minimap() : units.pick(cam); // Select a unit from a single click
                             if (!TA3D_SHIFT_PRESSED)
                             {
                                 for (uint16 e = 0; e < units.index_list_size; ++e)
