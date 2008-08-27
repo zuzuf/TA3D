@@ -3370,7 +3370,7 @@ namespace TA3D
                                     bool place_is_empty = map->check_rect( cur_px-(unit_manager.unit_type[type_id]->FootprintX>>1), cur_py-(unit_manager.unit_type[type_id]->FootprintZ>>1), unit_manager.unit_type[type_id]->FootprintX, unit_manager.unit_type[type_id]->FootprintZ, idx);
                                     if (!place_is_empty)
                                     {
-                                        LOG_WARNING("An Unit is blocked !" << __FILE__ << ":" << __LINE__);
+                                        LOG_WARNING("A Unit is blocked !" << __FILE__ << ":" << __LINE__);
                                         mission->flags &= ~MISSION_FLAG_MOVE;
                                     }
                                     else
@@ -3546,7 +3546,7 @@ namespace TA3D
                                     }
                                 }
                                 else
-                                    LOG_WARNING("An Unit is blocked !" << __FILE__ << ":" << __LINE__);
+                                    LOG_WARNING("A Unit is blocked !" << __FILE__ << ":" << __LINE__);
                             }
                             else if (!flying && local )
                             {
@@ -3592,7 +3592,7 @@ namespace TA3D
                             pMutex.unlock();
                             clear_from_map();
                             pMutex.lock();
-                            LOG_WARNING("An Unit is blocked ! (probably spawned on something)" << __FILE__ << ":" << __LINE__);
+                            LOG_WARNING("A Unit is blocked ! (probably spawned on something)" << __FILE__ << ":" << __LINE__);
                         }
                     }
                 }
