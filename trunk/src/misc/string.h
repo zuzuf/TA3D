@@ -4,6 +4,7 @@
 # include <sstream>
 # include <list>
 # include <vector>
+# include <cstdarg>
 
 /*!
 ** \brief Force the Use of the Boost functions 
