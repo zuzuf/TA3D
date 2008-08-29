@@ -1235,6 +1235,22 @@ namespace TA3D
                 MODEL *the_model = model;
                 drawing = true;
 
+                if (!unit_manager.unit_type[type_id]->emitting_points_computed ) // Compute model emitting points if not already done, do it here in UNIT::Locked code ...
+                {
+                    unit_manager.unit_type[type_id]->emitting_points_computed = true;
+                    int param[] = { -1 };
+                    int querynanopiece_idx = get_script_index( "QueryNanoPiece" );
+                    run_script_function( NULL, querynanopiece_idx, 1, param );
+                    int first = param[0];
+                    int i = 0;
+                    do
+                    {
+                        model->obj.compute_emitter_point( param[ 0 ] );
+                        run_script_function( NULL, querynanopiece_idx, 1, param );
+                        ++i;
+                    } while( first != param[0] && i < 1000 );
+                }
+
                 if (build_percent_left == 0.0f && mission != NULL && port[ INBUILDSTANCE ] != 0 && local )
                 {
                     if (c_time>=0.125f)
@@ -1344,24 +1360,6 @@ namespace TA3D
                             }
                             target = &v_target;
                         }
-                    }
-                }
-                if (c_part)	// Get the nanolathing points
-                {
-                    if (!unit_manager.unit_type[type_id]->emitting_points_computed ) // Compute model emitting points if not already done
-                    {
-                        unit_manager.unit_type[type_id]->emitting_points_computed = true;
-                        int param[] = { -1 };
-                        int querynanopiece_idx = get_script_index( "QueryNanoPiece" );
-                        run_script_function( NULL, querynanopiece_idx, 1, param );
-                        int first = param[0];
-                        int i = 0;
-                        do
-                        {
-                            model->obj.compute_emitter_point( param[ 0 ] );
-                            run_script_function( NULL, querynanopiece_idx, 1, param );
-                            ++i;
-                        } while( first != param[0] && i < 1000 );
                     }
                 }
 
