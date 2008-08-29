@@ -3717,7 +3717,9 @@ namespace TA3D
                                     float conso_energy=((float)(unit_manager.unit_type[target_unit->type_id]->WorkerTime * unit_manager.unit_type[type_id]->BuildCostEnergy)) / unit_manager.unit_type[type_id]->BuildTime;
                                     if (players.energy[owner_id] >= conso_energy * dt)
                                     {
-                                        energy_cons += conso_energy;
+                                        target_unit->lock();
+                                        target_unit->energy_cons += conso_energy;
+                                        target_unit->unlock();
                                         hp += dt * unit_manager.unit_type[target_unit->type_id]->WorkerTime * unit_manager.unit_type[type_id]->MaxDamage / unit_manager.unit_type[type_id]->BuildTime;
                                     }
                                     if (hp >= unit_manager.unit_type[type_id]->MaxDamage) // Unit has been repaired
@@ -6796,25 +6798,33 @@ script_exec:
                     e--;			// Can't skip a unit
                 }
             }
-            else
-            {
-                unit[ i ].lock();
-                players.c_metal_t[unit[i].owner_id] += unit[i].metal_prod;
-                players.c_metal_u[unit[i].owner_id] += unit[i].metal_cons;
-                players.c_energy_t[unit[i].owner_id] += unit[i].energy_prod;
-                players.c_energy_u[unit[i].owner_id] += unit[i].energy_cons;
-
-                unit[i].cur_energy_cons = unit[i].energy_cons;
-                unit[i].cur_energy_prod = unit[i].energy_prod;
-                unit[i].cur_metal_cons = unit[i].metal_cons;
-                unit[i].cur_metal_prod = unit[i].metal_prod;
-                unit[ i ].unlock();
-            }
             pMutex.lock();
         }
         pMutex.unlock();
 
         delete[] path_exec;
+
+        pMutex.lock();
+        for (uint16 e = 0 ; e < index_list_size ; ++e)
+        {
+            i = idx_list[e];
+            pMutex.unlock();
+
+            unit[ i ].lock();
+            players.c_metal_t[unit[i].owner_id] += unit[i].metal_prod;
+            players.c_metal_u[unit[i].owner_id] += unit[i].metal_cons;
+            players.c_energy_t[unit[i].owner_id] += unit[i].energy_prod;
+            players.c_energy_u[unit[i].owner_id] += unit[i].energy_cons;
+
+            unit[i].cur_energy_cons = unit[i].energy_cons;
+            unit[i].cur_energy_prod = unit[i].energy_prod;
+            unit[i].cur_metal_cons = unit[i].metal_cons;
+            unit[i].cur_metal_prod = unit[i].metal_prod;
+            unit[ i ].unlock();
+
+            pMutex.lock();
+        }
+        pMutex.unlock();
 
         float exp_r = exp(-dt*0.1f);
         nb_attacked*=exp_r;
