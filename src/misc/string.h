@@ -5,6 +5,9 @@
 # include <list>
 # include <vector>
 # include <cstdarg>
+# include <string>
+
+
 
 /*!
 ** \brief Force the Use of the Boost functions 
