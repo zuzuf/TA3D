@@ -7420,23 +7420,20 @@ script_exec:
 
             pMutex.lock();
 
-            if (map->fog_of_war )
+            if (!(current_tick & 0xF))
             {
                 gfx->lock();
+                
+                if (map->fog_of_war & FOW_GREY)
+                    memset( map->sight_map->line[0], 0, map->sight_map->w * map->sight_map->h );		// Clear FOW map
+                memset( map->radar_map->line[0], 0, map->radar_map->w * map->radar_map->h );		// Clear radar map
+                memset( map->sonar_map->line[0], 0, map->sonar_map->w * map->sonar_map->h );		// Clear sonar map
 
-                if (!(current_tick & 0xF) ) {
-                    if (map->fog_of_war & FOW_GREY )
-                        memset( map->sight_map->line[0], 0, map->sight_map->w * map->sight_map->h );		// Clear FOW map
-                    memset( map->radar_map->line[0], 0, map->radar_map->w * map->radar_map->h );		// Clear radar map
-                    memset( map->sonar_map->line[0], 0, map->sonar_map->w * map->sonar_map->h );		// Clear sonar map
+                for( int i = 0; i < index_list_size ; i++ )			// update fog of war, radar and sonar data
+                    unit[ idx_list[ i ] ].draw_on_FOW();
 
-                    for( int i = 0; i < index_list_size ; i++ )			// update fog of war, radar and sonar data
-                        unit[ idx_list[ i ] ].draw_on_FOW();
-
-                    for( int i = 0; i < index_list_size ; i++ )			// update radar and sonar jamming data
-                        unit[ idx_list[ i ] ].draw_on_FOW( true );
-                }
-
+                for( int i = 0; i < index_list_size ; i++ )			// update radar and sonar jamming data
+                    unit[ idx_list[ i ] ].draw_on_FOW( true );
                 gfx->unlock();
             }
 
