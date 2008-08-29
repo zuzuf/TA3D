@@ -4827,13 +4827,15 @@ namespace TA3D
 
                 if (!can_fire )
                     for( int i = 0 ; i < weapon.size() && !can_fire ; i++ )
-                        can_fire = unit_manager.unit_type[type_id]->weapon[i] != NULL && !unit_manager.unit_type[type_id]->weapon[i]->commandfire && weapon[i].state == WEAPON_FLAG_IDLE;
+                        can_fire =  unit_manager.unit_type[type_id]->weapon[i] != NULL && !unit_manager.unit_type[type_id]->weapon[i]->commandfire
+                                    && !unit_manager.unit_type[type_id]->weapon[i]->interceptor && weapon[i].state == WEAPON_FLAG_IDLE;
 
                 if (can_fire) {
                     int dx=(unit_manager.unit_type[type_id]->SightDistance+(int)(h+0.5f))>>3;
                     int enemy_idx=-1;
                     for( int i = 0 ; i < weapon.size() ; i++ )
-                        if (unit_manager.unit_type[type_id]->weapon[i] != NULL && (unit_manager.unit_type[type_id]->weapon[i]->range>>4)>dx)
+                        if (unit_manager.unit_type[type_id]->weapon[i] != NULL && (unit_manager.unit_type[type_id]->weapon[i]->range>>4)>dx
+                        && !unit_manager.unit_type[type_id]->weapon[i]->interceptor && !unit_manager.unit_type[type_id]->weapon[i]->commandfire)
                             dx=unit_manager.unit_type[type_id]->weapon[i]->range>>4;
                     if (unit_manager.unit_type[type_id]->kamikaze && (unit_manager.unit_type[type_id]->kamikazedistance>>3) > dx )
                         dx=unit_manager.unit_type[type_id]->kamikazedistance;
