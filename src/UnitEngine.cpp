@@ -7050,7 +7050,8 @@ script_exec:
                 cur_id = unit[i].owner_id;
                 float pos_x=unit[i].Pos.x*rw+64.0f;
                 float pos_y=unit[i].Pos.z*rh+64.0f;
-                if (unit[i].radar_range > 0 || unit[i].radar_jam_range > 0 || unit[i].sonar_jam_range || unit[i].sonar_range > 0)
+                bool anti_missile = unit[i].weapon.size() > 0 && unit_manager.unit_type[unit[i].type_id]->antiweapons && unit_manager.unit_type[unit[i].type_id]->weapon[0];
+                if (unit[i].radar_range > 0 || unit[i].radar_jam_range > 0 || unit[i].sonar_jam_range || unit[i].sonar_range > 0 || anti_missile)
                 {
                     glEnd();
                     glPointSize(1.0f);
@@ -7063,7 +7064,9 @@ script_exec:
                     gfx->circle_zoned( pos_x, pos_y, (unit[i].radar_jam_range << 3) * rw, 0.0f, 0.0f, 127.0f, 127.0f, makeacol( 192, 192, 0, 255 ) );
                 if (unit[i].sonar_jam_range > 0)
                     gfx->circle_zoned( pos_x, pos_y, (unit[i].sonar_jam_range << 3) * rw, 0.0f, 0.0f, 127.0f, 127.0f, makeacol( 192, 192, 0, 255 ) );
-                if (unit[i].radar_range > 0 || unit[i].radar_jam_range > 0 || unit[i].sonar_jam_range || unit[i].sonar_range > 0)
+                if (anti_missile)
+                    gfx->dot_circle_zoned( msec_timer * 0.001f, pos_x, pos_y, unit_manager.unit_type[ unit[i].type_id ]->weapon[0]->coverage * rw, 0.0f, 0.0f, 127.0f, 127.0f, 0xFFFFFFFF );
+                if (unit[i].radar_range > 0 || unit[i].radar_jam_range > 0 || unit[i].sonar_jam_range || unit[i].sonar_range > 0 || anti_missile)
                 {
                     glPointSize(3.0f);
                     glBegin( GL_POINTS );
