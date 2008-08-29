@@ -183,6 +183,7 @@ namespace TA3D
         void circle(const float x, const float y, const float r);
         void circlefill(const float x, const float y, const float r);
         void circle_zoned(const float x, const float y, const float r, const float mx, const float my, const float Mx, const float My);
+        void dot_circle_zoned(const float t, const float x, const float y, const float r, const float mx, const float my, const float Mx, const float My);
         void rectdot(const float x1, const float y1, const float x2, const float y2);
         void drawtexture(const GLuint &tex, const float x1, const float y1, const float x2, const float y2);
         void drawtexture_flip(const GLuint &tex, const float x1, const float y1, const float x2, const float y2);
@@ -194,6 +195,7 @@ namespace TA3D
         void circle(const float x, const float y, const float r, const uint32 col);
         void circlefill(const float x, const float y, const float r, const uint32 col);
         void circle_zoned(const float x, const float y, const float r, const float mx, const float my, const float Mx, const float My, const uint32 col);
+        void dot_circle_zoned(const float t, const float x, const float y, const float r, const float mx, const float my, const float Mx, const float My, const uint32 col);
         void rectdot(const float x1, const float y1, const float x2, const float y2, const uint32 col);
         void drawtexture(const GLuint &tex, const float x1, const float y1, const float x2, const float y2, const uint32 col);
         void putpixel(const float x, const float y, const uint32 col);

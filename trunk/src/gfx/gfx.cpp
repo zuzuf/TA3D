@@ -309,6 +309,29 @@ namespace TA3D
         glEnd();
     }
 
+    void GFX::dot_circle_zoned(const float t, const float x, const float y, const float r, const float mx, const float my, const float Mx, const float My)
+    {
+        float d_alpha = DB_PI/(r+1.0f);
+        glBegin( GL_LINES );
+        for (float alpha = 0.0f; alpha <= DB_PI; alpha += d_alpha)
+        {
+            float rx = x+r*cos(alpha+t);
+            float ry = y+r*sin(alpha+t);
+            if (rx < mx )		rx = mx;
+            else if (rx > Mx )	rx = Mx;
+            if (ry < my )		ry = my;
+            else if (ry > My )	ry = My;
+            glVertex2f( rx, ry );
+        }
+        glEnd();
+    }
+
+    void GFX::dot_circle_zoned(const float t, const float x, const float y, const float r, const float mx, const float my, const float Mx, const float My, const uint32 col)
+    {
+        set_color(col);
+        dot_circle_zoned(t,x,y,r,mx,my,Mx,My);
+    }
+
     void GFX::circle_zoned(const float x, const float y, const float r, const float mx, const float my, const float Mx, const float My, const uint32 col)
     {
         set_color(col);
