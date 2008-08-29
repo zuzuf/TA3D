@@ -16,9 +16,8 @@ namespace TA3D
 
 
     PARTICLE_ENGINE::PARTICLE_ENGINE()
-        :nb_part(0), size(0), part(NULL), parttex(0), partbmp(NULL), dsmoke(false),
-        ntex(0), gltex(), index_list_size(0), idx_list(NULL),
-        free_index_size(0), free_idx(NULL), point(NULL),
+        :nb_part(0), size(0), part(), parttex(0), partbmp(NULL), dsmoke(false),
+        ntex(0), gltex(), point(NULL),
         texcoord(NULL), color(NULL), thread_running(false), thread_ask_to_stop(false),
         p_wind_dir(NULL), p_g(NULL), particle_systems()
     {
@@ -64,41 +63,6 @@ namespace TA3D
     }
 
 
-
-    void PARTICLE_ENGINE::more_memory()			// Alloue de la mémoire supplémentaire
-    {
-        pMutex.lock();
-
-#define MEMORY_STEP		10000
-        size += MEMORY_STEP;
-        PARTICLE *tmp = new PARTICLE[size];
-        if (nb_part>0 && part)
-            memcpy(tmp,part,sizeof(PARTICLE)*nb_part);
-        uint32	*n_idx = new uint32[size];
-        uint32	*n_new_idx = new uint32[size];
-        if (index_list_size>0)
-            memcpy(n_idx,idx_list,index_list_size<<2);
-        if (free_index_size>0)
-            memcpy(n_new_idx,free_idx,free_index_size<<2);
-        if (idx_list) delete[] idx_list;
-        if (free_idx) delete[] free_idx;
-        idx_list = n_idx;
-        free_idx = n_new_idx;
-        for(uint32 i = size-MEMORY_STEP; i<size;i++)
-            free_idx[free_index_size++] = i;
-        if (part)
-            delete[] part;
-        part=tmp;
-
-        if (point == NULL)
-            point = new Vector3D[4096];
-        if (texcoord == NULL)
-            texcoord = new GLfloat[8192];
-        if (color == NULL)
-            color = new GLubyte[16384];
-        pMutex.unlock();
-    }
-
     void PARTICLE_ENGINE::emit_part(Vector3D pos,Vector3D Dir,int tex,int nb,float speed,float life,float psize,bool white,float trans_factor)
     {
         MutexLocker locker(pMutex);
@@ -107,52 +71,46 @@ namespace TA3D
         if (Camera::inGame != NULL && ((Vector3D)(Camera::inGame->pos - pos)).sq() >= Camera::inGame->zfar2)
             return;
 
-        while (nb_part + nb > size)	// Si besoin alloue de la mémoire
-            more_memory();
-
         for(int i = 0; i < nb; ++i)
         {
-            if (!free_index_size)
-                break;
-
-            uint32	cur_part = free_idx[--free_index_size];
-            idx_list[index_list_size++] = cur_part;
-            part[cur_part].px=-1;
-            part[cur_part].Pos=pos;
-            part[cur_part].V=speed*Dir;
-            part[cur_part].life=life;
-            part[cur_part].mass=0.0f;
-            part[cur_part].smoking=-1.0f;
-            part[cur_part].gltex=tex;
+            PARTICLE new_part;
+            new_part.px = -1;
+            new_part.Pos = pos;
+            new_part.V = speed*Dir;
+            new_part.life = life;
+            new_part.mass = 0.0f;
+            new_part.smoking = -1.0f;
+            new_part.gltex = tex;
             if (white)
             {
-                part[cur_part].col[0]=1.0f;
-                part[cur_part].col[1]=1.0f;
-                part[cur_part].col[2]=1.0f;
-                part[cur_part].col[3]=trans_factor;
+                new_part.col[0]=1.0f;
+                new_part.col[1]=1.0f;
+                new_part.col[2]=1.0f;
+                new_part.col[3]=trans_factor;
             }
             else
             {
-                part[cur_part].col[0]=0.8f;
-                part[cur_part].col[1]=0.8f;
-                part[cur_part].col[2]=1.0f;
-                part[cur_part].col[3]=trans_factor;
+                new_part.col[0]=0.8f;
+                new_part.col[1]=0.8f;
+                new_part.col[2]=1.0f;
+                new_part.col[3]=trans_factor;
             }
-            part[cur_part].dcol[0]=0.0f;
-            part[cur_part].dcol[1]=0.0f;
-            part[cur_part].dcol[2]=0.0f;
+            new_part.dcol[0]=0.0f;
+            new_part.dcol[1]=0.0f;
+            new_part.dcol[2]=0.0f;
             if (life>0.0f)
-                part[cur_part].dcol[3]=-trans_factor/life;
+                new_part.dcol[3]=-trans_factor/life;
             else
-                part[cur_part].dcol[3]=-0.1f;
-            part[cur_part].angle=0.0f;
-            part[cur_part].v_rot = (Math::RandFromTable() % 200) * 0.01f - 0.1f;
-            part[cur_part].size=psize;
-            part[cur_part].use_wind=false;
-            part[cur_part].dsize=0.0f;
-            part[cur_part].ddsize=0.0f;
-            part[cur_part].light_emitter=false;
-            part[cur_part].slow_down=false;
+                new_part.dcol[3]=-0.1f;
+            new_part.angle=0.0f;
+            new_part.v_rot = (Math::RandFromTable() % 200) * 0.01f - 0.1f;
+            new_part.size=psize;
+            new_part.use_wind=false;
+            new_part.dsize=0.0f;
+            new_part.ddsize=0.0f;
+            new_part.light_emitter=false;
+            new_part.slow_down=false;
+            part.push_back( new_part );
             ++nb_part;
         }
     }
@@ -234,40 +192,34 @@ namespace TA3D
 
         pMutex.lock();
 
-        while (nb_part + nb > size)			// Si besoin alloue de la mémoire
-            more_memory();
-
         for (int i=0;i<nb; ++i)
         {
-            if (!free_index_size)
-                break;
-
-            uint32	cur_part = free_idx[--free_index_size];
-            idx_list[index_list_size++] = cur_part;
-            part[cur_part].px=-1;
-            part[cur_part].Pos=pos;
+            PARTICLE new_part;
+            new_part.px=-1;
+            new_part.Pos=pos;
             float speed_mul = ((Math::RandFromTable() % 100) * 0.01f + 0.01f);
-            part[cur_part].V=speed_mul*speed*Dir;
-            part[cur_part].life=life;
-            part[cur_part].mass=1.0f;
-            part[cur_part].smoking=-1.0f;
-            part[cur_part].gltex=tex;
-            part[cur_part].col[0]=1.0f;
-            part[cur_part].col[1]=0.5f;
-            part[cur_part].col[2]=0.5f;
-            part[cur_part].col[3]=1.0f;
-            part[cur_part].dcol[0]=0.0f;
-            part[cur_part].dcol[1]=0.0f;
-            part[cur_part].dcol[2]=0.0f;
-            part[cur_part].dcol[3]=-1.0f/life;
-            part[cur_part].angle=0.0f;
-            part[cur_part].v_rot = (Math::RandFromTable() % 200) * 0.01f - 0.1f;
-            part[cur_part].size=10.0f*(1.0f-speed_mul*0.9f);
-            part[cur_part].use_wind=false;
-            part[cur_part].dsize=0.0f;
-            part[cur_part].ddsize=0.0f;
-            part[cur_part].light_emitter=false;
-            part[cur_part].slow_down=false;
+            new_part.V=speed_mul*speed*Dir;
+            new_part.life=life;
+            new_part.mass=1.0f;
+            new_part.smoking=-1.0f;
+            new_part.gltex=tex;
+            new_part.col[0]=1.0f;
+            new_part.col[1]=0.5f;
+            new_part.col[2]=0.5f;
+            new_part.col[3]=1.0f;
+            new_part.dcol[0]=0.0f;
+            new_part.dcol[1]=0.0f;
+            new_part.dcol[2]=0.0f;
+            new_part.dcol[3]=-1.0f/life;
+            new_part.angle=0.0f;
+            new_part.v_rot = (Math::RandFromTable() % 200) * 0.01f - 0.1f;
+            new_part.size=10.0f*(1.0f-speed_mul*0.9f);
+            new_part.use_wind=false;
+            new_part.dsize=0.0f;
+            new_part.ddsize=0.0f;
+            new_part.light_emitter=false;
+            new_part.slow_down=false;
+            part.push_back( new_part );
             ++nb_part;
         }
         pMutex.unlock();
@@ -282,56 +234,53 @@ namespace TA3D
 
         pMutex.lock();
 
-        while(nb_part+nb>size)			// Si besoin alloue de la mémoire
-            more_memory();
-
         float pre=speed*0.01f;
         for (int i=0; i < nb; ++i)
         {
-            if (!free_index_size || nb_part > 20000)
+            if (nb_part > 20000)
                 break;
 
-            uint32	cur_part = free_idx[--free_index_size];
-            idx_list[index_list_size++] = cur_part;
-            part[cur_part].px=-1;
-            part[cur_part].Pos=pos;
-            part[cur_part].V.y = 0.0f;
-            part[cur_part].V.x = (((sint32)(Math::RandFromTable() % 2001)) - 1000);
-            part[cur_part].V.z = (((sint32)(Math::RandFromTable() % 2001)) - 1000);
-            part[cur_part].V.unit();
-            part[cur_part].V=(pow((float)(Math::RandFromTable()%100),2.0f)*0.0050f*(((Math::RandFromTable()%2)==0) ? -1.0f : 1.0f)+50.0f)*pre*part[cur_part].V;
+            PARTICLE new_part;
+            new_part.px=-1;
+            new_part.Pos=pos;
+            new_part.V.y = 0.0f;
+            new_part.V.x = (((sint32)(Math::RandFromTable() % 2001)) - 1000);
+            new_part.V.z = (((sint32)(Math::RandFromTable() % 2001)) - 1000);
+            new_part.V.unit();
+            new_part.V=(pow((float)(Math::RandFromTable()%100),2.0f)*0.0050f*(((Math::RandFromTable()%2)==0) ? -1.0f : 1.0f)+50.0f)*pre*new_part.V;
             if (tex==0)
-                part[cur_part].life=3.0f+(Math::RandFromTable()%200)*0.01f;
+                new_part.life=3.0f+(Math::RandFromTable()%200)*0.01f;
             else
-                part[cur_part].life=3.0f;
-            part[cur_part].mass=0.0f;
-            part[cur_part].smoking = -1.0f;
-            part[cur_part].gltex = 0;
-            part[cur_part].col[0]=8.0f;
-            part[cur_part].col[1]=8.0f;
-            part[cur_part].col[2]=8.0f;
-            part[cur_part].col[3]=1.2f;
-            part[cur_part].dcol[0]=-0.3f/part[cur_part].life;
-            part[cur_part].dcol[1]=-0.3f/part[cur_part].life;
-            part[cur_part].dcol[2]=-0.3f/part[cur_part].life;
-            part[cur_part].dcol[3]=-1.2f/part[cur_part].life;
-            part[cur_part].angle=0.0f;
-            part[cur_part].v_rot=(Math::RandFromTable()%200)*0.01f-0.1f;
-            part[cur_part].size=1.0f;
-            part[cur_part].use_wind=false;
+                new_part.life=3.0f;
+            new_part.mass=0.0f;
+            new_part.smoking = -1.0f;
+            new_part.gltex = 0;
+            new_part.col[0]=8.0f;
+            new_part.col[1]=8.0f;
+            new_part.col[2]=8.0f;
+            new_part.col[3]=1.2f;
+            new_part.dcol[0]=-0.3f/new_part.life;
+            new_part.dcol[1]=-0.3f/new_part.life;
+            new_part.dcol[2]=-0.3f/new_part.life;
+            new_part.dcol[3]=-1.2f/new_part.life;
+            new_part.angle=0.0f;
+            new_part.v_rot=(Math::RandFromTable()%200)*0.01f-0.1f;
+            new_part.size=1.0f;
+            new_part.use_wind=false;
             if (tex == 1)
             {
-                part[cur_part].dsize = 0.0f;
-                part[cur_part].ddsize = 20.0f;
+                new_part.dsize = 0.0f;
+                new_part.ddsize = 20.0f;
             }
             else
             {
-                part[cur_part].dsize = 10.0f;
-                part[cur_part].ddsize = 0.0f;
+                new_part.dsize = 10.0f;
+                new_part.ddsize = 0.0f;
             }
-            part[cur_part].light_emitter = false;
-            part[cur_part].slow_down = true;
-            part[cur_part].slow_factor = 0.01f;
+            new_part.light_emitter = false;
+            new_part.slow_down = true;
+            new_part.slow_factor = 0.01f;
+            part.push_back( new_part );
             ++nb_part;
         }
         pMutex.unlock();
@@ -346,45 +295,43 @@ namespace TA3D
 
         pMutex.lock();
 
-        while(nb_part+nb>size)			// Si besoin alloue de la mémoire
-            more_memory();
-
         float pre = speed * 0.01f;
         for (int i=0;i<nb; ++i)
         {
-            if (!free_index_size || nb_part > 20000)
+            if (nb_part > 20000)
                 break;
 
-            uint32	cur_part = free_idx[--free_index_size];
-            idx_list[index_list_size++] = cur_part;
-            part[cur_part].px=-1;
-            part[cur_part].Pos=pos;
-            part[cur_part].V.y=(Math::RandFromTable()%9001)+1000;
-            part[cur_part].V.x=(((sint32)(Math::RandFromTable()%2001))-1000);
-            part[cur_part].V.z=(((sint32)(Math::RandFromTable()%2001))-1000);
-            part[cur_part].V.unit();
-            part[cur_part].V=(100.0f - pow((float)(Math::RandFromTable()%100),2.0f)*0.01f)*pre*part[cur_part].V;
-            part[cur_part].life=3.0f + part[cur_part].V.sq() * 0.0001f;
-            part[cur_part].mass=1.0f;
-            part[cur_part].smoking=-1.0f;
-            part[cur_part].gltex=tex;
-            part[cur_part].col[0]=1.0f;
-            part[cur_part].col[1]=1.0f;
-            part[cur_part].col[2]=1.0f;
-            part[cur_part].col[3]=1.0f;
-            part[cur_part].dcol[0]=0.0f;
-            part[cur_part].dcol[1]=-0.8f/part[cur_part].life;
-            part[cur_part].dcol[2]=0.0f;
-            part[cur_part].dcol[3]=-1.0f/part[cur_part].life;
-            part[cur_part].angle=0.0f;
-            part[cur_part].v_rot = ((Math::RandFromTable()%200)*0.01f-0.1f) * part[cur_part].V.norm() * 0.015f / pre;
-            part[cur_part].size=4.0f;
-            part[cur_part].use_wind=true;
-            part[cur_part].dsize=10.0f;
-            part[cur_part].ddsize=0.0f;
-            part[cur_part].light_emitter = (i & 1);
-            part[cur_part].slow_down = true;
-            part[cur_part].slow_factor = 1.0f;
+            PARTICLE new_part;
+
+            new_part.px=-1;
+            new_part.Pos=pos;
+            new_part.V.y=(Math::RandFromTable()%9001)+1000;
+            new_part.V.x=(((sint32)(Math::RandFromTable()%2001))-1000);
+            new_part.V.z=(((sint32)(Math::RandFromTable()%2001))-1000);
+            new_part.V.unit();
+            new_part.V=(100.0f - pow((float)(Math::RandFromTable()%100),2.0f)*0.01f)*pre*new_part.V;
+            new_part.life=3.0f + new_part.V.sq() * 0.0001f;
+            new_part.mass=1.0f;
+            new_part.smoking=-1.0f;
+            new_part.gltex=tex;
+            new_part.col[0]=1.0f;
+            new_part.col[1]=1.0f;
+            new_part.col[2]=1.0f;
+            new_part.col[3]=1.0f;
+            new_part.dcol[0]=0.0f;
+            new_part.dcol[1]=-0.8f/new_part.life;
+            new_part.dcol[2]=0.0f;
+            new_part.dcol[3]=-1.0f/new_part.life;
+            new_part.angle=0.0f;
+            new_part.v_rot = ((Math::RandFromTable()%200)*0.01f-0.1f) * new_part.V.norm() * 0.015f / pre;
+            new_part.size=4.0f;
+            new_part.use_wind=true;
+            new_part.dsize=10.0f;
+            new_part.ddsize=0.0f;
+            new_part.light_emitter = (i & 1);
+            new_part.slow_down = true;
+            new_part.slow_factor = 1.0f;
+            part.push_back( new_part );
             ++nb_part;
         }
         pMutex.unlock();
@@ -399,44 +346,39 @@ namespace TA3D
 
         pMutex.lock();
 
-        while(nb_part + nb > size)
-            more_memory();
-
         float pre=speed*0.01f;
         for(int i=0;i<nb;i++)
         {
-            if (!free_index_size )
-                break;
+            PARTICLE new_part;
 
-            uint32	cur_part = free_idx[--free_index_size];
-            idx_list[index_list_size++] = cur_part;
-            part[cur_part].px=-1;
-            part[cur_part].Pos=pos;
-            part[cur_part].V.y=((Math::RandFromTable()%1000)+1)*0.001f;
-            part[cur_part].V.x=(((sint32)(Math::RandFromTable()%2001))-1000)*0.001f;
-            part[cur_part].V.z=(((sint32)(Math::RandFromTable()%2001))-1000)*0.001f;
-            part[cur_part].V.unit();
-            part[cur_part].V=((Math::RandFromTable()%100)+1)*pre*part[cur_part].V;
-            part[cur_part].life=3.0f;
-            part[cur_part].mass=mass;
-            part[cur_part].smoking=-1.0f;
-            part[cur_part].gltex=tex;
-            part[cur_part].col[0]=1.0f;
-            part[cur_part].col[1]=1.0f;
-            part[cur_part].col[2]=1.0f;
-            part[cur_part].col[3]=alpha;
-            part[cur_part].dcol[0]=0.0f;
-            part[cur_part].dcol[1]=0.0f;
-            part[cur_part].dcol[2]=0.0f;
-            part[cur_part].dcol[3]=-0.3333f*alpha;
-            part[cur_part].angle=0.0f;
-            part[cur_part].v_rot=(Math::RandFromTable()%200)*0.01f-0.1f;
-            part[cur_part].size=1.0f;
-            part[cur_part].use_wind=mass!=0.0f ? true : false;
-            part[cur_part].dsize=10.0f;
-            part[cur_part].ddsize=ddsize;
-            part[cur_part].light_emitter=false;
-            part[cur_part].slow_down=false;
+            new_part.px=-1;
+            new_part.Pos=pos;
+            new_part.V.y=((Math::RandFromTable()%1000)+1)*0.001f;
+            new_part.V.x=(((sint32)(Math::RandFromTable()%2001))-1000)*0.001f;
+            new_part.V.z=(((sint32)(Math::RandFromTable()%2001))-1000)*0.001f;
+            new_part.V.unit();
+            new_part.V=((Math::RandFromTable()%100)+1)*pre*new_part.V;
+            new_part.life=3.0f;
+            new_part.mass=mass;
+            new_part.smoking=-1.0f;
+            new_part.gltex=tex;
+            new_part.col[0]=1.0f;
+            new_part.col[1]=1.0f;
+            new_part.col[2]=1.0f;
+            new_part.col[3]=alpha;
+            new_part.dcol[0]=0.0f;
+            new_part.dcol[1]=0.0f;
+            new_part.dcol[2]=0.0f;
+            new_part.dcol[3]=-0.3333f*alpha;
+            new_part.angle=0.0f;
+            new_part.v_rot=(Math::RandFromTable()%200)*0.01f-0.1f;
+            new_part.size=1.0f;
+            new_part.use_wind=mass!=0.0f ? true : false;
+            new_part.dsize=10.0f;
+            new_part.ddsize=ddsize;
+            new_part.light_emitter=false;
+            new_part.slow_down=false;
+            part.push_back( new_part );
             nb_part++;
         }
         pMutex.unlock();
@@ -451,45 +393,39 @@ namespace TA3D
 
         pMutex.lock();
 
-        // Allocate more memory if required
-        while (nb_part + nb > size)
-            more_memory();
-
         float pre=speed*0.01f;
         for(int i=0;i<nb;i++)
         {
-            if (!free_index_size)
-                break;
+            PARTICLE new_part;
 
-            uint32	cur_part = free_idx[--free_index_size];
-            idx_list[index_list_size++] = cur_part;
-            part[cur_part].px=-1;
-            part[cur_part].Pos=pos;
-            part[cur_part].V.y=((Math::RandFromTable()%1000)+1)*0.001f;
-            part[cur_part].V.x=(((sint32)(Math::RandFromTable()%2001))-1000)*0.001f;
-            part[cur_part].V.z=(((sint32)(Math::RandFromTable()%2001))-1000)*0.001f;
-            part[cur_part].V.unit();
-            part[cur_part].V=((Math::RandFromTable()%100)+1)*pre*part[cur_part].V;
-            part[cur_part].life=3.0f;
-            part[cur_part].mass=mass;
-            part[cur_part].smoking=-1.0f;
-            part[cur_part].gltex=tex;
-            part[cur_part].col[0]=0.2f;
-            part[cur_part].col[1]=0.2f;
-            part[cur_part].col[2]=0.2f;
-            part[cur_part].col[3]=alpha;
-            part[cur_part].dcol[0]=0.0f;
-            part[cur_part].dcol[1]=0.0f;
-            part[cur_part].dcol[2]=0.0f;
-            part[cur_part].dcol[3]=-0.3333f*alpha;
-            part[cur_part].angle=0.0f;
-            part[cur_part].v_rot=(Math::RandFromTable()%200)*0.01f-0.1f;
-            part[cur_part].size=1.0f;
-            part[cur_part].use_wind=mass!=0.0f ? true : false;
-            part[cur_part].dsize=3.0f;
-            part[cur_part].ddsize=ddsize;
-            part[cur_part].light_emitter=false;
-            part[cur_part].slow_down=false;
+            new_part.px=-1;
+            new_part.Pos=pos;
+            new_part.V.y=((Math::RandFromTable()%1000)+1)*0.001f;
+            new_part.V.x=(((sint32)(Math::RandFromTable()%2001))-1000)*0.001f;
+            new_part.V.z=(((sint32)(Math::RandFromTable()%2001))-1000)*0.001f;
+            new_part.V.unit();
+            new_part.V=((Math::RandFromTable()%100)+1)*pre*new_part.V;
+            new_part.life=3.0f;
+            new_part.mass=mass;
+            new_part.smoking=-1.0f;
+            new_part.gltex=tex;
+            new_part.col[0]=0.2f;
+            new_part.col[1]=0.2f;
+            new_part.col[2]=0.2f;
+            new_part.col[3]=alpha;
+            new_part.dcol[0]=0.0f;
+            new_part.dcol[1]=0.0f;
+            new_part.dcol[2]=0.0f;
+            new_part.dcol[3]=-0.3333f*alpha;
+            new_part.angle=0.0f;
+            new_part.v_rot=(Math::RandFromTable()%200)*0.01f-0.1f;
+            new_part.size=1.0f;
+            new_part.use_wind=mass!=0.0f ? true : false;
+            new_part.dsize=3.0f;
+            new_part.ddsize=ddsize;
+            new_part.light_emitter=false;
+            new_part.slow_down=false;
+            part.push_back( new_part );
             ++nb_part;
         }
         pMutex.unlock();
@@ -504,43 +440,38 @@ namespace TA3D
 
         pMutex.lock();
 
-        // Allocate more memory if required
-        while (nb_part + nb > size)	
-            more_memory();
-
         for (int i = 0; i < nb; ++i)
         {
-            if (!free_index_size)
-                break;
-            uint32	cur_part = free_idx[--free_index_size];
-            idx_list[index_list_size++] = cur_part;
-            part[cur_part].px = -1;
-            part[cur_part].Pos = pos;
-            part[cur_part].V.y = ((Math::RandFromTable() % 1000) + 5000) * 0.001f;
-            part[cur_part].V.x = (((sint32)(Math::RandFromTable() % 2001)) - 1000) * 0.001f;
-            part[cur_part].V.z = (((sint32)(Math::RandFromTable() % 2001)) - 1000) * 0.001f;
-            part[cur_part].V.unit();
-            part[cur_part].V = ((Math::RandFromTable() % 50) + 51) * 0.01f * speed * part[cur_part].V;
-            part[cur_part].life = 1.5f;
-            part[cur_part].mass = -1.0f;
-            part[cur_part].smoking = (Math::RandFromTable()%60)*0.01f;
-            part[cur_part].gltex = tex;
-            part[cur_part].col[0] = 1.0f;
-            part[cur_part].col[1] = 1.0f;
-            part[cur_part].col[2] = 1.0f;
-            part[cur_part].col[3] = 1.0f;
-            part[cur_part].dcol[0] = -0.5f;
-            part[cur_part].dcol[1] = -0.5f;
-            part[cur_part].dcol[2] = -0.5f;
-            part[cur_part].dcol[3] = -0.666667f;
-            part[cur_part].angle = 0.0f;
-            part[cur_part].v_rot = (Math::RandFromTable()%200)*0.01f-0.1f;
-            part[cur_part].size = 5.0f;
-            part[cur_part].use_wind = true;
-            part[cur_part].dsize = 15.0f;
-            part[cur_part].ddsize = -23.0f;
-            part[cur_part].light_emitter = true;
-            part[cur_part].slow_down = false;
+            PARTICLE new_part;
+
+            new_part.px = -1;
+            new_part.Pos = pos;
+            new_part.V.y = ((Math::RandFromTable() % 1000) + 5000) * 0.001f;
+            new_part.V.x = (((sint32)(Math::RandFromTable() % 2001)) - 1000) * 0.001f;
+            new_part.V.z = (((sint32)(Math::RandFromTable() % 2001)) - 1000) * 0.001f;
+            new_part.V.unit();
+            new_part.V = ((Math::RandFromTable() % 50) + 51) * 0.01f * speed * new_part.V;
+            new_part.life = 1.5f;
+            new_part.mass = -1.0f;
+            new_part.smoking = (Math::RandFromTable()%60)*0.01f;
+            new_part.gltex = tex;
+            new_part.col[0] = 1.0f;
+            new_part.col[1] = 1.0f;
+            new_part.col[2] = 1.0f;
+            new_part.col[3] = 1.0f;
+            new_part.dcol[0] = -0.5f;
+            new_part.dcol[1] = -0.5f;
+            new_part.dcol[2] = -0.5f;
+            new_part.dcol[3] = -0.666667f;
+            new_part.angle = 0.0f;
+            new_part.v_rot = (Math::RandFromTable()%200)*0.01f-0.1f;
+            new_part.size = 5.0f;
+            new_part.use_wind = true;
+            new_part.dsize = 15.0f;
+            new_part.ddsize = -23.0f;
+            new_part.light_emitter = true;
+            new_part.slow_down = false;
+            part.push_back( new_part );
             ++nb_part;
         }
         pMutex.unlock();
@@ -549,7 +480,7 @@ namespace TA3D
     void PARTICLE_ENGINE::move(float dt,Vector3D wind_dir,float g)
     {
         pMutex.lock();
-        if (((part == NULL || nb_part == 0) && particle_systems.empty()) || dt == 0.0f)
+        if (((part.empty() || nb_part == 0) && particle_systems.empty()) || dt == 0.0f)
         {
             pMutex.unlock();
             return;
@@ -574,22 +505,21 @@ namespace TA3D
             pMutex.lock();
         }
 
-        uint32 i;
+        uint32 i = 0;
         
-        for (unsigned int e=0; e < index_list_size; ++e)
+        for (std::list<PARTICLE>::iterator e = part.begin() ; e != part.end() ; )
         {
-            if (!(e & 15) )
+            i++;
+            if (!(i & 15) )
             {
                 pMutex.unlock(); // Pause to give the renderer the time to work and to go at the given engine speed (in ticks per sec.)
                 pMutex.lock();
             }
 
-            i = idx_list[e];
-            part[i].life-=dt;
-            if (part[i].life<0.0f)
+            e->life -= dt;
+            if (e->life<0.0f)
             {
-                free_idx[free_index_size++] = idx_list[e];
-                idx_list[e--] = idx_list[--index_list_size];
+                part.erase( e++ );
                 nb_part--;
                 continue;
             }
@@ -597,39 +527,40 @@ namespace TA3D
             RAND.x = (((sint32)(Math::RandFromTable() & 0x1FFF)) - 0xFFF) * dt_reduced;
             RAND.y = (((sint32)(Math::RandFromTable() & 0x1FFF)) - 0xFFF) * dt_reduced;
             RAND.z = (((sint32)(Math::RandFromTable() & 0x1FFF)) - 0xFFF) * dt_reduced;
-            if (part[i].use_wind)
-                part[i].V=part[i].V-part[i].mass*G+RAND+wind_dir;
+            if (e->use_wind)
+                e->V=e->V-e->mass*G+RAND+wind_dir;
             else
-                part[i].V=part[i].V-part[i].mass*G+RAND;
-            if (part[i].slow_down)
-                part[i].V = exp( -dt * part[i].slow_factor ) * part[i].V;
-            if (part[i].mass>0.0f)
-                part[i].V=factor*part[i].V;
+                e->V=e->V-e->mass*G+RAND;
+            if (e->slow_down)
+                e->V = exp( -dt * e->slow_factor ) * e->V;
+            if (e->mass>0.0f)
+                e->V=factor*e->V;
             else
-                part[i].V=factor2*part[i].V;
-            part[i].Pos=part[i].Pos+dt*part[i].V;
-            part[i].size+=dt*part[i].dsize;
-            part[i].dsize+=dt*part[i].ddsize;
-            part[i].angle+=dt*part[i].v_rot;
-            part[i].col[0]+=dt*part[i].dcol[0];
-            part[i].col[1]+=dt*part[i].dcol[1];
-            part[i].col[2]+=dt*part[i].dcol[2];
-            part[i].col[3]+=dt*part[i].dcol[3];
-            if (part[i].smoking>0.0f && part[i].life<part[i].smoking)
+                e->V=factor2*e->V;
+            e->Pos=e->Pos+dt*e->V;
+            e->size+=dt*e->dsize;
+            e->dsize+=dt*e->ddsize;
+            e->angle+=dt*e->v_rot;
+            e->col[0]+=dt*e->dcol[0];
+            e->col[1]+=dt*e->dcol[1];
+            e->col[2]+=dt*e->dcol[2];
+            e->col[3]+=dt*e->dcol[3];
+            if (e->smoking>0.0f && e->life<e->smoking)
             {
-                part[i].life = 1.0f;
-                part[i].mass = -1.0f;
-                part[i].col[0] = 0.2f;
-                part[i].col[1] = 0.2f;
-                part[i].col[2] = 0.2f;
-                part[i].col[3] = 1.0f;
-                part[i].gltex = 0;
-                part[i].dcol[3] = -1.0f;
-                part[i].size = 1.0f;
-                part[i].dsize = 25.0f;
-                part[i].smoking = -1.0f;
-                part[i].light_emitter = false;
+                e->life = 1.0f;
+                e->mass = -1.0f;
+                e->col[0] = 0.2f;
+                e->col[1] = 0.2f;
+                e->col[2] = 0.2f;
+                e->col[3] = 1.0f;
+                e->gltex = 0;
+                e->dcol[3] = -1.0f;
+                e->size = 1.0f;
+                e->dsize = 25.0f;
+                e->smoking = -1.0f;
+                e->light_emitter = false;
             }
+            ++e;
         }
         pMutex.unlock();
     }
@@ -637,10 +568,17 @@ namespace TA3D
 
     void PARTICLE_ENGINE::draw(Camera *cam,int map_w,int map_h,int bloc_w,int bloc_h,byte **bmap)
     {
-        if ((part == NULL || nb_part == 0) && particle_systems.empty())	// no need to run the code if there is nothing to draw
+        if ((part.empty() || nb_part == 0) && particle_systems.empty())	// no need to run the code if there is nothing to draw
             return;
 
         pMutex.lock();
+
+        if (!point)
+            point = new Vector3D[4096];
+        if (!texcoord)
+            texcoord = new GLfloat[8192];
+        if (!color)
+            color = new GLubyte[16384];
 
         cam->setView();
 
@@ -672,31 +610,29 @@ namespace TA3D
             float oangle = 0.0f;
             int h_map_w=map_w>>1;
             int h_map_h=map_h>>1;
-            for(unsigned int e = 0; e < index_list_size; ++e) // Calcule la position des points
+            for(std::list<PARTICLE>::iterator e = part.begin() ; e != part.end() ; ++e) // Calcule la position des points
             {
-                i = idx_list[e];
-
-                if (part[i].light_emitter != light_emitters )// Two passes, one for normal particles, the second for particles that emits light
+                if (e->light_emitter != light_emitters )// Two passes, one for normal particles, the second for particles that emits light
                     continue;
 
-                if (part[i].px==-1)
+                if (e->px==-1)
                 {
-                    part[i].px=((int)(part[i].Pos.x)+h_map_w)>>4;
-                    part[i].py=((int)(part[i].Pos.z)+h_map_h)>>4;
+                    e->px=((int)(e->Pos.x)+h_map_w)>>4;
+                    e->py=((int)(e->Pos.z)+h_map_h)>>4;
                 }
-                if (part[i].px>=0 && part[i].px<bloc_w && part[i].py>=0 && part[i].py<bloc_h)
+                if (e->px>=0 && e->px<bloc_w && e->py>=0 && e->py<bloc_h)
                 {
-                    if (!bmap[part[i].py][part[i].px])
+                    if (!bmap[e->py][e->px])
                         continue;
                 }
                 else
                     continue;	// Particule en dehors de la carte donc hors champ
                 ++j;
-                if (j==0 || oangle!=part[i].angle)
+                if (j == 0 || oangle != e->angle)
                 {
-                    oangle=part[i].angle;
-                    float cosinus=cos(part[i].angle);
-                    float sinus=sin(part[i].angle);
+                    oangle=e->angle;
+                    float cosinus=cos(e->angle);
+                    float sinus=sin(e->angle);
                     A = (cosinus-sinus) * cam->side + (sinus+cosinus) * cam->up;
                     B = (cosinus+sinus) * cam->side + (sinus-cosinus) * cam->up;
                     if (cam->mirror)
@@ -706,39 +642,39 @@ namespace TA3D
                     }
                 }
                 int i_bis = j << 2;
-                point[i_bis++]=part[i].Pos-part[i].size*B;
-                point[i_bis++]=part[i].Pos+part[i].size*A;
-                point[i_bis++]=part[i].Pos+part[i].size*B;
-                point[i_bis]=part[i].Pos-part[i].size*A;
+                point[i_bis++] = e->Pos-e->size*B;
+                point[i_bis++] = e->Pos+e->size*A;
+                point[i_bis++] = e->Pos+e->size*B;
+                point[i_bis] = e->Pos-e->size*A;
 
                 int i_ter = j << 3;
-                float px=0.25f*(part[i].gltex&3)+0.001f;
-                float py=0.25f*(part[i].gltex>>2)+0.001f;
-                texcoord[i_ter++]=px;			texcoord[i_ter++]=py;
-                texcoord[i_ter++]=px+0.248f;	texcoord[i_ter++]=py;
-                texcoord[i_ter++]=px+0.248f;	texcoord[i_ter++]=py+0.248f;
-                texcoord[i_ter++]=px;			texcoord[i_ter]=py+0.248f;
+                float px = 0.25f*(e->gltex&3)+0.001f;
+                float py = 0.25f*(e->gltex>>2)+0.001f;
+                texcoord[i_ter++] = px;			texcoord[i_ter++] = py;
+                texcoord[i_ter++] = px+0.248f;	texcoord[i_ter++] = py;
+                texcoord[i_ter++] = px+0.248f;	texcoord[i_ter++] = py+0.248f;
+                texcoord[i_ter++] = px;			texcoord[i_ter]= py+0.248f;
 
                 uint32 col = 0;
-                if (part[i].col[0] >= 0.0f && part[i].col[0] <= 1.0f )
-                    col |= ((uint32)(part[i].col[0]*255));
+                if (e->col[0] >= 0.0f && e->col[0] <= 1.0f )
+                    col |= ((uint32)(e->col[0]*255));
                 else
-                    col |= part[i].col[0] < 0.0f ? 0 : 0xFF;
+                    col |= e->col[0] < 0.0f ? 0 : 0xFF;
 
-                if (part[i].col[1] >= 0.0f && part[i].col[1] <= 1.0f )
-                    col |= ((uint32)(part[i].col[1]*255))<<8;
+                if (e->col[1] >= 0.0f && e->col[1] <= 1.0f )
+                    col |= ((uint32)(e->col[1]*255))<<8;
                 else
-                    col |= part[i].col[1] < 0.0f ? 0 : 0xFF00;
+                    col |= e->col[1] < 0.0f ? 0 : 0xFF00;
 
-                if (part[i].col[2] >= 0.0f && part[i].col[2] <= 1.0f )
-                    col |= ((uint32)(part[i].col[2]*255))<<16;
+                if (e->col[2] >= 0.0f && e->col[2] <= 1.0f )
+                    col |= ((uint32)(e->col[2]*255))<<16;
                 else
-                    col |= part[i].col[2] < 0.0f ? 0 : 0xFF0000;
+                    col |= e->col[2] < 0.0f ? 0 : 0xFF0000;
 
-                if (part[i].col[3] >= 0.0f && part[i].col[3] <= 1.0f )
-                    col |= ((uint32)(part[i].col[3]*255))<<24;
+                if (e->col[3] >= 0.0f && e->col[3] <= 1.0f )
+                    col |= ((uint32)(e->col[3]*255))<<24;
                 else
-                    col |= part[i].col[3] < 0.0f ? 0 : 0xFF000000;
+                    col |= e->col[3] < 0.0f ? 0 : 0xFF000000;
 
                 ((uint32*)color)[i_bis-3] = ((uint32*)color)[i_bis-2] = ((uint32*)color)[i_bis-1] = ((uint32*)color)[i_bis] = col;
 
@@ -803,10 +739,6 @@ namespace TA3D
         thread_ask_to_stop = false;
         p_wind_dir = NULL;
         p_g = NULL;
-        index_list_size=0;
-        idx_list=NULL;
-        free_index_size=0;
-        free_idx=NULL;
         dsmoke=load;
         ntex=0;
         partbmp=NULL;
@@ -830,7 +762,7 @@ namespace TA3D
         }
         size=0;
         nb_part=0;
-        part=NULL;
+        part.clear();
         point=NULL;
         texcoord=NULL;
         color=NULL;
@@ -851,24 +783,16 @@ namespace TA3D
 
         particle_systems.clear();
 
-        if (idx_list)
-            delete[] idx_list;
-        if (free_idx)
-            delete[] free_idx;
-        idx_list = NULL; index_list_size = 0;
-        free_idx = NULL; free_index_size = 0;
         if (partbmp)
             destroy_bitmap(partbmp);
         partbmp=NULL;
         ntex=0;
         if (dsmoke)
             glDeleteTextures(1,&parttex);
-        if (part)
-            delete[] part;
         dsmoke = false;
         size = 0;
         nb_part = 0;
-        part = NULL;
+        part.clear();
 
         if (point)
             delete[] point;

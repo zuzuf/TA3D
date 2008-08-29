@@ -364,7 +364,6 @@ namespace TA3D
 
         units.Start();			// Start the Unit Engine
 
-        particle_engine.more_memory();				// Pre-allocating memory (no lag with first particles)
         particle_engine.set_data( map->ota_data.gravity, map->wind_vec);
         particle_engine.Start();		// Start the particle engine
 
