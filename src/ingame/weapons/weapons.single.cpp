@@ -287,9 +287,12 @@ namespace TA3D
                     damage = weapon_manager.weapon[weapon_id].get_damage_for_unit(unit_manager.unit_type[units.unit[hit_idx].type_id]->Unitname) * units.unit[hit_idx].damage_modifier();
                     if (weapon_manager.weapon[weapon_id].paralyzer)
                     {
-                        units.unit[hit_idx].paralyzed = damage / 60.0f;		// Get paralyzed (900 dmg <-> 15sec according to WEAPONS.TDF)
-                        if( network_manager.isConnected() )			// Send damage event
-                            g_ta3d_network->sendParalyzeEvent( hit_idx, damage );
+                        if (!unit_manager.unit_type[units.unit[hit_idx].type_id]->ImmuneToParalyzer)
+                        {
+                            units.unit[hit_idx].paralyzed = damage / 60.0f;		// Get paralyzed (900 dmg <-> 15sec according to WEAPONS.TDF)
+                            if( network_manager.isConnected() )			// Send damage event
+                                g_ta3d_network->sendParalyzeEvent( hit_idx, damage );
+                        }
                     }
                     else
                     {
@@ -440,9 +443,12 @@ namespace TA3D
                                     float cur_damage = damage * weapon_manager.weapon[weapon_id].edgeeffectiveness * units.unit[ t_idx ].damage_modifier();
                                     if (weapon_manager.weapon[weapon_id].paralyzer)
                                     {
-                                        units.unit[t_idx].paralyzed = cur_damage / 60.0f;		// Get paralyzed (900 <-> 15sec)
-                                        if (network_manager.isConnected())			// Send damage event
-                                            g_ta3d_network->sendParalyzeEvent(t_idx, cur_damage);
+                                        if (!unit_manager.unit_type[units.unit[t_idx].type_id]->ImmuneToParalyzer)
+                                        {
+                                            units.unit[t_idx].paralyzed = cur_damage / 60.0f;		// Get paralyzed (900 <-> 15sec)
+                                            if (network_manager.isConnected())			// Send damage event
+                                                g_ta3d_network->sendParalyzeEvent(t_idx, cur_damage);
+                                        }
                                     }
                                     else
                                     {

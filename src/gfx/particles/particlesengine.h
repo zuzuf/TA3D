@@ -62,11 +62,6 @@ namespace TA3D
         void set_data(float &g, Vector3D& wind_dir) { p_g = &g; p_wind_dir = &wind_dir; }
 
         /*!
-        **
-        */
-        void more_memory();			// Alloue de la mémoire supplémentaire
-
-        /*!
         ** \brief
         */
         void emit_part(Vector3D pos,Vector3D Dir,int tex,int nb,float speed,float life=10.0f,float psize=10.0f,bool white=false,float trans_factor=1.0f);
@@ -134,19 +129,14 @@ namespace TA3D
     public:
         uint32		nb_part;		// Nombre de particules
         uint32		size;			// Quantité maximale de particules stockables dans le tableau
-        PARTICLE	*part;			// Tableau de particules
+        std::list<PARTICLE>	part;	// Liste des particules / Particle list
         GLuint		parttex;		// Textures des particules
         BITMAP		*partbmp;		// Textures des particules
         bool		dsmoke;
         uint32		ntex;
         std::vector< GLuint >	gltex;
 
-        uint32		index_list_size;	// Pre allocated list of used indexes
-        uint32		*idx_list;
-        uint32		free_index_size;	// Pre allocated list of unused indexes
-        uint32		*free_idx;
-
-        Vector3D		*point;			// Vertex array
+        Vector3D	*point;			// Vertex array
         GLfloat		*texcoord;		// Texture coordinates array
         GLubyte		*color;			// Color array
 
