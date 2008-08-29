@@ -2290,13 +2290,6 @@ namespace TA3D
             }
 
 
-            // Dessine les unités non encore dessinées / Draw units which have not been drawn
-            units.draw(cam, map.get(), false, false, true, lp_CONFIG->height_line);
-
-            // Dessine les objets produits par les armes n'ayant pas été dessinés / Draw weapons which have not been drawn
-            weapons.draw(&cam, map.get(), false);
-
-
             if (selected && TA3D_SHIFT_PRESSED)
             {
                 cam.setView();
@@ -2307,7 +2300,7 @@ namespace TA3D
                     if ((units.unit[i].flags & 1) && units.unit[i].owner_id==players.local_human_id && units.unit[i].sel)
                     {
                         builders |= unit_manager.unit_type[units.unit[i].type_id]->Builder;
-                        units.unit[i].show_orders();					// Dessine les ordres reçus par l'unité
+                        units.unit[i].show_orders();					// Dessine les ordres reçus par l'unité / Draw given orders
                     }
                 }
 
@@ -2319,12 +2312,18 @@ namespace TA3D
                         if ((units.unit[i].flags & 1) && units.unit[i].owner_id==players.local_human_id && !units.unit[i].sel
                             && unit_manager.unit_type[units.unit[i].type_id]->Builder && unit_manager.unit_type[units.unit[i].type_id]->BMcode)
                         {
-                            units.unit[i].show_orders(true);					// Dessine les ordres reçus par l'unité
+                            units.unit[i].show_orders(true);					// Dessine les ordres reçus par l'unité / Draw given orders
                         }
                     }
                 }
             }
 
+
+            // Dessine les unités non encore dessinées / Draw units which have not been drawn
+            units.draw(cam, map.get(), false, false, true, lp_CONFIG->height_line);
+
+            // Dessine les objets produits par les armes n'ayant pas été dessinés / Draw weapons which have not been drawn
+            weapons.draw(&cam, map.get(), false);
 
             if (lp_CONFIG->shadow && cam.rpos.y<=gfx->low_def_limit)
             {
