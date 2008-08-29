@@ -5093,7 +5093,8 @@ script_exec:
                 if (V.y<0.0f)
                     V.y=0.0f;
             }
-            if (min_h>Pos.y) {
+            if (min_h>Pos.y)
+            {
                 Pos.y=min_h;
                 if (V.y<0.0f)
                     V.y=0.0f;

@@ -648,64 +648,64 @@ namespace TA3D
         set_uformat(U_ASCII);
         destroy();
         int nb_inconnu=0;
-        String lang_name = I18N::Translate("UNITTYPE_NAME", "name");
-        String lang_desc = I18N::Translate("UNITTYPE_DESCRIPTION", "description");
+        String lang_name = I18N::Translate("UNITTYPE_NAME", "UNITINFO.Name");
+        String lang_desc = I18N::Translate("UNITTYPE_DESCRIPTION", "UNITINFO.Description");
 
-        TDFParser unitParser( filename );
+        TDFParser unitParser( filename, true );         // FBI files are case sensitive
 
-        Unitname = unitParser.pullAsString("unitinfo.unitname");
-        version = unitParser.pullAsInt("unitinfo.version");
-        side = unitParser.pullAsString("unitinfo.side");
-        ObjectName = unitParser.pullAsString("unitinfo.objectname");
-        Designation_Name = unitParser.pullAsString("unitinfo.designation");
-        Description = unitParser.pullAsString( lang_desc, unitParser.pullAsString("unitinfo.description") );
-        name = unitParser.pullAsString( lang_name, unitParser.pullAsString("unitinfo.name") );
+        Unitname = unitParser.pullAsString("UNITINFO.UnitName");
+        version = unitParser.pullAsInt("UNITINFO.Version");
+        side = unitParser.pullAsString("UNITINFO.Side");
+        ObjectName = unitParser.pullAsString("UNITINFO.Objectname");
+        Designation_Name = unitParser.pullAsString("UNITINFO.Designation");
+        Description = unitParser.pullAsString( lang_desc, unitParser.pullAsString("UNITINFO.Description") );
+        name = unitParser.pullAsString( lang_name, unitParser.pullAsString("UNITINFO.Name") );
 
-        FootprintX = unitParser.pullAsInt("unitinfo.footprintx");
-        FootprintZ = unitParser.pullAsInt("unitinfo.footprintz");
-        BuildCostEnergy = unitParser.pullAsInt("unitinfo.buildcostenergy");
-        BuildCostMetal = unitParser.pullAsInt("unitinfo.buildcostmetal");
-        MaxDamage = unitParser.pullAsInt("unitinfo.maxdamage");
-        MaxWaterDepth = unitParser.pullAsInt("unitinfo.MaxWaterDepth");
-        MinWaterDepth = unitParser.pullAsInt("unitinfo.minwaterdepth", -0xFFF);
+        FootprintX = unitParser.pullAsInt("UNITINFO.FootprintX");
+        FootprintZ = unitParser.pullAsInt("UNITINFO.FootprintZ");
+        BuildCostEnergy = unitParser.pullAsInt("UNITINFO.BuildCostEnergy");
+        BuildCostMetal = unitParser.pullAsInt("UNITINFO.BuildCostMetal");
+        MaxDamage = unitParser.pullAsInt("UNITINFO.MaxDamage");
+        MaxWaterDepth = unitParser.pullAsInt("UNITINFO.MaxWaterDepth", 0);
+        MinWaterDepth = unitParser.pullAsInt("UNITINFO.MinWaterDepth", -0xFFF);
         if (MinWaterDepth != -0xFFF && MaxWaterDepth == 0) MaxWaterDepth = 255;
-        EnergyUse = unitParser.pullAsInt("unitinfo.energyuse");
-        BuildTime = unitParser.pullAsInt("unitinfo.buildtime");
-        WorkerTime = unitParser.pullAsInt("unitinfo.workertime",1);
-        Builder = unitParser.pullAsBool("unitinfo.builder");
-        ThreeD = unitParser.pullAsBool("unitinfo.threed",true);
-        SightDistance = unitParser.pullAsInt("unitinfo.sightdistance",100)>>1;
-        RadarDistance = unitParser.pullAsInt("unitinfo.radardistance")>>1;
-        RadarDistanceJam = unitParser.pullAsInt("unitinfo.radardistancejam")>>1;
-        soundcategory = unitParser.pullAsString("unitinfo.soundcategory");
-        if (!unitParser.pullAsString("unitinfo.wthi_badtargetcategory").empty())
+        EnergyUse = unitParser.pullAsInt("UNITINFO.EnergyUse");
+        BuildTime = unitParser.pullAsInt("UNITINFO.BuildTime");
+        WorkerTime = unitParser.pullAsInt("UNITINFO.WorkerTime",1);
+        Builder = unitParser.pullAsBool("UNITINFO.Builder");
+        ThreeD = unitParser.pullAsBool("UNITINFO.ThreeD",true);
+        SightDistance = unitParser.pullAsInt("UNITINFO.DightDistance",100)>>1;
+        RadarDistance = unitParser.pullAsInt("UNITINFO.RadarDistance")>>1;
+        RadarDistanceJam = unitParser.pullAsInt("UNITINFO.RadarDistanceJam")>>1;
+        soundcategory = unitParser.pullAsString("UNITINFO.SoundCategory");
+        if (!unitParser.pullAsString("UNITINFO.wthi_badTargetCategory").empty())
         {
             if (w_badTargetCategory.size() < 3)
                 w_badTargetCategory.resize(3);
-            w_badTargetCategory[2] = unitParser.pullAsString("unitinfo.wthi_badtargetcategory");
+            w_badTargetCategory[2] = unitParser.pullAsString("UNITINFO.wthi_badTargetCategory");
         }
-        if (!unitParser.pullAsString("unitinfo.wsec_badtargetcategory").empty())
+        if (!unitParser.pullAsString("UNITINFO.wsec_badTargetCategory").empty())
         {
             if (w_badTargetCategory.size() < 2)
                 w_badTargetCategory.resize(2);
-            w_badTargetCategory[1] = unitParser.pullAsString("unitinfo.wsec_badtargetcategory");
+            w_badTargetCategory[1] = unitParser.pullAsString("UNITINFO.wsec_badTargetCategory");
         }
-        if (!unitParser.pullAsString("unitinfo.wpri_badtargetcategory").empty())
+        if (!unitParser.pullAsString("UNITINFO.wpri_badTargetCategory").empty())
         {
             if (w_badTargetCategory.size() < 1)
                 w_badTargetCategory.resize(1);
-            w_badTargetCategory[0] = unitParser.pullAsString("unitinfo.wpri_badtargetcategory");
+            w_badTargetCategory[0] = unitParser.pullAsString("UNITINFO.wpri_badTargetCategory");
         }
-        for (int i = 4 ; !unitParser.pullAsString( format("unitinfo.w%d_badtargetcategory",i) ).empty() ; ++i)
+        for (int i = 4 ; !unitParser.pullAsString( format("UNITINFO.w%d_badTargetCategory",i) ).empty() ; ++i)
         {
             if (w_badTargetCategory.size() < i)
                 w_badTargetCategory.resize(i);
-            w_badTargetCategory[i-1] = unitParser.pullAsString(format("unitinfo.w%d_badtargetcategory",i));
+            w_badTargetCategory[i-1] = unitParser.pullAsString(format("UNITINFO.w%d_badTargetCategory",i));
         }
-        NoChaseCategory = unitParser.pullAsString("unitinfo.nochasecategory");
-        BadTargetCategory = unitParser.pullAsString("unitinfo.badtargetcategory");
+        NoChaseCategory = unitParser.pullAsString("UNITINFO.NoChaseCategory");
+        BadTargetCategory = unitParser.pullAsString("UNITINFO.BadTargetCategory");
 
-        String category = String::ToLower( unitParser.pullAsString("unitinfo.category") );
+        String category = String::ToLower( unitParser.pullAsString("UNITINFO.Category") );
         Category.initTable(16);
         categories.clear();
         category.split(categories, " ");
@@ -720,49 +720,49 @@ namespace TA3D
         if( checkCategory( "weapon" ) )		fastCategory |= CATEGORY_WEAPON;
         if( checkCategory( "level3" ) )		fastCategory |= CATEGORY_LEVEL3;
 
-        UnitNumber = unitParser.pullAsInt("unitinfo.unitnumber");
-        canmove = unitParser.pullAsBool("unitinfo.canmove");
-        canpatrol = unitParser.pullAsBool("unitinfo.canpatrol");
-        canstop = unitParser.pullAsBool("unitinfo.canstop");
-        canguard = unitParser.pullAsBool("unitinfo.canguard");
-        MaxVelocity = unitParser.pullAsFloat("unitinfo.maxvelocity", 1.0f / 16.0f) * 16.0f;
-        BrakeRate = unitParser.pullAsFloat("unitinfo.brakerate", 1.0f / 160.0f) * 160.0f;
-        Acceleration = unitParser.pullAsFloat("unitinfo.acceleration", 1.0f / 160.0f) * 160.0f;
-        TurnRate = unitParser.pullAsFloat("unitinfo.turnrate", 1.0f / (TA2DEG * 20.0f)) * TA2DEG * 20.0f;
-        candgun = unitParser.pullAsBool("unitinfo.candgun");
-        canattack = unitParser.pullAsBool("unitinfo.canattack");
-        CanReclamate = unitParser.pullAsBool("unitinfo.canreclamate");
-        EnergyMake = unitParser.pullAsInt("unitinfo.energymake");
-        MetalMake = unitParser.pullAsInt("unitinfo.metalmake");
-        CanCapture = unitParser.pullAsBool("unitinfo.cancapture");
-        HideDamage = unitParser.pullAsBool("unitinfo.hidedamage");
-        HealTime = unitParser.pullAsInt("unitinfo.healtime") * 30;
-        CloakCost = unitParser.pullAsInt("unitinfo.cloakcost");
-        CloakCostMoving = unitParser.pullAsInt("unitinfo.cloakcostmoving");
-        init_cloaked = unitParser.pullAsBool("unitinfo.init_cloaked");
-        mincloakdistance = unitParser.pullAsInt("unitinfo.mincloakdistance",20)>>1;
-        BuildDistance = unitParser.pullAsInt("unitinfo.builddistance");
-        ActivateWhenBuilt = unitParser.pullAsBool("unitinfo.activatewhenbuilt");
-        ImmuneToParalyzer = unitParser.pullAsBool("unitinfo.immunetoparalyzer");
-        SonarDistance = unitParser.pullAsInt("unitinfo.sonardistance")>>1;
-        SonarDistanceJam = unitParser.pullAsInt("unitinfo.sonardistancejam")>>1;
+        UnitNumber = unitParser.pullAsInt("UNITINFO.UnitNumber");
+        canmove = unitParser.pullAsBool("UNITINFO.canmove");
+        canpatrol = unitParser.pullAsBool("UNITINFO.canpatrol");
+        canstop = unitParser.pullAsBool("UNITINFO.canstop");
+        canguard = unitParser.pullAsBool("UNITINFO.canguard");
+        MaxVelocity = unitParser.pullAsFloat("UNITINFO.MaxVelocity", 1.0f / 16.0f) * 16.0f;
+        BrakeRate = unitParser.pullAsFloat("UNITINFO.BrakeRate", 1.0f / 160.0f) * 160.0f;
+        Acceleration = unitParser.pullAsFloat("UNITINFO.Acceleration", 1.0f / 160.0f) * 160.0f;
+        TurnRate = unitParser.pullAsFloat("UNITINFO.TurnRate", 1.0f / (TA2DEG * 20.0f)) * TA2DEG * 20.0f;
+        candgun = unitParser.pullAsBool("UNITINFO.candgun");
+        canattack = unitParser.pullAsBool("UNITINFO.canattack");
+        CanReclamate = unitParser.pullAsBool("UNITINFO.CanReclamate");
+        EnergyMake = unitParser.pullAsInt("UNITINFO.EnergyMake");
+        MetalMake = unitParser.pullAsInt("UNITINFO.MetalMake");
+        CanCapture = unitParser.pullAsBool("UNITINFO.CanCapture");
+        HideDamage = unitParser.pullAsBool("UNITINFO.HideDamage");
+        HealTime = unitParser.pullAsInt("UNITINFO.HealTime") * 30;
+        CloakCost = unitParser.pullAsInt("UNITINFO.CloakCost");
+        CloakCostMoving = unitParser.pullAsInt("UNITINFO.CloakCostMoving");
+        init_cloaked = unitParser.pullAsBool("UNITINFO.init_cloaked");
+        mincloakdistance = unitParser.pullAsInt("UNITINFO.mincloakdistance",20)>>1;
+        BuildDistance = unitParser.pullAsInt("UNITINFO.Builddistance");
+        ActivateWhenBuilt = unitParser.pullAsBool("UNITINFO.ActivateWhenBuilt");
+        ImmuneToParalyzer = unitParser.pullAsBool("UNITINFO.ImmuneToParalyzer");
+        SonarDistance = unitParser.pullAsInt("UNITINFO.SonarDistance")>>1;
+        SonarDistanceJam = unitParser.pullAsInt("UNITINFO.SonarDistanceJam")>>1;
         // copyright = ... not needed here :P
-        MaxSlope = unitParser.pullAsInt("unitinfo.maxslope", 255);
-        SteeringMode = unitParser.pullAsInt("unitinfo.steeringmode");
-        BMcode = unitParser.pullAsInt("unitinfo.bmcode");
-        ShootMe = unitParser.pullAsBool("unitinfo.shootme");
-        Upright = unitParser.pullAsBool("unitinfo.upright");
-        norestrict = unitParser.pullAsBool("unitinfo.norestrict");
-        AutoFire = !unitParser.pullAsBool("unitinfo.noautofire", true);
-        EnergyStorage = unitParser.pullAsInt("unitinfo.energystorage");
-        MetalStorage = unitParser.pullAsInt("unitinfo.metalstorage");
-        StandingMoveOrder = unitParser.pullAsInt("unitinfo.standingmoveorder",1);
-        MobileStandOrders = unitParser.pullAsInt("unitinfo.mobilestandorders",1);
-        StandingFireOrder = unitParser.pullAsInt("unitinfo.standingfireorder",1);
-        FireStandOrders = unitParser.pullAsInt("unitinfo.firestandorders",1);
-        WaterLine = unitParser.pullAsFloat("unitinfo.waterline");
+        MaxSlope = unitParser.pullAsInt("UNITINFO.MaxSlope", 255);
+        SteeringMode = unitParser.pullAsInt("UNITINFO.SteeringMode");
+        BMcode = unitParser.pullAsInt("UNITINFO.BMcode");
+        ShootMe = unitParser.pullAsBool("UNITINFO.ShootMe");
+        Upright = unitParser.pullAsBool("UNITINFO.Upright");
+        norestrict = unitParser.pullAsBool("UNITINFO.norestrict");
+        AutoFire = !unitParser.pullAsBool("UNITINFO.NoAutoFire", true);
+        EnergyStorage = unitParser.pullAsInt("UNITINFO.EnergyStorage");
+        MetalStorage = unitParser.pullAsInt("UNITINFO.MetalStorage");
+        StandingMoveOrder = unitParser.pullAsInt("UNITINFO.StandingMoveOrder",1);
+        MobileStandOrders = unitParser.pullAsInt("UNITINFO.mobilestandorders",1);
+        StandingFireOrder = unitParser.pullAsInt("UNITINFO.StandingFireOrder",1);
+        FireStandOrders = unitParser.pullAsInt("UNITINFO.firestandorders",1);
+        WaterLine = unitParser.pullAsFloat("UNITINFO.WaterLine");
 
-        String TEDclassString = String::ToLower( unitParser.pullAsString("unitinfo.tedclass") );
+        String TEDclassString = String::ToLower( unitParser.pullAsString("UNITINFO.TEDClass") );
         if (TEDclassString.find("water") != String::npos)           TEDclass = CLASS_WATER;
         else if (TEDclassString.find("ship") != String::npos)       TEDclass = CLASS_SHIP;
         else if (TEDclassString.find("energy") != String::npos)     TEDclass = CLASS_ENERGY;
@@ -781,31 +781,31 @@ namespace TA3D
             nb_inconnu++;
         }
 
-        NoShadow = unitParser.pullAsBool("unitinfo.noshadow");
-        antiweapons = unitParser.pullAsBool("unitinfo.antiweapons");
-        BuildAngle = unitParser.pullAsInt("unitinfo.buildangle",10);
-        canfly = unitParser.pullAsBool("unitinfo.canfly");
-        canload = unitParser.pullAsBool("unitinfo.canload");
-        Floater = unitParser.pullAsBool("unitinfo.floater");
-        canhover = unitParser.pullAsBool("unitinfo.canhover");
-        BankScale = unitParser.pullAsInt("unitinfo.bankscale");
-        TidalGenerator = unitParser.pullAsBool("unitinfo.tidalgenerator");
-        Scale = 1.0f;//unitParser.pullAsFloat("unitinfo.scale",1.0f);
-        Corpse = unitParser.pullAsString("unitinfo.corpse");
-        WindGenerator = unitParser.pullAsInt("unitinfo.windgenerator");
-        onoffable = unitParser.pullAsBool("unitinfo.onoffable");
-        kamikaze = unitParser.pullAsBool("unitinfo.kamikaze");
-        kamikazedistance = unitParser.pullAsInt("unitinfo.kamikazedistance")>>1;
+        NoShadow = unitParser.pullAsBool("UNITINFO.NoShadow");
+        antiweapons = unitParser.pullAsBool("UNITINFO.antiweapons");
+        BuildAngle = unitParser.pullAsInt("UNITINFO.buildangle",10);
+        canfly = unitParser.pullAsBool("UNITINFO.Canfly");
+        canload = unitParser.pullAsBool("UNITINFO.canload");
+        Floater = unitParser.pullAsBool("UNITINFO.Floater");
+        canhover = unitParser.pullAsBool("UNITINFO.canhover");
+        BankScale = unitParser.pullAsInt("UNITINFO.BankScale");
+        TidalGenerator = unitParser.pullAsBool("UNITINFO.TidalGenerator");
+        Scale = 1.0f;//unitParser.pullAsFloat("UNITINFO.Scale",1.0f);
+        Corpse = unitParser.pullAsString("UNITINFO.Corpse", unitParser.pullAsString("UNITINFO.corpse"));
+        WindGenerator = unitParser.pullAsInt("UNITINFO.WindGenerator");
+        onoffable = unitParser.pullAsBool("UNITINFO.onoffable");
+        kamikaze = unitParser.pullAsBool("UNITINFO.kamikaze");
+        kamikazedistance = unitParser.pullAsInt("UNITINFO.kamikazedistance")>>1;
 
         int i = 1;
-        while (i <= 3 || !unitParser.pullAsString( format("unitinfo.weapon%d",i) ).empty())
+        while (i <= 3 || !unitParser.pullAsString( format("UNITINFO.Weapon%d",i), unitParser.pullAsString( format("UNITINFO.weapon%d",i) ) ).empty())
         {
             if (WeaponID.size() < i)
                 WeaponID.resize(i,-1);
-            WeaponID[i-1] = weapon_manager.get_weapon_index( unitParser.pullAsString( format("unitinfo.weapon%d",i) ) );
+            WeaponID[i-1] = weapon_manager.get_weapon_index( unitParser.pullAsString( format("UNITINFO.Weapon%d",i), unitParser.pullAsString( format("UNITINFO.weapon%d",i) ) ) );
             ++i;
         }
-        yardmap = unitParser.pullAsString("unitinfo.yardmap");
+        yardmap = unitParser.pullAsString("UNITINFO.YardMap");
         if (!yardmap.empty())
         {
             i = 0;
@@ -817,12 +817,12 @@ namespace TA3D
             yardmap.resize( yardmap.size() - i );
         }
 
-        CruiseAlt = unitParser.pullAsInt("unitinfo.cruisealt");
-        ExplodeAs = unitParser.pullAsString("unitinfo.explodeas");
-        SelfDestructAs = unitParser.pullAsString("unitinfo.selfdestructas");
-        ManeuverLeashLength = unitParser.pullAsInt("unitinfo.maneuverleashlength",640);
+        CruiseAlt = unitParser.pullAsInt("UNITINFO.cruisealt");
+        ExplodeAs = unitParser.pullAsString("UNITINFO.ExplodeAs");
+        SelfDestructAs = unitParser.pullAsString("UNITINFO.SelfDestructAs");
+        ManeuverLeashLength = unitParser.pullAsInt("UNITINFO.maneuverleashlength",640);
         
-        String DefaultMissionTypeString = String::ToLower( unitParser.pullAsString("unitinfo.defaultmissiontype") );
+        String DefaultMissionTypeString = String::ToLower( unitParser.pullAsString("UNITINFO.DefaultMissionType") );
         if(DefaultMissionTypeString == "standby")				DefaultMissionType=MISSION_STANDBY;
         else if(DefaultMissionTypeString == "vtol_standby")		DefaultMissionType=MISSION_VTOL_STANDBY;
         else if(DefaultMissionTypeString == "guard_nomove")		DefaultMissionType=MISSION_GUARD_NOMOVE;
@@ -833,25 +833,25 @@ namespace TA3D
             ++nb_inconnu;
         }
 
-        TransMaxUnits = TransportMaxUnits = unitParser.pullAsInt("unitinfo.transmaxunits");
-        TransMaxUnits = TransportMaxUnits = unitParser.pullAsInt("unitinfo.transportmaxunits",TransMaxUnits);
-        TransportCapacity = unitParser.pullAsInt("unitinfo.transportcapacity");
-        TransportSize = unitParser.pullAsInt("unitinfo.transportsize");
-        AltFromSeaLevel = unitParser.pullAsInt("unitinfo.AltFromSeaLevel");
-        MovementClass = unitParser.pullAsString("unitinfo.movementclass");
+        TransMaxUnits = TransportMaxUnits = unitParser.pullAsInt("UNITINFO.TransMaxUnits");
+        TransMaxUnits = TransportMaxUnits = unitParser.pullAsInt("UNITINFO.transportmaxunits",TransMaxUnits);
+        TransportCapacity = unitParser.pullAsInt("UNITINFO.transportcapacity");
+        TransportSize = unitParser.pullAsInt("UNITINFO.transportsize");
+        AltFromSeaLevel = unitParser.pullAsInt("UNITINFO.altfromsealevel");
+        MovementClass = unitParser.pullAsString("UNITINFO.MovementClass");
 
-        IsAirBase = unitParser.pullAsBool("unitinfo.isairbase");
-        commander = unitParser.pullAsBool("unitinfo.commander");
-        DamageModifier = unitParser.pullAsFloat("unitinfo.damagemodifier",1.0f);
-        MakesMetal = unitParser.pullAsFloat("unitinfo.makesmetal");
-        SortBias = unitParser.pullAsInt("unitinfo.sortbias");
-        ExtractsMetal = unitParser.pullAsFloat("unitinfo.extractsmetal");
-        hoverattack = unitParser.pullAsBool("unitinfo.hoverattack");
-        isfeature = unitParser.pullAsBool("unitinfo.isfeature");
-        Stealth = unitParser.pullAsInt("unitinfo.stealth");
-        attackrunlength = unitParser.pullAsInt("unitinfo.attackrunlength");
-        selfdestructcountdown = unitParser.pullAsInt("unitinfo.selfdestructcountdown",5);
-        canresurrect = unitParser.pullAsBool("unitinfo.canresurrect") || unitParser.pullAsBool("unitinfo.resurrect");
+        IsAirBase = unitParser.pullAsBool("UNITINFO.IsAirBase");
+        commander = unitParser.pullAsBool("UNITINFO.Commander");
+        DamageModifier = unitParser.pullAsFloat("UNITINFO.DamageModifier",1.0f);
+        MakesMetal = unitParser.pullAsFloat("UNITINFO.MakesMetal");
+        SortBias = unitParser.pullAsInt("UNITINFO.sortbias");
+        ExtractsMetal = unitParser.pullAsFloat("UNITINFO.ExtractsMetal");
+        hoverattack = unitParser.pullAsBool("UNITINFO.HoverAttack");
+        isfeature = unitParser.pullAsBool("UNITINFO.IsFeature");
+        Stealth = unitParser.pullAsInt("UNITINFO.Stealth");
+        attackrunlength = unitParser.pullAsInt("UNITINFO.attackrunlength");
+        selfdestructcountdown = unitParser.pullAsInt("UNITINFO.selfdestructcountdown",5);
+        canresurrect = unitParser.pullAsBool("UNITINFO.canresurrect") || unitParser.pullAsBool("UNITINFO.resurrect");
 
         if( canresurrect && BuildDistance == 0.0f )
             BuildDistance = SightDistance;
