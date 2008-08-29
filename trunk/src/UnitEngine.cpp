@@ -2831,6 +2831,8 @@ namespace TA3D
                 hp -= frac * unit_manager.unit_type[type_id]->MaxDamage;
                 build_percent_left += frac * 100.0f;
             }
+            else
+                metal_prod = 0.0f;
             goto script_exec;
         }
         else
@@ -2846,7 +2848,7 @@ namespace TA3D
         if (data.nb_piece>0)
             data.move(dt,units.g_dt);
 
-        if (cloaking)
+        if (cloaking && paralyzed <= 0.0f)
         {
             int conso_energy = (mission == NULL || !(mission->flags & MISSION_FLAG_MOVE) ) ? unit_manager.unit_type[type_id]->CloakCost : unit_manager.unit_type[type_id]->CloakCostMoving;
             if (players.energy[ owner_id ] >= (energy_cons + conso_energy) * dt)
@@ -2891,6 +2893,8 @@ namespace TA3D
                 if (random_vector)
                     fx_manager.addElectric( Pos + randVec );
             }
+            if (build_percent_left <= 0.0f)
+                metal_prod = 0.0f;
         }
 
         if (attached || paralyzed > 0.0f)
