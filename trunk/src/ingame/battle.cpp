@@ -3098,7 +3098,16 @@ namespace TA3D
                         }
                     }
                     if (prev >= 0)
+                    {
+                        int type = units.unit[((UNIT*)(units.unit[cur_sel_index].mission->p))->idx].type_id;
+                        float metal_to_give_back = units.unit[((UNIT*)(units.unit[cur_sel_index].mission->p))->idx].build_percent_left * unit_manager.unit_type[type]->BuildCostMetal;
+                        int p_id = units.unit[cur_sel_index].owner_id;
+                        units.unit[((UNIT*)(units.unit[cur_sel_index].mission->p))->idx].clear_from_map();
+                        units.unit[((UNIT*)(units.unit[cur_sel_index].mission->p))->idx].flags = 0;               // Don't count it as a loss
                         units.kill(((UNIT*)(units.unit[cur_sel_index].mission->p))->idx, map.get(), prev);
+                        players.metal[p_id] += metal_to_give_back;          // Give metal back
+                        players.c_metal[p_id] += metal_to_give_back;
+                    }
                     units.unit[cur_sel_index].next_mission();
                 }
                 units.unit[cur_sel_index].unlock();
