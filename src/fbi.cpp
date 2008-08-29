@@ -674,9 +674,9 @@ namespace TA3D
         WorkerTime = unitParser.pullAsInt("unitinfo.workertime",1);
         Builder = unitParser.pullAsBool("unitinfo.builder");
         ThreeD = unitParser.pullAsBool("unitinfo.threed",true);
-        SightDistance = unitParser.pullAsInt("unitinfo.sightdistance",50);
-        RadarDistance = unitParser.pullAsInt("unitinfo.radardistance");
-        RadarDistanceJam = unitParser.pullAsInt("unitinfo.radardistancejam");
+        SightDistance = unitParser.pullAsInt("unitinfo.sightdistance",100)>>1;
+        RadarDistance = unitParser.pullAsInt("unitinfo.radardistance")>>1;
+        RadarDistanceJam = unitParser.pullAsInt("unitinfo.radardistancejam")>>1;
         soundcategory = unitParser.pullAsString("unitinfo.soundcategory");
         if (!unitParser.pullAsString("unitinfo.wthi_badtargetcategory").empty())
         {

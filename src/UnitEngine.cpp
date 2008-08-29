@@ -7038,30 +7038,33 @@ script_exec:
             pMutex.unlock();
 
             units.unit[ i ].lock();
-            if (units.unit[ i ].cur_px < 0 || units.unit[ i ].cur_py < 0 || units.unit[ i ].cur_px >= b_w || units.unit[ i ].cur_py >= b_h ) {
+            if (units.unit[ i ].cur_px < 0 || units.unit[ i ].cur_py < 0 || units.unit[ i ].cur_px >= b_w || units.unit[ i ].cur_py >= b_h)
+            {
                 units.unit[ i ].unlock();
                 pMutex.lock();
                 continue;
             }
 
-            if ((unit[i].flags&1) && ( (unit[i].owner_id==players.local_human_id && unit[i].sel) || i == last_on ) )
+            if ((unit[i].flags&1) && ( (unit[i].owner_id==players.local_human_id && unit[i].sel) || i == last_on ))
             {
                 cur_id = unit[i].owner_id;
                 float pos_x=unit[i].Pos.x*rw+64.0f;
                 float pos_y=unit[i].Pos.z*rh+64.0f;
-                if (unit[i].radar_range > 0 )
+                if (unit[i].radar_range > 0 || unit[i].radar_jam_range > 0 || unit[i].sonar_jam_range || unit[i].sonar_range > 0)
                 {
                     glEnd();
                     glPointSize(1.0f);
-                    gfx->circle_zoned( pos_x, pos_y, (unit[i].radar_range << 3) * rw, 0.0f, 0.0f, 127.0f, 127.0f, 0xFFFFFFFF );
-                    glPointSize(3.0f);
-                    glBegin( GL_POINTS );
                 }
-                if (unit[i].sonar_range > 0 )
+                if (unit[i].radar_range > 0)
+                    gfx->circle_zoned( pos_x, pos_y, (unit[i].radar_range << 3) * rw, 0.0f, 0.0f, 127.0f, 127.0f, makeacol( 0, 255, 0, 255 ) );
+                if (unit[i].sonar_range > 0)
+                    gfx->circle_zoned( pos_x, pos_y, (unit[i].sonar_range << 3) * rw, 0.0f, 0.0f, 127.0f, 127.0f, makeacol( 0, 255, 0, 255 ) );
+                if (unit[i].radar_jam_range > 0)
+                    gfx->circle_zoned( pos_x, pos_y, (unit[i].radar_jam_range << 3) * rw, 0.0f, 0.0f, 127.0f, 127.0f, makeacol( 192, 192, 0, 255 ) );
+                if (unit[i].sonar_jam_range > 0)
+                    gfx->circle_zoned( pos_x, pos_y, (unit[i].sonar_jam_range << 3) * rw, 0.0f, 0.0f, 127.0f, 127.0f, makeacol( 192, 192, 0, 255 ) );
+                if (unit[i].radar_range > 0 || unit[i].radar_jam_range > 0 || unit[i].sonar_jam_range || unit[i].sonar_range > 0)
                 {
-                    glEnd();
-                    glPointSize(1.0f);
-                    gfx->circle_zoned( pos_x, pos_y, (unit[i].sonar_range << 3) * rw, 0.0f, 0.0f, 127.0f, 127.0f, makecol( 0, 255, 0 ) );
                     glPointSize(3.0f);
                     glBegin( GL_POINTS );
                 }
