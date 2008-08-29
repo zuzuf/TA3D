@@ -3216,21 +3216,14 @@ namespace TA3D
                                 weapon[i].data = -1;
                                 break;
                             }
-                            else if (unit_manager.unit_type[type_id]->weapon[ i ]->stockpile )
-                                weapon[i].stock--;
-                            else
-                            {													// We use energy and metal only for weapons with no prebuilt ammo
-                                players.c_metal[owner_id] -= unit_manager.unit_type[type_id]->weapon[ i ]->metalpershot;
-                                players.c_energy[owner_id] -= unit_manager.unit_type[type_id]->weapon[ i ]->energypershot;
-                            }
-                            run_script_function( map, Fire_script );			// Run the script that tell us from where to shoot
-                            if (!unit_manager.unit_type[type_id]->weapon[ i ]->soundstart.empty())	sound_manager->playSound(unit_manager.unit_type[type_id]->weapon[i]->soundstart, &Pos);
                             if (script_val->size() <= query_id )
                                 script_val->resize( query_id + 1 );
                             int start_piece = (*script_val)[query_id];
                             if (start_piece>=0 && start_piece<data.nb_piece)
                             {
                                 compute_model_coord();
+                                if (!unit_manager.unit_type[type_id]->weapon[ i ]->waterweapon && Pos.y + data.pos[start_piece].y <= map->sealvl)     // Can't shoot from water !!
+                                    break;
                                 Vector3D Dir = data.dir[start_piece];
                                 if (Dir.x==0.0f && Dir.y==0.0f && Dir.z==0.0f)
                                 {
@@ -3243,6 +3236,18 @@ namespace TA3D
                                     else
                                         Dir = weapon[i].aim_dir;
                                 }
+
+                                        // SHOOT NOW !!
+                                if (unit_manager.unit_type[type_id]->weapon[ i ]->stockpile )
+                                    weapon[i].stock--;
+                                else
+                                {													// We use energy and metal only for weapons with no prebuilt ammo
+                                    players.c_metal[owner_id] -= unit_manager.unit_type[type_id]->weapon[ i ]->metalpershot;
+                                    players.c_energy[owner_id] -= unit_manager.unit_type[type_id]->weapon[ i ]->energypershot;
+                                }
+                                run_script_function( map, Fire_script );			// Run the script that tell us from where to shoot
+                                if (!unit_manager.unit_type[type_id]->weapon[ i ]->soundstart.empty())	sound_manager->playSound(unit_manager.unit_type[type_id]->weapon[i]->soundstart, &Pos);
+
                                 if (weapon[i].target == NULL )
                                     shoot(-1,Pos+data.pos[start_piece],Dir,i, weapon[i].target_pos );
                                 else {
