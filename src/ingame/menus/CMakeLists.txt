@@ -6,6 +6,7 @@ SET(SOURCES base.h base.cpp
             loading.h loading.cpp
             solo.h solo.cpp
             mapselector.h mapselector.cpp
+            unitselector.h unitselector.cpp
             statistics.h statistics.cpp
             mainmenu.h mainmenu.cpp)
 

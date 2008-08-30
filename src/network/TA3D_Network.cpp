@@ -187,7 +187,8 @@ namespace TA3D
                 if (params[0] == "USING")           // End of available units synchronization ... easier that way and the game doesn't start syncing before it's finished
                                                     // so game doesn't start before this :P
                 {                                   // We can only use units available on all clients, so check the list
-                    if (unit_manager.get_unit_index(params[1]) == -1 )            // Tell it's missing
+                    int type_id = unit_manager.get_unit_index(params[1]);
+                    if (type_id == -1 || unit_manager.unit_type[type_id]->not_used)            // Tell it's missing
                         network_manager.sendAll( "MISSING " + params[1]);
                 }
                 else if (params[0] == "MISSING")

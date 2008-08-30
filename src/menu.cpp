@@ -41,6 +41,7 @@
 #include "logs/logs.h"
 #include "ingame/gamedata.h"
 #include "ingame/menus/mapselector.h"
+#include "ingame/menus/unitselector.h"
 #include "languages/i18n.h"
 #include "misc/math.h"
 #include "sounds/manager.h"
@@ -787,7 +788,10 @@ void setup_game(bool client, const char *host)
     String previous_lua_port;
 
     if (host && client)
+    {
         setupgame_area.msg("gamesetup.b_ok.disable");
+        setupgame_area.msg("gamesetup.b_units.disable");
+    }
 
     if (host && !client)
         setupgame_area.msg("gamesetup.advertise.show");
@@ -1514,6 +1518,11 @@ void setup_game(bool client, const char *host)
                 setupgame_area.set_caption( format("gamesetup.metal%d", i), format("%d",game_data.metal[i]));           // Update gui
                 if (host )  network_manager.sendSpecial( "NOTIFY UPDATE");
             }
+        }
+
+        if (setupgame_area.get_state("gamesetup.b_units") && !client) // Clic on the mini-map or received map set command
+        {
+            Menus::UnitSelector::Execute(game_data.use_only, game_data.use_only);       // Change unit selection
         }
 
         if (minimap_obj != NULL &&
@@ -2603,7 +2612,8 @@ void wait_room(void *p_game_data)
                         {                                   // We can only use units available on all clients, so check the list
                             network_manager.sendAll("NOT_READY");
 
-                            if (unit_manager.get_unit_index(params[1]) == -1 )            // Tell it's missing
+                            int type_id = unit_manager.get_unit_index(params[1]);
+                            if (type_id == -1 || unit_manager.unit_type[type_id]->not_used)            // Tell it's missing
                                 network_manager.sendAll( "MISSING " + params[1]);
                         }
                         else

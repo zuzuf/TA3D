@@ -73,6 +73,7 @@
 # define LOG_PREFIX_MENU_LOADING      "[menu::loading] "
 # define LOG_PREFIX_MENU_MAIN         "[menu::main] "
 # define LOG_PREFIX_MENU_MAPSELECTOR  "[menu::mapselector] "
+# define LOG_PREFIX_MENU_UNITSELECTOR "[menu::unitselector] "
 # define LOG_PREFIX_MENU_STATS        "[menu::stats] "
 
 # define LOG_PREFIX_NET               "[network] "
