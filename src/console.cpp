@@ -43,7 +43,7 @@ namespace TA3D
     Console::Console()
         :pMaxItemsToDisplay(15), pVisible(0.0f), pShow(false)
     {
-        pInputText[0] = 0;
+        pInputText.clear();
     }
 
 
@@ -111,9 +111,13 @@ namespace TA3D
 
         set_uformat(U_UTF8);
         char keyb = 0;
+        int keycode = 0;
 
         if (keypressed())
-            keyb = readkey();
+        {
+            keycode = readkey();
+            keyb = keycode & 0xFF;
+        }
 
         ++fsize;
         float maxh = fsize * pLastEntries.size() * pVisible + 5.0f;
@@ -140,32 +144,47 @@ namespace TA3D
         for (String::List::const_iterator i_entry = pLastEntries.begin(); i_entry != pLastEntries.end(); ++i_entry) 
         {
             gfx->print(fnt, 0.0f, maxh - fsize * (pLastEntries.size() + 1 - i) - 5.0f, 0.0f,
-                       0xAFAFAFAF, format(">%s", (char *)((*i_entry).c_str())));
+                       0xAFAFAFAF, ">" + *i_entry);
             ++i;
         }
 
-        gfx->print(fnt, 0.0f, maxh - fsize - 5.0f, 0.0f, 0xFFFFFFFF, format(">%s_", pInputText));
+        gfx->print(fnt, 0.0f, maxh - fsize - 5.0f, 0.0f, 0xFFFFFFFF, ">" + pInputText + "_" );
 
         if (keyb == 13)
         {
-            String x = pInputText;
-            addEntry(x);
-            pInputText[0] = 0;
-            newline = x;
+            pLastCommands.push_back(pInputText);
+            pHistoryPos = pLastCommands.size();
+            addEntry(pInputText);
+            newline = pInputText;
+            pInputText.clear();
         }
 
-        if (keyb == 8 && strlen(pInputText) > 0)
-            pInputText[strlen(pInputText) - 1] = 0;
+        if (pHistoryPos < 0)    pHistoryPos = 0;
+        else if (pHistoryPos > pLastCommands.size())    pHistoryPos = pLastCommands.size();
+
+        if (keyb == 0 && (keycode >> 8) == KEY_UP && pHistoryPos > 0)
+        {
+            --pHistoryPos;
+            pInputText = pLastCommands[pHistoryPos];
+        }
+        else if (keyb == 0 && (keycode >> 8) == KEY_DOWN && pHistoryPos < pLastCommands.size())
+        {
+            ++pHistoryPos;
+            if (pHistoryPos < pLastCommands.size())
+                pInputText = pLastCommands[pHistoryPos];
+            else
+                pInputText.clear();
+        }
+
+        if (keyb == 8 && pInputText.size() > 0)
+            pInputText.resize(pInputText.size() - 1);
 
         if ((keyb >= '0' && keyb <= '9') ||  (keyb >= 'a' && keyb <= 'z') || 
             (keyb >= 'A' && keyb <= 'Z') || 
             keyb == 32 || keyb == '_' || keyb == '+' || keyb == '-' || keyb == '.') 
         {
-            if (strlen(pInputText) < 199) 
-            {
-                pInputText[strlen(pInputText) + 1] = 0;
-                pInputText[strlen(pInputText)] = keyb;
-            }
+            if (pInputText.size() < 199) 
+                pInputText << keyb;
         }
         glDisable(GL_BLEND);
         set_uformat(U_ASCII);
