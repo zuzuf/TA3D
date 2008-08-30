@@ -2716,6 +2716,12 @@ namespace TA3D
                         min_z = Math::Min(min_z, points[i].z);
                         max_z = Math::Max(max_z, points[i].z);
                     }
+                    min_x -= 0.1f;
+                    max_x += 0.1f;
+                    min_y -= 0.1f;
+                    max_y += 0.1f;
+                    min_z -= 0.1f;
+                    max_z += 0.1f;
                 }
 
                 // Collision detector using boxes
