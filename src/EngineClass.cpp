@@ -1405,7 +1405,12 @@ namespace TA3D
         A = (cam->dir + 0.75f * cam->up - cam->widthFactor * cam->side);
         A.unit();
         
-        float ref = sq( 0.95f*(A%cam->dir) );
+        float ref = sq( A%cam->dir );
+        // Here we use an approximation of the right formula, assuming M should remain small compared to the rest (remember we use squared values ...)
+        // the right formula that gives the ref0 value we want is : cos( a ) - r / D * sqrt( 1 / tan( a ) )
+        // where 2 * a is the camera aperture angle, 2 * r the diameter of a map bloc and D the distance from the camera to the bloc
+        // with ref = cos( a )² we compute: ref0 ~ ref - 2 * r / D * sqrt( 1 / tan( a ) ) = ref - M / D
+        float M = H_DIV * 512.0f * sqrt( (A%cam->dir) / sqrt( 1.0f - sq(A%cam->dir) ) );    // H_DIV * 512 because it's twice H_DIV * 256, maximum height of a map bloc
         float dhm=0.5f*map_h;
         float dwm=0.5f*map_w;
 
@@ -1585,7 +1590,7 @@ namespace TA3D
                         }
                         float d = V.sq();
                         if(d > 16384.0f)
-                            if(sq(V % cam->dir) < ref * d)
+                            if(sq(V % cam->dir) < ref * d - M * sqrt(d))
                             {
                                 view[y][rx1] = 0;
                                 continue;
@@ -1606,7 +1611,7 @@ namespace TA3D
                         }
                         float d = V.sq();
                         if(d > 16384.0f)
-                            if(sq(V % cam->dir) < ref * d)
+                            if(sq(V % cam->dir) < ref * d - M * sqrt(d))
                             {
                                 view[y][rx2] = 0;
                                 continue;
