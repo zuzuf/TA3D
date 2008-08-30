@@ -3433,6 +3433,8 @@ namespace TA3D
                             }
                             if (!(mission->flags & MISSION_FLAG_DONT_STOP_MOVE) )
                                 V.x = V.y = V.z = 0.0f;		// Stop unit's movement
+                            if (mission->step)      // It's meaningless to try to finish this mission like an ordinary order
+                                next_mission();
                         }
                     }
                     else
