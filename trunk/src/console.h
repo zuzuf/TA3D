@@ -84,13 +84,17 @@ namespace TA3D
         //!
         String::List pLastEntries;
         //!
+        String::Vector pLastCommands;
+        //!
+        int pHistoryPos;
+        //!
         uint16 pMaxItemsToDisplay;
         //!
         real32 pVisible;
         //! 
         bool pShow;
         //! 
-        char pInputText[200];
+        String pInputText;
         //! 
         uint32 pCurrentTimer;
 

@@ -824,22 +824,22 @@ namespace TA3D
 
             if (!freecam)
             {
-                if (key[KEY_UP])
+                if (key[KEY_UP] && !console.activated())
                 {
                     cam.rpos.z -= SCROLL_SPEED * dt * cam_h / 151.0f;
                     cam_has_target = false;
                 }
-                if (key[KEY_DOWN])
+                if (key[KEY_DOWN] && !console.activated())
                 {
                     cam.rpos.z += SCROLL_SPEED * dt * cam_h / 151.0f;
                     cam_has_target = false;
                 }
-                if (key[KEY_RIGHT])
+                if (key[KEY_RIGHT] && !console.activated())
                 {
                     cam.rpos.x += SCROLL_SPEED * dt * cam_h / 151.0f;
                     cam_has_target = false;
                 }
-                if (key[KEY_LEFT])
+                if (key[KEY_LEFT] && !console.activated())
                 {
                     cam.rpos.x -= SCROLL_SPEED * dt * cam_h / 151.0f;
                     cam_has_target = false;
@@ -856,13 +856,13 @@ namespace TA3D
             }
             else
             {
-                if (key[KEY_UP])
+                if (key[KEY_UP] && !console.activated())
                     cam.rpos = cam.rpos + 100.0f * dt * cam_h / 151.0f * cam.dir;
-                if (key[KEY_DOWN])
+                if (key[KEY_DOWN] && !console.activated())
                     cam.rpos = cam.rpos - 100.0f * dt * cam_h / 151.0f * cam.dir;
-                if (key[KEY_RIGHT])
+                if (key[KEY_RIGHT] && !console.activated())
                     cam.rpos = cam.rpos + 100.0f * dt * cam_h / 151.0f * cam.side;
-                if (key[KEY_LEFT])
+                if (key[KEY_LEFT] && !console.activated())
                     cam.rpos = cam.rpos - 100.0f * dt * cam_h / 151.0f * cam.side;
             }
 
