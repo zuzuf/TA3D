@@ -273,15 +273,19 @@ namespace TA3D
         GLuint transtex,reflectex,first_pass,second_pass,water_color;
         GLuint water_FBO;
 
-        if (g_useProgram && g_useFBO && map->water)
+        if (g_useProgram && g_useFBO && map->water && lp_CONFIG->water_quality >= 2)
         {
             glGenFramebuffersEXT(1,&water_FBO);
 
-            water_pass1.load("shaders/water_pass1.frag","shaders/water_pass1.vert");
-            water_pass1_low.load("shaders/water_pass1_low.frag","shaders/water_pass1.vert");
+            if (lp_CONFIG->water_quality == 2)
+                water_pass1_low.load("shaders/water_pass1_low.frag","shaders/water_pass1.vert");
+            else
+                water_pass1.load("shaders/water_pass1.frag","shaders/water_pass1.vert");
             water_pass2.load("shaders/water_pass2.frag","shaders/water_pass2.vert");
-            water_shader.load("shaders/water.frag","shaders/water.vert");
-            water_shader_reflec.load("shaders/water_reflec.frag","shaders/water.vert");
+            if (lp_CONFIG->water_quality == 2)
+                water_shader.load("shaders/water.frag","shaders/water.vert");
+            else
+                water_shader_reflec.load("shaders/water_reflec.frag","shaders/water.vert");
 
             allegro_gl_use_alpha_channel(true);
 
