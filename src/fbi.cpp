@@ -760,7 +760,7 @@ namespace TA3D
         MobileStandOrders = unitParser.pullAsInt("UNITINFO.mobilestandorders",1);
         StandingFireOrder = unitParser.pullAsInt("UNITINFO.StandingFireOrder",1);
         FireStandOrders = unitParser.pullAsInt("UNITINFO.firestandorders",1);
-        WaterLine = unitParser.pullAsFloat("UNITINFO.WaterLine");
+        WaterLine = unitParser.pullAsFloat("UNITINFO.WaterLine", unitParser.pullAsFloat("UNITINFO.Waterline"));
 
         String TEDclassString = String::ToLower( unitParser.pullAsString("UNITINFO.TEDClass") );
         if (TEDclassString.find("water") != String::npos)           TEDclass = CLASS_WATER;
