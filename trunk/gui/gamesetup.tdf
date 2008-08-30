@@ -8,7 +8,7 @@
 	height=1024;
 	draw borders=false;
 	show title=false;
-	number of objects=165;
+	number of objects=166;
 	hidden=false;
 	lock=true;
 	color=0x00000000;			// Fully transparent so we can see the AREA background
@@ -1727,5 +1727,16 @@
 		caption=gfx/teams/team0.tga,gfx/teams/team1.tga,gfx/teams/team2.tga,gfx/teams/team3.tga,gfx/teams/team4.tga,gfx/teams/team5.tga,gfx/teams/team6.tga,gfx/teams/team7.tga,gfx/teams/team8.tga,gfx/teams/team9.tga;
 		help=chose your team;
 		size=1;
+	}
+	[object165]		// Units
+	{
+		name=b_units;
+		type=BUTTON;
+		caption=Units;
+		x1=1013;
+		y1=95;
+		x2=1160;
+		y2=129;
+		size=2;
 	}
 }

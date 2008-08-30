@@ -123,6 +123,15 @@ void ListBox(float x1,float y1, float x2, float y2,const String::Vector &Entry,i
                     gfx->rectfill( x1 + skin->text_background.x1, y1 + skin->text_background.y1 + gui_font.height()*i, x2 + skin->text_background.x2, y1 + skin->text_background.y1+gui_font.height()*(i+1), Bleu );
             }
             String str = Entry[ e ];
+            if (str.substr(0,3) == "<H>")       // Highlight this line
+            {
+                str = str.substr(3, str.size() - 3);
+                glEnable( GL_BLEND );
+                glDisable( GL_TEXTURE_2D );
+                glBlendFunc( GL_ONE, GL_ONE );
+                gfx->rectfill( x1 + skin->text_background.x1, y1 + skin->text_background.y1 + gui_font.height()*i, x2 + skin->text_background.x2, y1 + skin->text_background.y1+gui_font.height()*(i+1), makeacol( 0x7F, 0x7F, 0xFF, 0xFF ) );
+                glDisable( GL_BLEND );
+            }
             while( gui_font.length( str ) >= x2 - x1 - skin->text_background.x1 + skin->text_background.x2 - skin->scroll[0].sw && str.size() > 0 )
                 str.resize( str.size() - 1 );
             gfx->print(gui_font,x1+skin->text_background.x1,y1+skin->text_background.y1+gui_font.height()*i,0.0f,use_normal_alpha_function ? Blanc : Noir,str);
