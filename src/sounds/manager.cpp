@@ -23,6 +23,7 @@
 #include "manager.h"
 #include "../logs/logs.h"
 #include "../misc/camera.h"
+#include "../misc/paths.h"
 
 
 using namespace TA3D::Interfaces;
@@ -119,7 +120,7 @@ namespace Audio
 
         struct al_ffblk info;
         String search;
-        search << GetClientPath() << "music/";
+        search << TA3D::Paths::Resources << "music/";
 
         for (Playlist::iterator i = pPlaylist.begin(); i != pPlaylist.end(); ++i)
             (*i)->checked = false;
@@ -133,7 +134,7 @@ namespace Audio
                     continue;
 
                 String filename;
-                filename << search << info.name;
+                filename << info.name;
 
                 Playlist::const_iterator i;
                 for (i = pPlaylist.begin(); i != pPlaylist.end(); ++i)
@@ -190,7 +191,7 @@ namespace Audio
     void Manager::doSavePlaylist()
     {
         String targetPlaylist;
-        targetPlaylist << GetClientPath() << "music/playlist.txt";
+        targetPlaylist << TA3D::Paths::Resources << "music/playlist.txt";
         std::ofstream play_list_file(targetPlaylist.c_str(), std::ios::out | std::ios::trunc);
         if (!play_list_file.is_open())
             return;
@@ -218,7 +219,7 @@ namespace Audio
     void Manager::doLoadPlaylist()
     {
         String filename;
-        filename << GetClientPath() << "music/playlist.txt";
+        filename << TA3D::Paths::Resources << "music/playlist.txt";
         std::ifstream file( filename.c_str(), std::ios::in);
 
         if (!file.is_open()) // try to create the list if it doesn't exist
@@ -529,13 +530,13 @@ namespace Audio
             {
                 if ((*cur)->battleTune && mCount >= cIndex)		// If we get one that match our needs we take it
                 {
-                    szResult = (*cur)->filename;
+                    szResult = TA3D::Paths::Resources + "music/" + (*cur)->filename;
                     break;
                 }
                 else
                 {
                     if ((*cur)->battleTune) // Take the last one that can be taken if we try to go too far
-                        szResult = (*cur)->filename;
+                        szResult = TA3D::Paths::Resources + "music/" + (*cur)->filename;
                 }
             }
             return szResult;
@@ -555,7 +556,7 @@ namespace Audio
 
             if (pCurrentItemToPlay <= mCount || pCurrentItemToPlay <= 0)
             {
-                szResult = (*cur)->filename;
+                szResult = TA3D::Paths::Resources + "music/" + (*cur)->filename;
                 pCurrentItemToPlay = mCount + 1;
                 found = true;
                 break;
