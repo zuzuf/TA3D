@@ -1,0 +1,86 @@
+[window]
+{
+    name=unitsetup;
+	title=Unit Setup;
+	uformat=UTF8;
+	x=0;
+	y=0;
+	width=1280;
+	height=1024;
+	draw borders=false;
+	show title=false;
+	number of objects=6;
+	hidden=false;
+	lock=true;
+	color=0x00000000;			// Fully transparent so we can see the AREA background
+	background window=true;
+	fullscreen=true;			// Scale the window to fit the screen
+	screen width=1280;
+	screen height=1024;
+	[object0]		// OK
+	{
+		name=b_ok;
+		type=BUTTON;
+		caption=OK;
+		x1=1040;
+		y1=960;
+		x2=1190;
+		y2=997;
+		size=2;
+	}
+	[object1]		// Cancel
+	{
+		name=b_cancel;
+		type=BUTTON;
+		caption=cancel;
+		x1=840;
+		y1=960;
+		x2=990;
+		y2=997;
+		size=2;
+	}
+	[object2]		// unitpic
+	{
+		name=unitpic;
+		type=IMG;
+		x1=817;
+		y1=170;
+		x2=1057;
+		y2=410;
+	}
+	[object3]		// unit list
+	{
+		name=unit_list;
+		type=LIST;
+		x1=64;
+		y1=160;
+		x2=582;
+		y2=904;
+		entry=no units;
+		no border=true;		// Don't draw the border since it's drawn on the background
+		size=1.8;
+	}
+	[object4]
+	{
+		name=unit_info;
+		type=TEXT;
+		x1=708;
+		y1=430;
+		x2=1170;
+		y2=626;
+		value=0xFFFFFFFF;
+		size=1.8;
+	}
+	[object5]		// Enabled
+	{
+		name=c_enabled;
+		type=OPTIONC;
+		caption=enabled;
+		value=1;
+		x1=720;
+		y1=830;
+		x2=900;
+		y2=860;
+		size=2;
+	}
+}

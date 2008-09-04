@@ -1,0 +1,55 @@
+[window]
+{
+	title=Host a game;
+	uformat=UTF8;
+	x=220;
+	y=90;
+	width=200;
+	height=90;
+	screen width=640;
+	screen height=480;
+	fullscreen=true;
+	draw borders=true;
+	show title=true;
+	number of objects=3;
+	hidden=true;
+	color=0xFFFFFFFF;
+	background=gfx/background.jpg;
+	repeat background=true;
+	[object0]
+	{
+		name=b_ok;
+		type=BUTTON;
+		caption=OK;
+		x1=10;
+		y1=60;
+		x2=80;
+		y2=80;
+		size=1;
+		on click=hosting.hide;
+	}
+	[object1]
+	{
+		name=b_cancel;
+		type=BUTTON;
+		caption=cancel;
+		x1=120;
+		y1=60;
+		x2=190;
+		y2=80;
+		size=1;
+		on click=hosting.hide;
+	}
+	[object2]
+	{
+		name=t_hostname;
+		type=TEXTBAR;
+		caption=no name;
+		x1=10;
+		y1=24;
+		x2=190;
+		y2=54;
+		value=0xFFFFFFFF;
+		size=0.9;
+	}
+}

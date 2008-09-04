@@ -1,0 +1,9 @@
+[area]
+{
+	name=map setup area;
+	skin=gui/modern.skn;
+	windows=gui/mdrn_mapsetup.tdf;
+	background=gfx/mdrn_mapsetup.jpg;
+	width=1280;
+	height=1024;
+}
