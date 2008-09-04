@@ -710,7 +710,8 @@ namespace TA3D
         categories.clear();
         category.split(categories, " ");
         for (String::Vector::const_iterator i = categories.begin(); i != categories.end(); ++i)
-            Category.insertOrUpdate(String::ToLower(*i), 1);
+            if (!i->empty())
+                Category.insertOrUpdate(*i, 1);
         fastCategory = 0;
         if( checkCategory( "kamikaze" ) )	fastCategory |= CATEGORY_KAMIKAZE;
         if( checkCategory( "notair" ) )		fastCategory |= CATEGORY_NOTAIR;
