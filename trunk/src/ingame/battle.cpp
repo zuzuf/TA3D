@@ -2235,12 +2235,16 @@ namespace TA3D
                         glDisable(GL_LIGHTING);
                         glEnable(GL_BLEND);
                         glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
-                        glScalef(10.0f,1.0f,10.0f);         // Draw it larger than the unit itself so we can view it at an angle without seeing the border
+                        float points[12] = { -DX,0.0f,-DZ,  DX,0.0f,-DZ,    DX,0.0f,DZ,     -DX,0.0f,DZ };
                         glBegin(GL_QUADS);
-                            glVertex3f( -DX, 0.0f, -DZ );
-                            glVertex3f( DX, 0.0f, -DZ );
-                            glVertex3f( DX, 0.0f, DZ );
-                            glVertex3f( -DX, 0.0f, DZ );
+                        for (int i = 0 ; i < 4 ; i++)         // Draw it larger than the unit itself so we can view it at an angle without seeing the border
+                        {
+                            points[i*3] *= 10.0f;
+                            points[i*3+2] *= 10.0f;
+                            points[i*3] = Math::Max( Math::Min( points[i*3], map->map_w * 0.5f - target.x ), -map->map_w * 0.5f - target.x );
+                            points[i*3+2] = Math::Max( Math::Min( points[i*3+2], map->map_h * 0.5f - target.z ), -map->map_h * 0.5f - target.z );
+                            glVertex3f( points[i*3], points[i*3+1], points[i*3+2] );
+                        }
                         glEnd();
                         glColor4ub(0xFF,0xFF,0xFF,0xFF);
                     }
