@@ -563,7 +563,7 @@ namespace TA3D
 
         glDisable(GL_CULL_FACE);
         glDisable(GL_LIGHTING);
-        glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+        glColor4ub( 0xFF, 0xFF, 0xFF, 0xFF);
         glEnable(GL_TEXTURE_2D);
         glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
         glEnable(GL_BLEND);
@@ -766,7 +766,7 @@ namespace TA3D
                             feature_manager.feature[feature[i].type].model->draw(t,NULL,false,true,false,0,NULL,NULL,NULL,0.0f,NULL,false,0,false);
                             glColor4ub( 0xFF, 0xFF, 0xFF, 0xFF );
                             glDepthFunc( GL_LESS );
-                            glDisable( GL_BLEND );
+                            glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
                         }
 
 
