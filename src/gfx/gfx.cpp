@@ -234,10 +234,12 @@ namespace TA3D
 
     void GFX::line(const float x1, const float y1, const float x2, const float y2)			// Basic drawing routines
     {
-        glBegin(GL_LINES);
-        glVertex2f(x1,y1);
-        glVertex2f(x2,y2);
-        glEnd();
+        float points[4] = { x1,y1, x2,y2 };
+        glEnableClientState(GL_VERTEX_ARRAY);
+        glDisableClientState(GL_NORMAL_ARRAY);
+        glDisableClientState(GL_COLOR_ARRAY);
+        glVertexPointer(2, GL_FLOAT, 0, points);
+        glDrawArrays( GL_LINES, 0, 2 );
     }
     void GFX::line(const float x1, const float y1, const float x2, const float y2, const uint32 col)
     {
@@ -248,12 +250,12 @@ namespace TA3D
 
     void GFX::rect(const float x1, const float y1, const float x2, const float y2)
     {
-        glBegin(GL_LINE_LOOP);
-        glVertex2f(x1,y1);
-        glVertex2f(x2,y1);
-        glVertex2f(x2,y2);
-        glVertex2f(x1,y2);
-        glEnd();
+        float points[8] = { x1,y1, x2,y1, x2,y2, x1,y2 };
+        glEnableClientState(GL_VERTEX_ARRAY);
+        glDisableClientState(GL_NORMAL_ARRAY);
+        glDisableClientState(GL_COLOR_ARRAY);
+        glVertexPointer(2, GL_FLOAT, 0, points);
+        glDrawArrays( GL_LINE_LOOP, 0, 4 );
     }
     void GFX::rect(const float x1, const float y1, const float x2, const float y2, const uint32 col)
     {
@@ -264,12 +266,12 @@ namespace TA3D
 
     void GFX::rectfill(const float x1, const float y1, const float x2, const float y2)
     {
-        glBegin(GL_QUADS);
-        glVertex2f(x1,y1);
-        glVertex2f(x2,y1);
-        glVertex2f(x2,y2);
-        glVertex2f(x1,y2);
-        glEnd();
+        float points[8] = { x1,y1, x2,y1, x2,y2, x1,y2 };
+        glEnableClientState(GL_VERTEX_ARRAY);
+        glDisableClientState(GL_NORMAL_ARRAY);
+        glDisableClientState(GL_COLOR_ARRAY);
+        glVertexPointer(2, GL_FLOAT, 0, points);
+        glDrawArrays( GL_QUADS, 0, 4 );
     }
     void GFX::rectfill(const float x1, const float y1, const float x2, const float y2, const uint32 col)
     {
@@ -281,10 +283,20 @@ namespace TA3D
     void GFX::circle(const float x, const float y, const float r)
     {
         float d_alpha = DB_PI/(r+1.0f);
-        glBegin( GL_LINE_LOOP );
-        for( float alpha = 0.0f; alpha <= DB_PI; alpha+=d_alpha )
-            glVertex2f( x+r*cos(alpha), y+r*sin(alpha) );
-        glEnd();
+        int n = (int)(DB_PI / d_alpha) + 1;
+        float *points = new float[n * 2];
+        int i = 0;
+        for (float alpha = 0.0f; alpha <= DB_PI; alpha+=d_alpha)
+        {
+            points[i++] = x+r*cos(alpha);
+            points[i++] = y+r*sin(alpha);
+        }
+        glEnableClientState(GL_VERTEX_ARRAY);
+        glDisableClientState(GL_NORMAL_ARRAY);
+        glDisableClientState(GL_COLOR_ARRAY);
+        glVertexPointer(2, GL_FLOAT, 0, points);
+        glDrawArrays( GL_LINE_LOOP, 0, i>>1 );
+        delete[] points;
     }
     void GFX::circle(const float x, const float y, const float r, const uint32 col)
     {
@@ -295,8 +307,10 @@ namespace TA3D
     void GFX::circle_zoned(const float x, const float y, const float r, const float mx, const float my, const float Mx, const float My)
     {
         float d_alpha = DB_PI/(r+1.0f);
-        glBegin( GL_LINE_LOOP );
-        for (float alpha = 0.0f; alpha <= DB_PI; alpha += d_alpha)
+        int n = (int)(DB_PI / d_alpha) + 2;
+        float *points = new float[n * 2];
+        int i = 0;
+        for (float alpha = 0.0f; alpha <= DB_PI; alpha+=d_alpha)
         {
             float rx = x+r*cos(alpha);
             float ry = y+r*sin(alpha);
@@ -304,16 +318,24 @@ namespace TA3D
             else if (rx > Mx )	rx = Mx;
             if (ry < my )		ry = my;
             else if (ry > My )	ry = My;
-            glVertex2f( rx, ry );
+            points[i++] = rx;
+            points[i++] = ry;
         }
-        glEnd();
+        glEnableClientState(GL_VERTEX_ARRAY);
+        glDisableClientState(GL_NORMAL_ARRAY);
+        glDisableClientState(GL_COLOR_ARRAY);
+        glVertexPointer(2, GL_FLOAT, 0, points);
+        glDrawArrays( GL_LINE_LOOP, 0, i>>1 );
+        delete[] points;
     }
 
     void GFX::dot_circle_zoned(const float t, const float x, const float y, const float r, const float mx, const float my, const float Mx, const float My)
     {
         float d_alpha = DB_PI/(r+1.0f);
-        glBegin( GL_LINES );
-        for (float alpha = 0.0f; alpha <= DB_PI; alpha += d_alpha)
+        int n = (int)(DB_PI / d_alpha) + 2;
+        float *points = new float[n * 2];
+        int i = 0;
+        for (float alpha = 0.0f; alpha <= DB_PI; alpha+=d_alpha)
         {
             float rx = x+r*cos(alpha+t);
             float ry = y+r*sin(alpha+t);
@@ -321,9 +343,15 @@ namespace TA3D
             else if (rx > Mx )	rx = Mx;
             if (ry < my )		ry = my;
             else if (ry > My )	ry = My;
-            glVertex2f( rx, ry );
+            points[i++] = rx;
+            points[i++] = ry;
         }
-        glEnd();
+        glEnableClientState(GL_VERTEX_ARRAY);
+        glDisableClientState(GL_NORMAL_ARRAY);
+        glDisableClientState(GL_COLOR_ARRAY);
+        glVertexPointer(2, GL_FLOAT, 0, points);
+        glDrawArrays( GL_LINES, 0, i>>1 );
+        delete[] points;
     }
 
     void GFX::dot_circle_zoned(const float t, const float x, const float y, const float r, const float mx, const float my, const float Mx, const float My, const uint32 col)
@@ -341,11 +369,22 @@ namespace TA3D
     void GFX::circlefill(const float x, const float y, const float r)
     {
         float d_alpha = DB_PI/(r+1.0f);
-        glBegin(GL_TRIANGLE_FAN);
-        glVertex2f(x,y);
-        for( float alpha = 0.0f; alpha <= DB_PI; alpha += d_alpha)
-            glVertex2f( x+r*cos(alpha), y+r*sin(alpha) );
-        glEnd();
+        int n = (int)(DB_PI / d_alpha) + 4;
+        float *points = new float[n * 2];
+        int i = 0;
+        points[i++] = x;
+        points[i++] = y;
+        for (float alpha = 0.0f; alpha <= DB_PI; alpha+=d_alpha)
+        {
+            points[i++] = x+r*cos(alpha);
+            points[i++] = y+r*sin(alpha);
+        }
+        glEnableClientState(GL_VERTEX_ARRAY);
+        glDisableClientState(GL_NORMAL_ARRAY);
+        glDisableClientState(GL_COLOR_ARRAY);
+        glVertexPointer(2, GL_FLOAT, 0, points);
+        glDrawArrays( GL_TRIANGLE_FAN, 0, i>>1 );
+        delete[] points;
     }
 
     void GFX::circlefill(const float x, const float y, const float r, const uint32 col)
@@ -389,34 +428,49 @@ namespace TA3D
     {
         glEnable(GL_TEXTURE_2D);
         glBindTexture(GL_TEXTURE_2D,tex);
-        glBegin(GL_QUADS);
-        glTexCoord2f(u1,v1);		glVertex2f(x1,y1);
-        glTexCoord2f(u2,v1);		glVertex2f(x2,y1);
-        glTexCoord2f(u2,v2);		glVertex2f(x2,y2);
-        glTexCoord2f(u1,v2);		glVertex2f(x1,y2);
-        glEnd();
+
+        float points[8] = { x1,y1, x2,y1, x2,y2, x1,y2 };
+        float tcoord[8] = { u1,v1, u2,v1, u2,v2, u1,v2 };
+
+        glEnableClientState(GL_VERTEX_ARRAY);
+        glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+        glDisableClientState(GL_NORMAL_ARRAY);
+        glDisableClientState(GL_COLOR_ARRAY);
+        glVertexPointer(2, GL_FLOAT, 0, points);
+        glTexCoordPointer(2, GL_FLOAT, 0, tcoord);
+        glDrawArrays( GL_QUADS, 0, 4 );
     }
     void GFX::drawtexture(const GLuint &tex, const float x1, const float y1, const float x2, const float y2)
     {
         glEnable(GL_TEXTURE_2D);
         glBindTexture(GL_TEXTURE_2D,tex);
-        glBegin(GL_QUADS);
-        glTexCoord2f(0.0f,0.0f);		glVertex2f(x1,y1);
-        glTexCoord2f(1.0f,0.0f);		glVertex2f(x2,y1);
-        glTexCoord2f(1.0f,1.0f);		glVertex2f(x2,y2);
-        glTexCoord2f(0.0f,1.0f);		glVertex2f(x1,y2);
-        glEnd();
+
+        float points[8] = { x1,y1, x2,y1, x2,y2, x1,y2 };
+        float tcoord[8] = { 0.0f,0.0f, 1.0f,0.0f, 1.0f,1.0f, 0.0f,1.0f };
+
+        glEnableClientState(GL_VERTEX_ARRAY);
+        glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+        glDisableClientState(GL_NORMAL_ARRAY);
+        glDisableClientState(GL_COLOR_ARRAY);
+        glVertexPointer(2, GL_FLOAT, 0, points);
+        glTexCoordPointer(2, GL_FLOAT, 0, tcoord);
+        glDrawArrays( GL_QUADS, 0, 4 );
     }
     void GFX::drawtexture_flip(const GLuint &tex, const float x1, const float y1, const float x2, const float y2)
     {
         glEnable(GL_TEXTURE_2D);
         glBindTexture(GL_TEXTURE_2D,tex);
-        glBegin(GL_QUADS);
-        glTexCoord2f(0.0f,0.0f);		glVertex2f(x1,y1);
-        glTexCoord2f(0.0f,1.0f);		glVertex2f(x2,y1);
-        glTexCoord2f(1.0f,1.0f);		glVertex2f(x2,y2);
-        glTexCoord2f(1.0f,0.0f);		glVertex2f(x1,y2);
-        glEnd();
+
+        float points[8] = { x1,y1, x2,y1, x2,y2, x1,y2 };
+        float tcoord[8] = { 0.0f,0.0f, 0.0f,1.0f, 1.0f,1.0f, 1.0f,0.0f };
+
+        glEnableClientState(GL_VERTEX_ARRAY);
+        glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+        glDisableClientState(GL_NORMAL_ARRAY);
+        glDisableClientState(GL_COLOR_ARRAY);
+        glVertexPointer(2, GL_FLOAT, 0, points);
+        glTexCoordPointer(2, GL_FLOAT, 0, tcoord);
+        glDrawArrays( GL_QUADS, 0, 4 );
     }
     void GFX::drawtexture(const GLuint &tex, const float x1, const float y1, const float x2, const float y2, const uint32 col)
     {
