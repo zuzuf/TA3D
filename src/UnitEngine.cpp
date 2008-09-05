@@ -6212,20 +6212,24 @@ script_exec:
         if (hidden || build_percent_left != 0.0f )
             return;
 
-        bool system_activated = (port[ACTIVATION] && unit_manager.unit_type[type_id]->onoffable) || !unit_manager.unit_type[type_id]->onoffable;
+        int unit_type = type_id;
+
+        if (flags == 0 || unit_type == -1)  return;
+
+        bool system_activated = (port[ACTIVATION] && unit_manager.unit_type[unit_type]->onoffable) || !unit_manager.unit_type[unit_type]->onoffable;
 
         if (jamming )
         {
-            radar_jam_range = system_activated ? (unit_manager.unit_type[type_id]->RadarDistanceJam >> 3) : 0;
-            sonar_jam_range = system_activated ? (unit_manager.unit_type[type_id]->SonarDistanceJam >> 3) : 0;
+            radar_jam_range = system_activated ? (unit_manager.unit_type[unit_type]->RadarDistanceJam >> 3) : 0;
+            sonar_jam_range = system_activated ? (unit_manager.unit_type[unit_type]->SonarDistanceJam >> 3) : 0;
 
             units.map->update_player_visibility( owner_id, cur_px, cur_py, 0, 0, 0, radar_jam_range, sonar_jam_range, true );
         }
         else
         {
-            sint16 cur_sight = ((int)h + unit_manager.unit_type[type_id]->SightDistance) >> 3;
-            radar_range = system_activated ? (unit_manager.unit_type[type_id]->RadarDistance >> 3) : 0;
-            sonar_range = system_activated ? (unit_manager.unit_type[type_id]->SonarDistance >> 3) : 0;
+            sint16 cur_sight = ((int)h + unit_manager.unit_type[unit_type]->SightDistance) >> 3;
+            radar_range = system_activated ? (unit_manager.unit_type[unit_type]->RadarDistance >> 3) : 0;
+            sonar_range = system_activated ? (unit_manager.unit_type[unit_type]->SonarDistance >> 3) : 0;
 
             units.map->update_player_visibility( owner_id, cur_px, cur_py, cur_sight, radar_range, sonar_range, 0, 0, false, old_px != cur_px || old_py != cur_py || cur_sight != sight );
 
