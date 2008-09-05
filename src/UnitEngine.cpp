@@ -6707,6 +6707,13 @@ script_exec:
 
             unit[i].lock();
 
+            if (unit[i].flags == 0 || unit[i].type_id == -1)        // It has nothing to do there
+            {
+                unit[i].unlock();
+                pMutex.lock();
+                continue;
+            }
+
             if (unit[i].just_created && unit_manager.unit_type[unit[i].type_id]->ExtractsMetal ) // Compute amount of metal extracted by sec
             {
                 int metal_base = 0;
