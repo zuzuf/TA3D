@@ -114,11 +114,13 @@ namespace TA3D
             }
             target_unit->unlock();
         }
+        pMutex.lock();
         MISSION* old = mission;
         mission = mission->next;
         if (old->path)				// Détruit le chemin si nécessaire
             destroy_path(old->path);
         delete old;
+        pMutex.unlock();
     }
 
 
@@ -539,6 +541,7 @@ namespace TA3D
 
     void UNIT::clear_def_mission()
     {
+        pMutex.lock();
         while (def_mission)
         {
             MISSION* old = def_mission;
@@ -547,6 +550,7 @@ namespace TA3D
                 destroy_path(old->path);
             delete old;
         }
+        pMutex.unlock();
     }
 
 
@@ -5270,6 +5274,12 @@ script_exec:
             show_orders( only_build_commands, true );
 
         pMutex.lock();
+
+        if (!(flags&1))
+        {
+            pMutex.unlock();
+            return;
+        }
 
         bool low_def = (Camera::inGame->rpos.y > gfx->low_def_limit);
 
