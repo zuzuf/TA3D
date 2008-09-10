@@ -210,7 +210,7 @@ namespace TA3D
             "QueryTransport","BeginTransport","EndTransport",
             "SetSpeed","SetDirection","SetMaxReloadTime",
             "QueryBuildInfo","SweetSpot","RockUnit",
-            "QueryLandingPad"
+            "QueryLandingPad","setSFXoccupy"
         };
         script_idx[id] = get_script_index(script_name[id]);
         return script_idx[id];
@@ -5098,12 +5098,14 @@ namespace TA3D
 script_exec:
         if (map && !attached && ( (!jump_commands && unit_manager.unit_type[type_id]->canmove) || first_move ))
         {
+            bool hover_on_water = false;
             float min_h = map->get_unit_h(Pos.x,Pos.z);
             h = Pos.y - min_h;
             if (!unit_manager.unit_type[type_id]->Floater && !unit_manager.unit_type[type_id]->canfly && !unit_manager.unit_type[type_id]->canhover && h > 0.0f && unit_manager.unit_type[type_id]->WaterLine == 0.0f )
                 Pos.y = min_h;
-            else if (unit_manager.unit_type[type_id]->canhover && Pos.y < map->sealvl)
+            else if (unit_manager.unit_type[type_id]->canhover && Pos.y <= map->sealvl)
             {
+                hover_on_water = true;
                 Pos.y = map->sealvl;
                 if (V.y<0.0f)
                     V.y=0.0f;
@@ -5123,6 +5125,11 @@ script_exec:
                 Pos.y = Math::Max(min_h, map->sealvl);
                 if (V.y<0.0f)
                     V.y=0.0f;
+            }
+            if (unit_manager.unit_type[type_id]->canhover)
+            {
+                int param[1] = { hover_on_water ? ( map->sealvl - min_h >= 8.0f ? 2 : 1) : 4 };
+                run_script_function(units.map,get_script_index(SCRIPT_setSFXoccupy),1,param);
             }
             if (min_h>Pos.y)
             {

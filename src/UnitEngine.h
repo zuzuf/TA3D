@@ -263,7 +263,8 @@ namespace TA3D
 #define SCRIPT_SweetSpot		0x22
 #define SCRIPT_RockUnit			0x23
 #define SCRIPT_QueryLandingPad	0x24
-#define NB_SCRIPT				0x25
+#define SCRIPT_setSFXoccupy     0x25
+#define NB_SCRIPT				0x26
 
     class UNIT	: public ObjectSync	// Classe pour la gestion des unités	/ Class to store units's data
     {
