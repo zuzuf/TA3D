@@ -1106,11 +1106,6 @@ namespace TA3D
 
         px >>= 1;
         py >>= 1;
-        sn >>= 1;
-        r >>= 1;
-        rd >>= 1;
-        rd_j >>= 1;
-        sn_j >>= 1;
 
         // Update jamming maps
         if( jamming )
