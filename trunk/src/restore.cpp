@@ -439,6 +439,21 @@ void save_game( const String filename, GameData *game_data )
         fwrite( units.unit[i].data.axe[2], sizeof( AXE ), units.unit[i].data.nb_piece, file );
     }
 
+    if (game_data->fog_of_war)      // Save fog of war state
+    {
+        for (int y = 0 ; y < the_map->view_map->h ; y++)
+            fwrite( the_map->view_map->line[y], bitmap_color_depth(the_map->view_map) >> 3, the_map->view_map->w, file );
+
+        for (int y = 0 ; y < the_map->sight_map->h ; y++)
+            fwrite( the_map->sight_map->line[y], bitmap_color_depth(the_map->sight_map) >> 3, the_map->sight_map->w, file );
+
+        for (int y = 0 ; y < the_map->radar_map->h ; y++)
+            fwrite( the_map->radar_map->line[y], bitmap_color_depth(the_map->radar_map) >> 3, the_map->radar_map->w, file );
+
+        for (int y = 0 ; y < the_map->sonar_map->h ; y++)
+            fwrite( the_map->sonar_map->line[y], bitmap_color_depth(the_map->sonar_map) >> 3, the_map->sonar_map->w, file );
+    }
+
     fclose( file );
 
     lp_CONFIG->pause = previous_pause_state;
@@ -1020,6 +1035,21 @@ void load_game( GameData *game_data )
     }
 
     units.unlock();
+
+    if (game_data->fog_of_war)      // Load fog of war state
+    {
+        for (int y = 0 ; y < the_map->view_map->h ; y++)
+            fread( the_map->view_map->line[y], bitmap_color_depth(the_map->view_map) >> 3, the_map->view_map->w, file );
+
+        for (int y = 0 ; y < the_map->sight_map->h ; y++)
+            fread( the_map->sight_map->line[y], bitmap_color_depth(the_map->sight_map) >> 3, the_map->sight_map->w, file );
+
+        for (int y = 0 ; y < the_map->radar_map->h ; y++)
+            fread( the_map->radar_map->line[y], bitmap_color_depth(the_map->radar_map) >> 3, the_map->radar_map->w, file );
+
+        for (int y = 0 ; y < the_map->sonar_map->h ; y++)
+            fread( the_map->sonar_map->line[y], bitmap_color_depth(the_map->sonar_map) >> 3, the_map->sonar_map->w, file );
+    }
 
     game_data->saved_file.clear();
 
