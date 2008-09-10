@@ -789,6 +789,11 @@ namespace TA3D
         canload = unitParser.pullAsBool("UNITINFO.canload");
         Floater = unitParser.pullAsBool("UNITINFO.Floater");
         canhover = unitParser.pullAsBool("UNITINFO.canhover");
+        if (canhover)           // Can go over water so let's say MinWaterDepth is negative and MaxWaterDepth is null, that way it's a standard hovercraft :)
+        {
+            MinWaterDepth = -0xFFF;
+            MaxWaterDepth = 0;
+        }
         BankScale = unitParser.pullAsInt("UNITINFO.BankScale");
         TidalGenerator = unitParser.pullAsBool("UNITINFO.TidalGenerator");
         Scale = 1.0f;//unitParser.pullAsFloat("UNITINFO.Scale",1.0f);
