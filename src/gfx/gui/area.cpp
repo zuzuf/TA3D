@@ -413,7 +413,10 @@ namespace TA3D
         vec_wnd.clear();			// Empty the window vector
         vec_z_order.clear();		// No more windows at end
 
-        gfx->destroy_texture(background); // Destroy the texture
+        if (background == gfx->glfond)      // Don't remove the background texture
+            background = 0;
+        else
+            gfx->destroy_texture(background); // Destroy the texture
         if (skin)					// Destroy the skin
             delete skin;
     }

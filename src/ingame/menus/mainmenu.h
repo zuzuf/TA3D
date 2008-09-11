@@ -72,6 +72,11 @@ namespace Menus
         */
         bool goToMenuSolo();
 
+        /*!
+        ** \brief change video settings
+        */
+        void changeVideoSettings();
+
     private:
         //! Current mod
         String pCurrentMod;

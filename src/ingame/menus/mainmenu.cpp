@@ -5,6 +5,7 @@
 #include "../../ta3dbase.h"
 #include "solo.h"
 #include "../../logs/logs.h"
+#include "../../misc/settings.h"
 
 
 // TODO Must be removed
@@ -65,7 +66,7 @@ namespace Menus
 
     bool MainMenu::doExecute()
     {
-        while(!doLoop() && !lp_CONFIG->quickrestart)
+        while(!doLoop())
             ;
         return true;
     }
@@ -122,7 +123,7 @@ namespace Menus
             return true;
 
         // Options
-        if (key[KEY_SPACE] || key[KEY_O] || pArea->get_state("main.b_options") || lp_CONFIG->quickstart)
+        if (key[KEY_SPACE] || key[KEY_O] || pArea->get_state("main.b_options"))
             return goToMenuOptions();
 
         // Solo
@@ -139,13 +140,70 @@ namespace Menus
 
     bool MainMenu::goToMenuOptions()
     {
-        glPushMatrix();
-        config_menu();
         lp_CONFIG->quickstart = false;
-        glPopMatrix();
+        do
+        {
+            lp_CONFIG->quickrestart = false;
+            glPushMatrix();
+            config_menu();
+            lp_CONFIG->quickstart = false;
+            glPopMatrix();
+
+            if (lp_CONFIG->quickrestart)
+            {
+                changeVideoSettings();
+                resetScreen();
+                lp_CONFIG->quickstart = true;
+            }
+        } while (lp_CONFIG->quickrestart);
+
         loadAreaFromTDF("main", "gui/main.area");
         resetScreen();
         return false;
+    }
+
+    void MainMenu::changeVideoSettings()
+    {
+        pArea.reset(NULL);          // Destroy current GUI area
+        cursor.clear();             // Destroy cursor data (it's OpenGL textures so they won't survive)
+
+        delete gfx;                 // Delete current GFX object
+        gfx = new GFX;              // Create a new one with new settings
+        gfx->Init();                // Initialize GFX object
+
+        gfx->set_2D_mode();         // Back to 2D mode :)
+
+		set_window_title("Total Annihilation 3D");  // Set the window title
+
+		// Reloading and creating cursors
+		byte *data = HPIManager->PullFromHPI("anims\\cursors.gaf");	// Load cursors
+		cursor.loadGAFFromRawData(data, true);
+		cursor.convert();
+
+		CURSOR_MOVE        = cursor.findByName("cursormove"); // Match cursor variables with cursor anims
+		CURSOR_GREEN       = cursor.findByName("cursorgrn");
+		CURSOR_CROSS       = cursor.findByName("cursorselect");
+		CURSOR_RED         = cursor.findByName("cursorred");
+		CURSOR_LOAD        = cursor.findByName("cursorload");
+		CURSOR_UNLOAD      = cursor.findByName("cursorunload");
+		CURSOR_GUARD       = cursor.findByName("cursordefend");
+		CURSOR_PATROL      = cursor.findByName("cursorpatrol");
+		CURSOR_REPAIR      = cursor.findByName("cursorrepair");
+		CURSOR_ATTACK      = cursor.findByName("cursorattack");
+		CURSOR_BLUE        = cursor.findByName("cursornormal");
+		CURSOR_AIR_LOAD    = cursor.findByName("cursorpickup");
+		CURSOR_BOMB_ATTACK = cursor.findByName("cursorairstrike");
+		CURSOR_BALANCE     = cursor.findByName("cursorunload");
+		CURSOR_RECLAIM     = cursor.findByName("cursorreclamate");
+		CURSOR_WAIT        = cursor.findByName("cursorhourglass");
+		CURSOR_CANT_ATTACK = cursor.findByName("cursortoofar");
+		CURSOR_CROSS_LINK  = cursor.findByName("pathicon");
+		CURSOR_CAPTURE     = cursor.findByName("cursorcapture");
+		CURSOR_REVIVE      = cursor.findByName("cursorrevive");
+		if (CURSOR_REVIVE == -1) // If you don't have the required cursors, then resurrection won't work
+			CURSOR_REVIVE = cursor.findByName("cursorreclamate");
+
+		delete[] data;
     }
 
     bool MainMenu::goToMenuMultiPlayers()

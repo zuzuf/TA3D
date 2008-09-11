@@ -326,6 +326,7 @@ void config_menu(void)
                     I_Msg( TA3D::TA3D_IM_GUI_MSG, (void*)("config_confirm.hide"), NULL, NULL);
                     lp_CONFIG->quickstart = false;
                     saved_config.quickstart = false;
+                    TA3D::Settings::Save();             // Keep settings :)
                 }
         }
 
@@ -571,6 +572,8 @@ void config_menu(void)
 
     LANG = lp_CONFIG->Lang;
     I18N::CurrentLanguage(lp_CONFIG->Lang);
+
+    TA3D::Settings::Save();             // Keep settings :)
 }
 
 #define INTERNET_AD_COUNTDOWN       150000

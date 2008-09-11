@@ -90,7 +90,7 @@ ADD_LIBRARY(hpi STATIC ${SOURCES})
 if( WIN32 OR CMAKE_CROSSCOMPILING )
 	SET( 3DMEDITOR_BIN 3dmeditor )
 else( WIN32 OR CMAKE_CROSSCOMPILING )
-	SET( 3DMEDITOR_BIN 3dmeditor-bin )
+	SET( 3DMEDITOR_BIN 3dmeditor )
 endif( WIN32 OR CMAKE_CROSSCOMPILING )
 
 ADD_EXECUTABLE(${3DMEDITOR_BIN}
@@ -113,11 +113,9 @@ ENDIF(APPLE)
 # --- TA3D
 # --------------------------------------------------------------------
 IF(APPLE)
-    # Should be only `ta3d` inside the bundle
-	#SET(TA3D_BIN ta3d)
-	SET(TA3D_BIN ta3d-bin)
+	SET(TA3D_BIN ta3d)
 ELSE(APPLE)
-	SET(TA3D_BIN ta3d-bin)
+	SET(TA3D_BIN ta3d)
 ENDIF(APPLE)
 SET(SOURCES
         ta3d.h main.cpp install.cpp cTA3D_Engine.cpp cTA3D_Engine.h
