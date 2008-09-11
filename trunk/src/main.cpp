@@ -147,14 +147,8 @@ int ParseCommandLine(int argc, char *argv[])
 
     for (int i = 1 ; i < argc ; ++i)
     {
-        if( !strcmp( argv[ i ], "--quick-restart")) // Quick restart mecanism (bypass the intro screen)
-        {
+        if( !strcmp( argv[ i ], "--quick-start")) // Quick restart mecanism (bypass the intro screen)
             lp_CONFIG->quickstart = true;
-            TA3D::Settings::Restore(TA3D::Paths::ConfigFile);		// In case it refuses to restart
-            allegro_exit();
-        }
-        else if (!strcmp( argv[ i ], "--restore" ))			// Tell TA3D not to display the quickstart confirm dialog
-            lp_CONFIG->restorestart = true;
         else if (!strcmp( argv[ i ], "--file-param" )) 		// Pass a file as parameter, used for complex things
         {
             if (i + 1 < argc)
@@ -242,15 +236,7 @@ int main(int argc, char *argv[])
 
     delete Engine;
 
-    bool quickrestart = lp_CONFIG->quickrestart;
-    bool restorestart = lp_CONFIG->restorestart;
-
-    if( !quickrestart )
-        return 0; 		// thats it folks.
-    if (!restorestart)
-        exit(2);		// ask the monitoring script to restart the program with --quick-restart parameter
-    else
-        exit(3);		// ask the monitoring script to restart the program with --quick-restart --restore parameters
+    return 0; 		// thats it folks.
 }
 END_OF_MAIN()
 /* Allegro needs END_OF_MAIN() I guess. */ 

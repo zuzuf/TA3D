@@ -170,6 +170,9 @@ namespace TA3D
         small_font.destroy();
         TA_font.destroy();
         ta3d_gui_font.destroy();
+
+        remove_allegro_gl();
+        set_gfx_mode(GFX_TEXT, 0, 0, 0, 0);
     }
 
 
