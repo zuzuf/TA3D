@@ -66,7 +66,7 @@ namespace TA3D
         if (index < -1)
             return;
 
-        if (BuildList && nb_unit > 0)		// Vérifie si l'unité n'est pas déjà répertoriée / check if not already there
+        if (!BuildList.empty() && nb_unit > 0)		// Vérifie si l'unité n'est pas déjà répertoriée / check if not already there
         {
             for (int i = 0; i < nb_unit; ++i)
             {
@@ -88,47 +88,15 @@ namespace TA3D
         }
 
         ++nb_unit;
-        if (BuildList == NULL)
+        if (BuildList.empty())
             nb_unit = 1;
-        short *Blist = new short[nb_unit];
-        short *Px = new short[nb_unit];
-        short *Py = new short[nb_unit];
-        short *Pw = new short[nb_unit];
-        short *Ph = new short[nb_unit];
-        short *Pp = new short[nb_unit];
-        GLuint *Plist = new GLuint[nb_unit];
-        if (BuildList && nb_unit > 1)
-        {
-            for (int i = 0; i < nb_unit - 1; ++i)
-            {
-                Blist[i] = BuildList[i];
-                Plist[i] = PicList[i];
-                Px[i] = Pic_x[i];
-                Py[i] = Pic_y[i];
-                Pw[i] = Pic_w[i];
-                Ph[i] = Pic_h[i];
-                Pp[i] = Pic_p[i];
-            }
-        }
-        Blist[nb_unit-1]=index;
-        Plist[nb_unit-1]=Pic;
-        Px[nb_unit-1]=px;
-        Py[nb_unit-1]=py;
-        Pw[nb_unit-1]=pw;
-        Ph[nb_unit-1]=ph;
-        Pp[nb_unit-1]=p;
-        if(BuildList)	delete[] BuildList;
-        if(PicList)		delete[] PicList;
-        if(Pic_x)		delete[] Pic_x;
-        if(Pic_y)		delete[] Pic_y;
-        if(Pic_p)		delete[] Pic_p;
-        BuildList=Blist;
-        PicList=Plist;
-        Pic_x = Px;
-        Pic_y = Py;
-        Pic_w = Pw;
-        Pic_h = Ph;
-        Pic_p = Pp;
+        BuildList.push_back(index);
+        PicList.push_back(Pic);
+        Pic_x.push_back(px);
+        Pic_y.push_back(py);
+        Pic_w.push_back(pw);
+        Pic_h.push_back(ph);
+        Pic_p.push_back(p);
     }
 
 
@@ -423,24 +391,18 @@ namespace TA3D
         BadTargetCategory.clear();
         NoChaseCategory.clear();
 
-        if(BuildList)
-            delete[] BuildList;
-        if(Pic_x)
-            delete[] Pic_x;
-        if(Pic_y)
-            delete[] Pic_y;
-        if(Pic_w)
-            delete[] Pic_w;
-        if(Pic_h)
-            delete[] Pic_h;
-        if(Pic_p)
-            delete[] Pic_p;
+        BuildList.clear();
+        Pic_x.clear();
+        Pic_y.clear();
+        Pic_w.clear();
+        Pic_h.clear();
+        Pic_p.clear();
 
-        if (PicList)
+        if (!PicList.empty())
         {
-            for (int i = 0; i < nb_unit; ++i)
+            for (int i = 0; i < PicList.size(); ++i)
                 gfx->destroy_texture(PicList[i]);
-            delete[] PicList;
+            PicList.clear();
         }
 
         yardmap.clear();
@@ -487,13 +449,13 @@ namespace TA3D
 
         nb_pages = 0;
         nb_unit=0;
-        BuildList=NULL;
-        PicList=NULL;
-        Pic_x=NULL;				// Coordinates
-        Pic_y=NULL;
-        Pic_w=NULL;				// Coordinates
-        Pic_h=NULL;
-        Pic_p=NULL;				// Page where the pic has to be shown
+        BuildList.clear();
+        PicList.clear();
+        Pic_x.clear();				// Coordinates
+        Pic_y.clear();
+        Pic_w.clear();				// Coordinates
+        Pic_h.clear();
+        Pic_p.clear();				// Page where the pic has to be shown
 
         dl_data = NULL;
 

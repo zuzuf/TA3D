@@ -554,9 +554,9 @@ namespace TA3D
             units.unit[ *i ].lock();
             if ((units.unit[ *i ].flags & 1) && units.unit[ *i ].do_nothing_ai() && unit_manager.unit_type[units.unit[*i].type_id]->nb_unit > 0 ) {
                 short list_size = unit_manager.unit_type[units.unit[*i].type_id]->nb_unit;
-                short *BuildList = unit_manager.unit_type[units.unit[*i].type_id]->BuildList;
+                std::vector<short> *BuildList = &(unit_manager.unit_type[units.unit[*i].type_id]->BuildList);
                 for( int e = 0 ; e < list_size ; e++ )
-                    sw[ e ] = (e > 0 ? sw[ e - 1 ] : 0.0f) + ai->weights[ BuildList[ e ] ].w;
+                    sw[ e ] = (e > 0 ? sw[ e - 1 ] : 0.0f) + ai->weights[ (*BuildList)[ e ] ].w;
                 int selected_idx = -1;
                 float selection = (TA3D_RAND() % 1000000) * 0.000001f * sw[ list_size - 1 ];
                 if (sw[ list_size - 1 ] > 0.1f)
@@ -564,7 +564,7 @@ namespace TA3D
                     {
                         if (selection <= sw[ e ] )
                         {
-                            selected_idx = BuildList[e];
+                            selected_idx = (*BuildList)[e];
                             break;
                         }
                     }
@@ -588,9 +588,9 @@ namespace TA3D
             if ((units.unit[ *i ].flags & 1) && units.unit[ *i ].do_nothing_ai() && unit_manager.unit_type[units.unit[*i].type_id]->nb_unit > 0)
             {
                 short list_size = unit_manager.unit_type[units.unit[*i].type_id]->nb_unit;
-                short *BuildList = unit_manager.unit_type[units.unit[*i].type_id]->BuildList;
+                std::vector<short> *BuildList = &(unit_manager.unit_type[units.unit[*i].type_id]->BuildList);
                 for (int e = 0; e < list_size; ++e)
-                    sw[e] = (e > 0 ? sw[e - 1] : 0.0f) + ai->weights[ BuildList[ e ] ].w;
+                    sw[e] = (e > 0 ? sw[e - 1] : 0.0f) + ai->weights[ (*BuildList)[ e ] ].w;
                 int selected_idx = -1;
                 float selection = (TA3D_RAND() % 1000000) * 0.000001f * sw[ list_size - 1 ];
                 if (sw[ list_size - 1 ] > 0.1f)
@@ -598,7 +598,7 @@ namespace TA3D
                     {
                         if (selection <= sw[ e ] )
                         {
-                            selected_idx = BuildList[ e ];
+                            selected_idx = (*BuildList)[ e ];
                             break;
                         }
                     }
