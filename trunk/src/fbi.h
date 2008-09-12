@@ -243,13 +243,13 @@ namespace TA3D
         /*-----------------------------------------------------------------------*/
 
         short   nb_unit;            // Nombre d'unités que cette unité peut construire
-        short   *BuildList;         // Liste des unités que cette unité peut construire
-        short   *Pic_x;             // Coordinates
-        short   *Pic_y;
-        short   *Pic_w;             // Size
-        short   *Pic_h;
-        short   *Pic_p;             // Page where the pic has to be shown
-        GLuint  *PicList;
+        std::vector<short>  BuildList;         // Liste des unités que cette unité peut construire
+        std::vector<short>  Pic_x;             // Coordinates
+        std::vector<short>  Pic_y;
+        std::vector<short>  Pic_w;             // Size
+        std::vector<short>  Pic_h;
+        std::vector<short>  Pic_p;             // Page where the pic has to be shown
+        std::vector<GLuint> PicList;
         short   nb_pages;
 
         DL_DATA *dl_data;
