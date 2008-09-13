@@ -1,6 +1,7 @@
 
 #include "solo.h"
 #include <list>
+#include "../../languages/i18n.h"
 #include "../gamedata.h"
 #include "../../restore.h"
 #include "../../ta3dbase.h"
@@ -142,14 +143,20 @@ namespace Menus
             if (guiObj->Pos >= 0 && guiObj->Pos < guiObj->Text.size())
             {
                 GameData game_data;
-                load_game_data(TA3D::Paths::Savegames + guiObj->Text[guiObj->Pos], &game_data);
+                bool network = load_game_data(TA3D::Paths::Savegames + guiObj->Text[guiObj->Pos], &game_data);
 
-                if (!game_data.saved_file.empty())
+                if (!game_data.saved_file.empty() && !network)
                 {
                     gfx->unset_2D_mode();
                     Battle::Execute(&game_data);
                     gfx->set_2D_mode();
                     gfx->ReInitTexSys();
+                }
+                else if (network)
+                {
+                    pArea->set_caption("popup.msg",I18N::Translate("MULTI_SOLO_MISMATCH_ERROR"));
+                    pArea->set_title("popup",I18N::Translate("Error"));
+                    pArea->msg("popup.show");
                 }
             }
         }

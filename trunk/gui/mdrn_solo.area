@@ -2,7 +2,7 @@
 {
 	name=main area;
 	skin=gui/modern.skn;
-	windows=gui/mdrn_solo.tdf, gui/mdrn_load_menu.tdf;
+	windows=gui/mdrn_solo.tdf, gui/mdrn_load_menu.tdf, gui/mdrn_popup_dialog.tdf;
 	background=gfx/mdrn_solo.jpg;
 	width=1280;
 	height=1024;

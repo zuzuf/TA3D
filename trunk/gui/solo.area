@@ -2,7 +2,7 @@
 {
 	name=main area;
 	skin=gui/default.skn;
-	windows=gui/solo.tdf, gui/load_menu.tdf;
+	windows=gui/solo.tdf, gui/load_menu.tdf, gui/popup_dialog.tdf;
 	background=gfx/solo.jpg;
 	width=1280;
 	height=1024;
