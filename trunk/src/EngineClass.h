@@ -319,7 +319,7 @@ namespace TA3D
 
         bool check_lava(int x1,int y1,int w,int h);
 
-        int check_metal(int x1, int y1, int unit_idx );
+        int check_metal(int x1, int y1, int unit_idx, int *stuff_id = NULL );
 
         void draw(Camera* cam,byte player_mask,bool FLAT=false,float niv=0.0f,float t=0.0f,float dt=1.0f,bool depth_only=false,bool check_visibility=true,bool draw_uw=true);
 
