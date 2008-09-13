@@ -2138,7 +2138,7 @@ namespace TA3D
 
 
 
-    int MAP::check_metal(int x1, int y1, int unit_idx )
+    int MAP::check_metal(int x1, int y1, int unit_idx, int *stuff_id )
     {
         if (unit_idx < 0 || unit_idx >= unit_manager.nb_unit)
             return 0;
@@ -2158,7 +2158,11 @@ namespace TA3D
                     if( rx >= 0 && rx < bloc_w_db )
                     {
                         if( map_data[ry][rx].stuff >=0 )
+                        {
                             metal_base += feature_manager.feature[ features.feature[ map_data[ry][rx].stuff ].type ].metal;
+                            if (stuff_id)           // We need to know where to put metal extractors, so it'll give the impression the AI is clever :P
+                                *stuff_id = map_data[ry][rx].stuff;
+                        }
                     }
                 }
             }

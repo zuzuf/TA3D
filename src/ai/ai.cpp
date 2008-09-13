@@ -610,6 +610,7 @@ namespace TA3D
                 int spy = py;
                 bool found = selected_idx < 0;
                 int best_metal = 0;
+                int metal_stuff_id = -1;
                 for( int r = 5 ; r < 50 && !found ; r++ ) 	// Circular check
                 {
                     int r2 = r * r;
@@ -636,15 +637,20 @@ namespace TA3D
                             int e = rand_t[ f ];
                             if (can_be_there_ai( px + cx[e], py + cy[e], map, selected_idx, ai->player_id ) )
                             {
-                                int metal_found = map->check_metal( px + cx[e], py + cy[e], selected_idx );
+                                int stuff_id = -1;
+                                int metal_found = map->check_metal( px + cx[e], py + cy[e], selected_idx, &stuff_id );
                                 if (( unit_manager.unit_type[selected_idx]->ExtractsMetal > 0.0f && metal_found > best_metal)
                                     || unit_manager.unit_type[selected_idx]->ExtractsMetal == 0.0f )
                                 {
                                     spx = px + cx[e];
                                     spy = py + cy[e];
-                                    if (metal_found > 0 )
+                                    if (metal_found > 0 && unit_manager.unit_type[selected_idx]->ExtractsMetal != 0.0f)
+                                    {
                                         best_metal = metal_found;
-                                    else {
+                                        metal_stuff_id = stuff_id;
+                                    }
+                                    else
+                                    {
                                         found = true;
                                         break;
                                     }
@@ -660,6 +666,11 @@ namespace TA3D
 
                 if (found && selected_idx >= 0)
                 {
+                    if (metal_stuff_id >= 0)        // We have a valid metal patch
+                    {
+                        px = features.feature[ metal_stuff_id ].px;
+                        py = features.feature[ metal_stuff_id ].py;
+                    }
                     target.x = (px << 3) - map->map_w_d;
                     target.z = (py << 3) - map->map_h_d;
                     target.y = Math::Max( map->get_max_rect_h((int)target.x,(int)target.z, unit_manager.unit_type[selected_idx]->FootprintX, unit_manager.unit_type[selected_idx]->FootprintZ ), map->sealvl);
