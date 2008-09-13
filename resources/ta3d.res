@@ -1,3 +1,8 @@
+[MULTI_SOLO_MISMATCH_ERROR]
+{
+    ENGLISH=This is a multiplayer game, you cannot load it\nfrom here;
+    FRENCH=Ceci est une sauvegarde multijoueurs, impossible\nde la charger ici;
+}
 [Highlight underwater objects]
 {
     FRENCH=Faire ressortir les objets sous-marins;

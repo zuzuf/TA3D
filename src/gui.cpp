@@ -214,7 +214,10 @@ int draw_text_adjust( float x1, float y1, float x2, float y2, String msg, float 
                 current_word += msg[i];
         }
 
-    current += current_word;
+    if (!current.empty())
+        current << ' ' << current_word;
+    else
+        current << current_word;
 
     if( last + 1 < msg.length() && !current.empty() )
         Entry.push_back( current );

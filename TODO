@@ -1,7 +1,6 @@
 TODO list
 ---------
 _add the possibility to lock/unlock the mouse inside the game's window
-_add support for team management
 _read the music from a CD
 _add glossiness (or reflection) to all TA3D models.
 _make 3D replacement models for 2D map features
@@ -11,6 +10,7 @@ _add support for TTF fonts ( seems impossible due to memory restrictions )
 _improve A.I.
 _D3D support
 
+* added support for team management
 * 3DMEditor now supports OBJ 3D format
 * 3DMEditor's interface has been rewritten
 * rendering unit orders paths is faster (uses ARRAYs instead of immediate mode :s)
@@ -39,15 +39,14 @@ _D3D support
 
 bug list
 --------
-_invisible units should be visible when an enemy is close enough
-_sometimes weapons go through their target without hitting them !!
 _There should be either restriction to use 12-icon build menu on resolutions lesser than 1024x768 or it should be sizeable, since now on 800x600 or 640x480 size of 12-icon build menu don`t match size of othe GUI parts and covers some of function buttons.
-_AI still can`t place metal extractors directly where it should be placed
-_add a flag to movement data to make units leaving their factory face the exit before moving
-_some parts of the maps might not be drawn (visibility limit) like hills
 _slow down with lots of 3D sprites on some gfx hardware (speed increased but bug not yet fixed)
 _fix all other bugs ( :-) )
 
+* map bloc visibility test fixed
+* AI can now place metal extractors directly where they should be placed
+* weapons don't go through their target without hitting them !!
+* invisible units are visible when an enemy is close enough
 * fixed very ugly bug that could allow a unit to acquire a wrong target if the target has died and been replaced in memory before the mission is executed !
 * fixed units being spawned not being cleared correctly from yard map
 * fixed unit colors being wrong when texture cache is enabled

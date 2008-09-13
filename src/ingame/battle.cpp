@@ -338,10 +338,7 @@ namespace TA3D
         TA3DNetwork	ta3d_network( &pArea, pGameData);
 
         if (pNetworkEnabled)
-        {
             players.set_network( &ta3d_network);
-            pArea.msg("esc_menu.b_save.disable");
-        }
         g_ta3d_network = &ta3d_network;
 
         sound_manager->playMusic();
