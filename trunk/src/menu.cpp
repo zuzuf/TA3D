@@ -597,13 +597,17 @@ void setup_game(bool client, const char *host, const char *saved_game)
 
         if (client)
         {
-            status = Paths::Savegames + "multiplayer" + Paths::Separator + network_manager.getStatus();
+            status = network_manager.getStatus();
+            LOG_DEBUG("client received game status : " << status);
             if (!status.empty())
+            {
+                status = Paths::Savegames + "multiplayer" + Paths::Separator + status;
                 saved_game = status.c_str();
+            }
             special msg;
-            network_manager.sendSpecial( strtochat( &msg, format( "NOTIFY NEW_PLAYER %s", ReplaceChar( lp_CONFIG->player_name, ' ', 1 ).c_str() ) ));
+            network_manager.sendSpecial("NOTIFY NEW_PLAYER " + ReplaceChar( lp_CONFIG->player_name, ' ', 1 ));
             rest(10);
-            network_manager.sendSpecial( strtochat( &msg, "REQUEST GameData" ));
+            network_manager.sendSpecial( "REQUEST GameData" );
         }
     }
 
@@ -783,10 +787,16 @@ void setup_game(bool client, const char *host, const char *saved_game)
     bool done = false;
 
     if (host && my_player_id == -1) // Leave now, we aren't connected but we're in network mode
+    {
+        LOG_ERROR("in network mode without being connected");
         done = true;
+    }
 
     if (saved_game && game_data.saved_file.empty())     // We're trying to load a multiplayer game we didn't save
+    {
+        LOG_ERROR("trying to load a multiplayer game we didn't play");
         done = true;
+    }
 
     bool start_game = false;
 
@@ -860,6 +870,7 @@ void setup_game(bool client, const char *host, const char *saved_game)
                 special_msg = received_special_msg.message;
             if (host && !network_manager.isConnected()) // We're disconnected !!
             {
+                LOG_DEBUG("disconnected from server");
                 done = true;
                 break;
             }
@@ -905,6 +916,7 @@ void setup_game(bool client, const char *host, const char *saved_game)
                     LOG_DEBUG("dropping player " << game_data.player_network_id[i] << "[" << i << "] from " << __FILE__ << " l." << __LINE__);
                     network_manager.dropPlayer(game_data.player_network_id[i]);
                     playerDropped = true;
+                    player_timer[i] = msec_timer;
                 }
             }
         }
@@ -1414,7 +1426,10 @@ void setup_game(bool client, const char *host, const char *saved_game)
             }
         }
         if (setupgame_area.get_state("gamesetup.b_cancel"))
+        {
+            LOG_DEBUG("leaving game room");
             done=true;      // En cas de click sur "retour", on quitte la fenêtre
+        }
 
         for (short int i = 0; i < TA3D_PLAYERS_HARD_LIMIT; ++i)
         {
@@ -1674,7 +1689,10 @@ void setup_game(bool client, const char *host, const char *saved_game)
         set_map.clear();
 
         if (key[KEY_ESC])
+        {
+            LOG_DEBUG("leaving game room");
             done = true;
+        }
 
         setupgame_area.draw();
 
