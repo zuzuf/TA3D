@@ -853,6 +853,20 @@ void setup_game(bool client, const char *host, const char *saved_game)
                 }
             }
 
+        if (saved_game)
+            for (short int i = 0; i < TA3D_PLAYERS_HARD_LIMIT; ++i)
+            {
+                if (game_data.player_control[i] == PLAYER_CONTROL_LOCAL_HUMAN)
+                {
+                    if (!game_data.ready[i])
+                    {
+                        setupgame_area.set_state(format("gamesetup.ready%d",i),true);
+                        game_data.ready[i] = true;
+                        network_manager.sendSpecial("NOTIFY UPDATE");
+                    }
+                }
+            }
+
         bool key_is_pressed = false;
         String broadcast_msg;
         String chat_msg;
