@@ -597,7 +597,7 @@ void setup_game(bool client, const char *host, const char *saved_game)
 
         if (client)
         {
-            status = network_manager.getStatus();
+            status = Paths::Savegames + "multiplayer" + Paths::Separator + network_manager.getStatus();
             if (!status.empty())
                 saved_game = status.c_str();
             special msg;
@@ -902,6 +902,7 @@ void setup_game(bool client, const char *host, const char *saved_game)
             {
                 if (game_data.player_network_id[i] > 0 && msec_timer - player_timer[i] > 10000)
                 {
+                    LOG_DEBUG("dropping player " << game_data.player_network_id[i] << "[" << i << "] from " << __FILE__ << " l." << __LINE__);
                     network_manager.dropPlayer(game_data.player_network_id[i]);
                     playerDropped = true;
                 }
@@ -1034,21 +1035,29 @@ void setup_game(bool client, const char *host, const char *saved_game)
                             {
                                 if (params[1] == "PLAYER_LEFT")
                                 {
-                                    network_manager.dropPlayer( from);
+                                    LOG_DEBUG("dropping player " << from << " from " << __FILE__ << " l." << __LINE__);
+                                    network_manager.dropPlayer(from);
                                     network_manager.sendSpecial( "REQUEST GameData");           // We're told there are things to update, so ask for update
                                     for (short int i = 0; i < TA3D_PLAYERS_HARD_LIMIT; ++i)
                                     {
                                         if (game_data.player_network_id[i] == from)
                                         {
-                                            game_data.player_network_id[i] = -1;
-                                            game_data.player_control[i] = player_control[2];
-                                            game_data.player_names[i] = player_str[2];
+                                            if (saved_game)
+                                            {
+                                                setupgame_area.set_state(format("gamesetup.ready%d", i),false);
+                                            }
+                                            else
+                                            {
+                                                game_data.player_network_id[i] = -1;
+                                                game_data.player_control[i] = player_control[2];
+                                                game_data.player_names[i] = player_str[2];
 
-                                            setupgame_area.set_caption(format("gamesetup.name%d", i),game_data.player_names[i]);
+                                                setupgame_area.set_caption(format("gamesetup.name%d", i),game_data.player_names[i]);
 
-                                            GUIOBJ *guiobj =  setupgame_area.get_object( format("gamesetup.color%d", i));
-                                            if (guiobj)
-                                                guiobj->Flag |= FLAG_HIDDEN;
+                                                GUIOBJ *guiobj =  setupgame_area.get_object( format("gamesetup.color%d", i));
+                                                if (guiobj)
+                                                    guiobj->Flag |= FLAG_HIDDEN;
+                                            }
                                             break;
                                         }
                                     }
@@ -1097,7 +1106,10 @@ void setup_game(bool client, const char *host, const char *saved_game)
                                     network_manager.sendSpecial( "NOTIFY UPDATE", from);            // Tell others that things have changed
                                 }
                                 else
+                                {
+                                    LOG_DEBUG("dropping player " << from << " from " << __FILE__ << " l." << __LINE__);
                                     network_manager.dropPlayer(from);      // No more room for this player !!
+                                }
                             }
                             else if (params[1] == "COLORCHANGE")
                             {
