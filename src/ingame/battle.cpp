@@ -338,7 +338,11 @@ namespace TA3D
         TA3DNetwork	ta3d_network( &pArea, pGameData);
 
         if (pNetworkEnabled)
+        {
             players.set_network( &ta3d_network);
+            if (!network_manager.isServer())                // Only server is able to save a game
+                pArea.msg("esc_menu.b_save.disable");
+        }
         g_ta3d_network = &ta3d_network;
 
         sound_manager->playMusic();
@@ -2417,7 +2421,10 @@ namespace TA3D
                 if (obj_file_list)
                 {
                     String::List file_list;
-                    Paths::Glob(file_list, TA3D::Paths::Savegames + "*.sav");
+                    if (network_manager.isConnected())
+                        Paths::Glob(file_list, TA3D::Paths::Savegames + "multiplayer" + Paths::Separator + "*.sav");
+                    else
+                        Paths::Glob(file_list, TA3D::Paths::Savegames + "*.sav");
                     file_list.sort();
                     obj_file_list->Text.clear();
                     obj_file_list->Text.reserve(file_list.size());
@@ -2439,7 +2446,15 @@ namespace TA3D
                 String filename = pArea.get_caption("save_menu.t_name");
                 if (!filename.empty())
                 {
-                    filename = Paths::Savegames + Paths::Files::ReplaceExtension(filename, ".sav");
+                    if (network_manager.isServer())          // Ask all clients to save the game too, otherwise they won't be able to load it
+                    {
+                        network_manager.sendSpecial("SAVE " + ReplaceChar( filename, ' ', 1) );
+                        
+                                // Save multiplayer games in their own folder
+                        filename = Paths::Savegames + "multiplayer" + Paths::Separator + Paths::Files::ReplaceExtension(filename, ".sav");
+                    }
+                    else
+                        filename = Paths::Savegames + Paths::Files::ReplaceExtension(filename, ".sav");
                     save_game(filename, pGameData); // Save the game
                 }
                 lp_CONFIG->pause = false;

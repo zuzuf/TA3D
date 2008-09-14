@@ -29,6 +29,9 @@
 #include "../sounds/manager.h"
 #include "../console.h"
 #include "../ingame/players.h"
+#include "../misc/paths.h"
+#include "../misc/files.h"
+#include "../restore.h"
 
 
 #define CHAT_MESSAGE_TIMEOUT	10000
@@ -196,6 +199,11 @@ namespace TA3D
                     int idx = unit_manager.get_unit_index(params[1]);
                     if (idx >= 0)
                         unit_manager.unit_type[idx]->not_used = true;
+                }
+                else if (params[0] == "SAVE")           // Server order to save the game
+                {
+                    String filename = Paths::Savegames + "multiplayer" + Paths::Separator + Paths::Files::ReplaceExtension(ReplaceChar( params[1], 1, ' ' ), ".sav");
+                    save_game(filename, game_data); // Save the game using filename given by server
                 }
             }
             else if (params.size() == 3)

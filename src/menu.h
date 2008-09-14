@@ -30,7 +30,7 @@
 
 void config_menu(void);
 
-void setup_game(bool client = false, const char *host = NULL);		// Setup a game and launch it
+void setup_game(bool client = false, const char *host = NULL, const char *saved_game = NULL);		// Setup a game and launch it
 
 void network_room(void);		// Everything you need to host/join a network game
 

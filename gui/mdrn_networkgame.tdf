@@ -9,7 +9,7 @@
 	height=1024;
 	draw borders=false;
 	show title=false;
-	number of objects=12;
+	number of objects=13;
 	hidden=false;
 	lock=true;
 	color=0x00000000;			// Fully transparent so we can see the AREA background
@@ -134,9 +134,9 @@
 		name=b_joinip;
 		type=BUTTON;
 		x1=791;
-		y1=70;
+		y1=80;
 		x2=1043;
-		y2=109;
+		y2=119;
 		caption=Join IP;
 		size=2;
 		on click=joinip.show, joinip.t_hostname.focus;
@@ -151,5 +151,17 @@
 		y2=979;
 		caption=Refresh;
 		size=2;
+	}
+	[object12]
+	{
+		name=b_load;
+		type=BUTTON;
+		x1=791;
+		y1=11;
+		x2=1043;
+		y2=50;
+		caption=Load;
+		size=2;
+		on click=load_menu.show;
 	}
 }
