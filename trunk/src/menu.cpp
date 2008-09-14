@@ -957,6 +957,7 @@ void setup_game(bool client, const char *host, const char *saved_game)
                     }
                 }
             }
+            network_manager.sendSpecial("NOTIFY UPDATE");
         }
 
         while (!special_msg.empty()) // Special receiver (sync config data)
@@ -1069,7 +1070,7 @@ void setup_game(bool client, const char *host, const char *saved_game)
                     {
                         if (params[0] == "NOTIFY")
                         {
-                            if (params[1] == "NEW_PLAYER") // Add new player
+                            if (params[1] == "NEW_PLAYER" && !saved_game) // Add new player
                             {
                                 int slot = -1;
                                 for (short int i = 0; i < TA3D_PLAYERS_HARD_LIMIT; ++i)
@@ -1096,7 +1097,7 @@ void setup_game(bool client, const char *host, const char *saved_game)
                                     network_manager.sendSpecial( "NOTIFY UPDATE", from);            // Tell others that things have changed
                                 }
                                 else
-                                    network_manager.dropPlayer( from);      // No more room for this player !!
+                                    network_manager.dropPlayer(from);      // No more room for this player !!
                             }
                             else if (params[1] == "COLORCHANGE")
                             {
@@ -1135,7 +1136,8 @@ void setup_game(bool client, const char *host, const char *saved_game)
                                 }
                             }
                         }
-                        else if (params[0] == "SET" ) {
+                        else if (params[0] == "SET")
+                        {
                             if (params[1] == "FOW")
                             {
                                 int value = params[2].toInt32();
@@ -1147,11 +1149,12 @@ void setup_game(bool client, const char *host, const char *saved_game)
                                     game_data.fog_of_war = obj->Value;
                                 }
                             }
-                            else if (params[1] == "MAP" ) {
+                            else if (params[1] == "MAP")
+                            {
                                 set_map = ReplaceChar( params[2], 1, ' ');
                                 if (set_map == game_data.map_filename ) set_map.clear();       // Don't reload map !!
                             }
-                            else if (params[1] == "SCRIPT" )
+                            else if (params[1] == "SCRIPT")
                             {
                                 String script_name = ReplaceChar( params[2], 1, ' ');
                                 if (script_name != game_data.game_script)
@@ -1170,7 +1173,8 @@ void setup_game(bool client, const char *host, const char *saved_game)
                             }
                         }
                     }
-                    else if (params.size() == 4 ) {
+                    else if (params.size() == 4)
+                    {
                         if (params[0] == "REQUEST") // REQUEST FILE filename port
                         {
                             if (params[1] == "FILE")
@@ -1248,7 +1252,8 @@ void setup_game(bool client, const char *host, const char *saved_game)
                                 LOG_ERROR("Packet error : " << received_special_msg.message);
                         }
                     }
-                    else if (params.size() == 11 ) {
+                    else if (params.size() == 11)
+                    {
                         if (params[0] == "PLAYERCOLORMAP")
                         {
                             for (short int i = 0; i < TA3D_PLAYERS_HARD_LIMIT; ++i)
@@ -1399,166 +1404,164 @@ void setup_game(bool client, const char *host, const char *saved_game)
         if (setupgame_area.get_state("gamesetup.b_cancel"))
             done=true;      // En cas de click sur "retour", on quitte la fenêtre
 
-        if (!saved_game)            // We mustn't change any thing for a saved game
+        for (short int i = 0; i < TA3D_PLAYERS_HARD_LIMIT; ++i)
         {
-            for (short int i = 0; i < TA3D_PLAYERS_HARD_LIMIT; ++i)
+            if (setupgame_area.get_state( format("gamesetup.ready%d", i)) != game_data.ready[i])
             {
-                if (setupgame_area.get_state( format("gamesetup.ready%d", i)) != game_data.ready[i])
+                if (game_data.player_control[i] == PLAYER_CONTROL_LOCAL_HUMAN && !saved_game)
                 {
-                    if (game_data.player_control[i] == PLAYER_CONTROL_LOCAL_HUMAN)
-                    {
-                        network_manager.sendSpecial( "NOTIFY UPDATE");
-                        game_data.ready[i] = !game_data.ready[i];
-                    }
-                    else
-                        setupgame_area.set_state( format("gamesetup.ready%d", i ), game_data.ready[i]);
+                    network_manager.sendSpecial( "NOTIFY UPDATE");
+                    game_data.ready[i] = !game_data.ready[i];
                 }
-                guiobj = setupgame_area.get_object( format( "gamesetup.team%d", i ));
-                if (guiobj != NULL && (1 << guiobj->current_state) != game_data.team[i])           // Change team
+                else
+                    setupgame_area.set_state( format("gamesetup.ready%d", i ), game_data.ready[i]);
+            }
+            if (saved_game) continue;            // We mustn't change any thing for a saved game
+            guiobj = setupgame_area.get_object( format( "gamesetup.team%d", i ));
+            if (guiobj != NULL && (1 << guiobj->current_state) != game_data.team[i])           // Change team
+            {
+                if ( ((!client && !(game_data.player_control[i] & PLAYER_CONTROL_FLAG_REMOTE)) || (client && game_data.player_control[i] == PLAYER_CONTROL_LOCAL_HUMAN))
+                && game_data.player_control[i] != PLAYER_CONTROL_NONE && game_data.player_control[i] != PLAYER_CONTROL_CLOSED)
                 {
-                    if ( ((!client && !(game_data.player_control[i] & PLAYER_CONTROL_FLAG_REMOTE)) || (client && game_data.player_control[i] == PLAYER_CONTROL_LOCAL_HUMAN))
-                    && game_data.player_control[i] != PLAYER_CONTROL_NONE && game_data.player_control[i] != PLAYER_CONTROL_CLOSED)
-                    {
-                        network_manager.sendSpecial( "NOTIFY UPDATE");
-                        game_data.team[i] = 1 << guiobj->current_state;
-                    }
-                    else
-                        guiobj->current_state = Math::Log2(game_data.team[i]);
+                    network_manager.sendSpecial( "NOTIFY UPDATE");
+                    game_data.team[i] = 1 << guiobj->current_state;
                 }
-                if (client && game_data.player_network_id[i] != my_player_id )
-                    continue;                           // You cannot change other player's settings
-                if (setupgame_area.get_state(format("gamesetup.b_name%d", i) ) && !client ) // Change player type
+                else
+                    guiobj->current_state = Math::Log2(game_data.team[i]);
+            }
+            if (client && game_data.player_network_id[i] != my_player_id )
+                continue;                           // You cannot change other player's settings
+            if (setupgame_area.get_state(format("gamesetup.b_name%d", i) ) && !client ) // Change player type
+            {
+                if (game_data.player_network_id[i] >= 0 && game_data.player_network_id[i] != my_player_id ) // Kick player !!
                 {
-                    if (game_data.player_network_id[i] >= 0 && game_data.player_network_id[i] != my_player_id ) // Kick player !!
+                    network_manager.dropPlayer( game_data.player_network_id[i]);
+                    network_manager.sendSpecial( "NOTIFY UPDATE");
+                }
+                uint16 e = 0;
+                for (uint16 f = 0; f<player_str_n; ++f)
+                {
+                    if (setupgame_area.get_caption(format("gamesetup.name%d", i)) == player_str[f].c_str())
                     {
-                        network_manager.dropPlayer( game_data.player_network_id[i]);
-                        network_manager.sendSpecial( "NOTIFY UPDATE");
+                        e = f;
+                        break;
                     }
-                    uint16 e = 0;
-                    for (uint16 f = 0; f<player_str_n; ++f)
+                }
+                e = (e+1) % player_str_n;
+
+                if (player_control[e] == PLAYER_CONTROL_LOCAL_HUMAN)// We can only have one local human player ( or it crashes )
+                {
+                    for (short int f = 0; f < TA3D_PLAYERS_HARD_LIMIT; ++f)
                     {
-                        if (setupgame_area.get_caption(format("gamesetup.name%d", i)) == player_str[f].c_str())
+                        if (f!= i && game_data.player_control[f] == PLAYER_CONTROL_LOCAL_HUMAN) // If we already have a local human player pass this player type value
                         {
-                            e = f;
+                            e = (e+1) % player_str_n;
                             break;
                         }
                     }
-                    e = (e+1) % player_str_n;
+                }
 
-                    if (player_control[e] == PLAYER_CONTROL_LOCAL_HUMAN)// We can only have one local human player ( or it crashes )
-                    {
-                        for (short int f = 0; f < TA3D_PLAYERS_HARD_LIMIT; ++f)
-                        {
-                            if (f!= i && game_data.player_control[f] == PLAYER_CONTROL_LOCAL_HUMAN) // If we already have a local human player pass this player type value
-                            {
-                                e = (e+1) % player_str_n;
-                                break;
-                            }
-                        }
-                    }
+                game_data.player_names[i] = player_str[e];                              // Update game data
+                game_data.player_control[i] = player_control[e];
+                if (player_control[e] == PLAYER_CONTROL_LOCAL_HUMAN )
+                    game_data.player_network_id[i] = my_player_id;
+                else
+                    game_data.player_network_id[i] = -1;
 
-                    game_data.player_names[i] = player_str[e];                              // Update game data
-                    game_data.player_control[i] = player_control[e];
-                    if (player_control[e] == PLAYER_CONTROL_LOCAL_HUMAN )
-                        game_data.player_network_id[i] = my_player_id;
+                setupgame_area.set_caption( format( "gamesetup.name%d", i ),player_str[e]);         // Update gui
+                setupgame_area.set_caption( format( "gamesetup.ai%d", i ), (game_data.player_control[i] & PLAYER_CONTROL_FLAG_AI) ? ai_level_str[game_data.ai_level[i]] : String(""));
+                guiobj = setupgame_area.get_object( format( "gamesetup.color%d", i ));
+                if (guiobj)
+                {
+                    if (player_control[e] == PLAYER_CONTROL_NONE || player_control[e] == PLAYER_CONTROL_CLOSED )
+                        guiobj->Flag |= FLAG_HIDDEN;
                     else
-                        game_data.player_network_id[i] = -1;
-
-                    setupgame_area.set_caption( format( "gamesetup.name%d", i ),player_str[e]);         // Update gui
-                    setupgame_area.set_caption( format( "gamesetup.ai%d", i ), (game_data.player_control[i] & PLAYER_CONTROL_FLAG_AI) ? ai_level_str[game_data.ai_level[i]] : String(""));
-                    guiobj = setupgame_area.get_object( format( "gamesetup.color%d", i ));
-                    if (guiobj)
+                        guiobj->Flag &= ~FLAG_HIDDEN;
+                }
+                if (host )  network_manager.sendSpecial( "NOTIFY UPDATE");
+            }
+            if (setupgame_area.get_state( format("gamesetup.b_side%d", i))) // Change player side
+            {
+                uint16 e = 0;
+                for (uint16 f = 0 ; f<side_str_n; ++f)
+                {
+                    if (setupgame_area.get_caption(format("gamesetup.side%d", i)) == side_str[f].c_str())
                     {
-                        if (player_control[e] == PLAYER_CONTROL_NONE || player_control[e] == PLAYER_CONTROL_CLOSED )
-                            guiobj->Flag |= FLAG_HIDDEN;
-                        else
-                            guiobj->Flag &= ~FLAG_HIDDEN;
+                        e = f;
+                        break;
                     }
-                    if (host )  network_manager.sendSpecial( "NOTIFY UPDATE");
                 }
-                if (setupgame_area.get_state( format("gamesetup.b_side%d", i))) // Change player side
+                e = (e+1) % side_str_n;
+                setupgame_area.set_caption( format("gamesetup.side%d", i) , side_str[e]);           // Update gui
+
+                game_data.player_sides[i] = side_str[e];                                // update game data
+                if (host )  network_manager.sendSpecial( "NOTIFY UPDATE");
+            }
+            if (setupgame_area.get_state( format("gamesetup.b_ai%d", i) ) ) // Change player level (for AI)
+            {
+                uint16 e = 0;
+                for( uint16 f = 0 ; f<ai_level_str_n ; f++ )
+                    if (setupgame_area.get_caption( format("gamesetup.ai%d", i) ) == ai_level_str[f].c_str() ) {    e = f;  break;  }
+                e = (e+1) % ai_level_str_n;
+                setupgame_area.set_caption( format("gamesetup.ai%d", i), game_data.player_control[i] & PLAYER_CONTROL_FLAG_AI ? ai_level_str[e] : String(""));          // Update gui
+
+                game_data.ai_level[i] = e;                              // update game data
+                if (host)
+                    network_manager.sendSpecial("NOTIFY UPDATE");
+            }
+            if (setupgame_area.get_state( format("gamesetup.b_color%d", i))) // Change player color
+            {
+                if (client)
+                    network_manager.sendSpecial(format("NOTIFY COLORCHANGE %d", i));
+                sint16 e = player_color_map[i];
+                sint16 f = -1;
+                for (short int g = 0; g < TA3D_PLAYERS_HARD_LIMIT; ++g) // Look for the next color
                 {
-                    uint16 e = 0;
-                    for (uint16 f = 0 ; f<side_str_n; ++f)
+                    if ((game_data.player_control[g] == PLAYER_CONTROL_NONE || game_data.player_control[g] == PLAYER_CONTROL_CLOSED)
+                        && player_color_map[g] > e && (f == -1 || player_color_map[g] < player_color_map[f]) )
                     {
-                        if (setupgame_area.get_caption(format("gamesetup.side%d", i)) == side_str[f].c_str())
-                        {
-                            e = f;
-                            break;
-                        }
+                        f = g;
                     }
-                    e = (e+1) % side_str_n;
-                    setupgame_area.set_caption( format("gamesetup.side%d", i) , side_str[e]);           // Update gui
-
-                    game_data.player_sides[i] = side_str[e];                                // update game data
-                    if (host )  network_manager.sendSpecial( "NOTIFY UPDATE");
                 }
-                if (setupgame_area.get_state( format("gamesetup.b_ai%d", i) ) ) // Change player level (for AI)
+                if (f == -1 )
                 {
-                    uint16 e = 0;
-                    for( uint16 f = 0 ; f<ai_level_str_n ; f++ )
-                        if (setupgame_area.get_caption( format("gamesetup.ai%d", i) ) == ai_level_str[f].c_str() ) {    e = f;  break;  }
-                    e = (e+1) % ai_level_str_n;
-                    setupgame_area.set_caption( format("gamesetup.ai%d", i), game_data.player_control[i] & PLAYER_CONTROL_FLAG_AI ? ai_level_str[e] : String(""));          // Update gui
-
-                    game_data.ai_level[i] = e;                              // update game data
-                    if (host)
-                        network_manager.sendSpecial("NOTIFY UPDATE");
-                }
-                if (setupgame_area.get_state( format("gamesetup.b_color%d", i))) // Change player color
-                {
-                    if (client)
-                        network_manager.sendSpecial(format("NOTIFY COLORCHANGE %d", i));
-                    sint16 e = player_color_map[i];
-                    sint16 f = -1;
-                    for (short int g = 0; g < TA3D_PLAYERS_HARD_LIMIT; ++g) // Look for the next color
+                    for (short int g = 0; g < TA3D_PLAYERS_HARD_LIMIT; ++g)
                     {
-                        if ((game_data.player_control[g] == PLAYER_CONTROL_NONE || game_data.player_control[g] == PLAYER_CONTROL_CLOSED)
-                            && player_color_map[g] > e && (f == -1 || player_color_map[g] < player_color_map[f]) )
-                        {
+                        if ((game_data.player_control[g] == PLAYER_CONTROL_NONE || game_data.player_control[g] == PLAYER_CONTROL_CLOSED) && (f == -1 || player_color_map[g] < player_color_map[f]))
                             f = g;
-                        }
                     }
-                    if (f == -1 )
-                    {
-                        for (short int g = 0; g < TA3D_PLAYERS_HARD_LIMIT; ++g)
-                        {
-                            if ((game_data.player_control[g] == PLAYER_CONTROL_NONE || game_data.player_control[g] == PLAYER_CONTROL_CLOSED) && (f == -1 || player_color_map[g] < player_color_map[f]))
-                                f = g;
-                        }
-                    }
-                    if (f != -1)
-                    {
-                        sint16 g = player_color_map[f];
-                        player_color_map[i] = g;                                // update game data
-                        player_color_map[f] = e;
-
-                        guiobj =  setupgame_area.get_object( format("gamesetup.color%d", i));
-                        if (guiobj )
-                            guiobj->Data = gfx->makeintcol(player_color[player_color_map[i]*3],player_color[player_color_map[i]*3+1],player_color[player_color_map[i]*3+2]);            // Update gui
-                        guiobj =  setupgame_area.get_object( format("gamesetup.color%d", f));
-                        if (guiobj )
-                            guiobj->Data = gfx->makeintcol(player_color[player_color_map[f]*3],player_color[player_color_map[f]*3+1],player_color[player_color_map[f]*3+2]);            // Update gui
-                    }
-                    if (host && !client)
-                        network_manager.sendSpecial( "NOTIFY UPDATE");
                 }
-                if (setupgame_area.get_state( format("gamesetup.b_energy%d", i) ) ) // Change player energy stock
+                if (f != -1)
                 {
-                    game_data.energy[i] = (game_data.energy[i] + 500) % 10500;
-                    if (game_data.energy[i] == 0 ) game_data.energy[i] = 500;
+                    sint16 g = player_color_map[f];
+                    player_color_map[i] = g;                                // update game data
+                    player_color_map[f] = e;
 
-                    setupgame_area.set_caption( format("gamesetup.energy%d", i), format("%d",game_data.energy[i]));         // Update gui
-                    if (host )  network_manager.sendSpecial( "NOTIFY UPDATE");
+                    guiobj =  setupgame_area.get_object( format("gamesetup.color%d", i));
+                    if (guiobj )
+                        guiobj->Data = gfx->makeintcol(player_color[player_color_map[i]*3],player_color[player_color_map[i]*3+1],player_color[player_color_map[i]*3+2]);            // Update gui
+                    guiobj =  setupgame_area.get_object( format("gamesetup.color%d", f));
+                    if (guiobj )
+                        guiobj->Data = gfx->makeintcol(player_color[player_color_map[f]*3],player_color[player_color_map[f]*3+1],player_color[player_color_map[f]*3+2]);            // Update gui
                 }
-                if (setupgame_area.get_state( format("gamesetup.b_metal%d", i) ) ) // Change player metal stock
-                {
-                    game_data.metal[i] = (game_data.metal[i] + 500) % 10500;
-                    if (game_data.metal[i] == 0 ) game_data.metal[i] = 500;
+                if (host && !client)
+                    network_manager.sendSpecial( "NOTIFY UPDATE");
+            }
+            if (setupgame_area.get_state( format("gamesetup.b_energy%d", i) ) ) // Change player energy stock
+            {
+                game_data.energy[i] = (game_data.energy[i] + 500) % 10500;
+                if (game_data.energy[i] == 0 ) game_data.energy[i] = 500;
 
-                    setupgame_area.set_caption( format("gamesetup.metal%d", i), format("%d",game_data.metal[i]));           // Update gui
-                    if (host )  network_manager.sendSpecial( "NOTIFY UPDATE");
-                }
+                setupgame_area.set_caption( format("gamesetup.energy%d", i), format("%d",game_data.energy[i]));         // Update gui
+                if (host )  network_manager.sendSpecial( "NOTIFY UPDATE");
+            }
+            if (setupgame_area.get_state( format("gamesetup.b_metal%d", i) ) ) // Change player metal stock
+            {
+                game_data.metal[i] = (game_data.metal[i] + 500) % 10500;
+                if (game_data.metal[i] == 0 ) game_data.metal[i] = 500;
+
+                setupgame_area.set_caption( format("gamesetup.metal%d", i), format("%d",game_data.metal[i]));           // Update gui
+                if (host )  network_manager.sendSpecial( "NOTIFY UPDATE");
             }
         }
 
@@ -2640,15 +2643,16 @@ void wait_room(void *p_game_data)
                 for (short int i = 0; i < game_data->nb_players; ++i) // Ping time out
                 {
                     if (game_data->player_network_id[i] > 0 && msec_timer - player_timer[i] > 10000)
-                        network_manager.dropPlayer( game_data->player_network_id[i]);
+                        network_manager.dropPlayer(game_data->player_network_id[i]);
                 }
             }
         }
 
-        if (playerDropped )
+        if (playerDropped)
         {
-            for( int i = 0 ; i < game_data->nb_players ; i++ )
-                if (game_data->player_network_id[i] > 0 && !network_manager.pollPlayer(game_data->player_network_id[i]) ) {     // A player is disconnected
+            for (int i = 0 ; i < game_data->nb_players ; i++)
+                if (game_data->player_network_id[i] > 0 && !network_manager.pollPlayer(game_data->player_network_id[i]))     // A player is disconnected
+                {
                     dead_player[i] = true;
                     wait_area.msg(format("wait.name%d.hide",i));
                     wait_area.msg(format("wait.progress%d.hide",i));
