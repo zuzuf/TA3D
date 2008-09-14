@@ -7577,6 +7577,13 @@ script_exec:
                 {
                     while( current_tick > min_tick && !thread_ask_to_stop )
                     {
+                        while( lp_CONFIG->pause && !thread_ask_to_stop )            // We need this to prevent client dead lock when saving game
+                        {
+                            lp_CONFIG->paused = true;
+                            rest(10); // in pause mode wait for pause to be false again
+                        }
+                        lp_CONFIG->paused = false;
+
                         players_thread_sync = 0;
                         rest(1);
 
