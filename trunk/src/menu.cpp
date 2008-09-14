@@ -1032,7 +1032,7 @@ void setup_game(bool client, const char *host, const char *saved_game)
                             else if (params[1] == "STATUS")
                             {
                                 if (saved_game)
-                                    network_manager.sendSpecial("STATUS SAVED " + ReplaceChar(saved_game, ' ', 1), -1, from);
+                                    network_manager.sendSpecial("STATUS SAVED " + ReplaceChar( Paths::ExtractFileName(saved_game), ' ', 1), -1, from);
                                 else
                                     network_manager.sendSpecial("STATUS NEW", -1, from);
                             }
