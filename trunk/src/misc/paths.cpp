@@ -258,7 +258,8 @@ namespace Paths
             LOG_INFO("Opened the log file: `" << Paths::LogFile);
 
         bool res = MakeDir(Caches) && MakeDir(Savegames) && MakeDir(Logs)
-            && MakeDir(Preferences) && MakeDir(Screenshots) && MakeDir(Resources);
+            && MakeDir(Preferences) && MakeDir(Screenshots) && MakeDir(Resources)
+            && MakeDir(Savegames + "multiplayer" + Paths::Separator);
         if (!res)
             LOG_CRITICAL("Aborting now.");
 
