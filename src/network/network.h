@@ -196,6 +196,7 @@ namespace TA3D
         bool isConnected();
         bool isServer();
         int getMyID();
+        String getStatus();
 
         float getFileTransferProgress();
 

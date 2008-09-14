@@ -458,47 +458,85 @@ namespace TA3D
 
 
 
-    int
-        Network::getMyID()
+    int Network::getMyID()
+    {
+        if( myID != -1 )
+            return myID;
+        switch( myMode )
         {
-            if( myID != -1 )
+            case 1:						// Server
+                myID = 0;
                 return myID;
-            switch( myMode )
-            {
-                case 1:						// Server
-                    myID = 0;
-                    return myID;
-                case 2:						// Client
-                    struct chat special_msg;
-                    if( sendSpecial( strtochat( &special_msg, "REQUEST PLAYER_ID" ) ) )
-                        return -1;
-                    else
+            case 2:						// Client
+                struct chat special_msg;
+                if( sendSpecial( strtochat( &special_msg, "REQUEST PLAYER_ID" ) ) )
+                    return -1;
+                else
+                {
+                    int timeout = 5000;
+                    myID = -1;
+                    while( myID == -1 && timeout-- && myMode == 2 && tohost_socket && tohost_socket->isOpen() )
                     {
-                        int timeout = 5000;
-                        myID = -1;
-                        while( myID == -1 && timeout-- && myMode == 2 && tohost_socket && tohost_socket->isOpen() )
+                        rest(1);
+                        if( getNextSpecial( &special_msg ) == 0 )
                         {
-                            rest(1);
-                            if( getNextSpecial( &special_msg ) == 0 )
+                            String::Vector params;
+                            String(special_msg.message).split(params, " ");
+                            if( params.size() == 3 && params[0] == "RESPONSE" && params[1] == "PLAYER_ID" )
                             {
-                                String::Vector params;
-                                String(special_msg.message).split(params, " ");
-                                if( params.size() == 3 && params[0] == "RESPONSE" && params[1] == "PLAYER_ID" )
-                                {
-                                    myID = atoi( params[2].c_str() );
-                                    break;
-                                }
+                                myID = atoi( params[2].c_str() );
+                                break;
                             }
-                            if( (timeout % 1000) == 0 )				// Resend
-                                sendSpecial( strtochat( &special_msg, "REQUEST PLAYER_ID" ) );
                         }
-                        return (!timeout) ? -1 /* timeout reached*/ : myID;
+                        if( (timeout % 1000) == 0 )				// Resend
+                            sendSpecial( strtochat( &special_msg, "REQUEST PLAYER_ID" ) );
                     }
-                    break;
-            }
-            return -1;	// Not connected
+                    return (!timeout) ? -1 /* timeout reached*/ : myID;
+                }
+                break;
         }
+        return -1;	// Not connected
+    }
 
+    String Network::getStatus()
+    {
+        switch( myMode )
+        {
+            case 1:						// Server
+                return String();
+            case 2:						// Client
+                if( sendSpecial( "REQUEST STATUS" ) )
+                    return -1;
+                else
+                {
+                    struct chat special_msg;
+                    int timeout = 5000;
+                    String status;
+                    while( status.empty() && timeout-- && myMode == 2 && tohost_socket && tohost_socket->isOpen() )
+                    {
+                        rest(1);
+                        if( getNextSpecial( &special_msg ) == 0 )
+                        {
+                            String::Vector params;
+                            String(special_msg.message).split(params, " ");
+                            if( params.size() == 3 && params[0] == "STATUS")
+                            {
+                                if (params[1] == "NEW")
+                                    status = "";
+                                else if (params[1] == "SAVED")
+                                    status = ReplaceChar( params[2], 1, ' ' );
+                                break;
+                            }
+                        }
+                        if( (timeout % 1000) == 0 )				// Resend
+                            sendSpecial( strtochat( &special_msg, "REQUEST STATUS" ) );
+                    }
+                    return (!timeout) ? String() /* timeout reached*/ : status;
+                }
+                break;
+        }
+        return String();	// Not connected
+    }
 
 
     int Network::sendSpecialUDP( String msg, int src_id, int dst_id)

@@ -582,6 +582,7 @@ void setup_game(bool client, const char *host, const char *saved_game)
 {
     int my_player_id = -1;
     bool advertise = false;
+    String status;
     if (host)
     {
         if (!client)
@@ -596,6 +597,9 @@ void setup_game(bool client, const char *host, const char *saved_game)
 
         if (client)
         {
+            status = network_manager.getStatus();
+            if (!status.empty())
+                saved_game = status.c_str();
             special msg;
             network_manager.sendSpecial( strtochat( &msg, format( "NOTIFY NEW_PLAYER %s", ReplaceChar( lp_CONFIG->player_name, ' ', 1 ).c_str() ) ));
             rest(10);
@@ -928,22 +932,29 @@ void setup_game(bool client, const char *host, const char *saved_game)
             {
                 if (game_data.player_network_id[i] > 0 && !network_manager.pollPlayer( game_data.player_network_id[i]))
                 {
-                    game_data.player_names[i] = player_str[2];
-                    game_data.player_sides[i] = side_str[0];
-                    game_data.player_control[i] = player_control[2];
-                    game_data.ai_level[i] = AI_TYPE_EASY;
-                    game_data.player_network_id[i] = -1;
+                    if (saved_game)
+                    {
+                        setupgame_area.set_state(format("gamesetup.ready%d",i), false);     // He's not there
+                    }
+                    else
+                    {
+                        game_data.player_names[i] = player_str[2];
+                        game_data.player_sides[i] = side_str[0];
+                        game_data.player_control[i] = player_control[2];
+                        game_data.ai_level[i] = AI_TYPE_EASY;
+                        game_data.player_network_id[i] = -1;
 
-                    setupgame_area.set_caption( format( "gamesetup.name%d", i ),game_data.player_names[i]);                                 // Update gui
-                    setupgame_area.set_caption( format( "gamesetup.ai%d", i ), (game_data.player_control[i] & PLAYER_CONTROL_FLAG_AI) ? ai_level_str[game_data.ai_level[i]] : String(""));
-                    setupgame_area.set_caption( format("gamesetup.side%d", i) , side_str[0]);                           // Update gui
+                        setupgame_area.set_caption( format( "gamesetup.name%d", i ),game_data.player_names[i]);                                 // Update gui
+                        setupgame_area.set_caption( format( "gamesetup.ai%d", i ), (game_data.player_control[i] & PLAYER_CONTROL_FLAG_AI) ? ai_level_str[game_data.ai_level[i]] : String(""));
+                        setupgame_area.set_caption( format("gamesetup.side%d", i) , side_str[0]);                           // Update gui
 
-                    GUIOBJ *guiobj =  setupgame_area.get_object( format("gamesetup.color%d", i));
-                    if (guiobj)
-                        guiobj->Flag |= FLAG_HIDDEN;
-                    guiobj =  setupgame_area.get_object( format("gamesetup.ai%d", i));
-                    if (guiobj)
-                        guiobj->Flag |= FLAG_HIDDEN;
+                        GUIOBJ *guiobj =  setupgame_area.get_object( format("gamesetup.color%d", i));
+                        if (guiobj)
+                            guiobj->Flag |= FLAG_HIDDEN;
+                        guiobj =  setupgame_area.get_object( format("gamesetup.ai%d", i));
+                        if (guiobj)
+                            guiobj->Flag |= FLAG_HIDDEN;
+                    }
                 }
             }
         }
@@ -955,17 +966,17 @@ void setup_game(bool client, const char *host, const char *saved_game)
             String(received_special_msg.message).split(params, " ");
             if (params.size() == 1)
             {
-                if (params[0] == "PONG" )
+                if (params[0] == "PONG")
                 {
-                    int player_id = game_data.net2id( from);
+                    int player_id = game_data.net2id(from);
                     if (player_id >= 0 )
                         player_timer[ player_id ] = msec_timer;
                 }
             }
             else
-                if (params.size() == 2 )
+                if (params.size() == 2)
                 {
-                    if (params[0] == "REQUEST" )
+                    if (params[0] == "REQUEST")
                     {
                         if (params[1] == "PLAYER_ID")                  // Sending player's network ID
                             network_manager.sendSpecial( format( "RESPONSE PLAYER_ID %d", from ), -1, from);
@@ -1003,6 +1014,13 @@ void setup_game(bool client, const char *host, const char *saved_game)
                                     network_manager.sendSpecial(format("SET SCRIPT %s", ReplaceChar( game_data.game_script, ' ', 1 ).c_str() ), -1, from);
                                     network_manager.sendSpecial(format("SET MAP %s", ReplaceChar( game_data.map_filename, ' ', 1 ).c_str() ), -1, from);
                                 }
+                            }
+                            else if (params[1] == "STATUS")
+                            {
+                                if (saved_game)
+                                    network_manager.sendSpecial("STATUS SAVED " + ReplaceChar(saved_game, ' ', 1), -1, from);
+                                else
+                                    network_manager.sendSpecial("STATUS NEW", -1, from);
                             }
                         }
                     }
