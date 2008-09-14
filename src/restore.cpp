@@ -472,7 +472,7 @@ void save_game( const String filename, GameData *game_data )
     lp_CONFIG->pause = previous_pause_state;
 }
 
-bool load_game_data( const String filename, GameData *game_data )
+bool load_game_data( const String filename, GameData *game_data, bool loading )
 {
     FILE *file = TA3D_OpenFile( filename, "rb" );
 
@@ -498,8 +498,11 @@ bool load_game_data( const String filename, GameData *game_data )
         }
         else                        // We are client
         {
-            fclose( file );
-            return true;
+            if (!loading)
+            {
+                fclose( file );
+                return true;
+            }
         }
     }
 

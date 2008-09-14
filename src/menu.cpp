@@ -692,7 +692,7 @@ void setup_game(bool client, const char *host, const char *saved_game)
     }
 
     if (saved_game)             // We're loading a multiplayer game !!
-        load_game_data( saved_game, &game_data);
+        load_game_data( saved_game, &game_data, true);      // Override server only access to game information, we're loading now
 
     int dx, dy;
     GLuint glimg = load_tnt_minimap_fast(game_data.map_filename,dx,dy);

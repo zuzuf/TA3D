@@ -24,7 +24,7 @@
 
 void save_game( const String filename, GameData *game_data );
 
-bool load_game_data( const String filename, GameData *game_data );
+bool load_game_data( const String filename, GameData *game_data, bool loading = false );
 
 void load_game( GameData *game_data );
 
