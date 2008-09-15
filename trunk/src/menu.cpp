@@ -604,10 +604,12 @@ void setup_game(bool client, const char *host, const char *saved_game)
                 status = Paths::Savegames + "multiplayer" + Paths::Separator + status;
                 saved_game = status.c_str();
             }
-            special msg;
-            network_manager.sendSpecial("NOTIFY NEW_PLAYER " + ReplaceChar( lp_CONFIG->player_name, ' ', 1 ));
-            rest(10);
-            network_manager.sendSpecial( "REQUEST GameData" );
+            else
+            {
+                network_manager.sendSpecial("NOTIFY NEW_PLAYER " + ReplaceChar( lp_CONFIG->player_name, ' ', 1 ));
+                rest(10);
+                network_manager.sendSpecial( "REQUEST GameData" );
+            }
         }
     }
 
@@ -691,8 +693,25 @@ void setup_game(bool client, const char *host, const char *saved_game)
         }
     }
 
+    int net_id_table[10];           // Table used to identify players joining a multiplayer saved game
+
     if (saved_game)             // We're loading a multiplayer game !!
+    {
         load_game_data( saved_game, &game_data, true);      // Override server only access to game information, we're loading now
+        if (!network_manager.isServer())
+        {
+            int my_old_id = -1;
+            for (int i = 0 ; i < 10 ; i++)          // Build the reference table
+            {
+                net_id_table[i] = game_data.player_network_id[i];
+                if (game_data.player_control[i] == PLAYER_CONTROL_LOCAL_HUMAN)
+                    my_old_id = net_id_table[i];
+            }
+            network_manager.sendSpecial( format("NOTIFY PLAYER_BACK %d", my_old_id) );
+            rest(10);
+            network_manager.sendSpecial( "REQUEST GameData" );
+        }
+    }
 
     int dx, dy;
     GLuint glimg = load_tnt_minimap_fast(game_data.map_filename,dx,dy);
@@ -1134,6 +1153,31 @@ void setup_game(bool client, const char *host, const char *saved_game)
                                 else
                                 {
                                     LOG_DEBUG("dropping player " << from << " from " << __FILE__ << " l." << __LINE__);
+                                    network_manager.dropPlayer(from);      // No more room for this player !!
+                                }
+                            }
+                            else if (params[1] == "PLAYER_BACK" && saved_game) // A player is back in the game :), let's find who it is
+                            {
+                                int slot = -1;
+                                for (short int i = 0; i < TA3D_PLAYERS_HARD_LIMIT; ++i)
+                                {
+                                    if (net_id_table[i] == params[2].toInt32())
+                                    {
+                                        slot = i;
+                                        break;
+                                    }
+                                }
+                                if (slot >= 0)
+                                {
+                                    player_timer[ slot ] = msec_timer;              // If we forget this, player will be droped immediately
+                                    game_data.player_network_id[slot] = from;
+                                    game_data.player_control[slot] = PLAYER_CONTROL_REMOTE_HUMAN;
+
+                                    network_manager.sendSpecial( "NOTIFY UPDATE", from);            // Tell others that things have changed
+                                }
+                                else
+                                {
+                                    LOG_DEBUG("dropping player " << from << " from " << __FILE__ << " l." << __LINE__ << " because it couldn't be identified");
                                     network_manager.dropPlayer(from);      // No more room for this player !!
                                 }
                             }
