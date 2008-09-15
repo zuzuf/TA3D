@@ -353,11 +353,16 @@ namespace TA3D
 
         LUA_PROGRAM	game_script;					// Script that will rule the game
         if (!pNetworkEnabled || pNetworkIsServer)
+        {
+            if (!pGameData->saved_file.empty()) 		// We have something to load
+                LUA_PROGRAM::passive = true;            // So deactivate unit creation (at least neutralize network creation events)
             game_script.load(pGameData->game_script, map.get());	// Load the script
+            LUA_PROGRAM::passive = false;
+        }
 
         if (!pGameData->saved_file.empty()) 			// We have something to load
         {
-            load_game( pGameData);
+            load_game(pGameData);
             done = !pGameData->saved_file.empty();		// If loading the game fails, then exit
         }
 
