@@ -114,6 +114,8 @@ namespace TA3D
         bool        waiting;        // Indique si le programme attend une action utilisateur
         DRAW_LIST   draw_list;      // Liste de commandes d'affichage
 
+        static bool passive;        // Passive mode, won't do anything like creating units, move units, etc... used to resync a multiplayer game
+
         inline void stop()
         {
             destroy();
