@@ -1,5 +1,6 @@
 
 #include "mainmenu.h"
+#include "../sidedata.h"
 #include "../../gfx/gfx.h"
 #include "../../logs/logs.h"
 #include "../../ta3dbase.h"
@@ -166,6 +167,7 @@ namespace Menus
     {
         pArea.reset(NULL);          // Destroy current GUI area
         cursor.clear();             // Destroy cursor data (it's OpenGL textures so they won't survive)
+		ta3dSideData.destroy();     // We're going to reset video settings, so this will become obsolete
 
         delete gfx;                 // Delete current GFX object
         gfx = new GFX;              // Create a new one with new settings
@@ -174,6 +176,9 @@ namespace Menus
         gfx->set_2D_mode();         // Back to 2D mode :)
 
 		set_window_title("Total Annihilation 3D");  // Set the window title
+
+		ta3dSideData.init();
+		ta3dSideData.loadData();
 
 		// Reloading and creating cursors
 		byte *data = HPIManager->PullFromHPI("anims\\cursors.gaf");	// Load cursors

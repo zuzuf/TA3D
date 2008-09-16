@@ -698,19 +698,16 @@ void setup_game(bool client, const char *host, const char *saved_game)
     if (saved_game)             // We're loading a multiplayer game !!
     {
         load_game_data( saved_game, &game_data, true);      // Override server only access to game information, we're loading now
-        if (!network_manager.isServer())
+        int my_old_id = -1;
+        for (int i = 0 ; i < 10 ; i++)          // Build the reference table
         {
-            int my_old_id = -1;
-            for (int i = 0 ; i < 10 ; i++)          // Build the reference table
-            {
-                net_id_table[i] = game_data.player_network_id[i];
-                if (game_data.player_control[i] == PLAYER_CONTROL_LOCAL_HUMAN)
-                    my_old_id = net_id_table[i];
-            }
-            network_manager.sendSpecial( format("NOTIFY PLAYER_BACK %d", my_old_id) );
-            rest(10);
-            network_manager.sendSpecial( "REQUEST GameData" );
+            net_id_table[i] = game_data.player_network_id[i];
+            if (game_data.player_control[i] == PLAYER_CONTROL_LOCAL_HUMAN)
+                my_old_id = net_id_table[i];
         }
+        network_manager.sendSpecial( format("NOTIFY PLAYER_BACK %d", my_old_id) );
+        rest(10);
+        network_manager.sendSpecial( "REQUEST GameData" );
     }
 
     int dx, dy;
@@ -981,6 +978,7 @@ void setup_game(bool client, const char *host, const char *saved_game)
                     if (saved_game)
                     {
                         setupgame_area.set_state(format("gamesetup.ready%d",i), false);     // He's not there
+                        game_data.ready[i] = false;
                     }
                     else
                     {
@@ -1090,6 +1088,7 @@ void setup_game(bool client, const char *host, const char *saved_game)
                                             if (saved_game)
                                             {
                                                 setupgame_area.set_state(format("gamesetup.ready%d", i),false);
+                                                game_data.ready[i] = false;
                                             }
                                             else
                                             {
@@ -1158,6 +1157,7 @@ void setup_game(bool client, const char *host, const char *saved_game)
                             }
                             else if (params[1] == "PLAYER_BACK" && saved_game) // A player is back in the game :), let's find who it is
                             {
+                                LOG_DEBUG("received identifier from " << from << " : " << params[2].toInt32());
                                 int slot = -1;
                                 for (short int i = 0; i < TA3D_PLAYERS_HARD_LIMIT; ++i)
                                 {
