@@ -1,0 +1,9 @@
+[area]
+{
+	name=main area;
+	skin=gui/default.skn;
+	windows=gui/3dmeditor_menu.tdf,gui/3dmeditor_edit.tdf;
+	background=none;
+	width=1280;
+	height=1024;
+}

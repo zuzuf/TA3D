@@ -1,0 +1,43 @@
+[window]
+{
+    name=mapper;
+	title=Mapper;
+	uformat=UTF8;
+	x=-310;
+	y=-350;
+	width=310;
+	height=350;
+	draw borders=true;
+	show title=true;
+	lock=false;
+	number of objects=2;
+	hidden=true;
+	color=0xFFFFFFFF;
+	background=gfx/background.jpg;
+	repeat background=true;
+
+	[object0]
+	{
+		name=b_close;
+		type=BUTTON;
+		caption=Close;
+		value=0xFFFFFFFF;
+		x1=103;
+		y1=-25;
+		x2=207;
+		y2=-5;
+		size=1;
+		on click=mapper.hide;
+	}
+	[object1]
+	{
+		name=texture;
+		type=IMG;
+		value=0xFFFFFFFF;
+		x1=10;
+		y1=30;
+		x2=-10;
+		y2=-30;
+		size=1;
+	}
+}
