@@ -1085,7 +1085,7 @@ namespace TA3D
 
     uint32 WND::msg(const String& message)
     {
-        pMutex.lock();
+        MutexLocker locker(pMutex);
         String::size_type i = message.find('.');
 
         if (i != String::npos) // When it targets a subobject

@@ -2670,6 +2670,8 @@ void wait_room(void *p_game_data)
             wait_area.set_data( format("wait.progress%d", i), 100);
             wait_area.set_state( format("wait.ready%d", i), true);
         }
+        else
+            wait_area.set_state( format("wait.ready%d", i), false);
         wait_area.set_caption( format("wait.name%d", i), game_data->player_names[i]);
     }
 
@@ -2680,16 +2682,19 @@ void wait_room(void *p_game_data)
     int amz = -1;
     int amb = -1;
 
+    if (network_manager.isServer())
     {                                   // We can only use units available on all clients
         for (int i = 0; i < unit_manager.nb_unit; ++i)
         {
-            if (!unit_manager.unit_type[i]->not_used)
+            if (!unit_manager.unit_type[i]->not_used)           // Small check to ensure useonly file has an effect :)
                 network_manager.sendAll("USING " + unit_manager.unit_type[i]->Unitname);
         }
-        network_manager.sendAll("END USING");
+        network_manager.sendAll("END USING");           // Ok we've finished sending the available unit list
+        network_manager.sendAll("READY");               // Only server can tell he is ready before entering main loop
     }
-
-    network_manager.sendAll("READY");
+    else
+        for (int i = 0; i < unit_manager.nb_unit; ++i)      // Clients disable all units and wait for server to enable the ones we're going to use
+            unit_manager.unit_type[i]->not_used = true;
 
     int ping_timer = msec_timer;                    // Used to send simple PING requests in order to detect when a connection fails
 
@@ -2794,11 +2799,11 @@ void wait_room(void *p_game_data)
                     {
                         if (params[0] == "USING")
                         {                                   // We can only use units available on all clients, so check the list
-                            network_manager.sendAll("NOT_READY");
-
                             int type_id = unit_manager.get_unit_index(params[1]);
-                            if (type_id == -1 || unit_manager.unit_type[type_id]->not_used)            // Tell it's missing
+                            if (type_id == -1)            // Tell it's missing
                                 network_manager.sendAll( "MISSING " + params[1]);
+                            else
+                                unit_manager.unit_type[type_id]->not_used = false;  // Enable this unit
                         }
                         else
                         {
