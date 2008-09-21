@@ -52,7 +52,7 @@ namespace TA3D
 	
 	    // Apply the palette -- increase the color depth
 	    BITMAP *mini=create_bitmap(mini8bit->w,mini8bit->h);
-	    set_palette( pal );
+	    set_palette( pal);
 	    blit(mini8bit,mini,0,0,0,0,mini->w,mini->h);
 	    destroy_bitmap(mini8bit);
 
@@ -64,18 +64,18 @@ namespace TA3D
 	    do {
 		    --mini_w;
 	    } while ( mini_w > 0 &&
-	              ( ( ((int*)(mini->line[0]))[mini_w] & mask ) == blank_color ||
-	                  ((int*)(mini->line[0]))[mini_w]          == 0 ) );
+	              ( ( ((int*)(mini->line[0]))[mini_w] & mask) == blank_color ||
+	                  ((int*)(mini->line[0]))[mini_w]          == 0));
 	    do {
 		    --mini_h;
 	    } while( mini_h > 0 &&
-	             ( ( ((int*)(mini->line[mini_h]))[0] & mask ) == blank_color ||
-	                 ((int*)(mini->line[mini_h]))[0]          == 0 ) );
+	             ( ( ((int*)(mini->line[mini_h]))[0] & mask) == blank_color ||
+	                 ((int*)(mini->line[mini_h]))[0]          == 0));
 	    mini_w++;
 	    mini_h++;
 
-	    if(sw) *sw=mini_w;
-	    if(sh) *sh=mini_h;
+	    if (sw) *sw=mini_w;
+	    if (sh) *sh=mini_h;
 
 	    return mini;
     }
@@ -83,14 +83,14 @@ namespace TA3D
     BITMAP *load_tnt_minimap_fast_raw_bmp(const String& filename, int& sw, int& sh)
     {
 	    byte *headerBytes = HPIManager->PullFromHPI_zone(filename.c_str(),0,sizeof(TNTHEADER),NULL);
-	    if(headerBytes==NULL)
+	    if (headerBytes==NULL)
 	    {
 	    	return 0;
 	    }
 	    TNTHEADER *header = &((TNTHEADER_U*)headerBytes)->header;
 
 	    byte *minimapdata = HPIManager->PullFromHPI_zone(filename.c_str(),header->PTRminimap,sizeof(TNTMINIMAP),NULL);
-	    if(minimapdata==NULL)
+	    if (minimapdata==NULL)
 	    {
 	    	delete[] headerBytes;
 	    	return 0;
@@ -113,7 +113,7 @@ namespace TA3D
 
 
 
-    MAP	*load_tnt_map(byte *data )		// Charge une map au format TA, extraite d'une archive HPI/UFO
+    MAP	*load_tnt_map(byte *data)		// Charge une map au format TA, extraite d'une archive HPI/UFO
     {
         MAP	*map=new MAP;		// Crée une nouvelle carte
 
@@ -159,7 +159,7 @@ namespace TA3D
         for (i = 0; i < header.tileanims; ++i) // Crée le tableau pour la correspondance des éléments
         {
             TDF_index[i]=feature_manager.get_feature_index((char*)(data+header.PTRtileanim+4+(i*132)));
-            if(TDF_index[i] == -1)
+            if (TDF_index[i] == -1)
                 LOG_ERROR("tdf not found: " << (char*)(data + header.PTRtileanim + 4 + (i * 132)));
         }
 
@@ -186,18 +186,18 @@ namespace TA3D
         map->mini = tmp;
         map->mini_w = 251;
         map->mini_h = 251;
-        while (map->mini_w>0 && ( ( ((int*)(map->mini->line[0]))[map->mini_w] & 0xFCFCFCFC ) == makecol(120,148,252) || ((int*)(map->mini->line[0]))[map->mini_w] == 0 ) )
+        while (map->mini_w>0 && ( ( ((int*)(map->mini->line[0]))[map->mini_w] & 0xFCFCFCFC) == makecol(120,148,252) || ((int*)(map->mini->line[0]))[map->mini_w] == 0))
             --(map->mini_w);
-        while (map->mini_h>0 && ( ( ((int*)(map->mini->line[map->mini_h]))[0] & 0xFCFCFCFC ) == makecol(120,148,252) || ((int*)(map->mini->line[map->mini_h]))[0] == 0 ) )
+        while (map->mini_h>0 && ( ( ((int*)(map->mini->line[map->mini_h]))[0] & 0xFCFCFCFC) == makecol(120,148,252) || ((int*)(map->mini->line[map->mini_h]))[0] == 0))
             --(map->mini_h);
         ++(map->mini_w);
         ++(map->mini_h);
-        if(g_useTextureCompression && lp_CONFIG->use_texture_compression)
+        if (g_useTextureCompression && lp_CONFIG->use_texture_compression)
             allegro_gl_set_texture_format(GL_COMPRESSED_RGB_ARB);
         else
             allegro_gl_set_texture_format(GL_RGB8);
         allegro_gl_use_mipmapping(FALSE);
-        map->glmini=allegro_gl_make_texture(map->mini);
+        map->glmini = allegro_gl_make_texture(map->mini);
         glBindTexture(GL_TEXTURE_2D,map->glmini);
         glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
             glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
@@ -208,38 +208,38 @@ namespace TA3D
         // Lit les différents morceaux
         LOG_DEBUG("MAP: reading blocs data");
         event_timer = msec_timer;
-        int n_bmp=(header.tiles+0x3F)>>5;			// Nombre de textures 1024x32 nécessaires pour mémoriser tout les morceaux
+        int n_bmp = (header.tiles+0x3F)>>5;			// Nombre de textures 1024x32 nécessaires pour mémoriser tout les morceaux
         BITMAP **bmp_tex = new BITMAP*[n_bmp];
         for(i = 0; i < n_bmp; ++i)
-            bmp_tex[i]=create_bitmap_ex(8,1024,32);
+            bmp_tex[i] = create_bitmap_ex(8,1024,32);
 
         f_pos=header.PTRtilegfx;
         for(i = 0; i < header.tiles; ++i) // Lit tout les morceaux
         {
-            int tex_num=i>>5;	// Numéro de la texture associée
-            int tx=(i&0x1F)<<5;			// Coordonnées sur la texture
+            int tex_num = i>>5;	// Numéro de la texture associée
+            int tx = (i&0x1F)<<5;			// Coordonnées sur la texture
             for(y = 0; y < 32; ++y)	// Lit le morceau
             {
                 memcpy(bmp_tex[tex_num]->line[y]+tx,data+f_pos,32);
-                f_pos+=32;
+                f_pos += 32;
             }
         }
 
         LOG_DEBUG("MAP: allocating map memory");
-        map->bloc_w=header.Width>>1;
-        map->bloc_h=header.Height>>1;
-        map->bloc_w_db=map->bloc_w<<1;
-        map->bloc_h_db=map->bloc_h<<1;
-        map->map_h=map->bloc_h<<4;
-        map->map_w=map->bloc_w<<4;
-        map->map_h_d=map->bloc_h<<3;
-        map->map_w_d=map->bloc_w<<3;
-        map->map2blocdb_w=((float)map->bloc_w_db)/map->map_w;
-        map->map2blocdb_h=((float)map->bloc_h_db)/map->map_h;
+        map->bloc_w = header.Width>>1;
+        map->bloc_h = header.Height>>1;
+        map->bloc_w_db = map->bloc_w<<1;
+        map->bloc_h_db = map->bloc_h<<1;
+        map->map_h = map->bloc_h<<4;
+        map->map_w = map->bloc_w<<4;
+        map->map_h_d = map->bloc_h<<3;
+        map->map_w_d = map->bloc_w<<3;
+        map->map2blocdb_w = ((float)map->bloc_w_db)/map->map_w;
+        map->map2blocdb_h = ((float)map->bloc_h_db)/map->map_h;
         map->bmap = new unsigned short*[map->bloc_h];
         map->bmap[0] = new unsigned short[map->bloc_w*map->bloc_h];
         for(i = 1; i < map->bloc_h; ++i)
-            map->bmap[i]=&(map->bmap[0][i*map->bloc_w]);
+            map->bmap[i] = &(map->bmap[0][i*map->bloc_w]);
         map->view = new byte*[map->bloc_h];
         map->view[0] = new byte[map->bloc_w*map->bloc_h];
         map->path = new byte*[map->bloc_h<<2];
@@ -248,14 +248,14 @@ namespace TA3D
         map->map_data[0] = new SECTOR[map->bloc_w*map->bloc_h<<2];
 
         LOG_DEBUG("MAP: creating FOW maps");
-        map->sight_map = create_bitmap_ex( 8, map->bloc_w, map->bloc_h );		// FOW maps
-        map->view_map = create_bitmap_ex( 8, map->bloc_w, map->bloc_h );
-        map->radar_map = create_bitmap_ex( 8, map->bloc_w, map->bloc_h );
-        map->sonar_map = create_bitmap_ex( 8, map->bloc_w, map->bloc_h );
-        clear( map->view_map );
-        clear( map->sight_map );
-        clear( map->radar_map );
-        clear( map->sonar_map );
+        map->sight_map = create_bitmap_ex( 8, map->bloc_w, map->bloc_h);		// FOW maps
+        map->view_map = create_bitmap_ex( 8, map->bloc_w, map->bloc_h);
+        map->radar_map = create_bitmap_ex( 8, map->bloc_w, map->bloc_h);
+        map->sonar_map = create_bitmap_ex( 8, map->bloc_w, map->bloc_h);
+        clear( map->view_map);
+        clear( map->sight_map);
+        clear( map->radar_map);
+        clear( map->sonar_map);
 
         LOG_DEBUG("MAP: allocating height maps");
 
@@ -267,35 +267,35 @@ namespace TA3D
         map->ph_map_2[0] = new byte[map->bloc_w*map->bloc_h<<2];
         LOG_DEBUG("MAP: initialising map data");
         for(i = 1; i < (map->bloc_h << 2); ++i)
-            map->path[i]=&(map->path[0][i*map->bloc_w<<2]);
+            map->path[i] = &(map->path[0][i*map->bloc_w<<2]);
         memset(map->path[0],0,map->bloc_w*map->bloc_h<<4);
         for(i = 1; i < (map->bloc_h << 1); ++i)
         {
-            map->h_map[i]=&(map->h_map[0][i*map->bloc_w<<1]);
-            map->ph_map[i]=&(map->ph_map[0][i*map->bloc_w<<1]);
-            map->ph_map_2[i]=&(map->ph_map_2[0][i*map->bloc_w<<1]);
-            map->map_data[i]=&(map->map_data[0][i*map->bloc_w<<1]);
-            if(i<map->bloc_h)
-                map->view[i]=&(map->view[0][i*map->bloc_w]);
+            map->h_map[i] = &(map->h_map[0][i*map->bloc_w<<1]);
+            map->ph_map[i] = &(map->ph_map[0][i*map->bloc_w<<1]);
+            map->ph_map_2[i] = &(map->ph_map_2[0][i*map->bloc_w<<1]);
+            map->map_data[i] = &(map->map_data[0][i*map->bloc_w<<1]);
+            if (i<map->bloc_h)
+                map->view[i] = &(map->view[0][i*map->bloc_w]);
         }
 
         memset(map->view[0],0,map->bloc_w*map->bloc_h);
-        map->nbbloc=header.tiles;		// Nombre de blocs nécessaires
+        map->nbbloc = header.tiles;		// Nombre de blocs nécessaires
         map->bloc = new BLOC[map->nbbloc];	// Alloue la mémoire pour les blocs
-        map->ntex=n_bmp;
+        map->ntex = n_bmp;
         map->tex = new GLuint[n_bmp];	// Tableau d'indices de texture OpenGl
 
         for(i=0;i<map->nbbloc;i++) // Crée les blocs
         {
             map->bloc[i].init();
-            int tex_num=i>>5;	// Numéro de la texture associée
-            int tx=(i&0x1F)<<5;			// Coordonnées sur la texture
+            int tex_num = i>>5;	// Numéro de la texture associée
+            int tx = (i&0x1F)<<5;			// Coordonnées sur la texture
             int r=0,g=0,b=0;
             for (y = 0; y < 32; ++y)
                 for (x = tx; x < tx + 32; ++x)
                 {
-                    int c=bmp_tex[tex_num]->line[y][x];
-                    r+=pal[c].r;
+                    int c = bmp_tex[tex_num]->line[y][x];
+                    r += pal[c].r;
                     g+=pal[c].g;
                     b+=pal[c].b;
                 }
@@ -307,22 +307,21 @@ namespace TA3D
         }
 
         LOG_INFO("Blocs read in " << (msec_timer-event_timer) * 0.001f << "s.");
-        event_timer=msec_timer;
+        event_timer = msec_timer;
 
         LOG_DEBUG("MAP: creating textures");
 
-        if(g_useTextureCompression && lp_CONFIG->use_texture_compression)
+        if (g_useTextureCompression && lp_CONFIG->use_texture_compression)
             allegro_gl_set_texture_format(GL_COMPRESSED_RGB_ARB);
         else
             allegro_gl_set_texture_format(GL_RGB8);
         for (i = 0; i < n_bmp; ++i) // Finis de charger les textures et détruit les objets BITMAP
         {
-            allegro_gl_flip();
-            tmp=create_bitmap_ex(32,bmp_tex[i]->w,bmp_tex[i]->h);
+            tmp = create_bitmap_ex(32,bmp_tex[i]->w,bmp_tex[i]->h);
             blit(bmp_tex[i],tmp,0,0,0,0,tmp->w,tmp->h);
-            map->tex[i] = gfx->make_texture( tmp );
+            map->tex[i] = gfx->make_texture( tmp);
             destroy_bitmap(bmp_tex[i]);
-            bmp_tex[i]=tmp;
+            bmp_tex[i] = tmp;
         }
         LOG_INFO("Textures for blocks in " << (msec_timer - event_timer) * 0.001f << "s.");
 
@@ -395,14 +394,14 @@ namespace TA3D
         clear_to_color(low_def,0x0);
         BITMAP *lava_map = create_bitmap_ex(16, Math::Min(map->bloc_w,1024), Math::Min(map->bloc_h,1024));
         clear_to_color(lava_map,0x0);
-        f_pos=header.PTRmapdata;
+        f_pos = header.PTRmapdata;
         for (y = 0; y < map->bloc_h; ++y)
         {
             for (x = 0; x < map->bloc_w; ++x)
             {
                 map->bmap[y][x] = *((short*)(data+f_pos));
 
-                if( map->bmap[y][x] >= map->nbbloc )		// To add some security
+                if (map->bmap[y][x] >= map->nbbloc)		// To add some security
                     map->bmap[y][x] = 0;
 
                 /*---------- code to build the low def map (mega zoom) ---------------*/
@@ -421,7 +420,7 @@ namespace TA3D
                 stretch_blit(bmp_tex[tex_num],low_def,tx,0,32,32,x*low_def->w/map->bloc_w,y*low_def->h/map->bloc_h,(x+1)*low_def->w/map->bloc_w-x*low_def->w/map->bloc_w,(y+1)*low_def->h/map->bloc_h-y*low_def->h/map->bloc_h);
                 /*--------------------------------------------------------------------*/
 
-                if(map->bloc[map->bmap[y][x]].lava)
+                if (map->bloc[map->bmap[y][x]].lava)
                     circlefill(lava_map,x*lava_map->w/map->bloc_w,y*lava_map->h/map->bloc_h,3,0xFFFFFFFF);
                 f_pos+=2;
             }
@@ -436,16 +435,16 @@ namespace TA3D
 
         LOG_DEBUG("MAP: computing height data (step 1)");
         // Charge d'autres données sur les blocs
-        map->water=false;
-        f_pos=header.PTRmapattr;
+        map->water = false;
+        f_pos = header.PTRmapattr;
         for (y = 0; y< (map->bloc_h << 1); ++y)
         {
             for (x = 0; x < (map->bloc_w << 1);  ++x)
             {
-                int c=*((byte*)(data+f_pos));
-                if(c<header.sealevel) map->water=true;
-                map->h_map[y][x]=map->ph_map[y][x]=c*H_DIV;
-                f_pos+=4;
+                int c = *((byte*)(data+f_pos));
+                if (c<header.sealevel) map->water = true;
+                map->h_map[y][x] = map->ph_map[y][x] = c*H_DIV;
+                f_pos += 4;
             }
         }
 
@@ -455,25 +454,27 @@ namespace TA3D
             for (x = 0; x < (map->bloc_w << 1); ++x)
             {
                 map->map_data[y][x].init();
-                map->map_data[y][x].underwater=(map->h_map[y][x]<map->sealvl);
+                map->map_data[y][x].underwater = (map->h_map[y][x] < map->sealvl);
                 map->map_data[y][x].lava = map->bmap[ y >> 1 ][ x >> 1 ] < map->nbbloc ? map->bloc[ map->bmap[ y >> 1 ][ x >> 1 ] ].lava : false;
-                if( !map->map_data[y][x].lava && (x>>1) + 1 < map->bloc_w && map->bmap[ y >> 1 ][ (x >> 1) + 1 ] < map->nbbloc ) {
+                if (!map->map_data[y][x].lava && (x>>1) + 1 < map->bloc_w && map->bmap[ y >> 1 ][ (x >> 1) + 1 ] < map->nbbloc)
+                {
                     map->map_data[y][x].lava = map->bloc[ map->bmap[ y >> 1 ][ (x >> 1) + 1 ] ].lava;
-                    if( !map->map_data[y][x].lava && (y>>1) + 1 < map->bloc_h && map->bmap[ (y >> 1) + 1 ][ (x >> 1) + 1 ] < map->nbbloc )
+                    if (!map->map_data[y][x].lava && (y>>1) + 1 < map->bloc_h && map->bmap[ (y >> 1) + 1 ][ (x >> 1) + 1 ] < map->nbbloc)
                         map->map_data[y][x].lava = map->bloc[ map->bmap[ (y >> 1) + 1 ][ (x >> 1) + 1 ] ].lava;
-                    if( !map->map_data[y][x].lava && (y>>1) - 1 >= 0 && map->bmap[ (y >> 1) - 1 ][ (x >> 1) + 1 ] < map->nbbloc )
+                    if (!map->map_data[y][x].lava && (y>>1) - 1 >= 0 && map->bmap[ (y >> 1) - 1 ][ (x >> 1) + 1 ] < map->nbbloc)
                         map->map_data[y][x].lava = map->bloc[ map->bmap[ (y >> 1) - 1 ][ (x >> 1) + 1 ] ].lava;
                 }
-                if( !map->map_data[y][x].lava && (x>>1) - 1 >= 0 && map->bmap[ y >> 1 ][ (x >> 1) - 1 ] < map->nbbloc ) {
+                if (!map->map_data[y][x].lava && (x>>1) - 1 >= 0 && map->bmap[ y >> 1 ][ (x >> 1) - 1 ] < map->nbbloc)
+                {
                     map->map_data[y][x].lava = map->bloc[ map->bmap[ y >> 1 ][ (x >> 1) - 1 ] ].lava;
-                    if( !map->map_data[y][x].lava && (y>>1) + 1 < map->bloc_h && map->bmap[ (y >> 1) + 1 ][ (x >> 1) - 1 ] < map->nbbloc )
+                    if (!map->map_data[y][x].lava && (y>>1) + 1 < map->bloc_h && map->bmap[ (y >> 1) + 1 ][ (x >> 1) - 1 ] < map->nbbloc)
                         map->map_data[y][x].lava = map->bloc[ map->bmap[ (y >> 1) + 1 ][ (x >> 1) - 1 ] ].lava;
-                    if( !map->map_data[y][x].lava && (y>>1) - 1 >= 0 && map->bmap[ (y >> 1) - 1 ][ (x >> 1) - 1 ] < map->nbbloc )
+                    if (!map->map_data[y][x].lava && (y>>1) - 1 >= 0 && map->bmap[ (y >> 1) - 1 ][ (x >> 1) - 1 ] < map->nbbloc)
                         map->map_data[y][x].lava = map->bloc[ map->bmap[ (y >> 1) - 1 ][ (x >> 1) - 1 ] ].lava;
                 }
-                if( !map->map_data[y][x].lava && (y>>1) + 1 < map->bloc_h && map->bmap[ (y >> 1) + 1 ][ x >> 1 ] < map->nbbloc )
+                if (!map->map_data[y][x].lava && (y>>1) + 1 < map->bloc_h && map->bmap[ (y >> 1) + 1 ][ x >> 1 ] < map->nbbloc)
                     map->map_data[y][x].lava = map->bloc[ map->bmap[ (y >> 1) + 1 ][ x >> 1 ] ].lava;
-                if( !map->map_data[y][x].lava && (y>>1) - 1 >= 0 && map->bmap[ (y >> 1) - 1 ][ x >> 1 ] < map->nbbloc )
+                if (!map->map_data[y][x].lava && (y>>1) - 1 >= 0 && map->bmap[ (y >> 1) - 1 ][ x >> 1 ] < map->nbbloc)
                     map->map_data[y][x].lava = map->bloc[ map->bmap[ (y >> 1) - 1 ][ x >> 1 ] ].lava;
             }
         }
@@ -490,9 +491,9 @@ namespace TA3D
                 float h=map->ph_map[y][x];
                 rec_y=(int)(0.5f+y-tnt_transform*h/16.0f);
                 for(int cur_y=rec_y+1;cur_y<=y;cur_y++)
-                    if(cur_y>=0)
+                    if (cur_y>=0)
                         map->ph_map[cur_y][x]=-1.0f;		// Valeur non spécifiée (un trou que l'on comblera plus tard)
-                if(rec_y>=0)
+                if (rec_y>=0)
                     map->ph_map[rec_y][x]=h;
             }
         }
@@ -503,7 +504,7 @@ namespace TA3D
         {
             for(x = 0; x < (map->bloc_w << 1); ++x) // Lisse la carte du relief projeté
             {
-                if(map->ph_map[y][x] == -1.0f && y == 0)
+                if (map->ph_map[y][x] == -1.0f && y == 0)
                 {
                     int cy = 0;
                     while (map->ph_map[cy][x]==-1.0f)
@@ -518,13 +519,13 @@ namespace TA3D
                 }
                 else
                 {
-                    if(map->ph_map[y][x]==-1.0f)
+                    if (map->ph_map[y][x]==-1.0f)
                     {
                         float h1=map->ph_map[y-1][x];
                         int cy=y;
                         while (cy < (map->bloc_h << 1) && map->ph_map[cy][x] == -1.0f)
                             ++cy;
-                        if(cy>=(map->bloc_h<<1)) cy=(map->bloc_h<<1)-1;
+                        if (cy>=(map->bloc_h<<1)) cy=(map->bloc_h<<1)-1;
                         float h2=map->ph_map[cy][x];
                         if (h2 == -1.0f)
                             h2=h1;
@@ -547,21 +548,21 @@ namespace TA3D
                 float dh=0.0f;
                 if (y > 0)
                 {
-                    float dz = fabs( map->get_zdec( x, y ) - map->get_zdec( x, y - 1 ) + 8.0f );
-                    if( dz == 0.0f )	dz = 100000000.0f;
-                    else				dz = 8.0f / dz;
+                    float dz = fabs( map->get_zdec( x, y) - map->get_zdec( x, y - 1) + 8.0f);
+                    if (dz == 0.0f)	dz = 100000000.0f;
+                    else			dz = 8.0f / dz;
                     dh = Math::Max(dh,(float)fabs(map->h_map[y][x]-map->h_map[y-1][x]) * dz);
                 }
                 if (y + 1 < (map->bloc_h << 1))
                 {
-                    float dz = fabs( map->get_zdec( x, y + 1 ) - map->get_zdec( x, y ) + 8.0f );
-                    if( dz == 0.0f )	dz = 100000000.0f;
+                    float dz = fabs( map->get_zdec( x, y + 1) - map->get_zdec( x, y) + 8.0f);
+                    if (dz == 0.0f)	dz = 100000000.0f;
                     else				dz = 8.0f / dz;
                     dh = Math::Max(dh,(float)fabs(map->h_map[y][x]-map->h_map[y+1][x]) * dz);
                 }
                 if (x > 0)
                     dh = Math::Max(dh,(float)fabs(map->h_map[y][x]-map->h_map[y][x-1]));
-                if(x + 1 < (map->bloc_w << 1))
+                if (x + 1 < (map->bloc_w << 1))
                     dh = Math::Max(dh,(float)fabs(map->h_map[y][x]-map->h_map[y][x+1]));
                 map->map_data[y][x].dh=dh;
             }
@@ -579,17 +580,17 @@ namespace TA3D
             {
                 unsigned short type = *((unsigned short*)(data + f_pos));
                 map->map_data[y][x].stuff = -1;
-                if(type <= header.tileanims)
+                if (type <= header.tileanims)
                 {
                     Vector3D Pos;
                     Pos.x = (x<<3) - map->map_w_d + 8.0f;
                     Pos.z = (y<<3) - map->map_h_d + 8.0f;
-                    if( !feature_manager.feature[TDF_index[type]].m3d )
-                        Pos.y = map->get_max_rect_h( x, y, feature_manager.feature[TDF_index[type]].footprintx, feature_manager.feature[TDF_index[type]].footprintz );
+                    if (!feature_manager.feature[TDF_index[type]].m3d)
+                        Pos.y = map->get_max_rect_h( x, y, feature_manager.feature[TDF_index[type]].footprintx, feature_manager.feature[TDF_index[type]].footprintz);
                     else
-                        Pos.y = map->get_unit_h( Pos.x, Pos.z );
+                        Pos.y = map->get_unit_h( Pos.x, Pos.z);
                     map->map_data[y][x].stuff = features.add_feature(Pos,TDF_index[type]);
-                    features.drawFeatureOnMap( map->map_data[y][x].stuff );
+                    features.drawFeatureOnMap( map->map_data[y][x].stuff);
                 }
                 f_pos+=4;
             }
@@ -639,7 +640,7 @@ namespace TA3D
                         && ( tmp_vtx[i - 1].y > map->sealvl ||
                              tmp_vtx[i + 1].y > map->sealvl ||
                              tmp_vtx[i - map->low_w - 1].y > map->sealvl ||
-                             tmp_vtx[i + map->low_w + 1].y > map->sealvl ) )
+                             tmp_vtx[i + map->low_w + 1].y > map->sealvl))
                         map->low_vtx[i].y = map->sealvl;
                 }
             }
@@ -690,7 +691,7 @@ namespace TA3D
 	    TNTMINIMAP *minimap = (TNTMINIMAP*) &data[header->PTRminimap];
 	    BITMAP		*bitmap = load_tnt_minimap_bmp(minimap, &sw, &sh);
 
-	    if(g_useTextureCompression && lp_CONFIG->use_texture_compression)
+	    if (g_useTextureCompression && lp_CONFIG->use_texture_compression)
 		    allegro_gl_set_texture_format(GL_COMPRESSED_RGB_ARB);
 	    else
 		    allegro_gl_set_texture_format(GL_RGB8);
@@ -704,10 +705,10 @@ namespace TA3D
     {
 	    BITMAP *bitmap = load_tnt_minimap_fast_raw_bmp(filename, sw, sh);
 
-        if( bitmap == NULL )    return 0;
+        if (bitmap == NULL)    return 0;
 
 	    // Convert to a GL texture
-	    if(g_useTextureCompression && lp_CONFIG->use_texture_compression)
+	    if (g_useTextureCompression && lp_CONFIG->use_texture_compression)
 		    allegro_gl_set_texture_format(GL_COMPRESSED_RGB_ARB);
 	    else
 		    allegro_gl_set_texture_format(GL_RGB8);
@@ -722,7 +723,7 @@ namespace TA3D
 	    int sw, sh;
 	    BITMAP *fullsize = load_tnt_minimap_fast_raw_bmp(filename, sw, sh);
 
-        if( fullsize == NULL )    return 0;
+        if (fullsize == NULL)    return 0;
 
 	    // Copy the full-sized bitmap down to an exact-sized version
 	    BITMAP *trimmed = create_bitmap(sw, sh);

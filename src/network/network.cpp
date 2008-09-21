@@ -568,6 +568,7 @@ namespace TA3D
 
     int Network::sendAll( String msg )
     {
+        LOG_DEBUG("sendAll(\"" + msg + "\")");
         struct chat chat;
         return sendSpecial( strtochat( &chat, msg ), -1, -1, true );
     }
