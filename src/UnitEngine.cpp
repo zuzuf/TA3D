@@ -4964,9 +4964,9 @@ namespace TA3D
                         memory[i] = memory[i+e];
                     }
                     mem_size -= e;
-                    for(uint32 f=0;f<weapons.index_list_size;f+=(Math::RandFromTable()&7)+1)
+                    for(std::list<uint32>::iterator f = weapons.idx_list.begin() ; f != weapons.idx_list.end() ; ++f)
                     {
-                        uint32 i = weapons.idx_list[f];
+                        uint32 i = *f;
                         // Yes we don't defend against allies :D, can lead to funny situations :P
                         if (weapons.weapon[i].weapon_id!=-1 && !(players.team[ units.unit[weapons.weapon[i].shooter_idx].owner_id ] & players.team[ owner_id ])
                             && weapon_manager.weapon[weapons.weapon[i].weapon_id].targetable)

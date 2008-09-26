@@ -73,21 +73,15 @@ namespace TA3D
     public:
         //! Weapons count
         uint32 nb_weapon;			// Nombre d'armes
-        //! 
-        uint32 max_weapon;			// Nombre maximum d'armes stockables dans le tableau
         //!
-        WEAPON* weapon;			// Tableau regroupant les armes
+        std::vector< WEAPON > weapon;			// Tableau regroupant les armes
         //!
         Gaf::Animation nuclogo;			// Logos des armes atomiques sur la minicarte / Logo of nuclear weapons on minimap
 
         //!
-        uint32 index_list_size;	// Pre allocated list of used indexes
+        std::list< uint32 > idx_list;
         //!
-        uint32* idx_list;
-        //!
-        uint32 free_index_size;	// Pre allocated list of unused indexes
-        //!
-        uint32* free_idx;
+        std::list< uint32 > free_idx;
 
     protected:
         //!
