@@ -186,12 +186,14 @@ void save_game( const String filename, GameData *game_data )
     //----- Save weapon information ------------------------------------------------------------
 
     SAVE( weapons.nb_weapon );
-    SAVE( weapons.max_weapon );
-    SAVE( weapons.index_list_size );
+    uint32 max_weapons = weapons.weapon.size();
+    SAVE( max_weapons );
+    uint32 index_list_size = weapons.idx_list.size();
+    SAVE( index_list_size );
 
-    for(unsigned int e = 0 ; e < weapons.index_list_size ; ++e)
+    for(std::list<uint32>::iterator e = weapons.idx_list.begin() ; e != weapons.idx_list.end() ; ++e)
     {
-        int i = weapons.idx_list[e];
+        uint32 i = *e;
         SAVE( i );
 
         SAVE( weapons.weapon[i].weapon_id );
@@ -724,27 +726,26 @@ void load_game( GameData *game_data )
 
     weapons.lock();
 
-    if( weapons.weapon )	delete[] weapons.weapon;			// Tableau regroupant les armes
-    if( weapons.idx_list )	delete[] weapons.idx_list;
-    if( weapons.free_idx )	delete[] weapons.free_idx;
+    weapons.weapon.clear();			// Tableau regroupant les armes
+    weapons.idx_list.clear();
+    weapons.free_idx.clear();
 
     LOAD( weapons.nb_weapon );
-    LOAD( weapons.max_weapon );
-    LOAD( weapons.index_list_size );
+    uint32 max_weapon;
+    LOAD( max_weapon );
+    uint32 index_list_size;
+    LOAD( index_list_size );
 
-    weapons.weapon = new WEAPON[weapons.max_weapon];
+    weapons.weapon.resize(max_weapon);
 
-    weapons.idx_list = new uint32[weapons.max_weapon];
-    weapons.free_idx = new uint32[weapons.max_weapon];
-    weapons.free_index_size = 0;
-    for(unsigned int e = 0 ; e < weapons.max_weapon ; ++e)
+    for(uint32 e = 0 ; e < max_weapon ; ++e)
         weapons.weapon[e].weapon_id = -1;
 
-    for (unsigned int e = 0 ; e < weapons.index_list_size ; ++e)
+    for (uint32 e = 0 ; e < index_list_size ; ++e)
     {
         int i;
         LOAD( i );
-        weapons.idx_list[e] = i;
+        weapons.idx_list.push_back(i);
 
         LOAD( weapons.weapon[i].weapon_id );
         if( weapons.weapon[i].weapon_id == -1 )	continue;
@@ -770,9 +771,9 @@ void load_game( GameData *game_data )
         LOAD( weapons.weapon[i].just_explode );
     }
 
-    for (unsigned int e = 0 ; e < weapons.max_weapon ; ++e)
+    for (uint32 e = 0 ; e < max_weapon ; ++e)
         if( weapons.weapon[e].weapon_id == -1 )
-            weapons.free_idx[ weapons.free_index_size++ ] = e;
+            weapons.free_idx.push_back(e);
 
     weapons.unlock();
 

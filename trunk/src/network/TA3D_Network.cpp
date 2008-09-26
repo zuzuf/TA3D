@@ -522,7 +522,7 @@ namespace TA3D
                                 }
                                 weapons.weapon[w_idx].owner = player_id;
                                 weapons.weapon[w_idx].target = event_msg.opt2;
-                                if( event_msg.opt2 < weapons.max_weapon ) {
+                                if( event_msg.opt2 < weapons.weapon.size() ) {
                                     if(weapon_manager.weapon[w_type].interceptor)
                                         weapons.weapon[w_idx].target_pos = weapons.weapon[event_msg.opt2].Pos;
                                     else
