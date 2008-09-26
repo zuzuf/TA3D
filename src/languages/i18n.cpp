@@ -38,7 +38,7 @@ namespace TA3D
 
     I18N::I18N()
         :pNextLangID(0), pDefaultLanguage(NULL), pCurrentLanguage(NULL),
-        pTranslations(8192)
+        pTranslations()
     {
         initializeAllLanguages();
     }
