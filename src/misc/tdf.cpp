@@ -178,6 +178,10 @@ namespace TA3D
                             if (pIgnoreCase)
                                 stack.value.toLower();
                             stack.sections.push(stack.currentSection);
+                            
+                            stack.value = ReplaceString( stack.value, "\\n", "\n", false);
+                            stack.value = ReplaceString( stack.value, "\\r", "\r", false);
+
                             if (!stack.level)
                             {
                                 if (stack.gadgetMode >= 0)
@@ -225,6 +229,9 @@ namespace TA3D
                         // Do not store empty keys in the table
                         if (!clearTable || !stack.value.empty())
                         {
+                            stack.value = ReplaceString( stack.value, "\\n", "\n", false);
+                            stack.value = ReplaceString( stack.value, "\\r", "\r", false);
+
                             String realKey(stack.currentSection);
                             realKey << "." << stack.key;
                             pTable.insertOrUpdate(realKey, stack.value);
