@@ -115,12 +115,15 @@ namespace TA3D
 
     MAP	*load_tnt_map(byte *data)		// Charge une map au format TA, extraite d'une archive HPI/UFO
     {
-        MAP	*map=new MAP;		// Crée une nouvelle carte
+        LOG_DEBUG("MAP: creating MAP object ...");
+        MAP	*map = new MAP;		// Crée une nouvelle carte
 
         the_map = map;
 
+        LOG_DEBUG("MAP: initializing map data ...");
+
         map->init();
-        map->tnt=true;
+        map->tnt = true;
         TNTHEADER	header;		// Structure pour l'en-tête du fichier
 
         int i,x,y;

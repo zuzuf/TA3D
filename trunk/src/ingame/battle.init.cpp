@@ -327,7 +327,10 @@ namespace TA3D
         byte* map_file = HPIManager->PullFromHPI(pGameData->map_filename);
         if (!map_file)
             return false;
+        LOG_DEBUG(LOG_PREFIX_BATTLE << "`" << pGameData->map_filename << "` extracted");
+        LOG_DEBUG(LOG_PREFIX_BATTLE << "loading map data ...");
         map.reset(load_tnt_map(map_file));
+        LOG_DEBUG(LOG_PREFIX_BATTLE << "map data loaded");
         delete[] map_file;
 
         LOG_INFO(LOG_PREFIX_BATTLE << "Loading details texture...");
