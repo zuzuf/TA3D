@@ -14,7 +14,6 @@
 #include "../misc/paths.h"
 #include "../misc/files.h"
 #include "../misc/camera.h"
-#include "../misc/material.light.h"
 #include "../languages/i18n.h"
 #include <list>
 #include <vector>
@@ -106,13 +105,13 @@ namespace TA3D
 
     Battle::Result Battle::execute()
     {
-        if (!pGameData)
+        if (!pGameData) // no gamedata, nothing to do
             return pResult;
 
-        if (pNetworkEnabled)
+        if (pNetworkEnabled) // prepare the network connections if any
             network_manager.cleanQueues();
 
-        if (!loadFromGameData(pGameData))
+        if (!loadFromGameData(pGameData)) // Reinit data
             return pResult;
 
 
@@ -125,22 +124,11 @@ namespace TA3D
 
         uint32	script_timer = 0;
 
-        GLuint	sky;
-        sky = gfx->load_texture(pSkyData->texture_name, FILTER_TRILINEAR, NULL, NULL, false);
-        GLuint	glow = gfx->load_texture("gfx/glow.tga");
-        GLuint	freecam_on = gfx->load_texture("gfx/freecam_on.tga");
-        GLuint	freecam_off = gfx->load_texture("gfx/freecam_off.tga");
-        GLuint	arrow_texture = gfx->load_texture("gfx/arrow.tga");
-        GLuint	circle_texture = gfx->load_texture("gfx/circle.tga");
-        GLuint	water = 0;
-
-
 
         float Conv=0.001f;
         float dt=0.0f;
         float t=0.0f;
-        int count=msec_timer;
-        int i;
+        int count = msec_timer;
 
         bool	reflection_drawn_last_time = false;
 
@@ -180,26 +168,6 @@ namespace TA3D
         glFogf (GL_FOG_END, cam.zfar);
 
         glEnable(GL_FOG);
-
-        HWLight sun;
-        sun.Att=0.0f;
-        sun.Dir.x=-1.0f;
-        sun.Dir.y=2.0f;
-        sun.Dir.z=1.0f;
-        sun.Dir.unit();
-        sun.LightAmbient[0]=0.25f;
-        sun.LightAmbient[1]=0.25f;
-        sun.LightAmbient[2]=0.25f;
-        sun.LightAmbient[3]=0.25f;
-        sun.LightDiffuse[0]=1.0f;
-        sun.LightDiffuse[1]=1.0f;
-        sun.LightDiffuse[2]=1.0f;
-        sun.LightDiffuse[3]=1.0f;
-        sun.LightSpecular[0]=0.0f;
-        sun.LightSpecular[1]=0.0f;
-        sun.LightSpecular[2]=0.0f;
-        sun.LightSpecular[3]=0.0f;
-        sun.Directionnal=true;
 
         lp_CONFIG->pause = false;
 
@@ -254,19 +222,19 @@ namespace TA3D
         # endif
 
 
-        float wind_t=t;					// To handle wind variations
-        bool wind_change=false;
+        float wind_t = t; // To handle wind variations
+        bool wind_change = false;
 
-        int video_timer=msec_timer;			// To handle video
-        bool video_shoot=false;
+        int video_timer = msec_timer; // To handle video
+        bool video_shoot = false;
 
-        int current_order=SIGNAL_ORDER_NONE;
+        int current_order = SIGNAL_ORDER_NONE;
 
         WATER	water_obj;
         water_obj.build(map->map_w,map->map_h,1000);
 
         SKY		sky_obj;
-        sky_obj.build(10,400,pSkyData->full_sphere);
+        sky_obj.build(10, 400, pSkyData->full_sphere);
         float	sky_angle = pSkyData->rotation_offset;
 
         Shader	water_shader, water_shader_reflec, water_pass1, water_pass1_low, water_pass2;
@@ -333,21 +301,9 @@ namespace TA3D
 
         delay=(speed_limit==0.0f) ? 0.0f : 1.0f/speed_limit;
 
-        /*---------------------------- network management --------------------------*/
 
-        TA3DNetwork	ta3d_network( &pArea, pGameData);
-
-        if (pNetworkEnabled)
-        {
-            players.set_network( &ta3d_network);
-            if (!network_manager.isServer())                // Only server is able to save a game
-                pArea.msg("esc_menu.b_save.disable");
-        }
-        g_ta3d_network = &ta3d_network;
-
-        sound_manager->playMusic();
-
-        wait_room(pGameData);
+		// Network synchronization
+		waitForNetworkPlayers();
 
         /*----------------------------- script management --------------------------*/
 
@@ -540,7 +496,7 @@ namespace TA3D
             {
                 if (selected)
                 {
-                    for (i = 0; i < units.index_list_size; ++i)
+                    for (int i = 0; i < units.index_list_size; ++i)
                     {
                         uint32 e = units.idx_list[i];
                         if ((units.unit[e].flags & 1) && units.unit[e].owner_id==players.local_human_id && units.unit[e].sel && unit_manager.unit_type[units.unit[e].type_id]->canmove)
@@ -638,9 +594,9 @@ namespace TA3D
             {
                 if (!ordered_destruct)
                 {
-                    for (uint16 e=0;e<units.index_list_size;e++)
+                    for (unsigned int e = 0; e < units.index_list_size; ++e)
                     {
-                        i = units.idx_list[e];
+                        int i = units.idx_list[e];
                         if ((units.unit[i].flags & 1) && units.unit[i].owner_id==players.local_human_id && units.unit[i].sel)
                             units.unit[i].toggle_self_destruct();
                     }
@@ -755,12 +711,8 @@ namespace TA3D
             {
                 Vector3D move_dir(cam.up);
                 if (move_dir.x==0.0f && move_dir.z==0.0f)
-                {
                     move_dir = cam.dir;
-                    move_dir.y=0.0f;
-                }
-                else
-                    move_dir.y=0.0f;
+                move_dir.y = 0.0f;
                 move_dir.unit();
                 cam.rpos = cam.rpos+ (SCROLL_SPEED * dt * cam_h / 151.0f) * move_dir;
                 cam_has_target = false;
@@ -805,7 +757,7 @@ namespace TA3D
             {
                 if (!TA3D_CTRL_PRESSED)
                 {
-                    if (mouse_b==4)
+                    if (mouse_b == 4)
                     {
                         get_mouse_mickeys(&mx, &my);
                         if (omb == mouse_b)
@@ -818,7 +770,7 @@ namespace TA3D
                     }
                     else
                     {
-                        if (omb==4)
+                        if (omb == 4)
                         {
                             position_mouse(gfx->SCREEN_W_HALF, gfx->SCREEN_H_HALF);
                             cam_has_target = false;
@@ -854,7 +806,7 @@ namespace TA3D
                 float h = map->get_unit_h(cam.rpos.x, cam.rpos.z);
                 if (h < map->sealvl)
                     h = map->sealvl;
-                for (int i = 0; i < 20; ++i)// Increase precision
+                for (int i = 0; i < 20; ++i) // Increase precision
                 {
                     for (float T = 0.0f; T < dt ; T += 0.1f)
                         cam.rpos.y += (h + cam_h - cam.rpos.y) * Math::Min(dt - T, 0.1f);
@@ -934,7 +886,7 @@ namespace TA3D
                 bool canresurrect=false;
                 for (uint16 e = 0; e < units.index_list_size; ++e)
                 {
-                    i = units.idx_list[e];
+                    int i = units.idx_list[e];
                     if ((units.unit[i].flags & 1) && units.unit[i].owner_id==players.local_human_id && units.unit[i].sel)
                     {
                         builders|=unit_manager.unit_type[units.unit[i].type_id]->Builder;
@@ -952,7 +904,8 @@ namespace TA3D
                         Vector3D cur_pos(cursor_on_map(cam, *map, IsOnMinimap));
                         int px = ((int)(cur_pos.x + map->map_w_d)) >> 3;
                         int py = ((int)(cur_pos.z + map->map_h_d)) >> 3;
-                        if (px>=0 && px<map->bloc_w_db && py>=0 && py<map->bloc_h_db && (map->view_map->line[py>>1][px>>1] & (1<<players.local_human_id)) )
+                        if (px >= 0 && px < map->bloc_w_db && py >= 0 && py < map->bloc_h_db
+							&& (map->view_map->line[py>>1][px>>1] & (1<<players.local_human_id)) )
                         {
                             int idx = -map->map_data[py][px].unit_idx - 2;				// Basic check
                             if (idx<0 || features.feature[idx].type<0)
@@ -1001,7 +954,7 @@ namespace TA3D
 
                 if (pointing >= 0 && !rope_selection) 	// S'il y a quelque chose sous le curseur
                 {
-                    cursor_type=CURSOR_CROSS;
+                    cursor_type = CURSOR_CROSS;
                     bool can_be_captured = false;
                     if (!(players.team[units.unit[pointing].owner_id] & players.team[players.local_human_id]))      // Not allied == enemy
                     {
@@ -1017,10 +970,12 @@ namespace TA3D
                         }
                     }
                     else
+					{
                         if (units.unit[pointing].port[BUILD_PERCENT_LEFT]>0.0f && builders)
                             cursor_type = CURSOR_REPAIR;
+					}
 
-                    switch(current_order)
+                    switch (current_order)
                     {
                         case SIGNAL_ORDER_CAPTURE:	cursor_type=CURSOR_CAPTURE;	break;
                         case SIGNAL_ORDER_MOVE:		cursor_type=CURSOR_MOVE;	break;
@@ -1041,12 +996,12 @@ namespace TA3D
                             for (uint16 e = 0; e < units.index_list_size; ++e)
                             {
                                 uint32 commandfire = current_order == SIGNAL_ORDER_DGUN ? MISSION_FLAG_COMMAND_FIRE : 0;
-                                i = units.idx_list[e];
+                                int i = units.idx_list[e];
                                 units.unit[i].lock();
                                 if ((units.unit[i].flags & 1) && units.unit[i].owner_id==players.local_human_id && units.unit[i].sel && unit_manager.unit_type[units.unit[i].type_id]->canattack
                                     && ( unit_manager.unit_type[units.unit[i].type_id]->BMcode || !unit_manager.unit_type[units.unit[i].type_id]->Builder))
                                 {
-                                    for( int f = 0 ; f < unit_manager.unit_type[units.unit[i].type_id]->weapon.size() ; f++ )
+                                    for (int f = 0; f < unit_manager.unit_type[units.unit[i].type_id]->weapon.size(); ++f)
                                         if (unit_manager.unit_type[units.unit[i].type_id]->weapon[ f ] && unit_manager.unit_type[units.unit[i].type_id]->weapon[ f ]->stockpile)
                                         {
                                             commandfire = MISSION_FLAG_COMMAND_FIRE;
@@ -1062,91 +1017,108 @@ namespace TA3D
                             if (!TA3D_SHIFT_PRESSED)	current_order=SIGNAL_ORDER_NONE;
                         }
                         else if (cursor_type == CURSOR_CAPTURE && can_be_captured) {
-                            for (uint16 e = 0 ; e < units.index_list_size ; e++)
-                            {
-                                units.lock();
-                                i = units.idx_list[e];
-                                units.unlock();
-                                units.unit[i].lock();
-                                if ((units.unit[i].flags & 1) && units.unit[i].owner_id == players.local_human_id && units.unit[i].sel && unit_manager.unit_type[units.unit[i].type_id]->CanCapture)
-                                {
-                                    if (TA3D_SHIFT_PRESSED)
-                                        units.unit[i].add_mission( MISSION_CAPTURE, &(units.unit[pointing].Pos), false, 0, &(units.unit[pointing]), NULL);
-                                    else
-                                        units.unit[i].set_mission( MISSION_CAPTURE, &(units.unit[pointing].Pos), false, 0, true, &(units.unit[pointing]), NULL);
-                                }
-                                units.unit[i].unlock();
-                            }
-                            if (!TA3D_SHIFT_PRESSED)
-                                current_order = SIGNAL_ORDER_NONE;
-                        }
-                        else if (cursor_type==CURSOR_REPAIR) {
-                            for (uint16 e = 0; e < units.index_list_size; ++e)
-                            {
-                                units.lock();
-                                i = units.idx_list[e];
-                                units.unlock();
-                                units.unit[i].lock();
-                                if ((units.unit[i].flags & 1) && units.unit[i].owner_id==players.local_human_id && units.unit[i].sel
-                                    && unit_manager.unit_type[units.unit[i].type_id]->Builder && unit_manager.unit_type[units.unit[i].type_id]->BMcode)
-                                {
-                                    if (!TA3D_SHIFT_PRESSED)
-                                        units.unit[ i ].play_sound("repair");
-                                    if (TA3D_SHIFT_PRESSED)
-                                        units.unit[i].add_mission(MISSION_REPAIR,&(units.unit[pointing].Pos),false,0,&(units.unit[pointing]));
-                                    else
-                                        units.unit[i].set_mission(MISSION_REPAIR,&(units.unit[pointing].Pos),false,0,true,&(units.unit[pointing]));
-                                }
-                                units.unit[i].unlock();
-                            }
-                            if (!TA3D_SHIFT_PRESSED)
-                                current_order=SIGNAL_ORDER_NONE;
-                        }
-                        else if (cursor_type==CURSOR_RECLAIM) {
-                            for (uint16 e = 0; e < units.index_list_size; ++e)
-                            {
-                                units.lock();
-                                i = units.idx_list[e];
-                                units.unlock();
-                                units.unit[i].lock();
-                                if ((units.unit[i].flags & 1) && units.unit[i].owner_id==players.local_human_id && units.unit[i].sel
-                                    && unit_manager.unit_type[units.unit[i].type_id]->CanReclamate && unit_manager.unit_type[units.unit[i].type_id]->BMcode)
-                                {
-                                    if (TA3D_SHIFT_PRESSED)
-                                        units.unit[i].add_mission(MISSION_RECLAIM,&(units.unit[pointing].Pos),false,0,&(units.unit[pointing]));
-                                    else
-                                        units.unit[i].set_mission(MISSION_RECLAIM,&(units.unit[pointing].Pos),false,0,true,&(units.unit[pointing]));
-                                }
-                                units.unit[i].unlock();
-                            }
-                            if (!TA3D_SHIFT_PRESSED)	current_order=SIGNAL_ORDER_NONE;
-                        }
-                        else if (cursor_type==CURSOR_GUARD) {	// Le curseur donne un ordre
-                            units.give_order_guard(players.local_human_id,pointing,!TA3D_SHIFT_PRESSED);
-                            if (!TA3D_SHIFT_PRESSED)
-                                current_order=SIGNAL_ORDER_NONE;
-                        }
-                        else if (cursor_type==CURSOR_LOAD) {	// Le curseur donne un ordre
-                            units.give_order_load(players.local_human_id,pointing,!TA3D_SHIFT_PRESSED);
-                            if (!TA3D_SHIFT_PRESSED)
-                                current_order=SIGNAL_ORDER_NONE;
-                        }
-                    }
-                }
-                else
-                {
-                    if (!rope_selection)
-                    {
-                        switch(current_order)
-                        {
-                            case SIGNAL_ORDER_CAPTURE:	cursor_type=CURSOR_CAPTURE;	break;
-                            case SIGNAL_ORDER_MOVE:		cursor_type=CURSOR_MOVE;	break;
-                            case SIGNAL_ORDER_PATROL:	cursor_type=CURSOR_PATROL;	break;
-                            case SIGNAL_ORDER_GUARD:	cursor_type=CURSOR_GUARD;	break;
-                            case SIGNAL_ORDER_DGUN:		cursor_type=CURSOR_ATTACK;	break;
-                            case SIGNAL_ORDER_ATTACK:	cursor_type=CURSOR_ATTACK;	break;
-                            case SIGNAL_ORDER_RECLAM:	cursor_type=CURSOR_RECLAIM;	break;
-                            case SIGNAL_ORDER_LOAD:		cursor_type=CURSOR_LOAD;	break;
+							for (uint16 e = 0 ; e < units.index_list_size ; e++)
+							{
+								units.lock();
+								int i = units.idx_list[e];
+								units.unlock();
+								units.unit[i].lock();
+								if ((units.unit[i].flags & 1) && units.unit[i].owner_id == players.local_human_id && units.unit[i].sel && unit_manager.unit_type[units.unit[i].type_id]->CanCapture)
+								{
+									if (TA3D_SHIFT_PRESSED)
+										units.unit[i].add_mission( MISSION_CAPTURE, &(units.unit[pointing].Pos), false, 0, &(units.unit[pointing]), NULL);
+									else
+										units.unit[i].set_mission( MISSION_CAPTURE, &(units.unit[pointing].Pos), false, 0, true, &(units.unit[pointing]), NULL);
+								}
+								units.unit[i].unlock();
+							}
+							if (!TA3D_SHIFT_PRESSED)
+								current_order = SIGNAL_ORDER_NONE;
+						}
+						else
+						{
+							if (cursor_type==CURSOR_REPAIR)
+							{
+								for (uint16 e = 0; e < units.index_list_size; ++e)
+								{
+									units.lock();
+									int i = units.idx_list[e];
+									units.unlock();
+									units.unit[i].lock();
+									if ((units.unit[i].flags & 1) && units.unit[i].owner_id==players.local_human_id && units.unit[i].sel
+										&& unit_manager.unit_type[units.unit[i].type_id]->Builder && unit_manager.unit_type[units.unit[i].type_id]->BMcode)
+									{
+										if (!TA3D_SHIFT_PRESSED)
+											units.unit[ i ].play_sound("repair");
+										if (TA3D_SHIFT_PRESSED)
+											units.unit[i].add_mission(MISSION_REPAIR,&(units.unit[pointing].Pos),false,0,&(units.unit[pointing]));
+										else
+											units.unit[i].set_mission(MISSION_REPAIR,&(units.unit[pointing].Pos),false,0,true,&(units.unit[pointing]));
+									}
+									units.unit[i].unlock();
+								}
+								if (!TA3D_SHIFT_PRESSED)
+									current_order=SIGNAL_ORDER_NONE;
+							}
+							else
+							{
+								if (cursor_type == CURSOR_RECLAIM)
+								{
+									for (uint16 e = 0; e < units.index_list_size; ++e)
+									{
+										units.lock();
+										int i = units.idx_list[e];
+										units.unlock();
+										units.unit[i].lock();
+										if ((units.unit[i].flags & 1) && units.unit[i].owner_id==players.local_human_id && units.unit[i].sel
+											&& unit_manager.unit_type[units.unit[i].type_id]->CanReclamate && unit_manager.unit_type[units.unit[i].type_id]->BMcode)
+										{
+											if (TA3D_SHIFT_PRESSED)
+												units.unit[i].add_mission(MISSION_RECLAIM,&(units.unit[pointing].Pos),false,0,&(units.unit[pointing]));
+											else
+												units.unit[i].set_mission(MISSION_RECLAIM,&(units.unit[pointing].Pos),false,0,true,&(units.unit[pointing]));
+										}
+										units.unit[i].unlock();
+									}
+									if (!TA3D_SHIFT_PRESSED)
+										current_order=SIGNAL_ORDER_NONE;
+								}
+								else
+								{
+									if (cursor_type==CURSOR_GUARD) // Le curseur donne un ordre
+									{
+										units.give_order_guard(players.local_human_id,pointing,!TA3D_SHIFT_PRESSED);
+										if (!TA3D_SHIFT_PRESSED)
+											current_order=SIGNAL_ORDER_NONE;
+									}
+									else
+									{
+										if (cursor_type==CURSOR_LOAD) 	// Le curseur donne un ordre
+										{
+											units.give_order_load(players.local_human_id,pointing,!TA3D_SHIFT_PRESSED);
+											if (!TA3D_SHIFT_PRESSED)
+												current_order=SIGNAL_ORDER_NONE;
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+				else
+				{
+					if (!rope_selection)
+					{
+						switch(current_order)
+						{
+							case SIGNAL_ORDER_CAPTURE:	cursor_type=CURSOR_CAPTURE;	break;
+							case SIGNAL_ORDER_MOVE:		cursor_type=CURSOR_MOVE;	break;
+							case SIGNAL_ORDER_PATROL:	cursor_type=CURSOR_PATROL;	break;
+							case SIGNAL_ORDER_GUARD:	cursor_type=CURSOR_GUARD;	break;
+							case SIGNAL_ORDER_DGUN:		cursor_type=CURSOR_ATTACK;	break;
+							case SIGNAL_ORDER_ATTACK:	cursor_type=CURSOR_ATTACK;	break;
+							case SIGNAL_ORDER_RECLAM:	cursor_type=CURSOR_RECLAIM;	break;
+							case SIGNAL_ORDER_LOAD:		cursor_type=CURSOR_LOAD;	break;
                             case SIGNAL_ORDER_UNLOAD:	cursor_type=CURSOR_UNLOAD;	break;
                             case SIGNAL_ORDER_REPAIR:	cursor_type=CURSOR_REPAIR;	break;
                         }
@@ -1156,15 +1128,15 @@ namespace TA3D
                             if (cursor_type == CURSOR_ATTACK)
                             {
                                 Vector3D cursor_pos(cursor_on_map(cam, *map, IsOnMinimap));
-                                for (uint16 e = 0; e < units.index_list_size; ++e)
+                                for (unsigned int e = 0; e < units.index_list_size; ++e)
                                 {
                                     uint32 commandfire = current_order == SIGNAL_ORDER_DGUN ? MISSION_FLAG_COMMAND_FIRE : 0;
-                                    i = units.idx_list[e];
+                                    int i = units.idx_list[e];
                                     units.unit[i].lock();
                                     if ((units.unit[i].flags & 1) && units.unit[i].owner_id==players.local_human_id && units.unit[i].sel && unit_manager.unit_type[units.unit[i].type_id]->canattack
                                         && ( unit_manager.unit_type[units.unit[i].type_id]->BMcode || !unit_manager.unit_type[units.unit[i].type_id]->Builder))
                                     {
-                                        for( int f = 0 ; f < unit_manager.unit_type[units.unit[i].type_id]->weapon.size() ; f++ )
+                                        for (int f = 0; f < unit_manager.unit_type[units.unit[i].type_id]->weapon.size(); ++f)
                                             if (unit_manager.unit_type[units.unit[i].type_id]->weapon[ f ] && unit_manager.unit_type[units.unit[i].type_id]->weapon[ f ]->stockpile)
                                             {
                                                 commandfire = MISSION_FLAG_COMMAND_FIRE;
@@ -1206,7 +1178,7 @@ namespace TA3D
                     for (uint16 e = 0; e < units.index_list_size; ++e)
                     {
                         units.lock();
-                        i = units.idx_list[e];
+                        int i = units.idx_list[e];
                         units.unlock();
                         units.unit[i].lock();
                         if ((units.unit[i].flags & 1) && units.unit[i].owner_id==players.local_human_id && units.unit[i].sel
@@ -1234,7 +1206,7 @@ namespace TA3D
                     for (uint16 e = 0; e < units.index_list_size; ++e)
                     {
                         units.lock();
-                        i = units.idx_list[e];
+                        int i = units.idx_list[e];
                         units.unlock();
                         units.unit[i].lock();
                         if ((units.unit[i].flags & 1) && units.unit[i].owner_id==players.local_human_id && units.unit[i].sel
@@ -1361,7 +1333,7 @@ namespace TA3D
                             cur_sel_index = -1;
                             for (uint16 e = 0; e < units.index_list_size; ++e)
                             {
-                                i = units.idx_list[e];
+                                int i = units.idx_list[e];
                                 if (units.unit[i].owner_id == players.local_human_id) // On peut désélectionner les morts, ça ne change rien :-)
                                     units.unit[i].sel = false;
                             }
@@ -1382,19 +1354,19 @@ namespace TA3D
                             int pointing = IsOnMinimap ? units.pick_minimap() : units.pick(cam); // Select a unit from a single click
                             if (!TA3D_SHIFT_PRESSED)
                             {
-                                for (uint16 e = 0; e < units.index_list_size; ++e)
+                                for (unsigned int e = 0; e < units.index_list_size; ++e)
                                 {
-                                    i = units.idx_list[e];
+                                    int i = units.idx_list[e];
                                     if ((units.unit[i].flags & 1) && units.unit[i].owner_id==players.local_human_id)
                                         units.unit[i].sel = false;
                                 }
                             }
-                            if (pointing>=0 && units.unit[pointing].port[BUILD_PERCENT_LEFT]==0.0f)		// On ne sélectionne pas les unités en construction
-                                units.unit[pointing].sel^=true;			// Sélectionne/Désélectionne si l'unité est déjà sélectionnée en appuyant sur SHIFT
+                            if (pointing >= 0 && units.unit[pointing].port[BUILD_PERCENT_LEFT] == 0.0f)	// On ne sélectionne pas les unités en construction
+                                units.unit[pointing].sel ^= true; // Sélectionne/Désélectionne si l'unité est déjà sélectionnée en appuyant sur SHIFT
                             selected = false;
-                            for (uint16 e = 0; e < units.index_list_size; ++e)
+                            for (unsigned int e = 0; e < units.index_list_size; ++e)
                             {
-                                i = units.idx_list[e];
+                                int i = units.idx_list[e];
                                 if ((units.unit[i].flags & 1) && units.unit[i].owner_id==players.local_human_id)
                                     selected|=units.unit[i].sel;
                             }
@@ -1409,15 +1381,15 @@ namespace TA3D
                     {
                         if (selected)			// In order to refresh GUI
                             old_sel = false;
-                        cur_sel=-1;
-                        cur_sel_index=-1;
+                        cur_sel = -1;
+                        cur_sel_index = -1;
                         for (uint16 e=0;e<units.index_list_size && cur_sel!=-2;e++)
                         {
-                            i = units.idx_list[e];
+                            int i = units.idx_list[e];
                             if ((units.unit[i].flags & 1) && units.unit[i].owner_id==players.local_human_id && units.unit[i].sel)
                                 cur_sel= (cur_sel==-1) ? i : -2;
                         }
-                        if (cur_sel>=0)
+                        if (cur_sel >= 0)
                         {
                             cur_sel_index=cur_sel;
                             cur_sel=units.unit[cur_sel].type_id;
@@ -1503,35 +1475,44 @@ namespace TA3D
                 if (key[KEY_C])
                     check_cat += "C";
                 else
+				{
                     if (key[KEY_F])
                         check_cat += "F";
                     else
+					{
                         if (key[KEY_V])
                             check_cat += "V";
                         else
+						{
                             if (key[KEY_B])
                                 check_cat += "B";
-                for (uint16 e = 0 ; e < units.index_list_size; ++e)
+						}
+					}
+				}
+                for (unsigned int e = 0 ; e < units.index_list_size; ++e)
                 {
-                    i = units.idx_list[e];
+                    int i = units.idx_list[e];
                     if ((units.unit[i].flags & 1) && units.unit[i].owner_id == players.local_human_id && units.unit[i].build_percent_left == 0.0f)
                     {
                         if (unit_manager.unit_type[units.unit[i].type_id]->checkCategory( check_cat.c_str()))
-                            units.unit[i].sel=true;
-                        else if (!TA3D_SHIFT_PRESSED)
-                            units.unit[i].sel=false;
+                            units.unit[i].sel = true;
+                        else
+						{
+							if (!TA3D_SHIFT_PRESSED)
+								units.unit[i].sel = false;
+						}
                     }
                 }
                 cur_sel = -1;
                 cur_sel_index = -1;
                 build = -1;
-                for (uint16 e = 0; e < units.index_list_size && cur_sel != -2; ++e)
+                for (unsigned int e = 0; e < units.index_list_size && cur_sel != -2; ++e)
                 {
-                    i = units.idx_list[e];
+                    int i = units.idx_list[e];
                     if ((units.unit[i].flags & 1) && units.unit[i].owner_id == players.local_human_id && units.unit[i].sel)
                         cur_sel= (cur_sel==-1) ? i : -2;
                 }
-                selected=(cur_sel!=-1);
+                selected = (cur_sel!=-1);
                 if (cur_sel >= 0)
                 {
                     cur_sel_index=cur_sel;
@@ -1542,25 +1523,25 @@ namespace TA3D
                 if (TA3D_CTRL_PRESSED && key[KEY_Z]) // Séletionne toutes les unités dont le type est déjà sélectionné / Select units of the same type
                 {
                     bool *sel_type = new bool[unit_manager.nb_unit];
-                    for (i = 0; i < unit_manager.nb_unit; ++i)
+                    for (int i = 0; i < unit_manager.nb_unit; ++i)
                         sel_type[i] = false;
-                    for (uint16 e = 0; e < units.index_list_size; ++e)
+                    for (unsigned int e = 0; e < units.index_list_size; ++e)
                     {
-                        i = units.idx_list[e];
+                        int i = units.idx_list[e];
                         if ((units.unit[i].flags & 1) && units.unit[i].owner_id==players.local_human_id && units.unit[i].sel)
                             sel_type[units.unit[i].type_id]=true;
                     }
-                    for (uint16 e=0;e<units.index_list_size; ++e)
+                    for (unsigned int e = 0; e < units.index_list_size; ++e)
                     {
-                        i = units.idx_list[e];
+                        int i = units.idx_list[e];
                         if ((units.unit[i].flags & 1) && units.unit[i].build_percent_left == 0.0f && units.unit[i].owner_id==players.local_human_id && sel_type[units.unit[i].type_id])
                             units.unit[i].sel=true;
                     }
                     cur_sel = -1;
                     cur_sel_index = -1;
-                    for (uint16 e = 0; e < units.index_list_size && cur_sel!= -2; ++e)
+                    for (unsigned int e = 0; e < units.index_list_size && cur_sel != -2; ++e)
                     {
-                        i = units.idx_list[e];
+                        int i = units.idx_list[e];
                         if ((units.unit[i].flags & 1) && units.unit[i].owner_id==players.local_human_id && units.unit[i].sel)
                             cur_sel= (cur_sel==-1) ? i : -2;
                     }
@@ -1568,8 +1549,8 @@ namespace TA3D
                     build = -1;
                     if (cur_sel >= 0)
                     {
-                        cur_sel_index=cur_sel;
-                        cur_sel=units.unit[cur_sel].type_id;
+                        cur_sel_index = cur_sel;
+                        cur_sel = units.unit[cur_sel].type_id;
                     }
                     delete[] sel_type;
                 }
@@ -1577,26 +1558,26 @@ namespace TA3D
                 {
                     if (TA3D_CTRL_PRESSED && key[KEY_A]) // Select all the player's units
                     {
-                        for (uint16 e = 0 ; e < units.index_list_size; ++e)
+                        for (unsigned int e = 0 ; e < units.index_list_size; ++e)
                         {
-                            i = units.idx_list[e];
+                            int i = units.idx_list[e];
                             if ((units.unit[i].flags & 1) && units.unit[i].port[BUILD_PERCENT_LEFT] == 0.0f && units.unit[i].owner_id == players.local_human_id)
-                                units.unit[i].sel=true;
+                                units.unit[i].sel = true;
                         }
                         cur_sel = -1;
                         cur_sel_index = -1;
-                        for (uint16 e = 0; e < units.index_list_size && cur_sel != -2; ++e)
+                        for (unsigned int e = 0; e < units.index_list_size && cur_sel != -2; ++e)
                         {
-                            i = units.idx_list[e];
+                            int i = units.idx_list[e];
                             if ((units.unit[i].flags & 1) && units.unit[i].owner_id == players.local_human_id && units.unit[i].sel)
-                                cur_sel= (cur_sel==-1) ? i : -2;
+                                cur_sel= (cur_sel == -1) ? i : -2;
                         }
                         selected = (cur_sel != -1);
                         build = -1;
                         if (cur_sel >= 0)
                         {
-                            cur_sel_index=cur_sel;
-                            cur_sel=units.unit[cur_sel].type_id;
+                            cur_sel_index = cur_sel;
+                            cur_sel = units.unit[cur_sel].type_id;
                         }
                     }
                     else
@@ -1618,9 +1599,9 @@ namespace TA3D
                             if (grpe >= 0)
                             {
                                 grpe = 1 << grpe;
-                                for (uint16 e=0;e<units.index_list_size; ++e)
+                                for (unsigned int e = 0; e < units.index_list_size; ++e)
                                 {
-                                    i = units.idx_list[e];
+                                    int i = units.idx_list[e];
                                     if ((units.unit[i].flags & 1) && units.unit[i].owner_id==players.local_human_id)
                                     {
                                         if (units.unit[i].sel)
@@ -1653,7 +1634,7 @@ namespace TA3D
                                     grpe = 1 << grpe;
                                     for (uint16 e = 0; e < units.index_list_size; ++e)
                                     {
-                                        i = units.idx_list[e];
+                                        int i = units.idx_list[e];
                                         if ((units.unit[i].flags & 1) && units.unit[i].owner_id==players.local_human_id)
                                         {
                                             if (units.unit[i].groupe&grpe)
@@ -1667,9 +1648,9 @@ namespace TA3D
 
                                 cur_sel = -1;
                                 cur_sel_index = -1;
-                                for (uint16 e = 0; e < units.index_list_size && cur_sel != -2; ++e)
+                                for (unsigned int e = 0; e < units.index_list_size && cur_sel != -2; ++e)
                                 {
-                                    i = units.idx_list[e];
+                                    int i = units.idx_list[e];
                                     if ((units.unit[i].flags & 1) && units.unit[i].owner_id==players.local_human_id && units.unit[i].sel)
                                         cur_sel= (cur_sel==-1) ? i : -2;
                                 }
@@ -1756,8 +1737,8 @@ namespace TA3D
                 glClipPlane(GL_CLIP_PLANE1, eqn);
                 glEnable(GL_CLIP_PLANE1);
 
-                sun.Set(refcam);
-                sun.Enable();
+                pSun.Set(refcam);
+                pSun.Enable();
 
                 refcam.zfar*=100.0f;
                 refcam.setView();
@@ -1863,8 +1844,8 @@ namespace TA3D
 
             cam.setView();
 
-            sun.Set(cam);
-            sun.Enable();
+            pSun.Set(cam);
+            pSun.Enable();
 
             cam.setView();
 
@@ -1954,7 +1935,7 @@ namespace TA3D
                 if (!g_useProgram || !g_useFBO || lp_CONFIG->water_quality < 2)
                 {
                     gfx->set_alpha_blending();
-                    if (lp_CONFIG->water_quality==1) // lp_CONFIG->water_quality=1
+                    if (lp_CONFIG->water_quality == 1) // lp_CONFIG->water_quality=1
                     {
                         glColor4f(1.0f,1.0f,1.0f,0.5f);
 
@@ -2307,9 +2288,9 @@ namespace TA3D
             {
                 cam.setView();
                 bool builders = false;
-                for (uint16 e = 0; e < units.index_list_size; ++e)
+                for (unsigned int e = 0; e < units.index_list_size; ++e)
                 {
-                    i = units.idx_list[e];
+                    int i = units.idx_list[e];
                     if ((units.unit[i].flags & 1) && units.unit[i].owner_id==players.local_human_id && units.unit[i].sel)
                     {
                         builders |= unit_manager.unit_type[units.unit[i].type_id]->Builder;
@@ -2319,9 +2300,9 @@ namespace TA3D
 
                 if (builders)
                 {
-                    for (uint16 e = 0; e < units.index_list_size; ++e)
+                    for (unsigned int e = 0; e < units.index_list_size; ++e)
                     {
-                        i = units.idx_list[e];
+                        int i = units.idx_list[e];
                         if ((units.unit[i].flags & 1) && units.unit[i].owner_id==players.local_human_id && !units.unit[i].sel
                             && unit_manager.unit_type[units.unit[i].type_id]->Builder && unit_manager.unit_type[units.unit[i].type_id]->BMcode)
                         {
@@ -2344,24 +2325,24 @@ namespace TA3D
                 {
                     if (rotate_light)
                     {
-                        sun.Dir.x = -1.0f;
-                        sun.Dir.y = 1.0f;
-                        sun.Dir.z = 1.0f;
-                        sun.Dir.unit();
-                        Vector3D Dir(-sun.Dir);
+                        pSun.Dir.x = -1.0f;
+                        pSun.Dir.y = 1.0f;
+                        pSun.Dir.z = 1.0f;
+                        pSun.Dir.unit();
+                        Vector3D Dir(-pSun.Dir);
                         Dir.x = cos(light_angle);
                         Dir.z = sin(light_angle);
                         Dir.unit();
-                        sun.Dir = -Dir;
+                        pSun.Dir = -Dir;
                         units.draw_shadow(cam, Dir, map.get());
                     }
                     else
                     {
-                        sun.Dir.x = -1.0f;
-                        sun.Dir.y = 1.0f;
-                        sun.Dir.z = 1.0f;
-                        sun.Dir.unit();
-                        units.draw_shadow(cam, -sun.Dir, map.get());
+                        pSun.Dir.x = -1.0f;
+                        pSun.Dir.y = 1.0f;
+                        pSun.Dir.z = 1.0f;
+                        pSun.Dir.unit();
+                        units.draw_shadow(cam, -pSun.Dir, map.get());
                     }
                 }
                 else
@@ -2370,23 +2351,23 @@ namespace TA3D
                     Vector3D Dir;
                     if (rotate_light)
                     {
-                        sun.Dir.x = -1.0f;
-                        sun.Dir.y = 1.0f;
-                        sun.Dir.z = 1.0f;
-                        sun.Dir.unit();
-                        Dir = -sun.Dir;
+                        pSun.Dir.x = -1.0f;
+                        pSun.Dir.y = 1.0f;
+                        pSun.Dir.z = 1.0f;
+                        pSun.Dir.unit();
+                        Dir = -pSun.Dir;
                         Dir.x = cos(light_angle);
                         Dir.z = sin(light_angle);
                         Dir.unit();
-                        sun.Dir = -Dir;
+                        pSun.Dir = -Dir;
                     }
                     else
                     {
-                        sun.Dir.x = -1.0f;
-                        sun.Dir.y = 1.0f;
-                        sun.Dir.z = 1.0f;
-                        sun.Dir.unit();
-                        Dir = -sun.Dir;
+                        pSun.Dir.x = -1.0f;
+                        pSun.Dir.y = 1.0f;
+                        pSun.Dir.z = 1.0f;
+                        pSun.Dir.unit();
+                        Dir = -pSun.Dir;
                     }
                     for (int i = 0; i < lp_CONFIG->shadow_quality; ++i)
                     {
@@ -2478,7 +2459,7 @@ namespace TA3D
             gfx->set_2D_mode();		// Affiche console, infos,...
             draw2DObjects();
 
-            old_cam_pos=cam.rpos;
+            old_cam_pos = cam.rpos;
             int signal = 0;
             if (!pNetworkEnabled || pNetworkIsServer)
             {
@@ -3113,7 +3094,7 @@ namespace TA3D
                 if (nb > 0 && cur != NULL && cur->mission == MISSION_BUILD_2 && cur->data==sel)
                 {
                     sint32 prev = -1;
-                    for (i = units.nb_unit-1; i>=0; --i)
+                    for (int i = units.nb_unit - 1; i >= 0; --i)
                     {
                         if (units.idx_list[i] == ((UNIT*)(units.unit[cur_sel_index].mission->p))->idx)
                         {
@@ -3224,9 +3205,9 @@ namespace TA3D
                 if (cur_sel>=0 && unit_manager.unit_type[cur_sel]->script)
                 {
                     float Y(32.0f);
-                    gfx->print(gfx->normal_font,128.0f,Y,0.0f,0xFFFFFFFF,format("%d scripts",unit_manager.unit_type[cur_sel]->script->nb_script));
+                    gfx->print(gfx->normal_font,128.0f, Y, 0.0f, 0xFFFFFFFF, format("%d scripts", unit_manager.unit_type[cur_sel]->script->nb_script));
                     Y += 9.0f;
-                    for (i = 0; i < unit_manager.unit_type[cur_sel]->script->nb_script; ++i)
+                    for (int i = 0; i < unit_manager.unit_type[cur_sel]->script->nb_script; ++i)
                     {
                         if (units.unit[cur_sel_index].is_running(i))
                             gfx->print(gfx->normal_font, 128.0f, Y, 0.0f, 0xFFFFFFFF, format("%d %s (on)", i, unit_manager.unit_type[cur_sel]->script->names[i].c_str()));
@@ -3268,8 +3249,8 @@ namespace TA3D
             {
                 const char *unit_info[]={"MISSION_STANDBY","MISSION_VTOL_STANDBY","MISSION_GUARD_NOMOVE","MISSION_MOVE","MISSION_BUILD","MISSION_BUILD_2","MISSION_STOP","MISSION_REPAIR","MISSION_ATTACK",
                     "MISSION_PATROL","MISSION_GUARD","MISSION_RECLAIM","MISSION_LOAD","MISSION_UNLOAD","MISSION_STANDBY_MINE"};
-                float y = 32.0f;
-                for (i = 0; i < units.max_unit; ++i)
+                float y(32.0f);
+                for (int i = 0; i < units.max_unit; ++i)
                 {
                     units.unit[i].lock();
                     if ((units.unit[i].flags & 1) && last_on == i)
@@ -3312,7 +3293,7 @@ namespace TA3D
                 show_timefactor -= dt;
             }
 
-            ta3d_network.draw(); // Draw network related stuffs (ie: chat messages, ...)
+            g_ta3d_network->draw(); // Draw network related stuffs (ie: chat messages, ...)
 
             String cmd;
             // Draw the console
@@ -3507,17 +3488,19 @@ namespace TA3D
                         {
                             int value = atoi( params[1].c_str());
                             units.lock();
-                            for (uint16 e = 0; e < units.index_list_size; ++e)
+                            for (unsigned int e = 0; e < units.index_list_size; ++e)
                             {
-                                i = units.idx_list[e];
+                                int i = units.idx_list[e];
                                 if ((units.unit[i].flags & 1) && units.unit[i].owner_id==players.local_human_id && units.unit[i].sel)
                                 {
                                     units.unit[i].hp+=value;
                                     if (units.unit[i].hp < 0)
                                         units.unit[i].hp = 0;
                                     else
+									{
                                         if (units.unit[i].hp > unit_manager.unit_type[units.unit[i].type_id]->MaxDamage)
                                             units.unit[i].hp = unit_manager.unit_type[units.unit[i].type_id]->MaxDamage;
+									}
                                 }
                             }
                             units.unlock();
@@ -3527,9 +3510,9 @@ namespace TA3D
                         if (selected) // Sur les unités sélectionnées
                         {
                             units.lock();
-                            for (uint16 e = 0; e < units.index_list_size; ++e)
+                            for (unsigned int e = 0; e < units.index_list_size; ++e)
                             {
-                                i = units.idx_list[e];
+                                int i = units.idx_list[e];
                                 if ((units.unit[i].flags & 1) && units.unit[i].owner_id==players.local_human_id && units.unit[i].sel)
                                     units.unit[i].deactivate();
                             }
@@ -3540,9 +3523,9 @@ namespace TA3D
                         if (selected) // Sur les unités sélectionnées
                         {
                             units.lock();
-                            for (uint16 e = 0; e < units.index_list_size; ++e)
+                            for (unsigned int e = 0; e < units.index_list_size; ++e)
                             {
-                                i = units.idx_list[e];
+                                int i = units.idx_list[e];
                                 if ((units.unit[i].flags & 1) && units.unit[i].owner_id==players.local_human_id && units.unit[i].sel)
                                     units.unit[i].activate();
                             }
@@ -3553,9 +3536,9 @@ namespace TA3D
                         if (selected) // Sur les unités sélectionnées
                         {
                             units.lock();
-                            for (uint16 e = 0; e < units.index_list_size; ++e)
+                            for (unsigned int e = 0; e < units.index_list_size; ++e)
                             {
-                                i = units.idx_list[e];
+                                int i = units.idx_list[e];
                                 units.unlock();
                                 if ((units.unit[i].flags & 1) && units.unit[i].owner_id==players.local_human_id && units.unit[i].sel)
                                     units.unit[i].reset_script();
@@ -3570,13 +3553,13 @@ namespace TA3D
                             const char *unit_info[]={"ACTIVATION","STANDINGMOVEORDERS","STANDINGFIREORDERS","HEALTH","INBUILDSTANCE","BUSY","PIECE_XZ","PIECE_Y","UNIT_XZ","UNIT_Y","UNIT_HEIGHT","XZ_ATAN","XZ_HYPOT","ATAN",
                                 "HYPOT","GROUND_HEIGHT","BUILD_PERCENT_LEFT","YARD_OPEN","BUGGER_OFF","ARMORED"};
                             units.lock();
-                            for (uint16 e = 0; e < units.index_list_size; ++e)
+                            for (unsigned int e = 0; e < units.index_list_size; ++e)
                             {
-                                i = units.idx_list[e];
+                                int i = units.idx_list[e];
                                 if ((units.unit[i].flags & 1) && units.unit[i].owner_id==players.local_human_id && units.unit[i].sel)
                                 {
                                     printf("flags=%d\n", units.unit[i].flags);
-                                    for (int f=1;f<21;f++)
+                                    for (int f = 1; f < 21; ++f)
                                         printf("%s=%d\n",unit_info[f-1],units.unit[i].port[f]);
                                 }
                             }
@@ -3587,9 +3570,9 @@ namespace TA3D
                         if (selected) // Sur les unités sélectionnées
                         {
                             units.lock();
-                            for (uint16 e=0;e<units.index_list_size;e++)
+                            for (unsigned int e = 0; e < units.index_list_size; ++e)
                             {
-                                i = units.idx_list[e];
+                                int i = units.idx_list[e];
                                 units.unlock();
                                 if ((units.unit[i].flags & 1) && units.unit[i].owner_id==players.local_human_id && units.unit[i].sel) {
                                     units.kill(i, map.get(), e);
@@ -3606,7 +3589,7 @@ namespace TA3D
                         units.lock();
                         for (int e = 0; e < units.max_unit; ++e)
                         {
-                            i = units.idx_list[e];
+                            int i = units.idx_list[e];
                             units.unlock();
                             if ((units.unit[i].flags & 1) && units.unit[i].owner_id != players.local_human_id)
                             {
@@ -3624,7 +3607,7 @@ namespace TA3D
                             units.lock();
                             for (int e = 0; e < units.index_list_size; ++e)
                             {
-                                i = units.idx_list[e];
+                                int i = units.idx_list[e];
                                 if ((units.unit[i].flags & 1) && units.unit[i].owner_id==players.local_human_id && units.unit[i].sel)
                                     units.unit[i].launch_script(id);
                             }
@@ -3657,8 +3640,8 @@ namespace TA3D
                             LOG_ERROR("Command error: The correct syntax is: give metal/energy/both player_id amount");
 
                     }
-                    else if (params[0] == "metal") cheat_metal^=true;				// cheat codes
-                    else if (params[0] == "energy") cheat_energy^=true;			// cheat codes
+                    else if (params[0] == "metal") cheat_metal ^= true;	 // cheat codes
+                    else if (params[0] == "energy") cheat_energy ^= true; // cheat codes
                 }
                 params.clear();
             }
