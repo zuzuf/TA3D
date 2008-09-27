@@ -8,6 +8,7 @@
 # include "../tdf.h"
 # include "../EngineClass.h"
 # include "../misc/rect.h"
+# include "../misc/material.light.h"
 
 
 
@@ -86,7 +87,13 @@ namespace TA3D
         bool initGUI();
         //! Init the map
         bool initTheMap();
+		//! Init the sun
+		bool initTheSun();
+		//! Init all textures
+		bool initAllTextures();
         //@}
+
+		void waitForNetworkPlayers();
 
         //! \name 2D Objects && User interaction
         //@{
@@ -119,11 +126,12 @@ namespace TA3D
             int lastTime;
             String toStr;
         };
-        //! Informations about FPS
-        FPSInfos fps;
-
+        
     private:
+		//! The area
         AREA pArea;
+		//! Informations about FPS
+        FPSInfos fps;
         //! The map of the game - TODO The auto_ptr is deprecated
         std::auto_ptr<MAP> map;
         //! The sky - TODO The auto_ptr is deprecated
@@ -133,6 +141,19 @@ namespace TA3D
         bool pMouseSelecting;
         //! The bounding box of the current mouse selection (if pMouseSelecting == true)
         Rect<int> pMouseRectSelection;
+		//! The sun
+        HWLight pSun;
+
+		//! \name Textures
+		//@{
+		GLuint	sky;
+        GLuint	glow;
+        GLuint	freecam_on;
+        GLuint	freecam_off;
+        GLuint	arrow_texture;
+        GLuint	circle_texture;
+        GLuint	water;
+		//@}
 
     }; // class Battle
 

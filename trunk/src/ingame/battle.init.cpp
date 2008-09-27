@@ -16,6 +16,7 @@
 #include "../tnt.h"
 #include "../misc/paths.h"
 #include "../misc/files.h"
+#include "../menu.h"
 
 
 // Should be removed
@@ -72,6 +73,12 @@ namespace TA3D
         LOG_DEBUG(LOG_PREFIX_BATTLE << "Freeing memory used for players...");
         players.destroy();
 
+		// Network
+		if (g_ta3d_network)
+		{
+			delete g_ta3d_network;
+			g_ta3d_network = NULL;
+		}
         // Reset the HPI manager
         delete HPIManager;
         HPIManager = new cHPIHandler();
@@ -116,6 +123,10 @@ namespace TA3D
             return false;
         if (!initTheMap())
             return false;
+		if (!initTheSun())
+			return false;
+		if (!initAllTextures())
+			return false;
 
         // The loading has finished
         loading(100.0f, I18N::Translate("Load finished"));
@@ -376,17 +387,71 @@ namespace TA3D
     }
 
 
+	bool Battle::initTheSun()
+	{
+		pSun.Att = 0.0f;
+		// Direction
+		pSun.Dir.x = -1.0f;
+		pSun.Dir.y = 2.0f;
+		pSun.Dir.z = 1.0f;
+		pSun.Dir.unit();
+		// Lights
+		pSun.LightAmbient[0]  = 0.25f;
+		pSun.LightAmbient[1]  = 0.25f;
+		pSun.LightAmbient[2]  = 0.25f;
+		pSun.LightAmbient[3]  = 0.25f;
+		pSun.LightDiffuse[0]  = 1.0f;
+		pSun.LightDiffuse[1]  = 1.0f;
+		pSun.LightDiffuse[2]  = 1.0f;
+		pSun.LightDiffuse[3]  = 1.0f;
+		pSun.LightSpecular[0] = 0.0f;
+		pSun.LightSpecular[1] = 0.0f;
+		pSun.LightSpecular[2] = 0.0f;
+		pSun.LightSpecular[3] = 0.0f;
+		// Direction
+		pSun.Directionnal = true;
+		return true;
+	}
 
-    void Battle::updateCurrentGUICacheNames()
-    {
-        // Reset
-        for (int i = 0; i < cgcEnd; ++i)
-            pCurrentGUICache[i] = pCurrentGUI;
-        // Each item
-        pCurrentGUICache[cgcDot] << ".";
-        pCurrentGUICache[cgcShow] << ".show";
-        pCurrentGUICache[cgcHide] << ".hide";
-    }
+
+	bool Battle::initAllTextures()
+	{
+		sky = gfx->load_texture(pSkyData->texture_name, FILTER_TRILINEAR, NULL, NULL, false);
+		glow = gfx->load_texture("gfx/glow.tga");
+		freecam_on = gfx->load_texture("gfx/freecam_on.tga");
+		freecam_off = gfx->load_texture("gfx/freecam_off.tga");
+		arrow_texture = gfx->load_texture("gfx/arrow.tga");
+		circle_texture = gfx->load_texture("gfx/circle.tga");
+		water = 0;
+		return true;
+	}
+
+
+	void Battle::updateCurrentGUICacheNames()
+	{
+		// Reset
+		for (int i = 0; i < cgcEnd; ++i)
+			pCurrentGUICache[i] = pCurrentGUI;
+		// Each item
+		pCurrentGUICache[cgcDot] << ".";
+		pCurrentGUICache[cgcShow] << ".show";
+		pCurrentGUICache[cgcHide] << ".hide";
+	}
+
+	
+	void Battle::waitForNetworkPlayers()
+	{
+		g_ta3d_network = new TA3DNetwork(&pArea, pGameData);
+		if (pNetworkEnabled)
+		{
+			players.set_network(g_ta3d_network);
+			if (!network_manager.isServer())                // Only server is able to save a game
+				pArea.msg("esc_menu.b_save.disable");
+		}
+		sound_manager->playMusic();
+		wait_room(pGameData);
+	}
+
 
 
 } // namespace TA3D
