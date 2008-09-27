@@ -3031,8 +3031,15 @@ namespace TA3D
                                 }
                                 else if (unit_manager.unit_type[type_id]->weapon[ i ]->waterweapon && Pos.y > units.map->sealvl)
                                 {
+                                    if (target % V < 0.0f)
+                                    {
+                                        weapon[i].state = WEAPON_FLAG_IDLE;
+                                        weapon[i].data = -1;
+                                        break;	// We're not shooting at the target
+                                    }
                                     float t = 2.0f/map->ota_data.gravity*fabs(target.y);
-                                    maxdist = (int)sqrt(t*V.sq()) + (unit_manager.unit_type[type_id]->weapon[ i ]->range>>1);
+                                    mindist = (int)sqrt(t*V.sq());
+                                    maxdist = mindist + (unit_manager.unit_type[type_id]->weapon[ i ]->range>>1);
                                 }
                                 else
                                     maxdist = unit_manager.unit_type[type_id]->weapon[ i ]->range>>1;
@@ -4806,7 +4813,8 @@ namespace TA3D
                         mission->last_d = dist;
                         if (dist > 0.0f)
                             J = 1.0f / dist * J;
-                        if (dist > unit_manager.unit_type[type_id]->ManeuverLeashLength ) {
+                        if (dist > unit_manager.unit_type[type_id]->ManeuverLeashLength * 0.5f)
+                        {
                             b_TargetAngle = true;
                             f_TargetAngle = acos(J.z) * RAD2DEG;
                             if (J.x < 0.0f) f_TargetAngle = -f_TargetAngle;
