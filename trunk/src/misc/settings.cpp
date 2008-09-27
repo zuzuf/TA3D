@@ -117,6 +117,11 @@ namespace Settings
         if (!cfgFile.loadFromFile(TA3D::Paths::ConfigFile,false,false,false,true))      // Load this from real file system since it has nothing to do with game content
         {
             LOG_ERROR(LOG_PREFIX_SETTINGS << "Impossible to load the settings from `" << TA3D::Paths::ConfigFile << "`");
+
+            LANG = lp_CONFIG->Lang = 0;         // Set default language to English
+            // Apply settings for the current language
+            I18N::Instance()->currentLanguage(lp_CONFIG->Lang);
+            
             return false;
         }
 
