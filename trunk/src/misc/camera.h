@@ -36,7 +36,7 @@ namespace TA3D
         void updateShake(const float dt);
 
         /*!
-        **
+        ** \brief Set the matrix
         */
         void setMatrix(const MATRIX_4x4& v);
 
@@ -45,6 +45,10 @@ namespace TA3D
         */
         void setView();
 
+		/*!
+		** \brief Reset all data
+		*/
+		void reset();
 
     public:
         Vector3D up;					// Haut de la caméra
