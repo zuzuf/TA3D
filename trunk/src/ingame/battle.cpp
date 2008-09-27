@@ -110,11 +110,6 @@ namespace TA3D
         if (!loadFromGameData(pGameData)) // Reinit data
             return pResult;
 
-		# ifdef TA3D_PLATFORM_LINUX
-        // To avoid an "Xlib: ..." error
-        rest(100);
-        # endif
-
 		// Network synchronization
 		waitForNetworkPlayers();
 
