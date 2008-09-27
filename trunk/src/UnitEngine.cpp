@@ -2999,9 +2999,9 @@ namespace TA3D
                                 query_id = get_script_index(SCRIPT_QuerySecondary);		break;
                             case 2:
                                 query_id = get_script_index(SCRIPT_QueryTertiary);		break;
-                            default:
-                                query_id = get_script_index(format("Query%d",i));
                         }
+                        if (query_id == -1)
+                            query_id = get_script_index(format("QueryWeapon%d",i+1));
 
                         if (!is_running(get_script_index(SCRIPT_RequestState)))
                         {
@@ -3149,30 +3149,36 @@ namespace TA3D
                                     }
                                     else
                                         weapon[i].aim_dir=cos(aiming[1]*TA2RAD)*(cos(aiming[0]*TA2RAD+Angle.y*DEG2RAD)*I+sin(aiming[0]*TA2RAD+Angle.y*DEG2RAD)*J)+sin(aiming[1]*TA2RAD)*IJ;
+                                    int AimID = -1;
                                     switch(i)
                                     {
                                         case 0:
-                                            launch_script(get_script_index(SCRIPT_AimPrimary),2,aiming);	break;
+                                            AimID = get_script_index(SCRIPT_AimPrimary);	break;
                                         case 1:
-                                            launch_script(get_script_index(SCRIPT_AimSecondary),2,aiming);	break;
+                                            AimID = get_script_index(SCRIPT_AimSecondary);	break;
                                         case 2:
-                                            launch_script(get_script_index(SCRIPT_AimTertiary),2,aiming);	break;
-                                        default:
-                                            launch_script(get_script_index(format("Aim%d",i)),2,aiming);	break;
+                                            AimID = get_script_index(SCRIPT_AimTertiary);	break;
                                     }
+                                    if (AimID == -1)
+                                        AimID = get_script_index(format("AimWeapon%d",i+1));
+                                    launch_script(AimID,2,aiming);
                                 }
                                 else
+                                {
+                                    int AimID = -1;
                                     switch(i)
                                     {
                                         case 0:
-                                            launch_script(get_script_index(SCRIPT_AimPrimary));	break;
+                                            AimID = get_script_index(SCRIPT_AimPrimary);	break;
                                         case 1:
-                                            launch_script(get_script_index(SCRIPT_AimSecondary));	break;
+                                            AimID = get_script_index(SCRIPT_AimSecondary);	break;
                                         case 2:
-                                            launch_script(get_script_index(SCRIPT_AimTertiary));	break;
-                                        default:
-                                            launch_script(get_script_index(format("Aim%d",i)));	break;
+                                            AimID = get_script_index(SCRIPT_AimTertiary);	break;
                                     }
+                                    if (AimID == -1)
+                                        AimID = get_script_index(format("AimWeapon%d",i+1));
+                                    launch_script(AimID);
+                                }
                                 weapon[i].time = 0.0f;
                                 weapon[i].state = WEAPON_FLAG_SHOOT;									// (puis) on lui demande de tirer / tell it to fire
                                 weapon[i].burst=0;
@@ -3211,11 +3217,13 @@ namespace TA3D
                                 Aim_script = get_script_index(SCRIPT_AimTertiary);
                                 Fire_script = get_script_index(SCRIPT_FireTertiary);
                                 break;
-                            default:
-                                query_id = get_script_index(format("Query%d",i));
-                                Aim_script = get_script_index(format("Aim%d",i));
-                                Fire_script = get_script_index(format("Fire%d",i));
                         }
+                        if (query_id == -1)
+                            query_id = get_script_index(format("QueryWeapon%d",i+1));
+                        if (Aim_script == -1)
+                            Aim_script = get_script_index(format("AimWeapon%d",i+1));
+                        if (Fire_script == -1)
+                            Fire_script = get_script_index(format("FireWeapon%d",i+1));
                         if (!is_running(Aim_script))
                         {
                             if ((players.metal[owner_id]<unit_manager.unit_type[type_id]->weapon[ i ]->metalpershot
@@ -3240,16 +3248,18 @@ namespace TA3D
                                 if (!unit_manager.unit_type[type_id]->weapon[ i ]->waterweapon && Pos.y + data.pos[start_piece].y <= map->sealvl)     // Can't shoot from water !!
                                     break;
                                 Vector3D Dir = data.dir[start_piece];
-                                if (Dir.x==0.0f && Dir.y==0.0f && Dir.z==0.0f)
+                                if (unit_manager.unit_type[type_id]->weapon[ i ]->vlaunch)
                                 {
-                                    if (unit_manager.unit_type[type_id]->weapon[ i ]->vlaunch)
-                                    {
-                                        Dir.x=0.0f;
-                                        Dir.y=1.0f;
-                                        Dir.z=0.0f;
-                                    }
-                                    else
-                                        Dir = weapon[i].aim_dir;
+                                    Dir.x=0.0f;
+                                    Dir.y=1.0f;
+                                    Dir.z=0.0f;
+                                }
+                                else if (Dir.x==0.0f && Dir.y==0.0f && Dir.z==0.0f)
+                                    Dir = weapon[i].aim_dir;
+                                if (i==3)
+                                {
+                                LOG_DEBUG("firing from " << (Pos+data.pos[start_piece]).y << " (" << units.map->get_unit_h((Pos+data.pos[start_piece]).x, (Pos+data.pos[start_piece]).z) << ")");
+                                LOG_DEBUG("from piece " << start_piece << " (" << query_id << "," << Aim_script << "," << Fire_script << ")" );
                                 }
 
                                         // SHOOT NOW !!

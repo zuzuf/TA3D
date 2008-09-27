@@ -850,7 +850,7 @@ namespace HPI
             UNIX_search << *cur_Path << s;
             UNIX_search.convertAntiSlashesIntoSlashes();
 
-            if (al_findfirst(UNIX_search.c_str(), &info, FA_RDONLY | FA_ARCH ) == 0)
+            if (al_findfirst(UNIX_search.c_str(), &info, FA_RDONLY | FA_HIDDEN | FA_SYSTEM | FA_ARCH ) == 0)
             {
                 int last = -1;
                 for (uint16 i = 0 ; i < UNIX_search.size() ; ++i)
@@ -884,7 +884,7 @@ namespace HPI
                 UNIX_search << TA3D_CURRENT_MOD << s;
                 UNIX_search.convertAntiSlashesIntoSlashes();
 
-                if (al_findfirst( UNIX_search.c_str(), &info, FA_RDONLY | FA_ARCH ) == 0)
+                if (al_findfirst( UNIX_search.c_str(), &info, FA_RDONLY | FA_HIDDEN | FA_SYSTEM | FA_ARCH ) == 0)
                 {
                     int last = -1;
                     for (uint16 i = 0 ; i < UNIX_search.size() ; ++i)
