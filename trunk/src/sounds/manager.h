@@ -26,8 +26,8 @@
 # include <vector>
 
 # ifdef TA3D_PLATFORM_DARWIN
-#   include "../tools/darwin/fmod/4.14.07/include/fmod.hpp"
-#   include "../tools/darwin/fmod/4.14.07/include/fmod_errors.h"
+#   include "../tools/darwin/fmod/4.18.04/include/fmod.hpp"
+#   include "../tools/darwin/fmod/4.18.04/include/fmod_errors.h"
 #   define TA3D_FMOD_INCLUDED
 # endif
 
