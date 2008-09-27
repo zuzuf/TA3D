@@ -7,6 +7,6 @@ SET(ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../../bin/libs/${CMAKE
 SET(SOURCES sidedata.h sidedata.cpp
             gamedata.h gamedata.cpp
             players.h players.cpp
-            battle.h battle.init.cpp battle.cpp)
+            battle.h battle.init.cpp battle.preflight.cpp battle.cpp)
 
 ADD_LIBRARY(ingame STATIC ${SOURCES})

@@ -79,27 +79,23 @@ void draw_cursor()
 namespace TA3D
 {
 
-    namespace
-    {
 
 
-        Vector3D cursor_on_map(const Camera& cam, MAP& map, bool on_mini_map = false)
-        {
-            if (on_mini_map) // If the cursor is on the mini_map;
-            {
-                float x = (mouse_x - 64) * 252.0f / 128.0f * map.map_w / map.mini_w;
-                float z = (mouse_y - 64) * 252.0f / 128.0f * map.map_h / map.mini_h;
-                float y = map.get_unit_h(x, z);
-                return Vector3D(x, y, z);
-            }
-            Vector3D cur_dir;
-            cur_dir = cam.dir + cam.widthFactor * 2.0f * (mouse_x - gfx->SCREEN_W_HALF) * gfx->SCREEN_W_INV * cam.side
-                - 1.5f * (mouse_y - gfx->SCREEN_H_HALF) * gfx->SCREEN_H_INV * cam.up;
-            cur_dir.unit();		// Direction pointée par le curseur
-            return map.hit(cam.pos, cur_dir, true, 2000000000.0f, true);
-        }
-
-    } // unknown namespace
+	Vector3D Battle::cursorOnMap(const Camera& cam, MAP& map, bool on_mini_map)
+	{
+		if (on_mini_map) // If the cursor is on the mini_map;
+		{
+			float x = (mouse_x - 64) * 252.0f / 128.0f * map.map_w / map.mini_w;
+			float z = (mouse_y - 64) * 252.0f / 128.0f * map.map_h / map.mini_h;
+			float y = map.get_unit_h(x, z);
+			return Vector3D(x, y, z);
+		}
+		Vector3D cur_dir;
+		cur_dir = cam.dir + cam.widthFactor * 2.0f * (mouse_x - gfx->SCREEN_W_HALF) * gfx->SCREEN_W_INV * cam.side
+			- 1.5f * (mouse_y - gfx->SCREEN_H_HALF) * gfx->SCREEN_H_INV * cam.up;
+		cur_dir.unit();		// Direction pointée par le curseur
+		return map.hit(cam.pos, cur_dir, true, 2000000000.0f, true);
+	}
 
 
 
@@ -114,193 +110,10 @@ namespace TA3D
         if (!loadFromGameData(pGameData)) // Reinit data
             return pResult;
 
-
-        if (map->ota_data.maxwindspeed != map->ota_data.minwindspeed)
-            map->wind = (TA3D_RAND() % (map->ota_data.maxwindspeed - map->ota_data.minwindspeed)) + map->ota_data.minwindspeed;
-
-        // A few things required by (pseudo-)instancing code to render highlighted objects
-        INSTANCING::water = map->water;
-        INSTANCING::sealvl = map->sealvl;
-
-        uint32	script_timer = 0;
-
-
-        float Conv=0.001f;
-        float dt=0.0f;
-        float t=0.0f;
-        int count = msec_timer;
-
-        bool	reflection_drawn_last_time = false;
-
-        float camera_zscroll =  - 0.00001f;		// The position of the camera on the virtual "rail"
-        float r1,r2,r3;
-        r1 = r2 = r3 = 0.0f;
-        r1 = -lp_CONFIG->camera_def_angle - 0.00001f;
-        Camera cam;
-        Vector3D cam_target;
-        int cam_target_mx = gfx->SCREEN_W_HALF;
-        int cam_target_my = gfx->SCREEN_H_HALF;
-        bool cam_has_target = false;
-        bool freecam = false;
-        int cam_def_timer = msec_timer;		// Just to see if the cam has been long enough at the default angle
-        int track_mode = -1;			// Tracking a unit ? negative value => no
-        bool last_time_activated_track_mode = false;
-        Camera::inGame = &cam;
-
-        cam.rpos.x = cam.rpos.y = cam.rpos.z = 0.0f;
-        cam.rpos.z += 150.0f;
-        cam.rpos.y = lp_CONFIG->camera_def_h;
-        cam.zfar = 500.0f;
-        cam.setWidthFactor(gfx->width, gfx->height);
-
-        float FogD=0.3f;
-        float FogNear = cam.zfar * 0.5f;
-        float FogColor[] = { 0.8f, 0.8f, 0.8f, 1.0f};
-
-        memcpy(FogColor, pSkyData->FogColor, sizeof( float) * 4);
-
-        GLuint FogMode=GL_LINEAR;
-        glFogi (GL_FOG_MODE, FogMode);
-        glFogfv (GL_FOG_COLOR, FogColor);
-        glFogf (GL_FOG_DENSITY, FogD);
-        glHint (GL_FOG_HINT, GL_NICEST);
-        glFogf (GL_FOG_START, FogNear);
-        glFogf (GL_FOG_END, cam.zfar);
-
-        glEnable(GL_FOG);
-
-        lp_CONFIG->pause = false;
-
-        float speed_limit= lp_CONFIG->fps_limit;
-        float delay=(speed_limit==0.0f) ? 0.0f : 1.0f/speed_limit;
-        int nb_shoot=0;
-        bool shoot=false;
-
-        bool ordered_destruct = false;
-
-        bool tilde=false;
-        bool done=false;
-
-        fire = particle_engine.addtex("gfx/fire.tga");
-        build_part=particle_engine.addtex("gfx/part.tga");
-
-        fx_manager.loadData();
-
-        int mx,my,omb=mouse_b,omb2=mouse_b,omb3=mouse_b, amx=mouse_x, amy=mouse_y;
-        int cur_sel = -1;
-        int old_gui_sel = -1;
-        bool old_sel = false;
-        bool selected = false;
-        int	build=-1;				// Indique si l'utilisateur veut construire quelque chose
-        bool build_order_given = false;
-        int cur_sel_index=-1;
-        int omz=mouse_z;
-        float cam_h = lp_CONFIG->camera_def_h;
-
-        bool show_script=false;			// Affichage des scripts
-        bool show_model=false;			// Affichage les noms des sous objets du modèle 3D de l'unité sélectionnée
-        bool rotate_light=false;
-        float light_angle=0.0f;
-        bool cheat_metal=false;
-        bool cheat_energy=false;
-        bool internal_name=false;
-        bool internal_idx=false;
-        bool ia_debug=false;
-        bool view_dbg=false;
-        bool show_mission_info=false;
-        bool speed_changed = false;
-        float show_timefactor = 0.0f;
-
-        float show_gamestatus = 0.0f;
-
-        float unit_info=0.0f;
-        int	unit_info_id=-1;
-
-        # ifdef TA3D_PLATFORM_LINUX
+		# ifdef TA3D_PLATFORM_LINUX
         // To avoid an "Xlib: ..." error
         rest(100);
         # endif
-
-
-        float wind_t = t; // To handle wind variations
-        bool wind_change = false;
-
-        int video_timer = msec_timer; // To handle video
-        bool video_shoot = false;
-
-        int current_order = SIGNAL_ORDER_NONE;
-
-        WATER	water_obj;
-        water_obj.build(map->map_w,map->map_h,1000);
-
-        SKY		sky_obj;
-        sky_obj.build(10, 400, pSkyData->full_sphere);
-        float	sky_angle = pSkyData->rotation_offset;
-
-        Shader	water_shader, water_shader_reflec, water_pass1, water_pass1_low, water_pass2;
-        GLuint transtex,reflectex,first_pass,second_pass,water_color;
-        GLuint water_FBO;
-
-        if (g_useProgram && g_useFBO && map->water && lp_CONFIG->water_quality >= 2)
-        {
-            glGenFramebuffersEXT(1,&water_FBO);
-
-            if (lp_CONFIG->water_quality == 2)
-                water_pass1_low.load("shaders/water_pass1_low.frag","shaders/water_pass1.vert");
-            else
-                water_pass1.load("shaders/water_pass1.frag","shaders/water_pass1.vert");
-            water_pass2.load("shaders/water_pass2.frag","shaders/water_pass2.vert");
-            if (lp_CONFIG->water_quality == 2)
-                water_shader.load("shaders/water.frag","shaders/water.vert");
-            else
-                water_shader_reflec.load("shaders/water_reflec.frag","shaders/water.vert");
-
-            allegro_gl_use_alpha_channel(true);
-
-            allegro_gl_set_texture_format(GL_RGBA8);
-            BITMAP *tmp=create_bitmap_ex(32,512,512);	// On ne peut pas utiliser screen donc on crée un BITMAP temporaire
-            transtex = gfx->make_texture( tmp, FILTER_LINEAR);		// pour les effets de transparence de l'eau
-            reflectex = gfx->make_texture( tmp, FILTER_LINEAR);	// pour les effets de reflection sur l'eau
-            first_pass = gfx->make_texture( tmp, FILTER_LINEAR);	// pour les effets de reflection/transparence sur l'eau
-            second_pass = gfx->make_texture( tmp, FILTER_LINEAR);	// pour les effets de reflection/transparence sur l'eau
-            water_color = gfx->make_texture( tmp, FILTER_LINEAR);	// pour les effets de reflection/transparence sur l'eau
-
-            for (int z = 0 ; z < 512 ; z++)						// The wave base model
-            {
-                for (int x = 0 ; x < 512 ; x++)
-                {
-                    // equation : y = ( 1 - sqrt( 1 - (x*z)^2)) * z / 3 + (1-z) * sin( x * PI / 2) ^ 2 where z is a parameter
-                    // Stores the gradient vector clamped into 0.0 - 1.0 ( 0 - 0xFF)
-                    float X = (x - 256.0f) / 256.0f;
-                    float Z = z / 512.0f;
-                    float DX = -X * Z * Z / ( 3.0f * sqrt( 1.0f - X * Z * X * Z)) + ( 1.0f - Z) * PI * sin( X * PI / 2.0f) * cos( X * PI / 2.0f);
-                    float L = sqrt( DX * DX + 1.0f);
-                    DX = DX / L * 127.0f + 127.0f;
-                    if (DX < 0.0f)	DX = 0.0f;
-                    else if (DX > 255.0f)	DX = 255.0f;
-                    tmp->line[z][(x<<2)] = (int)(DX);
-                    tmp->line[z][(x<<2)+1] = (int)((127.0f / L) + 127.0f);
-                    tmp->line[z][(x<<2)+2] = 0;
-                    tmp->line[z][(x<<2)+3] = 0;
-                }
-            }
-
-            allegro_gl_set_texture_format(GL_RGB8);
-
-            water = gfx->make_texture( tmp, FILTER_LINEAR, false);
-
-            destroy_bitmap(tmp);
-
-            glBindFramebufferEXT(GL_FRAMEBUFFER_EXT,0);
-
-            if (g_useTextureCompression && lp_CONFIG->use_texture_compression)			// Active la compression de texture
-                allegro_gl_set_texture_format(GL_COMPRESSED_RGB_ARB);
-            else
-                allegro_gl_set_texture_format(GL_RGB8);
-        }
-
-        delay=(speed_limit==0.0f) ? 0.0f : 1.0f/speed_limit;
-
 
 		// Network synchronization
 		waitForNetworkPlayers();
@@ -343,6 +156,7 @@ namespace TA3D
         players.set_map(map.get());
         players.Start();
 
+		// Here we go Commander !
         LOG_INFO(LOG_PREFIX_BATTLE << "*** The game has started - Good luck Commander ! ***");
 
         // Reinit the counter for FPS
@@ -350,172 +164,45 @@ namespace TA3D
 
         do
         {
-            /*------------------------ handle GUI events -------------------------------*/
+			// Prepare events and reInit some vars
+			preflightVars();
 
-            bool IsOnGUI = false;
-            bool IsOnMinimap = mouse_x < 128 && mouse_y < 128;		// Used to handle on mini map commands
-            IsOnGUI = (mouse_x < 128 && ( mouse_y >= SCREEN_H - 64 || mouse_y < 128)) || mouse_y < 32 || mouse_y >= SCREEN_H - 32;		// Priority given to game interface
-            if (!IsOnGUI)
-                IsOnGUI = (pArea.check() != 0);
-            else        // We need to do it there because AREA::check does it and we do it nowhere else
-            {
-                poll_mouse();
-                poll_keyboard();
-            }
+			// Wind - Make a change every 10 sec. (simulation time)
+            if (wind_change = (t - wind_t >= 10.0f))
+				preflightChangeWindSpeedAndDirection();
 
-            IsOnGUI |= mouse_x < 128;		// Priority given to game interface
+			// Update 3D sounds
+			preflightUpdate3DSounds();
 
-            if (IsOnMinimap) 				// Check if we can project the cursor position on the map
-            {
-                if (fabs((mouse_x - 64) * 252.0f / 128.0f) > map->mini_w * 0.5f)
-                    IsOnMinimap = false;
-                else
-                    if (fabs((mouse_y - 64) * 252.0f / 128.0f) > map->mini_h * 0.5f)
-                        IsOnMinimap = false;
-            }
 
-            if (IsOnMinimap)
-                units.pick_minimap(); // Precompute this, we'll need it
-
-            /*------------------------ end of "handle GUI events" ----------------------*/
-
-            bool can_be_there = false;		// To tell if the unit the player wants to build can be built where the cursor is
-
-            if (video_shoot)
-            {
-                if ((msec_timer - video_timer) * Conv >= 1.0f / 15.0f)
-                {
-                    video_timer = msec_timer;
-                    shoot = true;
-                }
-            }
-
-            /*------------------------ handle wind speed and dir -----------------------*/
-
-            if (t - wind_t >= 10.0f) // Make a change every 10 sec. (simulation time)
-            {
-                wind_t = t;
-                map->wind+=(Math::RandFromTable()%2001)-1000;
-                if (map->wind<map->ota_data.minwindspeed)
-                    map->wind=map->ota_data.minwindspeed;
-                else
-                {
-                    if (map->wind>map->ota_data.maxwindspeed)
-                        map->wind=map->ota_data.maxwindspeed;
-                }
-                map->wind_dir += (Math::RandFromTable() % 901) * 0.1f - 45.0f;
-                if (map->wind_dir < 0.0f)
-                    map->wind_dir += 360.0f;
-                else
-                {
-                    if (map->wind_dir >= 360.0f)
-                        map->wind_dir -= 360.0f;
-                }
-                map->wind_vec.y = 0.0f;
-                map->wind_vec.x = 0.01f * map->wind * cos(map->wind_dir * DEG2RAD);
-                map->wind_vec.z = 0.01f * map->wind * sin(map->wind_dir * DEG2RAD);
-                units.set_wind_change();
-                wind_change = true;
-            }
-            else
-                wind_change=false;
-
-            /*---------------------- end of wind speed and dir code --------------------*/
-
-            /*----------------------------- sound management ---------------------------*/
-
-            if (units.nb_attacked/(units.nb_attacked + units.nb_built + 1) >= 0.75f)
-                sound_manager->setMusicMode(true);
-            else
-            {
-                if (units.nb_attacked / (units.nb_attacked + units.nb_built + 1) <= 0.25f)
-                    sound_manager->setMusicMode(false);
-            }
-
-            sound_manager->setListenerPos(cam.rpos);
-            sound_manager->update3DSound();
-
-            /*-------------------------- end of sound management -----------------------*/
-
-            Vector3D old_cam_pos(cam.rpos);
-            float old_zscroll = camera_zscroll;
             if (!freecam)
-            {
-                int delta = IsOnGUI ? 0 : mouse_z-omz;
-                camera_zscroll += delta * 2.0f * lp_CONFIG->camera_zoom_speed;
-                if (camera_zscroll < -25.0f)
-                    camera_zscroll = -25.0f;
-                else
-                    if (camera_zscroll > 20.0f) camera_zscroll = 20.0f;
-
-                if ((msec_timer - cam_def_timer) * Conv >= 1.0f && delta != 0
-                    && ( ( camera_zscroll > 0.0f && old_zscroll <= 0.0f)
-                         || ( camera_zscroll < 0.0f && old_zscroll >= 0.0f)))			// Just to make it lock near def position
-                {
-                    cam_def_timer = msec_timer;
-                    old_zscroll = 0.0f;
-                    if (camera_zscroll > -lp_CONFIG->camera_def_angle)
-                        old_zscroll += 0.00001f;
-                    else
-                        old_zscroll -= 0.00001f;
-                }
-
-                if ((msec_timer - cam_def_timer) * Conv < 0.5f)
-                    camera_zscroll = old_zscroll;
-
-                float angle_factor = Math::Max(fabs(-lp_CONFIG->camera_def_angle+45.0f) / 20.0f, fabs(-lp_CONFIG->camera_def_angle+90.0f) / 25.0f);
-
-                r1 = -lp_CONFIG->camera_def_angle + camera_zscroll * angle_factor;
-                if (r1 > -45.0f) 		r1 = -45.0f;
-                else if (r1 < -90.0f)	r1 = -90.0f;
-
-                cam_h = lp_CONFIG->camera_def_h + (exp(-camera_zscroll * 0.15f) - 1.0f) / (exp(3.75f) - 1.0f) * Math::Max(map->map_w,map->map_h);
-                if (delta > 0 && !IsOnGUI)
-                {
-                    if (!cam_has_target || abs( mouse_x - cam_target_mx) > 2 || abs( mouse_y - cam_target_my) > 2)
-                    {
-                        cam_target = cursor_on_map(cam, *map);
-                        cam_target_mx = mouse_x;
-                        cam_target_my = mouse_y;
-                        cam_has_target=true;
-                    }
-                }
-            }
+				preflightAutomaticCamera();
             else
-            {
-                int delta = IsOnGUI ? 0 : mouse_z-omz;
-                cam.rpos = cam.rpos - 0.5f * delta * cam.dir;
-                cam_has_target = false;
-            }
-            omz = mouse_z;
+				preflightFreeCamera();
 
-            cursor_type = CURSOR_DEFAULT; // Revient au curseur par défaut
 
-            bool rope_selection = pMouseSelecting && ( abs( pMouseRectSelection.x1 - pMouseRectSelection.x2) >= PICK_TOLERANCE || abs( pMouseRectSelection.y1 - pMouseRectSelection.y2) >= PICK_TOLERANCE);
-            if ((!IsOnGUI || IsOnMinimap) && !rope_selection)
-            {
-                if (selected)
-                {
-                    for (int i = 0; i < units.index_list_size; ++i)
-                    {
-                        uint32 e = units.idx_list[i];
-                        if ((units.unit[e].flags & 1) && units.unit[e].owner_id==players.local_human_id && units.unit[e].sel && unit_manager.unit_type[units.unit[e].type_id]->canmove)
-                        {
-                            cursor_type=CURSOR_MOVE;
-                            break;
-                        }
-                    }
-                }
-            }
-
-            if (build >= 0)
+            bool rope_selection = pMouseSelecting && (abs(pMouseRectSelection.x1 - pMouseRectSelection.x2) >= PICK_TOLERANCE || abs(pMouseRectSelection.y1 - pMouseRectSelection.y2) >= PICK_TOLERANCE);
+			if (selected && build < 0 && (!IsOnGUI || IsOnMinimap) && !rope_selection)
+			{
+				for (int i = 0; i < units.index_list_size; ++i)
+				{
+					uint32 e = units.idx_list[i];
+					if ((units.unit[e].flags & 1) && units.unit[e].owner_id == players.local_human_id
+						&& units.unit[e].sel && unit_manager.unit_type[units.unit[e].type_id]->canmove)
+					{
+						cursor_type = CURSOR_MOVE;
+						break;
+					}
+				}
+			}
+			else
                 cursor_type = CURSOR_DEFAULT;
 
+
             dt = (msec_timer - count) * Conv; // Regulate frame rate
-            rest(0); // To play nice with other threads
             while (dt < delay)
             {
-                switch(lp_CONFIG->priority_level)
+                switch (lp_CONFIG->priority_level)
                 {
                     case 0: rest(1); break;
                     case 1: rest(0); break;
@@ -531,9 +218,9 @@ namespace TA3D
             if (!lp_CONFIG->pause)
             {
                 light_angle+=dt*units.apparent_timefactor;
-
                 t += dt * units.apparent_timefactor;
             }
+
 
             /*------------bloc regroupant ce qui est relatif aux commandes----------------*/
 
@@ -880,11 +567,11 @@ namespace TA3D
 
             if (selected && (!IsOnGUI || IsOnMinimap))
             {
-                bool builders=false;
-                bool canattack=false;
-                bool canreclamate=false;
-                bool canresurrect=false;
-                for (uint16 e = 0; e < units.index_list_size; ++e)
+                bool builders = false;
+                bool canattack = false;
+                bool canreclamate = false;
+                bool canresurrect = false;
+                for (unsigned int e = 0; e < units.index_list_size; ++e)
                 {
                     int i = units.idx_list[e];
                     if ((units.unit[i].flags & 1) && units.unit[i].owner_id==players.local_human_id && units.unit[i].sel)
@@ -901,9 +588,10 @@ namespace TA3D
                     pointing = units.pick(cam);		// Sur quoi le curseur est-il pointé??
                     if (pointing == -1) 				// Is the cursor on a rock, tree, ...?
                     {
-                        Vector3D cur_pos(cursor_on_map(cam, *map, IsOnMinimap));
+                        Vector3D cur_pos(cursorOnMap(cam, *map, IsOnMinimap));
                         int px = ((int)(cur_pos.x + map->map_w_d)) >> 3;
                         int py = ((int)(cur_pos.z + map->map_h_d)) >> 3;
+
                         if (px >= 0 && px < map->bloc_w_db && py >= 0 && py < map->bloc_h_db
 							&& (map->view_map->line[py>>1][px>>1] & (1<<players.local_human_id)) )
                         {
@@ -911,11 +599,11 @@ namespace TA3D
                             if (idx<0 || features.feature[idx].type<0)
                             {
                                 units.last_on = -1;
-                                for (short int dy = -7 ; dy < 8 ; ++dy)	// Look for things like metal patches
+                                for (int dy = -7 ; dy < 8 ; ++dy)	// Look for things like metal patches
                                 {
                                     if (py + dy >= 0 && py + dy < map->bloc_h_db)
                                     {
-                                        for (short int dx = -7 ; dx < 8; ++dx)
+                                        for (int dx = -7 ; dx < 8; ++dx)
                                         {
                                             if (px + dx >= 0 && px + dx < map->bloc_w_db)
                                             {
@@ -1127,7 +815,7 @@ namespace TA3D
                         {
                             if (cursor_type == CURSOR_ATTACK)
                             {
-                                Vector3D cursor_pos(cursor_on_map(cam, *map, IsOnMinimap));
+                                Vector3D cursor_pos(cursorOnMap(cam, *map, IsOnMinimap));
                                 for (unsigned int e = 0; e < units.index_list_size; ++e)
                                 {
                                     uint32 commandfire = current_order == SIGNAL_ORDER_DGUN ? MISSION_FLAG_COMMAND_FIRE : 0;
@@ -1160,7 +848,7 @@ namespace TA3D
             bool order_removed = false;
             if (cursor_type!=CURSOR_DEFAULT && mouse_b!=1 && omb3 ==1 && !IsOnGUI && TA3D_SHIFT_PRESSED) // Remove commands from queue
             {
-                Vector3D target(cursor_on_map(cam, *map));
+                Vector3D target(cursorOnMap(cam, *map));
                 target.x = ((int)(target.x) + map->map_w_d) >> 3;
                 target.z = ((int)(target.z) + map->map_h_d) >> 3;
                 target.x = target.x * 8.0f - map->map_w_d;
@@ -1171,7 +859,7 @@ namespace TA3D
 
             if (cursor_type==CURSOR_REVIVE && CURSOR_REVIVE != CURSOR_RECLAIM && !rope_selection && mouse_b != 1 && omb3 == 1 && ( !IsOnGUI || IsOnMinimap) && !order_removed) // The cursor orders to resurrect a wreckage
             {
-                Vector3D cur_pos(cursor_on_map(cam, *map, IsOnMinimap));
+                Vector3D cur_pos(cursorOnMap(cam, *map, IsOnMinimap));
                 int idx = -units.last_on - 2;
                 if (idx >= 0 && features.feature[idx].type >= 0 && feature_manager.feature[features.feature[idx].type].reclaimable)
                 {
@@ -1199,7 +887,7 @@ namespace TA3D
             // The cursor orders to reclaim something
             if (cursor_type == CURSOR_RECLAIM && !rope_selection && mouse_b != 1 && omb3 == 1 && (!IsOnGUI || IsOnMinimap) && !order_removed) 
             {
-                Vector3D cur_pos(cursor_on_map(cam, *map, IsOnMinimap));
+                Vector3D cur_pos(cursorOnMap(cam, *map, IsOnMinimap));
                 int idx = -units.last_on - 2;
                 if (idx >= 0 && features.feature[ idx ].type >= 0 && feature_manager.feature[ features.feature[ idx ].type ].reclaimable)
                 {
@@ -1226,14 +914,14 @@ namespace TA3D
 
             if (cursor_type==CURSOR_UNLOAD && !rope_selection && mouse_b != 1 && omb3 == 1 && ( !IsOnGUI || IsOnMinimap) && !order_removed)	// The cursor orders to unload units
             {
-                units.give_order_unload(players.local_human_id, cursor_on_map(cam, *map, IsOnMinimap), !TA3D_SHIFT_PRESSED);
+                units.give_order_unload(players.local_human_id, cursorOnMap(cam, *map, IsOnMinimap), !TA3D_SHIFT_PRESSED);
                 if (!TA3D_SHIFT_PRESSED)
                     current_order=SIGNAL_ORDER_NONE;
             }
 
             if (cursor_type==CURSOR_MOVE && !rope_selection && mouse_b != 1 && omb3 == 1 && ( !IsOnGUI || IsOnMinimap) && !order_removed) 	// The cursor orders to move
             {
-                units.give_order_move(players.local_human_id, cursor_on_map(cam, *map, IsOnMinimap), !TA3D_SHIFT_PRESSED);
+                units.give_order_move(players.local_human_id, cursorOnMap(cam, *map, IsOnMinimap), !TA3D_SHIFT_PRESSED);
                 if (!TA3D_SHIFT_PRESSED)
                     current_order=SIGNAL_ORDER_NONE;
             }
@@ -1241,7 +929,7 @@ namespace TA3D
             // The cursor orders to patrol
             if (cursor_type == CURSOR_PATROL && !rope_selection && mouse_b != 1 && omb3 == 1 && ( !IsOnGUI || IsOnMinimap) && !order_removed)
             {
-                units.give_order_patrol(players.local_human_id, cursor_on_map(cam, *map, IsOnMinimap), !TA3D_SHIFT_PRESSED);
+                units.give_order_patrol(players.local_human_id, cursorOnMap(cam, *map, IsOnMinimap), !TA3D_SHIFT_PRESSED);
                 if (!TA3D_SHIFT_PRESSED)
                     current_order = SIGNAL_ORDER_NONE;
             }
@@ -1249,7 +937,7 @@ namespace TA3D
             // The cursor orders to build something
             if (build >= 0 && cursor_type == CURSOR_DEFAULT && mouse_b != 1 && omb3 == 1 && !IsOnGUI)
             {
-                Vector3D target(cursor_on_map(cam, *map));
+                Vector3D target(cursorOnMap(cam, *map));
                 pMouseRectSelection.x2 = ((int)(target.x) + map->map_w_d) >> 3;
                 pMouseRectSelection.y2 = ((int)(target.z) + map->map_h_d) >> 3;
 
@@ -1295,7 +983,7 @@ namespace TA3D
             {
                 if (build>=0 && cursor_type==CURSOR_DEFAULT && mouse_b == 1 && omb3 != 1 && !IsOnGUI)// Giving the order to build a row
                 {
-                    Vector3D target(cursor_on_map(cam, *map));
+                    Vector3D target(cursorOnMap(cam, *map));
                     pMouseRectSelection.x1 = ((int)(target.x) + map->map_w_d) >> 3;
                     pMouseRectSelection.y1 = ((int)(target.z) + map->map_h_d) >> 3;
                 }
@@ -1428,7 +1116,7 @@ namespace TA3D
 
                 if (units.last_on == -1) // Is the cursor on a rock, tree, ...?
                 {
-                    Vector3D cur_pos(cursor_on_map(cam, *map, IsOnMinimap));
+                    Vector3D cur_pos(cursorOnMap(cam, *map, IsOnMinimap));
                     int px = ((int)(cur_pos.x + map->map_w_d)) >> 3;
                     int py = ((int)(cur_pos.z + map->map_h_d)) >> 3;
                     if (px >= 0 && px < map->bloc_w_db && py >= 0 && py < map->bloc_h_db && (map->view_map->line[py >> 1][px >> 1] & (1 << players.local_human_id)))
@@ -1956,7 +1644,7 @@ namespace TA3D
 
                         cam.setView();
                         glTranslatef(0.0f, map->sealvl, map->sea_dec);
-                        water_obj.draw(t,cam.rpos.x,cam.rpos.z,false);
+                        water_obj->draw(t,cam.rpos.x,cam.rpos.z,false);
                         glColor4f(1.0f,1.0f,1.0f,0.75f);
 
                         glEnable(GL_LIGHTING);
@@ -1996,7 +1684,7 @@ namespace TA3D
                         water_pass1_low.setvar1i("lava",0);
                         water_pass1_low.setvar1i("map",1);
                         water_pass1_low.setvar1f("t",t);
-                        water_pass1_low.setvar2f("factor",water_obj.w/map->map_w,water_obj.w/map->map_h);
+                        water_pass1_low.setvar2f("factor", water_obj->w / map->map_w, water_obj->w / map->map_h);
                     }
                     else
                     {
@@ -2004,12 +1692,12 @@ namespace TA3D
                         water_pass1.setvar1i("lava",0);
                         water_pass1.setvar1i("map",1);
                         water_pass1.setvar1f("t",t);
-                        water_pass1.setvar2f("factor",water_obj.w/map->map_w,water_obj.w/map->map_h);
+                        water_pass1.setvar2f("factor",water_obj->w / map->map_w, water_obj->w / map->map_h);
                     }
 
                     cam.setView();
                     glTranslatef(0.0f,map->sealvl,0.0f);
-                    water_obj.draw(t,cam.rpos.x,cam.rpos.z,true);
+                    water_obj->draw(t, cam.rpos.x, cam.rpos.z, true);
 
                     if (lp_CONFIG->water_quality == 2)
                         water_pass1_low.off();
@@ -2031,7 +1719,7 @@ namespace TA3D
 
                     cam.setView();
                     glTranslatef(0.0f,map->sealvl,0.0f);
-                    water_obj.draw(t,cam.rpos.x,cam.rpos.z,true);
+                    water_obj->draw(t,cam.rpos.x,cam.rpos.z,true);
 
                     water_pass2.off();
 
@@ -2047,7 +1735,7 @@ namespace TA3D
 
                         cam.setView();
                         glTranslatef( 0.0f, map->sealvl, map->sea_dec);
-                        water_obj.draw(t,cam.rpos.x,cam.rpos.z,false);
+                        water_obj->draw(t,cam.rpos.x,cam.rpos.z,false);
                     }
 
                     glBindFramebufferEXT(GL_FRAMEBUFFER_EXT,0);
@@ -2074,7 +1762,7 @@ namespace TA3D
 
                     cam.setView();
                     glTranslatef(0.0f,map->sealvl,0.0f);
-                    water_obj.draw(t,cam.rpos.x,cam.rpos.z,true);
+                    water_obj->draw(t,cam.rpos.x,cam.rpos.z,true);
 
                     glDisable(GL_STENCIL_TEST);
 
@@ -2160,7 +1848,7 @@ namespace TA3D
 
             if (build >= 0 && !IsOnGUI)	// Display the building we want to build (with nice selection quads)
             {
-                Vector3D target(cursor_on_map(cam, *map));
+                Vector3D target(cursorOnMap(cam, *map));
                 pMouseRectSelection.x2 = ((int)(target.x) + map->map_w_d) >> 3;
                 pMouseRectSelection.y2 = ((int)(target.z) + map->map_h_d) >> 3;
 
@@ -2459,7 +2147,6 @@ namespace TA3D
             gfx->set_2D_mode();		// Affiche console, infos,...
             draw2DObjects();
 
-            old_cam_pos = cam.rpos;
             int signal = 0;
             if (!pNetworkEnabled || pNetworkIsServer)
             {
@@ -3679,8 +3366,12 @@ namespace TA3D
 
         } while (!done);
 
-        if (network_manager.isConnected())          // Tell others we're gone
+
+		// Tell to other players the game is over
+        if (network_manager.isConnected())
             network_manager.sendSpecial("GONE");
+		// Over
+        LOG_INFO(LOG_PREFIX_BATTLE << "*** The game is over Commander ***");
 
         reset_mouse();
 
@@ -3690,7 +3381,6 @@ namespace TA3D
         units.DestroyThread();					// Shut down the Unit Engine
         particle_engine.DestroyThread();		// Shut down the Particle Engine
 
-        water_obj.destroy();
         sky_obj.destroy();
 
         Camera::inGame = NULL;
@@ -3768,14 +3458,19 @@ namespace TA3D
             draw2DMouseUserSelection();
     }
 
+
     void Battle::draw2DMouseUserSelection()
     {
         glDisable(GL_TEXTURE_2D);
-        glColor4f(0.0f,0.0f,0.0f,1.0f);
-        gfx->rect(pMouseRectSelection.x1 + 1, pMouseRectSelection.y1 + 1, pMouseRectSelection.x2 + 1, pMouseRectSelection.y2 + 1);
-        glColor4f(1.0f,1.0f,1.0f,1.0f);
-        gfx->rect(pMouseRectSelection.x1, pMouseRectSelection.y1, pMouseRectSelection.x2, pMouseRectSelection.y2);
+        glColor4f(0.0f, 0.0f, 0.0f, 1.0f);
+        gfx->rect(pMouseRectSelection.x1 + 1, pMouseRectSelection.y1 + 1,
+				  pMouseRectSelection.x2 + 1, pMouseRectSelection.y2 + 1);
+
+        glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+        gfx->rect(pMouseRectSelection.x1, pMouseRectSelection.y1,
+				  pMouseRectSelection.x2, pMouseRectSelection.y2);
     }
+
 
 
 } // namespace TA3D
