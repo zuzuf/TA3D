@@ -39,7 +39,7 @@ namespace TA3D
 
     Battle::Battle(GameData* g)
         :pResult(brUnknown), pGameData(g), pNetworkEnabled(false), pNetworkIsServer(false),
-        map(NULL)
+        map(NULL), water_obj(NULL)
     {
         LOG_INFO(LOG_PREFIX_BATTLE << "Preparing a new battle...");
     }
@@ -47,6 +47,8 @@ namespace TA3D
     Battle::~Battle()
     {
         LOG_INFO(LOG_PREFIX_BATTLE << "Releasing unused resources...");
+
+		DELETEANDNIL(water_obj);
 
         LOG_DEBUG(LOG_PREFIX_BATTLE << "Freeing memory used for 3d models");
         model_manager.destroy();
@@ -123,9 +125,23 @@ namespace TA3D
             return false;
         if (!initTheMap())
             return false;
+		if (!initTheSky())
+			return false;
 		if (!initTheSun())
 			return false;
 		if (!initAllTextures())
+			return false;
+		if (!initTheCamera())
+			return false;
+		if (!initTheWind())
+			return false;
+		if (!initTheFog())
+			return false;
+		if (!initParticules())
+			return false;
+		if (!initTheWater())
+			return false;
+		if (!initPostFlight())
 			return false;
 
         // The loading has finished
@@ -375,6 +391,12 @@ namespace TA3D
         }
         pGameData->map_filename = Paths::Files::ReplaceExtension(pGameData->map_filename, "");
 
+        return true;
+    }
+
+
+	bool Battle::initTheSky()
+	{
         // The sky
         pSkyData.reset(choose_a_sky(pGameData->map_filename, map->ota_data.planet));
         if (pSkyData.get() == NULL)
@@ -383,8 +405,11 @@ namespace TA3D
             pSkyData->texture_name = "gfx/sky/sky.jpg";
         }
         pSkyIsSpherical = pSkyData->spherical;
-        return true;
-    }
+
+		sky_obj.build(10, 400, pSkyData->full_sphere);
+		sky_angle = pSkyData->rotation_offset;
+		return true;
+	}
 
 
 	bool Battle::initTheSun()
@@ -426,6 +451,225 @@ namespace TA3D
 		return true;
 	}
 
+	bool Battle::initTheCamera()
+	{
+		r1 = r2 = r3 = 0.0f;
+
+		cam.reset();
+		cam_target.reset();
+        camera_zscroll =  -0.00001f;
+
+		cam_target_mx = gfx->SCREEN_W_HALF;
+        cam_target_my = gfx->SCREEN_H_HALF;
+        cam_has_target = false;
+        freecam = false;
+        cam_def_timer = msec_timer;		// Just to see if the cam has been long enough at the default angle
+        track_mode = -1;			// Tracking a unit ? negative value => no
+        last_time_activated_track_mode = false;
+        Camera::inGame = &cam;
+
+        cam.rpos.x = cam.rpos.y = cam.rpos.z = 0.0f;
+        cam.rpos.z += 150.0f;
+        cam.rpos.y = lp_CONFIG->camera_def_h;
+        cam.zfar = 500.0f;
+        cam.setWidthFactor(gfx->width, gfx->height);
+
+        r1 = -lp_CONFIG->camera_def_angle - 0.00001f;
+
+		return true;
+	}
+
+
+	bool Battle::initTheWind()
+	{
+        wind_t = 0.0f; // To handle wind variations
+        wind_change = false;
+        if (map->ota_data.maxwindspeed != map->ota_data.minwindspeed)
+            map->wind = (TA3D_RAND() % (map->ota_data.maxwindspeed - map->ota_data.minwindspeed)) + map->ota_data.minwindspeed;
+		return true;
+	}
+
+
+	bool Battle::initTheFog()
+	{
+		FogD = 0.3f;
+        FogNear = cam.zfar * 0.5f;
+        FogColor[0] = 0.8f;
+		FogColor[1] = 0.8f;
+		FogColor[2] = 0.8f;
+		FogColor[3] = 1.0f;
+
+        memcpy(FogColor, pSkyData->FogColor, sizeof(float) * 4);
+
+        FogMode = GL_LINEAR;
+        glFogi(GL_FOG_MODE, FogMode);
+        glFogfv(GL_FOG_COLOR, FogColor);
+        glFogf(GL_FOG_DENSITY, FogD);
+        glHint(GL_FOG_HINT, GL_NICEST);
+        glFogf(GL_FOG_START, FogNear);
+        glFogf(GL_FOG_END, cam.zfar);
+		// Enable the OpenGL fog
+        glEnable(GL_FOG);
+
+		return true;
+	}
+
+
+	bool Battle::initParticules()
+	{
+        fire = particle_engine.addtex("gfx/fire.tga");
+        build_part = particle_engine.addtex("gfx/part.tga");
+        fx_manager.loadData();
+		return true;
+	}
+
+
+	bool Battle::initTheWater()
+	{
+		water_obj = new WATER();
+		water_obj->build(map->map_w, map->map_h, 1000);
+
+		if (g_useProgram && g_useFBO && map->water && lp_CONFIG->water_quality >= 2)
+		{
+			glGenFramebuffersEXT(1, &water_FBO);
+
+			if (2 == lp_CONFIG->water_quality)
+				water_pass1_low.load("shaders/water_pass1_low.frag","shaders/water_pass1.vert");
+			else
+				water_pass1.load("shaders/water_pass1.frag","shaders/water_pass1.vert");
+			water_pass2.load("shaders/water_pass2.frag","shaders/water_pass2.vert");
+			if (2 == lp_CONFIG->water_quality)
+				water_shader.load("shaders/water.frag","shaders/water.vert");
+			else
+				water_shader_reflec.load("shaders/water_reflec.frag","shaders/water.vert");
+
+			allegro_gl_use_alpha_channel(true);
+
+			allegro_gl_set_texture_format(GL_RGBA8);
+
+			BITMAP* tmp = create_bitmap_ex(32,512,512);
+			
+			// Water transparency
+			transtex = gfx->make_texture( tmp, FILTER_LINEAR);
+			// Water reflection
+			reflectex = gfx->make_texture( tmp, FILTER_LINEAR);
+			// Water transparency/reflection
+			first_pass = gfx->make_texture( tmp, FILTER_LINEAR);
+			// Water transparency/reflection
+			second_pass = gfx->make_texture( tmp, FILTER_LINEAR);
+			// Water transparency/reflection
+			water_color = gfx->make_texture( tmp, FILTER_LINEAR);
+
+			for (int z = 0 ; z < 512 ; ++z) // The wave base model
+			{
+				for (int x = 0 ; x < 512 ; ++x)
+				{
+					// equation : y = ( 1 - sqrt( 1 - (x*z)^2)) * z / 3 + (1-z) * sin( x * PI / 2) ^ 2 where z is a parameter
+					// Stores the gradient vector clamped into 0.0 - 1.0 ( 0 - 0xFF)
+					float X = (x - 256.0f) / 256.0f;
+					float Z = z / 512.0f;
+					float DX = -X * Z * Z / ( 3.0f * sqrt( 1.0f - X * Z * X * Z)) + ( 1.0f - Z) * PI * sin( X * PI / 2.0f) * cos( X * PI / 2.0f);
+					float L = sqrt( DX * DX + 1.0f);
+					
+					DX = DX / L * 127.0f + 127.0f;
+					if (DX < 0.0f)
+						DX = 0.0f;
+					else
+					{
+						if (DX > 255.0f)
+							DX = 255.0f;
+					}
+
+					tmp->line[z][(x<<2)] = (int)(DX);
+					tmp->line[z][(x<<2)+1] = (int)((127.0f / L) + 127.0f);
+					tmp->line[z][(x<<2)+2] = 0;
+					tmp->line[z][(x<<2)+3] = 0;
+				}
+			}
+
+			allegro_gl_set_texture_format(GL_RGB8);
+			water = gfx->make_texture( tmp, FILTER_LINEAR, false);
+			destroy_bitmap(tmp);
+			glBindFramebufferEXT(GL_FRAMEBUFFER_EXT,0);
+
+			// Enable the texture compression
+			if (g_useTextureCompression && lp_CONFIG->use_texture_compression)
+				allegro_gl_set_texture_format(GL_COMPRESSED_RGB_ARB);
+			else
+				allegro_gl_set_texture_format(GL_RGB8);
+		}
+
+        // A few things required by (pseudo-)instancing code to render highlighted objects
+        INSTANCING::water = map->water;
+        INSTANCING::sealvl = map->sealvl;
+
+		return true;
+	}
+
+
+	bool Battle::initPostFlight()
+	{
+		script_timer = 0;
+		Conv = 0.001f;
+		dt = 0.0f;
+		t = 0.0f;
+		count = msec_timer;
+		reflection_drawn_last_time = false;
+
+		mx = my = 0;
+		omb = mouse_b;
+		omb2 = mouse_b;
+		omb3 = mouse_b;
+		amx = mouse_x;
+		amy = mouse_y;
+		cur_sel = -1;
+		old_gui_sel = -1;
+		old_sel = false;
+		selected = false;
+		build = -1;				// Indique si l'utilisateur veut construire quelque chose
+		build_order_given = false;
+		cur_sel_index = -1;
+		omz = mouse_z;
+		cam_h = lp_CONFIG->camera_def_h;
+
+		speed_limit = lp_CONFIG->fps_limit;
+		delay = (speed_limit == 0.0f) ? 0.0f : (1.0f / speed_limit);
+		nb_shoot = 0;
+		shoot = false;
+		ordered_destruct = false;
+		tilde = false;
+		done = false;
+
+		show_script = false; // Affichage des scripts
+		show_model = false;	// Affichage les noms des sous objets du modèle 3D de l'unité sélectionnée
+		rotate_light = false;
+		light_angle = 0.0f;
+		cheat_metal = false;
+		cheat_energy = false;
+		internal_name = false;
+		internal_idx = false;
+		ia_debug = false;
+		view_dbg = false;
+		show_mission_info = false;
+		speed_changed = false;
+		show_timefactor = 0.0f;
+		show_gamestatus = 0.0f;
+		unit_info = 0.0f;
+		unit_info_id = -1;
+
+		lp_CONFIG->pause = false;
+		video_timer = msec_timer; // To handle video
+		video_shoot = false;
+		current_order = SIGNAL_ORDER_NONE;
+
+		// Interface
+		IsOnGUI = false;
+		IsOnMinimap = false;
+		can_be_there = false;
+
+		return true;
+	}
+
 
 	void Battle::updateCurrentGUICacheNames()
 	{
@@ -438,7 +682,7 @@ namespace TA3D
 		pCurrentGUICache[cgcHide] << ".hide";
 	}
 
-	
+
 	void Battle::waitForNetworkPlayers()
 	{
 		g_ta3d_network = new TA3DNetwork(&pArea, pGameData);
