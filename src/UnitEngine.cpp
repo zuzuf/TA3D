@@ -3019,7 +3019,8 @@ namespace TA3D
 
                                 if (unit_manager.unit_type[type_id]->attackrunlength>0)
                                 {
-                                    if (target % V < 0.0f ) {
+                                    if (target % V < 0.0f)
+                                    {
                                         weapon[i].state = WEAPON_FLAG_IDLE;
                                         weapon[i].data = -1;
                                         break;	// We're not shooting at the target
@@ -3028,10 +3029,15 @@ namespace TA3D
                                     mindist = (int)sqrt(t*V.sq())-((unit_manager.unit_type[type_id]->attackrunlength+1)>>1);
                                     maxdist = mindist+(unit_manager.unit_type[type_id]->attackrunlength);
                                 }
+                                else if (unit_manager.unit_type[type_id]->weapon[ i ]->waterweapon && Pos.y > units.map->sealvl)
+                                {
+                                    float t = 2.0f/map->ota_data.gravity*fabs(target.y);
+                                    maxdist = (int)sqrt(t*V.sq()) + (unit_manager.unit_type[type_id]->weapon[ i ]->range>>1);
+                                }
                                 else
                                     maxdist = unit_manager.unit_type[type_id]->weapon[ i ]->range>>1;
 
-                                if (dist > maxdist * maxdist || dist < mindist * mindist )
+                                if (dist > maxdist * maxdist || dist < mindist * mindist)
                                 {
                                     weapon[i].state = WEAPON_FLAG_IDLE;
                                     weapon[i].data = -1;
@@ -3039,7 +3045,7 @@ namespace TA3D
                                 }
 
                                 Vector3D target_translation;
-                                if (target_unit != NULL )
+                                if (target_unit != NULL)
                                     target_translation = ( target.norm() / unit_manager.unit_type[type_id]->weapon[ i ]->weaponvelocity) * (target_unit->V - V);
 
                                 if (unit_manager.unit_type[type_id]->weapon[ i ]->turret) 	// Si l'unité doit viser, on la fait viser / if it must aim, we make it aim
@@ -4310,6 +4316,13 @@ namespace TA3D
                                     float t = 2.0f/map->ota_data.gravity*fabs(Pos.y-mission->target.y);
                                     cur_mindist = (int)sqrt(t*V.sq())-((unit_manager.unit_type[type_id]->attackrunlength+1)>>1);
                                     cur_maxdist = cur_mindist+(unit_manager.unit_type[type_id]->attackrunlength);
+                                }
+                                else if (unit_manager.unit_type[type_id]->weapon[ i ]->waterweapon && Pos.y > units.map->sealvl)
+                                {
+                                    if (Dir % V < 0.0f )	allowed_to_fire = false;
+                                    float t = 2.0f/map->ota_data.gravity*fabs(Pos.y-mission->target.y);
+                                    cur_maxdist = (int)sqrt(t*V.sq()) + (unit_manager.unit_type[type_id]->weapon[ i ]->range>>1);
+                                    cur_mindist = 0;
                                 }
                                 else
                                 {

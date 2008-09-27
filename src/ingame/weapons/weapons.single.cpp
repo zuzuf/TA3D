@@ -87,14 +87,9 @@ namespace TA3D
             killtime-=dt;
         else
         {
-            if(weapon_def->lineofsight)
-            {
-                // TODO Damien Mssing code here ?
-            }
-            else
-                if(weapon_def->ballistic || weapon_def->dropped
-                    || (weapon_def->waterweapon && Pos.y > map->sealvl))		// Arme soumise à la gravité
-                    A.y -= map->ota_data.gravity;
+            if ((!weapon_def->lineofsight && (weapon_def->ballistic || weapon_def->dropped))
+                || (weapon_def->waterweapon && Pos.y > map->sealvl))		// Arme soumise à la gravité
+                A.y -= map->ota_data.gravity;
 
             if(weapon_def->guidance && ((weapon_def->twophase && phase==2) || !weapon_def->twophase)
                && ((weapon_def->waterweapon && Pos.y<map->sealvl) || !weapon_def->waterweapon))// Traque sa cible
@@ -133,16 +128,19 @@ namespace TA3D
                 I.unit();
                 J=I*Dir;
                 K=J*I;
-                if( speed < weapon_def->weaponvelocity )
+                if (speed < weapon_def->weaponvelocity)
                 {
                     if( speed > 0.0f )
                         A = A + weapon_def->weaponacceleration * I;
                     else
                         A = A + weapon_def->weaponacceleration * Dir;
                 }
-                else 
-                    if( speed > 0.5f * weapon_def->weaponvelocity && (V % Dir) < 0.0f )					// Can slow down if needed
+                else
+                    if (speed > 0.5f * weapon_def->weaponvelocity && (V % Dir) < 0.0f)					// Can slow down if needed
                         A = A - weapon_def->weaponacceleration * I;
+                    else
+                        if (speed > weapon_def->weaponvelocity)         // Reduce speed
+                            V = weapon_def->weaponvelocity / speed * V;
 
                 float rotate=dt*weapon_def->turnrate*TA2RAD;
                 V=speed*(cos(rotate)*I+sin(rotate)*K);
@@ -152,6 +150,9 @@ namespace TA3D
             Ac=A;
             stime+=dt;
         }
+
+        if( weapon_def->waterweapon && Pos.y <= map->sealvl && OPos.y > map->sealvl )			// Une arme aquatique ne sort pas de l'eau
+            V = 0.5f * V;
 
         float length = ((Vector3D)(OPos - Pos)).norm();
         if(!dying)
