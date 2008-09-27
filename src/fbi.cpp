@@ -612,6 +612,8 @@ namespace TA3D
         int nb_inconnu=0;
         String lang_name = I18N::Translate("UNITTYPE_NAME", "UNITINFO.Name");
         String lang_desc = I18N::Translate("UNITTYPE_DESCRIPTION", "UNITINFO.Description");
+        String lang_name_alt = I18N::Translate("UNITTYPE_NAME_ALT", "UNITINFO.Name");
+        String lang_desc_alt = I18N::Translate("UNITTYPE_DESCRIPTION_ALT", "UNITINFO.Description");
 
         TDFParser unitParser( filename, true );         // FBI files are case sensitive
 
@@ -620,8 +622,8 @@ namespace TA3D
         side = unitParser.pullAsString("UNITINFO.Side");
         ObjectName = unitParser.pullAsString("UNITINFO.Objectname");
         Designation_Name = unitParser.pullAsString("UNITINFO.Designation");
-        Description = unitParser.pullAsString( lang_desc, unitParser.pullAsString("UNITINFO.Description") );
-        name = unitParser.pullAsString( lang_name, unitParser.pullAsString("UNITINFO.Name") );
+        Description = unitParser.pullAsString( lang_desc, unitParser.pullAsString( lang_desc_alt, unitParser.pullAsString("UNITINFO.Description")) );
+        name = unitParser.pullAsString( lang_name, unitParser.pullAsString(lang_name_alt, unitParser.pullAsString("UNITINFO.Name")) );
 
         FootprintX = unitParser.pullAsInt("UNITINFO.FootprintX");
         FootprintZ = unitParser.pullAsInt("UNITINFO.FootprintZ");

@@ -1,3 +1,43 @@
+[UNITTYPE_NAME]
+{
+    ENGLISH=UNITINFO.Name;
+    FRENCH=UNITINFO.FrenchName;
+    GERMAN=UNITINFO.GermanName;
+    ITALIAN=UNITINFO.ItalianName;
+    JAPANESE=UNITINFO.JapaneseName;
+    PIGLATIN=UNITINFO.PigLatinName;
+    SPANISH=UNITINFO.SpanishName;
+}
+[UNITTYPE_NAME_ALT]
+{
+    ENGLISH=UNITINFO.Name;
+    FRENCH=UNITINFO.FrenchName;
+    GERMAN=UNITINFO.GermanName;
+    ITALIAN=UNITINFO.ItalianName;
+    JAPANESE=UNITINFO.JapaneseName;
+    PIGLATIN=UNITINFO.PigLatinName;
+    SPANISH=UNITINFO.SpanishName;
+}
+[UNITTYPE_DESCRIPTION]
+{
+    ENGLISH=UNITINFO.Description;
+    FRENCH=UNITINFO.FrenchDescription;
+    GERMAN=UNITINFO.GermanDescription;
+    ITALIAN=UNITINFO.ItalianDescription;
+    JAPANESE=UNITINFO.JapaneseDescription;
+    PIGLATIN=UNITINFO.PigLatinDescription;
+    SPANISH=UNITINFO.SpanishDescription;
+}
+[UNITTYPE_DESCRIPTION_ALT]
+{
+    ENGLISH=UNITINFO.description;
+    FRENCH=UNITINFO.Frenchdescription;
+    GERMAN=UNITINFO.Germandescription;
+    ITALIAN=UNITINFO.Italiandescription;
+    JAPANESE=UNITINFO.Japanesedescription;
+    PIGLATIN=UNITINFO.PigLatindescription;
+    SPANISH=UNITINFO.Spanishdescription;
+}
 [MULTI_SOLO_MISMATCH_ERROR]
 {
     ENGLISH=This is a multiplayer game, you cannot load it\nfrom here;
