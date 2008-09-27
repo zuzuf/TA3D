@@ -140,7 +140,7 @@ namespace TA3D
                         A = A - weapon_def->weaponacceleration * I;
                     else
                         if (speed > weapon_def->weaponvelocity)         // Reduce speed
-                            V = weapon_def->weaponvelocity / speed * V;
+                            speed = weapon_def->weaponvelocity;
 
                 float rotate=dt*weapon_def->turnrate*TA2RAD;
                 V=speed*(cos(rotate)*I+sin(rotate)*K);
@@ -151,14 +151,17 @@ namespace TA3D
             stime+=dt;
         }
 
-        if( weapon_def->waterweapon && Pos.y <= map->sealvl && OPos.y > map->sealvl )			// Une arme aquatique ne sort pas de l'eau
+        if( weapon_def->waterweapon && Pos.y <= map->sealvl && OPos.y > map->sealvl )			// A weapon that gets into water slows down
             V = 0.5f * V;
 
         float length = ((Vector3D)(OPos - Pos)).norm();
         if(!dying)
         {
-            if( weapon_def->waterweapon && Pos.y > map->sealvl && OPos.y <= map->sealvl )			// Une arme aquatique ne sort pas de l'eau
-                hit_vec = Pos;
+            if (weapon_def->waterweapon && Pos.y > map->sealvl && OPos.y <= map->sealvl)			// Une arme aquatique ne sort pas de l'eau
+            {
+                Pos.y = map->sealvl;
+                V.y = 0.0f;
+            }
             else
             {
                 hit_vec = map->hit(Pos,V,!weapon_def->waterweapon,length);
