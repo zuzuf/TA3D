@@ -122,68 +122,159 @@ SET(SOURCES
         EngineClass.cpp EngineClass.h UnitEngine.cpp UnitEngine.h
         fbi.cpp fbi.h intro.cpp intro.h  tdf.cpp tdf.h tnt.cpp tnt.h 
         icon.cpp stdafx.h TA3D_NameSpace.cpp TA3D_NameSpace.h)
-ADD_EXECUTABLE(${TA3D_BIN} ${SOURCES})
 
 
-#
-# --- TA3D Program / OS XBundle ---
-#
-# !! Do not remove this. This would be usefull to make an OS X Application Bundle
-# 
-#
-#IF(NOT APPLE)
-#    ADD_EXECUTABLE(${TA3D_BIN} ${SOURCES})
-#ELSE(NOT APPLE)
-#
-#    #
-#    # Specific commands for OS X
-#    #
-#
-#    # Icon
-#    ADD_CUSTOM_COMMAND(OUTPUT "${PROJECT_SOURCE_DIR}/ta3d.app/Contents/Resources/ta3d.icns"
-#        COMMAND  mkdir -p "${PROJECT_SOURCE_DIR}/ta3d.app/Contents/Resources" && cp -f
-#        ARGS "${PROJECT_SOURCE_DIR}/pictures/ta3d.icns" "${PROJECT_SOURCE_DIR}/ta3d.app/Contents/Resources/ta3d.icns"
-#        DEPENDS "${PROJECT_SOURCE_DIR}/pictures/ta3d.icns") 
-#    SET(SOURCES ${SOURCES} "${PROJECT_SOURCE_DIR}/ta3d.app/Contents/Resources/ta3d.icns")
-#
-#    # FMOD
-#    ADD_CUSTOM_COMMAND(OUTPUT "${PROJECT_SOURCE_DIR}/ta3d.app/Contents/Frameworks/libfmodex.dylib"
-#        COMMAND  mkdir -p "${PROJECT_SOURCE_DIR}/ta3d.app/Contents/Frameworks" && cp -f
-#        ARGS "${PROJECT_SOURCE_DIR}/src/tools/darwin/fmod/4.14.07/lib/libfmodex.dylib" "${PROJECT_SOURCE_DIR}/ta3d.app/Contents/Frameworks/libfmodex.dylib"
-#        DEPENDS "${PROJECT_SOURCE_DIR}/src/tools/darwin/fmod/4.14.07/lib/libfmodex.dylib") 
-#    SET(SOURCES ${SOURCES} "${PROJECT_SOURCE_DIR}/ta3d.app/Contents/Frameworks/libfmodex.dylib")
-#
-#    # LibZ
-#    ADD_CUSTOM_COMMAND(OUTPUT "${PROJECT_SOURCE_DIR}/ta3d.app/Contents/Frameworks/libz.1.dylib"
-#        COMMAND  mkdir -p "${PROJECT_SOURCE_DIR}/ta3d.app/Contents/Frameworks" && cp -fH
-#        ARGS "/opt/local/lib/libz.1.dylib" "${PROJECT_SOURCE_DIR}/ta3d.app/Contents/Frameworks/libz.1.dylib"
-#        DEPENDS "/opt/local/lib/libz.1.dylib") 
-#    SET(SOURCES ${SOURCES} "${PROJECT_SOURCE_DIR}/ta3d.app/Contents/Frameworks/libz.1.dylib")
-#
-#    # Allegro
-#    ADD_CUSTOM_COMMAND(OUTPUT "${PROJECT_SOURCE_DIR}/ta3d.app/Contents/Frameworks/liballeg-4.2.2.dylib"
-#        COMMAND  mkdir -p "${PROJECT_SOURCE_DIR}/ta3d.app/Contents/Frameworks" && cp -fH
-#        ARGS "/opt/local/lib/liballeg-4.2.2.dylib" "${PROJECT_SOURCE_DIR}/ta3d.app/Contents/Frameworks/liballeg-4.2.2.dylib"
-#        DEPENDS "/opt/local/lib/liballeg-4.2.2.dylib") 
-#    SET(SOURCES ${SOURCES} "${PROJECT_SOURCE_DIR}/ta3d.app/Contents/Frameworks/liballeg-4.2.2.dylib")
-#
-#
-#    # OS X
-#    ADD_EXECUTABLE(${TA3D_BIN} MACOSX_BUNDLE ${SOURCES})
-#    SET(GUI_TYPE MACOSX_BUNDLE)
-#    SET(MACOSX_BUNDLE_BUNDLE_NAME "TA3D")
-#    SET(MACOSX_BUNDLE_SHORT_VERSION_STRING "ta3d")
-#    SET(MACOSX_BUNDLE_ICON_FILE "ta3d.icns")
-#
-#    # Relink
-#    ADD_CUSTOM_COMMAND(TARGET ${TA3D_BIN} POST_BUILD
-#        COMMAND install_name_tool ARGS -change './libfmodex.dylib' @executable_path/../Frameworks/libfmodex.dylib ${PROJECT_SOURCE_DIR}/ta3d.app/Contents/MacOS/ta3d )
-#    ADD_CUSTOM_COMMAND(TARGET ${TA3D_BIN} POST_BUILD
-#        COMMAND install_name_tool ARGS -change '/opt/local/lib/libz.1.dylib' @executable_path/../Frameworks/libz.1.dylib ${PROJECT_SOURCE_DIR}/ta3d.app/Contents/MacOS/ta3d )
-#    ADD_CUSTOM_COMMAND(TARGET ${TA3D_BIN} POST_BUILD
-#        COMMAND install_name_tool ARGS -change '/opt/local/lib/liballeg-4.2.2.dylib' @executable_path/../Frameworks/liballeg-4.2.2.dylib ${PROJECT_SOURCE_DIR}/ta3d.app/Contents/MacOS/ta3d )
-#
-#ENDIF(NOT APPLE)
+
+IF(NOT APPLE)
+    ADD_EXECUTABLE(${TA3D_BIN} ${SOURCES})
+ELSE(NOT APPLE)
+
+	#
+	# --- TA3D Program / OS XBundle ---
+	#
+	
+	# OS X : Add a single file as a bundle resource
+	MACRO(BUNDLE_INSTALL srcfolder relfolder filename)
+		File(MAKE_DIRECTORY "${PROJECT_SOURCE_DIR}/ta3d.app/Contents/Resources/${relfolder}/")
+		ADD_CUSTOM_COMMAND(OUTPUT "${PROJECT_SOURCE_DIR}/ta3d.app/Contents/Resources/${relfolder}/${filename}"
+			COMMAND cp ARGS -f "${PROJECT_SOURCE_DIR}/${srcfolder}/${filename}"
+			  "${PROJECT_SOURCE_DIR}/ta3d.app/Contents/Resources/${relfolder}/${filename}"
+			DEPENDS "${PROJECT_SOURCE_DIR}/${srcfolder}/${filename}") 
+		SET(SOURCES ${SOURCES} "${PROJECT_SOURCE_DIR}/ta3d.app/Contents/Resources/${relfolder}/${filename}")
+	ENDMACRO(BUNDLE_INSTALL)
+
+	MACRO(BUNDLE_INSTALL_GLOB srcfolder relfolder globfiles)
+		File(MAKE_DIRECTORY "${PROJECT_SOURCE_DIR}/ta3d.app/Contents/Resources/${relfolder}/")
+		File(GLOB lst "${PROJECT_SOURCE_DIR}/${srcfolder}/${globfiles}")
+		ForEach(fl ${lst})
+			String(REGEX REPLACE "^/.*/([^/]+)$" "\\1" fl "${fl}")
+			ADD_CUSTOM_COMMAND(OUTPUT "${PROJECT_SOURCE_DIR}/ta3d.app/Contents/Resources/${relfolder}/${fl}"
+				COMMAND cp ARGS -f "${PROJECT_SOURCE_DIR}/${srcfolder}/${fl}"
+					"${PROJECT_SOURCE_DIR}/ta3d.app/Contents/Resources/${relfolder}/${fl}"
+				DEPENDS "${PROJECT_SOURCE_DIR}/${srcfolder}/${fl}") 
+			SET(SOURCES ${SOURCES} "${PROJECT_SOURCE_DIR}/ta3d.app/Contents/Resources/${relfolder}/${fl}")
+		EndForEach(fl ${lst})
+	ENDMACRO(BUNDLE_INSTALL_GLOB)
+
+	MACRO(BUNDLE_BASIC_INSTALL srcfolder relfolder filename)
+		File(MAKE_DIRECTORY "${PROJECT_SOURCE_DIR}/ta3d.app/Contents/${relfolder}/")
+		ADD_CUSTOM_COMMAND(OUTPUT "${PROJECT_SOURCE_DIR}/ta3d.app/Contents/${relfolder}/${filename}"
+			COMMAND cp ARGS -f "${PROJECT_SOURCE_DIR}/${srcfolder}/${filename}" "${PROJECT_SOURCE_DIR}/ta3d.app/Contents/${relfolder}/${filename}"
+			DEPENDS "${PROJECT_SOURCE_DIR}/${srcfolder}/${filename}") 
+		SET(SOURCES ${SOURCES} "${PROJECT_SOURCE_DIR}/ta3d.app/Contents/${relfolder}/${filename}")
+	ENDMACRO(BUNDLE_BASIC_INSTALL)
+
+	File(MAKE_DIRECTORY "${PROJECT_SOURCE_DIR}/ta3d.app/Contents/Resources/")
+	File(MAKE_DIRECTORY "${PROJECT_SOURCE_DIR}/ta3d.app/Contents/Frameworks/")
+	File(MAKE_DIRECTORY "${PROJECT_SOURCE_DIR}/ta3d.app/Contents/MacOS/")
+
+	# Ta3d mod
+	BUNDLE_BASIC_INSTALL("./" "MacOS" "ta3d.mod")
+	# Misc
+	BUNDLE_BASIC_INSTALL("./" "./" "README")
+	BUNDLE_BASIC_INSTALL("./" "./" "AUTHORS")
+	# License
+	BUNDLE_BASIC_INSTALL("./" "./" "COPYING")
+
+    # FMOD
+    ADD_CUSTOM_COMMAND(OUTPUT "${PROJECT_SOURCE_DIR}/ta3d.app/Contents/Frameworks/libfmodex.dylib"
+		COMMAND cp ARGS -f "${FMOD_LIB_DARWIN_FOLDER}/libfmodex.dylib" "${PROJECT_SOURCE_DIR}/ta3d.app/Contents/Frameworks/libfmodex.dylib"
+        DEPENDS "${FMOD_LIB_DARWIN_FOLDER}/libfmodex.dylib") 
+    SET(SOURCES ${SOURCES} "${PROJECT_SOURCE_DIR}/ta3d.app/Contents/Frameworks/libfmodex.dylib")
+
+    # LibZ
+    ADD_CUSTOM_COMMAND(OUTPUT "${PROJECT_SOURCE_DIR}/ta3d.app/Contents/Frameworks/libz.1.dylib"
+		COMMAND cp ARGS -fH "/opt/local/lib/libz.1.dylib" "${PROJECT_SOURCE_DIR}/ta3d.app/Contents/Frameworks/libz.1.dylib"
+        DEPENDS "/opt/local/lib/libz.1.dylib") 
+    SET(SOURCES ${SOURCES} "${PROJECT_SOURCE_DIR}/ta3d.app/Contents/Frameworks/libz.1.dylib")
+
+    # Allegro
+    ADD_CUSTOM_COMMAND(OUTPUT "${PROJECT_SOURCE_DIR}/ta3d.app/Contents/Frameworks/liballeg-4.2.2.dylib"
+		COMMAND cp ARGS -fH "/opt/local/lib/liballeg-4.2.2.dylib" "${PROJECT_SOURCE_DIR}/ta3d.app/Contents/Frameworks/liballeg-4.2.2.dylib"
+        DEPENDS "/opt/local/lib/liballeg-4.2.2.dylib") 
+    SET(SOURCES ${SOURCES} "${PROJECT_SOURCE_DIR}/ta3d.app/Contents/Frameworks/liballeg-4.2.2.dylib")
+
+	# --- Resources --- 
+	# Sky
+	Message(STATUS "[bundle] Adding resources 'sky'...")
+	BUNDLE_INSTALL_GLOB("sky" "sky" "*.tdf")
+	# Shaders
+	Message(STATUS "[bundle] Adding resources 'shaders'...")
+	BUNDLE_INSTALL_GLOB("shaders" "shaders" "*.vert")
+	BUNDLE_INSTALL_GLOB("shaders" "shaders" "*.frag")
+	# ai
+	Message(STATUS "[bundle] Adding resources 'ai'...")
+	BUNDLE_INSTALL_GLOB("ai" "ai" "*.ai")
+	# Gfx
+	Message(STATUS "[bundle] Adding resources 'gfx'...")
+	BUNDLE_INSTALL_GLOB("gfx" "gfx" "*.jpg")
+	BUNDLE_INSTALL_GLOB("gfx" "gfx" "*.png")
+	BUNDLE_INSTALL_GLOB("gfx" "gfx" "*.tga")
+	BUNDLE_INSTALL_GLOB("gfx/default_skin" "gfx/default_skin" "*.tga")
+	BUNDLE_INSTALL_GLOB("gfx/default_skin" "gfx/default_skin" "*.jpg")
+	BUNDLE_INSTALL_GLOB("gfx/default_skin" "gfx/default_skin" "*.png")
+	BUNDLE_INSTALL_GLOB("gfx/mdrn_skin" "gfx/mdrn_skin" "*.tga")
+	BUNDLE_INSTALL_GLOB("gfx/mdrn_skin" "gfx/mdrn_skin" "*.jpg")
+	BUNDLE_INSTALL_GLOB("gfx/mdrn_skin" "gfx/mdrn_skin" "*.png")
+	BUNDLE_INSTALL_GLOB("gfx/mdrn_teams" "gfx/mdrn_teams" "*.tga")
+	BUNDLE_INSTALL_GLOB("gfx/mdrn_teams" "gfx/mdrn_teams" "*.jpg")
+	BUNDLE_INSTALL_GLOB("gfx/mdrn_teams" "gfx/mdrn_teams" "*.png")
+	BUNDLE_INSTALL_GLOB("gfx/sky" "gfx/sky" "*.jpg")
+	BUNDLE_INSTALL_GLOB("gfx/teams" "gfx/teams" "*.tga")
+	BUNDLE_INSTALL_GLOB("gfx/tactical icons" "gfx/tactical icons/" "*.tga")
+	# gui
+	Message(STATUS "[bundle] Adding resources 'gui'...")
+	BUNDLE_INSTALL_GLOB("gui" "gui" "*.tdf")
+	BUNDLE_INSTALL_GLOB("gui" "gui" "*.area")
+	BUNDLE_INSTALL_GLOB("gui" "gui" "*.skn")
+	# Mods
+	Message(STATUS "[bundle] Adding resources 'mods'...")
+	BUNDLE_INSTALL("mods/ta3d" "mods/ta3d" "files.txt")
+	BUNDLE_INSTALL_GLOB("mods/ta3d/objects3d" "mods/ta3d/objects3d" "*.3dm")
+	BUNDLE_INSTALL_GLOB("mods/ta3d/objects3d" "mods/ta3d/objects3d" "*.3do")
+	# objects3d
+	Message(STATUS "[bundle] Adding resources 'objects3d'...")
+	BUNDLE_INSTALL_GLOB("objects3d" "objects3d" "*.3dm")
+	BUNDLE_INSTALL_GLOB("objects3d" "objects3d" "*.3do")
+	# Scripts
+	Message(STATUS "[bundle] Adding resources 'scripts'...")
+	BUNDLE_INSTALL_GLOB("scripts" "scripts" "*.lua")
+	BUNDLE_INSTALL("scripts" "scripts" "signals.h")
+	# Pictures
+	Message(STATUS "[bundle] Adding resources 'pictures'...")
+	BUNDLE_INSTALL_GLOB("pictures" "pictures" "*.jpg")
+	BUNDLE_INSTALL_GLOB("pictures" "pictures" "*.ico")
+	BUNDLE_INSTALL_GLOB("pictures" "pictures" "*.png")
+	BUNDLE_INSTALL_GLOB("pictures" "pictures" "*.xcf")
+	BUNDLE_INSTALL_GLOB("pictures" "pictures" "*.tga")
+	BUNDLE_INSTALL_GLOB("pictures" "pictures" "*.icns")
+	# Intro 
+	Message(STATUS "[bundle] Adding resources 'intro'...")
+	BUNDLE_INSTALL_GLOB("resources/intro" "intro" "*.txt")
+	# Translations
+	Message(STATUS "[bundle] Adding resources 'languages'...")
+	BUNDLE_INSTALL_GLOB("resources/languages" "languages" "*.txt")
+
+	# *.res
+	BUNDLE_BASIC_INSTALL("resources" "./" "ta3d.res")
+	BUNDLE_BASIC_INSTALL("resources" "./" "3dmeditor.res")
+
+    # OS X specific
+    ADD_EXECUTABLE(${TA3D_BIN} MACOSX_BUNDLE ${SOURCES})
+    SET(GUI_TYPE MACOSX_BUNDLE)
+    SET(MACOSX_BUNDLE_BUNDLE_NAME "TA3D")
+    SET(MACOSX_BUNDLE_SHORT_VERSION_STRING "ta3d")
+    SET(MACOSX_BUNDLE_ICON_FILE "pictures/ta3d.icns")
+
+    # Relink (needed to make an independant Bundle)
+    ADD_CUSTOM_COMMAND(TARGET ${TA3D_BIN} POST_BUILD
+        COMMAND install_name_tool ARGS -change './libfmodex.dylib' @executable_path/../Frameworks/libfmodex.dylib ${PROJECT_SOURCE_DIR}/ta3d.app/Contents/MacOS/ta3d )
+    ADD_CUSTOM_COMMAND(TARGET ${TA3D_BIN} POST_BUILD
+        COMMAND install_name_tool ARGS -change '/opt/local/lib/libz.1.dylib' @executable_path/../Frameworks/libz.1.dylib ${PROJECT_SOURCE_DIR}/ta3d.app/Contents/MacOS/ta3d )
+    ADD_CUSTOM_COMMAND(TARGET ${TA3D_BIN} POST_BUILD
+        COMMAND install_name_tool ARGS -change '/opt/local/lib/liballeg-4.2.2.dylib' @executable_path/../Frameworks/liballeg-4.2.2.dylib ${PROJECT_SOURCE_DIR}/ta3d.app/Contents/MacOS/ta3d )
+
+ENDIF(NOT APPLE)
 
 
 #
@@ -215,6 +306,8 @@ IF(WIN32)
     target_link_libraries(${TA3D_BIN} agl lua gdi32 alleg opengl32 glu32 NL)
 ENDIF(WIN32)
 
-install(TARGETS ${TA3D_BIN} RUNTIME DESTINATION ${TA3D_BINARIES_INSTALL_PATH})
-install(TARGETS ${3DMEDITOR_BIN} RUNTIME DESTINATION ${TA3D_BINARIES_INSTALL_PATH})
+IF(NOT APPLE)
+	install(TARGETS ${TA3D_BIN} RUNTIME DESTINATION ${TA3D_BINARIES_INSTALL_PATH})
+	install(TARGETS ${3DMEDITOR_BIN} RUNTIME DESTINATION ${TA3D_BINARIES_INSTALL_PATH})
+ENDIF(NOT APPLE)
 
