@@ -68,13 +68,13 @@ namespace Resources
         
         Paths::MakeDir(home + "/Library/Application Support/ta3d/");
         // Relative folder for the Application bundle
-        AddSearchPath(Paths::ApplicationRoot + "../Resources/");
+        AddSearchPath(Paths::ApplicationRoot + "/../Resources/");
         AddSearchPath(home + "/Library/Application Support/ta3d/");
         // Unix compatibility
         AddSearchPath(home + "/.ta3d/resources/");
         // If using MacPorts
         AddSearchPath("/opt/local/share/ta3d/");
-        AddSearchPath(Paths::ApplicationRoot + "resources/"); // TODO : Should be removed (need a fully working Application bundle)
+        AddSearchPath(Paths::ApplicationRoot + "/resources/"); // TODO : Should be removed (need a fully working Application bundle)
         AddSearchPath(Paths::ApplicationRoot);
     }
 

@@ -46,6 +46,18 @@
 namespace TA3D
 {
 
+	namespace
+	{
+		void showError(const String& s, const String& additional = "")
+		{
+			LOG_ERROR(I18N::Translate(s));
+			set_uformat(U_UTF8);   // fixed size, 8-bit ASCII characters
+			allegro_message((String(I18N::Translate(s)) << additional).c_str());
+			set_uformat(U_ASCII);   // fixed size, 8-bit ASCII characters
+		}
+
+	}
+
 
 	cTA3D_Engine::cTA3D_Engine(void)
 	{
@@ -71,27 +83,24 @@ namespace TA3D
 		set_uformat(U_ASCII);   // fixed size, 8-bit ASCII characters
 
 		// Initalizing allegro
-		if( allegro_init() != 0 )
-			throw( "allegro_init() yielded unexpected result." );
+		if (allegro_init() != 0)
+			throw ("allegro_init() yielded unexpected result.");
 
 		// set allegro running status;
 		m_AllegroRunning = true;
 
 		// Installing allegro timer
-		if( install_timer() != 0 )
-			throw( "install_timer() yielded unexpected result." );
-
+		if (install_timer() != 0)
+			throw ("install_timer() yielded unexpected result.");
 		// Installing allegro mouse handler
-		if( install_mouse() == -1 )
-			throw ( "install_mouse() yielded unexpected result." );
-
+		if (install_mouse() == -1)
+			throw ("install_mouse() yielded unexpected result.");
 		// Installing allegro keyboard handler
-		if( install_keyboard() == -1 )
-			throw ( "install_mouse() yielded unexpected result." );
-
+		if (install_keyboard() == -1)
+			throw ("install_mouse() yielded unexpected result.");
 		// Initalizing allegro JPG support
-		if( jpgalleg_init() < 0 )
-			throw( "jpgalleg_init() yielded unexpected result." );
+		if (jpgalleg_init() < 0)
+			throw("jpgalleg_init() yielded unexpected result.");
 
 		// Creating HPI Manager
 		TA3D::VARS::HPIManager = new TA3D::UTILS::HPI::cHPIHandler();
@@ -100,13 +109,10 @@ namespace TA3D
         I18N::Instance()->loadFromFile("gamedata\\translate.tdf", true, true);   
         I18N::Instance()->loadFromFile("ta3d.res", false);   // Loads translation data (TA3D translations in UTF8)
 
-		if( !HPIManager->Exists( "gamedata\\sidedata.tdf" ) || !HPIManager->Exists( "gamedata\\allsound.tdf" ) || !HPIManager->Exists( "gamedata\\sound.tdf" ) )
-        {
-            LOG_ERROR(I18N::Translate("RESOURCES ERROR"));
-			set_uformat(U_UTF8);   // fixed size, 8-bit ASCII characters
-			allegro_message( I18N::Translate("RESOURCES ERROR").c_str() );
-			set_uformat(U_ASCII);   // fixed size, 8-bit ASCII characters
-			throw ("resources missing!!");
+		if (!HPIManager->Exists("gamedata\\sidedata.tdf") || !HPIManager->Exists("gamedata\\allsound.tdf") || !HPIManager->Exists("gamedata\\sound.tdf"))
+		{
+			showError("RESOURCES ERROR");
+			exit(1);
 		}
 
 		// Creating Sound & Music Interface
@@ -116,12 +122,7 @@ namespace TA3D
 		sound_manager->loadTDFSounds(false);
 
 		if (!sound_manager->isRunning() && !lp_CONFIG->quickstart)
-        {
-            LOG_ERROR(I18N::Translate("FMOD WARNING"));
-			set_uformat(U_UTF8);   // fixed size, 8-bit ASCII characters
-			allegro_message( I18N::Translate("FMOD WARNING").c_str() );
-			set_uformat(U_ASCII);   // fixed size, 8-bit ASCII characters
-		}
+			showError("FMOD WARNING");
 
 		// Creating GFX Interface
         // Don't try to start sound before gfx, if we have to display the warning message while in fullscreen
@@ -134,33 +135,42 @@ namespace TA3D
 
 		// Loading and creating cursors
 		byte *data = HPIManager->PullFromHPI("anims\\cursors.gaf");	// Load cursors
-		cursor.loadGAFFromRawData(data, true);
-		cursor.convert();
+		if (data)
+		{
+			cursor.loadGAFFromRawData(data, true);
+			cursor.convert();
 
-		CURSOR_MOVE        = cursor.findByName("cursormove"); // Match cursor variables with cursor anims
-		CURSOR_GREEN       = cursor.findByName("cursorgrn");
-		CURSOR_CROSS       = cursor.findByName("cursorselect");
-		CURSOR_RED         = cursor.findByName("cursorred");
-		CURSOR_LOAD        = cursor.findByName("cursorload");
-		CURSOR_UNLOAD      = cursor.findByName("cursorunload");
-		CURSOR_GUARD       = cursor.findByName("cursordefend");
-		CURSOR_PATROL      = cursor.findByName("cursorpatrol");
-		CURSOR_REPAIR      = cursor.findByName("cursorrepair");
-		CURSOR_ATTACK      = cursor.findByName("cursorattack");
-		CURSOR_BLUE        = cursor.findByName("cursornormal");
-		CURSOR_AIR_LOAD    = cursor.findByName("cursorpickup");
-		CURSOR_BOMB_ATTACK = cursor.findByName("cursorairstrike");
-		CURSOR_BALANCE     = cursor.findByName("cursorunload");
-		CURSOR_RECLAIM     = cursor.findByName("cursorreclamate");
-		CURSOR_WAIT        = cursor.findByName("cursorhourglass");
-		CURSOR_CANT_ATTACK = cursor.findByName("cursortoofar");
-		CURSOR_CROSS_LINK  = cursor.findByName("pathicon");
-		CURSOR_CAPTURE     = cursor.findByName("cursorcapture");
-		CURSOR_REVIVE      = cursor.findByName("cursorrevive");
-		if (CURSOR_REVIVE == -1) // If you don't have the required cursors, then resurrection won't work
-			CURSOR_REVIVE = cursor.findByName("cursorreclamate");
+			CURSOR_MOVE        = cursor.findByName("cursormove"); // Match cursor variables with cursor anims
+			CURSOR_GREEN       = cursor.findByName("cursorgrn");
+			CURSOR_CROSS       = cursor.findByName("cursorselect");
+			CURSOR_RED         = cursor.findByName("cursorred");
+			CURSOR_LOAD        = cursor.findByName("cursorload");
+			CURSOR_UNLOAD      = cursor.findByName("cursorunload");
+			CURSOR_GUARD       = cursor.findByName("cursordefend");
+			CURSOR_PATROL      = cursor.findByName("cursorpatrol");
+			CURSOR_REPAIR      = cursor.findByName("cursorrepair");
+			CURSOR_ATTACK      = cursor.findByName("cursorattack");
+			CURSOR_BLUE        = cursor.findByName("cursornormal");
+			CURSOR_AIR_LOAD    = cursor.findByName("cursorpickup");
+			CURSOR_BOMB_ATTACK = cursor.findByName("cursorairstrike");
+			CURSOR_BALANCE     = cursor.findByName("cursorunload");
+			CURSOR_RECLAIM     = cursor.findByName("cursorreclamate");
+			CURSOR_WAIT        = cursor.findByName("cursorhourglass");
+			CURSOR_CANT_ATTACK = cursor.findByName("cursortoofar");
+			CURSOR_CROSS_LINK  = cursor.findByName("pathicon");
+			CURSOR_CAPTURE     = cursor.findByName("cursorcapture");
+			CURSOR_REVIVE      = cursor.findByName("cursorrevive");
+			if (CURSOR_REVIVE == -1) // If you don't have the required cursors, then resurrection won't work
+				CURSOR_REVIVE = cursor.findByName("cursorreclamate");
+			delete[] data;
+		}
+		else
+		{
+			showError("RESOURCES ERROR", " (anims\\cursors.gaf not found)");
+			exit(2);
+		}
 
-		delete[] data;
+
 		ThreadSynchroniser = new ObjectSync;
 
 		// Initializing the ascii to scancode table
