@@ -699,7 +699,7 @@ namespace TA3D
         if (patrol_node == -1 && mission_type == MISSION_PATROL)
         {
             MISSION *mission_base = def_mode ? def_mission : mission;
-            if (mission_base ) // Ajoute l'ordre aux autres
+            if (mission_base) // Ajoute l'ordre aux autres
             {
                 MISSION *cur = mission_base;
                 MISSION *last = NULL;
@@ -780,6 +780,7 @@ namespace TA3D
                     new_mission = stop;
                     new_mission->next = NULL;
                 }
+                LOG_DEBUG("adding " << std::string(new_mission->mission));
                 cur->next=new_mission;
             }
             else
@@ -4428,10 +4429,17 @@ namespace TA3D
                     break;
                 case MISSION_STOP:											// Arrête tout ce qui était en cours / stop everything running
                     while (mission->next
+                        && (mission->mission == MISSION_STOP
+                            || mission->mission == MISSION_STANDBY
+                            || mission->mission == MISSION_VTOL_STANDBY)
                         && (mission->next->mission == MISSION_STOP
                             || mission->next->mission == MISSION_STANDBY
                             || mission->next->mission == MISSION_VTOL_STANDBY))     // Don't make a big stop stack :P
                         next_mission();
+                    if (mission->mission != MISSION_STOP
+                        && mission->mission != MISSION_STANDBY
+                        && mission->mission != MISSION_VTOL_STANDBY)
+                        break;
                     mission->mission = MISSION_STOP;
                     if (jump_commands && mission->data != 0 )	break;
                     if (mission->data>5)
@@ -4467,8 +4475,10 @@ namespace TA3D
                 case MISSION_REPAIR:
                     {
                         UNIT *target_unit=(UNIT*) mission->p;
-                        if (target_unit!=NULL && (target_unit->flags & 1) && target_unit->build_percent_left == 0.0f && target_unit->ID == mission->target_ID) {
-                            if (target_unit->hp>=unit_manager.unit_type[target_unit->type_id]->MaxDamage || !unit_manager.unit_type[type_id]->BMcode) {
+                        if (target_unit!=NULL && (target_unit->flags & 1) && target_unit->build_percent_left == 0.0f && target_unit->ID == mission->target_ID)
+                        {
+                            if (target_unit->hp>=unit_manager.unit_type[target_unit->type_id]->MaxDamage || !unit_manager.unit_type[type_id]->BMcode)
+                            {
                                 if (unit_manager.unit_type[type_id]->BMcode)
                                     target_unit->hp=unit_manager.unit_type[target_unit->type_id]->MaxDamage;
                                 next_mission();
@@ -4481,14 +4491,17 @@ namespace TA3D
                                 float dist=Dir.sq();
                                 int maxdist=(int)(unit_manager.unit_type[type_id]->BuildDistance
                                                   + ( (unit_manager.unit_type[target_unit->type_id]->FootprintX + unit_manager.unit_type[target_unit->type_id]->FootprintZ) << 1 ) );
-                                if (dist>maxdist*maxdist && unit_manager.unit_type[type_id]->BMcode) {	// Si l'unité est trop loin du chantier
+                                if (dist>maxdist*maxdist && unit_manager.unit_type[type_id]->BMcode)	// Si l'unité est trop loin du chantier
+                                {
                                     mission->flags |= MISSION_FLAG_MOVE;
                                     mission->move_data = maxdist * 7 / 80;
                                     mission->data = 0;
                                     c_time = 0.0f;
                                 }
-                                else if (!(mission->flags & MISSION_FLAG_MOVE) ) {
-                                    if (mission->data==0) {
+                                else if (!(mission->flags & MISSION_FLAG_MOVE))
+                                {
+                                    if (mission->data==0)
+                                    {
                                         mission->data=1;
                                         int angle = (int)( acos( Dir.z / Dir.norm() ) * RAD2DEG );
                                         if (Dir.x < 0.0f )
@@ -4501,14 +4514,17 @@ namespace TA3D
                                         launch_script(get_script_index(SCRIPT_go));
                                     }
 
-                                    if (port[ INBUILDSTANCE ] != 0.0f ) {
-                                        if (local && network_manager.isConnected() && nanolathe_target < 0 ) {		// Synchronize nanolathe emission
+                                    if (port[ INBUILDSTANCE ] != 0.0f)
+                                    {
+                                        if (local && network_manager.isConnected() && nanolathe_target < 0 )		// Synchronize nanolathe emission
+                                        {
                                             nanolathe_target = target_unit->idx;
                                             g_ta3d_network->sendUnitNanolatheEvent( idx, target_unit->idx, false, false );
                                         }
 
                                         float conso_energy=((float)(unit_manager.unit_type[type_id]->WorkerTime*unit_manager.unit_type[target_unit->type_id]->BuildCostEnergy))/unit_manager.unit_type[target_unit->type_id]->BuildTime;
-                                        if (players.energy[owner_id] >= (energy_cons + conso_energy) * dt ) {
+                                        if (players.energy[owner_id] >= (energy_cons + conso_energy) * dt)
+                                        {
                                             energy_cons += conso_energy;
                                             target_unit->hp += dt*unit_manager.unit_type[type_id]->WorkerTime*unit_manager.unit_type[target_unit->type_id]->MaxDamage/unit_manager.unit_type[target_unit->type_id]->BuildTime;
                                         }
@@ -4517,20 +4533,24 @@ namespace TA3D
                                 }
                             }
                         }
-                        else if (target_unit!=NULL && target_unit->flags) {
+                        else if (target_unit!=NULL && target_unit->flags)
+                        {
                             Vector3D Dir=target_unit->Pos-Pos;
                             Dir.y=0.0f;
                             mission->target=target_unit->Pos;
                             float dist=Dir.sq();
                             int maxdist=(int)(unit_manager.unit_type[type_id]->BuildDistance
                                               + ( (unit_manager.unit_type[target_unit->type_id]->FootprintX + unit_manager.unit_type[target_unit->type_id]->FootprintZ) << 1 ));
-                            if (dist>maxdist*maxdist && unit_manager.unit_type[type_id]->BMcode) {	// Si l'unité est trop loin du chantier
+                            if (dist>maxdist*maxdist && unit_manager.unit_type[type_id]->BMcode)	// Si l'unité est trop loin du chantier
+                            {
                                 c_time=0.0f;
                                 mission->flags |= MISSION_FLAG_MOVE;
                                 mission->move_data = maxdist*7/80;
                             }
-                            else if (!(mission->flags & MISSION_FLAG_MOVE) ) {
-                                if (unit_manager.unit_type[type_id]->BMcode ) {
+                            else if (!(mission->flags & MISSION_FLAG_MOVE))
+                            {
+                                if (unit_manager.unit_type[type_id]->BMcode)
+                                {
                                     int angle = (int)( acos( Dir.z / Dir.norm() ) * RAD2DEG );
                                     if (Dir.x < 0.0f )
                                         angle = -angle;
@@ -4548,11 +4568,14 @@ namespace TA3D
                 case MISSION_BUILD_2:
                     {
                         UNIT *target_unit=(UNIT*) mission->p;
-                        if (target_unit->flags && target_unit->ID == mission->target_ID) {
+                        if (target_unit->flags && target_unit->ID == mission->target_ID)
+                        {
                             target_unit->lock();
-                            if (target_unit->build_percent_left <= 0.0f) {
+                            if (target_unit->build_percent_left <= 0.0f)
+                            {
                                 target_unit->build_percent_left = 0.0f;
-                                if (unit_manager.unit_type[target_unit->type_id]->ActivateWhenBuilt ) {		// Start activated
+                                if (unit_manager.unit_type[target_unit->type_id]->ActivateWhenBuilt)		// Start activated
+                                {
                                     target_unit->port[ ACTIVATION ] = 0;
                                     target_unit->activate();
                                 }
@@ -4588,8 +4611,9 @@ namespace TA3D
                                 mission->p=NULL;
                                 next_mission();
                             }
-                            else if (port[ INBUILDSTANCE ] != 0 ) {
-                                if (local && network_manager.isConnected() && nanolathe_target < 0 ) // Synchronize nanolathe emission
+                            else if (port[ INBUILDSTANCE ] != 0)
+                            {
+                                if (local && network_manager.isConnected() && nanolathe_target < 0) // Synchronize nanolathe emission
                                 {
                                     nanolathe_target = target_unit->idx;
                                     g_ta3d_network->sendUnitNanolatheEvent( idx, target_unit->idx, false, false );
@@ -4636,7 +4660,8 @@ namespace TA3D
                                 mission->target = target_unit->Pos;
                                 target_unit->built=true;
                             }
-                            else {
+                            else
+                            {
                                 activate();
                                 target_unit->built=true;
                             }
@@ -4652,7 +4677,7 @@ namespace TA3D
                         Vector3D Dir = mission->target - Pos;
                         Dir.y = 0.0f;
                         int angle = (int)( acos( Dir.z / Dir.norm() ) * RAD2DEG );
-                        if (Dir.x < 0.0f )
+                        if (Dir.x < 0.0f)
                             angle = -angle;
                         angle -= (int)Angle.y;
                         if (angle>180)	angle-=360;
@@ -4670,26 +4695,31 @@ namespace TA3D
                         float dist = Dir.sq();
                         int maxdist = (int)(unit_manager.unit_type[type_id]->BuildDistance
                                             + ( (unit_manager.unit_type[mission->data]->FootprintX + unit_manager.unit_type[mission->data]->FootprintZ) << 1 ) );
-                        if (dist>maxdist*maxdist && unit_manager.unit_type[type_id]->BMcode) {	// Si l'unité est trop loin du chantier
+                        if (dist>maxdist*maxdist && unit_manager.unit_type[type_id]->BMcode)	// Si l'unité est trop loin du chantier
+                        {
                             mission->flags |= MISSION_FLAG_MOVE;
                             mission->move_data = maxdist * 7 / 80;
                         }
-                        else {
+                        else
+                        {
                             if (mission->flags & MISSION_FLAG_MOVE )			// Stop moving if needed
                                 stop_moving();
-                            if (unit_manager.unit_type[type_id]->BMcode || (!unit_manager.unit_type[type_id]->BMcode && port[ INBUILDSTANCE ] && port[YARD_OPEN] && !port[BUGGER_OFF])) {
+                            if (unit_manager.unit_type[type_id]->BMcode || (!unit_manager.unit_type[type_id]->BMcode && port[ INBUILDSTANCE ] && port[YARD_OPEN] && !port[BUGGER_OFF]))
+                            {
                                 /*								pMutex.unlock();
                                                                 draw_on_map();
                                                                 pMutex.lock();*/
                                 V.x = 0.0f;
                                 V.y = 0.0f;
                                 V.z = 0.0f;
-                                if (!unit_manager.unit_type[type_id]->BMcode ) {
+                                if (!unit_manager.unit_type[type_id]->BMcode)
+                                {
                                     int script_id_buildinfo = get_script_index(SCRIPT_QueryBuildInfo);
                                     if (script_id_buildinfo >= 0 ) {
                                         int param[] = { -1 };
                                         run_script_function( map, script_id_buildinfo, 1, param );
-                                        if (param[0] >= 0 ) {
+                                        if (param[0] >= 0)
+                                        {
                                             compute_model_coord();
                                             mission->target = Pos + data.pos[ param[0] ];
                                         }
@@ -4712,7 +4742,8 @@ namespace TA3D
                                 else if (unit_manager.unit_type[type_id]->BMcode)
                                     next_mission();
                             }
-                            else {
+                            else
+                            {
                                 activate();
                                 run_script_function( map, get_script_index(SCRIPT_QueryBuildInfo) );
                             }
@@ -4744,10 +4775,12 @@ namespace TA3D
                 case CLASS_SHIP:
                     {
                         if (!(mission->flags & MISSION_FLAG_MOVE) && !(mission->flags & MISSION_FLAG_DONT_STOP_MOVE)
-                            && ((mission->mission!=MISSION_ATTACK && unit_manager.unit_type[type_id]->canfly) || !unit_manager.unit_type[type_id]->canfly)) {
+                            && ((mission->mission!=MISSION_ATTACK && unit_manager.unit_type[type_id]->canfly) || !unit_manager.unit_type[type_id]->canfly))
+                        {
                             if (!flying )
                                 V.x = V.z = 0.0f;
-                            if (precomputed_position ) {
+                            if (precomputed_position)
+                            {
                                 NPos = Pos;
                                 n_px = cur_px;
                                 n_py = cur_py;
@@ -4771,7 +4804,8 @@ namespace TA3D
                                 break;
                             case MISSION_MOVE:
                                 mission->flags |= MISSION_FLAG_CAN_ATTACK;
-                                if (!(mission->flags & MISSION_FLAG_MOVE) ) {			// Monitor the moving process
+                                if (!(mission->flags & MISSION_FLAG_MOVE) )			// Monitor the moving process
+                                {
                                     if (mission->next
                                         && (mission->next->mission == MISSION_MOVE
                                             || (mission->next->mission == MISSION_STOP && mission->next->next && mission->next->next->mission == MISSION_MOVE) ) )
@@ -4838,7 +4872,7 @@ namespace TA3D
                         I.y = 0.0f;
                         V = (V%K)*K+(V%J)*J+units.exp_dt_4*(V%I)*I;
                         float speed = V.sq();
-                        if (speed < unit_manager.unit_type[type_id]->MaxVelocity * unit_manager.unit_type[type_id]->MaxVelocity )
+                        if (speed < unit_manager.unit_type[type_id]->MaxVelocity * unit_manager.unit_type[type_id]->MaxVelocity)
                             V=V+unit_manager.unit_type[type_id]->Acceleration*dt*J;
                     }
                     break;
@@ -4849,7 +4883,7 @@ namespace TA3D
                 if (!unit_manager.unit_type[type_id]->canfly && !unit_manager.unit_type[type_id]->Upright
                     && unit_manager.unit_type[type_id]->TEDclass!=CLASS_SHIP
                     && unit_manager.unit_type[type_id]->TEDclass!=CLASS_WATER
-                    && !( unit_manager.unit_type[type_id]->canhover && Pos.y <= map->sealvl ) )
+                    && !( unit_manager.unit_type[type_id]->canhover && Pos.y <= map->sealvl ))
                 {
                     Vector3D I,J,K,A,B,C;
                     MATRIX_4x4 M = RotateY((Angle.y+90.0f)*DEG2RAD);
@@ -4872,30 +4906,33 @@ namespace TA3D
                         D=D*RotateX(-angle_1*DEG2RAD);
                         float angle_2=VAngle(D,K)*RAD2DEG;
                         if (D.x>0.0f)	angle_2=-angle_2;
-                        if (fabs(angle_1-Angle.x)<=10.0f && fabs(angle_2-Angle.z)<=10.0f) {
+                        if (fabs(angle_1-Angle.x)<=10.0f && fabs(angle_2-Angle.z)<=10.0f)
+                        {
                             Angle.x=angle_1;
                             Angle.z=angle_2;
                         }
                     }
                 }
-                else if (!unit_manager.unit_type[type_id]->canfly )
+                else if (!unit_manager.unit_type[type_id]->canfly)
                     Angle.x = Angle.z = 0.0f;
             }
 
             bool returning_fire = ( port[ STANDINGFIREORDERS ] == SFORDER_RETURN_FIRE && attacked );
             if (( ((mission->flags & MISSION_FLAG_CAN_ATTACK) == MISSION_FLAG_CAN_ATTACK) || do_nothing() )
                 && ( port[ STANDINGFIREORDERS ] == SFORDER_FIRE_AT_WILL || returning_fire )
-                && !jump_commands && local ) {
+                && !jump_commands && local)
+                {
                 // Si l'unité peut attaquer d'elle même les unités enemies proches, elle le fait / Attack nearby enemies
 
                 bool can_fire = unit_manager.unit_type[type_id]->AutoFire && unit_manager.unit_type[type_id]->canattack;
 
-                if (!can_fire )
+                if (!can_fire)
                     for( int i = 0 ; i < weapon.size() && !can_fire ; i++ )
                         can_fire =  unit_manager.unit_type[type_id]->weapon[i] != NULL && !unit_manager.unit_type[type_id]->weapon[i]->commandfire
                                     && !unit_manager.unit_type[type_id]->weapon[i]->interceptor && weapon[i].state == WEAPON_FLAG_IDLE;
 
-                if (can_fire) {
+                if (can_fire)
+                {
                     int dx=(unit_manager.unit_type[type_id]->SightDistance+(int)(h+0.5f))>>3;
                     int enemy_idx=-1;
                     for( int i = 0 ; i < weapon.size() ; i++ )
@@ -4908,24 +4945,28 @@ namespace TA3D
                     int sx=Math::RandFromTable()&0xF;
                     int sy=Math::RandFromTable()&0xF;
                     byte mask=1<<owner_id;
-                    for(int y=cur_py-dx+sy;y<=cur_py+dx;y+=0x8) {
+                    for(int y=cur_py-dx+sy;y<=cur_py+dx;y+=0x8)
+                    {
                         if (y>=0 && y<map->bloc_h_db-1)
                             for(int x=cur_px-dx+sx;x<=cur_px+dx;x+=0x8)
-                                if (x>=0 && x<map->bloc_w_db-1 ) {
+                                if (x>=0 && x<map->bloc_w_db-1 )
+                                {
                                     bool land_test = true;
                                     IDX_LIST_NODE *cur = map->map_data[y][x].air_idx.head;
-                                    for( ; land_test || cur != NULL ; ) {
+                                    for( ; land_test || cur != NULL ; )
+                                    {
                                         int cur_idx;
-                                        if (land_test )
+                                        if (land_test)
                                         {
                                             cur_idx = map->map_data[y][x].unit_idx;
                                             land_test = false;
                                         }
-                                        else {
+                                        else
+                                        {
                                             cur_idx = cur->idx;
                                             cur = cur->next;
                                         }
-                                        if ( isEnemy( cur_idx ) && units.unit[cur_idx].flags
+                                        if (isEnemy( cur_idx ) && units.unit[cur_idx].flags
                                              && unit_manager.unit_type[units.unit[cur_idx].type_id]->ShootMe
                                              && ( units.unit[cur_idx].is_on_radar( mask ) ||
                                                   ( (units.map->sight_map->line[y>>1][x>>1] & mask)
@@ -4959,7 +5000,8 @@ namespace TA3D
                                 }
                         if (enemy_idx>=0)	break;
                     }
-                    if (enemy_idx>=0) {			// Si on a trouvé une unité, on l'attaque
+                    if (enemy_idx>=0)			// Si on a trouvé une unité, on l'attaque
+                    {
                         if (do_nothing() )
                             set_mission(MISSION_ATTACK | MISSION_FLAG_AUTO,&(units.unit[enemy_idx].Pos),false,0,true,&(units.unit[enemy_idx]),NULL);
                         else
@@ -5033,7 +5075,7 @@ namespace TA3D
             }
         }
 
-        if (unit_manager.unit_type[type_id]->canfly ) // Set plane orientation
+        if (unit_manager.unit_type[type_id]->canfly) // Set plane orientation
         {
             Vector3D J,K;
             K.x=K.z=0.0f;
@@ -5044,11 +5086,12 @@ namespace TA3D
             virtual_G.x = virtual_G.z = 0.0f;		// Standard gravity vector
             virtual_G.y = -4.0f * units.g_dt;
             float d = J.sq();
-            if (d )
+            if (d)
                 virtual_G = virtual_G + (((old_V - V) % J) / d) * J;		// Add the opposite of the speed derivative projected on the side of the unit
 
             d = virtual_G.norm();
-            if (d ) {
+            if (d)
+            {
                 virtual_G = -1.0f / d * virtual_G;
 
                 d = sqrt(virtual_G.y*virtual_G.y+virtual_G.z*virtual_G.z);
@@ -5068,25 +5111,30 @@ namespace TA3D
             }
         }
 
-        if (build_percent_left==0.0f) {
+        if (build_percent_left==0.0f)
+        {
 
             // Change the unit's angle the way we need it to be changed
 
-            if (b_TargetAngle && !isNaN(f_TargetAngle) && unit_manager.unit_type[type_id]->BMcode ) {	// Don't remove the class check otherwise factories can spin
-                while( !isNaN(f_TargetAngle) && fabs( f_TargetAngle - Angle.y ) > 180.0f ) {
-                    if (f_TargetAngle < Angle.y )
+            if (b_TargetAngle && !isNaN(f_TargetAngle) && unit_manager.unit_type[type_id]->BMcode)	// Don't remove the class check otherwise factories can spin
+            {
+                while (!isNaN(f_TargetAngle) && fabs( f_TargetAngle - Angle.y ) > 180.0f)
+                {
+                    if (f_TargetAngle < Angle.y)
                         Angle.y -= 360.0f;
                     else
                         Angle.y += 360.0f;
                 }
-                if (!isNaN(f_TargetAngle) && fabs( f_TargetAngle - Angle.y ) >= 1.0f ) {
+                if (!isNaN(f_TargetAngle) && fabs( f_TargetAngle - Angle.y ) >= 1.0f)
+                {
                     float aspeed = unit_manager.unit_type[type_id]->TurnRate;
                     if (f_TargetAngle < Angle.y )
                         aspeed =- aspeed;
                     float a = f_TargetAngle - Angle.y;
                     V_Angle.y = aspeed;
                     float b = f_TargetAngle - (Angle.y + dt*V_Angle.y);
-                    if (((a < 0.0f && b > 0.0f) || (a > 0.0f && b < 0.0f)) && !isNaN(f_TargetAngle) ) {
+                    if (((a < 0.0f && b > 0.0f) || (a > 0.0f && b < 0.0f)) && !isNaN(f_TargetAngle))
+                    {
                         V_Angle.y = 0.0f;
                         Angle.y = f_TargetAngle;
                     }
@@ -5095,7 +5143,7 @@ namespace TA3D
 
             Angle = Angle + dt * V_Angle;
             Vector3D OPos = Pos;
-            if (precomputed_position )
+            if (precomputed_position)
             {
                 if (unit_manager.unit_type[type_id]->canmove && unit_manager.unit_type[type_id]->BMcode && !flying )
                     V.y-=units.g_dt;			// L'unité subit la force de gravitation
@@ -5172,7 +5220,8 @@ script_exec:
             {
                 if (mission && ( (mission->flags & MISSION_FLAG_MOVE) || mission->mission == MISSION_BUILD || mission->mission == MISSION_BUILD_2 || mission->mission == MISSION_REPAIR
                                  || mission->mission == MISSION_ATTACK || mission->mission == MISSION_MOVE || mission->mission == MISSION_GET_REPAIRED || mission->mission == MISSION_PATROL
-                                 || mission->mission == MISSION_RECLAIM || nb_attached > 0 || Pos.x < -map->map_w_d || Pos.x > map->map_w_d || Pos.z < -map->map_h_d || Pos.z > map->map_h_d )) {
+                                 || mission->mission == MISSION_RECLAIM || nb_attached > 0 || Pos.x < -map->map_w_d || Pos.x > map->map_w_d || Pos.z < -map->map_h_d || Pos.z > map->map_h_d ))
+                {
                     if (!(mission->mission == MISSION_GET_REPAIRED && (mission->flags & MISSION_FLAG_BEING_REPAIRED) ) )
                     {
                         float ideal_h=Math::Max(min_h,map->sealvl)+unit_manager.unit_type[type_id]->CruiseAlt*H_DIV;
