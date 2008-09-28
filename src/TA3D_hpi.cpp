@@ -462,7 +462,7 @@ namespace HPI
         for (short i = 0; i < 4; ++i)
             LocateAndReadFiles(path, path + (char *)ext[i], false );
 
-        if (TA3D_CURRENT_MOD != "")
+        if (!TA3D_CURRENT_MOD.empty())
         {
             for (short i = 0; i < 4; ++i)
                 LocateAndReadFiles(path + TA3D_CURRENT_MOD, path + TA3D_CURRENT_MOD + (char *)ext[i], true);

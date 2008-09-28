@@ -2,6 +2,7 @@
 #include "tdf.h"
 #include "files.h"
 #include "../ta3dbase.h"
+#include "resources.h"
 
 
 
@@ -97,7 +98,9 @@ namespace TA3D
             }
         }
         if (data == NULL)
+		{
             LOG_ERROR(LOG_PREFIX_TDF << "Unable to open `" << filename << "`");
+		}
         else
         {
             delete[] data;

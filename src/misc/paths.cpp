@@ -129,6 +129,15 @@ namespace Paths
     void initApplicationRootPath(const char* argv0)
     {
         LOG_ASSERT(NULL != argv0);
+		
+		# ifdef TA3D_PLATFORM_DARWIN
+		if (ExtractFileExt(argv0).toLower() == ".app")
+		{
+			ApplicationRoot.clear();
+			ApplicationRoot << argv0 << "/Contents/MacOS";
+			return;
+		}
+		# endif
 
         if (IsAbsolute(argv0))
             ApplicationRoot = ExtractFilePath(argv0);
