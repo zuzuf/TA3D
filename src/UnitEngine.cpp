@@ -780,7 +780,7 @@ namespace TA3D
                     new_mission = stop;
                     new_mission->next = NULL;
                 }
-                LOG_DEBUG("adding " << std::string(new_mission->mission));
+                LOG_DEBUG("adding " << std::string((const char*)new_mission->mission));
                 cur->next=new_mission;
             }
             else
