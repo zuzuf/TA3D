@@ -52,7 +52,7 @@
 #if DEBUG_USE_PRINT_CODE == 1
 #   define DEBUG_PRINT_CODE(X)  if (print_code) LOG_DEBUG(X)
 #else
-#   define DEBUG_PRINT_CODE(X)  
+#   define DEBUG_PRINT_CODE(X)
 #endif
 
 
@@ -780,7 +780,6 @@ namespace TA3D
                     new_mission = stop;
                     new_mission->next = NULL;
                 }
-                LOG_DEBUG("adding " << std::string((const char*)new_mission->mission));
                 cur->next=new_mission;
             }
             else
@@ -1312,7 +1311,7 @@ namespace TA3D
                         target = &(mission->target);
                     }
                 }
-                else 
+                else
                 {
                     if (!local && nanolathe_target >= 0 && port[ INBUILDSTANCE ] != 0 )
                     {
@@ -1438,7 +1437,7 @@ namespace TA3D
                         }
                     }
                 }
-                
+
                 if (lp_CONFIG->underwater_bright && map->water && Pos.y < map->sealvl)
                 {
                     glEnable(GL_CLIP_PLANE2);
@@ -1594,7 +1593,7 @@ namespace TA3D
         model->draw_shadow_basic(shadow_scale_dir*Dir*RotateXZY(-drawn_Angle.x*DEG2RAD, -drawn_Angle.z*DEG2RAD, -drawn_Angle.y*DEG2RAD),0.0f,&data);
 
         glPopMatrix();
-        
+
         drawing = false;
     }
 
@@ -3424,7 +3423,7 @@ namespace TA3D
                     else
                         stop_moving();
                 }
-                
+
                 if (mission->path) // If we have a path, follow it
                 {
                     if ((mission->target - move_target_computed).sq() >= 10000.0f )			// Follow the target above all...
@@ -5277,7 +5276,7 @@ script_exec:
             nb_running-=e;
         }
         yardmap_timer--;
-        if (hp > 0.0f && 
+        if (hp > 0.0f &&
             ((o_px != cur_px || o_py != cur_py || first_move || (was_flying ^ flying) || ((port[YARD_OPEN] != 0.0f) ^ was_open) || yardmap_timer == 0) && build_percent_left <= 0.0f || !drawn))
         {
             first_move = build_percent_left > 0.0f;
@@ -5806,7 +5805,7 @@ script_exec:
         if (unit[target].flags == 0 || !unit_manager.unit_type[unit[target].type_id]->canmove)
         {
             pMutex.unlock();
-            return;	
+            return;
         }
         switch(unit_manager.unit_type[unit[target].type_id]->TEDclass)
         {
@@ -5938,7 +5937,7 @@ script_exec:
 
         bool selected = false;
 
-        for (uint16 e = 0; e < index_list_size; ++e) 
+        for (uint16 e = 0; e < index_list_size; ++e)
         {
             uint16 i = idx_list[e];
             pMutex.unlock();
@@ -5946,7 +5945,7 @@ script_exec:
 
             // Select only units completely built and visible
             if (unit[i].owner_id == players.local_human_id && (unit[i].flags & 1) && unit[i].build_percent_left == 0.0f
-                && unit[i].visible)	
+                && unit[i].visible)
             {
                 if (TA3D_SHIFT_PRESSED && unit[i].sel)
                 {
@@ -5981,7 +5980,7 @@ script_exec:
 
         // Things didn't change :-) seen from the mouse cursor since the screen wasn't refreshed
         if (last_on != -1)
-            return last_on;		
+            return last_on;
 
         Vector3D Dir;
         Dir = cam.dir + cam.widthFactor * 2.0f * (mouse_x-gfx->SCREEN_W_HALF) * gfx->SCREEN_W_INV
@@ -6073,7 +6072,7 @@ script_exec:
 
         // Things didn't change :-) seen from the mouse cursor since the screen wasn't refreshed
         if (last_on != -1 )
-            return last_on;		
+            return last_on;
 
         int i;
 
@@ -6715,7 +6714,7 @@ script_exec:
                         target->unlock();
                         unit[index].lock();
                     }
-                    else 
+                    else
                         if (unit[index].planned_weapons>0.0f )
                         {
                             glVertex2i( ta3dSideData.side_int_data[ players.side_view ].DamageBar2.x1, ta3dSideData.side_int_data[ players.side_view ].DamageBar2.y1 );
@@ -6751,7 +6750,7 @@ script_exec:
                         target->unlock();
                         unit[index].lock();
                     }
-                    else 
+                    else
                         if (unit[index].planned_weapons>0.0f ) 	// construit une arme / build a weapon
                         {
                             float p=1.0f-(unit[index].planned_weapons-(int)unit[index].planned_weapons);
@@ -7063,7 +7062,7 @@ script_exec:
         unit[unit_index].ID = next_unit_ID++;		// So now we know who is this unit :)
 
         // Angle de 10° maximum
-        unit[unit_index].Angle.y = (((sint32)(Math::RandFromTable() % 20001)) - 10000) * 0.0001f * unit_manager.unit_type[type_id]->BuildAngle * TA2DEG; 
+        unit[unit_index].Angle.y = (((sint32)(Math::RandFromTable() % 20001)) - 10000) * 0.0001f * unit_manager.unit_type[type_id]->BuildAngle * TA2DEG;
 
         idx_list[index_list_size++] = unit_index;
 
@@ -7580,7 +7579,7 @@ script_exec:
             if (!(current_tick & 0xF))
             {
                 gfx->lock();
-                
+
                 if (map->fog_of_war & FOW_GREY)
                     memset( map->sight_map->line[0], 0, map->sight_map->w * map->sight_map->h );		// Clear FOW map
                 memset( map->radar_map->line[0], 0, map->radar_map->w * map->radar_map->h );		// Clear radar map
@@ -7687,7 +7686,7 @@ script_exec:
                         min_tick /= 1000;
                     }
                 }
-                else 
+                else
                 {
                     if (current_tick > min_tick )
                         tick += ( current_tick - min_tick ) * 250 / TICKS_PER_SEC;
