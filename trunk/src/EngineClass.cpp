@@ -1002,7 +1002,7 @@ namespace TA3D
                                 old_col = 1;
                             }
                         }
-                        else 
+                        else
                         {
                             if( old_col != 2 )
                             {
@@ -1297,6 +1297,31 @@ namespace TA3D
         gfx->unlock();
     }
 
+    void MAP::check_unit_visibility(int x, int y)
+    {
+        if(y<0 || y>bloc_h_db-1 || x<0 || x>bloc_w_db-1)	return;
+        int idx = map_data[y][x].unit_idx;
+        if(idx >= 0 && !units.unit[idx].visibility_checked)
+        {
+            units.visible_unit.push_back(idx);
+            units.unit[idx].visibility_checked = true;
+        }
+        pMutex.lock();
+        IDX_LIST_NODE *cur = map_data[y][x].air_idx.head;
+        while(cur)
+        {
+            idx = cur->idx;
+            if(idx >= 0 && !units.unit[idx].visibility_checked)
+            {
+                units.visible_unit.push_back(idx);
+                units.unit[idx].visibility_checked = true;
+            }
+            cur = cur->next;
+        }
+        pMutex.unlock();
+    }
+
+
     inline float sq( float a )	{	return a * a;	}
 
 
@@ -1306,10 +1331,24 @@ namespace TA3D
         if (FLAT && !water)
             return;
 
+        bool low_def_view = cam->rpos.y>gfx->low_def_limit;		// Low detail map for mega zoom
+
+        if (check_visibility && !FLAT)
+            units.visible_unit.clear();
+
+        if (low_def_view && check_visibility && !FLAT)
+        {
+            units.lock();
+            for(int i = 0 ; i < units.index_list_size ; ++i)
+                units.visible_unit.push_back( units.idx_list[i] );
+            units.unlock();
+        }
+
         gfx->lock();
 
         if(FLAT)
             glTranslatef(0.0f,0.0f,sea_dec);
+
         int i,x,y;
         glDisable(GL_CULL_FACE);
         glDisable(GL_LIGHTING);
@@ -1399,7 +1438,7 @@ namespace TA3D
 
         A = (cam->dir + 0.75f * cam->up - cam->widthFactor * cam->side);
         A.unit();
-        
+
         float ref = sq( A%cam->dir );
         // Here we use an approximation of the right formula, assuming M should remain small compared to the rest (remember we use squared values ...)
         // the right formula that gives the ref0 value we want is : cos( a ) - r / D * sqrt( 1 / tan( a ) )
@@ -1498,7 +1537,6 @@ namespace TA3D
 
         int	ox=x1;
 
-        bool low_def_view = cam->rpos.y>gfx->low_def_limit;		// Low detail map for mega zoom
         if(low_def_view)							// draw the low detail map
         {
             detail_shader.off();
@@ -1541,7 +1579,7 @@ namespace TA3D
             glDrawRangeElements(GL_TRIANGLE_STRIP, 0, (low_w+1)*(low_h+1)-1, low_nb_idx,GL_UNSIGNED_INT,low_index);		// draw this map
         }
 
-        if (cam->rpos.y >= 900.0f)
+        if (low_def_view)
         {
             memset(view[0], 1, bloc_w * bloc_h);
             ox1 = 0;
@@ -1552,7 +1590,7 @@ namespace TA3D
 
         Vector3D T;
         Vector3D V;
-        if (cam->rpos.y < 900.0f)
+        if (!low_def_view)
         {
             for (y = y1; y <= y2; ++y) // Balaye les blocs susceptibles d'être visibles pour dessiner ceux qui le sont
             {
@@ -1641,6 +1679,11 @@ namespace TA3D
                             }
                             else
                                 view[y][x]=1;
+                            check_unit_visibility(X, Y);
+                            check_unit_visibility(X, Y|1);
+                            check_unit_visibility(X|1, Y);
+                            check_unit_visibility(X|1, Y|1);
+
                             if (map_data[Y][X].stuff>=0 && map_data[Y][X].stuff<features.max_features) // Indique comme affichables les objets présents sur le bloc
                             {
                                 if (features.feature[map_data[Y][X].stuff].type<0)
@@ -1734,7 +1777,7 @@ namespace TA3D
                                 V.unit();
                                 particle_engine.emit_lava(POS,V,1,10,(Math::RandFromTable()%1000)*0.01f+30.0f);
                             }
-                            else 
+                            else
                             {
                                 if( !map_data[ Y ][ X ].lava && water && !ota_data.lavaworld && !under_water && !lp_CONFIG->pause &&										// A wave
                                     (h_map[Y|1][X|1] < sealvl || h_map[Y][X|1] < sealvl || h_map[Y|1][X] < sealvl || h_map[Y][X] < sealvl) &&
@@ -2078,7 +2121,7 @@ namespace TA3D
 
         if (get_unit_h(Pos.x,Pos.z) > Pos.y)		// Cas non traité
             return Pos;
-        
+
         float step = 1.0f;
         if (Dir.x != 0.0f && Dir.z != 0.0f)
         {
@@ -2105,7 +2148,7 @@ namespace TA3D
         }
         length += len_step;
         Pos -= Dir;
-        
+
         while(((sealvl<Pos.y && water) || !water) && get_unit_h(Pos.x, Pos.z) < Pos.y)
         {
             if (nb >= nb_limit || length < 0.0f)
@@ -2302,7 +2345,7 @@ namespace TA3D
         parser.pullAsString("sky.map").split(MapName, ",");
     }
 
-    
+
     SKY_DATA* choose_a_sky(const String& mapname, const String& planet)
     {
         std::list<SKY_DATA*> sky_list;

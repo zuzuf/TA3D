@@ -407,6 +407,8 @@ namespace TA3D
     {
         pMutex.lock();
 
+        visibility_checked = false;
+
         ID = 0;
         paralyzed = 0.0f;
 
@@ -1072,6 +1074,8 @@ namespace TA3D
 
     void UNIT::draw(float t, Camera& cam, MAP* map, bool height_line)
     {
+        visibility_checked = false;
+
         MutexLocker locker(pMutex);
 
         if (!(flags & 1) || type_id == -1)
@@ -5036,6 +5040,8 @@ namespace TA3D
                         memory[i] = memory[i+e];
                     }
                     mem_size -= e;
+                    unlock();
+                    weapons.lock();
                     for(std::list<uint32>::iterator f = weapons.idx_list.begin() ; f != weapons.idx_list.end() ; ++f)
                     {
                         uint32 i = *f;
@@ -5068,6 +5074,8 @@ namespace TA3D
                             }
                         }
                     }
+                    weapons.unlock();
+                    lock();
                     if (enemy_idx>=0)			// If we found a target, then attack it, here  we use attack because we need the mission list to act properly
                         add_mission(MISSION_ATTACK | MISSION_FLAG_AUTO,&(weapons.weapon[enemy_idx].Pos),false,0,&(weapons.weapon[enemy_idx]),NULL,12);	// 12 = 4 | 8, targets a weapon and automatic fire
                 }
@@ -7337,9 +7345,9 @@ script_exec:
         if (low_def)
             glDisable(GL_DEPTH_TEST);
 
-        for (uint16 e = 0; e < index_list_size; ++e)
+        for (std::list<uint16>::iterator e = visible_unit.begin(); e != visible_unit.end(); ++e)
         {
-            uint16 i = idx_list[e];
+            uint16 i = *e;
             pMutex.unlock();
 
             unit[i].lock();
@@ -7389,10 +7397,10 @@ script_exec:
             glActiveStencilFaceEXT(GL_BACK);
             glStencilOp(GL_KEEP, GL_KEEP, GL_DECR_WRAP_EXT);
 
-            for (uint16 e = 0; e < index_list_size; ++e)
+            for (std::list<uint16>::iterator e = visible_unit.begin(); e != visible_unit.end(); ++e)
             {
                 pMutex.lock();
-                uint16 i = idx_list[e];
+                uint16 i = *e;
                 pMutex.unlock();
 
                 gfx->lock();
@@ -7415,10 +7423,10 @@ script_exec:
             glStencilFunc(GL_ALWAYS,128, 0xffffffff);
             glEnable(GL_CULL_FACE);
 
-            for (uint16 e = 0; e < index_list_size; ++e)
-            {
+           for (std::list<uint16>::iterator e = visible_unit.begin(); e != visible_unit.end(); ++e)
+           {
                 pMutex.lock();
-                uint16 i = idx_list[e];
+                uint16 i = *e;
                 pMutex.unlock();
 
                 gfx->lock();
