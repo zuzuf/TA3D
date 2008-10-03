@@ -271,7 +271,7 @@ namespace TA3D
     public:
         float damage_modifier() const
         {return port[ARMORED] ? unit_manager.unit_type[type_id]->DamageModifier : 1.0f;}
-        
+
         bool isEnemy(const int t);
 
         void draw_on_map();
@@ -481,7 +481,9 @@ namespace TA3D
         bool			nanolathe_reverse;
         bool			nanolathe_feature;
 
-
+        // Following variables are used by the renderer
+    public:
+        bool            visibility_checked;
     }; // class UNIT
 
 #define	ICON_UNKNOWN		0x0
@@ -549,6 +551,7 @@ namespace TA3D
         uint32	last_tick[5];
         sint32	last_on;				// Indicate the unit index which was under the cursor (mini map orders)
 
+        std::list< uint16 >     visible_unit;               // A list to store visible units
         std::vector< std::list< uint16 > >	requests;		// Store all the request for pathfinder calls
 
     public:
