@@ -207,7 +207,7 @@ namespace TA3D
             count = msec_timer;
 
             if (pSkyIsSpherical)
-                sky_angle += pSkyData->rotation_speed * dt * units.apparent_timefactor; 
+                sky_angle += pSkyData->rotation_speed * dt * units.apparent_timefactor;
 
             unit_info -= dt;
             if (!lp_CONFIG->pause)
@@ -560,6 +560,8 @@ namespace TA3D
 
             rope_selection = pMouseSelecting && ( abs( pMouseRectSelection.x1 - pMouseRectSelection.x2) >= PICK_TOLERANCE || abs( pMouseRectSelection.y1 - pMouseRectSelection.y2) >= PICK_TOLERANCE);
 
+            bool order_removed = false;
+
             if (selected && (!IsOnGUI || IsOnMinimap))
             {
                 bool builders = false;
@@ -672,8 +674,20 @@ namespace TA3D
                         case SIGNAL_ORDER_REPAIR:	cursor_type=CURSOR_REPAIR;	break;
                     }
 
-                    if (mouse_b!=1 && omb3==1)
+                    if (cursor_type!=CURSOR_DEFAULT && mouse_b!=1 && omb3 ==1 && !IsOnGUI && TA3D_SHIFT_PRESSED) // Remove commands from queue
                     {
+                        Vector3D target(cursorOnMap(cam, *map));
+                        target.x = ((int)(target.x) + map->map_w_d) >> 3;
+                        target.z = ((int)(target.z) + map->map_h_d) >> 3;
+                        target.x = target.x * 8.0f - map->map_w_d;
+                        target.z = target.z * 8.0f - map->map_h_d;
+                        target.y = Math::Max(map->get_unit_h(target.x, target.z), map->sealvl);
+                        order_removed = units.remove_order(players.local_human_id, target);
+                    }
+
+                    if (mouse_b!=1 && omb3==1 && !order_removed)
+                    {
+                        order_removed = true;
                         if (cursor_type==CURSOR_ATTACK)
                         {
                             for (uint16 e = 0; e < units.index_list_size; ++e)
@@ -699,7 +713,8 @@ namespace TA3D
                             }
                             if (!TA3D_SHIFT_PRESSED)	current_order=SIGNAL_ORDER_NONE;
                         }
-                        else if (cursor_type == CURSOR_CAPTURE && can_be_captured) {
+                        else if (cursor_type == CURSOR_CAPTURE && can_be_captured)
+                        {
 							for (uint16 e = 0 ; e < units.index_list_size ; e++)
 							{
 								units.lock();
@@ -840,8 +855,7 @@ namespace TA3D
                 }
             }
 
-            bool order_removed = false;
-            if (cursor_type!=CURSOR_DEFAULT && mouse_b!=1 && omb3 ==1 && !IsOnGUI && TA3D_SHIFT_PRESSED) // Remove commands from queue
+            if (cursor_type!=CURSOR_DEFAULT && mouse_b!=1 && omb3 ==1 && !IsOnGUI && TA3D_SHIFT_PRESSED && !order_removed) // Remove commands from queue
             {
                 Vector3D target(cursorOnMap(cam, *map));
                 target.x = ((int)(target.x) + map->map_w_d) >> 3;
@@ -880,7 +894,7 @@ namespace TA3D
             }
 
             // The cursor orders to reclaim something
-            if (cursor_type == CURSOR_RECLAIM && !rope_selection && mouse_b != 1 && omb3 == 1 && (!IsOnGUI || IsOnMinimap) && !order_removed) 
+            if (cursor_type == CURSOR_RECLAIM && !rope_selection && mouse_b != 1 && omb3 == 1 && (!IsOnGUI || IsOnMinimap) && !order_removed)
             {
                 Vector3D cur_pos(cursorOnMap(cam, *map, IsOnMinimap));
                 int idx = -units.last_on - 2;
@@ -1396,7 +1410,7 @@ namespace TA3D
             glFogf (GL_FOG_END, cam.zfar);
 
             // Dessine les reflets sur l'eau
-            if (g_useProgram && g_useFBO && lp_CONFIG->water_quality>=2 && map->water && !map->ota_data.lavaworld && !reflection_drawn_last_time) 
+            if (g_useProgram && g_useFBO && lp_CONFIG->water_quality>=2 && map->water && !map->ota_data.lavaworld && !reflection_drawn_last_time)
             {
 
                 reflection_drawn_last_time = true;
@@ -1484,9 +1498,9 @@ namespace TA3D
                         glPolygonMode (GL_FRONT_AND_BACK, GL_FILL);
 
                     // Dessine les éléments "2D" / "sprites"
-                    features.draw(refcam);		
+                    features.draw(refcam);
                     // Dessine les unités / draw units
-                    units.draw(refcam, map.get(), false, true, false, lp_CONFIG->height_line);			
+                    units.draw(refcam, map.get(), false, true, false, lp_CONFIG->height_line);
 
                     glDisable(GL_CULL_FACE);
                     // Dessine les objets produits par les armes / draw weapons
@@ -1494,7 +1508,7 @@ namespace TA3D
                     // Dessine les particules
                     particle_engine.draw(&refcam, map->map_w, map->map_h, map->bloc_w, map->bloc_h, map->view);
                     // Effets spéciaux en surface / fx above water
-                    fx_manager.draw(refcam, map.get(), map->sealvl);		
+                    fx_manager.draw(refcam, map.get(), map->sealvl);
                 }
 
                 glDisable(GL_CLIP_PLANE1);
@@ -1606,7 +1620,7 @@ namespace TA3D
             if (map->water)
             {
                 // Effets spéciaux sous-marins / Draw fx which are under water
-                fx_manager.draw(cam, map.get(), map->sealvl, true); 
+                fx_manager.draw(cam, map.get(), map->sealvl, true);
             }
 
 
@@ -2118,7 +2132,7 @@ namespace TA3D
                     if (network_manager.isServer())          // Ask all clients to save the game too, otherwise they won't be able to load it
                     {
                         network_manager.sendSpecial("SAVE " + ReplaceChar( filename, ' ', 1) );
-                        
+
                                 // Save multiplayer games in their own folder
                         filename = Paths::Savegames + "multiplayer" + Paths::Separator + Paths::Files::ReplaceExtension(filename, ".sav");
                     }
