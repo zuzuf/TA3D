@@ -46,7 +46,7 @@ namespace TA3D
 
     class GfxFont;
 
-    
+
     class GFX : public ObjectSync, protected IInterface
     {
         friend class GfxFont;
@@ -120,7 +120,7 @@ namespace TA3D
 
     private:
         uint32 InterfaceMsg( const lpcImsg msg );
-        
+
         void preCalculations();
         void initAllegroGL();
         bool checkVideoCardWorkaround() const;
@@ -268,7 +268,14 @@ namespace TA3D
         void ReInitTexSys( bool matrix_reset = true );
         void ReInitAllTex( bool disable = false);
         void SetDefState();
-        
+
+        //! \brief clearScreen() && clearDepth()
+        void clearAll();
+        //! \brief clear the color buffer
+        void clearScreen();
+        //! \brief clear the depth buffer
+        void clearDepth();
+
         /*!
         ** \brief Flip the backbuffer to the Allegro screen and clear it
         */

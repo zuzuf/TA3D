@@ -39,6 +39,7 @@
 #include "gfx/gui/area.h"
 #include "misc/application.h"
 #include "misc/settings.h"
+#include "animator/animator.h"
 
 
 #define precision	MSEC_TO_TIMER(1)
@@ -62,8 +63,8 @@ END_OF_FUNCTION(Timer)
     namespace VARS
     {
         MODEL *TheModel;
-        OBJECT **obj_table;
-        int h_table[1000];
+        std::vector<OBJECT*>    obj_table;
+        std::vector<int> h_table;
         OBJECT_SURFACE obj_surf;
     }
 }
@@ -110,7 +111,8 @@ int main(int argc, char* argv[])
     texture_manager.all_texture();
 
     TheModel = new MODEL;
-    obj_table = new OBJECT*[1000];
+    obj_table.clear();
+    obj_table.push_back( &(TheModel->obj ));
 
     show_video_bitmap(screen);
 
@@ -239,6 +241,8 @@ int main(int argc, char* argv[])
                 mnu_surf( main_area.get_value("menu.surface") );
             if (main_area.get_value("edit.menu_selec") >= 0)
                 mnu_selec( main_area.get_value("edit.menu_selec") );
+            if (main_area.get_state("menu.animator"))
+                Editor::Menus::Animator::Execute();
         }
 
         counter++;
@@ -412,7 +416,8 @@ int main(int argc, char* argv[])
 
     delete HPIManager;
 
-    delete[] obj_table;
+    obj_table.clear();
+    h_table.clear();
 
     delete TheModel;
 
@@ -469,7 +474,7 @@ void SurfEdit()
     for(int i=0;i<nb_obj();i++)
         Part_names[i+1] = obj_table[i]->name;
     Part_names[0] = Part_names[cur_part+1];
-    
+
     surface_area.set_entry("surface.m_part", Part_names);
     surface_area.set_action("surface.m_part", S_MPart_Sel);
 
@@ -752,13 +757,13 @@ void SurfEdit()
                 allegro_gl_set_texture_format(GL_RGB8);
                 preview->Data = (uint32) gfx->create_texture( (int)(preview->x2 - preview->x1), (int)(preview->y2 - preview->y1), FILTER_LINEAR );
             }
- 
+
             gfx->renderToTexture( (GLuint)preview->Data, true );
 
             gfx->SetDefState();
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);     // Clear the texture
 
-            Camera Cam;            
+            Camera Cam;
 
             MATRIX_4x4 Rot;				// Oriente la caméra
             Rot = Scale(1.0f);
@@ -789,7 +794,7 @@ void SurfEdit()
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         gfx->set_2D_mode();		// Passe en mode dessin allegro
-        
+
         // Update textures
         if (obj_table[cur_part]->surface.NbTex>0)
             for(int i=0;i<obj_table[cur_part]->surface.NbTex;i++)
@@ -858,7 +863,7 @@ void SurfEdit()
                 if (index<obj_table[cur_part]->surface.NbTex && obj_table[cur_part]->surface.NbTex>0) // Sinon on enlève la texture / otherwise we remove the texture
                 {
                     gfx->destroy_texture(obj_table[cur_part]->surface.gltex[index]);
-                    
+
                     for(int i=0;i<8;i++)                            // Reset IDs of displayed textures
                         surface_area.set_data( format("surface.tex%d", i), 0);
 
@@ -1494,7 +1499,7 @@ void SurfPaint(int index)
                 allegro_gl_set_texture_format(GL_RGB8);
                 preview->Data = (uint32) gfx->create_texture( w, h, FILTER_LINEAR );
             }
- 
+
             gfx->renderToTexture( (GLuint)preview->Data, true );
 
             gfx->SetDefState();
@@ -1924,7 +1929,7 @@ void glslEditor()                  // Fragment and vertex programs editor
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         gfx->set_2D_mode();		// Passe en mode dessin allegro
-        
+
         glsl_area.draw();
 
         glEnable(GL_TEXTURE_2D);			// Affiche le curseur

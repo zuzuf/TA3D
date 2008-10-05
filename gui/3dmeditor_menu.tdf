@@ -13,7 +13,7 @@
 	draw borders=true;
 	show title=false;
 	lock=true;
-	number of objects=2;
+	number of objects=3;
 	hidden=false;
 	color=0xFFFFFFFF;
 	background=gfx/background.jpg;
@@ -40,5 +40,16 @@
 		x2=336;
 		y2=32;
 		size=1.6;
+	}
+	[object2]
+	{
+	    name=animator;
+	    type=BUTTON;
+	    caption=Animator;
+	    x1=340;
+	    y1=0;
+	    x2=506;
+	    y2=32;
+	    size=1.6;
 	}
 }
