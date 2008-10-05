@@ -512,6 +512,18 @@ namespace TA3D
     }
 
 
+    bool AREA::is_activated(const String& message)
+    {
+        MutexLocker locker(pMutex);
+
+        GUIOBJ *obj = doGetObject(message);
+        
+        if (obj)
+            return obj->activated;
+
+        return false;
+    }
+
     sint32 AREA::get_value(const String& message)
     {
         MutexLocker locker(pMutex);

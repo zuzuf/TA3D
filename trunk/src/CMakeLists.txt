@@ -96,7 +96,7 @@ endif( WIN32 OR CMAKE_CROSSCOMPILING )
 ADD_EXECUTABLE(${3DMEDITOR_BIN}
         3dmeditor.cpp ta3d.h 3dmeditor_sub.cpp 3dmeditor.h
         cTAFileParser.cpp cTAFileParser.h stdafx.h
-        TA3D_NameSpace.cpp TA3D_NameSpace.h)
+        TA3D_NameSpace.cpp TA3D_NameSpace.h ta3dbase.h)
 target_link_libraries(${3DMEDITOR_BIN}
         stdafx logs console debuginfos threads 3dtoolbox misc i18n ta3dmath
         tajpeg gfx fileformats particles audio hpi oldgui gui ingame tdf
@@ -122,7 +122,7 @@ SET(SOURCES
         cTAFileParser.cpp cTAFileParser.h restore.cpp restore.h menu.cpp menu.h
         EngineClass.cpp EngineClass.h UnitEngine.cpp UnitEngine.h
         fbi.cpp fbi.h intro.cpp intro.h  tdf.cpp tdf.h tnt.cpp tnt.h 
-        icon.cpp stdafx.h TA3D_NameSpace.cpp TA3D_NameSpace.h)
+        icon.cpp stdafx.h TA3D_NameSpace.cpp TA3D_NameSpace.h ta3dbase.h)
 
 
 

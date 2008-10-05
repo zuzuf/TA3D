@@ -1,16 +1,16 @@
 [window]
 {
     name=animator;
-	title=Menu bar;
+	title=Animator module;
 	uformat=UTF8;
 	x=0;
 	y=0;
 	width=1280;
-	height=32;
+	height=1024;
 	fullscreen=true;
 	screen width=1280;
 	screen height=1024;
-	draw borders=true;
+	draw borders=false;
 	show title=false;
 	lock=true;
 	number of objects=2;
@@ -36,6 +36,7 @@
 		x1=0;
 		y1=40;
 		x2=1279;
-		y2=1279;
+		y2=1023;
+		can be clicked=true;
 	}
 }
