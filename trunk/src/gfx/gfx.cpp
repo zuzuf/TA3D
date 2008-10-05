@@ -98,10 +98,10 @@ namespace TA3D
         if(g_useTextureCompression && lp_CONFIG->use_texture_compression) // Try to enabled the Texture compression
             allegro_gl_set_texture_format(GL_COMPRESSED_RGB_ARB);
         else
-            allegro_gl_set_texture_format(GL_RGB8); 
+            allegro_gl_set_texture_format(GL_RGB8);
     }
 
-    
+
     bool GFX::checkVideoCardWorkaround() const
     {
         // Check for ATI workarounds (if an ATI card is present)
@@ -132,7 +132,7 @@ namespace TA3D
     {
         initAllegroGL();
         ati_workaround = checkVideoCardWorkaround();
-        
+
         TA3D::VARS::pal = NULL;
 
         width = SCREEN_W;
@@ -164,7 +164,7 @@ namespace TA3D
             glDeleteRenderbuffersEXT(1,&textureDepth);
 
         if (TA3D::VARS::pal )
-            delete[]( TA3D::VARS::pal ); 
+            delete[]( TA3D::VARS::pal );
 
         normal_font.destroy();
         small_font.destroy();
@@ -210,7 +210,7 @@ namespace TA3D
         gui_font_h = gui_font.height();
         use_normal_alpha_function = true;
         alpha_blending_set = false;
-        
+
         LOG_INFO(LOG_PREFIX_GFX << "Graphics are initialized.");
     }
 
@@ -1027,7 +1027,7 @@ namespace TA3D
         glGetTexLevelParameteriv( GL_TEXTURE_2D, 0, GL_TEXTURE_COMPRESSED_ARB, &compressed );
         // Do not save it if it's not compressed -> save disk space, and it would slow things down
         if(!compressed)
-            return;		
+            return;
 
         FILE* cache_file = TA3D_OpenFile( file, "wb" );
 
@@ -1225,6 +1225,20 @@ namespace TA3D
         return INTERFACE_RESULT_CONTINUE;
     }
 
+    void GFX::clearAll()
+    {
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    }
+
+    void GFX::clearScreen()
+    {
+        glClear(GL_COLOR_BUFFER_BIT);
+    }
+
+    void GFX::clearDepth()
+    {
+        glClear(GL_DEPTH_BUFFER_BIT);
+    }
 
     void GFX::disable_texturing()
     {
@@ -1302,7 +1316,7 @@ namespace TA3D
     {
         glBindTexture(GL_TEXTURE_2D, texture);
         glBegin(GL_QUADS);
-        // 
+        //
         glTexCoord2f(0.0f, 0.0f);
         glVertex2f(x1, y1);
 
@@ -1348,7 +1362,7 @@ namespace TA3D
         test_gfx->normal_font.set_clear(true);
 
         test_gfx->set_2D_mode();
-        
+
         int         filter[]        = { FILTER_NONE, FILTER_LINEAR, FILTER_BILINEAR, FILTER_TRILINEAR };
         const char  *filterInfo[]   = { "FILTER_NONE", "FILTER_LINEAR", "FILTER_BILINEAR", "FILTER_TRILINEAR" };
 
@@ -1358,7 +1372,7 @@ namespace TA3D
 
             GLuint  texFormat[] =   { GL_COMPRESSED_RGBA_ARB, GL_COMPRESSED_RGB_ARB, GL_RGB8, GL_RGBA8, GL_RGB5, GL_RGB5_A1, GL_RGB4, GL_RGBA4, GL_COMPRESSED_RGBA_S3TC_DXT1_EXT, GL_COMPRESSED_RGBA_S3TC_DXT3_EXT, GL_COMPRESSED_RGBA_S3TC_DXT5_EXT };
             const char  *info[] =   { "COMPRESSED_RGBA", "COMPRESSED_RGB", "RGB8", "RGBA8", "RGB5", "RGB5_A1", "RGB4", "RGBA4", "COMPRESSED_RGBA_S3TC_DXT1", "COMPRESSED_RGBA_S3TC_DXT3", "COMPRESSED_RGBA_S3TC_DXT5" };
-            
+
             for (int i = 0 ; i < 11 ; i++)
                 tex[i] = test_gfx->load_texture("gfx/mdrn_background.jpg", filter[e], NULL, NULL, true, texFormat[i]);
 
@@ -1376,7 +1390,7 @@ namespace TA3D
                     test_gfx->print( test_gfx->normal_font, dx + 10, dy + 10, 0.0f, 0xFFFFFFFF, info[i] );
                     test_gfx->print( test_gfx->normal_font, dx + 10, dy + 20, 0.0f, 0xFFFFFFFF, filterInfo[e] );
                 }
-                
+
                 test_gfx->flip();
             }
 
@@ -1385,9 +1399,9 @@ namespace TA3D
 
             while (keypressed())    readkey();
         }
-        
+
         delete test_gfx;
-        
+
         delete InterfaceManager;
     }
 

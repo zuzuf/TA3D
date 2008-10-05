@@ -227,11 +227,11 @@ void mnu_selec(int mnu_index)
 int nb_sub_obj(OBJECT *obj,int *idx,int h)
 {
     if(obj==NULL)	return 0;
-    obj_table[*idx]=obj;
-    h_table[*idx]=h;
-    obj->script_index=(*idx)++;
-    int n=1+nb_sub_obj(obj->child,idx,h+1);
-    return n+nb_sub_obj(obj->next,idx,h);
+    obj_table.push_back(obj);
+    h_table.push_back(h);
+    obj->script_index = (*idx)++;
+    int n = 1 + nb_sub_obj(obj->child,idx,h+1);
+    return n + nb_sub_obj(obj->next,idx,h);
 }
 
 int  nb_obj()						// Compte le nombre d'objets dans le modèle
@@ -239,6 +239,7 @@ int  nb_obj()						// Compte le nombre d'objets dans le modèle
     if(TheModel==NULL)	return 0;
 
     OBJECT *cur = &(TheModel->obj);
+    obj_table.clear();
     int idx=0;
     return nb_sub_obj(cur,&idx,0);
 }
@@ -380,7 +381,7 @@ void button_remove(int mnu_index)
     }
 
     working = true;
-    
+
     OBJECT *old = obj_table[cur_part];
     for(int i=0;i<nb_obj();i++)
         if(obj_table[i]->child == old)

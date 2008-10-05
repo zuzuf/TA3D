@@ -1,0 +1,41 @@
+[window]
+{
+    name=animator;
+	title=Menu bar;
+	uformat=UTF8;
+	x=0;
+	y=0;
+	width=1280;
+	height=32;
+	fullscreen=true;
+	screen width=1280;
+	screen height=1024;
+	draw borders=true;
+	show title=false;
+	lock=true;
+	number of objects=2;
+	hidden=false;
+	color=0xFFFFFFFF;
+	background=gfx/background.jpg;
+	repeat background=true;
+	[object0]
+	{
+		name=b_close;
+		type=BUTTON;
+		caption=Close;
+		x1=6;
+		y1=0;
+		x2=166;
+		y2=32;
+		size=1.6;
+	}
+	[object1]
+	{
+		name=render;
+		type=IMG;
+		x1=0;
+		y1=40;
+		x2=1279;
+		y2=1279;
+	}
+}

@@ -24,8 +24,8 @@ namespace TA3D
 	namespace VARS
 	{
 		extern MODEL *TheModel;
-		extern OBJECT **obj_table;
-		extern int h_table[1000];
+		extern std::vector<OBJECT*> obj_table;
+		extern std::vector<int> h_table;
 		extern OBJECT_SURFACE obj_surf;
 	}
 }

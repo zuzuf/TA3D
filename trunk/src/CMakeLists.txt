@@ -10,6 +10,7 @@ ADD_SUBDIRECTORY(ingame)
 ADD_SUBDIRECTORY(scripts)
 ADD_SUBDIRECTORY(sounds)
 ADD_SUBDIRECTORY(converters)
+ADD_SUBDIRECTORY(animator)
 IF(${TA3D_REGRESSION_TEST} EQUAL 1)
    ADD_SUBDIRECTORY(regression)
 ENDIF(${TA3D_REGRESSION_TEST} EQUAL 1)
@@ -99,7 +100,7 @@ ADD_EXECUTABLE(${3DMEDITOR_BIN}
 target_link_libraries(${3DMEDITOR_BIN}
         stdafx logs console debuginfos threads 3dtoolbox misc i18n ta3dmath
         tajpeg gfx fileformats particles audio hpi oldgui gui ingame tdf
-        converters)
+        converters animator)
 IF(APPLE)
     SET(GUI_TYPE MACOSX_BUNDLE)
     SET(MACOSX_BUNDLE_BUNDLE_NAME "TA3D Editor")
