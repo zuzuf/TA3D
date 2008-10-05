@@ -112,7 +112,7 @@ namespace TA3D
             tex[i].h[0] = 16;
             tex[i].bmp[0] = create_bitmap_ex(32,16,16);
             clear_to_color(tex[i].bmp[0], makeacol(pal[i].r << 2, pal[i].g << 2, pal[i].b << 2, 0xFF));
-            
+
             tex_hashtable.insert(tex[i].name,i + 1);
         }
 
@@ -460,7 +460,7 @@ namespace TA3D
             delete[] F_N;
         if (N)
             delete[] N;
-        if (points)	
+        if (points)
             delete[] points;
         if (p_index)
             delete[] p_index;
@@ -477,7 +477,7 @@ namespace TA3D
             delete[] optimised_P;
         if (optimised_N)
             delete[]optimised_N;
-        if (vbo_id)	
+        if (vbo_id)
             glDeleteBuffersARB( 1, &vbo_id );
         if (ebo_id)
             glDeleteBuffersARB( 1, &ebo_id );
@@ -920,7 +920,7 @@ namespace TA3D
                     found[0] = found[1] = found[2] = true;
                     int j;
 
-                    px[i] = px[e] + fx;	
+                    px[i] = px[e] + fx;
                     py[i] = py[e];
                     for (j = 0; j < i; ++j)
                     {
@@ -937,7 +937,7 @@ namespace TA3D
                     for (j = 0; j < i; ++j)
                     {
                         int gx = texture_manager.tex[index_tex[j]].bmp[0]->w, gy = texture_manager.tex[index_tex[j]].bmp[0]->h;
-                        if (coupe(px[i], py[i], dx, dy, px[j], py[j], gx, gy)) 
+                        if (coupe(px[i], py[i], dx, dy, px[j], py[j], gx, gy))
                         {
                             found[2] = false;
                             break;
@@ -2114,7 +2114,7 @@ namespace TA3D
                 }
                 hide = data_s->flag[script_index] & FLAG_HIDE;
             }
-            else 
+            else
             {
                 if (animation_data)
                 {
@@ -2408,7 +2408,7 @@ namespace TA3D
         return alset;
     }
 
-    bool OBJECT::hit(Vector3D Pos,Vector3D Dir,SCRIPT_DATA *data_s,Vector3D *I,MATRIX_4x4 M)
+    int OBJECT::hit(Vector3D Pos,Vector3D Dir,SCRIPT_DATA *data_s,Vector3D *I,MATRIX_4x4 M)
     {
         MATRIX_4x4 OM = M;
         MATRIX_4x4 AM = Scale(1.0f);
@@ -2417,6 +2417,7 @@ namespace TA3D
         Vector3D ODir = Dir;
         Vector3D OPos = Pos;
         bool is_hit = false;
+        int hit_idx = -2;
 
         Vector3D T = pos_from_parent;
         Vector3D MP;
@@ -2535,6 +2536,7 @@ namespace TA3D
                         continue; // Le point n'appartient pas au triangle
                     MP = P_p;
                     is_hit = true;
+                    hit_idx = script_index;
                 }
 
                 if (selprim >= 0)
@@ -2616,6 +2618,7 @@ namespace TA3D
                             continue;		// Le point n'appartient pas au triangle
                         MP = P_p;
                         is_hit = true;
+                        hit_idx = script_index;
                     }
                 }
             }
@@ -2623,15 +2626,21 @@ namespace TA3D
             if (child)
             {
                 Vector3D MP2;
-                bool nhit = child->hit(Pos, ODir, data_s, &MP2, M_Dir);
-                if (nhit && !is_hit)
+                int nhit = child->hit(Pos, ODir, data_s, &MP2, M_Dir);
+                if (nhit >= -1 && !is_hit)
+                {
                     MP = MP2;
+                    hit_idx = nhit;
+                }
                 else
                 {
-                    if (nhit && is_hit)
+                    if (nhit >= -1 && is_hit)
                     {
                         if (MP2 % Dir < MP % Dir)
+                        {
                             MP = MP2;
+                            hit_idx = nhit;
+                        }
                     }
                 }
                 is_hit |= nhit;
@@ -2642,21 +2651,27 @@ namespace TA3D
         if (next)
         {
             Vector3D MP2;
-            bool nhit = next->hit(OPos, ODir, data_s, &MP2, OM);
+            int nhit = next->hit(OPos, ODir, data_s, &MP2, OM);
             Dir = ODir * OM;
-            if (nhit && !is_hit)
+            if (nhit >= -1 && !is_hit)
+            {
                 MP = MP2;
+                hit_idx = nhit;
+            }
             else
             {
-                if (nhit && is_hit)
+                if (nhit >= -1 && is_hit)
                     if (MP2 % Dir < MP % Dir)
+                    {
                         MP = MP2;
+                        hit_idx = nhit;
+                    }
             }
             is_hit |= nhit;
         }
         if (is_hit)
             *I = MP;
-        return is_hit;
+        return hit_idx;
     }
 
 
@@ -3137,7 +3152,7 @@ namespace TA3D
                 glEndList();
                 glCallList( dlist );
             }
-            else 
+            else
             {
                 if( data_s == NULL && !sel && !notex && !chg_col )
                     glCallList( dlist );
@@ -3553,7 +3568,7 @@ namespace TA3D
                             fwrite(&((int*)(tex->line[y]))[x], 4, 1, dst);
                     }
                 }
-                else 
+                else
                 {
                     // Store texture data in JPG format (using two images, one for RGB and one for alpha,
                     // if needed -> check first that alpha isn't all 0xFF)
@@ -4148,7 +4163,7 @@ namespace TA3D
         }
         glBindTexture( GL_TEXTURE_2D, texture_id );
         glDrawArrays(GL_QUADS, 0, queue.size()<<2);		// draw those quads
-        
+
         if (lp_CONFIG->underwater_bright && INSTANCING::water)
         {
             i = 0;
@@ -4192,7 +4207,7 @@ namespace TA3D
                 glDisable( GL_BLEND );
             }
         }
-            
+
         glPopMatrix();
     }
 

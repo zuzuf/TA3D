@@ -390,7 +390,7 @@ namespace TA3D
 
         bool draw_shadow_basic(Vector3D Dir,float t,SCRIPT_DATA *data_s=NULL,bool alset=false,bool exploding_parts=false);
 
-        bool hit(Vector3D Pos,Vector3D Dir,SCRIPT_DATA *data_s,Vector3D *I,MATRIX_4x4 M);
+        int hit(Vector3D Pos,Vector3D Dir,SCRIPT_DATA *data_s,Vector3D *I,MATRIX_4x4 M);
 
         bool hit_fast(Vector3D Pos,Vector3D Dir,SCRIPT_DATA *data_s,Vector3D *I);
 
@@ -435,7 +435,7 @@ namespace TA3D
 
 
         /*!
-        ** \brief 
+        ** \brief
         */
         void load_asc(const String& filename, float size); // Charge un fichier au format *.ASC
 
@@ -495,7 +495,7 @@ namespace TA3D
         /*!
         ** \brief
         */
-        bool hit(Vector3D &Pos, Vector3D &Dir, SCRIPT_DATA* data_s, Vector3D* I, MATRIX_4x4& M)
+        int hit(Vector3D &Pos, Vector3D &Dir, SCRIPT_DATA* data_s, Vector3D* I, MATRIX_4x4& M)
         { return obj.hit(Pos,Dir,data_s,I,M); }
 
         /*!
@@ -569,7 +569,7 @@ namespace TA3D
         ** \brief
         */
         void create_from_2d(BITMAP *bmp, float w, float h, float max_h, const String& filename);
-            
+
     public:
         int  max_models;    // Size of model array
         int	 nb_models;	 // Nombre de modèles

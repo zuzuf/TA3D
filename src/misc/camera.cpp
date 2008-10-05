@@ -1,7 +1,6 @@
 #include "camera.h"
 #include "math.h"
 
-
 namespace TA3D
 {
 
@@ -141,8 +140,5 @@ namespace TA3D
             glTranslatef(0.0f, mirrorPos - 2.0f * shakeVector.y, 0.0f);
         }
     }
-
-
-
 
 } // namespace TA3D

@@ -29,6 +29,7 @@
 #include "../3ds.h"			// The 3DS model loader
 #include "../3dmeditor.h"
 #include "../misc/paths.h"
+#include "../misc/math.h"
 #include "../misc/osinfo.h"
 #include "../languages/i18n.h"
 #include "../jpeg/ta3d_jpg.h"
@@ -58,6 +59,8 @@ namespace Menus
         loadAreaFromTDF("Animator", "gui/animator.area");
         gfx->set_2D_mode();
 
+        anim_data.load(nb_obj());
+
             // Initialize renderer
         getTexture();
 
@@ -65,12 +68,14 @@ namespace Menus
         cam.pos.x = cam.pos.y = 0.0f;
         cam.dir.z = -1.0f;
         cam.dir.x = cam.dir.y = 0.0f;
-        
+        cam.setMatrix(Scale(1.0f));
+
         r1 = 0.0f, r2 = 0.0f, r3 = 0.0f;
         zoom = 0.1f;
         amx = mouse_x;
         amy = mouse_y;
         amz = mouse_z;
+        idx = -1;
 
         renderModel();
         return true;
@@ -158,9 +163,50 @@ namespace Menus
             }
         }
 
+        need_refresh |= userInteraction();
+
         if (need_refresh)
             renderModel();
 
+        return false;
+    }
+
+    Vector3D Animator::getCursor()
+    {
+        GUIOBJ *render = pArea->get_object("animator.render");
+        if (render == NULL) return Vector3D();
+
+        int mx = mouse_x - render->x1;
+        int my = mouse_y - render->y1;
+        int w = render->x2 - render->x1;
+        int h = render->y2 - render->y1;
+
+		Vector3D cur_dir;
+		cur_dir = cam.dir + cam.widthFactor * 2.0f * (mx - 0.5f * w) / w * cam.side
+			- 1.5f * (my - 0.5f * h) / h * cam.up;
+
+        cur_dir = cur_dir * RotateXYZ( -r1 * DEG2RAD, -r2 * DEG2RAD, -r3 * DEG2RAD );   // Return to object space coordinates
+
+		cur_dir.unit();		// Direction pointée par le curseur
+		return cur_dir;
+    }
+
+    bool Animator::userInteraction()
+    {
+        if (TA3D::VARS::TheModel == NULL)   return false;
+
+        Vector3D pointer = getCursor();
+        Vector3D pos = 1.0f / zoom * cam.pos * RotateXYZ( -r1 * DEG2RAD, -r2 * DEG2RAD, -r3 * DEG2RAD );
+
+        Vector3D I;
+        MATRIX_4x4 M = Scale(zoom);
+        int nidx = TA3D::VARS::TheModel->hit(pos,pointer,NULL,&I,M);
+        printf("nidx = %d\n", nidx);
+        if (nidx >= 0 && idx != nidx)
+        {
+            idx = nidx;
+            return true;
+        }
         return false;
     }
 
@@ -197,11 +243,11 @@ namespace Menus
 
         cam.setView();
         glScalef(zoom,zoom,zoom);
-        glRotatef(r1,1.0f,0.0f,0.0f);		// Rotations de l'objet
+        glRotatef(r1,1.0f,0.0f,0.0f);		// Rotation of the objet
         glRotatef(r2,0.0f,1.0f,0.0f);
         glRotatef(r3,0.0f,0.0f,1.0f);
-        
-        glDisable(GL_LIGHTING);					// Dessine le repère
+
+        glDisable(GL_LIGHTING);					// Draw the grid
         glDisable(GL_BLEND);
         glDisable(GL_TEXTURE_2D);
         glBegin(GL_LINES);
@@ -235,7 +281,21 @@ namespace Menus
         if (TA3D::VARS::TheModel)
         {
             glColor4f(1.0f,1.0f,1.0f,1.0f);
-            TA3D::VARS::TheModel->draw(0.0f);
+            for(int i = 0 ; i < anim_data.nb_piece ; i++)
+                anim_data.flag[i] = (i != idx ? 0 : FLAG_HIDE);
+            TA3D::VARS::TheModel->draw(msec_timer * 0.001f,&anim_data,false,false,false,0,NULL,NULL,NULL,0.0f,NULL,false,0,false);
+
+            gfx->ReInitAllTex( true );
+            glEnable(GL_TEXTURE_2D);
+            for(int i = 0 ; i < anim_data.nb_piece ; i++)
+                anim_data.flag[i] = (i == idx ? 0 : FLAG_HIDE);
+            float col = cos(msec_timer*0.002f)*0.375f+0.625f;
+            glColor3f(col,col,col);
+            TA3D::VARS::TheModel->draw(msec_timer * 0.001f,&anim_data,false,false,false,0,NULL,NULL,NULL,0.0f,NULL,false,0,true);
+            glColor3f(1.0f,1.0f,1.0f);
+
+            gfx->ReInitAllTex( true );
+            glEnable(GL_TEXTURE_2D);
         }
 
         gfx->renderToTexture(0,true);               // Back to normal render target

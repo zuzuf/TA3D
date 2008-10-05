@@ -58,12 +58,19 @@ namespace Menus
         void renderModel();
         //! \brief Get/Create the texture we are going to use as render target
         void getTexture();
+        //! \brief Let the user interact with the model
+        bool userInteraction();
+        //! \brief get a Vector3D in cursor direction
+        Vector3D getCursor();
 
     private:
         //! \brief The texture we want to render to
         GLuint  texture;
         Camera  cam;
-        
+
+        SCRIPT_DATA anim_data;
+        int idx;
+
         float r1,r2,r3,zoom;
         int amx, amy, amz;
     }; // class Animator

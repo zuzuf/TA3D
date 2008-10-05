@@ -49,7 +49,6 @@ namespace TA3D
 		** \brief Reset all data
 		*/
 		void reset();
-
     public:
         Vector3D up;					// Haut de la caméra
         Vector3D side;				// Coté de la caméra(optimisation pour les particules)
@@ -71,7 +70,7 @@ namespace TA3D
         Vector3D shakeVector;
 
         //! To support wide screen modes correctly
-        float widthFactor;		
+        float widthFactor;
 
     }; // class Camera
 

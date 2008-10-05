@@ -34,8 +34,8 @@
 		name=render;
 		type=IMG;
 		x1=0;
-		y1=40;
-		x2=1279;
+		y1=36;
+		x2=1100;
 		y2=1023;
 		can be clicked=true;
 	}

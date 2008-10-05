@@ -5317,8 +5317,9 @@ script_exec:
                 //            MATRIX_4x4 M=RotateX(-Angle.x*DEG2RAD)*RotateZ(-Angle.z*DEG2RAD)*RotateY(-Angle.y*DEG2RAD)*Scale(1.0f/scale);
                 MATRIX_4x4 M = RotateXZY(-Angle.x*DEG2RAD, -Angle.z*DEG2RAD, -Angle.y*DEG2RAD)*Scale(1.0f/scale);
                 Vector3D RP=(P-Pos) * M;
-                bool is_hit=model->hit(RP,Dir,&data,hit_vec,M);
-                if (is_hit) {
+                bool is_hit = model->hit(RP,Dir,&data,hit_vec,M) >= -1;
+                if (is_hit)
+                {
                     //                *hit_vec=(*hit_vec)*(RotateY(Angle.y*DEG2RAD)*RotateZ(Angle.z*DEG2RAD)*RotateX(Angle.x*DEG2RAD)*Scale(scale))+Pos;
                     *hit_vec = ((*hit_vec) * RotateYZX(Angle.y*DEG2RAD, Angle.z*DEG2RAD, Angle.x*DEG2RAD))*Scale(scale)+Pos;
                     *hit_vec=((*hit_vec-P)%Dir)*Dir+P;
