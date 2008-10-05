@@ -405,7 +405,7 @@ namespace TA3D
             new_part.V.z=(((sint32)(Math::RandFromTable()%2001))-1000)*0.001f;
             new_part.V.unit();
             new_part.V=((Math::RandFromTable()%100)+1)*pre*new_part.V;
-            new_part.life=3.0f;
+            new_part.life=1.0f;
             new_part.mass=mass;
             new_part.smoking=-1.0f;
             new_part.gltex=tex;
@@ -506,7 +506,7 @@ namespace TA3D
         }
 
         uint32 i = 0;
-        
+
         for (std::list<PARTICLE>::iterator e = part.begin() ; e != part.end() ; )
         {
             i++;
@@ -709,13 +709,13 @@ namespace TA3D
         glTexEnvf (GL_POINT_SPRITE, GL_COORD_REPLACE, GL_TRUE);
 
         // We're using point sprites
-        glEnable (GL_POINT_SPRITE); 
+        glEnable (GL_POINT_SPRITE);
 
         pMutex.lock();
         for (std::list<ParticlesSystem*>::iterator i = particle_systems.begin() ; i != particle_systems.end() ; ++i)
             (*i)->draw();
         pMutex.unlock();
-        glDisable (GL_POINT_SPRITE); 
+        glDisable (GL_POINT_SPRITE);
         coeffs[0] = 1.0f;
         coeffs[1] = 0.0f;
         coeffs[2] = 0.0f;
@@ -725,7 +725,7 @@ namespace TA3D
         glDisableClientState(GL_COLOR_ARRAY);
         glDisable(GL_BLEND);
         glDepthMask(GL_TRUE);
-            glEnable(GL_CULL_FACE);
+        glEnable(GL_CULL_FACE);
     }
 
     void PARTICLE_ENGINE::init(bool load)
@@ -833,7 +833,7 @@ namespace TA3D
         }
         thread_running = false;
         thread_ask_to_stop = false;
-        LOG_INFO("Particle engine: " << (float)(counter * 1000) / (msec_timer - particle_timer) 
+        LOG_INFO("Particle engine: " << (float)(counter * 1000) / (msec_timer - particle_timer)
                  << " ticks/sec.");
         return 0;
     }

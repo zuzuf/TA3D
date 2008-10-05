@@ -22,7 +22,10 @@ namespace TA3D
         timer += dt;
 
         Speed.y -= dt * the_map->ota_data.gravity;		// React to gravity
-        Pos = Pos + dt * Speed;
+//        Pos = Pos + dt * Speed;
+        Pos.x += dt * Speed.x;
+        Pos.y += dt * Speed.y;
+        Pos.z += dt * Speed.z;
 
         float min_h = the_map->get_unit_h(Pos.x, Pos.z);
         if (Pos.y < min_h) // Bouncing on the map :)
@@ -33,17 +36,18 @@ namespace TA3D
             Vector3D Normal(-dx, 16.0f, -dz);
             Normal.unit();
 
-            if (Speed % Normal < 0.0f)
-                Speed -= (1.5f * (Speed % Normal)) * Normal;
+            float cross = Speed % Normal;
+            if (cross < 0.0f)
+                Speed -= (1.5f * cross) * Normal;
         }
 
-        while (timer >= 0.1f) // Emit smoke
+        while (timer >= 0.2f) // Emit smoke
         {
-            timer -= 0.1f;
+            timer -= 0.2f;
             particle_engine.make_dark_smoke( Pos, 0, 1, 0.0f, -1.0f, -1.0f, 0.5f );
         }
         // When it shoud die, return true
-        return (life <= 0.0f);		
+        return (life <= 0.0f);
     }
 
 
