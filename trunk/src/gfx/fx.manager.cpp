@@ -36,7 +36,7 @@ namespace TA3D
                 break;
             }
         }
-        
+
         String tmp("anims\\");
         tmp << filename << ".gaf";
 
@@ -126,7 +126,7 @@ namespace TA3D
     {
         if (Camera::inGame != NULL && ((Vector3D)(pos-Camera::inGame->pos)).sq() >= Camera::inGame->zfar2)
             return -1;
-        
+
         MutexLocker locker(pMutex);
 
         if(nb_fx+1>max_fx)
@@ -153,7 +153,7 @@ namespace TA3D
     {
         if (Camera::inGame != NULL && ((Vector3D)(pos - Camera::inGame->pos)).sq() >= Camera::inGame->zfar2)
             return -1;
-        
+
         MutexLocker locker(pMutex);
 
         if(nb_fx + 1 > max_fx)
@@ -332,15 +332,17 @@ namespace TA3D
         }
 
         pMutex.lock();
-        for (int i = 0 ; i < n ; ++i) 
+        float rev = 5.0f / (the_map->ota_data.gravity + 0.1f);
+        for (int i = 0 ; i < n ; ++i)
         {
             float a = (Math::RandFromTable() % 36000) * 0.01f * DEG2RAD;
             float b = (Math::RandFromTable() % 18000) * 0.01f * DEG2RAD;
             float s = power * ((Math::RandFromTable() % 9001) * 0.0001f + 0.1f);
-            Vector3D vs(s * cos(a) * cos(b), 
+            float scosb = s * cos(b);
+            Vector3D vs(cos(a) * scosb,
                         s * sin(b),
-                        s * sin(a) * cos(b));
-            float l = Math::Min(5.0f * vs.y / (the_map->ota_data.gravity + 0.1f), 10.0f);
+                        sin(a) * scosb);
+            float l = (Math::RandFromTable() % 1001) * 0.001f - 0.5f + Math::Min(rev * vs.y, 10.0f);
 
             pParticles.push_back(new FXParticle(p, vs, l));
         }
@@ -363,12 +365,12 @@ namespace TA3D
         }
 
         pMutex.lock();
-        for (int i = 0 ; i < n ; ++i) 
+        for (int i = 0 ; i < n ; ++i)
         {
             float a = (Math::RandFromTable() % 36000) * 0.01f * DEG2RAD;
             float b = (Math::RandFromTable() % 18000) * 0.01f * DEG2RAD;
             float speed = power * ((Math::RandFromTable() % 9001) * 0.0001f + 0.1f);
-            Vector3D vs(speed * cos(a) * cos(b), 
+            Vector3D vs(speed * cos(a) * cos(b),
                         speed * sin(b),
                         speed * sin(a) * cos(b));
             float l = Math::Min(5.0f * vs.y / (the_map->ota_data.gravity + 0.1f), 10.0f);
