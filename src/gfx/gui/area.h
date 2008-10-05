@@ -83,6 +83,14 @@ namespace TA3D
         bool get_state(const String& message);
 
         /*!
+        ** \brief Return true if the given object has its activated flag set (mouse is on and button pressed)
+        **
+        ** \param message
+        ** \return
+        */
+        bool is_activated(const String& message);
+
+        /*!
         ** \brief Return the value of specified object in the specified window 
         **
         ** \param message

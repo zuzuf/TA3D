@@ -20,7 +20,6 @@
 
 # include "base.h"
 
-
 namespace Editor
 {
 namespace Menus
@@ -63,6 +62,10 @@ namespace Menus
     private:
         //! \brief The texture we want to render to
         GLuint  texture;
+        Camera  cam;
+        
+        float r1,r2,r3,zoom;
+        int amx, amy, amz;
     }; // class Animator
 
 
