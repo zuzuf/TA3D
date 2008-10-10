@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=3DMEditor
+Version=0.5.0 WIP
+Comment=TA3D's model editor
+Encoding=UTF-8
+Exec=/usr/games/3dmeditor
+Icon=/usr/share/games/ta3d/3dmeditor.png
+Type=Application
+Categories=Application;Game;
