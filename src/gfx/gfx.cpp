@@ -1278,10 +1278,21 @@ namespace TA3D
 
     void GFX::renderToTexture( const GLuint tex, bool useDepth )
     {
+        if (!g_useFBO && textureFBO != 0)                   // Renders to back buffer when FBO isn't available
+        {
+            glBindTexture(GL_TEXTURE_2D,textureFBO);        // Copy back buffer to target texture
+            glCopyTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 0, 0, texture_width(textureFBO), texture_height(textureFBO), 0);
+            textureFBO = 0;
+            glViewport(0, 0, SCREEN_W, SCREEN_H);           // Use default viewport
+        }
+
         if (tex == 0)       // Release the texture
         {
-            glBindFramebufferEXT(GL_FRAMEBUFFER_EXT,0);     // Bind the default FBO
-            glViewport(0, 0, SCREEN_W, SCREEN_H);           // Use default viewport
+            if (g_useFBO)
+            {
+                glBindFramebufferEXT(GL_FRAMEBUFFER_EXT,0);     // Bind the default FBO
+                glViewport(0, 0, SCREEN_W, SCREEN_H);           // Use default viewport
+            }
         }
         else
         {
@@ -1306,6 +1317,11 @@ namespace TA3D
 	                glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, 0);
             		glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT,GL_DEPTH_ATTACHMENT_EXT,GL_RENDERBUFFER_EXT,0);
             	}
+                glViewport(0,0,texture_width(tex),texture_height(tex));                                     // Stretch viewport to texture size
+            }
+            else                        // We're going to render to back buffer and then copy back our work :)
+            {
+                textureFBO = tex;       // Save this here
                 glViewport(0,0,texture_width(tex),texture_height(tex));                                     // Stretch viewport to texture size
             }
         }
