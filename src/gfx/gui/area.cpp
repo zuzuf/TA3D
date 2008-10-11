@@ -233,7 +233,7 @@ namespace TA3D
         }
         String help_msg;
         // Draws all the windows in focus reversed order so the focused window is drawn on top of the others
-        for (sint32 i = vec_wnd.size() - 1; i >=0 ; --i)			
+        for (sint32 i = vec_wnd.size() - 1; i >=0 ; --i)
             vec_wnd[vec_z_order[i]]->draw(help_msg, i == 0, true, skin);
         if( !help_msg.empty())
             PopupMenu( mouse_x + 20, mouse_y + 20, help_msg, skin );
@@ -326,14 +326,14 @@ namespace TA3D
                 if (skin && !skin->prefix.empty())
                 {
                     // No prefixed version, retry with default background
-                    background_name = areaFile->pullAsString("area.background"); 
+                    background_name = areaFile->pullAsString("area.background");
                     // Loads a background image
-                    if (HPIManager->Exists(background_name)) 
+                    if (HPIManager->Exists(background_name))
                         background = gfx->load_texture( background_name );
                 }
             }
         }
-        delete areaFile; 
+        delete areaFile;
     }
 
 
@@ -517,9 +517,21 @@ namespace TA3D
         MutexLocker locker(pMutex);
 
         GUIOBJ *obj = doGetObject(message);
-        
+
         if (obj)
             return obj->activated;
+
+        return false;
+    }
+
+    bool AREA::is_mouse_over(const String& message)
+    {
+        MutexLocker locker(pMutex);
+
+        GUIOBJ *obj = doGetObject(message);
+
+        if (obj)
+            return obj->MouseOn;
 
         return false;
     }

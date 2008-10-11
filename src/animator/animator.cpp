@@ -75,7 +75,8 @@ namespace Menus
         amx = mouse_x;
         amy = mouse_y;
         amz = mouse_z;
-        idx = -1;
+        sel_idx = -1;
+        cursor_idx = -1;
 
         renderModel();
         return true;
@@ -98,6 +99,7 @@ namespace Menus
         amy = mouse_y;
         amz = mouse_z;
 
+        uint32 selection_timer = msec_timer;
         bool keyIsPressed(false);
         do
         {
@@ -111,7 +113,8 @@ namespace Menus
         } while (pMouseX == mouse_x && pMouseY == mouse_y && pMouseZ == mouse_z && pMouseB == mouse_b
                  && mouse_b == 0
                  && !key[KEY_ENTER] && !key[KEY_ESC] && !key[KEY_SPACE] && !key[KEY_C]
-                 && !keyIsPressed && !pArea->scrolling);
+                 && !keyIsPressed && !pArea->scrolling
+                 && (sel_idx < 0 || msec_timer - selection_timer < 50));
     }
 
 
@@ -121,7 +124,7 @@ namespace Menus
         if (key[KEY_ESC] || pArea->get_state("animator.b_close"))
             return true;
 
-        bool need_refresh = false;
+        bool need_refresh = sel_idx >= 0;
         if (amz != mouse_z)
         {
             zoom *= exp( (amz - mouse_z) * 0.1f );
@@ -153,17 +156,16 @@ namespace Menus
             need_refresh = true;
         }
 
-        if (pArea->is_activated("animator.render"))
+        if (pArea->is_mouse_over("animator.render"))
         {
-            if (amx != mouse_x || amy != mouse_y)
+            if ((amx != mouse_x || amy != mouse_y) && mouse_b == 2)
             {
                 r2 += mouse_x - amx;
                 r1 += mouse_y - amy;
                 need_refresh = true;
             }
+            need_refresh |= userInteraction();
         }
-
-        need_refresh |= userInteraction();
 
         if (need_refresh)
             renderModel();
@@ -201,13 +203,19 @@ namespace Menus
         Vector3D I;
         MATRIX_4x4 M = Scale(zoom);
         int nidx = TA3D::VARS::TheModel->hit(pos,pointer,NULL,&I,M);
-        printf("nidx = %d\n", nidx);
-        if (nidx >= 0 && idx != nidx)
+        bool result = false;
+
+        if (cursor_idx != nidx)
         {
-            idx = nidx;
-            return true;
+            cursor_idx = TA3D::Math::Max(nidx,-1);
+            result = true;
         }
-        return false;
+        if (cursor_idx >= 0 && mouse_b == 1)
+        {
+            sel_idx = cursor_idx;
+            result = true;
+        }
+        return result;
     }
 
     void Animator::getTexture()
@@ -239,6 +247,7 @@ namespace Menus
         gfx->renderToTexture(texture, true);        // Initialise rendering
 
         gfx->SetDefState();
+        glClearColor( 0.75f, 0.75f, 0.75f, 0.0f );
         gfx->clearAll();                // Clear the screen
 
         cam.setView();
@@ -280,19 +289,49 @@ namespace Menus
 
         if (TA3D::VARS::TheModel)
         {
-            glColor4f(1.0f,1.0f,1.0f,1.0f);
+            if (sel_idx >= 0)
+                glColor4f(0.5f,0.5f,0.5f,1.0f);
+            else
+                glColor4f(1.0f,1.0f,1.0f,1.0f);
             for(int i = 0 ; i < anim_data.nb_piece ; i++)
-                anim_data.flag[i] = (i != idx ? 0 : FLAG_HIDE);
+                anim_data.flag[i] = (i != sel_idx ? 0 : FLAG_HIDE);
             TA3D::VARS::TheModel->draw(msec_timer * 0.001f,&anim_data,false,false,false,0,NULL,NULL,NULL,0.0f,NULL,false,0,false);
 
-            gfx->ReInitAllTex( true );
-            glEnable(GL_TEXTURE_2D);
-            for(int i = 0 ; i < anim_data.nb_piece ; i++)
-                anim_data.flag[i] = (i == idx ? 0 : FLAG_HIDE);
-            float col = cos(msec_timer*0.002f)*0.375f+0.625f;
-            glColor3f(col,col,col);
-            TA3D::VARS::TheModel->draw(msec_timer * 0.001f,&anim_data,false,false,false,0,NULL,NULL,NULL,0.0f,NULL,false,0,true);
-            glColor3f(1.0f,1.0f,1.0f);
+            if (cursor_idx >= 0 && sel_idx != cursor_idx)
+            {
+                gfx->ReInitAllTex( true );
+                glDisable(GL_TEXTURE_2D);
+                for(int i = 0 ; i < anim_data.nb_piece ; i++)
+                    anim_data.flag[i] = (i == cursor_idx ? 0 : FLAG_HIDE);
+                float tmp[4];
+                memcpy(tmp,TA3D::VARS::obj_table[cursor_idx]->surface.Color, 4 * sizeof(float));
+                TA3D::VARS::obj_table[cursor_idx]->surface.Color[0] = 1.0;
+                TA3D::VARS::obj_table[cursor_idx]->surface.Color[1] = 1.0;
+                TA3D::VARS::obj_table[cursor_idx]->surface.Color[2] = 1.0;
+                TA3D::VARS::obj_table[cursor_idx]->surface.Color[3] = 0.5f;
+                glEnable(GL_BLEND);
+                glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+                TA3D::VARS::TheModel->obj.draw(0.0f,&anim_data,false,true,true,0,false,false);
+                glDisable(GL_BLEND);
+                memcpy(TA3D::VARS::obj_table[cursor_idx]->surface.Color, tmp, 4 * sizeof(float));
+            }
+
+            if (sel_idx >= 0)
+            {
+                gfx->ReInitAllTex( true );
+                glEnable(GL_TEXTURE_2D);
+                for(int i = 0 ; i < anim_data.nb_piece ; i++)
+                    anim_data.flag[i] = (i == sel_idx ? 0 : FLAG_HIDE);
+                float col = cos(msec_timer*0.002f)*0.375f+0.625f;
+                float tmp[4];
+                memcpy(tmp,TA3D::VARS::obj_table[sel_idx]->surface.Color, 4 * sizeof(float));
+                TA3D::VARS::obj_table[sel_idx]->surface.Color[0] = col;
+                TA3D::VARS::obj_table[sel_idx]->surface.Color[1] = col;
+                TA3D::VARS::obj_table[sel_idx]->surface.Color[2] = col;
+                TA3D::VARS::obj_table[sel_idx]->surface.Color[3] = 1.0f;
+                TA3D::VARS::TheModel->obj.draw(0.0f,&anim_data,false,true,true,0,false,false);
+                memcpy(TA3D::VARS::obj_table[sel_idx]->surface.Color, tmp, 4 * sizeof(float));
+            }
 
             gfx->ReInitAllTex( true );
             glEnable(GL_TEXTURE_2D);
