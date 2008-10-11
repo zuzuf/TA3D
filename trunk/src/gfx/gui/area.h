@@ -44,7 +44,7 @@ namespace TA3D
         ** \brief Load a window from a TDF file
         **
         ** \param filename TDF File to load
-        ** \return 
+        ** \return
         */
         uint16 load_window(const String& filename);
 
@@ -73,7 +73,7 @@ namespace TA3D
         ** \param message
         */
         WND* get_wnd(const String& message);
-        
+
         /*!
         ** \brief Return the state of specified object in the specified window
         **
@@ -91,7 +91,15 @@ namespace TA3D
         bool is_activated(const String& message);
 
         /*!
-        ** \brief Return the value of specified object in the specified window 
+        ** \brief Return true if the cursor is over the given object
+        **
+        ** \param message
+        ** \return
+        */
+        bool is_mouse_over(const String& message);
+
+        /*!
+        ** \brief Return the value of specified object in the specified window
         **
         ** \param message
         ** \return
@@ -244,7 +252,7 @@ namespace TA3D
         //! The skin used by the ares
         SKIN* skin;
 
-        //! hashtable used to speed up loading of *.gui files and save memory 
+        //! hashtable used to speed up loading of *.gui files and save memory
         TA3D::UTILS::cHashTable< std::vector< TA3D::Interfaces::GfxTexture >* > gui_hashtable;
         //! hashtable used to speed up operations on WND objects
         TA3D::UTILS::cHashTable<int>  wnd_hashtable;

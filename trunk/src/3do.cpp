@@ -3128,7 +3128,6 @@ namespace TA3D
     {
         if (notex)
             glDisable(GL_TEXTURE_2D);
-        Vector3D pos;
         if (chg_col)
         {
             if (notex)
@@ -3164,8 +3163,11 @@ namespace TA3D
                 }
             }
         }
-        if(c_part)
+        if (c_part)
+        {
+            Vector3D pos;
             obj.compute_coord(data_s,&pos,c_part,p_tex,target,upos,M,Size,Center,reverse,src,src_data);
+        }
     }
 
 

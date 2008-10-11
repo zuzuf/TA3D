@@ -69,7 +69,8 @@ namespace Menus
         Camera  cam;
 
         SCRIPT_DATA anim_data;
-        int idx;
+        int sel_idx;        // ID of selected object
+        int cursor_idx;     // ID of the object the cursor is pointing
 
         float r1,r2,r3,zoom;
         int amx, amy, amz;
