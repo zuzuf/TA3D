@@ -20,6 +20,10 @@
 
 # include "base.h"
 
+#define ANIMATOR_MODE_SELECTION         0x0
+#define ANIMATOR_MODE_SET_FATHER        0x1
+#define ANIMATOR_MODE_ANIMATE           0x2
+
 namespace Editor
 {
 namespace Menus
@@ -71,6 +75,7 @@ namespace Menus
         SCRIPT_DATA anim_data;
         int sel_idx;        // ID of selected object
         int cursor_idx;     // ID of the object the cursor is pointing
+        int pointing_mode;  // work mode (selection, set father, ...)
 
         float r1,r2,r3,zoom;
         int amx, amy, amz;

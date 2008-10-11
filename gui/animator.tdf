@@ -13,7 +13,7 @@
 	draw borders=false;
 	show title=false;
 	lock=true;
-	number of objects=2;
+	number of objects=4;
 	hidden=false;
 	color=0xFFFFFFFF;
 	background=gfx/background.jpg;
@@ -38,5 +38,25 @@
 		x2=1100;
 		y2=1023;
 		can be clicked=true;
+	}
+	[object2]
+	{
+		name=pointed;
+		type=TEXT;
+		caption=;
+		x1=0;
+		y1=980;
+		value=0xFF7F7F7F;
+		size=2.0;
+	}
+	[object3]
+	{
+		name=selected;
+		type=TEXT;
+		caption=;
+		x1=500;
+		y1=980;
+		value=0xFFFFFFFF;
+		size=2.0;
 	}
 }

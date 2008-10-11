@@ -77,6 +77,7 @@ namespace Menus
         amz = mouse_z;
         sel_idx = -1;
         cursor_idx = -1;
+        pointing_mode = ANIMATOR_MODE_SELECTION;
 
         renderModel();
         return true;
@@ -140,19 +141,28 @@ namespace Menus
 
         if (key[KEY_X])
         {
-            r1 = 0.0f, r2 = 90.0f, r3 = 0.0f;
+            if (TA3D_SHIFT_PRESSED)
+                r1 = 0.0f, r2 = -90.0f, r3 = 0.0f;
+            else
+                r1 = 0.0f, r2 = 90.0f, r3 = 0.0f;
             need_refresh = true;
         }
 
         if (key[KEY_Y])
         {
-            r1 = 90.0f, r2 = 0.0f, r3 = 0.0f;
+            if (TA3D_SHIFT_PRESSED)
+                r1 = -90.0f, r2 = 0.0f, r3 = 0.0f;
+            else
+                r1 = 90.0f, r2 = 0.0f, r3 = 0.0f;
             need_refresh = true;
         }
 
         if (key[KEY_Z])
         {
-            r1 = 0.0f, r2 = 0.0f, r3 = 0.0f;
+            if (TA3D_SHIFT_PRESSED)
+                r1 = 0.0f, r2 = 180.0f, r3 = 0.0f;
+            else
+                r1 = 0.0f, r2 = 0.0f, r3 = 0.0f;
             need_refresh = true;
         }
 
@@ -209,11 +219,22 @@ namespace Menus
         {
             cursor_idx = TA3D::Math::Max(nidx,-1);
             result = true;
+            pArea->set_caption("animator.pointed", cursor_idx >= 0 ? TA3D::VARS::obj_table[cursor_idx]->name : "");
         }
         if (cursor_idx >= 0 && mouse_b == 1)
         {
-            sel_idx = cursor_idx;
-            result = true;
+            switch(pointing_mode)
+            {
+            case ANIMATOR_MODE_SELECTION:
+                sel_idx = cursor_idx;
+                result = true;
+                pArea->set_caption("animator.selected", TA3D::VARS::obj_table[sel_idx]->name);
+                break;
+            case ANIMATOR_MODE_SET_FATHER:
+                break;
+            case ANIMATOR_MODE_ANIMATE:
+                break;
+            };
         }
         return result;
     }
@@ -309,11 +330,17 @@ namespace Menus
                 TA3D::VARS::obj_table[cursor_idx]->surface.Color[1] = 1.0;
                 TA3D::VARS::obj_table[cursor_idx]->surface.Color[2] = 1.0;
                 TA3D::VARS::obj_table[cursor_idx]->surface.Color[3] = 0.5f;
+                bool unblend = !(TA3D::VARS::obj_table[cursor_idx]->surface.Flag & SURFACE_BLENDED);
+                TA3D::VARS::obj_table[cursor_idx]->surface.Flag |= SURFACE_BLENDED;
                 glEnable(GL_BLEND);
                 glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
-                TA3D::VARS::TheModel->obj.draw(0.0f,&anim_data,false,true,true,0,false,false);
+                glDepthFunc( GL_EQUAL );
+                    TA3D::VARS::TheModel->obj.draw(0.0f,&anim_data,false,true,true,0,false,false);
+                glDepthFunc( GL_LESS );
                 glDisable(GL_BLEND);
                 memcpy(TA3D::VARS::obj_table[cursor_idx]->surface.Color, tmp, 4 * sizeof(float));
+                if (unblend)
+                    TA3D::VARS::obj_table[cursor_idx]->surface.Flag &= ~SURFACE_BLENDED;
             }
 
             if (sel_idx >= 0)
@@ -332,7 +359,6 @@ namespace Menus
                 TA3D::VARS::TheModel->obj.draw(0.0f,&anim_data,false,true,true,0,false,false);
                 memcpy(TA3D::VARS::obj_table[sel_idx]->surface.Color, tmp, 4 * sizeof(float));
             }
-
             gfx->ReInitAllTex( true );
             glEnable(GL_TEXTURE_2D);
         }
