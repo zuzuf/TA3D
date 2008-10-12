@@ -1,3 +1,8 @@
+[chose your team]
+{
+    FRENCH=Choisissez votre equipe;
+    SPANISH=Elija su equipo;
+}
 [UNITTYPE_NAME]
 {
     ENGLISH=UNITINFO.Name;

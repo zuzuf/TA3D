@@ -4739,8 +4739,8 @@ namespace TA3D
                                         ((UNIT*)(mission->p))->hp = 0.000001f;
                                         ((UNIT*)(mission->p))->built = true;
                                     }
-                                    else
-                                        LOG_WARNING(idx << " can't create unit! (`" << __FILE__ << "`:" << __LINE__ << ")");
+//                                    else
+//                                        LOG_WARNING(idx << " can't create unit! (`" << __FILE__ << "`:" << __LINE__ << ")");
                                 }
                                 else if (unit_manager.unit_type[type_id]->BMcode)
                                     next_mission();
