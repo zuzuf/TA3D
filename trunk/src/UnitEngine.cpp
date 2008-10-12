@@ -4899,8 +4899,7 @@ namespace TA3D
             if (( (mission->flags & MISSION_FLAG_MOVE) || !local ) && !jump_commands )// Set unit orientation if it's on the ground
             {
                 if (!unit_manager.unit_type[type_id]->canfly && !unit_manager.unit_type[type_id]->Upright
-                    && unit_manager.unit_type[type_id]->TEDclass!=CLASS_SHIP
-                    && unit_manager.unit_type[type_id]->TEDclass!=CLASS_WATER
+                    && !unit_manager.unit_type[type_id]->floatting()
                     && !( unit_manager.unit_type[type_id]->canhover && Pos.y <= map->sealvl ))
                 {
                     Vector3D I,J,K,A,B,C;
@@ -4944,10 +4943,13 @@ namespace TA3D
 
                 bool can_fire = unit_manager.unit_type[type_id]->AutoFire && unit_manager.unit_type[type_id]->canattack;
 
-                if (!can_fire)
+                if (can_fire)
+                {
+                    can_fire = false;
                     for( int i = 0 ; i < weapon.size() && !can_fire ; i++ )
                         can_fire =  unit_manager.unit_type[type_id]->weapon[i] != NULL && !unit_manager.unit_type[type_id]->weapon[i]->commandfire
                                     && !unit_manager.unit_type[type_id]->weapon[i]->interceptor && weapon[i].state == WEAPON_FLAG_IDLE;
+                }
 
                 if (can_fire)
                 {
