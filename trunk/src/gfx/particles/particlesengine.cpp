@@ -68,7 +68,7 @@ namespace TA3D
         MutexLocker locker(pMutex);
         if (!lp_CONFIG->particle)	// If particles are OFF don't add particles
             return;
-        if (Camera::inGame != NULL && ((Vector3D)(Camera::inGame->pos - pos)).sq() >= Camera::inGame->zfar2)
+        if (Camera::inGame != NULL && (Camera::inGame->pos - pos).sq() >= Camera::inGame->zfar2)
             return;
 
         for(int i = 0; i < nb; ++i)
@@ -129,7 +129,7 @@ namespace TA3D
         }
         else
         {
-            if (Camera::inGame != NULL && ((Vector3D)(Camera::inGame->pos - pos)).sq()>=Camera::inGame->zfar2)
+            if (Camera::inGame != NULL && (Camera::inGame->pos - pos).sq()>=Camera::inGame->zfar2)
                 return NULL;
 
             system = new ParticlesSystem;
@@ -187,7 +187,7 @@ namespace TA3D
     {
         if (!lp_CONFIG->particle ) // If particles are OFF don't add particles
             return;
-        if (Camera::inGame!=NULL && ((Vector3D)(Camera::inGame->pos - pos)).sq()>=Camera::inGame->zfar2)
+        if (Camera::inGame!=NULL && (Camera::inGame->pos - pos).sq()>=Camera::inGame->zfar2)
             return;
 
         pMutex.lock();
@@ -341,7 +341,7 @@ namespace TA3D
     {
         if (!lp_CONFIG->particle ) // If particles are OFF don't add particles
             return;
-        if (Camera::inGame!=NULL && ((Vector3D)(Camera::inGame->pos - pos)).sq()>=Camera::inGame->zfar2)
+        if (Camera::inGame!=NULL && (Camera::inGame->pos - pos).sq()>=Camera::inGame->zfar2)
             return;
 
         pMutex.lock();
@@ -388,7 +388,7 @@ namespace TA3D
     {
         if (!lp_CONFIG->particle ) // If particles are OFF don't add particles
             return;
-        if (Camera::inGame != NULL && ((Vector3D)(Camera::inGame->pos - pos)).sq()>=Camera::inGame->zfar2)
+        if (Camera::inGame != NULL && (Camera::inGame->pos - pos).sq()>=Camera::inGame->zfar2)
             return;
 
         pMutex.lock();
@@ -416,7 +416,7 @@ namespace TA3D
             new_part.dcol[0]=0.0f;
             new_part.dcol[1]=0.0f;
             new_part.dcol[2]=0.0f;
-            new_part.dcol[3]=-0.3333f*alpha;
+            new_part.dcol[3]=-alpha;
             new_part.angle=0.0f;
             new_part.v_rot=(Math::RandFromTable()%200)*0.01f-0.1f;
             new_part.size=1.0f;
@@ -435,7 +435,7 @@ namespace TA3D
     {
         if (!lp_CONFIG->particle ) // If particles are OFF don't add particles
             return;
-        if (Camera::inGame != NULL && ((Vector3D)(Camera::inGame->pos - pos)).sq() >= Camera::inGame->zfar2)
+        if (Camera::inGame != NULL && (Camera::inGame->pos - pos).sq() >= Camera::inGame->zfar2)
             return;
 
         pMutex.lock();
@@ -487,7 +487,7 @@ namespace TA3D
         }
 
         Vector3D G;
-        G.x=G.y=G.z=0.0f;
+        G.x=G.z=0.0f;
         G.y=dt*g;
         wind_dir=dt*wind_dir;
         float factor=exp(-0.1f*dt);

@@ -44,7 +44,7 @@ namespace TA3D
         while (timer >= 0.2f) // Emit smoke
         {
             timer -= 0.2f;
-            particle_engine.make_dark_smoke( Pos, 0, 1, 0.0f, -1.0f, -1.0f, 0.5f );
+            particle_engine.make_dark_smoke( Pos, 0, 1, 0.0f, -1.0f, -1.0f, 1.0f );
         }
         // When it shoud die, return true
         return (life <= 0.0f);
