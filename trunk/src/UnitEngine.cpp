@@ -3085,6 +3085,20 @@ namespace TA3D
                                     target = target + target_translation - data.pos[start_piece];
                                     if (target_unit!=NULL )
                                         target = target + target_pos_on_unit;
+
+                                    if (unit_manager.unit_type[type_id]->aim_data[i].check)     // Check angle limitations (not in OTA)
+                                    {
+                                                    // Go back in model coordinates so we can compare to the weapon main direction
+                                        Vector3D dir = target * RotateXZY(-Angle.x * DEG2RAD, -Angle.y * DEG2RAD, -Angle.z * DEG2RAD);
+                                                        // Check weapon
+                                        if (VAngle(dir, unit_manager.unit_type[type_id]->aim_data[i].dir) > unit_manager.unit_type[type_id]->aim_data[i].Maxangledif)
+                                        {
+                                            weapon[i].state = WEAPON_FLAG_IDLE;
+                                            weapon[i].data = -1;
+                                            break;
+                                        }
+                                    }
+
                                     dist = target.norm();
                                     target=(1.0f/dist)*target;
                                     Vector3D I,J,IJ,RT;
@@ -3099,6 +3113,7 @@ namespace TA3D
                                     angle-=Angle.y;
                                     if (angle<-180.0f)	angle+=360.0f;
                                     else if (angle>180.0f)	angle-=360.0f;
+
                                     int aiming[]={ (int)(angle*DEG2TA), -4096 };
                                     if (unit_manager.unit_type[type_id]->weapon[ i ]->ballistic) // Calculs de ballistique / ballistic calculations
                                     {
