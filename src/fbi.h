@@ -114,6 +114,13 @@ namespace TA3D
 
     }; // class DL_DATA
 
+    class AIM_DATA
+    {
+        public:
+        Vector3D    dir;
+        float       Maxangledif;
+        bool        check;
+    };
 
 
 
@@ -235,6 +242,7 @@ namespace TA3D
         uint8   selfdestructcountdown;
         bool    init_cloaked;
         int     mincloakdistance;
+        std::vector<AIM_DATA> aim_data;
 
         /*-----------------------------------------------------------------------*/
 
@@ -345,7 +353,7 @@ namespace TA3D
         ** \brief Everything is in the name ...
         */
         void show_info(float fade,GfxFont fnt);
-        
+
         /*!
         ** \brief Returns true if the units float on water
         */

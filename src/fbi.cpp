@@ -334,7 +334,7 @@ namespace TA3D
     {
         String uprname = String(unit_name).toUpper();
         int unit_index = get_unit_index(uprname);
-        if (unit_index == -1) 
+        if (unit_index == -1)
             return;
 
         String::List file_list;
@@ -390,6 +390,7 @@ namespace TA3D
         w_badTargetCategory.clear();
         BadTargetCategory.clear();
         NoChaseCategory.clear();
+        aim_data.clear();
 
         BuildList.clear();
         Pic_x.clear();
@@ -442,6 +443,7 @@ namespace TA3D
         antiweapons=false;
 
         weapon.clear();         // No weapons
+        aim_data.clear();
 
         script=NULL;		// Aucun script
 
@@ -791,7 +793,7 @@ namespace TA3D
         ExplodeAs = unitParser.pullAsString("UNITINFO.ExplodeAs");
         SelfDestructAs = unitParser.pullAsString("UNITINFO.SelfDestructAs");
         ManeuverLeashLength = unitParser.pullAsInt("UNITINFO.maneuverleashlength",640);
-        
+
         String DefaultMissionTypeString = String::ToLower( unitParser.pullAsString("UNITINFO.DefaultMissionType") );
         if(DefaultMissionTypeString == "standby")				DefaultMissionType=MISSION_STANDBY;
         else if(DefaultMissionTypeString == "vtol_standby")		DefaultMissionType=MISSION_VTOL_STANDBY;
@@ -822,6 +824,37 @@ namespace TA3D
         attackrunlength = unitParser.pullAsInt("UNITINFO.attackrunlength");
         selfdestructcountdown = unitParser.pullAsInt("UNITINFO.selfdestructcountdown",5);
         canresurrect = unitParser.pullAsBool("UNITINFO.canresurrect") || unitParser.pullAsBool("UNITINFO.resurrect");
+
+        aim_data.resize( WeaponID.size() );
+        for (int i = 0 ; i < WeaponID.size() ; i++)
+        {
+            aim_data[i].check = false;
+            if(WeaponID[i]>-1)
+            {
+                String aimdir = unitParser.pullAsString( format("UNITINFO.WeaponMainDir%d",i),
+                                unitParser.pullAsString( format("UNITINFO.Weaponmaindir%d",i),
+                                unitParser.pullAsString( format("UNITINFO.weaponmaindir%d",i) ) ) );
+                if (!aimdir.empty())
+                {
+                    String::Vector vec;
+                    aimdir.split(vec, " ");
+                    if (vec.size() == 3)
+                    {
+                        aim_data[i].check = true;
+                        aim_data[i].dir.x = vec[0].toFloat();
+                        aim_data[i].dir.y = vec[1].toFloat();
+                        aim_data[i].dir.z = vec[2].toFloat();
+                                                                // Should read almost every possible case
+                        aim_data[i].Maxangledif = unitParser.pullAsFloat( format("UNITINFO.Maxangledif%d", i),
+                                                    unitParser.pullAsFloat( format("UNITINFO.MaxAngleDif%d", i),
+                                                    unitParser.pullAsFloat( format("UNITINFO.Maxanglediff%d", i),
+                                                    unitParser.pullAsFloat( format("UNITINFO.MaxAngleDiff%d", i) ) ) ) );
+                    }
+                    else
+                        LOG_DEBUG("FBI parser error: '" << aimdir << "' could not be parsed correctly");
+                }
+            }
+        }
 
         if( canresurrect && BuildDistance == 0.0f )
             BuildDistance = SightDistance;
@@ -1360,7 +1393,7 @@ namespace TA3D
         panel.height = h;
 
         paneltop.set(Gaf::ToTexture("anims\\" + intgaf + ".gaf", "PANELTOP", &w, &h));
-        paneltop.width = w;	
+        paneltop.width = w;
         paneltop.height = h;
         panelbottom.set(Gaf::ToTexture("anims\\" + intgaf + ".gaf", "PANELBOT", &w, &h));
         panelbottom.width = w;
