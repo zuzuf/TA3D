@@ -4943,12 +4943,17 @@ namespace TA3D
 
                 bool can_fire = unit_manager.unit_type[type_id]->AutoFire && unit_manager.unit_type[type_id]->canattack;
 
-                if (can_fire)
+                if (!can_fire)
                 {
-                    can_fire = false;
                     for( int i = 0 ; i < weapon.size() && !can_fire ; i++ )
                         can_fire =  unit_manager.unit_type[type_id]->weapon[i] != NULL && !unit_manager.unit_type[type_id]->weapon[i]->commandfire
                                     && !unit_manager.unit_type[type_id]->weapon[i]->interceptor && weapon[i].state == WEAPON_FLAG_IDLE;
+                }
+                else
+                {
+                    can_fire = false;
+                    for( int i = 0 ; i < weapon.size() && !can_fire ; i++ )
+                        can_fire =  unit_manager.unit_type[type_id]->weapon[i] != NULL && weapon[i].state == WEAPON_FLAG_IDLE;
                 }
 
                 if (can_fire)
