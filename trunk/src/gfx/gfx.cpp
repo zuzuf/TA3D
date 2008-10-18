@@ -921,6 +921,22 @@ namespace TA3D
         return gl_tex;
     }
 
+    bool GFX::is_texture_in_cache( String file )
+    {
+        if(ati_workaround || !lp_CONFIG->use_texture_cache || !lp_CONFIG->use_texture_compression)
+            return false;
+        file = TA3D::Paths::Caches + file;
+        if (TA3D::Paths::Exists(file))
+        {
+            FILE *cache_file = TA3D_OpenFile(file, "rb");
+            uint32 mod_hash;
+            fread(&mod_hash, sizeof( mod_hash ), 1, cache_file);
+            fclose(cache_file);
+
+            return mod_hash == TA3D_CURRENT_MOD.hashValue(); // Check if it corresponds to current mod
+        }
+        return false;
+    }
 
 
     GLuint GFX::load_texture_from_cache( String file, byte filter_type, uint32 *width, uint32 *height, bool clamp )

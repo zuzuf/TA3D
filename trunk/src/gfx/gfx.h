@@ -256,6 +256,7 @@ namespace TA3D
         void	destroy_texture( GLuint &gltex );
         void	disable_texturing();
         void	enable_texturing();
+        bool    is_texture_in_cache( String file );
 
         GLuint make_texture_from_screen(byte filter_type = FILTER_NONE);
 

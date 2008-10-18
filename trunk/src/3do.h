@@ -314,6 +314,8 @@ namespace TA3D
         byte        *usetex;			// Tableau indiquant si une texture doit être appliquée
         sint16      selprim;			// Polygone de selection
         GLuint      gltex[10];			// Texture pour le dessin de l'objet
+        String::Vector  tex_cache_name; // Used for on-the-fly loading
+        BITMAP      *tex_bmp[10];       // Used for on-the-fly loading
         uint8       dtex;				// Indique si une texture objet doit être détruite avec l'objet
         float       *tcoord;			// Tableau de coordonnées de texture
         GLushort    sel[4];				// Primitive de sélection
@@ -367,6 +369,9 @@ namespace TA3D
         bool coupe(int x1,int y1,int dx1,int dy1,int x2,int y2,int dx2,int dy2);
 
     public:
+
+        void check_textures();
+        void load_texture_id(int id);
 
         uint16 set_obj_id( uint16 id );
 
@@ -516,6 +521,12 @@ namespace TA3D
         void print_struct(const float Y, const float X, TA3D::GfxFont& fnt)
         { obj.print_struct(Y, X, fnt); }
 
+        /*!
+        ** \brief
+        */
+        void check_textures()
+        { obj.check_textures(); }
+
     public:
         OBJECT		obj;			// Objet principal du modèle 3D
         Vector3D	center;				// Centre de l'objet pour des calculs d'élimination d'objets
@@ -540,7 +551,7 @@ namespace TA3D
         //! \name Constructor & Destructor
         //@{
         //! Default Constructor
-        MODEL_MANAGER() :nb_models(0), model(NULL) {}
+        MODEL_MANAGER() :nb_models(0), model(NULL) {    isLoading = false; }
         //! Destructor
         ~MODEL_MANAGER();
         //@}
@@ -570,6 +581,11 @@ namespace TA3D
         */
         void create_from_2d(BITMAP *bmp, float w, float h, float max_h, const String& filename);
 
+        /*!
+        ** \brief we need this small function in order to process textures on-the-fly in game and at loading time in 3DMEditor
+        */
+        bool loading_all();
+
     public:
         int  max_models;    // Size of model array
         int	 nb_models;	 // Nombre de modèles
@@ -579,6 +595,7 @@ namespace TA3D
     private:
         //! hashtable used to speed up operations on MODEL objects
         cHashTable<int> model_hashtable;
+        bool isLoading;
 
     }; // class MODEL_MANAGER
 
