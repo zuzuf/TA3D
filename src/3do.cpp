@@ -1011,38 +1011,85 @@ namespace TA3D
             else
                 allegro_gl_set_texture_format(GL_RGB8);
             clear(bmp);
+            tex_cache_name.clear();
+            for (short e = 0; e < 10; ++e)
+                tex_bmp[e] = NULL;
             for (short e = 0; e < expected_players; ++e)
             {
                 bool mtex_needed = false;
-                for (i = 0; i < nb_diff_tex; ++i)
+                dtex = e + 1;
+                String cache_filename = filename ? String( filename ) + format("-%s-%d.bin", !name.empty() ? name.c_str() : "none", player_color_map[e] ) : String( "" );
+
+                if (TA3D::model_manager.loading_all())      // We want to convert textures on-the-fly in order to speed loading
                 {
-                    if (texture_manager.tex[index_tex[i]].nb_bmp == 10)
+                    tex_cache_name.push_back( cache_filename );
+                    gltex[e] = 0;
+                    if (!gfx->is_texture_in_cache(cache_filename))
                     {
-                        blit(texture_manager.tex[index_tex[i]].bmp[player_color_map[e]], bmp,
-                             0, 0, px[i], py[i],
-                             texture_manager.tex[index_tex[i]].bmp[player_color_map[e]]->w,
-                             texture_manager.tex[index_tex[i]].bmp[player_color_map[e]]->h);
-                        mtex_needed=true;
+                        for (i = 0; i < nb_diff_tex; ++i)
+                        {
+                            if (texture_manager.tex[index_tex[i]].nb_bmp == 10)
+                            {
+                                blit(texture_manager.tex[index_tex[i]].bmp[player_color_map[e]], bmp,
+                                     0, 0, px[i], py[i],
+                                     texture_manager.tex[index_tex[i]].bmp[player_color_map[e]]->w,
+                                     texture_manager.tex[index_tex[i]].bmp[player_color_map[e]]->h);
+                                mtex_needed=true;
+                            }
+                            else
+                            {
+                                blit(texture_manager.tex[index_tex[i]].bmp[0], bmp, 0, 0,
+                                     px[i],py[i],
+                                     texture_manager.tex[index_tex[i]].bmp[0]->w,
+                                     texture_manager.tex[index_tex[i]].bmp[0]->h);
+                            }
+                        }
+                        tex_bmp[e] = bmp;
+                        bmp = create_bitmap_ex(32, mx, my);
                     }
                     else
                     {
-                        blit(texture_manager.tex[index_tex[i]].bmp[0], bmp, 0, 0,
-                             px[i],py[i],
-                             texture_manager.tex[index_tex[i]].bmp[0]->w,
-                             texture_manager.tex[index_tex[i]].bmp[0]->h);
+                        for (i = 0; i < nb_diff_tex && !mtex_needed; ++i)
+                            if (texture_manager.tex[index_tex[i]].nb_bmp == 10)
+                            {
+                                mtex_needed=true;
+                            }
                     }
                 }
-                dtex = e + 1;
-                String cache_filename = filename ? String( filename ) + format("-%s-%d.bin", !name.empty() ? name.c_str() : "none", player_color_map[e] ) : String( "" );
-                gltex[e] = gfx->load_texture_from_cache( cache_filename );
-                if (!gltex[e])
+                else            // Classical loading path
                 {
-                    gltex[e] = allegro_gl_make_texture(bmp);
-                    glBindTexture(GL_TEXTURE_2D,gltex[e]);
-                    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
-                    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR_MIPMAP_LINEAR);
-                    if (filename)
-                        gfx->save_texture_to_cache(cache_filename, gltex[e], bmp->w, bmp->h);
+                    gltex[e] = gfx->load_texture_from_cache( cache_filename );
+                    if (!gltex[e])
+                    {
+                        for (i = 0; i < nb_diff_tex; ++i)
+                        {
+                            if (texture_manager.tex[index_tex[i]].nb_bmp == 10)
+                            {
+                                blit(texture_manager.tex[index_tex[i]].bmp[player_color_map[e]], bmp,
+                                     0, 0, px[i], py[i],
+                                     texture_manager.tex[index_tex[i]].bmp[player_color_map[e]]->w,
+                                     texture_manager.tex[index_tex[i]].bmp[player_color_map[e]]->h);
+                                mtex_needed=true;
+                            }
+                            else
+                            {
+                                blit(texture_manager.tex[index_tex[i]].bmp[0], bmp, 0, 0,
+                                     px[i],py[i],
+                                     texture_manager.tex[index_tex[i]].bmp[0]->w,
+                                     texture_manager.tex[index_tex[i]].bmp[0]->h);
+                            }
+                        }
+                        gltex[e] = allegro_gl_make_texture(bmp);
+                        glBindTexture(GL_TEXTURE_2D,gltex[e]);
+                        glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
+                        glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR_MIPMAP_LINEAR);
+                        if (filename)
+                            gfx->save_texture_to_cache(cache_filename, gltex[e], bmp->w, bmp->h);
+                    }
+                    else
+                        for (i = 0; i < nb_diff_tex && !mtex_needed; ++i)
+                            if (texture_manager.tex[index_tex[i]].nb_bmp == 10)
+                                mtex_needed=true;
                 }
                 if (!mtex_needed)
                     break;
@@ -1190,7 +1237,28 @@ namespace TA3D
         return 0;
     }
 
-
+    void OBJECT::load_texture_id(int id)
+    {
+        if (id < 0 || id >= 10) return;
+        if (tex_bmp[id] != NULL)
+        {
+            gltex[id] = allegro_gl_make_texture(tex_bmp[id]);
+            glBindTexture(GL_TEXTURE_2D,gltex[id]);
+            glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
+            glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR_MIPMAP_LINEAR);
+            if (id < tex_cache_name.size() && !tex_cache_name[id].empty())
+                gfx->save_texture_to_cache(tex_cache_name[id], gltex[id], tex_bmp[id]->w, tex_bmp[id]->h);
+            destroy_bitmap( tex_bmp[id] );
+            tex_bmp[id] = NULL;
+            if (id < tex_cache_name.size() && !tex_cache_name[id].empty())
+                tex_cache_name[id].clear();
+        }
+        else if (id < tex_cache_name.size() && !tex_cache_name[id].empty() && gfx->is_texture_in_cache(tex_cache_name[id]))
+        {
+            gltex[id] = gfx->load_texture_from_cache(tex_cache_name[id]);
+            tex_cache_name[id].clear();
+        }
+    }
 
     void OBJECT::create_from_2d(BITMAP *bmp,float w,float h,float max_h)
     {
@@ -1423,6 +1491,13 @@ namespace TA3D
         bool hide=false;
         bool set=false;
         float color_factor[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
+        if ( !tex_cache_name.empty() )
+        {
+            for(int i = 0 ; i < 10 ; i++)
+                load_texture_id(i);
+            tex_cache_name.clear();
+        }
+
         glPushMatrix();
         if (!(explodes && !exploding_parts))
         {
@@ -1737,6 +1812,17 @@ namespace TA3D
     }
 
 
+    void OBJECT::check_textures()
+    {
+        if ( !tex_cache_name.empty() )
+        {
+            for(int i = 0 ; i < 10 ; i++)
+                load_texture_id(i);
+            tex_cache_name.clear();
+        }
+        if (child)  child->check_textures();
+        if (next)   next->check_textures();
+    }
 
 
     bool OBJECT::draw_dl(SCRIPT_DATA *data_s,bool alset,int side,bool chg_col)
@@ -2879,6 +2965,7 @@ namespace TA3D
 
     void MODEL_MANAGER::init()
     {
+        isLoading = false;
         max_models = 0;
         nb_models = 0;
         model = NULL;
@@ -2896,6 +2983,10 @@ namespace TA3D
         init();
     }
 
+    bool MODEL_MANAGER::loading_all()
+    {
+        return isLoading;
+    }
 
 
     void MODEL_MANAGER::compute_ids()
@@ -2940,6 +3031,8 @@ namespace TA3D
 
     int MODEL_MANAGER::load_all(void (*progress)(float percent,const String &msg))
     {
+        isLoading = true;
+
         const String loading3DModelsText = I18N::Translate("Loading 3D Models");
 
         String::List file_list;
@@ -2969,7 +3062,7 @@ namespace TA3D
                 ++n;
                 name[i+nb_models] = *e;
 
-                if (get_model( name[i+nb_models].substr(0, e->size() - 4).c_str())==NULL) 	// Vérifie si le modèle n'est pas déjà chargé
+                if (get_model( name[i+nb_models].substr(0, e->size() - 4)) == NULL) 	// Vérifie si le modèle n'est pas déjà chargé
                 {
                     byte *data = HPIManager->PullFromHPI(*e);
                     if (data)
@@ -3020,7 +3113,7 @@ namespace TA3D
                 ++n;
                 name[i+nb_models] = *e;
 
-                if (get_model(name[i+nb_models].substr(0, e->size() - 4).c_str() ) == NULL) // Vérifie si le modèle n'est pas déjà chargé
+                if (get_model(name[i+nb_models].substr(0, e->size() - 4) ) == NULL) // Vérifie si le modèle n'est pas déjà chargé
                 {
                     uint32 data_size = 0;
                     byte *data = HPIManager->PullFromHPI(*e, &data_size);
@@ -3037,6 +3130,8 @@ namespace TA3D
             nb_models += i;
         }
         max_models = nb_models;
+
+        isLoading = false;
         return 0;
     }
 
@@ -4017,6 +4112,7 @@ namespace TA3D
         glDisable(GL_BLEND);
         if (!model_manager.model[ model_id ].dlist )// Build the display list if necessary
         {
+            model_manager.model[ model_id ].check_textures();
             model_manager.model[ model_id ].dlist = glGenLists (1);
             glNewList (model_manager.model[ model_id ].dlist, GL_COMPILE);
             model_manager.model[ model_id ].obj.draw_dl(NULL,false,0,true);

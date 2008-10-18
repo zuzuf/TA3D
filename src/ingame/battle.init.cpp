@@ -100,53 +100,103 @@ namespace TA3D
 
         // Here we go
         uint64 startTime = msec_timer;
+        uint64 timer[22];
 
+        timer[0] = msec_timer;
         if (!initPreflight(g))
             return false;
+        timer[1] = msec_timer;
         if (!initTextures())
             return false;
+        timer[2] = msec_timer;
         if (!init3DModels())
             return false;
+        timer[3] = msec_timer;
         if (!initGraphicalFeatures())
             return false;
+        timer[4] = msec_timer;
         if (!initWeapons())
             return false;
+        timer[5] = msec_timer;
         if (!initUnits())
             return false;
+        timer[6] = msec_timer;
         if (!initIntermediateCleanup())
             return false;
+        timer[7] = msec_timer;
         if (!initEngine())
             return false;
+        timer[8] = msec_timer;
         if (!initPlayers())
             return false;
+        timer[9] = msec_timer;
         if (!initRestrictions())
             return false;
+        timer[10] = msec_timer;
         if (!initGUI())
             return false;
+        timer[11] = msec_timer;
         if (!initTheMap())
             return false;
+        timer[12] = msec_timer;
 		if (!initTheSky())
 			return false;
+        timer[13] = msec_timer;
 		if (!initTheSun())
 			return false;
+        timer[14] = msec_timer;
 		if (!initAllTextures())
 			return false;
+        timer[15] = msec_timer;
 		if (!initTheCamera())
 			return false;
+        timer[16] = msec_timer;
 		if (!initTheWind())
 			return false;
+        timer[17] = msec_timer;
 		if (!initTheFog())
 			return false;
+        timer[18] = msec_timer;
 		if (!initParticules())
 			return false;
+        timer[19] = msec_timer;
 		if (!initTheWater())
 			return false;
+        timer[20] = msec_timer;
 		if (!initPostFlight())
 			return false;
+        timer[21] = msec_timer;
 
         // The loading has finished
         loading(100.0f, I18N::Translate("Load finished"));
         LOG_INFO(LOG_PREFIX_BATTLE << "Loading time: " << ((float)(msec_timer - startTime) * 0.001f) << " sec.");
+#define TA3D_LOADING_STATS
+#ifdef TA3D_LOADING_STATS
+        LOG_INFO(LOG_PREFIX_BATTLE << "statistics:");
+        const char *functionName[] = {  "initPreflight(g)",
+                                        "initTextures()",
+                                        "init3DModels()",
+                                        "initGraphicalFeatures()",
+                                        "initWeapons()",
+                                        "initUnits()",
+                                        "initIntermediateCleanup()",
+                                        "initEngine()",
+                                        "initPlayers()",
+                                        "initRestrictions()",
+                                        "initGUI()",
+                                        "initTheMap()",
+                                        "initTheSky()",
+                                        "initTheSun()",
+                                        "initAllTextures()",
+                                        "initTheCamera()",
+                                        "initTheWind()",
+                                        "initTheFog()",
+                                        "initParticules()",
+                                        "initTheWater()",
+                                        "initPostFlight()" };
+        for(int i = 0 ; i < 20 ; i++)
+            LOG_INFO(LOG_PREFIX_BATTLE << functionName[i] << " done in " << timer[i+1] - timer[i] << " msec.");
+#endif
         return true;
     }
 
@@ -183,7 +233,7 @@ namespace TA3D
         return true;
     }
 
-    
+
     bool Battle::initTextures()
     {
         LOG_INFO(LOG_PREFIX_BATTLE << "Loading textures...");
@@ -191,7 +241,7 @@ namespace TA3D
         texture_manager.all_texture();
         return true;
     }
-    
+
     bool Battle::init3DModels()
     {
         LOG_INFO(LOG_PREFIX_BATTLE << "Loading 3D Models...");
@@ -228,7 +278,7 @@ namespace TA3D
         load_all_units(loading);
         return true;
     }
-    
+
     bool Battle::initIntermediateCleanup()
     {
         LOG_DEBUG(LOG_PREFIX_BATTLE << "Freeing unused memory");
@@ -236,7 +286,7 @@ namespace TA3D
         texture_manager.destroy();
         return true;
     }
-        
+
     bool Battle::initEngine()
     {
         LOG_INFO(LOG_PREFIX_BATTLE << "Initializing the engine...");
@@ -301,7 +351,7 @@ namespace TA3D
     }
 
     bool Battle::initGUI()
-    { 
+    {
         LOG_INFO(LOG_PREFIX_BATTLE << "Loading the GUI...");
         loading(550.0f / 7.0f, I18N::Translate("Loading GUI"));
         pArea.load_tdf("gui/game.area");
@@ -548,7 +598,7 @@ namespace TA3D
 			allegro_gl_set_texture_format(GL_RGBA8);
 
 			BITMAP* tmp = create_bitmap_ex(32,512,512);
-			
+
 			// Water transparency
 			transtex = gfx->make_texture( tmp, FILTER_LINEAR);
 			// Water reflection
@@ -570,7 +620,7 @@ namespace TA3D
 					float Z = z / 512.0f;
 					float DX = -X * Z * Z / ( 3.0f * sqrt( 1.0f - X * Z * X * Z)) + ( 1.0f - Z) * PI * sin( X * PI / 2.0f) * cos( X * PI / 2.0f);
 					float L = sqrt( DX * DX + 1.0f);
-					
+
 					DX = DX / L * 127.0f + 127.0f;
 					if (DX < 0.0f)
 						DX = 0.0f;
