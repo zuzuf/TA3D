@@ -1,0 +1,928 @@
+[window]
+{
+	title=End Game Statistics;
+	uformat=UTF8;
+	x=0;
+	y=0;
+	width=640;
+	height=480;
+	draw borders=false;
+	show title=false;
+	number of objects=85;
+	hidden=false;
+	lock=true;
+	color=0x00000000;			// Fully transparent so we can see the AREA background
+	background window=true;
+	fullscreen=true;			// Scale the window to fit the screen
+	screen width=640;
+	screen height=480;
+	[object83]		// OK
+	{
+		name=b_ok;
+		type=BUTTON;
+		caption=OK;
+		x1=240;
+		y1=440;
+		x2=400;
+		y2=460;
+		size=1;
+	}
+	[object84]		// Title
+	{
+		name=t_scores;
+		type=TEXT;
+		caption=Scores;
+		x1=320;
+		y1=8;
+		value=0xFFFFFFFF;
+		centered=true;
+		size=1;
+	}
+	[object2]		// line
+	{
+		name=l_0;
+		type=LINE;
+		x1=32;
+		y1=72;
+		x2=608;
+		y2=72;
+		value=0x7F7F7F7F;
+	}
+	[object3]		// line
+	{
+		name=l_1;
+		type=LINE;
+		x1=32;
+		y1=108;
+		x2=608;
+		y2=108;
+		value=0x7F7F7F7F;
+	}
+	[object4]		// line
+	{
+		name=l_2;
+		type=LINE;
+		x1=32;
+		y1=144;
+		x2=608;
+		y2=144;
+		value=0x7F7F7F7F;
+	}
+	[object5]		// line
+	{
+		name=l_3;
+		type=LINE;
+		x1=32;
+		y1=180;
+		x2=608;
+		y2=180;
+		value=0x7F7F7F7F;
+	}
+	[object6]		// line
+	{
+		name=l_4;
+		type=LINE;
+		x1=32;
+		y1=216;
+		x2=608;
+		y2=216;
+		value=0x7F7F7F7F;
+	}
+	[object7]		// line
+	{
+		name=l_5;
+		type=LINE;
+		x1=32;
+		y1=252;
+		x2=608;
+		y2=252;
+		value=0x7F7F7F7F;
+	}
+	[object8]		// line
+	{
+		name=l_6;
+		type=LINE;
+		x1=32;
+		y1=288;
+		x2=608;
+		y2=288;
+		value=0x7F7F7F7F;
+	}
+	[object9]		// line
+	{
+		name=l_7;
+		type=LINE;
+		x1=32;
+		y1=324;
+		x2=608;
+		y2=324;
+		value=0x7F7F7F7F;
+	}
+	[object10]		// line
+	{
+		name=l_8;
+		type=LINE;
+		x1=32;
+		y1=360;
+		x2=608;
+		y2=360;
+		value=0x7F7F7F7F;
+	}
+	[object11]		// line
+	{
+		name=l_9;
+		type=LINE;
+		x1=32;
+		y1=396;
+		x2=608;
+		y2=396;
+		value=0x7F7F7F7F;
+	}
+	[object12]		// line
+	{
+		name=l_10;
+		type=LINE;
+		x1=240;
+		y1=48;
+		x2=240;
+		y2=424;
+		value=0x7FFFFFFF;
+	}
+	[object13]		// line
+	{
+		name=l_11;
+		type=LINE;
+		x1=318;
+		y1=48;
+		x2=318;
+		y2=424;
+		value=0x7FFFFFFF;
+	}
+	[object14]		// line
+	{
+		name=l_12;
+		type=LINE;
+		x1=396;
+		y1=48;
+		x2=396;
+		y2=424;
+		value=0x7FFFFFFF;
+	}
+	[object15]		// line
+	{
+		name=l_13;
+		type=LINE;
+		x1=474;
+		y1=48;
+		x2=474;
+		y2=424;
+		value=0x7FFFFFFF;
+	}
+	[object16]		// line
+	{
+		name=l_14;
+		type=LINE;
+		x1=552;
+		y1=48;
+		x2=552;
+		y2=424;
+		value=0x7FFFFFFF;
+	}
+	[object17]		// label "Players"
+	{
+		name=t_players;
+		type=TEXT;
+		caption=Players;
+		x1=136;
+		y1=48;
+		centered=true;
+		value=0xFFFFFFFF;
+		size=1;
+	}
+	[object18]		// label "Side"
+	{
+		name=t_side;
+		type=TEXT;
+		caption=Side;
+		x1=276;
+		y1=48;
+		centered=true;
+		value=0xFFFFFFFF;
+		size=1;
+	}
+	[object19]		// label "Losses"
+	{
+		name=t_losses;
+		type=TEXT;
+		caption=Losses;
+		x1=354;
+		y1=48;
+		centered=true;
+		value=0xFFFFFFFF;
+		size=1;
+	}
+	[object20]		// label "Kills"
+	{
+		name=t_kills;
+		type=TEXT;
+		caption=Kills;
+		x1=432;
+		y1=48;
+		centered=true;
+		value=0xFFFFFFFF;
+		size=1;
+	}
+	[object21]		// label "Energy"
+	{
+		name=t_energy;
+		type=TEXT;
+		caption=Energy;
+		x1=510;
+		y1=48;
+		centered=true;
+		value=0xFFFFFFFF;
+		size=1;
+	}
+	[object22]		// label "Metal"
+	{
+		name=t_metal;
+		type=TEXT;
+		caption=Metal;
+		x1=588;
+		y1=48;
+		centered=true;
+		value=0xFFFFFFFF;
+		size=1;
+	}
+	[object23]		// label "player0"
+	{
+		name=player0;
+		type=TEXT;
+		caption=;
+		x1=32;
+		y1=82;
+		value=0xFFFFFFFF;
+		size=1;
+	}
+	[object24]		// label "side0"
+	{
+		name=side0;
+		type=TEXT;
+		caption=;
+		x1=276;
+		y1=82;
+		value=0xFFFFFFFF;
+		centered=true;
+		size=1;
+	}
+	[object25]		// label "losses0"
+	{
+		name=losses0;
+		type=TEXT;
+		caption=;
+		x1=354;
+		y1=82;
+		value=0xFFFFFFFF;
+		centered=true;
+		size=1;
+	}
+	[object26]		// label "kills0"
+	{
+		name=kills0;
+		type=TEXT;
+		caption=;
+		x1=432;
+		y1=82;
+		value=0xFFFFFFFF;
+		centered=true;
+		size=1;
+	}
+	[object27]		// label "energy0"
+	{
+		name=energy0;
+		type=TEXT;
+		caption=;
+		x1=510;
+		y1=82;
+		value=0xFFFFFFFF;
+		centered=true;
+		size=1;
+	}
+	[object28]		// label "metal0"
+	{
+		name=metal0;
+		type=TEXT;
+		caption=;
+		x1=588;
+		y1=82;
+		value=0xFFFFFFFF;
+		centered=true;
+		size=1;
+	}
+	[object29]		// label "player1"
+	{
+		name=player1;
+		type=TEXT;
+		caption=;
+		x1=32;
+		y1=118;
+		value=0xFFFFFFFF;
+		size=1;
+	}
+	[object30]		// label "side1"
+	{
+		name=side1;
+		type=TEXT;
+		caption=;
+		x1=276;
+		y1=118;
+		value=0xFFFFFFFF;
+		centered=true;
+		size=1;
+	}
+	[object31]		// label "losses1"
+	{
+		name=losses1;
+		type=TEXT;
+		caption=;
+		x1=354;
+		y1=118;
+		value=0xFFFFFFFF;
+		centered=true;
+		size=1;
+	}
+	[object32]		// label "kills1"
+	{
+		name=kills1;
+		type=TEXT;
+		caption=;
+		x1=432;
+		y1=118;
+		value=0xFFFFFFFF;
+		centered=true;
+		size=1;
+	}
+	[object33]		// label "energy1"
+	{
+		name=energy1;
+		type=TEXT;
+		caption=;
+		x1=510;
+		y1=118;
+		value=0xFFFFFFFF;
+		centered=true;
+		size=1;
+	}
+	[object34]		// label "metal1"
+	{
+		name=metal1;
+		type=TEXT;
+		caption=;
+		x1=588;
+		y1=118;
+		value=0xFFFFFFFF;
+		centered=true;
+		size=1;
+	}
+	[object35]		// label "player2"
+	{
+		name=player2;
+		type=TEXT;
+		caption=;
+		x1=32;
+		y1=154;
+		value=0xFFFFFFFF;
+		size=1;
+	}
+	[object36]		// label "side2"
+	{
+		name=side2;
+		type=TEXT;
+		caption=;
+		x1=276;
+		y1=154;
+		value=0xFFFFFFFF;
+		centered=true;
+		size=1;
+	}
+	[object37]		// label "losses2"
+	{
+		name=losses2;
+		type=TEXT;
+		caption=;
+		x1=354;
+		y1=154;
+		value=0xFFFFFFFF;
+		centered=true;
+		size=1;
+	}
+	[object38]		// label "kills2"
+	{
+		name=kills2;
+		type=TEXT;
+		caption=;
+		x1=432;
+		y1=154;
+		value=0xFFFFFFFF;
+		centered=true;
+		size=1;
+	}
+	[object39]		// label "energy2"
+	{
+		name=energy2;
+		type=TEXT;
+		caption=;
+		x1=510;
+		y1=154;
+		value=0xFFFFFFFF;
+		centered=true;
+		size=1;
+	}
+	[object40]		// label "metal2"
+	{
+		name=metal2;
+		type=TEXT;
+		caption=;
+		x1=588;
+		y1=154;
+		value=0xFFFFFFFF;
+		centered=true;
+		size=1;
+	}
+	[object41]		// label "player3"
+	{
+		name=player3;
+		type=TEXT;
+		caption=;
+		x1=32;
+		y1=190;
+		value=0xFFFFFFFF;
+		size=1;
+	}
+	[object42]		// label "side3"
+	{
+		name=side3;
+		type=TEXT;
+		caption=;
+		x1=276;
+		y1=190;
+		value=0xFFFFFFFF;
+		centered=true;
+		size=1;
+	}
+	[object43]		// label "losses3"
+	{
+		name=losses3;
+		type=TEXT;
+		caption=;
+		x1=354;
+		y1=190;
+		value=0xFFFFFFFF;
+		centered=true;
+		size=1;
+	}
+	[object44]		// label "kills3"
+	{
+		name=kills3;
+		type=TEXT;
+		caption=;
+		x1=432;
+		y1=190;
+		value=0xFFFFFFFF;
+		centered=true;
+		size=1;
+	}
+	[object45]		// label "energy3"
+	{
+		name=energy3;
+		type=TEXT;
+		caption=;
+		x1=510;
+		y1=190;
+		value=0xFFFFFFFF;
+		centered=true;
+		size=1;
+	}
+	[object46]		// label "metal3"
+	{
+		name=metal3;
+		type=TEXT;
+		caption=;
+		x1=588;
+		y1=190;
+		value=0xFFFFFFFF;
+		centered=true;
+		size=1;
+	}
+	[object47]		// label "player4"
+	{
+		name=player4;
+		type=TEXT;
+		caption=;
+		x1=32;
+		y1=226;
+		value=0xFFFFFFFF;
+		size=1;
+	}
+	[object48]		// label "side4"
+	{
+		name=side4;
+		type=TEXT;
+		caption=;
+		x1=276;
+		y1=226;
+		value=0xFFFFFFFF;
+		centered=true;
+		size=1;
+	}
+	[object49]		// label "losses4"
+	{
+		name=losses4;
+		type=TEXT;
+		caption=;
+		x1=354;
+		y1=226;
+		value=0xFFFFFFFF;
+		centered=true;
+		size=1;
+	}
+	[object50]		// label "kills4"
+	{
+		name=kills4;
+		type=TEXT;
+		caption=;
+		x1=432;
+		y1=226;
+		value=0xFFFFFFFF;
+		centered=true;
+		size=1;
+	}
+	[object51]		// label "energy4"
+	{
+		name=energy4;
+		type=TEXT;
+		caption=;
+		x1=510;
+		y1=226;
+		value=0xFFFFFFFF;
+		centered=true;
+		size=1;
+	}
+	[object52]		// label "metal4"
+	{
+		name=metal4;
+		type=TEXT;
+		caption=;
+		x1=588;
+		y1=226;
+		value=0xFFFFFFFF;
+		centered=true;
+		size=1;
+	}
+	[object53]		// label "player5"
+	{
+		name=player5;
+		type=TEXT;
+		caption=;
+		x1=32;
+		y1=262;
+		value=0xFFFFFFFF;
+		size=1;
+	}
+	[object54]		// label "side5"
+	{
+		name=side5;
+		type=TEXT;
+		caption=;
+		x1=276;
+		y1=262;
+		value=0xFFFFFFFF;
+		centered=true;
+		size=1;
+	}
+	[object55]		// label "losses5"
+	{
+		name=losses5;
+		type=TEXT;
+		caption=;
+		x1=354;
+		y1=262;
+		value=0xFFFFFFFF;
+		centered=true;
+		size=1;
+	}
+	[object56]		// label "kills5"
+	{
+		name=kills5;
+		type=TEXT;
+		caption=;
+		x1=432;
+		y1=262;
+		value=0xFFFFFFFF;
+		centered=true;
+		size=1;
+	}
+	[object57]		// label "energy5"
+	{
+		name=energy5;
+		type=TEXT;
+		caption=;
+		x1=510;
+		y1=262;
+		value=0xFFFFFFFF;
+		centered=true;
+		size=1;
+	}
+	[object58]		// label "metal5"
+	{
+		name=metal5;
+		type=TEXT;
+		caption=;
+		x1=588;
+		y1=262;
+		value=0xFFFFFFFF;
+		centered=true;
+		size=1;
+	}
+	[object59]		// label "player6"
+	{
+		name=player6;
+		type=TEXT;
+		caption=;
+		x1=32;
+		y1=298;
+		value=0xFFFFFFFF;
+		size=1;
+	}
+	[object60]		// label "side6"
+	{
+		name=side6;
+		type=TEXT;
+		caption=;
+		x1=276;
+		y1=298;
+		value=0xFFFFFFFF;
+		centered=true;
+		size=1;
+	}
+	[object61]		// label "losses6"
+	{
+		name=losses6;
+		type=TEXT;
+		caption=;
+		x1=354;
+		y1=298;
+		value=0xFFFFFFFF;
+		centered=true;
+		size=1;
+	}
+	[object62]		// label "kills6"
+	{
+		name=kills6;
+		type=TEXT;
+		caption=;
+		x1=432;
+		y1=298;
+		value=0xFFFFFFFF;
+		centered=true;
+		size=1;
+	}
+	[object63]		// label "energy6"
+	{
+		name=energy6;
+		type=TEXT;
+		caption=;
+		x1=510;
+		y1=298;
+		value=0xFFFFFFFF;
+		centered=true;
+		size=1;
+	}
+	[object64]		// label "metal6"
+	{
+		name=metal6;
+		type=TEXT;
+		caption=;
+		x1=588;
+		y1=298;
+		value=0xFFFFFFFF;
+		centered=true;
+		size=1;
+	}
+	[object65]		// label "player7"
+	{
+		name=player7;
+		type=TEXT;
+		caption=;
+		x1=32;
+		y1=334;
+		value=0xFFFFFFFF;
+		size=1;
+	}
+	[object66]		// label "side7"
+	{
+		name=side7;
+		type=TEXT;
+		caption=;
+		x1=276;
+		y1=334;
+		value=0xFFFFFFFF;
+		centered=true;
+		size=1;
+	}
+	[object67]		// label "losses7"
+	{
+		name=losses7;
+		type=TEXT;
+		caption=;
+		x1=354;
+		y1=334;
+		value=0xFFFFFFFF;
+		centered=true;
+		size=1;
+	}
+	[object68]		// label "kills7"
+	{
+		name=kills7;
+		type=TEXT;
+		caption=;
+		x1=432;
+		y1=334;
+		value=0xFFFFFFFF;
+		centered=true;
+		size=1;
+	}
+	[object69]		// label "energy7"
+	{
+		name=energy7;
+		type=TEXT;
+		caption=;
+		x1=510;
+		y1=334;
+		value=0xFFFFFFFF;
+		centered=true;
+		size=1;
+	}
+	[object70]		// label "metal7"
+	{
+		name=metal7;
+		type=TEXT;
+		caption=;
+		x1=588;
+		y1=334;
+		value=0xFFFFFFFF;
+		centered=true;
+		size=1;
+	}
+	[object71]		// label "player8"
+	{
+		name=player8;
+		type=TEXT;
+		caption=;
+		x1=32;
+		y1=370;
+		value=0xFFFFFFFF;
+		size=1;
+	}
+	[object72]		// label "side8"
+	{
+		name=side8;
+		type=TEXT;
+		caption=;
+		x1=276;
+		y1=370;
+		value=0xFFFFFFFF;
+		centered=true;
+		size=1;
+	}
+	[object73]		// label "losses8"
+	{
+		name=losses8;
+		type=TEXT;
+		caption=;
+		x1=354;
+		y1=370;
+		value=0xFFFFFFFF;
+		centered=true;
+		size=1;
+	}
+	[object74]		// label "kills8"
+	{
+		name=kills8;
+		type=TEXT;
+		caption=;
+		x1=432;
+		y1=370;
+		value=0xFFFFFFFF;
+		centered=true;
+		size=1;
+	}
+	[object75]		// label "energy8"
+	{
+		name=energy8;
+		type=TEXT;
+		caption=;
+		x1=510;
+		y1=370;
+		value=0xFFFFFFFF;
+		centered=true;
+		size=1;
+	}
+	[object76]		// label "metal8"
+	{
+		name=metal8;
+		type=TEXT;
+		caption=;
+		x1=588;
+		y1=370;
+		value=0xFFFFFFFF;
+		centered=true;
+		size=1;
+	}
+	[object77]		// label "player9"
+	{
+		name=player9;
+		type=TEXT;
+		caption=;
+		x1=32;
+		y1=406;
+		value=0xFFFFFFFF;
+		size=1;
+	}
+	[object78]		// label "side9"
+	{
+		name=side9;
+		type=TEXT;
+		caption=;
+		x1=276;
+		y1=406;
+		value=0xFFFFFFFF;
+		centered=true;
+		size=1;
+	}
+	[object79]		// label "losses9"
+	{
+		name=losses9;
+		type=TEXT;
+		caption=;
+		x1=354;
+		y1=406;
+		value=0xFFFFFFFF;
+		centered=true;
+		size=1;
+	}
+	[object80]		// label "kills9"
+	{
+		name=kills9;
+		type=TEXT;
+		caption=;
+		x1=432;
+		y1=406;
+		value=0xFFFFFFFF;
+		centered=true;
+		size=1;
+	}
+	[object81]		// label "energy9"
+	{
+		name=energy9;
+		type=TEXT;
+		caption=;
+		x1=510;
+		y1=406;
+		value=0xFFFFFFFF;
+		centered=true;
+		size=1;
+	}
+	[object82]		// label "metal9"
+	{
+		name=metal9;
+		type=TEXT;
+		caption=;
+		x1=588;
+		y1=406;
+		value=0xFFFFFFFF;
+		centered=true;
+		size=1;
+	}
+	[object0]		// border
+	{
+		name=border0;
+		type=BOX;
+		x1=8;
+		y1=32;
+		x2=632;
+		y2=432;
+		value=0x7F000000;
+		fill=true;
+	}
+	[object1]		// border
+	{
+		name=border1;
+		type=BOX;
+		x1=8;
+		y1=32;
+		x2=632;
+		y2=432;
+		value=0xFFFFFFFF;
+	}
+}

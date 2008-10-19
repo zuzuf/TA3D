@@ -1,0 +1,175 @@
+TA3D's developer documentation
+------------------------------
+
+this document explain how TA3D's source code is subdivided and a few other things needed to build/modify it.
+
+here are the files in the src subdir:
+3do.cpp			// module to manage 3do files (TA's 3D models) and 3dm models
+3do.h
+
+cob.cpp			// module to load units's scripts
+cob.h
+
+console.cpp		// module to manage the developer console
+console.h
+
+EngineClass.cpp	// the core of the engine
+EngineClass.h
+
+UnitEngine.cpp	// The Unit engine, originaly a part of EngineClass module
+UnitEngine.h
+
+fbi.cpp			// module to load data from FBI files (unit types data)
+fbi.h
+
+gaf.cpp			// module to load GAF files (graphics and animation data)
+gaf.h
+
+glfunc.cpp		// module to manage OpenGL extensions and shaders
+glfunc.h
+
+gui.cpp			// module to manage the interface
+gui.h
+
+hash_table.h	// header which contains the hash table templates (used by TA3D_hpi module)
+
+TA3D_hpi.cpp	// module to read/decrypt/uncompress HPI archives
+TA3D_hpi.h
+
+cThread.cpp		// module to use threads
+cThread.h
+
+cCriticalSection.cpp	// module to use safe threads
+cCriticalSection.h
+
+hpiview.cpp		// program to view/extract data from HPI files
+
+3dmeditor.cpp		// 3DM Editor, import 3D Models to 3DM format, allows texturings, selecting materials, ...
+3dmeditor_sub.cpp
+
+ia.cpp			// A.I. module
+ia.h
+
+icon.cpp		// the small icon displayed in the top left corner of the window
+
+intro.cpp		// module for the introduction and loading screens
+intro.h
+
+menu.cpp		// module for the game menus (main menu, config menu, map selection, stats ...)
+menu.h
+
+music.cpp		// module for ingame music (need MP3 or/and OGG support)
+music.h
+
+particles.cpp	// module which contains the particle engine
+particles.h
+
+pathfinding.cpp	// module for pathfinding
+pathfinding.h
+
+script.cpp		// module for game scripting
+script.h
+
+TA3D_Audio.cpp	// module for ingame noise :-)
+TA3D_Audio.h
+
+ta3dbase.h		// main module
+ta3d.cpp
+ta3d.h
+
+taconfig.cpp	// module for the configuration system
+taconfig.h
+
+tdf.cpp			// module for TA's graphical features
+tdf.h
+
+tnt.cpp			// module to load TA's maps
+tnt.h
+
+weapons.cpp		// module to load weapons data and simulate weapons trajectories
+weapons.h
+
+matrix.h		// headers for matrix and vector maths
+vector.h
+
+Here is the list of all the libraries you could need:
+_Allegro (game library) - used for mouse & keyboard input, time control, image loading support, sound support, ...
+_AllegroGL (add-on to Allegro) - used for interfacing Allegro with OpenGL
+_OpenGL - used for drawing
+_zlib - used by the hpi module to uncompress some HPIs
+_FMOD - used to read/play WAV,OGG,MP3,... files (needed by the sound engine)
+_Lua - included in the src/lua dir, used for game scripting
+
+how is the code designed??
+--------------------------
+
+the engine is subdivided in specialized parts:
+_units engine             --\
+_particles engine           |---- running in separate threads (synchronised, base on simulation time)
+_weapons engine           --/
+
+each UNIT object can be locked using the cCriticalSection object it inherits from. When you need to lock INGAME_UNITS and UNIT, lock UNIT first, otherwise you might encounter dead locks.
+
+_terrain engine
+_features engine
+_sound/music engine       // Using FMOD, this module only loads and play sounds preventing to play a sound too loud
+_AI engine                // every AI player runs in its own thread
+
+each engine part have its own module.
+each engine interact with others. here is a complete description of these engines:
+
+* terrain engine:
+"""""""""""""""""
+	this engine draws the map on screen. The map is stored in a MAP object.
+This object stores graphical data as well as height data and other data relative to the map(metal on surface, ...)
+The map is stored as a bloc array which contains 3D data and information about the terrain in that bloc. A bloc can
+be repeated multiple times so you don't waste memory. The map is represented as an array telling which bloc is where.
+another array stores data about which features are on the map, so you can list visible features to draw them faster.
+The terrain engine is responsible for detecting what is visible and what is not. When drawing an object on screen, we
+first check if it is on a visible bloc of the map.
+
+* units engine:
+"""""""""""""""
+	this is where the game is simulated. It animate units with scripts (it's where there is the script interpreter),
+control their missions, make them move, draw units (and their shadows), make them interact with each other, ...
+All units are stored in an array which isn't reallocated during the game. So units can be identified by a pointer since
+they won't be moved in this array. The array is subdivided in parts, one for each player, so it's easier to separate the
+units of a player from the others.
+
+* particle engine:
+""""""""""""""""""
+	just tell it which particles you want to create and it will animate (physic simulation) them and draw them for you.
+It simulates wind, gravity in order to render realistic smoke, fire, dust, explosions ...
+Particles are stored in an array which is designed for physic simulation and then drawn as quads using an other array
+which is better suited for OpenGL's VERTEX_ARRAY.
+
+* weapons engine:
+"""""""""""""""""
+	same thing as units but for weapons with a small difference:
+the weapon array may be reallocated during the game.
+
+* features engine:
+""""""""""""""""""
+	it draws every static object on the map: rocks, trees, corpses, ...
+Everything is stored into an array but it can be a huge one, so there is another array used to store indexes of features
+which are on screen (computed by the terrain engine at rendering time) so you don't need to go through the entire feature
+array when you need to do something!! Features can be flat (sprites) or have a 3D model (from a 3do file or computed from
+a sprite!!).
+	Most sprites are drawn flat on the map but some are drawn multiple times as intersecting quads to render trees better.
+The engine can draw shadows but only for 3D models loaded from a 3do file because shadows cast from computed models really
+look ugly.
+
+* sound/music engine:
+"""""""""""""""""""""
+	It loads sound files on the fly and stores a copy into a cache to avoid repeatedly loads the same file. It uses FMOD to
+play sounds with 2D or 3D effects. It also plays OGG/MP3/... music files in the music dir. The file it plays depends on how
+the game is going (battle, building), for this it refers to the playlist which is a text file in the root dir. If the playlist
+file doesn't exist it creates one.
+
+* AI engine
+"""""""""""
+	Every AI player runs in its own thread. It acts 3 steps :
+1) analyse the unit array
+2) refresh unit's weights
+3) give orders to its units
+Currently difficulty is set by modifying the speed at which the AI is analyzing the game and giving orders.

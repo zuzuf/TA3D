@@ -1,0 +1,97 @@
+[skin]
+{
+	name=default_skin;
+
+	button0=gfx/default_skin/button0.tga;
+	button1=gfx/default_skin/button1.tga;
+	button_x1=17;
+	button_y1=4;
+	button_x2=90;
+	button_y2=15;
+	button_scale=1.5;
+
+	title bar=gfx/default_skin/title_bar.tga;
+	title_x1=12;
+	title_y1=12;
+	title_x2=162;
+	title_y2=19;
+	title_scale=1.5;
+
+	window borders=gfx/default_skin/window_borders.tga;
+	border_x1=8;
+	border_y1=4;
+	border_x2=324;
+	border_y2=383;
+	border_scale=1.5;
+
+	progress bar0=gfx/default_skin/progress_bar0.tga;
+	bar0_x1=12;
+	bar0_y1=10;
+	bar0_x2=251;
+	bar0_y2=24;
+	bar0_scale=1.5;
+	progress bar1=gfx/default_skin/progress_bar1.tga;
+	bar1_x1=0;
+	bar1_y1=0;
+	bar1_x2=242;
+	bar1_y2=16;
+	bar1_scale=1.5;
+
+	text background=gfx/default_skin/text_background.tga;
+	text_x1=12;
+	text_y1=10;
+	text_x2=251;
+	text_y2=24;
+	text_scale=1.5;
+
+	menu background=gfx/default_skin/window_borders.tga;
+	menu_x1=8;
+	menu_y1=4;
+	menu_x2=324;
+	menu_y2=383;
+	menu_scale=1.5;
+
+	selection=gfx/default_skin/selection.tga;
+	selection_x1=0;
+	selection_y1=0;
+	selection_x2=99;
+	selection_y2=15;
+	selection_scale=1.5;
+
+	option0=gfx/default_skin/option0.tga;
+	option1=gfx/default_skin/option1.tga;
+	option_x1=0;
+	option_y1=0;
+	option_x2=14;
+	option_y2=14;
+	option_scale=1.5;
+
+	checkbox0=gfx/default_skin/checkbox0.tga;
+	checkbox1=gfx/default_skin/checkbox1.tga;
+	checkbox_x1=0;
+	checkbox_y1=0;
+	checkbox_x2=24;
+	checkbox_y2=19;
+	checkbox_scale=1.5;
+
+	v_scroll=gfx/default_skin/v_scroll.tga;
+	v_scroll_x1=2;
+	v_scroll_y1=15;
+	v_scroll_x2=12;
+	v_scroll_y2=47;
+	v_scroll_scale=1.5;
+
+	h_scroll=gfx/default_skin/h_scroll.tga;
+	h_scroll_x1=15;
+	h_scroll_y1=2;
+	h_scroll_x2=47;
+	h_scroll_y2=12;
+	h_scroll_scale=1.5;
+
+	s_scroll=gfx/default_skin/s_scroll.tga;
+	s_scroll_x1=2;
+	s_scroll_y1=2;
+	s_scroll_x2=9;
+	s_scroll_y2=9;
+	s_scroll_scale=1.5;
+}

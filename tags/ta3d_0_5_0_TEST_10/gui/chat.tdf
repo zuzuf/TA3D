@@ -1,0 +1,30 @@
+[window]
+{
+	title=Chat;
+	uformat=UTF8;
+	x=128;
+	y=-66;
+	width=-128;
+	height=34;
+	draw borders=false;
+	show title=false;
+	fullscreen=true;
+	screen width=0;			// We don't want to resize X
+	screen height=600;
+	lock=true;
+	number of objects=1;
+	hidden=true;
+	color=0x00000000;
+	[object0]
+	{
+		name=msg;
+		type=TEXTBAR;
+		caption=;
+		value=0xFFFFFFFF;
+		x1=0;
+		y1=0;
+		x2=-1;
+		y2=34;
+		size=1;
+	}
+}
