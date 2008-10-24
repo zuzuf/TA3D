@@ -101,6 +101,7 @@ int main(int argc, char* argv[])
     init();
 
     TA3D::Settings::Load();
+    lp_CONFIG->use_texture_cache = false;
 
     install_int_ex( Timer, precision);
 
