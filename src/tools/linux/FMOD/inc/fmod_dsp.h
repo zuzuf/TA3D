@@ -168,8 +168,9 @@ typedef struct FMOD_DSP_DESCRIPTION
 */
 struct FMOD_DSP_STATE
 {
-    FMOD_DSP    *instance;      /* [out] Handle to the DSP hand the user created.  Not to be modified.  C++ users cast to FMOD::DSP to use.  */
-    void        *plugindata;    /* [in] Plugin writer created data the output author wants to attach to this object. */
+    FMOD_DSP      *instance;      /* [out] Handle to the DSP hand the user created.  Not to be modified.  C++ users cast to FMOD::DSP to use.  */
+    void          *plugindata;    /* [in] Plugin writer created data the output author wants to attach to this object. */
+	unsigned short speakermask;	  /* Specifies which speakers the DSP effect is active on */
 };
 
 

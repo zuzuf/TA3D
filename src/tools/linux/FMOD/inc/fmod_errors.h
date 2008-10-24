@@ -35,7 +35,7 @@ static const char *FMOD_ErrorString(FMOD_RESULT errcode)
         case FMOD_ERR_CHANNEL_STOLEN:         return "The specified channel has been reused to play another sound. ";
         case FMOD_ERR_COM:                    return "A Win32 COM related error occured. COM failed to initialize or a QueryInterface failed meaning a Windows codec or driver was not installed properly. ";
         case FMOD_ERR_DMA:                    return "DMA Failure.  See debug output for more information. ";
-        case FMOD_ERR_DSP_CONNECTION:         return "DSP connection error.  Connection possibly caused a cyclic dependancy. ";
+        case FMOD_ERR_DSP_CONNECTION:         return "DSP connection error.  Connection possibly caused a cyclic dependancy.  Or tried to connect a tree too many units deep (more than 128). ";
         case FMOD_ERR_DSP_FORMAT:             return "DSP Format error.  A DSP unit may have attempted to connect to this network with the wrong format. ";
         case FMOD_ERR_DSP_NOTFOUND:           return "DSP connection error.  Couldn't find the DSP unit specified. ";
         case FMOD_ERR_DSP_RUNNING:            return "DSP error.  Cannot perform this operation while the network is in the middle of running.  This will most likely happen if a connection or disconnection is attempted in a DSP callback. ";
@@ -44,7 +44,7 @@ static const char *FMOD_ErrorString(FMOD_RESULT errcode)
         case FMOD_ERR_EVENT_INFOONLY:         return "Can't execute this command on an EVENT_INFOONLY event. ";
         case FMOD_ERR_EVENT_INTERNAL:         return "An error occured that wasn't supposed to.  See debug log for reason. ";
         case FMOD_ERR_EVENT_MAXSTREAMS:       return "Event failed because 'Max streams' was hit when FMOD_INIT_FAIL_ON_MAXSTREAMS was specified. ";
-        case FMOD_ERR_EVENT_MISMATCH:         return "FSB mismatches the FEV it was compiled with or FEV was built for a different platform. ";
+        case FMOD_ERR_EVENT_MISMATCH:         return "FSB mismatches the FEV it was compiled with, the stream/sample mode it was meant to be created with was different, or the FEV was built for a different platform. ";
         case FMOD_ERR_EVENT_NAMECONFLICT:     return "A category with the same name already exists. ";
         case FMOD_ERR_EVENT_NOTFOUND:         return "The requested event, event group, event category or event property could not be found. ";
         case FMOD_ERR_FILE_BAD:               return "Error loading file. ";
@@ -67,6 +67,7 @@ static const char *FMOD_ErrorString(FMOD_RESULT errcode)
         case FMOD_ERR_INVALID_HANDLE:         return "An invalid object handle was used. ";
         case FMOD_ERR_INVALID_PARAM:          return "An invalid parameter was passed to this function. ";
         case FMOD_ERR_INVALID_SPEAKER:        return "An invalid speaker was passed to this function based on the current speaker mode. ";
+        case FMOD_ERR_INVALID_SYNCPOINT:      return "The syncpoint did not come from this sound handle. ";
         case FMOD_ERR_INVALID_VECTOR:         return "The vectors passed in are not unit length, or perpendicular. ";
         case FMOD_ERR_IRX:                    return "PS2 only.  fmodex.irx failed to initialize.  This is most likely because you forgot to load it. ";
         case FMOD_ERR_MAXAUDIBLE:             return "Reached maximum audible playback count for this sound's soundgroup. ";
@@ -89,7 +90,7 @@ static const char *FMOD_ErrorString(FMOD_RESULT errcode)
         case FMOD_ERR_OUTPUT_ENUMERATION:     return "Error enumerating the available driver list. List may be inconsistent due to a recent device addition or removal. ";
         case FMOD_ERR_OUTPUT_FORMAT:          return "Soundcard does not support the minimum features needed for this soundsystem (16bit stereo output). ";
         case FMOD_ERR_OUTPUT_INIT:            return "Error initializing output device. ";
-        case FMOD_ERR_OUTPUT_NOHARDWARE:      return "FMOD_HARDWARE was specified but the sound card does not have the resources nescessary to play it. ";
+        case FMOD_ERR_OUTPUT_NOHARDWARE:      return "FMOD_HARDWARE was specified but the sound card does not have the resources necessary to play it. ";
         case FMOD_ERR_OUTPUT_NOSOFTWARE:      return "Attempted to create a software sound but no software channels were specified in System::init. ";
         case FMOD_ERR_PAN:                    return "Panning only works with mono or stereo sound sources. ";
         case FMOD_ERR_PLUGIN:                 return "An unspecified error has been returned from a 3rd party plugin. ";

@@ -16,7 +16,7 @@
     0xaaaabbcc -> aaaa = major version number.  bb = minor version number.  cc = development version number.
 */
 
-#define FMOD_VERSION    0x00041403
+#define FMOD_VERSION    0x00041808
 
 /*
     Compiler specific settings.
@@ -32,6 +32,11 @@
     #define F_STDCALL _stdcall
     #define F_DECLSPEC __declspec
     #define F_DLLEXPORT ( dllexport )
+#elif defined(__MACH__)
+    #define F_CDECL
+    #define F_STDCALL
+    #define F_DECLSPEC
+    #define F_DLLEXPORT __attribute__ ((visibility("default")))
 #else
     #define F_STDCALL
     #define F_CDECL
@@ -40,7 +45,11 @@
 #endif
 
 #ifdef DLL_EXPORTS
-    #define F_API __declspec(dllexport) F_STDCALL
+    #if defined(__MACH__)
+        #define F_API __attribute__ ((visibility("default")))
+    #else
+        #define F_API __declspec(dllexport) F_STDCALL
+    #endif
 #else
     #define F_API F_STDCALL
 #endif
@@ -166,7 +175,7 @@ typedef enum
     FMOD_ERR_CHANNEL_STOLEN,        /* The specified channel has been reused to play another sound. */
     FMOD_ERR_COM,                   /* A Win32 COM related error occured. COM failed to initialize or a QueryInterface failed meaning a Windows codec or driver was not installed properly. */
     FMOD_ERR_DMA,                   /* DMA Failure.  See debug output for more information. */
-    FMOD_ERR_DSP_CONNECTION,        /* DSP connection error.  Connection possibly caused a cyclic dependancy. */
+    FMOD_ERR_DSP_CONNECTION,        /* DSP connection error.  Connection possibly caused a cyclic dependancy.  Or tried to connect a tree too many units deep (more than 128). */
     FMOD_ERR_DSP_FORMAT,            /* DSP Format error.  A DSP unit may have attempted to connect to this network with the wrong format. */
     FMOD_ERR_DSP_NOTFOUND,          /* DSP connection error.  Couldn't find the DSP unit specified. */
     FMOD_ERR_DSP_RUNNING,           /* DSP error.  Cannot perform this operation while the network is in the middle of running.  This will most likely happen if a connection or disconnection is attempted in a DSP callback. */
@@ -191,6 +200,7 @@ typedef enum
     FMOD_ERR_INVALID_HANDLE,        /* An invalid object handle was used. */
     FMOD_ERR_INVALID_PARAM,         /* An invalid parameter was passed to this function. */
     FMOD_ERR_INVALID_SPEAKER,       /* An invalid speaker was passed to this function based on the current speaker mode. */
+    FMOD_ERR_INVALID_SYNCPOINT,     /* The syncpoint did not come from this sound handle. */
     FMOD_ERR_INVALID_VECTOR,        /* The vectors passed in are not unit length, or perpendicular. */
     FMOD_ERR_IRX,                   /* PS2 only.  fmodex.irx failed to initialize.  This is most likely because you forgot to load it. */
     FMOD_ERR_MAXAUDIBLE,            /* Reached maximum audible playback count for this sound's soundgroup. */
@@ -213,7 +223,7 @@ typedef enum
     FMOD_ERR_OUTPUT_ENUMERATION,    /* Error enumerating the available driver list. List may be inconsistent due to a recent device addition or removal. */
     FMOD_ERR_OUTPUT_FORMAT,         /* Soundcard does not support the minimum features needed for this soundsystem (16bit stereo output). */
     FMOD_ERR_OUTPUT_INIT,           /* Error initializing output device. */
-    FMOD_ERR_OUTPUT_NOHARDWARE,     /* FMOD_HARDWARE was specified but the sound card does not have the resources nescessary to play it. */
+    FMOD_ERR_OUTPUT_NOHARDWARE,     /* FMOD_HARDWARE was specified but the sound card does not have the resources necessary to play it. */
     FMOD_ERR_OUTPUT_NOSOFTWARE,     /* Attempted to create a software sound but no software channels were specified in System::init. */
     FMOD_ERR_PAN,                   /* Panning only works with mono or stereo sound sources. */
     FMOD_ERR_PLUGIN,                /* An unspecified error has been returned from a 3rd party plugin. */
@@ -238,7 +248,7 @@ typedef enum
     FMOD_ERR_EVENT_INFOONLY,        /* Can't execute this command on an EVENT_INFOONLY event. */
     FMOD_ERR_EVENT_INTERNAL,        /* An error occured that wasn't supposed to.  See debug log for reason. */
     FMOD_ERR_EVENT_MAXSTREAMS,      /* Event failed because 'Max streams' was hit when FMOD_INIT_FAIL_ON_MAXSTREAMS was specified. */
-    FMOD_ERR_EVENT_MISMATCH,        /* FSB mismatches the FEV it was compiled with or FEV was built for a different platform. */
+    FMOD_ERR_EVENT_MISMATCH,        /* FSB mismatches the FEV it was compiled with, the stream/sample mode it was meant to be created with was different, or the FEV was built for a different platform. */
     FMOD_ERR_EVENT_NAMECONFLICT,    /* A category with the same name already exists. */
     FMOD_ERR_EVENT_NOTFOUND,        /* The requested event, event group, event category or event property could not be found. */
 
@@ -251,22 +261,27 @@ typedef enum
 [ENUM]
 [
     [DESCRIPTION]   
-    These output types are used with System::setOutput/System::getOutput, to choose which output method to use.
+    These output types are used with System::setOutput / System::getOutput, to choose which output method to use.
   
     [REMARKS]
     To pass information to the driver when initializing fmod use the extradriverdata parameter in System::init for the following reasons.<br>
     <li>FMOD_OUTPUTTYPE_WAVWRITER - extradriverdata is a pointer to a char * filename that the wav writer will output to.
     <li>FMOD_OUTPUTTYPE_WAVWRITER_NRT - extradriverdata is a pointer to a char * filename that the wav writer will output to.
     <li>FMOD_OUTPUTTYPE_DSOUND - extradriverdata is a pointer to a HWND so that FMOD can set the focus on the audio for a particular window.
+    <li>FMOD_OUTPUTTYPE_PS2 - extradriverdata is a pointer to a FMOD_PS2_EXTRADRIVERDATA struct. This can be found in fmodps2.h.
+    <li>FMOD_OUTPUTTYPE_PS3 - extradriverdata is a pointer to a FMOD_PS3_EXTRADRIVERDATA struct. This can be found in fmodps3.h.
     <li>FMOD_OUTPUTTYPE_GC - extradriverdata is a pointer to a FMOD_GC_INFO struct. This can be found in fmodgc.h.
-    <li>FMOD_OUTPUTTYPE_ALSA - extradriverdata is a pointer to a char * argument if required by the chosen ALSA driver. 
+    <li>FMOD_OUTPUTTYPE_WII - extradriverdata is a pointer to a FMOD_WII_INFO struct. This can be found in fmodwii.h.
+    <li>FMOD_OUTPUTTYPE_ALSA - extradriverdata is a pointer to a FMOD_LINUX_EXTRADRIVERDATA struct. This can be found in fmodlinux.h.<br>
+    <br>
     Currently these are the only FMOD drivers that take extra information.  Other unknown plugins may have different requirements.
     <br><br>
     Note! If FMOD_OUTPUTTYPE_WAVWRITER_NRT or FMOD_OUTPUTTYPE_NOSOUND_NRT are used, and if the System::update function is being called
     very quickly (ie for a non realtime decode) it may be being called too quickly for the FMOD streamer thread to respond to.  
     The result will be a skipping/stuttering output in the captured audio.<br>
-    To remedy this, disable the FMOD Ex streamer thread, and use FMOD_INIT_STREAM_FROM_UPDATE can be used to avoid skipping in 
-    the output stream, as it will lock the mixer and the streamer together in the same thread.
+    <br>
+    To remedy this, disable the FMOD Ex streamer thread, and use FMOD_INIT_STREAM_FROM_UPDATE to avoid skipping in the output stream,
+    as it will lock the mixer and the streamer together in the same thread.
 
     [PLATFORMS]
     Win32, Win64, Linux, Linux64, Macintosh, Xbox, Xbox360, PlayStation 2, GameCube, PlayStation Portable, PlayStation 3, Wii, Solaris
@@ -285,29 +300,29 @@ typedef enum
 {
     FMOD_OUTPUTTYPE_AUTODETECT,      /* Picks the best output mode for the platform.  This is the default. */
                                      
-    FMOD_OUTPUTTYPE_UNKNOWN,         /* All         - 3rd party plugin, unknown.  This is for use with System::getOutput only. */
-    FMOD_OUTPUTTYPE_NOSOUND,         /* All         - All calls in this mode succeed but make no sound. */
-    FMOD_OUTPUTTYPE_WAVWRITER,       /* All         - Writes output to fmodoutput.wav by default.  Use the 'extradriverdata' parameter in System::init, by simply passing the filename as a string, to set the wav filename. */
-    FMOD_OUTPUTTYPE_NOSOUND_NRT,     /* All         - Non-realtime version of FMOD_OUTPUTTYPE_NOSOUND.  User can drive mixer with System::update at whatever rate they want. */
-    FMOD_OUTPUTTYPE_WAVWRITER_NRT,   /* All         - Non-realtime version of FMOD_OUTPUTTYPE_WAVWRITER.  User can drive mixer with System::update at whatever rate they want. */
+    FMOD_OUTPUTTYPE_UNKNOWN,         /* All                   - 3rd party plugin, unknown.  This is for use with System::getOutput only. */
+    FMOD_OUTPUTTYPE_NOSOUND,         /* All                   - All calls in this mode succeed but make no sound. */
+    FMOD_OUTPUTTYPE_WAVWRITER,       /* All                   - Writes output to fmodoutput.wav by default.  Use the 'extradriverdata' parameter in System::init, by simply passing the filename as a string, to set the wav filename. */
+    FMOD_OUTPUTTYPE_NOSOUND_NRT,     /* All                   - Non-realtime version of FMOD_OUTPUTTYPE_NOSOUND.  User can drive mixer with System::update at whatever rate they want. */
+    FMOD_OUTPUTTYPE_WAVWRITER_NRT,   /* All                   - Non-realtime version of FMOD_OUTPUTTYPE_WAVWRITER.  User can drive mixer with System::update at whatever rate they want. */
                                      
-    FMOD_OUTPUTTYPE_DSOUND,          /* Win32/Win64 - DirectSound output.  Use this to get hardware accelerated 3d audio and EAX Reverb support. (Default on Windows) */
-    FMOD_OUTPUTTYPE_WINMM,           /* Win32/Win64 - Windows Multimedia output. */
-    FMOD_OUTPUTTYPE_OPENAL,          /* Win32/Win64 - OpenAL 1.1 output. Use this for lower CPU overhead than FMOD_OUTPUTTYPE_DSOUND, and also Vista H/W support with Creative Labs cards. */
-    FMOD_OUTPUTTYPE_WASAPI,          /* Win32       - Windows Audio Session API. (Default on Windows Vista) */
-    FMOD_OUTPUTTYPE_ASIO,            /* Win32       - Low latency ASIO driver. */
-    FMOD_OUTPUTTYPE_OSS,             /* Linux       - Open Sound System output. (Default on Linux) */
-    FMOD_OUTPUTTYPE_ALSA,            /* Linux       - Advanced Linux Sound Architecture output. */
-    FMOD_OUTPUTTYPE_ESD,             /* Linux       - Enlightment Sound Daemon output. */
-    FMOD_OUTPUTTYPE_SOUNDMANAGER,    /* Mac         - Macintosh SoundManager output.  (Default on Mac carbon library)*/
-    FMOD_OUTPUTTYPE_COREAUDIO,       /* Mac         - Macintosh CoreAudio output.  (Default on Mac OSX library) */
-    FMOD_OUTPUTTYPE_XBOX,            /* Xbox        - Native hardware output. (Default on Xbox) */
-    FMOD_OUTPUTTYPE_PS2,             /* PS2         - Native hardware output. (Default on PS2) */
-    FMOD_OUTPUTTYPE_PS3,             /* PS3         - Native hardware output. (Default on PS3) */
-    FMOD_OUTPUTTYPE_GC,              /* GameCube    - Native hardware output. (Default on GameCube) */
-    FMOD_OUTPUTTYPE_XBOX360,         /* Xbox 360    - Native hardware output. (Default on Xbox 360) */
-    FMOD_OUTPUTTYPE_PSP,             /* PSP         - Native hardware output. (Default on PSP) */
-	FMOD_OUTPUTTYPE_WII,			 /* Wii			- Native hardware output. (Default on Wii) */
+    FMOD_OUTPUTTYPE_DSOUND,          /* Win32/Win64           - DirectSound output.  Use this to get hardware accelerated 3d audio and EAX Reverb support. (Default on Windows) */
+    FMOD_OUTPUTTYPE_WINMM,           /* Win32/Win64           - Windows Multimedia output. */
+    FMOD_OUTPUTTYPE_OPENAL,          /* Win32/Win64           - OpenAL 1.1 output. Use this for lower CPU overhead than FMOD_OUTPUTTYPE_DSOUND, and also Vista H/W support with Creative Labs cards. */
+    FMOD_OUTPUTTYPE_WASAPI,          /* Win32                 - Windows Audio Session API. (Default on Windows Vista) */
+    FMOD_OUTPUTTYPE_ASIO,            /* Win32                 - Low latency ASIO 2.0 driver. */
+    FMOD_OUTPUTTYPE_OSS,             /* Linux/Linux64/Solaris - Open Sound System output. (Default on Linux/Linux64/Solaris) */
+    FMOD_OUTPUTTYPE_ALSA,            /* Linux/Linux64         - Advanced Linux Sound Architecture output. */
+    FMOD_OUTPUTTYPE_ESD,             /* Linux/Linux64         - Enlightment Sound Daemon output. */
+    FMOD_OUTPUTTYPE_SOUNDMANAGER,    /* Mac                   - Macintosh SoundManager output. */
+    FMOD_OUTPUTTYPE_COREAUDIO,       /* Mac                   - Macintosh CoreAudio output.  (Default on Mac) */
+    FMOD_OUTPUTTYPE_XBOX,            /* Xbox                  - Native hardware output. (Default on Xbox) */
+    FMOD_OUTPUTTYPE_PS2,             /* PS2                   - Native hardware output. (Default on PS2) */
+    FMOD_OUTPUTTYPE_PS3,             /* PS3                   - Native hardware output. (Default on PS3) */
+    FMOD_OUTPUTTYPE_GC,              /* GameCube              - Native hardware output. (Default on GameCube) */
+    FMOD_OUTPUTTYPE_XBOX360,         /* Xbox 360              - Native hardware output. (Default on Xbox 360) */
+    FMOD_OUTPUTTYPE_PSP,             /* PSP                   - Native hardware output. (Default on PSP) */
+	FMOD_OUTPUTTYPE_WII,			 /* Wii			          - Native hardware output. (Default on Wii) */
 
     FMOD_OUTPUTTYPE_MAX,             /* Maximum number of output types supported. */
     FMOD_OUTPUTTYPE_FORCEINT = 65536 /* Makes sure this enum is signed 32bit. */
@@ -400,6 +415,8 @@ typedef enum
     Bit fields for memory allocation type being passed into FMOD memory callbacks.
 
     [REMARKS]
+    Remember this is a bitfield.  You may get more than 1 bit set (ie physical + persistent) so do not simply switch on the types!  You must check each bit individually or clear out the bits that you do not want within the callback.<br>
+    Bits can be excluded if you want during Memory_Initialize so that you never get them.
 
     [PLATFORMS]
     Win32, Win64, Linux, Linux64, Macintosh, Xbox, Xbox360, PlayStation 2, GameCube, PlayStation Portable, PlayStation 3, Wii, Solaris
@@ -415,6 +432,7 @@ typedef enum
 #define FMOD_MEMORY_NORMAL             0x00000000       /* Standard memory. */
 #define FMOD_MEMORY_XBOX360_PHYSICAL   0x00100000       /* Requires XPhysicalAlloc / XPhysicalFree. */
 #define FMOD_MEMORY_PERSISTENT         0x00200000       /* Persistent memory. Memory will be freed when System::release is called. */
+#define FMOD_MEMORY_SECONDARY          0x00400000       /* Secondary memory. Allocation should be in secondary memory. For example RSX on the PS3. */
 
 
 /* [DEFINE_END] */
@@ -637,27 +655,28 @@ typedef enum
     Channel::set3DOcclusion
 ]
 */
-#define FMOD_INIT_NORMAL                  0x00000000 /* All platforms - Initialize normally */
-#define FMOD_INIT_STREAM_FROM_UPDATE      0x00000001 /* All platforms - No stream thread is created internally.  Streams are driven from System::update.  Mainly used with non-realtime outputs. */
-#define FMOD_INIT_3D_RIGHTHANDED          0x00000002 /* All platforms - FMOD will treat +X as right, +Y as up and +Z as backwards (towards you). */
-#define FMOD_INIT_SOFTWARE_DISABLE        0x00000004 /* All platforms - Disable software mixer to save memory.  Anything created with FMOD_SOFTWARE will fail and DSP will not work. */
-#define FMOD_INIT_SOFTWARE_OCCLUSION      0x00000008 /* All platforms - All FMOD_SOFTWARE with FMOD_3D based voices will add a software lowpass filter effect into the DSP chain which is automatically used when Channel::set3DOcclusion is used or the geometry API. */
-#define FMOD_INIT_SOFTWARE_HRTF           0x00000010 /* All platforms - All FMOD_SOFTWARE with FMOD_3D based voices will add a software lowpass filter effect into the DSP chain which causes sounds to sound duller when the sound goes behind the listener.  Use System::setAdvancedSettings to adjust cutoff frequency. */
-#define FMOD_INIT_ENABLE_PROFILE          0x00000020 /* All platforms - Enable TCP/IP based host which allows FMOD Designer or FMOD Profiler to connect to it, and view memory, CPU and the DSP network graph in real-time. */
-#define FMOD_INIT_VOL0_BECOMES_VIRTUAL    0x00000080 /* All platforms - Any sounds that are 0 volume will go virtual and not be processed except for having their positions updated virtually.  Use System::setAdvancedSettings to adjust what volume besides zero to switch to virtual at. */
-#define FMOD_INIT_WASAPI_EXCLUSIVE        0x00000100 /* Win32 Vista only - for WASAPI output - Enable exclusive access to hardware, lower latency at the expense of excluding other applications from accessing the audio hardware. */
-#define FMOD_INIT_DSOUND_HRTFNONE         0x00000200 /* Win32 only - for DirectSound output - FMOD_HARDWARE | FMOD_3D buffers use simple stereo panning/doppler/attenuation when 3D hardware acceleration is not present. */
-#define FMOD_INIT_DSOUND_HRTFLIGHT        0x00000400 /* Win32 only - for DirectSound output - FMOD_HARDWARE | FMOD_3D buffers use a slightly higher quality algorithm when 3D hardware acceleration is not present. */
-#define FMOD_INIT_DSOUND_HRTFFULL         0x00000800 /* Win32 only - for DirectSound output - FMOD_HARDWARE | FMOD_3D buffers use full quality 3D playback when 3d hardware acceleration is not present. */
-#define FMOD_INIT_PS2_DISABLECORE0REVERB  0x00010000 /* PS2 only - Disable reverb on CORE 0 to regain 256k SRAM. */
-#define FMOD_INIT_PS2_DISABLECORE1REVERB  0x00020000 /* PS2 only - Disable reverb on CORE 1 to regain 256k SRAM. */
-#define FMOD_INIT_PS2_DONTUSESCRATCHPAD   0x00040000 /* PS2 only - Disable FMOD's usage of the scratchpad. */
-#define FMOD_INIT_PS2_SWAPDMACHANNELS     0x00080000 /* PS2 only - Changes FMOD from using SPU DMA channel 0 for software mixing, and 1 for sound data upload/file streaming, to 1 and 0 respectively. */
-#define FMOD_INIT_PS3_PREFERDTS           0x00800000 /* PS3 only - Prefer DTS over Dolby Digital if both are supported. Note: 8 and 6 channel LPCM is always preferred over both DTS and Dolby Digital. */
-#define FMOD_INIT_PS3_FORCE2CHLPCM        0x01000000 /* PS3 only - Force PS3 system output mode to 2 channel LPCM. */
-#define FMOD_INIT_XBOX_REMOVEHEADROOM     0x00100000 /* Xbox only - By default DirectSound attenuates all sound by 6db to avoid clipping/distortion.  CAUTION.  If you use this flag you are responsible for the final mix to make sure clipping / distortion doesn't happen. */
-#define FMOD_INIT_360_MUSICMUTENOTPAUSE   0x00200000 /* Xbox 360 only - The "music" channelgroup which by default pauses when custom 360 dashboard music is played, can be changed to mute (therefore continues playing) instead of pausing, by using this flag. */
-#define FMOD_INIT_SYNCMIXERWITHUPDATE     0x00400000 /* Win32/Wii/PS3/Xbox/Xbox 360 - FMOD Mixer thread is woken up to do a mix when System::update is called rather than waking periodically on its own timer. */
+#define FMOD_INIT_NORMAL                 0x00000000 /* All platforms - Initialize normally */
+#define FMOD_INIT_STREAM_FROM_UPDATE     0x00000001 /* All platforms - No stream thread is created internally.  Streams are driven from System::update.  Mainly used with non-realtime outputs. */
+#define FMOD_INIT_3D_RIGHTHANDED         0x00000002 /* All platforms - FMOD will treat +X as right, +Y as up and +Z as backwards (towards you). */
+#define FMOD_INIT_SOFTWARE_DISABLE       0x00000004 /* All platforms - Disable software mixer to save memory.  Anything created with FMOD_SOFTWARE will fail and DSP will not work. */
+#define FMOD_INIT_SOFTWARE_OCCLUSION     0x00000008 /* All platforms - All FMOD_SOFTWARE with FMOD_3D based voices will add a software lowpass filter effect into the DSP chain which is automatically used when Channel::set3DOcclusion is used or the geometry API. */
+#define FMOD_INIT_SOFTWARE_HRTF          0x00000010 /* All platforms - All FMOD_SOFTWARE with FMOD_3D based voices will add a software lowpass filter effect into the DSP chain which causes sounds to sound duller when the sound goes behind the listener.  Use System::setAdvancedSettings to adjust cutoff frequency. */
+#define FMOD_INIT_SOFTWARE_REVERB_LOWMEM 0x00000040 /* All platforms - SFX reverb is run using 22/24khz delay buffers, halving the memory required. */
+#define FMOD_INIT_ENABLE_PROFILE         0x00000020 /* All platforms - Enable TCP/IP based host which allows FMOD Designer or FMOD Profiler to connect to it, and view memory, CPU and the DSP network graph in real-time. */
+#define FMOD_INIT_VOL0_BECOMES_VIRTUAL   0x00000080 /* All platforms - Any sounds that are 0 volume will go virtual and not be processed except for having their positions updated virtually.  Use System::setAdvancedSettings to adjust what volume besides zero to switch to virtual at. */
+#define FMOD_INIT_WASAPI_EXCLUSIVE       0x00000100 /* Win32 Vista only - for WASAPI output - Enable exclusive access to hardware, lower latency at the expense of excluding other applications from accessing the audio hardware. */
+#define FMOD_INIT_DSOUND_HRTFNONE        0x00000200 /* Win32 only - for DirectSound output - FMOD_HARDWARE | FMOD_3D buffers use simple stereo panning/doppler/attenuation when 3D hardware acceleration is not present. */
+#define FMOD_INIT_DSOUND_HRTFLIGHT       0x00000400 /* Win32 only - for DirectSound output - FMOD_HARDWARE | FMOD_3D buffers use a slightly higher quality algorithm when 3D hardware acceleration is not present. */
+#define FMOD_INIT_DSOUND_HRTFFULL        0x00000800 /* Win32 only - for DirectSound output - FMOD_HARDWARE | FMOD_3D buffers use full quality 3D playback when 3d hardware acceleration is not present. */
+#define FMOD_INIT_PS2_DISABLECORE0REVERB 0x00010000 /* PS2 only - Disable reverb on CORE 0 to regain 256k SRAM. */
+#define FMOD_INIT_PS2_DISABLECORE1REVERB 0x00020000 /* PS2 only - Disable reverb on CORE 1 to regain 256k SRAM. */
+#define FMOD_INIT_PS2_DONTUSESCRATCHPAD  0x00040000 /* PS2 only - Disable FMOD's usage of the scratchpad. */
+#define FMOD_INIT_PS2_SWAPDMACHANNELS    0x00080000 /* PS2 only - Changes FMOD from using SPU DMA channel 0 for software mixing, and 1 for sound data upload/file streaming, to 1 and 0 respectively. */
+#define FMOD_INIT_PS3_PREFERDTS          0x00800000 /* PS3 only - Prefer DTS over Dolby Digital if both are supported. Note: 8 and 6 channel LPCM is always preferred over both DTS and Dolby Digital. */
+#define FMOD_INIT_PS3_FORCE2CHLPCM       0x01000000 /* PS3 only - Force PS3 system output mode to 2 channel LPCM. */
+#define FMOD_INIT_XBOX_REMOVEHEADROOM    0x00100000 /* Xbox only - By default DirectSound attenuates all sound by 6db to avoid clipping/distortion.  CAUTION.  If you use this flag you are responsible for the final mix to make sure clipping / distortion doesn't happen. */
+#define FMOD_INIT_360_MUSICMUTENOTPAUSE  0x00200000 /* Xbox 360 only - The "music" channelgroup which by default pauses when custom 360 dashboard music is played, can be changed to mute (therefore continues playing) instead of pausing, by using this flag. */
+#define FMOD_INIT_SYNCMIXERWITHUPDATE    0x00400000 /* Win32/Wii/PS3/Xbox/Xbox 360 - FMOD Mixer thread is woken up to do a mix when System::update is called rather than waking periodically on its own timer. */
 /* [DEFINE_END] */
 
 
@@ -765,7 +784,7 @@ typedef enum
     Specifying FMOD_OPENMEMORY_POINT will POINT to your memory rather allocating its own sound buffers and duplicating it internally.<br>
     <b><u>This means you cannot free the memory while FMOD is using it, until after Sound::release is called.</b></u>
     With FMOD_OPENMEMORY_POINT, for PCM formats, only WAV, FSB, and RAW are supported.  For compressed formats, only those formats supported by FMOD_CREATECOMPRESSEDSAMPLE are supported.<br>
-    With FMOD_OPENMEMORY_POINT and FMOD_OPENRAW, if using them together, note that you must pad the data on each side by 16 bytes.  This is so fmod can modify the ends of the data for looping/interpolation/mixing purposes.<br>
+    With FMOD_OPENMEMORY_POINT and FMOD_OPENRAW or PCM, if using them together, note that you must pad the data on each side by 16 bytes.  This is so fmod can modify the ends of the data for looping/interpolation/mixing purposes.  If a wav file, you will need to insert silence, and then reset loop points to stop the playback from playing that silence.<br>
     <br>
     <b>Xbox 360 memory</b> On Xbox 360 Specifying FMOD_OPENMEMORY_POINT to a virtual memory address will cause FMOD_ERR_INVALID_ADDRESS
     to be returned.  Use physical memory only for this functionality.<br>
@@ -936,8 +955,6 @@ typedef enum
     Each callback has commanddata parameters passed as void* unique to the type of callback.<br>
     See reference to FMOD_SYSTEM_CALLBACK to determine what they might mean for each type of callback.<br>
     <br>
-    <b>Note!</b> Using FMOD_SYSTEM_CALLBACKTYPE_MEMORYALLOCATIONFAILED or FMOD_SYSTEM_CALLBACKTYPE_THREADCREATED will override any other FMOD::System object registered for the callback.
-    <br>
     <b>Note!</b> Using FMOD_SYSTEM_CALLBACKTYPE_DEVICELISTCHANGED (on Mac only) requires the application to be running an event loop which will allow external changes to device list to be detected by FMOD.
 
     [PLATFORMS]
@@ -947,6 +964,7 @@ typedef enum
     System::setCallback
     FMOD_SYSTEM_CALLBACK
     System::update
+    DSP::addInput
 ]
 */
 typedef enum
@@ -954,6 +972,8 @@ typedef enum
     FMOD_SYSTEM_CALLBACKTYPE_DEVICELISTCHANGED,         /* Called from System::update when the enumerated list of devices has changed. */
     FMOD_SYSTEM_CALLBACKTYPE_MEMORYALLOCATIONFAILED,    /* Called directly when a memory allocation fails somewhere in FMOD. */
     FMOD_SYSTEM_CALLBACKTYPE_THREADCREATED,             /* Called directly when a thread is created. */
+    FMOD_SYSTEM_CALLBACKTYPE_BADDSPCONNECTION,          /* Called when a bad connection was made with DSP::addInput. Usually called from mixer thread because that is where the connections are made.  */
+    FMOD_SYSTEM_CALLBACKTYPE_BADDSPLEVEL,               /* Called when too many effects were added exceeding the maximum tree depth of 128.  This is most likely caused by accidentally adding too many DSP effects. Usually called from mixer thread because that is where the connections are made.  */
 
     FMOD_SYSTEM_CALLBACKTYPE_MAX,                       /* Maximum number of callback types supported. */
     FMOD_SYSTEM_CALLBACKTYPE_FORCEINT = 65536           /* Makes sure this enum is signed 32bit. */
@@ -1292,7 +1312,8 @@ typedef enum
 {
     FMOD_SPEAKERMAPTYPE_DEFAULT,     /* This is the default, and just means FMOD decides which speakers it puts the source channels. */
     FMOD_SPEAKERMAPTYPE_ALLMONO,     /* This means the sound is made up of all mono sounds.  All voices will be panned to the front center by default in this case.  */
-    FMOD_SPEAKERMAPTYPE_ALLSTEREO    /* This means the sound is made up of all stereo sounds.  All voices will be panned to front left and front right alternating every second channel.  */
+    FMOD_SPEAKERMAPTYPE_ALLSTEREO,   /* This means the sound is made up of all stereo sounds.  All voices will be panned to front left and front right alternating every second channel.  */
+    FMOD_SPEAKERMAPTYPE_51_PROTOOLS, /* Map a 5.1 sound to use protools L C R Ls Rs LFE mapping.  Will return an error if not a 6 channel sound. */
 } FMOD_SPEAKERMAPTYPE;
 
 
@@ -1617,6 +1638,13 @@ typedef struct FMOD_REVERB_PROPERTIES
     Xbox1 means the original Xbox hardware reverb (must use FMOD_HARDWARE).<br>
     PS2   means Playstation 2 hardware reverb (must use FMOD_HARDWARE).<br>
     SFX   means FMOD SFX software reverb.  This works on any platform that uses FMOD_SOFTWARE for loading sounds.<br>
+    <br>
+    <br>
+    <b>'ConnectionPoint' Parameter.</b>  This parameter is for the FMOD software reverb only (known as SFX in the list above).<br>
+    By default the dsp network connection for a channel and its reverb is between the 'SFX Reverb' unit, and the channel's wavetable/resampler/dspcodec/oscillator unit (the unit below the channel DSP head).<br>
+    This parameter allows the user to connect the SFX reverb to somewhere else internally, for example the channel DSP head, or a related channelgroup.  The event system uses this so that it can have the output of an event going to the reverb, instead of just the output of the event's channels (thereby ignoring event effects/submixes etc).<br>
+    Do not use/leave null if you are unaware of DSP network connection issues.
+
 
     [PLATFORMS]
     Win32, Win64, Linux, Linux64, Macintosh, Xbox, Xbox360, PlayStation 2, GameCube, PlayStation Portable, PlayStation 3, Wii, Solaris
@@ -1637,16 +1665,17 @@ typedef struct FMOD_REVERB_CHANNELPROPERTIES
     float        ObstructionLFRatio;   /* [in/out] 0.0,    1.0,   0.0,     obstruction low-frequency level re. main control            (SUPPORTED:EAX/I3DL2/Xbox1) */
     int          Occlusion;            /* [in/out] -10000, 0,     0,       main occlusion control (attenuation at high frequencies)    (SUPPORTED:EAX/I3DL2/Xbox1) */
     float        OcclusionLFRatio;     /* [in/out] 0.0,    1.0,   0.25,    occlusion low-frequency level re. main control              (SUPPORTED:EAX/I3DL2/Xbox1) */
-    float        OcclusionRoomRatio;   /* [in/out] 0.0,    10.0,  1.5,     relative occlusion control for room effect                  (SUPPORTED:EAX) */
-    float        OcclusionDirectRatio; /* [in/out] 0.0,    10.0,  1.0,     relative occlusion control for direct path                  (SUPPORTED:EAX) */
-    int          Exclusion;            /* [in/out] -10000, 0,     0,       main exlusion control (attenuation at high frequencies)     (SUPPORTED:EAX) */
-    float        ExclusionLFRatio;     /* [in/out] 0.0,    1.0,   1.0,     exclusion low-frequency level re. main control              (SUPPORTED:EAX) */
-    int          OutsideVolumeHF;      /* [in/out] -10000, 0,     0,       outside sound cone level at high frequencies                (SUPPORTED:EAX) */
-    float        DopplerFactor;        /* [in/out] 0.0,    10.0,  0.0,     like DS3D flDopplerFactor but per source                    (SUPPORTED:EAX) */
-    float        RolloffFactor;        /* [in/out] 0.0,    10.0,  0.0,     like DS3D flRolloffFactor but per source                    (SUPPORTED:EAX) */
+    float        OcclusionRoomRatio;   /* [in/out] 0.0,    10.0,  1.5,     relative occlusion control for room effect                  (SUPPORTED:EAX only) */
+    float        OcclusionDirectRatio; /* [in/out] 0.0,    10.0,  1.0,     relative occlusion control for direct path                  (SUPPORTED:EAX only) */
+    int          Exclusion;            /* [in/out] -10000, 0,     0,       main exlusion control (attenuation at high frequencies)     (SUPPORTED:EAX only) */
+    float        ExclusionLFRatio;     /* [in/out] 0.0,    1.0,   1.0,     exclusion low-frequency level re. main control              (SUPPORTED:EAX only) */
+    int          OutsideVolumeHF;      /* [in/out] -10000, 0,     0,       outside sound cone level at high frequencies                (SUPPORTED:EAX only) */
+    float        DopplerFactor;        /* [in/out] 0.0,    10.0,  0.0,     like DS3D flDopplerFactor but per source                    (SUPPORTED:EAX only) */
+    float        RolloffFactor;        /* [in/out] 0.0,    10.0,  0.0,     like DS3D flRolloffFactor but per source                    (SUPPORTED:EAX only) */
     float        RoomRolloffFactor;    /* [in/out] 0.0,    10.0,  0.0,     like DS3D flRolloffFactor but for room effect               (SUPPORTED:EAX/I3DL2/Xbox1) */
-    float        AirAbsorptionFactor;  /* [in/out] 0.0,    10.0,  1.0,     multiplies AirAbsorptionHF member of FMOD_REVERB_PROPERTIES (SUPPORTED:EAX) */
-    unsigned int Flags;                /* [in/out] FMOD_REVERB_CHANNELFLAGS - modifies the behavior of properties                      (SUPPORTED:EAX) */
+    float        AirAbsorptionFactor;  /* [in/out] 0.0,    10.0,  1.0,     multiplies AirAbsorptionHF member of FMOD_REVERB_PROPERTIES (SUPPORTED:EAX only) */
+    unsigned int Flags;                /* [in/out] FMOD_REVERB_CHANNELFLAGS - modifies the behavior of properties                      (SUPPORTED:EAX only) */
+    FMOD_DSP    *ConnectionPoint;      /* [in/out] See remarks.            DSP network location to connect reverb for this channel.    (SUPPORTED:SFX only).*/
 } FMOD_REVERB_CHANNELPROPERTIES;
 
 
@@ -1681,10 +1710,13 @@ typedef struct FMOD_REVERB_CHANNELPROPERTIES
 #define FMOD_REVERB_CHANNELFLAGS_INSTANCE2     0x00000020 /* EAX4/SFX/GameCube/Wii. Specify channel to target reverb instance 2. */
 #define FMOD_REVERB_CHANNELFLAGS_INSTANCE3     0x00000040 /* EAX5/SFX. Specify channel to target reverb instance 3. */
 
-#define FMOD_REVERB_CHANNELFLAGS_DEFAULT       (FMOD_REVERB_CHANNELFLAGS_DIRECTHFAUTO |   \
-                                                FMOD_REVERB_CHANNELFLAGS_ROOMAUTO|        \
+#define FMOD_REVERB_CHANNELFLAGS_DEFAULT       (FMOD_REVERB_CHANNELFLAGS_DIRECTHFAUTO | \
+                                                FMOD_REVERB_CHANNELFLAGS_ROOMAUTO|      \
                                                 FMOD_REVERB_CHANNELFLAGS_ROOMHFAUTO|    \
-                                                FMOD_REVERB_CHANNELFLAGS_INSTANCE0)
+                                                FMOD_REVERB_CHANNELFLAGS_INSTANCE0|     \
+                                                FMOD_REVERB_CHANNELFLAGS_INSTANCE1|     \
+                                                FMOD_REVERB_CHANNELFLAGS_INSTANCE2|     \
+                                                FMOD_REVERB_CHANNELFLAGS_INSTANCE3)
 /* [DEFINE_END] */
 
 
@@ -1725,8 +1757,8 @@ typedef struct FMOD_ADVANCEDSETTINGS
     char          **ASIOChannelList;          /* [in/out] Optional. Specify 0 to ignore. Pointer to an array of strings (number of entries defined by ASIONumChannels) with ASIO channel names. */
     FMOD_SPEAKER   *ASIOSpeakerList;          /* [in/out] Optional. Specify 0 to ignore. Pointer to a list of speakers that the ASIO channels map to.  This can be called after System::init to remap ASIO output. */
     int             max3DReverbDSPs;          /* [in/out] Optional. Specify 0 to ignore. The max number of 3d reverb DSP's in the system. */
-    float           HRTFMinAngle;             /* [in/out] Optional. Specify 0 to ignore. For use with FMOD_INIT_SOFTWARE_HRTF.  The angle (0-360) of a 3D sound from the listener's forward vector at which the HRTF function begins to have an effect.  Default = 180.0. */
-    float           HRTFMaxAngle;             /* [in/out] Optional. Specify 0 to ignore. For use with FMOD_INIT_SOFTWARE_HRTF.  The angle (0-360) of a 3D sound from the listener's forward vector at which the HRTF function begins to have maximum effect.  Default = 360.0.  */
+    float           HRTFMinAngle;             /* [in/out] Optional. Specify 0 to ignore. For use with FMOD_INIT_SOFTWARE_HRTF.  The angle range (0-360) of a 3D sound in relation to the listener, at which the HRTF function begins to have an effect. 0 = in front of the listener. 180 = from 90 degrees to the left of the listener to 90 degrees to the right. 360 = behind the listener. Default = 180.0. */
+    float           HRTFMaxAngle;             /* [in/out] Optional. Specify 0 to ignore. For use with FMOD_INIT_SOFTWARE_HRTF.  The angle range (0-360) of a 3D sound in relation to the listener, at which the HRTF function has maximum effect. 0 = front of the listener. 180 = from 90 degrees to the left of the listener to 90 degrees to the right. 360 = behind the listener. Default = 360.0. */
     float           HRTFFreq;                 /* [in/out] Optional. Specify 0 to ignore. For use with FMOD_INIT_SOFTWARE_HRTF.  The cutoff frequency of the HRTF's lowpass filter function when at maximum effect. (i.e. at HRTFMaxAngle).  Default = 4000.0. */
     float           vol0virtualvol;           /* [in/out] Optional. Specify 0 to ignore. For use with FMOD_INIT_VOL0_BECOMES_VIRTUAL.  If this flag is used, and the volume is 0.0, then the sound will become virtual.  Use this value to raise the threshold to a different point where a sound goes virtual. */
     int             eventqueuesize;           /* [in/out] Optional. Specify 0 to ignore. For use with FMOD Event system only.  Specifies the number of slots available for simultaneous non blocking loads.  Default = 32. */
@@ -1777,7 +1809,7 @@ extern "C"
     FMOD global system functions (optional).
 */
 
-FMOD_RESULT F_API FMOD_Memory_Initialize           (void *poolmem, int poollen, FMOD_MEMORY_ALLOCCALLBACK useralloc, FMOD_MEMORY_REALLOCCALLBACK userrealloc, FMOD_MEMORY_FREECALLBACK userfree);
+FMOD_RESULT F_API FMOD_Memory_Initialize           (void *poolmem, int poollen, FMOD_MEMORY_ALLOCCALLBACK useralloc, FMOD_MEMORY_REALLOCCALLBACK userrealloc, FMOD_MEMORY_FREECALLBACK userfree, FMOD_MEMORY_TYPE memtypeflags);
 FMOD_RESULT F_API FMOD_Memory_GetStats             (int *currentalloced, int *maxalloced);
 FMOD_RESULT F_API FMOD_Debug_SetLevel              (FMOD_DEBUGLEVEL level);
 FMOD_RESULT F_API FMOD_Debug_GetLevel              (FMOD_DEBUGLEVEL *level);
@@ -1821,20 +1853,22 @@ FMOD_RESULT F_API FMOD_System_SetAdvancedSettings    (FMOD_SYSTEM *system, FMOD_
 FMOD_RESULT F_API FMOD_System_GetAdvancedSettings    (FMOD_SYSTEM *system, FMOD_ADVANCEDSETTINGS *settings);
 FMOD_RESULT F_API FMOD_System_SetSpeakerMode         (FMOD_SYSTEM *system, FMOD_SPEAKERMODE speakermode);
 FMOD_RESULT F_API FMOD_System_GetSpeakerMode         (FMOD_SYSTEM *system, FMOD_SPEAKERMODE *speakermode);
-FMOD_RESULT F_API FMOD_System_SetCallback            (FMOD_SYSTEM *system, FMOD_SYSTEM_CALLBACKTYPE type, FMOD_SYSTEM_CALLBACK callback);
+FMOD_RESULT F_API FMOD_System_SetCallback            (FMOD_SYSTEM *system, FMOD_SYSTEM_CALLBACK callback);
 
 /*
      Plug-in support                       
 */
 
 FMOD_RESULT F_API FMOD_System_SetPluginPath          (FMOD_SYSTEM *system, const char *path);
-FMOD_RESULT F_API FMOD_System_LoadPlugin             (FMOD_SYSTEM *system, const char *filename, FMOD_PLUGINTYPE *plugintype, int *index);
+FMOD_RESULT F_API FMOD_System_LoadPlugin             (FMOD_SYSTEM *system, const char *filename, unsigned int *handle, unsigned int priority);
+FMOD_RESULT F_API FMOD_System_UnloadPlugin           (FMOD_SYSTEM *system, unsigned int handle);
 FMOD_RESULT F_API FMOD_System_GetNumPlugins          (FMOD_SYSTEM *system, FMOD_PLUGINTYPE plugintype, int *numplugins);
-FMOD_RESULT F_API FMOD_System_GetPluginInfo          (FMOD_SYSTEM *system, FMOD_PLUGINTYPE plugintype, int index, char *name, int namelen, unsigned int *version);
-FMOD_RESULT F_API FMOD_System_UnloadPlugin           (FMOD_SYSTEM *system, FMOD_PLUGINTYPE plugintype, int index);
-FMOD_RESULT F_API FMOD_System_SetOutputByPlugin      (FMOD_SYSTEM *system, int index);
-FMOD_RESULT F_API FMOD_System_GetOutputByPlugin      (FMOD_SYSTEM *system, int *index);
-FMOD_RESULT F_API FMOD_System_CreateCodec            (FMOD_SYSTEM *system, FMOD_CODEC_DESCRIPTION *description);
+FMOD_RESULT F_API FMOD_System_GetPluginHandle        (FMOD_SYSTEM *system, FMOD_PLUGINTYPE plugintype, int index, unsigned int *handle);
+FMOD_RESULT F_API FMOD_System_GetPluginInfo          (FMOD_SYSTEM *system, unsigned int handle, FMOD_PLUGINTYPE *plugintype, char *name, int namelen, unsigned int *version);
+FMOD_RESULT F_API FMOD_System_SetOutputByPlugin      (FMOD_SYSTEM *system, unsigned int handle);
+FMOD_RESULT F_API FMOD_System_GetOutputByPlugin      (FMOD_SYSTEM *system, unsigned int *handle);
+FMOD_RESULT F_API FMOD_System_CreateDSPByPlugin      (FMOD_SYSTEM *system, unsigned int handle, FMOD_DSP **dsp);
+FMOD_RESULT F_API FMOD_System_CreateCodec            (FMOD_SYSTEM *system, FMOD_CODEC_DESCRIPTION *description, unsigned int priority);
 
 /*
      Init/Close                            
@@ -1885,7 +1919,6 @@ FMOD_RESULT F_API FMOD_System_CreateSound            (FMOD_SYSTEM *system, const
 FMOD_RESULT F_API FMOD_System_CreateStream           (FMOD_SYSTEM *system, const char *name_or_data, FMOD_MODE mode, FMOD_CREATESOUNDEXINFO *exinfo, FMOD_SOUND **sound);
 FMOD_RESULT F_API FMOD_System_CreateDSP              (FMOD_SYSTEM *system, FMOD_DSP_DESCRIPTION *description, FMOD_DSP **dsp);
 FMOD_RESULT F_API FMOD_System_CreateDSPByType        (FMOD_SYSTEM *system, FMOD_DSP_TYPE type, FMOD_DSP **dsp);
-FMOD_RESULT F_API FMOD_System_CreateDSPByIndex       (FMOD_SYSTEM *system, int index, FMOD_DSP **dsp);
 FMOD_RESULT F_API FMOD_System_CreateChannelGroup     (FMOD_SYSTEM *system, const char *name, FMOD_CHANNELGROUP **channelgroup);
 FMOD_RESULT F_API FMOD_System_CreateSoundGroup       (FMOD_SYSTEM *system, const char *name, FMOD_SOUNDGROUP **soundgroup);
 FMOD_RESULT F_API FMOD_System_CreateReverb           (FMOD_SYSTEM *system, FMOD_REVERB **reverb);
@@ -2258,6 +2291,8 @@ FMOD_RESULT F_API FMOD_DSP_SetActive                 (FMOD_DSP *dsp, FMOD_BOOL a
 FMOD_RESULT F_API FMOD_DSP_GetActive                 (FMOD_DSP *dsp, FMOD_BOOL *active);
 FMOD_RESULT F_API FMOD_DSP_SetBypass                 (FMOD_DSP *dsp, FMOD_BOOL bypass);
 FMOD_RESULT F_API FMOD_DSP_GetBypass                 (FMOD_DSP *dsp, FMOD_BOOL *bypass);
+FMOD_RESULT F_API FMOD_DSP_SetSpeakerActive          (FMOD_DSP *dsp, FMOD_SPEAKER speaker, FMOD_BOOL active);
+FMOD_RESULT F_API FMOD_DSP_GetSpeakerActive          (FMOD_DSP *dsp, FMOD_SPEAKER speaker, FMOD_BOOL *active);
 FMOD_RESULT F_API FMOD_DSP_Reset                     (FMOD_DSP *dsp);
 
 /*
