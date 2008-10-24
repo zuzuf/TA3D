@@ -47,9 +47,9 @@ namespace TA3D
     {
 	    // Copy the mini-map into an 8-bit BITMAP
 	    BITMAP *mini8bit=create_bitmap_ex(8,TNTMINIMAP_WIDTH,TNTMINIMAP_HEIGHT);
-	    for(int y = 0; y < TNTMINIMAP_HEIGHT; ++y) 
+	    for(int y = 0; y < TNTMINIMAP_HEIGHT; ++y)
 		    memcpy(mini8bit->line[y],minimap->map[y],TNTMINIMAP_WIDTH);
-	
+
 	    // Apply the palette -- increase the color depth
 	    BITMAP *mini=create_bitmap(mini8bit->w,mini8bit->h);
 	    set_palette( pal);
@@ -199,12 +199,7 @@ namespace TA3D
             allegro_gl_set_texture_format(GL_COMPRESSED_RGB_ARB);
         else
             allegro_gl_set_texture_format(GL_RGB8);
-        allegro_gl_use_mipmapping(FALSE);
-        map->glmini = allegro_gl_make_texture(map->mini);
-        glBindTexture(GL_TEXTURE_2D,map->glmini);
-        glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
-            glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
-            allegro_gl_use_mipmapping(TRUE);
+        map->glmini = gfx->make_texture(map->mini,FILTER_LINEAR,true);
 
         LOG_INFO("minimap read in " << (msec_timer - event_timer) * 0.001f << "s.");
 
@@ -320,9 +315,9 @@ namespace TA3D
             allegro_gl_set_texture_format(GL_RGB8);
         for (i = 0; i < n_bmp; ++i) // Finis de charger les textures et détruit les objets BITMAP
         {
-            tmp = create_bitmap_ex(32,bmp_tex[i]->w,bmp_tex[i]->h);
+            tmp = create_bitmap_ex(24,bmp_tex[i]->w,bmp_tex[i]->h);
             blit(bmp_tex[i],tmp,0,0,0,0,tmp->w,tmp->h);
-            map->tex[i] = gfx->make_texture( tmp);
+            map->tex[i] = gfx->make_texture(tmp);
             destroy_bitmap(bmp_tex[i]);
             bmp_tex[i] = tmp;
         }
@@ -433,7 +428,7 @@ namespace TA3D
         map->low_tex = gfx->make_texture(low_def);		// Build the low details texture map
         destroy_bitmap(low_def);
 
-        map->lava_map = gfx->make_texture(lava_map,FILTER_LINEAR);		// Build the lava texture map
+        map->lava_map = gfx->make_texture(lava_map,FILTER_LINEAR,true);		// Build the lava texture map
         destroy_bitmap(lava_map);
 
         LOG_DEBUG("MAP: computing height data (step 1)");

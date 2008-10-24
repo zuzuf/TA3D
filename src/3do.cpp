@@ -1003,7 +1003,7 @@ namespace TA3D
             if (py[i] + dy > my)   my = py[i] + dy;
         }
 
-        BITMAP* bmp = create_bitmap_ex(32, mx, my);
+        BITMAP* bmp = create_bitmap_ex(24, mx, my);
         if (bmp != NULL && mx != 0 && my != 0)
         {
             if (g_useTextureCompression && lp_CONFIG->use_texture_compression)
@@ -1045,7 +1045,7 @@ namespace TA3D
                             }
                         }
                         tex_bmp[e] = bmp;
-                        bmp = create_bitmap_ex(32, mx, my);
+                        bmp = create_bitmap_ex(24, mx, my);
                     }
                     else
                     {
@@ -1079,10 +1079,7 @@ namespace TA3D
                                      texture_manager.tex[index_tex[i]].bmp[0]->h);
                             }
                         }
-                        gltex[e] = allegro_gl_make_texture(bmp);
-                        glBindTexture(GL_TEXTURE_2D,gltex[e]);
-                        glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
-                        glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR_MIPMAP_LINEAR);
+                        gltex[e] = gfx->make_texture(bmp,FILTER_TRILINEAR,true);
                         if (filename)
                             gfx->save_texture_to_cache(cache_filename, gltex[e], bmp->w, bmp->h);
                     }
@@ -1242,10 +1239,13 @@ namespace TA3D
         if (id < 0 || id >= 10) return;
         if (tex_bmp[id] != NULL)
         {
-            gltex[id] = allegro_gl_make_texture(tex_bmp[id]);
-            glBindTexture(GL_TEXTURE_2D,gltex[id]);
-            glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
-            glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR_MIPMAP_LINEAR);
+                    // Use global texture configuration
+            if (g_useTextureCompression && lp_CONFIG->use_texture_compression)
+                allegro_gl_set_texture_format(GL_COMPRESSED_RGB_ARB);
+            else
+                allegro_gl_set_texture_format(GL_RGB8);
+
+            gltex[id] = gfx->make_texture(tex_bmp[id],FILTER_TRILINEAR,true);
             if (id < tex_cache_name.size() && !tex_cache_name[id].empty())
                 gfx->save_texture_to_cache(tex_cache_name[id], gltex[id], tex_bmp[id]->w, tex_bmp[id]->h);
             destroy_bitmap( tex_bmp[id] );
