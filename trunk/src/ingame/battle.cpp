@@ -3429,25 +3429,16 @@ namespace TA3D
             case brVictory:
                             if (pGameData->campaign && !map->ota_data.glamour.empty() && HPIManager->Exists( "bitmaps\\glamour\\" + map->ota_data.glamour + ".pcx"))
                             {
-                                uint32 pcx_size = 0;
-                                byte *data = HPIManager->PullFromHPI( "bitmaps\\glamour\\" + map->ota_data.glamour + ".pcx", &pcx_size);
-                                if (data)
-                                {
-                                    FILE *dst = TA3D_OpenFile(TA3D::Paths::Caches + "glamour.pcx", "wb");
-                                    fwrite( data, pcx_size, 1, dst);
-                                    fclose( dst);
-                                    delete[] data;
-                                    GLuint	glamour_tex = gfx->load_texture(TA3D::Paths::Caches + "glamour.pcx");
-                                    gfx->set_2D_mode();
-                                    gfx->drawtexture( glamour_tex, 0, 0, SCREEN_W, SCREEN_H);
-                                    gfx->destroy_texture( glamour_tex);
-                                    gfx->unset_2D_mode();
-                                    gfx->flip();
+                                GLuint	glamour_tex = gfx->load_texture("bitmaps\\glamour\\" + map->ota_data.glamour + ".pcx");
+                                gfx->set_2D_mode();
+                                gfx->drawtexture( glamour_tex, 0, 0, SCREEN_W, SCREEN_H);
+                                gfx->destroy_texture( glamour_tex);
+                                gfx->unset_2D_mode();
+                                gfx->flip();
 
-                                    while( !keypressed() && mouse_b == 0) {	rest(1);	poll_keyboard(); 	poll_mouse();	}
-                                    while( mouse_b)	poll_mouse();
-                                    while( keypressed())	readkey();
-                                }
+                                while( !keypressed() && mouse_b == 0) {	rest(1);	poll_keyboard(); 	poll_mouse();	}
+                                while( mouse_b)	poll_mouse();
+                                while( keypressed())	readkey();
                             }
                             break;
         }

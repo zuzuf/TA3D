@@ -3240,6 +3240,7 @@ namespace TA3D
         {
             if( data_s == NULL && dlist == 0 && !sel && !notex && !chg_col )
             {
+                check_textures();
                 dlist = glGenLists (1);
                 glNewList (dlist, GL_COMPILE);
                 obj.draw_dl(data_s,false,side,chg_col);
