@@ -33,31 +33,30 @@ namespace TA3D
 
 
 
-    int PARTICLE_ENGINE::addtex(const String& file,const String& filealpha)
+    int PARTICLE_ENGINE::addtex(const String& file, const String& filealpha)
     {
-        pMutex.lock();
+		MutexLocker locker(pMutex);
 
-        dsmoke=true;
-        if (partbmp == NULL)
-            partbmp = create_bitmap_ex(32,256,256);
+        dsmoke = true;
+        if (NULL == partbmp)
+            partbmp = create_bitmap_ex(32, 256, 256);
         BITMAP* bmp;
         if (!filealpha.empty())
-            bmp = GFX::LoadMaskedTextureToBmp(file, filealpha);		// Avec canal alpha séparé
+            bmp = GFX::LoadMaskedTextureToBmp(file, filealpha); // Avec canal alpha séparé
         else
-            bmp = gfx->load_image(file);					// Avec canal alpha intégré ou Sans canal alpha
+            bmp = gfx->load_image(file); // Avec canal alpha intégré ou Sans canal alpha
 
         gltex.push_back(gfx->make_texture(bmp));
 
-        stretch_blit(bmp,partbmp,0,0,bmp->w,bmp->h,64*(ntex&3),64*(ntex>>2),64,64);
-        ntex++;
+        stretch_blit(bmp, partbmp, 0,0, bmp->w, bmp->h, 64 * (ntex & 3), 64 * (ntex >> 2), 64, 64);
+        ++ntex;
         destroy_bitmap(bmp);
-        if (ntex>1)
-            glDeleteTextures(1,&parttex);
+        if (ntex > 1)
+            glDeleteTextures(1, &parttex);
         allegro_gl_use_alpha_channel(true);
         allegro_gl_set_texture_format(GL_RGBA8);
         parttex = gfx->make_texture(partbmp, FILTER_TRILINEAR);
         allegro_gl_use_alpha_channel(false);
-        pMutex.unlock();
 
         return (ntex-1);
     }
@@ -71,10 +70,12 @@ namespace TA3D
         if (Camera::inGame != NULL && (Camera::inGame->pos - pos).sq() >= Camera::inGame->zfar2)
             return;
 
-        for(int i = 0; i < nb; ++i)
+        for (int i = 0; i < nb; ++i)
         {
             PARTICLE new_part;
             new_part.px = -1;
+			new_part.py = 0;
+			new_part.slow_factor = 0.0f;
             new_part.Pos = pos;
             new_part.V = speed*Dir;
             new_part.life = life;
@@ -110,7 +111,7 @@ namespace TA3D
             new_part.ddsize=0.0f;
             new_part.light_emitter=false;
             new_part.slow_down=false;
-            part.push_back( new_part );
+            part.push_back(new_part);
             ++nb_part;
         }
     }
@@ -195,7 +196,9 @@ namespace TA3D
         for (int i=0;i<nb; ++i)
         {
             PARTICLE new_part;
-            new_part.px=-1;
+            new_part.px = -1;
+			new_part.py = 0;
+			new_part.slow_factor = 0.0f;
             new_part.Pos=pos;
             float speed_mul = ((Math::RandFromTable() % 100) * 0.01f + 0.01f);
             new_part.V=speed_mul*speed*Dir;
@@ -219,7 +222,7 @@ namespace TA3D
             new_part.ddsize=0.0f;
             new_part.light_emitter=false;
             new_part.slow_down=false;
-            part.push_back( new_part );
+            part.push_back(new_part);
             ++nb_part;
         }
         pMutex.unlock();
@@ -600,25 +603,24 @@ namespace TA3D
         glTexCoordPointer(2, GL_FLOAT, 0, texcoord);
         glColorPointer(4,GL_UNSIGNED_BYTE,0,color);
 
-        for( sint8 light_emitters = 0 ; light_emitters <= 1 ; light_emitters++ )
+        for (int light_emitters = 0; light_emitters <= 1; ++light_emitters)
         {
-            uint32 i;
             sint32 j = -1;
 
             Vector3D A;
             Vector3D B;
             float oangle = 0.0f;
-            int h_map_w=map_w>>1;
-            int h_map_h=map_h>>1;
-            for(std::list<PARTICLE>::iterator e = part.begin() ; e != part.end() ; ++e) // Calcule la position des points
+            int h_map_w = map_w >> 1;
+            int h_map_h = map_h >> 1;
+            for (std::list<PARTICLE>::iterator e = part.begin(); e != part.end(); ++e) // Calcule la position des points
             {
-                if (e->light_emitter != light_emitters )// Two passes, one for normal particles, the second for particles that emits light
+                if (e->light_emitter != light_emitters) // Two passes, one for normal particles, the second for particles that emits light
                     continue;
 
-                if (e->px==-1)
+                if (e->px == -1)
                 {
-                    e->px=((int)(e->Pos.x)+h_map_w)>>4;
-                    e->py=((int)(e->Pos.z)+h_map_h)>>4;
+                    e->px = ((int)(e->Pos.x) + h_map_w) >> 4;
+                    e->py = ((int)(e->Pos.z) + h_map_h) >> 4;
                 }
                 if (e->px>=0 && e->px<bloc_w && e->py>=0 && e->py<bloc_h)
                 {

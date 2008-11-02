@@ -7,8 +7,8 @@ namespace TA3D
 
     struct PARTICLE					// Structure définissant une particule
     {
-        Vector3D		Pos;			// Position
-        Vector3D		V;				// Vitesse
+        Vector3D	Pos;			// Position
+        Vector3D	V;				// Vitesse
         float		size;			// Taille
         float		dsize;			// Variation de la taille au cours du temps
         float		ddsize;			// Variation de dsize au cours du temps
