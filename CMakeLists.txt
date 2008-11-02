@@ -60,14 +60,14 @@ SET(LIBS "")
 Message(STATUS "System: ${CMAKE_SYSTEM} (${CMAKE_SYSTEM_PROCESSOR})")
 
 
-# We want -O2 -g as default options, but we want to be able to override CXX_FLAGS from commandline
+# We want -O3 -g -ffast-math as default options, but we want to be able to override CXX_FLAGS from commandline
 string( LENGTH "${CMAKE_CXX_FLAGS}" VA )
 
 IF( ${VA} EQUAL 0 )
     IF(WIN32)
-	    SET( CMAKE_CXX_FLAGS "-O3 -g " )
+	    SET( CMAKE_CXX_FLAGS "-O3 -g -ffast-math " )
     ELSE(WIN32)
-	    SET( CMAKE_CXX_FLAGS "-O3 -g -Wall " )
+	    SET( CMAKE_CXX_FLAGS "-O3 -g -Wall -ffast-math " )
     ENDIF(WIN32)
 ENDIF( ${VA} EQUAL 0 )
 
@@ -223,7 +223,7 @@ IF( WIN32 OR CMAKE_CROSSCOMPILING )
 	    SET( BUILT_LUA 1 CACHE BOOL "LUA has been built")
 	ENDIF( NOT BUILT_LUA )
 	EXECUTE_PROCESS( COMMAND cp src/hawknl/src/NL.dll ./ )
-	EXECUTE_PROCESS( COMMAND cp src/tools/win32/alleg42.dll ./ )
+    EXECUTE_PROCESS( COMMAND cp src/tools/win32/mingw32/libs/alleg42.dll ./ )
 	#SET( LIBS "-llua -lagl_s -lalleg_s -luser32 -lgdi32 -lopengl32 -lglu32 -lz.dll -lNL ${OPENGL_LIBRARIES} ")
 	SET( LIBS "-llua -lagl -lalleg -luser32 -lgdi32 -lopengl32 -lglu32 -lzlib -lNL")
 	IF( MSVC )
