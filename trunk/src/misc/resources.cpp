@@ -11,7 +11,7 @@ namespace Resources
 {
 
 
-    namespace 
+    namespace
     {
 
     //! Definition list of resources folders
@@ -65,7 +65,7 @@ namespace Resources
     void initForDarwin()
     {
         String home = getenv("HOME");
-        
+
         Paths::MakeDir(home + "/Library/Application Support/ta3d/");
         // Relative folder for the Application bundle
         AddSearchPath(Paths::ApplicationRoot + "/../Resources/");
@@ -135,7 +135,7 @@ namespace Resources
         return pResourcesFolders;
     }
 
- 
+
     bool Glob(String::Vector& out, const String& pattern, const bool emptyListBefore)
     {
         if (emptyListBefore)
@@ -159,6 +159,27 @@ namespace Resources
     }
 
 
+    bool GlobDirs(String::Vector& out, const String& pattern, const bool emptyListBefore)
+    {
+        if (emptyListBefore)
+            out.clear();
+        gResourcesMutex.lock();
+        for (ResourcesFoldersList::const_iterator i = pResourcesFolders.begin(); i != pResourcesFolders.end(); ++i)
+            Paths::GlobDirs(out, *i + pattern, false);
+        gResourcesMutex.unlock();
+        return !out.empty();
+    }
+
+    bool GlobDirs(String::List& out, const String& pattern, const bool emptyListBefore)
+    {
+        if (emptyListBefore)
+            out.clear();
+        gResourcesMutex.lock();
+        for (ResourcesFoldersList::const_iterator i = pResourcesFolders.begin(); i != pResourcesFolders.end(); ++i)
+            Paths::GlobDirs(out, *i + pattern, false);
+        gResourcesMutex.unlock();
+        return !out.empty();
+    }
 
 
 } // namespace Resources

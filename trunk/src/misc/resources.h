@@ -53,7 +53,7 @@ namespace Resources
     ** if (Paths::ResourcesGlob(list, "objects/rocks*.3dm"))
     ** {
     **      for (String::Vector::const_iterator i = list.begin(); i != list.end(); ++i)
-    **          std::cout << "3D object found: `" << *i << std::endl; 
+    **          std::cout << "3D object found: `" << *i << std::endl;
     ** }
     ** else
     ** {
@@ -63,6 +63,8 @@ namespace Resources
     */
     bool Glob(String::Vector& out, const String& pattern, const bool emptyListBefore = true);
     bool Glob(String::List& out, const String& pattern, const bool emptyListBefore = true);
+    bool GlobDirs(String::Vector& out, const String& pattern, const bool emptyListBefore = true);
+    bool GlobDirs(String::List& out, const String& pattern, const bool emptyListBefore = true);
 
 
     /*!

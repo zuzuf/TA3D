@@ -38,6 +38,7 @@
 #include "misc/settings.h"
 #include "misc/paths.h"
 #include "misc/files.h"
+#include "misc/resources.h"
 #include "logs/logs.h"
 #include "ingame/gamedata.h"
 #include "ingame/menus/mapselector.h"
@@ -211,28 +212,23 @@ void config_menu(void)
     {
         GUIOBJ *obj = config_area.get_object("*.mod");
 
-        if (obj->Text.size() >= 2 )
+        if (obj->Text.size() >= 2)
             obj->Text[0] = obj->Text[1];
         else
-            obj->Text.resize( 1);
+            obj->Text.resize(1);
 
-        al_ffblk search;
         String current_selection = TA3D_CURRENT_MOD.length() > 6 ? TA3D_CURRENT_MOD.substr( 5, TA3D_CURRENT_MOD.length() - 6 ) : "";
-
-        if (al_findfirst("mods/*", &search, FA_RDONLY | FA_DIREC ) == 0) 
+        String::List mod_list;
+        TA3D::Resources::GlobDirs(mod_list,"mods/*");
+        mod_list.sort();
+        mod_list.unique();
+        for(String::List::iterator i = mod_list.begin() ; i != mod_list.end() ; ++i)
         {
-            do
-            {
-                String namae(search.name);
-                if (namae != ".." && namae != ".") // Have to exclude both .. & . because of windows finding . as something interesting
-                {
-                    obj->Text.push_back(namae);
-                    if (String::ToLower(search.name) == String::ToLower(current_selection))
-                        obj->Text[0] = namae;
-                }
-            } while (al_findnext(&search) == 0);
-
-            al_findclose(&search);
+            String namae( TA3D::Paths::ExtractFileName(*i) );
+            if ( namae == ".." || namae == "." )  continue;   // Have to exclude both .. & . because of windows finding . as something interesting
+            obj->Text.push_back( namae );
+            if (String::ToLower( namae ) == String::ToLower(current_selection))
+                obj->Text[0] = namae;
         }
     }
 
@@ -676,7 +672,7 @@ void setup_game(bool client, const char *host, const char *saved_game)
         game_data.ai_level[i] = AI_TYPE_EASY;
     }
 
-    if (!client) 
+    if (!client)
     {
         game_data.player_names[0] = player_str[0];
         game_data.player_sides[0] = side_str[0];
@@ -929,7 +925,7 @@ void setup_game(bool client, const char *host, const char *saved_game)
             internet_ad_timer = msec_timer; // Resend every 150 sec
             uint16 nb_open = 0;
             for (short int f = 0; f < TA3D_PLAYERS_HARD_LIMIT; ++f)
-                if (setupgame_area.get_caption(format("gamesetup.name%d", f)) == player_str[2]) 
+                if (setupgame_area.get_caption(format("gamesetup.name%d", f)) == player_str[2])
                     ++nb_open;
             network_manager.registerToNetServer( host, nb_open);
         }
@@ -1394,7 +1390,7 @@ void setup_game(bool client, const char *host, const char *saved_game)
                     uint16 nb_open = 0;
                     for (short int f = 0; f < TA3D_PLAYERS_HARD_LIMIT; ++f)
                     {
-                        if (setupgame_area.get_caption(format("gamesetup.name%d", f)) == player_str[2]) 
+                        if (setupgame_area.get_caption(format("gamesetup.name%d", f)) == player_str[2])
                             ++nb_open;
                     }
                     if (TA3D_CURRENT_MOD.empty())
@@ -1946,7 +1942,7 @@ void network_room(void)             // Let players create/join a game
                 server_names.sort();
                 int i = 0;
                 // Remove those who timeout
-                for (String::List::const_iterator server_i = server_names.begin(); server_i != server_names.end(); ++server_i, ++i) 
+                for (String::List::const_iterator server_i = server_names.begin(); server_i != server_names.end(); ++server_i, ++i)
                     obj->Text[i] = *server_i;
                 if (obj->Text.size() == 0 )
                     obj->Text.push_back(I18N::Translate("No server found"));
