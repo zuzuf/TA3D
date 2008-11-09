@@ -116,7 +116,7 @@ namespace TA3D
         LOG_INFO(LOG_PREFIX_OPENGL << "OpenGL informations:");
         LOG_INFO(LOG_PREFIX_OPENGL << "Vendor: " << glGetString(GL_VENDOR));
         LOG_INFO(LOG_PREFIX_OPENGL << "Renderer: " << glGetString(GL_RENDERER));
-        LOG_INFO(LOG_PREFIX_OPENGL << "Vrsion: " << glGetString(GL_VERSION));
+        LOG_INFO(LOG_PREFIX_OPENGL << "Version: " << glGetString(GL_VERSION));
         if (ati_workaround)
             LOG_WARNING("ATI card detected ! Using workarounds for ATI cards");
         LOG_INFO(LOG_PREFIX_OPENGL << "Texture compression: " << YESNO(g_useTextureCompression));
