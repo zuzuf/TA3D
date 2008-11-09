@@ -786,7 +786,7 @@ namespace TA3D
                 time_factor = units.apparent_timefactor;
                 rest(10);
             }
-            int time_to_wait = (int)(speed / ((units.nb_unit / 100 + 1) * time_factor));
+            int time_to_wait = Math::Min( (int)(speed / ((units.nb_unit / 100 + 1) * time_factor)), 1 );
             for (int i = 0 ; i < time_to_wait && !thread_ask_to_stop; i += 100)		// Wait in order not to use all the CPU
                 rest(Math::Min(100, time_to_wait - i));									// divide the wait call in order not to wait too much when game ends
 
