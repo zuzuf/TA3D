@@ -98,6 +98,10 @@ namespace TA3D
         //!
         String::Vector	side;   		// Camp des joueurs
         //!
+        float		    r_energy[TA3D_PLAYERS_HARD_LIMIT];		// Energy required
+        //!
+        float		    r_metal[TA3D_PLAYERS_HARD_LIMIT];		// Metal required
+        //!
         float		    energy[TA3D_PLAYERS_HARD_LIMIT];		// Energie des joueurs
         //!
         float		    metal[TA3D_PLAYERS_HARD_LIMIT];		// Metal des joueurs
@@ -135,6 +139,15 @@ namespace TA3D
         uint16          team[TA3D_PLAYERS_HARD_LIMIT];
 
         //		Variables used to compute the data we need ( because of threading )
+
+        //!
+        float		    energy_factor[TA3D_PLAYERS_HARD_LIMIT];      // Energy proportion we can use
+        //!
+        float		    metal_factor[TA3D_PLAYERS_HARD_LIMIT];		 // Metal proportion we can use
+        //!
+        float		    requested_energy[TA3D_PLAYERS_HARD_LIMIT];      // Energy required
+        //!
+        float		    requested_metal[TA3D_PLAYERS_HARD_LIMIT];		// Metal required
 
         //!
         float		    c_energy[TA3D_PLAYERS_HARD_LIMIT];		// Energie des joueurs

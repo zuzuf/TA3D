@@ -42,6 +42,11 @@ namespace TA3D
         LOG_INFO("Adding a new player: `" << name << "` (" << (int)nb_player << ") of `" << SIDE
                  << "` with E=" << E << ", M=" << M);
 
+        r_metal[nb_player]          = 0;
+        r_energy[nb_player]         = 0;
+        requested_metal[nb_player]  = 0;
+        requested_energy[nb_player] = 0;
+
         metal_u[nb_player]      = 0;
         energy_u[nb_player]     = 0;
         metal_t[nb_player]      = 0;
@@ -318,14 +323,28 @@ namespace TA3D
     {
         for (short int i = 0; i < nb_player; ++i)
         {
-            c_energy[i]      = energy[i];
-            c_metal[i]       = metal[i];
-            c_energy_s[i]    = c_metal_s[i]=0;			// Stocks
-            c_metal_t[i]     = c_energy_t[i]=0.0f;		// Production
-            c_metal_u[i]     = c_energy_u[i]=0.0f;		// Consommation
-            c_commander[i]   = false;
-            c_annihilated[i] = true;
-            c_nb_unit[i]     = 0;
+            r_energy[i]         = requested_energy[i];     // Used to modulate the use of resources and distribute them amoung builders
+            r_metal[i]          = requested_metal[i];
+            requested_energy[i] = 0;     // Used to modulate the use of resources and distribute them amoung builders
+            requested_metal[i]  = 0;
+            c_energy[i]         = energy[i];
+            c_metal[i]          = metal[i];
+            c_energy_s[i]       = c_metal_s[i]=0;			// Stocks
+            c_metal_t[i]        = c_energy_t[i]=0.0f;		// Production
+            c_metal_u[i]        = c_energy_u[i]=0.0f;		// Consommation
+            c_commander[i]      = false;
+            c_annihilated[i]    = true;
+            c_nb_unit[i]        = 0;
+
+            if (r_energy[i] <= energy[i] || r_energy[i] == 0.0f)
+                energy_factor[i] = 1.0f;
+            else
+                energy_factor[i] = 0.9f * energy[i] / r_energy[i];
+
+            if (r_metal[i] <= metal[i] || r_metal[i] == 0.0f)
+                metal_factor[i] = 1.0f;
+            else
+                metal_factor[i] = 0.9f * metal[i] / r_metal[i];
         }
     }
 
