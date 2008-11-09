@@ -2682,6 +2682,8 @@ namespace TA3D
             return	-1;		// Should NEVER happen
         }
 
+        float resource_min_factor = TA3D::Math::Min(TA3D::players.energy_factor[owner_id], TA3D::players.metal_factor[owner_id]);
+
         if (build_percent_left == 0.0f && unit_manager.unit_type[type_id]->isfeature) // Turn this unit into a feature
         {
             if (cur_px > 0 && cur_py > 0 && cur_px < (map->bloc_w<<1) && cur_py < (map->bloc_h<<1) )
@@ -2857,6 +2859,7 @@ namespace TA3D
         if (cloaking && paralyzed <= 0.0f)
         {
             int conso_energy = (mission == NULL || !(mission->flags & MISSION_FLAG_MOVE) ) ? unit_manager.unit_type[type_id]->CloakCost : unit_manager.unit_type[type_id]->CloakCostMoving;
+            TA3D::players.requested_energy[owner_id] += conso_energy;
             if (players.energy[ owner_id ] >= (energy_cons + conso_energy) * dt)
             {
                 energy_cons += conso_energy;
@@ -2945,11 +2948,16 @@ namespace TA3D
                 float dn=dt/unit_manager.unit_type[type_id]->weapon[idx]->reloadtime;
                 float conso_metal=((float)unit_manager.unit_type[type_id]->weapon[idx]->metalpershot)/unit_manager.unit_type[type_id]->weapon[idx]->reloadtime;
                 float conso_energy=((float)unit_manager.unit_type[type_id]->weapon[idx]->energypershot)/unit_manager.unit_type[type_id]->weapon[idx]->reloadtime;
-                if (players.metal[owner_id]>=conso_metal*dt && players.energy[owner_id]>=conso_energy*dt)
+
+                TA3D::players.requested_energy[owner_id] += conso_energy;
+                TA3D::players.requested_metal[owner_id] += conso_metal;
+
+                if (players.metal[owner_id] >= (metal_cons + conso_metal * resource_min_factor) * dt
+                 && players.energy[owner_id] >= (energy_cons + conso_energy * resource_min_factor) * dt)
                 {
-                    metal_cons+=conso_metal;
-                    energy_cons+=conso_energy;
-                    planned_weapons-=dn;
+                    metal_cons += conso_metal * resource_min_factor;
+                    energy_cons += conso_energy * resource_min_factor;
+                    planned_weapons -= dn * resource_min_factor;
                     float last=planned_weapons-(int)planned_weapons;
                     if ((last==0.0f && last!=old) || (last>old && old>0.0f) || planned_weapons<=0.0f)		// On en a fini une / one is finished
                         weapon[idx].stock++;
@@ -3761,12 +3769,13 @@ namespace TA3D
                                 if (target_unit->port[ ACTIVATION ])
                                 {
                                     float conso_energy=((float)(unit_manager.unit_type[target_unit->type_id]->WorkerTime * unit_manager.unit_type[type_id]->BuildCostEnergy)) / unit_manager.unit_type[type_id]->BuildTime;
-                                    if (players.energy[owner_id] >= conso_energy * dt)
+                                    TA3D::players.requested_energy[owner_id] += conso_energy;
+                                    if (players.energy[owner_id] >= (energy_cons + conso_energy * TA3D::players.energy_factor[owner_id]) * dt)
                                     {
                                         target_unit->lock();
-                                        target_unit->energy_cons += conso_energy;
+                                        target_unit->energy_cons += conso_energy * TA3D::players.energy_factor[owner_id];
                                         target_unit->unlock();
-                                        hp += dt * unit_manager.unit_type[target_unit->type_id]->WorkerTime * unit_manager.unit_type[type_id]->MaxDamage / unit_manager.unit_type[type_id]->BuildTime;
+                                        hp += dt * TA3D::players.energy_factor[owner_id] * unit_manager.unit_type[target_unit->type_id]->WorkerTime * unit_manager.unit_type[type_id]->MaxDamage / unit_manager.unit_type[type_id]->BuildTime;
                                     }
                                     if (hp >= unit_manager.unit_type[type_id]->MaxDamage) // Unit has been repaired
                                     {
@@ -4541,10 +4550,11 @@ namespace TA3D
                                         }
 
                                         float conso_energy=((float)(unit_manager.unit_type[type_id]->WorkerTime*unit_manager.unit_type[target_unit->type_id]->BuildCostEnergy))/unit_manager.unit_type[target_unit->type_id]->BuildTime;
-                                        if (players.energy[owner_id] >= (energy_cons + conso_energy) * dt)
+                                        TA3D::players.requested_energy[owner_id] += conso_energy;
+                                        if (players.energy[owner_id] >= (energy_cons + conso_energy * TA3D::players.energy_factor[owner_id]) * dt)
                                         {
-                                            energy_cons += conso_energy;
-                                            target_unit->hp += dt*unit_manager.unit_type[type_id]->WorkerTime*unit_manager.unit_type[target_unit->type_id]->MaxDamage/unit_manager.unit_type[target_unit->type_id]->BuildTime;
+                                            energy_cons += conso_energy * TA3D::players.energy_factor[owner_id];
+                                            target_unit->hp += dt * TA3D::players.energy_factor[owner_id] * unit_manager.unit_type[type_id]->WorkerTime*unit_manager.unit_type[target_unit->type_id]->MaxDamage/unit_manager.unit_type[target_unit->type_id]->BuildTime;
                                         }
                                         target_unit->built=true;
                                     }
@@ -4639,12 +4649,17 @@ namespace TA3D
 
                                 float conso_metal=((float)(unit_manager.unit_type[type_id]->WorkerTime*unit_manager.unit_type[target_unit->type_id]->BuildCostMetal))/unit_manager.unit_type[target_unit->type_id]->BuildTime;
                                 float conso_energy=((float)(unit_manager.unit_type[type_id]->WorkerTime*unit_manager.unit_type[target_unit->type_id]->BuildCostEnergy))/unit_manager.unit_type[target_unit->type_id]->BuildTime;
-                                if (players.metal[owner_id]>= (metal_cons + conso_metal)*dt && players.energy[owner_id]>= (energy_cons+conso_energy)*dt)
+
+                                TA3D::players.requested_energy[owner_id] += conso_energy;
+                                TA3D::players.requested_metal[owner_id] += conso_metal;
+
+                                if (players.metal[owner_id]>= (metal_cons + conso_metal * resource_min_factor) * dt
+                                 && players.energy[owner_id]>= (energy_cons + conso_energy * resource_min_factor) * dt)
                                 {
-                                    metal_cons+=conso_metal;
-                                    energy_cons+=conso_energy;
-                                    target_unit->build_percent_left-=dt*unit_manager.unit_type[type_id]->WorkerTime*100.0f/unit_manager.unit_type[target_unit->type_id]->BuildTime;
-                                    target_unit->hp+=dt*unit_manager.unit_type[type_id]->WorkerTime*unit_manager.unit_type[target_unit->type_id]->MaxDamage/unit_manager.unit_type[target_unit->type_id]->BuildTime;
+                                    metal_cons+=conso_metal * resource_min_factor;
+                                    energy_cons+=conso_energy * resource_min_factor;
+                                    target_unit->build_percent_left-=dt*resource_min_factor*unit_manager.unit_type[type_id]->WorkerTime*100.0f/unit_manager.unit_type[target_unit->type_id]->BuildTime;
+                                    target_unit->hp+=dt*resource_min_factor*unit_manager.unit_type[type_id]->WorkerTime*unit_manager.unit_type[target_unit->type_id]->MaxDamage/unit_manager.unit_type[target_unit->type_id]->BuildTime;
                                 }
                                 if (!unit_manager.unit_type[type_id]->BMcode)
                                 {
@@ -6915,6 +6930,8 @@ script_exec:
                         unit[i].energy_prod-=unit_manager.unit_type[unit[i].type_id]->EnergyUse;
                     else
                         unit[i].energy_cons=unit_manager.unit_type[unit[i].type_id]->EnergyUse;
+                    TA3D::players.requested_energy[unit[i].owner_id] += unit[i].energy_cons;
+                    TA3D::players.requested_metal[unit[i].owner_id] += unit[i].metal_cons;
                 }
             }
             unit[i].unlock();
