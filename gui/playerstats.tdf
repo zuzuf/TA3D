@@ -4,12 +4,12 @@
 	uformat=UTF8;
 	x=-1;
 	y=32;
-	width=150;
+	width=180;
 	height=420;
 	draw borders=true;
 	show title=false;
 	lock=true;
-	number of objects=32;
+	number of objects=42;
 	hidden=true;
 	color=0xFFFFFFFF;
 	background=gfx/background.jpg;
@@ -342,6 +342,96 @@
 		x1=75;
 		y1=385;
 		value=0xFFFFFFFF;
+		size=1;
+	}
+	[object32]		// team0
+	{
+		name=team0;
+		type=MULTISTATE;
+		x1=140;
+		y1=17;
+		caption=gfx/teams/team0.tga,gfx/teams/team1.tga,gfx/teams/team2.tga,gfx/teams/team3.tga,gfx/teams/team4.tga,gfx/teams/team5.tga,gfx/teams/team6.tga,gfx/teams/team7.tga,gfx/teams/team8.tga,gfx/teams/team9.tga;
+		size=1;
+	}
+	[object33]		// team1
+	{
+		name=team1;
+		type=MULTISTATE;
+		x1=140;
+		y1=57;
+		caption=gfx/teams/team0.tga,gfx/teams/team1.tga,gfx/teams/team2.tga,gfx/teams/team3.tga,gfx/teams/team4.tga,gfx/teams/team5.tga,gfx/teams/team6.tga,gfx/teams/team7.tga,gfx/teams/team8.tga,gfx/teams/team9.tga;
+		size=1;
+	}
+	[object34]		// team2
+	{
+		name=team2;
+		type=MULTISTATE;
+		x1=140;
+		y1=97;
+		caption=gfx/teams/team0.tga,gfx/teams/team1.tga,gfx/teams/team2.tga,gfx/teams/team3.tga,gfx/teams/team4.tga,gfx/teams/team5.tga,gfx/teams/team6.tga,gfx/teams/team7.tga,gfx/teams/team8.tga,gfx/teams/team9.tga;
+		size=1;
+	}
+	[object35]		// team3
+	{
+		name=team3;
+		type=MULTISTATE;
+		x1=140;
+		y1=137;
+		caption=gfx/teams/team0.tga,gfx/teams/team1.tga,gfx/teams/team2.tga,gfx/teams/team3.tga,gfx/teams/team4.tga,gfx/teams/team5.tga,gfx/teams/team6.tga,gfx/teams/team7.tga,gfx/teams/team8.tga,gfx/teams/team9.tga;
+		size=1;
+	}
+	[object36]		// team4
+	{
+		name=team4;
+		type=MULTISTATE;
+		x1=140;
+		y1=177;
+		caption=gfx/teams/team0.tga,gfx/teams/team1.tga,gfx/teams/team2.tga,gfx/teams/team3.tga,gfx/teams/team4.tga,gfx/teams/team5.tga,gfx/teams/team6.tga,gfx/teams/team7.tga,gfx/teams/team8.tga,gfx/teams/team9.tga;
+		size=1;
+	}
+	[object37]		// team5
+	{
+		name=team5;
+		type=MULTISTATE;
+		x1=140;
+		y1=217;
+		caption=gfx/teams/team0.tga,gfx/teams/team1.tga,gfx/teams/team2.tga,gfx/teams/team3.tga,gfx/teams/team4.tga,gfx/teams/team5.tga,gfx/teams/team6.tga,gfx/teams/team7.tga,gfx/teams/team8.tga,gfx/teams/team9.tga;
+		size=1;
+	}
+	[object38]		// team6
+	{
+		name=team6;
+		type=MULTISTATE;
+		x1=140;
+		y1=257;
+		caption=gfx/teams/team0.tga,gfx/teams/team1.tga,gfx/teams/team2.tga,gfx/teams/team3.tga,gfx/teams/team4.tga,gfx/teams/team5.tga,gfx/teams/team6.tga,gfx/teams/team7.tga,gfx/teams/team8.tga,gfx/teams/team9.tga;
+		size=1;
+	}
+	[object39]		// team7
+	{
+		name=team7;
+		type=MULTISTATE;
+		x1=140;
+		y1=297;
+		caption=gfx/teams/team0.tga,gfx/teams/team1.tga,gfx/teams/team2.tga,gfx/teams/team3.tga,gfx/teams/team4.tga,gfx/teams/team5.tga,gfx/teams/team6.tga,gfx/teams/team7.tga,gfx/teams/team8.tga,gfx/teams/team9.tga;
+		size=1;
+	}
+	[object40]		// team8
+	{
+		name=team8;
+		type=MULTISTATE;
+		x1=140;
+		y1=337;
+		caption=gfx/teams/team0.tga,gfx/teams/team1.tga,gfx/teams/team2.tga,gfx/teams/team3.tga,gfx/teams/team4.tga,gfx/teams/team5.tga,gfx/teams/team6.tga,gfx/teams/team7.tga,gfx/teams/team8.tga,gfx/teams/team9.tga;
+		size=1;
+	}
+	[object41]		// team9
+	{
+		name=team9;
+		type=MULTISTATE;
+		x1=140;
+		y1=377;
+		caption=gfx/teams/team0.tga,gfx/teams/team1.tga,gfx/teams/team2.tga,gfx/teams/team3.tga,gfx/teams/team4.tga,gfx/teams/team5.tga,gfx/teams/team6.tga,gfx/teams/team7.tga,gfx/teams/team8.tga,gfx/teams/team9.tga;
 		size=1;
 	}
 }
