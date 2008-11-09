@@ -631,7 +631,7 @@ namespace TA3D
 
     bool can_be_there( const int px, const int py, MAP *map, const int unit_type_id, const int player_id, const int unit_id = -1 );
 
-    bool can_be_there_ai( const int px, const int py, MAP *map, const int unit_type_id, const int player_id, const int unit_id = -1 );
+    bool can_be_there_ai( const int px, const int py, MAP *map, const int unit_type_id, const int player_id, const int unit_id = -1, const bool leave_space = false );
 
 
 } // namespace TA3D
