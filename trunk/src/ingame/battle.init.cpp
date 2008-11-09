@@ -391,6 +391,16 @@ namespace TA3D
                 }
             }
         }
+
+        for(int i = 0 ; i < players.nb_player ; ++i)
+        {
+            GUIOBJ *obj = pArea.get_object( format("playerstats.team%d",i) );
+            if (obj)
+            {
+                obj->current_state = TA3D::Math::Log2( players.team[i] );
+                obj->Flag &= ~FLAG_HIDDEN;
+            }
+        }
         return true;
     }
 
