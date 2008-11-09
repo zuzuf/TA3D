@@ -787,6 +787,8 @@ namespace TA3D
                 else
                     yardmap[e-i] = yardmap[e];
             yardmap.resize( yardmap.size() - i );
+            while(yardmap.size() < FootprintX * FootprintZ)     // Complete the yardmap if needed
+                yardmap += yardmap[yardmap.size()-1];
         }
 
         CruiseAlt = unitParser.pullAsInt("UNITINFO.cruisealt");
