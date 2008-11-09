@@ -2202,9 +2202,13 @@ namespace TA3D
                     {
                         if( map_data[ry][rx].stuff >=0 )
                         {
-                            metal_base += feature_manager.feature[ features.feature[ map_data[ry][rx].stuff ].type ].metal;
-                            if (stuff_id)           // We need to know where to put metal extractors, so it'll give the impression the AI is clever :P
-                                *stuff_id = map_data[ry][rx].stuff;
+                            int type = features.feature[ map_data[ry][rx].stuff ].type;
+                            if (!feature_manager.feature[ type ].reclaimable && !feature_manager.feature[ type ].blocking)
+                            {
+                                metal_base += feature_manager.feature[ type ].metal;
+                                if (stuff_id)           // We need to know where to put metal extractors, so it'll give the impression the AI is clever :P
+                                    *stuff_id = map_data[ry][rx].stuff;
+                            }
                         }
                     }
                 }

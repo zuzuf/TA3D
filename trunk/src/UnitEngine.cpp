@@ -6459,7 +6459,7 @@ script_exec:
 
 
     bool can_be_there_ai(const int px, const int py, MAP *map, const int unit_type_id,
-                         const int player_id, const int unit_id )
+                         const int player_id, const int unit_id, const bool leave_space )
     {
         if (unit_type_id<0 || unit_type_id>=unit_manager.nb_unit || !map)
             return false;
@@ -6468,7 +6468,7 @@ script_exec:
         int h = unit_manager.unit_type[unit_type_id]->FootprintZ;
         int x = px-(w>>1);
         int y = py-(h>>1);
-        int side = unit_manager.unit_type[unit_type_id]->ExtractsMetal == 0.0f ? 12 : 0;
+        int side = unit_manager.unit_type[unit_type_id]->ExtractsMetal == 0.0f ? 12 : leave_space ? 12 : 0;
         if (x < 0 || y < ((int)map->get_zdec(x,0)+7>>3) || x+w>=(map->bloc_w<<1) || y+h>=(map->bloc_h<<1))	return false;	// check if it is inside the map
 
         if (!map->check_rect( px - ((w + side)>>1), py - ((h + side)>>1), w + side, h + side, unit_id))

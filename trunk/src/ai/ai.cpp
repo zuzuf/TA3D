@@ -65,7 +65,7 @@ namespace TA3D
                 for(int e=0;e<n;e++)
                     neuron[i].weight[e]=(TA3D_RAND()%2001)*0.001f-1.0f;
             }
-            else 
+            else
             {
                 if (i>=n)
                 {
@@ -245,7 +245,7 @@ namespace TA3D
                     for(int e=0;e<brain->q;e++)
                         copy->neuron[i].weight[e]=brain->neuron[i].weight[e];
                 }
-                else 
+                else
                 {
                     if (i>=copy->n)
                     {
@@ -611,6 +611,7 @@ namespace TA3D
                 bool found = selected_idx < 0;
                 int best_metal = 0;
                 int metal_stuff_id = -1;
+                bool extractor = selected_idx >= 0 ? unit_manager.unit_type[selected_idx]->ExtractsMetal > 0.0f : false;
                 for( int r = 5 ; r < 50 && !found ; r++ ) 	// Circular check
                 {
                     int r2 = r * r;
@@ -635,16 +636,19 @@ namespace TA3D
                         for( int f = 0 ; f < 8 ; f++ )
                         {
                             int e = rand_t[ f ];
-                            if (can_be_there_ai( px + cx[e], py + cy[e], map, selected_idx, ai->player_id ) )
+                            if (can_be_there_ai( px + cx[e], py + cy[e], map, selected_idx, ai->player_id ))
                             {
                                 int stuff_id = -1;
-                                int metal_found = map->check_metal( px + cx[e], py + cy[e], selected_idx, &stuff_id );
-                                if (( unit_manager.unit_type[selected_idx]->ExtractsMetal > 0.0f && metal_found > best_metal)
-                                    || unit_manager.unit_type[selected_idx]->ExtractsMetal == 0.0f )
+                                int metal_found = extractor ? map->check_metal( px + cx[e], py + cy[e], selected_idx, &stuff_id ) : 0;
+                                if ((extractor && metal_found > best_metal) || !extractor)
                                 {
+                                            // Prevent AI from filling a whole area with metal extractors
+                                    if (extractor && stuff_id == -1
+                                    && !can_be_there_ai( px + cx[e], py + cy[e], map, selected_idx, ai->player_id, -1, true ))
+                                        continue;
                                     spx = px + cx[e];
                                     spy = py + cy[e];
-                                    if (metal_found > 0 && unit_manager.unit_type[selected_idx]->ExtractsMetal != 0.0f)
+                                    if (metal_found > 0 && extractor)
                                     {
                                         best_metal = metal_found;
                                         metal_stuff_id = stuff_id;
@@ -720,7 +724,7 @@ namespace TA3D
         ai->order_weight[ ORDER_FACTORY ] = factory_needed;
         ai->order_weight[ ORDER_BUILDER ] = builder_needed;
 
-        for(int i = 0 ; i < NB_ORDERS ; ++i) 
+        for(int i = 0 ; i < NB_ORDERS ; ++i)
         {
             if (ai->order_weight[i] < 0.0f )
                 ai->order_weight[i] = 0.0f;
