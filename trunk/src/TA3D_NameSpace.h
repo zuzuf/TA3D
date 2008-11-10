@@ -20,7 +20,7 @@
 ** Notes:
 **   Cire: The goal of this file is mainly to introduce our namespace
 **           Some constants are also defined in our namespace, function
-**           prototypes ect. 
+**           prototypes ect.
 **         This file should be included 'second' in all other cpp files, it will
 **           give cpp access to our namespace members.
 */
@@ -97,14 +97,14 @@ namespace TA3D
 		String	player_name;				// Name of local player
 
 		String	skin_name;					// The skin used ( empty means default )
-		
+
 		bool	use_texture_cache;			// Use the texture cache ? (default : disabled because on some systems it doesn't work)
 		bool	use_texture_compression;	// Use texture compression capabilities of GFX hardware ? (default : enabled because it greatly reduces video memory requirements)
 
 		String	net_server;					// The server that monitor the game server list
 		bool    render_sky;                 // Render the sky ? (on low-end hardware without accelerated T&L it may help to deactivate this)
 		bool    low_definition_map;         // Render map in low definition mode (1 quad instead of 4 for each map bloc)
-		
+
 		bool    underwater_bright;          // Render underwater objects brighter
 
 		// Variables used to communicate with all the code
@@ -131,9 +131,9 @@ namespace TA3D
 			net_server = TA3D_DEFAULT_SERVER_HOSTNAME;
 
 			file_param.clear();
-		
+
 			use_texture_cache = false;
-			
+
 			pause = false;
 
 			skin_name = "";
@@ -185,7 +185,7 @@ namespace TA3D
 
 	namespace VARS
 	{
-		TA3D_API_E TA3D::IInterfaceManager			*InterfaceManager; 
+		TA3D_API_E TA3D::IInterfaceManager			*InterfaceManager;
 		TA3D_API_E TA3D::UTILS::HPI::cHPIHandler	*HPIManager;
 		TA3D_API_E TA3D::GFX* gfx;
 
@@ -212,7 +212,7 @@ namespace TA3D
     /*!
     ** \brief Clear the cache if needed (useful when mod has changed)
     */
-	void TA3D_clear_cache();
+	void TA3D_clear_cache(bool force=false);
 
 } // namespace TA3D
 

@@ -315,7 +315,6 @@ namespace TA3D
         sint16      selprim;			// Polygone de selection
         GLuint      gltex[10];			// Texture pour le dessin de l'objet
         String::Vector  tex_cache_name; // Used for on-the-fly loading
-        BITMAP      *tex_bmp[10];       // Used for on-the-fly loading
         uint8       dtex;				// Indique si une texture objet doit être détruite avec l'objet
         float       *tcoord;			// Tableau de coordonnées de texture
         GLushort    sel[4];				// Primitive de sélection

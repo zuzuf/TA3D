@@ -33,6 +33,8 @@
 #include "languages/i18n.h"
 #include "jpeg/ta3d_jpg.h"
 #include "misc/math.h"
+#include "misc/paths.h"
+#include "misc/files.h"
 #include "logs/logs.h"
 
 
@@ -1012,8 +1014,6 @@ namespace TA3D
                 allegro_gl_set_texture_format(GL_RGB8);
             clear(bmp);
             tex_cache_name.clear();
-            for (short e = 0; e < 10; ++e)
-                tex_bmp[e] = NULL;
             for (short e = 0; e < expected_players; ++e)
             {
                 bool mtex_needed = false;
@@ -1022,7 +1022,6 @@ namespace TA3D
 
                 if (TA3D::model_manager.loading_all())      // We want to convert textures on-the-fly in order to speed loading
                 {
-                    tex_cache_name.push_back( cache_filename );
                     gltex[e] = 0;
                     if (!gfx->is_texture_in_cache(cache_filename))
                     {
@@ -1044,8 +1043,9 @@ namespace TA3D
                                      texture_manager.tex[index_tex[i]].bmp[0]->h);
                             }
                         }
-                        tex_bmp[e] = bmp;
-                        bmp = create_bitmap_ex(24, mx, my);
+                        cache_filename = TA3D::Paths::Files::ReplaceExtension( cache_filename, ".tga" );
+                        if (!TA3D::Paths::Exists( cache_filename ))
+                            save_bitmap( (TA3D::Paths::Caches + cache_filename).c_str(), bmp, NULL );
                     }
                     else
                     {
@@ -1055,6 +1055,7 @@ namespace TA3D
                                 mtex_needed=true;
                             }
                     }
+                    tex_cache_name.push_back( cache_filename );
                 }
                 else            // Classical loading path
                 {
@@ -1237,7 +1238,7 @@ namespace TA3D
     void OBJECT::load_texture_id(int id)
     {
         if (id < 0 || id >= 10) return;
-        if (tex_bmp[id] != NULL)
+        if (id < tex_cache_name.size() && !tex_cache_name[id].empty() && TA3D::Paths::ExtractFileExt( tex_cache_name[id] ) == ".tga" )
         {
                     // Use global texture configuration
             if (g_useTextureCompression && lp_CONFIG->use_texture_compression)
@@ -1245,13 +1246,13 @@ namespace TA3D
             else
                 allegro_gl_set_texture_format(GL_RGB8);
 
-            gltex[id] = gfx->make_texture(tex_bmp[id],FILTER_TRILINEAR,true);
-            if (id < tex_cache_name.size() && !tex_cache_name[id].empty())
-                gfx->save_texture_to_cache(tex_cache_name[id], gltex[id], tex_bmp[id]->w, tex_bmp[id]->h);
-            destroy_bitmap( tex_bmp[id] );
-            tex_bmp[id] = NULL;
-            if (id < tex_cache_name.size() && !tex_cache_name[id].empty())
-                tex_cache_name[id].clear();
+            BITMAP *bmp = load_bitmap( (TA3D::Paths::Caches + tex_cache_name[id]).c_str(), NULL );
+            gltex[id] = gfx->make_texture(bmp,FILTER_TRILINEAR,true);
+
+            gfx->save_texture_to_cache( TA3D::Paths::Files::ReplaceExtension(tex_cache_name[id],".bin"), gltex[id], bmp->w, bmp->h);
+            destroy_bitmap( bmp );
+
+            tex_cache_name[id].clear();
         }
         else if (id < tex_cache_name.size() && !tex_cache_name[id].empty() && gfx->is_texture_in_cache(tex_cache_name[id]))
         {
