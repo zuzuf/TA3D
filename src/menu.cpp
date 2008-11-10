@@ -550,7 +550,7 @@ void config_menu(void)
         {
             TA3D_CURRENT_MOD = lp_CONFIG->last_MOD;
             delete HPIManager;
-            TA3D_clear_cache();     // Clear the cache
+            TA3D_clear_cache(true);     // Force cache reset
 
             HPIManager = new cHPIHandler();
             ta3dSideData.loadData();                // Refresh side data so we load the correct values

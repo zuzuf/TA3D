@@ -58,15 +58,15 @@ namespace TA3D
 	}
 
 
-	void TA3D_clear_cache()							// Clear the cache if needed (useful when mod has changed)
+	void TA3D_clear_cache(bool force)							// Clear the cache if needed (useful when mod has changed)
 	{
 		bool rebuild_cache = false;
 		// Check cache date
-		String cache_date = lp_CONFIG 
+		String cache_date = lp_CONFIG
             ? format("build info : %s , %s\ncurrent mod : %s\n", __DATE__, __TIME__, lp_CONFIG->last_MOD.c_str())
             : format("build info : %s , %s\ncurrent mod : \n", __DATE__, __TIME__ );
 
-		if(TA3D::Paths::Exists(TA3D::Paths::Caches + "cache_info.txt"))
+		if(TA3D::Paths::Exists(TA3D::Paths::Caches + "cache_info.txt") && !force)
         {
 			FILE *cache_info = TA3D_OpenFile(TA3D::Paths::Caches + "cache_info.txt", "rb");
 			if(cache_info)
