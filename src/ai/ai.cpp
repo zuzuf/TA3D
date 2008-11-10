@@ -279,6 +279,12 @@ namespace TA3D
 
     void f_scan_unit( AI_PLAYER *ai )							// Scan the units the AI player currently has
     {
+        if (ai->enemy_table == NULL)
+        {
+            ai->enemy_table = new byte[units.max_unit];
+            memset(ai->enemy_table, 0, units.max_unit);
+        }
+
         if (ai->weights == NULL )
         {
             ai->weights = new AI_WEIGHT[ unit_manager.nb_unit ];
@@ -382,18 +388,11 @@ namespace TA3D
                 {
                     ai->nb_units[ AI_UNIT_TYPE_ENEMY ]++;
                     ai->nb_enemy[ units.unit[ i ].owner_id ]++;
-                    bool found = false;
-                    //TODO: use a hashtable to speed up things here
-                    for(std::list<WEIGHT_COEF>::iterator e = ai->enemy_list[ units.unit[ i ].owner_id ].begin() ; e != ai->enemy_list[ units.unit[ i ].owner_id ].end() ; ++e)
+                    if (!ai->enemy_table[i])
                     {
-                        if (e->idx == i )
-                        {
-                            found = true;
-                            break;
-                        }
-                    }
-                    if (!found )
                         ai->enemy_list[ units.unit[ i ].owner_id ].push_back( WEIGHT_COEF( i, 0 ) );
+                        ai->enemy_table[ i ] = true;
+                    }
                 }
             }
             units.unit[ i ].unlock();
@@ -502,55 +501,61 @@ namespace TA3D
 
         float sw[ 10000 ];			// Used to compute the units that are built
 
-        for (std::list<uint16>::iterator i = ai->army_list.begin() ; i != ai->army_list.end() ; ++i ) // Give instructions to idle army units
         {
-            units.unit[ *i ].lock();
-            if ((units.unit[ *i ].flags & 1) && units.unit[ *i ].do_nothing_ai() )
+            sint16 player_target = -1;
+            float best_weight = 15.0f;
+            for(sint8 e = 0 ; e < players.nb_player; ++e)				// Who can we attack ?
             {
-                sint16 player_target = -1;
-                float best_weight = 15.0f;
-                for(sint8 e = 0 ; e < players.nb_player; ++e)				// Who can we attack ?
+                // Don't attack allies
+                if (ai->order_attack[e] > best_weight && !(players.team[ ai->player_id ] & players.team[ e ]))
                 {
-                    // Don't attack allies
-                    if (ai->order_attack[e] > best_weight && !(players.team[ ai->player_id ] & players.team[ e ]))
-                    {
-                        player_target = e;
-                        best_weight = ai->order_attack[e];
-                    }
-                }
-
-                if (player_target >= 0 ) // If we've someone to attack
-                {
-                    sint16 target_id = -1;
-                    while( !ai->enemy_list[ player_target ].empty() && target_id == -1 )
-                    {
-                        target_id = ai->enemy_list[ player_target ].begin()->idx;
-                        if (!(units.unit[ target_id ].flags & 1) || units.unit[ target_id ].type_id < 0
-                            || units.unit[ target_id ].type_id >= unit_manager.nb_unit || units.unit[ target_id ].owner_id != player_target )
-                        {
-                            target_id = -1;
-                            ai->enemy_list[ player_target ].pop_front();		// Remove what we've just read
-                        }
-                        else
-                        {
-                            if (units.unit[ target_id ].cloaked && !units.unit[ target_id ].is_on_radar( 1 << ai->player_id ) ) // This one is cloaked, not on radar
-                            {
-                                target_id = -1;
-                                ai->enemy_list[ player_target ].pop_front();		// Remove what we've just read
-                                continue;
-                            }
-                            ai->enemy_list[ player_target ].begin()->c++;
-                        }
-                    }
-                    if (target_id >= 0 )
-                        units.unit[ *i ].add_mission( MISSION_ATTACK, &units.unit[ target_id ].Pos, false, 0, (&units.unit[ target_id ]), NULL, MISSION_FLAG_COMMAND_FIRE );
+                    player_target = e;
+                    best_weight = ai->order_attack[e];
                 }
             }
-            units.unit[ *i ].unlock();
+
+            if (player_target >= 0 ) // If we've someone to attack
+            {
+                for (std::list<uint16>::iterator i = ai->army_list.begin() ; i != ai->army_list.end() ; ++i ) // Give instructions to idle army units
+                {
+                    rest(1);
+                    units.unit[ *i ].lock();
+                    if ((units.unit[ *i ].flags & 1) && units.unit[ *i ].do_nothing_ai() )
+                    {
+                        sint16 target_id = -1;
+                        while (!ai->enemy_list[ player_target ].empty() && target_id == -1)
+                        {
+                            target_id = ai->enemy_list[ player_target ].begin()->idx;
+                            if (!(units.unit[ target_id ].flags & 1) || units.unit[ target_id ].type_id < 0
+                                || units.unit[ target_id ].type_id >= unit_manager.nb_unit || units.unit[ target_id ].owner_id != player_target )
+                            {
+                                ai->enemy_table[ target_id ] = false;
+                                target_id = -1;
+                                ai->enemy_list[ player_target ].pop_front();		// Remove what we've just read
+                            }
+                            else
+                            {
+                                if (units.unit[ target_id ].cloaked && !units.unit[ target_id ].is_on_radar( 1 << ai->player_id ) ) // This one is cloaked, not on radar
+                                {
+                                    ai->enemy_table[ target_id ] = false;
+                                    target_id = -1;
+                                    ai->enemy_list[ player_target ].pop_front();		// Remove what we've just read
+                                    continue;
+                                }
+                                ai->enemy_list[ player_target ].begin()->c++;
+                            }
+                        }
+                        if (target_id >= 0 )
+                            units.unit[ *i ].add_mission( MISSION_ATTACK, &units.unit[ target_id ].Pos, false, 0, (&units.unit[ target_id ]), NULL, MISSION_FLAG_COMMAND_FIRE );
+                    }
+                    units.unit[ *i ].unlock();
+                }
+            }
         }
 
         for( std::list<uint16>::iterator i = ai->factory_list.begin() ; i != ai->factory_list.end() ; ++i )	// Give instructions to idle factories
         {
+            rest(1);
             units.unit[ *i ].lock();
             if ((units.unit[ *i ].flags & 1) && units.unit[ *i ].do_nothing_ai() && unit_manager.unit_type[units.unit[*i].type_id]->nb_unit > 0 ) {
                 short list_size = unit_manager.unit_type[units.unit[*i].type_id]->nb_unit;
@@ -584,6 +589,8 @@ namespace TA3D
         // Give instructions to idle builders
         for( std::list<uint16>::iterator i = ai->builder_list.begin() ; i != ai->builder_list.end() ; ++i )
         {
+            rest(1);
+
             units.unit[ *i ].lock();
             if ((units.unit[ *i ].flags & 1) && units.unit[ *i ].do_nothing_ai() && unit_manager.unit_type[units.unit[*i].type_id]->nb_unit > 0)
             {
@@ -619,8 +626,6 @@ namespace TA3D
                     {
                         int x = (int)(sqrt( r2 - y * y ) + 0.5f);
 
-                        rest( 0 );
-
                         int cx[] = { x, -x,  x, -x, y,  y, -y, -y };
                         int cy[] = { y,  y, -y, -y, x, -x,  x, -x };
                         int rand_t[8];
@@ -652,6 +657,8 @@ namespace TA3D
                                     {
                                         best_metal = metal_found;
                                         metal_stuff_id = stuff_id;
+                                        if (metal_stuff_id != -1)
+                                            break;
                                     }
                                     else
                                     {
@@ -835,6 +842,7 @@ namespace TA3D
         total_unit = 0;
 
         weights = NULL;
+        enemy_table = NULL;
 
         builder_list.clear();
         factory_list.clear();
@@ -866,6 +874,11 @@ namespace TA3D
         anticipate.destroy();
         player_id=0;
         unit_id=0;
+        if (enemy_table)
+        {
+            delete[] enemy_table;
+            enemy_table = NULL;
+        }
         if (weights)
         {
             delete[] weights;

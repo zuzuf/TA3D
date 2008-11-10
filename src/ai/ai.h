@@ -203,6 +203,7 @@ namespace TA3D
         byte			AI_type;		// Which AI do we have to use?
 
         AI_WEIGHT		*weights;		// Vector of weights used to decide what to build
+        byte            *enemy_table;   // A table used to speed up some look up
         uint16			nb_units[ NB_AI_UNIT_TYPE ];
         uint16			nb_enemy[ 10 ];				// Hom many units has each enemy ?
         float			order_weight[NB_ORDERS];	// weights of orders
