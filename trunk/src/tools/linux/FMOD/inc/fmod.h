@@ -16,7 +16,7 @@
     0xaaaabbcc -> aaaa = major version number.  bb = minor version number.  cc = development version number.
 */
 
-#define FMOD_VERSION    0x00041808
+#define FMOD_VERSION    0x00042001
 
 /*
     Compiler specific settings.
@@ -939,6 +939,7 @@ typedef enum
     FMOD_CHANNEL_CALLBACKTYPE_END,                  /* Called when a sound ends. */
     FMOD_CHANNEL_CALLBACKTYPE_VIRTUALVOICE,         /* Called when a voice is swapped out or swapped in. */
     FMOD_CHANNEL_CALLBACKTYPE_SYNCPOINT,            /* Called when a syncpoint is encountered.  Can be from wav file markers. */
+    FMOD_CHANNEL_CALLBACKTYPE_OCCLUSION,            /* Called when the channel has its geometry occlusion value calculated.  Can be used to clamp or change the value. */
 
     FMOD_CHANNEL_CALLBACKTYPE_MAX,                  /* Maximum number of callback types supported. */
     FMOD_CHANNEL_CALLBACKTYPE_FORCEINT = 65536      /* Makes sure this enum is signed 32bit. */
@@ -983,9 +984,9 @@ typedef enum
 /* 
     FMOD Callbacks
 */
-typedef FMOD_RESULT (F_CALLBACK *FMOD_SYSTEM_CALLBACK)       (FMOD_SYSTEM *system, FMOD_SYSTEM_CALLBACKTYPE type, void* commanddata1, void* commanddata2);
+typedef FMOD_RESULT (F_CALLBACK *FMOD_SYSTEM_CALLBACK)       (FMOD_SYSTEM *system, FMOD_SYSTEM_CALLBACKTYPE type, void *commanddata1, void *commanddata2);
 
-typedef FMOD_RESULT (F_CALLBACK *FMOD_CHANNEL_CALLBACK)      (FMOD_CHANNEL *channel, FMOD_CHANNEL_CALLBACKTYPE type, int command, unsigned int commanddata1, unsigned int commanddata2);
+typedef FMOD_RESULT (F_CALLBACK *FMOD_CHANNEL_CALLBACK)      (FMOD_CHANNEL *channel, FMOD_CHANNEL_CALLBACKTYPE type, void *commanddata1, void *commanddata2);
 
 typedef FMOD_RESULT (F_CALLBACK *FMOD_SOUND_NONBLOCKCALLBACK)(FMOD_SOUND *sound, FMOD_RESULT result);
 typedef FMOD_RESULT (F_CALLBACK *FMOD_SOUND_PCMREADCALLBACK)(FMOD_SOUND *sound, void *data, unsigned int datalen);
@@ -1184,6 +1185,7 @@ typedef enum
     FMOD_DELAYTYPE_END_MS,              /* Delay at the end of the sound in milliseconds.  Use delayhi only.   Channel::isPlaying will remain true until this delay has passed even though the sound itself has stopped playing.*/
     FMOD_DELAYTYPE_DSPCLOCK_START,      /* Time the sound started if Channel::getDelay is used, or if Channel::setDelay is used, the sound will delay playing until this exact tick. */
     FMOD_DELAYTYPE_DSPCLOCK_END,        /* Time the sound should end. If this is non-zero, the channel will go silent at this exact tick. */
+    FMOD_DELAYTYPE_DSPCLOCK_PAUSE,      /* Time the sound should pause. If this is non-zero, the channel will pause at this exact tick. */
 
     FMOD_DELAYTYPE_MAX,                 /* Maximum number of tag datatypes supported. */
     FMOD_DELAYTYPE_FORCEINT = 65536     /* Makes sure this enum is signed 32bit. */
@@ -1409,7 +1411,7 @@ typedef struct FMOD_CREATESOUNDEXINFO
     const char                    *dlsname;            /* [in] Optional. Specify 0 to ignore. Filename for a DLS or SF2 sample set when loading a MIDI file. If not specified, on Windows it will attempt to open /windows/system32/drivers/gm.dls or /windows/system32/drivers/etc/gm.dls, on Mac it will attempt to load /System/Library/Components/CoreAudio.component/Contents/Resources/gs_instruments.dls, otherwise the MIDI will fail to open. Current DLS support is for level 1 of the specification. */
     const char                    *encryptionkey;      /* [in] Optional. Specify 0 to ignore. Key for encrypted FSB file.  Without this key an encrypted FSB file will not load. */
     int                            maxpolyphony;       /* [in] Optional. Specify 0 to ignore. For sequenced formats with dynamic channel allocation such as .MID and .IT, this specifies the maximum voice count allowed while playing.  .IT defaults to 64.  .MID defaults to 32. */
-    void                          *userdata;           /* [in] Optional. Specify 0 to ignore. This is user data to be attached to the sound during creation.  Access via Sound::getUserData. */
+    void                          *userdata;           /* [in] Optional. Specify 0 to ignore. This is user data to be attached to the sound during creation.  Access via Sound::getUserData.  Note: This is not passed to FMOD_FILE_OPENCALLBACK, that is a different userdata that is file specific. */
     FMOD_SOUND_TYPE                suggestedsoundtype; /* [in] Optional. Specify 0 or FMOD_SOUND_TYPE_UNKNOWN to ignore.  Instead of scanning all codec types, use this to speed up loading by making it jump straight to this codec. */
     FMOD_FILE_OPENCALLBACK         useropen;           /* [in] Optional. Specify 0 to ignore. Callback for opening this file. */
     FMOD_FILE_CLOSECALLBACK        userclose;          /* [in] Optional. Specify 0 to ignore. Callback for closing this file. */
@@ -1705,18 +1707,15 @@ typedef struct FMOD_REVERB_CHANNELPROPERTIES
 #define FMOD_REVERB_CHANNELFLAGS_DIRECTHFAUTO  0x00000001 /* Automatic setting of 'Direct'  due to distance from listener */
 #define FMOD_REVERB_CHANNELFLAGS_ROOMAUTO      0x00000002 /* Automatic setting of 'Room'  due to distance from listener */
 #define FMOD_REVERB_CHANNELFLAGS_ROOMHFAUTO    0x00000004 /* Automatic setting of 'RoomHF' due to distance from listener */
-#define FMOD_REVERB_CHANNELFLAGS_INSTANCE0     0x00000008 /* EAX4/SFX/GameCube/Wii. Specify channel to target reverb instance 0.  Default target. */
-#define FMOD_REVERB_CHANNELFLAGS_INSTANCE1     0x00000010 /* EAX4/SFX/GameCube/Wii. Specify channel to target reverb instance 1. */
-#define FMOD_REVERB_CHANNELFLAGS_INSTANCE2     0x00000020 /* EAX4/SFX/GameCube/Wii. Specify channel to target reverb instance 2. */
-#define FMOD_REVERB_CHANNELFLAGS_INSTANCE3     0x00000040 /* EAX5/SFX. Specify channel to target reverb instance 3. */
+#define FMOD_REVERB_CHANNELFLAGS_INSTANCE0     0x00000010 /* EAX4/SFX/GameCube/Wii. Specify channel to target reverb instance 0.  Default target. */
+#define FMOD_REVERB_CHANNELFLAGS_INSTANCE1     0x00000020 /* EAX4/SFX/GameCube/Wii. Specify channel to target reverb instance 1. */
+#define FMOD_REVERB_CHANNELFLAGS_INSTANCE2     0x00000040 /* EAX4/SFX/GameCube/Wii. Specify channel to target reverb instance 2. */
+#define FMOD_REVERB_CHANNELFLAGS_INSTANCE3     0x00000080 /* EAX5/SFX. Specify channel to target reverb instance 3. */
 
 #define FMOD_REVERB_CHANNELFLAGS_DEFAULT       (FMOD_REVERB_CHANNELFLAGS_DIRECTHFAUTO | \
                                                 FMOD_REVERB_CHANNELFLAGS_ROOMAUTO|      \
                                                 FMOD_REVERB_CHANNELFLAGS_ROOMHFAUTO|    \
-                                                FMOD_REVERB_CHANNELFLAGS_INSTANCE0|     \
-                                                FMOD_REVERB_CHANNELFLAGS_INSTANCE1|     \
-                                                FMOD_REVERB_CHANNELFLAGS_INSTANCE2|     \
-                                                FMOD_REVERB_CHANNELFLAGS_INSTANCE3)
+                                                FMOD_REVERB_CHANNELFLAGS_INSTANCE0)
 /* [DEFINE_END] */
 
 
@@ -1795,6 +1794,7 @@ typedef enum
 
 #include "fmod_codec.h"
 #include "fmod_dsp.h"
+#include "fmod_memoryinfo.h"
 
 /* ========================================================================================== */
 /* FUNCTION PROTOTYPES                                                                        */
@@ -1988,6 +1988,8 @@ FMOD_RESULT F_API FMOD_System_GetNetworkTimeout      (FMOD_SYSTEM *system, int *
 FMOD_RESULT F_API FMOD_System_SetUserData            (FMOD_SYSTEM *system, void *userdata);
 FMOD_RESULT F_API FMOD_System_GetUserData            (FMOD_SYSTEM *system, void **userdata);
 
+FMOD_RESULT F_API FMOD_System_GetMemoryInfo          (FMOD_SYSTEM *system, unsigned int memorybits, unsigned int event_memorybits, unsigned int *memoryused, unsigned int *memoryused_array);
+
 /*
     'Sound' API
 */
@@ -2063,6 +2065,8 @@ FMOD_RESULT F_API FMOD_Sound_GetMusicChannelVolume   (FMOD_SOUND *sound, int cha
 FMOD_RESULT F_API FMOD_Sound_SetUserData             (FMOD_SOUND *sound, void *userdata);
 FMOD_RESULT F_API FMOD_Sound_GetUserData             (FMOD_SOUND *sound, void **userdata);
 
+FMOD_RESULT F_API FMOD_Sound_GetMemoryInfo           (FMOD_SOUND *sound, unsigned int memorybits, unsigned int event_memorybits, unsigned int *memoryused, unsigned int *memoryused_array);
+
 /*
     'Channel' API
 */
@@ -2094,10 +2098,12 @@ FMOD_RESULT F_API FMOD_Channel_SetPosition           (FMOD_CHANNEL *channel, uns
 FMOD_RESULT F_API FMOD_Channel_GetPosition           (FMOD_CHANNEL *channel, unsigned int *position, FMOD_TIMEUNIT postype);
 FMOD_RESULT F_API FMOD_Channel_SetReverbProperties   (FMOD_CHANNEL *channel, const FMOD_REVERB_CHANNELPROPERTIES *prop);
 FMOD_RESULT F_API FMOD_Channel_GetReverbProperties   (FMOD_CHANNEL *channel, FMOD_REVERB_CHANNELPROPERTIES *prop);
+FMOD_RESULT F_API FMOD_Channel_SetLowPassGain        (FMOD_CHANNEL *channel, float gain);
+FMOD_RESULT F_API FMOD_Channel_GetLowPassGain        (FMOD_CHANNEL *channel, float *gain);
 
 FMOD_RESULT F_API FMOD_Channel_SetChannelGroup       (FMOD_CHANNEL *channel, FMOD_CHANNELGROUP *channelgroup);
 FMOD_RESULT F_API FMOD_Channel_GetChannelGroup       (FMOD_CHANNEL *channel, FMOD_CHANNELGROUP **channelgroup);
-FMOD_RESULT F_API FMOD_Channel_SetCallback           (FMOD_CHANNEL *channel, FMOD_CHANNEL_CALLBACKTYPE type, FMOD_CHANNEL_CALLBACK callback, int command);
+FMOD_RESULT F_API FMOD_Channel_SetCallback           (FMOD_CHANNEL *channel, FMOD_CHANNEL_CALLBACK callback);
 
 /*
      3D functionality.
@@ -2158,6 +2164,8 @@ FMOD_RESULT F_API FMOD_Channel_GetLoopPoints         (FMOD_CHANNEL *channel, uns
 
 FMOD_RESULT F_API FMOD_Channel_SetUserData           (FMOD_CHANNEL *channel, void *userdata);
 FMOD_RESULT F_API FMOD_Channel_GetUserData           (FMOD_CHANNEL *channel, void **userdata);
+
+FMOD_RESULT F_API FMOD_Channel_GetMemoryInfo         (FMOD_CHANNEL *channel, unsigned int memorybits, unsigned int event_memorybits, unsigned int *memoryused, unsigned int *memoryused_array);
 
 /*
     'ChannelGroup' API
@@ -2226,6 +2234,8 @@ FMOD_RESULT F_API FMOD_ChannelGroup_GetWaveData      (FMOD_CHANNELGROUP *channel
 FMOD_RESULT F_API FMOD_ChannelGroup_SetUserData      (FMOD_CHANNELGROUP *channelgroup, void *userdata);
 FMOD_RESULT F_API FMOD_ChannelGroup_GetUserData      (FMOD_CHANNELGROUP *channelgroup, void **userdata);
 
+FMOD_RESULT F_API FMOD_ChannelGroup_GetMemoryInfo    (FMOD_CHANNELGROUP *channelgroup, unsigned int memorybits, unsigned int event_memorybits, unsigned int *memoryused, unsigned int *memoryused_array);
+
 /*
     'SoundGroup' API
 */
@@ -2262,6 +2272,8 @@ FMOD_RESULT F_API FMOD_SoundGroup_GetNumPlaying      (FMOD_SOUNDGROUP *soundgrou
 
 FMOD_RESULT F_API FMOD_SoundGroup_SetUserData        (FMOD_SOUNDGROUP *soundgroup, void *userdata);
 FMOD_RESULT F_API FMOD_SoundGroup_GetUserData        (FMOD_SOUNDGROUP *soundgroup, void **userdata);
+
+FMOD_RESULT F_API FMOD_SoundGroup_GetMemoryInfo      (FMOD_SOUNDGROUP *soundgroup, unsigned int memorybits, unsigned int event_memorybits, unsigned int *memoryused, unsigned int *memoryused_array);
 
 /*
     'DSP' API
@@ -2321,6 +2333,8 @@ FMOD_RESULT F_API FMOD_DSP_GetDefaults               (FMOD_DSP *dsp, float *freq
 FMOD_RESULT F_API FMOD_DSP_SetUserData               (FMOD_DSP *dsp, void *userdata);
 FMOD_RESULT F_API FMOD_DSP_GetUserData               (FMOD_DSP *dsp, void **userdata);
 
+FMOD_RESULT F_API FMOD_DSP_GetMemoryInfo             (FMOD_DSP *dsp, unsigned int memorybits, unsigned int event_memorybits, unsigned int *memoryused, unsigned int *memoryused_array);
+
 /*
     'DSPConnection' API
 */
@@ -2338,6 +2352,8 @@ FMOD_RESULT F_API FMOD_DSPConnection_GetLevels       (FMOD_DSPCONNECTION *dspcon
 
 FMOD_RESULT F_API FMOD_DSPConnection_SetUserData     (FMOD_DSPCONNECTION *dspconnection, void *userdata);
 FMOD_RESULT F_API FMOD_DSPConnection_GetUserData     (FMOD_DSPCONNECTION *dspconnection, void **userdata);
+
+FMOD_RESULT F_API FMOD_DSPConnection_GetMemoryInfo   (FMOD_DSPCONNECTION *dspconnection, unsigned int memorybits, unsigned int event_memorybits, unsigned int *memoryused, unsigned int *memoryused_array);
 
 /*
     'Geometry' API
@@ -2379,6 +2395,8 @@ FMOD_RESULT F_API FMOD_Geometry_Save                 (FMOD_GEOMETRY *geometry, v
 FMOD_RESULT F_API FMOD_Geometry_SetUserData          (FMOD_GEOMETRY *geometry, void *userdata);
 FMOD_RESULT F_API FMOD_Geometry_GetUserData          (FMOD_GEOMETRY *geometry, void **userdata);
 
+FMOD_RESULT F_API FMOD_Geometry_GetMemoryInfo        (FMOD_GEOMETRY *geometry, unsigned int memorybits, unsigned int event_memorybits, unsigned int *memoryused, unsigned int *memoryused_array);
+
 /*
     'Reverb' API
 */
@@ -2402,6 +2420,8 @@ FMOD_RESULT F_API FMOD_Reverb_GetActive              (FMOD_REVERB *reverb, FMOD_
 
 FMOD_RESULT F_API FMOD_Reverb_SetUserData            (FMOD_REVERB *reverb, void *userdata);
 FMOD_RESULT F_API FMOD_Reverb_GetUserData            (FMOD_REVERB *reverb, void **userdata);
+
+FMOD_RESULT F_API FMOD_Reverb_GetMemoryInfo          (FMOD_REVERB *reverb, unsigned int memorybits, unsigned int event_memorybits, unsigned int *memoryused, unsigned int *memoryused_array);
 /*$ preserve start $*/
 
 #ifdef __cplusplus

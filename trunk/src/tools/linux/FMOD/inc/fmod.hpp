@@ -180,6 +180,8 @@ namespace FMOD
         // Userdata set/get.
         FMOD_RESULT F_API setUserData            (void *userdata);
         FMOD_RESULT F_API getUserData            (void **userdata);
+
+        FMOD_RESULT F_API getMemoryInfo          (unsigned int memorybits, unsigned int event_memorybits, unsigned int *memoryused, unsigned int *memoryused_array);
     };
 
     /*
@@ -248,6 +250,8 @@ namespace FMOD
         // Userdata set/get.
         FMOD_RESULT F_API setUserData            (void *userdata);
         FMOD_RESULT F_API getUserData            (void **userdata);
+
+        FMOD_RESULT F_API getMemoryInfo          (unsigned int memorybits, unsigned int event_memorybits, unsigned int *memoryused, unsigned int *memoryused_array);
     };
 
     /*
@@ -288,10 +292,12 @@ namespace FMOD
         FMOD_RESULT F_API getPosition            (unsigned int *position, FMOD_TIMEUNIT postype);
         FMOD_RESULT F_API setReverbProperties    (const FMOD_REVERB_CHANNELPROPERTIES *prop);
         FMOD_RESULT F_API getReverbProperties    (FMOD_REVERB_CHANNELPROPERTIES *prop);
+        FMOD_RESULT F_API setLowPassGain         (float gain);
+        FMOD_RESULT F_API getLowPassGain         (float *gain);
 
         FMOD_RESULT F_API setChannelGroup        (ChannelGroup *channelgroup);
         FMOD_RESULT F_API getChannelGroup        (ChannelGroup **channelgroup);
-        FMOD_RESULT F_API setCallback            (FMOD_CHANNEL_CALLBACKTYPE type, FMOD_CHANNEL_CALLBACK callback, int command);
+        FMOD_RESULT F_API setCallback            (FMOD_CHANNEL_CALLBACK callback);
 
         // 3D functionality.
         FMOD_RESULT F_API set3DAttributes        (const FMOD_VECTOR *pos, const FMOD_VECTOR *vel);
@@ -337,6 +343,8 @@ namespace FMOD
         // Userdata set/get.                                                
         FMOD_RESULT F_API setUserData            (void *userdata);
         FMOD_RESULT F_API getUserData            (void **userdata);
+
+        FMOD_RESULT F_API getMemoryInfo          (unsigned int memorybits, unsigned int event_memorybits, unsigned int *memoryused, unsigned int *memoryused_array);
     };
 
     /*
@@ -394,6 +402,8 @@ namespace FMOD
         // Userdata set/get.
         FMOD_RESULT F_API setUserData             (void *userdata);
         FMOD_RESULT F_API getUserData             (void **userdata);
+
+        FMOD_RESULT F_API getMemoryInfo           (unsigned int memorybits, unsigned int event_memorybits, unsigned int *memoryused, unsigned int *memoryused_array);
     };
 
     /*
@@ -430,6 +440,8 @@ namespace FMOD
         // Userdata set/get.
         FMOD_RESULT F_API setUserData            (void *userdata);
         FMOD_RESULT F_API getUserData            (void **userdata);
+    
+        FMOD_RESULT F_API getMemoryInfo          (unsigned int memorybits, unsigned int event_memorybits, unsigned int *memoryused, unsigned int *memoryused_array);
     };
 
     /*
@@ -482,6 +494,8 @@ namespace FMOD
         // Userdata set/get.
         FMOD_RESULT F_API setUserData            (void *userdata);
         FMOD_RESULT F_API getUserData            (void **userdata);
+
+        FMOD_RESULT F_API getMemoryInfo          (unsigned int memorybits, unsigned int event_memorybits, unsigned int *memoryused, unsigned int *memoryused_array);
     };
 
 
@@ -507,6 +521,8 @@ namespace FMOD
         // Userdata set/get.
         FMOD_RESULT F_API setUserData           (void *userdata);
         FMOD_RESULT F_API getUserData           (void **userdata);
+
+        FMOD_RESULT F_API getMemoryInfo         (unsigned int memorybits, unsigned int event_memorybits, unsigned int *memoryused, unsigned int *memoryused_array);
     };
 
 
@@ -548,6 +564,8 @@ namespace FMOD
         // Userdata set/get.
         FMOD_RESULT F_API setUserData            (void *userdata);
         FMOD_RESULT F_API getUserData            (void **userdata);
+
+        FMOD_RESULT F_API getMemoryInfo          (unsigned int memorybits, unsigned int event_memorybits, unsigned int *memoryused, unsigned int *memoryused_array);
     };
 
 
@@ -576,6 +594,8 @@ namespace FMOD
         // Userdata set/get.
         FMOD_RESULT F_API setUserData            (void *userdata);
         FMOD_RESULT F_API getUserData            (void **userdata);    
+
+        FMOD_RESULT F_API getMemoryInfo          (unsigned int memorybits, unsigned int event_memorybits, unsigned int *memoryused, unsigned int *memoryused_array);
     };
 }
 
