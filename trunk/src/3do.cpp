@@ -1044,7 +1044,7 @@ namespace TA3D
                             }
                         }
                         cache_filename = TA3D::Paths::Files::ReplaceExtension( cache_filename, ".tga" );
-                        if (!TA3D::Paths::Exists( cache_filename ))
+                        if (!TA3D::Paths::Exists( TA3D::Paths::Caches + cache_filename ))
                             save_bitmap( (TA3D::Paths::Caches + cache_filename).c_str(), bmp, NULL );
                     }
                     else
@@ -1435,11 +1435,8 @@ namespace TA3D
             allegro_gl_set_texture_format(GL_COMPRESSED_RGBA_ARB);
         else
             allegro_gl_set_texture_format(GL_RGB5_A1);
-        gltex[0] = allegro_gl_make_texture(bmp);
+        gltex[0] = gfx->make_texture(bmp, FILTER_TRILINEAR);
         dtex = 1;
-        glBindTexture(GL_TEXTURE_2D,gltex[0]);
-        glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR_MIPMAP_LINEAR);
 
         /*--------------------------------------------------------------------------------------*/
 
