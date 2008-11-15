@@ -850,6 +850,8 @@ void load_game( GameData *game_data )
             LOAD( *f );
 
         LOAD( units.unit[i].owner_id );
+        if (network_manager.isConnected())
+            units.unit[i].local = !(game_data->player_control[ player_id ] & PLAYER_CONTROL_FLAG_REMOTE);
         LOAD( units.unit[i].hp );
         LOAD( units.unit[i].Pos );
         LOAD( units.unit[i].V );
