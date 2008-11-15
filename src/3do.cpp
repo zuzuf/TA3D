@@ -1241,20 +1241,22 @@ namespace TA3D
             if (surface.Flag&SURFACE_ADVANCED)
             {
                 if (g_useTextureCompression && lp_CONFIG->use_texture_compression)
-                    allegro_gl_set_texture_format(GL_COMPRESSED_RGB_ARB);
+                    allegro_gl_set_texture_format(GL_COMPRESSED_RGBA_ARB);
                 else
-                    allegro_gl_set_texture_format(GL_RGB8);
+                    allegro_gl_set_texture_format(GL_RGBA8);
+                allegro_gl_use_alpha_channel(true);
             }
             else
             {
                 if (g_useTextureCompression && lp_CONFIG->use_texture_compression)
-                    allegro_gl_set_texture_format(GL_COMPRESSED_RGBA_ARB);
+                    allegro_gl_set_texture_format(GL_COMPRESSED_RGB_ARB);
                 else
-                    allegro_gl_set_texture_format(GL_RGBA8);
+                    allegro_gl_set_texture_format(GL_RGB8);
             }
 
             BITMAP *bmp = load_bitmap( (TA3D::Paths::Caches + tex_cache_name[id]).c_str(), NULL );
             GLuint texid = gfx->make_texture(bmp,FILTER_TRILINEAR,true);
+            allegro_gl_use_alpha_channel(false);
             if (surface.Flag&SURFACE_ADVANCED)
                 surface.gltex[id] = texid;
             else
