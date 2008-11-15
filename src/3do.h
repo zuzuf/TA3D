@@ -380,7 +380,7 @@ namespace TA3D
 
         void save_3dm(FILE *dst, bool compressed);
 
-        byte *load_3dm(byte *data);
+        byte *load_3dm(byte *data,const char *filename=NULL);
 
         void create_from_2d(BITMAP *bmp,float w,float h,float max_h);
 
@@ -456,7 +456,7 @@ namespace TA3D
         /*!
         ** \brief
         */
-        void load_3dm(byte* data);	// Load a model in 3DM format
+        void load_3dm(byte* data,const char *filename=NULL);	// Load a model in 3DM format
 
         /*!
         ** \brief

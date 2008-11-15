@@ -635,7 +635,7 @@ namespace TA3D
                 if (bmp[i])
                     destroy_bitmap(bmp[i]);
                 if (pAnimationConverted)
-                    glDeleteTextures(1, &(glbmp[i]));
+                    gfx->destroy_texture(glbmp[i]);
             }
         }
         if (w) delete[] w;
