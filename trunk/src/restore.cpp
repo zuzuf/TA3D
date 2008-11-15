@@ -81,6 +81,7 @@ void save_game( const String filename, GameData *game_data )
     fputc( 0, file );
 
     SAVE( game_data->nb_players );
+    SAVE( game_data->max_unit_per_player );
 
     // Palyer names
     for (String::Vector::const_iterator i = game_data->player_names.begin(); i != game_data->player_names.end(); ++i)
@@ -524,6 +525,7 @@ bool load_game_data( const String filename, GameData *game_data, bool loading )
         game_data->use_only = "";
 
     LOAD( game_data->nb_players );
+    LOAD( game_data->max_unit_per_player );
 
     // Palyer names
     for (String::Vector::iterator i = game_data->player_names.begin(); i != game_data->player_names.end(); ++i)
@@ -595,7 +597,8 @@ void load_game( GameData *game_data )
     readstring( tmp, 1024, file );		// Useonly file
 
     LOAD( game_data->nb_players );		// nb players
-
+    LOAD( game_data->max_unit_per_player );
+    TA3D::MAX_UNIT_PER_PLAYER = game_data->max_unit_per_player;
 
     // Palyer names
     for (String::Vector::iterator i = game_data->player_names.begin(); i != game_data->player_names.end(); ++i)

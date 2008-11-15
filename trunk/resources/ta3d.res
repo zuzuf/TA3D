@@ -1,3 +1,7 @@
+[Unit limit]
+{
+    FRENCH=Limite d'unités;
+}
 [chose your team]
 {
     FRENCH=Choisissez votre equipe;
