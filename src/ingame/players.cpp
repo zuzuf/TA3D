@@ -228,8 +228,11 @@ namespace TA3D
 
                     ++nbTotal;
 
-                    if (g_ta3d_network->isTCPonly()
-                        || latest_sync < units.unit[i].previous_sync.timestamp - 10
+                    bool sync_needed = need_sync(sync, units.unit[i].previous_sync);
+
+                    if ((g_ta3d_network->isTCPonly() && sync_needed)
+                        || (latest_sync < units.unit[i].previous_sync.timestamp - 10 && sync_needed)
+                        || latest_sync < units.unit[i].previous_sync.timestamp - 100
                         || units.unit[i].previous_sync.flags != sync.flags
                         || units.unit[i].previous_sync.hp != sync.hp
                         || ( units.unit[i].previous_sync.build_percent_left != sync.build_percent_left && sync.build_percent_left == 0.0f ) )
@@ -238,11 +241,11 @@ namespace TA3D
                         units.unit[i].previous_sync = sync;
                         if (latest_sync < units.unit[i].previous_sync.timestamp - 10)
                             ++nbTCP;
-                        //					printf("sending TCP sync packet!\n");
+                        //					LOG_DEBUG("sending TCP sync packet!\n");
                     }
                     else
                     {
-                        if (need_sync(sync, units.unit[i].previous_sync))
+                        if (sync_needed)
                         {			// Don't send what isn't needed
                             network_manager.sendSync( &sync );
                             units.unit[i].previous_sync = sync;
