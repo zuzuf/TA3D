@@ -290,9 +290,17 @@ namespace TA3D
             ThreadSynchroniser->unlock();
 
             players_thread_sync = 1;
+            uint32 check_timer = msec_timer;
 
             while (players_thread_sync && !thread_ask_to_stop)
+            {
                 rest(1); // Wait until other thread sync with this one
+                if (msec_timer - check_timer > 100 && ta3d_network)
+                {
+                    ta3d_network->check();
+                    check_timer = msec_timer;
+                }
+            }
         }
 
         thread_is_running = false;
