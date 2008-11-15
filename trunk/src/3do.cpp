@@ -428,10 +428,7 @@ namespace TA3D
         if (surface.NbTex > 0)
         {
             for (int i = 0; i < surface.NbTex; ++i)
-            {
-                if (surface.gltex[i])
-                    glDeleteTextures(1, &(surface.gltex[i]));
-            }
+                gfx->destroy_texture(surface.gltex[i]);
         }
         if (line_on)
             delete[] line_on;
@@ -443,11 +440,11 @@ namespace TA3D
         if (dtex)
         {
             for(int i=0;i<dtex;i++)
-                glDeleteTextures(1,&(gltex[i]));
+                gfx->destroy_texture(gltex[i]);
         }
         for(int i=0;i<10;i++)
         {
-            if( gl_dlist[ i ] )
+            if (gl_dlist[ i ])
                 glDeleteLists(gl_dlist[i],1);
         }
         if (usetex)
@@ -1241,22 +1238,39 @@ namespace TA3D
         if (id < tex_cache_name.size() && !tex_cache_name[id].empty() && TA3D::Paths::ExtractFileExt( tex_cache_name[id] ) == ".tga" )
         {
                     // Use global texture configuration
-            if (g_useTextureCompression && lp_CONFIG->use_texture_compression)
-                allegro_gl_set_texture_format(GL_COMPRESSED_RGB_ARB);
+            if (surface.Flag&SURFACE_ADVANCED)
+            {
+                if (g_useTextureCompression && lp_CONFIG->use_texture_compression)
+                    allegro_gl_set_texture_format(GL_COMPRESSED_RGB_ARB);
+                else
+                    allegro_gl_set_texture_format(GL_RGB8);
+            }
             else
-                allegro_gl_set_texture_format(GL_RGB8);
+            {
+                if (g_useTextureCompression && lp_CONFIG->use_texture_compression)
+                    allegro_gl_set_texture_format(GL_COMPRESSED_RGBA_ARB);
+                else
+                    allegro_gl_set_texture_format(GL_RGBA8);
+            }
 
             BITMAP *bmp = load_bitmap( (TA3D::Paths::Caches + tex_cache_name[id]).c_str(), NULL );
-            gltex[id] = gfx->make_texture(bmp,FILTER_TRILINEAR,true);
+            GLuint texid = gfx->make_texture(bmp,FILTER_TRILINEAR,true);
+            if (surface.Flag&SURFACE_ADVANCED)
+                surface.gltex[id] = texid;
+            else
+                gltex[id] = texid;
 
-            gfx->save_texture_to_cache( TA3D::Paths::Files::ReplaceExtension(tex_cache_name[id],".bin"), gltex[id], bmp->w, bmp->h);
+            gfx->save_texture_to_cache( TA3D::Paths::Files::ReplaceExtension(tex_cache_name[id],".bin"), texid, bmp->w, bmp->h);
             destroy_bitmap( bmp );
 
             tex_cache_name[id].clear();
         }
         else if (id < tex_cache_name.size() && !tex_cache_name[id].empty() && gfx->is_texture_in_cache(tex_cache_name[id]))
         {
-            gltex[id] = gfx->load_texture_from_cache(tex_cache_name[id]);
+            if (surface.Flag&SURFACE_ADVANCED)
+                surface.gltex[id] = gfx->load_texture_from_cache(tex_cache_name[id]);
+            else
+                gltex[id] = gfx->load_texture_from_cache(tex_cache_name[id]);
             tex_cache_name[id].clear();
         }
     }
@@ -3074,7 +3088,7 @@ namespace TA3D
                         }
                         if (data)
                         {
-                            model[i+nb_models].load_3dm(data);
+                            model[i+nb_models].load_3dm(data, e->c_str());
                             delete[] data;
                             model_hashtable.insert(String::ToLower(*e), nb_models + i + 1);
                             ++i;
@@ -3158,10 +3172,10 @@ namespace TA3D
     }
 
 
-    void MODEL::load_3dm(byte *data)					// Load a model in 3DM format
+    void MODEL::load_3dm(byte *data,const char *filename)					// Load a model in 3DM format
     {
         destroy();
-        obj.load_3dm(data);
+        obj.load_3dm(data,filename);
         nb_obj = obj.set_obj_id( 0 );
 
         animated = obj.has_animation_data();
@@ -3757,7 +3771,7 @@ namespace TA3D
 
 
 
-    byte *OBJECT::load_3dm(byte *data)
+    byte *OBJECT::load_3dm(byte *data, const char *filename)
     {
         destroy();
 
@@ -3963,13 +3977,26 @@ namespace TA3D
                 }
             }
 
-            allegro_gl_use_alpha_channel(true);
-            allegro_gl_set_texture_format(GL_RGBA8);
-            surface.gltex[i]=allegro_gl_make_texture(tex);
-            allegro_gl_use_alpha_channel(false);
-            glBindTexture(GL_TEXTURE_2D,surface.gltex[i]);
-            glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
-            glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
+            if (TA3D::model_manager.loading_all())      // We want to convert textures on-the-fly in order to speed loading
+            {
+                String cache_filename = filename ? String( filename ) + format("-%s-%d.bin", !name.empty() ? name.c_str() : "none", i ) : String( "" );
+
+                surface.gltex[i] = 0;
+                if (!gfx->is_texture_in_cache(cache_filename))
+                {
+                    cache_filename = TA3D::Paths::Files::ReplaceExtension( cache_filename, ".tga" );
+                    if (!TA3D::Paths::Exists( TA3D::Paths::Caches + cache_filename ))
+                        save_bitmap( (TA3D::Paths::Caches + cache_filename).c_str(), tex, NULL );
+                }
+                tex_cache_name.push_back( cache_filename );
+            }
+            else            // Standard loading path (used by 3DMEditor)
+            {
+                allegro_gl_use_alpha_channel(true);
+                allegro_gl_set_texture_format(GL_RGBA8);
+                surface.gltex[i] = gfx->make_texture(tex, FILTER_LINEAR);
+                allegro_gl_use_alpha_channel(false);
+            }
 
             destroy_bitmap(tex);
         }
@@ -4035,7 +4062,7 @@ namespace TA3D
         if (link)
         {
             child = new OBJECT;
-            data=child->load_3dm(data);
+            data=child->load_3dm(data,filename);
             if (data == NULL)
             {
                 destroy();
@@ -4049,7 +4076,7 @@ namespace TA3D
         if (link)
         {
             next = new OBJECT;
-            data = next->load_3dm(data);
+            data = next->load_3dm(data,filename);
             if (data == NULL)
             {
                 destroy();

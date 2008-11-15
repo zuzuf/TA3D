@@ -118,6 +118,7 @@ namespace TA3D
         int x_offset = gui_parser.pullAsInt("gadget0.common.xpos");
         int y_offset = gui_parser.pullAsInt("gadget0.common.ypos");
 
+        allegro_gl_set_texture_format(GL_RGB8);
         for (int i = 1; i <= NbObj; ++i)
         {
             int attribs = gui_parser.pullAsInt( format( "gadget%d.common.commonattribs", i ) );
@@ -144,7 +145,7 @@ namespace TA3D
                         {
                             w = img->w;
                             h = img->h;
-                            tex = gfx->make_texture( img );
+                            tex = gfx->make_texture( img, FILTER_LINEAR );
                             destroy_bitmap( img );
                         }
 
@@ -152,7 +153,7 @@ namespace TA3D
                         unit_type[unit_index]->AddUnitBuild(idx, x, y, w, h, page, tex);
                     }
                     else
-                        unit_type[unit_index]->AddUnitBuild(idx, x, y, w, h, page);
+                        unit_type[unit_index]->AddUnitBuild(idx, x, y, w, h, page, unit_type[idx]->glpic);
                 }
                 else
                     LOG_DEBUG("unit not found : " << name);
@@ -175,7 +176,7 @@ namespace TA3D
                         {
                             w = img->w;
                             h = img->h;
-                            tex = gfx->make_texture(img);
+                            tex = gfx->make_texture(img, FILTER_LINEAR);
                             destroy_bitmap(img);
                         }
 
@@ -235,7 +236,7 @@ namespace TA3D
                 continue;		// Au cas où l'unité n'existerait pas
             }
             int idx = get_unit_index(unitname);
-            if (idx>=0 && idx<nb_unit && unit_type[idx]->unitpic)
+            if (idx>=0 && idx<nb_unit && unit_type[idx]->glpic)
                 unit_type[unit_index]->AddUnitBuild(idx, -1, -1, 64, 64, -1);
             else
                 LOG_DEBUG("unit '" << unitname << "' not found, cannot add it to " << unitmenu << " build menu");
@@ -295,7 +296,7 @@ namespace TA3D
             while (n>0)
             {
                 int idx = get_unit_index( canbuild );
-                if (idx >= 0 && idx < nb_unit && unit_type[idx]->unitpic)
+                if (idx >= 0 && idx < nb_unit && unit_type[idx]->glpic)
                     unit_type[i]->AddUnitBuild(idx, -1, -1, 64, 64, -1);
                 else
                     LOG_DEBUG("unit '" << canbuild << "' not found");
@@ -337,18 +338,27 @@ namespace TA3D
         if (unit_index == -1)
             return;
 
-        String::List file_list;
-        HPIManager->getFilelist( "scripts\\" + uprname + ".cob", file_list);
-
-        for (String::List::iterator file = file_list.begin();file != file_list.end(); ++file) // Cherche un fichier pouvant contenir des informations sur l'unité unit_name
+        byte* data = HPIManager->PullFromHPI("scripts\\" + unit_name + ".cob");		// Lit le fichier
+        if (data)
         {
-            if (strstr(String::ToUpper(*file).c_str(),uprname.c_str())) 	// A trouvé un fichier qui convient
+            unit_type[unit_index]->script = new SCRIPT;
+            unit_type[unit_index]->script->load_cob(data);
+        }
+        else
+        {
+            String::List file_list;
+            HPIManager->getFilelist( "scripts\\" + uprname + ".cob", file_list);
+
+            for (String::List::iterator file = file_list.begin();file != file_list.end(); ++file) // Cherche un fichier pouvant contenir des informations sur l'unité unit_name
             {
-                byte* data = HPIManager->PullFromHPI(*file);		// Lit le fichier
-                unit_type[unit_index]->script = new SCRIPT;
-                unit_type[unit_index]->script->load_cob(data);
-                // Don't delete[] data here because the script keeps a reference to it.
-                break;
+                if (strstr(String::ToUpper(*file).c_str(),uprname.c_str())) 	// A trouvé un fichier qui convient
+                {
+                    data = HPIManager->PullFromHPI(*file);		// Lit le fichier
+                    unit_type[unit_index]->script = new SCRIPT;
+                    unit_type[unit_index]->script->load_cob(data);
+                    // Don't delete[] data here because the script keeps a reference to it.
+                    break;
+                }
             }
         }
     }
@@ -410,10 +420,8 @@ namespace TA3D
         if(model)
             model = NULL;
         if(unitpic)
-        {
             destroy_bitmap(unitpic);
-            glDeleteTextures(1,&glpic);
-        }
+        gfx->destroy_texture(glpic);
         Corpse.clear();
         Unitname.clear();
         name.clear();
@@ -468,6 +476,7 @@ namespace TA3D
         yardmap.clear();
         model=NULL;
         unitpic=NULL;
+        glpic=0;
         hoverattack=false;
         SortBias=0;
         IsAirBase=false;
@@ -1574,14 +1583,10 @@ namespace TA3D
                     if (unit_manager.unit_type[unit_manager.nb_unit - 1]->unitpic)
                     {
                         allegro_gl_use_alpha_channel(false);
-                        if (g_useTextureCompression && lp_CONFIG->use_texture_compression)
-                            allegro_gl_set_texture_format(GL_COMPRESSED_RGB_ARB);
-                        else
-                            allegro_gl_set_texture_format(GL_RGB8);
-                        unit_manager.unit_type[unit_manager.nb_unit - 1]->glpic=allegro_gl_make_texture(unit_manager.unit_type[unit_manager.nb_unit - 1]->unitpic);
-                        glBindTexture(GL_TEXTURE_2D,unit_manager.unit_type[unit_manager.nb_unit - 1]->glpic);
-                        glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
-                        glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
+                        allegro_gl_set_texture_format(GL_RGB8);
+                        unit_manager.unit_type[unit_manager.nb_unit - 1]->glpic = gfx->make_texture(unit_manager.unit_type[unit_manager.nb_unit - 1]->unitpic, FILTER_LINEAR);
+                        destroy_bitmap(unit_manager.unit_type[unit_manager.nb_unit - 1]->unitpic);
+                        unit_manager.unit_type[unit_manager.nb_unit - 1]->unitpic = NULL;
                     }
                 }
             }
