@@ -325,6 +325,7 @@ namespace TA3D
             if (!prefix.empty() && !intgaf.empty())
                 unit_manager.load_panel_texture(prefix, intgaf);
         }
+        TA3D::MAX_UNIT_PER_PLAYER = pGameData->max_unit_per_player;
         units.init(true);
         return true;
     }

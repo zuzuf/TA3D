@@ -28,7 +28,7 @@ namespace TA3D
         //! Destructor
         ~GameData();
         //@}
-    
+
 
         /*!
         ** \brief Get a player index (in vectors) from its id
@@ -36,14 +36,17 @@ namespace TA3D
         ** \return id of the player if found, -1 otherwise
         */
         int net2id(const int id) const;
-        
+
 
     public:
         //! Which map to play
-        String map_filename;	
+        String map_filename;
 
         //! How many players
         int	 nb_players;
+
+        //! How many units per player
+        int	 max_unit_per_player;
 
         //! Name of players
         String::Vector player_names;
@@ -52,14 +55,14 @@ namespace TA3D
 
         //! Who control them
         std::vector<byte> player_control;
-        
+
         //! Network ID of players
         std::vector<int> player_network_id;
         //! What's their level (for AI)
         std::vector<byte> ai_level;
 
         //! How much energy do they have when game starts
-        std::vector<uint32> energy; 
+        std::vector<uint32> energy;
         //! Idem with metal
         std::vector<uint32> metal;
 

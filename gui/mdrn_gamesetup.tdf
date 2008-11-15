@@ -9,7 +9,7 @@
 	height=1024;
 	draw borders=false;
 	show title=false;
-	number of objects=166;
+	number of objects=169;
 	hidden=false;
 	lock=true;
 	color=0x00000000;			// Fully transparent so we can see the AREA background
@@ -117,7 +117,7 @@
 		x1=260;
 		y1=170;
 		x2=260;
-		y2=686;
+		y2=606;
 		value=0xFF7F7F7F;
 	}
 	[object10]		// line
@@ -126,7 +126,7 @@
 		x1=360;
 		y1=170;
 		x2=360;
-		y2=686;
+		y2=606;
 		value=0xFF7F7F7F;
 	}
 	[object11]		// line
@@ -135,7 +135,7 @@
 		x1=520;
 		y1=170;
 		x2=520;
-		y2=686;
+		y2=606;
 		value=0xFF7F7F7F;
 	}
 	[object133]		// line
@@ -144,7 +144,7 @@
 		x1=560;
 		y1=170;
 		x2=560;
-		y2=686;
+		y2=606;
 		value=0xFF7F7F7F;
 	}
 	[object12]		// line
@@ -153,7 +153,7 @@
 		x1=700;
 		y1=170;
 		x2=700;
-		y2=686;
+		y2=606;
 		value=0xFF7F7F7F;
 	}
 	[object134]		// line
@@ -1626,7 +1626,7 @@
 		x1=323;
 		y1=170;
 		x2=323;
-		y2=686;
+		y2=606;
 		value=0xFF7F7F7F;
 	}
 	[object155]		// team0
@@ -1738,6 +1738,36 @@
 		y1=94;
 		x2=1171;
 		y2=133;
+		size=2;
+	}
+	[object166]		// line
+	{
+		type=LINE;
+		x1=110;
+		y1=606;
+		x2=840;
+		y2=606;
+		value=0xFF7F7F7F;
+	}
+	[object167]		// unit limit label
+	{
+		name=unit_limit_label;
+		type=TEXT;
+		caption=Unit limit;
+		x1=110;
+		y1=610;
+		size=2;
+		value=0xFFFFFFFF;
+	}
+	[object168]		// unit limit
+	{
+		name=max_units;
+		type=MENU;
+		x1=365;
+		y1=610;
+		x2=465;
+		y2=650;
+		entry=2000,100,125,150,175,200,250,500,750,1000,1500,2000;
 		size=2;
 	}
 }

@@ -63,6 +63,7 @@
 
 namespace TA3D
 {
+    int MAX_UNIT_PER_PLAYER = 2000; 		// 2000 Units per player by default
 
 
     INGAME_UNITS units;

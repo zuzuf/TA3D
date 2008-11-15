@@ -9,7 +9,7 @@ namespace TA3D
 
 
     GameData::GameData()
-        :map_filename(), nb_players(0)
+        :map_filename(), nb_players(0), max_unit_per_player(2000)
     {
         saved_file.clear();
 

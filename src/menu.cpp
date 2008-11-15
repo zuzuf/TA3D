@@ -735,6 +735,12 @@ void setup_game(bool client, const char *host, const char *saved_game)
         setupgame_area.set_caption( format("gamesetup.metal%d", i), format("%d",game_data.metal[i]));
     }
 
+    if (setupgame_area.get_object("gamesetup.max_units"))
+    {
+        GUIOBJ *obj = setupgame_area.get_object("gamesetup.max_units");
+        obj->Text[0] = format("%d", game_data.max_unit_per_player);
+    }
+
     GUIOBJ *minimap_obj = setupgame_area.get_object( "gamesetup.minimap");
     float mini_map_x1 = 0.0f;
     float mini_map_y1 = 0.0f;
@@ -826,6 +832,7 @@ void setup_game(bool client, const char *host, const char *saved_game)
     {
         setupgame_area.msg("gamesetup.b_ok.disable");
         setupgame_area.msg("gamesetup.b_units.disable");
+        setupgame_area.msg("gamesetup.max_units.disable");
     }
     else if (saved_game)
     {
@@ -1025,6 +1032,7 @@ void setup_game(bool client, const char *host, const char *saved_game)
                         {
                             if (params[1] == "GameData") // Sending game information
                             {
+                                network_manager.sendSpecial(format("SET UNIT LIMIT %d",game_data.max_unit_per_player));
                                 for (short int i = 0; i < TA3D_PLAYERS_HARD_LIMIT; ++i) // Send player information
                                 {
                                     if (client && game_data.player_network_id[i] != my_player_id )  continue;       // We don't send updates about things we wan't update
@@ -1279,6 +1287,16 @@ void setup_game(bool client, const char *host, const char *saved_game)
                                 }
                             }
                         }
+                        else if (params[0] == "SET")
+                        {
+                            if (params[1] == "UNIT" && params[2] == "LIMIT")
+                            {
+                                game_data.max_unit_per_player = params[3].toInt32();
+                                GUIOBJ *obj = setupgame_area.get_object("gamesetup.max_units");
+                                if (obj)
+                                    obj->Text[0] = format("%d", game_data.max_unit_per_player);
+                            }
+                        }
                     }
                     else if (params.size() == 9)
                     {
@@ -1483,6 +1501,14 @@ void setup_game(bool client, const char *host, const char *saved_game)
         {
             LOG_DEBUG("leaving game room");
             done=true;      // En cas de click sur "retour", on quitte la fenêtre
+        }
+
+        if (!saved_game && setupgame_area.get_value("gamesetup.max_units") >= 0 && !client)
+        {
+            GUIOBJ *obj = setupgame_area.get_object("gamesetup.max_units");
+            obj->Text[0] = obj->Text[1+obj->Value];
+            game_data.max_unit_per_player = obj->Text[0].toInt32();
+            network_manager.sendSpecial(format("SET UNIT LIMIT %d",game_data.max_unit_per_player));
         }
 
         for (short int i = 0; i < TA3D_PLAYERS_HARD_LIMIT; ++i)

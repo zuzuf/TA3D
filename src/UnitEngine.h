@@ -25,8 +25,6 @@
 #ifndef __UNITENGINE_CLASS
 # define __UNITENGINE_CLASS
 
-# define MAX_UNIT_PER_PLAYER		2000		// 250 Unités par joueur maximum
-
 # include "fbi.h"
 # include "ingame/weapons/weapons.h"
 # include "threads/cThread.h"
@@ -73,6 +71,7 @@
 
 namespace TA3D
 {
+    extern int MAX_UNIT_PER_PLAYER;
 
     void *create_unit(int type_id,int owner,Vector3D pos,MAP *map,bool sync=true,bool script=false);
 
