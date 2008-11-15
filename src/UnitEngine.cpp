@@ -7713,6 +7713,7 @@ script_exec:
                         lp_CONFIG->paused = false;
 
                         players_thread_sync = 0;
+                        network_manager.sendSpecial(format("TICK %d %d", current_tick + 1, (int)(1000.0f * apparent_timefactor) ));		// + 1 to prevent it from running too slow
                         rest(1);
 
                         min_tick = current_tick * 1000;
