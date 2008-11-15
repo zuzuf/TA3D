@@ -2085,10 +2085,24 @@ namespace TA3D
 
             if (key[KEY_ESC] && !pArea.get_state("esc_menu")) // Enter pause mode if we have to show the menu
             {
-                lp_CONFIG->pause = true;
-                I_Msg(TA3D::TA3D_IM_GUI_MSG, (char*)"esc_menu.b_pause.hide", NULL, NULL);
-                I_Msg(TA3D::TA3D_IM_GUI_MSG, (char*)"esc_menu.b_resume.show", NULL, NULL);
+                if (!network_manager.isConnected())             // In single player mode we want to pause the game when opening the menu
+                {
+                    lp_CONFIG->pause = true;
+                    I_Msg(TA3D::TA3D_IM_GUI_MSG, (char*)"esc_menu.b_pause.hide", NULL, NULL);
+                    I_Msg(TA3D::TA3D_IM_GUI_MSG, (char*)"esc_menu.b_resume.show", NULL, NULL);
+                }
                 I_Msg(TA3D::TA3D_IM_GUI_MSG, (char*)"esc_menu.show", NULL, NULL);
+            }
+
+            if (pArea.get_state("esc_menu.b_return"))
+            {
+                pArea.set_state("esc_menu.b_return", false);
+                if (!network_manager.isConnected())             // In single player mode we want to resume the game when closing the menu
+                {
+                    lp_CONFIG->pause = false;
+                    I_Msg(TA3D::TA3D_IM_GUI_MSG, (char*)"esc_menu.b_pause.show", NULL, NULL);
+                    I_Msg(TA3D::TA3D_IM_GUI_MSG, (char*)"esc_menu.b_resume.hide", NULL, NULL);
+                }
             }
 
             if (pArea.get_state("esc_menu.b_exit"))

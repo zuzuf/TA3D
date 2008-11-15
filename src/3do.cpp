@@ -1792,7 +1792,7 @@ namespace TA3D
                     glVertexPointer( 3, GL_FLOAT, 0, points);
                 glColor3ub(0,0xFF,0);
                 glTranslatef( 0.0f, 2.0f, 0.0f );
-                glDrawElements(GL_LINE_LOOP, 4,GL_UNSIGNED_SHORT,sel);		// dessine la primitive de sélection
+                glDrawRangeElements(GL_LINE_LOOP, 0, nb_vtx-1, 4,GL_UNSIGNED_SHORT,sel);		// dessine la primitive de sélection
                 glTranslatef( 0.0f, -2.0f, 0.0f );
                 if (notex)
                 {

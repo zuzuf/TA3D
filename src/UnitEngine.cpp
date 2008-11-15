@@ -7577,17 +7577,23 @@ script_exec:
             {
                 if (message == "pause game")
                 {
+                    if (network_manager.isConnected())
+                        network_manager.sendAll("PAUSE");
                     lp_CONFIG->pause = true;
                     return INTERFACE_RESULT_HANDLED;
                 }
                 if (message == "resume game")
                 {
+                    if (network_manager.isConnected())
+                        network_manager.sendAll("RESUME");
                     lp_CONFIG->pause = false;
                     return INTERFACE_RESULT_HANDLED;
                 }
                 if (message == "toggle pause")
                 {
                     lp_CONFIG->pause ^= true;
+                    if (network_manager.isConnected())
+                        network_manager.sendAll(lp_CONFIG->pause ? "PAUSE" : "RESUME");
                     return INTERFACE_RESULT_HANDLED;
                 }
             }

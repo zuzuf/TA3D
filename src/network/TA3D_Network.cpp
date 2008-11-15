@@ -14,7 +14,7 @@
     You should have received a copy of the GNU General Public License
     along with this program; if not, write to the Free Software
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA*/
-    
+
 #include "../stdafx.h"
 #include "../TA3D_NameSpace.h"
 #include "TA3D_Network.h"
@@ -183,6 +183,20 @@ namespace TA3D
                             players.control[ player_id ] = PLAYER_CONTROL_NONE;
                         }
                     }
+                }
+                else if (params[0] == "PAUSE")
+                {
+                    lp_CONFIG->pause = true;
+                    area->msg("esc_menu.show");
+                    area->msg("esc_menu.b_pause.hide");
+                    area->msg("esc_menu.b_resume.show");
+                }
+                else if (params[0] == "RESUME")
+                {
+                    lp_CONFIG->pause = false;
+                    area->msg("esc_menu.hide");
+                    area->msg("esc_menu.b_pause.show");
+                    area->msg("esc_menu.b_resume.hide");
                 }
             }
             else if (params.size() == 2)
