@@ -588,7 +588,7 @@ namespace TA3D
                     else
                         Pos.y = map->get_unit_h( Pos.x, Pos.z);
                     map->map_data[y][x].stuff = features.add_feature(Pos,TDF_index[type]);
-                    features.drawFeatureOnMap( map->map_data[y][x].stuff);
+                    features.drawFeatureOnMap( map->map_data[y][x].stuff);                  // Feature index is checked by drawFeatureOnMap so this is secure
                 }
                 f_pos+=4;
             }
