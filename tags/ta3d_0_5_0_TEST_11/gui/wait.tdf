@@ -1,0 +1,319 @@
+[window]
+{
+	title=Waiting for other players;
+	uformat=UTF8;
+	x=0;
+	y=0;
+	width=1280;
+	height=1024;
+	draw borders=false;
+	show title=false;
+	number of objects=30;
+	hidden=false;
+	lock=true;
+	color=0x00000000;			// Fully transparent so we can see the AREA background
+	background window=true;
+	fullscreen=true;			// Scale the window to fit the screen
+	screen width=1280;
+	screen height=1024;
+	[object0]		// name0
+	{
+		name=name0;
+		type=TEXT;
+		caption=player0;
+		x1=110;
+		y1=185;
+		value=0xFFFFFFFF;
+		size=1.8;
+	}
+	[object1]		// progress0
+	{
+		name=progress0;
+		type=PBAR;
+		x1=300;
+		y1=175;
+		x2=800;
+		y2=230;
+		value=0;
+		size=1.8;
+	}
+	[object2]		// ready0
+	{
+		name=ready0;
+		type=OPTIONB;
+		x1=805;
+		y1=190;
+		value=0;
+		size=1.8;
+	}
+	[object3]		// name1
+	{
+		name=name1;
+		type=TEXT;
+		caption=player1;
+		x1=110;
+		y1=245;
+		value=0xFFFFFFFF;
+		size=1.8;
+	}
+	[object4]		// progress1
+	{
+		name=progress1;
+		type=PBAR;
+		x1=300;
+		y1=235;
+		x2=800;
+		y2=290;
+		value=0;
+		size=1.8;
+	}
+	[object5]		// ready1
+	{
+		name=ready1;
+		type=OPTIONB;
+		x1=805;
+		y1=250;
+		value=0;
+		size=1.8;
+	}
+	[object6]		// name2
+	{
+		name=name2;
+		type=TEXT;
+		caption=player2;
+		x1=110;
+		y1=305;
+		value=0xFFFFFFFF;
+		size=1.8;
+	}
+	[object7]		// progress2
+	{
+		name=progress2;
+		type=PBAR;
+		x1=300;
+		y1=295;
+		x2=800;
+		y2=350;
+		value=0;
+		size=1.8;
+	}
+	[object8]		// ready2
+	{
+		name=ready2;
+		type=OPTIONB;
+		x1=805;
+		y1=310;
+		value=0;
+		size=1.8;
+	}
+	[object9]		// name3
+	{
+		name=name3;
+		type=TEXT;
+		caption=player3;
+		x1=110;
+		y1=365;
+		value=0xFFFFFFFF;
+		size=1.8;
+	}
+	[object10]		// progress3
+	{
+		name=progress3;
+		type=PBAR;
+		x1=300;
+		y1=355;
+		x2=800;
+		y2=410;
+		value=0;
+		size=1.8;
+	}
+	[object11]		// ready3
+	{
+		name=ready3;
+		type=OPTIONB;
+		x1=805;
+		y1=370;
+		value=0;
+		size=1.8;
+	}
+	[object12]		// name4
+	{
+		name=name4;
+		type=TEXT;
+		caption=player4;
+		x1=110;
+		y1=425;
+		value=0xFFFFFFFF;
+		size=1.8;
+	}
+	[object13]		// progress4
+	{
+		name=progress4;
+		type=PBAR;
+		x1=300;
+		y1=415;
+		x2=800;
+		y2=470;
+		value=0;
+		size=1.8;
+	}
+	[object14]		// ready4
+	{
+		name=ready4;
+		type=OPTIONB;
+		x1=805;
+		y1=430;
+		value=0;
+		size=1.8;
+	}
+	[object15]		// name5
+	{
+		name=name5;
+		type=TEXT;
+		caption=player5;
+		x1=110;
+		y1=485;
+		value=0xFFFFFFFF;
+		size=1.8;
+	}
+	[object16]		// progress5
+	{
+		name=progress5;
+		type=PBAR;
+		x1=300;
+		y1=475;
+		x2=800;
+		y2=530;
+		value=0;
+		size=1.8;
+	}
+	[object17]		// ready5
+	{
+		name=ready5;
+		type=OPTIONB;
+		x1=805;
+		y1=490;
+		value=0;
+		size=1.8;
+	}
+	[object18]		// name6
+	{
+		name=name6;
+		type=TEXT;
+		caption=player6;
+		x1=110;
+		y1=545;
+		value=0xFFFFFFFF;
+		size=1.8;
+	}
+	[object19]		// progress6
+	{
+		name=progress6;
+		type=PBAR;
+		x1=300;
+		y1=535;
+		x2=800;
+		y2=590;
+		value=0;
+		size=1.8;
+	}
+	[object20]		// ready6
+	{
+		name=ready6;
+		type=OPTIONB;
+		x1=805;
+		y1=550;
+		value=0;
+		size=1.8;
+	}
+	[object21]		// name7
+	{
+		name=name7;
+		type=TEXT;
+		caption=player7;
+		x1=110;
+		y1=605;
+		value=0xFFFFFFFF;
+		size=1.8;
+	}
+	[object22]		// progress7
+	{
+		name=progress7;
+		type=PBAR;
+		x1=300;
+		y1=595;
+		x2=800;
+		y2=650;
+		value=0;
+		size=1.8;
+	}
+	[object23]		// ready7
+	{
+		name=ready7;
+		type=OPTIONB;
+		x1=805;
+		y1=610;
+		value=0;
+		size=1.8;
+	}
+	[object24]		// name8
+	{
+		name=name8;
+		type=TEXT;
+		caption=player8;
+		x1=110;
+		y1=665;
+		value=0xFFFFFFFF;
+		size=1.8;
+	}
+	[object25]		// progress8
+	{
+		name=progress8;
+		type=PBAR;
+		x1=300;
+		y1=655;
+		x2=800;
+		y2=710;
+		value=0;
+		size=1.8;
+	}
+	[object26]		// ready8
+	{
+		name=ready8;
+		type=OPTIONB;
+		x1=805;
+		y1=670;
+		value=0;
+		size=1.8;
+	}
+	[object27]		// name9
+	{
+		name=name9;
+		type=TEXT;
+		caption=player9;
+		x1=110;
+		y1=725;
+		value=0xFFFFFFFF;
+		size=1.8;
+	}
+	[object28]		// progress9
+	{
+		name=progress9;
+		type=PBAR;
+		x1=300;
+		y1=715;
+		x2=800;
+		y2=770;
+		value=0;
+		size=1.8;
+	}
+	[object29]		// ready9
+	{
+		name=ready9;
+		type=OPTIONB;
+		x1=805;
+		y1=730;
+		value=0;
+		size=1.8;
+	}
+}

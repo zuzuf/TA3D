@@ -1,0 +1,198 @@
+<html>
+<head>
+<title>-=TA3D help=-</title>
+<style type="text/css">
+A:LINK {
+	color: #FFFFFF;
+	text-decoration: none;
+}
+A:ACTIVE {
+	color: #FFFFFF;
+	text-decoration: none;
+}
+A:VISITED {
+	color: #FFFFFF;
+	text-decoration: none;
+}
+BODY {
+	font-family: Verdana;
+	font-size: 9pt;
+	background-color: #000000;
+}
+A:HOVER {
+	color: #FF00FF;
+	text-decoration: none;
+}
+body, td, th {
+	color: #FFFFFF;
+	font-size: 10pt;
+}
+.style10 {
+	color: #6D767E
+}
+.style1 {
+	font-size: 14px;
+	font-family: Arial, Verdana, Helvetica, sans-serif;
+	color: #FFFFFF;
+}
+.style2 {
+	font-size: 14px;
+	font-family: Arial, Verdana, Helvetica, sans-serif;
+	color: #20E52E;
+}
+
+.style12 {
+	color: #FFFFFF;
+	font-size: 36pt;
+	font-family: "Courier New", Courier, monospace;
+	font-weight: bold;
+}
+.border {
+	border: 2px solid #313539;
+	cursor: crosshair;
+}
+.bott {
+	border-top-width: 2px;
+	border-right-width: 2px;
+	border-bottom-width: 2px;
+	border-left-width: 2px;
+	border-bottom-style: solid;
+	border-top-color: #000000;
+	border-right-color: #000000;
+	border-bottom-color: #000000;
+	border-left-color: #000000;
+}
+.gdfgfgd {
+	border-top-width: 2px;
+	border-right-width: 2px;
+	border-bottom-width: 2px;
+	border-left-width: 2px;
+	border-left-style: solid;
+	border-top-color: #000000;
+	border-right-color: #000000;
+	border-bottom-color: #000000;
+	border-left-color: #000000;
+}
+.style13 {
+	border-top-width: 2px;
+	border-right-width: 2px;
+	border-bottom-width: 2px;
+	border-left-width: 2px;
+	border-bottom-style: solid;
+	border-top-color: #000000;
+	border-right-color: #000000;
+	border-bottom-color: #000000;
+	border-left-color: #000000;
+	font-size: 12pt;
+	font-weight: bold;
+	color: #FFFFFF;
+}
+</style>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<script type="text/javascript">
+function MM_reloadPage(init) {  //reloads the window if Nav4 resized
+  if (init==true) with (navigator) {if ((appName=="Netscape")&&(parseInt(appVersion)==4)) {
+    document.MM_pgW=innerWidth; document.MM_pgH=innerHeight; onresize=MM_reloadPage; }}
+  else if (innerWidth!=document.MM_pgW || innerHeight!=document.MM_pgH) location.reload();
+}
+MM_reloadPage(true);
+
+</script>
+</head>
+<body>
+<div align="center">
+  <table width="777" border="0" cellpadding="3" cellspacing="2" bgcolor="#89929C" class="border">
+    <tr>
+      <td width="763" valign="top"><table width="100%" border="0" cellpadding="0" cellspacing="0" bgcolor="#89929C" class="border">
+          <tr>
+            <td width="773" height="170" valign="middle"><img src="ta3d.jpg"></td>
+          </tr>
+      </table></td>
+    </tr>
+    <tr>
+      <td valign="top"><table width="100%" border="0" cellpadding="6" cellspacing="0" bgcolor="#000000" class="border">
+        <tr>
+          <td width="175" height="236" valign="top"><table width="100%" border="0" cellpadding="3" cellspacing="0" class="border">
+            <tr>
+              <td width="165" height="26" align="left" valign="middle" class="style13">Navigation menu</td>
+            </tr>
+            <tr>
+              <td height="198" valign="top"><strong><br>
+                <a href="index.html">Main</a><br>
+                <a href="install.html">Installation<br>
+                <a href="console.html">Console commands<br>
+                <a href="guide.html">Game Guide<br>
+                <a href="faq.html">F.A.Q.<br><br>
+   	<br>
+                <a href="mods.html">Using Mods <br>
+                <a href="modders.html">Modders support<br>
+	</strong>
+	</td>
+            </tr>
+          </table>
+          </td>
+          <td width="560" valign="top" class="gdfgfgd">
+<center><H1>Console commands</H1></center>
+<p align="justify" class="style1"> 
+Press ")" under linux and "`" or "&#178;" under windows to show/hide console while playing.<br>
+(n is an integer, f a floating point number) 
+<br><br>
+<br>1. <b>fps_on/fps_off</b> : show/hide the fps
+<br><br>2. <b>zshoot</b> : make a shot of the zbuffer 
+<br><br>3. <b>video shoot</b> : activate/deactivate video recording 
+<br><br>4. <b>reload shaders</b> : reload the vertex & fragment programs used for water and details texture 
+
+<br><br>5. <b>show mission info</b> : prints current mission and mission flags of the selected unit
+<br><br>6. <b>view debug</b> : draw on minimap the area that's computed by the renderer
+<br><br>7. <b>ia debug</b> : show debug info about AI
+<br><br>8. <b>internal name</b> : display the short name of the selected unit
+<br><br>9. <b>internal idx</b> : display the index of the selected unit
+<br><br>10. <b>exit</b> : leave the game
+<br><br>11. <b>wireframe</b> : toggle wireframe mode
+<br><br>12. <b>priority <font class="style2">n</font></b> : set main thread priority to 0 (low - normal), 1 (medium) or 2 (high - might slow down the rest of the engine)
+
+<br><br>13. <b>water quality <font class="style2">n</font></b> : form 0 to 4 (0 - low, 1 - normal, 2 - high, 3 - higher, 4 - extreme (3 but with reflection on water))
+
+<br><br>14. <b>shadow quality <font class="style2">n</font></b> : quality of shadows (if you want them smooth)
+<br><br>15. <b>shadow ray <font class="style2">n</font></b> : smoothness of shadows
+<br><br>16. <b>shadow</b> : toggle shadows
+<br><br>17. <b>details</b> : toggle details texture
+<br><br>18. <b>particle</b> : toggle particles
+<br><br>19. <b>waves</b> : toggle waves on coasts
+<br><br>20. <b>show script</b> : display scripting info about selected unit
+<br><br>21. <b>show model</b> : display 3D model info about selected unit
+<br><br>22. <b>rotate light</b> : make the sun light rotate
+<br><br>23. <b>shake</b> : make the screen shake like when a big weapons detonates
+<br><br>24. <b>freecam</b> : toggle free camera mode
+<br><br>25. <b>fps_limit</b> : limit the frame rate (<= 0 means no limit)
+<br><br>26. <b>spawn <font class="style2">UNIT player_id nb</font></b> : spawns nb units of type UNIT for player_id, if UNIT isn't a correct unit type it spawns units of random type
+
+<br><br>27. <b>timefactor <font class="style2">s</font></b> : set game speed
+<br><br>28. <b>addhp <font class="style2">h</font></b> : add h hit points to selected units (can be negative)
+<br><br>29. <b>activate/deactivate</b> : activate or deactivate selected units
+<br><br>30. <b>reset_script</b> : reset selected units's script environment
+<br><br>31. <b>unitinfo</b> : print info about selected units to the console
+<br><br>32. <b>kill</b> : kill selected units
+<br><br>33. <b>script <font class="style2">n</font></b> : start script n on selected units
+<br><br>34. <b>pause</b> : toggle pause/resume game
+<br><br>35. <b>give <font class="style2">metal/energy/both player_id amount</font></b> : give amount of resources to player_id
+<br><br>36. <b>metal</b> : toggle infinite metal cheat
+<br><br>37. <b>energy</b> : toggle infinite energy cheat 
+	</td></tr>
+      </table>
+      </td>
+    </tr>
+    
+    
+    
+    <tr>
+      <td valign="top"><table width="100%" border="0" cellpadding="0" cellspacing="0" bgcolor="#89929C">
+          <tr>
+            <td width="773" height="19" valign="middle" class="border"><div align="center" class="style10"><a href="http://ta3d.sourceforge.net">-=TA3D=-</a></div></td>
+          </tr>
+      </table></td>
+    </tr>
+  </table>
+</div>
+</body>
+</html>

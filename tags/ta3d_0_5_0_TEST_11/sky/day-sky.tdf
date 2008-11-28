@@ -1,0 +1,15 @@
+[sky]
+{
+	planet=green planet,archipelago,ice;
+	map=;
+	default=true;
+	fog R=0.3843;
+	fog G=0.3157;
+	fog B=0.2019;
+	fog A=1;
+	texture name=gfx/sky/day-sky.jpg;
+	spherical=true;
+	full sphere=true;
+	rotation speed=0.0;
+	rotation offset=170.0;
+}

@@ -1,0 +1,64 @@
+
+Compilation under Mandriva
+===========================
+
+Current instructions are for Mandriva 2008.1, it should also work with previous versions
+of Mandriva.
+
+1 - CMake
+---------
+
+You need CMake 2.6 in order to build TA3D. It's not present in repositories, so you'll
+have to build it yourself unless you want to try a RPM from a different distribution.
+go to www.cmake.org and download cmake-2.6.*.tar.gz, then extract it, follow cmake
+build instructions and install it.
+
+2 - GCC and required libraries
+------------------------------
+
+You need GCC with C++ support (g++) to build TA3D, just install gcc-c++ like any
+other software using your package manager. Then you'll need to install the headers of
+zlib and allegro : zlib1-devel, allegro4.2-devel (will install Allegro 4.2 if not done)
+
+Now you're done with the packages. Let's install AllegroGL, you can download it from:
+www.allegro.cc
+
+extract AllegroGL's archive and run :
+# ./fix.sh unix
+# ./configure
+# make
+# sudo make install
+
+now AllegroGL should be installed.
+
+NB: TA3D requires Allegro >= 4.2.2, if you use an older version of
+Mandriva you may have to build it yourself.
+
+3 - FMOD
+--------
+
+FMOD is a sound/music library, there is no package for it so you'll have to download and install 
+it
+manually. You'll find it here:
+www.fmod.org
+
+we recommend you use the latest stable version (>= 4.16.x at the time of writing those 
+instructions)
+
+4 - TA3D
+--------
+
+Now you can build ta3d:
+> cmake ./
+> make
+
+PS: If you get an error message with something like ...<anonymous>...
+edit the /usr/local/include/allegrogl/GLext/gl_ext_api.h file, and
+find the line:
+AGL_API(void, EndTransformFeedbackNV,     (GLvoid))
+replace GLvoid with void
+now it should build :)
+
+NB: if you're using a NVidia card, you will probably run into crashes when the game
+starts. To fix that, install the -devel package of the nvidia driver, then run ldconfig
+as root. This is due to TA3D loading both NVidia's and mesa libraries ...

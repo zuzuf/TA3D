@@ -1,0 +1,8 @@
+[area]
+{
+	name=setup area;
+	skin=gui/default.skn;
+	windows=gui/statistics.tdf;
+	width=1280;
+	height=1024;
+}
