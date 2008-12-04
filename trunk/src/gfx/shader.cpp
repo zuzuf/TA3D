@@ -29,17 +29,17 @@ namespace TA3D
             int compiled = 0;
 
             glShaderSourceARB(shader, 1, (const GLcharARB **)&data, &size);
-            glCompileShaderARB(shader); 
+            glCompileShaderARB(shader);
             glGetObjectParameterivARB(shader, GL_OBJECT_COMPILE_STATUS_ARB, &compiled);
 
-            if (compiled) 
+            if (compiled)
             {
                 // compilation successful!
                 LOG_DEBUG(LOG_PREFIX_SHADER << "Pixel shader: successfully compiled");
             }
-            else 
+            else
             {
-                // compilation error! Check compiler log! 
+                // compilation error! Check compiler log!
                 LOG_ERROR(LOG_PREFIX_SHADER << "Pixel shader: the compilation has failed");
                 char log[10000];
                 GLsizei len = 0;
@@ -59,14 +59,14 @@ namespace TA3D
             glCompileShaderARB(shader);
             glGetObjectParameterivARB(shader, GL_OBJECT_COMPILE_STATUS_ARB, &compiled);
 
-            if (compiled) 
+            if (compiled)
             {
                 // compilation successful!
                 LOG_DEBUG(LOG_PREFIX_SHADER << "Vertex shader: successfully compiled");
             }
-            else 
+            else
             {
-                // compilation error! Check compiler log! 
+                // compilation error! Check compiler log!
                 LOG_ERROR(LOG_PREFIX_SHADER << "Vertex shader: the compilation has failed");
                 char log[10000];
                 GLsizei len=0;
@@ -79,7 +79,6 @@ namespace TA3D
 
         GLhandleARB loadFragmentShader(const String& filename)
         {
-            GLhandleARB	shader = glCreateShaderObjectARB(GL_FRAGMENT_SHADER_ARB);
             uint64 filesize;
             char* buf = NULL;
             if (HPIManager)
@@ -93,24 +92,26 @@ namespace TA3D
             if (!buf)
             {
                 LOG_ERROR(LOG_PREFIX_SHADER << "`" << filename << "` could not be opened");
-                return shader;
+                return 0;
             }
+
+            GLhandleARB	shader = glCreateShaderObjectARB(GL_FRAGMENT_SHADER_ARB);
 
             GLint filesizeGL = (GLint)filesize;
             glShaderSourceARB(shader, 1, (const GLcharARB **)&buf, &filesizeGL);
-            glCompileShaderARB(shader); 
+            glCompileShaderARB(shader);
 
             int compiled = 0;
             glGetObjectParameterivARB(shader, GL_OBJECT_COMPILE_STATUS_ARB, &compiled);
 
-            if (compiled) 
+            if (compiled)
             {
                 // compilation successful!
                 LOG_DEBUG(LOG_PREFIX_SHADER << "Fragment shader:` " << filename << "` compiled");
             }
-            else 
+            else
             {
-                // compilation error! Check compiler log! 
+                // compilation error! Check compiler log!
                 LOG_ERROR(LOG_PREFIX_SHADER << "Fragment shader: `" << filename << "` failed to compile");
                 char log[10000];
                 GLsizei len = 0;
@@ -125,8 +126,6 @@ namespace TA3D
 
         GLhandleARB loadVertexShader(const String& filename)
         {
-            GLhandleARB	shader = glCreateShaderObjectARB(GL_VERTEX_SHADER_ARB);
-
             uint64 filesize;
             char* buf = NULL;
             if (HPIManager)
@@ -140,8 +139,10 @@ namespace TA3D
             if (!buf)
             {
                 LOG_ERROR(LOG_PREFIX_SHADER << "`" << filename << "` could not be opened");
-                return shader;
+                return 0;
             }
+
+            GLhandleARB	shader = glCreateShaderObjectARB(GL_VERTEX_SHADER_ARB);
 
             int compiled = 0;
 
@@ -150,14 +151,14 @@ namespace TA3D
             glCompileShaderARB(shader);
             glGetObjectParameterivARB(shader, GL_OBJECT_COMPILE_STATUS_ARB, &compiled);
 
-            if (compiled) 
+            if (compiled)
             {
                 // compilation successful!
                 LOG_DEBUG(LOG_PREFIX_SHADER << "Vertex shader: `" << filename << "` compiled");
             }
-            else 
+            else
             {
-                // compilation error! Check compiler log! 
+                // compilation error! Check compiler log!
                 LOG_ERROR(LOG_PREFIX_SHADER << "Vertex sharder: `" << filename << "` failed to compile");
                 char log[10000];
                 GLsizei len = 0;

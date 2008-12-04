@@ -38,57 +38,56 @@ bool	g_useFBO = false;
 
 
 
-#if defined TA3D_PLATFORM_WINDOWS && defined TA3D_PLATFORM_MSVC
-static void installOpenGLExtensionsForWindows()
+#if (defined TA3D_PLATFORM_WINDOWS && defined TA3D_PLATFORM_MSVC) || defined TA3D_PLATFORM_LINUX
+static void installOpenGLExtensionsPointers()
 {
     if(MultiTexturing)
     {
-		glActiveTextureARB = (PFNGLACTIVETEXTUREARBPROC) allegro_gl_get_proc_address("glActiveTextureARB");
-		glMultiTexCoord2fARB = (PFNGLMULTITEXCOORD2FARBPROC) allegro_gl_get_proc_address("glMultiTexCoord2fARB");
-		glClientActiveTextureARB = (PFNGLCLIENTACTIVETEXTUREARBPROC) allegro_gl_get_proc_address("glClientActiveTextureARB");
+		glActiveTextureARB = (void (*)(GLenum)) allegro_gl_get_proc_address("glActiveTextureARB");
+		glMultiTexCoord2fARB = (void (*)(GLenum, GLfloat, GLfloat)) allegro_gl_get_proc_address("glMultiTexCoord2fARB");
+		glClientActiveTextureARB = (void (*)(GLenum)) allegro_gl_get_proc_address("glClientActiveTextureARB");
 	}
 	if(g_useFBO)
     {
-		glDeleteFramebuffersEXT = (PFNGLDELETEFRAMEBUFFERSEXTPROC) allegro_gl_get_proc_address("glDeleteFramebuffersEXT");
-		glDeleteRenderbuffersEXT = (PFNGLDELETERENDERBUFFERSEXTPROC) allegro_gl_get_proc_address("glDeleteRenderbuffersEXT");
-		glBindFramebufferEXT = (PFNGLBINDFRAMEBUFFEREXTPROC) allegro_gl_get_proc_address("glBindFramebufferEXT");
-		glFramebufferTexture2DEXT = (PFNGLFRAMEBUFFERTEXTURE2DEXTPROC) allegro_gl_get_proc_address("glFramebufferTexture2DEXT");
-		glFramebufferRenderbufferEXT = (PFNGLFRAMEBUFFERRENDERBUFFEREXTPROC) allegro_gl_get_proc_address("glFramebufferRenderbufferEXT");
+		glDeleteFramebuffersEXT = (void (*)(GLsizei, const GLuint*)) allegro_gl_get_proc_address("glDeleteFramebuffersEXT");
+		glDeleteRenderbuffersEXT = (void (*)(GLsizei, const GLuint*)) allegro_gl_get_proc_address("glDeleteRenderbuffersEXT");
+		glBindFramebufferEXT = (void (*)(GLenum, GLuint)) allegro_gl_get_proc_address("glBindFramebufferEXT");
+		glFramebufferTexture2DEXT = (void (*)(GLenum, GLenum, GLenum, GLuint, GLint)) allegro_gl_get_proc_address("glFramebufferTexture2DEXT");
+		glFramebufferRenderbufferEXT = (void (*)(GLenum, GLenum, GLenum, GLuint)) allegro_gl_get_proc_address("glFramebufferRenderbufferEXT");
 	}
 	if(g_useStencilTwoSide)
     {
-		glActiveStencilFaceEXT = (PFNGLACTIVESTENCILFACEEXTPROC) allegro_gl_get_proc_address("glActiveStencilFaceEXT");
+		glActiveStencilFaceEXT = (void (*)(GLenum)) allegro_gl_get_proc_address("glActiveStencilFaceEXT");
 	}
 	if(g_useProgram)
     {
-		glCreateShaderObjectARB = (PFNGLCREATESHADEROBJECTARBPROC) allegro_gl_get_proc_address("glCreateShaderObjectARB");
-		glShaderSourceARB = (PFNGLSHADERSOURCEARBPROC) allegro_gl_get_proc_address("glShaderSourceARB");
-		glCompileShaderARB = (PFNGLCOMPILESHADERARBPROC) allegro_gl_get_proc_address("glCompileShaderARB"); 
-		glGetObjectParameterivARB = (PFNGLGETOBJECTPARAMETERIVARBPROC) allegro_gl_get_proc_address("glGetObjectParameterivARB");
-		glGetInfoLogARB = (PFNGLGETINFOLOGARBPROC) allegro_gl_get_proc_address("glGetInfoLogARB");
-		glGenFramebuffersEXT = (PFNGLGENFRAMEBUFFERSEXTPROC) allegro_gl_get_proc_address("glGenFramebuffersEXT");
-		glGenRenderbuffersEXT = (PFNGLGENRENDERBUFFERSEXTPROC) allegro_gl_get_proc_address("glGenRenderbuffersEXT");
-		glBindRenderbufferEXT = (PFNGLBINDRENDERBUFFEREXTPROC) allegro_gl_get_proc_address("glBindRenderbufferEXT");
-		glRenderbufferStorageEXT = (PFNGLRENDERBUFFERSTORAGEEXTPROC) allegro_gl_get_proc_address("glRenderbufferStorageEXT");
-		glCreateProgramObjectARB = (PFNGLCREATEPROGRAMOBJECTARBPROC) allegro_gl_get_proc_address("glCreateProgramObjectARB");
-		glAttachObjectARB = (PFNGLATTACHOBJECTARBPROC) allegro_gl_get_proc_address("glAttachObjectARB");
-		glLinkProgramARB = (PFNGLLINKPROGRAMARBPROC) allegro_gl_get_proc_address("glLinkProgramARB");
-		glUseProgramObjectARB = (PFNGLUSEPROGRAMOBJECTARBPROC) allegro_gl_get_proc_address("glUseProgramObjectARB");
-		glDetachObjectARB = (PFNGLDETACHOBJECTARBPROC) allegro_gl_get_proc_address("glDetachObjectARB");
-		glDeleteObjectARB = (PFNGLDELETEOBJECTARBPROC) allegro_gl_get_proc_address("glDeleteObjectARB");
-		glUniform1fARB = (PFNGLUNIFORM1FARBPROC) allegro_gl_get_proc_address("glUniform1fARB");
-		glUniform2fARB = (PFNGLUNIFORM2FARBPROC) allegro_gl_get_proc_address("glUniform2fARB");
-		glUniform3fARB = (PFNGLUNIFORM3FARBPROC) allegro_gl_get_proc_address("glUniform3fARB");
-		glUniform4fARB = (PFNGLUNIFORM4FARBPROC) allegro_gl_get_proc_address("glUniform4fARB");
-		glUniform1iARB = (PFNGLUNIFORM1IARBPROC) allegro_gl_get_proc_address("glUniform1iARB");
-		glUniform2iARB = (PFNGLUNIFORM2IARBPROC) allegro_gl_get_proc_address("glUniform2iARB");
-		glUniform3iARB = (PFNGLUNIFORM3IARBPROC) allegro_gl_get_proc_address("glUniform3iARB");
-		glUniform4iARB = (PFNGLUNIFORM4IARBPROC) allegro_gl_get_proc_address("glUniform4iARB");
-		glGetUniformLocationARB = (PFNGLGETUNIFORMLOCATIONARBPROC) allegro_gl_get_proc_address("glGetUniformLocationARB");
+		glCreateShaderObjectARB = (GLhandleARB (*)(GLenum)) allegro_gl_get_proc_address("glCreateShaderObjectARB");
+		glShaderSourceARB = (void (*)(GLhandleARB, GLsizei, const GLcharARB**, const GLint*)) allegro_gl_get_proc_address("glShaderSourceARB");
+		glCompileShaderARB = (void (*)(GLhandleARB)) allegro_gl_get_proc_address("glCompileShaderARB");
+		glGetObjectParameterivARB = (void (*)(GLhandleARB, GLenum, GLint*)) allegro_gl_get_proc_address("glGetObjectParameterivARB");
+		glGetInfoLogARB = (void (*)(GLhandleARB, GLsizei, GLsizei*, GLcharARB*)) allegro_gl_get_proc_address("glGetInfoLogARB");
+		glGenFramebuffersEXT = (void (*)(GLsizei, GLuint*)) allegro_gl_get_proc_address("glGenFramebuffersEXT");
+		glGenRenderbuffersEXT = (void (*)(GLsizei, GLuint*)) allegro_gl_get_proc_address("glGenRenderbuffersEXT");
+		glBindRenderbufferEXT = (void (*)(GLenum, GLuint)) allegro_gl_get_proc_address("glBindRenderbufferEXT");
+		glRenderbufferStorageEXT = (void (*)(GLenum, GLenum, GLsizei, GLsizei)) allegro_gl_get_proc_address("glRenderbufferStorageEXT");
+		glCreateProgramObjectARB = (GLhandleARB (*)()) allegro_gl_get_proc_address("glCreateProgramObjectARB");
+		glAttachObjectARB = (void (*)(GLhandleARB, GLhandleARB)) allegro_gl_get_proc_address("glAttachObjectARB");
+		glLinkProgramARB = (void (*)(GLhandleARB)) allegro_gl_get_proc_address("glLinkProgramARB");
+		glUseProgramObjectARB = (void (*)(GLhandleARB)) allegro_gl_get_proc_address("glUseProgramObjectARB");
+		glDetachObjectARB = (void (*)(GLhandleARB, GLhandleARB)) allegro_gl_get_proc_address("glDetachObjectARB");
+		glDeleteObjectARB = (void (*)(GLhandleARB)) allegro_gl_get_proc_address("glDeleteObjectARB");
+		glUniform1fARB = (void (*)(GLint, GLfloat)) allegro_gl_get_proc_address("glUniform1fARB");
+		glUniform2fARB = (void (*)(GLint, GLfloat, GLfloat)) allegro_gl_get_proc_address("glUniform2fARB");
+		glUniform3fARB = (void (*)(GLint, GLfloat, GLfloat, GLfloat)) allegro_gl_get_proc_address("glUniform3fARB");
+		glUniform4fARB = (void (*)(GLint, GLfloat, GLfloat, GLfloat, GLfloat)) allegro_gl_get_proc_address("glUniform4fARB");
+		glUniform1iARB = (void (*)(GLint, GLint)) allegro_gl_get_proc_address("glUniform1iARB");
+		glUniform2iARB = (void (*)(GLint, GLint, GLint)) allegro_gl_get_proc_address("glUniform2iARB");
+		glUniform3iARB = (void (*)(GLint, GLint, GLint, GLint)) allegro_gl_get_proc_address("glUniform3iARB");
+		glUniform4iARB = (void (*)(GLint, GLint, GLint, GLint, GLint)) allegro_gl_get_proc_address("glUniform4iARB");
+		glGetUniformLocationARB = (GLint (*)(GLhandleARB, const GLcharARB*)) allegro_gl_get_proc_address("glGetUniformLocationARB");
 	}
 }
 #endif
-
 
 void installOpenGLExtensions()
 {
@@ -103,8 +102,8 @@ void installOpenGLExtensions()
 	g_useCopyDepthToColor = allegro_gl_is_extension_supported("GL_NV_copy_depth_to_color");
 	g_useProgram = allegro_gl_is_extension_supported("GL_ARB_shader_objects") && allegro_gl_is_extension_supported("GL_ARB_shading_language_100") && allegro_gl_is_extension_supported("GL_ARB_vertex_shader") && allegro_gl_is_extension_supported("GL_ARB_fragment_shader");
 	g_useFBO = allegro_gl_is_extension_supported("GL_EXT_framebuffer_object");
-    #if defined TA3D_PLATFORM_WINDOWS && defined TA3D_PLATFORM_MSVC
-    installOpenGLExtensionsForWindows();
+    #if (defined TA3D_PLATFORM_WINDOWS && defined TA3D_PLATFORM_MSVC) || defined TA3D_PLATFORM_LINUX
+    installOpenGLExtensionsPointers();
     #endif
     // Extension: multitexturing
 	if (glActiveTextureARB != NULL && glMultiTexCoord2fARB != NULL && glClientActiveTextureARB != NULL)
