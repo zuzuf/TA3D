@@ -291,8 +291,8 @@ namespace TA3D
         int i = 0;
         for (float alpha = 0.0f; alpha <= DB_PI; alpha+=d_alpha)
         {
-            points[i++] = x+r*cos(alpha);
-            points[i++] = y+r*sin(alpha);
+            points[i++] = x+r*cosf(alpha);
+            points[i++] = y+r*sinf(alpha);
         }
         glEnableClientState(GL_VERTEX_ARRAY);
         glDisableClientState(GL_NORMAL_ARRAY);
@@ -315,8 +315,8 @@ namespace TA3D
         int i = 0;
         for (float alpha = 0.0f; alpha <= DB_PI; alpha+=d_alpha)
         {
-            float rx = x+r*cos(alpha);
-            float ry = y+r*sin(alpha);
+            float rx = x+r*cosf(alpha);
+            float ry = y+r*sinf(alpha);
             if (rx < mx )		rx = mx;
             else if (rx > Mx )	rx = Mx;
             if (ry < my )		ry = my;
@@ -340,8 +340,8 @@ namespace TA3D
         int i = 0;
         for (float alpha = 0.0f; alpha <= DB_PI; alpha+=d_alpha)
         {
-            float rx = x+r*cos(alpha+t);
-            float ry = y+r*sin(alpha+t);
+            float rx = x+r*cosf(alpha+t);
+            float ry = y+r*sinf(alpha+t);
             if (rx < mx )		rx = mx;
             else if (rx > Mx )	rx = Mx;
             if (ry < my )		ry = my;
@@ -379,8 +379,8 @@ namespace TA3D
         points[i++] = y;
         for (float alpha = 0.0f; alpha <= DB_PI; alpha+=d_alpha)
         {
-            points[i++] = x+r*cos(alpha);
-            points[i++] = y+r*sin(alpha);
+            points[i++] = x+r*cosf(alpha);
+            points[i++] = y+r*sinf(alpha);
         }
         glEnableClientState(GL_VERTEX_ARRAY);
         glDisableClientState(GL_NORMAL_ARRAY);
@@ -1059,7 +1059,7 @@ namespace TA3D
 
         byte *img = new byte[ rw * rh * 5 ];
 
-        float lod_max_f = Math::Max(log(rw), log(rh)) / log(2.0f);
+        float lod_max_f = Math::Max(logf(rw), logf(rh)) / logf(2.0f);
         int lod_max = ((int) lod_max_f);
         if (lod_max > lod_max_f )
             lod_max++;

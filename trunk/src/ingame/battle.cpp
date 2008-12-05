@@ -1751,8 +1751,8 @@ namespace TA3D
 
                     glViewport(0, 0, SCREEN_W, SCREEN_H);
 
-                    float logw = log((float)SCREEN_W) / log(2.0f);
-                    float logh = log((float)SCREEN_H) / log(2.0f);
+                    float logw = logf((float)SCREEN_W) / logf(2.0f);
+                    float logh = logf((float)SCREEN_H) / logf(2.0f);
                     int wx = logw>(int)logw ? (int)logw+1 : (int)logw;
                     int wy = logh>(int)logh ? (int)logh+1 : (int)logh;
                     wx = 1 << wx;
@@ -1912,7 +1912,7 @@ namespace TA3D
                         glColor4ub(0x7F,0x7F,0xFF,0x7F);                        // Draw a "water quad" to draw a water effect on sub water parts of the model
                         float dec = 1.0f;
                         if (cam.rpos.y - map->sealvl > 1.0f)
-                            dec += log( cam.rpos.y - map->sealvl );
+                            dec += logf( cam.rpos.y - map->sealvl );
                         glTranslatef( 0.0f, map->sealvl - dec - target.y, 0.0f);
                         glDisable(GL_CULL_FACE);
                         glDisable(GL_TEXTURE_2D);
@@ -2027,8 +2027,8 @@ namespace TA3D
                         pSun.Dir.z = 1.0f;
                         pSun.Dir.unit();
                         Vector3D Dir(-pSun.Dir);
-                        Dir.x = cos(light_angle);
-                        Dir.z = sin(light_angle);
+                        Dir.x = cosf(light_angle);
+                        Dir.z = sinf(light_angle);
                         Dir.unit();
                         pSun.Dir = -Dir;
                         units.draw_shadow(cam, Dir, map.get());
@@ -2044,7 +2044,7 @@ namespace TA3D
                 }
                 else
                 {
-                    float alpha = 1.0f - exp((1.0f / lp_CONFIG->shadow_quality) * log(0.5f));
+                    float alpha = 1.0f - expf((1.0f / lp_CONFIG->shadow_quality) * logf(0.5f));
                     Vector3D Dir;
                     if (rotate_light)
                     {
@@ -2053,8 +2053,8 @@ namespace TA3D
                         pSun.Dir.z = 1.0f;
                         pSun.Dir.unit();
                         Dir = -pSun.Dir;
-                        Dir.x = cos(light_angle);
-                        Dir.z = sin(light_angle);
+                        Dir.x = cosf(light_angle);
+                        Dir.z = sinf(light_angle);
                         Dir.unit();
                         pSun.Dir = -Dir;
                     }
@@ -2069,8 +2069,8 @@ namespace TA3D
                     for (int i = 0; i < lp_CONFIG->shadow_quality; ++i)
                     {
                         Vector3D RDir(Dir);
-                        RDir.x += cos(i * PI * 2.0f / lp_CONFIG->shadow_quality) * lp_CONFIG->shadow_r;
-                        RDir.z += sin(i * PI * 2.0f / lp_CONFIG->shadow_quality) * lp_CONFIG->shadow_r;
+                        RDir.x += cosf(i * PI * 2.0f / lp_CONFIG->shadow_quality) * lp_CONFIG->shadow_r;
+                        RDir.z += sinf(i * PI * 2.0f / lp_CONFIG->shadow_quality) * lp_CONFIG->shadow_r;
                         RDir.unit();
                         units.draw_shadow(cam, RDir, map.get(), alpha);
                     }

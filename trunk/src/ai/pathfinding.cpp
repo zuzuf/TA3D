@@ -287,7 +287,7 @@ namespace TA3D
         char order_dx[] = { -1, 0, 1, 1, 1, 0, -1, -1 };
         char order_dy[] = { -1, -1, -1, 0, 1, 1, 1, 0 };
 
-        int PATH_MAX_LENGTH = Math::Max(256, Math::Min((int)(sqrt(sq(end_x - start_x) + sq(end_y - start_y)) * 5.0f), PATHFINDER_MAX_LENGTH));
+        int PATH_MAX_LENGTH = Math::Max(256, Math::Min((int)(sqrtf(sq(end_x - start_x) + sq(end_y - start_y)) * 5.0f), PATHFINDER_MAX_LENGTH));
 
         m_dist *= m_dist;
         m_dist <<= 2;
@@ -347,7 +347,7 @@ namespace TA3D
                         dist[ e ] = -1;
                 }
                 for( int e = 1 ; e < 8 ; e += 2 ) {		// Look for a way to go
-                    if( ( (dist[ order_m1[ e ] ] == -1 && !zoned[ order_m1[ e ] ]) || (dist[ order_p1[ e ] ] == -1 && !zoned[ order_p1[ e ] ]) 
+                    if( ( (dist[ order_m1[ e ] ] == -1 && !zoned[ order_m1[ e ] ]) || (dist[ order_p1[ e ] ] == -1 && !zoned[ order_p1[ e ] ])
                           || (dist[ order_m2[ e ] ] == -1 && !zoned[ order_m2[ e ] ]) || (dist[ order_p2[ e ] ] == -1 && !zoned[ order_p2[ e ] ]) ) && dist[ e ] >= 0 ) {
                         if( m == -1 )	m = e;
                         else if( dist[ e ] < dist[ m ] )
@@ -430,7 +430,7 @@ namespace TA3D
         if(path!=NULL) {
             if(path->next==NULL)
                 return 1.0f;
-            return (sqrt((float)((path->x-path->next->x)*(path->x-path->next->x)+(path->y-path->next->y)*(path->y-path->next->y)))+path_length(path->next));
+            return (sqrtf((float)((path->x-path->next->x)*(path->x-path->next->x)+(path->y-path->next->y)*(path->y-path->next->y)))+path_length(path->next));
         }
         return 0.0f;
     }

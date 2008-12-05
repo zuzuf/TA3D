@@ -219,7 +219,7 @@ int main(int argc, char* argv[])
                 ScaleFactor+=((mouse_y-amy)+(mouse_x-amx)+(mouse_z-amz))*0.1f;
             if (mouse_b==2 && cur_part>=0 && cur_part<nb_obj())             // Left-clic to move current object
             {
-                Vector3D DP( 0.1f*(mouse_x-amx)*cos(r2*DEG2RAD), -(mouse_y-amy)*0.1f, 0.1f*(mouse_x-amx)*sin(r2*DEG2RAD) );
+                Vector3D DP( 0.1f*(mouse_x-amx)*cosf(r2*DEG2RAD), -(mouse_y-amy)*0.1f, 0.1f*(mouse_x-amx)*sinf(r2*DEG2RAD) );
                 obj_table[cur_part]->pos_from_parent = obj_table[cur_part]->pos_from_parent + DP;
                 for( int i = 0 ; i < obj_table[cur_part]->nb_vtx ; i++ )
                     obj_table[cur_part]->points[ i ] = obj_table[cur_part]->points[ i ] - DP;
@@ -342,7 +342,7 @@ int main(int argc, char* argv[])
             glEnable(GL_TEXTURE_2D);
             for(int i=0;i<cur_data.nb_piece;i++)
                 cur_data.flag[i]= ((i == cur_part) ? 0 : FLAG_HIDE) | FLAG_ANIMATE;
-            float col = cos(msec_timer*0.002f)*0.375f+0.625f;
+            float col = cosf(msec_timer*0.002f)*0.375f+0.625f;
             glColor3f(col,col,col);
             TheModel->draw(msec_timer * 0.001f,&cur_data,false,false,false,0,NULL,NULL,NULL,0.0f,NULL,false,0,false);
             glColor3f(1.0f,1.0f,1.0f);
@@ -776,7 +776,7 @@ void SurfEdit()
             glRotatef(msec_timer*0.01333f,1.0f,0.0f,0.0f);
             glTranslatef( -obj_table[cur_part]->pos_from_parent.x, -obj_table[cur_part]->pos_from_parent.y, -obj_table[cur_part]->pos_from_parent.z );
 
-            scaleFactor *= exp( 0.05f * ( amz - mouse_z ) );
+            scaleFactor *= expf( 0.05f * ( amz - mouse_z ) );
 
             glScalef( scaleFactor, scaleFactor, scaleFactor );
 
@@ -820,7 +820,7 @@ void SurfEdit()
 
         if (index!=-1) // L'utilisateur veut choisir une texture / the user is selecting a texture
         {
-            String filename = Dialog( I18N::Translate( "Load a texture" ).c_str(),"*.*");
+            String filename = Dialogf( I18N::Translate( "Load a texture" ).c_str(),"*.*");
             BITMAP *bmp_tex = filename.length()>0 ? gfx->load_image(filename) : NULL;
             if (bmp_tex) // Si il s'agit d'ajouter/modifier une texture / If we are adding/modifying a texture
             {
@@ -1018,7 +1018,7 @@ void SurfPaint(int index)
                 if (tool_tex_size<0.01f)	tool_tex_size=0.01f;
                 if (key[KEY_SPACE] || tool_tex_gl==0)
                 {
-                    String filename = Dialog( I18N::Translate( "Load a texture" ).c_str(),"*.*");
+                    String filename = Dialogf( I18N::Translate( "Load a texture" ).c_str(),"*.*");
                     BITMAP *bmp_tex = filename.length()>0 ? gfx->load_image(filename) : NULL;
                     if (bmp_tex) // Si il s'agit d'ajouter/modifier une texture
                     {
@@ -1599,7 +1599,7 @@ void CubeTexturing(int part)
 {
     if (part<0 || part>=nb_obj())	return;		// Quitte si l'indice n'est pas valable
 
-    float COS45=0.5f*sqrt(2.0f);		// Valeur à partir de laquelle on utilise les bords droit et gauche de la texture
+    float COS45=0.5f*sqrtf(2.0f);		// Valeur à partir de laquelle on utilise les bords droit et gauche de la texture
     Vector3D I,J,K;
     I=J=K=I-I;
     I.x=1.0f;				// Vecteur de référence pour les calculs de repérage
@@ -1623,10 +1623,10 @@ void CubeTexturing(int part)
     for (i=0;i<obj_table[part]->nb_vtx;i++)		// Analyse tous les points pour connaître les bornes de l'objet
     {
         float COS=obj_table[part]->N[i]%I;
-        if (fabs(COS)<COS45)			// Milieu
+        if (fabsf(COS)<COS45)			// Milieu
         {
             COS=obj_table[part]->N[i]%J;
-            if (fabs(COS)<COS45)
+            if (fabsf(COS)<COS45)
             {
                 COS=obj_table[part]->N[i]%K;
                 if (COS>0.0f)			// Coté E(bas droit)
@@ -1693,10 +1693,10 @@ void CubeTexturing(int part)
     for(i=0;i<obj_table[part]->nb_vtx;i++)		// Analyse toutes les normales et les points
     {
         float COS=obj_table[part]->N[i]%I;
-        if (fabs(COS)<COS45)			// Milieu
+        if (fabsf(COS)<COS45)			// Milieu
         {
             COS=obj_table[part]->N[i]%J;
-            if (fabs(COS)<COS45)
+            if (fabsf(COS)<COS45)
             {
                 COS=obj_table[part]->N[i]%K;
                 if (COS>0.0f)			// Coté E(bas droit)
@@ -1760,7 +1760,7 @@ void CylinderTexturing(int part)
 {
     if (part<0 || part>=nb_obj())	return;		// Quitte si l'indice n'est pas valable
 
-    float COS45=0.5f*sqrt(2.0f);		// Valeur à partir de laquelle on utilise les bords droit et gauche de la texture
+    float COS45=0.5f*sqrtf(2.0f);		// Valeur à partir de laquelle on utilise les bords droit et gauche de la texture
     Vector3D I,J,K;
     I=J=K=I-I;
     I.x=1.0f;				// Vecteur de référence pour les calculs de repérage
@@ -1778,7 +1778,7 @@ void CylinderTexturing(int part)
     for (i = 0; i < obj_table[part]->nb_vtx; ++i) // Analyse tous les points pour connaître les bornes de l'objet
     {
         float COS=obj_table[part]->N[i]%I;
-        if (fabs(COS) < COS45) // Milieu
+        if (fabsf(COS) < COS45) // Milieu
         {
             if (obj_table[part]->points[i].x>xmax)	xmax=obj_table[part]->points[i].x;
             if (obj_table[part]->points[i].x<xmin)	xmin=obj_table[part]->points[i].x;
@@ -1818,7 +1818,7 @@ void CylinderTexturing(int part)
     for (i=0;i<obj_table[part]->nb_vtx;i++)		// Analyse toutes les normales et les points
     {
         float COS=obj_table[part]->N[i]%I;
-        if (fabs(COS)<COS45)			// Milieu
+        if (fabsf(COS)<COS45)			// Milieu
         {
             Vector3D V = obj_table[part]->points[i];
             V=V-(V%I)*I;

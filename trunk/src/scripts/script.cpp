@@ -495,7 +495,7 @@ namespace TA3D
                     int r2 = r * r;
                     for (int y = 0 ; y <= r ; y++)
                     {
-                        int x = (int)(sqrt( r2 - y * y ) + 0.5f);
+                        int x = (int)(sqrtf( r2 - y * y ) + 0.5f);
                         if (can_be_there( PX+x, PY+y, lua_map, units.unit[ unit_id ].type_id, units.unit[ unit_id ].owner_id ))
                         {
                             PX += x;
@@ -554,7 +554,7 @@ namespace TA3D
                 Vector3D target_pos = units.unit[ unit_id ].Pos;
                 target_pos.x=((int)(target_pos.x) + lua_map->map_w_d)>>3;
                 target_pos.z=((int)(target_pos.z) + lua_map->map_h_d)>>3;
-                target_pos.y = Math::Max(lua_map->get_max_rect_h((int)target_pos.x,(int)target_pos.z, 
+                target_pos.y = Math::Max(lua_map->get_max_rect_h((int)target_pos.x,(int)target_pos.z,
                                                                  unit_manager.unit_type[units.unit[unit_id].type_id]->FootprintX,
                                                                  unit_manager.unit_type[units.unit[unit_id].type_id]->FootprintZ),
                                          lua_map->sealvl);
@@ -1001,7 +1001,7 @@ namespace TA3D
         return 0;
     }
 
-    
+
     int function_play(lua_State *L)		// ta3d_play( filename )
     {
         lua_pushnumber(L, -1.0f);
@@ -1487,10 +1487,10 @@ namespace TA3D
                 glBegin(GL_LINE_STRIP);
                 glColor3f(prim.r[0],prim.g[0],prim.b[0]);
                 {
-                    int max = (int)(sqrt(prim.r[1])*2.0f)*2;
+                    int max = (int)(sqrtf(prim.r[1])*2.0f)*2;
                     if (max>0)
                         for(int i=0;i<=prim.r[1]*10;i++)
-                            glVertex2f(prim.x[0]+prim.r[1]*cos(i*6.2831853072f/max),prim.y[0]+prim.r[1]*sin(i*6.2831853072f/max));
+                            glVertex2f(prim.x[0]+prim.r[1]*cosf(i*6.2831853072f/max),prim.y[0]+prim.r[1]*sinf(i*6.2831853072f/max));
                 }
                 glEnd();
                 break;

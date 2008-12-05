@@ -260,7 +260,7 @@ namespace TA3D
                 if( type & ROTATION_PERIODIC ) {
                     float coef;
                     if( type & ROTATION_COSINE )
-                        coef = 0.5f + 0.5f * cos( t * angle_w );
+                        coef = 0.5f + 0.5f * cosf( t * angle_w );
                     else {
                         coef = t * angle_w;
                         int i = (int) coef;
@@ -276,7 +276,7 @@ namespace TA3D
                 if( type & TRANSLATION_PERIODIC ) {
                     float coef;
                     if( type & TRANSLATION_COSINE )
-                        coef = 0.5f + 0.5f * cos( t * translate_w );
+                        coef = 0.5f + 0.5f * cosf( t * translate_w );
                     else {
                         coef = t * translate_w;
                         int i = (int) coef;

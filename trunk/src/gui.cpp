@@ -513,7 +513,7 @@ void TextEditor( float x1, float y1, float x2, float y2, const String::Vector &E
 
     float old_size = gui_font.get_size();
     gui_font.change_size( size );
-    
+
     bool blink = Etat && (msec_timer % 1000) >= 500;
 
     if (skin && skin->text_background.tex)
@@ -710,11 +710,11 @@ String curDir = "";
   |               Affiche une fenêtre de selection de fichier                  |
   \---------------------------------------------------------------------------*/
 
-const String Dialog(const String &Title, String Filter)
+const String Dialogf(const String &Title, String Filter)
 {
     AREA *current_area = AREA::current();
     String result = "";
-    
+
     if (current_area)
     {
         if (current_area->get_wnd( "open" ) == NULL)            // The window isn't loaded => load it now !
@@ -737,14 +737,14 @@ const String Dialog(const String &Title, String Filter)
         current_area->set_entry("open.file_list", files);
         current_area->set_entry("open.folder_list", dirs);
         current_area->msg("open.show");
-        
+
         current_area->set_state("open.b_ok", false);        // We don't want to leave right now
         current_area->set_state("open.b_cancel", false);
-        
+
         bool done = false;
         int amx, amy, amz, amb;
         int cur_folder_idx = -1;
-        
+
         do
         {
             bool key_is_pressed = false;
@@ -759,7 +759,7 @@ const String Dialog(const String &Title, String Filter)
                 current_area->check();
                 rest( 8 );
             } while( amx == mouse_x && amy == mouse_y && amz == mouse_z && amb == mouse_b && !key[ KEY_ENTER ] && !key[ KEY_ESC ] && !done && !key_is_pressed && !current_area->scrolling );
-            
+
             if (key[KEY_ESC] || current_area->get_state("open.b_cancel"))   done = true;
 
             if (key[KEY_ENTER] || current_area->get_state("open.b_ok"))
@@ -810,7 +810,7 @@ const String Dialog(const String &Title, String Filter)
                         cur_folder_idx = obj->Pos;
                 }
             }
-            
+
             gfx->SetDefState();
             // Clear screen
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -823,12 +823,12 @@ const String Dialog(const String &Title, String Filter)
 
             gfx->unset_2D_mode();	// Quitte le mode de dessin d'allegro
             gfx->flip();
-            
+
         }while(!done);
-        
+
         current_area->msg("open.hide");
     }
- 
+
     reset_keyboard();
 
     return result;
@@ -866,7 +866,7 @@ bool WndAsk(const String &Title,const String &Msg,int ASW_TYPE)
         bool done = false;
         int amx, amy, amz, amb;
         bool answer = false;
-        
+
         do
         {
             bool key_is_pressed = false;
@@ -881,7 +881,7 @@ bool WndAsk(const String &Title,const String &Msg,int ASW_TYPE)
                 current_area->check();
                 rest( 8 );
             } while( amx == mouse_x && amy == mouse_y && amz == mouse_z && amb == mouse_b && !key[ KEY_ENTER ] && !key[ KEY_ESC ] && !done && !key_is_pressed && !current_area->scrolling );
-            
+
             if (key[KEY_ESC] || current_area->get_state("yesno.b_cancel"))
             {
                 done = true;
@@ -906,15 +906,15 @@ bool WndAsk(const String &Title,const String &Msg,int ASW_TYPE)
 
             gfx->unset_2D_mode();	// Quitte le mode de dessin d'allegro
             gfx->flip();
-            
+
         }while(!done);
         current_area->msg("yesno.hide");
 
         reset_keyboard();
-        
+
         return answer;
     }
-    
+
     return false;
 }
 
@@ -937,7 +937,7 @@ void Popup(const String &Title,const String &Msg)
 
         bool done = false;
         int amx, amy, amz, amb;
-        
+
         do
         {
             bool key_is_pressed = false;
@@ -952,7 +952,7 @@ void Popup(const String &Title,const String &Msg)
                 current_area->check();
                 rest( 8 );
             } while( amx == mouse_x && amy == mouse_y && amz == mouse_z && amb == mouse_b && !key[ KEY_ENTER ] && !key[ KEY_ESC ] && !done && !key_is_pressed && !current_area->scrolling );
-            
+
             if (key[KEY_ESC])   done = true;
 
             if (key[KEY_ENTER] || current_area->get_state("popup.b_ok"))
@@ -970,7 +970,7 @@ void Popup(const String &Title,const String &Msg)
 
             gfx->unset_2D_mode();	// Quitte le mode de dessin d'allegro
             gfx->flip();
-            
+
         }while(!done);
         current_area->msg("popup.hide");
 
@@ -986,7 +986,7 @@ const String GetVal(const String &Title)
 {
     AREA *current_area = AREA::current();
     String result = "";
-    
+
     if (current_area)
     {
         if (current_area->get_wnd( "ask" ) == NULL)            // The window isn't loaded => load it now !
@@ -995,10 +995,10 @@ const String GetVal(const String &Title)
 
         current_area->msg("ask.show");
         current_area->msg("ask.t_result.focus");
-        
+
         bool done = false;
         int amx, amy, amz, amb;
-        
+
         do
         {
             bool key_is_pressed = false;
@@ -1013,7 +1013,7 @@ const String GetVal(const String &Title)
                 current_area->check();
                 rest( 8 );
             } while( amx == mouse_x && amy == mouse_y && amz == mouse_z && amb == mouse_b && !key[ KEY_ENTER ] && !key[ KEY_ESC ] && !done && !key_is_pressed && !current_area->scrolling );
-            
+
             if (key[KEY_ESC] || current_area->get_state("ask.b_cancel"))   done = true;
 
             if (key[KEY_ENTER] || current_area->get_state("ask.b_ok"))
@@ -1034,11 +1034,11 @@ const String GetVal(const String &Title)
 
             gfx->unset_2D_mode();	// Quitte le mode de dessin d'allegro
             gfx->flip();
-            
+
         }while(!done);
         current_area->msg("ask.hide");
     }
-    
+
     reset_keyboard();
 
     return result;

@@ -296,8 +296,8 @@ inline MATRIX_4x4 RotateX(const float &Theta)
 {
     MATRIX_4x4 M;
     M.E[0][0]=1.0f;
-    M.E[1][1]=cos(Theta);
-    M.E[2][1]=sin(Theta);
+    M.E[1][1]=cosf(Theta);
+    M.E[2][1]=sinf(Theta);
     M.E[1][2]=-M.E[2][1];
     M.E[2][2]=M.E[1][1];
     M.E[3][3]=1.0f;
@@ -308,8 +308,8 @@ inline MATRIX_4x4 RotateX(const float &Theta)
 inline MATRIX_4x4 RotateY(const float &Theta)
 {
     MATRIX_4x4 M;
-    M.E[0][0]=cos(Theta);
-    M.E[2][0]=-sin(Theta);
+    M.E[0][0]=cosf(Theta);
+    M.E[2][0]=-sinf(Theta);
     M.E[1][1]=1.0f;
     M.E[0][2]=-M.E[2][0];
     M.E[2][2]=M.E[0][0];
@@ -321,8 +321,8 @@ inline MATRIX_4x4 RotateY(const float &Theta)
 inline MATRIX_4x4 RotateZ(const float &Theta)
 {
     MATRIX_4x4 M;
-    M.E[0][0]=cos(Theta);
-    M.E[1][0]=sin(Theta);
+    M.E[0][0]=cosf(Theta);
+    M.E[1][0]=sinf(Theta);
     M.E[0][1]=-M.E[1][0];
     M.E[1][1]=M.E[0][0];
     M.E[2][2]=1.0f;
@@ -333,18 +333,18 @@ inline MATRIX_4x4 RotateZ(const float &Theta)
 // Returns RotateZ(Rz) * RotateY(Ry) * RotateX(Rx) but faster ;)
 inline MATRIX_4x4 RotateZYX(const float &Rz, const float &Ry, const float &Rx)
 {
-    float cx = cos(Rx);
-    float sx = sin(Rx);
-    float cy = cos(Ry);
-    float sy = sin(Ry);
-    float cz = cos(Rz);
-    float sz = sin(Rz);
-    
+    float cx = cosf(Rx);
+    float sx = sinf(Rx);
+    float cy = cosf(Ry);
+    float sy = sinf(Ry);
+    float cz = cosf(Rz);
+    float sz = sinf(Rz);
+
     float sxcz = sx * cz;
     float sxsz = sx * sz;
     float czcx = cz * cx;
     float szcx = sz * cx;
-    
+
     MATRIX_4x4 M;
     M.E[0][0] = cz * cy;
     M.E[1][0] = szcx + sxcz * sy;
@@ -362,18 +362,18 @@ inline MATRIX_4x4 RotateZYX(const float &Rz, const float &Ry, const float &Rx)
 // Returns RotateX(Rx) * RotateY(Ry) * RotateZ(Rz) but faster ;)
 inline MATRIX_4x4 RotateXYZ(const float &Rx, const float &Ry, const float &Rz)
 {
-    float cx = cos(Rx);
-    float sx = sin(Rx);
-    float cy = cos(Ry);
-    float sy = sin(Ry);
-    float cz = cos(Rz);
-    float sz = sin(Rz);
-    
+    float cx = cosf(Rx);
+    float sx = sinf(Rx);
+    float cy = cosf(Ry);
+    float sy = sinf(Ry);
+    float cz = cosf(Rz);
+    float sz = sinf(Rz);
+
     float szcx = sz * cx;
     float sxcz = sx * cz;
     float czcx = cz * cx;
     float sxsz = sx * sz;
-    
+
     MATRIX_4x4 M;
     M.E[0][0] = cz * cy;
     M.E[1][0] = cy * sz;
@@ -391,18 +391,18 @@ inline MATRIX_4x4 RotateXYZ(const float &Rx, const float &Ry, const float &Rz)
 // Returns RotateX(Rx) * RotateZ(Rz) * RotateY(Ry) but faster ;)
 inline MATRIX_4x4 RotateXZY(const float &Rx, const float &Rz, const float &Ry)
 {
-    float cx = cos(Rx);
-    float sx = sin(Rx);
-    float cy = cos(Ry);
-    float sy = sin(Ry);
-    float cz = cos(Rz);
-    float sz = sin(Rz);
-    
+    float cx = cosf(Rx);
+    float sx = sinf(Rx);
+    float cy = cosf(Ry);
+    float sy = sinf(Ry);
+    float cz = cosf(Rz);
+    float sz = sinf(Rz);
+
     float sxcy = sx * cy;
     float sxsy = sx * sy;
     float sycx = sy * cx;
     float cxcy = cx * cy;
-    
+
     MATRIX_4x4 M;
     M.E[0][0] = cz * cy;
     M.E[1][0] = sz;
@@ -423,18 +423,18 @@ inline MATRIX_4x4 RotateXZY(const float &Rx, const float &Rz, const float &Ry)
 // Returns RotateY(Ry) * RotateZ(Rz) * RotateX(Rx) but faster ;)
 inline MATRIX_4x4 RotateYZX(const float &Ry, const float &Rz, const float &Rx)
 {
-    float cx = cos(Rx);
-    float sx = sin(Rx);
-    float cy = cos(Ry);
-    float sy = sin(Ry);
-    float cz = cos(Rz);
-    float sz = sin(Rz);
-    
+    float cx = cosf(Rx);
+    float sx = sinf(Rx);
+    float cy = cosf(Ry);
+    float sy = sinf(Ry);
+    float cz = cosf(Rz);
+    float sz = sinf(Rz);
+
     float sysx = sy * sx;
     float sycx = sy * cx;
     float cysx = cy * sx;
     float cycx = cy * cx;
-    
+
     MATRIX_4x4 M;
     M.E[0][0] = cy * cz;
     M.E[1][0] = cycx * sz + sysx;

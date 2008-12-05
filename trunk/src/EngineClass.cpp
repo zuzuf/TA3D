@@ -1041,19 +1041,19 @@ namespace TA3D
         const int nmax = 64;
         float cx[4*nmax+4],cy[4*nmax+4];
         if(A.y<0.0f) {
-            P=cam->pos+cam->pos.y/fabs(A.y)*A;	cx[0]=P.x;	cy[0]=P.z; }
+            P=cam->pos+cam->pos.y/fabsf(A.y)*A;	cx[0]=P.x;	cy[0]=P.z; }
         else {
             P=cam->pos+10000.0f*A;	cx[0]=P.x;	cy[0]=P.z; }
         if(B.y<0.0f) {
-            P=cam->pos+cam->pos.y/fabs(B.y)*B;	cx[1]=P.x;	cy[1]=P.z; }
+            P=cam->pos+cam->pos.y/fabsf(B.y)*B;	cx[1]=P.x;	cy[1]=P.z; }
         else {
             P=cam->pos+10000.0f*B;	cx[1]=P.x;	cy[1]=P.z; }
         if(C.y<0.0f) {
-            P=cam->pos+cam->pos.y/fabs(C.y)*C;	cx[2]=P.x;	cy[2]=P.z; }
+            P=cam->pos+cam->pos.y/fabsf(C.y)*C;	cx[2]=P.x;	cy[2]=P.z; }
         else {
             P=cam->pos+10000.0f*C;	cx[2]=P.x;	cy[2]=P.z; }
         if(D.y<0.0f) {
-            P=cam->pos+cam->pos.y/fabs(D.y)*D;	cx[3]=P.x;	cy[3]=P.z; }
+            P=cam->pos+cam->pos.y/fabsf(D.y)*D;	cx[3]=P.x;	cy[3]=P.z; }
         else {
             P=cam->pos+10000.0f*D;	cx[3]=P.x;	cy[3]=P.z; }
 
@@ -1126,7 +1126,7 @@ namespace TA3D
             if (sn > 0)
                 for (int y = 0; y <= sn; ++y) // Update sonar data
                 {
-                    int x=(int)(0.5f+sqrt((float)(sn2-y*y)));
+                    int x=(int)(0.5f+sqrtf((float)(sn2-y*y)));
                     int ry=py-y;
                     if (ry >= 0 && ry < sonar_map->h)
                     {
@@ -1170,7 +1170,7 @@ namespace TA3D
             if( rd > 0 )
                 for (int y = 0; y <= rd; ++y) // Update radar data
                 {
-                    int x=(int)(0.5f+sqrt((float)(rd2-y*y)));
+                    int x=(int)(0.5f+sqrtf((float)(rd2-y*y)));
                     int ry=py-y;
                     if (ry >= 0 && ry < radar_map->h)
                     {
@@ -1212,7 +1212,7 @@ namespace TA3D
             if (fog_of_war & FOW_GREY)
                 for(int y = 0; y <= r; ++y) // Update view data
                 {
-                    int x=(int)(0.5f+sqrt((float)(r2-y*y)));
+                    int x=(int)(0.5f+sqrtf((float)(r2-y*y)));
                     int ry=py-y;
                     if (ry>=0 && ry<sight_map->h)
                     {
@@ -1254,7 +1254,7 @@ namespace TA3D
             if (black && (fog_of_war & FOW_BLACK))
                 for (int y = 0; y <= r; ++y) // Update view data
                 {
-                    int x=(int)(0.5f+sqrt((float)(r2-y*y)));
+                    int x=(int)(0.5f+sqrtf((float)(r2-y*y)));
                     int ry=py-y;
                     if (ry >= 0 && ry < view_map->h)
                     {
@@ -1366,19 +1366,19 @@ namespace TA3D
         float cx[4],cy[4];
         Vector3D P;
         if (A.y < 0.0f) {
-            P=cam->pos+cam->pos.y/fabs(A.y)*A;	cx[0]=P.x;	cy[0]=P.z; }
+            P=cam->pos+cam->pos.y/fabsf(A.y)*A;	cx[0]=P.x;	cy[0]=P.z; }
         else {
             P=cam->pos+10000.0f*A;	cx[0]=P.x;	cy[0]=P.z; }
         if(B.y<0.0f) {
-            P=cam->pos+cam->pos.y/fabs(B.y)*B;	cx[1]=P.x;	cy[1]=P.z; }
+            P=cam->pos+cam->pos.y/fabsf(B.y)*B;	cx[1]=P.x;	cy[1]=P.z; }
         else {
             P=cam->pos+10000.0f*B;	cx[1]=P.x;	cy[1]=P.z; }
         if(C.y<0.0f) {
-            P=cam->pos+cam->pos.y/fabs(C.y)*C;	cx[2]=P.x;	cy[2]=P.z; }
+            P=cam->pos+cam->pos.y/fabsf(C.y)*C;	cx[2]=P.x;	cy[2]=P.z; }
         else {
             P=cam->pos+10000.0f*C;	cx[2]=P.x;	cy[2]=P.z; }
         if(D.y<0.0f) {
-            P=cam->pos+cam->pos.y/fabs(D.y)*D;	cx[3]=P.x;	cy[3]=P.z; }
+            P=cam->pos+cam->pos.y/fabsf(D.y)*D;	cx[3]=P.x;	cy[3]=P.z; }
         else {
             P=cam->pos+10000.0f*D;	cx[3]=P.x;	cy[3]=P.z; }
 
@@ -1394,7 +1394,7 @@ namespace TA3D
             if(cy[i]>maxy) maxy=(int)cy[i];
         }
         int y1=bloc_h,y2=0,x1=bloc_w,x2=0,mx,my;
-        float limit=cam->zfar*sqrt(2.0f);
+        float limit=cam->zfar*sqrtf(2.0f);
         x1=(int)((cam->pos.x+0.5f*map_w-limit)/16.0f);
         y1=(int)((cam->pos.z+0.5f*map_h-limit)/16.0f);
         x2=(int)((cam->pos.x+0.5f*map_w+limit)/16.0f);
@@ -1441,10 +1441,10 @@ namespace TA3D
 
         float ref = sq( A%cam->dir );
         // Here we use an approximation of the right formula, assuming M should remain small compared to the rest (remember we use squared values ...)
-        // the right formula that gives the ref0 value we want is : cos( a ) - r / D * sqrt( 1 / tan( a ) )
+        // the right formula that gives the ref0 value we want is : cosf( a ) - r / D * sqrtf( 1 / tan( a ) )
         // where 2 * a is the camera aperture angle, 2 * r the diameter of a map bloc and D the distance from the camera to the bloc
-        // with ref = cos( a )² we compute: ref0 ~ ref - 2 * r / D * sqrt( 1 / tan( a ) ) = ref - M / D
-        float M = H_DIV * 512.0f * sqrt( (A%cam->dir) / sqrt( 1.0f - sq(A%cam->dir) ) );    // H_DIV * 512 because it's twice H_DIV * 256, maximum height of a map bloc
+        // with ref = cosf( a )² we compute: ref0 ~ ref - 2 * r / D * sqrtf( 1 / tan( a ) ) = ref - M / D
+        float M = H_DIV * 512.0f * sqrtf( (A%cam->dir) / sqrtf( 1.0f - sq(A%cam->dir) ) );    // H_DIV * 512 because it's twice H_DIV * 256, maximum height of a map bloc
         float dhm=0.5f*map_h;
         float dwm=0.5f*map_w;
 
@@ -1454,11 +1454,11 @@ namespace TA3D
         Vector3D flat[9];
         if (FLAT)
         {
-            flat[0].x=0.0f;		flat[0].y=niv+cos(t)*0.5f;			flat[0].z=0.0f;
-            flat[1].x=8.0f;		flat[1].y=niv+cos(t+1.0f)*0.5f;		flat[1].z=0.0f;
+            flat[0].x=0.0f;		flat[0].y=niv+cosf(t)*0.5f;			flat[0].z=0.0f;
+            flat[1].x=8.0f;		flat[1].y=niv+cosf(t+1.0f)*0.5f;		flat[1].z=0.0f;
             flat[2].x=16.0f;	flat[2].y=flat[0].y;				flat[2].z=0.0f;
-            flat[3].x=0.0f;		flat[3].y=niv+cos(t+1.5f)*0.5f;		flat[3].z=8.0f;
-            flat[4].x=8.0f;		flat[4].y=niv+cos(t+2.5f)*0.5f;		flat[4].z=8.0f;
+            flat[3].x=0.0f;		flat[3].y=niv+cosf(t+1.5f)*0.5f;		flat[3].z=8.0f;
+            flat[4].x=8.0f;		flat[4].y=niv+cosf(t+2.5f)*0.5f;		flat[4].z=8.0f;
             flat[5].x=16.0f;	flat[5].y=flat[3].y;				flat[5].z=8.0f;
             flat[6].x=0.0f;		flat[6].y=flat[0].y;				flat[6].z=16.0f;
             flat[7].x=8.0f;		flat[7].y=flat[1].y;				flat[7].z=16.0f;
@@ -1491,7 +1491,7 @@ namespace TA3D
         }
 
         if (FLAT)
-            glTranslatef(cos(t),0.0f,sin(t));
+            glTranslatef(cosf(t),0.0f,sinf(t));
         GLuint old_tex=bloc[0].tex;
         if (!depth_only)
             glBindTexture(GL_TEXTURE_2D,old_tex);
@@ -1616,14 +1616,14 @@ namespace TA3D
                         V.y = ph_map[Y|1][X|1];
                         V.z = pre_y - dhm + get_zdec_notest(X|1,Y|1);
                         V = V - cam->pos;
-                        if(fabs(V%cam->dir) > cam->zfar)
+                        if(fabsf(V%cam->dir) > cam->zfar)
                         {
                             view[y][rx1] = 0;
                             continue;
                         }
                         float d = V.sq();
                         if(d > 16384.0f)
-                            if(sq(V % cam->dir) < ref * d - M * sqrt(d))
+                            if(sq(V % cam->dir) < ref * d - M * sqrtf(d))
                             {
                                 view[y][rx1] = 0;
                                 continue;
@@ -1637,14 +1637,14 @@ namespace TA3D
                         V.y = ph_map[Y|1][X|1];
                         V.z = pre_y - dhm + get_zdec_notest(X|1,Y|1);
                         V = V - cam->pos;
-                        if(fabs(V % cam->dir) > cam->zfar)
+                        if(fabsf(V % cam->dir) > cam->zfar)
                         {
                             view[y][rx2] = 0;
                             continue;
                         }
                         float d = V.sq();
                         if(d > 16384.0f)
-                            if(sq(V % cam->dir) < ref * d - M * sqrt(d))
+                            if(sq(V % cam->dir) < ref * d - M * sqrtf(d))
                             {
                                 view[y][rx2] = 0;
                                 continue;
@@ -1816,8 +1816,8 @@ namespace TA3D
                                     float grad_len = grad.sq();
                                     if (grad_len > 0.0f)
                                     {
-                                        grad = (1.0f / sqrt( grad_len )) * grad;
-                                        fx_manager.addWave(POS, RAD2DEG * ((grad.x >= 0.0f) ? -acos(grad.z) : acos(grad.z)));
+                                        grad = (1.0f / sqrtf( grad_len )) * grad;
+                                        fx_manager.addWave(POS, RAD2DEG * ((grad.x >= 0.0f) ? -acosf(grad.z) : acosf(grad.z)));
                                     }
                                 }
                             }
@@ -2125,10 +2125,10 @@ namespace TA3D
         float step = 1.0f;
         if (Dir.x != 0.0f && Dir.z != 0.0f)
         {
-            if (fabs(Dir.x) < fabs(Dir.z))
-                step = 1.0f / fabs(Dir.x);
+            if (fabsf(Dir.x) < fabsf(Dir.z))
+                step = 1.0f / fabsf(Dir.x);
             else
-                step = 1.0f / fabs(Dir.z);
+                step = 1.0f / fabsf(Dir.z);
         }
         int nb = 0;
         int nb_limit = (int)(Pos.y) + 1000;
@@ -2143,7 +2143,7 @@ namespace TA3D
             length -= len_step;
             nb++;
             Pos += Dir;
-            if ((fabs(Pos.x) > dwm || fabs(Pos.z) > dhm) && !allow_out) // Pas de résultat
+            if ((fabsf(Pos.x) > dwm || fabsf(Pos.z) > dhm) && !allow_out) // Pas de résultat
                 return Pos;
         }
         length += len_step;
@@ -2156,7 +2156,7 @@ namespace TA3D
             length -= len_step;
             ++nb;
             Pos += Dir;
-            if ((fabs(Pos.x) > dwm || fabs(Pos.z)>dhm) && !allow_out) // Pas de résultat
+            if ((fabsf(Pos.x) > dwm || fabsf(Pos.z)>dhm) && !allow_out) // Pas de résultat
                 return Pos;
         }
 
@@ -2224,7 +2224,7 @@ namespace TA3D
     void WATER::draw(float t, float X, float Y, bool shaded)
     {
         glActiveTextureARB(GL_TEXTURE0_ARB);
-        glTranslatef(cos(t),0.0f,sin(t));
+        glTranslatef(cosf(t),0.0f,sinf(t));
         if (shaded)
         {
             glBegin(GL_QUADS);
@@ -2291,15 +2291,15 @@ namespace TA3D
             {
                 if (full_sphere)
                 {
-                    point[i].x = size * cos(x / (2.0f * s) * PI * 2.0f) * cos((float)y / s * PI - PI * 0.5f);
-                    point[i].y = size * sin((float)y / s * PI - PI * 0.5f);
-                    point[i].z = -size * sin(x / (2.0f * s) * PI * 2.0f) * cos((float)y / s * PI - PI * 0.5f);
+                    point[i].x = size * cosf(x / (2.0f * s) * PI * 2.0f) * cosf((float)y / s * PI - PI * 0.5f);
+                    point[i].y = size * sinf((float)y / s * PI - PI * 0.5f);
+                    point[i].z = -size * sinf(x / (2.0f * s) * PI * 2.0f) * cosf((float)y / s * PI - PI * 0.5f);
                 }
                 else
                 {
-                    point[i].x = size * cos(x / (2.0f * s) * PI * 2.0f) * cos(0.5f * y / s * PI);
-                    point[i].y = size * sin(0.5f * y / s * PI);
-                    point[i].z = -size * sin(x / (2.0f * s) * PI * 2.0f) * cos(0.5f * y / s * PI);
+                    point[i].x = size * cosf(x / (2.0f * s) * PI * 2.0f) * cosf(0.5f * y / s * PI);
+                    point[i].y = size * sinf(0.5f * y / s * PI);
+                    point[i].z = -size * sinf(x / (2.0f * s) * PI * 2.0f) * cosf(0.5f * y / s * PI);
                 }
                 texcoord[i << 1] = (float)x / (s * 2);
                 texcoord[(i << 1) + 1] = 1.0f - (float)y / s;

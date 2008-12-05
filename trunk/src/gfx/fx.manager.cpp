@@ -338,10 +338,10 @@ namespace TA3D
             float a = (Math::RandFromTable() % 36000) * 0.01f * DEG2RAD;
             float b = (Math::RandFromTable() % 18000) * 0.01f * DEG2RAD;
             float s = power * ((Math::RandFromTable() % 9001) * 0.0001f + 0.1f);
-            float scosb = s * cos(b);
-            Vector3D vs(cos(a) * scosb,
-                        s * sin(b),
-                        sin(a) * scosb);
+            float scosb = s * cosf(b);
+            Vector3D vs(cosf(a) * scosb,
+                        s * sinf(b),
+                        sinf(a) * scosb);
             float l = (Math::RandFromTable() % 1001) * 0.001f - 0.5f + Math::Min(rev * vs.y, 10.0f);
 
             pParticles.push_back(new FXParticle(p, vs, l));
@@ -370,9 +370,9 @@ namespace TA3D
             float a = (Math::RandFromTable() % 36000) * 0.01f * DEG2RAD;
             float b = (Math::RandFromTable() % 18000) * 0.01f * DEG2RAD;
             float speed = power * ((Math::RandFromTable() % 9001) * 0.0001f + 0.1f);
-            Vector3D vs(speed * cos(a) * cos(b),
-                        speed * sin(b),
-                        speed * sin(a) * cos(b));
+            Vector3D vs(speed * cosf(a) * cosf(b),
+                        speed * sinf(b),
+                        speed * sinf(a) * cosf(b));
             float l = Math::Min(5.0f * vs.y / (the_map->ota_data.gravity + 0.1f), 10.0f);
 
             pParticles.push_back(new FXParticle(p, s + vs, l));

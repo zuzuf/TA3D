@@ -1407,7 +1407,7 @@ namespace TA3D
                 int d_h0 = tmp[y][x - 1] - med;
                 int d_h1 = tmp[y - 1][x] - med;
                 int d_h = tmp[y][x] - med;
-                float l = sqrt((float)(d_h0 * d_h0  +  d_h1 * d_h1));
+                float l = sqrtf((float)(d_h0 * d_h0  +  d_h1 * d_h1));
                 float dhx;
                 float dhy;
                 if (l == 0.0f)
@@ -2159,7 +2159,7 @@ namespace TA3D
                     if (center)
                         t_mod=t_mod+(*center);
                 }
-                float speed=1.718281828f;			// exp(1.0f) - 1.0f because of speed law: S(t) = So * exp( -t / tref ) and a lifetime of 1 sec
+                float speed=1.718281828f;			// expf(1.0f) - 1.0f because of speed law: S(t) = So * expf( -t / tref ) and a lifetime of 1 sec
                 if (reverse)
                 {
                     Dir=*pos-(t_mod+*target);
@@ -3188,7 +3188,7 @@ namespace TA3D
         obj.compute_center(&center,O,&coef);
         center=(1.0f/coef)*center;
         size=2.0f*obj.compute_size_sq(center);			// On garde le carré pour les comparaisons et on prend une marge en multipliant par 2.0f
-        size2=sqrt(0.5f*size);
+        size2=sqrtf(0.5f*size);
         obj.compute_emitter();
         compute_topbottom();
     }
@@ -3207,7 +3207,7 @@ namespace TA3D
             obj.compute_center(&center,O,&coef);
             center=(1.0f/coef)*center;
             size=2.0f*obj.compute_size_sq(center);			// On garde le carré pour les comparaisons et on prend une marge en multipliant par 2.0f
-            size2=sqrt(0.5f*size);
+            size2=sqrtf(0.5f*size);
             obj.compute_emitter();
             compute_topbottom();
         }
@@ -3229,7 +3229,7 @@ namespace TA3D
         center=(1.0f/coef)*center;
         obj.compute_emitter();
         size=2.0f*obj.compute_size_sq(center);			// On garde le carré pour les comparaisons et on prend une marge en multipliant par 2.0f
-        size2=sqrt(0.5f*size);
+        size2=sqrtf(0.5f*size);
         compute_topbottom();
     }
 
@@ -3493,7 +3493,7 @@ namespace TA3D
         xmin = xmax - xmin;
         ymin = ymax - ymin;
         zmin = zmax - zmin;
-        xmax = sqrt(xmin * xmin + ymin * ymin + zmin * zmin);
+        xmax = sqrtf(xmin * xmin + ymin * ymin + zmin * zmin);
         size = size / xmax;
 
         for (i = 0; i < NbStruct; ++i) // Crée les différentes parties de la meshe

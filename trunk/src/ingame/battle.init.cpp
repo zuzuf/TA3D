@@ -625,12 +625,12 @@ namespace TA3D
 			{
 				for (int x = 0 ; x < 512 ; ++x)
 				{
-					// equation : y = ( 1 - sqrt( 1 - (x*z)^2)) * z / 3 + (1-z) * sin( x * PI / 2) ^ 2 where z is a parameter
+					// equation : y = ( 1 - sqrtf( 1 - (x*z)^2)) * z / 3 + (1-z) * sinf( x * PI / 2) ^ 2 where z is a parameter
 					// Stores the gradient vector clamped into 0.0 - 1.0 ( 0 - 0xFF)
 					float X = (x - 256.0f) / 256.0f;
 					float Z = z / 512.0f;
-					float DX = -X * Z * Z / ( 3.0f * sqrt( 1.0f - X * Z * X * Z)) + ( 1.0f - Z) * PI * sin( X * PI / 2.0f) * cos( X * PI / 2.0f);
-					float L = sqrt( DX * DX + 1.0f);
+					float DX = -X * Z * Z / ( 3.0f * sqrtf( 1.0f - X * Z * X * Z)) + ( 1.0f - Z) * PI * sinf( X * PI / 2.0f) * cosf( X * PI / 2.0f);
+					float L = sqrtf( DX * DX + 1.0f);
 
 					DX = DX / L * 127.0f + 127.0f;
 					if (DX < 0.0f)

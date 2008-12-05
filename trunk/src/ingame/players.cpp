@@ -17,11 +17,11 @@ namespace TA3D
 
         inline bool need_sync(const struct sync &a, const struct sync &b)
         {
-            return fabs( a.x - b.x ) > 0.001f
-                ||	fabs( a.y - b.y ) > 1.0f
-                ||	fabs( a.z - b.z ) > 0.001f
-                ||	fabs( a.vx - b.vx ) > 0.001f
-                ||	fabs( a.vz - b.vz ) > 0.001f
+            return fabsf( a.x - b.x ) > 0.001f
+                ||	fabsf( a.y - b.y ) > 1.0f
+                ||	fabsf( a.z - b.z ) > 0.001f
+                ||	fabsf( a.vx - b.vx ) > 0.001f
+                ||	fabsf( a.vz - b.vz ) > 0.001f
                 ||	a.hp != b.hp
                 ||	a.orientation != b.orientation
                 ||	a.build_percent_left != b.build_percent_left;

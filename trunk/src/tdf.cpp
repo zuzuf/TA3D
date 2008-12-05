@@ -567,7 +567,7 @@ namespace TA3D
         glEnable(GL_TEXTURE_2D);
         glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
         glEnable(GL_BLEND);
-        float sq2 = 1.0f / sqrt(2.0f);
+        float sq2 = 1.0f / sqrtf(2.0f);
         GLuint old = 0;
         bool texture_loaded=false;
 
@@ -853,7 +853,7 @@ namespace TA3D
                         glTranslatef(feature[i].Pos.x,feature[i].Pos.y,feature[i].Pos.z);
                         glRotatef( feature[i].angle, 0.0f, 1.0f, 0.0f );
                         glRotatef( feature[i].angle_x, 1.0f, 0.0f, 0.0f );
-                        Vector3D R_Dir = (sqrt(feature_manager.feature[feature[i].type].model->size)*2.0f+feature[i].Pos.y) * Dir * RotateY( -feature[i].angle * DEG2RAD ) * RotateX( -feature[i].angle_x * DEG2RAD );
+                        Vector3D R_Dir = (sqrtf(feature_manager.feature[feature[i].type].model->size)*2.0f+feature[i].Pos.y) * Dir * RotateY( -feature[i].angle * DEG2RAD ) * RotateX( -feature[i].angle_x * DEG2RAD );
                         if(g_useStencilTwoSide)													// Si l'extension GL_EXT_stencil_two_side est disponible
                             feature_manager.feature[feature[i].type].model->draw_shadow( R_Dir,t,NULL);
                         else
@@ -919,7 +919,7 @@ namespace TA3D
                     feature[i].dt = 0.0f;
                     particle_engine.make_fire(t_mod, 1, 1, 30.0f);
                 }
-                else 
+                else
                 {
                     if (!feature[i].burning)
                     {
@@ -989,7 +989,7 @@ namespace TA3D
 
         byte CS_count = 0;
         bool erased = false;
-    
+
         // Makes fire spread 8)
         for (FeaturesList::iterator i = burning_features.begin() ; i != burning_features.end() ; )
         {
@@ -1081,7 +1081,7 @@ namespace TA3D
                 }
             }
 
-            if (!erased)// We don't want to skip an element :) 
+            if (!erased)// We don't want to skip an element :)
                 ++i;
         }
 
@@ -1099,12 +1099,12 @@ namespace TA3D
                 float sea_ground = the_map->get_unit_h( feature[*i].Pos.x, feature[*i].Pos.z );
                 if (sea_ground < feature[*i].Pos.y )
                 {
-                    if (sin(-feature[*i].angle_x * DEG2RAD) * feature_manager.feature[feature[*i].type].footprintx * 8.0f > feature[*i].Pos.y - sea_ground)
+                    if (sinf(-feature[*i].angle_x * DEG2RAD) * feature_manager.feature[feature[*i].type].footprintx * 8.0f > feature[*i].Pos.y - sea_ground)
                     {
-                        feature[*i].angle_x = RAD2DEG * asin( ( sea_ground - feature[*i].Pos.y ) / ( feature_manager.feature[feature[*i].type].footprintx * 8.0f) );
+                        feature[*i].angle_x = RAD2DEG * asinf( ( sea_ground - feature[*i].Pos.y ) / ( feature_manager.feature[feature[*i].type].footprintx * 8.0f) );
                         feature[*i].dive = true;
                     }
-                    feature[*i].dive_speed = (feature[*i].dive_speed + 3.0f * dt) * exp(-dt);
+                    feature[*i].dive_speed = (feature[*i].dive_speed + 3.0f * dt) * expf(-dt);
                     feature[*i].Pos.y -= feature[*i].dive_speed * dt;
                 }
                 else
@@ -1236,7 +1236,7 @@ namespace TA3D
             the_map->rect( feature[idx].px - (X>>1), feature[idx].py - (Z>>1), X, Z, -2 - idx);
         }
     }
-    
+
     void FEATURES::removeFeatureFromMap(const int idx)
     {
         if (idx < 0 || idx >= max_features)    return;
