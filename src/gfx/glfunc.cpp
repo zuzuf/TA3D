@@ -41,12 +41,14 @@ bool	g_useFBO = false;
 #if (defined TA3D_PLATFORM_WINDOWS && defined TA3D_PLATFORM_MSVC) || defined TA3D_PLATFORM_LINUX
 static void installOpenGLExtensionsPointers()
 {
+#if not defined TA3D_PLATFORM_LINUX
     if(MultiTexturing)
     {
 		glActiveTextureARB = (void (*)(GLenum)) allegro_gl_get_proc_address("glActiveTextureARB");
 		glMultiTexCoord2fARB = (void (*)(GLenum, GLfloat, GLfloat)) allegro_gl_get_proc_address("glMultiTexCoord2fARB");
 		glClientActiveTextureARB = (void (*)(GLenum)) allegro_gl_get_proc_address("glClientActiveTextureARB");
 	}
+#endif
 	if(g_useFBO)
     {
 		glDeleteFramebuffersEXT = (void (*)(GLsizei, const GLuint*)) allegro_gl_get_proc_address("glDeleteFramebuffersEXT");
