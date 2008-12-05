@@ -659,8 +659,8 @@ namespace TA3D
 
             while (cur_mission) 	// Reads the mission list
             {
-                float x_space = fabs(cur_mission->target.x - target->x);
-                float z_space = fabs(cur_mission->target.z - target->z);
+                float x_space = fabsf(cur_mission->target.x - target->x);
+                float z_space = fabsf(cur_mission->target.z - target->z);
                 if (!cur_mission->step && cur_mission->mission == MISSION_BUILD && cur_mission->data >= 0 && cur_mission->data < unit_manager.nb_unit
                     && x_space < ((unit_manager.unit_type[ dat ]->FootprintX + unit_manager.unit_type[ cur_mission->data ]->FootprintX) << 2)
                     && z_space < ((unit_manager.unit_type[ dat ]->FootprintZ + unit_manager.unit_type[ cur_mission->data ]->FootprintZ) << 2) ) // Remove it
@@ -1662,9 +1662,9 @@ namespace TA3D
                         data.axe[axis][obj].is_moving=true;
                         data.is_moving=true;
                         if (data.axe[axis][obj].move_distance<0.0f)
-                            data.axe[axis][obj].move_speed=-fabs(v2*div*0.5f);
+                            data.axe[axis][obj].move_speed=-fabsf(v2*div*0.5f);
                         else
-                            data.axe[axis][obj].move_speed=fabs(v2*div*0.5f);
+                            data.axe[axis][obj].move_speed=fabsf(v2*div*0.5f);
                         break;
                     }
                 case SCRIPT_WAIT_FOR_TURN:
@@ -1770,9 +1770,9 @@ namespace TA3D
                         while(data.axe[axis][obj].rot_angle<-180.0f && !isNaN(data.axe[axis][obj].rot_angle))					// Fait le tour dans le sens le plus rapide
                             data.axe[axis][obj].rot_angle+=360.0f;
                         if (data.axe[axis][obj].rot_angle>0.0f)
-                            data.axe[axis][obj].rot_speed=fabs(v2*TA2DEG);
+                            data.axe[axis][obj].rot_speed=fabsf(v2*TA2DEG);
                         else
-                            data.axe[axis][obj].rot_speed=-fabs(v2*TA2DEG);
+                            data.axe[axis][obj].rot_speed=-fabsf(v2*TA2DEG);
                         data.axe[axis][obj].rot_limit=true;
                         data.axe[axis][obj].rot_speed_limit=false;
                         break;
@@ -1827,14 +1827,14 @@ namespace TA3D
                                 {
                                     int v1=(*script_env)[id].pop();
                                     int v2=(*script_env)[id].pop();
-                                    value = (int)(atan((float)v1/v2)+0.5f);
+                                    value = (int)(atanf((float)v1/v2)+0.5f);
                                 }
                                 break;
                             case HYPOT:
                                 {
                                     int v1=(*script_env)[id].pop();
                                     int v2=(*script_env)[id].pop();
-                                    value = (int)(sqrt((float)(v1*v1+v2*v2))+0.5f);
+                                    value = (int)(sqrtf((float)(v1*v1+v2*v2))+0.5f);
                                 }
                                 break;
                             case BUGGER_OFF:
@@ -1895,9 +1895,9 @@ namespace TA3D
                         if (v2)
                         {
                             if (data.axe[axis][obj].rot_target_speed>data.axe[axis][obj].rot_speed)
-                                data.axe[axis][obj].rot_accel=fabs(v2*TA2DEG);
+                                data.axe[axis][obj].rot_accel=fabsf(v2*TA2DEG);
                             else
-                                data.axe[axis][obj].rot_accel=-fabs(v2*TA2DEG);
+                                data.axe[axis][obj].rot_accel=-fabsf(v2*TA2DEG);
                         }
                         else {
                             data.axe[axis][obj].rot_accel=0;
@@ -2360,7 +2360,7 @@ namespace TA3D
 #endif
                                 break;
                             case XZ_ATAN:
-                                (*script_env)[id].push((int)(atan2( UNPACKX(v1) , UNPACKZ(v1) ) * RAD2TA - Angle.y * DEG2TA) + 32768);
+                                (*script_env)[id].push((int)(atan2f( UNPACKX(v1) , UNPACKZ(v1) ) * RAD2TA - Angle.y * DEG2TA) + 32768);
 #if DEBUG_USE_PRINT_CODE == 1
                                 {
                                     int c = (*script_env)[id].pop();
@@ -2371,7 +2371,7 @@ namespace TA3D
 #endif
                                 break;
                             case XZ_HYPOT:
-                                (*script_env)[id].push((int)hypot( UNPACKX(v1), UNPACKZ(v1) )<<16);
+                                (*script_env)[id].push((int)hypotf( UNPACKX(v1), UNPACKZ(v1) )<<16);
 #if DEBUG_USE_PRINT_CODE == 1
                                 {
                                     int c = (*script_env)[id].pop();
@@ -2382,7 +2382,7 @@ namespace TA3D
 #endif
                                 break;
                             case ATAN:
-                                (*script_env)[id].push((int)(atan2(v1,v2) * RAD2TA ));
+                                (*script_env)[id].push((int)(atan2f(v1,v2) * RAD2TA ));
 #if DEBUG_USE_PRINT_CODE == 1
                                 {
                                     int c = (*script_env)[id].pop();
@@ -2392,12 +2392,12 @@ namespace TA3D
 #endif
                                 break;
                             case HYPOT:
-                                (*script_env)[id].push((int)hypot(v1,v2));
+                                (*script_env)[id].push((int)hypotf(v1,v2));
 #if DEBUG_USE_PRINT_CODE == 1
                                 {
                                     int c = (*script_env)[id].pop();
                                     (*script_env)[id].push( c );
-                                    DEBUG_PRINT_CODE("HYPOT(" << v1 << "," v2 << ") = " << c);
+                                    DEBUG_PRINT_CODE("hypotf(" << v1 << "," v2 << ") = " << c);
                                 }
 #endif
                                 break;
@@ -2655,7 +2655,7 @@ namespace TA3D
         float a = v2gd*(4.0f*v2gd-8.0f*(y_e-y_s)/d)-4.0f;
         if (a<0.0f)				// Pas de solution
             return 360.0f;
-        return RAD2DEG*atan(v2gd-0.5f*sqrt(a));
+        return RAD2DEG*atanf(v2gd-0.5f*sqrtf(a));
     }
 
     const int UNIT::move(const float dt, MAP* map, int* path_exec, const int key_frame)
@@ -3038,8 +3038,8 @@ namespace TA3D
                                         weapon[i].data = -1;
                                         break;	// We're not shooting at the target
                                     }
-                                    float t = 2.0f/map->ota_data.gravity*fabs(target.y);
-                                    mindist = (int)sqrt(t*V.sq())-((unit_manager.unit_type[type_id]->attackrunlength+1)>>1);
+                                    float t = 2.0f/map->ota_data.gravity*fabsf(target.y);
+                                    mindist = (int)sqrtf(t*V.sq())-((unit_manager.unit_type[type_id]->attackrunlength+1)>>1);
                                     maxdist = mindist+(unit_manager.unit_type[type_id]->attackrunlength);
                                 }
                                 else if (unit_manager.unit_type[type_id]->weapon[ i ]->waterweapon && Pos.y > units.map->sealvl)
@@ -3050,8 +3050,8 @@ namespace TA3D
                                         weapon[i].data = -1;
                                         break;	// We're not shooting at the target
                                     }
-                                    float t = 2.0f/map->ota_data.gravity*fabs(target.y);
-                                    mindist = (int)sqrt(t*V.sq());
+                                    float t = 2.0f/map->ota_data.gravity*fabsf(target.y);
+                                    mindist = (int)sqrtf(t*V.sq());
                                     maxdist = mindist + (unit_manager.unit_type[type_id]->weapon[ i ]->range>>1);
                                 }
                                 else
@@ -3117,7 +3117,7 @@ namespace TA3D
                                     RT=target;
                                     RT.y=0.0f;
                                     RT.unit();
-                                    float angle=acos(I%RT)*RAD2DEG;
+                                    float angle=acosf(I%RT)*RAD2DEG;
                                     if (J%RT<0.0f) angle=-angle;
                                     angle-=Angle.y;
                                     if (angle<-180.0f)	angle+=360.0f;
@@ -3147,13 +3147,13 @@ namespace TA3D
                                         Vector3D K=target;
                                         K.y=0.0f;
                                         K.unit();
-                                        angle = acos(K%target)*RAD2DEG;
+                                        angle = acosf(K%target)*RAD2DEG;
                                         if (target.y<0.0f)
                                             angle=-angle;
                                         angle -= Angle.x;
                                         if (angle>180.0f)	angle-=360.0f;
                                         if (angle<-180.0f)	angle+=360.0f;
-                                        if (fabs(angle)>180.0f)
+                                        if (fabsf(angle)>180.0f)
                                         {
                                             weapon[i].state = WEAPON_FLAG_IDLE;
                                             weapon[i].data = -1;
@@ -3176,7 +3176,7 @@ namespace TA3D
                                         weapon[i].aim_dir.unit();
                                     }
                                     else
-                                        weapon[i].aim_dir=cos(aiming[1]*TA2RAD)*(cos(aiming[0]*TA2RAD+Angle.y*DEG2RAD)*I+sin(aiming[0]*TA2RAD+Angle.y*DEG2RAD)*J)+sin(aiming[1]*TA2RAD)*IJ;
+                                        weapon[i].aim_dir=cosf(aiming[1]*TA2RAD)*(cosf(aiming[0]*TA2RAD+Angle.y*DEG2RAD)*I+sinf(aiming[0]*TA2RAD+Angle.y*DEG2RAD)*J)+sinf(aiming[1]*TA2RAD)*IJ;
                                     int AimID = -1;
                                     switch(i)
                                     {
@@ -3500,25 +3500,25 @@ namespace TA3D
                             J = 1.0f / dist * J;
 
                         b_TargetAngle = true;
-                        f_TargetAngle = acos( J.z ) * RAD2DEG;
+                        f_TargetAngle = acosf( J.z ) * RAD2DEG;
                         if (J.x < 0.0f ) f_TargetAngle = -f_TargetAngle;
 
                         if (Angle.y - f_TargetAngle >= 360.0f )	f_TargetAngle += 360.0f;
                         else if (Angle.y - f_TargetAngle <= -360.0f )	f_TargetAngle -= 360.0f;
 
-                        J.z = cos(Angle.y*DEG2RAD);
-                        J.x = sin(Angle.y*DEG2RAD);
+                        J.z = cosf(Angle.y*DEG2RAD);
+                        J.x = sinf(Angle.y*DEG2RAD);
                         J.y = 0.0f;
                         I.z = -J.x;
                         I.x = J.z;
                         I.y = 0.0f;
                         V = (V%K)*K + (V%J)*J;
-                        if (!(dist < 15.0f && fabs( Angle.y - f_TargetAngle ) >= 1.0f))
+                        if (!(dist < 15.0f && fabsf( Angle.y - f_TargetAngle ) >= 1.0f))
                         {
-                            if (fabs( Angle.y - f_TargetAngle ) >= 45.0f )
+                            if (fabsf( Angle.y - f_TargetAngle ) >= 45.0f )
                             {
                                 if (J % V > 0.0f && V.norm() > unit_manager.unit_type[type_id]->BrakeRate * dt )
-                                    V = V - ((( fabs( Angle.y - f_TargetAngle ) - 35.0f ) / 135.0f + 1.0f) * 0.5f * unit_manager.unit_type[type_id]->BrakeRate * dt) * J;
+                                    V = V - ((( fabsf( Angle.y - f_TargetAngle ) - 35.0f ) / 135.0f + 1.0f) * 0.5f * unit_manager.unit_type[type_id]->BrakeRate * dt) * J;
                             }
                             else
                             {
@@ -3580,7 +3580,7 @@ namespace TA3D
                                 if (cur_px != n_px
                                     && can_be_there( cur_px, n_py, map, type_id, owner_id, idx ))
                                 {
-                                    V.z = V.z != 0.0f ? (V.z < 0.0f ? -sqrt( SQUARE(V.z) + SQUARE(V.x) ) : sqrt( SQUARE(V.z) + SQUARE(V.x) ) ) : 0.0f;
+                                    V.z = V.z != 0.0f ? (V.z < 0.0f ? -sqrtf( SQUARE(V.z) + SQUARE(V.x) ) : sqrtf( SQUARE(V.z) + SQUARE(V.x) ) ) : 0.0f;
                                     V.x = 0.0f;
                                     NPos.x = Pos.x;
                                     n_px = cur_px;
@@ -3589,8 +3589,8 @@ namespace TA3D
                                 {
                                     V.x = (V.x != 0.0)
                                         ? ((V.x < 0.0f)
-                                           ? -sqrt(SQUARE(V.z) + SQUARE(V.x))
-                                           : sqrt(SQUARE(V.z) + SQUARE(V.x)))
+                                           ? -sqrtf(SQUARE(V.z) + SQUARE(V.x))
+                                           : sqrtf(SQUARE(V.z) + SQUARE(V.x)))
                                         : 0.0f;
                                     V.z = 0.0f;
                                     NPos.z = Pos.z;
@@ -3602,7 +3602,7 @@ namespace TA3D
                                     n_px = cur_px;
                                     n_py = cur_py;
                                     mission->flags |= MISSION_FLAG_MOVE;
-                                    if (fabs( Angle.y - f_TargetAngle ) <= 0.1f || !b_TargetAngle) // Don't prevent unit from rotating!!
+                                    if (fabsf( Angle.y - f_TargetAngle ) <= 0.1f || !b_TargetAngle) // Don't prevent unit from rotating!!
                                     {
                                         if (mission->path)
                                             destroy_path(mission->path);
@@ -3689,7 +3689,7 @@ namespace TA3D
                     }
                     if (speed > 0.0f)
                     {
-                        Angle.y = acos( V.z / speed ) * RAD2DEG;
+                        Angle.y = acosf( V.z / speed ) * RAD2DEG;
                         if (V.x < 0.0f)
                             Angle.y = -Angle.y;
                     }
@@ -3972,7 +3972,7 @@ namespace TA3D
                             }
                             else if (!(mission->flags & MISSION_FLAG_MOVE) ) {
                                 if (mission->last_d>=0.0f) {
-                                    int angle = (int)( acos( Dir.z / Dir.norm() ) * RAD2DEG );
+                                    int angle = (int)( acosf( Dir.z / Dir.norm() ) * RAD2DEG );
                                     if (Dir.x < 0.0f )
                                         angle = -angle;
                                     angle -= (int)Angle.y;
@@ -4064,7 +4064,7 @@ namespace TA3D
                         }
                         else if (!(mission->flags & MISSION_FLAG_MOVE) ) {
                             if (mission->last_d>=0.0f) {
-                                int angle = (int)( acos( Dir.z / Dir.norm() ) * RAD2DEG );
+                                int angle = (int)( acosf( Dir.z / Dir.norm() ) * RAD2DEG );
                                 if (Dir.x < 0.0f )
                                     angle = -angle;
                                 angle -= (int)Angle.y;
@@ -4359,15 +4359,15 @@ namespace TA3D
                                 if (unit_manager.unit_type[type_id]->attackrunlength>0)
                                 {
                                     if (Dir % V < 0.0f )	allowed_to_fire = false;
-                                    float t = 2.0f/map->ota_data.gravity*fabs(Pos.y-mission->target.y);
-                                    cur_mindist = (int)sqrt(t*V.sq())-((unit_manager.unit_type[type_id]->attackrunlength+1)>>1);
+                                    float t = 2.0f/map->ota_data.gravity*fabsf(Pos.y-mission->target.y);
+                                    cur_mindist = (int)sqrtf(t*V.sq())-((unit_manager.unit_type[type_id]->attackrunlength+1)>>1);
                                     cur_maxdist = cur_mindist+(unit_manager.unit_type[type_id]->attackrunlength);
                                 }
                                 else if (unit_manager.unit_type[type_id]->weapon[ i ]->waterweapon && Pos.y > units.map->sealvl)
                                 {
                                     if (Dir % V < 0.0f )	allowed_to_fire = false;
-                                    float t = 2.0f/map->ota_data.gravity*fabs(Pos.y-mission->target.y);
-                                    cur_maxdist = (int)sqrt(t*V.sq()) + (unit_manager.unit_type[type_id]->weapon[ i ]->range>>1);
+                                    float t = 2.0f/map->ota_data.gravity*fabsf(Pos.y-mission->target.y);
+                                    cur_maxdist = (int)sqrtf(t*V.sq()) + (unit_manager.unit_type[type_id]->weapon[ i ]->range>>1);
                                     cur_mindist = 0;
                                 }
                                 else
@@ -4531,7 +4531,7 @@ namespace TA3D
                                     if (mission->data==0)
                                     {
                                         mission->data=1;
-                                        int angle = (int)( acos( Dir.z / Dir.norm() ) * RAD2DEG );
+                                        int angle = (int)( acosf( Dir.z / Dir.norm() ) * RAD2DEG );
                                         if (Dir.x < 0.0f )
                                             angle = -angle;
                                         angle -= (int)Angle.y;
@@ -4580,7 +4580,7 @@ namespace TA3D
                             {
                                 if (unit_manager.unit_type[type_id]->BMcode)
                                 {
-                                    int angle = (int)( acos( Dir.z / Dir.norm() ) * RAD2DEG );
+                                    int angle = (int)( acosf( Dir.z / Dir.norm() ) * RAD2DEG );
                                     if (Dir.x < 0.0f )
                                         angle = -angle;
                                     angle -= (int)Angle.y;
@@ -4710,7 +4710,7 @@ namespace TA3D
                     {
                         Vector3D Dir = mission->target - Pos;
                         Dir.y = 0.0f;
-                        int angle = (int)( acos( Dir.z / Dir.norm() ) * RAD2DEG );
+                        int angle = (int)( acosf( Dir.z / Dir.norm() ) * RAD2DEG );
                         if (Dir.x < 0.0f)
                             angle = -angle;
                         angle -= (int)Angle.y;
@@ -4894,12 +4894,12 @@ namespace TA3D
                         if (dist > unit_manager.unit_type[type_id]->ManeuverLeashLength * 0.5f)
                         {
                             b_TargetAngle = true;
-                            f_TargetAngle = acos(J.z) * RAD2DEG;
+                            f_TargetAngle = acosf(J.z) * RAD2DEG;
                             if (J.x < 0.0f) f_TargetAngle = -f_TargetAngle;
                         }
 
-                        J.z = cos(Angle.y * DEG2RAD);
-                        J.x = sin(Angle.y * DEG2RAD);
+                        J.z = cosf(Angle.y * DEG2RAD);
+                        J.x = sinf(Angle.y * DEG2RAD);
                         J.y = 0.0f;
                         I.z = -J.x;
                         I.x = J.z;
@@ -4933,13 +4933,13 @@ namespace TA3D
                     if (D.y>=0.0f) // On ne met pas une unité à l'envers!!
                     {
                         D.unit();
-                        float dist_sq = sqrt( D.y*D.y+D.z*D.z );
-                        float angle_1= dist_sq != 0.0f ? acos( D.y / dist_sq )*RAD2DEG : 0.0f;
+                        float dist_sq = sqrtf( D.y*D.y+D.z*D.z );
+                        float angle_1= dist_sq != 0.0f ? acosf( D.y / dist_sq )*RAD2DEG : 0.0f;
                         if (D.z<0.0f)	angle_1=-angle_1;
                         D=D*RotateX(-angle_1*DEG2RAD);
                         float angle_2=VAngle(D,K)*RAD2DEG;
                         if (D.x>0.0f)	angle_2=-angle_2;
-                        if (fabs(angle_1-Angle.x)<=10.0f && fabs(angle_2-Angle.z)<=10.0f)
+                        if (fabsf(angle_1-Angle.x)<=10.0f && fabsf(angle_2-Angle.z)<=10.0f)
                         {
                             Angle.x=angle_1;
                             Angle.z=angle_2;
@@ -5139,16 +5139,16 @@ namespace TA3D
             {
                 virtual_G = -1.0f / d * virtual_G;
 
-                d = sqrt(virtual_G.y*virtual_G.y+virtual_G.z*virtual_G.z);
-                float angle_1 = (d != 0.0f) ? acos(virtual_G.y/d)*RAD2DEG : 0.0f;
+                d = sqrtf(virtual_G.y*virtual_G.y+virtual_G.z*virtual_G.z);
+                float angle_1 = (d != 0.0f) ? acosf(virtual_G.y/d)*RAD2DEG : 0.0f;
                 if (virtual_G.z<0.0f)	angle_1 = -angle_1;
                 virtual_G = virtual_G * RotateX(-angle_1*DEG2RAD);
-                float angle_2 = acos( virtual_G % K )*RAD2DEG;
+                float angle_2 = acosf( virtual_G % K )*RAD2DEG;
                 if (virtual_G.x > 0.0f)	angle_2 = -angle_2;
 
-                if (fabs( angle_1 - Angle.x ) < 360.0f )
+                if (fabsf( angle_1 - Angle.x ) < 360.0f )
                     Angle.x += dt*( angle_1 - Angle.x );				// We need something continuous
-                if (fabs( angle_2 - Angle.z ) < 360.0f )
+                if (fabsf( angle_2 - Angle.z ) < 360.0f )
                     Angle.z += dt*( angle_2 - Angle.z );
 
                 if (Angle.x < -360.0f || Angle.x > 360.0f )		Angle.x = 0.0f;
@@ -5163,14 +5163,14 @@ namespace TA3D
 
             if (b_TargetAngle && !isNaN(f_TargetAngle) && unit_manager.unit_type[type_id]->BMcode)	// Don't remove the class check otherwise factories can spin
             {
-                while (!isNaN(f_TargetAngle) && fabs( f_TargetAngle - Angle.y ) > 180.0f)
+                while (!isNaN(f_TargetAngle) && fabsf( f_TargetAngle - Angle.y ) > 180.0f)
                 {
                     if (f_TargetAngle < Angle.y)
                         Angle.y -= 360.0f;
                     else
                         Angle.y += 360.0f;
                 }
-                if (!isNaN(f_TargetAngle) && fabs( f_TargetAngle - Angle.y ) >= 1.0f)
+                if (!isNaN(f_TargetAngle) && fabsf( f_TargetAngle - Angle.y ) >= 1.0f)
                 {
                     float aspeed = unit_manager.unit_type[type_id]->TurnRate;
                     if (f_TargetAngle < Angle.y )
@@ -5291,8 +5291,8 @@ script_exec:
                         {                                                                               // This prevents planes from keeping looking for a place to land
                             Vector3D next_target = Pos;                                                 // instead of going back to work :/
                             float find_angle = (Math::RandFromTable() % 360) * DEG2RAD;
-                            next_target.x += cos( find_angle ) * (32.0f + unit_manager.unit_type[type_id]->FootprintX * 8.0f);
-                            next_target.z += sin( find_angle ) * (32.0f + unit_manager.unit_type[type_id]->FootprintZ * 8.0f);
+                            next_target.x += cosf( find_angle ) * (32.0f + unit_manager.unit_type[type_id]->FootprintX * 8.0f);
+                            next_target.z += sinf( find_angle ) * (32.0f + unit_manager.unit_type[type_id]->FootprintZ * 8.0f);
                             add_mission( MISSION_MOVE | MISSION_FLAG_AUTO, &next_target, true );
                         }
                     }
@@ -6281,7 +6281,7 @@ script_exec:
                     int r2 = r * r;
                     for( int y = 0 ; y <= r ; y++ )
                     {
-                        int x = (int)(sqrt( r2 - y * y ) + 0.5f);
+                        int x = (int)(sqrtf( r2 - y * y ) + 0.5f);
                         if (can_be_there( cur_px+x, cur_py+y, units.map, type_id, owner_id ) )
                         {
                             cur_px += x;
@@ -6489,7 +6489,7 @@ script_exec:
 
         if (!map->check_rect( px - ((w + side)>>1), py - ((h + side)>>1), w + side, h + side, unit_id))
             return false;		// There is already something
-        float dh = fabs(map->check_rect_dh(x,y,w,h));
+        float dh = fabsf(map->check_rect_dh(x,y,w,h));
         float max_depth = map->check_max_depth(x,y,w,h);
         float min_depth = map->check_min_depth(x,y,w,h);
 
@@ -6527,7 +6527,7 @@ script_exec:
         if (!map->check_rect(x,y,w,h,unit_id))
             return false;		// There is already something
 
-        float dh = fabs(map->check_rect_dh(x,y,w,h));
+        float dh = fabsf(map->check_rect_dh(x,y,w,h));
         float max_depth = map->check_max_depth(x,y,w,h);
         float min_depth = map->check_min_depth(x,y,w,h);
 
@@ -6563,7 +6563,7 @@ script_exec:
 
         if (!map->check_rect(x,y,w,h,-1))
             return false;		// There already something
-        float dh = fabs(map->check_rect_dh(x,y,w,h));
+        float dh = fabsf(map->check_rect_dh(x,y,w,h));
         float max_depth = map->check_max_depth(x,y,w,h);
         float min_depth = map->check_min_depth(x,y,w,h);
 
@@ -6940,9 +6940,9 @@ script_exec:
         }
         pMutex.unlock();
 
-        exp_dt_1=exp(-dt);
-        exp_dt_2=exp(-2.0f*dt);
-        exp_dt_4=exp(-4.0f*dt);
+        exp_dt_1=expf(-dt);
+        exp_dt_2=expf(-2.0f*dt);
+        exp_dt_4=expf(-4.0f*dt);
         g_dt=dt*map->ota_data.gravity;
         int *path_exec = new int[players.nb_player];
         memset( path_exec, 0, sizeof( int ) * players.nb_player);
@@ -7007,7 +7007,7 @@ script_exec:
         }
         pMutex.unlock();
 
-        float exp_r = exp(-dt*0.1f);
+        float exp_r = expf(-dt*0.1f);
         nb_attacked*=exp_r;
         nb_built*=exp_r;
 

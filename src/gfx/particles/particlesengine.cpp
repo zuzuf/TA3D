@@ -250,7 +250,7 @@ namespace TA3D
             new_part.V.x = (((sint32)(Math::RandFromTable() % 2001)) - 1000);
             new_part.V.z = (((sint32)(Math::RandFromTable() % 2001)) - 1000);
             new_part.V.unit();
-            new_part.V=(pow((float)(Math::RandFromTable()%100),2.0f)*0.0050f*(((Math::RandFromTable()%2)==0) ? -1.0f : 1.0f)+50.0f)*pre*new_part.V;
+            new_part.V=(powf((float)(Math::RandFromTable()%100),2.0f)*0.0050f*(((Math::RandFromTable()%2)==0) ? -1.0f : 1.0f)+50.0f)*pre*new_part.V;
             if (tex==0)
                 new_part.life=3.0f+(Math::RandFromTable()%200)*0.01f;
             else
@@ -312,7 +312,7 @@ namespace TA3D
             new_part.V.x=(((sint32)(Math::RandFromTable()%2001))-1000);
             new_part.V.z=(((sint32)(Math::RandFromTable()%2001))-1000);
             new_part.V.unit();
-            new_part.V=(100.0f - pow((float)(Math::RandFromTable()%100),2.0f)*0.01f)*pre*new_part.V;
+            new_part.V=(100.0f - powf((float)(Math::RandFromTable()%100),2.0f)*0.01f)*pre*new_part.V;
             new_part.life=3.0f + new_part.V.sq() * 0.0001f;
             new_part.mass=1.0f;
             new_part.smoking=-1.0f;
@@ -493,8 +493,8 @@ namespace TA3D
         G.x=G.z=0.0f;
         G.y=dt*g;
         wind_dir=dt*wind_dir;
-        float factor=exp(-0.1f*dt);
-        float factor2=exp(-dt);
+        float factor=expf(-0.1f*dt);
+        float factor2=expf(-dt);
         float dt_reduced = dt * 0.0025f;
 
         for (std::list< ParticlesSystem* >::iterator i = particle_systems.begin() ; i != particle_systems.end() ; )
@@ -535,7 +535,7 @@ namespace TA3D
             else
                 e->V=e->V-e->mass*G+RAND;
             if (e->slow_down)
-                e->V = exp( -dt * e->slow_factor ) * e->V;
+                e->V = expf( -dt * e->slow_factor ) * e->V;
             if (e->mass>0.0f)
                 e->V=factor*e->V;
             else
@@ -633,8 +633,8 @@ namespace TA3D
                 if (j == 0 || oangle != e->angle)
                 {
                     oangle=e->angle;
-                    float cosinus=cos(e->angle);
-                    float sinus=sin(e->angle);
+                    float cosinus=cosf(e->angle);
+                    float sinus=sinf(e->angle);
                     A = (cosinus-sinus) * cam->side + (sinus+cosinus) * cam->up;
                     B = (cosinus+sinus) * cam->side + (sinus-cosinus) * cam->up;
                     if (cam->mirror)

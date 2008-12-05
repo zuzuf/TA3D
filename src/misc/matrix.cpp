@@ -73,7 +73,7 @@ float Norme_Ligne(const MATRIX_4x4 &A)
     {
         n2=0.0f;
         for(int j=0;j<4;j++)
-            n2+=fabs(A.E[i][j]);
+            n2+=fabsf(A.E[i][j]);
         if(n2>n) n=n2;
     }
     return n;
@@ -87,7 +87,7 @@ float Norme_Colonne(const MATRIX_4x4 &A)
     {
         n2=0.0f;
         for (int j=0;j<4; ++j)
-            n2 += fabs(A.E[j][i]);
+            n2 += fabsf(A.E[j][i]);
         if(n2>n)
             n=n2;
     }

@@ -28,7 +28,7 @@
 #endif
 #define SQRT_2			1.4142135623730950488016f
 
-#define SCALE_FACTOR(i)		((i) == 0 ? 1.0 : (cos((i) * M_PI * 0.0625f) * SQRT_2))
+#define SCALE_FACTOR(i)		((i) == 0 ? 1.0 : (cosf((i) * M_PI * 0.0625f) * SQRT_2))
 #define AAN_FACTOR(i)		(SCALE_FACTOR(i >> 3) * SCALE_FACTOR(i & 7))
 
 

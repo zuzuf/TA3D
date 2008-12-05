@@ -115,7 +115,7 @@ namespace Converters
                         cur->name = args[1];
                         printf("[obj] new object '%s'\n", args[1].c_str());
                     }
-                    else 
+                    else
                         if (args[0] == "mtllib" && args.size() > 1)        // Read given material libraries
                         {
                             for (String::Vector::const_iterator i = args.begin(); i != args.end(); ++i)
@@ -170,7 +170,7 @@ namespace Converters
                                 {
                                     // The first string is crap if we read it as vertex data !!
                                     if (i == args.begin())
-                                        continue;    
+                                        continue;
 
                                     String::Vector data;
                                     i->split(data, "/");
@@ -227,7 +227,7 @@ namespace Converters
             model_obj->obj.compute_center(&model_obj->center, O, &coef);
             model_obj->center = (1.0f/coef) * model_obj->center;
             model_obj->size = 2.0f * model_obj->obj.compute_size_sq(model_obj->center); // On garde le carré pour les comparaisons et on prend une marge en multipliant par 2.0f
-            model_obj->size2 = sqrt(0.5f*model_obj->size);
+            model_obj->size2 = sqrtf(0.5f*model_obj->size);
             model_obj->obj.compute_emitter();
             model_obj->compute_topbottom();
         }

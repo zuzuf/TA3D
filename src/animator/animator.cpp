@@ -128,7 +128,7 @@ namespace Menus
         bool need_refresh = sel_idx >= 0;
         if (amz != mouse_z)
         {
-            zoom *= exp( (amz - mouse_z) * 0.1f );
+            zoom *= expf( (amz - mouse_z) * 0.1f );
             need_refresh = true;
         }
 
@@ -349,7 +349,7 @@ namespace Menus
                 glEnable(GL_TEXTURE_2D);
                 for(int i = 0 ; i < anim_data.nb_piece ; i++)
                     anim_data.flag[i] = (i == sel_idx ? 0 : FLAG_HIDE);
-                float col = cos(msec_timer*0.002f)*0.375f+0.625f;
+                float col = cosf(msec_timer*0.002f)*0.375f+0.625f;
                 float tmp[4];
                 memcpy(tmp,TA3D::VARS::obj_table[sel_idx]->surface.Color, 4 * sizeof(float));
                 TA3D::VARS::obj_table[sel_idx]->surface.Color[0] = col;

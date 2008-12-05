@@ -67,7 +67,7 @@ void mnu_file(int mnu_index)
         case 1:					// Ouvrir / Open
             {
                 init_surf_buf();
-                String filename = Dialog(I18N::Translate( "Open a model" ),"*.3dm");
+                String filename = Dialogf(I18N::Translate( "Open a model" ),"*.3dm");
                 if( filename.c_str() && file_exists(filename.c_str(),FA_RDONLY | FA_HIDDEN | FA_SYSTEM | FA_LABEL | FA_ARCH,NULL)) {
                     FILE *src = TA3D_OpenFile(filename.c_str(), "rb");
                     if(src) {
@@ -86,14 +86,14 @@ void mnu_file(int mnu_index)
         case 2:					// Sauver / Save
             if (nb_obj() > 1 || !TheModel->obj.name.empty())
             {
-                String filename=Dialog(I18N::Translate( "Save a model" ),"*.3dm");
+                String filename=Dialogf(I18N::Translate( "Save a model" ),"*.3dm");
                 TheModel->save_3dm((char*)filename.c_str(), WndAsk( I18N::Translate("compression"), I18N::Translate("compress textures?") ));
             }
             break;
         case 3:					// Importer / Import (*.asc)
             {
                 init_surf_buf();
-                String filename=Dialog(I18N::Translate( "Import an ASC model" ),"*.asc");
+                String filename=Dialogf(I18N::Translate( "Import an ASC model" ),"*.asc");
                 if (file_exists(filename.c_str(),FA_RDONLY | FA_HIDDEN | FA_SYSTEM | FA_LABEL | FA_ARCH,NULL))
                 {
                     TheModel->load_asc((char*)filename.c_str(),30.0f);
@@ -105,7 +105,7 @@ void mnu_file(int mnu_index)
         case 4:					// Importer / Import (*.3do)
             {
                 init_surf_buf();
-                String filename = Dialog(I18N::Translate( "Import a 3DO model" ),"*.3do");
+                String filename = Dialogf(I18N::Translate( "Import a 3DO model" ),"*.3do");
                 if (file_exists(filename.c_str(),FA_RDONLY | FA_HIDDEN | FA_SYSTEM | FA_LABEL | FA_ARCH,NULL))
                 {
                     byte *data = new byte[FILE_SIZE(filename.c_str())];
@@ -122,7 +122,7 @@ void mnu_file(int mnu_index)
         case 5:					// Importer / Import (*.3ds)
             {
                 init_surf_buf();
-                String filename = Dialog(I18N::Translate( "Import a 3DS model" ), "*.3ds");
+                String filename = Dialogf(I18N::Translate( "Import a 3DS model" ), "*.3ds");
                 if (file_exists(filename.c_str(),FA_RDONLY | FA_HIDDEN | FA_SYSTEM | FA_LABEL | FA_ARCH,NULL))
                 {
                     TheModel = load_3ds(filename);
@@ -133,7 +133,7 @@ void mnu_file(int mnu_index)
         case 6:					// Importer / Import (*.obj)
             {
                 init_surf_buf();
-                String filename = Dialog(I18N::Translate( "Import an OBJ model" ), "*.obj");
+                String filename = Dialogf(I18N::Translate( "Import an OBJ model" ), "*.obj");
                 if (file_exists(filename.c_str(), FA_RDONLY | FA_HIDDEN | FA_SYSTEM | FA_LABEL | FA_ARCH, NULL))
                 {
                     TheModel = Converters::OBJ::ToModel(filename);

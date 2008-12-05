@@ -15,11 +15,11 @@ namespace TA3D
         U.x = (Math::RandFromTable() % 201) * 0.01f - 1.0f;
         U.y = (Math::RandFromTable() % 201) * 0.01f - 1.0f;
         U.z = (Math::RandFromTable() % 201) * 0.01f - 1.0f;
-        
+
         V.x = 1.0f; V.y = 0.0f; V.z = 0.0f;
         V = V * U;
         V.unit();
-        
+
         U = V * U;
         U.unit();
     }
@@ -30,7 +30,7 @@ namespace TA3D
     {
         life -= dt;
         // When it shoud die, return true
-        return (life <= 0.0f);		
+        return (life <= 0.0f);
     }
 
 
@@ -45,7 +45,7 @@ namespace TA3D
         {
             glColor4ub(0x70+(Math::RandFromTable() & 0x1F),0x70+(Math::RandFromTable() & 0x1F),0xFF-((int)Math::RandFromTable() & 0xF),0xFF);
 
-            Vector3D P = Pos + (cos(i) * 2.0f) * V + (sin(i) * 2.0f) * U;
+            Vector3D P = Pos + (cosf(i) * 2.0f) * V + (sinf(i) * 2.0f) * U;
             P.x += (Math::RandFromTable() % 61) * 0.01f - 0.3f;
             P.y += (Math::RandFromTable() % 61) * 0.01f - 0.3f;
             P.z += (Math::RandFromTable() % 61) * 0.01f - 0.3f;

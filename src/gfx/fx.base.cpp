@@ -118,7 +118,7 @@ namespace TA3D
         float hsize = 8.0f;
         float dec = time * 0.125f;
 
-        glColor4f( 1.0f, 1.0f, 1.0f, 1.0f - 0.5f * fabs( 2.0f - time ) );
+        glColor4f( 1.0f, 1.0f, 1.0f, 1.0f - 0.5f * fabsf( 2.0f - time ) );
 
         glBegin(GL_QUADS);
         glTexCoord2f(0.0f,dec );       glVertex3f(-wsize,4.0f,-hsize);
@@ -208,7 +208,7 @@ namespace TA3D
         }
         glPopMatrix();
     }
-    
+
 
     bool FX::doCanDrawAnim(MAP* map) const
     {
@@ -233,7 +233,7 @@ namespace TA3D
                       // Waves
             case -2 :
             case -3 :
-            case -4 : { doDrawAnimWave(anm); break; } 
+            case -4 : { doDrawAnimWave(anm); break; }
             case -5 : { doDrawAnimRipple(); break; }
             default : doDrawAnimDefault(cam, anims);
         }

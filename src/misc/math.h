@@ -27,7 +27,7 @@ namespace Math
 
     template<typename T> inline T Deg2Rad(const T deg)
     { return (deg * 0.017453292f); }
-	
+
     template<typename T> inline T Rad2Deg(const T rad)
     { return (rad * 57.29578122f); }
 
@@ -71,17 +71,17 @@ namespace Math
 
 	inline const real32 asinh(const real32 f)
 	{
-		return (real32)log((real32)(f + sqrt(f * f + 1)));
+		return (real32)logf((real32)(f + sqrtf(f * f + 1)));
 	}
 
 	inline const real32 acosh(const real32 f)
 	{
-		return (real32)log((real32)( f + sqrt( f * f- 1)));
+		return (real32)logf((real32)( f + sqrtf( f * f- 1)));
 	}
 
 	inline const real32 atanh(const real32 f)
 	{
-		return (real32)log((real32)((real32)(1.0f / f + 1.0f) / (real32)(1.0f / f - 1.0f))) / 2.0f;
+		return (real32)logf((real32)((real32)(1.0f / f + 1.0f) / (real32)(1.0f / f - 1.0f))) / 2.0f;
 	}
 
 #endif

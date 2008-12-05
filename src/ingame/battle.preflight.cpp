@@ -30,11 +30,11 @@ namespace TA3D
 
 		if (IsOnMinimap) // Check if we can project the cursor position on the map
 		{
-			if (fabs((mouse_x - 64) * 252.0f / 128.0f) > map->mini_w * 0.5f)
+			if (fabsf((mouse_x - 64) * 252.0f / 128.0f) > map->mini_w * 0.5f)
 				IsOnMinimap = false;
 			else
 			{
-				if (fabs((mouse_y - 64) * 252.0f / 128.0f) > map->mini_h * 0.5f)
+				if (fabsf((mouse_y - 64) * 252.0f / 128.0f) > map->mini_h * 0.5f)
 					IsOnMinimap = false;
 			}
 		}
@@ -80,12 +80,12 @@ namespace TA3D
 		}
 
 		map->wind_vec.y = 0.0f;
-		map->wind_vec.x = 0.01f * map->wind * cos(map->wind_dir * DEG2RAD);
-		map->wind_vec.z = 0.01f * map->wind * sin(map->wind_dir * DEG2RAD);
+		map->wind_vec.x = 0.01f * map->wind * cosf(map->wind_dir * DEG2RAD);
+		map->wind_vec.z = 0.01f * map->wind * sinf(map->wind_dir * DEG2RAD);
 		units.set_wind_change();
 	}
 
-	
+
 	void Battle::preflightUpdate3DSounds()
 	{
 		if (units.nb_attacked/(units.nb_attacked + units.nb_built + 1) >= 0.75f)
@@ -125,13 +125,13 @@ namespace TA3D
 		if ((msec_timer - cam_def_timer) * Conv < 0.5f)
 			camera_zscroll = old_zscroll;
 
-		float angle_factor = Math::Max(fabs(-lp_CONFIG->camera_def_angle+45.0f) / 20.0f, fabs(-lp_CONFIG->camera_def_angle+90.0f) / 25.0f);
+		float angle_factor = Math::Max(fabsf(-lp_CONFIG->camera_def_angle+45.0f) / 20.0f, fabsf(-lp_CONFIG->camera_def_angle+90.0f) / 25.0f);
 
 		r1 = -lp_CONFIG->camera_def_angle + camera_zscroll * angle_factor;
 		if (r1 > -45.0f) 		r1 = -45.0f;
 		else if (r1 < -90.0f)	r1 = -90.0f;
 
-		cam_h = lp_CONFIG->camera_def_h + (exp(-camera_zscroll * 0.15f) - 1.0f) / (exp(3.75f) - 1.0f) * Math::Max(map->map_w,map->map_h);
+		cam_h = lp_CONFIG->camera_def_h + (expf(-camera_zscroll * 0.15f) - 1.0f) / (expf(3.75f) - 1.0f) * Math::Max(map->map_w,map->map_h);
 		if (delta > 0 && !IsOnGUI)
 		{
 			if (!cam_has_target || abs( mouse_x - cam_target_mx) > 2 || abs( mouse_y - cam_target_my) > 2)

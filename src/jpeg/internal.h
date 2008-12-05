@@ -123,7 +123,7 @@
  *   Quality = 1   -> Factor = 0.1
  * Other values follow a logarithmic curve
  */
-#define QUALITY_FACTOR(q)       (pow(10.0, ((q) - 50.5) / 49.5))
+#define QUALITY_FACTOR(q)       (powf(10.0, ((q) - 50.5) / 49.5))
 
 /* Default quality/flags values for save_jpg() and save_memory_jpg() */
 #define DEFAULT_QUALITY		75

@@ -94,7 +94,7 @@ namespace TA3D
             for(int e = 0; e < q; ++e)
                 neuron[i].var += neuron[n+e].var * neuron[i].weight[e];
         }
-        neuron[i].var = 1.0f / (1.0f + exp(-neuron[i].var));
+        neuron[i].var = 1.0f / (1.0f + expf(-neuron[i].var));
     }
 
 
@@ -423,42 +423,42 @@ namespace TA3D
                 if (ai->weights[ i ].type & AI_FLAG_ARMY )
                 {
                     ai->nb_units[ AI_UNIT_TYPE_ARMY ] += ai->weights[ i ].nb;
-                    ai->weights[ i ].w = (ai->weights[ i ].w + ai->order_weight[ ORDER_ARMY ] * 0.1f + 1.0f - ai->weights[ i ].nb * total_unit_inv) * exp( -0.1f * ai->weights[ i ].w ) + 0.1f * ai->order_weight[ ORDER_ARMY ];
+                    ai->weights[ i ].w = (ai->weights[ i ].w + ai->order_weight[ ORDER_ARMY ] * 0.1f + 1.0f - ai->weights[ i ].nb * total_unit_inv) * expf( -0.1f * ai->weights[ i ].w ) + 0.1f * ai->order_weight[ ORDER_ARMY ];
                 }
                 if (ai->weights[ i ].type & AI_FLAG_DEFENSE )
                 {
                     ai->nb_units[ AI_UNIT_TYPE_DEFENSE ] += ai->weights[ i ].nb;
-                    ai->weights[ i ].w = (ai->weights[ i ].w + ai->order_weight[ ORDER_DEFENSE ] * 0.1f + 1.0f - ai->weights[ i ].nb * total_unit_inv) * exp( -0.1f * ai->weights[ i ].w ) + 0.1f * ai->order_weight[ ORDER_DEFENSE ];
+                    ai->weights[ i ].w = (ai->weights[ i ].w + ai->order_weight[ ORDER_DEFENSE ] * 0.1f + 1.0f - ai->weights[ i ].nb * total_unit_inv) * expf( -0.1f * ai->weights[ i ].w ) + 0.1f * ai->order_weight[ ORDER_DEFENSE ];
                 }
                 if (ai->weights[ i ].type & AI_FLAG_BUILDER )
                 {
                     ai->nb_units[ AI_UNIT_TYPE_BUILDER ] += ai->weights[ i ].nb;
-                    ai->weights[ i ].w = (ai->weights[ i ].w + ai->order_weight[ ORDER_BUILDER ] * 0.1f + 1.0f - ai->weights[ i ].nb * total_unit_inv) * exp( -0.1f * ai->weights[ i ].w ) + 0.1f * ai->order_weight[ ORDER_BUILDER ];
+                    ai->weights[ i ].w = (ai->weights[ i ].w + ai->order_weight[ ORDER_BUILDER ] * 0.1f + 1.0f - ai->weights[ i ].nb * total_unit_inv) * expf( -0.1f * ai->weights[ i ].w ) + 0.1f * ai->order_weight[ ORDER_BUILDER ];
                 }
                 if (ai->weights[ i ].type & AI_FLAG_FACTORY )
                 {
                     ai->nb_units[ AI_UNIT_TYPE_FACTORY ] += ai->weights[ i ].nb;
-                    ai->weights[ i ].w = (ai->weights[ i ].w + ai->order_weight[ ORDER_FACTORY ] * 0.1f + 1.0f - ai->weights[ i ].nb * total_unit_inv) * exp( -0.1f * ai->weights[ i ].w ) + 0.1f * ai->order_weight[ ORDER_FACTORY ];
+                    ai->weights[ i ].w = (ai->weights[ i ].w + ai->order_weight[ ORDER_FACTORY ] * 0.1f + 1.0f - ai->weights[ i ].nb * total_unit_inv) * expf( -0.1f * ai->weights[ i ].w ) + 0.1f * ai->order_weight[ ORDER_FACTORY ];
                 }
                 if (ai->weights[ i ].type & AI_FLAG_METAL_P )
                 {
                     ai->nb_units[ AI_UNIT_TYPE_METAL ] += ai->weights[ i ].nb;
-                    ai->weights[ i ].w = (ai->weights[ i ].w + ai->order_weight[ ORDER_METAL_P ] * ai->weights[ i ].metal_p * 0.1f + 1.0f - ai->weights[ i ].nb * total_unit_inv) * exp( -0.1f * ai->weights[ i ].w ) + 0.1f * ai->order_weight[ ORDER_METAL_P ] * ai->weights[ i ].metal_p;
+                    ai->weights[ i ].w = (ai->weights[ i ].w + ai->order_weight[ ORDER_METAL_P ] * ai->weights[ i ].metal_p * 0.1f + 1.0f - ai->weights[ i ].nb * total_unit_inv) * expf( -0.1f * ai->weights[ i ].w ) + 0.1f * ai->order_weight[ ORDER_METAL_P ] * ai->weights[ i ].metal_p;
                 }
                 if (ai->weights[ i ].type & AI_FLAG_METAL_S )
                 {
                     ai->nb_units[ AI_UNIT_TYPE_METAL ] += ai->weights[ i ].nb;
-                    ai->weights[ i ].w = (ai->weights[ i ].w + ai->order_weight[ ORDER_METAL_S ] * ai->weights[ i ].metal_s * 0.1f + 1.0f - ai->weights[ i ].nb * total_unit_inv) * exp( -0.1f * ai->weights[ i ].w ) + 0.1f * ai->order_weight[ ORDER_METAL_S ] * ai->weights[ i ].metal_s;
+                    ai->weights[ i ].w = (ai->weights[ i ].w + ai->order_weight[ ORDER_METAL_S ] * ai->weights[ i ].metal_s * 0.1f + 1.0f - ai->weights[ i ].nb * total_unit_inv) * expf( -0.1f * ai->weights[ i ].w ) + 0.1f * ai->order_weight[ ORDER_METAL_S ] * ai->weights[ i ].metal_s;
                 }
                 if (ai->weights[ i ].type & AI_FLAG_ENERGY_P )
                 {
                     ai->nb_units[ AI_UNIT_TYPE_ENERGY ] += ai->weights[ i ].nb;
-                    ai->weights[ i ].w = (ai->weights[ i ].w + ai->order_weight[ ORDER_ENERGY_P ] * ai->weights[ i ].energy_p * 0.1f + 1.0f - ai->weights[ i ].nb * total_unit_inv) * exp( -0.1f * ai->weights[ i ].w ) + 0.1f * ai->order_weight[ ORDER_ENERGY_P ] * ai->weights[ i ].energy_p;
+                    ai->weights[ i ].w = (ai->weights[ i ].w + ai->order_weight[ ORDER_ENERGY_P ] * ai->weights[ i ].energy_p * 0.1f + 1.0f - ai->weights[ i ].nb * total_unit_inv) * expf( -0.1f * ai->weights[ i ].w ) + 0.1f * ai->order_weight[ ORDER_ENERGY_P ] * ai->weights[ i ].energy_p;
                 }
                 if (ai->weights[ i ].type & AI_FLAG_ENERGY_S )
                 {
                     ai->nb_units[ AI_UNIT_TYPE_ENERGY ] += ai->weights[ i ].nb;
-                    ai->weights[ i ].w = (ai->weights[ i ].w + ai->order_weight[ ORDER_ENERGY_S ] * ai->weights[ i ].energy_s * 0.1f + 1.0f - ai->weights[ i ].nb * total_unit_inv) * exp( -0.1f * ai->weights[ i ].w ) + 0.1f * ai->order_weight[ ORDER_ENERGY_S ] * ai->weights[ i ].energy_s;
+                    ai->weights[ i ].w = (ai->weights[ i ].w + ai->order_weight[ ORDER_ENERGY_S ] * ai->weights[ i ].energy_s * 0.1f + 1.0f - ai->weights[ i ].nb * total_unit_inv) * expf( -0.1f * ai->weights[ i ].w ) + 0.1f * ai->order_weight[ ORDER_ENERGY_S ] * ai->weights[ i ].energy_s;
                 }
                 if (ai->weights[ i ].w < 0.0f )
                     ai->weights[ i ].w = 0.0f;
@@ -488,7 +488,7 @@ namespace TA3D
             ai->order_attack[i] = ai->nb_enemy[i] > 0 ? (ai->nb_units[AI_UNIT_TYPE_ARMY] - ai->nb_enemy[i]) * 0.1f : 0.0f;
             if (ai->order_attack[i] < 0.0f )
                 ai->order_attack[i] = 0.0f;
-            ai->order_attack[i] = (1.0f - exp( -ai->order_attack[i])) * 30.0f;
+            ai->order_attack[i] = (1.0f - expf( -ai->order_attack[i])) * 30.0f;
             # ifdef AI_DEBUG
             LOG_DEBUG(LOG_PREFIX_AI << "Attack player " << i << " = " << ai->order_attack[i]);
             # endif
@@ -624,7 +624,7 @@ namespace TA3D
                     int r2 = r * r;
                     for( int y = (r>>1) ; y <= r && !found ; y++ )
                     {
-                        int x = (int)(sqrt( r2 - y * y ) + 0.5f);
+                        int x = (int)(sqrtf( r2 - y * y ) + 0.5f);
 
                         int cx[] = { x, -x,  x, -x, y,  y, -y, -y };
                         int cy[] = { y,  y, -y, -y, x, -x,  x, -x };
@@ -735,7 +735,7 @@ namespace TA3D
         {
             if (ai->order_weight[i] < 0.0f )
                 ai->order_weight[i] = 0.0f;
-            ai->order_weight[i] = (1.0f - exp( -ai->order_weight[i])) * 30.0f;
+            ai->order_weight[i] = (1.0f - expf( -ai->order_weight[i])) * 30.0f;
         }
 
 #ifdef AI_DEBUG

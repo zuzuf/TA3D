@@ -51,7 +51,7 @@ public:
     ** \brief Vector norm
     ** \return The value of the vector norm
     */
-    float norm() const { return sqrt(x*x+y*y); }
+    float norm() const { return sqrtf(x*x+y*y); }
 
     // Rend le vecteur unitaire si possible(de norme 1)
     void unit();
@@ -77,7 +77,7 @@ public:
     { return (x == rhs.x && y == rhs.y); }
 
     bool operator != (const Vector2D& rhs) const
-    { return !(*this == rhs); } 
+    { return !(*this == rhs); }
 
     Vector2D& operator = (const Vector2D& rhs)
     { x = rhs.x; y = rhs.y; return *this; }
@@ -120,12 +120,12 @@ public:
     float sq() const { return (x*x + y*y + z*z); }
 
     // Fonction qui renvoie la norme du vecteur
-    float norm() const { return sqrt(x*x + y*y + z*z); }
+    float norm() const { return sqrtf(x*x + y*y + z*z); }
 
     // Rend le vecteur unitaire si possible(de norme 1)
     void unit();
 
-    
+
     /*!
     ** \brief Get if the vector is a null vector
     ** \return True if the vector is a null vector, false otherwise
@@ -148,10 +148,10 @@ public:
     { cross_product_f(x, y, z,  rhs.x, rhs.y, rhs.z,  &x, &y, &z); return (*this); }
 
     bool operator == (const Vector3D& rhs) const
-    { return (fabs(x-rhs.x) < 0.0001f && fabs(y-rhs.y) < 0.0001f && fabs(z-rhs.z) < 0.0001f); }
+    { return (fabsf(x-rhs.x) < 0.0001f && fabsf(y-rhs.y) < 0.0001f && fabsf(z-rhs.z) < 0.0001f); }
 
     bool operator != (const Vector3D& rhs) const
-    { return !(*this == rhs); } 
+    { return !(*this == rhs); }
 
     Vector3D& operator = (const Vector3D& rhs)
     { x = rhs.x; y = rhs.y; z = rhs.z; return *this; }
@@ -215,8 +215,8 @@ inline const float operator % (const Vector3D& lhs, const Vector3D& rhs)
 
 inline double VAngle(const Vector3D& A, const Vector3D& B)
 {
-    float a = sqrt(A.sq() * B.sq());
-    return (a == 0.0f) ? 0.0f : acos((A % B) / a );
+    float a = sqrtf(A.sq() * B.sq());
+    return (a == 0.0f) ? 0.0f : acosf((A % B) / a );
 }
 
 

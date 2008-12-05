@@ -103,7 +103,7 @@ namespace TA3D
                         target_pos = weapons.weapon[target].Pos;
                         target_V = weapons.weapon[target].V;
                     }
-                    else 
+                    else
                         if (!weapon_def->interceptor && target < units.max_unit && (units.unit[target].flags & 1)) // Met à jour les coordonnées de la cible
                         {
                             target_pos = units.unit[target].Pos;
@@ -116,7 +116,7 @@ namespace TA3D
                     if (speed > 0.0f && target_speed > 0.0f) // Make it aim better
                     {
                         float time_to_hit = (target_pos - Pos).sq() / speed;
-                        target_pos = target_pos + sqrt( time_to_hit / target_speed ) * target_V;
+                        target_pos = target_pos + sqrtf( time_to_hit / target_speed ) * target_V;
                     }
                 }
                 if (target_pos.y<map->sealvl && !weapon_def->waterweapon)
@@ -143,7 +143,7 @@ namespace TA3D
                             speed = weapon_def->weaponvelocity;
 
                 float rotate=dt*weapon_def->turnrate*TA2RAD;
-                V=speed*(cos(rotate)*I+sin(rotate)*K);
+                V=speed*(cosf(rotate)*I+sinf(rotate)*K);
             }
             Pos=Pos+dt*(V+dt*(0.33333333f*A+0.16666666667f*Ac));
             V=V+dt*0.5f*(A+Ac);
@@ -178,7 +178,7 @@ namespace TA3D
         }
 
         if(!dying && weapon_def->cruise && ((weapon_def->twophase && phase==2) || phase==1))
-            if(((Vector3D)(target_pos-Pos)).norm()>2.0f*fabs(Pos.y-h) && V.y<0.0f)
+            if(((Vector3D)(target_pos-Pos)).norm()>2.0f*fabsf(Pos.y-h) && V.y<0.0f)
                 V.y=0.0f;
 
         bool hit=false;
@@ -259,8 +259,8 @@ namespace TA3D
                                         hit_vec=t_vec;
                                         hit_idx=t_idx;
                                     }
-                                    else 
-                                        if(hit_vec%Dir>=t_vec%Dir) 
+                                    else
+                                        if(hit_vec%Dir>=t_vec%Dir)
                                         {
                                             hit_vec=t_vec;
                                             hit_idx=t_idx;
@@ -273,7 +273,7 @@ namespace TA3D
                             }
                             hit|=u_hit;
                         }
-                        else 
+                        else
                         {
                             if(y==0 && x==0 && t_idx<=-2 && !weapon_def->unitsonly )
                             {
@@ -589,7 +589,7 @@ namespace TA3D
                 if( visible && weapon_def->areaofeffect < 256 )		// Nuclear type explosion don't draw sprites :)
                     fx_manager.add(weapon_def->explosiongaf, weapon_def->explosionart, Pos, 1.0f);
             }
-            else 
+            else
                 if(hit && Pos.y==map->sealvl)
                 {
                     int px=((int)(Pos.x+0.5f)+map->map_w_d)>>4;
@@ -603,12 +603,12 @@ namespace TA3D
                             if(visible)
                                 fx_manager.add(weapon_def->lavaexplosiongaf,weapon_def->lavaexplosionart,Pos,1.0f);
                         }
-                        else 
+                        else
                             if(!map->bloc[map->bmap[py][px]].lava && !weapon_def->waterexplosiongaf.empty() && !weapon_def->waterexplosionart.empty())
                                 if(visible)
                                     fx_manager.add(weapon_def->waterexplosiongaf,weapon_def->waterexplosionart,Pos,1.0f);
                     }
-                    else 
+                    else
                         if(!weapon_def->explosiongaf.empty() && !weapon_def->explosionart.empty())
                             if(visible)
                                 fx_manager.add(weapon_def->explosiongaf,weapon_def->explosionart,Pos,1.0f);
@@ -621,7 +621,7 @@ namespace TA3D
             if( weapon_def->noexplode && hit )	// Special flag used by dguns
             {
                 dying = false;
-                Pos.y += fabs( 3.0f * dt * V.y );
+                Pos.y += fabsf( 3.0f * dt * V.y );
             }
             else
             {
@@ -634,10 +634,10 @@ namespace TA3D
                     weapon_id=-1;
             }
         }
-        else 
+        else
             if(dying && killtime<=0.0f)
                 weapon_id = -1;
-            else 
+            else
                 if( Pos.x < -map->map_w_d || Pos.x > map->map_w_d || Pos.z < -map->map_h_d || Pos.z > map->map_h_d )		// We're out of the map
                     weapon_id = -1;
     }
@@ -676,7 +676,7 @@ namespace TA3D
                     glDisable(GL_TEXTURE_2D);
                     int color0 = weapon_def->color[0];
                     int color1 = weapon_def->color[1];
-                    float coef = (cos(stime*5.0f)+1.0f)*0.5f;
+                    float coef = (cosf(stime*5.0f)+1.0f)*0.5f;
                     int r = (int)(coef*getr(color0)+(1.0f-coef)*getr(color1));
                     int g = (int)(coef*getg(color0)+(1.0f-coef)*getg(color1));
                     int b = (int)(coef*getb(color0)+(1.0f-coef)*getb(color1));
@@ -695,7 +695,7 @@ namespace TA3D
                     glColor4ub(r,g,b,0xFF);
                     glVertex3f(P.x,P.y,P.z);								glVertex3f(Pos.x,Pos.y,Pos.z);
 
-                    glVertex3f(Pos.x,Pos.y,Pos.z);							glVertex3f(P.x,P.y,P.z);				
+                    glVertex3f(Pos.x,Pos.y,Pos.z);							glVertex3f(P.x,P.y,P.z);
                     glColor4ub(r,g,b,0);
                     glVertex3f(P.x-Up.x,P.y-Up.y,P.z-Up.z);					glVertex3f(Pos.x-Up.x,Pos.y-Up.y,Pos.z-Up.z);
                     glEnd();
@@ -713,7 +713,7 @@ namespace TA3D
                     Dir.unit();
                     J = V * I;
                     J.unit();
-                    float theta = -acos( Dir.z ) * RAD2DEG;
+                    float theta = -acosf( Dir.z ) * RAD2DEG;
                     glRotatef( theta, J.x, J.y, J.z );
                 }
                 glEnable(GL_LIGHTING);
@@ -769,7 +769,7 @@ namespace TA3D
                     Dir.unit();
                     J = V * I;
                     J.unit();
-                    float theta = -acos( Dir.z ) * RAD2DEG;
+                    float theta = -acosf( Dir.z ) * RAD2DEG;
                     glRotatef( theta, J.x, J.y, J.z );
                 }
                 glEnable(GL_LIGHTING);
@@ -794,7 +794,7 @@ namespace TA3D
                     glDisable(GL_TEXTURE_2D);
                     int color0=weapon_def->color[0];
                     int color1=weapon_def->color[1];
-                    float coef=(cos(stime)+1.0f)*0.5f;
+                    float coef=(cosf(stime)+1.0f)*0.5f;
                     int r = (int)(coef*((color0>>16)&0xFF)+coef*((color1>>16)&0xFF));
                     int g = (int)(coef*((color0>>8)&0xFF)+coef*((color1>>8)&0xFF));
                     int b = (int)(coef*(color0&0xFF)+coef*(color1&0xFF));
@@ -826,7 +826,7 @@ namespace TA3D
                     Dir.unit();
                     J = V * I;
                     J.unit();
-                    float theta = -acos( Dir.z ) * RAD2DEG;
+                    float theta = -acosf( Dir.z ) * RAD2DEG;
                     glRotatef( theta, J.x, J.y, J.z );
                 }
                 glEnable(GL_LIGHTING);
