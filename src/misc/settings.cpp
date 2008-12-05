@@ -85,6 +85,7 @@ namespace Settings
             << "       Low Definition Map = " << TA3D::VARS::lp_CONFIG->low_definition_map << ";\n"
             << "  Use Texture Compression = " << TA3D::VARS::lp_CONFIG->use_texture_compression << ";\n"
             << "        Underwater Bright = " << TA3D::VARS::lp_CONFIG->underwater_bright << ";\n"
+            << "             Disable GLSL = " << TA3D::VARS::lp_CONFIG->disable_GLSL << ";\n"
             << "}\n";
 
         if (Paths::Files::SaveToFile(TA3D::Paths::ConfigFile, s))
@@ -98,7 +99,7 @@ namespace Settings
 
 
 
-    bool Restore(const String& filename) 
+    bool Restore(const String& filename)
     {
         LOG_INFO(LOG_PREFIX_SETTINGS << "Restoring the backup for `" << filename << "`...");
         if (Paths::Files::Copy(filename + ".bak", filename))
@@ -121,7 +122,7 @@ namespace Settings
             LANG = lp_CONFIG->Lang = 0;         // Set default language to English
             // Apply settings for the current language
             I18N::Instance()->currentLanguage(lp_CONFIG->Lang);
-            
+
             return false;
         }
 
@@ -170,12 +171,14 @@ namespace Settings
         TA3D::VARS::lp_CONFIG->player_name = cfgFile.pullAsString("TA3D.Player name", "player");
 
         TA3D::VARS::lp_CONFIG->render_sky = cfgFile.pullAsBool("TA3D.Render Sky", true);
-        
+
         TA3D::VARS::lp_CONFIG->low_definition_map = cfgFile.pullAsBool("TA3D.Low Definition Map", false);
 
         TA3D::VARS::lp_CONFIG->use_texture_compression = cfgFile.pullAsBool("TA3D.Use Texture Compression", true);
 
         TA3D::VARS::lp_CONFIG->underwater_bright = cfgFile.pullAsBool("TA3D.Underwater Bright", false);
+
+        TA3D::VARS::lp_CONFIG->disable_GLSL = cfgFile.pullAsBool("TA3D.Disable GLSL", false);
 
         LANG = lp_CONFIG->Lang;
         // Apply settings for the current language

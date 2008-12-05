@@ -155,6 +155,7 @@ void config_menu(void)
         if (format( "%d", (int)lp_CONFIG->fps_limit ) == *i )
             config_area.set_caption("*.fps_limit", *i);
     }
+    config_area.set_state("*.disable_GLSL", lp_CONFIG->disable_GLSL);
     config_area.set_state("*.underwater_bright", lp_CONFIG->underwater_bright);
     config_area.set_state("*.use_texture_compression", lp_CONFIG->use_texture_compression);
     config_area.set_state("*.low_definition_map", lp_CONFIG->low_definition_map);
@@ -382,6 +383,7 @@ void config_menu(void)
             }
         }
 
+        lp_CONFIG->disable_GLSL = config_area.get_state("*.disable_GLSL");
         lp_CONFIG->underwater_bright = config_area.get_state("*.underwater_bright");
         lp_CONFIG->use_texture_compression = config_area.get_state("*.use_texture_compression");
         lp_CONFIG->low_definition_map = config_area.get_state("*.low_definition_map");

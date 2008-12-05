@@ -1,10 +1,18 @@
+[Disable GLSL]
+{
+    FRENCH=Désactiver GLSL;
+}
+[disable GLSL shaders\nmay help if game crash]
+{
+    FRENCH=désactive les shaders GLSL\npeut aider si le jeu plante;
+}
 [Unit limit]
 {
     FRENCH=Limite d'unités;
 }
 [chose your team]
 {
-    FRENCH=Choisissez votre equipe;
+    FRENCH=Choisissez votre équipe;
     SPANISH=Elija su equipo;
 }
 [UNITTYPE_NAME]
@@ -82,7 +90,7 @@
 }
 [enable if you want to be\nvisible from Internet]
 {
-	FRENCH=Activez ceci si vous voulez etre\nvisible depuis Internet;
+	FRENCH=Activez ceci si vous voulez être\nvisible depuis Internet;
 }
 [Advertise on Internet]
 {
@@ -146,7 +154,7 @@
 }
 [warning: you might have texturing\nissues with this!!]
 {
-	FRENCH=attention: vous pouvez avoir des problemes\nde textures avec cette option!!;
+	FRENCH=attention: vous pouvez avoir des problèmes\nde textures avec cette option!!;
 }
 [use texture cache]
 {
