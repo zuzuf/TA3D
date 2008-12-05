@@ -2573,7 +2573,7 @@ namespace TA3D
                     Vector3D P_p = Pos + dist * Dir;
 
                     //					if (is_hit && (MP-Pos)%Dir<(P_p-Pos)%Dir)	continue;
-                    if (is_hit && MP % Dir < P_p % Dir)
+                    if (is_hit && (MP - P_p) % Dir < 0.0f)
                         continue;
 
                     float a;
@@ -2657,7 +2657,7 @@ namespace TA3D
                         Vector3D P_p=Pos+dist*Dir;
 
                         //						if (is_hit && (MP-Pos)%Dir<(P_p-Pos)%Dir)	continue;
-                        if (is_hit && MP % Dir < P_p % Dir)
+                        if (is_hit && (MP - P_p) % Dir < 0.0f)
                             continue;
 
                         float a,b,c;		// Coefficients pour que P soit le barycentre de A,B,C
@@ -2736,7 +2736,7 @@ namespace TA3D
                 {
                     if (nhit >= -1 && is_hit)
                     {
-                        if (MP2 % Dir < MP % Dir)
+                        if ((MP2 -MP) % Dir < 0.0f)
                         {
                             MP = MP2;
                             hit_idx = nhit;
@@ -2761,7 +2761,7 @@ namespace TA3D
             else
             {
                 if (nhit >= -1 && is_hit)
-                    if (MP2 % Dir < MP % Dir)
+                    if ((MP2 - MP) % Dir < 0.0f)
                     {
                         MP = MP2;
                         hit_idx = nhit;
@@ -2893,7 +2893,7 @@ namespace TA3D
                 bool nhit = child->hit_fast(Pos,Dir,data_s,&MP2);
                 if (nhit)
                 {
-                    if (!is_hit || MP2%Dir<MP%Dir)
+                    if (!is_hit || (MP2 - MP) % Dir < 0.0f)
                         MP = MP2;
                     is_hit = true;
                 }
@@ -2907,7 +2907,7 @@ namespace TA3D
             bool nhit = next->hit_fast( OPos, ODir, data_s, &MP2);
             if (nhit)
             {
-                if (!is_hit || MP2%ODir<MP%ODir)
+                if (!is_hit || (MP2 - MP) % ODir < 0.0f)
                     MP = MP2;
                 is_hit = true;
             }
