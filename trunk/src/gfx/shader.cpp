@@ -25,6 +25,8 @@ namespace TA3D
          */
         GLhandleARB loadFragmentFromMemory(const char* data, const int size)
         {
+            if (lp_CONFIG->disable_GLSL)    return 0;
+
             GLhandleARB	shader = glCreateShaderObjectARB(GL_FRAGMENT_SHADER_ARB);
             int compiled = 0;
 
@@ -52,6 +54,8 @@ namespace TA3D
 
         GLhandleARB loadVertexShaderFromMemory(const char *data, const int size)
         {
+            if (lp_CONFIG->disable_GLSL)    return 0;
+
             GLhandleARB	shader = glCreateShaderObjectARB(GL_VERTEX_SHADER_ARB);
             int compiled = 0;
 
@@ -79,6 +83,8 @@ namespace TA3D
 
         GLhandleARB loadFragmentShader(const String& filename)
         {
+            if (lp_CONFIG->disable_GLSL)    return 0;
+
             uint64 filesize;
             char* buf = NULL;
             if (HPIManager)
@@ -126,6 +132,8 @@ namespace TA3D
 
         GLhandleARB loadVertexShader(const String& filename)
         {
+            if (lp_CONFIG->disable_GLSL)    return 0;
+
             uint64 filesize;
             char* buf = NULL;
             if (HPIManager)
@@ -195,7 +203,7 @@ namespace TA3D
 
     void Shader::load_memory(const char *fragment_data, const int frag_len,const char *vertex_data, const int vert_len)
     {
-        if(!g_useProgram)
+        if(!g_useProgram || lp_CONFIG->disable_GLSL)
             return;
 
         pShaderProgram  = glCreateProgramObjectARB();
@@ -227,7 +235,7 @@ namespace TA3D
 
     void Shader::load(const String& fragmentFilename, const String& vertexFilename)
     {
-        if (!g_useProgram)
+        if (!g_useProgram || lp_CONFIG->disable_GLSL)
             return;
 
         // Reset
@@ -259,61 +267,61 @@ namespace TA3D
 
     void Shader::on()
     {
-        if (pLoaded)
+        if (pLoaded || lp_CONFIG->disable_GLSL)
             glUseProgramObjectARB(pShaderProgram);
     }
 
     void Shader::off()
     {
-        if (pLoaded)
+        if (pLoaded || lp_CONFIG->disable_GLSL)
             glUseProgramObjectARB(0);
     }
 
     void Shader::setvar1f(const char* var, const float v0)
     {
-        if (pLoaded)
+        if (pLoaded || lp_CONFIG->disable_GLSL)
             glUniform1fARB(glGetUniformLocationARB(pShaderProgram, var), v0);
     }
 
     void Shader::setvar2f(const char* var, const float v0, const float v1)
     {
-        if (pLoaded)
+        if (pLoaded || lp_CONFIG->disable_GLSL)
             glUniform2fARB(glGetUniformLocationARB(pShaderProgram, var), v0, v1);
     }
 
     void Shader::setvar3f(const char* var, const float v0, const float v1, const float v2)
     {
-        if (pLoaded)
+        if (pLoaded || lp_CONFIG->disable_GLSL)
             glUniform3fARB(glGetUniformLocationARB(pShaderProgram, var), v0, v1, v2);
     }
 
     void Shader::setvar4f(const char* var, const float v0, const float v1, const float v2, const float v3)
     {
-        if (pLoaded)
+        if (pLoaded || lp_CONFIG->disable_GLSL)
             glUniform4fARB(glGetUniformLocationARB(pShaderProgram, var), v0, v1, v2, v3);
     }
 
     void Shader::setvar1i(const char* var, const int v0)
     {
-        if (pLoaded)
+        if (pLoaded || lp_CONFIG->disable_GLSL)
             glUniform1iARB(glGetUniformLocationARB(pShaderProgram, var), v0);
     }
 
     void Shader::setvar2i(const char* var, const int v0, const int v1)
     {
-        if (pLoaded)
+        if (pLoaded || lp_CONFIG->disable_GLSL)
             glUniform2iARB(glGetUniformLocationARB(pShaderProgram, var), v0, v1);
     }
 
     void Shader::setvar3i(const char* var, const int v0, const int v1, const int v2)
     {
-        if (pLoaded)
+        if (pLoaded || lp_CONFIG->disable_GLSL)
             glUniform3iARB(glGetUniformLocationARB(pShaderProgram, var), v0, v1, v2);
     }
 
     void Shader::setvar4i(const char* var, const int v0, const int v1, const int v2, const int v3)
     {
-        if (pLoaded)
+        if (pLoaded || lp_CONFIG->disable_GLSL)
             glUniform4iARB(glGetUniformLocationARB(pShaderProgram, var), v0, v1, v2, v3);
     }
 
