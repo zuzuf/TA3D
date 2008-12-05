@@ -1,9 +1,11 @@
 [Desktop Entry]
+Type=Application
 Name=TA3D
 Version=0.5.0 WIP
 Comment=A remake of Total Annihilation in full 3D, nice graphics :)
 Encoding=UTF-8
 Exec=/usr/games/ta3d
 Icon=/usr/share/games/ta3d/ta3d.png
-Type=Application
-Categories=Application;Game;
+Categories=Game;StrategyGame;
+Terminal=false
+StartupNotify=false

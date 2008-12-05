@@ -333,9 +333,10 @@ install(DIRECTORY shaders DESTINATION ${TA3D_RESOURCES_INSTALL_PATH} PATTERN ".*
 install(DIRECTORY sky DESTINATION ${TA3D_RESOURCES_INSTALL_PATH} PATTERN ".*" EXCLUDE PATTERN "*~" EXCLUDE)
 
 # copy the file that will add TA3D and 3DMEditor to the desktop menu
-install(FILES ta3d.desktop DESTINATION share/applications)
+install(FILES distrib/linux/ta3d DESTINATION share/menu)
+install(FILES distrib/linux/ta3d.desktop DESTINATION share/applications)
 install(FILES ta3d.png DESTINATION ${TA3D_RESOURCES_INSTALL_PATH})
-install(FILES 3dmeditor.desktop DESTINATION share/applications)
+install(FILES distrib/3dmeditor.desktop DESTINATION share/applications)
 install(FILES 3dmeditor.png DESTINATION ${TA3D_RESOURCES_INSTALL_PATH})
 install(FILES readme.html DESTINATION ${TA3D_RESOURCES_INSTALL_PATH})
 install(FILES readme_fr.html DESTINATION ${TA3D_RESOURCES_INSTALL_PATH})
