@@ -5,7 +5,7 @@
 #else
 # include <windows.h>
 # include <shlobj.h>
-#endif 
+#endif
 #include <sys/stat.h>
 #include "../TA3D_NameSpace.h"
 #include "../logs/logs.h"
@@ -32,8 +32,8 @@ namespace Paths
     # ifdef TA3D_PLATFORM_WINDOWS
     String LocalData = "";
     # endif
-    
-    
+
+
     String CurrentDirectory()
     {
         char* c = getcwd(NULL, 0);
@@ -69,7 +69,7 @@ namespace Paths
     {
         LocalData = localAppData();
         LocalData += Separator;
-#ifdef TA3D_OVERRIDE_PATHS
+
         Resources = ApplicationRoot + "resources\\";
         Caches = ApplicationRoot + "cache\\";
         Savegames = ApplicationRoot + "savegames\\";
@@ -77,15 +77,6 @@ namespace Paths
 
         Preferences = ApplicationRoot + "settings\\";
         Screenshots = ApplicationRoot + "screenshots\\";
-#else
-        Resources = LocalData + "ta3d\\resources\\";
-        Caches = LocalData + "ta3d\\cache\\";
-        Savegames = LocalData + "ta3d\\savegames\\";
-        Logs = LocalData + "ta3d\\logs\\";
-
-        Preferences = LocalData + "ta3d\\settings\\";
-        Screenshots = LocalData + "ta3d\\screenshots\\";
-#endif
     }
 
     # else // ifdef TA3D_PLATFORM_WINDOWS
@@ -113,7 +104,7 @@ namespace Paths
         Savegames = home + "/Library/Application Support/ta3d/savegames/";
         Resources = home + "/Library/Application Support/ta3d/resources/";
         Logs = home + "/Library/Logs/ta3d/";
-        
+
         Preferences = home + "/Library/Preferences/ta3d/";
         Screenshots = home + "/Downloads/";
     }
@@ -129,7 +120,7 @@ namespace Paths
     void initApplicationRootPath(const char* argv0)
     {
         LOG_ASSERT(NULL != argv0);
-		
+
 		# ifdef TA3D_PLATFORM_DARWIN
 		if (ExtractFileExt(argv0).toLower() == ".app")
 		{
@@ -163,7 +154,7 @@ namespace Paths
             p.split(parts, SeparatorAsString, false);
         else
             p.split(parts, "\\/", false);
-        
+
         String ret;
         String::Vector::size_type n = parts.size();
         --n;
@@ -247,7 +238,7 @@ namespace Paths
         initForDarwin();
         #   endif
         # endif
-        
+
         bool logFileOpened = Logs::logger().writeToFile(Paths::Logs + programName + ".log");
 
         LOG_INFO("*** Welcome to TA3D ***");
@@ -283,7 +274,7 @@ namespace Paths
 	    # ifdef TA3D_PLATFORM_WINDOWS
 	    // ugly workaround with stat under Windows
 	    // FIXME: Find a better way to find driver letters
-	    if (p.size() == 2 && ':' == p[1]) 
+	    if (p.size() == 2 && ':' == p[1])
 	        return true;
         struct _stat s;
         if ('\\' != p[p.size() -1])
@@ -392,7 +383,7 @@ namespace Paths
         return (p.empty() || '/' == p[0]);
         # endif
     }
-    
+
 
 } // namespace Paths
 } // namespace TA3D
