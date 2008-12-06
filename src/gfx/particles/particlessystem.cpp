@@ -44,6 +44,7 @@ namespace TA3D
 
     void ParticlesSystem::move(const float dt, Vector3D *p_wind_dir, const float g, const float factor, const float factor2)
     {
+        if (pos == NULL || V == NULL)    return;     // Huh oO ? this is not expected to happen
         LOG_ASSERT(p_wind_dir);
         life -= dt;
         size += dt * dsize;
@@ -69,6 +70,7 @@ namespace TA3D
 
     void ParticlesSystem::draw()
     {
+        if (pos == NULL)    return;     // Huh oO ? this is not expected to happen
         glPushMatrix();
         glColor4fv(col);
         glPointSize(size);
