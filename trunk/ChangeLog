@@ -1,5 +1,24 @@
 --------------------------------- English version ----------------------------------
 
+summary of changes from 0.4.2 to 0.5.0
+-----------------------------------------
+for full list of changes see our SVN log :p (more than 1200 commits since 0.4.2 !!)
+*full support for multiplayer games
+*support for MacOSX
+*lots of code rewritten
+*lots of bug fixes
+*several speed optimizations
+*OS integration (DEB & RPM packages for Linux, windows installer, macosx bundle)
+*lots of improvements to GUI
+*several AI improvements
+*improved stability
+*new 3D objects to replace old sprites
+*new particle effects
+*cache system improved for fast loading and lower RAM requirements
+*support for saved games (both single and multiplayer)
+*support for team play
+*3DM support for GLSL shaders
+
 changes from 0.4.1 to 0.4.2
 -----------------------------------------
 *the resource installer is more resistant to errors and now support all the TA CDs (CD1, CD2, BT, CC) so you can easily install campaign resources and all the addons 
@@ -515,6 +534,25 @@ _there are new info. about terrain, in order to allow path finding
 _lighting bug when activating selection algorithm fixed
 
 ------------------------------------------ Version française ----------------------------------------------
+
+résumé des changements apportés par la version 0.5.0
+-----------------------------------------
+pour la liste complète des modifications apportées voir les logs du dépot SVN  :p (plus de 1200 commits depuis la 0.4.2 !!)
+*support complet du multijoueurs
+*support de MacOSX
+*beaucoup de réécriture de code
+*beaucoup de corrections de bogues
+*plusieurs améliorations de la vitesse du moteur
+*intégration système (paquets DEB & RPM pour Linux, installateur windows, bundle macosx)
+*de nombreuses améliorations apportées à l'interface (GUI)
+*plusieurs amélioration de l'AI
+*bien meilleure stabilité
+*de nouveaux objets 3D remplacent les vieux sprites
+*de nouveaux effets de particules
+*mécanisme de cache amélioré pour des chargement rapides et une plus faible consommation de RAM
+*support des sauvegardes (à la fois en solo et multijoeurs)
+*support du jeu en équipe
+*le format 3DM supporte les shaders GLSL
 
 changements apportés par la version 0.4.2
 -----------------------------------------
