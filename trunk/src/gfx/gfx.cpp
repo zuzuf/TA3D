@@ -118,7 +118,7 @@ namespace TA3D
         LOG_INFO(LOG_PREFIX_OPENGL << "Renderer: " << glGetString(GL_RENDERER));
         LOG_INFO(LOG_PREFIX_OPENGL << "Version: " << glGetString(GL_VERSION));
         if (ati_workaround)
-            LOG_WARNING("ATI card detected ! Using workarounds for ATI cards");
+            LOG_WARNING("ATI or SIS card detected ! Using workarounds for ATI/SIS cards");
         LOG_INFO(LOG_PREFIX_OPENGL << "Texture compression: " << YESNO(g_useTextureCompression));
         LOG_INFO(LOG_PREFIX_OPENGL << "Stencil Two Side: " << YESNO(g_useStencilTwoSide));
         LOG_INFO(LOG_PREFIX_OPENGL << "FBO: " << YESNO(g_useFBO));
@@ -1080,7 +1080,7 @@ namespace TA3D
             fwrite( img, size, 1, cache_file );
         }
 
-        delete img;
+        delete[] img;
 
         fclose( cache_file );
     }
@@ -1191,8 +1191,8 @@ namespace TA3D
 
     void GFX::ReInitAllTex(bool disable)
     {
-	if (MultiTexturing)
-	{
+        if (MultiTexturing)
+        {
             for(uint32 i = 0; i < 8; ++i)
             {
                 glActiveTextureARB(GL_TEXTURE0_ARB + i);
@@ -1201,7 +1201,7 @@ namespace TA3D
                     glDisable(GL_TEXTURE_2D);
             }
             glActiveTextureARB(GL_TEXTURE0_ARB);
-	}
+        }
     }
 
     void GFX::SetDefState()
@@ -1213,10 +1213,9 @@ namespace TA3D
         glEnable (GL_DEPTH_TEST);
         glCullFace (GL_BACK);
         glEnable (GL_CULL_FACE);
-        //	glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);	// Really Nice Perspective Calculations
         glHint(GL_FOG_HINT, GL_FASTEST);
         glHint(GL_LINE_SMOOTH_HINT, GL_FASTEST);
-        glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_FASTEST);
+        glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
         glHint(GL_POINT_SMOOTH_HINT, GL_FASTEST);
         glHint(GL_POLYGON_SMOOTH_HINT, GL_FASTEST);
         glDisable(GL_BLEND);

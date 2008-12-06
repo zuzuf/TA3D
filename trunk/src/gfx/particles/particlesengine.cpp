@@ -503,7 +503,7 @@ namespace TA3D
             if ((*i)->life >= 0.0f )
                 i++;
             else
-                i = particle_systems.erase( i );
+                particle_systems.erase( i++ );
             pMutex.unlock();
             pMutex.lock();
         }
