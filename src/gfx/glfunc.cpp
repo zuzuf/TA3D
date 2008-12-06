@@ -39,6 +39,13 @@ bool	g_useFBO = false;
 
 
 #if (defined TA3D_PLATFORM_WINDOWS && defined TA3D_PLATFORM_MSVC) || defined TA3D_PLATFORM_LINUX
+#define CHECK_OPENGL_FUNCTION( extension, function, var ) \
+		if ((function) == NULL)\
+		{\
+            LOG_WARNING( LOG_PREFIX_OPENGL << "OpenGL reports supporting " #extension " but " #function " is lacking");\
+            (var) = false;\
+		}
+
 static void installOpenGLExtensionsPointers()
 {
 #if not defined TA3D_PLATFORM_LINUX
@@ -56,10 +63,20 @@ static void installOpenGLExtensionsPointers()
 		glBindFramebufferEXT = (void (*)(GLenum, GLuint)) allegro_gl_get_proc_address("glBindFramebufferEXT");
 		glFramebufferTexture2DEXT = (void (*)(GLenum, GLenum, GLenum, GLuint, GLint)) allegro_gl_get_proc_address("glFramebufferTexture2DEXT");
 		glFramebufferRenderbufferEXT = (void (*)(GLenum, GLenum, GLenum, GLuint)) allegro_gl_get_proc_address("glFramebufferRenderbufferEXT");
+		CHECK_OPENGL_FUNCTION( FBO, glDeleteFramebuffersEXT, g_useFBO)
+		CHECK_OPENGL_FUNCTION( FBO, glDeleteRenderbuffersEXT, g_useFBO)
+		CHECK_OPENGL_FUNCTION( FBO, glBindFramebufferEXT, g_useFBO)
+		CHECK_OPENGL_FUNCTION( FBO, glFramebufferTexture2DEXT, g_useFBO)
+		CHECK_OPENGL_FUNCTION( FBO, glFramebufferRenderbufferEXT, g_useFBO)
+		if (!g_useFBO)
+            LOG_WARNING( LOG_PREFIX_OPENGL << "FBO support will be disbaled");
 	}
 	if(g_useStencilTwoSide)
     {
 		glActiveStencilFaceEXT = (void (*)(GLenum)) allegro_gl_get_proc_address("glActiveStencilFaceEXT");
+		CHECK_OPENGL_FUNCTION( StencilTwoSide, glActiveStencilFaceEXT, g_useStencilTwoSide)
+		if(!g_useStencilTwoSide)
+            LOG_WARNING( LOG_PREFIX_OPENGL << "StencilTwoSide support will be disbaled");
 	}
 	if(g_useProgram)
     {
@@ -87,6 +104,33 @@ static void installOpenGLExtensionsPointers()
 		glUniform3iARB = (void (*)(GLint, GLint, GLint, GLint)) allegro_gl_get_proc_address("glUniform3iARB");
 		glUniform4iARB = (void (*)(GLint, GLint, GLint, GLint, GLint)) allegro_gl_get_proc_address("glUniform4iARB");
 		glGetUniformLocationARB = (GLint (*)(GLhandleARB, const GLcharARB*)) allegro_gl_get_proc_address("glGetUniformLocationARB");
+
+        CHECK_OPENGL_FUNCTION( GLSL, glCreateShaderObjectARB, g_useProgram )
+		CHECK_OPENGL_FUNCTION( GLSL, glShaderSourceARB, g_useProgram )
+		CHECK_OPENGL_FUNCTION( GLSL, glCompileShaderARB, g_useProgram )
+		CHECK_OPENGL_FUNCTION( GLSL, glGetObjectParameterivARB, g_useProgram )
+		CHECK_OPENGL_FUNCTION( GLSL, glGetInfoLogARB, g_useProgram )
+		CHECK_OPENGL_FUNCTION( GLSL, glGenFramebuffersEXT, g_useProgram )
+		CHECK_OPENGL_FUNCTION( GLSL, glGenRenderbuffersEXT, g_useProgram )
+		CHECK_OPENGL_FUNCTION( GLSL, glBindRenderbufferEXT, g_useProgram )
+		CHECK_OPENGL_FUNCTION( GLSL, glRenderbufferStorageEXT, g_useProgram )
+		CHECK_OPENGL_FUNCTION( GLSL, glCreateProgramObjectARB, g_useProgram )
+		CHECK_OPENGL_FUNCTION( GLSL, glAttachObjectARB, g_useProgram )
+		CHECK_OPENGL_FUNCTION( GLSL, glLinkProgramARB, g_useProgram )
+		CHECK_OPENGL_FUNCTION( GLSL, glUseProgramObjectARB, g_useProgram )
+		CHECK_OPENGL_FUNCTION( GLSL, glDetachObjectARB, g_useProgram )
+		CHECK_OPENGL_FUNCTION( GLSL, glDeleteObjectARB, g_useProgram )
+		CHECK_OPENGL_FUNCTION( GLSL, glUniform1fARB, g_useProgram )
+		CHECK_OPENGL_FUNCTION( GLSL, glUniform2fARB, g_useProgram )
+		CHECK_OPENGL_FUNCTION( GLSL, glUniform3fARB, g_useProgram )
+		CHECK_OPENGL_FUNCTION( GLSL, glUniform4fARB, g_useProgram )
+		CHECK_OPENGL_FUNCTION( GLSL, glUniform1iARB, g_useProgram )
+		CHECK_OPENGL_FUNCTION( GLSL, glUniform2iARB, g_useProgram )
+		CHECK_OPENGL_FUNCTION( GLSL, glUniform3iARB, g_useProgram )
+		CHECK_OPENGL_FUNCTION( GLSL, glUniform4iARB, g_useProgram )
+		CHECK_OPENGL_FUNCTION( GLSL, glGetUniformLocationARB, g_useProgram )
+		if (!g_useProgram)
+            LOG_WARNING( LOG_PREFIX_OPENGL << "GLSL support will be disbaled");
 	}
 }
 #endif
