@@ -1327,7 +1327,7 @@ namespace TA3D
                 name[0] = 0;
                 strcat( name, "scripts/" );
                 int i;
-                for( i = 0 ; i < 100 & f[ i + 10 ] != '"' ; i++ )
+                for( i = 0 ; i < 100 && f[ i + 10 ] != '"' ; i++ )
                     name[ i + 8 ] = f[ i + 10 ];
                 name[ i + 8 ] = 0;
                 uint32 filesize2 = 0;
@@ -1368,7 +1368,7 @@ namespace TA3D
 
             if (luaL_dobuffer( L, buffer, filesize))	// Load the lua chunk
             {
-                if (lua_tostring( L, -1 ) != "")
+                if (lua_tostring( L, -1 ) != NULL && strlen(lua_tostring( L, -1 )) > 0)
                     LOG_ERROR(LOG_PREFIX_LUA << lua_tostring( L, -1));
 
                 running = false;
@@ -1424,7 +1424,7 @@ namespace TA3D
         {
             if (lua_pcall( L, 0, 1, 0))
             {
-                if (lua_tostring(L, -1) != "")
+                if (lua_tostring(L, -1) != NULL && strlen(lua_tostring(L, -1)) > 0)
                     LOG_ERROR(LOG_PREFIX_LUA << lua_tostring(L, -1));
                 running = false;
                 return -1;
@@ -1432,7 +1432,7 @@ namespace TA3D
         }
         catch(...)
         {
-            if (lua_tostring( L, -1 ) != "")
+            if (lua_tostring( L, -1 ) != NULL && strlen(lua_tostring( L, -1 )) > 0)
                 LOG_ERROR(LOG_PREFIX_LUA << lua_tostring(L, -1));
             running = false;
             return -1;

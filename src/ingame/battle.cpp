@@ -163,7 +163,7 @@ namespace TA3D
 			preflightVars();
 
 			// Wind - Make a change every 10 sec. (simulation time)
-            if (wind_change = (t - wind_t >= 10.0f))
+            if ((wind_change = (t - wind_t >= 10.0f)))
 				preflightChangeWindSpeedAndDirection();
 
 			// Update 3D sounds
