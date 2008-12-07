@@ -54,6 +54,11 @@ static void installOpenGLExtensionsPointers()
 		glActiveTextureARB = (void (*)(GLenum)) allegro_gl_get_proc_address("glActiveTextureARB");
 		glMultiTexCoord2fARB = (void (*)(GLenum, GLfloat, GLfloat)) allegro_gl_get_proc_address("glMultiTexCoord2fARB");
 		glClientActiveTextureARB = (void (*)(GLenum)) allegro_gl_get_proc_address("glClientActiveTextureARB");
+		CHECK_OPENGL_FUNCTION( MultiTexturing, glActiveTextureARB, MultiTexturing )
+		CHECK_OPENGL_FUNCTION( MultiTexturing, glMultiTexCoord2fARB, MultiTexturing )
+		CHECK_OPENGL_FUNCTION( MultiTexturing, glClientActiveTextureARB, MultiTexturing )
+		if (!MultiTexturing)
+            LOG_WARNING( LOG_PREFIX_OPENGL << "MultiTexturing support will be disbaled");
 	}
 #endif
 	if(g_useFBO)
