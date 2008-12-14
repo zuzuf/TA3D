@@ -1141,7 +1141,7 @@ namespace TA3D
 
         if (player_id >= 0 && player_id < NB_PLAYERS )		// make sure we have a player
             for( int i = 0 ; i < ta3dSideData.nb_side ; i++ )
-                if (ta3dSideData.side_name[ i ] == players.side[ player_id ] )
+                if (String::ToLower(ta3dSideData.side_name[ i ]) == String::ToLower(players.side[ player_id ]) )
                 {
                     lua_pushstring( L, ta3dSideData.side_com[ i ].c_str() );
                     break;

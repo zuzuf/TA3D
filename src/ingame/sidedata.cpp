@@ -135,7 +135,7 @@ namespace TA3D
     {
         for(int i = 0; i < nb_side; ++i)
         {
-            if(side == side_name[i])
+            if(String::ToLower(side) == String::ToLower(side_name[i]))
                 return i;
         }
         return -1;

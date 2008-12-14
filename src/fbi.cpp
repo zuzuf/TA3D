@@ -1203,7 +1203,7 @@ namespace TA3D
 
         int side_id = -1;
         for( int i = 0 ; i < ta3dSideData.nb_side && side_id == -1 ; i++ )
-            if( ta3dSideData.side_name[ i ] == side )
+            if( String::ToLower( ta3dSideData.side_name[ i ] ) == String::ToLower( side ) )
                 side_id = i;
         if (side_id == -1)
             return;
