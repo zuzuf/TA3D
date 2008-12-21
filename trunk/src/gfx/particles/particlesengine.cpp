@@ -585,11 +585,12 @@ namespace TA3D
 
         cam->setView();
 
+        gfx->ReInitAllTex(true);
+
         glEnable(GL_TEXTURE_2D);
         glDisable(GL_LIGHTING);
         glDisable(GL_CULL_FACE);
         glDepthMask(GL_FALSE);
-        //		glBlendFunc(GL_SRC_ALPHA,GL_ONE);
         glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
         glEnable(GL_BLEND);
 

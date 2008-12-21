@@ -62,6 +62,7 @@ namespace TA3D
                         | AGL_VIDEO_MEMORY_POLICY );
         request_refresh_rate(85);
         #else
+        allegro_gl_clear_settings();         // Initialise AllegroGL
         allegro_gl_set(AGL_COLOR_DEPTH, TA3D::VARS::lp_CONFIG->color_depth);
         allegro_gl_set(AGL_DOUBLEBUFFER, TRUE);
         allegro_gl_set(AGL_Z_DEPTH, 32);
@@ -241,6 +242,7 @@ namespace TA3D
         glEnableClientState(GL_VERTEX_ARRAY);
         glDisableClientState(GL_NORMAL_ARRAY);
         glDisableClientState(GL_COLOR_ARRAY);
+        glDisableClientState(GL_TEXTURE_COORD_ARRAY);
         glVertexPointer(2, GL_FLOAT, 0, points);
         glDrawArrays( GL_LINES, 0, 2 );
     }
@@ -257,6 +259,7 @@ namespace TA3D
         glEnableClientState(GL_VERTEX_ARRAY);
         glDisableClientState(GL_NORMAL_ARRAY);
         glDisableClientState(GL_COLOR_ARRAY);
+        glDisableClientState(GL_TEXTURE_COORD_ARRAY);
         glVertexPointer(2, GL_FLOAT, 0, points);
         glDrawArrays( GL_LINE_LOOP, 0, 4 );
     }
@@ -273,6 +276,7 @@ namespace TA3D
         glEnableClientState(GL_VERTEX_ARRAY);
         glDisableClientState(GL_NORMAL_ARRAY);
         glDisableClientState(GL_COLOR_ARRAY);
+        glDisableClientState(GL_TEXTURE_COORD_ARRAY);
         glVertexPointer(2, GL_FLOAT, 0, points);
         glDrawArrays( GL_QUADS, 0, 4 );
     }
@@ -297,6 +301,7 @@ namespace TA3D
         glEnableClientState(GL_VERTEX_ARRAY);
         glDisableClientState(GL_NORMAL_ARRAY);
         glDisableClientState(GL_COLOR_ARRAY);
+        glDisableClientState(GL_TEXTURE_COORD_ARRAY);
         glVertexPointer(2, GL_FLOAT, 0, points);
         glDrawArrays( GL_LINE_LOOP, 0, i>>1 );
         delete[] points;
@@ -327,6 +332,7 @@ namespace TA3D
         glEnableClientState(GL_VERTEX_ARRAY);
         glDisableClientState(GL_NORMAL_ARRAY);
         glDisableClientState(GL_COLOR_ARRAY);
+        glDisableClientState(GL_TEXTURE_COORD_ARRAY);
         glVertexPointer(2, GL_FLOAT, 0, points);
         glDrawArrays( GL_LINE_LOOP, 0, i>>1 );
         delete[] points;
@@ -352,6 +358,7 @@ namespace TA3D
         glEnableClientState(GL_VERTEX_ARRAY);
         glDisableClientState(GL_NORMAL_ARRAY);
         glDisableClientState(GL_COLOR_ARRAY);
+        glDisableClientState(GL_TEXTURE_COORD_ARRAY);
         glVertexPointer(2, GL_FLOAT, 0, points);
         glDrawArrays( GL_LINES, 0, i>>1 );
         delete[] points;
@@ -385,6 +392,7 @@ namespace TA3D
         glEnableClientState(GL_VERTEX_ARRAY);
         glDisableClientState(GL_NORMAL_ARRAY);
         glDisableClientState(GL_COLOR_ARRAY);
+        glDisableClientState(GL_TEXTURE_COORD_ARRAY);
         glVertexPointer(2, GL_FLOAT, 0, points);
         glDrawArrays( GL_TRIANGLE_FAN, 0, i>>1 );
         delete[] points;
@@ -779,7 +787,7 @@ namespace TA3D
         return tex;
     }
 
-    void GFX::blit_texture( BITMAP *src, GLuint &dst )
+    void GFX::blit_texture( BITMAP *src, GLuint dst )
     {
         if(!dst)
             return;
@@ -1123,7 +1131,7 @@ namespace TA3D
     }
 
 
-    uint32 GFX::texture_width(const GLuint& gltex)
+    uint32 GFX::texture_width(const GLuint gltex)
     {
         GLint width;
         glBindTexture( GL_TEXTURE_2D, gltex);
@@ -1131,7 +1139,7 @@ namespace TA3D
         return width;
     }
 
-    uint32 GFX::texture_height(const GLuint& gltex)
+    uint32 GFX::texture_height(const GLuint gltex)
     {
         GLint height;
         glBindTexture( GL_TEXTURE_2D, gltex);
@@ -1197,10 +1205,13 @@ namespace TA3D
             {
                 glActiveTextureARB(GL_TEXTURE0_ARB + i);
                 ReInitTexSys();
+                glClientActiveTexture(GL_TEXTURE0_ARB + i);
+                glDisableClientState(GL_TEXTURE_COORD_ARRAY);
                 if (disable )
                     glDisable(GL_TEXTURE_2D);
             }
             glActiveTextureARB(GL_TEXTURE0_ARB);
+            glClientActiveTexture(GL_TEXTURE0_ARB);
         }
     }
 
