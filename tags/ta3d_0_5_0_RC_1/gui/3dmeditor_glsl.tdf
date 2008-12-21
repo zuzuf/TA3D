@@ -1,0 +1,89 @@
+[window]
+{
+    name=glsl;
+	title=GLSL Editor;
+	uformat=UTF8;
+	x=0;
+	y=0;
+	width=800;
+	height=600;
+	fullscreen=true;
+	screen width=800;
+	screen height=600;
+	draw borders=false;
+	show title=true;
+	lock=true;
+	number of objects=6;
+	hidden=false;
+	color=0xFFFFFFFF;
+	background=gfx/background.jpg;
+	repeat background=true;
+
+	[object0]
+	{
+		name=b_ok;
+		type=BUTTON;
+		caption=OK;
+		value=0xFFFFFFFF;
+		x1=216;
+		y1=-25;
+		x2=316;
+		y2=-5;
+		size=1;
+		on click=mapper.hide;
+	}
+	[object1]
+	{
+		name=b_cancel;
+		type=BUTTON;
+		caption=Cancel;
+		value=0xFFFFFFFF;
+		x1=484;
+		y1=-25;
+		x2=584;
+		y2=-5;
+		size=1;
+	}
+	[object2]
+	{
+	    name=l_fragment_program;
+	    type=TEXT;
+	    caption=fragment program:;
+	    value=0xFFFFFFFF;
+	    x1=10;
+	    y1=30;
+	    size=1;
+	}
+	[object3]
+	{
+	    name=fragment program;
+	    type=TEXTEDITOR;
+	    caption=;
+	    x1=10;
+	    y1=50;
+	    x2=-10;
+	    y2=300;
+	    size=1;
+	}
+	[object4]
+	{
+	    name=l_vertex_program;
+	    type=TEXT;
+	    caption=vertex program:;
+	    value=0xFFFFFFFF;
+	    x1=10;
+	    y1=310;
+	    size=1;
+	}
+	[object5]
+	{
+	    name=vertex program;
+	    type=TEXTEDITOR;
+	    caption=;
+	    x1=10;
+	    y1=330;
+	    x2=-10;
+	    y2=570;
+	    size=1;
+	}
+}

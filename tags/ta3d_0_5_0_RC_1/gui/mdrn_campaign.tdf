@@ -1,0 +1,74 @@
+[window]
+{
+    name=campaign;
+	title=Campaign Menu;
+	uformat=UTF8;
+	x=0;
+	y=0;
+	width=1280;
+	height=1024;
+	draw borders=false;
+	show title=false;
+	number of objects=5;
+	hidden=false;
+	lock=true;
+	color=0x00000000;			// Fully transparent so we can see the AREA background
+	background window=true;
+	fullscreen=true;			// Scale the window to fit the screen
+	screen width=1280;
+	screen height=1024;
+	[object0]		// OK
+	{
+		name=b_ok;
+		type=BUTTON;
+		caption=OK;
+		x1=1040;
+		y1=960;
+		x2=1190;
+		y2=997;
+		size=2;
+	}
+	[object1]		// Cancel
+	{
+		name=b_cancel;
+		type=BUTTON;
+		caption=cancel;
+		x1=840;
+		y1=960;
+		x2=990;
+		y2=997;
+		size=2;
+	}
+	[object2]		// side logo
+	{
+		name=logo;
+		type=IMG;
+		x1=724;
+		y1=179;
+		x2=1150;
+		y2=605;
+	}
+	[object3]		// campaign list
+	{
+		name=campaign_list;
+		type=LIST;
+		x1=64;
+		y1=160;
+		x2=582;
+		y2=904;
+		entry=no campaigns;
+		no border=true;		// Don't draw the border since it's drawn on the background
+		size=1.8;
+	}
+	[object4]
+	{
+		name=mission_list;
+		type=LIST;
+		x1=685;
+		y1=665;
+		x2=1195;
+		y2=900;
+		no border=true;
+		size=1.8;
+	}
+}

@@ -1,0 +1,9 @@
+[area]
+{
+	name=config area;
+	skin=gui/modern.skn;
+	windows=gui/mdrn_config.tdf,gui/mdrn_config_display.tdf,gui/mdrn_config_audio.tdf,gui/mdrn_config_game.tdf,gui/mdrn_config_confirm.tdf;
+	background=gfx/mdrn_options.jpg;
+	width=1280;
+	height=1024;
+}

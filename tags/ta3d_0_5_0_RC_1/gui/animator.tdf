@@ -1,0 +1,62 @@
+[window]
+{
+    name=animator;
+	title=Animator module;
+	uformat=UTF8;
+	x=0;
+	y=0;
+	width=1280;
+	height=1024;
+	fullscreen=true;
+	screen width=1280;
+	screen height=1024;
+	draw borders=false;
+	show title=false;
+	lock=true;
+	number of objects=4;
+	hidden=false;
+	color=0xFFFFFFFF;
+	background=gfx/background.jpg;
+	repeat background=true;
+	[object0]
+	{
+		name=b_close;
+		type=BUTTON;
+		caption=Close;
+		x1=6;
+		y1=0;
+		x2=166;
+		y2=32;
+		size=1.6;
+	}
+	[object1]
+	{
+		name=render;
+		type=IMG;
+		x1=0;
+		y1=36;
+		x2=1100;
+		y2=1023;
+		can be clicked=true;
+	}
+	[object2]
+	{
+		name=pointed;
+		type=TEXT;
+		caption=;
+		x1=0;
+		y1=980;
+		value=0xFF7F7F7F;
+		size=2.0;
+	}
+	[object3]
+	{
+		name=selected;
+		type=TEXT;
+		caption=;
+		x1=500;
+		y1=980;
+		value=0xFFFFFFFF;
+		size=2.0;
+	}
+}
