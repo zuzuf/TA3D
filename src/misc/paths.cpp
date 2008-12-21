@@ -163,6 +163,8 @@ namespace Paths
             if (parts[i] != ".")
                 ret << parts[i] << Separator;
         }
+        if (ret.size() > 0 && p.size() > 0 && ret[0] != p[0])        // Make sure the result begins like p
+            ret = p[0] + ret;
         return ret;
     }
 
@@ -295,6 +297,8 @@ namespace Paths
         p.split(parts, SeparatorAsString, false);
         String pth;
         bool hasBeenCreated(false);
+        if (p[0] == '/' || p[0] == '\\')
+            pth += Separator;
 
         for (String::Vector::const_iterator i = parts.begin(); i != parts.end(); ++i)
         {

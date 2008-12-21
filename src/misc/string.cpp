@@ -2,7 +2,7 @@
 #include "string.h"
 #include <allegro.h>
 
-#if TA3D_USE_BOOST == 1 
+#if TA3D_USE_BOOST == 1
 #  include <boost/algorithm/string.hpp>
 #  include <boost/algorithm/string/trim.hpp>
 #  include <boost/algorithm/string/split.hpp>
@@ -16,7 +16,7 @@
 namespace TA3D
 {
 
-    #if TA3D_USE_BOOST != 1 
+    #if TA3D_USE_BOOST != 1
     namespace
     {
         int stdLowerCase (int c)
@@ -51,7 +51,7 @@ namespace TA3D
     String&
     String::toLower()
     {
-        #if TA3D_USE_BOOST == 1 
+        #if TA3D_USE_BOOST == 1
         boost::to_lower(*this);
         #else
         std::transform (this->begin(), this->end(), this->begin(), stdLowerCase);
@@ -62,7 +62,7 @@ namespace TA3D
     String&
     String::toUpper()
     {
-        #if TA3D_USE_BOOST == 1 
+        #if TA3D_USE_BOOST == 1
         boost::to_upper(*this);
         #else
         std::transform (this->begin(), this->end(), this->begin(), stdUpperCase);
@@ -87,13 +87,13 @@ namespace TA3D
     String::trim(const String& trimChars)
     {
         // Find the first character position after excluding leading blank spaces
-        std::string::size_type startpos = this->find_first_not_of(trimChars); 
+        std::string::size_type startpos = this->find_first_not_of(trimChars);
         // Find the first character position from reverse af
-        std::string::size_type endpos   = this->find_last_not_of(trimChars); 
- 
+        std::string::size_type endpos   = this->find_last_not_of(trimChars);
+
         // if all spaces or empty return an empty string
         if ((std::string::npos == startpos) || (std::string::npos == endpos))
-           *this = ""; 
+           *this = "";
         else
             *this = this->substr(startpos, endpos - startpos + 1);
         return *this;
@@ -105,7 +105,7 @@ namespace TA3D
         // Empty the container
         if (emptyBefore)
             out.clear();
-        #if TA3D_USE_BOOST == 1 
+        #if TA3D_USE_BOOST == 1
         // TODO : Avoid string duplication
         // Split
         std::vector<std::string> v;
@@ -117,18 +117,18 @@ namespace TA3D
         // TODO This method should be rewritten for better performance
         String s(*this);
         while (!s.empty())
-        {                                                                                                            
-            String::size_type i = s.find(separators);                                                                                    
-            if (i == std::string::npos)                                                                                            
-            {                                                                                                        
-                out.push_back(String::Trim(s));                                                                        
-                return;                                                                                              
+        {
+            String::size_type i = s.find_first_of(separators);
+            if (i == std::string::npos)
+            {
+                out.push_back(String::Trim(s));
+                return;
             }
             else
-            {                                                                                                        
-                out.push_back(String::Trim(s.substr(0, i)));                                                          
-                s = s.substr(i + 1, s.size() - i - 1);                                                               
-            }                                                                                                        
+            {
+                out.push_back(String::Trim(s.substr(0, i)));
+                s = s.substr(i + 1, s.size() - i - 1);
+            }
         }
         #endif
     }
@@ -139,7 +139,7 @@ namespace TA3D
         // Empty the container
         if (emptyBefore)
             out.clear();
-        #if TA3D_USE_BOOST == 1 
+        #if TA3D_USE_BOOST == 1
         // TODO : Avoid string duplication
         // Split
         std::vector<std::string> v;
@@ -151,18 +151,18 @@ namespace TA3D
         // TODO This method should be rewritten for better performance
         String s(*this);
         while (!s.empty())
-        {                                                                                                            
-            String::size_type i = s.find(separators);                                                                                    
-            if (i == std::string::npos)                                                                                            
-            {                                                                                                        
-                out.push_back(String::Trim(s));                                                                        
-                return;                                                                                              
+        {
+            String::size_type i = s.find_first_of(separators);
+            if (i == std::string::npos)
+            {
+                out.push_back(String::Trim(s));
+                return;
             }
             else
-            {                                                                                                        
-                out.push_back(String::Trim(s.substr(0, i)));                                                          
-                s = s.substr(i + 1, s.size() - i - 1);                                                               
-            }                                                                                                        
+            {
+                out.push_back(String::Trim(s.substr(0, i)));
+                s = s.substr(i + 1, s.size() - i - 1);
+            }
         }
         #endif
     }
@@ -189,7 +189,7 @@ namespace TA3D
             value = s.substr(pos, end - pos + 1);
             return;
         }
-        // The first `=` character 
+        // The first `=` character
         String::size_type equal = s.find_first_of('=', pos);
         if (equal == String::npos)
         {
@@ -270,7 +270,7 @@ namespace TA3D
             if (needReplaceSemicolons)
                 value.findAndReplace("\\;", ";", soCaseSensitive);
         }
-        else 
+        else
             value.clear();
     }
 
@@ -358,7 +358,7 @@ namespace TA3D
         LOG_ASSERT(NULL != ret);
         // see http://linux.die.net/man/3/do_uconvert
         do_uconvert(s, U_ASCII, ret, U_UTF8, newSize);
-        ret[newSize - 1] = '\0'; // A bit paranoid 
+        ret[newSize - 1] = '\0'; // A bit paranoid
         return ret;
     }
 

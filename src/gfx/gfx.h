@@ -245,14 +245,14 @@ namespace TA3D
 
         GLuint	make_texture( BITMAP *bmp, byte filter_type = FILTER_TRILINEAR, bool clamp = true );
         GLuint	create_texture( int w, int h, byte filter_type = FILTER_TRILINEAR, bool clamp = true );
-        void	blit_texture( BITMAP *src, GLuint &dst );
+        void	blit_texture( BITMAP *src, GLuint dst );
         GLuint	load_texture( String file, byte filter_type = FILTER_TRILINEAR, uint32 *width = NULL, uint32 *height = NULL, bool clamp = true, GLuint texFormat = 0 );
         GLuint	load_texture_mask( String file, int level, byte filter_type = FILTER_TRILINEAR, uint32 *width = NULL, uint32 *height = NULL, bool clamp = true );
         GLuint	load_texture_from_cache( String file, byte filter_type = FILTER_TRILINEAR, uint32 *width = NULL, uint32 *height = NULL, bool clamp = true );
         GLuint	load_masked_texture( String file, String mask, byte filter_type = FILTER_TRILINEAR );
         void	save_texture_to_cache( String file, GLuint tex, uint32 width, uint32 height );
-        uint32	texture_width( const GLuint &gltex );
-        uint32	texture_height( const GLuint &gltex );
+        uint32	texture_width( const GLuint gltex );
+        uint32	texture_height( const GLuint gltex );
         void	destroy_texture( GLuint &gltex );
         void	disable_texturing();
         void	enable_texturing();

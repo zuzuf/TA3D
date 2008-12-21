@@ -1520,6 +1520,7 @@ namespace TA3D
         short	buf_size=0;				// in blocs
         uint16	index_size=0;
         bool	was_flat=false;
+        glDisableClientState(GL_NORMAL_ARRAY);		// we don't need normal data
         glEnableClientState(GL_VERTEX_ARRAY);		// vertex coordinates
         glEnableClientState(GL_COLOR_ARRAY);		// Colors(for fog of war)
         glColorPointer(4,GL_UNSIGNED_BYTE,0,buf_c);
@@ -2320,6 +2321,7 @@ namespace TA3D
 
     void SKY::draw()
     {
+        glDisableClientState(GL_NORMAL_ARRAY);
         glDisableClientState(GL_COLOR_ARRAY);
         glEnableClientState(GL_VERTEX_ARRAY);		// Les sommets
         glVertexPointer(3, GL_FLOAT, 0, point);
