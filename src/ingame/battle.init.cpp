@@ -624,18 +624,24 @@ namespace TA3D
 			// Water reflection
 			reflectex = gfx->make_texture( tmp, FILTER_LINEAR);
 			// Water transparency/reflection
-			first_pass = gfx->make_texture( tmp, FILTER_LINEAR);
+			if (lp_CONFIG->water_quality >= 5)
+                first_pass = gfx->create_texture_RGBA32F(512, 512, FILTER_NONE, false);
+			else
+                first_pass = gfx->make_texture( tmp, FILTER_LINEAR);
 			// Water transparency/reflection
-			second_pass = gfx->make_texture( tmp, FILTER_LINEAR);
+			if (lp_CONFIG->water_quality >= 5)
+                second_pass = gfx->create_texture_RGBA16F(512, 512, FILTER_LINEAR, false);
+			else
+                second_pass = gfx->make_texture( tmp, FILTER_LINEAR);
 			// Water transparency/reflection
 			water_color = gfx->make_texture( tmp, FILTER_LINEAR);
 			// Water simulation data
 			if (lp_CONFIG->water_quality >= 5)
 			{
+			    last_water_refresh = msec_timer;
                 const int simulation_w = 256;
                 const int simulation_h = 256;
-                allegro_gl_set_texture_format(GL_RGBA8);
-			    water_sim2 = gfx->create_texture(simulation_w, simulation_h, FILTER_TRILINEAR, false);
+			    water_sim2 = gfx->create_texture_RGBA16F(simulation_w, simulation_h, FILTER_LINEAR, false);
                 float *data = new float[ simulation_w * simulation_h * 4 ];
                 for (int y = 0 ; y < simulation_h ; ++y)
                     for (int x = 0 ; x < simulation_w ; ++x)
@@ -643,6 +649,7 @@ namespace TA3D
                         data[(y * simulation_w + x) * 4] = 0.0f;
                         data[(y * simulation_w + x) * 4 + 1] = 0.0f;
                         data[(y * simulation_w + x) * 4 + 2] = 0.0f;
+                        data[(y * simulation_w + x) * 4 + 3] = 0.0f;
                     }
                 for( int i = 0 ; i < 500 ; i++ )                    // Initialize it with multiscale data
                 {
@@ -665,7 +672,20 @@ namespace TA3D
                 for( int y = 0 ; y < simulation_h ; y++ )
                     for( int x = 0 ; x < simulation_w ; x++ )
                         data[(y * simulation_w + x) * 4 + 1] -= sum;
-                water_sim = gfx->make_texture_RGBA32F(256,256,data,false);
+                for (int y = 0 ; y < simulation_h ; ++y)
+                    for (int x = 0 ; x < simulation_w ; ++x)
+                        data[(y * simulation_w + x) * 4 + 3] = data[(y * simulation_w + x) * 4 + 1];
+                water_sim = gfx->make_texture_RGBA32F(256,256,data,FILTER_NONE,false);
+                delete[] data;
+
+                //  Let's create the height map texture used to render progressive water effects using water depth
+                int h_w = Math::Min( map->bloc_w_db, gfx->max_texture_size() );
+                int h_h = Math::Min( map->bloc_h_db, gfx->max_texture_size() );
+                data = new float[ h_w * h_h ];
+                for(int y = 0 ; y < h_h ; y++)
+                    for(int x = 0 ; x < h_w ; x++)
+                        data[y * h_w + x] = (map->sealvl - map->get_h(x * map->bloc_w_db / h_w, y * map->bloc_h_db / h_h)) / 255.0f;
+                height_tex = gfx->make_texture_A16F( h_w, h_h, data, FILTER_LINEAR, true );
                 delete[] data;
 			}
 

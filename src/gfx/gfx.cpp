@@ -705,6 +705,13 @@ namespace TA3D
         print_right( font, x, y, z, text , s );
     }
 
+    int GFX::max_texture_size()
+    {
+        int max_tex_size;
+        glGetIntegerv(GL_MAX_TEXTURE_SIZE,&max_tex_size);
+        return max_tex_size;
+    }
+
     GLuint GFX::make_texture(BITMAP *bmp, byte filter_type, bool clamp )
     {
         MutexLocker locker(pMutex);
@@ -777,7 +784,140 @@ namespace TA3D
         return gl_tex;
     }
 
-    GLuint GFX::make_texture_RGBA32F( int w, int h, float *data, bool clamp )
+    GLuint GFX::make_texture_A32F( int w, int h, float *data, byte filter_type, bool clamp )
+    {
+        MutexLocker locker(pMutex);
+
+        glPushAttrib( GL_ALL_ATTRIB_BITS );
+
+        allegro_gl_set_texture_format(GL_ALPHA32F_ARB);
+
+        allegro_gl_use_mipmapping(false);
+
+        GLuint gl_tex = create_texture(w,h,FILTER_NONE,clamp);
+
+        allegro_gl_use_mipmapping(true);
+        glBindTexture(GL_TEXTURE_2D, gl_tex);
+
+        glMatrixMode(GL_TEXTURE);
+        glLoadIdentity();
+        glMatrixMode(GL_MODELVIEW);
+
+        if (clamp )
+        {
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE );
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE );
+        }
+        else
+        {
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT );
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT );
+        }
+
+        switch(filter_type)
+        {
+            case FILTER_NONE:
+                glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+                glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+                break;
+            case FILTER_LINEAR:
+                glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
+                glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
+                break;
+            case FILTER_BILINEAR:
+                glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
+                glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR_MIPMAP_NEAREST);
+                break;
+            case FILTER_TRILINEAR:
+                glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
+                glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR_MIPMAP_LINEAR);
+                break;
+        }
+
+        glTexImage2D( GL_TEXTURE_2D,
+                         0,
+                         GL_ALPHA32F_ARB,
+                         w,
+                         h,
+                         0,
+                         GL_ALPHA,
+                         GL_FLOAT,
+                         data );
+
+        allegro_gl_set_texture_format(GL_RGB8);
+
+        glPopAttrib();
+
+        return gl_tex;
+    }
+
+    GLuint GFX::make_texture_A16F( int w, int h, float *data, byte filter_type, bool clamp )
+    {
+        MutexLocker locker(pMutex);
+
+        glPushAttrib( GL_ALL_ATTRIB_BITS );
+
+        allegro_gl_set_texture_format(GL_ALPHA16F_ARB);
+
+        allegro_gl_use_mipmapping(false);
+
+        GLuint gl_tex = create_texture(w,h,FILTER_NONE,clamp);
+
+        allegro_gl_use_mipmapping(true);
+        glBindTexture(GL_TEXTURE_2D, gl_tex);
+
+        glMatrixMode(GL_TEXTURE);
+        glLoadIdentity();
+        glMatrixMode(GL_MODELVIEW);
+
+        if (clamp )
+        {
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE );
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE );
+        }
+        else
+        {
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT );
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT );
+        }
+
+        switch(filter_type)
+        {
+            case FILTER_NONE:
+                glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+                glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+                break;
+            case FILTER_LINEAR:
+                glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
+                glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
+                break;
+            case FILTER_BILINEAR:
+                glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
+                glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR_MIPMAP_NEAREST);
+                break;
+            case FILTER_TRILINEAR:
+                glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
+                glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR_MIPMAP_LINEAR);
+                break;
+        }
+
+        glTexImage2D( GL_TEXTURE_2D,
+                         0,
+                         GL_ALPHA16F_ARB,
+                         w,
+                         h,
+                         0,
+                         GL_ALPHA,
+                         GL_FLOAT,
+                         data );
+
+        allegro_gl_set_texture_format(GL_RGB8);
+
+        glPopAttrib();
+
+        return gl_tex;
+    }
+    GLuint GFX::make_texture_RGBA32F( int w, int h, float *data, byte filter_type, bool clamp )
     {
         MutexLocker locker(pMutex);
 
@@ -807,8 +947,25 @@ namespace TA3D
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT );
         }
 
-        glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
-        glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+        switch(filter_type)
+        {
+            case FILTER_NONE:
+                glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+                glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+                break;
+            case FILTER_LINEAR:
+                glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
+                glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
+                break;
+            case FILTER_BILINEAR:
+                glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
+                glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR_MIPMAP_NEAREST);
+                break;
+            case FILTER_TRILINEAR:
+                glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
+                glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR_MIPMAP_LINEAR);
+                break;
+        }
 
         glTexImage2D( GL_TEXTURE_2D,
                          0,
@@ -827,7 +984,74 @@ namespace TA3D
         return gl_tex;
     }
 
-    GLuint GFX::make_texture_RGB32F( int w, int h, float *data, bool clamp )
+    GLuint GFX::make_texture_RGBA16F( int w, int h, float *data, byte filter_type, bool clamp )
+    {
+        MutexLocker locker(pMutex);
+
+        glPushAttrib( GL_ALL_ATTRIB_BITS );
+
+        allegro_gl_set_texture_format(GL_RGBA16F_ARB);
+
+        allegro_gl_use_mipmapping(false);
+
+        GLuint gl_tex = create_texture(w,h,FILTER_NONE,clamp);
+
+        allegro_gl_use_mipmapping(true);
+        glBindTexture(GL_TEXTURE_2D, gl_tex);
+
+        glMatrixMode(GL_TEXTURE);
+        glLoadIdentity();
+        glMatrixMode(GL_MODELVIEW);
+
+        if (clamp )
+        {
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE );
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE );
+        }
+        else
+        {
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT );
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT );
+        }
+
+        switch(filter_type)
+        {
+            case FILTER_NONE:
+                glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+                glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+                break;
+            case FILTER_LINEAR:
+                glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
+                glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
+                break;
+            case FILTER_BILINEAR:
+                glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
+                glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR_MIPMAP_NEAREST);
+                break;
+            case FILTER_TRILINEAR:
+                glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
+                glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR_MIPMAP_LINEAR);
+                break;
+        }
+
+        glTexImage2D( GL_TEXTURE_2D,
+                         0,
+                         GL_RGBA16F_ARB,
+                         w,
+                         h,
+                         0,
+                         GL_RGBA,
+                         GL_FLOAT,
+                         data );
+
+        allegro_gl_set_texture_format(GL_RGB8);
+
+        glPopAttrib();
+
+        return gl_tex;
+    }
+
+    GLuint GFX::make_texture_RGB32F( int w, int h, float *data, byte filter_type, bool clamp )
     {
         MutexLocker locker(pMutex);
 
@@ -857,12 +1081,96 @@ namespace TA3D
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT );
         }
 
-        glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
-        glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+        switch(filter_type)
+        {
+            case FILTER_NONE:
+                glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+                glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+                break;
+            case FILTER_LINEAR:
+                glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
+                glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
+                break;
+            case FILTER_BILINEAR:
+                glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
+                glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR_MIPMAP_NEAREST);
+                break;
+            case FILTER_TRILINEAR:
+                glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
+                glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR_MIPMAP_LINEAR);
+                break;
+        }
 
         glTexImage2D( GL_TEXTURE_2D,
                          0,
                          GL_RGB32F_ARB,
+                         w,
+                         h,
+                         0,
+                         GL_RGB,
+                         GL_FLOAT,
+                         data );
+
+        allegro_gl_set_texture_format(GL_RGB8);
+
+        glPopAttrib();
+
+        return gl_tex;
+    }
+
+    GLuint GFX::make_texture_RGB16F( int w, int h, float *data, byte filter_type, bool clamp )
+    {
+        MutexLocker locker(pMutex);
+
+        glPushAttrib( GL_ALL_ATTRIB_BITS );
+
+        allegro_gl_set_texture_format(GL_RGB16F_ARB);
+
+        allegro_gl_use_mipmapping(false);
+
+        GLuint gl_tex = create_texture(w,h,FILTER_NONE,clamp);
+
+        allegro_gl_use_mipmapping(true);
+        glBindTexture(GL_TEXTURE_2D, gl_tex);
+
+        glMatrixMode(GL_TEXTURE);
+        glLoadIdentity();
+        glMatrixMode(GL_MODELVIEW);
+
+        if (clamp )
+        {
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE );
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE );
+        }
+        else
+        {
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT );
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT );
+        }
+
+        switch(filter_type)
+        {
+            case FILTER_NONE:
+                glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+                glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+                break;
+            case FILTER_LINEAR:
+                glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
+                glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
+                break;
+            case FILTER_BILINEAR:
+                glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
+                glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR_MIPMAP_NEAREST);
+                break;
+            case FILTER_TRILINEAR:
+                glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
+                glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR_MIPMAP_LINEAR);
+                break;
+        }
+
+        glTexImage2D( GL_TEXTURE_2D,
+                         0,
+                         GL_RGB16F_ARB,
                          w,
                          h,
                          0,
@@ -883,6 +1191,38 @@ namespace TA3D
         clear( tmp );
         GLuint tex = make_texture( tmp, filter_type, clamp );
         destroy_bitmap( tmp );
+        return tex;
+    }
+
+    GLuint GFX::create_texture_RGB32F(int w, int h, byte filter_type, bool clamp )
+    {
+        float *tmp = new float[w*h*3];
+        GLuint tex = this->make_texture_RGB32F(w, h, tmp, filter_type, clamp);
+        delete[] tmp;
+        return tex;
+    }
+
+    GLuint GFX::create_texture_RGBA32F(int w, int h, byte filter_type, bool clamp )
+    {
+        float *tmp = new float[w*h*4];
+        GLuint tex = this->make_texture_RGBA32F(w, h, tmp, filter_type, clamp);
+        delete[] tmp;
+        return tex;
+    }
+
+    GLuint GFX::create_texture_RGB16F(int w, int h, byte filter_type, bool clamp )
+    {
+        float *tmp = new float[w*h*3];
+        GLuint tex = this->make_texture_RGB16F(w, h, tmp, filter_type, clamp);
+        delete[] tmp;
+        return tex;
+    }
+
+    GLuint GFX::create_texture_RGBA16F(int w, int h, byte filter_type, bool clamp )
+    {
+        float *tmp = new float[w*h*4];
+        GLuint tex = this->make_texture_RGBA16F(w, h, tmp, filter_type, clamp);
+        delete[] tmp;
         return tex;
     }
 

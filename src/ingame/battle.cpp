@@ -1861,6 +1861,7 @@ namespace TA3D
                     glViewport(0,0,256,256);
 
                     glDisable(GL_DEPTH_TEST);
+                    glDisable(GL_LIGHTING);
 
                     glMatrixMode (GL_PROJECTION);
                     glLoadIdentity ();
@@ -1877,10 +1878,18 @@ namespace TA3D
                                 // Simulate water
                     for(float real_time = 0.0f ; real_time < time_to_simulate ; real_time += time_step)
                     {
+                        bool refresh = false;
+                        if (msec_timer - last_water_refresh >= 100000)
+                        {
+                            last_water_refresh = msec_timer;
+                            refresh = true;
+                        }
                         float dt_step = Math::Min( time_to_simulate - real_time, time_step );
                         water_simulator_shader.on();
                         water_simulator_shader.setvar1i("sim",0);
                         water_simulator_shader.setvar1f("fluid",100.0f * dt_step);
+                        water_simulator_shader.setvar1f("time_factor", expf(-0.001f * dt_step));
+                        water_simulator_shader.setvar1f("t", refresh ? 1.0f : 0.0f);
 
                         glBegin( GL_QUADS );
                             glTexCoord2i( 0, 0 ); glVertex2i( -1, -1 );
@@ -1940,13 +1949,8 @@ namespace TA3D
                     glEnable(GL_TEXTURE_2D);
                     glBindTexture(GL_TEXTURE_2D,map->lava_map);
 
-                    glActiveTextureARB(GL_TEXTURE1_ARB);
-                    glEnable(GL_TEXTURE_2D);
-                    glBindTexture(GL_TEXTURE_2D,water_sim2);
-
                     water_simulator_shader4.on();
                     water_simulator_shader4.setvar1i("lava",0);
-                    water_simulator_shader4.setvar1i("map",1);
                     water_simulator_shader4.setvar1f("t",t);
                     water_simulator_shader4.setvar2f("factor",water_obj->w / map->map_w, water_obj->w / map->map_h);
 
@@ -2040,13 +2044,26 @@ namespace TA3D
                     glBindTexture(GL_TEXTURE_2D,water_color);
                     glEnable(GL_TEXTURE_2D);
 
+                    glActiveTextureARB(GL_TEXTURE5_ARB);
+                    glBindTexture(GL_TEXTURE_2D,height_tex);
+                    glEnable(GL_TEXTURE_2D);
+
+                    glActiveTextureARB(GL_TEXTURE6_ARB);
+                    glBindTexture(GL_TEXTURE_2D,water_sim2);
+                    glEnable(GL_TEXTURE_2D);
+
                     water_simulator_reflec.on();
                     water_simulator_reflec.setvar1i("sky",0);
                     water_simulator_reflec.setvar1i("rtex",1);
                     water_simulator_reflec.setvar1i("bump",2);
                     water_simulator_reflec.setvar1i("view",3);
                     water_simulator_reflec.setvar1i("water_color",4);
+                    water_simulator_reflec.setvar1i("height_map",5);
+                    water_simulator_reflec.setvar1i("normal_map",6);
                     water_simulator_reflec.setvar2f("coef", (float)SCREEN_W / wx, (float)SCREEN_H / wy);
+                    water_simulator_reflec.setvar1f("cam_h_factor", 1.0f / cam.rpos.y);
+                    water_simulator_reflec.setvar2f("factor",water_obj->w / map->map_w, water_obj->w / map->map_h);
+                    water_simulator_reflec.setvar1f("t", t);
 
                     glColor4ub(0xFF,0xFF,0xFF,0xFF);
                     glDisable(GL_DEPTH_TEST);
@@ -3652,11 +3669,6 @@ namespace TA3D
             water_simulator_shader3.destroy();
             water_simulator_shader4.destroy();
             water_simulator_reflec.destroy();
-            gfx->destroy_texture(water_color);
-            gfx->destroy_texture(first_pass);
-            gfx->destroy_texture(second_pass);
-            gfx->destroy_texture(reflectex);
-            gfx->destroy_texture(transtex);
         }
 
         gfx->destroy_texture(freecam_on);
@@ -3668,6 +3680,12 @@ namespace TA3D
         gfx->destroy_texture(circle_texture);
         gfx->destroy_texture(water_sim);
         gfx->destroy_texture(water_sim2);
+        gfx->destroy_texture(water_color);
+        gfx->destroy_texture(first_pass);
+        gfx->destroy_texture(second_pass);
+        gfx->destroy_texture(reflectex);
+        gfx->destroy_texture(transtex);
+        gfx->destroy_texture(height_tex);
 
         LOG_INFO("Total Models: " << model_manager.nb_models);
         LOG_INFO("Total Units: " << unit_manager.nb_unit);
