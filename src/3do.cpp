@@ -1016,6 +1016,8 @@ namespace TA3D
                 bool mtex_needed = false;
                 dtex = e + 1;
                 String cache_filename = filename ? String( filename ) + format("-%s-%d.bin", !name.empty() ? name.c_str() : "none", player_color_map[e] ) : String( "" );
+                cache_filename = cache_filename.findAndReplace("/","S");
+                cache_filename = cache_filename.findAndReplace("\\","S");
 
                 if (TA3D::model_manager.loading_all())      // We want to convert textures on-the-fly in order to speed loading
                 {
@@ -3982,6 +3984,8 @@ namespace TA3D
             if (TA3D::model_manager.loading_all())      // We want to convert textures on-the-fly in order to speed loading
             {
                 String cache_filename = filename ? String( filename ) + format("-%s-%d.bin", !name.empty() ? name.c_str() : "none", i ) : String( "" );
+                cache_filename = cache_filename.findAndReplace("/","S");
+                cache_filename = cache_filename.findAndReplace("\\","S");
 
                 surface.gltex[i] = 0;
                 if (!gfx->is_texture_in_cache(cache_filename))
