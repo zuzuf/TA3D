@@ -777,6 +777,105 @@ namespace TA3D
         return gl_tex;
     }
 
+    GLuint GFX::make_texture_RGBA32F( int w, int h, float *data, bool clamp )
+    {
+        MutexLocker locker(pMutex);
+
+        glPushAttrib( GL_ALL_ATTRIB_BITS );
+
+        allegro_gl_set_texture_format(GL_RGBA32F_ARB);
+
+        allegro_gl_use_mipmapping(false);
+
+        GLuint gl_tex = create_texture(w,h,FILTER_NONE,clamp);
+
+        allegro_gl_use_mipmapping(true);
+        glBindTexture(GL_TEXTURE_2D, gl_tex);
+
+        glMatrixMode(GL_TEXTURE);
+        glLoadIdentity();
+        glMatrixMode(GL_MODELVIEW);
+
+        if (clamp )
+        {
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE );
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE );
+        }
+        else
+        {
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT );
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT );
+        }
+
+        glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+
+        glTexImage2D( GL_TEXTURE_2D,
+                         0,
+                         GL_RGBA32F_ARB,
+                         w,
+                         h,
+                         0,
+                         GL_RGBA,
+                         GL_FLOAT,
+                         data );
+
+        allegro_gl_set_texture_format(GL_RGB8);
+
+        glPopAttrib();
+
+        return gl_tex;
+    }
+
+    GLuint GFX::make_texture_RGB32F( int w, int h, float *data, bool clamp )
+    {
+        MutexLocker locker(pMutex);
+
+        glPushAttrib( GL_ALL_ATTRIB_BITS );
+
+        allegro_gl_set_texture_format(GL_RGB32F_ARB);
+
+        allegro_gl_use_mipmapping(false);
+
+        GLuint gl_tex = create_texture(w,h,FILTER_NONE,clamp);
+
+        allegro_gl_use_mipmapping(true);
+        glBindTexture(GL_TEXTURE_2D, gl_tex);
+
+        glMatrixMode(GL_TEXTURE);
+        glLoadIdentity();
+        glMatrixMode(GL_MODELVIEW);
+
+        if (clamp )
+        {
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE );
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE );
+        }
+        else
+        {
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT );
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT );
+        }
+
+        glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+
+        glTexImage2D( GL_TEXTURE_2D,
+                         0,
+                         GL_RGB32F_ARB,
+                         w,
+                         h,
+                         0,
+                         GL_RGB,
+                         GL_FLOAT,
+                         data );
+
+        allegro_gl_set_texture_format(GL_RGB8);
+
+        glPopAttrib();
+
+        return gl_tex;
+    }
 
     GLuint GFX::create_texture(int w, int h, byte filter_type, bool clamp )
     {

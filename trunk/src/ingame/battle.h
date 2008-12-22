@@ -137,7 +137,7 @@ namespace TA3D
 		void preflightFreeCamera();
 
 		/*!
-		** \brief 
+		** \brief
 		*/
 		void preflightFindCursor();
 
@@ -182,7 +182,7 @@ namespace TA3D
 			//!
             String toStr;
         };
-        
+
     private:
 		//! The area
         AREA pArea;
@@ -226,6 +226,10 @@ namespace TA3D
         GLuint	circle_texture;
 		//!
         GLuint	water;
+		//!
+        GLuint	water_sim;
+		//!
+        GLuint	water_sim2;
 		//@}
 
 		//! \name Camera
@@ -392,6 +396,16 @@ namespace TA3D
 		Shader water_pass1_low;
 		//!
 		Shader water_pass2;
+		//!
+		Shader water_simulator_shader;
+		//!
+		Shader water_simulator_shader2;
+		//!
+		Shader water_simulator_shader3;
+		//!
+		Shader water_simulator_shader4;
+		//!
+		Shader water_simulator_reflec;
 		//!
 		GLuint transtex;
 		//!
