@@ -604,6 +604,15 @@ namespace TA3D
 			else
 				water_shader_reflec.load("shaders/water_reflec.frag","shaders/water.vert");
 
+			if (5 == lp_CONFIG->water_quality)
+			{
+				water_simulator_shader.load("shaders/water_simulator.frag","shaders/water_simulator.vert");     // Compute variation speed
+				water_simulator_shader2.load("shaders/water_simulator2.frag","shaders/water_simulator.vert");   // Compute variation
+				water_simulator_shader3.load("shaders/water_simulator3.frag","shaders/water_simulator.vert");   // Copy to a normal RGB filtered texture (faster than filtering an RGB32F texture)
+				water_simulator_shader4.load("shaders/water_simulator4.frag","shaders/water_simulator4.vert");  // Compute normals on screen
+                water_simulator_reflec.load("shaders/water_sim_reflec.frag","shaders/water.vert");
+			}
+
 			allegro_gl_use_alpha_channel(true);
 
 			allegro_gl_set_texture_format(GL_RGBA8);
@@ -620,6 +629,45 @@ namespace TA3D
 			second_pass = gfx->make_texture( tmp, FILTER_LINEAR);
 			// Water transparency/reflection
 			water_color = gfx->make_texture( tmp, FILTER_LINEAR);
+			// Water simulation data
+			if (lp_CONFIG->water_quality >= 5)
+			{
+                const int simulation_w = 256;
+                const int simulation_h = 256;
+                allegro_gl_set_texture_format(GL_RGBA8);
+			    water_sim2 = gfx->create_texture(simulation_w, simulation_h, FILTER_TRILINEAR, false);
+                float *data = new float[ simulation_w * simulation_h * 4 ];
+                for (int y = 0 ; y < simulation_h ; ++y)
+                    for (int x = 0 ; x < simulation_w ; ++x)
+                    {
+                        data[(y * simulation_w + x) * 4] = 0.0f;
+                        data[(y * simulation_w + x) * 4 + 1] = 0.0f;
+                        data[(y * simulation_w + x) * 4 + 2] = 0.0f;
+                    }
+                for( int i = 0 ; i < 500 ; i++ )                    // Initialize it with multiscale data
+                {
+                    for( int y = 0 ; y < simulation_h ; y++ )
+                        for( int x = 0 ; x < simulation_w ; x++ )
+                            data[(y * simulation_w + x) * 4 + 1] += ((rand() % 2000) * 0.000001f - 0.001f) * 5.0f * sqrtf(500 - i);
+                    for( int y = 0 ; y < simulation_h ; y++ )
+                        for( int x = 0 ; x < simulation_w ; x++ )
+                            data[(y * simulation_w + x) * 4 + 1] = (data[(y * simulation_w + x) * 4 + 1]
+                                                                  + data[(y * simulation_w + ((x+1) % simulation_w)) * 4 + 1]
+                                                                  + data[(((y+1) % simulation_h) * simulation_w + x) * 4 + 1]
+                                                                  + data[(y * simulation_w + ((x + simulation_w - 1) % simulation_w)) * 4 + 1]
+                                                                  + data[(((y + simulation_w - 1) % simulation_h) * simulation_w + x) * 4 + 1]) * 0.2f;
+                }
+                float sum = 0.0f;
+                for( int y = 0 ; y < simulation_h ; y++ )
+                    for( int x = 0 ; x < simulation_w ; x++ )
+                        sum += data[(y * simulation_w + x) * 4 + 1];
+                sum /= simulation_h * simulation_w;
+                for( int y = 0 ; y < simulation_h ; y++ )
+                    for( int x = 0 ; x < simulation_w ; x++ )
+                        data[(y * simulation_w + x) * 4 + 1] -= sum;
+                water_sim = gfx->make_texture_RGBA32F(256,256,data,false);
+                delete[] data;
+			}
 
 			for (int z = 0 ; z < 512 ; ++z) // The wave base model
 			{
