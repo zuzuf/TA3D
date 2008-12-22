@@ -407,6 +407,8 @@ namespace TA3D
 		//!
 		Shader water_simulator_reflec;
 		//!
+		GLuint height_tex;
+		//!
 		GLuint transtex;
 		//!
 		GLuint reflectex;
@@ -418,6 +420,8 @@ namespace TA3D
 		GLuint water_color;
 		//!
 		GLuint water_FBO;
+		//!
+		uint32 last_water_refresh;
 		//@}
 
 		//! \name Interface

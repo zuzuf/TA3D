@@ -257,8 +257,19 @@ namespace TA3D
         void	disable_texturing();
         void	enable_texturing();
         bool    is_texture_in_cache( String file );
-        GLuint  make_texture_RGB32F( int w, int h, float *data, bool clamp = false );
-        GLuint  make_texture_RGBA32F( int w, int h, float *data, bool clamp = false );
+        int     max_texture_size();
+
+        GLuint  make_texture_RGB32F( int w, int h, float *data, byte filter_type = FILTER_NONE, bool clamp = false );
+        GLuint  make_texture_RGBA32F( int w, int h, float *data, byte filter_type = FILTER_NONE, bool clamp = false );
+        GLuint  make_texture_RGB16F( int w, int h, float *data, byte filter_type = FILTER_NONE, bool clamp = false );
+        GLuint  make_texture_RGBA16F( int w, int h, float *data, byte filter_type = FILTER_NONE, bool clamp = false );
+        GLuint  make_texture_A16F( int w, int h, float *data, byte filter_type = FILTER_NONE, bool clamp = false );
+        GLuint  make_texture_A32F( int w, int h, float *data, byte filter_type = FILTER_NONE, bool clamp = false );
+
+        GLuint	create_texture_RGB32F( int w, int h, byte filter_type = FILTER_NONE, bool clamp = true );
+        GLuint	create_texture_RGBA32F( int w, int h, byte filter_type = FILTER_NONE, bool clamp = true );
+        GLuint	create_texture_RGB16F( int w, int h, byte filter_type = FILTER_NONE, bool clamp = true );
+        GLuint	create_texture_RGBA16F( int w, int h, byte filter_type = FILTER_NONE, bool clamp = true );
 
         GLuint make_texture_from_screen(byte filter_type = FILTER_NONE);
 

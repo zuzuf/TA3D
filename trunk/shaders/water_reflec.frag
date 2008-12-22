@@ -1,5 +1,4 @@
 varying vec2 t_coord;
-varying vec2 map_coord;
 uniform sampler2D sky;
 uniform sampler2D rtex;
 uniform sampler2D bump;
