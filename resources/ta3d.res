@@ -1,3 +1,7 @@
+[ultimate]
+{
+    FRENCH=ultime;
+}
 [Disable GLSL]
 {
     FRENCH=Désactiver GLSL;

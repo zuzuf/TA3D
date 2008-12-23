@@ -269,7 +269,7 @@
 	{
 		name=water_quality;
 		type=MENU;
-		entry=,low,normal,high,ultra high,extreme;
+		entry=,low,normal,high,ultra high,extreme,ultimate;
 		x1=600;
 		y1=435;
 		x2=730;
