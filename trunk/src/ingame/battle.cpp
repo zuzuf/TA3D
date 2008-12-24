@@ -1872,8 +1872,8 @@ namespace TA3D
                     glEnable(GL_TEXTURE_2D);
                     glBindTexture(GL_TEXTURE_2D,water_sim);
 
-                    const float time_step = 0.01f;
-                    const float time_to_simulate = dt * units.apparent_timefactor;
+                    const float time_step = 0.02f;
+                    const float time_to_simulate = Math::Min( dt * units.apparent_timefactor, time_step * 3.0f );
 
                                 // Simulate water
                     for(float real_time = 0.0f ; real_time < time_to_simulate ; real_time += time_step)
@@ -1887,8 +1887,7 @@ namespace TA3D
                         float dt_step = Math::Min( time_to_simulate - real_time, time_step );
                         water_simulator_shader.on();
                         water_simulator_shader.setvar1i("sim",0);
-                        water_simulator_shader.setvar1f("fluid",100.0f * dt_step);
-                        water_simulator_shader.setvar1f("time_factor", expf(-0.001f * dt_step));
+                        water_simulator_shader.setvar1f("fluid",50.0f * dt_step);
                         water_simulator_shader.setvar1f("t", refresh ? 1.0f : 0.0f);
 
                         glBegin( GL_QUADS );
