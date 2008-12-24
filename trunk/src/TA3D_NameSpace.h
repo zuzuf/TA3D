@@ -109,6 +109,8 @@ namespace TA3D
 
         bool    disable_GLSL;               // Disable GLSL shaders (they won't even be loaded so if there is a problem with them it won't crash)
 
+        bool    right_click_interface;      // Right click interface ?
+
 		// Variables used to communicate with all the code
 		bool	quickrestart;				// Should be false, set to true when need to restart to enable options/parameters
 		bool	quickstart;					// Tell to speed up the starting process
@@ -120,6 +122,8 @@ namespace TA3D
 
 		TA3DCONFIG()
 		{
+		    right_click_interface = false;
+
             disable_GLSL = false;           // By default we want shaders
 
     		underwater_bright = false;

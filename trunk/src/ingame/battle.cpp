@@ -364,7 +364,8 @@ namespace TA3D
                 }
             }
 
-            if (mouse_x < 128.0f && mouse_y < 128.0f && mouse_x >= 0.0f && mouse_y >= 0.0f && mouse_b == 2)
+            if (mouse_x < 128.0f && mouse_y < 128.0f && mouse_x >= 0.0f && mouse_y >= 0.0f
+            && ((mouse_b == 2 && !lp_CONFIG->right_click_interface) || (mouse_b == 1 && lp_CONFIG->right_click_interface)))
             {
                 cam.rpos.x = (mouse_x - 64) * map->map_w / 128.0f * 252.0f / map->mini_w;
                 cam.rpos.z = (mouse_y - 64) * map->map_h / 128.0f * 252.0f / map->mini_h;
@@ -562,6 +563,12 @@ namespace TA3D
 
             bool order_removed = false;
 
+            bool right_click_activation = lp_CONFIG->right_click_interface && mouse_b != 2 && omb3 == 2 && current_order == SIGNAL_ORDER_NONE;
+            bool left_click_activation = mouse_b != 1 && omb3 == 1 && ((!lp_CONFIG->right_click_interface && current_order == SIGNAL_ORDER_NONE)
+                                        || current_order != SIGNAL_ORDER_NONE);
+            bool click_activation = right_click_activation || left_click_activation;
+            bool click_activated = false;
+
             if (selected && (!IsOnGUI || IsOnMinimap))
             {
                 bool builders = false;
@@ -674,7 +681,7 @@ namespace TA3D
                         case SIGNAL_ORDER_REPAIR:	cursor_type=CURSOR_REPAIR;	break;
                     }
 
-                    if (cursor_type!=CURSOR_DEFAULT && mouse_b!=1 && omb3 ==1 && !IsOnGUI && TA3D_SHIFT_PRESSED) // Remove commands from queue
+                    if (cursor_type!=CURSOR_DEFAULT && click_activation && !IsOnGUI && TA3D_SHIFT_PRESSED) // Remove commands from queue
                     {
                         Vector3D target(cursorOnMap(cam, *map));
                         target.x = ((int)(target.x) + map->map_w_d) >> 3;
@@ -685,7 +692,7 @@ namespace TA3D
                         order_removed = units.remove_order(players.local_human_id, target);
                     }
 
-                    if (mouse_b!=1 && omb3==1 && !order_removed)
+                    if (click_activation && !order_removed)
                     {
                         order_removed = true;
                         if (cursor_type==CURSOR_ATTACK)
@@ -712,6 +719,7 @@ namespace TA3D
                                 units.unit[i].unlock();
                             }
                             if (!TA3D_SHIFT_PRESSED)	current_order=SIGNAL_ORDER_NONE;
+                            click_activated = true;
                         }
                         else if (cursor_type == CURSOR_CAPTURE && can_be_captured)
                         {
@@ -732,6 +740,7 @@ namespace TA3D
 							}
 							if (!TA3D_SHIFT_PRESSED)
 								current_order = SIGNAL_ORDER_NONE;
+                            click_activated = true;
 						}
 						else
 						{
@@ -757,6 +766,7 @@ namespace TA3D
 								}
 								if (!TA3D_SHIFT_PRESSED)
 									current_order=SIGNAL_ORDER_NONE;
+                                click_activated = true;
 							}
 							else
 							{
@@ -780,6 +790,7 @@ namespace TA3D
 									}
 									if (!TA3D_SHIFT_PRESSED)
 										current_order=SIGNAL_ORDER_NONE;
+                                    click_activated = true;
 								}
 								else
 								{
@@ -788,6 +799,7 @@ namespace TA3D
 										units.give_order_guard(players.local_human_id,pointing,!TA3D_SHIFT_PRESSED);
 										if (!TA3D_SHIFT_PRESSED)
 											current_order=SIGNAL_ORDER_NONE;
+                                        click_activated = true;
 									}
 									else
 									{
@@ -796,6 +808,7 @@ namespace TA3D
 											units.give_order_load(players.local_human_id,pointing,!TA3D_SHIFT_PRESSED);
 											if (!TA3D_SHIFT_PRESSED)
 												current_order=SIGNAL_ORDER_NONE;
+                                            click_activated = true;
 										}
 									}
 								}
@@ -821,7 +834,7 @@ namespace TA3D
                             case SIGNAL_ORDER_REPAIR:	cursor_type=CURSOR_REPAIR;	break;
                         }
 
-                        if (mouse_b != 1 && omb3 == 1)
+                        if (left_click_activation)
                         {
                             if (cursor_type == CURSOR_ATTACK)
                             {
@@ -849,13 +862,14 @@ namespace TA3D
                                 }
                                 if (!TA3D_SHIFT_PRESSED)
                                     current_order = SIGNAL_ORDER_NONE;
+                                click_activated = true;
                             }
                         }
                     }
                 }
             }
 
-            if (cursor_type!=CURSOR_DEFAULT && mouse_b!=1 && omb3 ==1 && !IsOnGUI && TA3D_SHIFT_PRESSED && !order_removed) // Remove commands from queue
+            if (cursor_type!=CURSOR_DEFAULT && click_activation && !IsOnGUI && TA3D_SHIFT_PRESSED && !order_removed) // Remove commands from queue
             {
                 Vector3D target(cursorOnMap(cam, *map));
                 target.x = ((int)(target.x) + map->map_w_d) >> 3;
@@ -866,7 +880,7 @@ namespace TA3D
                 order_removed = units.remove_order(players.local_human_id, target);
             }
 
-            if (cursor_type==CURSOR_REVIVE && CURSOR_REVIVE != CURSOR_RECLAIM && !rope_selection && mouse_b != 1 && omb3 == 1 && ( !IsOnGUI || IsOnMinimap) && !order_removed) // The cursor orders to resurrect a wreckage
+            if (cursor_type==CURSOR_REVIVE && CURSOR_REVIVE != CURSOR_RECLAIM && !rope_selection && click_activation && ( !IsOnGUI || IsOnMinimap) && !order_removed) // The cursor orders to resurrect a wreckage
             {
                 Vector3D cur_pos(cursorOnMap(cam, *map, IsOnMinimap));
                 int idx = -units.last_on - 2;
@@ -891,10 +905,11 @@ namespace TA3D
                 }
                 if (!TA3D_SHIFT_PRESSED)
                     current_order=SIGNAL_ORDER_NONE;
+                click_activated = true;
             }
 
             // The cursor orders to reclaim something
-            if (cursor_type == CURSOR_RECLAIM && !rope_selection && mouse_b != 1 && omb3 == 1 && (!IsOnGUI || IsOnMinimap) && !order_removed)
+            if (cursor_type == CURSOR_RECLAIM && !rope_selection && click_activation && (!IsOnGUI || IsOnMinimap) && !order_removed)
             {
                 Vector3D cur_pos(cursorOnMap(cam, *map, IsOnMinimap));
                 int idx = -units.last_on - 2;
@@ -919,28 +934,32 @@ namespace TA3D
                 }
                 if (!TA3D_SHIFT_PRESSED)
                     current_order=SIGNAL_ORDER_NONE;
+                click_activated = true;
             }
 
-            if (cursor_type==CURSOR_UNLOAD && !rope_selection && mouse_b != 1 && omb3 == 1 && ( !IsOnGUI || IsOnMinimap) && !order_removed)	// The cursor orders to unload units
+            if (cursor_type==CURSOR_UNLOAD && !rope_selection && click_activation && ( !IsOnGUI || IsOnMinimap) && !order_removed)	// The cursor orders to unload units
             {
                 units.give_order_unload(players.local_human_id, cursorOnMap(cam, *map, IsOnMinimap), !TA3D_SHIFT_PRESSED);
                 if (!TA3D_SHIFT_PRESSED)
                     current_order=SIGNAL_ORDER_NONE;
+                click_activated = true;
             }
 
-            if (cursor_type==CURSOR_MOVE && !rope_selection && mouse_b != 1 && omb3 == 1 && ( !IsOnGUI || IsOnMinimap) && !order_removed) 	// The cursor orders to move
+            if (cursor_type==CURSOR_MOVE && !rope_selection && click_activation && ( !IsOnGUI || IsOnMinimap) && !order_removed) 	// The cursor orders to move
             {
                 units.give_order_move(players.local_human_id, cursorOnMap(cam, *map, IsOnMinimap), !TA3D_SHIFT_PRESSED);
                 if (!TA3D_SHIFT_PRESSED)
                     current_order=SIGNAL_ORDER_NONE;
+                click_activated = true;
             }
 
             // The cursor orders to patrol
-            if (cursor_type == CURSOR_PATROL && !rope_selection && mouse_b != 1 && omb3 == 1 && ( !IsOnGUI || IsOnMinimap) && !order_removed)
+            if (cursor_type == CURSOR_PATROL && !rope_selection && click_activation && ( !IsOnGUI || IsOnMinimap) && !order_removed)
             {
                 units.give_order_patrol(players.local_human_id, cursorOnMap(cam, *map, IsOnMinimap), !TA3D_SHIFT_PRESSED);
                 if (!TA3D_SHIFT_PRESSED)
                     current_order = SIGNAL_ORDER_NONE;
+                click_activated = true;
             }
 
             // The cursor orders to build something
@@ -987,6 +1006,7 @@ namespace TA3D
                 }
                 else
                     sound_manager->playTDFSound("NOTOKTOBUILD", "sound" , NULL);
+                click_activated = true;
             }
             else
             {
@@ -995,6 +1015,7 @@ namespace TA3D
                     Vector3D target(cursorOnMap(cam, *map));
                     pMouseRectSelection.x1 = ((int)(target.x) + map->map_w_d) >> 3;
                     pMouseRectSelection.y1 = ((int)(target.z) + map->map_h_d) >> 3;
+                    click_activated = true;
                 }
             }
 
@@ -1011,7 +1032,8 @@ namespace TA3D
 
             if (!IsOnGUI)
             {
-                if (mouse_b == 2 && omb3 != 2) // Right mouse button cancels/deselects
+                if ((mouse_b == 2 && omb3 != 2 && !lp_CONFIG->right_click_interface)
+                || (!click_activated && mouse_b == 1 && omb3 != 1 && current_order == SIGNAL_ORDER_NONE && lp_CONFIG->right_click_interface)) // Secondary mouse button cancels/deselects
                 {
                     if (current_order != SIGNAL_ORDER_NONE && current_order != SIGNAL_ORDER_MOVE)
                         current_order = SIGNAL_ORDER_NONE;
@@ -3309,6 +3331,13 @@ namespace TA3D
                         glReadPixels(0,0,SCREEN_W,SCREEN_H,GL_DEPTH_COMPONENT,GL_INT,bmp->line[0]);
                         save_bitmap( (TA3D::Paths::Screenshots + "z.tga").c_str(),bmp,NULL);
                         destroy_bitmap(bmp);
+                    }
+                    else if ((params[0] == "enable" || params[0] == "disable") && params.size() > 1)
+                    {
+                        if (params[1] == "right_click_interface")
+                            lp_CONFIG->right_click_interface = params[0] == "enable";
+                        else if (params[1] == "left_click_interface")
+                            lp_CONFIG->right_click_interface = params[0] == "disable";
                     }
                     else if (params.size() == 2 && params[0] == "video" && params[1] == "shoot") video_shoot ^= true;		// Capture video
                     else if (params[0] == "shoot") shoot = true;					// Prend une capture d'écran
