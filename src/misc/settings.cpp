@@ -48,14 +48,14 @@ namespace Settings
             << "\n"
             << "[TA3D]\n"
             << "{\n"
-            << "                FPS Limit = " << TA3D::VARS::lp_CONFIG->fps_limit << "; // -1 means `unlimited`\n"
+            << "                FPS Limit = " << TA3D::VARS::lp_CONFIG->fps_limit << "; // <= 0 means `unlimited`\n"
             << "                 Shadow R = " << TA3D::VARS::lp_CONFIG->shadow_r << ";\n"
             << "              Time Factor = " << TA3D::VARS::lp_CONFIG->timefactor << ";\n"
             << "           Shadow Quality = " << TA3D::VARS::lp_CONFIG->shadow_quality << "; // 0..100\n"
             << "           Priority Level = " << TA3D::VARS::lp_CONFIG->priority_level << "; // 0, 1, 2\n"
             << "                     FSAA = " << TA3D::VARS::lp_CONFIG->fsaa << ";\n"
             << "                 Language = " << TA3D::VARS::lp_CONFIG->Lang << ";\n"
-            << "            Water Quality = " << TA3D::VARS::lp_CONFIG->water_quality << "; // 0..4\n"
+            << "            Water Quality = " << TA3D::VARS::lp_CONFIG->water_quality << "; // 0..5\n"
             << "             Screen Width = " << TA3D::VARS::lp_CONFIG->screen_width << ";\n"
             << "            Screen Height = " << TA3D::VARS::lp_CONFIG->screen_height << ";\n"
             << "              Color Depth = " << (int)TA3D::VARS::lp_CONFIG->color_depth << ";\n"
@@ -86,6 +86,7 @@ namespace Settings
             << "  Use Texture Compression = " << TA3D::VARS::lp_CONFIG->use_texture_compression << ";\n"
             << "        Underwater Bright = " << TA3D::VARS::lp_CONFIG->underwater_bright << ";\n"
             << "             Disable GLSL = " << TA3D::VARS::lp_CONFIG->disable_GLSL << ";\n"
+            << "    Right Click Interface = " << TA3D::VARS::lp_CONFIG->right_click_interface << ";\n"
             << "}\n";
 
         if (Paths::Files::SaveToFile(TA3D::Paths::ConfigFile, s))
@@ -179,6 +180,8 @@ namespace Settings
         TA3D::VARS::lp_CONFIG->underwater_bright = cfgFile.pullAsBool("TA3D.Underwater Bright", false);
 
         TA3D::VARS::lp_CONFIG->disable_GLSL = cfgFile.pullAsBool("TA3D.Disable GLSL", false);
+
+        TA3D::VARS::lp_CONFIG->right_click_interface = cfgFile.pullAsBool("TA3D.Right Click Interface", false);
 
         LANG = lp_CONFIG->Lang;
         // Apply settings for the current language

@@ -8,7 +8,7 @@
 	height=720;
 	draw borders=false;
 	show title=false;
-	number of objects=25;
+	number of objects=27;
 	hidden=true;
 	lock=true;
 	color=0x00000000;			// Fully transparent so we can see the AREA background
@@ -281,6 +281,25 @@
 		type=OPTIONC;
 		x1=690;
 		y1=465;
+		value=0;
+		size=1.5;
+	}
+	[object25]		// Option "right_click_interface"
+	{
+		name=t_right_click_interface;
+		type=TEXT;
+		caption=Right click interface;
+		x1=0;
+		y1=500;
+		value=0xFFFFFFFF;
+		size=2;
+	}
+	[object26]		// Option "right_click_interface"
+	{
+		name=right_click_interface;
+		type=OPTIONC;
+		x1=690;
+		y1=500;
 		value=0;
 		size=1.5;
 	}

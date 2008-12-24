@@ -1,3 +1,7 @@
+[Right click interface]
+{
+    FRENCH=Interface clic droit;
+}
 [ultimate]
 {
     FRENCH=ultime;
