@@ -36,6 +36,7 @@ void main()
 
         vec3 light = vec3( 0.57735026918962576451, -0.57735026918962576451, -0.57735026918962576451 );
 		vec4 scr_col = texture2D( rtex, scr_pos );
+		vec4 lava_col = vec4(1.0,0.2,0.2,1.0) * scr_col;
 		vec3 water_col = 2.0 * texture2DLod( water_color, t_coord, 0.0 ).rgb;
 		vec4 procedural_texture = clamp( clamp( -dot(N, light) + light.y, -1.0, 1.0)  * vec4( 3.0, 3.0, 5.0, 1.0 ) + vec4( pow( clamp( dot( R, light ), 0.0, 1.0 ), 20.0 ) ), -1.0, 1.0 );
 
@@ -50,7 +51,6 @@ void main()
 
 		gl_FragColor = mix(ref,scr_col,trans) + procedural_texture;
 
-		vec4 lava_col = vec4(1.0,0.2,0.2,1.0) * texture2D(rtex,scr_pos);
 		gl_FragColor = mix(gl_FragColor,lava_col,bump_vec.w * 2.0 - 1.0);
 	}
 }
