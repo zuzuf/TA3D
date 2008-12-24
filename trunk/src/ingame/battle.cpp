@@ -3345,7 +3345,7 @@ namespace TA3D
                     else if (params[0] == "exit") done=true;					// Quitte le programme
                     else if (params[0] == "wireframe") 	lp_CONFIG->wireframe^=true;
                     else if (params[0] == "priority" && params.size() == 2) lp_CONFIG->priority_level = atoi( params[1].c_str());
-                    else if ( params.size() == 3 && params[0] == "water" && params[1] == "quality") lp_CONFIG->water_quality = atoi( params[2].c_str())%5;
+                    else if ( params.size() == 3 && params[0] == "water" && params[1] == "quality") lp_CONFIG->water_quality = atoi( params[2].c_str())%6;
                     else if (params[0] == "shadow" && params.size() == 3) {
                         if (params[1] == "quality")
                             lp_CONFIG->shadow_quality = atoi( params[2].c_str());
