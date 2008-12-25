@@ -126,10 +126,12 @@ MM_reloadPage(true);
                 <a href="install.html">Installation<br>
                 <a href="console.html">Console commands<br>
                 <a href="guide.html">Game Guide<br>
+                <a href="multiplayer.html">Multiplayer<br>				
                 <a href="faq.html">F.A.Q.<br><br>
    	<br>
                 <a href="mods.html">Using Mods <br>
                 <a href="modders.html">Modders support<br>
+				<a href="3dmeditor.html">3dMeditor<br>
 	</strong>
 	</td>
             </tr>
@@ -138,17 +140,32 @@ MM_reloadPage(true);
           <td width="560" valign="top" class="gdfgfgd">
 <div align="center"><H1>Game Guide</H1>
 
-<p align="justify" class="style1"> After launching the game you`ll get in to the Main menu screen. Here are you can choose one of three buttons:<br>
+<p align="justify" class="style1"> After launching the game you`ll get in to the Main menu screen. Here are you can choose one of four buttons:<br><br>
+<font class="style2">Solo</font> - start a campaign/scirmish battle<br>
 <font class="style2">Options</font> - configure TA3D options<br>
-<font class="style2">Play</font> - start a scirmish battle<br>
+<font class="style2">Multiplayer</font> - start/join multiplayer game<br>
 <font class="style2">Quit</font> - quit TA3D<br>
-<font class="style2">Campaign</font> - start TA campaign<br>
 <br><center><img src="res/scr1.jpg"></center>
 <br>
 
-<p align="left" class="style2">Play</p>
-<p align="justify" class="style1">Now you see a game setup screen. Here you can specify your race (ARM/CORE by default), Add enemy AI players, change players color and start resources. <br>Also you can chose a different AI script to play TA3D with different rules. See more about scripts below.<br>
-Also you can change Fog_of_War type.<br><br>
+<p align="left" class="style2">Solo</p>
+<p align="justify" class="style1">You see a game selection menu.<br>
+
+<br><b>Campaign</b> - Play TA campaign.
+<br><b>Scirmish</b> - Play a scirmish battle. 
+<br><b>Load</b> - Load a previosly saved game.
+<br><center><img src="res/solo1.jpg"></center>
+
+<p align="left" class="style2">Campaign</p>
+<p align="justify" class="style1">Here you can chose side and mission to play<br>
+Also you can adjust difficulty level.<br><br>
+<br><center><img src="res/solo2.jpg"></center>
+<br><center><img src="res/solo3.jpg"></center>
+
+
+<p align="left" class="style2">Scirmish</p>
+<p align="justify" class="style1">If you chose scirmish - you`ll see a game setup screen. Here you can specify your race (ARM/CORE by default), Add enemy AI players, change players color, teams and start resources. <br>Also you can chose a different AI script to play TA3D with different rules. See more about scripts below.<br>
+You can also adjust Fog_of_War type.<br><br>
 <br><b>off</b> - Fog_of_War is off, all map and units visible.
 <br><b>grey</b> - Fog_of_War is on, all map visible, enemy units - no. 
 <br><b>black</b> - Fog_of_War is on, all map and enemy units not visible.
@@ -170,9 +187,9 @@ Also you can change Fog_of_War type.<br><br>
 
 <p align="left" class="style2">Options</p>
 <p align="left" class="style1">
-<center><img src="res/scr2.jpg"></center>
+<center><img src="res/opt1.jpg"></center>
 <br><center><img src="res/scr22.jpg"></center>
-<br><center><img src="res/scr21.jpg"></center>
+<br><center><img src="res/opt2.jpg"></center>
 
 <p align="justify" class="style1">
 <br><b>fps_limit</b> - sets max fps
@@ -194,15 +211,6 @@ Also you can change Fog_of_War type.<br><br>
 <br><b>antialiasing</b> - sets full screen anti-aliasing
 <br><br>In the Audio setup part of menu you can arrange audio files, which will be playing during the game. To add new audio simply copy your mp3 (ogg, wma) music in ta3d/music/ folder.
 <br>Also you`ll find other settings conserning camera preferences and some others.
-<br>
-
-<p align="left" class="style2">Campaign</p>
-<p align="justify" class="style1">Now you see a Campaign setup screen. Here you can chose the mission you want to play from the list (number of mission depends on resources from TA you have in ta3d/ folder). <br>
-<br><center><img src="res/scr8.jpg"></center>
-
-<br>After chosing mission you`ll see breefing screen with objectives, where you can chose difficult of upcoming battle.
-<br>
-<br><center><img src="res/scr81.jpg"></center>
 <br>
 
 <p align="left" class="style2">Getting started...</p>
@@ -237,7 +245,7 @@ Also you can change Fog_of_War type.<br><br>
 <br>At the left bottom of the screen an icon allow you to (de)activate the free camera mode. In free camera mode use arrows to move, with your mouse wheel you can go forward/backward and if you hold down the middle button you can look around.<br>
 <br><br><br>
 
-<p align="left" class="hovermenu">In-game interface</p>
+<p align="left" class="style2">In-game interface</p>
 <p align="left" class="style1">Here are the commands available: 
 <br><br>CTRL+0..9 to save unit selection 
 <br><br>ALT+0..9 to restore a saved selection 
@@ -247,7 +255,8 @@ Also you can change Fog_of_War type.<br><br>
 <br><br>")" ("`" or "&#178;" under windows) show/hide the console 
 <br><br>F1 shows info screen about selected unit
 <br><br>F12 take a screen shot 
-<br><br> Shortcuts: <br>
+
+<br><br> <b>Shortcuts: </b><br>
 "A" - attack <br>
 "R" -  repair<br>
 "M" - move  <br>
@@ -267,7 +276,7 @@ Also you can change Fog_of_War type.<br><br>
     <tr>
       <td valign="top"><table width="100%" border="0" cellpadding="0" cellspacing="0" bgcolor="#89929C">
           <tr>
-            <td width="773" height="19" valign="middle" class="border"><div align="center" class="style10"><a href="http://ta3d.sourceforge.net">-=TA3D=-</a></div></td>
+            <td width="773" height="19" valign="middle" class="border"><div align="center" class="style10"><a href="http://ta3d.org">-=TA3D=-</a></div></td>
           </tr>
       </table></td>
     </tr>

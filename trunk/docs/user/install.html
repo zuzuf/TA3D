@@ -123,13 +123,15 @@ MM_reloadPage(true);
             <tr>
               <td height="198" valign="top"><strong><br>
                 <a href="index.html">Main</a><br>
-                <a href="install.html">Installation</a><br>
-                <a href="console.html">Console commands</a><br>
-                <a href="guide.html">Game Guide</a><br>
-                <a href="faq.html">F.A.Q.</a><br><br>
+                <a href="install.html">Installation<br>
+                <a href="console.html">Console commands<br>
+                <a href="guide.html">Game Guide<br>
+                <a href="multiplayer.html">Multiplayer<br>				
+                <a href="faq.html">F.A.Q.<br><br>
    	<br>
-                <a href="mods.html">Using Mods </a><br>
-                <a href="modders.html">Modders support</a><br>
+                <a href="mods.html">Using Mods <br>
+                <a href="modders.html">Modders support<br>
+				<a href="3dmeditor.html">3dMeditor<br>
 	</strong>
 	</td>
             </tr>
@@ -137,52 +139,60 @@ MM_reloadPage(true);
           </td>
           <td width="560" valign="top" class="gdfgfgd">
 <center><H1>Installation</H1></center>
-<p align="left" class="style2">Windows</p>
-<p align="justify" class="style1"> To install TA3D under Windows XP simply extract ta3d-0.4.2.exe into new folder (for example C:/ta3d/) and run install.bat with TA CD-ROM in your CD-Drive (It will copy all neccesary files into ta3d install dir).
+<p align="center"><font class="style2"><b>Windows</b></font></p>
+<p align="justify" class="style1"> To install TA3D under Windows XP simply extract ta3d-0.5.0.exe into new folder (for example C:/ta3d/), if you have the installer package just run it and follow instructions and run install.bat with TA CD-ROM in your CD-Drive (Ta3d will copy all neccesary files into ta3d install dir).
 <br><br>Or you can copy neccesary files into ta3d folder manually (see <b>Main</b> section of this help).
-<br><br>Run <font class="style1">ta3d.bat</font> to play TA3D. (quite impressive, isn`t it?)
-<br><br><font class="style2">Note:</font> If you experienced crashes try to reduce water quality to normal or low, that`s because water quality above normal using shaders v.2.0.
+<br><br>Run <font class="style1">ta3d.exe</font> to play TA3D. (quite impressive, isn`t it?)
+<br><br><font class="style2">Note:</font> If you experienced crashes try to reduce water quality to normal or low, that`s because water quality above normal using shaders v.2.0, or adjust other setting to low.
 </p>
 
-<p align="left" class="style2">Linux</p>
+<p align="center"><font class="style2"><b>Linux</b></font></p>
 
 <p align="left" class="style2">How to build it yourself</p>
 <p align="justify" class="style1">
-To build TA3D under Linux you`ll need Allegro, AllegroGL, FMODex 4 (at least 4.16.04) and zlib correctly installed and the source package of TA3D.
-<br>The GCC compiler with C++ support(g++). 
+To build TA3D under Linux you`ll need CMake 2.6, Allegro, AllegroGL 0.4.4 (TA3D specific version containing some fixes, available on our website), FMODex 4 and zlib correctly installed and the source package of TA3D.
+<br>The GCC compiler with C++ support(g++).
 
 <br><br>
 To compile TA3D type in a console: 
-<br># ./configure 
-<br># make 
+<br># cmake -DCMAKE_INSTALL_PREFIX=/usr ./
+<br># make
+<br># cpack -G the_package_generator_you_want_if_not_DEB_or_RPM
+<br>then you can install the package if required dependencies are ok, or just run "make install" as root
 
 <p align="justify" class="style1"> To install TA3D resource files run install-sh with TA CD-ROM in your CD-Drive (It will copy all neccesary files into ta3d install dir).
 
 <br>To run TA3D: 
-<br># ./ta3d 
+<br># ./ta3d or just click the icon installed in your desktop menu
 </p>
 
 <p align="left" class="style2">How to install a prebuilt package</p>
 <p align="justify" class="style1">
-Prebuilt packages are now available for Linux, both 32 and 64 bits packages. You shouldn't need any other package than the ones available on our website (it contains the required Allegro and AllegroGL versions and also the FMODex library). Just extract the package that best fit your system and start the install-sh script to install needed resources from TA CDs.<br>
+Prebuilt packages are now available for Linux, both 32 and 64 bits packages. We also have our own repositories for Ubuntu and Mandriva for both 32 and 64 bits OSes which contains the required dependencies (Allegro, AllegroGL, the FMODex library).<br>
+Ubuntu repositories are here:<br>
+<code style="border: solid; border-width: 1px; display: block; background-color: grey">
+# the stable releases<br>
+deb http://ta3d.darkstars.co.uk/apt/ stable main<br>
+# the development packages<br>
+deb http://ta3d.darkstars.co.uk/apt/ testing main<br>
+</code>
 <br>
-NB: if those packages don't work on your system (complains about something missing or incompatible) you can try to build it from the source which isn't included in those packages.<br>
+For Mandriva users, just click the following link:<br><a href="http://ta3d.darkstars.co.uk/urpmi/ta3d.urpmi-media">http://ta3d.darkstars.co.uk/urpmi/ta3d.urpmi-media</a><br>
+<br>
+NB: if those packages don't work on your system (complains about something missing or incompatible) you can try to build it from the source which is available from our SVN repository.<br>
 
 <br>To run TA3D: 
-<br># ./ta3d 
+<br># ta3d or just click the icon that should appear in your desktop menu
 </p>
 
      </td></tr>
       </table>
       </td>
     </tr>
-    
-    
-    
     <tr>
       <td valign="top"><table width="100%" border="0" cellpadding="0" cellspacing="0" bgcolor="#89929C">
           <tr>
-            <td width="773" height="19" valign="middle" class="border"><div align="center" class="style10"><a href="http://ta3d.sourceforge.net">-=TA3D=-</a></div></td>
+            <td width="773" height="19" valign="middle" class="border"><div align="center" class="style10"><a href="http://ta3d.org">-=TA3D=-</a></div></td>
           </tr>
       </table></td>
     </tr>

@@ -123,13 +123,15 @@ MM_reloadPage(true);
             <tr>
               <td height="198" valign="top"><strong><br>
                 <a href="index_fr.html">Accueil</a><br>
-                <a href="install_fr.html">Installation</a><br>
-                <a href="console_fr.html">Commandes de la Console</a><br>
-                <a href="guide_fr.html">Guide de Jeu</a><br>
-                <a href="faq_fr.html">F.A.Q.</a><br><br>
+                <a href="install_fr.html">Installation<br>
+                <a href="console_fr.html">Commandes de la Console<br>
+                <a href="guide_fr.html">Guide de Jeu<br>
+		<a href="multiplayer_fr.html">Multi-joueurs<br>
+                <a href="faq_fr.html">F.A.Q.<br><br>
    	<br>
-                <a href="mods_fr.html">Les Mods</a><br>
-                <a href="modders_fr.html">Pour les Moddeurs</a><br>
+                <a href="mods_fr.html">Les Mods<br>
+                <a href="modders_fr.html">Pour les Moddeurs<br>
+		<a href="3dmeditor_fr.html">3dMeditor<br>
 	</strong>
 	</td>
             </tr>
@@ -138,7 +140,7 @@ MM_reloadPage(true);
           <td width="560" valign="top" class="gdfgfgd">
 <center><H1>Installation</H1></center>
 <p align="left" class="style2">Windows</p>
-<p align="justify" class="style1"> Pour installer TA3D sous Windows XP lancez simplement ta3d-0-4-2.exe et décompresser son contenu dans un nouveau dossier (par exemple C:/ta3d/) puis lancez install.bat avec le CD-ROM de TA dans votre lecteur cdrom (Cela copiera totala1.hpi et totala2.hpi dans le dossier de TA3D).
+<p align="justify" class="style1"> Pour installer TA3D sous Windows XP lancez simplement ta3d-0-5-0.exe et décompresser son contenu dans un nouveau dossier (par exemple C:/ta3d/), si vous avez le programme d'installation, il vous suffit de le lancer et de suivre les instructions à l'écran, puis lancez install.bat avec le CD-ROM de TA dans votre lecteur cdrom (Cela copiera totala1.hpi et totala2.hpi dans le dossier de TA3D).
 <br><br>Vous pouvez aussi copier <font class="style2">totala1.hpi</font> et <font class="style2">totala2.hpi</font> à la main.
 <br><br>Lancez TA3D.exe pour lancer TA3D. (impressionant, hein?)
 <br><br><font class="style2">Note:</font> En cas de plantage essayez de réduire la qualité de l'eau, celle-ci utilise les shaders 2.0 à partir de "normal".
@@ -148,28 +150,39 @@ MM_reloadPage(true);
 
 <p align="left" class="style2">Comment compiler TA3D soi-même</p>
 <p align="justify" class="style1">
-Pour compiler TA3D sous Linux vous aurez besoin des librairies Allegro, AllegroGL, FMODex 4 (au moins 4.16.04) et zlib installées avec leurs fichiers de développement ainsi que le paquet source de TA3D.
+Pour compiler TA3D sous Linux vous aurez besoin de CMake 2.6 et des librairies Allegro, AllegroGL 0.4.4 (version incluant des correctifs maison, disponible sur notre site web), FMODex 4 et zlib installées avec leurs fichiers de développement ainsi que le paquet source de TA3D.
 <br>Il vous faut aussi le compilateur GCC avec le support du C++(g++). 
 
 <br><br>
 Pour compiler TA3D tapez dans une console: 
-<br># ./configure 
-<br># make 
+<br># cmake -DCMAKE_INSTALL_PREFIX=/usr ./
+<br># make
+<br># cpack -G le_generateur_de_paquet_que_vous_voulez_si_non_DEB_ou_RPM
+<br>après vous pouvez installer le paquet si les dépendances sont satisfaites, ou simplement lancer "make install" en root
 
 <p align="justify" class="style1"> Pour installer les fichiers ressources lancez install-sh avec le CD-ROM de TA dans votre lecteur cdrom (Cela copiera totala1.hpi et totala2.hpi dans le dossier de ta3d).
 
 <br>Pour lancer TA3D: 
-<br># ./ta3d 
+<br># ./ta3d ou cliquez simplement sur l'icône dans le menu de votre bureau
 </p>
 
 <p align="left" class="style2">Comment installer un paquet binaire</p>
 <p align="justify" class="style1">
-Des paquets binaires sont maintenant disponibles pour Linux, pour systèmes 32 et 64 bits. Vous ne devriez pas avoir besoin d'autres paquets que ceux disponibles sur notre site web (ils contiennent les versions requises d'Allegro et AllegroGL ainsi que la librairie FMODex). Décompactez simplement l'archive qui correspond le mieux à votre système et lancer le script install-sh pour installer les ressources requises depuis les cds de Total Annihilation.<br>
+Des paquets binaires sont maintenant disponibles pour Linux, pour systèmes 32 et 64 bits. Nous avons aussi nos propres dépôts pour Ubuntu et Mandriva (32 et 64 bits) qui contiennent les dépendances nécessaires (Allegro, AllegroGL, et FMODex). Les dépôts Ubuntu sont ici:<br>
+<code style="border: solid; border-width: 1px; display: block; background-color: grey">
+# the stable releases<br>
+deb http://ta3d.darkstars.co.uk/apt/ stable main<br>
+# the development packages<br>
+deb http://ta3d.darkstars.co.uk/apt/ testing main<br>
+</code>
+<br>
+Pour les utilisateurs de Mandriva, il suffit de cliquer ici:<br><a href="http://ta3d.darkstars.co.uk/urpmi/ta3d.urpmi-media">http://ta3d.darkstars.co.uk/urpmi/ta3d.urpmi-media</a><br>
+<br>Pour finir lancer le script install-sh pour installer les ressources requises depuis les cds de Total Annihilation.<br>
 <br>
 NB: si ces paquets ne fonctionnent pas sur votre système (erreurs à propos de quelque chose qui manque ou qui n'est pas compatible) vous pouvez essayer de compiler TA3D vous-même depuis les sources qui ne sont pas incluses dans les paquets binaires.
 
 <br>Pour lancer TA3D:
-<br># ./ta3d 
+<br># ta3d ou cliquez simplement sur l'icône dans le menu de votre bureau
 </p>
 
      </td></tr>
@@ -182,7 +195,7 @@ NB: si ces paquets ne fonctionnent pas sur votre système (erreurs à propos de 
     <tr>
       <td valign="top"><table width="100%" border="0" cellpadding="0" cellspacing="0" bgcolor="#89929C">
           <tr>
-            <td width="773" height="19" valign="middle" class="border"><div align="center" class="style10"><a href="http://ta3d.sourceforge.net">-=TA3D=-</a></div></td>
+            <td width="773" height="19" valign="middle" class="border"><div align="center" class="style10"><a href="http://ta3d.org">-=TA3D=-</a></div></td>
           </tr>
       </table></td>
     </tr>

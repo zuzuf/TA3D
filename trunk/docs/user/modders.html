@@ -126,10 +126,12 @@ MM_reloadPage(true);
                 <a href="install.html">Installation<br>
                 <a href="console.html">Console commands<br>
                 <a href="guide.html">Game Guide<br>
+                <a href="multiplayer.html">Multiplayer<br>				
                 <a href="faq.html">F.A.Q.<br><br>
    	<br>
                 <a href="mods.html">Using Mods <br>
                 <a href="modders.html">Modders support<br>
+				<a href="3dmeditor.html">3dMeditor<br>
 	</strong>
 	</td>
             </tr>
@@ -150,16 +152,11 @@ When loading, TA3D looks if there is a replacement model for TA resources (*.3dm
 
 If you want to make a model for the metal01 image in moonmetal.gaf you'll have to call it moonmetal-metal01.3dm for TA3D to load it instead of the gaf image. You can also use one model for more than one image. There are a feature in TA3D to load an alternate model when reading a file, like a link, the first byte of the file must be set to 0 then the name of the replacement model in the form: objects3d\model_name.3dm (it must be a 3dm!!). <br><br>
 
-2. <font class="style2"><b>3DMeditor main window</b></font><br>
-<br><img src="res/3dm.jpg"><br>
-3dmeditor included in every package of TA3D.<br>
-It allows texturing, adding transparency, scaling, converting models format, and periodically animation of 3D models (yeah, this allows to have animated map features, like spinning dishes of radar towers and animated trees).<br><br>
-
-3. <font class="style2"><b>Sky texturing</b></font><br>
+2. <font class="style2"><b>Sky texturing</b></font><br>
 <br>There are several sky types in TA3D. You can change texture, speed, texturing style in ta3d/sky/ *.tdf files.<br>
 Just open with any text editor.<br><br>
 
-4. <font class="style2"><b>New GAF support</b></font><br>
+3. <font class="style2"><b>New GAF support</b></font><br>
 <br>
 TA3D have support for 24/32bits GAFs (alpha channel is saved only if needed). <br>
 It's an extension of the GAF format specific to TA3D, you cannot read those HD GAFs with TA.<br>
@@ -174,12 +171,12 @@ It's an extension of the GAF format specific to TA3D, you cannot read those HD G
 </font>
 <br><br>
 
-Currently there is only one tool to make those GAFs: <font class="style2">hpiview</font> <br>
+Currently there is only one tool to make those GAFs: <font class="style2">hpiview</font> which has been directly integrated in ta3d<br>
 You have to use it that way: <br><br>
 
-<font class="style2">./hpiview create_gaf gaf_descriptor</font><br>
+<font class="style2">./ta3d create_gaf gaf_descriptor</font><br>
 or<br>
-<font class="style2">hpiview.exe create_gaf gaf_descriptor</font><br><br>
+<font class="style2">ta3d.exe create_gaf gaf_descriptor</font><br><br>
 
 where gaf_descriptor is the name of the text file that describes the file you want to create. It's made like this:<br>
 Code:<br><br>
@@ -207,7 +204,7 @@ Code:<br><br>
 
 If you want an example of this syntax you can extract the content of a GAF (any GAF type is supported) with hpiview:<br><br>
 
-<font class="style2">./hpiview extract_gaf anims\\cursors.gaf</font><br><br>
+<font class="style2">./ta3d extract_gaf anims\\cursors.gaf</font><br><br>
 
 this command will extract all the frames within anims\cursors.gaf (note the \\, if you don't want to type \\ you can type "anims\cursors.gaf"), and it'll create a anims\cursors.gaf.txt file with the above syntax so that you can modify the frames and then put them back into GAF format (but it'll be 24/32bits GAF not TA 8bits GAF).<br><br>
       </td></tr>
@@ -220,7 +217,7 @@ this command will extract all the frames within anims\cursors.gaf (note the \\, 
     <tr>
       <td valign="top"><table width="100%" border="0" cellpadding="0" cellspacing="0" bgcolor="#89929C">
           <tr>
-            <td width="773" height="19" valign="middle" class="border"><div align="center" class="style10"><a href="http://ta3d.sourceforge.net">-=TA3D=-</a></div></td>
+            <td width="773" height="19" valign="middle" class="border"><div align="center" class="style10"><a href="http://ta3d.orgh">-=TA3D=-</a></div></td>
           </tr>
       </table></td>
     </tr>
