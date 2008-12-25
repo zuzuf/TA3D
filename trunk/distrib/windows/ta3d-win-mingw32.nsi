@@ -2,7 +2,7 @@
 ;--------------------------------
 
 !ifndef VERSION
-  !define VERSION '0.5.1-alpha'
+  !define VERSION '0.5.0'
 !endif
 
 !define PRODUCT_NAME "TA3D" 
@@ -16,7 +16,7 @@
 !define PRODUCT_ID "{ac266b10-4916-11dd-ae16-0800200c9a66}"
 
 
-!define TA3D_BIN "ta3d-bin.exe"
+!define TA3D_BIN "ta3d.exe"
 
 
 ;--------------------------------
@@ -109,7 +109,7 @@ Caption "TA3D ${VERSION} Setup"
 !define MUI_FINISHPAGE_LINK "Visit the TA3D site for the latest news, FAQs and support"
 !define MUI_FINISHPAGE_LINK_LOCATION "${PRODUCT_WEB_SITE}"
 
-!define MUI_FINISHPAGE_RUN "$INSTDIR\ta3d.bat"
+!define MUI_FINISHPAGE_RUN "$INSTDIR\ta3d.exe"
 !define MUI_FINISHPAGE_NOREBOOTSUPPORT
 
 !define MUI_FINISHPAGE_SHOWREADME
@@ -158,13 +158,13 @@ ${MementoSection} "TA3D Core Files [mingw] (required)" SecCore
   SetOverwrite on
   File ..\..\3dmeditor.exe
   File ..\..\${TA3D_BIN}
-  File ..\..\ta3d.bat
   File ..\..\install.bat
   File ..\..\AUTHORS
   File ..\..\COPYING
   File ..\..\src\tools\win32\mingw32\libs\fmodex.dll
   File ..\..\src\tools\win32\mingw32\libs\alleg42.dll
   File ..\..\src\tools\win32\mingw32\libs\nl.dll
+  File ..\..\src\tools\win32\mingw32\libs\zlib1.dll
 
 ${MementoSectionEnd}
 
@@ -225,20 +225,6 @@ ${MementoSection} "Resources (required)" SecResources
 
   SetOutPath "$INSTDIR\Sky\"
   File /r ..\..\sky\*.tdf
-
-  SetOutPath "$INSTDIR\Pictures\"
-  File /r ..\..\pictures\*.png
-  File /r ..\..\pictures\*.tga
-  File /r ..\..\pictures\*.ico
-  File /r ..\..\pictures\*.xcf
-  File /r ..\..\pictures\*.gif
-  File /r ..\..\pictures\*.jpg
-  SetOutPath "$INSTDIR\Pictures\Modern Skin\"
-  File /r "..\..\pictures\modern skin\*.png"
-  SetOutPath "$INSTDIR\Pictures\New GUI\"
-  File /r "..\..\pictures\new GUI\*.xcf"
-  File /r "..\..\pictures\new GUI\*.jpg"
-  File /r "..\..\pictures\new GUI\*.tga"
 
   SetOutPath "$INSTDIR\Objects3D\"
   File /r ..\..\objects3d\*.3dm
@@ -319,7 +305,7 @@ ${MementoSection} "Desktop Shortcut" SecDekstopShortcuts
   DetailPrint "Installing Desktop shortcut..."
   SetDetailsPrint listonly
   
-CreateShortCut "$DESKTOP\TA3D.lnk" "$INSTDIR\ta3d.bat"
+CreateShortCut "$DESKTOP\TA3D.lnk" "$INSTDIR\ta3d.exe"
 
 ${MementoSectionEnd}
 
@@ -334,7 +320,7 @@ ${MementoSection} "Menu Shortcuts" SecMenuShortcuts
   CreateDirectory "$SMPROGRAMS\TA3D"
   CreateDirectory "$SMPROGRAMS\TA3D\Documentation"
   SetOutPath "$INSTDIR\"
-  CreateShortCut "$SMPROGRAMS\TA3D\TA3D.lnk" "$INSTDIR\ta3d.bat"
+  CreateShortCut "$SMPROGRAMS\TA3D\TA3D.lnk" "$INSTDIR\ta3d.exe"
   CreateShortCut "$SMPROGRAMS\TA3D\3DMEditor.lnk" "$INSTDIR\3dmeditor.exe"
   CreateShortCut "$SMPROGRAMS\TA3D\Documentation\User Guide.lnk" "$INSTDIR\readme.html"
   CreateShortCut "$SMPROGRAMS\TA3D\Documentation\User Guide (Francais).lnk" "$INSTDIR\readme-fr.html"
