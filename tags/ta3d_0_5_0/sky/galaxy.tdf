@@ -1,0 +1,13 @@
+[sky]
+{
+	planet=lunar,metal;
+	map=;
+	fog R=0;
+	fog G=0;
+	fog B=0;
+	fog A=1;
+	texture name=gfx/sky/galaxy.jpg;
+	spherical=true;
+	full sphere=false;
+	rotation speed=0.8;
+}

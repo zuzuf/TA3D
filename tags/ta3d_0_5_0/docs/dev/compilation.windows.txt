@@ -1,0 +1,48 @@
+
+Compilation under Windows
+==========================
+
+
+1 - TortoiseSVN
+---------------
+
+Install TortoiseSVN via their WebSite :
+http://tortoisesvn.net/downloads
+
+
+2 - CMake
+---------
+
+Install CMake for Windows via their web site
+http://www.cmake.org
+
+
+3 - TA3D (via MinGW)
+--------------------
+
+Install MinGW, available on their web site :
+http://www.mingw.org/wiki/Getting+Started
+or directly on SourceForge :
+http://sourceforge.net/project/showfiles.php?group_id=2435
+You can use the Automated MinGW Installer
+Needed options: MinGW base tools, G++ compiler, MinGW make
+
+Make sure g++, make, and cmake can ba invoked via the command line.
+Otherwise check your env paths.
+
+There is still a workaround on Windows for the libraries HawkNL and Lua.
+They are not compiled by CMake (ticket http://trac.trac.org/ticket/60)
+
+Compile HawkNL :
+> cd trunk/src/hawknl/src
+> mingw32-make -f makefile.mingw
+
+Compile Lua :
+> cd trunk/src/lua
+> mingw32-make mingw
+
+Compila 3dmeditor and ta3d :
+> cmake -G "MinGW Makefiles" .
+> mingw32-make
+
+Notice: With MinGW Gcc >3.4.5, Allegro produces a lot of warnings 

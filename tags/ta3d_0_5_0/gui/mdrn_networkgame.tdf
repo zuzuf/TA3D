@@ -1,0 +1,167 @@
+[window]
+{
+    name=networkgame;
+	title=Network Game;
+	uformat=UTF8;
+	x=0;
+	y=0;
+	width=1280;
+	height=1024;
+	draw borders=false;
+	show title=false;
+	number of objects=13;
+	hidden=false;
+	lock=true;
+	color=0x00000000;			// Fully transparent so we can see the AREA background
+	background window=true;
+	fullscreen=true;			// Scale the window to fit the screen
+	screen width=1280;
+	screen height=1024;
+	[object0]		// Join
+	{
+		name=b_join;
+		type=BUTTON;
+		caption=Join;
+		x1=1040;
+		y1=960;
+		x2=1190;
+		y2=997;
+		size=2;
+	}
+	[object1]		// Cancel
+	{
+		name=b_cancel;
+		type=BUTTON;
+		caption=cancel;
+		x1=840;
+		y1=960;
+		x2=990;
+		y2=997;
+		size=2;
+	}
+	[object2]		// server list
+	{
+		name=server_list;
+		type=LIST;
+		x1=64;
+		y1=160;
+		x2=582;
+		y2=904;
+		entry=no server found;
+		no border=true;		// Don't draw the border since it's drawn on the background
+		size=1.8;
+	}
+	[object3]		// Host
+	{
+		name=b_host;
+		type=BUTTON;
+		caption=host a game;
+		x1=456;
+		y1=960;
+		x2=795;
+		y2=997;
+		on click=hosting.show, hosting.t_hostname.focus;
+		size=2;
+	}
+	[object4]
+	{
+		name=l_server_name;
+		type=TEXT;
+		x1=940;
+		y1=193;
+		caption=server name:;
+		value=0xFFFFFFFF;
+		size=2;
+		centered=true;
+	}
+	[object5]
+	{
+		name=server_name;
+		type=TEXT;
+		x1=940;
+		y1=259;
+		caption=no server selected;
+		value=0xFFFFFFFF;
+		size=2;
+		centered=true;
+	}
+	[object6]
+	{
+		name=l_host;
+		type=TEXT;
+		x1=940;
+		y1=370;
+		caption=host address:;
+		value=0xFFFFFFFF;
+		size=2;
+		centered=true;
+	}
+	[object7]
+	{
+		name=host;
+		type=TEXT;
+		x1=940;
+		y1=436;
+		caption=;
+		value=0xFFFFFFFF;
+		size=2;
+		centered=true;
+	}
+	[object8]
+	{
+		name=l_open_slots;
+		type=TEXT;
+		x1=940;
+		y1=547;
+		caption=slots available:;
+		value=0xFFFFFFFF;
+		size=2;
+		centered=true;
+	}
+	[object9]
+	{
+		name=open_slots;
+		type=TEXT;
+		x1=940;
+		y1=613;
+		caption=;
+		value=0xFFFFFFFF;
+		size=2;
+		centered=true;
+	}
+	[object10]
+	{
+		name=b_joinip;
+		type=BUTTON;
+		x1=791;
+		y1=80;
+		x2=1043;
+		y2=119;
+		caption=Join IP;
+		size=2;
+		on click=joinip.show, joinip.t_hostname.focus;
+	}
+	[object11]
+	{
+		name=b_refresh;
+		type=BUTTON;
+		x1=76;
+		y1=941;
+		x2=329;
+		y2=979;
+		caption=Refresh;
+		size=2;
+	}
+	[object12]
+	{
+		name=b_load;
+		type=BUTTON;
+		x1=791;
+		y1=11;
+		x2=1043;
+		y2=50;
+		caption=Load;
+		size=2;
+		on click=load_menu.show;
+	}
+}

@@ -1,0 +1,86 @@
+[window]
+{
+    name=main;
+	title=Main;
+	uformat=UTF8;
+	x=0;
+	y=0;
+	width=1280;
+	height=1024;
+	draw borders=false;
+	show title=false;
+	number of objects=6;
+	hidden=false;
+	lock=true;
+	color=0x00000000;			// Fully transparent so we can see the AREA background
+	background window=true;
+	fullscreen=true;			// Scale the window to fit the screen
+	screen width=1280;
+	screen height=1024;
+	[object0]		// Solo
+	{
+		name=b_solo;
+		type=BUTTON;
+		caption=Solo;
+		x1=341;
+		y1=734;
+		x2=491;
+		y2=772;
+		size=1.8;
+	}
+	[object1]		// Options
+	{
+		name=b_options;
+		type=BUTTON;
+		caption=Options;
+		x1=794;
+		y1=734;
+		x2=944;
+		y2=772;
+		size=1.8;
+	}
+	[object2]		// exit
+	{
+		name=b_exit;
+		type=BUTTON;
+		caption=Exit;
+		x1=794;
+		y1=808;
+		x2=944;
+		y2=846;
+		size=1.8;
+	}
+	[object3]		// multiplayer
+	{
+		name=b_multi;
+		type=BUTTON;
+		caption=Multiplayer;
+		x1=341;
+		y1=808;
+		x2=491;
+		y2=846;
+		size=1.8;
+	}
+	[object4]
+	{
+		name=t_version;
+		type=TEXT;
+		caption=TA3D;
+		x1=158;
+		y1=40;
+		centered=true;
+		value=0xFFFFFFFF;
+		size=1.8;
+	}
+	[object5]
+	{
+		name=t_mod;
+		type=TEXT;
+		caption=;
+		x1=270;
+		y1=980;
+		centered=true;
+		value=0xFFFFFFFF;
+		size=1.8;
+	}
+}
