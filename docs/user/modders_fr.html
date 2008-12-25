@@ -126,10 +126,12 @@ MM_reloadPage(true);
                 <a href="install_fr.html">Installation<br>
                 <a href="console_fr.html">Commandes de la Console<br>
                 <a href="guide_fr.html">Guide de Jeu<br>
+		<a href="multiplayer_fr.html">Multi-joueurs<br>
                 <a href="faq_fr.html">F.A.Q.<br><br>
    	<br>
                 <a href="mods_fr.html">Les Mods<br>
                 <a href="modders_fr.html">Pour les Moddeurs<br>
+		<a href="3dmeditor_fr.html">3dMeditor<br>
 	</strong>
 	</td>
             </tr>
@@ -137,6 +139,7 @@ MM_reloadPage(true);
           </td>
           <td width="560" valign="top" class="gdfgfgd">
 <div align="center"><H1>Pour les Moddeurs</H1>
+
 
 <p align="justify" class="style1">TA3D est fait pour être moddable. Voici les fonctionnalités de TA3D.<br><br>
 1. <font class="style2"><b>Changement de modèles 3D</b></font><br>
@@ -173,12 +176,12 @@ Les fichiers GAF 24/32bits peuvent être utilisés partout où le GAF normal est
 </font>
 <br><br>
 
-Actuellement il n'y a qu'un seul outils pour créer ces GAFs: <font class="style2">hpiview</font> <br>
+Actuellement il n'y a qu'un seul outils pour créer ces GAFs: <font class="style2">hpiview</font> qui a été intégré directement dans ta3d<br>
 Il s'utilise comme suit: <br><br>
 
-<font class="style2">./hpiview create_gaf gaf_descriptor</font><br>
+<font class="style2">./ta3D create_gaf gaf_descriptor</font><br>
 ou<br>
-<font class="style2">hpiview.exe create_gaf gaf_descriptor</font><br><br>
+<font class="style2">ta3d.exe create_gaf gaf_descriptor</font><br><br>
 
 où gaf_descriptor est le nom du fichier texte qui contient la description du fichier que vous voulez créer. Ce fichier est structuré comme ceci:<br>
 Code:<br><br>
@@ -206,7 +209,7 @@ Code:<br><br>
 
 Si vous voulez un exemple de la syntaxe à utiliser vous pouvez extraire un GAF existant (tout les GAF sont supportés) avec hpiview:<br><br>
 
-<font class="style2">./hpiview extract_gaf anims\\cursors.gaf</font><br><br>
+<font class="style2">./ta3d extract_gaf anims\\cursors.gaf</font><br><br>
 
 cette commande va extraire toutes les images contenues dans anims\cursors.gaf (remarquez le \\, si vous ne voulez pas taper \\ vous pouvez taper "anims\cursors.gaf"), et cela créera un fichier anims\cursors.gaf.txt avec la structure décrite ci-dessus vous permettant de modifier les images et de les remettre au format GAF (mais ce sera un GAF 24/32bits pas un GAF TA 8bits).<br><br>
       </td></tr>
@@ -219,7 +222,7 @@ cette commande va extraire toutes les images contenues dans anims\cursors.gaf (r
     <tr>
       <td valign="top"><table width="100%" border="0" cellpadding="0" cellspacing="0" bgcolor="#89929C">
           <tr>
-            <td width="773" height="19" valign="middle" class="border"><div align="center" class="style10"><a href="http://ta3d.sourceforge.net">-=TA3D=-</a></div></td>
+            <td width="773" height="19" valign="middle" class="border"><div align="center" class="style10"><a href="http://ta3d.org">-=TA3D=-</a></div></td>
           </tr>
       </table></td>
     </tr>
