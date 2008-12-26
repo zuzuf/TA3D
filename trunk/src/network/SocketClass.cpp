@@ -26,7 +26,7 @@ namespace TA3D
 
     String Socket::getError()
     {
-        NLint error = nlGetError();	
+        NLint error = nlGetError();
         if (error == NL_SYSTEM_ERROR)
             return String(nlGetSystemErrorStr(nlGetSystemError()));
         return String(nlGetErrorStr(nlGetError()));
@@ -96,7 +96,7 @@ namespace TA3D
             sockReport("making tcp server");
             stype = STYPE_TCP_SERVER;
         }
-        else 
+        else
         {
             if(transport == PROTOCOL_TCPIP)
             {
@@ -109,7 +109,7 @@ namespace TA3D
             sockReport("making udp receiver");
             stype = STYPE_UDP;
         }
-        else 
+        else
         {
             if(transport == PROTOCOL_UDP)
             {
@@ -335,15 +335,39 @@ namespace TA3D
         while( (v = nlWrite( fd, data, num )) == NL_INVALID )
         {
             sockError("Send: " +  getError());
-            if (nlGetError() == NL_CON_PENDING) // Don't close connection, it's not even opened yet !!
+            switch(nlGetError())
             {
+            case NL_CON_PENDING: // Don't close connection, it's not even opened yet !!
                 count++;
                 if( count < 1000 )
                 {
-                    rest(1);
+                    rest(10);
                     continue;
                 }
-            }
+                break;
+            case NL_BUFFER_SIZE:        // The buffer is not large enough to hold the packet. ==> split the packet if possible
+                if (num >= 2)
+                {
+                    int s1 = num / 2;
+                    v = Send(data, s1);
+                    if (v == -1 || v < s1)      // We didn't send everything, so stop there, higher level process should decide what to do here
+                        return v;
+                    int v2 = Send((const void*)(((const char*)data) + s1), num - s1); // Send the second part
+                    if (v2 == -1)               // Success ?
+                        return v;
+                    return v + v2;                      // We've sent v + v2
+                }
+                else
+                    LOG_ERROR( LOG_PREFIX_NET_SOCKET << "packet too big to fit in buffer, but too small to be split");
+                break;
+            case NL_NULL_POINTER:       // A NULL pointer was passed to the function.
+            case NL_INVALID_SOCKET:     // The socket is not valid.
+            case NL_CON_REFUSED:        // The pending connection on a non-blocking socket has been refused.
+            case NL_SYSTEM_ERROR:       // A system Socket error has ocurred. The system error can be retrieved by calling nlGetSystemError.
+            case NL_MESSAGE_END:
+            default:
+                break;
+            };
             Close();
             return -1;
         }

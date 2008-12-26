@@ -149,7 +149,7 @@ namespace TA3D
             obp+=TA3DSOCK_BUFFER_SIZE - obp - 1;
         }
         putByte('\0');
-    }	
+    }
 
     void TA3DSock::putFloat(float x)
     {
@@ -223,12 +223,21 @@ namespace TA3D
     {
         tcpmutex.lock();
 
-        int n = 0;
         int count = 0;
-        while( !n && count < 100 && isOpen() )
-        {
-            n = tcpsock.Send(outbuf,obp);
-            count++;
+        int bytes_left = obp;
+        char *buffer_cursor = outbuf;
+        while( bytes_left > 0 && count < 10000 && isOpen() )        // waits up to 10sec (real time syncing cannot be done with too slow connections
+        {                                                           // otherwise it's not real time
+            int n = tcpsock.Send(buffer_cursor, bytes_left);
+            if (n == -1)        // We got an error, impossible to continue
+                break;
+            bytes_left -= n;
+            if (bytes_left > 0)     // We've tried to send too much bytes to fit in buffer,
+            {                       // wait a bit before sending the rest, we cannot afford losing data
+                rest(1);
+                count++;
+                buffer_cursor += n;
+            }
         }
         obp = 0;
 
