@@ -66,7 +66,7 @@ namespace TA3D
             sock->takeFive(1000);
             if(pDead) break;
 
-            //ready for reading, absorb some bytes	
+            //ready for reading, absorb some bytes
             sock->pumpIn();
 
             //see if there is a packet ready to process
@@ -207,7 +207,7 @@ namespace TA3D
             sock->takeFive(1000);
             if(pDead) break;
 
-            //ready for reading, absorb some bytes	
+            //ready for reading, absorb some bytes
             sock->pumpIn();
 
             //see if there is a packet ready to process
@@ -306,7 +306,7 @@ namespace TA3D
             sock->takeFive(1000);
             if(pDead) break;
 
-            //ready for reading, absorb some bytes	
+            //ready for reading, absorb some bytes
             sock->pumpIn();
 
             msg = sock->makeMessage();
@@ -377,9 +377,9 @@ namespace TA3D
                 network->updateFileTransferInformation( filename + format("%d", sockid), real_length, pos );
 
                 int timer = msec_timer;
-                while( progress < pos - 10 * FILE_TRANSFER_BUFFER_SIZE && !pDead && msec_timer - timer < 5000 )
+                while( progress < pos - 10 * FILE_TRANSFER_BUFFER_SIZE && !pDead && msec_timer - timer < 60000 )
                     rest(0);
-                if (msec_timer - timer >= 5000)
+                if (msec_timer - timer >= 60000)
                 {
                     pDead = 1;
                     network->updateFileTransferInformation(filename + format("%d", sockid), 0, 0);
@@ -396,7 +396,7 @@ namespace TA3D
         }
 
         timer = msec_timer;
-        while (progress < pos - FILE_TRANSFER_BUFFER_SIZE && !pDead && msec_timer - timer < 5000)
+        while (progress < pos - FILE_TRANSFER_BUFFER_SIZE && !pDead && msec_timer - timer < 60000)
             rest(1);		// Wait for client to say ok
 
         LOG_INFO(LOG_PREFIX_NET_FILE << "Done.");
