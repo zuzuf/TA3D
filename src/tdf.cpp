@@ -1046,7 +1046,9 @@ namespace TA3D
 
                 if (feature[*i].BW_idx >= 0 && !feature[*i].weapon_counter) // Don't stop damaging things before the end!!
                 {
+                    pMutex.unlock();
                     int w_idx = weapons.add_weapon( feature[ *i ].BW_idx, -1);
+                    pMutex.lock();
                     if (w_idx >= 0)
                     {
                         weapons.weapon[w_idx].just_explode = true;
