@@ -39,13 +39,13 @@ namespace TA3D
     /**  methods for Network  *****/
     /******************************/
 
-    Network::Network() : 
+    Network::Network() :
         udp_socket(), udp_thread(),
         getfile_thread(), sendfile_thread(), transfer_progress(),
-        specialq(64,sizeof(struct chat)), 
-        chatq(64,sizeof(struct chat)), 
-        orderq(32,sizeof(struct order)), 
-        syncq(128,sizeof(struct sync)), 
+        specialq(64,sizeof(struct chat)),
+        chatq(64,sizeof(struct chat)),
+        orderq(32,sizeof(struct order)),
+        syncq(128,sizeof(struct sync)),
         eventq(32,sizeof(struct event)),
         broadcastq(), broadcastaddressq()
     {
@@ -59,6 +59,7 @@ namespace TA3D
         nlEnable( NL_LITTLE_ENDIAN_DATA );	// Little endian because most copies of TA3D will probably run on little endian hardware
         // so don't waste CPU cycles doing useless conversions
         nlSelectNetwork( NL_IP );		// We want IP networking
+        nlHint( NL_REUSE_ADDRESS, NL_TRUE );    // We don't want to wait a timeout when we close a server and want to create another
     }
 
 
