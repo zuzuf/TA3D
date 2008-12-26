@@ -1924,7 +1924,7 @@ void network_room(void)             // Let players create/join a game
                     String host_address = network_manager.getLastMessageAddress();
                     int nb_open = params[5].toInt32();
 
-                    if (version == TA3D_ENGINE_VERSION && mod == TA3D_CURRENT_MOD && nb_open != 0)
+                    if (version.substr(0, 3) == String(TA3D_ENGINE_VERSION).substr(0, 3) && version.size() == String(TA3D_ENGINE_VERSION).size() && mod == TA3D_CURRENT_MOD && nb_open != 0)
                     {
                         bool updated = false;
                         for (std::list< SERVER_DATA >::iterator server_i = servers.begin() ; server_i != servers.end() ; server_i++ )       // Update the list
