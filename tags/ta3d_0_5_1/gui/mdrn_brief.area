@@ -1,0 +1,9 @@
+[area]
+{
+	name=brief;
+	skin=gui/modern.skn;
+	windows=gui/mdrn_brief.tdf;
+	background=gfx/mdrn_brief.jpg;
+	width=1280;
+	height=1024;
+}

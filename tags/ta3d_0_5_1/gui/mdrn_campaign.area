@@ -1,0 +1,9 @@
+[area]
+{
+	name=campaign;
+	skin=gui/modern.skn;
+	windows=gui/mdrn_campaign.tdf;
+	background=gfx/mdrn_campaign.jpg;
+	width=1280;
+	height=1024;
+}

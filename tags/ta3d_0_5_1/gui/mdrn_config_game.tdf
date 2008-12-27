@@ -1,0 +1,306 @@
+[window]
+{
+	title=Game;
+	uformat=UTF8;
+	x=450;
+	y=166;
+	width=738;
+	height=720;
+	draw borders=false;
+	show title=false;
+	number of objects=27;
+	hidden=true;
+	lock=true;
+	color=0x00000000;			// Fully transparent so we can see the AREA background
+	background window=false;
+	fullscreen=true;			// Scale the window to fit the screen
+	screen width=1280;
+	screen height=1024;
+	[object0]		// Title "Game"
+	{
+		name=t_game;
+		type=TEXT;
+		caption=Game;
+		x1=369;
+		y1=0;
+		value=0xFFFFFFFF;
+		centered=true;
+		size=3;
+	}
+	[object1]		// Option "showfps"
+	{
+		name=t_showfps;
+		type=TEXT;
+		caption=show fps;
+		x1=0;
+		y1=50;
+		value=0xFFFFFFFF;
+		size=2;
+	}
+	[object2]		// Option "showfps"
+	{
+		name=showfps;
+		type=OPTIONC;
+		caption=;
+		x1=690;
+		y1=50;
+		value=0;
+		size=1.6;
+	}
+	[object3]		// Option "draw_console_loading"
+	{
+		name=t_draw_console_loading;
+		type=TEXT;
+		caption=draw console while loading;
+		x1=0;
+		y1=85;
+		value=0xFFFFFFFF;
+		size=2;
+	}
+	[object4]		// Option "draw_console_loading"
+	{
+		name=draw_console_loading;
+		type=OPTIONC;
+		caption=;
+		x1=690;
+		y1=85;
+		value=0;
+		size=1.6;
+	}
+	[object5]		// Option "LANG"
+	{
+		name=t_LANG;
+		type=TEXT;
+		caption=language;
+		x1=0;
+		y1=120;
+		value=0xFFFFFFFF;
+		size=2;
+	}
+	[object6]		// Option "LANG"
+	{
+		name=LANG;
+		type=MENU;
+		entry=,English,French,German,Spanish,Italian,Japanese;
+		x1=600;
+		y1=120;
+		x2=730;
+		y2=150;
+		value=0;
+		size=1.5;
+	}
+	[object7]		// Option "timefactor"
+	{
+		name=t_timefactor;
+		type=TEXT;
+		caption=game speed;
+		x1=0;
+		y1=155;
+		value=0xFFFFFFFF;
+		size=2;
+	}
+	[object8]		// Option "timefactor"
+	{
+		name=timefactor;
+		type=MENU;
+		entry=,1,2,3,4,5,6,7,8,9,10;
+		x1=600;
+		y1=155;
+		x2=730;
+		y2=185;
+		value=0;
+		size=1.5;
+	}
+	[object9]		// Option "mod"
+	{
+		name=t_mod;
+		type=TEXT;
+		caption=current mod;
+		x1=0;
+		y1=190;
+		value=0xFFFFFFFF;
+		size=2;
+	}
+	[object10]		// Option "mod"
+	{
+		name=mod;
+		type=MENU;
+		entry=,none;
+		x1=420;
+		y1=190;
+		x2=730;
+		y2=220;
+		value=0;
+		size=1.5;
+	}
+	[object11]		// Option "player_name"
+	{
+		name=t_player_name;
+		type=TEXT;
+		caption=player name;
+		x1=0;
+		y1=225;
+		value=0xFFFFFFFF;
+		size=2;
+	}
+	[object12]		// Option "player_name"
+	{
+		name=player_name;
+		type=TEXTBAR;
+		entry=player;
+		x1=420;
+		y1=225;
+		x2=730;
+		y2=285;
+		value=30;
+		size=1.8;
+	}
+	[object13]		// Option "camera_zoom"
+	{
+		name=t_camera_zoom;
+		type=TEXT;
+		caption=camera zoom;
+		x1=0;
+		y1=290;
+		value=0xFFFFFFFF;
+		size=2;
+	}
+	[object14]		// Option "camera zoom"
+	{
+		name=camera_zoom;
+		type=MENU;
+		entry=,Normal,Fixed Angle;
+		x1=600;
+		y1=290;
+		x2=730;
+		y2=320;
+		value=0;
+		size=1.5;
+	}
+	[object15]		// Option "camera_def_angle"
+	{
+		name=t_camera_def_angle;
+		type=TEXT;
+		caption=camera default angle;
+		x1=0;
+		y1=325;
+		value=0xFFFFFFFF;
+		size=2;
+	}
+	[object16]		// Option "camera_def_angle"
+	{
+		name=camera_def_angle;
+		type=MENU;
+		entry=,45,50,55,60,63.44,65,70,75,80,85,90;
+		x1=600;
+		y1=325;
+		x2=730;
+		y2=355;
+		value=0;
+		size=1.5;
+	}
+	[object17]		// Option "camera_def_h"
+	{
+		name=t_camera_def_h;
+		type=TEXT;
+		caption=camera default height;
+		x1=0;
+		y1=360;
+		value=0xFFFFFFFF;
+		size=2;
+	}
+	[object18]		// Option "camera_def_h"
+	{
+		name=camera_def_h;
+		type=MENU;
+		entry=,100,125,150,175,200,225,250,275,300;
+		x1=600;
+		y1=360;
+		x2=730;
+		y2=390;
+		value=0;
+		size=1.5;
+	}
+	[object19]		// Option "camera_zoom_speed"
+	{
+		name=t_camera_zoom_speed;
+		type=TEXT;
+		caption=camera zoom speed;
+		x1=0;
+		y1=395;
+		value=0xFFFFFFFF;
+		size=2;
+	}
+	[object20]		// Option "camera_zoom_speed"
+	{
+		name=camera_zoom_speed;
+		type=MENU;
+		entry=,0.25,0.5,0.75,1.0,1.25,1.5,1.75,2.0,2.25,2.5,2.75,3.0;
+		x1=600;
+		y1=395;
+		x2=730;
+		y2=425;
+		value=0;
+		size=1.5;
+	}
+	[object21]		// Option "skin"
+	{
+		name=t_skin;
+		type=TEXT;
+		caption=current skin;
+		x1=0;
+		y1=430;
+		value=0xFFFFFFFF;
+		size=2;
+	}
+	[object22]		// Option "skin"
+	{
+		name=skin;
+		type=MENU;
+		entry=,default.skn;
+		x1=420;
+		y1=430;
+		x2=730;
+		y2=460;
+		value=0;
+		size=1.5;
+	}
+	[object23]		// Option "underwater_bright"
+	{
+		name=t_underwater_bright;
+		type=TEXT;
+		caption=Highlight underwater objects;
+		x1=0;
+		y1=465;
+		value=0xFFFFFFFF;
+		size=2;
+	}
+	[object24]		// Option "underwater_bright"
+	{
+		name=underwater_bright;
+		type=OPTIONC;
+		x1=690;
+		y1=465;
+		value=0;
+		size=1.5;
+	}
+	[object25]		// Option "right_click_interface"
+	{
+		name=t_right_click_interface;
+		type=TEXT;
+		caption=Right click interface;
+		x1=0;
+		y1=500;
+		value=0xFFFFFFFF;
+		size=2;
+	}
+	[object26]		// Option "right_click_interface"
+	{
+		name=right_click_interface;
+		type=OPTIONC;
+		x1=690;
+		y1=500;
+		value=0;
+		size=1.5;
+	}
+}
