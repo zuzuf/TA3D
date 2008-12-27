@@ -1242,7 +1242,29 @@ void setup_game(bool client, const char *host, const char *saved_game)
                             else if (params[1] == "MAP")
                             {
                                 set_map = ReplaceChar( params[2], 1, ' ');
-                                if (set_map == game_data.map_filename ) set_map.clear();       // Don't reload map !!
+                                if (set_map != game_data.map_filename )
+                                {
+                                    if (!previous_tnt_port.empty() )
+                                        network_manager.stopFileTransfer( previous_tnt_port);
+                                    if (!previous_ota_port.empty())
+                                        network_manager.stopFileTransfer(previous_ota_port);
+                                    previous_ota_port.empty();
+                                    previous_tnt_port.empty();
+                                    String new_map_name = TA3D::Paths::Files::ReplaceExtension(set_map,".tnt");
+                                    if (client && !HPIManager->Exists( new_map_name.c_str()))
+                                    {
+                                        previous_tnt_port = network_manager.getFile( 1, ReplaceChar( new_map_name, '\\', '/'));
+                                        network_manager.sendSpecial( format( "REQUEST FILE %s %s", ReplaceChar(new_map_name, ' ', 1 ).c_str(), previous_tnt_port.c_str() ));
+                                    }
+
+                                    new_map_name = TA3D::Paths::Files::ReplaceExtension(new_map_name,".ota");
+
+                                    if (client && !HPIManager->Exists( new_map_name.c_str()))
+                                    {
+                                        previous_ota_port = network_manager.getFile( 1, ReplaceChar( new_map_name, '\\', '/'));
+                                        network_manager.sendSpecial( format( "REQUEST FILE %s %s", ReplaceChar(new_map_name, ' ', 1 ).c_str(), previous_ota_port.c_str()));
+                                    }
+                                }
                             }
                             else if (params[1] == "SCRIPT")
                             {
@@ -1270,6 +1292,7 @@ void setup_game(bool client, const char *host, const char *saved_game)
                             if (params[1] == "FILE")
                             {
                                 String file_name = ReplaceChar( params[2], 1, ' ');
+                                LOG_DEBUG(LOG_PREFIX_NET << "received file request : '" << file_name << "'");
                                 network_manager.stopFileTransfer( params[3], from);
                                 network_manager.sendFile( from, file_name, params[3]);
                             }
@@ -1370,14 +1393,6 @@ void setup_game(bool client, const char *host, const char *saved_game)
                 special_msg = received_special_msg.message;
             else
                 special_msg.clear();
-        }
-
-        if (set_map.empty() && network_manager.isTransferFinished( previous_ota_port ) && network_manager.isTransferFinished( previous_tnt_port )
-            && (!previous_tnt_port.empty() || !previous_ota_port.empty()))
-        {
-            set_map = game_data.map_filename;
-            previous_ota_port.clear();
-            previous_tnt_port.clear();
         }
 
         //-------------------------------------------------------------- Network Code : chat system --------------------------------------------------------------
@@ -1718,8 +1733,10 @@ void setup_game(bool client, const char *host, const char *saved_game)
             cursor_type=CURSOR_DEFAULT;
             gfx->set_2D_mode();
 
-            if (!new_map.empty())
+            if (!new_map.empty() && (set_map.empty() || (client && HPIManager->Exists( Paths::Files::ReplaceExtension(new_map, ".tnt"))
+                                                                && HPIManager->Exists( Paths::Files::ReplaceExtension(new_map, ".ota")))))
             {
+                set_map.clear();
                 if (host && !client)
                     network_manager.sendSpecial(format("SET MAP %s", ReplaceChar( new_map, ' ', 1 ).c_str()));
 
@@ -1748,29 +1765,10 @@ void setup_game(bool client, const char *host, const char *saved_game)
                 if (!map_data.missiondescription.empty())
                     map_info << map_data.missiondescription;
                 setupgame_area.set_caption("gamesetup.map_info", map_info);
-
-                if (client && !HPIManager->Exists( new_map_name.c_str()))
-                {
-                    if (!previous_tnt_port.empty() )
-                        network_manager.stopFileTransfer( previous_tnt_port);
-                    previous_tnt_port = network_manager.getFile( 1, ReplaceChar( new_map_name, '\\', '/'));
-                    network_manager.sendSpecial( format( "REQUEST FILE %s %s", ReplaceChar(new_map_name, ' ', 1 ).c_str(), previous_tnt_port.c_str() ));
-                }
-
-                new_map_name = new_map_name.substr( 0, new_map_name.size() - 3 ) + "ota";
-
-                if (client && !HPIManager->Exists( new_map_name.c_str()))
-                {
-                    if (!previous_ota_port.empty())
-                        network_manager.stopFileTransfer(previous_ota_port);
-                    previous_ota_port = network_manager.getFile( 1, ReplaceChar( new_map_name, '\\', '/'));
-                    network_manager.sendSpecial( format( "REQUEST FILE %s %s", ReplaceChar(new_map_name, ' ', 1 ).c_str(), previous_ota_port.c_str()));
-                }
             }
 
             minimap_obj->Data = glimg;      // Synchronize the picture on GUI
         }
-        set_map.clear();
 
         if (key[KEY_ESC])
         {
@@ -1788,6 +1786,13 @@ void setup_game(bool client, const char *host, const char *saved_game)
         gfx->flip();
 
     } while(!done);
+
+    if (!previous_lua_port.empty() && network_manager.isConnected())
+        TA3D::network_manager.stopFileTransfer(previous_lua_port);
+    if (!previous_ota_port.empty() && network_manager.isConnected())
+        TA3D::network_manager.stopFileTransfer(previous_ota_port);
+    if (!previous_tnt_port.empty() && network_manager.isConnected())
+        TA3D::network_manager.stopFileTransfer(previous_tnt_port);
 
     if (setupgame_area.background == gfx->glfond )  setupgame_area.background = 0;
     setupgame_area.destroy();

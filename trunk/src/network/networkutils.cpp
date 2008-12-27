@@ -350,6 +350,7 @@ namespace TA3D
 
         if (NULL == file)
         {
+            LOG_DEBUG( LOG_PREFIX_NET_FILE << "cannot open file '" << filename << "'" );
             pDead = 1;
             network->setFileDirty();
             return;
@@ -381,6 +382,7 @@ namespace TA3D
                     rest(0);
                 if (msec_timer - timer >= 60000)
                 {
+                    LOG_DEBUG( LOG_PREFIX_NET_FILE << "file transfert timed out");
                     pDead = 1;
                     network->updateFileTransferInformation(filename + format("%d", sockid), 0, 0);
                     network->setFileDirty();
@@ -438,6 +440,7 @@ namespace TA3D
 
         if( file == NULL )
         {
+            LOG_DEBUG( LOG_PREFIX_NET_FILE << "cannot open file '" << filename << ".part'");
             pDead = 1;
             network->setFileDirty();
             delete[] buffer;
@@ -449,12 +452,13 @@ namespace TA3D
         int timer = msec_timer;
 
         ready = true;
-        while (!pDead && ready && msec_timer - timer < 5000 )
+        while (!pDead && ready && msec_timer - timer < 60000 )
             rest(0);
         memcpy(&length,buffer,4);
 
         if( ready ) // Time out
         {
+            LOG_DEBUG(LOG_PREFIX_NET_FILE << "file transfert timed out (0)");
             pDead = 1;
             fclose( file );
             delete_file( (filename + ".part").c_str() );
@@ -470,11 +474,12 @@ namespace TA3D
         {
             ready = true;
             timer = msec_timer;
-            while( !pDead && ready && msec_timer - timer < 5000 ) rest( 0 );			// Get paquet data
+            while( !pDead && ready && msec_timer - timer < 60000 ) rest( 0 );			// Get paquet data
             n = buffer_size;
 
             if (ready) // Time out
             {
+                LOG_DEBUG(LOG_PREFIX_NET_FILE << "file transfert timed out (1)");
                 pDead = 1;
                 fclose( file );
                 delete_file( (filename + ".part").c_str() );

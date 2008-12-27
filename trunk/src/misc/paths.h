@@ -16,7 +16,7 @@ namespace TA3D
 */
 namespace Paths
 {
-   
+
     //! \name Relevant paths used by TA3D
     //@{
 
@@ -116,7 +116,7 @@ namespace Paths
     **
     ** \see Paths::Separator
     */
-    String ExtractFilePath(const String& p, const bool systemDependant = true);
+    String ExtractFilePath(const String& p, const bool systemDependant = false);
 
     /*!
     ** \brief Extract the bare file name
@@ -156,7 +156,7 @@ namespace Paths
 
 
     /*!
-    ** \brief Get if a path is absolute 
+    ** \brief Get if a path is absolute
     **
     ** \param p The path or the filename to test
     ** \return True if the path is an absolute path or empty, false otherwise
@@ -184,7 +184,7 @@ namespace Paths
     ** if (Paths::Glob(list, Paths::Savegames + "*.sav"))
     ** {
     **      for (String::Vector::const_iterator i = list.begin(); i != list.end(); ++i)
-    **          std::cout << "Savegame found: `" << *i << std::endl; 
+    **          std::cout << "Savegame found: `" << *i << std::endl;
     ** }
     ** else
     ** {
@@ -209,7 +209,7 @@ namespace Paths
     ** if (Paths::GlobFiles(list, Paths::Savegames + "*.sav"))
     ** {
     **      for (String::Vector::const_iterator i = list.begin(); i != list.end(); ++i)
-    **          std::cout << "Savegame found: `" << *i << std::endl; 
+    **          std::cout << "Savegame found: `" << *i << std::endl;
     ** }
     ** else
     ** {
@@ -234,7 +234,7 @@ namespace Paths
     ** if (Paths::GlobDirs(list, Paths::LocalData))
     ** {
     **      for (String::Vector::const_iterator i = list.begin(); i != list.end(); ++i)
-    **          std::cout << "Sub directory found: `" << *i << std::endl; 
+    **          std::cout << "Sub directory found: `" << *i << std::endl;
     ** }
     ** else
     ** {
