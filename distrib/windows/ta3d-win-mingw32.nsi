@@ -18,6 +18,75 @@
 
 !define TA3D_BIN "ta3d.exe"
 
+;Uninstaller log file management
+;--------------------------------
+
+!define UninstLog "uninstall.log"
+Var UninstLog
+ 
+; Uninstall log file missing.
+LangString UninstLogMissing ${LANG_ENGLISH} "${UninstLog} not found!$\r$\nUninstallation cannot proceed!"
+ 
+; AddItem macro
+!macro AddItem Path
+ FileWrite $UninstLog "${Path}$\r$\n"
+!macroend
+!define AddItem "!insertmacro AddItem"
+ 
+; File macro
+!macro File FilePath FileName
+ IfFileExists "$OUTDIR\${FileName}" +2
+  FileWrite $UninstLog "$OUTDIR\${FileName}$\r$\n"
+ File "${FilePath}${FileName}"
+!macroend
+!define File "!insertmacro File"
+ 
+; Copy files macro
+!macro CopyFiles SourcePath DestPath
+ IfFileExists "${DestPath}" +2
+  FileWrite $UninstLog "${DestPath}$\r$\n"
+ CopyFiles "${SourcePath}" "${DestPath}"
+!macroend
+!define CopyFiles "!insertmacro CopyFiles"
+ 
+; Rename macro
+!macro Rename SourcePath DestPath
+ IfFileExists "${DestPath}" +2
+  FileWrite $UninstLog "${DestPath}$\r$\n"
+ Rename "${SourcePath}" "${DestPath}"
+!macroend
+!define Rename "!insertmacro Rename"
+ 
+; CreateDirectory macro
+!macro CreateDirectory Path
+ CreateDirectory "${Path}"
+ FileWrite $UninstLog "${Path}$\r$\n"
+!macroend
+!define CreateDirectory "!insertmacro CreateDirectory"
+ 
+; SetOutPath macro
+!macro SetOutPath Path
+ SetOutPath "${Path}"
+ FileWrite $UninstLog "${Path}$\r$\n"
+!macroend
+!define SetOutPath "!insertmacro SetOutPath"
+ 
+; WriteUninstaller macro
+!macro WriteUninstaller Path
+ WriteUninstaller "${Path}"
+ FileWrite $UninstLog "${Path}$\r$\n"
+!macroend
+!define WriteUninstaller "!insertmacro WriteUninstaller"
+ 
+Section -openlogfile
+ CreateDirectory "$INSTDIR"
+ IfFileExists "$INSTDIR\${UninstLog}" +3
+  FileOpen $UninstLog "$INSTDIR\${UninstLog}" w
+ Goto +4
+  SetFileAttributes "$INSTDIR\${UninstLog}" NORMAL
+  FileOpen $UninstLog "$INSTDIR\${UninstLog}" a
+  FileSeek $UninstLog 0 END
+SectionEnd
 
 ;--------------------------------
 ;Configuration
@@ -153,18 +222,18 @@ ${MementoSection} "TA3D Core Files [mingw] (required)" SecCore
   SetDetailsPrint listonly
 
   SectionIn 1 2 3 4 RO
-  SetOutPath $INSTDIR
+  ${SetOutPath} $INSTDIR
 
   SetOverwrite on
-  File ..\..\3dmeditor.exe
-  File ..\..\${TA3D_BIN}
-  File ..\..\install.bat
-  File ..\..\AUTHORS
-  File ..\..\COPYING
-  File ..\..\src\tools\win32\mingw32\libs\fmodex.dll
-  File ..\..\src\tools\win32\mingw32\libs\alleg42.dll
-  File ..\..\src\tools\win32\mingw32\libs\nl.dll
-  File ..\..\src\tools\win32\mingw32\libs\zlib1.dll
+  ${File} "..\..\" "3dmeditor.exe"
+  ${File} "..\..\" "${TA3D_BIN}"
+  ${File} "..\..\" "install.bat"
+  ${File} "..\..\" "AUTHORS"
+  ${File} "..\..\" "COPYING"
+  ${File} "..\..\src\tools\win32\mingw32\libs\" "fmodex.dll"
+  ${File} "..\..\src\tools\win32\mingw32\libs\" "alleg42.dll"
+  ${File} "..\..\src\tools\win32\mingw32\libs\" "nl.dll"
+  ${File} "..\..\src\tools\win32\mingw32\libs\" "zlib1.dll"
 
 ${MementoSectionEnd}
 
@@ -177,58 +246,58 @@ ${MementoSection} "Resources (required)" SecResources
   SetOverwrite on
   SectionIn 1 2 3 4 RO
   
-  SetOutPath "$INSTDIR\Resources\"
-  File ..\..\resources\ta3d.res
-  File ..\..\resources\3dmeditor.res
-  SetOutPath "$INSTDIR\Resources\Languages"
-  SetOutPath "$INSTDIR\Resources\Intro"
-  File /r ..\..\resources\intro\*.txt
+  ${SetOutPath} "$INSTDIR\Resources\"
+  ${File} "..\..\resources\" "ta3d.res"
+  ${File} "..\..\resources\" "3dmeditor.res"
+  ${SetOutPath} "$INSTDIR\Resources\Languages"
+  ${SetOutPath} "$INSTDIR\Resources\Intro"
+  ${File} "..\..\resources\intro\" "*.txt"
   
-  SetOutPath "$INSTDIR\Gfx\"
-  File /r ..\..\gfx\*.tga
-  File /r ..\..\gfx\*.jpg
-  SetOutPath "$INSTDIR\Gfx\default_skin\"
-  File /r ..\..\gfx\default_skin\*.tga
-  SetOutPath "$INSTDIR\Gfx\mdrn_skin\"
-  File /r ..\..\gfx\mdrn_skin\*.tga
-  SetOutPath "$INSTDIR\Gfx\mdrn_teams\"
-  File /r ..\..\gfx\mdrn_teams\*.tga
-  SetOutPath "$INSTDIR\Gfx\Sky\"
-  File /r ..\..\gfx\sky\*.jpg
-  SetOutPath "$INSTDIR\Gfx\Tactical Icons\"
-  File /r "..\..\gfx\tactical icons\*.tga"
-  SetOutPath "$INSTDIR\Gfx\Teams\"
-  File /r ..\..\gfx\teams\*.tga
+  ${SetOutPath} "$INSTDIR\Gfx\"
+  ${File} "..\..\gfx\" "*.tga"
+  ${File} "..\..\gfx\" "*.jpg"
+  ${SetOutPath} "$INSTDIR\Gfx\default_skin\"
+  ${File} "..\..\gfx\default_skin\" "*.tga"
+  ${SetOutPath} "$INSTDIR\Gfx\mdrn_skin\"
+  ${File} "..\..\gfx\mdrn_skin\" "*.tga"
+  ${SetOutPath} "$INSTDIR\Gfx\mdrn_teams\"
+  ${File} "..\..\gfx\mdrn_teams\" "*.tga"
+  ${SetOutPath} "$INSTDIR\Gfx\Sky\"
+  ${File} "..\..\gfx\sky\" "*.jpg"
+  ${SetOutPath} "$INSTDIR\Gfx\Tactical Icons\"
+  ${File} "..\..\gfx\tactical icons\" "*.tga"
+  ${SetOutPath} "$INSTDIR\Gfx\Teams\"
+  ${File} "..\..\gfx\teams\" "*.tga"
 
 
-  SetOutPath "$INSTDIR\Ai\"
-  File /r ..\..\ai\*.ai
+  ${SetOutPath} "$INSTDIR\Ai\"
+  ${File} "..\..\ai\" "*.ai"
 
-  SetOutPath "$INSTDIR\Gui"
-  File /r ..\..\gui\*.tdf
-  File /r ..\..\gui\*.area
-  File /r ..\..\gui\*.skn
+  ${SetOutPath} "$INSTDIR\Gui"
+  ${File} "..\..\gui\" "*.tdf"
+  ${File} "..\..\gui\" "*.area"
+  ${File} "..\..\gui\" "*.skn"
 
-  SetOutPath "$INSTDIR\Music\"
-  #File /r ..\..\music\*
+  ${SetOutPath} "$INSTDIR\Music\"
+  #${File} "..\..\music\" "*"
 
-  SetOutPath "$INSTDIR\Cache\"
-  #File /r ..\..\cache\*
+  ${SetOutPath} "$INSTDIR\Cache\"
+  #${File} "..\..\cache\" "*"
 
-  SetOutPath "$INSTDIR\Scripts\"
-  File /r ..\..\scripts\*.lua
-  File /r ..\..\scripts\*.h
+  ${SetOutPath} "$INSTDIR\Scripts\"
+  ${File} "..\..\scripts\" "*.lua"
+  ${File} "..\..\scripts\" "*.h"
 
-  SetOutPath "$INSTDIR\Shaders\"
-  File /r ..\..\shaders\*.vert
-  File /r ..\..\shaders\*.frag
+  ${SetOutPath} "$INSTDIR\Shaders\"
+  ${File} "..\..\shaders\" "*.vert"
+  ${File} "..\..\shaders\" "*.frag"
 
-  SetOutPath "$INSTDIR\Sky\"
-  File /r ..\..\sky\*.tdf
+  ${SetOutPath} "$INSTDIR\Sky\"
+  ${File} "..\..\sky\" "*.tdf"
 
-  SetOutPath "$INSTDIR\Objects3D\"
-  File /r ..\..\objects3d\*.3dm
-  File /r ..\..\objects3d\*.3do
+  ${SetOutPath} "$INSTDIR\Objects3D\"
+  ${File} "..\..\objects3d\" "*.3dm"
+  ${File} "..\..\objects3d\" "*.3do"
 
 ${MementoSectionEnd}
 
@@ -241,11 +310,11 @@ ${MementoSection} "Documentation" SecDocs
   SectionIn 1 2 
 
   SetOverwrite on
-  SetOutPath "$INSTDIR\Docs"
-  File /r ..\..\docs\user\*.html
-  File /r ..\..\docs\user\*.jpg
-  SetOutPath "$INSTDIR\Docs\res"
-  File /r ..\..\docs\user\res\*.jpg
+  ${SetOutPath} "$INSTDIR\Docs"
+  ${File} "..\..\docs\user\" "*.html"
+  ${File} "..\..\docs\user\" "*.jpg"
+  ${SetOutPath} "$INSTDIR\Docs\res"
+  ${File} "..\..\docs\user\res\" "*.jpg"
 
 ${MementoSectionEnd}
 
@@ -258,43 +327,44 @@ ${MementoSection} "Default Mod" SecDefaultMod
   SectionIn 1 
 
   SetOverwrite on
-  SetOutPath "$INSTDIR\Mods\TA3D\"
-  File /r ..\..\mods\ta3d\*.sh
-  File /r ..\..\mods\ta3d\*.txt
-  File /r ..\..\mods\ta3d\TODO
-  SetOutPath "$INSTDIR\Mods\TA3D\Anims\"
-  SetOutPath "$INSTDIR\Mods\TA3D\Download\"
-  SetOutPath "$INSTDIR\Mods\TA3D\Features\"
-  SetOutPath "$INSTDIR\Mods\TA3D\Features\acid\"
-  SetOutPath "$INSTDIR\Mods\TA3D\Features\all\"
-  SetOutPath "$INSTDIR\Mods\TA3D\Features\archi\"
-  SetOutPath "$INSTDIR\Mods\TA3D\Features\corpses\"
-  SetOutPath "$INSTDIR\Mods\TA3D\Features\crystal\"
-  SetOutPath "$INSTDIR\Mods\TA3D\Features\desert\"
-  SetOutPath "$INSTDIR\Mods\TA3D\Features\green\"
-  SetOutPath "$INSTDIR\Mods\TA3D\Features\ice\"
-  SetOutPath "$INSTDIR\Mods\TA3D\Features\lava\"
-  SetOutPath "$INSTDIR\Mods\TA3D\Features\lush\"
-  SetOutPath "$INSTDIR\Mods\TA3D\Features\mars\"
-  SetOutPath "$INSTDIR\Mods\TA3D\Features\metal\"
-  SetOutPath "$INSTDIR\Mods\TA3D\Features\moon\"
-  SetOutPath "$INSTDIR\Mods\TA3D\Features\slate\"
-  SetOutPath "$INSTDIR\Mods\TA3D\Features\urban\"
-  SetOutPath "$INSTDIR\Mods\TA3D\Features\water\"
-  SetOutPath "$INSTDIR\Mods\TA3D\Features\wetdesert\"
-  SetOutPath "$INSTDIR\Mods\TA3D\Features\worlds\"
+  ${AddItem} "$INSTDIR\Mods\"
+  ${SetOutPath} "$INSTDIR\Mods\TA3D\"
+  ${File} "..\..\mods\ta3d\" "*.sh"
+  ${File} "..\..\mods\ta3d\" "*.txt"
+  ${File} "..\..\mods\ta3d\" "TODO"
+  ${SetOutPath} "$INSTDIR\Mods\TA3D\Anims\"
+  ${SetOutPath} "$INSTDIR\Mods\TA3D\Download\"
+  ${SetOutPath} "$INSTDIR\Mods\TA3D\Features\"
+  ${SetOutPath} "$INSTDIR\Mods\TA3D\Features\acid\"
+  ${SetOutPath} "$INSTDIR\Mods\TA3D\Features\all\"
+  ${SetOutPath} "$INSTDIR\Mods\TA3D\Features\archi\"
+  ${SetOutPath} "$INSTDIR\Mods\TA3D\Features\corpses\"
+  ${SetOutPath} "$INSTDIR\Mods\TA3D\Features\crystal\"
+  ${SetOutPath} "$INSTDIR\Mods\TA3D\Features\desert\"
+  ${SetOutPath} "$INSTDIR\Mods\TA3D\Features\green\"
+  ${SetOutPath} "$INSTDIR\Mods\TA3D\Features\ice\"
+  ${SetOutPath} "$INSTDIR\Mods\TA3D\Features\lava\"
+  ${SetOutPath} "$INSTDIR\Mods\TA3D\Features\lush\"
+  ${SetOutPath} "$INSTDIR\Mods\TA3D\Features\mars\"
+  ${SetOutPath} "$INSTDIR\Mods\TA3D\Features\metal\"
+  ${SetOutPath} "$INSTDIR\Mods\TA3D\Features\moon\"
+  ${SetOutPath} "$INSTDIR\Mods\TA3D\Features\slate\"
+  ${SetOutPath} "$INSTDIR\Mods\TA3D\Features\urban\"
+  ${SetOutPath} "$INSTDIR\Mods\TA3D\Features\water\"
+  ${SetOutPath} "$INSTDIR\Mods\TA3D\Features\wetdesert\"
+  ${SetOutPath} "$INSTDIR\Mods\TA3D\Features\worlds\"
   
-  SetOutPath "$INSTDIR\Mods\TA3D\GameData\"
-  SetOutPath "$INSTDIR\Mods\TA3D\Guis\"
-  SetOutPath "$INSTDIR\Mods\TA3D\Objects3D\"
-  File /r ..\..\mods\ta3d\objects3d\*.3dm
-  File /r ..\..\mods\ta3d\objects3d\*.3do
-  SetOutPath "$INSTDIR\Mods\TA3D\Scripts\"
-  SetOutPath "$INSTDIR\Mods\TA3D\Sounds\"
-  SetOutPath "$INSTDIR\Mods\TA3D\Textures\"
-  SetOutPath "$INSTDIR\Mods\TA3D\UnitPics\"
-  SetOutPath "$INSTDIR\Mods\TA3D\Units\"
-  SetOutPath "$INSTDIR\Mods\TA3D\Weapons\"
+  ${SetOutPath} "$INSTDIR\Mods\TA3D\GameData\"
+  ${SetOutPath} "$INSTDIR\Mods\TA3D\Guis\"
+  ${SetOutPath} "$INSTDIR\Mods\TA3D\Objects3D\"
+  ${File} "..\..\mods\ta3d\objects3d\" "*.3dm"
+  ${File} "..\..\mods\ta3d\objects3d\" "*.3do"
+  ${SetOutPath} "$INSTDIR\Mods\TA3D\Scripts\"
+  ${SetOutPath} "$INSTDIR\Mods\TA3D\Sounds\"
+  ${SetOutPath} "$INSTDIR\Mods\TA3D\Textures\"
+  ${SetOutPath} "$INSTDIR\Mods\TA3D\UnitPics\"
+  ${SetOutPath} "$INSTDIR\Mods\TA3D\Units\"
+  ${SetOutPath} "$INSTDIR\Mods\TA3D\Weapons\"
 
 ${MementoSectionEnd}
 
@@ -319,7 +389,7 @@ ${MementoSection} "Menu Shortcuts" SecMenuShortcuts
   
   CreateDirectory "$SMPROGRAMS\TA3D"
   CreateDirectory "$SMPROGRAMS\TA3D\Documentation"
-  SetOutPath "$INSTDIR\"
+  ${SetOutPath} "$INSTDIR\"
   CreateShortCut "$SMPROGRAMS\TA3D\TA3D.lnk" "$INSTDIR\ta3d.exe"
   CreateShortCut "$SMPROGRAMS\TA3D\3DMEditor.lnk" "$INSTDIR\3dmeditor.exe"
   CreateShortCut "$SMPROGRAMS\TA3D\Documentation\User Guide.lnk" "$INSTDIR\readme.html"
@@ -333,7 +403,7 @@ ${MementoSectionDone}
 
 Section -post
 
-  WriteUninstaller $INSTDIR\uninstall.exe
+  ${WriteUninstaller} $INSTDIR\uninstall.exe
 
   WriteRegStr HKLM "${PRODUCT_DIR_REGKEY}" "InstallDir" $INSTDIR
   WriteRegStr HKLM "${PRODUCT_DIR_REGKEY}" "Version" "${PRODUCT_VERSION}"
@@ -391,16 +461,25 @@ Function ShowReleaseNotes
    ExecShell "open" "${PRODUCT_WEB_SITE}/home-en.php"
 FunctionEnd
 
+Section -closelogfile
+ FileClose $UninstLog
+ SetFileAttributes "$INSTDIR\${UninstLog}" READONLY|SYSTEM|HIDDEN
+SectionEnd
 
 ;--------------------------------
 ;Uninstaller Section
-
-Section uninstall
-
+ 
+Section Uninstall
+ 
   SetDetailsPrint textonly
   DetailPrint "Uninstalling TA3D..."
   SetDetailsPrint listonly
-  
+
+ ; Can't uninstall if uninstall log is missing!
+ IfFileExists "$INSTDIR\${UninstLog}" +3
+  MessageBox MB_OK|MB_ICONSTOP "$(UninstLogMissing)"
+   Abort
+
   SetDetailsPrint textonly
   DetailPrint "Deleting Registry Keys..."
   SetDetailsPrint listonly
@@ -411,8 +490,47 @@ Section uninstall
   SetDetailsPrint textonly
   DetailPrint "Deleting Files..."
   SetDetailsPrint listonly
+ 
+ Push $R0
+ Push $R1
+ Push $R2
+ SetFileAttributes "$INSTDIR\${UninstLog}" NORMAL
+ FileOpen $UninstLog "$INSTDIR\${UninstLog}" r
+ StrCpy $R1 0
+ 
+ GetLineCount:
+  ClearErrors
+   FileRead $UninstLog $R0
+   IntOp $R1 $R1 + 1
+   IfErrors 0 GetLineCount
+ 
+ LoopRead:
+  FileSeek $UninstLog 0 SET
+  StrCpy $R2 0
+  FindLine:
+   FileRead $UninstLog $R0
+   IntOp $R2 $R2 + 1
+   StrCmp $R1 $R2 0 FindLine
+ 
+   StrCpy $R0 $R0 -2
+   IfFileExists "$R0\*.*" 0 +3
+    RMDir $R0  #is dir
+   Goto +3
+   IfFileExists $R0 0 +2
+    Delete $R0 #is file
+ 
+  IntOp $R1 $R1 - 1
+  StrCmp $R1 0 LoopDone
+  Goto LoopRead
+ LoopDone:
+ FileClose $UninstLog
+ Delete "$INSTDIR\${UninstLog}"
+ RMDir "$INSTDIR"
+ Pop $R2
+ Pop $R1
+ Pop $R0
 
-  RMDir /r $INSTDIR
+  RMDir /r "$INSTDIR\Cache"
   RMDir /r "$SMPROGRAMS\TA3D"
   delete "$DESKTOP\TA3D.lnk"
   DeleteRegKey ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}"
@@ -420,5 +538,4 @@ Section uninstall
   DeleteRegKey HKLM "${PRODUCT_DIR_REGKEY}"
 
   SetDetailsPrint both
-
 SectionEnd
