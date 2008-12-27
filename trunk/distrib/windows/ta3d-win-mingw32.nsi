@@ -225,6 +225,8 @@ ${MementoSection} "TA3D Core Files [mingw] (required)" SecCore
   ${SetOutPath} $INSTDIR
 
   SetOverwrite on
+  ${File} "" "3dmeditor.ico"
+  ${File} "" "ta3d.ico"
   ${File} "..\..\" "3dmeditor.exe"
   ${File} "..\..\" "${TA3D_BIN}"
   ${File} "..\..\" "install.bat"
@@ -375,7 +377,7 @@ ${MementoSection} "Desktop Shortcut" SecDekstopShortcuts
   DetailPrint "Installing Desktop shortcut..."
   SetDetailsPrint listonly
   
-CreateShortCut "$DESKTOP\TA3D.lnk" "$INSTDIR\ta3d.exe"
+CreateShortCut "$DESKTOP\TA3D.lnk" "$INSTDIR\ta3d.exe" "" "$INSTDIR\ta3d.ico"
 
 ${MementoSectionEnd}
 
@@ -390,8 +392,8 @@ ${MementoSection} "Menu Shortcuts" SecMenuShortcuts
   CreateDirectory "$SMPROGRAMS\TA3D"
   CreateDirectory "$SMPROGRAMS\TA3D\Documentation"
   ${SetOutPath} "$INSTDIR\"
-  CreateShortCut "$SMPROGRAMS\TA3D\TA3D.lnk" "$INSTDIR\ta3d.exe"
-  CreateShortCut "$SMPROGRAMS\TA3D\3DMEditor.lnk" "$INSTDIR\3dmeditor.exe"
+  CreateShortCut "$SMPROGRAMS\TA3D\TA3D.lnk" "$INSTDIR\ta3d.exe" "" "$INSTDIR\ta3d.ico"
+  CreateShortCut "$SMPROGRAMS\TA3D\3DMEditor.lnk" "$INSTDIR\3dmeditor.exe" "" "$INSTDIR\3dmeditor.ico"
   CreateShortCut "$SMPROGRAMS\TA3D\Documentation\User Guide.lnk" "$INSTDIR\readme.html"
   CreateShortCut "$SMPROGRAMS\TA3D\Documentation\User Guide (Francais).lnk" "$INSTDIR\readme-fr.html"
 
