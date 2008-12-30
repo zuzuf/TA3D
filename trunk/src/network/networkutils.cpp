@@ -393,7 +393,6 @@ namespace TA3D
             default:
                 LOG_ERROR(LOG_PREFIX_NET_FILE << "compress2 : unknown error");
             };
-            std::cout << n << " ==> " << compressed_size << std::endl;
             network->sendFileData(sockid,port,compressed_buffer,compressed_size);
             if (n > 0)
             {
