@@ -330,7 +330,7 @@ namespace TA3D
         return;
     }
 
-#define FILE_TRANSFER_BUFFER_SIZE		2048
+#define FILE_TRANSFER_BUFFER_SIZE		16384
 
     //NEED TESTING
     void SendFileThread::proc(void* param)
@@ -340,7 +340,7 @@ namespace TA3D
         TA3D_FILE* file;
         int length,n;
         byte *buffer = new byte[ FILE_TRANSFER_BUFFER_SIZE ];
-        byte *compressed_buffer = new byte[ FILE_TRANSFER_BUFFER_SIZE * 101 / 100 + 16 ];
+        byte *compressed_buffer = new byte[ FILE_TRANSFER_BUFFER_SIZE * 101 / 100 + 12 ];
         String filename;
 
         network = ((struct net_thread_params*)param)->network;
@@ -375,10 +375,9 @@ namespace TA3D
         while (!pDead)
         {
             n = ta3d_fread(buffer,1,FILE_TRANSFER_BUFFER_SIZE,file);            // Read data into the buffer
-            uLongf compressed_size = 0;
-            compress2(compressed_buffer + 4, &compressed_size, buffer, n, 9);   // Compress the data
-            ((int*)compressed_buffer)[0] = n;
-            network->sendFileData(sockid,port,compressed_buffer,compressed_size + 4);
+            uLongf compressed_size = FILE_TRANSFER_BUFFER_SIZE * 101 / 100 + 12;
+            compress2(compressed_buffer, &compressed_size, buffer, n, 9);   // Compress the data
+            network->sendFileData(sockid,port,compressed_buffer,compressed_size);
             if (n > 0)
             {
                 pos += n;
@@ -437,7 +436,7 @@ namespace TA3D
         String filename;
         int length,n,sofar;
 
-        buffer = new byte[ FILE_TRANSFER_BUFFER_SIZE * 101 / 100 + 20 ];
+        buffer = new byte[ FILE_TRANSFER_BUFFER_SIZE * 101 / 100 + 12 ];
         byte *uncompressed_buffer = new byte[ FILE_TRANSFER_BUFFER_SIZE ];
         network = ((struct net_thread_params*)param)->network;
 
@@ -507,8 +506,8 @@ namespace TA3D
             if (n > 0)
             {
                         // First we must decompress the data
-                uLongf uncompressed_size = ((int*)buffer)[0];
-                uncompress(uncompressed_buffer, &uncompressed_size, buffer + 4, n);
+                uLongf uncompressed_size = FILE_TRANSFER_BUFFER_SIZE;
+                uncompress(uncompressed_buffer, &uncompressed_size, buffer, n);
 
                 sofar += uncompressed_size;
                 network->updateFileTransferInformation( filename + format("%d", sockid), length, sofar );
