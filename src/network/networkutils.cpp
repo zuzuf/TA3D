@@ -488,7 +488,7 @@ namespace TA3D
             ready = true;
             timer = msec_timer;
             while( !pDead && ready && msec_timer - timer < 60000 ) rest( 0 );			// Get paquet data
-            n = buffer_size - 4;
+            n = buffer_size;
 
             if (ready) // Time out
             {
