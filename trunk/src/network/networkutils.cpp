@@ -340,7 +340,7 @@ namespace TA3D
         TA3D_FILE* file;
         int length,n;
         byte *buffer = new byte[ FILE_TRANSFER_BUFFER_SIZE ];
-        byte *compressed_buffer = new byte[ FILE_TRANSFER_BUFFER_SIZE * 101 / 100 + 12 ];
+        byte *compressed_buffer = new byte[ FILE_TRANSFER_BUFFER_SIZE * 2 + 12 ];
         String filename;
 
         network = ((struct net_thread_params*)param)->network;
@@ -375,8 +375,24 @@ namespace TA3D
         while (!pDead)
         {
             n = ta3d_fread(buffer,1,FILE_TRANSFER_BUFFER_SIZE,file);            // Read data into the buffer
-            uLongf compressed_size = FILE_TRANSFER_BUFFER_SIZE * 101 / 100 + 12;
-            compress2(compressed_buffer, &compressed_size, buffer, n, 9);   // Compress the data
+            uLongf compressed_size = FILE_TRANSFER_BUFFER_SIZE * 2 + 12;
+            int res = compress2(compressed_buffer, &compressed_size, buffer, n, 9);   // Compress the data
+            switch(res)
+            {
+            case Z_OK:
+                break;
+            case Z_MEM_ERROR:
+                LOG_ERROR(LOG_PREFIX_NET_FILE << "compress2 : Z_MEM_ERROR");
+                break;
+            case Z_BUF_ERROR:
+                LOG_ERROR(LOG_PREFIX_NET_FILE << "compress2 : Z_BUF_ERROR");
+                break;
+            case Z_STREAM_ERROR:
+                LOG_ERROR(LOG_PREFIX_NET_FILE << "compress2 : Z_STREAM_ERROR");
+                break;
+            default:
+                LOG_ERROR(LOG_PREFIX_NET_FILE << "compress2 : unknown error");
+            };
             network->sendFileData(sockid,port,compressed_buffer,compressed_size);
             if (n > 0)
             {
@@ -436,8 +452,8 @@ namespace TA3D
         String filename;
         int length,n,sofar;
 
-        buffer = new byte[ FILE_TRANSFER_BUFFER_SIZE * 101 / 100 + 12 ];
-        byte *uncompressed_buffer = new byte[ FILE_TRANSFER_BUFFER_SIZE ];
+        buffer = new byte[ FILE_TRANSFER_BUFFER_SIZE * 2 + 12 ];
+        byte *uncompressed_buffer = new byte[ FILE_TRANSFER_BUFFER_SIZE + 12 ];
         network = ((struct net_thread_params*)param)->network;
 
         //supposed sender
@@ -506,8 +522,24 @@ namespace TA3D
             if (n > 0)
             {
                         // First we must decompress the data
-                uLongf uncompressed_size = FILE_TRANSFER_BUFFER_SIZE;
-                uncompress(uncompressed_buffer, &uncompressed_size, buffer, n);
+                uLongf uncompressed_size = FILE_TRANSFER_BUFFER_SIZE + 12;
+                int res = uncompress(uncompressed_buffer, &uncompressed_size, buffer, n);
+                switch(res)
+                {
+                case Z_OK:
+                    break;
+                case Z_MEM_ERROR:
+                    LOG_ERROR(LOG_PREFIX_NET_FILE << "uncompress : Z_MEM_ERROR");
+                    break;
+                case Z_BUF_ERROR:
+                    LOG_ERROR(LOG_PREFIX_NET_FILE << "uncompress : Z_BUF_ERROR");
+                    break;
+                case Z_DATA_ERROR:
+                    LOG_ERROR(LOG_PREFIX_NET_FILE << "uncompress : Z_DATA_ERROR");
+                    break;
+                default:
+                    LOG_ERROR(LOG_PREFIX_NET_FILE << "uncompress : unknown error");
+                };
 
                 sofar += uncompressed_size;
                 network->updateFileTransferInformation( filename + format("%d", sockid), length, sofar );
