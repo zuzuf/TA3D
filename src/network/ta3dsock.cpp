@@ -18,6 +18,7 @@
 #include "../stdafx.h"
 #include "../TA3D_NameSpace.h"
 #include "../misc/math.h"
+#include "../misc/paths.h"
 #include "../logs/logs.h"
 
 
@@ -25,6 +26,7 @@
 namespace TA3D
 {
 
+    FILE *dump_file = NULL;
 
     chat* strtochat(struct chat *chat_msg, String msg)
     {
@@ -47,6 +49,8 @@ namespace TA3D
 
     int TA3DSock::Open(const char* hostname,const char* port)
     {
+        if (dump_file == NULL)
+            dump_file = TA3D::TA3D_OpenFile(TA3D::Paths::Logs + "net.dump", "wb");
         tcpsock.Open(hostname,port,PROTOCOL_TCPIP);
         if(!tcpsock.isOpen())
             return -1;
@@ -108,6 +112,11 @@ namespace TA3D
     {
         if( tcpsock.isOpen() )
             tcpsock.Close();
+        if (dump_file)
+        {
+            fclose(dump_file);
+            dump_file = NULL;
+        }
     }
 
 
@@ -224,6 +233,11 @@ namespace TA3D
                 buffer_cursor += n;
             }
         }
+        if (dump_file)
+        {
+            fwrite(data, 1, size - bytes_left, dump_file);
+            fflush(dump_file);
+        }
 
         tcpmutex.unlock();
     }
@@ -247,6 +261,11 @@ namespace TA3D
                 count++;
                 buffer_cursor += n;
             }
+        }
+        if (dump_file)
+        {
+            fwrite(outbuf, 1, obp - bytes_left, dump_file);
+            fflush(dump_file);
         }
         obp = 0;
 
