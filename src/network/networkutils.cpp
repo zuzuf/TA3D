@@ -1,3 +1,4 @@
+#include <zlib.h>
 #include "network.h"
 #include "../threads/thread.h"
 #include "networkutils.h"
@@ -338,7 +339,8 @@ namespace TA3D
         int sockid;
         TA3D_FILE* file;
         int length,n;
-        byte buffer[ FILE_TRANSFER_BUFFER_SIZE ];
+        byte *buffer = new byte[ FILE_TRANSFER_BUFFER_SIZE ];
+        byte *compressed_buffer = new byte[ FILE_TRANSFER_BUFFER_SIZE * 101 / 100 + 16 ];
         String filename;
 
         network = ((struct net_thread_params*)param)->network;
@@ -350,6 +352,8 @@ namespace TA3D
 
         if (NULL == file)
         {
+            delete[] buffer;
+            delete[] compressed_buffer;
             LOG_DEBUG( LOG_PREFIX_NET_FILE << "cannot open file '" << filename << "'" );
             pDead = 1;
             network->setFileDirty();
@@ -370,8 +374,11 @@ namespace TA3D
         LOG_INFO(LOG_PREFIX_NET_FILE << "Starting...");
         while (!pDead)
         {
-            n = ta3d_fread(buffer,1,FILE_TRANSFER_BUFFER_SIZE,file);
-            network->sendFileData(sockid,port,buffer,n);
+            n = ta3d_fread(buffer,1,FILE_TRANSFER_BUFFER_SIZE,file);            // Read data into the buffer
+            uLongf compressed_size = 0;
+            compress2(compressed_buffer + 4, &compressed_size, buffer, n, 9);   // Compress the data
+            ((int*)compressed_buffer)[0] = n;
+            network->sendFileData(sockid,port,compressed_buffer,compressed_size + 4);
             if (n > 0)
             {
                 pos += n;
@@ -382,6 +389,8 @@ namespace TA3D
                     rest(0);
                 if (msec_timer - timer >= 60000)
                 {
+                    delete[] buffer;
+                    delete[] compressed_buffer;
                     LOG_DEBUG( LOG_PREFIX_NET_FILE << "file transfert timed out");
                     pDead = 1;
                     network->updateFileTransferInformation(filename + format("%d", sockid), 0, 0);
@@ -407,6 +416,8 @@ namespace TA3D
         pDead = 1;
         ta3d_fclose( file );
         network->setFileDirty();
+        delete[] buffer;
+        delete[] compressed_buffer;
         return;
     }
 
@@ -426,7 +437,8 @@ namespace TA3D
         String filename;
         int length,n,sofar;
 
-        buffer = new byte[ FILE_TRANSFER_BUFFER_SIZE ];
+        buffer = new byte[ FILE_TRANSFER_BUFFER_SIZE * 101 / 100 + 20 ];
+        byte *uncompressed_buffer = new byte[ FILE_TRANSFER_BUFFER_SIZE ];
         network = ((struct net_thread_params*)param)->network;
 
         //supposed sender
@@ -444,6 +456,7 @@ namespace TA3D
             pDead = 1;
             network->setFileDirty();
             delete[] buffer;
+            delete[] uncompressed_buffer;
             return;
         }
 
@@ -464,6 +477,7 @@ namespace TA3D
             delete_file( (filename + ".part").c_str() );
             network->setFileDirty();
             delete[] buffer;
+            delete[] uncompressed_buffer;
             network->updateFileTransferInformation( filename + format("%d", sockid), 0, 0 );
             return;
         }
@@ -475,7 +489,7 @@ namespace TA3D
             ready = true;
             timer = msec_timer;
             while( !pDead && ready && msec_timer - timer < 60000 ) rest( 0 );			// Get paquet data
-            n = buffer_size;
+            n = buffer_size - 4;
 
             if (ready) // Time out
             {
@@ -485,16 +499,21 @@ namespace TA3D
                 delete_file( (filename + ".part").c_str() );
                 network->setFileDirty();
                 delete[] buffer;
+                delete[] uncompressed_buffer;
                 network->updateFileTransferInformation( filename + format("%d", sockid), 0, 0 );
                 return;
             }
 
             if (n > 0)
             {
-                sofar += n;
+                        // First we must decompress the data
+                uLongf uncompressed_size = ((int*)buffer)[0];
+                uncompress(uncompressed_buffer, &uncompressed_size, buffer + 4, n);
+
+                sofar += uncompressed_size;
                 network->updateFileTransferInformation( filename + format("%d", sockid), length, sofar );
 
-                fwrite(buffer,1,n,file);
+                fwrite(uncompressed_buffer,1,uncompressed_size,file);       // Write uncompressed data
 
                 int pos = sofar;
                 network->sendFileResponse(sockid,port,(byte*)&pos,4);
@@ -517,6 +536,7 @@ namespace TA3D
         pDead = 1;
         network->setFileDirty();
         delete[] buffer;
+        delete[] uncompressed_buffer;
         return;
     }
 
