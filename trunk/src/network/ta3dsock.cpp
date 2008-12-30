@@ -208,12 +208,21 @@ namespace TA3D
     {
         tcpmutex.lock();
 
-        int n = 0;
         int count = 0;
-        while( !n && count < 100 && isOpen() )
-        {
-            n = tcpsock.Send(data,size);
-            count++;
+        int bytes_left = size;
+        byte *buffer_cursor = data;
+        while( bytes_left > 0 && count < 10000 && isOpen() )        // waits up to 10sec (real time syncing cannot be done with too slow connections
+        {                                                           // otherwise it's not real time
+            int n = tcpsock.Send(buffer_cursor, bytes_left);
+            if (n == -1)        // We got an error, impossible to continue
+                break;
+            bytes_left -= n;
+            if (bytes_left > 0)     // We've tried to send too much bytes to fit in buffer,
+            {                       // wait a bit before sending the rest, we cannot afford losing data
+                rest(1);
+                count++;
+                buffer_cursor += n;
+            }
         }
 
         tcpmutex.unlock();
