@@ -649,9 +649,9 @@ namespace TA3D
         WorkerTime = unitParser.pullAsInt("UNITINFO.WorkerTime",1);
         Builder = unitParser.pullAsBool("UNITINFO.Builder");
         ThreeD = unitParser.pullAsBool("UNITINFO.ThreeD",true);
-        SightDistance = unitParser.pullAsInt("UNITINFO.DightDistance",100);
-        RadarDistance = unitParser.pullAsInt("UNITINFO.RadarDistance");
-        RadarDistanceJam = unitParser.pullAsInt("UNITINFO.RadarDistanceJam");
+        SightDistance = unitParser.pullAsInt("UNITINFO.SightDistance",100)>>1;
+        RadarDistance = unitParser.pullAsInt("UNITINFO.RadarDistance")>>1;
+        RadarDistanceJam = unitParser.pullAsInt("UNITINFO.RadarDistanceJam")>>1;
         soundcategory = unitParser.pullAsString("UNITINFO.SoundCategory");
         if (!unitParser.pullAsString("UNITINFO.wthi_badTargetCategory").empty())
         {
@@ -720,8 +720,8 @@ namespace TA3D
         BuildDistance = unitParser.pullAsInt("UNITINFO.Builddistance");
         ActivateWhenBuilt = unitParser.pullAsBool("UNITINFO.ActivateWhenBuilt");
         ImmuneToParalyzer = unitParser.pullAsBool("UNITINFO.ImmuneToParalyzer");
-        SonarDistance = unitParser.pullAsInt("UNITINFO.SonarDistance");
-        SonarDistanceJam = unitParser.pullAsInt("UNITINFO.SonarDistanceJam");
+        SonarDistance = unitParser.pullAsInt("UNITINFO.SonarDistance")>>1;
+        SonarDistanceJam = unitParser.pullAsInt("UNITINFO.SonarDistanceJam")>>1;
         // copyright = ... not needed here :P
         MaxSlope = unitParser.pullAsInt("UNITINFO.MaxSlope", 255);
         SteeringMode = unitParser.pullAsInt("UNITINFO.SteeringMode");

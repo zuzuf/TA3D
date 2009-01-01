@@ -6363,16 +6363,16 @@ script_exec:
 
         if (jamming )
         {
-            radar_jam_range = system_activated ? (unit_manager.unit_type[unit_type]->RadarDistanceJam >> 3) : 0;
-            sonar_jam_range = system_activated ? (unit_manager.unit_type[unit_type]->SonarDistanceJam >> 3) : 0;
+            radar_jam_range = system_activated ? (unit_manager.unit_type[unit_type]->RadarDistanceJam >> 4) : 0;
+            sonar_jam_range = system_activated ? (unit_manager.unit_type[unit_type]->SonarDistanceJam >> 4) : 0;
 
             units.map->update_player_visibility( owner_id, cur_px, cur_py, 0, 0, 0, radar_jam_range, sonar_jam_range, true );
         }
         else
         {
-            sint16 cur_sight = ((int)h + unit_manager.unit_type[unit_type]->SightDistance) >> 3;
-            radar_range = system_activated ? (unit_manager.unit_type[unit_type]->RadarDistance >> 3) : 0;
-            sonar_range = system_activated ? (unit_manager.unit_type[unit_type]->SonarDistance >> 3) : 0;
+            sint16 cur_sight = ((int)h + unit_manager.unit_type[unit_type]->SightDistance) >> 4;
+            radar_range = system_activated ? (unit_manager.unit_type[unit_type]->RadarDistance >> 4) : 0;
+            sonar_range = system_activated ? (unit_manager.unit_type[unit_type]->SonarDistance >> 4) : 0;
 
             units.map->update_player_visibility( owner_id, cur_px, cur_py, cur_sight, radar_range, sonar_range, 0, 0, false, old_px != cur_px || old_py != cur_py || cur_sight != sight );
 
@@ -7256,13 +7256,13 @@ script_exec:
                     glPointSize(1.0f);
                 }
                 if (unit[i].radar_range > 0)
-                    gfx->circle_zoned( pos_x, pos_y, (unit[i].radar_range << 3) * rw, 0.0f, 0.0f, 127.0f, 127.0f, makeacol( 0, 255, 0, 255 ) );
+                    gfx->circle_zoned( pos_x, pos_y, (unit[i].radar_range << 4) * rw, 0.0f, 0.0f, 127.0f, 127.0f, makeacol( 0, 255, 0, 255 ) );
                 if (unit[i].sonar_range > 0)
-                    gfx->circle_zoned( pos_x, pos_y, (unit[i].sonar_range << 3) * rw, 0.0f, 0.0f, 127.0f, 127.0f, makeacol( 0, 255, 0, 255 ) );
+                    gfx->circle_zoned( pos_x, pos_y, (unit[i].sonar_range << 4) * rw, 0.0f, 0.0f, 127.0f, 127.0f, makeacol( 0, 255, 0, 255 ) );
                 if (unit[i].radar_jam_range > 0)
-                    gfx->circle_zoned( pos_x, pos_y, (unit[i].radar_jam_range << 3) * rw, 0.0f, 0.0f, 127.0f, 127.0f, makeacol( 192, 192, 0, 255 ) );
+                    gfx->circle_zoned( pos_x, pos_y, (unit[i].radar_jam_range << 4) * rw, 0.0f, 0.0f, 127.0f, 127.0f, makeacol( 192, 192, 0, 255 ) );
                 if (unit[i].sonar_jam_range > 0)
-                    gfx->circle_zoned( pos_x, pos_y, (unit[i].sonar_jam_range << 3) * rw, 0.0f, 0.0f, 127.0f, 127.0f, makeacol( 192, 192, 0, 255 ) );
+                    gfx->circle_zoned( pos_x, pos_y, (unit[i].sonar_jam_range << 4) * rw, 0.0f, 0.0f, 127.0f, 127.0f, makeacol( 192, 192, 0, 255 ) );
                 if (anti_missile)
                     gfx->dot_circle_zoned( msec_timer * 0.001f, pos_x, pos_y, unit_manager.unit_type[ unit[i].type_id ]->weapon[0]->coverage * rw, 0.0f, 0.0f, 127.0f, 127.0f, 0xFFFFFFFF );
                 if (unit[i].radar_range > 0 || unit[i].radar_jam_range > 0 || unit[i].sonar_jam_range || unit[i].sonar_range > 0 || anti_missile)
