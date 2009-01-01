@@ -1,0 +1,9 @@
+[area]
+{
+	name=wait area;
+	skin=gui/default.skn;
+	windows=gui/wait.tdf;
+	background=gfx/wait.jpg;
+	width=1280;
+	height=1024;
+}
