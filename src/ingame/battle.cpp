@@ -3338,11 +3338,6 @@ namespace TA3D
                             lp_CONFIG->right_click_interface = params[0] == "enable";
                         else if (params[1] == "left_click_interface")
                             lp_CONFIG->right_click_interface = params[0] == "disable";
-                        else if (params[1] == "tcp_only" && params[0] == "enable" && network_manager.isServer())
-                        {
-                            g_ta3d_network->switchToTCPonly();
-                            network_manager.sendAll("TCP_ONLY");
-                        }
                     }
                     else if (params.size() == 2 && params[0] == "video" && params[1] == "shoot") video_shoot ^= true;		// Capture video
                     else if (params[0] == "shoot") shoot = true;					// Prend une capture d'écran
