@@ -374,7 +374,7 @@ namespace TA3D
                 if (nb_subframe)
                 {
                     f_pos = frames[subframe];
-                    
+
                     framedata.Width  = *((sint16*)(buf+f_pos));	f_pos += 2;
                     framedata.Height = *((sint16*)(buf+f_pos));	f_pos += 2;
                     framedata.XPos   = *((sint16*)(buf+f_pos));	f_pos += 2;
@@ -470,7 +470,7 @@ namespace TA3D
                     }
                 }
                 else
-                { 
+                {
                     // Si l'image n'est pas comprimée
                     img = create_bitmap_ex(8, framedata.Width, framedata.Height);
                     clear(img);
@@ -603,7 +603,7 @@ namespace TA3D
                     bmp[i-f] = tmp;
                 }
             }
-            else 
+            else
                 ++f;
         }
         nb_bmp -= f;
@@ -740,7 +740,7 @@ namespace TA3D
         for (int i = 0; i < pSize; ++i)
             pList[i].clean();
     }
-    
+
 
     void Gaf::AnimationList::convert(const bool no_filter, const bool compressed)
     {
