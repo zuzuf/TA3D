@@ -59,7 +59,7 @@ namespace TA3D
         /*!
         ** \brief Header of a Gaf file
         */
-        struct Header 
+        struct Header
         {
             //! \name Constructors
             //@{
@@ -113,7 +113,7 @@ namespace TA3D
             /*!
             ** \brief A single frame entry
             */
-            struct Entry 
+            struct Entry
             {
                 //! Pointer to frame data
                 sint32 PtrFrameTable;

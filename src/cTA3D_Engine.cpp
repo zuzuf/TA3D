@@ -106,7 +106,7 @@ namespace TA3D
 		TA3D::VARS::HPIManager = new TA3D::UTILS::HPI::cHPIHandler();
 
 		// Creating translation manager
-        I18N::Instance()->loadFromFile("gamedata\\translate.tdf", true, true);   
+        I18N::Instance()->loadFromFile("gamedata\\translate.tdf", true, true);
         I18N::Instance()->loadFromFile("ta3d.res", false);   // Loads translation data (TA3D translations in UTF8)
 
 		if (!HPIManager->Exists("gamedata\\sidedata.tdf") || !HPIManager->Exists("gamedata\\allsound.tdf") || !HPIManager->Exists("gamedata\\sound.tdf"))
@@ -238,4 +238,4 @@ namespace TA3D
 	}
 
 
-} // namespace TA3D 
+} // namespace TA3D
