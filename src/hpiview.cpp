@@ -416,10 +416,10 @@ namespace
                             byte *buffer = new byte[ buf_size ];
 
                             int img_size = buf_size;
-                            if( save_memory_jpg_ex( buffer, &img_size, frame_img, NULL, 85, JPG_SAMPLING_444, NULL ) ) // RGB channels
+                            if( save_memory_jpg_ex( buffer, &img_size, frame_img, NULL, 95, JPG_SAMPLING_444, NULL ) ) // RGB channels
                             {
                                 img_size = buf_size;
-                                if( save_memory_jpg_ex( buffer, &img_size, frame_img, NULL, 85, JPG_SAMPLING_444 | JPG_OPTIMIZE, NULL ) )		// RGB channels
+                                if( save_memory_jpg_ex( buffer, &img_size, frame_img, NULL, 95, JPG_SAMPLING_444 | JPG_OPTIMIZE, NULL ) )		// RGB channels
                                     printf("error saving '%s'\n", parser.pullAsString( format( "gadget%d.frame%d.filename", i + 1, e ) ).c_str() );
                             }
 
