@@ -230,7 +230,7 @@ namespace
      */
     bool hpiviewCmdPrint(int argc, char** argv)
     {
-        if(argc >= 3) 
+        if(argc >= 3)
         {
             HPIManager = new cHPIHandler();
             String::List file_list;
@@ -368,7 +368,14 @@ namespace
                     Entry.Unknown2 = 0;
                     Entry.name = parser.pullAsString( format( "gadget%d.name", i + 1 ) );
 
-                    fwrite( &Entry, 40, 1, gaf_file );
+                    fwrite( &Entry.Frames, 2, 1, gaf_file );
+                    fwrite( &Entry.Unknown1, 2, 1, gaf_file );
+                    fwrite( &Entry.Unknown2, 4, 1, gaf_file );
+                    char tmp[32];
+                    memset(tmp, 0, 32);
+                    memcpy(tmp, Entry.name.c_str(), Math::Min((int)Entry.name.size(), 32));
+                    tmp[32] = 0;
+                    fwrite(tmp, 32, 1, gaf_file);
 
                     Gaf::Frame::Entry FrameEntry;
                     int FrameEntryPos = ftell(gaf_file);
@@ -490,9 +497,9 @@ int hpiview(int argc, char *argv[])
             return hpiviewCmdShow(argc, argv);
         if (act == "minimap" || act == "/minimap" || act == "--minimap")
             return hpiviewCmdMiniMap(argc, argv);
-        if (act == "mapdescription" || act == "--mapdescription" || act == "/mapdescription") 
+        if (act == "mapdescription" || act == "--mapdescription" || act == "/mapdescription")
             return hpiviewCmdMapDescription(argc, argv);
-        if (act == "listmods" || act == "--listmods" || act == "/listmods") 
+        if (act == "listmods" || act == "--listmods" || act == "/listmods")
             return hpiviewCmdListMods(argc, argv);
         if (act == "extract" || act == "--extract" || act == "/extract")
             return hpiviewCmdExtract(argc, argv);
