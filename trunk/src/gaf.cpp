@@ -366,6 +366,10 @@ namespace TA3D
                     destroy_bitmap(img_alpha);
                 }
             }
+            else
+                for (int y = 0; y < frame_img->h; ++y)
+                    for (int x = 0; x < frame_img->w; ++x)
+                        putpixel( frame_img, x, y, getpixel(frame_img, x, y) | makeacol(0,0,0,0xFF) );
         }
         else
         {
