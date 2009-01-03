@@ -257,8 +257,8 @@ ELSE(NOT APPLE)
 	BUNDLE_INSTALL_GLOB("resources/languages" "languages" "*.txt")
 
 	# *.res
-	BUNDLE_BASIC_INSTALL("resources" "./" "ta3d.res")
-	BUNDLE_BASIC_INSTALL("resources" "./" "3dmeditor.res")
+	BUNDLE_BASIC_INSTALL("resources" "./resources" "ta3d.res")
+	BUNDLE_BASIC_INSTALL("resources" "./resources" "3dmeditor.res")
 
     # OS X specific
     ADD_EXECUTABLE(${TA3D_BIN} MACOSX_BUNDLE ${SOURCES})

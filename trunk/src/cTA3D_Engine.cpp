@@ -48,7 +48,7 @@ namespace TA3D
 
 	namespace
 	{
-		void showError(const String& s, const String& additional = "")
+		void showError(const String& s, const String& additional = String())
 		{
 			LOG_ERROR(I18N::Translate(s));
 			set_uformat(U_UTF8);   // fixed size, 8-bit ASCII characters
