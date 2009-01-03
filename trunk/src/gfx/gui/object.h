@@ -81,7 +81,7 @@ namespace TA3D
         ** \param Y1
         */
         void create_optionb(const float X1, const float Y1, const String& Caption, const bool ETAT, void (*F)(int),
-                            SKIN* skin = NULL, const float size = 1.0f);
+			SKIN* skin = NULL, const float size = 1.0f);
 
         /*!
         ** \brief Create a Text edit
@@ -92,7 +92,7 @@ namespace TA3D
         ** \param Y2
         */
         void create_textbar(const float X1, const float Y1, const float X2, const float Y2, const String& Caption,
-                            const unsigned int MaxChar, void(*F)(int) = NULL, const float size = 1.0f);
+			const unsigned int MaxChar, void(*F)(int) = NULL, const float size = 1.0f);
 
         /*!
         ** \brief Create a TEXTEDITOR widget, it's a large text editor
@@ -101,8 +101,11 @@ namespace TA3D
         ** \param Y1
         ** \param X2
         ** \param Y2
+		** \param caption
+		** \param size
         */
-        void create_texteditor(const float X1, const float Y1, const float X2, const float Y2, const String& Caption, const float size = 1.0f);
+        void create_texteditor(const float X1, const float Y1, const float X2, const float Y2,
+			const String& caption, const float size = 1.0f);
 
         /*!
         ** \brief Create a floatting menu
@@ -113,7 +116,8 @@ namespace TA3D
         ** \param F
         ** \param size
         */
-        void create_menu(const float X1, const float Y1, const String::Vector& Entry, void (*F)(int), const float size=1.0f);
+        void create_menu(const float X1, const float Y1, const String::Vector& Entry, void (*F)(int),
+			const float size=1.0f);
 
         /*!
         ** \brief Create a Popup menu
