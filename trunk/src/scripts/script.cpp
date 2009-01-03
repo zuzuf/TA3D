@@ -1641,12 +1641,13 @@ namespace TA3D
                 else if (params[ 0 ] == "d" )		// Destroy
                     m_File << "ta3d_kill_unit( unit_id )\n";
                 else if (params[ 0 ] == "p" ) {		// Patrol
-                    int e = 0;
-                    while( params.size() >= 3 + e * 2 ) {
+                    unsigned int e = 0;
+                    while (params.size() >= 3 + e * 2)
+					{
                         float pos_x = atof( params[ 2 * e + 1 ].c_str() ) * 0.5f;
                         float pos_z = atof( params[ 2 * e + 2 ].c_str() ) * 0.5f;
                         m_File << format( "ta3d_add_patrol_mission( unit_id, %f - 0.5 * ta3d_map_w(), %f - 0.5 * ta3d_map_h() )\n", pos_x, pos_z );
-                        e++;
+                        ++e;
                     }
                     orders_given = true;
                 }

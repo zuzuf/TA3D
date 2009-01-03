@@ -159,25 +159,33 @@ namespace TA3D
             pInputText.clear();
         }
 
-        if (pHistoryPos < 0)    pHistoryPos = 0;
-        else if (pHistoryPos > pLastCommands.size())    pHistoryPos = pLastCommands.size();
+        if (pHistoryPos < 0)
+			pHistoryPos = 0;
+        else
+		{
+			if (pHistoryPos > (int)pLastCommands.size())
+				pHistoryPos = pLastCommands.size();
+		}
 
         if (keyb == 0 && (keycode >> 8) == KEY_UP && pHistoryPos > 0)
-        {
-            --pHistoryPos;
-            pInputText = pLastCommands[pHistoryPos];
-        }
-        else if (keyb == 0 && (keycode >> 8) == KEY_DOWN && pHistoryPos < pLastCommands.size())
-        {
-            ++pHistoryPos;
-            if (pHistoryPos < pLastCommands.size())
-                pInputText = pLastCommands[pHistoryPos];
-            else
-                pInputText.clear();
-        }
+		{
+			--pHistoryPos;
+			pInputText = pLastCommands[pHistoryPos];
+		}
+		else
+		{
+			if (keyb == 0 && (keycode >> 8) == KEY_DOWN && pHistoryPos < (int)pLastCommands.size())
+			{
+				++pHistoryPos;
+				if (pHistoryPos < (int)pLastCommands.size())
+					pInputText = pLastCommands[pHistoryPos];
+				else
+					pInputText.clear();
+			}
+		}
 
-        if (keyb == 8 && pInputText.size() > 0)
-            pInputText.resize(pInputText.size() - 1);
+		if (keyb == 8 && pInputText.size() > 0)
+			pInputText.resize(pInputText.size() - 1);
 
         if ((keyb >= '0' && keyb <= '9') ||  (keyb >= 'a' && keyb <= 'z') || 
             (keyb >= 'A' && keyb <= 'Z') || 
