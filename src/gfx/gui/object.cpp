@@ -206,7 +206,8 @@ namespace TA3D
         s = size;
     }
 
-    void GUIOBJ::create_texteditor(const float X1, const float Y1, const float X2, const float Y2, const String& Caption, const float size)
+    void GUIOBJ::create_texteditor(const float X1, const float Y1, const float X2, const float Y2,
+		const String& caption, const float size)
     {
         Type = OBJ_TEXTEDITOR;
         x1 = X1;
@@ -217,11 +218,16 @@ namespace TA3D
         Focus = false;
         Text.resize(1);
         Text[0].clear();
-        for (int i = 0 ; i < Caption.size() ; i++)      // Split the entry in several lines
-            if (Caption[i] == '\n')
-                Text.push_back("");
-            else
-                Text.back() += Caption[i];
+		// TODO This algorithm is not efficient
+		String::const_iterator end = caption.end();
+		String empty;
+		for (String::const_iterator i = caption.begin(); i != end; ++i)
+		{
+			if ('\n' == *i)
+				Text.push_back(empty);
+			else
+				Text.back() += *i;
+		}
         Flag = FLAG_CAN_BE_CLICKED | FLAG_CAN_GET_FOCUS;
         Func = NULL;
         Data = 0;
@@ -262,7 +268,7 @@ namespace TA3D
         Focus = false;
         Text = Entry;
         if (Text.empty())
-            Text.push_back("");
+            Text.push_back(String());
         Func = F;
         Flag = FLAG_CAN_BE_CLICKED | FLAG_CAN_GET_FOCUS;
         s = size;
@@ -282,7 +288,7 @@ namespace TA3D
         Focus = false;
         Text = Entry;
         if (Text.empty())
-            Text.push_back("");
+            Text.push_back(String());
         Pos = 0; // Position sur la liste
         Func = F;
         Flag = FLAG_CAN_BE_CLICKED | FLAG_CAN_GET_FOCUS;
