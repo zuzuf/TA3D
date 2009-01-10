@@ -1,0 +1,9 @@
+[area]
+{
+	name=unit setup area;
+	skin=gui/default.skn;
+	windows=gui/unitsetup.tdf;
+	background=gfx/unitsetup.jpg;
+	width=1280;
+	height=1024;
+}

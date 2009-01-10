@@ -1,0 +1,57 @@
+[window]
+{
+    name=load_menu;
+	title=Load;
+	uformat=UTF8;
+	x=120;
+	y=80;
+	width=400;
+	height=320;
+	fullscreen=true;
+	screen width=640;
+	screen height=480;
+	draw borders=true;
+	show title=true;
+	lock=false;
+	number of objects=3;
+	hidden=true;
+	color=0xFFFFFFFF;
+	background=gfx/mdrn_background.jpg;
+	repeat background=true;
+	[object0]
+	{
+		name=l_file;
+		type=LIST;
+		entry=;
+		value=0xFFFFFFFF;
+		x1=10;
+		y1=30;
+		x2=390;
+		y2=280;
+		size=1;
+	}
+	[object1]
+	{
+		name=b_cancel;
+		type=BUTTON;
+		caption=Cancel;
+		x1=250;
+		y1=290;
+		x2=350;
+		y2=310;
+		on click=load_menu.hide;
+		size=1;
+	}
+	[object2]
+	{
+		name=b_load;
+		type=BUTTON;
+		caption=Load;
+		x1=50;
+		y1=290;
+		x2=150;
+		y2=310;
+		on click=load_menu.hide;
+		size=1;
+	}
+}

@@ -1,0 +1,9 @@
+[area]
+{
+	name=config area;
+	skin=gui/default.skn;
+	windows=gui/config.tdf,gui/config_display.tdf,gui/config_audio.tdf,gui/config_game.tdf,gui/config_confirm.tdf;
+	background=gfx/options.jpg;
+	width=1280;
+	height=1024;
+}
