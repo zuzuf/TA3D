@@ -318,13 +318,13 @@ int main(int argc, char* argv[])
         if (IsOnGUI && main_area.get_state("edit.menu_selec"))				// Affiche la partie prête à être sélectionnée
         {
             glColor3f(0.15f,0.15f,0.15f);
-            for (int i=0; i < cur_data.nb_piece; ++i)
+            for(int i=0;i<cur_data.nb_piece;i++)
                 cur_data.flag[i] = FLAG_ANIMATE;
             TheModel->draw(msec_timer * 0.001f,&cur_data,false,false,false,0,NULL,NULL,NULL,0.0f,NULL,false,0,false);
-            gfx->ReInitAllTex(true);
+            gfx->ReInitAllTex( true );
             glEnable(GL_TEXTURE_2D);
             glClear(GL_DEPTH_BUFFER_BIT);
-            for (int i = 0; i < cur_data.nb_piece; ++i)
+            for(int i=0 ; i < cur_data.nb_piece ; ++i)
                 cur_data.flag[i] = ((i == main_area.get_object("edit.menu_selec")->Data) ? 0 : FLAG_HIDE) | FLAG_ANIMATE;
             glColor3f(1.0f,1.0f,1.0f);
             TheModel->draw(msec_timer * 0.001f,&cur_data,false,false,false,0,NULL,NULL,NULL,0.0f,NULL,false,0,false);
@@ -332,28 +332,24 @@ int main(int argc, char* argv[])
             gfx->ReInitAllTex( true );
             glEnable(GL_TEXTURE_2D);
         }
-		else
-		{
-			if (TheModel) // Affichage normal
-			{
-				glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
-				for (int i = 0; i < cur_data.nb_piece; ++i)
-					cur_data.flag[i]= ((i != cur_part) ? 0 : FLAG_HIDE) | FLAG_ANIMATE;
-				TheModel->draw(msec_timer * 0.001f,&cur_data,false,false,false,0,NULL,NULL,NULL,0.0f,NULL,false,0,false);
-				gfx->ReInitAllTex( true );
-				glEnable(GL_TEXTURE_2D);
-				for(int i = 0; i < cur_data.nb_piece; ++i)
-					cur_data.flag[i] = ((i == cur_part) ? 0 : FLAG_HIDE) | FLAG_ANIMATE;
-				float col = cosf(msec_timer*0.002f)*0.375f+0.625f;
-				glColor3f(col, col, col);
-				TheModel->draw(msec_timer * 0.001f, &cur_data, false, false, false, 0,
-					NULL, NULL, NULL, 0.0f, NULL, false, 0, false);
-				glColor3f(1.0f, 1.0f, 1.0f);
-				gfx->ReInitAllTex(true);
-				glEnable(GL_TEXTURE_2D);
-			}
-		}
-		glEnable(GL_CULL_FACE);
+        else if (TheModel)					// Affichage normal
+        {
+            glColor4f(1.0f,1.0f,1.0f,1.0f);
+            for(int i=0;i<cur_data.nb_piece;i++)
+                cur_data.flag[i]= ((i != cur_part) ? 0 : FLAG_HIDE) | FLAG_ANIMATE;
+            TheModel->draw(msec_timer * 0.001f,&cur_data,false,false,false,0,NULL,NULL,NULL,0.0f,NULL,false,0,false);
+            gfx->ReInitAllTex( true );
+            glEnable(GL_TEXTURE_2D);
+            for(int i=0;i<cur_data.nb_piece;i++)
+                cur_data.flag[i]= ((i == cur_part) ? 0 : FLAG_HIDE) | FLAG_ANIMATE;
+            float col = cosf(msec_timer*0.002f)*0.375f+0.625f;
+            glColor3f(col,col,col);
+            TheModel->draw(msec_timer * 0.001f,&cur_data,false,false,false,0,NULL,NULL,NULL,0.0f,NULL,false,0,false);
+            glColor3f(1.0f,1.0f,1.0f);
+            gfx->ReInitAllTex( true );
+            glEnable(GL_TEXTURE_2D);
+        }
+        glEnable( GL_CULL_FACE );
 
         //----------- draw the sphere that shows where is attached the current object ------------------
 

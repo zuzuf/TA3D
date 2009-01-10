@@ -1236,9 +1236,8 @@ namespace TA3D
 
     void OBJECT::load_texture_id(int id)
     {
-        if (id < 0 || id >= 10)
-			return;
-        if (id < (int)tex_cache_name.size() && !tex_cache_name[id].empty() && TA3D::Paths::ExtractFileExt(tex_cache_name[id]) == ".tga")
+        if (id < 0 || id >= 10) return;
+        if (id < tex_cache_name.size() && !tex_cache_name[id].empty() && TA3D::Paths::ExtractFileExt( tex_cache_name[id] ) == ".tga" )
         {
                     // Use global texture configuration
             if (surface.Flag&SURFACE_ADVANCED)
@@ -1269,25 +1268,20 @@ namespace TA3D
             destroy_bitmap( bmp );
 
             tex_cache_name[id].clear();
-		}
-		else
-		{
-			if (id < (int)tex_cache_name.size() && !tex_cache_name[id].empty() && gfx->is_texture_in_cache(tex_cache_name[id]))
-			{
-				if (surface.Flag&SURFACE_ADVANCED)
-					surface.gltex[id] = gfx->load_texture_from_cache(tex_cache_name[id]);
-				else
-					gltex[id] = gfx->load_texture_from_cache(tex_cache_name[id]);
-				tex_cache_name[id].clear();
-			}
-		}
-	}
+        }
+        else if (id < tex_cache_name.size() && !tex_cache_name[id].empty() && gfx->is_texture_in_cache(tex_cache_name[id]))
+        {
+            if (surface.Flag&SURFACE_ADVANCED)
+                surface.gltex[id] = gfx->load_texture_from_cache(tex_cache_name[id]);
+            else
+                gltex[id] = gfx->load_texture_from_cache(tex_cache_name[id]);
+            tex_cache_name[id].clear();
+        }
+    }
 
-
-
-	void OBJECT::create_from_2d(BITMAP *bmp,float w,float h,float max_h)
-	{
-		destroy(); // Au cas où l'objet ne serait pas vierge
+    void OBJECT::create_from_2d(BITMAP *bmp,float w,float h,float max_h)
+    {
+        destroy();					// Au cas où l'objet ne serait pas vierge
 
         pos_from_parent.x = 0.0f;
         pos_from_parent.y = 0.0f;

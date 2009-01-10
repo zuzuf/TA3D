@@ -99,12 +99,11 @@ namespace TA3D
             {
                 guiobj->Text.resize(1);
                 guiobj->Text[0].clear();
-				String::const_iterator end = caption.end();
-                for (String::const_iterator i = caption.begin(); i != end; ++i)      // Split the entry in several lines
-                    if ('\n' == *i)
+                for (int i = 0 ; i < caption.size() ; i++)      // Split the entry in several lines
+                    if (caption[i] == '\n')
                         guiobj->Text.push_back("");
                     else
-                        guiobj->Text.back() += *i;
+                        guiobj->Text.back() += caption[i];
             }
             else
                 guiobj->Text[0] = caption;
@@ -570,18 +569,16 @@ namespace TA3D
         return -1;
     }
 
-
-
     String AREA::get_caption(const String& message)
     {
         MutexLocker locker(pMutex);
 
         String::size_type i = message.find('.');
-        if (String::npos != i)
+        if (i != String::npos)
         {
             String key = message.substr(0, i);						// Extracts the key
             String obj_name = message.substr(i + 1, message.size() - i - 1);
-            if (!key.empty() && key == "*")
+            if (key == "*")
             {
                 for (uint16 e = 0; e < vec_wnd.size(); ++e)// Search the window containing the object corresponding to the key
                 {
@@ -593,11 +590,12 @@ namespace TA3D
                             if (the_obj->Type == OBJ_TEXTEDITOR)
                             {
                                 String result = the_obj->Text[0];
-                                for (unsigned int i = 1; i < the_obj->Text.size(); ++i)
+                                for( int i = 1 ; i < the_obj->Text.size() ; i++ )
                                     result << '\n' << the_obj->Text[i];
                                 return result;
                             }
-							return the_obj->Text[0];	// Return what we found
+                            else
+                                return the_obj->Text[0];	// Return what we found
                         }
                         return "";
                     }
@@ -607,7 +605,7 @@ namespace TA3D
             {
                 WND* the_wnd = doGetWnd(key);
                 if (the_wnd)
-                    return the_wnd->get_caption(obj_name);
+                    return the_wnd->get_caption( obj_name );
             }
         }
         return "";

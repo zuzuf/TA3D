@@ -72,7 +72,7 @@ namespace TA3D
         ** total = 5
         */
 
-#define TA3DSOCK_BUFFER_SIZE 24576
+#define TA3DSOCK_BUFFER_SIZE 2560
 
         //chat order sync and event
         //these are sent and received over the network
