@@ -342,7 +342,7 @@ namespace Paths
         String root = ExtractFilePath(pattern);
         do
         {
-            if((info.attrib&required) == required)
+            if((info.attrib&required) == required && String(info.name) != "." && String(info.name) != "..")
                 out.push_back(root + (const char*)info.name);
         } while (al_findnext(&info) == 0);
         return !out.empty();
@@ -370,12 +370,12 @@ namespace Paths
 
     bool GlobDirs(String::List& out, const String& pattern, const bool emptyListBefore)
     {
-        return TmplGlob< String::List >(out, pattern, emptyListBefore, FA_DIREC, FA_DIREC);
+        return TmplGlob< String::List >(out, pattern, emptyListBefore, FA_ALL, FA_DIREC);
     }
 
     bool GlobDirs(String::Vector& out, const String& pattern, const bool emptyListBefore)
     {
-        return TmplGlob< String::Vector >(out, pattern, emptyListBefore, FA_DIREC, FA_DIREC);
+        return TmplGlob< String::Vector >(out, pattern, emptyListBefore, FA_ALL, FA_DIREC);
     }
 
 
