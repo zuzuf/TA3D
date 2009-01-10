@@ -55,14 +55,14 @@ SET(LIBS "")
 Message(STATUS "System: ${CMAKE_SYSTEM} (${CMAKE_SYSTEM_PROCESSOR})")
 
 
-# We want -O3 -g -ffast-math as default options, but we want to be able to override CXX_FLAGS from commandline
+# We want -O2 -g -ffast-math (-pipe) as default options, but we want to be able to override CXX_FLAGS from commandline
 string( LENGTH "${CMAKE_CXX_FLAGS}" VA )
 
 IF( ${VA} EQUAL 0 )
     IF(WIN32)
-	    SET( CMAKE_CXX_FLAGS "-O3 -g -ffast-math " )
+	    SET( CMAKE_CXX_FLAGS "-O2 -g -ffast-math " )
     ELSE(WIN32)
-	    SET( CMAKE_CXX_FLAGS "-O3 -g -Wall -ffast-math " )
+	    SET( CMAKE_CXX_FLAGS "-O2 -g -Wall -ffast-math -pipe " )
     ENDIF(WIN32)
 ENDIF( ${VA} EQUAL 0 )
 
