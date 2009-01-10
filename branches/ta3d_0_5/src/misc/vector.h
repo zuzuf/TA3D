@@ -213,7 +213,7 @@ inline const float operator % (const Vector3D& lhs, const Vector3D& rhs)
   |              Retourne l'angle en radians entre deux vecteurs
   \-------------------------------------*/
 
-inline double VAngle(const Vector3D& A, const Vector3D& B)
+inline float VAngle(const Vector3D& A, const Vector3D& B)
 {
     float a = sqrtf(A.sq() * B.sq());
     return (a == 0.0f) ? 0.0f : acosf((A % B) / a );
