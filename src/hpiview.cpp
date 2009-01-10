@@ -28,6 +28,7 @@
 #include "tnt.h"
 #include "logs/logs.h"
 #include "misc/paths.h"
+#include "misc/resources.h"
 #include <fstream>
 
 
@@ -171,7 +172,7 @@ namespace
             if( m_File.is_open() )
             {
                 String::List modlist;
-                if (Paths::Glob(modlist, "mods/*"))
+                if (Resources::GlobDirs(modlist, "mods/*"))
                 {
                     modlist.sort();
                     for (String::List::const_iterator i = modlist.begin(); i != modlist.end(); ++i)
