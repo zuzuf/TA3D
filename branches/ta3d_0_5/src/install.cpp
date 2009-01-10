@@ -8,22 +8,17 @@
 
 void install_TA_files( String def_path )
 {
-	allegro_init();
-
-	set_uformat( U_ASCII );
-
 #ifdef TA3D_PLATFORM_WINDOWS					// Possible cd-rom path for windows
 	int		nb_possible_path = 23;
 	const char	*possible_path[] = {	"D:\\", "E:\\", "F:\\", "G:\\", "H:\\", "I:\\", "J:\\", "K:\\", "L:\\", "M:\\", "N:\\", "O:\\", "P:\\", "Q:\\", "R:\\", "S:\\", "T:\\",
 										"U:\\", "V:\\", "W:\\", "X:\\", "Y:\\", "Z:\\" };
 #else											// Possible cd-rom path for other platforms
-	int		nb_possible_path = 42;
-	const char	*possible_path[] = {	"/media/cdrom/", "/media/cdrom0/", "/media/cdrom1/", "/media/cdrom2/", "/media/cdrom3/", "/media/cdrom4/", "/media/cdrom5/",
-										"/mnt/cdrom/", "/mnt/cdrom0/", "/mnt/cdrom1/", "/mnt/cdrom2/", "/mnt/cdrom3/", "/mnt/cdrom4/", "/mnt/cdrom5/",
-										"/mnt/dvd/", "/mnt/dvd0/", "/mnt/dvd1/", "/mnt/dvd2/", "/mnt/dvd3/", "/mnt/dvd4/", "/mnt/dvd5/",
-										"/mnt/dvdrecorder/", "/mnt/dvdrecorder0/", "/mnt/dvdrecorder1/", "/mnt/dvdrecorder2/", "/mnt/dvdrecorder3/", "/mnt/dvdrecorder4/", "/mnt/dvdrecorder5/",
-										"/media/dvd/", "/media/dvd0/", "/media/dvd1/", "/media/dvd2/", "/media/dvd3/", "/media/dvd4/", "/media/dvd5/",
-										"/media/dvdrecorder/", "/media/dvdrecorder0/", "/media/dvdrecorder1/", "/media/dvdrecorder2/", "/media/dvdrecorder3/", "/media/dvdrecorder4/", "/media/dvdrecorder5/" };
+    String::Vector possible_path;
+    Paths::GlobDirs(possible_path,"/media/*",false);
+    Paths::GlobDirs(possible_path,"/mnt/*",false);
+    int nb_possible_path = possible_path.size();
+    for(int i = 0 ; i < possible_path.size() ; i++)
+        possible_path[i] << "/";
 #endif
 
 	String path_to_TA_cd = "";
@@ -63,9 +58,10 @@ void install_TA_files( String def_path )
 		}
 		else									// Look for a path where we can find totala3.hpi
 		{
-		    uint32 timer = msec_timer;
-		    while (path_to_TA_cd == "" && msec_timer -  timer < 5000)
+		    uint32 n = 0;
+		    while (path_to_TA_cd == "" && n < 50)
 		    {
+		        n++;
 		        rest(100);            // To prevent too much load on the CPU
 			    for(int i = 0 ; i < nb_possible_path ; i++ )
 			    {
@@ -78,7 +74,7 @@ void install_TA_files( String def_path )
 		}
 	}
 
-	HPIManager=new cHPIHandler( path_to_TA_cd );
+	HPIManager = new cHPIHandler( path_to_TA_cd );
 
 	uint32 file_size32 = 0;
 	byte *data = HPIManager->PullFromHPI_zone( "install\\totala1.hpi", 0, buf_size, &file_size32);			// Extract the totala1.hpi file from the TA CD
@@ -95,7 +91,7 @@ void install_TA_files( String def_path )
 		textprintf_centre_ex( screen, font, 320, 40, 0x0, -1, "Extracting totala1.hpi ( step 1/2 )" );
 
 		FILE *dst = TA3D_OpenFile(Paths::Resources + "totala1.hpi","wb");
-		
+
 		if (dst)
         {
 			fwrite(data,buf_size,1,dst);
@@ -162,19 +158,20 @@ void install_TA_files( String def_path )
 	}
 	else
 		success = false;
-		
+
 	if (success)
 	{
-	
+
 		if (!exists( ( path_to_TA_cd + "totala4.hpi" ).c_str() ))
 		{
 			allegro_message( "please mount/insert your TA cdrom now (TA CD 2) if you want to install campaign files" );
 
 											// Look for a path where we can find totala4.hpi
-		    uint32 timer = msec_timer;
+		    uint32 n = 0;
             path_to_TA_cd = "";
-		    while (path_to_TA_cd == "" && msec_timer -  timer < 5000)
+		    while (path_to_TA_cd == "" && n < 50)
 		    {
+		        n++;
 		        rest(100);            // To prevent too much load on the CPU
 			    for(int i = 0 ; i < nb_possible_path ; i++ )
 			    {
@@ -234,10 +231,11 @@ void install_TA_files( String def_path )
 			String file_destination[] = { "ccdata.ccx", "ccmaps.ccx", "ccmiss.ccx" };
 			rectfill( screen, 0, 0, 640, 480, 0x7F7F7F );
 											// Look for a path where we can find the files we need
-		    uint32 timer = msec_timer;
+		    uint32 n = 0;
             path_to_TA_cd = "";
-		    while (path_to_TA_cd == "" && msec_timer -  timer < 5000)
+		    while (path_to_TA_cd == "" && n < 50)
 		    {
+		        n++;
 		        rest(100);            // To prevent too much load on the CPU
 			    for(int i = 0 ; i < nb_possible_path ; i++ )
 			    {
@@ -247,7 +245,7 @@ void install_TA_files( String def_path )
                     path_to_TA_cd = "";
 			    }
 			}
-			
+
 			if( exists( ( path_to_TA_cd + file_to_copy_alternative[ 0 ] ).c_str() ) )			// We found a path to an alternative TA CD
 				for( int i = 0 ; i < nb_files ; i++ )
 					file_to_copy[i] = file_to_copy_alternative[i];
@@ -309,10 +307,11 @@ void install_TA_files( String def_path )
 			int Y = 0;
 			rectfill( screen, 0, 0, 640, 480, 0x7F7F7F );
 											// Look for a path where we can find the files we need
-		    uint32 timer = msec_timer;
+		    uint32 n = 0;
             path_to_TA_cd = "";
-		    while (path_to_TA_cd == "" && msec_timer -  timer < 5000)
+		    while (path_to_TA_cd == "" && n < 50)
 		    {
+		        n++;
 		        rest(100);            // To prevent too much load on the CPU
 			    for(int i = 0 ; i < nb_possible_path ; i++ )
 			    {
@@ -371,9 +370,7 @@ void install_TA_files( String def_path )
 	}
 
 	if( ! success )							// Print an error message
-		allegro_message( "Installation failed:\n    Unable to find TA's cd path!!\n\nplease use this syntax:\n    ta3d install path_to_TA_cd\n                                         \n" );
+		allegro_message( "Installation failed:\n    Unable to find TA's cd path!!\n\nplease use this syntax:\n    ta3d --install path_to_TA_cd\n                                         \n" );
 	else
-		allegro_message( "Installation Successful!!\nNow just run ta3d from its base directory and have fun ;-)!\n\nPS: You can also copy the rev31.gp3 file from TA 3.1 patch !!\nThis installer cannot extract it :(\n" );
-
-	allegro_exit();
+		allegro_message( "Installation Successful!!\nNow just run ta3d and have fun ;-)!\n\nPS: You can also copy the rev31.gp3 file from TA 3.1 patch !!\nThis installer cannot extract it :(\n" );
 }
