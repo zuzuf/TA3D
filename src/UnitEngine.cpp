@@ -7464,8 +7464,8 @@ script_exec:
             glStencilFunc(GL_ALWAYS,128, 0xffffffff);
             glEnable(GL_CULL_FACE);
 
-           for (std::vector<uint16>::iterator e = visible_unit.begin(); e != visible_unit.end(); ++e)
-           {
+            for (std::vector<uint16>::iterator e = visible_unit.begin(); e != visible_unit.end(); ++e)
+            {
                 pMutex.lock();
                 uint16 i = *e;
                 pMutex.unlock();
