@@ -129,7 +129,7 @@ namespace TA3D
     public:
         uint32		nb_part;		// Nombre de particules
         uint32		size;			// Quantité maximale de particules stockables dans le tableau
-        std::list<PARTICLE>	part;	// Liste des particules / Particle list
+        std::vector<PARTICLE>	part;	// Liste des particules / Particle list
         GLuint		parttex;		// Textures des particules
         BITMAP		*partbmp;		// Textures des particules
         bool		dsmoke;
@@ -145,7 +145,7 @@ namespace TA3D
         bool  thread_ask_to_stop;
         Vector3D* p_wind_dir;
         float* p_g;
-        std::list<ParticlesSystem*> particle_systems;
+        std::vector<ParticlesSystem*> particle_systems;
         int  Run();
         void  SignalExitThread();
 
