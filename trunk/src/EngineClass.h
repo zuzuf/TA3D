@@ -99,7 +99,7 @@ namespace TA3D
         float		dh;					// dérivée maximale en valeur absolue de l'altitude
         bool		underwater;			// indique si le bloc est sous l'eau
         sint32		stuff;				// Indique l'élément graphique présent sur ce secteur
-        sint16		unit_idx;			// Indice de l'unité qui se trouve sur ce secteur
+        sint32		unit_idx;			// Indice de l'unité qui se trouve sur ce secteur
         bool		lava;				// Is that under lava ?? Used for pathfinding
         IDX_LIST	air_idx;			// This is the list that stores indexes of air units
         bool		flat;				// Used by the map renderer to simplify geometry
@@ -303,13 +303,13 @@ namespace TA3D
 
         float get_nh(int x,int y);
 
-        void rect(int x1,int y1,int w,int h,short c,const String &yardmap = String(),bool open=false);
+        void rect(int x1,int y1,int w,int h,int c,const String &yardmap = String(),bool open=false);
 
         void air_rect( int x1, int y1, int w, int h, short c, bool remove = false);
 
-        bool check_rect(int x1,int y1,int w,int h,short c);
+        bool check_rect(int x1,int y1,int w,int h,int c);
 
-        bool check_rect_discovered(int x1,int y1,int w,int h,short c); // Check if the area has been fully discovered
+        bool check_rect_discovered(int x1,int y1,int w,int h,int c); // Check if the area has been fully discovered
 
         float check_rect_dh(int x1,int y1,int w,int h);
 

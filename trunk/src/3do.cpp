@@ -4105,7 +4105,7 @@ namespace TA3D
     {
         for (uint16 i = 0; i < DrawingTable_SIZE; ++i)
         {
-            for (std::list< RenderQueue* >::iterator e = hash_table[i].begin(); e != hash_table[i].end(); ++e)
+            for (std::vector< RenderQueue* >::iterator e = hash_table[i].begin(); e != hash_table[i].end(); ++e)
                 delete *e;
         }
         hash_table.clear();
@@ -4115,7 +4115,7 @@ namespace TA3D
     void DrawingTable::queue_Instance( uint32 &model_id, Instance instance )
     {
         uint32	hash = model_id & DrawingTable_MASK;
-        for (std::list< RenderQueue* >::iterator i = hash_table[ hash ].begin(); i != hash_table[hash].end(); ++i)
+        for (std::vector< RenderQueue* >::iterator i = hash_table[ hash ].begin(); i != hash_table[hash].end(); ++i)
         {
             if ((*i)->model_id == model_id)// We found an already existing render queue
             {
@@ -4132,7 +4132,7 @@ namespace TA3D
     void DrawingTable::draw_all()
     {
         for (uint16 i = 0; i < DrawingTable_SIZE; ++i)
-            for (std::list< RenderQueue* >::iterator e = hash_table[ i ].begin() ; e != hash_table[ i ].end() ; e++ )
+            for (std::vector< RenderQueue* >::iterator e = hash_table[ i ].begin() ; e != hash_table[ i ].end() ; ++e )
                 (*e)->draw_queue();
     }
 
@@ -4157,7 +4157,7 @@ namespace TA3D
             glEndList();
         }
 
-        for (std::list< Instance >::iterator i = queue.begin() ; i != queue.end() ; ++i)
+        for (std::vector< Instance >::iterator i = queue.begin() ; i != queue.end() ; ++i)
         {
             glPopMatrix();
             glPushMatrix();
@@ -4189,7 +4189,7 @@ namespace TA3D
     {
         for (uint16 i = 0; i < DrawingTable_SIZE; ++i)
         {
-            for (std::list< QUAD_QUEUE* >::iterator e = hash_table[ i ].begin() ; e != hash_table[ i ].end() ; ++e)
+            for (std::vector< QUAD_QUEUE* >::iterator e = hash_table[ i ].begin() ; e != hash_table[ i ].end() ; ++e)
                 delete *e;
         }
         hash_table.clear();
@@ -4199,7 +4199,7 @@ namespace TA3D
     void QUAD_TABLE::queue_quad(GLuint& texture_id, QUAD quad)
     {
         uint32	hash = texture_id & DrawingTable_MASK;
-        for (std::list< QUAD_QUEUE* >::iterator i = hash_table[ hash ].begin() ; i != hash_table[ hash ].end() ; ++i)
+        for (std::vector< QUAD_QUEUE* >::iterator i = hash_table[ hash ].begin() ; i != hash_table[ hash ].end() ; ++i)
         {
             if ((*i)->texture_id == texture_id ) // We found an already existing render queue
             {
@@ -4218,7 +4218,7 @@ namespace TA3D
         uint32	max_size = 0;
         for (uint16 i = 0; i < DrawingTable_SIZE ; ++i)
         {
-            for (std::list< QUAD_QUEUE* >::iterator e = hash_table[i].begin(); e != hash_table[i].end(); ++e)
+            for (std::vector< QUAD_QUEUE* >::iterator e = hash_table[i].begin(); e != hash_table[i].end(); ++e)
                 max_size = Math::Max( max_size, (uint32)(*e)->queue.size());
         }
 
@@ -4252,7 +4252,7 @@ namespace TA3D
 
         for (uint16 i = 0; i < DrawingTable_SIZE; ++i)
         {
-            for (std::list< QUAD_QUEUE* >::iterator e = hash_table[i].begin(); e != hash_table[i].end(); ++e)
+            for (std::vector< QUAD_QUEUE* >::iterator e = hash_table[i].begin(); e != hash_table[i].end(); ++e)
                 (*e)->draw_queue(P, C, T);
         }
 
@@ -4271,7 +4271,7 @@ namespace TA3D
         glPushMatrix();
 
         int i = 0;
-        for (std::list<QUAD>::iterator e = queue.begin(); e != queue.end(); ++e)
+        for (std::vector<QUAD>::iterator e = queue.begin(); e != queue.end(); ++e)
         {
             P[i].x = e->pos.x - e->size_x;
             P[i].y = e->pos.y;
@@ -4303,7 +4303,7 @@ namespace TA3D
         if (lp_CONFIG->underwater_bright && INSTANCING::water)
         {
             i = 0;
-            for (std::list<QUAD>::iterator e = queue.begin(); e != queue.end(); ++e)
+            for (std::vector<QUAD>::iterator e = queue.begin(); e != queue.end(); ++e)
             {
                 if (e->pos.y >= INSTANCING::sealvl) continue;
                 P[i].x = e->pos.x - e->size_x;
