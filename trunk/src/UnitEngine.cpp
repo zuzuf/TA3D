@@ -7386,7 +7386,7 @@ script_exec:
         if (low_def)
             glDisable(GL_DEPTH_TEST);
 
-        for (std::list<uint16>::iterator e = visible_unit.begin(); e != visible_unit.end(); ++e)
+        for (std::vector<uint16>::iterator e = visible_unit.begin(); e != visible_unit.end(); ++e)
         {
             uint16 i = *e;
             pMutex.unlock();
@@ -7438,7 +7438,7 @@ script_exec:
             glActiveStencilFaceEXT(GL_BACK);
             glStencilOp(GL_KEEP, GL_KEEP, GL_DECR_WRAP_EXT);
 
-            for (std::list<uint16>::iterator e = visible_unit.begin(); e != visible_unit.end(); ++e)
+            for (std::vector<uint16>::iterator e = visible_unit.begin(); e != visible_unit.end(); ++e)
             {
                 pMutex.lock();
                 uint16 i = *e;
@@ -7464,7 +7464,7 @@ script_exec:
             glStencilFunc(GL_ALWAYS,128, 0xffffffff);
             glEnable(GL_CULL_FACE);
 
-           for (std::list<uint16>::iterator e = visible_unit.begin(); e != visible_unit.end(); ++e)
+           for (std::vector<uint16>::iterator e = visible_unit.begin(); e != visible_unit.end(); ++e)
            {
                 pMutex.lock();
                 uint16 i = *e;

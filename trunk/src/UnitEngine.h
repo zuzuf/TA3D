@@ -550,7 +550,7 @@ namespace TA3D
         uint32	last_tick[5];
         sint32	last_on;				// Indicate the unit index which was under the cursor (mini map orders)
 
-        std::list< uint16 >     visible_unit;               // A list to store visible units
+        std::vector< uint16 >     visible_unit;             // A list to store visible units
         std::vector< std::list< uint16 > >	requests;		// Store all the request for pathfinder calls
 
     public:
