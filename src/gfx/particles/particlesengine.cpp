@@ -505,8 +505,11 @@ namespace TA3D
             else
             {
                 delete *i;
+                bool quit = (i + 1 == particle_systems.end());
                 *i = particle_systems.back();
                 particle_systems.pop_back();
+                if (quit)
+                    break;
             }
             pMutex.unlock();
             pMutex.lock();
@@ -526,9 +529,12 @@ namespace TA3D
             e->life -= dt;
             if (e->life < 0.0f)
             {
+                bool quit =  (e + 1 == part.end());
                 *e = part.back();
                 part.pop_back();
                 nb_part--;
+                if (quit)
+                    break;
                 continue;
             }
             Vector3D RAND;

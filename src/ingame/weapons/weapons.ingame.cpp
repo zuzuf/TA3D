@@ -124,9 +124,11 @@ namespace TA3D
             {
                 --nb_weapon;
                 free_idx.push_back( i );
-                if (e + 1 != idx_list.end())
-                    *e = idx_list.back();
+                bool quit = (e + 1 == idx_list.end());
+                *e = idx_list.back();
                 idx_list.pop_back();
+                if (quit)
+                    break;
             }
             else
                 ++e;
