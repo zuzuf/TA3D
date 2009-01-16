@@ -5080,7 +5080,7 @@ namespace TA3D
                     mem_size -= e;
                     unlock();
                     weapons.lock();
-                    for(std::list<uint32>::iterator f = weapons.idx_list.begin() ; f != weapons.idx_list.end() ; ++f)
+                    for(std::vector<uint32>::iterator f = weapons.idx_list.begin() ; f != weapons.idx_list.end() ; ++f)
                     {
                         uint32 i = *f;
                         // Yes we don't defend against allies :D, can lead to funny situations :P

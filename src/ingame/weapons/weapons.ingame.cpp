@@ -78,8 +78,8 @@ namespace TA3D
 
         if (nb_weapon < weapon.size())// S'il y a encore de la place
         {
-            uint32 i = free_idx.front();
-            free_idx.pop_front();
+            uint32 i = free_idx.back();
+            free_idx.pop_back();
             idx_list.push_back(i);
             ++nb_weapon;
             weapon[i].init();
@@ -112,7 +112,7 @@ namespace TA3D
             return;
         }
 
-        for (std::list<uint32>::iterator e = idx_list.begin() ; e != idx_list.end() ; )
+        for (std::vector<uint32>::iterator e = idx_list.begin() ; e != idx_list.end() ; )
         {
             // TODO Check if it is really necessary by now
             pMutex.unlock();// Pause to give the renderer the time to work and to go at the given engine speed (in ticks per sec.)
@@ -124,7 +124,9 @@ namespace TA3D
             {
                 --nb_weapon;
                 free_idx.push_back( i );
-                idx_list.erase(e++);
+                if (e + 1 != idx_list.end())
+                    *e = idx_list.back();
+                idx_list.pop_back();
             }
             else
                 ++e;
@@ -147,7 +149,7 @@ namespace TA3D
         if (cam)
             cam->setView();
 
-        for(std::list<uint32>::iterator e = idx_list.begin() ; e != idx_list.end() ; ++e)
+        for(std::vector<uint32>::iterator e = idx_list.begin() ; e != idx_list.end() ; ++e)
         {
             uint32 i = *e;
             if((weapon[i].Pos.y<map->sealvl && underwater) || (weapon[i].Pos.y>=map->sealvl && !underwater))
@@ -175,7 +177,7 @@ namespace TA3D
 
         glColor4ub(0xFF, 0xFF, 0xFF, 0xFF);
         glEnable(GL_TEXTURE_2D);
-        for (std::list<uint32>::iterator e = idx_list.begin() ; e != idx_list.end() ; ++e)
+        for (std::vector<uint32>::iterator e = idx_list.begin() ; e != idx_list.end() ; ++e)
         {
             uint32 i = *e;
             if(weapon_manager.weapon[weapon[i].weapon_id].cruise || weapon_manager.weapon[weapon[i].weapon_id].interceptor)
@@ -183,7 +185,7 @@ namespace TA3D
                 glEnable(GL_TEXTURE_2D);
                 glEnable(GL_BLEND);
                 glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
-                int idx=weapon[i].owner;
+                int idx = weapon[i].owner;
                 GFX::PutTextureInsideRect(nuclogo.glbmp[idx], weapon[i].Pos.x * rw + 64.0f - nuclogo.ofs_x[idx],
                                           weapon[i].Pos.z * rh + 64.0f - nuclogo.ofs_y[idx],
                                           weapon[i].Pos.x * rw + 63.0f - nuclogo.ofs_x[idx] + nuclogo.w[idx],
@@ -198,7 +200,7 @@ namespace TA3D
             }
         }
         glDisable(GL_TEXTURE_2D);
-        
+
         glDisableClientState(GL_NORMAL_ARRAY);              // Render all points in one pass
         glDisableClientState(GL_COLOR_ARRAY);
         glDisableClientState(GL_TEXTURE_COORD_ARRAY);
@@ -208,11 +210,11 @@ namespace TA3D
         glDrawArrays( GL_POINTS, 0, n );
 
         glEnable(GL_TEXTURE_2D);
-        
+
         delete[] points;
     }
 
-    
+
     int INGAME_WEAPONS::Run()
     {
         thread_running = true;
