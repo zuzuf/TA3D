@@ -202,7 +202,7 @@ void save_game( const String filename, GameData *game_data )
     uint32 index_list_size = weapons.idx_list.size();
     SAVE( index_list_size );
 
-    for(std::list<uint32>::iterator e = weapons.idx_list.begin() ; e != weapons.idx_list.end() ; ++e)
+    for(std::vector<uint32>::iterator e = weapons.idx_list.begin() ; e != weapons.idx_list.end() ; ++e)
     {
         uint32 i = *e;
         SAVE( i );
