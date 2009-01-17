@@ -25,7 +25,7 @@ namespace Menus
         return (r);
     }
 
-        
+
     bool Abstract::doGuardInitialize()
     {
         pMouseX = -1;
@@ -62,8 +62,8 @@ namespace Menus
         if (!pArea->background)
             pArea->background = gfx->glfond;
     }
-        
-    
+
+
     bool Abstract::doLoop()
     {
         // Wait for an event (mouse, keyboard...)
@@ -94,10 +94,9 @@ namespace Menus
     void Abstract::redrawTheScreen()
     {
         pArea->draw();
-        show_mouse(screen);
-        algl_draw_mouse();
-        show_mouse(NULL);
+        SDL_ShowCursor(SDL_ENABLE);
         gfx->flip();
+        SDL_ShowCursor(SDL_DISABLE);
     }
 
 

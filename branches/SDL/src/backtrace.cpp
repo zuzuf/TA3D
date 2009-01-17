@@ -86,9 +86,7 @@ void backtrace_handler (int signum)
         # ifdef TA3D_PLATFORM_WINDOWS
 		    ::MessageBoxA( NULL, szErrReport.c_str(), "TA3D Application Error", MB_OK  | MB_TOPMOST | MB_ICONERROR );
         # else
-		    allegro_init();
-		    allegro_message( szErrReport.c_str() );
-		    allegro_exit();
+		    std::cerr << szErrReport << std::endl;
         # endif // TA3D_PLATFORM_WINDOWS
 	}
 	else
@@ -111,11 +109,9 @@ our forums (http://ta3d.darkstars.co.uk/) so we can fix it.";
         # ifdef TA3D_PLATFORM_WINDOWS
 	        ::MessageBoxA( NULL, szErrReport.c_str(), "TA3D Application Error", MB_OK  | MB_TOPMOST | MB_ICONERROR );
         # else
-	        allegro_init();
-	        allegro_message( szErrReport.c_str() );
-	        allegro_exit();
+		    std::cerr << szErrReport << std::endl;
         # endif // ifdef TA3D_PLATFORM_LINUX
-    
+
     #endif // ifdef TA3D_BACKTRACE_SUPPORT
 	exit(-1);
 }

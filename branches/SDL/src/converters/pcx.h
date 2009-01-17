@@ -14,12 +14,12 @@ namespace Converters
     {
     public:
         /*!
-        ** \brief Load a PCX file using the HPI manager and convert it into a BITMAP
+        ** \brief Load a PCX file using the HPI manager and convert it into a SDL_Surface
         **
         ** \param filename The file to find using the HPI manager
         ** \return NULL if not foud
         */
-        static BITMAP* FromHPIToBitmap(const String& filename);
+        static SDL_Surface* FromHPIToBitmap(const String& filename);
 
         /*!
         ** \brief Convert the raw data of a PCX file
@@ -28,7 +28,7 @@ namespace Converters
         ** \param cpal The palette to use
         ** \return A valid instance. NULL if `data` or cpal is NULL
         */
-        static BITMAP* RawDataToBitmap(const byte* data, const RGB* cpal);
+        static SDL_Surface* RawDataToBitmap(const byte* data, const SDL_Color* cpal);
 
     }; // class PCX
 

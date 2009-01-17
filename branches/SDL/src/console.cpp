@@ -109,7 +109,7 @@ namespace TA3D
             }
         }
 
-        set_uformat(U_UTF8);
+//        set_uformat(U_UTF8);
         char keyb = 0;
         int keycode = 0;
 
@@ -141,7 +141,7 @@ namespace TA3D
 
         // Print all lines
         int i = 0;
-        for (String::List::const_iterator i_entry = pLastEntries.begin(); i_entry != pLastEntries.end(); ++i_entry) 
+        for (String::List::const_iterator i_entry = pLastEntries.begin(); i_entry != pLastEntries.end(); ++i_entry)
         {
             gfx->print(fnt, 0.0f, maxh - fsize * (pLastEntries.size() + 1 - i) - 5.0f, 0.0f,
                        0xAFAFAFAF, ">" + *i_entry);
@@ -187,15 +187,15 @@ namespace TA3D
 		if (keyb == 8 && pInputText.size() > 0)
 			pInputText.resize(pInputText.size() - 1);
 
-        if ((keyb >= '0' && keyb <= '9') ||  (keyb >= 'a' && keyb <= 'z') || 
-            (keyb >= 'A' && keyb <= 'Z') || 
-            keyb == 32 || keyb == '_' || keyb == '+' || keyb == '-' || keyb == '.') 
+        if ((keyb >= '0' && keyb <= '9') ||  (keyb >= 'a' && keyb <= 'z') ||
+            (keyb >= 'A' && keyb <= 'Z') ||
+            keyb == 32 || keyb == '_' || keyb == '+' || keyb == '-' || keyb == '.')
         {
-            if (pInputText.size() < 199) 
+            if (pInputText.size() < 199)
                 pInputText << keyb;
         }
         glDisable(GL_BLEND);
-        set_uformat(U_ASCII);
+//        set_uformat(U_ASCII);
 
         if (forceShow)
         {

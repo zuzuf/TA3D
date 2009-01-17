@@ -135,6 +135,19 @@ namespace TA3D
     void poll_mouse()
     {
     }
+
+	void position_mouse(int x, int y)
+	{
+	    mouse_x = x;
+	    mouse_y = y;
+	    SDL_WarpMouse(x,y);
+	}
+
+	void get_mouse_mickeys(int *mx, int *my)
+	{
+	    *mx = 0;
+	    *my = 0;
+	}
 } // namespace TA3D
 
 

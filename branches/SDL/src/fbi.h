@@ -130,7 +130,7 @@ namespace TA3D
         SCRIPT  *script;            // Scripts de l'unité
         GLuint  glpic;              // Image de l'unité sous forme de texture OpenGl
         MODEL   *model;             // Modèle associé à l'unité
-        BITMAP  *unitpic;           // Image de l'unité
+        SDL_Surface  *unitpic;      // Image de l'unité / Unit picture
         bool    isfeature;          // tell if we must turn this unit into a feature
         byte    SortBias;
         short   AltFromSeaLevel;

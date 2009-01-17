@@ -35,7 +35,11 @@ bool	g_useCopyDepthToColor = false;
 bool	g_useProgram = false;
 bool	g_useFBO = false;
 
-
+bool is_extension_supported(const String &name)
+{
+    String extensions = (char*)glGetString(GL_EXTENSIONS);
+    return extensions.find(name) != std::string::npos;
+}
 
 
 #if (defined TA3D_PLATFORM_WINDOWS && defined TA3D_PLATFORM_MSVC) || defined TA3D_PLATFORM_LINUX
@@ -51,23 +55,22 @@ static void installOpenGLExtensionsPointers()
 #if not defined TA3D_PLATFORM_LINUX
     if(MultiTexturing)
     {
-		glActiveTextureARB = (void (*)(GLenum)) allegro_gl_get_proc_address("glActiveTextureARB");
-		glMultiTexCoord2fARB = (void (*)(GLenum, GLfloat, GLfloat)) allegro_gl_get_proc_address("glMultiTexCoord2fARB");
-		glClientActiveTextureARB = (void (*)(GLenum)) allegro_gl_get_proc_address("glClientActiveTextureARB");
+		glActiveTextureARB = (void (*)(GLenum)) SDL_GL_GetProcAddress("glActiveTextureARB");
+		glMultiTexCoord2fARB = (void (*)(GLenum, GLfloat, GLfloat)) SDL_GL_GetProcAddress("glMultiTexCoord2fARB");
+		glClientActiveTextureARB = (void (*)(GLenum)) SDL_GL_GetProcAddress("glClientActiveTextureARB");
 		CHECK_OPENGL_FUNCTION( MultiTexturing, glActiveTextureARB, MultiTexturing )
 		CHECK_OPENGL_FUNCTION( MultiTexturing, glMultiTexCoord2fARB, MultiTexturing )
 		CHECK_OPENGL_FUNCTION( MultiTexturing, glClientActiveTextureARB, MultiTexturing )
 		if (!MultiTexturing)
             LOG_WARNING( LOG_PREFIX_OPENGL << "MultiTexturing support will be disbaled");
 	}
-#endif
 	if(g_useFBO)
     {
-		glDeleteFramebuffersEXT = (void (*)(GLsizei, const GLuint*)) allegro_gl_get_proc_address("glDeleteFramebuffersEXT");
-		glDeleteRenderbuffersEXT = (void (*)(GLsizei, const GLuint*)) allegro_gl_get_proc_address("glDeleteRenderbuffersEXT");
-		glBindFramebufferEXT = (void (*)(GLenum, GLuint)) allegro_gl_get_proc_address("glBindFramebufferEXT");
-		glFramebufferTexture2DEXT = (void (*)(GLenum, GLenum, GLenum, GLuint, GLint)) allegro_gl_get_proc_address("glFramebufferTexture2DEXT");
-		glFramebufferRenderbufferEXT = (void (*)(GLenum, GLenum, GLenum, GLuint)) allegro_gl_get_proc_address("glFramebufferRenderbufferEXT");
+		glDeleteFramebuffersEXT = (void (*)(GLsizei, const GLuint*)) SDL_GL_GetProcAddress("glDeleteFramebuffersEXT");
+		glDeleteRenderbuffersEXT = (void (*)(GLsizei, const GLuint*)) SDL_GL_GetProcAddress("glDeleteRenderbuffersEXT");
+		glBindFramebufferEXT = (void (*)(GLenum, GLuint)) SDL_GL_GetProcAddress("glBindFramebufferEXT");
+		glFramebufferTexture2DEXT = (void (*)(GLenum, GLenum, GLenum, GLuint, GLint)) SDL_GL_GetProcAddress("glFramebufferTexture2DEXT");
+		glFramebufferRenderbufferEXT = (void (*)(GLenum, GLenum, GLenum, GLuint)) SDL_GL_GetProcAddress("glFramebufferRenderbufferEXT");
 		CHECK_OPENGL_FUNCTION( FBO, glDeleteFramebuffersEXT, g_useFBO)
 		CHECK_OPENGL_FUNCTION( FBO, glDeleteRenderbuffersEXT, g_useFBO)
 		CHECK_OPENGL_FUNCTION( FBO, glBindFramebufferEXT, g_useFBO)
@@ -78,37 +81,37 @@ static void installOpenGLExtensionsPointers()
 	}
 	if(g_useStencilTwoSide)
     {
-		glActiveStencilFaceEXT = (void (*)(GLenum)) allegro_gl_get_proc_address("glActiveStencilFaceEXT");
+		glActiveStencilFaceEXT = (void (*)(GLenum)) SDL_GL_GetProcAddress("glActiveStencilFaceEXT");
 		CHECK_OPENGL_FUNCTION( StencilTwoSide, glActiveStencilFaceEXT, g_useStencilTwoSide)
 		if(!g_useStencilTwoSide)
             LOG_WARNING( LOG_PREFIX_OPENGL << "StencilTwoSide support will be disbaled");
 	}
 	if(g_useProgram)
     {
-		glCreateShaderObjectARB = (GLhandleARB (*)(GLenum)) allegro_gl_get_proc_address("glCreateShaderObjectARB");
-		glShaderSourceARB = (void (*)(GLhandleARB, GLsizei, const GLcharARB**, const GLint*)) allegro_gl_get_proc_address("glShaderSourceARB");
-		glCompileShaderARB = (void (*)(GLhandleARB)) allegro_gl_get_proc_address("glCompileShaderARB");
-		glGetObjectParameterivARB = (void (*)(GLhandleARB, GLenum, GLint*)) allegro_gl_get_proc_address("glGetObjectParameterivARB");
-		glGetInfoLogARB = (void (*)(GLhandleARB, GLsizei, GLsizei*, GLcharARB*)) allegro_gl_get_proc_address("glGetInfoLogARB");
-		glGenFramebuffersEXT = (void (*)(GLsizei, GLuint*)) allegro_gl_get_proc_address("glGenFramebuffersEXT");
-		glGenRenderbuffersEXT = (void (*)(GLsizei, GLuint*)) allegro_gl_get_proc_address("glGenRenderbuffersEXT");
-		glBindRenderbufferEXT = (void (*)(GLenum, GLuint)) allegro_gl_get_proc_address("glBindRenderbufferEXT");
-		glRenderbufferStorageEXT = (void (*)(GLenum, GLenum, GLsizei, GLsizei)) allegro_gl_get_proc_address("glRenderbufferStorageEXT");
-		glCreateProgramObjectARB = (GLhandleARB (*)()) allegro_gl_get_proc_address("glCreateProgramObjectARB");
-		glAttachObjectARB = (void (*)(GLhandleARB, GLhandleARB)) allegro_gl_get_proc_address("glAttachObjectARB");
-		glLinkProgramARB = (void (*)(GLhandleARB)) allegro_gl_get_proc_address("glLinkProgramARB");
-		glUseProgramObjectARB = (void (*)(GLhandleARB)) allegro_gl_get_proc_address("glUseProgramObjectARB");
-		glDetachObjectARB = (void (*)(GLhandleARB, GLhandleARB)) allegro_gl_get_proc_address("glDetachObjectARB");
-		glDeleteObjectARB = (void (*)(GLhandleARB)) allegro_gl_get_proc_address("glDeleteObjectARB");
-		glUniform1fARB = (void (*)(GLint, GLfloat)) allegro_gl_get_proc_address("glUniform1fARB");
-		glUniform2fARB = (void (*)(GLint, GLfloat, GLfloat)) allegro_gl_get_proc_address("glUniform2fARB");
-		glUniform3fARB = (void (*)(GLint, GLfloat, GLfloat, GLfloat)) allegro_gl_get_proc_address("glUniform3fARB");
-		glUniform4fARB = (void (*)(GLint, GLfloat, GLfloat, GLfloat, GLfloat)) allegro_gl_get_proc_address("glUniform4fARB");
-		glUniform1iARB = (void (*)(GLint, GLint)) allegro_gl_get_proc_address("glUniform1iARB");
-		glUniform2iARB = (void (*)(GLint, GLint, GLint)) allegro_gl_get_proc_address("glUniform2iARB");
-		glUniform3iARB = (void (*)(GLint, GLint, GLint, GLint)) allegro_gl_get_proc_address("glUniform3iARB");
-		glUniform4iARB = (void (*)(GLint, GLint, GLint, GLint, GLint)) allegro_gl_get_proc_address("glUniform4iARB");
-		glGetUniformLocationARB = (GLint (*)(GLhandleARB, const GLcharARB*)) allegro_gl_get_proc_address("glGetUniformLocationARB");
+		glCreateShaderObjectARB = (GLhandleARB (*)(GLenum)) SDL_GL_GetProcAddress("glCreateShaderObjectARB");
+		glShaderSourceARB = (void (*)(GLhandleARB, GLsizei, const GLcharARB**, const GLint*)) SDL_GL_GetProcAddress("glShaderSourceARB");
+		glCompileShaderARB = (void (*)(GLhandleARB)) SDL_GL_GetProcAddress("glCompileShaderARB");
+		glGetObjectParameterivARB = (void (*)(GLhandleARB, GLenum, GLint*)) SDL_GL_GetProcAddress("glGetObjectParameterivARB");
+		glGetInfoLogARB = (void (*)(GLhandleARB, GLsizei, GLsizei*, GLcharARB*)) SDL_GL_GetProcAddress("glGetInfoLogARB");
+		glGenFramebuffersEXT = (void (*)(GLsizei, GLuint*)) SDL_GL_GetProcAddress("glGenFramebuffersEXT");
+		glGenRenderbuffersEXT = (void (*)(GLsizei, GLuint*)) SDL_GL_GetProcAddress("glGenRenderbuffersEXT");
+		glBindRenderbufferEXT = (void (*)(GLenum, GLuint)) SDL_GL_GetProcAddress("glBindRenderbufferEXT");
+		glRenderbufferStorageEXT = (void (*)(GLenum, GLenum, GLsizei, GLsizei)) SDL_GL_GetProcAddress("glRenderbufferStorageEXT");
+		glCreateProgramObjectARB = (GLhandleARB (*)()) SDL_GL_GetProcAddress("glCreateProgramObjectARB");
+		glAttachObjectARB = (void (*)(GLhandleARB, GLhandleARB)) SDL_GL_GetProcAddress("glAttachObjectARB");
+		glLinkProgramARB = (void (*)(GLhandleARB)) SDL_GL_GetProcAddress("glLinkProgramARB");
+		glUseProgramObjectARB = (void (*)(GLhandleARB)) SDL_GL_GetProcAddress("glUseProgramObjectARB");
+		glDetachObjectARB = (void (*)(GLhandleARB, GLhandleARB)) SDL_GL_GetProcAddress("glDetachObjectARB");
+		glDeleteObjectARB = (void (*)(GLhandleARB)) SDL_GL_GetProcAddress("glDeleteObjectARB");
+		glUniform1fARB = (void (*)(GLint, GLfloat)) SDL_GL_GetProcAddress("glUniform1fARB");
+		glUniform2fARB = (void (*)(GLint, GLfloat, GLfloat)) SDL_GL_GetProcAddress("glUniform2fARB");
+		glUniform3fARB = (void (*)(GLint, GLfloat, GLfloat, GLfloat)) SDL_GL_GetProcAddress("glUniform3fARB");
+		glUniform4fARB = (void (*)(GLint, GLfloat, GLfloat, GLfloat, GLfloat)) SDL_GL_GetProcAddress("glUniform4fARB");
+		glUniform1iARB = (void (*)(GLint, GLint)) SDL_GL_GetProcAddress("glUniform1iARB");
+		glUniform2iARB = (void (*)(GLint, GLint, GLint)) SDL_GL_GetProcAddress("glUniform2iARB");
+		glUniform3iARB = (void (*)(GLint, GLint, GLint, GLint)) SDL_GL_GetProcAddress("glUniform3iARB");
+		glUniform4iARB = (void (*)(GLint, GLint, GLint, GLint, GLint)) SDL_GL_GetProcAddress("glUniform4iARB");
+		glGetUniformLocationARB = (GLint (*)(GLhandleARB, const GLcharARB*)) SDL_GL_GetProcAddress("glGetUniformLocationARB");
 
         CHECK_OPENGL_FUNCTION( GLSL, glCreateShaderObjectARB, g_useProgram )
 		CHECK_OPENGL_FUNCTION( GLSL, glShaderSourceARB, g_useProgram )
@@ -137,22 +140,23 @@ static void installOpenGLExtensionsPointers()
 		if (!g_useProgram)
             LOG_WARNING( LOG_PREFIX_OPENGL << "GLSL support will be disbaled");
 	}
+#endif
 }
 #endif
 
 void installOpenGLExtensions()
 {
-	MultiTexturing = allegro_gl_is_extension_supported("GL_ARB_multitexture");
+	MultiTexturing = is_extension_supported("GL_ARB_multitexture");
 
     # ifdef TA3D_PLATFORM_DARWIN
     g_useTextureCompression = false;
     # else
-	g_useTextureCompression = allegro_gl_is_extension_supported("GL_ARB_texture_compression");
+	g_useTextureCompression = is_extension_supported("GL_ARB_texture_compression");
     # endif
-	g_useStencilTwoSide = allegro_gl_is_extension_supported("GL_EXT_stencil_two_side");
-	g_useCopyDepthToColor = allegro_gl_is_extension_supported("GL_NV_copy_depth_to_color");
-	g_useProgram = allegro_gl_is_extension_supported("GL_ARB_shader_objects") && allegro_gl_is_extension_supported("GL_ARB_shading_language_100") && allegro_gl_is_extension_supported("GL_ARB_vertex_shader") && allegro_gl_is_extension_supported("GL_ARB_fragment_shader");
-	g_useFBO = allegro_gl_is_extension_supported("GL_EXT_framebuffer_object");
+	g_useStencilTwoSide = is_extension_supported("GL_EXT_stencil_two_side");
+	g_useCopyDepthToColor = is_extension_supported("GL_NV_copy_depth_to_color");
+	g_useProgram = is_extension_supported("GL_ARB_shader_objects") && is_extension_supported("GL_ARB_shading_language_100") && is_extension_supported("GL_ARB_vertex_shader") && is_extension_supported("GL_ARB_fragment_shader");
+	g_useFBO = is_extension_supported("GL_EXT_framebuffer_object");
     #if (defined TA3D_PLATFORM_WINDOWS && defined TA3D_PLATFORM_MSVC) || defined TA3D_PLATFORM_LINUX
     installOpenGLExtensionsPointers();
     #endif

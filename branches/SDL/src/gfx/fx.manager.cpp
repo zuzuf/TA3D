@@ -328,7 +328,7 @@ namespace TA3D
             if (px<0 || py<0 || px >= the_map->bloc_w || py >= the_map->bloc_h)	return;
             byte player_mask = 1 << players.local_human_id;
             if (the_map->view[py][px]!=1
-               || !(the_map->sight_map->line[py][px]&player_mask))	return;
+               || !(SurfaceByte(the_map->sight_map, px, py ) & player_mask))	return;
         }
 
         pMutex.lock();
@@ -361,7 +361,7 @@ namespace TA3D
             if (px<0 || py<0 || px >= the_map->bloc_w || py >= the_map->bloc_h)	return;
             byte player_mask = 1 << players.local_human_id;
             if (the_map->view[py][px]!=1
-               || !(the_map->sight_map->line[py][px]&player_mask))	return;
+               || !(SurfaceByte(the_map->sight_map, px, py) & player_mask))	return;
         }
 
         pMutex.lock();

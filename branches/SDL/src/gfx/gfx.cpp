@@ -170,10 +170,10 @@ namespace TA3D
         TA_font.load_gaf_font("anims\\hattfont12.gaf", 1.0f);
 
         LOG_DEBUG(LOG_PREFIX_GFX << "Creating a normal font...");
-        normal_font.copy(font , 1.0f);
+//        normal_font.copy(font , 1.0f);
         normal_font.set_clear(true);
         LOG_DEBUG(LOG_PREFIX_GFX << "Creating a small font...");
-        small_font.copy(font , 0.75f);
+//        small_font.copy(font , 0.75f);
         small_font.set_clear(true);
 
         LOG_DEBUG(LOG_PREFIX_GFX << "Loading the GUI font...");
@@ -492,7 +492,7 @@ namespace TA3D
         glEnable(GL_TEXTURE_2D);
         glPushMatrix();
         glScalef(font.size,font.size,1.0f);
-        allegro_gl_printf_ex(font.pGl, x/font.size, y/font.size, z, text );
+//        allegro_gl_printf_ex(font.pGl, x/font.size, y/font.size, z, text );
         glPopMatrix();
         glPopAttrib();
     }
@@ -522,9 +522,10 @@ namespace TA3D
             glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
         glEnable(GL_TEXTURE_2D);
         glPushMatrix();
-        if (s > 0.0f )	{
+        if (s > 0.0f)
+        {
             glScalef(s,s,1.0f);
-            allegro_gl_printf_ex(font.pGl, x/s, y/s, z, text );
+//            allegro_gl_printf_ex(font.pGl, x/s, y/s, z, text );
         }
         glPopMatrix();
         glPopAttrib();
@@ -560,7 +561,7 @@ namespace TA3D
         glEnable(GL_TEXTURE_2D);
         glPushMatrix();
         glScalef(font.size,font.size,1.0f);
-        allegro_gl_printf_ex(font.pGl, X/font.size, y/font.size, z, text );
+//        allegro_gl_printf_ex(font.pGl, X/font.size, y/font.size, z, text );
         glPopMatrix();
         glPopAttrib();
     }
@@ -593,10 +594,10 @@ namespace TA3D
 
         glEnable(GL_TEXTURE_2D);
         glPushMatrix();
-        if (s > 0.0f )
+        if (s > 0.0f)
         {
             glScalef(s,s,1.0f);
-            allegro_gl_printf_ex(font.pGl, X/s, y/s, z, text );
+//            allegro_gl_printf_ex(font.pGl, X/s, y/s, z, text );
         }
         glPopMatrix();
         glPopAttrib();
@@ -634,7 +635,7 @@ namespace TA3D
         glEnable(GL_TEXTURE_2D);
         glPushMatrix();
         glScalef(font.size,font.size,1.0f);
-        allegro_gl_printf_ex(font.pGl, X/font.size, y/font.size, z, text );
+//        allegro_gl_printf_ex(font.pGl, X/font.size, y/font.size, z, text );
         glPopMatrix();
         glPopAttrib();
     }
@@ -671,10 +672,10 @@ namespace TA3D
 
         glEnable(GL_TEXTURE_2D);
         glPushMatrix();
-        if (s > 0.0f )
+        if (s > 0.0f)
         {
             glScalef(s,s,1.0f);
-            allegro_gl_printf_ex(font.pGl, X/s, y/s, z, text );
+//            allegro_gl_printf_ex(font.pGl, X/s, y/s, z, text );
         }
         glPopMatrix();
         glPopAttrib();
@@ -720,7 +721,7 @@ namespace TA3D
 //            use_mipmapping(false);
 //        else
 //            use_mipmapping(true);
-        GLuint gl_tex = allegro_gl_make_texture(bmp);
+        GLuint gl_tex = 0;//allegro_gl_make_texture(bmp);
 //        if (filter_type == FILTER_NONE || filter_type == FILTER_LINEAR )
 //            use_mipmapping(true);
         glBindTexture(GL_TEXTURE_2D, gl_tex);
@@ -1816,7 +1817,7 @@ namespace TA3D
 
         GFX *test_gfx = new GFX();
 
-        test_gfx->normal_font.copy(font , 1.0f);
+//        test_gfx->normal_font.copy(font , 1.0f);
         test_gfx->normal_font.set_clear(true);
 
         test_gfx->set_2D_mode();
@@ -1876,18 +1877,19 @@ namespace TA3D
 
     void reset_keyboard()
     {
-        remove_keyboard();
-        install_keyboard();
+        clear_keybuf();
+//        remove_keyboard();
+//        install_keyboard();
     }
     void reset_mouse()
     {
-        int amx = mouse_x;
-        int amy = mouse_y;
-
-        remove_mouse();
-        install_mouse();
-
-        position_mouse(amx, amy);
+//        int amx = mouse_x;
+//        int amy = mouse_y;
+//
+//        remove_mouse();
+//        install_mouse();
+//
+//        position_mouse(amx, amy);
     }
 
 } // namespace TA3D

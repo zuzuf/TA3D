@@ -72,7 +72,7 @@ namespace TA3D
 		if( bLogIt )
 			LogError();
 	}
-   
+
 	cError::cError( const String &Where, bool bLogIt ) :
 	    m_szWhere(Where), m_szDesc( String( "None" ) ), m_LastError( 0 ), m_Logged( false )
 	{
@@ -91,7 +91,7 @@ namespace TA3D
 #ifdef TA3D_PLATFORM_WINDOWS
 		::MessageBoxA( NULL, szErrReport.c_str(), "TA3D Application Error", MB_OK  | MB_TOPMOST | MB_ICONERROR );
 #else
-		allegro_message( szErrReport.c_str() );
+		std::cerr << szErrReport << std::endl;
 #endif
 	}
 

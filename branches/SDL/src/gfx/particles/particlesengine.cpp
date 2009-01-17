@@ -1,4 +1,5 @@
 
+#include "../../stdafx.h"
 #include "particlesengine.h"
 #include "../../misc/matrix.h"
 #include "../../TA3D_NameSpace.h"
@@ -39,8 +40,8 @@ namespace TA3D
 
         dsmoke = true;
         if (NULL == partbmp)
-            partbmp = create_bitmap_ex(32, 256, 256);
-        BITMAP* bmp;
+            partbmp = gfx->create_surface_ex(32, 256, 256);
+        SDL_Surface* bmp;
         if (!filealpha.empty())
             bmp = GFX::LoadMaskedTextureToBmp(file, filealpha); // Avec canal alpha séparé
         else
@@ -50,13 +51,13 @@ namespace TA3D
 
         stretch_blit(bmp, partbmp, 0,0, bmp->w, bmp->h, 64 * (ntex & 3), 64 * (ntex >> 2), 64, 64);
         ++ntex;
-        destroy_bitmap(bmp);
+        SDL_FreeSurface(bmp);
         if (ntex > 1)
             glDeleteTextures(1, &parttex);
-        allegro_gl_use_alpha_channel(true);
-        allegro_gl_set_texture_format(GL_RGBA8);
+//        allegro_gl_use_alpha_channel(true);
+        gfx->set_texture_format(GL_RGBA8);
         parttex = gfx->make_texture(partbmp, FILTER_TRILINEAR);
-        allegro_gl_use_alpha_channel(false);
+//        allegro_gl_use_alpha_channel(false);
 
         return (ntex-1);
     }
@@ -759,20 +760,17 @@ namespace TA3D
 
         if (load)
         {
-            partbmp = create_bitmap_ex(32,256,256);
-            BITMAP* bmp = gfx->load_image("gfx/smoke.tga");
+            partbmp = gfx->create_surface_ex(32,256,256);
+            SDL_Surface* bmp = gfx->load_image("gfx/smoke.tga");
             // LoadMaskedTexBmp("gfx/smoke.tga","gfx/smokea.tga");
             gltex.push_back(gfx->make_texture(bmp));
             stretch_blit(bmp, partbmp, 0, 0, bmp->w, bmp->h, 0, 0, 64, 64);
             ntex = 1;
-            destroy_bitmap(bmp);
-            allegro_gl_use_alpha_channel(true);
-            allegro_gl_set_texture_format(GL_RGBA8);
-            parttex=allegro_gl_make_texture(partbmp);
-            allegro_gl_use_alpha_channel(false);
-            glBindTexture(GL_TEXTURE_2D, parttex);
-            glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
-            glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR_MIPMAP_LINEAR);
+            SDL_FreeSurface(bmp);
+//            allegro_gl_use_alpha_channel(true);
+            gfx->set_texture_format(GL_RGBA8);
+            parttex = gfx->make_texture(partbmp, FILTER_TRILINEAR);
+//            allegro_gl_use_alpha_channel(false);
         }
         size=0;
         nb_part=0;
@@ -798,7 +796,7 @@ namespace TA3D
         particle_systems.clear();
 
         if (partbmp)
-            destroy_bitmap(partbmp);
+            SDL_FreeSurface(partbmp);
         partbmp = NULL;
         ntex = 0;
         if (dsmoke)

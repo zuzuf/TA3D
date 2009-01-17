@@ -597,7 +597,7 @@ namespace TA3D
                         int py = ((int)(cur_pos.z + map->map_h_d)) >> 3;
 
                         if (px >= 0 && px < map->bloc_w_db && py >= 0 && py < map->bloc_h_db
-							&& (map->view_map->line[py>>1][px>>1] & (1<<players.local_human_id)) )
+							&& (SurfaceByte(map->view_map, px>>1, py>>1) & (1<<players.local_human_id)) )
                         {
                             int idx = -map->map_data[py][px].unit_idx - 2;				// Basic check
                             if (idx<0 || features.feature[idx].type<0)
@@ -1150,7 +1150,7 @@ namespace TA3D
                     Vector3D cur_pos(cursorOnMap(cam, *map, IsOnMinimap));
                     int px = ((int)(cur_pos.x + map->map_w_d)) >> 3;
                     int py = ((int)(cur_pos.z + map->map_h_d)) >> 3;
-                    if (px >= 0 && px < map->bloc_w_db && py >= 0 && py < map->bloc_h_db && (map->view_map->line[py >> 1][px >> 1] & (1 << players.local_human_id)))
+                    if (px >= 0 && px < map->bloc_w_db && py >= 0 && py < map->bloc_h_db && (SurfaceByte(map->view_map, px >> 1, py >> 1) & (1 << players.local_human_id)))
                     {
                         int idx = -map->map_data[py][px].unit_idx - 2;				// Basic check
                         if (idx < 0 || features.feature[idx].type < 0)
@@ -3294,7 +3294,7 @@ namespace TA3D
 
             if (shoot)
             {
-                BITMAP *shoot_bmp = create_bitmap_ex(32,SCREEN_W,SCREEN_H);
+                SDL_Surface *shoot_bmp = gfx->create_surface_ex(32,SCREEN_W,SCREEN_H);
                 blit(screen,shoot_bmp,0,0,0,0,SCREEN_W,SCREEN_H);
                 char nom[100];
                 nom[0]=0;
@@ -3308,7 +3308,7 @@ namespace TA3D
                 nb_shoot = (nb_shoot+1)%1000000;
                 strcat(nom,".jpg");
                 save_jpg_ex((TA3D::Paths::Screenshots + nom).c_str(), shoot_bmp, NULL, 75, JPG_SAMPLING_411, NULL);
-                destroy_bitmap(shoot_bmp);
+                SDL_FreeSurface(shoot_bmp);
                 shoot = false;
             }
 
@@ -3326,11 +3326,11 @@ namespace TA3D
                     else if (params[0] == "fps_off") lp_CONFIG->showfps=false;				// Cache le nombre d'images/seconde
                     else if (params[0] == "zshoot") // Prend une capture d'écran(tampon de profondeur seulement)
                     {
-                        BITMAP *bmp=create_bitmap_ex(32,SCREEN_W,SCREEN_H);
-                        clear(bmp);
-                        glReadPixels(0,0,SCREEN_W,SCREEN_H,GL_DEPTH_COMPONENT,GL_INT,bmp->line[0]);
-                        save_bitmap( (TA3D::Paths::Screenshots + "z.tga").c_str(),bmp,NULL);
-                        destroy_bitmap(bmp);
+                        SDL_Surface *bmp = gfx->create_surface_ex(32,SCREEN_W,SCREEN_H);
+                        SDL_FillRect(bmp, NULL, 0);
+                        glReadPixels(0,0,SCREEN_W,SCREEN_H,GL_DEPTH_COMPONENT,GL_INT,bmp->pixels);
+//                        save_bitmap( (TA3D::Paths::Screenshots + "z.tga").c_str(),bmp,NULL);
+                        SDL_FreeSurface(bmp);
                     }
                     else if ((params[0] == "enable" || params[0] == "disable") && params.size() > 1)
                     {

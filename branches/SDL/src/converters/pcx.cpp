@@ -1,4 +1,5 @@
 
+#include "../stdafx.h"
 #include "pcx.h"
 #include "../logs/logs.h"
 #include "../TA3D_NameSpace.h"
@@ -11,7 +12,7 @@ namespace Converters
 
 
 
-    BITMAP* PCX::RawDataToBitmap(const byte* data, const RGB* cpal)
+    SDL_Surface* PCX::RawDataToBitmap(const byte* data, const SDL_Color* cpal)
     {
         if (!data || !cpal)
             return NULL;
@@ -19,9 +20,9 @@ namespace Converters
         short width  = *((short*)(data+8))  - *((short*)(data+4)) + 1;
         short height = *((short*)(data+10)) - *((short*)(data+6)) + 1;
 
-        BITMAP* pcx = create_bitmap(width, height);
+        SDL_Surface* pcx = gfx->create_surface(width, height);
         LOG_ASSERT(pcx != NULL);
-        clear(pcx);
+        SDL_FillRect(pcx, NULL, 0);
 
         int pos = 128;
         for (int y = 0; y < pcx->h; ++y)
@@ -36,10 +37,10 @@ namespace Converters
                     c = data[pos++];
                     int col = makecol(cpal[c].r << 2, cpal[c].g << 2, cpal[c].b << 2);
                     for(; l > 0 && x < pcx->w; --l)
-                        ((int*)(pcx->line[y]))[x++] = col;
+                        SurfaceInt(pcx, x++, y) = col;
                 }
                 else
-                    ((int*)(pcx->line[y]))[x++] = makecol(cpal[c].r << 2, cpal[c].g << 2, cpal[c].b << 2);
+                    SurfaceInt(pcx, x++, y) = makecol(cpal[c].r << 2, cpal[c].g << 2, cpal[c].b << 2);
             } while(x < pcx->w);
         }
         return pcx;
@@ -47,14 +48,14 @@ namespace Converters
 
 
 
-    BITMAP* PCX::FromHPIToBitmap(const String& filename)
+    SDL_Surface* PCX::FromHPIToBitmap(const String& filename)
     {
         if (!filename.empty())
         {
             byte* data = HPIManager->PullFromHPI(filename);
             if (data)
             {
-                BITMAP* ret = RawDataToBitmap(data, pal);
+                SDL_Surface* ret = RawDataToBitmap(data, pal);
                 delete[] data;
                 return ret;
             }

@@ -26,6 +26,9 @@
 
 #include "stdafx.h"
 #include <sys/stat.h>
+#include <fstream>
+
+using namespace std;
 
 namespace TA3D
 {
@@ -243,6 +246,23 @@ void blit(SDL_Surface *in, SDL_Surface *out, int x0, int y0, int x1, int y1, int
         SDL_FreeSurface(tmp);
 }
 
+void masked_blit(SDL_Surface *in, SDL_Surface *out, int x0, int y0, int x1, int y1, int w, int h)
+{
+    for(int y = 0 ; y < h ; y++)
+    {
+        int dy = (y1 + y) * out->pitch;
+        int sy = (y + y0) * in->pitch;
+        for(int x = 0 ; x < w ; x++)
+        {
+            int sx = x + x0;
+            int dx = x1 + x;
+            byte b = ((byte*)in->pixels)[sy + sx];
+            if (b)
+                ((byte*)out->pixels)[dy + dx] = b;
+        }
+    }
+}
+
 void stretch_blit( SDL_Surface *in, SDL_Surface *out, int x0, int y0, int w0, int h0, int x1, int y1, int w1, int h1 )
 {
     switch(in->format->BitsPerPixel)
@@ -291,11 +311,49 @@ void stretch_blit( SDL_Surface *in, SDL_Surface *out, int x0, int y0, int w0, in
 
 void rest(uint32 msec)
 {
-#ifdef TA3D_PLATFORM_WINDOWS
-    sleep(msec);
-#else
-    usleep(msec * 1000);
-#endif
+    SDL_Delay(msec);
+}
+
+void putpixel(SDL_Surface *bmp, int x, int y, uint32 col)
+{
+    switch(bmp->format->BitsPerPixel)
+    {
+    case 8:
+        SurfaceByte(bmp, x, y) = col;
+        break;
+    case 16:
+        (((uint16*)((bmp)->pixels))[(y) * ((bmp)->pitch >> 1) + (x)]) = col;
+        break;
+    case 24:
+        SurfaceByte(bmp, x * 3, y) = getr32(col);
+        SurfaceByte(bmp, x * 3 + 1, y) = getg32(col);
+        SurfaceByte(bmp, x * 3 + 2, y) = getb32(col);
+        break;
+    case 32:
+        SurfaceInt(bmp, x, y) = col;
+        break;
+    };
+}
+
+uint32 getpixel(SDL_Surface *bmp, int x, int y)
+{
+    switch(bmp->format->BitsPerPixel)
+    {
+    case 8:
+        return SurfaceByte(bmp, x, y);
+    case 16:
+        return (((uint16*)((bmp)->pixels))[(y) * ((bmp)->pitch >> 1) + (x)]);
+    case 24:
+        {
+            int r = SurfaceByte(bmp, x * 3, y);
+            int g = SurfaceByte(bmp, x * 3 + 1, y);
+            int b = SurfaceByte(bmp, x * 3 + 2, y);
+            return makecol24(r,g,b);
+        }
+    case 32:
+        return SurfaceInt(bmp, x, y);
+    };
+    return 0;
 }
 
 }

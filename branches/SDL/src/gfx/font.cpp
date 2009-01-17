@@ -33,12 +33,13 @@ namespace TA3D
     void GfxFont::load(const char* filename, const float s)
     {
         size = s;
-        pAl = load_font( filename, NULL, NULL );
-        if (pAl == NULL ) {
+//        pAl = load_font( filename, NULL, NULL );
+        if (pAl == NULL)
+        {
             throw cError( "GfxFont::load()", "font could not be loaded, pAl = NULL.", true );
             return;
         }
-        pGl = allegro_gl_convert_allegro_font_ex(pAl, AGL_FONT_TYPE_TEXTURED, -1.0f, GL_RGBA8);
+//        pGl = allegro_gl_convert_allegro_font_ex(pAl, AGL_FONT_TYPE_TEXTURED, -1.0f, GL_RGBA8);
         if(NULL == pGl)
         {
             throw cError( "GfxFont::load()", "font could not be converted to GL font, pGl = NULL.", true );
@@ -68,31 +69,31 @@ namespace TA3D
             my += 2;
             h -= 2;
 
-            FONT_COLOR_DATA	*fc = (FONT_COLOR_DATA*) malloc(sizeof(FONT_COLOR_DATA));
-            fc->begin = 0;
-            fc->end = gafFont.nb_bmp;
-            fc->bitmaps = (BITMAP**) malloc(sizeof(BITMAP*) * gafFont.nb_bmp);
-            fc->next = NULL;
-            for (int i = 0 ; i < gafFont.nb_bmp ; ++i)
-            {
-                fc->bitmaps[ i ] = create_bitmap_ex( 32, gafFont.bmp[ i ]->w, h);
-                clear_to_color( fc->bitmaps[ i ], 0xFF00FF );
-                if (i != 32 )		// Spaces must remain blank
-                    blit( gafFont.bmp[ i ], fc->bitmaps[ i ], 0,0, -gafFont.ofs_x[ i ] - mx, -gafFont.ofs_y[ i ] - my, gafFont.bmp[ i ]->w, gafFont.bmp[ i ]->h );
-                for (int y = 0 ; y < fc->bitmaps[ i ]->h ; y++ )
-                {
-                    for (int x = 0 ; x < fc->bitmaps[ i ]->w ; ++x)
-                    {
-                        if(getpixel(fc->bitmaps[ i ], x, y ) == 0)
-                            putpixel(fc->bitmaps[ i ], x, y, 0xFF00FF);
-                    }
-                }
-            }
-            delete[] data;
-            pAl = (FONT*) malloc( sizeof(FONT));
-            pAl->data = fc;
-            pAl->height = h;
-            pAl->vtable = font_vtable_color;
+//            FONT_COLOR_DATA	*fc = (FONT_COLOR_DATA*) malloc(sizeof(FONT_COLOR_DATA));
+//            fc->begin = 0;
+//            fc->end = gafFont.nb_bmp;
+//            fc->bitmaps = (BITMAP**) malloc(sizeof(BITMAP*) * gafFont.nb_bmp);
+//            fc->next = NULL;
+//            for (int i = 0 ; i < gafFont.nb_bmp ; ++i)
+//            {
+//                fc->bitmaps[ i ] = create_bitmap_ex( 32, gafFont.bmp[ i ]->w, h);
+//                clear_to_color( fc->bitmaps[ i ], 0xFF00FF );
+//                if (i != 32 )		// Spaces must remain blank
+//                    blit( gafFont.bmp[ i ], fc->bitmaps[ i ], 0,0, -gafFont.ofs_x[ i ] - mx, -gafFont.ofs_y[ i ] - my, gafFont.bmp[ i ]->w, gafFont.bmp[ i ]->h );
+//                for (int y = 0 ; y < fc->bitmaps[ i ]->h ; y++ )
+//                {
+//                    for (int x = 0 ; x < fc->bitmaps[ i ]->w ; ++x)
+//                    {
+//                        if(getpixel(fc->bitmaps[ i ], x, y ) == 0)
+//                            putpixel(fc->bitmaps[ i ], x, y, 0xFF00FF);
+//                    }
+//                }
+//            }
+//            delete[] data;
+//            pAl = (FONT*) malloc( sizeof(FONT));
+//            pAl->data = fc;
+//            pAl->height = h;
+//            pAl->vtable = font_vtable_color;
         }
         else
         {
@@ -101,7 +102,7 @@ namespace TA3D
             return;
         }
 
-        pGl = allegro_gl_convert_allegro_font_ex(pAl,AGL_FONT_TYPE_TEXTURED,-1.0f,GL_RGBA8);
+//        pGl = allegro_gl_convert_allegro_font_ex(pAl,AGL_FONT_TYPE_TEXTURED,-1.0f,GL_RGBA8);
         if(!pGl)
         {
             throw cError( "GfxFont::load_gafFont()", "font could not be converted to GL font, pGl = NULL.", true );
@@ -111,23 +112,23 @@ namespace TA3D
 
     void GfxFont::destroy()
     {
-        if (pAl)
-            destroy_font(pAl);
-        if (pGl)
-            allegro_gl_destroy_font(pGl);
+//        if (pAl)
+//            destroy_font(pAl);
+//        if (pGl)
+//            allegro_gl_destroy_font(pGl);
         init();
     }
 
     void GfxFont::copy( FONT *fnt, const float s)
     {
         size = s;
-        pAl = extract_font_range(font, -1, -1);
+//        pAl = extract_font_range(font, -1, -1);
         if (NULL == pAl)
         {
             throw cError( "GfxFont::copy()", "font could not be copied, pAl = NULL.", true );
             return;
         }
-        pGl = allegro_gl_convert_allegro_font_ex(pAl,AGL_FONT_TYPE_TEXTURED,-1.0f,GL_RGBA8);
+//        pGl = allegro_gl_convert_allegro_font_ex(pAl,AGL_FONT_TYPE_TEXTURED,-1.0f,GL_RGBA8);
         if (NULL == pGl)
         {
             throw cError( "GfxFont::copy()", "font could not be converted to GL font, pGl = NULL.", true );
@@ -135,27 +136,24 @@ namespace TA3D
     }
 
 
-    BITMAP* GFX::LoadMaskedTextureToBmp(const String& file, const String& filealpha)
+    SDL_Surface* GFX::LoadMaskedTextureToBmp(const String& file, const String& filealpha)
     {
         // Load the texture (32Bits)
-        set_color_depth(32);
-        BITMAP* bmp = gfx->load_image(file);
+        SDL_Surface* bmp = gfx->load_image(file);
         LOG_ASSERT(bmp != NULL);
 
         // Load the mask
-        set_color_depth(8);
-        BITMAP* alpha = gfx->load_image(filealpha);
+        SDL_Surface* alpha = gfx->load_image(filealpha);
         LOG_ASSERT(alpha != NULL);
 
         // Apply the mask, pixel by pixel
-        set_color_depth(32);
         for (int y = 0; y < bmp->h; ++y)
         {
             for (int x = 0; x < bmp->w; ++x)
-                bmp->line[y][(x << 2) + 3] = alpha->line[y][x];
+                SurfaceByte(bmp, (x << 2) + 3, y) = SurfaceInt(alpha,x,y);
         }
 
-        destroy_bitmap(alpha);
+        SDL_FreeSurface(alpha);
         return bmp;
     }
 

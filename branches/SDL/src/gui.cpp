@@ -226,8 +226,8 @@ int draw_text_adjust( float x1, float y1, float x2, float y2, String msg, float 
 
     if (mission_mode)
     {
-        int	old_format = get_uformat();
-        set_uformat( U_ASCII );
+//        int	old_format = get_uformat();
+//        set_uformat( U_ASCII );
 
         uint32	current_color = 0xFFFFFFFF;
         char tmp[2];
@@ -258,7 +258,7 @@ int draw_text_adjust( float x1, float y1, float x2, float y2, String msg, float 
                         x_offset += gui_font.length( tmp ) * size;
                     }
             }
-        set_uformat( old_format );
+//        set_uformat( old_format );
     }
     else
     {
@@ -508,8 +508,8 @@ void OptionCase(float x,float y,const String &Title,bool Etat, SKIN *skin, float
 
 void TextEditor( float x1, float y1, float x2, float y2, const String::Vector &Entry, int row, int col, bool Etat, SKIN *skin, float size )
 {
-    int old_u_format = get_uformat();
-    set_uformat( U_ASCII );
+//    int old_u_format = get_uformat();
+//    set_uformat( U_ASCII );
 
     float old_size = gui_font.get_size();
     gui_font.change_size( size );
@@ -568,7 +568,7 @@ void TextEditor( float x1, float y1, float x2, float y2, const String::Vector &E
 
     gui_font.change_size( old_size );
 
-    set_uformat(old_u_format);
+//    set_uformat(old_u_format);
 }
 
 /*---------------------------------------------------------------------------\
@@ -577,8 +577,8 @@ void TextEditor( float x1, float y1, float x2, float y2, const String::Vector &E
 
 void TextBar(float x1,float y1,float x2,float y2,const String &Caption,bool Etat, SKIN *skin, float size )
 {
-    int old_u_format = get_uformat();
-    set_uformat( U_ASCII );
+//    int old_u_format = get_uformat();
+//    set_uformat( U_ASCII );
 
     float old_size = gui_font.get_size();
     gui_font.change_size( size );
@@ -629,7 +629,7 @@ void TextBar(float x1,float y1,float x2,float y2,const String &Caption,bool Etat
 
     gui_font.change_size( old_size );
 
-    set_uformat(old_u_format);
+//    set_uformat(old_u_format);
 }
 
 /*---------------------------------------------------------------------------\
@@ -818,11 +818,11 @@ const String Dialogf(const String &Title, String Filter)
             gfx->set_2D_mode();		// Passe en mode dessin allegro
 
             current_area->draw();
-            show_mouse(screen);
-            algl_draw_mouse();
+            SDL_ShowCursor(SDL_ENABLE);
 
             gfx->unset_2D_mode();	// Quitte le mode de dessin d'allegro
             gfx->flip();
+            SDL_ShowCursor(SDL_DISABLE);
 
         }while(!done);
 
@@ -901,11 +901,11 @@ bool WndAsk(const String &Title,const String &Msg,int ASW_TYPE)
             gfx->set_2D_mode();		// Passe en mode dessin allegro
 
             current_area->draw();
-            show_mouse(screen);
-            algl_draw_mouse();
+            SDL_ShowCursor(SDL_ENABLE);
 
             gfx->unset_2D_mode();	// Quitte le mode de dessin d'allegro
             gfx->flip();
+            SDL_ShowCursor(SDL_DISABLE);
 
         }while(!done);
         current_area->msg("yesno.hide");
@@ -965,11 +965,11 @@ void Popup(const String &Title,const String &Msg)
             gfx->set_2D_mode();		// Passe en mode dessin allegro
 
             current_area->draw();
-            show_mouse(screen);
-            algl_draw_mouse();
+            SDL_ShowCursor(SDL_ENABLE);
 
             gfx->unset_2D_mode();	// Quitte le mode de dessin d'allegro
             gfx->flip();
+            SDL_ShowCursor(SDL_DISABLE);
 
         }while(!done);
         current_area->msg("popup.hide");
@@ -1029,11 +1029,11 @@ const String GetVal(const String &Title)
             gfx->set_2D_mode();		// Passe en mode dessin allegro
 
             current_area->draw();
-            show_mouse(screen);
-            algl_draw_mouse();
+            SDL_ShowCursor(SDL_ENABLE);
 
             gfx->unset_2D_mode();	// Quitte le mode de dessin d'allegro
             gfx->flip();
+            SDL_ShowCursor(SDL_DISABLE);
 
         }while(!done);
         current_area->msg("ask.hide");

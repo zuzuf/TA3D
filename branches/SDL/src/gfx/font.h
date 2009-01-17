@@ -4,10 +4,8 @@
 # include "gfx.h"
 
 
-
 namespace TA3D
 {
-
     class GFX;
 
 
@@ -18,9 +16,9 @@ namespace TA3D
 
         void init();
 
-        float length(const String txt) const 
+        float length(const String txt) const
         { return text_length(pAl, txt.c_str()) * size; }
-        
+
         float height() const
         { return text_height(pAl) * size; }
 

@@ -35,6 +35,11 @@ extern bool g_useProgram;
 extern bool g_useFBO;
 
 /*!
+** \brief Test for the given OpenGL extension support
+*/
+bool is_extension_supported(const String &name);
+
+/*!
 ** \brief Try to enable some specific OpenGL extensions
 */
 void installOpenGLExtensions();

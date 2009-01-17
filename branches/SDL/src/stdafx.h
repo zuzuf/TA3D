@@ -195,8 +195,12 @@ namespace TA3D
 
     bool exists(const String &filename);
 
+    void masked_blit(SDL_Surface *in, SDL_Surface *out, int x0, int y0, int x1, int y1, int w, int h);
     void blit(SDL_Surface *in, SDL_Surface *out, int x0, int y0, int x1, int y1, int w, int h);
     void stretch_blit( SDL_Surface *in, SDL_Surface *out, int x0, int y0, int w0, int h0, int x1, int y1, int w1, int h1 );
+
+    void putpixel(SDL_Surface *bmp, int x, int y, uint32 col);
+    uint32 getpixel(SDL_Surface *bmp, int x, int y);
 
     void rest(uint32 msec);
 } // namespace TA3D
@@ -212,6 +216,7 @@ namespace TA3D
 
 #define makeacol(r,g,b,a)   (((uint32)(r)<<24) | ((uint32)(g)<<16) | ((uint32)(b)<<8) | (uint32)(a))
 #define makecol24(r,g,b)   (((uint32)(r)<<24) | ((uint32)(g)<<16) | ((uint32)(b)<<8) | 0xFF)
+#define makecol(r,g,b)   makecol24(r,g,b)
 
 #define SurfaceByte(img, x, y)   (((byte*)((img)->pixels))[(y) * (img)->pitch + (x)])
 #define SurfaceInt(img, x, y)   (((uint32*)((img)->pixels))[((y) * (img)->pitch >> 2) + (x)])
@@ -220,6 +225,11 @@ namespace TA3D
 #define getg32(x) (((x)>>16) & 0xFF)
 #define getb32(x) (((x)>>8) & 0xFF)
 #define geta32(x) ((x) & 0xFF)
+
+#define getr(x) getr32(x)
+#define getg(x) getg32(x)
+#define getb(x) getb32(x)
+#define geta(x) geta32(x)
 
 class FONT
 {

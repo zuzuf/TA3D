@@ -293,7 +293,7 @@ namespace TA3D
         loading(500.0f / 7.0f, I18N::Translate("Initialising engine"));
         gfx->SetDefState();
         particle_engine.init();
-        set_palette(pal);
+//        set_palette(pal);
         return true;
     }
 
@@ -443,10 +443,10 @@ namespace TA3D
             {
                 gfx->destroy_texture(map->lava_map);
 
-                BITMAP *tmp = create_bitmap_ex(32, 16, 16);
-                clear_to_color(tmp, 0xFFFFFFFF);
+                SDL_Surface *tmp = gfx->create_surface_ex(32, 16, 16);
+                SDL_FillRect(tmp, NULL, 0xFFFFFFFF);
                 map->lava_map = gfx->make_texture(tmp);
-                destroy_bitmap(tmp);
+                SDL_FreeSurface(tmp);
             }
             delete[] map_file;
         }
@@ -613,11 +613,11 @@ namespace TA3D
                 water_simulator_reflec.load("shaders/water_sim_reflec.frag","shaders/water.vert");
 			}
 
-			allegro_gl_use_alpha_channel(true);
+//			allegro_gl_use_alpha_channel(true);
 
-			allegro_gl_set_texture_format(GL_RGBA8);
+			gfx->set_texture_format(GL_RGBA8);
 
-			BITMAP* tmp = create_bitmap_ex(32,512,512);
+			SDL_Surface* tmp = gfx->create_surface_ex(32,512,512);
 
 			// Water transparency
 			transtex = gfx->make_texture( tmp, FILTER_LINEAR);
@@ -709,23 +709,23 @@ namespace TA3D
 							DX = 255.0f;
 					}
 
-					tmp->line[z][(x<<2)] = (int)(DX);
-					tmp->line[z][(x<<2)+1] = (int)((127.0f / L) + 127.0f);
-					tmp->line[z][(x<<2)+2] = 0;
-					tmp->line[z][(x<<2)+3] = 0;
+					SurfaceByte(tmp,(x<<2),z) = (int)(DX);
+					SurfaceByte(tmp,(x<<2)+1,z) = (int)((127.0f / L) + 127.0f);
+					SurfaceByte(tmp,(x<<2)+2,z) = 0;
+					SurfaceByte(tmp,(x<<2)+3,z) = 0;
 				}
 			}
 
-			allegro_gl_set_texture_format(GL_RGB8);
+			gfx->set_texture_format(GL_RGB8);
 			water = gfx->make_texture( tmp, FILTER_LINEAR, false);
-			destroy_bitmap(tmp);
+			SDL_FreeSurface(tmp);
 			glBindFramebufferEXT(GL_FRAMEBUFFER_EXT,0);
 
 			// Enable the texture compression
 			if (g_useTextureCompression && lp_CONFIG->use_texture_compression)
-				allegro_gl_set_texture_format(GL_COMPRESSED_RGB_ARB);
+				gfx->set_texture_format(GL_COMPRESSED_RGB_ARB);
 			else
-				allegro_gl_set_texture_format(GL_RGB8);
+				gfx->set_texture_format(GL_RGB8);
 		}
 
         // A few things required by (pseudo-)instancing code to render highlighted objects

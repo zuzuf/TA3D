@@ -253,7 +253,7 @@ namespace Menus
         int h = (int)(render->y2 - render->y1);
         if ((GLuint)render->Data == 0)
         {
-            allegro_gl_set_texture_format(GL_RGB8);
+            gfx->set_texture_format(GL_RGB8);
             render->Data = (uint32) gfx->create_texture( w, h, FILTER_LINEAR );
         }
         texture = render->Data;
