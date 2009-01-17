@@ -25,7 +25,7 @@
 // global variables:
 TA3D::TA3DCONFIG		*TA3D::VARS::lp_CONFIG = NULL;
 TA3D::GFX*              TA3D::VARS::gfx = NULL;						// The gfx object we will use to draw basic things and manage fonts, textures, ...
-RGB						*TA3D::VARS::pal = NULL;
+SDL_Color				*TA3D::VARS::pal = NULL;
 uint8					TA3D::VARS::unit_engine_thread_sync;
 uint8					TA3D::VARS::weapon_engine_thread_sync;
 uint8					TA3D::VARS::particle_engine_thread_sync;
@@ -35,9 +35,12 @@ String					TA3D::VARS::TA3D_CURRENT_MOD="";		// This string stores the path to c
 int						TA3D::VARS::ascii_to_scancode[ 256 ];
 SDL_Surface             *TA3D::VARS::screen = NULL;
 
-int                     mouse_x = 0, mouse_y = 0, mouse_z = 0, mouse_b = 0;
-int                     key[0x1000];
-std::list<int>          keybuf;
+int                     TA3D::VARS::mouse_x = 0;
+int                     TA3D::VARS::mouse_y = 0;
+int                     TA3D::VARS::mouse_z = 0;
+int                     TA3D::VARS::mouse_b = 0;
+int                     TA3D::VARS::key[0x1000];
+std::list<int>          TA3D::VARS::keybuf;
 
 
 
@@ -95,15 +98,10 @@ namespace TA3D
 
 		if(rebuild_cache)
         {
-			struct al_ffblk info;
-			if (al_findfirst((TA3D::Paths::Caches + "*").c_str(), &info, FA_ALL) == 0)
-            {
-				do
-                {
-					delete_file( (TA3D::Paths::Caches + info.name).c_str());
-				} while ( !al_findnext(&info) );
-				al_findclose(&info);
-			}
+            String::List file_list;
+            Paths::GlobFiles(file_list, TA3D::Paths::Caches + "*");
+            for(String::List::iterator i = file_list.begin() ; i != file_list.end() ; ++i)
+                remove( i->c_str() );
 			// Update cache date
 			FILE *cache_info = TA3D_OpenFile(TA3D::Paths::Caches + "cache_info.txt", "wb");
 			if(cache_info)

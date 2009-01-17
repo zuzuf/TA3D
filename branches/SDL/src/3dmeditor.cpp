@@ -42,23 +42,12 @@
 #include "animator/animator.h"
 
 
-#define precision	MSEC_TO_TIMER(1)
 
 
+int expected_players = 1;
+int LANG = TA3D_LANG_ENGLISH;
 
-volatile uint32 msec_timer = 0;
-
-void Timer()            // procédure Timer
-{
-    msec_timer++;
-}
-
-END_OF_FUNCTION(Timer)
-
-    int expected_players=1;
-    int LANG = TA3D_LANG_ENGLISH;
-
-    namespace TA3D
+namespace TA3D
 {
     namespace VARS
     {
@@ -103,8 +92,6 @@ int main(int argc, char* argv[])
     TA3D::Settings::Load();
     lp_CONFIG->use_texture_cache = false;
 
-    install_int_ex( Timer, precision);
-
     init_surf_buf();
 
     LOG_INFO(I18N::Translate("Initializing texture manager"));
@@ -114,8 +101,6 @@ int main(int argc, char* argv[])
     TheModel = new MODEL;
     obj_table.clear();
     obj_table.push_back( &(TheModel->obj ));
-
-    show_video_bitmap(screen);
 
     bool done=false;
 
@@ -254,7 +239,7 @@ int main(int argc, char* argv[])
             FPS_Timer = msec_timer;
         }
 
-        show_mouse(NULL);					// Cache la souris
+        SDL_ShowCursor(SDL_DISABLE);					// Cache la souris
         if (key[KEY_ESC] || ClickOnExit) done=true;			// Quitte si on appuie sur echap ou clique sur quitter
 
         if (key[ KEY_X ] && !key[ KEY_LSHIFT ] ) {	r1 = 0.0f;		r2 = 0.0f;		r3 = 0.0f;	}
@@ -405,8 +390,7 @@ int main(int argc, char* argv[])
         glDisable(GL_TEXTURE_2D);
 
         glEnable(GL_TEXTURE_2D);			// Affiche le curseur
-        show_mouse(screen);
-        algl_draw_mouse();
+        SDL_ShowCursor(SDL_ENABLE);
 
         gfx->unset_2D_mode();	// Quitte le mode de dessin d'allegro
 
@@ -430,7 +414,6 @@ int main(int argc, char* argv[])
 
     return 0;
 }
-END_OF_MAIN()
 
     /*------------------------------------------------------------------------------------\
       |                                  void SurfEdit()                                    |
@@ -747,7 +730,7 @@ void SurfEdit()
 
         if (surface_area.get_state("surface.b_ok")) done=true;		// En cas de click sur "OK", on quitte la fenêtre
 
-        show_mouse(NULL);					// Cache la souris / Hide cursor
+        SDL_ShowCursor(SDL_DISABLE);					// Cache la souris / Hide cursor
         if (key[KEY_ESC])
         {
             reset_keyboard();
@@ -759,7 +742,7 @@ void SurfEdit()
             GUIOBJ *preview = surface_area.get_object("surface.preview");
             if ((GLuint)preview->Data == 0)
             {
-                allegro_gl_set_texture_format(GL_RGB8);
+                gfx->set_texture_format(GL_RGB8);
                 preview->Data = (uint32) gfx->create_texture( (int)(preview->x2 - preview->x1), (int)(preview->y2 - preview->y1), FILTER_LINEAR );
             }
 
@@ -808,8 +791,7 @@ void SurfEdit()
         surface_area.draw();
 
         glEnable(GL_TEXTURE_2D);			// Affiche le curseur
-        show_mouse(screen);
-        algl_draw_mouse();
+        SDL_ShowCursor(SDL_ENABLE);
 
         gfx->unset_2D_mode();	// Quitte le mode de dessin d'allegro
 
@@ -825,42 +807,36 @@ void SurfEdit()
         if (index!=-1) // L'utilisateur veut choisir une texture / the user is selecting a texture
         {
             String filename = Dialogf( I18N::Translate( "Load a texture" ).c_str(),"*.*");
-            BITMAP *bmp_tex = filename.length()>0 ? gfx->load_image(filename) : NULL;
+            SDL_Surface *bmp_tex = filename.length()>0 ? gfx->load_image(filename) : NULL;
             if (bmp_tex) // Si il s'agit d'ajouter/modifier une texture / If we are adding/modifying a texture
             {
-                if (bitmap_color_depth(bmp_tex)==24 || strstr(filename.c_str(),".jpg")!=NULL)
+                if (bmp_tex->format->BitsPerPixel == 24 || strstr(filename.c_str(),".jpg")!=NULL)
                 {
-                    BITMAP *tmp = create_bitmap_ex(32,bmp_tex->w,bmp_tex->h);
+                    SDL_Surface *tmp = gfx->create_surface_ex(32,bmp_tex->w,bmp_tex->h);
                     for(int y=0;y<tmp->h;y++)
                         for(int x=0;x<tmp->w;x++)
                             putpixel(tmp,x,y,getpixel(bmp_tex,x,y)|0xFF000000);
-                    destroy_bitmap(bmp_tex);
+                    SDL_FreeSurface(bmp_tex);
                     bmp_tex=tmp;
                 }
                 if (index>=obj_table[cur_part]->surface.NbTex)      // Ajoute la texture / Add the texture
                 {
                     index=obj_table[cur_part]->surface.NbTex;
-                    allegro_gl_use_alpha_channel(true);
-                    allegro_gl_set_texture_format(GL_RGBA8);
-                    obj_table[cur_part]->surface.gltex[index]=allegro_gl_make_texture(bmp_tex);
-                    allegro_gl_use_alpha_channel(false);
-                    glBindTexture(GL_TEXTURE_2D,obj_table[cur_part]->surface.gltex[index]);
-                    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
-                    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
+//                    allegro_gl_use_alpha_channel(true);
+                    gfx->set_texture_format(GL_RGBA8);
+                    obj_table[cur_part]->surface.gltex[index] = gfx->make_texture(bmp_tex, FILTER_LINEAR);
+//                    allegro_gl_use_alpha_channel(false);
                     obj_table[cur_part]->surface.NbTex++;
-                    destroy_bitmap(bmp_tex);
+                    SDL_FreeSurface(bmp_tex);
                 }
                 else
                 {
                     gfx->destroy_texture(obj_table[cur_part]->surface.gltex[index]);
-                    allegro_gl_use_alpha_channel(true);
-                    allegro_gl_set_texture_format(GL_RGBA8);
-                    obj_table[cur_part]->surface.gltex[index] = allegro_gl_make_texture(bmp_tex);
-                    allegro_gl_use_alpha_channel(false);
-                    glBindTexture(GL_TEXTURE_2D,obj_table[cur_part]->surface.gltex[index]);
-                    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
-                    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
-                    destroy_bitmap(bmp_tex);
+//                    allegro_gl_use_alpha_channel(true);
+                    gfx->set_texture_format(GL_RGBA8);
+                    obj_table[cur_part]->surface.gltex[index] = gfx->make_texture(bmp_tex, FILTER_LINEAR);
+//                    allegro_gl_use_alpha_channel(false);
+                    SDL_FreeSurface(bmp_tex);
                 }
             }
             else
@@ -958,22 +934,16 @@ void SurfPaint(int index)
     {
         glGenFramebuffersEXT(1,&brush_FBO);
 
-        BITMAP *tmp=create_bitmap_ex(32,SCREEN_W,SCREEN_H);	// On ne peut pas utiliser screen donc on crée un BITMAP temporaire
-        allegro_gl_set_texture_format(GL_RGBA16);
-        brush_U=allegro_gl_make_texture(tmp);
-        brush_V=allegro_gl_make_texture(tmp);
-        allegro_gl_set_texture_format(GL_RGBA8);
+        SDL_Surface *tmp=gfx->create_surface_ex(32,SCREEN_W,SCREEN_H);	// On ne peut pas utiliser screen donc on crée un SDL_Surface temporaire
+        gfx->set_texture_format(GL_RGBA16);
+        brush_U = gfx->make_texture(tmp, FILTER_LINEAR);
+        brush_V = gfx->make_texture(tmp, FILTER_LINEAR);
+        gfx->set_texture_format(GL_RGBA8);
 
         glGenRenderbuffersEXT(1,&zbuf);
         glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, zbuf);
         glRenderbufferStorageEXT(GL_RENDERBUFFER_EXT,GL_DEPTH_COMPONENT24, SCREEN_W, SCREEN_H);
-        destroy_bitmap(tmp);
-        glBindTexture(GL_TEXTURE_2D,brush_U);
-        glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
-        glBindTexture(GL_TEXTURE_2D,brush_V);
-        glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
+        SDL_FreeSurface(tmp);
     }
 
     uint32 timer = msec_timer;
@@ -1004,7 +974,7 @@ void SurfPaint(int index)
             CancelH[10-NbH]=0;
             NbH--;
 
-            obj_table[cur_part]->surface.gltex[0]=tex;			// Recopie le BITMAP sur la texture
+            obj_table[cur_part]->surface.gltex[0]=tex;			// Recopie le SDL_Surface sur la texture
         }
 
         if (NbH>10) NbH=10;			// Limite la profondeur de l'historique
@@ -1023,12 +993,12 @@ void SurfPaint(int index)
                 if (key[KEY_SPACE] || tool_tex_gl==0)
                 {
                     String filename = Dialogf( I18N::Translate( "Load a texture" ).c_str(),"*.*");
-                    BITMAP *bmp_tex = filename.length()>0 ? gfx->load_image(filename) : NULL;
+                    SDL_Surface *bmp_tex = filename.length()>0 ? gfx->load_image(filename) : NULL;
                     if (bmp_tex) // Si il s'agit d'ajouter/modifier une texture
                     {
-                        if (bitmap_color_depth(bmp_tex)!=32 || strstr(filename.c_str(),".jpg")!=NULL)
+                        if (bmp_tex->format->BitsPerPixel != 32 || strstr(filename.c_str(),".jpg")!=NULL)
                         {
-                            BITMAP *tmp = create_bitmap_ex(32,bmp_tex->w,bmp_tex->h);
+                            SDL_Surface *tmp = gfx->create_surface_ex(32,bmp_tex->w,bmp_tex->h);
                             for(int y=0;y<tmp->h;y++)
                                 for(int x=0;x<tmp->w;x++)
                                 {
@@ -1036,17 +1006,17 @@ void SurfPaint(int index)
                                     int r = getr( c );
                                     int g = getg( c );
                                     int b = getb( c );
-                                    if (bitmap_color_depth(bmp_tex)==16)
+                                    if (bmp_tex->format->BitsPerPixel == 16)
                                     {
                                         r <<= 3;
                                         g <<= 2;
                                         b <<= 3;
                                     }
-                                    else if (bitmap_color_depth(bmp_tex)==8)
+                                    else if (bmp_tex->format->BitsPerPixel == 8)
                                         r = g = b = r << 2;
                                     putpixel(tmp,x,y,makeacol(r,g,b,0xFF));
                                 }
-                            destroy_bitmap(bmp_tex);
+                            SDL_FreeSurface(bmp_tex);
                             bmp_tex=tmp;
                         }
                         bool need_alpha_fill = true;
@@ -1063,14 +1033,11 @@ void SurfPaint(int index)
                                     putpixel(bmp_tex,x,y,getpixel(bmp_tex,x,y)|0xFF000000);
                         if (tool_tex_gl)
                             glDeleteTextures(1,&tool_tex_gl);
-                        allegro_gl_use_alpha_channel(true);
-                        allegro_gl_set_texture_format(GL_RGBA8);
-                        tool_tex_gl=allegro_gl_make_texture(bmp_tex);
-                        allegro_gl_use_alpha_channel(false);
-                        glBindTexture(GL_TEXTURE_2D,tool_tex_gl);
-                        glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
-                        glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
-                        destroy_bitmap(bmp_tex);
+//                        allegro_gl_use_alpha_channel(true);
+                        gfx->set_texture_format(GL_RGBA8);
+                        tool_tex_gl = gfx->make_texture(bmp_tex, FILTER_LINEAR);
+//                        allegro_gl_use_alpha_channel(false);
+                        SDL_FreeSurface(bmp_tex);
                     }
                 }
                 break;
@@ -1082,26 +1049,22 @@ void SurfPaint(int index)
             char *new_separator = strstr(new_res.c_str(),"x");
             if (new_separator)
             {
-                *new_separator=0;
+                *new_separator = 0;
                 int n_w = atoi(new_res.c_str());
                 *new_separator='x';
                 new_separator++;
                 int n_h = atoi(new_separator);
 
-                BITMAP *bmp_tex = read_tex(tex);
+                SDL_Surface *bmp_tex = read_tex(tex);
                 glDeleteTextures(1,&tex);
-                BITMAP *tmp = create_bitmap_ex(32,n_w,n_h);
+                SDL_Surface *tmp = gfx->create_surface_ex(32,n_w,n_h);
                 stretch_blit(bmp_tex,tmp,0,0,bmp_tex->w,bmp_tex->h,0,0,tmp->w,tmp->h);
-                destroy_bitmap(bmp_tex);
-                allegro_gl_use_alpha_channel(true);
-                obj_table[cur_part]->surface.gltex[0] = tex = allegro_gl_make_texture(tmp);
-                allegro_gl_use_alpha_channel(false);
+                SDL_FreeSurface(bmp_tex);
+//                allegro_gl_use_alpha_channel(true);
+                obj_table[cur_part]->surface.gltex[0] = tex = gfx->make_texture(tmp, FILTER_LINEAR);
+//                allegro_gl_use_alpha_channel(false);
 
-                glBindTexture(GL_TEXTURE_2D,tex);
-                glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
-                glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
-
-                destroy_bitmap(tmp);
+                SDL_FreeSurface(tmp);
             }
             else
                 Popup( I18N::Translate( "Error" ), I18N::Translate( "The resolution must be widthxheight" ));
@@ -1145,7 +1108,7 @@ void SurfPaint(int index)
         // Efface tout
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);		// Efface la mémoire tampon
 
-        show_mouse(NULL);					// Cache la souris
+        SDL_ShowCursor(SDL_DISABLE);					// Cache la souris
         if (key[KEY_ESC] || painter_area.get_state("paint.b_ok"))
         {
             done = true;
@@ -1319,7 +1282,7 @@ void SurfPaint(int index)
                             if (u>=0.0f && v>=0.0f && u<1.0f && v<1.0f)
                             {
                                 GLint tex_w,tex_h;
-                                BITMAP *n_tex = read_tex(tex);
+                                SDL_Surface *n_tex = read_tex(tex);
                                 tex_w=n_tex->w;
                                 tex_h=n_tex->h;
                                 u=u*tex_w+0.5f;
@@ -1381,9 +1344,9 @@ void SurfPaint(int index)
 
                                             glBindFramebufferEXT(GL_FRAMEBUFFER_EXT,0);
 
-                                            BITMAP *tex_U = read_tex_luminance(brush_U);
-                                            BITMAP *tex_V = read_tex_luminance(brush_V);
-                                            BITMAP *brush = read_tex(tool_tex_gl);
+                                            SDL_Surface *tex_U = read_tex_luminance(brush_U);
+                                            SDL_Surface *tex_V = read_tex_luminance(brush_V);
+                                            SDL_Surface *brush = read_tex(tool_tex_gl);
                                             for(int y=0;y<brush->h;y++)
                                             {
                                                 int Y = SCREEN_H-1-(int)(mouse_y-32.0f*tool_tex_size+64.0f*tool_tex_size*y/brush->h);
@@ -1393,8 +1356,8 @@ void SurfPaint(int index)
                                                         int X = (int)(mouse_x-32.0f*tool_tex_size+64.0f*tool_tex_size*x/brush->w);
                                                         if (X>=0 && X<SCREEN_W)
                                                         {
-                                                            int u = (int)(((unsigned short*)(tex_U->line[Y]))[(X<<2)+1]/65536.0f*n_tex->w);
-                                                            int v = (int)(((unsigned short*)(tex_V->line[Y]))[(X<<2)+1]/65536.0f*n_tex->h);
+                                                            int u = (int)(SurfaceShort(tex_U, (X<<2)+1, Y) / 65536.0f * n_tex->w);
+                                                            int v = (int)(SurfaceShort(tex_V, (X<<2)+1, Y) / 65536.0f * n_tex->h);
                                                             int c1 = getpixel(brush,x,y);
                                                             int c2 = getpixel(n_tex,u,v);
                                                             int cr1 = getr(c1);
@@ -1413,21 +1376,18 @@ void SurfPaint(int index)
                                                         }
                                                     }
                                             }
-                                            destroy_bitmap(tex_U);
-                                            destroy_bitmap(tex_V);
-                                            destroy_bitmap(brush);
+                                            SDL_FreeSurface(tex_U);
+                                            SDL_FreeSurface(tex_V);
+                                            SDL_FreeSurface(brush);
                                         }
                                         break;
                                 }
 
                                 glDeleteTextures(1,&tex);
-                                allegro_gl_use_alpha_channel(true);
-                                tex=allegro_gl_make_texture(n_tex);
-                                allegro_gl_use_alpha_channel(false);
-                                glBindTexture(GL_TEXTURE_2D,tex);
-                                glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
-                                glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
-                                destroy_bitmap(n_tex);
+//                                allegro_gl_use_alpha_channel(true);
+                                tex = gfx->make_texture(n_tex, FILTER_LINEAR);
+//                                allegro_gl_use_alpha_channel(false);
+                                SDL_FreeSurface(n_tex);
 
                                 obj_table[cur_part]->surface.gltex[0]=tex;
                             }
@@ -1501,7 +1461,7 @@ void SurfPaint(int index)
             int h = (int)(preview->y2 - preview->y1);
             if ((GLuint)preview->Data == 0)
             {
-                allegro_gl_set_texture_format(GL_RGB8);
+                gfx->set_texture_format(GL_RGB8);
                 preview->Data = (uint32) gfx->create_texture( w, h, FILTER_LINEAR );
             }
 
@@ -1552,8 +1512,7 @@ void SurfPaint(int index)
         }
 
         glEnable(GL_TEXTURE_2D);			// Affiche le curseur
-        show_mouse(screen);
-        algl_draw_mouse();
+        SDL_ShowCursor(SDL_ENABLE);
 
         gfx->unset_2D_mode();	// Quitte le mode de dessin d'allegro
 
@@ -1923,7 +1882,7 @@ void glslEditor()                  // Fragment and vertex programs editor
             done=true;
         }
 
-        show_mouse(NULL);					// Cache la souris / Hide cursor
+        SDL_ShowCursor(SDL_DISABLE);					// Cache la souris / Hide cursor
         if (key[KEY_ESC] || glsl_area.get_state("glsl.b_cancel"))
         {
             reset_keyboard();
@@ -1938,8 +1897,7 @@ void glslEditor()                  // Fragment and vertex programs editor
         glsl_area.draw();
 
         glEnable(GL_TEXTURE_2D);			// Affiche le curseur
-        show_mouse(screen);
-        algl_draw_mouse();
+        SDL_ShowCursor(SDL_ENABLE);
 
         gfx->unset_2D_mode();	// Quitte le mode de dessin d'allegro
 

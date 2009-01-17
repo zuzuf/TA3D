@@ -3962,7 +3962,7 @@ namespace TA3D
                         for (int x = 0; x < tex->w ; ++x)
                         {
                             int c = getpixel( tex, x, y );
-                            putpixel( tex, x, y, makeacol( getr(c), getg(c), getb(c), SurfaceByte(alpha, x<<2, y));
+                            putpixel( tex, x, y, makeacol( getr(c), getg(c), getb(c), SurfaceByte(alpha, x<<2, y)));
                         }
                     }
 
@@ -3998,16 +3998,17 @@ namespace TA3D
                 {
                     cache_filename = TA3D::Paths::Files::ReplaceExtension( cache_filename, ".tga" );
                     if (!TA3D::Paths::Exists( TA3D::Paths::Caches + cache_filename ))
-                        save_bitmap( (TA3D::Paths::Caches + cache_filename).c_str(), tex, NULL );
+                        LOG_ERROR(LOG_PREFIX_3DO << "save_bitmap not implemented yet!");
+//                        save_bitmap( (TA3D::Paths::Caches + cache_filename).c_str(), tex, NULL );
                 }
                 tex_cache_name.push_back( cache_filename );
             }
             else            // Standard loading path (used by 3DMEditor)
             {
-                allegro_gl_use_alpha_channel(true);
+//                allegro_gl_use_alpha_channel(true);
                 gfx->set_texture_format(GL_RGBA8);
                 surface.gltex[i] = gfx->make_texture(tex, FILTER_LINEAR);
-                allegro_gl_use_alpha_channel(false);
+//                allegro_gl_use_alpha_channel(false);
             }
 
             SDL_FreeSurface(tex);

@@ -27,6 +27,7 @@
 #include "ta3dbase.h"		// Moteur
 #include "3ds.h"
 #include "3dmeditor.h"
+#include "misc/paths.h"
 
 namespace TA3D
 {
@@ -245,22 +246,22 @@ namespace TA3D
                         break;
                     case MAT_TEXMAP:
                         //							printf("---MAT_TEXMAP (%d,%d)\n", chunk.ID, chunk.length);
-                        if( material ) {
+                        if (material)
+                        {
                             uint16 n_id;
                             fread( &n_id, 2, 1, src_3ds );
                             fseek( src_3ds, -2, SEEK_CUR );
-                            if( n_id == MAT_MAPNAME ) {
+                            if (n_id == MAT_MAPNAME)
+                            {
                                 material->MAPNAME = read_MAT_MAPNAME_chunk( src_3ds );
                                 material->TEXMAP = read_percent_chunk( src_3ds );
                             }
-                            else {
+                            else
+                            {
                                 material->TEXMAP = read_percent_chunk( src_3ds );
                                 material->MAPNAME = read_MAT_MAPNAME_chunk( src_3ds );
                             }
-                            char *full_name = new char[2048];
-                            replace_filename( full_name, filename.c_str(), material->MAPNAME.c_str(), 2048 );
-                            material->MAPNAME = full_name;
-                            delete[] full_name;
+                            material->MAPNAME = Paths::ExtractFilePath( filename ) + material->MAPNAME;
                         }
                         else
                             fseek( src_3ds, chunk.length - 6, SEEK_CUR );

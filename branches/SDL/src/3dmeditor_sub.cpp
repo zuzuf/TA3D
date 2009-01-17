@@ -68,7 +68,7 @@ void mnu_file(int mnu_index)
             {
                 init_surf_buf();
                 String filename = Dialogf(I18N::Translate( "Open a model" ),"*.3dm");
-                if( filename.c_str() && file_exists(filename.c_str(),FA_RDONLY | FA_HIDDEN | FA_SYSTEM | FA_LABEL | FA_ARCH,NULL)) {
+                if( filename.c_str() && exists(filename)) {
                     FILE *src = TA3D_OpenFile(filename.c_str(), "rb");
                     if(src) {
                         byte *data = new byte[FILE_SIZE(filename.c_str())];
@@ -94,7 +94,7 @@ void mnu_file(int mnu_index)
             {
                 init_surf_buf();
                 String filename=Dialogf(I18N::Translate( "Import an ASC model" ),"*.asc");
-                if (file_exists(filename.c_str(),FA_RDONLY | FA_HIDDEN | FA_SYSTEM | FA_LABEL | FA_ARCH,NULL))
+                if (exists(filename))
                 {
                     TheModel->load_asc((char*)filename.c_str(),30.0f);
                     convert_to_3dm();
@@ -106,7 +106,7 @@ void mnu_file(int mnu_index)
             {
                 init_surf_buf();
                 String filename = Dialogf(I18N::Translate( "Import a 3DO model" ),"*.3do");
-                if (file_exists(filename.c_str(),FA_RDONLY | FA_HIDDEN | FA_SYSTEM | FA_LABEL | FA_ARCH,NULL))
+                if (exists(filename))
                 {
                     byte *data = new byte[FILE_SIZE(filename.c_str())];
                     FILE *src = TA3D_OpenFile(filename.c_str(),"rb");
@@ -123,10 +123,10 @@ void mnu_file(int mnu_index)
             {
                 init_surf_buf();
                 String filename = Dialogf(I18N::Translate( "Import a 3DS model" ), "*.3ds");
-                if (file_exists(filename.c_str(),FA_RDONLY | FA_HIDDEN | FA_SYSTEM | FA_LABEL | FA_ARCH,NULL))
+                if (exists(filename))
                 {
                     TheModel = load_3ds(filename);
-                    cur_part=0;
+                    cur_part = 0;
                 }
             }
             break;
@@ -134,7 +134,7 @@ void mnu_file(int mnu_index)
             {
                 init_surf_buf();
                 String filename = Dialogf(I18N::Translate( "Import an OBJ model" ), "*.obj");
-                if (file_exists(filename.c_str(), FA_RDONLY | FA_HIDDEN | FA_SYSTEM | FA_LABEL | FA_ARCH, NULL))
+                if (exists(filename))
                 {
                     TheModel = Converters::OBJ::ToModel(filename);
                     cur_part = 0;
@@ -668,48 +668,44 @@ void button_change_zx(int mnu_index)
 
 GLuint copy_tex(GLuint gltex)
 {
-    BITMAP *tex;
+    SDL_Surface *tex;
     GLint w,h,ntex;
     glBindTexture(GL_TEXTURE_2D,gltex);
     glGetTexLevelParameteriv(GL_TEXTURE_2D,0,GL_TEXTURE_WIDTH,&w);
     glGetTexLevelParameteriv(GL_TEXTURE_2D,0,GL_TEXTURE_HEIGHT,&h);
-    tex=create_bitmap_ex(32,w,h);
-    glGetTexImage(GL_TEXTURE_2D,0,GL_RGBA,GL_UNSIGNED_BYTE,tex->line[0]);
+    tex = gfx->create_surface_ex(32,w,h);
+    glGetTexImage(GL_TEXTURE_2D,0,GL_RGBA,GL_UNSIGNED_BYTE,tex->pixels);
 
-    allegro_gl_use_alpha_channel(true);
-    ntex = allegro_gl_make_texture(tex);
-    allegro_gl_use_alpha_channel(false);
+//    allegro_gl_use_alpha_channel(true);
+    ntex = gfx->make_texture(tex, FILTER_LINEAR);
+//    allegro_gl_use_alpha_channel(false);
 
-    glBindTexture(GL_TEXTURE_2D,ntex);
-    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
-
-    destroy_bitmap(tex);
+    SDL_FreeSurface(tex);
     return ntex;
 }
 
-BITMAP *read_tex(GLuint gltex)
+SDL_Surface *read_tex(GLuint gltex)
 {
-    BITMAP *tex;
+    SDL_Surface *tex;
     GLint w,h;
     glBindTexture(GL_TEXTURE_2D,gltex);
     glGetTexLevelParameteriv(GL_TEXTURE_2D,0,GL_TEXTURE_WIDTH,&w);
     glGetTexLevelParameteriv(GL_TEXTURE_2D,0,GL_TEXTURE_HEIGHT,&h);
-    tex=create_bitmap_ex(32,w,h);
-    glGetTexImage(GL_TEXTURE_2D,0,GL_RGBA,GL_UNSIGNED_BYTE,tex->line[0]);
+    tex = gfx->create_surface_ex(32,w,h);
+    glGetTexImage(GL_TEXTURE_2D,0,GL_RGBA,GL_UNSIGNED_BYTE, tex->pixels);
 
     return tex;
 }
 
-BITMAP *read_tex_luminance(GLuint gltex)
+SDL_Surface *read_tex_luminance(GLuint gltex)
 {
-    BITMAP *tex;
+    SDL_Surface *tex;
     GLint w,h;
     glBindTexture(GL_TEXTURE_2D,gltex);
     glGetTexLevelParameteriv(GL_TEXTURE_2D,0,GL_TEXTURE_WIDTH,&w);
     glGetTexLevelParameteriv(GL_TEXTURE_2D,0,GL_TEXTURE_HEIGHT,&h);
-    tex=create_bitmap_ex(32,w<<1,h);
-    glGetTexImage(GL_TEXTURE_2D,0,GL_RGBA,GL_UNSIGNED_SHORT,tex->line[0]);
+    tex=gfx->create_surface_ex(32,w<<1,h);
+    glGetTexImage(GL_TEXTURE_2D,0,GL_RGBA,GL_UNSIGNED_SHORT, tex->pixels);
 
     return tex;
 }
@@ -924,28 +920,18 @@ void init()
         return;
     }
 
-    set_uformat(U_ASCII);   // fixed size, 8-bit ASCII characters
+//    set_uformat(U_ASCII);   // fixed size, 8-bit ASCII characters
 
-    I_Msg( TA3D::TA3D_IM_DEBUG_MSG, (void*)"Starting Allegro timer.\n", NULL, NULL );
-    if( install_timer() != 0 )
-    {
-        throw cError( "Init3DMEditor()", "install_timer() yielded unexpected result.", true );
-        return;
-    }
+    if( SDL_Init(SDL_INIT_VIDEO) < 0 )
+        throw( "SDL_Init(SDL_INIT_VIDEO) yielded unexpected result." );
 
-    I_Msg( TA3D::TA3D_IM_DEBUG_MSG, (void*)"Starting allegro mouse handler.\n ", NULL, NULL );
-    if( install_mouse() == -1 )
-    {
-        throw cError( "Init3DMEditor()", "install_mouse() yielded unexpected result.", true );
-        return;
-    }
+    // Installing SDL timer
+    if( SDL_Init(SDL_INIT_TIMER) != 0 )
+        throw( "SDL_Init(SDL_INIT_TIMER) yielded unexpected result." );
 
-    I_Msg( TA3D::TA3D_IM_DEBUG_MSG, (void*)"Starting allegro keyboard handler.\n", NULL, NULL );
-    if( install_keyboard() == -1 )
-    {
-        throw cError( "Init3DMEditor()", "install_mouse() yielded unexpected result.", true );
-        return;
-    }
+    // Installing SDL timer
+    if( SDL_Init(SDL_INIT_EVENTTHREAD) != 0 )
+        throw( "SDL_Init(SDL_INIT_EVENTTHREAD) yielded unexpected result." );
 
     jpgalleg_init();
 
@@ -955,7 +941,7 @@ void init()
 
     I18N::LoadFromFile("3dmeditor.res");
 
-    set_window_title("3DMEditor - TA3D Project");
+    SDL_WM_SetCaption("3DMEditor - TA3D Project","3DMEditor");
 
     gfx->Init();
 }

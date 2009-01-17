@@ -24,7 +24,7 @@ namespace TA3D
 
     WEAPON_MANAGER weapon_manager;
 
-    
+
     WEAPON_MANAGER::WEAPON_MANAGER()
         :nb_weapons(0), weapon()
     {
@@ -70,10 +70,10 @@ namespace TA3D
         return nb_weapons-1;
     }
 
-    
+
     void WEAPON_MANAGER::load_tdf(char *data, const int size)
     {
-        set_uformat(U_ASCII);
+//        set_uformat(U_ASCII);
         char *pos=data;
         char *ligne=NULL;
         int nb=0;

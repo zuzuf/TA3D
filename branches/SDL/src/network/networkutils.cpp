@@ -489,7 +489,7 @@ namespace TA3D
             LOG_DEBUG(LOG_PREFIX_NET_FILE << "file transfert timed out (0)");
             pDead = 1;
             fclose( file );
-            delete_file( (filename + ".part").c_str() );
+            remove( (filename + ".part").c_str() );
             network->setFileDirty();
             delete[] buffer;
             delete[] uncompressed_buffer;
@@ -511,7 +511,7 @@ namespace TA3D
                 LOG_DEBUG(LOG_PREFIX_NET_FILE << "file transfert timed out (1)");
                 pDead = 1;
                 fclose( file );
-                delete_file( (filename + ".part").c_str() );
+                remove( (filename + ".part").c_str() );
                 network->setFileDirty();
                 delete[] buffer;
                 delete[] uncompressed_buffer;
@@ -560,7 +560,7 @@ namespace TA3D
 
         fclose(file);
         if( pDead && sofar < length )				// Delete the file if transfer has been aborted
-            delete_file( (filename + ".part").c_str() );
+            remove( (filename + ".part").c_str() );
         else
             rename( (filename + ".part").c_str(), filename.c_str() );
 

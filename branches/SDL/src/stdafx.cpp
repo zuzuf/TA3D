@@ -27,6 +27,7 @@
 #include "stdafx.h"
 #include <sys/stat.h>
 #include <fstream>
+#include <math.h>
 
 using namespace std;
 
@@ -316,6 +317,7 @@ void rest(uint32 msec)
 
 void putpixel(SDL_Surface *bmp, int x, int y, uint32 col)
 {
+    if (x < 0 || y < 0 || x >= bmp->w || y >= bmp->h)   return;
     switch(bmp->format->BitsPerPixel)
     {
     case 8:
@@ -337,6 +339,7 @@ void putpixel(SDL_Surface *bmp, int x, int y, uint32 col)
 
 uint32 getpixel(SDL_Surface *bmp, int x, int y)
 {
+    if (x < 0 || y < 0 || x >= bmp->w || y >= bmp->h)   return 0;
     switch(bmp->format->BitsPerPixel)
     {
     case 8:
@@ -354,6 +357,87 @@ uint32 getpixel(SDL_Surface *bmp, int x, int y)
         return SurfaceInt(bmp, x, y);
     };
     return 0;
+}
+
+void line(SDL_Surface *bmp, int x0, int y0, int x1, int y1, uint32 col)
+{
+    if (abs(x0 - x1) > abs(y0 - y1))
+    {
+        if (x0 > x1)
+        {
+            x0 ^= x1;   x1 ^= x0;   x0 ^= x1;
+            y0 ^= y1;   y1 ^= y0;   y0 ^= y1;
+        }
+        for(int x = x0 ; x <= x1 ; x++)
+            putpixel(bmp, x, y0 + (y1 - y0) * (x - x0) / (x1 - x0), col);
+    }
+    else
+    {
+        if (y0 > y1)
+        {
+            x0 ^= x1;   x1 ^= x0;   x0 ^= x1;
+            y0 ^= y1;   y1 ^= y0;   y0 ^= y1;
+        }
+        for(int y = y0 ; y <= y1 ; y++)
+            putpixel(bmp, x0 + (x1 - x0) * (y - y0) / (y1 - y0), y, col);
+    }
+}
+
+void triangle(SDL_Surface *bmp, int x0, int y0, int x1, int y1, int x2, int y2, uint32 col)
+{
+    if (y0 > y1)
+    {
+        x0 ^= x1;   x1 ^= x0;   x0 ^= x1;
+        y0 ^= y1;   y1 ^= y0;   y0 ^= y1;
+    }
+    if (y1 > y2)
+    {
+        x2 ^= x1;   x1 ^= x2;   x2 ^= x1;
+        y2 ^= y1;   y1 ^= y2;   y2 ^= y1;
+    }
+    if (y0 > y1)
+    {
+        x0 ^= x1;   x1 ^= x0;   x0 ^= x1;
+        y0 ^= y1;   y1 ^= y0;   y0 ^= y1;
+    }
+
+    if (y0 < y1)
+        for(int y = y0 ; y <= y1 ; y++)
+        {
+            int ax = x0 + (x1 - x0) * (y - y0) / (y1 - y0);
+            int bx = x0 + (x2 - x0) * (y - y0) / (y2 - y0);
+            if (ax > bx)
+            {
+                ax ^= bx;   bx ^= ax;   ax ^= bx;
+            }
+            for(int x = ax ; x <= bx ; x++)
+                putpixel(bmp, x, y, col);
+        }
+    if (y1 < y2)
+        for(int y = y1 ; y <= y2 ; y++)
+        {
+            int ax = x1 + (x2 - x1) * (y - y1) / (y2 - y1);
+            int bx = x0 + (x2 - x0) * (y - y0) / (y2 - y0);
+            if (ax > bx)
+            {
+                ax ^= bx;   bx ^= ax;   ax ^= bx;
+            }
+            for(int x = ax ; x <= bx ; x++)
+                putpixel(bmp, x, y, col);
+        }
+}
+
+void circlefill(SDL_Surface *bmp, int x, int y, int r, uint32 col)
+{
+    r *= r;
+    for(int sy = -y ; sy <= y ; sy++)
+    {
+        int dx = sqrtf(r - sy * sy);
+        int ax = x - dx;
+        int bx = x + dx;
+        for(int sx = ax ; sx <= bx ; sx++)
+            putpixel(bmp, sx, y + sy, col);
+    }
 }
 
 }

@@ -68,8 +68,8 @@ GLuint copy_tex(GLuint gltex);
 void obj_maj_normal(int idx);
 void obj_geo_optimize(int idx,bool notex=false);
 void obj_geo_split(int idx);
-SDL_Color *read_tex(GLuint gltex);
-SDL_Color *read_tex_luminance(GLuint gltex);
+SDL_Surface *read_tex(GLuint gltex);
+SDL_Surface *read_tex_luminance(GLuint gltex);
 
 int intersect(Vector3D O,Vector3D Dir,OBJECT *obj,Vector3D *PA,Vector3D *PB);	// Calcule l'intersection d'un rayon avec une partie de la meshe
 

@@ -202,6 +202,12 @@ namespace TA3D
     void putpixel(SDL_Surface *bmp, int x, int y, uint32 col);
     uint32 getpixel(SDL_Surface *bmp, int x, int y);
 
+    void line(SDL_Surface *bmp, int x0, int y0, int x1, int y1, uint32 col);
+
+    void triangle(SDL_Surface *bmp, int x0, int y0, int x1, int y1, int x2, int y2, uint32 col);
+
+    void circlefill(SDL_Surface *bmp, int x, int y, int r, uint32 col);
+
     void rest(uint32 msec);
 } // namespace TA3D
 
@@ -217,9 +223,12 @@ namespace TA3D
 #define makeacol(r,g,b,a)   (((uint32)(r)<<24) | ((uint32)(g)<<16) | ((uint32)(b)<<8) | (uint32)(a))
 #define makecol24(r,g,b)   (((uint32)(r)<<24) | ((uint32)(g)<<16) | ((uint32)(b)<<8) | 0xFF)
 #define makecol(r,g,b)   makecol24(r,g,b)
+#define makeacol32(r,g,b,a)   makeacol(r,g,b,a)
 
-#define SurfaceByte(img, x, y)   (((byte*)((img)->pixels))[(y) * (img)->pitch + (x)])
-#define SurfaceInt(img, x, y)   (((uint32*)((img)->pixels))[((y) * (img)->pitch >> 2) + (x)])
+#define SurfaceType(img, x, y, T)   (((T*)((img)->pixels))[(y) * (img)->pitch / sizeof(T) + (x)])
+#define SurfaceByte(img, x, y)      (((byte*)((img)->pixels))[(y) * (img)->pitch + (x)])
+#define SurfaceInt(img, x, y)       (((uint32*)((img)->pixels))[((y) * (img)->pitch >> 2) + (x)])
+#define SurfaceShort(img, x, y)     (((uint16*)((img)->pixels))[((y) * (img)->pitch >> 1) + (x)])
 
 #define getr32(x) (((x)>>24) & 0xFF)
 #define getg32(x) (((x)>>16) & 0xFF)
@@ -234,8 +243,8 @@ namespace TA3D
 class FONT
 {
 };
-int text_length(FONT *fnt,const char *str) {}
-int text_height(FONT *fnt) {}
+inline int text_length(FONT *fnt,const char *str) {}
+inline int text_height(FONT *fnt) {}
 
 // zuzuf: to prevent some warnings
 # undef PACKAGE_BUGREPORT

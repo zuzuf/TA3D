@@ -87,7 +87,7 @@ namespace UTILS
                 }
 
                 key_level.push_front(m_cKey);
-                if (!changed) 
+                if (!changed)
                 {
                     m_cKey = ( m_cKey.empty()
                                ? Line.substr( 1, i-2 )
@@ -184,11 +184,10 @@ namespace UTILS
             return;
         }
 
-        if (data != NULL && toUTF8) 
+        if (data != NULL && toUTF8)
         {
             // Convert from ASCII to UTF8, required because TA3D works with UTF8 and TA with ASCII
-            char *tmp = new char[ota_size * 3];
-            do_uconvert( (const char*)data, U_ASCII, tmp, U_UTF8, ota_size * 3);
+            char *tmp = String::ConvertToUTF8((const char*)data, ota_size);
             delete[] data;
             data = (byte*)tmp;
         }
@@ -253,7 +252,7 @@ namespace UTILS
 
         String iterFind = TA3D::UTILS::cHashTable<String>::find(key_to_find);
 
-        return ( (iterFind.length() == 0) ? def : ( iterFind.size() == 10 && ustrtol( iterFind.substr(0,4).c_str() , NULL, 0 ) > 127 ? ( 0xFF000000 | ustrtol( ("0x"+iterFind.substr(4,6)).c_str() , NULL, 0 ) ) : ustrtol( iterFind.c_str() , NULL, 0 ) ) );		// Uses ustrtol to deal with hexa numbers
+        return ( (iterFind.length() == 0) ? def : ( iterFind.size() == 10 && String(iterFind.substr(0,4)).toUInt32() > 127 ? ( 0xFF000000 | String("0x"+iterFind.substr(4,6)).toUInt32() ) : String(iterFind).toUInt32() ) );		// Uses ustrtol to deal with hexa numbers
     }
 
     real32 cTAFileParser::pullAsFloat(const String& key, const real32 def)
@@ -290,4 +289,4 @@ namespace UTILS
 
 
 }
-} 
+}

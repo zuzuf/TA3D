@@ -80,7 +80,7 @@ extern int expected_players;
 
 #ifndef TA3D_MSEC_TIMER
 #define TA3D_MSEC_TIMER
-extern volatile uint32	msec_timer;
+#define msec_timer  (SDL_GetTicks())
 #endif
 
 extern int start;

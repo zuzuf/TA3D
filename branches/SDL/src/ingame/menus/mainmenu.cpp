@@ -48,7 +48,7 @@ namespace Menus
         gfx->ReInitTexSys();
 
         // To have mouse sensibility undependent from the resolution
-        gfx->SCREEN_W_TO_640 = 1.0f; 
+        gfx->SCREEN_W_TO_640 = 1.0f;
         gfx->SCREEN_H_TO_480 = 1.0f;
 
         // Loading the area
@@ -57,7 +57,7 @@ namespace Menus
         // Current mod
         getInfosAboutTheCurrentMod();
         // If there is a file parameter, read it
-        ReadFileParameter(); 
+        ReadFileParameter();
         // Misc
         pDontWaitForEvent = true;
         return true;
@@ -90,7 +90,7 @@ namespace Menus
 
     void MainMenu::getInfosAboutTheCurrentMod()
     {
-        pCurrentMod = TA3D_CURRENT_MOD.length() > 6 
+        pCurrentMod = TA3D_CURRENT_MOD.length() > 6
             ? TA3D_CURRENT_MOD.substr(5, TA3D_CURRENT_MOD.length() - 6)
             : "";
         if (pCurrentMod.empty())
@@ -112,7 +112,7 @@ namespace Menus
         getInfosAboutTheCurrentMod();
 
         // To have mouse sensibility undependent from the resolution
-        gfx->SCREEN_W_TO_640 = 1.0f; 
+        gfx->SCREEN_W_TO_640 = 1.0f;
         gfx->SCREEN_H_TO_480 = 1.0f;
     }
 
@@ -175,7 +175,7 @@ namespace Menus
 
         gfx->set_2D_mode();         // Back to 2D mode :)
 
-		set_window_title("Total Annihilation 3D");  // Set the window title
+		SDL_WM_SetCaption("Total Annihilation 3D", "TA3D");  // Set the window title
 
 		ta3dSideData.init();
 		ta3dSideData.loadData();
@@ -239,7 +239,7 @@ namespace Menus
             keyIsPressed = keypressed();
             // Grab user events
             pArea->check();
-            // Wait to reduce CPU consumption 
+            // Wait to reduce CPU consumption
             rest(TA3D_MENUS_RECOMMENDED_TIME_MS_FOR_RESTING);
 
         } while (!pDontWaitForEvent
