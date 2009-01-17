@@ -1,0 +1,9 @@
+[area]
+{
+	name=surface area;
+	skin=gui/default.skn;
+	windows=gui/3dmeditor_surface.tdf;
+	background=none;
+	width=1280;
+	height=1024;
+}

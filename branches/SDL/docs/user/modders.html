@@ -1,0 +1,227 @@
+<html>
+<head>
+<title>-=TA3D help=-</title>
+<style type="text/css">
+A:LINK {
+	color: #FFFFFF;
+	text-decoration: none;
+}
+A:ACTIVE {
+	color: #FFFFFF;
+	text-decoration: none;
+}
+A:VISITED {
+	color: #FFFFFF;
+	text-decoration: none;
+}
+BODY {
+	font-family: Verdana;
+	font-size: 9pt;
+	background-color: #000000;
+}
+A:HOVER {
+	color: #FF00FF;
+	text-decoration: none;
+}
+body, td, th {
+	color: #FFFFFF;
+	font-size: 10pt;
+}
+.style10 {
+	color: #6D767E
+}
+.style1 {
+	font-size: 14px;
+	font-family: Arial, Verdana, Helvetica, sans-serif;
+	color: #FFFFFF;
+}
+.style2 {
+	font-size: 14px;
+	font-family: Arial, Verdana, Helvetica, sans-serif;
+	color: #20E52E;
+}
+.H1 {
+	font-size: 14px;
+	font-family: Arial, Verdana, Helvetica, sans-serif;
+	color: #6D767E;
+}
+.style12 {
+	color: #FFFFFF;
+	font-size: 36pt;
+	font-family: "Courier New", Courier, monospace;
+	font-weight: bold;
+}
+.border {
+	border: 2px solid #313539;
+	cursor: crosshair;
+}
+.bott {
+	border-top-width: 2px;
+	border-right-width: 2px;
+	border-bottom-width: 2px;
+	border-left-width: 2px;
+	border-bottom-style: solid;
+	border-top-color: #000000;
+	border-right-color: #000000;
+	border-bottom-color: #000000;
+	border-left-color: #000000;
+}
+.gdfgfgd {
+	border-top-width: 2px;
+	border-right-width: 2px;
+	border-bottom-width: 2px;
+	border-left-width: 2px;
+	border-left-style: solid;
+	border-top-color: #000000;
+	border-right-color: #000000;
+	border-bottom-color: #000000;
+	border-left-color: #000000;
+}
+.style13 {
+	border-top-width: 2px;
+	border-right-width: 2px;
+	border-bottom-width: 2px;
+	border-left-width: 2px;
+	border-bottom-style: solid;
+	border-top-color: #000000;
+	border-right-color: #000000;
+	border-bottom-color: #000000;
+	border-left-color: #000000;
+	font-size: 12pt;
+	font-weight: bold;
+	color: #FFFFFF;
+}
+</style>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<script type="text/javascript">
+function MM_reloadPage(init) {  //reloads the window if Nav4 resized
+  if (init==true) with (navigator) {if ((appName=="Netscape")&&(parseInt(appVersion)==4)) {
+    document.MM_pgW=innerWidth; document.MM_pgH=innerHeight; onresize=MM_reloadPage; }}
+  else if (innerWidth!=document.MM_pgW || innerHeight!=document.MM_pgH) location.reload();
+}
+MM_reloadPage(true);
+
+</script>
+</head>
+<body>
+<div align="center">
+  <table width="777" border="0" cellpadding="3" cellspacing="2" bgcolor="#89929C" class="border">
+    <tr>
+      <td width="763" valign="top"><table width="100%" border="0" cellpadding="0" cellspacing="0" bgcolor="#89929C" class="border">
+          <tr>
+            <td width="773" height="170" valign="middle"><img src="ta3d.jpg"></td>
+          </tr>
+      </table></td>
+    </tr>
+    <tr>
+      <td valign="top"><table width="100%" border="0" cellpadding="6" cellspacing="0" bgcolor="#000000" class="border">
+        <tr>
+          <td width="175" height="236" valign="top"><table width="100%" border="0" cellpadding="3" cellspacing="0" class="border">
+            <tr>
+              <td width="165" height="26" align="left" valign="middle" class="style13">Navigation menu</td>
+            </tr>
+            <tr>
+              <td height="198" valign="top"><strong><br>
+                <a href="index.html">Main</a><br>
+                <a href="install.html">Installation<br>
+                <a href="console.html">Console commands<br>
+                <a href="guide.html">Game Guide<br>
+                <a href="multiplayer.html">Multiplayer<br>				
+                <a href="faq.html">F.A.Q.<br><br>
+   	<br>
+                <a href="mods.html">Using Mods <br>
+                <a href="modders.html">Modders support<br>
+				<a href="3dmeditor.html">3dMeditor<br>
+	</strong>
+	</td>
+            </tr>
+          </table>
+          </td>
+          <td width="560" valign="top" class="gdfgfgd">
+<div align="center"><H1>Modders support</H1>
+
+<p align="justify" class="style1">TA3D is modders-friendly. Some of TA3D features are listed below.<br><br>
+1. <font class="style2"><b>Model changing</b></font><br>
+<br>Now it`s easy to change models in TA3D ! <br>
+TA3D supports all TA model formats and have own - 3dm. This format stores model information and texture in one file.<br>
+There is TA3D 3D model Editor (3dmeditor.exe), which always can be found in /ta3d/ directory. <br>
+3dmeditor support different operations with *.asc *.3do *.3ds models and converting them in TA3D native format - *.3dm. Also 3dmeditor allow texturing (adding alpha-channel for transparency), scaling, and many other operations with model.<br><br>
+3DMeditor is still in it`s early stage of development, so many features are lacking, but the main tasks of converting formats, adding animation to static map objects, and setting transparency for objects are work fine!
+
+When loading, TA3D looks if there is a replacement model for TA resources (*.3dm then *.3do), it will look for a file named [the_file.gaf]-[the_image_name].3do/3dm in the objects3d directory. <br><br>
+
+If you want to make a model for the metal01 image in moonmetal.gaf you'll have to call it moonmetal-metal01.3dm for TA3D to load it instead of the gaf image. You can also use one model for more than one image. There are a feature in TA3D to load an alternate model when reading a file, like a link, the first byte of the file must be set to 0 then the name of the replacement model in the form: objects3d\model_name.3dm (it must be a 3dm!!). <br><br>
+
+2. <font class="style2"><b>Sky texturing</b></font><br>
+<br>There are several sky types in TA3D. You can change texture, speed, texturing style in ta3d/sky/ *.tdf files.<br>
+Just open with any text editor.<br><br>
+
+3. <font class="style2"><b>New GAF support</b></font><br>
+<br>
+TA3D have support for 24/32bits GAFs (alpha channel is saved only if needed). <br>
+It's an extension of the GAF format specific to TA3D, you cannot read those HD GAFs with TA.<br>
+24/32bits gafs can be used for everything normal GAFs are used:<br><br>
+
+<font class="style2">
+* cursors animation <br>
+* explosions animation<br>
+* unit textures <br>
+* in game GUI (build menus, buttons, backgrounds, ...) <br>
+* everywhere where they can be :)
+</font>
+<br><br>
+
+Currently there is only one tool to make those GAFs: <font class="style2">hpiview</font> which has been directly integrated in ta3d<br>
+You have to use it that way: <br><br>
+
+<font class="style2">./ta3d create_gaf gaf_descriptor</font><br>
+or<br>
+<font class="style2">ta3d.exe create_gaf gaf_descriptor</font><br><br>
+
+where gaf_descriptor is the name of the text file that describes the file you want to create. It's made like this:<br>
+Code:<br><br>
+
+<font class="style2">
+[gadget0]<br>
+{<br>
+  entries=the number of anims you want to put in the file;<br>
+  filename=the destination file.gaf;<br>
+}<br>
+[gadget1]          // The first animation<br>
+{<br>
+  frames=number of frames;<br>
+  name=the name of this animation; // has to be set otherwise you won't be able to find your animation in the resulting GAF<br>
+  [frame0]    // The first frame<br>
+  {<br>
+    XPos=the offset on the x axis;<br>
+    YPos=the offets on the y axis;<br>
+    filename=the image file to use as this frame;<br>
+  }<br>
+  [frame...]<br>
+  ...<br>
+}<br><br>
+</font>
+
+If you want an example of this syntax you can extract the content of a GAF (any GAF type is supported) with hpiview:<br><br>
+
+<font class="style2">./ta3d extract_gaf anims\\cursors.gaf</font><br><br>
+
+this command will extract all the frames within anims\cursors.gaf (note the \\, if you don't want to type \\ you can type "anims\cursors.gaf"), and it'll create a anims\cursors.gaf.txt file with the above syntax so that you can modify the frames and then put them back into GAF format (but it'll be 24/32bits GAF not TA 8bits GAF).<br><br>
+      </td></tr>
+      </table>
+      </td>
+    </tr>
+    
+    
+    
+    <tr>
+      <td valign="top"><table width="100%" border="0" cellpadding="0" cellspacing="0" bgcolor="#89929C">
+          <tr>
+            <td width="773" height="19" valign="middle" class="border"><div align="center" class="style10"><a href="http://ta3d.orgh">-=TA3D=-</a></div></td>
+          </tr>
+      </table></td>
+    </tr>
+  </table>
+</div>
+</body>
+</html>

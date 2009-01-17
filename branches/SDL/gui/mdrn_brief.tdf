@@ -1,0 +1,90 @@
+[window]
+{
+    name=brief;
+	title=Mission Briefing;
+	uformat=UTF8;
+	x=0;
+	y=0;
+	width=1280;
+	height=1024;
+	draw borders=false;
+	show title=false;
+	number of objects=7;
+	hidden=false;
+	lock=true;
+	color=0x00000000;			// Fully transparent so we can see the AREA background
+	background window=true;
+	fullscreen=true;			// Scale the window to fit the screen
+	screen width=1280;
+	screen height=1024;
+	[object0]		// OK
+	{
+		name=b_ok;
+		type=BUTTON;
+		caption=OK;
+		x1=1041;
+		y1=960;
+		x2=1190;
+		y2=997;
+		size=2;
+	}
+	[object1]		// Cancel
+	{
+		name=b_cancel;
+		type=BUTTON;
+		caption=cancel;
+		x1=841;
+		y1=960;
+		x2=990;
+		y2=997;
+		size=2;
+	}
+	[object2]		// planet animation
+	{
+		name=planet;
+		type=IMG;
+		x1=430;
+		y1=0;
+		x2=850;
+		y2=222;
+	}
+	[object3]		// panning animation (1st sprite)
+	{
+		name=panning0;
+		type=IMG;
+		x1=80;
+		y1=239;
+		x2=1186;
+		y2=499;
+	}
+	[object4]		// panning animation (2nd sprite)
+	{
+		name=panning1;
+		type=IMG;
+		x1=80;
+		y1=239;
+		x2=1186;
+		y2=499;
+	}
+	[object5]			// mission info
+	{
+		name=info;
+		type=MISSION;		// It's a TEXT formatted with a mission string
+		x1=88;
+		y1=552;
+		x2=1176;
+		y2=876;
+		size=1.8;
+	}
+	[object6]			// the scheam (difficulty level) to use
+	{
+		name=schema;
+		type=MENU;
+		x1=976;
+		y1=73;
+		x2=1159;
+		y2=112;
+		size=1.8;
+		Entry=;
+	}
+}
