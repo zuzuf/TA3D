@@ -17,7 +17,7 @@
 
 /*
  **  File: main.cpp
- ** Notes: The applications main entry point. 
+ ** Notes: The applications main entry point.
  */
 
 #include "stdafx.h"					// standard pch inheritance.
@@ -39,23 +39,6 @@
 #include "misc/application.h"
 #include "sounds/manager.h"
 
-
-
-// below defination defines accuracy of timer i guess.
-#define precision   MSEC_TO_TIMER(1)
-
-// timer variable, incremented by preccission, set by main.
-volatile uint32	msec_timer = 0;
-
-
-
-
-// intrupt timer, driven by allgegro.
-void Timer()
-{
-    ++msec_timer;				// msec count
-}
-END_OF_FUNCTION(Timer) /* I guess allegro needs this. */
 
 /*
  ** Function: ReadFileParameter
@@ -162,7 +145,7 @@ int ParseCommandLine(int argc, char *argv[])
             GFX::runTests();
             return 1;
         }
-        
+
     }
     return 0;
 }
@@ -184,9 +167,9 @@ int main(int argc, char *argv[])
 
     TA3D::Settings::Load(); /* Load Config File */
     TA3D_clear_cache();
-    allegro_exit();
+    SDL_Quit();
 
-    if (ParseCommandLine(argc, argv)) 
+    if (ParseCommandLine(argc, argv))
     {
         exit(1);
     }
@@ -210,7 +193,6 @@ int main(int argc, char *argv[])
     // ok, if we are here, our thread in engine class is running
     //   and doing some work loading up alot of crap so while its doing that
     //   we are going to show our intro, but first we need to start our timer.
-    install_int_ex( Timer, precision);
     start = msec_timer;      // Initalize timer.
 
     // while our engine does some loading and intializing, lets show our intro.
@@ -238,6 +220,3 @@ int main(int argc, char *argv[])
 
     return 0; 		// thats it folks.
 }
-END_OF_MAIN()
-/* Allegro needs END_OF_MAIN() I guess. */ 
-

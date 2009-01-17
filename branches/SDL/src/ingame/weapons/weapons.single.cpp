@@ -654,7 +654,7 @@ namespace TA3D
             if(px<0 || py<0 || px>=map->bloc_w || py>=map->bloc_h)	return;
             byte player_mask = 1 << players.local_human_id;
             if(map->view[py][px]!=1
-               || !(map->sight_map->line[py][px]&player_mask))	return;
+               || !(SurfaceByte(map->sight_map, px, py) & player_mask))	return;
         }
         glPushMatrix();
 

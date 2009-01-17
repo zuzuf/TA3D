@@ -88,7 +88,10 @@ namespace TA3D
                 if(ligne)
                     delete[] ligne;
                 ligne = get_line(pos);
-                strlwr(ligne);
+                String lwr_ligne = String::ToLower(ligne);
+#warning FIXME: very UGLY strlwr replacement here
+                memcpy(ligne, lwr_ligne.c_str(), lwr_ligne.size() + 1);
+//                strlwr(ligne);
                 while (pos[0]!=0 && pos[0]!=13 && pos[0]!=10)
                 {
                     pos++;
@@ -121,8 +124,11 @@ namespace TA3D
                             nb++;
                             if(ligne)
                                 delete[] ligne;
-                            ligne=get_line(pos);
-                            strlwr(ligne);
+                            ligne = get_line(pos);
+                            lwr_ligne = String::ToLower(ligne);
+#warning FIXME: very UGLY strlwr replacement here
+                            memcpy(ligne, lwr_ligne.c_str(), lwr_ligne.size() + 1);
+//                            strlwr(ligne);
                             while(pos[0]!=0 && pos[0]!=13 && pos[0]!=10)	pos++;
                             while(pos[0]==13 || pos[0]==10)	pos++;
 
