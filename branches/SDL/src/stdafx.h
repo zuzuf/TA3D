@@ -243,8 +243,8 @@ namespace TA3D
 class FONT
 {
 };
-inline int text_length(FONT *fnt,const char *str) {}
-inline int text_height(FONT *fnt) {}
+inline int text_length(FONT *fnt,const char *str) {return 0;}
+inline int text_height(FONT *fnt) {return 0;}
 
 // zuzuf: to prevent some warnings
 # undef PACKAGE_BUGREPORT
