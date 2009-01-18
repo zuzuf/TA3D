@@ -498,7 +498,7 @@ namespace TA3D
             return false;
         for(int y=y1;y<y2;y++)
             for(int x=x1;x<x2;x++)
-                if( !(view_map->line[y][x] & c) )
+                if( !(SurfaceByte(view_map,x,y) & c) )
                     return false;
         return true;
     }
@@ -660,10 +660,10 @@ namespace TA3D
             }*/
         /*---------------------------------------------------------------------------*/
 
-        if( view_map )		destroy_bitmap( view_map );
-        if( sight_map )		destroy_bitmap( sight_map );
-        if( radar_map )		destroy_bitmap( radar_map );
-        if( sonar_map )		destroy_bitmap( sonar_map );
+        if( view_map )		SDL_FreeSurface( view_map );
+        if( sight_map )		SDL_FreeSurface( sight_map );
+        if( radar_map )		SDL_FreeSurface( radar_map );
+        if( sonar_map )		SDL_FreeSurface( sonar_map );
 
         detail_shader.destroy();
         gfx->destroy_texture( details_tex );
@@ -724,7 +724,7 @@ namespace TA3D
         }
         if(mini) {
             gfx->destroy_texture( glmini );
-            destroy_bitmap(mini);
+            SDL_FreeSurface(mini);
         }
         init();
         detail_shader.destroy();		// Because init will reload it
@@ -734,40 +734,42 @@ namespace TA3D
 
     void MAP::clear_FOW( sint8 FOW_flags )
     {
-        if( FOW_flags < 0 )	FOW_flags = fog_of_war;
+        if (FOW_flags < 0)	FOW_flags = fog_of_war;
         fog_of_war = FOW_flags;
 
-        if( fog_of_war & FOW_BLACK )
-            memset( view_map->line[0], 0, view_map->w * view_map->h );
+        if (fog_of_war & FOW_BLACK)
+            memset( view_map->pixels, 0, view_map->w * view_map->h );
         else
-            memset( view_map->line[0], 0xFF, view_map->w * view_map->h );
-        if( fog_of_war & FOW_GREY )
-            memset( sight_map->line[0], 0, sight_map->w * sight_map->h );
+            memset( view_map->pixels, 0xFF, view_map->w * view_map->h );
+        if (fog_of_war & FOW_GREY)
+            memset( sight_map->pixels, 0, sight_map->w * sight_map->h );
         else
-            memset( sight_map->line[0], 0xFF, sight_map->w * sight_map->h );
+            memset( sight_map->pixels, 0xFF, sight_map->w * sight_map->h );
 
-        if( fog_of_war == FOW_DISABLED ) {
-            memset( radar_map->line[0], 0xFF, radar_map->w * radar_map->h );
-            memset( sonar_map->line[0], 0xFF, sonar_map->w * sonar_map->h );
+        if (fog_of_war == FOW_DISABLED)
+        {
+            memset( radar_map->pixels, 0xFF, radar_map->w * radar_map->h );
+            memset( sonar_map->pixels, 0xFF, sonar_map->w * sonar_map->h );
         }
     }
 
     void MAP::load_details_texture( const String &filename )
     {
-        set_color_depth( 32 );
-        BITMAP *tex = gfx->load_image(filename);
-        if( tex ) {
+        SDL_Surface *tex = gfx->load_image(filename);
+        if (tex)
+        {
             uint32 average = 0;
             for( int y = 0 ; y < tex->h ; y++ )
                 for( int x = 0 ; x < tex->w ; x++ )
-                    average += tex->line[y][(x<<2)] + tex->line[y][(x<<2)+1] + tex->line[y][(x<<2)+2];
-            average /= tex->w*tex->h*3;
+                    average += SurfaceByte(tex, x<<2, y) + SurfaceByte(tex,(x<<2)+1,y) + SurfaceByte(tex,(x<<2)+2,y);
+            average /= tex->w * tex->h * 3;
             if( average == 0 )	average = 1;
             color_factor = 255.0f / average;
             details_tex = gfx->make_texture( tex, FILTER_TRILINEAR, false );
-            destroy_bitmap( tex );
+            SDL_FreeSurface( tex );
         }
-        else {
+        else
+        {
             details_tex = 0;
             color_factor = 1.0f;
         }
@@ -786,7 +788,7 @@ namespace TA3D
     void MAP_OTA::load(char *data,int ota_size)
     {
         destroy();
-        set_uformat(U_ASCII);
+//        set_uformat(U_ASCII);
         char *pos=data;
         char *ligne=NULL;
         int nb=0;
@@ -799,7 +801,10 @@ namespace TA3D
             if(ligne)
                 delete[] ligne;
             ligne=get_line(pos);
-            strlwr(ligne);
+#warning FIXME: really ugly replacement for strlwr
+            String lwr_ligne = String::ToLower(ligne);
+            memcpy(ligne, lwr_ligne.c_str(), lwr_ligne.size());
+//            strlwr(ligne);
             while(pos[0]!=0 && pos[0]!=13 && pos[0]!=10)	{	pos++;	n_pos++;	}
             while(pos[0]==13 || pos[0]==10)	{	pos++;	n_pos++;	}
 
@@ -972,7 +977,7 @@ namespace TA3D
                 {
                     int mx = MX >> 17;
                     MX += DX;
-                    if(!(view_map->line[my][mx]&player_mask))
+                    if(!(SurfaceByte(view_map,mx,my) & player_mask))
                     {
                         if( old_col != 0 )
                         {
@@ -988,7 +993,7 @@ namespace TA3D
                     }
                     else
                     {
-                        if(!(sight_map->line[my][mx] & player_mask))
+                        if(!(SurfaceByte(sight_map,mx,my) & player_mask))
                         {
                             if( old_col != 1 )
                             {
@@ -1135,14 +1140,14 @@ namespace TA3D
                         if(rx<0)	rx=0;
                         if(lx>=sonar_map->w)	lx=sonar_map->w-1;
                         for(; (rx & 3) && rx < view_map->w ; rx++ )
-                            sonar_map->line[ry][rx] |= mask;
+                            SurfaceByte(sonar_map,rx,ry) |= mask;
                         rx >>= 2;
                         int lx2 = lx >> 2;
                         for(;rx<lx2;rx++)
-                            ((uint32*)(sonar_map->line[ry]))[rx] |= mask32;
+                            SurfaceInt(sonar_map,rx,ry) |= mask32;
                         rx <<= 2;
                         for(; rx <= lx ; rx++ )
-                            sonar_map->line[ry][rx] |= mask;
+                            SurfaceByte(sonar_map,rx,ry) |= mask;
                     }
                     if(y != 0)
                     {
@@ -1156,14 +1161,14 @@ namespace TA3D
                             if (lx >= sonar_map->w)
                                 lx = sonar_map->w - 1;
                             for(; (rx & 3) && rx < view_map->w ; ++rx)
-                                sonar_map->line[ry][rx] |= mask;
+                                SurfaceByte(sonar_map,rx,ry) |= mask;
                             rx >>= 2;
                             int lx2 = lx >> 2;
                             for(;rx<lx2;rx++)
-                                ((uint32*)(sonar_map->line[ry]))[rx] |= mask32;
+                                SurfaceInt(sonar_map,rx,ry) |= mask32;
                             rx <<= 2;
                             for(; rx <= lx ; rx++ )
-                                sonar_map->line[ry][rx] |= mask;
+                                SurfaceByte(sonar_map,rx,ry) |= mask;
                         }
                     }
                 }
@@ -1179,14 +1184,14 @@ namespace TA3D
                         if(rx<0)	rx=0;
                         if(lx>=radar_map->w)	lx=radar_map->w-1;
                         for(; (rx & 3) && rx < view_map->w ; rx++ )
-                            radar_map->line[ry][rx] |= mask;
+                            SurfaceByte(radar_map,rx,ry) |= mask;
                         rx >>= 2;
                         int lx2 = lx >> 2;
                         for(;rx<lx2;rx++)
-                            ((uint32*)(radar_map->line[ry]))[rx] |= mask32;
+                            SurfaceInt(radar_map,rx,ry) |= mask32;
                         rx <<= 2;
                         for(; rx <= lx ; rx++ )
-                            radar_map->line[ry][rx] |= mask;
+                            SurfaceByte(radar_map,rx,ry) |= mask;
                     }
                     if (y != 0)
                     {
@@ -1198,14 +1203,14 @@ namespace TA3D
                             if(rx<0)	rx=0;
                             if(lx>=radar_map->w)	lx=radar_map->w-1;
                             for(; (rx & 3) && rx < view_map->w ; rx++ )
-                                radar_map->line[ry][rx] |= mask;
+                                SurfaceByte(radar_map,rx,ry) |= mask;
                             rx >>= 2;
                             int lx2 = lx >> 2;
                             for(;rx<lx2;rx++)
-                                ((uint32*)(radar_map->line[ry]))[rx] |= mask32;
+                                SurfaceInt(radar_map,rx,ry) |= mask32;
                             rx <<= 2;
                             for(; rx <= lx ; rx++ )
-                                radar_map->line[ry][rx] |= mask;
+                                SurfaceByte(radar_map,rx,ry) |= mask;
                         }
                     }
                 }
@@ -1214,21 +1219,21 @@ namespace TA3D
                 {
                     int x=(int)(0.5f+sqrtf((float)(r2-y*y)));
                     int ry=py-y;
-                    if (ry>=0 && ry<sight_map->h)
+                    if (ry >= 0 && ry < sight_map->h)
                     {
                         int rx=px-x;
                         int lx=px+x;
                         if(rx<0)	rx=0;
                         if(lx>=sight_map->w)	lx=sight_map->w-1;
                         for(; (rx & 3) && rx < view_map->w ; rx++ )
-                            sight_map->line[ry][rx] |= mask;
+                            SurfaceByte(sight_map,rx,ry) |= mask;
                         rx >>= 2;
                         int lx2 = lx >> 2;
                         for(;rx<lx2;rx++)
-                            ((uint32*)(sight_map->line[ry]))[rx] |= mask32;
+                            SurfaceInt(sight_map,rx,ry) |= mask32;
                         rx <<= 2;
                         for(; rx <= lx ; rx++ )
-                            sight_map->line[ry][rx] |= mask;
+                            SurfaceByte(sight_map,rx,ry) |= mask;
                     }
                     if (y != 0)
                     {
@@ -1240,14 +1245,14 @@ namespace TA3D
                             if(rx<0)	rx=0;
                             if(lx>=sight_map->w)	lx=sight_map->w-1;
                             for(; (rx & 3) && rx < view_map->w ; rx++ )
-                                sight_map->line[ry][rx] |= mask;
+                                SurfaceByte(sight_map,rx,ry) |= mask;
                             rx >>= 2;
                             int lx2 = lx >> 2;
                             for(;rx<lx2;rx++)
-                                ((uint32*)(sight_map->line[ry]))[rx] |= mask32;
+                                SurfaceInt(sight_map,rx,ry) |= mask32;
                             rx <<= 2;
                             for(; rx <= lx ; rx++ )
-                                sight_map->line[ry][rx] |= mask;
+                                SurfaceByte(sight_map,rx,ry) |= mask;
                         }
                     }
                 }
@@ -1263,14 +1268,14 @@ namespace TA3D
                         if(rx<0)	rx=0;
                         if(lx>=view_map->w)	lx=view_map->w-1;
                         for(; (rx & 3) && rx < view_map->w ; rx++ )
-                            view_map->line[ry][rx] |= mask;
+                            SurfaceByte(view_map,rx,ry) |= mask;
                         rx >>= 2;
                         int lx2 = lx >> 2;
                         for(;rx<lx2;rx++)
-                            ((uint32*)(view_map->line[ry]))[rx] |= mask32;
+                            SurfaceInt(view_map,rx,ry) |= mask32;
                         rx <<= 2;
                         for(; rx <= lx ; rx++ )
-                            view_map->line[ry][rx] |= mask;
+                            SurfaceByte(view_map,rx,ry) |= mask;
                     }
                     if (y != 0)
                     {
@@ -1282,14 +1287,14 @@ namespace TA3D
                             if(rx<0)	rx=0;
                             if(lx>=view_map->w)	lx=view_map->w-1;
                             for(; (rx & 3) && rx < view_map->w ; rx++ )
-                                view_map->line[ry][rx] |= mask;
+                                SurfaceByte(view_map,rx,ry) |= mask;
                             rx >>= 2;
                             int lx2 = lx >> 2;
                             for(;rx<lx2;rx++)
-                                ((uint32*)(view_map->line[ry]))[rx] |= mask32;
+                                SurfaceInt(view_map,rx,ry) |= mask32;
                             rx <<= 2;
                             for(; rx <= lx ; rx++ )
-                                view_map->line[ry][rx] |= mask;
+                                SurfaceByte(view_map,rx,ry) |= mask;
                         }
                     }
                 }
@@ -1552,11 +1557,11 @@ namespace TA3D
                     int X = x * (bloc_w_db - 2) / low_w;
                     int Z;
                     Z=Y+get_zdec_notest(X,Y);					if(Z>=bloc_h_db-1)	Z=bloc_h_db-2;
-                    if (!(view_map->line[Z>>1][X>>1]&player_mask))	low_col[i<<2]=low_col[(i<<2)+1]=low_col[(i<<2)+2]=low_col[(i<<2)+3]=0;
+                    if (!(SurfaceByte(view_map,X>>1,Z>>1) & player_mask))	low_col[i<<2]=low_col[(i<<2)+1]=low_col[(i<<2)+2]=low_col[(i<<2)+3]=0;
                     else
                     {
                         low_col[(i<<2)+3] = 255;
-                        if (!(sight_map->line[Z >> 1][X >> 1]&player_mask))
+                        if (!(SurfaceByte(sight_map,X>>1,Z>>1) & player_mask))
                             low_col[i << 2] = low_col[(i << 2) + 1] = low_col[(i << 2) + 2] = 127;
                         else
                             low_col[i << 2] = low_col[(i << 2) + 1] = low_col[(i << 2) + 2] = 255;
@@ -1657,7 +1662,7 @@ namespace TA3D
                     int X = x<< 1;
                     if (!FLAT && check_visibility)
                     {
-                        if (!(view_map->line[y][x]&player_mask))
+                        if (!(SurfaceByte(view_map,x,y) & player_mask))
                         {
                             if (water)
                             {
@@ -1669,7 +1674,7 @@ namespace TA3D
                         }
                         else
                         {
-                            if (!(sight_map->line[y][x]&player_mask))
+                            if (!(SurfaceByte(sight_map,x,y) & player_mask))
                             {
                                 if (map_data[Y][X].underwater || map_data[Y|1][X].underwater || map_data[Y][X|1].underwater || map_data[Y|1][X|1].underwater)
                                     view[y][x]=2;
@@ -1782,7 +1787,7 @@ namespace TA3D
                                     (h_map[Y|1][X|1] < sealvl || h_map[Y][X|1] < sealvl || h_map[Y|1][X] < sealvl || h_map[Y][X] < sealvl) &&
                                     (h_map[Y|1][X|1] >= sealvl || h_map[Y|1][X] >= sealvl || h_map[Y][X|1] >= sealvl || h_map[Y][X] >= sealvl) &&
                                     (Math::RandFromTable()%4000)<=lavaprob &&
-                                    (view_map->line[y][x]&player_mask) && lp_CONFIG->waves )
+                                    (SurfaceByte(view_map,x,y) & player_mask) && lp_CONFIG->waves )
                                 {
                                     Vector3D POS;
                                     POS.x = (x << 4) - dwm + 8.0f;
@@ -1927,24 +1932,25 @@ namespace TA3D
                         int Z;
                         int grey = 0;
                         int black = 0;
-                        Z=Y+get_zdec_notest(X,Y);									if(Z>=bloc_h_db-1)	Z=bloc_h_db-2;
-                        if(!(view_map->line[Z>>1][x]&player_mask))				{	color[0]=color[1]=color[2]=0;	black++;	}
-                        else if(!(sight_map->line[Z>>1][x]&player_mask))		{	color[0]=color[1]=color[2]=127;	grey++;		}
+                        Z=Y+get_zdec_notest(X,Y);									    if (Z>=bloc_h_db-1)	Z=bloc_h_db-2;
+                        if(!(SurfaceByte(view_map,x,Z>>1) & player_mask))				{	color[0]=color[1]=color[2]=0;	black++;	}
+                        else if(!(SurfaceByte(sight_map,x,Z>>1) & player_mask))		    {	color[0]=color[1]=color[2]=127;	grey++;		}
                         if( X + 2 < bloc_w_db )
                         {
-                            Z=Y+get_zdec_notest(X+2,Y);								if(Z>=bloc_h_db-1)	Z=bloc_h_db-2;
-                            if(!(view_map->line[Z>>1][x+1]&player_mask))		{	color[8]=color[9]=color[10]=0;		black++;	}
-                            else if(!(sight_map->line[Z>>1][x+1]&player_mask))	{	color[8]=color[9]=color[10]=127;	grey++;		}
+                            Z=Y+get_zdec_notest(X+2,Y);								    if (Z>=bloc_h_db-1)	Z=bloc_h_db-2;
+                            if(!(SurfaceByte(view_map,x+1,Z>>1) & player_mask))		    {	color[8]=color[9]=color[10]=0;		black++;	}
+                            else if(!(SurfaceByte(sight_map,x+1,Z>>1) & player_mask))	{	color[8]=color[9]=color[10]=127;	grey++;		}
                         }
                         if( Y + 2 < bloc_h_db )
                         {
                             Z=Y+2+get_zdec_notest(X,Y+2);							if(Z>=bloc_h_db-1)	Z=bloc_h_db-2;
-                            if(!(view_map->line[Z>>1][x]&player_mask))			{	color[24]=color[25]=color[26]=0;	black++;	}
-                            else if(!(sight_map->line[Z>>1][x]&player_mask))	{	color[24]=color[25]=color[26]=127;	grey++;		}
-                            if( X + 2 < bloc_w_db ) {
-                                Z=Y+2+get_zdec_notest(X+2,Y+2);							if(Z>=bloc_h_db-1)	Z=bloc_h_db-2;
-                                if(!(view_map->line[Z>>1][x+1]&player_mask))		{	color[32]=color[33]=color[34]=0;	black++;	}
-                                else if(!(sight_map->line[Z>>1][x+1]&player_mask))	{	color[32]=color[33]=color[34]=127;	grey++;		}
+                            if(!(SurfaceByte(view_map,x,Z>>1) & player_mask))		{	color[24]=color[25]=color[26]=0;	black++;	}
+                            else if(!(SurfaceByte(sight_map,x,Z>>1) & player_mask))	{	color[24]=color[25]=color[26]=127;	grey++;		}
+                            if( X + 2 < bloc_w_db )
+                            {
+                                Z=Y+2+get_zdec_notest(X+2,Y+2);							    if(Z>=bloc_h_db-1)	Z=bloc_h_db-2;
+                                if(!(SurfaceByte(view_map,x+1,Z>>1) & player_mask))		    {	color[32]=color[33]=color[34]=0;	black++;	}
+                                else if(!(SurfaceByte(sight_map,x+1,Z>>1) & player_mask))	{	color[32]=color[33]=color[34]=127;	grey++;		}
                             }
                         }
                         is_clean = grey == 4 || black == 4 || ( grey == 0 && black == 0 );

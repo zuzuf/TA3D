@@ -6,6 +6,15 @@
 
 #define buf_size		1024*1024
 
+void print_message(const String &msg)
+{
+    SDL_Surface *tmp = gfx->create_surface(SCREEN_W, SCREEN_H);
+    SDL_BlitSurface(screen, NULL, tmp, NULL);
+#warning missing code to display the message
+    readkey();
+    SDL_BlitSurface(tmp, NULL, screen, NULL);
+}
+
 void install_TA_files( String def_path )
 {
 #ifdef TA3D_PLATFORM_WINDOWS					// Possible cd-rom path for windows
@@ -36,14 +45,14 @@ void install_TA_files( String def_path )
 		for (int i = 0 ; i < nb_possible_path ; i++ )
 		{
 			path_to_TA_cd = possible_path[ i ];
-			if( ( exists( ( path_to_TA_cd + "totala3.hpi" ).c_str() ) || exists( ( path_to_TA_cd + "totala4.hpi" ).c_str() ) )
-			 && exists( ( path_to_TA_cd + "totala2.hpi" ).c_str() ) )		break;		// We found a path to TA's cd ( in fact to needed files )
+			if( ( exists( path_to_TA_cd + "totala3.hpi" ) || exists( path_to_TA_cd + "totala4.hpi" ) )
+			 && exists( path_to_TA_cd + "totala2.hpi" ) )		break;		// We found a path to TA's cd ( in fact to needed files )
 		}
 
-	if (!( exists( ( path_to_TA_cd + "totala3.hpi" ).c_str() ) || exists( ( path_to_TA_cd + "totala4.hpi" ).c_str() ) )
-	 || !exists( ( path_to_TA_cd + "totala2.hpi" ).c_str() ))
+	if (!( exists( path_to_TA_cd + "totala3.hpi" ) || exists( path_to_TA_cd + "totala4.hpi" ) )
+	 || !exists( path_to_TA_cd + "totala2.hpi" ))
 	{															// We need TA's cd ( in fact only the files )
-		allegro_message( "please mount/insert your TA cdrom now (TA CD 1)" );
+		print_message( "please mount/insert your TA cdrom now (TA CD 1)" );
 
 		path_to_TA_cd = "";
 
@@ -66,8 +75,8 @@ void install_TA_files( String def_path )
 			    for(int i = 0 ; i < nb_possible_path ; i++ )
 			    {
 				    path_to_TA_cd = possible_path[ i ];
-				    if( ( exists( ( path_to_TA_cd + "totala3.hpi" ).c_str() ) || exists( ( path_to_TA_cd + "totala4.hpi" ).c_str() ) )
-				     && exists( ( path_to_TA_cd + "totala2.hpi" ).c_str() ) )		break;		// We found a path to TA's cd ( in fact to needed files )
+				    if( ( exists( path_to_TA_cd + "totala3.hpi" ) || exists( path_to_TA_cd + "totala4.hpi" ) )
+				     && exists( path_to_TA_cd + "totala2.hpi" ) )		break;		// We found a path to TA's cd ( in fact to needed files )
             		path_to_TA_cd = "";
 			    }
 			}
@@ -82,13 +91,11 @@ void install_TA_files( String def_path )
 
 	if (data)
 	{
-		set_color_depth(32);
-		set_gfx_mode( GFX_AUTODETECT_WINDOWED, 640, 480, 0, 0 );
-		clear( screen );
+		SDL_SetVideoMode(640, 480, 32, SDL_SWSURFACE);
+		SDL_FillRect( screen, NULL, 0x7F7F7F7F );
 
-		rectfill( screen, 0, 0, 640, 480, 0x7F7F7F );
-
-		textprintf_centre_ex( screen, font, 320, 40, 0x0, -1, "Extracting totala1.hpi ( step 1/2 )" );
+#warning missing text print code
+//		textprintf_centre_ex( screen, font, 320, 40, 0x0, -1, "Extracting totala1.hpi ( step 1/2 )" );
 
 		FILE *dst = TA3D_OpenFile(Paths::Resources + "totala1.hpi","wb");
 
@@ -105,7 +112,8 @@ void install_TA_files( String def_path )
 
 				rectfill( screen, 100, 60, 540, 80, makecol( 255, 0, 0 ) );
 				rectfill( screen, 100, 60, 100 + 440 * ((pos+read_size)>>10) / (file_size32>>10), 80, makecol( 255, 255, 0 ) );
-				textprintf_centre_ex( screen, font, 320, 66, 0x0, -1, "%d%%", 100 * ((pos+read_size)>>10) / (file_size32>>10) );
+#warning missing text code here
+//				textprintf_centre_ex( screen, font, 320, 66, 0x0, -1, "%d%%", 100 * ((pos+read_size)>>10) / (file_size32>>10) );
 			}
 
 			fflush(dst);
@@ -120,11 +128,13 @@ void install_TA_files( String def_path )
 
 	delete HPIManager;
 
-	if (exists( ( path_to_TA_cd + "totala2.hpi" ).c_str() ) && success)
+	if (exists( path_to_TA_cd + "totala2.hpi" ) && success)
 	{
-		textprintf_centre_ex( screen, font, 320, 140, 0x0, -1, "Copying totala2.hpi ( step 2/2 )" );
+#warning missing text code here
+//		textprintf_centre_ex( screen, font, 320, 140, 0x0, -1, "Copying totala2.hpi ( step 2/2 )" );
 		rectfill( screen, 100, 160, 540, 180, makecol( 255, 0, 0 ) );
-		textprintf_centre_ex( screen, font, 320, 166, 0x0, -1, "0%%" );
+#warning missing text code here
+//		textprintf_centre_ex( screen, font, 320, 166, 0x0, -1, "0%%" );
 
 		FILE *src = TA3D_OpenFile( path_to_TA_cd + "totala2.hpi", "rb" );
 		if (src)
@@ -132,7 +142,7 @@ void install_TA_files( String def_path )
 			FILE *dst = TA3D_OpenFile( Paths::Resources + "totala2.hpi", "wb" );
 			if (dst)
             {
-				int limit = FILE_SIZE( ( path_to_TA_cd + "totala2.hpi" ).c_str() );
+				int limit = FILE_SIZE( path_to_TA_cd + "totala2.hpi" );
 				byte *buf = new byte[ buf_size ];			// a 1Mo buffer
 
 				for (int pos = 0; pos < limit; pos += buf_size)
@@ -143,7 +153,8 @@ void install_TA_files( String def_path )
 
 					rectfill( screen, 100, 160, 540, 180, makecol( 255, 0, 0 ) );
 					rectfill( screen, 100, 160, 100 + 440 * ((pos+read_size)>>10) / (limit>>10), 180, makecol( 255, 255, 0 ) );
-					textprintf_centre_ex( screen, font, 320, 166, 0x0, -1, "%d%%", 100 * ((pos+read_size)>>10) / (limit>>10) );
+#warning missing text code here
+//					textprintf_centre_ex( screen, font, 320, 166, 0x0, -1, "%d%%", 100 * ((pos+read_size)>>10) / (limit>>10) );
 				}
 				delete buf;
 				fflush(dst);
@@ -162,9 +173,9 @@ void install_TA_files( String def_path )
 	if (success)
 	{
 
-		if (!exists( ( path_to_TA_cd + "totala4.hpi" ).c_str() ))
+		if (!exists( path_to_TA_cd + "totala4.hpi" ))
 		{
-			allegro_message( "please mount/insert your TA cdrom now (TA CD 2) if you want to install campaign files" );
+			print_message( "please mount/insert your TA cdrom now (TA CD 2) if you want to install campaign files" );
 
 											// Look for a path where we can find totala4.hpi
 		    uint32 n = 0;
@@ -176,19 +187,21 @@ void install_TA_files( String def_path )
 			    for(int i = 0 ; i < nb_possible_path ; i++ )
 			    {
 				    path_to_TA_cd = possible_path[ i ];
-				    if( exists( ( path_to_TA_cd + "totala4.hpi" ).c_str() ) )		break;		// We found a path to TA's cd ( in fact to needed files )
+				    if( exists( path_to_TA_cd + "totala4.hpi" ) )		break;		// We found a path to TA's cd ( in fact to needed files )
 				    path_to_TA_cd = "";
 				}
 			}
 		}
 
-		if (exists( ( path_to_TA_cd + "totala4.hpi" ).c_str() ))
+		if (exists( path_to_TA_cd + "totala4.hpi" ))
 		{
 			rectfill( screen, 0, 0, 640, 480, 0x7F7F7F );
 
-			textprintf_centre_ex( screen, font, 320, 40, 0x0, -1, "Copying totala4.hpi" );
+#warning missing text code here
+//			textprintf_centre_ex( screen, font, 320, 40, 0x0, -1, "Copying totala4.hpi" );
 			rectfill( screen, 100, 60, 540, 80, makecol( 255, 0, 0 ) );
-			textprintf_centre_ex( screen, font, 320, 66, 0x0, -1, "0%%" );
+#warning missing text code here
+//			textprintf_centre_ex( screen, font, 320, 66, 0x0, -1, "0%%" );
 
 			FILE *src = TA3D_OpenFile( path_to_TA_cd + "totala4.hpi", "rb" );
 			if( src )
@@ -196,7 +209,7 @@ void install_TA_files( String def_path )
 				FILE *dst = TA3D_OpenFile( Paths::Resources + "totala4.hpi", "wb" );
 				if( dst )
 				{
-					int limit = FILE_SIZE( ( path_to_TA_cd + "totala4.hpi" ).c_str() );
+					int limit = FILE_SIZE( path_to_TA_cd + "totala4.hpi" );
 					byte *buf = new byte[ buf_size ];			// a 1Mo buffer
 
 					for (int pos = 0; pos < limit; pos += buf_size)
@@ -207,7 +220,8 @@ void install_TA_files( String def_path )
 
 						rectfill( screen, 100, 60, 540, 80, makecol( 255, 0, 0 ) );
 						rectfill( screen, 100, 60, 100 + 440 * ((pos+read_size)>>10) / (limit>>10), 80, makecol( 255, 255, 0 ) );
-						textprintf_centre_ex( screen, font, 320, 66, 0x0, -1, "%d%%", 100 * ((pos+read_size)>>10) / (limit>>10) );
+#warning missing text code here
+//						textprintf_centre_ex( screen, font, 320, 66, 0x0, -1, "%d%%", 100 * ((pos+read_size)>>10) / (limit>>10) );
 					}
 
 					delete buf;
@@ -221,8 +235,8 @@ void install_TA_files( String def_path )
 		}
 
 		{
-			if( !exists( ( path_to_TA_cd + "cc/ccdata.ccx" ).c_str() ) && !exists( ( path_to_TA_cd + "install/ccdata.ccx" ).c_str() ) )
-				allegro_message( "please mount/insert your TA:Core Contingency cdrom now (TA:CC CD) if you have it" );
+			if( !exists( path_to_TA_cd + "cc/ccdata.ccx" ) && !exists( path_to_TA_cd + "install/ccdata.ccx" ) )
+				print_message( "please mount/insert your TA:Core Contingency cdrom now (TA:CC CD) if you have it" );
 			bool cc_success = true;
 			int nb_files = 3;
 			int Y = 0;
@@ -240,21 +254,23 @@ void install_TA_files( String def_path )
 			    for(int i = 0 ; i < nb_possible_path ; i++ )
 			    {
 				    path_to_TA_cd = possible_path[ i ];
-				    if( exists( ( path_to_TA_cd + file_to_copy[ 0 ] ).c_str() ) )		break;		// We found a path to TA's cd ( in fact to needed files )
-				    if( exists( ( path_to_TA_cd + file_to_copy_alternative[ 0 ] ).c_str() ) )		break;		// We found a path to TA's cd ( in fact to needed files )
+				    if( exists( path_to_TA_cd + file_to_copy[ 0 ] ) )		break;		// We found a path to TA's cd ( in fact to needed files )
+				    if( exists( path_to_TA_cd + file_to_copy_alternative[ 0 ] ) )		break;		// We found a path to TA's cd ( in fact to needed files )
                     path_to_TA_cd = "";
 			    }
 			}
 
-			if( exists( ( path_to_TA_cd + file_to_copy_alternative[ 0 ] ).c_str() ) )			// We found a path to an alternative TA CD
+			if( exists( path_to_TA_cd + file_to_copy_alternative[ 0 ] ) )			// We found a path to an alternative TA CD
 				for( int i = 0 ; i < nb_files ; i++ )
 					file_to_copy[i] = file_to_copy_alternative[i];
 			for( int i = 0 ; i < nb_files ; i++ )
-				if (exists( ( path_to_TA_cd + file_to_copy[ i ] ).c_str() ) && cc_success)
+				if (exists( path_to_TA_cd + file_to_copy[ i ] ) && cc_success)
 				{
-					textprintf_centre_ex( screen, font, 320, 40 + Y, 0x0, -1, format( "Copying %s (step %d/%d)", file_to_copy[ i ].c_str(), 1+i, nb_files ).c_str() );
+#warning missing text code here
+//					textprintf_centre_ex( screen, font, 320, 40 + Y, 0x0, -1, format( "Copying %s (step %d/%d)", file_to_copy[ i ].c_str(), 1+i, nb_files ).c_str() );
 					rectfill( screen, 100, 60 + Y, 540, 80 + Y, makecol( 255, 0, 0 ) );
-					textprintf_centre_ex( screen, font, 320, 66 + Y, 0x0, -1, "0%%" );
+#warning missing text code here
+//					textprintf_centre_ex( screen, font, 320, 66 + Y, 0x0, -1, "0%%" );
 
 					FILE *src = TA3D_OpenFile( path_to_TA_cd + file_to_copy[ i ], "rb" );
 					if (src)
@@ -262,7 +278,7 @@ void install_TA_files( String def_path )
 						FILE *dst = TA3D_OpenFile( Paths::Resources + file_destination[ i ], "wb" );
 						if (dst)
 						{
-							int limit = FILE_SIZE( ( path_to_TA_cd + file_to_copy[ i ] ).c_str() );
+							int limit = FILE_SIZE( path_to_TA_cd + file_to_copy[ i ] );
 							byte *buf = new byte[ buf_size ];			// a 1Mo buffer
 
 							for( int pos = 0 ; pos < limit ; pos+= buf_size )
@@ -273,7 +289,8 @@ void install_TA_files( String def_path )
 
 								rectfill( screen, 100, 60 + Y, 540, 80 + Y, makecol( 255, 0, 0 ) );
 								rectfill( screen, 100, 60 + Y, 100 + 440 * ((pos+read_size)>>10) / (limit>>10), 80 + Y, makecol( 255, 255, 0 ) );
-								textprintf_centre_ex( screen, font, 320, 66 + Y, 0x0, -1, "%d%%", 100 * ((pos+read_size)>>10) / (limit>>10) );
+#warning missing text code here
+//								textprintf_centre_ex( screen, font, 320, 66 + Y, 0x0, -1, "%d%%", 100 * ((pos+read_size)>>10) / (limit>>10) );
 							}
 
 							delete buf;
@@ -299,7 +316,7 @@ void install_TA_files( String def_path )
 					cc_success = false;
 		}
 		{
-			allegro_message( "please mount/insert your TA:Battle Tactics cdrom now (TA:BT CD) if you have it" );
+			print_message( "please mount/insert your TA:Battle Tactics cdrom now (TA:BT CD) if you have it" );
 			bool bt_success = true;
 			int nb_files = 10;
 			String file_to_copy[] = { "bt/btdata.ccx", "bt/btmaps.ccx", "bt/tactics1.hpi", "bt/tactics2.hpi", "bt/tactics3.hpi", "bt/tactics4.hpi", "bt/tactics5.hpi", "bt/tactics6.hpi", "bt/tactics7.hpi", "bt/tactics8.hpi" };
@@ -316,16 +333,18 @@ void install_TA_files( String def_path )
 			    for(int i = 0 ; i < nb_possible_path ; i++ )
 			    {
 				    path_to_TA_cd = possible_path[ i ];
-				    if( exists( ( path_to_TA_cd + file_to_copy[ 0 ] ).c_str() ) )		break;		// We found a path to TA's cd ( in fact to needed files )
+				    if( exists( path_to_TA_cd + file_to_copy[ 0 ] ) )		break;		// We found a path to TA's cd ( in fact to needed files )
                     path_to_TA_cd = "";
 			    }
 			}
 			for( int i = 0 ; i < nb_files ; i++ )
-				if (exists( ( path_to_TA_cd + file_to_copy[ i ] ).c_str() ) && bt_success)
+				if (exists( path_to_TA_cd + file_to_copy[ i ] ) && bt_success)
 				{
-					textprintf_centre_ex( screen, font, 320, 40 + Y, 0x0, -1, format( "Copying %s (step %d/%d)", file_to_copy[ i ].c_str(), 1+i, nb_files ).c_str() );
+#warning missing text code here
+//					textprintf_centre_ex( screen, font, 320, 40 + Y, 0x0, -1, format( "Copying %s (step %d/%d)", file_to_copy[ i ].c_str(), 1+i, nb_files ).c_str() );
 					rectfill( screen, 100, 60 + Y, 540, 80 + Y, makecol( 255, 0, 0 ) );
-					textprintf_centre_ex( screen, font, 320, 66 + Y, 0x0, -1, "0%%" );
+#warning missing text code here
+//					textprintf_centre_ex( screen, font, 320, 66 + Y, 0x0, -1, "0%%" );
 
 					FILE *src = TA3D_OpenFile( path_to_TA_cd + file_to_copy[ i ], "rb" );
 					if (src)
@@ -333,7 +352,7 @@ void install_TA_files( String def_path )
 						FILE *dst = TA3D_OpenFile( Paths::Resources + file_destination[ i ], "wb" );
 						if (dst)
 						{
-							int limit = FILE_SIZE( ( path_to_TA_cd + file_to_copy[ i ] ).c_str() );
+							int limit = FILE_SIZE( path_to_TA_cd + file_to_copy[ i ] );
 							byte *buf = new byte[ buf_size ];			// a 1Mo buffer
 
 							for (int pos = 0; pos < limit; pos += buf_size)
@@ -344,7 +363,8 @@ void install_TA_files( String def_path )
 
 								rectfill( screen, 100, 60 + Y, 540, 80 + Y, makecol( 255, 0, 0 ) );
 								rectfill( screen, 100, 60 + Y, 100 + 440 * ((pos+read_size)>>10) / (limit>>10), 80 + Y, makecol( 255, 255, 0 ) );
-								textprintf_centre_ex( screen, font, 320, 66 + Y, 0x0, -1, "%d%%", 100 * ((pos+read_size)>>10) / (limit>>10) );
+#warning missing text code here
+//								textprintf_centre_ex( screen, font, 320, 66 + Y, 0x0, -1, "%d%%", 100 * ((pos+read_size)>>10) / (limit>>10) );
 							}
 
 							delete buf;
@@ -370,7 +390,7 @@ void install_TA_files( String def_path )
 	}
 
 	if( ! success )							// Print an error message
-		allegro_message( "Installation failed:\n    Unable to find TA's cd path!!\n\nplease use this syntax:\n    ta3d --install path_to_TA_cd\n                                         \n" );
+		print_message( "Installation failed:\n    Unable to find TA's cd path!!\n\nplease use this syntax:\n    ta3d --install path_to_TA_cd\n                                         \n" );
 	else
-		allegro_message( "Installation Successful!!\nNow just run ta3d and have fun ;-)!\n\nPS: You can also copy the rev31.gp3 file from TA 3.1 patch !!\nThis installer cannot extract it :(\n" );
+		print_message( "Installation Successful!!\nNow just run ta3d and have fun ;-)!\n\nPS: You can also copy the rev31.gp3 file from TA 3.1 patch !!\nThis installer cannot extract it :(\n" );
 }

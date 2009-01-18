@@ -118,7 +118,7 @@ namespace TA3D
         int x_offset = gui_parser.pullAsInt("gadget0.common.xpos");
         int y_offset = gui_parser.pullAsInt("gadget0.common.ypos");
 
-        allegro_gl_set_texture_format(GL_RGB8);
+        gfx->set_texture_format(GL_RGB8);
         for (int i = 1; i <= NbObj; ++i)
         {
             int attribs = gui_parser.pullAsInt( format( "gadget%d.common.commonattribs", i ) );
@@ -138,7 +138,7 @@ namespace TA3D
                     byte *gaf_file = HPIManager->PullFromHPI(format( "anims\\%s%d.gaf", unit_type[unit_index]->Unitname.c_str(), page + 1));
                     if (gaf_file)
                     {
-                        BITMAP *img = Gaf::RawDataToBitmap(gaf_file, Gaf::RawDataGetEntryIndex(gaf_file, name), 0);
+                        SDL_Surface *img = Gaf::RawDataToBitmap(gaf_file, Gaf::RawDataGetEntryIndex(gaf_file, name), 0);
 
                         GLuint tex = 0;
                         if (img)
@@ -146,7 +146,7 @@ namespace TA3D
                             w = img->w;
                             h = img->h;
                             tex = gfx->make_texture( img, FILTER_LINEAR );
-                            destroy_bitmap( img );
+                            SDL_FreeSurface( img );
                         }
 
                         delete[] gaf_file;
@@ -170,14 +170,14 @@ namespace TA3D
                     byte* gaf_file = HPIManager->PullFromHPI( format( "anims\\%s%d.gaf", unit_type[unit_index]->Unitname.c_str(), page + 1 ).c_str() );
                     if (gaf_file)
                     {
-                        BITMAP *img = Gaf::RawDataToBitmap(gaf_file, Gaf::RawDataGetEntryIndex(gaf_file, name), 0);
+                        SDL_Surface *img = Gaf::RawDataToBitmap(gaf_file, Gaf::RawDataGetEntryIndex(gaf_file, name), 0);
                         GLuint tex = 0;
                         if (img)
                         {
                             w = img->w;
                             h = img->h;
                             tex = gfx->make_texture(img, FILTER_LINEAR);
-                            destroy_bitmap(img);
+                            SDL_FreeSurface(img);
                         }
 
                         delete[] gaf_file;
@@ -208,7 +208,10 @@ namespace TA3D
                 if (ligne)
                     delete[] ligne;
                 ligne=get_line(pos);
-                strlwr(ligne);
+#warning FIXME: awful replacement of strlwr
+                String lwr_string = String::ToLower(ligne);
+                memcpy(ligne, lwr_string.c_str(), lwr_string.size());
+//                strlwr(ligne);
                 while (pos[0]!=0 && pos[0]!=13 && pos[0]!=10)
                     ++pos;
                 while (pos[0]==13 || pos[0]==10)
@@ -420,7 +423,7 @@ namespace TA3D
         if(model)
             model = NULL;
         if(unitpic)
-            destroy_bitmap(unitpic);
+            SDL_FreeSurface(unitpic);
         gfx->destroy_texture(glpic);
         Corpse.clear();
         Unitname.clear();
@@ -628,7 +631,7 @@ namespace TA3D
 
     int UNIT_TYPE::load(const String &filename)
     {
-        set_uformat(U_ASCII);
+//        set_uformat(U_ASCII);
         destroy();
         int nb_inconnu=0;
         String lang_name = I18N::Translate("UNITTYPE_NAME", "UNITINFO.Name");
@@ -1393,9 +1396,9 @@ namespace TA3D
 
         // set_color_depth(32);
         if (g_useTextureCompression && lp_CONFIG->use_texture_compression)
-            allegro_gl_set_texture_format(GL_COMPRESSED_RGB_ARB);
+            gfx->set_texture_format(GL_COMPRESSED_RGB_ARB);
         else
-            allegro_gl_set_texture_format(GL_RGB8);
+            gfx->set_texture_format(GL_RGB8);
         int w,h;
         GLuint panel_tex = Gaf::ToTexture("anims\\" + player_side + "main.gaf", gaf_img, &w, &h, true);
         if (panel_tex == 0)
@@ -1533,20 +1536,21 @@ namespace TA3D
                 glDisable(GL_BLEND);
             }
         }
-        glColor4f(1.0f,1.0f,1.0f,1.0f);
+        glColor4ub(0xFF,0xFF,0xFF,0xFF);
 
         if( unit_type[index]->last_click != -1 )
             unit_type[index]->click_time -= dt;
 
-        if(sel>-1) {
-            set_uformat(U_ASCII);
+        if (sel>-1)
+        {
+//            set_uformat(U_ASCII);
             gfx->print(gfx->normal_font,ta3dSideData.side_int_data[ players.side_view ].Name.x1,ta3dSideData.side_int_data[ players.side_view ].Name.y1,0.0f,0xFFFFFFFF,
                 unit_type[sel]->name + " M:" + String(unit_type[sel]->BuildCostMetal)+" E:"+String(unit_type[sel]->BuildCostEnergy)+" HP:"+String(unit_type[sel]->MaxDamage) );
 
             if(!unit_type[sel]->Description.empty())
                 gfx->print(gfx->normal_font,ta3dSideData.side_int_data[ players.side_view ].Description.x1,ta3dSideData.side_int_data[ players.side_view ].Description.y1,0.0f,0xFFFFFFFF,unit_type[sel]->Description );
             glDisable(GL_BLEND);
-            set_uformat(U_UTF8);
+//            set_uformat(U_UTF8);
         }
 
         if( sel != -1 && mouse_b == 1 && omb != 1 ) {		// Click !!
@@ -1574,7 +1578,10 @@ namespace TA3D
 
             char *nom=strdup(strstr(i->c_str(),"\\")+1);			// Vérifie si l'unité n'est pas déjà chargée
             *(strstr(nom,"."))=0;
-            strupr(nom);
+#warning FIXME: awful replacement of strupr
+            String upr_string = String::ToUpper(nom);
+            memcpy(nom, upr_string.c_str(), upr_string.size());
+//            strupr(nom);
 
             if (unit_manager.get_unit_index(nom) == -1)
             {
@@ -1588,10 +1595,10 @@ namespace TA3D
 
                     if (unit_manager.unit_type[unit_manager.nb_unit - 1]->unitpic)
                     {
-                        allegro_gl_use_alpha_channel(false);
-                        allegro_gl_set_texture_format(GL_RGB8);
+//                        allegro_gl_use_alpha_channel(false);
+                        gfx->set_texture_format(GL_RGB8);
                         unit_manager.unit_type[unit_manager.nb_unit - 1]->glpic = gfx->make_texture(unit_manager.unit_type[unit_manager.nb_unit - 1]->unitpic, FILTER_LINEAR);
-                        destroy_bitmap(unit_manager.unit_type[unit_manager.nb_unit - 1]->unitpic);
+                        SDL_FreeSurface(unit_manager.unit_type[unit_manager.nb_unit - 1]->unitpic);
                         unit_manager.unit_type[unit_manager.nb_unit - 1]->unitpic = NULL;
                     }
                 }

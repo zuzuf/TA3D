@@ -208,6 +208,8 @@ namespace TA3D
 
     void circlefill(SDL_Surface *bmp, int x, int y, int r, uint32 col);
 
+    void rectfill(SDL_Surface *bmp, int x0, int y0, int x1, int y1, uint32 col);
+
     void rest(uint32 msec);
 } // namespace TA3D
 

@@ -26,7 +26,7 @@ namespace TA3D
 	class cTA3D_Engine : public ObjectSync, public cThread
 	{
 	private:
-		bool m_AllegroRunning;
+		bool m_SDLRunning;
 		bool m_GFXModeActive;
 		bool m_SignaledToStop;
 
@@ -42,7 +42,7 @@ namespace TA3D
 		virtual ~cTA3D_Engine( void );
 
 		bool GFXModeActive() const { return m_GFXModeActive; }
-		bool AllegroRunning() const { return m_AllegroRunning; }
+		bool SDLRunning() const { return m_SDLRunning; }
 	};
 
 

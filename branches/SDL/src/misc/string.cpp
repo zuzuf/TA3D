@@ -559,7 +559,7 @@ namespace TA3D
 
                 prev = e;
                 if (pattern[e+1] == (*this)[i])
-                    e++;
+                    e+=2;
             }
             else if(pattern[e] == (*this)[i])
                 e++;
@@ -567,7 +567,7 @@ namespace TA3D
                 e = prev;
             else
                 return false;
-        return e + 1 == pattern.size();
+        return e == pattern.size();
     }
 
 

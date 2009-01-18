@@ -51,9 +51,11 @@ namespace TA3D
 		void showError(const String& s, const String& additional = String())
 		{
 			LOG_ERROR(I18N::Translate(s));
-			set_uformat(U_UTF8);   // fixed size, 8-bit ASCII characters
-			allegro_message((String(I18N::Translate(s)) << additional).c_str());
-			set_uformat(U_ASCII);   // fixed size, 8-bit ASCII characters
+//			set_uformat(U_UTF8);   // fixed size, 8-bit ASCII characters
+//			allegro_message((String(I18N::Translate(s)) << additional).c_str());
+//			set_uformat(U_ASCII);   // fixed size, 8-bit ASCII characters
+#warning FIXME: ugly print to console instead of a nice window
+            std::cerr << I18N::Translate(s) << additional << std::endl;
 		}
 
 	}
@@ -64,7 +66,7 @@ namespace TA3D
 		InterfaceManager = NULL;
 		VARS::sound_manager = NULL;
 		VARS::HPIManager = NULL;
-		m_AllegroRunning = false;
+		m_SDLRunning = false;
 		VARS::gfx = NULL;
 		m_SignaledToStop = false;
 		m_GFXModeActive = false;
@@ -80,25 +82,25 @@ namespace TA3D
 		I_Msg( TA3D::TA3D_IM_DEBUG_MSG, (void *)str.c_str(), NULL, NULL );
 
 		// Setting uformat to U_ASCII
-		set_uformat(U_ASCII);   // fixed size, 8-bit ASCII characters
+//		set_uformat(U_ASCII);   // fixed size, 8-bit ASCII characters
 
-		// Initalizing allegro
-		if (allegro_init() != 0)
-			throw ("allegro_init() yielded unexpected result.");
+		// Initalizing SDL video
+		if (SDL_Init(SDL_INIT_VIDEO) != 0)
+			throw ("SDL_Init(SDL_INIT_VIDEO) yielded unexpected result.");
 
 		// set allegro running status;
-		m_AllegroRunning = true;
+		m_SDLRunning = true;
 
-		// Installing allegro timer
-		if (install_timer() != 0)
-			throw ("install_timer() yielded unexpected result.");
-		// Installing allegro mouse handler
-		if (install_mouse() == -1)
-			throw ("install_mouse() yielded unexpected result.");
-		// Installing allegro keyboard handler
-		if (install_keyboard() == -1)
-			throw ("install_mouse() yielded unexpected result.");
-		// Initalizing allegro JPG support
+		// Installing SDL timer
+		if (SDL_Init(SDL_INIT_TIMER) != 0)
+			throw ("SDL_Init(SDL_INIT_TIMER) yielded unexpected result.");
+//		// Installing allegro mouse handler
+//		if (install_mouse() == -1)
+//			throw ("install_mouse() yielded unexpected result.");
+//		// Installing allegro keyboard handler
+//		if (install_keyboard() == -1)
+//			throw ("install_mouse() yielded unexpected result.");
+//		// Initalizing allegro JPG support
 		if (jpgalleg_init() < 0)
 			throw("jpgalleg_init() yielded unexpected result.");
 
@@ -131,7 +133,7 @@ namespace TA3D
 
 		gfx->Init();
 
-		set_window_title("Total Annihilation 3D");
+		SDL_WM_SetCaption("Total Annihilation 3D","TA3D");
 
 		// Loading and creating cursors
 		byte *data = HPIManager->PullFromHPI("anims\\cursors.gaf");	// Load cursors
@@ -177,12 +179,50 @@ namespace TA3D
 		for (int i = 0; i < 256; ++i)
 			ascii_to_scancode[i] = 0;
 
-		for (int i = 0; i < KEY_MAX; ++i)
-        {
-			int ascii_code = scancode_to_ascii(i);
-			if (ascii_code >= 0 && ascii_code < 256)
-				ascii_to_scancode[ascii_code] = i;
-		}
+        ascii_to_scancode[ 'a' ] = KEY_A;
+        ascii_to_scancode[ 'b' ] = KEY_B;
+        ascii_to_scancode[ 'c' ] = KEY_C;
+        ascii_to_scancode[ 'd' ] = KEY_D;
+        ascii_to_scancode[ 'e' ] = KEY_E;
+        ascii_to_scancode[ 'f' ] = KEY_F;
+        ascii_to_scancode[ 'g' ] = KEY_G;
+        ascii_to_scancode[ 'h' ] = KEY_H;
+        ascii_to_scancode[ 'i' ] = KEY_I;
+        ascii_to_scancode[ 'j' ] = KEY_J;
+        ascii_to_scancode[ 'k' ] = KEY_K;
+        ascii_to_scancode[ 'l' ] = KEY_L;
+        ascii_to_scancode[ 'm' ] = KEY_M;
+        ascii_to_scancode[ 'n' ] = KEY_N;
+        ascii_to_scancode[ 'o' ] = KEY_O;
+        ascii_to_scancode[ 'p' ] = KEY_P;
+        ascii_to_scancode[ 'q' ] = KEY_Q;
+        ascii_to_scancode[ 'r' ] = KEY_R;
+        ascii_to_scancode[ 's' ] = KEY_S;
+        ascii_to_scancode[ 't' ] = KEY_T;
+        ascii_to_scancode[ 'u' ] = KEY_U;
+        ascii_to_scancode[ 'v' ] = KEY_V;
+        ascii_to_scancode[ 'w' ] = KEY_W;
+        ascii_to_scancode[ 'x' ] = KEY_X;
+        ascii_to_scancode[ 'y' ] = KEY_Y;
+        ascii_to_scancode[ 'z' ] = KEY_Z;
+
+		for (int i = 0; i < 26; ++i)
+            ascii_to_scancode[ 'A' + i ] = ascii_to_scancode[ 'a' + i ];
+
+        ascii_to_scancode[ '0' ] = KEY_0;
+        ascii_to_scancode[ '1' ] = KEY_1;
+        ascii_to_scancode[ '2' ] = KEY_2;
+        ascii_to_scancode[ '3' ] = KEY_3;
+        ascii_to_scancode[ '4' ] = KEY_4;
+        ascii_to_scancode[ '5' ] = KEY_5;
+        ascii_to_scancode[ '6' ] = KEY_6;
+        ascii_to_scancode[ '7' ] = KEY_7;
+        ascii_to_scancode[ '8' ] = KEY_8;
+        ascii_to_scancode[ '9' ] = KEY_9;
+
+        ascii_to_scancode[ ' ' ] = KEY_SPACE;
+        ascii_to_scancode[ '\n' ] = KEY_ENTER;
+        ascii_to_scancode[ 27 ] = KEY_ESC;
 	}
 
 
@@ -201,10 +241,10 @@ namespace TA3D
 
 		delete InterfaceManager;
 
-		if (m_AllegroRunning)
+		if (m_SDLRunning)
 		{
-			allegro_exit();
-			m_AllegroRunning = false;
+			SDL_Quit();
+			m_SDLRunning = false;
 		}
 	}
 

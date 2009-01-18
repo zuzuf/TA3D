@@ -256,7 +256,10 @@ namespace TA3D
                 if (ligne)
                     delete[] ligne;
                 ligne = get_line(pos);
-                strlwr(ligne);
+#warning FIXME: awful replacement of strlwr
+                String lwr_ligne = String::ToLower(ligne);
+                memcpy(ligne, lwr_ligne.c_str(), lwr_ligne.size());
+//                strlwr(ligne);
                 while (pos[0] != 0 && pos[0] != 13 && pos[0] != 10)
                     ++pos;
                 while (pos[0] == 13 || pos[0] == 10)
@@ -385,9 +388,9 @@ namespace TA3D
         } while (pos[0]=='[' && nb<10000 && pos<limit);
 
         if (g_useTextureCompression && lp_CONFIG->use_texture_compression)
-            allegro_gl_set_texture_format(GL_COMPRESSED_RGBA_ARB);
+            gfx->set_texture_format(GL_COMPRESSED_RGBA_ARB);
         else
-            allegro_gl_set_texture_format(GL_RGBA8);
+            gfx->set_texture_format(GL_RGBA8);
 
         for (int i = first; i < nb_features; ++i)// Charge les fichiers d'animation
         {

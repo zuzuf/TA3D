@@ -56,17 +56,36 @@ namespace TA3D
         SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, TA3D::VARS::lp_CONFIG->fsaa > 1);
         SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, TA3D::VARS::lp_CONFIG->fsaa);
         SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
-        SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 32);
         SDL_GL_SetAttribute(SDL_GL_ACCELERATED_VISUAL, 1);
         SDL_GL_SetAttribute(SDL_GL_SWAP_CONTROL, 0);
-        SDL_GL_SetAttribute(SDL_GL_SWAP_CONTROL, 0);
-        SDL_GL_SetAttribute(SDL_GL_SWAP_CONTROL, 0);
-        SDL_GL_SetAttribute(SDL_GL_SWAP_CONTROL, 0);
+        SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 8);
+        SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 8);
+        SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 8);
+        SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE, 8);
+        SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 32);
 
         if (TA3D::VARS::lp_CONFIG->fullscreen )
             screen = SDL_SetVideoMode( TA3D::VARS::lp_CONFIG->screen_width, TA3D::VARS::lp_CONFIG->screen_height, TA3D::VARS::lp_CONFIG->color_depth, SDL_OPENGL | SDL_FULLSCREEN );
         else
             screen = SDL_SetVideoMode( TA3D::VARS::lp_CONFIG->screen_width, TA3D::VARS::lp_CONFIG->screen_height, TA3D::VARS::lp_CONFIG->color_depth, SDL_OPENGL );
+
+        if (screen == NULL)
+        {
+            SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
+            if (TA3D::VARS::lp_CONFIG->fullscreen )
+                screen = SDL_SetVideoMode( TA3D::VARS::lp_CONFIG->screen_width, TA3D::VARS::lp_CONFIG->screen_height, TA3D::VARS::lp_CONFIG->color_depth, SDL_OPENGL | SDL_FULLSCREEN );
+            else
+                screen = SDL_SetVideoMode( TA3D::VARS::lp_CONFIG->screen_width, TA3D::VARS::lp_CONFIG->screen_height, TA3D::VARS::lp_CONFIG->color_depth, SDL_OPENGL );
+        }
+
+        if (screen == NULL)
+        {
+            SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 16);
+            if (TA3D::VARS::lp_CONFIG->fullscreen )
+                screen = SDL_SetVideoMode( TA3D::VARS::lp_CONFIG->screen_width, TA3D::VARS::lp_CONFIG->screen_height, TA3D::VARS::lp_CONFIG->color_depth, SDL_OPENGL | SDL_FULLSCREEN );
+            else
+                screen = SDL_SetVideoMode( TA3D::VARS::lp_CONFIG->screen_width, TA3D::VARS::lp_CONFIG->screen_height, TA3D::VARS::lp_CONFIG->color_depth, SDL_OPENGL );
+        }
 
         if (screen == NULL)
         {

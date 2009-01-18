@@ -89,7 +89,7 @@ namespace TA3D
 //                    }
 //                }
 //            }
-//            delete[] data;
+            delete[] data;
 //            pAl = (FONT*) malloc( sizeof(FONT));
 //            pAl->data = fc;
 //            pAl->height = h;
@@ -102,11 +102,12 @@ namespace TA3D
             return;
         }
 
+#warning FIXME: fonts not implemented yet!
 //        pGl = allegro_gl_convert_allegro_font_ex(pAl,AGL_FONT_TYPE_TEXTURED,-1.0f,GL_RGBA8);
-        if(!pGl)
-        {
-            throw cError( "GfxFont::load_gafFont()", "font could not be converted to GL font, pGl = NULL.", true );
-        }
+//        if(!pGl)
+//        {
+//            throw cError( "GfxFont::load_gafFont()", "font could not be converted to GL font, pGl = NULL.", true );
+//        }
     }
 
 
@@ -122,17 +123,18 @@ namespace TA3D
     void GfxFont::copy( FONT *fnt, const float s)
     {
         size = s;
+#warning FIXME: fonts not implemented yet!
 //        pAl = extract_font_range(font, -1, -1);
-        if (NULL == pAl)
-        {
-            throw cError( "GfxFont::copy()", "font could not be copied, pAl = NULL.", true );
-            return;
-        }
+//        if (NULL == pAl)
+//        {
+//            throw cError( "GfxFont::copy()", "font could not be copied, pAl = NULL.", true );
+//            return;
+//        }
 //        pGl = allegro_gl_convert_allegro_font_ex(pAl,AGL_FONT_TYPE_TEXTURED,-1.0f,GL_RGBA8);
-        if (NULL == pGl)
-        {
-            throw cError( "GfxFont::copy()", "font could not be converted to GL font, pGl = NULL.", true );
-        }
+//        if (NULL == pGl)
+//        {
+//            throw cError( "GfxFont::copy()", "font could not be converted to GL font, pGl = NULL.", true );
+//        }
     }
 
 

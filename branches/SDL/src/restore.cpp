@@ -468,16 +468,16 @@ void save_game( const String filename, GameData *game_data )
     if (game_data->fog_of_war)      // Save fog of war state
     {
         for (int y = 0 ; y < the_map->view_map->h ; y++)
-            gzwrite(file, the_map->view_map->line[y], (bitmap_color_depth(the_map->view_map) >> 3) * the_map->view_map->w);
+            gzwrite(file, (char*)the_map->view_map->pixels + y * the_map->view_map->pitch, (the_map->view_map->format->BitsPerPixel >> 3) * the_map->view_map->w);
 
         for (int y = 0 ; y < the_map->sight_map->h ; y++)
-            gzwrite(file, the_map->sight_map->line[y], (bitmap_color_depth(the_map->sight_map) >> 3) * the_map->sight_map->w);
+            gzwrite(file, (char*)the_map->sight_map->pixels + y * the_map->sight_map->pitch, (the_map->sight_map->format->BitsPerPixel >> 3) * the_map->sight_map->w);
 
         for (int y = 0 ; y < the_map->radar_map->h ; y++)
-            gzwrite(file, the_map->radar_map->line[y], (bitmap_color_depth(the_map->radar_map) >> 3) * the_map->radar_map->w);
+            gzwrite(file, (char*)the_map->radar_map->pixels + y * the_map->radar_map->pitch, (the_map->radar_map->format->BitsPerPixel >> 3) * the_map->radar_map->w);
 
         for (int y = 0 ; y < the_map->sonar_map->h ; y++)
-            gzwrite(file, the_map->sonar_map->line[y], (bitmap_color_depth(the_map->sonar_map) >> 3) * the_map->sonar_map->w);
+            gzwrite(file, (char*)the_map->sonar_map->pixels + y * the_map->sonar_map->pitch, (the_map->sonar_map->format->BitsPerPixel >> 3) * the_map->sonar_map->w);
     }
 
     gzclose( file );
@@ -1099,16 +1099,16 @@ void load_game( GameData *game_data )
     if (game_data->fog_of_war)      // Load fog of war state
     {
         for (int y = 0 ; y < the_map->view_map->h ; y++)
-            gzread(file, the_map->view_map->line[y], (bitmap_color_depth(the_map->view_map) >> 3) * the_map->view_map->w);
+            gzread(file, (char*)the_map->view_map->pixels + y * the_map->view_map->pitch, (the_map->view_map->format->BitsPerPixel >> 3) * the_map->view_map->w);
 
         for (int y = 0 ; y < the_map->sight_map->h ; y++)
-            gzread(file, the_map->sight_map->line[y], (bitmap_color_depth(the_map->sight_map) >> 3) * the_map->sight_map->w);
+            gzread(file, (char*)the_map->sight_map->pixels + y * the_map->sight_map->pitch, (the_map->sight_map->format->BitsPerPixel >> 3) * the_map->sight_map->w);
 
         for (int y = 0 ; y < the_map->radar_map->h ; y++)
-            gzread(file, the_map->radar_map->line[y], (bitmap_color_depth(the_map->radar_map) >> 3) * the_map->radar_map->w);
+            gzread(file, (char*)the_map->radar_map->pixels + y * the_map->radar_map->pitch, (the_map->radar_map->format->BitsPerPixel >> 3) * the_map->radar_map->w);
 
         for (int y = 0 ; y < the_map->sonar_map->h ; y++)
-            gzread(file, the_map->sonar_map->line[y], (bitmap_color_depth(the_map->sonar_map) >> 3) * the_map->sonar_map->w);
+            gzread(file, (char*)the_map->sonar_map->pixels + y * the_map->sonar_map->pitch, (the_map->sonar_map->format->BitsPerPixel >> 3) * the_map->sonar_map->w);
     }
 
     game_data->saved_file.clear();

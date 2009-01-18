@@ -593,8 +593,8 @@ namespace TA3D
         int px = cur_px>>1;
         int py = cur_py>>1;
         if (px >= 0 && py >= 0 && px < units.map->radar_map->w && py < units.map->radar_map->h && type_id != -1)
-            return ( (units.map->radar_map->line[py][px] & p_mask) && !unit_manager.unit_type[type_id]->Stealth && (unit_manager.unit_type[type_id]->fastCategory & CATEGORY_NOTSUB) )
-                || ( (units.map->sonar_map->line[py][px] & p_mask) && !(unit_manager.unit_type[type_id]->fastCategory & CATEGORY_NOTSUB) );
+            return ( (SurfaceByte(units.map->radar_map,px,py) & p_mask) && !unit_manager.unit_type[type_id]->Stealth && (unit_manager.unit_type[type_id]->fastCategory & CATEGORY_NOTSUB) )
+                || ( (SurfaceByte(units.map->sonar_map,px,py) & p_mask) && !(unit_manager.unit_type[type_id]->fastCategory & CATEGORY_NOTSUB) );
         return false;
     }
 
@@ -1099,7 +1099,7 @@ namespace TA3D
         byte player_mask = 1 << players.local_human_id;
 
         on_radar = on_mini_radar = is_on_radar( player_mask );
-        if (map->view[py][px] == 0 || ( map->view[py][px] > 1 && !on_radar ) || ( !on_radar && !(map->sight_map->line[py][px] & player_mask) ) )
+        if (map->view[py][px] == 0 || ( map->view[py][px] > 1 && !on_radar ) || ( !on_radar && !(SurfaceByte(map->sight_map,px,py) & player_mask) ) )
             return;	// Unit is not visible
 
         bool radar_detected = on_radar;
@@ -5010,7 +5010,7 @@ namespace TA3D
                                         if (isEnemy( cur_idx ) && units.unit[cur_idx].flags
                                              && unit_manager.unit_type[units.unit[cur_idx].type_id]->ShootMe
                                              && ( units.unit[cur_idx].is_on_radar( mask ) ||
-                                                  ( (units.map->sight_map->line[y>>1][x>>1] & mask)
+                                                  ( (SurfaceByte(units.map->sight_map,x>>1,y>>1) & mask)
                                                     && !units.unit[cur_idx].cloaked ) )
                                              && !unit_manager.unit_type[ units.unit[cur_idx].type_id ]->checkCategory( unit_manager.unit_type[type_id]->NoChaseCategory ) )
 //                                             && !unit_manager.unit_type[ units.unit[cur_idx].type_id ]->checkCategory( unit_manager.unit_type[type_id]->BadTargetCategory ) )
@@ -6152,7 +6152,7 @@ script_exec:
                     pMutex.lock();
                     continue;	// Out of the map
                 }
-                if (!( map->view_map->line[ py ][ px ] & player_mask ) && !(map->sight_map->line[ py ][ px ] & player_mask)
+                if (!( SurfaceByte(map->view_map,px,py) & player_mask ) && !(SurfaceByte(map->sight_map,px,py) & player_mask)
                     && !unit[i].is_on_radar( player_mask ) )
                 {
                     unit[ i ].unlock();
@@ -6603,7 +6603,7 @@ script_exec:
             }
         }
 
-        set_uformat(U_ASCII);
+//        set_uformat(U_ASCII);
 
         UNIT *target = pointed_only ? NULL : (unit[index].mission!=NULL ? (UNIT*) unit[index].mission->p : NULL);
         if (target && target->flags==0)
@@ -6647,8 +6647,7 @@ script_exec:
                     }
                     if (nb>0)
                     {
-                        char buf[10];
-                        uszprintf(buf,10,"%d",nb);
+                        String buf = format("%d",nb);
                         glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
                         gfx->print(gfx->TA_font,px+pw*0.5f-0.5f*gfx->TA_font.length(buf),py+ph*0.5f-0.5f*gfx->TA_font.height(),0.0f,0xFFFFFFFF,buf);
                     }
@@ -6656,11 +6655,11 @@ script_exec:
                     {
                         if (unit_manager.unit_type[unit[index].type_id]->BuildList[i] == -1) // Il s'agit d'une arme / It's a weapon
                         {
-                            char buf[10];
+                            String buf;
                             if ((int)unit[index].planned_weapons==unit[index].planned_weapons)
-                                uszprintf(buf,10,"%d(%d)",(int)unit[index].planned_weapons,stock);
+                                buf = format("%d(%d)",(int)unit[index].planned_weapons,stock);
                             else
-                                uszprintf(buf,10,"%d(%d)",(int)unit[index].planned_weapons+1,stock);
+                                buf = format("%d(%d)",(int)unit[index].planned_weapons+1,stock);
                             glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
                             gfx->print(gfx->TA_font,px+pw*0.5f-0.5f*gfx->TA_font.length(buf),py+ph*0.5f-0.5f*gfx->TA_font.height(),0.0f,0xFFFFFFFF,buf);
                         }
@@ -6714,18 +6713,13 @@ script_exec:
 
                 if (unit[index].owner_id == players.local_human_id  )
                 {
-                    char buf[10];
                     gfx->set_color( ta3dSideData.side_int_data[ players.side_view ].metal_color );
-                    uszprintf(buf,10,"+%f",unit[index].cur_metal_prod);	*(strstr(buf,".")+2)=0;
-                    gfx->print_center(gfx->small_font, ta3dSideData.side_int_data[ players.side_view ].UnitMetalMake.x1, ta3dSideData.side_int_data[ players.side_view ].UnitMetalMake.y1,0.0f,buf);
-                    uszprintf(buf,10,"-%f",unit[index].cur_metal_cons);	*(strstr(buf,".")+2)=0;
-                    gfx->print_center(gfx->small_font, ta3dSideData.side_int_data[ players.side_view ].UnitMetalUse.x1, ta3dSideData.side_int_data[ players.side_view ].UnitMetalUse.y1,0.0f,buf);
+                    gfx->print_center(gfx->small_font, ta3dSideData.side_int_data[ players.side_view ].UnitMetalMake.x1, ta3dSideData.side_int_data[ players.side_view ].UnitMetalMake.y1,0.0f,format("+%.2f",unit[index].cur_metal_prod));
+                    gfx->print_center(gfx->small_font, ta3dSideData.side_int_data[ players.side_view ].UnitMetalUse.x1, ta3dSideData.side_int_data[ players.side_view ].UnitMetalUse.y1,0.0f,format("-%.2f",unit[index].cur_metal_cons));
 
                     gfx->set_color( ta3dSideData.side_int_data[ players.side_view ].energy_color );
-                    uszprintf(buf,10,"+%f",unit[index].cur_energy_prod);	*(strstr(buf,".")+2)=0;
-                    gfx->print_center(gfx->small_font, ta3dSideData.side_int_data[ players.side_view ].UnitEnergyMake.x1, ta3dSideData.side_int_data[ players.side_view ].UnitEnergyMake.y1,0.0f,buf);
-                    uszprintf(buf,10,"-%f",unit[index].cur_energy_cons);	*(strstr(buf,".")+2)=0;
-                    gfx->print_center(gfx->small_font, ta3dSideData.side_int_data[ players.side_view ].UnitEnergyUse.x1, ta3dSideData.side_int_data[ players.side_view ].UnitEnergyUse.y1,0.0f,buf);
+                    gfx->print_center(gfx->small_font, ta3dSideData.side_int_data[ players.side_view ].UnitEnergyMake.x1, ta3dSideData.side_int_data[ players.side_view ].UnitEnergyMake.y1,0.0f,format("+%.2f",unit[index].cur_energy_prod));
+                    gfx->print_center(gfx->small_font, ta3dSideData.side_int_data[ players.side_view ].UnitEnergyUse.x1, ta3dSideData.side_int_data[ players.side_view ].UnitEnergyUse.y1,0.0f,format("-%.2f",unit[index].cur_energy_cons));
                 }
 
                 glColor4ub(0xFF,0xFF,0xFF,0xFF);
@@ -6822,7 +6816,7 @@ script_exec:
             glDisable( GL_TEXTURE_2D );
         }
         glColor4ub(0xFF,0xFF,0xFF,0xFF);
-        set_uformat(U_UTF8);
+//        set_uformat(U_UTF8);
 
         pMutex.unlock();
     }
@@ -7175,7 +7169,7 @@ script_exec:
                     pMutex.lock();
                     continue;
                 }
-                if ((!(map->view_map->line[py>>1][px>>1]&mask) || !(map->sight_map->line[py>>1][px>>1]&mask) || (unit[i].cloaked && unit[i].owner_id != players.local_human_id ) ) && !unit[i].on_mini_radar )
+                if ((!(SurfaceByte(map->view_map,px>>1,py>>1) & mask) || !(SurfaceByte(map->sight_map,px>>1,py>>1) & mask) || (unit[i].cloaked && unit[i].owner_id != players.local_human_id ) ) && !unit[i].on_mini_radar )
                 {
                     units.unit[ i ].unlock();
                     pMutex.lock();
@@ -7636,9 +7630,9 @@ script_exec:
                 gfx->lock();
 
                 if (map->fog_of_war & FOW_GREY)
-                    memset( map->sight_map->line[0], 0, map->sight_map->w * map->sight_map->h );		// Clear FOW map
-                memset( map->radar_map->line[0], 0, map->radar_map->w * map->radar_map->h );		// Clear radar map
-                memset( map->sonar_map->line[0], 0, map->sonar_map->w * map->sonar_map->h );		// Clear sonar map
+                    memset( map->sight_map->pixels, 0, map->sight_map->w * map->sight_map->h );		// Clear FOW map
+                memset( map->radar_map->pixels, 0, map->radar_map->w * map->radar_map->h );		// Clear radar map
+                memset( map->sonar_map->pixels, 0, map->sonar_map->w * map->sonar_map->h );		// Clear sonar map
 
                 for( int i = 0; i < index_list_size ; i++ )			// update fog of war, radar and sonar data
                     unit[ idx_list[ i ] ].draw_on_FOW();

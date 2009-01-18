@@ -105,47 +105,53 @@ void config_menu(void)
     int res_height[100];
     int res_bpp[100];
 
-    GFX_MODE_LIST *mode_list = get_gfx_mode_list( GFX_OPENGL_FULLSCREEN);
-    if (mode_list)
+    SDL_Rect **mode_list = SDL_ListModes(NULL, SDL_FULLSCREEN | SDL_OPENGL);
+
+    if (mode_list == (SDL_Rect**)0)         // No resolution available (normally this shouldn't be possible if we get here)
+        nb_res = 0;
+    else if (mode_list == (SDL_Rect**)-1)   // Ok, everything is possible so let's use standard sizes
     {
-        for (int i = 0 ; i < mode_list->num_modes ; ++i)
+#define ADD_RES(w,h)  \
+        res_bpp[nb_res++] = 16;\
+        res_width[nb_res++] = w;\
+        res_height[nb_res++] = h;\
+        res_bpp[nb_res++] = 32;\
+        res_width[nb_res++] = w;\
+        res_height[nb_res++] = h;
+
+        ADD_RES(640,480)
+        ADD_RES(800,480)
+        ADD_RES(800,600)
+        ADD_RES(1024,768)
+        ADD_RES(1024,600)
+        ADD_RES(1280,960)
+        ADD_RES(1280,1024)
+        ADD_RES(1440,900)
+        ADD_RES(1680,1050)
+        ADD_RES(1600,1200)
+        ADD_RES(1920,1200)
+        ADD_RES(2560,1600)
+    }
+    else
+    {
+        for (int i = 0 ; mode_list[i] ; ++i)
         {
-            if (mode_list->mode[i].bpp == 32)
+            if (mode_list[i]->w >= 640 && mode_list[i]->h >= 480)
             {
-                bool found = mode_list->mode[i].width < 640 || mode_list->mode[i].height < 480;
-                if (!found)
-                {
-                    for (int e = 0; e < nb_res; ++e)
-                    {
-                        if (res_width[e] == mode_list->mode[ i ].width && res_height[e] == mode_list->mode[ i ].height )
-                        {
-                            found = true;
-                            break;
-                        }
-                    }
-                }
-
-                if (mode_list->mode[ i ].height == 0 ||
-                    ( mode_list->mode[ i ].width * 3 != 4 * mode_list->mode[ i ].height &&
-                      mode_list->mode[ i ].width * 9 != 16 * mode_list->mode[ i ].height &&
-                      mode_list->mode[ i ].width * 10 != 16 * mode_list->mode[ i ].height &&
-                      mode_list->mode[ i ].width * 4 != 5 * mode_list->mode[ i ].height ) )
-                {
-                    found = true;
-                }
-
-                if (!found)
+                if(SDL_VideoModeOK(mode_list[i]->w, mode_list[i]->h, 16, SDL_FULLSCREEN | SDL_OPENGL) == 16)
                 {
                     res_bpp[ nb_res ] = 16;
-                    res_width[ nb_res ] = mode_list->mode[ i ].width;
-                    res_height[ nb_res++ ] = mode_list->mode[ i ].height;
+                    res_width[ nb_res ] = mode_list[i]->w;
+                    res_height[ nb_res++ ] = mode_list[i]->h;
+                }
+                if(SDL_VideoModeOK(mode_list[i]->w, mode_list[i]->h, 32, SDL_FULLSCREEN | SDL_OPENGL) == 32)
+                {
                     res_bpp[ nb_res ] = 32;
-                    res_width[ nb_res ] = mode_list->mode[ i ].width;
-                    res_height[ nb_res++ ] = mode_list->mode[ i ].height;
+                    res_width[ nb_res ] = mode_list[i]->w;
+                    res_height[ nb_res++ ] = mode_list[i]->h;
                 }
             }
         }
-        destroy_gfx_mode_list( mode_list);
     }
 
     config_area.set_state("*.showfps", lp_CONFIG->showfps);
@@ -1870,7 +1876,7 @@ void setup_game(bool client, const char *host, const char *saved_game)
 
 void network_room(void)             // Let players create/join a game
 {
-    set_uformat(U_UTF8);
+//    set_uformat(U_UTF8);
 
     network_manager.InitBroadcast("1234");      // broadcast mode
 

@@ -341,7 +341,7 @@ namespace Paths
             out.clear();
 
         String root = ExtractFilePath(pattern);
-        String filename_pattern = ExtractFileName(pattern);
+        String filename_pattern = String::ToUpper(ExtractFileName(pattern));
         DIR *dp;
         struct dirent *dirp;
         if((dp  = opendir(root.c_str())) == NULL)
@@ -353,7 +353,7 @@ namespace Paths
         while ((dirp = readdir(dp)) != NULL)
         {
             String name = dirp->d_name;
-            if ((dirp->d_type & required) == required && name != "." && name != ".." && name.match(filename_pattern))
+            if ((dirp->d_type & required) == required && name != "." && name != ".." && String::ToUpper(name).match(filename_pattern))
             {
                 if (relative)
                     out.push_back(name);

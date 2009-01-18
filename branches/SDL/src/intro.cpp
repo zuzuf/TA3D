@@ -46,7 +46,7 @@ void loading(const float percent, const String& msg)
         network_manager.sendAll(format("LOADING %d", last_percent));
     }
 
-    set_uformat(U_UTF8);
+//    set_uformat(U_UTF8);
     bool init=(Glfond==0);
 
     if(init)
@@ -139,7 +139,7 @@ void loading(const float percent, const String& msg)
         gfx->destroy_texture( Glfond );
     }
 
-    set_uformat(U_ASCII);
+//    set_uformat(U_ASCII);
 }
 
 
