@@ -94,6 +94,10 @@ namespace TA3D
 		// Installing SDL timer
 		if (SDL_Init(SDL_INIT_TIMER) != 0)
 			throw ("SDL_Init(SDL_INIT_TIMER) yielded unexpected result.");
+
+		// Installing SDL timer
+		if (SDL_Init(SDL_INIT_EVENTTHREAD) != 0)
+			throw ("SDL_Init(SDL_INIT_EVENTTHREAD) yielded unexpected result.");
 //		// Installing allegro mouse handler
 //		if (install_mouse() == -1)
 //			throw ("install_mouse() yielded unexpected result.");

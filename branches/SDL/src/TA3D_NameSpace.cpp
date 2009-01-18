@@ -132,6 +132,30 @@ namespace TA3D
 
     void poll_mouse()
     {
+        SDL_Event event;
+
+        while(SDL_PollEvent(&event))
+        {
+            switch(event.type)
+            {
+            case SDL_KEYDOWN:  /* Handle a KEYDOWN event */
+                printf("Oh! Key press\n");
+                break;
+            case SDL_MOUSEMOTION:
+                mouse_x = event.motion.x;
+                mouse_y = event.motion.y;
+                mouse_b = event.motion.state;
+                break;
+            case SDL_MOUSEBUTTONDOWN:
+            case SDL_MOUSEBUTTONUP:
+                mouse_x = event.motion.x;
+                mouse_y = event.motion.y;
+                mouse_b = event.motion.state;
+                break;
+            default: /* Report an unhandled event */
+                printf("I don't know what this event is!\n");
+            };
+        }
     }
 
 	void position_mouse(int x, int y)
@@ -143,8 +167,7 @@ namespace TA3D
 
 	void get_mouse_mickeys(int *mx, int *my)
 	{
-	    *mx = 0;
-	    *my = 0;
+        SDL_GetRelativeMouseState(mx, my);
 	}
 } // namespace TA3D
 
