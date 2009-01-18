@@ -36,7 +36,7 @@
 #include "misc/paths.h"
 #include "misc/files.h"
 #include "logs/logs.h"
-
+#include "gfx/gl.extensions.h"
 
 
 namespace TA3D
@@ -1655,15 +1655,15 @@ namespace TA3D
                                         glTexGeni(GL_T, GL_TEXTURE_GEN_MODE, GL_SPHERE_MAP);
                                         glEnable(GL_TEXTURE_GEN_S);
                                         glEnable(GL_TEXTURE_GEN_T);
-                                        glTexEnvi(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_COMBINE_EXT);
-                                        glTexEnvi(GL_TEXTURE_ENV,GL_COMBINE_RGB_EXT,GL_INTERPOLATE);
+                                        glTexEnvi(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE, TA3D_GL_COMBINE_EXT);
+                                        glTexEnvi(GL_TEXTURE_ENV,TA3D_GL_COMBINE_RGB_EXT,GL_INTERPOLATE);
 
-                                        glTexEnvi(GL_TEXTURE_ENV,GL_SOURCE0_RGB_EXT,GL_TEXTURE);
-                                        glTexEnvi(GL_TEXTURE_ENV,GL_OPERAND0_RGB_EXT,GL_SRC_COLOR);
-                                        glTexEnvi(GL_TEXTURE_ENV,GL_SOURCE1_RGB_EXT,GL_PREVIOUS_EXT);
-                                        glTexEnvi(GL_TEXTURE_ENV,GL_OPERAND1_RGB_EXT,GL_SRC_COLOR);
-                                        glTexEnvi(GL_TEXTURE_ENV,GL_SOURCE2_RGB_EXT,GL_CONSTANT_EXT);
-                                        glTexEnvi(GL_TEXTURE_ENV,GL_OPERAND2_RGB_EXT,GL_SRC_COLOR);
+                                        glTexEnvi(GL_TEXTURE_ENV,TA3D_GL_SOURCE0_RGB_EXT,GL_TEXTURE);
+                                        glTexEnvi(GL_TEXTURE_ENV,TA3D_GL_OPERAND0_RGB_EXT,GL_SRC_COLOR);
+                                        glTexEnvi(GL_TEXTURE_ENV,TA3D_GL_SOURCE1_RGB_EXT,TA3D_GL_PREVIOUS_EXT);
+                                        glTexEnvi(GL_TEXTURE_ENV,TA3D_GL_OPERAND1_RGB_EXT,GL_SRC_COLOR);
+                                        glTexEnvi(GL_TEXTURE_ENV,TA3D_GL_SOURCE2_RGB_EXT,TA3D_GL_CONSTANT_EXT);
+                                        glTexEnvi(GL_TEXTURE_ENV,TA3D_GL_OPERAND2_RGB_EXT,GL_SRC_COLOR);
                                         glTexEnvfv(GL_TEXTURE_ENV,GL_TEXTURE_ENV_COLOR,surface.RColor);
                                     }
                                     else
@@ -1921,16 +1921,16 @@ namespace TA3D
                             glTexGeni(GL_T, GL_TEXTURE_GEN_MODE, GL_SPHERE_MAP);
                             glEnable(GL_TEXTURE_GEN_S);
                             glEnable(GL_TEXTURE_GEN_T);
-                            glTexEnvi(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_COMBINE_EXT);
-                            glTexEnvi(GL_TEXTURE_ENV,GL_COMBINE_RGB_EXT,GL_INTERPOLATE);
+                            glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, TA3D_GL_COMBINE_EXT);
+                            glTexEnvi(GL_TEXTURE_ENV, TA3D_GL_COMBINE_RGB_EXT,  GL_INTERPOLATE);
 
-                            glTexEnvi(GL_TEXTURE_ENV,GL_SOURCE0_RGB_EXT,GL_TEXTURE);
-                            glTexEnvi(GL_TEXTURE_ENV,GL_OPERAND0_RGB_EXT,GL_SRC_COLOR);
-                            glTexEnvi(GL_TEXTURE_ENV,GL_SOURCE1_RGB_EXT,GL_PREVIOUS_EXT);
-                            glTexEnvi(GL_TEXTURE_ENV,GL_OPERAND1_RGB_EXT,GL_SRC_COLOR);
-                            glTexEnvi(GL_TEXTURE_ENV,GL_SOURCE2_RGB_EXT,GL_CONSTANT_EXT);
-                            glTexEnvi(GL_TEXTURE_ENV,GL_OPERAND2_RGB_EXT,GL_SRC_COLOR);
-                            glTexEnvfv(GL_TEXTURE_ENV,GL_TEXTURE_ENV_COLOR,surface.RColor);
+                            glTexEnvi(GL_TEXTURE_ENV,  TA3D_GL_SOURCE0_RGB_EXT, GL_TEXTURE);
+                            glTexEnvi(GL_TEXTURE_ENV,  TA3D_GL_OPERAND0_RGB_EXT, GL_SRC_COLOR);
+                            glTexEnvi(GL_TEXTURE_ENV,  TA3D_GL_SOURCE1_RGB_EXT, TA3D_GL_PREVIOUS_EXT);
+                            glTexEnvi(GL_TEXTURE_ENV,  TA3D_GL_OPERAND1_RGB_EXT, GL_SRC_COLOR);
+                            glTexEnvi(GL_TEXTURE_ENV,  TA3D_GL_SOURCE2_RGB_EXT,TA3D_GL_CONSTANT_EXT);
+                            glTexEnvi(GL_TEXTURE_ENV,  TA3D_GL_OPERAND2_RGB_EXT,GL_SRC_COLOR);
+                            glTexEnvfv(GL_TEXTURE_ENV, GL_TEXTURE_ENV_COLOR,surface.RColor);
                         }
                         else
                         {
