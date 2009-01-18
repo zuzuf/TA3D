@@ -128,6 +128,7 @@ namespace TA3D
 
     void poll_keyboard()
     {
+        poll_mouse();
     }
 
     void poll_mouse()
@@ -138,8 +139,20 @@ namespace TA3D
         {
             switch(event.type)
             {
-            case SDL_KEYDOWN:  /* Handle a KEYDOWN event */
-                printf("Oh! Key press\n");
+            case SDL_KEYDOWN:
+                {
+                    VARS::key[ event.key.keysym.sym ] = 1;
+                    int c = event.key.keysym.sym;
+                    if (c >= KEY_0 && c <= KEY_9)
+                        c = c - KEY_0 + '0';
+                    if ((key[ KEY_RSHIFT ] || key[ KEY_LSHIFT ] || event.key.keysym.mod == KMOD_CAPS) && c >= 'a' && c <= 'z')
+                        c = c + 'A' - 'a';
+                    VARS::keybuf.push_back( c );
+                    LOG_DEBUG("pressing " << (char)c);
+                }
+                break;
+            case SDL_KEYUP:
+                VARS::key[ event.key.keysym.sym ] = 0;
                 break;
             case SDL_MOUSEMOTION:
                 mouse_x = event.motion.x;
@@ -148,12 +161,15 @@ namespace TA3D
                 break;
             case SDL_MOUSEBUTTONDOWN:
             case SDL_MOUSEBUTTONUP:
-                mouse_x = event.motion.x;
-                mouse_y = event.motion.y;
-                mouse_b = event.motion.state;
+                mouse_x = event.button.x;
+                mouse_y = event.button.y;
+                if (event.button.state == SDL_PRESSED)
+                    mouse_b = mouse_b | event.button.button;
+                else
+                    mouse_b = mouse_b & (~event.button.button);
                 break;
-            default: /* Report an unhandled event */
-                printf("I don't know what this event is!\n");
+            default:
+                LOG_DEBUG("Unhandled event");
             };
         }
     }
