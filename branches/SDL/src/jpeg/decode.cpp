@@ -1299,8 +1299,8 @@ _jpeg_decode(SDL_Color *pal, void (*callback)(int))
 	if (restart_interval <= 0)
 		flags &= ~DRI_DEFINED;
 
-    bmp = SDL_CreateRGBSurface(SDL_SWSURFACE, (jpeg_w + 15) & ~0xf, (jpeg_h + 15) & ~0xf, (jpeg_components == 1) ? 8 : 32,
-                                0xFF000000, 0x00FF0000, 0x0000FF00, 0x000000FF);
+    bmp = SDL_CreateRGBSurface(SDL_SWSURFACE, (jpeg_w + 15) & ~0xf, (jpeg_h + 15) & ~0xf, (jpeg_components == 1) ? 8 : 24,
+                                0x000000FF, 0x0000FF00, 0x00FF0000, 0xFF000000);
 	if (!bmp)
 	{
 		TRACE("Out of memory");
@@ -1364,7 +1364,7 @@ _jpeg_decode(SDL_Color *pal, void (*callback)(int))
 				if (decode_baseline_block(block_ptr[i], (block_component[i] == 0) ? LUMINANCE : CHROMINANCE, &old_dc[block_component[i]]))
 					goto exit_error;
 			}
-			addr = (char*)bmp->pixels + block_y * bmp->pitch + (block_x * (jpeg_components == 1 ? 1 : 4));
+			addr = (char*)bmp->pixels + block_y * bmp->pitch + (block_x * (jpeg_components == 1 ? 1 : 3));
 			plot(addr, pitch, y1, y2, y3, y4, cb, cr);
 			block_x += mcu_w;
 			if (block_x >= jpeg_w)
@@ -1611,7 +1611,7 @@ eoi_found:
 					idct(coefs, coefs_ptr, (c == 0) ? luminance_quantization_table : chrominance_quantization_table, workspace);
 					coefs_ptr += 64;
 				}
-				addr = (char*)bmp->pixels + block_y * mcu_h * bmp->pitch + (block_x * mcu_w * (jpeg_components == 1 ? 1 : 4));
+				addr = (char*)bmp->pixels + block_y * mcu_h * bmp->pitch + (block_x * mcu_w * (jpeg_components == 1 ? 1 : 3));
 				plot(addr, pitch, y1, y2, y3, y4, cb, cr);
 			}
 		}
@@ -1625,7 +1625,7 @@ eoi_found:
 		depth = 8;
 	}
 	else
-		depth = 32;
+		depth = 24;
 	/* Hack to set size; image may be really slightly bigger than reported.
 	 * We assume final user always to access data via line pointers and NEVER
 	 * assume data is linearly stored in memory starting at bmp->dat...

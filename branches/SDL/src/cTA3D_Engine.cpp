@@ -134,6 +134,8 @@ namespace TA3D
 
 		SDL_WM_SetCaption("Total Annihilation 3D","TA3D");
 
+        SDL_ShowCursor(SDL_DISABLE);
+
 		// Loading and creating cursors
 		byte *data = HPIManager->PullFromHPI("anims\\cursors.gaf");	// Load cursors
 		if (data)

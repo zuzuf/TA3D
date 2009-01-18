@@ -24,7 +24,7 @@ namespace Menus
         return (r);
     }
 
-        
+
     bool Abstract::doGuardInitialize()
     {
         pMouseX = -1;
@@ -62,8 +62,8 @@ namespace Menus
         if (!pArea->background)
             pArea->background = gfx->glfond;
     }
-        
-    
+
+
     bool Abstract::doLoop()
     {
         // Wait for an event (mouse, keyboard...)

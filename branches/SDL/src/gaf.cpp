@@ -347,19 +347,14 @@ namespace TA3D
                 f_pos += img_size;
                 if (img_alpha)
                 {
-                    if (frame_img->format->BitsPerPixel != 32)
-                    {
-                        SDL_Surface* tmp = gfx->create_surface_ex(32, frame_img->w, frame_img->h);
-                        blit(frame_img, tmp, 0, 0, 0, 0, frame_img->w, frame_img->h);
-                        SDL_FreeSurface(frame_img);
-                        frame_img = tmp;
-                    }
+                    frame_img = convert_format(frame_img);
+                    img_alpha = convert_format(img_alpha);
                     for (int y = 0; y < frame_img->h; ++y)
                     {
                         for (int x = 0; x < frame_img->w; ++x)
                         {
                             int c = getpixel(frame_img, x, y);
-                            putpixel( frame_img, x, y, makeacol( getr(c), getg(c), getb(c), SurfaceByte(img_alpha, x<<2, y) ) );
+                            putpixel( frame_img, x, y, makeacol( getr(c), getg(c), getb(c), SurfaceByte(img_alpha, (x<<2)+1, y) ) );
                         }
                     }
                     SDL_FreeSurface(img_alpha);
@@ -599,12 +594,7 @@ namespace TA3D
                 w[i-f] = bmp[i-f]->w;
                 h[i-f] = bmp[i-f]->h;
                 if (!truecolor)
-                {
-                    SDL_Surface* tmp = gfx->create_surface(w[i-f], h[i-f]);
-                    blit(bmp[i-f], tmp, 0,0,0,0, tmp->w, tmp->h);
-                    SDL_FreeSurface(bmp[i-f]);
-                    bmp[i-f] = tmp;
-                }
+                    bmp[i-f] = convert_format(bmp[i-f]);
             }
             else
                 ++f;
@@ -679,10 +669,7 @@ namespace TA3D
 
             if (!glbmp[i])
             {
-                SDL_Surface *tmp = gfx->create_surface(bmp[i]->w,bmp[i]->h);
-                blit(bmp[i], tmp, 0,0,0,0, tmp->w,tmp->h);
-                SDL_FreeSurface(bmp[i]);
-                bmp[i] = tmp;
+                bmp[i] = convert_format(bmp[i]);
                 if (g_useTextureCompression && COMPRESSED && lp_CONFIG->use_texture_compression)
                     gfx->set_texture_format(GL_COMPRESSED_RGBA_ARB);
                 else
