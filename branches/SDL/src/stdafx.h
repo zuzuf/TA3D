@@ -210,6 +210,8 @@ namespace TA3D
 
     void rectfill(SDL_Surface *bmp, int x0, int y0, int x1, int y1, uint32 col);
 
+    SDL_Surface *convert_format(SDL_Surface *bmp);
+
     void rest(uint32 msec);
 } // namespace TA3D
 
@@ -222,8 +224,8 @@ namespace TA3D
 #define FA_FILE     DT_REG
 #define FA_DIREC    DT_DIR
 
-#define makeacol(r,g,b,a)   (((uint32)(r)<<24) | ((uint32)(g)<<16) | ((uint32)(b)<<8) | (uint32)(a))
-#define makecol24(r,g,b)   (((uint32)(r)<<24) | ((uint32)(g)<<16) | ((uint32)(b)<<8) | 0xFF)
+#define makeacol(r,g,b,a)   (((uint32)(a)<<24) | ((uint32)(b)<<16) | ((uint32)(g)<<8) | (uint32)(r))
+#define makecol24(r,g,b)   (((uint32)0xFF000000) | ((uint32)(b)<<16) | ((uint32)(g)<<8) | (uint32)(r))
 #define makecol(r,g,b)   makecol24(r,g,b)
 #define makeacol32(r,g,b,a)   makeacol(r,g,b,a)
 
@@ -232,10 +234,10 @@ namespace TA3D
 #define SurfaceInt(img, x, y)       (((uint32*)((img)->pixels))[((y) * (img)->pitch >> 2) + (x)])
 #define SurfaceShort(img, x, y)     (((uint16*)((img)->pixels))[((y) * (img)->pitch >> 1) + (x)])
 
-#define getr32(x) (((x)>>24) & 0xFF)
-#define getg32(x) (((x)>>16) & 0xFF)
-#define getb32(x) (((x)>>8) & 0xFF)
-#define geta32(x) ((x) & 0xFF)
+#define geta32(x) (((x)>>24) & 0xFF)
+#define getb32(x) (((x)>>16) & 0xFF)
+#define getg32(x) (((x)>>8) & 0xFF)
+#define getr32(x) ((x) & 0xFF)
 
 #define getr(x) getr32(x)
 #define getg(x) getg32(x)

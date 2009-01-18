@@ -42,7 +42,7 @@ namespace TA3D
 
     void GFX::set_texture_format(GLuint gl_format)
     {
-        texture_format = gl_format;
+        texture_format = gl_format == 0 ? GL_RGB8 : gl_format;
     }
 
     void GFX::use_mipmapping(bool use)
@@ -226,9 +226,18 @@ namespace TA3D
 
         glMatrixMode(GL_PROJECTION);
         glLoadIdentity();
-        glOrtho(0, SCREEN_W, 0, SCREEN_H, -1.0, 1.0);
+        glOrtho(0, SCREEN_W, SCREEN_H, 0, -1.0, 1.0);
         glMatrixMode(GL_MODELVIEW);
         glLoadIdentity();
+
+        glDisable(GL_LIGHTING);
+        glDisable(GL_CULL_FACE);
+        glDisable(GL_BLEND);
+        glDisable(GL_DEPTH_TEST);
+        glDepthMask(GL_FALSE);
+        glEnable(GL_TEXTURE_2D);
+
+        glColor4ub(0xFF,0xFF,0xFF,0xFF);
     }
 
     void GFX::unset_2D_mode()
@@ -740,7 +749,9 @@ namespace TA3D
 //            use_mipmapping(false);
 //        else
 //            use_mipmapping(true);
-        GLuint gl_tex = 0;//allegro_gl_make_texture(bmp);
+        GLuint gl_tex = 0;
+        glGenTextures(1,&gl_tex);
+
 //        if (filter_type == FILTER_NONE || filter_type == FILTER_LINEAR )
 //            use_mipmapping(true);
         glBindTexture(GL_TEXTURE_2D, gl_tex);
@@ -759,6 +770,8 @@ namespace TA3D
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT );
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT );
         }
+
+        filter_type = FILTER_LINEAR;
 
         switch(filter_type)
         {
@@ -779,6 +792,23 @@ namespace TA3D
                 glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR_MIPMAP_LINEAR);
                 break;
         }
+
+        //Chargement de l'image
+        switch(bmp->format->BitsPerPixel)
+        {
+        case 8:
+            glTexImage2D(GL_TEXTURE_2D, 0, texture_format, bmp->w, bmp->h, 0, GL_LUMINANCE, GL_UNSIGNED_BYTE, bmp->pixels);
+            break;
+        case 24:
+            LOG_WARNING( LOG_PREFIX_GFX << "Loading a 24bits SDL_Surface" );
+            glTexImage2D(GL_TEXTURE_2D, 0, texture_format, bmp->w, bmp->h, 0, GL_RGB, GL_UNSIGNED_BYTE, bmp->pixels);
+            break;
+        case 32:
+            glTexImage2D(GL_TEXTURE_2D, 0, texture_format, bmp->w, bmp->h, 0, GL_RGBA, GL_UNSIGNED_BYTE, bmp->pixels);
+            break;
+        default:
+            LOG_DEBUG("SDL_Surface format not supported by texture loader: " << bmp->format->BitsPerPixel );
+        };
 
         glPopAttrib();
 
@@ -1257,8 +1287,7 @@ namespace TA3D
                     fwrite( data, image_file_size, 1, tmp );
                     fclose( tmp );
                     delete[] data;
-                    SDL_Surface *bmp = IMG_Load( tmp_file.c_str() );
-                    return bmp;
+                    return IMG_Load( tmp_file.c_str() );
                 }
                 else
                     LOG_DEBUG("loading " << filename << " failed");
@@ -1280,13 +1309,7 @@ namespace TA3D
         if (bmp == NULL )	return 0;					// Operation failed
         if (width )		*width = bmp->w;
         if (height )	*height = bmp->h;
-        if (bmp->format->BitsPerPixel != 32 )
-        {
-            SDL_Surface *tmp = create_surface_ex( 32, bmp->w, bmp->h );
-            blit( bmp, tmp, 0, 0, 0, 0, bmp->w, bmp->h);
-            SDL_FreeSurface(bmp);
-            bmp = tmp;
-        }
+        bmp = convert_format(bmp);
         bool with_alpha = (String::ToLower(Paths::ExtractFileExt(file)) == "tga");
         if (with_alpha)
         {
@@ -1856,6 +1879,7 @@ namespace TA3D
 
             while (!keypressed())
             {
+                poll_keyboard();
                 rest( 100 );
                 glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);		// Efface l'écran
                 for (int i = 0 ; i < 11 ; i++)
@@ -1886,7 +1910,7 @@ namespace TA3D
     SDL_Surface *GFX::create_surface_ex(int bpp, int w, int h)
     {
         return SDL_CreateRGBSurface(SDL_SWSURFACE, w, h, bpp,
-                                    0xFF000000, 0x00FF0000, 0x0000FF00, 0x000000FF);
+                                    0x000000FF, 0x0000FF00, 0x00FF0000, 0xFF000000);
     }
 
     SDL_Surface *GFX::create_surface(int w, int h)

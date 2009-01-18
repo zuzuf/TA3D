@@ -95,16 +95,11 @@ namespace TA3D
 		if (SDL_Init(SDL_INIT_TIMER) != 0)
 			throw ("SDL_Init(SDL_INIT_TIMER) yielded unexpected result.");
 
-		// Installing SDL timer
-		if (SDL_Init(SDL_INIT_EVENTTHREAD) != 0)
-			throw ("SDL_Init(SDL_INIT_EVENTTHREAD) yielded unexpected result.");
-//		// Installing allegro mouse handler
-//		if (install_mouse() == -1)
-//			throw ("install_mouse() yielded unexpected result.");
-//		// Installing allegro keyboard handler
-//		if (install_keyboard() == -1)
-//			throw ("install_mouse() yielded unexpected result.");
-//		// Initalizing allegro JPG support
+//		// Installing SDL event thread
+//		if (SDL_Init(SDL_INIT_EVENTTHREAD) != 0)
+//			throw ("SDL_Init(SDL_INIT_EVENTTHREAD) yielded unexpected result.");
+
+//		// Initalizing JPG support
 		if (jpgalleg_init() < 0)
 			throw("jpgalleg_init() yielded unexpected result.");
 

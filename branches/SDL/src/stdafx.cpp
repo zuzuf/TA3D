@@ -226,11 +226,41 @@ bool exists(const String &filename)
     return stat(filename.c_str(),&FileInfo) == 0;
 }
 
+SDL_Surface *convert_format(SDL_Surface *bmp)
+{
+    if (bmp->format->BitsPerPixel != 32
+    || bmp->format->Rmask != 0x000000FF
+    || bmp->format->Gmask != 0x0000FF00
+    || bmp->format->Bmask != 0x00FF0000
+    || bmp->format->Amask != 0xFF000000)
+    {
+        SDL_PixelFormat target_format;
+        target_format.palette = NULL;
+        target_format.BitsPerPixel = 32;
+        target_format.BytesPerPixel = 4;
+        target_format.Rloss = target_format.Gloss = target_format.Bloss = target_format.Aloss = 0;
+        target_format.Rmask = 0x000000FF;
+        target_format.Gmask = 0x0000FF00;
+        target_format.Bmask = 0x00FF0000;
+        target_format.Amask = 0xFF000000;
+        target_format.colorkey = 0xFF00FF00;
+        target_format.alpha = 0x0;
+
+        SDL_Surface *tmp = SDL_ConvertSurface(bmp, &target_format, SDL_SWSURFACE);
+        SDL_FreeSurface(bmp);
+        bmp = tmp;
+    }
+    return bmp;
+}
+
 void blit(SDL_Surface *in, SDL_Surface *out, int x0, int y0, int x1, int y1, int w, int h)
 {
     SDL_Surface *tmp = in;
     if (in->format->BitsPerPixel != out->format->BitsPerPixel)
         tmp = SDL_ConvertSurface(in, out->format, SDL_SWSURFACE);
+
+    SDL_LockSurface(tmp);
+    SDL_LockSurface(out);
 
     SDL_Rect rect_in, rect_out;
 
@@ -242,6 +272,9 @@ void blit(SDL_Surface *in, SDL_Surface *out, int x0, int y0, int x1, int y1, int
     rect_out.y = y1;
 
     SDL_BlitSurface(tmp, &(rect_in), out, &(rect_out));
+
+    SDL_UnlockSurface(tmp);
+    SDL_UnlockSurface(out);
 
     if (in->format->BitsPerPixel != out->format->BitsPerPixel)
         SDL_FreeSurface(tmp);

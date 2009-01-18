@@ -144,7 +144,7 @@ namespace TA3D
         { glColor4f(r,g,b,a); }
 
         void set_color(const uint32 col) const
-        { glColor4ub(col & 0xFF, (col & 0xFF00) >> 8, (col & 0xFF0000) >> 16, (col & 0xFF000000) >> 24); }
+        { glColor4ub( geta(col), getg(col), getb(col), geta(col)); }
 
         void set_alpha(const float a) const;
 
@@ -152,34 +152,34 @@ namespace TA3D
         ** \brief
         */
         float get_r(const uint32 col) const
-        { return ( col & 0xFF)*BYTE_TO_FLOAT; }
+        { return getr(col) * BYTE_TO_FLOAT; }
         /*!
         **
         */
         float get_g(const uint32 col) const
-        { return ((col & 0xFF00) >> 8) * BYTE_TO_FLOAT; }
+        { return getg(col) * BYTE_TO_FLOAT; }
         /*!
         **
         */
         float get_b(const uint32 col) const
-        { return ((col & 0xFF0000) >> 16) * BYTE_TO_FLOAT; }
+        { return getb(col) * BYTE_TO_FLOAT; }
         /*!
         **
         */
         float get_a(const uint32 col) const
-        { return ((col & 0xFF000000) >> 24) * BYTE_TO_FLOAT; }
+        { return geta(col) * BYTE_TO_FLOAT; }
 
 
         /*!
         **
         */
         uint32 makeintcol(float r, float g, float b) const
-        { return (int)(255.0f * r) | ((int)(255.0f * g) << 8) | ((int)(255.0f * b) << 16) | 0xFF000000; }
+        { return (uint32)(255.0f * r) | ((uint32)(255.0f * g) << 8) | ((uint32)(255.0f * b) << 16) | 0xFF000000; }
         /*!
         **
         */
         uint32 makeintcol(float r, float g, float b, float a) const
-        { return (int)(255.0f * r) | ((int)(255.0f * g) << 8) | ((int)(255.0f * b) << 16) | ((int)(255.0f * a) << 24); }
+        { return (uint32)(255.0f * r) | ((uint32)(255.0f * g) << 8) | ((uint32)(255.0f * b) << 16) | ((uint32)(255.0f * a) << 24); }
 
         //@} // Color management
 
