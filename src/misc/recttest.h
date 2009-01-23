@@ -19,7 +19,6 @@
 #ifndef __TA3D_XX_MISC_RECTTEST_H__
 # define __TA3D_XX_MISC_RECTTEST_H__
 
-# include "../stdafx.h"
 # include "math.h"
 # include "rect.h"
 # include "camera.h"
