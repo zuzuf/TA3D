@@ -125,23 +125,34 @@ namespace TA3D
 		if ((msec_timer - cam_def_timer) * Conv < 0.5f)
 			camera_zscroll = old_zscroll;
 
-		float angle_factor = Math::Max(fabsf(-lp_CONFIG->camera_def_angle+45.0f) / 20.0f, fabsf(-lp_CONFIG->camera_def_angle+90.0f) / 25.0f);
+        if (lp_CONFIG->ortho_camera)        // 2D zoom with orthographic camera
+        {
+            r1 = -lp_CONFIG->camera_def_angle;      // angle is constant
+            if (r1 > -45.0f) 		r1 = -45.0f;
+            else if (r1 < -90.0f)	r1 = -90.0f;
+            cam.zoomFactor = 0.5f * expf(-camera_zscroll * 0.04f * logf(Math::Max(map->map_w/SCREEN_W,map->map_h/SCREEN_H)));
+            cam_h = lp_CONFIG->camera_def_h * 2.0f * cam.zoomFactor;
+        }
+        else                                // Mega zoom with a perspective camera
+        {
+            float angle_factor = Math::Max(fabsf(-lp_CONFIG->camera_def_angle+45.0f) / 20.0f, fabsf(-lp_CONFIG->camera_def_angle+90.0f) / 25.0f);
 
-		r1 = -lp_CONFIG->camera_def_angle + camera_zscroll * angle_factor;
-		if (r1 > -45.0f) 		r1 = -45.0f;
-		else if (r1 < -90.0f)	r1 = -90.0f;
+            r1 = -lp_CONFIG->camera_def_angle + camera_zscroll * angle_factor;
+            if (r1 > -45.0f) 		r1 = -45.0f;
+            else if (r1 < -90.0f)	r1 = -90.0f;
 
-		cam_h = lp_CONFIG->camera_def_h + (expf(-camera_zscroll * 0.15f) - 1.0f) / (expf(3.75f) - 1.0f) * Math::Max(map->map_w,map->map_h);
-		if (delta > 0 && !IsOnGUI)
-		{
-			if (!cam_has_target || abs( mouse_x - cam_target_mx) > 2 || abs( mouse_y - cam_target_my) > 2)
-			{
-				cam_target = cursorOnMap(cam, *map);
-				cam_target_mx = mouse_x;
-				cam_target_my = mouse_y;
-				cam_has_target = true;
-			}
-		}
+            cam_h = lp_CONFIG->camera_def_h + (expf(-camera_zscroll * 0.15f) - 1.0f) / (expf(3.75f) - 1.0f) * Math::Max(map->map_w,map->map_h);
+            if (delta > 0 && !IsOnGUI)
+            {
+                if (!cam_has_target || abs( mouse_x - cam_target_mx) > 2 || abs( mouse_y - cam_target_my) > 2)
+                {
+                    cam_target = cursorOnMap(cam, *map);
+                    cam_target_mx = mouse_x;
+                    cam_target_my = mouse_y;
+                    cam_has_target = true;
+                }
+            }
+        }
 
 		// Save the Z-coordinate
         omz = mouse_z;

@@ -1,3 +1,5 @@
+#include "../stdafx.h"
+#include "../TA3D_NameSpace.h"
 #include "camera.h"
 #include "math.h"
 
@@ -37,6 +39,7 @@ namespace TA3D
         zfar2  = zfar * zfar;
         mirror = false;
         mirrorPos = 0.0f;
+        zoomFactor = 0.5f;
 	}
 
 
@@ -122,7 +125,10 @@ namespace TA3D
 
         glMatrixMode (GL_PROJECTION);
         glLoadIdentity ();
-        glFrustum(-widthFactor * znear, widthFactor * znear, -0.75f * znear, 0.75f * znear, znear, zfar);
+        if (lp_CONFIG && lp_CONFIG->ortho_camera)
+            glOrtho(-0.5f * zoomFactor * SCREEN_W, 0.5f * zoomFactor * SCREEN_W, -0.5f * zoomFactor * SCREEN_H, 0.5f * zoomFactor * SCREEN_H, znear, zfar);
+        else
+            glFrustum(-widthFactor * znear, widthFactor * znear, -0.75f * znear, 0.75f * znear, znear, zfar);
         glMatrixMode(GL_MODELVIEW);
 
         glLoadIdentity();
