@@ -1034,28 +1034,43 @@ namespace TA3D
             return;
 
         Vector3D P;
-        Vector3D A (cam->dir + cam->widthFactor * (-cam->side) - 0.75f * cam->up);
-        Vector3D B (cam->dir + cam->widthFactor * (cam->side)  - 0.75f * cam->up);
-        Vector3D C (cam->dir + cam->widthFactor * (cam->side)  + 0.75f * cam->up);
-        Vector3D D (cam->dir + cam->widthFactor * (-cam->side) + 0.75f * cam->up);
+        Vector3D A, B, C, D;
+        Vector3D PA, PB, PC, PD;
+
+        if (lp_CONFIG->ortho_camera)
+        {
+            A = B = C = D = cam->dir;
+            PA = cam->pos + cam->zoomFactor * ( -gfx->SCREEN_W_HALF * cam->side - gfx->SCREEN_H_HALF * cam->up );
+            PB = cam->pos + cam->zoomFactor * ( gfx->SCREEN_W_HALF * cam->side - gfx->SCREEN_H_HALF * cam->up );
+            PC = cam->pos + cam->zoomFactor * ( gfx->SCREEN_W_HALF * cam->side + gfx->SCREEN_H_HALF * cam->up );
+            PD = cam->pos + cam->zoomFactor * ( -gfx->SCREEN_W_HALF * cam->side + gfx->SCREEN_H_HALF * cam->up );
+        }
+        else
+        {
+            A = cam->dir + cam->widthFactor * (-cam->side) - 0.75f * cam->up;
+            B = cam->dir + cam->widthFactor * (cam->side)  - 0.75f * cam->up;
+            C = cam->dir + cam->widthFactor * (cam->side)  + 0.75f * cam->up;
+            D = cam->dir + cam->widthFactor * (-cam->side) + 0.75f * cam->up;
+            PA = PB = PC = PD = cam->pos;
+        }
         const int nmax = 64;
         float cx[4*nmax+4],cy[4*nmax+4];
         if(A.y<0.0f) {
-            P=cam->pos+cam->pos.y/fabsf(A.y)*A;	cx[0]=P.x;	cy[0]=P.z; }
+            P = PA + PA.y / fabsf(A.y)*A;	cx[0]=P.x;	cy[0]=P.z; }
         else {
-            P=cam->pos+10000.0f*A;	cx[0]=P.x;	cy[0]=P.z; }
+            P = PA + 10000.0f*A;	cx[0]=P.x;	cy[0]=P.z; }
         if(B.y<0.0f) {
-            P=cam->pos+cam->pos.y/fabsf(B.y)*B;	cx[1]=P.x;	cy[1]=P.z; }
+            P = PB + PB.y / fabsf(B.y)*B;	cx[1]=P.x;	cy[1]=P.z; }
         else {
-            P=cam->pos+10000.0f*B;	cx[1]=P.x;	cy[1]=P.z; }
+            P = PB + 10000.0f*B;	cx[1]=P.x;	cy[1]=P.z; }
         if(C.y<0.0f) {
-            P=cam->pos+cam->pos.y/fabsf(C.y)*C;	cx[2]=P.x;	cy[2]=P.z; }
+            P = PC + PC.y / fabsf(C.y)*C;	cx[2]=P.x;	cy[2]=P.z; }
         else {
-            P=cam->pos+10000.0f*C;	cx[2]=P.x;	cy[2]=P.z; }
+            P = PC + 10000.0f*C;	cx[2]=P.x;	cy[2]=P.z; }
         if(D.y<0.0f) {
-            P=cam->pos+cam->pos.y/fabsf(D.y)*D;	cx[3]=P.x;	cy[3]=P.z; }
+            P = PD + PD.y / fabsf(D.y)*D;	cx[3]=P.x;	cy[3]=P.z; }
         else {
-            P=cam->pos+10000.0f*D;	cx[3]=P.x;	cy[3]=P.z; }
+            P = PD + 10000.0f*D;	cx[3]=P.x;	cy[3]=P.z; }
 
         for (byte i = 0; i < 4; ++i)
         {
@@ -1357,28 +1372,43 @@ namespace TA3D
             else
                 glDisableClientState(GL_TEXTURE_COORD_ARRAY);
         }
-        Vector3D A (cam->dir + cam->widthFactor * (-cam->side) - 0.75f * cam->up);
-        Vector3D B (cam->dir + cam->widthFactor * (cam->side)  - 0.75f * cam->up);
-        Vector3D C (cam->dir + cam->widthFactor * (cam->side)  + 0.75f * cam->up);
-        Vector3D D (cam->dir + cam->widthFactor * (-cam->side) + 0.75f * cam->up);
-        float cx[4],cy[4];
         Vector3D P;
-        if (A.y < 0.0f) {
-            P=cam->pos+cam->pos.y/fabsf(A.y)*A;	cx[0]=P.x;	cy[0]=P.z; }
+        Vector3D A, B, C, D;
+        Vector3D PA, PB, PC, PD;
+
+        if (lp_CONFIG->ortho_camera)
+        {
+            A = B = C = D = cam->dir;
+            PA = cam->pos + cam->zoomFactor * ( -gfx->SCREEN_W_HALF * cam->side - gfx->SCREEN_H_HALF * cam->up );
+            PB = cam->pos + cam->zoomFactor * ( gfx->SCREEN_W_HALF * cam->side - gfx->SCREEN_H_HALF * cam->up );
+            PC = cam->pos + cam->zoomFactor * ( gfx->SCREEN_W_HALF * cam->side + gfx->SCREEN_H_HALF * cam->up );
+            PD = cam->pos + cam->zoomFactor * ( -gfx->SCREEN_W_HALF * cam->side + gfx->SCREEN_H_HALF * cam->up );
+        }
+        else
+        {
+            A = cam->dir + cam->widthFactor * (-cam->side) - 0.75f * cam->up;
+            B = cam->dir + cam->widthFactor * (cam->side)  - 0.75f * cam->up;
+            C = cam->dir + cam->widthFactor * (cam->side)  + 0.75f * cam->up;
+            D = cam->dir + cam->widthFactor * (-cam->side) + 0.75f * cam->up;
+            PA = PB = PC = PD = cam->pos;
+        }
+        float cx[4],cy[4];
+        if(A.y<0.0f) {
+            P = PA + PA.y / fabsf(A.y)*A;	cx[0]=P.x;	cy[0]=P.z; }
         else {
-            P=cam->pos+10000.0f*A;	cx[0]=P.x;	cy[0]=P.z; }
+            P = PA + 10000.0f*A;	cx[0]=P.x;	cy[0]=P.z; }
         if(B.y<0.0f) {
-            P=cam->pos+cam->pos.y/fabsf(B.y)*B;	cx[1]=P.x;	cy[1]=P.z; }
+            P = PB + PB.y / fabsf(B.y)*B;	cx[1]=P.x;	cy[1]=P.z; }
         else {
-            P=cam->pos+10000.0f*B;	cx[1]=P.x;	cy[1]=P.z; }
+            P = PB + 10000.0f*B;	cx[1]=P.x;	cy[1]=P.z; }
         if(C.y<0.0f) {
-            P=cam->pos+cam->pos.y/fabsf(C.y)*C;	cx[2]=P.x;	cy[2]=P.z; }
+            P = PC + PC.y / fabsf(C.y)*C;	cx[2]=P.x;	cy[2]=P.z; }
         else {
-            P=cam->pos+10000.0f*C;	cx[2]=P.x;	cy[2]=P.z; }
+            P = PC + 10000.0f*C;	cx[2]=P.x;	cy[2]=P.z; }
         if(D.y<0.0f) {
-            P=cam->pos+cam->pos.y/fabsf(D.y)*D;	cx[3]=P.x;	cy[3]=P.z; }
+            P = PD + PD.y / fabsf(D.y)*D;	cx[3]=P.x;	cy[3]=P.z; }
         else {
-            P=cam->pos+10000.0f*D;	cx[3]=P.x;	cy[3]=P.z; }
+            P = PD + 10000.0f*D;	cx[3]=P.x;	cy[3]=P.z; }
 
         int minx=bloc_w<<1,maxx=0;
         int miny=bloc_h<<1,maxy=0;

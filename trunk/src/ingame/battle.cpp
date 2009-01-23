@@ -90,9 +90,16 @@ namespace TA3D
 			float y = map.get_unit_h(x, z);
 			return Vector3D(x, y, z);
 		}
-		Vector3D cur_dir;
-		cur_dir = cam.dir + cam.widthFactor * 2.0f * (mouse_x - gfx->SCREEN_W_HALF) * gfx->SCREEN_W_INV * cam.side
-			- 1.5f * (mouse_y - gfx->SCREEN_H_HALF) * gfx->SCREEN_H_INV * cam.up;
+		if (lp_CONFIG->ortho_camera)        // Orthographic camera
+		{
+		    Vector3D cur_pos;
+            cur_pos = cam.pos + cam.zoomFactor * ( (mouse_x - gfx->SCREEN_W_HALF) * cam.side
+                - (mouse_y - gfx->SCREEN_H_HALF) * cam.up );
+            return map.hit(cur_pos, cam.dir, true, 2000000000.0f, true);
+		}
+                                            // Normal perspective code
+		Vector3D cur_dir = cam.dir + cam.widthFactor * 2.0f * (mouse_x - gfx->SCREEN_W_HALF) * gfx->SCREEN_W_INV * cam.side
+            - 1.5f * (mouse_y - gfx->SCREEN_H_HALF) * gfx->SCREEN_H_INV * cam.up;
 		cur_dir.unit();		// Direction pointée par le curseur
 		return map.hit(cam.pos, cur_dir, true, 2000000000.0f, true);
 	}
@@ -539,7 +546,10 @@ namespace TA3D
             if (cam_has_target)
             {
                 Vector3D cur_dir;
-                cur_dir = cam.dir+cam.widthFactor*2.0f*(cam_target_mx-gfx->SCREEN_W_HALF)*gfx->SCREEN_W_INV*cam.side-1.5f*(cam_target_my-gfx->SCREEN_H_HALF)*gfx->SCREEN_H_INV*cam.up;
+                if (lp_CONFIG->ortho_camera)
+                    cur_dir = cam.dir;
+                else
+                    cur_dir = cam.dir + cam.widthFactor * 2.0f * (cam_target_mx-gfx->SCREEN_W_HALF) * gfx->SCREEN_W_INV*cam.side - 1.5f * (cam_target_my-gfx->SCREEN_H_HALF) * gfx->SCREEN_H_INV * cam.up;
                 cur_dir.unit();		// Direction pointée par le curseur
                 Vector3D moving_target(cam_target - cam.rpos);
                 moving_target = moving_target - (moving_target % cur_dir) * cur_dir;
@@ -1846,25 +1856,23 @@ namespace TA3D
                         water_shader_reflec.setvar2f("coef", (float)SCREEN_W / wx, (float)SCREEN_H / wy);
                     }
 
-                    glColor4f(1.0f,1.0f,1.0f,1.0f);
+                    glColor4ub(0xFF,0xFF,0xFF,0xFF);
                     glDisable(GL_DEPTH_TEST);
-                    cam.setView();
+
+                    glMatrixMode(GL_PROJECTION);
+                    glLoadIdentity();
+                    glOrtho(0, SCREEN_W, SCREEN_H, 0, -1.0, 1.0);
+                    glMatrixMode(GL_MODELVIEW);
+                    glLoadIdentity();
+
                     glEnable(GL_STENCIL_TEST);
                     glStencilFunc(GL_NOTEQUAL,0, 0xffffffff);
                     glStencilOp(GL_KEEP,GL_KEEP,GL_KEEP);
-                    Vector3D cam_pos(cam.rpos + cam.shakeVector);
                     glBegin(GL_QUADS);
-                    Vector3D P (cam_pos + 1.1f * (cam.dir + 0.75f * cam.up-cam.widthFactor * cam.side));
-                    glTexCoord2f(0.0f,1.0f);	glVertex3f(P.x,P.y,P.z);
-
-                    P = cam_pos + 1.1f*(cam.dir+0.75f*cam.up+cam.widthFactor*cam.side);
-                    glTexCoord2f(1.0f,1.0f);	glVertex3f(P.x,P.y,P.z);
-
-                    P = cam_pos + 1.1f*(cam.dir-0.75f*cam.up+cam.widthFactor*cam.side);
-                    glTexCoord2f(1.0f,0.0f);	glVertex3f(P.x,P.y,P.z);
-
-                    P = cam_pos + 1.1f*(cam.dir-0.75f*cam.up-cam.widthFactor*cam.side);
-                    glTexCoord2f(0.0f,0.0f);	glVertex3f(P.x,P.y,P.z);
+                        glTexCoord2f(0.0f,1.0f);	glVertex3f(0,0,0);
+                        glTexCoord2f(1.0f,1.0f);	glVertex3f(SCREEN_W,0,0);
+                        glTexCoord2f(1.0f,0.0f);	glVertex3f(SCREEN_W,SCREEN_H,0);
+                        glTexCoord2f(0.0f,0.0f);	glVertex3f(0,SCREEN_H,0);
                     glEnd();
                     glDisable(GL_STENCIL_TEST);
                     glEnable(GL_DEPTH_TEST);
@@ -2088,23 +2096,21 @@ namespace TA3D
 
                     glColor4ub(0xFF,0xFF,0xFF,0xFF);
                     glDisable(GL_DEPTH_TEST);
-                    cam.setView();
+
+                    glMatrixMode(GL_PROJECTION);
+                    glLoadIdentity();
+                    glOrtho(0, SCREEN_W, SCREEN_H, 0, -1.0, 1.0);
+                    glMatrixMode(GL_MODELVIEW);
+                    glLoadIdentity();
+
                     glEnable(GL_STENCIL_TEST);
                     glStencilFunc(GL_NOTEQUAL,0, 0xffffffff);
                     glStencilOp(GL_KEEP,GL_KEEP,GL_KEEP);
-                    Vector3D cam_pos(cam.rpos + cam.shakeVector);
                     glBegin(GL_QUADS);
-                    Vector3D P (cam_pos + 1.1f * (cam.dir + 0.75f * cam.up-cam.widthFactor * cam.side));
-                    glTexCoord2f(0.0f,1.0f);	glVertex3f(P.x,P.y,P.z);
-
-                    P = cam_pos + 1.1f*(cam.dir+0.75f*cam.up+cam.widthFactor*cam.side);
-                    glTexCoord2f(1.0f,1.0f);	glVertex3f(P.x,P.y,P.z);
-
-                    P = cam_pos + 1.1f*(cam.dir-0.75f*cam.up+cam.widthFactor*cam.side);
-                    glTexCoord2f(1.0f,0.0f);	glVertex3f(P.x,P.y,P.z);
-
-                    P = cam_pos + 1.1f*(cam.dir-0.75f*cam.up-cam.widthFactor*cam.side);
-                    glTexCoord2f(0.0f,0.0f);	glVertex3f(P.x,P.y,P.z);
+                        glTexCoord2f(0.0f,1.0f);	glVertex3f(0,0,0);
+                        glTexCoord2f(1.0f,1.0f);	glVertex3f(SCREEN_W,0,0);
+                        glTexCoord2f(1.0f,0.0f);	glVertex3f(SCREEN_W,SCREEN_H,0);
+                        glTexCoord2f(0.0f,0.0f);	glVertex3f(0,SCREEN_H,0);
                     glEnd();
                     glDisable(GL_STENCIL_TEST);
                     glEnable(GL_DEPTH_TEST);
@@ -3343,6 +3349,10 @@ namespace TA3D
                             g_ta3d_network->switchToTCPonly();
                             network_manager.sendAll("TCP_ONLY");
                         }
+                        else if (params[1] == "camera_perspective")
+                            lp_CONFIG->ortho_camera = params[0] == "disable";
+                        else if (params[1] == "camera_orthographic")
+                            lp_CONFIG->ortho_camera = params[0] == "enable";
                     }
                     else if (params.size() == 2 && params[0] == "video" && params[1] == "shoot") video_shoot ^= true;		// Capture video
                     else if (params[0] == "shoot") shoot = true;					// Prend une capture d'écran

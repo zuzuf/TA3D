@@ -1,7 +1,6 @@
 #ifndef __TA3D_XX_MISC_CAMERA_H__
 # define __TA3D_XX_MISC_CAMERA_H__
 
-# include "../stdafx.h"
 # include "matrix.h"
 
 
@@ -68,6 +67,8 @@ namespace TA3D
         float shakeDuration;
         float shakeTotalDuration;
         Vector3D shakeVector;
+
+        float zoomFactor;
 
         //! To support wide screen modes correctly
         float widthFactor;

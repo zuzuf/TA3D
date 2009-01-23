@@ -6030,10 +6030,20 @@ script_exec:
             return last_on;
 
         Vector3D Dir;
-        Dir = cam.dir + cam.widthFactor * 2.0f * (mouse_x-gfx->SCREEN_W_HALF) * gfx->SCREEN_W_INV
-            * cam.side-1.5f * (mouse_y-gfx->SCREEN_H_HALF)
-            * gfx->SCREEN_H_INV * cam.up;
-        Dir.unit();		// Direction pointée par le curseur
+        Vector3D CamPos;
+        if (lp_CONFIG->ortho_camera)
+        {
+            Dir = cam.dir;
+            CamPos = cam.pos + cam.zoomFactor * ((mouse_x - gfx->SCREEN_W_HALF) * cam.side - (mouse_y - gfx->SCREEN_H_HALF) * cam.up);
+        }
+        else
+        {
+            CamPos = cam.pos;
+            Dir = cam.dir + cam.widthFactor * 2.0f * (mouse_x-gfx->SCREEN_W_HALF) * gfx->SCREEN_W_INV
+                * cam.side-1.5f * (mouse_y-gfx->SCREEN_H_HALF)
+                * gfx->SCREEN_H_INV * cam.up;
+            Dir.unit();		// Direction pointée par le curseur
+        }
 
         bool detectable=false;
         int i;
@@ -6052,7 +6062,7 @@ script_exec:
                 continue;		// Si l'unité n'existe pas on la zappe
             }
             unit[i].flags &= 0xFD;	// Enlève l'indicateur de possibilité d'intersection
-            Vector3D center (unit[i].model->center + unit[i].Pos - cam.pos);
+            Vector3D center (unit[i].model->center + unit[i].Pos - CamPos);
             float size = unit[i].model->size * unit_manager.unit_type[unit[i].type_id]->Scale * unit_manager.unit_type[unit[i].type_id]->Scale;
             center = Dir * center;
             float dist=center.sq();
@@ -6091,9 +6101,9 @@ script_exec:
             {
                 unit[i].flags&=0xFD;
                 Vector3D D;
-                if (unit[i].hit(cam.pos, Dir, &D, 1000000.0f)) // Vecteur "viseur unité" partant de la caméra vers l'unité
+                if (unit[i].hit(CamPos, Dir, &D, 1000000.0f)) // Vecteur "viseur unité" partant de la caméra vers l'unité
                 {
-                    float dist = (D - cam.pos).sq();
+                    float dist = (D - CamPos).sq();
                     if (dist < best_dist || index == -1 )
                     {
                         best_dist = dist;
@@ -7483,23 +7493,28 @@ script_exec:
         features.draw_shadow(cam, Dir);
 
         glColorMask(0xFF,0xFF,0xFF,0xFF);
+        glColor4f(0.0f,0.0f,0.0f,alpha);
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+
+        glMatrixMode(GL_PROJECTION);
+        glLoadIdentity();
+        glOrtho(0, SCREEN_W, SCREEN_H, 0, -1.0, 1.0);
+        glMatrixMode(GL_MODELVIEW);
+        glLoadIdentity();
+
+        glDisable(GL_DEPTH_TEST);
         glEnable(GL_STENCIL_TEST);
         glStencilFunc(GL_NOTEQUAL,0, 0xffffffff);
         glStencilOp(GL_KEEP,GL_KEEP,GL_KEEP);
-        glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
-        glEnable(GL_BLEND);
-        glColor4f(0.0f,0.0f,0.0f,alpha);
         glBegin(GL_QUADS);
-        Vector3D P = cam.rpos + cam.shakeVector + 1.1f * (cam.dir + 0.75f * cam.up - cam.widthFactor * cam.side);
-        glVertex3fv((const GLfloat*) &P);
-        P = cam.rpos + cam.shakeVector + 1.1f * ( cam.dir + 0.75f * cam.up + cam.widthFactor * cam.side);
-        glVertex3fv((const GLfloat*) &P);
-        P = cam.rpos + cam.shakeVector + 1.1f * (cam.dir - 0.75f * cam.up + cam.widthFactor * cam.side);
-        glVertex3fv((const GLfloat*) &P);
-        P = cam.rpos + cam.shakeVector + 1.1f * (cam.dir - 0.75f * cam.up - cam.widthFactor * cam.side);
-        glVertex3fv((const GLfloat*) &P);
+            glTexCoord2f(0.0f,1.0f);	glVertex3f(0,0,0);
+            glTexCoord2f(1.0f,1.0f);	glVertex3f(SCREEN_W,0,0);
+            glTexCoord2f(1.0f,0.0f);	glVertex3f(SCREEN_W,SCREEN_H,0);
+            glTexCoord2f(0.0f,0.0f);	glVertex3f(0,SCREEN_H,0);
         glEnd();
         glDepthMask(GL_TRUE);
+        glEnable(GL_DEPTH_TEST);
         glDisable(GL_STENCIL_TEST);
         glDisable(GL_BLEND);
         glColor4ub(0xFF,0xFF,0xFF,0xFF);

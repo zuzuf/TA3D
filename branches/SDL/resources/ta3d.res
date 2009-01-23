@@ -1,3 +1,11 @@
+[Disable perspective]
+{
+    FRENCH=Désactiver la perspective;
+}
+[disable perspective\nTA3D will use an orthographic camera]
+{
+    FRENCH=désactive la perspective\nTA3D utilisera une caméra orthographique;
+}
 [Right click interface]
 {
     FRENCH=Interface clic droit;

@@ -1,3 +1,4 @@
+#include "../stdafx.h"
 #include "recttest.h"
 
 namespace TA3D
