@@ -185,10 +185,7 @@ namespace TA3D
             memcpy((char*)map->mini->pixels + y * map->mini->pitch, data + f_pos, 252);
             f_pos += 252;
         }
-        SDL_Surface* tmp = gfx->create_surface(map->mini->w,map->mini->h);
-        blit(map->mini, tmp, 0, 0, 0, 0, tmp->w, tmp->h);
-        SDL_FreeSurface(map->mini);
-        map->mini = tmp;
+        map->mini = convert_format( map->mini );
         map->mini_w = 251;
         map->mini_h = 251;
         while (map->mini_w > 0 && ( ( SurfaceInt(map->mini,map->mini_w,0) & 0xFCFCFCFC) == makecol(120,148,252) || SurfaceInt(map->mini,map->mini_w,0) == 0))
@@ -317,11 +314,8 @@ namespace TA3D
             gfx->set_texture_format(GL_RGB8);
         for (i = 0; i < n_bmp; ++i) // Finis de charger les textures et détruit les objets SDL_Surface
         {
-            tmp = gfx->create_surface_ex(24,bmp_tex[i]->w,bmp_tex[i]->h);
-            blit(bmp_tex[i],tmp,0,0,0,0,tmp->w,tmp->h);
-            map->tex[i] = gfx->make_texture(tmp);
-            SDL_FreeSurface(bmp_tex[i]);
-            bmp_tex[i] = tmp;
+            bmp_tex[i] = convert_format_24( bmp_tex[i] );
+            map->tex[i] = gfx->make_texture(bmp_tex[i]);
         }
         LOG_INFO("Textures for blocks in " << (msec_timer - event_timer) * 0.001f << "s.");
 
@@ -410,14 +404,12 @@ namespace TA3D
                 int tx=(i&0x1F)<<5;			// Coordonnées sur la texture
 
                 if (bmp_tex[tex_num]->format->BitsPerPixel != 16)
-                {
-                    tmp = gfx->create_surface_ex(16,bmp_tex[tex_num]->w,bmp_tex[tex_num]->h);
-                    blit(bmp_tex[tex_num],tmp,0,0,0,0,tmp->w,tmp->h);
-                    SDL_FreeSurface(bmp_tex[tex_num]);
-                    bmp_tex[tex_num] = tmp;
-                }
+                    bmp_tex[tex_num] = convert_format_16(bmp_tex[tex_num]);
 
-                stretch_blit(bmp_tex[tex_num],low_def,tx,0,32,32,x*low_def->w/map->bloc_w,y*low_def->h/map->bloc_h,(x+1)*low_def->w/map->bloc_w-x*low_def->w/map->bloc_w,(y+1)*low_def->h/map->bloc_h-y*low_def->h/map->bloc_h);
+                stretch_blit(bmp_tex[tex_num], low_def, tx, 0, 32, 32,
+                                x * (low_def->w - 1) / map->bloc_w, y * (low_def->h - 1) / map->bloc_h,
+                                (x + 1) * (low_def->w - 1) / map->bloc_w - x * (low_def->w - 1) / map->bloc_w,
+                                (y + 1) * (low_def->h - 1) / map->bloc_h - y * (low_def->h - 1) / map->bloc_h);
                 /*--------------------------------------------------------------------*/
 
                 if (map->bloc[map->bmap[y][x]].lava)

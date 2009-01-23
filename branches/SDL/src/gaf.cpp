@@ -123,10 +123,8 @@ namespace TA3D
 
                     bool with_alpha = false;
                     for (int y = 0; y < img->h && !with_alpha; ++y)
-                    {
                         for (int x = 0; x < img->w && !with_alpha; ++x)
-                            with_alpha |= SurfaceByte(img, (x << 2) + 3, y) != 255;
-                    }
+                            with_alpha |= geta( SurfaceInt(img, x, y) ) != 255;
                     if (g_useTextureCompression && lp_CONFIG->use_texture_compression)
                         gfx->set_texture_format(with_alpha ? GL_COMPRESSED_RGBA_ARB : GL_COMPRESSED_RGB_ARB);
                     else
@@ -439,7 +437,7 @@ namespace TA3D
                                         if (!truecolor)
                                             SurfaceByte(img, x++, i) = buf[f_pos];
                                         else
-                                            putpixel(img,x++,i,makeacol(pal[buf[f_pos]].r<<2,pal[buf[f_pos]].g<<2,pal[buf[f_pos]].b<<2,0xFF));
+                                            putpixel(img,x++,i,makeacol(pal[buf[f_pos]].r, pal[buf[f_pos]].g, pal[buf[f_pos]].b,0xFF));
                                         --l;
                                     }
                                     ++f_pos;
@@ -453,7 +451,7 @@ namespace TA3D
                                         if (truecolor)
                                         {
                                             putpixel(img, x++, i,
-                                                     makeacol(pal[buf[f_pos]].r << 2, pal[buf[f_pos]].g << 2, pal[buf[f_pos]].b << 2, 0xFF));
+                                                     makeacol(pal[buf[f_pos]].r, pal[buf[f_pos]].g, pal[buf[f_pos]].b, 0xFF));
                                             ++f_pos;
                                         }
                                         else
@@ -482,8 +480,7 @@ namespace TA3D
 
                     if (truecolor)
                     {
-                        SDL_Surface* tmp = gfx->create_surface_ex(32, framedata.Width, framedata.Height);
-                        blit(img, tmp, 0, 0, 0, 0, img->w, img->h);
+                        SDL_Surface *tmp = convert_format_copy(img);
                         for (int y = 0 ; y < tmp->h; ++y)
                         {
                             for (int x = 0; x < tmp->w; ++x)
@@ -531,22 +528,23 @@ namespace TA3D
                                 {
                                     if (X >= 0 && X < frame_img->w)
                                     {
-                                        int r = SurfaceByte(frame_img, (X<<2), Y);
-                                        int g = SurfaceByte(frame_img, (X<<2) + 1, Y);
-                                        int b = SurfaceByte(frame_img, (X<<2) + 2, Y);
+                                        uint32 c = SurfaceInt(frame_img, X, Y);
+                                        int r = getr(c);
+                                        int g = getg(c);
+                                        int b = getb(c);
+                                        int a = geta(c);
 
-                                        int r2 = SurfaceByte(img, (x<<2), y);
-                                        int g2 = SurfaceByte(img, (x<<2) + 1, y);
-                                        int b2 = SurfaceByte(img, (x<<2) + 2, y);
-                                        int a2 = SurfaceByte(img, (x<<2) + 3, y);
+                                        c = SurfaceInt(img, x, y);
+                                        int r2 = getr(c);
+                                        int g2 = getg(c);
+                                        int b2 = getb(c);
+                                        int a2 = geta(c);
 
                                         r = (r * (255 - a2) + r2 * a2) >> 8;
                                         g = (g * (255 - g2) + g2 * a2) >> 8;
                                         b = (b * (255 - b2) + b2 * a2) >> 8;
 
-                                        SurfaceByte(frame_img, (X<<2), Y) = r;
-                                        SurfaceByte(frame_img, (X<<2) + 1, Y) = g;
-                                        SurfaceByte(frame_img, (X<<2) + 2, Y) = b;
+                                        SurfaceInt(frame_img, X, Y) = makeacol(r, g, b, a);
                                     }
                                     ++X;
                                 }

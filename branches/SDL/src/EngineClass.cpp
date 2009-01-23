@@ -953,6 +953,8 @@ namespace TA3D
         float lh = mini_h / 252.0f;
         gfx->drawtexture(glmini, x1, y1, x1 + rw, y1 + rh, 0.0f, 0.0f, lw, lh);
 
+        if (rh == 0 || rw == 0) return;
+
         if (fog_of_war != FOW_DISABLED)
         {
             glEnable( GL_BLEND );
@@ -2367,6 +2369,7 @@ namespace TA3D
 
         for (String::List::const_iterator it = file_list.begin(); it != file_list.end(); ++it)
         {
+            LOG_DEBUG("loading sky : " << *it);
             SKY_DATA *sky_data = new SKY_DATA;
             sky_data->load_tdf(*it);
 

@@ -341,12 +341,15 @@ namespace Paths
             out.clear();
 
         String root = ExtractFilePath(pattern);
+        String root_path = root;
+        if (root.size() > 1 && (root[ root.size() - 1 ] == '/' || root[ root.size() - 1 ] == '\\'))
+            root_path.resize(root_path.size()-1);
         String filename_pattern = String::ToUpper(ExtractFileName(pattern));
         DIR *dp;
         struct dirent *dirp;
-        if((dp  = opendir(root.c_str())) == NULL)
+        if((dp  = opendir(root_path.c_str())) == NULL)
         {
-            LOG_ERROR( LOG_PREFIX_PATHS << "opening " << root << " failed: " << errno );
+            LOG_ERROR( LOG_PREFIX_PATHS << "opening " << root << " failed: " << strerror( errno ) );
             return true;
         }
 

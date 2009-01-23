@@ -25,6 +25,7 @@
 */
 
 #include "stdafx.h"
+#include "TA3D_NameSpace.h"
 #include <sys/stat.h>
 #include <fstream>
 #include <math.h>
@@ -243,8 +244,108 @@ SDL_Surface *convert_format(SDL_Surface *bmp)
         target_format.Gmask = 0x0000FF00;
         target_format.Bmask = 0x00FF0000;
         target_format.Amask = 0xFF000000;
-        target_format.colorkey = 0xFF00FF00;
+        target_format.colorkey = 0x00FF00FF;
         target_format.alpha = 0x0;
+        target_format.Rshift = 0;
+        target_format.Gshift = 8;
+        target_format.Bshift = 16;
+        target_format.Ashift = 24;
+
+        if (bmp->format->BitsPerPixel == 8)
+            SDL_SetPalette(bmp, SDL_LOGPAL|SDL_PHYSPAL, TA3D::VARS::pal, 0, 256);
+
+        SDL_Surface *tmp = SDL_ConvertSurface(bmp, &target_format, SDL_SWSURFACE);
+        SDL_FreeSurface(bmp);
+        bmp = tmp;
+    }
+    return bmp;
+}
+
+SDL_Surface *convert_format_copy(SDL_Surface *bmp)
+{
+    SDL_PixelFormat target_format;
+    target_format.palette = NULL;
+    target_format.BitsPerPixel = 32;
+    target_format.BytesPerPixel = 4;
+    target_format.Rloss = target_format.Gloss = target_format.Bloss = target_format.Aloss = 0;
+    target_format.Rmask = 0x000000FF;
+    target_format.Gmask = 0x0000FF00;
+    target_format.Bmask = 0x00FF0000;
+    target_format.Amask = 0xFF000000;
+    target_format.colorkey = 0x00FF00FF;
+    target_format.alpha = 0x0;
+    target_format.Rshift = 0;
+    target_format.Gshift = 8;
+    target_format.Bshift = 16;
+    target_format.Ashift = 24;
+
+    if (bmp->format->BitsPerPixel == 8)
+        SDL_SetPalette(bmp, SDL_LOGPAL|SDL_PHYSPAL, TA3D::VARS::pal, 0, 256);
+
+    SDL_Surface *tmp = SDL_ConvertSurface(bmp, &target_format, SDL_SWSURFACE);
+
+    return tmp;
+}
+
+SDL_Surface *convert_format_24(SDL_Surface *bmp)
+{
+    if (bmp->format->BitsPerPixel != 24
+    || bmp->format->Rmask != 0x000000FF
+    || bmp->format->Gmask != 0x0000FF00
+    || bmp->format->Bmask != 0x00FF0000)
+    {
+        SDL_PixelFormat target_format;
+        target_format.palette = NULL;
+        target_format.BitsPerPixel = 24;
+        target_format.BytesPerPixel = 3;
+        target_format.Rloss = target_format.Gloss = target_format.Bloss = 0;
+        target_format.Aloss = 8;
+        target_format.Rmask = 0x000000FF;
+        target_format.Gmask = 0x0000FF00;
+        target_format.Bmask = 0x00FF0000;
+        target_format.Amask = 0x00000000;
+        target_format.colorkey = 0x00FF00FF;
+        target_format.alpha = 0x0;
+        target_format.Rshift = 0;
+        target_format.Gshift = 8;
+        target_format.Bshift = 16;
+        target_format.Ashift = 24;
+
+        if (bmp->format->BitsPerPixel == 8)
+            SDL_SetPalette(bmp, SDL_LOGPAL|SDL_PHYSPAL, TA3D::VARS::pal, 0, 256);
+
+        SDL_Surface *tmp = SDL_ConvertSurface(bmp, &target_format, SDL_SWSURFACE);
+        SDL_FreeSurface(bmp);
+        bmp = tmp;
+    }
+    return bmp;
+}
+
+SDL_Surface *convert_format_16(SDL_Surface *bmp)
+{
+    if (bmp->format->BitsPerPixel != 16)
+    {
+        SDL_PixelFormat target_format;
+        target_format.palette = NULL;
+        target_format.BitsPerPixel = 16;
+        target_format.BytesPerPixel = 2;
+        target_format.Rloss = 3;
+        target_format.Gloss = 2;
+        target_format.Bloss = 3;
+        target_format.Aloss = 8;
+        target_format.Rmask = 0x0000001F;
+        target_format.Gmask = 0x000007E0;
+        target_format.Bmask = 0x0000F800;
+        target_format.Amask = 0x00000000;
+        target_format.colorkey = 0x0000F81F;
+        target_format.alpha = 0x0;
+        target_format.Rshift = 0;
+        target_format.Gshift = 5;
+        target_format.Bshift = 11;
+        target_format.Ashift = 16;
+
+        if (bmp->format->BitsPerPixel == 8)
+            SDL_SetPalette(bmp, SDL_LOGPAL|SDL_PHYSPAL, TA3D::VARS::pal, 0, 256);
 
         SDL_Surface *tmp = SDL_ConvertSurface(bmp, &target_format, SDL_SWSURFACE);
         SDL_FreeSurface(bmp);
@@ -282,6 +383,8 @@ void blit(SDL_Surface *in, SDL_Surface *out, int x0, int y0, int x1, int y1, int
 
 void masked_blit(SDL_Surface *in, SDL_Surface *out, int x0, int y0, int x1, int y1, int w, int h)
 {
+    SDL_LockSurface(in);
+    SDL_LockSurface(out);
     for(int y = 0 ; y < h ; y++)
     {
         int dy = (y1 + y) * out->pitch;
@@ -295,6 +398,8 @@ void masked_blit(SDL_Surface *in, SDL_Surface *out, int x0, int y0, int x1, int 
                 ((byte*)out->pixels)[dy + dx] = b;
         }
     }
+    SDL_UnlockSurface(in);
+    SDL_UnlockSurface(out);
 }
 
 void stretch_blit( SDL_Surface *in, SDL_Surface *out, int x0, int y0, int w0, int h0, int x1, int y1, int w1, int h1 )
@@ -317,7 +422,7 @@ void stretch_blit( SDL_Surface *in, SDL_Surface *out, int x0, int y0, int w0, in
     case 16:
         for(int y = 0 ; y < h0 ; y++)
         {
-            int dy = (y1 + y * h1 / h0) * out->pitch;
+            int dy = (y1 + y * h1 / h0) * out->pitch >> 1;
             int sy = (y + y0) * in->pitch;
             for(int x = 0 ; x < w0 ; x++)
             {
@@ -330,7 +435,7 @@ void stretch_blit( SDL_Surface *in, SDL_Surface *out, int x0, int y0, int w0, in
     case 32:
         for(int y = 0 ; y < h0 ; y++)
         {
-            int dy = (y1 + y * h1 / h0) * out->pitch;
+            int dy = (y1 + y * h1 / h0) * out->pitch >> 2;
             int sy = (y + y0) * in->pitch;
             for(int x = 0 ; x < w0 ; x++)
             {

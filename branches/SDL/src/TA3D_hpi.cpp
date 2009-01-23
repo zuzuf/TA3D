@@ -1013,9 +1013,9 @@ namespace HPI
 
         for (int i = 0; i < 256; ++i)
         {
-            pal[i].r = palette[i << 2]>>2;
-            pal[i].g = palette[(i << 2) + 1] >> 2;
-            pal[i].b = palette[(i << 2) + 2] >> 2;
+            pal[i].r = palette[i << 2];
+            pal[i].g = palette[(i << 2) + 1];
+            pal[i].b = palette[(i << 2) + 2];
         }
         delete[] palette;
         return true;

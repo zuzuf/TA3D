@@ -1266,8 +1266,13 @@ namespace TA3D
             else
                 gltex[id] = texid;
 
-            gfx->save_texture_to_cache( TA3D::Paths::Files::ReplaceExtension(tex_cache_name[id],".bin"), texid, bmp->w, bmp->h);
-            SDL_FreeSurface( bmp );
+            if (bmp)
+            {
+                gfx->save_texture_to_cache( TA3D::Paths::Files::ReplaceExtension(tex_cache_name[id],".bin"), texid, bmp->w, bmp->h);
+                SDL_FreeSurface( bmp );
+            }
+            else
+                LOG_WARNING(LOG_PREFIX_3DO << "could not load texture : " << tex_cache_name[id]);
 
             tex_cache_name[id].clear();
 		}

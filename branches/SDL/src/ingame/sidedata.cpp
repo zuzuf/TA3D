@@ -95,9 +95,9 @@ namespace TA3D
             side_int[ nb_side ] = sidedata_parser.pullAsString( format( "side%d.intgaf", nb_side ) );
 
             int pal_id = sidedata_parser.pullAsInt( format( "side%d.metalcolor", nb_side ) );
-            side_int_data[ nb_side ].metal_color = makeacol( pal[ pal_id ].r << 2, pal[ pal_id ].g << 2, pal[ pal_id ].b << 2, 0xFF );
+            side_int_data[ nb_side ].metal_color = makeacol( pal[ pal_id ].r, pal[ pal_id ].g, pal[ pal_id ].b, 0xFF );
             pal_id = sidedata_parser.pullAsInt( format( "side%d.energycolor", nb_side ) );
-            side_int_data[ nb_side ].energy_color = makeacol( pal[ pal_id ].r << 2, pal[ pal_id ].g << 2, pal[ pal_id ].b << 2, 0xFF );
+            side_int_data[ nb_side ].energy_color = makeacol( pal[ pal_id ].r, pal[ pal_id ].g, pal[ pal_id ].b, 0xFF );
 
             side_int_data[ nb_side ].EnergyBar = read_gui_element( &sidedata_parser, format( "side%d.energybar", nb_side ) );
             side_int_data[ nb_side ].EnergyNum = read_gui_element( &sidedata_parser, format( "side%d.energynum", nb_side ) );

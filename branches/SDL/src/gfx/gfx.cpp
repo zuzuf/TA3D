@@ -724,6 +724,11 @@ namespace TA3D
 
     GLuint GFX::make_texture(SDL_Surface *bmp, byte filter_type, bool clamp )
     {
+        if (bmp == NULL)
+        {
+            LOG_WARNING(LOG_PREFIX_GFX << "make_texture used with empty SDL_Surface");
+            return 0;
+        }
         MutexLocker locker(pMutex);
 
         int max_tex_size;

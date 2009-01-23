@@ -250,12 +250,12 @@ namespace TA3D
                     {
                         if((strstr(ligne,";")))	*(strstr(ligne,";"))=0;
                         int c=atoi(f+6);
-                        weapon[index].color[0] = makecol(pal[c].r<<2,pal[c].g<<2,pal[c].b<<2);
+                        weapon[index].color[0] = makecol(pal[c].r,pal[c].g,pal[c].b);
                         weapon[index].color[2] = c;
                         if( weapon[index].color[2] == 232 && weapon[index].color[3] == 234 )
                         {
-                            weapon[index].color[0] = makecol( pal[ 180 ].r << 2, pal[ 180 ].g << 2, pal[ 180 ].b << 2 );
-                            weapon[index].color[1] = makecol( pal[ 212 ].r << 2, pal[ 212 ].g << 2, pal[ 212 ].b << 2 );
+                            weapon[index].color[0] = makecol( pal[ 180 ].r, pal[ 180 ].g, pal[ 180 ].b );
+                            weapon[index].color[1] = makecol( pal[ 212 ].r, pal[ 212 ].g, pal[ 212 ].b );
                             weapon[index].color[2] = 180;
                             weapon[index].color[3] = 212;
                         }
@@ -264,11 +264,11 @@ namespace TA3D
                     {
                         if((strstr(ligne,";")))	*(strstr(ligne,";"))=0;
                         int c=atoi(f+7);
-                        weapon[index].color[1] = makecol(pal[c].r<<2,pal[c].g<<2,pal[c].b<<2);
+                        weapon[index].color[1] = makecol(pal[c].r,pal[c].g,pal[c].b);
                         weapon[index].color[3] = c;
                         if( weapon[index].color[2] == 232 && weapon[index].color[3] == 234 ) {
-                            weapon[index].color[0] = makecol( pal[ 180 ].r << 2, pal[ 180 ].g << 2, pal[ 180 ].b << 2 );
-                            weapon[index].color[1] = makecol( pal[ 212 ].r << 2, pal[ 212 ].g << 2, pal[ 212 ].b << 2 );
+                            weapon[index].color[0] = makecol( pal[ 180 ].r, pal[ 180 ].g, pal[ 180 ].b );
+                            weapon[index].color[1] = makecol( pal[ 212 ].r, pal[ 212 ].g, pal[ 212 ].b );
                             weapon[index].color[2] = 180;
                             weapon[index].color[3] = 212;
                         }
