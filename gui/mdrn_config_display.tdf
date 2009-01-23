@@ -8,7 +8,7 @@
 	height=720;
 	draw borders=false;
 	show title=false;
-	number of objects=37;
+	number of objects=39;
 	hidden=false;
 	lock=true;
 	color=0x00000000;			// Fully transparent so we can see the AREA background
@@ -398,6 +398,28 @@
 		help=disable GLSL shaders\nmay help if game crash;
 		x1=690;
 		y1=650;
+		value=1;
+		size=1.6;
+	}
+	[object37]		// Option "disable perspective"
+	{
+		name=t_disable_perspective;
+		type=TEXT;
+		caption=Disable perspective;
+		help=disable perspective\nTA3D will use an orthographic camera;
+		x1=0;
+		y1=690;
+		value=0xFFFFFFFF;
+		size=2;
+	}
+	[object38]		// Option "disable perspective"
+	{
+		name=disable_perspective;
+		type=OPTIONC;
+		caption=;
+		help=disable perspective\nTA3D will use an orthographic camera;
+		x1=690;
+		y1=690;
 		value=1;
 		size=1.6;
 	}

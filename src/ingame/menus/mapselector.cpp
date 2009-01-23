@@ -25,13 +25,15 @@ namespace Menus
 
     void MapSelector::SortListOfMaps(ListOfMaps& out)
     {
+        LOG_DEBUG(LOG_PREFIX_MENU_MAPSELECTOR << "sorting list of maps");
         std::sort(out.begin(), out.end(), sortForListOfMaps);
+        LOG_DEBUG(LOG_PREFIX_MENU_MAPSELECTOR << "done");
     }
-    
 
 
 
-    
+
+
 
     bool MapSelector::Execute(const String& preSelectedMap, String& mapName)
     {
@@ -65,9 +67,11 @@ namespace Menus
 
     MapSelector::~MapSelector()
     {
+        LOG_DEBUG(LOG_PREFIX_MENU_MAPSELECTOR << "reseting mini map texture");
         ResetTexture(pMiniMapTexture);
+        LOG_DEBUG(LOG_PREFIX_MENU_MAPSELECTOR << "done");
     }
-    
+
 
     bool MapSelector::doInitialize()
     {
@@ -79,7 +83,9 @@ namespace Menus
             return false;
 
         // Texture for the mini map
+        LOG_DEBUG(LOG_PREFIX_MENU_MAPSELECTOR << "reseting mini map texture");
         ResetTexture(pMiniMapTexture);
+        LOG_DEBUG(LOG_PREFIX_MENU_MAPSELECTOR << "done");
 
         pSelectedMap = pDefaultSelectedMap;
 
@@ -120,9 +126,10 @@ namespace Menus
 
         return true;
     }
-        
+
     void MapSelector::reloadMapsForGUIControl()
     {
+        LOG_DEBUG(LOG_PREFIX_MENU_MAPSELECTOR << "reloadMapsForGUIControl()");
         if (pMapListObj)
         {
             // Load all maps
@@ -131,6 +138,7 @@ namespace Menus
             for (ListOfMaps::const_iterator i = pListOfMaps.begin(); i != pListOfMaps.end(); ++i, ++indx)
                 pMapListObj->Text[indx] = *i;
         }
+        LOG_DEBUG(LOG_PREFIX_MENU_MAPSELECTOR << "done");
     }
 
 
@@ -141,6 +149,7 @@ namespace Menus
         const String::size_type l = shortName.length();
         if (l < 9)
             return;
+        LOG_DEBUG(LOG_PREFIX_MENU_MAPSELECTOR << "autoSelectMap()");
         const String s(shortName.substr(5, l - 9));
         int indx(0);
         for (ListOfMaps::const_iterator i = pListOfMaps.begin(); i != pListOfMaps.end(); ++i, ++indx)
@@ -157,11 +166,13 @@ namespace Menus
         pMapListObj->Pos = 0;
         pMapListObj->Data = 0;
         doGoSelectSingleMap(0);
+        LOG_DEBUG(LOG_PREFIX_MENU_MAPSELECTOR << "done");
     }
 
 
     void MapSelector::scaleAndRePosTheMiniMap(const float coef /* = 504.0f */)
     {
+        LOG_DEBUG(LOG_PREFIX_MENU_MAPSELECTOR << "scaleAndRePosTheMiniMap()");
         LOG_ASSERT(coef != 0.0f); // Division by zero
 
         if (pMiniMapObj)
@@ -175,6 +186,7 @@ namespace Menus
             pMiniMapObj->u2 = dx / 252.0f;
             pMiniMapObj->v2 = dy / 252.0f;
         }
+        LOG_DEBUG(LOG_PREFIX_MENU_MAPSELECTOR << "done");
     }
 
     void MapSelector::doFinalize()
@@ -194,7 +206,7 @@ namespace Menus
             keyIsPressed = keypressed();
             // Grab user events
             pArea->check();
-            // Wait to reduce CPU consumption 
+            // Wait to reduce CPU consumption
             rest(TA3D_MENUS_RECOMMENDED_TIME_MS_FOR_RESTING);
 
         } while (pMouseX == mouse_x && pMouseY == mouse_y && pMouseZ == mouse_z && pMouseB == mouse_b
@@ -230,6 +242,7 @@ namespace Menus
         // Bounds checking
         if (pLastMapIndex == mapIndex || mapIndex < 0 || mapIndex >= pCachedSizeOfListOfMaps)
             return false;
+        LOG_DEBUG(LOG_PREFIX_MENU_MAPSELECTOR << "doGoSelectSingleMap()");
 
         // Cached value
         pLastMapIndex = mapIndex;
@@ -244,7 +257,9 @@ namespace Menus
         pSelectedMap += pListOfMaps[mapIndex];
         pSelectedMap += ".tnt";
         // Reload the mini map
+        LOG_DEBUG(LOG_PREFIX_MENU_MAPSELECTOR << "loading mini map texture");
         ResetTexture(pMiniMapTexture, load_tnt_minimap_fast(pSelectedMap, dx, dy));
+        LOG_DEBUG(LOG_PREFIX_MENU_MAPSELECTOR << "mini map loaded");
 
         // OTA
         String otaMap("maps");
@@ -255,8 +270,10 @@ namespace Menus
         MAP_OTA mapOTA;
         if (byte* data = HPIManager->PullFromHPI(otaMap, &otaSize))
         {
+            LOG_DEBUG(LOG_PREFIX_MENU_MAPSELECTOR << "loading OTA data");
             mapOTA.load((char*)data, otaSize);
             delete[] data;
+            LOG_DEBUG(LOG_PREFIX_MENU_MAPSELECTOR << "ota data loaded");
         }
 
         // Update the mini map
@@ -270,6 +287,7 @@ namespace Menus
 
     void MapSelector::doUpdateMiniMap()
     {
+        LOG_DEBUG(LOG_PREFIX_MENU_MAPSELECTOR << "doUpdateMiniMap()");
         if (pMiniMapObj)
         {
             // Swap textures
@@ -279,6 +297,7 @@ namespace Menus
             // Resizing
             scaleAndRePosTheMiniMap();
         }
+        LOG_DEBUG(LOG_PREFIX_MENU_MAPSELECTOR << "done");
     }
 
     void MapSelector::doResetAreaCaptionFromMapOTA(MAP_OTA& mapOTA)
@@ -302,8 +321,10 @@ namespace Menus
 
     bool MapSelector::MapIsForNetworkGame(const String& mapShortName)
     {
+        LOG_DEBUG(LOG_PREFIX_MENU_MAPSELECTOR << "MapIsForNetworkGame(" << mapShortName << ")");
         uint32 ota_size=0;
         byte* data = HPIManager->PullFromHPI(String("maps\\") + mapShortName + String(".ota"), &ota_size);
+        LOG_DEBUG(LOG_PREFIX_MENU_MAPSELECTOR << "ota data extracted");
         if(data)
         {
             MAP_OTA	map_data;	// Using MAP_OTA because it's faster than cTAFileParser that fills a hash_table object
@@ -311,14 +332,17 @@ namespace Menus
             bool isNetworkGame = map_data.network;
             delete[] data;
             map_data.destroy();
+            LOG_DEBUG(LOG_PREFIX_MENU_MAPSELECTOR << "done (true)");
             return isNetworkGame;
         }
+        LOG_DEBUG(LOG_PREFIX_MENU_MAPSELECTOR << "done (false)");
         return false;
     }
 
 
     void MapSelector::GetMultiPlayerMapList(ListOfMaps& out)
     {
+        LOG_DEBUG(LOG_PREFIX_MENU_MAPSELECTOR << "GetMultiPlayerMapList()");
         // Clear the map
         out.clear();
 
@@ -326,11 +350,13 @@ namespace Menus
         ListOfMaps allMaps;
         if (HPIManager->getFilelist("maps\\*.tnt", allMaps) > 0)
         {
+            LOG_DEBUG(LOG_PREFIX_MENU_MAPSELECTOR << "checking found maps");
             for (ListOfMaps::const_iterator it = allMaps.begin(); it != allMaps.end(); ++it)
             {
                 const String::size_type l(it->length());
                 if (l < 9)
                     continue;
+                LOG_DEBUG(LOG_PREFIX_MENU_MAPSELECTOR << "checking " << *it);
                 const String newMapName(it->substr(5, l - 9));
                 if (MapSelector::MapIsForNetworkGame(newMapName))
                 {
@@ -340,7 +366,8 @@ namespace Menus
             }
             SortListOfMaps(out);
         }
-    } 
+        LOG_DEBUG(LOG_PREFIX_MENU_MAPSELECTOR << "end of GetMultiPlayerMapList");
+    }
 
 
     bool MapSelector::preloadAllAvailableMaps()

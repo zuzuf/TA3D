@@ -87,6 +87,7 @@ namespace Settings
             << "        Underwater Bright = " << TA3D::VARS::lp_CONFIG->underwater_bright << ";\n"
             << "             Disable GLSL = " << TA3D::VARS::lp_CONFIG->disable_GLSL << ";\n"
             << "    Right Click Interface = " << TA3D::VARS::lp_CONFIG->right_click_interface << ";\n"
+            << "      Orthographic Camera = " << TA3D::VARS::lp_CONFIG->ortho_camera << ";\n"
             << "}\n";
 
         if (Paths::Files::SaveToFile(TA3D::Paths::ConfigFile, s))
@@ -182,6 +183,8 @@ namespace Settings
         TA3D::VARS::lp_CONFIG->disable_GLSL = cfgFile.pullAsBool("TA3D.Disable GLSL", false);
 
         TA3D::VARS::lp_CONFIG->right_click_interface = cfgFile.pullAsBool("TA3D.Right Click Interface", false);
+
+        TA3D::VARS::lp_CONFIG->ortho_camera = cfgFile.pullAsBool("TA3D.Orthographic Camera", false);
 
         LANG = lp_CONFIG->Lang;
         // Apply settings for the current language
