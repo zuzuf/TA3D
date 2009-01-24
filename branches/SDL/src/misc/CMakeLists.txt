@@ -7,7 +7,6 @@ SET(SOURCES string.h string.cpp
             resources.h resources.cpp
             settings.h settings.cpp
             interface.h interface.cpp
-            lzw.h lzw.cpp
             hash_table.h hashtable.hxx
             superqueue.h superqueue.cpp
             osinfo.h osinfo.cpp
