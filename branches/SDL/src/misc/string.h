@@ -27,7 +27,7 @@
 
 //! Macro to convert the string into a given type
 # define TA3D_WSTR_CAST_OP(X)  X v; \
-                                fromString<X>(v, *this, std::dec); \
+                                fromString<X>(v, *this); \
                                 return v;
 
 //! Macro to append the value of a boolean (true -> "true", false -> "false")
@@ -538,10 +538,21 @@ namespace TA3D
         ** \return True if the operation succeeded, False otherwise
         */
         template <class T>
-        bool fromString(T& t, const String& s, std::ios_base& (*f)(std::ios_base&)) const
+        bool fromString(T& t, const String& s) const
         {
             std::istringstream iss(s);
-            return !(iss >> f >> t).fail();
+            if (s.size() > 2)
+            {
+                if(s[0] == '0' && (s[1] == 'x' || s[1] == 'X'))
+                    iss >> std::hex;
+                else if (s[0] == '0' && s[1] != 'x' && s[1] != 'X')
+                    iss >> std::oct;
+                else
+                    iss >> std::dec;
+            }
+            else
+                iss >> std::dec;
+            return !(iss >> t).fail();
         }
 
     }; // class String

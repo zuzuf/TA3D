@@ -144,7 +144,7 @@ namespace TA3D
         { glColor4f(r,g,b,a); }
 
         void set_color(const uint32 col) const
-        { glColor4ub( geta(col), getg(col), getb(col), geta(col)); }
+        { glColor4ub( getr(col), getg(col), getb(col), geta(col)); }
 
         void set_alpha(const float a) const;
 

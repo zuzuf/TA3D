@@ -7,7 +7,7 @@
 #include "../../gfx/glfunc.h"
 #include "../../misc/tdf.h"
 
-
+#define FIX_COLOR(col)  col = makeacol(getb(col), getg(col), getr(col), getr(col))
 
 
 namespace TA3D
@@ -275,9 +275,9 @@ namespace TA3D
                 }
                 else                    // No texture present, draw a black frame
                 {
-                    gfx->rect( x+Objets[i].x1,y+Objets[i].y1, x+Objets[i].x2,y+Objets[i].y2, 0xFF7F7F7F );
-                    gfx->line( x+Objets[i].x1,y+Objets[i].y1, x+Objets[i].x2,y+Objets[i].y2, 0xFF7F7F7F );
-                    gfx->line( x+Objets[i].x2,y+Objets[i].y1, x+Objets[i].x1,y+Objets[i].y2, 0xFF7F7F7F );
+                    gfx->rect( x+Objets[i].x1,y+Objets[i].y1, x+Objets[i].x2,y+Objets[i].y2, makeacol(0x7F, 0x7F, 0x7F, 0xFF) );
+                    gfx->line( x+Objets[i].x1,y+Objets[i].y1, x+Objets[i].x2,y+Objets[i].y2, makeacol(0x7F, 0x7F, 0x7F, 0xFF) );
+                    gfx->line( x+Objets[i].x2,y+Objets[i].y1, x+Objets[i].x1,y+Objets[i].y2, makeacol(0x7F, 0x7F, 0x7F, 0xFF) );
                 }
                 break;
             case OBJ_BUTTON:		// Button
@@ -1432,6 +1432,7 @@ namespace TA3D
             else
                 background = 0;
             color = wndFile.pullAsInt("window.color", delete_gltex ?  0xFFFFFFFF : makeacol(0x7F, 0x7F, 0x7F, 0xFF));
+            FIX_COLOR(color);
             NbObj = wndFile.pullAsInt("window.number of objects");
 
             Objets = new GUIOBJ[NbObj];
@@ -1539,6 +1540,7 @@ namespace TA3D
                 }
                 else if (obj_type == "TEXT")
                 {
+                    FIX_COLOR(val);
                     Objets[i].create_text(X1, Y1, caption, val, size);
                     if (X2 > 0 && Y2 > Y1)
                     {
@@ -1558,10 +1560,17 @@ namespace TA3D
                     }
                 }
                 else if (obj_type == "LINE")
+                {
+                    FIX_COLOR(val);
                     Objets[i].create_line(X1, Y1, X2, Y2, val);
+                }
                 else if (obj_type == "BOX")
+                {
+                    FIX_COLOR(val);
                     Objets[i].create_box(X1, Y1, X2, Y2, val);
-                else if (obj_type == "IMG") {
+                }
+                else if (obj_type == "IMG")
+                {
                     Objets[i].create_img(X1, Y1, X2, Y2, gfx->load_texture(I18N::Translate(wndFile.pullAsString(obj_key + "source"))));
                     Objets[i].destroy_img = Objets[i].Data != 0 ? true : false;
                 }
