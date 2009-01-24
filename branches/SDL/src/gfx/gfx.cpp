@@ -1301,7 +1301,15 @@ namespace TA3D
                     fwrite( data, image_file_size, 1, tmp );
                     fclose( tmp );
                     delete[] data;
-                    return IMG_Load( tmp_file.c_str() );
+                    SDL_Surface *img = IMG_Load( tmp_file.c_str() );
+                    if (img)
+                    {
+                        if (img->format->BitsPerPixel == 32)
+                            img = convert_format(img);
+                        else if (img->format->BitsPerPixel == 24)
+                            img = convert_format_24(img);
+                    }
+                    return img;
                 }
                 else
                     LOG_DEBUG("loading " << filename << " failed");
@@ -1310,7 +1318,15 @@ namespace TA3D
             }
             return NULL;
         }
-        return IMG_Load(filename.c_str());
+        SDL_Surface *img = IMG_Load(filename.c_str());
+        if (img)
+        {
+            if (img->format->BitsPerPixel == 32)
+                img = convert_format(img);
+            else if (img->format->BitsPerPixel == 24)
+                img = convert_format_24(img);
+        }
+        return img;
     }
 
 
