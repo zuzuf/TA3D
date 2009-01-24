@@ -368,20 +368,41 @@ void blit(SDL_Surface *in, SDL_Surface *out, int x0, int y0, int x1, int y1, int
         tmp = SDL_ConvertSurface(in, out->format, SDL_SWSURFACE);
     }
 
-    SDL_SetAlpha(tmp, 0, 0xFF);
     SDL_LockSurface(tmp);
     SDL_LockSurface(out);
 
-    SDL_Rect rect_in, rect_out;
+    int sx = x0;
+    int dx = x1;
+    int cw = w;
+    if (sx < 0)
+    {
+        dx -= sx;
+        cw += sx;
+        sx = 0;
+    }
+    if (dx < 0)
+    {
+        sx -= dx;
+        cw += dx;
+        dx = 0;
+    }
 
-    rect_in.x = x0;
-    rect_in.y = y0;
-    rect_in.w = w;
-    rect_in.h = h;
-    rect_out.x = x1;
-    rect_out.y = y1;
+    if (sx < tmp->w && dx < out->w)
+    {
+        sx *= tmp->format->BytesPerPixel;
+        dx *= tmp->format->BytesPerPixel;
+        cw *= tmp->format->BytesPerPixel;
+        for(int y = 0 ; y < h ; y++)
+        {
+            int dy = y1 + y;
+            int sy = y + y0;
+            if (dy < 0 || dy >= out->h || sy < 0 || sy >= tmp->h)    continue;
+            dy *= out->pitch;
+            sy *= tmp->pitch;
 
-    SDL_BlitSurface(tmp, &(rect_in), out, &(rect_out));
+            memcpy( ((byte*)out->pixels) + dy + dx, ((byte*)tmp->pixels) + sy + sx, cw);
+        }
+    }
 
     SDL_UnlockSurface(tmp);
     SDL_UnlockSurface(out);
