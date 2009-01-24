@@ -29,8 +29,8 @@
 #include "ta3dbase.h"
 #include "gaf.h"
 #include <vector>
-#include "jpeg/ta3d_jpg.h"
 #include "gfx/glfunc.h"
+#include <zlib.h>
 
 
 namespace TA3D
@@ -336,40 +336,10 @@ namespace TA3D
             img_size = *((sint32*)(buf+f_pos));
             f_pos += 4;
 
-            set_color_depth(32);
-            frame_img = load_memory_jpg(buf + f_pos, img_size, NULL);
+            frame_img = create_bitmap_ex( framedata.Transparency ? 32 : 24, framedata.Width, framedata.Height );
+            uLongf len = frame_img->w * frame_img->h * bitmap_color_depth(frame_img) / 8;
+            uncompress ( (Bytef*) frame_img->line[0], &len, (Bytef*) buf + f_pos, img_size);
             f_pos += img_size;
-
-            if (framedata.Transparency != 0 && frame_img != NULL) // Read alpha channel
-            {
-                img_size = *((sint32*)(buf+f_pos));
-                f_pos += 4;
-                BITMAP* img_alpha = load_memory_jpg(buf + f_pos, img_size, NULL);
-                f_pos += img_size;
-                if (img_alpha)
-                {
-                    if (bitmap_color_depth(frame_img) != 32)
-                    {
-                        BITMAP* tmp = create_bitmap_ex(32, frame_img->w, frame_img->h);
-                        blit(frame_img, tmp, 0, 0, 0, 0, frame_img->w, frame_img->h);
-                        destroy_bitmap(frame_img);
-                        frame_img = tmp;
-                    }
-                    for (int y = 0; y < frame_img->h; ++y)
-                    {
-                        for (int x = 0; x < frame_img->w; ++x)
-                        {
-                            int c = getpixel(frame_img, x, y);
-                            putpixel( frame_img, x, y, makeacol( getr(c), getg(c), getb(c), img_alpha->line[y][x<<2] ) );
-                        }
-                    }
-                    destroy_bitmap(img_alpha);
-                }
-            }
-            else
-                for (int y = 0; y < frame_img->h; ++y)
-                    for (int x = 0; x < frame_img->w; ++x)
-                        putpixel( frame_img, x, y, getpixel(frame_img, x, y) | makeacol(0,0,0,0xFF) );
         }
         else
         {
@@ -378,7 +348,7 @@ namespace TA3D
                 if (nb_subframe)
                 {
                     f_pos = frames[subframe];
-                    
+
                     framedata.Width  = *((sint16*)(buf+f_pos));	f_pos += 2;
                     framedata.Height = *((sint16*)(buf+f_pos));	f_pos += 2;
                     framedata.XPos   = *((sint16*)(buf+f_pos));	f_pos += 2;
@@ -474,7 +444,7 @@ namespace TA3D
                     }
                 }
                 else
-                { 
+                {
                     // Si l'image n'est pas comprimée
                     img = create_bitmap_ex(8, framedata.Width, framedata.Height);
                     clear(img);
@@ -607,7 +577,7 @@ namespace TA3D
                     bmp[i-f] = tmp;
                 }
             }
-            else 
+            else
                 ++f;
         }
         nb_bmp -= f;
@@ -744,7 +714,7 @@ namespace TA3D
         for (int i = 0; i < pSize; ++i)
             pList[i].clean();
     }
-    
+
 
     void Gaf::AnimationList::convert(const bool no_filter, const bool compressed)
     {

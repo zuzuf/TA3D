@@ -30,6 +30,7 @@
 #include "misc/paths.h"
 #include "misc/resources.h"
 #include <fstream>
+#include <zlib.h>
 
 
 
@@ -405,9 +406,10 @@ namespace
                             FrameData.Width = frame_img->w;
                             FrameData.Height = frame_img->h;
                             bool alpha = false;
-                            for( int y = 0 ; y < frame_img->h && !alpha ; y++ )
-                                for( int x = 0 ; x < frame_img->w && !alpha ; x++ )
-                                    alpha |= (frame_img->line[y][(x<<2)+3] != 255);
+                            if (bitmap_color_depth(frame_img) == 32)
+                                for( int y = 0 ; y < frame_img->h && !alpha ; y++ )
+                                    for( int x = 0 ; x < frame_img->w && !alpha ; x++ )
+                                        alpha |= (frame_img->line[y][(x<<2)+3] != 255);
                             FrameData.Transparency = alpha ? 1 : 0;
                             FrameData.PtrFrameData = ftell( gaf_file ) + 24;
 
@@ -416,41 +418,32 @@ namespace
                             int buf_size = frame_img->w * frame_img->h * 5 + 10240;
                             byte *buffer = new byte[ buf_size ];
 
+                            if (FrameData.Transparency)
+                                for(int y = 0 ; y < frame_img->h ; y++)
+                                    for(int x = 0 ; x < frame_img->w ; x++)
+                                    {
+                                        uint32 c = getpixel(frame_img, x, y);
+                                        frame_img->line[y][x*4] = getr(c);
+                                        frame_img->line[y][x*4+1] = getg(c);
+                                        frame_img->line[y][x*4+2] = getb(c);
+                                        frame_img->line[y][x*4+3] = geta(c);
+                                    }
+                            else
+                                for(int y = 0 ; y < frame_img->h ; y++)
+                                    for(int x = 0 ; x < frame_img->w ; x++)
+                                    {
+                                        frame_img->line[y][x*3] ^= frame_img->line[y][x*3+1];
+                                        frame_img->line[y][x*3+1] ^= frame_img->line[y][x*3];
+                                        frame_img->line[y][x*3] ^= frame_img->line[y][x*3+1];
+                                    }
+
                             int img_size = buf_size;
-                            if( save_memory_jpg_ex( buffer, &img_size, frame_img, NULL, 95, JPG_SAMPLING_444, NULL ) ) // RGB channels
-                            {
-                                img_size = buf_size;
-                                if( save_memory_jpg_ex( buffer, &img_size, frame_img, NULL, 95, JPG_SAMPLING_444 | JPG_OPTIMIZE, NULL ) )		// RGB channels
-                                    printf("error saving '%s'\n", parser.pullAsString( format( "gadget%d.frame%d.filename", i + 1, e ) ).c_str() );
-                            }
+                            uLongf __size = img_size;
+                            compress2 ( buffer, &__size, (Bytef*) frame_img->line[0], frame_img->w * frame_img->h * bitmap_color_depth(frame_img) / 8, 9);
+                            img_size = __size;
 
                             fwrite( &img_size, sizeof( img_size ), 1, gaf_file );		// Save the result
                             fwrite( buffer, img_size, 1, gaf_file );
-
-                            if( alpha ) // Alpha channel
-                            {
-                                for( int y = 0 ; y < frame_img->h ; y++ )
-                                {
-                                    for( int x = 0 ; x < frame_img->w ; x++ )
-                                    {
-                                        uint32 c = frame_img->line[y][(x<<2)+3];
-                                        ((uint32*)(frame_img->line[y]))[x] = c * 0x010101;
-                                    }
-                                }
-                                img_size = buf_size;
-                                if(save_memory_jpg_ex( buffer, &img_size, frame_img, NULL, 100, JPG_GREYSCALE | JPG_OPTIMIZE, NULL ) )
-                                {
-                                    img_size = buf_size;
-                                    if(save_memory_jpg_ex( buffer, &img_size, frame_img, NULL, 100, JPG_GREYSCALE, NULL))
-                                    {
-                                        std::cerr << "Error saving alpha channel for '"
-                                            << parser.pullAsString(format("gadget%d.frame%d.filename", i + 1, e ) ).c_str() << "'" << std::endl;
-                                    }
-                                }
-
-                                fwrite( &img_size, sizeof( img_size ), 1, gaf_file );		// Save the result
-                                fwrite( buffer, img_size, 1, gaf_file );
-                            }
 
                             delete[] buffer;
                             destroy_bitmap( frame_img );
