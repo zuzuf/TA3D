@@ -188,11 +188,8 @@ namespace TA3D
         TA_font.load_gaf_font("anims\\hattfont12.gaf", 1.0f);
 
         LOG_DEBUG(LOG_PREFIX_GFX << "Creating a normal font...");
-//        normal_font.copy(font , 1.0f);
-        normal_font.set_clear(true);
+
         LOG_DEBUG(LOG_PREFIX_GFX << "Creating a small font...");
-//        small_font.copy(font , 0.75f);
-        small_font.set_clear(true);
 
         LOG_DEBUG(LOG_PREFIX_GFX << "Loading the GUI font...");
         ta3d_gui_font.load_gaf_font( "anims\\hattfont12.gaf" , 1.0f );
@@ -512,13 +509,9 @@ namespace TA3D
         ReInitTexSys( false );
         glPushAttrib(GL_ALL_ATTRIB_BITS);
         glEnable(GL_BLEND);
-        if(font.clear)
-            glBlendFunc(GL_ONE,GL_ONE_MINUS_SRC_ALPHA);
-        else
-            glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+        glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
         glEnable(GL_TEXTURE_2D);
         glPushMatrix();
-        glScalef(font.size,font.size,1.0f);
 //        allegro_gl_printf_ex(font.pGl, x/font.size, y/font.size, z, text );
         glPopMatrix();
         glPopAttrib();
@@ -543,10 +536,7 @@ namespace TA3D
         ReInitTexSys( false );
         glPushAttrib(GL_ALL_ATTRIB_BITS);
         glEnable(GL_BLEND);
-        if(font.clear)
-            glBlendFunc(GL_ONE,GL_ONE_MINUS_SRC_ALPHA);
-        else
-            glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+        glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
         glEnable(GL_TEXTURE_2D);
         glPushMatrix();
         if (s > 0.0f)
@@ -578,16 +568,12 @@ namespace TA3D
         ReInitTexSys( false );
         glPushAttrib(GL_ALL_ATTRIB_BITS);
         glEnable(GL_BLEND);
-        if(font.clear)
-            glBlendFunc(GL_ONE,GL_ONE_MINUS_SRC_ALPHA);
-        else
-            glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+        glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
 
         float X = x - 0.5f * font.length( text );
 
         glEnable(GL_TEXTURE_2D);
         glPushMatrix();
-        glScalef(font.size,font.size,1.0f);
 //        allegro_gl_printf_ex(font.pGl, X/font.size, y/font.size, z, text );
         glPopMatrix();
         glPopAttrib();
@@ -612,10 +598,7 @@ namespace TA3D
         ReInitTexSys( false );
         glPushAttrib(GL_ALL_ATTRIB_BITS);
         glEnable(GL_BLEND);
-        if(font.clear)
-            glBlendFunc(GL_ONE,GL_ONE_MINUS_SRC_ALPHA);
-        else
-            glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+        glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
 
         float X = x - 0.5f * font.length( text );
 
@@ -652,16 +635,12 @@ namespace TA3D
         ReInitTexSys( false );
         glPushAttrib(GL_ALL_ATTRIB_BITS);
         glEnable(GL_BLEND);
-        if(font.clear)
-            glBlendFunc(GL_ONE,GL_ONE_MINUS_SRC_ALPHA);
-        else
-            glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+        glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
 
         float X = x - font.length( text );
 
         glEnable(GL_TEXTURE_2D);
         glPushMatrix();
-        glScalef(font.size,font.size,1.0f);
 //        allegro_gl_printf_ex(font.pGl, X/font.size, y/font.size, z, text );
         glPopMatrix();
         glPopAttrib();
@@ -690,10 +669,7 @@ namespace TA3D
         ReInitTexSys( false );
         glPushAttrib(GL_ALL_ATTRIB_BITS);
         glEnable(GL_BLEND);
-        if(font.clear)
-            glBlendFunc(GL_ONE,GL_ONE_MINUS_SRC_ALPHA);
-        else
-            glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+        glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
 
         float X = x - font.length(text);
 
@@ -1880,9 +1856,6 @@ namespace TA3D
 
         GFX *test_gfx = new GFX();
 
-//        test_gfx->normal_font.copy(font , 1.0f);
-        test_gfx->normal_font.set_clear(true);
-
         test_gfx->set_2D_mode();
 
         int         filter[]        = { FILTER_NONE, FILTER_LINEAR, FILTER_BILINEAR, FILTER_TRILINEAR };
@@ -1942,18 +1915,30 @@ namespace TA3D
     void reset_keyboard()
     {
         clear_keybuf();
-//        remove_keyboard();
-//        install_keyboard();
     }
     void reset_mouse()
     {
-//        int amx = mouse_x;
-//        int amy = mouse_y;
-//
-//        remove_mouse();
-//        install_mouse();
-//
-//        position_mouse(amx, amy);
+    }
+
+    SDL_Surface* GFX::LoadMaskedTextureToBmp(const String& file, const String& filealpha)
+    {
+        // Load the texture (32Bits)
+        SDL_Surface* bmp = gfx->load_image(file);
+        LOG_ASSERT(bmp != NULL);
+
+        // Load the mask
+        SDL_Surface* alpha = gfx->load_image(filealpha);
+        LOG_ASSERT(alpha != NULL);
+
+        // Apply the mask, pixel by pixel
+        for (int y = 0; y < bmp->h; ++y)
+        {
+            for (int x = 0; x < bmp->w; ++x)
+                SurfaceByte(bmp, (x << 2) + 3, y) = SurfaceInt(alpha,x,y);
+        }
+
+        SDL_FreeSurface(alpha);
+        return bmp;
     }
 
 } // namespace TA3D

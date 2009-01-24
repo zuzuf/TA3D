@@ -16,28 +16,16 @@ namespace TA3D
 
         void init();
 
-        float length(const String txt) const
-        { return text_length(pAl, txt.c_str()) * size; }
-
-        float height() const
-        { return text_height(pAl) * size; }
-
-        void set_clear(const bool val) { clear = val; }
+        float length(const String txt) const;
+        float height() const;
         void load( const char *filename, const float s = 1.0f );
         void load_gaf_font( const char *filename, const float s = 1.0f );
-        void copy( FONT *fnt, const float s = 1.0f );
         void destroy();
-        void change_size( const float s) { size = s;	}
-        float get_size() const { return size; }
+        void change_size(const float s);
+        float get_size() const;
 
     private:
         friend class GFX;
-    private:
-        FONT* pAl;
-        FONT* pGl;
-        float size;
-        bool clear;
-
     }; // class GfxFont
 
 

@@ -17,33 +17,14 @@ namespace TA3D
 
 
     GfxFont::GfxFont()
-        : pAl(NULL), pGl(NULL), size(1.0f), clear(false)
     {}
 
     void GfxFont::init()
     {
-        pAl = NULL;
-        pGl = NULL;
-        size = 1.0f;
-        clear = false;
     }
-
-
 
     void GfxFont::load(const char* filename, const float s)
     {
-        size = s;
-//        pAl = load_font( filename, NULL, NULL );
-        if (pAl == NULL)
-        {
-            throw cError( "GfxFont::load()", "font could not be loaded, pAl = NULL.", true );
-            return;
-        }
-//        pGl = allegro_gl_convert_allegro_font_ex(pAl, AGL_FONT_TYPE_TEXTURED, -1.0f, GL_RGBA8);
-        if(NULL == pGl)
-        {
-            throw cError( "GfxFont::load()", "font could not be converted to GL font, pGl = NULL.", true );
-        }
     }
 
 
@@ -51,7 +32,6 @@ namespace TA3D
     void GfxFont::load_gaf_font(const char *filename, const float s)
     {
         LOG_DEBUG("Loading GAF font: `" << filename << "`...");
-        size = s;
         byte *data = HPIManager->PullFromHPI(filename);
         if(data)
         {
@@ -97,68 +77,35 @@ namespace TA3D
         }
         else
         {
-            pAl = NULL;
             throw cError( "GfxFont::load_gafFont()", "file could not be read, data = NULL.", true );
             return;
         }
 
 #warning FIXME: fonts not implemented yet!
-//        pGl = allegro_gl_convert_allegro_font_ex(pAl,AGL_FONT_TYPE_TEXTURED,-1.0f,GL_RGBA8);
-//        if(!pGl)
-//        {
-//            throw cError( "GfxFont::load_gafFont()", "font could not be converted to GL font, pGl = NULL.", true );
-//        }
     }
 
 
     void GfxFont::destroy()
     {
-//        if (pAl)
-//            destroy_font(pAl);
-//        if (pGl)
-//            allegro_gl_destroy_font(pGl);
         init();
     }
 
-    void GfxFont::copy( FONT *fnt, const float s)
+    float GfxFont::length(const String txt) const
     {
-        size = s;
-#warning FIXME: fonts not implemented yet!
-//        pAl = extract_font_range(font, -1, -1);
-//        if (NULL == pAl)
-//        {
-//            throw cError( "GfxFont::copy()", "font could not be copied, pAl = NULL.", true );
-//            return;
-//        }
-//        pGl = allegro_gl_convert_allegro_font_ex(pAl,AGL_FONT_TYPE_TEXTURED,-1.0f,GL_RGBA8);
-//        if (NULL == pGl)
-//        {
-//            throw cError( "GfxFont::copy()", "font could not be converted to GL font, pGl = NULL.", true );
-//        }
+        return 0.0f;
     }
 
-
-    SDL_Surface* GFX::LoadMaskedTextureToBmp(const String& file, const String& filealpha)
+    float GfxFont::height() const
     {
-        // Load the texture (32Bits)
-        SDL_Surface* bmp = gfx->load_image(file);
-        LOG_ASSERT(bmp != NULL);
-
-        // Load the mask
-        SDL_Surface* alpha = gfx->load_image(filealpha);
-        LOG_ASSERT(alpha != NULL);
-
-        // Apply the mask, pixel by pixel
-        for (int y = 0; y < bmp->h; ++y)
-        {
-            for (int x = 0; x < bmp->w; ++x)
-                SurfaceByte(bmp, (x << 2) + 3, y) = SurfaceInt(alpha,x,y);
-        }
-
-        SDL_FreeSurface(alpha);
-        return bmp;
+        return 0.0f;
     }
 
+    void GfxFont::change_size(const float s)
+    {
+    }
 
-
+    float GfxFont::get_size() const
+    {
+        return 0.0f;
+    }
 } // namespace TA3D
