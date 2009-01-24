@@ -462,6 +462,21 @@ void stretch_blit( SDL_Surface *in, SDL_Surface *out, int x0, int y0, int w0, in
             }
         }
         break;
+    case 24:
+        for(int y = 0 ; y < h0 ; y++)
+        {
+            int dy = y1 + y * h1 / h0;
+            int sy = y + y0;
+            for(int x = 0 ; x < w0 ; x++)
+            {
+                int sx = (x + x0) * 3;
+                int dx = (x1 + x * w1 / w0) * 3;
+                SurfaceByte(out, dx, dy) = SurfaceByte(in, sx, sy);
+                SurfaceByte(out, dx + 1, dy) = SurfaceByte(in, sx + 1, sy);
+                SurfaceByte(out, dx + 2, dy) = SurfaceByte(in, sx + 2, sy);
+            }
+        }
+        break;
     case 32:
         for(int y = 0 ; y < h0 ; y++)
         {

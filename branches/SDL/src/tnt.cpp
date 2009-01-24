@@ -46,15 +46,12 @@ namespace TA3D
     SDL_Surface *load_tnt_minimap_bmp(TNTMINIMAP *minimap,int *sw,int *sh)
     {
 	    // Copy the mini-map into an 8-bit SDL_Surface
-	    SDL_Surface *mini8bit = gfx->create_surface_ex(8,TNTMINIMAP_WIDTH,TNTMINIMAP_HEIGHT);
+	    SDL_Surface *mini = gfx->create_surface_ex(8,TNTMINIMAP_WIDTH,TNTMINIMAP_HEIGHT);
 	    for(int y = 0; y < TNTMINIMAP_HEIGHT; ++y)
-		    memcpy((char*)mini8bit->pixels + y * mini8bit->pitch, minimap->map[y],TNTMINIMAP_WIDTH);
+		    memcpy((char*)mini->pixels + y * mini->pitch, minimap->map[y],TNTMINIMAP_WIDTH);
 
 	    // Apply the palette -- increase the color depth
-	    SDL_Surface *mini = gfx->create_surface(mini8bit->w,mini8bit->h);
-//	    set_palette( pal);
-	    blit(mini8bit,mini,0,0,0,0,mini->w,mini->h);
-	    SDL_FreeSurface(mini8bit);
+	    mini = convert_format(mini);
 
 	    // Examine the image for a blank-looking bottom or right edge
 	    int mini_w=TNTMINIMAP_WIDTH;
@@ -296,9 +293,9 @@ namespace TA3D
                     g += pal[c].g;
                     b += pal[c].b;
                 }
-            r>>=8;
-            g>>=8;
-            b>>=8;
+            r>>=10;
+            g>>=10;
+            b>>=10;
             map->bloc[i].lava=(r>4 && g<(r>>2) && b<(r>>2));
             map->bloc[i].tex_x = tx>>5;
         }
@@ -384,9 +381,9 @@ namespace TA3D
 
         LOG_DEBUG("MAP: creating low definition texture and lava map");
 
-        SDL_Surface *low_def = gfx->create_surface_ex(16, Math::Min(max_tex_size,map->map_w), Math::Min(max_tex_size,map->map_h));
+        SDL_Surface *low_def = gfx->create_surface_ex(24, Math::Min(max_tex_size,map->map_w), Math::Min(max_tex_size,map->map_h));
         SDL_FillRect(low_def, NULL, 0x0);
-        SDL_Surface *lava_map = gfx->create_surface_ex(16, Math::Min(map->bloc_w,1024), Math::Min(map->bloc_h,1024));
+        SDL_Surface *lava_map = gfx->create_surface_ex(24, Math::Min(map->bloc_w,1024), Math::Min(map->bloc_h,1024));
         SDL_FillRect(lava_map, NULL, 0x0);
         f_pos = header.PTRmapdata;
         for (y = 0; y < map->bloc_h; ++y)
@@ -403,8 +400,8 @@ namespace TA3D
                 int tex_num=i>>5;	// Numéro de la texture associée
                 int tx=(i&0x1F)<<5;			// Coordonnées sur la texture
 
-                if (bmp_tex[tex_num]->format->BitsPerPixel != 16)
-                    bmp_tex[tex_num] = convert_format_16(bmp_tex[tex_num]);
+                if (bmp_tex[tex_num]->format->BitsPerPixel != 24)
+                    bmp_tex[tex_num] = convert_format_24(bmp_tex[tex_num]);
 
                 stretch_blit(bmp_tex[tex_num], low_def, tx, 0, 32, 32,
                                 x * (low_def->w - 1) / map->bloc_w, y * (low_def->h - 1) / map->bloc_h,

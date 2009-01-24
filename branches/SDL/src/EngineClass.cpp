@@ -2400,7 +2400,7 @@ namespace TA3D
         {
             LOG_DEBUG("loading sky : " << *it);
             SKY_DATA *sky_data = new SKY_DATA;
-            sky_data->load_tdf(*it);
+            sky_data->load_tdf("sky/" + *it);
 
             bool keep = false;
             for (String::Vector::const_iterator i = sky_data->MapName.begin(); i != sky_data->MapName.end(); ++i)
@@ -2436,7 +2436,7 @@ namespace TA3D
             for (String::List::const_iterator it = file_list.begin(); it != file_list.end(); ++it)
             {
                 SKY_DATA *sky_data = new SKY_DATA;
-                sky_data->load_tdf(*it);
+                sky_data->load_tdf("sky/" + *it);
 
                 bool keep = sky_data->def;
                 if (keep)
