@@ -1472,8 +1472,7 @@ namespace TA3D
             fread( &lod_max, sizeof( lod_max ), 1, cache_file );
             fread( &internal_format, sizeof( GLint ), 1, cache_file );
 
-            GLuint	tex;
-            glGenTextures(1,&tex);
+            GLuint	tex = create_texture(1, 1, filter_type, clamp);
 
             glBindTexture( GL_TEXTURE_2D, tex );
 
