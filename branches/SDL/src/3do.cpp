@@ -113,7 +113,7 @@ namespace TA3D
             tex[i].w[0] = 16;
             tex[i].h[0] = 16;
             tex[i].bmp[0] = gfx->create_surface_ex(32,16,16);
-            SDL_FillRect(tex[i].bmp[0], NULL, makeacol(pal[i].r << 2, pal[i].g << 2, pal[i].b << 2, 0xFF));
+            SDL_FillRect(tex[i].bmp[0], NULL, makeacol(pal[i].r, pal[i].g, pal[i].b, 0xFF));
 
             tex_hashtable.insert(tex[i].name,i + 1);
         }
@@ -1042,10 +1042,9 @@ namespace TA3D
                                      texture_manager.tex[index_tex[i]].bmp[0]->h);
                             }
                         }
-                        cache_filename = TA3D::Paths::Files::ReplaceExtension( cache_filename, ".tga" );
+                        cache_filename = TA3D::Paths::Files::ReplaceExtension( cache_filename, ".tex" );
                         if (!TA3D::Paths::Exists( TA3D::Paths::Caches + cache_filename ))
-                            LOG_ERROR(LOG_PREFIX_3DO << "save_bitmap not implemented yet!");
-//                            save_bitmap( (TA3D::Paths::Caches + cache_filename).c_str(), bmp, NULL );
+                            SaveTex( bmp, TA3D::Paths::Caches + cache_filename );
                     }
                     else
                     {
@@ -1239,7 +1238,7 @@ namespace TA3D
     {
         if (id < 0 || id >= 10)
 			return;
-        if (id < (int)tex_cache_name.size() && !tex_cache_name[id].empty() && TA3D::Paths::ExtractFileExt(tex_cache_name[id]) == ".tga")
+        if (id < (int)tex_cache_name.size() && !tex_cache_name[id].empty() && TA3D::Paths::ExtractFileExt(tex_cache_name[id]) == ".tex")
         {
                     // Use global texture configuration
             if (surface.Flag&SURFACE_ADVANCED)
@@ -1258,7 +1257,7 @@ namespace TA3D
                     gfx->set_texture_format(GL_RGB8);
             }
 
-            SDL_Surface *bmp = IMG_Load( (TA3D::Paths::Caches + tex_cache_name[id]).c_str() );
+            SDL_Surface *bmp = LoadTex( TA3D::Paths::Caches + tex_cache_name[id] );
             GLuint texid = gfx->make_texture(bmp,FILTER_TRILINEAR,true);
 //            allegro_gl_use_alpha_channel(false);
             if (surface.Flag&SURFACE_ADVANCED)
@@ -4001,10 +4000,9 @@ namespace TA3D
                 surface.gltex[i] = 0;
                 if (!gfx->is_texture_in_cache(cache_filename))
                 {
-                    cache_filename = TA3D::Paths::Files::ReplaceExtension( cache_filename, ".tga" );
+                    cache_filename = TA3D::Paths::Files::ReplaceExtension( cache_filename, ".tex" );
                     if (!TA3D::Paths::Exists( TA3D::Paths::Caches + cache_filename ))
-                        LOG_ERROR(LOG_PREFIX_3DO << "save_bitmap not implemented yet!");
-//                        save_bitmap( (TA3D::Paths::Caches + cache_filename).c_str(), tex, NULL );
+                        SaveTex( tex, TA3D::Paths::Caches + cache_filename );
                 }
                 tex_cache_name.push_back( cache_filename );
             }

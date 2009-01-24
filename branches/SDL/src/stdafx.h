@@ -216,6 +216,11 @@ namespace TA3D
     SDL_Surface *convert_format_24(SDL_Surface *bmp);
     SDL_Surface *convert_format_16(SDL_Surface *bmp);
 
+    void save_bitmap(const String &filename, SDL_Surface* bmp);
+
+    SDL_Surface *LoadTex(const String &filename);
+    void SaveTex(SDL_Surface *bmp, const String &filename);
+
     void rest(uint32 msec);
 } // namespace TA3D
 

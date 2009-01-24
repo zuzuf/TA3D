@@ -26,9 +26,12 @@
 
 #include "stdafx.h"
 #include "TA3D_NameSpace.h"
+#include "misc/paths.h"
+#include "gfx/gfx.h"
 #include <sys/stat.h>
 #include <fstream>
 #include <math.h>
+#include <zlib.h>
 
 using namespace std;
 
@@ -245,7 +248,7 @@ SDL_Surface *convert_format(SDL_Surface *bmp)
         target_format.Bmask = 0x00FF0000;
         target_format.Amask = 0xFF000000;
         target_format.colorkey = 0x00FF00FF;
-        target_format.alpha = 0x0;
+        target_format.alpha = 0xFF;
         target_format.Rshift = 0;
         target_format.Gshift = 8;
         target_format.Bshift = 16;
@@ -273,7 +276,7 @@ SDL_Surface *convert_format_copy(SDL_Surface *bmp)
     target_format.Bmask = 0x00FF0000;
     target_format.Amask = 0xFF000000;
     target_format.colorkey = 0x00FF00FF;
-    target_format.alpha = 0x0;
+    target_format.alpha = 0xFF;
     target_format.Rshift = 0;
     target_format.Gshift = 8;
     target_format.Bshift = 16;
@@ -305,7 +308,7 @@ SDL_Surface *convert_format_24(SDL_Surface *bmp)
         target_format.Bmask = 0x00FF0000;
         target_format.Amask = 0x00000000;
         target_format.colorkey = 0x00FF00FF;
-        target_format.alpha = 0x0;
+        target_format.alpha = 0xFF;
         target_format.Rshift = 0;
         target_format.Gshift = 8;
         target_format.Bshift = 16;
@@ -338,7 +341,7 @@ SDL_Surface *convert_format_16(SDL_Surface *bmp)
         target_format.Bmask = 0x0000F800;
         target_format.Amask = 0x00000000;
         target_format.colorkey = 0x0000F81F;
-        target_format.alpha = 0x0;
+        target_format.alpha = 0xFF;
         target_format.Rshift = 0;
         target_format.Gshift = 5;
         target_format.Bshift = 11;
@@ -358,8 +361,14 @@ void blit(SDL_Surface *in, SDL_Surface *out, int x0, int y0, int x1, int y1, int
 {
     SDL_Surface *tmp = in;
     if (in->format->BitsPerPixel != out->format->BitsPerPixel)
-        tmp = SDL_ConvertSurface(in, out->format, SDL_SWSURFACE);
+    {
+        if (in->format->BitsPerPixel == 8)
+            SDL_SetPalette(in, SDL_LOGPAL|SDL_PHYSPAL, TA3D::VARS::pal, 0, 256);
 
+        tmp = SDL_ConvertSurface(in, out->format, SDL_SWSURFACE);
+    }
+
+    SDL_SetAlpha(tmp, 0, 0xFF);
     SDL_LockSurface(tmp);
     SDL_LockSurface(out);
 
@@ -423,7 +432,7 @@ void stretch_blit( SDL_Surface *in, SDL_Surface *out, int x0, int y0, int w0, in
         for(int y = 0 ; y < h0 ; y++)
         {
             int dy = (y1 + y * h1 / h0) * out->pitch >> 1;
-            int sy = (y + y0) * in->pitch;
+            int sy = (y + y0) * in->pitch >> 1;
             for(int x = 0 ; x < w0 ; x++)
             {
                 int sx = x + x0;
@@ -436,7 +445,7 @@ void stretch_blit( SDL_Surface *in, SDL_Surface *out, int x0, int y0, int w0, in
         for(int y = 0 ; y < h0 ; y++)
         {
             int dy = (y1 + y * h1 / h0) * out->pitch >> 2;
-            int sy = (y + y0) * in->pitch;
+            int sy = (y + y0) * in->pitch >> 2;
             for(int x = 0 ; x < w0 ; x++)
             {
                 int sx = x + x0;
@@ -465,9 +474,9 @@ void putpixel(SDL_Surface *bmp, int x, int y, uint32 col)
         (((uint16*)((bmp)->pixels))[(y) * ((bmp)->pitch >> 1) + (x)]) = col;
         break;
     case 24:
-        SurfaceByte(bmp, x * 3, y) = getr32(col);
+        SurfaceByte(bmp, x * 3, y) = getb32(col);
         SurfaceByte(bmp, x * 3 + 1, y) = getg32(col);
-        SurfaceByte(bmp, x * 3 + 2, y) = getb32(col);
+        SurfaceByte(bmp, x * 3 + 2, y) = getr32(col);
         break;
     case 32:
         SurfaceInt(bmp, x, y) = col;
@@ -486,9 +495,9 @@ uint32 getpixel(SDL_Surface *bmp, int x, int y)
         return (((uint16*)((bmp)->pixels))[(y) * ((bmp)->pitch >> 1) + (x)]);
     case 24:
         {
-            int r = SurfaceByte(bmp, x * 3, y);
+            int b = SurfaceByte(bmp, x * 3, y);
             int g = SurfaceByte(bmp, x * 3 + 1, y);
-            int b = SurfaceByte(bmp, x * 3 + 2, y);
+            int r = SurfaceByte(bmp, x * 3 + 2, y);
             return makecol24(r,g,b);
         }
     case 32:
@@ -584,4 +593,56 @@ void rectfill(SDL_Surface *bmp, int x0, int y0, int x1, int y1, uint32 col)
     SDL_FillRect(bmp, &rect, col);
 }
 
+void SaveTex(SDL_Surface *bmp, const String &filename)
+{
+    gzFile file = gzopen(filename.c_str(), "wb");
+    if (file)
+    {
+        SDL_LockSurface(bmp);
+        int w = bmp->w;
+        int h = bmp->h;
+        int bpp = bmp->format->BitsPerPixel;
+        gzwrite( file, &w, sizeof(w));
+        gzwrite( file, &h, sizeof(h));
+        gzwrite( file, &bpp, sizeof(bpp));
+        for(int y = 0 ; y < bmp->h ; y++)
+            gzwrite( file, ((char*)(bmp->pixels)) + y * bmp->pitch, bmp->w * bmp->format->BitsPerPixel >> 3);
+        SDL_UnlockSurface(bmp);
+
+        gzclose( file );
+    }
+}
+
+SDL_Surface *LoadTex(const String &filename)
+{
+    gzFile file = gzopen(filename.c_str(), "rb");
+    if (file)
+    {
+        int w, h, bpp;
+        gzread( file, &w, sizeof(w));
+        gzread( file, &h, sizeof(h));
+        gzread( file, &bpp, sizeof(bpp));
+        SDL_Surface *bmp = gfx->create_surface_ex(bpp, w, h);
+        SDL_LockSurface(bmp);
+        for(int y = 0 ; y < bmp->h ; y++)
+            gzread( file, ((char*)(bmp->pixels)) + y * bmp->pitch, bmp->w * bmp->format->BitsPerPixel >> 3);
+        SDL_UnlockSurface(bmp);
+
+        gzclose( file );
+
+        return bmp;
+    }
+    return NULL;
+}
+
+void save_bitmap(const String &filename, SDL_Surface* bmp)
+{
+    String ext = String::ToLower( Paths::ExtractFileExt(filename) );
+    if (ext == "bmp")
+        SDL_SaveBMP(bmp, filename.c_str());
+    else if (ext == "tex")                      // This is for cached texture data
+        SaveTex(bmp, filename);
+    else
+        LOG_WARNING("save_bitmap : file format not supported (" << filename << ")");
+}
 }

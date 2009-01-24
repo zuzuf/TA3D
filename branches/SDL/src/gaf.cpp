@@ -435,7 +435,10 @@ namespace TA3D
                                     while (l > 0)
                                     {
                                         if (!truecolor)
-                                            SurfaceByte(img, x++, i) = buf[f_pos];
+                                        {
+                                            SurfaceByte(img, x, i) = buf[f_pos];
+                                            x++;
+                                        }
                                         else
                                             putpixel(img,x++,i,makeacol(pal[buf[f_pos]].r, pal[buf[f_pos]].g, pal[buf[f_pos]].b,0xFF));
                                         --l;
@@ -455,7 +458,10 @@ namespace TA3D
                                             ++f_pos;
                                         }
                                         else
-                                            SurfaceByte(img, x++, i) = buf[f_pos++];
+                                        {
+                                            SurfaceByte(img, x, i) = buf[f_pos++];
+                                            x++;
+                                        }
                                         ++e;
                                         --l;
                                     }
@@ -472,11 +478,13 @@ namespace TA3D
                     SDL_FillRect(img, NULL, 0);
 
                     f_pos = framedata.PtrFrameData;
+                    SDL_LockSurface(img);
                     for (int i = 0; i < img->h; ++i) // Copie les octets de l'image
                     {
-                        memcpy((char*)img->pixels + i, buf + f_pos, img->w);
+                        memcpy(((char*)(img->pixels)) + i * img->pitch, buf + f_pos, img->w);
                         f_pos += img->w;
                     }
+                    SDL_UnlockSurface(img);
 
                     if (truecolor)
                     {

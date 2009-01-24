@@ -151,27 +151,28 @@ namespace TA3D
                     LOG_DEBUG("pressing " << (char)c);
                 }
                 break;
-            case SDL_KEYUP:
-                VARS::key[ event.key.keysym.sym ] = 0;
-                break;
-            case SDL_MOUSEMOTION:
-                mouse_x = event.motion.x;
-                mouse_y = event.motion.y;
-                mouse_b = event.motion.state;
-                break;
             case SDL_MOUSEBUTTONDOWN:
             case SDL_MOUSEBUTTONUP:
-                mouse_x = event.button.x;
-                mouse_y = event.button.y;
-                if (event.button.state == SDL_PRESSED)
-                    mouse_b = mouse_b | event.button.button;
-                else
-                    mouse_b = mouse_b & (~event.button.button);
+                switch(event.button.button)
+                {
+                case SDL_BUTTON_WHEELDOWN:
+                    if (event.button.state == SDL_PRESSED)
+                        mouse_z--;
+                    break;
+                case SDL_BUTTON_WHEELUP:
+                    if (event.button.state == SDL_PRESSED)
+                        mouse_z++;
+                    break;
+                };
+                break;
+            case SDL_KEYUP:
+                VARS::key[ event.key.keysym.sym ] = 0;
                 break;
             default:
                 LOG_DEBUG("Unhandled event");
             };
         }
+        mouse_b = SDL_GetMouseState( &mouse_x, &mouse_y );
     }
 
 	void position_mouse(int x, int y)
@@ -179,6 +180,8 @@ namespace TA3D
 	    mouse_x = x;
 	    mouse_y = y;
 	    SDL_WarpMouse(x,y);
+	    poll_mouse();
+        SDL_GetRelativeMouseState(NULL, NULL);
 	}
 
 	void get_mouse_mickeys(int *mx, int *my)
