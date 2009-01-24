@@ -199,22 +199,10 @@ ENDIF(UNIX)
 
 
 
-#
-# AllegroGL
-#
-IF(NOT WIN32 AND NOT CMAKE_CROSSCOMPILING)
-    find_library(VAR_LIB_ALLEG_GL agl )
-    IF( NOT VAR_LIB_ALLEG_GL )
-	message( FATAL_ERROR "AllegroGL >= 0.4.1 is required" )
-    ENDIF( NOT VAR_LIB_ALLEG_GL )
-ENDIF(NOT WIN32 AND NOT CMAKE_CROSSCOMPILING)
-
 link_directories( ${TA3D_SOURCE_DIR}/src/lua/ ${TA3D_SOURCE_DIR}/src/hawknl/src/ )
 
 
 IF( WIN32 OR CMAKE_CROSSCOMPILING )
-	SET( ALLEGRO_CONFIG "-lalleg" )
-
 	IF( CMAKE_CROSSCOMPILING )
 		SET( target i586-mingw32msvc- )
 	ENDIF( CMAKE_CROSSCOMPILING )
@@ -243,8 +231,8 @@ IF( WIN32 OR CMAKE_CROSSCOMPILING )
 	ENDIF( NOT BUILT_LUA )
 	EXECUTE_PROCESS( COMMAND cp src/hawknl/src/NL.dll ./ )
     EXECUTE_PROCESS( COMMAND cp src/tools/win32/mingw32/libs/alleg42.dll ./ )
-	#SET( LIBS "-llua -lagl_s -lalleg_s -luser32 -lgdi32 -lopengl32 -lglu32 -lz.dll -lNL ${OPENGL_LIBRARIES}")
-	SET( LIBS "-llua -lagl -lalleg -luser32 -lgdi32 -lopengl32 -lglu32 -lzlib -lNL")
+	#SET( LIBS "-llua -luser32 -lgdi32 -lopengl32 -lglu32 -lz.dll -lNL ${OPENGL_LIBRARIES}")
+	SET( LIBS "-llua -luser32 -lgdi32 -lopengl32 -lglu32 -lzlib -lNL")
 	IF( MSVC )
 #		Do we need something there ?
 #	    	LINK_DIRECTORIES("${CMAKE_SOURCE_DIR}/src/tools/win32/msvc/static/")
@@ -260,17 +248,27 @@ ELSE( WIN32 OR CMAKE_CROSSCOMPILING )
 	    ENDIF( NOT BUILT_LUA )
     ENDIF(NOT APPLE)
 
-	EXECUTE_PROCESS( COMMAND allegro-config --libs release OUTPUT_VARIABLE ALLEGRO_CONFIG )
-    STRING(REPLACE '\n' "" ALLEGRO_CONFIG "${ALLEGRO_CONFIG}")
-    IF( NOT CMAKE_MINOR_VERSION EQUAL 4 OR NOT CMAKE_MAJOR_VERSION EQUAL 2 )
-        STRING(STRIP ${ALLEGRO_CONFIG} ALLEGRO_CONFIG)
-    ENDIF( NOT CMAKE_MINOR_VERSION EQUAL 4 OR NOT CMAKE_MAJOR_VERSION EQUAL 2 )
-    SET(LIBS "-lagl -llua -lz -lNL ${ALLEGRO_CONFIG}")
+    SET(LIBS "-llua -lz -lNL")
     IF(NOT APPLE)
 	    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -rdynamic -ffast-math")
     ENDIF(NOT APPLE)
 ENDIF( WIN32 OR CMAKE_CROSSCOMPILING )
 
+#
+# --- FTGL ---
+#
+
+FIND_PACKAGE(Freetype)
+include_directories( ${FREETYPE_INCLUDE_DIRS} )
+
+find_library(FTGL_LIB ftgl)
+find_path(FTGL_INCLUDE_lower NAMES FTGL/ftgl.h)
+
+IF(NOT FTGL_INCLUDE_lower)
+    SET(__FTGL__lower__ false)
+ELSE(NOT FTGL_INCLUDE_lower)
+    SET(__FTGL__lower__ true)
+ENDIF(NOT FTGL_INCLUDE_lower)
 
 
 #

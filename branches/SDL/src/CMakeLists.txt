@@ -301,6 +301,9 @@ else( VAR_LIB_FMODEX )
    message( FATAL_ERROR "FMODex is required, please install FMODex" )
 endif( VAR_LIB_FMODEX )
 
+target_link_libraries(${TA3D_BIN} ${FTGL_LIB} ${FREETYPE_LIBRARIES})
+target_link_libraries(${3DMEDITOR_BIN} ${FTGL_LIB} ${FREETYPE_LIBRARIES})
+
 IF(WIN32)
     target_link_libraries(${3DMEDITOR_BIN} agl lua gdi32 alleg opengl32 glu32)
     target_link_libraries(${TA3D_BIN} agl lua gdi32 alleg opengl32 glu32 NL)

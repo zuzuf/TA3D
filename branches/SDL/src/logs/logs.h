@@ -13,7 +13,7 @@
 # ifdef LOGS_USE_DEBUG
 #   define LOG_DEBUG(X)     Logs::logger() << X << Logs::debug
 # else
-#   define LOG_DEBUG(X)     
+#   define LOG_DEBUG(X)
 # endif
 # define LOG_INFO(X)        Logs::logger() << X << Logs::info
 # define LOG_WARNING(X)     Logs::logger() << X << Logs::warning
@@ -54,6 +54,7 @@
 # define LOG_PREFIX_DIRECTX           "[DirectX] "
 # define LOG_PREFIX_GFX               "[gfx] "
 # define LOG_PREFIX_SHADER            "[shader] "
+# define LOG_PREFIX_FONT              "[font] "
 
 # define LOG_PREFIX_I18N              "[i18n] "
 # define LOG_PREFIX_SYSTEM            "[system] "
@@ -95,14 +96,14 @@ namespace Logs
 
 	/*!
 	** \brief Log line type interface
-	** 
+	**
 	** Derive from this class to implement a new line terminator (Log::debug etc).
 	*/
 	class AbstractLogMsg
 	{
 	public:
         //! Destructor
-		virtual ~AbstractLogMsg() {} 
+		virtual ~AbstractLogMsg() {}
 
 		/*!
 		** \brief Implement this to produce a string to put
@@ -268,7 +269,7 @@ namespace Logs
 
 	/*!
 	** \brief Class for logging
-	** 
+	**
 	** This class is basically an ostringstream, but whose output is not really a string,
 	** but a stream or a callback or both. (yeah i know...)
 	** \code
@@ -277,11 +278,11 @@ namespace Logs
 	** 	 logger().streamOutput(NULL); // Do not output on std::cerr anymore
 	** 	 logger().callbackOutput(NULL); // Do not output anything anymore.
     ** 	 logger().writeToFile("output.log"); // Redirect the output to a file
-	**    
+	**
 	**   When writing your callback, please do not use the Logs::logger(), as it is locked,
 	**   and this will enter a deadlock, followed by the death of your
 	**   program/microwave oven/chipmunk/computer/cat/puppy/...
-	** 		
+	**
 	** 	 logger << "Sample debug message" << Log::debug; // Will produce the following
 	** 	 // [ Sat May 26 13:37:19 2007 ] [debug] Sample debug message
 	** \endcode
@@ -299,7 +300,7 @@ namespace Logs
 		/*!
 		** \brief Modify the output callback.
 		** \param callback The new output callback. NULL means no callback output.
-		** 
+		**
 		** You can modify the output of the logger at any time.
 		**/
 		void callbackOutput(Callback callback);
@@ -325,7 +326,7 @@ namespace Logs
 
 		/*!
 		** \brief Unlocks the object.
-		*/ 
+		*/
 		void unlock() { pMutex.unlock(); }
 
 
@@ -338,7 +339,7 @@ namespace Logs
 		/*!
 		** \brief The generic << operator, specialized for Log*Msg
 		**/
-		template <typename RValue> 
+		template <typename RValue>
 		Log& operator << (RValue val)
         {
 		    *((std::ostringstream*)this) << val;

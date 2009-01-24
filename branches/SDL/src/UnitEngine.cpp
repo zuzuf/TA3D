@@ -6659,7 +6659,7 @@ script_exec:
                     {
                         String buf = format("%d",nb);
                         glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
-                        gfx->print(gfx->TA_font,px+pw*0.5f-0.5f*gfx->TA_font.length(buf),py+ph*0.5f-0.5f*gfx->TA_font.height(),0.0f,0xFFFFFFFF,buf);
+                        gfx->print(gfx->TA_font,px+pw*0.5f-0.5f*gfx->TA_font->length(buf),py+ph*0.5f-0.5f*gfx->TA_font->height(),0.0f,0xFFFFFFFF,buf);
                     }
                     else
                     {
@@ -6671,7 +6671,7 @@ script_exec:
                             else
                                 buf = format("%d(%d)",(int)unit[index].planned_weapons+1,stock);
                             glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
-                            gfx->print(gfx->TA_font,px+pw*0.5f-0.5f*gfx->TA_font.length(buf),py+ph*0.5f-0.5f*gfx->TA_font.height(),0.0f,0xFFFFFFFF,buf);
+                            gfx->print(gfx->TA_font,px+pw*0.5f-0.5f*gfx->TA_font->length(buf),py+ph*0.5f-0.5f*gfx->TA_font->height(),0.0f,0xFFFFFFFF,buf);
                         }
                     }
                 }

@@ -251,12 +251,6 @@ namespace TA3D
 #define getb(x) getb32(x)
 #define geta(x) geta32(x)
 
-class FONT
-{
-};
-inline int text_length(FONT *fnt,const char *str) {return 0;}
-inline int text_height(FONT *fnt) {return 0;}
-
 // zuzuf: to prevent some warnings
 # undef PACKAGE_BUGREPORT
 # undef PACKAGE_NAME

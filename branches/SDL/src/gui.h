@@ -39,17 +39,17 @@ namespace TA3D
 
 /*--------- Functions that can use the skin object -------------------------------------------------*/
 
-void button ( float x, float y, float x2, float y2, const String &Title, bool Etat, float s=1.0f , SKIN *skin=NULL );
-void FloatMenu( float x, float y, const String::Vector &Entry, int Index, int StartEntry=0 , SKIN *skin=NULL, float size = 1.0f );
-void ListBox( float x1, float y1, float x2, float y2, const String::Vector &Entry, int Index, int Scroll , SKIN *skin=NULL, float size = 1.0f, uint32 flags = 0 );
-void OptionButton( float x, float y, const String &Title, bool Etat , SKIN *skin=NULL, float size = 1.0f );
-void OptionCase( float x, float y, const String &Title, bool Etat , SKIN *skin=NULL, float size = 1.0f );
-void TextBar( float x1, float y1, float x2, float y2, const String &Caption, bool Etat, SKIN *skin=NULL, float size = 1.0f );
-void TextEditor( float x1, float y1, float x2, float y2, const String::Vector &Entry, int row, int col, bool Etat, SKIN *skin=NULL, float size = 1.0f );
-void ProgressBar( float x1, float y1, float x2, float y2, int Value, SKIN *skin=NULL, float size = 1.0f );
-void PopupMenu( float x1, float y1, const String &msg, SKIN *skin=NULL, float size = 1.0f );
-void ScrollBar( float x1, float y1, float x2, float y2, float Value, bool vertical=true, SKIN *skin = NULL, float size = 1.0f );
-int draw_text_adjust( float x1, float y1, float x2, float y2, String msg, float size, int pos = 0, bool mission_mode = false );
+void button ( float x, float y, float x2, float y2, const String &Title, bool Etat, SKIN *skin=NULL );
+void FloatMenu( float x, float y, const String::Vector &Entry, int Index, int StartEntry=0 , SKIN *skin=NULL );
+void ListBox( float x1, float y1, float x2, float y2, const String::Vector &Entry, int Index, int Scroll , SKIN *skin=NULL, uint32 flags = 0 );
+void OptionButton( float x, float y, const String &Title, bool Etat , SKIN *skin=NULL);
+void OptionCase( float x, float y, const String &Title, bool Etat , SKIN *skin=NULL );
+void TextBar( float x1, float y1, float x2, float y2, const String &Caption, bool Etat, SKIN *skin=NULL );
+void TextEditor( float x1, float y1, float x2, float y2, const String::Vector &Entry, int row, int col, bool Etat, SKIN *skin=NULL );
+void ProgressBar( float x1, float y1, float x2, float y2, int Value, SKIN *skin=NULL);
+void PopupMenu( float x1, float y1, const String &msg, SKIN *skin=NULL);
+void ScrollBar( float x1, float y1, float x2, float y2, float Value, bool vertical=true, SKIN *skin = NULL);
+int draw_text_adjust( float x1, float y1, float x2, float y2, String msg, int pos = 0, bool mission_mode = false );
 
 /*--------------------------------------------------------------------------------------------------*/
 
@@ -59,11 +59,6 @@ const String Dialogf( const String &Title, String Filter = "*.*" );
 bool WndAsk( const String &Title, const String &Msg, int ASW_TYPE=ASW_OKCANCEL );
 void Popup( const String &Title, const String &Msg );
 const String GetVal( const String &Title );
-
-extern float gui_font_h;
-
-extern bool	use_normal_alpha_function;
-
 
 } // namespace TA3D
 

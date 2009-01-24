@@ -93,7 +93,7 @@ namespace TA3D
 
         void add(DRAW_OBJECT &obj);
 
-        void draw(GfxFont &fnt);
+        void draw(Font *fnt);
     };
 
     class LUA_PROGRAM : public ObjectSync

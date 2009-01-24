@@ -37,4 +37,6 @@
 # define TA3D_RESOURCES_PATH     "@TA3D_RESOURCES_PATH@"
 #cmakedefine TA3D_OVERRIDE_PATHS
 
+#cmakedefine __FTGL__lower__
+
 #endif // __CONFIG_H__

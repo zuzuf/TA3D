@@ -145,10 +145,11 @@ namespace TA3D
         textureFBO = 0;
         textureDepth = 0;
         glfond = 0;
-        normal_font.init();
-        small_font.init();
-        TA_font.init();
-        ta3d_gui_font.init();
+#warning TODO: add font initialization code here
+        normal_font = font_manager.getFont("", 12, FONT_TYPE_TEXTURE);
+        small_font = font_manager.getFont("", 8, FONT_TYPE_TEXTURE);
+        TA_font = font_manager.getFont("", 12, FONT_TYPE_TEXTURE);
+        ta3d_gui_font = font_manager.getFont("", 12, FONT_TYPE_TEXTURE);
         InitInterface();
         displayInfosAboutOpenGL();
     }
@@ -167,10 +168,12 @@ namespace TA3D
         if (TA3D::VARS::pal )
             delete[]( TA3D::VARS::pal );
 
-        normal_font.destroy();
-        small_font.destroy();
-        TA_font.destroy();
-        ta3d_gui_font.destroy();
+        normal_font = NULL;
+        small_font = NULL;
+        TA_font = NULL;
+        ta3d_gui_font = NULL;
+
+        font_manager.destroy();
     }
 
 
@@ -184,22 +187,21 @@ namespace TA3D
         bool palette = TA3D::UTILS::HPI::load_palette(pal);
         if (!palette)
             LOG_WARNING("Failed to load the palette");
-
-        TA_font.load_gaf_font("anims\\hattfont12.gaf", 1.0f);
+#warning TODO: try to load TA GAF font here
+//        TA_font->load_gaf_font("anims\\hattfont12.gaf", 1.0f);
 
         LOG_DEBUG(LOG_PREFIX_GFX << "Creating a normal font...");
 
         LOG_DEBUG(LOG_PREFIX_GFX << "Creating a small font...");
 
         LOG_DEBUG(LOG_PREFIX_GFX << "Loading the GUI font...");
-        ta3d_gui_font.load_gaf_font( "anims\\hattfont12.gaf" , 1.0f );
+//        ta3d_gui_font.load_gaf_font( "anims\\hattfont12.gaf" , 1.0f );
 
         LOG_DEBUG(LOG_PREFIX_GFX << "Loading background...");
         load_background();
 
         gui_font = ta3d_gui_font;
-        gui_font_h = gui_font.height();
-        use_normal_alpha_function = true;
+//        gui_font_h = gui_font->height();
         alpha_blending_set = false;
 
         LOG_INFO(LOG_PREFIX_GFX << "Graphics are initialized.");
@@ -495,16 +497,7 @@ namespace TA3D
     }
 
 
-    void GFX::print(const GfxFont &font, const float x, const float y, const float z, const String text)		// Font related routines
-    {
-        print( font, x, y, z, text.c_str() );
-    }
-    void GFX::print(const GfxFont &font, const float x, const float y, const float z, const uint32 col, const String text)		// Font related routines
-    {
-        print( font, x, y, z, col, text.c_str() );
-    }
-
-    void GFX::print(const GfxFont& font, const float x, const float y, const float z, const char *text)		// Font related routines
+    void GFX::print(const Font *font, const float x, const float y, const float z, const String &text)		// Font related routines
     {
         ReInitTexSys( false );
         glPushAttrib(GL_ALL_ATTRIB_BITS);
@@ -516,61 +509,20 @@ namespace TA3D
         glPopMatrix();
         glPopAttrib();
     }
-    void GFX::print(const GfxFont &font, const float x, const float y, const float z, const uint32 col, const char *text)		// Font related routines
+    void GFX::print(const Font *font, const float x, const float y, const float z, const uint32 col, const String &text)		// Font related routines
     {
         set_color(col);
         print( font, x, y, z, text );
     }
 
-    void GFX::print(const GfxFont &font, const float x, const float y, const float z, const String text, float s)		// Font related routines
-    {
-        print( font, x, y, z, text.c_str() , s );
-    }
-    void GFX::print(const GfxFont &font, const float x, const float y, const float z, const uint32 col, const String text, float s)		// Font related routines
-    {
-        print( font, x, y, z, col, text.c_str() , s );
-    }
-
-    void GFX::print(const GfxFont &font, const float x, const float y, const float z, const char *text,float s)		// Font related routines
-    {
-        ReInitTexSys( false );
-        glPushAttrib(GL_ALL_ATTRIB_BITS);
-        glEnable(GL_BLEND);
-        glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
-        glEnable(GL_TEXTURE_2D);
-        glPushMatrix();
-        if (s > 0.0f)
-        {
-            glScalef(s,s,1.0f);
-//            allegro_gl_printf_ex(font.pGl, x/s, y/s, z, text );
-        }
-        glPopMatrix();
-        glPopAttrib();
-    }
-    void GFX::print(const GfxFont &font, const float x, const float y, const float z, const uint32 col, const char *text,float s)		// Font related routines
-    {
-        set_color(col);
-        print( font, x, y, z, text , s );
-    }
-
-
-    void GFX::print_center(const GfxFont &font, const float x, const float y, const float z, const String text)		// Font related routines
-    {
-        print_center( font, x, y, z, text.c_str() );
-    }
-    void GFX::print_center(const GfxFont &font, const float x, const float y, const float z, const uint32 col, const String text)		// Font related routines
-    {
-        print_center( font, x, y, z, col, text.c_str() );
-    }
-
-    void GFX::print_center(const GfxFont &font, const float x, const float y, const float z, const char *text)		// Font related routines
+    void GFX::print_center(const Font *font, const float x, const float y, const float z, const String &text)		// Font related routines
     {
         ReInitTexSys( false );
         glPushAttrib(GL_ALL_ATTRIB_BITS);
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
 
-        float X = x - 0.5f * font.length( text );
+        float X = x - 0.5f * font->length( text );
 
         glEnable(GL_TEXTURE_2D);
         glPushMatrix();
@@ -578,66 +530,21 @@ namespace TA3D
         glPopMatrix();
         glPopAttrib();
     }
-    void GFX::print_center(const GfxFont &font, const float x, const float y, const float z, const uint32 col, const char *text)		// Font related routines
+    void GFX::print_center(const Font *font, const float x, const float y, const float z, const uint32 col, const String &text)		// Font related routines
     {
         set_color(col);
         print_center( font, x, y, z, text );
     }
 
-    void GFX::print_center(const GfxFont &font, const float x, const float y, const float z, const String text, float s)		// Font related routines
-    {
-        print_center( font, x, y, z, text.c_str() , s );
-    }
-    void GFX::print_center(const GfxFont &font, const float x, const float y, const float z, const uint32 col, const String text, float s)		// Font related routines
-    {
-        print_center( font, x, y, z, col, text.c_str() , s );
-    }
 
-    void GFX::print_center(const GfxFont &font, const float x, const float y, const float z, const char *text,float s)		// Font related routines
+    void GFX::print_right(const Font *font, const float x, const float y, const float z, const String &text)		// Font related routines
     {
         ReInitTexSys( false );
         glPushAttrib(GL_ALL_ATTRIB_BITS);
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
 
-        float X = x - 0.5f * font.length( text );
-
-        glEnable(GL_TEXTURE_2D);
-        glPushMatrix();
-        if (s > 0.0f)
-        {
-            glScalef(s,s,1.0f);
-//            allegro_gl_printf_ex(font.pGl, X/s, y/s, z, text );
-        }
-        glPopMatrix();
-        glPopAttrib();
-    }
-
-
-    void GFX::print_center(const GfxFont &font, const float x, const float y, const float z, const uint32 col, const char *text,float s)		// Font related routines
-    {
-        set_color(col);
-        print_center( font, x, y, z, text , s );
-    }
-
-
-    void GFX::print_right(const GfxFont &font, const float x, const float y, const float z, const String text)		// Font related routines
-    {
-        print_right( font, x, y, z, text.c_str() );
-    }
-    void GFX::print_right(const GfxFont &font, const float x, const float y, const float z, const uint32 col, const String text)		// Font related routines
-    {
-        print_right( font, x, y, z, col, text.c_str() );
-    }
-
-    void GFX::print_right(const GfxFont &font, const float x, const float y, const float z, const char *text)		// Font related routines
-    {
-        ReInitTexSys( false );
-        glPushAttrib(GL_ALL_ATTRIB_BITS);
-        glEnable(GL_BLEND);
-        glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
-
-        float X = x - font.length( text );
+        float X = x - font->length( text );
 
         glEnable(GL_TEXTURE_2D);
         glPushMatrix();
@@ -646,48 +553,10 @@ namespace TA3D
         glPopAttrib();
     }
 
-    void GFX::print_right(const GfxFont &font, const float x, const float y, const float z, const uint32 col, const char *text)		// Font related routines
+    void GFX::print_right(const Font *font, const float x, const float y, const float z, const uint32 col, const String &text)		// Font related routines
     {
         set_color(col);
         print_right( font, x, y, z, text );
-    }
-
-
-    void GFX::print_right(const GfxFont &font, const float x, const float y, const float z, const String text, float s)		// Font related routines
-    {
-        print_right( font, x, y, z, text.c_str() , s);
-    }
-
-    void GFX::print_right(const GfxFont &font, const float x, const float y, const float z, const uint32 col, const String text, float s)		// Font related routines
-    {
-        print_right( font, x, y, z, col, text.c_str() , s);
-    }
-
-
-    void GFX::print_right(const GfxFont &font, const float x, const float y, const float z, const char *text,float s)		// Font related routines
-    {
-        ReInitTexSys( false );
-        glPushAttrib(GL_ALL_ATTRIB_BITS);
-        glEnable(GL_BLEND);
-        glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
-
-        float X = x - font.length(text);
-
-        glEnable(GL_TEXTURE_2D);
-        glPushMatrix();
-        if (s > 0.0f)
-        {
-            glScalef(s,s,1.0f);
-//            allegro_gl_printf_ex(font.pGl, X/s, y/s, z, text );
-        }
-        glPopMatrix();
-        glPopAttrib();
-    }
-
-    void GFX::print_right(const GfxFont &font, const float x, const float y, const float z, const uint32 col, const char *text,float s)		// Font related routines
-    {
-        set_color(col);
-        print_right( font, x, y, z, text , s );
     }
 
     int GFX::max_texture_size()

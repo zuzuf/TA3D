@@ -71,7 +71,7 @@ namespace TA3D
 
 
 
-    String Console::draw(TA3D::GfxFont& fnt, const float dt, float fsize, const bool forceShow)
+    String Console::draw(TA3D::Font *fnt, const float dt, float fsize, const bool forceShow)
     {
         MutexLocker locker(pMutex);
 

@@ -40,7 +40,7 @@ namespace TA3D
     **
     ** \brief The user console
     */
-    class Console 
+    class Console
     {
     public:
         //! \name Constructor & Destructor
@@ -75,7 +75,7 @@ namespace TA3D
         ** \param fsize Size of the font
         ** \param forceShow Display the console even it should be displayed
         */
-        String draw(TA3D::GfxFont& fnt, const float dt, float fsize = 8, const bool forceShow = false);
+        String draw(TA3D::Font *fnt, const float dt, float fsize = 8, const bool forceShow = false);
 
 
     private:
@@ -91,11 +91,11 @@ namespace TA3D
         uint16 pMaxItemsToDisplay;
         //!
         real32 pVisible;
-        //! 
+        //!
         bool pShow;
-        //! 
+        //!
         String pInputText;
-        //! 
+        //!
         uint32 pCurrentTimer;
 
     }; //class Console

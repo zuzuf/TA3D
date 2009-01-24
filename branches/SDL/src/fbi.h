@@ -352,7 +352,7 @@ namespace TA3D
         /*!
         ** \brief Everything is in the name ...
         */
-        void show_info(float fade,GfxFont fnt);
+        void show_info(float fade,Font *fnt);
 
         /*!
         ** \brief Returns true if the units float on water

@@ -44,12 +44,12 @@ using namespace TA3D; // TODO Remove this
 namespace TA3D
 {
 
-    class GfxFont;
+    class Font;
 
 
     class GFX : public ObjectSync, protected IInterface
     {
-        friend class GfxFont;
+        friend class Font;
 
         bool		alpha_blending_set;
         GLuint      texture_format;
@@ -94,10 +94,10 @@ namespace TA3D
         int			width;				// Size of this window on the screen
         int			height;
         int			x,y;				// Position on the screen
-        GfxFont     normal_font;		// Fonts
-        GfxFont     small_font;
-        GfxFont     TA_font;
-        GfxFont     ta3d_gui_font;
+        Font        *normal_font;		// Fonts
+        Font        *small_font;
+        Font        *TA_font;
+        Font        *ta3d_gui_font;
 
         sint32		SCREEN_W_HALF;
         sint32		SCREEN_H_HALF;
@@ -211,41 +211,14 @@ namespace TA3D
         //! \name Text manipulation
         //@{
 
-        void print(const GfxFont &font, const float x, const float y, const float z, const String text );		// Font related routines
-        void print(const GfxFont &font, const float x, const float y, const float z, const uint32 col, const String text );
+        void print(const Font *font, const float x, const float y, const float z, const String &text );		// Font related routines
+        void print(const Font *font, const float x, const float y, const float z, const uint32 col, const String &text );
 
-        void print(const GfxFont &font, const float x, const float y, const float z, const char *text );
-        void print(const GfxFont &font, const float x, const float y, const float z, const uint32 col, const char *text );
+        void print_center(const Font *font, const float x, const float y, const float z, const String &text );		// Font related routines
+        void print_center(const Font *font, const float x, const float y, const float z, const uint32 col, const String &text );
 
-        void print(const GfxFont &font, const float x, const float y, const float z, const String text, float s);		// Font related routines
-        void print(const GfxFont &font, const float x, const float y, const float z, const uint32 col, const String text, float s);
-
-        void print(const GfxFont &font, const float x, const float y, const float z, const char *text, float s);
-        void print(const GfxFont &font, const float x, const float y, const float z, const uint32 col, const char *text, float s);
-
-        void print_center(const GfxFont &font, const float x, const float y, const float z, const String text );		// Font related routines
-        void print_center(const GfxFont &font, const float x, const float y, const float z, const uint32 col, const String text );
-
-        void print_center(const GfxFont &font, const float x, const float y, const float z, const char *text );
-        void print_center(const GfxFont &font, const float x, const float y, const float z, const uint32 col, const char *text );
-
-        void print_center(const GfxFont &font, const float x, const float y, const float z, const String text, float s);		// Font related routines
-        void print_center(const GfxFont &font, const float x, const float y, const float z, const uint32 col, const String text, float s);
-
-        void print_center(const GfxFont &font, const float x, const float y, const float z, const char *text, float s);
-        void print_center(const GfxFont &font, const float x, const float y, const float z, const uint32 col, const char *text, float s);
-
-        void print_right(const GfxFont &font, const float x, const float y, const float z, const String text );		// Font related routines
-        void print_right(const GfxFont &font, const float x, const float y, const float z, const uint32 col, const String text );
-
-        void print_right(const GfxFont &font, const float x, const float y, const float z, const char *text );
-        void print_right(const GfxFont &font, const float x, const float y, const float z, const uint32 col, const char *text );
-
-        void print_right(const GfxFont &font, const float x, const float y, const float z, const String text, float s);		// Font related routines
-        void print_right(const GfxFont &font, const float x, const float y, const float z, const uint32 col, const String text, float s);
-
-        void print_right(const GfxFont &font, const float x, const float y, const float z, const char *text, float s);
-        void print_right(const GfxFont &font, const float x, const float y, const float z, const uint32 col, const char *text, float s);
+        void print_right(const Font *font, const float x, const float y, const float z, const String &text );		// Font related routines
+        void print_right(const Font *font, const float x, const float y, const float z, const uint32 col, const String &text );
 
         //@} // Text manipilation
 

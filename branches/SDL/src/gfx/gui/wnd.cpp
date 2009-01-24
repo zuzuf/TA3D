@@ -159,12 +159,11 @@ namespace TA3D
             }
             if (show_title && skin->wnd_title_bar.tex)
             {
-                title_h = (int)(Math::Max(2 + gui_font.height(), (float)skin->wnd_title_bar.y1) - skin->wnd_title_bar.y2);
-                skin->wnd_title_bar.draw(x+3, y+3, x+width-4, y + 3 + title_h * size_factor);
+                title_h = (int)(Math::Max(2 + gui_font->height(), (float)skin->wnd_title_bar.y1) - skin->wnd_title_bar.y2);
+                skin->wnd_title_bar.draw(x+3, y+3, x+width-4, y + 3 + title_h);
                 gfx->print(gui_font, x + 5 + skin->wnd_title_bar.x1,
-                           y + 3 + (title_h - gui_font.height()) * 0.5f * size_factor,
-                           0,
-                           Blanc, Title, size_factor);
+                           y + 3 + (title_h - gui_font->height()) * 0.5f,
+                           0, White, Title);
             }
             glDisable(GL_BLEND);
             glBindTexture(GL_TEXTURE_2D, 0);
@@ -173,16 +172,16 @@ namespace TA3D
         {
             if (draw_borders)
             {
-                gfx->rect(x - 2, y - 2, x + width + 1, y + height + 1, Noir);
-                gfx->rect(x - 1, y - 1, x + width,     y + height,     GrisF);
-                gfx->line(x - 2, y - 2, x + width + 1, y - 2,          Blanc);
-                gfx->line(x - 2, y - 2, x - 2,         y + height + 1, Blanc);
-                gfx->line(x - 1, y - 1, x + width,     y - 1,          GrisC);
-                gfx->line(x - 1, y - 1, x - 1,         y + height,     GrisC);
+                gfx->rect(x - 2, y - 2, x + width + 1, y + height + 1, Black);
+                gfx->rect(x - 1, y - 1, x + width,     y + height,     DGray);
+                gfx->line(x - 2, y - 2, x + width + 1, y - 2,          White);
+                gfx->line(x - 2, y - 2, x - 2,         y + height + 1, White);
+                gfx->line(x - 1, y - 1, x + width,     y - 1,          LGray);
+                gfx->line(x - 1, y - 1, x - 1,         y + height,     LGray);
             }
             if (show_title)
             {
-                title_h = (int)(2 + gui_font.height());
+                title_h = (int)(2 + gui_font->height());
                 if (deg)
                 {
                     if (focus)
@@ -190,8 +189,8 @@ namespace TA3D
                         glBegin(GL_QUADS);
                         glColor3f(0.0f, 0.0f, 1.0f);   glVertex2f(x + 3,         y + 3);
                         glColor3f(0.5f, 0.5f, 0.75f);  glVertex2f(x + width - 4, y + 3);
-                        glColor3f(0.5f, 0.5f, 0.75f);  glVertex2f(x + width - 4, y + 5 + gui_font.height());
-                        glColor3f(0.0f, 0.0f, 1.0f);   glVertex2f(x + 3,         y + 5 + gui_font.height());
+                        glColor3f(0.5f, 0.5f, 0.75f);  glVertex2f(x + width - 4, y + 5 + gui_font->height());
+                        glColor3f(0.0f, 0.0f, 1.0f);   glVertex2f(x + 3,         y + 5 + gui_font->height());
                         glEnd();
                     }
                     else
@@ -199,19 +198,19 @@ namespace TA3D
                         glBegin(GL_QUADS);
                         glColor3f(0.75f, 0.75f, 0.75f); glVertex2f(x + 3,          y + 3);
                         glColor3f(0.5f,  0.5f,  0.5f);  glVertex2f(x + width - 4 , y + 3);
-                        glColor3f(0.5f,  0.5f,  0.5f);  glVertex2f(x + width - 4 , y + 5 + gui_font.height());
-                        glColor3f(0.75f, 0.75f, 0.75f); glVertex2f(x + 3,          y + 5 + gui_font.height());
+                        glColor3f(0.5f,  0.5f,  0.5f);  glVertex2f(x + width - 4 , y + 5 + gui_font->height());
+                        glColor3f(0.75f, 0.75f, 0.75f); glVertex2f(x + 3,          y + 5 + gui_font->height());
                         glEnd();
                     }
                 }
                 else
                 {
                     if (focus)
-                        gfx->rectfill(x + 3 , y + 3 , x + width - 4 , y + 5 + gui_font.height(), Bleu);
+                        gfx->rectfill(x + 3 , y + 3 , x + width - 4 , y + 5 + gui_font->height(), Blue);
                     else
-                        gfx->rectfill(x + 3 , y + 3 , x + width - 4 , y + 5 + gui_font.height(), GrisF);
+                        gfx->rectfill(x + 3 , y + 3 , x + width - 4 , y + 5 + gui_font->height(), DGray);
                 }
-                gfx->print(gui_font, x + 4 , y + 4 , 0 , Blanc, Title);
+                gfx->print(gui_font, x + 4 , y + 4 , 0 , White, Title);
             }
         }
     }
@@ -241,7 +240,7 @@ namespace TA3D
                 }
             case OBJ_LIST:
                 ListBox(x + Objets[i].x1, y + Objets[i].y1, x + Objets[i].x2, y + Objets[i].y2,
-                        Objets[i].Text, Objets[i].Pos, Objets[i].Data, skin, Objets[i].s, Objets[i].Flag);
+                        Objets[i].Text, Objets[i].Pos, Objets[i].Data, skin, Objets[i].Flag);
                 break;
             case OBJ_LINE:
                 gfx->disable_texturing();
@@ -284,52 +283,52 @@ namespace TA3D
                 if (Objets[i].Text.empty())
                     Objets[i].Text.push_back("");
                 button(x + Objets[i].x1, y + Objets[i].y1, x + Objets[i].x2, y + Objets[i].y2,
-                       Objets[i].Text[0], Objets[i].activated, Objets[i].s, skin);
+                       Objets[i].Text[0], Objets[i].activated, skin);
                 if (Objets[i].Focus && focus)
-                    gfx->rectdot(Objets[i].x1+x-2,Objets[i].y1+y-2,Objets[i].x2+x+2,Objets[i].y2+y+2,GrisF);
+                    gfx->rectdot(Objets[i].x1+x-2,Objets[i].y1+y-2,Objets[i].x2+x+2,Objets[i].y2+y+2,DGray);
                 break;
             case OBJ_OPTIONC:		// Checkbox
                 if (Objets[i].Text.empty())
                     Objets[i].Text.push_back("");
-                OptionCase(x + Objets[i].x1, y + Objets[i].y1, Objets[i].Text[0], Objets[i].Etat, skin, Objets[i].s);
+                OptionCase(x + Objets[i].x1, y + Objets[i].y1, Objets[i].Text[0], Objets[i].Etat, skin);
                 if (Objets[i].Focus && focus)
-                    gfx->rectdot(Objets[i].x1 + x - 2, Objets[i].y1 + y - 2, Objets[i].x2 + x + 2, Objets[i].y2 + y + 2, GrisF);
+                    gfx->rectdot(Objets[i].x1 + x - 2, Objets[i].y1 + y - 2, Objets[i].x2 + x + 2, Objets[i].y2 + y + 2, DGray);
                 break;
             case OBJ_OPTIONB:		// Boutton d'option
                 if (Objets[i].Text.empty())
                     Objets[i].Text.push_back("");
-                OptionButton(x + Objets[i].x1, y + Objets[i].y1, Objets[i].Text[0], Objets[i].Etat, skin, Objets[i].s);
+                OptionButton(x + Objets[i].x1, y + Objets[i].y1, Objets[i].Text[0], Objets[i].Etat, skin);
                 if (Objets[i].Focus && focus)
-                    gfx->rectdot(Objets[i].x1 + x - 2, Objets[i].y1 + y - 2, Objets[i].x2 + x + 2, Objets[i].y2 + y + 2, GrisF);
+                    gfx->rectdot(Objets[i].x1 + x - 2, Objets[i].y1 + y - 2, Objets[i].x2 + x + 2, Objets[i].y2 + y + 2, DGray);
                 break;
             case OBJ_PBAR:			// Progress Bar
-                ProgressBar(x + Objets[i].x1, y + Objets[i].y1, x + Objets[i].x2, y + Objets[i].y2, Objets[i].Data, skin, Objets[i].s);
+                ProgressBar(x + Objets[i].x1, y + Objets[i].y1, x + Objets[i].x2, y + Objets[i].y2, Objets[i].Data, skin);
                 if (Objets[i].Focus && focus)
-                    gfx->rectdot(Objets[i].x1 + x - 2, Objets[i].y1 + y - 2, Objets[i].x2 + x + 2, Objets[i].y2 + y + 2, GrisF);
+                    gfx->rectdot(Objets[i].x1 + x - 2, Objets[i].y1 + y - 2, Objets[i].x2 + x + 2, Objets[i].y2 + y + 2, DGray);
                 break;
             case OBJ_TEXTBAR:		// Text edit
                 if (Objets[i].Text.empty())
                     Objets[i].Text.push_back("");
-                TextBar(x + Objets[i].x1, y + Objets[i].y1, x + Objets[i].x2, y + Objets[i].y2, Objets[i].Text[0], Objets[i].Focus, skin, Objets[i].s);
+                TextBar(x + Objets[i].x1, y + Objets[i].y1, x + Objets[i].x2, y + Objets[i].y2, Objets[i].Text[0], Objets[i].Focus, skin);
                 if (Objets[i].Focus && focus)
-                    gfx->rectdot(Objets[i].x1 + x - 2, Objets[i].y1 + y - 2, Objets[i].x2 + x + 2, Objets[i].y2 + y + 2, GrisF);
+                    gfx->rectdot(Objets[i].x1 + x - 2, Objets[i].y1 + y - 2, Objets[i].x2 + x + 2, Objets[i].y2 + y + 2, DGray);
                 break;
             case OBJ_TEXTEDITOR:	// Large text edit
                 if (Objets[i].Text.empty())
                     Objets[i].Text.push_back("");
-                TextEditor(x + Objets[i].x1, y + Objets[i].y1, x + Objets[i].x2, y + Objets[i].y2, Objets[i].Text, Objets[i].Data, Objets[i].Pos, Objets[i].Focus, skin, Objets[i].s);
+                TextEditor(x + Objets[i].x1, y + Objets[i].y1, x + Objets[i].x2, y + Objets[i].y2, Objets[i].Text, Objets[i].Data, Objets[i].Pos, Objets[i].Focus, skin);
                 if (Objets[i].Focus && focus)
-                    gfx->rectdot(Objets[i].x1 + x - 2, Objets[i].y1 + y - 2, Objets[i].x2 + x + 2, Objets[i].y2 + y + 2, GrisF);
+                    gfx->rectdot(Objets[i].x1 + x - 2, Objets[i].y1 + y - 2, Objets[i].x2 + x + 2, Objets[i].y2 + y + 2, DGray);
                 break;
             case OBJ_TEXT:
                 if (Objets[i].Text.empty())
                     Objets[i].Text.push_back("");
                 if (!(Objets[i].Flag & FLAG_TEXT_ADJUST))
-                    gfx->print(gui_font, x + Objets[i].x1, Objets[i].y1 + y, 0.0f, Objets[i].Data, Objets[i].Text[0], Objets[i].s);
+                    gfx->print(gui_font, x + Objets[i].x1, Objets[i].y1 + y, 0.0f, Objets[i].Data, Objets[i].Text[0]);
                 else
                 {
                     Objets[i].Data = draw_text_adjust(x + Objets[i].x1, y + Objets[i].y1, x + Objets[i].x2, y + Objets[i].y2,
-                                                      Objets[i].Text[0], Objets[i].s, Objets[i].Pos, Objets[i].Flag & FLAG_MISSION_MODE);
+                                                      Objets[i].Text[0], Objets[i].Pos, Objets[i].Flag & FLAG_MISSION_MODE);
                     if (Objets[i].Data > 0)
                         Objets[i].Pos %= Objets[i].Data;
                 }
@@ -339,7 +338,7 @@ namespace TA3D
                     Objets[i].Text.push_back("");
                 if (!Objets[i].Etat)
                     button(x + Objets[i].x1, y + Objets[i].y1, x + Objets[i].x2, y + Objets[i].y2,
-                           Objets[i].Text[0], Objets[i].activated || Objets[i].Etat, Objets[i].s, skin);
+                           Objets[i].Text[0], Objets[i].activated || Objets[i].Etat, skin);
                 break;
         }
 
@@ -376,7 +375,7 @@ namespace TA3D
         {
             case OBJ_FMENU:			// Menu flottant
                 FloatMenu(x + Objets[i].x1, y + Objets[i].y1, Objets[i].Text,
-                          Objets[i].Data, 0, skin, Objets[i].s);
+                          Objets[i].Data, 0, skin);
                 break;
             case OBJ_MENU: // Menu déroulant
                 if (Objets[i].Etat)
@@ -384,10 +383,10 @@ namespace TA3D
                     button(x + Objets[i].x1, y + Objets[i].y1,
                            x + Objets[i].x2, y + Objets[i].y2,
                            Objets[i].Text[0],
-                           Objets[i].activated || Objets[i].Etat, Objets[i].s, skin);
+                           Objets[i].activated || Objets[i].Etat, skin);
                     FloatMenu(x + Objets[i].x1, y + Objets[i].y2 + 1,
                               Objets[i].Text, Objets[i].Data + 1,
-                              1 + Objets[i].Pos, skin, Objets[i].s);
+                              1 + Objets[i].Pos, skin);
                 }
                 break;
         }
@@ -464,7 +463,7 @@ namespace TA3D
             if (skin)
             {
                 for (unsigned int e = 0 ; e < Objets[i].Text.size() - (1 + Objets[i].Pos) ; ++e)
-                    m_width = Math::Max(m_width, gui_font.length(Objets[i].Text[ e ]) * Objets[i].s);
+                    m_width = Math::Max(m_width, gui_font->length(Objets[i].Text[ e ]) * Objets[i].s);
 
                 m_width += skin->menu_background.x1 - skin->menu_background.x2;
             }
@@ -473,7 +472,7 @@ namespace TA3D
 
             if (mouse_x >= x + Objets[i].x1 && mouse_x <= x + Objets[i].x1 + m_width
                 && mouse_y > y + Objets[i].y2
-                && mouse_y <= y + Objets[i].y2 + 1 + gui_font.height() * Objets[i].s * Objets[i].Text.size())
+                && mouse_y <= y + Objets[i].y2 + 1 + gui_font->height() * Objets[i].s * Objets[i].Text.size())
             {
                 wasOnFloattingMenu = true;
                 indxMenu = i;
@@ -569,7 +568,7 @@ namespace TA3D
                 if (skin)
                 {
                     for (unsigned int e = 0; e < Objets[i].Text.size() - (1 + Objets[i].Pos); ++e)
-                        m_width = Math::Max(m_width, gui_font.length(Objets[i].Text[ e ]) * Objets[i].s);
+                        m_width = Math::Max(m_width, gui_font->length(Objets[i].Text[ e ]) * Objets[i].s);
 
                     m_width += skin->menu_background.x1 - skin->menu_background.x2;
                 }
@@ -577,7 +576,7 @@ namespace TA3D
                     m_width = 168.0f;
 
                 if (mouse_x >= x + Objets[i].x1 && mouse_x <= x + Objets[i].x1 + m_width
-                    && mouse_y > y + Objets[i].y2 && mouse_y <= y + Objets[i].y2 + 1 + gui_font.height() * Objets[i].s * Objets[i].Text.size())
+                    && mouse_y > y + Objets[i].y2 && mouse_y <= y + Objets[i].y2 + 1 + gui_font->height() * Objets[i].s * Objets[i].Text.size())
                     Objets[i].MouseOn = true;
             }
 
@@ -626,7 +625,7 @@ namespace TA3D
                         if (skin)
                         {
                             for (unsigned int e = 0; e < Objets[i].Text.size() - (1 + Objets[i].Pos); ++e)
-                                m_width = Math::Max(m_width, gui_font.length(Objets[i].Text[e]) * Objets[i].s);
+                                m_width = Math::Max(m_width, gui_font->length(Objets[i].Text[e]) * Objets[i].s);
 
                             m_width += skin->menu_background.x1 - skin->menu_background.x2;
                         }
@@ -634,17 +633,17 @@ namespace TA3D
                             m_width = 168.0f;
 
                         if (Objets[i].MouseOn && mouse_x >= x + Objets[i].x1 && mouse_x <= x + Objets[i].x1 + m_width
-                            && mouse_y > y + Objets[i].y2 + 4 && mouse_y <= y + Objets[i].y2 + 1 + gui_font.height() * Objets[i].s * Objets[i].Text.size()
+                            && mouse_y > y + Objets[i].y2 + 4 && mouse_y <= y + Objets[i].y2 + 1 + gui_font->height() * Objets[i].s * Objets[i].Text.size()
                             && Objets[i].Etat)
                         {
                             if (timetoscroll)
                             {
                                 if (mouse_y<y+Objets[i].y2+12 && Objets[i].Pos>0)
                                     Objets[i].Pos--;
-                                if (mouse_y>SCREEN_H-8 && y+Objets[i].y2+1+gui_font.height()*Objets[i].s*(Objets[i].Text.size()-Objets[i].Pos)>SCREEN_H)
+                                if (mouse_y>SCREEN_H-8 && y+Objets[i].y2+1+gui_font->height()*Objets[i].s*(Objets[i].Text.size()-Objets[i].Pos)>SCREEN_H)
                                     Objets[i].Pos++;
                             }
-                            Objets[i].Data=(int)((mouse_y-y-Objets[i].y2-5)/(gui_font.height()*Objets[i].s)+Objets[i].Pos);
+                            Objets[i].Data=(int)((mouse_y-y-Objets[i].y2-5)/(gui_font->height()*Objets[i].s)+Objets[i].Pos);
                             if (Objets[i].Data>=Objets[i].Text.size() - 1)
                                 Objets[i].Data = -1;
                         }
@@ -654,7 +653,7 @@ namespace TA3D
                     Objets[i].Data = -1;		// Pas de séléction
                     if (Objets[i].MouseOn && mouse_y>=y+Objets[i].y1+4 && mouse_y<=y+Objets[i].y2-4)
                     {
-                        Objets[i].Data = (int)((mouse_y-y-Objets[i].y1-4)/(gui_font.height()*Objets[i].s));
+                        Objets[i].Data = (int)((mouse_y-y-Objets[i].y1-4)/(gui_font->height()*Objets[i].s));
                         if (Objets[i].Data>=Objets[i].Text.size())
                             Objets[i].Data = -1;
                     }
@@ -819,7 +818,7 @@ namespace TA3D
                             || mouse_y - y <= Objets[i].y1 + skin->text_background.y1
                             || mouse_y - y >= Objets[i].y2 + skin->text_background.y2)			// We're on ListBox decoration!
                             break;
-                        int TotalScroll = Objets[i].Text.size() - (int)((Objets[i].y2 - Objets[i].y1 - skin->text_background.y1 + skin->text_background.y2) / (gui_font.height() * Objets[i].s));
+                        int TotalScroll = Objets[i].Text.size() - (int)((Objets[i].y2 - Objets[i].y1 - skin->text_background.y1 + skin->text_background.y2) / (gui_font->height() * Objets[i].s));
                         if (TotalScroll < 0)
                             TotalScroll = 0;
 
@@ -911,7 +910,7 @@ namespace TA3D
                                 && mouse_y - y <= Objets[i].y2 + skin->text_background.y2) // We're on the scroll bar!
                             {
 
-                                int TotalScroll = Objets[i].Text.size() - (int)((Objets[i].y2 - Objets[i].y1 - skin->text_background.y1 + skin->text_background.y2) / (gui_font.height() * Objets[i].s));
+                                int TotalScroll = Objets[i].Text.size() - (int)((Objets[i].y2 - Objets[i].y1 - skin->text_background.y1 + skin->text_background.y2) / (gui_font->height() * Objets[i].s));
                                 if (TotalScroll < 0)
                                     TotalScroll = 0;
 
@@ -949,7 +948,7 @@ namespace TA3D
                                              || mouse_y - y <= Objets[i].y1 + skin->text_background.y1
                                              || mouse_y - y >= Objets[i].y2 + skin->text_background.y2))			// We're on ListBox decoration!
                                     break;
-                                Objets[i].Pos = (uint32) ((mouse_y - y - Objets[i].y1 - (skin ? skin->text_background.y1:4)) / (gui_font.height() * Objets[i].s) + Objets[i].Data);						Objets[i].Etat = true;
+                                Objets[i].Pos = (uint32) ((mouse_y - y - Objets[i].y1 - (skin ? skin->text_background.y1:4)) / (gui_font->height() * Objets[i].s) + Objets[i].Data);						Objets[i].Etat = true;
                             }
                             break;
                         case OBJ_TA_BUTTON:
@@ -992,7 +991,7 @@ namespace TA3D
                         case OBJ_FMENU:			// Menu Flottant
                             if (mouse_y >= y + Objets[i].y1 + (skin ? skin->menu_background.y1 : 0) + 4 && mouse_y <= y + Objets[i].y2 + (skin ? skin->menu_background.y2 : 0) - 4)
                             {
-                                index = (int)((mouse_y - y - Objets[i].y1 - 4 - (skin ? skin->menu_background.y1 : 0))/(gui_font.height()*Objets[i].s));
+                                index = (int)((mouse_y - y - Objets[i].y1 - 4 - (skin ? skin->menu_background.y1 : 0))/(gui_font->height()*Objets[i].s));
                                 if (index >= (int)(Objets[i].Text.size()))
                                     index = Objets[i].Text.size() - 1;
                                 if (Objets[i].Func!=NULL)
@@ -1005,17 +1004,17 @@ namespace TA3D
                                 if (skin)
                                 {
                                     for (unsigned int e = 0 ; e < Objets[i].Text.size() - (1 + Objets[i].Pos) ; e++)
-                                        m_width = Math::Max(m_width, gui_font.length(Objets[i].Text[ e ]) * Objets[i].s);
+                                        m_width = Math::Max(m_width, gui_font->length(Objets[i].Text[ e ]) * Objets[i].s);
 
                                     m_width += skin->menu_background.x1 - skin->menu_background.x2;
                                 }
                                 else
                                     m_width = 168.0f;
                                 if (mouse_x >= x + Objets[i].x1 + (skin ? skin->menu_background.x1 : 0) && mouse_x <= x + Objets[i].x1 + m_width + (skin ? skin->menu_background.x2 : 0)
-                                    && mouse_y > y + Objets[i].y2 + (skin ? skin->menu_background.y1 : 0) && mouse_y <= y + Objets[i].y2 + (skin ? skin->menu_background.y2 : 0) + 1 + gui_font.height() * Objets[i].s * Objets[i].Text.size()
+                                    && mouse_y > y + Objets[i].y2 + (skin ? skin->menu_background.y1 : 0) && mouse_y <= y + Objets[i].y2 + (skin ? skin->menu_background.y2 : 0) + 1 + gui_font->height() * Objets[i].s * Objets[i].Text.size()
                                     && Objets[i].Etat)
                                 {
-                                    index = (int)((mouse_y - y - Objets[i].y2 - 5 - (skin ? skin->menu_background.y1 : 0))/(Objets[i].s * gui_font.height()) + Objets[i].Pos);
+                                    index = (int)((mouse_y - y - Objets[i].y2 - 5 - (skin ? skin->menu_background.y1 : 0))/(Objets[i].s * gui_font->height()) + Objets[i].Pos);
                                     if (index >= (int)(Objets[i].Text.size() - 1))
                                         index = Objets[i].Text.size()-2;
                                     if (Objets[i].Func != NULL)
@@ -1485,7 +1484,7 @@ namespace TA3D
                 if (wndFile.pullAsBool(obj_key + "centered"))
                 {
                     obj_flags |= FLAG_CENTERED;
-                    X1 -= gui_font.length(caption) * size * 0.5f;
+                    X1 -= gui_font->length(caption) * size * 0.5f;
                 }
 
                 String::Vector Entry;

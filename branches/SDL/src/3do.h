@@ -418,7 +418,7 @@ namespace TA3D
 
         float compute_size_sq(Vector3D center);		// Carré de la taille(on fera une racine après)
 
-        float print_struct(const float Y, const float X, TA3D::GfxFont& fnt);
+        float print_struct(const float Y, const float X, TA3D::Font *fnt);
 
         float compute_top( float top, Vector3D dec );
 
@@ -517,7 +517,7 @@ namespace TA3D
         /*!
         ** \brief
         */
-        void print_struct(const float Y, const float X, TA3D::GfxFont& fnt)
+        void print_struct(const float Y, const float X, TA3D::Font *fnt)
         { obj.print_struct(Y, X, fnt); }
 
         /*!

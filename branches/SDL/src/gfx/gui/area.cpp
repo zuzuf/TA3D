@@ -91,7 +91,7 @@ namespace TA3D
         {
             if (guiobj->Flag & FLAG_CENTERED)
             {
-                float length = gui_font.length(guiobj->Text[0]) * guiobj->s;
+                float length = gui_font->length(guiobj->Text[0]) * guiobj->s;
                 guiobj->x1 += length * 0.5f;
                 guiobj->x2 -= length * 0.5f;
             }
@@ -110,7 +110,7 @@ namespace TA3D
                 guiobj->Text[0] = caption;
             if (guiobj->Flag & FLAG_CENTERED)
             {
-                float length = gui_font.length(guiobj->Text[0]) * guiobj->s;
+                float length = gui_font->length(guiobj->Text[0]) * guiobj->s;
                 guiobj->x1 -= length * 0.5f;
                 guiobj->x2 += length * 0.5f;
             }

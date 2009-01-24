@@ -1464,7 +1464,7 @@ namespace TA3D
         lua_program->unlock();
     }
 
-    void DRAW_LIST::draw(GfxFont &fnt)
+    void DRAW_LIST::draw(Font *fnt)
     {
         glPushMatrix();
         glScalef(SCREEN_W/640.0f,SCREEN_H/480.0f,1.0f);

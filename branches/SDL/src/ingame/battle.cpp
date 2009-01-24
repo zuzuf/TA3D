@@ -3239,12 +3239,12 @@ namespace TA3D
                             if (units.unit[i].mission->flags & MISSION_FLAG_COMMAND_FIRE)	flags += "COMMAND_FIRE; ";
                             if (units.unit[i].mission->flags & MISSION_FLAG_MOVE)	flags += "MOVE; ";
                             if (units.unit[i].mission->flags & MISSION_FLAG_REFRESH_PATH)	flags += "REFRESH_PATH; ";
-                            y += gfx->normal_font.height();
+                            y += gfx->normal_font->height();
                             gfx->print(gfx->normal_font,128.0f,y,0.0f,0xFFFFFFFF,format("FLAGS: %s", flags.c_str()));
                         }
                         else
                             gfx->print(gfx->normal_font,128.0f,y,0.0f,0xFFFFFFFF,format("MISSION: NONE"));
-                        y += gfx->normal_font.height();
+                        y += gfx->normal_font->height();
                     }
                     units.unit[i].unlock();
                 }
@@ -3258,11 +3258,11 @@ namespace TA3D
                 if (value.find('.') != String::npos)
                     value.resize(value.find('.') + 2);
                 if (show_timefactor > 0.5f)
-                    gfx->print( gfx->TA_font, (gfx->width - (int)gfx->TA_font.length(value))>>1, SCREEN_H-80, 0.0f, 0xFFFFFFFF, value);
+                    gfx->print( gfx->TA_font, (gfx->width - (int)gfx->TA_font->length(value))>>1, SCREEN_H-80, 0.0f, 0xFFFFFFFF, value);
                 else
                 {
                     uint32 c = (uint32)(511.0f * show_timefactor) * 0x01010101;
-                    gfx->print( gfx->TA_font, (gfx->width - (int)gfx->TA_font.length(value))>>1, SCREEN_H-80, 0.0f, c, value);
+                    gfx->print( gfx->TA_font, (gfx->width - (int)gfx->TA_font->length(value))>>1, SCREEN_H-80, 0.0f, c, value);
                 }
                 show_timefactor -= dt;
             }
@@ -3272,7 +3272,7 @@ namespace TA3D
             String cmd;
             // Draw the console
             if (!shoot || video_shoot)
-                cmd = console.draw(gfx->TA_font, dt, gfx->TA_font.height());
+                cmd = console.draw(gfx->TA_font, dt, gfx->TA_font->height());
 
             // Informations about FPS
             if (lp_CONFIG->showfps)

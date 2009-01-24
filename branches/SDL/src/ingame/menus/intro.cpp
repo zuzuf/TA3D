@@ -31,14 +31,14 @@ namespace Menus
 
 
     Intro::Intro()
-        :Abstract(), pContentSize(0), pBackgroundTexture(0), pPreviousFontSize(1.5f),
+        :Abstract(), pContentSize(0), pBackgroundTexture(0),
         pCurrentFontHeight(1.0f)
     {}
 
     Intro::~Intro()
     {}
 
-    
+
     bool Intro::doInitialize()
     {
         LOG_ASSERT(NULL != gfx);
@@ -46,10 +46,7 @@ namespace Menus
         reloadContent();
         loadBackgroundTexture();
 
-        // Font size
-        pPreviousFontSize = gfx->TA_font.get_size();
-        gfx->TA_font.change_size( 1.5f );
-        pCurrentFontHeight = gfx->TA_font.height();
+        pCurrentFontHeight = gfx->TA_font->height();
 
         gfx->set_2D_mode();
         glScalef(SCREEN_W / 1280.0f, SCREEN_H / 1024.0f, 1.0f);
@@ -63,8 +60,6 @@ namespace Menus
 
     void Intro::doFinalize()
     {
-        // Restore the previous font size
-        gfx->TA_font.change_size(pPreviousFontSize);
         ResetTexture(pBackgroundTexture);
         LOG_DEBUG(LOG_PREFIX_MENU_INTRO << "Done.");
         pScrollTimer = msec_timer;

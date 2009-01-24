@@ -36,7 +36,7 @@ namespace TA3D
         uint32  num_entries() const {return Text.size();}
 
         /*!
-        ** \brief Reacts to a message transfered from the interface 
+        ** \brief Reacts to a message transfered from the interface
         */
         uint32  msg(const String& message, WND* wnd = NULL);
 
@@ -150,7 +150,7 @@ namespace TA3D
         ** \param X1
         ** \param Y1
         */
-        void create_text(const float X1, const float Y1,const String& Caption, const int Col = Noir, const float size = 1.0f);
+        void create_text(const float X1, const float Y1,const String& Caption, const int Col = Black, const float size = 1.0f);
 
         /*!
         ** \brief
@@ -160,7 +160,7 @@ namespace TA3D
         ** \param X2
         ** \param Y2
         */
-        void create_line(const float X1, const float Y1, const float X2, const float Y2, const int Col = Noir);
+        void create_line(const float X1, const float Y1, const float X2, const float Y2, const int Col = Black);
 
         /*!
         ** \brief
@@ -170,7 +170,7 @@ namespace TA3D
         ** \param X2
         ** \param Y2
         */
-        void create_box(const float X1, const float Y1, const float X2, const float Y2, const int Col = Noir);
+        void create_box(const float X1, const float Y1, const float X2, const float Y2, const int Col = Black);
 
         /*!
         ** \brief

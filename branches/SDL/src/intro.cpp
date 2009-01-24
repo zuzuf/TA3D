@@ -72,9 +72,7 @@ void loading(const float percent, const String& msg)
     glPushMatrix();
     glScalef(SCREEN_W/1280.0f,SCREEN_H/1024.0f,1.0f);
 
-    const float TA_font_size = gfx->TA_font.get_size();
-    gfx->TA_font.change_size( 1.75f );
-    float h = gfx->TA_font.height();
+    float h = gfx->TA_font->height();
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);		// Efface l'écran
 
@@ -82,7 +80,7 @@ void loading(const float percent, const String& msg)
 
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
-    glColor4f(1.0f,1.0f,1.0f,1.0f);
+    glColor4ub(0xFF,0xFF,0xFF,0xFF);
 
     if (messages.empty() || String::ToLower(messages.front()) != String::ToLower(msg))
     {
@@ -108,7 +106,7 @@ void loading(const float percent, const String& msg)
 
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
-    glColor4f(1.0f,1.0f,1.0f,1.0f);
+    glColor4ub(0xFF,0xFF,0xFF,0xFF);
 
     gfx->drawtexture(Glfond,100.0f,856.0f,1172.0f,917.0f,100.0f / 1280.0f,862.0f/1024.0f,1172.0f/1280.0f,917.0f/1024.0f);
 
@@ -117,16 +115,14 @@ void loading(const float percent, const String& msg)
     glEnable(GL_TEXTURE_2D);
 
     glEnable(GL_BLEND);
-    gfx->print(gfx->TA_font,640.0f-0.5f*gfx->TA_font.length(msg),830-h*0.5f,0.0f,0xFFFFFFFF,msg);
+    gfx->print(gfx->TA_font,640.0f-0.5f*gfx->TA_font->length(msg),830-h*0.5f,0.0f,0xFFFFFFFF,msg);
     glDisable(GL_BLEND);
-
-    gfx->TA_font.change_size( TA_font_size );
 
     glPopMatrix();
 
     if( lp_CONFIG->draw_console_loading ) // If set in config
     {
-        String cmd = console.draw(gfx->TA_font, 0.0f, gfx->TA_font.height(), true);			// Display something to show what's happening
+        String cmd = console.draw(gfx->TA_font, 0.0f, gfx->TA_font->height(), true);			// Display something to show what's happening
     }
 
     gfx->flip();

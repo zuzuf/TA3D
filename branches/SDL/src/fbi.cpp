@@ -583,7 +583,7 @@ namespace TA3D
     }
 
 
-    void UNIT_TYPE::show_info(float fade, GfxFont fnt)
+    void UNIT_TYPE::show_info(float fade, Font *fnt)
     {
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);

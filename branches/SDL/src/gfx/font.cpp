@@ -16,21 +16,20 @@ namespace TA3D
 
 
 
-    GfxFont::GfxFont()
-    {}
-
-    void GfxFont::init()
+    Font::Font()
     {
+        init();
     }
 
-    void GfxFont::load(const char* filename, const float s)
+    void Font::init()
     {
+        font = NULL;
     }
 
-
-
-    void GfxFont::load_gaf_font(const char *filename, const float s)
+    void Font::load_gaf_font(const String &filename)
     {
+        destroy();
+
         LOG_DEBUG("Loading GAF font: `" << filename << "`...");
         byte *data = HPIManager->PullFromHPI(filename);
         if(data)
@@ -77,35 +76,140 @@ namespace TA3D
         }
         else
         {
-            throw cError( "GfxFont::load_gafFont()", "file could not be read, data = NULL.", true );
+            throw cError( "Font::load_gafFont()", "file could not be read, data = NULL.", true );
             return;
         }
 
-#warning FIXME: fonts not implemented yet!
+#warning FIXME: GAF fonts not implemented yet!
     }
 
 
-    void GfxFont::destroy()
+    void Font::destroy()
     {
+        if (font)
+            delete font;
         init();
     }
 
-    float GfxFont::length(const String txt) const
+    float Font::length(const String &txt) const
     {
-        return 0.0f;
+        if (font == NULL)
+            return 0.0f;
+#ifdef __FTGL__lower__
+        FTBBox box = font->BBox( txt.c_str(), txt.size() );
+        return fabsf((box.Upper().Xf() - box.Lower().Xf()));
+#else
+        float x0, y0, z0, x1, y1, z1;
+        font->BBox( txt.c_str(), x0, y0, z0, x1, y1, z1 );
+        return fabsf(x0 - x1);
+#endif
     }
 
-    float GfxFont::height() const
+    float Font::height() const
     {
-        return 0.0f;
+        if (font == NULL)
+            return 0.0f;
+        return font->LineHeight();
     }
 
-    void GfxFont::change_size(const float s)
+    int Font::get_size() const
+    {
+        if (font)
+            return font->FaceSize();
+        return 0;
+    }
+
+    FontManager font_manager;
+
+    FontManager::FontManager()
     {
     }
 
-    float GfxFont::get_size() const
+    FontManager::~FontManager()
     {
-        return 0.0f;
+        destroy();
+    }
+
+    void FontManager::destroy()
+    {
+        for(std::list<Font*>::iterator i = font_list.begin() ; i != font_list.end() ; ++i)
+            delete *i;
+        font_list.clear();
+        font_table.emptyHashTable();
+        font_table.initTable(__DEFAULT_HASH_TABLE_SIZE);
+    }
+
+    String find_font(const String &path, const String &name)
+    {
+        String file_path;
+        String::List file_list;
+        String comp_name = String::ToLower(name + ".ttf");
+        Paths::GlobFiles(file_list, path + "/*", true, true);
+        for(String::List::iterator i = file_list.begin() ; i != file_list.end() && file_path.empty() ; ++i)
+            if (String::ToLower(*i) == comp_name)
+                file_path = path + "/" + *i;
+
+        if (file_path.empty())
+        {
+            String::List dir_list;
+            Paths::GlobDirs(dir_list, path + "/*", true, true);
+            for(String::List::iterator i = dir_list.begin() ; i != dir_list.end() && file_path.empty() ; ++i)
+                if (!StartsWith(*i, "."))
+                    file_path = find_font(path + "/" + *i, name);
+        }
+        return file_path;
+    }
+
+    void Font::load(const String &filename, const int size, const int type)
+    {
+        destroy();
+        font = NULL;
+        if (!filename.empty())
+            switch(type)
+            {
+            case FONT_TYPE_POLYGON:
+                font = new FTBitmapFont(filename.c_str());
+                break;
+            case FONT_TYPE_BITMAP:
+                font = new FTPixmapFont(filename.c_str());
+                break;
+            case FONT_TYPE_PIXMAP:
+                font = new FTPolygonFont(filename.c_str());
+                break;
+            case FONT_TYPE_TEXTURE:
+            default:
+                font = new FTTextureFont(filename.c_str());
+            };
+        if (font)
+        {
+            font->FaceSize(size);
+            font->UseDisplayList(false);
+            LOG_DEBUG(LOG_PREFIX_FONT << "'" << filename << "' loaded");
+        }
+        else
+            LOG_ERROR(LOG_PREFIX_FONT << "could not load file : " << filename);
+    }
+
+    Font *FontManager::getFont(String filename, int size, int type)
+    {
+        String key = filename + format("_%d_%d", type, size);
+
+        if (font_table.exists(key))
+            return font_table.find(key);
+
+        String bak_filename = filename;
+        filename = find_font("/usr/share/fonts", filename);
+
+        if (filename.empty())
+            filename = find_font("/usr/share/fonts", "FreeSerif");
+        else
+            LOG_DEBUG(LOG_PREFIX_FONT << "font not found : " << bak_filename);
+
+        Font *font = new Font();
+        font->load(filename, size, type);
+
+        font_table.insertOrUpdate(key, font);
+
+        return font;
     }
 } // namespace TA3D

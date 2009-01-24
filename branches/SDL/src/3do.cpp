@@ -2935,7 +2935,7 @@ namespace TA3D
 
 
 
-    float OBJECT::print_struct(float Y, float X, TA3D::GfxFont& fnt)
+    float OBJECT::print_struct(float Y, float X, TA3D::Font *fnt)
     {
         gfx->print(fnt, X, Y, 0.0f,      0xFFFFFF, format("%s [%d]", name.c_str(),script_index));
         gfx->print(fnt, 320.0f, Y, 0.0f, 0xFFFFFF, format("(v:%d",   nb_vtx));

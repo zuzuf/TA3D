@@ -37,16 +37,16 @@ namespace Menus
         /*!
         ** \brief Set the count of tasks to complete
         */
-        void maxTasks(const float v); 
+        void maxTasks(const float v);
         /*!
         ** \brief Get the count of tasks to complete
         */
-        int maxTasks(); 
+        int maxTasks();
 
         /*!
         ** \brief Get the percent completed
         */
-        float percent(); 
+        float percent();
 
         /*!
         ** \brief Get the caption
@@ -96,7 +96,7 @@ namespace Menus
         /*!
         ** \brief Get if informations should be broadcasted to other players
         */
-        bool broadcastInfosAboutLoading(); 
+        bool broadcastInfosAboutLoading();
         /*!
         ** \brief Set if informations should be broadcasted to other players
         */
@@ -132,7 +132,7 @@ namespace Menus
 
         //! The number of tasks completed
         float pNbTasksCompleted;
-        //! The maximum count of 
+        //! The maximum count of
         float pMaxTasksCompleted;
         //! The current percentage of progression
         float pPercent;
@@ -149,8 +149,6 @@ namespace Menus
 
         //! The background texture
         GLuint pBackgroundTexture;
-        //! The previous font size
-        float pPreviousFontSize;
         //! The height of the font
         float pCurrentFontHeight;
 

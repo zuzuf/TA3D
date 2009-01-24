@@ -15,7 +15,7 @@ namespace Menus
 
     /*! \class Intro
     **
-    ** \brief The Intro menu 
+    ** \brief The Intro menu
     */
     class Intro : public Abstract
     {
@@ -34,7 +34,7 @@ namespace Menus
         virtual ~Intro();
         //@}
 
-        
+
         /*!
         ** \brief reload the content of the scrolling text
         */
@@ -63,13 +63,11 @@ namespace Menus
         String::Vector pContent;
         //! Cached size of the content
         unsigned int pContentSize;
-        
+
         uint32 pScrollTimer;
 
         //! The texture of the background
         GLuint pBackgroundTexture;
-        //! The previous font size
-        float pPreviousFontSize;
         //! Current font height
         float pCurrentFontHeight;
 

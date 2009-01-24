@@ -8,28 +8,28 @@
 //! \name Standard colors
 //@{
 
-//! 
-# define GrisM	makeacol(128,128,128,255)
 //!
-# define GrisF	makeacol(64,64,64,255)
+# define MGray	    makeacol(128,128,128,255)
 //!
-# define GrisC	makeacol(192,192,192,255)
+# define DGray	    makeacol(64,64,64,255)
 //!
-# define Noir	makeacol(0,0,0,255)
+# define LGray	    makeacol(192,192,192,255)
 //!
-# define Blanc	makeacol(255,255,255,255)
+# define Black	    makeacol(0,0,0,255)
 //!
-# define Bleu	makeacol(0,0,255,255)
+# define White	    makeacol(255,255,255,255)
 //!
-# define Rouge	makeacol(255,0,0,255)
+# define Blue	    makeacol(0,0,255,255)
 //!
-# define Vert	makeacol(0,255,0,255)
+# define Red	    makeacol(255,0,0,255)
 //!
-# define Jaune	makeacol(255,255,0,255)
+# define Green	    makeacol(0,255,0,255)
 //!
-# define GrisCM	makeacol(170,170,170,255)
+# define Yellow	    makeacol(255,255,0,255)
 //!
-# define RougeF	makeacol(128,0,0,255)
+# define LMGrey	    makeacol(170,170,170,255)
+//!
+# define DRed       makeacol(128,0,0,255)
 
 //@}
 
@@ -146,7 +146,7 @@
 namespace TA3D
 {
 
-    extern TA3D::GfxFont gui_font;
+    extern TA3D::Font *gui_font;
 
 } // namespace TA3D
 

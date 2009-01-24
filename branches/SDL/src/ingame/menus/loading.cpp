@@ -17,7 +17,7 @@ namespace Menus
         :pNbTasksCompleted(0.0f), pMaxTasksCompleted(100.0f),
         pPercent(0.0f), pLastPercent(-1.0f), pBroadcastInformations(true),
         pCaption("Loading..."),
-        pBackgroundTexture(0), pPreviousFontSize(1.0f), pCurrentFontHeight(0.0f)
+        pBackgroundTexture(0), pCurrentFontHeight(0.0f)
     {
         LOG_DEBUG(LOG_PREFIX_MENU_LOADING << "Starting...");
         pStartTime = msec_timer;
@@ -30,7 +30,7 @@ namespace Menus
         :pNbTasksCompleted(0.0f), pMaxTasksCompleted(maxTasks),
         pPercent(0.0f), pLastPercent(-1.0f), pBroadcastInformations(true),
         pCaption("Loading..."),
-        pBackgroundTexture(0), pPreviousFontSize(1.0f), pCurrentFontHeight(0.0f)
+        pBackgroundTexture(0), pCurrentFontHeight(0.0f)
     {
         LOG_DEBUG(LOG_PREFIX_MENU_LOADING << "Starting...");
         pStartTime = msec_timer;
@@ -56,15 +56,11 @@ namespace Menus
         gfx->set_2D_mode();
         glScalef(SCREEN_W / 1280.0f, SCREEN_H / 1024.0f, 1.0f);
 
-        pPreviousFontSize = gfx->TA_font.get_size();
-        gfx->TA_font.change_size(1.75f);
-        pCurrentFontHeight = gfx->TA_font.height();
+        pCurrentFontHeight = gfx->TA_font->height();
     }
 
     void Loading::finalizeDrawing()
     {
-        // Restore the previous font size
-        gfx->TA_font.change_size(pPreviousFontSize);
         // Reset 3D mode
         gfx->unset_2D_mode();
     }
@@ -153,7 +149,7 @@ namespace Menus
     bool Loading::broadcastInfosAboutLoading()
     {
         MutexLocker locker(pMutex);
-        return pBroadcastInformations; 
+        return pBroadcastInformations;
     }
 
 
@@ -230,7 +226,7 @@ namespace Menus
         // Draw the caption (horizontally centered)
         glEnable(GL_TEXTURE_2D);
         glEnable(GL_BLEND);
-        gfx->print(gfx->TA_font, 640.0f - 0.5f * gfx->TA_font.length(pCaption),
+        gfx->print(gfx->TA_font, 640.0f - 0.5f * gfx->TA_font->length(pCaption),
                    830 - pCurrentFontHeight * 0.5f, 0.0f, 0xFFFFFFFF,
                    pCaption);
         glDisable(GL_BLEND);
