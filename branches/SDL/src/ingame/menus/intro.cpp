@@ -8,11 +8,11 @@
 
 
 //!
-# define TA3D_INTRO_MAX_LINES 15
+# define TA3D_INTRO_TOP 630.0f
 
-# define TA3D_INTRO_TOP 580.0f
+# define TA3D_INTRO_BOTTOM 950.0f
 
-#define LAST_LINE		14
+# define TA3D_INTRO_MAX_LINES ((int)((TA3D_INTRO_BOTTOM - TA3D_INTRO_TOP) / pCurrentFontHeight) + 2)
 
 # define TA3D_INTRO_SPEED  60.0f
 
@@ -43,10 +43,10 @@ namespace Menus
     {
         LOG_ASSERT(NULL != gfx);
         LOG_DEBUG(LOG_PREFIX_MENU_INTRO << "Entering...");
+        pCurrentFontHeight = gfx->TA_font->ascender();
+
         reloadContent();
         loadBackgroundTexture();
-
-        pCurrentFontHeight = gfx->TA_font->ascender();
 
         gfx->set_2D_mode();
         glScalef(SCREEN_W / 1280.0f, SCREEN_H / 1024.0f, 1.0f);
@@ -145,51 +145,35 @@ namespace Menus
         glColor4ub(0xFF, 0xFF, 0xFF, 0xFF);
         int indx = 0;
         for (unsigned int i = pStartIndex; i < pContentSize && indx < TA3D_INTRO_MAX_LINES; ++i, ++indx)
-            gfx->print(gfx->TA_font, 220.0f, TA3D_INTRO_TOP + (indx+2) * pCurrentFontHeight - pDelta, 0.0f, pContent[i]);
+            gfx->print(gfx->TA_font, 220.0f, TA3D_INTRO_TOP + (indx-1) * pCurrentFontHeight - pDelta, 0.0f, pContent[i]);
 
         glBlendFunc(GL_ONE_MINUS_SRC_ALPHA,GL_SRC_ALPHA);
         glBindTexture(GL_TEXTURE_2D, pBackgroundTexture);
         glBegin(GL_QUADS);
 
-        glColor4ub(0xFF, 0xFF, 0xFF, 0xFF);
+        glColor4ub(0xFF, 0xFF, 0xFF, 0);
 
-        glTexCoord2f(0.0f, (TA3D_INTRO_TOP + pCurrentFontHeight) / 1024.0f);
-        glVertex2f(0.0f, TA3D_INTRO_TOP + pCurrentFontHeight);
-        glTexCoord2f(1.0f, (TA3D_INTRO_TOP + pCurrentFontHeight) / 1024.0f);
-        glVertex2f(1280.0f, TA3D_INTRO_TOP + pCurrentFontHeight);
-        glTexCoord2f(1.0f, (TA3D_INTRO_TOP + 2 * pCurrentFontHeight) / 1024.0f);
-        glVertex2f(1280.0f, TA3D_INTRO_TOP+2 * pCurrentFontHeight);
-        glTexCoord2f(0.0f, (TA3D_INTRO_TOP + 2 * pCurrentFontHeight) / 1024.0f);
-        glVertex2f(0.0f, TA3D_INTRO_TOP+2 * pCurrentFontHeight);
+        glTexCoord2f(0.0f, (TA3D_INTRO_TOP - 60.0f) / 1024.0f);                     glVertex2f(0.0f, TA3D_INTRO_TOP - 60.0f);
+        glTexCoord2f(1.0f, (TA3D_INTRO_TOP - 60.0f) / 1024.0f);                     glVertex2f(1280.0f, TA3D_INTRO_TOP - 60.0f);
+        glTexCoord2f(1.0f, TA3D_INTRO_TOP / 1024.0f);                               glVertex2f(1280.0f, TA3D_INTRO_TOP);
+        glTexCoord2f(0.0f, TA3D_INTRO_TOP / 1024.0f);                               glVertex2f(0.0f, TA3D_INTRO_TOP);
 
-        glTexCoord2f(0.0f,( TA3D_INTRO_TOP + 2 * pCurrentFontHeight) / 1024.0f);
-        glVertex2f(0.0f, TA3D_INTRO_TOP+2 * pCurrentFontHeight);
-        glTexCoord2f(1.0f,( TA3D_INTRO_TOP + 2 * pCurrentFontHeight) / 1024.0f);
-        glVertex2f(1280.0f, TA3D_INTRO_TOP+2 * pCurrentFontHeight);
-        glColor4f(1.0f,1.0f,1.0f,1.0f);
-        glTexCoord2f(1.0f, (TA3D_INTRO_TOP + 4 * pCurrentFontHeight) / 1024.0f);
-        glVertex2f(1280.0f, TA3D_INTRO_TOP+4 * pCurrentFontHeight);
-        glTexCoord2f(0.0f, (TA3D_INTRO_TOP + 4 * pCurrentFontHeight) / 1024.0f);
-        glVertex2f(0.0f, TA3D_INTRO_TOP + 4 * pCurrentFontHeight);
+        glTexCoord2f(0.0f, TA3D_INTRO_TOP / 1024.0f);                               glVertex2f(0.0f, TA3D_INTRO_TOP);
+        glTexCoord2f(1.0f, TA3D_INTRO_TOP / 1024.0f);                               glVertex2f(1280.0f, TA3D_INTRO_TOP);
+        glColor4ub(0xFF,0xFF,0xFF,0xFF);
+        glTexCoord2f(1.0f, (TA3D_INTRO_TOP + 2 * pCurrentFontHeight) / 1024.0f);    glVertex2f(1280.0f, TA3D_INTRO_TOP + 2 * pCurrentFontHeight);
+        glTexCoord2f(0.0f, (TA3D_INTRO_TOP + 2 * pCurrentFontHeight) / 1024.0f);    glVertex2f(0.0f, TA3D_INTRO_TOP + 2 * pCurrentFontHeight);
 
-        glTexCoord2f(0.0f, (TA3D_INTRO_TOP + LAST_LINE * pCurrentFontHeight) / 1024.0f);
-        glVertex2f(0.0f, TA3D_INTRO_TOP+LAST_LINE * pCurrentFontHeight);
-        glTexCoord2f(1.0f, (TA3D_INTRO_TOP + LAST_LINE * pCurrentFontHeight) / 1024.0f);
-        glVertex2f(1280.0f, TA3D_INTRO_TOP+LAST_LINE * pCurrentFontHeight);
-        glColor4f(1.0f,1.0f,1.0f,0.0f);
-        glTexCoord2f(1.0f, (TA3D_INTRO_TOP + (LAST_LINE + 2) * pCurrentFontHeight) / 1024.0f);
-        glVertex2f(1280.0f, TA3D_INTRO_TOP+(LAST_LINE+2) * pCurrentFontHeight);
-        glTexCoord2f(0.0f, (TA3D_INTRO_TOP + (LAST_LINE + 2) * pCurrentFontHeight) / 1024.0f);
-        glVertex2f(0.0f, TA3D_INTRO_TOP+(LAST_LINE+2) * pCurrentFontHeight);
+        glTexCoord2f(0.0f, (TA3D_INTRO_BOTTOM - 2 * pCurrentFontHeight) / 1024.0f); glVertex2f(0.0f, TA3D_INTRO_BOTTOM - 2 * pCurrentFontHeight);
+        glTexCoord2f(1.0f, (TA3D_INTRO_BOTTOM - 2 * pCurrentFontHeight) / 1024.0f); glVertex2f(1280.0f, TA3D_INTRO_BOTTOM - 2 * pCurrentFontHeight);
+        glColor4ub(0xFF, 0xFF, 0xFF, 0);
+        glTexCoord2f(1.0f, TA3D_INTRO_BOTTOM / 1024.0f);                            glVertex2f(1280.0f, TA3D_INTRO_BOTTOM);
+        glTexCoord2f(0.0f, TA3D_INTRO_BOTTOM / 1024.0f);                            glVertex2f(0.0f, TA3D_INTRO_BOTTOM);
 
-        glTexCoord2f(0.0f, (TA3D_INTRO_TOP + (LAST_LINE + 2) * pCurrentFontHeight) / 1024.0f);
-        glVertex2f(0.0f, TA3D_INTRO_TOP+(LAST_LINE + 2) * pCurrentFontHeight);
-        glTexCoord2f(1.0f, (TA3D_INTRO_TOP + (LAST_LINE + 2) * pCurrentFontHeight) / 1024.0f);
-        glVertex2f(1280.0f, TA3D_INTRO_TOP+(LAST_LINE + 2) * pCurrentFontHeight);
-        glTexCoord2f(1.0f, (TA3D_INTRO_TOP + (LAST_LINE + 3) * pCurrentFontHeight) / 1024.0f);
-        glVertex2f(1280.0f, TA3D_INTRO_TOP+(LAST_LINE + 3) * pCurrentFontHeight);
-        glTexCoord2f(0.0f, (TA3D_INTRO_TOP + (LAST_LINE + 3) * pCurrentFontHeight) / 1024.0f);
-        glVertex2f(0.0f, TA3D_INTRO_TOP+(LAST_LINE+3) * pCurrentFontHeight);
+        glTexCoord2f(0.0f, TA3D_INTRO_BOTTOM / 1024.0f);                            glVertex2f(0.0f, TA3D_INTRO_BOTTOM);
+        glTexCoord2f(1.0f, TA3D_INTRO_BOTTOM / 1024.0f);                            glVertex2f(1280.0f, TA3D_INTRO_BOTTOM);
+        glTexCoord2f(1.0f, (TA3D_INTRO_BOTTOM + 60.0f) / 1024.0f);                  glVertex2f(1280.0f, TA3D_INTRO_BOTTOM + 60.0f);
+        glTexCoord2f(0.0f, (TA3D_INTRO_BOTTOM + 60.0f) / 1024.0f);                  glVertex2f(0.0f, TA3D_INTRO_BOTTOM + 60.0f);
 
         glEnd();
         glDisable(GL_BLEND);
