@@ -146,10 +146,10 @@ namespace TA3D
         textureDepth = 0;
         glfond = 0;
 #warning TODO: add font initialization code here
-        normal_font = font_manager.getFont("", 12, FONT_TYPE_TEXTURE);
-        small_font = font_manager.getFont("", 8, FONT_TYPE_TEXTURE);
-        TA_font = font_manager.getFont("", 12, FONT_TYPE_TEXTURE);
-        ta3d_gui_font = font_manager.getFont("", 12, FONT_TYPE_TEXTURE);
+        normal_font = font_manager.getFont("", 16, FONT_TYPE_TEXTURE);
+        small_font = font_manager.getFont("", 12, FONT_TYPE_TEXTURE);
+        TA_font = font_manager.getFont("", 16, FONT_TYPE_TEXTURE);
+        ta3d_gui_font = font_manager.getFont("", 16, FONT_TYPE_TEXTURE);
         InitInterface();
         displayInfosAboutOpenGL();
     }
@@ -497,63 +497,57 @@ namespace TA3D
     }
 
 
-    void GFX::print(const Font *font, const float x, const float y, const float z, const String &text)		// Font related routines
+    void GFX::print(Font *font, const float x, const float y, const float z, const String &text)		// Font related routines
     {
+        if (!font)  return;
+
         ReInitTexSys( false );
-        glPushAttrib(GL_ALL_ATTRIB_BITS);
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
         glEnable(GL_TEXTURE_2D);
-        glPushMatrix();
-//        allegro_gl_printf_ex(font.pGl, x/font.size, y/font.size, z, text );
-        glPopMatrix();
-        glPopAttrib();
+        font->print(x, y, z, text);
     }
-    void GFX::print(const Font *font, const float x, const float y, const float z, const uint32 col, const String &text)		// Font related routines
+    void GFX::print(Font *font, const float x, const float y, const float z, const uint32 col, const String &text)		// Font related routines
     {
         set_color(col);
         print( font, x, y, z, text );
     }
 
-    void GFX::print_center(const Font *font, const float x, const float y, const float z, const String &text)		// Font related routines
+    void GFX::print_center(Font *font, const float x, const float y, const float z, const String &text)		// Font related routines
     {
+        if (!font)  return;
+
         ReInitTexSys( false );
-        glPushAttrib(GL_ALL_ATTRIB_BITS);
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
 
         float X = x - 0.5f * font->length( text );
 
         glEnable(GL_TEXTURE_2D);
-        glPushMatrix();
-//        allegro_gl_printf_ex(font.pGl, X/font.size, y/font.size, z, text );
-        glPopMatrix();
-        glPopAttrib();
+        font->print(X, y, z, text);
     }
-    void GFX::print_center(const Font *font, const float x, const float y, const float z, const uint32 col, const String &text)		// Font related routines
+    void GFX::print_center(Font *font, const float x, const float y, const float z, const uint32 col, const String &text)		// Font related routines
     {
         set_color(col);
         print_center( font, x, y, z, text );
     }
 
 
-    void GFX::print_right(const Font *font, const float x, const float y, const float z, const String &text)		// Font related routines
+    void GFX::print_right(Font *font, const float x, const float y, const float z, const String &text)		// Font related routines
     {
+        if (!font)  return;
+
         ReInitTexSys( false );
-        glPushAttrib(GL_ALL_ATTRIB_BITS);
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
 
         float X = x - font->length( text );
 
         glEnable(GL_TEXTURE_2D);
-        glPushMatrix();
-//        allegro_gl_printf_ex(font.pGl, X/font.size, y/font.size, z, text );
-        glPopMatrix();
-        glPopAttrib();
+        font->print(X, y, z, text);
     }
 
-    void GFX::print_right(const Font *font, const float x, const float y, const float z, const uint32 col, const String &text)		// Font related routines
+    void GFX::print_right(Font *font, const float x, const float y, const float z, const uint32 col, const String &text)		// Font related routines
     {
         set_color(col);
         print_right( font, x, y, z, text );

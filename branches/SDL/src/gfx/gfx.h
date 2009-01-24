@@ -211,14 +211,14 @@ namespace TA3D
         //! \name Text manipulation
         //@{
 
-        void print(const Font *font, const float x, const float y, const float z, const String &text );		// Font related routines
-        void print(const Font *font, const float x, const float y, const float z, const uint32 col, const String &text );
+        void print(Font *font, const float x, const float y, const float z, const String &text );		// Font related routines
+        void print(Font *font, const float x, const float y, const float z, const uint32 col, const String &text );
 
-        void print_center(const Font *font, const float x, const float y, const float z, const String &text );		// Font related routines
-        void print_center(const Font *font, const float x, const float y, const float z, const uint32 col, const String &text );
+        void print_center(Font *font, const float x, const float y, const float z, const String &text );		// Font related routines
+        void print_center(Font *font, const float x, const float y, const float z, const uint32 col, const String &text );
 
-        void print_right(const Font *font, const float x, const float y, const float z, const String &text );		// Font related routines
-        void print_right(const Font *font, const float x, const float y, const float z, const uint32 col, const String &text );
+        void print_right(Font *font, const float x, const float y, const float z, const String &text );		// Font related routines
+        void print_right(Font *font, const float x, const float y, const float z, const uint32 col, const String &text );
 
         //@} // Text manipilation
 

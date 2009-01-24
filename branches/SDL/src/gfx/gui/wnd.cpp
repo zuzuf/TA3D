@@ -459,11 +459,11 @@ namespace TA3D
 
         if (Objets[i].Type == OBJ_MENU && Objets[i].Etat && Objets[i].MouseOn && !wasOnFloattingMenu)
         {
-            float m_width = 168.0f * Objets[i].s;
+            float m_width = 168.0f;
             if (skin)
             {
                 for (unsigned int e = 0 ; e < Objets[i].Text.size() - (1 + Objets[i].Pos) ; ++e)
-                    m_width = Math::Max(m_width, gui_font->length(Objets[i].Text[ e ]) * Objets[i].s);
+                    m_width = Math::Max(m_width, gui_font->length(Objets[i].Text[ e ]));
 
                 m_width += skin->menu_background.x1 - skin->menu_background.x2;
             }
@@ -472,7 +472,7 @@ namespace TA3D
 
             if (mouse_x >= x + Objets[i].x1 && mouse_x <= x + Objets[i].x1 + m_width
                 && mouse_y > y + Objets[i].y2
-                && mouse_y <= y + Objets[i].y2 + 1 + gui_font->height() * Objets[i].s * Objets[i].Text.size())
+                && mouse_y <= y + Objets[i].y2 + 1 + gui_font->height() * Objets[i].Text.size())
             {
                 wasOnFloattingMenu = true;
                 indxMenu = i;
@@ -564,11 +564,11 @@ namespace TA3D
             if (Objets[i].Type == OBJ_MENU && Objets[i].Etat && !Objets[i].MouseOn && !was_on_floating_menu)
             {
                 //int e;
-                float m_width = 168.0f * Objets[i].s;
+                float m_width = 168.0f;
                 if (skin)
                 {
                     for (unsigned int e = 0; e < Objets[i].Text.size() - (1 + Objets[i].Pos); ++e)
-                        m_width = Math::Max(m_width, gui_font->length(Objets[i].Text[ e ]) * Objets[i].s);
+                        m_width = Math::Max(m_width, gui_font->length(Objets[i].Text[ e ]));
 
                     m_width += skin->menu_background.x1 - skin->menu_background.x2;
                 }
@@ -576,7 +576,7 @@ namespace TA3D
                     m_width = 168.0f;
 
                 if (mouse_x >= x + Objets[i].x1 && mouse_x <= x + Objets[i].x1 + m_width
-                    && mouse_y > y + Objets[i].y2 && mouse_y <= y + Objets[i].y2 + 1 + gui_font->height() * Objets[i].s * Objets[i].Text.size())
+                    && mouse_y > y + Objets[i].y2 && mouse_y <= y + Objets[i].y2 + 1 + gui_font->height() * Objets[i].Text.size())
                     Objets[i].MouseOn = true;
             }
 
@@ -621,11 +621,11 @@ namespace TA3D
                     if (!Objets[i].Etat)
                         Objets[i].Value = -1;
                     {
-                        float m_width = 168.0f * Objets[i].s;
+                        float m_width = 168.0f;
                         if (skin)
                         {
                             for (unsigned int e = 0; e < Objets[i].Text.size() - (1 + Objets[i].Pos); ++e)
-                                m_width = Math::Max(m_width, gui_font->length(Objets[i].Text[e]) * Objets[i].s);
+                                m_width = Math::Max(m_width, gui_font->length(Objets[i].Text[e]));
 
                             m_width += skin->menu_background.x1 - skin->menu_background.x2;
                         }
@@ -633,17 +633,17 @@ namespace TA3D
                             m_width = 168.0f;
 
                         if (Objets[i].MouseOn && mouse_x >= x + Objets[i].x1 && mouse_x <= x + Objets[i].x1 + m_width
-                            && mouse_y > y + Objets[i].y2 + 4 && mouse_y <= y + Objets[i].y2 + 1 + gui_font->height() * Objets[i].s * Objets[i].Text.size()
+                            && mouse_y > y + Objets[i].y2 + 4 && mouse_y <= y + Objets[i].y2 + 1 + gui_font->height() * Objets[i].Text.size()
                             && Objets[i].Etat)
                         {
                             if (timetoscroll)
                             {
                                 if (mouse_y<y+Objets[i].y2+12 && Objets[i].Pos>0)
                                     Objets[i].Pos--;
-                                if (mouse_y>SCREEN_H-8 && y+Objets[i].y2+1+gui_font->height()*Objets[i].s*(Objets[i].Text.size()-Objets[i].Pos)>SCREEN_H)
+                                if (mouse_y>SCREEN_H-8 && y+Objets[i].y2+1+gui_font->height()*(Objets[i].Text.size()-Objets[i].Pos)>SCREEN_H)
                                     Objets[i].Pos++;
                             }
-                            Objets[i].Data=(int)((mouse_y-y-Objets[i].y2-5)/(gui_font->height()*Objets[i].s)+Objets[i].Pos);
+                            Objets[i].Data=(int)((mouse_y-y-Objets[i].y2-5)/(gui_font->height())+Objets[i].Pos);
                             if (Objets[i].Data>=Objets[i].Text.size() - 1)
                                 Objets[i].Data = -1;
                         }
@@ -653,7 +653,7 @@ namespace TA3D
                     Objets[i].Data = -1;		// Pas de séléction
                     if (Objets[i].MouseOn && mouse_y>=y+Objets[i].y1+4 && mouse_y<=y+Objets[i].y2-4)
                     {
-                        Objets[i].Data = (int)((mouse_y-y-Objets[i].y1-4)/(gui_font->height()*Objets[i].s));
+                        Objets[i].Data = (int)((mouse_y-y-Objets[i].y1-4)/(gui_font->height()));
                         if (Objets[i].Data>=Objets[i].Text.size())
                             Objets[i].Data = -1;
                     }
@@ -818,7 +818,7 @@ namespace TA3D
                             || mouse_y - y <= Objets[i].y1 + skin->text_background.y1
                             || mouse_y - y >= Objets[i].y2 + skin->text_background.y2)			// We're on ListBox decoration!
                             break;
-                        int TotalScroll = Objets[i].Text.size() - (int)((Objets[i].y2 - Objets[i].y1 - skin->text_background.y1 + skin->text_background.y2) / (gui_font->height() * Objets[i].s));
+                        int TotalScroll = Objets[i].Text.size() - (int)((Objets[i].y2 - Objets[i].y1 - skin->text_background.y1 + skin->text_background.y2) / gui_font->height());
                         if (TotalScroll < 0)
                             TotalScroll = 0;
 
@@ -910,7 +910,7 @@ namespace TA3D
                                 && mouse_y - y <= Objets[i].y2 + skin->text_background.y2) // We're on the scroll bar!
                             {
 
-                                int TotalScroll = Objets[i].Text.size() - (int)((Objets[i].y2 - Objets[i].y1 - skin->text_background.y1 + skin->text_background.y2) / (gui_font->height() * Objets[i].s));
+                                int TotalScroll = Objets[i].Text.size() - (int)((Objets[i].y2 - Objets[i].y1 - skin->text_background.y1 + skin->text_background.y2) / gui_font->height());
                                 if (TotalScroll < 0)
                                     TotalScroll = 0;
 
@@ -948,7 +948,8 @@ namespace TA3D
                                              || mouse_y - y <= Objets[i].y1 + skin->text_background.y1
                                              || mouse_y - y >= Objets[i].y2 + skin->text_background.y2))			// We're on ListBox decoration!
                                     break;
-                                Objets[i].Pos = (uint32) ((mouse_y - y - Objets[i].y1 - (skin ? skin->text_background.y1:4)) / (gui_font->height() * Objets[i].s) + Objets[i].Data);						Objets[i].Etat = true;
+                                Objets[i].Pos = (uint32) ((mouse_y - y - Objets[i].y1 - (skin ? skin->text_background.y1:4)) / gui_font->height() + Objets[i].Data);
+                                Objets[i].Etat = true;
                             }
                             break;
                         case OBJ_TA_BUTTON:
@@ -991,7 +992,7 @@ namespace TA3D
                         case OBJ_FMENU:			// Menu Flottant
                             if (mouse_y >= y + Objets[i].y1 + (skin ? skin->menu_background.y1 : 0) + 4 && mouse_y <= y + Objets[i].y2 + (skin ? skin->menu_background.y2 : 0) - 4)
                             {
-                                index = (int)((mouse_y - y - Objets[i].y1 - 4 - (skin ? skin->menu_background.y1 : 0))/(gui_font->height()*Objets[i].s));
+                                index = (int)((mouse_y - y - Objets[i].y1 - 4 - (skin ? skin->menu_background.y1 : 0)) / gui_font->height());
                                 if (index >= (int)(Objets[i].Text.size()))
                                     index = Objets[i].Text.size() - 1;
                                 if (Objets[i].Func!=NULL)
@@ -1000,21 +1001,21 @@ namespace TA3D
                             break;
                         case OBJ_MENU:			// Menu déroulant
                             {
-                                float m_width = 168.0f * Objets[i].s;
+                                float m_width = 168.0f;
                                 if (skin)
                                 {
                                     for (unsigned int e = 0 ; e < Objets[i].Text.size() - (1 + Objets[i].Pos) ; e++)
-                                        m_width = Math::Max(m_width, gui_font->length(Objets[i].Text[ e ]) * Objets[i].s);
+                                        m_width = Math::Max(m_width, gui_font->length(Objets[i].Text[ e ]));
 
                                     m_width += skin->menu_background.x1 - skin->menu_background.x2;
                                 }
                                 else
                                     m_width = 168.0f;
                                 if (mouse_x >= x + Objets[i].x1 + (skin ? skin->menu_background.x1 : 0) && mouse_x <= x + Objets[i].x1 + m_width + (skin ? skin->menu_background.x2 : 0)
-                                    && mouse_y > y + Objets[i].y2 + (skin ? skin->menu_background.y1 : 0) && mouse_y <= y + Objets[i].y2 + (skin ? skin->menu_background.y2 : 0) + 1 + gui_font->height() * Objets[i].s * Objets[i].Text.size()
+                                    && mouse_y > y + Objets[i].y2 + (skin ? skin->menu_background.y1 : 0) && mouse_y <= y + Objets[i].y2 + (skin ? skin->menu_background.y2 : 0) + 1 + gui_font->height() * Objets[i].Text.size()
                                     && Objets[i].Etat)
                                 {
-                                    index = (int)((mouse_y - y - Objets[i].y2 - 5 - (skin ? skin->menu_background.y1 : 0))/(Objets[i].s * gui_font->height()) + Objets[i].Pos);
+                                    index = (int)((mouse_y - y - Objets[i].y2 - 5 - (skin ? skin->menu_background.y1 : 0)) / gui_font->height() + Objets[i].Pos);
                                     if (index >= (int)(Objets[i].Text.size() - 1))
                                         index = Objets[i].Text.size()-2;
                                     if (Objets[i].Func != NULL)

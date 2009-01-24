@@ -46,7 +46,7 @@ namespace Menus
         reloadContent();
         loadBackgroundTexture();
 
-        pCurrentFontHeight = gfx->TA_font->height();
+        pCurrentFontHeight = gfx->TA_font->ascender();
 
         gfx->set_2D_mode();
         glScalef(SCREEN_W / 1280.0f, SCREEN_H / 1024.0f, 1.0f);
@@ -142,7 +142,7 @@ namespace Menus
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
         // The text itself
-        glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+        glColor4ub(0xFF, 0xFF, 0xFF, 0xFF);
         int indx = 0;
         for (unsigned int i = pStartIndex; i < pContentSize && indx < TA3D_INTRO_MAX_LINES; ++i, ++indx)
             gfx->print(gfx->TA_font, 220.0f, TA3D_INTRO_TOP + (indx+2) * pCurrentFontHeight - pDelta, 0.0f, pContent[i]);
@@ -151,7 +151,7 @@ namespace Menus
         glBindTexture(GL_TEXTURE_2D, pBackgroundTexture);
         glBegin(GL_QUADS);
 
-        glColor4f(1.0f, 1.0f, 1.0f, 0.0f);
+        glColor4ub(0xFF, 0xFF, 0xFF, 0xFF);
 
         glTexCoord2f(0.0f, (TA3D_INTRO_TOP + pCurrentFontHeight) / 1024.0f);
         glVertex2f(0.0f, TA3D_INTRO_TOP + pCurrentFontHeight);

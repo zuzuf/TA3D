@@ -26,6 +26,15 @@ namespace TA3D
         font = NULL;
     }
 
+    void Font::print(float x, float y, float z, const String &text)
+    {
+        if (font == NULL)   return;
+
+        glScalef(1.0f, -1.0f, 1.0f);
+        font->Render( text.c_str(), -1, FTPoint(x, -font->Ascender() - y, z), FTPoint(), FTGL::RENDER_ALL);
+        glScalef(1.0f, -1.0f, 1.0f);
+    }
+
     void Font::load_gaf_font(const String &filename)
     {
         destroy();
@@ -110,6 +119,13 @@ namespace TA3D
         if (font == NULL)
             return 0.0f;
         return font->LineHeight();
+    }
+
+    float Font::ascender() const
+    {
+        if (font == NULL)
+            return 0.0f;
+        return font->Ascender();
     }
 
     int Font::get_size() const

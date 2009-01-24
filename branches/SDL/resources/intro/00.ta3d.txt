@@ -31,7 +31,6 @@ Doors
 thanks to:
 Saruman, Bobban and others authors
 of documents about Total Annihilation files format
-Angelo Mottola for the JPGalleg library (included in TA3D)
 
 TA3D uses tree models by:
 
