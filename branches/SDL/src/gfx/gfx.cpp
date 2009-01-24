@@ -31,7 +31,6 @@
 #include "../logs/logs.h"
 #include <strings.h>
 #include "../misc/math.h"
-#include "../jpeg/ta3d_jpg.h"
 
 
 #define YESNO(X)  (X ? "Yes" : "No")
@@ -1860,18 +1859,6 @@ namespace TA3D
 		// Installing SDL timer
 		if( SDL_Init(SDL_INIT_EVENTTHREAD) != 0 )
 			throw( "SDL_Init(SDL_INIT_EVENTTHREAD) yielded unexpected result." );
-
-//		// Installing allegro mouse handler
-//		if( install_mouse() == -1 )
-//			throw ( "install_mouse() yielded unexpected result." );
-
-//		// Installing allegro keyboard handler
-//		if( install_keyboard() == -1 )
-//			throw ( "install_mouse() yielded unexpected result." );
-
-		// Initalizing allegro JPG support
-		if( jpgalleg_init() < 0 )
-			throw( "jpgalleg_init() yielded unexpected result." );
 
         GFX *test_gfx = new GFX();
 

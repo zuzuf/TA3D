@@ -35,7 +35,6 @@
 #include "gfx/fx.h"					// Special FX engine
 #include "misc/paths.h"
 #include "languages/i18n.h"
-#include "jpeg/ta3d_jpg.h"
 #include "sounds/manager.h"
 #include "misc/math.h"
 
@@ -98,10 +97,6 @@ namespace TA3D
 //		// Installing SDL event thread
 //		if (SDL_Init(SDL_INIT_EVENTTHREAD) != 0)
 //			throw ("SDL_Init(SDL_INIT_EVENTTHREAD) yielded unexpected result.");
-
-//		// Initalizing JPG support
-		if (jpgalleg_init() < 0)
-			throw("jpgalleg_init() yielded unexpected result.");
 
 		// Creating HPI Manager
 		TA3D::VARS::HPIManager = new TA3D::UTILS::HPI::cHPIHandler();

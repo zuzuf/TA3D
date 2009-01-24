@@ -29,8 +29,8 @@
 #include "ta3dbase.h"
 #include "gaf.h"
 #include <vector>
-#include "jpeg/ta3d_jpg.h"
 #include "gfx/glfunc.h"
+#include <zlib.h>
 
 
 namespace TA3D
@@ -334,34 +334,10 @@ namespace TA3D
             img_size = *((sint32*)(buf+f_pos));
             f_pos += 4;
 
-            frame_img = load_memory_jpg(buf + f_pos, img_size, NULL);
+            frame_img = gfx->create_surface_ex( framedata.Transparency ? 32 : 24, framedata.Width, framedata.Height );
+            uLongf len = frame_img->w * frame_img->h * frame_img->format->BytesPerPixel;
+            uncompress ( (Bytef*) frame_img->pixels, &len, (Bytef*) buf + f_pos, img_size);
             f_pos += img_size;
-
-            if (framedata.Transparency != 0 && frame_img != NULL) // Read alpha channel
-            {
-                img_size = *((sint32*)(buf+f_pos));
-                f_pos += 4;
-                SDL_Surface* img_alpha = load_memory_jpg(buf + f_pos, img_size, NULL);
-                f_pos += img_size;
-                if (img_alpha)
-                {
-                    frame_img = convert_format(frame_img);
-                    img_alpha = convert_format(img_alpha);
-                    for (int y = 0; y < frame_img->h; ++y)
-                    {
-                        for (int x = 0; x < frame_img->w; ++x)
-                        {
-                            int c = getpixel(frame_img, x, y);
-                            putpixel( frame_img, x, y, makeacol( getr(c), getg(c), getb(c), SurfaceByte(img_alpha, (x<<2)+1, y) ) );
-                        }
-                    }
-                    SDL_FreeSurface(img_alpha);
-                }
-            }
-            else
-                for (int y = 0; y < frame_img->h; ++y)
-                    for (int x = 0; x < frame_img->w; ++x)
-                        putpixel( frame_img, x, y, getpixel(frame_img, x, y) | makeacol(0,0,0,0xFF) );
         }
         else
         {

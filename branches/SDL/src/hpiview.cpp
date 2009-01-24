@@ -29,6 +29,7 @@
 #include "misc/paths.h"
 #include "misc/resources.h"
 #include <fstream>
+#include <zlib.h>
 
 
 
@@ -403,7 +404,7 @@ namespace
                             SDL_LockSurface(frame_img);
                             for( int y = 0 ; y < frame_img->h && !alpha ; y++ )
                                 for( int x = 0 ; x < frame_img->w && !alpha ; x++ )
-                                    alpha |= (SurfaceByte(frame_img, (x<<2) + 3, y) != 255);
+                                    alpha |= (getr(SurfaceInt(frame_img, x, y)) != 255);
                             SDL_UnlockSurface(frame_img);
                             FrameData.Transparency = alpha ? 1 : 0;
                             FrameData.PtrFrameData = ftell( gaf_file ) + 24;
@@ -414,42 +415,12 @@ namespace
                             byte *buffer = new byte[ buf_size ];
 
                             int img_size = buf_size;
-                            if( save_memory_jpg_ex( buffer, &img_size, frame_img, NULL, 95, JPG_SAMPLING_444, NULL ) ) // RGB channels
-                            {
-                                img_size = buf_size;
-                                if( save_memory_jpg_ex( buffer, &img_size, frame_img, NULL, 95, JPG_SAMPLING_444 | JPG_OPTIMIZE, NULL ) )		// RGB channels
-                                    printf("error saving '%s'\n", parser.pullAsString( format( "gadget%d.frame%d.filename", i + 1, e ) ).c_str() );
-                            }
+                            uLongf __size = img_size;
+                            compress2 ( buffer, &__size, (Bytef*) frame_img->pixels, frame_img->w * frame_img->h * frame_img->format->BytesPerPixel, 9);
+                            img_size = __size;
 
                             fwrite( &img_size, sizeof( img_size ), 1, gaf_file );		// Save the result
                             fwrite( buffer, img_size, 1, gaf_file );
-
-                            if( alpha ) // Alpha channel
-                            {
-                                SDL_LockSurface(frame_img);
-                                for( int y = 0 ; y < frame_img->h ; y++ )
-                                {
-                                    for( int x = 0 ; x < frame_img->w ; x++ )
-                                    {
-                                        uint32 c = SurfaceByte(frame_img, (x<<2)+3, y);
-                                        SurfaceInt(frame_img, x, y) = c * 0x010101;
-                                    }
-                                }
-                                SDL_UnlockSurface(frame_img);
-                                img_size = buf_size;
-                                if(save_memory_jpg_ex( buffer, &img_size, frame_img, NULL, 100, JPG_GREYSCALE | JPG_OPTIMIZE, NULL ) )
-                                {
-                                    img_size = buf_size;
-                                    if(save_memory_jpg_ex( buffer, &img_size, frame_img, NULL, 100, JPG_GREYSCALE, NULL))
-                                    {
-                                        std::cerr << "Error saving alpha channel for '"
-                                            << parser.pullAsString(format("gadget%d.frame%d.filename", i + 1, e ) ).c_str() << "'" << std::endl;
-                                    }
-                                }
-
-                                fwrite( &img_size, sizeof( img_size ), 1, gaf_file );		// Save the result
-                                fwrite( buffer, img_size, 1, gaf_file );
-                            }
 
                             delete[] buffer;
                             SDL_FreeSurface( frame_img );

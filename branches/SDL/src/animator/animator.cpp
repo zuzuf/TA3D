@@ -32,7 +32,6 @@
 #include "../misc/math.h"
 #include "../misc/osinfo.h"
 #include "../languages/i18n.h"
-#include "../jpeg/ta3d_jpg.h"
 #include "../converters/obj.h"
 #include "animator.h"
 

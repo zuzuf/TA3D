@@ -32,7 +32,6 @@
 #include "EngineClass.h"
 #include "UnitEngine.h"
 #include "gfx/fx.h"
-#include "misc/lzw.h"					// Support for LZW compression
 #include <list>
 #include "misc/math.h"
 #include "logs/logs.h"

@@ -17,7 +17,6 @@
 #include "../languages/i18n.h"
 #include <list>
 #include <vector>
-#include "../jpeg/ta3d_jpg.h"
 #include "menus/statistics.h"
 #include "../misc/math.h"
 #include "../sounds/manager.h"
@@ -3313,7 +3312,7 @@ namespace TA3D
                 nom[strlen(nom)-1]+=nb_shoot%10;
                 nb_shoot = (nb_shoot+1)%1000000;
                 strcat(nom,".jpg");
-                save_jpg_ex((TA3D::Paths::Screenshots + nom).c_str(), shoot_bmp, NULL, 75, JPG_SAMPLING_411, NULL);
+                save_bitmap(TA3D::Paths::Screenshots + nom, shoot_bmp);
                 SDL_FreeSurface(shoot_bmp);
                 shoot = false;
             }

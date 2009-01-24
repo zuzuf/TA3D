@@ -129,8 +129,6 @@
 
 # include "misc/string.h"
 
-# include "jpeg/ta3d_jpg.h"
-
 
 // Cire:
 //   Since byte seems to be common throughout the project we'll typedef here.

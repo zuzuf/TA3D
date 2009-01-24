@@ -32,7 +32,6 @@
 #include "misc/paths.h"
 #include "misc/osinfo.h"
 #include "languages/i18n.h"
-#include "jpeg/ta3d_jpg.h"
 #include "converters/obj.h"
 
 
@@ -932,8 +931,6 @@ void init()
     // Installing SDL timer
     if( SDL_Init(SDL_INIT_EVENTTHREAD) != 0 )
         throw( "SDL_Init(SDL_INIT_EVENTTHREAD) yielded unexpected result." );
-
-    jpgalleg_init();
 
     TA3D::VARS::HPIManager = new TA3D::UTILS::HPI::cHPIHandler(); // create hpi manager object.
 

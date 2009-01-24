@@ -31,12 +31,12 @@
 #include "gfx/particles/particles.h"
 #include "ingame/sidedata.h"
 #include "languages/i18n.h"
-#include "jpeg/ta3d_jpg.h"
 #include "misc/math.h"
 #include "misc/paths.h"
 #include "misc/files.h"
 #include "logs/logs.h"
 #include "gfx/gl.extensions.h"
+#include <zlib.h>
 
 
 namespace TA3D
@@ -3701,34 +3701,20 @@ namespace TA3D
                     int buf_size = tex->w * tex->h * 5;
                     byte *buffer = new byte[buf_size];
 
+                    uint8 bpp = tex->format->BitsPerPixel;
+                    int w = tex->w;
+                    int h = tex->h;
+                    fwrite(&w, sizeof(w), 1, dst);
+                    fwrite(&h, sizeof(h), 1, dst);
+                    fwrite(&bpp, 1, 1, dst);
+
                     int img_size = buf_size;
-                    save_memory_jpg_ex(buffer, &img_size, tex, NULL, 85, JPG_SAMPLING_411 | JPG_OPTIMIZE, NULL);
+                    uLongf __size = img_size;
+                    compress2 ( buffer, &__size, (Bytef*) tex->pixels, tex->w * tex->h * tex->format->BytesPerPixel, 9);
+                    img_size = __size;
 
                     fwrite(&img_size, sizeof(img_size), 1, dst); // Save the result
                     fwrite(buffer, img_size, 1, dst);
-
-                    bool need_alpha = false;
-                    for (int y = 0 ; y < tex->h; ++y)
-                    {
-                        for (int x = 0; x < tex->w; ++x)
-                        {
-                            int c = geta(getpixel(tex, x, y));
-                            if (c != 255)
-                                need_alpha = true;
-                            SurfaceInt(tex, x, y) = c * 0x01010101;
-                        }
-                    }
-
-                    if (need_alpha)
-                    {
-                        putc(1, dst);		// Alpha channel has to be stored
-                        img_size = buf_size;
-                        save_memory_jpg_ex(buffer, &img_size, tex, NULL, 100, JPG_GREYSCALE | JPG_OPTIMIZE, NULL);
-                        fwrite(&img_size, sizeof(img_size), 1, dst); // Save the result
-                        fwrite(buffer, img_size, 1, dst);
-                    }
-                    else
-                        putc(0, dst);		// No alpha channel stored
                     delete[] buffer;
                 }
                 SDL_FreeSurface(tex);
@@ -3929,14 +3915,21 @@ namespace TA3D
             else
             {
                 int img_size = 0;
-                data = read_from_mem(&img_size,sizeof(img_size),data);	// Read RGB data first
+                uint8 bpp;
+                int w, h;
+                data = read_from_mem(&w,sizeof(w),data);
+                data = read_from_mem(&h,sizeof(h),data);
+                data = read_from_mem(&bpp,sizeof(bpp),data);
+                data = read_from_mem(&img_size,sizeof(img_size),data);	// Read RGBA data
                 byte *buffer = new byte[ img_size ];
 
                 try
                 {
                     data = read_from_mem( buffer, img_size, data );
 
-                    tex = load_memory_jpg( buffer, img_size, NULL );
+                    tex = gfx->create_surface_ex( bpp, w, h );
+                    uLongf len = tex->w * tex->h * tex->format->BytesPerPixel;
+                    uncompress ( (Bytef*) tex->pixels, &len, (Bytef*) buffer, img_size);
                 }
                 catch( ... )
                 {
@@ -3946,49 +3939,6 @@ namespace TA3D
                 }
 
                 delete[] buffer;
-
-                byte has_alpha;									// Read alpha channel if present
-                data = read_from_mem( &has_alpha, 1, data );
-                if (has_alpha)
-                {
-                    data = read_from_mem(&img_size,sizeof(img_size),data);
-                    buffer = new byte[ img_size ];
-                    data = read_from_mem( buffer, img_size, data );
-                    SDL_Surface* alpha = load_memory_jpg(buffer, img_size, NULL);
-
-                    if (alpha == NULL)
-                    {
-                        destroy();
-                        return NULL;
-                    }
-                    for (int y = 0 ; y < tex->h; ++y)
-                    {
-                        for (int x = 0; x < tex->w ; ++x)
-                        {
-                            int c = getpixel( tex, x, y );
-                            putpixel( tex, x, y, makeacol( getr(c), getg(c), getb(c), SurfaceByte(alpha, x<<2, y)));
-                        }
-                    }
-
-                    SDL_FreeSurface( alpha );
-                    delete[] buffer;
-                }
-                else
-                {
-                    if (tex == NULL)
-                    {
-                        destroy();
-                        return NULL;
-                    }
-                    for (int y = 0; y < tex->h ; ++y)
-                    {
-                        for (int x = 0 ; x < tex->w ; ++x)
-                        {
-                            int c = getpixel(tex, x, y);
-                            putpixel(tex, x, y, makeacol( getr(c), getg(c), getb(c), 0xFF));
-                        }
-                    }
-                }
             }
 
             if (TA3D::model_manager.loading_all())      // We want to convert textures on-the-fly in order to speed loading
