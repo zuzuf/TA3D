@@ -168,11 +168,13 @@ namespace TA3D
             case SDL_KEYUP:
                 VARS::key[ event.key.keysym.sym ] = 0;
                 break;
-            default:
-                LOG_DEBUG("Unhandled event");
             };
         }
-        mouse_b = SDL_GetMouseState( &mouse_x, &mouse_y );
+        mouse_b = 0;
+        uint8 m_b = SDL_GetMouseState( &mouse_x, &mouse_y );
+        if (m_b & SDL_BUTTON(1))    mouse_b |= 1;
+        if (m_b & SDL_BUTTON(3))    mouse_b |= 2;
+        if (m_b & SDL_BUTTON(2))    mouse_b |= 4;
     }
 
 	void position_mouse(int x, int y)

@@ -33,6 +33,7 @@ extern bool g_useStencilTwoSide;
 extern bool g_useCopyDepthToColor;
 extern bool g_useProgram;
 extern bool g_useFBO;
+extern bool g_useGenMipMaps;
 
 /*!
 ** \brief Test for the given OpenGL extension support

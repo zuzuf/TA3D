@@ -627,11 +627,13 @@ void SaveTex(SDL_Surface *bmp, const String &filename)
         gzwrite( file, &h, sizeof(h));
         gzwrite( file, &bpp, sizeof(bpp));
         for(int y = 0 ; y < bmp->h ; y++)
-            gzwrite( file, ((char*)(bmp->pixels)) + y * bmp->pitch, bmp->w * bmp->format->BitsPerPixel >> 3);
+            gzwrite( file, ((char*)(bmp->pixels)) + y * bmp->pitch, bmp->w * bmp->format->BytesPerPixel);
         SDL_UnlockSurface(bmp);
 
         gzclose( file );
     }
+    else
+        LOG_ERROR("could not save file : " << filename);
 }
 
 SDL_Surface *LoadTex(const String &filename)
@@ -646,13 +648,15 @@ SDL_Surface *LoadTex(const String &filename)
         SDL_Surface *bmp = gfx->create_surface_ex(bpp, w, h);
         SDL_LockSurface(bmp);
         for(int y = 0 ; y < bmp->h ; y++)
-            gzread( file, ((char*)(bmp->pixels)) + y * bmp->pitch, bmp->w * bmp->format->BitsPerPixel >> 3);
+            gzread( file, ((char*)(bmp->pixels)) + y * bmp->pitch, bmp->w * bmp->format->BytesPerPixel);
         SDL_UnlockSurface(bmp);
 
         gzclose( file );
 
         return bmp;
     }
+    else
+        LOG_ERROR("could not load file : " << filename);
     return NULL;
 }
 

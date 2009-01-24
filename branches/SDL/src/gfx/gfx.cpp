@@ -750,15 +750,13 @@ namespace TA3D
             && ( !Math::IsPowerOfTwo(bmp->w) || !Math::IsPowerOfTwo(bmp->h)))
             filter_type = FILTER_LINEAR;
 
-//        if (filter_type == FILTER_NONE || filter_type == FILTER_LINEAR )
-//            use_mipmapping(false);
-//        else
-//            use_mipmapping(true);
+        if (filter_type == FILTER_NONE || filter_type == FILTER_LINEAR )
+            use_mipmapping(false);
+        else
+            use_mipmapping(true);
         GLuint gl_tex = 0;
         glGenTextures(1,&gl_tex);
 
-//        if (filter_type == FILTER_NONE || filter_type == FILTER_LINEAR )
-//            use_mipmapping(true);
         glBindTexture(GL_TEXTURE_2D, gl_tex);
 
         glMatrixMode(GL_TEXTURE);
@@ -776,7 +774,8 @@ namespace TA3D
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT );
         }
 
-        filter_type = FILTER_LINEAR;
+        if (build_mipmaps && g_useGenMipMaps)        // Automatic mipmaps generation
+            glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP_SGIS, true );
 
         switch(filter_type)
         {
@@ -802,18 +801,29 @@ namespace TA3D
         switch(bmp->format->BitsPerPixel)
         {
         case 8:
-            glTexImage2D(GL_TEXTURE_2D, 0, texture_format, bmp->w, bmp->h, 0, GL_LUMINANCE, GL_UNSIGNED_BYTE, bmp->pixels);
+            if (build_mipmaps && !g_useGenMipMaps)        // Software mipmaps generation
+                gluBuild2DMipmaps(GL_TEXTURE_2D, texture_format, bmp->w, bmp->h, GL_LUMINANCE, GL_UNSIGNED_BYTE, bmp->pixels);
+            else
+                glTexImage2D(GL_TEXTURE_2D, 0, texture_format, bmp->w, bmp->h, 0, GL_LUMINANCE, GL_UNSIGNED_BYTE, bmp->pixels);
             break;
         case 24:
-            LOG_WARNING( LOG_PREFIX_GFX << "Loading a 24bits SDL_Surface" );
-            glTexImage2D(GL_TEXTURE_2D, 0, texture_format, bmp->w, bmp->h, 0, GL_RGB, GL_UNSIGNED_BYTE, bmp->pixels);
+            if (build_mipmaps && !g_useGenMipMaps)        // Software mipmaps generation
+                gluBuild2DMipmaps(GL_TEXTURE_2D, texture_format, bmp->w, bmp->h, GL_RGB, GL_UNSIGNED_BYTE, bmp->pixels);
+            else
+                glTexImage2D(GL_TEXTURE_2D, 0, texture_format, bmp->w, bmp->h, 0, GL_RGB, GL_UNSIGNED_BYTE, bmp->pixels);
             break;
         case 32:
-            glTexImage2D(GL_TEXTURE_2D, 0, texture_format, bmp->w, bmp->h, 0, GL_RGBA, GL_UNSIGNED_BYTE, bmp->pixels);
+            if (build_mipmaps && !g_useGenMipMaps)        // Software mipmaps generation
+                gluBuild2DMipmaps(GL_TEXTURE_2D, texture_format, bmp->w, bmp->h, GL_RGBA, GL_UNSIGNED_BYTE, bmp->pixels);
+            else
+                glTexImage2D(GL_TEXTURE_2D, 0, texture_format, bmp->w, bmp->h, 0, GL_RGBA, GL_UNSIGNED_BYTE, bmp->pixels);
             break;
         default:
-            LOG_DEBUG("SDL_Surface format not supported by texture loader: " << bmp->format->BitsPerPixel );
+            LOG_DEBUG("SDL_Surface format not supported by texture loader: " << bmp->format->BitsPerPixel << " bpp" );
         };
+
+        if (filter_type == FILTER_NONE || filter_type == FILTER_LINEAR )
+            use_mipmapping(true);
 
         glPopAttrib();
 
@@ -1315,7 +1325,7 @@ namespace TA3D
         if (width )		*width = bmp->w;
         if (height )	*height = bmp->h;
         bmp = convert_format(bmp);
-        bool with_alpha = (String::ToLower(Paths::ExtractFileExt(file)) == "tga");
+        bool with_alpha = (String::ToLower(Paths::ExtractFileExt(file)) == ".tga");
         if (with_alpha)
         {
             with_alpha = false;
@@ -1447,7 +1457,8 @@ namespace TA3D
             fread( &lod_max, sizeof( lod_max ), 1, cache_file );
             fread( &internal_format, sizeof( GLint ), 1, cache_file );
 
-            GLuint	tex = gfx->create_texture( 1, 1 );
+            GLuint	tex;
+            glGenTextures(1,&tex);
 
             glBindTexture( GL_TEXTURE_2D, tex );
 

@@ -34,6 +34,7 @@ bool	g_useStencilTwoSide = false;
 bool	g_useCopyDepthToColor = false;
 bool	g_useProgram = false;
 bool	g_useFBO = false;
+bool    g_useGenMipMaps = false;
 
 bool is_extension_supported(const String &name)
 {
@@ -157,6 +158,7 @@ void installOpenGLExtensions()
 	g_useCopyDepthToColor = is_extension_supported("GL_NV_copy_depth_to_color");
 	g_useProgram = is_extension_supported("GL_ARB_shader_objects") && is_extension_supported("GL_ARB_shading_language_100") && is_extension_supported("GL_ARB_vertex_shader") && is_extension_supported("GL_ARB_fragment_shader");
 	g_useFBO = is_extension_supported("GL_EXT_framebuffer_object");
+	g_useGenMipMaps = is_extension_supported("GL_SGIS_generate_mipmap");
     #if (defined TA3D_PLATFORM_WINDOWS && defined TA3D_PLATFORM_MSVC) || defined TA3D_PLATFORM_LINUX
     installOpenGLExtensionsPointers();
     #endif

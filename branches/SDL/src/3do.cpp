@@ -1002,7 +1002,7 @@ namespace TA3D
             if (py[i] + dy > my)   my = py[i] + dy;
         }
 
-        SDL_Surface* bmp = gfx->create_surface_ex(24, mx, my);
+        SDL_Surface* bmp = gfx->create_surface_ex(32, mx, my);
         if (bmp != NULL && mx != 0 && my != 0)
         {
             if (g_useTextureCompression && lp_CONFIG->use_texture_compression)
