@@ -3,6 +3,7 @@
 
 # include "gfx.h"
 # include "../misc/hash_table.h"
+# include "../threads/thread.h"
 
 #ifdef __FTGL__lower__
     #include <FTGL/ftgl.h>
@@ -41,20 +42,20 @@ namespace TA3D
     class GFX;
 
 
-    class Font
+    class Font : ObjectSync
     {
     public:
         Font();
 
         void init();
 
-        float length(const String &txt) const;
-        float height() const;
-        float ascender() const;
+        float length(const String &txt);
+        float height();
+        float ascender();
         void load( const String &filename, const int size, const int type);
         void load_gaf_font( const String &filename);
         void destroy();
-        int get_size() const;
+        int get_size();
         void print(float x, float y, float z, const String &text);
 
     private:

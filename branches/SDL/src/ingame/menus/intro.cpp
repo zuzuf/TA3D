@@ -70,6 +70,8 @@ namespace Menus
     {
         // Do nothing
         rest(1);
+        poll_mouse();
+        poll_keyboard();
     }
 
 

@@ -23,11 +23,14 @@ namespace TA3D
 
     void Font::init()
     {
+        lock();
         font = NULL;
+        unlock();
     }
 
     void Font::print(float x, float y, float z, const String &text)
     {
+        MutexLocker locker(pMutex);
         if (font == NULL)   return;
 
         glScalef(1.0f, -1.0f, 1.0f);
@@ -38,6 +41,8 @@ namespace TA3D
     void Font::load_gaf_font(const String &filename)
     {
         destroy();
+
+        MutexLocker locker(pMutex);
 
         LOG_DEBUG("Loading GAF font: `" << filename << "`...");
         byte *data = HPIManager->PullFromHPI(filename);
@@ -95,17 +100,20 @@ namespace TA3D
 
     void Font::destroy()
     {
+        lock();
         if (font)
             delete font;
+        unlock();
         init();
     }
 
-    float Font::length(const String &txt) const
+    float Font::length(const String &txt)
     {
+        MutexLocker locker(pMutex);
         if (font == NULL)
             return 0.0f;
 #ifdef __FTGL__lower__
-        FTBBox box = font->BBox( txt.c_str(), txt.size() );
+        FTBBox box = font->BBox( txt.c_str() );
         return fabsf((box.Upper().Xf() - box.Lower().Xf()));
 #else
         float x0, y0, z0, x1, y1, z1;
@@ -114,22 +122,25 @@ namespace TA3D
 #endif
     }
 
-    float Font::height() const
+    float Font::height()
     {
+        MutexLocker locker(pMutex);
         if (font == NULL)
             return 0.0f;
         return font->LineHeight();
     }
 
-    float Font::ascender() const
+    float Font::ascender()
     {
+        MutexLocker locker(pMutex);
         if (font == NULL)
             return 0.0f;
         return font->Ascender();
     }
 
-    int Font::get_size() const
+    int Font::get_size()
     {
+        MutexLocker locker(pMutex);
         if (font)
             return font->FaceSize();
         return 0;
