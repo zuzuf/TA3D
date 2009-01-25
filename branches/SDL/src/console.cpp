@@ -71,7 +71,7 @@ namespace TA3D
 
 
 
-    String Console::draw(TA3D::Font *fnt, const float dt, float fsize, const bool forceShow)
+    String Console::draw(TA3D::Font *fnt, const float dt, const bool forceShow)
     {
         MutexLocker locker(pMutex);
 
@@ -119,7 +119,7 @@ namespace TA3D
             keyb = keycode & 0xFF;
         }
 
-        ++fsize;
+        float fsize = fnt->height();
         float maxh = fsize * pLastEntries.size() * pVisible + 5.0f;
 
         String newline;

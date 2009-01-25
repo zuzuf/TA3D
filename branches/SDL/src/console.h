@@ -17,11 +17,11 @@
 
 /*----------------------------------------------------------------------\
 |                               console.h                               |
-|      contient les classes nécessaires à la gestion d'une console dans |
+|      contient les classes nÃ©cessaires Ã  la gestion d'une console dans |
 | programme utilisant Allegro avec ou sans AllegroGL. La console        |
-| dispose de sa propre procédure d'entrée et d'affichage mais celle-ci  |
-| nécessite d'être appellée manuellement pour éviter les problèmes      |
-| découlant d'un appel automatique par un timer.                        |
+| dispose de sa propre procÃ©dure d'entrÃ©e et d'affichage mais celle-ci  |
+| nÃ©cessite d'Ãªtre appellÃ©e manuellement pour Ã©viter les problÃ¨mes      |
+| dÃ©coulant d'un appel automatique par un timer.                        |
 \----------------------------------------------------------------------*/
 
 #ifndef _TA3D_XX_CLASSE_CONSOLE_H__
@@ -75,7 +75,7 @@ namespace TA3D
         ** \param fsize Size of the font
         ** \param forceShow Display the console even it should be displayed
         */
-        String draw(TA3D::Font *fnt, const float dt, float fsize = 8, const bool forceShow = false);
+        String draw(TA3D::Font *fnt, const float dt, const bool forceShow = false);
 
 
     private:

@@ -34,7 +34,8 @@ namespace TA3D
         if (font == NULL)   return;
 
         glScalef(1.0f, -1.0f, 1.0f);
-        font->Render( text.c_str(), -1, FTPoint(x, -font->Ascender() - y, z), FTPoint(), FTGL::RENDER_ALL);
+        font->Render( text.c_str(), -1, FTPoint(x, -(1.5f * font->Ascender() - 0.5f * font->LineHeight()) - y, z), FTPoint(), FTGL::RENDER_ALL);
+//        font->Render( text.c_str(), -1, FTPoint(x, -font->Ascender() - y, z), FTPoint(), FTGL::RENDER_ALL);
         glScalef(1.0f, -1.0f, 1.0f);
     }
 
@@ -123,14 +124,6 @@ namespace TA3D
     }
 
     float Font::height()
-    {
-        MutexLocker locker(pMutex);
-        if (font == NULL)
-            return 0.0f;
-        return font->LineHeight();
-    }
-
-    float Font::ascender()
     {
         MutexLocker locker(pMutex);
         if (font == NULL)

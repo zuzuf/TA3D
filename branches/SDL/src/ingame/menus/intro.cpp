@@ -43,7 +43,7 @@ namespace Menus
     {
         LOG_ASSERT(NULL != gfx);
         LOG_DEBUG(LOG_PREFIX_MENU_INTRO << "Entering...");
-        pCurrentFontHeight = gfx->TA_font->ascender();
+        pCurrentFontHeight = gfx->TA_font->height();
 
         reloadContent();
         loadBackgroundTexture();
