@@ -147,7 +147,7 @@ namespace TA3D
         glfond = 0;
 #warning TODO: add font initialization code here
         normal_font = font_manager.getFont("", 16, FONT_TYPE_TEXTURE);
-        small_font = font_manager.getFont("", 12, FONT_TYPE_TEXTURE);
+        small_font = font_manager.getFont("", 8, FONT_TYPE_TEXTURE);
         TA_font = font_manager.getFont("", 16, FONT_TYPE_TEXTURE);
         ta3d_gui_font = font_manager.getFont("", 16, FONT_TYPE_TEXTURE);
         InitInterface();
@@ -201,7 +201,6 @@ namespace TA3D
         load_background();
 
         gui_font = ta3d_gui_font;
-//        gui_font_h = gui_font->height();
         alpha_blending_set = false;
 
         LOG_INFO(LOG_PREFIX_GFX << "Graphics are initialized.");
@@ -582,8 +581,6 @@ namespace TA3D
             return tex;
         }
 
-        glPushAttrib( GL_ALL_ATTRIB_BITS );
-
         if (ati_workaround && filter_type != FILTER_NONE
             && ( !Math::IsPowerOfTwo(bmp->w) || !Math::IsPowerOfTwo(bmp->h)))
             filter_type = FILTER_LINEAR;
@@ -663,16 +660,12 @@ namespace TA3D
         if (filter_type == FILTER_NONE || filter_type == FILTER_LINEAR )
             use_mipmapping(true);
 
-        glPopAttrib();
-
         return gl_tex;
     }
 
     GLuint GFX::make_texture_A32F( int w, int h, float *data, byte filter_type, bool clamp )
     {
         MutexLocker locker(pMutex);
-
-        glPushAttrib( GL_ALL_ATTRIB_BITS );
 
         set_texture_format(GL_ALPHA32F_ARB);
 
@@ -730,16 +723,12 @@ namespace TA3D
 
         set_texture_format(GL_RGB8);
 
-        glPopAttrib();
-
         return gl_tex;
     }
 
     GLuint GFX::make_texture_A16F( int w, int h, float *data, byte filter_type, bool clamp )
     {
         MutexLocker locker(pMutex);
-
-        glPushAttrib( GL_ALL_ATTRIB_BITS );
 
         set_texture_format(GL_ALPHA16F_ARB);
 
@@ -797,15 +786,11 @@ namespace TA3D
 
         set_texture_format(GL_RGB8);
 
-        glPopAttrib();
-
         return gl_tex;
     }
     GLuint GFX::make_texture_RGBA32F( int w, int h, float *data, byte filter_type, bool clamp )
     {
         MutexLocker locker(pMutex);
-
-        glPushAttrib( GL_ALL_ATTRIB_BITS );
 
         set_texture_format(GL_RGBA32F_ARB);
 
@@ -863,16 +848,12 @@ namespace TA3D
 
         set_texture_format(GL_RGB8);
 
-        glPopAttrib();
-
         return gl_tex;
     }
 
     GLuint GFX::make_texture_RGBA16F( int w, int h, float *data, byte filter_type, bool clamp )
     {
         MutexLocker locker(pMutex);
-
-        glPushAttrib( GL_ALL_ATTRIB_BITS );
 
         set_texture_format(GL_RGBA16F_ARB);
 
@@ -930,16 +911,12 @@ namespace TA3D
 
         set_texture_format(GL_RGB8);
 
-        glPopAttrib();
-
         return gl_tex;
     }
 
     GLuint GFX::make_texture_RGB32F( int w, int h, float *data, byte filter_type, bool clamp )
     {
         MutexLocker locker(pMutex);
-
-        glPushAttrib( GL_ALL_ATTRIB_BITS );
 
         set_texture_format(GL_RGB32F_ARB);
 
@@ -997,16 +974,12 @@ namespace TA3D
 
         set_texture_format(GL_RGB8);
 
-        glPopAttrib();
-
         return gl_tex;
     }
 
     GLuint GFX::make_texture_RGB16F( int w, int h, float *data, byte filter_type, bool clamp )
     {
         MutexLocker locker(pMutex);
-
-        glPushAttrib( GL_ALL_ATTRIB_BITS );
 
         set_texture_format(GL_RGB16F_ARB);
 
@@ -1063,8 +1036,6 @@ namespace TA3D
                          data );
 
         set_texture_format(GL_RGB8);
-
-        glPopAttrib();
 
         return gl_tex;
     }
@@ -1295,8 +1266,6 @@ namespace TA3D
                 return 0;
             }
 
-            glPushAttrib( GL_ALL_ATTRIB_BITS );
-
             uint32 rw, rh;
             fread( &rw, 4, 1, cache_file );
             fread( &rh, 4, 1, cache_file );
@@ -1364,7 +1333,6 @@ namespace TA3D
                     glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR_MIPMAP_LINEAR);
                     break;
             }
-            glPopAttrib();
             return tex;
         }
         return 0; // File isn't in cache
@@ -1496,7 +1464,6 @@ namespace TA3D
 
     void GFX::set_alpha_blending()
     {
-        glPushAttrib(GL_ENABLE_BIT);					// Push OpenGL attribs to pop them later when we unset alpha blending
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
         alpha_blending_set = true;
@@ -1504,10 +1471,7 @@ namespace TA3D
 
     void GFX::unset_alpha_blending()
     {
-        if (alpha_blending_set)
-            glPopAttrib();								// Pop OpenGL attribs to pop them later when we unset alpha blending
-        else
-            glDisable(GL_BLEND);
+        glDisable(GL_BLEND);
         alpha_blending_set = false;
     }
 

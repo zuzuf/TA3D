@@ -70,13 +70,12 @@ void loading(const float percent, const String& msg)
 
     gfx->set_2D_mode();
     glPushMatrix();
-    glScalef(SCREEN_W/1280.0f,SCREEN_H/1024.0f,1.0f);
 
     float h = gfx->TA_font->height();
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);		// Efface l'écran
 
-    gfx->drawtexture(Glfond,0.0f,0.0f,1280.0f,1024.0f);
+    gfx->drawtexture(Glfond,0.0f,0.0f,SCREEN_W,SCREEN_H);
 
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
@@ -89,33 +88,36 @@ void loading(const float percent, const String& msg)
         messages.push_front( msg );
     }
 
+    float fw = SCREEN_W / 1280.0f;
+    float fh = SCREEN_H / 1024.0f;
+
     int e = 0;
     for (String::List::const_iterator i = messages.begin(); i != messages.end(); ++i, ++e)
-        gfx->print(gfx->TA_font, 105.0f, 175.0f + h * e, 0.0f, 0xFFFFFFFF, *i);
+        gfx->print(gfx->TA_font, 105.0f * fw, 175.0f * fh + h * e, 0.0f, 0xFFFFFFFF, *i);
 
     glDisable(GL_BLEND);
 
     glDisable(GL_TEXTURE_2D);
     glColor3f(0.5f,0.8f,0.3f);
     glBegin(GL_QUADS);
-    glVertex2f(100.0f,858.0f);
-    glVertex2f(100.0f+10.72f*percent,858.0f);
-    glVertex2f(100.0f+10.72f*percent,917.0f);
-    glVertex2f(100.0f,917.0f);
+    glVertex2f(100.0f * fw,858.0f * fh);
+    glVertex2f((100.0f+10.72f*percent) * fw,858.0f * fh);
+    glVertex2f((100.0f+10.72f*percent) * fw,917.0f * fh);
+    glVertex2f(100.0f * fw,917.0f * fh);
     glEnd();
 
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
     glColor4ub(0xFF,0xFF,0xFF,0xFF);
 
-    gfx->drawtexture(Glfond,100.0f,856.0f,1172.0f,917.0f,100.0f / 1280.0f,862.0f/1024.0f,1172.0f/1280.0f,917.0f/1024.0f);
+    gfx->drawtexture(Glfond,100.0f * fw,856.0f * fh,1172.0f * fw,917.0f * fh,100.0f / 1280.0f,862.0f/1024.0f,1172.0f/1280.0f,917.0f/1024.0f);
 
     glDisable(GL_BLEND);
 
     glEnable(GL_TEXTURE_2D);
 
     glEnable(GL_BLEND);
-    gfx->print(gfx->TA_font,640.0f-0.5f*gfx->TA_font->length(msg),830-h*0.5f,0.0f,0xFFFFFFFF,msg);
+    gfx->print(gfx->TA_font,640.0f * fw - 0.5f * gfx->TA_font->length(msg),830 * fh - h * 0.5f,0.0f,0xFFFFFFFF,msg);
     glDisable(GL_BLEND);
 
     glPopMatrix();
