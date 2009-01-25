@@ -223,15 +223,18 @@ int draw_text_adjust( float x1, float y1, float x2, float y2, String msg, int po
 //        set_uformat( U_ASCII );
 
         uint32	current_color = 0xFFFFFFFF;
-        char tmp[2];
-        tmp[1] = 0;
         for( int e = pos ; e < Entry.size() ; e++ )
             if (y1 + gui_font->height() * (e + 1 - pos) <= y2)
             {
                 float x_offset = 0.0f;
+                String buf;
                 for( int i = 0 ; i < Entry[e].size() ; i++ )
                     if (Entry[e][i] == '&')
                     {
+                        gfx->print( gui_font, x1 + x_offset, y1 + gui_font->height() * (e - pos), 0.0f, current_color, buf );
+                        x_offset += gui_font->length( buf );
+                        buf.clear();
+
                         current_color = 0xFFFFFFFF;									// Default: white
                         if (i + 1 < Entry[e].size() && Entry[e][i+1] == 'R')
                         {
@@ -245,11 +248,8 @@ int draw_text_adjust( float x1, float y1, float x2, float y2, String msg, int po
                         }
                     }
                     else
-                    {
-                        tmp[0] = Entry[e][i];
-                        gfx->print( gui_font, x1 + x_offset, y1 + gui_font->height() * (e - pos), 0.0f, current_color, tmp );
-                        x_offset += gui_font->length( tmp );
-                    }
+                        buf << Entry[e][i];
+                gfx->print( gui_font, x1 + x_offset, y1 + gui_font->height() * (e - pos), 0.0f, current_color, buf );
             }
 //        set_uformat( old_format );
     }
