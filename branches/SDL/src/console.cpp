@@ -110,13 +110,14 @@ namespace TA3D
         }
 
 //        set_uformat(U_UTF8);
-        char keyb = 0;
-        int keycode = 0;
+        uint16 keyb = 0;
+        uint32 keycode = 0;
 
         if (keypressed())
         {
             keycode = readkey();
-            keyb = keycode & 0xFF;
+            keyb = keycode & 0xFFFF;
+            keycode >>= 16;
         }
 
         float fsize = fnt->height();
@@ -134,7 +135,7 @@ namespace TA3D
         glColor4f(0.75f, 0.75f, 0.608f, 0.75f);
         gfx->line(SCREEN_W, maxh, 0, maxh);
 
-        glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+        glColor4ub(0xFF, 0xFF, 0xFF, 0xFF);
         glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
         glEnable(GL_TEXTURE_2D);
         glTexEnvi(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_MODULATE);
@@ -144,7 +145,7 @@ namespace TA3D
         for (String::List::const_iterator i_entry = pLastEntries.begin(); i_entry != pLastEntries.end(); ++i_entry)
         {
             gfx->print(fnt, 0.0f, maxh - fsize * (pLastEntries.size() + 1 - i) - 5.0f, 0.0f,
-                       0xAFAFAFAF, ">" + *i_entry);
+                       0xDFDFDFDF, ">" + *i_entry);
             ++i;
         }
 
@@ -167,14 +168,14 @@ namespace TA3D
 				pHistoryPos = pLastCommands.size();
 		}
 
-        if (keyb == 0 && (keycode >> 8) == KEY_UP && pHistoryPos > 0)
+        if (keyb == 0 && keycode == KEY_UP && pHistoryPos > 0)
 		{
 			--pHistoryPos;
 			pInputText = pLastCommands[pHistoryPos];
 		}
 		else
 		{
-			if (keyb == 0 && (keycode >> 8) == KEY_DOWN && pHistoryPos < (int)pLastCommands.size())
+			if (keyb == 0 && keycode == KEY_DOWN && pHistoryPos < (int)pLastCommands.size())
 			{
 				++pHistoryPos;
 				if (pHistoryPos < (int)pLastCommands.size())
@@ -192,7 +193,7 @@ namespace TA3D
             keyb == 32 || keyb == '_' || keyb == '+' || keyb == '-' || keyb == '.')
         {
             if (pInputText.size() < 199)
-                pInputText << keyb;
+                pInputText << (char)keyb;
         }
         glDisable(GL_BLEND);
 //        set_uformat(U_ASCII);

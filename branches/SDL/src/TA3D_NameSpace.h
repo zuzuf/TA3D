@@ -216,7 +216,7 @@ namespace TA3D
 
 		TA3D_API_E int                              mouse_x, mouse_y, mouse_z, mouse_b;
 		TA3D_API_E int                              key[0x1000];
-		TA3D_API_E std::list<int>                   keybuf;
+		TA3D_API_E std::list<uint32>                keybuf;
 
 		// Some constant data needed by the engine ( like number of ticks/sec. to simulate )
 #define TICKS_PER_SEC				30
@@ -239,7 +239,7 @@ namespace TA3D
 	/*!
 	** \brief return the next key code in the key buffer
 	*/
-	int readkey();
+	uint32 readkey();
 
 	/*!
 	** \brief clears the key code buffer

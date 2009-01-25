@@ -40,7 +40,7 @@ int                     TA3D::VARS::mouse_y = 0;
 int                     TA3D::VARS::mouse_z = 0;
 int                     TA3D::VARS::mouse_b = 0;
 int                     TA3D::VARS::key[0x1000];
-std::list<int>          TA3D::VARS::keybuf;
+std::list<uint32>       TA3D::VARS::keybuf;
 
 
 
@@ -114,9 +114,9 @@ namespace TA3D
 	}
 
 
-	int readkey()
+	uint32 readkey()
 	{
-	    int res = VARS::keybuf.front();
+	    uint32 res = VARS::keybuf.front();
 	    VARS::keybuf.pop_front();
 	    return res;
     }
@@ -133,6 +133,8 @@ namespace TA3D
 
     void poll_mouse()
     {
+        SDL_EnableUNICODE(1);
+
         SDL_Event event;
 
         while(SDL_PollEvent(&event))
@@ -142,13 +144,10 @@ namespace TA3D
             case SDL_KEYDOWN:
                 {
                     VARS::key[ event.key.keysym.sym ] = 1;
-                    int c = event.key.keysym.sym;
-                    if (c >= KEY_0 && c <= KEY_9)
-                        c = c - KEY_0 + '0';
-                    if ((key[ KEY_RSHIFT ] || key[ KEY_LSHIFT ] || event.key.keysym.mod == KMOD_CAPS) && c >= 'a' && c <= 'z')
-                        c = c + 'A' - 'a';
+                    uint32 c = event.key.keysym.unicode;
+                    c |= event.key.keysym.sym << 16;
                     VARS::keybuf.push_back( c );
-                    LOG_DEBUG("pressing " << (char)c);
+                    LOG_DEBUG("pressing " << (char)c << " (" << c << ")");
                 }
                 break;
             case SDL_MOUSEBUTTONDOWN:

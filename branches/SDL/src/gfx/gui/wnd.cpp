@@ -506,7 +506,7 @@ namespace TA3D
 
         // Interactions utilisateur/objets
         int index,e;
-        byte Key;
+        uint16 Key;
         bool was_on_floating_menu = false;
         int  on_menu = -1;
         bool close_all = false;
@@ -662,9 +662,9 @@ namespace TA3D
                     Objets[i].Etat=false;
                     if (Objets[i].Focus && keypressed())
                     {
-                        sint32 keyCode = readkey();
-                        Key = keyCode&0xff;
-                        int scancode = keyCode >> 8;
+                        uint32 keyCode = readkey();
+                        Key = keyCode & 0xFFFF;
+                        uint16 scancode = keyCode >> 16;
 
                         switch(scancode)
                         {
@@ -689,7 +689,7 @@ namespace TA3D
                                     break;
                                 default:
                                     if (Objets[i].Text[0].length() + 1 < Objets[i].Data)
-                                        Objets[i].Text[0] << Key;
+                                        Objets[i].Text[0] << (char)Key;
                             };
                         };
                     }
@@ -706,9 +706,9 @@ namespace TA3D
                     Objets[i].Etat=false;
                     if (Objets[i].Focus && keypressed())
                     {
-                        sint32 keyCode = readkey();
-                        Key = keyCode & 0xff;
-                        int scancode = keyCode >> 8;
+                        uint32 keyCode = readkey();
+                        Key = keyCode & 0xFFFF;
+                        uint16 scancode = (keyCode >> 16);
                         switch (scancode)
                         {
                         case KEY_ESC:
@@ -802,7 +802,7 @@ namespace TA3D
                                     break;
                                 default:
                                     Objets[i].Text[Objets[i].Data] = Objets[i].Text[ Objets[i].Data ].substr( 0, Objets[i].Pos )
-                                                                    + String( Key )
+                                                                    + String( (char)Key )
                                                                     + Objets[i].Text[ Objets[i].Data ].substr( Objets[i].Pos, Objets[i].Text[ Objets[i].Data ].size() - Objets[i].Pos );
                                     Objets[i].Pos++;
                             };
