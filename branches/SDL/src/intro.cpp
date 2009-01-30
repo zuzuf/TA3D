@@ -71,7 +71,7 @@ void loading(const float percent, const String& msg)
     gfx->set_2D_mode();
     glPushMatrix();
 
-    float h = gfx->TA_font->height();
+    float h = gui_font->height();
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);		// Efface l'écran
 
@@ -93,7 +93,7 @@ void loading(const float percent, const String& msg)
 
     int e = 0;
     for (String::List::const_iterator i = messages.begin(); i != messages.end(); ++i, ++e)
-        gfx->print(gfx->TA_font, 105.0f * fw, 175.0f * fh + h * e, 0.0f, 0xFFFFFFFF, *i);
+        gfx->print(gui_font, 105.0f * fw, 175.0f * fh + h * e, 0.0f, 0xFFFFFFFF, *i);
 
     glDisable(GL_BLEND);
 
@@ -117,13 +117,13 @@ void loading(const float percent, const String& msg)
     glEnable(GL_TEXTURE_2D);
 
     glEnable(GL_BLEND);
-    gfx->print(gfx->TA_font,640.0f * fw - 0.5f * gfx->TA_font->length(msg),830 * fh - h * 0.5f,0.0f,0xFFFFFFFF,msg);
+    gfx->print(gui_font,640.0f * fw - 0.5f * gui_font->length(msg),830 * fh - h * 0.5f,0.0f,0xFFFFFFFF,msg);
     glDisable(GL_BLEND);
 
     glPopMatrix();
 
     if( lp_CONFIG->draw_console_loading ) // If set in config
-        String cmd = console.draw(gfx->TA_font, 0.0f, true);			// Display something to show what's happening
+        String cmd = console.draw(gui_font, 0.0f, true);			// Display something to show what's happening
 
     gfx->flip();
 

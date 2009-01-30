@@ -787,152 +787,40 @@ namespace TA3D
     void MAP_OTA::load(char *data,int ota_size)
     {
         destroy();
-//        set_uformat(U_ASCII);
-        char *pos=data;
-        char *ligne=NULL;
-        int nb=0;
-        int index=0;
-        char *limit=data+ota_size;
-        char *f;
-        int n_pos=0;
-        do {
-            nb++;
-            if(ligne)
-                delete[] ligne;
-            ligne=get_line(pos);
-#warning FIXME: really ugly replacement for strlwr
-            String lwr_ligne = String::ToLower(ligne);
-            memcpy(ligne, lwr_ligne.c_str(), lwr_ligne.size());
-//            strlwr(ligne);
-            while(pos[0]!=0 && pos[0]!=13 && pos[0]!=10)	{	pos++;	n_pos++;	}
-            while(pos[0]==13 || pos[0]==10)	{	pos++;	n_pos++;	}
 
-            if(strstr(ligne,"//") || strstr(ligne,"/*") || strstr(ligne,"{")) { }		// Saute les commentaires
-            else if((f=strstr(ligne,"missionname="))) {
-                if((strstr(ligne,";")))	*(strstr(ligne,";"))=0;
-                missionname = f+12;
-            }
-            else if((f=strstr(ligne,"planet="))) {
-                if((strstr(ligne,";")))	*(strstr(ligne,";"))=0;
-                planet = f+7;
-            }
-            else if((f=strstr(ligne,"glamour="))) {
-                if((strstr(ligne,";")))	*(strstr(ligne,";"))=0;
-                glamour = f+8;
-            }
-            else if((f=strstr(ligne,"missiondescription="))) {
-                if((strstr(ligne,";")))	*(strstr(ligne,";"))=0;
-                missiondescription = f+19;
-                int prec = 0;
-                int cur = 0;
-                int nb=0;
-                while( cur < missiondescription.size() ) {
-                    if(missiondescription[cur]=='\t')	missiondescription[cur] = ' ';
-                    if(missiondescription[cur]==' ')	prec = cur;
-                    nb++;
-                    if(nb>34) {
-                        missiondescription[prec]='\n';
-                        nb = cur-prec;
-                    }
-                    cur++;
-                }
-            }
-            else if((f=strstr(ligne,"tidalstrength="))) {
-                if((strstr(ligne,";")))	*(strstr(ligne,";"))=0;
-                tidalstrength = atoi(f+14);
-            }
-            else if((f=strstr(ligne,"solarstrength="))) {
-                if((strstr(ligne,";")))	*(strstr(ligne,";"))=0;
-                solarstrength = atoi(f+14);
-            }
-            else if((f=strstr(ligne,"lavaworld="))) {
-                if((strstr(ligne,";")))	*(strstr(ligne,";"))=0;
-                lavaworld = (f[10]=='1');
-            }
-            else if((f=strstr(ligne,"killmul="))) {
-                if((strstr(ligne,";")))	*(strstr(ligne,";"))=0;
-                killmul = atoi(f+8);
-            }
-            else if((f=strstr(ligne,"minwindspeed="))) {
-                if((strstr(ligne,";")))	*(strstr(ligne,";"))=0;
-                minwindspeed = atoi(f+13);
-            }
-            else if((f=strstr(ligne,"maxwindspeed="))) {
-                if((strstr(ligne,";")))	*(strstr(ligne,";"))=0;
-                maxwindspeed = atoi(f+13);
-            }
-            else if((f=strstr(ligne,"gravity="))) {
-                if((strstr(ligne,";")))	*(strstr(ligne,";"))=0;
-                gravity = atoi(f+8)*0.1f;
-            }
-            else if((f=strstr(ligne,"numplayers="))) {
-                if((strstr(ligne,";")))	*(strstr(ligne,";"))=0;
-                numplayers = f+11;
-            }
-            else if((f=strstr(ligne,"size="))) {
-                if((strstr(ligne,";")))	*(strstr(ligne,";"))=0;
-                map_size = f+5;
-            }
-            else if((f=strstr(ligne,"surfacemetal="))) {
-                if((strstr(ligne,";")))	*(strstr(ligne,";"))=0;
-                SurfaceMetal = atoi(f+13);
-            }
-            else if((f=strstr(ligne,"mohometal="))) {
-                if((strstr(ligne,";")))	*(strstr(ligne,";"))=0;
-                MohoMetal = atoi(f+10);
-            }
-            else if((f=strstr(ligne,"specialwhat=startpos"))) {
-                if((strstr(ligne,";")))	*(strstr(ligne,";"))=0;
-                index = atoi(f+20)-1;
-            }
-            else if((f=strstr(ligne,"xpos="))) {
-                if((strstr(ligne,";")))	*(strstr(ligne,";"))=0;
-                startX[index] = atoi(f+5);
-            }
-            else if((f=strstr(ligne,"zpos="))) {
-                if((strstr(ligne,";")))	*(strstr(ligne,";"))=0;
-                startZ[index] = atoi(f+5);
-            }
-            else if((f=strstr(ligne,"waterdoesdamage="))) {
-                if((strstr(ligne,";")))	*(strstr(ligne,";"))=0;
-                waterdoesdamage = atoi(f+16)>0;
-            }
-            else if((f=strstr(ligne,"waterdamage="))) {
-                if((strstr(ligne,";")))	*(strstr(ligne,";"))=0;
-                waterdamage = atoi(f+12);
-            }
-            else if((f=strstr(ligne,"missionhint="))) {}
-            else if((f=strstr(ligne,"brief="))) {}
-            else if((f=strstr(ligne,"narration="))) {}
-            else if((f=strstr(ligne,"glamour="))) {}
-            else if((f=strstr(ligne,"lineofsight="))) {}
-            else if((f=strstr(ligne,"mapping="))) {}
-            else if((f=strstr(ligne,"timemul="))) {}
-            else if((f=strstr(ligne,"memory="))) {}
-            else if((f=strstr(ligne,"useonlyunits="))) {}
-            else if((f=strstr(ligne,"schemacount="))) {}
-            else if((f=strstr(ligne,"type="))) {
-                if( strstr( f+5, "network") )
-                    network = true;
-            }
-            else if((f=strstr(ligne,"aiprofile="))) {}
-            else if((f=strstr(ligne,"humanmetal="))) {}
-            else if((f=strstr(ligne,"computermetal="))) {}
-            else if((f=strstr(ligne,"humanenergy="))) {}
-            else if((f=strstr(ligne,"computerenergy="))) {}
-            else if((f=strstr(ligne,"meteorweapon="))) {}
-            else if((f=strstr(ligne,"meteorradius="))) {}
-            else if((f=strstr(ligne,"meteordensity="))) {}
-            else if((f=strstr(ligne,"meteorduration="))) {}
-            else if((f=strstr(ligne,"meteorinterval="))) {}
-            else if((f=strstr(ligne,"killenemycommander="))) {}
-            else if((f=strstr(ligne,"destroyallunits="))) {}
-            else if((f=strstr(ligne,"allunitskilled="))) {}
-            else if((f=strstr(ligne,"featurename="))) {}
+        TDFParser parser;
+        parser.loadFromMemory("OTA",data,ota_size,false,true,false);
 
-        } while(nb<1000 && pos<limit);
-        delete[] ligne;
-        ligne=NULL;
+        missionname = parser.pullAsString("GlobalHeader.missionname");
+        planet = parser.pullAsString("GlobalHeader.planet");
+        glamour = parser.pullAsString("GlobalHeader.glamour");
+        missiondescription = parser.pullAsString("GlobalHeader.missiondescription");
+        tidalstrength = parser.pullAsInt("GlobalHeader.tidalstrength");
+        solarstrength = parser.pullAsInt("GlobalHeader.solarstrength");
+        lavaworld = parser.pullAsBool("GlobalHeader.lavaworld");
+        killmul = parser.pullAsInt("GlobalHeader.killmul", 50);
+        minwindspeed = parser.pullAsInt("GlobalHeader.minwindspeed");
+        maxwindspeed = parser.pullAsInt("GlobalHeader.maxwindspeed");
+        gravity = parser.pullAsInt("GlobalHeader.gravity") * 0.1f;
+        numplayers = parser.pullAsString("GlobalHeader.numplayers");
+        map_size = parser.pullAsString("GlobalHeader.size");
+        SurfaceMetal = parser.pullAsInt("GlobalHeader.Schema 0.SurfaceMetal");
+        MohoMetal = parser.pullAsInt("GlobalHeader.Schema 0.MohoMetal");
+        for(int s = 0 ; parser.exists( format("globalheader.schema 0.specials.special%d", s) ) ; s++)
+        {
+            String key = format("GlobalHeader.Schema 0.specials.special%d.", s);
+            String specialWhat = parser.pullAsString(key + "specialwhat");
+            if (StartsWith( specialWhat.toLower(), "startpos"))
+            {
+                int index = String(specialWhat.substr(8, specialWhat.size() - 8)).toInt32() - 1;
+                startX[index] = parser.pullAsInt(key + "xpos");
+                startZ[index] = parser.pullAsInt(key + "zpos");
+            }
+        }
+        waterdoesdamage = parser.pullAsBool("GlobalHeader.waterdoesdamage");
+        waterdamage = parser.pullAsInt("GlobalHeader.waterdamage");
+        network = StartsWith( parser.pullAsString("GlobalHeader.Schema 0.type").toLower(), "network");
+
         if(waterdamage==0)
             waterdoesdamage=false;
     }

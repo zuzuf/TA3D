@@ -39,6 +39,7 @@
 #include "converters/pcx.h"
 #include "ingame/players.h"
 #include "misc/tdf.h"
+#include "misc/paths.h"
 
 #define SWAP(a, b) { sint32 tmp = a; a = b; b = tmp; }
 
@@ -193,45 +194,16 @@ namespace TA3D
 
     void UNIT_MANAGER::analyse2(char *data,int size)
     {
-        char *pos=data;
-        char *ligne=NULL;
-        char *limit=data+size;
-        int nb=0;
-        do
+        TDFParser parser;
+        parser.loadFromMemory("analyse2", data, size, false, false, true);
+
+        for(int g = 0 ; parser.exists(format("gadget%d", g)) ; g++)
         {
-            String unitmenu;
-            String unitname;
+            String unitmenu = parser.pullAsString(format("gadget%d.unitmenu", g));
+            String unitname = parser.pullAsString(format("gadget%d.unitname", g));
 
-            do
-            {
-                ++nb;
-                if (ligne)
-                    delete[] ligne;
-                ligne=get_line(pos);
-#warning FIXME: awful replacement of strlwr
-                String lwr_string = String::ToLower(ligne);
-                memcpy(ligne, lwr_string.c_str(), lwr_string.size());
-//                strlwr(ligne);
-                while (pos[0]!=0 && pos[0]!=13 && pos[0]!=10)
-                    ++pos;
-                while (pos[0]==13 || pos[0]==10)
-                    ++pos;
+            if (unitmenu.empty() || unitname.empty()) continue;
 
-                if (strstr(ligne,"unitmenu="))          // Obtient le nom de l'unité dont le menu doit être completé
-                {
-                    unitmenu = strstr(ligne,"unitmenu=")+9;
-                    unitmenu = String::Trim(unitmenu, ";").toUpper();
-                }
-                if (strstr(ligne,"unitname="))          // Obtient le nom de l'unité à ajouter
-                {
-                    unitname = strstr(ligne,"unitname=")+9;
-                    unitname = String::Trim(unitname, ";").toUpper();
-                }
-
-            } while (strstr(ligne,"}")==NULL && nb<2000 && data<limit);
-            delete[] ligne;
-            ligne=NULL;
-            if (unitmenu.empty() || unitname.empty()) break;
             int unit_index = get_unit_index(unitmenu);
             if (unit_index==-1)
             {
@@ -243,7 +215,7 @@ namespace TA3D
                 unit_type[unit_index]->AddUnitBuild(idx, -1, -1, 64, 64, -1);
             else
                 LOG_DEBUG("unit '" << unitname << "' not found, cannot add it to " << unitmenu << " build menu");
-        } while (pos[0]=='[' && nb<2000 && data<limit);
+        }
     }
 
 
@@ -639,8 +611,8 @@ namespace TA3D
         String lang_name_alt = I18N::Translate("UNITTYPE_NAME_ALT", "UNITINFO.Name");
         String lang_desc_alt = I18N::Translate("UNITTYPE_DESCRIPTION_ALT", "UNITINFO.Description");
 
-        TDFParser unitParser( filename, true );         // FBI files are case sensitive (something related to variable priority)
-        TDFParser unitParser_ci( filename, false );     // Case insensitive parser
+        TDFParser unitParser( filename, true, true );         // FBI files are case sensitive (something related to variable priority)
+        TDFParser unitParser_ci( filename, false, true );     // Case insensitive parser
 
         Unitname = parseString("UNITINFO.UnitName");
         version = parseInt("UNITINFO.Version");
@@ -1576,12 +1548,7 @@ namespace TA3D
                 progress((300.0f + n * 50.0f / (file_list.size() + 1)) / 7.0f, I18N::Translate("Loading units"));
             ++n;
 
-            char *nom=strdup(strstr(i->c_str(),"\\")+1);			// Vérifie si l'unité n'est pas déjà chargée
-            *(strstr(nom,"."))=0;
-#warning FIXME: awful replacement of strupr
-            String upr_string = String::ToUpper(nom);
-            memcpy(nom, upr_string.c_str(), upr_string.size());
-//            strupr(nom);
+            String nom = String::ToUpper(Paths::ExtractFileNameWithoutExtension(*i));			// Vérifie si l'unité n'est pas déjà chargée
 
             if (unit_manager.get_unit_index(nom) == -1)
             {
@@ -1595,7 +1562,6 @@ namespace TA3D
 
                     if (unit_manager.unit_type[unit_manager.nb_unit - 1]->unitpic)
                     {
-//                        allegro_gl_use_alpha_channel(false);
                         gfx->set_texture_format(GL_RGB8);
                         unit_manager.unit_type[unit_manager.nb_unit - 1]->glpic = gfx->make_texture(unit_manager.unit_type[unit_manager.nb_unit - 1]->unitpic, FILTER_LINEAR);
                         SDL_FreeSurface(unit_manager.unit_type[unit_manager.nb_unit - 1]->unitpic);
@@ -1603,7 +1569,6 @@ namespace TA3D
                     }
                 }
             }
-            free(nom);
         }
 
         for (int i = 0;i < unit_manager.nb_unit; ++i)

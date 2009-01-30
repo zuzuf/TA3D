@@ -263,9 +263,8 @@ namespace TA3D
         glEnable(GL_TEXTURE_2D);
         glDisable(GL_LIGHTING);
         glDisable(GL_CULL_FACE);
-        glEnable(GL_BLEND);
         glDepthMask(GL_FALSE);
-        glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+        gfx->set_alpha_blending();
         cam.setView();
         glEnable(GL_POLYGON_OFFSET_FILL);
         glPolygonOffset(0.0f,-1600.0f);
@@ -287,7 +286,7 @@ namespace TA3D
         }
         glDisable(GL_POLYGON_OFFSET_FILL);
         glPolygonOffset(0.0f,0.0f);
-        glDisable(GL_BLEND);
+        gfx->unset_alpha_blending();
         glDepthMask(GL_TRUE);
 
         if(!UW && lp_CONFIG->explosion_particles && FXManager::currentParticleModel != NULL)

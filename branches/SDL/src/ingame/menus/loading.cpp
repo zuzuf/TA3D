@@ -55,7 +55,7 @@ namespace Menus
 
         gfx->set_2D_mode();
 
-        pCurrentFontHeight = gfx->TA_font->height();
+        pCurrentFontHeight = gui_font->height();
     }
 
     void Loading::finalizeDrawing()
@@ -203,7 +203,7 @@ namespace Menus
         // Draw all previous messages
         int indx(0);
         for (String::List::const_iterator i = pMessages.begin() ; i != pMessages.end() ; ++i, ++indx)
-            gfx->print(gfx->TA_font, 105.0f * fw, 175.0f * fh + pCurrentFontHeight * indx, 0.0f, 0xFFFFFFFF, *i);
+            gfx->print(gui_font, 105.0f * fw, 175.0f * fh + pCurrentFontHeight * indx, 0.0f, 0xFFFFFFFF, *i);
 
         // Draw the progress bar
         glDisable(GL_BLEND);

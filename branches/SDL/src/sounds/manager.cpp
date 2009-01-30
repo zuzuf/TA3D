@@ -119,10 +119,12 @@ namespace Audio
         MutexLocker locker(pMutex);
 
         String search;
-        search << TA3D::Paths::Resources << "music/";
+        search << TA3D::Paths::Resources << "music/*";
 
         String::List file_list;
         Paths::GlobFiles( file_list, search, false, true);
+
+        file_list.sort();
 
         for (Playlist::iterator i = pPlaylist.begin(); i != pPlaylist.end(); ++i)
             (*i)->checked = false;

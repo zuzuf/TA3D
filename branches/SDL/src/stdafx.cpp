@@ -434,60 +434,71 @@ void masked_blit(SDL_Surface *in, SDL_Surface *out, int x0, int y0, int x1, int 
 
 void stretch_blit( SDL_Surface *in, SDL_Surface *out, int x0, int y0, int w0, int h0, int x1, int y1, int w1, int h1 )
 {
+    sint32 dw = (w0 << 16) / w1;
+    sint32 dh = (h0 << 16) / h1;
+    int dy = y1 * out->pitch;
     switch(in->format->BitsPerPixel)
     {
     case 8:
-        for(int y = 0 ; y < h0 ; y++)
+        for(int y = 0 ; y < h1 ; y++)
         {
-            int dy = (y1 + y * h1 / h0) * out->pitch;
-            int sy = (y + y0) * in->pitch;
-            for(int x = 0 ; x < w0 ; x++)
+            int sy = (y0 + (y * dh >> 16)) * in->pitch;
+            byte *d = ((byte*)out->pixels) + x1 + dy;
+            int sx = sy + x0 << 16;
+            for(int x = 0 ; x < w1 ; x++)
             {
-                int sx = x + x0;
-                int dx = x1 + x * w1 / w0;
-                ((byte*)out->pixels)[dy + dx] = ((byte*)in->pixels)[sy + sx];
+                *d = ((byte*)in->pixels)[sx >> 16];
+                d++;
+                sx += dw;
             }
+            dy += out->pitch;
         }
         break;
     case 16:
-        for(int y = 0 ; y < h0 ; y++)
+        for(int y = 0 ; y < h1 ; y++)
         {
-            int dy = (y1 + y * h1 / h0) * out->pitch >> 1;
-            int sy = (y + y0) * in->pitch >> 1;
-            for(int x = 0 ; x < w0 ; x++)
+            int sy = (y0 + (y * dh >> 16)) * in->pitch >> 1;
+            uint16 *d = ((uint16*)out->pixels) + dy + x1;
+            int sx = sy + x0 << 16;
+            for(int x = 0 ; x < w1 ; x++)
             {
-                int sx = x + x0;
-                int dx = x1 + x * w1 / w0;
-                ((uint16*)out->pixels)[dy + dx] = ((uint16*)in->pixels)[sy + sx];
+                *d = ((uint16*)in->pixels)[sx >> 16];
+                d++;
+                sx += dw;
             }
+            dy += out->pitch >> 1;
         }
         break;
     case 24:
-        for(int y = 0 ; y < h0 ; y++)
+        for(int y = 0 ; y < h1 ; y++)
         {
-            int dy = y1 + y * h1 / h0;
-            int sy = y + y0;
-            for(int x = 0 ; x < w0 ; x++)
+            int sy = (y0 + (y * dh >> 16)) * in->pitch;
+            byte *d = ((byte*)out->pixels) + dy + x1 * 3;
+            int sx = x0 << 16;
+            for(int x = 0 ; x < w1 ; x++)
             {
-                int sx = (x + x0) * 3;
-                int dx = (x1 + x * w1 / w0) * 3;
-                SurfaceByte(out, dx, dy) = SurfaceByte(in, sx, sy);
-                SurfaceByte(out, dx + 1, dy) = SurfaceByte(in, sx + 1, sy);
-                SurfaceByte(out, dx + 2, dy) = SurfaceByte(in, sx + 2, sy);
+                byte *ref = ((byte*)in->pixels) + sy + (sx >> 16) * 3;
+                *(d++) = *(ref++);
+                *(d++) = *(ref++);
+                *(d++) = *(ref++);
+                sx += dw;
             }
+            dy += out->pitch;
         }
         break;
     case 32:
-        for(int y = 0 ; y < h0 ; y++)
+        for(int y = 0 ; y < h1 ; y++)
         {
-            int dy = (y1 + y * h1 / h0) * out->pitch >> 2;
-            int sy = (y + y0) * in->pitch >> 2;
-            for(int x = 0 ; x < w0 ; x++)
+            int sy = (y0 + (y * dh >> 16)) * in->pitch >> 2;
+            uint32 *d = ((uint32*)out->pixels) + dy + x1;
+            int sx = sy + x0 << 16;
+            for(int x = 0 ; x < w1 ; x++)
             {
-                int sx = x + x0;
-                int dx = x1 + x * w1 / w0;
-                ((uint32*)out->pixels)[dy + dx] = ((uint32*)in->pixels)[sy + sx];
+                *d = ((uint32*)in->pixels)[sx >> 16];
+                d++;
+                sx += dw;
             }
+            dy += out->pitch >> 2;
         }
         break;
     };

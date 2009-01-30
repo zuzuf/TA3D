@@ -82,10 +82,6 @@ namespace TA3D
         if (hidden) // If it's hidden don't draw it
             return;
 
-        // Format
-//        int old_u_format = get_uformat();
-//        set_uformat(u_format);
-
         // Background
         doDrawWindowBackground(skin);
         // Skin

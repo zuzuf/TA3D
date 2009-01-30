@@ -243,149 +243,57 @@ namespace TA3D
 
     void FEATURE_MANAGER::load_tdf(char *data,int size)					// Charge un fichier tdf
     {
-        char *pos=data;
-        char *ligne=NULL;
-        int nb=0;
-        int index=0;
+        TDFParser parser;
+        parser.loadFromMemory("TDF",data,size,false,true,true);
         int	first=nb_features;
-        char *limit=data+size;
-        do{
-            do
+
+        for(int g = 0 ; parser.exists(format("gadget%d",g)) ; g++)
+        {
+            String key = format("gadget%d.",g);
+
+            int index = add_feature( parser.pullAsString(format("gadget%d", g)) );
+            feature[index].m3d = false;
+            feature[index].world = parser.pullAsString( key + "world", feature[index].world );
+            feature[index].description = parser.pullAsString( key + "description", feature[index].description );
+            feature[index].category = parser.pullAsString( key + "category", feature[index].category );
+            feature[index].filename = parser.pullAsString( key + "object" );
+            feature[index].m3d = !feature[index].filename.empty();
+            if (!feature[index].m3d)
             {
-                ++nb;
-                if (ligne)
-                    delete[] ligne;
-                ligne = get_line(pos);
-#warning FIXME: awful replacement of strlwr
-                String lwr_ligne = String::ToLower(ligne);
-                memcpy(ligne, lwr_ligne.c_str(), lwr_ligne.size());
-//                strlwr(ligne);
-                while (pos[0] != 0 && pos[0] != 13 && pos[0] != 10)
-                    ++pos;
-                while (pos[0] == 13 || pos[0] == 10)
-                    ++pos;
-
-                if (strstr( ligne, " ") != NULL && strstr(ligne, "=") != NULL) // remove useless spaces
-                {
-                    int e = 0;
-                    bool offset = true;
-                    for(int i = 0 ; i <= (int)strlen(ligne) ; ++i)// <= because of NULL termination!!
-                    {
-                        if( ligne[ i ] == '=' )	offset = false;
-                        if( offset && ligne[ i ] == ' ' ) e++;
-                        if( i >= e )
-                            ligne[ i - e ] = ligne[ i ];
-                    }
-                }
-
-                if(ligne[0]=='[')
-                {
-                    if(strstr(ligne,"]"))
-                        *(strstr(ligne,"]"))=0;
-                    index=add_feature(ligne+1);
-                    feature[index].m3d=false;
-                }
-                else if(strstr(ligne,"world=")) {
-                    if(strstr(ligne,";"))	*(strstr(ligne,";"))=0;
-                    feature[index].world = String(strstr(ligne,"world=")+6);
-                }
-                else if(strstr(ligne,"description=")) {
-                    if(strstr(ligne,";"))	*(strstr(ligne,";"))=0;
-                    feature[index].description = String(strstr(ligne,"description=")+12);
-                }
-                else if(strstr(ligne,"category=")) {
-                    if(strstr(ligne,";"))	*(strstr(ligne,";"))=0;
-                    feature[index].category = String(strstr(ligne,"category=")+9);
-                }
-                else if(strstr(ligne,"object=")) {
-                    if(strstr(ligne,";"))	*(strstr(ligne,";"))=0;
-                    feature[index].filename = String(strstr(ligne,"object=")+7);
-                    feature[index].m3d=true;
-                }
-                else if(strstr(ligne,"filename=")) {
-                    if(strstr(ligne,";"))	*(strstr(ligne,";"))=0;
-                    feature[index].filename = String(strstr(ligne,"filename=")+9);
+                feature[index].filename = parser.pullAsString( key + "filename");
+                if (!feature[index].filename.empty())
                     feature_hashtable.insert(String::ToLower(feature[index].filename), index + 1 );
-                }
-                else if(strstr(ligne,"seqname=")) {
-                    if(strstr(ligne,";"))	*(strstr(ligne,";"))=0;
-                    feature[index].seqname = String(strstr(ligne,"seqname=")+8);
+                feature[index].seqname = parser.pullAsString( key + "seqname");
+                if (!feature[index].seqname.empty())
                     feature_hashtable.insert(String::ToLower(feature[index].seqname ), index + 1 );
-                }
-                else if(strstr(ligne,"animating="))
-                    feature[index].animating=(*(strstr(ligne,"animating=")+10)=='1');
-                else if(strstr(ligne,"animtrans="))
-                    feature[index].animtrans = feature[index].animating = (*(strstr(ligne,"animtrans=")+10)=='1');
-                else if(strstr(ligne,"shadtrans="))
-                    feature[index].shadtrans = (*(strstr(ligne,"shadtrans=")+10)=='1');
-                else if(strstr(ligne,"indestructible="))
-                    feature[index].indestructible = (*(strstr(ligne,"indestructible=")+15)=='1');
-                else if(strstr(ligne,"height="))
-                    feature[index].height = atoi(strstr(ligne,"height=")+7);
-                else if(strstr(ligne,"hitdensity="))
-                    feature[index].hitdensity = atoi(strstr(ligne,"hitdensity=")+11);
-                else if(strstr(ligne,"metal="))
-                    feature[index].metal = atoi(strstr(ligne,"metal=")+6);
-                else if(strstr(ligne,"energy="))
-                    feature[index].energy = atoi(strstr(ligne,"energy=")+7);
-                else if(strstr(ligne,"damage="))
-                    feature[index].damage = atoi(strstr(ligne,"damage=")+7);
-                else if(strstr(ligne,"footprintx="))
-                    feature[index].footprintx = atoi(strstr(ligne,"footprintx=")+11);
-                else if(strstr(ligne,"footprintz="))
-                    feature[index].footprintz = atoi(strstr(ligne,"footprintz=")+11);
-                else if(strstr(ligne,"autoreclaimable="))
-                    feature[index].autoreclaimable = (*(strstr(ligne,"autoreclaimable=")+16)=='1');
-                else if(strstr(ligne,"reclaimable="))
-                    feature[index].reclaimable = (*(strstr(ligne,"reclaimable=")+12)=='1');
-                else if(strstr(ligne,"blocking="))
-                    feature[index].blocking = (*(strstr(ligne,"blocking=")+9)=='1');
-                else if(strstr(ligne,"flamable="))
-                    feature[index].flamable = (*(strstr(ligne,"flamable=")+9)=='1');
-                else if(strstr(ligne,"geothermal="))
-                    feature[index].geothermal = (*(strstr(ligne,"geothermal=")+11)=='1');
-                else if(strstr(ligne,"reproducearea="))	{}
-                else if(strstr(ligne,"reproduce="))	{}
-                else if(strstr(ligne,"featuredead=")) {
-                    if(strstr(ligne,";"))	*(strstr(ligne,";"))=0;
-                    feature[index].feature_dead = String(strstr(ligne,"featuredead=")+12);
-                }
-                else if(strstr(ligne,"seqnameshad=")) {}
-                else if(strstr(ligne,"seqnamedie=")) {}
-                else if(strstr(ligne,"seqnamereclamate=")) {}
-                else if(strstr(ligne,"permanent=")) {}
-                else if(strstr(ligne,"nodisplayinfo=")) {}
-                else if(strstr(ligne,"burnmin="))
-                    feature[index].burnmin = atoi(strstr(ligne,"burnmin=")+8);
-                else if(strstr(ligne,"burnmax="))
-                    feature[index].burnmax = atoi(strstr(ligne,"burnmax=")+8);
-                else if(strstr(ligne,"sparktime="))
-                    feature[index].sparktime = atoi(strstr(ligne,"sparktime=")+10);
-                else if(strstr(ligne,"spreadchance="))
-                    feature[index].spreadchance = atoi(strstr(ligne,"spreadchance=")+13);
-                else if(strstr(ligne,"burnweapon=")) {
-                    if(strstr(ligne,";"))	*(strstr(ligne,";"))=0;
-                    feature[index].burnweapon = String(strstr(ligne,"burnweapon=")+11);
-                }
-                else if(strstr(ligne,"seqnameburn=")) {}
-                else if(strstr(ligne,"seqnameburnshad=")) {}
-                else if(strstr(ligne,"featureburnt=")) {
-                    if(strstr(ligne,";"))	*(strstr(ligne,";"))=0;
-                    feature[index].feature_burnt = String(strstr(ligne,"featureburnt=")+13);
-                }
-                else if(strstr(ligne,"featurereclamate=")) {
-                    if(strstr(ligne,";"))	*(strstr(ligne,";"))=0;
-                    feature[index].feature_reclamate = String(strstr(ligne,"featurereclamate=")+17);
-                }
-                else if(strstr(ligne,";"))
-                    LOG_ERROR(LOG_PREFIX_TDF << "Unknown: `" << ligne << "`");
-
-            } while(strstr(ligne,"}") == NULL && nb < 10000 && pos < limit);
-
-            delete[] ligne;
-            ligne=NULL;
-
-        } while (pos[0]=='[' && nb<10000 && pos<limit);
+                LOG_DEBUG("filename = " << feature[index].filename);
+                LOG_DEBUG("seqname = " << feature[index].seqname);
+            }
+            feature[index].animating = parser.pullAsBool( key + "animating",feature[index].animating );
+            feature[index].animating |= (feature[index].animtrans = parser.pullAsBool( key + "animtrans", feature[index].animtrans ));
+            feature[index].shadtrans = parser.pullAsBool( key + "shadtrans", feature[index].shadtrans );
+            feature[index].indestructible = parser.pullAsBool( key + "indestructible", feature[index].indestructible );
+            feature[index].height = parser.pullAsInt( key + "height", feature[index].height );
+            feature[index].hitdensity = parser.pullAsInt( key + "hitdensity", feature[index].hitdensity );
+            feature[index].metal = parser.pullAsInt( key + "metal", feature[index].metal );
+            feature[index].energy = parser.pullAsInt( key + "energy", feature[index].energy );
+            feature[index].damage = parser.pullAsInt( key + "damage", feature[index].damage );
+            feature[index].footprintx = parser.pullAsInt( key + "footprintx", feature[index].footprintx );
+            feature[index].footprintz = parser.pullAsInt( key + "footprintz", feature[index].footprintz );
+            feature[index].autoreclaimable = parser.pullAsBool( key + "autoreclaimable", feature[index].autoreclaimable );
+            feature[index].reclaimable = parser.pullAsBool( key + "reclaimable", feature[index].reclaimable );
+            feature[index].blocking = parser.pullAsBool( key + "blocking", feature[index].blocking );
+            feature[index].flamable = parser.pullAsBool( key + "flamable", feature[index].flamable );
+            feature[index].geothermal = parser.pullAsBool( key + "geothermal", feature[index].geothermal );
+            feature[index].feature_dead = parser.pullAsString( key + "featuredead" );
+            feature[index].burnmin = parser.pullAsInt( key + "burnmin", feature[index].burnmin );
+            feature[index].burnmax = parser.pullAsInt( key + "burnmax", feature[index].burnmax );
+            feature[index].sparktime = parser.pullAsInt( key + "sparktime", feature[index].sparktime );
+            feature[index].spreadchance = parser.pullAsInt( key + "spreadchance", feature[index].spreadchance );
+            feature[index].burnweapon = parser.pullAsString( key + "burnweapon" );
+            feature[index].feature_burnt = parser.pullAsString( key + "featureburnt" );
+            feature[index].feature_reclamate = parser.pullAsString( key + "featurereclamate" );
+        }
 
         if (g_useTextureCompression && lp_CONFIG->use_texture_compression)
             gfx->set_texture_format(GL_COMPRESSED_RGBA_ARB);
@@ -650,6 +558,8 @@ namespace TA3D
             {
                 pMutex.unlock();
                 pMutex.lock();
+                if (e >= list_size)         // We need this because of the unlock/lock calls above
+                    break;
             }
             int i = list[e];
             if (feature[i].type < 0 || !feature[i].draw)
@@ -823,6 +733,8 @@ namespace TA3D
         {
             pMutex.unlock();
             pMutex.lock();
+            if (e >= list_size)         // We need this because of the unlock/lock calls above
+                break;
             int i = list[e];
             if(feature[i].type<0)
                 continue;

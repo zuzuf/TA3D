@@ -43,7 +43,7 @@ namespace Menus
     {
         LOG_ASSERT(NULL != gfx);
         LOG_DEBUG(LOG_PREFIX_MENU_INTRO << "Entering...");
-        pCurrentFontHeight = gfx->TA_font->height();
+        pCurrentFontHeight = gui_font->height();
 
         reloadContent();
         loadBackgroundTexture();
@@ -149,7 +149,7 @@ namespace Menus
         glColor4ub(0xFF, 0xFF, 0xFF, 0xFF);
         int indx = 0;
         for (unsigned int i = pStartIndex; i < pContentSize && indx < TA3D_INTRO_MAX_LINES; ++i, ++indx)
-            gfx->print(gfx->TA_font, 220.0f * fw, TA3D_INTRO_TOP + (indx-1) * pCurrentFontHeight - pDelta, 0.0f, pContent[i]);
+            gfx->print(gui_font, 220.0f * fw, TA3D_INTRO_TOP + (indx-1) * pCurrentFontHeight - pDelta, 0.0f, pContent[i]);
 
         glBlendFunc(GL_ONE_MINUS_SRC_ALPHA,GL_SRC_ALPHA);
         glBindTexture(GL_TEXTURE_2D, pBackgroundTexture);

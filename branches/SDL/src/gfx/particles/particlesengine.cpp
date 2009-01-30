@@ -512,20 +512,16 @@ namespace TA3D
                 if (quit)
                     break;
             }
-            pMutex.unlock();
-            pMutex.lock();
         }
+
+        pMutex.unlock();
+        pMutex.lock();
 
         uint32 i = 0;
 
         for (std::vector<PARTICLE>::iterator e = part.begin() ; e != part.end() ; )
         {
             i++;
-            if (!(i & 15) )
-            {
-                pMutex.unlock(); // Pause to give the renderer the time to work and to go at the given engine speed (in ticks per sec.)
-                pMutex.lock();
-            }
 
             e->life -= dt;
             if (e->life < 0.0f)

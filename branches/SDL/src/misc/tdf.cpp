@@ -199,6 +199,8 @@ namespace TA3D
                             else
                                 stack.currentSection += ".";
                             stack.currentSection += stack.value;
+                            if (stack.gadgetMode < 0)
+                                pTable.insertOrUpdate(stack.currentSection, stack.value);
                             ++stack.level;
                             continue;
                         }
@@ -263,7 +265,7 @@ namespace TA3D
                 ? def
                 : (iterFind.size() == 10 && String(iterFind.substr(0,4)).toUInt32() > 127
                    ? (0xFF000000 | String("0x"+ iterFind.substr(4,6)).toUInt32())
-                   : iterFind.toUInt32()));		// Uses ustrtol to deal with hexa numbers
+                   : iterFind.toInt32()));		// Uses ustrtol to deal with hexa numbers
     }
 
     real32 TDFParser::pullAsFloat(const String& key, const real32 def)

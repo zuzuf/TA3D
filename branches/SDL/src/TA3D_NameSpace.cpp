@@ -187,6 +187,7 @@ namespace TA3D
 
 	void get_mouse_mickeys(int *mx, int *my)
 	{
+	    poll_mouse();
         SDL_GetRelativeMouseState(mx, my);
 	}
 } // namespace TA3D

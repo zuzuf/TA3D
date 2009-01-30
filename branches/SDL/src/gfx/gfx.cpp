@@ -100,6 +100,7 @@ namespace TA3D
             set_texture_format(GL_COMPRESSED_RGB_ARB);
         else
             set_texture_format(GL_RGB8);
+        glViewport(0,0,SCREEN_W,SCREEN_H);
     }
 
 
@@ -146,10 +147,10 @@ namespace TA3D
         textureDepth = 0;
         glfond = 0;
 #warning TODO: add font initialization code here
-        normal_font = font_manager.getFont("", 16, FONT_TYPE_TEXTURE);
+        normal_font = font_manager.getFont("", 12, FONT_TYPE_TEXTURE);
         small_font = font_manager.getFont("", 8, FONT_TYPE_TEXTURE);
-        TA_font = font_manager.getFont("", 16, FONT_TYPE_TEXTURE);
-        ta3d_gui_font = font_manager.getFont("", 16, FONT_TYPE_TEXTURE);
+        TA_font = font_manager.getFont("", 12, FONT_TYPE_TEXTURE);
+        ta3d_gui_font = font_manager.getFont("", 10 * SCREEN_W / 640, FONT_TYPE_TEXTURE);
         InitInterface();
         displayInfosAboutOpenGL();
     }
@@ -1133,7 +1134,7 @@ namespace TA3D
         {
             if (img->format->BitsPerPixel == 32)
                 img = convert_format(img);
-            else if (img->format->BitsPerPixel == 24)
+            else
                 img = convert_format_24(img);
         }
         return img;
@@ -1157,7 +1158,7 @@ namespace TA3D
             for( int y = 0 ; y < bmp->h && !with_alpha ; y++ )
             {
                 for( int x = 0 ; x < bmp->w && !with_alpha ; x++ )
-                    with_alpha |= SurfaceByte(bmp,(x<<2)+3,y) != 255;
+                    with_alpha |= geta(SurfaceInt(bmp,x,y)) != 255;
             }
         }
         if (texFormat == 0)
@@ -1169,9 +1170,7 @@ namespace TA3D
         }
         else
             set_texture_format( texFormat );
-//        allegro_gl_use_alpha_channel( with_alpha );
         GLuint gl_tex = make_texture( bmp, filter_type, clamp );
-//        allegro_gl_use_alpha_channel(false);
         SDL_FreeSurface(bmp);
         return gl_tex;
     }
@@ -1186,35 +1185,31 @@ namespace TA3D
         if (width )		*width = bmp->w;
         if (height )	*height = bmp->h;
         if (bmp->format->BitsPerPixel != 32 )
-        {
-            SDL_Surface *tmp = create_surface_ex( 32, bmp->w, bmp->h );
-            blit( bmp, tmp, 0, 0, 0, 0, bmp->w, bmp->h);
-            SDL_FreeSurface(bmp);
-            bmp = tmp;
-        }
+            bmp = convert_format( bmp );
         bool with_alpha = (String::ToLower(Paths::ExtractFileExt(file)) == "tga");
         if (with_alpha)
         {
             with_alpha = false;
             for( int y = 0 ; y < bmp->h && !with_alpha ; y++ )
                 for( int x = 0 ; x < bmp->w && !with_alpha ; x++ )
-                    with_alpha |= SurfaceByte(bmp,(x<<2)+3,y) != 255;
+                    with_alpha |= (geta(SurfaceInt(bmp,x,y)) != 255);
         }
         else
         {
             for( int y = 0 ; y < bmp->h ; y++ )
                 for( int x = 0 ; x < bmp->w ; x++ )
-                    SurfaceByte(bmp,(x<<2)+3,y) = 255;
+                    SurfaceInt(bmp,x,y) |= makeacol(0,0,0,255);
         }
 
         for( int y = 0 ; y < bmp->h ; y++ )
         {
             for( int x = 0 ; x < bmp->w ; x++ )
             {
-                if (SurfaceByte(bmp,(x<<2),y) < level && SurfaceByte(bmp,(x<<2)+1,y) < level
-                    && SurfaceByte(bmp,(x<<2)+2,y) < level)
+                uint32 c = SurfaceInt(bmp,x,y);
+                if (getr(c) < level && getg(c) < level
+                    && getb(c) < level)
                 {
-                    SurfaceByte(bmp,(x<<2)+3,y) = 0;
+                    SurfaceInt(bmp,x,y) = makeacol(getr(c), getg(c), getb(c), 0);
                     with_alpha = true;
                 }
             }
@@ -1223,9 +1218,7 @@ namespace TA3D
             set_texture_format( with_alpha ? GL_COMPRESSED_RGBA_ARB : GL_COMPRESSED_RGB_ARB );
         else
             set_texture_format( with_alpha ? GL_RGBA8 : GL_RGB8 );
-//        allegro_gl_use_alpha_channel( with_alpha );
         GLuint gl_tex = make_texture( bmp, filter_type, clamp );
-//        allegro_gl_use_alpha_channel(false);
         SDL_FreeSurface(bmp);
         return gl_tex;
     }
@@ -1405,23 +1398,22 @@ namespace TA3D
         SDL_Surface *bmp = load_image(file);
         if (bmp == NULL )	return 0;					// Operation failed
         SDL_Surface *alpha = load_image( mask );
-        if(! alpha)
+        if(!alpha)
         {
-            SDL_FreeSurface( alpha );
+            SDL_FreeSurface( bmp );
             return 0;
         }
         for(int y = 0; y < bmp->h; ++y)
-        {
             for(int x=0;x<bmp->w;x++)
-                SurfaceByte(bmp, (x<<2)+3, y) = SurfaceInt(alpha,x,y) & 0xFF;
-        }
-//        allegro_gl_use_alpha_channel(true);
+            {
+                uint32 c = SurfaceInt(bmp, x, y);
+                SurfaceInt(bmp, x, y) = makeacol( getr(c), getg(c), getb(c), geta(SurfaceInt(alpha,x,y)) );
+            }
         if(g_useTextureCompression && lp_CONFIG->use_texture_compression)
             set_texture_format(GL_COMPRESSED_RGBA_ARB);
         else
             set_texture_format(GL_RGBA8);
         GLuint gl_tex = make_texture( bmp, filter_type );
-//        allegro_gl_use_alpha_channel(false);
         SDL_FreeSurface(bmp);
         SDL_FreeSurface(alpha);
         return gl_tex;

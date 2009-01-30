@@ -790,6 +790,7 @@ namespace TA3D
 
             switch(primitive.NumberOfVertexIndexes)
             {
+                case 0:                      break;
                 case 1:		++nb_p_index;    break;
                 case 2:		nb_l_index += 2; break;
                 default:
@@ -847,6 +848,8 @@ namespace TA3D
 
             switch (primitive.NumberOfVertexIndexes)
             {
+                case 0:
+                    break;
                 case 1:
                     p_index[pos_p++] = *((short*)(data+primitive.OffsetToVertexIndexArray));
                     break;

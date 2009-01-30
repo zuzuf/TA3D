@@ -35,12 +35,12 @@ namespace Converters
                 {
                     int l = c - 192;
                     c = data[pos++];
-                    int col = makecol(cpal[c].r << 2, cpal[c].g << 2, cpal[c].b << 2);
+                    int col = makecol(cpal[c].r, cpal[c].g, cpal[c].b);
                     for(; l > 0 && x < pcx->w; --l)
                         SurfaceInt(pcx, x++, y) = col;
                 }
                 else
-                    SurfaceInt(pcx, x++, y) = makecol(cpal[c].r << 2, cpal[c].g << 2, cpal[c].b << 2);
+                    SurfaceInt(pcx, x++, y) = makecol(cpal[c].r, cpal[c].g, cpal[c].b);
             } while(x < pcx->w);
         }
         return pcx;

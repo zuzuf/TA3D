@@ -3272,7 +3272,7 @@ namespace TA3D
             String cmd;
             // Draw the console
             if (!shoot || video_shoot)
-                cmd = console.draw(gfx->TA_font, dt);
+                cmd = console.draw(gui_font, dt);
 
             // Informations about FPS
             if (lp_CONFIG->showfps)

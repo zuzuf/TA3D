@@ -107,7 +107,6 @@ namespace TA3D
     {
         glPolygonOffset(0.0f, 0.0f);
         glBindTexture(GL_TEXTURE_2D, fx_manager.wave_tex[animIndx + 4]);
-        gfx->set_alpha_blending();
 
         glPushMatrix();
 
@@ -129,7 +128,6 @@ namespace TA3D
 
         glColor4f( 1.0f, 1.0f, 1.0f, 1.0f );
         glPopMatrix();
-        gfx->unset_alpha_blending();
         glPolygonOffset(0.0f, -1600.0f);
     }
 
@@ -137,7 +135,6 @@ namespace TA3D
     {
         glPolygonOffset(0.0f,0.0f);
         glBindTexture(GL_TEXTURE_2D, fx_manager.ripple_tex);
-        gfx->set_alpha_blending();
 
         glPushMatrix();
 
@@ -157,7 +154,6 @@ namespace TA3D
 
         glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
         glPopMatrix();
-        gfx->unset_alpha_blending();
         glPolygonOffset(0.0f, -1600.0f);
     }
 

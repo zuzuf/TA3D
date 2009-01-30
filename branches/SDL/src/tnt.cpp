@@ -57,7 +57,7 @@ namespace TA3D
 	    int mini_w=TNTMINIMAP_WIDTH;
 	    int mini_h=TNTMINIMAP_HEIGHT;
 	    int blank_color = makecol(120,148,252); // approximately
-	    int mask = 0xFCFCFCFC; // XXX this assumes 24- or 32-bit pixels
+	    int mask = makecol(0xFC, 0xFC, 0xFC); // XXX this assumes 24- or 32-bit pixels
 	    do
 	    {
 		    --mini_w;
@@ -185,9 +185,10 @@ namespace TA3D
         map->mini = convert_format( map->mini );
         map->mini_w = 251;
         map->mini_h = 251;
-        while (map->mini_w > 0 && ( ( SurfaceInt(map->mini,map->mini_w,0) & 0xFCFCFCFC) == makecol(120,148,252) || SurfaceInt(map->mini,map->mini_w,0) == 0))
+        uint32 mask = makecol(0xFC,0xFC,0xFC);
+        while (map->mini_w > 0 && ( ( SurfaceInt(map->mini,map->mini_w,0) & mask) == makecol(120,148,252) || SurfaceInt(map->mini,map->mini_w,0) == 0))
             --(map->mini_w);
-        while (map->mini_h > 0 && ( ( SurfaceInt(map->mini,0,map->mini_h) & 0xFCFCFCFC) == makecol(120,148,252) || SurfaceInt(map->mini,0,map->mini_h) == 0))
+        while (map->mini_h > 0 && ( ( SurfaceInt(map->mini,0,map->mini_h) & mask) == makecol(120,148,252) || SurfaceInt(map->mini,0,map->mini_h) == 0))
             --(map->mini_h);
         ++(map->mini_w);
         ++(map->mini_h);
