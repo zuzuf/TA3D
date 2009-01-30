@@ -27,6 +27,7 @@
 #include "../gui.h"
 #include "../gaf.h"
 #include "gfx.h"
+#include "gui/skin.manager.h"
 #include "../misc/paths.h"
 #include "../logs/logs.h"
 #include <strings.h>
@@ -175,6 +176,7 @@ namespace TA3D
         ta3d_gui_font = NULL;
 
         font_manager.destroy();
+        skin_manager.destroy();
     }
 
 

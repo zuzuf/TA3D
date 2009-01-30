@@ -2,6 +2,7 @@
 #include "area.h"
 #include "../../misc/paths.h"
 #include "skin.h"
+#include "skin.manager.h"
 #include "../../console.h"
 #include "../../TA3D_NameSpace.h"
 #include "../../gui.h"
@@ -253,10 +254,7 @@ namespace TA3D
 
         String skin_name = (lp_CONFIG != NULL && !lp_CONFIG->skin_name.empty()) ? lp_CONFIG->skin_name : "";
         if (!skin_name.empty() && HPIManager->Exists(skin_name))
-        {
-            skin = new SKIN();
-            skin->load_tdf(skin_name, 1.0f);
-        }
+            skin = skin_manager.load(skin_name, 1.0f);
 
         String real_filename = filename;
         if (skin != NULL && !skin->prefix.empty())
@@ -273,8 +271,6 @@ namespace TA3D
             if (!HPIManager->Exists(real_filename))	// If it doesn't exist revert to the default name
                 real_filename = filename;
         }
-        if (skin)
-            delete skin;
         skin = NULL;
         TDFParser* areaFile = new TDFParser(real_filename);
 
@@ -299,8 +295,7 @@ namespace TA3D
             int area_width = areaFile->pullAsInt("area.width", SCREEN_W);
             int area_height = areaFile->pullAsInt("area.height", SCREEN_W);
             float skin_scale = Math::Min((float)SCREEN_H / area_height, (float)SCREEN_W / area_width);
-            skin = new SKIN();
-            skin->load_tdf(skin_name, skin_scale);
+            skin = skin_manager.load(skin_name, skin_scale);
         }
 
         String::Vector windows_to_load;
@@ -387,8 +382,6 @@ namespace TA3D
 
         gfx->destroy_texture(background);		// Destroy the texture (using safe destroyer)
 
-        if (skin) // Destroy the skin
-            delete skin;
         skin = NULL;
     }
 
@@ -420,8 +413,6 @@ namespace TA3D
             background = 0;
         else
             gfx->destroy_texture(background); // Destroy the texture
-        if (skin)					// Destroy the skin
-            delete skin;
     }
 
     uint32 AREA::InterfaceMsg(const lpcImsg msg)
