@@ -174,54 +174,63 @@ int draw_text_adjust( float x1, float y1, float x2, float y2, String msg, int po
     std::vector< String > Entry;
     int last = 0;
     for( int i = 0 ; i < msg.length() ; i++ )
-        if (msg[i] == '\r')	continue;
-        else if (msg[i] == '\n' || gui_font->length( current + ' ' + current_word + msg[i] ) >= x2 - x1)
+    {
+        String str;
+        if (((byte)msg[i]) < 0x80)
+            str << msg[i];
+        else if (i + 1 < msg.length())
+        {
+            str << msg[i] << msg[i+1];
+            i++;
+        }
+
+        if (str == "\r")	continue;
+        else if (str == "\n" || gui_font->length( current + ' ' + current_word + str ) >= x2 - x1)
         {
             bool line_too_long = true;
-            if (gui_font->length( current + ' ' + current_word + msg[i] ) < x2 - x1)
+            if (gui_font->length( current + ' ' + current_word + str ) < x2 - x1)
             {
-                current += ' ' + current_word;
+                current << ' ' << current_word;
                 current_word.clear();
                 line_too_long = false;
             }
-            else if (msg[i] != '\n')
-                current_word += msg[i];
+            else if (str != "\n")
+                current_word << str;
             Entry.push_back( current );
             last = i + 1;
             current.clear();
-            if( msg[ i ] == '\n' && line_too_long ) {
+            if (str == "\n" && line_too_long)
+            {
                 Entry.push_back( current_word );
                 current_word.clear();
             }
         }
         else
         {
-            if( msg[i] == ' ' )
+            if (str == " ")
             {
-                if( !current.empty() )
-                    current += ' ';
-                current += current_word;
+                if (!current.empty())
+                    current << ' ';
+                current << current_word;
                 current_word.clear();
             }
             else
-                current_word += msg[i];
+                current_word << str;
         }
+    }
 
     if (!current.empty())
         current << ' ' << current_word;
     else
         current << current_word;
 
-    if( last + 1 < msg.length() && !current.empty() )
+    if (last + 1 < msg.length() && !current.empty())
         Entry.push_back( current );
 
     gfx->set_color( 0xFFFFFFFF );
 
     if (mission_mode)
     {
-//        int	old_format = get_uformat();
-//        set_uformat( U_ASCII );
-
         uint32	current_color = 0xFFFFFFFF;
         for( int e = pos ; e < Entry.size() ; e++ )
             if (y1 + gui_font->height() * (e + 1 - pos) <= y2)
@@ -229,7 +238,16 @@ int draw_text_adjust( float x1, float y1, float x2, float y2, String msg, int po
                 float x_offset = 0.0f;
                 String buf;
                 for( int i = 0 ; i < Entry[e].size() ; i++ )
-                    if (Entry[e][i] == '&')
+                {
+                    String str;
+                    if (((byte)Entry[e][i]) < 0x80)
+                        str << Entry[e][i];
+                    else if (i + 1 < Entry[e].size())
+                    {
+                        str << Entry[e][i] << Entry[e][i + 1];
+                        i++;
+                    }
+                    if (str == "&")
                     {
                         gfx->print( gui_font, x1 + x_offset, y1 + gui_font->height() * (e - pos), 0.0f, current_color, buf );
                         x_offset += gui_font->length( buf );
@@ -248,10 +266,10 @@ int draw_text_adjust( float x1, float y1, float x2, float y2, String msg, int po
                         }
                     }
                     else
-                        buf << Entry[e][i];
+                        buf << str;
+                }
                 gfx->print( gui_font, x1 + x_offset, y1 + gui_font->height() * (e - pos), 0.0f, current_color, buf );
             }
-//        set_uformat( old_format );
     }
     else
     {

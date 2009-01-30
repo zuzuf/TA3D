@@ -353,19 +353,16 @@ namespace TA3D
         }
         byte tmp[4];
         newSize = 1;
-        for(const byte *p = (byte*)s ; *p ; p++)
+        for(byte *p = (byte*)s ; *p ; p++)
             newSize += ASCIItoUTF8(*p, tmp);
 
-        // see http://linux.die.net/man/3/uconvert_size
-//        newSize = uconvert_size(s, U_ASCII, U_UTF8); // including the mandatory zero terminator of the string
         char* ret = new char[newSize];
         LOG_ASSERT(NULL != ret);
-        // see http://linux.die.net/man/3/do_uconvert
-//        do_uconvert(s, U_ASCII, ret, U_UTF8, newSize);
+
         byte *q = (byte*)ret;
-        for(const byte *p = (byte*)s ; *p ; p++)
+        for(byte *p = (byte*)s ; *p ; p++)
             q += ASCIItoUTF8(*p, q);
-        ret[newSize - 1] = '\0'; // A bit paranoid
+        *q = '\0'; // A bit paranoid
         return ret;
     }
 

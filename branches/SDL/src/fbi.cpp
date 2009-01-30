@@ -603,7 +603,6 @@ namespace TA3D
 
     int UNIT_TYPE::load(const String &filename)
     {
-//        set_uformat(U_ASCII);
         destroy();
         int nb_inconnu=0;
         String lang_name = I18N::Translate("UNITTYPE_NAME", "UNITINFO.Name");
