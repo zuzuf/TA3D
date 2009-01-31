@@ -98,6 +98,7 @@ namespace TA3D
         Font        *small_font;
         Font        *TA_font;
         Font        *ta3d_gui_font;
+        Font        *big_font;
 
         sint32		SCREEN_W_HALF;
         sint32		SCREEN_H_HALF;

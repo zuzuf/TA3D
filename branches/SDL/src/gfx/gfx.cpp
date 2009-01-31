@@ -152,6 +152,7 @@ namespace TA3D
         small_font = font_manager.getFont("", 8, FONT_TYPE_TEXTURE);
         TA_font = font_manager.getFont("", 12, FONT_TYPE_TEXTURE);
         ta3d_gui_font = font_manager.getFont("", 10 * SCREEN_W / 640, FONT_TYPE_TEXTURE);
+        big_font = font_manager.getFont("", 16 * SCREEN_W / 640, FONT_TYPE_TEXTURE);
         InitInterface();
         displayInfosAboutOpenGL();
     }

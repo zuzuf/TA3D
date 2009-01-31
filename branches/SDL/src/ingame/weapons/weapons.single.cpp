@@ -486,7 +486,7 @@ namespace TA3D
                             else
                             {
                                 features.lock();
-                                if(t_idx<-1 && !weapon_def->unitsonly && ((Vector3D)(features.feature[-t_idx-2].Pos-Pos)).sq()<=d)
+                                if(t_idx<-1 && !weapon_def->unitsonly && features.feature[-t_idx-2].type >= 0 && ((Vector3D)(features.feature[-t_idx-2].Pos-Pos)).sq()<=d)
                                 {
                                     // Start a fire ?
                                     if( feature_manager.feature[ features.feature[-t_idx-2].type ].flamable && !features.feature[-t_idx-2].burning && weapon_def->firestarter && local )
@@ -500,7 +500,7 @@ namespace TA3D
                                     }
 
                                     oidx.push_back( t_idx );
-                                    if(features.feature[-t_idx-2].type>=0 && !feature_manager.feature[features.feature[-t_idx-2].type].indestructible && !features.feature[-t_idx-2].burning )
+                                    if(!feature_manager.feature[features.feature[-t_idx-2].type].indestructible && !features.feature[-t_idx-2].burning )
                                     {
                                         damage = weapon_def->damage;
                                         float cur_damage = damage * weapon_def->edgeeffectiveness;

@@ -1390,7 +1390,7 @@ namespace TA3D
     int LUA_PROGRAM::run(MAP *map,float dt,int viewer_id)									// Execute le script
     {
         pMutex.lock();
-        draw_list.draw(gfx->TA_font);			// Execute la liste de commandes de dessin
+        draw_list.draw(gfx->big_font);			// Execute la liste de commandes de dessin
         pMutex.unlock();
 
         if (!running )	return	-1;

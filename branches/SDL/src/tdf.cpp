@@ -261,11 +261,7 @@ namespace TA3D
             if (!feature[index].m3d)
             {
                 feature[index].filename = parser.pullAsString( key + "filename");
-                if (!feature[index].filename.empty())
-                    feature_hashtable.insert(String::ToLower(feature[index].filename), index + 1 );
                 feature[index].seqname = parser.pullAsString( key + "seqname");
-                if (!feature[index].seqname.empty())
-                    feature_hashtable.insert(String::ToLower(feature[index].seqname ), index + 1 );
             }
             feature[index].animating = parser.pullAsBool( key + "animating",feature[index].animating );
             feature[index].animating |= (feature[index].animtrans = parser.pullAsBool( key + "animtrans", feature[index].animtrans ));
