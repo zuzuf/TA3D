@@ -302,12 +302,10 @@ namespace TA3D
                 else if(strstr(ligne,"filename=")) {
                     if(strstr(ligne,";"))	*(strstr(ligne,";"))=0;
                     feature[index].filename = String(strstr(ligne,"filename=")+9);
-                    feature_hashtable.insert(String::ToLower(feature[index].filename), index + 1 );
                 }
                 else if(strstr(ligne,"seqname=")) {
                     if(strstr(ligne,";"))	*(strstr(ligne,";"))=0;
                     feature[index].seqname = String(strstr(ligne,"seqname=")+8);
-                    feature_hashtable.insert(String::ToLower(feature[index].seqname ), index + 1 );
                 }
                 else if(strstr(ligne,"animating="))
                     feature[index].animating=(*(strstr(ligne,"animating=")+10)=='1');

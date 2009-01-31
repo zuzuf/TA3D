@@ -36,7 +36,7 @@
 #include "misc/paths.h"
 #include "misc/files.h"
 #include "logs/logs.h"
-
+#include <zlib.h>
 
 
 namespace TA3D
@@ -3088,6 +3088,7 @@ namespace TA3D
                             String real_name = (char*)(data+1);
                             real_name.trim();
                             delete[] data;
+                            LOG_DEBUG("link -> " << real_name);
                             data = HPIManager->PullFromHPI( real_name );
                         }
                         if (data)
@@ -3097,6 +3098,8 @@ namespace TA3D
                             model_hashtable.insert(String::ToLower(*e), nb_models + i + 1);
                             ++i;
                         }
+                        else
+                            LOG_DEBUG(LOG_PREFIX_3DM << "could not load " << *e);
                     }
                 }
             }
@@ -3690,34 +3693,39 @@ namespace TA3D
                     int buf_size = tex->w * tex->h * 5;
                     byte *buffer = new byte[buf_size];
 
+                    uint8 bpp = bitmap_color_depth( tex );
+                    int w = tex->w;
+                    int h = tex->h;
+                    fwrite(&w, sizeof(w), 1, dst);
+                    fwrite(&h, sizeof(h), 1, dst);
+                    fwrite(&bpp, 1, 1, dst);
+
+                    if (bpp == 32)
+                        for(int y = 0 ; y < tex->h ; y++)
+                            for(int x = 0 ; x < tex->w ; x++)
+                            {
+                                uint32 c = getpixel(tex, x, y);
+                                tex->line[y][x*4] = getr(c);
+                                tex->line[y][x*4+1] = getg(c);
+                                tex->line[y][x*4+2] = getb(c);
+                                tex->line[y][x*4+3] = geta(c);
+                            }
+                    else
+                        for(int y = 0 ; y < tex->h ; y++)
+                            for(int x = 0 ; x < tex->w ; x++)
+                            {
+                                tex->line[y][x*3] ^= tex->line[y][x*3+1];
+                                tex->line[y][x*3+1] ^= tex->line[y][x*3];
+                                tex->line[y][x*3] ^= tex->line[y][x*3+1];
+                            }
+
                     int img_size = buf_size;
-                    save_memory_jpg_ex(buffer, &img_size, tex, NULL, 85, JPG_SAMPLING_411 | JPG_OPTIMIZE, NULL);
+                    uLongf __size = img_size;
+                    compress2 ( buffer, &__size, (Bytef*) tex->line[0], tex->w * tex->h * bpp >> 3, 9);
+                    img_size = __size;
 
                     fwrite(&img_size, sizeof(img_size), 1, dst); // Save the result
                     fwrite(buffer, img_size, 1, dst);
-
-                    bool need_alpha = false;
-                    for (int y = 0 ; y < tex->h; ++y)
-                    {
-                        for (int x = 0; x < tex->w; ++x)
-                        {
-                            int c = geta(getpixel(tex, x, y));
-                            if (c != 255)
-                                need_alpha = true;
-                            ((uint32*)(tex->line[y]))[x] = c * 0x01010101;
-                        }
-                    }
-
-                    if (need_alpha)
-                    {
-                        putc(1, dst);		// Alpha channel has to be stored
-                        img_size = buf_size;
-                        save_memory_jpg_ex(buffer, &img_size, tex, NULL, 100, JPG_GREYSCALE | JPG_OPTIMIZE, NULL);
-                        fwrite(&img_size, sizeof(img_size), 1, dst); // Save the result
-                        fwrite(buffer, img_size, 1, dst);
-                    }
-                    else
-                        putc(0, dst);		// No alpha channel stored
                     delete[] buffer;
                 }
                 destroy_bitmap(tex);
@@ -3918,15 +3926,21 @@ namespace TA3D
             else
             {
                 int img_size = 0;
-                data = read_from_mem(&img_size,sizeof(img_size),data);	// Read RGB data first
+                uint8 bpp;
+                int w, h;
+                data = read_from_mem(&w,sizeof(w),data);
+                data = read_from_mem(&h,sizeof(h),data);
+                data = read_from_mem(&bpp,sizeof(bpp),data);
+                data = read_from_mem(&img_size,sizeof(img_size),data);	// Read RGBA data
                 byte *buffer = new byte[ img_size ];
 
                 try
                 {
-                    data=read_from_mem( buffer, img_size, data );
+                    data = read_from_mem( buffer, img_size, data );
 
-                    set_color_depth( 32 );
-                    tex = load_memory_jpg( buffer, img_size, NULL );
+                    tex = create_bitmap_ex( bpp, w, h );
+                    uLongf len = tex->w * tex->h * bpp >> 3;
+                    uncompress ( (Bytef*) tex->line[0], &len, (Bytef*) buffer, img_size);
                 }
                 catch( ... )
                 {
@@ -3936,49 +3950,6 @@ namespace TA3D
                 }
 
                 delete[] buffer;
-
-                byte has_alpha;									// Read alpha channel if present
-                data=read_from_mem( &has_alpha, 1, data );
-                if (has_alpha)
-                {
-                    data=read_from_mem(&img_size,sizeof(img_size),data);
-                    buffer = new byte[ img_size ];
-                    data = read_from_mem( buffer, img_size, data );
-                    BITMAP* alpha = load_memory_jpg(buffer, img_size, NULL);
-
-                    if (alpha == NULL)
-                    {
-                        destroy();
-                        return NULL;
-                    }
-                    for (int y = 0 ; y < tex->h; ++y)
-                    {
-                        for (int x = 0; x < tex->w ; ++x)
-                        {
-                            int c = getpixel( tex, x, y );
-                            putpixel( tex, x, y, makeacol( getr(c), getg(c), getb(c), alpha->line[y][x<<2]));
-                        }
-                    }
-
-                    destroy_bitmap( alpha );
-                    delete[] buffer;
-                }
-                else
-                {
-                    if (tex == NULL)
-                    {
-                        destroy();
-                        return NULL;
-                    }
-                    for (int y = 0; y < tex->h ; ++y)
-                    {
-                        for (int x = 0 ; x < tex->w ; ++x)
-                        {
-                            int c = getpixel(tex, x, y);
-                            putpixel(tex, x, y, makeacol( getr(c), getg(c), getb(c), 0xFF));
-                        }
-                    }
-                }
             }
 
             if (TA3D::model_manager.loading_all())      // We want to convert textures on-the-fly in order to speed loading
