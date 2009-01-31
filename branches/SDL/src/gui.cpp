@@ -794,11 +794,10 @@ const String Dialogf(const String &Title, String Filter)
             gfx->set_2D_mode();		// Passe en mode dessin allegro
 
             current_area->draw();
-            SDL_ShowCursor(SDL_ENABLE);
+            draw_cursor();
 
             gfx->unset_2D_mode();	// Quitte le mode de dessin d'allegro
             gfx->flip();
-            SDL_ShowCursor(SDL_DISABLE);
 
         }while(!done);
 
@@ -877,11 +876,10 @@ bool WndAsk(const String &Title,const String &Msg,int ASW_TYPE)
             gfx->set_2D_mode();		// Passe en mode dessin allegro
 
             current_area->draw();
-            SDL_ShowCursor(SDL_ENABLE);
+            draw_cursor();
 
             gfx->unset_2D_mode();	// Quitte le mode de dessin d'allegro
             gfx->flip();
-            SDL_ShowCursor(SDL_DISABLE);
 
         }while(!done);
         current_area->msg("yesno.hide");
@@ -941,11 +939,10 @@ void Popup(const String &Title,const String &Msg)
             gfx->set_2D_mode();		// Passe en mode dessin allegro
 
             current_area->draw();
-            SDL_ShowCursor(SDL_ENABLE);
+            draw_cursor();
 
             gfx->unset_2D_mode();	// Quitte le mode de dessin d'allegro
             gfx->flip();
-            SDL_ShowCursor(SDL_DISABLE);
 
         }while(!done);
         current_area->msg("popup.hide");
@@ -1005,11 +1002,10 @@ const String GetVal(const String &Title)
             gfx->set_2D_mode();		// Passe en mode dessin allegro
 
             current_area->draw();
-            SDL_ShowCursor(SDL_ENABLE);
+            draw_cursor();
 
             gfx->unset_2D_mode();	// Quitte le mode de dessin d'allegro
             gfx->flip();
-            SDL_ShowCursor(SDL_DISABLE);
 
         }while(!done);
         current_area->msg("ask.hide");

@@ -239,7 +239,6 @@ int main(int argc, char* argv[])
             FPS_Timer = msec_timer;
         }
 
-        SDL_ShowCursor(SDL_DISABLE);					// Cache la souris
         if (key[KEY_ESC] || ClickOnExit) done=true;			// Quitte si on appuie sur echap ou clique sur quitter
 
         if (key[ KEY_X ] && !key[ KEY_LSHIFT ] ) {	r1 = 0.0f;		r2 = 0.0f;		r3 = 0.0f;	}
@@ -390,7 +389,7 @@ int main(int argc, char* argv[])
         glDisable(GL_TEXTURE_2D);
 
         glEnable(GL_TEXTURE_2D);			// Affiche le curseur
-        SDL_ShowCursor(SDL_ENABLE);
+        draw_cursor();
 
         gfx->unset_2D_mode();	// Quitte le mode de dessin d'allegro
 
@@ -730,7 +729,6 @@ void SurfEdit()
 
         if (surface_area.get_state("surface.b_ok")) done=true;		// En cas de click sur "OK", on quitte la fenêtre
 
-        SDL_ShowCursor(SDL_DISABLE);					// Cache la souris / Hide cursor
         if (key[KEY_ESC])
         {
             reset_keyboard();
@@ -791,7 +789,7 @@ void SurfEdit()
         surface_area.draw();
 
         glEnable(GL_TEXTURE_2D);			// Affiche le curseur
-        SDL_ShowCursor(SDL_ENABLE);
+        draw_cursor();
 
         gfx->unset_2D_mode();	// Quitte le mode de dessin d'allegro
 
@@ -1108,7 +1106,6 @@ void SurfPaint(int index)
         // Efface tout
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);		// Efface la mémoire tampon
 
-        SDL_ShowCursor(SDL_DISABLE);					// Cache la souris
         if (key[KEY_ESC] || painter_area.get_state("paint.b_ok"))
         {
             done = true;
@@ -1512,7 +1509,7 @@ void SurfPaint(int index)
         }
 
         glEnable(GL_TEXTURE_2D);			// Affiche le curseur
-        SDL_ShowCursor(SDL_ENABLE);
+        draw_cursor();
 
         gfx->unset_2D_mode();	// Quitte le mode de dessin d'allegro
 
@@ -1882,7 +1879,6 @@ void glslEditor()                  // Fragment and vertex programs editor
             done=true;
         }
 
-        SDL_ShowCursor(SDL_DISABLE);					// Cache la souris / Hide cursor
         if (key[KEY_ESC] || glsl_area.get_state("glsl.b_cancel"))
         {
             reset_keyboard();
@@ -1897,7 +1893,7 @@ void glslEditor()                  // Fragment and vertex programs editor
         glsl_area.draw();
 
         glEnable(GL_TEXTURE_2D);			// Affiche le curseur
-        SDL_ShowCursor(SDL_ENABLE);
+        draw_cursor();
 
         gfx->unset_2D_mode();	// Quitte le mode de dessin d'allegro
 

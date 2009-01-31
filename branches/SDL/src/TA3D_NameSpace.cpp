@@ -32,15 +32,7 @@ uint8					TA3D::VARS::particle_engine_thread_sync;
 uint8					TA3D::VARS::players_thread_sync;
 ObjectSync				*TA3D::VARS::ThreadSynchroniser = NULL;
 String					TA3D::VARS::TA3D_CURRENT_MOD="";		// This string stores the path to current mod
-int						TA3D::VARS::ascii_to_scancode[ 256 ];
 SDL_Surface             *TA3D::VARS::screen = NULL;
-
-int                     TA3D::VARS::mouse_x = 0;
-int                     TA3D::VARS::mouse_y = 0;
-int                     TA3D::VARS::mouse_z = 0;
-int                     TA3D::VARS::mouse_b = 0;
-int                     TA3D::VARS::key[0x1000];
-std::list<uint32>       TA3D::VARS::keybuf;
 
 
 
@@ -111,84 +103,6 @@ namespace TA3D
 				fclose( cache_info );
 			}
 		}
-	}
-
-
-	uint32 readkey()
-	{
-	    uint32 res = VARS::keybuf.front();
-	    VARS::keybuf.pop_front();
-	    return res;
-    }
-
-	void clear_keybuf()
-	{
-	    VARS::keybuf.clear();
-	}
-
-    void poll_keyboard()
-    {
-        poll_mouse();
-    }
-
-    void poll_mouse()
-    {
-        SDL_EnableUNICODE(1);
-
-        SDL_Event event;
-
-        while(SDL_PollEvent(&event))
-        {
-            switch(event.type)
-            {
-            case SDL_KEYDOWN:
-                {
-                    VARS::key[ event.key.keysym.sym ] = 1;
-                    uint32 c = event.key.keysym.unicode;
-                    c |= event.key.keysym.sym << 16;
-                    VARS::keybuf.push_back( c );
-                    LOG_DEBUG("pressing " << (char)c << " (" << c << ")");
-                }
-                break;
-            case SDL_MOUSEBUTTONDOWN:
-            case SDL_MOUSEBUTTONUP:
-                switch(event.button.button)
-                {
-                case SDL_BUTTON_WHEELDOWN:
-                    if (event.button.state == SDL_PRESSED)
-                        mouse_z--;
-                    break;
-                case SDL_BUTTON_WHEELUP:
-                    if (event.button.state == SDL_PRESSED)
-                        mouse_z++;
-                    break;
-                };
-                break;
-            case SDL_KEYUP:
-                VARS::key[ event.key.keysym.sym ] = 0;
-                break;
-            };
-        }
-        mouse_b = 0;
-        uint8 m_b = SDL_GetMouseState( &mouse_x, &mouse_y );
-        if (m_b & SDL_BUTTON(1))    mouse_b |= 1;
-        if (m_b & SDL_BUTTON(3))    mouse_b |= 2;
-        if (m_b & SDL_BUTTON(2))    mouse_b |= 4;
-    }
-
-	void position_mouse(int x, int y)
-	{
-	    mouse_x = x;
-	    mouse_y = y;
-	    SDL_WarpMouse(x,y);
-	    poll_mouse();
-        SDL_GetRelativeMouseState(NULL, NULL);
-	}
-
-	void get_mouse_mickeys(int *mx, int *my)
-	{
-	    poll_mouse();
-        SDL_GetRelativeMouseState(mx, my);
 	}
 } // namespace TA3D
 

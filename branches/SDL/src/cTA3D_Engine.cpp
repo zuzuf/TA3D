@@ -50,9 +50,7 @@ namespace TA3D
 		void showError(const String& s, const String& additional = String())
 		{
 			LOG_ERROR(I18N::Translate(s));
-//			set_uformat(U_UTF8);   // fixed size, 8-bit ASCII characters
 //			allegro_message((String(I18N::Translate(s)) << additional).c_str());
-//			set_uformat(U_ASCII);   // fixed size, 8-bit ASCII characters
 #warning FIXME: ugly print to console instead of a nice window
             std::cerr << I18N::Translate(s) << additional << std::endl;
 		}
@@ -80,9 +78,6 @@ namespace TA3D
 		str = format("build info : %s , %s\n\n",__DATE__,__TIME__);
 		I_Msg( TA3D::TA3D_IM_DEBUG_MSG, (void *)str.c_str(), NULL, NULL );
 
-		// Setting uformat to U_ASCII
-//		set_uformat(U_ASCII);   // fixed size, 8-bit ASCII characters
-
 		// Initalizing SDL video
 		if (SDL_Init(SDL_INIT_VIDEO) != 0)
 			throw ("SDL_Init(SDL_INIT_VIDEO) yielded unexpected result.");
@@ -93,10 +88,6 @@ namespace TA3D
 		// Installing SDL timer
 		if (SDL_Init(SDL_INIT_TIMER) != 0)
 			throw ("SDL_Init(SDL_INIT_TIMER) yielded unexpected result.");
-
-//		// Installing SDL event thread
-//		if (SDL_Init(SDL_INIT_EVENTTHREAD) != 0)
-//			throw ("SDL_Init(SDL_INIT_EVENTTHREAD) yielded unexpected result.");
 
 		// Creating HPI Manager
 		TA3D::VARS::HPIManager = new TA3D::UTILS::HPI::cHPIHandler();
@@ -129,96 +120,11 @@ namespace TA3D
 
 		SDL_WM_SetCaption("Total Annihilation 3D","TA3D");
 
-        SDL_ShowCursor(SDL_DISABLE);
+        init_mouse();
 
-		// Loading and creating cursors
-		byte *data = HPIManager->PullFromHPI("anims\\cursors.gaf");	// Load cursors
-		if (data)
-		{
-			cursor.loadGAFFromRawData(data, true);
-			cursor.convert();
-
-			CURSOR_MOVE        = cursor.findByName("cursormove"); // Match cursor variables with cursor anims
-			CURSOR_GREEN       = cursor.findByName("cursorgrn");
-			CURSOR_CROSS       = cursor.findByName("cursorselect");
-			CURSOR_RED         = cursor.findByName("cursorred");
-			CURSOR_LOAD        = cursor.findByName("cursorload");
-			CURSOR_UNLOAD      = cursor.findByName("cursorunload");
-			CURSOR_GUARD       = cursor.findByName("cursordefend");
-			CURSOR_PATROL      = cursor.findByName("cursorpatrol");
-			CURSOR_REPAIR      = cursor.findByName("cursorrepair");
-			CURSOR_ATTACK      = cursor.findByName("cursorattack");
-			CURSOR_BLUE        = cursor.findByName("cursornormal");
-			CURSOR_AIR_LOAD    = cursor.findByName("cursorpickup");
-			CURSOR_BOMB_ATTACK = cursor.findByName("cursorairstrike");
-			CURSOR_BALANCE     = cursor.findByName("cursorunload");
-			CURSOR_RECLAIM     = cursor.findByName("cursorreclamate");
-			CURSOR_WAIT        = cursor.findByName("cursorhourglass");
-			CURSOR_CANT_ATTACK = cursor.findByName("cursortoofar");
-			CURSOR_CROSS_LINK  = cursor.findByName("pathicon");
-			CURSOR_CAPTURE     = cursor.findByName("cursorcapture");
-			CURSOR_REVIVE      = cursor.findByName("cursorrevive");
-			if (CURSOR_REVIVE == -1) // If you don't have the required cursors, then resurrection won't work
-				CURSOR_REVIVE = cursor.findByName("cursorreclamate");
-			delete[] data;
-		}
-		else
-		{
-			showError("RESOURCES ERROR", " (anims\\cursors.gaf not found)");
-			exit(2);
-		}
-
+        init_keyboard();
 
 		ThreadSynchroniser = new ObjectSync;
-
-		// Initializing the ascii to scancode table
-		for (int i = 0; i < 256; ++i)
-			ascii_to_scancode[i] = 0;
-
-        ascii_to_scancode[ 'a' ] = KEY_A;
-        ascii_to_scancode[ 'b' ] = KEY_B;
-        ascii_to_scancode[ 'c' ] = KEY_C;
-        ascii_to_scancode[ 'd' ] = KEY_D;
-        ascii_to_scancode[ 'e' ] = KEY_E;
-        ascii_to_scancode[ 'f' ] = KEY_F;
-        ascii_to_scancode[ 'g' ] = KEY_G;
-        ascii_to_scancode[ 'h' ] = KEY_H;
-        ascii_to_scancode[ 'i' ] = KEY_I;
-        ascii_to_scancode[ 'j' ] = KEY_J;
-        ascii_to_scancode[ 'k' ] = KEY_K;
-        ascii_to_scancode[ 'l' ] = KEY_L;
-        ascii_to_scancode[ 'm' ] = KEY_M;
-        ascii_to_scancode[ 'n' ] = KEY_N;
-        ascii_to_scancode[ 'o' ] = KEY_O;
-        ascii_to_scancode[ 'p' ] = KEY_P;
-        ascii_to_scancode[ 'q' ] = KEY_Q;
-        ascii_to_scancode[ 'r' ] = KEY_R;
-        ascii_to_scancode[ 's' ] = KEY_S;
-        ascii_to_scancode[ 't' ] = KEY_T;
-        ascii_to_scancode[ 'u' ] = KEY_U;
-        ascii_to_scancode[ 'v' ] = KEY_V;
-        ascii_to_scancode[ 'w' ] = KEY_W;
-        ascii_to_scancode[ 'x' ] = KEY_X;
-        ascii_to_scancode[ 'y' ] = KEY_Y;
-        ascii_to_scancode[ 'z' ] = KEY_Z;
-
-		for (int i = 0; i < 26; ++i)
-            ascii_to_scancode[ 'A' + i ] = ascii_to_scancode[ 'a' + i ];
-
-        ascii_to_scancode[ '0' ] = KEY_0;
-        ascii_to_scancode[ '1' ] = KEY_1;
-        ascii_to_scancode[ '2' ] = KEY_2;
-        ascii_to_scancode[ '3' ] = KEY_3;
-        ascii_to_scancode[ '4' ] = KEY_4;
-        ascii_to_scancode[ '5' ] = KEY_5;
-        ascii_to_scancode[ '6' ] = KEY_6;
-        ascii_to_scancode[ '7' ] = KEY_7;
-        ascii_to_scancode[ '8' ] = KEY_8;
-        ascii_to_scancode[ '9' ] = KEY_9;
-
-        ascii_to_scancode[ ' ' ] = KEY_SPACE;
-        ascii_to_scancode[ '\n' ] = KEY_ENTER;
-        ascii_to_scancode[ 27 ] = KEY_ESC;
 	}
 
 

@@ -94,9 +94,8 @@ namespace Menus
     void Abstract::redrawTheScreen()
     {
         pArea->draw();
-        SDL_ShowCursor(SDL_ENABLE);
+        draw_cursor();
         gfx->flip();
-        SDL_ShowCursor(SDL_DISABLE);
     }
 
 

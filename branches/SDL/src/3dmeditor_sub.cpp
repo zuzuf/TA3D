@@ -919,18 +919,12 @@ void init()
         return;
     }
 
-//    set_uformat(U_ASCII);   // fixed size, 8-bit ASCII characters
-
     if( SDL_Init(SDL_INIT_VIDEO) < 0 )
         throw( "SDL_Init(SDL_INIT_VIDEO) yielded unexpected result." );
 
     // Installing SDL timer
     if( SDL_Init(SDL_INIT_TIMER) != 0 )
         throw( "SDL_Init(SDL_INIT_TIMER) yielded unexpected result." );
-
-    // Installing SDL timer
-    if( SDL_Init(SDL_INIT_EVENTTHREAD) != 0 )
-        throw( "SDL_Init(SDL_INIT_EVENTTHREAD) yielded unexpected result." );
 
     TA3D::VARS::HPIManager = new TA3D::UTILS::HPI::cHPIHandler(); // create hpi manager object.
 
@@ -941,4 +935,8 @@ void init()
     SDL_WM_SetCaption("3DMEditor - TA3D Project","3DMEditor");
 
     gfx->Init();
+
+    init_mouse();
+
+    init_keyboard();
 }

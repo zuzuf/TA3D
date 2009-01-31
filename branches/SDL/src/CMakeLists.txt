@@ -3,6 +3,7 @@ ADD_SUBDIRECTORY(languages)
 ADD_SUBDIRECTORY(threads)
 ADD_SUBDIRECTORY(misc)
 ADD_SUBDIRECTORY(gfx)
+ADD_SUBDIRECTORY(input)
 ADD_SUBDIRECTORY(network)
 ADD_SUBDIRECTORY(ai)
 ADD_SUBDIRECTORY(ingame)
@@ -97,7 +98,7 @@ ADD_EXECUTABLE(${3DMEDITOR_BIN}
         cTAFileParser.cpp cTAFileParser.h stdafx.h
         TA3D_NameSpace.cpp TA3D_NameSpace.h ta3dbase.h)
 target_link_libraries(${3DMEDITOR_BIN}
-        stdafx logs console debuginfos 3dtoolbox misc i18n
+        stdafx logs input console debuginfos 3dtoolbox misc i18n
         fileformats particles hpi oldgui gui ingame tdf
         converters animator gfx ta3dmath audio threads)
 IF(APPLE)
@@ -281,7 +282,7 @@ ENDIF(NOT APPLE)
 # --- Internal libraries ---
 #
 target_link_libraries(${TA3D_BIN}
-        stdafx logs console i18n ingame 3dtoolbox menus gfx
+        stdafx input logs console i18n ingame 3dtoolbox menus gfx
         fileformats particles weapons ai audio hpi oldgui gui network misc scripts ta3dmath tdf
         converters threads debuginfos)
 

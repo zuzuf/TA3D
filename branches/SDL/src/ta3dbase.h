@@ -54,28 +54,6 @@ extern byte		player_color_map[10];
 
 extern int LANG;				// Variable indiquant la langue
 
-extern int CURSOR_MOVE;
-extern int CURSOR_GREEN;
-extern int CURSOR_CROSS;
-extern int CURSOR_RED;
-extern int CURSOR_LOAD;
-extern int CURSOR_UNLOAD;
-extern int CURSOR_GUARD;
-extern int CURSOR_PATROL;
-extern int CURSOR_REPAIR;
-extern int CURSOR_ATTACK;
-extern int CURSOR_BLUE;
-#define CURSOR_DEFAULT		CURSOR_BLUE
-extern int CURSOR_AIR_LOAD;
-extern int CURSOR_BOMB_ATTACK;
-extern int CURSOR_BALANCE;
-extern int CURSOR_RECLAIM;
-extern int CURSOR_WAIT;
-extern int CURSOR_CANT_ATTACK;
-extern int CURSOR_CROSS_LINK;
-extern int CURSOR_CAPTURE;
-extern int CURSOR_REVIVE;
-
 extern int expected_players;
 
 #ifndef TA3D_MSEC_TIMER
@@ -84,16 +62,8 @@ extern int expected_players;
 #endif
 
 extern int start;
-extern Gaf::AnimationList cursor;
 
 extern int fire;
 extern int build_part;
-
-extern int cursor_type;
-
-void draw_cursor();
-
-
-int anim_cursor(const int type = -1);
 
 #endif
