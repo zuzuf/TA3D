@@ -112,4 +112,7 @@ namespace TA3D
 
 #define KEY_CAPSLOCK    SDLK_CAPSLOCK
 
+#define KEY_END         SDLK_END
+#define KEY_HOME        SDLK_HOME
+
 #endif

@@ -567,6 +567,40 @@ namespace TA3D
         return e == pattern.size();
     }
 
+    String String::substrUTF8(int pos, int len)
+    {
+        String res;
+        int utf8_pos = 0;
+        for(; pos > 0 ; pos--)
+            if (((byte)(*this)[utf8_pos]) >= 0x80)
+                while (((byte)(*this)[utf8_pos]) >= 0x80)
+                    utf8_pos++;
+            else
+                utf8_pos++;
 
+        for(; len > 0 ; len--)
+        {
+            if (((byte)(*this)[utf8_pos]) >= 0x80)
+                while (((byte)(*this)[utf8_pos]) >= 0x80)
+                {
+                    res << (char)(*this)[utf8_pos];
+                    utf8_pos++;
+                }
+            else
+            {
+                res << ((char)(*this)[utf8_pos]);
+                utf8_pos++;
+            }
+        }
+        return res;
+    }
 
+    int String::sizeUTF8()
+    {
+        int len = 0;
+        for(int i = 0 ; i < this->size() ; i++)
+            if (((byte)(*this)[i]) >= 0xC0 || ((byte)(*this)[i]) < 0x80)
+                len++;
+        return len;
+    }
 }

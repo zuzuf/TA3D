@@ -529,6 +529,20 @@ namespace TA3D
         */
         bool match(const String &pattern);
 
+        /*!
+        ** \brief returns a substring assuming current string is an UTF8 String
+        ** \param pos
+        ** \param len
+        ** \return the substring
+        */
+        String substrUTF8(int pos, int len);
+
+        /*!
+        ** \brief returns the String size assuming it's in UTF8
+        ** \return the number of UTF8 symbols
+        */
+        int sizeUTF8();
+
     private:
         /*!
         ** \brief Convert a string into another type, given by the template parameter `T`

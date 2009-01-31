@@ -31,12 +31,13 @@ namespace TA3D
 
     SKIN *SKIN_MANAGER::load(const String& filename, const float scale)
     {
-        SKIN *pSkin = hash_skin.find(filename);
+        String key = filename + format("-%.2f", scale);
+        SKIN *pSkin = hash_skin.find(key);
         if (pSkin)
             return pSkin;
         pSkin = new SKIN();
         pSkin->load_tdf(filename, scale);
-        hash_skin.insert(filename, pSkin);
+        hash_skin.insert(key, pSkin);
         skins.push_back(pSkin);
 
         return pSkin;

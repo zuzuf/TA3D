@@ -96,6 +96,8 @@ namespace TA3D
         //!
         String pInputText;
         //!
+        uint16 cursorPos;
+        //!
         uint32 pCurrentTimer;
 
     }; //class Console

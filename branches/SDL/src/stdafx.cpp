@@ -218,6 +218,37 @@ namespace TA3D
         return 2;
     }
 
+    String InttoUTF8(const uint16 c)
+    {
+        if (c < 0x80)
+        {
+            String str;
+            str << (char)c;
+            return str;
+        }
+        if (c < 0x800)
+        {
+            String str;
+            byte b = 0xC0 | (c >> 6);
+            str << (char)b;
+
+            b = 0x80 | (c & 0x3F);
+            str << (char)b;
+            return str;
+        }
+
+        String str;
+        byte b = 0xC0 | (c >> 12);
+        str << (char)b;
+
+        b = 0x80 | ((c >> 6) & 0x3F);
+        str << (char)b;
+
+        b = 0x80 | (c & 0x3F);
+        str << (char)b;
+        return str;
+    }
+
     bool exists(const String &filename)
     {
         struct stat FileInfo;

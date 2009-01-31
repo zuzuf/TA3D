@@ -196,6 +196,8 @@ namespace TA3D
 
     int ASCIItoUTF8(const byte c, byte *out);
 
+    String InttoUTF8(const uint16 c);
+
     bool exists(const String &filename);
 
     void rest(uint32 msec);

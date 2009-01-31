@@ -110,6 +110,9 @@ namespace TA3D
 
     float Font::length(const String &txt)
     {
+        if (txt.size() == 0)    return 0.0f;
+        if (txt[txt.size()-1] == ' ')
+            return length(txt + "_") - length("_");
         MutexLocker locker(pMutex);
         if (font == NULL)
             return 0.0f;

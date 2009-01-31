@@ -41,7 +41,7 @@ namespace TA3D
 
 
     Console::Console()
-        :pMaxItemsToDisplay(15), pVisible(0.0f), pShow(false)
+        :pMaxItemsToDisplay(15), pVisible(0.0f), pShow(false), cursorPos(0)
     {
         pInputText.clear();
     }
@@ -109,7 +109,6 @@ namespace TA3D
             }
         }
 
-//        set_uformat(U_UTF8);
         uint16 keyb = 0;
         uint32 keycode = 0;
 
@@ -149,16 +148,8 @@ namespace TA3D
             ++i;
         }
 
-        gfx->print(fnt, 0.0f, maxh - fsize - 5.0f, 0.0f, 0xFFFFFFFF, ">" + pInputText + "_" );
-
-        if (keyb == 13)
-        {
-            pLastCommands.push_back(pInputText);
-            pHistoryPos = pLastCommands.size();
-            addEntry(pInputText);
-            newline = pInputText;
-            pInputText.clear();
-        }
+        gfx->print(fnt, 0.0f, maxh - fsize - 5.0f, 0.0f, 0xFFFFFFFF, ">" + pInputText );
+        gfx->print(fnt, fnt->length(">" + pInputText.substrUTF8(0, cursorPos)), maxh - fsize - 5.0f, 0.0f, 0xFFFFFFFF, "_" );
 
         if (pHistoryPos < 0)
 			pHistoryPos = 0;
@@ -168,35 +159,72 @@ namespace TA3D
 				pHistoryPos = pLastCommands.size();
 		}
 
-        if (keyb == 0 && keycode == KEY_UP && pHistoryPos > 0)
-		{
-			--pHistoryPos;
-			pInputText = pLastCommands[pHistoryPos];
-		}
-		else
-		{
-			if (keyb == 0 && keycode == KEY_DOWN && pHistoryPos < (int)pLastCommands.size())
-			{
-				++pHistoryPos;
-				if (pHistoryPos < (int)pLastCommands.size())
-					pInputText = pLastCommands[pHistoryPos];
-				else
-					pInputText.clear();
-			}
-		}
-
-		if (keyb == 8 && pInputText.size() > 0)
-			pInputText.resize(pInputText.size() - 1);
-
-        if ((keyb >= '0' && keyb <= '9') ||  (keyb >= 'a' && keyb <= 'z') ||
-            (keyb >= 'A' && keyb <= 'Z') ||
-            keyb == 32 || keyb == '_' || keyb == '+' || keyb == '-' || keyb == '.')
+        switch(keycode)
         {
-            if (pInputText.size() < 199)
-                pInputText << (char)keyb;
-        }
+        case KEY_ENTER:
+            pLastCommands.push_back(pInputText);
+            pHistoryPos = pLastCommands.size();
+            addEntry(pInputText);
+            newline = pInputText;
+            pInputText.clear();
+            cursorPos = 0;
+            break;
+        case KEY_BACKSPACE:
+            if (pInputText.size() > 0 && cursorPos > 0)
+            {
+                pInputText = pInputText.substrUTF8(0, cursorPos - 1) + pInputText.substrUTF8(cursorPos, pInputText.sizeUTF8() - cursorPos);
+                cursorPos--;
+            }
+            break;
+        case KEY_DEL:
+            if (cursorPos < pInputText.sizeUTF8())
+                pInputText = pInputText.substrUTF8(0, cursorPos) + pInputText.substrUTF8(cursorPos + 1, pInputText.sizeUTF8() - cursorPos);
+            break;
+        case KEY_END:
+            cursorPos = pInputText.sizeUTF8();
+            break;
+        case KEY_HOME:
+            cursorPos = 0;
+            break;
+        case KEY_LEFT:
+            if (cursorPos > 0)
+                cursorPos--;
+            break;
+        case KEY_RIGHT:
+            if (cursorPos < pInputText.sizeUTF8())
+                cursorPos++;
+            break;
+        case KEY_UP:
+            if (pHistoryPos > 0)
+            {
+                --pHistoryPos;
+                pInputText = pLastCommands[pHistoryPos];
+                cursorPos = pInputText.sizeUTF8();
+            }
+            break;
+        case KEY_DOWN:
+            if (pHistoryPos < (int)pLastCommands.size())
+            {
+                ++pHistoryPos;
+                if (pHistoryPos < (int)pLastCommands.size())
+                    pInputText = pLastCommands[pHistoryPos];
+                else
+                    pInputText.clear();
+                cursorPos = pInputText.sizeUTF8();
+            }
+            break;
+        case KEY_TILDE:
+        case KEY_ESC:
+            break;
+        default:
+            if (keyb != 0 && pInputText.sizeUTF8() < 199)
+            {
+                pInputText = pInputText.substrUTF8(0, cursorPos) + InttoUTF8(keyb) + pInputText.substrUTF8(cursorPos, pInputText.sizeUTF8() - cursorPos);
+                cursorPos++;
+            }
+        };
+
         glDisable(GL_BLEND);
-//        set_uformat(U_ASCII);
 
         if (forceShow)
         {
