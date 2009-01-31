@@ -202,10 +202,10 @@ namespace Menus
         bool keyIsPressed(false);
         do
         {
-            // Get if a key was pressed
-            keyIsPressed = keypressed();
             // Grab user events
             pArea->check();
+            // Get if a key was pressed
+            keyIsPressed = pArea->key_pressed;
             // Wait to reduce CPU consumption
             rest(TA3D_MENUS_RECOMMENDED_TIME_MS_FOR_RESTING);
 

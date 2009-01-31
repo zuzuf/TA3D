@@ -17,6 +17,11 @@ namespace TA3D
 	    return res;
     }
 
+	bool keypressed()
+	{
+	    return !VARS::keybuf.empty();
+    }
+
 	void clear_keybuf()
 	{
 	    VARS::keybuf.clear();

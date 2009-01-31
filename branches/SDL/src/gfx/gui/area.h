@@ -201,6 +201,8 @@ namespace TA3D
         bool scrolling;
         //! Of course we need a background, not a single color :-)
         GLuint background;
+        //!
+        bool key_pressed;
 
     private:
         /*!

@@ -163,6 +163,7 @@ namespace TA3D
     {
         poll_mouse();
         poll_keyboard();
+        key_pressed = keypressed();
         bool scroll = ((msec_timer - scroll_timer) >= 250);
         if (scroll)
         {

@@ -13,7 +13,7 @@ namespace TA3D
 	/*!
 	** \brief return true is there are key codes waiting in the buffer, false otherwise
 	*/
-	inline bool keypressed()    {   return !VARS::keybuf.empty(); }
+	bool keypressed();
 
 	/*!
 	** \brief return the next key code in the key buffer

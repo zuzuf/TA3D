@@ -286,7 +286,6 @@ void config_menu(void)
         bool key_is_pressed = false;
         do
         {
-            key_is_pressed = keypressed();
             if (lp_CONFIG->quickstart )
             {
                 GUIOBJ *pbar = config_area.get_object( "config_confirm.p_wait");
@@ -303,6 +302,7 @@ void config_menu(void)
                 }
             }
             config_area.check();
+            key_is_pressed = config_area.key_pressed;
             rest(1);
         } while( amx == mouse_x && amy == mouse_y && amz == mouse_z && amb == mouse_b && !key[ KEY_ENTER ] && !key[ KEY_ESC ] && !done && !key_is_pressed && !config_area.scrolling);
 
@@ -919,8 +919,8 @@ void setup_game(bool client, const char *host, const char *saved_game)
                 done = true;
                 break;
             }
-            key_is_pressed = keypressed();
             setupgame_area.check();
+            key_is_pressed = setupgame_area.key_pressed;
             rest(1);
             if (msec_timer - progress_timer >= 500 && network_manager.getFileTransferProgress() != 100.0f)
                 break;
@@ -1909,8 +1909,9 @@ void network_room(void)             // Let players create/join a game
         bool key_is_pressed = false;
         do
         {
-            key_is_pressed = keypressed() || msec_timer - server_list_timer >= SERVER_LIST_REFRESH_DELAY || msec_timer - internet_server_list_timer >= INTERNET_AD_COUNTDOWN;
+            key_is_pressed = msec_timer - server_list_timer >= SERVER_LIST_REFRESH_DELAY || msec_timer - internet_server_list_timer >= INTERNET_AD_COUNTDOWN;
             networkgame_area.check();
+            key_is_pressed |= networkgame_area.key_pressed;
             rest(1);
         } while( amx == mouse_x && amy == mouse_y && amz == mouse_z && amb == mouse_b && mouse_b == 0 && !key[ KEY_ENTER ]
                  && !key[ KEY_ESC ] && !done && !key_is_pressed && !networkgame_area.scrolling && !network_manager.BroadcastedMessages());
@@ -2258,8 +2259,8 @@ void campaign_main_menu(void)
         bool key_is_pressed = false;
         do
         {
-            key_is_pressed = keypressed();
             campaign_area.check();
+            key_is_pressed = campaign_area.key_pressed;
             rest(1);
         } while( amx == mouse_x && amy == mouse_y && amz == mouse_z && amb == mouse_b
                  && mouse_b == 0 && !key[ KEY_ENTER ] && !key[ KEY_ESC ]
@@ -2504,8 +2505,8 @@ Battle::Result brief_screen(String campaign_name, int mission_id)
         bool key_is_pressed = false;
         do
         {
-            key_is_pressed = keypressed();
             brief_area.check();
+            key_is_pressed = brief_area.key_pressed;
             rest( 1);
         } while( amx == mouse_x && amy == mouse_y && amz == mouse_z && amb == mouse_b && mouse_b == 0 && !key[ KEY_ENTER ]
                  && !key[ KEY_ESC ] && !done && !key_is_pressed && !brief_area.scrolling && (int)planet_frame == (int)((msec_timer - time_ref) * 0.01f));
@@ -2753,8 +2754,8 @@ void wait_room(void *p_game_data)
                 done = true;
                 break;
             }
-            key_is_pressed = keypressed();
             wait_area.check();
+            key_is_pressed = wait_area.key_pressed;
             rest(1);
         } while( amx == mouse_x && amy == mouse_y && amz == mouse_z && amb == mouse_b && mouse_b == 0 && !key[ KEY_ENTER ] && !key[ KEY_ESC ] && !done
                  && !key_is_pressed && !wait_area.scrolling && special_msg.empty() && !playerDropped
