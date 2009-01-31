@@ -499,9 +499,6 @@ void OptionCase(float x,float y,const String &Title,bool Etat, SKIN *skin )
 
 void TextEditor( float x1, float y1, float x2, float y2, const String::Vector &Entry, int row, int col, bool Etat, SKIN *skin )
 {
-//    int old_u_format = get_uformat();
-//    set_uformat( U_ASCII );
-
     bool blink = Etat && (msec_timer % 1000) >= 500;
 
     if (skin && skin->text_background.tex)
@@ -516,13 +513,18 @@ void TextEditor( float x1, float y1, float x2, float y2, const String::Vector &E
         float maxheight = y2 - y1 + skin->text_background.y2 - skin->text_background.y1 - skin->text_y_offset;
         int H = Math::Max( row - (int)(0.5f * maxheight / gui_font->height()), 0 );
         int y = 0;
+        int row_size = Entry[row].sizeUTF8();
         while (gui_font->height() * (y+1) <= maxheight && y + H < Entry.size())
         {
             float xdec = -1.0f;
             String strtoprint;
-            for (int x = 0; x < Entry[y+H].size() ; x++)
+            String buf = Entry[y+H];
+            int len = buf.sizeUTF8();
+            for (int x = 0; !buf.empty() ; x++)
             {
-                if (gui_font->length( strtoprint + Entry[y+H][x]) > maxlength)
+                String ch = buf.substrUTF8(0,1);
+                buf = buf.substrUTF8(1, --len);
+                if (gui_font->length( strtoprint + ch) > maxlength)
                 {
                     gfx->print( gui_font,x1+skin->text_background.x1,
                                 y1+skin->text_background.y1+skin->text_y_offset+gui_font->height() * y,
@@ -539,12 +541,12 @@ void TextEditor( float x1, float y1, float x2, float y2, const String::Vector &E
                 }
                 if (row == y+H && x == col && blink)
                     xdec = gui_font->length( strtoprint );
-                strtoprint += Entry[y+H][x];
+                strtoprint << ch;
             }
             gfx->print( gui_font,x1+skin->text_background.x1,
                         y1+skin->text_background.y1+skin->text_y_offset+gui_font->height() * y,
                         0.0f,White,strtoprint);
-            if (y+H == row && col == Entry[row].size() && blink)
+            if (y+H == row && col == row_size && blink)
                 xdec = gui_font->length( strtoprint );
 		    if (xdec >= 0.0f)
 		        gfx->print( gui_font,x1+skin->text_background.x1+xdec,
@@ -553,8 +555,6 @@ void TextEditor( float x1, float y1, float x2, float y2, const String::Vector &E
             y++;
         }
     }
-
-//    set_uformat(old_u_format);
 }
 
 /*---------------------------------------------------------------------------\
@@ -563,8 +563,6 @@ void TextEditor( float x1, float y1, float x2, float y2, const String::Vector &E
 
 void TextBar(float x1,float y1,float x2,float y2,const String &Caption,bool Etat, SKIN *skin)
 {
-//    int old_u_format = get_uformat();
-//    set_uformat( U_ASCII );
     bool blink = Etat && (msec_timer % 1000) >= 500;
 
     if (skin && skin->text_background.tex)
@@ -609,8 +607,6 @@ void TextBar(float x1,float y1,float x2,float y2,const String &Caption,bool Etat
         gfx->print(gui_font,x1+4,y1+4,0.0f,White,Caption);
         if (blink) gfx->print(gui_font,x1+4+gui_font->length( Caption ),y1+4,0.0f,White,"_");
     }
-
-//    set_uformat(old_u_format);
 }
 
 /*---------------------------------------------------------------------------\

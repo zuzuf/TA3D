@@ -535,13 +535,13 @@ namespace TA3D
         ** \param len
         ** \return the substring
         */
-        String substrUTF8(int pos, int len);
+        String substrUTF8(int pos, int len) const;
 
         /*!
         ** \brief returns the String size assuming it's in UTF8
         ** \return the number of UTF8 symbols
         */
-        int sizeUTF8();
+        int sizeUTF8() const;
 
     private:
         /*!

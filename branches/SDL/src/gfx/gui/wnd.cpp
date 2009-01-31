@@ -693,8 +693,8 @@ namespace TA3D
                     else if(Objets[i].Data >= Objets[i].Text.size())    Objets[i].Data = Objets[i].Text.size() - 1;
 
                     if (Objets[i].Pos < 0)  Objets[i].Pos = 0;
-                    else if(Objets[i].Pos > Objets[i].Text[Objets[i].Data].size())
-                        Objets[i].Pos = Objets[i].Text[Objets[i].Pos].size();
+                    else if(Objets[i].Pos > Objets[i].Text[Objets[i].Data].sizeUTF8())
+                        Objets[i].Pos = Objets[i].Text[Objets[i].Pos].sizeUTF8();
                     Objets[i].Etat=false;
                     if (Objets[i].Focus && keypressed())
                     {
@@ -706,8 +706,8 @@ namespace TA3D
                         case KEY_ESC:
                             break;
                         case KEY_TAB:
-                            Objets[i].Text[Objets[i].Data] += "    ";
-                            Objets[i].Pos+=4;
+                            Objets[i].Text[Objets[i].Data] << "    ";
+                            Objets[i].Pos += 4;
                             break;
                         case KEY_ENTER:
                             Objets[i].Text.push_back("");
@@ -715,19 +715,19 @@ namespace TA3D
                                 for(int e = Objets[i].Text.size() - 1 ; e > Objets[i].Data + 1 ; e--)
                                     Objets[i].Text[e] = Objets[i].Text[e-1];
 
-                            if (Objets[i].Text[ Objets[i].Data ].size() - Objets[i].Pos > 0)
-                                Objets[i].Text[ Objets[i].Data + 1 ] = Objets[i].Text[ Objets[i].Data ].substr( Objets[i].Pos, Objets[i].Text[ Objets[i].Data ].size() - Objets[i].Pos );
+                            if (Objets[i].Text[ Objets[i].Data ].sizeUTF8() - Objets[i].Pos > 0)
+                                Objets[i].Text[ Objets[i].Data + 1 ] = Objets[i].Text[ Objets[i].Data ].substrUTF8( Objets[i].Pos, Objets[i].Text[ Objets[i].Data ].sizeUTF8() - Objets[i].Pos );
                             else
                                 Objets[i].Text[ Objets[i].Data + 1 ].clear();
-                            Objets[i].Text[ Objets[i].Data ] = Objets[i].Text[ Objets[i].Data ].substr( 0, Objets[i].Pos );
+                            Objets[i].Text[ Objets[i].Data ] = Objets[i].Text[ Objets[i].Data ].substrUTF8( 0, Objets[i].Pos );
                             Objets[i].Pos = 0;
                             Objets[i].Data++;
                             break;
                         case KEY_DEL:                                 // Remove next character
-                            if (Objets[i].Pos < Objets[i].Text[Objets[i].Data].size())
+                            if (Objets[i].Pos < Objets[i].Text[Objets[i].Data].sizeUTF8())
                             {
-                                Objets[i].Text[Objets[i].Data] = Objets[i].Text[Objets[i].Data].substr(0,Objets[i].Pos)
-                                                                + Objets[i].Text[Objets[i].Data].substr(Objets[i].Pos+1, Objets[i].Text[Objets[i].Data].size() - Objets[i].Pos-1);
+                                Objets[i].Text[Objets[i].Data] = Objets[i].Text[Objets[i].Data].substrUTF8(0,Objets[i].Pos)
+                                                                + Objets[i].Text[Objets[i].Data].substrUTF8(Objets[i].Pos+1, Objets[i].Text[Objets[i].Data].sizeUTF8() - Objets[i].Pos-1);
                             }
                             else if (Objets[i].Data + 1 < Objets[i].Text.size())
                             {
@@ -740,14 +740,14 @@ namespace TA3D
                         case KEY_BACKSPACE:                                 // Remove previous character
                             if (Objets[i].Pos > 0)
                             {
-                                Objets[i].Text[Objets[i].Data] = Objets[i].Text[Objets[i].Data].substr(0,Objets[i].Pos-1)
-                                                                + Objets[i].Text[Objets[i].Data].substr(Objets[i].Pos, Objets[i].Text[Objets[i].Data].size() - Objets[i].Pos);
+                                Objets[i].Text[Objets[i].Data] = Objets[i].Text[Objets[i].Data].substrUTF8(0,Objets[i].Pos-1)
+                                                                + Objets[i].Text[Objets[i].Data].substrUTF8(Objets[i].Pos, Objets[i].Text[Objets[i].Data].sizeUTF8() - Objets[i].Pos);
                                 Objets[i].Pos--;
                             }
                             else if (Objets[i].Data > 0)
                             {
                                 Objets[i].Data--;
-                                Objets[i].Pos = Objets[i].Text[Objets[i].Data].size();
+                                Objets[i].Pos = Objets[i].Text[Objets[i].Data].sizeUTF8();
                                 Objets[i].Text[Objets[i].Data] << Objets[i].Text[Objets[i].Data+1];
                                 for( int e = Objets[i].Data + 1 ; e < Objets[i].Text.size() - 1 ; e++ )
                                     Objets[i].Text[e] = Objets[i].Text[e+1];
@@ -760,11 +760,11 @@ namespace TA3D
                             else if (Objets[i].Data > 0)
                             {
                                 Objets[i].Data--;
-                                Objets[i].Pos = Objets[i].Text[Objets[i].Data].size();
+                                Objets[i].Pos = Objets[i].Text[Objets[i].Data].sizeUTF8();
                             }
                             break;
                         case KEY_RIGHT:            // Right
-                            if (Objets[i].Pos < Objets[i].Text[Objets[i].Data].size())
+                            if (Objets[i].Pos < Objets[i].Text[Objets[i].Data].sizeUTF8())
                                 Objets[i].Pos++;
                             else if (Objets[i].Data + 1 < Objets[i].Text.size())
                             {
@@ -776,14 +776,14 @@ namespace TA3D
                             if (Objets[i].Data > 0)
                             {
                                 Objets[i].Data--;
-                                Objets[i].Pos = Math::Min( (uint32)Objets[i].Text[Objets[i].Data].size(), Objets[i].Pos );
+                                Objets[i].Pos = Math::Min( (uint32)Objets[i].Text[Objets[i].Data].sizeUTF8(), Objets[i].Pos );
                             }
                             break;
                         case KEY_DOWN:            // Down
                             if (Objets[i].Data + 1 < Objets[i].Text.size())
                             {
                                 Objets[i].Data++;
-                                Objets[i].Pos = Math::Min( (uint32)Objets[i].Text[Objets[i].Data].size(), Objets[i].Pos );
+                                Objets[i].Pos = Math::Min( (uint32)Objets[i].Text[Objets[i].Data].sizeUTF8(), Objets[i].Pos );
                             }
                             break;
                         default:
@@ -793,9 +793,9 @@ namespace TA3D
                                 case 27:
                                     break;
                                 default:
-                                    Objets[i].Text[Objets[i].Data] = Objets[i].Text[ Objets[i].Data ].substr( 0, Objets[i].Pos )
-                                                                    + String( (char)Key )
-                                                                    + Objets[i].Text[ Objets[i].Data ].substr( Objets[i].Pos, Objets[i].Text[ Objets[i].Data ].size() - Objets[i].Pos );
+                                    Objets[i].Text[Objets[i].Data] = Objets[i].Text[ Objets[i].Data ].substrUTF8( 0, Objets[i].Pos )
+                                                                    + InttoUTF8( Key )
+                                                                    + Objets[i].Text[ Objets[i].Data ].substrUTF8( Objets[i].Pos, Objets[i].Text[ Objets[i].Data ].sizeUTF8() - Objets[i].Pos );
                                     Objets[i].Pos++;
                             };
                         };

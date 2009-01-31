@@ -567,7 +567,7 @@ namespace TA3D
         return e == pattern.size();
     }
 
-    String String::substrUTF8(int pos, int len)
+    String String::substrUTF8(int pos, int len) const
     {
         String res;
         int utf8_pos = 0;
@@ -602,7 +602,7 @@ namespace TA3D
         return res;
     }
 
-    int String::sizeUTF8()
+    int String::sizeUTF8() const
     {
         int len = 0;
         for(int i = 0 ; i < this->size() ; i++)
