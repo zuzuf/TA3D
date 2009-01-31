@@ -24,7 +24,6 @@ namespace TA3D
         color = makeacol(0x7F, 0x7F, 0x7F, 0xFF);			// Default : grey
         hidden = false;
         was_hidden = false;
-        u_format = U_UTF8;
         delete_gltex = false;
         width = SCREEN_W >> 1;
         height = SCREEN_H >> 1;
@@ -49,7 +48,6 @@ namespace TA3D
         repeat_bkg = false;
         color = makeacol(0x7F, 0x7F, 0x7F, 0xFF);			// Default : grey
         hidden = false;
-        u_format = U_UTF8;
         delete_gltex = false;
         width = SCREEN_W >> 1;
         height = SCREEN_H >> 1;
@@ -101,8 +99,6 @@ namespace TA3D
                     doDrawWindowForegroundObject(skin, i);
             }
         }
-        // Restore the previous format
-//        set_uformat(old_u_format);
     }
 
 
@@ -1185,8 +1181,6 @@ namespace TA3D
 
         hidden = !wndFile.pullAsBool("gadget0.common.active");
 
-        u_format = U_ASCII;
-
         Title.clear();
         x = wndFile.pullAsInt("gadget0.common.xpos");
         y = wndFile.pullAsInt("gadget0.common.ypos");
@@ -1378,9 +1372,6 @@ namespace TA3D
             Name = wndFile.pullAsString("window.name", Name);
             hidden = wndFile.pullAsBool("window.hidden");
 
-            String wnd_uformat = wndFile.pullAsString("window.uformat");
-            if (wnd_uformat == "ASCII")    u_format = U_ASCII;
-            if (wnd_uformat == "UTF8")     u_format = U_UTF8;
             Title = I18N::Translate(wndFile.pullAsString("window.title"));
             x = wndFile.pullAsInt("window.x");
             y = wndFile.pullAsInt("window.y");

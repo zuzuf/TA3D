@@ -1,7 +1,6 @@
 #ifndef __TA3D_XX__TDF_H__
 # define __TA3D_XX__TDF_H__
 
-# include "../stdafx.h"
 # include "string.h"
 # include "hash_table.h"
 # include <stack>
@@ -66,7 +65,7 @@ namespace TA3D
 
         /*!
         ** \brief Load data from a buffer
-        ** 
+        **
         ** \param caption The caption of this buffer to display when a parse error is encountered
         ** \param data The buffer
         ** \param size Size of the buffer
@@ -80,7 +79,7 @@ namespace TA3D
 
         /*!
         ** \brief Load data from a buffer
-        ** 
+        **
         ** This method will find the end of the buffer with the first '\0' in the buffer
         **
         ** \param caption The caption of this buffer to display when a parse error is encountered
@@ -90,7 +89,7 @@ namespace TA3D
         ** \param gadgetMode Mystic mode
         ** \return True if the operation succeeded, False otherwise
         */
- 
+
         bool loadFromMemory(const String& caption, const char* data, const bool clearTable = false,
                             const bool toUTF8 = false, const bool gadgetMode = false);
 
@@ -138,13 +137,13 @@ namespace TA3D
         ** \param value The new value of the key
         */
         void insertOrUpdate(const String& key, const String& value) {pTable.insertOrUpdate(key, value);}
- 
+
         /*!
         ** \brief Remove a key if exists
         ** \param key The key to remove
         */
         void remove(const String& key) {pTable.remove(key);}
-        
+
         bool exists(const String& key) {return pTable.exists(key);}
 
         /*!

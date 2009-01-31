@@ -1,4 +1,5 @@
-
+#include "../stdafx.h"
+#include "../gfx/gfx.toolkit.h"
 #include "tdf.h"
 #include "files.h"
 #include "../ta3dbase.h"

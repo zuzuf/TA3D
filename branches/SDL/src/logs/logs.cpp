@@ -1,3 +1,5 @@
+#include "../stdafx.h"
+#include "../gfx/gfx.toolkit.h"
 #include "../misc/paths.h"
 #include "logs.h"
 #include <fstream>

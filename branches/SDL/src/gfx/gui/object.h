@@ -5,7 +5,6 @@
 # include <vector>
 # include "wnd.h"
 # include "../texture.h"
-# include "wnd.h"
 
 
 

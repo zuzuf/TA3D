@@ -1,7 +1,6 @@
 #ifndef __TA3D_GFX_GUI_BASE_H__
 # define __TA3D_GFX_GUI_BASE_H__
 
-# include "../../stdafx.h"
 # include "../texture.h"
 
 

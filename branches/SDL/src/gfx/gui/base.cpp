@@ -1,4 +1,5 @@
-
+#include "../../stdafx.h"
+#include "../gfx.toolkit.h"
 #include "base.h"
 
 namespace TA3D

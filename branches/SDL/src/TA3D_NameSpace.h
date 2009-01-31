@@ -28,7 +28,7 @@
 #ifndef __TA3D_NAMESPACE_H__
 # define __TA3D_NAMESPACE_H__
 
-
+# include "gfx/gfx.toolkit.h"
 # include "misc/interface.h"
 # include "cError.h"
 # include "misc/vector.h"
