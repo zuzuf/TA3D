@@ -31,6 +31,8 @@ namespace TA3D
     {
         SDL_EnableUNICODE(1);
 
+        SDL_EnableKeyRepeat( SDL_DEFAULT_REPEAT_DELAY, SDL_DEFAULT_REPEAT_INTERVAL);
+
         for(int i = 0 ; i < 0x1000 ; i++)
             VARS::key[i] = 0;
 	    VARS::keybuf.clear();

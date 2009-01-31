@@ -1108,27 +1108,16 @@ namespace TA3D
             byte *data = HPIManager->PullFromHPI( filename, &image_file_size );
             if (data)
             {
-                String tmp_file = Paths::Caches + "tmp" + String(filename).toLower().findAndReplace("\\","S").findAndReplace("/","S");
-                FILE *tmp = fopen( tmp_file.c_str(), "wb" );
-                if (tmp)
-                {
-                    fwrite( data, image_file_size, 1, tmp );
-                    fclose( tmp );
-                    delete[] data;
-                    SDL_Surface *img = IMG_Load( tmp_file.c_str() );
-                    if (img)
-                    {
-                        if (img->format->BitsPerPixel == 32)
-                            img = convert_format(img);
-                        else if (img->format->BitsPerPixel == 24)
-                            img = convert_format_24(img);
-                    }
-                    return img;
-                }
+                SDL_RWops *file = SDL_RWFromMem( data, image_file_size);
+                SDL_Surface *img = NULL;
+                if (Paths::ExtractFileExt(filename).toLower() == ".tga")
+                    img = IMG_LoadTGA_RW(file);
                 else
-                    LOG_DEBUG("loading " << filename << " failed");
+                    img = IMG_Load_RW( file, 0);
+                SDL_RWclose( file );
+
                 delete[] data;
-                return NULL;
+                return img;
             }
             return NULL;
         }
@@ -1669,12 +1658,12 @@ namespace TA3D
 			throw( "SDL_Init(SDL_INIT_VIDEO) yielded unexpected result." );
 
 		// Installing SDL timer
-		if( SDL_Init(SDL_INIT_TIMER) != 0 )
-			throw( "SDL_Init(SDL_INIT_TIMER) yielded unexpected result." );
+		if( SDL_InitSubSystem(SDL_INIT_TIMER) != 0 )
+			throw( "SDL_InitSubSystem(SDL_INIT_TIMER) yielded unexpected result." );
 
 		// Installing SDL timer
-		if( SDL_Init(SDL_INIT_EVENTTHREAD) != 0 )
-			throw( "SDL_Init(SDL_INIT_EVENTTHREAD) yielded unexpected result." );
+		if( SDL_InitSubSystem(SDL_INIT_EVENTTHREAD) != 0 )
+			throw( "SDL_InitSubSystem(SDL_INIT_EVENTTHREAD) yielded unexpected result." );
 
         GFX *test_gfx = new GFX();
 

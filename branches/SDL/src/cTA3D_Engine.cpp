@@ -86,8 +86,8 @@ namespace TA3D
 		m_SDLRunning = true;
 
 		// Installing SDL timer
-		if (SDL_Init(SDL_INIT_TIMER) != 0)
-			throw ("SDL_Init(SDL_INIT_TIMER) yielded unexpected result.");
+		if (SDL_InitSubSystem(SDL_INIT_TIMER) != 0)
+			throw ("SDL_InitSubSystem(SDL_INIT_TIMER) yielded unexpected result.");
 
 		// Creating HPI Manager
 		TA3D::VARS::HPIManager = new TA3D::UTILS::HPI::cHPIHandler();
