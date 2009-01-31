@@ -266,8 +266,6 @@ namespace TA3D
                 feature[index].seqname = parser.pullAsString( key + "seqname");
                 if (!feature[index].seqname.empty())
                     feature_hashtable.insert(String::ToLower(feature[index].seqname ), index + 1 );
-                LOG_DEBUG("filename = " << feature[index].filename);
-                LOG_DEBUG("seqname = " << feature[index].seqname);
             }
             feature[index].animating = parser.pullAsBool( key + "animating",feature[index].animating );
             feature[index].animating |= (feature[index].animtrans = parser.pullAsBool( key + "animtrans", feature[index].animtrans ));

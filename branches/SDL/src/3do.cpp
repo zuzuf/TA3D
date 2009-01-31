@@ -669,7 +669,7 @@ namespace TA3D
         optimised_nb_vtx = total_vtx;
     }
 
-    int OBJECT::load_obj(byte *data,int offset,int dec,const char *filename)
+    int OBJECT::load_obj(byte *data,int offset,int dec,const String &filename)
     {
         destroy();					// Au cas où l'objet ne serait pas vierge
 
@@ -1018,7 +1018,7 @@ namespace TA3D
             {
                 bool mtex_needed = false;
                 dtex = e + 1;
-                String cache_filename = filename ? String( filename ) + format("-%s-%d.bin", !name.empty() ? name.c_str() : "none", player_color_map[e] ) : String( "" );
+                String cache_filename = !filename.empty() ? filename + format("-%s-%d.bin", !name.empty() ? name.c_str() : "none", player_color_map[e] ) : String( "" );
                 cache_filename = cache_filename.findAndReplace("/","S");
                 cache_filename = cache_filename.findAndReplace("\\","S");
 
@@ -1083,7 +1083,7 @@ namespace TA3D
                             }
                         }
                         gltex[e] = gfx->make_texture(bmp,FILTER_TRILINEAR,true);
-                        if (filename)
+                        if (!filename.empty())
                             gfx->save_texture_to_cache(cache_filename, gltex[e], bmp->w, bmp->h);
                     }
                     else
@@ -3102,16 +3102,22 @@ namespace TA3D
                             String real_name = (char*)(data+1);
                             real_name.trim();
                             delete[] data;
+                            LOG_DEBUG("loading alternate : " << real_name);
                             data = HPIManager->PullFromHPI( real_name );
                         }
                         if (data)
                         {
-                            model[i+nb_models].load_3dm(data, e->c_str());
+                            model[i+nb_models].load_3dm(data, *e);
+                            LOG_DEBUG("model loaded");
                             delete[] data;
                             model_hashtable.insert(String::ToLower(*e), nb_models + i + 1);
                             ++i;
                         }
+                        else
+                            LOG_ERROR("could not load model " << *e);
                     }
+                    else
+                        LOG_ERROR("could not read file : " << *e);
                 }
             }
             nb_models += i;
@@ -3150,7 +3156,7 @@ namespace TA3D
                     if (data)
                     {
                         if (data_size > 0 )						// If the file isn't empty
-                            model[i+nb_models].load_3do(data,e->c_str());
+                            model[i+nb_models].load_3do(data,*e);
                         delete[] data;
                         model_hashtable.insert(String::ToLower(*e), nb_models + i + 1);
                         ++i;
@@ -3190,7 +3196,7 @@ namespace TA3D
     }
 
 
-    void MODEL::load_3dm(byte *data,const char *filename)					// Load a model in 3DM format
+    void MODEL::load_3dm(byte *data,const String &filename)					// Load a model in 3DM format
     {
         destroy();
         obj.load_3dm(data,filename);
@@ -3210,7 +3216,7 @@ namespace TA3D
     }
 
 
-    int MODEL::load_3do(byte *data,const char *filename)
+    int MODEL::load_3do(byte *data,const String &filename)
     {
         int err=obj.load_obj(data,0,0,filename);		// Charge les objets composant le modèle
         if (err == 0)
@@ -3775,7 +3781,7 @@ namespace TA3D
 
 
 
-    byte *OBJECT::load_3dm(byte *data, const char *filename)
+    byte *OBJECT::load_3dm(byte *data, const String &filename)
     {
         destroy();
 
@@ -3946,7 +3952,7 @@ namespace TA3D
 
             if (TA3D::model_manager.loading_all())      // We want to convert textures on-the-fly in order to speed loading
             {
-                String cache_filename = filename ? String( filename ) + format("-%s-%d.bin", !name.empty() ? name.c_str() : "none", i ) : String( "" );
+                String cache_filename = !filename.empty() ? filename + format("-%s-%d.bin", !name.empty() ? name.c_str() : "none", i ) : String( "" );
                 cache_filename = cache_filename.findAndReplace("/","S");
                 cache_filename = cache_filename.findAndReplace("\\","S");
 

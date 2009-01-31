@@ -376,11 +376,11 @@ namespace TA3D
 
         void optimise_mesh();			// EXPERIMENTAL, function to merge all objects in one vertex array
 
-        int load_obj(byte *data,int offset,int dec=0,const char *filename=NULL);
+        int load_obj(byte *data,int offset,int dec=0,const String &filename = String());
 
         void save_3dm(FILE *dst, bool compressed);
 
-        byte *load_3dm(byte *data,const char *filename=NULL);
+        byte *load_3dm(byte *data,const String &filename = String());
 
         void create_from_2d(SDL_Surface *bmp,float w,float h,float max_h);
 
@@ -456,12 +456,12 @@ namespace TA3D
         /*!
         ** \brief
         */
-        void load_3dm(byte* data,const char *filename=NULL);	// Load a model in 3DM format
+        void load_3dm(byte* data,const String &filename = String());	// Load a model in 3DM format
 
         /*!
         ** \brief
         */
-        int load_3do(byte* data, const char *filename = NULL);
+        int load_3do(byte* data, const String &filename = String());
 
         /*!
         ** \brief

@@ -838,13 +838,17 @@ namespace HPI
         uint32 list_size = m_Archive->wildCardSearch(s, li);
 
         String UNIX_search;
+        String root = Paths::ExtractFilePath(s).findAndReplace("/","\\");
         for( String::Vector::const_iterator cur_Path = m_Path.begin() ; m_Path.end() != cur_Path ; ++cur_Path)
         {
             UNIX_search.clear();
             UNIX_search << *cur_Path << s;
             UNIX_search.convertAntiSlashesIntoSlashes();
 
-            Paths::GlobFiles(li,UNIX_search,false,true);
+            String::List n_list;
+            Paths::GlobFiles(n_list,UNIX_search,false,true);
+            for(String::List::iterator it = n_list.begin() ; it != n_list.end() ; ++it)
+                li.push_back( root + *it);
 
             li.sort();
             li.unique();
