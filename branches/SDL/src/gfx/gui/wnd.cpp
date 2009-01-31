@@ -663,11 +663,11 @@ namespace TA3D
                         case KEY_ENTER:
                             Objets[i].Etat=true;
                             if (Objets[i].Func!=NULL)
-                                (*Objets[i].Func)(Objets[i].Text[0].length());
+                                (*Objets[i].Func)(Objets[i].Text[0].sizeUTF8());
                             break;
                         case KEY_BACKSPACE:
-                            if (Objets[i].Text[0].length()>0)
-                                Objets[i].Text[0].resize(Objets[i].Text[0].length() - 1);
+                            if (Objets[i].Text[0].sizeUTF8()>0)
+                                Objets[i].Text[0] = Objets[i].Text[0].substrUTF8(0, Objets[i].Text[0].sizeUTF8() - 1);
                             break;
                         case KEY_TAB:
                         case KEY_ESC:
@@ -680,8 +680,8 @@ namespace TA3D
                                 case 0:
                                     break;
                                 default:
-                                    if (Objets[i].Text[0].length() + 1 < Objets[i].Data)
-                                        Objets[i].Text[0] << (char)Key;
+                                    if (Objets[i].Text[0].sizeUTF8() + 1 < Objets[i].Data)
+                                        Objets[i].Text[0] << InttoUTF8( Key );
                             };
                         };
                     }
