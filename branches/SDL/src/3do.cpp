@@ -2193,6 +2193,8 @@ namespace TA3D
                     system = particle_engine.emit_part_fast( system, *upos+*pos,Dir,p_tex, i == 0 ? -nb : 1,speed,life,2.0f,true);
                 }
             }
+			if (system)
+				delete system;
         }
         if (child)
             child->compute_coord(data_s,pos,c_part,p_tex,target,upos,M,size,center,reverse,src,src_data);
