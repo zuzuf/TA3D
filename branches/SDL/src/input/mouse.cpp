@@ -44,7 +44,7 @@ namespace TA3D
             {
             case SDL_KEYDOWN:
                 {
-                    VARS::key[ event.key.keysym.sym ] = 1;
+                    set_key_down( event.key.keysym.sym );
                     uint32 c = event.key.keysym.unicode;
                     c |= event.key.keysym.sym << 16;
                     VARS::keybuf.push_back( c );
@@ -66,7 +66,7 @@ namespace TA3D
                 };
                 break;
             case SDL_KEYUP:
-                VARS::key[ event.key.keysym.sym ] = 0;
+                set_key_up( event.key.keysym.sym );
                 break;
             };
         }

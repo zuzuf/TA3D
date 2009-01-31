@@ -8,6 +8,7 @@ namespace TA3D
 		TA3D_API_E int								ascii_to_scancode[ 256 ];
 		TA3D_API_E int                              key[0x1000];
 		TA3D_API_E std::list<uint32>                keybuf;
+		TA3D_API_E int                              remap[ 256 ];
     }
 
 	/*!
@@ -34,6 +35,16 @@ namespace TA3D
 	** \brief initialize keyboard handler
 	*/
 	void init_keyboard();
+
+	/*!
+	** \brief set a key up
+	*/
+	void set_key_up(uint16 keycode);
+
+	/*!
+	** \brief set a key down
+	*/
+	void set_key_down(uint16 keycode);
 }
 
 #define KEY_ENTER       SDLK_RETURN

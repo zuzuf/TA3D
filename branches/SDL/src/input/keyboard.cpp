@@ -5,6 +5,7 @@
 int						TA3D::VARS::ascii_to_scancode[ 256 ];
 int                     TA3D::VARS::key[0x1000];
 std::list<uint32>       TA3D::VARS::keybuf;
+int                     TA3D::VARS::remap[256];
 
 using namespace TA3D::VARS;
 
@@ -37,6 +38,21 @@ namespace TA3D
         SDL_EnableUNICODE(1);
 
         SDL_EnableKeyRepeat( SDL_DEFAULT_REPEAT_DELAY, SDL_DEFAULT_REPEAT_INTERVAL);
+
+        // We need some remapping hack to support some keyboards (french keyboards don't access KEY_0..9)
+        for(int i = 0 ; i < 256 ; i++)
+            remap[i] = 0;
+
+        remap[38] = KEY_1;
+        remap[233] = KEY_2;
+        remap[34] = KEY_3;
+        remap[39] = KEY_4;
+        remap[40] = KEY_5;
+        remap[45] = KEY_6;
+        remap[232] = KEY_7;
+        remap[95] = KEY_8;
+        remap[231] = KEY_9;
+        remap[224] = KEY_0;
 
         for(int i = 0 ; i < 0x1000 ; i++)
             VARS::key[i] = 0;
@@ -90,5 +106,19 @@ namespace TA3D
         ascii_to_scancode[ ' ' ] = KEY_SPACE;
         ascii_to_scancode[ '\n' ] = KEY_ENTER;
         ascii_to_scancode[ 27 ] = KEY_ESC;
+    }
+
+    void set_key_down(uint16 keycode)
+    {
+        if (keycode < 256 && remap[keycode])
+            VARS::key[remap[keycode]] = 1;
+        VARS::key[keycode] = 1;
+    }
+
+    void set_key_up(uint16 keycode)
+    {
+        if (keycode < 256 && remap[keycode])
+            VARS::key[remap[keycode]] = 0;
+        VARS::key[keycode] = 0;
     }
 }
