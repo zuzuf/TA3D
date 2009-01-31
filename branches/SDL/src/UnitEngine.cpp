@@ -6603,17 +6603,17 @@ script_exec:
         pMutex.lock();
 
         bool pointed_only = false;
-        if (last_on >= 0 && ( last_on >= max_unit || unit[ last_on ].flags == 0 ) ) 	last_on = -1;
-        if (index<0 || index>=max_unit || unit[index].flags==0 || unit[index].type_id < 0 ) {
+        if (last_on >= 0 && ( last_on >= max_unit || unit[ last_on ].flags == 0 )) 	last_on = -1;
+        if (index<0 || index>=max_unit || unit[index].flags==0 || unit[index].type_id < 0)
+        {
             if (last_on >= 0 )
                 pointed_only = true;
-            else {
+            else
+            {
                 pMutex.unlock();
                 return;		// On n'affiche que des données sur les unités EXISTANTES
             }
         }
-
-//        set_uformat(U_ASCII);
 
         UNIT *target = pointed_only ? NULL : (unit[index].mission!=NULL ? (UNIT*) unit[index].mission->p : NULL);
         if (target && target->flags==0)
@@ -6622,7 +6622,7 @@ script_exec:
         glEnable(GL_TEXTURE_2D);
         glEnable(GL_BLEND);
 
-        if (!pointed_only && !hide_bpic )
+        if (!pointed_only && !hide_bpic)
         {
             int stock=0;
             for(int i = 0 ; i < unit_manager.unit_type[unit[index].type_id]->weapon.size() ; i++)
@@ -6635,7 +6635,7 @@ script_exec:
             if ((unit_manager.unit_type[unit[index].type_id]->Builder && !unit_manager.unit_type[unit[index].type_id]->BMcode)
                 || unit[index].planned_weapons>0.0f || stock>0) // Affiche la liste de construction
             {
-                int page=unit_manager.unit_type[unit[index].type_id]->page;
+                int page = unit_manager.unit_type[unit[index].type_id]->page;
 
                 glBlendFunc(GL_ONE,GL_ONE_MINUS_SRC_COLOR);
                 for( int i = 0 ; i < unit_manager.unit_type[unit[index].type_id]->nb_unit ; i++ ) // Affiche les différentes images d'unités constructibles
@@ -6659,6 +6659,7 @@ script_exec:
                     {
                         String buf = format("%d",nb);
                         glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+                        gfx->print(gfx->TA_font,px+1+pw*0.5f-0.5f*gfx->TA_font->length(buf),py+1+ph*0.5f-0.5f*gfx->TA_font->height(),0.0f,Black,buf);
                         gfx->print(gfx->TA_font,px+pw*0.5f-0.5f*gfx->TA_font->length(buf),py+ph*0.5f-0.5f*gfx->TA_font->height(),0.0f,0xFFFFFFFF,buf);
                     }
                     else
@@ -6671,6 +6672,7 @@ script_exec:
                             else
                                 buf = format("%d(%d)",(int)unit[index].planned_weapons+1,stock);
                             glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+                            gfx->print(gfx->TA_font,px+1+pw*0.5f-0.5f*gfx->TA_font->length(buf),py+1+ph*0.5f-0.5f*gfx->TA_font->height(),0.0f,Black,buf);
                             gfx->print(gfx->TA_font,px+pw*0.5f-0.5f*gfx->TA_font->length(buf),py+ph*0.5f-0.5f*gfx->TA_font->height(),0.0f,0xFFFFFFFF,buf);
                         }
                     }
