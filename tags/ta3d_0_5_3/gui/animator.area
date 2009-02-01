@@ -1,0 +1,9 @@
+[area]
+{
+	name=animator area;
+	skin=gui/default.skn;
+	windows=gui/animator.tdf;
+	background=none;
+	width=1280;
+	height=1024;
+}
