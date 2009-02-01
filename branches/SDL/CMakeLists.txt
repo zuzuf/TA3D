@@ -257,19 +257,27 @@ ENDIF( WIN32 OR CMAKE_CROSSCOMPILING )
 #
 # --- FTGL ---
 #
+IF(NOT APPLE)
+	FIND_PACKAGE(Freetype)
+	include_directories( ${FREETYPE_INCLUDE_DIRS} )
 
-FIND_PACKAGE(Freetype)
-include_directories( ${FREETYPE_INCLUDE_DIRS} )
+	find_library(FTGL_LIB ftgl)
+	find_path(FTGL_INCLUDE_lower NAMES FTGL/ftgl.h)
 
-find_library(FTGL_LIB ftgl)
-find_path(FTGL_INCLUDE_lower NAMES FTGL/ftgl.h)
-
-IF(NOT FTGL_INCLUDE_lower)
-    SET(__FTGL__lower__ false)
-ELSE(NOT FTGL_INCLUDE_lower)
-    SET(__FTGL__lower__ true)
-ENDIF(NOT FTGL_INCLUDE_lower)
-
+	IF(NOT FTGL_INCLUDE_lower)
+	    SET(__FTGL__lower__ false)
+	ELSE(NOT FTGL_INCLUDE_lower)
+	    SET(__FTGL__lower__ true)
+	ENDIF(NOT FTGL_INCLUDE_lower)
+ELSE(NOT APPLE)
+	Execute_process(COMMAND pkg-config --libs  ftgl OUTPUT_VARIABLE FTGL_LIB OUTPUT_STRIP_TRAILING_WHITESPACE)
+	Execute_process(COMMAND pkg-config --cflags  ftgl OUTPUT_VARIABLE FTGL_CFLAGS OUTPUT_STRIP_TRAILING_WHITESPACE)
+	Message(STATUS "FTGL Library : ${FTGL_LIB}")
+	Message(STATUS "FTGL CFLags : ${FTGL_CFLAGS}")
+	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${FTGL_CFLAGS}")
+	SET(LIBS "${LIBS} ${FTGL_LIB}")
+	SET(__FTGL__lower__ false)
+ENDIF(NOT APPLE)
 
 #
 # --- HawkNL ---
