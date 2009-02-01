@@ -80,6 +80,8 @@ namespace TA3D
         if (hidden) // If it's hidden don't draw it
             return;
 
+        // Shadow
+        doDrawWindowShadow(skin);
         // Background
         doDrawWindowBackground(skin);
         // Skin
@@ -101,6 +103,15 @@ namespace TA3D
         }
     }
 
+    void WND::doDrawWindowShadow(SKIN* skin)
+    {
+        if (skin == NULL || !draw_borders || Lock)   return;
+
+        ObjectShadow( x - skin->wnd_border.x1, y - skin->wnd_border.y1,
+                      x + width - skin->wnd_border.x2, y + height - skin->wnd_border.y2,
+                      3, 3,
+                      0.5f, 10.0f);
+    }
 
 
     void WND::doDrawWindowBackground(SKIN* skin)

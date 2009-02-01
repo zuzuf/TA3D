@@ -50,6 +50,7 @@ void ProgressBar( float x1, float y1, float x2, float y2, int Value, SKIN *skin=
 void PopupMenu( float x1, float y1, const String &msg, SKIN *skin=NULL);
 void ScrollBar( float x1, float y1, float x2, float y2, float Value, bool vertical=true, SKIN *skin = NULL);
 int draw_text_adjust( float x1, float y1, float x2, float y2, String msg, int pos = 0, bool mission_mode = false );
+void ObjectShadow( float x1, float y1, float x2, float y2, float dx, float dy, float alpha, float fuzzy);
 
 /*--------------------------------------------------------------------------------------------------*/
 

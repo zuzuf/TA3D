@@ -317,6 +317,12 @@ void PopupMenu( float x1, float y1, const String &msg, SKIN *skin )
             y1 += SCREEN_H - y2 - 1;
             y2 = SCREEN_H - 1;
         }
+
+        ObjectShadow( x1, y1,
+                      x2, y2,
+                      2, 2,
+                      0.5f, 4.0f);
+
         gfx->set_alpha_blending();
         gfx->set_color( 0xFFFFFFFF );
 
@@ -360,8 +366,6 @@ void FloatMenu( float x, float y, const String::Vector &Entry, int Index, int St
 {
     if (skin && skin->menu_background.tex)
     {
-        gfx->set_color( 0xFFFFFFFF );
-
         int i;
         float width = 168.0f;
         for (i = 0; i < Entry.size() - StartEntry; ++i)
@@ -369,6 +373,12 @@ void FloatMenu( float x, float y, const String::Vector &Entry, int Index, int St
 
         width += skin->menu_background.x1-skin->menu_background.x2;
 
+        ObjectShadow( x, y,
+                      x + width, y+skin->menu_background.y1-skin->menu_background.y2+gui_font->height()*(Entry.size() - StartEntry),
+                      2, 2,
+                      0.5f, 4.0f);
+
+        gfx->set_color( 0xFFFFFFFF );
         gfx->set_alpha_blending();
         skin->menu_background.draw( x, y, x + width, y+skin->menu_background.y1-skin->menu_background.y2+gui_font->height()*(Entry.size() - StartEntry) );
 
@@ -674,6 +684,112 @@ void ProgressBar(float x1,float y1,float x2,float y2,int Value, SKIN *skin )
 
         gfx->print(gui_font,(x1+x2)/2-gui_font->length( Buf ) * 0.5f,(y1+y2)*0.5f-gui_font->height()*0.5f,0.0f,White,Buf);
     }
+}
+
+void ObjectShadow(float x1, float y1, float x2, float y2, float dx, float dy, float alpha, float fuzzy)
+{
+    x1 += dx;
+    y1 += dy;
+    x2 += dx;
+    y2 += dy;
+
+    x1 += fuzzy * 0.5f;
+    y1 += fuzzy * 0.5f;
+    x2 -= fuzzy * 0.5f;
+    y2 -= fuzzy * 0.5f;
+
+    glDisable(GL_TEXTURE_2D);
+    gfx->set_alpha_blending();
+
+    float fuzzy2 = fuzzy / sqrtf(2.0f);
+
+    gfx->set_color(0.0f, 0.0f, 0.0f, alpha);
+    gfx->rectfill( x1, y1, x2, y2 );
+
+    glBegin(GL_QUADS);
+        // Left
+        gfx->set_color(0.0f, 0.0f, 0.0f, 0.0f);
+        glVertex2f( x1 - fuzzy, y1 );
+
+        gfx->set_color(0.0f, 0.0f, 0.0f, alpha);
+        glVertex2f( x1, y1 );
+        glVertex2f( x1, y2 );
+
+        gfx->set_color(0.0f, 0.0f, 0.0f, 0.0f);
+        glVertex2f( x1 - fuzzy, y2 );
+
+        // Right
+        gfx->set_color(0.0f, 0.0f, 0.0f, 0.0f);
+        glVertex2f( x2 + fuzzy, y1 );
+
+        gfx->set_color(0.0f, 0.0f, 0.0f, alpha);
+        glVertex2f( x2, y1 );
+        glVertex2f( x2, y2 );
+
+        gfx->set_color(0.0f, 0.0f, 0.0f, 0.0f);
+        glVertex2f( x2 + fuzzy, y2 );
+
+        // Top
+        gfx->set_color(0.0f, 0.0f, 0.0f, 0.0f);
+        glVertex2f( x1, y1 - fuzzy );
+        glVertex2f( x2, y1 - fuzzy );
+
+        gfx->set_color(0.0f, 0.0f, 0.0f, alpha);
+        glVertex2f( x2, y1 );
+        glVertex2f( x1, y1 );
+
+        // Bottom
+        gfx->set_color(0.0f, 0.0f, 0.0f, 0.0f);
+        glVertex2f( x1, y2 + fuzzy );
+        glVertex2f( x2, y2 + fuzzy );
+
+        gfx->set_color(0.0f, 0.0f, 0.0f, alpha);
+        glVertex2f( x2, y2 );
+        glVertex2f( x1, y2 );
+
+        // Top Left
+        gfx->set_color(0.0f, 0.0f, 0.0f, 0.0f);
+        glVertex2f( x1 - fuzzy2, y1 - fuzzy2 );
+        glVertex2f( x1, y1 - fuzzy );
+
+        gfx->set_color(0.0f, 0.0f, 0.0f, alpha);
+        glVertex2f( x1, y1 );
+
+        gfx->set_color(0.0f, 0.0f, 0.0f, 0.0f);
+        glVertex2f( x1 - fuzzy, y1 );
+
+        // Top Right
+        gfx->set_color(0.0f, 0.0f, 0.0f, 0.0f);
+        glVertex2f( x2 + fuzzy, y1 );
+        glVertex2f( x2 + fuzzy2, y1 - fuzzy2 );
+        glVertex2f( x2, y1 - fuzzy );
+
+        gfx->set_color(0.0f, 0.0f, 0.0f, alpha);
+        glVertex2f( x2, y1 );
+
+        // Bottom Right
+        gfx->set_color(0.0f, 0.0f, 0.0f, 0.0f);
+        glVertex2f( x2 + fuzzy, y2 );
+        glVertex2f( x2 + fuzzy2, y2 + fuzzy2 );
+        glVertex2f( x2, y2 + fuzzy );
+
+        gfx->set_color(0.0f, 0.0f, 0.0f, alpha);
+        glVertex2f( x2, y2 );
+
+        // Bottom Left
+        gfx->set_color(0.0f, 0.0f, 0.0f, 0.0f);
+        glVertex2f( x1 - fuzzy2, y2 + fuzzy2 );
+        glVertex2f( x1, y2 + fuzzy );
+
+        gfx->set_color(0.0f, 0.0f, 0.0f, alpha);
+        glVertex2f( x1, y2 );
+
+        gfx->set_color(0.0f, 0.0f, 0.0f, 0.0f);
+        glVertex2f( x1 - fuzzy, y2 );
+    glEnd();
+
+    gfx->unset_alpha_blending();
+    glEnable(GL_TEXTURE_2D);
 }
 
 String curDir = "";

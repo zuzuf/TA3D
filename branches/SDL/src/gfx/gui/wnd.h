@@ -186,6 +186,11 @@ namespace TA3D
 
     private:
         /*!
+        ** \brief Draw the shadow of the window if it has one
+        ** \see draw()
+        */
+        void doDrawWindowShadow(SKIN* skin);
+        /*!
         ** \brief Draw the background of the window
         ** \see draw()
         */
