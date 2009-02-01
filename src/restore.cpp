@@ -18,10 +18,8 @@
 #include "stdafx.h"
 #include <list>
 #include <vector>
-#include <zlib.h>
 #include "TA3D_NameSpace.h"
 #include "misc/matrix.h"
-#include "misc/paths.h"
 #include "cTA3D_Engine.h"		// The Engine
 #include "ta3dbase.h"			// Some core include
 #include "EngineClass.h"
@@ -31,31 +29,23 @@
 
 
 
-#define SAVE( i )	gzwrite( file, &(i), sizeof( i ) )
-#define LOAD( i )	gzread( file, &(i), sizeof( i ) )
-inline char *readstring( char *str, int limit, gzFile file )
+#define SAVE( i )	fwrite( &(i), sizeof( i ), 1, file )
+#define LOAD( i )	fread( &(i), sizeof( i ), 1, file )
+inline char *readstring( char *str, int limit, FILE *file )
 {
     for (int f = 0; f < limit - 1; ++f)
     {
-        str[f] = gzgetc(file);
+        str[f] = fgetc(file);
         if (str[f] == 0)
             break;
     }
     return str;
 }
 
-gzFile TA3D_gzopen(const String &FileName, const String Mode)
-{
-
-    // TODO This should be removed
-    TA3D::Paths::MakeDir(TA3D::Paths::ExtractFilePath(FileName));		// Create tree structure if it doesn't exist
-
-    return gzopen(FileName.c_str(), Mode.c_str());
-}
 
 void save_game( const String filename, GameData *game_data )
 {
-    gzFile file = TA3D_gzopen( filename, "wb" );
+    FILE *file = TA3D_OpenFile( filename, "wb" );
 
     if( file == NULL )
         return;
@@ -66,29 +56,29 @@ void save_game( const String filename, GameData *game_data )
     while (!lp_CONFIG->paused)
         rest( 100 );			// Wait for the engine to enter in pause mode so we can save everything we want
     // without having the engine accessing its data
-    gzputs( file, "TA3D SAV" );
+    fputs( "TA3D SAV", file );
 
     if (network_manager.isConnected())     // Multiplayer game ?
     {
-        gzputc( file, 'M' );                 // Save connection data
+        fputc( 'M', file );                 // Save connection data
         if (network_manager.isServer())    // Are we the server ? (only server can resume the game)
-            gzputc( file, 1 );
+            fputc( 1, file );
         else
-            gzputc( file, 0 );
+            fputc( 0, file );
     }
     else
-        gzputc( file, 'S' );
+        fputc( 'S', file );
 
     //----- Save game information --------------------------------------------------------------
 
-    gzputs( file, game_data->map_filename.c_str() );	gzputc( file, 0 );
-    gzputs( file,game_data->game_script.c_str() );	    gzputc( file, 0 );
+    fputs( game_data->map_filename.c_str(), file );	fputc( 0, file );
+    fputs( game_data->game_script.c_str(), file );	fputc( 0, file );
 
-    gzputc( file, game_data->fog_of_war );			// flags to configure FOW
-    gzputc( file, game_data->campaign );			// Are we in campaign mode ?
+    fputc( game_data->fog_of_war, file );			// flags to configure FOW
+    fputc( game_data->campaign, file );				// Are we in campaign mode ?
     if( !game_data->use_only.empty() )			// The use only file to read
-        gzputs( file, game_data->use_only.c_str() );
-    gzputc( file, 0 );
+        fputs( game_data->use_only.c_str(), file );
+    fputc( 0, file );
 
     SAVE( game_data->nb_players );
     SAVE( game_data->max_unit_per_player );
@@ -96,18 +86,18 @@ void save_game( const String filename, GameData *game_data )
     // Palyer names
     for (String::Vector::const_iterator i = game_data->player_names.begin(); i != game_data->player_names.end(); ++i)
     {
-        gzputs(file, i->c_str());
-        gzputc(file, 0);
+        fputs(i->c_str(), file);
+        fputc(0, file );
     }
     // Player sides
     for (String::Vector::const_iterator i = game_data->player_sides.begin(); i != game_data->player_sides.end(); ++i)
     {
-        gzputs(file, i->c_str());
-        gzputc(file, 0);
+        fputs(i->c_str(), file);
+        fputc( 0, file );
     }
     // Player control
     for (std::vector<byte>::const_iterator i = game_data->player_control.begin(); i != game_data->player_control.end(); ++i)
-        gzputc(file, *i);
+        fputc(*i, file);
     // Player network ID
     for (std::vector<int>::const_iterator i = game_data->player_network_id.begin(); i != game_data->player_network_id.end(); ++i)
         SAVE(*i);
@@ -116,7 +106,7 @@ void save_game( const String filename, GameData *game_data )
         SAVE(*i);
     // AI Levels
     for (std::vector<byte>::const_iterator i = game_data->ai_level.begin(); i != game_data->ai_level.end(); ++i)
-        gzputc(file, *i);
+        fputc(*i, file);
     // Energy
     for (std::vector<uint32>::const_iterator i = game_data->energy.begin(); i != game_data->energy.end(); ++i)
         SAVE(*i);
@@ -173,8 +163,8 @@ void save_game( const String filename, GameData *game_data )
         SAVE( features.feature[i].type );
         if( features.feature[i].type >= 0 )
         {
-            gzputs(file, feature_manager.feature[features.feature[i].type].name.c_str());		// Store the name so it doesn't rely on the feature order
-            gzputc(file, 0);
+            fputs( feature_manager.feature[features.feature[i].type].name.c_str(), file );		// Store the name so it doesn't rely on the feature order
+            fputc( 0, file );
             SAVE( features.feature[i].Pos );
             SAVE( features.feature[i].frame );
             SAVE( features.feature[i].hp );
@@ -202,7 +192,7 @@ void save_game( const String filename, GameData *game_data )
     uint32 index_list_size = weapons.idx_list.size();
     SAVE( index_list_size );
 
-    for(std::vector<uint32>::iterator e = weapons.idx_list.begin() ; e != weapons.idx_list.end() ; ++e)
+    for(std::list<uint32>::iterator e = weapons.idx_list.begin() ; e != weapons.idx_list.end() ; ++e)
     {
         uint32 i = *e;
         SAVE( i );
@@ -210,8 +200,8 @@ void save_game( const String filename, GameData *game_data )
         SAVE( weapons.weapon[i].weapon_id );
         if( weapons.weapon[i].weapon_id == -1 )	continue;
 
-        gzputs(file, weapon_manager.weapon[weapons.weapon[i].weapon_id].internal_name.c_str());
-        gzputc(file, 0);
+        fputs( weapon_manager.weapon[weapons.weapon[i].weapon_id].internal_name.c_str(), file );
+        fputc( 0, file );
 
         SAVE( weapons.weapon[i].Pos );
         SAVE( weapons.weapon[i].V );
@@ -258,8 +248,8 @@ void save_game( const String filename, GameData *game_data )
 
         SAVE( units.unit[i].ID );		// Store its ID so we don't lose its "name"
 
-        gzputs(file, unit_manager.unit_type[units.unit[i].type_id]->Unitname.c_str());		// Store the name so it doesn't rely on the feature order
-        gzputc(file, 0);
+        fputs( unit_manager.unit_type[units.unit[i].type_id]->Unitname.c_str(), file );		// Store the name so it doesn't rely on the feature order
+        fputc( 0, file );
 
         int g = units.unit[i].s_var->size();
         SAVE( g );
@@ -281,7 +271,7 @@ void save_game( const String filename, GameData *game_data )
         SAVE( units.unit[i].death_delay );
         SAVE( units.unit[i].paralyzed );
 
-        gzwrite(file, units.unit[i].port, sizeof( sint16 ) * 21);
+        fwrite( units.unit[i].port, sizeof( sint16 ), 21, file );
 
         SAVE( units.unit[i].nb_running );
         SAVE( units.unit[i].c_time );
@@ -290,11 +280,11 @@ void save_game( const String filename, GameData *game_data )
         SAVE( units.unit[i].built );
         SAVE( units.unit[i].attacked );
         SAVE( units.unit[i].planned_weapons );
-        gzwrite(file, units.unit[i].memory, sizeof( int ) * 10);
+        fwrite( units.unit[i].memory, sizeof( int ), 10, file );
         SAVE( units.unit[i].mem_size );
         SAVE( units.unit[i].attached );
-        gzwrite(file, units.unit[i].attached_list, sizeof( short ) * 20);
-        gzwrite(file, units.unit[i].link_list, sizeof( short ) * 20);
+        fwrite( units.unit[i].attached_list, sizeof( short ), 20, file );
+        fwrite( units.unit[i].link_list, sizeof( short ), 20, file );
         SAVE( units.unit[i].nb_attached );
         SAVE( units.unit[i].just_created );
         SAVE( units.unit[i].first_move );
@@ -362,7 +352,7 @@ void save_game( const String filename, GameData *game_data )
         {
             for (MISSION *cur = start; cur; cur = cur->next)
             {
-                gzputc(file, 1);
+                fputc( 1, file );
                 SAVE( cur->mission );
                 SAVE( cur->target );
                 SAVE( cur->target_ID );
@@ -376,13 +366,13 @@ void save_game( const String filename, GameData *game_data )
 
                 for( PATH_NODE *path = cur->path; path ; path = path->next)
                 {
-                    gzputc(file, 1);
+                    fputc( 1, file );
                     SAVE( path->x );
                     SAVE( path->y );
                     SAVE( path->Pos );
                     SAVE( path->made_direct );
                 }
-                gzputc(file, 0);
+                fputc( 0, file );
 
                 switch( cur->mission )
                 {
@@ -420,7 +410,7 @@ void save_game( const String filename, GameData *game_data )
                 }
 
             }
-            gzputc(file, 0);
+            fputc( 0, file );
             if( start == units.unit[i].def_mission )	break;
         }
 
@@ -432,19 +422,19 @@ void save_game( const String filename, GameData *game_data )
 
             for( SCRIPT_STACK *stack = f->stack ; stack ; stack = stack->next)
             {
-                gzputc(file, 1);
+                fputc( 1, file );
                 SAVE( stack->val );
             }
-            gzputc(file, 0);
+            fputc( 0, file );
 
             for (SCRIPT_ENV_STACK *stack = f->env; stack; stack = stack->next)
             {
-                gzputc(file, 1);
+                fputc( 1, file );
                 SAVE( stack->cur );
                 SAVE( stack->signal_mask );
-                gzwrite(file, stack->var, sizeof( int ) * 15);
+                fwrite( stack->var, sizeof( int ), 15, file );
             }
-            gzputc(file, 0);
+            fputc( 0, file );
         }
 
         SAVE( units.unit[i].data.nb_piece );
@@ -452,15 +442,15 @@ void save_game( const String filename, GameData *game_data )
         SAVE( units.unit[i].data.explode );
         SAVE( units.unit[i].data.is_moving );
 
-        gzwrite(file, units.unit[i].data.flag, sizeof(short) * units.unit[i].data.nb_piece);
-        gzwrite(file, units.unit[i].data.explosion_flag, sizeof(short) * units.unit[i].data.nb_piece);
-        gzwrite(file, units.unit[i].data.pos, sizeof(Vector3D) * units.unit[i].data.nb_piece);
-        gzwrite(file, units.unit[i].data.dir, sizeof(Vector3D) * units.unit[i].data.nb_piece);
-        gzwrite(file, units.unit[i].data.matrix, sizeof(MATRIX_4x4) * units.unit[i].data.nb_piece);
+        fwrite( units.unit[i].data.flag, sizeof( short ), units.unit[i].data.nb_piece, file );
+        fwrite( units.unit[i].data.explosion_flag, sizeof( short ), units.unit[i].data.nb_piece, file );
+        fwrite( units.unit[i].data.pos, sizeof( Vector3D), units.unit[i].data.nb_piece, file );
+        fwrite( units.unit[i].data.dir, sizeof( Vector3D), units.unit[i].data.nb_piece, file );
+        fwrite( units.unit[i].data.matrix, sizeof( MATRIX_4x4 ), units.unit[i].data.nb_piece, file );
 
-        gzwrite(file, units.unit[i].data.axe[0], sizeof(AXE) * units.unit[i].data.nb_piece);
-        gzwrite(file, units.unit[i].data.axe[1], sizeof(AXE) * units.unit[i].data.nb_piece);
-        gzwrite(file, units.unit[i].data.axe[2], sizeof(AXE) * units.unit[i].data.nb_piece);
+        fwrite( units.unit[i].data.axe[0], sizeof( AXE ), units.unit[i].data.nb_piece, file );
+        fwrite( units.unit[i].data.axe[1], sizeof( AXE ), units.unit[i].data.nb_piece, file );
+        fwrite( units.unit[i].data.axe[2], sizeof( AXE ), units.unit[i].data.nb_piece, file );
     }
 
     SAVE( units.current_tick );     // We'll need this for multiplayer games
@@ -468,52 +458,52 @@ void save_game( const String filename, GameData *game_data )
     if (game_data->fog_of_war)      // Save fog of war state
     {
         for (int y = 0 ; y < the_map->view_map->h ; y++)
-            gzwrite(file, the_map->view_map->line[y], (bitmap_color_depth(the_map->view_map) >> 3) * the_map->view_map->w);
+            fwrite( the_map->view_map->line[y], bitmap_color_depth(the_map->view_map) >> 3, the_map->view_map->w, file );
 
         for (int y = 0 ; y < the_map->sight_map->h ; y++)
-            gzwrite(file, the_map->sight_map->line[y], (bitmap_color_depth(the_map->sight_map) >> 3) * the_map->sight_map->w);
+            fwrite( the_map->sight_map->line[y], bitmap_color_depth(the_map->sight_map) >> 3, the_map->sight_map->w, file );
 
         for (int y = 0 ; y < the_map->radar_map->h ; y++)
-            gzwrite(file, the_map->radar_map->line[y], (bitmap_color_depth(the_map->radar_map) >> 3) * the_map->radar_map->w);
+            fwrite( the_map->radar_map->line[y], bitmap_color_depth(the_map->radar_map) >> 3, the_map->radar_map->w, file );
 
         for (int y = 0 ; y < the_map->sonar_map->h ; y++)
-            gzwrite(file, the_map->sonar_map->line[y], (bitmap_color_depth(the_map->sonar_map) >> 3) * the_map->sonar_map->w);
+            fwrite( the_map->sonar_map->line[y], bitmap_color_depth(the_map->sonar_map) >> 3, the_map->sonar_map->w, file );
     }
 
-    gzclose( file );
+    fclose( file );
 
     lp_CONFIG->pause = previous_pause_state;
 }
 
 bool load_game_data( const String filename, GameData *game_data, bool loading )
 {
-    gzFile file = TA3D_gzopen( filename, "rb" );
+    FILE *file = TA3D_OpenFile( filename, "rb" );
 
     if( file == NULL )	return false;
 
     char tmp[1024];
     tmp[8] = 0;
 
-    gzread(file, tmp, 8);
+    fread( tmp, 8, 1, file );
     if (strcmp(tmp, "TA3D SAV"))// Check format identifier
     {
-        gzclose( file );
+        fclose( file );
         return false;
     }
 
     bool network = false;
 
-    if (gzgetc(file) == 'M')         // Multiplayer saved game
+    if (fgetc(file) == 'M')         // Multiplayer saved game
     {
         network = true;
-        if (gzgetc(file))            // We are server
+        if (fgetc(file))            // We are server
         {
         }
         else                        // We are client
         {
             if (!loading)
             {
-                gzclose( file );
+                fclose( file );
                 return true;
             }
         }
@@ -526,8 +516,8 @@ bool load_game_data( const String filename, GameData *game_data, bool loading )
     game_data->map_filename = tmp;
     game_data->game_script = readstring( tmp, 1024, file );
 
-    game_data->fog_of_war = gzgetc( file );			// flags to configure FOW
-    game_data->campaign = gzgetc( file );			// Are we in campaign mode ?
+    game_data->fog_of_war = fgetc( file );			// flags to configure FOW
+    game_data->campaign = fgetc( file );			// Are we in campaign mode ?
     readstring( tmp, 1024, file );
     if( tmp[0] )
         game_data->use_only = tmp;
@@ -545,7 +535,7 @@ bool load_game_data( const String filename, GameData *game_data, bool loading )
         *i = readstring( tmp, 1024, file );
     // Player control
     for (std::vector<byte>::iterator i = game_data->player_control.begin(); i != game_data->player_control.end(); ++i)
-        *i = gzgetc(file);
+        *i = fgetc( file );
     // Player network ID
     for (std::vector<int>::iterator i = game_data->player_network_id.begin(); i != game_data->player_network_id.end(); ++i)
         LOAD(*i);
@@ -554,7 +544,7 @@ bool load_game_data( const String filename, GameData *game_data, bool loading )
         LOAD(*i);
     // AI Levels
     for (std::vector<byte>::iterator i = game_data->ai_level.begin(); i != game_data->ai_level.end(); ++i)
-        *i = gzgetc(file);
+        *i = fgetc( file );
     // Energy
     for (std::vector<uint32>::iterator i = game_data->energy.begin(); i != game_data->energy.end(); ++i)
         LOAD(*i);
@@ -567,29 +557,29 @@ bool load_game_data( const String filename, GameData *game_data, bool loading )
 
     game_data->saved_file = filename;
 
-    gzclose(file);
+    fclose(file);
     return network;
 }
 
 void load_game( GameData *game_data )
 {
-    gzFile file = TA3D_gzopen( game_data->saved_file, "rb" );
+    FILE *file = TA3D_OpenFile( game_data->saved_file, "rb" );
 
     if( file == NULL )	return;
 
     char tmp[1024];
     tmp[8] = 0;
 
-    gzread(file, tmp, 8);
+    fread( tmp, 8, 1, file );
     if( strcmp( tmp, "TA3D SAV" ) )	// Check format identifier
     {
-        gzclose( file );
+        fclose( file );
         return;
     }
 
-    if (gzgetc(file) == 'M')         // Multiplayer saved game
+    if (fgetc(file) == 'M')         // Multiplayer saved game
     {
-        if (gzgetc(file))            // We are server
+        if (fgetc(file))            // We are server
         {
         }
         else                        // We are client
@@ -602,8 +592,8 @@ void load_game( GameData *game_data )
     readstring( tmp, 1024, file );				// map
     readstring( tmp, 1024, file );				// game script
 
-    gzgetc( file );			// flags to configure FOW
-    gzgetc( file );			// Are we in campaign mode ?
+    fgetc( file );			// flags to configure FOW
+    fgetc( file );			// Are we in campaign mode ?
     readstring( tmp, 1024, file );		// Useonly file
 
     LOAD( game_data->nb_players );		// nb players
@@ -618,7 +608,7 @@ void load_game( GameData *game_data )
         *i = readstring( tmp, 1024, file );
     // Player control
     for (std::vector<byte>::iterator i = game_data->player_control.begin(); i != game_data->player_control.end(); ++i)
-        *i = gzgetc( file );
+        *i = fgetc( file );
     // Player network ID
     for (std::vector<int>::iterator i = game_data->player_network_id.begin(); i != game_data->player_network_id.end(); ++i)
         LOAD(*i);
@@ -627,7 +617,7 @@ void load_game( GameData *game_data )
         LOAD(*i);
     // AI Levels
     for (std::vector<byte>::iterator i = game_data->ai_level.begin(); i != game_data->ai_level.end(); ++i)
-        *i = gzgetc( file );
+        *i = fgetc( file );
     // Energy
     for (std::vector<uint32>::iterator i = game_data->energy.begin(); i != game_data->energy.end(); ++i)
         LOAD(*i);
@@ -871,7 +861,7 @@ void load_game( GameData *game_data )
         LOAD( units.unit[i].death_delay );
         LOAD( units.unit[i].paralyzed );
 
-        gzread(file, units.unit[i].port, sizeof(sint16) * 21);
+        fread( units.unit[i].port, sizeof( sint16 ), 21, file );
 
         LOAD( units.unit[i].nb_running );
         LOAD( units.unit[i].c_time );
@@ -880,11 +870,11 @@ void load_game( GameData *game_data )
         LOAD( units.unit[i].built );
         LOAD( units.unit[i].attacked );
         LOAD( units.unit[i].planned_weapons );
-        gzread(file, units.unit[i].memory, sizeof(int) * 10);
+        fread( units.unit[i].memory, sizeof( int ), 10, file );
         LOAD( units.unit[i].mem_size );
         LOAD( units.unit[i].attached );
-        gzread(file, units.unit[i].attached_list, sizeof(short) * 20);
-        gzread(file, units.unit[i].link_list, sizeof(short) * 20);
+        fread( units.unit[i].attached_list, sizeof( short ), 20, file );
+        fread( units.unit[i].link_list, sizeof( short ), 20, file );
         LOAD( units.unit[i].nb_attached );
         LOAD( units.unit[i].just_created );
         LOAD( units.unit[i].first_move );
@@ -951,7 +941,7 @@ void load_game( GameData *game_data )
 
         for( MISSION **start = &(units.unit[i].mission) ; true ; start = &(units.unit[i].def_mission) )
         {
-            byte c = gzgetc( file );
+            byte c = fgetc( file );
             if( c == 0 )
                 *start = NULL;
             else
@@ -974,7 +964,7 @@ void load_game( GameData *game_data )
 
                     (*cur)->path = NULL;
                     PATH_NODE **path = &((*cur)->path);
-                    while( gzgetc( file ) )
+                    while( fgetc( file ) )
                     {
                         *path = new PATH_NODE;
                         (*path)->next = NULL;
@@ -1025,7 +1015,7 @@ void load_game( GameData *game_data )
 
                     cur = &((*cur)->next);
 
-                }while( gzgetc( file ) );
+                }while( fgetc( file ) );
             }
             if( start == &(units.unit[i].def_mission) )	break;
         }
@@ -1040,7 +1030,7 @@ void load_game( GameData *game_data )
             {
                 f->stack = NULL;
                 SCRIPT_STACK **stack = &(f->stack);
-                while( gzgetc( file ) ) {
+                while( fgetc( file ) ) {
                     *stack = new SCRIPT_STACK;
                     LOAD( (*stack)->val );
                     (*stack)->next = NULL;
@@ -1051,12 +1041,12 @@ void load_game( GameData *game_data )
             {
                 f->env = NULL;
                 SCRIPT_ENV_STACK **stack = &(f->env);
-                while( gzgetc( file ) )
+                while( fgetc( file ) )
                 {
                     *stack = new SCRIPT_ENV_STACK;
                     LOAD( (*stack)->cur );
                     LOAD( (*stack)->signal_mask );
-                    gzread(file, (*stack)->var, sizeof(int) * 15);
+                    fread( (*stack)->var, sizeof( int ), 15, file );
                     (*stack)->next = NULL;
                     stack = &((*stack)->next);
                 }
@@ -1068,15 +1058,15 @@ void load_game( GameData *game_data )
         LOAD( units.unit[i].data.explode );
         LOAD( units.unit[i].data.is_moving );
 
-        gzread(file, units.unit[i].data.flag, sizeof(short) * units.unit[i].data.nb_piece);
-        gzread(file, units.unit[i].data.explosion_flag, sizeof(short) * units.unit[i].data.nb_piece);
-        gzread(file, units.unit[i].data.pos, sizeof(Vector3D) * units.unit[i].data.nb_piece);
-        gzread(file, units.unit[i].data.dir, sizeof(Vector3D) * units.unit[i].data.nb_piece);
-        gzread(file, units.unit[i].data.matrix, sizeof(MATRIX_4x4) * units.unit[i].data.nb_piece);
+        fread( units.unit[i].data.flag, sizeof( short ), units.unit[i].data.nb_piece, file );
+        fread( units.unit[i].data.explosion_flag, sizeof( short ), units.unit[i].data.nb_piece, file );
+        fread( units.unit[i].data.pos, sizeof( Vector3D), units.unit[i].data.nb_piece, file );
+        fread( units.unit[i].data.dir, sizeof( Vector3D), units.unit[i].data.nb_piece, file );
+        fread( units.unit[i].data.matrix, sizeof( MATRIX_4x4 ), units.unit[i].data.nb_piece, file );
 
-        gzread(file, units.unit[i].data.axe[0], sizeof(AXE) * units.unit[i].data.nb_piece);
-        gzread(file, units.unit[i].data.axe[1], sizeof(AXE) * units.unit[i].data.nb_piece);
-        gzread(file, units.unit[i].data.axe[2], sizeof(AXE) * units.unit[i].data.nb_piece);
+        fread( units.unit[i].data.axe[0], sizeof( AXE ), units.unit[i].data.nb_piece, file );
+        fread( units.unit[i].data.axe[1], sizeof( AXE ), units.unit[i].data.nb_piece, file );
+        fread( units.unit[i].data.axe[2], sizeof( AXE ), units.unit[i].data.nb_piece, file );
 
         if( units.unit[i].drawn )
         {
@@ -1099,21 +1089,21 @@ void load_game( GameData *game_data )
     if (game_data->fog_of_war)      // Load fog of war state
     {
         for (int y = 0 ; y < the_map->view_map->h ; y++)
-            gzread(file, the_map->view_map->line[y], (bitmap_color_depth(the_map->view_map) >> 3) * the_map->view_map->w);
+            fread( the_map->view_map->line[y], bitmap_color_depth(the_map->view_map) >> 3, the_map->view_map->w, file );
 
         for (int y = 0 ; y < the_map->sight_map->h ; y++)
-            gzread(file, the_map->sight_map->line[y], (bitmap_color_depth(the_map->sight_map) >> 3) * the_map->sight_map->w);
+            fread( the_map->sight_map->line[y], bitmap_color_depth(the_map->sight_map) >> 3, the_map->sight_map->w, file );
 
         for (int y = 0 ; y < the_map->radar_map->h ; y++)
-            gzread(file, the_map->radar_map->line[y], (bitmap_color_depth(the_map->radar_map) >> 3) * the_map->radar_map->w);
+            fread( the_map->radar_map->line[y], bitmap_color_depth(the_map->radar_map) >> 3, the_map->radar_map->w, file );
 
         for (int y = 0 ; y < the_map->sonar_map->h ; y++)
-            gzread(file, the_map->sonar_map->line[y], (bitmap_color_depth(the_map->sonar_map) >> 3) * the_map->sonar_map->w);
+            fread( the_map->sonar_map->line[y], bitmap_color_depth(the_map->sonar_map) >> 3, the_map->sonar_map->w, file );
     }
 
     game_data->saved_file.clear();
 
-    gzclose( file );
+    fclose( file );
 }
 
 

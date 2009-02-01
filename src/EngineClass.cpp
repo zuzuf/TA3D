@@ -380,7 +380,7 @@ namespace TA3D
     }
 
 
-    void MAP::rect(int x1,int y1,int w,int h,int c,const String &yardmap,bool open)
+    void MAP::rect(int x1,int y1,int w,int h,short c,const String &yardmap,bool open)
     {
         if (yardmap.empty())
         {
@@ -468,7 +468,7 @@ namespace TA3D
         }
     }
 
-    bool MAP::check_rect(int x1,int y1,int w,int h,int c)
+    bool MAP::check_rect(int x1,int y1,int w,int h,short c)
     {
         int y2=y1+h;
         int x2=x1+w;
@@ -484,7 +484,7 @@ namespace TA3D
         return true;
     }
 
-    bool MAP::check_rect_discovered(int x1,int y1,int w,int h,int c)		// Check if the area has been fully discovered
+    bool MAP::check_rect_discovered(int x1,int y1,int w,int h,short c)		// Check if the area has been fully discovered
     {
         int y2=(y1+h+1)>>1;
         int x2=(x1+w+1)>>1;
@@ -1353,8 +1353,10 @@ namespace TA3D
 
         if (low_def_view && check_visibility && !FLAT)
         {
+            units.lock();
             for(int i = 0 ; i < units.index_list_size ; ++i)
                 units.visible_unit.push_back( units.idx_list[i] );
+            units.unlock();
         }
 
         gfx->lock();

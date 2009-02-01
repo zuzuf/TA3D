@@ -36,7 +36,7 @@
 #include "misc/paths.h"
 #include "misc/files.h"
 #include "logs/logs.h"
-
+#include <zlib.h>
 
 
 namespace TA3D
@@ -1236,9 +1236,8 @@ namespace TA3D
 
     void OBJECT::load_texture_id(int id)
     {
-        if (id < 0 || id >= 10)
-			return;
-        if (id < (int)tex_cache_name.size() && !tex_cache_name[id].empty() && TA3D::Paths::ExtractFileExt(tex_cache_name[id]) == ".tga")
+        if (id < 0 || id >= 10) return;
+        if (id < tex_cache_name.size() && !tex_cache_name[id].empty() && TA3D::Paths::ExtractFileExt( tex_cache_name[id] ) == ".tga" )
         {
                     // Use global texture configuration
             if (surface.Flag&SURFACE_ADVANCED)
@@ -1269,25 +1268,20 @@ namespace TA3D
             destroy_bitmap( bmp );
 
             tex_cache_name[id].clear();
-		}
-		else
-		{
-			if (id < (int)tex_cache_name.size() && !tex_cache_name[id].empty() && gfx->is_texture_in_cache(tex_cache_name[id]))
-			{
-				if (surface.Flag&SURFACE_ADVANCED)
-					surface.gltex[id] = gfx->load_texture_from_cache(tex_cache_name[id]);
-				else
-					gltex[id] = gfx->load_texture_from_cache(tex_cache_name[id]);
-				tex_cache_name[id].clear();
-			}
-		}
-	}
+        }
+        else if (id < tex_cache_name.size() && !tex_cache_name[id].empty() && gfx->is_texture_in_cache(tex_cache_name[id]))
+        {
+            if (surface.Flag&SURFACE_ADVANCED)
+                surface.gltex[id] = gfx->load_texture_from_cache(tex_cache_name[id]);
+            else
+                gltex[id] = gfx->load_texture_from_cache(tex_cache_name[id]);
+            tex_cache_name[id].clear();
+        }
+    }
 
-
-
-	void OBJECT::create_from_2d(BITMAP *bmp,float w,float h,float max_h)
-	{
-		destroy(); // Au cas où l'objet ne serait pas vierge
+    void OBJECT::create_from_2d(BITMAP *bmp,float w,float h,float max_h)
+    {
+        destroy();					// Au cas où l'objet ne serait pas vierge
 
         pos_from_parent.x = 0.0f;
         pos_from_parent.y = 0.0f;
@@ -3094,6 +3088,7 @@ namespace TA3D
                             String real_name = (char*)(data+1);
                             real_name.trim();
                             delete[] data;
+                            LOG_DEBUG("link -> " << real_name);
                             data = HPIManager->PullFromHPI( real_name );
                         }
                         if (data)
@@ -3103,6 +3098,8 @@ namespace TA3D
                             model_hashtable.insert(String::ToLower(*e), nb_models + i + 1);
                             ++i;
                         }
+                        else
+                            LOG_DEBUG(LOG_PREFIX_3DM << "could not load " << *e);
                     }
                 }
             }
@@ -3696,34 +3693,39 @@ namespace TA3D
                     int buf_size = tex->w * tex->h * 5;
                     byte *buffer = new byte[buf_size];
 
+                    uint8 bpp = bitmap_color_depth( tex );
+                    int w = tex->w;
+                    int h = tex->h;
+                    fwrite(&w, sizeof(w), 1, dst);
+                    fwrite(&h, sizeof(h), 1, dst);
+                    fwrite(&bpp, 1, 1, dst);
+
+                    if (bpp == 32)
+                        for(int y = 0 ; y < tex->h ; y++)
+                            for(int x = 0 ; x < tex->w ; x++)
+                            {
+                                uint32 c = getpixel(tex, x, y);
+                                tex->line[y][x*4] = getr(c);
+                                tex->line[y][x*4+1] = getg(c);
+                                tex->line[y][x*4+2] = getb(c);
+                                tex->line[y][x*4+3] = geta(c);
+                            }
+                    else
+                        for(int y = 0 ; y < tex->h ; y++)
+                            for(int x = 0 ; x < tex->w ; x++)
+                            {
+                                tex->line[y][x*3] ^= tex->line[y][x*3+1];
+                                tex->line[y][x*3+1] ^= tex->line[y][x*3];
+                                tex->line[y][x*3] ^= tex->line[y][x*3+1];
+                            }
+
                     int img_size = buf_size;
-                    save_memory_jpg_ex(buffer, &img_size, tex, NULL, 85, JPG_SAMPLING_411 | JPG_OPTIMIZE, NULL);
+                    uLongf __size = img_size;
+                    compress2 ( buffer, &__size, (Bytef*) tex->line[0], tex->w * tex->h * bpp >> 3, 9);
+                    img_size = __size;
 
                     fwrite(&img_size, sizeof(img_size), 1, dst); // Save the result
                     fwrite(buffer, img_size, 1, dst);
-
-                    bool need_alpha = false;
-                    for (int y = 0 ; y < tex->h; ++y)
-                    {
-                        for (int x = 0; x < tex->w; ++x)
-                        {
-                            int c = geta(getpixel(tex, x, y));
-                            if (c != 255)
-                                need_alpha = true;
-                            ((uint32*)(tex->line[y]))[x] = c * 0x01010101;
-                        }
-                    }
-
-                    if (need_alpha)
-                    {
-                        putc(1, dst);		// Alpha channel has to be stored
-                        img_size = buf_size;
-                        save_memory_jpg_ex(buffer, &img_size, tex, NULL, 100, JPG_GREYSCALE | JPG_OPTIMIZE, NULL);
-                        fwrite(&img_size, sizeof(img_size), 1, dst); // Save the result
-                        fwrite(buffer, img_size, 1, dst);
-                    }
-                    else
-                        putc(0, dst);		// No alpha channel stored
                     delete[] buffer;
                 }
                 destroy_bitmap(tex);
@@ -3924,15 +3926,21 @@ namespace TA3D
             else
             {
                 int img_size = 0;
-                data = read_from_mem(&img_size,sizeof(img_size),data);	// Read RGB data first
+                uint8 bpp;
+                int w, h;
+                data = read_from_mem(&w,sizeof(w),data);
+                data = read_from_mem(&h,sizeof(h),data);
+                data = read_from_mem(&bpp,sizeof(bpp),data);
+                data = read_from_mem(&img_size,sizeof(img_size),data);	// Read RGBA data
                 byte *buffer = new byte[ img_size ];
 
                 try
                 {
-                    data=read_from_mem( buffer, img_size, data );
+                    data = read_from_mem( buffer, img_size, data );
 
-                    set_color_depth( 32 );
-                    tex = load_memory_jpg( buffer, img_size, NULL );
+                    tex = create_bitmap_ex( bpp, w, h );
+                    uLongf len = tex->w * tex->h * bpp >> 3;
+                    uncompress ( (Bytef*) tex->line[0], &len, (Bytef*) buffer, img_size);
                 }
                 catch( ... )
                 {
@@ -3942,49 +3950,6 @@ namespace TA3D
                 }
 
                 delete[] buffer;
-
-                byte has_alpha;									// Read alpha channel if present
-                data=read_from_mem( &has_alpha, 1, data );
-                if (has_alpha)
-                {
-                    data=read_from_mem(&img_size,sizeof(img_size),data);
-                    buffer = new byte[ img_size ];
-                    data = read_from_mem( buffer, img_size, data );
-                    BITMAP* alpha = load_memory_jpg(buffer, img_size, NULL);
-
-                    if (alpha == NULL)
-                    {
-                        destroy();
-                        return NULL;
-                    }
-                    for (int y = 0 ; y < tex->h; ++y)
-                    {
-                        for (int x = 0; x < tex->w ; ++x)
-                        {
-                            int c = getpixel( tex, x, y );
-                            putpixel( tex, x, y, makeacol( getr(c), getg(c), getb(c), alpha->line[y][x<<2]));
-                        }
-                    }
-
-                    destroy_bitmap( alpha );
-                    delete[] buffer;
-                }
-                else
-                {
-                    if (tex == NULL)
-                    {
-                        destroy();
-                        return NULL;
-                    }
-                    for (int y = 0; y < tex->h ; ++y)
-                    {
-                        for (int x = 0 ; x < tex->w ; ++x)
-                        {
-                            int c = getpixel(tex, x, y);
-                            putpixel(tex, x, y, makeacol( getr(c), getg(c), getb(c), 0xFF));
-                        }
-                    }
-                }
             }
 
             if (TA3D::model_manager.loading_all())      // We want to convert textures on-the-fly in order to speed loading
@@ -4105,7 +4070,7 @@ namespace TA3D
     {
         for (uint16 i = 0; i < DrawingTable_SIZE; ++i)
         {
-            for (std::vector< RenderQueue* >::iterator e = hash_table[i].begin(); e != hash_table[i].end(); ++e)
+            for (std::list< RenderQueue* >::iterator e = hash_table[i].begin(); e != hash_table[i].end(); ++e)
                 delete *e;
         }
         hash_table.clear();
@@ -4115,7 +4080,7 @@ namespace TA3D
     void DrawingTable::queue_Instance( uint32 &model_id, Instance instance )
     {
         uint32	hash = model_id & DrawingTable_MASK;
-        for (std::vector< RenderQueue* >::iterator i = hash_table[ hash ].begin(); i != hash_table[hash].end(); ++i)
+        for (std::list< RenderQueue* >::iterator i = hash_table[ hash ].begin(); i != hash_table[hash].end(); ++i)
         {
             if ((*i)->model_id == model_id)// We found an already existing render queue
             {
@@ -4132,7 +4097,7 @@ namespace TA3D
     void DrawingTable::draw_all()
     {
         for (uint16 i = 0; i < DrawingTable_SIZE; ++i)
-            for (std::vector< RenderQueue* >::iterator e = hash_table[ i ].begin() ; e != hash_table[ i ].end() ; ++e )
+            for (std::list< RenderQueue* >::iterator e = hash_table[ i ].begin() ; e != hash_table[ i ].end() ; e++ )
                 (*e)->draw_queue();
     }
 
@@ -4157,7 +4122,7 @@ namespace TA3D
             glEndList();
         }
 
-        for (std::vector< Instance >::iterator i = queue.begin() ; i != queue.end() ; ++i)
+        for (std::list< Instance >::iterator i = queue.begin() ; i != queue.end() ; ++i)
         {
             glPopMatrix();
             glPushMatrix();
@@ -4189,7 +4154,7 @@ namespace TA3D
     {
         for (uint16 i = 0; i < DrawingTable_SIZE; ++i)
         {
-            for (std::vector< QUAD_QUEUE* >::iterator e = hash_table[ i ].begin() ; e != hash_table[ i ].end() ; ++e)
+            for (std::list< QUAD_QUEUE* >::iterator e = hash_table[ i ].begin() ; e != hash_table[ i ].end() ; ++e)
                 delete *e;
         }
         hash_table.clear();
@@ -4199,7 +4164,7 @@ namespace TA3D
     void QUAD_TABLE::queue_quad(GLuint& texture_id, QUAD quad)
     {
         uint32	hash = texture_id & DrawingTable_MASK;
-        for (std::vector< QUAD_QUEUE* >::iterator i = hash_table[ hash ].begin() ; i != hash_table[ hash ].end() ; ++i)
+        for (std::list< QUAD_QUEUE* >::iterator i = hash_table[ hash ].begin() ; i != hash_table[ hash ].end() ; ++i)
         {
             if ((*i)->texture_id == texture_id ) // We found an already existing render queue
             {
@@ -4218,7 +4183,7 @@ namespace TA3D
         uint32	max_size = 0;
         for (uint16 i = 0; i < DrawingTable_SIZE ; ++i)
         {
-            for (std::vector< QUAD_QUEUE* >::iterator e = hash_table[i].begin(); e != hash_table[i].end(); ++e)
+            for (std::list< QUAD_QUEUE* >::iterator e = hash_table[i].begin(); e != hash_table[i].end(); ++e)
                 max_size = Math::Max( max_size, (uint32)(*e)->queue.size());
         }
 
@@ -4252,7 +4217,7 @@ namespace TA3D
 
         for (uint16 i = 0; i < DrawingTable_SIZE; ++i)
         {
-            for (std::vector< QUAD_QUEUE* >::iterator e = hash_table[i].begin(); e != hash_table[i].end(); ++e)
+            for (std::list< QUAD_QUEUE* >::iterator e = hash_table[i].begin(); e != hash_table[i].end(); ++e)
                 (*e)->draw_queue(P, C, T);
         }
 
@@ -4271,7 +4236,7 @@ namespace TA3D
         glPushMatrix();
 
         int i = 0;
-        for (std::vector<QUAD>::iterator e = queue.begin(); e != queue.end(); ++e)
+        for (std::list<QUAD>::iterator e = queue.begin(); e != queue.end(); ++e)
         {
             P[i].x = e->pos.x - e->size_x;
             P[i].y = e->pos.y;
@@ -4303,7 +4268,7 @@ namespace TA3D
         if (lp_CONFIG->underwater_bright && INSTANCING::water)
         {
             i = 0;
-            for (std::vector<QUAD>::iterator e = queue.begin(); e != queue.end(); ++e)
+            for (std::list<QUAD>::iterator e = queue.begin(); e != queue.end(); ++e)
             {
                 if (e->pos.y >= INSTANCING::sealvl) continue;
                 P[i].x = e->pos.x - e->size_x;

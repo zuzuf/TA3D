@@ -189,9 +189,9 @@ namespace TA3D
         map->mini = tmp;
         map->mini_w = 251;
         map->mini_h = 251;
-        while (map->mini_w > 0 && ( ( ((int*)(map->mini->line[0]))[map->mini_w] & 0xFCFCFCFC) == makecol(120,148,252) || ((int*)(map->mini->line[0]))[map->mini_w] == 0))
+        while (map->mini_w>0 && ( ( ((int*)(map->mini->line[0]))[map->mini_w] & 0xFCFCFCFC) == makecol(120,148,252) || ((int*)(map->mini->line[0]))[map->mini_w] == 0))
             --(map->mini_w);
-        while (map->mini_h > 0 && ( ( ((int*)(map->mini->line[map->mini_h]))[0] & 0xFCFCFCFC) == makecol(120,148,252) || ((int*)(map->mini->line[map->mini_h]))[0] == 0))
+        while (map->mini_h>0 && ( ( ((int*)(map->mini->line[map->mini_h]))[0] & 0xFCFCFCFC) == makecol(120,148,252) || ((int*)(map->mini->line[map->mini_h]))[0] == 0))
             --(map->mini_h);
         ++(map->mini_w);
         ++(map->mini_h);
@@ -206,10 +206,10 @@ namespace TA3D
         // Lit les différents morceaux
         LOG_DEBUG("MAP: reading blocs data");
         event_timer = msec_timer;
-        int n_bmp = (header.tiles+0x3F) >> 5; // Nombre de textures 1024x32 nécessaires pour mémoriser tout les morceaux
+        int n_bmp = (header.tiles+0x3F)>>5;			// Nombre de textures 1024x32 nécessaires pour mémoriser tout les morceaux
         BITMAP **bmp_tex = new BITMAP*[n_bmp];
-        for (i = 0; i < n_bmp; ++i)
-            bmp_tex[i] = create_bitmap_ex(8, 1024, 32);
+        for(i = 0; i < n_bmp; ++i)
+            bmp_tex[i] = create_bitmap_ex(8,1024,32);
 
         f_pos=header.PTRtilegfx;
         for(i = 0; i < header.tiles; ++i) // Lit tout les morceaux

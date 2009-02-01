@@ -715,7 +715,7 @@ namespace TA3D
                                 if ((units.unit[i].flags & 1) && units.unit[i].owner_id==players.local_human_id && units.unit[i].sel && unit_manager.unit_type[units.unit[i].type_id]->canattack
                                     && ( unit_manager.unit_type[units.unit[i].type_id]->BMcode || !unit_manager.unit_type[units.unit[i].type_id]->Builder))
                                 {
-                                    for (unsigned int f = 0; f < unit_manager.unit_type[units.unit[i].type_id]->weapon.size(); ++f)
+                                    for (int f = 0; f < unit_manager.unit_type[units.unit[i].type_id]->weapon.size(); ++f)
                                         if (unit_manager.unit_type[units.unit[i].type_id]->weapon[ f ] && unit_manager.unit_type[units.unit[i].type_id]->weapon[ f ]->stockpile)
                                         {
                                             commandfire = MISSION_FLAG_COMMAND_FIRE;
@@ -857,7 +857,7 @@ namespace TA3D
                                     if ((units.unit[i].flags & 1) && units.unit[i].owner_id==players.local_human_id && units.unit[i].sel && unit_manager.unit_type[units.unit[i].type_id]->canattack
                                         && ( unit_manager.unit_type[units.unit[i].type_id]->BMcode || !unit_manager.unit_type[units.unit[i].type_id]->Builder))
                                     {
-                                        for (unsigned int f = 0; f < unit_manager.unit_type[units.unit[i].type_id]->weapon.size(); ++f)
+                                        for (int f = 0; f < unit_manager.unit_type[units.unit[i].type_id]->weapon.size(); ++f)
                                             if (unit_manager.unit_type[units.unit[i].type_id]->weapon[ f ] && unit_manager.unit_type[units.unit[i].type_id]->weapon[ f ]->stockpile)
                                             {
                                                 commandfire = MISSION_FLAG_COMMAND_FIRE;
@@ -2926,7 +2926,7 @@ namespace TA3D
                 {
                     sorder_obj->current_state %= 3;
                     units.lock();
-                    for (unsigned int e = 0 ; e < units.index_list_size ; ++e)
+                    for (uint16 e = 0 ; e < units.index_list_size ; ++e)
                     {
                         uint16 i = units.idx_list[e];
                         units.unlock();
@@ -2936,7 +2936,7 @@ namespace TA3D
                             units.unit[i].port[STANDINGFIREORDERS] = sorder_obj->current_state;
                             if (SFORDER_FIRE_AT_WILL != units.unit[i].port[STANDINGFIREORDERS])
                             {
-                                for (unsigned int f = 0; f < units.unit[i].weapon.size(); ++f)
+                                for (short int f = 0; f < units.unit[i].weapon.size(); ++f)
                                     units.unit[i].weapon[f].state = WEAPON_FLAG_IDLE;
                                 if (units.unit[i].mission && units.unit[i].mission->mission == MISSION_ATTACK && !( units.unit[i].mission->flags & MISSION_FLAG_COMMAND_FIRE))
                                     units.unit[i].next_mission();
@@ -3344,11 +3344,6 @@ namespace TA3D
                             lp_CONFIG->right_click_interface = params[0] == "enable";
                         else if (params[1] == "left_click_interface")
                             lp_CONFIG->right_click_interface = params[0] == "disable";
-                        else if (params[1] == "tcp_only" && params[0] == "enable" && network_manager.isServer())
-                        {
-                            g_ta3d_network->switchToTCPonly();
-                            network_manager.sendAll("TCP_ONLY");
-                        }
                         else if (params[1] == "camera_perspective")
                             lp_CONFIG->ortho_camera = params[0] == "disable";
                         else if (params[1] == "camera_orthographic")

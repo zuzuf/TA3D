@@ -490,34 +490,27 @@ namespace TA3D
         }
 
         Vector3D G;
-        G.x = G.z = 0.0f;
-        G.y = dt * g;
-        wind_dir = dt * wind_dir;
-        float factor = expf(-0.1f * dt);
-        float factor2 = expf(-dt);
+        G.x=G.z=0.0f;
+        G.y=dt*g;
+        wind_dir=dt*wind_dir;
+        float factor=expf(-0.1f*dt);
+        float factor2=expf(-dt);
         float dt_reduced = dt * 0.0025f;
 
-        for (std::vector< ParticlesSystem* >::iterator i = particle_systems.begin() ; i != particle_systems.end() ; )
+        for (std::list< ParticlesSystem* >::iterator i = particle_systems.begin() ; i != particle_systems.end() ; )
         {
             (*i)->move( dt, &wind_dir, G.y, factor, factor2 );
             if ((*i)->life >= 0.0f )
-                ++i;
+                i++;
             else
-            {
-                delete *i;
-                bool quit = (i + 1 == particle_systems.end());
-                *i = particle_systems.back();
-                particle_systems.pop_back();
-                if (quit)
-                    break;
-            }
+                particle_systems.erase( i++ );
             pMutex.unlock();
             pMutex.lock();
         }
 
         uint32 i = 0;
 
-        for (std::vector<PARTICLE>::iterator e = part.begin() ; e != part.end() ; )
+        for (std::list<PARTICLE>::iterator e = part.begin() ; e != part.end() ; )
         {
             i++;
             if (!(i & 15) )
@@ -527,14 +520,10 @@ namespace TA3D
             }
 
             e->life -= dt;
-            if (e->life < 0.0f)
+            if (e->life<0.0f)
             {
-                bool quit =  (e + 1 == part.end());
-                *e = part.back();
-                part.pop_back();
+                part.erase( e++ );
                 nb_part--;
-                if (quit)
-                    break;
                 continue;
             }
             Vector3D RAND;
@@ -542,24 +531,24 @@ namespace TA3D
             RAND.y = (((sint32)(Math::RandFromTable() & 0x1FFF)) - 0xFFF) * dt_reduced;
             RAND.z = (((sint32)(Math::RandFromTable() & 0x1FFF)) - 0xFFF) * dt_reduced;
             if (e->use_wind)
-                e->V = e->V - e->mass * G + RAND + wind_dir;
+                e->V=e->V-e->mass*G+RAND+wind_dir;
             else
-                e->V = e->V - e->mass * G + RAND;
+                e->V=e->V-e->mass*G+RAND;
             if (e->slow_down)
                 e->V = expf( -dt * e->slow_factor ) * e->V;
             if (e->mass>0.0f)
-                e->V = factor * e->V;
+                e->V=factor*e->V;
             else
-                e->V = factor2 * e->V;
-            e->Pos = e->Pos + dt * e->V;
-            e->size += dt * e->dsize;
-            e->dsize += dt * e->ddsize;
-            e->angle += dt * e->v_rot;
-            e->col[0] += dt * e->dcol[0];
-            e->col[1] += dt * e->dcol[1];
-            e->col[2] += dt * e->dcol[2];
-            e->col[3] += dt * e->dcol[3];
-            if (e->smoking > 0.0f && e->life < e->smoking)
+                e->V=factor2*e->V;
+            e->Pos=e->Pos+dt*e->V;
+            e->size+=dt*e->dsize;
+            e->dsize+=dt*e->ddsize;
+            e->angle+=dt*e->v_rot;
+            e->col[0]+=dt*e->dcol[0];
+            e->col[1]+=dt*e->dcol[1];
+            e->col[2]+=dt*e->dcol[2];
+            e->col[3]+=dt*e->dcol[3];
+            if (e->smoking>0.0f && e->life<e->smoking)
             {
                 e->life = 1.0f;
                 e->mass = -1.0f;
@@ -624,7 +613,7 @@ namespace TA3D
             float oangle = 0.0f;
             int h_map_w = map_w >> 1;
             int h_map_h = map_h >> 1;
-            for (std::vector<PARTICLE>::iterator e = part.begin(); e != part.end(); ++e) // Calcule la position des points
+            for (std::list<PARTICLE>::iterator e = part.begin(); e != part.end(); ++e) // Calcule la position des points
             {
                 if (e->light_emitter != light_emitters) // Two passes, one for normal particles, the second for particles that emits light
                     continue;
@@ -634,7 +623,7 @@ namespace TA3D
                     e->px = ((int)(e->Pos.x) + h_map_w) >> 4;
                     e->py = ((int)(e->Pos.z) + h_map_h) >> 4;
                 }
-                if (e->px >= 0 && e->px < bloc_w && e->py >= 0 && e->py < bloc_h)
+                if (e->px>=0 && e->px<bloc_w && e->py>=0 && e->py<bloc_h)
                 {
                     if (!bmap[e->py][e->px])
                         continue;
@@ -644,26 +633,26 @@ namespace TA3D
                 ++j;
                 if (j == 0 || oangle != e->angle)
                 {
-                    oangle = e->angle;
-                    float cosinus = cosf(e->angle);
-                    float sinus = sinf(e->angle);
-                    A = (cosinus - sinus) * cam->side + (sinus + cosinus) * cam->up;
-                    B = (cosinus + sinus) * cam->side + (sinus - cosinus) * cam->up;
+                    oangle=e->angle;
+                    float cosinus=cosf(e->angle);
+                    float sinus=sinf(e->angle);
+                    A = (cosinus-sinus) * cam->side + (sinus+cosinus) * cam->up;
+                    B = (cosinus+sinus) * cam->side + (sinus-cosinus) * cam->up;
                     if (cam->mirror)
                     {
-                        A.y = -A.y;
-                        B.y = -B.y;
+                        A.y=-A.y;
+                        B.y=-B.y;
                     }
                 }
                 int i_bis = j << 2;
-                point[i_bis++] = e->Pos - e->size * B;
-                point[i_bis++] = e->Pos + e->size * A;
-                point[i_bis++] = e->Pos + e->size * B;
-                point[i_bis] = e->Pos - e->size * A;
+                point[i_bis++] = e->Pos-e->size*B;
+                point[i_bis++] = e->Pos+e->size*A;
+                point[i_bis++] = e->Pos+e->size*B;
+                point[i_bis] = e->Pos-e->size*A;
 
                 int i_ter = j << 3;
-                float px = 0.25f * (e->gltex & 3) + 0.001f;
-                float py = 0.25f * (e->gltex >> 2) + 0.001f;
+                float px = 0.25f*(e->gltex&3)+0.001f;
+                float py = 0.25f*(e->gltex>>2)+0.001f;
                 texcoord[i_ter++] = px;			texcoord[i_ter++] = py;
                 texcoord[i_ter++] = px+0.248f;	texcoord[i_ter++] = py;
                 texcoord[i_ter++] = px+0.248f;	texcoord[i_ter++] = py+0.248f;
@@ -671,35 +660,35 @@ namespace TA3D
 
                 uint32 col = 0;
                 if (e->col[0] >= 0.0f && e->col[0] <= 1.0f )
-                    col |= ((uint32)(e->col[0] * 255));
+                    col |= ((uint32)(e->col[0]*255));
                 else
                     col |= e->col[0] < 0.0f ? 0 : 0xFF;
 
                 if (e->col[1] >= 0.0f && e->col[1] <= 1.0f )
-                    col |= ((uint32)(e->col[1] * 255)) << 8;
+                    col |= ((uint32)(e->col[1]*255))<<8;
                 else
                     col |= e->col[1] < 0.0f ? 0 : 0xFF00;
 
                 if (e->col[2] >= 0.0f && e->col[2] <= 1.0f )
-                    col |= ((uint32)(e->col[2] * 255)) << 16;
+                    col |= ((uint32)(e->col[2]*255))<<16;
                 else
                     col |= e->col[2] < 0.0f ? 0 : 0xFF0000;
 
                 if (e->col[3] >= 0.0f && e->col[3] <= 1.0f )
-                    col |= ((uint32)(e->col[3] * 255)) << 24;
+                    col |= ((uint32)(e->col[3]*255))<<24;
                 else
                     col |= e->col[3] < 0.0f ? 0 : 0xFF000000;
 
-                ((uint32*)color)[i_bis - 3] = ((uint32*)color)[i_bis - 2] = ((uint32*)color)[i_bis - 1] = ((uint32*)color)[i_bis] = col;
+                ((uint32*)color)[i_bis-3] = ((uint32*)color)[i_bis-2] = ((uint32*)color)[i_bis-1] = ((uint32*)color)[i_bis] = col;
 
                 if (j >= 1023 )
                 {
-                    glDrawArrays( GL_QUADS, 0, (j + 1) << 2 );					// Draw everything
+                    glDrawArrays( GL_QUADS, 0, (j+1)<<2 );					// Draw everything
                     j = -1;
                 }
             }
             if (j >= 0 )
-                glDrawArrays( GL_QUADS, 0, (j + 1) << 2 );					// Draw everything
+                glDrawArrays( GL_QUADS, 0, (j+1)<<2 );					// Draw everything
 
             glBlendFunc(GL_SRC_ALPHA,GL_ONE);
         }
@@ -712,7 +701,7 @@ namespace TA3D
         glDisableClientState(GL_TEXTURE_COORD_ARRAY);
         glDisableClientState(GL_COLOR_ARRAY);
 
-        float coeffs[] = {0.000000000001f, 0.0f, 1.0f / (SCREEN_H * SCREEN_H)};
+        float coeffs[] = {0.000000000001f, 0.0f, 1.0f / (SCREEN_H*SCREEN_H)};
         glPointParameterfv(GL_POINT_DISTANCE_ATTENUATION, coeffs);
 
         // Point size
@@ -726,7 +715,7 @@ namespace TA3D
         glEnable (GL_POINT_SPRITE);
 
         pMutex.lock();
-        for (std::vector<ParticlesSystem*>::iterator i = particle_systems.begin() ; i != particle_systems.end() ; ++i)
+        for (std::list<ParticlesSystem*>::iterator i = particle_systems.begin() ; i != particle_systems.end() ; ++i)
             (*i)->draw();
         pMutex.unlock();
         glDisable (GL_POINT_SPRITE);
@@ -792,17 +781,17 @@ namespace TA3D
             gfx->destroy_texture(gltex[i]);
         gltex.clear();
 
-        for (std::vector<ParticlesSystem*>::iterator i = particle_systems.begin() ; i != particle_systems.end() ; ++i)
+        for (std::list<ParticlesSystem*>::iterator i = particle_systems.begin() ; i != particle_systems.end() ; ++i)
             (*i)->destroy();
 
         particle_systems.clear();
 
         if (partbmp)
             destroy_bitmap(partbmp);
-        partbmp = NULL;
-        ntex = 0;
+        partbmp=NULL;
+        ntex=0;
         if (dsmoke)
-            glDeleteTextures(1, &parttex);
+            glDeleteTextures(1,&parttex);
         dsmoke = false;
         size = 0;
         nb_part = 0;

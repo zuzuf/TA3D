@@ -79,9 +79,9 @@ namespace TA3D
         Gaf::Animation nuclogo;			// Logos des armes atomiques sur la minicarte / Logo of nuclear weapons on minimap
 
         //!
-        std::vector< uint32 > idx_list;
+        std::list< uint32 > idx_list;
         //!
-        std::vector< uint32 > free_idx;
+        std::list< uint32 > free_idx;
 
     protected:
         //!
