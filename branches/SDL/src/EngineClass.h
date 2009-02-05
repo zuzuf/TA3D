@@ -154,10 +154,6 @@ namespace TA3D
         int	    waterdamage;
         bool    network;
 
-    private:
-        //! \todo Must be removed
-        char *get_line(char *data);
-
     };
 
 

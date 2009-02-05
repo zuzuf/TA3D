@@ -137,13 +137,6 @@ namespace TA3D
         String guis_dir;
         //!
         String gamedata_dir;
-
-    private:
-        /*!
-        ** \brief
-        ** \param data
-        */
-        char* get_line(char *data) const;
     };
 
 

@@ -176,17 +176,6 @@ namespace TA3D
     }
 
 
-    char* FEATURE_MANAGER::get_line(const char *data)
-    {
-        int pos = 0;
-        while (data[pos] != 0 && data[pos] != 13 && data[pos] != 10)
-            ++pos;
-        char* d = new char[pos + 1];
-        memcpy(d, data, pos);
-        d[pos] = 0;
-        return d;
-    }
-
     int FEATURE_MANAGER::add_feature(const String& name)			// Ajoute un élément
     {
         ++nb_features;

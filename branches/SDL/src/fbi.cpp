@@ -348,16 +348,6 @@ namespace TA3D
         }
     }
 
-    char *UNIT_TYPE::get_line(char *data)
-    {
-        int pos=0;
-        while(data[pos]!=0 && data[pos]!=13 && data[pos]!=10)	pos++;
-        char *d=new char[pos+1];
-        memcpy(d,data,pos);
-        d[pos]=0;
-        return d;
-    }
-
     bool UNIT_TYPE::floatting()
     {
         return Floater || canhover || WaterLine != 0.0f;

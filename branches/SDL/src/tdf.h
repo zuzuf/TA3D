@@ -38,7 +38,7 @@ namespace TA3D
 
     /*! \class FEATURE
     **
-    ** \brief 
+    ** \brief
     */
     class FEATURE
     {
@@ -185,7 +185,7 @@ namespace TA3D
         /*!
         ** \brief
         ** \param name
-        ** \return 
+        ** \return
         */
         int add_feature(const String& name);
 
@@ -214,9 +214,6 @@ namespace TA3D
         //! hashtable used to speed up operations on FEATURE objects
         cHashTable<int>  feature_hashtable;
 
-    private:
-        char* get_line(const char *data);
-
     }; // class FEATURE_MANAGER
 
 
@@ -236,50 +233,50 @@ namespace TA3D
     */
     struct FEATURE_DATA
     {
-        //! 
+        //!
         Vector3D Pos;		// Position spatiale de l'élément
-        //! 
+        //!
         int	 type;		// Type d'élément
-        //! 
+        //!
         short frame;		// Pour l'animation
-        //! 
+        //!
         float dt;			// Pour la gestion du temps
-        //! 
+        //!
         float hp;
-        //! 
+        //!
         bool draw;		// Indique si l'objet est dessiné
-        //! 
+        //!
         bool grey;		// Tell if it is in the fog of war
-        //! 
+        //!
         float angle;		// Rotation angle to set orientation
 
-        //! 
+        //!
         bool burning;
-        //! 
+        //!
         float burning_time;
-        //! 
+        //!
         short time_to_burn;
-        //! 
+        //!
         uint32 px,py;
         //! Associated burning weapon
-        sint32 BW_idx; 
-        //! 
+        sint32 BW_idx;
+        //!
         byte weapon_counter;
-        //! 
+        //!
         float last_spread;
 
         //! Is that something sinking ?
-        bool sinking; 
-        //! 
+        bool sinking;
+        //!
         float dive_speed;
-        //! 
+        //!
         bool dive;
         //! Orientation angle
         float angle_x;
 
         //! Display list to speed up the shadow rendering
         GLuint shadow_dlist;
-        //! 
+        //!
         bool delete_shadow_dlist;
 
     }; // class FEATURE_DATA
@@ -293,7 +290,7 @@ namespace TA3D
 
     /*! \class FEATURES
     **
-    ** \brief 
+    ** \brief
     */
     class FEATURES : public ObjectSync	// Moteur de gestion des éléments graphiques
     {
@@ -337,7 +334,7 @@ namespace TA3D
         ** \brief
         */
         int add_feature(const Vector3D& Pos, const int type);
-        
+
         /*!
         ** \brief
         ** \param idx Index of the feature

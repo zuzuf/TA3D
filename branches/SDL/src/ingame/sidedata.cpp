@@ -141,20 +141,6 @@ namespace TA3D
         return -1;
     }
 
-
-    char* SideData::get_line(char *data) const
-    {
-        int pos = 0;
-        while (data[pos] != 0 && data[pos] != 13 && data[pos] != 10)
-            ++pos;
-        char*d = new char[pos + 1];
-        memcpy(d, data, pos);
-        d[pos] = 0;
-        return d;
-    }
-
-
-
     IntrElementCoords read_gui_element(UTILS::cTAFileParser* parser, const String& element, bool bottom)
     {
         IntrElementCoords gui_element;

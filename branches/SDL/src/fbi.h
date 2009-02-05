@@ -330,11 +330,6 @@ namespace TA3D
             destroy();
         }
 
-    private:
-        /*!
-        ** \brief Get next line of text from file buffer data
-        */
-        char *get_line(char *data);
     public:
 
         /*!
