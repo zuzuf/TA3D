@@ -52,7 +52,6 @@ namespace TA3D
         float length(const String &txt);
         float height();
         void load( const String &filename, const int size, const int type);
-        void load_gaf_font( const String &filename);
         void destroy();
         int get_size();
         void print(float x, float y, float z, const String &text);
