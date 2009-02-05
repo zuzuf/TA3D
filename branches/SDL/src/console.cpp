@@ -16,13 +16,10 @@
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA*/
 
 /*----------------------------------------------------------------------\
-  |                               console.cpp                             |
-  |      contient les classes nécessaires à la gestion d'une console dans |
-  | programme utilisant Allegro avec ou sans AllegroGL. La console        |
-  | dispose de sa propre procédure d'entrée et d'affichage mais celle-ci  |
-  | nécessite d'être appellée manuellement pour éviter les problèmes      |
-  | découlant d'un appel automatique par un timer.                        |
-  \----------------------------------------------------------------------*/
+|                               console.cpp                             |
+|      This module is responsible for the Console object, useful tool   |
+| for developpers and testers.                                          |
+\----------------------------------------------------------------------*/
 
 #include "stdafx.h"
 #include "TA3D_NameSpace.h"

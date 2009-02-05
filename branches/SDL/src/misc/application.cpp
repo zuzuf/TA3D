@@ -19,7 +19,7 @@ namespace TA3D
     {
         LOG_INFO("Aborting now. Releasing all resources...");
 
-        // allegro_exit(); // Should not be needed since allegro_init() installs it as an atexit() routine
+        // SDL_Quit(); // Should not be needed since SDL_Quit is installed as an atexit() routine
 
         DELETEANDNIL(TA3D::VARS::lp_CONFIG);
 

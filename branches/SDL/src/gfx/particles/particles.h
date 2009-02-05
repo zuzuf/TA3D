@@ -19,8 +19,7 @@
 |                                      particles.h                                   |
 |  Ce fichier contient les structures, classes et fonctions nécessaires aux effets   |
 | graphiques utilisants des particules comme la poussière, les effets de feu,        |
-| d'explosion, de fumée ... Ce fichier est conçu pour fonctionner avec la librairie  |
-| Allegro et l'addon AllegroGL pour l'utilisation d'OpenGl avec Allegro.             |
+| d'explosion, de fumée ...                                                          |
 |                                                                                    |
 \-----------------------------------------------------------------------------------*/
 
@@ -31,7 +30,7 @@
 
 // class ParticlesSystem
 # include "particlessystem.h"
-// 
+//
 # include "particlesengine.h"
 // Single particle
 # include "particle.h"

@@ -74,7 +74,7 @@ namespace Menus
         void progress(const String& info, const float progression = 1, const bool relative = true);
 
 
-        //! \name Allegro interaction
+        //! \name SDL interaction
         //@{
 
         /*!

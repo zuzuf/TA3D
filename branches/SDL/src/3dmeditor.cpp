@@ -377,7 +377,7 @@ int main(int argc, char* argv[])
 
         //----------------------------------------------------------------------------------------------
 
-        gfx->set_2D_mode();		// Passe en mode dessin allegro
+        gfx->set_2D_mode();		// Enter 2D mode
 
         main_area.draw();
 
@@ -391,7 +391,7 @@ int main(int argc, char* argv[])
         glEnable(GL_TEXTURE_2D);			// Affiche le curseur
         draw_cursor();
 
-        gfx->unset_2D_mode();	// Quitte le mode de dessin d'allegro
+        gfx->unset_2D_mode();	// Leave 2D modes
 
         // Affiche
         gfx->flip();
@@ -779,7 +779,7 @@ void SurfEdit()
         // Efface tout / Clear screen
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        gfx->set_2D_mode();		// Passe en mode dessin allegro
+        gfx->set_2D_mode();		// Enter 2D mode
 
         // Update textures
         if (obj_table[cur_part]->surface.NbTex>0)
@@ -791,7 +791,7 @@ void SurfEdit()
         glEnable(GL_TEXTURE_2D);			// Affiche le curseur
         draw_cursor();
 
-        gfx->unset_2D_mode();	// Quitte le mode de dessin d'allegro
+        gfx->unset_2D_mode();	// Leave 2D mode
 
         int index = -1;
         for (int i = 0 ; i < 8 ; i++)
@@ -820,20 +820,16 @@ void SurfEdit()
                 if (index>=obj_table[cur_part]->surface.NbTex)      // Ajoute la texture / Add the texture
                 {
                     index=obj_table[cur_part]->surface.NbTex;
-//                    allegro_gl_use_alpha_channel(true);
                     gfx->set_texture_format(GL_RGBA8);
                     obj_table[cur_part]->surface.gltex[index] = gfx->make_texture(bmp_tex, FILTER_LINEAR);
-//                    allegro_gl_use_alpha_channel(false);
                     obj_table[cur_part]->surface.NbTex++;
                     SDL_FreeSurface(bmp_tex);
                 }
                 else
                 {
                     gfx->destroy_texture(obj_table[cur_part]->surface.gltex[index]);
-//                    allegro_gl_use_alpha_channel(true);
                     gfx->set_texture_format(GL_RGBA8);
                     obj_table[cur_part]->surface.gltex[index] = gfx->make_texture(bmp_tex, FILTER_LINEAR);
-//                    allegro_gl_use_alpha_channel(false);
                     SDL_FreeSurface(bmp_tex);
                 }
             }
@@ -1031,10 +1027,8 @@ void SurfPaint(int index)
                                     putpixel(bmp_tex,x,y,getpixel(bmp_tex,x,y)|0xFF000000);
                         if (tool_tex_gl)
                             glDeleteTextures(1,&tool_tex_gl);
-//                        allegro_gl_use_alpha_channel(true);
                         gfx->set_texture_format(GL_RGBA8);
                         tool_tex_gl = gfx->make_texture(bmp_tex, FILTER_LINEAR);
-//                        allegro_gl_use_alpha_channel(false);
                         SDL_FreeSurface(bmp_tex);
                     }
                 }
@@ -1058,9 +1052,7 @@ void SurfPaint(int index)
                 SDL_Surface *tmp = gfx->create_surface_ex(32,n_w,n_h);
                 stretch_blit(bmp_tex,tmp,0,0,bmp_tex->w,bmp_tex->h,0,0,tmp->w,tmp->h);
                 SDL_FreeSurface(bmp_tex);
-//                allegro_gl_use_alpha_channel(true);
                 obj_table[cur_part]->surface.gltex[0] = tex = gfx->make_texture(tmp, FILTER_LINEAR);
-//                allegro_gl_use_alpha_channel(false);
 
                 SDL_FreeSurface(tmp);
             }
@@ -1381,9 +1373,7 @@ void SurfPaint(int index)
                                 }
 
                                 glDeleteTextures(1,&tex);
-//                                allegro_gl_use_alpha_channel(true);
                                 tex = gfx->make_texture(n_tex, FILTER_LINEAR);
-//                                allegro_gl_use_alpha_channel(false);
                                 SDL_FreeSurface(n_tex);
 
                                 obj_table[cur_part]->surface.gltex[0]=tex;
@@ -1399,7 +1389,7 @@ void SurfPaint(int index)
                     break;
             }
 
-        gfx->set_2D_mode();		// Passe en mode dessin allegro
+        gfx->set_2D_mode();		// Enter 2D mode
 
         painter_area.draw();
 
@@ -1511,7 +1501,7 @@ void SurfPaint(int index)
         glEnable(GL_TEXTURE_2D);			// Affiche le curseur
         draw_cursor();
 
-        gfx->unset_2D_mode();	// Quitte le mode de dessin d'allegro
+        gfx->unset_2D_mode();	// Leave 2D mode
 
         // Affiche
         gfx->flip();
@@ -1543,8 +1533,8 @@ void SurfPaint(int index)
 }
 
 /*---------------------------------------------------------------------------------------------------\
-    |                                      Editeur de plaquage de texture                                |
-    \---------------------------------------------------------------------------------------------------*/
+|                                      Editeur de plaquage de texture                                |
+\---------------------------------------------------------------------------------------------------*/
 
 void TexturePosEdit(int index)
 {
@@ -1888,14 +1878,14 @@ void glslEditor()                  // Fragment and vertex programs editor
         // Efface tout / Clear screen
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        gfx->set_2D_mode();		// Passe en mode dessin allegro
+        gfx->set_2D_mode();		// Enter 2D mode
 
         glsl_area.draw();
 
         glEnable(GL_TEXTURE_2D);			// Affiche le curseur
         draw_cursor();
 
-        gfx->unset_2D_mode();	// Quitte le mode de dessin d'allegro
+        gfx->unset_2D_mode();	// Leave 2D mode
 
         // Affiche
         gfx->flip();

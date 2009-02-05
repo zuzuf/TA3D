@@ -82,7 +82,7 @@ namespace TA3D
 		if (SDL_Init(SDL_INIT_VIDEO) != 0)
 			throw ("SDL_Init(SDL_INIT_VIDEO) yielded unexpected result.");
 
-		// set allegro running status;
+		// set SDL running status;
 		m_SDLRunning = true;
 
 		// Installing SDL timer
@@ -113,7 +113,7 @@ namespace TA3D
 
 		// Creating GFX Interface
         // Don't try to start sound before gfx, if we have to display the warning message while in fullscreen
-		TA3D::VARS::gfx = new TA3D::GFX();		// TA3D's main window might lose focus and allegro's message not be shown ...
+		TA3D::VARS::gfx = new TA3D::GFX();		// TA3D's main window might lose focus and message may not be shown ...
 		m_GFXModeActive = true;
 
 		gfx->Init();

@@ -1250,7 +1250,6 @@ namespace TA3D
                     gfx->set_texture_format(GL_COMPRESSED_RGBA_ARB);
                 else
                     gfx->set_texture_format(GL_RGBA8);
-//                allegro_gl_use_alpha_channel(true);
             }
             else
             {
@@ -1262,7 +1261,6 @@ namespace TA3D
 
             SDL_Surface *bmp = LoadTex( TA3D::Paths::Caches + tex_cache_name[id] );
             GLuint texid = gfx->make_texture(bmp,FILTER_TRILINEAR,true);
-//            allegro_gl_use_alpha_channel(false);
             if (surface.Flag&SURFACE_ADVANCED)
                 surface.gltex[id] = texid;
             else
@@ -3969,10 +3967,8 @@ namespace TA3D
             }
             else            // Standard loading path (used by 3DMEditor)
             {
-//                allegro_gl_use_alpha_channel(true);
                 gfx->set_texture_format(GL_RGBA8);
                 surface.gltex[i] = gfx->make_texture(tex, FILTER_LINEAR);
-//                allegro_gl_use_alpha_channel(false);
             }
 
             SDL_FreeSurface(tex);

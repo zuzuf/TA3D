@@ -273,7 +273,7 @@ namespace TA3D
         void clearDepth();
 
         /*!
-        ** \brief Flip the backbuffer to the Allegro screen and clear it
+        ** \brief Flip the backbuffer to the screen
         */
         void flip() const { SDL_GL_SwapBuffers(); }
 

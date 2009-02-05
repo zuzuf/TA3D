@@ -371,7 +371,7 @@ namespace TA3D
             int ty = ((i>>3)&0x7)<<5;
             blit(bmp_tex[tex_num],tmp,tx,ty,px<<4,py<<4,32,32);
             }
-            map->macro_bloc[y][x].tex = allegro_gl_make_texture(tmp);
+            map->macro_bloc[y][x].tex = gfx->make_texture(tmp);
             glBindTexture(GL_TEXTURE_2D,map->macro_bloc[y][x].tex);
             glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
             glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR_MIPMAP_LINEAR);
@@ -415,7 +415,7 @@ namespace TA3D
                 f_pos+=2;
             }
         }
-        for (i = 0; i < n_bmp; ++i)				// Delete allegro bitmap textures
+        for (i = 0; i < n_bmp; ++i)				// Delete SDL_Surface textures
             SDL_FreeSurface(bmp_tex[i]);
         map->low_tex = gfx->make_texture(low_def);		// Build the low details texture map
         SDL_FreeSurface(low_def);

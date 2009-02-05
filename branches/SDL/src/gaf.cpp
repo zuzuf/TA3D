@@ -130,9 +130,7 @@ namespace TA3D
                     else
                         gfx->set_texture_format(with_alpha ? GL_RGBA8 : GL_RGB8);
 
-//                    allegro_gl_use_alpha_channel(with_alpha);
                     *i = gfx->make_texture(img,filter);
-//                    allegro_gl_use_alpha_channel(false);
                     gfx->save_texture_to_cache(cache_filename, *i, img->w, img->h);
                     SDL_FreeSurface(img);
                 }
@@ -187,9 +185,7 @@ namespace TA3D
                     else
                         gfx->set_texture_format(with_alpha ? GL_RGBA8 : GL_RGB8);
 
-//                    allegro_gl_use_alpha_channel(with_alpha);
                     GLuint gl_img = gfx->make_texture(img,filter);
-//                    allegro_gl_use_alpha_channel(false);
                     gfx->save_texture_to_cache(cache_filename, gl_img, img->w, img->h);
 
                     SDL_FreeSurface(img);
@@ -656,9 +652,7 @@ namespace TA3D
                     gfx->set_texture_format(GL_COMPRESSED_RGBA_ARB);
                 else
                     gfx->set_texture_format(GL_RGBA8);
-//                allegro_gl_use_alpha_channel(true);
                 glbmp[i] = gfx->make_texture(bmp[i], NO_FILTER ? FILTER_NONE : FILTER_TRILINEAR );
-//                allegro_gl_use_alpha_channel(false);
                 if (!filename.empty())
                     gfx->save_texture_to_cache(cache_filename, glbmp[i], bmp[i]->w, bmp[i]->h);
             }

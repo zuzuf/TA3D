@@ -613,8 +613,6 @@ namespace TA3D
                 water_simulator_reflec.load("shaders/water_sim_reflec.frag","shaders/water.vert");
 			}
 
-//			allegro_gl_use_alpha_channel(true);
-
 			gfx->set_texture_format(GL_RGBA8);
 
 			SDL_Surface* tmp = gfx->create_surface_ex(32,512,512);

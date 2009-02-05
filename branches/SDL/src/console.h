@@ -17,11 +17,8 @@
 
 /*----------------------------------------------------------------------\
 |                               console.h                               |
-|      contient les classes nécessaires à la gestion d'une console dans |
-| programme utilisant Allegro avec ou sans AllegroGL. La console        |
-| dispose de sa propre procédure d'entrée et d'affichage mais celle-ci  |
-| nécessite d'être appellée manuellement pour éviter les problèmes      |
-| découlant d'un appel automatique par un timer.                        |
+|      This module is responsible for the Console object, useful tool   |
+| for developpers and testers.                                          |
 \----------------------------------------------------------------------*/
 
 #ifndef _TA3D_XX_CLASSE_CONSOLE_H__

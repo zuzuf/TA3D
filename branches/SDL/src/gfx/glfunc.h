@@ -17,8 +17,8 @@
 
 /*--------------------------------------------------------------\
 |                          glfunc.h                             |
-|      contient les fonctions et les variables permettant d'    |
-|  utiliser des extensions d'OpenGl. utilise AllegroGl          |
+|      contains functions and variables to set up an OpenGL     |
+|  environnement using some OpenGL extensions.                  |
 \--------------------------------------------------------------*/
 
 #ifndef __TA3D_GFX_GL_FUNCTIONS_H__

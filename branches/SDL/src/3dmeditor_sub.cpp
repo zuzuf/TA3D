@@ -675,9 +675,7 @@ GLuint copy_tex(GLuint gltex)
     tex = gfx->create_surface_ex(32,w,h);
     glGetTexImage(GL_TEXTURE_2D,0,GL_RGBA,GL_UNSIGNED_BYTE,tex->pixels);
 
-//    allegro_gl_use_alpha_channel(true);
     ntex = gfx->make_texture(tex, FILTER_LINEAR);
-//    allegro_gl_use_alpha_channel(false);
 
     SDL_FreeSurface(tex);
     return ntex;

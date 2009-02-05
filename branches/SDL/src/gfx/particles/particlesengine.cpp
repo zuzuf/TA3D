@@ -54,10 +54,8 @@ namespace TA3D
         SDL_FreeSurface(bmp);
         if (ntex > 1)
             glDeleteTextures(1, &parttex);
-//        allegro_gl_use_alpha_channel(true);
         gfx->set_texture_format(GL_RGBA8);
         parttex = gfx->make_texture(partbmp, FILTER_TRILINEAR);
-//        allegro_gl_use_alpha_channel(false);
 
         return (ntex-1);
     }
@@ -758,15 +756,13 @@ namespace TA3D
         {
             partbmp = gfx->create_surface_ex(32,256,256);
             SDL_Surface* bmp = gfx->load_image("gfx/smoke.tga");
-            // LoadMaskedTexBmp("gfx/smoke.tga","gfx/smokea.tga");
+
             gltex.push_back(gfx->make_texture(bmp));
             stretch_blit(bmp, partbmp, 0, 0, bmp->w, bmp->h, 0, 0, 64, 64);
             ntex = 1;
             SDL_FreeSurface(bmp);
-//            allegro_gl_use_alpha_channel(true);
             gfx->set_texture_format(GL_RGBA8);
             parttex = gfx->make_texture(partbmp, FILTER_TRILINEAR);
-//            allegro_gl_use_alpha_channel(false);
         }
         size=0;
         nb_part=0;

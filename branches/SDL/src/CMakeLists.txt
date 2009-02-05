@@ -122,7 +122,7 @@ SET(SOURCES
         cTAFileParser.cpp cTAFileParser.h restore.cpp restore.h menu.cpp menu.h
         EngineClass.cpp EngineClass.h UnitEngine.cpp UnitEngine.h
         fbi.cpp fbi.h intro.cpp intro.h  tdf.cpp tdf.h tnt.cpp tnt.h 
-        icon.cpp stdafx.h TA3D_NameSpace.cpp TA3D_NameSpace.h ta3dbase.h)
+        stdafx.h TA3D_NameSpace.cpp TA3D_NameSpace.h ta3dbase.h)
 
 
 

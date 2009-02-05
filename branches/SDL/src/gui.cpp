@@ -903,12 +903,12 @@ const String Dialogf(const String &Title, String Filter)
             // Clear screen
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-            gfx->set_2D_mode();		// Passe en mode dessin allegro
+            gfx->set_2D_mode();		// Enter 2D mode
 
             current_area->draw();
             draw_cursor();
 
-            gfx->unset_2D_mode();	// Quitte le mode de dessin d'allegro
+            gfx->unset_2D_mode();	// Leave 2D mode
             gfx->flip();
 
         }while(!done);
@@ -922,8 +922,8 @@ const String Dialogf(const String &Title, String Filter)
 }
 
 /*---------------------------------------------------------------------------\
-  |               Affiche une fenêtre de demande de type oui/non               |
-  \---------------------------------------------------------------------------*/
+|               Affiche une fenêtre de demande de type oui/non               |
+\---------------------------------------------------------------------------*/
 
 bool WndAsk(const String &Title,const String &Msg,int ASW_TYPE)
 {
@@ -985,12 +985,12 @@ bool WndAsk(const String &Title,const String &Msg,int ASW_TYPE)
             // Clear screen
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-            gfx->set_2D_mode();		// Passe en mode dessin allegro
+            gfx->set_2D_mode();		// Enter 2D mode
 
             current_area->draw();
             draw_cursor();
 
-            gfx->unset_2D_mode();	// Quitte le mode de dessin d'allegro
+            gfx->unset_2D_mode();	// Leave 2D mode
             gfx->flip();
 
         }while(!done);
@@ -1048,12 +1048,12 @@ void Popup(const String &Title,const String &Msg)
             // Clear screen
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-            gfx->set_2D_mode();		// Passe en mode dessin allegro
+            gfx->set_2D_mode();		// Enter 2D mode
 
             current_area->draw();
             draw_cursor();
 
-            gfx->unset_2D_mode();	// Quitte le mode de dessin d'allegro
+            gfx->unset_2D_mode();	// Leave 2D mode
             gfx->flip();
 
         }while(!done);
@@ -1064,8 +1064,8 @@ void Popup(const String &Title,const String &Msg)
 }
 
 /*---------------------------------------------------------------------------\
-  |               Affiche une fenêtre de demande d'entrée utilisateur          |
-  \---------------------------------------------------------------------------*/
+|               Affiche une fenêtre de demande d'entrée utilisateur          |
+\---------------------------------------------------------------------------*/
 
 const String GetVal(const String &Title)
 {
@@ -1111,12 +1111,12 @@ const String GetVal(const String &Title)
             // Clear screen
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-            gfx->set_2D_mode();		// Passe en mode dessin allegro
+            gfx->set_2D_mode();		// Enter 2D mode
 
             current_area->draw();
             draw_cursor();
 
-            gfx->unset_2D_mode();	// Quitte le mode de dessin d'allegro
+            gfx->unset_2D_mode();	// Leave 2D mode
             gfx->flip();
 
         }while(!done);
