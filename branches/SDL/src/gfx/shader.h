@@ -4,11 +4,12 @@
 # include "../stdafx.h"
 
 
+#ifdef TA3D_PLATFORM_WINDOWS
+typedef unsigned long GLhandleARB;
+#endif
+
 namespace TA3D
 {
-// namespace GFX
-// {
-
 
     /*! \class Shader
     **
@@ -24,7 +25,7 @@ namespace TA3D
         //! Destructor
         ~Shader() {destroy();}
         //@}
-        
+
         void destroy();
 
 

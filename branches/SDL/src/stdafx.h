@@ -86,6 +86,7 @@
 ** The SDL library
 */
 # if defined TA3D_PLATFORM_WINDOWS //&& defined TA3D_PLATFORM_MSVC
+#   include <windows.h>
 #   ifdef TA3D_PLATFORM_MSVC
 #      pragma warning(disable : 4554)
 #      pragma warning(disable : 4996)
@@ -99,6 +100,7 @@
 #      pragma warning( disable : 4312 )
 #      pragma warning( disable : 4005 )
 #   endif
+#   define GL_GLEXT_PROTOTYPES
 #   include "SDL.h"
 #   include "SDL_image.h"
     // Cire: Restore warning states
@@ -205,9 +207,15 @@ namespace TA3D
 
 #define FILE_SIZE	file_size
 
-#define FA_ALL      (DT_REG | DT_DIR)
-#define FA_FILE     DT_REG
-#define FA_DIREC    DT_DIR
+#ifdef TA3D_PLATFORM_WINDOWS
+# define FA_FILE     1
+# define FA_DIREC    2
+#else
+# define FA_FILE     DT_REG
+# define FA_DIREC    DT_DIR
+#endif
+
+#define FA_ALL      (FA_FILE | FA_DIREC)
 
 // zuzuf: to prevent some warnings
 # undef PACKAGE_BUGREPORT

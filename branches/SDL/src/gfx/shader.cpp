@@ -10,9 +10,6 @@
 
 namespace TA3D
 {
-// namespace GFX
-// {
-
 
     namespace
     {

@@ -26,6 +26,51 @@
 #include "glfunc.h"
 #include "../logs/logs.h"
 
+#ifdef TA3D_PLATFORM_WINDOWS
+    void (*glBindFramebufferEXT) (GLenum, GLuint);
+    void (*glDeleteFramebuffersEXT) (GLsizei, const GLuint *);
+    void (*glDeleteRenderbuffersEXT) (GLsizei, const GLuint *);
+    void (*glBindRenderbufferEXT) (GLenum, GLuint);
+    void (*glGenFramebuffersEXT) (GLsizei, GLuint *);
+    void (*glGenRenderbuffersEXT) (GLsizei, GLuint *);
+    void (*glFramebufferTexture2DEXT) (GLenum, GLenum, GLenum, GLuint, GLint);
+    void (*glFramebufferRenderbufferEXT) (GLenum, GLenum, GLenum, GLuint);
+    void (*glRenderbufferStorageEXT) (GLenum, GLenum, GLsizei, GLsizei);
+
+    void (*glUseProgramObjectARB) (GLhandleARB);
+    void (*glGetInfoLogARB) (GLhandleARB, GLsizei, GLsizei *, GLcharARB *);
+    GLint (*glGetUniformLocationARB) (GLhandleARB, const GLcharARB *);
+    void (*glGetObjectParameterivARB) (GLhandleARB, GLenum, GLint *);
+    GLhandleARB (*glCreateProgramObjectARB) (void);
+    void (*glAttachObjectARB) (GLhandleARB, GLhandleARB);
+    void (*glLinkProgramARB) (GLhandleARB);
+    void (*glDeleteObjectARB) (GLhandleARB);
+    void (*glCompileShaderARB) (GLhandleARB);
+    void (*glShaderSourceARB) (GLhandleARB, GLsizei, const GLcharARB* *, const GLint *);
+    void (*glDetachObjectARB) (GLhandleARB, GLhandleARB);
+    GLhandleARB (*glCreateShaderObjectARB) (GLenum);
+
+    void (*glUniform1fARB) (GLint, GLfloat);
+    void (*glUniform2fARB) (GLint, GLfloat, GLfloat);
+    void (*glUniform3fARB) (GLint, GLfloat, GLfloat, GLfloat);
+    void (*glUniform4fARB) (GLint, GLfloat, GLfloat, GLfloat, GLfloat);
+
+    void (*glUniform1iARB) (GLint, GLint);
+    void (*glUniform2iARB) (GLint, GLint, GLint);
+    void (*glUniform3iARB) (GLint, GLint, GLint, GLint);
+    void (*glUniform4iARB) (GLint, GLint, GLint, GLint, GLint);
+
+    void (*glPointParameterfv) (GLenum, const GLfloat *);
+    void (*glPointParameterf) (GLenum, GLfloat);
+
+    void (*glDeleteBuffersARB) (GLsizei, const GLuint *);
+    void (*glGenBuffersARB) (GLsizei, GLuint *);
+    void (*glBindBufferARB) (GLenum, GLuint);
+    void (*glBufferSubDataARB) (GLenum, GLintptrARB, GLsizeiptrARB, const GLvoid *);
+    void (*glBufferDataARB) (GLenum, GLsizeiptrARB, const GLvoid *, GLenum);
+
+    void (*glActiveStencilFaceEXT) (GLenum);
+#endif
 
 
 bool	MultiTexturing;

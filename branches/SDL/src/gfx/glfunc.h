@@ -25,6 +25,7 @@
 # define __TA3D_GFX_GL_FUNCTIONS_H__
 
 #include "../stdafx.h"
+#include "gl.extensions.h"
 #include <stdio.h>
 
 extern bool	MultiTexturing;

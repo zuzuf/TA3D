@@ -344,6 +344,43 @@ namespace Paths
         String root_path = root;
         if (root.size() > 1 && (root[ root.size() - 1 ] == '/' || root[ root.size() - 1 ] == '\\'))
             root_path.resize(root_path.size()-1);
+
+#ifdef TA3D_PLATFORM_WINDOWS
+        String strFilePath; // Filepath
+        String strExtension; // Extension
+        HANDLE hFile; // Handle to file
+        WIN32_FIND_DATA FileInformation; // File information
+
+        hFile = ::FindFirstFile(pattern.c_str(), &FileInformation);
+        if(hFile != INVALID_HANDLE_VALUE)
+        {
+            do
+            {
+                if(FileInformation.cFileName[0] != '.')
+                {
+                    String name = FileInformation.cFileName;
+
+                    if((FileInformation.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) && (fileAttribs & FA_DIREC) && !(required & FA_FILE))
+                    {
+                        if (relative)
+                            out.push_back(name);
+                        else
+                            out.push_back(root + name);
+                    }
+                    else if (!(required & FA_DIREC) && (fileAttribs & FA_FILE))
+                    {
+                        if (relative)
+                            out.push_back(name);
+                        else
+                            out.push_back(root + name);
+                    }
+                }
+            } while(::FindNextFile(hFile, &FileInformation) == TRUE);
+
+            // Close handle
+            ::FindClose(hFile);
+        }
+#else
         String filename_pattern = String::ToUpper(ExtractFileName(pattern));
         DIR *dp;
         struct dirent *dirp;
@@ -366,6 +403,7 @@ namespace Paths
             }
         }
         closedir(dp);
+#endif
 
         return !out.empty();
     }

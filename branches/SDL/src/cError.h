@@ -27,7 +27,7 @@ namespace TA3D
 		typedef	int				cErrorType;
 		#define	GETSYSERROR()	errno
 #endif
-      
+
 	class cError
 	{
 	private:
@@ -51,7 +51,7 @@ namespace TA3D
 
 
 
-} // namespace TA3D 
+} // namespace TA3D
 
 
 #endif // __TA3D_XX_ERRORS_H__

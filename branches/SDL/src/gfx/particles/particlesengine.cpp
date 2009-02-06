@@ -1,5 +1,6 @@
 
 #include "../../stdafx.h"
+#include "../gl.extensions.h"
 #include "particlesengine.h"
 #include "../../misc/matrix.h"
 #include "../../TA3D_NameSpace.h"
