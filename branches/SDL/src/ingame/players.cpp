@@ -255,10 +255,10 @@ namespace TA3D
 
 
 
-    int PLAYERS::Run()
+    void PLAYERS::proc(void*)
     {
         if (thread_is_running)
-            return 0;
+            return;
 
         thread_is_running = true;
 
@@ -294,10 +294,9 @@ namespace TA3D
         }
 
         thread_is_running = false;
-        return 0;
     }
 
-    void PLAYERS::SignalExitThread()
+    void PLAYERS::signalExitThread()
     {
         thread_ask_to_stop = true;
         while (thread_is_running)
@@ -312,7 +311,7 @@ namespace TA3D
         for (byte i = 0; i < nb_player; ++i)
         {
             if (control[i] == PLAYER_CONTROL_LOCAL_AI && ai_command)
-                ai_command[i].DestroyThread();
+                ai_command[i].destroyThread();
         }
     }
 
@@ -421,8 +420,6 @@ namespace TA3D
         thread_is_running = false;
         thread_ask_to_stop = false;
 
-        InitThread();
-
         ai_command = new AI_PLAYER[TA3D_PLAYERS_HARD_LIMIT];
         init();
     }
@@ -451,7 +448,7 @@ namespace TA3D
         if (ai_command)
             delete[] ai_command;
         ai_command = NULL;
-        DestroyThread();
+        destroyThread();
     }
 
 

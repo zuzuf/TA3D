@@ -17,7 +17,6 @@
 
 #include "stdafx.h"
 #include "TA3D_NameSpace.h"
-#include "threads/cThread.h"
 #include "threads/thread.h"
 #include "cTA3D_Engine.h"
 #include "ta3dbase.h"
@@ -67,8 +66,6 @@ namespace TA3D
 		VARS::gfx = NULL;
 		m_SignaledToStop = false;
 		m_GFXModeActive = false;
-
-		InitThread();
 
 		InterfaceManager = new IInterfaceManager();
 
@@ -130,7 +127,7 @@ namespace TA3D
 
 	cTA3D_Engine::~cTA3D_Engine(void)
 	{
-		DestroyThread();
+		destroyThread();
 		delete ThreadSynchroniser;
         cursor.clear();
 		ta3dSideData.destroy();
@@ -166,14 +163,13 @@ namespace TA3D
 	}
 
 
-	int cTA3D_Engine::Run()
+	void cTA3D_Engine::proc(void*)
 	{
 		Init();
 		while( !m_SignaledToStop )
 			rest( 100 );
-		return 1;
 	}
-	void cTA3D_Engine::SignalExitThread()
+	void cTA3D_Engine::signalExitThread()
 	{
 		m_SignaledToStop = true;
 		return;

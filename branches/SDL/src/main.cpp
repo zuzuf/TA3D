@@ -188,7 +188,7 @@ int main(int argc, char *argv[])
      **     Once the engine is unpaused and in a go state we can no longer use GuardStart
      **     as the engine will use it, until the engine exits.
      */
-    Engine->Start();
+    Engine->start();
 
     // ok, if we are here, our thread in engine class is running
     //   and doing some work loading up alot of crap so while its doing that

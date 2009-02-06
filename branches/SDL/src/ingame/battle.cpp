@@ -107,20 +107,20 @@ namespace TA3D
         weapon_engine_thread_sync = 0;
         particle_engine_thread_sync = 0;
 
-        units.Start();			// Start the Unit Engine
+        units.start();			// Start the Unit Engine
 
         particle_engine.set_data( map->ota_data.gravity, map->wind_vec);
-        particle_engine.Start();		// Start the particle engine
+        particle_engine.start();		// Start the particle engine
 
         // Start the weapon engine
         weapons.set_data(map.get());
         features.set_data(map->wind_vec);		// NB: the feature engine runs in the weapon thread to avoid having too much thread to synchronise
-        weapons.Start();
+        weapons.start();
 
         /*---------------------------- players management --------------------------*/
 
         players.set_map(map.get());
-        players.Start();
+        players.start();
 
 		// Here we go Commander !
         LOG_INFO(LOG_PREFIX_BATTLE << "*** The game has started - Good luck Commander ! ***");
@@ -3653,11 +3653,11 @@ namespace TA3D
 
         reset_mouse();
 
-        players.DestroyThread();				// Shut down the Players thread
+        players.destroyThread();				// Shut down the Players thread
         players.stop_threads();
-        weapons.DestroyThread();				// Shut down the Weapon Engine
-        units.DestroyThread();					// Shut down the Unit Engine
-        particle_engine.DestroyThread();		// Shut down the Particle Engine
+        weapons.destroyThread();				// Shut down the Weapon Engine
+        units.destroyThread();					// Shut down the Unit Engine
+        particle_engine.destroyThread();		// Shut down the Particle Engine
 
         sky_obj.destroy();
 

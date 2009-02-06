@@ -190,7 +190,7 @@ namespace TA3D
 #define AI_TYPE_BLOODY		0x3
 
     class AI_PLAYER :	public ObjectSync,			// Class to manage players controled by AI
-    public cThread
+    public Thread
     {
     public:
         String			name;			// Attention faudrait pas qu'il se prenne pour quelqu'un!! -> indique aussi le fichier correspondant à l'IA (faut sauvegarder les cervelles)
@@ -221,8 +221,8 @@ namespace TA3D
         void (*fp_think)( AI_PLAYER*, MAP* );
 
     protected:
-        int			Run();
-        void		SignalExitThread();
+        void	proc(void*);
+        void	signalExitThread();
 
         bool		thread_running;
         bool		thread_ask_to_stop;
@@ -235,7 +235,6 @@ namespace TA3D
 
         AI_PLAYER() : builder_list(), factory_list(), army_list(), enemy_list()
         {
-            InitThread();
             init();
         }
 

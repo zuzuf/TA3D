@@ -5730,7 +5730,6 @@ script_exec:
     INGAME_UNITS::INGAME_UNITS()
         :repair_pads(), requests()
     {
-        InitThread();
         init();
     }
 
@@ -7613,7 +7612,7 @@ script_exec:
     }
 
 
-    int INGAME_UNITS::Run()
+    void INGAME_UNITS::proc(void*)
     {
         thread_running = true;
         float dt = 1.0f / TICKS_PER_SEC;
@@ -7792,11 +7791,9 @@ script_exec:
         thread_running = false;
         thread_ask_to_stop = false;
         LOG_INFO("Unit engine: " << (float)(current_tick * 1000) / (msec_timer - unit_timer) << " ticks/sec");
-
-        return 0;
     }
 
-    void INGAME_UNITS::SignalExitThread()
+    void INGAME_UNITS::signalExitThread()
     {
         if (thread_running)
             thread_ask_to_stop = true;

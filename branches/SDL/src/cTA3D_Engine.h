@@ -19,11 +19,11 @@
 #ifndef __TA3D_ENGINE_H__
 # define __TA3D_ENGINE_H__
 
-#include "threads/cThread.h"
+#include "threads/thread.h"
 
 namespace TA3D
 {
-	class cTA3D_Engine : public ObjectSync, public cThread
+	class cTA3D_Engine : public ObjectSync, public Thread
 	{
 	private:
 		bool m_SDLRunning;
@@ -34,8 +34,8 @@ namespace TA3D
 		void Init();
 
 	protected:
-		int Run();
-		void SignalExitThread();
+		void proc(void*);
+		void signalExitThread();
 
 	public:
 		cTA3D_Engine( void );

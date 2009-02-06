@@ -19,11 +19,12 @@
 #ifndef TA3D_NETWORK_THREAD
 #define TA3D_NETWORK_THREAD
 
-#ifndef TA3D_PLATFORM_WINDOWS
-# include <pthread.h>
-#endif
-#include "mutex.h"
+//#ifndef TA3D_PLATFORM_WINDOWS
+//# include <pthread.h>
+//#endif
 
+#include <SDL_thread.h>
+#include "mutex.h"
 
 namespace TA3D
 {
@@ -58,9 +59,56 @@ namespace TA3D
 
 
 
+//    class Thread : public BaseThread
+//    {
+//    #ifdef TA3D_PLATFORM_WINDOWS
+//    private:
+//        struct thread_params
+//        {
+//            void* more;
+//            Thread* thisthread;
+//        };
+//        struct thread_params secondary;
+//
+//    private:
+//        DWORD threadid;
+//        HANDLE thread;
+//        virtual void proc(void* param) = 0;
+//        static DWORD WINAPI run(LPVOID param)
+//        {
+//            ((struct thread_params*)param)->thisthread->proc(((struct thread_params*)param)->more);
+//            return 0;
+//        }
+//
+//    #else // Unixes
+//
+//    private:
+//        struct thread_params
+//        {
+//            void* more;
+//            Thread* thisthread;
+//        };
+//        struct thread_params secondary;
+//
+//    private:
+//        pthread_t thread;
+//        virtual void proc(void* param)=0;
+//        static void* run(void* param)
+//        {
+//            ((struct thread_params*)param)->thisthread->proc(((struct thread_params*)param)->more);
+//            return NULL;
+//        }
+//
+//    #endif
+//    public:
+//        virtual void spawn(void* param);
+//        virtual void join();
+//        virtual bool isDead() const { return (pDead != 0); }
+//
+//    }; // class Thread
+
     class Thread : public BaseThread
     {
-    #ifdef TA3D_PLATFORM_WINDOWS
     private:
         struct thread_params
         {
@@ -69,43 +117,35 @@ namespace TA3D
         };
         struct thread_params secondary;
 
+    protected:
+        SDL_Thread  *thread;
+
     private:
-        DWORD threadid;
-        HANDLE thread;
-        virtual void proc(void* param) = 0;
-        static DWORD WINAPI run(LPVOID param)
+        static int run(void* param)
         {
             ((struct thread_params*)param)->thisthread->proc(((struct thread_params*)param)->more);
             return 0;
         }
 
-    #else // Unixes
+    protected:
+        // Returns true if current calling thread == our thread
+        bool inWorkerThread();
 
-    private:
-        struct thread_params
-        {
-            void* more;
-            Thread* thisthread;
-        };
-        struct thread_params secondary;
+        virtual ~Thread() {}
+        virtual void proc(void* param) = 0;
+        virtual void signalExitThread() {};
 
-    private:
-        pthread_t thread;
-        virtual void proc(void* param)=0;
-        static void* run(void* param)
-        {
-            ((struct thread_params*)param)->thisthread->proc(((struct thread_params*)param)->more);
-            return NULL;
-        }
-
-    #endif
     public:
+        // Call this to end the Thread, it will signal the thread to tell it to end
+        //   and will block until the thread ends.
+        void destroyThread() { join(); }
+        void start() { spawn(NULL); }
+        bool isRunning() const    { return pDead == 0;    }
+
         virtual void spawn(void* param);
         virtual void join();
-        virtual bool isDead() const { return (pDead != 0); }
-
-    }; // class Thread
-
+        virtual bool isDead() const { return !isRunning(); }
+   }; // class Thread
 
 
     class ObjectSync

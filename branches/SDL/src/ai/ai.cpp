@@ -764,7 +764,7 @@ namespace TA3D
     }
 
 
-    int	AI_PLAYER::Run()
+    void	AI_PLAYER::proc(void*)
     {
         thread_running = true;
         thread_ask_to_stop = false;
@@ -801,11 +801,10 @@ namespace TA3D
         LOG_INFO(LOG_PREFIX_AI << "Stopped for player " << (int)player_id);
         thread_running = false;
         thread_ask_to_stop = false;
-        return 0;
     }
 
 
-    void AI_PLAYER::SignalExitThread()
+    void AI_PLAYER::signalExitThread()
     {
         LOG_INFO(LOG_PREFIX_AI << "Stopping for player " << (int)player_id << "...");
         thread_ask_to_stop = true;
@@ -820,7 +819,7 @@ namespace TA3D
         if (!thread_running)
         {
             thread_running = true;
-            Start();
+            start();
         }
     }
 
@@ -863,7 +862,7 @@ namespace TA3D
 
     void AI_PLAYER::destroy()
     {
-        DestroyThread();
+        destroyThread();
 
         builder_list.clear();
         factory_list.clear();

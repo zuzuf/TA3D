@@ -45,7 +45,7 @@ namespace TA3D
 
     void INGAME_WEAPONS::destroy()
     {
-        DestroyThread();
+        destroyThread();
 
         pMutex.lock();
         idx_list.clear();
@@ -59,7 +59,6 @@ namespace TA3D
 
     INGAME_WEAPONS::INGAME_WEAPONS()
     {
-        InitThread();
         init(false);
     }
 
@@ -217,7 +216,7 @@ namespace TA3D
     }
 
 
-    int INGAME_WEAPONS::Run()
+    void INGAME_WEAPONS::proc(void*)
     {
         thread_running = true;
         float dt = 1.0f / TICKS_PER_SEC;
@@ -243,11 +242,10 @@ namespace TA3D
         thread_running = false;
         thread_ask_to_stop = false;
         LOG_INFO("Weapon engine: " << (float)(counter * 1000) / (msec_timer - weapon_timer) << " ticks/sec");
-        return 0;
     }
 
 
-    void INGAME_WEAPONS::SignalExitThread()
+    void INGAME_WEAPONS::signalExitThread()
     {
         if (thread_running)
             thread_ask_to_stop = true;

@@ -2,7 +2,7 @@
 # define __TA3D_INGAME_PLAYERS_H__
 
 # include "../stdafx.h"
-# include "../threads/cThread.h"
+# include "../threads/thread.h"
 # include "../ai/ai.h"
 # include "../network/TA3D_Network.h"
 
@@ -23,7 +23,7 @@
 namespace TA3D
 {
 
-    class PLAYERS : public cThread
+    class PLAYERS : public Thread
     {
     public:
         //! \name Constructor & Destructor
@@ -180,9 +180,9 @@ namespace TA3D
 
     protected:
         //!
-        virtual int Run();
+        void proc(void*);
         //!
-        virtual void SignalExitThread();
+        void signalExitThread();
 
     protected:
         //!

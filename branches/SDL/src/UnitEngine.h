@@ -27,7 +27,7 @@
 
 # include "fbi.h"
 # include "ingame/weapons/weapons.h"
-# include "threads/cThread.h"
+# include "threads/thread.h"
 # include "misc/camera.h"
 # include <list>
 # include <vector>
@@ -502,7 +502,7 @@ namespace TA3D
 
     class INGAME_UNITS :	public ObjectSync,			// Class to manage huge number of units during the game
     protected IInterface,				// It inherits from what we need to use threads
-    public cThread
+    public Thread
     {
     public:
         typedef std::vector< std::list< uint16 > >  RepairPodsList;
@@ -562,8 +562,8 @@ namespace TA3D
         uint32		InterfaceMsg(const lpcImsg msg);	// Manage signals sent through the interface to unit manager
 
     protected:
-        int			Run();
-        void		SignalExitThread();
+        void	proc(void*);
+        void	signalExitThread();
 
     public:
 

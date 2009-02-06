@@ -3,7 +3,6 @@
 
 # include "../../stdafx.h"
 # include "../../threads/thread.h"
-# include "../../threads/cThread.h"
 # include "weapons.h"
 # include "weapons.single.h"
 # include "../../misc/camera.h"
@@ -17,7 +16,7 @@ namespace TA3D
     **
     ** \brief
     */
-    class INGAME_WEAPONS : public ObjectSync, public cThread
+    class INGAME_WEAPONS : public ObjectSync, public Thread
     {
     public:
         //! \name Constructor & Destructor
@@ -91,9 +90,9 @@ namespace TA3D
         //!
         MAP* p_map;
         //!
-        int	Run();
+        void proc(void*);
         //!
-        void SignalExitThread();
+        void signalExitThread();
 
     }; // class INGAME_WEAPONS
 

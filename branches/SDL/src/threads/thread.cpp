@@ -15,47 +15,24 @@ namespace TA3D
     }
 
 
-#ifdef TA3D_PLATFORM_WINDOWS
-
 	void
     Thread::spawn(void* param)
     {
 	    pDead = 0;
 		secondary.thisthread = this;
 		secondary.more = param;
-		thread = ::CreateThread(NULL, 0, run, &secondary, 0, &threadid);
+		thread = SDL_CreateThread(run, &secondary);
 	}
 
     void
     Thread::join()
     {
-		pDead = 1;
-		::WaitForSingleObject(thread, 2000);
-	}
-
-#else // ifdef TA3D_PLATFORM_WINDOWS
-
-	void
-    Thread::spawn(void* param)
-    {
-        pDead = 0;
-		secondary.thisthread = this;
-		secondary.more = param;
-		pthread_create(&thread, NULL, run, &secondary);
-	}
-
-    void
-    Thread::join()
-    {
-        if(!pDead)
+        if (pDead == 0)
         {
-			pDead = 1;
-			pthread_join(thread, NULL);
+            signalExitThread();
+            pDead = 1;
+            SDL_WaitThread(thread, NULL);
         }
 	}
-
-
-#endif // ifdef TA3D_PLATFORM_WINDOWS
-
 
 } // namespace TA3D

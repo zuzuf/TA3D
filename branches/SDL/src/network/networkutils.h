@@ -68,7 +68,8 @@ namespace TA3D
     /*!
     ** \brief
     */
-    class BroadCastThread : public Thread{
+    class BroadCastThread : public Thread
+    {
         virtual void proc(void* param);
     };
 

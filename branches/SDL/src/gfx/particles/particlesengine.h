@@ -2,7 +2,6 @@
 # define __TA3D_GFX_PARTICLES_ENGINE_H__
 
 # include "../../stdafx.h"
-# include "../../threads/cThread.h"
 # include "../../threads/thread.h"
 # include "../../misc/vector.h"
 # include "../../ta3dbase.h"
@@ -22,7 +21,7 @@ namespace TA3D
     **
     ** \brief Engine for particles
     */
-    class PARTICLE_ENGINE : public ObjectSync, public cThread
+    class PARTICLE_ENGINE : public ObjectSync, public Thread
     {
     public:
         //! \name Constructor & Destructor
@@ -146,8 +145,9 @@ namespace TA3D
         Vector3D* p_wind_dir;
         float* p_g;
         std::vector<ParticlesSystem*> particle_systems;
-        int  Run();
-        void  SignalExitThread();
+    private:
+        void  proc(void*);
+        void  signalExitThread();
 
     }; // class PARTICLE_ENGINE
 

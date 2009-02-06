@@ -17,7 +17,7 @@
 
 #include "stdafx.h"
 #include "TA3D_NameSpace.h"
-#include "threads/cThread.h"
+#include "threads/thread.h"
 #include "misc/math.h"
 #include "gfx/shader.h"
 

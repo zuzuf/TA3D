@@ -22,7 +22,6 @@ namespace TA3D
         texcoord(NULL), color(NULL), thread_running(false), thread_ask_to_stop(false),
         p_wind_dir(NULL), p_g(NULL), particle_systems()
     {
-        InitThread();
         init(false);
     }
 
@@ -813,7 +812,7 @@ namespace TA3D
 
 
 
-    int PARTICLE_ENGINE::Run()
+    void PARTICLE_ENGINE::proc(void*)
     {
         thread_running = true;
         float dt = 1.0f / TICKS_PER_SEC;
@@ -839,11 +838,10 @@ namespace TA3D
         thread_ask_to_stop = false;
         LOG_INFO("Particle engine: " << (float)(counter * 1000) / (msec_timer - particle_timer)
                  << " ticks/sec.");
-        return 0;
     }
 
 
-    void PARTICLE_ENGINE::SignalExitThread()
+    void PARTICLE_ENGINE::signalExitThread()
     {
         if (thread_running )
             thread_ask_to_stop = true;
