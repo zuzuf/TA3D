@@ -48,13 +48,13 @@ namespace TA3D
 
 
     TDFParser::TDFParser()
-        :pTableSize(4096), pTableIsEmpty(true), pIgnoreCase(true)
+        :pTableSize(4096), pTableIsEmpty(true), pIgnoreCase(true), special_section()
     {
         pTable.initTable(4096);
     }
 
     TDFParser::TDFParser(const String& filename, const bool caSensitive, const bool toUTF8, const bool gadgetMode, const bool realFS)
-        :pTableSize(4096), pTableIsEmpty(true), pIgnoreCase(!caSensitive)
+        :pTableSize(4096), pTableIsEmpty(true), pIgnoreCase(!caSensitive), special_section()
     {
         pTable.initTable(4096);
         loadFromFile(filename, true, toUTF8, gadgetMode, realFS);
@@ -69,6 +69,7 @@ namespace TA3D
         pTable.emptyHashTable();
         pTable.initTable(pTableSize);
         pTableIsEmpty = true;
+        special_section.clear();
     }
 
 
@@ -233,10 +234,13 @@ namespace TA3D
                             continue;
                         }
                         // Do not store empty keys in the table
-                        if (!clearTable || !stack.value.empty())
+                        if (!stack.key.empty())
                         {
                             stack.value = ReplaceString( stack.value, "\\n", "\n", false);
                             stack.value = ReplaceString( stack.value, "\\r", "\r", false);
+
+                            if (!special_section.empty() && (stack.currentSection.match("*." + special_section) || stack.currentSection == special_section))
+                                pTable.insertOrUpdate(stack.currentSection, pullAsString(stack.currentSection) << "," << stack.key);
 
                             String realKey(stack.currentSection);
                             realKey << "." << stack.key;
@@ -253,6 +257,10 @@ namespace TA3D
         return true;
     }
 
+    void TDFParser::setSpecialSection(const String &section)
+    {
+        special_section = section;
+    }
 
     sint32 TDFParser::pullAsInt(const String& key, const sint32 def)
     {

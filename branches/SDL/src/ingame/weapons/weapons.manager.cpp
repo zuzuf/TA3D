@@ -58,6 +58,7 @@ namespace TA3D
     void WEAPON_MANAGER::load_tdf(char *data, const int size)
     {
         TDFParser parser;
+        parser.setSpecialSection("damage");     // We want to get the list of units in damage sections
         parser.loadFromMemory("weapon",data,size,false,false,true);
 
         for(int i = 0 ; parser.exists( format("gadget%d", i) ) ; i++)
@@ -69,8 +70,16 @@ namespace TA3D
 
             if (index >= 0)
             {
+                String damage = parser.pullAsString( key + "damage" );
+                String::Vector damage_vector;
+                damage.split(damage_vector, ",");
+                weapon[index].damage_hashtable.emptyHashTable();
+                if (damage_vector.size() > 1)
+                    weapon[index].damage_hashtable.initTable( damage_vector.size() );
+                for(int i = 1 ; i < damage_vector.size() ; i++)        // Since it also contains its name as first element start searching at 1
+                    if (damage_vector[i] != "default")
+                        weapon[index].damage_hashtable.insert( damage_vector[i], parser.pullAsInt(key + damage_vector[i]) );
                 weapon[index].damage = parser.pullAsInt( key + "damage.default", weapon[index].damage );
-                #warning unit specific damage parser not implemented
                 weapon[index].name = parser.pullAsString( key + "name", weapon[index].name );
                 weapon[index].weapon_id = parser.pullAsInt( key + "id", weapon[index].weapon_id );
                 weapon[index].rendertype = parser.pullAsInt( key + "rendertype", weapon[index].rendertype );

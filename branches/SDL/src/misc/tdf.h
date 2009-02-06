@@ -147,6 +147,12 @@ namespace TA3D
         bool exists(const String& key) {return pTable.exists(key);}
 
         /*!
+        ** \brief Set the special section
+        ** \param special section name
+        */
+        void setSpecialSection(const String &section);
+
+        /*!
         ** \brief Call a callback for each key
         ** \param callback The callback
         **
@@ -186,6 +192,9 @@ namespace TA3D
 
         //! CharCase
         bool pIgnoreCase;
+
+        //! Special section for which we keep track of keys
+        String special_section;
 
     }; // class TDFParser
 
