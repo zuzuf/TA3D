@@ -16,7 +16,5 @@ namespace Converters
 
 
 
-# include "pcx.h"
-
 
 #endif // __TA3D__IMPORTERS_ALL_H__

@@ -36,7 +36,6 @@
 #include "languages/i18n.h"
 #include "misc/math.h"
 #include "logs/logs.h"
-#include "converters/pcx.h"
 #include "ingame/players.h"
 #include "misc/tdf.h"
 #include "misc/paths.h"
@@ -1242,7 +1241,7 @@ namespace TA3D
                 {
                     String nom_pcx;
                     nom_pcx << "unitpics\\" << unit_manager.unit_type[unit_manager.nb_unit - 1]->Unitname << ".pcx";
-                    unit_manager.unit_type[unit_manager.nb_unit - 1]->unitpic = Converters::PCX::FromHPIToBitmap(nom_pcx);
+                    unit_manager.unit_type[unit_manager.nb_unit - 1]->unitpic = gfx->load_image(nom_pcx);
 
                     if (unit_manager.unit_type[unit_manager.nb_unit - 1]->unitpic)
                     {
