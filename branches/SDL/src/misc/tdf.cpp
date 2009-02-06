@@ -201,7 +201,7 @@ namespace TA3D
                             else
                                 stack.currentSection += ".";
                             stack.currentSection += stack.value;
-                            if (stack.gadgetMode < 0)
+                            if (stack.gadgetMode < 0 && !exists(stack.currentSection) )
                                 pTable.insertOrUpdate(stack.currentSection, stack.value);
                             ++stack.level;
                             continue;

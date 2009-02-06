@@ -327,7 +327,7 @@ namespace Menus
         LOG_DEBUG(LOG_PREFIX_MENU_MAPSELECTOR << "ota data extracted");
         if(data)
         {
-            MAP_OTA	map_data;	// Using MAP_OTA because it's faster than cTAFileParser that fills a hash_table object
+            MAP_OTA	map_data;
             map_data.load((char*)data, ota_size);
             bool isNetworkGame = map_data.network;
             delete[] data;

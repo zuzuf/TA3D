@@ -334,7 +334,7 @@ namespace
     {
         if(argc >= 3)
         {
-            cTAFileParser parser( argv[2], false, false, false );
+            TDFParser parser( argv[2], false, false, false );
             String filename = parser.pullAsString( "gadget0.filename" );
             FILE *gaf_file = TA3D_OpenFile( Paths::ExtractFileName( filename ), "wb" );
 

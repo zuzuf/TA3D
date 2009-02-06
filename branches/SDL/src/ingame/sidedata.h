@@ -146,7 +146,7 @@ namespace TA3D
     /*!
     ** \brief
     */
-    IntrElementCoords read_gui_element(UTILS::cTAFileParser* parser, const String& element, bool bottom = false);
+    IntrElementCoords read_gui_element(TDFParser* parser, const String& element, bool bottom = false);
 
 
     /*!

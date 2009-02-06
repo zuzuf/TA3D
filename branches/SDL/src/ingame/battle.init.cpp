@@ -335,7 +335,7 @@ namespace TA3D
         if (!pGameData->use_only.empty()) 			// We are told not to use all units !!
         {
             LOG_DEBUG(LOG_PREFIX_BATTLE << "Loading restrictions...");
-            cTAFileParser useonly_parser(pGameData->use_only, false, false, true); // In gadgets mode so we can read the special key :)
+            TDFParser useonly_parser(pGameData->use_only, false, false, true); // In gadgets mode so we can read the special key :)
             for (int i = 0; i < unit_manager.nb_unit ; i++)
                 unit_manager.unit_type[i]->not_used = true;
             String unit_name;

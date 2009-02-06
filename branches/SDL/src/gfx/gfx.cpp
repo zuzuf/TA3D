@@ -147,12 +147,23 @@ namespace TA3D
         textureFBO = 0;
         textureDepth = 0;
         glfond = 0;
-#warning TODO: add font initialization code here
+
+        LOG_DEBUG(LOG_PREFIX_GFX << "Creating a normal font...");
         normal_font = font_manager.getFont("", 12, FONT_TYPE_TEXTURE);
+
+        LOG_DEBUG(LOG_PREFIX_GFX << "Creating a small font...");
         small_font = font_manager.getFont("", 8, FONT_TYPE_TEXTURE);
+
+        LOG_DEBUG(LOG_PREFIX_GFX << "Loading a big font...");
         TA_font = font_manager.getFont("", 16, FONT_TYPE_TEXTURE);
+
+        LOG_DEBUG(LOG_PREFIX_GFX << "Loading the GUI font...");
         ta3d_gui_font = font_manager.getFont("", 10 * SCREEN_W / 640, FONT_TYPE_TEXTURE);
+        gui_font = ta3d_gui_font;
+
+        LOG_DEBUG(LOG_PREFIX_GFX << "Loading a bug scaled font...");
         big_font = font_manager.getFont("", 16 * SCREEN_W / 640, FONT_TYPE_TEXTURE);
+
         InitInterface();
         displayInfosAboutOpenGL();
     }
@@ -191,20 +202,10 @@ namespace TA3D
         bool palette = TA3D::UTILS::HPI::load_palette(pal);
         if (!palette)
             LOG_WARNING("Failed to load the palette");
-#warning TODO: try to load TA GAF font here
-//        TA_font->load_gaf_font("anims\\hattfont12.gaf", 1.0f);
-
-        LOG_DEBUG(LOG_PREFIX_GFX << "Creating a normal font...");
-
-        LOG_DEBUG(LOG_PREFIX_GFX << "Creating a small font...");
-
-        LOG_DEBUG(LOG_PREFIX_GFX << "Loading the GUI font...");
-//        ta3d_gui_font.load_gaf_font( "anims\\hattfont12.gaf" , 1.0f );
 
         LOG_DEBUG(LOG_PREFIX_GFX << "Loading background...");
         load_background();
 
-        gui_font = ta3d_gui_font;
         alpha_blending_set = false;
 
         LOG_INFO(LOG_PREFIX_GFX << "Graphics are initialized.");

@@ -1,6 +1,5 @@
 
 #include "sidedata.h"
-#include "../cTAFileParser.h"
 #include "../gfx/gui/skin.h"
 
 
@@ -68,7 +67,7 @@ namespace TA3D
     {
         destroy();
 
-        UTILS::cTAFileParser mod_parser( "ta3d.mod" );
+        TDFParser mod_parser( "ta3d.mod", false, false, false, false );
         unit_ext = mod_parser.pullAsString( "MOD.unit_ext", ".fbi" );
         unit_dir = mod_parser.pullAsString( "MOD.unit_dir", "units\\" );
         model_dir = mod_parser.pullAsString( "MOD.model_dir", "objects3d\\" );
@@ -83,12 +82,14 @@ namespace TA3D
         if( guis_dir[ guis_dir.length() - 1 ] != '\\' )			guis_dir += "\\";
         if( gamedata_dir[ gamedata_dir.length() - 1 ] != '\\' )	gamedata_dir += "\\";
 
-        UTILS::cTAFileParser sidedata_parser( gamedata_dir + "sidedata.tdf" );
+        TDFParser sidedata_parser( gamedata_dir + "sidedata.tdf", false, false, false, false );
 
         nb_side = 0;
 
         while (sidedata_parser.pullAsString( format( "side%d.name", nb_side ), "" ) != "")
         {
+            LOG_DEBUG("[sidedata] " << sidedata_parser.pullAsString( format( "side%d.name", nb_side ) ));
+
             side_name[ nb_side ] = sidedata_parser.pullAsString( format( "side%d.name", nb_side ) );
             side_pref[ nb_side ] = sidedata_parser.pullAsString( format( "side%d.nameprefix", nb_side ) );
             side_com[ nb_side ] = sidedata_parser.pullAsString( format( "side%d.commander", nb_side ) );
@@ -141,7 +142,7 @@ namespace TA3D
         return -1;
     }
 
-    IntrElementCoords read_gui_element(UTILS::cTAFileParser* parser, const String& element, bool bottom)
+    IntrElementCoords read_gui_element(TDFParser* parser, const String& element, bool bottom)
     {
         IntrElementCoords gui_element;
         gui_element.x1 = parser->pullAsInt(element + ".x1");

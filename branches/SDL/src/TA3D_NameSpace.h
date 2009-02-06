@@ -32,7 +32,6 @@
 # include "misc/interface.h"
 # include "cError.h"
 # include "misc/vector.h"
-# include "cTAFileParser.h"
 # include "TA3D_hpi.h"
 # include "gfx/gfx.h"
 # include "network/network.h"

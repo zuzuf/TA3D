@@ -65,7 +65,7 @@ namespace Menus
 
         if (!pUseOnly.empty())          // Load previous selection
         {
-            cTAFileParser useonly_parser(pUseOnly, false, false, true); // In gadgets mode so we can read the special key :)
+            TDFParser useonly_parser(pUseOnly, false, false, true); // In gadgets mode so we can read the special key :)
             for (int i = 0; i < unit_manager.nb_unit ; i++)
                 unit_manager.unit_type[i]->not_used = true;
             String unit_name;

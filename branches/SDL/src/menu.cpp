@@ -2240,7 +2240,7 @@ void campaign_main_menu(void)
     if (data)
         delete[] data;
 
-    cTAFileParser* campaign_parser = NULL;
+    TDFParser* campaign_parser = NULL;
 
     bool start_game = false;
 
@@ -2281,7 +2281,7 @@ void campaign_main_menu(void)
                 last_campaign_id = guiobj->Pos;
                 mission_id = -1;
                 campaign_name = "camps\\" + guiobj->Text[ guiobj->Pos ] + ".tdf";
-                campaign_parser = new cTAFileParser( campaign_name);
+                campaign_parser = new TDFParser( campaign_name);
 
                 guiobj = campaign_area.get_object("campaign.mission_list");
                 nb_mission = 0;

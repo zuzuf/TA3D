@@ -349,7 +349,8 @@ namespace Paths
         struct dirent *dirp;
         if((dp  = opendir(root_path.c_str())) == NULL)
         {
-            LOG_ERROR( LOG_PREFIX_PATHS << "opening " << root << " failed: " << strerror( errno ) );
+            // Following line is commented out because it may be useful later, but for now it only floods the logs
+//            LOG_ERROR( LOG_PREFIX_PATHS << "opening " << root << " failed: " << strerror( errno ) );
             return true;
         }
 
