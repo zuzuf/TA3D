@@ -52,6 +52,13 @@ namespace TA3D
 
     void GFX::initSDL()
     {
+        SDL_Surface *icon = load_image("gfx\\icon.png");
+        if (icon)
+        {
+            SDL_WM_SetIcon(icon, NULL);
+            SDL_FreeSurface(icon);
+        }
+
         SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
         SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, TA3D::VARS::lp_CONFIG->fsaa > 1);
         SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, TA3D::VARS::lp_CONFIG->fsaa);
