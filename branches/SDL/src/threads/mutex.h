@@ -2,12 +2,7 @@
 # define __TA3D_THREADS_MUTEX_H__
 
 
-#ifndef TA3D_PLATFORM_WINDOWS
-#  include <pthread.h>
-#else
-#  include <windows.h>
-#endif
-
+#include <SDL_thread.h>
 
 
 namespace TA3D
@@ -18,7 +13,7 @@ namespace TA3D
     **
     ** \brief  Mechanism to avoid the simultaneous use of a common resource
     */
-    class Mutex 
+    class Mutex
     {
     public:
         //! \name Constructor & Destructor
@@ -34,11 +29,7 @@ namespace TA3D
         */
 		void lock()
 		{
-            # ifdef TA3D_PLATFORM_WINDOWS
-			::EnterCriticalSection(&pCritSection);
-            # else
-			pthread_mutex_lock(&pPthreadLock);
-            # endif
+            SDL_LockMutex(pMutex);
 		}
 
         /*!
@@ -46,21 +37,12 @@ namespace TA3D
         */
 		void unlock()
 		{
-            # ifdef TA3D_PLATFORM_WINDOWS
-			::LeaveCriticalSection(&pCritSection);
-            # else
-			pthread_mutex_unlock(&pPthreadLock);
-            # endif
+            SDL_UnlockMutex(pMutex);
 		}
-	
+
 
     private:
-        # ifdef TA3D_PLATFORM_WINDOWS
-		CRITICAL_SECTION pCritSection;
-        # else
-		pthread_mutex_t pPthreadLock;
-        # endif
-
+        SDL_mutex *pMutex;
     }; // class Mutex
 
 
