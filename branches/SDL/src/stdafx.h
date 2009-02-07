@@ -93,14 +93,14 @@
 #      pragma comment( lib, "opengl32.lib" )
 #      pragma comment( lib, "glu32.lib" )
 #      pragma comment( lib, "glaux.lib" )
-#      pragma comment( lib, "tools/win32/libs/glew32.lib" )
-#      include "tools/win32/include/gl/glew.h"
+#      pragma comment( lib, "tools/win32/msvc/libs/glew32.lib" )
+#      include "tools/win32/include/GL/glew.h"
     // Cire: I had to setup a pragma on c4312, 4005 warnings, because allgero include
     //  was generating alot of compiler noise.
 #      pragma warning( disable : 4312 )
 #      pragma warning( disable : 4005 )
 #   endif
-#   define GL_GLEXT_PROTOTYPES
+#   include "tools/win32/mingw32/include/GL/glew.h"
 #   include "SDL.h"
 #   include "SDL_image.h"
     // Cire: Restore warning states
