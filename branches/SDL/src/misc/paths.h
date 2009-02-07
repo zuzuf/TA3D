@@ -128,9 +128,9 @@ namespace Paths
     **
     ** \see Paths::Separator
     */
-    String ExtractFileName(const String& p, const bool systemDependant = true);
-    void ExtractFileName(String::List& p, const bool systemDependant = true);
-    void ExtractFileName(String::Vector& p, const bool systemDependant = true);
+    String ExtractFileName(const String& p, const bool systemDependant = false);
+    void ExtractFileName(String::List& p, const bool systemDependant = false);
+    void ExtractFileName(String::Vector& p, const bool systemDependant = false);
 
     /*!
     ** \brief Extract the bare file name without its extension

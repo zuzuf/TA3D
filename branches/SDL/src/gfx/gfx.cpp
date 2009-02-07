@@ -1133,8 +1133,12 @@ namespace TA3D
                     else
                         img = convert_format_24(img);
                 }
+                else
+                    LOG_ERROR(LOG_PREFIX_GFX << "could not load image file: " << filename << " (vfs)");
                 return img;
             }
+            else
+                LOG_ERROR(LOG_PREFIX_GFX << "could not read image file: " << filename << " (vfs)");
             return NULL;
         }
         SDL_Surface *img = IMG_Load(filename.c_str());
@@ -1145,6 +1149,8 @@ namespace TA3D
             else
                 img = convert_format_24(img);
         }
+        else
+            LOG_ERROR(LOG_PREFIX_GFX << "could not load image file: " << filename);
         return img;
     }
 
