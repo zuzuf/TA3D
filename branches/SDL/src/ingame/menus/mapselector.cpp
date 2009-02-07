@@ -5,6 +5,7 @@
 #include "../../tnt.h"
 #include "../../logs/logs.h"
 #include "../../languages/i18n.h"
+#include "../../misc/tdf.h"
 
 
 
@@ -322,16 +323,16 @@ namespace Menus
     bool MapSelector::MapIsForNetworkGame(const String& mapShortName)
     {
         LOG_DEBUG(LOG_PREFIX_MENU_MAPSELECTOR << "MapIsForNetworkGame(" << mapShortName << ")");
-        uint32 ota_size=0;
-        byte* data = HPIManager->PullFromHPI(String("maps\\") + mapShortName + String(".ota"), &ota_size);
+        uint32 ota_size = 10240;
+        byte* data = HPIManager->PullFromHPI_zone(String("maps\\") << mapShortName << String(".ota"), 0, ota_size, &ota_size);
+        ota_size = Math::Min( (int)ota_size, 10240 );
         LOG_DEBUG(LOG_PREFIX_MENU_MAPSELECTOR << "ota data extracted");
         if(data)
         {
-            MAP_OTA	map_data;
-            map_data.load((char*)data, ota_size);
-            bool isNetworkGame = map_data.network;
+            TDFParser ota_parser;
+            ota_parser.loadFromMemory("ota", (const char*)data, ota_size, false, false, false);
+            bool isNetworkGame = StartsWith( ota_parser.pullAsString("GlobalHeader.Schema 0.Type").toLower(), "network");
             delete[] data;
-            map_data.destroy();
             LOG_DEBUG(LOG_PREFIX_MENU_MAPSELECTOR << "done (true)");
             return isNetworkGame;
         }

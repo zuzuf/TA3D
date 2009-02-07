@@ -184,8 +184,12 @@ namespace TA3D
             key = "[";
             pos = s.find_first_not_of(TA3D_WSTR_SEPARATORS, pos + 1);
             String::size_type end = s.find_first_of(']', pos);
-            end = s.find_last_not_of(TA3D_WSTR_SEPARATORS, end - 1);
-            value = s.substr(pos, end - pos + 1);
+            if (end != String::npos)
+            {
+                end = s.find_last_not_of(TA3D_WSTR_SEPARATORS, end - 1);
+                if (pos != String::npos && end != String::npos)
+                    value = s.substr(pos, end - pos + 1);
+            }
             return;
         }
         // The first `=` character
