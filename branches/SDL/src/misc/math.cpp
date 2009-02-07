@@ -1,3 +1,4 @@
+#include "../stdafx.h"
 #include "math.h"
 #include <time.h>
 #include "../logs/logs.h"
@@ -19,7 +20,7 @@ namespace Math
     {
         //! \name Random table
         //@{
-        
+
         //! Current position in the random table
         int gRandomTablePosition = 0;
 

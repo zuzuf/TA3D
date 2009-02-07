@@ -1,8 +1,7 @@
 #ifndef __TA3D_XX__MATH_H__
 # define __TA3D_XX__MATH_H__
 
-# include "../stdafx.h"
-# include <math.h>
+# include <cmath>
 
 
 namespace TA3D
@@ -61,7 +60,7 @@ namespace Math
 
 
 //! Alias to the isnan() function
-#define isNaN(x) isnan(x)
+#define isNaN(x) std::isnan(x)
 
 
 /*

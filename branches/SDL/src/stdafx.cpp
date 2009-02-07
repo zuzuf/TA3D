@@ -27,7 +27,7 @@
 #include "stdafx.h"
 #include <sys/stat.h>
 #include <fstream>
-#include <math.h>
+#include <cmath>
 
 using namespace std;
 

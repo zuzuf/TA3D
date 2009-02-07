@@ -23,6 +23,7 @@
   \----------------------------------------------------------*/
 
 #include "stdafx.h"
+#include "misc/math.h"
 #include "misc/matrix.h"
 #include "TA3D_NameSpace.h"
 #include "ta3dbase.h"
@@ -36,7 +37,6 @@
 #include "misc/camera.h"
 #include "ingame/sidedata.h"
 #include "languages/i18n.h"
-#include "misc/math.h"
 #include "sounds/manager.h"
 #include "ingame/players.h"
 
