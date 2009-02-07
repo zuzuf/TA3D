@@ -167,7 +167,6 @@ namespace TA3D
             sint32 idx = RawDataGetEntryIndex(data, imgname);
             if (idx != -1)
             {
-//                set_palette(pal); // Activate the palette
                 SDL_Surface *img = Gaf::RawDataToBitmap(data, idx, 0, NULL, NULL, truecolor);
                 if (img)
                 {

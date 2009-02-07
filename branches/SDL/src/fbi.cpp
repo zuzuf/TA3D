@@ -1050,7 +1050,6 @@ namespace TA3D
         else
             LOG_ERROR("Unable to load `"<< (ta3dSideData.guis_dir + player_side + "MAIN.GUI") << "`");
 
-        // set_color_depth(32);
         if (g_useTextureCompression && lp_CONFIG->use_texture_compression)
             gfx->set_texture_format(GL_COMPRESSED_RGB_ARB);
         else

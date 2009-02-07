@@ -119,7 +119,12 @@ namespace TA3D
 #define KEY_Y           SDLK_y
 #define KEY_Z           SDLK_z
 
+// This is used to show/hide the console
+#ifdef TA3D_PLATFORM_WINDOWS
+#define KEY_TILDE       SDLK_F8
+#else
 #define KEY_TILDE       SDLK_RIGHTPAREN
+#endif
 
 #define KEY_CAPSLOCK    SDLK_CAPSLOCK
 

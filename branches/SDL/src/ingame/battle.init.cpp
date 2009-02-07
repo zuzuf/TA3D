@@ -282,7 +282,7 @@ namespace TA3D
     bool Battle::initIntermediateCleanup()
     {
         LOG_DEBUG(LOG_PREFIX_BATTLE << "Freeing unused memory");
-        // loading(400.0f / 7.0f, I18N::Translate("Free unused memory"));
+        loading(400.0f / 7.0f, I18N::Translate("Free unused memory"));
         texture_manager.destroy();
         return true;
     }
@@ -293,7 +293,6 @@ namespace TA3D
         loading(500.0f / 7.0f, I18N::Translate("Initialising engine"));
         gfx->SetDefState();
         particle_engine.init();
-//        set_palette(pal);
         return true;
     }
 
