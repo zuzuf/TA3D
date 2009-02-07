@@ -131,12 +131,12 @@ namespace TA3D
             if (data)
             {
                 std::fstream tmp_file;
-                tmp_file.open( (TA3D::Paths::Caches + "tmp.font").c_str(), std::fstream::out);
+                tmp_file.open( (TA3D::Paths::Caches + Paths::ExtractFileName(name)).c_str(), std::fstream::out);
                 if (tmp_file.is_open())
                 {
                     tmp_file.write((char*)data, font_size);
                     tmp_file.close();
-                    file_path = TA3D::Paths::Caches + "tmp.font";
+                    file_path = TA3D::Paths::Caches + Paths::ExtractFileName(name);
                 }
                 delete[] data;
             }
@@ -177,7 +177,7 @@ namespace TA3D
 
     Font *FontManager::getFont(String filename, int size, int type)
     {
-        String key = filename + format("_%d_%d", type, size);
+        String key = String::ToLower(filename + format("_%d_%d", type, size));
 
         if (font_table.exists(key))
             return font_table.find(key);
@@ -190,17 +190,17 @@ namespace TA3D
 
         if (filename.empty())
         {
+            LOG_DEBUG(LOG_PREFIX_FONT << "font not found : " << bak_filename);
             if (HPIManager)
                 filename = find_font(TA3D_FONT_PATH, "FreeSerif");
             else
                 filename = find_font(SYSTEM_FONT_PATH, "FreeSerif");
         }
-        else
-            LOG_DEBUG(LOG_PREFIX_FONT << "font not found : " << bak_filename);
 
         Font *font = new Font();
         font->load(filename, size, type);
 
+        font_list.push_back(font);
         font_table.insertOrUpdate(key, font);
 
         return font;

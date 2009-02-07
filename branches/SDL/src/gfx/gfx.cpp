@@ -156,20 +156,20 @@ namespace TA3D
         glfond = 0;
 
         LOG_DEBUG(LOG_PREFIX_GFX << "Creating a normal font...");
-        normal_font = font_manager.getFont("", 12, FONT_TYPE_TEXTURE);
+        normal_font = font_manager.getFont("FreeSans", 12, FONT_TYPE_TEXTURE);
 
         LOG_DEBUG(LOG_PREFIX_GFX << "Creating a small font...");
-        small_font = font_manager.getFont("", 8, FONT_TYPE_TEXTURE);
+        small_font = font_manager.getFont("FreeMono", 8, FONT_TYPE_TEXTURE);
 
         LOG_DEBUG(LOG_PREFIX_GFX << "Loading a big font...");
-        TA_font = font_manager.getFont("", 16, FONT_TYPE_TEXTURE);
+        TA_font = font_manager.getFont("FreeSans", 16, FONT_TYPE_TEXTURE);
 
         LOG_DEBUG(LOG_PREFIX_GFX << "Loading the GUI font...");
-        ta3d_gui_font = font_manager.getFont("", 10 * SCREEN_W / 640, FONT_TYPE_TEXTURE);
+        ta3d_gui_font = font_manager.getFont("FreeSerif", 10 * SCREEN_W / 640, FONT_TYPE_TEXTURE);
         gui_font = ta3d_gui_font;
 
-        LOG_DEBUG(LOG_PREFIX_GFX << "Loading a bug scaled font...");
-        big_font = font_manager.getFont("", 16 * SCREEN_W / 640, FONT_TYPE_TEXTURE);
+        LOG_DEBUG(LOG_PREFIX_GFX << "Loading a big scaled font...");
+        big_font = font_manager.getFont("FreeSans", 16 * SCREEN_W / 640, FONT_TYPE_TEXTURE);
 
         InitInterface();
         displayInfosAboutOpenGL();
