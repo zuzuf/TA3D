@@ -37,6 +37,10 @@
 #define FONT_TYPE_BITMAP            0x2
 #define FONT_TYPE_PIXMAP            0x3
 
+#define LINUX_FONT_PATH         "/usr/share/fonts"
+#define SYSTEM_FONT_PATH        LINUX_FONT_PATH
+#define TA3D_FONT_PATH          "fonts"
+
 namespace TA3D
 {
     class GFX;

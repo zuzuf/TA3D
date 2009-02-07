@@ -89,8 +89,20 @@ namespace TA3D
             case OBJ_MENU:
             case OBJ_FMENU:
             case OBJ_TEXTBAR:
-            case OBJ_BUTTON:  Text[0] = caption;
-        }
+            case OBJ_BUTTON:
+                if (Flag & FLAG_CENTERED)
+                {
+                    x1 += (gui_font->length(Text[0]) - gui_font->length(caption)) * 0.5f;
+                    x2 -= (gui_font->length(Text[0]) - gui_font->length(caption)) * 0.5f;
+                }
+                Text[0] = caption;
+        };
+        switch (Type)
+        {
+            case OBJ_OPTIONC:
+            case OBJ_OPTIONB:
+                x2 = x1 + (int)gui_font->length(caption) + 4;
+        };
         if (Type == OBJ_TEXTBAR && Text[0].size() >= Data)
             Text[0].resize(Data - 1);
     }

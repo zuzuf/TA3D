@@ -1483,7 +1483,7 @@ namespace TA3D
                 if (wndFile.pullAsBool(obj_key + "centered"))
                 {
                     obj_flags |= FLAG_CENTERED;
-                    X1 -= gui_font->length(caption) * size * 0.5f;
+                    X1 -= gui_font->length(caption) * 0.5f;
                 }
 
                 String::Vector Entry;

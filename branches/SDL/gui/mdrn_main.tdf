@@ -66,8 +66,8 @@
 		name=t_version;
 		type=TEXT;
 		caption=TA3D;
-		x1=158;
-		y1=40;
+		x1=163;
+		y1=44;
 		centered=true;
 		value=0xFFFFFFFF;
 		size=1.8;

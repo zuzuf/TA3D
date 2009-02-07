@@ -386,7 +386,7 @@
 		caption=Disable GLSL;
 		help=disable GLSL shaders\nmay help if game crash;
 		x1=0;
-		y1=650;
+		y1=645;
 		value=0xFFFFFFFF;
 		size=2;
 	}
@@ -397,7 +397,7 @@
 		caption=;
 		help=disable GLSL shaders\nmay help if game crash;
 		x1=690;
-		y1=650;
+		y1=645;
 		value=1;
 		size=1.6;
 	}
@@ -408,7 +408,7 @@
 		caption=Disable perspective;
 		help=disable perspective\nTA3D will use an orthographic camera;
 		x1=0;
-		y1=690;
+		y1=680;
 		value=0xFFFFFFFF;
 		size=2;
 	}
@@ -419,7 +419,7 @@
 		caption=;
 		help=disable perspective\nTA3D will use an orthographic camera;
 		x1=690;
-		y1=690;
+		y1=680;
 		value=1;
 		size=1.6;
 	}

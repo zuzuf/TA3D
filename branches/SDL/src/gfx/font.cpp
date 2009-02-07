@@ -7,7 +7,7 @@
 #include "gfx.h"
 #include "../misc/paths.h"
 #include "../logs/logs.h"
-
+#include <fstream>
 
 
 
@@ -34,8 +34,7 @@ namespace TA3D
         if (font == NULL)   return;
 
         glScalef(1.0f, -1.0f, 1.0f);
-        font->Render( text.c_str(), -1, FTPoint(x, -(1.5f * font->Ascender() - 0.5f * font->LineHeight()) - y, z), FTPoint(), FTGL::RENDER_ALL);
-//        font->Render( text.c_str(), -1, FTPoint(x, -font->Ascender() - y, z), FTPoint(), FTGL::RENDER_ALL);
+        font->Render( text.c_str(), -1, FTPoint(x, -(y + 0.5f * (-font->Descender() + font->Ascender())), z), FTPoint(), FTGL::RENDER_ALL);
         glScalef(1.0f, -1.0f, 1.0f);
     }
 
@@ -107,12 +106,15 @@ namespace TA3D
         String file_path;
         String::List file_list;
         String comp_name = String::ToLower(name + ".ttf");
-        Paths::GlobFiles(file_list, path + "/*", true, true);
+        if (HPIManager)
+            HPIManager->getFilelist(path + "/*", file_list);
+        else
+            Paths::GlobFiles(file_list, path + "/*", true, true);
         for(String::List::iterator i = file_list.begin() ; i != file_list.end() && file_path.empty() ; ++i)
-            if (String::ToLower(*i) == comp_name)
-                file_path = path + "/" + *i;
+            if (String::ToLower( Paths::ExtractFileName(*i) ) == comp_name)
+                file_path = HPIManager == NULL ? path + "/" + *i : *i;
 
-        if (file_path.empty())
+        if (file_path.empty() && !HPIManager)
         {
             String::List dir_list;
             Paths::GlobDirs(dir_list, path + "/*", true, true);
@@ -120,6 +122,26 @@ namespace TA3D
                 if (!StartsWith(*i, "."))
                     file_path = find_font(path + "/" + *i, name);
         }
+
+        if (HPIManager && !file_path.empty())       // If we have a font in our VFS, then we have to extract it to a temporary location
+        {                                           // in order to load it with FTGL
+            LOG_DEBUG(LOG_PREFIX_FONT << "font found: " << file_path);
+            uint32 font_size = 0;
+            byte *data = HPIManager->PullFromHPI(file_path, &font_size);
+            if (data)
+            {
+                std::fstream tmp_file;
+                tmp_file.open( (TA3D::Paths::Caches + "tmp.font").c_str(), std::fstream::out);
+                if (tmp_file.is_open())
+                {
+                    tmp_file.write((char*)data, font_size);
+                    tmp_file.close();
+                    file_path = TA3D::Paths::Caches + "tmp.font";
+                }
+                delete[] data;
+            }
+        }
+
         return file_path;
     }
 
@@ -161,10 +183,18 @@ namespace TA3D
             return font_table.find(key);
 
         String bak_filename = filename;
-        filename = find_font("/usr/share/fonts", filename);
+        if (HPIManager)
+            filename = find_font(TA3D_FONT_PATH, filename);
+        else
+            filename = find_font(SYSTEM_FONT_PATH, filename);
 
         if (filename.empty())
-            filename = find_font("/usr/share/fonts", "FreeSerif");
+        {
+            if (HPIManager)
+                filename = find_font(TA3D_FONT_PATH, "FreeSerif");
+            else
+                filename = find_font(SYSTEM_FONT_PATH, "FreeSerif");
+        }
         else
             LOG_DEBUG(LOG_PREFIX_FONT << "font not found : " << bak_filename);
 

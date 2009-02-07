@@ -46,7 +46,6 @@ void loading(const float percent, const String& msg)
         network_manager.sendAll(format("LOADING %d", last_percent));
     }
 
-//    set_uformat(U_UTF8);
     bool init=(Glfond==0);
 
     if(init)

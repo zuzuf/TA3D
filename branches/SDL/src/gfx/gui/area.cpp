@@ -90,12 +90,6 @@ namespace TA3D
         GUIOBJ* guiobj = doGetObject(message);
         if (guiobj && guiobj->Text.size() > 0)
         {
-            if (guiobj->Flag & FLAG_CENTERED)
-            {
-                float length = gui_font->length(guiobj->Text[0]) * guiobj->s;
-                guiobj->x1 += length * 0.5f;
-                guiobj->x2 -= length * 0.5f;
-            }
             if (guiobj->Type == OBJ_TEXTEDITOR)
             {
                 guiobj->Text.resize(1);
@@ -108,13 +102,7 @@ namespace TA3D
                         guiobj->Text.back() += *i;
             }
             else
-                guiobj->Text[0] = caption;
-            if (guiobj->Flag & FLAG_CENTERED)
-            {
-                float length = gui_font->length(guiobj->Text[0]) * guiobj->s;
-                guiobj->x1 -= length * 0.5f;
-                guiobj->x2 += length * 0.5f;
-            }
+                guiobj->set_caption( caption );
         }
         pMutex.unlock();
     }
