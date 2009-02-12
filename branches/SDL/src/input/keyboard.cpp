@@ -13,6 +13,9 @@ namespace TA3D
 {
 	uint32 readkey()
 	{
+	    if (VARS::keybuf.empty())
+            return 0;
+
 	    uint32 res = VARS::keybuf.front();
 	    VARS::keybuf.pop_front();
 	    return res;

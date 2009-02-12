@@ -200,6 +200,7 @@ namespace Menus
 
     void MapSelector::waitForEvent()
     {
+        pArea->msg("mapsetup.map_list.focus");
         bool keyIsPressed(false);
         do
         {

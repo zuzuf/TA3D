@@ -814,18 +814,18 @@ namespace TA3D
                     break;
 
                 case OBJ_LIST:
-                    if (Objets[i].MouseOn && skin)
+                    if ((Objets[i].MouseOn || Objets[i].Focus) && skin)
                     {
-                        if (mouse_x - x <= Objets[i].x1 + skin->text_background.x1
-                            || mouse_x - x >= Objets[i].x2 + skin->text_background.x2
-                            || mouse_y - y <= Objets[i].y1 + skin->text_background.y1
-                            || mouse_y - y >= Objets[i].y2 + skin->text_background.y2)			// We're on ListBox decoration!
-                            break;
-                        int TotalScroll = Objets[i].Text.size() - (int)((Objets[i].y2 - Objets[i].y1 - skin->text_background.y1 + skin->text_background.y2) / gui_font->height());
+                        bool onDeco = (mouse_x - x <= Objets[i].x1 + skin->text_background.x1
+                                        || mouse_x - x >= Objets[i].x2 + skin->text_background.x2
+                                        || mouse_y - y <= Objets[i].y1 + skin->text_background.y1
+                                        || mouse_y - y >= Objets[i].y2 + skin->text_background.y2);			// We're on ListBox decoration!
+                        int widgetSize = (int)((Objets[i].y2 - Objets[i].y1 - skin->text_background.y1 + skin->text_background.y2) / gui_font->height());
+                        int TotalScroll = Objets[i].Text.size() - widgetSize;
                         if (TotalScroll < 0)
                             TotalScroll = 0;
 
-                        if (mouse_b == 1
+                        if (mouse_b == 1 && !onDeco
                             && mouse_x - x >= Objets[i].x2 + skin->text_background.x2 - skin->scroll[0].sw
                             && mouse_x - x <= Objets[i].x2 + skin->text_background.x2
                             && mouse_y - y >= Objets[i].y1 + skin->text_background.y1
@@ -848,6 +848,26 @@ namespace TA3D
                         else
                         {
                             int nscroll = (int)Objets[i].Data - mouse_z + AMz;
+                            int npos = Objets[i].Pos;
+                            if (Objets[i].Focus)
+                            {
+                                int key_code = (readkey() >> 16) & 0xFFFF;
+                                if (key_code == KEY_UP)
+                                    npos--;
+                                if (key_code == KEY_DOWN)
+                                    npos++;
+                                if (npos != Objets[i].Pos)
+                                {
+                                    if (npos < 0)   npos = 0;
+                                    if (npos >= Objets[i].Text.size())
+                                        npos = Objets[i].Text.size() - 1;
+                                    if (nscroll > npos)
+                                        nscroll = npos;
+                                    if (nscroll + widgetSize <= npos)
+                                        nscroll = npos - widgetSize + 1;
+                                }
+                            }
+
                             if (nscroll < 0)
                                 nscroll = 0;
                             else
@@ -855,6 +875,7 @@ namespace TA3D
                                     nscroll = TotalScroll;
 
                             Objets[i].Data = nscroll;
+                            Objets[i].Pos = npos;
                         }
                     }
                     break;
