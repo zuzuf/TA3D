@@ -103,6 +103,7 @@ namespace TA3D
 
     String find_font(const String &path, const String &name)
     {
+        LOG_DEBUG(LOG_PREFIX_FONT << "looking for " << name);
         String file_path;
         String::List file_list;
         String comp_name = String::ToLower(name + ".ttf");
@@ -130,13 +131,19 @@ namespace TA3D
             byte *data = HPIManager->PullFromHPI(file_path, &font_size);
             if (data)
             {
+                LOG_DEBUG(LOG_PREFIX_FONT << "creating temporary file for " << name);
                 std::fstream tmp_file;
-                tmp_file.open( (TA3D::Paths::Caches + Paths::ExtractFileName(name)).c_str(), std::fstream::out);
+                tmp_file.open( (TA3D::Paths::Caches + Paths::ExtractFileName(name) + ".ttf").c_str(), std::fstream::out | std::fstream::binary);
                 if (tmp_file.is_open())
                 {
                     tmp_file.write((char*)data, font_size);
+                    tmp_file.flush();
                     tmp_file.close();
-                    file_path = TA3D::Paths::Caches + Paths::ExtractFileName(name);
+#ifdef TA3D_PLATFORM_WINDOWS
+                    file_path = String::ConvertSlashesIntoAntiSlashes( TA3D::Paths::Caches + Paths::ExtractFileName(name) + ".ttf" );
+#else
+                    file_path = TA3D::Paths::Caches + Paths::ExtractFileName(name) + ".ttf";
+#endif
                 }
                 delete[] data;
             }
@@ -147,8 +154,10 @@ namespace TA3D
 
     void Font::load(const String &filename, const int size, const int type)
     {
+        LOG_DEBUG(LOG_PREFIX_FONT << "destroying Font object");
         destroy();
         font = NULL;
+        LOG_DEBUG(LOG_PREFIX_FONT << "creating FTFont object for " << filename);
         if (!filename.empty())
             switch(type)
             {
@@ -167,9 +176,11 @@ namespace TA3D
             };
         if (font)
         {
-            font->FaceSize(size);
-            font->UseDisplayList(false);
             LOG_DEBUG(LOG_PREFIX_FONT << "'" << filename << "' loaded");
+            font->FaceSize(size);
+            LOG_DEBUG(LOG_PREFIX_FONT << "face size set");
+            font->UseDisplayList(false);
+            LOG_DEBUG(LOG_PREFIX_FONT << "parameters set '" << filename << "'");
         }
         else
             LOG_ERROR(LOG_PREFIX_FONT << "could not load file : " << filename);
@@ -197,12 +208,16 @@ namespace TA3D
                 filename = find_font(SYSTEM_FONT_PATH, "FreeSerif");
         }
 
+        LOG_DEBUG(LOG_PREFIX_FONT << "creating new Font object for " << filename);
         Font *font = new Font();
+        LOG_DEBUG(LOG_PREFIX_FONT << "loading file " << filename);
         font->load(filename, size, type);
 
+        LOG_DEBUG(LOG_PREFIX_FONT << "inserting " << filename << " into Font tables");
         font_list.push_back(font);
         font_table.insertOrUpdate(key, font);
 
+        LOG_DEBUG(LOG_PREFIX_FONT << "Font loader : job done");
         return font;
     }
 } // namespace TA3D
