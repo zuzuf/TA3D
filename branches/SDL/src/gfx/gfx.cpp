@@ -156,7 +156,7 @@ namespace TA3D
         glfond = 0;
 
         LOG_DEBUG(LOG_PREFIX_GFX << "Creating a normal font...");
-        normal_font = font_manager.getFont("FreeSans", 12, FONT_TYPE_TEXTURE);
+        normal_font = font_manager.getFont("FreeSans", 10, FONT_TYPE_TEXTURE);
 
         LOG_DEBUG(LOG_PREFIX_GFX << "Creating a small font...");
         small_font = font_manager.getFont("FreeMono", 8, FONT_TYPE_TEXTURE);
