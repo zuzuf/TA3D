@@ -109,19 +109,19 @@
 		value=0;
 		size=1.6;
 	}
-	[object9]		// Option "shadow"
+	[object9]		// Option "empty slot"
 	{
-		name=t_shadow;
+		name=t_empty_slot;
 		type=TEXT;
-		caption=shadows;
+		caption=empty slot;
 		x1=0;
 		y1=190;
 		value=0xFFFFFFFF;
 		size=2;
 	}
-	[object10]		// Option "shadow"
+	[object10]		// Option "empty slot"
 	{
-		name=shadow;
+		name=empty_slot;
 		type=OPTIONC;
 		caption=;
 		x1=690;
@@ -225,7 +225,7 @@
 	{
 		name=shadow_quality;
 		type=MENU;
-		entry=,normal,high,higher;
+		entry=,none,low,normal;
 		x1=600;
 		y1=365;
 		x2=730;

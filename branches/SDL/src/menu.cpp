@@ -172,7 +172,6 @@ void config_menu(void)
     config_area.set_state("*.particle", lp_CONFIG->particle);
     config_area.set_state("*.explosion_particles", lp_CONFIG->explosion_particles);
     config_area.set_state("*.waves", lp_CONFIG->waves);
-    config_area.set_state("*.shadow", lp_CONFIG->shadow);
     config_area.set_state("*.height_line", lp_CONFIG->height_line);
     config_area.set_state("*.detail_tex", lp_CONFIG->detail_tex);
     config_area.set_state("*.use_texture_cache", lp_CONFIG->use_texture_cache);
@@ -201,7 +200,7 @@ void config_menu(void)
             obj->Text.push_back( format( "%dx%dx%d", res_width[ i ], res_height[ i ], res_bpp[ i ] ));
     }
     if (config_area.get_object("*.shadow_quality"))
-        config_area.set_caption( "*.shadow_quality", config_area.get_object("*.shadow_quality")->Text[1+Math::Min((lp_CONFIG->shadow_quality-1) / 3, 2)]);
+        config_area.set_caption( "*.shadow_quality", config_area.get_object("*.shadow_quality")->Text[1 + Math::Max( 0, Math::Min((int)lp_CONFIG->shadow_quality, 2) )]);
     config_area.set_caption("*.timefactor", format( "%d", (int)lp_CONFIG->timefactor ));
     switch( lp_CONFIG->fsaa )
     {
@@ -402,7 +401,6 @@ void config_menu(void)
         lp_CONFIG->particle = config_area.get_state( "*.particle");
         lp_CONFIG->explosion_particles = config_area.get_state( "*.explosion_particles");
         lp_CONFIG->waves = config_area.get_state( "*.waves");
-        lp_CONFIG->shadow = config_area.get_state( "*.shadow");
         lp_CONFIG->height_line = config_area.get_state( "*.height_line");
         lp_CONFIG->detail_tex = config_area.get_state( "*.detail_tex");
         lp_CONFIG->draw_console_loading = config_area.get_state( "*.draw_console_loading");
@@ -470,7 +468,7 @@ void config_menu(void)
             if (obj && obj->Value != -1)
             {
                 obj->Text[0] = obj->Text[1 + obj->Value];
-                lp_CONFIG->shadow_quality = obj->Value * 3 + 1;
+                lp_CONFIG->shadow_quality = obj->Value;
             }
         }
         if (config_area.get_value("*.timefactor") >= 0)

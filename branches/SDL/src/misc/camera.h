@@ -40,14 +40,19 @@ namespace TA3D
         void setMatrix(const MATRIX_4x4& v);
 
         /*!
-        ** \brief Replace the OpenGL default camera
+        ** \brief Replace the OpenGL camera
         */
-        void setView();
+        void setView(bool classic = false);
 
 		/*!
 		** \brief Reset all data
 		*/
 		void reset();
+
+        /*!
+        ** \brief Returns the 8 points defining the frustum volume
+        */
+        std::vector<Vector3D> getFrustum();
     public:
         Vector3D up;					// Haut de la caméra
         Vector3D side;				// Coté de la caméra(optimisation pour les particules)

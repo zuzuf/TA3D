@@ -1073,7 +1073,7 @@ namespace TA3D
     }
 
 
-    void UNIT::draw(float t, Camera& cam, MAP* map, bool height_line)
+    void UNIT::draw(float t, MAP* map, bool height_line)
     {
         visibility_checked = false;
 
@@ -1106,18 +1106,18 @@ namespace TA3D
 
         on_radar &= map->view[py][px] > 1;
 
-        Vector3D D (Pos - cam.pos); // Vecteur "viseur unité" partant de la caméra vers l'unité
+        Vector3D D (Pos - Camera::inGame->pos); // Vecteur "viseur unité" partant de la caméra vers l'unité
 
         float dist=D.sq();
-        if (dist >= 16384.0f && (D % cam.dir) <= 0.0f)
+        if (dist >= 16384.0f && (D % Camera::inGame->dir) <= 0.0f)
             return;
-        if ((D % cam.dir) > cam.zfar2)
+        if ((D % Camera::inGame->dir) > Camera::inGame->zfar2)
             return;		// Si l'objet est hors champ on ne le dessine pas
 
         if (!cloaked || owner_id == players.local_human_id) // Don't show cloaked units
         {
             visible = true;
-            on_radar |= cam.rpos.y > gfx->low_def_limit;
+            on_radar |= Camera::inGame->rpos.y > gfx->low_def_limit;
         }
         else
         {
@@ -1133,7 +1133,7 @@ namespace TA3D
             glTranslatef( Pos.x, Math::Max(Pos.y,map->sealvl+5.0f), Pos.z);
             glEnable(GL_TEXTURE_2D);
             int unit_nature = ICON_UNKNOWN;
-            float size = (D % cam.dir) * 12.0f / gfx->height;
+            float size = (D % Camera::inGame->dir) * 12.0f / gfx->height;
 
             if (unit_manager.unit_type[type_id]->fastCategory & CATEGORY_KAMIKAZE )
                 unit_nature = ICON_KAMIKAZE;
@@ -7370,7 +7370,7 @@ script_exec:
 
 
 
-    void INGAME_UNITS::draw(Camera& cam, MAP* map, bool underwater, bool limit, bool cullface, bool height_line)					// Dessine les unités visibles
+    void INGAME_UNITS::draw(MAP* map, bool underwater, bool limit, bool cullface, bool height_line)					// Dessine les unités visibles
     {
         if (nb_unit <= 0 || !unit)
             return;		// Pas d'unités à dessiner
@@ -7385,9 +7385,8 @@ script_exec:
         glColor4ub(0xFF,0xFF,0xFF,0xFF);
         float sea_lvl = limit ? map->sealvl-5.0f : map->sealvl;
         float virtual_t = (float)current_tick / TICKS_PER_SEC;
-        cam.setView();
         pMutex.lock();
-        bool low_def = cam.rpos.y > gfx->low_def_limit;
+        bool low_def = Camera::inGame->rpos.y > gfx->low_def_limit;
         if (low_def)
             glDisable(GL_DEPTH_TEST);
 
@@ -7402,7 +7401,7 @@ script_exec:
             || (unit[i].Pos.y + unit[i].model->top >= sea_lvl && !underwater))) // Si il y a une unité / If there is a unit
             {
                 unit[i].unlock();
-                unit[i].draw(virtual_t, cam, map, height_line);
+                unit[i].draw(virtual_t, map, height_line);
             }
             else
                 unit[i].unlock();
@@ -7421,12 +7420,10 @@ script_exec:
 
 
 
-    void INGAME_UNITS::draw_shadow(Camera& cam, const Vector3D& Dir, MAP* map, float alpha)	// Dessine les ombres des unités visibles
+    void INGAME_UNITS::draw_shadow(const Vector3D& Dir, MAP* map, float alpha)	// Dessine les ombres des unités visibles
     {
         if (nb_unit<=0 || unit==NULL) // Pas d'unités à dessiner
             return;
-
-        cam.setView();
 
         if (g_useStencilTwoSide) // Si l'extension GL_EXT_stencil_two_side est disponible
         {
@@ -7485,7 +7482,7 @@ script_exec:
         }
 
         gfx->lock();
-        features.draw_shadow(cam, Dir);
+        features.draw_shadow(Dir);
 
         glColorMask(0xFF,0xFF,0xFF,0xFF);
         glColor4f(0.0f,0.0f,0.0f,alpha);

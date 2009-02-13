@@ -35,7 +35,7 @@ namespace TA3D
         /*!
         ** \brief
         */
-        void draw(Camera* cam=NULL, MAP *map = NULL);
+        void draw(MAP *map = NULL);
 
 
     public:

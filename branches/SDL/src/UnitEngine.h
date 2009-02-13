@@ -312,7 +312,7 @@ namespace TA3D
 
         void destroy(bool full = false);
 
-        void draw(float t, Camera& cam, MAP *map, bool height_line = true);
+        void draw(float t, MAP *map, bool height_line = true);
 
         void draw_shadow(const Vector3D& Dir, MAP *map);
 
@@ -579,9 +579,9 @@ namespace TA3D
 
         void kill(int index,MAP *map,int prev,bool sync = true);			// Détruit une unité
 
-        void draw(Camera& cam, MAP *map, bool underwater = false, bool limit = false, bool cullface = true, bool height_line = true); // Dessine les unités visibles
+        void draw(MAP *map, bool underwater = false, bool limit = false, bool cullface = true, bool height_line = true); // Dessine les unités visibles
 
-        void draw_shadow(Camera& cam, const Vector3D& Dir, MAP* map, float alpha = 0.5f); // Dessine les ombres des unités visibles
+        void draw_shadow(const Vector3D& Dir, MAP* map, float alpha = 0.5f); // Dessine les ombres des unités visibles
 
         void draw_mini(float map_w, float map_h, int mini_w, int mini_h, SECTOR** map_data); // Repère les unités sur la mini-carte
 

@@ -113,6 +113,8 @@ namespace TA3D
         GLuint		glfond;
         GLuint      textureFBO;         // FBO used by renderToTexture functions
         GLuint      textureDepth;
+        GLuint      textureColor;       // Default color texture used by FBO when rendering to depth texture
+        GLuint      shadowMap;
 
         bool		ati_workaround;		// Need to use workarounds for ATI cards ?
 
@@ -252,8 +254,11 @@ namespace TA3D
         GLuint	create_texture_RGBA32F( int w, int h, byte filter_type = FILTER_NONE, bool clamp = true );
         GLuint	create_texture_RGB16F( int w, int h, byte filter_type = FILTER_NONE, bool clamp = true );
         GLuint	create_texture_RGBA16F( int w, int h, byte filter_type = FILTER_NONE, bool clamp = true );
+        GLuint  create_shadow_map(int w, int h);
 
         GLuint make_texture_from_screen(byte filter_type = FILTER_NONE);
+
+        GLuint get_shadow_map();
 
         SDL_Surface *load_image(const String filename);
 
@@ -281,6 +286,7 @@ namespace TA3D
         ** \brief set a texture as render target, goes back to normal when passing 0 (do not forget to detach the texture when you're done!)
         */
         void renderToTexture( const GLuint tex = 0, bool useDepth = false );
+        void renderToTextureDepth( const GLuint tex = 0 );
 
         /*!
         ** \brief runs several tests on GFX hardware capabilities, should be used only when calling ta3d with --test

@@ -119,7 +119,7 @@ namespace TA3D
 
 
 
-    void Camera::setView()
+    void Camera::setView(bool classic)
     {
         zfar2 = zfar * zfar;
 
@@ -129,9 +129,12 @@ namespace TA3D
             glOrtho(-0.5f * zoomFactor * SCREEN_W, 0.5f * zoomFactor * SCREEN_W, -0.5f * zoomFactor * SCREEN_H, 0.5f * zoomFactor * SCREEN_H, znear, zfar);
         else
             glFrustum(-widthFactor * znear, widthFactor * znear, -0.75f * znear, 0.75f * znear, znear, zfar);
-        glMatrixMode(GL_MODELVIEW);
 
-        glLoadIdentity();
+        if (classic)
+        {
+            glMatrixMode(GL_MODELVIEW);
+            glLoadIdentity();
+        }
 
         pos = rpos;
         Vector3D FP(pos);
@@ -140,6 +143,13 @@ namespace TA3D
         gluLookAt(pos.x + shakeVector.x, pos.y + shakeVector.y, pos.z + shakeVector.z,
                   FP.x, FP.y, FP.z,
                   up.x, up.y, up.z);
+
+        if (!classic)
+        {
+            glMatrixMode(GL_MODELVIEW);
+            glLoadIdentity();
+        }
+
         if (mirror)
         {
             glScalef(1.0f, -1.0f, 1.0f);
@@ -147,4 +157,34 @@ namespace TA3D
         }
     }
 
+    std::vector<Vector3D> Camera::getFrustum()
+    {
+        std::vector<Vector3D> frustum;
+        if (lp_CONFIG && lp_CONFIG->ortho_camera)
+        {
+            frustum.push_back( pos + znear * dir + 0.5f * zoomFactor * (-SCREEN_W * side + SCREEN_H * up) );
+            frustum.push_back( pos + znear * dir + 0.5f * zoomFactor * (SCREEN_W * side + SCREEN_H * up) );
+            frustum.push_back( pos + znear * dir + 0.5f * zoomFactor * (-SCREEN_W * side - SCREEN_H * up) );
+            frustum.push_back( pos + znear * dir + 0.5f * zoomFactor * (SCREEN_W * side - SCREEN_H * up) );
+
+            frustum.push_back( pos + zfar * dir + 0.5f * zoomFactor * (-SCREEN_W * side + SCREEN_H * up) );
+            frustum.push_back( pos + zfar * dir + 0.5f * zoomFactor * (SCREEN_W * side + SCREEN_H * up) );
+            frustum.push_back( pos + zfar * dir + 0.5f * zoomFactor * (-SCREEN_W * side - SCREEN_H * up) );
+            frustum.push_back( pos + zfar * dir + 0.5f * zoomFactor * (SCREEN_W * side - SCREEN_H * up) );
+        }
+        else
+        {
+            frustum.push_back( pos + znear * (-widthFactor * side + 0.75 * up + dir) );
+            frustum.push_back( pos + znear * (widthFactor * side + 0.75 * up + dir) );
+            frustum.push_back( pos + znear * (-widthFactor * side - 0.75 * up + dir) );
+            frustum.push_back( pos + znear * (widthFactor * side - 0.75 * up + dir) );
+
+            frustum.push_back( pos + zfar * (-widthFactor * side + 0.75 * up + dir) );
+            frustum.push_back( pos + zfar * (widthFactor * side + 0.75 * up + dir) );
+            frustum.push_back( pos + zfar * (-widthFactor * side - 0.75 * up + dir) );
+            frustum.push_back( pos + zfar * (widthFactor * side - 0.75 * up + dir) );
+        }
+
+        return frustum;
+    }
 } // namespace TA3D

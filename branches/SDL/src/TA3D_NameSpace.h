@@ -52,10 +52,9 @@ namespace TA3D
 	typedef struct TA3DCONFIG
 	{
 		real32	fps_limit;
-		real32	shadow_r;      // 0.0 -> 100.0
 		real32	timefactor;      // 1.0 -> 10.0
 
-		sint16	shadow_quality; // 0 -> 100
+		sint16	shadow_quality; // 0 -> none, 1 -> low (shadow volumes), 2 -> normal (shadow maps)
 		sint16	priority_level; // 0, 1, 2
 		sint16	water_quality;  // 0->4
 		sint16	fsaa;  // ?
@@ -70,7 +69,6 @@ namespace TA3D
 		bool	particle;
 		bool    explosion_particles;
 		bool	waves;
-		bool	shadow;
 		bool	height_line;
 		bool	fullscreen;
 
@@ -156,9 +154,8 @@ namespace TA3D
 			detail_tex = false;				// default set to false because of fragment program dependency ( and it's only an eye candy feature )
 
 			fps_limit = -1.0f;
-			shadow_r = 0.02f;
 			timefactor = 1.0f;
-			shadow_quality = 1;
+			shadow_quality = 2;
 			priority_level = 0;
 			water_quality = 1;      		// For now only because we have shaders issues with ati board
 			fsaa = 0;
@@ -171,7 +168,6 @@ namespace TA3D
 			particle = true;
 			explosion_particles = true;
 			waves = true;
-			shadow = true;
 			height_line = false;
 			fullscreen = false;            // For now, later will be true when we will reach a beta release
 

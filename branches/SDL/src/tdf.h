@@ -367,16 +367,14 @@ namespace TA3D
 
         /*!
         ** \brief
-        ** \param cam
         */
-        void draw(Camera& cam);
+        void draw();
 
         /*!
         ** \brief
-        ** \param cam
         ** \param dir
         */
-        void draw_shadow(Camera& cam, const Vector3D& Dir);
+        void draw_shadow(const Vector3D& Dir);
 
         /*!
         ** \brief

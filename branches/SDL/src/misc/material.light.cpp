@@ -1,6 +1,6 @@
 
 #include "material.light.h"
-
+#include "math.h"
 
 namespace TA3D
 {
@@ -62,6 +62,70 @@ namespace TA3D
     }
 
 
+    void HWLight::SetView(Camera& c)
+    {
+        if (Directionnal)
+        {
+            Vector3D Side(0.0f, 1.0f, 0.0f);
+            Vector3D Up(Side * Dir);
+            Up.unit();
+
+            std::vector<Vector3D> frustum = c.getFrustum();
+            float mx = 0.0f, Mx = 0.0f;
+            float my = 0.0f, My = 0.0f;
+            float mz = 0.0f, Mz = 0.0f;
+            for(int i = 0 ; i < frustum.size() ; i++)
+            {
+                float X = frustum[i] % Side;
+                float Z = frustum[i] % Dir;
+                float Y = frustum[i] % Up;
+                mx = Math::Min(mx, X);
+                Mx = Math::Max(Mx, X);
+                my = Math::Min(my, Y);
+                My = Math::Max(My, Y);
+                mz = Math::Min(mz, Z);
+                Mz = Math::Max(Mz, Z);
+            }
+            Vector3D c_pos(Mz * Dir + 0.5f * (mx + Mx) * Side + 0.5f * (my + My) * Up);
+
+            float zfar = Mz - mz;
+            float znear = 0.0f;
+            float widthFactor = (Mx - mx) / (My - my);
+            float f = 0.5f * (My - my);
+
+            glMatrixMode (GL_PROJECTION);
+            glLoadIdentity ();
+            glOrtho(-widthFactor * f, widthFactor * f, -f, f, znear, zfar);
+
+            Vector3D c_at(c_pos - Dir);
+            gluLookAt(c_pos.x, c_pos.y, c_pos.z,
+                      c_at.x, c_at.y, c_at.z,
+                      Up.x, Up.y, Up.z);
+
+            glMatrixMode(GL_MODELVIEW);
+            glLoadIdentity();
+        }
+        else
+        {
+            float zfar = 1000.0f;
+            float znear = 0.01f;
+            float widthFactor = 1.0f;
+            float f = 10.0f;
+
+            glMatrixMode (GL_PROJECTION);
+            glLoadIdentity ();
+            glFrustum(-widthFactor * znear, widthFactor * znear, -0.75f * znear, 0.75f * znear, znear, zfar);
+
+            Vector3D Up(Pos * Dir);
+            Up.unit();
+            gluLookAt(Pos.x, Pos.y, Pos.z,
+                      Dir.x, Dir.y, Dir.z,
+                      Up.x, Up.y, Up.z);
+
+            glMatrixMode(GL_MODELVIEW);
+            glLoadIdentity();
+        }
+    }
 
 
 } // namespace TA3D

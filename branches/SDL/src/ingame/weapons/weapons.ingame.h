@@ -61,7 +61,7 @@ namespace TA3D
         /*!
         ** \brief
         */
-        void draw(Camera *cam = NULL, MAP *map = NULL, bool underwater = false);
+        void draw(MAP *map = NULL, bool underwater = false);
 
         /*!
         ** \brief

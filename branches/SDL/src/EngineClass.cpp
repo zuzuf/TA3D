@@ -1222,7 +1222,6 @@ namespace TA3D
 
     void MAP::draw(Camera* cam,byte player_mask,bool FLAT,float niv,float t,float dt,bool depth_only,bool check_visibility,bool draw_uw)
     {
-        cam->setView();
         if (FLAT && !water)
             return;
 

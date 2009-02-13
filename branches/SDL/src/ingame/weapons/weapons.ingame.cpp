@@ -137,7 +137,7 @@ namespace TA3D
 
 
 
-    void INGAME_WEAPONS::draw(Camera* cam, MAP* map, bool underwater)
+    void INGAME_WEAPONS::draw(MAP* map, bool underwater)
     {
         pMutex.lock();
         if(nb_weapon<=0 || weapon.size()<=0)
@@ -147,14 +147,12 @@ namespace TA3D
         }
 
         gfx->lock();
-        if (cam)
-            cam->setView();
 
         for(std::vector<uint32>::iterator e = idx_list.begin() ; e != idx_list.end() ; ++e)
         {
             uint32 i = *e;
-            if((weapon[i].Pos.y<map->sealvl && underwater) || (weapon[i].Pos.y>=map->sealvl && !underwater))
-                weapon[i].draw(cam,map);
+            if((weapon[i].Pos.y < map->sealvl && underwater) || (weapon[i].Pos.y >= map->sealvl && !underwater))
+                weapon[i].draw(map);
         }
 
         gfx->unlock();

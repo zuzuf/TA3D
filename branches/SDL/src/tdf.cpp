@@ -444,11 +444,10 @@ namespace TA3D
     }
 
 
-    void FEATURES::draw(Camera& cam)
+    void FEATURES::draw()
     {
         if(nb_features <= 0)
             return;
-        cam.setView();			// Positionne la caméra
         gfx->ReInitAllTex(true);
         glAlphaFunc(GL_GREATER,0.1);
         glEnable(GL_ALPHA_TEST);
@@ -548,7 +547,7 @@ namespace TA3D
             if (feature[i].type < 0 || !feature[i].draw)
                 continue;
 
-            if (cam.mirror && ((feature_manager.feature[feature[i].type].height>5.0f && feature_manager.feature[feature[i].type].m3d)			// Perform a small visibility check
+            if (Camera::inGame->mirror && ((feature_manager.feature[feature[i].type].height>5.0f && feature_manager.feature[feature[i].type].m3d)			// Perform a small visibility check
                                 || (feature_manager.feature[feature[i].type].m3d && feature_manager.feature[feature[i].type].model!=NULL)) )
             {
                 Vector3D Pos(feature[i].Pos);
@@ -557,12 +556,12 @@ namespace TA3D
                 else
                     Pos.y += feature_manager.feature[feature[i].type].height*0.5f;
 
-                float a = cam.rpos.y - units.map->sealvl;
+                float a = Camera::inGame->rpos.y - units.map->sealvl;
                 float b = Pos.y - units.map->sealvl;
                 float c = a + b;
                 if (c == 0.0f)
                     continue;
-                Pos = (a / c) * Pos + (b / c) * cam.rpos;
+                Pos = (a / c) * Pos + (b / c) * Camera::inGame->rpos;
                 Pos.y = units.map->get_unit_h( Pos.x, Pos.z );
 
                 if (Pos.y > units.map->sealvl)	// If it's not visible don't draw it
@@ -618,7 +617,7 @@ namespace TA3D
                 }
                 else
                 {
-                    if (!cam.mirror) 	// no need to draw things we can't see
+                    if (!Camera::inGame->mirror) 	// no need to draw things we can't see
                     {
                         dw *= 0.5f;
                         h = 0.25f*feature_manager.feature[feature[i].type].anim.h[feature[i].frame];
@@ -705,11 +704,10 @@ namespace TA3D
 
 
 
-    void FEATURES::draw_shadow(Camera& cam, const Vector3D& Dir)
+    void FEATURES::draw_shadow(const Vector3D& Dir)
     {
         if (nb_features <= 0)
             return;
-        cam.setView();
         float t = (float)units.current_tick / TICKS_PER_SEC;
         pMutex.lock();
         for (int e = 0; e < list_size; ++e)

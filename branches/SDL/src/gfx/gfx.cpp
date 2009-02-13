@@ -153,7 +153,9 @@ namespace TA3D
 
         textureFBO = 0;
         textureDepth = 0;
+        textureColor = 0;
         glfond = 0;
+        shadowMap = 0;
 
         LOG_DEBUG(LOG_PREFIX_GFX << "Creating a normal font...");
         normal_font = font_manager.getFont("FreeSans", 10, FONT_TYPE_TEXTURE);
@@ -185,6 +187,10 @@ namespace TA3D
             glDeleteFramebuffersEXT(1,&textureFBO);
         if (textureDepth)
             glDeleteRenderbuffersEXT(1,&textureDepth);
+        if (textureColor)
+            destroy_texture(textureColor);
+        if (shadowMap)
+            destroy_texture(shadowMap);
 
         if (TA3D::VARS::pal )
             delete[]( TA3D::VARS::pal );
@@ -1526,6 +1532,7 @@ namespace TA3D
         glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
         glHint(GL_POINT_SMOOTH_HINT, GL_FASTEST);
         glHint(GL_POLYGON_SMOOTH_HINT, GL_FASTEST);
+        glFogi (GL_FOG_COORD_SRC, GL_FOG_COORD);
         glDisable(GL_BLEND);
         glEnable(GL_LIGHTING);
         ReInitTexSys();
@@ -1650,6 +1657,37 @@ namespace TA3D
         }
     }
 
+    void GFX::renderToTextureDepth( const GLuint tex )
+    {
+        if (tex == 0)       // Release the texture
+        {
+            glBindFramebufferEXT(GL_FRAMEBUFFER_EXT,0);     // Bind the default FBO
+            glViewport(0, 0, SCREEN_W, SCREEN_H);           // Use default viewport
+        }
+        else
+        {
+            int tex_w = texture_width(tex);
+            int tex_h = texture_height(tex);
+            if (textureFBO == 0)    // Generate a FBO if none has been created yet
+            {
+                glGenFramebuffersEXT(1,&textureFBO);
+                glGenRenderbuffersEXT(1,&textureDepth);
+            }
+            if (textureColor == 0)
+                textureColor = create_texture(tex_w, tex_h, FILTER_NONE, true);
+            else
+            {
+                glBindTexture(GL_TEXTURE_2D, textureColor);
+                glTexImage2D( GL_TEXTURE_2D, 0, GL_RGB, tex_w, tex_h, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+            }
+
+            glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, textureFBO);					                    // Bind the FBO
+            glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT,GL_COLOR_ATTACHMENT0_EXT,GL_TEXTURE_2D,textureColor,0);
+            glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT,GL_DEPTH_ATTACHMENT_EXT,GL_TEXTURE_2D,tex,0); // Attach the texture
+
+            glViewport(0, 0, tex_w, tex_h);                                     // Stretch viewport to texture size
+        }
+    }
 
     void GFX::PutTextureInsideRect(const GLuint texture, const float x1, const float y1, const float x2, const float y2)
     {
@@ -1774,4 +1812,26 @@ namespace TA3D
         return bmp;
     }
 
+    GLuint GFX::create_shadow_map(int w, int h)
+    {
+        GLuint shadowMapTexture;
+
+        glGenTextures(1, &shadowMapTexture);
+        glBindTexture(GL_TEXTURE_2D, shadowMapTexture);
+        glTexImage2D( GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT24, w, h, 0,
+                    GL_DEPTH_COMPONENT, GL_UNSIGNED_BYTE, NULL);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);       // We want smooth shadows
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+
+        return shadowMapTexture;
+    }
+
+    GLuint GFX::get_shadow_map()
+    {
+        if (shadowMap == 0)
+            shadowMap = create_shadow_map(1024, 1024);
+        return shadowMap;
+    }
 } // namespace TA3D

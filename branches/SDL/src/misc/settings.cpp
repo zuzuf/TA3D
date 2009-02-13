@@ -49,9 +49,8 @@ namespace Settings
             << "[TA3D]\n"
             << "{\n"
             << "                FPS Limit = " << TA3D::VARS::lp_CONFIG->fps_limit << "; // <= 0 means `unlimited`\n"
-            << "                 Shadow R = " << TA3D::VARS::lp_CONFIG->shadow_r << ";\n"
             << "              Time Factor = " << TA3D::VARS::lp_CONFIG->timefactor << ";\n"
-            << "           Shadow Quality = " << TA3D::VARS::lp_CONFIG->shadow_quality << "; // 0..100\n"
+            << "           Shadow Quality = " << TA3D::VARS::lp_CONFIG->shadow_quality << "; // 0 -> none, 1 -> low (shadow volumes), 2 -> normal (shadow maps)\n"
             << "           Priority Level = " << TA3D::VARS::lp_CONFIG->priority_level << "; // 0, 1, 2\n"
             << "                     FSAA = " << TA3D::VARS::lp_CONFIG->fsaa << ";\n"
             << "                 Language = " << TA3D::VARS::lp_CONFIG->Lang << ";\n"
@@ -64,7 +63,6 @@ namespace Settings
             << "           Show particles = " << TA3D::VARS::lp_CONFIG->particle << ";\n"
             << " Show explosion particles = " << TA3D::VARS::lp_CONFIG->explosion_particles << ";\n"
             << "               Show Waves = " << TA3D::VARS::lp_CONFIG->waves << ";\n"
-            << "             Show Shadows = " << TA3D::VARS::lp_CONFIG->shadow << ";\n"
             << "        Show Height Lines = " << TA3D::VARS::lp_CONFIG->height_line << ";\n"
             << "          Show FullScreen = " << TA3D::VARS::lp_CONFIG->fullscreen << ";\n"
             << "           Detail Texture = " << TA3D::VARS::lp_CONFIG->detail_tex << ";\n"
@@ -129,7 +127,6 @@ namespace Settings
         }
 
         TA3D::VARS::lp_CONFIG->fps_limit = cfgFile.pullAsFloat("TA3D.FPS Limit");
-        TA3D::VARS::lp_CONFIG->shadow_r  = cfgFile.pullAsFloat("TA3D.Shadow R");
         TA3D::VARS::lp_CONFIG->timefactor = cfgFile.pullAsFloat("TA3D.Time Factor");
 
         TA3D::VARS::lp_CONFIG->shadow_quality = cfgFile.pullAsInt("TA3D.Shadow Quality");
@@ -146,7 +143,6 @@ namespace Settings
         TA3D::VARS::lp_CONFIG->explosion_particles = cfgFile.pullAsBool("TA3D.Show explosion particles", true);
         TA3D::VARS::lp_CONFIG->particle = cfgFile.pullAsBool("TA3D.Show particles");
         TA3D::VARS::lp_CONFIG->waves = cfgFile.pullAsBool("TA3D.Show Waves");
-        TA3D::VARS::lp_CONFIG->shadow = cfgFile.pullAsBool("TA3D.Show Shadows");
         TA3D::VARS::lp_CONFIG->height_line = cfgFile.pullAsBool("TA3D.Show Height Lines");
         TA3D::VARS::lp_CONFIG->fullscreen = cfgFile.pullAsBool("TA3D.Show FullScreen", false);
         TA3D::VARS::lp_CONFIG->detail_tex = cfgFile.pullAsBool("TA3D.Detail Texture");
