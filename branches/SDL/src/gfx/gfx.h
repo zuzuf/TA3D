@@ -30,6 +30,7 @@ using namespace TA3D; // TODO Remove this
 # include "gfx.toolkit.h"
 # include "font.h"
 # include "texture.h"
+# include "shader.h"
 # include "../threads/thread.h"
 # include "../misc/interface.h"
 
@@ -55,6 +56,7 @@ namespace TA3D
         bool		alpha_blending_set;
         GLuint      texture_format;
         bool        build_mipmaps;
+        bool        shadowMapMode;
 
     public:
         //! \name 2D/3D Mode
@@ -117,6 +119,8 @@ namespace TA3D
         GLuint      shadowMap;
 
         GLfloat     shadowMapProjectionMatrix[16];
+
+        Shader      model_shader;
 
         bool		ati_workaround;		// Need to use workarounds for ATI cards ?
 
@@ -189,6 +193,14 @@ namespace TA3D
 
         //@} // Color management
 
+        /*!
+        ** \brief enable/disable the 3DO model vertex/fragment program (the one that fits the current rendering mode, or none if not required)
+        */
+        void enable_model_shading();
+        void disable_model_shading();
+
+        void setShadowMapMode(bool mode);
+        bool getShadowMapMode();
 
         void line(const float x1, const float y1, const float x2, const float y2);			// Basic drawing routines
         void rect(const float x1, const float y1, const float x2, const float y2);

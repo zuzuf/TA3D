@@ -1834,4 +1834,37 @@ namespace TA3D
             shadowMap = create_shadow_map(1024, 1024);
         return shadowMap;
     }
+
+    void GFX::enable_model_shading()
+    {
+        if (shadowMapMode)  return;
+        switch( lp_CONFIG->shadow_quality)
+        {
+        case 2:
+            if (!model_shader.isLoaded())
+                model_shader.load("shaders/3do_shadow.frag", "shaders/3do_shadow.vert");
+            if (model_shader.isLoaded())
+            {
+                model_shader.on();
+                model_shader.setvar1i("shadowMap", 7);
+                model_shader.setmat4f("light_Projection", shadowMapProjectionMatrix);
+            }
+            break;
+        };
+    }
+
+    void GFX::disable_model_shading()
+    {
+        model_shader.off();
+    }
+
+    void GFX::setShadowMapMode(bool mode)
+    {
+        shadowMapMode = mode;
+    }
+
+    bool GFX::getShadowMapMode()
+    {
+        return shadowMapMode;
+    }
 } // namespace TA3D

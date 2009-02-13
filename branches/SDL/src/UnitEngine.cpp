@@ -1372,6 +1372,8 @@ namespace TA3D
                     }
                 }
 
+                bool old_mode = gfx->getShadowMapMode();
+
                 if (build_percent_left == 0.0f)
                 {
                     if (cloaked || ( cloaking && owner_id != players.local_human_id ) )
@@ -1397,6 +1399,7 @@ namespace TA3D
                 }
                 else
                 {
+                    gfx->setShadowMapMode(false);
                     if (build_percent_left<=33.0f)
                     {
                         float h = model->top - model->bottom;
@@ -1445,6 +1448,7 @@ namespace TA3D
 
                 if (lp_CONFIG->underwater_bright && map->water && Pos.y < map->sealvl)
                 {
+                    gfx->setShadowMapMode(false);
                     glEnable(GL_CLIP_PLANE2);
 
                     glEnable( GL_BLEND );
@@ -1458,6 +1462,7 @@ namespace TA3D
 
                     glDisable(GL_CLIP_PLANE2);
                 }
+                gfx->setShadowMapMode(old_mode);
 
                 if (unit_target)
                 {

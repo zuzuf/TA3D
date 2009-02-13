@@ -1689,7 +1689,7 @@ namespace TA3D
                             }
                             else
                             {
-                                for (int j = 7; j >= 0; --j)
+                                for (int j = 6; j >= 0; --j)
                                 {
                                     glActiveTextureARB(GL_TEXTURE0_ARB + j);
                                     glDisable(GL_TEXTURE_2D);
@@ -3257,6 +3257,8 @@ namespace TA3D
 
     void MODEL::draw(float t,SCRIPT_DATA *data_s,bool sel,bool notex,bool c_part,int p_tex,Vector3D *target,Vector3D *upos,MATRIX_4x4 *M,float Size,Vector3D* Center,bool reverse,int side,bool chg_col,OBJECT *src,SCRIPT_DATA *src_data)
     {
+        gfx->enable_model_shading();
+
         if (notex)
             glDisable(GL_TEXTURE_2D);
         if (chg_col)
@@ -3295,7 +3297,10 @@ namespace TA3D
                 }
             }
         }
-        if (c_part)
+
+        gfx->disable_model_shading();
+
+        if (c_part && !gfx->getShadowMapMode())
         {
             Vector3D pos;
             obj.compute_coord(data_s,&pos,c_part,p_tex,target,upos,M,Size,Center,reverse,src,src_data);

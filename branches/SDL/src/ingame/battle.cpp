@@ -1535,6 +1535,7 @@ namespace TA3D
                 switch (lp_CONFIG->shadow_quality)
                 {
                 case 2:                     // Render the shadow map
+                    gfx->setShadowMapMode(true);
                     gfx->SetDefState();
                     gfx->renderToTextureDepth( gfx->get_shadow_map() );
                     gfx->clearDepth();
@@ -1558,6 +1559,8 @@ namespace TA3D
                         features.feature[features.list[i]].draw = true;
                     features.draw(true);
 
+                    glEnable(GL_POLYGON_OFFSET_FILL);
+                    glPolygonOffset(3.0f, 1.0f);
                     // Render all visible units from light's point of view
                     units.draw(map.get(), true, false, true, false);
                     units.draw(map.get(), false, false, true, false);
@@ -1580,6 +1583,7 @@ namespace TA3D
                     glTexParameteri(GL_TEXTURE_2D, GL_DEPTH_TEXTURE_MODE_ARB, GL_INTENSITY);
 
                     glActiveTextureARB(GL_TEXTURE0_ARB);
+                    gfx->setShadowMapMode(false);
                     break;
                 };
             }
@@ -3374,6 +3378,8 @@ namespace TA3D
                         water_simulator_shader4.load("shaders/water_simulator4.frag","shaders/water_simulator4.vert");
                         water_simulator_reflec.destroy();
                         water_simulator_reflec.load("shaders/water_sim_reflec.frag","shaders/water.vert");
+                        gfx->model_shader.destroy();
+                        gfx->model_shader.load("shaders/3do_shadow.frag", "shaders/3do_shadow.vert");
                     }
                     else if (params.size() == 3 && params[0] == "show" && params[1] == "mission" && params[2] == "info")	show_mission_info ^= true;
                     else if (params.size() == 2 && params[0] == "view" && params[1] == "debug")	view_dbg^=true;
