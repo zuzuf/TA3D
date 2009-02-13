@@ -326,6 +326,17 @@ namespace TA3D
 
     }
 
+    uint32 TDFParser::pullAsColor(const String& key, const uint32 def)
+    {
+        String str = pullAsString(key);
+        String::Vector params;
+        str.split( params, "," );
+        if (params.size() < 3)
+            return def;
+        if (params.size() == 3)
+            return makeacol( params[0].toUInt32(), params[1].toUInt32(), params[2].toUInt32(), 0xFF );
+        return makeacol( params[0].toUInt32(), params[1].toUInt32(), params[2].toUInt32(), params[3].toUInt32() );
+    }
 
 } // namespace TA3D
 

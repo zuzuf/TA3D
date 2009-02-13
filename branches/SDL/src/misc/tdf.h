@@ -132,6 +132,14 @@ namespace TA3D
         bool pullAsBool(const String& key, const bool def = false);
 
         /*!
+        ** \brief Get the value for a given key
+        ** \param key The key
+        ** \param def The default value if the key could not be found
+        ** \return The value of the key that has been found, def otherwise
+        */
+        uint32  pullAsColor(const String& key, const uint32 def = 0);
+
+        /*!
         ** \brief Insert or update the value of a key
         ** \param key The key
         ** \param value The new value of the key

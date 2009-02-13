@@ -1,7 +1,6 @@
 #ifndef __TA3D_GFX_GUI_SKIN_OBJECT_H__
 # define __TA3D_GFX_GUI_SKIN_OBJECT_H__
 
-# include "../../stdafx.h"
 # include "../../misc/tdf.h"
 
 
@@ -37,12 +36,11 @@ namespace TA3D
         /*!
         ** \brief
         **
-        ** \param filename
         ** \param prefix
         ** \param parser
         ** \param borderSize
         */
-        void load(const String& filename, const String& prefix, TDFParser& parser, float borderSize = 1.0f );
+        void load(TDFParser& parser, const String& prefix, float borderSize = 1.0f );
 
         /*!
         ** \brief

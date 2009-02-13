@@ -107,7 +107,7 @@ namespace TA3D
     {
         if (skin == NULL || !draw_borders || Lock)   return;
 
-        ObjectShadow( x - skin->wnd_border.x1, y - skin->wnd_border.y1,
+        skin->ObjectShadow( x - skin->wnd_border.x1, y - skin->wnd_border.y1,
                       x + width - skin->wnd_border.x2, y + height - skin->wnd_border.y2,
                       3, 3,
                       0.5f, 10.0f);
@@ -242,8 +242,8 @@ namespace TA3D
                     break;
                 }
             case OBJ_LIST:
-                ListBox(x + Objets[i].x1, y + Objets[i].y1, x + Objets[i].x2, y + Objets[i].y2,
-                        Objets[i].Text, Objets[i].Pos, Objets[i].Data, skin, Objets[i].Flag);
+                skin->ListBox(x + Objets[i].x1, y + Objets[i].y1, x + Objets[i].x2, y + Objets[i].y2,
+                        Objets[i].Text, Objets[i].Pos, Objets[i].Data, Objets[i].Flag);
                 break;
             case OBJ_LINE:
                 gfx->disable_texturing();
@@ -285,41 +285,40 @@ namespace TA3D
             case OBJ_BUTTON:		// Button
                 if (Objets[i].Text.empty())
                     Objets[i].Text.push_back("");
-                button(x + Objets[i].x1, y + Objets[i].y1, x + Objets[i].x2, y + Objets[i].y2,
-                       Objets[i].Text[0], Objets[i].activated, skin);
+                skin->button(x + Objets[i].x1, y + Objets[i].y1, x + Objets[i].x2, y + Objets[i].y2, Objets[i].Text[0], Objets[i].activated);
                 if (Objets[i].Focus && focus)
                     gfx->rectdot(Objets[i].x1+x-2,Objets[i].y1+y-2,Objets[i].x2+x+2,Objets[i].y2+y+2,DGray);
                 break;
             case OBJ_OPTIONC:		// Checkbox
                 if (Objets[i].Text.empty())
                     Objets[i].Text.push_back("");
-                OptionCase(x + Objets[i].x1, y + Objets[i].y1, Objets[i].Text[0], Objets[i].Etat, skin);
+                skin->OptionCase(x + Objets[i].x1, y + Objets[i].y1, Objets[i].Text[0], Objets[i].Etat);
                 if (Objets[i].Focus && focus)
                     gfx->rectdot(Objets[i].x1 + x - 2, Objets[i].y1 + y - 2, Objets[i].x2 + x + 2, Objets[i].y2 + y + 2, DGray);
                 break;
             case OBJ_OPTIONB:		// Boutton d'option
                 if (Objets[i].Text.empty())
                     Objets[i].Text.push_back("");
-                OptionButton(x + Objets[i].x1, y + Objets[i].y1, Objets[i].Text[0], Objets[i].Etat, skin);
+                skin->OptionButton(x + Objets[i].x1, y + Objets[i].y1, Objets[i].Text[0], Objets[i].Etat);
                 if (Objets[i].Focus && focus)
                     gfx->rectdot(Objets[i].x1 + x - 2, Objets[i].y1 + y - 2, Objets[i].x2 + x + 2, Objets[i].y2 + y + 2, DGray);
                 break;
             case OBJ_PBAR:			// Progress Bar
-                ProgressBar(x + Objets[i].x1, y + Objets[i].y1, x + Objets[i].x2, y + Objets[i].y2, Objets[i].Data, skin);
+                skin->ProgressBar(x + Objets[i].x1, y + Objets[i].y1, x + Objets[i].x2, y + Objets[i].y2, Objets[i].Data);
                 if (Objets[i].Focus && focus)
                     gfx->rectdot(Objets[i].x1 + x - 2, Objets[i].y1 + y - 2, Objets[i].x2 + x + 2, Objets[i].y2 + y + 2, DGray);
                 break;
             case OBJ_TEXTBAR:		// Text edit
                 if (Objets[i].Text.empty())
                     Objets[i].Text.push_back("");
-                TextBar(x + Objets[i].x1, y + Objets[i].y1, x + Objets[i].x2, y + Objets[i].y2, Objets[i].Text[0], Objets[i].Focus, skin);
+                skin->TextBar(x + Objets[i].x1, y + Objets[i].y1, x + Objets[i].x2, y + Objets[i].y2, Objets[i].Text[0], Objets[i].Focus);
                 if (Objets[i].Focus && focus)
                     gfx->rectdot(Objets[i].x1 + x - 2, Objets[i].y1 + y - 2, Objets[i].x2 + x + 2, Objets[i].y2 + y + 2, DGray);
                 break;
             case OBJ_TEXTEDITOR:	// Large text edit
                 if (Objets[i].Text.empty())
                     Objets[i].Text.push_back("");
-                TextEditor(x + Objets[i].x1, y + Objets[i].y1, x + Objets[i].x2, y + Objets[i].y2, Objets[i].Text, Objets[i].Data, Objets[i].Pos, Objets[i].Focus, skin);
+                skin->TextEditor(x + Objets[i].x1, y + Objets[i].y1, x + Objets[i].x2, y + Objets[i].y2, Objets[i].Text, Objets[i].Data, Objets[i].Pos, Objets[i].Focus);
                 if (Objets[i].Focus && focus)
                     gfx->rectdot(Objets[i].x1 + x - 2, Objets[i].y1 + y - 2, Objets[i].x2 + x + 2, Objets[i].y2 + y + 2, DGray);
                 break;
@@ -327,10 +326,10 @@ namespace TA3D
                 if (Objets[i].Text.empty())
                     Objets[i].Text.push_back("");
                 if (!(Objets[i].Flag & FLAG_TEXT_ADJUST))
-                    gfx->print(gui_font, x + Objets[i].x1, Objets[i].y1 + y, 0.0f, Objets[i].Data, Objets[i].Text[0]);
+                    skin->text_color.print(gui_font, x + Objets[i].x1, Objets[i].y1 + y, Objets[i].Data, Objets[i].Text[0]);
                 else
                 {
-                    Objets[i].Data = draw_text_adjust(x + Objets[i].x1, y + Objets[i].y1, x + Objets[i].x2, y + Objets[i].y2,
+                    Objets[i].Data = skin->draw_text_adjust(x + Objets[i].x1, y + Objets[i].y1, x + Objets[i].x2, y + Objets[i].y2,
                                                       Objets[i].Text[0], Objets[i].Pos, Objets[i].Flag & FLAG_MISSION_MODE);
                     if (Objets[i].Data > 0)
                         Objets[i].Pos %= Objets[i].Data;
@@ -340,8 +339,8 @@ namespace TA3D
                 if (Objets[i].Text.empty())
                     Objets[i].Text.push_back("");
                 if (!Objets[i].Etat)
-                    button(x + Objets[i].x1, y + Objets[i].y1, x + Objets[i].x2, y + Objets[i].y2,
-                           Objets[i].Text[0], Objets[i].activated || Objets[i].Etat, skin);
+                    skin->button(x + Objets[i].x1, y + Objets[i].y1, x + Objets[i].x2, y + Objets[i].y2,
+                           Objets[i].Text[0], Objets[i].activated || Objets[i].Etat);
                 break;
         }
 
@@ -377,19 +376,19 @@ namespace TA3D
         switch (Objets[i].Type)
         {
             case OBJ_FMENU:			// Menu flottant
-                FloatMenu(x + Objets[i].x1, y + Objets[i].y1, Objets[i].Text,
-                          Objets[i].Data, 0, skin);
+                skin->FloatMenu(x + Objets[i].x1, y + Objets[i].y1, Objets[i].Text,
+                          Objets[i].Data, 0);
                 break;
             case OBJ_MENU: // Menu déroulant
                 if (Objets[i].Etat)
                 {
-                    button(x + Objets[i].x1, y + Objets[i].y1,
+                    skin->button(x + Objets[i].x1, y + Objets[i].y1,
                            x + Objets[i].x2, y + Objets[i].y2,
                            Objets[i].Text[0],
-                           Objets[i].activated || Objets[i].Etat, skin);
-                    FloatMenu(x + Objets[i].x1, y + Objets[i].y2 + 1,
+                           Objets[i].activated || Objets[i].Etat);
+                    skin->FloatMenu(x + Objets[i].x1, y + Objets[i].y2 + 1,
                               Objets[i].Text, Objets[i].Data + 1,
-                              1 + Objets[i].Pos, skin);
+                              1 + Objets[i].Pos);
                 }
                 break;
         }

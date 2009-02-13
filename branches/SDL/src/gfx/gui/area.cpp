@@ -227,7 +227,7 @@ namespace TA3D
         for (sint32 i = vec_wnd.size() - 1; i >=0 ; --i)
             vec_wnd[vec_z_order[i]]->draw(help_msg, i == 0, true, skin);
         if( !help_msg.empty())
-            PopupMenu( mouse_x + 20, mouse_y + 20, help_msg, skin );
+            skin->PopupMenu( mouse_x + 20, mouse_y + 20, help_msg);
 
         pMutex.unlock();
     }

@@ -1,4 +1,5 @@
 
+# include "../../stdafx.h"
 #include "skin.object.h"
 #include "../../misc/paths.h"
 #include "../../TA3D_NameSpace.h"
@@ -47,8 +48,9 @@ namespace TA3D
 
 
 
-    void SKIN_OBJECT::load(const String& filename, const String& prefix, TDFParser& parser, float borderSize)
+    void SKIN_OBJECT::load(TDFParser& parser, const String& prefix, float borderSize)
     {
+        String filename = parser.pullAsString(prefix + "image");
         if (HPIManager && HPIManager->Exists(filename))
         {
             tex = gfx->load_texture(filename, FILTER_LINEAR, &w, &h);
