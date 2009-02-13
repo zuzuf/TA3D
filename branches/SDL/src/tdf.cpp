@@ -444,7 +444,7 @@ namespace TA3D
     }
 
 
-    void FEATURES::draw()
+    void FEATURES::draw(bool no_flat)
     {
         if(nb_features <= 0)
             return;
@@ -617,7 +617,7 @@ namespace TA3D
                 }
                 else
                 {
-                    if (!Camera::inGame->mirror) 	// no need to draw things we can't see
+                    if (!Camera::inGame->mirror && !no_flat) 	// no need to draw things we can't see
                     {
                         dw *= 0.5f;
                         h = 0.25f*feature_manager.feature[feature[i].type].anim.h[feature[i].frame];

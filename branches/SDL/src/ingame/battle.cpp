@@ -1538,7 +1538,10 @@ namespace TA3D
                     gfx->SetDefState();
                     gfx->renderToTextureDepth( gfx->get_shadow_map() );
                     gfx->clearDepth();
-                    pSun.SetView(cam);
+                    {
+                        std::vector<Vector3D> frustum = map->get_visible_volume();
+                        pSun.SetView(frustum);
+                    }
 
                     // We'll need this matrix later (when rendering with shadows)
                     glGetFloatv(GL_PROJECTION_MATRIX, gfx->shadowMapProjectionMatrix);
@@ -1553,7 +1556,7 @@ namespace TA3D
                     // Render all visible features from light's point of view
                     for(int i=0;i<features.list_size;i++)
                         features.feature[features.list[i]].draw = true;
-                    features.draw();
+                    features.draw(true);
 
                     // Render all visible units from light's point of view
                     units.draw(map.get(), true, false, true, false);

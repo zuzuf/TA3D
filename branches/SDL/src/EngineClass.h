@@ -282,6 +282,8 @@ namespace TA3D
 
         void check_unit_visibility(int x, int y);
 
+        std::vector<Vector3D> get_visible_volume();
+
         void update_player_visibility( int player_id, int px, int py, int r, int rd, int sn, int rd_j, int sn_j, bool jamming=false, bool black=false );	// r -> sight, rd -> radar range, sn -> sonar range, j for jamming ray
 
         void draw_mini(int x1=0,int y1=0,int w=252,int h=252, Camera *cam=NULL, byte player_mask=0xFF ); // Dessine la mini-carte

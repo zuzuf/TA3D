@@ -62,7 +62,7 @@ namespace TA3D
     }
 
 
-    void HWLight::SetView(Camera& c)
+    void HWLight::SetView(const std::vector<Vector3D> &frustum)
     {
         if (Directionnal)
         {
@@ -72,7 +72,6 @@ namespace TA3D
             Side = Dir * Up;
             Side.unit();
 
-            std::vector<Vector3D> frustum = c.getFrustum();
             float mx = 0.0f, Mx = 0.0f;
             float my = 0.0f, My = 0.0f;
             float mz = 0.0f, Mz = 0.0f;

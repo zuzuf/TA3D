@@ -1218,6 +1218,25 @@ namespace TA3D
         pMutex.unlock();
     }
 
+    std::vector<Vector3D> MAP::get_visible_volume()
+    {
+        std::vector<Vector3D>  volume = Camera::inGame->getFrustum();
+        for(int i = 4 ; i < 8 ; i++)
+        {
+            Vector3D dir = volume[i] - volume[i-4];
+            float dist_max = dir.norm();
+            dir = 1.0f / dist_max * dir;;
+            if (dir.y > 0.0f)       // Heading up
+            {
+                volume[i] += (512.0f * H_DIV - volume[i].y) * dir;
+                continue;
+            }
+            Vector3D map_hit = hit( volume[i-4], dir, false, dist_max, false) + 30.0f * dir;
+            if ( (map_hit - volume[i-4]) % dir < dist_max)
+                volume[i] = map_hit;
+        }
+        return volume;
+    }
 
     inline float sq( float a )	{	return a * a;	}
 

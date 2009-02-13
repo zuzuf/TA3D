@@ -39,7 +39,7 @@ namespace TA3D
         ** \brief Set a camera from the light position, centered on the view frustum of c, used for shadow mapping
         ** \param c
         */
-        void SetView(Camera& c);
+        void SetView(const std::vector<Vector3D> &frustum);
 
     public:
         //! Position
