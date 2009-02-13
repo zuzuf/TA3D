@@ -191,7 +191,7 @@ IF( WIN32 OR CMAKE_CROSSCOMPILING )
 
 	IF( NOT BUILT_NL )
     	IF( CMAKE_CROSSCOMPILING )
-		    EXECUTE_PROCESS(WORKING_DIRECTORY "${TA3D_SOURCE_DIR}/src/hawknl/src" COMMAND ${MAKE_WIN} -f makefile.linux clean)
+		    EXECUTE_PROCESS(WORKING_DIRECTORY "${TA3D_SOURCE_DIR}/src/hawknl/src" COMMAND ${MAKE_WIN} -f makefile.linux clean RESULT_VARIABLE Piko)
     	ELSE( CMAKE_CROSSCOMPILING )
     		EXECUTE_PROCESS(WORKING_DIRECTORY "${TA3D_SOURCE_DIR}/src/hawknl/src" COMMAND ${MAKE_WIN} -f makefile.mingw clean RESULT_VARIABLE Piko)
     	ENDIF( CMAKE_CROSSCOMPILING )
@@ -208,7 +208,7 @@ IF( WIN32 OR CMAKE_CROSSCOMPILING )
 	ENDIF( NOT BUILT_LUA )
 	EXECUTE_PROCESS( COMMAND cp src/hawknl/src/NL.dll ./ )
 	#SET( LIBS "-llua -luser32 -lgdi32 -lopengl32 -lglu32 -lz.dll -lNL ${OPENGL_LIBRARIES}")
-	SET( LIBS "-L./lua -L./hawknl/src -llua -luser32 -lgdi32 -lopengl32 -lglu32 -lz -lNL -lglew32")
+	SET( LIBS "-L./lua -L./hawknl/src -llua -luser32 -lgdi32 -lopengl32 -lglu32 -lz -lNL")
 	IF( MSVC )
 #		Do we need something there ?
 #	    	LINK_DIRECTORIES("${CMAKE_SOURCE_DIR}/src/tools/win32/msvc/static/")
@@ -231,6 +231,20 @@ ELSE( WIN32 OR CMAKE_CROSSCOMPILING )
 ENDIF( WIN32 OR CMAKE_CROSSCOMPILING )
 
 #
+# --- GLEW ---
+#
+IF(WIN32 OR CMAKE_CROSSCOMPILING)
+    SET(GLEW_LIB "-lglew32")
+ELSE(WIN32 OR CMAKE_CROSSCOMPILING)
+	find_library(GLEW_LIB GLEW)
+	IF(NOT GLEW_LIB)
+        find_library(GLEW_LIB glew)
+	ENDIF(NOT GLEW_LIB)
+ENDIF(WIN32 OR CMAKE_CROSSCOMPILING)
+Message(STATUS "GLEW Library : ${GLEW_LIB}")
+SET(LIBS "${LIBS} ${GLEW_LIB}")
+
+#
 # --- FTGL ---
 #
 IF(NOT APPLE)
@@ -245,6 +259,7 @@ IF(NOT APPLE)
 	ELSE(NOT FTGL_INCLUDE_lower AND NOT CMAKE_CROSSCOMPILING)
 	    SET(__FTGL__lower__ true)
 	ENDIF(NOT FTGL_INCLUDE_lower AND NOT CMAKE_CROSSCOMPILING)
+	Message(STATUS "FTGL Library : ${FTGL_LIB}")
 ELSE(NOT APPLE)
 	Execute_process(COMMAND pkg-config --libs  ftgl OUTPUT_VARIABLE FTGL_LIB OUTPUT_STRIP_TRAILING_WHITESPACE)
 	Execute_process(COMMAND pkg-config --cflags  ftgl OUTPUT_VARIABLE FTGL_CFLAGS OUTPUT_STRIP_TRAILING_WHITESPACE)

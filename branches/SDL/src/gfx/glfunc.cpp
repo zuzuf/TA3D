@@ -30,7 +30,6 @@
 bool	MultiTexturing;
 bool	g_useTextureCompression = false;
 bool	g_useStencilTwoSide = false;
-bool	g_useCopyDepthToColor = false;
 bool	g_useProgram = false;
 bool	g_useFBO = false;
 bool    g_useGenMipMaps = false;
@@ -108,22 +107,23 @@ static void checkOpenGLExtensionsPointers()
 
 void installOpenGLExtensions()
 {
-    #if defined TA3D_PLATFORM_WINDOWS
-    glewInit();
-    #endif
+    GLenum err = glewInit();
+    if (err == GLEW_OK)
+        LOG_DEBUG(LOG_PREFIX_OPENGL << "GLEW initialization successful");
+    else
+    {
+        LOG_WARNING(LOG_PREFIX_OPENGL << "GLEW initialization failed!");
+        LOG_WARNING(LOG_PREFIX_OPENGL << "GLEW error: " << glewGetErrorString(err));
+    }
+    LOG_DEBUG(LOG_PREFIX_OPENGL << "Using GLEW " << glewGetString(GLEW_VERSION));
 
-	MultiTexturing = is_extension_supported("GL_ARB_multitexture");
+	MultiTexturing = GLEW_ARB_multitexture;
 
-    # ifdef TA3D_PLATFORM_DARWIN
-    g_useTextureCompression = false;
-    # else
-	g_useTextureCompression = is_extension_supported("GL_ARB_texture_compression");
-    # endif
-	g_useStencilTwoSide = is_extension_supported("GL_EXT_stencil_two_side");
-	g_useCopyDepthToColor = is_extension_supported("GL_NV_copy_depth_to_color");
-	g_useProgram = is_extension_supported("GL_ARB_shader_objects") && is_extension_supported("GL_ARB_shading_language_100") && is_extension_supported("GL_ARB_vertex_shader") && is_extension_supported("GL_ARB_fragment_shader");
-	g_useFBO = is_extension_supported("GL_EXT_framebuffer_object");
-	g_useGenMipMaps = is_extension_supported("GL_SGIS_generate_mipmap");
+	g_useTextureCompression = GLEW_ARB_texture_compression;
+	g_useStencilTwoSide = GLEW_EXT_stencil_two_side;
+	g_useProgram = GLEW_ARB_shader_objects && GLEW_ARB_shading_language_100 && GLEW_ARB_vertex_program && GLEW_ARB_fragment_program;
+	g_useFBO = GLEW_EXT_framebuffer_object;
+	g_useGenMipMaps = GLEW_SGIS_generate_mipmap;
 
     checkOpenGLExtensionsPointers();
 

@@ -109,25 +109,13 @@
 #      pragma warning( default : 4312 )
 #   endif
 # else
-#   include "SDL.h"
-#   include "SDL_image.h"
-#endif
-
 /*
 ** The OpenGL library
 */
-# ifdef TA3D_PLATFORM_DARWIN
-#   define GL_GLEXT_PROTOTYPES
-#   include <Headers/glu.h> // see `/System/Library/Frameworks/OpenGL.framework`
-#   include <Headers/gl.h>
-#   include <Headers/glext.h>
-# else
-#   define GL_GLEXT_PROTOTYPES
-#   include <GL/gl.h>
-#   include <GL/glext.h>
-#   include <GL/glu.h>
-# endif
-
+#   include <GL/glew.h>
+#   include "SDL.h"
+#   include "SDL_image.h"
+#endif
 
 # include "misc/string.h"
 
