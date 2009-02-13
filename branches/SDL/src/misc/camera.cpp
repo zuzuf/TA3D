@@ -162,27 +162,27 @@ namespace TA3D
         std::vector<Vector3D> frustum;
         if (lp_CONFIG && lp_CONFIG->ortho_camera)
         {
-            frustum.push_back( pos + znear * dir + 0.5f * zoomFactor * (-SCREEN_W * side + SCREEN_H * up) );
-            frustum.push_back( pos + znear * dir + 0.5f * zoomFactor * (SCREEN_W * side + SCREEN_H * up) );
-            frustum.push_back( pos + znear * dir + 0.5f * zoomFactor * (-SCREEN_W * side - SCREEN_H * up) );
-            frustum.push_back( pos + znear * dir + 0.5f * zoomFactor * (SCREEN_W * side - SCREEN_H * up) );
+            frustum.push_back( rpos + znear * dir + 0.5f * zoomFactor * (-SCREEN_W * side + SCREEN_H * up) );
+            frustum.push_back( rpos + znear * dir + 0.5f * zoomFactor * (SCREEN_W * side + SCREEN_H * up) );
+            frustum.push_back( rpos + znear * dir + 0.5f * zoomFactor * (-SCREEN_W * side - SCREEN_H * up) );
+            frustum.push_back( rpos + znear * dir + 0.5f * zoomFactor * (SCREEN_W * side - SCREEN_H * up) );
 
-            frustum.push_back( pos + zfar * dir + 0.5f * zoomFactor * (-SCREEN_W * side + SCREEN_H * up) );
-            frustum.push_back( pos + zfar * dir + 0.5f * zoomFactor * (SCREEN_W * side + SCREEN_H * up) );
-            frustum.push_back( pos + zfar * dir + 0.5f * zoomFactor * (-SCREEN_W * side - SCREEN_H * up) );
-            frustum.push_back( pos + zfar * dir + 0.5f * zoomFactor * (SCREEN_W * side - SCREEN_H * up) );
+            frustum.push_back( rpos + zfar * dir + 0.5f * zoomFactor * (-SCREEN_W * side + SCREEN_H * up) );
+            frustum.push_back( rpos + zfar * dir + 0.5f * zoomFactor * (SCREEN_W * side + SCREEN_H * up) );
+            frustum.push_back( rpos + zfar * dir + 0.5f * zoomFactor * (-SCREEN_W * side - SCREEN_H * up) );
+            frustum.push_back( rpos + zfar * dir + 0.5f * zoomFactor * (SCREEN_W * side - SCREEN_H * up) );
         }
         else
         {
-            frustum.push_back( pos + znear * (-widthFactor * side + 0.75 * up + dir) );
-            frustum.push_back( pos + znear * (widthFactor * side + 0.75 * up + dir) );
-            frustum.push_back( pos + znear * (-widthFactor * side - 0.75 * up + dir) );
-            frustum.push_back( pos + znear * (widthFactor * side - 0.75 * up + dir) );
+            frustum.push_back( rpos + znear * (-widthFactor * side + 0.75 * up + dir) );
+            frustum.push_back( rpos + znear * (widthFactor * side + 0.75 * up + dir) );
+            frustum.push_back( rpos + znear * (-widthFactor * side - 0.75 * up + dir) );
+            frustum.push_back( rpos + znear * (widthFactor * side - 0.75 * up + dir) );
 
-            frustum.push_back( pos + zfar * (-widthFactor * side + 0.75 * up + dir) );
-            frustum.push_back( pos + zfar * (widthFactor * side + 0.75 * up + dir) );
-            frustum.push_back( pos + zfar * (-widthFactor * side - 0.75 * up + dir) );
-            frustum.push_back( pos + zfar * (widthFactor * side - 0.75 * up + dir) );
+            frustum.push_back( rpos + zfar * (-widthFactor * side + 0.75 * up + dir) );
+            frustum.push_back( rpos + zfar * (widthFactor * side + 0.75 * up + dir) );
+            frustum.push_back( rpos + zfar * (-widthFactor * side - 0.75 * up + dir) );
+            frustum.push_back( rpos + zfar * (widthFactor * side - 0.75 * up + dir) );
         }
 
         return frustum;

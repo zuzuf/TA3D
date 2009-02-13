@@ -1504,13 +1504,13 @@ namespace TA3D
     {
         if (MultiTexturing)
         {
-            for(uint32 i = 0; i < 8; ++i)
+            for(uint32 i = 0; i < 7; ++i)
             {
                 glActiveTextureARB(GL_TEXTURE0_ARB + i);
                 ReInitTexSys();
                 glClientActiveTexture(GL_TEXTURE0_ARB + i);
                 glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-                if (disable )
+                if (disable)
                     glDisable(GL_TEXTURE_2D);
             }
             glActiveTextureARB(GL_TEXTURE0_ARB);
@@ -1527,11 +1527,11 @@ namespace TA3D
         glEnable (GL_DEPTH_TEST);
         glCullFace (GL_BACK);
         glEnable (GL_CULL_FACE);
-        glHint(GL_FOG_HINT, GL_FASTEST);
-        glHint(GL_LINE_SMOOTH_HINT, GL_FASTEST);
+        glHint(GL_FOG_HINT, GL_NICEST);
+        glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
         glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
-        glHint(GL_POINT_SMOOTH_HINT, GL_FASTEST);
-        glHint(GL_POLYGON_SMOOTH_HINT, GL_FASTEST);
+        glHint(GL_POINT_SMOOTH_HINT, GL_NICEST);
+        glHint(GL_POLYGON_SMOOTH_HINT, GL_NICEST);
         glFogi (GL_FOG_COORD_SRC, GL_FOG_COORD);
         glDisable(GL_BLEND);
         glEnable(GL_LIGHTING);

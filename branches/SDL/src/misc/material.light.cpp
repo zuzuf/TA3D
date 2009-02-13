@@ -1,4 +1,4 @@
-
+#include "../logs/logs.h"
 #include "material.light.h"
 #include "math.h"
 
@@ -69,6 +69,8 @@ namespace TA3D
             Vector3D Side(0.0f, 1.0f, 0.0f);
             Vector3D Up(Side * Dir);
             Up.unit();
+            Side = Dir * Up;
+            Side.unit();
 
             std::vector<Vector3D> frustum = c.getFrustum();
             float mx = 0.0f, Mx = 0.0f;
@@ -79,12 +81,21 @@ namespace TA3D
                 float X = frustum[i] % Side;
                 float Z = frustum[i] % Dir;
                 float Y = frustum[i] % Up;
-                mx = Math::Min(mx, X);
-                Mx = Math::Max(Mx, X);
-                my = Math::Min(my, Y);
-                My = Math::Max(My, Y);
-                mz = Math::Min(mz, Z);
-                Mz = Math::Max(Mz, Z);
+                if (i == 0)
+                {
+                    mx = Mx = X;
+                    my = My = Y;
+                    mz = Mz = Z;
+                }
+                else
+                {
+                    mx = Math::Min(mx, X);
+                    Mx = Math::Max(Mx, X);
+                    my = Math::Min(my, Y);
+                    My = Math::Max(My, Y);
+                    mz = Math::Min(mz, Z);
+                    Mz = Math::Max(Mz, Z);
+                }
             }
             Vector3D c_pos(Mz * Dir + 0.5f * (mx + Mx) * Side + 0.5f * (my + My) * Up);
 

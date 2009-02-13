@@ -322,9 +322,11 @@ namespace TA3D
             glUniform4iARB(glGetUniformLocationARB(pShaderProgram, var), v0, v1, v2, v3);
     }
 
-
-
-
+    void Shader::setmat4f(const char* var, const GLfloat *mat)
+    {
+        if (pLoaded && !lp_CONFIG->disable_GLSL)
+            glUniformMatrix4fv(	glGetUniformLocationARB(pShaderProgram, var), 1, GL_FALSE, mat);
+    }
 
 // } // namespace GFX
 } // namespace TA3D

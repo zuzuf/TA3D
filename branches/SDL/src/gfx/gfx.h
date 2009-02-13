@@ -116,6 +116,8 @@ namespace TA3D
         GLuint      textureColor;       // Default color texture used by FBO when rendering to depth texture
         GLuint      shadowMap;
 
+        GLfloat     shadowMapProjectionMatrix[16];
+
         bool		ati_workaround;		// Need to use workarounds for ATI cards ?
 
         GFX();

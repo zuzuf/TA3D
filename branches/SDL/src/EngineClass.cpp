@@ -197,6 +197,7 @@ namespace TA3D
         radar_map = NULL;
         sonar_map = NULL;
 
+        shadow2_shader.load("shaders/map_shadow.frag", "shaders/map_shadow.vert");
         detail_shader.load( "shaders/details.frag", "shaders/details.vert" );
         details_tex = 0;
         color_factor = 1.0f;
@@ -651,6 +652,7 @@ namespace TA3D
         if( sonar_map )		SDL_FreeSurface( sonar_map );
 
         detail_shader.destroy();
+        shadow2_shader.destroy();
         gfx->destroy_texture( details_tex );
 
         if(low_vtx)			delete[] low_vtx;
@@ -1372,7 +1374,7 @@ namespace TA3D
             flat[8].x=16.0f;	flat[8].y=flat[0].y;				flat[8].z=16.0f;
         }
 
-        bool enable_details = !cam->mirror;
+        bool enable_details = !cam->mirror && (lp_CONFIG->detail_tex || lp_CONFIG->shadow_quality >= 2);
 
         if (ntex > 0 && !depth_only)
         {
@@ -1433,11 +1435,22 @@ namespace TA3D
         glColorPointer(4,GL_UNSIGNED_BYTE,0,buf_c);
         glVertexPointer( 3, GL_FLOAT, 0, buf_p);
 
-        if (lp_CONFIG->detail_tex && !FLAT && enable_details)
+        if (!FLAT && enable_details)
         {
-            detail_shader.on();
-            detail_shader.setvar1f( "coef", color_factor );
-            detail_shader.setvar1i( "details", 1 );
+            switch(lp_CONFIG->shadow_quality)
+            {
+            case 2:
+                shadow2_shader.on();
+                shadow2_shader.setvar1f( "coef", color_factor );
+                shadow2_shader.setvar1i( "details", 1 );
+                shadow2_shader.setvar1i( "shadowMap", 7 );
+                shadow2_shader.setmat4f( "light_Projection", gfx->shadowMapProjectionMatrix);
+                break;
+            default:
+                detail_shader.on();
+                detail_shader.setvar1f( "coef", color_factor );
+                detail_shader.setvar1i( "details", 1 );
+            };
         }
 
         glClientActiveTextureARB(GL_TEXTURE0_ARB );

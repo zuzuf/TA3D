@@ -1408,10 +1408,9 @@ namespace TA3D
             // Dessine les reflets sur l'eau
             if (g_useProgram && g_useFBO && lp_CONFIG->water_quality>=2 && map->water && !map->ota_data.lavaworld && !reflection_drawn_last_time)
             {
-
                 reflection_drawn_last_time = true;
 
-                glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);		// Efface l'écran
+                gfx->clearAll();		// Clear screen
 
                 glViewport(0, 0, 512, 512);
 
@@ -1540,10 +1539,20 @@ namespace TA3D
                     gfx->renderToTextureDepth( gfx->get_shadow_map() );
                     gfx->clearDepth();
                     pSun.SetView(cam);
+
+                    // We'll need this matrix later (when rendering with shadows)
+                    glGetFloatv(GL_PROJECTION_MATRIX, gfx->shadowMapProjectionMatrix);
+
                     glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
                     glDisable(GL_FOG);
+                    glShadeModel (GL_FLAT);
+
+                    glEnable(GL_POLYGON_OFFSET_FILL);
+                    glPolygonOffset(3.0f, 1.0f);
 
                     // Render all visible features from light's point of view
+                    for(int i=0;i<features.list_size;i++)
+                        features.feature[features.list[i]].draw = true;
                     features.draw();
 
                     // Render all visible units from light's point of view
@@ -1554,8 +1563,20 @@ namespace TA3D
                     weapons.draw(map.get(), true);
                     weapons.draw(map.get(), false);
 
+                    glDisable(GL_POLYGON_OFFSET_FILL);
+                    glPolygonOffset(0.0f, 0.0f);
+
                     gfx->renderToTextureDepth(0);
                     glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+
+                    glActiveTextureARB(GL_TEXTURE7_ARB);
+                    glEnable(GL_TEXTURE_2D);
+                    glBindTexture(GL_TEXTURE_2D, gfx->get_shadow_map());
+                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE_ARB, GL_COMPARE_R_TO_TEXTURE);
+                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_FUNC_ARB, GL_LEQUAL);
+                    glTexParameteri(GL_TEXTURE_2D, GL_DEPTH_TEXTURE_MODE_ARB, GL_INTENSITY);
+
+                    glActiveTextureARB(GL_TEXTURE0_ARB);
                     break;
                 };
             }
@@ -3338,6 +3359,8 @@ namespace TA3D
                         water_pass2.load("shaders/water_pass2.frag","shaders/water_pass2.vert");
                         map->detail_shader.destroy();
                         map->detail_shader.load( "shaders/details.frag", "shaders/details.vert");
+                        map->shadow2_shader.destroy();
+                        map->shadow2_shader.load("shaders/map_shadow.frag", "shaders/map_shadow.vert");
                         water_simulator_shader.destroy();
                         water_simulator_shader.load("shaders/water_simulator.frag","shaders/water_simulator.vert");
                         water_simulator_shader2.destroy();

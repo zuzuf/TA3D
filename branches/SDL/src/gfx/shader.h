@@ -57,6 +57,8 @@ namespace TA3D
         void setvar2i(const char* var, const int v0, const int v1);
         void setvar3i(const char* var, const int v0, const int v1, const int v2);
         void setvar4i(const char* var, const int v0, const int v1, const int v2, const int v3);
+
+        void setmat4f(const char* var, const GLfloat *mat);
         //@}
 
         /*!
