@@ -462,11 +462,58 @@ namespace TA3D
     void save_bitmap(const String &filename, SDL_Surface* bmp)
     {
         String ext = String::ToLower( Paths::ExtractFileExt(filename) );
-        if (ext == "bmp")
+        if (ext == ".bmp")
             SDL_SaveBMP(bmp, filename.c_str());
-        else if (ext == "tex")                      // This is for cached texture data
+        else if (ext == ".tex")                      // This is for cached texture data
             SaveTex(bmp, filename);
+        else if (ext == ".tga")
+            save_TGA(filename, bmp);
         else
-            LOG_WARNING("save_bitmap : file format not supported (" << filename << ")");
+            LOG_WARNING("save_bitmap : file format not supported : " << ext << " (" << filename << ")");
+    }
+
+    struct TGAHeader
+    {
+        // imagetype 2==truecolour uncompressed,
+        // 3==b+w uncompressed (theres no implementational difference between the two)
+
+        byte id;        // image ID size (between header and image data), here 0, we don't need it
+        byte colormap;
+        byte type;
+        byte colormapSpec[5];
+
+        uint16 x;
+        uint16 y;
+        uint16 w;
+        uint16 h;
+        uint8  bpp;
+
+        byte description;
+    };
+
+    void save_TGA(const String &filename, SDL_Surface* bmp)
+    {
+        TGAHeader header;
+
+        header.id = 0;
+        header.colormap = 0;
+        header.type = 2; // 32 bits uncompressed image
+        memset( header.colormapSpec, 0, 5 );
+
+        header.x = 0;
+        header.y = 0;
+        header.w = bmp->w;
+        header.h = bmp->h;
+        header.bpp = bmp->format->BitsPerPixel;
+        header.description = 0;
+
+        std::fstream file( filename.c_str(), std::fstream::out | std::fstream::binary );
+
+        if (file.is_open())
+        {
+            file.write( (char*)&header, sizeof(header) );
+            file.write( (char*)bmp->pixels, bmp->w * bmp->h * bmp->format->BytesPerPixel );
+            file.close();
+        }
     }
 }

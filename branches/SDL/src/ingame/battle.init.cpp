@@ -792,23 +792,12 @@ namespace TA3D
 		can_be_there = false;
 
         // Detect current screen shot number
-        char nom[100];
-        nom[0]=0;
-        strcat(nom,"ta3d-shoot000000");
-        int l = strlen(nom);
-
         nb_shoot = -1;
 		shoot = false;
         do
         {
             nb_shoot = (nb_shoot+1)%1000000;
-            nom[l - 6] = '0' + ((nb_shoot / 100000) % 10);
-            nom[l - 5] = '0' + ((nb_shoot / 10000) % 10);
-            nom[l - 4] = '0' + ((nb_shoot / 1000) % 10);
-            nom[l - 3] = '0' + ((nb_shoot / 100) % 10);
-            nom[l - 2] = '0' + ((nb_shoot / 10) % 10);
-            nom[l - 1] = '0' + (nb_shoot % 10);
-        }while(TA3D::Paths::Exists(TA3D::Paths::Screenshots + nom + ".jpg") && nb_shoot != 999999);
+        }while(TA3D::Paths::Exists(TA3D::Paths::Screenshots + format("ta3d-shoot%.6d.tga", nb_shoot)) && nb_shoot != 999999);
 
 		return true;
 	}

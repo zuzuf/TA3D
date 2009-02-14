@@ -3296,19 +3296,10 @@ namespace TA3D
 
             if (shoot)
             {
-                SDL_Surface *shoot_bmp = gfx->create_surface_ex(32,SCREEN_W,SCREEN_H);
-                blit(screen,shoot_bmp,0,0,0,0,SCREEN_W,SCREEN_H);
-                char nom[100];
-                nom[0]=0;
-                strcat(nom,"ta3d-shoot000000");
-                nom[strlen(nom)-6]+=(nb_shoot/100000)%10;
-                nom[strlen(nom)-5]+=(nb_shoot/10000)%10;
-                nom[strlen(nom)-4]+=(nb_shoot/1000)%10;
-                nom[strlen(nom)-3]+=(nb_shoot/100)%10;
-                nom[strlen(nom)-2]+=(nb_shoot/10)%10;
-                nom[strlen(nom)-1]+=nb_shoot%10;
+                SDL_Surface *shoot_bmp = gfx->create_surface_ex(24,SCREEN_W,SCREEN_H);
+                glReadPixels(0, 0, SCREEN_W, SCREEN_H, GL_BGR, GL_UNSIGNED_BYTE, shoot_bmp->pixels);
+                String nom = format("ta3d-shoot%.6d.tga", nb_shoot);
                 nb_shoot = (nb_shoot+1)%1000000;
-                strcat(nom,".jpg");
                 save_bitmap(TA3D::Paths::Screenshots + nom, shoot_bmp);
                 SDL_FreeSurface(shoot_bmp);
                 shoot = false;
@@ -3331,7 +3322,7 @@ namespace TA3D
                         SDL_Surface *bmp = gfx->create_surface_ex(32,SCREEN_W,SCREEN_H);
                         SDL_FillRect(bmp, NULL, 0);
                         glReadPixels(0,0,SCREEN_W,SCREEN_H,GL_DEPTH_COMPONENT,GL_INT,bmp->pixels);
-//                        save_bitmap( (TA3D::Paths::Screenshots + "z.tga").c_str(),bmp,NULL);
+//                        save_bitmap( TA3D::Paths::Screenshots + "z.tga",bmp);
                         SDL_FreeSurface(bmp);
                     }
                     else if ((params[0] == "enable" || params[0] == "disable") && params.size() > 1)

@@ -28,6 +28,8 @@ namespace TA3D
 
     SDL_Surface *LoadTex(const String &filename);
     void SaveTex(SDL_Surface *bmp, const String &filename);
+
+    void save_TGA(const String &filename, SDL_Surface* bmp);
 }
 
 #define makeacol(r,g,b,a)   (((uint32)(a)<<24) | ((uint32)(b)<<16) | ((uint32)(g)<<8) | (uint32)(r))
