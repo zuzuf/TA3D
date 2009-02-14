@@ -1646,7 +1646,7 @@ namespace TA3D
                                 }
                             }
 
-                            if (surface.Flag&SURFACE_TEXTURED && !notex) // Les textures et effets de texture
+                            if ((surface.Flag&SURFACE_TEXTURED) && !notex) // Les textures et effets de texture
                             {
                                 activated_tex = true;
                                 for (int j = 0; j < surface.NbTex; ++j)

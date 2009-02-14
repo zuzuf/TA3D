@@ -589,7 +589,7 @@ namespace TA3D
         if (!color)
             color = new GLubyte[16384];
 
-        cam->setView();
+        cam->setView(true);
 
         gfx->ReInitAllTex(true);
 

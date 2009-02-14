@@ -196,7 +196,7 @@ namespace TA3D
         /*!
         ** \brief enable/disable the 3DO model vertex/fragment program (the one that fits the current rendering mode, or none if not required)
         */
-        void enable_model_shading();
+        void enable_model_shading(int mode = 0);
         void disable_model_shading();
 
         void setShadowMapMode(bool mode);

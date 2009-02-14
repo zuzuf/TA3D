@@ -62,16 +62,15 @@ namespace System
 
     bool DesktopResolution(int& width, int& height, int& colorDepth)
     {
-//        if (0 != get_desktop_resolution(&width, &height))
-//        {
-            // if 0, the values stored in width and height are unspecified, same for the color depth
-            width = 640;
-            height = 480;
-            colorDepth = 16;
-            return false;
-//        }
-//        colorDepth = desktop_color_depth();
-//        return true;
+        const SDL_VideoInfo *videoInfo = SDL_GetVideoInfo();
+        if (videoInfo)
+        {
+            width = videoInfo->current_w;
+            height = videoInfo->current_h;
+            colorDepth = videoInfo->vfmt->BitsPerPixel;
+            return true;
+        }
+        return false;
     }
 
 

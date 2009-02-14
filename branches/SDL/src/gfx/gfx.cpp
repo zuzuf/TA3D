@@ -65,38 +65,60 @@ namespace TA3D
         SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
         SDL_GL_SetAttribute(SDL_GL_ACCELERATED_VISUAL, 1);
         SDL_GL_SetAttribute(SDL_GL_SWAP_CONTROL, 0);
-        SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 8);
-        SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 8);
-        SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 8);
-        SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE, 8);
-        SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 32);
-
-        if (TA3D::VARS::lp_CONFIG->fullscreen )
-            screen = SDL_SetVideoMode( TA3D::VARS::lp_CONFIG->screen_width, TA3D::VARS::lp_CONFIG->screen_height, TA3D::VARS::lp_CONFIG->color_depth, SDL_OPENGL | SDL_FULLSCREEN );
+        if (TA3D::VARS::lp_CONFIG->color_depth == 32)
+        {
+            SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 8);
+            SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 8);
+            SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 8);
+            SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE, 8);
+        }
         else
-            screen = SDL_SetVideoMode( TA3D::VARS::lp_CONFIG->screen_width, TA3D::VARS::lp_CONFIG->screen_height, TA3D::VARS::lp_CONFIG->color_depth, SDL_OPENGL );
+        {
+            SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 5);
+            SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 6);
+            SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 5);
+            SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE, 0);
+        }
+        SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
+
+        uint32 flags = SDL_OPENGL | SDL_GL_ACCELERATED_VISUAL;
+        if (TA3D::VARS::lp_CONFIG->fullscreen )
+            flags |= SDL_FULLSCREEN;
+
+        screen = SDL_SetVideoMode( TA3D::VARS::lp_CONFIG->screen_width, TA3D::VARS::lp_CONFIG->screen_height, TA3D::VARS::lp_CONFIG->color_depth, flags );
 
         if (screen == NULL)
         {
-            SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
-            if (TA3D::VARS::lp_CONFIG->fullscreen )
-                screen = SDL_SetVideoMode( TA3D::VARS::lp_CONFIG->screen_width, TA3D::VARS::lp_CONFIG->screen_height, TA3D::VARS::lp_CONFIG->color_depth, SDL_OPENGL | SDL_FULLSCREEN );
-            else
-                screen = SDL_SetVideoMode( TA3D::VARS::lp_CONFIG->screen_width, TA3D::VARS::lp_CONFIG->screen_height, TA3D::VARS::lp_CONFIG->color_depth, SDL_OPENGL );
+            LOG_WARNING(LOG_PREFIX_GFX << "SDL_SetVideoMode failed : " << SDL_GetError());
+            LOG_WARNING(LOG_PREFIX_GFX << "retrying with GL_DEPTH_SIZE = 16");
+            SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 16);
+            screen = SDL_SetVideoMode( TA3D::VARS::lp_CONFIG->screen_width, TA3D::VARS::lp_CONFIG->screen_height, TA3D::VARS::lp_CONFIG->color_depth, flags );
         }
 
         if (screen == NULL)
         {
+            LOG_WARNING(LOG_PREFIX_GFX << "SDL_SetVideoMode failed : " << SDL_GetError());
+            LOG_WARNING(LOG_PREFIX_GFX << "retrying with GL_DEPTH_SIZE = 24 and current color depth");
+            SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
+            screen = SDL_SetVideoMode( TA3D::VARS::lp_CONFIG->screen_width, TA3D::VARS::lp_CONFIG->screen_height, 0, flags );
+        }
+
+        if (screen == NULL)
+        {
+            LOG_WARNING(LOG_PREFIX_GFX << "SDL_SetVideoMode failed : " << SDL_GetError());
+            LOG_WARNING(LOG_PREFIX_GFX << "retrying with GL_DEPTH_SIZE = 16 and current color depth");
             SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 16);
-            if (TA3D::VARS::lp_CONFIG->fullscreen )
-                screen = SDL_SetVideoMode( TA3D::VARS::lp_CONFIG->screen_width, TA3D::VARS::lp_CONFIG->screen_height, TA3D::VARS::lp_CONFIG->color_depth, SDL_OPENGL | SDL_FULLSCREEN );
-            else
-                screen = SDL_SetVideoMode( TA3D::VARS::lp_CONFIG->screen_width, TA3D::VARS::lp_CONFIG->screen_height, TA3D::VARS::lp_CONFIG->color_depth, SDL_OPENGL );
+            SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 5);
+            SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 6);
+            SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 5);
+            SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE, 0);
+            screen = SDL_SetVideoMode( TA3D::VARS::lp_CONFIG->screen_width, TA3D::VARS::lp_CONFIG->screen_height, 0, flags );
         }
 
         if (screen == NULL)
         {
             LOG_ERROR(LOG_PREFIX_GFX << "Impossible to set OpenGL video mode!");
+            LOG_ERROR(LOG_PREFIX_GFX << "SDL_GetError() = " << SDL_GetError());
             return;
         }
 
@@ -1835,20 +1857,27 @@ namespace TA3D
         return shadowMap;
     }
 
-    void GFX::enable_model_shading()
+    void GFX::enable_model_shading(int mode)
     {
         if (shadowMapMode)  return;
-        switch( lp_CONFIG->shadow_quality)
+        switch(lp_CONFIG->shadow_quality)
         {
         case 2:
-            if (!model_shader.isLoaded())
-                model_shader.load("shaders/3do_shadow.frag", "shaders/3do_shadow.vert");
-            if (model_shader.isLoaded())
+            switch(mode)
             {
-                model_shader.on();
-                model_shader.setvar1i("shadowMap", 7);
-                model_shader.setmat4f("light_Projection", shadowMapProjectionMatrix);
-            }
+            case 0:
+            case 1:
+                if (!model_shader.isLoaded())
+                    model_shader.load("shaders/3do_shadow.frag", "shaders/3do_shadow.vert");
+                if (model_shader.isLoaded())
+                {
+                    model_shader.on();
+                    model_shader.setvar1i("shadowMap", 7);
+                    model_shader.setmat4f("light_Projection", shadowMapProjectionMatrix);
+                }
+            default:
+                model_shader.off();
+            };
             break;
         };
     }
