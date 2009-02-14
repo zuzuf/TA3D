@@ -131,6 +131,8 @@ namespace TA3D
         else
             set_texture_format(GL_RGB8);
         glViewport(0,0,SCREEN_W,SCREEN_H);
+
+        glGetIntegerv(GL_MAX_TEXTURE_SIZE,&max_tex_size);
     }
 
 
@@ -594,8 +596,6 @@ namespace TA3D
 
     int GFX::max_texture_size()
     {
-        int max_tex_size;
-        glGetIntegerv(GL_MAX_TEXTURE_SIZE,&max_tex_size);
         return max_tex_size;
     }
 
@@ -607,9 +607,6 @@ namespace TA3D
             return 0;
         }
         MutexLocker locker(pMutex);
-
-        int max_tex_size;
-        glGetIntegerv(GL_MAX_TEXTURE_SIZE,&max_tex_size);
 
         if (bmp->w > max_tex_size || bmp->h > max_tex_size )
         {
@@ -649,8 +646,13 @@ namespace TA3D
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT );
         }
 
-        if (build_mipmaps && g_useGenMipMaps)        // Automatic mipmaps generation
-            glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP_SGIS, true );
+        if (g_useGenMipMaps)        // Automatic mipmaps generation
+        {
+            if (!build_mipmaps || glGenerateMipmapEXT)
+                glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP_SGIS, GL_FALSE );
+            else
+                glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP_SGIS, GL_TRUE );
+        }
 
         switch(filter_type)
         {
@@ -696,6 +698,9 @@ namespace TA3D
         default:
             LOG_DEBUG("SDL_Surface format not supported by texture loader: " << bmp->format->BitsPerPixel << " bpp" );
         };
+
+        if (g_useGenMipMaps && glGenerateMipmapEXT && build_mipmaps)
+            glGenerateMipmapEXT( GL_TEXTURE_2D);
 
         if (filter_type == FILTER_NONE || filter_type == FILTER_LINEAR )
             use_mipmapping(true);
@@ -1082,11 +1087,64 @@ namespace TA3D
 
     GLuint GFX::create_texture(int w, int h, byte filter_type, bool clamp )
     {
-        SDL_Surface* tmp = create_surface(w, h);
-        SDL_FillRect( tmp, NULL, 0 );
-        GLuint tex = make_texture( tmp, filter_type, clamp );
-        SDL_FreeSurface( tmp );
-        return tex;
+        MutexLocker locker(pMutex);
+
+        if (w > max_tex_size || h > max_tex_size )
+            return create_texture( Math::Min(w, max_tex_size), Math::Min(h, max_tex_size), filter_type, clamp);
+
+        if (ati_workaround && filter_type != FILTER_NONE
+            && ( !Math::IsPowerOfTwo(w) || !Math::IsPowerOfTwo(h)))
+            filter_type = FILTER_LINEAR;
+
+        GLuint gl_tex = 0;
+        glGenTextures(1,&gl_tex);
+
+        glBindTexture(GL_TEXTURE_2D, gl_tex);
+
+        glMatrixMode(GL_TEXTURE);
+        glLoadIdentity();
+        glMatrixMode(GL_MODELVIEW);
+
+        if (clamp )
+        {
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE );
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE );
+        }
+        else
+        {
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT );
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT );
+        }
+
+        switch(filter_type)
+        {
+            case FILTER_NONE:
+                glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+                glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+                break;
+            case FILTER_LINEAR:
+                glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
+                glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
+                break;
+            case FILTER_BILINEAR:
+                glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
+                glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR_MIPMAP_NEAREST);
+                break;
+            case FILTER_TRILINEAR:
+                glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
+                glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR_MIPMAP_LINEAR);
+                break;
+        }
+
+        glTexImage2D(GL_TEXTURE_2D, 0, texture_format, w, h, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+
+        return gl_tex;
+//
+//        SDL_Surface* tmp = create_surface(w, h);
+//        SDL_FillRect( tmp, NULL, 0 );
+//        GLuint tex = make_texture( tmp, filter_type, clamp );
+//        SDL_FreeSurface( tmp );
+//        return tex;
     }
 
     GLuint GFX::create_texture_RGB32F(int w, int h, byte filter_type, bool clamp )
@@ -1285,7 +1343,7 @@ namespace TA3D
 
     GLuint GFX::load_texture_from_cache( String file, byte filter_type, uint32 *width, uint32 *height, bool clamp )
     {
-        if(ati_workaround || !lp_CONFIG->use_texture_cache || !lp_CONFIG->use_texture_compression)
+        if(ati_workaround || !lp_CONFIG->use_texture_cache || !lp_CONFIG->use_texture_compression || !g_useGenMipMaps)
             return 0;
 
         file = TA3D::Paths::Caches + file;
@@ -1307,30 +1365,39 @@ namespace TA3D
             if(width)  *width = rw;
             if(height) *height = rh;
 
-            byte *img = new byte[ rw * rh * 5 ];
-
             int lod_max = 0;
             GLint size, internal_format;
 
             fread( &lod_max, sizeof( lod_max ), 1, cache_file );
             fread( &internal_format, sizeof( GLint ), 1, cache_file );
 
-            GLuint old_texture_format = texture_format;
-            texture_format = internal_format;
-            GLuint	tex = create_texture(1, 1, filter_type, clamp);
-            texture_format = old_texture_format;
+            GLuint	tex;
+            glEnable(GL_TEXTURE_2D);
+            glGenTextures(1,&tex);
 
             glBindTexture( GL_TEXTURE_2D, tex );
+            if (glGenerateMipmapEXT)
+                glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP_SGIS, GL_FALSE);
+            else
+                glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP_SGIS, GL_TRUE);
 
-            for( int lod = 0 ; lod  < lod_max ; lod++ )
-            {
-                fread( &size, sizeof( GLint ), 1, cache_file );
-                fread( &internal_format, sizeof( GLint ), 1, cache_file );
-                fread( img, size, 1, cache_file );
-                glCompressedTexImage2DARB( GL_TEXTURE_2D, lod, internal_format, rw, rh, 0, size, img);
-            }
+            GLint w,h,border;
+            fread( &size, sizeof( GLint ), 1, cache_file );
 
-            delete img;
+            byte *img = new byte[size];
+
+            fread( &internal_format, sizeof( GLint ), 1, cache_file );
+            fread( &border, sizeof( GLint ), 1, cache_file );
+            fread( &w, sizeof( GLint ), 1, cache_file );
+            fread( &h, sizeof( GLint ), 1, cache_file );
+            fread( img, size, 1, cache_file );
+            glCompressedTexImage2D( GL_TEXTURE_2D, 0, internal_format, w, h, border, size, img);
+
+            glGenerateMipmapEXT(GL_TEXTURE_2D);
+
+            glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP_SGIS, GL_FALSE);
+
+            delete[] img;
 
             fclose( cache_file );
 
@@ -1376,7 +1443,7 @@ namespace TA3D
 
     void GFX::save_texture_to_cache( String file, GLuint tex, uint32 width, uint32 height )
     {
-        if(ati_workaround || !lp_CONFIG->use_texture_cache || !lp_CONFIG->use_texture_compression)
+        if(ati_workaround || !lp_CONFIG->use_texture_cache || !lp_CONFIG->use_texture_compression || !g_useGenMipMaps)
             return;
 
         file = TA3D::Paths::Caches + file;
@@ -1401,8 +1468,6 @@ namespace TA3D
         fwrite( &width, 4, 1, cache_file );
         fwrite( &height, 4, 1, cache_file );
 
-        byte *img = new byte[ rw * rh * 5 ];
-
         float lod_max_f = Math::Max(logf(rw), logf(rh)) / logf(2.0f);
         int lod_max = ((int) lod_max_f);
         if (lod_max > lod_max_f )
@@ -1414,15 +1479,25 @@ namespace TA3D
         glGetTexLevelParameteriv( GL_TEXTURE_2D, 0, GL_TEXTURE_INTERNAL_FORMAT, &internal_format );
         fwrite( &internal_format, sizeof( GLint ), 1, cache_file );
 
-        for( int lod = 0 ; lod  < lod_max ; lod++ )
-        {
-            glGetTexLevelParameteriv( GL_TEXTURE_2D, lod, GL_TEXTURE_COMPRESSED_IMAGE_SIZE_ARB, &size );
-            glGetTexLevelParameteriv( GL_TEXTURE_2D, lod, GL_TEXTURE_INTERNAL_FORMAT, &internal_format );
-            glGetCompressedTexImageARB( GL_TEXTURE_2D, lod, img );
-            fwrite( &size, sizeof( GLint ), 1, cache_file );
-            fwrite( &internal_format, sizeof( GLint ), 1, cache_file );
-            fwrite( img, size, 1, cache_file );
-        }
+        int lod = 0;
+
+        glGetTexLevelParameteriv( GL_TEXTURE_2D, lod, GL_TEXTURE_COMPRESSED_IMAGE_SIZE_ARB, &size );
+        glGetTexLevelParameteriv( GL_TEXTURE_2D, lod, GL_TEXTURE_INTERNAL_FORMAT, &internal_format );
+
+        byte *img = new byte[size];
+
+        glGetCompressedTexImageARB( GL_TEXTURE_2D, lod, img );
+        GLint w,h,border;
+        glGetTexLevelParameteriv( GL_TEXTURE_2D, lod, GL_TEXTURE_BORDER, &border );
+        glGetTexLevelParameteriv( GL_TEXTURE_2D, lod, GL_TEXTURE_WIDTH, &w );
+        glGetTexLevelParameteriv( GL_TEXTURE_2D, lod, GL_TEXTURE_HEIGHT, &h );
+
+        fwrite( &size, sizeof( GLint ), 1, cache_file );
+        fwrite( &internal_format, sizeof( GLint ), 1, cache_file );
+        fwrite( &border, sizeof( GLint ), 1, cache_file );
+        fwrite( &w, sizeof( GLint ), 1, cache_file );
+        fwrite( &h, sizeof( GLint ), 1, cache_file );
+        fwrite( img, size, 1, cache_file );
 
         delete[] img;
 

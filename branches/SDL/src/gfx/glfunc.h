@@ -36,11 +36,6 @@ extern bool g_useFBO;
 extern bool g_useGenMipMaps;
 
 /*!
-** \brief Test for the given OpenGL extension support
-*/
-bool is_extension_supported(const String &name);
-
-/*!
 ** \brief Try to enable some specific OpenGL extensions
 */
 void installOpenGLExtensions();

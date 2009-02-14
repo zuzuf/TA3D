@@ -34,13 +34,6 @@ bool	g_useProgram = false;
 bool	g_useFBO = false;
 bool    g_useGenMipMaps = false;
 
-bool is_extension_supported(const String &name)
-{
-    String extensions = (char*)glGetString(GL_EXTENSIONS);
-    return extensions.find(name) != std::string::npos;
-}
-
-
 #define CHECK_OPENGL_FUNCTION( extension, function, var ) \
 		if ((function) == NULL)\
 		{\

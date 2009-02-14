@@ -124,6 +124,8 @@ namespace TA3D
 
         bool		ati_workaround;		// Need to use workarounds for ATI cards ?
 
+        int max_tex_size;
+
         GFX();
 
 

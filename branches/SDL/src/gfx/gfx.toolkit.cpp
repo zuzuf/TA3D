@@ -497,7 +497,7 @@ namespace TA3D
 
         header.id = 0;
         header.colormap = 0;
-        header.type = 2; // 32 bits uncompressed image
+        header.type = 2; // 24/32 bits uncompressed image
         memset( header.colormapSpec, 0, 5 );
 
         header.x = 0;

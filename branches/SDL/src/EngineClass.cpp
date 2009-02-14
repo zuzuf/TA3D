@@ -1231,7 +1231,7 @@ namespace TA3D
                 volume[i] += (512.0f * H_DIV - volume[i].y) * dir;
                 continue;
             }
-            Vector3D map_hit = hit( volume[i-4], dir, false, dist_max, false) + 30.0f * dir;
+            Vector3D map_hit = hit( volume[i-4], dir, false, dist_max, true) + 30.0f * dir;
             if ( (map_hit - volume[i-4]) % dir < dist_max)
                 volume[i] = map_hit;
         }
