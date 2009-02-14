@@ -34,6 +34,7 @@ extern bool g_useStencilTwoSide;
 extern bool g_useProgram;
 extern bool g_useFBO;
 extern bool g_useGenMipMaps;
+extern bool g_useNonPowerOfTwoTextures;
 
 /*!
 ** \brief Try to enable some specific OpenGL extensions

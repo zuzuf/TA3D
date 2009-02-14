@@ -33,6 +33,7 @@ bool	g_useStencilTwoSide = false;
 bool	g_useProgram = false;
 bool	g_useFBO = false;
 bool    g_useGenMipMaps = false;
+bool    g_useNonPowerOfTwoTextures = false;
 
 #define CHECK_OPENGL_FUNCTION( extension, function, var ) \
 		if ((function) == NULL)\
@@ -117,6 +118,7 @@ void installOpenGLExtensions()
 	g_useProgram = GLEW_ARB_shader_objects && GLEW_ARB_shading_language_100 && GLEW_ARB_vertex_program && GLEW_ARB_fragment_program;
 	g_useFBO = GLEW_EXT_framebuffer_object;
 	g_useGenMipMaps = GLEW_SGIS_generate_mipmap;
+	g_useNonPowerOfTwoTextures = GLEW_ARB_texture_non_power_of_two;
 
     checkOpenGLExtensionsPointers();
 
@@ -124,11 +126,3 @@ void installOpenGLExtensions()
 	if (glActiveTextureARB != NULL && glMultiTexCoord2fARB != NULL && glClientActiveTextureARB != NULL)
         MultiTexturing = true;
 }
-
-
-
-
-
-
-
-

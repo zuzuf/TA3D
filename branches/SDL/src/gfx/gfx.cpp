@@ -626,6 +626,9 @@ namespace TA3D
             use_mipmapping(false);
         else
             use_mipmapping(true);
+
+        bool can_useGenMipMaps = g_useGenMipMaps && (g_useNonPowerOfTwoTextures || (Math::IsPowerOfTwo(bmp->w) && Math::IsPowerOfTwo(bmp->h)));
+
         GLuint gl_tex = 0;
         glGenTextures(1,&gl_tex);
 
@@ -635,7 +638,7 @@ namespace TA3D
         glLoadIdentity();
         glMatrixMode(GL_MODELVIEW);
 
-        if (clamp )
+        if (clamp)
         {
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE );
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE );
@@ -646,7 +649,7 @@ namespace TA3D
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT );
         }
 
-        if (g_useGenMipMaps)        // Automatic mipmaps generation
+        if (can_useGenMipMaps)        // Automatic mipmaps generation
         {
             if (!build_mipmaps || glGenerateMipmapEXT)
                 glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP_SGIS, GL_FALSE );
@@ -678,19 +681,19 @@ namespace TA3D
         switch(bmp->format->BitsPerPixel)
         {
         case 8:
-            if (build_mipmaps && !g_useGenMipMaps)        // Software mipmaps generation
+            if (build_mipmaps && !can_useGenMipMaps)        // Software mipmaps generation
                 gluBuild2DMipmaps(GL_TEXTURE_2D, texture_format, bmp->w, bmp->h, GL_LUMINANCE, GL_UNSIGNED_BYTE, bmp->pixels);
             else
                 glTexImage2D(GL_TEXTURE_2D, 0, texture_format, bmp->w, bmp->h, 0, GL_LUMINANCE, GL_UNSIGNED_BYTE, bmp->pixels);
             break;
         case 24:
-            if (build_mipmaps && !g_useGenMipMaps)        // Software mipmaps generation
+            if (build_mipmaps && !can_useGenMipMaps)        // Software mipmaps generation
                 gluBuild2DMipmaps(GL_TEXTURE_2D, texture_format, bmp->w, bmp->h, GL_RGB, GL_UNSIGNED_BYTE, bmp->pixels);
             else
                 glTexImage2D(GL_TEXTURE_2D, 0, texture_format, bmp->w, bmp->h, 0, GL_RGB, GL_UNSIGNED_BYTE, bmp->pixels);
             break;
         case 32:
-            if (build_mipmaps && !g_useGenMipMaps)        // Software mipmaps generation
+            if (build_mipmaps && !can_useGenMipMaps)        // Software mipmaps generation
                 gluBuild2DMipmaps(GL_TEXTURE_2D, texture_format, bmp->w, bmp->h, GL_RGBA, GL_UNSIGNED_BYTE, bmp->pixels);
             else
                 glTexImage2D(GL_TEXTURE_2D, 0, texture_format, bmp->w, bmp->h, 0, GL_RGBA, GL_UNSIGNED_BYTE, bmp->pixels);
@@ -1343,7 +1346,7 @@ namespace TA3D
 
     GLuint GFX::load_texture_from_cache( String file, byte filter_type, uint32 *width, uint32 *height, bool clamp )
     {
-        if(ati_workaround || !lp_CONFIG->use_texture_cache || !lp_CONFIG->use_texture_compression || !g_useGenMipMaps)
+        if(ati_workaround || !lp_CONFIG->use_texture_cache || !lp_CONFIG->use_texture_compression || !g_useGenMipMaps || !g_useNonPowerOfTwoTextures)
             return 0;
 
         file = TA3D::Paths::Caches + file;
@@ -1395,8 +1398,6 @@ namespace TA3D
 
             glGenerateMipmapEXT(GL_TEXTURE_2D);
 
-            glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP_SGIS, GL_FALSE);
-
             delete[] img;
 
             fclose( cache_file );
@@ -1443,7 +1444,7 @@ namespace TA3D
 
     void GFX::save_texture_to_cache( String file, GLuint tex, uint32 width, uint32 height )
     {
-        if(ati_workaround || !lp_CONFIG->use_texture_cache || !lp_CONFIG->use_texture_compression || !g_useGenMipMaps)
+        if(ati_workaround || !lp_CONFIG->use_texture_cache || !lp_CONFIG->use_texture_compression || !g_useGenMipMaps || !g_useNonPowerOfTwoTextures)
             return;
 
         file = TA3D::Paths::Caches + file;
