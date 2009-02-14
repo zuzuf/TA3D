@@ -371,7 +371,7 @@ namespace
                     char tmp[32];
                     memset(tmp, 0, 32);
                     memcpy(tmp, Entry.name.c_str(), Math::Min((int)Entry.name.size(), 32));
-                    tmp[32] = 0;
+                    tmp[31] = 0;
                     fwrite(tmp, 32, 1, gaf_file);
 
                     Gaf::Frame::Entry FrameEntry;
