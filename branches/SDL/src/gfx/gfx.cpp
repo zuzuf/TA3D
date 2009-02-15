@@ -1975,4 +1975,86 @@ namespace TA3D
     {
         return shadowMapMode;
     }
+
+    void GFX::runOpenGLTests()
+    {
+		// Initalizing SDL video
+		if( SDL_Init(SDL_INIT_VIDEO) < 0 )
+			throw( "SDL_Init(SDL_INIT_VIDEO) yielded unexpected result." );
+
+		// Installing SDL timer
+		if( SDL_InitSubSystem(SDL_INIT_TIMER) != 0 )
+			throw( "SDL_InitSubSystem(SDL_INIT_TIMER) yielded unexpected result." );
+
+		// Installing SDL timer
+		if( SDL_InitSubSystem(SDL_INIT_EVENTTHREAD) != 0 )
+			throw( "SDL_InitSubSystem(SDL_INIT_EVENTTHREAD) yielded unexpected result." );
+
+        int w = 800;
+        int h = 600;
+        int bpp = 32;
+
+        for(int stencil = 0 ; stencil < 2 ; stencil++)
+        {
+            SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, stencil ? 8 : 0);
+            for(int fsaa = 0 ; fsaa < 4 ; fsaa++)
+            {
+                SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, fsaa > 1);
+                SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, fsaa);
+                for(int db_buf = 0 ; db_buf < 2 ; db_buf++)
+                {
+                    SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, db_buf);
+                    for(int accel = 0 ; accel < 2 ; accel++)
+                    {
+                        SDL_GL_SetAttribute(SDL_GL_ACCELERATED_VISUAL, accel);
+                        for(int swap = 0 ; swap < 2 ; swap++)
+                        {
+                            SDL_GL_SetAttribute(SDL_GL_SWAP_CONTROL, swap);
+
+                            for(int r = 8 ; r > 0 ; r--)
+                            {
+                                SDL_GL_SetAttribute(SDL_GL_RED_SIZE, r);
+                                for(int g = 8 ; g > 0 ; g--)
+                                {
+                                    SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, g);
+                                    for(int b = 8 ; b > 0 ; b--)
+                                    {
+                                        SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, b);
+                                        for(int a = 8 ; a > 0 ; a--)
+                                        {
+                                            SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE, a);
+
+                                            for(int depth = 0 ; depth < 2 ; depth++)
+                                            {
+                                                SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, depth ? 24 : 16);
+
+                                                if (SDL_SetVideoMode( w, h, bpp, SDL_OPENGL ))
+                                                {
+                                                    if (String((char*)glGetString(GL_RENDERER)).toLower() != "gdi generic")
+                                                    {
+                                                        std::cout << "test passed for following settings:" << std::endl;
+                                                        std::cout << "stencil = " << (stencil ? 8 : 0) << std::endl;
+                                                        std::cout << "fsaa = " << fsaa << std::endl;
+                                                        std::cout << "db_buf = " << db_buf << std::endl;
+                                                        std::cout << "accel = " << accel << std::endl;
+                                                        std::cout << "swap = " << swap << std::endl;
+                                                        std::cout << "r = " << r << std::endl;
+                                                        std::cout << "g = " << g << std::endl;
+                                                        std::cout << "b = " << b << std::endl;
+                                                        std::cout << "a = " << a << std::endl;
+                                                        std::cout << "depth = " << (depth ? 24 : 16) << std::endl << std::endl;
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        std::cout << "Test finished" << std::endl;
+    }
 } // namespace TA3D

@@ -310,6 +310,7 @@ namespace TA3D
         ** \brief runs several tests on GFX hardware capabilities, should be used only when calling ta3d with --test
         */
         static void runTests();
+        static void runOpenGLTests();
 
         SDL_Surface *create_surface_ex(int bpp, int w, int h);
         SDL_Surface *create_surface(int w, int h);

@@ -145,6 +145,11 @@ int ParseCommandLine(int argc, char *argv[])
             GFX::runTests();
             return 1;
         }
+        else if (!strcmp( argv[ i ], "--opengl-test" ))     // Runs some tests (to help find and fix bugs)
+        {
+            GFX::runOpenGLTests();
+            return 1;
+        }
 
     }
     return 0;
