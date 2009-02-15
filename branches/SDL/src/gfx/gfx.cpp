@@ -211,10 +211,9 @@ namespace TA3D
             glDeleteFramebuffersEXT(1,&textureFBO);
         if (textureDepth)
             glDeleteRenderbuffersEXT(1,&textureDepth);
-        if (textureColor)
-            destroy_texture(textureColor);
-        if (shadowMap)
-            destroy_texture(shadowMap);
+        destroy_texture(textureColor);
+        destroy_texture(shadowMap);
+        destroy_texture(default_texture);
 
         if (TA3D::VARS::pal )
             delete[]( TA3D::VARS::pal );
@@ -242,6 +241,9 @@ namespace TA3D
 
         LOG_DEBUG(LOG_PREFIX_GFX << "Loading background...");
         load_background();
+
+        LOG_DEBUG(LOG_PREFIX_GFX << "Loading default texture...");
+        default_texture = load_texture("gfx/default.png");
 
         alpha_blending_set = false;
 
@@ -1557,7 +1559,7 @@ namespace TA3D
 
     void GFX::destroy_texture(GLuint& gltex)
     {
-        if (gltex )						// Test if the texture exists
+        if (gltex)						// Test if the texture exists
             glDeleteTextures(1,&gltex);
         gltex = 0;						// The texture is destroyed
     }

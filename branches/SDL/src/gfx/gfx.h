@@ -124,7 +124,9 @@ namespace TA3D
 
         bool		ati_workaround;		// Need to use workarounds for ATI cards ?
 
-        int max_tex_size;
+        int         max_tex_size;
+        //! A default texture, loaded at initialization, used for rendering non textured objects with some shaders
+        GLuint      default_texture;
 
         GFX();
 

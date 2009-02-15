@@ -285,7 +285,10 @@ void config_menu(void)
         bool key_is_pressed = false;
         do
         {
-            if (lp_CONFIG->quickstart )
+            config_area.check();
+            key_is_pressed = config_area.key_pressed;
+            rest(1);
+            if (lp_CONFIG->quickstart)
             {
                 GUIOBJ *pbar = config_area.get_object( "config_confirm.p_wait");
                 if (pbar)
@@ -300,10 +303,9 @@ void config_menu(void)
                     }
                 }
             }
-            config_area.check();
-            key_is_pressed = config_area.key_pressed;
-            rest(1);
-        } while( amx == mouse_x && amy == mouse_y && amz == mouse_z && amb == mouse_b && !key[ KEY_ENTER ] && !key[ KEY_ESC ] && !done && !key_is_pressed && !config_area.scrolling);
+        } while( amx == mouse_x && amy == mouse_y && amz == mouse_z && amb == mouse_b
+                && !key[ KEY_ENTER ] && !key[ KEY_ESC ] && !done && !key_is_pressed
+                && !config_area.scrolling);
 
         amx = mouse_x;
         amy = mouse_y;

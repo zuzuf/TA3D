@@ -1697,6 +1697,8 @@ namespace TA3D
                                     glDisableClientState(GL_TEXTURE_COORD_ARRAY);
                                 }
                                 glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+                                glEnable(GL_TEXTURE_2D);
+                                glBindTexture(GL_TEXTURE_2D, gfx->default_texture);
                             }
                         }
                         else
@@ -1798,6 +1800,7 @@ namespace TA3D
 #endif
             if (sel_primitive && selprim >= 0 && nb_vtx > 0) // && (data_s==NULL || (data_s!=NULL && !data_s->explode))) {
             {
+                gfx->disable_model_shading();
                 glDisableClientState(GL_TEXTURE_COORD_ARRAY);
                 glDisableClientState(GL_NORMAL_ARRAY);
                 glDisable(GL_LIGHTING);
@@ -1816,6 +1819,7 @@ namespace TA3D
                 else
                     glColor3ub(0xFF,0xFF,0xFF);
                 alset=false;
+                gfx->enable_model_shading();
             }
             if (!chg_col)
                 glColor4fv(color_factor);
@@ -1948,11 +1952,16 @@ namespace TA3D
                     }
                 }
                 else
-                    for (int j = 7; j >= 0; --j)
+                {
+                    for (int j = 6; j >= 0; --j)
                     {
                         glActiveTextureARB(GL_TEXTURE0_ARB + j);
                         glDisable(GL_TEXTURE_2D);
                     }
+                    glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+                    glEnable(GL_TEXTURE_2D);
+                    glBindTexture(GL_TEXTURE_2D, gfx->default_texture);
+                }
             }
             else
             {
@@ -3259,6 +3268,8 @@ namespace TA3D
     {
         gfx->enable_model_shading();
 
+        sel &= !gfx->getShadowMapMode();        // Don't render selection primitive while in shadow map mode !! otherwise it would cast a shadow :/
+
         if (notex)
             glDisable(GL_TEXTURE_2D);
         if (chg_col)
@@ -3300,7 +3311,7 @@ namespace TA3D
 
         gfx->disable_model_shading();
 
-        if (c_part && !gfx->getShadowMapMode())
+        if (c_part)                 // It is safe to do this even in shadow map mode because this is done only once in a while
         {
             Vector3D pos;
             obj.compute_coord(data_s,&pos,c_part,p_tex,target,upos,M,Size,Center,reverse,src,src_data);
