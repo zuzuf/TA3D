@@ -33,6 +33,7 @@
 #include "languages/i18n.h"
 #include "logs/logs.h"
 #include "misc/math.h"
+#include "misc/material.light.h"
 #include "ingame/players.h"
 
 
@@ -685,6 +686,9 @@ namespace TA3D
         glColor4ub( 255, 255, 255, 255 );
 
         gfx->ReInitAllTex( true );
+        gfx->enable_model_shading();
+        if (HWLight::inGame)
+            glNormal3fv( (GLfloat*)&(HWLight::inGame->Dir) );
 
         glEnable(GL_POLYGON_OFFSET_FILL);
         quad_table.draw_all();
@@ -695,7 +699,18 @@ namespace TA3D
         glEnable(GL_LIGHTING);
         glEnable(GL_CULL_FACE);
 
+        if (gfx->getShadowMapMode())
+        {
+            glEnable(GL_POLYGON_OFFSET_FILL);
+            glPolygonOffset(3.0f, 1.0f);
+        }
+
         DrawingTable.draw_all();
+
+        if (gfx->getShadowMapMode())
+            glDisable(GL_POLYGON_OFFSET_FILL);
+
+        gfx->disable_model_shading();
 
         glDisable(GL_ALPHA_TEST);
         glDepthFunc( GL_LESS );

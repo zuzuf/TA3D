@@ -1951,6 +1951,7 @@ namespace TA3D
                     model_shader.setvar1i("shadowMap", 7);
                     model_shader.setmat4f("light_Projection", shadowMapProjectionMatrix);
                 }
+                break;
             default:
                 model_shader.off();
             };

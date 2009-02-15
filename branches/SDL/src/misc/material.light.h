@@ -14,20 +14,22 @@ namespace TA3D
     class HWLight
     {
     public:
-        HWLight() { init(); }
+        static HWLight *inGame;
+    public:
+        inline HWLight() { init(); }
 
         void init();
 
         /*!
         ** \brief
         */
-        void Enable() const
+        inline void Enable() const
         { glEnable (HWNb); glEnable (GL_COLOR_MATERIAL); }
 
         /*!
         ** \brief
         */
-        void Disable() const { glDisable(HWNb); }
+        inline void Disable() const { glDisable(HWNb); }
 
         /*!
         ** \brief

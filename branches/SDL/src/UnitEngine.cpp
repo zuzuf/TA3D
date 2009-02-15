@@ -1399,7 +1399,7 @@ namespace TA3D
                 }
                 else
                 {
-                    gfx->setShadowMapMode(false);
+                    gfx->setShadowMapMode(true);
                     if (build_percent_left<=33.0f)
                     {
                         float h = model->top - model->bottom;
@@ -1448,7 +1448,7 @@ namespace TA3D
 
                 if (lp_CONFIG->underwater_bright && map->water && Pos.y < map->sealvl)
                 {
-                    gfx->setShadowMapMode(false);
+                    gfx->setShadowMapMode(true);
                     glEnable(GL_CLIP_PLANE2);
 
                     glEnable( GL_BLEND );

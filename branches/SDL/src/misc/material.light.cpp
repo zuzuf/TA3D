@@ -4,10 +4,12 @@
 
 namespace TA3D
 {
-
+    HWLight* HWLight::inGame = NULL;
 
     void HWLight::init()
     {
+        inGame = this;
+
         LightAmbient[0] = 0.125f;
         LightAmbient[1] = 0.125f;
         LightAmbient[2] = 0.125f;

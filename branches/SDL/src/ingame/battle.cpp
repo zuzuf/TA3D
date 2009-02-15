@@ -1539,10 +1539,7 @@ namespace TA3D
                     gfx->SetDefState();
                     gfx->renderToTextureDepth( gfx->get_shadow_map() );
                     gfx->clearDepth();
-                    {
-                        std::vector<Vector3D> frustum = map->get_visible_volume();
-                        pSun.SetView(frustum);
-                    }
+                    pSun.SetView( map->get_visible_volume() );
 
                     // We'll need this matrix later (when rendering with shadows)
                     glGetFloatv(GL_PROJECTION_MATRIX, gfx->shadowMapProjectionMatrix);
