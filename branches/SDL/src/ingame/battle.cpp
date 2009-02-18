@@ -1542,7 +1542,7 @@ namespace TA3D
                     pSun.SetView( map->get_visible_volume() );
 
                     // We'll need this matrix later (when rendering with shadows)
-                    glGetFloatv(GL_PROJECTION_MATRIX, gfx->shadowMapProjectionMatrix);
+                    gfx->readShadowMapProjectionMatrix();
 
                     glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
                     glDisable(GL_FOG);

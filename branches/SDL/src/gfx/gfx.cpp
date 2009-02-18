@@ -2057,4 +2057,21 @@ namespace TA3D
         }
         std::cout << "Test finished" << std::endl;
     }
+
+    void GFX::readShadowMapProjectionMatrix()
+    {
+        GLfloat backup[16];
+        glGetFloatv(GL_PROJECTION_MATRIX, backup);
+
+        glMatrixMode(GL_PROJECTION);
+        glLoadIdentity();
+        glScalef(0.5f,0.5f,0.5f);
+        glTranslatef(1.0f,1.0f,1.0f);
+        glMultMatrixf(backup);
+        glGetFloatv(GL_PROJECTION_MATRIX, gfx->shadowMapProjectionMatrix);
+
+        glLoadIdentity();
+        glMultMatrixf(backup);
+        glMatrixMode(GL_MODELVIEW);
+    }
 } // namespace TA3D

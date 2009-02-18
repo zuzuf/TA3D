@@ -277,6 +277,7 @@ namespace TA3D
         GLuint make_texture_from_screen(byte filter_type = FILTER_NONE);
 
         GLuint get_shadow_map();
+        void readShadowMapProjectionMatrix();
 
         SDL_Surface *load_image(const String filename);
 
@@ -314,6 +315,7 @@ namespace TA3D
 
         SDL_Surface *create_surface_ex(int bpp, int w, int h);
         SDL_Surface *create_surface(int w, int h);
+
 
     }; // class GFX
 
