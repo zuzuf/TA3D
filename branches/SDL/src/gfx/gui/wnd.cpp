@@ -1239,7 +1239,7 @@ namespace TA3D
         String panel = wndFile.pullAsString("gadget0.panel"); // Look for the panel texture
         int w;
         int h;
-        background = gfx->load_texture_from_cache("anims\\" + Name + ".gaf", FILTER_TRILINEAR, (uint32*)&w, (uint32*)&h);
+        background = gfx->load_texture_from_cache(panel, FILTER_TRILINEAR, (uint32*)&w, (uint32*)&h);
         if (!background)
         {
             background = Gaf::ToTexture("anims\\" + Name + ".gaf", panel, &w, &h, true);
@@ -1256,7 +1256,7 @@ namespace TA3D
                 }
             }
             if (background)
-                gfx->save_texture_to_cache("anims\\" + Name + ".gaf", background, w, h);
+                gfx->save_texture_to_cache(panel, background, w, h);
         }
 
         delete_gltex = background;
