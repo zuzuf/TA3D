@@ -1244,11 +1244,16 @@ namespace TA3D
         {
             background = Gaf::ToTexture("anims\\" + Name + ".gaf", panel, &w, &h, true);
             if (background == 0)
+                background = Gaf::ToTexture("anims\\commongui.gaf", panel, &w, &h, true);
+            if (background == 0)
             {
                 String::List file_list;
                 HPIManager->getFilelist("anims\\*.gaf", file_list);
                 for (String::List::const_iterator i = file_list.begin(); i != file_list.end() && background == 0 ; ++i)
+                {
+                    LOG_DEBUG("trying(1) " << *i << " (" << Name << ")");
                     background = Gaf::ToTexture(*i, panel, &w, &h, true);
+                }
             }
             if (background)
                 gfx->save_texture_to_cache("anims\\" + Name + ".gaf", background, w, h);
@@ -1314,7 +1319,10 @@ namespace TA3D
                         String::List file_list;
                         HPIManager->getFilelist("anims\\*.gaf", file_list);
                         for (String::List::const_iterator e = file_list.begin() ; e != file_list.end() && gaf_imgs.size() == 0 ; ++e)
+                        {
+                            LOG_DEBUG("trying(0) " << *e << " (" << Name << ")");
                             Gaf::ToTexturesList(gaf_imgs, *e, Objets[i].Name, t_w, t_h, true, FILTER_LINEAR);
+                        }
                         if (gaf_imgs.size() > 0)
                             found_elsewhere = true;
                     }
