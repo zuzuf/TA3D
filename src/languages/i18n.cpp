@@ -1,3 +1,19 @@
+/*  TA3D, a remake of Total Annihilation
+    Copyright (C) 2005  Roland BROCHARD
+
+    This program is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 2 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program; if not, write to the Free Software
+    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA*/
 
 #include "i18n.h"
 #include "../misc/resources.h"
@@ -135,14 +151,14 @@ namespace TA3D
         // Default
         return pDefaultLanguage; /* should be english */
     }
-    
+
     const I18N::Language* I18N::defaultLanguage()
     {
         MutexLocker locker(pMutex);
         return pDefaultLanguage;
     }
-        
-    
+
+
     const I18N::Language* I18N::currentLanguage()
     {
         MutexLocker locker(pMutex);
@@ -180,7 +196,7 @@ namespace TA3D
         # endif
     }
 
-    
+
     void I18N::retrieveAllLanguages(std::vector<I18N::Language>& out)
     {
         out.clear();
@@ -219,7 +235,7 @@ namespace TA3D
         pMutex.unlock();
     }
 
-    
+
     bool I18N::loadFromFile(const String& filename, const bool emptyBefore, const bool inASCII)
     {
         String res;
@@ -272,19 +288,19 @@ namespace TA3D
         pNextLangID = 0;
 
         // English
-        pDefaultLanguage = doAddNewLanguage("english", "English"); 
+        pDefaultLanguage = doAddNewLanguage("english", "English");
         pCurrentLanguage = pDefaultLanguage;
         resetPrefix();
         //French
-        (void) doAddNewLanguage("french", "Français"); 
+        (void) doAddNewLanguage("french", "Français");
         // German
-        (void) doAddNewLanguage("german", "Deutsch"); 
+        (void) doAddNewLanguage("german", "Deutsch");
         // Spanish
-        (void) doAddNewLanguage("spanish", "Español"); 
+        (void) doAddNewLanguage("spanish", "Español");
         // Italian
-        (void) doAddNewLanguage("italian", "Italiano"); 
+        (void) doAddNewLanguage("italian", "Italiano");
         // japanese
-        (void) doAddNewLanguage("japanese", "日本語"); 
+        (void) doAddNewLanguage("japanese", "日本語");
     }
 
 

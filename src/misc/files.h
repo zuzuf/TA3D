@@ -1,3 +1,19 @@
+/*  TA3D, a remake of Total Annihilation
+    Copyright (C) 2005  Roland BROCHARD
+
+    This program is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 2 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program; if not, write to the Free Software
+    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA*/
 #ifndef _TA3D_TOOLS_FILES_H__
 # define _TA3D_TOOLS_FILES_H__
 
@@ -70,7 +86,7 @@ namespace Files
     ** \brief Load the entierly content of a file into memory
     **
     ** \param filename The filename to open
-    ** \param hardlimit If the size of the file exceeds this limit, it will not be loaded 
+    ** \param hardlimit If the size of the file exceeds this limit, it will not be loaded
     ** \return The content of the file, null terminated , NULL if size > hardlimit or if any errors has occured.
     ** If not NULL, this value must be deleted with the keyword `delete[]`
     */
@@ -81,7 +97,7 @@ namespace Files
     **
     ** \param filename The filename to open
     ** \param[out] size The size of the file
-    ** \param hardlimit If the size of the file exceeds this limit, it will not be loaded 
+    ** \param hardlimit If the size of the file exceeds this limit, it will not be loaded
     ** \return The content of the file, null terminated , NULL if size > hardlimit or if any errors has occured.
     ** If not NULL, this value must be deleted with the keyword `delete[]`
     */
@@ -95,10 +111,10 @@ namespace Files
     ** \return True if the operation succeeded, false otherwise
     */
     bool SaveToFile(const String& filename, const String& content);
-    
+
     //@}
 
-    
+
     /*!
     ** \brief Copy a single file
     **

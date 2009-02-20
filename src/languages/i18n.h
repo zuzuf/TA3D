@@ -1,3 +1,19 @@
+/*  TA3D, a remake of Total Annihilation
+    Copyright (C) 2005  Roland BROCHARD
+
+    This program is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 2 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program; if not, write to the Free Software
+    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA*/
 #ifndef __TA3D_XX_I18N_H__
 # define __TA3D_XX_I18N_H__
 
@@ -66,7 +82,7 @@ namespace TA3D
     **              << ", indx:" << (*i)->index() << ")" << std::endl;
     **      }
     ** \endcode
-    ** 
+    **
     ** Find the translation of a keyword
     ** \code
     **      std::cout << TA3D::I18N::Translate("Loading the map") << "..." << std::endl;
@@ -269,7 +285,7 @@ namespace TA3D
 
         /*!
         ** \brief Set the current language according its name
-        ** 
+        **
         ** \param name Name of the language (can be the english version or the translated one)
         ** \return True if language has been changed, false otherwise
         */
@@ -324,7 +340,7 @@ namespace TA3D
         ** \param[in,out] The list of keywords that will be translated
         */
         void translate(String::Vector& out);
-    
+
         /*!
         ** \brief Translate a list of keywords
         ** \param[in,out] The list of keywords that will be translated
@@ -390,7 +406,7 @@ namespace TA3D
         static Mutex pMutex;
         //! The next language id
         int pNextLangID;
-        
+
         //! All available languages
         Languages pLanguages;
         //! The default language
