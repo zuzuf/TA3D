@@ -91,7 +91,7 @@ namespace TA3D
         {
             if (!pGameData->saved_file.empty()) 		// We have something to load
                 LUA_PROGRAM::passive = true;            // So deactivate unit creation (at least neutralize network creation events)
-            game_script.load(pGameData->game_script, map.get());	// Load the script
+            game_script.load(pGameData->game_script);	// Load the script
             LUA_PROGRAM::passive = false;
         }
 
@@ -2431,11 +2431,11 @@ namespace TA3D
             int signal = 0;
             if (!pNetworkEnabled || pNetworkIsServer)
             {
-                signal = game_script.run(map.get(), ((float)(units.current_tick - script_timer)) / TICKS_PER_SEC,players.local_human_id);
+                signal = game_script.run(((float)(units.current_tick - script_timer)) / TICKS_PER_SEC);
                 script_timer = units.current_tick;
             }
             else
-                game_script.run(NULL, 0.0f, 0); // In client mode we only want to display text, pictures, ... everything drawn by the script on the server
+                game_script.run(0.0f); // In client mode we only want to display text, pictures, ... everything drawn by the script on the server
 
             if (pNetworkEnabled || signal == 0)
                 signal = g_ta3d_network->get_signal();
@@ -2446,7 +2446,7 @@ namespace TA3D
                     break;
                 case -1:			// Fin du script
                     if (!pNetworkEnabled || pNetworkIsServer)
-                        game_script.stop();
+                        game_script.kill();
                     break;
                 case -2:			// Pause
                     break;
