@@ -1,3 +1,19 @@
+/*  TA3D, a remake of Total Annihilation
+    Copyright (C) 2005  Roland BROCHARD
+
+    This program is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 2 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program; if not, write to the Free Software
+    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA*/
 #ifndef __TA3D_INGAME_MENUS_MAP_SELECTOR_H__
 # define __TA3D_INGAME_MENUS_MAP_SELECTOR_H__
 
@@ -14,7 +30,7 @@ namespace Menus
 
     /*! \class MapSelector
     **
-    ** \brief 
+    ** \brief
     */
     class MapSelector : public Abstract
     {
@@ -23,7 +39,7 @@ namespace Menus
         ** \brief Execute an instance of MapSelector
         **
         ** \param preSelectedMap The name of the preselected map
-        ** \param[out] mapName Name of the selected map. 
+        ** \param[out] mapName Name of the selected map.
         ** It is guaranteed this var will be empty if no map has been selected (returned value = false)
         **
         ** \return True if a map has been selected by the user, false otherwise
@@ -99,7 +115,7 @@ namespace Menus
         ** \param mapShortName Short name of hte map
         ** \return True if the map has been found and is designed for network gaming, false otherwise
         */
-        static bool MapIsForNetworkGame(const String& mapShortName); 
+        static bool MapIsForNetworkGame(const String& mapShortName);
 
 
     private:

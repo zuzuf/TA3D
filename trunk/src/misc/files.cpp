@@ -1,3 +1,19 @@
+/*  TA3D, a remake of Total Annihilation
+    Copyright (C) 2005  Roland BROCHARD
+
+    This program is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 2 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program; if not, write to the Free Software
+    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA*/
 
 #include "files.h"
 #include "../logs/logs.h"
@@ -42,17 +58,17 @@ namespace Files
             out.push_back(line);
         return true;
     }
-     
+
     bool Load(String::List& out, const String& filename, const uint32 sizeLimit, const bool emptyListBefore)
     {
         return TmplLoadFromFile< String::List >(out, filename, sizeLimit, emptyListBefore);
     }
-     
+
     bool Load(String::Vector& out, const String& filename, const uint32 sizeLimit, const bool emptyListBefore)
     {
         return TmplLoadFromFile< String::Vector >(out, filename, sizeLimit, emptyListBefore);
     }
-    
+
 
     bool Size(const String& filename, uint64& size)
     {
@@ -72,7 +88,7 @@ namespace Files
         uint64 s;
         return LoadContentInMemory(filename, s, hardlimit);
     }
-    
+
 
     char* LoadContentInMemory(const String& filename, uint64& size, const uint64 hardlimit)
     {
