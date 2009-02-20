@@ -56,7 +56,7 @@ set_cam_mode( mode )	-> uses the signal system
 set_cam_pos( player_id,x,z )
 set_standing_orders( unit_id, move_order, fire_order )
 set_unit_health( unit_id, health_percentage )
-signal( signal )
+game_signal( signal )
 sleep( time )
 start_x( player_id )
 start_z( player_id )

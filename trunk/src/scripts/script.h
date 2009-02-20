@@ -37,12 +37,14 @@ namespace TA3D
 
     class LUA_PROGRAM : public LUA_THREAD
     {
-        //  Pour l'éxecution du code
-        int         amx,amy,amz;    // Coordonnées du curseur
-        int         amb;            // Boutons de la souris
+    private:
+        //  Variables to control execution flow
+        int         amx,amy,amz;    // Cursor coordinates
+        int         amb;            // Mouse button
+        int         signal;         // Current signal (0 is none)
 
     public:
-        DRAW_LIST   draw_list;      // Liste de commandes d'affichage
+        DRAW_LIST   draw_list;      // Display commands list
 
         static bool passive;        // Passive mode, won't do anything like creating units, move units, etc... used to resync a multiplayer game
 
@@ -53,10 +55,14 @@ namespace TA3D
 
         inline ~LUA_PROGRAM()  {   destroy();  }
 
-        int run(float dt);                   // Execute le script
+        int run(float dt);                  // Run the script
+        int check();                        // Display DRAW_LIST commands and check if a signal was sent
 
     private:
         virtual void register_functions();
+
+    protected:
+        virtual void proc(void* param);
 
     public:
         static LUA_PROGRAM	*inGame;
