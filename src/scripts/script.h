@@ -32,15 +32,10 @@
 # include "../misc/tdf.h"
 # include "draw.list.h"
 
-# ifndef luaL_dobuffer
-#  define luaL_dobuffer(L, s, sz) \
-    (luaL_loadbuffer(L, (const char*)s, sz, "main" ) || lua_pcall(L, 0, LUA_MULTRET, 0))
-# endif
-
 namespace TA3D
 {
 
-    class LUA_PROGRAM : public LUA_THREAD, public ObjectSync
+    class LUA_PROGRAM : public LUA_THREAD
     {
         //  Pour l'éxecution du code
         int         amx,amy,amz;    // Coordonnées du curseur
