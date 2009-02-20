@@ -1,0 +1,64 @@
+[window]
+{
+	title=Solo;
+	uformat=UTF8;
+	x=0;
+	y=0;
+	width=1280;
+	height=1024;
+	draw borders=false;
+	show title=false;
+	number of objects=4;
+	hidden=false;
+	lock=true;
+	color=0x00000000;			// Fully transparent so we can see the AREA background
+	background window=true;
+	fullscreen=true;			// Scale the window to fit the screen
+	screen width=1280;
+	screen height=1024;
+	[object0]		// Campaign
+	{
+		name=b_campaign;
+		type=BUTTON;
+		caption=Campaign;
+		x1=1052;
+		y1=155;
+		x2=1204;
+		y2=185;
+		size=1.8;
+	}
+	[object1]		// Skirmish
+	{
+		name=b_skirmish;
+		type=BUTTON;
+		caption=Skirmish;
+		x1=1052;
+		y1=226;
+		x2=1204;
+		y2=256;
+		size=1.8;
+	}
+	[object2]		// Load
+	{
+		name=b_load;
+		type=BUTTON;
+		caption=Load;
+		x1=1052;
+		y1=298;
+		x2=1204;
+		y2=327;
+		on click=load_menu.show;
+		size=1.8;
+	}
+	[object3]		// Back
+	{
+		name=b_back;
+		type=BUTTON;
+		caption=Back;
+		x1=1052;
+		y1=369;
+		x2=1204;
+		y2=398;
+		size=1.8;
+	}
+}

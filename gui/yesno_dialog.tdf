@@ -1,0 +1,57 @@
+[window]
+{
+    name=yesno;
+	title=Message;
+	uformat=UTF8;
+	x=200;
+	y=248;
+	width=400;
+	height=105;
+	fullscreen=true;
+	screen width=800;
+	screen height=600;
+	draw borders=true;
+	show title=true;
+	lock=false;
+	number of objects=3;
+	hidden=true;
+	color=0xFFFFFFFF;
+	background=gfx/background.jpg;
+	repeat background=true;
+	get focus=true;
+	[object0]
+	{
+		name=msg;
+		type=TEXT;
+		caption=message;
+		x1=10;
+		y1=30;
+		x2=-10;
+		y2=70;
+		size=1;
+	}
+	[object1]
+	{
+	    name=b_ok;
+	    type=BUTTON;
+	    caption=OK;
+	    x1=83;
+	    y1=-25;
+	    x2=183;
+	    y2=-5;
+	    size=1;
+	    on click=ask.hide;
+	}
+	[object2]
+	{
+	    name=b_cancel;
+	    type=BUTTON;
+	    caption=Cancel;
+	    x1=217;
+	    y1=-25;
+	    x2=317;
+	    y2=-5;
+	    size=1;
+	    on click=ask.hide;
+	}
+}
