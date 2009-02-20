@@ -30,71 +30,15 @@
 # include "lua.thread.h"
 # include "../threads/thread.h"
 # include "../misc/tdf.h"
+# include "draw.list.h"
 
 # ifndef luaL_dobuffer
 #  define luaL_dobuffer(L, s, sz) \
     (luaL_loadbuffer(L, (const char*)s, sz, "main" ) || lua_pcall(L, 0, LUA_MULTRET, 0))
 # endif
 
-# define DRAW_TYPE_NONE     0x0
-# define DRAW_TYPE_POINT    0x1
-# define DRAW_TYPE_LINE     0x2
-# define DRAW_TYPE_CIRCLE   0x3
-# define DRAW_TYPE_TRIANGLE 0x4
-# define DRAW_TYPE_BOX      0x5
-# define DRAW_TYPE_FILLBOX  0x6
-# define DRAW_TYPE_TEXT     0x7
-# define DRAW_TYPE_BITMAP   0x8
-
-
-
 namespace TA3D
 {
-
-
-    struct DRAW_OBJECT                  // Pour mémoriser le traçage des primitives
-    {
-        byte    type;
-        float   x[4];
-        float   y[4];
-        float   r[2],g[2],b[2];
-        String  text;
-        GLuint  tex;
-    };
-
-    class DRAW_LIST
-    {
-    public:
-        DRAW_OBJECT     prim;
-        DRAW_LIST       *next;
-
-        void init()
-        {
-            prim.type=DRAW_TYPE_NONE;
-            prim.text.clear();
-            next=NULL;
-        }
-
-        void destroy()
-        {
-            if(prim.type==DRAW_TYPE_BITMAP)     glDeleteTextures(1,&prim.tex);
-            prim.text.clear();
-            if(next) {
-                next->destroy();
-                delete next;
-            }
-            init();
-        }
-
-        DRAW_LIST()
-        {
-            init();
-        }
-
-        void add(DRAW_OBJECT &obj);
-
-        void draw(Font *fnt);
-    };
 
     class LUA_PROGRAM : public LUA_THREAD, public ObjectSync
     {
