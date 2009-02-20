@@ -1,9 +1,0 @@
-[area]
-{
-	name=main area;
-	skin=gui/modern.skn;
-	windows=gui/mdrn_main.tdf;
-	background=gfx/mdrn_main.jpg;
-	width=1280;
-	height=1024;
-}

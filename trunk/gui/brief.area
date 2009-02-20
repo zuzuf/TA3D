@@ -1,9 +1,0 @@
-[area]
-{
-	name=brief;
-	skin=gui/default.skn;
-	windows=gui/brief.tdf;
-	background=gfx/brief.jpg;
-	width=1280;
-	height=1024;
-}
