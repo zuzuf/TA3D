@@ -50,9 +50,8 @@ namespace TA3D
     bool LUA_PROGRAM::passive = false;        // LUA_PROGRAM::passive mode, won't do anything like creating units, move units, etc... used to resync a multiplayer game
 
     LUA_PROGRAM	*lua_program = NULL;
-    MAP *lua_map = NULL;
 
-    int function_print_for( lua_State *L )		// ta3d_print_for( x, y, str, player_id )
+    int program_print_for( lua_State *L )		// text_print_for( x, y, str, player_id )
     {
         const char *str = lua_tostring( L, -2 );		// Read the result
         if (str)
@@ -86,23 +85,14 @@ namespace TA3D
         return 0;
     }
 
-    int function_print( lua_State *L )		// ta3d_print( x, y, str )
+    int program_print( lua_State *L )		// text_print( x, y, str )
     {
         lua_pushnumber( L, -1.0f );
-        function_print_for( L );
+        program_print_for( L );
         return 0;
     }
 
-    int function_logmsg( lua_State *L )		// ta3d_logmsg( str )
-    {
-        const char *str = lua_tostring( L, -1 );		// Read the result
-        if (str)
-            LOG_INFO(LOG_PREFIX_SCRIPT << str);
-        lua_pop(L, 1);
-        return 0;
-    }
-
-    int function_line( lua_State *L )		// ta3d_line( x1,y1,x2,y2,r,g,b )
+    int program_line( lua_State *L )		// line( x1,y1,x2,y2,r,g,b )
     {
         DRAW_OBJECT draw_obj;
         draw_obj.type = DRAW_TYPE_LINE;
@@ -119,7 +109,7 @@ namespace TA3D
         return 0;
     }
 
-    int function_point( lua_State *L )		// ta3d_line( x,y,r,g,b )
+    int program_point( lua_State *L )		// point( x,y,r,g,b )
     {
         DRAW_OBJECT draw_obj;
         draw_obj.type = DRAW_TYPE_POINT;
@@ -134,7 +124,7 @@ namespace TA3D
         return 0;
     }
 
-    int function_triangle( lua_State *L )		// ta3d_line( x1,y1,x2,y2,x3,y3,r,g,b )
+    int program_triangle( lua_State *L )		// triangle( x1,y1,x2,y2,x3,y3,r,g,b )
     {
         DRAW_OBJECT draw_obj;
         draw_obj.type = DRAW_TYPE_TRIANGLE;
@@ -153,7 +143,7 @@ namespace TA3D
         return 0;
     }
 
-    int function_cls_for( lua_State *L )		// ta3d_cls_for( player_id )
+    int program_cls_for( lua_State *L )		// cls_for( player_id )
     {
         if ((int) lua_tonumber( L, -1 ) == players.local_human_id || (int) lua_tonumber( L, -1 ) == -1 ) {
             lua_program->lock();
@@ -174,23 +164,23 @@ namespace TA3D
         return 0;
     }
 
-    int function_cls( lua_State *L )		// ta3d_cls()
+    int program_cls( lua_State *L )		// cls()
     {
         lua_pushnumber( L, -1.0f );
-        function_cls_for( L );
+        program_cls_for( L );
         return 0;
     }
 
     int lua_signal = 0;
 
-    int function_signal( lua_State *L )		// ta3d_signal( signal )
+    int program_signal( lua_State *L )		// signal( signal )
     {
         lua_signal = (int) lua_tonumber( L, -1 );
         lua_pop( L, 1 );
         return 0;
     }
 
-    int function_box( lua_State *L )		// ta3d_box( x1,y1,x2,y2,r,g,b )
+    int program_box( lua_State *L )		// box( x1,y1,x2,y2,r,g,b )
     {
         DRAW_OBJECT draw_obj;
         draw_obj.type = DRAW_TYPE_BOX;
@@ -207,7 +197,7 @@ namespace TA3D
         return 0;
     }
 
-    int function_fillbox( lua_State *L )		// ta3d_fillbox( x1,y1,x2,y2,r,g,b )
+    int program_fillbox( lua_State *L )		// fillbox( x1,y1,x2,y2,r,g,b )
     {
         DRAW_OBJECT draw_obj;
         draw_obj.type = DRAW_TYPE_FILLBOX;
@@ -224,7 +214,7 @@ namespace TA3D
         return 0;
     }
 
-    int function_circle( lua_State *L )		// ta3d_circle( x,y,ray,r,g,b )
+    int program_circle( lua_State *L )		// circle( x,y,ray,r,g,b )
     {
         DRAW_OBJECT draw_obj;
         draw_obj.type = DRAW_TYPE_CIRCLE;
@@ -240,46 +230,7 @@ namespace TA3D
         return 0;
     }
 
-    int function_mouse_x( lua_State *L )		// ta3d_mouse_x()
-    {
-        lua_pushnumber( L, mouse_x );
-        return 1;
-    }
-
-    int function_mouse_y( lua_State *L )		// ta3d_mouse_y()
-    {
-        lua_pushnumber( L, mouse_y );
-        return 1;
-    }
-
-    int function_mouse_z( lua_State *L )		// ta3d_mouse_z()
-    {
-        lua_pushnumber( L, mouse_z );
-        return 1;
-    }
-
-    int function_mouse_b( lua_State *L )		// ta3d_mouse_b()
-    {
-        lua_pushnumber( L, mouse_b );
-        return 1;
-    }
-
-    int function_get_key( lua_State *L )		// ta3d_get_key()
-    {
-        if (keypressed())
-            lua_pushnumber( L, readkey() );
-        else
-            lua_pushnumber( L, 0 );
-        return 1;
-    }
-
-    int function_time( lua_State *L )		// ta3d_time()
-    {
-        lua_pushnumber( L, units.current_tick / (float)TICKS_PER_SEC );
-        return 1;
-    }
-
-    int function_draw_image_for( lua_State *L )		// ta3d_draw_image_for( str image_name, x1, y1, x2, y2, player_id )
+    int program_draw_image_for( lua_State *L )		// draw_image_for( str image_name, x1, y1, x2, y2, player_id )
     {
         if ((int) lua_tonumber( L, -1 ) == players.local_human_id || (int) lua_tonumber( L, -1 ) == -1)
         {
@@ -313,20 +264,20 @@ namespace TA3D
         return 0;
     }
 
-    int function_draw_image(lua_State *L)		// ta3d_draw_image( str image_name, x1, y1, x2, y2 )
+    int program_draw_image(lua_State *L)		// draw_image( str image_name, x1, y1, x2, y2 )
     {
         lua_pushnumber( L, -1.0f );
-        function_draw_image_for( L );
+        program_draw_image_for( L );
         return 0;
     }
 
-    int function_nb_players( lua_State *L )		// ta3d_nb_players()
+    int program_nb_players( lua_State *L )		// nb_players()
     {
         lua_pushnumber( L, NB_PLAYERS );
         return 1;
     }
 
-    int function_get_unit_number_for_player( lua_State *L )		// ta3d_get_unit_number_for_player( player_id )
+    int program_get_unit_number_for_player( lua_State *L )		// get_unit_number_for_player( player_id )
     {
         int player_id = (int) lua_tonumber( L, -1 );
         lua_pop( L, 1 );
@@ -346,7 +297,7 @@ namespace TA3D
         return 1;
     }
 
-    int function_get_unit_owner( lua_State *L )		// ta3d_get_unit_owner( unit_id )
+    int program_get_unit_owner( lua_State *L )		// get_unit_owner( unit_id )
     {
         int unit_idx = (int) lua_tonumber( L, -1 );
         lua_pop( L, 1 );
@@ -362,19 +313,19 @@ namespace TA3D
         return 1;
     }
 
-    int function_get_unit_number( lua_State *L )		// ta3d_get_unit_number()
+    int program_get_unit_number( lua_State *L )		// get_unit_number()
     {
         lua_pushnumber( L, units.nb_unit );
         return 1;
     }
 
-    int function_get_max_unit_number( lua_State *L )		// ta3d_get_max_unit_number()
+    int program_get_max_unit_number( lua_State *L )		// get_max_unit_number()
     {
         lua_pushnumber( L, units.max_unit );
         return 1;
     }
 
-    int function_annihilated( lua_State *L )		// ta3d_annihilated( player_id )
+    int program_annihilated( lua_State *L )		// annihilated( player_id )
     {
         int player_id = (int) lua_tonumber( L, -1 );
         lua_pop( L, 1 );
@@ -385,7 +336,7 @@ namespace TA3D
         return 1;
     }
 
-    int function_has_unit( lua_State *L )		// ta3d_has_unit( player_id, unit_type_id )
+    int program_has_unit( lua_State *L )		// has_unit( player_id, unit_type_id )
     {
         int player_id = (int) lua_tonumber( L, -2 );
         if (player_id >= 0 && player_id < NB_PLAYERS)
@@ -409,7 +360,7 @@ namespace TA3D
         return 1;
     }
 
-    int function_nb_unit_of_type( lua_State *L )		// ta3d_nb_unit_of_type( player_id, unit_type_id )
+    int program_nb_unit_of_type( lua_State *L )		// nb_unit_of_type( player_id, unit_type_id )
     {
         int player_id = (int) lua_tonumber( L, -2 );
         if (player_id >= 0 && player_id < NB_PLAYERS)
@@ -431,7 +382,7 @@ namespace TA3D
         return 1;
     }
 
-    int function_is_unit_of_type( lua_State *L )		// ta3d_is_unit_of_type( unit_id, unit_type_id )
+    int program_is_unit_of_type( lua_State *L )		// is_unit_of_type( unit_id, unit_type_id )
     {
         int unit_id = (int) lua_tonumber( L, -2 );
         if (unit_id >= 0 && unit_id < units.max_unit)
@@ -448,7 +399,7 @@ namespace TA3D
         return 1;
     }
 
-    int function_has_mobile_units( lua_State *L ) 		// ta3d_has_mobile_units( player_id )
+    int program_has_mobile_units( lua_State *L ) 		// has_mobile_units( player_id )
     {
         int player_id = (int) lua_tonumber( L, -1 );
         lua_pop( L, 1 );
@@ -472,7 +423,7 @@ namespace TA3D
         return 1;
     }
 
-    int function_move_unit( lua_State *L )		// ta3d_move_unit( unit_id, x, z )
+    int program_move_unit( lua_State *L )		// move_unit( unit_id, x, z )
     {
         int unit_id = (int) lua_tonumber( L, -3 );
 
@@ -485,9 +436,9 @@ namespace TA3D
 
             units.unit[ unit_id ].clear_from_map();
 
-            int PX = ((int)(units.unit[ unit_id ].Pos.x + lua_map->map_w_d)>>3);
-            int PY = ((int)(units.unit[ unit_id ].Pos.z + lua_map->map_h_d)>>3);
-            if (!can_be_there( PX, PY, lua_map, units.unit[ unit_id ].type_id, units.unit[ unit_id ].owner_id ))
+            int PX = ((int)(units.unit[ unit_id ].Pos.x + the_map->map_w_d)>>3);
+            int PY = ((int)(units.unit[ unit_id ].Pos.z + the_map->map_h_d)>>3);
+            if (!can_be_there( PX, PY, the_map, units.unit[ unit_id ].type_id, units.unit[ unit_id ].owner_id ))
             {
                 bool found = false;
                 for (int r = 1 ; r < 120 && !found ; r++)		// Circular check
@@ -496,28 +447,28 @@ namespace TA3D
                     for (int y = 0 ; y <= r ; y++)
                     {
                         int x = (int)(sqrtf( r2 - y * y ) + 0.5f);
-                        if (can_be_there( PX+x, PY+y, lua_map, units.unit[ unit_id ].type_id, units.unit[ unit_id ].owner_id ))
+                        if (can_be_there( PX+x, PY+y, the_map, units.unit[ unit_id ].type_id, units.unit[ unit_id ].owner_id ))
                         {
                             PX += x;
                             PY += y;
                             found = true;
                             break;
                         }
-                        if (can_be_there( PX-x, PY+y, lua_map, units.unit[ unit_id ].type_id, units.unit[ unit_id ].owner_id ))
+                        if (can_be_there( PX-x, PY+y, the_map, units.unit[ unit_id ].type_id, units.unit[ unit_id ].owner_id ))
                         {
                             PX -= x;
                             PY += y;
                             found = true;
                             break;
                         }
-                        if (can_be_there( PX+x, PY-y, lua_map, units.unit[ unit_id ].type_id, units.unit[ unit_id ].owner_id ))
+                        if (can_be_there( PX+x, PY-y, the_map, units.unit[ unit_id ].type_id, units.unit[ unit_id ].owner_id ))
                         {
                             PX += x;
                             PY -= y;
                             found = true;
                             break;
                         }
-                        if (can_be_there( PX-x, PY-y, lua_map, units.unit[ unit_id ].type_id, units.unit[ unit_id ].owner_id ))
+                        if (can_be_there( PX-x, PY-y, the_map, units.unit[ unit_id ].type_id, units.unit[ unit_id ].owner_id ))
                         {
                             PX -= x;
                             PY -= y;
@@ -528,8 +479,8 @@ namespace TA3D
                 }
                 if (found)
                 {
-                    units.unit[ unit_id ].Pos.x = (PX<<3) + 8 - lua_map->map_w_d;
-                    units.unit[ unit_id ].Pos.z = (PY<<3) + 8 - lua_map->map_h_d;
+                    units.unit[ unit_id ].Pos.x = (PX<<3) + 8 - the_map->map_w_d;
+                    units.unit[ unit_id ].Pos.z = (PY<<3) + 8 - the_map->map_h_d;
                     if (units.unit[ unit_id ].mission && (units.unit[ unit_id ].mission->flags & MISSION_FLAG_MOVE))
                         units.unit[ unit_id ].mission->flags |= MISSION_FLAG_REFRESH_PATH;
                 }
@@ -542,7 +493,7 @@ namespace TA3D
                             prev = i;
                             break;
                         }
-                    units.kill( unit_id, lua_map, prev);
+                    units.kill( unit_id, the_map, prev);
                     unit_id = -1;
                 }
             }
@@ -552,12 +503,12 @@ namespace TA3D
                 units.unit[ unit_id ].cur_py = PY;
 
                 Vector3D target_pos = units.unit[ unit_id ].Pos;
-                target_pos.x=((int)(target_pos.x) + lua_map->map_w_d)>>3;
-                target_pos.z=((int)(target_pos.z) + lua_map->map_h_d)>>3;
-                target_pos.y = Math::Max(lua_map->get_max_rect_h((int)target_pos.x,(int)target_pos.z,
+                target_pos.x=((int)(target_pos.x) + the_map->map_w_d)>>3;
+                target_pos.z=((int)(target_pos.z) + the_map->map_h_d)>>3;
+                target_pos.y = Math::Max(the_map->get_max_rect_h((int)target_pos.x,(int)target_pos.z,
                                                                  unit_manager.unit_type[units.unit[unit_id].type_id]->FootprintX,
                                                                  unit_manager.unit_type[units.unit[unit_id].type_id]->FootprintZ),
-                                         lua_map->sealvl);
+                                         the_map->sealvl);
                 units.unit[ unit_id ].Pos.y = target_pos.y;
                 units.unit[ unit_id ].draw_on_map();
             }
@@ -569,7 +520,7 @@ namespace TA3D
         return 0;
     }
 
-    int function_create_unit( lua_State *L )		// ta3d_create_unit( player_id, unit_type_id, x, z )
+    int program_create_unit( lua_State *L )		// create_unit( player_id, unit_type_id, x, z )
     {
         int player_id = (int) lua_tonumber( L, -4 );
         int unit_type_id = lua_isstring( L, -3 ) ? unit_manager.get_unit_index( lua_tostring( L, -3 ) ) : (int) lua_tonumber( L, -3 ) ;
@@ -584,7 +535,7 @@ namespace TA3D
             Vector3D pos;
             pos.x = x;
             pos.z = z;
-            pos.y = Math::Max( lua_map->get_max_rect_h((int)x,(int)z, unit_manager.unit_type[ unit_type_id ]->FootprintX, unit_manager.unit_type[unit_type_id]->FootprintZ ), lua_map->sealvl);
+            pos.y = Math::Max( the_map->get_max_rect_h((int)x,(int)z, unit_manager.unit_type[ unit_type_id ]->FootprintX, unit_manager.unit_type[unit_type_id]->FootprintZ ), the_map->sealvl);
             UNIT *unit = (UNIT*)create_unit( unit_type_id, player_id, pos, the_map, true, true);		// Force synchronization
             int idx = unit ? unit->idx : -1;
             if (unit)
@@ -612,7 +563,7 @@ namespace TA3D
         return 1;
     }
 
-    int function_change_unit_owner( lua_State *L )		// ta3d_change_unit_owner( unit_id, player_id )
+    int program_change_unit_owner( lua_State *L )		// change_unit_owner( unit_id, player_id )
     {
         int player_id = (int) lua_tonumber( L, -1 );
         int unit_id = (int) lua_tonumber( L, -2 );
@@ -628,7 +579,7 @@ namespace TA3D
         return 0;
     }
 
-    int function_set_unit_health( lua_State *L )		// ta3d_set_unit_health( unit_id, health_percentage )
+    int program_set_unit_health( lua_State *L )		// set_unit_health( unit_id, health_percentage )
     {
         float health = (float) lua_tonumber( L, -1 ) * 0.01f;
         int unit_id = (int) lua_tonumber( L, -2 );
@@ -645,7 +596,7 @@ namespace TA3D
         return 0;
     }
 
-    int function_add_build_mission( lua_State *L )		// ta3d_add_build_mission( unit_id, pos_x, pos_z, unit_type )
+    int program_add_build_mission( lua_State *L )		// add_build_mission( unit_id, pos_x, pos_z, unit_type )
     {
         int unit_id = (int) lua_tonumber( L, -4 );
         float pos_x = (float) lua_tonumber( L, -3 );
@@ -656,11 +607,11 @@ namespace TA3D
         if (unit_id >= 0 && unit_id < units.max_unit && unit_type_id >= 0 && unit_manager.unit_type[unit_type_id]->Builder && !LUA_PROGRAM::passive)
         {
             Vector3D target;
-            target.x = ((int)(pos_x) + lua_map->map_w_d) >> 3;
-            target.z = ((int)(pos_z) + lua_map->map_h_d) >> 3;
-            target.y = Math::Max(lua_map->get_max_rect_h((int)target.x, (int)target.z, unit_manager.unit_type[unit_type_id]->FootprintX, unit_manager.unit_type[unit_type_id]->FootprintZ), lua_map->sealvl);
-            target.x = target.x*8.0f-lua_map->map_w_d;
-            target.z = target.z*8.0f-lua_map->map_h_d;
+            target.x = ((int)(pos_x) + the_map->map_w_d) >> 3;
+            target.z = ((int)(pos_z) + the_map->map_h_d) >> 3;
+            target.y = Math::Max(the_map->get_max_rect_h((int)target.x, (int)target.z, unit_manager.unit_type[unit_type_id]->FootprintX, unit_manager.unit_type[unit_type_id]->FootprintZ), the_map->sealvl);
+            target.x = target.x*8.0f-the_map->map_w_d;
+            target.z = target.z*8.0f-the_map->map_h_d;
 
             units.lock();
             if (units.unit[ unit_id ].flags )
@@ -671,7 +622,7 @@ namespace TA3D
         return 0;
     }
 
-    int function_add_move_mission( lua_State *L )		// ta3d_add_move_mission( unit_id, pos_x, pos_z )
+    int program_add_move_mission( lua_State *L )		// add_move_mission( unit_id, pos_x, pos_z )
     {
         int unit_id = (int) lua_tonumber( L, -3 );
         float pos_x = (float) lua_tonumber( L, -2 );
@@ -682,7 +633,7 @@ namespace TA3D
         {
             Vector3D target;
             target.x = pos_x;
-            target.y = lua_map->get_unit_h( pos_x, pos_z );
+            target.y = the_map->get_unit_h( pos_x, pos_z );
             target.z = pos_z;
 
             units.lock();
@@ -694,7 +645,7 @@ namespace TA3D
         return 0;
     }
 
-    int function_add_attack_mission( lua_State *L )		// ta3d_add_attack_mission( unit_id, target_id )
+    int program_add_attack_mission( lua_State *L )		// add_attack_mission( unit_id, target_id )
     {
         int unit_id = (int) lua_tonumber( L, -2 );
         int target_id = (int) lua_tonumber( L, -1 );
@@ -713,7 +664,7 @@ namespace TA3D
         return 0;
     }
 
-    int function_add_patrol_mission( lua_State *L )		// ta3d_add_patrol_mission( unit_id, pos_x, pos_z )
+    int program_add_patrol_mission( lua_State *L )		// add_patrol_mission( unit_id, pos_x, pos_z )
     {
         int unit_id = (int) lua_tonumber( L, -3 );
         float pos_x = (float) lua_tonumber( L, -2 );
@@ -724,7 +675,7 @@ namespace TA3D
         {
             Vector3D target;
             target.x = pos_x;
-            target.y = lua_map->get_unit_h( pos_x, pos_z );
+            target.y = the_map->get_unit_h( pos_x, pos_z );
             target.z = pos_z;
 
             units.lock();
@@ -736,7 +687,7 @@ namespace TA3D
         return 0;
     }
 
-    int function_add_wait_mission( lua_State *L )		// ta3d_add_wait_mission( unit_id, time )
+    int program_add_wait_mission( lua_State *L )		// add_wait_mission( unit_id, time )
     {
         int unit_id = (int) lua_tonumber( L, -2 );
         float time = (float) lua_tonumber( L, -1 );
@@ -753,7 +704,7 @@ namespace TA3D
         return 0;
     }
 
-    int function_add_wait_attacked_mission( lua_State *L )		// ta3d_add_wait_attacked_mission( unit_id, target_id )
+    int program_add_wait_attacked_mission( lua_State *L )		// add_wait_attacked_mission( unit_id, target_id )
     {
         int unit_id = (int) lua_tonumber( L, -2 );
         int target_id = (int) lua_tonumber( L, -1 );
@@ -770,7 +721,7 @@ namespace TA3D
         return 0;
     }
 
-    int function_add_guard_mission( lua_State *L )		// ta3d_add_guard_mission( unit_id, target_id )
+    int program_add_guard_mission( lua_State *L )		// add_guard_mission( unit_id, target_id )
     {
         int unit_id = (int) lua_tonumber( L, -2 );
         int target_id = (int) lua_tonumber( L, -1 );
@@ -787,7 +738,7 @@ namespace TA3D
         return 0;
     }
 
-    int function_set_standing_orders( lua_State *L )		// ta3d_set_standing_orders( unit_id, move_order, fire_order )
+    int program_set_standing_orders( lua_State *L )		// set_standing_orders( unit_id, move_order, fire_order )
     {
         int unit_id = (int) lua_tonumber( L, -3 );
         int move_order = (int) lua_tonumber( L, -2 );
@@ -808,7 +759,7 @@ namespace TA3D
         return 0;
     }
 
-    int function_lock_orders( lua_State *L )		// ta3d_lock_orders( unit_id )
+    int program_lock_orders( lua_State *L )		// lock_orders( unit_id )
     {
         int unit_id = (int) lua_tonumber( L, -1 );
         lua_pop( L, 1 );
@@ -819,7 +770,7 @@ namespace TA3D
         return 0;
     }
 
-    int function_unlock_orders( lua_State *L )		// ta3d_unlock_orders( unit_id )
+    int program_unlock_orders( lua_State *L )		// unlock_orders( unit_id )
     {
         int unit_id = (int) lua_tonumber( L, -1 );
         lua_pop( L, 1 );
@@ -830,7 +781,7 @@ namespace TA3D
         return 0;
     }
 
-    int function_get_unit_health( lua_State *L )		// ta3d_get_unit_health( unit_id )
+    int program_get_unit_health( lua_State *L )		// get_unit_health( unit_id )
     {
         int unit_id = (int) lua_tonumber( L, -1 );
         lua_pop( L, 1 );
@@ -848,25 +799,25 @@ namespace TA3D
         return 0;
     }
 
-    int function_local_player( lua_State *L )		// ta3d_local_player()
+    int program_local_player( lua_State *L )		// local_player()
     {
         lua_pushnumber( L, players.local_human_id );
         return 1;
     }
 
-    int function_map_w( lua_State *L )		// ta3d_map_w()
+    int program_map_w( lua_State *L )		// map_w()
     {
-        lua_pushnumber( L, lua_map->map_w );
+        lua_pushnumber( L, the_map->map_w );
         return 1;
     }
 
-    int function_map_h( lua_State *L )		// ta3d_map_h()
+    int program_map_h( lua_State *L )		// map_h()
     {
-        lua_pushnumber( L, lua_map->map_h );
+        lua_pushnumber( L, the_map->map_h );
         return 1;
     }
 
-    int function_player_side( lua_State *L )		// ta3d_player_side( player_id )
+    int program_player_side( lua_State *L )		// player_side( player_id )
     {
         int player_id = (int) lua_tonumber( L, -1 );
         lua_pop( L, 1 );
@@ -879,7 +830,7 @@ namespace TA3D
         return 1;
     }
 
-    int function_allied( lua_State *L )		// ta3d_allied( id0, id1 )
+    int program_allied( lua_State *L )		// allied( id0, id1 )
     {
         int player_id0 = (int) lua_tonumber( L, -2 );
         int player_id1 = (int) lua_tonumber( L, -1 );
@@ -893,7 +844,7 @@ namespace TA3D
         return 1;
     }
 
-    int function_unit_x( lua_State *L )		// ta3d_unit_x( unit_id )
+    int program_unit_x( lua_State *L )		// unit_x( unit_id )
     {
         int unit_id = (int) lua_tonumber( L, -1 );
         lua_pop( L, 1 );
@@ -909,7 +860,7 @@ namespace TA3D
         return 1;
     }
 
-    int function_unit_y( lua_State *L )		// ta3d_unit_y( unit_id )
+    int program_unit_y( lua_State *L )		// unit_y( unit_id )
     {
         int unit_id = (int) lua_tonumber( L, -1 );
         lua_pop( L, 1 );
@@ -925,7 +876,7 @@ namespace TA3D
         return 1;
     }
 
-    int function_unit_z( lua_State *L )		// ta3d_unit_z( unit_id )
+    int program_unit_z( lua_State *L )		// unit_z( unit_id )
     {
         int unit_id = (int) lua_tonumber( L, -1 );
         lua_pop( L, 1 );
@@ -941,7 +892,7 @@ namespace TA3D
         return 1;
     }
 
-    int function_kill_unit( lua_State *L )		// ta3d_kill_unit( unit_id )
+    int program_kill_unit( lua_State *L )		// kill_unit( unit_id )
     {
         int unit_id = (int) lua_tonumber( L, -1 );
         lua_pop( L, 1 );
@@ -965,7 +916,7 @@ namespace TA3D
         return 0;
     }
 
-    int function_kick_unit( lua_State *L )		// ta3d_kick_unit( unit_id, damage )
+    int program_kick_unit( lua_State *L )		// kick_unit( unit_id, damage )
     {
         int unit_id = (int) lua_tonumber( L, -2 );
         float damage = (float) lua_tonumber( L, -1 );
@@ -983,7 +934,7 @@ namespace TA3D
         return 0;
     }
 
-    int function_play_for(lua_State *L)		// ta3d_play_for( filename, player_id )
+    int program_play_for(lua_State *L)		// play_for( filename, player_id )
     {
         if ((int) lua_tonumber(L, -1) == players.local_human_id || (int) lua_tonumber( L, -1 ) == -1)
             sound_manager->playSound( (char*) lua_tostring( L, -2 ), false);
@@ -1002,14 +953,14 @@ namespace TA3D
     }
 
 
-    int function_play(lua_State *L)		// ta3d_play( filename )
+    int program_play(lua_State *L)		// play( filename )
     {
         lua_pushnumber(L, -1.0f);
-        function_play_for(L);
+        program_play_for(L);
         return 0;
     }
 
-    int function_set_cam_pos( lua_State *L )		// ta3d_set_cam_pos( player_id,x,z )
+    int program_set_cam_pos( lua_State *L )		// set_cam_pos( player_id,x,z )
     {
         if ((int) lua_tonumber( L, -3 ) == players.local_human_id )
         {
@@ -1033,7 +984,7 @@ namespace TA3D
         return 0;
     }
 
-    int function_set_cam_mode( lua_State *L )		// ta3d_set_cam_mode( mode )	-> uses the signal system
+    int program_set_cam_mode( lua_State *L )		// set_cam_mode( mode )	-> uses the signal system
     {
         if (lua_toboolean( L, -1 ) )
             lua_signal = 5;
@@ -1043,9 +994,9 @@ namespace TA3D
         return 0;
     }
 
-    int function_clf( lua_State *L )				// ta3d_clf()
+    int program_clf( lua_State *L )				// clf()
     {
-        lua_map->clear_FOW();
+        the_map->clear_FOW();
         units.lock();
         for( int i = 0 ; i < units.index_list_size ; i++ )
             units.unit[ units.idx_list[ i ] ].old_px = -10000;
@@ -1060,31 +1011,31 @@ namespace TA3D
         return 0;
     }
 
-    int function_start_x( lua_State *L )			// ta3d_start_x( player_id )
+    int program_start_x( lua_State *L )			// start_x( player_id )
     {
         int player_id = (int) lua_tonumber( L, -1 );
         lua_pop( L, 1 );
 
         if (player_id >= 0 && player_id < players.nb_player )
-            lua_pushnumber( L, (lua_map->ota_data.startX[ player_id ] - lua_map->map_w) * 0.5f );
+            lua_pushnumber( L, (the_map->ota_data.startX[ player_id ] - the_map->map_w) * 0.5f );
         else
             lua_pushnumber( L, 0 );
         return 1;
     }
 
-    int function_start_z( lua_State *L )			// ta3d_start_z( player_id )
+    int program_start_z( lua_State *L )			// start_z( player_id )
     {
         int player_id = (int) lua_tonumber( L, -1 );
         lua_pop( L, 1 );
 
         if (player_id >= 0 && player_id < players.nb_player )
-            lua_pushnumber( L, (lua_map->ota_data.startZ[ player_id ] - lua_map->map_h) * 0.5f );
+            lua_pushnumber( L, (the_map->ota_data.startZ[ player_id ] - the_map->map_h) * 0.5f );
         else
             lua_pushnumber( L, 0 );
         return 1;
     }
 
-    int function_init_res( lua_State *L )			// ta3d_init_res()
+    int program_init_res( lua_State *L )			// init_res()
     {
         for( uint16 i = 0 ; i < players.nb_player ; i++ )
         {
@@ -1102,7 +1053,7 @@ namespace TA3D
         return 0;
     }
 
-    int function_give_metal( lua_State *L )			// ta3d_give_metal( player_id, amount )
+    int program_give_metal( lua_State *L )			// give_metal( player_id, amount )
     {
         int player_id = (int) lua_tonumber( L, -2 );
         float amount = (float) lua_tonumber( L, -1 );
@@ -1118,7 +1069,7 @@ namespace TA3D
         return 0;
     }
 
-    int function_give_energy( lua_State *L )			// ta3d_give_energy( player_id, amount )
+    int program_give_energy( lua_State *L )			// give_energy( player_id, amount )
     {
         int player_id = (int) lua_tonumber( L, -2 );
         float amount = (float) lua_tonumber( L, -1 );
@@ -1134,7 +1085,7 @@ namespace TA3D
         return 0;
     }
 
-    int function_commander( lua_State *L )				// ta3d_commander( player_id )
+    int program_commander( lua_State *L )				// commander( player_id )
     {
         int player_id = (int) lua_tonumber( L, -1 );
         lua_pop( L, 1 );
@@ -1151,7 +1102,7 @@ namespace TA3D
         return 1;
     }
 
-    int function_attack( lua_State *L )					// ta3d_attack( attacker_id, target_id )
+    int program_attack( lua_State *L )					// attack( attacker_id, target_id )
     {
         int attacker_idx = (int) lua_tonumber( L, -2 );
         int target_idx = (int) lua_tonumber( L, -1 );
@@ -1167,21 +1118,7 @@ namespace TA3D
         return 0;
     }
 
-    int function_wait( lua_State *L )			// ta3d_wait()
-    {
-        lua_program->waiting = true;
-        return 0;
-    }
-
-    int function_sleep( lua_State *L )			// ta3d_sleep( time )
-    {
-        lua_program->sleeping = true;
-        lua_program->sleep_time = (float) lua_tonumber( L, -1 );
-        lua_pop( L, 1 );
-        return 0;
-    }
-
-    int function_create_feature( lua_State *L )		// ta3d_create_feature( feature_type, x, z )
+    int program_create_feature( lua_State *L )		// create_feature( feature_type, x, z )
     {
         int feature_type_id = lua_isstring( L, -3 ) ? feature_manager.get_feature_index( lua_tostring( L, -3 ) ) : (int) lua_tonumber( L, -3 ) ;
         float X = (float) lua_tonumber( L, -2 );
@@ -1191,25 +1128,25 @@ namespace TA3D
 
         if (feature_type_id >= 0 && feature_type_id < feature_manager.nb_features && !LUA_PROGRAM::passive)
         {
-            int x = (int)(X + lua_map->map_w_d - 8)>>3;
-            int y = (int)(Z + lua_map->map_h_d - 8)>>3;
-            if (x>0 && y>0 && x<(lua_map->bloc_w<<1) && y<(lua_map->bloc_h<<1))
-                if (lua_map->map_data[y][x].stuff==-1)
+            int x = (int)(X + the_map->map_w_d - 8)>>3;
+            int y = (int)(Z + the_map->map_h_d - 8)>>3;
+            if (x>0 && y>0 && x<(the_map->bloc_w<<1) && y<(the_map->bloc_h<<1))
+                if (the_map->map_data[y][x].stuff==-1)
                 {
                     Vector3D Pos;
-                    Pos.x = (x<<3)-lua_map->map_w_d+8.0f;
-                    Pos.z = (y<<3)-lua_map->map_h_d+8.0f;
-                    Pos.y = lua_map->get_unit_h( Pos.x, Pos.z );
-                    lua_map->map_data[y][x].stuff = features.add_feature( Pos, feature_type_id );
-                    if (feature_type_id!=-1 && lua_map->map_data[y][x].stuff != -1 && feature_manager.feature[feature_type_id].blocking)
-                        lua_map->rect(x-(feature_manager.feature[feature_type_id].footprintx>>1),y-(feature_manager.feature[feature_type_id].footprintz>>1),feature_manager.feature[feature_type_id].footprintx,feature_manager.feature[feature_type_id].footprintz,-2-lua_map->map_data[y][x].stuff);
+                    Pos.x = (x<<3)-the_map->map_w_d+8.0f;
+                    Pos.z = (y<<3)-the_map->map_h_d+8.0f;
+                    Pos.y = the_map->get_unit_h( Pos.x, Pos.z );
+                    the_map->map_data[y][x].stuff = features.add_feature( Pos, feature_type_id );
+                    if (feature_type_id!=-1 && the_map->map_data[y][x].stuff != -1 && feature_manager.feature[feature_type_id].blocking)
+                        the_map->rect(x-(feature_manager.feature[feature_type_id].footprintx>>1),y-(feature_manager.feature[feature_type_id].footprintz>>1),feature_manager.feature[feature_type_id].footprintx,feature_manager.feature[feature_type_id].footprintz,-2-the_map->map_data[y][x].stuff);
                 }
         }
 
         return 0;
     }
 
-    int function_send_signal( lua_State *L )		// ta3d_send_signal( player_id, signal )
+    int program_send_signal( lua_State *L )		// send_signal( player_id, signal )
     {
         int player_id = (int) lua_tonumber( L, -2 );
         int signal_id = (int) lua_tonumber( L, -1 );
@@ -1230,79 +1167,77 @@ namespace TA3D
         return 0;
     }
 
-    void register_functions( lua_State *L )
+    int program_time( lua_State *L )		// time()
     {
-        lua_register( L, "ta3d_print", function_print );
-        lua_register( L, "ta3d_print_for", function_print_for );
-        lua_register( L, "ta3d_logmsg", function_logmsg );
-        lua_register( L, "ta3d_line", function_line );
-        lua_register( L, "ta3d_cls", function_cls );
-        lua_register( L, "ta3d_cls_for", function_cls_for );
-        lua_register( L, "ta3d_point", function_point );
-        lua_register( L, "ta3d_triangle", function_triangle );
-        lua_register( L, "ta3d_signal", function_signal );
-        lua_register( L, "ta3d_box", function_box );
-        lua_register( L, "ta3d_fillbox", function_fillbox );
-        lua_register( L, "ta3d_circle", function_circle );
-        lua_register( L, "ta3d_mouse_x", function_mouse_x );
-        lua_register( L, "ta3d_mouse_y", function_mouse_y );
-        lua_register( L, "ta3d_mouse_z", function_mouse_z );
-        lua_register( L, "ta3d_mouse_b", function_mouse_b );
-        lua_register( L, "ta3d_get_key", function_get_key );
-        lua_register( L, "ta3d_time", function_time );
-        lua_register( L, "ta3d_draw_image", function_draw_image );
-        lua_register( L, "ta3d_draw_image_for", function_draw_image_for );
-        lua_register( L, "ta3d_nb_players", function_nb_players );
-        lua_register( L, "ta3d_get_unit_number_for_player", function_get_unit_number_for_player );
-        lua_register( L, "ta3d_get_unit_owner", function_get_unit_owner );
-        lua_register( L, "ta3d_get_unit_number", function_get_unit_number );
-        lua_register( L, "ta3d_get_max_unit_number", function_get_max_unit_number );
-        lua_register( L, "ta3d_annihilated", function_annihilated );
-        lua_register( L, "ta3d_has_unit", function_has_unit );
-        lua_register( L, "ta3d_create_unit", function_create_unit );
-        lua_register( L, "ta3d_change_unit_owner", function_change_unit_owner );
-        lua_register( L, "ta3d_local_player", function_local_player );
-        lua_register( L, "ta3d_map_w", function_map_w );
-        lua_register( L, "ta3d_map_h", function_map_h );
-        lua_register( L, "ta3d_player_side", function_player_side );
-        lua_register( L, "ta3d_unit_x", function_unit_x );
-        lua_register( L, "ta3d_unit_y", function_unit_y );
-        lua_register( L, "ta3d_unit_z", function_unit_z );
-        lua_register( L, "ta3d_move_unit", function_move_unit );
-        lua_register( L, "ta3d_kill_unit", function_kill_unit );
-        lua_register( L, "ta3d_kick_unit", function_kick_unit );
-        lua_register( L, "ta3d_play", function_play );
-        lua_register( L, "ta3d_play_for", function_play_for );
-        lua_register( L, "ta3d_set_cam_pos", function_set_cam_pos );
-        lua_register( L, "ta3d_set_cam_mode", function_set_cam_mode );
-        lua_register( L, "ta3d_clf", function_clf );
-        lua_register( L, "ta3d_start_x", function_start_x );
-        lua_register( L, "ta3d_start_z", function_start_z );
-        lua_register( L, "ta3d_init_res", function_init_res );
-        lua_register( L, "ta3d_give_metal", function_give_metal );
-        lua_register( L, "ta3d_give_energy", function_give_energy );
-        lua_register( L, "ta3d_commander", function_commander );
-        lua_register( L, "ta3d_attack", function_attack );
-        lua_register( L, "ta3d_wait", function_wait );
-        lua_register( L, "ta3d_sleep", function_sleep );
-        lua_register( L, "ta3d_set_unit_health", function_set_unit_health );
-        lua_register( L, "ta3d_get_unit_health", function_get_unit_health );
-        lua_register( L, "ta3d_is_unit_of_type", function_is_unit_of_type );
-        lua_register( L, "ta3d_add_build_mission", function_add_build_mission );
-        lua_register( L, "ta3d_add_move_mission", function_add_move_mission );
-        lua_register( L, "ta3d_add_attack_mission", function_add_attack_mission );
-        lua_register( L, "ta3d_add_patrol_mission", function_add_patrol_mission );
-        lua_register( L, "ta3d_add_wait_mission", function_add_wait_mission );
-        lua_register( L, "ta3d_add_wait_attacked_mission", function_add_wait_attacked_mission );
-        lua_register( L, "ta3d_add_guard_mission", function_add_guard_mission );
-        lua_register( L, "ta3d_set_standing_orders", function_set_standing_orders );
-        lua_register( L, "ta3d_unlock_orders", function_unlock_orders );
-        lua_register( L, "ta3d_lock_orders", function_lock_orders );
-        lua_register( L, "ta3d_nb_unit_of_type", function_nb_unit_of_type );
-        lua_register( L, "ta3d_create_feature", function_create_feature );
-        lua_register( L, "ta3d_has_mobile_units", function_has_mobile_units );
-        lua_register( L, "ta3d_send_signal", function_send_signal );
-        lua_register( L, "ta3d_allied", function_allied );
+        lua_pushnumber( L, units.current_tick / (float)TICKS_PER_SEC );
+        return 1;
+    }
+
+    void LUA_PROGRAM::register_functions()
+    {
+        lua_register( L, "text_print", program_print );
+        lua_register( L, "text_print_for", program_print_for );
+        lua_register( L, "line", program_line );
+        lua_register( L, "cls", program_cls );
+        lua_register( L, "cls_for", program_cls_for );
+        lua_register( L, "point", program_point );
+        lua_register( L, "triangle", program_triangle );
+        lua_register( L, "signal", program_signal );
+        lua_register( L, "box", program_box );
+        lua_register( L, "fillbox", program_fillbox );
+        lua_register( L, "circle", program_circle );
+        lua_register( L, "time", program_time );
+        lua_register( L, "draw_image", program_draw_image );
+        lua_register( L, "draw_image_for", program_draw_image_for );
+        lua_register( L, "nb_players", program_nb_players );
+        lua_register( L, "get_unit_number_for_player", program_get_unit_number_for_player );
+        lua_register( L, "get_unit_owner", program_get_unit_owner );
+        lua_register( L, "get_unit_number", program_get_unit_number );
+        lua_register( L, "get_max_unit_number", program_get_max_unit_number );
+        lua_register( L, "annihilated", program_annihilated );
+        lua_register( L, "has_unit", program_has_unit );
+        lua_register( L, "create_unit", program_create_unit );
+        lua_register( L, "change_unit_owner", program_change_unit_owner );
+        lua_register( L, "local_player", program_local_player );
+        lua_register( L, "map_w", program_map_w );
+        lua_register( L, "map_h", program_map_h );
+        lua_register( L, "player_side", program_player_side );
+        lua_register( L, "unit_x", program_unit_x );
+        lua_register( L, "unit_y", program_unit_y );
+        lua_register( L, "unit_z", program_unit_z );
+        lua_register( L, "move_unit", program_move_unit );
+        lua_register( L, "kill_unit", program_kill_unit );
+        lua_register( L, "kick_unit", program_kick_unit );
+        lua_register( L, "play", program_play );
+        lua_register( L, "play_for", program_play_for );
+        lua_register( L, "set_cam_pos", program_set_cam_pos );
+        lua_register( L, "set_cam_mode", program_set_cam_mode );
+        lua_register( L, "clf", program_clf );
+        lua_register( L, "start_x", program_start_x );
+        lua_register( L, "start_z", program_start_z );
+        lua_register( L, "init_res", program_init_res );
+        lua_register( L, "give_metal", program_give_metal );
+        lua_register( L, "give_energy", program_give_energy );
+        lua_register( L, "commander", program_commander );
+        lua_register( L, "attack", program_attack );
+        lua_register( L, "set_unit_health", program_set_unit_health );
+        lua_register( L, "get_unit_health", program_get_unit_health );
+        lua_register( L, "is_unit_of_type", program_is_unit_of_type );
+        lua_register( L, "add_build_mission", program_add_build_mission );
+        lua_register( L, "add_move_mission", program_add_move_mission );
+        lua_register( L, "add_attack_mission", program_add_attack_mission );
+        lua_register( L, "add_patrol_mission", program_add_patrol_mission );
+        lua_register( L, "add_wait_mission", program_add_wait_mission );
+        lua_register( L, "add_wait_attacked_mission", program_add_wait_attacked_mission );
+        lua_register( L, "add_guard_mission", program_add_guard_mission );
+        lua_register( L, "set_standing_orders", program_set_standing_orders );
+        lua_register( L, "unlock_orders", program_unlock_orders );
+        lua_register( L, "lock_orders", program_lock_orders );
+        lua_register( L, "nb_unit_of_type", program_nb_unit_of_type );
+        lua_register( L, "create_feature", program_create_feature );
+        lua_register( L, "has_mobile_units", program_has_mobile_units );
+        lua_register( L, "send_signal", program_send_signal );
+        lua_register( L, "allied", program_allied );
     }
 
     LUA_PROGRAM::LUA_PROGRAM()
@@ -1311,156 +1246,64 @@ namespace TA3D
         init();
     }
 
-    void LUA_PROGRAM::load(const String &filename, MAP *map)					// Load a lua script
-    {
-        destroy();			// Au cas où
-
-        uint32 filesize = 0;
-        buffer = HPIManager->PullFromHPI(filename , &filesize);
-        if (buffer)
-        {
-            int n = 0;
-            char *f = NULL;
-            while ((f = strstr( (char*)buffer, "#include" ) ) != NULL && n < 20)
-            {
-                char name[101];
-                name[0] = 0;
-                strcat( name, "scripts/" );
-                int i;
-                for( i = 0 ; i < 100 && f[ i + 10 ] != '"' ; i++ )
-                    name[ i + 8 ] = f[ i + 10 ];
-                name[ i + 8 ] = 0;
-                uint32 filesize2 = 0;
-                byte *buffer2 = HPIManager->PullFromHPI( name, &filesize2 );
-                if (buffer2 ) {
-                    byte *buffer3 = new byte[ filesize + filesize2 ];
-                    memset( buffer3, 0, filesize + filesize2 );
-                    memcpy( buffer3, buffer, f - (char*)buffer );
-                    memcpy( buffer3 + (f - (char*)buffer), buffer2, filesize2 );
-                    memcpy( buffer3 + (f - (char*)buffer) + filesize2, f + i + 11, filesize - ( f + i + 11 - (char*)buffer ) );
-                    filesize += filesize2 - i - 11;
-                    delete[] buffer;
-                    delete[] buffer2;
-                    buffer = buffer3;
-                }
-                else
-                    break;
-                n++;
-            }
-
-            L = lua_open();				// Create a lua state object
-
-            if (L == NULL ) {
-                running = false;
-                delete[] buffer;
-                buffer = NULL;
-                return;
-            }
-
-            lua_program = this;
-            lua_map = map;
-
-            lua_gc( L, LUA_GCSTOP, 0 );		// Load libraries
-            luaL_openlibs( L );
-            lua_gc( L, LUA_GCRESTART, 0 );
-
-            register_functions( L );
-
-            if (luaL_dobuffer( L, buffer, filesize))	// Load the lua chunk
-            {
-                if (lua_tostring( L, -1 ) != NULL && strlen(lua_tostring( L, -1 )) > 0)
-                    LOG_ERROR(LOG_PREFIX_LUA << lua_tostring( L, -1));
-
-                running = false;
-                lua_close( L );
-                delete[] buffer;
-                L = NULL;
-                buffer = NULL;
-            }
-            else
-                running = true;
-        }
-        else
-        {
-            LOG_ERROR(LOG_PREFIX_LUA << "Failed opening `" << filename << "`");
-            running = false;
-        }
-    }
-
-    int LUA_PROGRAM::run(MAP *map,float dt,int viewer_id)									// Execute le script
+    int LUA_PROGRAM::run(float dt)									// Execute le script
     {
         pMutex.lock();
         draw_list.draw(gfx->big_font);			// Execute la liste de commandes de dessin
         pMutex.unlock();
 
-        if (!running )	return	-1;
+        if (!running)	return	-1;
 
         lua_program = this;
-        lua_map = map;
 
-        asm_timer += dt;
-
-        if (sleeping) {
-            sleep_time-=dt;
-            if (sleep_time<=0.0f)
-                sleeping=false;
-            if (sleeping) {
-                return -2;			// Marque une pause
-            }
-        }
-        if (waiting) {
-            if (amx!=mouse_x || amy!=mouse_y || amz!=mouse_z || amb!=mouse_b || keypressed()) {
-                waiting=false;
-            }
-            if (waiting)
-                return -3;				// Attend un évènement
-        }
+        if (waiting && (amx!=mouse_x || amy!=mouse_y || amz!=mouse_z || amb!=mouse_b || keypressed()))
+            waiting = false;
 
         lua_signal = 0;
 
-        lua_pushstring( L, "main" );
-        lua_gettable( L, LUA_GLOBALSINDEX );
-        try
-        {
-            if (lua_pcall( L, 0, 1, 0))
-            {
-                if (lua_tostring(L, -1) != NULL && strlen(lua_tostring(L, -1)) > 0)
-                    LOG_ERROR(LOG_PREFIX_LUA << lua_tostring(L, -1));
-                running = false;
-                return -1;
-            }
-        }
-        catch(...)
-        {
-            if (lua_tostring( L, -1 ) != NULL && strlen(lua_tostring( L, -1 )) > 0)
-                LOG_ERROR(LOG_PREFIX_LUA << lua_tostring(L, -1));
-            running = false;
-            return -1;
-        }
+        int result = LUA_THREAD::run(dt);		// Run the thread
 
-        int result = (int) lua_tonumber( L, lua_gettop( L ) );		// Read the result
-        lua_pop( L, 1 );
+        amx = mouse_x;
+        amy = mouse_y;
+        amz = mouse_z;
+        amb = mouse_b;
 
-        amx=mouse_x;
-        amy=mouse_y;
-        amz=mouse_z;
-        amb=mouse_b;
-
-        if (lua_signal )
+        if (lua_signal)
             result = lua_signal;
 
         return result;
     }
 
+    void LUA_PROGRAM::init()
+    {
+        LUA_THREAD::init();
+
+        draw_list.init();
+
+        amx = amy = amz = 0;
+        amb = 0;
+    }
+
+    void LUA_PROGRAM::destroy()
+    {
+        LUA_THREAD::destroy();
+
+        draw_list.destroy();
+
+        init();
+    }
+
     void DRAW_LIST::add(DRAW_OBJECT &obj)
     {
         lua_program->lock();
-        if (next==NULL) {
+        if (next==NULL)
+        {
             next=new DRAW_LIST;
             next->prim=obj;
             next->next=NULL;
         }
-        else next->add(obj);
+        else
+            next->add(obj);
         lua_program->unlock();
     }
 
@@ -1563,8 +1406,8 @@ namespace TA3D
         }
 
         m_File << "#include \"signals.h\"\n";
-        m_File << "\nta3d_clf()\nta3d_init_res()\n";
-        m_File << "ta3d_set_cam_pos( 0, ta3d_start_x( 0 ), ta3d_start_z( 0 ) )\n";
+        m_File << "\nclf()\ninit_res()\n";
+        m_File << "set_cam_pos( 0, start_x( 0 ), start_z( 0 ) )\n";
 
         int i = 0;
         String unit_name;
@@ -1576,11 +1419,11 @@ namespace TA3D
             float x = ota_parser.pullAsFloat( unit_key + ".XPos" ) * 0.5f;
             float z = ota_parser.pullAsFloat( unit_key + ".ZPos" ) * 0.5f;
 
-            m_File << format( "\nunit_id = ta3d_create_unit( %d, \"", player_id ) << unit_name << format( "\", %f - 0.5 * ta3d_map_w(), %f - 0.5 * ta3d_map_h() )\n", x, z );
+            m_File << format( "\nunit_id = create_unit( %d, \"", player_id ) << unit_name << format( "\", %f - 0.5 * map_w(), %f - 0.5 * map_h() )\n", x, z );
 
             float health = ota_parser.pullAsFloat( unit_key + ".HealthPercentage", -1.0f );
             if (health != -1.0f )
-                m_File << format( "ta3d_set_unit_health( unit_id, %f )\n", health );
+                m_File << format( "set_unit_health( unit_id, %f )\n", health );
 
             String Ident = ota_parser.pullAsString( unit_key + ".Ident" );
             if (!Ident.empty() )
@@ -1622,37 +1465,37 @@ namespace TA3D
                     {
                         float pos_x = atof( params[ 1 ].c_str() ) * 0.5f;
                         float pos_z = atof( params[ 2 ].c_str() ) * 0.5f;
-                        m_File << format( "ta3d_add_move_mission( unit_id, %f - 0.5 * ta3d_map_w(), %f - 0.5 * ta3d_map_h() )\n", pos_x, pos_z );
+                        m_File << format( "add_move_mission( unit_id, %f - 0.5 * map_w(), %f - 0.5 * map_h() )\n", pos_x, pos_z );
                     }
                     orders_given = true;
                 }
                 else if (params[ 0 ] == "a" ) {		// Attack
                     if (params.size() >= 2 )
-                        m_File << "ta3d_add_attack_mission( unit_id, " + params[ 1 ] + " )\n";
+                        m_File << "add_attack_mission( unit_id, " + params[ 1 ] + " )\n";
                     orders_given = true;
                 }
                 else if (params[ 1 ] == "b" ) {		// Build
                     if (params.size() == 3 ) {			// Factories
                         m_File << "for i = 1, " + params[ 2 ] + " do\n";
-                        m_File << "	ta3d_add_build_mission( unit_id, unit_x( unit_id ), unit_z( unit_id ), " + params[ 1 ] + " )\n";
+                        m_File << "	add_build_mission( unit_id, unit_x( unit_id ), unit_z( unit_id ), " + params[ 1 ] + " )\n";
                         m_File << "end\n";
                     }
                     else if (params.size() == 4 ) {		// Mobile builders
                         float pos_x = atof( params[ 2 ].c_str() ) * 0.5f;
                         float pos_z = atof( params[ 3 ].c_str() ) * 0.5f;
-                        m_File << format( "ta3d_add_build_mission( unit_id, %f - 0.5 * ta3d_map_w(), %f - 0.5 * ta3d_map_h(), ", pos_x, pos_z ) + params[ 1 ] + " )\n";
+                        m_File << format( "add_build_mission( unit_id, %f - 0.5 * map_w(), %f - 0.5 * map_h(), ", pos_x, pos_z ) + params[ 1 ] + " )\n";
                     }
                     orders_given = true;
                 }
                 else if (params[ 0 ] == "d" )		// Destroy
-                    m_File << "ta3d_kill_unit( unit_id )\n";
+                    m_File << "kill_unit( unit_id )\n";
                 else if (params[ 0 ] == "p" ) {		// Patrol
                     unsigned int e = 0;
                     while (params.size() >= 3 + e * 2)
 					{
                         float pos_x = atof( params[ 2 * e + 1 ].c_str() ) * 0.5f;
                         float pos_z = atof( params[ 2 * e + 2 ].c_str() ) * 0.5f;
-                        m_File << format( "ta3d_add_patrol_mission( unit_id, %f - 0.5 * ta3d_map_w(), %f - 0.5 * ta3d_map_h() )\n", pos_x, pos_z );
+                        m_File << format( "add_patrol_mission( unit_id, %f - 0.5 * map_w(), %f - 0.5 * map_h() )\n", pos_x, pos_z );
                         ++e;
                     }
                     orders_given = true;
@@ -1660,32 +1503,32 @@ namespace TA3D
                 else if (params[ 0 ] == "w" ) {		// Wait
                     if (params.size() >= 2 ) {
                         float time = atof( params[ 1 ].c_str() );
-                        m_File << format( "ta3d_add_wait_mission( unit_id, %f )\n", time );
+                        m_File << format( "add_wait_mission( unit_id, %f )\n", time );
                     }
                     orders_given = true;
                 }
                 else if (params[ 0 ] == "wa" ) {		// Wait attacked
                     if (params.size() >= 2 )
-                        m_File << "ta3d_add_wait_mission( unit_id, " + params[ 1 ] + " )\n";
+                        m_File << "add_wait_mission( unit_id, " + params[ 1 ] + " )\n";
                     else
-                        m_File << "ta3d_add_wait_mission( unit_id, unit_id )\n";
+                        m_File << "add_wait_mission( unit_id, unit_id )\n";
                     orders_given = true;
                 }
                 else if (params[ 0 ] == "g" ) {		// Guard
                     if (params.size() >= 2 )
-                        m_File << "ta3d_add_guard_mission( unit_id, " + params[ 1 ] + " )\n";
+                        m_File << "add_guard_mission( unit_id, " + params[ 1 ] + " )\n";
                     orders_given = true;
                 }
                 else if (params[ 0 ] == "o" ) {		// Set standing orders
                     if (params.size() >= 3 )
-                        m_File << "ta3d_set_standing_orders( unit_id, " << params[ 1 ] << ", " << params[ 2 ] << " )\n";
+                        m_File << "set_standing_orders( unit_id, " << params[ 1 ] << ", " << params[ 2 ] << " )\n";
                 }
                 else if (params[ 0 ] == "s" )		// Make it selectable
                     selectable = true;
             }
 
             if (!selectable && orders_given )
-                m_File << "ta3d_lock_orders( unit_id )\n";
+                m_File << "lock_orders( unit_id )\n";
 
             ++i;
         }
@@ -1699,27 +1542,27 @@ namespace TA3D
             float x = ota_parser.pullAsFloat( unit_key + ".XPos" ) * 16.0f;
             float z = ota_parser.pullAsFloat( unit_key + ".ZPos" ) * 16.0f;
 
-            m_File << "\nta3d_create_feature( \"" << feature_name << "\", " << x << " - 0.5 * ta3d_map_w(), " << z << " - 0.5 * ta3d_map_h() )\n";
+            m_File << "\ncreate_feature( \"" << feature_name << "\", " << x << " - 0.5 * map_w(), " << z << " - 0.5 * map_h() )\n";
             i++;
         }
 
-        m_File << "\ntimer = ta3d_time()\nend_signal = 0\n";
+        m_File << "\ntimer = time()\nend_signal = 0\n";
 
         m_File << "check = {}\nfirst_launch = true\n";
-        m_File << "for i = 0, ta3d_get_max_unit_number() do\n";
+        m_File << "for i = 0, get_max_unit_number() do\n";
         m_File << "	check[ i ] = false\n";
         m_File << "end\n\n";
 
         m_File << "pos_x = {}\n";
         m_File << "pos_z = {}\n";
         m_File << "exist = {}\n";
-        m_File << "for i = 0, ta3d_get_max_unit_number() do\n";
-        m_File << "	if ta3d_get_unit_owner( i ) == -1 then\n";
+        m_File << "for i = 0, get_max_unit_number() do\n";
+        m_File << "	if get_unit_owner( i ) == -1 then\n";
         m_File << "		exist[ i ] = false\n";
         m_File << "	else\n";
         m_File << "		exist[ i ] = true\n";
-        m_File << "		pos_x[ i ] = ta3d_unit_x( i )\n";
-        m_File << "		pos_z[ i ] = ta3d_unit_z( i )\n";
+        m_File << "		pos_x[ i ] = unit_x( i )\n";
+        m_File << "		pos_z[ i ] = unit_z( i )\n";
         m_File << "	end\n";
         m_File << "end\n";
 
@@ -1729,7 +1572,7 @@ namespace TA3D
             ota_parser.pullAsString("GlobalHeader.KillUnitType").split(params, "," );
             if (params.size() >= 2)
             {
-                m_File << "\nKillUnitType_nb = ta3d_nb_unit_of_type( 1, \"" << params[ 0 ] << "\" )\n" ;
+                m_File << "\nKillUnitType_nb = nb_unit_of_type( 1, \"" << params[ 0 ] << "\" )\n" ;
                 m_File << "KilledUnitType = 0\n";
             }
         }
@@ -1740,7 +1583,7 @@ namespace TA3D
             ota_parser.pullAsString("GlobalHeader.UnitTypeKilled").split(params, ",");
             if (params.size() >= 2)
             {
-                m_File << "\nUnitTypeKilled_nb = ta3d_nb_unit_of_type( 1, \"" << params[ 0 ] << "\" )\n" ;
+                m_File << "\nUnitTypeKilled_nb = nb_unit_of_type( 1, \"" << params[ 0 ] << "\" )\n" ;
                 m_File << "UnitTypeKilled_count = 0\n";
             }
         }
@@ -1760,7 +1603,7 @@ namespace TA3D
 
         m_File << "\nfunction main()\n";
 
-        m_File << "	if end_signal ~= 0 and ta3d_time() - timer >= 5 then\n";
+        m_File << "	if end_signal ~= 0 and time() - timer >= 5 then\n";
         m_File << "		return end_signal\n";
         m_File << "	elseif end_signal ~= 0 then\n";
         m_File << "		return 0\n";
@@ -1769,8 +1612,8 @@ namespace TA3D
         // DEFEAT conditions
 
         if (ota_parser.pullAsInt( "GlobalHeader.DeathTimerRunsOut" ) > 0 ) {
-            m_File << "	if ta3d_time() >= " << ota_parser.pullAsString( "GlobalHeader.DeathTimerRunsOut" ) << " then\n";
-            m_File << "		ta3d_print( 288, 236, \"DEFEAT\" )\n		timer = ta3d_time()\n		end_signal = SIGNAL_DEFEAT\n		return 0\n";
+            m_File << "	if time() >= " << ota_parser.pullAsString( "GlobalHeader.DeathTimerRunsOut" ) << " then\n";
+            m_File << "		text_print( 288, 236, \"DEFEAT\" )\n		timer = time()\n		end_signal = SIGNAL_DEFEAT\n		return 0\n";
             m_File << "	end\n\n";
         }
 
@@ -1780,12 +1623,12 @@ namespace TA3D
             ota_parser.pullAsString("GlobalHeader.UnitTypeKilled").split(params, ",");
             if (params.size() >= 2)
             {
-                m_File << "	new_UnitTypeKilled_nb = ta3d_nb_unit_of_type( 1, \"" << params[ 0 ] << "\" )\n";
+                m_File << "	new_UnitTypeKilled_nb = nb_unit_of_type( 1, \"" << params[ 0 ] << "\" )\n";
                 m_File << "	if UnitTypeKilled_nb > new_UnitTypeKilled_nb then\n";
                 m_File << "		UnitTypeKilled_count = UnitTypeKilled_count + UnitTypeKilled_nb - new_UnitTypeKilled_nb\n";
                 m_File << "	end\n";
                 m_File << "	if UnitTypeKilled_count >= " << params[ 1 ] << " then\n";
-                m_File << "		ta3d_print( 288, 236, \"DEFEAT\" )\n		timer = ta3d_time()\n		end_signal = SIGNAL_DEFEAT\n		return 0\n";
+                m_File << "		text_print( 288, 236, \"DEFEAT\" )\n		timer = time()\n		end_signal = SIGNAL_DEFEAT\n		return 0\n";
                 m_File << "	end\n";
                 m_File << "	UnitTypeKilled_nb = new_UnitTypeKilled_nb\n\n";
             }
@@ -1793,21 +1636,21 @@ namespace TA3D
 
         if (ota_parser.pullAsInt( "GlobalHeader.AllUnitsKilled" ) == 1 )
         {
-            m_File << "	if ta3d_annihilated( 0 ) then\n";
-            m_File << "		ta3d_print( 288, 236, \"DEFEAT\" )\n		timer = ta3d_time()\n		end_signal = SIGNAL_DEFEAT\n		return 0\n";
+            m_File << "	if annihilated( 0 ) then\n";
+            m_File << "		text_print( 288, 236, \"DEFEAT\" )\n		timer = time()\n		end_signal = SIGNAL_DEFEAT\n		return 0\n";
             m_File << "	end\n\n";
         }
 
         if (!ota_parser.pullAsString( "GlobalHeader.AllUnitsKilledOfType" ).empty() ) {
             String type = ota_parser.pullAsString( "GlobalHeader.AllUnitsKilledOfType" );
-            m_File << "	if not ta3d_has_unit( 0, \"" << type << "\" ) and not ta3d_has_unit( 1, \"" << type << "\" ) then\n";
-            m_File << "		ta3d_print( 288, 236, \"DEFEAT\" )\n		timer = ta3d_time()\n		end_signal = SIGNAL_DEFEAT\n		return 0\n";
+            m_File << "	if not has_unit( 0, \"" << type << "\" ) and not has_unit( 1, \"" << type << "\" ) then\n";
+            m_File << "		text_print( 288, 236, \"DEFEAT\" )\n		timer = time()\n		end_signal = SIGNAL_DEFEAT\n		return 0\n";
             m_File << "	end\n\n";
         }
 
         if (ota_parser.pullAsInt( "GlobalHeader.CommanderKilled" ) == 1 ) {
-            m_File << "	if not ta3d_has_unit( 0, ta3d_commander( 0 ) ) then\n";
-            m_File << "		ta3d_print( 288, 236, \"DEFEAT\" )\n		timer = ta3d_time()\n		end_signal = SIGNAL_DEFEAT\n		return 0\n";
+            m_File << "	if not has_unit( 0, commander( 0 ) ) then\n";
+            m_File << "		text_print( 288, 236, \"DEFEAT\" )\n		timer = time()\n		end_signal = SIGNAL_DEFEAT\n		return 0\n";
             m_File << "	end\n\n";
         }
 
@@ -1831,7 +1674,7 @@ namespace TA3D
 
         if (ota_parser.pullAsInt( "GlobalHeader.KillAllMobileUnits" ) == 1 )
         {
-            m_File << "	if not KillAllMobileUnits and not ta3d_has_mobile_units( 1 ) then\n";
+            m_File << "	if not KillAllMobileUnits and not has_mobile_units( 1 ) then\n";
             m_File << "		KillAllMobileUnits = true\n";
             m_File << "		victory_conditions = victory_conditions + 1\n";	nb_victory_conditions++;
             m_File << "	end\n";
@@ -1844,28 +1687,28 @@ namespace TA3D
         {
 
             if (!ota_parser.pullAsString( "GlobalHeader.AnyUnitPassesZ" ).empty() )
-                m_File << "	ZPass0 = 0.5 * ( " << ota_parser.pullAsString( "GlobalHeader.AnyUnitPassesZ" ) << " - ta3d_map_h() )\n";
+                m_File << "	ZPass0 = 0.5 * ( " << ota_parser.pullAsString( "GlobalHeader.AnyUnitPassesZ" ) << " - map_h() )\n";
             if (!ota_parser.pullAsString( "GlobalHeader.UnitTypePassesZ" ).empty() )
             {
                 String::Vector params;
                 ota_parser.pullAsString("GlobalHeader.UnitTypePassesZ").split(params, ",");
                 if (params.size() == 2 )
-                    m_File << "	ZPass1 = 0.5 * ( " << params[ 1 ] << " - ta3d_map_h() )\n";
+                    m_File << "	ZPass1 = 0.5 * ( " << params[ 1 ] << " - map_h() )\n";
             }
             if (!ota_parser.pullAsString( "GlobalHeader.AnyUnitPassesX" ).empty() )
-                m_File << "	XPass0 = 0.5 * ( " << ota_parser.pullAsString( "GlobalHeader.AnyUnitPassesX" ) << " - ta3d_map_w() )\n";
+                m_File << "	XPass0 = 0.5 * ( " << ota_parser.pullAsString( "GlobalHeader.AnyUnitPassesX" ) << " - map_w() )\n";
             if (!ota_parser.pullAsString( "GlobalHeader.UnitTypePassesX" ).empty() )
             {
                 String::Vector params;
                 ota_parser.pullAsString("GlobalHeader.UnitTypePassesX").split(params, ",");
                 if (params.size() == 2)
-                    m_File << "	XPass1 = 0.5 * ( " << params[1] << " - ta3d_map_w() )\n";
+                    m_File << "	XPass1 = 0.5 * ( " << params[1] << " - map_w() )\n";
             }
 
-            m_File << "	for i = 0, ta3d_get_max_unit_number() do\n";
-            m_File << "		unit_z = ta3d_unit_z( i )\n";
-            m_File << "		unit_x = ta3d_unit_x( i )\n";
-            m_File << "		unit_exist = ( ta3d_get_unit_owner( i ) ~= -1 )\n";
+            m_File << "	for i = 0, get_max_unit_number() do\n";
+            m_File << "		unit_z = unit_z( i )\n";
+            m_File << "		unit_x = unit_x( i )\n";
+            m_File << "		unit_exist = ( get_unit_owner( i ) ~= -1 )\n";
             if (!ota_parser.pullAsString( "GlobalHeader.AnyUnitPassesZ" ).empty() )
             {
                 m_File << "		if exist[ i ] and unit_exist and (pos_z[ i ] - ZPass0) * (unit_z - ZPass0) <= 0 and not AnyUnitPassesZ then\n";
@@ -1879,7 +1722,7 @@ namespace TA3D
                 ota_parser.pullAsString("GlobalHeader.UnitTypePassesZ").split(params, ",");
                 if (params.size() == 2)
                 {
-                    m_File << "		if exist[ i ] and unit_exist and ta3d_is_unit_of_type( i, \"" << params[ 0 ] << "\" ) and (pos_z[ i ] - ZPass1) * (unit_z - ZPass1) <= 0 and not UnitTypePassesZ then\n";
+                    m_File << "		if exist[ i ] and unit_exist and is_unit_of_type( i, \"" << params[ 0 ] << "\" ) and (pos_z[ i ] - ZPass1) * (unit_z - ZPass1) <= 0 and not UnitTypePassesZ then\n";
                     m_File << "			victory_conditions = victory_conditions + 1\n";	nb_victory_conditions++;
                     m_File << "			UnitTypePassesZ = true\n";
                     m_File << "		end\n";
@@ -1898,7 +1741,7 @@ namespace TA3D
                 ota_parser.pullAsString("GlobalHeader.UnitTypePassesX").split(params, ",");
                 if (params.size() == 2)
                 {
-                    m_File << "		if exist[ i ] and unit_exist and ta3d_is_unit_of_type( i, \"" << params[ 0 ] << "\" ) and (pos_x[ i ] - XPass1) * (unit_x - XPass1) <= 0 and not UnitTypePassesX then\n";
+                    m_File << "		if exist[ i ] and unit_exist and is_unit_of_type( i, \"" << params[ 0 ] << "\" ) and (pos_x[ i ] - XPass1) * (unit_x - XPass1) <= 0 and not UnitTypePassesX then\n";
                     m_File << "			victory_conditions = victory_conditions + 1\n";	nb_victory_conditions++;
                     m_File << "			UnitTypePassesX = true\n";
                     m_File << "		end\n";
@@ -1916,7 +1759,7 @@ namespace TA3D
 
         if (!ota_parser.pullAsString( "GlobalHeader.BuildUnitType" ).empty() )
         {
-            m_File << "	if ta3d_has_unit( 0, \"" + ota_parser.pullAsString( "GlobalHeader.BuildUnitType" ) + "\" ) and not BuildUnitType then\n";
+            m_File << "	if has_unit( 0, \"" + ota_parser.pullAsString( "GlobalHeader.BuildUnitType" ) + "\" ) and not BuildUnitType then\n";
             m_File << "		victory_conditions = victory_conditions + 1\n";	nb_victory_conditions++;
             m_File << "		BuildUnitType = true\n";
             m_File << "	end\n\n";
@@ -1924,7 +1767,7 @@ namespace TA3D
 
         if (!ota_parser.pullAsString( "GlobalHeader.CaptureUnitType" ).empty() )
         {
-            m_File << "	if ta3d_has_unit( 0, \"" + ota_parser.pullAsString( "GlobalHeader.CaptureUnitType" ) + "\" ) and not CaptureUnitType then\n";
+            m_File << "	if has_unit( 0, \"" + ota_parser.pullAsString( "GlobalHeader.CaptureUnitType" ) + "\" ) and not CaptureUnitType then\n";
             m_File << "		victory_conditions = victory_conditions + 1\n";	nb_victory_conditions++;
             m_File << "		CaptureUnitType = true\n";
             m_File << "	end\n\n";
@@ -1936,7 +1779,7 @@ namespace TA3D
             ota_parser.pullAsString("GlobalHeader.KillUnitType").split(params, ",");
             if (params.size() >= 2 )
             {
-                m_File << "	new_KillUnitType_nb = ta3d_nb_unit_of_type( 1, \"" << params[ 0 ] << "\" )\n";
+                m_File << "	new_KillUnitType_nb = nb_unit_of_type( 1, \"" << params[ 0 ] << "\" )\n";
                 m_File << "	if KillUnitType_nb > new_KillUnitType_nb then\n";
                 m_File << "		KilledUnitType = KilledUnitType + KillUnitType_nb - new_KillUnitType_nb\n";
                 m_File << "	end\n";
@@ -1950,7 +1793,7 @@ namespace TA3D
 
         if (!ota_parser.pullAsString( "GlobalHeader.KillAllOfType" ).empty() )
         {
-            m_File << "	if not ta3d_has_unit( 1, \"" + ota_parser.pullAsString( "GlobalHeader.KillAllOfType" ) + "\" ) and not KillAllOfType then\n";
+            m_File << "	if not has_unit( 1, \"" + ota_parser.pullAsString( "GlobalHeader.KillAllOfType" ) + "\" ) and not KillAllOfType then\n";
             m_File << "		victory_conditions = victory_conditions + 1\n";	nb_victory_conditions++;
             m_File << "		KillAllOfType = true\n";
             m_File << "	end\n\n";
@@ -1958,7 +1801,7 @@ namespace TA3D
 
         if (ota_parser.pullAsInt( "GlobalHeader.KilledEnemyCommander" ) == 1 )
         {
-            m_File << "	if not ta3d_has_unit( 1, ta3d_commander( 1 ) ) and not KilledEnemyCommander then\n";
+            m_File << "	if not has_unit( 1, commander( 1 ) ) and not KilledEnemyCommander then\n";
             m_File << "		victory_conditions = victory_conditions + 1\n";	nb_victory_conditions++;
             m_File << "		KilledEnemyCommander = true\n";
             m_File << "	end\n\n";
@@ -1967,12 +1810,12 @@ namespace TA3D
         if (ota_parser.pullAsInt( "GlobalHeader.DestroyAllUnits" ) == 1 )
         {
             m_File << "	annihilated = 0\n";
-            m_File << "	for i = 1, ta3d_nb_players() do\n";
-            m_File << "		if ta3d_annihilated( i ) then\n";
+            m_File << "	for i = 1, nb_players() do\n";
+            m_File << "		if annihilated( i ) then\n";
             m_File << "			annihilated = annihilated + 1\n";
             m_File << "		end\n";
             m_File << "	end\n";
-            m_File << "	if annihilated == ta3d_nb_players() - 1 and not DestroyAllUnits then\n";
+            m_File << "	if annihilated == nb_players() - 1 and not DestroyAllUnits then\n";
             m_File << "		victory_conditions = victory_conditions + 1\n";	nb_victory_conditions++;
             m_File << "		DestroyAllUnits = true\n";
             m_File << "	end\n\n";
@@ -1982,13 +1825,13 @@ namespace TA3D
         {
             String::Vector params;
             ota_parser.pullAsString("GlobalHeader.MoveUnitToRadius").split(params, ",");
-            m_File << "	for i = 0, ta3d_get_max_unit_number() do\n";
+            m_File << "	for i = 0, get_max_unit_number() do\n";
             if (String::ToLower(params[0]) == "anytype")
-                m_File << "		if ta3d_get_unit_owner( i ) == 0 then\n";
+                m_File << "		if get_unit_owner( i ) == 0 then\n";
             else
-                m_File << "		if ta3d_get_unit_owner( i ) == 0 and ta3d_is_unit_of_type( i, \"" << params[0] << "\" ) then\n";
-            m_File << "			dx = ta3d_unit_x( i ) + 0.5 * (ta3d_map_w() - " << params[ 1 ] << " )\n";
-            m_File << "			dz = ta3d_unit_z( i ) + 0.5 * (ta3d_map_h() - " << params[ 2 ] << " )\n";
+                m_File << "		if get_unit_owner( i ) == 0 and is_unit_of_type( i, \"" << params[0] << "\" ) then\n";
+            m_File << "			dx = unit_x( i ) + 0.5 * (map_w() - " << params[ 1 ] << " )\n";
+            m_File << "			dz = unit_z( i ) + 0.5 * (map_h() - " << params[ 2 ] << " )\n";
             m_File << "			dist = dx * dx + dz * dz\n";
             float dist = atoi( params[ 3 ].c_str() ) * 0.5f;
             m_File << "			if dist <= " << format("%f", dist * dist ) << " then\n";
@@ -2003,9 +1846,9 @@ namespace TA3D
         }
 
         m_File << "	if victory_conditions == " << nb_victory_conditions << " then\n";
-        m_File << "		ta3d_play( \"VICTORY2\" )\n";
-        m_File << "		ta3d_draw_image( \"gfx/victory.tga\", 160, 140, 480, 340 )\n";
-        m_File << "		timer = ta3d_time()\n";
+        m_File << "		play( \"VICTORY2\" )\n";
+        m_File << "		draw_image( \"gfx/victory.tga\", 160, 140, 480, 340 )\n";
+        m_File << "		timer = time()\n";
         m_File << "		end_signal = SIGNAL_VICTORY\n";
         m_File << "	end\n";
 

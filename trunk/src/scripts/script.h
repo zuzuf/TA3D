@@ -27,7 +27,7 @@
 #ifndef CLASSE_SCRIPT
 # define CLASSE_SCRIPT
 
-# include "../lua/lua.hpp"
+# include "lua.thread.h"
 # include "../threads/thread.h"
 # include "../misc/tdf.h"
 
@@ -96,72 +96,28 @@ namespace TA3D
         void draw(Font *fnt);
     };
 
-    class LUA_PROGRAM : public ObjectSync
+    class LUA_PROGRAM : public LUA_THREAD, public ObjectSync
     {
-        byte        *buffer;
-        lua_State   *L;             // Pointer to the lua data
-
         //  Pour l'éxecution du code
-        int         last;           // Dernière lecture du timer
         int         amx,amy,amz;    // Coordonnées du curseur
         int         amb;            // Boutons de la souris
-        float       asm_timer;      // Timer to match the game speed
-        bool        running;
 
     public:
-        float       sleep_time;     // Temps d'attente
-        bool        sleeping;       // Indique si le programme marque une pause
-        bool        waiting;        // Indique si le programme attend une action utilisateur
         DRAW_LIST   draw_list;      // Liste de commandes d'affichage
 
         static bool passive;        // Passive mode, won't do anything like creating units, move units, etc... used to resync a multiplayer game
 
-        inline void stop()
-        {
-            destroy();
-        }
-
-        void init()
-        {
-            running = false;
-
-            buffer = NULL;
-            L = NULL;
-
-            asm_timer = 0.0f;
-
-            draw_list.init();
-
-            amx=amy=amz=0;
-            amb=0;
-
-            sleep_time=0.0f;
-            sleeping=false;
-            waiting=false;
-        }
-
-        void destroy()
-        {
-            if( L )
-                lua_close( L );
-            if( buffer )
-                delete[] buffer;
-            running = false;
-
-            draw_list.destroy();
-            init();
-        }
+        void init();
+        void destroy();
 
         LUA_PROGRAM();
 
-        ~LUA_PROGRAM()
-        {
-            destroy();
-        }
+        inline ~LUA_PROGRAM()  {   destroy();  }
 
-        void load(const String &filename, MAP *map);                    // Load a lua script
+        int run(float dt);                   // Execute le script
 
-        int run(MAP *map,float dt,int viewer_id);                   // Execute le script
+    private:
+        virtual void register_functions();
     };
 
     extern LUA_PROGRAM  *lua_program;
