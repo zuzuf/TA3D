@@ -87,7 +87,9 @@ namespace TA3D
 
     void LUA_THREAD::kill()
     {
+        pMutex.lock();
         destroy();
+        pMutex.unlock();
     }
 
     void LUA_THREAD::stop()
@@ -116,6 +118,8 @@ namespace TA3D
         sleep_time = 0.0f;
         sleeping = false;
         waiting = false;
+
+        n_args = 0;
     }
 
     void LUA_THREAD::destroy()
@@ -316,6 +320,8 @@ namespace TA3D
 
     int LUA_THREAD::run(float dt)                  // Run the script
     {
+        MutexLocker mLocker( pMutex );
+
         if (!running)   return -1;
         if (waiting)    return -3;
 
@@ -330,7 +336,8 @@ namespace TA3D
 
         try
         {
-            int result = lua_resume(L, 0);
+            int result = lua_resume(L, n_args);
+            n_args = 0;
             if (result != LUA_YIELD)
             {
                 if (lua_tostring(L, -1) != NULL && strlen(lua_tostring(L, -1)) > 0)
@@ -357,5 +364,97 @@ namespace TA3D
         float dt = timer - last;
         last = timer;
         return run(dt);
+    }
+
+    void LUA_THREAD::proc(void* param)
+    {
+        while (isRunning() && is_running())
+        {
+            run();
+            rest(1);
+        }
+    }
+
+    LUA_THREAD *LUA_THREAD::fork()
+    {
+        LUA_THREAD *newThread = new LUA_THREAD();
+
+        newThread->running = false;
+        newThread->buffer = NULL;
+        newThread->sleeping = false;
+        newThread->sleep_time = 0.0f;
+        newThread->L = lua_newthread(L);
+        lua_pushlightuserdata( newThread->L, (void*)newThread );    // The pointer itself
+        lua_insert( newThread->L, 0 );				                // Save this at the first position on the stack :), this identifies the
+                                                                    // LUA_THREAD associated with this Lua_State object
+
+        return newThread;
+    }
+
+    LUA_THREAD *LUA_THREAD::fork(const String &functionName, int *parameters, int nb_params)
+    {
+        LUA_THREAD *newThread = fork();
+        if (newThread)
+            newThread->call(functionName, parameters, nb_params);
+        return newThread;
+    }
+
+    void LUA_THREAD::call(const String &functionName, int *parameters, int nb_params)
+    {
+        MutexLocker mLocker( pMutex );
+
+        if (running)    return;     // We cannot run several functions at the same time on the same stack
+
+        lua_getglobal( L, functionName.c_str() );
+        if (lua_isnil( L, -1 ))     // Function not found
+        {
+            lua_pop(L, 1);
+            return;
+        }
+
+        if (parameters == NULL)
+            nb_params = 0;
+        for(int i = 0 ; i < nb_params ; i++)
+            lua_pushinteger(L, parameters[i]);
+        n_args = nb_params;
+        running = true;
+    }
+
+    int LUA_THREAD::execute(const String &functionName, int *parameters, int nb_params)
+    {
+        MutexLocker mLocker( pMutex );
+
+        lua_getglobal( L, functionName.c_str() );
+        if (lua_isnil( L, -1 ))     // Function not found
+        {
+            lua_pop(L, 1);
+            return 0;
+        }
+
+        if (parameters == NULL)
+            nb_params = 0;
+        for(int i = 0 ; i < nb_params ; i++)
+            lua_pushinteger(L, parameters[i]);
+        try
+        {
+            if (lua_pcall( L, nb_params, 1, 0))
+            {
+                if (lua_tostring(L, -1) != NULL && strlen(lua_tostring(L, -1)) > 0)
+                    LOG_ERROR(LOG_PREFIX_LUA << lua_tostring(L, -1));
+                running = false;
+                return -1;
+            }
+        }
+        catch(...)
+        {
+            if (lua_tostring( L, -1 ) != NULL && strlen(lua_tostring( L, -1 )) > 0)
+                LOG_ERROR(LOG_PREFIX_LUA << lua_tostring(L, -1));
+            running = false;
+            return -1;
+        }
+
+        int result = (int) lua_tointeger( L, -1 );          // Read the result
+        lua_pop( L, 1 );
+        return result;
     }
 }

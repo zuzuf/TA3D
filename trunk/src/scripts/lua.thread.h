@@ -5,11 +5,6 @@
 # include "../lua/lua.hpp"
 # include "../threads/thread.h"
 
-# ifndef luaL_dobuffer
-#  define luaL_dobuffer(L, s, sz) \
-    (luaL_loadbuffer(L, (const char*)s, sz, "main" ) || lua_pcall(L, 0, LUA_MULTRET, 0))
-# endif
-
 namespace TA3D
 {
     /*!
@@ -33,11 +28,12 @@ namespace TA3D
     ** This class represents a basic Lua thread without specialization
     ** To use it, create a new class that inherits LUA_THREAD
     */
-    class LUA_THREAD
+    class LUA_THREAD : public Thread, public ObjectSync
     {
     protected:
         byte        *buffer;
         lua_State   *L;             // The Lua state
+        int         n_args;         // Number of arguments given to lua_resume
 
         //! Variables to control thread execution
         int         last;           // Last timer check
@@ -70,10 +66,20 @@ namespace TA3D
         inline bool is_waiting() { return waiting; }
         inline bool is_sleeping() { return sleeping; }
 
+        //! functions used to call/run Lua functions
+        void call(const String &functionName, int *parameters = NULL, int nb_params = 0);
+        int execute(const String &functionName, int *parameters = NULL, int nb_params = 0);
+
+        //! functions used to create new threads sharing the same environment
+        LUA_THREAD *fork();
+        LUA_THREAD *fork(const String &functionName, int *parameters = NULL, int nb_params = 0);
     private:
         //! functions that register new Lua functions
         void register_basic_functions();
         virtual void register_functions()   {}
+
+    protected:
+        virtual void proc(void* param);
     };
 
     /*!
