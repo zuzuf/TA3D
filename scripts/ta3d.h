@@ -86,3 +86,17 @@ function normalized(v)
     tmp.z = l * v.z
     return tmp;
 end
+
+function game_signal( sig )
+    coroutine.yield(sig)
+end
+
+function set_cam_mode( mode )
+    if mode == CAM_NORMAL_MODE then
+        game_signal( SIGNAL_CAM_DEF )
+    else
+        if mode == CAM_FREE_MODE then
+            game_signal( SIGNAL_FREECAM )
+        end
+    end
+end

@@ -171,15 +171,6 @@ namespace TA3D
         return 0;
     }
 
-    int lua_signal = 0;
-
-    int program_signal( lua_State *L )		// signal( signal )
-    {
-        lua_signal = (int) lua_tonumber( L, -1 );
-        lua_pop( L, 1 );
-        return 0;
-    }
-
     int program_box( lua_State *L )		// box( x1,y1,x2,y2,r,g,b )
     {
         DRAW_OBJECT draw_obj;
@@ -984,16 +975,6 @@ namespace TA3D
         return 0;
     }
 
-    int program_set_cam_mode( lua_State *L )		// set_cam_mode( mode )	-> uses the signal system
-    {
-        if (lua_toboolean( L, -1 ) )
-            lua_signal = 5;
-        else
-            lua_signal = 4;
-        lua_pop( L, 1 );
-        return 0;
-    }
-
     int program_clf( lua_State *L )				// clf()
     {
         the_map->clear_FOW();
@@ -1182,7 +1163,6 @@ namespace TA3D
         lua_register( L, "cls_for", program_cls_for );
         lua_register( L, "point", program_point );
         lua_register( L, "triangle", program_triangle );
-        lua_register( L, "signal", program_signal );
         lua_register( L, "box", program_box );
         lua_register( L, "fillbox", program_fillbox );
         lua_register( L, "circle", program_circle );
@@ -1211,7 +1191,6 @@ namespace TA3D
         lua_register( L, "play", program_play );
         lua_register( L, "play_for", program_play_for );
         lua_register( L, "set_cam_pos", program_set_cam_pos );
-        lua_register( L, "set_cam_mode", program_set_cam_mode );
         lua_register( L, "clf", program_clf );
         lua_register( L, "start_x", program_start_x );
         lua_register( L, "start_z", program_start_z );
@@ -1246,20 +1225,14 @@ namespace TA3D
         init();
     }
 
-    int LUA_PROGRAM::run(float dt)									// Execute le script
+    int LUA_PROGRAM::run(float dt)									// Run the script
     {
-        pMutex.lock();
-        draw_list.draw(gfx->big_font);			// Execute la liste de commandes de dessin
-        pMutex.unlock();
-
         if (!running)	return	-1;
 
         LUA_PROGRAM::inGame = this;
 
         if (waiting && (amx!=mouse_x || amy!=mouse_y || amz!=mouse_z || amb!=mouse_b || keypressed()))
             waiting = false;
-
-        lua_signal = 0;
 
         int result = LUA_THREAD::run(dt);		// Run the thread
 
@@ -1268,10 +1241,36 @@ namespace TA3D
         amz = mouse_z;
         amb = mouse_b;
 
-        if (lua_signal)
-            result = lua_signal;
-
         return result;
+    }
+
+    int LUA_PROGRAM::check()
+    {
+        pMutex.lock();
+        draw_list.draw(gfx->big_font);			// Execute all display commands
+        pMutex.unlock();
+
+        int ret = signal;
+        signal = 0;
+        return ret;
+    }
+
+    void LUA_PROGRAM::proc(void* param)
+    {
+        uint32 last_tick = units.current_tick;
+        signal = 0;
+        while (isRunning() && is_running())
+        {
+            uint32 now = units.current_tick;
+            float dt = ((float)(now - last_tick)) / TICKS_PER_SEC;
+            last_tick = now;
+            int ret = run(dt);
+            if (ret != 0)
+                signal = ret;
+            do
+                rest(1);
+            while (signal && isRunning() && is_running());
+        }
     }
 
     void LUA_PROGRAM::init()

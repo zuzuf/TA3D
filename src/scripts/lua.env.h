@@ -36,20 +36,32 @@ namespace TA3D
         LUA_ENV();
         ~LUA_ENV();
 
-        void set_global_string( const String &name, const String &value );
-        void set_global_number( const String &name, const double value );
-        void set_global_boolean( const String &name, const bool value );
-        String get_global_string( const String &name );
-        double get_global_number( const String &name );
-        bool get_global_boolean( const String &name );
-        bool is_global_string( const String &name );
-        bool is_global_number( const String &name );
-        bool is_global_boolean( const String &name );
+        void set_global_string( const char *name, const char *value );
+        void set_global_number( const char *name, const double value );
+        void set_global_boolean( const char *name, const bool value );
+        const char *get_global_string( const char *name );
+        double get_global_number( const char *name );
+        bool get_global_boolean( const char *name );
+        bool is_global_string( const char *name );
+        bool is_global_number( const char *name );
+        bool is_global_boolean( const char *name );
 
     public:
         static LUA_ENV *global;
         static LUA_ENV *instance();
         static void destroy();
+
+        static void register_global_functions( lua_State *L );
+
+        static int global_set_global_string( lua_State *L );
+        static int global_set_global_number( lua_State *L );
+        static int global_set_global_boolean( lua_State *L );
+        static int global_get_global_string( lua_State *L );
+        static int global_get_global_number( lua_State *L );
+        static int global_get_global_boolean( lua_State *L );
+        static int global_is_global_string( lua_State *L );
+        static int global_is_global_number( lua_State *L );
+        static int global_is_global_boolean( lua_State *L );
     };
 
 }

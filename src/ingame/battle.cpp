@@ -43,6 +43,7 @@
 #include "../UnitEngine.h"
 #include "../tnt.h"
 #include "../scripts/script.h"
+#include "../scripts/lua.env.h"
 #include "../gfx/shader.h"
 #include "players.h"
 
@@ -72,8 +73,7 @@ namespace TA3D
 		}
 		if (lp_CONFIG->ortho_camera)        // Orthographic camera
 		{
-		    Vector3D cur_pos;
-            cur_pos = cam.pos + cam.zoomFactor * ( (mouse_x - gfx->SCREEN_W_HALF) * cam.side
+		    Vector3D cur_pos = cam.pos + cam.zoomFactor * ( (mouse_x - gfx->SCREEN_W_HALF) * cam.side
                 - (mouse_y - gfx->SCREEN_H_HALF) * cam.up );
             return map.hit(cur_pos, cam.dir, true, 2000000000.0f, true);
 		}
@@ -105,10 +105,14 @@ namespace TA3D
         LUA_PROGRAM	game_script;					// Script that will rule the game
         if (!pNetworkEnabled || pNetworkIsServer)
         {
-            if (!pGameData->saved_file.empty()) 		// We have something to load
-                LUA_PROGRAM::passive = true;            // So deactivate unit creation (at least neutralize network creation events)
             game_script.load(pGameData->game_script);	// Load the script
+            if (!pGameData->saved_file.empty()) 		// We have something to load, so let's run initialization code in passive mode
+            {
+                LUA_PROGRAM::passive = true;            // So deactivate unit creation (at least neutralize network creation events)
+                game_script.run(0.0f);
+            }
             LUA_PROGRAM::passive = false;
+            game_script.start();                        // Start game script thread
         }
 
         if (!pGameData->saved_file.empty()) 			// We have something to load
@@ -2446,12 +2450,9 @@ namespace TA3D
 
             int signal = 0;
             if (!pNetworkEnabled || pNetworkIsServer)
-            {
-                signal = game_script.run(((float)(units.current_tick - script_timer)) / TICKS_PER_SEC);
-                script_timer = units.current_tick;
-            }
+                signal = game_script.check();
             else
-                game_script.run(0.0f); // In client mode we only want to display text, pictures, ... everything drawn by the script on the server
+                game_script.check(); // In client mode we only want to display text, pictures, ... everything drawn by the script on the server
 
             if (pNetworkEnabled || signal == 0)
                 signal = g_ta3d_network->get_signal();
@@ -3711,6 +3712,10 @@ namespace TA3D
         particle_engine.destroyThread();		// Shut down the Particle Engine
 
         sky_obj.destroy();
+
+        LUA_PROGRAM::inGame->destroyThread();
+
+        LUA_ENV::destroy();
 
         Camera::inGame = NULL;
 

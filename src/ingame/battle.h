@@ -359,8 +359,6 @@ namespace TA3D
 		//!
         float cam_h;
 		//!
-		uint32	script_timer;
-		//!
         float Conv;
 		//!
         float dt;

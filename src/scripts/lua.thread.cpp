@@ -21,6 +21,7 @@
 #include "../TA3D_NameSpace.h"
 #include "../logs/logs.h"
 #include "lua.thread.h"
+#include "lua.env.h"
 
 namespace TA3D
 {
@@ -333,6 +334,7 @@ namespace TA3D
         lua_register( L, "time", thread_time );
         lua_register( L, "__wait", thread_wait );
         lua_register( L, "__sleep", thread_sleep );
+        LUA_ENV::register_global_functions( L );
     }
 
     int LUA_THREAD::run(float dt)                  // Run the script
@@ -363,7 +365,19 @@ namespace TA3D
                 return -1;
             }
             else
+            {
                 running = true;
+                if (!lua_isfunction(L, -1))
+                {
+                    result = 0;
+                    while(!lua_isnone(L, -1) && !lua_isfunction(L, -1))
+                    {
+                        if (lua_isnumber(L, -1))
+                            result = lua_tointeger(L, -1);
+                    }
+                    return result;
+                }
+            }
         }
         catch(...)
         {
