@@ -49,7 +49,7 @@ namespace TA3D
 
     bool LUA_PROGRAM::passive = false;        // LUA_PROGRAM::passive mode, won't do anything like creating units, move units, etc... used to resync a multiplayer game
 
-    LUA_PROGRAM	*lua_program = NULL;
+    LUA_PROGRAM	*LUA_PROGRAM::inGame = NULL;
 
     int program_print_for( lua_State *L )		// text_print_for( x, y, str, player_id )
     {
@@ -66,7 +66,7 @@ namespace TA3D
                 draw_obj.x[0] = (float) lua_tonumber( L, -4 );
                 draw_obj.y[0] = (float) lua_tonumber( L, -3 );
                 draw_obj.text = I18N::Translate( str );
-                lua_program->draw_list.add( draw_obj );
+                LUA_PROGRAM::inGame->draw_list.add( draw_obj );
             }
 
             if (network_manager.isServer())
@@ -103,7 +103,7 @@ namespace TA3D
         draw_obj.y[0] = (float) lua_tonumber( L, -6 );
         draw_obj.x[1] = (float) lua_tonumber( L, -5 );
         draw_obj.y[1] = (float) lua_tonumber( L, -4 );
-        lua_program->draw_list.add( draw_obj );
+        LUA_PROGRAM::inGame->draw_list.add( draw_obj );
         lua_pop( L, 7 );
 
         return 0;
@@ -118,7 +118,7 @@ namespace TA3D
         draw_obj.b[0] = (float) lua_tonumber( L, -1 );
         draw_obj.x[0] = (float) lua_tonumber( L, -5 );
         draw_obj.y[0] = (float) lua_tonumber( L, -4 );
-        lua_program->draw_list.add( draw_obj );
+        LUA_PROGRAM::inGame->draw_list.add( draw_obj );
         lua_pop( L, 5 );
 
         return 0;
@@ -137,7 +137,7 @@ namespace TA3D
         draw_obj.y[1] = (float) lua_tonumber( L, -6 );
         draw_obj.x[2] = (float) lua_tonumber( L, -5 );
         draw_obj.y[2] = (float) lua_tonumber( L, -4 );
-        lua_program->draw_list.add( draw_obj );
+        LUA_PROGRAM::inGame->draw_list.add( draw_obj );
         lua_pop( L, 9 );
 
         return 0;
@@ -146,9 +146,9 @@ namespace TA3D
     int program_cls_for( lua_State *L )		// cls_for( player_id )
     {
         if ((int) lua_tonumber( L, -1 ) == players.local_human_id || (int) lua_tonumber( L, -1 ) == -1 ) {
-            lua_program->lock();
-            lua_program->draw_list.destroy();
-            lua_program->unlock();
+            LUA_PROGRAM::inGame->lock();
+            LUA_PROGRAM::inGame->draw_list.destroy();
+            LUA_PROGRAM::inGame->unlock();
         }
 
         if (network_manager.isServer() ) {
@@ -191,7 +191,7 @@ namespace TA3D
         draw_obj.y[0] = (float) lua_tonumber( L, -6 );
         draw_obj.x[1] = (float) lua_tonumber( L, -5 );
         draw_obj.y[1] = (float) lua_tonumber( L, -4 );
-        lua_program->draw_list.add( draw_obj );
+        LUA_PROGRAM::inGame->draw_list.add( draw_obj );
         lua_pop( L, 7 );
 
         return 0;
@@ -208,7 +208,7 @@ namespace TA3D
         draw_obj.y[0] = (float) lua_tonumber( L, -6 );
         draw_obj.x[1] = (float) lua_tonumber( L, -5 );
         draw_obj.y[1] = (float) lua_tonumber( L, -4 );
-        lua_program->draw_list.add( draw_obj );
+        LUA_PROGRAM::inGame->draw_list.add( draw_obj );
         lua_pop( L, 7 );
 
         return 0;
@@ -224,7 +224,7 @@ namespace TA3D
         draw_obj.x[0] = (float) lua_tonumber( L, -6 );
         draw_obj.y[0] = (float) lua_tonumber( L, -5 );
         draw_obj.r[1] = (float) lua_tonumber( L, -4 );
-        lua_program->draw_list.add( draw_obj );
+        LUA_PROGRAM::inGame->draw_list.add( draw_obj );
         lua_pop( L, 6 );
 
         return 0;
@@ -242,7 +242,7 @@ namespace TA3D
             draw_obj.y[1] = (float) lua_tonumber( L, -2 );
             draw_obj.tex = gfx->load_texture( I18N::Translate( lua_tostring( L, -6 ) ) );
             draw_obj.text = NULL;
-            lua_program->draw_list.add( draw_obj );
+            LUA_PROGRAM::inGame->draw_list.add( draw_obj );
         }
 
         if (network_manager.isServer() && !LUA_PROGRAM::passive)
@@ -1242,7 +1242,7 @@ namespace TA3D
 
     LUA_PROGRAM::LUA_PROGRAM()
     {
-        lua_program = this;
+        LUA_PROGRAM::inGame = this;
         init();
     }
 
@@ -1254,7 +1254,7 @@ namespace TA3D
 
         if (!running)	return	-1;
 
-        lua_program = this;
+        LUA_PROGRAM::inGame = this;
 
         if (waiting && (amx!=mouse_x || amy!=mouse_y || amz!=mouse_z || amb!=mouse_b || keypressed()))
             waiting = false;

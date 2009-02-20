@@ -27,7 +27,7 @@ namespace TA3D
 
     void DRAW_LIST::add(DRAW_OBJECT &obj)
     {
-        lua_program->lock();
+        LUA_PROGRAM::inGame->lock();
         if (next == NULL)
         {
             next = new DRAW_LIST;
@@ -36,7 +36,7 @@ namespace TA3D
         }
         else
             next->add(obj);
-        lua_program->unlock();
+        LUA_PROGRAM::inGame->unlock();
     }
 
     void DRAW_LIST::draw(Font *fnt)

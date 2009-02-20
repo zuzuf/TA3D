@@ -62,9 +62,10 @@ namespace TA3D
 
     private:
         virtual void register_functions();
-    };
 
-    extern LUA_PROGRAM  *lua_program;
+    public:
+        static LUA_PROGRAM	*inGame;
+    };
 
     void generate_script_from_mission( String Filename, TDFParser& ota_parser, int schema = 0 );
 

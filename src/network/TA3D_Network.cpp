@@ -391,9 +391,9 @@ namespace TA3D
                     break;
                 case EVENT_CLS:
                     if( event_msg.opt1 == players.local_human_id || event_msg.opt1 == 0xFFFF ) {			// Do it only if the packet is for us
-                        lua_program->lock();
-                        lua_program->draw_list.destroy();
-                        lua_program->unlock();
+                        LUA_PROGRAM::inGame->lock();
+                        LUA_PROGRAM::inGame->draw_list.destroy();
+                        LUA_PROGRAM::inGame->unlock();
                     }
                     break;
                 case EVENT_DRAW:
@@ -406,7 +406,7 @@ namespace TA3D
                         draw_obj.y[1] = event_msg.opt3 / 16384.0f;
                         draw_obj.text = strdup( I18N::Translate( (char*)event_msg.str ).c_str() );		// We can't load it now because of thread safety
                         draw_obj.tex = 0;
-                        lua_program->draw_list.add( draw_obj );
+                        LUA_PROGRAM::inGame->draw_list.add( draw_obj );
                     }
                     break;
                 case EVENT_PRINT:
@@ -420,7 +420,7 @@ namespace TA3D
                         draw_obj.x[0] = event_msg.x;
                         draw_obj.y[0] = event_msg.y;
                         draw_obj.text = strdup( I18N::Translate( (char*)event_msg.str ).c_str() );
-                        lua_program->draw_list.add( draw_obj );
+                        LUA_PROGRAM::inGame->draw_list.add( draw_obj );
                     }
                     break;
                 case EVENT_PLAY:
