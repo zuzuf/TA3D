@@ -1,15 +1,21 @@
 function sleep(delay)
-    __sleep(delay)
-    coroutine.yield()
+    coroutine.yield(delay, 1)
 end
 
 function wait()
-    __wait()
-    coroutine.yield()
+    coroutine.yield(0, 2)
+end
+
+function end_thread()
+    coroutine.yield(0, 4)
 end
 
 function yield()
     coroutine.yield()
+end
+
+function set_signal_mask(sig)
+    coroutine.yield(sig, 3)
 end
 
 function vector()
@@ -98,5 +104,17 @@ function set_cam_mode( mode )
         if mode == CAM_FREE_MODE then
             game_signal( SIGNAL_FREECAM )
         end
+    end
+end
+
+function wait_for_move(obj, axis)
+    while is_moving(obj, axis) do
+        coroutine.yield()
+    end
+end
+
+function wait_for_turn(obj, axis)
+    while is_turning(obj, axis) do
+        coroutine.yield()
     end
 end

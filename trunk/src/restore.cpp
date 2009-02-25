@@ -33,15 +33,23 @@
 
 #define SAVE( i )	gzwrite( file, &(i), sizeof( i ) )
 #define LOAD( i )	gzread( file, &(i), sizeof( i ) )
-inline char *readstring( char *str, int limit, gzFile file )
+inline String readstring( gzFile file )
 {
-    for (int f = 0; f < limit - 1; ++f)
+    String ret;
+    for (int f = 0; f < 1024; ++f)
     {
-        str[f] = gzgetc(file);
-        if (str[f] == 0)
+        char c = (char)gzgetc(file);
+        if (c == 0)
             break;
+        ret << c;
     }
-    return str;
+    return ret;
+}
+
+inline void writestring( gzFile file, const String &str )
+{
+    gzputs( file, str.c_str() );
+    gzputc( file, 0 );
 }
 
 gzFile TA3D_gzopen(const String &FileName, const String Mode)
@@ -81,30 +89,25 @@ void save_game( const String filename, GameData *game_data )
 
     //----- Save game information --------------------------------------------------------------
 
-    gzputs( file, game_data->map_filename.c_str() );	gzputc( file, 0 );
-    gzputs( file,game_data->game_script.c_str() );	    gzputc( file, 0 );
+    writestring( file, game_data->map_filename );
+    writestring( file, game_data->game_script );
 
     gzputc( file, game_data->fog_of_war );			// flags to configure FOW
     gzputc( file, game_data->campaign );			// Are we in campaign mode ?
     if( !game_data->use_only.empty() )			// The use only file to read
-        gzputs( file, game_data->use_only.c_str() );
-    gzputc( file, 0 );
+        writestring( file, game_data->use_only );
+    else
+        gzputc( file, 0 );
 
     SAVE( game_data->nb_players );
     SAVE( game_data->max_unit_per_player );
 
     // Palyer names
     for (String::Vector::const_iterator i = game_data->player_names.begin(); i != game_data->player_names.end(); ++i)
-    {
-        gzputs(file, i->c_str());
-        gzputc(file, 0);
-    }
+        writestring(file, *i);
     // Player sides
     for (String::Vector::const_iterator i = game_data->player_sides.begin(); i != game_data->player_sides.end(); ++i)
-    {
-        gzputs(file, i->c_str());
-        gzputc(file, 0);
-    }
+        writestring(file, *i);
     // Player control
     for (std::vector<byte>::const_iterator i = game_data->player_control.begin(); i != game_data->player_control.end(); ++i)
         gzputc(file, *i);
@@ -115,8 +118,8 @@ void save_game( const String filename, GameData *game_data )
     for (std::vector<uint16>::iterator i = game_data->team.begin(); i != game_data->team.end(); ++i)
         SAVE(*i);
     // AI Levels
-    for (std::vector<byte>::const_iterator i = game_data->ai_level.begin(); i != game_data->ai_level.end(); ++i)
-        gzputc(file, *i);
+    for (std::vector<String>::const_iterator i = game_data->ai_level.begin(); i != game_data->ai_level.end(); ++i)
+        writestring(file, *i);
     // Energy
     for (std::vector<uint32>::iterator i = game_data->energy.begin(); i != game_data->energy.end(); ++i)
         SAVE(*i);
@@ -173,8 +176,7 @@ void save_game( const String filename, GameData *game_data )
         SAVE( features.feature[i].type );
         if( features.feature[i].type >= 0 )
         {
-            gzputs(file, feature_manager.feature[features.feature[i].type].name.c_str());		// Store the name so it doesn't rely on the feature order
-            gzputc(file, 0);
+            writestring(file, feature_manager.feature[features.feature[i].type].name);		// Store the name so it doesn't rely on the feature order
             SAVE( features.feature[i].Pos );
             SAVE( features.feature[i].frame );
             SAVE( features.feature[i].hp );
@@ -210,8 +212,7 @@ void save_game( const String filename, GameData *game_data )
         SAVE( weapons.weapon[i].weapon_id );
         if( weapons.weapon[i].weapon_id == -1 )	continue;
 
-        gzputs(file, weapon_manager.weapon[weapons.weapon[i].weapon_id].internal_name.c_str());
-        gzputc(file, 0);
+        writestring(file, weapon_manager.weapon[weapons.weapon[i].weapon_id].internal_name);
 
         SAVE( weapons.weapon[i].Pos );
         SAVE( weapons.weapon[i].V );
@@ -258,8 +259,7 @@ void save_game( const String filename, GameData *game_data )
 
         SAVE( units.unit[i].ID );		// Store its ID so we don't lose its "name"
 
-        gzputs(file, unit_manager.unit_type[units.unit[i].type_id]->Unitname.c_str());		// Store the name so it doesn't rely on the feature order
-        gzputc(file, 0);
+        writestring(file, unit_manager.unit_type[units.unit[i].type_id]->Unitname);		// Store the name so it doesn't rely on the feature order
 
         int g = units.unit[i].s_var->size();
         SAVE( g );
@@ -430,10 +430,14 @@ void save_game( const String filename, GameData *game_data )
             SAVE( f->wait );
             SAVE( f->running );
 
-            for( SCRIPT_STACK *stack = f->stack ; stack ; stack = stack->next)
+            std::stack<int> rStack;
+            for(std::stack<int> sStack = f->sStack ; !sStack.empty() ; sStack.pop())
+                rStack.push( sStack.top() );
+            for( ; !rStack.empty() ; rStack.pop())
             {
                 gzputc(file, 1);
-                SAVE( stack->val );
+                int val = rStack.top();
+                SAVE( val );
             }
             gzputc(file, 0);
 
@@ -521,28 +525,22 @@ bool load_game_data( const String filename, GameData *game_data, bool loading )
 
     //----- Load game information --------------------------------------------------------------
 
-    readstring( tmp, 1024, file );
-    strcat( tmp, ".tnt" );
-    game_data->map_filename = tmp;
-    game_data->game_script = readstring( tmp, 1024, file );
+    game_data->map_filename = readstring( file ) << ".tnt";
+    game_data->game_script = readstring( file );
 
     game_data->fog_of_war = gzgetc( file );			// flags to configure FOW
     game_data->campaign = gzgetc( file );			// Are we in campaign mode ?
-    readstring( tmp, 1024, file );
-    if( tmp[0] )
-        game_data->use_only = tmp;
-    else
-        game_data->use_only = "";
+    game_data->use_only = readstring( file );
 
     LOAD( game_data->nb_players );
     LOAD( game_data->max_unit_per_player );
 
     // Palyer names
     for (String::Vector::iterator i = game_data->player_names.begin(); i != game_data->player_names.end(); ++i)
-        *i = readstring( tmp, 1024, file );
+        *i = readstring( file );
     // Player sides
     for (String::Vector::iterator i = game_data->player_sides.begin(); i != game_data->player_sides.end(); ++i)
-        *i = readstring( tmp, 1024, file );
+        *i = readstring( file );
     // Player control
     for (std::vector<byte>::iterator i = game_data->player_control.begin(); i != game_data->player_control.end(); ++i)
         *i = gzgetc(file);
@@ -553,8 +551,8 @@ bool load_game_data( const String filename, GameData *game_data, bool loading )
     for (std::vector<uint16>::iterator i = game_data->team.begin(); i != game_data->team.end(); ++i)
         LOAD(*i);
     // AI Levels
-    for (std::vector<byte>::iterator i = game_data->ai_level.begin(); i != game_data->ai_level.end(); ++i)
-        *i = gzgetc(file);
+    for (std::vector<String>::iterator i = game_data->ai_level.begin(); i != game_data->ai_level.end(); ++i)
+        *i = readstring(file);
     // Energy
     for (std::vector<uint32>::iterator i = game_data->energy.begin(); i != game_data->energy.end(); ++i)
         LOAD(*i);
@@ -599,12 +597,12 @@ void load_game( GameData *game_data )
 
     //----- Load game information --------------------------------------------------------------
 
-    readstring( tmp, 1024, file );				// map
-    readstring( tmp, 1024, file );				// game script
+    readstring( file );				// map
+    readstring( file );				// game script
 
     gzgetc( file );			// flags to configure FOW
     gzgetc( file );			// Are we in campaign mode ?
-    readstring( tmp, 1024, file );		// Useonly file
+    readstring( file );		// Useonly file
 
     LOAD( game_data->nb_players );		// nb players
     LOAD( game_data->max_unit_per_player );
@@ -612,10 +610,10 @@ void load_game( GameData *game_data )
 
     // Palyer names
     for (String::Vector::iterator i = game_data->player_names.begin(); i != game_data->player_names.end(); ++i)
-        *i = readstring( tmp, 1024, file );
+        *i = readstring( file );
     // Player sides
     for (String::Vector::iterator i = game_data->player_sides.begin(); i != game_data->player_sides.end(); ++i)
-        *i = readstring( tmp, 1024, file );
+        *i = readstring( file );
     // Player control
     for (std::vector<byte>::iterator i = game_data->player_control.begin(); i != game_data->player_control.end(); ++i)
         *i = gzgetc( file );
@@ -626,8 +624,8 @@ void load_game( GameData *game_data )
     for (std::vector<uint16>::iterator i = game_data->team.begin(); i != game_data->team.end(); ++i)
         LOAD(*i);
     // AI Levels
-    for (std::vector<byte>::iterator i = game_data->ai_level.begin(); i != game_data->ai_level.end(); ++i)
-        *i = gzgetc( file );
+    for (std::vector<String>::iterator i = game_data->ai_level.begin(); i != game_data->ai_level.end(); ++i)
+        *i = readstring( file );
     // Energy
     for (std::vector<uint32>::iterator i = game_data->energy.begin(); i != game_data->energy.end(); ++i)
         LOAD(*i);
@@ -699,8 +697,7 @@ void load_game( GameData *game_data )
         LOAD( features.feature[i].type );
         if( features.feature[i].type >= 0 )
         {
-            readstring( tmp, 1024, file );
-            features.feature[i].type = feature_manager.get_feature_index( tmp );
+            features.feature[i].type = feature_manager.get_feature_index( readstring( file ) );
 
             LOAD( features.feature[i].Pos );
             LOAD( features.feature[i].frame );
@@ -762,8 +759,7 @@ void load_game( GameData *game_data )
 
         LOAD( weapons.weapon[i].weapon_id );
         if( weapons.weapon[i].weapon_id == -1 )	continue;
-        readstring( tmp, 1024, file );
-        weapons.weapon[i].weapon_id = weapon_manager.get_weapon_index( tmp );
+        weapons.weapon[i].weapon_id = weapon_manager.get_weapon_index( readstring( file ) );
 
         LOAD( weapons.weapon[i].Pos );
         LOAD( weapons.weapon[i].V );
@@ -841,8 +837,7 @@ void load_game( GameData *game_data )
         uint32 ID;
         LOAD( ID );
 
-        readstring( tmp, 1024, file );
-        units.unit[i].type_id = unit_manager.get_unit_index( tmp );
+        units.unit[i].type_id = unit_manager.get_unit_index( readstring( file ) );
 
         units.unit[i].init( units.unit[i].type_id, player_id, false, true );
 
@@ -1037,15 +1032,13 @@ void load_game( GameData *game_data )
             LOAD( f->wait );
             LOAD( f->running );
 
+            while (!f->sStack.empty())
+                f->sStack.pop();
+            while (gzgetc( file ))
             {
-                f->stack = NULL;
-                SCRIPT_STACK **stack = &(f->stack);
-                while( gzgetc( file ) ) {
-                    *stack = new SCRIPT_STACK;
-                    LOAD( (*stack)->val );
-                    (*stack)->next = NULL;
-                    stack = &((*stack)->next);
-                }
+                int val;
+                LOAD( val );
+                f->sStack.push(val);
             }
 
             {

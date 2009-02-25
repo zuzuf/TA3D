@@ -34,7 +34,7 @@ namespace TA3D
     {
         pMutex.lock();
             lua_pushstring( L, value );
-            lua_getglobal( L, name );
+            lua_setglobal( L, name );
         pMutex.unlock();
     }
 
@@ -42,7 +42,7 @@ namespace TA3D
     {
         pMutex.lock();
             lua_pushnumber( L, value );
-            lua_getglobal( L, name );
+            lua_setglobal( L, name );
         pMutex.unlock();
     }
 
@@ -50,7 +50,7 @@ namespace TA3D
     {
         pMutex.lock();
             lua_pushboolean( L, value );
-            lua_getglobal( L, name );
+            lua_setglobal( L, name );
         pMutex.unlock();
     }
 

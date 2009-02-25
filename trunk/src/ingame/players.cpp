@@ -47,7 +47,7 @@ namespace TA3D
 
 
 
-    int PLAYERS::add(const String& name, char* SIDE, byte _control, int E, int M, byte AI_level, uint16 teamMask)
+    int PLAYERS::add(const String& name, char* SIDE, byte _control, int E, int M, const String &AI_level, uint16 teamMask)
     {
         if (nb_player >= TA3D_PLAYERS_HARD_LIMIT)
         {
@@ -56,7 +56,7 @@ namespace TA3D
         }
 
         LOG_INFO("Adding a new player: `" << name << "` (" << (int)nb_player << ") of `" << SIDE
-                 << "` with E=" << E << ", M=" << M);
+                 << "` with E=" << E << ", M=" << M << " AI=" << AI_level);
 
         r_metal[nb_player]          = 0;
         r_energy[nb_player]         = 0;
@@ -102,12 +102,12 @@ namespace TA3D
         {
             String filename;
             filename << "ai/" << name << ".ai";
-            if (Paths::Exists(filename)) // Charge un joueur s'il existe
+            if (Paths::Exists(filename)) // Load saved data for AI player
                 ai_command[NB_PLAYERS].load(filename, NB_PLAYERS);
             else													// Sinon crée un nouveau joueur
-                ai_command[NB_PLAYERS].change_name(name);
-            ai_command[NB_PLAYERS].player_id = NB_PLAYERS;
-            ai_command[NB_PLAYERS].AI_type = AI_level;
+                ai_command[NB_PLAYERS].changeName(name);
+            ai_command[NB_PLAYERS].setAI(AI_level);
+            ai_command[NB_PLAYERS].setPlayerID( NB_PLAYERS );
         }
         return NB_PLAYERS++;
     }
@@ -327,7 +327,7 @@ namespace TA3D
         for (byte i = 0; i < nb_player; ++i)
         {
             if (control[i] == PLAYER_CONTROL_LOCAL_AI && ai_command)
-                ai_command[i].destroyThread();
+                ai_command[i].stop();
         }
     }
 
@@ -385,12 +385,11 @@ namespace TA3D
     {
         ta3d_network = NULL;
         side_view = 0;
-        nb_player=0;
-        NB_PLAYERS=0;
-        local_human_id=-1;
+        nb_player = 0;
+        NB_PLAYERS = 0;
+        local_human_id = -1;
         clear();
         refresh();
-        map = NULL;
         nom.resize(TA3D_PLAYERS_HARD_LIMIT);
         side.resize(TA3D_PLAYERS_HARD_LIMIT);
         for (short int i = 0; i < TA3D_PLAYERS_HARD_LIMIT; ++i)
@@ -400,8 +399,8 @@ namespace TA3D
             control[i] = PLAYER_CONTROL_NONE;
             if (ai_command)
             {
-                ai_command[i].init();
-                ai_command[i].player_id = i;
+                ai_command[i].destroy();
+                ai_command[i].setPlayerID( i );
             }
             energy[i] = E;
             metal[i] = M;
@@ -432,7 +431,6 @@ namespace TA3D
 
     PLAYERS::PLAYERS()
     {
-        map = NULL;
         thread_is_running = false;
         thread_ask_to_stop = false;
 

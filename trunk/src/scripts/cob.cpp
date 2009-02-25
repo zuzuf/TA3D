@@ -69,7 +69,7 @@ namespace TA3D
 
 
 
-    void SCRIPT::load_cob(byte *data)
+    void COB_SCRIPT::load_cob(byte *data)
     {
         destroy();				// Au cas où
 
@@ -118,10 +118,7 @@ namespace TA3D
         }
     }
 
-
-
-
-    void SCRIPT::destroy()
+    void COB_SCRIPT::destroy()
     {
         names.clear();
         if (script_code)
@@ -134,7 +131,7 @@ namespace TA3D
         init();
     }
 
-    void SCRIPT::init()
+    void COB_SCRIPT::init()
     {
         names.clear();
         Data = NULL;
@@ -146,7 +143,7 @@ namespace TA3D
     }
 
 
-    int SCRIPT::findFromName(const String& name)
+    int COB_SCRIPT::findFromName(const String& name)
     {
         String nameUpper = name;
         nameUpper.toUpper();

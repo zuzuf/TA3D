@@ -16,20 +16,19 @@
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA*/
 
 /*----------------------------------------------------------\
-  |                       UnitEngine.cpp                      |
-  |    Contains the unit engine, which simulates units and    |
-  | make them interact with each other.                       |
-  |                                                           |
-  \----------------------------------------------------------*/
+|                       UnitEngine.cpp                      |
+|    Contains the unit engine, which simulates units and    |
+| make them interact with each other.                       |
+|                                                           |
+\----------------------------------------------------------*/
 
 #include "stdafx.h"
 #include "misc/math.h"
 #include "misc/matrix.h"
 #include "TA3D_NameSpace.h"
 #include "ta3dbase.h"
-#include "3do.h"					// Pour la lecture des fichiers 3D
-#include "scripts/cob.h"					// Pour la lecture et l'éxecution des scripts
-#include "tdf.h"					// Pour la gestion des éléments du jeu
+#include "3do.h"					// To handle 3D models
+#include "tdf.h"					// For map features
 #include "EngineClass.h"
 #include "UnitEngine.h"
 #include "network/TA3D_Network.h"
@@ -7712,7 +7711,7 @@ script_exec:
                 net_timer = msec_timer - net_timer;
                 for (sint8 i = 0 ; i < players.nb_player ; ++i)
                 {
-                    if (g_ta3d_network->isRemoteHuman( i ) )
+                    if (g_ta3d_network->isRemoteHuman( i ))
                         client_tick[ i ] += client_speed[ i ] * net_timer / (1000 * TICKS_PER_SEC);
                 }
 
@@ -7721,9 +7720,9 @@ script_exec:
                 network_manager.sendSpecial(format("TICK %d %d", current_tick + 1, (int)(1000.0f * apparent_timefactor) ));		// + 1 to prevent it from running too slow
                 if (current_tick > min_tick + TICKS_PER_SEC )
                 {
-                    while( current_tick > min_tick && !thread_ask_to_stop )
+                    while (current_tick > min_tick && !thread_ask_to_stop)
                     {
-                        while( lp_CONFIG->pause && !thread_ask_to_stop )            // We need this to prevent client dead lock when saving game
+                        while (lp_CONFIG->pause && !thread_ask_to_stop)            // We need this to prevent client dead lock when saving game
                         {
                             lp_CONFIG->paused = true;
                             rest(10); // in pause mode wait for pause to be false again
@@ -7735,11 +7734,11 @@ script_exec:
                         rest(1);
 
                         min_tick = current_tick * 1000;
-                        if (network_manager.isServer() )
+                        if (network_manager.isServer())
                         {
                             for(sint8 i = 0; i < players.nb_player; ++i)
                             {
-                                if (g_ta3d_network->isRemoteHuman( i ) )
+                                if (g_ta3d_network->isRemoteHuman( i ))
                                     min_tick = Math::Min(min_tick, client_tick[i]);
                             }
                         }
@@ -7747,7 +7746,7 @@ script_exec:
                         {
                             for (int i = 0; i < players.nb_player; ++i)
                             {
-                                if (g_ta3d_network->isRemoteHuman( i ) && client_tick[i] > 0 )
+                                if (g_ta3d_network->isRemoteHuman( i ) && client_tick[i] > 0)
                                     min_tick = Math::Min(min_tick, client_tick[i]);
                             }
                         }
@@ -7756,15 +7755,15 @@ script_exec:
                 }
                 else
                 {
-                    if (current_tick > min_tick )
+                    if (current_tick > min_tick)
                         tick += ( current_tick - min_tick ) * 250 / TICKS_PER_SEC;
                 }
             }
 
             unit_engine_thread_sync = 1;
-            while( unit_engine_thread_sync && !thread_ask_to_stop )
+            while (unit_engine_thread_sync && !thread_ask_to_stop)
             {
-                if (unit_engine_thread_sync && weapon_engine_thread_sync && particle_engine_thread_sync && players_thread_sync ) // Sync engine threads
+                if (unit_engine_thread_sync && weapon_engine_thread_sync && particle_engine_thread_sync && players_thread_sync) // Sync engine threads
                 {
                     unit_engine_thread_sync = 0;
                     weapon_engine_thread_sync = 0;
@@ -7785,7 +7784,7 @@ script_exec:
             last_tick[ 3 ] = last_tick[ 4 ];
             last_tick[ 4 ] = msec_timer;
 
-            if (last_tick[ 0 ] != 0 && last_tick[4] != last_tick[0] )
+            if (last_tick[ 0 ] != 0 && last_tick[4] != last_tick[0])
                 apparent_timefactor = 4000.0f / ( (last_tick[ 4 ] - last_tick[ 0 ]) * TICKS_PER_SEC );
         }
 
@@ -7800,7 +7799,5 @@ script_exec:
         if (thread_running)
             thread_ask_to_stop = true;
     }
-
-
 } // namespace TA3D
 

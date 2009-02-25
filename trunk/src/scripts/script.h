@@ -70,7 +70,67 @@ namespace TA3D
 
     void generate_script_from_mission( String Filename, TDFParser& ota_parser, int schema = 0 );
 
-
+    int program_print(lua_State *L);
+    int program_print_for(lua_State *L);
+    int program_line(lua_State *L);
+    int program_cls(lua_State *L);
+    int program_cls_for(lua_State *L);
+    int program_point(lua_State *L);
+    int program_triangle(lua_State *L);
+    int program_box(lua_State *L);
+    int program_fillbox(lua_State *L);
+    int program_circle(lua_State *L);
+    int program_time(lua_State *L);
+    int program_draw_image(lua_State *L);
+    int program_draw_image_for(lua_State *L);
+    int program_nb_players(lua_State *L);
+    int program_get_unit_number_for_player(lua_State *L);
+    int program_get_unit_owner(lua_State *L);
+    int program_get_unit_number(lua_State *L);
+    int program_get_max_unit_number(lua_State *L);
+    int program_annihilated(lua_State *L);
+    int program_has_unit(lua_State *L);
+    int program_create_unit(lua_State *L);
+    int program_change_unit_owner(lua_State *L);
+    int program_local_player(lua_State *L);
+    int program_map_w(lua_State *L);
+    int program_map_h(lua_State *L);
+    int program_player_side(lua_State *L);
+    int program_unit_x(lua_State *L);
+    int program_unit_y(lua_State *L);
+    int program_unit_z(lua_State *L);
+    int program_move_unit(lua_State *L);
+    int program_kill_unit(lua_State *L);
+    int program_kick_unit(lua_State *L);
+    int program_play(lua_State *L);
+    int program_play_for(lua_State *L);
+    int program_set_cam_pos(lua_State *L);
+    int program_clf(lua_State *L);
+    int program_start_x(lua_State *L);
+    int program_start_z(lua_State *L);
+    int program_init_res(lua_State *L);
+    int program_give_metal(lua_State *L);
+    int program_give_energy(lua_State *L);
+    int program_commander(lua_State *L);
+    int program_attack(lua_State *L);
+    int program_set_unit_health(lua_State *L);
+    int program_get_unit_health(lua_State *L);
+    int program_is_unit_of_type(lua_State *L);
+    int program_add_build_mission(lua_State *L);
+    int program_add_move_mission(lua_State *L);
+    int program_add_attack_mission(lua_State *L);
+    int program_add_patrol_mission(lua_State *L);
+    int program_add_wait_mission(lua_State *L);
+    int program_add_wait_attacked_mission(lua_State *L);
+    int program_add_guard_mission(lua_State *L);
+    int program_set_standing_orders(lua_State *L);
+    int program_unlock_orders(lua_State *L);
+    int program_lock_orders(lua_State *L);
+    int program_nb_unit_of_type(lua_State *L);
+    int program_create_feature(lua_State *L);
+    int program_has_mobile_units(lua_State *L);
+    int program_send_signal(lua_State *L);
+    int program_allied(lua_State *L);
 } // namespace TA3D
 
 #endif

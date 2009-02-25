@@ -58,11 +58,6 @@ namespace TA3D
         /*!
         ** \brief
         */
-        void set_map(MAP *p_map) {map = p_map;}
-
-        /*!
-        ** \brief
-        */
         void player_control();
 
         /*!
@@ -83,7 +78,7 @@ namespace TA3D
         /*!
         ** \brief
         */
-        int add(const String& name, char *SIDE, byte _control, int E = 10000, int M = 10000, byte AI_level = AI_TYPE_EASY, uint16 teamMask = 0);
+        int add(const String& name, char *SIDE, byte _control, int E = 10000, int M = 10000, const String &AI_level = String("[C] EASY"), uint16 teamMask = 0);
 
         /*!
         ** \brief
@@ -205,8 +200,6 @@ namespace TA3D
         uint32 last_ticksynced;
         //!
         TA3DNetwork* ta3d_network;
-        //!
-        MAP* map;
         //!
         bool thread_is_running;
         //!

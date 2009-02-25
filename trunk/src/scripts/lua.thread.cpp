@@ -27,7 +27,9 @@ namespace TA3D
 {
     LUA_THREAD *lua_threadID( lua_State *L )
     {
-        LUA_THREAD *p = (LUA_THREAD*) lua_touserdata( L, 1 );
+        lua_getfield(L, LUA_REGISTRYINDEX, "threadID");
+        LUA_THREAD *p = (LUA_THREAD*) lua_touserdata( L, -1 );
+        lua_pop(L, 1);
         return p;
     }
 
@@ -68,13 +70,13 @@ namespace TA3D
     void lua_pushcolor( lua_State *L, const uint32 color )
     {
         lua_newtable(L);
-        lua_pushnumber(L, getr(color));
+        lua_pushinteger(L, getr(color));
         lua_setfield(L, -2, "r");
-        lua_pushnumber(L, getg(color));
+        lua_pushinteger(L, getg(color));
         lua_setfield(L, -2, "g");
-        lua_pushnumber(L, getb(color));
+        lua_pushinteger(L, getb(color));
         lua_setfield(L, -2, "b");
-        lua_pushnumber(L, geta(color));
+        lua_pushinteger(L, geta(color));
         lua_setfield(L, -2, "a");
     }
 
@@ -82,22 +84,22 @@ namespace TA3D
     {
         uint32 r,g,b,a;
         lua_getfield(L, idx, "r");
-        r = (uint32) lua_tonumber(L, -1);
+        r = (uint32) lua_tointeger(L, -1);
         lua_pop(L, 1);
 
         lua_getfield(L, idx, "g");
-        g = (uint32) lua_tonumber(L, -1);
+        g = (uint32) lua_tointeger(L, -1);
         lua_pop(L, 1);
 
         lua_getfield(L, idx, "b");
-        b = (uint32) lua_tonumber(L, -1);
+        b = (uint32) lua_tointeger(L, -1);
         lua_pop(L, 1);
 
         lua_getfield(L, idx, "a");
         if (lua_isnil(L, -1))
             a = 0xFF;
         else
-            a = (uint32) lua_tonumber(L, -1);
+            a = (uint32) lua_tointeger(L, -1);
         lua_pop(L, 1);
 
         return makeacol(r,g,b,a);
@@ -106,7 +108,7 @@ namespace TA3D
     void LUA_THREAD::kill()
     {
         pMutex.lock();
-        destroy();
+        running = false;
         pMutex.unlock();
     }
 
@@ -128,6 +130,9 @@ namespace TA3D
 
     void LUA_THREAD::init()
     {
+        caller = NULL;
+
+        signal_mask = 0;
         running = false;
 
         buffer = NULL;
@@ -142,7 +147,8 @@ namespace TA3D
 
     void LUA_THREAD::destroy()
     {
-        if ( L )
+        join();
+        if ( L && caller == NULL )
             lua_close( L );
         if ( buffer )
             delete[] buffer;
@@ -207,7 +213,8 @@ namespace TA3D
         {
             L = lua_open();				// Create a lua state object
 
-            if (L == NULL ) {
+            if (L == NULL)
+            {
                 running = false;
                 delete[] buffer;
                 buffer = NULL;
@@ -220,10 +227,6 @@ namespace TA3D
 
             register_basic_functions();
             register_functions();
-
-			lua_pushlightuserdata( L, (void*)this );            // The pointer itself
-			lua_insert( L, 0 );				                    // Save this at the first position on the stack :), this identifies the
-                                                                // LUA_THREAD associated with this Lua_State object
 
             uint32 filesize2 = 0;
             byte *header_buffer = loadLuaFile("scripts/ta3d.h" , filesize2);
@@ -247,7 +250,8 @@ namespace TA3D
             filesize += filesize2;
             delete[] header_buffer;
 
-            if (luaL_loadbuffer(L, (const char*)buffer, filesize, "main" ))
+            name = filename;
+            if (luaL_loadbuffer(L, (const char*)buffer, filesize, name.c_str() ))
             {
                 if (lua_tostring( L, -1 ) != NULL && strlen(lua_tostring( L, -1 )) > 0)
                     LOG_ERROR(LOG_PREFIX_LUA << lua_tostring( L, -1));
@@ -259,13 +263,65 @@ namespace TA3D
                 buffer = NULL;
             }
             else
+            {
+                // This may not help debugging
+                delete[] buffer;
+                buffer = NULL;
+
                 running = true;
+                setThreadID();
+            }
         }
         else
         {
             LOG_ERROR(LOG_PREFIX_LUA << "Failed opening `" << filename << "`");
             running = false;
         }
+    }
+
+    void LUA_THREAD::load(LUA_CHUNK *chunk)
+    {
+        destroy();
+        if (chunk)
+        {
+            L = lua_open();				// Create a lua state object
+
+            if (L == NULL)
+            {
+                running = false;
+                delete[] buffer;
+                buffer = NULL;
+                return;
+            }
+
+            lua_gc( L, LUA_GCSTOP, 0 );		// Load libraries
+            luaL_openlibs( L );
+            lua_gc( L, LUA_GCRESTART, 0 );
+
+            register_basic_functions();
+            register_functions();
+
+            name = chunk->getName();
+            if (chunk->load(L))
+            {
+                if (lua_tostring( L, -1 ) != NULL && strlen(lua_tostring( L, -1 )) > 0)
+                    LOG_ERROR(LOG_PREFIX_LUA << lua_tostring( L, -1));
+
+                running = false;
+                lua_close( L );
+                L = NULL;
+            }
+            else
+            {
+                running = true;
+                setThreadID();
+            }
+        }
+    }
+
+    LUA_CHUNK *LUA_THREAD::dump()
+    {
+        return new LUA_CHUNK(L, name);
     }
 
     int thread_logmsg( lua_State *L )		// logmsg( str )
@@ -307,20 +363,31 @@ namespace TA3D
         return 1;
     }
 
-    int thread_wait( lua_State *L )			// __wait()
+    int thread_signal( lua_State *L )       // signal( sig )
     {
         LUA_THREAD *lua_thread = lua_threadID(L);
         if (lua_thread)
-            lua_thread->stop();
+            lua_thread->processSignal( lua_tointeger(L, -1) );
+        lua_pop(L, 1);
         return 0;
     }
 
-    int thread_sleep( lua_State *L )			// __sleep( time )
+    int thread_start_script( lua_State *L )         // start_script( function, params )
     {
-        LUA_THREAD *lua_thread = lua_threadID(L);
-        if (lua_thread)
-            lua_thread->sleep( (float) lua_tonumber( L, -1 ) );
-        lua_pop( L, 1 );
+        int n = 1;
+        while(!lua_isnone(L, -n) && !lua_isfunction(L, -n))
+            n++;
+
+        if (lua_isfunction(L, -n))
+        {
+            LUA_THREAD *lua_thread = lua_threadID(L);
+            if (lua_thread)
+            {
+                LUA_THREAD *newThread = lua_thread->fork(L, n);
+                newThread->setSignalMask( lua_thread->getSignalMask() );
+            }
+        }
+
         return 0;
     }
 
@@ -332,8 +399,8 @@ namespace TA3D
         lua_register( L, "mouse_z", thread_mouse_z );
         lua_register( L, "mouse_b", thread_mouse_b );
         lua_register( L, "time", thread_time );
-        lua_register( L, "__wait", thread_wait );
-        lua_register( L, "__sleep", thread_sleep );
+        lua_register( L, "signal", thread_signal );
+        lua_register( L, "start_script", thread_start_script );
         LUA_ENV::register_global_functions( L );
     }
 
@@ -341,7 +408,19 @@ namespace TA3D
     {
         MutexLocker mLocker( pMutex );
 
-        if (!running)   return -1;
+        if (caller == NULL)
+        {
+            clean();
+            for(int i = 0 ; i < childs.size() ; i++)
+            {
+                int sig = childs[i]->run(dt);
+                if (sig > 0 || sig < -3)
+                    return sig;
+            }
+        }
+
+        if (!is_running())   return -1;
+        if (!running)   return 0;
         if (waiting)    return -3;
 
         if (sleeping)
@@ -367,16 +446,34 @@ namespace TA3D
             else
             {
                 running = true;
-                if (!lua_isfunction(L, -1))
+                result = 0;
+                while(!lua_isnone(L, -1) && !lua_isfunction(L, -1))
                 {
-                    result = 0;
-                    while(!lua_isnone(L, -1) && !lua_isfunction(L, -1))
+                    switch(result)
                     {
-                        if (lua_isnumber(L, -1))
-                            result = lua_tointeger(L, -1);
-                    }
-                    return result;
+                    case 0:
+                        result = lua_tointeger(L, -1);
+                        break;
+                    case 1:             // sleep
+                        sleep( (float)lua_tonumber(L, -1) );
+                        result = 0;
+                        break;
+                    case 2:             // wait
+                        stop();
+                        result = 0;
+                        break;
+                    case 3:             // set_signal_mask
+                        setSignalMask( lua_tointeger(L, -1) );
+                        result = 0;
+                        break;
+                    case 4:             // end_thread
+                        kill();
+                        result = 0;
+                        break;
+                    };
+                    lua_pop(L, 1);
                 }
+                return result;
             }
         }
         catch(...)
@@ -404,29 +501,37 @@ namespace TA3D
             run();
             rest(1);
         }
+        pDead = 1;
     }
 
     LUA_THREAD *LUA_THREAD::fork()
     {
+        pMutex.lock();
+
         LUA_THREAD *newThread = new LUA_THREAD();
 
         newThread->running = false;
         newThread->buffer = NULL;
         newThread->sleeping = false;
         newThread->sleep_time = 0.0f;
+        newThread->caller = (caller != NULL) ? caller : this;
         newThread->L = lua_newthread(L);
-        lua_pushlightuserdata( newThread->L, (void*)newThread );    // The pointer itself
-        lua_insert( newThread->L, 0 );				                // Save this at the first position on the stack :), this identifies the
-                                                                    // LUA_THREAD associated with this Lua_State object
+        lua_pop(L, 1);                  // We don't want to keep this thread value on top of the stack
+        addThread(newThread);
 
+        pMutex.unlock();
         return newThread;
     }
 
     LUA_THREAD *LUA_THREAD::fork(const String &functionName, int *parameters, int nb_params)
     {
+        pMutex.lock();
+
         LUA_THREAD *newThread = fork();
         if (newThread)
             newThread->call(functionName, parameters, nb_params);
+
+        pMutex.unlock();
         return newThread;
     }
 
@@ -487,5 +592,106 @@ namespace TA3D
         int result = (int) lua_tointeger( L, -1 );          // Read the result
         lua_pop( L, 1 );
         return result;
+    }
+
+    void LUA_THREAD::addThread(LUA_THREAD *pChild)
+    {
+        if (caller == pChild) return;
+        MutexLocker mLock(pMutex);
+        if (caller)
+            caller->addThread(pChild);
+        else
+        {
+            if (pChild == this) return;
+            removeThread(pChild);
+            childs.push_back(pChild);
+        }
+    }
+
+    void LUA_THREAD::removeThread(LUA_THREAD *pChild)
+    {
+        if (caller == pChild) return;
+        MutexLocker mLock(pMutex);
+        if (caller)
+            caller->removeThread(pChild);
+        else
+            for(std::vector<LUA_THREAD*>::iterator i = childs.begin() ; i != childs.end() ; ++i)
+                if (*i == pChild)
+                {
+                    delete *i;
+                    childs.erase(i);
+                    return;
+                }
+    }
+
+    void LUA_THREAD::processSignal(uint32 signal)
+    {
+        MutexLocker mLock(pMutex);
+        if (caller)
+            caller->processSignal(signal);
+        else
+        {
+            if (signal == signal_mask)
+                kill();
+            for(std::vector<LUA_THREAD*>::iterator i = childs.begin() ; i != childs.end() ; )
+                if ((*i)->signal_mask == signal)
+                {
+                    delete *i;
+                    i = childs.erase(i);
+                }
+                else
+                    ++i;
+        }
+    }
+
+    void LUA_THREAD::setSignalMask(uint32 signal)
+    {
+        lock();
+        signal_mask = signal;
+        unlock();
+    }
+
+    void LUA_THREAD::clean()
+    {
+        MutexLocker mLock(pMutex);
+        if (caller)
+            caller->clean();
+        else
+            for(std::vector<LUA_THREAD*>::iterator i = childs.begin() ; i != childs.end() ; )
+                if (!(*i)->is_running())
+                {
+                    delete *i;
+                    i = childs.erase(i);
+                }
+                else
+                    ++i;
+    }
+
+    uint32 LUA_THREAD::getSignalMask()
+    {
+        return signal_mask;
+    }
+
+    LUA_THREAD *LUA_THREAD::fork(lua_State *cL, int n)
+    {
+        pMutex.lock();
+
+        LUA_THREAD *newThread = fork();
+
+        lua_xmove(cL, newThread->L, n);
+        newThread->n_args = n - 1;
+        newThread->running = true;
+
+        pMutex.unlock();
+        return newThread;
+    }
+
+    void LUA_THREAD::setThreadID()
+    {
+        lua_pushlightuserdata( L, (void*)this );            // The pointer itself
+        lua_setfield(L, LUA_REGISTRYINDEX, "threadID");     // Save this at the first position on the stack :), this identifies the
+                                                            // LUA_THREAD associated with this Lua_State object
+        if (lua_threadID(L) == NULL)
+            LOG_ERROR(LOG_PREFIX_LUA << "impossible to write LUA_THREAD pointer into Lua_State stack !!");
     }
 }

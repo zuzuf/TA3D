@@ -9,7 +9,7 @@
 	height=1024;
 	draw borders=false;
 	show title=false;
-	number of objects=169;
+	number of objects=159;
 	hidden=false;
 	lock=true;
 	color=0x00000000;			// Fully transparent so we can see the AREA background
@@ -588,203 +588,113 @@
 		highlight=true;
 	}
 //------------ AI --------------
-	[object53]		// box0
+	[object53]		// ai0
 	{
-		name=b_ai0;
-		type=BOX;
+		name=ai0;
+		type=MENU;
 		x1=360;
 		y1=200;
 		x2=520;
 		y2=240;
-		value=0x0;
-		highlight=true;
-	}
-	[object54]		// ai0
-	{
-		name=ai0;
-		type=TEXT;
-		x1=360;
-		y1=200;
 		size=2;
 		value=0xFFFFFFFF;
 	}
-	[object55]		// box1
+	[object54]		// ai1
 	{
-		name=b_ai1;
-		type=BOX;
+		name=ai1;
+		type=MENU;
 		x1=360;
 		y1=240;
 		x2=520;
 		y2=280;
-		value=0x0;
-		highlight=true;
-	}
-	[object56]		// ai1
-	{
-		name=ai1;
-		type=TEXT;
-		x1=360;
-		y1=240;
 		size=2;
 		value=0xFFFFFFFF;
 	}
-	[object57]		// box2
+	[object55]		// ai2
 	{
-		name=b_ai2;
-		type=BOX;
+		name=ai2;
+		type=MENU;
 		x1=360;
 		y1=280;
 		x2=520;
 		y2=320;
-		value=0x0;
-		highlight=true;
-	}
-	[object58]		// ai2
-	{
-		name=ai2;
-		type=TEXT;
-		x1=360;
-		y1=280;
 		size=2;
 		value=0xFFFFFFFF;
 	}
-	[object59]		// box3
+	[object56]		// ai3
 	{
-		name=b_ai3;
-		type=BOX;
+		name=ai3;
+		type=MENU;
 		x1=360;
 		y1=320;
 		x2=520;
 		y2=360;
-		value=0x0;
-		highlight=true;
-	}
-	[object60]		// ai3
-	{
-		name=ai3;
-		type=TEXT;
-		x1=360;
-		y1=320;
 		size=2;
 		value=0xFFFFFFFF;
 	}
-	[object61]		// box4
+	[object57]		// ai4
 	{
-		name=b_ai4;
-		type=BOX;
+		name=ai4;
+		type=MENU;
 		x1=360;
 		y1=360;
 		x2=520;
 		y2=400;
-		value=0x0;
-		highlight=true;
-	}
-	[object62]		// ai4
-	{
-		name=ai4;
-		type=TEXT;
-		x1=360;
-		y1=360;
 		size=2;
 		value=0xFFFFFFFF;
 	}
-	[object63]		// box5
+	[object58]		// ai5
 	{
-		name=b_ai5;
-		type=BOX;
+		name=ai5;
+		type=MENU;
 		x1=360;
 		y1=400;
 		x2=520;
 		y2=440;
-		value=0x0;
-		highlight=true;
-	}
-	[object64]		// ai5
-	{
-		name=ai5;
-		type=TEXT;
-		x1=360;
-		y1=400;
 		size=2;
 		value=0xFFFFFFFF;
 	}
-	[object65]		// box6
+	[object59]		// ai6
 	{
-		name=b_ai6;
-		type=BOX;
+		name=ai6;
+		type=MENU;
 		x1=360;
 		y1=440;
 		x2=520;
 		y2=480;
-		value=0x0;
-		highlight=true;
-	}
-	[object66]		// ai6
-	{
-		name=ai6;
-		type=TEXT;
-		x1=360;
-		y1=440;
 		size=2;
 		value=0xFFFFFFFF;
 	}
-	[object67]		// box7
+	[object60]		// ai7
 	{
-		name=b_ai7;
-		type=BOX;
+		name=ai7;
+		type=MENU;
 		x1=360;
 		y1=480;
 		x2=520;
 		y2=520;
-		value=0x0;
-		highlight=true;
-	}
-	[object68]		// ai7
-	{
-		name=ai7;
-		type=TEXT;
-		x1=360;
-		y1=480;
 		size=2;
 		value=0xFFFFFFFF;
 	}
-	[object69]		// box8
+	[object61]		// ai8
 	{
-		name=b_ai8;
-		type=BOX;
+		name=ai8;
+		type=MENU;
 		x1=360;
 		y1=520;
 		x2=520;
 		y2=560;
-		value=0x0;
-		highlight=true;
-	}
-	[object70]		// ai8
-	{
-		name=ai8;
-		type=TEXT;
-		x1=360;
-		y1=520;
 		size=2;
 		value=0xFFFFFFFF;
 	}
-	[object71]		// box9
+	[object62]		// ai9
 	{
-		name=b_ai9;
-		type=BOX;
+		name=ai9;
+		type=MENU;
 		x1=360;
 		y1=560;
 		x2=520;
 		y2=600;
-		value=0x0;
-		highlight=true;
-	}
-	[object72]		// ai9
-	{
-		name=ai9;
-		type=TEXT;
-		x1=360;
-		y1=560;
 		size=2;
 		value=0xFFFFFFFF;
 	}
@@ -1669,7 +1579,7 @@
 		help=chose your team;
 		size=1;
 	}
-	[object159]		// team4
+	[object63]		// team4
 	{
 		name=team4;
 		type=MULTISTATE;
@@ -1679,7 +1589,7 @@
 		help=chose your team;
 		size=1;
 	}
-	[object160]		// team5
+	[object64]		// team5
 	{
 		name=team5;
 		type=MULTISTATE;
@@ -1689,7 +1599,7 @@
 		help=chose your team;
 		size=1;
 	}
-	[object161]		// team6
+	[object65]		// team6
 	{
 		name=team6;
 		type=MULTISTATE;
@@ -1699,7 +1609,7 @@
 		help=chose your team;
 		size=1;
 	}
-	[object162]		// team7
+	[object66]		// team7
 	{
 		name=team7;
 		type=MULTISTATE;
@@ -1709,7 +1619,7 @@
 		help=chose your team;
 		size=1;
 	}
-	[object163]		// team8
+	[object67]		// team8
 	{
 		name=team8;
 		type=MULTISTATE;
@@ -1719,7 +1629,7 @@
 		help=chose your team;
 		size=1;
 	}
-	[object164]		// team9
+	[object68]		// team9
 	{
 		name=team9;
 		type=MULTISTATE;
@@ -1729,7 +1639,7 @@
 		help=chose your team;
 		size=1;
 	}
-	[object165]		// Units
+	[object69]		// Units
 	{
 		name=b_units;
 		type=BUTTON;
@@ -1740,7 +1650,7 @@
 		y2=133;
 		size=2;
 	}
-	[object166]		// line
+	[object70]		// line
 	{
 		type=LINE;
 		x1=110;
@@ -1749,7 +1659,7 @@
 		y2=606;
 		value=0xFF7F7F7F;
 	}
-	[object167]		// unit limit label
+	[object71]		// unit limit label
 	{
 		name=unit_limit_label;
 		type=TEXT;
@@ -1759,7 +1669,7 @@
 		size=2;
 		value=0xFFFFFFFF;
 	}
-	[object168]		// unit limit
+	[object72]		// unit limit
 	{
 		name=max_units;
 		type=MENU;
