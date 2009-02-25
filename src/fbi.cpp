@@ -315,7 +315,7 @@ namespace TA3D
         byte* data = HPIManager->PullFromHPI("scripts\\" + unit_name + ".cob");		// Lit le fichier
         if (data)
         {
-            unit_type[unit_index]->script = new SCRIPT;
+            unit_type[unit_index]->script = new COB_SCRIPT;
             unit_type[unit_index]->script->load_cob(data);
         }
         else
@@ -328,7 +328,7 @@ namespace TA3D
                 if (strstr(String::ToUpper(*file).c_str(),uprname.c_str())) 	// A trouvé un fichier qui convient
                 {
                     data = HPIManager->PullFromHPI(*file);		// Lit le fichier
-                    unit_type[unit_index]->script = new SCRIPT;
+                    unit_type[unit_index]->script = new COB_SCRIPT;
                     unit_type[unit_index]->script->load_cob(data);
                     // Don't delete[] data here because the script keeps a reference to it.
                     break;

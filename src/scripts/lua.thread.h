@@ -21,6 +21,7 @@
 # include "../misc/vector.h"
 # include "../lua/lua.hpp"
 # include "../threads/thread.h"
+# include "lua.chunk.h"
 
 namespace TA3D
 {
@@ -60,6 +61,11 @@ namespace TA3D
         bool        sleeping;       // Is the thread paused ?
         bool        waiting;        // Is the thread waiting for some user action ?
 
+        uint32      signal_mask;    // This thread will be killed as soon as it catchs this signal
+        LUA_THREAD  *caller;        // NULL if main thread
+        std::vector<LUA_THREAD*> childs;    // Child processes, empty for childs this is to keep track of running threads
+        String      name;
+
     public:
 
         LUA_THREAD();
@@ -75,11 +81,13 @@ namespace TA3D
         void resume();
 
         void load(const String &filename);                    // Load a lua script
+        void load(LUA_CHUNK *chunk);
+        LUA_CHUNK *dump();
 
         int run(float dt);                   // Run the script
         int run();                           // Run the script, using default delay
 
-        inline bool is_running() { return running; }
+        inline bool is_running() { return running || !childs.empty(); }
         inline bool is_waiting() { return waiting; }
         inline bool is_sleeping() { return sleeping; }
 
@@ -90,10 +98,23 @@ namespace TA3D
         //! functions used to create new threads sharing the same environment
         LUA_THREAD *fork();
         LUA_THREAD *fork(const String &functionName, int *parameters = NULL, int nb_params = 0);
+        LUA_THREAD *fork(lua_State *cL, int n);
+    private:
+        //! functions to manipulate the Lua processes
+        void addThread(LUA_THREAD *pChild);
+        void removeThread(LUA_THREAD *pChild);
+        void setThreadID();
+    public:
+        void clean();
+        void processSignal(uint32 signal);
+        void setSignalMask(uint32 signal);
+        uint32 getSignalMask();
+
     private:
         //! functions that register new Lua functions
         void register_basic_functions();
         virtual void register_functions()   {}
+        virtual void register_info()   {}
 
     protected:
         virtual void proc(void* param);

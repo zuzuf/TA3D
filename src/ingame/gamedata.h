@@ -75,7 +75,7 @@ namespace TA3D
         //! Network ID of players
         std::vector<int> player_network_id;
         //! What's their level (for AI)
-        std::vector<byte> ai_level;
+        std::vector<String> ai_level;
 
         //! How much energy do they have when game starts
         std::vector<uint32> energy;

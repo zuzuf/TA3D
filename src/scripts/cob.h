@@ -16,18 +16,19 @@
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA*/
 
 /*-----------------------------------------------------------------------------------\
-  |                                         cob.h                                      |
-  |  ce fichier contient les structures, classes et fonctions nécessaires à la lecture |
-  | et à l'éxecution des fichiers cob du jeu totalannihilation qui sont les scripts    |
-  | qui permettent d'animer les modèles 3d du jeu.(cela inclus également les classes   |
-  | de gestion des unités).                                                            |
-  |                                                                                    |
-  \-----------------------------------------------------------------------------------*/
+|                                         cob.h                                      |
+|  ce fichier contient les structures, classes et fonctions nécessaires à la lecture |
+| et à l'éxecution des fichiers cob du jeu totalannihilation qui sont les scripts    |
+| qui permettent d'animer les modèles 3d du jeu.(cela inclus également les classes   |
+| de gestion des unités).                                                            |
+|                                                                                    |
+\-----------------------------------------------------------------------------------*/
 
-#ifndef __CLASSE_COB
-# define  __CLASSE_COB
+#ifndef __COB_H__
+# define  __COB_H__
 
 # include "../stdafx.h"
+# include <stack>
 
 
 # define  SCRIPT_MOVE_OBJECT              0x10001000
@@ -79,7 +80,7 @@
 # define  SCRIPT_GET                      0x10043000  //added
 # define  SCRIPT_SET_VALUE                0x10082000  //added
 # define  SCRIPT_ATTACH_UNIT              0x10083000  //added
-# define  SCRIPT_DROP_UNIT                0x10084000  //added    
+# define  SCRIPT_DROP_UNIT                0x10084000  //added
 
 # define  ACTIVATION          1   // set or get
 # define  STANDINGMOVEORDERS  2   // set or get
@@ -116,11 +117,11 @@
 namespace TA3D
 {
 
-    class SCRIPT            // Classe gérant le stockage et l'éxecution des scripts
+    class COB_SCRIPT            // Classe gérant le stockage et l'éxecution des scripts
     {
     public:
-        SCRIPT() {init();}
-        ~SCRIPT() {destroy();}
+        inline COB_SCRIPT()     {init();}
+        inline ~COB_SCRIPT()    {destroy();}
 
         void init();
         void destroy();
@@ -144,21 +145,6 @@ namespace TA3D
         int     *dec_offset;
 
     }; // class SCRIPT
-
-
-    /*!
-    ** \todo This class must be removed. A std::deque<int> or std::slits<int> will be good enough...
-    */
-    class SCRIPT_STACK          // Structure pour gérer la liste de la pile permettant l'éxecution des scripts
-    {
-    public:
-        SCRIPT_STACK() :val(0), next(NULL) {}
-
-        int                 val;            // Entier
-        SCRIPT_STACK        *next;          // pointeur vers l'élément suivant
-
-    }; // class SCRIPT_STACK
-
 
 } // namespace TA3D
 

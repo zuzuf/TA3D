@@ -139,7 +139,6 @@ namespace TA3D
 
         /*---------------------------- players management --------------------------*/
 
-        players.set_map(map.get());
         players.start();
 
 		// Here we go Commander !
@@ -1521,7 +1520,13 @@ namespace TA3D
                     // Dessine les objets produits par les armes / draw weapons
                     weapons.draw(map.get());
                     // Dessine les particules
+                    refcam.setView(true);
+                    glClipPlane(GL_CLIP_PLANE1, eqn);
+
                     particle_engine.draw(&refcam, map->map_w, map->map_h, map->bloc_w, map->bloc_h, map->view);
+
+                    refcam.setView();
+                    glClipPlane(GL_CLIP_PLANE1, eqn);
                     // Effets spéciaux en surface / fx above water
                     fx_manager.draw(refcam, map.get(), map->sealvl);
                 }

@@ -16,11 +16,11 @@
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA*/
 
 /*----------------------------------------------------------\
-  |                         UnitEngine.h                      |
-  |    Contains the unit engine, which simulates units and    |
-  | make them interact with each other.                       |
-  |                                                           |
-  \----------------------------------------------------------*/
+|                         UnitEngine.h                      |
+|    Contains the unit engine, which simulates units and    |
+| make them interact with each other.                       |
+|                                                           |
+\----------------------------------------------------------*/
 
 #ifndef __UNITENGINE_CLASS
 # define __UNITENGINE_CLASS
@@ -32,11 +32,7 @@
 # include <list>
 # include <vector>
 # include "misc/recttest.h"
-
-
-# define UNPACKX(xz) ((sint16)((xz)>>16))
-# define UNPACKZ(xz) ((sint16)((xz)&0xFFFF))
-# define PACKXZ(x,z) ((((int)(x))<<16) | (((int)(z))&0xFFFF))
+# include "scripts/cob.vm.h"
 
 
 # define MISSION_FLAG_CAN_ATTACK		0x01
@@ -73,12 +69,7 @@ namespace TA3D
 {
     extern int MAX_UNIT_PER_PLAYER;
 
-    void *create_unit(int type_id,int owner,Vector3D pos,MAP *map,bool sync=true,bool script=false);
-
-
-
-
-
+    void *create_unit(int type_id, int owner, Vector3D pos, MAP *map, bool sync = true, bool script = false);
 
     struct MISSION			// Structure pour stocker les ordres
     {
@@ -95,95 +86,6 @@ namespace TA3D
         uint32		target_ID;	// Identify a target unit
         int			move_data;	// Required data for the moving part of the order
         uint16		node;		// Tell which patrol node is this mission
-    };
-
-    class SCRIPT_ENV_STACK			// Pile pour la gestion des scripts
-    {
-    public:
-        int					var[15];
-        uint32				signal_mask;
-        sint32				cur;
-        SCRIPT_ENV_STACK	*next;
-
-        inline void init()
-        {
-            for(uint8 i=0;i<15;i++)
-                var[i]=0;
-            cur=0;
-            signal_mask=0;
-            next=NULL;
-        }
-
-        inline SCRIPT_ENV_STACK()
-        {
-            init();
-        }
-    };
-
-    class SCRIPT_ENV			// Classe pour la gestion de l'environnement des scripts
-    {
-    public:
-        SCRIPT_STACK		*stack;			// Pile utilisée par les scripts
-        SCRIPT_ENV_STACK	*env;			// Pile d'éxecution des scripts
-        float				wait;
-        bool				running;
-
-        inline void init()
-        {
-            stack=NULL;
-            env=NULL;
-            wait=0.0f;
-            running=false;
-        }
-
-        SCRIPT_ENV()
-        {
-            init();
-        }
-
-        inline void destroy()
-        {
-            while(stack) {
-                SCRIPT_STACK *next=stack->next;
-                delete stack;
-                stack=next;
-            }
-            while(env) {
-                SCRIPT_ENV_STACK *next=env->next;
-                delete env;
-                env=next;
-            }
-            init();
-        }
-
-        inline ~SCRIPT_ENV()
-        {
-            //		destroy();
-        }
-
-        inline void push(int v)
-        {
-            SCRIPT_STACK *new_stack=new SCRIPT_STACK;
-            new_stack->next=stack;
-            stack=new_stack;
-            stack->val=v;
-        }
-
-        inline int pop()
-        {
-            if (stack==NULL)// Si la pile est vide, renvoie 0 et un message pour le débuggage
-            {
-                # ifdef DEBUG_MODE
-                LOG_WARNING("COB VM: stack is empty !");
-                # endif
-                return 0;
-            }
-            int v=stack->val;
-            SCRIPT_STACK *old=stack;
-            stack=stack->next;
-            delete old;
-            return v;
-        }
     };
 
 #define WEAPON_FLAG_IDLE			0x0				// When IDLE the weapon can target a unit
@@ -268,6 +170,26 @@ namespace TA3D
     class UNIT	: public ObjectSync	// Classe pour la gestion des unités	/ Class to store units's data
     {
     public:
+        //! functions called from scripts (COB/BOS and Lua) (see unit.script.func module in scripts)
+    void script_explode(int obj, int explosion_type);
+    void script_turn_object(int obj, int axis, float angle, float speed);
+    void script_move_object(int obj, int axis, float pos, float speed);
+    int script_get_value_from_port(int portID, int *param = NULL);
+    void script_spin_object(int obj, int axis, float target_speed, float accel);
+    void script_show_object(int obj);
+    void script_hide_object(int obj);
+    void script_emit_sfx(int smoke_type, int from_piece);
+    void script_stop_spin(int obj, int axis, float speed);
+    void script_move_piece_now(int obj, int axis, float pos);
+    void script_turn_piece_now(int obj, int axis, float angle);
+    int script_get(int type, int v1, int v2);
+    void script_set_value(int type, int v);
+    void script_attach_unit(int unit_id, int piece_id);
+    void script_drop_unit(int unit_id);
+    bool script_is_turning(int obj, int axis);
+    bool script_is_moving(int obj, int axis);
+
+    public:
         float damage_modifier() const
         {return port[ARMORED] ? unit_manager.unit_type[type_id]->DamageModifier : 1.0f;}
 
@@ -322,7 +244,7 @@ namespace TA3D
 
         int get_script_index(const String &script_name);	 // Cherche l'indice du script dont on fournit le nom
 
-        int launch_script(int id,int nb_param=0,int *param=NULL,bool force=false);			// Start a script as a separate "thread" of the unit
+        int launch_script(int id, int nb_param = 0, int *param = NULL, bool force = false);			// Start a script as a separate "thread" of the unit
 
         bool is_running(int script_index); // Is the script still running ?
 
@@ -354,12 +276,12 @@ namespace TA3D
 
         void explode();
 
-        bool do_nothing()
+        inline bool do_nothing()
         {
             return (!mission || ((mission->mission == MISSION_STOP || mission->mission == MISSION_STANDBY || mission->mission == MISSION_VTOL_STANDBY) && mission->next == NULL)) && !port[INBUILDSTANCE];
         }
 
-        bool do_nothing_ai()
+        inline bool do_nothing_ai()
         {
             return (!mission || ((mission->mission == MISSION_STOP || mission->mission == MISSION_STANDBY || mission->mission == MISSION_VTOL_STANDBY || mission->mission == MISSION_MOVE) && !mission->next)) && !port[INBUILDSTANCE];
         }
@@ -367,7 +289,7 @@ namespace TA3D
 
 
     public:
-        SCRIPT					*script;		// Scripts concernant l'unité
+        COB_SCRIPT				*script;		// Scripts concernant l'unité
         std::vector<int>		*s_var;			// Tableau de variables pour les scripts
         MODEL					*model;			// Modèle représentant l'objet
         byte					owner_id;		// Numéro du propriétaire de l'unité
@@ -394,7 +316,7 @@ namespace TA3D
         // 64	-> landed (for planes)
         float					c_time;			// Compteur de temps entre 2 émissions de particules par une unité de construction
         bool					compute_coord;	// Indique s'il est nécessaire de recalculer les coordonnées du modèle 3d
-        std::vector< short >			*script_val;	// Tableau de valeurs retournées par les scripts
+        std::vector< short >	*script_val;	// Tableau de valeurs retournées par les scripts
         uint16					idx;			// Indice dans le tableau d'unité
         uint32					ID;				// the number of the unit (in total creation order) so we can identify it even if we move it :)
         float					h;				// Altitude (par rapport au sol)
