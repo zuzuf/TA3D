@@ -38,6 +38,8 @@
 #include "languages/i18n.h"
 #include "sounds/manager.h"
 #include "ingame/players.h"
+#include "scripts/cob.vm.h"
+#include "scripts/unit.script.h"
 
 
 
@@ -68,6 +70,26 @@ namespace TA3D
     INGAME_UNITS units;
 
 
+    String UNIT::get_script_name(int id)
+    {
+        const char *script_name[]=
+        {
+            "QueryPrimary","AimPrimary","FirePrimary",
+            "QuerySecondary","AimSecondary","FireSecondary",
+            "QueryTertiary","AimTertiary","FireTertiary",
+            "TargetCleared","stopbuilding","stop",
+            "startbuilding","go","killed",
+            "StopMoving","Deactivate","Activate",
+            "create","MotionControl","startmoving",
+            "MoveRate1","MoveRate2","MoveRate3",
+            "RequestState","TransportPickup","TransportDrop",
+            "QueryTransport","BeginTransport","EndTransport",
+            "SetSpeed","SetDirection","SetMaxReloadTime",
+            "QueryBuildInfo","SweetSpot","RockUnit",
+            "QueryLandingPad","setSFXoccupy"
+        };
+        return script_name[id];
+    }
 
 
     void UNIT::start_mission_script(int mission_type)
@@ -142,41 +164,10 @@ namespace TA3D
     }
 
 
-    void UNIT::raise_signal(uint32 signal)		// Tue les processus associés
-    {
-        SCRIPT_ENV_STACK *tmp;
-        for (int i = 0; i  < nb_running; ++i)
-        {
-            tmp = (*script_env)[i].env;
-            while (tmp)
-            {
-                if (tmp->signal_mask == signal)
-                {
-                    tmp = (*script_env)[i].env;
-                    while (tmp != NULL)
-                    {
-                        (*script_env)[i].env = tmp->next;
-                        delete tmp;
-                        tmp = (*script_env)[i].env;
-                    }
-                }
-                if (tmp)
-                    tmp=tmp->next;
-            }
-            if ((*script_env)[i].env == NULL)
-                (*script_env)[i].running=false;
-        }
-    }
-
-
     void UNIT::init_alloc_data()
     {
-        s_var = new std::vector<int>();
         port = new sint16[21];				// Ports
-        script_env = new std::vector< SCRIPT_ENV >();	// Environnements des scripts
-        script_val = new std::vector<short>();	// Tableau de valeurs retournées par les scripts
         memory = new int[TA3D_PLAYERS_HARD_LIMIT];				// Pour se rappeler sur quelles armes on a déjà tiré
-        script_idx = new char[NB_SCRIPT];	// Index of scripts to prevent multiple search
         attached_list = new short[20];
         link_list = new short[20];
         last_synctick = new uint32[TA3D_PLAYERS_HARD_LIMIT];
@@ -191,104 +182,48 @@ namespace TA3D
             self_destruct = -1.0f;
     }
 
-
-    int UNIT::get_script_index(int id)
-    {
-        if (script_idx[id] != -2)
-            return script_idx[id];
-        const char *script_name[]=
-        {
-            "QueryPrimary","AimPrimary","FirePrimary",
-            "QuerySecondary","AimSecondary","FireSecondary",
-            "QueryTertiary","AimTertiary","FireTertiary",
-            "TargetCleared","stopbuilding","stop",
-            "startbuilding","go","killed",
-            "StopMoving","Deactivate","Activate",
-            "create","MotionControl","startmoving",
-            "MoveRate1","MoveRate2","MoveRate3",
-            "RequestState","TransportPickup","TransportDrop",
-            "QueryTransport","BeginTransport","EndTransport",
-            "SetSpeed","SetDirection","SetMaxReloadTime",
-            "QueryBuildInfo","SweetSpot","RockUnit",
-            "QueryLandingPad","setSFXoccupy"
-        };
-        script_idx[id] = get_script_index(script_name[id]);
-        return script_idx[id];
-    }
-
     bool UNIT::isEnemy(const int t)
     {
         return t >= 0 && t < units.max_unit && !(players.team[units.unit[t].owner_id] & players.team[owner_id]);
     }
 
 
-    bool UNIT::is_running(int script_index)	// Is the script still running ?
-    {
-        if (script == NULL)
-            return false;
-        if (script_index < 0 || script_index >= script->nb_script)
-            return false;
-        for (int i = 0; i < nb_running; ++i)
-        {
-            if ((*script_env)[i].running && (*script_env)[i].env != NULL)
-            {
-                SCRIPT_ENV_STACK *current=(*script_env)[i].env;
-                while (current)
-                {
-                    if ((current->cur&0xFF) == script_index)
-                        return true;
-                    current = current->next;
-                }
-            }
-        }
-        return false;
-    }
-
-
-    int UNIT::get_script_index(const String &script_name)			// Cherche l'indice du script dont on fournit le nom
-    {
-        return (script) ? script->findFromName(script_name) : -1;
-    }
-
-    void UNIT::run_script_function(MAP *map, int id, int nb_param, int *param)	// Launch and run the script, returning it's values to param if not NULL
+    void UNIT::run_script_function(const String &f_name, int nb_param, int *param)	// Launch and run the script, returning it's values to param if not NULL
     {
         pMutex.lock();
-        int script_idx = launch_script( id, nb_param, param );
-        if (script_idx >= 0)
-        {
-            float dt = 1.0f / TICKS_PER_SEC;
-            for (uint16 n = 0 ; n < 10000 && (*script_env)[ script_idx ].running && (*script_env)[ script_idx ].env != NULL ; n++ ) {
-                if (nb_param > 0 && param != NULL)
-                    for (int i = 0 ; i < nb_param ; ++i)
-                        param[i] = (*script_env)[script_idx].env->var[i];
-                if (run_script(dt, script_idx, map, 1))
-                    break;
-            }
-            int e = 0;
-            for (int i = 0; i + e < nb_running; ) // Do some cleaning so we don't use all the env table with unused data
-            {
-                if ((*script_env)[i+e].running)
-                {
-                    (*script_env)[i]=(*script_env)[i+e];
-                    ++i;
-                }
-                else
-                {
-                    (*script_env)[i+e].destroy();
-                    ++e;
-                }
-            }
-            nb_running -= e;
-        }
+//        int script_idx = launch_script( id, nb_param, param );
+//        if (script_idx >= 0)
+//        {
+//            float dt = 1.0f / TICKS_PER_SEC;
+//            for (uint16 n = 0 ; n < 10000 && (*script_env)[ script_idx ].running && (*script_env)[ script_idx ].env != NULL ; n++ ) {
+//                if (nb_param > 0 && param != NULL)
+//                    for (int i = 0 ; i < nb_param ; ++i)
+//                        param[i] = (*script_env)[script_idx].env->var[i];
+//                if (run_script(dt, script_idx, map, 1))
+//                    break;
+//            }
+//            int e = 0;
+//            for (int i = 0; i + e < nb_running; ) // Do some cleaning so we don't use all the env table with unused data
+//            {
+//                if ((*script_env)[i+e].running)
+//                {
+//                    (*script_env)[i]=(*script_env)[i+e];
+//                    ++i;
+//                }
+//                else
+//                {
+//                    (*script_env)[i+e].destroy();
+//                    ++e;
+//                }
+//            }
+//            nb_running -= e;
+//        }
         pMutex.unlock();
     }
 
     void UNIT::reset_script()
     {
         pMutex.lock();
-        for (int i = 0; i < nb_running; ++i)
-            (*script_env)[i].destroy();
-        nb_running=0;
         pMutex.unlock();
     }
 
@@ -305,7 +240,7 @@ namespace TA3D
                 V.x = V.y = V.z = 0.0f;
             }
             if (!(unit_manager.unit_type[type_id]->canfly && nb_attached > 0)) // Once charged with units the Atlas cannot land
-                launch_script(get_script_index(SCRIPT_StopMoving));
+                launch_script(SCRIPT_StopMoving);
             else
                 was_moving = false;
             if (!(mission->flags & MISSION_FLAG_DONT_STOP_MOVE))
@@ -335,7 +270,7 @@ namespace TA3D
         if (port[ACTIVATION] == 0)
         {
             play_sound("activate");
-            launch_script(get_script_index(SCRIPT_Activate));
+            launch_script(SCRIPT_Activate);
             port[ACTIVATION] = 1;
         }
         pMutex.unlock();
@@ -347,57 +282,9 @@ namespace TA3D
         if (port[ACTIVATION] != 0)
         {
             play_sound("deactivate");
-            launch_script(get_script_index(SCRIPT_Deactivate));
+            launch_script(SCRIPT_Deactivate);
             port[ACTIVATION] = 0;
         }
-        pMutex.unlock();
-    }
-
-
-
-    void UNIT::kill_script(int script_index)		// Fait un peu de ménage
-    {
-        if (script == NULL || script_index < 0 || script_index>=script->nb_script)
-            return;
-        pMutex.lock();
-        for(int i = 0; i < nb_running; ++i)
-        {
-            if ((*script_env)[i].running && (*script_env)[i].env != NULL)
-            {
-                SCRIPT_ENV_STACK *current=(*script_env)[i].env;
-                while (current)
-                {
-                    if ((current->cur&0xFF) == script_index) // Tue le script trouvé
-                    {
-                        current=(*script_env)[i].env;
-                        (*script_env)[i].running=false;
-                        while (current)
-                        {
-                            (*script_env)[i].env=current->next;
-                            delete current;
-                            current=(*script_env)[i].env;
-                        }
-                        break;
-                    }
-                    current=current->next;
-                }
-            }
-        }
-        int e = 0;
-        for (int i = 0; i + e < nb_running; )// Efface les scripts qui se sont arrêtés
-        {
-            if ((*script_env)[i+e].running)
-            {
-                (*script_env)[i]=(*script_env)[i+e];
-                ++i;
-            }
-            else
-            {
-                (*script_env)[i+e].destroy();
-                ++e;
-            }
-        }
-        nb_running -= e;
         pMutex.unlock();
     }
 
@@ -469,8 +356,6 @@ namespace TA3D
         severity=0;
         if (full)
             init_alloc_data();
-        for (int i = 0; i <  NB_SCRIPT; ++i)
-            script_idx[i]=-2;	// Not yet searched
         just_created=true;
         first_move=true;
         attached=false;
@@ -495,13 +380,9 @@ namespace TA3D
         data.init();
         Angle.x=Angle.y=Angle.z=0.0f;
         V_Angle=Angle;
-        nb_running=0;
         int i;
-        script_env->clear();
-        script_val->clear();
         for(i=0;i<21;i++)
             port[i]=0;
-        s_var->clear();
         if (unit_type<0 || unit_type>=unit_manager.nb_unit)
             unit_type=-1;
         port[ACTIVATION]=0;
@@ -522,7 +403,7 @@ namespace TA3D
             model = unit_manager.unit_type[type_id]->model;
             weapon.resize(unit_manager.unit_type[type_id]->weapon.size());
             hp = unit_manager.unit_type[type_id]->MaxDamage;
-            script = unit_manager.unit_type[type_id]->script;
+            script = new COB_VM( unit_manager.unit_type[type_id]->script );
             port[STANDINGMOVEORDERS] = unit_manager.unit_type[type_id]->StandingMoveOrder;
             port[STANDINGFIREORDERS] = unit_manager.unit_type[type_id]->StandingFireOrder;
             if (!basic)
@@ -533,8 +414,9 @@ namespace TA3D
             }
             if (script)
             {
-                data.load(script->nb_piece);
-                launch_script(get_script_index(SCRIPT_create));
+#warning TODO: fix model piece loader
+//                data.load(script->nb_piece);
+                launch_script(SCRIPT_create);
             }
         }
         pMutex.unlock();
@@ -562,8 +444,8 @@ namespace TA3D
             rest(0);
         pMutex.lock();
         ID = 0;
-        for (int i = 0; i < nb_running; ++i)
-            (*script_env)[i].destroy();
+        if (script)
+            delete script;
         while (mission)
             clear_mission();
         clear_def_mission();
@@ -573,12 +455,8 @@ namespace TA3D
         pMutex.unlock();
         if (full)
         {
-            delete	 s_var;			// Tableau de variables pour les scripts
             delete[] port;			// Ports
-            delete	 script_env;	// Environnements des scripts
-            delete	 script_val;	// Tableau de valeurs retournées par les scripts
             delete[] memory;	// Pour se rappeler sur quelles armes on a déjà tiré
-            delete[] script_idx;	// Index of scripts to prevent multiple search
             delete[] attached_list;
             delete[] link_list;
             delete[] last_synctick;
@@ -874,7 +752,7 @@ namespace TA3D
             case MISSION_REPAIR:
             case MISSION_RECLAIM:
             case MISSION_BUILD_2: {
-                                      launch_script(get_script_index(SCRIPT_stopbuilding));
+                                      launch_script(SCRIPT_stopbuilding);
                                       deactivate();
                                       if (type_id != -1 && !unit_manager.unit_type[type_id]->BMcode) // Delete the unit we were building
                                       {
@@ -891,7 +769,7 @@ namespace TA3D
                                               units.kill(((UNIT*)(mission->p))->idx,units.map,prev);
                                       }
                                       else
-                                          launch_script(get_script_index(SCRIPT_stop));
+                                          launch_script(SCRIPT_stop);
                                       break;
                                   }
             case MISSION_ATTACK: {
@@ -1026,7 +904,7 @@ namespace TA3D
             case MISSION_BUILD_2:
                 if (mission->next == NULL || (type_id != -1 && unit_manager.unit_type[type_id]->BMcode) || mission->next->mission != MISSION_BUILD)
                 {
-                    launch_script(get_script_index(SCRIPT_stopbuilding));
+                    launch_script(SCRIPT_stopbuilding);
                     deactivate();
                 }
                 break;
@@ -1247,14 +1125,13 @@ namespace TA3D
                 {
                     unit_manager.unit_type[type_id]->emitting_points_computed = true;
                     int param[] = { -1 };
-                    int querynanopiece_idx = get_script_index( "QueryNanoPiece" );
-                    run_script_function( NULL, querynanopiece_idx, 1, param );
+                    run_script_function( "QueryNanoPiece", 1, param );
                     int first = param[0];
                     int i = 0;
                     do
                     {
                         model->obj.compute_emitter_point( param[ 0 ] );
-                        run_script_function( NULL, querynanopiece_idx, 1, param );
+                        run_script_function( "QueryNanoPiece", 1, param );
                         ++i;
                     } while( first != param[0] && i < 1000 );
                 }
@@ -1607,953 +1484,6 @@ namespace TA3D
     }
 
 
-    const int UNIT::run_script(const float &dt,const int &id,MAP *map,int max_code)			// Interprète les scripts liés à l'unité
-    {
-        if (flags==0)
-            return 2;
-        if (id >= (int)script_env->size() && !(*script_env)[id].running)
-            return 2;
-        if ((*script_env)[id].wait>0.0f)
-        {
-            (*script_env)[id].wait-=dt;
-            return 1;
-        }
-        if (script==NULL || (*script_env)[id].env==NULL)
-        {
-            (*script_env)[id].running=false;
-            return 2;	// S'il n'y a pas de script associé on quitte la fonction
-        }
-        sint16 script_id=((*script_env)[id].env->cur&0xFF);			// Récupère l'identifiant du script en cours d'éxecution et la position d'éxecution
-        sint16 pos=((*script_env)[id].env->cur>>8);
-
-        if (script_id<0 || script_id>=script->nb_script)
-        {
-            (*script_env)[id].running=false;
-            return 2;		// Erreur, ce n'est pas un script repertorié
-        }
-
-        float divisor(I2PWR16);
-        float div=0.5f*divisor;
-        bool done=false;
-        int nb_code=0;
-
-#if DEBUG_USE_PRINT_CODE == 1
-        bool print_code = false;
-        //bool	print_code = String::ToLower( unit_manager.unit_type[type_id]->Unitname ) == "armtship" && (String::ToLower( script->name[script_id] ) == "transportpickup" || String::ToLower( script->name[script_id] ) == "boomcalc" );
-#endif
-
-        do
-        {
-            //			uint32 code=script->script_code[script_id][pos];			// Lit un code
-            //			pos++;
-            nb_code++;
-            if (nb_code >= max_code ) done=true;			// Pour éviter que le programme ne fige à cause d'un script
-            //			switch(code)			// Code de l'interpréteur
-            switch(script->script_code[script_id][pos++])
-            {
-                case SCRIPT_MOVE_OBJECT:
-                    {
-                        DEBUG_PRINT_CODE("MOVE_OBJECT");
-                        int obj=script->script_code[script_id][pos++];
-                        int axis=script->script_code[script_id][pos++];
-                        int v1=(*script_env)[id].pop();
-                        int v2=(*script_env)[id].pop();
-                        if (axis==0)
-                            v1=-v1;
-                        data.axe[axis][obj].reset_move();
-                        data.axe[axis][obj].move_distance=v1*div;
-                        data.axe[axis][obj].move_distance-=data.axe[axis][obj].pos;
-                        data.axe[axis][obj].is_moving=true;
-                        data.is_moving=true;
-                        if (data.axe[axis][obj].move_distance<0.0f)
-                            data.axe[axis][obj].move_speed=-fabsf(v2*div*0.5f);
-                        else
-                            data.axe[axis][obj].move_speed=fabsf(v2*div*0.5f);
-                        break;
-                    }
-                case SCRIPT_WAIT_FOR_TURN:
-                    {
-                        DEBUG_PRINT_CODE("WAIT_FOR_TURN");
-                        int obj=script->script_code[script_id][pos++];
-                        int axis=script->script_code[script_id][pos++];
-                        float a=data.axe[axis][obj].rot_angle;
-                        if ((data.axe[axis][obj].rot_speed!=0.0f || data.axe[axis][obj].rot_accel!=0.0f) && (a!=0.0f && data.axe[axis][obj].rot_limit))
-                            pos-=3;
-                        else if (data.axe[axis][obj].rot_speed!=data.axe[axis][obj].rot_target_speed && data.axe[axis][obj].rot_speed_limit)
-                            pos-=3;
-                        else {
-                            data.axe[axis][obj].rot_speed = 0.0f;
-                            data.axe[axis][obj].rot_accel = 0.0f;
-                        }
-                        done = true;
-                        break;
-                    }
-                case SCRIPT_RANDOM_NUMBER:
-                    {
-                        DEBUG_PRINT_CODE("RANDOM_NUMBER");
-                        int high=(*script_env)[id].pop();
-                        int low=(*script_env)[id].pop();
-                        (*script_env)[id].push(((sint32)(Math::RandFromTable()%(high-low+1)))+low);
-                        break;
-                    }
-                case SCRIPT_GREATER_EQUAL:
-                    {
-                        DEBUG_PRINT_CODE("GREATER_EQUAL");
-                        int v2=(*script_env)[id].pop();
-                        int v1=(*script_env)[id].pop();
-                        (*script_env)[id].push(v1>=v2 ? 1 : 0);
-                        break;
-                    }
-                case SCRIPT_GREATER:
-                    {
-                        DEBUG_PRINT_CODE("GREATER");
-                        int v2=(*script_env)[id].pop();
-                        int v1=(*script_env)[id].pop();
-                        (*script_env)[id].push(v1>v2 ? 1 : 0);
-                        break;
-                    }
-                case SCRIPT_LESS:
-                    {
-                        DEBUG_PRINT_CODE("LESS");
-                        int v2=(*script_env)[id].pop();
-                        int v1=(*script_env)[id].pop();
-                        (*script_env)[id].push(v1<v2 ? 1 : 0);
-                        break;
-                    }
-                case SCRIPT_EXPLODE:
-                    {
-                        DEBUG_PRINT_CODE("EXPLODE");
-                        int obj = script->script_code[script_id][pos++];
-                        int explosion_type = (*script_env)[id].pop();
-                        data.axe[0][obj].pos = 0.0f;
-                        data.axe[0][obj].angle = 0.0f;
-                        data.axe[1][obj].pos = 0.0f;
-                        data.axe[1][obj].angle = 0.0f;
-                        data.axe[2][obj].pos = 0.0f;
-                        data.axe[2][obj].angle = 0.0f;
-                        if (visible) // Don't draw things which could tell the player there is something there
-                        {
-                            compute_model_coord();
-                            particle_engine.make_fire( Pos + data.pos[obj],1,10,45.0f);
-                            int power = Math::Max(unit_manager.unit_type[type_id]->FootprintX, unit_manager.unit_type[type_id]->FootprintZ);
-                            Vector3D P = Pos + data.pos[obj];
-                            fx_manager.addExplosion( P, V, power * 3, power * 10.0f );
-                        }
-                        data.flag[obj]|=FLAG_EXPLODE;
-                        data.explosion_flag[obj]=explosion_type;
-                        data.axe[0][obj].move_speed=(25.0f+(Math::RandFromTable()%2501)*0.01f)*(Math::RandFromTable()&1 ? 1.0f : -1.0f);
-                        data.axe[0][obj].rot_speed=(Math::RandFromTable()%7201)*0.1f-360.0f;
-                        data.axe[1][obj].move_speed=25.0f+(Math::RandFromTable()%2501)*0.01f;
-                        data.axe[1][obj].rot_speed=(Math::RandFromTable()%7201)*0.1f-360.0f;
-                        data.axe[2][obj].move_speed=(25.0f+(Math::RandFromTable()%2501)*0.01f)*(Math::RandFromTable()&1 ? 1.0f : -1.0f);
-                        data.axe[2][obj].rot_speed=(Math::RandFromTable()%7201)*0.1f-360.0f;
-                        data.explode = true;
-                        data.explode_time = 1.0f;
-                        break;
-                    }
-                case SCRIPT_TURN_OBJECT:
-                    {
-                        DEBUG_PRINT_CODE("TURN_OBJECT");
-                        int obj=script->script_code[script_id][pos++];
-                        int axis=script->script_code[script_id][pos++];
-                        int v1=(*script_env)[id].pop();
-                        int v2=(*script_env)[id].pop();
-                        if (axis!=2)
-                        {
-                            v1=-v1;
-                            v2=-v2;
-                        }
-                        data.axe[axis][obj].reset_rot();
-                        data.axe[axis][obj].is_moving=true;
-                        data.is_moving=true;
-                        data.axe[axis][obj].rot_angle=-v1*TA2DEG;
-                        data.axe[axis][obj].rot_accel=0.0f;
-                        data.axe[axis][obj].rot_angle-=data.axe[axis][obj].angle;
-                        while(data.axe[axis][obj].rot_angle>180.0f && !isNaN(data.axe[axis][obj].rot_angle))					// Fait le tour dans le sens le plus rapide
-                            data.axe[axis][obj].rot_angle-=360.0f;
-                        while(data.axe[axis][obj].rot_angle<-180.0f && !isNaN(data.axe[axis][obj].rot_angle))					// Fait le tour dans le sens le plus rapide
-                            data.axe[axis][obj].rot_angle+=360.0f;
-                        if (data.axe[axis][obj].rot_angle>0.0f)
-                            data.axe[axis][obj].rot_speed=fabsf(v2*TA2DEG);
-                        else
-                            data.axe[axis][obj].rot_speed=-fabsf(v2*TA2DEG);
-                        data.axe[axis][obj].rot_limit=true;
-                        data.axe[axis][obj].rot_speed_limit=false;
-                        break;
-                    }
-                case SCRIPT_WAIT_FOR_MOVE:
-                    {
-                        DEBUG_PRINT_CODE("WAIT_FOR_MOVE");
-                        int obj=script->script_code[script_id][pos++];
-                        int axis=script->script_code[script_id][pos++];
-                        //					float a=data.axe[axis][obj].rot_angle;
-                        if (data.axe[axis][obj].move_distance!=0.0f)
-                            pos-=3;
-                        done=true;
-                        break;
-                    }
-                case SCRIPT_CREATE_LOCAL_VARIABLE:
-                    {
-                        DEBUG_PRINT_CODE("CREATE_LOCAL_VARIABLE");
-                        break;
-                    }
-                case SCRIPT_SUBTRACT:
-                    {
-                        DEBUG_PRINT_CODE("SUBSTRACT");
-                        int v1=(*script_env)[id].pop();
-                        int v2=(*script_env)[id].pop();
-                        (*script_env)[id].push(v2-v1);
-                        break;
-                    }
-                case SCRIPT_GET_VALUE_FROM_PORT:
-                    {
-                        DEBUG_PRINT_CODE("GET_VALUE_FROM_PORT:");
-                        int value=(*script_env)[id].pop();
-                        DEBUG_PRINT_CODE(value);
-                        switch(value)
-                        {
-                            case MIN_ID:		// returns the lowest valid unit ID number
-                                value = 0;
-                                break;
-                            case MAX_ID:		// returns the highest valid unit ID number
-                                value = units.max_unit-1;
-                                break;
-                            case MY_ID:		// returns ID of current unit
-                                value = idx;
-                                break;
-                            case UNIT_TEAM:		// returns team(player ID in TA) of unit given with parameter
-                                value = owner_id;
-                                break;
-                            case VETERAN_LEVEL:		// gets kills * 100
-                                value = 0;			// not yet implemented
-                                break;
-                            case ATAN:
-                                {
-                                    int v1=(*script_env)[id].pop();
-                                    int v2=(*script_env)[id].pop();
-                                    value = (int)(atanf((float)v1/v2)+0.5f);
-                                }
-                                break;
-                            case HYPOT:
-                                {
-                                    int v1=(*script_env)[id].pop();
-                                    int v2=(*script_env)[id].pop();
-                                    value = (int)(sqrtf((float)(v1*v1+v2*v2))+0.5f);
-                                }
-                                break;
-                            case BUGGER_OFF:
-                                value = map->check_rect((((int)(Pos.x+map->map_w_d))>>3)-(unit_manager.unit_type[type_id]->FootprintX>>1),(((int)(Pos.z+map->map_h_d))>>3)-(unit_manager.unit_type[type_id]->FootprintZ>>1),unit_manager.unit_type[type_id]->FootprintX,unit_manager.unit_type[type_id]->FootprintZ,idx) ? 0 : 1;
-                                break;
-                            case BUILD_PERCENT_LEFT:
-                                port[ BUILD_PERCENT_LEFT ] = (int)build_percent_left + ( (build_percent_left>(int)build_percent_left) ? 1 : 0 );
-                            case YARD_OPEN:
-                            case ACTIVATION:
-                            case HEALTH:
-                            case INBUILDSTANCE:
-                            case BUSY:
-                            case ARMORED:
-                            case STANDINGMOVEORDERS:			// A faire : ajouter le support des ordres de mouvement/feu
-                            case STANDINGFIREORDERS:
-                                value = port[ value ];
-                                break;
-                            default:
-                                {
-                                    const char *op[]={"INCONNU","ACTIVATION","STANDINGMOVEORDERS","STANDINGFIREORDERS","HEALTH","INBUILDSTANCE","BUSY","PIECE_XZ","PIECE_Y",
-                                        "UNIT_XZ","UNIT_Y","UNIT_HEIGHT","XZ_ATAN","XZ_HYPOT","ATAN","HYPOT","GROUND_HEIGHT","BUILD_PERCENT_LEFT","YARD_OPEN",
-                                        "BUGGER_OFF","ARMORED"};
-                                    if (value>20)
-                                        value=0;
-                                    LOG_DEBUG("GET_VALUE_FROM_PORT: opération non gérée : " << op[value]);
-                                }
-                                break;
-                        };
-                        (*script_env)[id].push(value);
-                    }
-                    break;
-                case SCRIPT_LESS_EQUAL:
-                    {
-                        DEBUG_PRINT_CODE("LESS_EQUAL");
-                        int v2=(*script_env)[id].pop();
-                        int v1=(*script_env)[id].pop();
-                        (*script_env)[id].push(v1<=v2 ? 1 : 0);
-                        break;
-                    }
-                case SCRIPT_SPIN_OBJECT:
-                    {
-                        DEBUG_PRINT_CODE("SPIN_OBJECT");
-                        int obj=script->script_code[script_id][pos++];
-                        int axis=script->script_code[script_id][pos++];
-                        int v1=(*script_env)[id].pop();
-                        int v2=(*script_env)[id].pop();
-                        if (axis==1)
-                        {
-                            v1=-v1;
-                            v2=-v2;
-                        }
-                        data.axe[axis][obj].reset_rot();
-                        data.axe[axis][obj].is_moving=true;
-                        data.is_moving=true;
-                        data.axe[axis][obj].rot_limit=false;
-                        data.axe[axis][obj].rot_speed_limit=true;
-                        data.axe[axis][obj].rot_target_speed=v1*TA2DEG;
-                        if (v2)
-                        {
-                            if (data.axe[axis][obj].rot_target_speed>data.axe[axis][obj].rot_speed)
-                                data.axe[axis][obj].rot_accel=fabsf(v2*TA2DEG);
-                            else
-                                data.axe[axis][obj].rot_accel=-fabsf(v2*TA2DEG);
-                        }
-                        else {
-                            data.axe[axis][obj].rot_accel=0;
-                            data.axe[axis][obj].rot_speed=data.axe[axis][obj].rot_target_speed;
-                        }
-                    }
-                    break;
-                case SCRIPT_SLEEP:
-                    {
-                        DEBUG_PRINT_CODE("SLEEP");
-                        (*script_env)[id].wait=(*script_env)[id].pop()*0.001f;
-                        done=true;
-                        break;
-                    }
-                case SCRIPT_MULTIPLY:
-                    {
-                        DEBUG_PRINT_CODE("MULTIPLY");
-                        int v1=(*script_env)[id].pop();
-                        int v2=(*script_env)[id].pop();
-                        (*script_env)[id].push(v1*v2);
-                        break;
-                    }
-                case SCRIPT_CALL_SCRIPT:
-                    {
-                        DEBUG_PRINT_CODE("CALL_SCRIPT");
-                        int function_id=script->script_code[script_id][pos];			// Lit un code
-                        ++pos;
-                        int num_param=script->script_code[script_id][pos];			// Lit un code
-                        ++pos;
-                        (*script_env)[id].env->cur=script_id+(pos<<8);
-                        SCRIPT_ENV_STACK *old=(*script_env)[id].env;
-                        (*script_env)[id].env=new SCRIPT_ENV_STACK();
-                        (*script_env)[id].env->init();
-                        (*script_env)[id].env->next=old;
-                        (*script_env)[id].env->cur=function_id;
-                        for(int i=num_param-1;i>=0;i--)		// Lit les paramètres
-                            (*script_env)[id].env->var[i]=(*script_env)[id].pop();
-                        done=true;
-                        pos=0;
-                        script_id=function_id;
-                        break;
-                    }
-                case SCRIPT_SHOW_OBJECT:
-                    {
-                        DEBUG_PRINT_CODE("SHOW_OBJECT");
-                        data.flag[script->script_code[script_id][pos++]]&=(~FLAG_HIDE);
-                        break;
-                    }
-                case SCRIPT_EQUAL:
-                    {
-                        DEBUG_PRINT_CODE("EQUAL");
-                        int v1=(*script_env)[id].pop();
-                        int v2=(*script_env)[id].pop();
-                        (*script_env)[id].push(v1==v2 ? 1 : 0);
-                        break;
-                    }
-                case SCRIPT_NOT_EQUAL:
-                    {
-                        DEBUG_PRINT_CODE("NOT_EQUAL");
-                        int v1 = (*script_env)[id].pop();
-                        int v2 = (*script_env)[id].pop();
-                        (*script_env)[id].push(v1!=v2 ? 1 : 0);
-                        break;
-                    }
-                case SCRIPT_IF:
-                    {
-                        DEBUG_PRINT_CODE("IF");
-                        if ((*script_env)[id].pop()!=0)
-                            pos++;
-                        else
-                        {
-                            int target_offset=script->script_code[script_id][pos];			// Lit un code
-                            pos=target_offset-script->dec_offset[script_id];								// Déplace l'éxecution
-                        }
-                        break;
-                    }
-                case SCRIPT_HIDE_OBJECT:
-                    {
-                        DEBUG_PRINT_CODE("HIDE_OBJECT");
-                        data.flag[script->script_code[script_id][pos++]]|=FLAG_HIDE;
-                        break;
-                    }
-                case SCRIPT_SIGNAL:
-                    {
-                        DEBUG_PRINT_CODE("SIGNAL");
-                        (*script_env)[id].env->cur=script_id+(pos<<8);			// Sauvegarde la position
-                        raise_signal((*script_env)[id].pop());					// Tue tout les processus utilisant ce signal
-                        return 0;
-                    }
-                case SCRIPT_DONT_CACHE:
-                    {
-                        DEBUG_PRINT_CODE("DONT_CACHE");
-                        ++pos;
-                        break;
-                    }
-                case SCRIPT_SET_SIGNAL_MASK:
-                    {
-                        DEBUG_PRINT_CODE("SET_SIGNAL_MASK");
-                        (*script_env)[id].env->signal_mask=(*script_env)[id].pop();
-                        break;
-                    }
-                case SCRIPT_NOT:
-                    {
-                        DEBUG_PRINT_CODE("NOT");
-                        (*script_env)[id].push(!(*script_env)[id].pop());
-                        break;
-                    }
-                case SCRIPT_DONT_SHADE:
-                    {
-                        DEBUG_PRINT_CODE("DONT_SHADE");
-                        ++pos;
-                        break;
-                    }
-                case SCRIPT_EMIT_SFX:
-                    {
-                        DEBUG_PRINT_CODE("EMIT_SFX:");
-                        int smoke_type=(*script_env)[id].pop();
-                        int from_piece=script->script_code[script_id][pos++];
-                        DEBUG_PRINT_CODE("smoke_type "<< smoke_type << " from " << from_piece);
-                        if (visible)
-                        {
-                            compute_model_coord();
-                            if (data.dir[from_piece].x!=0.0f || data.dir[from_piece].y!=0.0f || data.dir[from_piece].z!=0.0f)
-                            {
-                                Vector3D dir=data.dir[from_piece];
-                                switch(smoke_type)
-                                {
-                                    case 0:
-                                        particle_engine.emit_part(Pos+data.pos[from_piece],dir,fire,1,10.0f,2.5f,5.0f,true);
-                                        break;
-                                    case 2:
-                                    case 3:
-                                        particle_engine.emit_part(Pos+data.pos[from_piece],dir,0,1,10.0f,10.0f,10.0f,false, 0.3f);
-                                        break;
-                                    case 257:			// Fumée
-                                    case 258:
-                                        particle_engine.emit_part(Pos+data.pos[from_piece],dir,0,1,10.0f,10.0f,10.0f,true, 0.3f);
-                                        break;
-                                }
-                            }
-                            else
-                                switch(smoke_type)
-                                {
-                                    case 0:
-                                        particle_engine.make_smoke(Pos+data.pos[from_piece],fire,1,0.0f,0.0f,0.0f,0.5f);
-                                        break;
-                                    case 257:
-                                    case 258:
-                                        particle_engine.make_smoke(Pos+data.pos[from_piece],0,1,10.0f,-1.0f,0.0f,0.5f);
-                                        break;
-                                }
-                        }
-                    }
-                    break;
-                case SCRIPT_PUSH_CONST:
-                    {
-                        DEBUG_PRINT_CODE("PUSH_CONST (" << script->script_code[script_id][pos] << ")");
-                        (*script_env)[id].push(script->script_code[script_id][pos]);
-                        ++pos;
-                        break;
-                    }
-                case SCRIPT_PUSH_VAR:
-                    {
-                        DEBUG_PRINT_CODE("PUSH_VAR (" << script->script_code[script_id][pos] << ") = "
-                                         << (*script_env)[id].env->var[script->script_code[script_id][pos]]);
-                        (*script_env)[id].push((*script_env)[id].env->var[script->script_code[script_id][pos]]);
-                        ++pos;
-                        break;
-                    }
-                case SCRIPT_SET_VAR:
-                    {
-                        DEBUG_PRINT_CODE("SET_VAR (" << script->script_code[script_id][pos] << ")");
-                        (*script_env)[id].env->var[script->script_code[script_id][pos]]=(*script_env)[id].pop();
-                        ++pos;
-                        break;
-                    }
-                case SCRIPT_PUSH_STATIC_VAR:
-                    {
-                        DEBUG_PRINT_CODE("PUSH_STATIC_VAR");
-                        if (script->script_code[script_id][pos] >= s_var->size() )
-                            s_var->resize( script->script_code[script_id][pos] + 1 );
-                        (*script_env)[id].push((*s_var)[script->script_code[script_id][pos]]);
-                        ++pos;
-                        break;
-                    }
-                case SCRIPT_SET_STATIC_VAR:
-                    {
-                        DEBUG_PRINT_CODE("SET_STATIC_VAR");
-                        if (script->script_code[script_id][pos] >= s_var->size() )
-                            s_var->resize( script->script_code[script_id][pos] + 1 );
-                        (*s_var)[script->script_code[script_id][pos]]=(*script_env)[id].pop();
-                        ++pos;
-                        break;
-                    }
-                case SCRIPT_OR:
-                    {
-                        DEBUG_PRINT_CODE("OR");
-                        int v1=(*script_env)[id].pop(),v2=(*script_env)[id].pop();
-                        (*script_env)[id].push(v1|v2);
-                        break;
-                    }
-                case SCRIPT_START_SCRIPT:				// Transfère l'éxecution à un autre script
-                    {
-                        DEBUG_PRINT_CODE("START_SCRIPT");
-                        int function_id=script->script_code[script_id][pos++];			// Lit un code
-                        int num_param=script->script_code[script_id][pos++];			// Lit un code
-                        int s_id=launch_script(function_id, 0, NULL, true);
-                        if (s_id>=0)
-                        {
-                            for(int i=num_param-1;i>=0;i--)		// Lit les paramètres
-                                (*script_env)[s_id].env->var[i]=(*script_env)[id].pop();
-                            (*script_env)[s_id].env->signal_mask=(*script_env)[id].env->signal_mask;
-                        }
-                        else
-                        {
-                            for (int i=0;i<num_param; ++i)		// Enlève les paramètres de la pile
-                                (*script_env)[id].pop();
-                        }
-                        done=true;
-                        break;
-                    }
-                case SCRIPT_RETURN:		// Retourne au script précédent
-                    {
-                        DEBUG_PRINT_CODE("RETURN");
-                        if (script_val->size() <= script_id )
-                            script_val->resize( script_id + 1 );
-                        (*script_val)[script_id]=(*script_env)[id].env->var[0];
-                        SCRIPT_ENV_STACK *old=(*script_env)[id].env;
-                        (*script_env)[id].env=(*script_env)[id].env->next;
-                        delete old;
-                        (*script_env)[id].pop();		// Enlève la valeur retournée
-                        if ((*script_env)[id].env)
-                        {
-                            script_id=((*script_env)[id].env->cur&0xFF);			// Récupère l'identifiant du script en cours d'éxecution et la position d'éxecution
-                            pos=((*script_env)[id].env->cur>>8);
-                        }
-                        done=true;
-                        break;
-                    }
-                case SCRIPT_JUMP:						// Commande de saut
-                    {
-                        DEBUG_PRINT_CODE("JUMP");
-                        int target_offset=script->script_code[script_id][pos];			// Lit un code
-                        pos=target_offset-script->dec_offset[script_id];								// Déplace l'éxecution
-                        break;
-                    }
-                case SCRIPT_ADD:
-                    {
-                        DEBUG_PRINT_CODE("ADD");
-                        int v1=(*script_env)[id].pop();
-                        int v2=(*script_env)[id].pop();
-                        (*script_env)[id].push(v1+v2);
-                        break;
-                    }
-                case SCRIPT_STOP_SPIN:
-                    {
-                        DEBUG_PRINT_CODE("STOP_SPIN");
-                        int obj=script->script_code[script_id][pos++];
-                        int axis=script->script_code[script_id][pos++];
-                        int v=(*script_env)[id].pop();
-                        if (axis!=2)
-                            v=-v;
-                        data.axe[axis][obj].reset_rot();
-                        data.axe[axis][obj].is_moving=true;
-                        data.is_moving=true;
-                        data.axe[axis][obj].rot_limit=false;
-                        data.axe[axis][obj].rot_speed_limit=true;
-                        data.axe[axis][obj].rot_target_speed=0.0f;
-                        if (v==0)
-                        {
-                            data.axe[axis][obj].rot_speed=0.0f;
-                            data.axe[axis][obj].rot_accel=0.0f;
-                        }
-                        else
-                        {
-                            if (data.axe[axis][obj].rot_speed>0.0f)
-                                data.axe[axis][obj].rot_accel=-abs(v);
-                            else
-                                data.axe[axis][obj].rot_accel=abs(v);
-                        }
-                        break;
-                    }
-                case SCRIPT_DIVIDE:
-                    {
-                        DEBUG_PRINT_CODE("DIVIDE");
-                        int v1=(*script_env)[id].pop();
-                        int v2=(*script_env)[id].pop();
-                        (*script_env)[id].push(v2 / v1);
-                        break;
-                    }
-                case SCRIPT_MOVE_PIECE_NOW:
-                    {
-                        DEBUG_PRINT_CODE("MOVE_PIECE_NOW");
-                        int obj=script->script_code[script_id][pos++];
-                        int axis=script->script_code[script_id][pos++];
-                        data.axe[axis][obj].reset_move();
-                        data.axe[axis][obj].is_moving=true;
-                        data.is_moving=true;
-                        if (axis==0)
-                            data.axe[axis][obj].pos=-(*script_env)[id].pop()*div;
-                        else
-                            data.axe[axis][obj].pos=(*script_env)[id].pop()*div;
-                        break;
-                    }
-                case SCRIPT_TURN_PIECE_NOW:
-                    {
-                        DEBUG_PRINT_CODE("TURN_PIECE_NOW");
-                        int obj=script->script_code[script_id][pos++];
-                        int axis=script->script_code[script_id][pos++];
-                        int v=(*script_env)[id].pop();
-                        data.axe[axis][obj].reset_rot();
-                        data.axe[axis][obj].is_moving=true;
-                        data.is_moving=true;
-                        if (axis!=2)
-                            v=-v;
-                        data.axe[axis][obj].angle=-v*TA2DEG;
-                        break;
-                    }
-                case SCRIPT_CACHE:
-                    DEBUG_PRINT_CODE("CACHE");
-                    ++pos;
-                    break;	//added
-                case SCRIPT_COMPARE_AND:
-                    {
-                        DEBUG_PRINT_CODE("COMPARE_AND");
-                        int v1=(*script_env)[id].pop();
-                        int v2=(*script_env)[id].pop();
-                        (*script_env)[id].push(v1 && v2);
-                        break;
-                    }
-                case SCRIPT_COMPARE_OR:
-                    {
-                        DEBUG_PRINT_CODE("COMPARE_OR");
-                        int v1=(*script_env)[id].pop();
-                        int v2=(*script_env)[id].pop();
-                        (*script_env)[id].push(v1 || v2);
-                        break;
-                    }
-                case SCRIPT_CALL_FUNCTION:
-                    {
-                        DEBUG_PRINT_CODE("CALL_FUNCTION");
-                        int function_id=script->script_code[script_id][pos++];			// Lit un code
-                        int num_param=script->script_code[script_id][pos++];			// Lit un code
-                        (*script_env)[id].env->cur=script_id+(pos<<8);
-                        SCRIPT_ENV_STACK *old=(*script_env)[id].env;
-                        (*script_env)[id].env=new SCRIPT_ENV_STACK();
-                        (*script_env)[id].env->init();
-                        (*script_env)[id].env->next=old;
-                        (*script_env)[id].env->cur=function_id;
-                        for(int i=num_param-1;i>=0;i--)		// Lit les paramètres
-                            (*script_env)[id].env->var[i]=(*script_env)[id].pop();
-                        done=true;
-                        pos = 0;
-                        script_id=function_id;
-                        break;
-                    }
-                case SCRIPT_GET:
-                    {
-                        DEBUG_PRINT_CODE("GET *");
-                        (*script_env)[id].pop();
-                        (*script_env)[id].pop();
-                        int v2=(*script_env)[id].pop();
-                        int v1=(*script_env)[id].pop();
-                        int val=(*script_env)[id].pop();
-                        switch(val)
-                        {
-                            case UNIT_TEAM:		// returns team(player ID in TA) of unit given with parameter
-                                if (v1 >= 0 && v1 < units.max_unit && (units.unit[ v1 ].flags & 1) )
-                                    (*script_env)[id].push( units.unit[ v1 ].owner_id );
-                                else
-                                    (*script_env)[id].push(-1);
-                                break;
-                            case UNIT_BUILD_PERCENT_LEFT:		// basically BUILD_PERCENT_LEFT, but comes with a unit parameter
-                                if (v1 >= 0 && v1 < units.max_unit && (units.unit[ v1 ].flags & 1) )
-                                    (*script_env)[id].push((int)units.unit[ v1 ].build_percent_left + ( (units.unit[ v1 ].build_percent_left > (int)units.unit[ v1 ].build_percent_left) ? 1 : 0));
-                                else
-                                    (*script_env)[id].push(0);
-                                break;
-                            case UNIT_ALLIED:		// is unit given with parameter allied to the unit of the current COB script. 0=not allied, not zero allied
-                                (*script_env)[id].push( !isEnemy( v1 ) );
-                                break;
-                            case UNIT_IS_ON_THIS_COMP:		// indicates if the 1st parameter(a unit ID) is local to this computer
-                                if (v1 >= 0 && v1 < units.max_unit && (units.unit[ v1 ].flags & 1) )
-                                    (*script_env)[id].push( !(players.control[ units.unit[ v1 ].owner_id ] & PLAYER_CONTROL_FLAG_REMOTE) );
-                                else
-                                    (*script_env)[id].push(0);
-                                break;
-                            case BUILD_PERCENT_LEFT:
-                                port[ BUILD_PERCENT_LEFT ] = (int)build_percent_left + ( (build_percent_left > (int)build_percent_left) ? 1 : 0);
-                            case ACTIVATION:
-                            case STANDINGMOVEORDERS:
-                            case STANDINGFIREORDERS:
-                            case HEALTH:
-                            case INBUILDSTANCE:
-                            case BUSY:
-                            case YARD_OPEN:
-                            case BUGGER_OFF:
-                            case ARMORED:
-                                (*script_env)[id].push((int)port[val]);
-                                break;
-                            case PIECE_XZ:
-                                compute_model_coord();
-                                (*script_env)[id].push( PACKXZ((data.pos[v1].x+Pos.x)*2.0f+map->map_w, (data.pos[v1].z+Pos.z)*2.0f+map->map_h));
-#if DEBUG_USE_PRINT_CODE == 1
-                                {
-                                    int c = (*script_env)[id].pop();
-                                    (*script_env)[id].push( c );
-                                    DEBUG_PRINT_CODE("PIECE_XZ = " << c);
-                                }
-#endif
-                                break;
-                            case PIECE_Y:
-                                compute_model_coord();
-                                (*script_env)[id].push((int)((data.pos[v1].y + Pos.y)*2.0f)<<16);
-#if DEBUG_USE_PRINT_CODE == 1
-                                {
-                                    int c = (*script_env)[id].pop();
-                                    (*script_env)[id].push( c );
-                                    DEBUG_PRINT_CODE("PIECE_Y = " << c);
-                                }
-#endif
-                                break;
-                            case UNIT_XZ:
-                                if (v1 >= 0 && v1<units.max_unit && (units.unit[v1].flags & 1) )
-                                    (*script_env)[id].push( PACKXZ( units.unit[v1].Pos.x*2.0f+map->map_w, units.unit[v1].Pos.z*2.0f+map->map_h ));
-                                else
-                                    (*script_env)[id].push( PACKXZ( Pos.x*2.0f+map->map_w, Pos.z*2.0f+map->map_h ));
-#if DEBUG_USE_PRINT_CODE == 1
-                                {
-                                    int c = (*script_env)[id].pop();
-                                    (*script_env)[id].push( c );
-                                    DEBUG_PRINT_CODE("UNIT_XY = " << c);
-                                }
-#endif
-                                break;
-                            case UNIT_Y:
-                                if (v1 >= 0 && v1<units.max_unit && (units.unit[v1].flags & 1) )
-                                    (*script_env)[id].push((int)(units.unit[v1].Pos.y * 2.0f)<<16);
-                                else
-                                    (*script_env)[id].push((int)(Pos.y * 2.0f)<<16);
-#if DEBUG_USE_PRINT_CODE == 1
-                                {
-                                    int c = (*script_env)[id].pop();
-                                    (*script_env)[id].push( c );
-                                    DEBUG_PRINT_CODE("UNIT_Y = " << c);
-                                }
-#endif
-                                break;
-                            case UNIT_HEIGHT:
-                                if (v1 >= 0 && v1<units.max_unit && (units.unit[v1].flags & 1) )
-                                    (*script_env)[id].push((int)(units.unit[v1].model->top * 2.0f)<<16);
-                                else
-                                    (*script_env)[id].push((int)(model->top * 2.0f)<<16);
-#if DEBUG_USE_PRINT_CODE == 1
-                                {
-                                    int c = (*script_env)[id].pop();
-                                    (*script_env)[id].push( c );
-                                    DEBUG_PRINT_CODE("UNIT_HEIGHT =" << c);
-                                }
-#endif
-                                break;
-                            case XZ_ATAN:
-                                (*script_env)[id].push((int)(atan2f( UNPACKX(v1) , UNPACKZ(v1) ) * RAD2TA - Angle.y * DEG2TA) + 32768);
-#if DEBUG_USE_PRINT_CODE == 1
-                                {
-                                    int c = (*script_env)[id].pop();
-                                    (*script_env)[id].push( c );
-                                    DEBUG_PRINT_CODE("XZ_ATAN[(" << v1 << ") = ("
-                                                     << UNPACKX(v1) << "," << UNPACKZ(v1) << ")] = " << c);
-                                }
-#endif
-                                break;
-                            case XZ_HYPOT:
-                                (*script_env)[id].push((int)hypotf( UNPACKX(v1), UNPACKZ(v1) )<<16);
-#if DEBUG_USE_PRINT_CODE == 1
-                                {
-                                    int c = (*script_env)[id].pop();
-                                    (*script_env)[id].push( c );
-                                    DEBUG_PRINT_CODE("XZ_HYPOT[(" << v1 << ") = ("
-                                                     << UNPACKX(v1) << "," << UNPACKZ(v1) << ")] = "<< c);
-                                }
-#endif
-                                break;
-                            case ATAN:
-                                (*script_env)[id].push((int)(atan2f(v1,v2) * RAD2TA ));
-#if DEBUG_USE_PRINT_CODE == 1
-                                {
-                                    int c = (*script_env)[id].pop();
-                                    (*script_env)[id].push( c );
-                                    DEBUG_PRINT_CODE("ATAN =" << c);
-                                }
-#endif
-                                break;
-                            case HYPOT:
-                                (*script_env)[id].push((int)hypotf(v1,v2));
-#if DEBUG_USE_PRINT_CODE == 1
-                                {
-                                    int c = (*script_env)[id].pop();
-                                    (*script_env)[id].push( c );
-                                    DEBUG_PRINT_CODE("hypotf(" << v1 << "," v2 << ") = " << c);
-                                }
-#endif
-                                break;
-                            case GROUND_HEIGHT:
-                                (*script_env)[id].push((int)(map->get_unit_h(( UNPACKX(v1) - map->map_w)*0.5f,( UNPACKZ(v1) - map->map_h)*0.5f)*2.0f)<<16);
-                                break;
-                            default:
-                                printf("GET constante inconnue %d\n", val);
-                        }
-                        break;	//added
-                    }
-                case SCRIPT_SET_VALUE:
-                    {
-                        DEBUG_PRINT_CODE("SET_VALUE *:");
-                        int v1=(*script_env)[id].pop();
-                        int v2=(*script_env)[id].pop();
-                        DEBUG_PRINT_CODE(v1 << " " << v2);
-                        switch(v2)
-                        {
-                            case ACTIVATION:
-                                if (v1 == 0 )
-                                    deactivate();
-                                else
-                                    activate();
-                                break;
-                            case YARD_OPEN:
-                                port[v2] = v1;
-                                if (!map->check_rect((((int)(Pos.x+map->map_w_d))>>3)-(unit_manager.unit_type[type_id]->FootprintX>>1),(((int)(Pos.z+map->map_h_d))>>3)-(unit_manager.unit_type[type_id]->FootprintZ>>1),unit_manager.unit_type[type_id]->FootprintX,unit_manager.unit_type[type_id]->FootprintZ,idx))
-                                    port[v2] ^= 1;
-                                break;
-                            case BUGGER_OFF:
-                                port[v2]=v1;
-                                if (port[v2])
-                                {
-                                    int px=((int)(Pos.x)+map->map_w_d)>>3;
-                                    int py=((int)(Pos.z)+map->map_h_d)>>3;
-                                    for(int y=py-(unit_manager.unit_type[type_id]->FootprintZ>>1);y<=py+(unit_manager.unit_type[type_id]->FootprintZ>>1);y++)
-                                    {
-                                        if (y>=0 && y<(map->bloc_h<<1)-1)
-                                        {
-                                            for(int x=px-(unit_manager.unit_type[type_id]->FootprintX>>1);x<=px+(unit_manager.unit_type[type_id]->FootprintX>>1);x++)
-                                            {
-                                                if (x>=0 && x<(map->bloc_w<<1)-1)
-                                                {
-                                                    if (map->map_data[y][x].unit_idx >= 0 && map->map_data[y][x].unit_idx!=idx )
-                                                    {
-                                                        int cur_idx=map->map_data[y][x].unit_idx;
-                                                        if (units.unit[cur_idx].owner_id==owner_id && units.unit[cur_idx].build_percent_left == 0.0f && (units.unit[cur_idx].mission==NULL || units.unit[cur_idx].mission->mission!=MISSION_MOVE)) {
-                                                            units.unit[cur_idx].lock();
-                                                            Vector3D target = units.unit[cur_idx].Pos;
-                                                            target.z+=100.0f;
-                                                            units.unit[cur_idx].add_mission(MISSION_MOVE | MISSION_FLAG_AUTO,&target,true);
-                                                            units.unit[cur_idx].unlock();
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                                break;
-                            default:
-                                port[v2]=v1;
-                        }
-                    }
-                    break;	//added
-                case SCRIPT_ATTACH_UNIT:
-                    {
-                        DEBUG_PRINT_CODE("ATTACH_UNIT");
-                        /*int v3 =*/ (*script_env)[id].pop();
-                        int v2 = (*script_env)[id].pop();
-                        int v1 = (*script_env)[id].pop();
-                        if (v1 >= 0 && v1 < units.max_unit && units.unit[ v1 ].flags )
-                        {
-                            UNIT *target_unit = &(units.unit[v1]);
-                            target_unit->hidden = (v2 < 0);
-                            bool already_in = false;
-                            if (target_unit->attached )
-                                for( int i = 0 ; i < nb_attached ; i++ )		// Check if this unit is already in
-                                {
-                                    if (attached_list[ i ] == v1 )
-                                    {
-                                        already_in = true;
-                                        link_list[ i ] = v2;
-                                    }
-                                }
-                            if (!already_in )
-                            {
-                                link_list[nb_attached]=v2;
-                                attached_list[nb_attached++]=target_unit->idx;
-                            }
-                            target_unit->attached=true;
-                            if (!already_in )
-                                target_unit->clear_from_map();
-                        }
-                        break;	//added
-                    }
-                case SCRIPT_DROP_UNIT:
-                    {
-                        DEBUG_PRINT_CODE("DROP_UNIT *");
-                        int v1 = (*script_env)[id].pop();
-                        DEBUG_PRINT_CODE("Dropping " << v1);
-                        if (v1 >= 0 && v1 < units.max_unit && units.unit[ v1 ].flags)
-                        {
-                            UNIT *target_unit = &(units.unit[v1]);
-                            target_unit->attached = false;
-                            target_unit->hidden = false;
-                            nb_attached--;					// Remove the unit from the attached list
-                            for( int i = 0 ; i < nb_attached ; i++ )
-                            {
-                                if (attached_list[ i ] == v1 )
-                                {
-                                    link_list[ i ] = link_list[ nb_attached ];
-                                    attached_list[ i ] = attached_list[ nb_attached ];
-                                    break;
-                                }
-                            }
-                            // Redraw the unit on presence map
-                            pMutex.unlock();
-                            target_unit->draw_on_map();
-                            pMutex.lock();
-                        }
-                        break;	//added
-                    }
-                default:
-                    LOG_ERROR("UNKNOWN " << script->script_code[script_id][--pos] << ", Stopping script");
-                    {
-                        if (script_val->size() <= script_id )
-                            script_val->resize( script_id + 1 );
-                        (*script_val)[script_id]=(*script_env)[id].env->var[0];
-                        SCRIPT_ENV_STACK *old=(*script_env)[id].env;
-                        (*script_env)[id].env=(*script_env)[id].env->next;
-                        delete old;
-                    }
-                    if ((*script_env)[id].env)
-                    {
-                        script_id=((*script_env)[id].env->cur&0xFF);			// Récupère l'identifiant du script en cours d'éxecution et la position d'éxecution
-                        pos=((*script_env)[id].env->cur>>8);
-                    }
-                    else
-                        (*script_env)[id].running=false;
-                    done = true;
-            };
-        } while(!done);
-
-        if ((*script_env)[id].env)
-            (*script_env)[id].env->cur=script_id+(pos<<8);
-        return 0;
-    }
-
-
-
     void UNIT::explode()
     {
         exploding = true;
@@ -2574,7 +1504,7 @@ namespace TA3D
         fx_manager.addExplosion( Pos, V, power * 3, power * 10 );
 
         int param[]={ severity * 100 / unit_manager.unit_type[type_id]->MaxDamage, 0 };
-        run_script_function(the_map,get_script_index(SCRIPT_killed),2,param);
+        run_script_function(SCRIPT_killed, 2, param);
         if (attached )
             param[1] = 3;			// When we were flying we just disappear
         bool sinking = the_map->get_unit_h( Pos.x, Pos.z ) <= the_map->sealvl;
@@ -3007,24 +1937,25 @@ namespace TA3D
                             weapon[i].state = WEAPON_FLAG_IDLE;
                             break;
                         }
-                        int query_id=-1;
+                        String query_f;
                         switch(i)
                         {
                             case 0:
-                                query_id = get_script_index(SCRIPT_QueryPrimary);		break;
+                                query_f = "QueryPrimary";		break;
                             case 1:
-                                query_id = get_script_index(SCRIPT_QuerySecondary);		break;
+                                query_f = "QuerySecondary";		break;
                             case 2:
-                                query_id = get_script_index(SCRIPT_QueryTertiary);		break;
+                                query_f = "QueryTertiary";		break;
                         }
-                        if (query_id == -1)
-                            query_id = get_script_index(format("QueryWeapon%d",i+1));
+                        if (query_f.empty())
+                            query_f = format("QueryWeapon%d",i+1);
 
-                        if (!is_running(get_script_index(SCRIPT_RequestState)))
+#warning TODO: clean this
+                        if (true) //!is_running(SCRIPT_RequestState))
                         {
                             if (weapon[i].delay >= unit_manager.unit_type[type_id]->weapon[ i ]->reloadtime || unit_manager.unit_type[type_id]->weapon[ i ]->stockpile)
                             {
-                                run_script_function(map, query_id);			// Run the script that tell us from where to shoot
+                                run_script_function(query_f);			// Run the script that tell us from where to shoot
 
                                 UNIT *target_unit = (weapon[i].state & WEAPON_FLAG_WEAPON ) == WEAPON_FLAG_WEAPON ? NULL : (UNIT*) weapon[i].target;
                                 WEAPON *target_weapon = (weapon[i].state & WEAPON_FLAG_WEAPON ) == WEAPON_FLAG_WEAPON ? (WEAPON*) weapon[i].target : NULL;
@@ -3074,9 +2005,8 @@ namespace TA3D
 
                                 if (unit_manager.unit_type[type_id]->weapon[ i ]->turret) 	// Si l'unité doit viser, on la fait viser / if it must aim, we make it aim
                                 {
-                                    if (script_val->size() <= query_id )
-                                        script_val->resize( query_id + 1 );
-                                    int start_piece = (*script_val)[query_id];
+#warning TODO: implement start piece query properly
+                                    int start_piece = 0;
                                     if (start_piece<0 || start_piece>=data.nb_piece)
                                         start_piece=0;
                                     compute_model_coord();
@@ -3088,7 +2018,7 @@ namespace TA3D
                                         if (weapon[i].data == -1 )
                                         {
                                             int target_piece[1] = {0};
-                                            target_unit->run_script_function( map, target_unit->get_script_index( SCRIPT_SweetSpot ), 1, target_piece );
+                                            target_unit->run_script_function( SCRIPT_SweetSpot, 1, target_piece );
                                             weapon[i].data = target_piece[0];
                                         }
                                         if (weapon[i].data >= 0 )
@@ -3181,35 +2111,35 @@ namespace TA3D
                                     }
                                     else
                                         weapon[i].aim_dir=cosf(aiming[1]*TA2RAD)*(cosf(aiming[0]*TA2RAD+Angle.y*DEG2RAD)*I+sinf(aiming[0]*TA2RAD+Angle.y*DEG2RAD)*J)+sinf(aiming[1]*TA2RAD)*IJ;
-                                    int AimID = -1;
+                                    String AimF;
                                     switch(i)
                                     {
                                         case 0:
-                                            AimID = get_script_index(SCRIPT_AimPrimary);	break;
+                                            AimF = "AimPrimary";	break;
                                         case 1:
-                                            AimID = get_script_index(SCRIPT_AimSecondary);	break;
+                                            AimF = "AimSecondary";	break;
                                         case 2:
-                                            AimID = get_script_index(SCRIPT_AimTertiary);	break;
+                                            AimF = "AimTertiary";	break;
                                     }
-                                    if (AimID == -1)
-                                        AimID = get_script_index(format("AimWeapon%d",i+1));
-                                    launch_script(AimID,2,aiming);
+                                    if (AimF.empty())
+                                        AimF = format("AimWeapon%d",i+1);
+                                    launch_script(AimF,2,aiming);
                                 }
                                 else
                                 {
-                                    int AimID = -1;
+                                    String AimF;
                                     switch(i)
                                     {
                                         case 0:
-                                            AimID = get_script_index(SCRIPT_AimPrimary);	break;
+                                            AimF = "AimPrimary";	break;
                                         case 1:
-                                            AimID = get_script_index(SCRIPT_AimSecondary);	break;
+                                            AimF = "AimSecondary";	break;
                                         case 2:
-                                            AimID = get_script_index(SCRIPT_AimTertiary);	break;
+                                            AimF = "AimTertiary";	break;
                                     }
-                                    if (AimID == -1)
-                                        AimID = get_script_index(format("AimWeapon%d",i+1));
-                                    launch_script(AimID);
+                                    if (AimF.empty())
+                                        AimF = format("AimWeapon%d",i+1);
+                                    launch_script(AimF);
                                 }
                                 weapon[i].time = 0.0f;
                                 weapon[i].state = WEAPON_FLAG_SHOOT;									// (puis) on lui demande de tirer / tell it to fire
@@ -3219,7 +2149,7 @@ namespace TA3D
                     }
                     else
                     {
-                        launch_script(get_script_index(SCRIPT_TargetCleared));
+                        launch_script(SCRIPT_TargetCleared);
                         weapon[i].state = WEAPON_FLAG_IDLE;
                         weapon[i].data = -1;
                     }
@@ -3229,34 +2159,35 @@ namespace TA3D
                         || (( weapon[i].state & WEAPON_FLAG_WEAPON ) != WEAPON_FLAG_WEAPON && (((UNIT*)(weapon[i].target))->flags&1))) {
                         if (weapon[i].burst > 0 && weapon[i].delay < unit_manager.unit_type[type_id]->weapon[ i ]->burstrate )
                             break;
-                        int query_id=-1;
-                        int Aim_script = -1;
-                        int Fire_script = -1;
+                        String query_f;
+                        String Aim_script;
+                        String Fire_script;
                         switch(i)
                         {
                             case 0:
-                                query_id = get_script_index(SCRIPT_QueryPrimary);
-                                Aim_script = get_script_index(SCRIPT_AimPrimary);
-                                Fire_script = get_script_index(SCRIPT_FirePrimary);
+                                query_f = "QueryPrimary";
+                                Aim_script = "AimPrimary";
+                                Fire_script = "FirePrimary";
                                 break;
                             case 1:
-                                query_id = get_script_index(SCRIPT_QuerySecondary);
-                                Aim_script = get_script_index(SCRIPT_AimSecondary);
-                                Fire_script = get_script_index(SCRIPT_FireSecondary);
+                                query_f = "QuerySecondary";
+                                Aim_script = "AimSecondary";
+                                Fire_script = "FireSecondary";
                                 break;
                             case 2:
-                                query_id = get_script_index(SCRIPT_QueryTertiary);
-                                Aim_script = get_script_index(SCRIPT_AimTertiary);
-                                Fire_script = get_script_index(SCRIPT_FireTertiary);
+                                query_f = "QueryTertiary";
+                                Aim_script = "AimTertiary";
+                                Fire_script = "FireTertiary";
                                 break;
                         }
-                        if (query_id == -1)
-                            query_id = get_script_index(format("QueryWeapon%d",i+1));
-                        if (Aim_script == -1)
-                            Aim_script = get_script_index(format("AimWeapon%d",i+1));
-                        if (Fire_script == -1)
-                            Fire_script = get_script_index(format("FireWeapon%d",i+1));
-                        if (!is_running(Aim_script))
+                        if (query_f.empty())
+                            query_f = format("QueryWeapon%d",i+1);
+                        if (Aim_script.empty())
+                            Aim_script = format("AimWeapon%d",i+1);
+                        if (Fire_script.empty())
+                            Fire_script = format("FireWeapon%d",i+1);
+#warning TODO: reimplement aiming calls properly
+                        if (true) //!is_running(Aim_script))
                         {
                             if ((players.metal[owner_id]<unit_manager.unit_type[type_id]->weapon[ i ]->metalpershot
                                  || players.energy[owner_id]<unit_manager.unit_type[type_id]->weapon[ i ]->energypershot)
@@ -3271,10 +2202,9 @@ namespace TA3D
                                 weapon[i].data = -1;
                                 break;
                             }
-                            if (script_val->size() <= query_id )
-                                script_val->resize( query_id + 1 );
-                            int start_piece = (*script_val)[query_id];
-                            if (start_piece>=0 && start_piece<data.nb_piece)
+#warning TODO: fix start_piece here
+                            int start_piece = 0;//(*script_val)[query_id];
+                            if (start_piece >= 0 && start_piece < data.nb_piece)
                             {
                                 compute_model_coord();
                                 if (!unit_manager.unit_type[type_id]->weapon[ i ]->waterweapon && Pos.y + data.pos[start_piece].y <= map->sealvl)     // Can't shoot from water !!
@@ -3291,7 +2221,7 @@ namespace TA3D
                                 if (i==3)
                                 {
                                 LOG_DEBUG("firing from " << (Pos+data.pos[start_piece]).y << " (" << units.map->get_unit_h((Pos+data.pos[start_piece]).x, (Pos+data.pos[start_piece]).z) << ")");
-                                LOG_DEBUG("from piece " << start_piece << " (" << query_id << "," << Aim_script << "," << Fire_script << ")" );
+                                LOG_DEBUG("from piece " << start_piece << " (" << query_f << "," << Aim_script << "," << Fire_script << ")" );
                                 }
 
                                         // SHOOT NOW !!
@@ -3302,7 +2232,7 @@ namespace TA3D
                                     players.c_metal[owner_id] -= unit_manager.unit_type[type_id]->weapon[ i ]->metalpershot;
                                     players.c_energy[owner_id] -= unit_manager.unit_type[type_id]->weapon[ i ]->energypershot;
                                 }
-                                run_script_function( map, Fire_script );			// Run the script that tell us from where to shoot
+                                run_script_function( Fire_script );			// Run the script that tell us from where to shoot
                                 if (!unit_manager.unit_type[type_id]->weapon[ i ]->soundstart.empty())	sound_manager->playSound(unit_manager.unit_type[type_id]->weapon[i]->soundstart, &Pos);
 
                                 if (weapon[i].target == NULL )
@@ -3333,7 +2263,7 @@ namespace TA3D
                                 }
                             }
                             else if (weapon[i].target != NULL || weapon[i].burst == 0 ) {
-                                launch_script(get_script_index(SCRIPT_TargetCleared));
+                                launch_script(SCRIPT_TargetCleared);
                                 weapon[i].state = WEAPON_FLAG_IDLE;
                                 weapon[i].data = -1;
                             }
@@ -3341,7 +2271,7 @@ namespace TA3D
                     }
                     else
                     {
-                        launch_script(get_script_index(SCRIPT_TargetCleared) );
+                        launch_script(SCRIPT_TargetCleared);
                         weapon[i].state = WEAPON_FLAG_IDLE;
                         weapon[i].data = -1;
                     }
@@ -3367,12 +2297,12 @@ namespace TA3D
                 {
                     if (unit_manager.unit_type[type_id]->canfly)
                         activate();
-                    launch_script(get_script_index(SCRIPT_MotionControl));
-                    launch_script(get_script_index(SCRIPT_startmoving));
+                    launch_script(SCRIPT_MotionControl);
+                    launch_script(SCRIPT_startmoving);
                     if (nb_attached==0)
-                        launch_script(get_script_index(SCRIPT_MoveRate1));		// For the armatlas
+                        launch_script(SCRIPT_MoveRate1);		// For the armatlas
                     else
-                        launch_script(get_script_index(SCRIPT_MoveRate2));
+                        launch_script(SCRIPT_MoveRate2);
                     was_moving = true;
                 }
                 Vector3D J,I,K;
@@ -3441,7 +2371,7 @@ namespace TA3D
                                     }
                                     else
                                         mission->flags |= MISSION_FLAG_REFRESH_PATH;			// Retry later
-                                    launch_script(get_script_index(SCRIPT_StopMoving));
+                                    launch_script(SCRIPT_StopMoving);
                                     was_moving = false;
                                 }
 
@@ -3487,7 +2417,7 @@ namespace TA3D
                             else										// We are not where we are supposed to be !!
                                 mission->flags |= MISSION_FLAG_REFRESH_PATH;
                             if (!( unit_manager.unit_type[type_id]->canfly && nb_attached > 0 ) ) {		// Once charged with units the Atlas cannot land
-                                launch_script(get_script_index(SCRIPT_StopMoving));
+                                launch_script(SCRIPT_StopMoving);
                                 was_moving = false;
                             }
                             if (!(mission->flags & MISSION_FLAG_DONT_STOP_MOVE) )
@@ -3722,7 +2652,7 @@ namespace TA3D
                         if (!(mission->flags & MISSION_FLAG_PAD_CHECKED) ) {
                             mission->flags |= MISSION_FLAG_PAD_CHECKED;
                             int param[] = { 0, 1 };
-                            target_unit->run_script_function( map, target_unit->get_script_index( SCRIPT_QueryLandingPad ), 2, param );
+                            target_unit->run_script_function( SCRIPT_QueryLandingPad, 2, param );
                             mission->data = param[ 0 ];
                         }
 
@@ -3852,7 +2782,7 @@ namespace TA3D
                                 {
                                     if (attached_list[0] >= 0 && attached_list[0] < units.max_unit				// Check we can do that
                                         && units.unit[ attached_list[0] ].flags && can_be_built( Pos, map, units.unit[ attached_list[0] ].type_id, owner_id ) ) {
-                                        launch_script(get_script_index(SCRIPT_EndTransport));
+                                        launch_script(SCRIPT_EndTransport);
 
                                         UNIT *target_unit = &(units.unit[ attached_list[0] ]);
                                         target_unit->attached = false;
@@ -3868,12 +2798,13 @@ namespace TA3D
 
                                     next_mission();
                                 }
-                                else {
+                                else
+                                {
                                     if (attached_list[ nb_attached - 1 ] >= 0 && attached_list[ nb_attached - 1 ] < units.max_unit				// Check we can do that
                                         && units.unit[ attached_list[ nb_attached - 1 ] ].flags && can_be_built( mission->target, map, units.unit[ attached_list[ nb_attached - 1 ] ].type_id, owner_id ) ) {
                                         int idx = attached_list[ nb_attached - 1 ];
-                                        int param[]= { idx, PACKXZ( mission->target.x*2.0f+map->map_w, mission->target.z*2.0f+map->map_h ) };
-                                        launch_script(get_script_index(SCRIPT_TransportDrop),2,param);
+                                        int param[]= { idx, PACKXZ( mission->target.x * 2.0f + map->map_w, mission->target.z * 2.0f + map->map_h ) };
+                                        launch_script(SCRIPT_TransportDrop, 2, param);
                                     }
                                     else if (attached_list[ nb_attached - 1 ] < 0 || attached_list[ nb_attached - 1 ] >= units.max_unit
                                              || units.unit[ attached_list[ nb_attached - 1 ] ].flags == 0 )
@@ -3881,8 +2812,10 @@ namespace TA3D
                                 }
                                 mission->last_d=-1.0f;
                             }
-                            else {
-                                if (!is_running(get_script_index(SCRIPT_TransportDrop)) && port[ BUSY ] == 0.0f )
+                            else
+                            {
+//                                if (!is_running(get_script_index(SCRIPT_TransportDrop)) && port[ BUSY ] == 0.0f )
+                                if (port[ BUSY ] == 0)
                                     next_mission();
                             }
                         }
@@ -3911,14 +2844,18 @@ namespace TA3D
                             mission->flags |= MISSION_FLAG_MOVE;
                             mission->move_data = maxdist*8/80;
                         }
-                        else if (!(mission->flags & MISSION_FLAG_MOVE) ) {
-                            if (mission->last_d>=0.0f) {
-                                if (unit_manager.unit_type[type_id]->TransMaxUnits==1) {		// Code for units like the arm atlas
-                                    if (nb_attached==0) {
+                        else if (!(mission->flags & MISSION_FLAG_MOVE))
+                        {
+                            if (mission->last_d>=0.0f)
+                            {
+                                if (unit_manager.unit_type[type_id]->TransMaxUnits==1)  		// Code for units like the arm atlas
+                                {
+                                    if (nb_attached == 0)
+                                    {
                                         //										int param[] = { (int)((Pos.y - target_unit->Pos.y - target_unit->model->top)*2.0f) << 16 };
                                         int param[] = { (int)((Pos.y - target_unit->Pos.y)*2.0f) << 16 };
-                                        launch_script(get_script_index(SCRIPT_BeginTransport),1,param);
-                                        run_script_function( map, get_script_index(SCRIPT_QueryTransport),1,param);
+                                        launch_script(SCRIPT_BeginTransport, 1, param);
+                                        run_script_function( SCRIPT_QueryTransport, 1, param);
                                         target_unit->attached = true;
                                         link_list[nb_attached] = param[0];
                                         target_unit->hidden = param[0] < 0;
@@ -3927,18 +2864,23 @@ namespace TA3D
                                     }
                                     next_mission();
                                 }
-                                else {
-                                    if (nb_attached>=unit_manager.unit_type[type_id]->TransportCapacity) {
+                                else
+                                {
+                                    if (nb_attached>=unit_manager.unit_type[type_id]->TransportCapacity)
+                                    {
                                         next_mission();
                                         break;
                                     }
                                     int param[]= { target_unit->idx };
-                                    launch_script(get_script_index(SCRIPT_TransportPickup),1,param);
+                                    launch_script(SCRIPT_TransportPickup, 1, param);
                                 }
                                 mission->last_d=-1.0f;
                             }
-                            else {
-                                if (!is_running(get_script_index(SCRIPT_TransportPickup)) && port[ BUSY ] == 0.0f )
+                            else
+                            {
+#warning TODO: clean this
+//                                if (!is_running(get_script_index(SCRIPT_TransportPickup)) && port[ BUSY ] == 0.0f )
+                                if (port[ BUSY ] == 0)
                                     next_mission();
                             }
                         }
@@ -3983,8 +2925,8 @@ namespace TA3D
                                     if (angle>180)	angle-=360;
                                     if (angle<-180)	angle+=360;
                                     int param[] = { (int)(angle*DEG2TA) };
-                                    launch_script(get_script_index(SCRIPT_startbuilding), 1, param);
-                                    launch_script(get_script_index(SCRIPT_go));
+                                    launch_script(SCRIPT_startbuilding, 1, param);
+                                    launch_script(SCRIPT_go);
                                     mission->last_d=-1.0f;
                                 }
 
@@ -4023,19 +2965,21 @@ namespace TA3D
                                             target_unit->unlock();
 
                                             pMutex.lock();
-                                            launch_script(get_script_index(SCRIPT_stopbuilding));
-                                            launch_script(get_script_index(SCRIPT_stop));
+                                            launch_script(SCRIPT_stopbuilding);
+                                            launch_script(SCRIPT_stop);
                                             next_mission();
                                         }
                                     }
-                                    else {
-                                        if (recup > target_unit->hp )	recup = target_unit->hp;
+                                    else
+                                    {
+                                        if (recup > target_unit->hp)	recup = target_unit->hp;
                                         target_unit->hp -= recup;
-                                        if (dt > 0.0f )
+                                        if (dt > 0.0f)
                                             metal_prod += recup * unit_manager.unit_type[target_unit->type_id]->BuildCostMetal / (dt * unit_manager.unit_type[target_unit->type_id]->MaxDamage);
-                                        if (target_unit->hp <= 0.0f ) {		// Work done
-                                            launch_script(get_script_index(SCRIPT_stopbuilding));
-                                            launch_script(get_script_index(SCRIPT_stop));
+                                        if (target_unit->hp <= 0.0f)		// Work done
+                                        {
+                                            launch_script(SCRIPT_stopbuilding);
+                                            launch_script(SCRIPT_stop);
                                             target_unit->flags |= 0x10;			// This unit is being reclaimed it doesn't explode!
                                             next_mission();
                                         }
@@ -4075,8 +3019,8 @@ namespace TA3D
                                 if (angle>180)	angle-=360;
                                 if (angle<-180)	angle+=360;
                                 int param[] = { (int)(angle*DEG2TA) };
-                                launch_script(get_script_index(SCRIPT_startbuilding), 1, param );
-                                launch_script(get_script_index(SCRIPT_go));
+                                launch_script(SCRIPT_startbuilding, 1, param );
+                                launch_script(SCRIPT_go);
                                 mission->last_d=-1.0f;
                             }
                             if (unit_manager.unit_type[type_id]->BMcode && port[ INBUILDSTANCE ] != 0 ) {
@@ -4134,21 +3078,23 @@ namespace TA3D
                                                 success = true;
                                             }
                                         }
-                                        if (!success ) {
+                                        if (!success )
+                                        {
                                             play_sound( "cant1" );
-                                            launch_script(get_script_index(SCRIPT_stopbuilding));
-                                            launch_script(get_script_index(SCRIPT_stop));
+                                            launch_script(SCRIPT_stopbuilding);
+                                            launch_script(SCRIPT_stop);
                                             next_mission();
                                         }
                                     }
-                                    else {
+                                    else
+                                    {
                                         features.unlock();
                                         feature_locked = false;
                                         if (network_manager.isConnected() )
                                             g_ta3d_network->sendFeatureDeathEvent( mission->data );
                                         features.delete_feature(mission->data);			// Delete the object
-                                        launch_script(get_script_index(SCRIPT_stopbuilding));
-                                        launch_script(get_script_index(SCRIPT_stop));
+                                        launch_script(SCRIPT_stopbuilding);
+                                        launch_script(SCRIPT_stop);
                                         next_mission();
                                     }
                                 }
@@ -4443,7 +3389,7 @@ namespace TA3D
                                 for( int i = 0 ; i < weapon.size() ; i++ )
                                     if (unit_manager.unit_type[type_id]->weapon[ i ])
                                         param[ 0 ] = Math::Max(param[0], (int)( unit_manager.unit_type[type_id]->weapon[i]->reloadtime * 1000.0f) * Math::Max(1, (int)unit_manager.unit_type[type_id]->weapon[i]->burst));
-                                launch_script(get_script_index(SCRIPT_SetMaxReloadTime),1,param);
+                                launch_script(SCRIPT_SetMaxReloadTime, 1, param);
                             }
 
                             if (mission->flags & MISSION_FLAG_COMMAND_FIRED)
@@ -4487,12 +3433,12 @@ namespace TA3D
                     {
                         if (mission->data==0)
                         {
-                            launch_script(get_script_index(SCRIPT_StopMoving));		// Arrête tout / stop everything
-                            launch_script(get_script_index(SCRIPT_stopbuilding));
+                            launch_script(SCRIPT_StopMoving);		// Arrête tout / stop everything
+                            launch_script(SCRIPT_stopbuilding);
                             for( int i = 0 ; i < weapon.size() ; i++ )
                                 if (weapon[i].state)
                                 {
-                                    launch_script(get_script_index(SCRIPT_TargetCleared));
+                                    launch_script(SCRIPT_TargetCleared);
                                     break;
                                 }
                             for( int i = 0 ; i < weapon.size() ; i++ )			// Stop weapons
@@ -4542,8 +3488,8 @@ namespace TA3D
                                         if (angle>180)	angle-=360;
                                         if (angle<-180)	angle+=360;
                                         int param[] = { (int)(angle*DEG2TA) };
-                                        launch_script(get_script_index(SCRIPT_startbuilding), 1, param );
-                                        launch_script(get_script_index(SCRIPT_go));
+                                        launch_script(SCRIPT_startbuilding, 1, param );
+                                        launch_script(SCRIPT_go);
                                     }
 
                                     if (port[ INBUILDSTANCE ] != 0.0f)
@@ -4591,7 +3537,7 @@ namespace TA3D
                                     if (angle>180)	angle-=360;
                                     if (angle<-180)	angle+=360;
                                     int param[] = { (int)(angle*DEG2TA) };
-                                    launch_script(get_script_index(SCRIPT_startbuilding), 1, param );
+                                    launch_script(SCRIPT_startbuilding, 1, param );
                                     mission->mission = MISSION_BUILD_2;		// Change de type de mission
                                 }
                             }
@@ -4668,14 +3614,13 @@ namespace TA3D
                                 }
                                 if (!unit_manager.unit_type[type_id]->BMcode)
                                 {
-                                    int script_id_buildinfo = get_script_index(SCRIPT_QueryBuildInfo);
-                                    if (script_id_buildinfo>=0)
+                                    String script_buildinfo = "QueryBuildInfo";
+                                    if (!script_buildinfo.empty())
                                     {
                                         compute_model_coord();
                                         Vector3D old_pos = target_unit->Pos;
-                                        if (script_val->size() <= script_id_buildinfo )
-                                            script_val->resize( script_id_buildinfo + 1 );
-                                        target_unit->Pos=Pos+data.pos[(*script_val)[script_id_buildinfo]];
+#warning TODO: fix build info call
+//                                        target_unit->Pos = Pos + data.pos[(*script_val)[script_buildinfo]];
                                         if (unit_manager.unit_type[target_unit->type_id]->Floater || ( unit_manager.unit_type[target_unit->type_id]->canhover && old_pos.y <= map->sealvl ) )
                                             target_unit->Pos.y = old_pos.y;
                                         if (((Vector3D)(old_pos-target_unit->Pos)).sq() > 1000000.0f) // It must be continuous
@@ -4689,7 +3634,8 @@ namespace TA3D
                                             target_unit->cur_py = ((int)(target_unit->Pos.z)+map->map_h_d+4)>>3;
                                         }
                                         target_unit->Angle = Angle;
-                                        target_unit->Angle.y += data.axe[1][(*script_val)[script_id_buildinfo]].angle;
+#warning TODO: fix build info call
+//                                        target_unit->Angle.y += data.axe[1][(*script_val)[script_buildinfo]].angle;
                                         pMutex.unlock();
                                         target_unit->draw_on_map();
                                         pMutex.lock();
@@ -4721,7 +3667,7 @@ namespace TA3D
                         if (angle>180)	angle-=360;
                         if (angle<-180)	angle+=360;
                         int param[] = { (int)(angle*DEG2TA) };
-                        launch_script(get_script_index(SCRIPT_startbuilding), 1, param );
+                        launch_script(SCRIPT_startbuilding, 1, param );
                         mission->mission = MISSION_BUILD_2;		// Change mission type
                         ((UNIT*)(mission->p))->built = true;
                         play_sound( "build" );
@@ -4752,10 +3698,12 @@ namespace TA3D
                                 V.z = 0.0f;
                                 if (!unit_manager.unit_type[type_id]->BMcode)
                                 {
-                                    int script_id_buildinfo = get_script_index(SCRIPT_QueryBuildInfo);
-                                    if (script_id_buildinfo >= 0 ) {
+                                    String script_buildinfo = "QueryBuildInfo";
+#warning TODO: fix build info call
+                                    if (!script_buildinfo.empty())
+                                    {
                                         int param[] = { -1 };
-                                        run_script_function( map, script_id_buildinfo, 1, param );
+                                        run_script_function( script_buildinfo, 1, param );
                                         if (param[0] >= 0)
                                         {
                                             compute_model_coord();
@@ -4783,7 +3731,7 @@ namespace TA3D
                             else
                             {
                                 activate();
-                                run_script_function( map, get_script_index(SCRIPT_QueryBuildInfo) );
+                                run_script_function( SCRIPT_QueryBuildInfo );
                             }
                         }
                     }
@@ -5257,7 +4205,7 @@ script_exec:
             if (unit_manager.unit_type[type_id]->canhover)
             {
                 int param[1] = { hover_on_water ? ( map->sealvl - min_h >= 8.0f ? 2 : 1) : 4 };
-                run_script_function(units.map,get_script_index(SCRIPT_setSFXoccupy),1,param);
+                run_script_function(SCRIPT_setSFXoccupy, 1, param);
             }
             if (min_h>Pos.y)
             {
@@ -5305,26 +4253,8 @@ script_exec:
             port[GROUND_HEIGHT] = (int)(Pos.y-min_h+0.5f);
         }
         port[HEALTH] = (int)hp*100 / unit_manager.unit_type[type_id]->MaxDamage;
-        if (nb_running>0)
-        {
-            for(int i=0;i<nb_running;i++)
-                run_script(dt,i,map);
-            int e=0;
-            for(int i=0;i+e<nb_running;)				// Efface les scripts qui se sont arrêtés
-            {
-                if ((*script_env)[i+e].running)
-                {
-                    (*script_env)[i] = (*script_env)[i+e];
-                    i++;
-                }
-                else
-                {
-                    (*script_env)[i+e].destroy();
-                    e++;
-                }
-            }
-            nb_running-=e;
-        }
+        if (script)
+            script->run(dt);
         yardmap_timer--;
         if (hp > 0.0f &&
             (((o_px != cur_px || o_py != cur_py || first_move || (was_flying ^ flying) || ((port[YARD_OPEN] != 0.0f) ^ was_open) || yardmap_timer == 0) && build_percent_left <= 0.0f) || !drawn))
@@ -6200,12 +5130,12 @@ script_exec:
     {
         WEAPON_DEF *pW = unit_manager.unit_type[type_id]->weapon[ w_id ];        // Critical information, we can't lose it so we save it before unlocking this unit
         int owner = owner_id;
-        if (get_script_index( SCRIPT_RockUnit ) >= 0 ) // Don't do calculations that won't be used
-        {
+//        if (get_script_index( SCRIPT_RockUnit ) >= 0 ) // Don't do calculations that won't be used
+//        {
             Vector3D D = Dir * RotateY( -Angle.y * DEG2RAD );
             int param[] = { (int)(-10.0f*DEG2TA*D.z), (int)(-10.0f*DEG2TA*D.x) };
-            launch_script( get_script_index( SCRIPT_RockUnit ), 2, param );
-        }
+            launch_script( SCRIPT_RockUnit, 2, param );
+//        }
 
         if (pW->startsmoke && visible)
             particle_engine.make_smoke(startpos,0,1,0.0f,-1.0f,0.0f, 0.3f);
@@ -6406,48 +5336,43 @@ script_exec:
         pMutex.unlock();
     }
 
-    int UNIT::launch_script(int id,int nb_param,int *param,bool force)			// Start a script as a separate "thread" of the unit
+    int UNIT::launch_script(const int id, int nb_param, int *param)			        // Start a script as a separate "thread" of the unit
+    {
+        return launch_script( get_script_name(id), nb_param, param);
+    }
+
+    int UNIT::launch_script(const String &f_name, int nb_param, int *param)			// Start a script as a separate "thread" of the unit
     {
         MutexLocker locker(pMutex);
 
-        if (!script || id < 0 || id >= script->nb_script)
+        if (!script || f_name.empty())
             return -2;
-        if (!force)
-        {
-            if (is_running(id))			// le script tourne déjà / script already running
-                return -1;
-        }
-        if (nb_running >= 25)	// Too much scripts running
-        {
-            LOG_WARNING("Too much script running");
-            return -3;
-        }
 
-        if (local && network_manager.isConnected() ) // Send synchronization event
-        {
-            struct event event;
-            event.type = EVENT_UNIT_SCRIPT;
-            event.opt1 = idx;
-            event.opt2 = force;
-            event.opt3 = id;
-            event.opt4 = nb_param;
-            memcpy( event.str, param, sizeof(int) * nb_param );
-            network_manager.sendEvent( &event );
-        }
-
-        if (script_env->size() <= nb_running )
-            script_env->resize( nb_running + 1);
-        (*script_env)[nb_running].init();
-        (*script_env)[nb_running].env = new SCRIPT_ENV_STACK();
-        (*script_env)[nb_running].env->init();
-        (*script_env)[nb_running].env->cur=id;
-        (*script_env)[nb_running].running=true;
-        if (nb_param>0 && param!=NULL)
-        {
-            for(int i=0;i<nb_param;i++)
-                (*script_env)[nb_running].env->var[i]=param[i];
-        }
-        return nb_running++;
+//        if (local && network_manager.isConnected() ) // Send synchronization event
+//        {
+//            struct event event;
+//            event.type = EVENT_UNIT_SCRIPT;
+//            event.opt1 = idx;
+//            event.opt2 = force;
+//            event.opt3 = id;
+//            event.opt4 = nb_param;
+//            memcpy( event.str, param, sizeof(int) * nb_param );
+//            network_manager.sendEvent( &event );
+//        }
+//
+//        if (script_env->size() <= nb_running )
+//            script_env->resize( nb_running + 1);
+//        (*script_env)[nb_running].init();
+//        (*script_env)[nb_running].env = new SCRIPT_ENV_STACK();
+//        (*script_env)[nb_running].env->init();
+//        (*script_env)[nb_running].env->cur=id;
+//        (*script_env)[nb_running].running=true;
+//        if (nb_param>0 && param!=NULL)
+//        {
+//            for(int i=0;i<nb_param;i++)
+//                (*script_env)[nb_running].env->var[i]=param[i];
+//        }
+        return 0;
     }
 
     void *create_unit( int type_id, int owner, Vector3D pos, MAP *map, bool sync, bool script )
@@ -6902,8 +5827,8 @@ script_exec:
                 unit[i].metal_extracted = metal_base * unit_manager.unit_type[unit[i].type_id]->ExtractsMetal;
 
                 int param[] = { metal_base<<2 };
-                unit[i].run_script_function( map, unit[i].get_script_index(SCRIPT_SetSpeed),1,param);
-                unit[i].just_created=false;
+                unit[i].run_script_function( SCRIPT_SetSpeed, 1, param);
+                unit[i].just_created = false;
             }
 
             if (unit[i].build_percent_left==0.0f)
@@ -6928,10 +5853,10 @@ script_exec:
                         if (wind_change)
                         {
                             int param[] = { (int)(map->wind*50.0f) };
-                            unit[i].launch_script(unit[i].get_script_index(SCRIPT_SetSpeed),1,param);
+                            unit[i].launch_script( SCRIPT_SetSpeed, 1, param);
                             param[0]=(int)((map->wind_dir-unit[i].Angle.y)*DEG2TA);
-                            unit[i].launch_script(unit[i].get_script_index(SCRIPT_SetDirection),1,param);
-                            unit[i].launch_script(unit[i].get_script_index(SCRIPT_go));
+                            unit[i].launch_script( SCRIPT_SetDirection, 1, param);
+                            unit[i].launch_script( SCRIPT_go );
                         }
                     }
                     if (unit_manager.unit_type[unit[i].type_id]->TidalGenerator)	// Tidal Generator

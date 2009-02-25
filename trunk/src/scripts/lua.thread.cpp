@@ -105,29 +105,6 @@ namespace TA3D
         return makeacol(r,g,b,a);
     }
 
-    void LUA_THREAD::kill()
-    {
-        pMutex.lock();
-        running = false;
-        pMutex.unlock();
-    }
-
-    void LUA_THREAD::stop()
-    {
-        waiting = true;
-    }
-
-    void LUA_THREAD::resume()
-    {
-        waiting = false;
-    }
-
-    void LUA_THREAD::sleep(float time)
-    {
-        sleeping = true;
-        sleep_time = time;
-    }
-
     void LUA_THREAD::init()
     {
         caller = NULL;
@@ -592,84 +569,6 @@ namespace TA3D
         int result = (int) lua_tointeger( L, -1 );          // Read the result
         lua_pop( L, 1 );
         return result;
-    }
-
-    void LUA_THREAD::addThread(LUA_THREAD *pChild)
-    {
-        if (caller == pChild) return;
-        MutexLocker mLock(pMutex);
-        if (caller)
-            caller->addThread(pChild);
-        else
-        {
-            if (pChild == this) return;
-            removeThread(pChild);
-            childs.push_back(pChild);
-        }
-    }
-
-    void LUA_THREAD::removeThread(LUA_THREAD *pChild)
-    {
-        if (caller == pChild) return;
-        MutexLocker mLock(pMutex);
-        if (caller)
-            caller->removeThread(pChild);
-        else
-            for(std::vector<LUA_THREAD*>::iterator i = childs.begin() ; i != childs.end() ; ++i)
-                if (*i == pChild)
-                {
-                    delete *i;
-                    childs.erase(i);
-                    return;
-                }
-    }
-
-    void LUA_THREAD::processSignal(uint32 signal)
-    {
-        MutexLocker mLock(pMutex);
-        if (caller)
-            caller->processSignal(signal);
-        else
-        {
-            if (signal == signal_mask)
-                kill();
-            for(std::vector<LUA_THREAD*>::iterator i = childs.begin() ; i != childs.end() ; )
-                if ((*i)->signal_mask == signal)
-                {
-                    delete *i;
-                    i = childs.erase(i);
-                }
-                else
-                    ++i;
-        }
-    }
-
-    void LUA_THREAD::setSignalMask(uint32 signal)
-    {
-        lock();
-        signal_mask = signal;
-        unlock();
-    }
-
-    void LUA_THREAD::clean()
-    {
-        MutexLocker mLock(pMutex);
-        if (caller)
-            caller->clean();
-        else
-            for(std::vector<LUA_THREAD*>::iterator i = childs.begin() ; i != childs.end() ; )
-                if (!(*i)->is_running())
-                {
-                    delete *i;
-                    i = childs.erase(i);
-                }
-                else
-                    ++i;
-    }
-
-    uint32 LUA_THREAD::getSignalMask()
-    {
-        return signal_mask;
     }
 
     LUA_THREAD *LUA_THREAD::fork(lua_State *cL, int n)

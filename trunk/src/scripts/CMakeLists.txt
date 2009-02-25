@@ -9,6 +9,8 @@ SET(SOURCES cob.cpp cob.h
             draw.list.h draw.list.cpp
             unit.script.h unit.script.cpp
             unit.script.func.cpp
+            script.interface.h script.interface.cpp
+            unit.script.interface.h unit.script.interface.cpp
             ai.script.h ai.script.cpp
             script.h script.cpp)
 

@@ -35,75 +35,9 @@
 
 namespace TA3D
 {
-    void SCRIPT_ENV_STACK::init()
-    {
-        for(uint8 i = 0 ; i < 15 ; i++)
-            var[i] = 0;
-        cur = 0;
-        signal_mask = 0;
-        next = NULL;
-    }
-
-    SCRIPT_ENV_STACK::SCRIPT_ENV_STACK()
-    {
-        init();
-    }
-
-
-    void SCRIPT_ENV::init()
-    {
-        while(!sStack.empty())
-            sStack.pop();
-        env = NULL;
-        wait = 0.0f;
-        running = false;
-    }
-
-    SCRIPT_ENV::SCRIPT_ENV()
-    {
-        init();
-    }
-
-    void SCRIPT_ENV::destroy()
-    {
-        while(!sStack.empty())
-            sStack.pop();
-        while(env)
-        {
-            SCRIPT_ENV_STACK *next = env->next;
-            delete env;
-            env = next;
-        }
-        init();
-    }
-
-    SCRIPT_ENV::~SCRIPT_ENV()
-    {
-        //		destroy();
-    }
-
-    void SCRIPT_ENV::push(int v)
-    {
-        sStack.push(v);
-    }
-
-    int SCRIPT_ENV::pop()
-    {
-        if (sStack.empty())// Si la pile est vide, renvoie 0 et un message pour le débuggage
-        {
-            # ifdef DEBUG_MODE
-            LOG_WARNING("COB VM: stack is empty !");
-            # endif
-            return 0;
-        }
-        int v = sStack.top();
-        sStack.pop();
-        return v;
-    }
-
-
     COB_VM::COB_VM(COB_SCRIPT *p_script)
     {
+        global_env = new SCRIPT_ENV;
         init();
         script = p_script;
     }
@@ -116,46 +50,78 @@ namespace TA3D
     COB_VM::~COB_VM()
     {
         destroy();
+        if (caller == NULL && global_env)
+            delete global_env;
     }
 
     void COB_VM::init()
     {
         script = NULL;
-        s_var.clear();
-        nb_running = 0;
-        script_env.clear();
+        global_env = NULL;
+        sStack.clear();
+        local_env.clear();
         script_val.clear();
     }
 
     void COB_VM::destroy()
     {
         script = NULL;
-        s_var.clear();
-        nb_running = 0;
-        script_env.clear();
+        sStack.clear();
+        local_env.clear();
         script_val.clear();
     }
 
-    int COB_VM::run_thread(const float &dt, const int &id, int max_code)
+    int COB_VM::run(float dt)
     {
-        if (id >= (int)script_env.size() && !script_env[id].running)
-            return 2;
-        if (script_env[id].wait > 0.0f)
+        if (script == NULL)
         {
-            script_env[id].wait -= dt;
-            return 1;
+            running = false;
+            cur.clear();
+            local_env.clear();
+            return 2;	// No associated script !!
         }
-        if (script == NULL || script_env[id].env == NULL)
-        {
-            script_env[id].running = false;
-            return 2;	// S'il n'y a pas de script associé on quitte la fonction
-        }
-        sint16 script_id = (script_env[id].env->cur & 0xFF);			// Récupère l'identifiant du script en cours d'éxecution et la position d'éxecution
-        sint16 pos = (script_env[id].env->cur >> 8);
 
+        MutexLocker mLocker( pMutex );
+
+        if (caller == NULL)
+        {
+            clean();
+            for(int i = 0 ; i < childs.size() ; i++)
+            {
+                int sig = childs[i]->run(dt);
+                if (sig > 0 || sig < -3)
+                    return sig;
+            }
+        }
+
+        if (!is_running())   return -1;
+        if (!running)   return 0;
+        if (waiting)    return -3;
+
+        if (sleeping)
+        {
+            sleep_time -= dt;
+            if (sleep_time <= 0.0f)
+                sleeping = false;
+            if (sleeping)
+                return -2; 			// Keep sleeping
+        }
+
+        if (cur.empty())        // Call stack empty
+        {
+            running = false;
+            cur.clear();
+            local_env.clear();
+            return 2;
+        }
+
+        sint16 script_id = (cur.top() & 0xFF);			// Récupère l'identifiant du script en cours d'éxecution et la position d'éxecution
+        sint16 pos = (cur.top() >> 8);
         if (script_id < 0 || script_id >= script->nb_script)
         {
-            script_env[id].running = false;
+            running = false;
+            cur.clear();
+            local_env.clear();
             return 2;		// Erreur, ce n'est pas un script repertorié
         }
 
@@ -176,7 +142,7 @@ namespace TA3D
             //			uint32 code = script->script_code[script_id][pos];			// Lit un code
             //			pos++;
             nb_code++;
-            if (nb_code >= max_code) done = true;			// Pour éviter que le programme ne fige à cause d'un script
+            if (nb_code >= MAX_CODE_PER_TICK) done = true;			// Pour éviter que le programme ne fige à cause d'un script
             //			switch(code)			// Code de l'interpréteur
             switch(script->script_code[script_id][pos++])
             {
@@ -185,8 +151,8 @@ namespace TA3D
                         DEBUG_PRINT_CODE("MOVE_OBJECT");
                         int obj = script->script_code[script_id][pos++];
                         int axis = script->script_code[script_id][pos++];
-                        int v1 = script_env[id].pop();
-                        int v2 = script_env[id].pop();
+                        int v1 = sStack.pop();
+                        int v2 = sStack.pop();
                         pUnit->script_move_object(obj, axis, v1 * div, v2 * div);
                         break;
                     }
@@ -203,40 +169,40 @@ namespace TA3D
                 case SCRIPT_RANDOM_NUMBER:
                     {
                         DEBUG_PRINT_CODE("RANDOM_NUMBER");
-                        int high = script_env[id].pop();
-                        int low = script_env[id].pop();
-                        script_env[id].push(((sint32)(Math::RandFromTable() % (high - low + 1))) + low);
+                        int high = sStack.pop();
+                        int low = sStack.pop();
+                        sStack.push(((sint32)(Math::RandFromTable() % (high - low + 1))) + low);
                         break;
                     }
                 case SCRIPT_GREATER_EQUAL:
                     {
                         DEBUG_PRINT_CODE("GREATER_EQUAL");
-                        int v2 = script_env[id].pop();
-                        int v1 = script_env[id].pop();
-                        script_env[id].push(v1 >= v2 ? 1 : 0);
+                        int v2 = sStack.pop();
+                        int v1 = sStack.pop();
+                        sStack.push(v1 >= v2 ? 1 : 0);
                         break;
                     }
                 case SCRIPT_GREATER:
                     {
                         DEBUG_PRINT_CODE("GREATER");
-                        int v2 = script_env[id].pop();
-                        int v1 = script_env[id].pop();
-                        script_env[id].push(v1 > v2 ? 1 : 0);
+                        int v2 = sStack.pop();
+                        int v1 = sStack.pop();
+                        sStack.push(v1 > v2 ? 1 : 0);
                         break;
                     }
                 case SCRIPT_LESS:
                     {
                         DEBUG_PRINT_CODE("LESS");
-                        int v2 = script_env[id].pop();
-                        int v1 = script_env[id].pop();
-                        script_env[id].push(v1 < v2 ? 1 : 0);
+                        int v2 = sStack.pop();
+                        int v1 = sStack.pop();
+                        sStack.push(v1 < v2 ? 1 : 0);
                         break;
                     }
                 case SCRIPT_EXPLODE:
                     {
                         DEBUG_PRINT_CODE("EXPLODE");
                         int obj = script->script_code[script_id][pos++];
-                        int explosion_type = script_env[id].pop();
+                        int explosion_type = sStack.pop();
                         pUnit->script_explode(obj, explosion_type);
                         break;
                     }
@@ -245,8 +211,8 @@ namespace TA3D
                         DEBUG_PRINT_CODE("TURN_OBJECT");
                         int obj = script->script_code[script_id][pos++];
                         int axis = script->script_code[script_id][pos++];
-                        int v1 = script_env[id].pop();
-                        int v2 = script_env[id].pop();
+                        int v1 = sStack.pop();
+                        int v2 = sStack.pop();
                         pUnit->script_turn_object(obj, axis, v1 * TA2DEG, v2 * TA2DEG);
                         break;
                     }
@@ -268,38 +234,38 @@ namespace TA3D
                 case SCRIPT_SUBTRACT:
                     {
                         DEBUG_PRINT_CODE("SUBSTRACT");
-                        int v1 = script_env[id].pop();
-                        int v2 = script_env[id].pop();
-                        script_env[id].push(v2 - v1);
+                        int v1 = sStack.pop();
+                        int v2 = sStack.pop();
+                        sStack.push(v2 - v1);
                         break;
                     }
                 case SCRIPT_GET_VALUE_FROM_PORT:
                     {
                         DEBUG_PRINT_CODE("GET_VALUE_FROM_PORT:");
-                        int value = script_env[id].pop();
+                        int value = sStack.pop();
                         DEBUG_PRINT_CODE(value);
                         // TODO : clean this thing
                         int param[2];
                         switch(value)
                         {
                         case ATAN:
-                            param[1] = script_env[id].pop();
-                            param[0] = script_env[id].pop();
+                            param[1] = sStack.pop();
+                            param[0] = sStack.pop();
                             break;
                         case HYPOT:
-                            param[1] = script_env[id].pop();
-                            param[0] = script_env[id].pop();
+                            param[1] = sStack.pop();
+                            param[0] = sStack.pop();
                             break;
                         };
-                        script_env[id].push( pUnit->script_get_value_from_port(value, param) );
+                        sStack.push( pUnit->script_get_value_from_port(value, param) );
                     }
                     break;
                 case SCRIPT_LESS_EQUAL:
                     {
                         DEBUG_PRINT_CODE("LESS_EQUAL");
-                        int v2 = script_env[id].pop();
-                        int v1 = script_env[id].pop();
-                        script_env[id].push(v1 <= v2 ? 1 : 0);
+                        int v2 = sStack.pop();
+                        int v1 = sStack.pop();
+                        sStack.push(v1 <= v2 ? 1 : 0);
                         break;
                     }
                 case SCRIPT_SPIN_OBJECT:
@@ -307,41 +273,37 @@ namespace TA3D
                         DEBUG_PRINT_CODE("SPIN_OBJECT");
                         int obj = script->script_code[script_id][pos++];
                         int axis = script->script_code[script_id][pos++];
-                        int v1 = script_env[id].pop();
-                        int v2 = script_env[id].pop();
+                        int v1 = sStack.pop();
+                        int v2 = sStack.pop();
                         pUnit->script_spin_object(obj, axis, v1 * TA2DEG, v2 * TA2DEG);
                     }
                     break;
                 case SCRIPT_SLEEP:
                     {
                         DEBUG_PRINT_CODE("SLEEP");
-                        script_env[id].wait = script_env[id].pop() * 0.001f;
+                        sleep( sStack.pop() * 0.001f );
                         done = true;
                         break;
                     }
                 case SCRIPT_MULTIPLY:
                     {
                         DEBUG_PRINT_CODE("MULTIPLY");
-                        int v1 = script_env[id].pop();
-                        int v2 = script_env[id].pop();
-                        script_env[id].push(v1 * v2);
+                        int v1 = sStack.pop();
+                        int v2 = sStack.pop();
+                        sStack.push(v1 * v2);
                         break;
                     }
                 case SCRIPT_CALL_SCRIPT:
                     {
                         DEBUG_PRINT_CODE("CALL_SCRIPT");
-                        int function_id = script->script_code[script_id][pos];			// Lit un code
-                        ++pos;
-                        int num_param = script->script_code[script_id][pos];			// Lit un code
-                        ++pos;
-                        script_env[id].env->cur = script_id + (pos<<8);
-                        SCRIPT_ENV_STACK *old = script_env[id].env;
-                        script_env[id].env = new SCRIPT_ENV_STACK();
-                        script_env[id].env->init();
-                        script_env[id].env->next = old;
-                        script_env[id].env->cur = function_id;
+                        int function_id = script->script_code[script_id][pos++];			// Lit un code
+                        int num_param = script->script_code[script_id][pos++];			// Lit un code
+                        cur.top() = script_id + (pos<<8);
+                        cur.push( function_id );
+                        local_env.push( SCRIPT_ENV() );
+                        local_env.top().resize( num_param );
                         for(int i = num_param - 1 ; i >= 0 ; i--)		// Lit les paramètres
-                            script_env[id].env->var[i] = script_env[id].pop();
+                            local_env.top()[i] = sStack.pop();
                         done = true;
                         pos = 0;
                         script_id = function_id;
@@ -356,23 +318,23 @@ namespace TA3D
                 case SCRIPT_EQUAL:
                     {
                         DEBUG_PRINT_CODE("EQUAL");
-                        int v1 = script_env[id].pop();
-                        int v2 = script_env[id].pop();
-                        script_env[id].push(v1 == v2 ? 1 : 0);
+                        int v1 = sStack.pop();
+                        int v2 = sStack.pop();
+                        sStack.push(v1 == v2 ? 1 : 0);
                         break;
                     }
                 case SCRIPT_NOT_EQUAL:
                     {
                         DEBUG_PRINT_CODE("NOT_EQUAL");
-                        int v1 = script_env[id].pop();
-                        int v2 = script_env[id].pop();
-                        script_env[id].push(v1 != v2 ? 1 : 0);
+                        int v1 = sStack.pop();
+                        int v2 = sStack.pop();
+                        sStack.push(v1 != v2 ? 1 : 0);
                         break;
                     }
                 case SCRIPT_IF:
                     {
                         DEBUG_PRINT_CODE("IF");
-                        if (script_env[id].pop() != 0)
+                        if (sStack.pop() != 0)
                             pos++;
                         else
                         {
@@ -390,8 +352,8 @@ namespace TA3D
                 case SCRIPT_SIGNAL:
                     {
                         DEBUG_PRINT_CODE("SIGNAL");
-                        script_env[id].env->cur = script_id + (pos<<8);	    // Sauvegarde la position
-                        raise_signal(script_env[id].pop());                 // Tue tout les processus utilisant ce signal
+                        cur.top() = script_id + (pos<<8);	    // Sauvegarde la position
+                        processSignal(sStack.pop());                 // Tue tout les processus utilisant ce signal
                         return 0;
                     }
                 case SCRIPT_DONT_CACHE:
@@ -403,13 +365,13 @@ namespace TA3D
                 case SCRIPT_SET_SIGNAL_MASK:
                     {
                         DEBUG_PRINT_CODE("SET_SIGNAL_MASK");
-                        script_env[id].env->signal_mask = script_env[id].pop();
+                        setSignalMask( sStack.pop() );
                         break;
                     }
                 case SCRIPT_NOT:
                     {
                         DEBUG_PRINT_CODE("NOT");
-                        script_env[id].push(!script_env[id].pop());
+                        sStack.push(!sStack.pop());
                         break;
                     }
                 case SCRIPT_DONT_SHADE:
@@ -421,7 +383,7 @@ namespace TA3D
                 case SCRIPT_EMIT_SFX:
                     {
                         DEBUG_PRINT_CODE("EMIT_SFX:");
-                        int smoke_type = script_env[id].pop();
+                        int smoke_type = sStack.pop();
                         int from_piece = script->script_code[script_id][pos++];
                         DEBUG_PRINT_CODE("smoke_type " << smoke_type << " from " << from_piece);
                         pUnit->script_emit_sfx( smoke_type, from_piece );
@@ -430,48 +392,51 @@ namespace TA3D
                 case SCRIPT_PUSH_CONST:
                     {
                         DEBUG_PRINT_CODE("PUSH_CONST (" << script->script_code[script_id][pos] << ")");
-                        script_env[id].push(script->script_code[script_id][pos]);
+                        sStack.push(script->script_code[script_id][pos]);
                         ++pos;
                         break;
                     }
                 case SCRIPT_PUSH_VAR:
                     {
                         DEBUG_PRINT_CODE("PUSH_VAR (" << script->script_code[script_id][pos] << ") = "
-                                         << script_env[id].env->var[script->script_code[script_id][pos]]);
-                        script_env[id].push(script_env[id].env->var[script->script_code[script_id][pos]]);
+                                         << local_env.top()[script->script_code[script_id][pos]]);
+                        sStack.push(local_env.top()[script->script_code[script_id][pos]]);
                         ++pos;
                         break;
                     }
                 case SCRIPT_SET_VAR:
                     {
                         DEBUG_PRINT_CODE("SET_VAR (" << script->script_code[script_id][pos] << ")");
-                        script_env[id].env->var[script->script_code[script_id][pos]] = script_env[id].pop();
+                        int v_id = script->script_code[script_id][pos];
+                        if (local_env.top().size() <= v_id)
+                            local_env.top().resize(v_id+1);
+                        local_env.top()[v_id] = sStack.pop();
                         ++pos;
                         break;
                     }
                 case SCRIPT_PUSH_STATIC_VAR:
                     {
                         DEBUG_PRINT_CODE("PUSH_STATIC_VAR");
-                        if (script->script_code[script_id][pos] >= s_var.size() )
-                            s_var.resize( script->script_code[script_id][pos] + 1 );
-                        script_env[id].push(s_var[script->script_code[script_id][pos]]);
+                        if (script->script_code[script_id][pos] >= global_env->size() )
+                            global_env->resize( script->script_code[script_id][pos] + 1 );
+                        sStack.push((*global_env)[script->script_code[script_id][pos]]);
                         ++pos;
                         break;
                     }
                 case SCRIPT_SET_STATIC_VAR:
                     {
                         DEBUG_PRINT_CODE("SET_STATIC_VAR");
-                        if (script->script_code[script_id][pos] >= s_var.size() )
-                            s_var.resize( script->script_code[script_id][pos] + 1 );
-                        s_var[script->script_code[script_id][pos]] = script_env[id].pop();
+                        if (script->script_code[script_id][pos] >= global_env->size() )
+                            global_env->resize( script->script_code[script_id][pos] + 1 );
+                        (*global_env)[script->script_code[script_id][pos]] = sStack.pop();
                         ++pos;
                         break;
                     }
                 case SCRIPT_OR:
                     {
                         DEBUG_PRINT_CODE("OR");
-                        int v1 = script_env[id].pop(), v2 = script_env[id].pop();
-                        script_env[id].push(v1 | v2);
+                        int v1 = sStack.pop(), v2 = sStack.pop();
+                        sStack.push(v1 | v2);
                         break;
                     }
                 case SCRIPT_START_SCRIPT:				// Transfère l'éxecution à un autre script
@@ -479,17 +444,18 @@ namespace TA3D
                         DEBUG_PRINT_CODE("START_SCRIPT");
                         int function_id = script->script_code[script_id][pos++];			// Lit un code
                         int num_param = script->script_code[script_id][pos++];			// Lit un code
-                        int s_id = call(function_id, 0, NULL);
-                        if (s_id >= 0)
+                        COB_VM *p_cob = fork();
+                        if (p_cob)
                         {
+                            p_cob->call(function_id, NULL, 0);
                             for(int i = num_param - 1 ; i >= 0 ; i--)		// Lit les paramètres
-                                script_env[s_id].env->var[i] = script_env[id].pop();
-                            script_env[s_id].env->signal_mask = script_env[id].env->signal_mask;
+                                p_cob->local_env.top()[i] = sStack.pop();
+                            p_cob->setSignalMask( getSignalMask() );
                         }
                         else
                         {
                             for (int i = 0 ; i < num_param ; ++i)		// Enlève les paramètres de la pile
-                                script_env[id].pop();
+                                sStack.pop();
                         }
                         done = true;
                         break;
@@ -499,15 +465,14 @@ namespace TA3D
                         DEBUG_PRINT_CODE("RETURN");
                         if (script_val.size() <= script_id )
                             script_val.resize( script_id + 1 );
-                        script_val[script_id] = script_env[id].env->var[0];
-                        SCRIPT_ENV_STACK *old = script_env[id].env;
-                        script_env[id].env = script_env[id].env->next;
-                        delete old;
-                        script_env[id].pop();		// Enlève la valeur retournée
-                        if (script_env[id].env)
+                        script_val[script_id] = local_env.top().front();
+                        cur.pop();
+                        local_env.pop();
+                        sStack.pop();		// Enlève la valeur retournée
+                        if (!cur.empty())
                         {
-                            script_id = (script_env[id].env->cur & 0xFF);			// Récupère l'identifiant du script en cours d'éxecution et la position d'éxecution
-                            pos = (script_env[id].env->cur >> 8);
+                            script_id = (cur.top() & 0xFF);			// Récupère l'identifiant du script en cours d'éxecution et la position d'éxecution
+                            pos = (cur.top() >> 8);
                         }
                         done = true;
                         break;
@@ -522,9 +487,9 @@ namespace TA3D
                 case SCRIPT_ADD:
                     {
                         DEBUG_PRINT_CODE("ADD");
-                        int v1 = script_env[id].pop();
-                        int v2 = script_env[id].pop();
-                        script_env[id].push(v1 + v2);
+                        int v1 = sStack.pop();
+                        int v2 = sStack.pop();
+                        sStack.push(v1 + v2);
                         break;
                     }
                 case SCRIPT_STOP_SPIN:
@@ -532,16 +497,16 @@ namespace TA3D
                         DEBUG_PRINT_CODE("STOP_SPIN");
                         int obj = script->script_code[script_id][pos++];
                         int axis = script->script_code[script_id][pos++];
-                        int v = script_env[id].pop();
+                        int v = sStack.pop();
                         pUnit->script_stop_spin(obj, axis, v);
                         break;
                     }
                 case SCRIPT_DIVIDE:
                     {
                         DEBUG_PRINT_CODE("DIVIDE");
-                        int v1 = script_env[id].pop();
-                        int v2 = script_env[id].pop();
-                        script_env[id].push(v2 / v1);
+                        int v1 = sStack.pop();
+                        int v2 = sStack.pop();
+                        sStack.push(v2 / v1);
                         break;
                     }
                 case SCRIPT_MOVE_PIECE_NOW:
@@ -549,7 +514,7 @@ namespace TA3D
                         DEBUG_PRINT_CODE("MOVE_PIECE_NOW");
                         int obj = script->script_code[script_id][pos++];
                         int axis = script->script_code[script_id][pos++];
-                        int pos = script_env[id].pop();
+                        int pos = sStack.pop();
                         pUnit->script_move_piece_now(obj, axis, pos * div);
                         break;
                     }
@@ -558,7 +523,7 @@ namespace TA3D
                         DEBUG_PRINT_CODE("TURN_PIECE_NOW");
                         int obj = script->script_code[script_id][pos++];
                         int axis = script->script_code[script_id][pos++];
-                        int v = script_env[id].pop();
+                        int v = sStack.pop();
                         pUnit->script_turn_piece_now(obj, axis, v * TA2DEG);
                         break;
                     }
@@ -569,17 +534,17 @@ namespace TA3D
                 case SCRIPT_COMPARE_AND:
                     {
                         DEBUG_PRINT_CODE("COMPARE_AND");
-                        int v1 = script_env[id].pop();
-                        int v2 = script_env[id].pop();
-                        script_env[id].push(v1 && v2);
+                        int v1 = sStack.pop();
+                        int v2 = sStack.pop();
+                        sStack.push(v1 && v2);
                         break;
                     }
                 case SCRIPT_COMPARE_OR:
                     {
                         DEBUG_PRINT_CODE("COMPARE_OR");
-                        int v1 = script_env[id].pop();
-                        int v2 = script_env[id].pop();
-                        script_env[id].push(v1 || v2);
+                        int v1 = sStack.pop();
+                        int v2 = sStack.pop();
+                        sStack.push(v1 || v2);
                         break;
                     }
                 case SCRIPT_CALL_FUNCTION:
@@ -587,35 +552,32 @@ namespace TA3D
                         DEBUG_PRINT_CODE("CALL_FUNCTION");
                         int function_id = script->script_code[script_id][pos++];			// Lit un code
                         int num_param = script->script_code[script_id][pos++];			// Lit un code
-                        script_env[id].env->cur = script_id + (pos << 8);
-                        SCRIPT_ENV_STACK *old = script_env[id].env;
-                        script_env[id].env = new SCRIPT_ENV_STACK();
-                        script_env[id].env->init();
-                        script_env[id].env->next = old;
-                        script_env[id].env->cur = function_id;
+                        cur.top() = script_id + (pos << 8);
+                        local_env.push( SCRIPT_ENV() );
                         for(int i = num_param - 1 ; i >= 0 ; i--)		// Lit les paramètres
-                            script_env[id].env->var[i] = script_env[id].pop();
+                            local_env.top()[i] = sStack.pop();
                         done = true;
                         pos = 0;
                         script_id = function_id;
+                        cur.push( script_id + (pos << 8) );
                         break;
                     }
                 case SCRIPT_GET:
                     {
                         DEBUG_PRINT_CODE("GET *");
-                        script_env[id].pop();
-                        script_env[id].pop();
-                        int v2 = script_env[id].pop();
-                        int v1 = script_env[id].pop();
-                        int val = script_env[id].pop();
-                        script_env[id].push( pUnit->script_get(val, v1, v2) );
+                        sStack.pop();
+                        sStack.pop();
+                        int v2 = sStack.pop();
+                        int v1 = sStack.pop();
+                        int val = sStack.pop();
+                        sStack.push( pUnit->script_get(val, v1, v2) );
                         break;	//added
                     }
                 case SCRIPT_SET_VALUE:
                     {
                         DEBUG_PRINT_CODE("SET_VALUE *:");
-                        int v1 = script_env[id].pop();
-                        int v2 = script_env[id].pop();
+                        int v1 = sStack.pop();
+                        int v2 = sStack.pop();
                         DEBUG_PRINT_CODE(v1 << " " << v2);
                         pUnit->script_set_value( v2, v1 );
                     }
@@ -623,16 +585,16 @@ namespace TA3D
                 case SCRIPT_ATTACH_UNIT:
                     {
                         DEBUG_PRINT_CODE("ATTACH_UNIT");
-                        /*int v3 =*/ script_env[id].pop();
-                        int v2 = script_env[id].pop();
-                        int v1 = script_env[id].pop();
+                        /*int v3 =*/ sStack.pop();
+                        int v2 = sStack.pop();
+                        int v1 = sStack.pop();
                         pUnit->script_attach_unit(v1, v2);
                         break;	//added
                     }
                 case SCRIPT_DROP_UNIT:
                     {
                         DEBUG_PRINT_CODE("DROP_UNIT *");
-                        int v1 = script_env[id].pop();
+                        int v1 = sStack.pop();
                         DEBUG_PRINT_CODE("Dropping " << v1);
                         pUnit->script_drop_unit(v1);
                         break;	//added
@@ -642,76 +604,95 @@ namespace TA3D
                     {
                         if (script_val.size() <= script_id )
                             script_val.resize( script_id + 1 );
-                        script_val[script_id] = script_env[id].env->var[0];
-                        SCRIPT_ENV_STACK *old = script_env[id].env;
-                        script_env[id].env = script_env[id].env->next;
-                        delete old;
+                        script_val[script_id] = local_env.top().front();
+                        cur.pop();
+                        local_env.pop();
                     }
-                    if (script_env[id].env)
+                    if (!cur.empty())
                     {
-                        script_id = (script_env[id].env->cur & 0xFF);			// Récupère l'identifiant du script en cours d'éxecution et la position d'éxecution
-                        pos = (script_env[id].env->cur >> 8);
+                        script_id = (cur.top() & 0xFF);			// Récupère l'identifiant du script en cours d'éxecution et la position d'éxecution
+                        pos = (cur.top() >> 8);
                     }
                     else
-                        script_env[id].running = false;
+                        running = false;
                     done = true;
             };
         } while(!done);
 
-        if (script_env[id].env)
-            script_env[id].env->cur = script_id + (pos << 8);
+        if (!cur.empty())
+            cur.top() = script_id + (pos << 8);
         return 0;
     }
 
-    int COB_VM::call(int id, int nb_param, int *param)			// Start a script as a separate "thread" of the unit
+    void COB_VM::call(const int functionID, int *parameters, int nb_params)
     {
-        if (!script || id < 0 || id >= script->nb_script)
-            return -2;
+        if (!script || functionID < 0 || functionID >= script->nb_script || !cur.empty())
+            return;
 
-        if (nb_running >= 25)	// Too much scripts running
-        {
-            LOG_WARNING("Too much script running");
-            return -3;
-        }
+        cur.push( functionID );
+        local_env.push( SCRIPT_ENV() );
+        running = true;
 
-        if (script_env.size() <= nb_running )
-            script_env.resize( nb_running + 1);
-        script_env[nb_running].init();
-        script_env[nb_running].env = new SCRIPT_ENV_STACK();
-        script_env[nb_running].env->init();
-        script_env[nb_running].env->cur = id;
-        script_env[nb_running].running = true;
-        if (nb_param > 0 && param != NULL)
+        if (nb_params > 0 && parameters != NULL)
         {
-            for(int i = 0 ; i < nb_param ; i++)
-                script_env[nb_running].env->var[i] = param[i];
+            for(int i = 0 ; i < nb_params ; i++)
+                local_env.top()[i] = parameters[i];
         }
-        return nb_running++;
     }
 
-    void COB_VM::raise_signal(uint32 signal)		// Tue les processus associés
+    COB_VM *COB_VM::fork()
     {
-        SCRIPT_ENV_STACK *tmp;
-        for (int i = 0; i  < nb_running; ++i)
+        pMutex.lock();
+
+        COB_VM *newThread = new COB_VM(script);
+
+        newThread->running = false;
+        newThread->sleeping = false;
+        newThread->sleep_time = 0.0f;
+        newThread->caller = (caller != NULL) ? caller : this;
+        delete newThread->global_env;
+        newThread->global_env = global_env;
+        addThread(newThread);
+
+        pMutex.unlock();
+        return newThread;
+    }
+
+    COB_VM *COB_VM::fork(const String &functionName, int *parameters, int nb_params)
+    {
+        pMutex.lock();
+
+        COB_VM *newThread = fork();
+        if (newThread)
+            newThread->call(functionName, parameters, nb_params);
+
+        pMutex.unlock();
+        return newThread;
+    }
+
+    void COB_VM::call(const String &functionName, int *parameters, int nb_params)
+    {
+        call( script->findFromName( functionName ), parameters, nb_params );
+    }
+
+    int COB_VM::execute(const String &functionName, int *parameters, int nb_params)
+    {
+        COB_VM *cob_thread = fork( functionName, parameters, nb_params);
+        if (cob_thread)
         {
-            tmp = script_env[i].env;
-            while (tmp)
+            int res = -1;
+            while( cob_thread->is_running() )
             {
-                if (tmp->signal_mask == signal)
-                {
-                    tmp = script_env[i].env;
-                    while (tmp != NULL)
-                    {
-                        script_env[i].env = tmp->next;
-                        delete tmp;
-                        tmp = script_env[i].env;
-                    }
-                }
-                if (tmp)
-                    tmp = tmp->next;
+                if (!cob_thread->local_env.empty() && cob_thread->local_env.top().size() >= nb_params)
+                    for(int i = 0 ; i < nb_params ; i++)
+                        parameters[i] = cob_thread->local_env.top()[i];
+                res = cob_thread->run(0.0f);
             }
-            if (script_env[i].env == NULL)
-                script_env[i].running = false;
+            cob_thread->kill();
+            if(nb_params > 0)
+                return parameters[0];
+            return res;
         }
+        return 0;
     }
 }

@@ -67,7 +67,15 @@ namespace TA3D
     }; // class COBHeader
 
 
+    COB_SCRIPT::COB_SCRIPT()
+    {
+        init();
+    }
 
+    COB_SCRIPT::~COB_SCRIPT()
+    {
+        destroy();
+    }
 
     void COB_SCRIPT::load_cob(byte *data)
     {
@@ -107,7 +115,7 @@ namespace TA3D
         f_pos=header.OffsetToPieceNameOffsetArray;
         for(i = 0; i < nb_piece; ++i)
             piece_name[i] = (char*)(data+(*((int*)(data+f_pos+4*i))));
-        Data=data;
+        Data = data;
         script_code = new int*[nb_script];
         dec_offset = new int[nb_script];
         for (i = 0; i < nb_script; ++i)

@@ -261,16 +261,6 @@ void save_game( const String filename, GameData *game_data )
 
         writestring(file, unit_manager.unit_type[units.unit[i].type_id]->Unitname);		// Store the name so it doesn't rely on the feature order
 
-        int g = units.unit[i].s_var->size();
-        SAVE( g );
-        for (std::vector<int>::iterator f = (units.unit[i].s_var)->begin(); (units.unit[i].s_var)->end() != f; ++f)
-            SAVE(*f);
-
-        g = units.unit[i].script_val->size();
-        SAVE( g );
-        for (std::vector<short>::iterator f = (units.unit[i].script_val)->begin(); (units.unit[i].script_val)->end() != f; ++f)
-            SAVE(*f);
-
         SAVE( units.unit[i].owner_id );
         SAVE( units.unit[i].hp );
         SAVE( units.unit[i].Pos );
@@ -283,7 +273,6 @@ void save_game( const String filename, GameData *game_data )
 
         gzwrite(file, units.unit[i].port, sizeof( sint16 ) * 21);
 
-        SAVE( units.unit[i].nb_running );
         SAVE( units.unit[i].c_time );
         SAVE( units.unit[i].h );
         SAVE( units.unit[i].groupe );
@@ -424,32 +413,14 @@ void save_game( const String filename, GameData *game_data )
             if( start == units.unit[i].def_mission )	break;
         }
 
-        for (int e = 0; e < units.unit[i].nb_running; ++e)
+#warning TODO: implement save/restore mechanism for scripts
+        if (units.unit[i].script)
         {
-            SCRIPT_ENV *f = &((*units.unit[i].script_env)[e]);
-            SAVE( f->wait );
-            SAVE( f->running );
-
-            std::stack<int> rStack;
-            for(std::stack<int> sStack = f->sStack ; !sStack.empty() ; sStack.pop())
-                rStack.push( sStack.top() );
-            for( ; !rStack.empty() ; rStack.pop())
-            {
-                gzputc(file, 1);
-                int val = rStack.top();
-                SAVE( val );
-            }
-            gzputc(file, 0);
-
-            for (SCRIPT_ENV_STACK *stack = f->env; stack; stack = stack->next)
-            {
-                gzputc(file, 1);
-                SAVE( stack->cur );
-                SAVE( stack->signal_mask );
-                gzwrite(file, stack->var, sizeof( int ) * 15);
-            }
-            gzputc(file, 0);
+            gzputc(file, 1);
+            units.unit[i].script->save_state(file);
         }
+        else
+            gzputc(file, 0);
 
         SAVE( units.unit[i].data.nb_piece );
         SAVE( units.unit[i].data.explode_time );
@@ -843,17 +814,6 @@ void load_game( GameData *game_data )
 
         units.unit[i].ID = ID;
 
-        int g;
-        LOAD( g );
-        units.unit[i].s_var->resize(g);
-        for (std::vector<int>::iterator f = (units.unit[i].s_var)->begin(); (units.unit[i].s_var)->end() != f; ++f)
-            LOAD( *f );
-
-        LOAD( g );
-        units.unit[i].script_val->resize(g);
-        for (std::vector<short>::iterator f = (units.unit[i].script_val)->begin(); (units.unit[i].script_val)->end() != f; ++f)
-            LOAD( *f );
-
         LOAD( units.unit[i].owner_id );
         if (network_manager.isConnected())
             units.unit[i].local = !(game_data->player_control[ player_id ] & PLAYER_CONTROL_FLAG_REMOTE);
@@ -868,7 +828,6 @@ void load_game( GameData *game_data )
 
         gzread(file, units.unit[i].port, sizeof(sint16) * 21);
 
-        LOAD( units.unit[i].nb_running );
         LOAD( units.unit[i].c_time );
         LOAD( units.unit[i].h );
         LOAD( units.unit[i].groupe );
@@ -1025,36 +984,13 @@ void load_game( GameData *game_data )
             if( start == &(units.unit[i].def_mission) )	break;
         }
 
-        units.unit[i].script_env->resize( units.unit[i].nb_running );
-        for( int e = 0 ; e < units.unit[i].nb_running ; e++ )
+        if (units.unit[i].script)
         {
-            SCRIPT_ENV *f = &((*units.unit[i].script_env)[e]);
-            LOAD( f->wait );
-            LOAD( f->running );
-
-            while (!f->sStack.empty())
-                f->sStack.pop();
-            while (gzgetc( file ))
-            {
-                int val;
-                LOAD( val );
-                f->sStack.push(val);
-            }
-
-            {
-                f->env = NULL;
-                SCRIPT_ENV_STACK **stack = &(f->env);
-                while( gzgetc( file ) )
-                {
-                    *stack = new SCRIPT_ENV_STACK;
-                    LOAD( (*stack)->cur );
-                    LOAD( (*stack)->signal_mask );
-                    gzread(file, (*stack)->var, sizeof(int) * 15);
-                    (*stack)->next = NULL;
-                    stack = &((*stack)->next);
-                }
-            }
+            if (gzgetc(file))
+                units.unit[i].script->restore_state(file);
         }
+        else
+            gzgetc(file);
 
         LOAD( units.unit[i].data.nb_piece );
         LOAD( units.unit[i].data.explode_time );

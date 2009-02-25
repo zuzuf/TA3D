@@ -120,8 +120,8 @@ namespace TA3D
     class COB_SCRIPT            // Classe gérant le stockage et l'éxecution des scripts
     {
     public:
-        inline COB_SCRIPT()     {init();}
-        inline ~COB_SCRIPT()    {destroy();}
+        COB_SCRIPT();
+        ~COB_SCRIPT();
 
         void init();
         void destroy();
@@ -136,12 +136,12 @@ namespace TA3D
         void load_cob(byte *data);
 
     public:
-        int     nb_script;      // Nombre de scripts
-        byte    *Data;          // Données du fichier COB
-        int     **script_code;  // Code des scripts
-        String::Vector names;         // Nom des scripts
-        int     nb_piece;       // Nombre de pièces
-        String::Vector piece_name;   // Nom des pièces de l'objet 3d concerné
+        int     nb_script;      // Nombre de scripts / Number of scripts
+        byte    *Data;          // Données du fichier COB / COB data
+        int     **script_code;  // Code des scripts / script codes
+        String::Vector names;   // Nom des scripts / script names
+        int     nb_piece;       // Nombre de pièces / Number of pieces
+        String::Vector piece_name;   // Nom des pièces de l'objet 3d concerné / Name of pieces
         int     *dec_offset;
 
     }; // class SCRIPT
