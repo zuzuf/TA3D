@@ -562,7 +562,7 @@ namespace TA3D
                     break;
                 case EVENT_UNIT_SCRIPT:
                     if( event_msg.opt1 < units.max_unit && (units.unit[ event_msg.opt1 ].flags & 1) )
-                        units.unit[ event_msg.opt1 ].launch_script( event_msg.opt3, event_msg.opt4, (int*)event_msg.str, event_msg.opt2 );
+                        units.unit[ event_msg.opt1 ].launch_script( event_msg.opt2, event_msg.opt3, (int*)event_msg.str );
                     break;
                 case EVENT_UNIT_DEATH:
                     {

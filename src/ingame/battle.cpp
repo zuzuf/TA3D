@@ -3192,20 +3192,21 @@ namespace TA3D
             glEnable(GL_BLEND);
             if (show_script)
             {
-                if (cur_sel>=0 && unit_manager.unit_type[cur_sel]->script)
-                {
-                    float Y(32.0f);
-                    gfx->print(gfx->normal_font,128.0f, Y, 0.0f, 0xFFFFFFFF, format("%d scripts", unit_manager.unit_type[cur_sel]->script->nb_script));
-                    Y += 9.0f;
-                    for (int i = 0; i < unit_manager.unit_type[cur_sel]->script->nb_script; ++i)
-                    {
-                        if (units.unit[cur_sel_index].is_running(i))
-                            gfx->print(gfx->normal_font, 128.0f, Y, 0.0f, 0xFFFFFFFF, format("%d %s (on)", i, unit_manager.unit_type[cur_sel]->script->names[i].c_str()));
-                        else
-                            gfx->print(gfx->normal_font, 128.0f, Y, 0.0f, 0xFFFFFFFF, format("%d %s (off)", i, unit_manager.unit_type[cur_sel]->script->names[i].c_str()));
-                        Y += 9.0f;
-                    }
-                }
+#warning TODO: implement script debug info display
+//                if (cur_sel>=0 && unit_manager.unit_type[cur_sel]->script)
+//                {
+//                    float Y(32.0f);
+//                    gfx->print(gfx->normal_font,128.0f, Y, 0.0f, 0xFFFFFFFF, format("%d scripts", unit_manager.unit_type[cur_sel]->script->nb_script));
+//                    Y += 9.0f;
+//                    for (int i = 0; i < unit_manager.unit_type[cur_sel]->script->nb_script; ++i)
+//                    {
+//                        if (units.unit[cur_sel_index].is_running(i))
+//                            gfx->print(gfx->normal_font, 128.0f, Y, 0.0f, 0xFFFFFFFF, format("%d %s (on)", i, unit_manager.unit_type[cur_sel]->script->names[i].c_str()));
+//                        else
+//                            gfx->print(gfx->normal_font, 128.0f, Y, 0.0f, 0xFFFFFFFF, format("%d %s (off)", i, unit_manager.unit_type[cur_sel]->script->names[i].c_str()));
+//                        Y += 9.0f;
+//                    }
+//                }
             }
 
             if (show_model && cur_sel>=0 && unit_manager.unit_type[cur_sel]->model)

@@ -19,54 +19,25 @@
 #define __COB_VM_H__
 
 # include "cob.h"
-
-# define UNPACKX(xz) ((sint16)((xz)>>16))
-# define UNPACKZ(xz) ((sint16)((xz)&0xFFFF))
-# define PACKXZ(x,z) ((((int)(x))<<16) | (((int)(z))&0xFFFF))
-
+# include "script.interface.h"
+# include "../misc/stack.h"
 
 namespace TA3D
 {
-    class SCRIPT_ENV_STACK			// Pile pour la gestion des scripts
-    {
-    public:
-        int					var[15];
-        uint32				signal_mask;
-        sint32				cur;
-        SCRIPT_ENV_STACK	*next;
-
-        SCRIPT_ENV_STACK();
-        void init();
-    };
-
-    class SCRIPT_ENV			// Classe pour la gestion de l'environnement des scripts
-    {
-    public:
-        std::stack<int>		sStack;			// Script stack
-        SCRIPT_ENV_STACK	*env;			// Environment stack
-        float				wait;
-        bool				running;
-
-        SCRIPT_ENV();
-        ~SCRIPT_ENV();
-
-        void init();
-        void destroy();
-
-        void push(int v);
-        int pop();
-    };
+    typedef std::vector<int>    SCRIPT_ENV;
 
     /*!
     ** This class represents a the COB Virtual Machine
     */
-    class COB_VM
+    class COB_VM : public SCRIPT_INTERFACE
     {
     protected:
         COB_SCRIPT                  *script;
-        std::vector<int>            s_var;          // Tableau de variables pour les scripts
-        byte                        nb_running;     // Nombre de scripts lancés en même temps
-        std::vector< SCRIPT_ENV >   script_env;     // Environnements des scripts
+        SCRIPT_ENV                  *global_env;    // Global COB environment
+        Stack<int>				    cur;
+        Stack<int>                  sStack;         // Script stack
+        Stack<SCRIPT_ENV>           local_env;      // Local COB environment
+
         std::vector< short >        script_val;     // Tableau de valeurs retournées par les scripts
         uint32                      uid;            // Unit ID
 
@@ -75,10 +46,20 @@ namespace TA3D
         COB_VM();
         ~COB_VM();
 
-        int run_thread(const float &dt, const int &id, int max_code);
-        int call(int id, int nb_param, int *param);			// Start a script as a separate "thread" of the unit
-        void raise_signal(uint32 signal);		            // Tue les processus associés
+        int run(float dt);              // Run the script
 
+        //! functions used to call/run functions
+        void call(const int functionID, int *parameters = NULL, int nb_params = 0);
+        void call(const String &functionName, int *parameters = NULL, int nb_params = 0);
+        int execute(const String &functionName, int *parameters = NULL, int nb_params = 0);
+
+        //! functions used to create new threads sharing the same environment
+        COB_VM *fork();
+        COB_VM *fork(const String &functionName, int *parameters = NULL, int nb_params = 0);
+
+        //! functions used to save/restore scripts state
+        void save_state(gzFile file) {};
+        void restore_state(gzFile file) {};
     private:
         void init();
         void destroy();

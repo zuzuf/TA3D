@@ -32,7 +32,7 @@
 # include <list>
 # include <vector>
 # include "misc/recttest.h"
-# include "scripts/cob.vm.h"
+# include "scripts/script.interface.h"
 
 
 # define MISSION_FLAG_CAN_ATTACK		0x01
@@ -170,24 +170,26 @@ namespace TA3D
     class UNIT	: public ObjectSync	// Classe pour la gestion des unités	/ Class to store units's data
     {
     public:
+        static String get_script_name(int id);
+    public:
         //! functions called from scripts (COB/BOS and Lua) (see unit.script.func module in scripts)
-    void script_explode(int obj, int explosion_type);
-    void script_turn_object(int obj, int axis, float angle, float speed);
-    void script_move_object(int obj, int axis, float pos, float speed);
-    int script_get_value_from_port(int portID, int *param = NULL);
-    void script_spin_object(int obj, int axis, float target_speed, float accel);
-    void script_show_object(int obj);
-    void script_hide_object(int obj);
-    void script_emit_sfx(int smoke_type, int from_piece);
-    void script_stop_spin(int obj, int axis, float speed);
-    void script_move_piece_now(int obj, int axis, float pos);
-    void script_turn_piece_now(int obj, int axis, float angle);
-    int script_get(int type, int v1, int v2);
-    void script_set_value(int type, int v);
-    void script_attach_unit(int unit_id, int piece_id);
-    void script_drop_unit(int unit_id);
-    bool script_is_turning(int obj, int axis);
-    bool script_is_moving(int obj, int axis);
+        void script_explode(int obj, int explosion_type);
+        void script_turn_object(int obj, int axis, float angle, float speed);
+        void script_move_object(int obj, int axis, float pos, float speed);
+        int script_get_value_from_port(int portID, int *param = NULL);
+        void script_spin_object(int obj, int axis, float target_speed, float accel);
+        void script_show_object(int obj);
+        void script_hide_object(int obj);
+        void script_emit_sfx(int smoke_type, int from_piece);
+        void script_stop_spin(int obj, int axis, float speed);
+        void script_move_piece_now(int obj, int axis, float pos);
+        void script_turn_piece_now(int obj, int axis, float angle);
+        int script_get(int type, int v1, int v2);
+        void script_set_value(int type, int v);
+        void script_attach_unit(int unit_id, int piece_id);
+        void script_drop_unit(int unit_id);
+        bool script_is_turning(int obj, int axis);
+        bool script_is_moving(int obj, int axis);
 
     public:
         float damage_modifier() const
@@ -218,8 +220,6 @@ namespace TA3D
 
         void compute_model_coord();
 
-        void raise_signal(uint32 signal);		// Tue les processus associés
-
         void init_alloc_data();
 
         void toggle_self_destruct();
@@ -240,23 +240,14 @@ namespace TA3D
 
         void draw_shadow_basic(const Vector3D& Dir, MAP *map);
 
-        int get_script_index(int id);
+        int launch_script(const String &f_name, int nb_param = 0, int *param = NULL);			// Start a script as a separate "thread" of the unit
+        int launch_script(const int id, int nb_param = 0, int *param = NULL);			        // Start a script as a separate "thread" of the unit
 
-        int get_script_index(const String &script_name);	 // Cherche l'indice du script dont on fournit le nom
-
-        int launch_script(int id, int nb_param = 0, int *param = NULL, bool force = false);			// Start a script as a separate "thread" of the unit
-
-        bool is_running(int script_index); // Is the script still running ?
-
-        void run_script_function(MAP* map, int id, int nb_param = 0, int *param = NULL); // Launch and run the script, returning it's values to param if not NULL
-
-        void kill_script(int script_index);	// Fait un peu de ménage
+        void run_script_function(const String &f_name, int nb_param = 0, int *param = NULL); // Launch and run the script, returning it's values to param if not NULL
 
         void reset_script();
 
         const void play_sound(const String& key);
-
-        const int run_script(const float &dt,const int &id,MAP *map, int max_code = MAX_CODE_PER_TICK);			// Interprète les scripts liés à l'unité
 
         const int move( const float dt,MAP *map, int *path_exec, const int key_frame = 0 );
 
@@ -289,8 +280,7 @@ namespace TA3D
 
 
     public:
-        COB_SCRIPT				*script;		// Scripts concernant l'unité
-        std::vector<int>		*s_var;			// Tableau de variables pour les scripts
+        SCRIPT_INTERFACE        *script;		// Scripts concernant l'unité
         MODEL					*model;			// Modèle représentant l'objet
         byte					owner_id;		// Numéro du propriétaire de l'unité
         short					type_id;		// Type d'unité
@@ -307,8 +297,6 @@ namespace TA3D
         sint16					*port;			// Ports
         MISSION					*mission;		// Orders given to the unit
         MISSION					*def_mission;	// Orders given to units built by this plant
-        byte					nb_running;		// Nombre de scripts lancés en même temps
-        std::vector< SCRIPT_ENV >	*script_env;	// Environnements des scripts
         byte					flags;			// Pour indiquer entre autres au gestionnaire d'unités si l'unité existe
         // 0	-> nothing
         // 1	-> the unit exists
@@ -316,7 +304,6 @@ namespace TA3D
         // 64	-> landed (for planes)
         float					c_time;			// Compteur de temps entre 2 émissions de particules par une unité de construction
         bool					compute_coord;	// Indique s'il est nécessaire de recalculer les coordonnées du modèle 3d
-        std::vector< short >	*script_val;	// Tableau de valeurs retournées par les scripts
         uint16					idx;			// Indice dans le tableau d'unité
         uint32					ID;				// the number of the unit (in total creation order) so we can identify it even if we move it :)
         float					h;				// Altitude (par rapport au sol)
@@ -329,7 +316,6 @@ namespace TA3D
         float					planned_weapons;	// Armes en construction / all is in the name
         int						*memory;		// Pour se rappeler sur quelles armes on a déjà tiré
         byte					mem_size;
-        char					*script_idx;	// Index of scripts to prevent multiple search
         bool					attached;
         short					*attached_list;
         short					*link_list;
