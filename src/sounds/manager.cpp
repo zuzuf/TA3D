@@ -879,7 +879,7 @@ namespace Audio
     {
         filename.toLower();
 
-        LOG_DEBUG(LOG_PREFIX_SOUND << "loading sound file " << filename);
+//        LOG_DEBUG(LOG_PREFIX_SOUND << "loading sound file " << filename);
 
         // if it has a .wav extension then remove it.
         String::size_type i = filename.find("wav");

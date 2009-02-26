@@ -63,8 +63,6 @@ namespace TA3D
         SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, TA3D::VARS::lp_CONFIG->fsaa > 1);
         SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, TA3D::VARS::lp_CONFIG->fsaa);
         SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
-        SDL_GL_SetAttribute(SDL_GL_ACCELERATED_VISUAL, 1);
-        SDL_GL_SetAttribute(SDL_GL_SWAP_CONTROL, 0);
         if (TA3D::VARS::lp_CONFIG->color_depth == 32)
         {
             SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 8);
@@ -79,9 +77,15 @@ namespace TA3D
             SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 5);
             SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE, 0);
         }
+        SDL_GL_SetAttribute(SDL_GL_BUFFER_SIZE, 32);
         SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
 
-        uint32 flags = SDL_OPENGL | SDL_GL_ACCELERATED_VISUAL;
+        SDL_GL_SetAttribute(SDL_GL_ACCUM_RED_SIZE, 5);
+        SDL_GL_SetAttribute(SDL_GL_ACCUM_GREEN_SIZE, 5);
+        SDL_GL_SetAttribute(SDL_GL_ACCUM_BLUE_SIZE, 5);
+        SDL_GL_SetAttribute(SDL_GL_ACCUM_ALPHA_SIZE, 0);
+
+        uint32 flags = SDL_OPENGL | SDL_HWSURFACE;
         if (TA3D::VARS::lp_CONFIG->fullscreen )
             flags |= SDL_FULLSCREEN;
 
@@ -1994,6 +1998,14 @@ namespace TA3D
         int h = 600;
         int bpp = 32;
 
+        SDL_GL_SetAttribute(SDL_GL_BUFFER_SIZE, 32);
+
+        SDL_GL_SetAttribute(SDL_GL_ACCUM_RED_SIZE, 5);
+        SDL_GL_SetAttribute(SDL_GL_ACCUM_GREEN_SIZE, 5);
+        SDL_GL_SetAttribute(SDL_GL_ACCUM_BLUE_SIZE, 5);
+        SDL_GL_SetAttribute(SDL_GL_ACCUM_ALPHA_SIZE, 0);
+
+
         for(int stencil = 0 ; stencil < 2 ; stencil++)
         {
             SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, stencil ? 8 : 0);
@@ -2004,47 +2016,37 @@ namespace TA3D
                 for(int db_buf = 0 ; db_buf < 2 ; db_buf++)
                 {
                     SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, db_buf);
-                    for(int accel = 0 ; accel < 2 ; accel++)
+                    for(int r = 8 ; r > 0 ; r--)
                     {
-                        SDL_GL_SetAttribute(SDL_GL_ACCELERATED_VISUAL, accel);
-                        for(int swap = 0 ; swap < 2 ; swap++)
+                        SDL_GL_SetAttribute(SDL_GL_RED_SIZE, r);
+                        for(int g = 8 ; g > 0 ; g--)
                         {
-                            SDL_GL_SetAttribute(SDL_GL_SWAP_CONTROL, swap);
-
-                            for(int r = 8 ; r > 0 ; r--)
+                            SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, g);
+                            for(int b = 8 ; b > 0 ; b--)
                             {
-                                SDL_GL_SetAttribute(SDL_GL_RED_SIZE, r);
-                                for(int g = 8 ; g > 0 ; g--)
+                                SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, b);
+                                for(int a = 8 ; a > 0 ; a--)
                                 {
-                                    SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, g);
-                                    for(int b = 8 ; b > 0 ; b--)
+                                    SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE, a);
+
+                                    for(int depth = 0 ; depth < 2 ; depth++)
                                     {
-                                        SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, b);
-                                        for(int a = 8 ; a > 0 ; a--)
+                                        SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, depth ? 24 : 16);
+
+                                        if (SDL_SetVideoMode( w, h, bpp, SDL_OPENGL | SDL_HWSURFACE ))
                                         {
-                                            SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE, a);
-
-                                            for(int depth = 0 ; depth < 2 ; depth++)
+                                            if (String((char*)glGetString(GL_RENDERER)).toLower() != "gdi generic")
                                             {
-                                                SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, depth ? 24 : 16);
-
-                                                if (SDL_SetVideoMode( w, h, bpp, SDL_OPENGL ))
-                                                {
-                                                    if (String((char*)glGetString(GL_RENDERER)).toLower() != "gdi generic")
-                                                    {
-                                                        std::cout << "test passed for following settings:" << std::endl;
-                                                        std::cout << "stencil = " << (stencil ? 8 : 0) << std::endl;
-                                                        std::cout << "fsaa = " << fsaa << std::endl;
-                                                        std::cout << "db_buf = " << db_buf << std::endl;
-                                                        std::cout << "accel = " << accel << std::endl;
-                                                        std::cout << "swap = " << swap << std::endl;
-                                                        std::cout << "r = " << r << std::endl;
-                                                        std::cout << "g = " << g << std::endl;
-                                                        std::cout << "b = " << b << std::endl;
-                                                        std::cout << "a = " << a << std::endl;
-                                                        std::cout << "depth = " << (depth ? 24 : 16) << std::endl << std::endl;
-                                                    }
-                                                }
+                                                std::cout << "test passed for following settings:" << std::endl;
+                                                std::cout << "stencil = " << (stencil ? 8 : 0) << std::endl;
+                                                std::cout << "fsaa = " << fsaa << std::endl;
+                                                std::cout << "db_buf = " << db_buf << std::endl;
+                                                std::cout << "r = " << r << std::endl;
+                                                std::cout << "g = " << g << std::endl;
+                                                std::cout << "b = " << b << std::endl;
+                                                std::cout << "a = " << a << std::endl;
+                                                std::cout << "depth = " << (depth ? 24 : 16) << std::endl;
+                                                std::cout << "renderer = " << glGetString(GL_RENDERER) << std::endl << std::endl;
                                             }
                                         }
                                     }

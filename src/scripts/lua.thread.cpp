@@ -432,7 +432,7 @@ namespace TA3D
                         result = lua_tointeger(L, -1);
                         break;
                     case 1:             // sleep
-                        sleep( (float)lua_tonumber(L, -1) );
+                        pause( (float)lua_tonumber(L, -1) );
                         result = 0;
                         break;
                     case 2:             // wait

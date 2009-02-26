@@ -281,7 +281,7 @@ namespace TA3D
                 case SCRIPT_SLEEP:
                     {
                         DEBUG_PRINT_CODE("SLEEP");
-                        sleep( sStack.pop() * 0.001f );
+                        pause( sStack.pop() * 0.001f );
                         done = true;
                         break;
                     }
