@@ -48,7 +48,7 @@ namespace TA3D
         //! stops definitely the thread
         void kill();
         void stop();
-        void sleep(float time);
+        void pause(float time);
         void resume();
 
         virtual int run(float dt) = 0;              // Run the script

@@ -35,7 +35,7 @@ namespace TA3D
         waiting = false;
     }
 
-    void SCRIPT_INTERFACE::sleep(float time)
+    void SCRIPT_INTERFACE::pause(float time)
     {
         sleeping = true;
         sleep_time = time;
