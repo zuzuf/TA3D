@@ -65,7 +65,6 @@ namespace TA3D
                     uint32 c = event.key.keysym.unicode;
                     c |= event.key.keysym.sym << 16;
                     VARS::keybuf.push_back( c );
-                    LOG_DEBUG("pressing " << (char)c << " (" << c << ")");
                 }
                 break;
             case SDL_MOUSEBUTTONDOWN:

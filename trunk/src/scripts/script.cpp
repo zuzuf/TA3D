@@ -233,8 +233,8 @@ namespace TA3D
             draw_obj.y[0] = (float) lua_tonumber( L, 3 );
             draw_obj.x[1] = (float) lua_tonumber( L, 4 );
             draw_obj.y[1] = (float) lua_tonumber( L, 5 );
-            draw_obj.tex = gfx->load_texture( I18N::Translate( lua_tostring( L, 1 ) ) );
-            draw_obj.text = NULL;
+            draw_obj.text = I18N::Translate( lua_tostring( L, 1 ) );
+            draw_obj.tex = 0;
             LUA_PROGRAM::inGame->draw_list.add( draw_obj );
         }
 

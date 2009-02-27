@@ -255,7 +255,6 @@ namespace TA3D
                         DEBUG_PRINT_CODE("GET_VALUE_FROM_PORT:");
                         int value = sStack.pop();
                         DEBUG_PRINT_CODE(value);
-                        // TODO : clean this thing
                         int param[2];
                         switch(value)
                         {
@@ -286,7 +285,6 @@ namespace TA3D
                         int axis = script->script_code[script_id][pos++];
                         int v1 = sStack.pop();
                         int v2 = sStack.pop();
-                        LOG_DEBUG("SPIN_OBJECT(" << obj << "," << axis << "," << v1 << "," << v2 << ")");
                         pUnit->script_spin_object(obj, axis, v1 * TA2DEG, v2 * TA2DEG);
                     }
                     break;
