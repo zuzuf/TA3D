@@ -244,6 +244,7 @@ namespace TA3D
         int launch_script(const String &f_name, int nb_param = 0, int *param = NULL);			// Start a script as a separate "thread" of the unit
         int launch_script(const int id, int nb_param = 0, int *param = NULL);			        // Start a script as a separate "thread" of the unit
 
+        int run_script_function(const int id, int nb_param = 0, int *param = NULL); // Launch and run the script, returning it's values to param if not NULL
         int run_script_function(const String &f_name, int nb_param = 0, int *param = NULL); // Launch and run the script, returning it's values to param if not NULL
 
         void reset_script();

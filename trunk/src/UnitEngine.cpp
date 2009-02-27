@@ -191,6 +191,10 @@ namespace TA3D
         return t >= 0 && t < units.max_unit && !(players.team[units.unit[t].owner_id] & players.team[owner_id]);
     }
 
+    int UNIT::run_script_function(const int id, int nb_param, int *param)	// Launch and run the script, returning it's values to param if not NULL
+    {
+        return run_script_function( get_script_name(id), nb_param, param);
+    }
 
     int UNIT::run_script_function(const String &f_name, int nb_param, int *param)	// Launch and run the script, returning it's values to param if not NULL
     {
@@ -3576,8 +3580,8 @@ namespace TA3D
                                 }
                                 if (!unit_manager.unit_type[type_id]->BMcode)
                                 {
-                                    String script_buildinfo = "QueryBuildInfo";
-                                    int buildinfo = run_script_function(script_buildinfo);
+                                    int param[] = {-1};
+                                    int buildinfo = run_script_function(SCRIPT_QueryBuildInfo, 1, param);
                                     if (buildinfo >= 0)
                                     {
                                         compute_model_coord();
@@ -3653,17 +3657,13 @@ namespace TA3D
                                 V.z = 0.0f;
                                 if (!unit_manager.unit_type[type_id]->BMcode)
                                 {
-                                    String script_buildinfo = "QueryBuildInfo";
 #warning TODO: fix build info call
-                                    if (!script_buildinfo.empty())
+                                    int param[] = { -1 };
+                                    run_script_function( SCRIPT_QueryBuildInfo, 1, param );
+                                    if (param[0] >= 0)
                                     {
-                                        int param[] = { -1 };
-                                        run_script_function( script_buildinfo, 1, param );
-                                        if (param[0] >= 0)
-                                        {
-                                            compute_model_coord();
-                                            mission->target = Pos + data.pos[ param[0] ];
-                                        }
+                                        compute_model_coord();
+                                        mission->target = Pos + data.pos[ param[0] ];
                                     }
                                 }
                                 if (map->check_rect((((int)(mission->target.x)+map->map_w_d+4)>>3)-(unit_manager.unit_type[mission->data]->FootprintX>>1),(((int)(mission->target.z)+map->map_h_d+4)>>3)-(unit_manager.unit_type[mission->data]->FootprintZ>>1),unit_manager.unit_type[mission->data]->FootprintX,unit_manager.unit_type[mission->data]->FootprintZ,-1)) // Check it we have an empty place to build our unit
@@ -3684,10 +3684,7 @@ namespace TA3D
                                     next_mission();
                             }
                             else
-                            {
                                 activate();
-                                run_script_function( SCRIPT_QueryBuildInfo );
-                            }
                         }
                     }
                     break;
@@ -5774,7 +5771,7 @@ script_exec:
                 unit[i].metal_extracted = metal_base * unit_manager.unit_type[unit[i].type_id]->ExtractsMetal;
 
                 int param[] = { metal_base << 2 };
-                unit[i].run_script_function( SCRIPT_SetSpeed, 1, param);
+                unit[i].launch_script( SCRIPT_SetSpeed, 1, param);
                 unit[i].just_created = false;
             }
 

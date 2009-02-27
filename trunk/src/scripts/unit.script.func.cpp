@@ -447,16 +447,16 @@ namespace TA3D
     {
         float a = data.axe[axis][obj].rot_angle;
         if ((data.axe[axis][obj].rot_speed != 0.0f || data.axe[axis][obj].rot_accel != 0.0f) && (a != 0.0f && data.axe[axis][obj].rot_limit))
-            return false;
+            return true;
         else if (data.axe[axis][obj].rot_speed != data.axe[axis][obj].rot_target_speed && data.axe[axis][obj].rot_speed_limit)
-            return false;
+            return true;
         data.axe[axis][obj].rot_speed = 0.0f;
         data.axe[axis][obj].rot_accel = 0.0f;
-        return true;
+        return false;
     }
 
     bool UNIT::script_is_moving(int obj, int axis)
     {
-        return !(data.axe[axis][obj].move_distance != 0.0f);
+        return (data.axe[axis][obj].move_distance != 0.0f);
     }
 }
