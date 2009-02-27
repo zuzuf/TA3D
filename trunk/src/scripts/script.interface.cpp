@@ -20,6 +20,10 @@
 
 namespace TA3D
 {
+    SCRIPT_INTERFACE::SCRIPT_INTERFACE() : caller(NULL), running(false), waiting(false), sleeping(false), sleep_time(0.0f)
+    {
+    }
+
     void SCRIPT_INTERFACE::kill()
     {
         running = false;

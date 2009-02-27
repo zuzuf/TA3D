@@ -93,24 +93,24 @@ namespace TA3D
 
     public:
         COB_VM();
-        ~COB_VM();
+        virtual ~COB_VM();
 
         virtual void load( SCRIPT_DATA *data );
 
-        int run(float dt);              // Run the script
+        virtual int run(float dt, bool alone = false);  // Run the script
 
         //! functions used to call/run functions
         void call(const int functionID, int *parameters = NULL, int nb_params = 0);
-        void call(const String &functionName, int *parameters = NULL, int nb_params = 0);
-        int execute(const String &functionName, int *parameters = NULL, int nb_params = 0);
+        virtual void call(const String &functionName, int *parameters = NULL, int nb_params = 0);
+        virtual int execute(const String &functionName, int *parameters = NULL, int nb_params = 0);
 
         //! functions used to create new threads sharing the same environment
-        COB_VM *fork();
-        COB_VM *fork(const String &functionName, int *parameters = NULL, int nb_params = 0);
+        virtual COB_VM *fork();
+        virtual COB_VM *fork(const String &functionName, int *parameters = NULL, int nb_params = 0);
 
         //! functions used to save/restore scripts state
-        void save_state(gzFile file) {};
-        void restore_state(gzFile file) {};
+        virtual void save_state(gzFile file) {};
+        virtual void restore_state(gzFile file) {};
 
         virtual void setUnitID(uint32 ID);
         virtual int getNbPieces();

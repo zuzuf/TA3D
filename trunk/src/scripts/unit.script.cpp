@@ -278,9 +278,9 @@ namespace TA3D
         LUA_THREAD::load(data);
     }
 
-    int UNIT_SCRIPT::run(float dt)                  // Run the script
+    int UNIT_SCRIPT::run(float dt, bool alone)                  // Run the script
     {
-        return LUA_THREAD::run(dt);
+        return LUA_THREAD::run(dt, alone);
     }
 
     //! functions used to call/run Lua functions

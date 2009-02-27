@@ -59,7 +59,7 @@ namespace TA3D
     public:
 
         LUA_THREAD();
-        inline ~LUA_THREAD()    {   destroy();  }
+        virtual ~LUA_THREAD();
 
         void init();
         void destroy();
@@ -68,7 +68,7 @@ namespace TA3D
         virtual void load(SCRIPT_DATA *data);
         LUA_CHUNK *dump();
 
-        int run(float dt);                  // Run the script
+        virtual int run(float dt, bool alone = false);      // Run the script
         int run();                          // Run the script with default delay
 
         //! functions used to call/run Lua functions

@@ -139,6 +139,11 @@ namespace TA3D
         init();
     }
 
+    LUA_THREAD::~LUA_THREAD()
+    {
+        destroy();
+    }
+
     byte *loadLuaFile(const String &filename, uint32 &filesize)
     {
         filesize = 0;
@@ -382,11 +387,11 @@ namespace TA3D
         LUA_ENV::register_global_functions( L );
     }
 
-    int LUA_THREAD::run(float dt)                  // Run the script
+    int LUA_THREAD::run(float dt, bool alone)               // Run the script
     {
         MutexLocker mLocker( pMutex );
 
-        if (caller == NULL)
+        if (caller == NULL && !alone)
         {
             clean();
             for(int i = 0 ; i < childs.size() ; i++)
@@ -486,10 +491,20 @@ namespace TA3D
     {
         pMutex.lock();
 
+        if (running == false && caller == NULL)
+        {
+            sleeping = false;
+            sleep_time = 0.0f;
+            waiting = false;
+            pMutex.unlock();
+            return this;
+        }
+
         LUA_THREAD *newThread = new LUA_THREAD();
 
         newThread->running = false;
         newThread->buffer = NULL;
+        newThread->waiting = false;
         newThread->sleeping = false;
         newThread->sleep_time = 0.0f;
         newThread->caller = (caller != NULL) ? caller : this;

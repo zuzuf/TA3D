@@ -46,6 +46,9 @@ namespace TA3D
         SCRIPT_INTERFACE                *caller;        // NULL if main thread
         std::vector<SCRIPT_INTERFACE*>  childs;         // Child processes, empty for childs this is to keep track of running threads
     public:
+        SCRIPT_INTERFACE();
+        virtual ~SCRIPT_INTERFACE() {};
+
         virtual void load( SCRIPT_DATA *data ) = 0;
 
         //! stops definitely the thread
@@ -54,7 +57,7 @@ namespace TA3D
         void pause(float time);
         void resume();
 
-        virtual int run(float dt) = 0;              // Run the script
+        virtual int run(float dt, bool alone = false) = 0;      // Run the script
 
         inline bool is_running() { return running || !childs.empty(); }
         inline bool is_waiting() { return waiting; }
