@@ -19,6 +19,7 @@
 #define __SCRIPT_INTERFACE_H__
 
 #include "../threads/thread.h"
+#include "script.data.h"
 #include <zlib.h>
 
 #define UNPACKX(xz) ((sint16)((xz)>>16))
@@ -45,6 +46,8 @@ namespace TA3D
         SCRIPT_INTERFACE                *caller;        // NULL if main thread
         std::vector<SCRIPT_INTERFACE*>  childs;         // Child processes, empty for childs this is to keep track of running threads
     public:
+        virtual void load( SCRIPT_DATA *data ) = 0;
+
         //! stops definitely the thread
         void kill();
         void stop();

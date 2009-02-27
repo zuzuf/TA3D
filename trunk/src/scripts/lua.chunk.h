@@ -19,6 +19,7 @@
 #define __LUA_CHUNK_H__
 
 # include "../lua/lua.hpp"
+# include "script.data.h"
 
 namespace TA3D
 {
@@ -26,7 +27,7 @@ namespace TA3D
     ** This class represents a basic Lua thread without specialization
     ** To use it, create a new class that inherits LUA_THREAD
     */
-    class LUA_CHUNK
+    class LUA_CHUNK : public SCRIPT_DATA
     {
     protected:
         char        *buffer;
@@ -38,13 +39,15 @@ namespace TA3D
         LUA_CHUNK();
         ~LUA_CHUNK();
 
-        void load(const String &filename);                    // Load a lua chunk
+        virtual void load(const String &filename);                    // Load a lua chunk
         void save(const String &filename);                    // Save the lua chunk
 
         int load(lua_State *L);
 
         void dump(lua_State *L, const String &name);
         String getName();
+
+        virtual int identify(const String &name);
     private:
         void init();
         void destroy();

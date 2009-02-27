@@ -256,9 +256,10 @@ namespace TA3D
         }
     }
 
-    void LUA_THREAD::load(LUA_CHUNK *chunk)
+    void LUA_THREAD::load(SCRIPT_DATA *data)
     {
         destroy();
+        LUA_CHUNK *chunk = dynamic_cast<LUA_CHUNK*>(data);
         if (chunk)
         {
             L = lua_open();				// Create a lua state object

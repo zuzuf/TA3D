@@ -12,6 +12,8 @@ SET(SOURCES cob.cpp cob.h
             script.interface.h script.interface.cpp
             unit.script.interface.h unit.script.interface.cpp
             ai.script.h ai.script.cpp
+            script.data.h script.data.cpp
+            unit.defines.h
             script.h script.cpp)
 
 ADD_LIBRARY(scripts STATIC ${SOURCES})

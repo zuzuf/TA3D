@@ -77,9 +77,15 @@ namespace TA3D
         destroy();
     }
 
-    void COB_SCRIPT::load_cob(byte *data)
+    void COB_SCRIPT::load(const String &filename)
     {
         destroy();				// Au cas où
+
+        uint32 cob_size(0);
+        byte *data = TA3D::VARS::HPIManager->PullFromHPI(filename, &cob_size);
+
+        if (data == NULL)
+            return;
 
         COBHeader header;
         header.VersionSignature = *((int*)data);
@@ -164,4 +170,11 @@ namespace TA3D
         return -1;
     }
 
+    int COB_SCRIPT::identify(const String &name)
+    {
+        for (int i = 0; i < nb_piece; ++i)
+            if (strcasecmp(name.c_str(), piece_name[i].c_str()) == 0) // Pièce identifiée / Identified :)
+                return i;
+        return -1;
+    }
 } // namespace TA3D

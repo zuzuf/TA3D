@@ -15,29 +15,24 @@
     along with this program; if not, write to the Free Software
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA*/
 
-#ifndef __UNIT_SCRIPT_INTERFACE_H__
-#define __UNIT_SCRIPT_INTERFACE_H__
-
-# include "script.interface.h"
+#ifndef __SCRIPT_DATA_H__
+# define  __SCRIPT_DATA_H__
 
 namespace TA3D
 {
-    /*!
-    ** This class is an interface for all unit scripts types
-    */
-    class UNIT_SCRIPT_INTERFACE : public SCRIPT_INTERFACE
+
+    //! Abstract class for script storage
+    class SCRIPT_DATA
     {
-    protected:
-        uint32      unitID;
     public:
-
-        virtual void setUnitID(uint32 ID) = 0;
-
-        virtual int getNbPieces() = 0;
+        virtual void load(const String &filename) = 0;
+        virtual int identify(const String &name) = 0;
 
     public:
-        static UNIT_SCRIPT_INTERFACE *instanciate( SCRIPT_DATA *data );
-    };
-}
+        static SCRIPT_DATA *loadScriptFile(const String &filename);
+    }; // class SCRIPT_DATA
+
+} // namespace TA3D
+
 
 #endif

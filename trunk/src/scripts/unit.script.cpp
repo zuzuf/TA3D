@@ -21,9 +21,8 @@
 
 namespace TA3D
 {
-    UNIT_SCRIPT::UNIT_SCRIPT(int unitID)
+    UNIT_SCRIPT::UNIT_SCRIPT()
     {
-        this->unitID = unitID;
     }
 
     UNIT_SCRIPT::~UNIT_SCRIPT()
@@ -259,5 +258,61 @@ namespace TA3D
     {
         lua_pushinteger(L, unitID);
         lua_setfield(L, LUA_REGISTRYINDEX, "unitID");
+    }
+
+    void UNIT_SCRIPT::setUnitID(uint32 ID)
+    {
+        unitID = ID;
+        lua_pushinteger(L, unitID);
+        lua_setfield(L, LUA_REGISTRYINDEX, "unitID");
+    }
+
+    int UNIT_SCRIPT::getNbPieces()
+    {
+#warning TODO: fix model piece loader
+        return 0;
+    }
+
+    void UNIT_SCRIPT::load(SCRIPT_DATA *data)
+    {
+        LUA_THREAD::load(data);
+    }
+
+    int UNIT_SCRIPT::run(float dt)                  // Run the script
+    {
+        return LUA_THREAD::run(dt);
+    }
+
+    //! functions used to call/run Lua functions
+    void UNIT_SCRIPT::call(const String &functionName, int *parameters, int nb_params)
+    {
+        LUA_THREAD::call(functionName, parameters, nb_params);
+    }
+
+    int UNIT_SCRIPT::execute(const String &functionName, int *parameters, int nb_params)
+    {
+        LUA_THREAD::execute(functionName, parameters, nb_params);
+    }
+
+    //! functions used to create new threads sharing the same environment
+    LUA_THREAD *UNIT_SCRIPT::fork()
+    {
+        return LUA_THREAD::fork();
+    }
+
+    LUA_THREAD *UNIT_SCRIPT::fork(const String &functionName, int *parameters, int nb_params)
+    {
+        return LUA_THREAD::fork(functionName, parameters, nb_params);
+    }
+
+    //! functions used to save/restore scripts state
+    void UNIT_SCRIPT::save_state(gzFile file)
+    {
+        LUA_THREAD::save_state(file);
+    }
+
+    void UNIT_SCRIPT::restore_state(gzFile file)
+    {
+        LUA_THREAD::restore_state(file);
     }
 }

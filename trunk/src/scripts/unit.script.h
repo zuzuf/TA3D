@@ -19,6 +19,7 @@
 #define __UNIT_SCRIPT_H__
 
 # include "lua.thread.h"
+# include "unit.script.interface.h"
 
 namespace TA3D
 {
@@ -26,18 +27,34 @@ namespace TA3D
     ** This class represents unit scripts, it's used to script unit behavior
     ** This is a Lua version of TA COB/BOS scripts
     */
-    class UNIT_SCRIPT : public LUA_THREAD
+    class UNIT_SCRIPT : public UNIT_SCRIPT_INTERFACE, public LUA_THREAD
     {
-    private:
-        uint32      unitID;
     public:
 
-        UNIT_SCRIPT(int unitID);
+        UNIT_SCRIPT();
         ~UNIT_SCRIPT();
+
+        virtual void load(SCRIPT_DATA *data);
+        virtual int run(float dt);                  // Run the script
+
+        //! functions used to call/run Lua functions
+        virtual void call(const String &functionName, int *parameters = NULL, int nb_params = 0);
+        virtual int execute(const String &functionName, int *parameters = NULL, int nb_params = 0);
+
+        //! functions used to create new threads sharing the same environment
+        virtual LUA_THREAD *fork();
+        virtual LUA_THREAD *fork(const String &functionName, int *parameters = NULL, int nb_params = 0);
+
+        //! functions used to save/restore scripts state
+        virtual void save_state(gzFile file);
+        virtual void restore_state(gzFile file);
 
     public:
         virtual void register_functions();
         virtual void register_info();
+
+        virtual void setUnitID(uint32 ID);
+        virtual int getNbPieces();
     };
 
 }

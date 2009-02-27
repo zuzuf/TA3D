@@ -65,7 +65,7 @@ namespace TA3D
         void destroy();
 
         void load(const String &filename);                    // Load a lua script
-        void load(LUA_CHUNK *chunk);
+        virtual void load(SCRIPT_DATA *data);
         LUA_CHUNK *dump();
 
         int run(float dt);                  // Run the script

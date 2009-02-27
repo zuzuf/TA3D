@@ -312,28 +312,14 @@ namespace TA3D
         if (unit_index == -1)
             return;
 
-        byte* data = HPIManager->PullFromHPI("scripts\\" + unit_name + ".cob");		// Lit le fichier
-        if (data)
-        {
-            unit_type[unit_index]->script = new COB_SCRIPT;
-            unit_type[unit_index]->script->load_cob(data);
-        }
-        else
-        {
-            String::List file_list;
-            HPIManager->getFilelist( "scripts\\" + uprname + ".cob", file_list);
+#warning TODO: improve this
+        String::List file_list;
+        HPIManager->getFilelist( "scripts\\" + uprname + ".cob", file_list);
 
-            for (String::List::iterator file = file_list.begin();file != file_list.end(); ++file) // Cherche un fichier pouvant contenir des informations sur l'unité unit_name
-            {
-                if (strstr(String::ToUpper(*file).c_str(),uprname.c_str())) 	// A trouvé un fichier qui convient
-                {
-                    data = HPIManager->PullFromHPI(*file);		// Lit le fichier
-                    unit_type[unit_index]->script = new COB_SCRIPT;
-                    unit_type[unit_index]->script->load_cob(data);
-                    // Don't delete[] data here because the script keeps a reference to it.
-                    break;
-                }
-            }
+        if (!file_list.empty()) 	// There is a file that match this unit
+        {
+            unit_type[unit_index]->script = SCRIPT_DATA::loadScriptFile(file_list.front());
+            // Don't delete[] data here because the script keeps a reference to it.
         }
     }
 
@@ -343,7 +329,7 @@ namespace TA3D
         for (int i = 0; i < nb_unit; ++i)
         {
             if (unit_type[i]->script && unit_type[i]->model)
-                unit_type[i]->model->Identify(unit_type[i]->script->nb_piece,unit_type[i]->script->piece_name);
+                unit_type[i]->model->Identify(unit_type[i]->script);
         }
     }
 

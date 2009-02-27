@@ -153,7 +153,7 @@ namespace TA3D
     }
 
 
-    void SCRIPT_DATA::init()
+    void ANIMATION_DATA::init()
     {
         is_moving = false;
         nb_piece = 0;
@@ -167,7 +167,7 @@ namespace TA3D
         explode_time = 0.0f;
     }
 
-    void SCRIPT_DATA::destroy()
+    void ANIMATION_DATA::destroy()
     {
         for (byte i = 0; i < 3; ++i)
         {
@@ -188,7 +188,7 @@ namespace TA3D
     }
 
 
-    void SCRIPT_DATA::load(const int nb)
+    void ANIMATION_DATA::load(const int nb)
     {
         destroy();		// Au cas où
         nb_piece = nb;
@@ -227,7 +227,7 @@ namespace TA3D
 
 
 
-    const void SCRIPT_DATA::move(const float dt, const float g)
+    const void ANIMATION_DATA::move(const float dt, const float g)
     {
         if (!is_moving)
             return;
@@ -488,22 +488,15 @@ namespace TA3D
     }
 
 
-    void OBJECT::Identify(int nb_piece,const String::Vector &piece_name)			// Identifie les pièces utilisées par le script
+    void OBJECT::Identify(SCRIPT_DATA *script)			// Identifie les pièces utilisées par le script
     {
-        script_index=-1;				// Pièce non utilisée
+        script_index = -1;				// Pièce non utilisée / Unused piece
         if (!name.empty())
-            for (int i = 0; i < nb_piece; ++i)
-            {
-                if (strcasecmp(name.c_str(),piece_name[i].c_str()) == 0) // Pièce identifiée
-                {
-                    script_index = i;
-                    break;
-                }
-            }
+            script_index = script->identify(name);
         if (next)
-            next->Identify(nb_piece,piece_name);
+            next->Identify(script);
         if (child)
-            child->Identify(nb_piece,piece_name);
+            child->Identify(script);
     }
 
 
@@ -1513,7 +1506,7 @@ namespace TA3D
 
 
 
-    bool OBJECT::draw(float t,SCRIPT_DATA *data_s,bool sel_primitive,bool alset,bool notex,int side,bool chg_col,bool exploding_parts)
+    bool OBJECT::draw(float t,ANIMATION_DATA *data_s,bool sel_primitive,bool alset,bool notex,int side,bool chg_col,bool exploding_parts)
     {
         bool explodes = script_index>=0 && data_s && (data_s->flag[script_index] & FLAG_EXPLODE);
         bool hide=false;
@@ -1857,7 +1850,7 @@ namespace TA3D
     }
 
 
-    bool OBJECT::draw_dl(SCRIPT_DATA *data_s,bool alset,int side,bool chg_col)
+    bool OBJECT::draw_dl(ANIMATION_DATA *data_s,bool alset,int side,bool chg_col)
     {
         glPushMatrix();
         glTranslatef(pos_from_parent.x,pos_from_parent.y,pos_from_parent.z);
@@ -2073,7 +2066,7 @@ namespace TA3D
 
 
 
-    int OBJECT::random_pos(SCRIPT_DATA *data_s, int id, Vector3D* vec)
+    int OBJECT::random_pos(ANIMATION_DATA *data_s, int id, Vector3D* vec)
     {
         if (id == obj_id)
         {
@@ -2116,9 +2109,9 @@ namespace TA3D
 
 
 
-    void OBJECT::compute_coord(SCRIPT_DATA* data_s, Vector3D *pos, bool c_part, int p_tex, Vector3D *target,
+    void OBJECT::compute_coord(ANIMATION_DATA* data_s, Vector3D *pos, bool c_part, int p_tex, Vector3D *target,
                                Vector3D* upos, MATRIX_4x4* M, float size, Vector3D* center, bool reverse,
-                               OBJECT* src, SCRIPT_DATA* src_data)
+                               OBJECT* src, ANIMATION_DATA* src_data)
     {
         Vector3D opos = *pos;
         MATRIX_4x4 OM;
@@ -2215,7 +2208,7 @@ namespace TA3D
 
 
 
-    bool OBJECT::draw_shadow(Vector3D Dir, float t, SCRIPT_DATA *data_s, bool alset, bool exploding_parts)
+    bool OBJECT::draw_shadow(Vector3D Dir, float t, ANIMATION_DATA *data_s, bool alset, bool exploding_parts)
     {
         bool explodes = script_index>=0 && data_s && (data_s->flag[script_index] & FLAG_EXPLODE);
         bool hide=false;
@@ -2375,7 +2368,7 @@ namespace TA3D
 
 
 
-    bool OBJECT::draw_shadow_basic(Vector3D Dir,float t,SCRIPT_DATA *data_s,bool alset,bool exploding_parts)
+    bool OBJECT::draw_shadow_basic(Vector3D Dir,float t,ANIMATION_DATA *data_s,bool alset,bool exploding_parts)
     {
         bool explodes = script_index>=0 && data_s && (data_s->flag[script_index] & FLAG_EXPLODE);
         bool hide=false;
@@ -2533,7 +2526,7 @@ namespace TA3D
         return alset;
     }
 
-    int OBJECT::hit(Vector3D Pos,Vector3D Dir,SCRIPT_DATA *data_s,Vector3D *I,MATRIX_4x4 M)
+    int OBJECT::hit(Vector3D Pos,Vector3D Dir,ANIMATION_DATA *data_s,Vector3D *I,MATRIX_4x4 M)
     {
         MATRIX_4x4 OM = M;
         MATRIX_4x4 AM = Scale(1.0f);
@@ -2802,7 +2795,7 @@ namespace TA3D
 
 
     // hit_fast is a faster version of hit but less precise, designed for use in weapon code
-    bool OBJECT::hit_fast(Vector3D Pos,Vector3D Dir,SCRIPT_DATA *data_s,Vector3D *I)
+    bool OBJECT::hit_fast(Vector3D Pos,Vector3D Dir,ANIMATION_DATA *data_s,Vector3D *I)
     {
         bool hide = false;
         Vector3D ODir = Dir;
@@ -3264,7 +3257,7 @@ namespace TA3D
         compute_topbottom();
     }
 
-    void MODEL::draw(float t,SCRIPT_DATA *data_s,bool sel,bool notex,bool c_part,int p_tex,Vector3D *target,Vector3D *upos,MATRIX_4x4 *M,float Size,Vector3D* Center,bool reverse,int side,bool chg_col,OBJECT *src,SCRIPT_DATA *src_data)
+    void MODEL::draw(float t,ANIMATION_DATA *data_s,bool sel,bool notex,bool c_part,int p_tex,Vector3D *target,Vector3D *upos,MATRIX_4x4 *M,float Size,Vector3D* Center,bool reverse,int side,bool chg_col,OBJECT *src,ANIMATION_DATA *src_data)
     {
         gfx->enable_model_shading();
 
@@ -3283,11 +3276,11 @@ namespace TA3D
                 glColor3ub(255,255,255);
         }
 
-        if( data_s == NULL && animated )
+        if (data_s == NULL && animated)
             obj.draw(t,NULL,sel,false,notex,side,chg_col);
         else
         {
-            if( data_s == NULL && dlist == 0 && !sel && !notex && !chg_col )
+            if (data_s == NULL && dlist == 0 && !sel && !notex && !chg_col)
             {
                 check_textures();
                 dlist = glGenLists (1);
@@ -3298,7 +3291,7 @@ namespace TA3D
             }
             else
             {
-                if( data_s == NULL && !sel && !notex && !chg_col )
+                if (data_s == NULL && !sel && !notex && !chg_col)
                     glCallList( dlist );
                 else
                 {
@@ -3319,7 +3312,7 @@ namespace TA3D
     }
 
 
-    void MODEL::draw_shadow(const Vector3D& Dir, float t, SCRIPT_DATA* data_s)
+    void MODEL::draw_shadow(const Vector3D& Dir, float t, ANIMATION_DATA* data_s)
     {
         glDisable(GL_TEXTURE_2D);
         obj.draw_shadow(Dir,t,data_s,false);
@@ -3327,7 +3320,7 @@ namespace TA3D
             obj.draw_shadow(Dir,t,data_s,false,true);
     }
 
-    void MODEL::draw_shadow_basic(const Vector3D& Dir, float t, SCRIPT_DATA *data_s)
+    void MODEL::draw_shadow_basic(const Vector3D& Dir, float t, ANIMATION_DATA *data_s)
     {
         glDisable(GL_TEXTURE_2D);
         obj.draw_shadow_basic(Dir, t, data_s, false);
@@ -3336,7 +3329,7 @@ namespace TA3D
     }
 
 
-    void MODEL::compute_coord(SCRIPT_DATA* data_s, MATRIX_4x4* M)
+    void MODEL::compute_coord(ANIMATION_DATA* data_s, MATRIX_4x4* M)
     {
         Vector3D pos;
         obj.compute_coord(data_s, &pos, false, 0, NULL, NULL, M);
@@ -4324,6 +4317,46 @@ namespace TA3D
         glPopMatrix();
     }
 
+    void ANIMATION::animate( float &t, Vector3D &R, Vector3D& T)
+    {
+        if (type & ROTATION)
+        {
+            if (type & ROTATION_PERIODIC)
+            {
+                float coef;
+                if( type & ROTATION_COSINE )
+                    coef = 0.5f + 0.5f * cosf( t * angle_w );
+                else {
+                    coef = t * angle_w;
+                    int i = (int) coef;
+                    coef = coef - i;
+                    coef = (i&1) ? (1.0f - coef) : coef;
+                }
+                R = coef * angle_0 + (1.0f - coef) * angle_1;
+            }
+            else
+                R = t * angle_0;
+        }
+        if (type & TRANSLATION)
+        {
+            if (type & TRANSLATION_PERIODIC)
+            {
+                float coef;
+                if (type & TRANSLATION_COSINE)
+                    coef = 0.5f + 0.5f * cosf( t * translate_w );
+                else
+                {
+                    coef = t * translate_w;
+                    int i = (int) coef;
+                    coef = coef - i;
+                    coef = (i&1) ? (1.0f - coef) : coef;
+                }
+                T = coef * translate_0 + (1.0f - coef) * translate_1;
+            }
+            else
+                T = t * translate_0;
+        }
+    }
 
-    } // namespace TA3D
+} // namespace TA3D
 
