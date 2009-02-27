@@ -88,7 +88,6 @@ namespace TA3D
         Stack<int>				    cur;
         Stack<int>                  sStack;         // Script stack
         Stack<SCRIPT_ENV>           local_env;      // Local COB environment
-        int                         script_val;     // Returned value
 
     public:
         COB_VM();
@@ -114,6 +113,9 @@ namespace TA3D
 
         virtual void setUnitID(uint32 ID);
         virtual int getNbPieces();
+
+        //! debug functions
+        virtual void dumpDebugInfo();
     private:
         void init();
         void destroy();

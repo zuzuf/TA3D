@@ -75,6 +75,8 @@ namespace TA3D
         virtual SCRIPT_INTERFACE *fork() = 0;
         virtual SCRIPT_INTERFACE *fork(const String &functionName, int *parameters = NULL, int nb_params = 0) = 0;
 
+        //! debug functions
+        virtual void dumpDebugInfo();
     protected:
         void addThread(SCRIPT_INTERFACE *pChild);
         void removeThread(SCRIPT_INTERFACE *pChild);

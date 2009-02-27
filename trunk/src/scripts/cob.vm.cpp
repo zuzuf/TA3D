@@ -67,7 +67,6 @@ namespace TA3D
         global_env = NULL;
         sStack.clear();
         local_env.clear();
-        script_val = 0;
     }
 
     void COB_VM::destroy()
@@ -75,7 +74,6 @@ namespace TA3D
         script = NULL;
         sStack.clear();
         local_env.clear();
-        script_val = 0;
     }
 
     int COB_VM::run(float dt, bool alone)  // Run the script
@@ -147,7 +145,7 @@ namespace TA3D
 #if DEBUG_USE_PRINT_CODE == 1
 //        bool print_code = false;
         //bool	print_code = String::ToLower( unit_manager.unit_type[type_id]->Unitname ) == "armtship" && (String::ToLower( script->name[script_id] ) == "transportpickup" || String::ToLower( script->name[script_id] ) == "boomcalc" );
-        bool	print_code = String::ToLower( unit_manager.unit_type[pUnit->type_id]->Unitname ) == "armmex";
+        bool	print_code = script->names[script_id] == "MOTIONCONTROL";
 #endif
 
         do
@@ -465,7 +463,6 @@ namespace TA3D
                             p_cob->local_env.top().resize( num_param );
                             for(int i = num_param - 1 ; i >= 0 ; i--)		// Lit les paramètres
                                 p_cob->local_env.top()[i] = sStack.pop();
-//                            p_cob->setSignalMask( getSignalMask() );
                         }
                         else
                         {
@@ -478,8 +475,6 @@ namespace TA3D
                 case SCRIPT_RETURN:		// Retourne au script précédent
                     {
                         DEBUG_PRINT_CODE("RETURN");
-#warning FIXME: this is an ugly way to get values back ...
-                        script_val = local_env.top().empty() ? 0 : local_env.top().front();
                         cur.pop();
 
                         if (cur.empty() && pParam)              // Get back parameter values
@@ -621,7 +616,6 @@ namespace TA3D
                 default:
                     LOG_ERROR("UNKNOWN " << script->script_code[script_id][--pos] << ", Stopping script");
                     {
-                        script_val = local_env.top().empty() ? 0 : local_env.top().front();
                         cur.pop();
 
                         if (cur.empty() && !local_env.empty() && pParam)              // Get back parameter values
@@ -669,6 +663,8 @@ namespace TA3D
 
         if (!running && caller == NULL)
         {
+            cur.clear();
+            local_env.clear();
             waiting = false;
             sleeping = false;
             sleep_time = 0.0f;
@@ -711,6 +707,12 @@ namespace TA3D
 
     int COB_VM::execute(const String &functionName, int *parameters, int nb_params)
     {
+        int params[1] = {-1};
+        if (parameters == NULL || nb_params == 0)
+        {
+            parameters = params;
+            nb_params = 1;
+        }
         COB_VM *cob_thread = fork( functionName, parameters, nb_params);
         if (cob_thread)
         {
@@ -718,10 +720,7 @@ namespace TA3D
             while( cob_thread->running )
                 res = cob_thread->run(0.0f, true, parameters, nb_params);
             cob_thread->kill();
-            if(nb_params > 0)
-                return parameters[0];
-            return script_val;
-//            return res;
+            return parameters[0];
         }
         return 0;
     }
@@ -736,5 +735,28 @@ namespace TA3D
         if (script == NULL)
             return 0;
         return script->nb_piece;
+    }
+
+    void COB_VM::dumpDebugInfo()
+    {
+        if (caller)
+        {
+            caller->dumpDebugInfo();
+            return;
+        }
+        LOG_DEBUG(LOG_PREFIX_SCRIPT << "COB_VM::dumpDebufInfo :");
+        LOG_DEBUG(LOG_PREFIX_SCRIPT << childs.size() << " child threads");
+        if (running)
+            LOG_DEBUG(LOG_PREFIX_SCRIPT << "main thread running : " << script->names[cur.top() & 0xFF]);
+        for(int i = 0 ; i < childs.size() ; i++)
+            if (childs[i]->is_running())
+            {
+                String state;
+                if (childs[i]->is_waiting())
+                    state << " (waiting)";
+                if (childs[i]->is_sleeping())
+                    state << " (sleeping = " << (dynamic_cast<COB_VM*>(childs[i]))->sleep_time << ")";
+                LOG_DEBUG(LOG_PREFIX_SCRIPT << "child thread " << i << " running : " << script->names[(dynamic_cast<COB_VM*>(childs[i]))->cur.top() & 0xFF] << state);
+            }
     }
 }
