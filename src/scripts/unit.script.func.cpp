@@ -161,7 +161,7 @@ namespace TA3D
         data.axe[axis][obj].rot_limit = false;
         data.axe[axis][obj].rot_speed_limit = true;
         data.axe[axis][obj].rot_target_speed = target_speed;
-        if (accel)
+        if (accel != 0.0f)
         {
             if (data.axe[axis][obj].rot_target_speed > data.axe[axis][obj].rot_speed)
                 data.axe[axis][obj].rot_accel = fabsf(accel);

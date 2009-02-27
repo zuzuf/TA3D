@@ -45,18 +45,6 @@
 
 
 
-/*!
- * \brief Display the executed code if enabled
- */
-#define DEBUG_USE_PRINT_CODE 0
-
-#if DEBUG_USE_PRINT_CODE == 1
-#   define DEBUG_PRINT_CODE(X)  if (print_code) LOG_DEBUG(X)
-#else
-#   define DEBUG_PRINT_CODE(X)
-#endif
-
-
 #define SQUARE(X)  ((X)*(X))
 
 
@@ -69,6 +57,22 @@ namespace TA3D
 
     INGAME_UNITS units;
 
+
+    void UNIT::start_building(const Vector3D &dir)
+    {
+        Vector3D Dir(dir);
+        Dir.y = 0.0f;
+        int angle = (int)( acosf( Dir.z / Dir.norm() ) * RAD2DEG );
+        if (Dir.x < 0.0f)
+            angle = -angle;
+        angle -= (int)Angle.y;
+        if (angle > 180)	angle -= 360;
+        if (angle < -180)	angle += 360;
+#warning TODO: fix building animation call, currently this is a hack
+        int param[] = { (int)(angle*DEG2TA), 0 };
+        launch_script(SCRIPT_startbuilding, 2, param );
+        play_sound( "build" );
+    }
 
     String UNIT::get_script_name(int id)
     {
@@ -1948,7 +1952,7 @@ namespace TA3D
                                         weapon[i].data = -1;
                                         break;	// We're not shooting at the target
                                     }
-                                    float t = 2.0f/map->ota_data.gravity*fabsf(target.y);
+                                    float t = 2.0f / map->ota_data.gravity * fabsf(target.y);
                                     mindist = (int)sqrtf(t*V.sq())-((unit_manager.unit_type[type_id]->attackrunlength+1)>>1);
                                     maxdist = mindist+(unit_manager.unit_type[type_id]->attackrunlength);
                                 }
@@ -2868,16 +2872,19 @@ namespace TA3D
                 case MISSION_CAPTURE:
                 case MISSION_REVIVE:
                 case MISSION_RECLAIM:
-                    if (mission->p!=NULL)	{		// Récupère une unité
+                    if (mission->p != NULL)		// Récupère une unité / It's a unit
+                    {
                         UNIT *target_unit=(UNIT*) mission->p;
                         if ((target_unit->flags & 1) && target_unit->ID == mission->target_ID ) {
                             if (mission->mission == MISSION_CAPTURE ) {
-                                if (unit_manager.unit_type[target_unit->type_id]->commander || target_unit->owner_id == owner_id ) {
+                                if (unit_manager.unit_type[target_unit->type_id]->commander || target_unit->owner_id == owner_id)
+                                {
                                     play_sound( "cant1" );
                                     next_mission();
                                     break;
                                 }
-                                if (!(mission->flags & MISSION_FLAG_TARGET_CHECKED) ) {
+                                if (!(mission->flags & MISSION_FLAG_TARGET_CHECKED))
+                                {
                                     mission->flags |= MISSION_FLAG_TARGET_CHECKED;
                                     mission->data = Math::Min(unit_manager.unit_type[target_unit->type_id]->BuildCostMetal * 100, 10000);
                                 }
@@ -2887,23 +2894,18 @@ namespace TA3D
                             mission->target=target_unit->Pos;
                             float dist=Dir.sq();
                             int maxdist = mission->mission == MISSION_CAPTURE ? (int)(unit_manager.unit_type[type_id]->SightDistance) : (int)(unit_manager.unit_type[type_id]->BuildDistance);
-                            if (dist>maxdist*maxdist && unit_manager.unit_type[type_id]->BMcode) {	// Si l'unité est trop loin du chantier
+                            if (dist > maxdist * maxdist && unit_manager.unit_type[type_id]->BMcode)	// Si l'unité est trop loin du chantier
+                            {
                                 c_time=0.0f;
                                 mission->flags |= MISSION_FLAG_MOVE;// | MISSION_FLAG_REFRESH_PATH;
                                 mission->move_data = maxdist*7/80;
                                 mission->last_d = 0.0f;
                             }
-                            else if (!(mission->flags & MISSION_FLAG_MOVE) ) {
-                                if (mission->last_d>=0.0f) {
-                                    int angle = (int)( acosf( Dir.z / Dir.norm() ) * RAD2DEG );
-                                    if (Dir.x < 0.0f )
-                                        angle = -angle;
-                                    angle -= (int)Angle.y;
-                                    if (angle>180)	angle-=360;
-                                    if (angle<-180)	angle+=360;
-                                    int param[] = { (int)(angle*DEG2TA) };
-                                    launch_script(SCRIPT_startbuilding, 1, param);
-                                    launch_script(SCRIPT_go);
+                            else if (!(mission->flags & MISSION_FLAG_MOVE))
+                            {
+                                if (mission->last_d>=0.0f)
+                                {
+                                    start_building(Dir);
                                     mission->last_d=-1.0f;
                                 }
 
@@ -2916,9 +2918,11 @@ namespace TA3D
                                     play_sound( "working" );
                                     // Récupère l'unité
                                     float recup = dt * 4.5f * unit_manager.unit_type[target_unit->type_id]->MaxDamage / unit_manager.unit_type[type_id]->WorkerTime;
-                                    if (mission->mission == MISSION_CAPTURE ) {
+                                    if (mission->mission == MISSION_CAPTURE)
+                                    {
                                         mission->data -= (int)(dt * 1000.0f + 0.5f);
-                                        if (mission->data <= 0 ) {			// Unit has been captured
+                                        if (mission->data <= 0 )			// Unit has been captured
+                                        {
                                             pMutex.unlock();
 
                                             target_unit->clear_from_map();
@@ -2987,21 +2991,17 @@ namespace TA3D
                             mission->move_data = maxdist*7/80;
                             mission->last_d=0.0f;
                         }
-                        else if (!(mission->flags & MISSION_FLAG_MOVE) ) {
-                            if (mission->last_d>=0.0f) {
-                                int angle = (int)( acosf( Dir.z / Dir.norm() ) * RAD2DEG );
-                                if (Dir.x < 0.0f )
-                                    angle = -angle;
-                                angle -= (int)Angle.y;
-                                if (angle>180)	angle-=360;
-                                if (angle<-180)	angle+=360;
-                                int param[] = { (int)(angle*DEG2TA) };
-                                launch_script(SCRIPT_startbuilding, 1, param );
-                                launch_script(SCRIPT_go);
-                                mission->last_d=-1.0f;
+                        else if (!(mission->flags & MISSION_FLAG_MOVE))
+                        {
+                            if (mission->last_d>=0.0f)
+                            {
+                                start_building(Dir);
+                                mission->last_d = -1.0f;
                             }
-                            if (unit_manager.unit_type[type_id]->BMcode && port[ INBUILDSTANCE ] != 0 ) {
-                                if (local && network_manager.isConnected() && nanolathe_target < 0 ) {		// Synchronize nanolathe emission
+                            if (unit_manager.unit_type[type_id]->BMcode && port[ INBUILDSTANCE ] != 0)
+                            {
+                                if (local && network_manager.isConnected() && nanolathe_target < 0)		// Synchronize nanolathe emission
+                                {
                                     nanolathe_target = mission->data;
                                     g_ta3d_network->sendUnitNanolatheEvent( idx, mission->data, true, true );
                                 }
@@ -3457,16 +3457,8 @@ namespace TA3D
                                 {
                                     if (mission->data==0)
                                     {
-                                        mission->data=1;
-                                        int angle = (int)( acosf( Dir.z / Dir.norm() ) * RAD2DEG );
-                                        if (Dir.x < 0.0f )
-                                            angle = -angle;
-                                        angle -= (int)Angle.y;
-                                        if (angle>180)	angle-=360;
-                                        if (angle<-180)	angle+=360;
-                                        int param[] = { (int)(angle*DEG2TA) };
-                                        launch_script(SCRIPT_startbuilding, 1, param );
-                                        launch_script(SCRIPT_go);
+                                        mission->data = 1;
+                                        start_building(Dir);
                                     }
 
                                     if (port[ INBUILDSTANCE ] != 0.0f)
@@ -3507,14 +3499,7 @@ namespace TA3D
                             {
                                 if (unit_manager.unit_type[type_id]->BMcode)
                                 {
-                                    int angle = (int)( acosf( Dir.z / Dir.norm() ) * RAD2DEG );
-                                    if (Dir.x < 0.0f )
-                                        angle = -angle;
-                                    angle -= (int)Angle.y;
-                                    if (angle>180)	angle-=360;
-                                    if (angle<-180)	angle+=360;
-                                    int param[] = { (int)(angle*DEG2TA) };
-                                    launch_script(SCRIPT_startbuilding, 1, param );
+                                    start_building(Dir);
                                     mission->mission = MISSION_BUILD_2;		// Change de type de mission
                                 }
                             }
@@ -3638,19 +3623,9 @@ namespace TA3D
                 case MISSION_BUILD:
                     if (mission->p)
                     {
-                        Vector3D Dir = mission->target - Pos;
-                        Dir.y = 0.0f;
-                        int angle = (int)( acosf( Dir.z / Dir.norm() ) * RAD2DEG );
-                        if (Dir.x < 0.0f)
-                            angle = -angle;
-                        angle -= (int)Angle.y;
-                        if (angle>180)	angle-=360;
-                        if (angle<-180)	angle+=360;
-                        int param[] = { (int)(angle*DEG2TA) };
-                        launch_script(SCRIPT_startbuilding, 1, param );
+                        start_building( mission->target - Pos );
                         mission->mission = MISSION_BUILD_2;		// Change mission type
                         ((UNIT*)(mission->p))->built = true;
-                        play_sound( "build" );
                     }
                     else
                     {
@@ -5798,12 +5773,12 @@ script_exec:
                 }
                 unit[i].metal_extracted = metal_base * unit_manager.unit_type[unit[i].type_id]->ExtractsMetal;
 
-                int param[] = { metal_base<<2 };
+                int param[] = { metal_base << 2 };
                 unit[i].run_script_function( SCRIPT_SetSpeed, 1, param);
                 unit[i].just_created = false;
             }
 
-            if (unit[i].build_percent_left==0.0f)
+            if (unit[i].build_percent_left == 0.0f)
             {
                 unit[i].metal_prod=0.0f;
                 unit[i].metal_cons=0.0f;
