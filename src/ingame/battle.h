@@ -280,8 +280,6 @@ namespace TA3D
 
 		//! \name Unknown vars
 		//@{
-		//! Show scripts
-        bool show_script;
 		//!
         bool show_model;
 		//!

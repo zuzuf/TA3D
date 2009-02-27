@@ -779,7 +779,6 @@ namespace TA3D
 		tilde = false;
 		done = false;
 
-		show_script = false; // Affichage des scripts
 		show_model = false;	// Affichage les noms des sous objets du modèle 3D de l'unité sélectionnée
 		rotate_light = false;
 		light_angle = 0.0f;

@@ -1673,7 +1673,7 @@ namespace TA3D
             {
                 case 1:				// Début de la mort de l'unité	(Lance le script)
                     flags = 4;		// Don't remove the data on the position map because they will be replaced
-                    if (build_percent_left == 0.0f && local )
+                    if (build_percent_left == 0.0f && local)
                         explode();
                     else
                         flags = 1;
@@ -1685,7 +1685,7 @@ namespace TA3D
                     }
                     break;
                 case 4:				// Vérifie si le script est terminé
-                    if (death_delay<=0.0f || !data.explode )
+                    if (death_delay<=0.0f || !data.explode)
                     {
                         flags = 1;
                         pMutex.unlock();
@@ -1732,7 +1732,8 @@ namespace TA3D
             goto script_exec;
         }
         else if (!jump_commands && do_nothing() && local)
-            if (Pos.x<-map->map_w_d || Pos.x>map->map_w_d || Pos.z<-map->map_h_d || Pos.z>map->map_h_d) {
+            if (Pos.x<-map->map_w_d || Pos.x>map->map_w_d || Pos.z<-map->map_h_d || Pos.z>map->map_h_d)
+            {
                 Vector3D target = Pos;
                 if (target.x < -map->map_w_d+256)
                     target.x = -map->map_w_d+256;
@@ -1988,7 +1989,6 @@ namespace TA3D
 
                                 if (unit_manager.unit_type[type_id]->weapon[ i ]->turret) 	// Si l'unité doit viser, on la fait viser / if it must aim, we make it aim
                                 {
-#warning TODO: implement start piece query properly
                                     int start_piece = run_script_function(query_f);
                                     if (start_piece < 0 || start_piece >= data.nb_piece)
                                         start_piece = 0;
@@ -2186,8 +2186,7 @@ namespace TA3D
                                 weapon[i].data = -1;
                                 break;
                             }
-#warning TODO: fix start_piece here
-                            int start_piece = run_script_function(query_f);//(*script_val)[query_id];
+                            int start_piece = run_script_function(query_f);
                             if (start_piece >= 0 && start_piece < data.nb_piece)
                             {
                                 compute_model_coord();
@@ -2282,7 +2281,6 @@ namespace TA3D
                 {
                     if (unit_manager.unit_type[type_id]->canfly)
                         activate();
-                    launch_script(SCRIPT_MotionControl);
                     launch_script(SCRIPT_startmoving);
                     if (nb_attached==0)
                         launch_script(SCRIPT_MoveRate1);		// For the armatlas
@@ -3580,15 +3578,12 @@ namespace TA3D
                                 }
                                 if (!unit_manager.unit_type[type_id]->BMcode)
                                 {
-                                    int param[] = {-1};
-                                    int buildinfo = run_script_function(SCRIPT_QueryBuildInfo, 1, param);
+                                    int buildinfo = run_script_function(SCRIPT_QueryBuildInfo);
                                     if (buildinfo >= 0)
                                     {
                                         compute_model_coord();
                                         Vector3D old_pos = target_unit->Pos;
-#warning TODO: fix build info call
                                         target_unit->Pos = Pos + data.pos[buildinfo];
-//                                        target_unit->Pos = Pos + data.pos[(*script_val)[script_buildinfo]];
                                         if (unit_manager.unit_type[target_unit->type_id]->Floater || ( unit_manager.unit_type[target_unit->type_id]->canhover && old_pos.y <= map->sealvl ) )
                                             target_unit->Pos.y = old_pos.y;
                                         if (((Vector3D)(old_pos-target_unit->Pos)).sq() > 1000000.0f) // It must be continuous
@@ -3602,9 +3597,7 @@ namespace TA3D
                                             target_unit->cur_py = ((int)(target_unit->Pos.z)+map->map_h_d+4)>>3;
                                         }
                                         target_unit->Angle = Angle;
-#warning TODO: fix build info call
                                         target_unit->Angle.y += data.axe[1][buildinfo].angle;
-//                                        target_unit->Angle.y += data.axe[1][(*script_val)[script_buildinfo]].angle;
                                         pMutex.unlock();
                                         target_unit->draw_on_map();
                                         pMutex.lock();
@@ -3657,13 +3650,11 @@ namespace TA3D
                                 V.z = 0.0f;
                                 if (!unit_manager.unit_type[type_id]->BMcode)
                                 {
-#warning TODO: fix build info call
-                                    int param[] = { -1 };
-                                    run_script_function( SCRIPT_QueryBuildInfo, 1, param );
-                                    if (param[0] >= 0)
+                                    int buildinfo = run_script_function(SCRIPT_QueryBuildInfo);
+                                    if (buildinfo >= 0)
                                     {
                                         compute_model_coord();
-                                        mission->target = Pos + data.pos[ param[0] ];
+                                        mission->target = Pos + data.pos[ buildinfo ];
                                     }
                                 }
                                 if (map->check_rect((((int)(mission->target.x)+map->map_w_d+4)>>3)-(unit_manager.unit_type[mission->data]->FootprintX>>1),(((int)(mission->target.z)+map->map_h_d+4)>>3)-(unit_manager.unit_type[mission->data]->FootprintZ>>1),unit_manager.unit_type[mission->data]->FootprintX,unit_manager.unit_type[mission->data]->FootprintZ,-1)) // Check it we have an empty place to build our unit

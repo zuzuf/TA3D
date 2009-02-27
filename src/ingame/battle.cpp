@@ -3190,24 +3190,6 @@ namespace TA3D
 
             glBlendFunc(GL_ONE,GL_ONE_MINUS_SRC_COLOR);
             glEnable(GL_BLEND);
-            if (show_script)
-            {
-#warning TODO: implement script debug info display
-//                if (cur_sel>=0 && unit_manager.unit_type[cur_sel]->script)
-//                {
-//                    float Y(32.0f);
-//                    gfx->print(gfx->normal_font,128.0f, Y, 0.0f, 0xFFFFFFFF, format("%d scripts", unit_manager.unit_type[cur_sel]->script->nb_script));
-//                    Y += 9.0f;
-//                    for (int i = 0; i < unit_manager.unit_type[cur_sel]->script->nb_script; ++i)
-//                    {
-//                        if (units.unit[cur_sel_index].is_running(i))
-//                            gfx->print(gfx->normal_font, 128.0f, Y, 0.0f, 0xFFFFFFFF, format("%d %s (on)", i, unit_manager.unit_type[cur_sel]->script->names[i].c_str()));
-//                        else
-//                            gfx->print(gfx->normal_font, 128.0f, Y, 0.0f, 0xFFFFFFFF, format("%d %s (off)", i, unit_manager.unit_type[cur_sel]->script->names[i].c_str()));
-//                        Y += 9.0f;
-//                    }
-//                }
-            }
 
             if (show_model && cur_sel>=0 && unit_manager.unit_type[cur_sel]->model)
                 unit_manager.unit_type[cur_sel]->model->print_struct(32.0f,128.0f,gfx->normal_font);
@@ -3410,7 +3392,11 @@ namespace TA3D
                     else if (params[0] == "particle")	lp_CONFIG->particle^=true;
                     else if (params.size() == 2 && params[0] == "explosion" && params[1] == "particles")	lp_CONFIG->explosion_particles^=true;
                     else if (params[0] == "waves") lp_CONFIG->waves^=true;
-                    else if (params.size() == 2 && params[0] == "show" && params[1] == "script") show_script^=true;
+                    else if (params.size() == 2 && params[0] == "debug" && params[1] == "script")
+                    {
+                        if (cur_sel_index >= 0 && units.unit[cur_sel_index].script)
+                            units.unit[cur_sel_index].script->dumpDebugInfo();
+                    }
                     else if (params.size() == 2 && params[0] == "show" && params[1] == "model") show_model^=true;
                     else if (params.size() == 2 && params[0] == "rotate" && params[1] == "light") rotate_light^=true;
                     else if (params[0] == "shake")
@@ -3621,17 +3607,16 @@ namespace TA3D
                         }
                         units.unlock();
                     }
-                    else if (params[0] == "script" && params.size() == 2)							// Force l'éxecution d'un script
+                    else if (params.size() == 3 && params[0] == "start" && params[1] == "script")							// Force l'éxecution d'un script
                     {
                         if (selected) // Sur les unités sélectionnées
                         {
-                            int id = params[1].toInt32();
                             units.lock();
                             for (int e = 0; e < units.index_list_size; ++e)
                             {
                                 int i = units.idx_list[e];
-                                if ((units.unit[i].flags & 1) && units.unit[i].owner_id==players.local_human_id && units.unit[i].sel)
-                                    units.unit[i].launch_script(id);
+                                if ((units.unit[i].flags & 1) && units.unit[i].owner_id == players.local_human_id && units.unit[i].sel)
+                                    units.unit[i].launch_script(params[2]);
                             }
                             units.unlock();
                         }

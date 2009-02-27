@@ -16,6 +16,7 @@
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA*/
 
 #include "../stdafx.h"
+#include "../logs/logs.h"
 #include "script.interface.h"
 
 namespace TA3D
@@ -121,5 +122,10 @@ namespace TA3D
                 }
                 else
                     ++i;
+    }
+
+    void SCRIPT_INTERFACE::dumpDebugInfo()
+    {
+        LOG_DEBUG(LOG_PREFIX_SCRIPT << "sorry dumpDebugInfo not implemented for this type of script");
     }
 }
